@@ -1,10 +1,11 @@
 # Youtube Playlist 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
-> **프로그램 버전**: `v1.02` (2026-10-13 프로그램 명칭을 'Youtube Playlist 자동화'로 변경, Vercel 배포 주소 및 커스텀 도메인 동기화)  
+> **프로그램 버전**: `v1.03` (2026-10-13 채널 로고·GIF 스티커 1:1 정사각형 박스화 & 배경 미디어 세로 16:10 황금 비율 확장 및 개별 삭제 지원)  
 > **공식 커스텀 도메인**: [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) (기존: `https://yt-playlist.buylife.xyz`)  
 > **프로그램 slug**: `yt-playlist-studio`  
 > **카테고리**: 음악 / 멀티미디어 / 크리에이터  
-> **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)
+> **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)  
+> **DB 카탈로그 순위**: `sort_order = 124` (플랫폼 최상단 1순위 노출)
 
 ---
 
@@ -79,3 +80,33 @@ yt-playlist-studio/
 6. **WebCodecs GPU 가속 비디오 인코더**:
    - `mp4-muxer` + `VideoEncoder` + `AudioEncoder` 기반으로 브라우저 GPU를 활용해 1080p MP4를 고속 렌더링.
    - `showSaveFilePicker` 실시간 디스크 직접 쓰기를 지원하여 대용량 렌더링 시 메모리 부족(OOM) 완벽 방지.
+
+---
+
+## 3. 버전 릴리스 히스토리
+
+- **v1.03 (2026-10-13)**:
+  - 채널 로고 & GIF 스티커 박스를 오리지널 레퍼런스 규격에 맞추어 `aspect-square` 1:1 정사각형으로 전면 개편.
+  - 배경 미디어 박스의 세로 높이를 `h-60 sm:h-64`(240~256px)로 확장하여 하단 2개 정사각형 박스와 16:10 황금비 조화 완성.
+  - 배경/로고/GIF 등록 후 개별 삭제(휴지통 아이콘) 및 변경 오버레이 완비.
+  - 플랫폼 요금제 표준 동기화: DB `pricing_plans`에 기본 3단계(1개월 1만, 2개월 2만, 3개월 3만) 등록 완료.
+- **v1.02 (2026-10-13)**:
+  - 프로그램 명칭을 'Youtube Playlist 자동화' (`YouTube Playlist Automation`)로 전면 변경.
+  - 공식 도메인 [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) 연동 및 재배포.
+  - 플랫폼 DB 카탈로그 1순위(`sort_order: 124`) 등록 및 16:9 고화질 실사 썸네일 등록 완료.
+- **v1.01 (2026-10-13)**:
+  - 초기 구축: 10종 스펙트럼, 8종 필터, 10종 오버레이, 6종 EDM FX, 14종 파티클, 유튜브 타임라인 자동 복사, Gemini Imagen 3 배경 생성기, WebCodecs 1080p 고속 MP4 렌더러 탑재.
+
+---
+
+## 4. 인수인계 핵심 점검 체크리스트
+
+1. **배포 명령**:
+   - `yt-playlist-studio` 폴더 안에서 `vercel deploy --prod --yes` 실행.
+   - 배포 후 `vercel alias set <배포도메인> youtube-playlist.buylife.xyz`로 공식 도메인 연결 보장.
+2. **버전 관리 (Rule 5)**:
+   - 코드 수정 시 반드시 `src/lib/version.ts`의 `APP_VERSION`, `package.json`의 `version`, Supabase DB `programs.version` 세 곳을 일치시켜 동시 상향.
+3. **화이트 테마 유지 (Rule 8)**:
+   - 작업 화면은 `bg-white`, `bg-slate-50`, 경계는 `border-slate-200` 베이스로 클린하게 유지.
+4. **API 키 절대 원칙 (Rule 00 & Rule 4)**:
+   - 회원 본인 Gemini API 키 (`user_api_keys.provider = 'gemini'`)만 사용. 공용 키 폴백 금지.

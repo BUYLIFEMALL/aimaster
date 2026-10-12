@@ -1,6 +1,6 @@
 # Youtube Playlist 자동화 (YouTube Playlist Automation)
 
-> **버전**: `v1.02`  
+> **버전**: `v1.03`  
 > **공식 도메인**: `https://youtube-playlist.buylife.xyz` (기존: `https://yt-playlist.buylife.xyz`)  
 > **플랫폼**: AIMaster 통합 서브프로젝트
 
