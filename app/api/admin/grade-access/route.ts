@@ -44,6 +44,59 @@ export async function POST(req: NextRequest) {
   if (!grade_id || !action) return NextResponse.json({ error: "grade_id와 action 필수" }, { status: 400 });
   const service = createServiceClient();
 
+  // 저장 전 미리 보기: 이 목록으로 저장하면 등급 회원에게 몇 건이 새로 부여되고 몇 건이 회수되는지 계산만 한다(쓰기 없음)
+  if (action === "preview") {
+    const next: string[] = Array.isArray(body.program_ids) ? body.program_ids : [];
+    const [{ data: cur }, { data: members }] = await Promise.all([
+      service.from("grade_program_access").select("program_id").eq("grade_id", grade_id).eq("can_access", true),
+      service.from("profiles").select("id").eq("grade_id", grade_id),
+    ]);
+    const curSet = new Set<string>((cur ?? []).map((r: { program_id: string }) => r.program_id));
+    const nextSet = new Set<string>(next);
+    const memberIds = (members ?? []).map((m: { id: string }) => m.id);
+    const toAdd = next.filter((id) => !curSet.has(id));
+    const toRemove = Array.from(curSet).filter((id) => !nextSet.has(id));
+
+    const added: { program_id: string; new: number; already: number }[] = [];
+    if (toAdd.length && memberIds.length) {
+      const { data: held } = await service
+        .from("user_program_access")
+        .select("program_id")
+        .in("program_id", toAdd)
+        .in("user_id", memberIds);
+      const heldCount = new Map<string, number>();
+      (held ?? []).forEach((r: { program_id: string }) => heldCount.set(r.program_id, (heldCount.get(r.program_id) ?? 0) + 1));
+      for (const id of toAdd) {
+        const already = heldCount.get(id) ?? 0;
+        added.push({ program_id: id, new: memberIds.length - already, already });
+      }
+    }
+    const removed: { program_id: string; auto_rows: number }[] = [];
+    if (toRemove.length) {
+      const { data: auto } = await service
+        .from("user_program_access")
+        .select("program_id")
+        .in("program_id", toRemove)
+        .eq("grant_source", "grade")
+        .eq("granted_grade_id", grade_id);
+      const cnt = new Map<string, number>();
+      (auto ?? []).forEach((r: { program_id: string }) => cnt.set(r.program_id, (cnt.get(r.program_id) ?? 0) + 1));
+      for (const id of toRemove) removed.push({ program_id: id, auto_rows: cnt.get(id) ?? 0 });
+    }
+    // 이미 등급에 체크돼 있지만 아직 일부 회원에게 부여되지 않은 권한(= "지금 등급 회원 전원에 적용"을 누르면 채워지는 건수)
+    const kept = next.filter((id) => curSet.has(id));
+    let pending = 0;
+    if (kept.length && memberIds.length) {
+      const { data: heldKept } = await service
+        .from("user_program_access")
+        .select("program_id")
+        .in("program_id", kept)
+        .in("user_id", memberIds);
+      pending = kept.length * memberIds.length - (heldKept ?? []).length;
+    }
+    return NextResponse.json({ members: memberIds.length, added, removed, pending });
+  }
+
   // 등급의 사용 프로그램 목록을 통째로 저장: 추가분은 등급 회원에게 자동 부여, 빠진 것은 자동 부여분 회수(DB 트리거)
   if (action === "set_programs") {
     const next: string[] = Array.isArray(body.program_ids) ? body.program_ids : [];

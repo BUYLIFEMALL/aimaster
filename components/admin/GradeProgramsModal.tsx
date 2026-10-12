@@ -23,6 +23,18 @@ export default function GradeProgramsModal({
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [version, setVersion] = useState(0);
+  const [preview, setPreview] = useState<{
+    members: number;
+    added: { program_id: string; new: number; already: number }[];
+    removed: { program_id: string; auto_rows: number }[];
+    pending: number;
+  } | null>(null);
+  const nameOf = (id: string) => programs.find((p) => p.id === id)?.name ?? id;
+  const totalNew = preview?.added.reduce((a, b) => a + b.new, 0) ?? 0;
+  const totalAlready = preview?.added.reduce((a, b) => a + b.already, 0) ?? 0;
+  const totalRevoke = preview?.removed.reduce((a, b) => a + b.auto_rows, 0) ?? 0;
+  const hasChange = !!preview && (preview.added.length > 0 || preview.removed.length > 0);
 
   useEffect(() => {
     let alive = true;
@@ -36,6 +48,23 @@ export default function GradeProgramsModal({
       .catch(() => alive && setMsg("현재 설정을 불러오지 못했습니다."));
     return () => { alive = false; };
   }, [grade.id]);
+
+  // 선택이 바뀔 때마다(잠깐 멈춘 뒤) 저장했을 때의 결과를 미리 계산해 보여준다
+  useEffect(() => {
+    if (!loaded) return;
+    let alive = true;
+    const timer = setTimeout(() => {
+      fetch("/api/admin/grade-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "preview", grade_id: grade.id, program_ids: Array.from(selected) }),
+      })
+        .then((r) => r.json())
+        .then((d) => alive && d.added && setPreview(d))
+        .catch(() => {});
+    }, 300);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [selected, loaded, grade.id, version]);
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -58,6 +87,7 @@ export default function GradeProgramsModal({
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { setMsg(`실패: ${d.error ?? res.status}`); return; }
       setMsg(`저장했습니다. (추가 ${d.added}개 · 해제 ${d.removed}개) 추가된 프로그램은 등급 회원에게 바로 부여되었습니다.`);
+      setVersion((v) => v + 1); // 저장 후 미리 보기를 다시 계산(변경 없음으로 표시됨)
     } finally {
       setSaving(false);
     }
@@ -94,6 +124,44 @@ export default function GradeProgramsModal({
                 {p.name}
               </label>
             ))
+          )}
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 mb-3 text-xs">
+          <p className="text-white font-semibold mb-1">저장하면 이렇게 적용됩니다 (미리 보기)</p>
+          {!preview ? (
+            <p className="text-subtext">계산 중...</p>
+          ) : !hasChange ? (
+            <p className="text-subtext">변경 사항이 없습니다. (등급 회원 {preview.members}명)</p>
+          ) : (
+            <></>
+          )}
+          {preview && preview.pending > 0 && (
+            <p className="text-subtext mt-1">
+              ※ 이미 체크돼 있지만 아직 회원에게 부여되지 않은 권한 <b className="text-gold">{preview.pending}건</b> — 아래 사용기간의
+              &quot;지금 등급 회원 전원에 적용&quot;을 누르면 채워집니다.
+            </p>
+          )}
+          {preview && hasChange && (
+            <div className="space-y-1 text-subtext">
+              <p>
+                등급 회원 <b className="text-white">{preview.members}명</b> 기준 ·{" "}
+                새로 부여 <b className="text-gold">{totalNew}건</b>
+                {totalAlready > 0 && <> (이미 보유해 건너뜀 {totalAlready}건)</>} · 회수{" "}
+                <b className={totalRevoke > 0 ? "text-red-400" : "text-white"}>{totalRevoke}건</b>
+              </p>
+              <ul className="max-h-24 overflow-y-auto space-y-0.5">
+                {preview.added.map((a) => (
+                  <li key={`a${a.program_id}`}>
+                    <span className="text-gold">＋</span> {nameOf(a.program_id)}: 신규 {a.new}명{a.already > 0 && ` · 기존 보유 ${a.already}명`}
+                  </li>
+                ))}
+                {preview.removed.map((r) => (
+                  <li key={`r${r.program_id}`}>
+                    <span className="text-red-400">－</span> {nameOf(r.program_id)}: 자동 부여분 {r.auto_rows}명 회수 (수동 부여는 유지)
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
         <div className="flex gap-2 mb-5">
