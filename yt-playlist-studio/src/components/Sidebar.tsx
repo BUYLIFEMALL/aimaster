@@ -1,17 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import {
   ListMusic,
-  SlidersHorizontal,
-  Video,
-  Key,
-  HelpCircle,
-  ExternalLink,
+  LayoutDashboard,
+  Music,
+  Sliders,
+  Film,
+  KeyRound,
+  BookOpen,
   LogOut,
-  User,
-  Sparkles
+  Menu,
+  X,
 } from "lucide-react";
-import { APP_VERSION, APP_NAME } from "@/lib/version";
+import { APP_NAME, APP_VERSION } from "@/lib/version";
 
 interface SidebarProps {
   currentTab: 'media' | 'editor' | 'export';
@@ -23,6 +25,31 @@ interface SidebarProps {
   hasBackground: boolean;
 }
 
+// 공식 표준 작업 흐름 (docs/SIDEBAR_LAYOUT_STANDARD.md)
+const FLOW_STEPS = [
+  {
+    step: 1,
+    id: "media" as const,
+    label: "미디어 센터",
+    description: "음원 업로드 · 타임라인 · 배경",
+    icon: Music,
+  },
+  {
+    step: 2,
+    id: "editor" as const,
+    label: "편집 스튜디오",
+    description: "10종 스펙트럼 · 14종 파티클 · FX",
+    icon: Sliders,
+  },
+  {
+    step: 3,
+    id: "export" as const,
+    label: "고속 렌더링",
+    description: "WebCodecs 1080p MP4 인코딩",
+    icon: Film,
+  },
+];
+
 export function Sidebar({
   currentTab,
   setTab,
@@ -32,175 +59,209 @@ export function Sidebar({
   trackCount,
   hasBackground,
 }: SidebarProps) {
-  const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-screen select-none z-30">
-      {/* 1. 상단 브랜딩 & 버전 */}
-      <div>
-        <div className="p-5 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-              <ListMusic className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="font-extrabold text-slate-900 text-sm tracking-tight truncate">
-                {APP_NAME}
-              </h1>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
-                  {APP_VERSION}
-                </span>
-                <span className="text-[10px] text-slate-400 font-medium">Spectrum Studio</span>
-              </div>
-            </div>
+  const handleStepClick = (tabId: 'media' | 'editor' | 'export') => {
+    setTab(tabId);
+    setMobileOpen(false);
+  };
+
+  const renderNavContent = () => (
+    <div className="flex flex-col min-h-0 shrink select-none">
+      {/* 1. 프로그램명 & 버전 & 다른 프로그램 보기 */}
+      <div className="border-b border-neutral-200 p-4 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-xs">
+            <ListMusic size={16} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-black text-neutral-900 leading-tight">
+              {APP_NAME}
+            </p>
+            <p className="text-[11px] text-indigo-600 font-bold font-mono mt-0.5">
+              {APP_VERSION}
+            </p>
           </div>
         </div>
-
-        {/* 2. 번호형 작업 흐름 (Workflow) */}
-        <div className="p-3">
-          <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            작업 흐름
-          </div>
-          <nav className="space-y-1 mt-1">
-            <button
-              onClick={() => setTab('media')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                currentTab === 'media'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs border border-indigo-100'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    currentTab === 'media'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-500'
-                  }`}
-                >
-                  1
-                </span>
-                <span>미디어 센터</span>
-              </div>
-              {trackCount > 0 && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 rounded-full">
-                  {trackCount}곡
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setTab('editor')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                currentTab === 'editor'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs border border-indigo-100'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    currentTab === 'editor'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-500'
-                  }`}
-                >
-                  2
-                </span>
-                <span>편집 스튜디오</span>
-              </div>
-              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-
-            <button
-              onClick={() => setTab('export')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                currentTab === 'export'
-                  ? 'bg-indigo-50 text-indigo-700 shadow-xs border border-indigo-100'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    currentTab === 'export'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-500'
-                  }`}
-                >
-                  3
-                </span>
-                <span>고속 렌더링</span>
-              </div>
-              <Video className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-          </nav>
-        </div>
-
-        {/* 3. 연동 및 지원 메뉴 */}
-        <div className="p-3 border-t border-slate-100">
-          <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            연동 및 지원
-          </div>
-          <div className="space-y-1 mt-1">
-            <button
-              onClick={onOpenApiKey}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-            >
-              <Key className="w-4 h-4 text-amber-500" />
-              <span>API키등록·플랫폼연동</span>
-            </button>
-
-            <button
-              onClick={onOpenHelp}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-            >
-              <HelpCircle className="w-4 h-4 text-indigo-500" />
-              <span>사용 가이드</span>
-            </button>
-
-            <a
-              href={MAIN_SITE_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-            >
-              <div className="flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-purple-500" />
-                <span>AIMaster 포털</span>
-              </div>
-              <ExternalLink className="w-3 h-3 text-slate-400" />
-            </a>
-          </div>
-        </div>
+        <a
+          className="mt-2.5 block text-xs text-neutral-500 hover:text-indigo-600 transition-colors font-medium"
+          href="https://www.buylife.xyz/programs"
+        >
+          ← 다른 프로그램 보기
+        </a>
       </div>
 
-      {/* 4. 하단 계정 정보 & 로그아웃 */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/50">
-        <div className="flex items-center justify-between px-2 py-1">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 shrink-0">
-              <User className="w-3.5 h-3.5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-800 truncate">
-                {userEmail || '로그인 회원'}
-              </p>
-              <span className="text-[10px] text-emerald-600 font-medium">인증됨</span>
-            </div>
-          </div>
+      {/* 2. 네비게이션 메뉴 본문 (내부 스크롤, flex-1 없이 자연스러운 높이 유지) */}
+      <div className="overflow-y-auto p-3 space-y-3 min-h-0 shrink">
+        {/* 대시보드 진입점 */}
+        <button
+          type="button"
+          onClick={() => handleStepClick('media')}
+          className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all text-left ${
+            currentTab === 'media'
+              ? "bg-indigo-50 text-indigo-700 shadow-2xs"
+              : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+          }`}
+        >
+          <LayoutDashboard size={15} />
+          <span>대시보드</span>
+        </button>
+
+        {/* 3. 번호가 붙은 핵심 작업 흐름: 원형 번호 배지와 세로 연결선 */}
+        <div className="relative pt-1">
+          <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-2 mb-2">
+            작업 흐름
+          </p>
+          {FLOW_STEPS.map(({ step, id, label, description, icon: Icon }, index) => {
+            const active = currentTab === id;
+            return (
+              <div
+                key={id}
+                onClick={() => handleStepClick(id)}
+                className="group relative flex gap-2.5 pb-2 cursor-pointer transition-all"
+              >
+                <div className="flex flex-col items-center">
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                      active
+                        ? "bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-2xs ring-2 ring-indigo-100"
+                        : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                    }`}
+                  >
+                    {step}
+                  </span>
+                  {index < FLOW_STEPS.length - 1 && (
+                    <span className="mt-1 h-5 w-px bg-neutral-200" />
+                  )}
+                </div>
+                <div
+                  className={`flex-1 rounded-lg px-2 py-1 transition-all ${
+                    active ? "bg-indigo-50/80" : "group-hover:bg-neutral-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <p
+                      className={`flex items-center gap-1.5 text-xs font-bold ${
+                        active ? "text-indigo-900" : "text-neutral-800"
+                      }`}
+                    >
+                      <Icon size={13} className={active ? "text-indigo-600" : "text-neutral-500"} />
+                      <span>{label}</span>
+                    </p>
+                    {id === 'media' && trackCount > 0 && (
+                      <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-100 text-indigo-700 rounded-full">
+                        {trackCount}곡
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-[10px] leading-tight text-neutral-500 truncate">
+                    {description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 4. 구분선 아래: 연동 및 유틸리티 */}
+        <div className="border-t border-neutral-200 pt-2.5 space-y-1">
+          {/* API키등록·플랫폼연동 (정확한 표준 명칭 준수) */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileOpen(false);
+              onOpenApiKey();
+            }}
+            className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-all text-left"
+          >
+            <KeyRound size={14} className="text-emerald-600" />
+            <span className="font-bold">🔑 API키등록·플랫폼연동</span>
+          </button>
+
+          {/* 사용 안내 */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileOpen(false);
+              onOpenHelp();
+            }}
+            className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all text-left"
+          >
+            <BookOpen size={14} className="text-indigo-600" />
+            <span>💡 사용 가이드</span>
+          </button>
+        </div>
+
+        {/* 5. 계정 이메일·로그아웃 (2026-10-12 주인님 확정: 마지막 메뉴 바로 아래 8~16px 간격으로 바짝 밀착) */}
+        <div className="border-t border-neutral-200 pt-2.5 space-y-1 shrink-0">
+          <p
+            className="truncate px-2 py-1 text-[11px] text-neutral-500 font-mono"
+            title={userEmail || undefined}
+          >
+            {userEmail || "로그인 계정"}
+          </p>
           <form action="/api/auth/logout" method="POST">
             <button
               type="submit"
-              title="로그아웃"
-              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-neutral-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut size={14} />
+              <span>로그아웃</span>
             </button>
           </form>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* 데스크톱: 표준 고정 좌측 바 (md:w-60) */}
+      <aside className="hidden md:flex h-screen w-60 shrink-0 flex-col border-r border-neutral-200 bg-white sticky top-0 z-30 shadow-2xs">
+        {renderNavContent()}
+      </aside>
+
+      {/* 모바일: 상단 바 + 펼침 드로어 메뉴 */}
+      <div className="md:hidden sticky top-0 z-40 border-b border-neutral-200 bg-white px-4 py-2.5 flex items-center justify-between shadow-2xs">
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white">
+            <ListMusic size={14} />
+          </div>
+          <div>
+            <span className="text-xs font-bold text-neutral-900">{APP_NAME}</span>
+            <span className="ml-1 text-[10px] text-indigo-600 font-mono font-bold">
+              {APP_VERSION}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-1.5 rounded-lg text-neutral-600 hover:bg-neutral-100"
+          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+        >
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </div>
+
+      {/* 모바일 펼침 메뉴 모달 */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex">
+          <div className="w-72 bg-white h-full shadow-xl flex flex-col">
+            <div className="flex justify-end p-2 border-b border-neutral-100">
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="p-1.5 rounded-lg text-neutral-500 hover:bg-neutral-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {renderNavContent()}
+          </div>
+          <div className="flex-1" onClick={() => setMobileOpen(false)} />
+        </div>
+      )}
+    </>
   );
 }
