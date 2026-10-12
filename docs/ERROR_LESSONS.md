@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-12 — 다운로드 클릭 성공만으로 실제 파일 저장을 판정하면 안 됨
+
+- 증상: Suno 기획의 JSON 백업 2개는 저장됐지만 뒤이은 TXT 클릭에는 파일이 나타나지 않음. 도구는 accessibility_action_unasserted였음.
+- 원인: Chrome의 해당 사이트 ‘여러 파일 다운로드’ 권한창이 표시되어 연속 다운로드가 대기함. Windows 가져오기 파일 선택창도 별도 프로세스라 부모 Chrome 키보드 제어가 window_not_focused로 거절될 수 있음.
+- 해결: `suno-music-studio/docs/RELEASE_V1_01.md`에서 실제 파싱한 JSON 성공과 TXT/가져오기 미확인을 분리. 권한창 허용 클릭도 후속 상태가 바뀌지 않으면 성공으로 기록하지 않음.
+- 다음부터 확인: 버튼 클릭 반환과 파일 존재·내용 검증을 구분. 모델 조회 성공과 실제 생성 성공도 별도로 기록하며 비밀값을 캡처·로그에 출력하지 않음.
+
 ## 2026-10-12 — CLI로 생성한 Next.js 프로젝트가 Other 프레임워크로 배포됨
 
 - 증상: `suno-music-studio` 첫 운영 배포에서 Next 빌드 성공 뒤 `No Output Directory named public found` 오류 발생.

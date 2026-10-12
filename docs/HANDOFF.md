@@ -22,13 +22,13 @@
    - 테스트 20개 전원 통과 (Pass 20 / Fail 0), ESLint 0 오류/경고, TypeScript 컴파일 및 프로덕션 빌드 성공.
    - Vercel 프로덕션 배포 완료 (`https://emotion-writer.buylife.xyz`, 배포 ID: `dpl_4mwwRWFMkSuEKAGtnDTJ6eCG2ESj`).
 
-## 2026-10-12 Codex — Suno 음악기획 자동화 v1.01 구현·자동 검수 완료, 운영 접속 설정 승인 대기
+## 2026-10-12 Codex — Suno 음악기획 자동화 v1.01 운영 배포·일반 회원 실제 Gemini 단곡 검수
 
-주인님이 프로그램명을 **Suno 음악기획 자동화**로 확정했습니다. 화면·로그인·페이지 메타데이터·DB programs.name·인수인계 문서에 일치시켰습니다. 최초 운영 배포 전이므로 v1.01을 유지하며 slug·Vercel 프로젝트·주소는 `suno-music-studio`로 유지합니다. 이름 확정은 기존 환경변수 등록 승인에 해당하지 않으므로 운영 배포는 아래 승인 대기 상태를 유지합니다.
+주인님이 프로그램명을 **Suno 음악기획 자동화**로 확정하고 후속 “진행해줘”로 요청한 접속 설정 등록·운영 배포를 승인했습니다. 공용 설정 4개 등록, Next.js 프레임워크 명시로 첫 배포 출력 오류 복구. 운영 https://suno-music-studio.buylife.xyz/, v1.01, 배포 `dpl_CWro2HYAYQmyGU4PPeSU7baKm5AH` READY, 코드 커밋 `6741398d`. DB 활성화·확정 이름·버전·3요금제 확인. FREE 배지 없음.
 
 주인님이 https://suno-prompt-manager-six.vercel.app/ 분석 후 AIMaster 구조로 구현 요청. 새 `suno-music-studio/`에서 공용 로그인·권한·개인 AI 키, 흰색 표준 메뉴, 스타일/작사/3~12곡 앨범/검수·보관 흐름, 독립 프리셋·순차 가사·중지·미완성 이어가기·복사/TXT/JSON/사용 안내 구현. 기존 music/참고 사이트 수정 없음. 추천 이름 후보와 원본 대비표는 [분석·계획](../suno-music-studio/docs/ANALYSIS_AND_PLAN.md).
 
-17개 자동 검사·ESLint·타입/빌드 통과, production audit 0. DB 프로그램·기본 3요금제 등록, 공개 전 is_active=false, 일반+기간/구독 정책(임의 FREE 없음). Vercel buylife/suno-music-studio 생성·연결, 환경변수 0개이며 아직 배포하지 않음. 루트 §2의 환경변수 사전 승인 규칙 때문에 공용 Supabase 접속 설정 3개 + 메인 URL의 새 프로젝트 production 등록과 로컬 동일 설정 승인 필요. 승인 후 배포·도메인·실제 회원 검사·활성화까지 진행. 실제 AI/Suno 유료 호출·회원 UI 검수 미실행. [검수/승인/재개 절차](../suno-music-studio/docs/RELEASE_V1_01.md).
+17개 자동 검사·ESLint·타입/빌드 통과, production audit 0. 비로그인 페이지 307/API JSON 401·로그인 200 확인. 기존 Chrome 일반 테스트 회원 SSO, 프리셋 적용, 초안 새로고침 복원, JSON 실제 다운로드/내용, 본인 Gemini 모델 조회·단곡 1회 생성(유리창 너머의 밤, BPM 108, 가사 1,165자), 최종 확인·보관함·제작 설명 복사 확인. 테스트 회원만 2026-10-13 15:09:50 KST까지 24시간 이용기간 등록(다른 회원·키·스키마 변경 없음). TXT는 Chrome 여러 파일 다운로드 허용창 처리 미확인, JSON 가져오기는 별도 Windows 파일 선택창 제어 제한으로 실제 UI 재검수 필요. 다른 공급사/앨범/모바일/Suno 실제 음악 생성 미검수. [운영 증거·남은 확인](../suno-music-studio/docs/RELEASE_V1_01.md).
 
 ## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.05) FREE 배지 제거·사이드바 제목 꺾임 방지 및 Vercel 프로덕션 배포 완료
 
