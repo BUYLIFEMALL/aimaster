@@ -380,13 +380,13 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 추천 프로그램 — 관리자가 추천 뱃지를 단 프로그램, 추천(♥) 많은 순 */}
+      {/* 이달의 추천 프로그램 — 관리자가 추천 뱃지를 단 프로그램, 추천(♥) 많은 순 */}
       {recommendedPrograms.length > 0 && (
         <section className="py-16 px-4 bg-surface/20">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-white">
-                추천 <GoldGradientText>프로그램</GoldGradientText>
+                이달의 <GoldGradientText>추천 프로그램</GoldGradientText>
               </h2>
               <p className="text-subtext mt-2">운영자가 추천하는 프로그램입니다. 회원 ♥ 추천 투표가 많은 순서로 왼쪽부터 보여 드립니다.</p>
             </div>
