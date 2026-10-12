@@ -1,6 +1,6 @@
 # AI 인플루언서 자동화 (AI Influencer Studio)
 
-- **버전**: `v1.05`
+- **버전**: `v1.06`
 - **도메인**: `ai-influencer.buylife.xyz`
 - **프로그램 명칭**: **AI 인플루언서 자동화 (AI Influencer Studio)**
 - **정체성**: 인스타그램 및 SNS 마케팅에 즉시 활용 가능한 초현실적(Hyper-realistic) AI 가상 인플루언서 화보 및 3종 맞춤 캡션(해시태그 포함) 자동 생성 스튜디오

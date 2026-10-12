@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — AI 인플루언서 자동화 (ai-influencer-studio v1.06) 컨트롤 패널 중복 타이틀 제거 및 상단 도구바 정돈 배포 완료
+
+주인님 요청("이부분 필요 없어 삭제해줘 - PureGlow Pro / AI INFLUENCER STORY ENGINE 헤더 캡처")에 따라, 좌측 사이드바와 중복되던 컨트롤 패널 상단 브랜드 타이틀 블록을 완전히 삭제하고 세로 여백 최적화 및 우측 툴바 정돈을 완료했습니다:
+
+1. **컨트롤 패널 상단 중복 타이틀 제거**:
+   - `PureGlow Pro v1.05` 및 `AI INFLUENCER STORY ENGINE` 텍스트 블록 완전 삭제
+   - 툴바 영역을 `px-5 py-2.5`의 슬림형 도구 바로 개편하여 본문 작업 영역 확장
+   - 우측 상단 유틸리티 아이콘 도구(💡 가이드, ⚙️ API 설정, 🎲 주사위 전체 랜덤 믹스, 📊 작업 히스토리)를 `justify-end`로 정돈
+2. **버전 관리 및 DB 동기화**:
+   - 버전 `v1.06` 상향 (`src/lib/version.ts`, `package.json`, Supabase `programs.version = 'v1.06'`)
+
+---
+
 ## 2026-10-12 Antigravity — AI 인플루언서 자동화 (ai-influencer-studio v1.05) 메인 지침 준수 좌측 표준 사이드바 메뉴 연동 배포 완료
 
 주인님 요청("메인 지침 확인해서 좌측에 메뉴구성해줘")에 따라, AIMaster 플랫폼 공통 좌측 메뉴 표준 지침([`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md))을 100% 준수한 사이드바 컴포넌트(`Sidebar.tsx`)를 구축하고 연동 배포 완료했습니다:

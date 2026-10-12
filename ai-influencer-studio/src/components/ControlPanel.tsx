@@ -42,7 +42,6 @@ import {
   QUALITY_OPTIONS,
   ASPECT_RATIO_OPTIONS,
 } from "@/data/influencer-options";
-import { APP_VERSION } from "@/lib/version";
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
 
 interface ControlPanelProps {
@@ -271,21 +270,9 @@ export function ControlPanel({
 
   return (
     <aside className="w-full lg:w-[460px] xl:w-[490px] bg-white border-r border-slate-200 flex flex-col h-screen shrink-0 overflow-hidden shadow-sm">
-      {/* 1. 상단 브랜드 헤더 (스크린샷 규격 1:1) */}
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-        <div>
-          <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-            <span>PureGlow Pro</span>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 border border-pink-200">
-              {APP_VERSION}
-            </span>
-          </h2>
-          <p className="text-[10px] font-bold text-pink-500 tracking-widest uppercase mt-0.5">
-            AI INFLUENCER STORY ENGINE
-          </p>
-        </div>
-
-        {/* 우측 툴바 아이콘 도구 (스크린샷 규격 1:1 매칭: 가이드 / 설정 / 주사위 랜덤 믹스 / 히스토리) */}
+      {/* 1. 상단 툴바 (도구 아이콘: 가이드 / 설정 / 주사위 랜덤 믹스 / 히스토리) */}
+      <div className="px-5 py-2.5 border-b border-slate-100 flex items-center justify-end bg-white shrink-0">
+        {/* 우측 툴바 아이콘 도구 */}
         <div className="flex items-center gap-1.5">
           {/* 1. 가이드 (물음표) */}
           <button
