@@ -50,9 +50,10 @@ export function formatPhoneNumber(value: string | null | undefined): string {
     return `${raw.slice(0, 2)}-${raw.slice(2, 6)}-${raw.slice(6, 10)}`;
   }
 
+  // 핸드폰: 11자리는 010-1234-5678, 10자리(옛 번호)는 011-123-4567 — 10자리를 3-4-3으로 끊으면 "010-4876-079"처럼 잘못 저장된다
   if (raw.length <= 3) return raw;
-  if (raw.length <= 7) return `${raw.slice(0, 3)}-${raw.slice(3)}`;
-  if (raw.length <= 11) return `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7)}`;
+  if (raw.length <= 6) return `${raw.slice(0, 3)}-${raw.slice(3)}`;
+  if (raw.length <= 10) return `${raw.slice(0, 3)}-${raw.slice(3, 6)}-${raw.slice(6)}`;
   return `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7, 11)}`;
 }
 
