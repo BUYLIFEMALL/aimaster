@@ -21,7 +21,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm md:text-base">
-                AI 바이닐 스튜디오 사용 가이드
+                LP 턴테이블 자동화 사용 가이드
               </h3>
               <p className="text-[11px] text-slate-500">감각적인 바이닐 LP & CD 앨범 목업 제작</p>
             </div>
@@ -40,7 +40,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
           <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/50 text-slate-700 space-y-1">
             <p className="font-bold text-amber-900 text-xs">스튜디오 소개</p>
             <p className="text-[11px] text-slate-600">
-              AI 바이닐 스튜디오는 LP 레코드(Vinyl)와 CD의 사실적인 회전 목업 영상을 제작할 수 있는 스튜디오 솔루션입니다. Google Gemini AI로 독창적인 앨범 아트를 디자인하고, 브라우저에서 100% 직접 고화질 60fps MP4 또는 무한 루프 GIF로 렌더링합니다.
+              LP 턴테이블 자동화는 LP 레코드(Vinyl)와 CD의 사실적인 회전 목업 영상을 제작할 수 있는 스튜디오 솔루션입니다. Google Gemini AI로 독창적인 앨범 아트를 디자인하고, 브라우저에서 100% 직접 고화질 60fps MP4 또는 무한 루프 GIF로 렌더링합니다.
             </p>
           </div>
 

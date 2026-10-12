@@ -4,7 +4,7 @@ import { APP_NAME, APP_VERSION } from "@/lib/version";
 
 export const metadata: Metadata = {
   title: `${APP_NAME} (${APP_VERSION}) - AIMaster`,
-  description: "AI 바이닐 LP & CD 앨범 목업 제작 및 고화질 MP4/GIF 회전 애니메이션 스튜디오",
+  description: "LP 턴테이블 & CD 음반 목업 제작 및 고화질 MP4/GIF 회전 애니메이션 자동화",
 };
 
 export default function RootLayout({

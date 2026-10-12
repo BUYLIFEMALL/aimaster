@@ -45,7 +45,7 @@ function LoginCard() {
           </span>
         </div>
         <p className="text-xs text-slate-500 mt-1">
-          AIMaster 계정으로 로그인하여 나만의 AI 바이닐(LP) & CD 앨범을 제작하세요
+          AIMaster 계정으로 로그인하여 나만의 LP 턴테이블 & CD 회전 영상을 제작하세요
         </p>
       </div>
 

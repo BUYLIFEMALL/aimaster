@@ -1,14 +1,14 @@
-# AI 바이닐 스튜디오 (Vinyl LP/CD Studio) 사용 매뉴얼
+# LP 턴테이블 자동화 (LP Turntable Studio) 사용 매뉴얼
 
-> **프로그램 버전**: `v1.01`  
-> **공식 라이브 도메인**: [https://vinyl-lp.buylife.xyz](https://vinyl-lp.buylife.xyz)  
+> **프로그램 버전**: `v1.02`  
+> **공식 라이브 도메인**: [https://lp-turntable.buylife.xyz](https://lp-turntable.buylife.xyz)  
 > **이용 권한**: AIMaster 회원 누구나 무료 이용 (FREE 배지 프로그램)
 
 ---
 
 ## 1. 프로그램 개요
 
-**AI 바이닐 스튜디오 (Vinyl LP/CD Studio)**는 음악 앨범, 오디오 콘텐츠, SNS 홍보, 음악 유튜브/릴스 채널에 즉시 활용할 수 있는 **LP 레코드판(Vinyl) 및 CD 컴팩트 디스크의 사실적인 회전 3D 목업 애니메이션**을 원클릭으로 제작하는 전문 크리에이티브 도구입니다.
+**LP 턴테이블 자동화 (LP Turntable Studio)**는 음악 앨범, 오디오 콘텐츠, SNS 홍보, 음악 유튜브/릴스 채널에 즉시 활용할 수 있는 **LP 레코드판(Vinyl) 및 CD 컴팩트 디스크의 사실적인 회전 3D 목업 애니메이션**을 원클릭으로 제작하는 전문 크리에이티브 도구입니다.
 
 ### 핵심 특장점
 1. **CD & LP 2대 미디어 포맷**: 클래식 블랙 LP 음반의 그루브 홈과 하이라이트 광택, CD의 프리즘 무지개빛 홀로그램 반사광을 정밀하게 시뮬레이션

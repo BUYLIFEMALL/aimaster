@@ -1,5 +1,22 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — LP 턴테이블 자동화 (vinyl-lp-studio v1.02) 명칭 변경 및 전용 도메인 배포 완료
+
+주인님 요청("LP 턴테이블 자동화로 수정해주고 vecel 배포 주소도 이에 맞게 다시 수정해서 배포해줘")에 따라, 프로그램 명칭을 직관적인 'LP 턴테이블 자동화'로 변경하고 Vercel 배포 주소 및 커스텀 도메인을 동기화하여 프로덕션 배포 완료했습니다:
+
+1. **프로그램 명칭 및 버전 갱신**:
+   - 공식 명칭: **`LP 턴테이블 자동화`** (`LP Turntable Automation`)
+   - 버전: `v1.02` 상향 (`src/lib/version.ts`, `package.json`, Supabase `programs.version = 'v1.02'`)
+   - 메타데이터 및 가이드 모달, 로그인 화면 텍스트 전면 동기화
+2. **도메인 및 배포 주소 동기화**:
+   - 커스텀 도메인: `https://lp-turntable.buylife.xyz` (Cloudflare 와일드카드 CNAME 연동)
+   - Vercel 도메인: `https://lp-turntable.vercel.app` (동시 연결 완료)
+   - DB `programs.app_url` = `https://lp-turntable.buylife.xyz` 갱신
+3. **문서 동기화**:
+   - 루트 `AGENTS.md`, `vinyl-lp-studio/README.md`, `MANUAL.md`, `AGENTS.md` 일괄 동기화 완료
+
+---
+
 ## 2026-10-12 Codex — Suno 음악기획 자동화 v1.06 빌더·앨범·검색 보강
 
 - 원본 공개 사이트 선택 항목을 769회 직접 대조했습니다. 숨겨진 종속 선택은 DOM 변경 이벤트로 순회했으며 원본 유료 호출은 0회입니다.

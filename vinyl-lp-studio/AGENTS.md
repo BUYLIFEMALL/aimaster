@@ -1,7 +1,7 @@
-# AI 바이닐 스튜디오 — AI 에이전트 인수인계 문서 (AGENTS.md)
+# LP 턴테이블 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
-> **프로그램 버전**: `v1.01` (2026-10-12 신규 개발 및 배포)  
-> **공식 커스텀 도메인**: [https://vinyl-lp.buylife.xyz](https://vinyl-lp.buylife.xyz)  
+> **프로그램 버전**: `v1.02` (2026-10-12 LP 턴테이블 자동화 명칭 개편 및 도메인 동기화)  
+> **공식 커스텀 도메인**: [https://lp-turntable.buylife.xyz](https://lp-turntable.buylife.xyz) (Vercel: `https://lp-turntable.vercel.app`)  
 > **프로그램 slug**: `vinyl-lp-studio`  
 > **카테고리**: 음악 / 멀티미디어  
 > **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)
