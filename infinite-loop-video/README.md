@@ -19,5 +19,5 @@
 - **실제 영상 끝에서 끝까지 화면 검수 미완료**: 검수 시 Chrome 창이 백그라운드(visibilityState=hidden)라 영상 로딩이 멈춰 업로드 이후 단계를 확인하지 못했다. 화면이 보이는 상태에서 영상 1개로 분석→렌더→재생→다운로드를 확인할 것.
 - 원본에 있던 밝기 보정(0.7~1.4), 전체화면 미리보기, 크로스페이드 포함 실시간 미리보기는 미구현(결과 영상으로 확인).
 - 분석은 메인 스레드에서 비동기 청크로 실행(Web Worker 미적용, 60초까지 분석).
-- 썸네일 미생성(`scripts/generate-program-thumbnail.mjs infinite-loop-video <카테고리id> "<프롬프트>"`).
+- 썸네일: 2026-10-12 생성·등록 완료(`programs.thumbnail_url`, Supabase program-images/catalog/infinite-loop-video-thumbnail.jpg).
 - 운영비용 없음(브라우저 전용) → 프리미엄 후보 아님.
