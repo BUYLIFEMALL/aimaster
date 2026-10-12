@@ -1,8 +1,12 @@
-# AI 웹툰 스튜디오 PRO (ai-webtoon-studio)
+# AI 웹툰 자동화 (ai-webtoon-studio)
 
 시놉시스 기획부터 캐릭터 일관성 시트, 컷별 콘티 생성, 세로 스크롤 완성 원고 렌더링 및 롱스크롤 이어붙이기(JPG)까지 한 곳에서 완성하는 AI 웹툰 제작 자동화 프로그램입니다.
 
-## 핵심 기능 (v1.01)
+- **배포 주소**: `https://ai-webtoon-automation.buylife.xyz` (기존 `https://ai-webtoon-studio.buylife.xyz` 병행 지원)
+- **Vercel 주소**: `https://ai-webtoon-automation.vercel.app`
+
+## 핵심 기능 (v1.02)
+
 1. **기획 & 컨셉 설정 (STEP 1)**:
    - 작품 제목, 작가명, 핵심 시놉시스 (AI 자동완성/아이디어 확장 마법봉)
    - 5대 웹툰 아트 스타일: 현대 한국 웹툰 풍, 소년 만화 풍, 로맨스 순정 풍, 귀여운 SD/캐주얼 풍, 미국 히어로 코믹스 풍

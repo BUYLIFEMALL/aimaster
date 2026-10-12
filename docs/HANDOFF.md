@@ -1,6 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — AI 웹툰 자동화 (ai-webtoon-studio v1.02) 리브랜딩 및 Vercel/배포주소 개편 완료
+
+주인님 요청("AI 웹툰 자동화로 이름과 VELEL주소 배포주소 수정해줘")에 따라 명칭 및 배포 도메인 체계를 일괄 개편했습니다:
+1. **공식 명칭 리브랜딩**:
+   - `src/lib/version.ts`: `APP_NAME = "AI 웹툰 자동화"`, `APP_VERSION = "v1.02"`.
+   - `package.json`: `version = "1.02.0"`.
+   - `src/app/layout.tsx`: 타이틀 `AI 웹툰 자동화 | AIMaster`, 설명 문구 갱신.
+   - `src/components/StudioWorkspace.tsx`: alert 안내문 및 하단 카피라이트 `{APP_NAME}` 동기화.
+   - 사이드바 좌측 상단 로고: `AI 웹툰 자동화 v1.02 FREE` 정상 반영.
+2. **배포 주소 및 Vercel 도메인 연동**:
+   - 커스텀 배포 도메인: `https://ai-webtoon-automation.buylife.xyz` (Vercel domains add 및 Cloudflare 와일드카드 SSO 게이트 연동).
+   - Vercel 주소: `https://ai-webtoon-automation.vercel.app` (별칭 생성).
+   - 기존 `https://ai-webtoon-studio.buylife.xyz` 및 `https://ai-webtoon-studio-buylife.vercel.app` 하위 호환 유지.
+3. **공용 DB 및 마이그레이션**:
+   - DB `programs`: `name = 'AI 웹툰 자동화'`, `version = 'v1.02'`, `app_url = 'https://ai-webtoon-automation.buylife.xyz'` 동기화 완료 (`scripts/update_webtoon_to_v102.mjs`).
+   - 마이그레이션 SQL: `supabase/migrations/0003_v1_02_rebrand.sql`.
+4. **검증 및 배포**:
+   - `npm run build`: Turbopack / TypeScript 100% 정상 통과.
+   - Vercel 프로덕션 배포 완료 (`https://ai-webtoon-automation.buylife.xyz`, `https://ai-webtoon-studio.buylife.xyz`).
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.31) 맛집 탭 입력 정리 + 키워드 자동 추출 AI 통일
+
 
 주인님 지시: 맛집 탭 기획 세부 조건의 특정 주제·검색 키워드 칸 제거(발행 목적만 유지), [AI 키워드 자동 추출]이 선택한 글 AI(Gemini/GPT/Claude)와 본인 키를 쓰도록 수정. 확장 ZIP·DB v1.31. 아이디어·키워드 탭의 구형 Gemini 직접 호출은 별도 후보.
 

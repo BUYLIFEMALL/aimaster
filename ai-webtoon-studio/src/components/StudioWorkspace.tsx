@@ -20,6 +20,7 @@ import {
 } from "@/lib/storage";
 import { WebtoonProject } from "@/lib/types";
 import { mergeAndDownloadLongScrollJpg, downloadAllImagesAsZip } from "@/lib/canvasMerge";
+import { APP_NAME } from "@/lib/version";
 
 interface StudioWorkspaceProps {
   userEmail: string;
@@ -99,8 +100,9 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
           saveStoredProject(merged);
           alert(`'${merged.title}' 프로젝트를 성공적으로 불러왔습니다!`);
         } else {
-          alert("올바른 AI 웹툰 스튜디오 프로젝트 파일이 아닙니다.");
+          alert(`올바른 ${APP_NAME} 프로젝트 파일이 아닙니다.`);
         }
+
       } catch (err) {
         alert("JSON 파일을 파싱하는 데 실패했습니다.");
       }
@@ -214,8 +216,9 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
 
         {/* Footer */}
         <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-          <p>© 2026 AIMaster · AI 웹툰 스튜디오 PRO · 사용자 개인 API 키 격리 보관 원칙 준수</p>
+          <p>© 2026 AIMaster · {APP_NAME} · 사용자 개인 API 키 격리 보관 원칙 준수</p>
         </footer>
+
       </div>
 
       {/* API 키 설정 모달 */}
