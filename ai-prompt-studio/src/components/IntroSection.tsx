@@ -151,11 +151,14 @@ export function IntroSection({
             return (
               <div
                 key={modeMeta.id}
-                onClick={() => onSelectMode(modeMeta.id)}
-                className={`relative flex flex-col justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
+                onClick={() => {
+                  onSelectMode(modeMeta.id);
+                  onNextStep();
+                }}
+                className={`group relative flex flex-col justify-between p-4 rounded-2xl border cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md ${
                   isSelected
                     ? "border-violet-600 bg-violet-50/40 shadow-sm ring-2 ring-violet-500/20"
-                    : "border-neutral-200 bg-white hover:border-violet-300 hover:shadow-2xs"
+                    : "border-neutral-200 bg-white hover:border-violet-400 hover:shadow-2xs"
                 }`}
               >
                 <div>
@@ -164,7 +167,7 @@ export function IntroSection({
                       className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
                         isSelected
                           ? "bg-violet-600 text-white shadow-xs"
-                          : "bg-neutral-100 text-neutral-600"
+                          : "bg-neutral-100 text-neutral-600 group-hover:bg-violet-100 group-hover:text-violet-700"
                       }`}
                     >
                       <Icon size={18} />
@@ -176,7 +179,7 @@ export function IntroSection({
                     )}
                   </div>
 
-                  <h3 className="text-sm font-black text-neutral-900 leading-tight">
+                  <h3 className="text-sm font-black text-neutral-900 group-hover:text-violet-700 transition-colors leading-tight">
                     {modeMeta.title}
                   </h3>
                   <p className="mt-1 text-[11px] text-neutral-500 leading-snug line-clamp-3">
@@ -188,8 +191,8 @@ export function IntroSection({
                   <span className="text-[10px] font-mono font-bold text-violet-600">
                     {modeMeta.id}
                   </span>
-                  <span className="text-[11px] font-bold text-neutral-700 flex items-center gap-0.5">
-                    선택 <ArrowRight size={11} />
+                  <span className="text-[11px] font-bold text-violet-700 group-hover:text-violet-900 flex items-center gap-1 transition-colors">
+                    시작하기 <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
               </div>
