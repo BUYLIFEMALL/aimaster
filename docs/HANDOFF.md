@@ -1,5 +1,40 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — AI Audio분석 자동화 (ai-audio-analyzer v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 1위 등록 완료
+
+주인님 요청("https://gpt-park-ai-audio-lab.vercel.app/ 프로그램 기능 분석을 면밀히 한후에 구현해줘 프로그램명은 AI Audio분석 자동화, 다 만든후 프로그램등록,썸네일 까지 어울리게 등록해줘")에 따라, 레퍼런스 앱 전수 역분석(1MB 메인 JS 번들 및 DSP/오디오 피처/Gemini 프롬프트 분석)을 100% 반영한 신규 서브프로젝트 **`AI Audio분석 자동화` (`ai-audio-analyzer v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위(`sort_order: 129`, 카테고리: 음악) 등록을 완벽히 완료했습니다:
+
+1. **레퍼런스 전수 역분석 및 실기 기능 구현 완결 (Rule 15)**:
+   - **스마트 자동 판별 (Speech vs Music)**: Gemini 2.5 Flash를 통해 업로드된 오디오가 음성 대화인지 음악/연주곡인지 자동 감지하여 최적화된 리포트 엔진 분기 실행.
+   - **음성 인텔리전스 & 회의록 자동화 (Speech Lab)**:
+     - 화자 분리 및 발언 점유율 계산/시각화 (도넛/바 차트)
+     - 타임라인별 초 단위 전사 기록 (Full Transcription) 검색 및 전체 복사
+     - 화자별 역할, 화법 스타일, 핵심 기여도 심층 프로파일링
+     - 핵심 질문(Key Questions) 및 결정 사항/실행 과제(Action Items) 추출
+     - 감정 어조, 말의 속도, 휴지기(침묵), 추임새(비언어적 요소) 분석
+     - 마크다운 회의록(Meeting Minutes) 및 인터뷰 결과 보고서 즉시 생성 & 원클릭 복사
+   - **음악 분석 & Suno v5 역설계 (Music Lab)**:
+     - **Suno AI v5 Reverse Prompt (God Tier)**: 음원의 장르, 악기, 분위기, 템포, 편곡을 역설계한 서술형 + 구조화 메타태그(`[Genre: ...]`) 프롬프트 생성 & 원클릭 복사
+     - **음향 포렌식 & 위변조 품질 분석**: 고주파 절단면(Cut-off) 감지로 MP3 업스케일링(뻥튀기) 여부 판별, 원본 추정 품질, 편집 연결점 탐지
+     - **4대 스템 청각 묘사**: Vocals, Bass, Drums, Keys 믹싱/이펙트/음역대 상세 묘사
+     - **작곡 및 채보 데이터**: 조성(Key & Scale), 박자, 코드 진행(Chord Progression), 비트 그리드 느낌
+     - **시각적 곡 구조 분석**: [Intro] -> [Verse] -> [Chorus] -> [Bridge] -> [Outro] 타임라인
+     - **가사 전사 (Lyric Transcription)**: 구조화된 가사 전문 및 원클릭 복사
+   - **Web Audio API 파형 뷰어**: 브라우저 오디오 디코딩으로 파형 피크 추출 및 재생 컨트롤 연동.
+2. **플랫폼 표준 불변 지침 완벽 준수**:
+   - **최상위 절대 불변 규칙 (Rule 00)**: 사용자 본인 Gemini API 키(`user_api_keys.provider = 'gemini'`) 직접 등록 및 연동 (운영자 키 폴백 금지, 키 미등록 시 자동 안내 모달).
+   - **표준 좌측 사이드바 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**: `← 다른 프로그램 보기`, 3대 엔진 모드 탭, 번호형 3단계 핵심 흐름, `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`, 하단 계정/로그아웃 밀착 배치.
+   - **화이트 베이스 클린 테마 (Rule 8)** 및 **기준 연도 2026년 동적 주입 (Rule 9)**.
+3. **16:9 와이드 실사 썸네일 제작 및 플랫폼 Storage 등록**:
+   - 대형 커브드 모니터에 펼쳐진 네온 파형, 3D 스펙트럼, 화자 분석 파이 차트, 4대 스템, Suno AI Reverse Prompt 카드와 헤드폰을 착용한 전문 한국인 엔지니어가 돋보이는 8K급 상업용 실사 썸네일 생성 및 `catalog/audio-analyzer-thumbnail.jpg` 업로드 완료.
+4. **플랫폼 DB 상품 등록 및 기본 요금제 3종 완비**:
+   - `programs` 테이블: 카탈로그 최상단 1순위(`sort_order: 129`), 카테고리 `음악`(`2205a911-b7cf-4865-bbbe-d65d53f3f42d`), 배지 `['free', 'new']`, `version: 'v1.01'`, `app_url: 'https://audio.buylife.xyz'`.
+   - `pricing_plans`: 1개월(1만), 2개월(2만), 3개월(3만) 플랜 3종 등록 완료.
+   - 리치 HTML 상세 설명 서식 적용 완료.
+5. **Vercel 프로덕션 배포 및 커스텀 도메인 연동**:
+   - 프로덕션 배포: `https://audio.buylife.xyz` (HTTP 200 정상 가동).
+   - 인수인계 매뉴얼: `ai-audio-analyzer/AGENTS.md`, `README.md`.
+
 ## 2026-10-13 Claude — AI 마스터링 스튜디오 (ai-mastering-studio v1.02) 신규 구축·배포
 
 - 참고 gpt-park-mastering-studio-99gg.vercel.app을 번들까지 분석해 새로 구현. WAV(최대 20곡) → 12종 사운드 프로필 / AI 로직 생성기(Gemini·OpenAI·Claude 본인 키) / 정밀 랙(EQ·새추레이션·컴프레서·스테레오·리미터) → 브라우저에서 처리(서버 전송·저장 없음) → 파형·레벨 비교, WAV/ZIP 저장. 리미터는 원본(엔벨로프)이 실링을 넘어서 룩어헤드 방식으로 새로 구현(모든 샘플 실링 이하 보장). FREE+new, 음악 카테고리, VIP 등급 표 추가(VIP=모든 프로그램), 도메인·썸네일 등록.
