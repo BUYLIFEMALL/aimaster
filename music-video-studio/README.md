@@ -27,3 +27,4 @@
 - **실제 AI·Veo 생성은 검증하지 못했습니다**(회원 본인 키 필요, Veo는 유료). 첫 사용 시 확인할 것: ① `gemini-3.7-flash`/`gemini-3.1-flash-image` 모델 응답 ② Veo 요청 본문(특히 `durationSeconds` 숫자 형식, `lastFrame` 루프) ③ 4.5MB 응답 제한 안에서의 영상 내려받기(스트리밍 프록시) ④ Lite 모델 ID 사용 가능 여부.
 - 화풍 목록: Flow에서 5종(Cinematic·Anime·Oil Painting·Watercolor·Cyberpunk)만 확인, 나머지 3종은 추가분. 장면 수·길이 선택지는 Veo 문서 기준.
 - 등록 SQL: `supabase/migrations/0001_register_program.sql`
+- **고도화 예정(2026-10-12 주인님 확정): Suno 음악기획 자동화(`suno-music-studio`)와 연계.** 1단계 가사 생성이 겹치므로, Suno 음악기획의 저장곡 JSON을 불러오거나 1단계를 가사 붙여 넣기 중심으로 줄이는 방향. 상세: `docs/HANDOFF_CLAUDE_SESSION_2026-10-12_PART2.md` 3번.
