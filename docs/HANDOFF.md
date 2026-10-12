@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 메인 사이트: 이달의 무료 프로그램·추천 프로그램 섹션 + 추천(♥) 투표 + 추천 뱃지 (루트 앱)
+
+주인님 요청: ① 최신 등록 프로그램 아래 **이달의 무료 프로그램**(FREE 뱃지 프로그램, 썸네일 카드) ② 그 아래 **추천 프로그램**(새 **추천 뱃지**를 단 프로그램) ③ 썸네일 상단 중앙 **♥ 추천 투표**, 추천 많은 순으로 왼쪽→오른쪽 나열 ④ 관련 기능은 관리자 프로그램에 추가.
+- DB(적용됨, `supabase/migrations/0021_program_likes_recommended_badge.sql`): `programs_badges_check`에 `recommended` 추가, `programs.like_count`, 테이블 `program_likes(user_id, program_id)`(RLS 본인 행만) + 트리거 `sync_program_like_count`(insert/delete 시 like_count ±1, security definer). 트리거 +1/−1 집계 직접 시험 후 원복.
+- API `POST /api/programs/[id]/like`(로그인 필수·정지 계정 차단·1인 1표 토글, `private, no-store`). 화면 `components/programs/LikeButton.tsx`(낙관적 갱신, 비로그인이면 `/login?redirect=`), `ProgramCard`(썸네일 `top-3 left-1/2` 중앙에 ♥; 좌상단 뱃지·우상단 관리자 편집과 겹치지 않게 배치), 정렬 `lib/programs/likes.ts`의 `sortByLikes`(♥ 많은 순 → 관리자 정렬순서 → 최신).
+- 홈 `app/(main)/page.tsx`: 최신 등록 아래 [이달의 무료 프로그램](최대 12개)·[추천 프로그램](최대 12개). 프로그램 목록·카테고리 목록 카드에도 ♥ 표시.
+- 관리자: 프로그램 편집 화면·목록의 뱃지 선택에 **⭐ 추천** 추가(일괄 뱃지 설정 포함), 목록에 프로그램별 ♥ 투표 수 표시.
+- 추천 뱃지를 단 프로그램이 0개면 추천 섹션은 숨겨진다(현재 0개 — 관리자가 [추천] 뱃지를 달면 나타남).
+
 ## 2026-10-12 Codex — Suno 음악기획 자동화 실사 썸네일 제작·등록 완료
 
 주인님 요청으로 내장 image_gen으로 한국인 음악 기획자·가사 구획·스타일 칩·앨범 트랙·건반/헤드폰을 담은 약 16:9 실사 썸네일을 제작했습니다. 공용 업로드 도구로 Storage `program-images/catalog/suno-music-studio-thumbnail.png` 및 해당 `programs.thumbnail_url`을 등록. 공개 이미지와 로컬 원본 해시 동일, 이미지 최적화 200, 메인/목록/상세 URL 참조 확인. 별도 비로그인 Headless Chrome으로 상세·멀티미디어 카탈로그 렌더링과 인접 썸네일 실사 톤 비교 완료, 빌드 통과. 카탈로그 메타데이터 변경이므로 v1.01 유지, 앱 재배포 불필요. 원본/프롬프트/DML/화면 증거: [suno-music-studio/docs/THUMBNAIL.md](../suno-music-studio/docs/THUMBNAIL.md). 원본 이동 시 작업 폴더 중복 경로 오류는 절대 경로로 수정했고 교훈을 ERROR_LESSONS.md에 기록했습니다. 썸네일 요청의 남은 작업 없음; 기존 기능 미검수 항목은 RELEASE_V1_01.md 유지.

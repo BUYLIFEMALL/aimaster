@@ -6,6 +6,7 @@ import CategoryNav from "@/components/programs/CategoryNav";
 import ProgramSearch from "@/components/programs/ProgramSearch";
 import { createClient } from "@/lib/supabase/server";
 import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
+import { getLikedProgramIds } from "@/lib/programs/likes";
 import { getIsAdmin } from "@/lib/access/getIsAdmin";
 
 export const dynamic = "force-dynamic";
@@ -104,6 +105,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   const supabase = await createClient();
   const accessByProgramId = await getProgramAccessMap(supabase, programs);
   const isAdmin = await getIsAdmin(supabase);
+  const { loggedIn, liked: likedSet } = await getLikedProgramIds(supabase);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -155,7 +157,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {programs.map((program) => (
-            <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdmin} />
+            <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdmin} liked={likedSet.has(program.id)} loggedIn={loggedIn} />
           ))}
         </div>
       )}

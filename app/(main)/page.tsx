@@ -23,6 +23,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
 import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
+import { sortByLikes } from "@/lib/programs/likes";
 import { daysRemaining } from "@/lib/utils/format";
 
 interface UserAccessSummary {
@@ -54,7 +55,10 @@ async function getHomeData() {
     const accessByProgramId = await getProgramAccessMap(supabase, programs ?? []);
     let userAccess: UserAccessSummary | null = null;
     let isAdminUser = false;
+    let likedIds: string[] = [];
     if (user) {
+      const { data: likedRows } = await supabase.from("program_likes").select("program_id").eq("user_id", user.id);
+      likedIds = (likedRows ?? []).map((row) => row.program_id as string);
       const [{ data: profile }, { data: subs }, { data: grants }, { data: grades }] = await Promise.all([
         supabase.from("profiles").select("is_admin, is_suspended, grade:member_grades(sort_order)").eq("id", user.id).maybeSingle(),
         supabase.from("subscriptions").select("program_id, status, expires_at").eq("user_id", user.id),
@@ -114,9 +118,9 @@ async function getHomeData() {
       };
     }
 
-    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser };
+    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser, likedIds, loggedIn: Boolean(user) };
   } catch {
-    return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0, isAdminUser: false };
+    return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0, isAdminUser: false, likedIds: [] as string[], loggedIn: false };
   }
 }
 
@@ -203,9 +207,13 @@ function renderNoticeText(item: NoticeItem) {
 }
 
 export default async function HomePage() {
-  const { programs, categories, accessByProgramId, userAccess, isAdminUser } = await getHomeData();
+  const { programs, categories, accessByProgramId, userAccess, isAdminUser, likedIds, loggedIn } = await getHomeData();
+  const likedSet = new Set(likedIds);
   const freeProgramCount = programs.filter((p) => (p.badges ?? []).includes("free")).length;
   const paidProgramCount = programs.length - freeProgramCount;
+  // 이달의 무료 프로그램 / 추천 프로그램 — 추천(♥)을 많이 받은 순으로 왼쪽→오른쪽 나열
+  const freePrograms = sortByLikes(programs.filter((p) => (p.badges ?? []).includes("free"))).slice(0, 12);
+  const recommendedPrograms = sortByLikes(programs.filter((p) => (p.badges ?? []).includes("recommended"))).slice(0, 12);
   const latestPrograms = [...programs]
     .sort((a, b) => {
       const aPinned = (a.badges ?? []).includes("new") ? 1 : 0;
@@ -346,7 +354,45 @@ export default async function HomePage() {
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {latestPrograms.map((program) => (
-                <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} />
+                <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} liked={likedSet.has(program.id)} loggedIn={loggedIn} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 이달의 무료 프로그램 — FREE 뱃지가 달린 프로그램, 추천(♥) 많은 순 */}
+      {freePrograms.length > 0 && (
+        <section className="py-16 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                이달의 <GoldGradientText>무료 프로그램</GoldGradientText>
+              </h2>
+              <p className="text-subtext mt-2">회원가입만 하면 무료로 쓸 수 있는 프로그램입니다. 마음에 드는 프로그램에 ♥ 추천을 눌러 주세요 — 추천을 많이 받은 순서로 보여 드립니다.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {freePrograms.map((program) => (
+                <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} liked={likedSet.has(program.id)} loggedIn={loggedIn} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 추천 프로그램 — 관리자가 추천 뱃지를 단 프로그램, 추천(♥) 많은 순 */}
+      {recommendedPrograms.length > 0 && (
+        <section className="py-16 px-4 bg-surface/20">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                추천 <GoldGradientText>프로그램</GoldGradientText>
+              </h2>
+              <p className="text-subtext mt-2">운영자가 추천하는 프로그램입니다. 회원 ♥ 추천 투표가 많은 순서로 왼쪽부터 보여 드립니다.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {recommendedPrograms.map((program) => (
+                <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} liked={likedSet.has(program.id)} loggedIn={loggedIn} />
               ))}
             </div>
           </div>
@@ -414,7 +460,7 @@ export default async function HomePage() {
                   </div>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {catPrograms.map((program) => (
-                      <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} />
+                      <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} liked={likedSet.has(program.id)} loggedIn={loggedIn} />
                     ))}
                   </div>
                 </div>

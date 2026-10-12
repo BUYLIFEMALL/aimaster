@@ -7,6 +7,7 @@ import { Play } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import Badge from "@/components/ui/Badge";
 import GoldButton from "@/components/ui/GoldButton";
+import LikeButton from "@/components/programs/LikeButton";
 import { formatKRW } from "@/lib/utils/format";
 import type { Program } from "@/types/database.types";
 
@@ -15,12 +16,15 @@ interface ProgramCardProps {
   hasAccess?: boolean;
   // 명시적으로 넘기면 그것만 단독으로 쓰고, 안 넘기면 관리자가 프로그램 편집에서 지정한
   // program.badges(DB 값, 여러 개 가능)를 전부 보여준다.
-  badge?: "new" | "best" | "sale" | "coming" | "free";
+  badge?: "new" | "best" | "sale" | "coming" | "free" | "recommended";
   // 관리자로 로그인했을 때만 true — 썸네일 우상단에 [편집] 버튼(관리자 프로그램 편집 화면 이동)을 보여준다.
   isAdmin?: boolean;
+  // 추천(♥) 투표 — 내가 이미 눌렀는지, 로그인 여부(비로그인이면 누를 때 로그인 화면으로 보낸다)
+  liked?: boolean;
+  loggedIn?: boolean;
 }
 
-export default function ProgramCard({ program, badge, hasAccess = false, isAdmin = false }: ProgramCardProps) {
+export default function ProgramCard({ program, badge, hasAccess = false, isAdmin = false, liked = false, loggedIn = false }: ProgramCardProps) {
   const resolvedBadges = badge ? [badge] : (program.badges ?? []);
   const subscriptionTarget = `/programs/${program.slug}#pricing`;
 
@@ -57,6 +61,9 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                 ))}
               </div>
             )}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
+              <LikeButton programId={program.id} initialCount={program.like_count ?? 0} initialLiked={liked} loggedIn={loggedIn} />
+            </div>
             {isAdmin && (
               <Link
                 href={`/admin/programs/${program.id}/edit`}

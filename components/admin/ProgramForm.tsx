@@ -55,6 +55,12 @@ const BADGE_OPTIONS: {
     idleClassName: "bg-white/5 text-orange-400 border-orange-500/40 hover:bg-white/10",
   },
   {
+    value: "recommended",
+    label: "⭐ 추천",
+    selectedClassName: "bg-violet-500 text-white border-violet-500",
+    idleClassName: "bg-white/5 text-violet-300 border-violet-500/40 hover:bg-white/10",
+  },
+  {
     value: "coming",
     label: "🛠️ 작업중",
     selectedClassName: "bg-neutral-500 text-black border-neutral-500",

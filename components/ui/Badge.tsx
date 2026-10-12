@@ -1,7 +1,7 @@
 import { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-type BadgeVariant = "new" | "best" | "sale" | "coming" | "free" | "custom";
+type BadgeVariant = "new" | "best" | "sale" | "coming" | "free" | "recommended" | "custom";
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
@@ -17,6 +17,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   sale: "bg-orange-500 text-slate-950 shadow-sm shadow-orange-500/30",
   coming: "bg-zinc-700 text-zinc-100 border border-zinc-500/50",
   free: "bg-emerald-500 text-slate-950 shadow-sm shadow-emerald-500/30",
+  recommended: "bg-violet-500 text-white shadow-sm shadow-violet-500/30",
   custom: "",
 };
 
@@ -26,6 +27,7 @@ const defaultLabels: Record<BadgeVariant, string> = {
   sale: "🏷️ SALE",
   coming: "🛠️ 작업중",
   free: "✨ FREE",
+  recommended: "⭐ 추천",
   custom: "",
 };
 

@@ -21,6 +21,7 @@ interface ProgramRow {
   category_id: string | null;
   required_grade_id: string | null;
   badges: BadgeValue[];
+  like_count?: number;
 }
 
 interface ProgramsAdminBoardProps {
@@ -40,6 +41,7 @@ const BADGE_OPTIONS: { value: BadgeValue; label: string }[] = [
   { value: "new", label: "🔥 NEW" },
   { value: "best", label: "👑 BEST" },
   { value: "sale", label: "🏷️ SALE" },
+  { value: "recommended", label: "⭐ 추천" },
   { value: "coming", label: "🛠️ 작업중" },
 ];
 
@@ -615,6 +617,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                               {p.badges.map((b) => (
                                 <Badge key={b} variant={b} className="text-[11px] px-1.5 py-0.5" />
                               ))}
+                              <span className="inline-flex items-center gap-1 text-[11px] text-rose-300" title="회원 추천(♥) 투표 수">♥ {p.like_count ?? 0}</span>
                             </div>
                           </td>
                           <td className="p-4 text-center">
