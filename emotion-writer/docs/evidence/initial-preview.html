@@ -1,0 +1,660 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>감성 글귀 이미지 — 정적 화면 검토</title><style>
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  color: #273140;
+  background: #fff;
+  font-family: "Gowun Dodum", system-ui, sans-serif;
+  font-size: 14px;
+}
+a {
+  color: #be185d;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+  color: #9d174d;
+  background: #fff;
+  border: 1px solid #fbcfe8;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+button:hover:not(:disabled) {
+  background: #fdf2f8;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #f472b6;
+  outline-offset: 2px;
+}
+.primary {
+  background: #db2777;
+  color: #fff;
+  border-color: #db2777;
+}
+.primary:hover:not(:disabled) {
+  background: #be185d;
+}
+.full {
+  width: 100%;
+}
+.selected {
+  background: #fce7f3 !important;
+  border-color: #f472b6 !important;
+  box-shadow: 0 0 0 2px #fbcfe8;
+}
+input,
+select,
+textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  padding: 10px;
+  color: #273140;
+  background: #fff;
+}
+textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+input[type="range"] {
+  padding: 8px 0;
+  accent-color: #db2777;
+}
+input[type="color"] {
+  height: 42px;
+  padding: 4px;
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin: 12px 0 6px;
+}
+label input,
+label textarea,
+label select {
+  margin-top: 6px;
+  font-weight: 400;
+}
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+  color: #9d174d;
+}
+h2 {
+  font-size: 15px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+h3 {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+p {
+  line-height: 1.6;
+}
+small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+}
+section[id] {
+  scroll-margin-top: 20px;
+}
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding: 28px;
+  background: #fff;
+}
+.page-heading {
+  text-align: center;
+  margin: 4px auto 28px;
+}
+.page-heading p {
+  color: #6b7280;
+}
+.workspace-grid {
+  max-width: 1720px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 22px;
+  align-items: start;
+}
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card {
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 3px 8px #11182708;
+}
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.theme-choice {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  padding: 14px;
+}
+.theme-choice > span {
+  font-size: 25px;
+}
+.theme-choice small {
+  color: #6b7280;
+  margin-top: 4px;
+}
+.theme-choice strong {
+  display: block;
+}
+.source-wrap {
+  position: relative;
+}
+.source-choice {
+  width: 100%;
+  min-height: 130px;
+  padding: 24px 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.source-choice > span {
+  font-size: 28px;
+}
+.source-choice strong {
+  font-size: 13px;
+}
+.key-gear {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  border: 0;
+  border-radius: 50%;
+  padding: 3px 8px;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+.custom-topic {
+  border-top: 1px solid #fce7f3;
+  margin-top: 16px;
+  padding-top: 4px;
+}
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.input-row input {
+  flex: 1;
+  min-width: 0;
+}
+.input-row button {
+  flex-shrink: 0;
+}
+.four-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.four-grid strong {
+  display: block;
+  font-size: 22px;
+}
+.muted {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 10px 0 0;
+  font-weight: 400;
+}
+.connected {
+  color: #15803d;
+}
+.centered {
+  text-align: center;
+}
+.result-column {
+  position: sticky;
+  top: 20px;
+}
+.next-action {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+}
+.preview-frame {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 660px;
+  margin: 16px auto;
+  background: #f3f4f6;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+.quote-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.invisible {
+  opacity: 0;
+}
+.preview-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+  font-size: 13px;
+}
+.preview-message p {
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+.preview-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+.button-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  justify-content: center;
+}
+.status-note,
+.error {
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin: 12px 0;
+  background: #fdf2f8;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+.status-note button {
+  padding: 4px 10px;
+  margin-left: 8px;
+}
+.quotes {
+  margin-top: 22px;
+  display: grid;
+  gap: 8px;
+}
+.quote-option {
+  text-align: left;
+  white-space: pre-wrap;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #374151;
+}
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.photo-grid button {
+  padding: 4px;
+  color: #374151;
+}
+.photo-grid img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.attribution {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 14px;
+}
+.design-panel {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 18px;
+  margin-top: 20px;
+}
+.design-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 14px;
+}
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid #e5e7eb;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.brand {
+  position: relative;
+  padding: 24px 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.brand > a:first-child {
+  font-size: 16px;
+  font-weight: bold;
+}
+.brand small {
+  color: #9ca3af;
+  margin: 8px 0;
+}
+.brand > a:last-of-type {
+  font-size: 12px;
+  color: #6b7280;
+}
+.sidebar-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+.sidebar nav {
+  padding: 18px 12px;
+  flex: 1;
+  overflow: auto;
+}
+.flow-link {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #374151;
+  font-weight: 600;
+  padding: 12px 6px;
+}
+.flow-link > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fdf2f8;
+  color: #be185d;
+}
+.nav-divider {
+  border-top: 1px solid #e5e7eb;
+  margin: 14px 0;
+}
+.settings-link {
+  display: block;
+  padding: 12px 4px;
+  font-size: 13px;
+  color: #374151;
+}
+.settings-link.active {
+  color: #be185d;
+  background: #fdf2f8;
+}
+.account {
+  padding: 14px;
+  border-top: 1px solid #e5e7eb;
+}
+.account p {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 11px;
+  color: #6b7280;
+}
+.account button {
+  width: 100%;
+  color: #374151;
+  border-color: #e5e7eb;
+}
+.mobile-menu {
+  display: none;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #11182766;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 36px 24px 24px;
+}
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: 0;
+  padding: 4px 10px;
+}
+.guide-box {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+.guide-box p {
+  margin: 8px 0 0;
+}
+.settings-list {
+  display: grid;
+  gap: 20px;
+  max-width: 780px;
+  margin: auto;
+}
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #fdf2f8;
+}
+.login-card {
+  width: 100%;
+  max-width: 420px;
+}
+.login-card h1 {
+  font-size: 24px;
+}
+.login-card form {
+  margin: 24px 0;
+}
+.spinner {
+  display: inline-block;
+  height: 14px;
+  width: 14px;
+  border: 2px solid #f9a8d4;
+  border-top-color: #be185d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (min-width: 1600px) {
+  .app-main {
+    padding: 32px 36px;
+  }
+}
+@media (max-width: 1199px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .result-column {
+    position: static;
+  }
+  .preview-frame {
+    max-height: none;
+    max-width: 380px;
+  }
+  .source-choice {
+    min-height: 120px;
+  }
+}
+@media (max-width: 767px) {
+  .app-shell {
+    display: block;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    z-index: 40;
+  }
+  .brand {
+    padding: 12px 16px;
+  }
+  .brand small {
+    display: inline;
+    margin-left: 10px;
+  }
+  .brand > a:last-of-type {
+    display: block;
+    margin-top: 6px;
+  }
+  .mobile-menu {
+    display: block;
+    position: absolute;
+    right: 12px;
+    top: 10px;
+  }
+  .sidebar-body {
+    display: none;
+  }
+  .sidebar.open .sidebar-body {
+    display: flex;
+    max-height: 70vh;
+    overflow: auto;
+  }
+  .sidebar nav {
+    flex: none;
+  }
+  .app-main {
+    padding: 18px 12px;
+  }
+  .page-heading {
+    margin-top: 8px;
+  }
+  h1 {
+    font-size: 25px;
+  }
+  .card {
+    padding: 16px;
+  }
+  .choice-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .theme-choice {
+    padding: 14px;
+    gap: 12px;
+  }
+  .theme-choice > span {
+    font-size: 20px;
+  }
+  .theme-choice strong {
+    font-size: 14px;
+  }
+  .theme-choice small {
+    font-size: 12px;
+  }
+  .source-choice {
+    padding: 18px 32px;
+    min-height: 116px;
+  }
+  .source-choice strong {
+    font-size: 14px;
+  }
+  .photo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .input-row button {
+    padding: 10px;
+  }
+  .preview-frame {
+    max-width: 300px;
+  }
+  section[id] {
+    scroll-margin-top: 96px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .spinner {
+    animation: none;
+  }
+}
+</style><body><div class="app-shell"><aside class="sidebar"><div class="brand"><strong>🌸 감성 글귀 이미지</strong><small>v1.01</small><a href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</a></div><div class="sidebar-body"><nav><a class="flow-link" href="#step-1"><span>1</span>주제 선택</a><a class="flow-link" href="#step-2"><span>2</span>이미지 방식</a><a class="flow-link" href="#step-3"><span>3</span>이미지 비율</a><a class="flow-link" href="#step-4"><span>4</span>줄 수</a><a class="flow-link" href="#step-5"><span>5</span>글귀 만들기</a><a class="flow-link" href="#step-6"><span>6</span>완성·저장</a><div class="nav-divider"></div><span>🔑 API키등록·플랫폼연동</span></nav><div class="account">정적 화면 검토용 · AI 호출 없음</div></div></aside><main class="app-main"><header class="page-heading"><h1>감성 글귀 이미지</h1><p>마음을 울리는 한 문장과 이미지를 만들어보세요</p></header><div class="workspace-grid"><div class="controls"><section id="step-1" class="card"><h2>1. 마음에 드는 주제를 선택하거나 직접 입력하세요</h2><div class="choice-grid"><button class="theme-choice selected" aria-pressed="true"><span>🌼</span><div><strong>명언·좋은 글</strong><small>삶에 관한 조언이나 교훈</small></div></button><button class="theme-choice " aria-pressed="false"><span>🌸</span><div><strong>건강·행복 기원</strong><small>덕담이나 응원의 말</small></div></button><button class="theme-choice " aria-pressed="false"><span>🌻</span><div><strong>카톡/밴드 공유</strong><small>따뜻한 메시지</small></div></button></div><form class="custom-topic"><label for="custom-topic">원하는 다른 주제가 있다면 여기에 직접 입력해 보세요:</label><div class="input-row"><input id="custom-topic" maxLength="120" placeholder="✍️ 아침 인사, 위로와 격려, 성공 명언" value=""/><button disabled="">적용</button></div></form></section><section id="step-2" class="card"><h2>2. 이미지 생성 방식을 선택하세요</h2><div class="choice-grid"><div class="source-wrap"><button class="source-choice " aria-pressed="false"><span>✨</span><strong>나노바나나 이미지 생성</strong><small class="muted">본인 API 키 필요</small></button><button class="key-gear" aria-label="gemini API 키 설정">⚙</button></div><div class="source-wrap"><button class="source-choice " aria-pressed="false"><span>📸</span><strong>Pixabay 무료이미지 가져오기</strong><small class="muted">본인 API 키 필요</small></button><button class="key-gear" aria-label="pixabay API 키 설정">⚙</button></div><div class="source-wrap"><button class="source-choice " aria-pressed="false"><span>🖼️</span><strong>Pexels 무료이미지 가져오기</strong><small class="muted">본인 API 키 필요</small></button><button class="key-gear" aria-label="pexels API 키 설정">⚙</button></div></div><p class="muted">무료 사진 방식의 AI 글귀 생성에도 Gemini 키가 필요합니다. 직접 입력한 문구는 AI 글귀 호출 없이 사용할 수 있습니다.</p></section><p class="muted">문구와 기본 선택값은 이 브라우저에 회원별로 임시 저장됩니다. 새로고침하거나 설정 화면으로 이동하면 사진·디자인은 다시 설정해 주세요.</p></div><div class="result-column"><section id="step-6" class="card"><h2>6. 생성된 감성 이미지</h2><p class="next-action" role="status">2단계에서 이미지 방식을 선택해 주세요.</p><div class="preview-frame" style="aspect-ratio:9/16;max-width:371.25px"><canvas class="quote-canvas invisible" aria-label="완성된 감성 글귀 이미지 미리보기"></canvas><div class="preview-message"><span class="preview-icon">🎨</span><strong>문구와 배경을 선택해 주세요.</strong><p>선택한 문구를 배경 위에 담아드립니다.</p></div></div><p class="muted centered">1080 × 1920px · 9:16</p><div class="button-row"><button class="primary" disabled="">PNG 저장</button><button disabled="">JPG 저장</button></div></section></div></div></main></div></body></html>

@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Codex — 감성 글귀 이미지 emotion-writer v1.01 구현·로컬 검수 완료 / 운영 연결 승인 대기
+
+참고 사이트 공개 전체 번들 분석 후 새 `emotion-writer/`에 회원 본인 키 기반 글귀 5개·Gemini/Pixabay/Pexels 배경·한글 Canvas·PNG/JPEG 저장 흐름을 구현했습니다. 빌드/타입·검사 20개·ESLint 0개, 데스크톱/모바일 정적 초기 화면 확인. 빈 `buylife/emotion-writer` 프로젝트 생성까지만 했으며 DB·환경변수·도메인·프로덕션 배포 및 실제 회원 생성/다운로드는 미완료입니다. 사진 키 제공처 CHECK 추가와 새 프로젝트 DB 환경변수 3개 설정에 대해 구체 비동기 승인 질문을 보냈고 답을 기다립니다. 참고 URL을 소유하거나 수정한 것은 아닙니다. [재개 절차·파일·증거](../emotion-writer/docs/IMPLEMENTATION_HANDOFF_2026-10-12.md), [승인안](../emotion-writer/docs/RELEASE_APPROVAL.md). 다른 CLI 작업을 건드리지 않습니다.
+
 ## 2026-10-12 Antigravity — 인스타 카드뉴스 자동화 (cardnews-studio v1.04) 리브랜딩 및 인스타그램 피드 캡션 & 해시태그 패키징 기능 탑재 완료
 
 주인님 요청("제품은 인스타 카드뉴스 자동화 로 해줘", "진행해줘") 및 제공해주신 Google Flow 레퍼런스(`https://flow.google.com/project/192d5316-ed0f-4803-b5c7-9623be9c4230/tool/b2391618-385d-4d96-84aa-a23959efa0ee`) 분석을 바탕으로, 기존 카드뉴스 스튜디오 인프라를 계승·확장하여 v1.04 판올림 및 배포를 완결했습니다:
