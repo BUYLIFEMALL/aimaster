@@ -1,6 +1,6 @@
 # LP 턴테이블 자동화 (LP Turntable Studio)
 
-- **버전**: `v1.02`
+- **버전**: `v1.03`
 - **도메인**: `https://lp-turntable.buylife.xyz` (Vercel: `https://lp-turntable.vercel.app`)
 - **프로그램 명칭**: **LP 턴테이블 자동화 (LP Turntable Studio)**
 - **정체성**: Google Gemini AI를 활용하여 바이닐 LP 레코드 및 CD 컴팩트 디스크의 감각적인 앨범 아트를 디자인하고, 브라우저에서 직접 고화질 60fps MP4 회전 비디오와 무한 루프 GIF 목업을 생성하는 전문 턴테이블 영상 자동화 스튜디오

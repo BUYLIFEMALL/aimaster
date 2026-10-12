@@ -1,6 +1,6 @@
 # LP 턴테이블 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
-> **프로그램 버전**: `v1.02` (2026-10-12 LP 턴테이블 자동화 명칭 개편 및 도메인 동기화)  
+> **프로그램 버전**: `v1.03` (2026-10-12 LP 턴테이블 자동화 바이닐 텍스트 삭제, 신규 썸네일 등록 및 매뉴얼 완비)  
 > **공식 커스텀 도메인**: [https://lp-turntable.buylife.xyz](https://lp-turntable.buylife.xyz) (Vercel: `https://lp-turntable.vercel.app`)  
 > **프로그램 slug**: `vinyl-lp-studio`  
 > **카테고리**: 음악 / 멀티미디어  
