@@ -359,3 +359,40 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .token-list button { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; color: #b33b27; font-size: 12px; }
 @media (max-width: 920px) { .studio-shell { grid-template-columns: 1fr; } .sidebar { border-right: 0; border-bottom: 1px solid var(--line); padding: 18px; } .nav { display: flex; overflow-x: auto; margin-top: 20px; } .nav-link { white-space: nowrap; } .side-note { display: none; } .main { padding: 28px 18px 40px; } .workspace, .draft-result-grid { grid-template-columns: 1fr; } .settings-layout { grid-template-columns: 1fr; } .reference-sidebar { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 18px; } .reference-account { display: none; } .settings-sidebar { border-right: 0; border-bottom: 1px solid var(--line); padding: 18px; } .settings-nav { display: flex; overflow-x: auto; margin-top: 20px; } .settings-nav a { white-space: nowrap; } .settings-sidebar-note { display: none; } .settings-layout > .settings-card { width: min(100% - 36px, 780px); margin: 28px auto 40px; } .history-row { align-items: center; } .history-delete { padding: 8px; } }
 @media (max-width: 680px) { .content-generation-models, .content-image-stage, .content-image-control-row, .dashboard-stats, .dashboard-activity-grid { grid-template-columns: 1fr; } .content-image-heading-description { grid-column: 1; } .content-image-generate-button { justify-self: start; margin-top: 10px; } .content-block-editor-footer { align-items: stretch; flex-direction: column; } .content-block-editor-actions { display: grid; grid-template-columns: 1fr; } .content-block-editor-actions > button { width: 100%; } .content-block-save-status, .content-block-handoff-status { max-width: none; text-align: left; } .image-with-draft-option { flex-wrap: wrap; } .image-model-control { width: 100%; min-width: 0; margin-left: 25px; } .history-controls { grid-template-columns: 1fr; } .history-actions { flex: 0 0 auto; } }
+
+/* 카테고리(생성 기록 분류 + 네이버 발행 카테고리) — v1.62 */
+.cat-panel { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; margin-bottom: 12px; }
+.cat-field { display: grid; gap: 6px; }
+.cat-field label { font-size: 12px; font-weight: 700; color: var(--ink); }
+.cat-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cat-row select, .cat-mini { border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); padding: 8px 10px; font-size: 12px; min-width: 0; max-width: 100%; }
+.cat-row select { flex: 1 1 180px; }
+.cat-mini { padding: 5px 8px; font-size: 11px; }
+.cat-hint { margin: 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.cat-error { margin: 0; padding: 8px 10px; border-radius: 8px; background: #fef2f2; color: #b91c1c; font-size: 12px; }
+.cat-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 12px; }
+.cat-chips button:not(.text-button) { border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.cat-chips button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cat-chips button span { opacity: .65; margin-left: 2px; }
+.cat-backdrop { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(23, 23, 23, .55); }
+.cat-modal { width: 100%; max-width: 520px; max-height: 85vh; display: flex; flex-direction: column; border-radius: 16px; background: #fff; overflow: hidden; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
+.cat-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.cat-modal-head h3 { margin: 0; font-size: 16px; }
+.cat-modal-head p { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
+.cat-close { border: 0; border-radius: 50%; width: 30px; height: 30px; background: #f0eeea; font-size: 18px; cursor: pointer; }
+.cat-modal-body { padding: 16px 20px; overflow-y: auto; display: grid; gap: 12px; }
+.cat-add { display: flex; gap: 8px; }
+.cat-add input, .cat-edit input { flex: 1; border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; font-size: 13px; }
+.cat-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.cat-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.cat-list li:last-child { border-bottom: 0; }
+.cat-list li strong { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-list li small { color: var(--muted); font-size: 11px; }
+.cat-order { display: flex; flex-direction: column; }
+.cat-order button { border: 0; background: transparent; color: var(--muted); font-size: 10px; line-height: 1.1; cursor: pointer; }
+.cat-order button:disabled { opacity: .25; cursor: default; }
+.cat-actions { display: flex; gap: 6px; align-items: center; }
+.cat-edit { display: flex; gap: 6px; width: 100%; align-items: center; }
+.cat-warn { color: #b91c1c !important; }
+.cat-note { margin: 0; font-size: 11px; color: var(--muted); }
+.cat-modal-foot { padding: 12px 20px; border-top: 1px solid var(--line); background: var(--paper); text-align: right; }

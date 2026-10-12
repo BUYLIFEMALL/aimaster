@@ -50,3 +50,9 @@
 - 알림 코드가 들어간 v1.60 이상 확장은 회원이 한 번 직접 다시 설치해야 이후부터 알림이 뜬다(v1.59 이하에는 코드가 없다).
 - 이 프로그램은 배포 전에 `npm run extension:archive`로 ZIP을 직접 만들어야 한다(`prebuild`에 연결돼 있지 않다). 배포 후 루트에서 `node scripts/check-extension-release.mjs naver-blog-seo-studio`로 DB·ZIP 버전 일치를 확인한다(`docs/EXTENSION_RELEASE_RULES.md`).
 - 검사: `npm run test:update-banner`.
+
+## 카테고리 기능 (2026-10-12, v1.62, Claude Code — 주인님 요청: 다른 블로그 자동화(올인원·ai-auto-blog)의 카테고리를 확장)
+- **생성 기록 분류(보관함 분류)**: 회원별 목록 `naver_blog_seo_categories`(RLS owner-only), API `GET/PUT /api/categories`(목록 전체 교체). 글에는 분류 **id**만 `naver_blog_seo_drafts.category_id`로 저장(이름을 바꿔도 유지, 지우면 '미분류'). 글 이동·네이버 카테고리 변경은 `PATCH /api/drafts/[draftId]/category`(본문·이미지는 건드리지 않음). 화면: 결과 화면 [Chrome 확장 전송] 위 `DraftCategoryPanel`, 생성 기록 화면의 카테고리 칩 필터·분류 이동 셀렉트·[카테고리 관리] 모달(`components/categories/*`). 목록이 비어 있으면 기본 6개(생활/살림꿀팁 등)를 보여 주고 처음 편집할 때 저장된다. 복제하면 분류도 복사된다.
+- **네이버 발행 카테고리**: 웹에서 [카테고리 불러오기] → 확장이 새 탭에서 발행 설정창만 열어 실제 카테고리(번호·이름)를 읽고 닫는다 → 목록에서 선택 → `naver_blog_seo_drafts.naver_category`(`{id,name}`)에 저장. 기본값은 마지막으로 쓴 카테고리(브라우저 localStorage `naver_blog_seo_naver_category_last_v1`)를 새 글에 자동 선택. 확장은 입력 뒤 발행 설정에서 **번호+이름이 정확히 같을 때만** 그 카테고리를 선택하고(`naver-category-page.js`의 `categorySelect`, ai-auto-blog가 실제 화면에서 확인한 셀렉터 `categoryItemText_<번호>`), 웹에서 고른 값이 없으면 기존 방식(사이드패널 '카테고리명' 입력)을 그대로 쓴다. 최종 발행은 누르지 않는다.
+- **확장 v1.62**: `web-bridge.js`(content script, 이 사이트 출처만, ping·categories 요청만 전달), `background.js`(서비스 워커가 카테고리 읽기 — 사이트 화면에서 온 요청만 허용), `naver-category-page.js`(네이버 화면 안 명령), 사이드패널이 `/api/extension/drafts/library` 응답의 `naver_category`를 사용. manifest에 content_scripts 추가(새 권한 없음). 옛 확장(v1.61 이하)은 [카테고리 불러오기]에서 버전을 확인해 "ZIP 덮어쓰기" 안내를 보여 준다.
+- **미검증**: 실제 네이버 발행 설정창에서 목록 읽기·선택(주인님 PC 확인 필요). 테스트 `npm run test:categories`.

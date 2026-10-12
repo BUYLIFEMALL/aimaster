@@ -414,10 +414,18 @@ async function openNaverPublishSettings(tabId) {
   throw new Error("발행 설정창이 열렸는지 확인하지 못했습니다. 마지막 발행 버튼은 자동으로 누르지 않았습니다.");
 }
 
+// 웹에서 고른 네이버 발행 카테고리({id, name}) — 지금 입력 중인 글의 것. 없으면 null.
+function activeDraftNaverCategory() {
+  const draft = webDrafts.find((item) => item.id === activeWebDraftId);
+  const category = draft?.naver_category;
+  return category && /^\d{1,12}$/.test(String(category.id)) && String(category.name || "").trim() ? { id: String(category.id), name: String(category.name).trim() } : null;
+}
+
 async function fillPublishInfoIntoNaver() {
-  const category = $("publishCategory").value.trim();
+  const draftCategory = activeDraftNaverCategory();
+  const category = draftCategory ? "" : $("publishCategory").value.trim();
   const tags = [...new Set($("publishTags").value.split(",").map((tag) => tag.trim().replace(/^#+/, "")).filter(Boolean))];
-  if (!category && !tags.length) throw new Error("태그 또는 카테고리를 입력해주세요.");
+  if (!category && !draftCategory && !tags.length) throw new Error("태그 또는 카테고리를 입력해주세요.");
   if (tags.length > 30) throw new Error("태그는 최대 30개까지 입력해주세요.");
   const tab = await getNaverBlogTab();
   if (!tab?.id) throw new Error("네이버 블로그 글쓰기 탭을 찾지 못했습니다.");
@@ -453,6 +461,12 @@ async function fillPublishInfoIntoNaver() {
     } finally {
       await chrome.debugger.detach({ tabId: tab.id });
     }
+  }
+  if (draftCategory) {
+    // 번호(id)로 정확히 하나를 찾고 이름이 같을 때만 선택한다(이름이 바뀌었거나 번호가 없으면 선택하지 않고 안내).
+    const result = await chrome.scripting.executeScript({ target, func: aioCategoryCommand, args: ["categorySelect", { id: draftCategory.id, name: draftCategory.name }] });
+    const picked = result.map((entry) => entry.result).find((item) => item && item.ok) || result.map((entry) => entry.result).find((item) => item && !item.notHere);
+    if (!picked?.ok) throw new Error(picked?.reason || picked?.error || "네이버 카테고리를 선택하지 못했습니다.");
   }
   if (category) {
     const opened = await chrome.scripting.executeScript({
@@ -494,7 +508,7 @@ async function preparePublishSettingsAfterContentInput(paragraphCount, inputSumm
   await reportWebDraftInputResult("completed", { paragraphCount }).catch(() => {});
   const category = $("publishCategory").value.trim();
   const tags = $("publishTags").value.trim();
-  if (!category && !tags) {
+  if (!category && !activeDraftNaverCategory() && !tags) {
     $("generateStatus").textContent = `${inputSummary} 카테고리·태그가 저장되지 않아 발행 설정은 자동으로 열지 않았습니다.`;
     $("publishStatus").textContent = "카테고리·태그를 저장하면 다음 콘텐츠 입력부터 자동으로 설정합니다.";
     return true;

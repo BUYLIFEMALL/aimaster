@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:browser": "node --test tests/browser/extension-regression.test.mjs",
     "test:update-banner": "node --test tests/update-banner.test.mjs",
+    "test:categories": "node --test tests/categories.test.mjs",
     "extension:archive": "node scripts/build-extension-archive.mjs"
   },
   "dependencies": {

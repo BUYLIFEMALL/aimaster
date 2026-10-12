@@ -11,7 +11,7 @@ export async function POST(_request: Request, context: { params: Promise<{ draft
   const { draftId } = await context.params;
   const supabase = await createClient();
   const { data: original, error: findError } = await supabase.from("naver_blog_seo_drafts")
-    .select("topic, keywords, strategy, title, body, seo_report")
+    .select("topic, keywords, strategy, title, body, seo_report, category_id, naver_category")
     .eq("id", draftId).eq("user_id", access.user.id)
     .maybeSingle();
   if (findError || !original) return NextResponse.json({ error: "복제할 내 초안을 찾지 못했습니다." }, { status: 404 });
@@ -30,8 +30,10 @@ export async function POST(_request: Request, context: { params: Promise<{ draft
       seo_report: copiedReport,
       status: "ready",
       naver_input_status: "not_started",
+      category_id: original.category_id ?? null,
+      naver_category: original.naver_category ?? null,
     })
-    .select("id, topic, keywords, strategy, title, body, seo_report, created_at, image_path, image_model, image_mime_type, naver_input_status, naver_input_completed_at, naver_input_error")
+    .select("id, topic, keywords, strategy, title, body, seo_report, created_at, image_path, image_model, image_mime_type, naver_input_status, naver_input_completed_at, naver_input_error, category_id, naver_category")
     .single();
   if (error) return NextResponse.json({ error: "초안을 복제하지 못했습니다." }, { status: 500 });
   return NextResponse.json({ draft: data });

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AIMaster Naver Blog SEO Studio",
-  "version": "1.61.0",
-  "version_name": "v1.61",
+  "version": "1.62.0",
+  "version_name": "v1.62",
   "description": "SEO Studio 전송 콘텐츠를 네이버 블로그에 입력하는 확장 프로그램",
   "permissions": ["sidePanel", "storage", "scripting", "tabs", "debugger"],
   "host_permissions": [
@@ -10,6 +10,7 @@
     "https://naver-blog-seo-studio.vercel.app/*"
   ],
   "background": { "service_worker": "background.js" },
+  "content_scripts": [{ "matches": ["https://naver-blog-seo-studio.vercel.app/*"], "js": ["web-bridge.js"], "run_at": "document_start" }],
   "side_panel": { "default_path": "sidepanel.html" },
   "action": { "default_title": "Naver Blog SEO Studio" }
 }
