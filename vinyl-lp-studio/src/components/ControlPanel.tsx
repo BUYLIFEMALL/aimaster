@@ -164,7 +164,7 @@ export function ControlPanel({
               }`}
             >
               <Disc className="w-4 h-4 text-amber-600" />
-              <span>바이닐 LP 레코드</span>
+              <span>LP 레코드</span>
             </button>
             <button
               type="button"

@@ -79,7 +79,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <div className="space-y-0.5">
                 <p className="font-bold text-slate-800">턴테이블 재생 속도 (RPM) 설정</p>
                 <p className="text-[11px] text-slate-500">
-                  10 ~ 100 RPM 슬라이더로 회전 속도를 조절합니다. 33 RPM(클래식 LP), 45 RPM(싱글 바이닐), 78 RPM(고속) 등 프리셋을 지원합니다.
+                  10 ~ 100 RPM 슬라이더로 회전 속도를 조절합니다. 33 RPM(클래식 LP), 45 RPM(싱글 음반), 78 RPM(고속) 등 프리셋을 지원합니다.
                 </p>
               </div>
             </div>

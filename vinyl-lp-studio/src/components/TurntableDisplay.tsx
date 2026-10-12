@@ -34,7 +34,7 @@ export function TurntableDisplay({ state, onReset }: TurntableDisplayProps) {
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span className="text-xs font-bold text-slate-800">
-            {state.mediaType === "vinyl" ? "바이닐 LP 턴테이블" : "CD 플레이어"}
+            {state.mediaType === "vinyl" ? "LP 턴테이블" : "CD 플레이어"}
           </span>
           <span className="text-[10px] font-mono text-slate-400">
             • {state.speed} RPM • {spinDurationSec}s/rev
