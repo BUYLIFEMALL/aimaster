@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 무한루프 영상자동화 (infinite-loop-video v1.02) 신규 구축·배포
+
+- 참고(seamless-loop-studio) 분석 후 새로 구현. 브라우저 전용(ffmpeg.wasm), API 키·서버 비용 없음, FREE+new 배지, 핸드폰 확인 포함 접근 판정, 요금제 3단계 등록, DB `programs.version`=v1.02, 도메인 `infinite-loop-video.buylife.xyz` 연결.
+- 순수 함수 테스트 15개 통과, 프로덕션 배포·로그인 후 화면 렌더 확인.
+- **남은 일**: 실제 영상으로 끝에서 끝까지 화면 검수(Chrome 창이 백그라운드라 영상 로딩 불가였음), 썸네일, 밝기 보정·실시간 미리보기(미구현). 상세는 `infinite-loop-video/README.md`.
+
 ## 2026-10-12 Antigravity — AI 바이닐 스튜디오 (vinyl-lp-studio v1.01) 신규 구축 및 프로덕션 배포 완료
 
 주인님 요청("다음 프로젝트 진행하자 https://spin-gen.vercel.app/ 자세히 분석후 구현해줘")에 따라, 원본 레퍼런스 사이트의 HTML 소스, 메인 번들 JS, Canvas 셰이더 및 WebCodecs/gifenc 인코딩 엔진을 100% 전수 역분석하고, AIMaster 플랫폼 표준 규격([`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md))과 최상위 절대 불변 규칙을 완벽하게 준수한 신규 서브프로젝트 **`vinyl-lp-studio` (v1.01)**을 구축하여 프로덕션 배포 완료했습니다:

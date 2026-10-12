@@ -1,0 +1,31 @@
+{
+  "name": "infinite-loop-video",
+  "version": "1.02.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --import tsx --test tests/loop.test.mjs tests/access.test.mjs"
+  },
+  "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "@supabase/ssr": "^0.12.3",
+    "@supabase/supabase-js": "^2.110.8",
+    "lucide-react": "^1.48.0",
+    "next": "16.2.11",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}
