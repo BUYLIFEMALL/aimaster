@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 프로그램명 변경: 뮤직비디오 스튜디오 → 뮤직비디오 자동화 (music-video-studio v1.02)
+
+주인님 지시로 화면(`APP_NAME`)·메타데이터·DB `programs.name/short_desc`·README/AGENTS·마이그레이션 SQL·`HANDOFF_CLAUDE_SESSION_2026-10-12_PART2.md`의 이름을 바꿨습니다(slug·주소 `music-video-studio.buylife.xyz` 그대로, 버전 v1.02, 배포 완료). 이 문서 아래의 이전 항목에 남은 옛 이름은 당시 기록이라 그대로 둡니다. 저장소·DB(programs, platform_guides)에서 옛 이름 잔여는 없음을 검색으로 확인했습니다.
+
 ## 2026-10-12 Claude — 세션 후반 통합 인수인계 (이미지 변환 v1.04 · 웹툰 v1.06 · 카드뉴스 v1.06 · 뮤직비디오 v1.01)
 
 이 세션 후반 작업을 한 문서로 모았습니다: `docs/HANDOFF_CLAUDE_SESSION_2026-10-12_PART2.md` (중복 점검 결과, 뮤직비디오↔Suno 음악기획 연계는 **나중 고도화로 확정**, 미검증 항목, 다음 할 일). 모든 코드는 커밋·푸시·배포 완료.

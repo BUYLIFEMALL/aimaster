@@ -1,4 +1,4 @@
-# 뮤직비디오 스튜디오 (music-video-studio) — v1.01
+# 뮤직비디오 자동화 (music-video-studio) — v1.02
 
 주제·장르로 가사를 쓰고, 가사를 장면으로 나눈 스토리보드를 만들어 **장면별 이미지(나노바나나)와 Veo 영상 클립**까지 만드는 프로그램입니다.
 참고 도구: Google Flow "뮤직비디오 만들기 V3"(공유 도구). 화면·옵션을 실제 Chrome으로 확인해 AIMaster 규칙(통합 로그인·권한, 흰색 베이스, 표준 사이드바, 회원 본인 키)에 맞춰 새로 만들었습니다.
@@ -28,3 +28,4 @@
 - 화풍 목록: Flow에서 5종(Cinematic·Anime·Oil Painting·Watercolor·Cyberpunk)만 확인, 나머지 3종은 추가분. 장면 수·길이 선택지는 Veo 문서 기준.
 - 등록 SQL: `supabase/migrations/0001_register_program.sql`
 - **고도화 예정(2026-10-12 주인님 확정): Suno 음악기획 자동화(`suno-music-studio`)와 연계.** 1단계 가사 생성이 겹치므로, Suno 음악기획의 저장곡 JSON을 불러오거나 1단계를 가사 붙여 넣기 중심으로 줄이는 방향. 상세: `docs/HANDOFF_CLAUDE_SESSION_2026-10-12_PART2.md` 3번.
+- v1.02 (2026-10-12): 주인님 지시로 프로그램명을 "뮤직비디오 스튜디오"에서 **"뮤직비디오 자동화"**로 변경(화면·메타데이터·DB). slug·주소는 그대로.

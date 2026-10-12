@@ -8,14 +8,14 @@
 | 이미지 변환 스튜디오 `image-convert-studio` | v1.04 | Imagic 분석 후 신규(변환·업스케일·콜라주, 브라우저 처리, KO/EN). pica 웹 워커 멈춤 수정(v1.02), 일본어 삭제(v1.03), 한국어 사용 안내 교체(v1.04) | `7c85503a` `c914f245` `b43ee383` | image-convert-studio.buylife.xyz |
 | AI 웹툰 자동화 `ai-webtoon-studio` | v1.06 | Flow "AI 웹툰 스튜디오 PRO"와 대조해 아트 스타일 6종 추가(총 11종) | `714105b9` | ai-webtoon-automation.buylife.xyz |
 | INSTA Cardnews 자동화 `cardnews-studio` | v1.06 | Flow "Carousel Pro" 옵션 1:1 대조 → 빠져 있던 카드 아이콘 추가(24종, AI 선택·장별 변경·크기/위치), 무드 이름 임팩트형→볼드형 | `489b2adc` | cardnews-studio.buylife.xyz |
-| 뮤직비디오 스튜디오 `music-video-studio` | v1.01 | Flow "뮤직비디오 만들기 V3" 분석 후 신규(가사 → 스토리보드 → 장면 이미지 → Veo 영상). 회원 본인 Gemini 키 전용 | `0e82fcd1` | music-video-studio.buylife.xyz |
+| 뮤직비디오 자동화 `music-video-studio` (구 "뮤직비디오 스튜디오") | v1.02 | Flow "뮤직비디오 만들기 V3" 분석 후 신규(가사 → 스토리보드 → 장면 이미지 → Veo 영상). 회원 본인 Gemini 키 전용 | `0e82fcd1` | music-video-studio.buylife.xyz |
 
 ## 2. 중복 점검 결과(중요 — 새 프로그램을 만들기 전에 반드시 확인)
 같은 참고 자료로 이미 만들어진 프로그램이 이 세션에서 계속 발견됐습니다. **참고 URL을 받으면 코드를 짜기 전에 `programs` 테이블과 저장소 폴더부터 대조하세요.**
 - `seo-thumbnail-pro`(AI 유튜브 썸네일 프로, Antigravity가 2026-10-11 배포) = 참고 사이트 seo-thumbnail-pro-99gg.vercel.app. "SEO 썸네일 자동화"를 새로 만들려다 중복으로 확인되어 **주인님 요청으로 중단**했습니다(분석 메모: 원본 JS 번들에서 확인한 구조는 3열 화면, 분석 `gemini-3-flash-preview`, 이미지 `gemini-3.1-flash-image-preview` 16:9, 사용량 모니터·테마 전환 있음. 기존 프로그램에는 사용량 모니터·테마 전환·"자동채우기로 이동" 연결이 없음. 보강 여부는 미결정).
 - Flow 프로젝트(192d5316…)의 공유 도구 4개: 웹툰 PRO = `ai-webtoon-studio`, Carousel Pro/Basic = `cardnews-studio`, 뮤직비디오 V3 = (일부) Suno 계열 + 신규 `music-video-studio`.
 
-## 3. 뮤직비디오 스튜디오 ↔ Suno 음악기획 자동화 연계(나중 고도화로 확정, 2026-10-12 주인님)
+## 3. 뮤직비디오 자동화 ↔ Suno 음악기획 자동화 연계(나중 고도화로 확정, 2026-10-12 주인님)
 - 겹치는 기능: 가사·제목·Suno 스타일 생성(`/music` 1단계 vs `suno-music-studio`). 겹치지 않는 기능: 스토리보드·장면 이미지·Veo 영상(뮤직비디오 전용), 앨범 기획·곡 보관함·프리셋(Suno 음악기획 전용), 실제 곡 파일 생성(`music-automation` 전용).
 - **결정: 지금은 두 프로그램을 그대로 두고, 나중에 두 프로그램을 연계하는 방향으로 고도화한다.** 연계 아이디어(미구현): ① Suno 음악기획 저장곡의 JSON 내보내기를 뮤직비디오 1단계에서 불러오기 ② 뮤직비디오 1단계는 가사 붙여 넣기 중심으로 줄이고 Suno 음악기획으로 안내 ③ 뮤직비디오 `exportJson` 형식과 Suno 음악기획 저장 JSON의 필드 매핑 정의. 두 프로그램은 별도 Vercel 프로젝트·별도 localStorage라 파일(JSON) 연계가 현실적.
 
