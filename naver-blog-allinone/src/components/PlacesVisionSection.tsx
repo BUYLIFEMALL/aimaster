@@ -498,85 +498,6 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
           </div>
         </div>
 
-        {/* Drag & Drop Upload Zone */}
-        <div className="relative border-2 border-dashed border-slate-300 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20 rounded-2xl p-6 text-center transition cursor-pointer group">
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handlePhotoUpload}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          />
-          <div className="flex flex-col items-center justify-center space-y-2 pointer-events-none">
-            <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-110 transition">
-              <Upload className="w-6 h-6" />
-            </div>
-            <p className="text-xs font-bold text-slate-800">
-              클릭하거나 사진을 이곳으로 드래그하세요
-            </p>
-            <p className="text-[11px] text-slate-500">
-              여러 장의 사진을 한 번에 선택할 수 있습니다 (스마트폰 촬영 원본 고화질 지원)
-            </p>
-          </div>
-        </div>
-
-        {/* Uploaded Photos Grid */}
-        {photos.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-700">
-                업로드된 사진 ({photos.length}장)
-              </span>
-              <span className="text-slate-400 text-[11px]">
-                별 아이콘 사진이 대표 썸네일로 설정됩니다
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {photos.map((p, idx) => (
-                <div
-                  key={p.id}
-                  onClick={() => handleSetThumbnail(p.id)}
-                  className={`relative rounded-xl overflow-hidden border-2 cursor-pointer transition group shadow-2xs ${
-                    p.isThumbnail
-                      ? "border-amber-500 ring-2 ring-amber-400/30"
-                      : "border-slate-200 hover:border-slate-400"
-                  }`}
-                >
-                  <img
-                    src={p.previewUrl}
-                    alt={p.name}
-                    className="w-full h-24 object-cover"
-                  />
-                  {/* Photo Index Badge */}
-                  <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[9px] font-extrabold bg-slate-900/80 text-white rounded-md">
-                    사진 {idx + 1}
-                  </span>
-
-                  {/* Thumbnail Star Badge */}
-                  {p.isThumbnail && (
-                    <span className="absolute top-1.5 right-1.5 p-1 bg-amber-500 text-white rounded-full shadow-xs">
-                      <Star className="w-3 h-3 fill-current" />
-                    </span>
-                  )}
-
-                  {/* Remove Button */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemovePhoto(p.id);
-                    }}
-                    className="absolute bottom-1.5 right-1.5 p-1 bg-slate-900/70 hover:bg-rose-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Visit Information Form */}
         <div className="bg-slate-50/80 rounded-xl border border-slate-200/90 p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
@@ -798,6 +719,95 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
           topicPlaceholder="예: 감성 카페 방문 후기를 20대 에디터 관점으로"
           disabled={loading}
         />
+
+        {/* 방문 사진(이미지): 글 생성 설정(페르소나) 다음, 이미지 모델 설정 앞 — 아이디어 탭의 흐름과 같게 */}
+        <div className="bg-slate-50/80 rounded-xl border border-slate-200/90 p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+            <div className="flex items-center gap-1.5">
+              <Camera className="w-4 h-4 text-emerald-600" />
+              <h4 className="text-xs font-bold text-slate-800">방문 사진 (선택)</h4>
+            </div>
+            <span className="text-[10px] text-slate-500">사진을 올리면 사진으로 글을 만들고, 없으면 아래 이미지 옵션으로 AI 이미지를 만듭니다</span>
+          </div>
+          {/* Drag & Drop Upload Zone */}
+          <div className="relative border-2 border-dashed border-slate-300 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20 rounded-2xl p-6 text-center transition cursor-pointer group">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            <div className="flex flex-col items-center justify-center space-y-2 pointer-events-none">
+              <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-110 transition">
+                <Upload className="w-6 h-6" />
+              </div>
+              <p className="text-xs font-bold text-slate-800">
+                클릭하거나 사진을 이곳으로 드래그하세요
+              </p>
+              <p className="text-[11px] text-slate-500">
+                여러 장의 사진을 한 번에 선택할 수 있습니다 (스마트폰 촬영 원본 고화질 지원)
+              </p>
+            </div>
+          </div>
+
+          {/* Uploaded Photos Grid */}
+          {photos.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-700">
+                  업로드된 사진 ({photos.length}장)
+                </span>
+                <span className="text-slate-400 text-[11px]">
+                  별 아이콘 사진이 대표 썸네일로 설정됩니다
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {photos.map((p, idx) => (
+                  <div
+                    key={p.id}
+                    onClick={() => handleSetThumbnail(p.id)}
+                    className={`relative rounded-xl overflow-hidden border-2 cursor-pointer transition group shadow-2xs ${
+                      p.isThumbnail
+                        ? "border-amber-500 ring-2 ring-amber-400/30"
+                        : "border-slate-200 hover:border-slate-400"
+                    }`}
+                  >
+                    <img
+                      src={p.previewUrl}
+                      alt={p.name}
+                      className="w-full h-24 object-cover"
+                    />
+                    {/* Photo Index Badge */}
+                    <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[9px] font-extrabold bg-slate-900/80 text-white rounded-md">
+                      사진 {idx + 1}
+                    </span>
+
+                    {/* Thumbnail Star Badge */}
+                    {p.isThumbnail && (
+                      <span className="absolute top-1.5 right-1.5 p-1 bg-amber-500 text-white rounded-full shadow-xs">
+                        <Star className="w-3 h-3 fill-current" />
+                      </span>
+                    )}
+
+                    {/* Remove Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemovePhoto(p.id);
+                      }}
+                      className="absolute bottom-1.5 right-1.5 p-1 bg-slate-900/70 hover:bg-rose-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* 모델 · 디자인 · 이미지 설정 (아이디어 탭과 같은 하늘색 박스) */}
         <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/50 p-5 space-y-6">
