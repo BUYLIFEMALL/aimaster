@@ -10,16 +10,18 @@ import { ExportPublishPanel } from "./ExportPublishPanel";
 import { LivePreviewPanel } from "./LivePreviewPanel";
 import { SettingsModal } from "@/components/modals/SettingsModal";
 import { HelpModal } from "@/components/modals/HelpModal";
-import { EbookProject } from "@/lib/types";
+import { EbookProject, Chapter, OutlineItem } from "@/lib/types";
 import { buildStandaloneHtml } from "@/lib/template";
+import { Sparkles, RefreshCw, X, AlertCircle } from "lucide-react";
 
 const STORAGE_KEY = "ebook_studio_current_project";
 
-const DEFAULT_PROJECT: EbookProject = {
-  id: "project-init",
+const SAMPLE_PROJECT: EbookProject = {
+  id: "sample-business-ai",
   title: "통찰하는 기계, 질문하는 리더",
   subtitle: "AI 시대, 리더의 새로운 역할을 탐구하다",
   author: "김지훈",
+  coverImage: null,
   chapters: [
     {
       id: "ch-1",
@@ -63,6 +65,25 @@ AI가 만들어낸 화려한 보고서와 전략 제안서를 맹신해서는 �
         "현재 우리 팀 업무에서 가장 반복적이고 소모적인 구간은 어디인가요?",
       ],
     },
+    {
+      id: "ch-3",
+      title: "제3장. 데이터와 직관의 황금비율",
+      summary: "정량적 데이터 분석과 리더의 인간적 직관이 어떻게 결합되어 최고의 의사결정을 이끄는지 살펴봅니다.",
+      content: `### 3.1 숫자가 말하지 않는 행간을 읽다
+데이터는 과거의 기록일 뿐 미래의 정답을 보장하지 않습니다. 탁월한 리더는 데이터의 한계를 명확히 인식하고, 고객과의 직접적인 대화와 현장의 호흡을 통해 얻은 정성적 직관을 결합합니다.
+
+### 3.2 분별 있는 의사결정의 3원칙
+1. 데이터의 출처와 가공 과정을 검증하라.
+2. 상반된 가설을 AI에게 질문하여 편향을 제거하라.
+3. 최종 결정의 책임은 인간 리더가 진다.`,
+      takeaways: [
+        "데이터는 판단의 보조 지표이며 직관과 현장 감각이 결합되어야 합니다.",
+        "편향을 줄이기 위해 AI에게 반대 논리를 적극적으로 질문하세요.",
+      ],
+      questions: [
+        "최근 데이터만 믿고 내렸다가 놓쳤던 요소는 무엇이 있었나요?",
+      ],
+    },
   ],
   style: {
     theme: "warm",
@@ -80,7 +101,7 @@ interface StudioWorkspaceProps {
 }
 
 export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
-  const [project, setProject] = useState<EbookProject>(DEFAULT_PROJECT);
+  const [project, setProject] = useState<EbookProject>(SAMPLE_PROJECT);
   const [currentStep, setCurrentStep] = useState<FlowStep>("source");
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
@@ -88,9 +109,17 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  // 전자책 AI 순차 생성 상태
+  const [isGeneratingChapters, setIsGeneratingChapters] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState<{
+    current: number;
+    total: number;
+    title: string;
+  } | null>(null);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
+
   // 로컬 저장소 및 서버 API 키 불러오기
   useEffect(() => {
-    // 1. 프로젝트 불러오기
     try {
       const savedProject = localStorage.getItem(STORAGE_KEY);
       if (savedProject) {
@@ -103,13 +132,11 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
       console.warn("Failed to load project from localStorage:", e);
     }
 
-    // 2. API 키 불러오기 (로컬 및 서버)
     const localKey = localStorage.getItem("ebook_studio_gemini_api_key");
     const localModel = localStorage.getItem("ebook_studio_gemini_model");
     if (localKey) setApiKey(localKey);
     if (localModel) setSelectedModel(localModel);
 
-    // 서버 DB 키 동기화 확인
     fetch("/api/user/key")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -121,7 +148,7 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
       .catch((err) => console.warn("Failed to fetch user key from server:", err));
   }, []);
 
-  // 프로젝트 변경 시 로컬스토리지 자동 저장
+  // 프로젝트 변경 시 저장
   const handleUpdateProject = (updates: Partial<EbookProject>) => {
     setProject((prev) => {
       const updated = {
@@ -138,6 +165,7 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
     });
   };
 
+  // 새 프로젝트 시작
   const handleNewProject = () => {
     if (!confirm("새로운 전자책을 작성하시겠습니까? 현재 작업 중인 내용은 초기화됩니다.")) return;
     const fresh: EbookProject = {
@@ -146,6 +174,8 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
       subtitle: "",
       author: userEmail ? userEmail.split("@")[0] : "작성자",
       chapters: [],
+      sources: [],
+      outline: [],
       style: {
         theme: "warm",
         font: "notoSans",
@@ -161,11 +191,116 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
   };
 
-  const handleRestoreProject = (imported: EbookProject) => {
-    setProject(imported);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+  // 샘플 불러오기
+  const handleLoadSample = () => {
+    if (!confirm("완성된 비즈니스 리더십 샘플 전자책을 불러오시겠습니까?")) return;
+    setProject(SAMPLE_PROJECT);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_PROJECT));
+    setCurrentStep("style");
   };
 
+  // 전자책 생성 파이프라인 (Outline 순차 집필)
+  const handleStartGeneration = async () => {
+    if (!apiKey.trim()) {
+      setIsSettingsOpen(true);
+      return;
+    }
+
+    const outlineItems: OutlineItem[] = project.outline || [];
+    if (outlineItems.length === 0 && project.chapters.length === 0) {
+      alert("먼저 [01 원본 문서]에서 자료를 등록해 목차를 구성해 주세요.");
+      setCurrentStep("source");
+      return;
+    }
+
+    const controller = new AbortController();
+    setAbortController(controller);
+    setIsGeneratingChapters(true);
+
+    const itemsToGenerate = outlineItems.length > 0 ? outlineItems : project.chapters.map((ch) => ({
+      id: ch.id,
+      title: ch.title,
+      originalTitle: ch.title,
+      rawContent: ch.content,
+      charCount: ch.content.length,
+    }));
+
+    const total = itemsToGenerate.length;
+    const currentChapters: Chapter[] = [...project.chapters];
+
+    for (let i = 0; i < total; i++) {
+      if (controller.signal.aborted) break;
+
+      const item = itemsToGenerate[i];
+      // 이미 알찬 본문이 있는 챕터는 스킵
+      if (currentChapters[i]?.content && currentChapters[i].content.length > 200) {
+        continue;
+      }
+
+      setGenerationProgress({
+        current: i + 1,
+        total,
+        title: item.title,
+      });
+
+      try {
+        const res = await fetch("/api/ai/chapter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            bookTitle: project.title,
+            chapterIndex: i + 1,
+            chapterTitle: item.title,
+            chapterSummary: "",
+            keyPoints: [],
+            sourceContext: item.rawContent || project.rawSourceText || "",
+            mode: project.writingMode || "detailed",
+            apiKey,
+            model: selectedModel,
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.chapter) {
+          const gen = data.chapter;
+          const newChapter: Chapter = {
+            id: currentChapters[i]?.id || `ch-${Date.now()}-${i}`,
+            title: gen.title || item.title,
+            summary: gen.summary || "",
+            content: gen.content || "",
+            takeaways: gen.takeaways || [],
+            questions: gen.questions || [],
+          };
+          currentChapters[i] = newChapter;
+          handleUpdateProject({ chapters: [...currentChapters] });
+        }
+      } catch (err: unknown) {
+        if ((err as Error)?.name === "AbortError") {
+          console.log("Generation aborted by user");
+          break;
+        }
+        console.warn(`Chapter ${i + 1} generation failed:`, err);
+      }
+    }
+
+    setIsGeneratingChapters(false);
+    setGenerationProgress(null);
+    setAbortController(null);
+    // 생성이 끝나면 뷰어로 이동
+    setCurrentStep("chapter");
+  };
+
+  // 생성 중단
+  const handleCancelGeneration = () => {
+    if (abortController) {
+      abortController.abort();
+    }
+    setIsGeneratingChapters(false);
+    setGenerationProgress(null);
+  };
+
+  // 빠른 다운로드
   const handleQuickDownloadHtml = () => {
     const htmlString = buildStandaloneHtml(project);
     const blob = new Blob([htmlString], { type: "text/html;charset=utf-8" });
@@ -208,27 +343,39 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
           onOpenHelp={() => setIsHelpOpen(true)}
           onPreviewFull={handlePreviewFull}
           onQuickDownloadHtml={handleQuickDownloadHtml}
+          onLoadSample={handleLoadSample}
+          onNewProject={handleNewProject}
           project={project}
           hasApiKey={Boolean(apiKey.trim())}
         />
 
-        {/* 메인 2단 작업대 (작업 컨트롤 패널 7단 + 라이브 뷰어 5단) */}
+        {/* 생성 진행률 프로그레스 오버레이 바 */}
+        {isGeneratingChapters && generationProgress && (
+          <div className="bg-indigo-600 text-white px-4 py-2.5 flex items-center justify-between text-xs font-bold shadow-md animate-in slide-in-from-top-2">
+            <div className="flex items-center gap-3">
+              <RefreshCw className="w-4 h-4 animate-spin text-amber-300" />
+              <span>
+                [{generationProgress.current} / {generationProgress.total}장 집필 중] :{" "}
+                {generationProgress.title}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleCancelGeneration}
+              className="px-2.5 py-1 rounded bg-indigo-700 hover:bg-indigo-800 text-white text-[11px] font-semibold transition"
+            >
+              생성 중단 (이어서 하기 가능)
+            </button>
+          </div>
+        )}
+
+        {/* 메인 2단 작업대 (작업 패널 7단 + 라이브 뷰어 5단) */}
         <main className="flex-1 overflow-hidden p-4 md:p-6">
           <div className="grid h-full grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* 좌측 단계별 작업 패널 (7단) */}
             <div className="lg:col-span-7 h-full overflow-y-auto pr-1 custom-scrollbar">
               {currentStep === "source" && (
                 <SourceInputPanel
-                  project={project}
-                  onUpdateProject={handleUpdateProject}
-                  onNextStep={() => setCurrentStep("chapter")}
-                  apiKey={apiKey}
-                  selectedModel={selectedModel}
-                />
-              )}
-
-              {currentStep === "chapter" && (
-                <ChapterEditorPanel
                   project={project}
                   onUpdateProject={handleUpdateProject}
                   onNextStep={() => setCurrentStep("style")}
@@ -241,15 +388,28 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
                 <StyleDesignPanel
                   project={project}
                   onUpdateProject={handleUpdateProject}
+                  onStartGeneration={handleStartGeneration}
+                  isGeneratingChapters={isGeneratingChapters}
+                  apiKey={apiKey}
+                  selectedModel={selectedModel}
+                  onSelectModel={setSelectedModel}
+                />
+              )}
+
+              {currentStep === "chapter" && (
+                <ChapterEditorPanel
+                  project={project}
+                  onUpdateProject={handleUpdateProject}
                   onNextStep={() => setCurrentStep("export")}
                   apiKey={apiKey}
+                  selectedModel={selectedModel}
                 />
               )}
 
               {currentStep === "export" && (
                 <ExportPublishPanel
                   project={project}
-                  onRestoreProject={handleRestoreProject}
+                  onRestoreProject={(imported) => handleUpdateProject(imported)}
                 />
               )}
             </div>

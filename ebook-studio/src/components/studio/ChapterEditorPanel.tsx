@@ -497,7 +497,7 @@ export function ChapterEditorPanel({
                       type="text"
                       value={t}
                       onChange={(e) => {
-                        const newT = [...currentChapter.takeaways];
+                        const newT = [...(currentChapter.takeaways || [])];
                         newT[tIdx] = e.target.value;
                         handleUpdateCurrentChapter({ takeaways: newT });
                       }}
@@ -506,7 +506,7 @@ export function ChapterEditorPanel({
                     <button
                       type="button"
                       onClick={() => {
-                        const newT = currentChapter.takeaways.filter((_, i) => i !== tIdx);
+                        const newT = (currentChapter.takeaways || []).filter((_, i) => i !== tIdx);
                         handleUpdateCurrentChapter({ takeaways: newT });
                       }}
                       className="text-slate-400 hover:text-rose-600 p-1"
@@ -545,7 +545,7 @@ export function ChapterEditorPanel({
                       type="text"
                       value={q}
                       onChange={(e) => {
-                        const newQ = [...currentChapter.questions];
+                        const newQ = [...(currentChapter.questions || [])];
                         newQ[qIdx] = e.target.value;
                         handleUpdateCurrentChapter({ questions: newQ });
                       }}
@@ -554,7 +554,7 @@ export function ChapterEditorPanel({
                     <button
                       type="button"
                       onClick={() => {
-                        const newQ = currentChapter.questions.filter((_, i) => i !== qIdx);
+                        const newQ = (currentChapter.questions || []).filter((_, i) => i !== qIdx);
                         handleUpdateCurrentChapter({ questions: newQ });
                       }}
                       className="text-slate-400 hover:text-rose-600 p-1"
