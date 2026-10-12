@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — AI 12단 상세페이지 자동화 (detail-page-12p) 관리자 상세 설명 리치 포맷 재정돈 및 DB 등록 완료
+
+주인님 요청("https://www.buylife.xyz/admin/programs/bb770cbb-c4f1-4bdd-8581-1ff08979e873/edit 프로그램 기능의 핵심적인 내용중심으로 보기좋게 다시 정리해서 등록해줘")에 따라:
+- 관리자 에디터(TipTap) 및 메인 웹사이트 상품 소개 페이지(`programs/detail-page-12p`)에서 마크다운 특수문자(`###`, `####`, `---`, `**`)가 텍스트로 뭉개져 나오던 문제를 해결.
+- TipTap 및 Tailwind typography(`prose prose-invert prose-gold`) 표준에 맞춰 **핵심 4대 자동화 기능**과 **12단 표준 시퀀스 목록**, **100% 본인 API 연동 원칙**을 일목요연한 리치 HTML(`<h3>`, `<p>`, `<hr>`, `<ul>`, `<li>`, `<strong>`) 구조로 재정돈하여 Supabase DB에 완벽히 반영 완료.
+
 ## 2026-10-13 Antigravity — AI 올인원 그래픽 자동화 (allinone-graphic v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 등록 완료
 
 주인님 요청("AI 올인원 그래픽 자동화 로 하자", 레퍼런스 `https://banana-works.vercel.app/` 전수 스크래핑 & 역분석)에 따라, 19개 직군 123종 전문 템플릿과 나노바나나 엔진, 브러시 인페인팅 & 아웃페인팅 스마트 매직 에디터를 탑재한 신규 서브프로젝트 **`AI 올인원 그래픽 자동화` (`allinone-graphic v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위(`sort_order: 128`, 카테고리: 이미지) 등록을 완벽히 완료했습니다:
