@@ -1,5 +1,9 @@
 import {
   ARRANGEMENTS,
+  DEFAULT_BRIEF,
+  ERAS,
+  MARKETS,
+  TITLE_LANGUAGES,
   ARCS,
   VOICES,
   STRUCTURES,
@@ -63,20 +67,48 @@ export function styleIssues(style: string): string[] {
   return out;
 }
 export function validateBrief(raw: unknown, requireConcept = true): Brief {
-  const b = record(raw);
+  const b = { ...DEFAULT_BRIEF, ...record(raw) };
+  const customModel = bool(b.customModel);
+  const modelPrefix = {
+    gemini: /^gemini-[a-z0-9][a-z0-9._-]{0,98}$/i,
+    openai: /^(?:gpt|o[1-9]|chatgpt)-[a-z0-9][a-z0-9._-]{0,98}$/i,
+    anthropic: /^claude-[a-z0-9][a-z0-9._-]{0,98}$/i,
+  };
   if (
     !isProvider(b.provider) ||
-    !MODELS.some((m) => m.id === b.model && m.provider === b.provider)
+    (customModel
+      ? typeof b.model !== "string" || !modelPrefix[b.provider].test(b.model)
+      : !MODELS.some((m) => m.id === b.model && m.provider === b.provider))
   )
     throw new AppError("공급사와 모델 선택이 올바르지 않습니다.");
   if (
     !ARCS.some((v) => v === b.arc) ||
     !VOICES.some((v) => v === b.voice) ||
     !STRUCTURES.some((v) => v === b.structure) ||
-    !ARRANGEMENTS.some((v) => v === b.arrangement)
+    !ARRANGEMENTS.some((v) => v === b.arrangement) ||
+    !VOICES.some((v) => v === b.rapVoice) ||
+    !VOICES.some((v) => v === b.presetVoice) ||
+    !TITLE_LANGUAGES.some((v) => v === b.titleLanguage) ||
+    !ERAS.some((v) => v === b.era) ||
+    !MARKETS.some((v) => v === b.market)
   )
     throw new AppError("앨범 흐름·보컬·구조를 확인해 주세요.");
   const result: Brief = {
+    customModel,
+    era: String(b.era),
+    market: String(b.market),
+    styleGroup: text(b.styleGroup, "스타일 그룹", 250, true),
+    presetId: text(b.presetId, "프리셋 ID", 100, true),
+    presetVoice: String(b.presetVoice),
+    titleLanguage: String(b.titleLanguage),
+    highPitchRestraint: bool(b.highPitchRestraint),
+    differentRapVoice: bool(b.differentRapVoice),
+    rapVoice: String(b.rapVoice),
+    bpmHint: bool(b.bpmHint),
+    useContext: bool(b.useContext),
+    generateTitle: bool(b.generateTitle),
+    generateStyle: bool(b.generateStyle),
+    generateLyrics: bool(b.generateLyrics),
     harmony: bool(b.harmony),
     callResponse: bool(b.callResponse),
     arrangement: String(b.arrangement),
@@ -85,7 +117,7 @@ export function validateBrief(raw: unknown, requireConcept = true): Brief {
     genre: text(b.genre, "장르", 180, !requireConcept),
     mood: text(b.mood, "분위기", 180, !requireConcept),
     instruments: text(b.instruments, "악기", 350, !requireConcept),
-    bpm: number(b.bpm, "BPM", 40, 220),
+    bpm: number(b.bpm, "BPM", 40, 320),
     voice: String(b.voice),
     englishPct: number(b.englishPct, "영문 비율", 0, 100),
     rapPct: number(b.rapPct, "랩 비율", 0, 100),
@@ -121,7 +153,7 @@ export function validateTrack(
     style,
     exclude: text(t.exclude ?? "", "제외 스타일", 500, true),
     lyrics: text(t.lyrics ?? "", "가사", 5000, !requireLyrics),
-    bpm: number(t.bpm, "곡 BPM", 40, 220),
+    bpm: number(t.bpm, "곡 BPM", 40, 320),
     hook: text(t.hook ?? "", "핵심 구절", 250, true),
     reviewed: t.reviewed === true,
   };
@@ -130,6 +162,7 @@ export function parseGenerated(
   raw: string,
   expected: number,
   requireLyrics: boolean,
+  selection?: { title: boolean; style: boolean; lyrics: boolean },
 ): Album {
   let r: Record<string, unknown>;
   try {
@@ -153,10 +186,19 @@ export function parseGenerated(
       502,
     );
   const tracks = r.tracks.map((t, i) => ({
-    ...validateTrack(t, requireLyrics),
+    ...validateTrack(t, requireLyrics, Boolean(selection)),
     id: `generated-${i + 1}`,
     reviewed: false,
   }));
+  if (selection)
+    for (const t of tracks) {
+      if (selection.title && !t.title.trim())
+        throw new AppError("AI 제목이 비어 있습니다.", 502);
+      if (selection.style && styleIssues(t.style).length)
+        throw new AppError(styleIssues(t.style).join(" "), 502);
+      if (selection.lyrics && requireLyrics && !t.lyrics.trim())
+        throw new AppError("AI 가사가 비어 있습니다.", 502);
+    }
   if (new Set(tracks.map((t) => t.title.toLowerCase())).size !== tracks.length)
     throw new AppError("AI 결과의 곡 제목이 중복됩니다.", 502);
   return {
@@ -203,5 +245,21 @@ export function validateStore(raw: unknown): Store {
   });
   if (new Set(saved.map((i) => i.id)).size !== saved.length)
     throw new AppError("저장 ID가 중복됩니다.");
-  return { schema: 1, draft: validateDraft(s.draft), saved };
+  const inputStyles = s.styles ?? [];
+  if (!Array.isArray(inputStyles) || inputStyles.length > 100)
+    throw new AppError("내 Style은 100개까지 보관할 수 있습니다.");
+  const styles = inputStyles.map((v) => {
+    const p = record(v);
+    return {
+      id: text(p.id, "Style ID", 100),
+      name: text(p.name, "Style 이름", 100),
+      style: text(p.style, "저장 Style", 1000),
+      exclude: text(p.exclude, "제외 스타일", 500, true),
+      bpm: number(p.bpm, "BPM", 40, 320),
+      savedAt: text(p.savedAt, "저장 일시", 50),
+    };
+  });
+  if (new Set(styles.map((s) => s.id)).size !== styles.length)
+    throw new AppError("Style ID가 중복됩니다.");
+  return { schema: 1, draft: validateDraft(s.draft), saved, styles };
 }

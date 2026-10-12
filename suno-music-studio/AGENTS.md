@@ -1,5 +1,7 @@
 # Suno 음악기획 자동화 — 인수인계
 
+2026-10-12 v1.03: 원본 사이트 실제 옵션 전수 선택 조사 후 프리셋 461개·댄스 200개·스타일 그룹 243개·13개 시대를 공개 선택 메타데이터와 자체 레시피로 반영. 9종 팔레트·내 Style·보컬/랩 캐스팅·제목 언어·고음 억제·선택 생성·커서 구간 삽입 추가. 기존 제목/가사·이전 백업·회원별 본인 키·사이드바 지침 유지. npm test 33개, 린트·빌드 및 모의 프런트 흐름 10개 통과. 최신 비교: [docs/ORIGINAL_OPTIONS_COMPARISON.md](docs/ORIGINAL_OPTIONS_COMPARISON.md). 운영 반영/실회원 검수 상태는 [docs/RELEASE_V1_03.md](docs/RELEASE_V1_03.md)를 우선합니다. 원본 AI 호출·Suno 음악 생성·공급사 웹 검색은 미실행/미구현이므로 동등한 기능이라고 보고하지 않습니다. 변경 시 버전·DB metadata·프로덕션 배포를 함께 갱신합니다.
+
 2026-10-12 v1.02: 계정 이메일·로그아웃을 마지막 메뉴 아래 8px 간격으로 밀착. 메뉴 flex-grow 제거, 낮은 화면은 메뉴 내부 스크롤·계정 축소 방지. 루트 AGENTS/CLAUDE·SIDEBAR_LAYOUT_STANDARD·PLATFORM_PATTERNS §27에 공통 디자인 지침 반영. 린트·빌드 및 실제 Sidebar 격리 렌더링 3가지 높이/폭 배치 검수 통과. 변경·운영 결과: [docs/RELEASE_V1_02.md](docs/RELEASE_V1_02.md). 기존 v1.01 기록은 당시 기능 검수 이력으로 유지합니다.
 
 2026-10-12 카탈로그 실사 썸네일 등록 완료. 음악 기획자·가사 구획·스타일 칩·앨범 트랙·건반을 표현한 내장 image_gen 생성물입니다. 원본/프롬프트/등록 SQL/운영 화면 증거는 [docs/THUMBNAIL.md](docs/THUMBNAIL.md). 카탈로그 메타데이터만 등록했으므로 v1.01 유지, Storage·DB 즉시 반영(앱 재배포 불필요). 공개 이미지·Next 최적화·메인/목록/상세 참조·Headless Chrome 상세와 카테고리 실제 화면·빌드 성공 확인.

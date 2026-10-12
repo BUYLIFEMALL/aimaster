@@ -1,6 +1,8 @@
 "use client";
 import { Copy, Download, CheckCircle2 } from "lucide-react";
 import type { Track } from "@/lib/studio/config";
+import { useRef } from "react";
+import { SECTION_TAGS, insertSection } from "@/lib/studio/catalog";
 import { styleIssues } from "@/lib/studio/validation";
 export function downloadFile(
   text: string,
@@ -44,6 +46,7 @@ export function TrackEditor({
   notice: (s: string) => void;
   generate?: () => void;
 }) {
+  const lyricsRef = useRef<HTMLTextAreaElement>(null);
   const issues = trackProblems(track, instrumental);
   async function copy(value: string) {
     try {
@@ -82,10 +85,10 @@ export function TrackEditor({
           <input
             type="number"
             min={40}
-            max={220}
+            max={320}
             value={track.bpm}
             onChange={(e) =>
-              edit("bpm", Math.min(220, Math.max(40, Number(e.target.value))))
+              edit("bpm", Math.min(320, Math.max(40, Number(e.target.value))))
             }
             disabled={busy}
           />
@@ -97,6 +100,7 @@ export function TrackEditor({
           {track.style.length}/1,000 · 영문 음악 용어
         </span>
         <textarea
+          aria-label="곡 Style"
           value={track.style}
           maxLength={1000}
           rows={3}
@@ -107,6 +111,7 @@ export function TrackEditor({
       <label>
         제외 스타일
         <textarea
+          aria-label="곡 제외 스타일"
           value={track.exclude}
           maxLength={500}
           rows={2}
@@ -117,6 +122,8 @@ export function TrackEditor({
       <label>
         가사 <span className="muted">{track.lyrics.length}/5,000</span>
         <textarea
+          aria-label="가사"
+          ref={lyricsRef}
           className="lyrics-area"
           value={track.lyrics}
           maxLength={5000}
@@ -130,6 +137,37 @@ export function TrackEditor({
           }
         />
       </label>
+      {!instrumental && (
+        <div className="tags section-tags" aria-label="가사 구간 삽입">
+          {SECTION_TAGS.map((tag) => (
+            <button
+              key={tag}
+              disabled={busy}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                try {
+                  const el = lyricsRef.current;
+                  const inserted = insertSection(
+                    track.lyrics,
+                    el?.selectionStart ?? track.lyrics.length,
+                    el?.selectionEnd ?? track.lyrics.length,
+                    tag,
+                  );
+                  edit("lyrics", inserted.text);
+                  requestAnimationFrame(() => {
+                    el?.focus();
+                    el?.setSelectionRange(inserted.cursor, inserted.cursor);
+                  });
+                } catch (e) {
+                  notice(e instanceof Error ? e.message : "구간 삽입 실패");
+                }
+              }}
+            >
+              [{tag}]
+            </button>
+          ))}
+        </div>
+      )}
       {issues.length > 0 && <p className="error">{issues.join(" ")}</p>}
       <label className="review-control">
         <input

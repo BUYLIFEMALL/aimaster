@@ -2,7 +2,7 @@
 
 ## 2026-10-12 Codex — Suno 음악기획 자동화 v1.03 원본 세부 옵션 조사·확장
 
-주인님 요청으로 원본 SU-Note에 실제 Chrome 엔진으로 접속해 243개 그룹·461개 선택 프리셋·861개 방향 버튼·200개 댄스·441개 팔레트·297개 앨범 선택·64개 제어 조건·18개 구간·공급사/모델 설정을 조작했습니다. 필요한 공개 선택 이름/그룹/시대/BPM/보컬 힌트와 자체 음악 레시피를 반영했습니다. 원본 Style/AI 코드 전체 복제·키 조회·원본 유료 AI 호출은 하지 않았습니다. 제목/Style/가사 선택 생성, 내 Style, 별도 랩 보컬, 고음 억제, 구간 삽입, 자동 제외 복원, 이전 백업 호환 추가. 31개 자동 검사·린트·빌드, 실제 컴포넌트 모의 흐름 10개 통과. 운영 반영/실회원 검수의 최신 사실은 [suno-music-studio/docs/RELEASE_V1_03.md](../suno-music-studio/docs/RELEASE_V1_03.md), 상세 설정/결과 비교는 [ORIGINAL_OPTIONS_COMPARISON.md](../suno-music-studio/docs/ORIGINAL_OPTIONS_COMPARISON.md). 공급사 웹 검색·실제 Suno 음악 생성은 포함하지 않으며 개인 키·흰색 화면·메뉴 직후 계정 규칙 유지.
+주인님 요청으로 원본 SU-Note에 실제 Chrome 엔진으로 접속해 243개 그룹·461개 선택 프리셋·861개 방향 버튼·200개 댄스·441개 팔레트·297개 앨범 선택·64개 제어 조건·18개 구간·공급사/모델 설정을 조작했습니다. 필요한 공개 선택 이름/그룹/시대/BPM/보컬 힌트와 자체 음악 레시피를 반영했습니다. 원본 Style/AI 코드 전체 복제·키 조회·원본 유료 AI 호출은 하지 않았습니다. 제목/Style/가사 선택 생성, 내 Style, 별도 랩 보컬, 고음 억제, 구간 삽입, 자동 제외 복원, 이전 백업 호환 추가. 33개 자동 검사·린트·빌드, 실제 컴포넌트 모의 흐름 10개 통과. 운영 반영/실회원 검수의 최신 사실은 [suno-music-studio/docs/RELEASE_V1_03.md](../suno-music-studio/docs/RELEASE_V1_03.md), 상세 설정/결과 비교는 [ORIGINAL_OPTIONS_COMPARISON.md](../suno-music-studio/docs/ORIGINAL_OPTIONS_COMPARISON.md). 공급사 웹 검색·실제 Suno 음악 생성은 포함하지 않으며 개인 키·흰색 화면·메뉴 직후 계정 규칙 유지.
 
 ---
 

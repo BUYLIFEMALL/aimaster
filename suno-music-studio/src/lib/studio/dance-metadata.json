@@ -1,0 +1,2199 @@
+[
+  {
+    "id": "dance-1",
+    "name": "하우스",
+    "englishName": "House",
+    "family": "house",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-2",
+    "name": "딥 하우스",
+    "englishName": "Deep House",
+    "family": "house",
+    "bpms": [
+      118,
+      122
+    ],
+    "bpmLabel": "118-122 BPM"
+  },
+  {
+    "id": "dance-3",
+    "name": "테크 하우스",
+    "englishName": "Tech House",
+    "family": "house",
+    "bpms": [
+      122,
+      128
+    ],
+    "bpmLabel": "122-128 BPM"
+  },
+  {
+    "id": "dance-4",
+    "name": "애시드 하우스",
+    "englishName": "Acid House",
+    "family": "house",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-5",
+    "name": "개러지 하우스",
+    "englishName": "Garage House",
+    "family": "house",
+    "bpms": [
+      122,
+      130
+    ],
+    "bpmLabel": "122-130 BPM"
+  },
+  {
+    "id": "dance-6",
+    "name": "시카고 하우스",
+    "englishName": "Chicago House",
+    "family": "house",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-7",
+    "name": "UK 개러지",
+    "englishName": "UK Garage",
+    "family": "house",
+    "bpms": [
+      130,
+      138
+    ],
+    "bpmLabel": "130-138 BPM"
+  },
+  {
+    "id": "dance-8",
+    "name": "퓨처 하우스",
+    "englishName": "Future House",
+    "family": "house",
+    "bpms": [
+      124,
+      128
+    ],
+    "bpmLabel": "124-128 BPM"
+  },
+  {
+    "id": "dance-9",
+    "name": "베이스 하우스",
+    "englishName": "Bass House",
+    "family": "house",
+    "bpms": [
+      124,
+      128
+    ],
+    "bpmLabel": "124-128 BPM"
+  },
+  {
+    "id": "dance-10",
+    "name": "트로피컬 하우스",
+    "englishName": "Tropical House",
+    "family": "house",
+    "bpms": [
+      100,
+      110
+    ],
+    "bpmLabel": "100-110 BPM"
+  },
+  {
+    "id": "dance-11",
+    "name": "라틴 하우스",
+    "englishName": "Latin House",
+    "family": "house",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-12",
+    "name": "트라이벌 하우스",
+    "englishName": "Tribal House",
+    "family": "house",
+    "bpms": [
+      122,
+      128
+    ],
+    "bpmLabel": "122-128 BPM"
+  },
+  {
+    "id": "dance-13",
+    "name": "로파이 하우스",
+    "englishName": "Lo-fi House",
+    "family": "house",
+    "bpms": [
+      110,
+      120
+    ],
+    "bpmLabel": "110-120 BPM"
+  },
+  {
+    "id": "dance-14",
+    "name": "미니멀 하우스",
+    "englishName": "Minimal House",
+    "family": "house",
+    "bpms": [
+      122,
+      128
+    ],
+    "bpmLabel": "122-128 BPM"
+  },
+  {
+    "id": "dance-15",
+    "name": "이탈로 하우스",
+    "englishName": "Italo House",
+    "family": "house",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-16",
+    "name": "펑키 하우스",
+    "englishName": "Funky House",
+    "family": "house",
+    "bpms": [
+      122,
+      128
+    ],
+    "bpmLabel": "122-128 BPM"
+  },
+  {
+    "id": "dance-17",
+    "name": "소울풀 하우스",
+    "englishName": "Soulful House",
+    "family": "house",
+    "bpms": [
+      120,
+      126
+    ],
+    "bpmLabel": "120-126 BPM"
+  },
+  {
+    "id": "dance-18",
+    "name": "디스코 하우스",
+    "englishName": "Disco House",
+    "family": "house",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-19",
+    "name": "딥 텍",
+    "englishName": "Deep Tech",
+    "family": "house",
+    "bpms": [
+      122,
+      128
+    ],
+    "bpmLabel": "122-128 BPM"
+  },
+  {
+    "id": "dance-20",
+    "name": "프렌치 하우스",
+    "englishName": "French House",
+    "family": "house",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-21",
+    "name": "마이크로하우스",
+    "englishName": "Microhouse",
+    "family": "house",
+    "bpms": [
+      118,
+      126
+    ],
+    "bpmLabel": "118-126 BPM"
+  },
+  {
+    "id": "dance-22",
+    "name": "스피드 개러지",
+    "englishName": "Speed Garage",
+    "family": "house",
+    "bpms": [
+      130,
+      138
+    ],
+    "bpmLabel": "130-138 BPM"
+  },
+  {
+    "id": "dance-23",
+    "name": "슬랩 하우스",
+    "englishName": "Slap House",
+    "family": "house",
+    "bpms": [
+      120,
+      130
+    ],
+    "bpmLabel": "120-130 BPM"
+  },
+  {
+    "id": "dance-24",
+    "name": "퓨처 개러지",
+    "englishName": "Future Garage",
+    "family": "house",
+    "bpms": [
+      128,
+      138
+    ],
+    "bpmLabel": "128-138 BPM"
+  },
+  {
+    "id": "dance-25",
+    "name": "투-스텝 개러지",
+    "englishName": "2-step Garage",
+    "family": "house",
+    "bpms": [
+      130,
+      140
+    ],
+    "bpmLabel": "130-140 BPM"
+  },
+  {
+    "id": "dance-26",
+    "name": "브라질리언 베이스",
+    "englishName": "Brazilian Bass",
+    "family": "house",
+    "bpms": [
+      122,
+      128
+    ],
+    "bpmLabel": "122-128 BPM"
+  },
+  {
+    "id": "dance-27",
+    "name": "더치 하우스",
+    "englishName": "Dutch House",
+    "family": "house",
+    "bpms": [
+      126,
+      130
+    ],
+    "bpmLabel": "126-130 BPM"
+  },
+  {
+    "id": "dance-28",
+    "name": "펌핑 하우스",
+    "englishName": "Pumping House",
+    "family": "house",
+    "bpms": [
+      126,
+      132
+    ],
+    "bpmLabel": "126-132 BPM"
+  },
+  {
+    "id": "dance-29",
+    "name": "일렉트로 하우스",
+    "englishName": "Electro House",
+    "family": "house",
+    "bpms": [
+      126,
+      132
+    ],
+    "bpmLabel": "126-132 BPM"
+  },
+  {
+    "id": "dance-30",
+    "name": "바운시 일렉트로",
+    "englishName": "Bouncy Electro",
+    "family": "house",
+    "bpms": [
+      126,
+      132
+    ],
+    "bpmLabel": "126-132 BPM"
+  },
+  {
+    "id": "dance-31",
+    "name": "테크노",
+    "englishName": "Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      140
+    ],
+    "bpmLabel": "125-140 BPM"
+  },
+  {
+    "id": "dance-32",
+    "name": "미니멀 테크노",
+    "englishName": "Minimal Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      132
+    ],
+    "bpmLabel": "125-132 BPM"
+  },
+  {
+    "id": "dance-33",
+    "name": "애시드 테크노",
+    "englishName": "Acid Techno",
+    "family": "techno",
+    "bpms": [
+      130,
+      145
+    ],
+    "bpmLabel": "130-145 BPM"
+  },
+  {
+    "id": "dance-34",
+    "name": "인더스트리얼 테크노",
+    "englishName": "Industrial Techno",
+    "family": "techno",
+    "bpms": [
+      130,
+      145
+    ],
+    "bpmLabel": "130-145 BPM"
+  },
+  {
+    "id": "dance-35",
+    "name": "하드 테크노",
+    "englishName": "Hard Techno",
+    "family": "techno",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-36",
+    "name": "디트로이트 테크노",
+    "englishName": "Detroit Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      135
+    ],
+    "bpmLabel": "125-135 BPM"
+  },
+  {
+    "id": "dance-37",
+    "name": "베를린 테크노",
+    "englishName": "Berlin Techno",
+    "family": "techno",
+    "bpms": [
+      128,
+      138
+    ],
+    "bpmLabel": "128-138 BPM"
+  },
+  {
+    "id": "dance-38",
+    "name": "멜로딕 테크노",
+    "englishName": "Melodic Techno",
+    "family": "techno",
+    "bpms": [
+      120,
+      126
+    ],
+    "bpmLabel": "120-126 BPM"
+  },
+  {
+    "id": "dance-39",
+    "name": "앰비언트 테크노",
+    "englishName": "Ambient Techno",
+    "family": "techno",
+    "bpms": [
+      110,
+      125
+    ],
+    "bpmLabel": "110-125 BPM"
+  },
+  {
+    "id": "dance-40",
+    "name": "덥 테크노",
+    "englishName": "Dub Techno",
+    "family": "techno",
+    "bpms": [
+      118,
+      128
+    ],
+    "bpmLabel": "118-128 BPM"
+  },
+  {
+    "id": "dance-41",
+    "name": "블립 테크노",
+    "englishName": "Bleep Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      135
+    ],
+    "bpmLabel": "125-135 BPM"
+  },
+  {
+    "id": "dance-42",
+    "name": "슈란츠",
+    "englishName": "Schranz",
+    "family": "techno",
+    "bpms": [
+      140,
+      155
+    ],
+    "bpmLabel": "140-155 BPM"
+  },
+  {
+    "id": "dance-43",
+    "name": "로파이 테크노",
+    "englishName": "Lo-fi Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      135
+    ],
+    "bpmLabel": "125-135 BPM"
+  },
+  {
+    "id": "dance-44",
+    "name": "로 테크노",
+    "englishName": "Raw Techno",
+    "family": "techno",
+    "bpms": [
+      130,
+      140
+    ],
+    "bpmLabel": "130-140 BPM"
+  },
+  {
+    "id": "dance-45",
+    "name": "루마니안 미니멀",
+    "englishName": "Romanian Minimal",
+    "family": "techno",
+    "bpms": [
+      125,
+      128
+    ],
+    "bpmLabel": "125-128 BPM"
+  },
+  {
+    "id": "dance-46",
+    "name": "버밍엄 테크노",
+    "englishName": "Birmingham Techno",
+    "family": "techno",
+    "bpms": [
+      128,
+      140
+    ],
+    "bpmLabel": "128-140 BPM"
+  },
+  {
+    "id": "dance-47",
+    "name": "테크 트랜스",
+    "englishName": "Tech Trance",
+    "family": "techno",
+    "bpms": [
+      132,
+      140
+    ],
+    "bpmLabel": "132-140 BPM"
+  },
+  {
+    "id": "dance-48",
+    "name": "프로그레시브 테크노",
+    "englishName": "Progressive Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      130
+    ],
+    "bpmLabel": "125-130 BPM"
+  },
+  {
+    "id": "dance-49",
+    "name": "하드그루브 테크노",
+    "englishName": "Hardgroove Techno",
+    "family": "techno",
+    "bpms": [
+      135,
+      145
+    ],
+    "bpmLabel": "135-145 BPM"
+  },
+  {
+    "id": "dance-50",
+    "name": "UK 테크노",
+    "englishName": "UK Techno",
+    "family": "techno",
+    "bpms": [
+      130,
+      140
+    ],
+    "bpmLabel": "130-140 BPM"
+  },
+  {
+    "id": "dance-51",
+    "name": "히프노틱 테크노",
+    "englishName": "Hypnotic Techno",
+    "family": "techno",
+    "bpms": [
+      128,
+      138
+    ],
+    "bpmLabel": "128-138 BPM"
+  },
+  {
+    "id": "dance-52",
+    "name": "아웃사이더 하우스",
+    "englishName": "Outsider House",
+    "family": "techno",
+    "bpms": [
+      118,
+      128
+    ],
+    "bpmLabel": "118-128 BPM"
+  },
+  {
+    "id": "dance-53",
+    "name": "프리 테크노",
+    "englishName": "Free Tekno",
+    "family": "techno",
+    "bpms": [
+      160,
+      200
+    ],
+    "bpmLabel": "160-200 BPM"
+  },
+  {
+    "id": "dance-54",
+    "name": "멘탈 테크노",
+    "englishName": "Mental Techno",
+    "family": "techno",
+    "bpms": [
+      145,
+      160
+    ],
+    "bpmLabel": "145-160 BPM"
+  },
+  {
+    "id": "dance-55",
+    "name": "슬로우 테크노",
+    "englishName": "Slow Techno",
+    "family": "techno",
+    "bpms": [
+      110,
+      120
+    ],
+    "bpmLabel": "110-120 BPM"
+  },
+  {
+    "id": "dance-56",
+    "name": "글리치 테크노",
+    "englishName": "Glitch Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      135
+    ],
+    "bpmLabel": "125-135 BPM"
+  },
+  {
+    "id": "dance-57",
+    "name": "트라이벌 테크노",
+    "englishName": "Tribal Techno",
+    "family": "techno",
+    "bpms": [
+      128,
+      138
+    ],
+    "bpmLabel": "128-138 BPM"
+  },
+  {
+    "id": "dance-58",
+    "name": "디트로이트 블립",
+    "englishName": "Detroit Bleep",
+    "family": "techno",
+    "bpms": [
+      125,
+      135
+    ],
+    "bpmLabel": "125-135 BPM"
+  },
+  {
+    "id": "dance-59",
+    "name": "플라스틱맨 스타일",
+    "englishName": "Plastikman-style Techno",
+    "family": "techno",
+    "bpms": [
+      125,
+      130
+    ],
+    "bpmLabel": "125-130 BPM"
+  },
+  {
+    "id": "dance-60",
+    "name": "언더그라운드 레지스탕스 스타일",
+    "englishName": "Underground Resistance Style",
+    "family": "techno",
+    "bpms": [
+      128,
+      138
+    ],
+    "bpmLabel": "128-138 BPM"
+  },
+  {
+    "id": "dance-61",
+    "name": "트랜스",
+    "englishName": "Trance",
+    "family": "trance",
+    "bpms": [
+      130,
+      138
+    ],
+    "bpmLabel": "130-138 BPM"
+  },
+  {
+    "id": "dance-62",
+    "name": "업리프팅 트랜스",
+    "englishName": "Uplifting Trance",
+    "family": "trance",
+    "bpms": [
+      136,
+      140
+    ],
+    "bpmLabel": "136-140 BPM"
+  },
+  {
+    "id": "dance-63",
+    "name": "사이키델릭 트랜스",
+    "englishName": "Psytrance",
+    "family": "trance",
+    "bpms": [
+      140,
+      148
+    ],
+    "bpmLabel": "140-148 BPM"
+  },
+  {
+    "id": "dance-64",
+    "name": "고아 트랜스",
+    "englishName": "Goa Trance",
+    "family": "trance",
+    "bpms": [
+      140,
+      145
+    ],
+    "bpmLabel": "140-145 BPM"
+  },
+  {
+    "id": "dance-65",
+    "name": "보컬 트랜스",
+    "englishName": "Vocal Trance",
+    "family": "trance",
+    "bpms": [
+      132,
+      140
+    ],
+    "bpmLabel": "132-140 BPM"
+  },
+  {
+    "id": "dance-66",
+    "name": "하드 트랜스",
+    "englishName": "Hard Trance",
+    "family": "trance",
+    "bpms": [
+      140,
+      150
+    ],
+    "bpmLabel": "140-150 BPM"
+  },
+  {
+    "id": "dance-67",
+    "name": "애시드 트랜스",
+    "englishName": "Acid Trance",
+    "family": "trance",
+    "bpms": [
+      135,
+      145
+    ],
+    "bpmLabel": "135-145 BPM"
+  },
+  {
+    "id": "dance-68",
+    "name": "프로그레시브 트랜스",
+    "englishName": "Progressive Trance",
+    "family": "trance",
+    "bpms": [
+      128,
+      134
+    ],
+    "bpmLabel": "128-134 BPM"
+  },
+  {
+    "id": "dance-69",
+    "name": "드림 트랜스",
+    "englishName": "Dream Trance",
+    "family": "trance",
+    "bpms": [
+      130,
+      138
+    ],
+    "bpmLabel": "130-138 BPM"
+  },
+  {
+    "id": "dance-70",
+    "name": "뉴 트랜스",
+    "englishName": "Nu-Trance",
+    "family": "trance",
+    "bpms": [
+      126,
+      132
+    ],
+    "bpmLabel": "126-132 BPM"
+  },
+  {
+    "id": "dance-71",
+    "name": "트랜스 하우스",
+    "englishName": "Trance-House",
+    "family": "trance",
+    "bpms": [
+      128,
+      132
+    ],
+    "bpmLabel": "128-132 BPM"
+  },
+  {
+    "id": "dance-72",
+    "name": "앤섬 트랜스",
+    "englishName": "Anthem Trance",
+    "family": "trance",
+    "bpms": [
+      136,
+      140
+    ],
+    "bpmLabel": "136-140 BPM"
+  },
+  {
+    "id": "dance-73",
+    "name": "발레아릭 트랜스",
+    "englishName": "Balearic Trance",
+    "family": "trance",
+    "bpms": [
+      122,
+      128
+    ],
+    "bpmLabel": "122-128 BPM"
+  },
+  {
+    "id": "dance-74",
+    "name": "트라이벌 트랜스",
+    "englishName": "Tribal Trance",
+    "family": "trance",
+    "bpms": [
+      135,
+      145
+    ],
+    "bpmLabel": "135-145 BPM"
+  },
+  {
+    "id": "dance-75",
+    "name": "에너지 트랜스",
+    "englishName": "Energy Trance",
+    "family": "trance",
+    "bpms": [
+      138,
+      142
+    ],
+    "bpmLabel": "138-142 BPM"
+  },
+  {
+    "id": "dance-76",
+    "name": "퓨처 트랜스",
+    "englishName": "Future Trance",
+    "family": "trance",
+    "bpms": [
+      126,
+      132
+    ],
+    "bpmLabel": "126-132 BPM"
+  },
+  {
+    "id": "dance-77",
+    "name": "유로트랜스",
+    "englishName": "Eurotrance",
+    "family": "trance",
+    "bpms": [
+      135,
+      145
+    ],
+    "bpmLabel": "135-145 BPM"
+  },
+  {
+    "id": "dance-78",
+    "name": "오케스트럴 트랜스",
+    "englishName": "Orchestral Trance",
+    "family": "trance",
+    "bpms": [
+      132,
+      138
+    ],
+    "bpmLabel": "132-138 BPM"
+  },
+  {
+    "id": "dance-79",
+    "name": "빅룸 트랜스",
+    "englishName": "Big Room Trance",
+    "family": "trance",
+    "bpms": [
+      128,
+      132
+    ],
+    "bpmLabel": "128-132 BPM"
+  },
+  {
+    "id": "dance-80",
+    "name": "사이비언트 트랜스",
+    "englishName": "Psybient Trance",
+    "family": "trance",
+    "bpms": [
+      100,
+      120
+    ],
+    "bpmLabel": "100-120 BPM"
+  },
+  {
+    "id": "dance-81",
+    "name": "드럼앤베이스",
+    "englishName": "Drum and Bass",
+    "family": "dnb",
+    "bpms": [
+      170,
+      180
+    ],
+    "bpmLabel": "170-180 BPM"
+  },
+  {
+    "id": "dance-82",
+    "name": "리퀴드 펑크",
+    "englishName": "Liquid Funk",
+    "family": "dnb",
+    "bpms": [
+      170,
+      176
+    ],
+    "bpmLabel": "170-176 BPM"
+  },
+  {
+    "id": "dance-83",
+    "name": "뉴로펑크",
+    "englishName": "Neurofunk",
+    "family": "dnb",
+    "bpms": [
+      172,
+      178
+    ],
+    "bpmLabel": "172-178 BPM"
+  },
+  {
+    "id": "dance-84",
+    "name": "점프업 D&B",
+    "englishName": "Jump-up D&B",
+    "family": "dnb",
+    "bpms": [
+      170,
+      178
+    ],
+    "bpmLabel": "170-178 BPM"
+  },
+  {
+    "id": "dance-85",
+    "name": "앳모스페릭 D&B",
+    "englishName": "Atmospheric D&B",
+    "family": "dnb",
+    "bpms": [
+      170,
+      176
+    ],
+    "bpmLabel": "170-176 BPM"
+  },
+  {
+    "id": "dance-86",
+    "name": "정글",
+    "englishName": "Jungle",
+    "family": "dnb",
+    "bpms": [
+      160,
+      180
+    ],
+    "bpmLabel": "160-180 BPM"
+  },
+  {
+    "id": "dance-87",
+    "name": "드럼스텝",
+    "englishName": "Drumstep",
+    "family": "dnb",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-88",
+    "name": "테크스텝",
+    "englishName": "Techstep",
+    "family": "dnb",
+    "bpms": [
+      170,
+      178
+    ],
+    "bpmLabel": "170-178 BPM"
+  },
+  {
+    "id": "dance-89",
+    "name": "다크스텝",
+    "englishName": "Darkstep",
+    "family": "dnb",
+    "bpms": [
+      170,
+      180
+    ],
+    "bpmLabel": "170-180 BPM"
+  },
+  {
+    "id": "dance-90",
+    "name": "리퀴드 D&B",
+    "englishName": "Liquid D&B",
+    "family": "dnb",
+    "bpms": [
+      172,
+      176
+    ],
+    "bpmLabel": "172-176 BPM"
+  },
+  {
+    "id": "dance-91",
+    "name": "삼바스",
+    "englishName": "Sambass",
+    "family": "dnb",
+    "bpms": [
+      170,
+      176
+    ],
+    "bpmLabel": "170-176 BPM"
+  },
+  {
+    "id": "dance-92",
+    "name": "하프타임 D&B",
+    "englishName": "Halftime D&B",
+    "family": "dnb",
+    "bpms": [
+      170,
+      180
+    ],
+    "bpmLabel": "170-180 BPM"
+  },
+  {
+    "id": "dance-93",
+    "name": "미니멀 D&B",
+    "englishName": "Minimal D&B",
+    "family": "dnb",
+    "bpms": [
+      170,
+      176
+    ],
+    "bpmLabel": "170-176 BPM"
+  },
+  {
+    "id": "dance-94",
+    "name": "라가 정글",
+    "englishName": "Ragga Jungle",
+    "family": "dnb",
+    "bpms": [
+      160,
+      175
+    ],
+    "bpmLabel": "160-175 BPM"
+  },
+  {
+    "id": "dance-95",
+    "name": "드럼펑크",
+    "englishName": "Drumfunk",
+    "family": "dnb",
+    "bpms": [
+      170,
+      178
+    ],
+    "bpmLabel": "170-178 BPM"
+  },
+  {
+    "id": "dance-96",
+    "name": "크로스브리드",
+    "englishName": "Crossbreed",
+    "family": "dnb",
+    "bpms": [
+      170,
+      180
+    ],
+    "bpmLabel": "170-180 BPM"
+  },
+  {
+    "id": "dance-97",
+    "name": "브레이크코어",
+    "englishName": "Breakcore",
+    "family": "dnb",
+    "bpms": [
+      180,
+      220
+    ],
+    "bpmLabel": "180-220 BPM"
+  },
+  {
+    "id": "dance-98",
+    "name": "풋워크 D&B",
+    "englishName": "Footwork D&B",
+    "family": "dnb",
+    "bpms": [
+      160,
+      180
+    ],
+    "bpmLabel": "160-180 BPM"
+  },
+  {
+    "id": "dance-99",
+    "name": "인텔리전트 D&B",
+    "englishName": "Intelligent D&B",
+    "family": "dnb",
+    "bpms": [
+      170,
+      178
+    ],
+    "bpmLabel": "170-178 BPM"
+  },
+  {
+    "id": "dance-100",
+    "name": "UK 펑키 D&B",
+    "englishName": "UK Funky D&B",
+    "family": "dnb",
+    "bpms": [
+      168,
+      176
+    ],
+    "bpmLabel": "168-176 BPM"
+  },
+  {
+    "id": "dance-101",
+    "name": "하드스타일",
+    "englishName": "Hardstyle",
+    "family": "hard",
+    "bpms": [
+      140,
+      155
+    ],
+    "bpmLabel": "140-155 BPM"
+  },
+  {
+    "id": "dance-102",
+    "name": "하드코어 테크노",
+    "englishName": "Hardcore Techno",
+    "family": "hard",
+    "bpms": [
+      160,
+      200
+    ],
+    "bpmLabel": "160-200 BPM"
+  },
+  {
+    "id": "dance-103",
+    "name": "가버",
+    "englishName": "Gabber",
+    "family": "hard",
+    "bpms": [
+      160,
+      200
+    ],
+    "bpmLabel": "160-200 BPM"
+  },
+  {
+    "id": "dance-104",
+    "name": "해피 하드코어",
+    "englishName": "Happy Hardcore",
+    "family": "hard",
+    "bpms": [
+      160,
+      180
+    ],
+    "bpmLabel": "160-180 BPM"
+  },
+  {
+    "id": "dance-105",
+    "name": "UK 하드코어",
+    "englishName": "UK Hardcore",
+    "family": "hard",
+    "bpms": [
+      170,
+      180
+    ],
+    "bpmLabel": "170-180 BPM"
+  },
+  {
+    "id": "dance-106",
+    "name": "프렌치코어",
+    "englishName": "Frenchcore",
+    "family": "hard",
+    "bpms": [
+      190,
+      220
+    ],
+    "bpmLabel": "190-220 BPM"
+  },
+  {
+    "id": "dance-107",
+    "name": "스피드코어",
+    "englishName": "Speedcore",
+    "family": "hard",
+    "bpms": [
+      250,
+      100
+    ],
+    "bpmLabel": "250-1000 BPM"
+  },
+  {
+    "id": "dance-108",
+    "name": "테러 하드코어",
+    "englishName": "Terror Hardcore",
+    "family": "hard",
+    "bpms": [
+      220,
+      300
+    ],
+    "bpmLabel": "220-300 BPM"
+  },
+  {
+    "id": "dance-109",
+    "name": "유포릭 하드스타일",
+    "englishName": "Euphoric Hardstyle",
+    "family": "hard",
+    "bpms": [
+      148,
+      152
+    ],
+    "bpmLabel": "148-152 BPM"
+  },
+  {
+    "id": "dance-110",
+    "name": "로 하드스타일",
+    "englishName": "Raw Hardstyle",
+    "family": "hard",
+    "bpms": [
+      150,
+      160
+    ],
+    "bpmLabel": "150-160 BPM"
+  },
+  {
+    "id": "dance-111",
+    "name": "점프스타일",
+    "englishName": "Jumpstyle",
+    "family": "hard",
+    "bpms": [
+      140,
+      150
+    ],
+    "bpmLabel": "140-150 BPM"
+  },
+  {
+    "id": "dance-112",
+    "name": "마키나",
+    "englishName": "Makina",
+    "family": "hard",
+    "bpms": [
+      160,
+      180
+    ],
+    "bpmLabel": "160-180 BPM"
+  },
+  {
+    "id": "dance-113",
+    "name": "하드 댄스",
+    "englishName": "Hard Dance",
+    "family": "hard",
+    "bpms": [
+      150,
+      160
+    ],
+    "bpmLabel": "150-160 BPM"
+  },
+  {
+    "id": "dance-114",
+    "name": "메인스트림 하드스타일",
+    "englishName": "Mainstream Hardstyle",
+    "family": "hard",
+    "bpms": [
+      150,
+      152
+    ],
+    "bpmLabel": "150-152 BPM"
+  },
+  {
+    "id": "dance-115",
+    "name": "인더스트리얼 하드코어",
+    "englishName": "Industrial Hardcore",
+    "family": "hard",
+    "bpms": [
+      180,
+      220
+    ],
+    "bpmLabel": "180-220 BPM"
+  },
+  {
+    "id": "dance-116",
+    "name": "덥스텝",
+    "englishName": "Dubstep",
+    "family": "bass",
+    "bpms": [
+      140,
+      70
+    ],
+    "bpmLabel": "140 / 70 BPM"
+  },
+  {
+    "id": "dance-117",
+    "name": "브로스텝",
+    "englishName": "Brostep",
+    "family": "bass",
+    "bpms": [
+      140
+    ],
+    "bpmLabel": "140 BPM"
+  },
+  {
+    "id": "dance-118",
+    "name": "리딤",
+    "englishName": "Riddim",
+    "family": "bass",
+    "bpms": [
+      140
+    ],
+    "bpmLabel": "140 BPM"
+  },
+  {
+    "id": "dance-119",
+    "name": "딥 덥스텝",
+    "englishName": "Deep Dubstep",
+    "family": "bass",
+    "bpms": [
+      140,
+      70
+    ],
+    "bpmLabel": "140 / 70 BPM"
+  },
+  {
+    "id": "dance-120",
+    "name": "퓨처 베이스",
+    "englishName": "Future Bass",
+    "family": "bass",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-121",
+    "name": "EDM 트랩",
+    "englishName": "Trap (EDM)",
+    "family": "bass",
+    "bpms": [
+      140,
+      160,
+      70,
+      80
+    ],
+    "bpmLabel": "140-160 (70-80) BPM"
+  },
+  {
+    "id": "dance-122",
+    "name": "퓨처 트랩",
+    "englishName": "Future Trap",
+    "family": "bass",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-123",
+    "name": "하이브리드 트랩",
+    "englishName": "Hybrid Trap",
+    "family": "bass",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-124",
+    "name": "폰크",
+    "englishName": "Phonk",
+    "family": "bass",
+    "bpms": [
+      130,
+      150
+    ],
+    "bpmLabel": "130-150 BPM"
+  },
+  {
+    "id": "dance-125",
+    "name": "드리프트 폰크",
+    "englishName": "Drift Phonk",
+    "family": "bass",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-126",
+    "name": "글리치 합",
+    "englishName": "Glitch Hop",
+    "family": "bass",
+    "bpms": [
+      110,
+      130
+    ],
+    "bpmLabel": "110-130 BPM"
+  },
+  {
+    "id": "dance-127",
+    "name": "왕키",
+    "englishName": "Wonky",
+    "family": "bass",
+    "bpms": [
+      130,
+      150
+    ],
+    "bpmLabel": "130-150 BPM"
+  },
+  {
+    "id": "dance-128",
+    "name": "하프타임 베이스",
+    "englishName": "Halftime Bass",
+    "family": "bass",
+    "bpms": [
+      170,
+      85
+    ],
+    "bpmLabel": "170 / 85 BPM"
+  },
+  {
+    "id": "dance-129",
+    "name": "트랩스텝",
+    "englishName": "Trapstep",
+    "family": "bass",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-130",
+    "name": "트랩 소울",
+    "englishName": "Trap Soul",
+    "family": "bass",
+    "bpms": [
+      70,
+      90
+    ],
+    "bpmLabel": "70-90 BPM"
+  },
+  {
+    "id": "dance-131",
+    "name": "컬러 베이스",
+    "englishName": "Color Bass",
+    "family": "bass",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-132",
+    "name": "멜로딕 덥스텝",
+    "englishName": "Melodic Dubstep",
+    "family": "bass",
+    "bpms": [
+      140
+    ],
+    "bpmLabel": "140 BPM"
+  },
+  {
+    "id": "dance-133",
+    "name": "베이스 음악",
+    "englishName": "Bass Music (General)",
+    "family": "bass",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-134",
+    "name": "티어아웃 덥스텝",
+    "englishName": "Tearout Dubstep",
+    "family": "bass",
+    "bpms": [
+      140
+    ],
+    "bpmLabel": "140 BPM"
+  },
+  {
+    "id": "dance-135",
+    "name": "개러지 베이스",
+    "englishName": "Garage Bass",
+    "family": "bass",
+    "bpms": [
+      130,
+      140
+    ],
+    "bpmLabel": "130-140 BPM"
+  },
+  {
+    "id": "dance-136",
+    "name": "뉴 디스코",
+    "englishName": "Nu-Disco",
+    "family": "disco",
+    "bpms": [
+      110,
+      118
+    ],
+    "bpmLabel": "110-118 BPM"
+  },
+  {
+    "id": "dance-137",
+    "name": "디스코",
+    "englishName": "Disco",
+    "family": "disco",
+    "bpms": [
+      110,
+      130
+    ],
+    "bpmLabel": "110-130 BPM"
+  },
+  {
+    "id": "dance-138",
+    "name": "이탈로 디스코",
+    "englishName": "Italo Disco",
+    "family": "disco",
+    "bpms": [
+      110,
+      130
+    ],
+    "bpmLabel": "110-130 BPM"
+  },
+  {
+    "id": "dance-139",
+    "name": "스페이스 디스코",
+    "englishName": "Space Disco",
+    "family": "disco",
+    "bpms": [
+      110,
+      125
+    ],
+    "bpmLabel": "110-125 BPM"
+  },
+  {
+    "id": "dance-140",
+    "name": "스칸디나비안 디스코",
+    "englishName": "Scandinavian Disco",
+    "family": "disco",
+    "bpms": [
+      110,
+      118
+    ],
+    "bpmLabel": "110-118 BPM"
+  },
+  {
+    "id": "dance-141",
+    "name": "디스코 폴로",
+    "englishName": "Disco Polo",
+    "family": "disco",
+    "bpms": [
+      120,
+      135
+    ],
+    "bpmLabel": "120-135 BPM"
+  },
+  {
+    "id": "dance-142",
+    "name": "코스믹 디스코",
+    "englishName": "Cosmic Disco",
+    "family": "disco",
+    "bpms": [
+      108,
+      118
+    ],
+    "bpmLabel": "108-118 BPM"
+  },
+  {
+    "id": "dance-143",
+    "name": "부기 펑크",
+    "englishName": "Boogie Funk",
+    "family": "disco",
+    "bpms": [
+      100,
+      115
+    ],
+    "bpmLabel": "100-115 BPM"
+  },
+  {
+    "id": "dance-144",
+    "name": "일렉트로 스윙",
+    "englishName": "Electro-Swing",
+    "family": "disco",
+    "bpms": [
+      110,
+      130
+    ],
+    "bpmLabel": "110-130 BPM"
+  },
+  {
+    "id": "dance-145",
+    "name": "퓨처 펑크",
+    "englishName": "Future Funk",
+    "family": "disco",
+    "bpms": [
+      110,
+      125
+    ],
+    "bpmLabel": "110-125 BPM"
+  },
+  {
+    "id": "dance-146",
+    "name": "리퀴드 펑크 디스코",
+    "englishName": "Liquid Funk Disco",
+    "family": "disco",
+    "bpms": [
+      110,
+      125
+    ],
+    "bpmLabel": "110-125 BPM"
+  },
+  {
+    "id": "dance-147",
+    "name": "디스코 펑크",
+    "englishName": "Disco-Funk",
+    "family": "disco",
+    "bpms": [
+      110,
+      125
+    ],
+    "bpmLabel": "110-125 BPM"
+  },
+  {
+    "id": "dance-148",
+    "name": "프렌치 필터 디스코",
+    "englishName": "French Filter Disco",
+    "family": "disco",
+    "bpms": [
+      118,
+      128
+    ],
+    "bpmLabel": "118-128 BPM"
+  },
+  {
+    "id": "dance-149",
+    "name": "디스코 에디트",
+    "englishName": "Disco Edit",
+    "family": "disco",
+    "bpms": [
+      108,
+      118
+    ],
+    "bpmLabel": "108-118 BPM"
+  },
+  {
+    "id": "dance-150",
+    "name": "모던 디스코 펑크",
+    "englishName": "Modern Disco Funk",
+    "family": "disco",
+    "bpms": [
+      110,
+      118
+    ],
+    "bpmLabel": "110-118 BPM"
+  },
+  {
+    "id": "dance-151",
+    "name": "레게톤",
+    "englishName": "Reggaeton",
+    "family": "latin",
+    "bpms": [
+      90,
+      100
+    ],
+    "bpmLabel": "90-100 BPM"
+  },
+  {
+    "id": "dance-152",
+    "name": "문바톤",
+    "englishName": "Moombahton",
+    "family": "latin",
+    "bpms": [
+      108,
+      115
+    ],
+    "bpmLabel": "108-115 BPM"
+  },
+  {
+    "id": "dance-153",
+    "name": "라틴 프리스타일",
+    "englishName": "Latin Freestyle",
+    "family": "latin",
+    "bpms": [
+      110,
+      125
+    ],
+    "bpmLabel": "110-125 BPM"
+  },
+  {
+    "id": "dance-154",
+    "name": "디지털 쿰비아",
+    "englishName": "Cumbia Digital",
+    "family": "latin",
+    "bpms": [
+      95,
+      110
+    ],
+    "bpmLabel": "95-110 BPM"
+  },
+  {
+    "id": "dance-155",
+    "name": "바차타 일렉트로",
+    "englishName": "Bachata Electro",
+    "family": "latin",
+    "bpms": [
+      125,
+      140
+    ],
+    "bpmLabel": "125-140 BPM"
+  },
+  {
+    "id": "dance-156",
+    "name": "소카",
+    "englishName": "Soca",
+    "family": "latin",
+    "bpms": [
+      125,
+      145
+    ],
+    "bpmLabel": "125-145 BPM"
+  },
+  {
+    "id": "dance-157",
+    "name": "댄스홀",
+    "englishName": "Dancehall",
+    "family": "latin",
+    "bpms": [
+      90,
+      110
+    ],
+    "bpmLabel": "90-110 BPM"
+  },
+  {
+    "id": "dance-158",
+    "name": "트로피컬 베이스",
+    "englishName": "Tropical Bass",
+    "family": "latin",
+    "bpms": [
+      105,
+      120
+    ],
+    "bpmLabel": "105-120 BPM"
+  },
+  {
+    "id": "dance-159",
+    "name": "맘보 일렉트로",
+    "englishName": "Mambo Electro",
+    "family": "latin",
+    "bpms": [
+      110,
+      130
+    ],
+    "bpmLabel": "110-130 BPM"
+  },
+  {
+    "id": "dance-160",
+    "name": "라틴 트랩",
+    "englishName": "Latin Trap",
+    "family": "latin",
+    "bpms": [
+      75,
+      90
+    ],
+    "bpmLabel": "75-90 BPM"
+  },
+  {
+    "id": "dance-161",
+    "name": "브라질리언 펑크 (펑크 카리오카)",
+    "englishName": "Brazilian Funk (Funk Carioca)",
+    "family": "latin",
+    "bpms": [
+      120,
+      135
+    ],
+    "bpmLabel": "120-135 BPM"
+  },
+  {
+    "id": "dance-162",
+    "name": "로맨틱 레게톤",
+    "englishName": "Reggaetón Romántico",
+    "family": "latin",
+    "bpms": [
+      90,
+      100
+    ],
+    "bpmLabel": "90-100 BPM"
+  },
+  {
+    "id": "dance-163",
+    "name": "페레오",
+    "englishName": "Perreo",
+    "family": "latin",
+    "bpms": [
+      95,
+      105
+    ],
+    "bpmLabel": "95-105 BPM"
+  },
+  {
+    "id": "dance-164",
+    "name": "살사 일렉트로",
+    "englishName": "Salsa Electro",
+    "family": "latin",
+    "bpms": [
+      180,
+      200
+    ],
+    "bpmLabel": "180-200 BPM"
+  },
+  {
+    "id": "dance-165",
+    "name": "창가 투키",
+    "englishName": "Changa Tuki",
+    "family": "latin",
+    "bpms": [
+      140,
+      160
+    ],
+    "bpmLabel": "140-160 BPM"
+  },
+  {
+    "id": "dance-166",
+    "name": "아프로비츠",
+    "englishName": "Afrobeats",
+    "family": "afro",
+    "bpms": [
+      100,
+      115
+    ],
+    "bpmLabel": "100-115 BPM"
+  },
+  {
+    "id": "dance-167",
+    "name": "아마피아노",
+    "englishName": "Amapiano",
+    "family": "afro",
+    "bpms": [
+      110,
+      115
+    ],
+    "bpmLabel": "110-115 BPM"
+  },
+  {
+    "id": "dance-168",
+    "name": "콤",
+    "englishName": "Gqom",
+    "family": "afro",
+    "bpms": [
+      125
+    ],
+    "bpmLabel": "125 BPM"
+  },
+  {
+    "id": "dance-169",
+    "name": "쿠두로",
+    "englishName": "Kuduro",
+    "family": "afro",
+    "bpms": [
+      130,
+      145
+    ],
+    "bpmLabel": "130-145 BPM"
+  },
+  {
+    "id": "dance-170",
+    "name": "하이라이프",
+    "englishName": "Highlife",
+    "family": "afro",
+    "bpms": [
+      100,
+      130
+    ],
+    "bpmLabel": "100-130 BPM"
+  },
+  {
+    "id": "dance-171",
+    "name": "아존토",
+    "englishName": "Azonto",
+    "family": "afro",
+    "bpms": [
+      108,
+      118
+    ],
+    "bpmLabel": "108-118 BPM"
+  },
+  {
+    "id": "dance-172",
+    "name": "아프로 하우스",
+    "englishName": "Afro House",
+    "family": "afro",
+    "bpms": [
+      118,
+      128
+    ],
+    "bpmLabel": "118-128 BPM"
+  },
+  {
+    "id": "dance-173",
+    "name": "아프로 테크",
+    "englishName": "Afro-Tech",
+    "family": "afro",
+    "bpms": [
+      120,
+      128
+    ],
+    "bpmLabel": "120-128 BPM"
+  },
+  {
+    "id": "dance-174",
+    "name": "UK 펑키 (아프로)",
+    "englishName": "UK Funky (Afro)",
+    "family": "afro",
+    "bpms": [
+      128,
+      138
+    ],
+    "bpmLabel": "128-138 BPM"
+  },
+  {
+    "id": "dance-175",
+    "name": "봉고 플라바",
+    "englishName": "Bongo Flava",
+    "family": "afro",
+    "bpms": [
+      105,
+      120
+    ],
+    "bpmLabel": "105-120 BPM"
+  },
+  {
+    "id": "dance-176",
+    "name": "쿠페 데칼레",
+    "englishName": "Coupé-Décalé",
+    "family": "afro",
+    "bpms": [
+      120,
+      130
+    ],
+    "bpmLabel": "120-130 BPM"
+  },
+  {
+    "id": "dance-177",
+    "name": "은돔볼로",
+    "englishName": "Ndombolo",
+    "family": "afro",
+    "bpms": [
+      125,
+      135
+    ],
+    "bpmLabel": "125-135 BPM"
+  },
+  {
+    "id": "dance-178",
+    "name": "신겔리",
+    "englishName": "Singeli",
+    "family": "afro",
+    "bpms": [
+      180,
+      300
+    ],
+    "bpmLabel": "180-300 BPM"
+  },
+  {
+    "id": "dance-179",
+    "name": "샹간 일렉트로",
+    "englishName": "Shangaan Electro",
+    "family": "afro",
+    "bpms": [
+      180,
+      200
+    ],
+    "bpmLabel": "180-200 BPM"
+  },
+  {
+    "id": "dance-180",
+    "name": "아프로비트 (클래식)",
+    "englishName": "Afrobeat (Classic)",
+    "family": "afro",
+    "bpms": [
+      100,
+      120
+    ],
+    "bpmLabel": "100-120 BPM"
+  },
+  {
+    "id": "dance-181",
+    "name": "빅 비트",
+    "englishName": "Big Beat",
+    "family": "experimental",
+    "bpms": [
+      110,
+      130
+    ],
+    "bpmLabel": "110-130 BPM"
+  },
+  {
+    "id": "dance-182",
+    "name": "트립합",
+    "englishName": "Trip-Hop",
+    "family": "experimental",
+    "bpms": [
+      80,
+      100
+    ],
+    "bpmLabel": "80-100 BPM"
+  },
+  {
+    "id": "dance-183",
+    "name": "브레이크비트",
+    "englishName": "Breakbeat",
+    "family": "experimental",
+    "bpms": [
+      125,
+      140
+    ],
+    "bpmLabel": "125-140 BPM"
+  },
+  {
+    "id": "dance-184",
+    "name": "플로리다 브레이크스",
+    "englishName": "Florida Breaks",
+    "family": "experimental",
+    "bpms": [
+      130,
+      140
+    ],
+    "bpmLabel": "130-140 BPM"
+  },
+  {
+    "id": "dance-185",
+    "name": "뉴 스쿨 브레이크스",
+    "englishName": "Nu-Skool Breaks",
+    "family": "experimental",
+    "bpms": [
+      130,
+      140
+    ],
+    "bpmLabel": "130-140 BPM"
+  },
+  {
+    "id": "dance-186",
+    "name": "IDM (인텔리전트 댄스 음악)",
+    "englishName": "IDM",
+    "family": "experimental",
+    "bpms": [
+      100,
+      160
+    ],
+    "bpmLabel": "100-160 BPM"
+  },
+  {
+    "id": "dance-187",
+    "name": "글리치",
+    "englishName": "Glitch",
+    "family": "experimental",
+    "bpms": [
+      100,
+      140
+    ],
+    "bpmLabel": "100-140 BPM"
+  },
+  {
+    "id": "dance-188",
+    "name": "글리치코어",
+    "englishName": "Glitchcore",
+    "family": "experimental",
+    "bpms": [
+      160,
+      220
+    ],
+    "bpmLabel": "160-220 BPM"
+  },
+  {
+    "id": "dance-189",
+    "name": "앰비언트 댄스",
+    "englishName": "Ambient Dance",
+    "family": "experimental",
+    "bpms": [
+      100,
+      120
+    ],
+    "bpmLabel": "100-120 BPM"
+  },
+  {
+    "id": "dance-190",
+    "name": "포크트로니카",
+    "englishName": "Folktronica",
+    "family": "experimental",
+    "bpms": [
+      100,
+      130
+    ],
+    "bpmLabel": "100-130 BPM"
+  },
+  {
+    "id": "dance-191",
+    "name": "하이퍼팝",
+    "englishName": "Hyperpop",
+    "family": "modern",
+    "bpms": [
+      140,
+      180
+    ],
+    "bpmLabel": "140-180 BPM"
+  },
+  {
+    "id": "dance-192",
+    "name": "버블검 베이스",
+    "englishName": "Bubblegum Bass",
+    "family": "modern",
+    "bpms": [
+      130,
+      150
+    ],
+    "bpmLabel": "130-150 BPM"
+  },
+  {
+    "id": "dance-193",
+    "name": "베이퍼웨이브",
+    "englishName": "Vaporwave",
+    "family": "modern",
+    "bpms": [
+      60,
+      90
+    ],
+    "bpmLabel": "60-90 BPM"
+  },
+  {
+    "id": "dance-194",
+    "name": "신스웨이브",
+    "englishName": "Synthwave",
+    "family": "modern",
+    "bpms": [
+      100,
+      120
+    ],
+    "bpmLabel": "100-120 BPM"
+  },
+  {
+    "id": "dance-195",
+    "name": "칠웨이브",
+    "englishName": "Chillwave",
+    "family": "modern",
+    "bpms": [
+      90,
+      110
+    ],
+    "bpmLabel": "90-110 BPM"
+  },
+  {
+    "id": "dance-196",
+    "name": "위치 하우스",
+    "englishName": "Witch House",
+    "family": "modern",
+    "bpms": [
+      70,
+      100
+    ],
+    "bpmLabel": "70-100 BPM"
+  },
+  {
+    "id": "dance-197",
+    "name": "시펑크",
+    "englishName": "Seapunk",
+    "family": "modern",
+    "bpms": [
+      100,
+      130
+    ],
+    "bpmLabel": "100-130 BPM"
+  },
+  {
+    "id": "dance-198",
+    "name": "퓨처 레이브",
+    "englishName": "Future Rave",
+    "family": "modern",
+    "bpms": [
+      126,
+      130
+    ],
+    "bpmLabel": "126-130 BPM"
+  },
+  {
+    "id": "dance-199",
+    "name": "유로댄스",
+    "englishName": "Eurodance",
+    "family": "modern",
+    "bpms": [
+      125,
+      140
+    ],
+    "bpmLabel": "125-140 BPM"
+  },
+  {
+    "id": "dance-200",
+    "name": "빅룸 EDM",
+    "englishName": "Big Room EDM",
+    "family": "modern",
+    "bpms": [
+      126,
+      132
+    ],
+    "bpmLabel": "126-132 BPM"
+  }
+]

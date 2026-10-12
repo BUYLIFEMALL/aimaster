@@ -29,6 +29,15 @@ export const VOICES = [
   "중저음 남성 보컬",
   "혼성 듀엣",
   "코러스 중심",
+  "남성 솔로",
+  "여성 솔로",
+  "남성 듀엣",
+  "여성 듀엣",
+  "남성 그룹",
+  "여성 그룹",
+  "혼성 그룹",
+  "남성 합창",
+  "여성 합창",
 ] as const;
 export const STRUCTURES = [
   "표준",
@@ -44,8 +53,65 @@ export const ARRANGEMENTS = [
   "라이브 밴드",
   "가스펠",
   "EDM 드롭",
+  "아이돌 응원 코러스",
+  "스타디움 록",
+  "애니메이션 주제가",
+  "펑크 갱 보컬",
 ] as const;
+export const TITLE_LANGUAGES = [
+  "자동",
+  "한국어",
+  "영어",
+  "일본어",
+  "다국어",
+] as const;
+export const ERAS = [
+  "modern",
+  "2020s",
+  "2010s",
+  "2000s",
+  "1990s",
+  "1980s",
+  "1970s",
+  "1960s",
+  "1950s",
+  "1940s",
+  "1930s",
+  "1920s",
+  "global",
+] as const;
+export const MARKETS = ["한국 가요", "POP", "장르·월드"] as const;
+export const VOICE_TERMS: Record<string, string> = {
+  "자연스러운 보컬": "natural vocals",
+  "부드러운 여성 보컬": "soft female vocals",
+  "중저음 남성 보컬": "warm male vocals",
+  "혼성 듀엣": "male and female duet",
+  "코러스 중심": "layered choir vocals",
+  "남성 솔로": "male solo vocals",
+  "여성 솔로": "female solo vocals",
+  "남성 듀엣": "male vocal duet",
+  "여성 듀엣": "female vocal duet",
+  "남성 그룹": "male vocal group",
+  "여성 그룹": "female vocal group",
+  "혼성 그룹": "mixed vocal group",
+  "남성 합창": "male choir",
+  "여성 합창": "female choir",
+};
 export interface Brief {
+  era: string;
+  market: string;
+  styleGroup: string;
+  presetId: string;
+  presetVoice: string;
+  titleLanguage: string;
+  highPitchRestraint: boolean;
+  differentRapVoice: boolean;
+  rapVoice: string;
+  bpmHint: boolean;
+  useContext: boolean;
+  generateTitle: boolean;
+  generateStyle: boolean;
+  generateLyrics: boolean;
   harmony: boolean;
   callResponse: boolean;
   arrangement: string;
@@ -68,6 +134,7 @@ export interface Brief {
   arc: string;
   count: number;
   model: string;
+  customModel: boolean;
   provider: Provider;
 }
 export interface Track {
@@ -101,8 +168,32 @@ export interface Store {
   schema: 1;
   draft: Draft;
   saved: SavedItem[];
+  styles: SavedStyle[];
+}
+export interface SavedStyle {
+  id: string;
+  name: string;
+  style: string;
+  exclude: string;
+  bpm: number;
+  savedAt: string;
 }
 export const DEFAULT_BRIEF: Brief = {
+  customModel: false,
+  era: "global",
+  market: "장르·월드",
+  styleGroup: "",
+  presetId: "",
+  presetVoice: "자연스러운 보컬",
+  titleLanguage: "자동",
+  highPitchRestraint: false,
+  differentRapVoice: false,
+  rapVoice: "남성 솔로",
+  bpmHint: true,
+  useContext: true,
+  generateTitle: true,
+  generateStyle: true,
+  generateLyrics: true,
   harmony: false,
   callResponse: false,
   arrangement: ARRANGEMENTS[0],
@@ -371,22 +462,34 @@ export function recipe(b: Brief): string {
         : b.rapPct > 0
           ? "melodic vocals, rhythmic rap verses"
           : "melodic vocals";
-  const voice = [
-    "natural vocals",
-    "soft female vocals",
-    "warm male vocals",
-    "male and female duet",
-    "layered choir vocals",
-  ][VOICES.indexOf(b.voice as (typeof VOICES)[number])];
+  const voice =
+    VOICE_TERMS[b.voice === "자연스러운 보컬" ? b.presetVoice : b.voice];
   return Array.from(
     new Set(
       [
         b.genre,
+        b.era === "global"
+          ? ""
+          : b.era === "modern"
+            ? "modern Korean pop production"
+            : `${b.era} production aesthetics`,
         b.mood,
         b.instruments,
-        `${b.bpm} BPM`,
+        b.bpmHint ? `${b.bpm} BPM` : "",
         delivery,
         b.instrumental ? "" : voice,
+        !b.instrumental && b.differentRapVoice && b.rapPct > 0
+          ? `separate rap performer, ${VOICE_TERMS[b.rapVoice]}`
+          : "",
+        !b.instrumental && b.highPitchRestraint
+          ? "comfortable low-to-mid register, restrained high notes"
+          : "",
+        !b.instrumental && b.harmony
+          ? b.rapPct === 100
+            ? "layered rhythmic spoken backing"
+            : "layered backing harmonies"
+          : "",
+        !b.instrumental && b.callResponse ? "call and response" : "",
       ].filter(Boolean),
     ),
   ).join(", ");

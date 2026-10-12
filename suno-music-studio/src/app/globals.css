@@ -505,6 +505,16 @@ p {
 .empty-state svg {
   margin: auto;
 }
+.library-picker,.style-palette {border:0;padding:0;margin:0;min-width:0;}
+.preset-preview {margin:16px 0;padding:16px;border:1px solid #c7d2fe;border-radius:12px;background:#fafaff;}
+.preset-preview .mono,.saved-row .mono {overflow-wrap:anywhere;}
+.palette-options {max-height:240px;overflow-y:auto;padding:12px 0;}
+.tag-entry {display:flex;gap:8px;align-items:center;}
+.tag-entry input {flex:1;}
+.generation-selection {border:1px solid var(--line);border-radius:12px;padding:12px;margin:16px 0;}
+.generation-selection legend {font-weight:700;}
+.section-tags {margin:12px 0 20px;}
+.section-tags button {font-size:11px;padding:6px 9px;}
 .workspace-footer {
   max-width: 1280px;
   margin: 30px auto 0;

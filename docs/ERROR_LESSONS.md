@@ -1601,3 +1601,10 @@
 - 증상: 웹의 [확장 연결] 기능이 '확장 프로그램이 연결되지 않았습니다/찾지 못했습니다'. 원인 후보: ① 그 프로그램 확장이 Chrome에 로드되지 않음(가장 흔함: 다른 프로그램 확장을 새로고침함) ② 확장을 로드/새로고침한 뒤 웹 화면을 새로고침하지 않음(content script는 페이지를 열 때 붙음) ③ 구버전이 새 주소(buylife.xyz)를 허용하지 않음.
 - 점검: `node scripts/check-chrome-extension-loaded.mjs <프로그램 폴더명>`으로 이 PC Chrome에 로드된 폴더를 확인 → 없으면 chrome://extensions에서 `<프로그램>\extension` 폴더를 로드. 웹 화면에서는 `postMessage({type:'ALLINONE_PING_EXTENSION'},'*')`에 `ALLINONE_PONG_EXTENSION` 응답이 오는지 본다.
 - 검수 중 모의 응답으로 시험한 값은 반드시 지울 것(localStorage 잔존 사고, v1.37).
+
+
+## 2026-10-12 Suno 원본 옵션 확장 — 설정 복원·Style 문자·접근성 이름
+
+- 증상: 원본에서 랩 100% → 0%로 돌아와도 singing/sung chorus 제외가 남음 → 원인: 자동 제외 문자열을 사용자 입력에 누적 → 해결: `suno-music-studio/src/lib/studio/catalog.ts`에서 사용자 제외와 현재 조건의 자동 제외를 매번 합성 → 다음부터 확인: 랩·연주곡·고음 억제를 켰다가 끄고 자동 제외가 사라지며 직접 제외는 남는지 검수.
+- 증상: 전체 레시피 검사에서 Reggaetón 등 라틴 이름 때문에 영문 Style 검증 실패 → 원인: 표시 이름과 ASCII Style 계약 혼용 → 해결: `catalog.ts`의 레시피 음악 용어 NFKD 정규화. 화면 메타데이터는 원문 유지 → 다음부터 확인: 모든 프리셋·3방향을 검사하며 메타데이터와 생성 문장 정책을 분리.
+- 증상: 선택/입력란 이름이 옵션 수백 개 또는 가사 내용까지 포함되어 화면 검수 대상 검색 실패 → 원인: 래핑 label의 값/옵션을 접근성 도구가 이름으로 인식 → 해결: LibraryPicker·BriefControls·TrackEditor 주요 입력에 짧은 aria-label 부여 → 다음부터 확인: 내용 있는 입력·대용량 선택지의 실제 접근성 이름으로 조작하고 모바일 가로 넘침 확인.

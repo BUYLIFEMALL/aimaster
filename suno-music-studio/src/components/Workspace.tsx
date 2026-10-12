@@ -9,13 +9,10 @@ import {
   Upload,
   Save,
   Square,
-  Search,
   ExternalLink,
 } from "lucide-react";
 import { APP_NAME } from "@/lib/version";
 import {
-  PRESETS,
-  TAGS,
   recipe,
   type Brief,
   type Provider,
@@ -43,6 +40,10 @@ import {
   trackProblems,
 } from "./TrackEditor";
 import { Guide } from "./Guide";
+import { LibraryPicker } from "./LibraryPicker";
+import { StylePalette } from "./StylePalette";
+import { automaticExclude, syncStyleControls } from "@/lib/studio/catalog";
+import { assertTargets } from "@/lib/studio/generation";
 import { runLyricQueue } from "@/lib/studio/queue";
 const TITLES: Record<string, string> = {
   style: "스타일 선택",
@@ -69,8 +70,6 @@ export function Workspace({
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
   const active = useRef<AbortController | null>(null);
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("전체");
   const [suggestions, setSuggestions] = useState<Track[]>([]);
   useEffect(() => {
     let live = true;
@@ -118,13 +117,31 @@ export function Workspace({
     setProgress("");
   }
   function changeBrief(brief: Brief) {
+    try {
+      brief = syncStyleControls(current.current.draft.brief, brief);
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "설정 반영 실패");
+      return;
+    }
     cancel();
     mutate((s) => ({
       ...s,
       draft: {
         ...s.draft,
         brief,
-        song: s.draft.song ? { ...s.draft.song, reviewed: false } : null,
+        song: s.draft.song
+          ? {
+              ...s.draft.song,
+              ...(brief.style !== s.draft.brief.style
+                ? {
+                    style: brief.style,
+                    bpm: brief.bpm,
+                    exclude: automaticExclude(brief),
+                  }
+                : {}),
+              reviewed: false,
+            }
+          : null,
         album: s.draft.album
           ? {
               ...s.draft.album,
@@ -153,6 +170,7 @@ export function Workspace({
     action: "song" | "album" | "suggest",
     brief: Brief,
     c: AbortController,
+    contextTrack: Track | null = null,
   ): Promise<Album | null> {
     const input = validateBrief(brief);
     if (!registered[input.provider])
@@ -162,7 +180,7 @@ export function Workspace({
     const r = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, brief: input }),
+      body: JSON.stringify({ action, brief: input, contextTrack }),
       signal: c.signal,
     });
     const data = await r.json();
@@ -191,7 +209,13 @@ export function Workspace({
           : "제목·스타일·가사를 만들고 있습니다…",
     );
     try {
-      const result = await request(action, b, c);
+      if (action === "song") assertTargets(b);
+      const result = await request(
+        action,
+        b,
+        c,
+        action === "song" ? current.current.draft.song : null,
+      );
       if (!result) return;
       if (action === "suggest") {
         setSuggestions(result.tracks);
@@ -205,7 +229,10 @@ export function Workspace({
               ...s,
               draft: {
                 ...s.draft,
-                song: { ...result.tracks[0], id: crypto.randomUUID() },
+                song: {
+                  ...result.tracks[0],
+                  id: s.draft.song?.id || crypto.randomUUID(),
+                },
               },
             };
           return {
@@ -271,8 +298,12 @@ export function Workspace({
               style: t.style,
               locked: true,
               bpm: t.bpm,
+              generateTitle: false,
+              generateStyle: false,
+              generateLyrics: true,
             },
             c,
+            t,
           );
           return result?.tracks[0].lyrics ?? null;
         },
@@ -326,6 +357,33 @@ export function Workspace({
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "저장 실패");
     }
+  }
+  function saveStyle(name: string) {
+    if (current.current.styles.length >= 100) {
+      setNotice("내 Style은 100개까지입니다. JSON으로 백업해 주세요.");
+      return;
+    }
+    if (styleIssues(b.style).length) {
+      setNotice(styleIssues(b.style).join(" "));
+      return;
+    }
+    mutate((s) => ({
+      ...s,
+      styles: [
+        {
+          id: crypto.randomUUID(),
+          name,
+          style: b.style,
+          exclude: b.exclude,
+          bpm: b.bpm,
+          savedAt: new Date().toISOString(),
+        },
+        ...s.styles,
+      ],
+    }));
+    setNotice(
+      "현재 Style을 내 프리셋에 저장했습니다. 곡과 앨범에서 다시 사용할 수 있습니다.",
+    );
   }
   async function importFile(file: File) {
     try {
@@ -381,13 +439,6 @@ export function Workspace({
       setNotice("클립보드 권한을 확인하거나 TXT를 저장해 주세요.");
     }
   }
-  const presets = PRESETS.filter(
-    (p) =>
-      (category === "전체" || p.category === category) &&
-      `${p.name} ${p.genre} ${p.description}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
-  );
   return (
     <>
       <header className="page-heading">
@@ -467,62 +518,8 @@ export function Workspace({
       ) : section === "style" ? (
         <div className="workspace-grid">
           <section className="card">
-            <div className="section-title">
-              <h2>음악의 시작점</h2>
-              <span className="pill">직접 구성한 {PRESETS.length}가지</span>
-            </div>
-            <label className="search-field">
-              <Search size={17} />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="이름·장르·설명 검색"
-              />
-            </label>
-            <div className="actions">
-              {["전체", "장르", "댄스"].map((c) => (
-                <button
-                  aria-pressed={category === c}
-                  className={category === c ? "selected" : ""}
-                  key={c}
-                  onClick={() => setCategory(c)}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-            <div className="preset-grid">
-              {presets.map((p) => (
-                <button
-                  disabled={busy}
-                  className="preset"
-                  key={p.name}
-                  onClick={() => {
-                    const next = {
-                      ...b,
-                      genre: p.genre,
-                      mood: p.mood,
-                      instruments: p.instruments,
-                      bpm: p.bpm,
-                      locked: false,
-                    };
-                    changeBrief({ ...next, style: recipe(next) });
-                    setNotice(
-                      `${p.name}을 적용했습니다. 곡 기획에서 주제를 입력하세요.`,
-                    );
-                  }}
-                >
-                  <strong>{p.name}</strong>
-                  <span>{p.description}</span>
-                  <small>
-                    {p.genre} · {p.bpm} BPM
-                  </small>
-                </button>
-              ))}
-            </div>
-            {presets.length === 0 && (
-              <p className="muted">검색에 맞는 프리셋이 없습니다.</p>
-            )}
+            <h2>음악의 시작점</h2>
+            <LibraryPicker brief={b} onChange={changeBrief} busy={busy} />
             <h3>AI 스타일 제안</h3>
             <p className="muted">
               아래 곡 설명을 기반으로 음악 방향 3가지를 제안합니다.
@@ -560,48 +557,14 @@ export function Workspace({
           <section className="card">
             <h2>음악 속성 조정</h2>
             <BriefControls brief={b} onChange={changeBrief} busy={busy} />
-            <h3>태그 추가</h3>
-            {Object.entries(TAGS).map(([key, values]) => (
-              <div key={key}>
-                <p className="muted">
-                  {key === "genre"
-                    ? "장르"
-                    : key === "mood"
-                      ? "분위기"
-                      : "악기"}
-                </p>
-                <div className="tags">
-                  {values.map((v) => (
-                    <button
-                      key={v}
-                      disabled={busy}
-                      onClick={() => {
-                        const k = key as "genre" | "mood" | "instruments";
-                        const tags = b[k]
-                          .split(",")
-                          .map((x) => x.trim())
-                          .filter(Boolean);
-                        const next = tags.includes(v)
-                          ? tags.filter((x) => x !== v)
-                          : [...tags, v];
-                        changeBrief({
-                          ...b,
-                          [k]: next
-                            .join(", ")
-                            .slice(0, k === "instruments" ? 350 : 180),
-                        });
-                      }}
-                      aria-pressed={b[key as "genre" | "mood" | "instruments"]
-                        .split(",")
-                        .map((s) => s.trim())
-                        .includes(v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
+            <StylePalette
+              brief={b}
+              onChange={changeBrief}
+              busy={busy}
+              styles={store.styles}
+              onSave={saveStyle}
+              notice={setNotice}
+            />
             <div className="actions">
               <button
                 disabled={busy}
@@ -634,6 +597,7 @@ export function Workspace({
               <label>
                 {section === "album" ? "앨범 컨셉" : "곡 설명"}
                 <textarea
+                  aria-label={section==="album"?"앨범 컨셉":"곡 설명"}
                   rows={5}
                   maxLength={1500}
                   value={b.concept}
@@ -660,18 +624,85 @@ export function Workspace({
               <p className="info">
                 {section === "album"
                   ? "앨범 기획은 곡 목록과 Style을 먼저 만듭니다. 가사는 곡별로 이어서 생성합니다."
-                  : "제목·영문 Style·가사를 생성합니다. 기존 결과가 있으면 성공한 새 결과로 교체합니다."}
+                  : "선택한 항목만 생성합니다. 선택하지 않은 제목·Style·가사는 그대로 유지됩니다."}
               </p>
+              {section === "song" && (
+                <fieldset disabled={busy} className="generation-selection">
+                  <legend>AI가 만들 항목</legend>
+                  <div className="actions">
+                    {(
+                      [
+                        ["generateTitle", "제목"],
+                        ["generateStyle", "Style"],
+                        ["generateLyrics", "가사"],
+                      ] as const
+                    ).map(([key, label]) => (
+                      <label className="toggle" key={key}>
+                        <input
+                          type="checkbox"
+                          checked={b[key]}
+                          disabled={key === "generateLyrics" && b.instrumental}
+                          onChange={(e) =>
+                            changeBrief({ ...b, [key]: e.target.checked })
+                          }
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                  <label className="toggle">
+                    <input
+                      type="checkbox"
+                      checked={b.useContext}
+                      onChange={(e) =>
+                        changeBrief({ ...b, useContext: e.target.checked })
+                      }
+                    />
+                    현재 곡의 내용 참고
+                  </label>
+                </fieldset>
+              )}
               <button
                 className="primary full"
-                disabled={busy || !b.concept.trim()}
+                disabled={
+                  busy ||
+                  !b.concept.trim() ||
+                  (section === "song" &&
+                    !b.generateTitle &&
+                    !b.generateStyle &&
+                    (!b.generateLyrics || b.instrumental))
+                }
                 onClick={() => generate(section === "album" ? "album" : "song")}
               >
                 <Sparkles size={17} />
                 {section === "album"
                   ? `${b.count}곡 앨범 기획 생성`
-                  : "제목·스타일·가사 생성"}
+                  : "선택한 항목 생성"}
               </button>
+              {section === "song" && !store.draft.song && (
+                <button
+                  className="full"
+                  disabled={busy}
+                  onClick={() =>
+                    draftChange({
+                      ...current.current.draft,
+                      song: {
+                        id: crypto.randomUUID(),
+                        title: "",
+                        summary: b.concept.slice(0, 700),
+                        style: b.style || recipe(b),
+                        exclude: automaticExclude(b),
+                        lyrics: "",
+                        bpm: b.bpm,
+                        hook: "",
+                        reviewed: false,
+                      },
+                    })
+                  }
+                >
+                  직접 제목·가사 작성하기
+                </button>
+              )}
             </section>
             <section className="card">
               <h2>생성 세부 설정</h2>
@@ -680,6 +711,14 @@ export function Workspace({
                 onChange={changeBrief}
                 busy={busy}
                 album={section === "album"}
+              />
+              <StylePalette
+                brief={b}
+                onChange={changeBrief}
+                busy={busy}
+                styles={store.styles}
+                onSave={saveStyle}
+                notice={setNotice}
               />
             </section>
           </div>
@@ -691,7 +730,19 @@ export function Workspace({
               notice={setNotice}
               onChange={(t) => {
                 cancel();
-                draftChange({ ...current.current.draft, song: t });
+                const d = current.current.draft;
+                draftChange({
+                  ...d,
+                  song: t,
+                  brief: {
+                    ...d.brief,
+                    style: t.style,
+                    bpm: t.bpm,
+                    ...(t.exclude !== d.song?.exclude
+                      ? { exclude: t.exclude }
+                      : {}),
+                  },
+                });
               }}
             />
           )}
@@ -831,7 +882,18 @@ export function Workspace({
               instrumental={b.instrumental}
               notice={setNotice}
               onChange={(t) =>
-                draftChange({ ...current.current.draft, song: t })
+                draftChange({
+                  ...current.current.draft,
+                  song: t,
+                  brief: {
+                    ...current.current.draft.brief,
+                    style: t.style,
+                    bpm: t.bpm,
+                    ...(t.exclude !== current.current.draft.song?.exclude
+                      ? { exclude: t.exclude }
+                      : {}),
+                  },
+                })
               }
             />
           )}
@@ -839,6 +901,40 @@ export function Workspace({
             <h2>
               내 보관함 <span className="muted">{store.saved.length}/100</span>
             </h2>
+            {!!store.styles.length && (
+              <details className="advanced-settings">
+                <summary>내 Style 프리셋 ({store.styles.length}/100)</summary>
+                {store.styles.map((s) => (
+                  <div className="saved-row" key={s.id}>
+                    <div>
+                      <strong>{s.name}</strong>
+                      <p className="mono">{s.style}</p>
+                    </div>
+                    <button
+                      disabled={busy}
+                      onClick={() => {
+                        changeBrief({
+                          ...b,
+                          style: s.style,
+                          exclude: s.exclude,
+                          bpm: s.bpm,
+                          locked: true,
+                          generateStyle: false,
+                          presetId: "",
+                          styleGroup: "",
+                        });
+                        setNotice(
+                          "저장 Style을 적용했습니다. 기존 가사는 유지됩니다.",
+                        );
+                        router.push("/?section=song");
+                      }}
+                    >
+                      Style 적용
+                    </button>
+                  </div>
+                ))}
+              </details>
+            )}
             <p className="muted">
               이 회원의 이 브라우저 자료입니다. 사이트 데이터를 지우기 전 JSON
               백업을 내려받으세요.

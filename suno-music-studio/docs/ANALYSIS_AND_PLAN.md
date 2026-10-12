@@ -1,4 +1,6 @@
-# 원본 분석과 AIMaster 구현 계획
+# 초기 v1.01 분석과 AIMaster 구현 계획
+
+이 문서는 초기 구현 당시 기록입니다. 2026-10-12 후속 요청으로 원본 UI의 모든 프리셋·그룹·댄스 및 세부 옵션을 직접 선택하고 공개 선택 메타데이터를 반영했습니다. 최신 범위·실측 수량·문제 보완은 [ORIGINAL_OPTIONS_COMPARISON.md](ORIGINAL_OPTIONS_COMPARISON.md), 릴리스 상태는 [RELEASE_V1_03.md](RELEASE_V1_03.md)를 우선합니다. 원본 전체 Style 문장·프롬프트·실행 코드는 복제하지 않습니다.
 
 2026-10-12 / Codex. 참고 https://suno-prompt-manager-six.vercel.app/ (SU-Note, 화면 v3.6, 자산 쿼리 v371).
 
