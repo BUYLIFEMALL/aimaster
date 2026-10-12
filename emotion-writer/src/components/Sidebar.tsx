@@ -81,7 +81,7 @@ export function Sidebar({ email }: SidebarProps) {
   };
 
   const navContent = (
-    <div className="flex h-full flex-col justify-between overflow-y-auto p-3.5">
+    <div className="flex h-full flex-col overflow-y-auto p-3.5">
       <div className="space-y-2.5">
         {/* 상단 브랜드 헤더 (컴팩트 높이) */}
         <div className="border-b border-slate-200/80 pb-2.5">
@@ -174,8 +174,8 @@ export function Sidebar({ email }: SidebarProps) {
         </div>
       </div>
 
-      {/* 하단 유틸리티 및 사용자 정보 (상단으로 끌어올림) */}
-      <div className="space-y-1.5 border-t border-slate-200/80 pt-2.5 mt-2">
+      {/* 유틸리티 및 사용자 정보 (WORKFLOW 바로 아래로 밀착 연결) */}
+      <div className="space-y-1.5 border-t border-slate-200/80 pt-2.5 mt-3">
         <Link
           href="/settings"
           onClick={() => setOpen(false)}

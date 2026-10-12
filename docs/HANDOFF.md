@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.06) 사이드바 하단 메뉴를 WORKFLOW 바로 아래로 밀착 배치 및 Vercel 프로덕션 배포 완료
+
+주인님 요청("위 메뉴 밑으로 올라줘" - 스크린샷 빨간선 위치 지정)에 따라 사이드바 하단 메뉴를 WORKFLOW 메뉴 바로 아래로 밀착 배치했습니다:
+1. **사이드바 여백 구조 개선**:
+   - 기존 사이드바 래퍼에 걸려 있던 `justify-between`을 제거하여, 모니터 높이가 높아도 하단 메뉴(`🔑 API키등록·플랫폼연동` 및 계정/로그아웃)가 화면 최하단으로 외따로 떨어지지 않고, `WORKFLOW` 6번(완성 & 저장) 메뉴 바로 밑에 자연스럽게 이어져 바짝 붙도록 레이아웃 정돈.
+2. **버전 및 배포 검증**:
+   - `v1.06` 버전 업 (`src/lib/version.ts`, `package.json`, 공용 DB `programs.version = 'v1.06'`).
+   - 테스트 20개 전원 통과 (Pass 20 / Fail 0), ESLint 0 오류/경고, TypeScript 컴파일 및 프로덕션 빌드 성공.
+   - Vercel 프로덕션 배포 완료 (`https://emotion-writer.buylife.xyz`, 배포 ID: `dpl_4mwwRWFMkSuEKAGtnDTJ6eCG2ESj`).
+
 ## 2026-10-12 Codex — Suno 음악 기획 스튜디오 v1.01 구현·자동 검수 완료, 운영 접속 설정 승인 대기
 
 주인님이 https://suno-prompt-manager-six.vercel.app/ 분석 후 AIMaster 구조로 구현 요청. 새 `suno-music-studio/`에서 공용 로그인·권한·개인 AI 키, 흰색 표준 메뉴, 스타일/작사/3~12곡 앨범/검수·보관 흐름, 독립 프리셋·순차 가사·중지·미완성 이어가기·복사/TXT/JSON/사용 안내 구현. 기존 music/참고 사이트 수정 없음. 추천 이름 후보와 원본 대비표는 [분석·계획](../suno-music-studio/docs/ANALYSIS_AND_PLAN.md).
