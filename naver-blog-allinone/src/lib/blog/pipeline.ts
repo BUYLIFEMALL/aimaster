@@ -31,6 +31,10 @@ export interface PipelineInput {
   purpose?: string;
   /** 글 화자(페르소나). 없으면 기본 파워블로거 */
   persona?: PipelinePersona | null;
+  /** 사람이 쓴 글 문체 모드: 문장 리듬·구어체·AI식 정형 패턴 제거를 강하게 요구한다(사실·경험은 지어내지 않는다) */
+  humanStyle?: boolean;
+  /** 회원이 직접 겪은 방문 경험(사실로 반영). 회원이 입력한 것만 쓰고 AI가 만들어 넣지 않는다 */
+  experience?: string;
   tone: WritingTone;
   style: WritingStyle;
   targetLength: number;
@@ -107,6 +111,7 @@ export async function runBlogPipeline(input: PipelineInput): Promise<BlogPost> {
     keywords ? `- 검색 키워드: ${keywords} (제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹일 것)` : "",
     purpose ? `- 발행 목적·독자: ${purpose}` : "",
     input.extraContext ? `${input.extraContext}` : "",
+    input.experience?.trim() ? `- 회원이 직접 겪은 방문 경험(사실로 그대로 반영하고 과장·창작 금지, 본문 곳곳에 1인칭으로 자연스럽게 녹일 것): ${input.experience.trim().slice(0, 1500)}` : "",
     input.extraRequest ? `- 추가 요청: ${sanitizeYear(input.extraRequest, year)}` : "",
     `- 목표 글자수: 공백 포함 약 ${target}자`,
   ].filter(Boolean).join("\n");
@@ -189,7 +194,7 @@ ${markerRule}
    - 마지막에 [SECTION - 참고자료] 로 출처·공식 기관 안내 또는 이웃 소통 맺음말을 둔다.
 4. 모바일 가독성을 위해 2~3문장마다 빈 줄로 단락을 나눈다.
 5. ${vision ? "사진에 실제로 보이는 것과 제공된 방문 정보에만 근거해 생생하게 쓴다. 보이지 않는 메뉴·가격·맛·후기·수치를 지어내지 않는다." : "신뢰할 수 있는 사실, 구체적 예시, 실전 팁 위주로 쓴다. 근거 없는 수치·출처·후기를 지어내지 않는다."}
-${input.withInteractive ? "6. 독자가 직접 체크하거나 따져 볼 수 있는 참여형 요소(체크리스트·자가진단 목록)를 한 곳 이상 넣는다.\n" : ""}
+${input.humanStyle ? `7. [사람이 쓴 글 문체] 사람이 직접 쓴 블로그 글처럼 쓴다: 문장 길이를 일부러 불규칙하게(짧은 문장과 긴 문장을 섞기), 같은 구조(요약→나열→정리)를 소제목마다 반복하지 않기, "결론적으로·마지막으로·종합하면·~할 수 있습니다" 같은 AI식 접속어·정리 문구와 번역투를 줄이기, 균일한 체크리스트·이모지·특수문자 남발 금지, 독자에게 말을 거는 자연스러운 구어 리듬 쓰기. 단, 사람처럼 보이려고 제공되지 않은 경험·감정·방문 사실을 지어내지 않는다. 회원이 제공한 방문 경험이 없으면 경험담을 만들지 말고 제공된 정보 범위 안에서만 말투를 자연스럽게 한다.\n` : ""}${input.withInteractive ? "6. 독자가 직접 체크하거나 따져 볼 수 있는 참여형 요소(체크리스트·자가진단 목록)를 한 곳 이상 넣는다.\n" : ""}
 ${stylePrompt}`;
   const writerUser = `[기획된 글]
 제목: ${research.finalTitle}
@@ -207,7 +212,8 @@ ${research.subsections.map((s, i) => `${i + 1}. ${s.title}: ${s.keyPoints.join("
   let article = draft;
   try {
     const blocks = splitArticle(draft);
-    const raw = await call(`${BLOG_HUMANIZER_RULES}\n\n${stylePrompt}`, buildHumanizerUser(blocks, research.finalTitle, topic), true, 16384);
+    const humanExtra = input.humanStyle ? "\n\n[사람 문체 모드 추가 지침] AI가 쓴 듯한 정형 패턴(요약→나열→정리 반복, 균일한 문장 길이, 상투적 접속어·정리 문구)이 보이는 문단은 의미·사실·수치·경험을 바꾸지 않고 문장 리듬을 사람이 직접 쓴 것처럼 다듬는다. 경험·감정·후기를 새로 지어내지 않는다." : "";
+    const raw = await call(`${BLOG_HUMANIZER_RULES}${humanExtra}\n\n${stylePrompt}`, buildHumanizerUser(blocks, research.finalTitle, topic), true, 16384);
     const data = parseJsonLoose<{ edits?: { id: string; text: string }[] }>(raw);
     if (data && Array.isArray(data.edits) && data.edits.length) {
       const applied = applyHumanizerEdits(blocks, data.edits);

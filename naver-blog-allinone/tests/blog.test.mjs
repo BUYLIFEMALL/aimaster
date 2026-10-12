@@ -448,3 +448,36 @@ test("헤더 모델 표시: 모델 카드와 같은 친숙한 이름", () => {
   assert.equal(textModelDisplayName("anthropic", "claude-sonnet-5"), "Claude Sonnet 5");
   assert.equal(textModelDisplayName("gemini", "gemini-2.5-flash"), "gemini-2.5-flash");
 });
+
+test("runBlogPipeline: 사람 문체 모드·회원 방문 경험이 작성·윤문 프롬프트에 들어가고, 끄면 들어가지 않는다", async () => {
+  const run = async (extra) => {
+    const replies = [
+      JSON.stringify({ finalTitle: "성수 카페 후기", subsections: [{ title: "분위기", keyPoints: ["a"] }], scenes: [{ caption: "대표 컷", prompt: "cover" }] }),
+      "도입 문단입니다.\n\n[SECTION - 분위기]\n본문 1.\n\n[SECTION - 참고자료]\n출처",
+      JSON.stringify({ status: "success", edits: [] }),
+      JSON.stringify({ tags: ["카페"], summary: "요약", reviewStatus: "PASS", reviewNote: "ok" }),
+    ];
+    const calls = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (url, init) => {
+      calls.push(JSON.parse(init.body));
+      return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: replies[calls.length - 1] }] } }] }) };
+    };
+    try {
+      await runBlogPipeline({ engine: { provider: "gemini", model: "gemini-flash-latest", apiKey: "K" }, topic: "성수 카페", tone: "해요체", style: "default", targetLength: 500, imageCount: 1, withThumbnail: true, ratio: "16:9", themeId: "blue-gray", withInteractive: false, withThumbnailText: false, ...extra });
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+    return { writerSystem: calls[1].systemInstruction.parts[0].text, writerUser: calls[1].contents[0].parts.at(-1).text, humanizerSystem: calls[2].systemInstruction.parts[0].text };
+  };
+  const on = await run({ humanStyle: true, experience: "평일 점심인데 대기가 30분 있었다" });
+  assert.match(on.writerSystem, /사람이 쓴 글 문체/);
+  assert.match(on.writerSystem, /지어내지 않는다/);
+  assert.match(on.writerUser, /회원이 직접 겪은 방문 경험/);
+  assert.match(on.writerUser, /대기가 30분 있었다/);
+  assert.match(on.humanizerSystem, /사람 문체 모드 추가 지침/);
+  const off = await run({});
+  assert.doesNotMatch(off.writerSystem, /사람이 쓴 글 문체/);
+  assert.doesNotMatch(off.writerUser, /회원이 직접 겪은 방문 경험/);
+  assert.doesNotMatch(off.humanizerSystem, /사람 문체 모드 추가 지침/);
+});

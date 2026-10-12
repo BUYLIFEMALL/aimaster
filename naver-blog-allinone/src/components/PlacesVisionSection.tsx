@@ -103,6 +103,12 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
   const [interactive, setInteractive] = useState(false);
   const [personaId, setPersonaId] = useState<string | null>(null);
   const [purposeText, setPurposeText] = useState("");
+  // 사람이 쓴 글 만들기: 작성자 소개·인간화·실제 방문 경험
+  const [customPersonaText, setCustomPersonaText] = useState("");
+  const [humanStyle, setHumanStyle] = useState(true);
+  const [experience, setExperience] = useState("");
+  const [experienceHints, setExperienceHints] = useState<string[]>([]);
+  const [hintsLoading, setHintsLoading] = useState(false);
   const [angleTopic, setAngleTopic] = useState(""); // 특정 주제·글의 관점(페르소나가 채움, 수정 가능)
   const [personaKeywords, setPersonaKeywords] = useState(""); // 페르소나 추천 검색 키워드(수정 가능)
   const [prefsNotice, setPrefsNotice] = useState("");
@@ -253,6 +259,45 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
     }
   };
 
+  // 사진·장소 정보를 보고 "떠올려 볼 질문"만 제안한다. 경험 내용은 만들지 않고, 본문에는 회원이 직접 쓴 경험만 반영한다.
+  const handleExperienceHints = async () => {
+    const textMissing = missingKeyMessage("text", settings);
+    if (textMissing) {
+      setErrorMsg(textMissing);
+      onOpenSettings();
+      return;
+    }
+    if (!placeName.trim()) {
+      setErrorMsg("경험 질문을 받을 장소명을 먼저 입력해주세요.");
+      return;
+    }
+    setHintsLoading(true);
+    setErrorMsg("");
+    try {
+      const eng = resolveTextEngine(settings);
+      const sample = photos.slice(0, 4).map((x) => ({ mime: x.mimeType, base64: x.base64 }));
+      const text = await callLlm({
+        provider: eng.provider,
+        model: eng.model,
+        apiKey: eng.apiKey,
+        system: "너는 방문 후기를 쓰려는 사람이 실제 경험을 떠올리도록 돕는 인터뷰어다. 경험·감정·후기 내용을 대신 만들어 주지 않고, 본인이 직접 답할 수 있는 짧은 질문만 낸다. 반드시 JSON 객체 하나만 응답한다.",
+        user: `장소명: ${placeName}\n카테고리: ${category}\n${region ? `지역: ${region}\n` : ""}${oneLineImpression ? `한 줄 인상: ${oneLineImpression}\n` : ""}${sample.length ? "첨부한 사진에 보이는 것(음식·공간·분위기)을 참고해" : "장소 정보를 참고해"} 방문한 사람이 실제 경험을 떠올릴 수 있는 한국어 질문 5개를 만들어줘. 각 질문은 40자 안팎이고, 정답이나 경험을 암시·창작하지 않는다.\n형식: {"questions":["질문1","질문2","질문3","질문4","질문5"]}`,
+        images: sample.length ? sample : undefined,
+        json: true,
+        temperature: 0.6,
+        maxTokens: 1024,
+      });
+      const parsed = parseJsonLoose<{ questions?: unknown }>(text);
+      const list = Array.isArray(parsed?.questions) ? parsed.questions.filter((q): q is string => typeof q === "string").map((q) => q.trim().slice(0, 80)).filter(Boolean).slice(0, 6) : [];
+      if (list.length === 0) throw new Error("질문 응답을 읽지 못했습니다.");
+      setExperienceHints(list);
+    } catch (e) {
+      setErrorMsg(`경험 질문을 만들지 못했습니다: ${e instanceof Error ? e.message : "알 수 없는 오류"}`);
+    } finally {
+      setHintsLoading(false);
+    }
+  };
+
   // Generate Post via Gemini Vision
   const handleGenerateVisionPost = async (persona?: BlogPersona) => {
     const textMissing = missingKeyMessage("text", settings);
@@ -310,7 +355,11 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         hint: (persona ? persona.defaultTopic : angleTopic).trim() || undefined,
         keywords: [mainKeyword, subKeywords, persona ? persona.defaultKeywords : personaKeywords].filter((k) => k.trim()).join(", "),
         purpose: (persona ? persona.defaultPurpose : purposeText).trim() || (seoMode === "homefeed" ? "네이버 홈판(MY피드) 노출을 노리는 감성 방문 후기" : "검색 상위 노출을 노리는 정보형 방문 후기"),
-        persona: chosen ? { name: chosen.name, badge: chosen.badge, tonePrompt: chosen.tonePrompt } : null,
+        persona: customPersonaText.trim()
+          ? { name: chosen?.name ?? "직접 입력한 작성자", badge: chosen?.badge ?? "직접 입력", tonePrompt: `작성자 소개: ${customPersonaText.trim().slice(0, 200)} — 이 사람의 직업·관심사·말투·관점으로 쓴다.${chosen ? " " + chosen.tonePrompt : ""}` }
+          : chosen ? { name: chosen.name, badge: chosen.badge, tonePrompt: chosen.tonePrompt } : null,
+        humanStyle,
+        experience,
         tone: persona ? persona.preferredTone : tone,
         style,
         targetLength,
@@ -733,6 +782,46 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
             setPersonaKeywords(p.defaultKeywords);
             void handleGenerateVisionPost(p);
           }}
+          extra={
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-4">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">✍️ 작성자 페르소나 직접 입력 <span className="text-[11px] font-normal text-slate-500">(선택)</span></h4>
+                <input type="text" value={customPersonaText} onChange={(e) => setCustomPersonaText(e.target.value.slice(0, 200))} disabled={loading} placeholder="예: 30대 카페 블로거, 디저트 전문 / 주말마다 여행하는 직장인" className="mt-2 w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <p className="mt-1 text-[11px] text-slate-500">짧게 자기소개를 적으면 AI가 작성자의 톤·관점을 살려서 글을 씁니다. 위 프리셋과 함께 쓰면 합쳐서 반영됩니다.</p>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3.5 space-y-3">
+                <label onClick={() => setHumanStyle(!humanStyle)} className="flex items-start justify-between gap-3 cursor-pointer">
+                  <div>
+                    <div className="text-sm font-bold text-slate-900">🧑 사람이 쓴 글처럼 쓰기</div>
+                    <p className="text-[11px] text-slate-600 mt-0.5">문장 길이·리듬을 자연스럽게 섞고, AI식 정리 문구·번역투·똑같은 구조의 반복을 줄여 직접 쓴 후기처럼 만듭니다. 제공하지 않은 경험은 지어내지 않습니다.</p>
+                  </div>
+                  <span className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition ${humanStyle ? "bg-emerald-600" : "bg-slate-300"}`} role="switch" aria-checked={humanStyle}>
+                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${humanStyle ? "left-[22px]" : "left-0.5"}`} />
+                  </span>
+                </label>
+
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-bold text-slate-800">실제 방문 경험 (선택)</label>
+                    <button type="button" onClick={() => void handleExperienceHints()} disabled={hintsLoading || loading} className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 disabled:opacity-50">
+                      {hintsLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />} 떠올릴 질문 받기
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mb-1.5">본문에 녹일 실제 방문 경험·감정·에피소드를 직접 적어 주세요. 적은 내용만 사실로 반영하며, AI가 경험을 대신 만들지 않습니다.</p>
+                  <textarea rows={3} value={experience} onChange={(e) => setExperience(e.target.value.slice(0, 1500))} disabled={loading} placeholder="예: 평일 점심에 갔는데도 대기가 30분 정도 있었다. 처음엔 그냥 그런가 했는데 디저트 한입 먹고 이해됐다." className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed" />
+                  {experienceHints.length > 0 && (
+                    <div className="mt-2 rounded-lg bg-white border border-indigo-100 px-3 py-2">
+                      <p className="text-[11px] font-bold text-indigo-700 mb-1">이런 점을 떠올려 보세요 (질문일 뿐이며 글에는 위 칸에 적은 내용만 들어갑니다)</p>
+                      <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-slate-700">
+                        {experienceHints.map((q) => <li key={q}>{q}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          }
           topic={angleTopic}
           setTopic={setAngleTopic}
           topicLabel="특정 주제 · 글의 관점 (선택 — 장소명은 방문 정보에서 입력)"

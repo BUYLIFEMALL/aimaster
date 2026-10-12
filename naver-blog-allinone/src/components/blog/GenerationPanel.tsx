@@ -30,6 +30,8 @@ interface Props {
   hideDetails?: boolean;
   /** 기획 세부 조건에서 검색 키워드 칸만 숨긴다(맛집 탭은 SEO 키워드 영역이 따로 있다) */
   hideKeywords?: boolean;
+  /** 말끝·문체 아래에 이어 붙이는 화면 전용 영역(맛집 탭: 작성자 페르소나·인간화·방문 경험) */
+  extra?: React.ReactNode;
   /** 특정 주제 칸 문구(기본: 아이디어·키워드 탭 문구) */
   topicLabel?: string;
   topicPlaceholder?: string;
@@ -37,7 +39,7 @@ interface Props {
 
 const QUICK_LENGTHS = [1000, 1800, 2000, 2500, 3500, 4000];
 
-export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, topic, setTopic, disabled, hideDetails, hideKeywords, topicLabel, topicPlaceholder }: Props) {
+export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, topic, setTopic, disabled, hideDetails, hideKeywords, topicLabel, topicPlaceholder, extra }: Props) {
   const example = getWritingStyleExample(values.tone, values.style);
   const input = "w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
@@ -189,6 +191,7 @@ export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, to
           <p className="mt-1 text-[10px] text-slate-400">문체 차이를 보여 주는 예시입니다. 실제 원고는 입력한 주제로 작성하며 경험·후기·수치를 지어내지 않습니다.</p>
         </div>
       </div>
+      {extra}
     </div>
   );
 }
