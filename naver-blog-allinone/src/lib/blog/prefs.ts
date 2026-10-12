@@ -18,6 +18,7 @@ export interface GenPrefs {
   style: WritingStyle;
   targetLength: number;
   personaId: string | null;
+  humanStyle: boolean;
 }
 
 export const GEN_PREFS_KEY = "naver_blog_allinone_gen_prefs_v1";
@@ -37,6 +38,7 @@ export function sanitizePrefs(raw: unknown): Partial<GenPrefs> {
   if (isWritingTone(r.tone)) out.tone = r.tone;
   if (isWritingStyle(r.style)) out.style = r.style;
   if (typeof r.targetLength === "number" && Number.isFinite(r.targetLength)) out.targetLength = clampTargetLength(r.targetLength);
+  if (typeof r.humanStyle === "boolean") out.humanStyle = r.humanStyle;
   if (r.personaId === null || (typeof r.personaId === "string" && BLOG_PERSONAS.some((p) => p.id === r.personaId))) out.personaId = r.personaId as string | null;
   return out;
 }

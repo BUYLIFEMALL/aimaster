@@ -111,7 +111,7 @@ export async function runBlogPipeline(input: PipelineInput): Promise<BlogPost> {
     keywords ? `- 검색 키워드: ${keywords} (제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹일 것)` : "",
     purpose ? `- 발행 목적·독자: ${purpose}` : "",
     input.extraContext ? `${input.extraContext}` : "",
-    input.experience?.trim() ? `- 회원이 직접 겪은 방문 경험(사실로 그대로 반영하고 과장·창작 금지, 본문 곳곳에 1인칭으로 자연스럽게 녹일 것): ${input.experience.trim().slice(0, 1500)}` : "",
+    input.experience?.trim() ? `- 회원이 직접 겪은 경험(사실로 그대로 반영하고 과장·창작 금지, 본문 곳곳에 1인칭으로 자연스럽게 녹일 것): ${input.experience.trim().slice(0, 1500)}` : "",
     input.extraRequest ? `- 추가 요청: ${sanitizeYear(input.extraRequest, year)}` : "",
     `- 목표 글자수: 공백 포함 약 ${target}자`,
   ].filter(Boolean).join("\n");

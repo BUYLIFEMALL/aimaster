@@ -11,6 +11,8 @@ import { clearGenPrefs, loadGenPrefs, prefsSavedAt, saveGenPrefs } from "@/lib/b
 import { type WritingStyle, type WritingTone } from "@/lib/blog/styles";
 import { IMAGE_RATIOS, type ImageRatio, type SavedPost } from "@/lib/blog/types";
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
+import { HumanStylePanel } from "@/components/blog/HumanStylePanel";
+import { buildCustomPersona, requestExperienceQuestions } from "@/lib/blog/humanVoice";
 import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
 import { CategorySelect } from "@/components/blog/CategorySelect";
 import { NaverCategoryPicker } from "@/components/blog/NaverCategoryPicker";
@@ -66,6 +68,12 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
   }, []);
   const [keywords, setKeywords] = useState("");
   const [purpose, setPurpose] = useState("");
+  // 사람이 쓴 글처럼 쓰기: 작성자 소개·인간화·실제 경험
+  const [customPersonaText, setCustomPersonaText] = useState("");
+  const [humanStyle, setHumanStyle] = useState(true);
+  const [experience, setExperience] = useState("");
+  const [experienceHints, setExperienceHints] = useState<string[]>([]);
+  const [hintsLoading, setHintsLoading] = useState(false);
 
   // ── 설정값 저장(이 브라우저에 기본값으로 저장) ──
   const [prefsNotice, setPrefsNotice] = useState("");
@@ -86,10 +94,11 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
     if (saved.style) setStyle(saved.style);
     if (saved.targetLength) setTargetLength(saved.targetLength);
     if (saved.personaId !== undefined) setPersonaId(saved.personaId);
+    if (saved.humanStyle !== undefined) setHumanStyle(saved.humanStyle);
   }, []);
 
   const savePrefs = () => {
-    const ok = saveGenPrefs(window.localStorage, { themeId, withThumbnail, bodyImages, autoImages, thumbnailText, ratio, interactive, tone, style, targetLength, personaId });
+    const ok = saveGenPrefs(window.localStorage, { themeId, withThumbnail, bodyImages, autoImages, thumbnailText, ratio, interactive, tone, style, targetLength, personaId, humanStyle });
     setPrefsAt(ok ? prefsSavedAt(window.localStorage) : prefsAt);
     setPrefsNotice(ok ? "현재 설정값을 이 브라우저에 기본값으로 저장했습니다. 다음 접속부터 자동으로 적용됩니다." : "저장하지 못했습니다. 브라우저 저장 공간을 확인해주세요.");
   };
@@ -108,6 +117,7 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
     setStyle("default");
     setTargetLength(2000);
     setPersonaId(null);
+    setHumanStyle(true);
     setPrefsNotice("저장된 기본값을 지우고 처음 설정으로 되돌렸습니다.");
   };
 
@@ -155,6 +165,36 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
+  // 주제를 보고 "떠올릴 질문"만 제안한다(경험 내용은 만들지 않는다).
+  const handleExperienceHints = async () => {
+    const textMissing = missingKeyMessage("text", settings);
+    if (textMissing) {
+      ws.setErrorMsg(textMissing);
+      onOpenSettings();
+      return;
+    }
+    if (!topic.trim()) {
+      ws.setErrorMsg("경험 질문을 받을 주제를 먼저 입력하거나 선택해주세요.");
+      return;
+    }
+    setHintsLoading(true);
+    ws.setErrorMsg("");
+    try {
+      const eng = resolveTextEngine(settings);
+      setExperienceHints(
+        await requestExperienceQuestions({
+          engine: { provider: eng.provider, model: eng.model, apiKey: eng.apiKey },
+          context: `글 주제: ${topic}${keywords.trim() ? `\n검색 키워드: ${keywords}` : ""}${purpose.trim() ? `\n독자·목적: ${purpose}` : ""}`,
+          audience: "이 주제로 글을 쓰는 사람이 자기 실제 경험·사례를 떠올릴 수 있는",
+        }),
+      );
+    } catch (e) {
+      ws.setErrorMsg(`경험 질문을 만들지 못했습니다: ${e instanceof Error ? e.message : "알 수 없는 오류"}`);
+    } finally {
+      setHintsLoading(false);
+    }
+  };
+
   // ── 글 생성 ──
   const handleGeneratePost = async (persona?: BlogPersona) => {
     const textMissing = missingKeyMessage("text", settings);
@@ -188,7 +228,9 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
         extraRequest,
         keywords: persona ? persona.defaultKeywords : keywords,
         purpose: persona ? persona.defaultPurpose : purpose,
-        persona: chosen ? { name: chosen.name, badge: chosen.badge, tonePrompt: chosen.tonePrompt } : null,
+        persona: buildCustomPersona(chosen ? { name: chosen.name, badge: chosen.badge, tonePrompt: chosen.tonePrompt } : null, customPersonaText),
+        humanStyle,
+        experience,
         tone: persona ? persona.preferredTone : tone,
         style,
         targetLength,
@@ -244,6 +286,20 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
           }}
           topic={topic}
           setTopic={setTopic}
+          extra={
+            <HumanStylePanel
+              customPersona={customPersonaText}
+              setCustomPersona={setCustomPersonaText}
+              humanStyle={humanStyle}
+              setHumanStyle={setHumanStyle}
+              experience={experience}
+              setExperience={setExperience}
+              hints={experienceHints}
+              hintsLoading={hintsLoading}
+              onRequestHints={() => void handleExperienceHints()}
+              disabled={generating}
+            />
+          }
           disabled={generating}
         />
 

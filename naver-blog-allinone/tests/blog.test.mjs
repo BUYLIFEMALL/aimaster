@@ -473,11 +473,11 @@ test("runBlogPipeline: 사람 문체 모드·회원 방문 경험이 작성·윤
   const on = await run({ humanStyle: true, experience: "평일 점심인데 대기가 30분 있었다" });
   assert.match(on.writerSystem, /사람이 쓴 글 문체/);
   assert.match(on.writerSystem, /지어내지 않는다/);
-  assert.match(on.writerUser, /회원이 직접 겪은 방문 경험/);
+  assert.match(on.writerUser, /회원이 직접 겪은 경험/);
   assert.match(on.writerUser, /대기가 30분 있었다/);
   assert.match(on.humanizerSystem, /사람 문체 모드 추가 지침/);
   const off = await run({});
   assert.doesNotMatch(off.writerSystem, /사람이 쓴 글 문체/);
-  assert.doesNotMatch(off.writerUser, /회원이 직접 겪은 방문 경험/);
+  assert.doesNotMatch(off.writerUser, /회원이 직접 겪은 경험/);
   assert.doesNotMatch(off.humanizerSystem, /사람 문체 모드 추가 지침/);
 });

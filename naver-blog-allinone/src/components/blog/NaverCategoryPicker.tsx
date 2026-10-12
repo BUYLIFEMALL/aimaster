@@ -54,7 +54,7 @@ export function NaverCategoryPicker({ value, onChange, disabled, compact }: Prop
     try {
       const pong = await askExtension<{ version?: string }>("ALLINONE_PING_EXTENSION", "", "ALLINONE_PONG_EXTENSION", 1500);
       if (!pong) {
-        setMessage("크롬 확장 프로그램을 찾지 못했습니다. 최신 ZIP을 받아 덮어쓰고 chrome://extensions에서 새로고침한 뒤 이 화면도 새로고침해 주세요.");
+        setMessage("크롬 확장 프로그램이 이 화면과 연결되지 않았습니다. ① 상단 [크롬 확장 프로그램 ZIP]을 받아 압축을 풀고 ② chrome://extensions에서 개발자 모드를 켠 뒤 [압축해제된 확장 프로그램을 로드합니다]로 그 폴더를 선택(이미 설치했다면 폴더에 덮어쓴 뒤 새로고침) ③ 이 화면을 새로고침(F5)한 다음 다시 눌러 주세요. 확장은 페이지를 연 뒤에 설치하거나 새로고침하면 이 화면에 연결되지 않습니다.");
         return;
       }
       if (!extensionVersionAtLeast(pong.version, "v1.25")) {
