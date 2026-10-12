@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.31) 맛집 탭 입력 정리 + 키워드 자동 추출 AI 통일
+
+주인님 지시: 맛집 탭 기획 세부 조건의 특정 주제·검색 키워드 칸 제거(발행 목적만 유지), [AI 키워드 자동 추출]이 선택한 글 AI(Gemini/GPT/Claude)와 본인 키를 쓰도록 수정. 확장 ZIP·DB v1.31. 아이디어·키워드 탭의 구형 Gemini 직접 호출은 별도 후보.
+
 ## 2026-10-12 Codex — 감성 글귀 이미지 emotion-writer v1.01 구현·로컬 검수 완료 / 운영 연결 승인 대기
 
 참고 사이트 공개 전체 번들 분석 후 새 `emotion-writer/`에 회원 본인 키 기반 글귀 5개·Gemini/Pixabay/Pexels 배경·한글 Canvas·PNG/JPEG 저장 흐름을 구현했습니다. 빌드/타입·검사 20개·ESLint 0개, 데스크톱/모바일 정적 초기 화면 확인. 빈 `buylife/emotion-writer` 프로젝트 생성까지만 했으며 DB·환경변수·도메인·프로덕션 배포 및 실제 회원 생성/다운로드는 미완료입니다. 사진 키 제공처 CHECK 추가와 새 프로젝트 DB 환경변수 3개 설정에 대해 구체 비동기 승인 질문을 보냈고 답을 기다립니다. 참고 URL을 소유하거나 수정한 것은 아닙니다. [재개 절차·파일·증거](../emotion-writer/docs/IMPLEMENTATION_HANDOFF_2026-10-12.md), [승인안](../emotion-writer/docs/RELEASE_APPROVAL.md). 다른 CLI 작업을 건드리지 않습니다.

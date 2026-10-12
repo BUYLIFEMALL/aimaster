@@ -31,6 +31,8 @@ import { overlayThumbnailTitle } from "@/lib/blog/canvas";
 import { missingKeyMessage, resolveTextEngine } from "@/lib/blog/models";
 import { BLOG_PERSONAS, type BlogPersona } from "@/lib/blog/personas";
 import { runBlogPipeline } from "@/lib/blog/pipeline";
+import { callLlm } from "@/lib/blog/llm";
+import { parseJsonLoose } from "@/lib/blog/gemini";
 import { uploadImage } from "@/lib/blog/postsApi";
 import type { ImageRatio } from "@/lib/blog/types";
 import type { WritingStyle, WritingTone } from "@/lib/blog/styles";
@@ -193,8 +195,9 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
 
   // AI SEO Keyword Auto Extractor
   const handleExtractKeywords = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const textMissing = missingKeyMessage("text", settings);
+    if (textMissing) {
+      setErrorMsg(textMissing);
       onOpenSettings();
       return;
     }
@@ -207,8 +210,8 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
     setErrorMsg("");
 
     const currentYear = new Date().getFullYear();
-    const prompt = `당신은 네이버 블로그 검색최적화(SEO) 및 키워드 분석 전문가입니다.
-현재 연도: ${currentYear}년
+    const system = "당신은 네이버 블로그 검색최적화(SEO) 및 키워드 분석 전문가입니다. 반드시 JSON 객체 하나만 응답합니다.";
+    const user = `현재 연도: ${currentYear}년
 장소명: ${placeName}
 카테고리: ${category}
 ${region ? `지역: ${region}` : ""}
@@ -222,30 +225,14 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
 }`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.5,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-
-      if (!res.ok) throw new Error("키워드 추출 호출 실패");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      const parsed = JSON.parse(rawText);
-
-      if (parsed.mainKeyword) setMainKeyword(parsed.mainKeyword);
-      if (parsed.subKeywords) setSubKeywords(parsed.subKeywords);
-    } catch {
-      setErrorMsg("키워드 자동 추출 중 오류가 발생했습니다. 직접 입력해주세요.");
+      const eng = resolveTextEngine(settings);
+      const text = await callLlm({ provider: eng.provider, model: eng.model, apiKey: eng.apiKey, system, user, json: true, temperature: 0.5, maxTokens: 1024 });
+      const parsed = parseJsonLoose<{ mainKeyword?: string; subKeywords?: string }>(text);
+      if (!parsed || (!parsed.mainKeyword && !parsed.subKeywords)) throw new Error("키워드 응답을 읽지 못했습니다.");
+      if (parsed.mainKeyword) setMainKeyword(String(parsed.mainKeyword).slice(0, 100));
+      if (parsed.subKeywords) setSubKeywords(String(parsed.subKeywords).slice(0, 300));
+    } catch (e) {
+      setErrorMsg(`키워드 자동 추출 중 오류가 발생했습니다: ${e instanceof Error ? e.message : "알 수 없는 오류"} (직접 입력도 가능합니다)`);
     } finally {
       setIsExtractingKeywords(false);
     }
@@ -688,12 +675,11 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         </div>
 
         <GenerationPanel
-          values={{ personaId, targetLength, keywords: mainKeyword, purpose: purposeText, tone, style }}
+          values={{ personaId, targetLength, keywords: "", purpose: purposeText, tone, style }}
           onChange={(patch) => {
             if ("personaId" in patch) setPersonaId(patch.personaId ?? null);
             if (patch.targetLength !== undefined) setTargetLength(patch.targetLength);
             if (patch.purpose !== undefined) setPurposeText(patch.purpose);
-            if (patch.keywords !== undefined) setMainKeyword(patch.keywords);
             if (patch.tone) setTone(patch.tone);
             if (patch.style) setStyle(patch.style);
           }}
@@ -706,10 +692,7 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
             setTone(p.preferredTone);
             void handleGenerateVisionPost(p);
           }}
-          topic={placeName}
-          setTopic={setPlaceName}
-          topicLabel="특정 주제 · 장소명 (방문 정보의 장소명과 같은 값)"
-          topicPlaceholder="예: 성수동 어반플랜트"
+          hideKeywords
           disabled={loading}
         />
 
