@@ -14,3 +14,12 @@ where slug='ai-webtoon-studio';
 ```
 
 로컬 빌드·타입 검사 성공. 변경한 Header는 기존 emotion-writer의 ESLint 설정을 명시하여 검사했고 오류/경고 0개입니다. 헤더에서 날짜·날씨·갱신 타이머 문자열이 사라진 것도 확인했습니다. 프로젝트 전체 lint 통과로 보고하지 않습니다(기존 설정 부재는 v1.03 기록 참조). 검수·운영 반영 결과는 이어서 기록합니다.
+
+## 운영 반영 결과
+
+- 구현 커밋 `62d1275a`, origin/master 푸시 성공.
+- Vercel 프로덕션 배포 `dpl_NSGYgaePc2GbSbX5yJezhRkKiguj` Ready 확인. 운영 빌드·타입 검사 성공. 배포 URL `https://ai-webtoon-studio-4ubcbrdlr-buylife.vercel.app`.
+- Vercel inspect에서 studio/automation 두 기존 커스텀 주소의 해당 배포 연결 확인. DB 메타데이터 v1.04 갱신/조회 확인.
+- 운영 UI 청크 HTTP 200: 고정 날씨·날짜 대체값·30초 갱신 코드 없음, 노란 다운로드 버튼 유지 확인. `evidence/v1.04-live-assets.json`.
+- 정상 회원 `buylifemall@naver.com`의 Chrome 화면에서 v1.04 확인. 접근성 트리에 날짜·날씨가 없고 API 등록 상태·두 저장 버튼이 있는 것 확인. `evidence/v1.04-live-accessibility.txt`.
+- 원고 변경·다운로드 실행·유료 생성 호출 없이 검수했습니다. 픽셀 캡처 검수는 추가하지 않았습니다. 요청한 날짜·날씨 제거의 남은 작업은 없습니다.
