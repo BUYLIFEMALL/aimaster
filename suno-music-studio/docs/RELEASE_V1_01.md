@@ -42,4 +42,8 @@ Vercel buylife/suno-music-studio, project ID `prj_BHh3me01sTyn12CQJrOgihl7Fyvu` 
 
 ## 참고 문서
 
+## 첫 배포 오류와 복구
+
+Vercel CLI로 만든 새 프로젝트는 Framework Preset이 Other였습니다. 첫 운영 배포는 Next 빌드에는 성공했지만 `No Output Directory named public found`로 실패했습니다. `vercel.json`에 `framework: nextjs`를 명시하여 Next.js 라우트·출력 방식으로 재배포합니다. 최초 배포 실패는 정상 서비스로 기록하지 않습니다. CLI 59.1.4의 서브도메인 연결은 프로젝트 위치 인자를 요구하므로 `vercel domains add suno-music-studio.buylife.xyz suno-music-studio --scope buylife`를 사용했습니다.
+
 공개 원본 기능/코드 분석: [분석과 계획](ANALYSIS_AND_PLAN.md). 모델 ID·SSR 구현 확인: [Gemini 모델](https://ai.google.dev/gemini-api/docs/models), [Gemini 구조화 출력](https://ai.google.dev/gemini-api/docs/structured-output), [Claude 모델](https://platform.claude.com/docs/en/models/overview), [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client).

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-12 — CLI로 생성한 Next.js 프로젝트가 Other 프레임워크로 배포됨
+
+- 증상: `suno-music-studio` 첫 운영 배포에서 Next 빌드 성공 뒤 `No Output Directory named public found` 오류 발생.
+- 원인: `vercel project add`로 생성한 프로젝트의 Framework Preset이 Other라서 정적 파일 출력 규칙이 적용됨.
+- 해결: `suno-music-studio/vercel.json`에 `framework: nextjs`를 명시하고 운영 배포를 다시 실행.
+- 다음부터 확인: 새 프로젝트의 프레임워크를 `vercel project inspect`로 확인하고 배포 설정을 저장소에 기록. CLI 59.1.4에서 서브도메인은 `vercel domains add <domain> <project> --scope buylife`로 연결. DB 검수 조회 시 `user_program_access`에는 `starts_at`이 없고 `granted_at`·`expires_at`이 있으므로 실제 컬럼을 먼저 확인.
+
 ## 2026-10-12 — 음악 초안 검증과 생성 결과 검증을 같이 쓰면 미완성 편집 자료를 복원하지 못함
 
 - 증상: 제목을 잠시 비우거나 Style을 한글 메모로 수정 중인 초안을 생성 결과 검수 기준으로 읽으면 오류가 나고 다시 열 때 초안이 보이지 않을 수 있음.
