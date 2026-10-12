@@ -208,6 +208,8 @@
 
 ## 2026-10-12 Claude — image-convert-studio v1.03~v1.04: 일본어(JA) 삭제 + 한국어 사용 안내 교체
 
+전체 인수인계 문서: `docs/HANDOFF_CLAUDE_IMAGE_CONVERT_STUDIO_2026-10-12.md` (구조·주의사항·검수 이력·남은 일).
+
 주인님 지시로 언어 전환에서 JA를 제거했습니다(KO/EN만). 코드 `src/lib/i18n.ts`, DB 설명·버전 v1.03 반영.
 
 ## 2026-10-12 Claude — 이미지 변환 스튜디오(image-convert-studio v1.02) 신규 제작·배포
