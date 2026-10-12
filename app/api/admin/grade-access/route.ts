@@ -13,6 +13,21 @@ async function requireAdmin() {
   return { user };
 }
 
+/** GET ?grade_id= — 그 등급에 사용 가능으로 등록된 프로그램 id 목록 */
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin();
+  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
+  const gradeId = req.nextUrl.searchParams.get("grade_id");
+  if (!gradeId) return NextResponse.json({ error: "grade_id 필수" }, { status: 400 });
+  const { data, error } = await createServiceClient()
+    .from("grade_program_access")
+    .select("program_id")
+    .eq("grade_id", gradeId)
+    .eq("can_access", true);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ program_ids: (data ?? []).map((r: { program_id: string }) => r.program_id) });
+}
+
 /**
  * POST — 등급 단위 자동 부여 설정(2026-10-13, docs/GRADE_AND_BILLING_POLICY.md).
  *  - action "policy": { grade_id, auto_grant, default_access_days } 등급의 자동 부여 켜기/끄기와 기본 사용기간(일, null=무기한)
@@ -28,6 +43,32 @@ export async function POST(req: NextRequest) {
   const { action, grade_id } = body ?? {};
   if (!grade_id || !action) return NextResponse.json({ error: "grade_id와 action 필수" }, { status: 400 });
   const service = createServiceClient();
+
+  // 등급의 사용 프로그램 목록을 통째로 저장: 추가분은 등급 회원에게 자동 부여, 빠진 것은 자동 부여분 회수(DB 트리거)
+  if (action === "set_programs") {
+    const next: string[] = Array.isArray(body.program_ids) ? body.program_ids : [];
+    const { data: cur, error: curErr } = await service
+      .from("grade_program_access")
+      .select("program_id")
+      .eq("grade_id", grade_id)
+      .eq("can_access", true);
+    if (curErr) return NextResponse.json({ error: curErr.message }, { status: 500 });
+    const curSet = new Set<string>((cur ?? []).map((r: { program_id: string }) => r.program_id));
+    const nextSet = new Set<string>(next);
+    const toAdd = next.filter((id) => !curSet.has(id));
+    const toRemove = Array.from(curSet).filter((id) => !nextSet.has(id));
+    if (toAdd.length) {
+      const { error } = await service
+        .from("grade_program_access")
+        .upsert(toAdd.map((program_id) => ({ grade_id, program_id, can_access: true })), { onConflict: "grade_id,program_id" });
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (toRemove.length) {
+      const { error } = await service.from("grade_program_access").delete().eq("grade_id", grade_id).in("program_id", toRemove);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: true, added: toAdd.length, removed: toRemove.length });
+  }
 
   if (action === "policy") {
     const days = body.default_access_days;

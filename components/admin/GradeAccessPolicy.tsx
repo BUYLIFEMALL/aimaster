@@ -26,7 +26,7 @@ export default function GradeAccessPolicy({ grades }: { grades: MemberGrade[] })
   );
 }
 
-function GradeRow({ grade }: { grade: MemberGrade }) {
+export function GradeRow({ grade }: { grade: MemberGrade }) {
   const [auto, setAuto] = useState(!!grade.auto_grant);
   const [days, setDays] = useState(grade.default_access_days ? String(grade.default_access_days) : "");
   const [extendDays, setExtendDays] = useState("30");
