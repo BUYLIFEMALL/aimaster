@@ -1,5 +1,7 @@
 # Suno 음악기획 자동화 — 인수인계
 
+2026-10-12 v1.02: 계정 이메일·로그아웃을 마지막 메뉴 아래 8px 간격으로 밀착. 메뉴 flex-grow 제거, 낮은 화면은 메뉴 내부 스크롤·계정 축소 방지. 루트 AGENTS/CLAUDE·SIDEBAR_LAYOUT_STANDARD·PLATFORM_PATTERNS §27에 공통 디자인 지침 반영. 린트·빌드 및 실제 Sidebar 격리 렌더링 3가지 높이/폭 배치 검수 통과. 변경·운영 결과: [docs/RELEASE_V1_02.md](docs/RELEASE_V1_02.md). 기존 v1.01 기록은 당시 기능 검수 이력으로 유지합니다.
+
 2026-10-12 카탈로그 실사 썸네일 등록 완료. 음악 기획자·가사 구획·스타일 칩·앨범 트랙·건반을 표현한 내장 image_gen 생성물입니다. 원본/프롬프트/등록 SQL/운영 화면 증거는 [docs/THUMBNAIL.md](docs/THUMBNAIL.md). 카탈로그 메타데이터만 등록했으므로 v1.01 유지, Storage·DB 즉시 반영(앱 재배포 불필요). 공개 이미지·Next 최적화·메인/목록/상세 참조·Headless Chrome 상세와 카테고리 실제 화면·빌드 성공 확인.
 
 2026-10-12 주인님이 프로그램명을 **Suno 음악기획 자동화**로 확정했습니다. 화면·로그인·메타데이터는 `src/lib/version.ts`의 APP_NAME을 공유하고 DB programs.name도 일치합니다. 최초 운영 배포 전 이름 확정이므로 v1.01을 유지합니다. slug·프로젝트·주소는 `suno-music-studio`를 유지합니다.

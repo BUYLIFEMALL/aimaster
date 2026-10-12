@@ -1,8 +1,10 @@
-# Suno 음악기획 자동화 v1.01
+# Suno 음악기획 자동화 v1.02
+
+v1.02는 좌측 계정 이메일·로그아웃을 마지막 메뉴 바로 아래로 밀착합니다. 높은 화면에도 간격을 유지하고 낮은 화면은 작업 메뉴만 내부 스크롤됩니다. [변경·검수·운영 기록](docs/RELEASE_V1_02.md).
 
 회원 본인 Gemini·OpenAI·Claude API로 음악 스타일·가사·앨범을 기획하고 Suno에 전달할 자료를 정리하는 AIMaster 서브프로그램입니다. 프로그램명은 2026-10-12 주인님이 **Suno 음악기획 자동화**로 확정했습니다.
 
-운영 주소: https://suno-music-studio.buylife.xyz/ · v1.01. AIMaster 로그인과 프로그램 이용기간/구독이 필요합니다. 본인 키로 Gemini 곡 1개 실제 생성과 회원 화면·초안 복원·JSON 백업·보관·설명 복사를 검수했습니다. Suno 최종 음악 생성은 본인 계정에서 직접 진행합니다. Chrome 연속 다운로드 허용 및 Windows 파일 선택창을 통한 가져오기는 실제 UI 추가 확인 항목입니다.
+운영 주소: https://suno-music-studio.buylife.xyz/ · v1.02. AIMaster 로그인과 프로그램 이용기간/구독이 필요합니다. 본인 키로 Gemini 곡 1개 실제 생성과 회원 화면·초안 복원·JSON 백업·보관·설명 복사를 검수했습니다. Suno 최종 음악 생성은 본인 계정에서 직접 진행합니다. Chrome 연속 다운로드 허용 및 Windows 파일 선택창을 통한 가져오기는 실제 UI 추가 확인 항목입니다.
 
 npm install / npm test / npm run lint / npm run build / npm run dev
 

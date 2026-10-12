@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Codex — 좌측 계정 메뉴 밀착 공통 지침·Suno v1.02
+
+주인님이 계정 이메일·로그아웃을 위쪽 메뉴에 항상 바짝 붙이라고 재확정했습니다. 루트 AGENTS.md·CLAUDE.md, SIDEBAR_LAYOUT_STANDARD.md, PLATFORM_PATTERNS §27에 ‘마지막 메뉴 아래 8~16px 밀착·화면 높이에 따라 빈 공간 늘리지 않음’ 기준을 추가하고 기존 ‘하단 고정’을 교정했습니다. Suno 메뉴 `flex: 1`을 `flex: 0 1 auto; min-height: 0`으로 변경하고 계정 `margin-top: 8px; flex-shrink: 0` 적용. 린트·빌드 성공, 실제 Sidebar 격리 렌더링 높은/낮은/모바일 펼침 배치 모두 간격 8px·계정 표시 확인. 변경·운영 기록: [suno-music-studio/docs/RELEASE_V1_02.md](../suno-music-studio/docs/RELEASE_V1_02.md). 다른 프로그램 코드는 건드리지 않았고, 모든 신규 개발·좌측 메뉴 수정의 공통 기준으로 적용합니다.
+
 ## 2026-10-12 Claude Code — 메인 사이트: '추천 프로그램' 섹션 이름을 '이달의 추천 프로그램'으로 변경
 
 주인님 요청. `app/(main)/page.tsx`의 섹션 제목만 변경(기능 변경 없음). 추천 뱃지·♥ 투표 구조는 바로 아래 항목 참고.
