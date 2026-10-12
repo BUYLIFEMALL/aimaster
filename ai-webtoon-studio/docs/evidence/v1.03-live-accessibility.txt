@@ -1,0 +1,8 @@
+﻿							62 문서 AI 웹툰 자동화 | AIMaster, Value: https://ai-webtoon-studio.buylife.xyz/, Secondary Actions: SetValue, Scroll
+									64 링크 AI 웹툰 자동화 v1.03 FREE, Value: https://ai-webtoon-studio.buylife.xyz/, Secondary Actions: SetValue
+									78 텍스트 buylifemall@naver.com
+									83 단추 이미지 일괄 저장 (.zip)
+									84 단추 전체 이어붙여 저장 (JPG)
+									91 제목 웹툰 제작 & 세로 스크롤 뷰어 (STEP 4)
+									93 단추 이미지 일괄 저장 (.zip)
+									94 단추 전체 이어붙여 저장 (JPG)
