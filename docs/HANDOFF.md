@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude — AI 마스터링 스튜디오 (ai-mastering-studio v1.02) 신규 구축·배포
+
+- 참고 gpt-park-mastering-studio-99gg.vercel.app을 번들까지 분석해 새로 구현. WAV(최대 20곡) → 12종 사운드 프로필 / AI 로직 생성기(Gemini·OpenAI·Claude 본인 키) / 정밀 랙(EQ·새추레이션·컴프레서·스테레오·리미터) → 브라우저에서 처리(서버 전송·저장 없음) → 파형·레벨 비교, WAV/ZIP 저장. 리미터는 원본(엔벨로프)이 실링을 넘어서 룩어헤드 방식으로 새로 구현(모든 샘플 실링 이하 보장). FREE+new, 음악 카테고리, VIP 등급 표 추가(VIP=모든 프로그램), 도메인·썸네일 등록.
+- 검수: 테스트 21개, 실제 Chrome에서 시험 WAV 3곡 처리·WAV/ZIP·AI 제안·모바일. **남은 일**: 일반 회원(naver) 시험, 실제 음악 청감 비교, 24bit·긴 곡, OpenAI/Claude로 AI 제안, KR/EN 전환(미구현). 상세는 `ai-mastering-studio/AGENTS.md`.
+
 ## 2026-10-13 Antigravity — AI 올인원 그래픽 자동화 (allinone-graphic) 관리자 상세 설명 리치 포맷 재정돈 및 DB 등록 완료
 
 주인님 요청("https://www.buylife.xyz/admin/programs/6fc5e240-9e72-45b2-90aa-b259e74ddd03/edit 프로그램 설명 글 핵심내용으로 보기 정리 정리해서 다시 작성해줘")에 따라:
