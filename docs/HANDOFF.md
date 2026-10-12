@@ -1,5 +1,22 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Website Scraper (website-scraper v1.07) 프로그램명 오타 교정(Whbsite ➔ Website) 및 Vercel 연동 완료
+
+주인님 요청("오타 수정해줘 다른데도 오타 없는지 확인해서 수정해주고")에 따라 프로그램명 오타(`Whbsite Scraper` ➔ `Website Scraper`)를 전면 교정하고 슬러그 및 도메인 동기화, v1.07 판올림을 완료했습니다.
+- **오타 교정 및 명칭 표준화**:
+  - 프로그램명: `Whbsite Scraper` ➔ **`Website Scraper`**
+  - 프로그램 슬러그: `whbsite-scraper` ➔ **`website-scraper`**
+  - 공식 주소: `https://website-scraper.buylife.xyz` (Vercel 기본: `https://website-scraper-buylife.vercel.app`)
+  - 하위 호환성 유지: 기존 접속 주소(`https://whbsite-scraper.buylife.xyz`, `https://whbsite-scraper.vercel.app`, `https://ghost-scraper.buylife.xyz`) 모두 정상 리다이렉트 및 동작 유지.
+- **코드 및 DB 전수 반영**:
+  - `ghost-scraper/src/lib/version.ts`: `APP_NAME = "Website Scraper"`, `APP_SLUG = "website-scraper"`, `APP_VERSION = "v1.07"`.
+  - `ghost-scraper/package.json`: v1.07.0.
+  - `ghost-scraper/src/components/ScraperWorkspace.tsx`: `generator: "Website Scraper v1.07"`, JSON 내보내기 접두사 `website_scraper_`, 푸터 표기 동기화.
+  - `ghost-scraper/src/lib/storage.ts`: `localStorage` 키 `website_scraper_*` 갱신 및 과거 키(`whbsite_scraper_*`, `ghost_scraper_*`) 완벽 마이그레이션 호환.
+  - DB `programs` 테이블: `name = 'Website Scraper'`, `slug = 'website-scraper'`, `app_url = 'https://website-scraper.buylife.xyz'`, `version = 'v1.07'`, `description` 내 표기 일괄 교정.
+- **배포 및 검증**: Vercel 프로덕션 배포 완료 (`https://website-scraper.buylife.xyz`), 메인 카탈로그 카드 실시간 반영 확인.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0009_fix_typo_website_scraper_v107.sql`.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.26) 옛 확장 감지 안내
 
 실제 화면 확인에서 옛 확장이 카테고리 읽기 요청을 150초 기다리게 하는 문제를 발견해, 버전이 v1.25 미만이면 즉시 업데이트 안내를 띄우도록 고쳤습니다. 확장 ZIP·DB v1.26.

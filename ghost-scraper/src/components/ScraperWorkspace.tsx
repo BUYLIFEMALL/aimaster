@@ -153,9 +153,9 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
       crawlResult,
       aiItems,
       exportedAt: new Date().toISOString(),
-      generator: "Whbsite Scraper v1.06",
+      generator: "Website Scraper v1.07",
     };
-    exportDataAsJson(exportData, `whbsite_scraper_${new URL(crawlResult.metadata.url).hostname}`);
+    exportDataAsJson(exportData, `website_scraper_${new URL(crawlResult.metadata.url).hostname}`);
   };
 
   return (
@@ -237,7 +237,7 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
 
         {/* 푸터 */}
         <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-          <p>© 2026 AIMaster · Whbsite Scraper · 사용자 개인 API 키 격리 보관 원칙 준수</p>
+          <p>© 2026 AIMaster · Website Scraper · 사용자 개인 API 키 격리 보관 원칙 준수</p>
         </footer>
       </div>
 

@@ -1,14 +1,20 @@
 import { AppSettings, DEFAULT_SETTINGS, CrawlResult } from "./types";
 
-const SETTINGS_KEY = "whbsite_scraper_settings_v1";
-const OLD_SETTINGS_KEY = "ghost_scraper_settings_v1";
-const LAST_CRAWL_KEY = "whbsite_scraper_last_result_v1";
-const OLD_LAST_CRAWL_KEY = "ghost_scraper_last_result_v1";
+const SETTINGS_KEY = "website_scraper_settings_v1";
+const OLD_SETTINGS_KEYS = ["whbsite_scraper_settings_v1", "ghost_scraper_settings_v1"];
+const LAST_CRAWL_KEY = "website_scraper_last_result_v1";
+const OLD_LAST_CRAWL_KEYS = ["whbsite_scraper_last_result_v1", "ghost_scraper_last_result_v1"];
 
 export function getStoredSettings(): AppSettings {
   if (typeof window === "undefined") return DEFAULT_SETTINGS;
   try {
-    const raw = localStorage.getItem(SETTINGS_KEY) || localStorage.getItem(OLD_SETTINGS_KEY);
+    let raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) {
+      for (const k of OLD_SETTINGS_KEYS) {
+        raw = localStorage.getItem(k);
+        if (raw) break;
+      }
+    }
     if (!raw) return DEFAULT_SETTINGS;
     return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
   } catch (e) {
@@ -29,7 +35,13 @@ export function saveStoredSettings(settings: AppSettings): void {
 export function getStoredLastCrawl(): CrawlResult | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(LAST_CRAWL_KEY) || localStorage.getItem(OLD_LAST_CRAWL_KEY);
+    let raw = localStorage.getItem(LAST_CRAWL_KEY);
+    if (!raw) {
+      for (const k of OLD_LAST_CRAWL_KEYS) {
+        raw = localStorage.getItem(k);
+        if (raw) break;
+      }
+    }
     return raw ? JSON.parse(raw) : null;
   } catch (e) {
     return null;
