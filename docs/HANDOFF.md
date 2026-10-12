@@ -14,8 +14,14 @@
    - **Gemini Imagen 3 AI 배경 생성기**: 사용자 본인 Gemini API 키 연동 기반으로 16:9 유튜브 감성 배경 이미지를 즉시 생성하여 바로 적용.
    - **WebCodecs GPU 가속 1080p MP4 고속 렌더링**: File System Access API 실시간 디스크 직접 쓰기를 지원하여 메모리 부족(OOM) 방지 및 반복 루프(1~3회) 렌더링 지원.
 3. **플랫폼 표준 및 배포 완료**:
+   - **좌측 메뉴 표준 지침(`docs/SIDEBAR_LAYOUT_STANDARD.md`) 100% 반영**:
+     * 헤더: `유튜브 플레이리스트 스튜디오` 전체 프로그램명 노출, 버전 배지(`v1.01`), 필수 `← 다른 프로그램 보기`(https://www.buylife.xyz/programs) 링크 완비.
+     * 메뉴 구조: `대시보드` 진입점, 번호형 핵심 작업 흐름(`1 → 2 → 3` 원형 번호 배지와 세로 연결선 `h-5 w-px bg-neutral-200`) 및 한 줄 설명 완비.
+     * 유틸리티: 표준 명칭 `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`.
+     * **계정 이메일·로그아웃 배치 (2026-10-12 확정 지침)**: 마지막 메뉴 바로 아래 8~16px 간격으로 바짝 밀착(화면 아래로 flex: 1 분리 금지) 적용.
+     * 데스크톱 고정 좌측 바(`md:w-60`) 및 모바일 상단 바/펼침 드로어 메뉴 지원.
    - 공식 커스텀 도메인: `https://yt-playlist.buylife.xyz` (HTTP 200 / 미로그인 307 SSO 연동)
-   - Vercel 프로덕션: `https://yt-playlist-studio.vercel.app` (`dpl_CD9DWYz8idmQxQQFVf7G9xfdN1av`, READY)
+   - Vercel 프로덕션: `https://yt-playlist-studio.vercel.app` (`dpl_BAPETHnQtevhUofHu5zxvoo9hqkN`, READY)
    - DB `programs` 카탈로그 등록: `sort_order: 124` (1순위 노출), 배지 `['free', 'new']`, 16:9 고화질 실사 썸네일 등록 완료.
    - 버전: `v1.01` (`src/lib/version.ts`, `package.json`, Supabase `programs.version = 'v1.01'`)
    - 상세 매뉴얼: [`yt-playlist-studio/MANUAL.md`](../yt-playlist-studio/MANUAL.md)
