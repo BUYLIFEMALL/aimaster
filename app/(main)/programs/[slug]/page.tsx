@@ -7,6 +7,7 @@ import PaymentController from "@/components/payment/PaymentController";
 import HeroSubscribeButton from "@/components/programs/HeroSubscribeButton";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
+import { PHONE_REQUIRED_MESSAGE } from "@/lib/utils/phone";
 import type { MemberGrade } from "@/types/database.types";
 
 interface PageProps {
@@ -96,6 +97,14 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {accessResult?.reason === "phone_required" && (
+        <div role="alert" className="mb-6 rounded-xl border border-gold/40 bg-gold/10 px-5 py-4 text-sm text-gold-light">
+          <p className="font-bold">{PHONE_REQUIRED_MESSAGE}</p>
+          <Link href="/settings?need_phone=1" className="mt-1 inline-block underline">
+            핸드폰 번호 등록하러 가기 →
+          </Link>
+        </div>
+      )}
       {/* Back */}
       <Link
         href="/programs"

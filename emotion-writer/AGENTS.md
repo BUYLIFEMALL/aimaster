@@ -21,3 +21,4 @@
 회원 권한·본인 키는 cardnews-studio의 기존 구조를 재사용합니다. 참고 프로젝트의 브라우저 API 키/암호화 키를 읽거나 이전하지 않습니다. localStorage에는 본인 작업 문구·설정만 회원 ID를 붙여 저장하며 API 키·사진은 저장하지 않습니다.
 
 검수는 이 폴더에서 npm test, npm run lint, npm run build를 실행합니다. 라이브 주소 `https://emotion-writer.buylife.xyz` 및 메인 카탈로그 `https://www.buylife.xyz/programs` 최상단 1위 노출 검증을 마쳤습니다. 확장 프로그램은 사용하지 않습니다.
+- v1.07 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

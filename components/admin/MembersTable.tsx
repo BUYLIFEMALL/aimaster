@@ -103,7 +103,8 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
       result = result.filter(
         (m) =>
           (m.name ?? "").toLowerCase().includes(q) ||
-          m.email.toLowerCase().includes(q),
+          m.email.toLowerCase().includes(q) ||
+          (m.phone ?? "").replace(/[^0-9]/g, "").includes(q.replace(/[^0-9]/g, "") || "\u0000"),
       );
     }
 
@@ -431,7 +432,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="이름 또는 이메일로 검색"
+              placeholder="이름·이메일·핸드폰으로 검색"
               className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder:text-subtext focus:outline-none focus:border-gold/40 transition-colors"
             />
           </div>
@@ -532,6 +533,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                   />
                 </th>
                 <th className="text-left text-xs text-subtext font-medium p-4">회원</th>
+                <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">핸드폰</th>
                 <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">등급</th>
                 <th className="text-center text-xs text-subtext font-medium p-4">상태</th>
                 <th className="text-right text-xs text-subtext font-medium p-4 hidden lg:table-cell">사용만료기간</th>
@@ -542,7 +544,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
             <tbody>
               {paginatedMembers.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-subtext text-sm">
+                  <td colSpan={8} className="p-8 text-center text-subtext text-sm">
                     {selectedGradeId !== "all"
                       ? `[${activeTargetGrade?.name ?? (selectedGradeId === "unassigned" ? "미배정" : "")}] 카테고리에 해당하는 회원이 없습니다.`
                       : "검색 결과가 없습니다."}
@@ -566,6 +568,9 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                       <p className="text-white text-sm font-medium">{m.name ?? "(이름 없음)"}</p>
                       <p className="text-subtext text-xs">{m.email}</p>
                     </Link>
+                  </td>
+                  <td className="p-4 hidden md:table-cell text-xs">
+                    {m.phone ? <span className="text-white/80">{m.phone}</span> : <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-red-400">미등록</span>}
                   </td>
                   <td className="p-4 hidden md:table-cell">
                     <MemberGradeSelect

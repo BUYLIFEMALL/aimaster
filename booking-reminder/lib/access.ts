@@ -19,17 +19,24 @@ function isNotExpired(expiresAt: string | null): boolean {
   return !expiresAt || new Date(expiresAt) > new Date();
 }
 
+/** 핸드폰 번호 필수 정책(2026-10-12): 핸드폰(010·011·016·017·018·019)만 유효. 루트 lib/utils/phone.ts 와 같은 규칙. */
+const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[016789]\d{7,8}$/.test(v.replace(/[^0-9]/g, ""));
+
 export async function requireProgramAccess() {
   const user = await requireUser();
   const supabase = (await createClient()) as unknown as SupabaseLike;
 
   const { data: suspendCheck } = await supabase
     .from("profiles")
-    .select("is_suspended, is_admin")
+    .select("is_suspended, is_admin, phone")
     .eq("id", user.id)
     .maybeSingle();
   if (suspendCheck?.is_suspended) {
     redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`);
+  }
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없으면 FREE 프로그램 포함 모두 차단(관리자 제외).
+  if (!suspendCheck?.is_admin && !hasMobilePhone(suspendCheck?.phone)) {
+    redirect(`${MAIN_SITE_URL}/settings?need_phone=1`);
   }
 
   const { data: program } = await supabase
@@ -112,11 +119,15 @@ export async function checkProgramAccessApi(): Promise<
 
   const { data: suspendCheck } = await sb
     .from("profiles")
-    .select("is_suspended, is_admin")
+    .select("is_suspended, is_admin, phone")
     .eq("id", user.id)
     .maybeSingle();
   if (suspendCheck?.is_suspended) {
     return { allowed: false, error: "계정이 정지되어 이용할 수 없습니다. 고객센터에 문의해주세요.", status: 403 };
+  }
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없으면 FREE 프로그램 포함 모두 차단(관리자 제외).
+  if (!suspendCheck?.is_admin && !hasMobilePhone(suspendCheck?.phone)) {
+    return { allowed: false, error: "핸드폰 번호를 입력 후 사용해주세요!", status: 403 };
   }
 
   const { data: program } = await sb

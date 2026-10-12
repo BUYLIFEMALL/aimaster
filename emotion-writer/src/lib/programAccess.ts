@@ -27,6 +27,7 @@ export type ProgramAccessReason =
   | "no_restriction"
   | "not_found"
   | "suspended"
+  | "phone_required"
   | "none";
 
 export interface ProgramAccessResult {
@@ -44,9 +45,14 @@ export function isNotExpired(expiresAt: string | null): boolean {
  * 한 번에 계산해야 해서 DB 재조회(N+1)를 피하고 싶을 때 이 함수를 직접 쓴다.
  * checkProgramAccess()도 내부적으로 이 함수를 호출한다 — 규칙 자체는 여기 한 곳에만 있다.
  */
+/** 핸드폰 번호 필수 정책(2026-10-12): 핸드폰(010·011·016·017·018·019)만 유효. 루트 lib/utils/phone.ts 와 같은 규칙. */
+const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[016789]\d{7,8}$/.test(v.replace(/[^0-9]/g, ""));
+
 export function evaluateProgramAccess(input: {
   isAdmin: boolean;
   isSuspended: boolean;
+  /** 핸드폰 번호가 저장돼 있는지(필수 정책). 안 넘기면 검사하지 않는다. */
+  hasPhone?: boolean;
   isFree: boolean;
   requiredGradeId: string | null;
   hasActiveSubscription: boolean;
@@ -62,6 +68,8 @@ export function evaluateProgramAccess(input: {
   //   Grade alone no longer opens a program.
   if (input.isSuspended) return { allowed: false, reason: "suspended" };
   if (input.isAdmin) return { allowed: true, reason: "admin" };
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없으면 FREE 프로그램 포함 모두 차단(관리자 제외).
+  if (input.hasPhone === false) return { allowed: false, reason: "phone_required" };
   if (input.isFree) return { allowed: true, reason: "no_restriction" };
   if (input.hasActiveSubscription)
     return { allowed: true, reason: "active_subscription" };
@@ -88,7 +96,7 @@ export async function checkProgramAccess(
 ): Promise<ProgramAccessResult> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin, is_suspended, grade:member_grades(sort_order)")
+    .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")
     .eq("id", userId)
     .maybeSingle();
 
@@ -132,6 +140,7 @@ export async function checkProgramAccess(
   const result = evaluateProgramAccess({
     isAdmin: !!profile?.is_admin,
     isSuspended: !!profile?.is_suspended,
+    hasPhone: hasMobilePhone(profile?.phone),
     isFree: (program.badges ?? []).includes("free"),
     requiredGradeId: program.required_grade_id,
     hasActiveSubscription,

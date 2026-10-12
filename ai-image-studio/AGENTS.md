@@ -64,3 +64,4 @@
 
 - `lib/supabase/server.ts`의 `createAdminClient()`가 `SUPABASE_SERVICE_ROLE_KEY` 환경변수만 쓴다(없으면 시작 실패). 예전의 base64 내장 키(`DEFAULT_SERVICE_ROLE_KEY`)와 `NEXT_PUBLIC_…SERVICE_ROLE_KEY` 폴백을 삭제했고, `scripts/test-flux-pipeline.mjs`·`inspect_flux2_max.mjs`의 내장 키도 제거했다. Vercel `ai-image-studio`에는 새 키를 환경변수로 등록했다(production·preview).
 - 이 키는 공개 저장소에 올라가 있던 공용 키라 교체했다(전체 경위·절차: 루트 `docs/ERROR_LESSONS.md` "서비스 키가 공개 저장소에 올라가 있었다"). **배포 후 운영 주소를 새 배포로 옮겨야 한다**(위 "배포 주의" 참고).
+- v1.08 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

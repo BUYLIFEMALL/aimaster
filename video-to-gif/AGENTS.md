@@ -28,3 +28,4 @@
 - 로그인 게이트(`requireProgramAccess()`)는 그대로 유지합니다 — `/dashboard` 진입 자체는
   여전히 AIMaster 프로그램 권한이 필요합니다.
 - 권한이 필요한 레이아웃에는 `dynamic = "force-dynamic"`과 `fetchCache = "force-no-store"`를 함께 선언합니다.
+- v1.04 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

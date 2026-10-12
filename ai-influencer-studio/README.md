@@ -44,3 +44,4 @@
 - **최상위 불변 규칙**: 사용자 본인 Gemini API 키 (`user_api_keys.provider = 'gemini'`) 직접 등록 및 연동. 타인/운영자 키 폴백 원천 금지.
 - **테마 규칙**: 클린 화이트 스튜디오 테마 (`bg-white` / `bg-slate-50`).
 - **권한 체계**: AIMaster 공유 Supabase DB 통합 세션 및 `requireProgramAccess()`.
+- v1.02 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

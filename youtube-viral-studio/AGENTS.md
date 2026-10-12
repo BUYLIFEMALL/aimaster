@@ -67,3 +67,4 @@
 - `/api/youtube/*` 5개와 `/api/settings/api-keys`(GET/POST/DELETE)가 로그인뿐 아니라 **프로그램 이용 권한**도 확인한다(`src/lib/access.ts`의 `checkProgramAccessApi()`). 판정 규칙은 루트 `lib/access/checkProgramAccess.ts`의 사본 `src/lib/programAccess.ts`를 쓴다(규칙이 바뀌면 사본도 같이 고칠 것). 각 route에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"`를 선언했다.
 - `requireProgramAccess()`도 같은 표준 판정으로 교체했다(정지 → 관리자 → FREE → 구독 → 등급 미지정 허용 → 등급 ≥ 최소 등급 + 사용기간). 현재 DB는 `required_grade_id`가 비어 있어 로그인 회원은 그대로 통과한다.
 - `apiKeys.ts`의 Claude provider 이름을 `claude` → `anthropic`으로 바꿨다(DB `user_api_keys` 체크 제약 기준).
+- v1.10 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

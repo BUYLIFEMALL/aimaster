@@ -27,6 +27,7 @@ export type ProgramAccessReason =
   | "no_restriction"
   | "not_found"
   | "suspended"
+  | "phone_required"
   | "none";
 
 export interface ProgramAccessResult {
@@ -34,6 +35,8 @@ export interface ProgramAccessResult {
   reason: ProgramAccessReason;
   programId: string | null;
 }
+
+import { hasRegisteredPhone } from "@/lib/utils/phone";
 
 export function isNotExpired(expiresAt: string | null): boolean {
   return !expiresAt || new Date(expiresAt) > new Date();
@@ -47,6 +50,8 @@ export function isNotExpired(expiresAt: string | null): boolean {
 export function evaluateProgramAccess(input: {
   isAdmin: boolean;
   isSuspended: boolean;
+  /** 핸드폰 번호가 저장돼 있는지(2026-10-12 필수 등록 정책). 관리자는 제외한다. */
+  hasPhone?: boolean;
   isFree: boolean;
   requiredGradeId: string | null;
   hasActiveSubscription: boolean;
@@ -62,6 +67,8 @@ export function evaluateProgramAccess(input: {
   //   Grade alone no longer opens a program.
   if (input.isSuspended) return { allowed: false, reason: "suspended" };
   if (input.isAdmin) return { allowed: true, reason: "admin" };
+  // 핸드폰 번호 필수 등록 정책: 번호가 없으면 FREE 프로그램을 포함해 모든 프로그램을 쓸 수 없다.
+  if (input.hasPhone === false) return { allowed: false, reason: "phone_required" };
   if (input.isFree) return { allowed: true, reason: "no_restriction" };
   if (input.hasActiveSubscription) return { allowed: true, reason: "active_subscription" };
   if (!input.requiredGradeId) return { allowed: true, reason: "no_restriction" };
@@ -82,7 +89,7 @@ export async function checkProgramAccess(
 ): Promise<ProgramAccessResult> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin, is_suspended, grade:member_grades(sort_order)")
+    .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")
     .eq("id", userId)
     .maybeSingle();
 
@@ -120,6 +127,7 @@ export async function checkProgramAccess(
   const result = evaluateProgramAccess({
     isAdmin: !!profile?.is_admin,
     isSuspended: !!profile?.is_suspended,
+    hasPhone: hasRegisteredPhone(profile?.phone),
     isFree: (program.badges ?? []).includes("free"),
     requiredGradeId: program.required_grade_id,
     hasActiveSubscription,

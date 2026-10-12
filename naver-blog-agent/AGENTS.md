@@ -552,3 +552,4 @@ v1.75 운영 확인 완료: 코드4b9a1d4a 푸시·프로덕션READY·DB/확장/
     4) 17대 블로그 윤문 및 팩트 보존 휴머나이저(`src/lib/humanizer`) 모듈 탑재.
     5) 다중 네이버 계정 및 카테고리/키워드 관리(`nba_accounts`), 발행 대기 큐(`nba_posts`), 크롬 확장 페어링(`nba_extension_tokens`) 구축.
     6) Next.js 16 + Tailwind CSS 흰색 베이스 대시보드 구축 및 Supabase 통합 권한(`requireProgramAccess`) 연동 완료.
+- v1.82 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

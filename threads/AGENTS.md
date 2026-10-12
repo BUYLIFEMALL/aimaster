@@ -24,3 +24,4 @@ threads는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 
 - Threads 앱 ID/시크릿 provider를 `threads_app_id`/`threads_app_secret`로 분리(인스타 `meta_app_*`와 덮어쓰기 충돌 해결).
 - `/api/posts/dispatch-scheduled`에 `force-dynamic` + `force-no-store` 추가.
 - 글감 등 대시보드 페이지의 `requireUser()`는 위반이 아니다 — `(dashboard)/layout.tsx`가 `requireProgramAccess()`로 게이트한다.
+- v1.04 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

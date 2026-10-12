@@ -5,13 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 const PROGRAM_SLUG = "video-to-gif";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
 type QueryClient = Awaited<ReturnType<typeof createClient>>;
-type AccessResult = { allowed: true } | { allowed: false; reason: "suspended" | "not_entitled" | "not_configured" };
+type AccessResult = { allowed: true } | { allowed: false; reason: "suspended" | "phone_required" | "not_entitled" | "not_configured" };
 
 function isNotExpired(value: string | null | undefined) { return !value || new Date(value) > new Date(); }
 
+/** 핸드폰 번호 필수 정책(2026-10-12): 핸드폰(010·011·016·017·018·019)만 유효. 루트 lib/utils/phone.ts 와 같은 규칙. */
+const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[016789]\d{7,8}$/.test(v.replace(/[^0-9]/g, ""));
+
 async function evaluateAccess(supabase: QueryClient, userId: string): Promise<AccessResult> {
-  const { data: profile } = await supabase.from("profiles").select("is_admin,is_suspended,grade_id").eq("id", userId).maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("is_admin,is_suspended,grade_id,phone").eq("id", userId).maybeSingle();
   if (profile?.is_suspended) return { allowed: false, reason: "suspended" };
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없으면 FREE 프로그램 포함 모두 차단(관리자 제외).
+  if (!profile?.is_admin && !hasMobilePhone(profile?.phone)) return { allowed: false, reason: "phone_required" };
   if (profile?.is_admin) return { allowed: true };
   const { data: program } = await supabase.from("programs").select("id, required_grade_id, badges").eq("slug", PROGRAM_SLUG).eq("is_active", true).maybeSingle();
   if (!program) return { allowed: false, reason: "not_configured" };
@@ -31,6 +36,7 @@ export async function requireProgramAccess() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?redirect=/dashboard`);
   const result = await evaluateAccess(supabase, user.id);
+  if (!result.allowed && result.reason === "phone_required") redirect(`${MAIN_SITE_URL}/settings?need_phone=1`);
   if (!result.allowed) redirect(`${MAIN_SITE_URL}/programs/${PROGRAM_SLUG}?error=${result.reason}`);
   return user;
 }

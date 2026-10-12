@@ -220,3 +220,4 @@
 
 ## v1.39 (2026-10-12) — 아이디어 탭 주제 추천·키워드 파인더의 구형 Gemini 직접 호출 10곳을 선택한 글 AI로 통일
 - 주인님 요청: `TopicIdeaSection`(E-E-A-T·카테고리별·에버그린·롱테일·메모 5곳)과 `KeywordFighterSection`(경쟁력·연관검색어·상위 블로그·다각도·오늘의 전략 5곳)이 항상 Gemini 키·Gemini 모델을 직접 호출하던 것을 공용 `lib/blog/askJson.ts`의 `askLlmJson`(→ `resolveTextEngine`+`callLlm`)으로 교체. 설정에서 고른 글 AI(Gemini/GPT/Claude)와 본인 키를 쓰며 키가 없으면 `missingKeyMessage`로 해당 공급사 등록 안내. 배열 응답은 OpenAI JSON 모드(최상위 객체만 허용)를 쓰지 않고 프롬프트 지시+`extractJson` 파싱으로 처리. 키워드 파인더 [오늘의 전략] 자동 실행 조건도 선택한 AI의 키 기준. 테스트 31개. 남은 구형 Gemini 직접 호출 없음(`grep generativelanguage src/components` → 0).
+- v1.40 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

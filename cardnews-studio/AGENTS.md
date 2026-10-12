@@ -82,3 +82,4 @@ vercel deploy --prod --yes --scope buylife
 ```
 버전을 올릴 때: `src/lib/version.ts` + `package.json`(+lock) + DB `update programs set version='v1.0X' where slug='cardnews-studio';` + `supabase/migrations/`에 새 SQL. **올린 뒤 `grep APP_VERSION src/lib/version.ts`와 라이브 사이드바 표기까지 확인**(`docs/ERROR_LESSONS.md` 2026-10-11 버전 표기 어긋남 기록).
 첫 배포 메모: `vercel.json {"framework":"nextjs"}` 필요, 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL`)는 production에만 등록, 도메인은 `vercel domains add cardnews-studio.buylife.xyz cardnews-studio --scope buylife`.
+- v1.07 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

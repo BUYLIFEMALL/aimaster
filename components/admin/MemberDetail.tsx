@@ -325,8 +325,8 @@ export default function MemberDetail({
             <p className="text-white font-medium">{member.email}</p>
           </div>
           <div>
-            <span className="text-subtext">전화번호</span>
-            <p className="text-white font-medium">{member.phone ? formatPhoneNumber(member.phone) : "-"}</p>
+            <span className="text-subtext">핸드폰</span>
+            <p className={member.phone ? "text-white font-medium" : "text-red-400 font-medium"}>{member.phone ? formatPhoneNumber(member.phone) : "미등록 (프로그램 이용 불가)"}</p>
           </div>
           <div>
             <span className="text-subtext">등급</span>

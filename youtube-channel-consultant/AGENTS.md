@@ -77,3 +77,4 @@ vercel deploy --prod --yes --scope buylife
 - 카드에서 `이 채널 분석하기`를 누르면 `/channel-analysis?q=<채널ID>`로 자동 분석한다. JSON·CSV 내보내기는 `src/lib/export.ts`(VideoList도 공용 사용).
 - 실제 라이브 확인(buylifemall@naver.com 본인 키): `AI자동화`(한국·90일·구독자 1만 이하·평균 1만 이상)로 영상 50개 → 채널 43개 중 4개 조건 충족, 카드·정렬·내보내기 버튼 정상.
 - 자동 검사 `npm test` 17개(지표 7 + AI 7 + 공략 채널 3).
+- v1.04 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

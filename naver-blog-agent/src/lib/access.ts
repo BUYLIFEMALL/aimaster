@@ -39,18 +39,25 @@ const ACCESS_ERRORS = {
  * Extension token routes use this after resolving the token's owner, while web
  * routes use checkProgramAccessApi() to bind the result to the signed-in user.
  */
+/** 핸드폰 번호 필수 정책(2026-10-12): 핸드폰(010·011·016·017·018·019)만 유효. 루트 lib/utils/phone.ts 와 같은 규칙. */
+const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[016789]\d{7,8}$/.test(v.replace(/[^0-9]/g, ""));
+
 export async function evaluateProgramAccessForUser(userId: string): Promise<ProgramAccessResult> {
   const adminClient = createAdminClient() as unknown as SupabaseLike;
 
   // 1. 계정 정지 여부 및 관리자, 회원 등급 조회
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("is_suspended, is_admin, grade:member_grades(sort_order)")
+    .select("is_suspended, is_admin, grade:member_grades(sort_order), phone")
     .eq("id", userId)
     .maybeSingle();
 
   if (profile?.is_suspended) {
     return { allowed: false, error: ACCESS_ERRORS.suspended, status: 403 };
+  }
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없으면 FREE 프로그램 포함 모두 차단(관리자 제외).
+  if (!profile?.is_admin && !hasMobilePhone(profile?.phone)) {
+    return { allowed: false, error: "핸드폰 번호를 입력 후 사용해주세요!", status: 403 };
   }
 
   // 2. 프로그램 정보 및 요구 등급 조회

@@ -16,6 +16,9 @@ type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @ty
 export async function requireProgramAccess() {
   const user = await requireUser();
   const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG);
+  if (access.reason === "phone_required") {
+    redirect(`${MAIN_SITE_URL}/settings?need_phone=1`);
+  }
   if (access.reason === "suspended") {
     redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`);
   }
@@ -33,6 +36,9 @@ export async function checkProgramAccessApi(): Promise<
   const user = await getUser();
   if (!user) return { allowed: false, error: "로그인이 필요합니다.", status: 401 };
   const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG);
+  if (access.reason === "phone_required") {
+    return { allowed: false, error: "핸드폰 번호를 입력 후 사용해주세요!", status: 403 };
+  }
   if (access.reason === "suspended") {
     return { allowed: false, error: "정지된 계정입니다.", status: 403 };
   }

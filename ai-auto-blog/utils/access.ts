@@ -35,6 +35,9 @@ export async function requireProgramAccess() {
 
   // 판정 규칙(2026-09-29 베타테스트 정책)은 lib/access/checkProgramAccess.ts(루트 같은 파일의 사본 — 규칙이 바뀌면 둘 다 고칠 것)에 둔다.
   const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user!.id, THIS_PROGRAM_SLUG)
+  if (access.reason === 'phone_required') {
+    redirect(`${MAIN_SITE_URL}/settings?need_phone=1`)
+  }
   if (access.reason === 'suspended') {
     redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`)
   }
@@ -71,6 +74,9 @@ export async function checkProgramAccessApi(): Promise<
   }
 
   const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG)
+  if (access.reason === 'phone_required') {
+    return { allowed: false, error: '핸드폰 번호를 입력 후 사용해주세요!', status: 403 }
+  }
   if (access.reason === 'suspended') {
     return { allowed: false, error: '계정이 정지되어 이용할 수 없습니다. 고객센터에 문의해주세요.', status: 403 }
   }

@@ -31,6 +31,7 @@ export async function requireProgramAccess() {
   const user = await requireUser();
   const access = await checkProgramAccess(createAdminClient(), user.id, PROGRAM_SLUG);
   if (!access.allowed) {
+    if (access.reason === "phone_required") redirect(`${MAIN_SITE_URL}/settings?need_phone=1`);
     redirect(`${MAIN_SITE_URL}/programs/${PROGRAM_SLUG}${access.reason === "suspended" ? "?error=suspended" : ""}`);
   }
   return { user, access };
@@ -39,6 +40,7 @@ export async function requireProgramAccess() {
 const DENIED_MESSAGE: Record<string, string> = {
   suspended: "정지된 계정은 프로그램을 이용할 수 없습니다.",
   not_found: "현재 이용 가능한 프로그램 정보를 찾을 수 없습니다.",
+  phone_required: "핸드폰 번호를 입력 후 사용해주세요!",
 };
 
 /**

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { formatPhoneNumber } from "@/lib/utils/format";
+import { isValidPhone } from "@/lib/utils/phone";
 
-/** PUT — 프로필 수정 (이름, 전화번호) */
+/** PUT — 프로필 수정 (이름, 핸드폰). 이름과 핸드폰은 필수이고 핸드폰 번호만 유효하다. */
 export async function PUT(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -14,13 +15,17 @@ export async function PUT(req: NextRequest) {
 
   const { name, phone } = await req.json();
 
-  const formattedPhone = phone ? formatPhoneNumber(phone) : null;
+  const cleanName = typeof name === "string" ? name.trim() : "";
+  if (!cleanName) return NextResponse.json({ error: "이름을 입력해주세요." }, { status: 400 });
+  if (typeof phone !== "string" || !isValidPhone(phone)) {
+    return NextResponse.json({ error: "핸드폰 번호를 정확히 입력해주세요. (예: 010-1234-5678)" }, { status: 400 });
+  }
 
   const { data, error } = await supabase
     .from("profiles")
     .update({
-      name: name?.trim() || null,
-      phone: formattedPhone || null,
+      name: cleanName.slice(0, 50),
+      phone: formatPhoneNumber(phone),
     })
     .eq("id", user.id)
     .select()
@@ -31,4 +36,3 @@ export async function PUT(req: NextRequest) {
 
   return NextResponse.json(data);
 }
-

@@ -22,10 +22,12 @@ export async function verifyExtensionToken(request: Request) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("email, name, is_admin, is_suspended, grade_id, grade:member_grades(sort_order)")
+    .select("email, name, is_admin, is_suspended, phone, grade_id, grade:member_grades(sort_order)")
     .eq("id", tokenRow.user_id)
     .maybeSingle();
   if (!profile || profile.is_suspended) return null;
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)은 확장 프로그램도 쓸 수 없다.
+  if (!profile.is_admin && !/^01[016789]\d{7,8}$/.test(String(profile.phone ?? "").replace(/[^0-9]/g, ""))) return null;
 
   const { data: program } = await supabase
     .from("programs")

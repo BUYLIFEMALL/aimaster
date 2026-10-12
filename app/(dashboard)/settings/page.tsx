@@ -8,6 +8,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import { formatPhoneNumber } from "@/lib/utils/format";
+import { PHONE_REQUIRED_MESSAGE, isValidPhone } from "@/lib/utils/phone";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -56,6 +57,8 @@ export default function SettingsPage() {
     setProfileMsg("");
 
     try {
+      if (!name.trim()) throw new Error("이름을 입력해주세요.");
+      if (!isValidPhone(phone)) throw new Error("핸드폰 번호를 정확히 입력해주세요. (예: 010-1234-5678)");
       const formattedPhone = formatPhoneNumber(phone);
       const res = await fetch("/api/user/profile", {
         method: "PUT",
@@ -135,6 +138,11 @@ export default function SettingsPage() {
             <h2 className="text-lg font-bold text-white">프로필 정보</h2>
           </div>
 
+          {!isValidPhone(phone) && (
+            <p role="alert" className="mb-4 rounded-lg border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-light">
+              {PHONE_REQUIRED_MESSAGE}
+            </p>
+          )}
           <form onSubmit={handleProfileSave} className="space-y-4">
             <div>
               <label className="block text-sm text-subtext mb-1.5">이메일</label>
@@ -148,24 +156,26 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="block text-sm text-subtext mb-1.5">이름</label>
+              <label className="block text-sm text-subtext mb-1.5">이름 <span className="text-red-400">*</span></label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="input-dark w-full"
                 placeholder="이름을 입력하세요"
+                required
               />
             </div>
 
             <div>
-              <label className="block text-sm text-subtext mb-1.5">전화번호</label>
+              <label className="block text-sm text-subtext mb-1.5">핸드폰 <span className="text-red-400">*</span></label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
                 className="input-dark w-full"
                 placeholder="010-0000-0000"
+                required
               />
             </div>
 

@@ -200,3 +200,4 @@ npm test && npm run build
 vercel deploy --prod --yes --scope buylife
 ```
 환경변수(Production): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL`(값은 저장소에 두지 않는다). 도메인 `style-dna-analyzer.buylife.xyz`는 `vercel domains add`로 연결 완료. 배포할 때마다 버전(`src/lib/version.ts`·`package.json`·DB `programs.version`·마이그레이션 SQL)을 함께 올린다.
+- v1.13 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

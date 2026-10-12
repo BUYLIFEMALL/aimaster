@@ -71,3 +71,4 @@ auto-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
   대체하지 않는다.
 - 새 provider(`replicate`)를 추가할 때처럼 공용 `user_api_keys_provider_check` 제약을 넓히는 건
   괜찮지만, 이 프로그램만 쓰는 새 테이블을 `user_api_keys`와 별도로 만들지 않는다.
+- v1.05 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

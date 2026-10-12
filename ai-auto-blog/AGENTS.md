@@ -625,3 +625,4 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 
 - `app/candidates/page.tsx`의 ESLint 오류 9건 → 0건(경고 1건 `userEmail` 미사용은 그대로). `any`를 실제 타입으로 교체(`BrowserSupabase = ReturnType<typeof createClient>`, 로그인 정보 결과 타입 `AuthUserResult`), `catch (err: any)` 3곳은 `errorText(err, 대체문구)`로 바꿔 기존 `err.message || '대체 문구'` 동작을 유지, 마운트 후 한 번만 하는 브라우저 클라이언트 초기화에는 사유를 적은 `eslint-disable-next-line react-hooks/set-state-in-effect`를 붙였다(서버 렌더에서는 만들 수 없어 구조 유지). 수집 직후 `supabase`가 비어 있으면 목록 새로고침만 건너뛴다.
 - 검사: `npx eslint app/candidates/page.tsx`(오류 0), `npx tsc --noEmit`, `test:shorts` 등 자동 시험, `npm run build`. 확장은 변경 없음(ZIP·manifest 버전만 v1.59).
+- v1.61 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

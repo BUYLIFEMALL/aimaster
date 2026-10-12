@@ -249,3 +249,4 @@ npm run lint    # ESLint
 - 대시보드 등 작업 화면을 다크 → 흰색 베이스로 변경(루트 지침 "웹 서브프로그램 작업 화면은 흰색 베이스"). `src/app/globals.css`에서 기존 gold/dark 토큰 이름은 그대로 두고 값만 파랑(#005acc)·라이트 회색으로 재매핑, `.gold-text`/`.glass-card`를 라이트 톤으로 변경, 각 화면의 `text-neutral-*`/`border-white/*` 클래스를 zinc 계열로 치환.
 - 좌측 메뉴 제목을 "부동산 투자분석 자동화"로 단축(두 줄로 글자가 잘리던 문제). 사이트 프로그램명(DB)은 그대로.
 - 마이그레이션 `supabase/migrations/20261010110000_bump_version_v1_06.sql`.
+- v1.07 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

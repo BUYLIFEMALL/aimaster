@@ -37,6 +37,13 @@
 
 ## 2026-10-12 — 사이드바 템플릿 이식 시 하드코딩된 FREE 배지 잔여물 노출 (emotion-writer v1.05)
 
+## 2026-10-12 — 가입 화면이 보낸 핸드폰이 DB에 저장되지 않음 (가입 트리거가 먼저 프로필을 만듦)
+
+- 증상: 회원가입 화면에 넣은 값(핸드폰)이 저장되지 않아 가입자 239명 중 19명만 번호가 있었음.
+- 원인: `auth.users` 가입 트리거 `handle_new_user()`가 이름만 넣어 `profiles`를 먼저 만들고, 화면의 `profiles.insert`(핸드폰 포함)는 `duplicate`로 실패했는데 코드가 duplicate 오류를 무시했다.
+- 해결: 트리거가 `raw_user_meta_data`의 name·phone을 저장하고 필수값이 없으면 가입을 거절(`supabase/migrations/0027_profile_phone_required.sql`).
+- 다음부터 확인: 가입 시 저장할 값을 늘릴 때는 화면의 insert만 고치지 말고 `handle_new_user()` 트리거와 `signUp` 메타데이터를 함께 고친다. 정책: `docs/PHONE_REQUIRED_POLICY.md`.
+
 ## 2026-10-12 — pica 업스케일이 영원히 "변환 중"에 멈춤 (image-convert-studio v1.02)
 
 - 증상: 확대/축소(배율≠1) 변환이 끝나지 않음. 콘솔 에러도 없음. 1배 변환은 정상.

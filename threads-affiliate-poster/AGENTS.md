@@ -431,3 +431,4 @@ vercel deploy --prod --yes
     - 화면: API키등록·플랫폼연동에 "네이버 검색·데이터랩" 입력 칸 추가. DB provider 제약에는 이미 `naver_client_id/secret`이 있어 스키마 변경 없음.
     - 시험: `npm run test:naver-key`. 버전 v1.49: `version.ts`, DB `programs.version`, 마이그레이션 `0009_bump_version_v1_49.sql`.
     - 남은 일: Vercel 환경변수 `NAVER_TREND_CLIENT_ID/SECRET`(이제 코드가 안 읽음) 삭제.
+- v1.50 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

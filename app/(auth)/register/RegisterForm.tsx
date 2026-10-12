@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
+import { formatPhoneNumber } from "@/lib/utils/format";
+import { isValidPhone } from "@/lib/utils/phone";
 
 function generateAffiliateCode(): string {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -16,6 +18,7 @@ function generateAffiliateCode(): string {
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +33,17 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
 
+    if (!name.trim()) {
+      setError("이름을 입력해주세요.");
+      setLoading(false);
+      return;
+    }
+    if (!isValidPhone(phone)) {
+      setError("핸드폰 번호를 정확히 입력해주세요. (예: 010-1234-5678)");
+      setLoading(false);
+      return;
+    }
+
     if (password.length < 8) {
       setError("비밀번호는 8자 이상이어야 합니다.");
       setLoading(false);
@@ -39,12 +53,14 @@ export default function RegisterPage() {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: { data: { name, phone: formatPhoneNumber(phone) } },
     });
 
     if (signUpError) {
       if (signUpError.message.includes("already registered") || signUpError.message.includes("already been registered")) {
         setError("이미 가입된 이메일입니다.");
+      } else if (signUpError.message.includes("Database error")) {
+        setError("이름과 핸드폰 번호를 정확히 입력해야 가입할 수 있습니다.");
       } else {
         setError(`오류: ${signUpError.message}`);
       }
@@ -75,6 +91,7 @@ export default function RegisterPage() {
         id: data.user.id,
         email,
         name,
+        phone: formatPhoneNumber(phone),
         affiliate_code: generateAffiliateCode(),
         referred_by: referredBy,
       });
@@ -132,7 +149,7 @@ export default function RegisterPage() {
         <GlassCard>
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">이름</label>
+              <label className="block text-sm font-medium text-white mb-2">이름 <span className="text-red-400">*</span></label>
               <input
                 type="text"
                 value={name}
@@ -154,6 +171,20 @@ export default function RegisterPage() {
                 placeholder="your@email.com"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">핸드폰</label>
+              <input
+                type="tel"
+                inputMode="tel"
+                value={phone}
+                onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                className="input-dark w-full"
+                placeholder="010-1234-5678"
+                required
+              />
+              <p className="text-xs text-subtext mt-1">핸드폰 번호를 등록해야 프로그램을 이용할 수 있습니다.</p>
             </div>
 
             <div>

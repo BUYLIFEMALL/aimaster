@@ -23,6 +23,9 @@ type SupabaseLike = {
  * 로그인 + "threads-easy-planner" 프로그램 이용 권한을 함께 확인한다.
  * 세션 쿠키의 RLS 차단 및 권한 누락을 방지하기 위해 권한 조사는 createAdminClient()를 사용한다.
  */
+/** 핸드폰 번호 필수 정책(2026-10-12): 핸드폰(010·011·016·017·018·019)만 유효. 루트 lib/utils/phone.ts 와 같은 규칙. */
+const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[016789]\d{7,8}$/.test(v.replace(/[^0-9]/g, ""));
+
 export async function requireProgramAccess() {
   const user = await requireUser();
   const adminClient = createAdminClient() as unknown as SupabaseLike;
@@ -30,12 +33,16 @@ export async function requireProgramAccess() {
   // 1. 계정 정지 여부 및 관리자, 회원 등급 조회
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("is_suspended, is_admin, grade:member_grades(sort_order)")
+    .select("is_suspended, is_admin, grade:member_grades(sort_order), phone")
     .eq("id", user.id)
     .maybeSingle();
 
   if (profile?.is_suspended) {
     redirect(noAccessUrl("suspended"));
+  }
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없으면 FREE 프로그램 포함 모두 차단(관리자 제외).
+  if (!profile?.is_admin && !hasMobilePhone(profile?.phone)) {
+    redirect(`${MAIN_SITE_URL}/settings?need_phone=1`);
   }
 
   // 2. 프로그램 정보 및 요구 등급 조회

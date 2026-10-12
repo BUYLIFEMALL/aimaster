@@ -48,3 +48,4 @@
 - **배경**: 흰색 베이스 클린 UI (`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 Sidebar 준수).
 - **연도 기준**: 2026년 당해 연도 프롬프트 주입 (`const currentYear = new Date().getFullYear();`).
 - **권한 연동**: AIMaster 공유 Supabase DB(`esgxyikcnnvmlhygjkth`)의 `requireProgramAccess()` SSO 쿠키 연동.
+- v1.03 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

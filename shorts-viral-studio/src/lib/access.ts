@@ -23,6 +23,10 @@ export async function requireProgramAccess() {
   const user = await requireUser();
   const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG);
 
+  if (access.reason === "phone_required") {
+    redirect(`${MAIN_SITE_URL}/settings?need_phone=1`);
+  }
+
   if (access.reason === "suspended") {
     redirect(noAccessUrl("suspended"));
   }
