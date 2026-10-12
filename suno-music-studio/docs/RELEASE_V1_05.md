@@ -41,7 +41,14 @@
 
 ## 운영 반영
 
-코드 APP_VERSION v1.05, package 1.05.0. DB 버전 갱신 SQL: `supabase/migrations/20261012114007_suno_layout_workflows_v105.sql` (메타데이터 UPDATE만, 스키마 변경 없음). 확장 프로그램 없음. 커밋·푸시·프로덕션 배포와 운영 HTTP 결과는 배포 후 이 항목에 기록합니다.
+코드 APP_VERSION v1.05, package 1.05.0. DB 버전 갱신 SQL: `supabase/migrations/20261012114007_suno_layout_workflows_v105.sql` (메타데이터 UPDATE만, 스키마 변경 없음). 확장 프로그램 없음.
+
+- 구현 커밋 `37ba2e4adccd66d6ac7e4be68c91cd80cd5c7fab`, `origin/master` 푸시 성공.
+- Vercel 프로덕션 `dpl_ABfzGxj6AvjArFvyKY1Xk78iG7Aj`, READY. 배포 메타데이터의 Git SHA가 구현 커밋과 일치합니다. 팀 buylife의 suno-music-studio 프로젝트만 배포했습니다.
+- https://suno-music-studio-4eb7z7bq1-buylife.vercel.app → https://suno-music-studio.buylife.xyz alias 성공. 옛 vercel.app 주소도 유지합니다.
+- DB `programs.version` v1.05와 코드 버전 일치. `extension_version`/`extension_download_url`은 null입니다.
+- 2026-10-12 20:51 KST 운영 HTTP 검사: /login 200, /·/settings 및 7개 메뉴 URL 비로그인 307, generate/search POST와 keys GET/POST 비로그인 401. 모두 private,no-store 및 X-Vercel-Cache MISS. 실제 로그인 HTML이 참조한 JS 8개 모두 200. [운영 검사 결과](assets/live-v105-http.json).
+- 회원 화면의 버전 문자열은 관측하지 않았습니다. 버전 증거는 배포 Git SHA·소스·DB 일치입니다. 실제 회원 AI 호출은 아래 남은 항목으로 유지합니다.
 
 ## 남은 실제 사용 검수
 
