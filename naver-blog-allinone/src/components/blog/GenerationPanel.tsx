@@ -30,11 +30,14 @@ interface Props {
   hideDetails?: boolean;
   /** 기획 세부 조건에서 검색 키워드 칸만 숨긴다(맛집 탭은 SEO 키워드 영역이 따로 있다) */
   hideKeywords?: boolean;
+  /** 특정 주제 칸 문구(기본: 아이디어·키워드 탭 문구) */
+  topicLabel?: string;
+  topicPlaceholder?: string;
 }
 
 const QUICK_LENGTHS = [1000, 1800, 2000, 2500, 3500, 4000];
 
-export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, topic, setTopic, disabled, hideDetails, hideKeywords }: Props) {
+export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, topic, setTopic, disabled, hideDetails, hideKeywords, topicLabel, topicPlaceholder }: Props) {
   const example = getWritingStyleExample(values.tone, values.style);
   const input = "w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
@@ -140,8 +143,8 @@ export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, to
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {setTopic && (
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">특정 주제 (비워두면 페르소나·트렌드로 자동 발굴)</label>
-              <input type="text" value={topic ?? ""} onChange={(e) => setTopic(e.target.value)} disabled={disabled} className={input} placeholder="예: 2026년 최고의 AI 생산성 도구 5가지" />
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">{topicLabel ?? "특정 주제 (비워두면 페르소나·트렌드로 자동 발굴)"}</label>
+              <input type="text" value={topic ?? ""} onChange={(e) => setTopic(e.target.value)} disabled={disabled} className={input} placeholder={topicPlaceholder ?? "예: 2026년 최고의 AI 생산성 도구 5가지"} />
             </div>
           )}
           <div>

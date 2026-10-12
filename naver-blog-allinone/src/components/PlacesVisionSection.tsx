@@ -688,11 +688,12 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         </div>
 
         <GenerationPanel
-          values={{ personaId, targetLength, keywords: "", purpose: purposeText, tone, style }}
+          values={{ personaId, targetLength, keywords: mainKeyword, purpose: purposeText, tone, style }}
           onChange={(patch) => {
             if ("personaId" in patch) setPersonaId(patch.personaId ?? null);
             if (patch.targetLength !== undefined) setTargetLength(patch.targetLength);
             if (patch.purpose !== undefined) setPurposeText(patch.purpose);
+            if (patch.keywords !== undefined) setMainKeyword(patch.keywords);
             if (patch.tone) setTone(patch.tone);
             if (patch.style) setStyle(patch.style);
           }}
@@ -705,7 +706,10 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
             setTone(p.preferredTone);
             void handleGenerateVisionPost(p);
           }}
-          hideKeywords
+          topic={placeName}
+          setTopic={setPlaceName}
+          topicLabel="특정 주제 · 장소명 (방문 정보의 장소명과 같은 값)"
+          topicPlaceholder="예: 성수동 어반플랜트"
           disabled={loading}
         />
 
