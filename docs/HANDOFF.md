@@ -10,7 +10,9 @@
    - 테스트 20개 전원 통과 (Pass 20 / Fail 0), ESLint 0 오류/경고, TypeScript 컴파일 및 프로덕션 빌드 성공.
    - Vercel 프로덕션 배포 완료 (`https://emotion-writer.buylife.xyz`, 배포 ID: `dpl_4mwwRWFMkSuEKAGtnDTJ6eCG2ESj`).
 
-## 2026-10-12 Codex — Suno 음악 기획 스튜디오 v1.01 구현·자동 검수 완료, 운영 접속 설정 승인 대기
+## 2026-10-12 Codex — Suno 음악기획 자동화 v1.01 구현·자동 검수 완료, 운영 접속 설정 승인 대기
+
+주인님이 프로그램명을 **Suno 음악기획 자동화**로 확정했습니다. 화면·로그인·페이지 메타데이터·DB programs.name·인수인계 문서에 일치시켰습니다. 최초 운영 배포 전이므로 v1.01을 유지하며 slug·Vercel 프로젝트·주소는 `suno-music-studio`로 유지합니다. 이름 확정은 기존 환경변수 등록 승인에 해당하지 않으므로 운영 배포는 아래 승인 대기 상태를 유지합니다.
 
 주인님이 https://suno-prompt-manager-six.vercel.app/ 분석 후 AIMaster 구조로 구현 요청. 새 `suno-music-studio/`에서 공용 로그인·권한·개인 AI 키, 흰색 표준 메뉴, 스타일/작사/3~12곡 앨범/검수·보관 흐름, 독립 프리셋·순차 가사·중지·미완성 이어가기·복사/TXT/JSON/사용 안내 구현. 기존 music/참고 사이트 수정 없음. 추천 이름 후보와 원본 대비표는 [분석·계획](../suno-music-studio/docs/ANALYSIS_AND_PLAN.md).
 

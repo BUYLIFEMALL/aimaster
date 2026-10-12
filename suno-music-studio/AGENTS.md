@@ -1,4 +1,6 @@
-# Suno 음악 기획 스튜디오 — 인수인계
+# Suno 음악기획 자동화 — 인수인계
+
+2026-10-12 주인님이 프로그램명을 **Suno 음악기획 자동화**로 확정했습니다. 화면·로그인·메타데이터는 `src/lib/version.ts`의 APP_NAME을 공유하고 DB programs.name도 일치합니다. 최초 운영 배포 전 이름 확정이므로 v1.01을 유지합니다. slug·프로젝트·주소는 `suno-music-studio`를 유지하며, 환경변수 등록 승인 대기 상태는 변경되지 않았습니다.
 
 루트 AGENTS.md·docs/HANDOFF.md·TOP_RULE_PERSONAL_ACCOUNT_API.md·ERROR_LESSONS.md·AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md를 먼저 읽습니다. 현재 v1.01 구현·자동 검수 완료, 새 Vercel 환경변수 등록 승인 대기입니다. 재개 절차는 docs/RELEASE_V1_01.md입니다.
 

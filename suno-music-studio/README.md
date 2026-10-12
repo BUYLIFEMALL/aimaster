@@ -1,6 +1,6 @@
-# Suno 음악 기획 스튜디오 v1.01
+# Suno 음악기획 자동화 v1.01
 
-회원 본인 Gemini·OpenAI·Claude API로 음악 스타일·가사·앨범을 기획하고 Suno에 전달할 자료를 정리하는 AIMaster 서브프로그램입니다. 프로그램명은 주인님 선택 전 추천 이름입니다.
+회원 본인 Gemini·OpenAI·Claude API로 음악 스타일·가사·앨범을 기획하고 Suno에 전달할 자료를 정리하는 AIMaster 서브프로그램입니다. 프로그램명은 2026-10-12 주인님이 **Suno 음악기획 자동화**로 확정했습니다.
 
 npm install / npm test / npm run lint / npm run build / npm run dev
 
