@@ -30,7 +30,7 @@
 
 - 참고(seamless-loop-studio) 분석 후 새로 구현. 브라우저 전용(ffmpeg.wasm), API 키·서버 비용 없음, FREE+new 배지, 핸드폰 확인 포함 접근 판정, 요금제 3단계 등록, DB `programs.version`=v1.02, 도메인 `infinite-loop-video.buylife.xyz` 연결.
 - 순수 함수 테스트 15개 통과, 프로덕션 배포·로그인 후 화면 렌더 확인.
-- **남은 일**: 실제 영상으로 끝에서 끝까지 화면 검수(Chrome 창이 백그라운드라 영상 로딩 불가였음), 썸네일, 밝기 보정·실시간 미리보기(미구현). 상세는 `infinite-loop-video/README.md`.
+- **남은 일**: 실제 영상으로 끝에서 끝까지 화면 검수(Chrome 창이 백그라운드라 영상 로딩 불가였음), 썸네일, 밝기 보정·실시간 미리보기(미구현). 상세는 `infinite-loop-video/AGENTS.md`(인수인계 전체)·`README.md`. 이후 v1.03(업로드 화면 개편)·썸네일 등록 완료.
 
 ## 2026-10-12 Antigravity — AI 바이닐 스튜디오 (vinyl-lp-studio v1.01) 신규 구축 및 프로덕션 배포 완료
 
