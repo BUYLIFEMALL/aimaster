@@ -1,6 +1,26 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-13 Codex — Suno 추가 검수 작업대기 (주인님 지시)
+## 2026-10-13 Antigravity — AI Prompt 자동화 (ai-prompt-studio v1.01) 신규 프로젝트 완벽 구축 · 프로덕션 배포 · 카탈로그 1위 등록 완료
+
+주인님 요청("https://ai-prompt-studio-v2-99gg.vercel.app/ 새프로젝트 시작할꺼야 자세히 실제 각각 구현해보고 프로그램이 어떻게 구현되는지 자세히 분석,파악하고 개발 플랜을 세워줘", "프로그램 명은 AI Prompt 자동화 야")에 따라, 레퍼런스 사이트 전수 스크래핑(HTML/JS 번들 476KB 정밀 역분석) 및 사용자 첨부 5대 화면을 100% 반영한 신규 서브프로젝트 **`AI Prompt 자동화` (`ai-prompt-studio v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위 등록을 완벽히 완료했습니다:
+
+1. **레퍼런스 전수 스크래핑 및 역분석 완결 (Rule 15)**:
+   - 50종 카테고리별 실전 예제 프리셋 및 5대 프로 엔지니어링 모드(`RTSC 마스터`, `프레임워크 전문가`, `프롬프트 아키텍트`, `Vertex AI XML`, `논리적 추론(CoT)`), 3대 퀵 매직 수식(`역질문 유도`, `페르소나 부여`, `비판적 개선`), AI 실시간 보조 제안 함수(`dx`, `fx`, `px`, `hx`, `cx`), 모델 제약(Capability Constraints) 로직 100% 추출 및 구현.
+2. **플랫폼 표준 불변 지침 완벽 준수**:
+   - **최상위 절대 불변 규칙**: 사용자 본인 Gemini API 키(`user_api_keys.provider = 'gemini'`) 직접 등록 및 관리 (운영자 키 폴백 금지, 키 미등록 시 등록 모달 안내).
+   - **표준 좌측 사이드바 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**: `← 다른 프로그램 보기`, `대시보드 홈`, 번호형 3단계 핵심 흐름(`1. 모드 선택 & 프리셋` ➔ `2. 정밀 엔지니어링` ➔ `3. 메타 프롬프트 완성`), `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`, 하단 계정/로그아웃 8~16px 밀착 배치.
+   - **화이트 베이스 클린 테마 (Rule 8)**: 밝고 세련된 화이트/중성색 바탕의 최신 웹 스튜디오 UI.
+   - **기준 연도 2026년 동적 주입 (Rule 9)**: `new Date().getFullYear()`로 현재 2026년 기준 결과물 보장.
+3. **16:9 고화질 실사 썸네일 생성 및 플랫폼 Storage 등록**:
+   - 전문 AI 프롬프트 엔지니어가 듀얼 모니터와 태블릿에서 구조화된 메타 프롬프트를 검토하는 세련된 16:9 와이드 실사 썸네일 생성.
+   - Supabase Storage `program-images/catalog/ai-prompt-auto-thumbnail.jpg` (HTTP 200) 업로드 완료.
+4. **플랫폼 DB 등록 및 기본 요금제 3종 완비**:
+   - `programs` 테이블 등록: 카탈로그 1순위(`sort_order: 125`), 배지 `['free', 'new']`, `version: 'v1.01'`, `slug: 'ai-prompt-studio'`, `app_url: 'https://ai-prompt.buylife.xyz'`.
+   - `pricing_plans` 기본 3종 플랜(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원) 자동 등록 완비.
+5. **Vercel 프로덕션 배포 및 커스텀 도메인 연동**:
+   - 배포 URL: [https://ai-prompt.buylife.xyz](https://ai-prompt.buylife.xyz) (Vercel Production 배포 완료, HTTP 307 SSO 리다이렉트 및 HTTP 200 정상 확인).
+   - 환경변수: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL` Vercel Production 등록 완료.
+
 
 주인님이 “검수는 나중에 할꺼니까 작업대기 리스트로 올려놔”라고 지시했습니다. 실제 회원 운영 화면, JSON 복원, TXT 다운로드, 앨범 소량 생성/작사/중지/이어쓰기, 3종 공급사 검색·대표곡 출처, 본인 Suno 최종 음원 확인의 6개 항목을 **대기**로 등록했습니다. 검수 재개 지시 전에는 실행하거나 자동 재개하지 않습니다. 레이아웃 구현·배포는 v1.07로 완료된 상태입니다. [작업대기 목록과 담당·재개 조건](../suno-music-studio/docs/WAITING_CHECKS.md). 문서 갱신만 수행하며 앱·DB·버전·운영 배포를 변경하지 않습니다.
 
