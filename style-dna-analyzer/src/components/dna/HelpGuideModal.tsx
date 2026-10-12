@@ -59,8 +59,8 @@ export function HelpGuideModal({ isOpen, onClose }: HelpGuideModalProps) {
               <BookOpen className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-slate-900 tracking-tight">스타일 DNA 분석기 v3 도움말 & 가이드</h2>
-              <p className="text-[11px] text-slate-500 font-medium">시각적 DNA 해독 및 프롬프트 재현 프레임워크</p>
+              <h2 className="text-base font-extrabold text-slate-900 tracking-tight">이미지 스타일 분석기 도움말 & 가이드</h2>
+              <p className="text-[11px] text-slate-500 font-medium">시각적 스타일 정밀 분석 및 프롬프트 재현 프레임워크</p>
             </div>
           </div>
           <button
@@ -79,7 +79,7 @@ export function HelpGuideModal({ isOpen, onClose }: HelpGuideModalProps) {
           <div className="rounded-xl bg-violet-50/60 border border-violet-100 p-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-violet-800 mb-1">시스템 개요</h3>
             <p className="text-xs leading-relaxed text-slate-700">
-              스타일 DNA 분석기는 AI를 사용하여 이미지의 시각적 요소를 정밀하게 해독하고, 이를 재현 가능한 프레임워크로 변환하는 전문 도구입니다. 복잡한 스타일, 조명, 구도, 카메라 설정을 수치화하여 자신만의 독창적인 생성 이미지를 만들 수 있도록 돕습니다.
+              이미지 스타일 분석기는 AI를 사용하여 이미지의 시각적 요소를 정밀하게 분석하고, 이를 재현 가능한 프롬프트 프레임워크로 변환하는 전문 도구입니다. 복잡한 스타일, 조명, 구도, 카메라 설정을 수치화하여 자신만의 독창적인 생성 이미지를 만들 수 있도록 돕습니다.
             </p>
           </div>
 

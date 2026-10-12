@@ -43,7 +43,7 @@ function LoginCard() {
         </div>
         <h1 className="text-xl font-bold text-gray-900">{APP_NAME}</h1>
         <p className="text-xs text-gray-500 mt-1">
-          AIMaster 계정으로 로그인하여 이미지 스타일 DNA를 분석하세요
+          AIMaster 계정으로 로그인하여 이미지 스타일을 정밀 분석하고 프롬프트를 추출하세요
         </p>
       </div>
 

@@ -104,6 +104,26 @@
      - `StudioReportView.tsx`: 흰색 카드, 듀얼 타이틀 `EN: ...` (`text-cyan-700 font-black`), `KR: ...` (`text-slate-900 font-extrabold`), 청사진/분석 박스 `bg-slate-50/70 text-slate-800`, 프로의 팁 `bg-amber-50/40 border-amber-200/70 text-slate-800`, 마스터 프롬프트 박스는 코드 복사 시인성을 위해 선명한 다크 모노 박스(`bg-slate-950 text-slate-100`) 유지.
 - **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료 (HTTP 200 정상 확인).
 
+## 6-6. v1.07 (2026-10-12) 프로그램명 '이미지 스타일 분석기' 변경, V3 PRO STUDIO 제거 및 타이틀 HTML 정제
+- 주인님 요청:
+  1. 프로그램 이름을 `이미지 스타일 분석기`로 변경 및 연관 텍스트 일괄 수정.
+  2. `v3 PROSTUEIO` 불필요하므로 완전 삭제.
+  3. 기능에 맞는 자연스러운 용어 추천 요청.
+- 주요 변경사항:
+  1. **프로그램명 및 브랜딩 일괄 갱신**:
+     - `src/lib/version.ts`: `APP_NAME = "이미지 스타일 분석기"`, `APP_VERSION = "v1.07"`.
+     - `package.json`: `1.07.0`.
+     - `analyze/page.tsx`: 상단 헤더의 `스타일 DNA 분석기 V3` 및 `PRO STUDIO` 뱃지 완전 삭제 ➔ 깔끔한 `이미지 스타일 분석기` 단독 타이틀로 변경. 부제목도 "이미지 한 장으로 카메라·조명·팔레트·스타일을 정밀 분석하여 마스터 프롬프트를 추출합니다"로 개선.
+     - `src/app/layout.tsx`: 메타데이터 타이틀 `이미지 스타일 분석기 - AIMaster`로 변경.
+     - `src/app/(auth)/login/page.tsx`: 로그인 화면 설명 문구 "이미지 스타일을 정밀 분석하고 프롬프트를 추출하세요"로 갱신.
+     - `src/components/dna/HelpGuideModal.tsx`: 모달 제목 `이미지 스타일 분석기 도움말 & 가이드`로 변경 및 본문 개요 정비.
+     - 공용 Supabase DB `programs` 테이블: `name = '이미지 스타일 분석기'`, `short_desc`, `version = 'v1.07'` 실시간 동기화 완료 (`scripts/apply_style_dna_v107.mjs`).
+     - 마이그레이션 SQL: `supabase/migrations/20261012082200_v1_07_rename_image_style_analyzer.sql`.
+  2. **리포트 뷰어 타이틀 HTML 태그 정제 (`StudioReportView.tsx`)**:
+     - AI 분석 결과의 `symbolicTitle`에 `<STRONG>`, `<BR>` 등 원시 HTML 태그가 그대로 노출되던 결함 발견 및 수정.
+     - `cleanTitle` 헬퍼 함수를 통해 모든 HTML 태그를 정제하고, `EN:`과 `KR:` 타이틀을 안전하게 분리하여 깔끔한 타이틀로 렌더링하도록 개선.
+- **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료.
+
 ## 7. 알려진 한계·다음 작업
 - 일반 회원 검수 완료(2026-10-11, 실제 Chrome에서 `buylifemall@naver.com` 로그인): 사용기간(검수용 2026-11-10까지)을 부여한 뒤 보관함이 비어 보임(관리자 분석이 안 보임 = 회원별 분리), 1단계 업로드→분석 시작→본인 Gemini 키로 분석 완료(결과·팔레트·DNA 표시). 검수용 사용기간과 이 계정의 분석 1건은 남아 있다(필요 시 정리).
 - 전용 카탈로그 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/style-dna-analyzer-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 주인님 요청으로 관리자 키 사용·1회 생성, 마이그레이션 `0003_thumbnail.sql`).

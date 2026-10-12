@@ -33,6 +33,16 @@ function SectionContent({ html, fallback }: { html?: string; fallback: Fact[] })
   );
 }
 
+function cleanTitle(val?: string): string {
+  if (!val) return "";
+  return val
+    .replace(/<[^>]+>/g, " ")
+    .replace(/^EN\s*:\s*/i, "")
+    .replace(/^KR\s*:\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /**
  * 원본 스크린샷 1:1 매칭:
  * - EN/KR 볼드 이탤릭 타이틀
@@ -48,6 +58,22 @@ export function StudioReportView({ record, isDark = false }: StudioReportViewPro
   const innerBoxBg = isDark ? "bg-[#080d1e]/80 border-slate-800/60" : "bg-slate-50/70 border-slate-200/90";
   const promptBoxBg = "bg-slate-950 border-slate-800 text-slate-100";
 
+  // HTML 태그 정제 및 듀얼 타이틀 안전 분리
+  let parsedEn = cleanTitle(r.titleEn);
+  let parsedKo = cleanTitle(r.titleKo);
+
+  if (r.symbolicTitle) {
+    const raw = r.symbolicTitle;
+    const enMatch = raw.match(/(?:<strong>)?\s*EN\s*(?:<\/strong>)?\s*:\s*([^<]+)/i);
+    const krMatch = raw.match(/(?:<strong>)?\s*KR\s*(?:<\/strong>)?\s*:\s*([^<]+)/i);
+    if (enMatch && enMatch[1]) parsedEn = cleanTitle(enMatch[1]);
+    if (krMatch && krMatch[1]) parsedKo = cleanTitle(krMatch[1]);
+    if (!parsedEn) parsedEn = cleanTitle(raw);
+  }
+
+  const finalEn = parsedEn || cleanTitle(record.title) || "STYLE BLUEPRINT";
+  const finalKo = parsedKo || cleanTitle(record.title) || "스타일 블루프린트";
+
   return (
     <div className={`rounded-xl border p-5 transition-colors space-y-5 ${cardBg}`}>
       {/* 1. 볼드 타이틀 영역 */}
@@ -59,10 +85,10 @@ export function StudioReportView({ record, isDark = false }: StudioReportViewPro
               isDark ? "text-cyan-400" : "text-cyan-700"
             }`}
           >
-            EN: {r.symbolicTitle || r.titleEn || record.title}
+            EN: {finalEn}
           </h1>
           <h2 className={`text-base sm:text-lg font-bold italic tracking-normal mt-0.5 ${isDark ? "text-slate-200" : "text-slate-900"}`}>
-            KR: {r.titleKo || record.title}
+            KR: {finalKo}
           </h2>
         </div>
       </div>

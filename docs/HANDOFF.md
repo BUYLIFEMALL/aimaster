@@ -1,5 +1,31 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 이미지 스타일 분석기 (style-dna-analyzer v1.07) 프로그램명 변경, V3 PRO STUDIO 제거 및 타이틀 HTML 정제 배포 완료
+
+주인님 요청("프로그램 이름을 이미지 스타일 분석기로 바꿔줘고 관련된 텍스트도 같이 찾아서 바꿔줘 v3 PROSTUEIO 필요 없으니 삭제해줘")에 따라, 프로그램 명칭을 공식 변경하고 헤더 및 리포트 타이틀 버그를 완벽히 수정하여 실서버에 배포 완료했습니다:
+
+1. **프로그램명 및 브랜딩 일괄 갱신**:
+   - `src/lib/version.ts`: `APP_NAME = "이미지 스타일 분석기"`, `APP_VERSION = "v1.07"`.
+   - `package.json`: `1.07.0`.
+   - `analyze/page.tsx`: 헤더에서 `스타일 DNA 분석기 V3` 및 `PRO STUDIO` 뱃지 완전 삭제 ➔ 깔끔한 `이미지 스타일 분석기` 단독 타이틀 적용. 부제목 "이미지 한 장으로 카메라·조명·팔레트·스타일을 정밀 분석하여 마스터 프롬프트를 추출합니다"로 개선.
+   - `src/app/layout.tsx`: 메타데이터 타이틀 `이미지 스타일 분석기 - AIMaster`로 변경.
+   - `src/app/(auth)/login/page.tsx`: 로그인 화면 설명 "AIMaster 계정으로 로그인하여 이미지 스타일을 정밀 분석하고 프롬프트를 추출하세요"로 갱신.
+   - `src/components/dna/HelpGuideModal.tsx`: 모달 제목 `이미지 스타일 분석기 도움말 & 가이드`로 변경 및 시스템 개요 정비.
+   - 공용 Supabase DB `programs`: `name = '이미지 스타일 분석기'`, `short_desc`, `version = 'v1.07'` 실시간 동기화 완료 (`scripts/apply_style_dna_v107.mjs`).
+   - 마이그레이션 SQL: `supabase/migrations/20261012082200_v1_07_rename_image_style_analyzer.sql`.
+
+2. **리포트 뷰어 타이틀 HTML 태그 정제 및 듀얼 언어 분리 (`StudioReportView.tsx`)**:
+   - AI 분석 결과의 `symbolicTitle`에 `<STRONG>`, `<BR>` 등 원시 HTML 태그가 화면에 그대로 노출되던 결함 수정.
+   - `cleanTitle` 헬퍼 함수를 적용하여 모든 HTML 태그를 정제하고, `EN:`과 `KR:` 타이틀을 안전하게 분리 추출하여 깨끗하게 렌더링되도록 구현.
+
+3. **검수 및 배포 결과**:
+   - `npm test`: 23개 테스트 100% 통과 (Pass 23 / Fail 0).
+   - `npm run lint`: 0 error / 0 warning 통과.
+   - `npm run build`: Next.js Turbopack 프로덕션 빌드 성공.
+   - Vercel 프로덕션 배포 완료: [https://style-dna-analyzer.buylife.xyz](https://style-dna-analyzer.buylife.xyz) (HTTP 200 정상 확인).
+
+---
+
 ## 2026-10-12 Antigravity — 스타일 DNA 분석기 (style-dna-analyzer v1.06) 플랫폼 표준 흰색 베이스(Clean White Theme) 기본 적용 및 고가독성 개편 배포 완료
 
 주인님 요청("https://style-dna-analyzer.buylife.xyz/analyze 배경색을 흰색 베이스로 가독성있게 다시 디자인 잡아줘" 및 핵심 원칙 8번 흰색 베이스 표준 준수)에 따라, 3단 스튜디오 레이아웃과 위아래 왕복 스캔 애니메이션은 100% 유지하면서 전체 테마를 깨끗하고 시인성이 뛰어난 **클린 화이트(White Base) 테마**로 전면 개편하고 실서버에 배포 완료했습니다:

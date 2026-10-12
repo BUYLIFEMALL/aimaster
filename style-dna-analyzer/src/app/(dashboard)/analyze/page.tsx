@@ -146,15 +146,12 @@ export default function AnalyzePage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black tracking-wider uppercase text-slate-900">
-                스타일 DNA 분석기 <span className="text-cyan-600">V3</span>
+              <h1 className={`text-base sm:text-lg font-black tracking-wide ${isDark ? "text-slate-100" : "text-slate-900"}`}>
+                이미지 스타일 분석기
               </h1>
-              <span className={`rounded-full px-2.5 py-0.5 text-[10.5px] font-mono font-bold border ${isDark ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/30" : "bg-cyan-50 text-cyan-700 border-cyan-200"}`}>
-                PRO STUDIO
-              </span>
             </div>
             <p className="text-[11px] text-slate-500">
-              이미지 한 장으로 카메라·조명·팔레트·스타일 유전자를 100% 해독하는 차세대 생성 프레임워크
+              이미지 한 장으로 카메라·조명·팔레트·스타일을 정밀 분석하여 마스터 프롬프트를 추출합니다
             </p>
           </div>
         </div>
