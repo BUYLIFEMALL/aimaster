@@ -1,5 +1,38 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 신규 프로그램 eBook Studio (ebook-studio v1.01) 웹/HTML 전자책 제작 & 배포 스튜디오 신규 출시 완료
+
+주인님 요청("새로운 프로젝트 추가 하자 웹배포 전자책 만들기 인데 이건 먼거 니가 구현 가능한지 면밀히 검토해봐", "영어명 ebook Stueio 로 하자 한글명도 eBook Studio")에 따라 레퍼런스(Folio) 분석부터 3-Column 스튜디오 UI, 4단계 올인원 워크플로우, 21종 테마·5종 서체·AI 표지, 멀티 포맷 배포(단일 HTML, Vercel Drop ZIP, EPUB, PDF 인쇄), Supabase DB 등록 및 프로덕션 배포까지 원스톱으로 완결 구축했습니다.
+- **프로그램 개요**:
+  - 프로그램명: `eBook Studio` (한글명: `eBook Studio`, 영문명: `eBook Studio`)
+  - 슬러그: `ebook-studio`
+  - 버전: `v1.01`
+  - 공식 주소: `https://ebook-studio.buylife.xyz` (보조 간결 주소: `https://ebook.buylife.xyz`)
+  - Vercel 프로젝트: `buylife/ebook-studio` (`https://ebook-studio-buylife.vercel.app`)
+  - 카테고리: `멀티미디어` (`multimedia`), 배지: `["new", "free"]` (가입 회원 누구나 무료 이용)
+- **핵심 4단계 워크플로우 (3-Column Layout, 흰색 베이스 클린 UI)**:
+  - **Step 1 (자료 수집 & 기획)**: 흩어진 메모, 강의록, 기획서 입력 및 파일(TXT/MD) 업로드, 샘플 프리셋 2종 탑재, 3대 정리 모드(맥락과 사례까지 충실하게 / 중요한 내용만 간결하게 / 낱말은 그대로 서식만 다시), 당해 연도(2026년) 기준 트렌드 반영 10~15개 장(Chapter) 목차 자동 설계.
+  - **Step 2 (목차 & 챕터 집필)**: 챕터별 원고 작성 및 인라인 위지윅 편집기, 소제목/핵심 인사이트/생각하고 실천하기 질문 관리, 단일 챕터 AI 집필 및 전체 챕터 순차 일괄 집필 지원.
+  - **Step 3 (디자인 & 표지)**: 21종 독서 테마(밝은 계열 12, 어두운 계열 8, 고대비 1), 5종 한글 서체(본고딕, 본명조, 리디바탕, 마루부리, 페이퍼로지), 지면 꾸밈(클래식/스튜디오), 줄간격 & 글자 크기 실시간 조절, AI 3:4 규격 맞춤 표지 생성 및 직접 이미지 업로드.
+  - **Step 4 (배포 & 내보내기)**:
+    - **독립형 단일 HTML 다운로드**: 외부 의존성 없이 단 하나의 `.html` 파일 안에 본문, 21종 테마 스위치, 폰트 조절, 실시간 검색, 목차가 완결 번들링되어 더블 클릭만으로 오프라인 즉시 열람.
+    - **웹 배포용 ZIP 다운로드**: Vercel Drop(`vercel.com/new/drop`)에 올리면 3초 만에 나만의 전용 웹 도메인 전자책 사이트 구축.
+    - **표준 EPUB 다운로드**: 전자책 리더기 호환 규격 파일 생성.
+    - **인쇄 / 책 규격 PDF 저장**: 챕터별 자동 페이지 나눔(`@media print`) 최적화.
+    - **프로젝트 JSON 백업 & 복원**.
+  - **실시간 반응형 뷰어**: 우측 패널에 다운로드될 결과물과 100% 동일한 뷰어를 모바일(375px)/태블릿(768px)/데스크톱 규격으로 실시간 동기화.
+- **AIMaster 최상위 불변 규칙 준수**:
+  - 회원 본인의 Google Gemini API 키 브라우저 격리 보관 및 계정 동기화 엔드포인트 (`/api/user/key`).
+  - 생성된 HTML 및 배포 파일 내에 API 키 일절 미포함 (외부 공개 안전).
+  - 회원 인증 및 권한 게이트 (`requireProgramAccess`, 비로그인 시 메인 SSO 로그인 `https://buylife.xyz/login` 자동 리다이렉트).
+  - 좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 Sidebar: 1~4 스텝퍼 배지 & 세로선, ← 다른 프로그램 보기, 세션 통계 카드, 새 전자책 만들기, 🔑 API키등록, 사용자 이메일 & 로그아웃).
+- **DB 및 배포 결과**:
+  - DB `programs` 테이블 정식 등록 완료 (`id: 3972de5b-8adf-4f56-bac0-4cdbb0e7acdc`, `sort_order: 120`).
+  - 표준 요금제 3종 등록 완료 (`pricing_plans`: 1개월/2개월/3개월).
+  - 카탈로그 전용 16:9 실사 썸네일 생성 및 등록 완료: `image-generator` 서브에이전트로 모던 스튜디오에서 디지털 책을 집필하는 한국인 작가 실사 생성 ➔ Supabase Storage `program-images/catalog/ebook-studio-thumbnail.jpg` 업로드 및 DB 갱신 완료.
+  - Vercel 프로덕션 배포 완료 (`https://ebook-studio-buylife.vercel.app`), 도메인 연동 완료 (`https://ebook-studio.buylife.xyz`, `https://ebook.buylife.xyz`), HTTP 307 SSO 게이트 라이브 검증 완료.
+- **검증**: `npm run build` 100% 성공 (Turbopack, Next.js 16.2.11).
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.28) 맛집 탭을 아이디어 탭 구조로 재정렬
 
 주인님 화면 캡처 기준으로 맛집/카페/여행 탭의 카테고리 위치(맨 위)·글 생성 설정(기획 세부 조건·즉시 생성)·하늘색 박스(컬러 테마 왼쪽/고급 옵션 오른쪽)를 아이디어 탭과 같게 정리했습니다. 확장 ZIP·DB v1.28.
