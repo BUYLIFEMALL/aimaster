@@ -170,6 +170,23 @@
   6. **버전 및 DB 동기화**: `src/lib/version.ts`: `v1.10`, `package.json`: `1.10.0`, DB `programs.version = 'v1.10'`, 마이그레이션 `0022_bump_style_dna_analyzer_v110.sql`.
 - **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료.
 
+## 6-10. v1.12 (2026-10-12) 써클 도넛 꽉 찬 색상 채움, 동적 색상 바(점선 박스 제거) 및 원형 컬러 스와치 입체화
+- 주인님 요청: "위에 바에는 색상바로 칠해주고 그위 대기중쪽의 써클도 색상채워주고 분석된 색상코드값으로 구현해줄수 없나?".
+- 개선 내역:
+  1. **상단 써클 도넛 차트 (`StudioPalette.tsx`)**:
+     - 원본 스튜디오 SVG 규격(`viewBox="0 0 32 32"`, `r="12"`, `strokeWidth="4.8"`) 1:1 적용.
+     - 중앙 라벨의 '대기 중' 문구를 제거하고 상단 **`미학적`** / 하단 **`컬러`**로 영구 고정 표기.
+     - 분석된 색상 세그먼트들이 트랙을 빈틈없이 꽉 채워 선명한 원형 컬러 링으로 표현되도록 구현.
+  2. **중간 바 점선 빈 박스 완전 제거 및 분석된 색상 100% 꽉 찬 분할 바 (`StudioPalette.tsx`)**:
+     - 기존의 점선 빈 박스를 제거하고, 분석된 색상 개수에 맞추어 바 영역 전체를 꽉 채우도록 동적 그리드 컬럼(`gridTemplateColumns: repeat(N, minmax(0, 1fr))`) 적용.
+     - 각 블록에 입체 음영(`boxShadow`, `inset 0 0 0 1px`)을 주어 흰색(#FFFFFF) 계열도 선명한 색상 바로 렌더링.
+  3. **하단 목록 원형 스와치 입체화 (`StudioPalette.tsx`)**:
+     - `#FFFFFF` 등 밝은 색상이 흰색 배경에서 빈 원으로 보이던 문제를 이중 링(`ring-1 ring-black/10` + `border border-black/15`)과 입체 그림자로 해결하여 단단하게 채워진 원형 컬러 스와치로 구현.
+  4. **초기 5대 미학적 시그니처 컬러 연동 (`analyze/page.tsx`)**:
+     - 대기 상태에서도 칙칙한 흑백 대신 5대 미학적 시그니처 유채색(#06B6D4, #3B82F6, #8B5CF6, #EC4899, #F59E0B)을 적용해 항상 선명하고 가득 찬 색상 바로 보이도록 개선.
+  5. **버전 및 DB 동기화**: `src/lib/version.ts`: `v1.12`, `package.json`: `1.12.0`, DB `programs.version = 'v1.12'`, 마이그레이션 `0024_bump_style_dna_analyzer_v112.sql`.
+- **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료.
+
 ## 7. 알려진 한계·다음 작업
 - 일반 회원 검수 완료(2026-10-11, 실제 Chrome에서 `buylifemall@naver.com` 로그인): 사용기간(검수용 2026-11-10까지)을 부여한 뒤 보관함이 비어 보임(관리자 분석이 안 보임 = 회원별 분리), 1단계 업로드→분석 시작→본인 Gemini 키로 분석 완료(결과·팔레트·DNA 표시). 검수용 사용기간과 이 계정의 분석 1건은 남아 있다(필요 시 정리).
 - 전용 카탈로그 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/style-dna-analyzer-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 주인님 요청으로 관리자 키 사용·1회 생성, 마이그레이션 `0003_thumbnail.sql`).

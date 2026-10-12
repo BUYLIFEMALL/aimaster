@@ -1,0 +1,41 @@
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
+
+const envPath = path.resolve("D:/Antigravity/AIMaster/style-dna-analyzer/.env.local");
+const envContent = fs.readFileSync(envPath, "utf-8");
+
+const env = {};
+for (const line of envContent.split("\n")) {
+  const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+  if (match) {
+    let value = match[2] || "";
+    if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+    env[match[1]] = value.trim();
+  }
+}
+
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = createClient(supabaseUrl, serviceKey);
+
+async function run() {
+  const { data, error } = await supabase
+    .from("programs")
+    .update({
+      version: "v1.11",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("slug", "style-dna-analyzer")
+    .select();
+
+  if (error) {
+    console.error("Update error:", error);
+    process.exit(1);
+  }
+
+  console.log("Updated programs.version to v1.11 successfully:", data?.[0]?.version);
+}
+
+run();

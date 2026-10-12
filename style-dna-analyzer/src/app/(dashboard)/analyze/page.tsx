@@ -32,10 +32,12 @@ import { StudioCameraLighting } from "@/components/dna/StudioCameraLighting";
 import { StudioReportView } from "@/components/dna/StudioReportView";
 import { EnginePicker, ErrorNote } from "@/components/dna/ui";
 
-const MOCK_PALETTE = [
-  { hex: "#FFFFFF", percent: 55.5 },
-  { hex: "#1A1A1A", percent: 35.2 },
-  { hex: "#333333", percent: 9.3 },
+const MOCK_PALETTE: PaletteColor[] = [
+  { hex: "#06B6D4", percent: 35 }, // 시안 (Cyan)
+  { hex: "#3B82F6", percent: 25 }, // 블루 (Blue)
+  { hex: "#8B5CF6", percent: 20 }, // 바이올렛 (Violet)
+  { hex: "#EC4899", percent: 12 }, // 핑크 (Pink)
+  { hex: "#F59E0B", percent: 8 },  // 앰버 (Amber)
 ];
 
 const MOCK_DNA_BARS = [
@@ -100,6 +102,7 @@ export default function AnalyzePage() {
   const pick = async (file: File | undefined) => {
     if (!file) return;
     setError(null);
+    setRecord(null); // 새 이미지를 선택하면 이전 분석 결과를 리셋해 새 이미지 색상이 즉시 노출되도록 보장
     try {
       const resized = await fileToResizedDataUrl(file);
       setImage(resized);
@@ -514,7 +517,6 @@ export default function AnalyzePage() {
           {/* 카드 1: 미학적 팔레트 */}
           <StudioPalette
             palette={currentPalette}
-            dominantName={record || imagePalette ? "미학적\n컬러" : "대기 중"}
             isDark={isDark}
           />
 
