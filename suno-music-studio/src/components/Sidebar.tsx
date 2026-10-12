@@ -6,40 +6,33 @@ import {
   Music2,
   LayoutDashboard,
   SlidersHorizontal,
-  PenLine,
   Disc3,
   FolderHeart,
   KeyRound,
   BookOpen,
   Menu,
   LogOut,
+  Search,
+  Library,
+  AudioLines,
+  ExternalLink,
 } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 export const STEPS = [
-  {
-    id: "style",
-    name: "스타일 선택",
-    desc: "프리셋·태그·댄스 그루브",
-    icon: SlidersHorizontal,
-  },
-  {
-    id: "song",
-    name: "작사·곡 기획",
-    desc: "제목·Style·가사 준비",
-    icon: PenLine,
-  },
-  { id: "album", name: "앨범 구성", desc: "흐름 설계·곡별 작사", icon: Disc3 },
-  {
-    id: "saved",
-    name: "검수·보관함",
-    desc: "확인·복사·백업·전달",
-    icon: FolderHeart,
-  },
+  { id: "builder", name: "빌더", icon: SlidersHorizontal, badge: "" },
+  { id: "album", name: "앨범", icon: Disc3, badge: "3~12" },
+  { id: "presets", name: "프리셋", icon: Library, badge: "461" },
+  { id: "search", name: "검색", icon: Search, badge: "AI" },
+  { id: "dance", name: "댄스 머신", icon: AudioLines, badge: "200" },
+  { id: "guide", name: "가이드", icon: BookOpen, badge: "93" },
+  { id: "saved", name: "저장됨", icon: FolderHeart, badge: "" },
 ];
 export function Sidebar({ email }: { email: string }) {
-  const path = usePathname();
-  const section = useSearchParams().get("section") || "style";
+  const path = usePathname(),
+    raw = useSearchParams().get("section") || "builder";
+  const section =
+    raw === "style" ? "presets" : raw === "song" ? "builder" : raw;
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -74,37 +67,45 @@ export function Sidebar({ email }: { email: string }) {
           ← 다른 프로그램 보기
         </a>
         <nav aria-label="작업 메뉴" onClick={() => setOpen(false)}>
-          <Link className="nav-item" href="/">
+          <Link
+            className={`nav-item ${section === "dashboard" ? "active" : ""}`}
+            href="/?section=dashboard"
+          >
             <LayoutDashboard size={18} />
             대시보드
           </Link>
-          <p className="nav-caption">작업 흐름</p>
-          {STEPS.map((s, i) => (
+          <p className="nav-caption">음악 작업</p>
+          {STEPS.map((s) => (
             <Link
               key={s.id}
               href={`/?section=${s.id}`}
               aria-current={
                 path === "/" && section === s.id ? "page" : undefined
               }
-              className={`flow-item ${path === "/" && section === s.id ? "active" : ""}`}
+              className={`nav-item studio-menu ${path === "/" && section === s.id ? "active" : ""}`}
             >
-              <span className="step-number">{i + 1}</span>
-              <s.icon size={17} />
-              <span>
-                <strong>{s.name}</strong>
-                <small>{s.desc}</small>
-              </span>
+              <s.icon size={18} />
+              <span>{s.name}</span>
+              {s.badge && <small className="menu-count">{s.badge}</small>}
             </Link>
           ))}
           <div className="nav-divider" />
-          <Link className="nav-item" href="/settings">
+          <Link
+            className={`nav-item ${path === "/settings" ? "active" : ""}`}
+            href="/settings"
+          >
             <KeyRound size={18} />
             API키등록·플랫폼연동
           </Link>
-          <Link className="nav-item" href="/?section=guide">
-            <BookOpen size={18} />
-            연동 & 사용 매뉴얼
-          </Link>
+          <a
+            className="nav-item"
+            href="https://suno.com/create"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink size={18} />
+            Suno 열기
+          </a>
         </nav>
         <footer className="sidebar-account">
           <small>{email}</small>

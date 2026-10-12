@@ -144,10 +144,20 @@ export function validateTrack(
 ): Track {
   const t = record(raw);
   const style = text(t.style, "Style", 1000, draft);
+  for (const key of ["voice", "rapVoice"] as const) {
+    if (
+      t[key] !== undefined &&
+      t[key] !== "" &&
+      !VOICES.some((v) => v === t[key])
+    )
+      throw new AppError("곡별 보컬 설정이 올바르지 않습니다.");
+  }
   if (!draft && styleIssues(style).length)
     throw new AppError(styleIssues(style).join(" "));
   return {
     id: text(t.id ?? "generated", "곡 ID", 100),
+    ...(t.voice !== undefined ? { voice: String(t.voice) } : {}),
+    ...(t.rapVoice !== undefined ? { rapVoice: String(t.rapVoice) } : {}),
     title: text(t.title, "제목", 80, draft),
     summary: text(t.summary, "설명", 700, draft),
     style,
@@ -209,6 +219,16 @@ export function parseGenerated(
 }
 function validateDraft(raw: unknown): Draft {
   const d = record(raw);
+  let dance: Draft["dance"];
+  if (d.dance !== undefined) {
+    const item = record(d.dance);
+    if (!Array.isArray(item.tags) || item.tags.length > 100)
+      throw new AppError("댄스 조합 태그는 100개 이내로 보관해 주세요.");
+    dance = {
+      seed: validateBrief(item.seed, false),
+      tags: [...new Set(item.tags.map((t) => text(t, "댄스 태그", 160)))],
+    };
+  }
   const brief = validateBrief(d.brief, false);
   let album: Album | null = null;
   if (d.album !== null) {
@@ -226,6 +246,10 @@ function validateDraft(raw: unknown): Draft {
   }
   return {
     brief,
+    ...(dance ? { dance } : {}),
+    ...(d.albumBrief !== undefined
+      ? { albumBrief: validateBrief(d.albumBrief, false) }
+      : {}),
     song: d.song === null ? null : validateTrack(d.song, false, true),
     album,
   };

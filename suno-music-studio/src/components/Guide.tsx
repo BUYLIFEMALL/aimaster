@@ -1,162 +1,269 @@
+"use client";
+import { useState } from "react";
 import Link from "next/link";
-export function Guide() {
+import chapters from "@/lib/studio/guide-metadata.json";
+import {
+  STYLE_PALETTE,
+  SECTION_TAGS,
+  LIBRARY,
+  joinTags,
+} from "@/lib/studio/catalog";
+import { type Brief } from "@/lib/studio/config";
+import { UsageGuide } from "./UsageGuide";
+const BASICS = [
+  [
+    "구조 태그",
+    "Lyrics",
+    "구간 제목은 가사의 시작·후렴·전환·마무리를 구분합니다. 구간 버튼은 빌더의 커서 위치에 삽입합니다.",
+  ],
+  [
+    "장르 태그",
+    "Style",
+    "장르는 기본 음악 방향입니다. 중심 장르 1~2개를 고르고 상충하는 속성은 줄이세요.",
+  ],
+  [
+    "템포 태그",
+    "Style",
+    "BPM은 분당 박자 수입니다. BPM 설정과 직접 입력한 태그의 숫자가 일치하는지 확인하세요.",
+  ],
+  [
+    "보컬 태그",
+    "Style",
+    "성별·편성·음역·전달 방식을 정합니다. 특정 가수 이름 대신 음악 속성을 사용합니다.",
+  ],
+  ["악기 태그", "Style", "핵심 악기와 반주를 구분하면 편성이 선명해집니다."],
+  [
+    "분위기·에너지",
+    "Style",
+    "감정과 밀도·강약을 정합니다. 앨범에서는 서로 다른 무드를 함께 선택할 수 있습니다.",
+  ],
+  [
+    "음향 효과",
+    "Style",
+    "공간감·잔향·질감은 편성 뒤에 더하는 제작 속성입니다.",
+  ],
+  [
+    "가사 프롬프트",
+    "Lyrics",
+    "꼭 반영할 내용에 화자·장면·결말을 구체적으로 적고 기존 곡 가사는 붙여 넣지 마세요.",
+  ],
+  ["음악 구조", "Lyrics", "후렴 선행·점층·댄스 드롭 등 곡 흐름을 선택합니다."],
+  [
+    "작성·검수",
+    "Style / Lyrics",
+    "AI 출력은 직접 검수해야 합니다. 잠긴 Style과 미선택 생성 항목은 유지됩니다.",
+  ],
+  [
+    "Style과 Lyrics 구분",
+    "Style / Lyrics",
+    "음악 속성은 Style, 가사와 구간 제목은 Lyrics에 입력합니다.",
+  ],
+];
+export function Guide({
+  brief,
+  onChange,
+  busy = false,
+  notice,
+}: {
+  brief?: Brief;
+  onChange?: (b: Brief) => void;
+  busy?: boolean;
+  notice?: (s: string) => void;
+}) {
+  const [selected, setSelected] = useState("help"),
+    [query, setQuery] = useState("");
+  const [tagPage, setTagPage] = useState(0);
+  const [tagQuery, setTagQuery] = useState("");
+  const ch = chapters.find((c) => c.id === selected);
+  const number = Number(selected.replace(/\D/g, ""));
+  const basics = BASICS[number - 1];
+  const category =
+    number === 2
+      ? "장르"
+      : number === 3
+        ? "템포"
+        : number === 4
+          ? "보컬"
+          : number === 5
+            ? "악기"
+            : number === 6
+              ? "분위기"
+              : number === 7
+                ? "이펙트·텍스처"
+                : "구조·드롭";
+  const match = ch
+    ? LIBRARY.filter(
+        (p) =>
+          p.type !== "dance" &&
+          p.group
+            .toLowerCase()
+            .includes(ch.title.split("(")[0].trim().toLowerCase()),
+      ).slice(0, 12)
+    : [];
+  const tags =
+    number === 1 || number === 9
+      ? SECTION_TAGS.map((t) => `[${t}]`)
+      : number <= 7
+        ? STYLE_PALETTE[category] || []
+        : match.flatMap((p) => [p.genre, p.instruments]).slice(0, 24);
+  const filteredTags = [...new Set(tags)].filter((t) =>
+    t.toLowerCase().includes(tagQuery.toLowerCase()),
+  );
   return (
-    <div className="guide-list">
-      <section className="card">
-        <h2>처음 사용한다면</h2>
-        <ol>
-          <li>
-            <Link href="/settings">API키등록·플랫폼연동</Link>에서 사용할 AI의
-            본인 키를 등록합니다. 기존 AIMaster에 등록한 키가 있으면 재등록 없이
-            사용할 수 있습니다.
-          </li>
-          <li>
-            스타일 선택에서 음악 분류 → 시대 → 스타일 그룹 → 프리셋 순으로 좁혀
-            고릅니다. 프리셋 461개와 댄스 200개를 검색할 수 있습니다. 미리보기
-            확인 후 ‘기준 Style로 적용’을 누릅니다.
-          </li>
-          <li>
-            작사·곡 기획에서 주제와 꼭 반영할 내용을 입력합니다. 한·영 비율,
-            보컬·랩 비율과 구조를 정한 뒤 생성할 항목(제목·Style·가사)을
-            선택합니다. 선택하지 않은 항목은 그대로 유지합니다.
-          </li>
-          <li>
-            제목·Style·가사를 직접 수정하고 ‘최종 가사·스타일 수정 및 확인
-            완료’를 체크합니다.
-          </li>
-          <li>
-            제목·Style·가사를 각각 복사하여 본인 Suno 계정의 Custom 모드에 붙여
-            넣습니다. 파일 저장과 JSON 백업도 가능합니다.
-          </li>
-        </ol>
+    <div className="guide-layout">
+      <section className="card guide-index">
+        <h2>챕터 인덱스 (93)</h2>
+        <input
+          aria-label="가이드 목차 검색"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="목차 검색"
+        />
+        <button
+          className={selected === "help" ? "selected" : ""}
+          onClick={() => setSelected("help")}
+        >
+          연동·사용 방법
+        </button>
+        {chapters
+          .filter((c) =>
+            (c.title + c.group + c.id)
+              .toLowerCase()
+              .includes(query.toLowerCase()),
+          )
+          .map((c) => (
+            <button
+              key={c.id}
+              className={selected === c.id ? "selected" : ""}
+              aria-pressed={selected === c.id}
+              onClick={() => {
+                setSelected(c.id);
+                setTagPage(0);
+                setTagQuery("");
+              }}
+            >
+              <span>{c.id}</span>
+              <strong>{c.title}</strong>
+              <small>{c.group}</small>
+            </button>
+          ))}
       </section>
-      <section className="card">
-        <h2>새로 추가된 세부 설정</h2>
-        <ol>
-          <li>
-            AI 모델의 ‘직접 모델 입력’에서 공급사와 정확한 모델 ID를 지정할 수 있습니다.
-            해당 공급사의 본인 키가 필요하며, 실패해도 다른 모델이나 계정으로 바꾸지 않습니다.
-          </li>
-          <li>
-            프리셋을 적용하면 기준 Style을 잠그고 Style 생성 선택을 끕니다. 기존
-            제목·가사는 유지됩니다. AI가 새 스타일을 만들게 하려면 잠금을 풀고
-            Style 생성 항목을 켜세요.
-          </li>
-          <li>
-            아티스트 참고 항목은 기본·발라드·축제 방향을 선택할 수 있습니다.
-            Style은 장르·악기·보컬·시대의 음악 속성으로 구성합니다. 원본
-            사이트의 완성 문장을 그대로 복사한 프리셋은 아닙니다.
-          </li>
-          <li>
-            댄스 그루브는 계열과 BPM 범위로 찾습니다. 범위는 프리셋의 템포
-            힌트를 기준으로 필터링하며, 적용한 BPM은 직접 수정할 수 있습니다.
-          </li>
-          <li>
-            보컬·랩·코러스 세부 설정에서 제목 언어, 솔로·듀엣·그룹·합창, 별도 랩
-            가수, 고음 억제, 편곡 방식을 정합니다. 랩 100%와 연주곡에 필요한
-            제외 스타일은 자동으로 계산합니다.
-          </li>
-          <li>
-            태그 조합에서 장르·분위기·악기·보컬·드럼·베이스·이펙트·구조·템포를
-            검색하고 추가·제거합니다. 태그 추가와 설정 변경은 AI를 호출하지
-            않습니다.
-          </li>
-          <li>
-            ‘현재 속성으로 기준 Style 재구성’은 현재 장르·악기·보컬 설정으로
-            기준 Style을 교체합니다. 직접 편집한 Style을 유지하려면 해당 버튼을
-            누르지 않고 태그만 추가하세요.
-          </li>
-          <li>
-            ‘직접 제목·가사 작성하기’로 AI 없이 작업을 시작할 수 있습니다. 가사
-            구간 버튼은 커서 위치에 [Chorus], [Bridge] 같은 구간을 넣습니다.
-          </li>
-          <li>
-            ‘현재 곡의 내용 참고’를 켜면 기존 제목·Style·가사를 생성 참고 자료로
-            보냅니다. 끄면 현재 곡 내용은 보내지 않고 새 곡 설명과 설정을
-            사용합니다.
-          </li>
-        </ol>
-      </section>
-      <section className="card">
-        <h2>앨범을 만드는 순서</h2>
-        <ol>
-          <li>
-            앨범 구성에서 컨셉·상세 의도, 3~12곡, 감정 여정/사계절 같은 앨범
-            흐름을 정합니다.
-          </li>
-          <li>
-            ‘앨범 기획 생성’은 트랙 순서·제목·곡별 Style·훅을 만들고 가사는 아직
-            만들지 않습니다.
-          </li>
-          <li>
-            필요한 곡의 가사만 생성하거나 ‘미완성 가사 이어 만들기’를 누릅니다.
-            완료된 가사가 있는 곡은 건너뜁니다.
-          </li>
-          <li>
-            일괄 작사는 곡마다 본인 API 비용이 발생할 수 있습니다. 중지하면
-            완료된 곡은 남고 현재 요청의 취소된 응답은 적용하지 않습니다.
-            서버에서 이미 처리된 요청은 과금될 수 있습니다.
-          </li>
-          <li>
-            개별 곡을 수정하거나 작사를 다시 할 수 있습니다. 실패하면 기존
-            가사는 남으며 자동 재시도는 하지 않습니다.
-          </li>
-        </ol>
-      </section>
-      <section className="card">
-        <h2>저장·복사·전달</h2>
-        <p>
-          초안과 보관함은 이 브라우저에서 회원별로 저장합니다. 다른 PC로
-          옮기거나 사이트 자료를 지우기 전에는 JSON으로 백업하세요. 가져오기는
-          검증 후 보관함과 내 Style 프리셋을 합치며 동일 저장 ID는 중복으로
-          추가하지 않습니다. 가져온 백업의 작업 초안으로 현재 초안이 바뀝니다.
-        </p>
-        <p>
-          현재 기준 Style을 이름 붙여 내 프리셋에 저장하면 곡·앨범에서 다시
-          불러올 수 있습니다. 이전 버전 JSON도 가져올 수 있으며 새 설정의
-          기본값만 추가합니다.
-        </p>
-        <p>
-          검수는 직접 확인했다는 표시입니다. 앱이 음악 파일 품질·권리를
-          판정하거나 Suno 입력란을 자동으로 조작하지 않습니다. Style은 영문 음악
-          속성으로 정리하세요.
-        </p>
-        <p>
-          실제 음악 파일 제작은{" "}
-          <a
-            href="https://music-rho-virid-22.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            음악(SUNO)자동화
-          </a>
-          에서 별도로 진행합니다. ‘제작 요청용 설명 복사’ 후 기존 앱에 붙여 넣을
-          수 있습니다. 기존 앱이 별도로 곡을 기획하므로 이 앱의 가사가 그대로
-          자동 전송되는 기능은 없습니다.
-        </p>
-        <p>
-          AI 스타일 제안은 모델이 만든 기획입니다. 실시간 웹 검색 결과나 특정
-          아티스트의 실제 대표곡 목록으로 표시하지 않습니다.
-        </p>
-      </section>
-      <section className="card">
-        <h2>문제가 생겼을 때</h2>
-        <p>
-          키 없음: 선택한 공급사의 본인 키를 등록하세요. 다른 회원 키로 대체하지
-          않습니다.
-        </p>
-        <p>
-          사용 한도/모델 오류: 본인 공급사 계정의 한도와 선택 모델 사용 가능
-          여부를 확인하세요.
-        </p>
-        <p>
-          JSON 형식/곡 수 오류: 기존 결과는 보존됩니다. 곡 수 또는 긴 상세
-          의도를 줄인 뒤 생성 버튼을 다시 누르세요.
-        </p>
-        <p>
-          복사 실패: 브라우저 클립보드 권한을 확인하거나 TXT로 내려받아 직접
-          붙여 넣으세요.
-        </p>
+      <section className="guide-content">
+        {selected === "help" ? (
+          <UsageGuide />
+        ) : (
+          <div className="card">
+            <p className="eyebrow">
+              {ch?.group} · {selected}
+            </p>
+            <h2>{ch?.title}</h2>
+            <p>
+              {basics?.[2] ||
+                "해당 분류의 음악 속성을 참고해 장르·편성·템포를 선택합니다. 시대와 아티스트 항목은 탐색용 참고이며 특정 음색의 재현을 보장하지 않습니다."}
+            </p>
+            <p className="muted">
+              목차는 원본의 공개 항목을 참고했습니다. 설명과 아래 활용 예시는
+              AIMaster 사용 흐름에 맞춰 작성했습니다. 태그는 생성 요청이며 실제
+              반영은 결과를 확인해야 합니다.
+            </p>
+            {tags.length > 0 ? (
+              <>
+                <label>
+                  태그 찾기
+                  <input
+                    aria-label="가이드 태그 검색"
+                    value={tagQuery}
+                    onChange={(e) => {
+                      setTagQuery(e.target.value);
+                      setTagPage(0);
+                    }}
+                  />
+                </label>
+                <div className="guide-table-wrap">
+                  <table className="guide-table">
+                    <thead>
+                      <tr>
+                        <th>입력 필드</th>
+                        <th>태그 / 음악 속성</th>
+                        <th>활용</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTags
+                        .slice(tagPage * 24, tagPage * 24 + 24)
+                        .map((t) => (
+                          <tr key={t}>
+                            <td>{basics?.[1] || "Style"}</td>
+                            <td className="mono">{t}</td>
+                            <td>
+                              {number === 1 || number === 9 ? (
+                                "가사 구간 버튼으로 삽입"
+                              ) : (
+                                <button
+                                  disabled={busy || !brief || !onChange}
+                                  onClick={() => {
+                                    if (!brief || !onChange) return;
+                                    const style = joinTags(brief.style, [t]);
+                                    if (style.length > 1000) {
+                                      notice?.(
+                                        "Style은 1,000자 이내로 정리해 주세요.",
+                                      );
+                                      return;
+                                    }
+                                    onChange({ ...brief, style });
+                                    notice?.(
+                                      "가이드의 음악 속성을 빌더 Style에 추가했습니다.",
+                                    );
+                                  }}
+                                >
+                                  빌더 Style에 추가
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+                {filteredTags.length > 24 && (
+                  <div className="actions gallery-pagination">
+                    <button
+                      disabled={tagPage === 0}
+                      onClick={() => setTagPage(tagPage - 1)}
+                    >
+                      이전 태그
+                    </button>
+                    <span>
+                      {tagPage + 1}/{Math.ceil(filteredTags.length / 24)} ·{" "}
+                      {filteredTags.length}개
+                    </span>
+                    <button
+                      disabled={(tagPage + 1) * 24 >= filteredTags.length}
+                      onClick={() => setTagPage(tagPage + 1)}
+                    >
+                      다음 태그
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <p>
+                  프리셋에서 이 분류를 검색하고 Style 미리보기와 구조를
+                  확인하세요.
+                </p>
+                <Link className="button primary" href="/?section=presets">
+                  프리셋에서 찾아보기
+                </Link>
+              </>
+            )}
+            <div className="actions">
+              <Link className="button" href="/?section=builder">
+                빌더 열기
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

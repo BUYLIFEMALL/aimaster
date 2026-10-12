@@ -325,6 +325,7 @@ export function BriefControls({
           <label>
             앨범 곡 수
             <select
+              aria-label="앨범 곡 수"
               value={brief.count}
               onChange={(e) => edit("count", Number(e.target.value))}
             >
@@ -338,6 +339,7 @@ export function BriefControls({
           <label>
             앨범 흐름
             <select
+              aria-label="앨범 흐름"
               value={brief.arc}
               onChange={(e) => edit("arc", e.target.value)}
             >

@@ -138,6 +138,8 @@ export interface Brief {
   provider: Provider;
 }
 export interface Track {
+  voice?: string;
+  rapVoice?: string;
   id: string;
   title: string;
   summary: string;
@@ -155,6 +157,8 @@ export interface Album {
 }
 export interface Draft {
   brief: Brief;
+  albumBrief?: Brief;
+  dance?: { seed: Brief; tags: string[] };
   song: Track | null;
   album: Album | null;
 }
