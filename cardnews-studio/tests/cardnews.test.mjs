@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { wrapText, layoutBlock, luminance } from "../src/lib/cardnews/layout.ts";
 import { sanitizeProject, allowedImagePrefix, collectImagePaths, sanitizeStyle, removedImagePaths } from "../src/lib/cardnews/sanitize.ts";
 import { defaultProject, defaultStyle } from "../src/lib/cardnews/defaults.ts";
-import { buildCopyPrompt, buildTopicsPrompt, extractJson, parseCopy, parseTopics } from "../src/lib/ai/copyPrompts.ts";
+import { buildCopyPrompt, buildTopicsPrompt, extractJson, parseCopy, parseTopics, buildCaptionPrompt, parseCaption } from "../src/lib/ai/copyPrompts.ts";
 import { buildImagePrompt, KOREAN_PEOPLE_RULE, NO_TEXT_RULE } from "../src/lib/ai/imagePrompts.ts";
 import { callLlm } from "../src/lib/ai/llm.ts";
 
@@ -138,3 +138,30 @@ test("removedImagePaths: 새 데이터에서 빠진 내 이미지만 골라낸�
   const after = mk([`${pre}b.webp`]);
   assert.deepEqual(removedImagePaths(before, after, base, uid), [`${uid}/a.webp`]);
 });
+
+test("buildCaptionPrompt & parseCaption: 인스타 캡션 프롬프트 및 응답 파싱", () => {
+  const p = buildCaptionPrompt({
+    topic: "2026년 재테크 로드맵",
+    category: "경제/재테크",
+    pages: [
+      { headline: "월급 250만원으로 시작하는 2026 재테크", sub: "통장 쪼개기부터" },
+      { headline: "고정비 30% 이하로 줄이기", sub: "숨은 지출 찾기" },
+    ],
+  }, 2026);
+  assert.match(p.system, /인스타그램 피드에 올릴 매력적인 캡션/);
+  assert.match(p.system, /2026년/);
+  assert.match(p.user, /2026년 재테크 로드맵/);
+  assert.match(p.user, /월급 250만원/);
+
+  const sampleJson = '```json\n{\n  "headlineHook": "월급 250만원으로 시작하는 재테크",\n  "body": "새해 첫 재테크 계획 세우셨나요? 통장 쪼개기부터 시작해보세요.",\n  "cta": "도움이 되셨다면 저장하고 공유해보세요!",\n  "hashtags": ["재테크", "재테크그램", "돈모으기", "2026재테크"]\n}\n```';
+  const parsed = parseCaption(sampleJson);
+  assert.ok(parsed);
+  assert.equal(parsed.headlineHook, "월급 250만원으로 시작하는 재테크");
+  assert.equal(parsed.cta, "도움이 되셨다면 저장하고 공유해보세요!");
+  assert.equal(parsed.hashtags.length, 4);
+  assert.equal(parsed.hashtags[0], "#재테크");
+  assert.equal(parsed.hashtags[3], "#2026재테크");
+  assert.ok(parsed.fullCaption.includes("월급 250만원으로 시작하는 재테크"));
+});
+
+

@@ -1,6 +1,14 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-12 — Supabase programs 테이블 카테고리 컬럼명 오류 (programs.category 없음 ➔ category_id)
+
+- 증상: 스크립트나 SQL 마이그레이션에서 `UPDATE programs SET category = '인스타'` 실행 시 `column programs.category does not exist` 에러 발생.
+- 원인: `programs` 테이블의 카테고리는 문자열 컬럼 `category`가 아니라 카테고리 테이블을 참조하는 외래키 컬럼 `category_id`임.
+- 해결: 카테고리 변경 시 `categories` 테이블에서 해당 슬러그/이름의 `id`를 조회하여 `category_id`에 할당하거나, 프로그램명·버전·설명만 갱신할 때는 컬럼명이 정확한지 사전 확인.
+- 다음부터 확인: DB `programs` 스키마 수정 스크립트 작성 시 컬럼 목록(`name`, `slug`, `version`, `category_id`, `short_desc`, `app_url` 등)을 철저히 대조한다.
+
 ## 2026-10-12 — 버튼·뱃지의 텍스트 줄바꿈(wrap) 및 너비 부족으로 인한 글자 잘림 (eBook Studio v1.02)
+
 
 - 증상: 테마 선택 버튼명(크리스프 오렌지 등)이 `...`로 잘림, 실시간 뷰어 헤더 제목이 `실시간 독서 뷰어 미` / `리보기`로 쪼개짐, 상단 뱃지가 `총 0개 자료 · 0` / `자`로 세로 줄바꿈됨, 뷰어 iframe 툴바의 목차 버튼이 세로로 길쭉하게 늘어남.
 - 원인: 

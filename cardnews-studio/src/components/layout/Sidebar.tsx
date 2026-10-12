@@ -17,7 +17,7 @@ const FLOW_STEPS = [
   { step: 2, href: "/copy", label: "문구", description: "AI가 쓴 페이지별 문구 다듬기", icon: PenLine },
   { step: 3, href: "/design", label: "디자인", description: "화풍·글자·배치·효과", icon: Palette },
   { step: 4, href: "/background", label: "배경 생성", description: "페이지별 배경 이미지", icon: ImageIcon },
-  { step: 5, href: "/export", label: "내보내기", description: "완성 카드 PNG 저장", icon: Download },
+  { step: 5, href: "/export", label: "내보내기", description: "완성 카드 PNG & 인스타 캡션", icon: Download },
 ];
 const UTILITY_ITEMS = [{ href: "/settings", label: "API키등록·플랫폼연동", icon: KeyRound }];
 

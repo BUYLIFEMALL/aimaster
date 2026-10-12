@@ -87,3 +87,75 @@ export function parseTopics(text: string): string[] | null {
   const topics = data.topics.filter((t): t is string => typeof t === "string" && t.trim().length > 0).map((t) => t.trim().slice(0, 60));
   return topics.length ? topics.slice(0, 5) : null;
 }
+
+export interface CaptionRequest {
+  category: string;
+  topic: string;
+  tone: ToneId;
+  pages: { headline: string; sub: string }[];
+}
+
+export interface CaptionResult {
+  headlineHook: string;
+  body: string;
+  cta: string;
+  hashtags: string[];
+  fullCaption: string;
+}
+
+export function buildCaptionPrompt(req: CaptionRequest, year = new Date().getFullYear()): { system: string; user: string } {
+  const tone = TONES.find((t) => t.value === req.tone) ?? TONES[0];
+  const pageSummaries = req.pages.map((p, i) => `${i + 1}장: ${p.headline} / ${p.sub}`).join("\n");
+  const system = [
+    baseSystem(year, "인스타그램 바이럴 마케터 및 콘텐츠 디렉터"),
+    "규칙:",
+    "- 제작된 카드뉴스의 내용을 바탕으로 인스타그램 피드에 올릴 매력적인 캡션(본문)과 해시태그를 작성합니다.",
+    "- headlineHook: 첫 줄에서 스크롤을 멈추게 하는 강력한 한 줄 후킹 카피 (이모지 포함)",
+    "- body: 카드뉴스의 핵심 내용과 가치를 친절하고 읽기 쉽게 요약한 3~5단락 본문 (가독성 좋은 줄바꿈과 이모지 활용)",
+    "- cta: 저장 및 공유, 댓글 참여를 유도하는 마무리 멘트 (예: '나중에 다시 보려면 저장 꾹 눌러두세요 📌')",
+    "- hashtags: 탐색 탭 노출을 극대화하는 타겟 해시태그 20~25개 배열 (# 포함, 띄어쓰기 없음)",
+    `- 말투 및 톤앤매너: ${tone.instruction}`,
+    '- 출력 형식: {"headlineHook":"...","body":"...","cta":"...","hashtags":["#...", "#..."]}',
+  ].join("\n");
+  const user = [
+    `<data>분야: ${clean(req.category, 40)}\n주제: ${clean(req.topic, 200)}\n\n[카드뉴스 구성 내용]\n${pageSummaries}</data>`,
+    "위 카드뉴스에 딱 맞는 인스타그램 피드 캡션과 해시태그를 JSON으로 작성하세요.",
+  ].join("\n");
+  return { system, user };
+}
+
+export function parseCaption(text: string): CaptionResult | null {
+  const data = extractJson(text) as {
+    headlineHook?: unknown;
+    body?: unknown;
+    cta?: unknown;
+    hashtags?: unknown;
+  } | null;
+  if (!data) return null;
+  const headlineHook = typeof data.headlineHook === "string" ? data.headlineHook.trim() : "";
+  const body = typeof data.body === "string" ? data.body.trim() : "";
+  const cta = typeof data.cta === "string" ? data.cta.trim() : "";
+  const hashtags = Array.isArray(data.hashtags)
+    ? data.hashtags.filter((h): h is string => typeof h === "string" && h.trim().length > 0).map((h) => h.startsWith("#") ? h.trim() : `#${h.trim()}`)
+    : [];
+
+  const fullCaption = [
+    headlineHook,
+    "",
+    body,
+    "",
+    cta,
+    "",
+    ".",
+    ".",
+    hashtags.join(" "),
+  ].join("\n");
+
+  return {
+    headlineHook,
+    body,
+    cta,
+    hashtags,
+    fullCaption,
+  };
+}

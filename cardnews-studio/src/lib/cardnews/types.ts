@@ -67,6 +67,14 @@ export interface ProjectData {
   engine: EngineChoice;
   /** 배경 이미지 모델(imageModels.ts) */
   imageModel: string;
+  /** 인스타그램 피드 캡션 및 해시태그 */
+  caption?: {
+    headlineHook: string;
+    body: string;
+    cta: string;
+    hashtags: string[];
+    fullCaption: string;
+  };
 }
 
 export interface ProjectSummary {

@@ -43,7 +43,11 @@ export default function PlanPage() {
 
   return (
     <div className="space-y-6">
-      <StepHeader step={1} title="기획" desc="분야와 핵심 주제, 문구 어조, 페이지 수를 정합니다." />
+      <StepHeader
+        step={1}
+        title="기획"
+        desc="인스타그램 타겟 분야와 핵심 주제, 문구 어조, 피드 규격 비율(4:5 세로형 / 1:1 정방형)을 정합니다."
+      />
 
       <Card className="space-y-4">
         <Field label="프로젝트 이름">

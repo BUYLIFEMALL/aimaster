@@ -1,6 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 인스타 카드뉴스 자동화 (cardnews-studio v1.04) 리브랜딩 및 인스타그램 피드 캡션 & 해시태그 패키징 기능 탑재 완료
+
+주인님 요청("제품은 인스타 카드뉴스 자동화 로 해줘", "진행해줘") 및 제공해주신 Google Flow 레퍼런스(`https://flow.google.com/project/192d5316-ed0f-4803-b5c7-9623be9c4230/tool/b2391618-385d-4d96-84aa-a23959efa0ee`) 분석을 바탕으로, 기존 카드뉴스 스튜디오 인프라를 계승·확장하여 v1.04 판올림 및 배포를 완결했습니다:
+1. **공식 프로그램명 리브랜딩**:
+   - `src/lib/version.ts`: `APP_NAME = "인스타 카드뉴스 자동화"`, `APP_VERSION = "v1.04"`, `APP_ENG_NAME = "Insta CardNews Studio"`.
+   - `package.json`: `1.04.0`.
+   - `src/app/layout.tsx`: 타이틀 `인스타 카드뉴스 자동화 | AIMaster`.
+   - 공용 Supabase DB `programs` 테이블: `name = '인스타 카드뉴스 자동화'`, `version = 'v1.04'`, `short_desc` 갱신 (`scripts/update_cardnews_to_v104.mjs`).
+2. **Google Flow 방식 인스타그램 피드 캡션 & 해시태그 AI 패키지 기능 탑재**:
+   - `src/lib/ai/copyPrompts.ts`: `buildCaptionPrompt` (2026년 기준 엄수, 스크롤을 멈추는 후킹 카피, 3~5단락 핵심 가치 본문 요약, 참여 유도 CTA, 타겟 해시태그 20~25개 배열 및 마크다운 포맷팅) 및 `parseCaption`.
+   - `src/app/api/cardnews/caption/route.ts`: 회원 본인 키 전용 AI 캡션 생성 API 신규 구축 (`apiGuard`로 비로그인 차단 및 RLS 완벽 보장).
+   - `src/app/(dashboard)/export/page.tsx`: 5단계 내보내기 화면에 인스타그램 캡션/해시태그 원클릭 AI 생성 및 복사 UI, 전체 캡션 복사, 해시태그만 복사, 인스타그램 웹 바로가기 통합.
+   - `src/lib/cardnews/sanitize.ts` & `types.ts`: `ProjectData.caption` 확장 및 안전 정제 로직 반영.
+3. **검증 및 배포**:
+   - `npm test`: 19개 단위 테스트 100% 통과 (캡션 프롬프트 및 응답 파서 검증 포함).
+   - `npm run build`: Turbopack / TypeScript 100% 정상 컴파일 완료.
+   - Vercel 프로덕션 배포 완료 (`https://cardnews-studio.buylife.xyz`).
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.30) 맛집 탭 기획 세부 조건 3칸
+
 
 주인님 요청(캡처, 대상은 맛집 탭·키워드 탭으로 확인)으로 맛집 탭 [기획 세부 조건]에 특정 주제(=장소명)·검색 키워드(=메인 키워드)를 추가해 아이디어 탭과 같은 3칸으로 맞췄습니다. 키워드 탭은 이미 동일. 확장 ZIP·DB v1.30.
 

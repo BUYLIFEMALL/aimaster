@@ -85,6 +85,15 @@ export function sanitizeProject(
   const engine = rec(r.engine);
   const provider = ["gemini", "openai", "anthropic"].includes(engine.provider as string) ? (engine.provider as "gemini" | "openai" | "anthropic") : fb.engine.provider;
 
+  const rawCaption = r.caption && typeof r.caption === "object" ? rec(r.caption) : undefined;
+  const cleanCaption = rawCaption ? {
+    headlineHook: str(rawCaption.headlineHook, 200),
+    body: str(rawCaption.body, 1500),
+    cta: str(rawCaption.cta, 300),
+    hashtags: Array.isArray(rawCaption.hashtags) ? rawCaption.hashtags.filter((h): h is string => typeof h === "string").slice(0, 35) : [],
+    fullCaption: str(rawCaption.fullCaption, 2500),
+  } : undefined;
+
   return {
     ok: true,
     data: {
@@ -100,6 +109,7 @@ export function sanitizeProject(
       pages,
       engine: { provider, model: str(engine.model, 80, fb.engine.model) },
       imageModel: str(r.imageModel, 60, fb.imageModel),
+      caption: cleanCaption,
     },
   };
 }

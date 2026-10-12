@@ -1,4 +1,4 @@
-# CARDNEWS STUDIO — AI 에이전트 인수인계 문서 (AGENTS.md)
+# CARDNEWS STUDIO (인스타 카드뉴스 자동화) — AI 에이전트 인수인계 문서 (AGENTS.md)
 
 > # ★★★ 최상위 절대 불변 규칙 (2026-10-09 주인님 지시)
 > **모든 사용자는 본인의 계정과 본인 API 키(Gemini·OpenAI·Claude)를 각각 직접 등록·연동해서 사용한다.**
@@ -7,11 +7,11 @@
 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`, `docs/AI_MODEL_INTEGRATION_STANDARD.md`를 먼저 읽는다.
 
 ## 1. 개요와 현황
-- 프로그램명 `CARDNEWS STUDIO` / slug `cardnews-studio` / 현재 버전 **v1.01** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
+- 프로그램명: **인스타 카드뉴스 자동화** (영문 `CARDNEWS STUDIO` / `Insta CardNews Studio`) / slug `cardnews-studio` / 현재 버전 **v1.04** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
 - 주소: https://cardnews-studio.buylife.xyz (Vercel 프로젝트 `buylife/cardnews-studio`, 별칭 `cardnews-studio-lime.vercel.app`)
 - 기술: Next.js 16 + React 19 + Tailwind 4 + Supabase SSR(공유 DB `esgxyikcnnvmlhygjkth`). 글자 얹기는 브라우저 캔버스. 기반 코드는 `youtube-channel-consultant`(로그인·권한·키 저장·사이드바).
-- 기획 배경: 주인님이 Google Flow의 "Carousel Pro" 도구(Flow "도구 빌더"로 만든 카드뉴스 생성 도구) 화면 캡처 여러 장을 주고 같은 기능을 요청했다. 기능 흐름과 선택지(분야·어조·화풍·구성·테마 컬러·배치·표시 효과·폰트·페이지 수)를 참고해 새로 만들었고 이름·디자인은 복제하지 않았다. 화면은 흰색 바탕(`docs/PLATFORM_PATTERNS.md` §27-1).
-- 기존 프로그램과의 관계: `auto-instagram-posting`(INSTA 포스팅)은 글자 없는 사진 슬라이드 + 게시 자동화, `ai-image-studio`는 이미지 생성만이라 **글자가 얹힌 카드뉴스 디자인**은 이 프로그램이 처음이다. v1.03에서 INSTA 포스팅 연동 예정.
+- 기획 배경: 주인님이 Google Flow의 "Carousel Pro" 도구(Flow "도구 빌더"로 만든 카드뉴스 생성 도구, `b2391618-385d-4d96-84aa-a23959efa0ee`) 화면과 기능을 레퍼런스로 요청하심. 카드뉴스 제작뿐 아니라 인스타그램 피드 캡션(후킹 카피, 본문 요약, CTA, 타겟 해시태그 20~25개) 원클릭 생성·복사 패키지 기능을 v1.04에 완전 통합.
+- 기존 프로그램과의 관계: `auto-instagram-posting`(INSTA 포스팅)은 글자 없는 사진 슬라이드 + 게시 자동화, `ai-image-studio`는 이미지 생성만이라 **글자가 얹힌 카드뉴스 디자인 + 인스타 피드 캡션 생성**을 한 번에 완성하는 솔루션임.
 
 ## 2. 흐름 (사이드바 번호 = 사용 순서)
 대시보드(내 프로젝트·보관함) → ① 기획 `/plan` → ② 문구 `/copy` → ③ 디자인 `/design` → ④ 배경 생성 `/background` → ⑤ 내보내기 `/export`, 그리고 `API키등록·플랫폼연동 /settings`.
@@ -40,16 +40,25 @@
 - 폰트는 프로그램에 함께 들어 있는 무료 공개 글꼴(OFL): Pretendard, 블랙한산스, 나눔명조, 나눔손글씨 펜. 참고 도구의 `GmarketSans`는 npm 패키지가 없어 **블랙한산스로 대체**했다(주인님 확인 없이 정한 선택 — 필요하면 파일을 받아 넣는다). 외부 주소에서 받지 않으므로 PNG 저장 때 글꼴이 빠지지 않는다.
 - 모델 ID는 운영 중 `naver-blog-agent` 레지스트리와 같은 값(글쓰기: Gemini 3.7 Flash 기본 등, 이미지: `gemini-3.1-flash-image`). 2026-10-11 라이브에서 실제 호출한 것은 Gemini 3.7 Flash(주제·문구)와 Nano Banana 2 2K(이미지)뿐이다.
 
-## 6. 검수 기록 (2026-10-11, v1.01)
-- 자동: `npm test` 16개(줄바꿈·배치·밝기, 저장 데이터 검증, 프롬프트·JSON 파싱, 이미지 프롬프트 규칙, `callLlm` json 옵션, 권한 판정 8개), `npm run build`, `tsc` 통과. 로그인 없이 API 호출 시 401은 `youtube-channel-consultant`와 같은 `checkProgramAccessApi` 사용.
+## 6. 검수 기록
+- 자동: `npm test` 19개(줄바꿈·배치·밝기, 저장 데이터 검증, 프롬프트·JSON 파싱, 이미지 프롬프트 규칙, `callLlm` json 옵션, 권한 판정 8개, 인스타 캡션&해시태그 생성기 및 파싱), `npm run build`, `tsc` 통과. 로그인 없이 API 호출 시 401은 `youtube-channel-consultant`와 같은 `checkProgramAccessApi` 사용.
 - 실제 로그인 Chrome(관리자 `buylifemall@gmail.com` 세션, 본인 키): ✨주제 추천(5개) → 주제 선택·4장 → 문구 기획(4장, 표지·마무리 구조) → 디자인(폰트·외곽선·하단 배치가 미리보기에 즉시 반영) → 배경 1장 생성(실사, 한국인 여성 인물, 글자 없음) 후 글자 얹힌 카드 확인 → 캔버스 PNG 변환 성공(1080×1350, 약 2.2MB, 오염 없음) → 대시보드에 프로젝트·썸네일 표시.
 - 일반 회원 경로는 `youtube-channel-consultant`와 같은 권한 판정 사본을 쓰며 `buylifemall@naver.com`에 사용기간(30일)을 부여해 두었다(직접 화면 검수는 하지 않음).
 
-## 7. 알려진 한계·다음 작업
-- **v1.02 완료(2026-10-11):** 5단계 "전체 ZIP 한 번에 받기"(브라우저에서 jszip, 서버로 보내지 않음), 3단계 "내 템플릿"(디자인 스타일만 저장·적용·삭제, 회원당 20개, 테이블 `cns_templates` RLS owner-only, `api/templates`), 새 배경은 sharp로 폭 1620 WebP q90 변환 후 저장(`src/lib/ai/imageOptimize.ts`), 프로젝트 저장 시 더는 참조되지 않는 내 이미지 파일 삭제(`removedImagePaths`). 마이그레이션 `0004_v1_02_templates.sql`. 테스트 18개. 라이브에서 템플릿 API 저장·조회·삭제 왕복 확인(ZIP 내려받기는 다운로드 허용 없이 직접 눌러보지 않음). 예전에 만든 PNG 이미지는 그대로 남는다.
-- **v1.03(2026-10-11) 긴급 수정:** v1.02에서 넣은 sharp(WebP 축소)가 운영 Vercel 함수에서 libvips 누락으로 로드되지 않아 `/api/cardnews/image`(배경 생성)가 500이었다. `next.config.ts`에 `serverExternalPackages: ["sharp"]` + `outputFileTracingIncludes`(`@img/sharp-libvips-linux-x64`, `@img/sharp-linux-x64`)를 추가해 재배포, 같은 API가 JSON 400으로 정상 응답함을 확인(`docs/ERROR_LESSONS.md` 2026-10-11 항목). 마이그레이션 `0005_v1_03_sharp_fix.sql`. **실제 화면 검수(2026-10-11, 주인님 Chrome 데스크톱):** 4단계에서 2번 카드 "배경 생성" → 생성 중 표시 → 완료, 저장소에 WebP 182KB(예전 JPG 2.3MB)가 올라온 것을 확인. 완료 직후 Chrome 창이 가려져(탭 hidden) 생성된 카드 이미지의 최종 표시 캡처는 못 했다.
-- **v1.03 예정:** INSTA 포스팅(`auto-instagram-posting`)으로 완성 카드를 바로 게시.
-- 카탈로그 전용 실사 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/cardnews-studio-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 관리자 키 사용을 주인님께 확인받고 1회 생성, 마이그레이션 `0003_thumbnail.sql`).
+## 7. 버전 이력 및 알려진 한계
+- **v1.04 완료(2026-10-12, 주인님 요청):**
+  - 공식 프로그램명을 **"인스타 카드뉴스 자동화"** (`Insta CardNews Studio`)로 리브랜딩 (`APP_NAME`, `programs` DB, 메타데이터).
+  - Google Flow 방식의 인스타그램 피드 캡션 & 해시태그 패키징 기능 탑재:
+    - `src/lib/ai/copyPrompts.ts`: `buildCaptionPrompt`, `parseCaption` (후킹 헤드라인, 3~5단락 본문 요약, 참여 유도 CTA, 타겟 해시태그 20~25개 배열 및 전체 캡션 포맷팅).
+    - `src/app/api/cardnews/caption/route.ts`: 회원 본인 키 전용 AI 캡션 생성 API 신규 구축 (`apiGuard` 연동).
+    - `src/app/(dashboard)/export/page.tsx`: 5단계 내보내기 화면에 인스타그램 캡션/해시태그 원클릭 AI 생성 및 복사 UI, 인스타그램 웹 바로가기 통합.
+    - `src/lib/cardnews/sanitize.ts` 및 `types.ts`: `ProjectData.caption` 데이터 모델 확장 및 정제 로직 반영.
+    - 단위 테스트 19개 전체 PASS, 프로덕션 빌드 검증 완료. 마이그레이션 `0006_v1_04_rebrand_and_captions.sql`.
+- **v1.03(2026-10-11) 긴급 수정:** v1.02에서 넣은 sharp(WebP 축소)가 운영 Vercel 함수에서 libvips 누락으로 로드되지 않아 `/api/cardnews/image`(배경 생성)가 500이었던 현상 해결.
+- **v1.02 완료(2026-10-11):** 5단계 "전체 ZIP 한 번에 받기", 3단계 "내 템플릿", WebP 최적화.
+- **v1.01(2026-10-11):** 최초 완성 배포.
+- 카탈로그 전용 실사 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/cardnews-studio-thumbnail.jpg`).
+
 - 모바일: 같은 출처 iframe(390px)로 기획·디자인·배경 생성 화면을 확인했다(상단 바 + 한 줄 레이아웃, 프로젝트 상태 공유). 실제 폰 기기는 아직 확인하지 않았다. `npm run lint`는 ESLint 설정 파일이 없어 동작하지 않는다(복사 원본과 동일).
 - 이미지 생성은 한 장씩 유료 호출이므로(2K 기본) 사용 요금은 회원의 Gemini 계정에 청구된다. "전체 배경 생성" 전에 호출 횟수를 안내한다.
 - 첫 렌더 때 글꼴 조각을 받는 동안 캔버스가 잠시 비어 보일 수 있다(수 초).

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CARDNEWS STUDIO - AIMaster",
-  description: "주제만 넣으면 AI가 문구와 배경을 만들어 글자가 얹힌 카드뉴스를 완성하는 카드뉴스 스튜디오",
+  title: "인스타 카드뉴스 자동화 | AIMaster",
+  description: "주제만 넣으면 AI가 인스타 최적화 문구와 고화질 배경, 타이포그래피, 피드 캡션과 해시태그까지 완성하는 올인원 스튜디오",
 };
 
 export default function RootLayout({
