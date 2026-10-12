@@ -19,4 +19,13 @@ where slug='ai-webtoon-studio';
 
 주인님의 화살표 캡처 요청에 따라 `Header.tsx`의 Gemini API 상태를 상단 ZIP/JPG 다운로드 버튼 왼쪽으로 이동했습니다. 별도 하단 줄을 제거하고 반응형 줄바꿈을 유지했습니다. 상태 판단/문구·노란 버튼 클릭 동작은 그대로이며 `role=status`를 적용했습니다.
 
-기본 이름 제거 커밋 `c33b8087`. 빌드/타입·storage ESLint 성공. 실제 모듈을 실행해 빈 새 기본값, 원본 저장 예시 정리, 수정한 제목/이름/묘사/참조 사진/시트/표지/원고/컷/컷 설정/추가 캐릭터 보존 10개 경우를 확인했습니다. API 상태 이동은 별도 커밋 후 같은 v1.05 릴리스로 배포합니다. 운영 검수 결과는 이어서 기록합니다.
+기본 이름 제거 커밋 `c33b8087`, API 상태 이동 커밋 `6ab9a3df`: 두 구현 커밋 모두 origin/master 푸시 완료. 빌드/타입·storage/Header ESLint 성공. 실제 모듈을 실행해 빈 새 기본값, 원본 저장 예시 정리, 수정한 제목/이름/묘사/참조 사진/시트/표지/원고/컷/컷 설정/추가 캐릭터 보존 10개 경우를 확인했습니다.
+
+## 운영 반영 및 검수 완료
+
+- Vercel 프로덕션 배포 `dpl_589r3igXhugMZbJLHMNZvCyhEh55` Ready. 배포 URL: https://ai-webtoon-studio-230h9q2s3-buylife.vercel.app . 운영 주소 https://ai-webtoon-studio.buylife.xyz 및 https://ai-webtoon-automation.buylife.xyz 연결 유지.
+- 공용 DB `programs`의 `ai-webtoon-studio` 버전 v1.05 동기화 완료. 환경변수·스키마·회원 API 키 변경 없음.
+- 로그인된 일반 회원 Chrome에서 v1.05 표시, 캐릭터 탭 `인물 1`, 빈 이름 입력란의 `인물 이름을 입력하세요` 안내, Gemini API 상태 → ZIP → JPG 버튼 순서를 접근성 트리로 확인했습니다. 이름 입력란에는 기존 `강민우` 값이 없습니다.
+- 운영 JS HTTP 200 및 일반 이름 안내, 옛 이름 안내 제거, API 상태가 다운로드 버튼보다 앞에 있는 구조, 별도 하단 상태 줄 제거, 노란 다운로드 버튼 스타일을 확인했습니다.
+- 증거: [운영 화면 접근성 트리](evidence/v1.05-live-accessibility.txt), [운영 JS 검사](evidence/v1.05-live-assets.json). 네이티브 화면 캡처 제공자가 이미지를 반환하지 않아 픽셀 캡처 검수는 하지 못했습니다. 실제 회원 화면 접근성 트리와 운영 자산을 구분해 확인했습니다.
+- 유료 AI 호출 및 콘텐츠 생성 없음. 이번 두 UI 요청의 남은 작업 없음. 기존 앱 전체 lint 문제 등 이전 인수인계에 기록된 별도 과제는 이번 검수 범위에 포함하지 않습니다.
