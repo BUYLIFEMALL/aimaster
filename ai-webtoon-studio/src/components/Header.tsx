@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import {
   Sparkles,
   Download,
   FileArchive,
-  Calendar,
-  CloudSun,
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
 
@@ -23,35 +20,7 @@ export function Header({
   onDownloadZip,
   onDownloadMergedJpg,
   onOpenMobileNav,
-  hasCutsToDownload = false,
 }: HeaderProps) {
-  const [currentDateTime, setCurrentDateTime] = useState("");
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1;
-      const date = now.getDate();
-      const days = ["일", "월", "화", "수", "목", "금", "토"];
-      const day = days[now.getDay()];
-
-      let hours = now.getHours();
-      const ampm = hours >= 12 ? "오후" : "오전";
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-
-      setCurrentDateTime(
-        `${year}년 ${month}월 ${date}일 ${day}요일 ${ampm} ${String(hours).padStart(2, "0")}:${minutes}`
-      );
-    };
-
-    updateTime();
-    const timer = setInterval(updateTime, 30000);
-    return () => clearInterval(timer);
-  }, []);
-
   const hasApiKey = Boolean(settings.geminiApiKey);
 
   return (
@@ -113,19 +82,10 @@ export function Header({
         </div>
       </div>
 
-      {/* Date & Weather sub-bar */}
-      <div className="bg-slate-100/70 border-t border-slate-200/70 text-[11px] text-slate-600 py-1.5 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 text-slate-400" />
-            <span>{currentDateTime || "2026년 10월 11일"}</span>
-            <span className="text-slate-300">|</span>
-            <span className="flex items-center gap-1">
-              <CloudSun className="w-3.5 h-3.5 text-amber-500" />
-              서울: 맑음, 21°C
-            </span>
-          </div>
-          <div className="text-[11px] text-slate-500 hidden sm:block">
+      {/* Personal API registration status */}
+      <div className="hidden sm:block bg-slate-100/70 border-t border-slate-200/70 text-[11px] text-slate-600 py-1.5 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex items-center justify-end">
+          <div className="text-[11px] text-slate-500">
             {hasApiKey ? (
               <span className="text-emerald-600 font-medium">● Gemini API 연동 완료 (브라우저 격리 보관)</span>
             ) : (

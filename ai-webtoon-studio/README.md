@@ -5,7 +5,9 @@
 - **배포 주소**: `https://ai-webtoon-automation.buylife.xyz` (기존 `https://ai-webtoon-studio.buylife.xyz` 병행 지원)
 - **Vercel 주소**: `https://ai-webtoon-automation.vercel.app`
 
-## 핵심 기능 (v1.03)
+## 핵심 기능 (v1.04)
+
+v1.04: 불필요한 날짜·시간·날씨 표시와 갱신 타이머 제거. [검수·릴리스 기록](docs/UI_RELEASE_V1_04.md).
 
 v1.03: 상단 모델 안내 배지 제거, 상단/4단계 ZIP·JPG 저장 버튼 노란색 강조. [검수·릴리스 기록](docs/UI_RELEASE_V1_03.md).
 
