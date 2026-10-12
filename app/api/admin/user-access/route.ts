@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
   if ("error" in auth)
     return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-  const { user_id, user_ids, program_id, program_ids, expires_at } = await req.json();
+  const body = await req.json();
+  const { user_id, user_ids, program_id, program_ids, expires_at, mode, extend_days } = body;
   const targetUserIds: string[] = Array.isArray(user_ids) ? user_ids : user_id ? [user_id] : [];
   const targetProgramIds: string[] = Array.isArray(program_ids)
     ? program_ids
@@ -47,22 +48,74 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
 
-  const rows = targetUserIds.flatMap((uid) =>
-    targetProgramIds.map((pid) => ({
-      user_id: uid,
-      program_id: pid,
-      granted_by: auth.user.id,
-      expires_at: expires_at ?? null,
-    })),
-  );
-
   const service = createServiceClient();
+
+  // 사람마다 다른 만료일을 계산하는 모드 (2026-10-13)
+  //  - "extend": 각자의 현재 만료일(이미 지났으면 오늘)에서 extend_days 만큼 더한다. 무기한(null)은 그대로 무기한, 부여가 없던 프로그램은 오늘 + extend_days.
+  //  - "anchor": 각자의 등급 지정일 + 등급 기본 기간(member_grades.default_access_days). 등급 기본 기간이 없으면 무기한.
+  let rows: { user_id: string; program_id: string; granted_by: string; expires_at: string | null }[];
+  if (mode === "extend" || mode === "anchor") {
+    const [{ data: profs }, { data: grades }, { data: existing }] = await Promise.all([
+      service.from("profiles").select("id, grade_id, grade_assigned_at, created_at").in("id", targetUserIds),
+      service.from("member_grades").select("id, default_access_days"),
+      service.from("user_program_access").select("user_id, program_id, expires_at").in("user_id", targetUserIds).in("program_id", targetProgramIds),
+    ]);
+    const daysByGrade = new Map<string, number | null>((grades ?? []).map((g: { id: string; default_access_days: number | null }) => [g.id, g.default_access_days]));
+    const profById = new Map<string, { grade_id: string | null; grade_assigned_at: string | null; created_at: string }>(
+      (profs ?? []).map((p: { id: string; grade_id: string | null; grade_assigned_at: string | null; created_at: string }) => [p.id, p]),
+    );
+    const cur = new Map<string, string | null>((existing ?? []).map((e: { user_id: string; program_id: string; expires_at: string | null }) => [`${e.user_id}:${e.program_id}`, e.expires_at]));
+    const DAY = 24 * 60 * 60 * 1000;
+    const nowMs = Date.now();
+    const addDays = Number(extend_days);
+    if (mode === "extend" && (!Number.isInteger(addDays) || addDays === 0 || Math.abs(addDays) > 3650))
+      return NextResponse.json({ error: "extend_days는 0이 아닌 정수(±3650 이내)여야 합니다" }, { status: 400 });
+
+    rows = targetUserIds.flatMap((uid) =>
+      targetProgramIds.map((pid) => {
+        let next: string | null;
+        if (mode === "extend") {
+          const key = `${uid}:${pid}`;
+          const had = cur.has(key);
+          const prev = cur.get(key) ?? null;
+          if (had && prev === null) next = null; // 무기한은 그대로
+          else next = new Date(Math.max(prev ? new Date(prev).getTime() : nowMs, nowMs) + addDays * DAY).toISOString();
+        } else {
+          const p = profById.get(uid);
+          const days = p?.grade_id ? daysByGrade.get(p.grade_id) ?? null : null;
+          const base = new Date(p?.grade_assigned_at ?? p?.created_at ?? nowMs).getTime();
+          next = days ? new Date(base + days * DAY).toISOString() : null;
+        }
+        return { user_id: uid, program_id: pid, granted_by: auth.user.id, expires_at: next };
+      }),
+    );
+  } else {
+    rows = targetUserIds.flatMap((uid) =>
+      targetProgramIds.map((pid) => ({
+        user_id: uid,
+        program_id: pid,
+        granted_by: auth.user.id,
+        expires_at: expires_at ?? null,
+      })),
+    );
+  }
+
   const { error } = await service
     .from("user_program_access")
     .upsert(rows, { onConflict: "user_id,program_id" });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true, count: rows.length }, { status: 201 });
+  // 회원별 새 만료일(가장 이른 것, 모두 무기한이면 null) — 사람마다 다른 모드에서 목록 표시를 갱신하는 데 쓴다
+  const perUser = new Map<string, string | null>();
+  rows.forEach((r) => {
+    const prev = perUser.get(r.user_id);
+    if (r.expires_at === null) { if (!perUser.has(r.user_id)) perUser.set(r.user_id, null); return; }
+    if (prev === undefined || prev === null || r.expires_at < prev) perUser.set(r.user_id, r.expires_at);
+  });
+  return NextResponse.json(
+    { success: true, count: rows.length, per_user: Array.from(perUser, ([user_id, expires_at]) => ({ user_id, expires_at })) },
+    { status: 201 },
+  );
 }
 
 /** DELETE — 개별 사용자 프로그램 접근 제거 */

@@ -40,6 +40,9 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quickPreset, setQuickPreset] = useState("30");
+  // 기간 적용 방식: set=모두 같은 날짜로 지정 / extend=각자의 현재 만료일에서 N일 연장(사람마다 다름) / anchor=각자의 등급 지정일부터 등급 기본 기간(사람마다 다름)
+  const [mode, setMode] = useState<"set" | "extend" | "anchor">("set");
+  const [extendDays, setExtendDays] = useState("30");
 
   const isBulk = members.length > 1;
 
@@ -96,14 +99,18 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
       setError("프로그램을 1개 이상 선택해주세요.");
       return;
     }
-    if (!unlimited && !expiresAt) {
+    if (mode === "set" && !unlimited && !expiresAt) {
       setError("만료일을 선택하거나 무제한을 체크해주세요.");
+      return;
+    }
+    if (mode === "extend" && (!Number.isInteger(Number(extendDays)) || Number(extendDays) === 0)) {
+      setError("연장 일수는 0이 아닌 정수여야 합니다.");
       return;
     }
     setSaving(true);
     setError(null);
     try {
-      const expiresAtValue = unlimited ? null : new Date(expiresAt).toISOString();
+      const expiresAtValue = mode !== "set" || unlimited ? null : new Date(expiresAt).toISOString();
 
       const res = await fetch("/api/admin/user-access", {
         method: "POST",
@@ -112,6 +119,8 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
           user_ids: members.map((m) => m.id),
           program_ids: Array.from(programIds),
           expires_at: expiresAtValue,
+          mode,
+          extend_days: mode === "extend" ? Number(extendDays) : undefined,
         }),
       });
 
@@ -121,7 +130,12 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
         return;
       }
 
-      onSaved(members.map((m) => ({ user_id: m.id, expires_at: expiresAtValue })));
+      const data = await res.json().catch(() => ({}));
+      onSaved(
+        mode !== "set" && Array.isArray(data.per_user)
+          ? data.per_user
+          : members.map((m) => ({ user_id: m.id, expires_at: expiresAtValue })),
+      );
       onClose();
     } finally {
       setSaving(false);
@@ -186,6 +200,32 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
           )}
         </div>
 
+        <div className="mb-3 space-y-1 text-xs text-white">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="expiry-mode" checked={mode === "set"} onChange={() => setMode("set")} className="accent-gold" />
+            만료일을 직접 지정 (선택한 모두 같은 날짜)
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="expiry-mode" checked={mode === "extend"} onChange={() => setMode("extend")} className="accent-gold" />
+            현재 만료일에서 연장 (사람마다 각자 기준)
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="expiry-mode" checked={mode === "anchor"} onChange={() => setMode("anchor")} className="accent-gold" />
+            등급 지정일부터 기본 기간 적용 (사람마다 각자 기준)
+          </label>
+        </div>
+        {mode === "extend" && (
+          <div className="mb-4 flex items-center gap-2 text-xs text-subtext">
+            <input value={extendDays} onChange={(e) => setExtendDays(e.target.value)} inputMode="numeric" style={{ width: 80 }} className="input-dark py-1 text-sm" />
+            일 연장 (음수는 단축) · 무기한은 그대로, 이미 만료된 건 오늘부터 계산
+          </div>
+        )}
+        {mode === "anchor" && (
+          <p className="mb-4 text-xs text-subtext">
+            각 회원의 &quot;등급 지정일 + 등급 기본 기간(골드 180일·VIP 365일)&quot;으로 사람마다 따로 계산해 저장합니다. 등급 기본 기간이 없는 등급은 무기한이 됩니다.
+          </p>
+        )}
+        {mode === "set" && (<>
         <label className="text-subtext text-xs mb-1 block">만료일</label>
         <input
           type="date"
@@ -221,6 +261,8 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
             적용
           </GoldButton>
         </div>
+
+        </>)}
 
         {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
 
