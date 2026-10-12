@@ -16,7 +16,7 @@ interface ProgramCardProps {
   hasAccess?: boolean;
   // 명시적으로 넘기면 그것만 단독으로 쓰고, 안 넘기면 관리자가 프로그램 편집에서 지정한
   // program.badges(DB 값, 여러 개 가능)를 전부 보여준다.
-  badge?: "new" | "best" | "sale" | "coming" | "free" | "recommended";
+  badge?: "new" | "best" | "sale" | "coming" | "free" | "recommended" | "premium";
   // 관리자로 로그인했을 때만 true — 썸네일 우상단에 [편집] 버튼(관리자 프로그램 편집 화면 이동)을 보여준다.
   isAdmin?: boolean;
   // 추천(♥) 투표 — 내가 이미 눌렀는지, 로그인 여부(비로그인이면 누를 때 로그인 화면으로 보낸다)

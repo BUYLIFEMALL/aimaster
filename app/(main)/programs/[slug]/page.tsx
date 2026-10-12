@@ -8,6 +8,7 @@ import HeroSubscribeButton from "@/components/programs/HeroSubscribeButton";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { PHONE_REQUIRED_MESSAGE } from "@/lib/utils/phone";
+import { PREMIUM_NOTICE_TITLE, PREMIUM_NOTICE_BODY } from "@/lib/programs/premium";
 import type { MemberGrade } from "@/types/database.types";
 
 interface PageProps {
@@ -103,6 +104,12 @@ export default async function ProgramDetailPage({ params }: PageProps) {
           <Link href="/settings?need_phone=1" className="mt-1 inline-block underline">
             핸드폰 번호 등록하러 가기 →
           </Link>
+        </div>
+      )}
+      {(program.badges ?? []).includes("premium") && (
+        <div role="note" className="mb-6 rounded-xl border border-amber-400/40 bg-amber-400/10 px-5 py-4 text-sm text-amber-200">
+          <p className="font-bold">{PREMIUM_NOTICE_TITLE}</p>
+          <p className="mt-1 leading-relaxed">{PREMIUM_NOTICE_BODY}</p>
         </div>
       )}
       {/* Back */}

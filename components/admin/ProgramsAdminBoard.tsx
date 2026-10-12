@@ -42,6 +42,7 @@ const BADGE_OPTIONS: { value: BadgeValue; label: string }[] = [
   { value: "best", label: "👑 BEST" },
   { value: "sale", label: "🏷️ SALE" },
   { value: "recommended", label: "⭐ 추천" },
+  { value: "premium", label: "💎 프리미엄" },
   { value: "coming", label: "🛠️ 작업중" },
 ];
 

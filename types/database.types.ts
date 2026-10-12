@@ -64,7 +64,7 @@ export interface Program {
   extension_version?: string | null;
   // 관리자가 수동으로 다는 추천 뱃지 (Badge 컴포넌트 variant와 동일한 값). 여러 개(예: FREE +
   // NEW) 동시에 달 수 있어 배열이다. 빈 배열이면 뱃지 없음.
-  badges: ("new" | "best" | "sale" | "coming" | "free" | "recommended")[];
+  badges: ("new" | "best" | "sale" | "coming" | "free" | "recommended" | "premium")[];
   // 회원 추천(♥) 투표 수 — program_likes 변경 시 DB 트리거가 자동 집계한다
   like_count?: number;
   // joined

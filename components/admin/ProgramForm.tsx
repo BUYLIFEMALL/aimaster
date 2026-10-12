@@ -61,6 +61,12 @@ const BADGE_OPTIONS: {
     idleClassName: "bg-white/5 text-violet-300 border-violet-500/40 hover:bg-white/10",
   },
   {
+    value: "premium",
+    label: "💎 프리미엄",
+    selectedClassName: "bg-amber-400 text-black border-amber-400",
+    idleClassName: "bg-white/5 text-amber-300 border-amber-400/40 hover:bg-white/10",
+  },
+  {
     value: "coming",
     label: "🛠️ 작업중",
     selectedClassName: "bg-neutral-500 text-black border-neutral-500",
