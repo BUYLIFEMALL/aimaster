@@ -1540,3 +1540,8 @@
 - 원인: taskId만 사용, 생존/진행 어댑터가 no-op, 임대/명시적 종료 없음. 워커가 멈춰도 이미 주입된 비동기 DOM 명령은 이어질 수 있음. 동일 밀리초 updated_at은 조건부 갱신을 무력화할 수 있음.
 - 해결: naver-blog-agent/src/lib/executionRuns.ts + extension task/status/finish + posts/[id]/recovery, 워커/편집기 runId/lease/DOM 대기 검사·이전 결과와 checkpoint 보관. 현재 JSON 칸에 병합 저장하고 시각을 최소1ms 증가. 살아 있는 입력의 일반 상태 변경/삭제를 막고 삭제 ACK 뒤 화면 갱신. 서버 빈 목록을 캐시로 되살리지 않음.
 - 다음부터 확인: 회원·PC·실행 번호·상태·시각을 모두 비교, 동일 결과 재보고/임대 만료 후 실제 결과/복구 후 로컬 종료/오래된 DOM 명령/0행 삭제 경쟁을 별도 검사. 새로운 스키마가 필수인지 기존 jsonb로 해결 가능한지 먼저 조사. 옛 확장 호환은 기능 지원 여부와 구분. 자동 검사·운영 검증·실제 네이버 E2E를 동일한 완료 증거로 취급하지 말 것.
+
+### 2026-10-12 확장 '연결 안 됨' 점검 순서 (naver-blog-allinone 등 폴더 방식 확장)
+- 증상: 웹의 [확장 연결] 기능이 '확장 프로그램이 연결되지 않았습니다/찾지 못했습니다'. 원인 후보: ① 그 프로그램 확장이 Chrome에 로드되지 않음(가장 흔함: 다른 프로그램 확장을 새로고침함) ② 확장을 로드/새로고침한 뒤 웹 화면을 새로고침하지 않음(content script는 페이지를 열 때 붙음) ③ 구버전이 새 주소(buylife.xyz)를 허용하지 않음.
+- 점검: `node scripts/check-chrome-extension-loaded.mjs <프로그램 폴더명>`으로 이 PC Chrome에 로드된 폴더를 확인 → 없으면 chrome://extensions에서 `<프로그램>\extension` 폴더를 로드. 웹 화면에서는 `postMessage({type:'ALLINONE_PING_EXTENSION'},'*')`에 `ALLINONE_PONG_EXTENSION` 응답이 오는지 본다.
+- 검수 중 모의 응답으로 시험한 값은 반드시 지울 것(localStorage 잔존 사고, v1.37).

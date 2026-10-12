@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 올인원 네이버 카테고리 '확장 연결 안 됨' 직접 검수 결과
+
+주인님이 확장을 업데이트했는데도 [카테고리 불러오기]가 '확장이 연결되지 않았습니다'로 실패한다고 신고. 직접 검수: ① 배포 ZIP·`naver-blog-allinone/extension` 폴더는 정상(매니페스트의 모든 파일 존재, 문법 통과, 이 사이트 주소 허용) ② 이 PC Chrome(Default 프로필)의 개발자 모드 확장 목록(`node scripts/check-chrome-extension-loaded.mjs naver-blog-allinone`)에 **올인원 확장이 없음**(로드된 것은 tistory-auto-blog·naver-blog-agent·naver-blog-seo-studio·ai-auto-blog 폴더뿐) ③ 이 Chrome 탭에서 연결 신호(ping)를 보내도 응답 없음. → 원인: 올인원 확장이 Chrome에 아직 로드되지 않았음(다른 확장을 새로고침했거나 올인원 폴더를 선택하지 않음). 조치: chrome://extensions → 개발자 모드 → [압축해제된 확장 프로그램을 로드합니다] → `D:\Antigravity\AIMaster
+aver-blog-allinone\extension` 선택 → 올인원 화면 F5. 코드 변경 없음.
+
 ## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.04) 제목 밀림 방지·사이드바 하단 메뉴 끌어올림 및 Vercel 프로덕션 배포 완료
 
 주인님 요청("제목이 커서 밀린다 수정해주고 메뉴 하단을 끌어올려줘")에 따라 다음과 같이 레이아웃과 타이포그래피를 최적화했습니다:
