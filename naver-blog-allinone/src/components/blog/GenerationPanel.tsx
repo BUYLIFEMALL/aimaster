@@ -28,11 +28,13 @@ interface Props {
   disabled?: boolean;
   /** 키워드·발행 목적 입력칸을 숨긴다(맛집 탭은 자체 키워드·방문 정보 입력을 쓴다) */
   hideDetails?: boolean;
+  /** 기획 세부 조건에서 검색 키워드 칸만 숨긴다(맛집 탭은 SEO 키워드 영역이 따로 있다) */
+  hideKeywords?: boolean;
 }
 
 const QUICK_LENGTHS = [1000, 1800, 2000, 2500, 3500, 4000];
 
-export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, topic, setTopic, disabled, hideDetails }: Props) {
+export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, topic, setTopic, disabled, hideDetails, hideKeywords }: Props) {
   const example = getWritingStyleExample(values.tone, values.style);
   const input = "w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
@@ -146,10 +148,10 @@ export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, to
             <label className="block text-[11px] font-bold text-slate-700 mb-1">발행 목적 및 독자 타겟</label>
             <input type="text" value={values.purpose} onChange={(e) => onChange({ purpose: e.target.value.slice(0, 300) })} disabled={disabled} className={input} placeholder="예: 실제 입장에서 가성비를 꼼꼼하게 비교 분석하여 이웃들에게 추천" />
           </div>
-          <div className={setTopic ? "md:col-span-2" : ""}>
+          {!hideKeywords && <div className={setTopic ? "md:col-span-2" : ""}>
             <label className="block text-[11px] font-bold text-slate-700 mb-1">검색 키워드 (쉼표 구분)</label>
             <input type="text" value={values.keywords} onChange={(e) => onChange({ keywords: e.target.value.slice(0, 300) })} disabled={disabled} className={input} placeholder="예: 가전제품 비교, 살림 꿀팁, 세탁 노하우" />
-          </div>
+          </div>}
         </div>
       </div>}
 
