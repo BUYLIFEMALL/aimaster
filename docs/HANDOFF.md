@@ -1,6 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 인스타 카드뉴스 자동화 (cardnews-studio) 16:9 실사 썸네일 등록 및 카탈로그 최상단(sort_order=121) 배치 완료
+
+주인님 요청("https://cardnews-studio.buylife.xyz 프로그램 등록, 썸네일 등록 해줘")에 따라 메인 카탈로그 노출 및 고화질 실사 썸네일 등록을 완료했습니다:
+1. **고화질 16:9 실사 카탈로그 썸네일 제작 및 스토리지 등록**:
+   - 전문 크리에이터 스튜디오에서 한국인 마케터가 4:5 인스타그램 캐러셀 카드뉴스를 편집하는 실사 16:9 썸네일 생성.
+   - 로컬 파일 저장 (`cardnews-studio/public/cardnews-studio-thumbnail.jpg`, `scratch/cardnews-studio-thumbnail.jpg`).
+   - Supabase Storage `program-images` 버킷의 `catalog/cardnews-studio-thumbnail.jpg`에 업로드 완료 (HTTP 200 검증).
+2. **카탈로그 최상단 등록 및 DB 갱신**:
+   - `sort_order`: 기존 `0` ➔ **`121`** 로 갱신하여 전체 20여 개 프로그램 중 카탈로그 맨 첫 자리(최상단)에 우뚝 배치.
+   - `badges`: `["new", "best"]` 부여.
+   - `thumbnail_url`: 캐시 방지 쿼리스트링 포함 최신 공개 URL 적용 (`https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/cardnews-studio-thumbnail.jpg?v=1791779645694`).
+   - 마이그레이션 SQL: `cardnews-studio/supabase/migrations/0007_thumbnail_and_sort_order.sql`.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.32) 맛집 탭 페르소나 값 표시·수정
+
 
 주인님 요청(아이디어 탭 참고): 맛집 탭에서 페르소나를 선택하면 기획 세부 조건(특정 주제·발행 목적·검색 키워드)이 자동으로 채워져 보이고 수정할 수 있습니다. 확장 ZIP·DB v1.32.
 

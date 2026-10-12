@@ -56,8 +56,10 @@
     - 단위 테스트 19개 전체 PASS, 프로덕션 빌드 검증 완료. 마이그레이션 `0006_v1_04_rebrand_and_captions.sql`.
 - **v1.03(2026-10-11) 긴급 수정:** v1.02에서 넣은 sharp(WebP 축소)가 운영 Vercel 함수에서 libvips 누락으로 로드되지 않아 `/api/cardnews/image`(배경 생성)가 500이었던 현상 해결.
 - **v1.02 완료(2026-10-11):** 5단계 "전체 ZIP 한 번에 받기", 3단계 "내 템플릿", WebP 최적화.
-- **v1.01(2026-10-11):** 최초 완성 배포.
-- 카탈로그 전용 실사 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/cardnews-studio-thumbnail.jpg`).
+- **카탈로그 전용 실사 썸네일 및 최상단 등록 (2026-10-12, 주인님 요청):**
+  - 전문 크리에이터 스튜디오에서 한국인 마케터가 4:5 인스타그램 캐러셀 카드뉴스를 편집하는 실사 16:9 썸네일 제작 및 Supabase Storage `program-images/catalog/cardnews-studio-thumbnail.jpg` 업로드 완료.
+  - 메인 카탈로그 `sort_order = 121`로 갱신하여 전체 프로그램 최상단 1위 배치 및 `badges = ["new", "best"]` 등록 완료. 마이그레이션 `0007_thumbnail_and_sort_order.sql`.
+
 
 - 모바일: 같은 출처 iframe(390px)로 기획·디자인·배경 생성 화면을 확인했다(상단 바 + 한 줄 레이아웃, 프로젝트 상태 공유). 실제 폰 기기는 아직 확인하지 않았다. `npm run lint`는 ESLint 설정 파일이 없어 동작하지 않는다(복사 원본과 동일).
 - 이미지 생성은 한 장씩 유료 호출이므로(2K 기본) 사용 요금은 회원의 Gemini 계정에 청구된다. "전체 배경 생성" 전에 호출 횟수를 안내한다.
