@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, Loader2, Repeat, Scissors, UploadCloud, Wand2 } from "lucide-react";
+import Link from "next/link";
+import { CircleHelp, Download, Loader2, Repeat, Scissors, UploadCloud, Wand2 } from "lucide-react";
 import { buildMatrix, findLoops, qualityLabel, refinePair, type LoopCandidate } from "@/lib/loop/analysis";
 import { extractFeatures, renderLoop } from "@/lib/loop/browser";
 import { MAX_CROSSFADE, MIN_CROSSFADE, normalize, totalLength, type LoopMode, type OutFormat } from "@/lib/loop/plan";
@@ -149,18 +150,41 @@ export function LoopTool() {
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-        <h2 className="mb-3 text-base font-bold text-neutral-900">1. 영상 올리기</h2>
         <label
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); pickFile(e.dataTransfer.files?.[0] ?? null); }}
-          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-8 text-center hover:border-blue-400"
+          className="mx-auto flex max-w-xl cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-10 text-center hover:border-blue-400"
         >
-          <UploadCloud className="text-neutral-400" />
-          <span className="text-sm font-medium text-neutral-700">{file ? file.name : "동영상을 끌어다 놓거나 눌러서 선택하세요"}</span>
-          <span className="text-xs text-neutral-500">50MB 이하, 30초 미만 영상을 권장합니다 · 영상은 서버로 전송되지 않고 이 기기 안에서만 처리됩니다</span>
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-200 text-neutral-600"><UploadCloud size={28} /></span>
+          <span className="mt-2 text-xl font-bold text-neutral-900">{file ? file.name : "비디오 업로드"}</span>
+          <span className="text-sm text-neutral-600">드래그 앤 드롭 또는 클릭하여 업로드하세요.</span>
+          <span className="text-xs text-neutral-500">MP4, WebM 지원 (최대 50MB, 30초 미만 권장) · 영상은 서버로 전송되지 않고 이 기기 안에서만 처리됩니다</span>
+          <span className="mt-3 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm">파일 선택</span>
           <input type="file" accept="video/*" className="hidden" onChange={(e) => pickFile(e.target.files?.[0] ?? null)} />
         </label>
         {error && <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+
+        <div className="mx-auto mt-6 grid max-w-3xl gap-3 sm:grid-cols-3">
+          {[
+            [UploadCloud, "1. 영상 업로드", "5~20초 정도의 짧은 영상을 선택하세요."],
+            [Wand2, "2. 자동 분석", "가장 자연스러운 루프 구간을 찾습니다."],
+            [Download, "3. 완성", "끊김 없는 무한 반복 영상을 다운로드하세요."],
+          ].map(([Icon, t, d]) => {
+            const I = Icon as typeof UploadCloud;
+            return (
+              <div key={t as string} className="flex flex-col items-center rounded-2xl border border-neutral-200 bg-white px-4 py-5 text-center">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600"><I size={16} /></span>
+                <p className="mt-2 text-sm font-bold text-neutral-900">{t as string}</p>
+                <p className="mt-1 text-xs text-neutral-500">{d as string}</p>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-5 flex justify-center">
+          <Link href="/guide" className="inline-flex items-center gap-2 rounded-full border border-neutral-300 px-4 py-2 text-xs text-neutral-600 hover:bg-neutral-50">
+            <CircleHelp size={14} /> 초보자를 위한 상세 가이드 열기
+          </Link>
+        </div>
       </section>
 
       {url && (
@@ -170,7 +194,7 @@ export function LoopTool() {
             <div>
               <video ref={videoRef} src={url} controls muted playsInline onLoadedMetadata={onLoaded}
                 onTimeUpdate={(e) => { const v = e.currentTarget; if (showSegment && end > start && v.currentTime >= end) v.currentTime = start; }}
-                className="w-full rounded-xl bg-black" />
+                className="aspect-square w-full rounded-xl bg-black object-contain" />
               <p className="mt-1 text-xs text-neutral-500">미리보기는 선택한 구간만 반복합니다 (크로스페이드는 만든 결과에서 확인).</p>
               {curve.length > 0 && (
                 <div className="mt-3">
