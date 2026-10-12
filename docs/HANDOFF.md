@@ -1,5 +1,33 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — AI 올인원 그래픽 자동화 (allinone-graphic v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 등록 완료
+
+주인님 요청("AI 올인원 그래픽 자동화 로 하자", 레퍼런스 `https://banana-works.vercel.app/` 전수 스크래핑 & 역분석)에 따라, 19개 직군 123종 전문 템플릿과 나노바나나 엔진, 브러시 인페인팅 & 아웃페인팅 스마트 매직 에디터를 탑재한 신규 서브프로젝트 **`AI 올인원 그래픽 자동화` (`allinone-graphic v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위(`sort_order: 128`, 카테고리: 이미지) 등록을 완벽히 완료했습니다:
+
+1. **레퍼런스 100% 전수 역분석 및 실기 기능 구현 완결 (Rule 15)**:
+   - **19개 직군 123종 전문 템플릿 DB 완비**: 개발자(UI/UX, 앱아이콘), 게임(스킬아이콘, 타일맵), 엔지니어(블루프린트, HMI제어), 크리에이터(썸네일, 3D아바타), 웹툰(배경, 캐릭터시트), 마케터(포스터, SNS광고), 커머스(상품누끼, 상세페이지), 패션(룩북, 가상피팅), 인테리어(3D투시도, 평면도) 등 123개 템플릿 전수 내장.
+   - **AI 입력 도우미**: 회의록/사양서 파일(.txt, .md, .json, .pdf) 및 이미지를 첨부하면 Gemini 2.5 Flash가 기획서를 분석하여 가변 입력 필드를 100% 자동 채움 지원.
+   - **나노바나나 엔진**: ⚡ 나노바나나 (표준 1K 고속) vs ✨ 나노바나나2 (Pro 2K/4K 초고화질, 매크로 접사, 텍스트 렌더링).
+   - **스마트 매직 에디터**: 캔버스 브러시로 원하는 영역을 칠해 부분 교체/추가/삭제하는 마스크 인페인팅, 캔버스 비율 확장 아웃페인팅 지원.
+2. **플랫폼 표준 불변 지침 완벽 준수**:
+   - **최상위 절대 불변 규칙**: 사용자 본인 Gemini API 키(`user_api_keys.provider = 'gemini'`) 직접 등록 및 연동 (운영자 키 폴백 금지, 3단계 사전 진단 지원).
+   - **표준 좌측 사이드바 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**: `← 다른 프로그램 보기`, 5대 대분류 아코디언 및 19개 직군 필터, `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`, 하단 계정/로그아웃 밀착 배치.
+   - **화이트 베이스 클린 테마 (Rule 8)** 및 **기준 연도 2026년 동적 주입 (Rule 9)**.
+3. **16:9 와이드 실사 썸네일 제작 및 플랫폼 Storage 등록**:
+   - 대형 듀얼 모니터에 펼쳐진 123종 프리셋 그리드, 오렌지 마스크 인페인팅 브러시, 4K 배지, 세련된 한국인 디자이너가 돋보이는 8K급 실사 썸네일 생성 및 `catalog/allinone-graphic-thumbnail.jpg` 업로드 완료.
+4. **플랫폼 DB 상품 등록 및 기본 요금제 3종 완비**:
+   - `programs` 테이블: 카탈로그 최상단 1순위(`sort_order: 128`), 카테고리 `이미지`(`b5cec438-a6cc-43e5-83bc-59368f8a2c4d`), 배지 `['free', 'new']`, `version: 'v1.01'`, `app_url: 'https://graphic.buylife.xyz'`.
+   - `pricing_plans`: 1개월(1만), 2개월(2만), 3개월(3만) 플랜 3종 등록 완료.
+   - `platform_guides`: `allinone-graphic-guide` 상세 가이드 등록 완료.
+5. **Vercel 프로덕션 배포 및 커스텀 도메인 연동**:
+   - 프로덕션 배포: `https://graphic.buylife.xyz` (HTTP 200 정상 가동).
+   - 인수인계 매뉴얼: `allinone-graphic/MANUAL.md`, `CLAUDE.md`, `AGENTS.md`, `README.md`, `docs/ALLINONE_GRAPHIC_HANDOFF_MANUAL_2026-10-13.md`.
+
+## 2026-10-13 Claude — 플레이리스트 채널 제작 자동화 (playlist-channel-studio v1.02) 신규 구축·배포
+
+- 참고 ai-playlist-creator-bice.vercel.app을 번들까지 분석해 새로 구현. 장르(10+직접입력) → 제목 10개(형식 검증) → Suno 프롬프트 3종(900자 미만) / 가사(5개 언어·이중 언어·1~20곡·은유 4단계·구조 15종·인트로/아웃트로·연주곡) / 유튜브 메타데이터 / 썸네일(스타일 7·글꼴 14, Canvas 글자 합성·수정 요청). 텍스트는 Gemini·OpenAI·Claude, 이미지는 Gemini·OpenAI(gpt-image-1) — 모두 회원 본인 키(`user_api_keys` gemini/openai/anthropic), FREE+new, 카테고리 유튜브, 도메인·썸네일 등록.
+- 검수: 테스트 20개, 실제 Chrome(관리자 계정 본인 키)에서 제목→Suno→가사 3곡(이중 언어)→메타→썸네일(글자 합성)→Claude 호출→키 안내 모달→모바일→삭제. **남은 일**: 일반 회원(naver) 계정 시험, OpenAI 텍스트·gpt-image-1·나노바나나 프로 실제 생성, 곡 20개 최대 생성 시간, KR/EN 화면 전환(미구현). 상세는 `playlist-channel-studio/AGENTS.md`.
+
 ## 2026-10-13 Codex — Markdown Studio 원본 분석·신규 개발 플랜 (구현 전)
 
 - 요청: `https://markdown-studio-mauve.vercel.app/`의 로직·동작·기능 정밀 분석과 개발 플랜. **조사·계획 단계이며 앱 구현·등록·배포는 하지 않음.**
