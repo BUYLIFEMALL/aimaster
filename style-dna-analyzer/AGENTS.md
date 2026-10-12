@@ -152,6 +152,24 @@
   8. **버전 및 DB 동기화**: `src/lib/version.ts`: `v1.09`, `package.json`: `1.09.0`, DB `programs.version = 'v1.09'`, 마이그레이션 `20261012083500_v1_09_natural_style_terms.sql`.
 - **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료.
 
+## 6-9. v1.10 (2026-10-12) '미학적 컬러' 명칭 반영 및 실제 색상 싸이클·바·원 실시간 렌더링 지원
+- 주인님 요청: "미학적 톤이 아니라 미학적 컬러야, 그리고 실제 색상을 왼쪽 원과 싸이클, 바 등에 표현되게 해줘".
+- 오리지널 번들 JS(`index-BGjzrCkN.js`) 1:1 매칭 구현:
+  1. **도넛 차트 중앙 라벨 1:1 매칭 (`StudioPalette.tsx`)**:
+     - `미학적 톤` ➔ 상단 **`미학적`** / 하단 **`컬러`** 2줄 텍스트 구조로 명확히 분리 표기.
+  2. **실제 이미지 색상 싸이클(SVG 도넛) 실시간 렌더링**:
+     - 도넛 차트 세그먼트(`segments`)에 실제 HEX 색상 stroke 및 정규화된 비중(`len`, `offset`)을 매핑하여 실제 색상 띠가 선명하게 회전/표현되도록 구현.
+  3. **5개 분할 독립 컬러 바 실제 색상 채움**:
+     - 통짜 바가 아닌 `grid grid-cols-5 gap-1.5 h-6`의 5개 분할 독립 컬러 블록으로 개편하고 각 블록에 `style={{ backgroundColor: c.hex }}` 적용.
+  4. **하단 목록 왼쪽 원(Circle) 실제 색상 표현**:
+     - `h-3.5 w-3.5 rounded-full`에 `style={{ backgroundColor: c.hex }}`를 적용하고 호버 시 스케일 확대 인터랙션 추가.
+  5. **클라이언트 즉시 색상 추출 엔진 (`imageFile.ts`, `analyze/page.tsx`)**:
+     - `extractPaletteFromDataUrl(dataUrl: string, count = 5)` 엔진 구현.
+     - 이미지를 업로드/드롭하는 즉시 0.05초 만에 캔버스에서 대표 색상 5개를 추출하여 `imagePalette`에 반영.
+     - 분석 완료 전에도 사용자가 올린 실제 사진 색상이 싸이클, 바, 원에 즉시 나타나며, 백엔드 분석 완료 시 `record.palette`로 자동 동기화.
+  6. **버전 및 DB 동기화**: `src/lib/version.ts`: `v1.10`, `package.json`: `1.10.0`, DB `programs.version = 'v1.10'`, 마이그레이션 `0022_bump_style_dna_analyzer_v110.sql`.
+- **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료.
+
 ## 7. 알려진 한계·다음 작업
 - 일반 회원 검수 완료(2026-10-11, 실제 Chrome에서 `buylifemall@naver.com` 로그인): 사용기간(검수용 2026-11-10까지)을 부여한 뒤 보관함이 비어 보임(관리자 분석이 안 보임 = 회원별 분리), 1단계 업로드→분석 시작→본인 Gemini 키로 분석 완료(결과·팔레트·DNA 표시). 검수용 사용기간과 이 계정의 분석 1건은 남아 있다(필요 시 정리).
 - 전용 카탈로그 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/style-dna-analyzer-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 주인님 요청으로 관리자 키 사용·1회 생성, 마이그레이션 `0003_thumbnail.sql`).

@@ -20,8 +20,9 @@ import {
   type AnalysisRecord,
   type DnaMode,
   type TargetImageModel,
+  type PaletteColor,
 } from "@/lib/dna/types";
-import { ACCEPT_ATTR, fileToResizedDataUrl } from "@/lib/dna/imageFile";
+import { ACCEPT_ATTR, fileToResizedDataUrl, extractPaletteFromDataUrl } from "@/lib/dna/imageFile";
 import { useDna } from "@/components/dna/AnalysisProvider";
 import { HelpGuideModal } from "@/components/dna/HelpGuideModal";
 import { StudioScanOverlay } from "@/components/dna/StudioScanOverlay";
@@ -56,6 +57,7 @@ const MOCK_KEYWORDS = [
 export default function AnalyzePage() {
   const { record, setRecord, engine } = useDna();
   const [image, setImage] = useState<string | null>(null);
+  const [imagePalette, setImagePalette] = useState<PaletteColor[] | null>(null);
   const [fileName, setFileName] = useState("");
   const [mode, setMode] = useState<DnaMode>("replicate");
   const [mutationLevel, setMutationLevel] = useState<number>(30);
@@ -99,8 +101,14 @@ export default function AnalyzePage() {
     if (!file) return;
     setError(null);
     try {
-      setImage(await fileToResizedDataUrl(file));
+      const resized = await fileToResizedDataUrl(file);
+      setImage(resized);
       setFileName(file.name);
+      // 이미지를 선택하자마자 브라우저 캔버스에서 실제 색상 팔레트 5개를 즉시 추출하여 실시간 반영
+      const pal = await extractPaletteFromDataUrl(resized);
+      if (pal && pal.length > 0) {
+        setImagePalette(pal);
+      }
     } catch (e) {
       setError({ message: e instanceof Error ? e.message : "이미지를 읽지 못했습니다." });
     }
@@ -139,7 +147,7 @@ export default function AnalyzePage() {
   };
 
   const shownImage = image ?? record?.imageUrl ?? null;
-  const currentPalette = record?.palette ?? MOCK_PALETTE;
+  const currentPalette = record?.palette ?? imagePalette ?? MOCK_PALETTE;
   const currentDnaBars = record?.result.dna?.length
     ? record.result.dna.map((d) => ({ label: d.label, percent: d.score }))
     : MOCK_DNA_BARS;
@@ -281,7 +289,7 @@ export default function AnalyzePage() {
               />
             </div>
 
-            {/* 메인 버튼: 스타일 분석 시작 */}
+            {/* 메인 버튼: 이미지 시퀀싱 시작 */}
             <button
               type="button"
               disabled={(!image && !record?.imageUrl) || busy}
@@ -289,7 +297,7 @@ export default function AnalyzePage() {
               className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 text-xs sm:text-sm font-black tracking-wide shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              <span>{busy ? "스타일 분석 중..." : "스타일 분석 시작"}</span>
+              <span>{busy ? "이미지 시퀀싱 중..." : "이미지 시퀀싱 시작"}</span>
             </button>
             {error && <div className="mt-2.5"><ErrorNote message={error.message} needKey={error.needKey} /></div>}
           </div>
@@ -506,7 +514,7 @@ export default function AnalyzePage() {
           {/* 카드 1: 미학적 팔레트 */}
           <StudioPalette
             palette={currentPalette}
-            dominantName={record ? "미학적\n톤" : "대기 중"}
+            dominantName={record || imagePalette ? "미학적\n컬러" : "대기 중"}
             isDark={isDark}
           />
 

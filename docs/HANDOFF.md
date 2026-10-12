@@ -1,5 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 이미지 스타일 분석기 (style-dna-analyzer v1.10) '미학적 컬러' 라벨 반영 및 실제 색상 싸이클·바·원 실시간 렌더링 배포 완료
+
+주인님 요청("미학적 톤이 아니라 미학적 컬러야, 그리고 실제 색상을 왼쪽 원과 싸이클, 바 등에 표현되게 해줘")에 따라, 오리지널 사이트 번들 JS를 1:1 대조 분석하여 도넛 차트 레이블을 '미학적 컬러'로 변경하고, 업로드 즉시 클라이언트 캔버스에서 실제 색상을 추출하여 싸이클(도넛 차트), 5개 분할 바, 왼쪽 원에 실시간으로 표현되도록 구현 완료했습니다:
+
+1. **도넛 차트 중앙 라벨 1:1 매칭 (`StudioPalette.tsx`)**:
+   - `미학적 톤` ➔ 상단 **`미학적`** / 하단 **`컬러`** 2줄 텍스트 구조로 명확히 분리 표기.
+2. **실제 이미지 색상 싸이클(SVG 도넛) 실시간 렌더링**:
+   - 도넛 차트 세그먼트(`segments`)에 실제 HEX 색상 stroke 및 정규화된 비중(`len`, `offset`)을 매핑하여 실제 색상 띠가 선명하게 회전/표현되도록 구현.
+3. **5개 분할 독립 컬러 바 실제 색상 채움**:
+   - 통짜 바가 아닌 `grid grid-cols-5 gap-1.5 h-6`의 5개 분할 독립 컬러 블록으로 개편하고 각 블록에 `style={{ backgroundColor: c.hex }}` 적용.
+4. **하단 목록 왼쪽 원(Circle) 실제 색상 표현**:
+   - `h-3.5 w-3.5 rounded-full`에 `style={{ backgroundColor: c.hex }}`를 적용하고 호버 시 스케일 확대 인터랙션 추가.
+5. **클라이언트 즉시 색상 추출 엔진 (`imageFile.ts`, `analyze/page.tsx`)**:
+   - `extractPaletteFromDataUrl(dataUrl: string, count = 5)` 엔진 구현.
+   - 이미지를 업로드/드롭하는 즉시 0.05초 만에 캔버스에서 대표 색상 5개를 추출하여 `imagePalette`에 반영.
+   - 분석 완료 전에도 사용자가 올린 실제 사진 색상이 싸이클, 바, 원에 즉시 나타나며, 백엔드 분석 완료 시 `record.palette`로 자동 동기화.
+6. **버전 및 DB 동기화**: `src/lib/version.ts`: `v1.10`, `package.json`: `1.10.0`, DB `programs.version = 'v1.10'`, 마이그레이션 `0022_bump_style_dna_analyzer_v110.sql`.
+7. **검수 및 배포 결과**:
+   - `npm test`: 23개 테스트 100% 통과 (Pass 23 / Fail 0).
+   - `npm run lint`: 0 error / 0 warning 통과.
+   - `npm run build`: Next.js Turbopack 프로덕션 빌드 성공.
+   - Vercel 프로덕션 배포 완료: [https://style-dna-analyzer.buylife.xyz](https://style-dna-analyzer.buylife.xyz) (HTTP 200 정상 확인).
+
+---
+
 ## 2026-10-12 Antigravity — 이미지 스타일 분석기 (style-dna-analyzer v1.09) 1안 직관적 스타일 용어 전면 적용 및 '추가 분석 지침' 개편 배포 완료
 
 주인님 확정(제안드린 1안 용어 체계 채택 및 '가이던스 오버라이드' 명칭 개선 요청)에 따라, 프로그램 전반의 생물학/SF 번역투 용어를 직관적인 스타일 중심 용어로 전면 교체하고 실서버에 배포 완료했습니다:

@@ -1,6 +1,5 @@
-"use client";
-
-import { histogramSimilarity } from "./palette";
+import { histogramSimilarity, paletteFromRgba } from "./palette";
+import type { PaletteColor } from "./types";
 
 const ACCEPT = ["image/jpeg", "image/png", "image/webp"];
 export const ACCEPT_ATTR = ACCEPT.join(",");
@@ -50,3 +49,14 @@ export async function colorMatch(originalUrl: string, generatedUrl: string): Pro
   const [a, b] = await Promise.all([pixelsOf(originalUrl), pixelsOf(generatedUrl)]);
   return histogramSimilarity(a, b);
 }
+
+/** data URL 이미지로부터 브라우저 캔버스를 통해 실제 색상 팔레트 5개를 즉시 추출한다. */
+export async function extractPaletteFromDataUrl(dataUrl: string, count = 5): Promise<PaletteColor[]> {
+  try {
+    const raw = await pixelsOf(dataUrl);
+    return paletteFromRgba(raw, count);
+  } catch {
+    return [];
+  }
+}
+
