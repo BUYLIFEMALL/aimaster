@@ -343,7 +343,7 @@ export function MediaCenter({
                 e.preventDefault();
                 if (e.dataTransfer.files?.[0]) handleBgFile(e.dataTransfer.files[0]);
               }}
-              className="border-2 border-dashed border-slate-200 hover:border-slate-300 bg-white rounded-2xl h-44 flex flex-col items-center justify-center cursor-pointer overflow-hidden relative group shadow-2xs"
+              className="border-2 border-dashed border-slate-200 hover:border-slate-300 bg-white rounded-2xl h-60 sm:h-64 flex flex-col items-center justify-center cursor-pointer overflow-hidden relative group shadow-2xs transition-all"
             >
               <input
                 ref={bgInputRef}
@@ -368,17 +368,30 @@ export function MediaCenter({
                       className="w-full h-full object-cover"
                     />
                   )}
-                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                    배경 변경하기
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                    <span>배경 변경하기</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBgMedia(null);
+                      }}
+                      className="p-1 rounded-md bg-white/20 hover:bg-red-500/80 transition-colors"
+                      title="배경 삭제"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               ) : (
-                <div className="text-center p-4">
-                  <Film className="w-8 h-8 text-slate-300 mx-auto" />
-                  <p className="mt-2 text-xs font-bold text-slate-600">
+                <div className="text-center p-6 flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <Film className="w-6 h-6 text-slate-400" />
+                  </div>
+                  <p className="text-xs font-bold text-slate-700">
                     배경 업로드 (JPG, PNG, MP4, GIF)
                   </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-400 mt-1">
                     16:9 가로 비율 권장
                   </p>
                 </div>
@@ -386,14 +399,14 @@ export function MediaCenter({
             </div>
           </div>
 
-          {/* 2. 채널 로고 & GIF 스티커 2열 카드 */}
+          {/* 2. 채널 로고 & GIF 스티커 2열 카드 (정사각형 박스) */}
           <div className="grid grid-cols-2 gap-4">
             {/* 채널 로고 */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">채널 로고</label>
               <div
                 onClick={() => logoInputRef.current?.click()}
-                className="border border-slate-200 bg-white hover:bg-slate-50/70 rounded-xl h-24 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group shadow-2xs"
+                className="border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/70 rounded-2xl aspect-square w-full flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group shadow-2xs transition-all"
               >
                 <input
                   ref={logoInputRef}
@@ -407,14 +420,32 @@ export function MediaCenter({
                   }}
                 />
                 {logoUrl ? (
-                  <div className="w-full h-full relative p-2 flex items-center justify-center">
+                  <div className="w-full h-full relative p-3 flex items-center justify-center">
                     <img src={logoUrl} alt="로고" className="max-h-full max-w-full object-contain" />
-                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                      변경
+                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold gap-2">
+                      <span>변경</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLogoUrl(null);
+                        }}
+                        className="p-1 rounded bg-white/20 hover:bg-red-500/80 transition-colors"
+                        title="로고 삭제"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold text-slate-500">+ 로고 추가</span>
+                  <div className="flex flex-col items-center justify-center text-center p-3">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                      <ImageIcon className="w-4 h-4 text-slate-400" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-500 group-hover:text-slate-700 transition-colors">
+                      로고 추가
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
@@ -424,7 +455,7 @@ export function MediaCenter({
               <label className="text-xs font-bold text-slate-700">GIF 스티커</label>
               <div
                 onClick={() => gifInputRef.current?.click()}
-                className="border border-slate-200 bg-white hover:bg-slate-50/70 rounded-xl h-24 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group shadow-2xs"
+                className="border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/70 rounded-2xl aspect-square w-full flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group shadow-2xs transition-all"
               >
                 <input
                   ref={gifInputRef}
@@ -438,14 +469,32 @@ export function MediaCenter({
                   }}
                 />
                 {gifUrl ? (
-                  <div className="w-full h-full relative p-2 flex items-center justify-center">
+                  <div className="w-full h-full relative p-3 flex items-center justify-center">
                     <img src={gifUrl} alt="GIF" className="max-h-full max-w-full object-contain" />
-                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                      변경
+                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold gap-2">
+                      <span>변경</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setGifUrl(null);
+                        }}
+                        className="p-1 rounded bg-white/20 hover:bg-red-500/80 transition-colors"
+                        title="GIF 삭제"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold text-slate-500">+ GIF 추가</span>
+                  <div className="flex flex-col items-center justify-center text-center p-3">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                      <span className="text-[10px] font-black text-slate-500">GIF</span>
+                    </div>
+                    <span className="text-xs font-bold text-slate-500 group-hover:text-slate-700 transition-colors">
+                      GIF 추가
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
