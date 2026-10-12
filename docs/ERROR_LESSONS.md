@@ -37,6 +37,13 @@
 
 ## 2026-10-12 — 사이드바 템플릿 이식 시 하드코딩된 FREE 배지 잔여물 노출 (emotion-writer v1.05)
 
+## 2026-10-12 — pica 업스케일이 영원히 "변환 중"에 멈춤 (image-convert-studio v1.02)
+
+- 증상: 확대/축소(배율≠1) 변환이 끝나지 않음. 콘솔 에러도 없음. 1배 변환은 정상.
+- 원인: `pica` 기본 기능에 웹 워커(`ww`)가 포함돼 있고, 번들러(Turbopack)에서 webworkify 워커가 응답하지 않음.
+- 해결: `new Pica({ features: ["js","wasm"] })` — `image-convert-studio/src/lib/imageTools/engine.ts`.
+- 다음부터 확인: pica 등 워커를 쓰는 라이브러리는 배포 후 실제 Chrome에서 확대 변환까지 눌러 보기(1배 경로만 보면 놓침).
+
 - 증상: 유료 권한 프로그램인데도 사이드바 헤더 제목 옆에 `FREE` 배지가 노출됨.
 - 원인: 무료 도구(ebook-studio)의 사이드바 템플릿을 참고·이식하는 과정에서 `<span ...>FREE</span>` 하드코딩 태그가 정리되지 않고 남아있었음 (DB `programs.badges`는 정상적으로 `['new']` 상태였음).
 - 해결: `emotion-writer/src/components/Sidebar.tsx`에서 하드코딩된 FREE 태그를 완전 삭제하고, 제목 글자 꺾임 방지(`whitespace-nowrap`)를 함께 적용하여 v1.05로 배포.
