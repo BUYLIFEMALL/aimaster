@@ -1,8 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-13 Antigravity — Youtube Playlist 자동화 (yt-playlist-studio v1.02) 명칭 전면 변경 및 도메인 동기화 완료
+## 2026-10-13 Antigravity — Youtube Playlist 자동화 (yt-playlist-studio v1.02) 명칭 전면 변경 · 신규 도메인 동기화 · 신규 16:9 고화질 실사 썸네일 등록 완료
 
-주인님 요청("프로그램 제목을 Youtube Playlist 자동화 로 수정 변경해주고 프로그램내 명칭도 바꿔주고 vecel 배포 주소도 프로그램 명으로 바꿔서 다시 배포해줘")에 따라, 프로그램 명칭을 'Youtube Playlist 자동화'로 전면 변경하고 신규 도메인 연동 및 DB 동기화를 완료하여 프로덕션 배포 완료했습니다:
+주인님 요청("프로그램 제목을 Youtube Playlist 자동화 로 수정 변경해주고 프로그램내 명칭도 바꿔주고 vecel 배포 주소도 프로그램 명으로 바꿔서 다시 배포해줘", "그리고 프로그램 등록하고 썸네일도 맞게 생성 등록해줘")에 따라, 프로그램 명칭을 'Youtube Playlist 자동화'로 전면 변경하고 신규 도메인 연동 및 16:9 고화질 실사 썸네일을 새로 생성하여 플랫폼 Storage/DB 등록을 완벽히 완료했습니다:
 
 1. **프로그램 명칭 및 버전 갱신**:
    - 공식 명칭: **`Youtube Playlist 자동화`** (`YouTube Playlist Automation`)
@@ -12,10 +12,14 @@
    - 공식 커스텀 도메인: [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) (Cloudflare 와일드카드 CNAME 및 Vercel alias 연동 완비)
    - 기존 도메인 `https://yt-playlist.buylife.xyz`도 보존(SSO/북마크 호환).
    - DB `programs.app_url` = `https://youtube-playlist.buylife.xyz` 갱신 완료.
-3. **배포 및 검증**:
+3. **신규 16:9 고화질 실사 썸네일 생성 및 등록**:
+   - 한국인(동아시아인) 크리에이터가 모니터링 헤드폰을 착용하고 편안한 미소로 작업하는 16:9 와이드 스튜디오 실사 썸네일 생성.
+   - 모니터에 유튜브 플레이리스트 영상 제작 화면(노을빛 도시 배경에 화려한 네온 시안/마젠타 오디오 스펙트럼 바, 파티클, 트랙 리스트 바) 및 모니터 스피커, 마스터 건반, 오디오 인터페이스가 배치되어 프로그램 정체성 100% 반영.
+   - Supabase Storage(`program-images/catalog/youtube-playlist-auto-thumbnail.jpg`, HTTP 200) 업로드 및 DB `programs.thumbnail_url` 갱신 완료.
+4. **배포 및 검증**:
    - Vercel 프로덕션 배포: `dpl_14oLCJpqCYLbxrPHdmNpVyW7hczn` (READY)
    - HTTP 307 /login SSO 보안 및 HTTP 200 정상 서빙 확인.
-   - DB `programs` 카탈로그 1순위(`sort_order: 124`) 동기화 완료.
+   - DB `programs` 카탈로그 1순위(`sort_order: 124`, 배지 `['free', 'new']`) 등록 완료.
 
 ---
 
