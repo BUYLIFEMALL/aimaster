@@ -1,10 +1,10 @@
-# 이미지 변환 스튜디오 (image-convert-studio) — v1.02
+# 이미지 변환 스튜디오 (image-convert-studio) — v1.03
 
 참고 원본: `imagic-ochre.vercel.app`(Imagic). 동작 방식을 분석해 AIMaster 규칙(통합 로그인·권한, 흰색 베이스, 표준 사이드바)에 맞춰 새로 만들었습니다. 문구·코드는 원본을 복사하지 않았습니다.
 
 - 주소: https://image-convert-studio.buylife.xyz (Vercel 프로젝트 `image-convert-studio`, 팀 buylife)
 - 카테고리 멀티미디어, FREE 배지(가입 회원 누구나). API 키·외부 계정이 필요 없는 100% 브라우저 처리 도구입니다(최상위 규칙 해당 없음).
-- 메뉴: 1 변환(`/convert`) · 2 콜라주(`/collage`) · 사용 안내(`/guide`). 한국어/English/日本語(우측 상단, localStorage `image_convert_studio_lang`).
+- 메뉴: 1 변환(`/convert`) · 2 콜라주(`/collage`) · 사용 안내(`/guide`). 한국어/English(우측 상단, localStorage `image_convert_studio_lang`).
 
 ## 구조
 - `src/lib/imageTools/formats.ts` 순수 함수(크기 계산·콜라주 좌표·파일명) — `npm test`로 검증.
@@ -21,3 +21,5 @@
 - v1.01 (2026-10-12): 신규 제작·등록·배포.
 - v1.02 (2026-10-12): 업스케일(pica) 멈춤 수정. 실제 Chrome(member 계정)에서 3장 일괄 변환, 2× PNG 확대(300×200→600×400), 콜라주(1248×840) 확인.
 - 남은 일: 없음(관리자 화면·결제 흐름은 FREE 배지라 해당 없음). 썸네일은 필요 시 `scripts/generate-program-thumbnail.mjs`.
+- v1.03 (2026-10-12): 주인님 지시로 일본어(JA) 기능 삭제 — 언어는 한국어/English만.
+- v1.04 (2026-10-12): 한국어 사용 안내를 주인님 제공 가이드 본문으로 교체(JPEG 투명은 실제 동작대로 흰색 채움).
