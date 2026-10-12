@@ -11,7 +11,7 @@
 ## 확인 결과
 
 - `npm test`: 33/33 통과. 전체 661개 레시피 및 아티스트 방향, 모든 시대·그룹 필터, 중복 시장 분류, BPM 범위, 자동 제외 복원, 부분 생성 병합, 컨텍스트 제외, 옛 백업 호환, 순차 생성·취소·개인 키/권한 규칙 포함.
-- `npm run lint`, `npm run build`: v1.03 최종 코드로 재실행하여 통과.
+- `npm run lint`, `npm run build`: v1.03 및 후속 v1.04에서 모두 통과. v1.04도 `npm test` 33/33 통과.
 - 실제 Workspace 컴포넌트를 별도 로컬 프런트 검수 화면에서 실행: 필터·설정 0회 호출, 선택 가사 생성 시 제목/Style 보존, 커서 구간 삽입, 랩 제외 복원, Style 저장/새로고침, 취소된 응답 폐기, JSON 파일 다운로드, 옛 JSON 가져오기, 390px 모바일 가로 넘침 없음. 10개 흐름 통과, 가짜 공급사 응답 2회. 운영 로그인이나 실제 공급사 호출 검수로 계산하지 않습니다.
 - 화면 증거: `docs/assets/options-v103-song-fixture.png`, `options-v103-mobile-fixture.png`. 루트·외부 서버에 인증 우회/테스트 전용 페이지를 만들지 않았습니다. 검수 도구는 `D:/PDS/suno-comparison-20261012/`에만 있습니다.
 - 모델 직접 입력: 공급사 선택·모델 ID 입력·새로고침 복원도 프런트 화면에서 통과. 총 11개 흐름이며 실제 공급사 호출은 0회입니다.
@@ -21,10 +21,21 @@
 - 구현 커밋 `05c6141e8f0fc219c9a701b3cab3ad27bfcc1f78`, origin/master 푸시 성공.
 - v1.03 프로덕션 `dpl_3VbJVNhXGcjeVXgApdg3gLf4SdMx`, READY. 커스텀 도메인 alias·배포 커밋·DB 버전 v1.03 일치 확인.
 - 운영 HTTP: /login 200, /와 /settings 비로그인 307 → 로그인, /api/generate 비로그인 401. 로그인/회원 화면 Cache-Control private,no-store, X-Vercel-Cache MISS.
-- API 401 오류 응답에는 private,no-store가 빠져 public,max-age=0으로 응답한 것을 발견. 실제 사용자 정보 유출을 관측한 것은 아닙니다. 모든 API 응답 헤더를 통일하고 v1.04로 추가 배포합니다.
+- API 401 오류 응답에는 private,no-store가 빠져 public,max-age=0으로 응답한 것을 발견. 실제 사용자 정보 유출을 관측한 것은 아닙니다. 모든 API 응답 헤더를 통일하고 v1.04로 추가 배포했습니다.
 - 실제 회원 Chrome 재검수: 접근성 상태 읽기는 가능했으나 키보드 포커스가 없어 입력 실패. --restore-window 1회 재시도에도 window_not_focused. 별도 Chrome 새 창 실행은 자동 승인 검토에서 blocked by policy로 거절되어 중단. 새 버전의 실제 회원 AI 생성·보관·번호 미등록 차단은 확인한 것으로 보고하지 않습니다. 계정·키·브라우저 세션을 복사하거나 인증 우회를 만들지 않았습니다.
 - 완료된 자동/프런트 검사와 미완료 실회원 검수를 구분합니다. v1.01 실회원 Gemini 1곡 생성 성공은 과거 증거이며 새 버전 실호출 성공의 증거로 대체하지 않습니다.
 
 공급사 웹 검색은 구현하지 않았으며 기존 AI 스타일 제안 안내를 유지합니다. 원본 AI 호출·Suno 최종 음악 생성, 새 옵션을 이용한 다른 공급사 실호출은 확인한 것으로 보고하지 않습니다. 실제 API 키/비밀번호/DB 스키마/환경변수 변경 및 자동 음악 공개는 없습니다.
 
 동시 작업으로 이미 커밋된 핸드폰 필수 정책(access.ts/programAccess.ts)도 이 배포에 포함됩니다. 관리자 예외·정지 우선·번호 미등록의 FREE/구독 차단 자동 검사를 추가했습니다. 테스트 회원은 등록 여부만 조회해 등록 상태임을 확인했고 번호 원문·계정 정보는 변경하지 않았습니다. 번호 없는 실회원 운영 차단 검수는 별도 확인 항목입니다. 기본 목록 외 공급사별 모델 ID 직접 입력을 추가하고 URL/경로·공급사 불일치와 비정상 플래그를 차단합니다.
+
+
+## v1.04 운영 완료 증거
+
+- 코드 커밋 `490c8440fa981f958763fa22e32666f7faec7a28`, origin/master 푸시 성공. 옵션 구현 커밋은 `05c6141e`.
+- 프로덕션 배포 `dpl_8N2qxCEBoLv2zbr2nnxmth18xffx`, READY, Vercel 배포 메타데이터의 코드 커밋 일치. https://suno-music-studio-qlushyk1l-buylife.vercel.app → https://suno-music-studio.buylife.xyz alias 완료.
+- DB `programs.version` v1.04, 코드 APP_VERSION v1.04, package 1.04.0 일치. 확장 프로그램 없음.
+- 2026-10-12 19:53 KST 운영 HTTP 재검사: 로그인 200, /와 /settings 비로그인 307, generate POST·keys GET/POST 비로그인 401. 모두 private,no-store 및 X-Vercel-Cache MISS. 실제 로그인 페이지에서 참조한 JS 8개 모두 200. 기록: [assets/live-v104-http.json](assets/live-v104-http.json).
+- 로컬 빌드의 JS 파일명은 Vercel 빌드 파일명과 달라 로컬 이름으로 파일을 요청하면 404였습니다. 잘못된 검사 경로를 폐기하고 실제 운영 HTML의 참조 경로로 검증했습니다. 회원 화면 버전 문자열은 관측하지 않았으며 버전 증거는 배포 커밋·소스·DB 일치입니다.
+- 미완료: v1.04 실회원 로그인 화면에서 선택 생성·Style 저장·AI 실호출·번호 미등록 차단을 다시 확인. 로컬 모의 검수와 운영 익명 응답 검사로 이를 대신했다고 보고하지 않습니다. Chrome 포커스/실행 차단이 해소되면 다른 CLI도 이 항목부터 재개합니다. API 키·사용기간 연장·계정 변경 없이 본인 키가 있는 테스트 회원을 사용합니다.
+- 범위 밖: 원본 공급사 웹 검색, 실제 Suno 음악 파일 생성. 이번 릴리스는 음악 기획·Style·가사·앨범 준비 기능입니다.

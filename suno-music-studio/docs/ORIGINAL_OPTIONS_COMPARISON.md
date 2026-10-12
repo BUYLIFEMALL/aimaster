@@ -95,3 +95,18 @@
 ### 원본 모델 설정 실측
 
 Claude: `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`; OpenAI: `gpt-5.4-mini`, `gpt-4.1-mini`; Gemini: `gemini-3.5-flash`, `gemini-2.5-flash`. 각 공급사 직접 입력도 선택했습니다. 이는 원본 화면 값이며 현재 사용 가능성·가격을 검증한 결과가 아닙니다. AIMaster는 기존 기본 모델 목록과 공급사별 직접 모델 입력을 제공하며 원본 가격/추천 배지를 복제하지 않습니다. 모델 ID의 공급사 접두어·형식은 검증하지만 실제 이용 가능성은 회원 키의 공급사 응답으로 확인합니다. 모델을 몰래 치환하거나 다른 회원 키로 폴백하지 않습니다.
+
+
+### 선택값 → 실제 결과 예시
+
+원본에서 `10cm (어쿠스틱 듀오/솔로) · 100 BPM`을 선택해 로드하면 2010년대 한국 인디/어쿠스틱 속성·남성 보컬·100 BPM이 Style에 반영되고 가사는 Intro/Verse/Pre-Chorus/Chorus/Bridge/Outro 골격으로 교체됐습니다. AIMaster에서 같은 선택 메타데이터를 적용한 결과는 다음과 같습니다(자체 레시피, AI 호출 아님).
+
+| 설정/결과 | v1.03~v1.04 실제 값 |
+|---|---|
+| 시대 / 그룹 | 2010s / 2010년대 한국 인디·감성 음악 |
+| BPM / 기준 잠금 / Style 생성 | 100 / 켜짐 / 꺼짐 |
+| Style | `indie pop, 2010s production aesthetics, intimate, understated, acoustic guitar, mellow keys, dry drums, 100 BPM, melodic vocals, male solo vocals` |
+| 제목·가사 | 기존 회원 작성 값 보존. 프리셋 적용 자체로 교체하지 않음 |
+| 후속 설정 | 랩 100%면 melodic vocals 제거·랩 지시 추가·singing 등 자동 제외. 0%로 복귀하면 자동 제외도 제거 |
+
+그룹·BPM·보컬 구성은 직접 관측한 선택 힌트를 반영했으며 장르/악기/분위기 문장은 독립 레시피입니다. 같은 이름 선택 시 원본 완성 문장이나 실제 가수의 음악을 동일하게 재현한다는 뜻은 아닙니다.
