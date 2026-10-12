@@ -16,12 +16,13 @@
    - **표준 좌측 사이드바 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**: `← 다른 프로그램 보기`, `대시보드 홈`, 번호형 3단계 핵심 흐름(`1. 제품 정보 입력` ➔ `2. 12단 상세 스튜디오` ➔ `3. 보관함 & 다운로드`), `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`, 하단 계정/로그아웃 8~16px 밀착 배치.
    - **화이트 베이스 클린 테마 (Rule 8)**: 밝고 세련된 화이트/중성색 바탕의 최신 웹 스튜디오 UI.
    - **기준 연도 2026년 동적 주입 (Rule 9)**: `new Date().getFullYear()`로 현재 2026년 기준 결과물 보장.
-3. **16:9 고화질 실사 썸네일 생성 및 플랫폼 Storage 등록**:
-   - 전문 한국인 이커머스 MD/디자이너가 듀얼 모니터에서 12단 시퀀스 카드와 모바일 860px 상세페이지 뷰를 검토하는 16:9 와이드 실사 썸네일 생성.
-   - Supabase Storage `program-images/catalog/detail-page-12p-thumbnail.jpg` (HTTP 200) 업로드 완료.
-4. **플랫폼 DB 등록 및 기본 요금제 3종 완비**:
-   - `programs` 테이블 등록: 카탈로그 최상단 1순위(`sort_order: 127`), 배지 `['free', 'new']`, `version: 'v1.01'`, `slug: 'detail-page-12p'`, `app_url: 'https://detail-12p.buylife.xyz'`.
+3. **16:9 고화질 실사 썸네일 V2 생성 및 플랫폼 Storage 등록**:
+   - 대형 모니터 속 12단 시퀀스 카드 그리드(Hero Banner, Problem Hook, Key Specs, Lifestyle, Comparison...)와 "12단 통이미지 일괄 렌더링", 우측 스마트폰의 860px 모바일 상세페이지 스크롤 뷰어가 전면에 선명하게 펼쳐진 16:9 와이드 실사 썸네일 V2 생성.
+   - Supabase Storage `program-images/catalog/detail-page-12p-thumbnail.jpg` (HTTP 200) 업로드 및 캐시 버스팅 파라미터 갱신 완료.
+4. **플랫폼 DB 상품 등록 및 기본 요금제 3종 완비**:
+   - `programs` 테이블 등록: 카탈로그 최상단 1순위(`sort_order: 127`), 카테고리 `이커머스`(`3f365685-a7d7-4372-817a-c38217239592`), 배지 `['free', 'new']`, `version: 'v1.01'`, `slug: 'detail-page-12p'`, `app_url: 'https://detail-12p.buylife.xyz'`.
    - `pricing_plans` 기본 3종 플랜(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원) 자동 등록 완비.
+   - 인수인계 문서 완비: `detail-page-12p/CLAUDE.md`, `detail-page-12p/AGENTS.md`, `README.md`, `MANUAL.md`.
 5. **Vercel 프로덕션 배포 및 커스텀 도메인 연동**:
    - 공식 도메인: [https://detail-12p.buylife.xyz](https://detail-12p.buylife.xyz) (Vercel Production 배포 완료, HTTP 307 SSO 리다이렉트 및 정상 작동 확인).
    - 환경변수: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL` Vercel Production 등록 완료.
