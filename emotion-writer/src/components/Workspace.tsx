@@ -333,19 +333,23 @@ export function Workspace({
   return (
     <>
       <header className="page-heading">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200/80 text-rose-700 text-xs font-bold mb-3 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-rose-500" />
-          <span>감성 글귀 & 배경 카드 제작 스튜디오</span>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200/80 text-rose-700 text-[11px] font-bold mb-1.5 shadow-2xs">
+          <Sparkles className="w-3 h-3 text-rose-500" />
+          <span>감성 글귀 & 배경 카드 제작</span>
         </div>
-        <h1>감성 글귀 이미지</h1>
-        <p>마음을 울리는 한 문장과 아름다운 배경 이미지를 감성 카드로 제작해보세요</p>
+        <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+          감성 글귀 이미지
+        </h1>
+        <p className="text-xs text-slate-500 mt-0.5">
+          마음을 울리는 한 문장과 아름다운 배경으로 감성 카드를 제작하세요
+        </p>
       </header>
 
       <div className="workspace-grid">
         <div className="controls">
           <Step
             number={1}
-            title="마음에 드는 주제를 선택하거나 직접 입력하세요"
+            title="주제 선택 (명언·위로·안부)"
             icon={Sparkles}
           >
             <div className="choice-grid">
@@ -402,7 +406,7 @@ export function Workspace({
 
           <Step
             number={2}
-            title="이미지 생성 방식을 선택하세요"
+            title="이미지 생성 방식 (AI·무료 사진)"
             icon={ImageIcon}
           >
             <div className="choice-grid">
@@ -446,7 +450,7 @@ export function Workspace({
             <>
               <Step
                 number={3}
-                title="이미지 비율을 선택하세요"
+                title="이미지 비율 (9:16·1:1·3:4)"
                 icon={Maximize2}
               >
                 <div className="choice-grid">
@@ -459,10 +463,10 @@ export function Workspace({
                       onClick={() => change({ ratio: r })}
                     >
                       {r === "1:1"
-                        ? "🔲 정사각형 피드 (1:1)"
+                        ? "🔲 피드 (1:1)"
                         : r === "9:16"
-                          ? "📱 세로형 릴스·쇼츠 (9:16)"
-                          : "📄 카드뉴스형 (3:4)"}
+                          ? "📱 세로 (9:16)"
+                          : "📄 카드 (3:4)"}
                     </button>
                   ))}
                 </div>
@@ -473,7 +477,7 @@ export function Workspace({
 
               <Step
                 number={4}
-                title="문구의 줄 수를 선택하세요"
+                title="문구 줄 수 (5~8줄)"
                 icon={Sliders}
               >
                 <div className="four-grid">
@@ -496,7 +500,7 @@ export function Workspace({
 
               <Step
                 number={5}
-                title="글귀 스타일을 선택하고 문구를 만드세요"
+                title="글귀 스타일 및 AI 생성"
                 icon={PenLine}
               >
                 <div className="choice-grid">
@@ -669,7 +673,7 @@ export function Workspace({
         <div className="result-column">
           <Step
             number={6}
-            title="생성된 감성 이미지"
+            title="감성 이미지 미리보기 & 저장"
             icon={Palette}
           >
             <p className="next-action" role="status">

@@ -149,29 +149,29 @@ p {
 }
 
 h1 {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 800;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: #0f172a;
   letter-spacing: -0.02em;
 }
 
 h2 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #0f172a;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 h3 {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 p {
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 small {
@@ -181,7 +181,7 @@ small {
 }
 
 section[id] {
-  scroll-margin-top: 24px;
+  scroll-margin-top: 16px;
 }
 
 .app-shell {
@@ -193,17 +193,17 @@ section[id] {
 .app-main {
   flex: 1;
   min-width: 0;
-  padding: 32px 40px;
+  padding: 20px 28px;
   background: #f8fafc;
 }
 
 .page-heading {
-  margin-bottom: 28px;
+  margin-bottom: 14px;
 }
 
 .page-heading p {
   color: #64748b;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .workspace-grid {
@@ -211,20 +211,20 @@ section[id] {
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 7.2fr) minmax(0, 4.8fr);
-  gap: 28px;
+  gap: 20px;
   align-items: start;
 }
 
 .controls {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 .card {
-  padding: 24px;
+  padding: 18px 20px;
   border: 1px solid #e2e8f0;
-  border-radius: 20px;
+  border-radius: 18px;
   background: #ffffff;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
@@ -232,11 +232,11 @@ section[id] {
 .card h2 {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 12px;
-  margin-bottom: 18px;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
   border-bottom: 1px solid #f1f5f9;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #0f172a;
 }
