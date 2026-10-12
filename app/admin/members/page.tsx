@@ -48,7 +48,7 @@ export default async function AdminMembersPage() {
     // 목록에 "사용만료기간"을 보여주기 위해 전체 회원의 활성 구독을 한 번에 조회한다.
     // 회원×프로그램 조합이 많아지면 1000행을 넘길 수 있어 fetchAllRows로 페이지네이션한다.
     fetchAllRows((from, to) =>
-      supabase.from("subscriptions").select("user_id, expires_at").eq("status", "active").range(from, to),
+      supabase.from("subscriptions").select("user_id, program_id, expires_at").eq("status", "active").range(from, to),
     ),
     // "만료기간 설정" 모달(회원 목록/상세 공통)이 실제로 기록하는 곳은 user_program_access다
     // — 여기를 함께 조회하지 않으면 모달로 설정해도 목록에 반영되지 않는 것처럼 보인다
@@ -69,24 +69,32 @@ export default async function AdminMembersPage() {
   // (subscriptions)과 관리자 수동 부여(user_program_access) 두 출처를 합산한다. 평생
   // (expires_at=null)인 것만 있으면 "평생"으로, 유료/유한 만료일이 하나라도 있으면 그중
   // 가장 이른 날짜를 보여준다(여러 프로그램이면 상세 화면에서 개별 확인).
-  const expiryByUserId = new Map<string, { soonest: string | null; hasLifetime: boolean; count: number }>();
-  function addExpiryEntry(userId: string | null, expiresAt: string | null) {
-    if (!userId) return;
-    const entry = expiryByUserId.get(userId) ?? { soonest: null, hasLifetime: false, count: 0 };
-    entry.count += 1;
-    if (expiresAt === null) {
-      entry.hasLifetime = true;
-    } else if (entry.soonest === null || expiresAt < entry.soonest) {
-      entry.soonest = expiresAt;
-    }
-    expiryByUserId.set(userId, entry);
-  }
-  for (const sub of activeSubs) addExpiryEntry(sub.user_id, sub.expires_at);
-  // 비공개(is_active=false) 프로그램의 부여는 "사용 가능 권한" 개수·만료일에서 뺀다(2026-10-13 주인님 지시)
+  // 프로그램 하나에 구독과 부여가 같이 있으면 한 개로 센다(구독 1개 + 부여 50개 = 50개, 51개로 부풀지 않게). 같은 프로그램은
+  // 더 늦게 끝나는 쪽(평생 우선)이 실제 이용 만료일이다. 비공개(is_active=false) 프로그램은 뺀다(2026-10-13 주인님 지시).
   const publicProgramIds = new Set((programs ?? []).map((p: { id: string }) => p.id));
-  for (const access of activeAccess) {
-    if (access.program_id && publicProgramIds.has(access.program_id)) addExpiryEntry(access.user_id, access.expires_at);
+  const effective = new Map<string, Map<string, string | null>>(); // user -> (program -> 만료일, null=평생)
+  function addAccess(userId: string | null, programId: string | null | undefined, expiresAt: string | null) {
+    if (!userId || !programId || !publicProgramIds.has(programId)) return;
+    const byProgram = effective.get(userId) ?? new Map<string, string | null>();
+    if (!byProgram.has(programId)) byProgram.set(programId, expiresAt);
+    else {
+      const prev = byProgram.get(programId)!;
+      if (prev !== null && (expiresAt === null || expiresAt > prev)) byProgram.set(programId, expiresAt);
+    }
+    effective.set(userId, byProgram);
   }
+  for (const sub of activeSubs) addAccess(sub.user_id, sub.program_id, sub.expires_at);
+  for (const access of activeAccess) addAccess(access.user_id, access.program_id, access.expires_at);
+
+  const expiryByUserId = new Map<string, { soonest: string | null; hasLifetime: boolean; count: number }>();
+  effective.forEach((byProgram, userId) => {
+    const entry = { soonest: null as string | null, hasLifetime: false, count: byProgram.size };
+    byProgram.forEach((exp) => {
+      if (exp === null) entry.hasLifetime = true;
+      else if (entry.soonest === null || exp < entry.soonest) entry.soonest = exp;
+    });
+    expiryByUserId.set(userId, entry);
+  });
 
   return (
     <div>
