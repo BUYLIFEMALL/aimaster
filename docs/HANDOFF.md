@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — Markdown Studio 원본 분석·신규 개발 플랜 (구현 전)
+
+- 요청: `https://markdown-studio-mauve.vercel.app/`의 로직·동작·기능 정밀 분석과 개발 플랜. **조사·계획 단계이며 앱 구현·등록·배포는 하지 않음.**
+- 독립된 실제 Chrome, 서버 HTML·메인 번들·내장 가이드·설정·옵션 전체 조사. 20개 서식 명령, 목록 3종, 기호 32종, 폴더/파일 관리, HTML 미리보기/복사, PDF/DOCX·폴더 DOCX 다운로드 확인.
+- 원본은 브라우저 문서 편집·변환 도구. 실제 `[` 검색 오류·미동작 단축키·강제 표 정렬·모바일 폭·이미지 PDF·altChunk DOCX 확인. 모의 Drive PATCH 401인데 성공 알림 재현. 실제 Google OAuth/Drive 쓰기는 미확인.
+- 가칭 `마크다운 문서 자동화`, 폴더 `markdown-studio`. [분석](../markdown-studio/docs/REFERENCE_ANALYSIS.md), [플랜](../markdown-studio/docs/DEVELOPMENT_PLAN.md), [증거](../markdown-studio/docs/evidence/review-results.json), [재개](../markdown-studio/AGENTS.md).
+- 다음 순서: 공통 틀·회원별 모델 → 편집 기능 → 가져오기·변환·백업 → 본인 Drive·오류/충돌 처리 → 회원 검수·등록·배포. AI 초안/요약은 선택적 후속 기능. DB 스키마·환경변수 변경은 별도 승인 규칙 적용.
+- 원본 수집: `D:/PDS/markdown-review-20261013/`, 핵심 분석·실험은 Git 문서에 보존. **Suno 검수 보류 유지**, 다른 CLI 프로젝트 변경 없음.
+
 ## 2026-10-13 Claude — 시네마틱 스토리보드 자동화 (cinematic-storyboard-studio v1.03) 신규 구축·배포
 
 - 참고 cinematic-storyboard-ai.vercel.app을 번들까지 분석해 새로 구현. 이미지 1장 → 분석 → 9컷 마스터 시트 → 자르기 ZIP → 영상 프롬프트(5/8/10/15초, 대사 옵션). 회원 본인 Gemini 키(서버), 프로젝트는 내 계정(`storyboard_projects` + 비공개 버킷 `storyboard-ai`, 30개 제한), FREE+new, 도메인 연결, 썸네일 등록.
