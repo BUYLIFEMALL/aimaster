@@ -1608,3 +1608,5 @@
 - 증상: 원본에서 랩 100% → 0%로 돌아와도 singing/sung chorus 제외가 남음 → 원인: 자동 제외 문자열을 사용자 입력에 누적 → 해결: `suno-music-studio/src/lib/studio/catalog.ts`에서 사용자 제외와 현재 조건의 자동 제외를 매번 합성 → 다음부터 확인: 랩·연주곡·고음 억제를 켰다가 끄고 자동 제외가 사라지며 직접 제외는 남는지 검수.
 - 증상: 전체 레시피 검사에서 Reggaetón 등 라틴 이름 때문에 영문 Style 검증 실패 → 원인: 표시 이름과 ASCII Style 계약 혼용 → 해결: `catalog.ts`의 레시피 음악 용어 NFKD 정규화. 화면 메타데이터는 원문 유지 → 다음부터 확인: 모든 프리셋·3방향을 검사하며 메타데이터와 생성 문장 정책을 분리.
 - 증상: 선택/입력란 이름이 옵션 수백 개 또는 가사 내용까지 포함되어 화면 검수 대상 검색 실패 → 원인: 래핑 label의 값/옵션을 접근성 도구가 이름으로 인식 → 해결: LibraryPicker·BriefControls·TrackEditor 주요 입력에 짧은 aria-label 부여 → 다음부터 확인: 내용 있는 입력·대용량 선택지의 실제 접근성 이름으로 조작하고 모바일 가로 넘침 확인.
+
+- 증상: Suno 운영 API 비로그인 오류 응답은 성공 응답과 달리 Cache-Control이 public,max-age=0 → 원인: `guarded()` 성공 경로에만 no-store 지정 → 해결: `suno-music-studio/src/lib/apiGuard.ts` 모든 응답에 private,no-store 적용(v1.04) → 다음부터 확인: 동적 라우트 선언만 확인하지 말고 성공/401/403/검증 오류의 실제 응답 헤더를 각각 확인.

@@ -25,7 +25,7 @@
 - **예약·자동 실행에도 적용했다(2026-10-12, 주인님 "아직 사용자 별로 없어 진행").** 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다: `stepmail`(캠페인 발송), `youtube-auto-reply`·`instagram-comment-reply`·`threads-comment-reply`(댓글 동기화), `real_estate_sales`(자동 수집·분석·발송), `booking-reminder`·`crm-google-form`(리마인드·팔로업), `kakao_auto_poster`·`trending-product-finder`(보고서·알림), `naver-cafe-poster`(예약 포스팅), `threads`·`insta_auto_poster`·`threads-affiliate-poster`(예약 게시, 전체 회원 대상 호출일 때). `threads-content-ops`는 이미 `checkProgramAccess()`를 쓰므로 자동 적용된다. 새 cron을 만들 때도 `phoneRegisteredUserIds()` 패턴(해당 route 파일 참고)을 적용한다.
 - **회원 이용 중단 영향**: 번호가 없는 회원의 예약 작업은 조용히 건너뛴다(실패 기록 없음). 번호를 등록하면 다음 실행부터 정상 처리된다.
 - 점검 대상에서 뺀 cron: 연결 상태 점검(`check-connection`), 이미지·초안 정리(`cleanup*`, `draft-retention`), 구독 만료 메일(`subscription-expiry`) — 회원 작업이 아니라 시스템 관리·안내용이다.
-- **대기 목록 — `suno-music-studio`(Codex 작업 중)**: 판정 파일(`src/lib/access.ts`, `src/lib/programAccess.ts`)에는 핸드폰 조건이 이미 들어가 있으나(커밋됨) **버전 +0.01·DB 버전·프로덕션 배포는 Codex 작업이 끝난 뒤** 진행한다. 그 전까지 이 프로그램만 번호 없는 회원도 쓸 수 있다. Codex 작업 완료 후 할 일: ① 그 작업을 커밋 ② `version.ts`·`package.json` v1.03 ③ `update programs set version='v1.03' where slug='suno-music-studio'` ④ 배포 ⑤ 번호 없는 계정으로 차단 확인(`docs/PHONE_REQUIRED_POLICY.md` 5번).
+- **`suno-music-studio` 후속 상태(2026-10-12 Codex)**: 이미 커밋된 `access.ts`·`programAccess.ts`의 핸드폰 정책을 옵션 확장 v1.03 프로덕션 배포에 포함했습니다. 관리자 예외/정지 우선/번호 없는 FREE·구독 회원 차단 자동 검사 통과. 실제 번호 없는 회원의 운영 화면·API 차단 검수만 남았으며 정책을 위한 별도 v1.03 재배포는 필요 없습니다. 최신 버전은 운영 헤더 보완 v1.04. Chrome 포커스·별도 창 실행 정책 차단으로 실회원 검수는 미완료: `suno-music-studio/docs/RELEASE_V1_03.md` 참고. 번호 원문·계정·권한은 변경하지 않았습니다.
 - 소셜 로그인은 이 플랫폼에 없다(이메일·비밀번호만) — 추가하면 콜백에서도 번호를 확인해야 한다.
 
 ## 5. 검수 방법

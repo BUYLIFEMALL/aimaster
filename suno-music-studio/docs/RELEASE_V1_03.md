@@ -1,4 +1,4 @@
-# v1.03 원본 옵션 비교·기능 확장
+# v1.03 옵션 확장 · v1.04 운영 후속 보완
 
 2026-10-12 Codex. 운영 주소 https://suno-music-studio.buylife.xyz/. 상세 조사·옵션 비교: [ORIGINAL_OPTIONS_COMPARISON.md](ORIGINAL_OPTIONS_COMPARISON.md).
 
@@ -18,7 +18,12 @@
 
 ## 운영 반영 상태
 
-코드·package·DB 버전 v1.03, 인수인계, 커밋·푸시·프로덕션 배포와 실제 회원 화면 확인을 같은 작업으로 이어서 처리합니다. 완료된 운영 결과는 이 부분에 후속 기록합니다.
+- 구현 커밋 `05c6141e8f0fc219c9a701b3cab3ad27bfcc1f78`, origin/master 푸시 성공.
+- v1.03 프로덕션 `dpl_3VbJVNhXGcjeVXgApdg3gLf4SdMx`, READY. 커스텀 도메인 alias·배포 커밋·DB 버전 v1.03 일치 확인.
+- 운영 HTTP: /login 200, /와 /settings 비로그인 307 → 로그인, /api/generate 비로그인 401. 로그인/회원 화면 Cache-Control private,no-store, X-Vercel-Cache MISS.
+- API 401 오류 응답에는 private,no-store가 빠져 public,max-age=0으로 응답한 것을 발견. 실제 사용자 정보 유출을 관측한 것은 아닙니다. 모든 API 응답 헤더를 통일하고 v1.04로 추가 배포합니다.
+- 실제 회원 Chrome 재검수: 접근성 상태 읽기는 가능했으나 키보드 포커스가 없어 입력 실패. --restore-window 1회 재시도에도 window_not_focused. 별도 Chrome 새 창 실행은 자동 승인 검토에서 blocked by policy로 거절되어 중단. 새 버전의 실제 회원 AI 생성·보관·번호 미등록 차단은 확인한 것으로 보고하지 않습니다. 계정·키·브라우저 세션을 복사하거나 인증 우회를 만들지 않았습니다.
+- 완료된 자동/프런트 검사와 미완료 실회원 검수를 구분합니다. v1.01 실회원 Gemini 1곡 생성 성공은 과거 증거이며 새 버전 실호출 성공의 증거로 대체하지 않습니다.
 
 공급사 웹 검색은 구현하지 않았으며 기존 AI 스타일 제안 안내를 유지합니다. 원본 AI 호출·Suno 최종 음악 생성, 새 옵션을 이용한 다른 공급사 실호출은 확인한 것으로 보고하지 않습니다. 실제 API 키/비밀번호/DB 스키마/환경변수 변경 및 자동 음악 공개는 없습니다.
 

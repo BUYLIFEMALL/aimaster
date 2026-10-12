@@ -1,6 +1,6 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-12 Codex — Suno 음악기획 자동화 v1.03 원본 세부 옵션 조사·확장
+## 2026-10-12 Codex — Suno 음악기획 자동화 v1.03 옵션 확장 · v1.04 API 캐시 보완
 
 주인님 요청으로 원본 SU-Note에 실제 Chrome 엔진으로 접속해 243개 그룹·461개 선택 프리셋·861개 방향 버튼·200개 댄스·441개 팔레트·297개 앨범 선택·64개 제어 조건·18개 구간·공급사/모델 설정을 조작했습니다. 필요한 공개 선택 이름/그룹/시대/BPM/보컬 힌트와 자체 음악 레시피를 반영했습니다. 원본 Style/AI 코드 전체 복제·키 조회·원본 유료 AI 호출은 하지 않았습니다. 제목/Style/가사 선택 생성, 내 Style, 별도 랩 보컬, 고음 억제, 구간 삽입, 자동 제외 복원, 이전 백업 호환 추가. 33개 자동 검사·린트·빌드, 실제 컴포넌트 모의 흐름 10개 통과. 운영 반영/실회원 검수의 최신 사실은 [suno-music-studio/docs/RELEASE_V1_03.md](../suno-music-studio/docs/RELEASE_V1_03.md), 상세 설정/결과 비교는 [ORIGINAL_OPTIONS_COMPARISON.md](../suno-music-studio/docs/ORIGINAL_OPTIONS_COMPARISON.md). 공급사 웹 검색·실제 Suno 음악 생성은 포함하지 않으며 개인 키·흰색 화면·메뉴 직후 계정 규칙 유지.
 
@@ -8,7 +8,7 @@
 
 ## 2026-10-12 Claude — [작업 대기] suno-music-studio 핸드폰 정책 배포 (Codex 작업 완료 후) + 예약·자동 실행 작업에도 정책 적용
 
-**작업 대기 리스트**: `suno-music-studio`는 현재 Codex가 작업 중이라 핸드폰 필수 정책의 **버전 올리기·배포를 보류**했습니다(판정 파일은 이미 커밋됨). Codex가 끝나면 `docs/PHONE_REQUIRED_POLICY.md` 4번의 순서(커밋 → v1.03 → DB 버전 → 배포 → 차단 확인)로 이어서 처리합니다. 그때까지 이 프로그램만 번호 없는 회원도 쓸 수 있습니다.
+**작업 대기 리스트**: `suno-music-studio`는 현재 Codex가 작업 중이라 핸드폰 필수 정책의 **버전 올리기·배포를 보류**했습니다(판정 파일은 이미 커밋됨). 후속 상태는 `suno-music-studio/docs/RELEASE_V1_03.md`를 우선합니다. Codex의 v1.03 배포에 커밋된 판정 파일도 포함되어 정책 코드가 운영에 반영됐습니다. 별도의 버전 갱신·재배포는 필요 없으며, 번호 없는 실제 회원의 화면/API 차단 검수만 남았습니다.
 
 같은 날 주인님 지시로 **예약·자동 실행(cron) 작업**에도 같은 정책을 적용했습니다: 번호가 없는 회원(관리자 제외)의 예약 작업은 실행하지 않음(stepmail, 댓글자동화 3종, real_estate_sales, booking-reminder, crm-google-form, kakao, trending-product-finder, naver-cafe-poster, threads/insta/affiliate 예약 게시). 13개 프로그램 버전 +0.01·재배포(상세 목록은 `docs/PHONE_REQUIRED_POLICY.md` 4번).
 
