@@ -1,4 +1,4 @@
-import { AppSettings, WebtoonProject } from "./types";
+import type { AppSettings, WebtoonProject } from "./types";
 export type { AppSettings, WebtoonProject };
 
 const SETTINGS_KEY = "ai_webtoon_studio_settings_v1";
@@ -22,7 +22,7 @@ export const DEFAULT_PROJECT: WebtoonProject = {
   characters: [
     {
       id: "char-1",
-      name: "강민우",
+      name: "",
       description: "19세 고등학생 소년, 단정한 검은 숏컷 머리, 네이비 교복 셔츠와 슬랙스, 호기심 가득하고 결단력 있는 눈빛",
     },
   ],
@@ -61,7 +61,24 @@ export function getStoredProject(): WebtoonProject {
     const raw = localStorage.getItem(PROJECT_KEY);
     if (!raw) return DEFAULT_PROJECT;
     const parsed = JSON.parse(raw);
-    return { ...DEFAULT_PROJECT, ...parsed };
+    const project: WebtoonProject = { ...DEFAULT_PROJECT, ...parsed };
+    const character = Array.isArray(project.characters) ? project.characters[0] : undefined;
+    const starterFields: (keyof WebtoonProject)[] = [
+      "id", "title", "author", "synopsis", "artStyle", "layout", "balloonStyle",
+      "includeCover", "chapterCount", "cutCount", "storyPrompt",
+    ];
+    // Clear only the untouched legacy starter, preserving authored characters and artwork.
+    if (
+      character && project.characters.length === 1 &&
+      character.id === DEFAULT_PROJECT.characters[0].id && character.name === "강민우" &&
+      character.description === DEFAULT_PROJECT.characters[0].description &&
+      !character.referenceImageUrl && !character.characterSheetUrl &&
+      !project.coverImageUrl && !project.scriptText && project.cuts?.length === 0 &&
+      starterFields.every((field) => project[field] === DEFAULT_PROJECT[field])
+    ) {
+      return { ...project, characters: [{ ...character, name: "" }] };
+    }
+    return project;
   } catch (e) {
     console.warn("Failed to load project:", e);
     return DEFAULT_PROJECT;

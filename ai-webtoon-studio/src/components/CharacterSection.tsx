@@ -203,7 +203,7 @@ export function CharacterSection({
                     type="text"
                     value={activeChar.name}
                     onChange={(e) => handleUpdateActiveChar({ name: e.target.value })}
-                    placeholder="예: 강민우"
+                    placeholder="인물 이름을 입력하세요"
                     className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
                   />
                 </div>

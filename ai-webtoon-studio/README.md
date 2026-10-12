@@ -5,7 +5,9 @@
 - **배포 주소**: `https://ai-webtoon-automation.buylife.xyz` (기존 `https://ai-webtoon-studio.buylife.xyz` 병행 지원)
 - **Vercel 주소**: `https://ai-webtoon-automation.vercel.app`
 
-## 핵심 기능 (v1.04)
+## 핵심 기능 (v1.05)
+
+v1.05: 기본 캐릭터 이름 ‘강민우’ 제거, 이름 직접 입력. [검수·릴리스 기록](docs/UI_RELEASE_V1_05.md).
 
 v1.04: 불필요한 날짜·시간·날씨 표시와 갱신 타이머 제거. [검수·릴리스 기록](docs/UI_RELEASE_V1_04.md).
 
