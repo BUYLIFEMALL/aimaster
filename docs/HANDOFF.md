@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 프리미엄 뱃지 추가 (루트 배포)
+
+주인님 지시: 프로그램에 "💎 프리미엄" 뱃지를 달면 소개 페이지에 "서버·트래픽 비용으로 드림팀·드림AI팀도 월 사용료 필요" 안내가 자동 표시되고 뱃지를 떼면 사라지게. 구현: `programs.badges`에 `premium` 허용(DB 제약 `0030_premium_badge.sql`), `components/ui/Badge.tsx`·`ProgramForm.tsx`·`ProgramsAdminBoard.tsx`·`ProgramCard.tsx`·`types/database.types.ts`, 소개 페이지 `app/(main)/programs/[slug]/page.tsx`, 문구 `lib/programs/premium.ts`. 실화면 확인(임시로 뱃지를 달았다 뗌 — 표시/삭제 모두 정상, 원상복구). **뱃지는 표시만 하며 무료 권한 무효화·결제 강제는 미구현**(`docs/GRADE_AND_BILLING_POLICY.md`).
+
 ## 2026-10-12 Claude — 회원 등급·프로그램 과금 정책 매뉴얼 추가 (루트 CLAUDE.md 핵심 원칙 16번)
 
 주인님이 설명한 등급 4종 의미와 "운영비가 나가는 프로그램은 골드·VIP도 유료" 방침을 `docs/GRADE_AND_BILLING_POLICY.md`로 정리했습니다(등급 의미, 프리미엄 개념과 코드 수정 없는 구현 방식, 후보 목록과 근거, 과금 아이디어, 기존 구조, **확정이 필요한 결정 5가지**). 아직 구현은 하지 않았고 결정 확정 후 진행합니다. 이후 등급·권한·요금 작업과 새 프로그램 기획 때 이 문서를 먼저 읽습니다.
