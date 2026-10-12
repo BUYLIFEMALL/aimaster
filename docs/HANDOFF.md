@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 메인 사이트 헤더: 관리자 표시 + 관리자 패널 바로가기 메뉴 (루트 앱)
+
+주인님 요청: 관리자로 로그인하면 ① 상단 사용자 버튼에 '관리자' 배지 ② 사용자 드롭다운의 [관리자 패널] 아래에 관리자 좌측 메뉴(프로그램 관리·회원 관리 등 14개)로 바로 가는 링크를 보여 줍니다(일반 회원에게는 보이지 않음). 메뉴 목록은 `components/layout/adminNavItems.ts` 한 곳에서 관리하고 `AdminSidebar`와 `Header`가 함께 씁니다 — 관리자 메뉴를 추가·변경할 때는 이 파일만 고치면 됩니다. (전 요청 [편집] 버튼은 커밋 504efe4c.)
+
 ## 2026-10-12 Claude Code — 메인 사이트 관리자용 [편집] 버튼 (루트 앱)
 
 주인님 요청: 관리자로 로그인하면 프로그램 카드(홈·/programs·카테고리 목록) 하단 버튼 맨 오른쪽에 [편집]이 보이고, 누르면 `/admin/programs/<id>/edit`로 이동합니다. `components/programs/ProgramCard.tsx`의 `isAdmin` prop, 판별은 `lib/access/getIsAdmin.ts`(`profiles.is_admin`, 화면 표시 전용 — /admin 자체는 기존 미들웨어·레이아웃이 막음). 대기 중 요청: 헤더 사용자 버튼 옆 '관리자' 표시, 드롭다운 [관리자 패널] 아래에 관리자 좌측 메뉴 바로가기.

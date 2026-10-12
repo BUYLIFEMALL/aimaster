@@ -7,6 +7,7 @@ import { Menu, X, ChevronDown, User, LogOut, LayoutDashboard, Settings } from "l
 import { createClient } from "@/lib/supabase/client";
 import GoldButton from "@/components/ui/GoldButton";
 import type { Profile } from "@/types/database.types";
+import { ADMIN_NAV_ITEMS } from "@/components/layout/adminNavItems";
 
 const NAV_LINKS = [
   { href: "/programs", label: "프로그램" },
@@ -115,11 +116,14 @@ export default function Header() {
                     </span>
                   </div>
                   <span className="text-sm text-white">{profile.name ?? profile.email.split("@")[0]}</span>
+                  {profile.is_admin && (
+                    <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-gold/15 text-gold border border-gold/30">관리자</span>
+                  )}
                   <ChevronDown size={14} className="text-subtext" />
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-white/10 rounded-xl py-1 shadow-xl">
+                  <div className={`absolute right-0 top-full mt-2 ${profile.is_admin ? "w-64 max-h-[80vh] overflow-y-auto" : "w-48"} bg-surface border border-white/10 rounded-xl py-1 shadow-xl`}>
                     <Link
                       href="/dashboard"
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-subtext hover:text-white hover:bg-white/5 transition-colors"
@@ -145,6 +149,21 @@ export default function Header() {
                         <Settings size={15} />
                         관리자 패널
                       </Link>
+                    )}
+                    {profile.is_admin && (
+                      <div className="pb-1" aria-label="관리자 패널 바로가기">
+                        {ADMIN_NAV_ITEMS.filter((item) => item.href !== "/admin").map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className="flex items-center gap-2 pl-8 pr-4 py-2 text-[13px] text-subtext hover:text-gold hover:bg-gold/10 transition-colors"
+                            onClick={() => setIsProfileOpen(false)}
+                          >
+                            <item.icon size={13} />
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
                     )}
                     <hr className="my-1 border-white/10" />
                     <button
