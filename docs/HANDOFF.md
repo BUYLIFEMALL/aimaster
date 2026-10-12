@@ -1,6 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.01) 전용 16:9 실사 썸네일 제작·프로그램 등록 및 Vercel 프로덕션 배포 완료
+
+주인님 요청("프로그램 등록 및 썸네일 만들어줘")에 따라 감성 글귀 이미지 프로그램의 전용 썸네일 제작, 카탈로그 최상단 등록, Vercel 환경변수 설정 및 프로덕션 배포를 완료했습니다:
+1. **전용 16:9 고화질 실사 썸네일 제작 & 스토리지 등록**:
+   - 감성적인 창가 카페 스튜디오에서 한국인 여성이 노트북·태블릿으로 시·명언·좋은 글 등 감성 글귀 카드를 디자인하는 최고급 16:9 실사 썸네일 생성.
+   - 로컬 파일 저장 (`emotion-writer/public/emotion-writer-thumbnail.jpg`, `scratch/emotion-writer-thumbnail.jpg`).
+   - Supabase Storage `program-images` 공개 버킷 `catalog/emotion-writer-thumbnail.jpg` 업로드 완료 (HTTP 200 검증).
+2. **프로그램 등록 완료 및 카탈로그 최상단 배치**:
+   - `sort_order`: **`122`** 로 상향하여 전체 20여 개 프로그램 중 카탈로그 맨 첫 자리(최상단 1위)에 우뚝 배치.
+   - `short_desc`: "[운영 준비 중]" 문구 제거 ➔ "AI로 마음을 울리는 감성 글귀와 아름다운 배경 사진을 합성하여 완성도 높은 카드 이미지를 제작하는 스튜디오".
+   - `badges`: `["new", "best"]`.
+   - `thumbnail_url`: `https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/emotion-writer-thumbnail.jpg?v=1791780846849`.
+   - 마이그레이션 SQL: `emotion-writer/supabase/migrations/20261012050000_register_program_and_thumbnail.sql`.
+3. **Vercel 환경변수 및 프로덕션 배포**:
+   - Vercel `buylife/emotion-writer`에 필수 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL`) 등록 완료.
+   - 도메인 `emotion-writer.buylife.xyz` 추가 및 프로덕션 배포 완료 (`https://emotion-writer.buylife.xyz`, HTTP 307 SSO 게이트 통과).
+   - 메인 카탈로그 `https://www.buylife.xyz/programs` 최상단 1위에 정상 노출 확인.
+
 ## 2026-10-12 Codex — AI 웹툰 자동화 v1.04 날짜·날씨 제거 완료
+
 
 주인님 "날짜와 날씨", "필요 없는 기능이야" 요청으로 상단 날짜·시간·고정 날씨·아이콘 및 30초 갱신 타이머를 제거했습니다. 빌드/타입·변경 Header ESLint 통과, 구현 `62d1275a` 푸시·Vercel 프로덕션 Ready·DB v1.04 동기화 완료. 정상 회원 Chrome 접근성 트리와 운영 UI 자산에서 제거 확인. [검수·배포 기록](../ai-webtoon-studio/docs/UI_RELEASE_V1_04.md). 이 화면 수정의 남은 작업 없음.
 
