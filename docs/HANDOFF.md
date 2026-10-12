@@ -36,6 +36,7 @@
    - `FREE` 배지 프로그램으로 가입 회원 누구나 무료 이용 가능 (비로그인은 자체 `/login` 리다이렉트)
 4. **플랫폼 데이터베이스 및 문서 완비**:
    - Supabase DB `programs` 테이블 등록 (`slug: vinyl-lp-studio`, `name: AI 바이닐 스튜디오`, `version: v1.01`, `badges: ['free', 'new']`, `app_url: https://vinyl-lp.buylife.xyz`)
+   - 16:9 카탈로그 실사 썸네일 생성 및 Supabase Storage 등록 완료 (`programs.thumbnail_url`)
    - 기본 3단계 요금제(`pricing_plans`) 등록 완료
    - 루트 [`AGENTS.md`](AGENTS.md) 제7조 카탈로그 등재 완료
    - 상세 사용 매뉴얼([`vinyl-lp-studio/MANUAL.md`](vinyl-lp-studio/MANUAL.md)) 및 에이전트 인수인계서([`vinyl-lp-studio/AGENTS.md`](vinyl-lp-studio/AGENTS.md)) 완비
