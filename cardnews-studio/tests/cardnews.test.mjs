@@ -165,3 +165,22 @@ test("buildCaptionPrompt & parseCaption: 인스타 캡션 프롬프트 및 응�
 });
 
 
+
+test("아이콘: parseCopy는 허용 목록의 아이콘만 남기고, 레이아웃은 아이콘 자리를 비운다", () => {
+  const ok = JSON.stringify({ pages: [{ headline: "가", sub: "나", icon: "brain" }, { headline: "다", sub: "", icon: "없는아이콘" }] });
+  assert.deepEqual(parseCopy(ok, 2), [{ headline: "가", sub: "나", icon: "brain" }, { headline: "다", sub: "" }]);
+  const style = { ...defaultStyle(), placement: "top" };
+  const plain = layoutBlock(1000, 1000, "제목", "보조", style, () => 10, false);
+  const withIcon = layoutBlock(1000, 1000, "제목", "보조", style, () => 10, true);
+  assert.equal(plain.iconTop, null);
+  assert.equal(withIcon.iconTop, 100);
+  assert.ok(withIcon.top > plain.top, "글자는 아이콘 아래에서 시작한다");
+  const hidden = layoutBlock(1000, 1000, "제목", "보조", { ...style, icon: { show: false, size: 130, dx: 0, dy: 0 } }, () => 10, true);
+  assert.equal(hidden.iconTop, null);
+});
+
+test("아이콘: 스타일·페이지 정리(범위 제한, 모르는 아이콘 제거, 이전 데이터 호환)", () => {
+  const s = sanitizeStyle({ icon: { show: false, size: 9999, dx: -9999, dy: 5 } });
+  assert.deepEqual(s.icon, { show: false, size: 300, dx: -300, dy: 5 });
+  assert.deepEqual(sanitizeStyle({}).icon, defaultStyle().icon);
+});

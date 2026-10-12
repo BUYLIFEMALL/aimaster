@@ -47,6 +47,7 @@ function TextControls({ title, value, sizeMin, sizeMax, onChange }: { title: str
 export default function DesignPage() {
   const { project, update } = useStudio();
   const { style, plan, pages } = project;
+  const icon = style.icon ?? { show: true, size: 130, dx: 0, dy: 0 };
   const [index, setIndex] = useState(0);
 
   if (!plan.topic.trim()) return <NeedPlan>먼저 1단계에서 분야와 핵심 주제를 입력해주세요.</NeedPlan>;
@@ -58,7 +59,7 @@ export default function DesignPage() {
   };
 
   const safeIndex = Math.min(index, Math.max(0, pages.length - 1));
-  const page = pages[safeIndex] ?? { headline: "제목 미리보기", sub: "보조 문구가 이렇게 표시됩니다.", imageUrl: undefined };
+  const page = pages[safeIndex] ?? { headline: "제목 미리보기", sub: "보조 문구가 이렇게 표시됩니다.", icon: "sparkles", imageUrl: undefined };
 
   return (
     <div className="space-y-6">
@@ -133,6 +134,22 @@ export default function DesignPage() {
               </Field>
             </div>
             <Slider label="배경 불투명도(글자 뒤 막)" value={style.bgOpacity} min={0} max={90} unit="%" onChange={(bgOpacity) => patchStyle({ bgOpacity })} />
+          </Card>
+
+          <Card className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-gray-900">아이콘 설정</h2>
+              <label className="flex items-center gap-2 text-xs text-gray-600">
+                <input type="checkbox" checked={icon.show} onChange={(e) => patchStyle({ icon: { ...icon, show: e.target.checked } })} className="h-4 w-4 accent-violet-600" />
+                카드에 아이콘 표시
+              </label>
+            </div>
+            <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+              <Slider label="아이콘 크기" value={icon.size} min={40} max={300} unit="px" onChange={(size) => patchStyle({ icon: { ...icon, size } })} />
+              <Slider label="좌우 위치" value={icon.dx} min={-300} max={300} unit="px" onChange={(dx) => patchStyle({ icon: { ...icon, dx } })} />
+              <Slider label="상하 위치" value={icon.dy} min={-300} max={300} unit="px" onChange={(dy) => patchStyle({ icon: { ...icon, dy } })} />
+            </div>
+            <p className="text-[11px] text-gray-500">아이콘 종류는 2단계(문구)에서 장마다 고릅니다. 색은 제목 글자색을 따릅니다.</p>
           </Card>
 
           <Card className="space-y-4">

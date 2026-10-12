@@ -53,8 +53,11 @@ export interface BlockLayout {
   headlineLineHeight: number;
   subLineHeight: number;
   gap: number;
-  /** 글자 블록의 시작 y(맨 위) */
+  /** 글자가 시작하는 y(아이콘이 있으면 아이콘 아래) */
   top: number;
+  /** 아이콘을 그릴 y(없으면 null) */
+  iconTop: number | null;
+  iconSize: number;
   height: number;
 }
 
@@ -64,8 +67,9 @@ export function layoutBlock(
   height: number,
   headline: string,
   sub: string,
-  style: Pick<CardStyle, "placement" | "headline" | "sub">,
-  measure: Measure
+  style: Pick<CardStyle, "placement" | "headline" | "sub" | "icon">,
+  measure: Measure,
+  hasIcon = false
 ): BlockLayout {
   const left = style.placement === "left";
   const maxWidth = Math.round(width * (left ? 0.72 : 0.8));
@@ -74,7 +78,9 @@ export function layoutBlock(
   const headlineLineHeight = Math.round(style.headline.size * 1.25);
   const subLineHeight = Math.round(style.sub.size * 1.5);
   const gap = headlineLines.length && subLines.length ? Math.round(style.headline.size * 0.6) : 0;
-  const blockHeight = headlineLines.length * headlineLineHeight + gap + subLines.length * subLineHeight;
+  const iconSize = hasIcon && style.icon?.show ? style.icon.size : 0;
+  const iconBlock = iconSize ? iconSize + Math.round(iconSize * 0.3) : 0;
+  const blockHeight = iconBlock + headlineLines.length * headlineLineHeight + gap + subLines.length * subLineHeight;
 
   let top: number;
   if (style.placement === "top") top = Math.round(height * 0.1);
@@ -82,7 +88,19 @@ export function layoutBlock(
   else top = Math.round((height - blockHeight) / 2);
 
   const x = left ? Math.round(width * 0.09) : Math.round(width / 2);
-  return { align: left ? "left" : "center", x, headlineLines, subLines, headlineLineHeight, subLineHeight, gap, top, height: blockHeight };
+  return {
+    align: left ? "left" : "center",
+    x,
+    headlineLines,
+    subLines,
+    headlineLineHeight,
+    subLineHeight,
+    gap,
+    top: top + iconBlock,
+    iconTop: iconSize ? top : null,
+    iconSize,
+    height: blockHeight,
+  };
 }
 
 /** 0(어두움)~1(밝음) 상대 밝기. 글자 색에 맞춰 배경 막 색을 고른다. */

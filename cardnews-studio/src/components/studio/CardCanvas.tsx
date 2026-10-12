@@ -12,7 +12,7 @@ export function CardCanvas({
   ratio,
   className = "",
 }: {
-  page: Pick<CardPage, "headline" | "sub" | "imageUrl">;
+  page: Pick<CardPage, "headline" | "sub" | "icon" | "imageUrl">;
   style: CardStyle;
   ratio: RatioId;
   className?: string;

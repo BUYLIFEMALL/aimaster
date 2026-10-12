@@ -1,6 +1,7 @@
 // 카드뉴스 문구·주제 추천 프롬프트. 연도는 매번 현재 연도를 넣고(루트 CLAUDE.md 핵심 원칙 8),
 // 지어낸 수치·출처를 막으며, 사용자 입력은 <data> 태그 안의 "데이터"로만 취급하게 한다(프롬프트 인젝션 완화).
 import { TONES, type ToneId } from "../cardnews/presets";
+import { ICON_PATHS } from "../cardnews/iconData";
 
 export interface CopyRequest {
   category: string;
@@ -12,6 +13,8 @@ export interface CopyRequest {
 export interface CopyPage {
   headline: string;
   sub: string;
+  /** 장 내용에 맞는 아이콘 id(허용 목록 안의 값만) */
+  icon?: string;
 }
 
 const clean = (s: string, max: number) => s.replace(/[<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
@@ -36,7 +39,8 @@ export function buildCopyPrompt(req: CopyRequest, year = new Date().getFullYear(
     "- 사실처럼 보이는 구체적인 수치·통계·출처·인용·인물 발언을 지어내지 마세요. 확실하지 않은 수치는 쓰지 말고 일반적인 표현으로 바꾸세요.",
     "- 이모지는 장당 최대 1개만 쓰세요. 해시태그는 쓰지 마세요.",
     `- 말투: ${tone.instruction}`,
-    '- 출력 형식: {"pages":[{"headline":"...","sub":"..."}, ...]} 이며 pages의 길이는 정확히 ' + n + "입니다.",
+    "- 각 장에 icon(그 장 내용을 상징하는 아이콘 id)도 고릅니다. 반드시 다음 중 하나만 쓰세요: " + Object.keys(ICON_PATHS).join(", ") + ".",
+    '- 출력 형식: {"pages":[{"headline":"...","sub":"...","icon":"..."}, ...]} 이며 pages의 길이는 정확히 ' + n + "입니다.",
   ].join("\n");
   const user = [
     `<data>분야: ${clean(req.category, 40)}\n핵심 주제: ${clean(req.topic, 200)}</data>`,
@@ -72,11 +76,12 @@ export function extractJson(text: string): unknown | null {
 }
 
 export function parseCopy(text: string, pageCount: number): CopyPage[] | null {
-  const data = extractJson(text) as { pages?: { headline?: unknown; sub?: unknown }[] } | null;
+  const data = extractJson(text) as { pages?: { headline?: unknown; sub?: unknown; icon?: unknown }[] } | null;
   if (!data || !Array.isArray(data.pages) || data.pages.length !== pageCount) return null;
   const pages = data.pages.map((p) => ({
     headline: typeof p.headline === "string" ? p.headline.trim().slice(0, 60) : "",
     sub: typeof p.sub === "string" ? p.sub.trim().slice(0, 160) : "",
+    ...(typeof p.icon === "string" && p.icon in ICON_PATHS ? { icon: p.icon } : {}),
   }));
   return pages.every((p) => p.headline) ? pages : null;
 }

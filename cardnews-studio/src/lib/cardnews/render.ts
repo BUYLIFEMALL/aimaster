@@ -1,6 +1,7 @@
 // 카드 한 장을 캔버스에 그린다. 화면 미리보기와 PNG 내보내기가 같은 함수를 쓰므로 결과가 같다.
 // 글자 줄바꿈·배치 계산은 layout.ts(순수 함수)에 있다.
 import { FONTS, RATIOS } from "./presets";
+import { ICON_PATHS } from "./iconData";
 import { placeholderGradient } from "./defaults";
 import type { CardPage, CardStyle, TextStyle } from "./types";
 
@@ -29,7 +30,7 @@ function drawCover(ctx: CanvasRenderingContext2D, img: CanvasImageSource & { wid
 export function drawCard(
   ctx: CanvasRenderingContext2D,
   size: { width: number; height: number },
-  page: Pick<CardPage, "headline" | "sub">,
+  page: Pick<CardPage, "headline" | "sub" | "icon">,
   style: CardStyle,
   bg: (CanvasImageSource & { width: number; height: number }) | null
 ) {
@@ -61,7 +62,28 @@ export function drawCard(
     ctx.font = `${style.headline.weight} ${fontSize}px ${family}`;
     return ctx.measureText(text).width;
   };
-  const layout = layoutBlock(width, height, page.headline, page.sub, style, measure);
+  const iconPaths = page.icon ? ICON_PATHS[page.icon] : undefined;
+  const layout = layoutBlock(width, height, page.headline, page.sub, style, measure, !!iconPaths);
+
+  // 아이콘: 24×24 선 아이콘을 헤드라인 글자 색으로 글자 위에 그린다.
+  if (iconPaths && layout.iconTop !== null && style.icon) {
+    const scale = layout.iconSize / 24;
+    const cx = layout.align === "left" ? layout.x + layout.iconSize / 2 : layout.x;
+    ctx.save();
+    ctx.translate(cx - layout.iconSize / 2 + style.icon.dx, layout.iconTop + style.icon.dy);
+    ctx.scale(scale, scale);
+    ctx.strokeStyle = style.headline.color;
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    if (style.displayStyle === "shadow") {
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = layout.iconSize * 0.12;
+      ctx.shadowOffsetY = layout.iconSize * 0.03;
+    }
+    for (const d of iconPaths) ctx.stroke(new Path2D(d));
+    ctx.restore();
+  }
 
   ctx.textBaseline = "top";
   ctx.textAlign = layout.align;

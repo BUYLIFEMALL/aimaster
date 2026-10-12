@@ -2,6 +2,7 @@
 // 이미지 주소는 이 회원의 업로드 폴더 주소만 허용한다(다른 회원 이미지·임의 외부 주소 저장 방지).
 import { defaultProject, defaultStyle } from "./defaults";
 import { COMPOSITIONS, DISPLAY_STYLES, FONTS, MOODS, PAGE_COUNTS, PLACEMENTS, RATIOS, THEME_COLORS, TONES, VISUAL_STYLES } from "./presets";
+import { ICON_PATHS } from "./iconData";
 import type { CardPage, CardStyle, ProjectData, TextStyle } from "./types";
 
 const rec = (v: unknown): Record<string, unknown> => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
@@ -22,6 +23,16 @@ function textStyle(v: unknown, fb: TextStyle, sizeMin: number, sizeMax: number):
     dx: clampNum(r.dx, -300, 300, 0),
     dy: clampNum(r.dy, -300, 300, 0),
     color: color(r.color, fb.color),
+  };
+}
+
+function iconStyle(v: unknown, fb: NonNullable<CardStyle["icon"]>): NonNullable<CardStyle["icon"]> {
+  const r = rec(v);
+  return {
+    show: typeof r.show === "boolean" ? r.show : fb.show,
+    size: clampNum(r.size, 40, 300, fb.size),
+    dx: clampNum(r.dx, -300, 300, 0),
+    dy: clampNum(r.dy, -300, 300, 0),
   };
 }
 
@@ -48,6 +59,7 @@ export function sanitizeStyle(raw: unknown): CardStyle {
     font: oneOf(style.font, FONTS, ds.font),
     headline: textStyle(style.headline, ds.headline, 30, 160),
     sub: textStyle(style.sub, ds.sub, 18, 90),
+    icon: iconStyle(style.icon, ds.icon!),
   };
 }
 
@@ -77,6 +89,7 @@ export function sanitizeProject(
       id: str(pr.id, 64, `p-${i}`),
       headline: str(pr.headline, 120),
       sub: str(pr.sub, 300),
+      icon: typeof pr.icon === "string" && pr.icon in ICON_PATHS ? pr.icon : undefined,
       imageUrl: current,
       imageUrls: urls.length ? urls : current ? [current] : undefined,
     };

@@ -7,7 +7,7 @@
 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`, `docs/AI_MODEL_INTEGRATION_STANDARD.md`를 먼저 읽는다.
 
 ## 1. 개요와 현황
-- 프로그램명: **INSTA Cardnews 자동화** (영문 `INSTA Cardnews Auto` / `CARDNEWS STUDIO`) / slug `cardnews-studio` / 현재 버전 **v1.05** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
+- 프로그램명: **INSTA Cardnews 자동화** (영문 `INSTA Cardnews Auto` / `CARDNEWS STUDIO`) / slug `cardnews-studio` / 현재 버전 **v1.06** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
 - 주소: https://cardnews-studio.buylife.xyz (Vercel 프로젝트 `buylife/cardnews-studio`, 별칭 `cardnews-studio-lime.vercel.app`)
 - 기술: Next.js 16 + React 19 + Tailwind 4 + Supabase SSR(공유 DB `esgxyikcnnvmlhygjkth`). 글자 얹기는 브라우저 캔버스. 기반 코드는 `youtube-channel-consultant`(로그인·권한·키 저장·사이드바).
 - 기획 배경: 주인님이 Google Flow의 "Carousel Pro" 도구(Flow "도구 빌더"로 만든 카드뉴스 생성 도구, `b2391618-385d-4d96-84aa-a23959efa0ee`) 화면과 기능을 레퍼런스로 요청하심. 카드뉴스 제작뿐 아니라 인스타그램 피드 캡션(후킹 카피, 본문 요약, CTA, 타겟 해시태그 20~25개) 원클릭 생성·복사 패키지 기능 탑재.
@@ -47,6 +47,11 @@
 - 일반 회원 경로는 `youtube-channel-consultant`와 같은 권한 판정 사본을 쓰며 `buylifemall@naver.com`에 사용기간(30일)을 부여해 두었다(직접 화면 검수는 하지 않음).
 
 ## 7. 버전 이력 및 알려진 한계
+- **v1.06 완료(2026-10-12, 주인님 지시 — Google Flow "Carousel Pro" 옵션 1:1 대조):**
+  - 대조 결과 빠져 있던 **카드 아이콘** 추가: 장마다 헤드라인 위에 선 아이콘(lucide 24종, `src/lib/cardnews/iconData.ts` — `scripts/gen-icons.mjs`로 생성, ISC 라이선스). AI가 문구 생성 때 장 내용에 맞는 아이콘 id를 고르고(`copyPrompts.ts`, 허용 목록 밖은 버림), 2단계에서 장별로 바꿀 수 있고, 3단계 "아이콘 설정"에서 표시 여부·크기(기본 130px)·좌우·상하를 조절한다. 색은 제목 글자색, 그림자 효과는 같이 적용.
+  - 디자인 무드 이름을 Flow와 같게 "임팩트형"→"볼드형"으로 변경(저장값 `impact`는 그대로).
+  - 대조해서 이미 같음을 확인한 항목: 분야 4종, 어조 5종, 생성 모델(Nano Banana 2/Pro), 비주얼 스타일 4종, 비주얼 구성 4종, 테마 컬러 4종, 텍스트 배치(우리는 좌측형 추가), 표시 스타일(우리는 형광펜 추가), 배경 불투명도, 페이지 4/6/8/10, 폰트·헤드라인·서브 크기/굵기/위치, 인스타 캡션(수정·복사), ZIP 저장.
+  - 이전 버전 프로젝트·템플릿은 아이콘 설정이 없어도 기본값으로 열린다(`sanitizeStyle`). 마이그레이션 `0009_v1_06_card_icons.sql`(버전만).
 - **v1.05 완료(2026-10-12, 주인님 지시):**
   - 공식 프로그램명을 **"INSTA Cardnews 자동화"** (`INSTA Cardnews Auto`)로 리브랜딩 (`APP_NAME`, 대시보드 헤더 H1, 레이아웃 메타데이터, DB `programs.name`).
   - 버전 `v1.05` 판올림 및 배포 완료. 마이그레이션 `0008_v1_05_rebrand_insta_cardnews.sql`.

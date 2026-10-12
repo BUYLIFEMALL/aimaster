@@ -18,6 +18,7 @@ export function defaultStyle(): CardStyle {
     font: "pretendard",
     headline: { size: 76, weight: 900, dx: 0, dy: 0, color: "#ffffff" },
     sub: { size: 38, weight: 500, dx: 0, dy: 0, color: "#f1f5f9" },
+    icon: { show: true, size: 130, dx: 0, dy: 0 },
   };
 }
 

@@ -21,6 +21,14 @@ export interface TextStyle {
   color: string;
 }
 
+/** 카드 위쪽에 얹는 선 아이콘의 표시 여부·크기(1080px 기준)·위치 조정 */
+export interface IconStyle {
+  show: boolean;
+  size: number;
+  dx: number;
+  dy: number;
+}
+
 export interface CardStyle {
   mood: MoodId;
   visualStyle: VisualStyleId;
@@ -33,12 +41,16 @@ export interface CardStyle {
   font: FontId;
   headline: TextStyle;
   sub: TextStyle;
+  /** 이전 버전 데이터에는 없을 수 있다 */
+  icon?: IconStyle;
 }
 
 export interface CardPage {
   id: string;
   headline: string;
   sub: string;
+  /** 헤드라인 위에 그리는 아이콘 id(iconData.ts) */
+  icon?: string;
   /** 현재 선택된 배경 이미지 */
   imageUrl?: string;
   /** 생성 이력(최대 6개) */

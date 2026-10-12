@@ -29,7 +29,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
 /** 캔버스에 카드 한 장을 그린다(글꼴·배경 이미지 로딩을 기다린다). 이미지 로딩에 실패하면 그라데이션 배경으로 그린다. */
 export async function renderCardToCanvas(
   canvas: HTMLCanvasElement,
-  page: Pick<CardPage, "headline" | "sub">,
+  page: Pick<CardPage, "headline" | "sub" | "icon">,
   style: CardStyle,
   ratio: RatioId,
   bgUrl?: string
@@ -61,7 +61,7 @@ export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
 }
 
 /** 페이지 1장을 PNG 파일 데이터로 만든다(내보내기용). */
-export async function renderCardToBlob(page: Pick<CardPage, "headline" | "sub">, style: CardStyle, ratio: RatioId, bgUrl?: string): Promise<Blob> {
+export async function renderCardToBlob(page: Pick<CardPage, "headline" | "sub" | "icon">, style: CardStyle, ratio: RatioId, bgUrl?: string): Promise<Blob> {
   const canvas = document.createElement("canvas");
   const { imageFailed } = await renderCardToCanvas(canvas, page, style, ratio, bgUrl);
   if (imageFailed) throw new Error("배경 이미지를 불러오지 못해 저장할 수 없습니다. 배경을 다시 생성해주세요.");

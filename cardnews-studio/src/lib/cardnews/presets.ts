@@ -1,6 +1,8 @@
 // 카드뉴스 옵션 프리셋. 선택지 구성은 참고 도구(Google Flow "Carousel Pro")의 화면에서 확인한 항목을 따르되,
 // 디자인 무드처럼 목록을 확인하지 못한 항목은 합리적인 프리셋으로 정했다(화면에서 바꿀 수 있다).
 
+import { ICON_LABELS } from "./iconData";
+
 export interface Option<T extends string = string> {
   value: T;
   label: string;
@@ -35,7 +37,7 @@ export const MOODS: (Option<MoodId> & {
 })[] = [
   { value: "info", label: "정보형", hint: "clear, informative, clean editorial feel", defaults: { placement: "center", bgOpacity: 40, displayStyle: "basic" } },
   { value: "emotion", label: "감성형", hint: "soft, warm, emotional and cozy atmosphere", defaults: { placement: "bottom", bgOpacity: 30, displayStyle: "shadow" } },
-  { value: "impact", label: "임팩트형", hint: "bold, high-contrast, eye-catching and energetic", defaults: { placement: "center", bgOpacity: 45, displayStyle: "outline" } },
+  { value: "impact", label: "볼드형", hint: "bold, high-contrast, eye-catching and energetic", defaults: { placement: "center", bgOpacity: 45, displayStyle: "outline" } },
   { value: "minimal", label: "미니멀형", hint: "minimal, calm, lots of whitespace and simple shapes", defaults: { placement: "left", bgOpacity: 25, displayStyle: "basic" } },
 ];
 
@@ -104,3 +106,7 @@ export const RATIOS: (Option<RatioId> & { width: number; height: number })[] = [
   { value: "4:5", label: "4:5 세로 (1080×1350)", width: 1080, height: 1350 },
   { value: "1:1", label: "1:1 정사각 (1080×1080)", width: 1080, height: 1080 },
 ];
+
+/** 카드 아이콘 선택지(lucide 선 아이콘 24종). id는 iconData.ts의 키다. */
+export const ICON_OPTIONS: Option[] = Object.entries(ICON_LABELS).map(([value, label]) => ({ value, label }));
+export const DEFAULT_ICON_BY_CATEGORY: Record<string, string> = { "자기계발": "book-open", "경제/재테크": "coins", "맛집/카페": "utensils", "뷰티/패션": "sparkles" };
