@@ -273,7 +273,7 @@ export default function AnalyzePage() {
               className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 py-2.5 text-xs sm:text-sm font-black tracking-wider uppercase shadow-[0_0_15px_rgba(0,240,255,0.35)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              <span>{busy ? "DNA 시퀀싱 해독 중…" : "이미지 시퀀싱 시작"}</span>
+              <span>{busy ? "시퀀싱 중..." : "이미지 시퀀싱 시작"}</span>
             </button>
             {error && <div className="mt-2.5"><ErrorNote message={error.message} needKey={error.needKey} /></div>}
           </div>
@@ -283,6 +283,7 @@ export default function AnalyzePage() {
             camera={record?.result.camera}
             lighting={record?.result.lighting}
             isDark={isDark}
+            isAnalyzing={busy}
           />
 
           {/* 카드 4: 시스템 가이던스 */}
@@ -411,12 +412,15 @@ export default function AnalyzePage() {
                 <img
                   src={shownImage}
                   alt={record?.result.titleKo || "분석 대상 이미지"}
-                  className="max-h-[440px] w-auto max-w-full rounded-lg object-contain shadow-md"
+                  className={`max-h-[440px] w-auto max-w-full rounded-lg object-contain shadow-md transition-all duration-700 ${
+                    busy ? "brightness-50 scale-[1.02]" : "brightness-100 scale-100"
+                  }`}
                 />
-                {/* AI 정밀 스캔 십자선 그리드 & 타겟 앵커 링 오버레이 */}
+                {/* AI 정밀 스캔 십자선 그리드 & 타겟 앵커 링 & 스캔 레이저 오버레이 */}
                 <StudioScanOverlay
                   aspectRatio={record?.aspectRatio || "1:1"}
                   active={true}
+                  isScanning={busy}
                 />
               </div>
             ) : (

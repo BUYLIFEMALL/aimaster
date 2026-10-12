@@ -7,32 +7,23 @@ interface StudioCameraLightingProps {
   camera?: AnalysisRecord["result"]["camera"];
   lighting?: AnalysisRecord["result"]["lighting"];
   isDark?: boolean;
+  isAnalyzing?: boolean;
 }
-
-const DEFAULT_CAMERA = {
-  angle: "3/4 Quarter View",
-  shotType: "Product Close-up",
-  lens: "Standard/Telephoto",
-  focusDistance: "85mm",
-  depthOfField: "Deep (f/8 - f/11)",
-};
-
-const DEFAULT_LIGHTING = {
-  timeOfDay: "Studio Setting",
-  direction: "Front-Left (Key) and Right (Fill)",
-  altitude: "Eye Level",
-  contrast: "Medium-Low",
-  shadows: "Soft and Minimal",
-};
 
 /**
  * 원본 스크린샷 1:1 매칭:
  * - 카메라 & 렌즈 정보 카드 (앵글, 샷 타입, 렌즈, 초점거리, 피사계심도)
  * - 조명 시퀀싱 정보 카드 (시간대-골드, 조명방향, 고도, 대비, 그림자)
+ * - 분석 전/중일 때는 스크린샷과 동일하게 "---" 표시
  */
-export function StudioCameraLighting({ camera, lighting, isDark = true }: StudioCameraLightingProps) {
-  const cam = camera || DEFAULT_CAMERA;
-  const light = lighting || DEFAULT_LIGHTING;
+export function StudioCameraLighting({ camera, lighting, isDark = true, isAnalyzing = false }: StudioCameraLightingProps) {
+  const showEmpty = isAnalyzing || !camera;
+  const cam = showEmpty
+    ? { angle: "---", shotType: "---", lens: "---", focusDistance: "---", depthOfField: "---" }
+    : camera;
+  const light = isAnalyzing || !lighting
+    ? { timeOfDay: "---", direction: "---", altitude: "---", contrast: "---", shadows: "---" }
+    : lighting;
 
   const cardBg = isDark ? "bg-[#0b1329]/95 border-slate-800/80 text-slate-100" : "bg-white border-slate-200 text-slate-900";
   const titleColor = isDark ? "text-cyan-400" : "text-slate-900";

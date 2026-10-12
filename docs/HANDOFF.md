@@ -1,6 +1,32 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-12 Antigravity — 스타일 DNA 분석기 (style-dna-analyzer v1.04) 원본 스크린샷 1:1 일치 3단 스튜디오 분석기 레이아웃 개편 및 듀얼 테마 배포 완료
+## 2026-10-12 Antigravity — 스타일 DNA 분석기 (style-dna-analyzer v1.05) 위아래 왕복 스캔 레이저 빔 애니메이션 및 유전자 해독 중 인디케이터 배포 완료
+
+주인님 요청("이미지 스캔할때는 위에서 아래위로 스캔하는 에니메이션을 구현해주고" + 전달받은 스크린샷 `orca-paste-1791790254634...png` 1:1 매칭)에 따라, 원본 스튜디오 V3의 실시간 스캔 애니메이션을 100% 동일하게 구현하고 실서버에 배포 완료했습니다:
+
+1. **위아래 왕복 스캔 레이저 라인 (`StudioScanOverlay.tsx`)**:
+   - `0% ➔ 100% ➔ 0%`로 부드럽게 왕복하는 네온 사이언(#00f0ff) 레이저 빔 애니메이션(`scanLaserBounce`, 3s infinite ease-in-out).
+   - 양 끝 투명 페이드아웃, 중심부 네온 레이저 발광(`shadow-[0_0_16px_rgba(0,240,255,0.85)]`) 및 레이저 상단 광선 잔상 트레일 효과 구현.
+2. **중앙 "유전자 해독 중..." 인디케이터 오버레이**:
+   - 스캔(시퀀싱) 진행 중일 때 이미지 딤 처리(`brightness-50 backdrop-blur-[2px]`).
+   - 360도 회전하는 점선 원형 링(`scanRotateRing`, 4.5s linear infinite) + 내부 네온 사이언 `Dna` 나선 펄스 아이콘.
+   - `tracking-[0.28em] text-xs font-mono font-black text-cyan-300 animate-pulse` 네온 타이틀 `유전자 해독 중...` 표시.
+3. **좌측 파라미터 대기 표시 연동**:
+   - 스캔 중 좌측 카메라 & 조명 항목들을 스크린샷과 동일하게 `---` (대시 3개)로 대기 표시.
+   - 좌측 버튼 텍스트를 `시퀀싱 중...` (회전 로딩 스피너)로 상태 전환.
+4. **버전 및 DB 동기화**:
+   - `src/lib/version.ts`: `v1.05`
+   - `package.json`: `1.05.0`
+   - DB `programs.version`: `v1.05` 갱신 완료 (`slug = 'style-dna-analyzer'`)
+   - 마이그레이션 SQL: `supabase/migrations/20261012074000_v1_05_scan_animation.sql`
+5. **검수 및 배포 결과**:
+   - `npm test`: 23개 테스트 100% 통과 (Pass 23 / Fail 0)
+   - `npm run lint`: 0 error / 0 warning 통과
+   - `npm run build`: Next.js Turbopack 프로덕션 빌드 성공
+   - Vercel 프로덕션 배포 완료: [https://style-dna-analyzer.buylife.xyz](https://style-dna-analyzer.buylife.xyz) (HTTP 200 정상 확인)
+
+---
+
 
 주인님 요청("C:\Users\ADMINI~1\AppData\Local\Temp\orca-paste-1791790195484-b3aebf90-67af-4e1c-9f2a-dcce179e7417.png 이런형테의 분석기 레이아웃으로 다시 기능 보강확장에서")에 따라, 원본 스튜디오 V3 스크린샷의 전문 3단 레이아웃을 100% 매칭 구현하고 실서버에 배포 완료했습니다:
 
