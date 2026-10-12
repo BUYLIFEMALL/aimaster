@@ -4,13 +4,16 @@
 - **도메인**: `ai-influencer.buylife.xyz`
 - **프로그램 명칭**: **AI 인플루언서 자동화 (AI Influencer Studio)**
 - **정체성**: 인스타그램 및 SNS 마케팅에 즉시 활용 가능한 초현실적(Hyper-realistic) AI 가상 인플루언서 화보 및 3종 맞춤 캡션(해시태그 포함) 자동 생성 스튜디오
+- **문서 안내**:
+  - 📖 **사용자 및 운영 상세 매뉴얼**: [`MANUAL.md`](MANUAL.md)
+  - 🤖 **AI 에이전트 인수인계 문서**: [`AGENTS.md`](AGENTS.md)
 
 ---
 
 ## 핵심 엔진 & 주요 기능
 
 0. **AIMaster 메인 지침 준수 좌측 표준 사이드바 메뉴 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**
-   - 상단 프로그램명 + 버전 배지(`v1.05`) + `← 다른 프로그램 보기`
+   - 상단 프로그램명 + 버전 배지(`v1.06`) + `← 다른 프로그램 보기`
    - `🏠 대시보드` 진입점
    - 번호형 핵심 작업 흐름 (원형 배지 + 연결선):
      - Step 1: 외형 스타일링 (`#step-1-appearance`)

@@ -1,5 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — AI 인플루언서 자동화 (ai-influencer-studio v1.06) 상세 사용 매뉴얼(MANUAL.md) 및 AI 에이전트 인수인계 문서(AGENTS.md) 완비
+
+주인님 요청("커밋 푸시 배포해주고 매뉴얼로 문서화해서 인수인계 문서 만들어줘")에 따라, 사용자와 운영자, 그리고 다른 AI 에이전트가 완벽하게 활용·유지보수할 수 있도록 상세 매뉴얼과 기술 인수인계 문서를 완비하여 배포 완료했습니다:
+
+1. **상세 사용자 및 운영 매뉴얼 작성 ([`ai-influencer-studio/MANUAL.md`](ai-influencer-studio/MANUAL.md))**:
+   - 프로그램 개요 및 핵심 5대 특장점 (극사실적 화보, AI 일과 플래닝, PPL/광고 모드, 3종 캡션 & 2중 피드백, 원클릭 주사위 랜덤 믹스)
+   - 클린 화이트 테마 3단 스튜디오 화면 레이아웃 안내 (좌측 사이드바, 옵션 컨트롤 패널, 우측 실시간 뷰어 & 캡션)
+   - 최상위 규칙에 따른 Google Gemini API 키 발급 및 안전한 연동 가이드
+   - Step 1~5 단계별 상세 옵션 가이드 (국적 30종, 헤어 31종, 피부 30종, 5대 타임라인 시나리오, 5대 광고 유형, 화면비/해상도)
+   - 캡션 스튜디오 3종 캡션 활용법 및 이미지/캡션 2중 피드백 미세 보정법
+   - 상단 유틸리티 도구 4종 및 FAQ 완비
+2. **AI 에이전트 인수인계 문서 작성 ([`ai-influencer-studio/AGENTS.md`](ai-influencer-studio/AGENTS.md))**:
+   - 절대 불변 최상위 규칙 (본인 Gemini API 키 직접 연동 원칙, FREE 배지 전체 무료, 흰색 테마, 단일 작업 세트 완결)
+   - Next.js 16 App Router 아키텍처 및 디렉토리 구조 상세 명세
+   - 핵심 API 라우트 5종 (`/api/generate-image`, `/api/generate-caption`, `/api/plan-day`, `/api/plan-variations`, `/api/user-key`)
+   - Gemini / Imagen 프롬프트 엔지니어링 전략 및 버전 갱신 규칙 명시
+3. **루트 플랫폼 문서 동기화**:
+   - 루트 [`AGENTS.md`](AGENTS.md) 제7조 프로그램 목록에 `ai-influencer-studio` (v1.06) 공식 등록
+   - [`ai-influencer-studio/README.md`](ai-influencer-studio/README.md)에 매뉴얼 및 인수인계 문서 링크 추가
+
+---
+
 ## 2026-10-12 Antigravity — AI 인플루언서 자동화 (ai-influencer-studio v1.06) 컨트롤 패널 중복 타이틀 제거 및 상단 도구바 정돈 배포 완료
 
 주인님 요청("이부분 필요 없어 삭제해줘 - PureGlow Pro / AI INFLUENCER STORY ENGINE 헤더 캡처")에 따라, 좌측 사이드바와 중복되던 컨트롤 패널 상단 브랜드 타이틀 블록을 완전히 삭제하고 세로 여백 최적화 및 우측 툴바 정돈을 완료했습니다:

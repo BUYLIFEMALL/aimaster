@@ -1,0 +1,165 @@
+# AI 인플루언서 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
+
+> **프로그램 버전**: `v1.06` (2026-10-12 최신 배포)  
+> **공식 커스텀 도메인**: [https://ai-influencer.buylife.xyz](https://ai-influencer.buylife.xyz)  
+> **Vercel 프로덕션 도메인**: [https://ai-influencer-studio-sage.vercel.app](https://ai-influencer-studio-sage.vercel.app)  
+> **프로그램 slug**: `ai-influencer-studio`  
+> **카테고리**: 멀티미디어 / 인스타 / 마케팅  
+> **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)
+
+---
+
+## 0. 절대 불변 최상위 규칙 (모든 에이전트 필독)
+
+1. **★ 사용자 본인 Gemini API 키 직접 등록 및 연동 원칙**:
+   - 운영자(buylifemall) 또는 시스템 공용 키로 폴백하지 않습니다.
+   - 키가 없으면 기능을 임의로 우회하거나 폴백하지 않고 `ApiKeyModal`을 열어 등록을 안내합니다.
+   - DB 테이블: 공용 `user_api_keys` (`provider = 'gemini'`).
+2. **FREE 배지 가입자 전체 무료 이용 원칙**:
+   - `programs.badges`에 `'free'`가 포함되어 있으므로 등급이나 구독 여부와 무관하게 가입한 회원은 누구나 이용 가능합니다.
+   - 단, 비로그인 사용자는 `/login?redirect=%2F`로 안전하게 리다이렉트됩니다.
+3. **작업 화면 클린 화이트 베이스 원칙 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
+   - 배경은 `bg-slate-50` / `bg-white`, 경계는 `border-slate-200`, 본문 텍스트는 `text-slate-800`.
+   - 포인트 컬러는 `pink-500` / `pink-600` (인플루언서 뷰티 테마).
+4. **단일 작업 세트 완결 원칙**:
+   - 빌드(`npm run build`) → Git Commit → Git Push → Vercel 배포(`vercel deploy --prod --yes`) → 버전 상향 동기화(`lib/version.ts` + `package.json` + DB `programs.version`) → 결과 보고까지 한 번에 완료합니다.
+
+---
+
+## 1. 아키텍처 및 디렉토리 구조
+
+```
+ai-influencer-studio/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/login/page.tsx      # 자체 도메인 로그인 화면 (Supabase SSO 쿠키 공유)
+│   │   ├── api/
+│   │   │   ├── auth/logout/route.ts   # 안전한 로그아웃 라우트
+│   │   │   ├── generate-image/route.ts# Gemini/Imagen 초고해상도 화보 생성 엔진
+│   │   │   ├── generate-caption/route.ts # Gemini 3종 인스타 맞춤 캡션 생성 엔진
+│   │   │   ├── plan-day/route.ts      # 인플루언서 5대 타임라인 시나리오 기획
+│   │   │   ├── plan-variations/route.ts# 단일 이벤트 5각 앵글 변형 기획
+│   │   │   └── user-key/route.ts      # 사용자 개인 Gemini API 키 CRUD (AdminClient)
+│   │   ├── layout.tsx                 # 루트 레이아웃 (Inter 폰트, 메타데이터)
+│   │   └── page.tsx                   # 대시보드 메인 페이지 (requireProgramAccess)
+│   ├── components/
+│   │   ├── Sidebar.tsx                # AIMaster 표준 좌측 사이드바 (Step 1~5 네비게이션)
+│   │   ├── ControlPanel.tsx           # 중앙 옵션 컨트롤 패널 (5단계 설정 블록 & 툴바)
+│   │   ├── ImageDisplay.tsx           # 우측 뷰어, 3종 캡션 탭, 미세 보정 인풋, 다운로드
+│   │   ├── ApiKeyModal.tsx            # 본인 Gemini API 키 등록 모달
+│   │   ├── HelpModal.tsx              # 사용 가이드 팝업
+│   │   ├── HistoryDrawer.tsx          # 작업 히스토리 로컬 스토리지 드로어
+│   │   └── InfluencerStudio.tsx       # 최상위 상태 관리자 & 화면 통합 컨테이너
+│   ├── data/
+│   │   └── influencer-options.ts      # 국적 30종, 헤어 31종, 피부 30종 등 전수 프리셋
+│   ├── lib/
+│   │   ├── access.ts                  # AIMaster 공용 프로그램 이용 권한 게이트
+│   │   ├── gemini.ts                  # Google Gen AI SDK 클라이언트 헬퍼
+│   │   └── version.ts                 # APP_VERSION = 'v1.06', APP_NAME
+│   └── types/
+│       └── influencer.ts              # InfluencerConfig, GenerationResult, HistoryItem 정의
+├── MANUAL.md                          # 사용자 및 운영 상세 매뉴얼
+├── README.md                          # 프로젝트 개요 및 최근 기능 내역
+└── package.json                       # Next.js 16.2.11, React 19.2.4
+```
+
+---
+
+## 2. 핵심 API 엔드포인트 명세
+
+### 1) `/api/generate-image` (POST)
+* **목적**: 인플루언서 설정 및 프롬프트를 조합하여 고화질 화보 생성
+* **엔진**: `imagen-3.0-generate-002` (폴백: `gemini-2.5-flash`)
+* **요청 본문**:
+  ```json
+  {
+    "config": {
+      "gender": "female",
+      "ethnicity": "kr",
+      "age": "24",
+      "hairStyle": "c_wave",
+      "expression": "soft smile",
+      "pose": "holding cup",
+      "outfit": "oversized white shirt",
+      "location": "cozy cafe",
+      "lighting": "m_win",
+      "camera": "iphone_rear",
+      "skin": ["glass_korean", "subtle_pores"],
+      "aspectRatio": "9:16",
+      "quality": "1K",
+      "isAdMode": false,
+      "productImages": []
+    },
+    "refinementFeedback": "조금 더 환하게 웃는 표정으로 변경해줘"
+  }
+  ```
+* **응답**: `{ "success": true, "imageUrl": "data:image/jpeg;base64,..." }`
+
+### 2) `/api/generate-caption` (POST)
+* **목적**: 화보 컨셉과 스토리 맥락에 최적화된 인스타그램 3종 캡션 및 해시태그 생성
+* **엔진**: `gemini-2.5-flash` (빠른 응답 속도 및 자연스러운 한국어 구사)
+* **응답**:
+  ```json
+  {
+    "success": true,
+    "captions": [
+      "🌿 따스한 햇살과 함께 시작하는 하루...",
+      "✨ 오늘의 ootd 완성! 화이트 셔츠는 진리...",
+      "☕️ 여러분은 얼죽아파인가요, 따아파인가요? 댓글로 알려주세요!"
+    ]
+  }
+  ```
+
+### 3) `/api/plan-day` (POST)
+* **목적**: 일과 문장 한 줄 입력 시 5대 시간대별(오전, 브런치, 오후, 골든아워, 야경) 시나리오 기획
+* **엔진**: `gemini-2.5-flash` (JSON 포맷 스트럭처드 아웃풋)
+
+### 4) `/api/plan-variations` (POST)
+* **목적**: 단일 이벤트 입력 시 5각 카메라 구도(거울 셀카, 전면 셀카, 전신 샷 등) 변형 기획
+
+### 5) `/api/user-key` (GET / POST)
+* **목적**: 로그인 회원의 `user_api_keys` 테이블 내 Gemini 키 조회 및 안전한 저장 (마스킹 처리)
+
+---
+
+## 3. 사이드바 및 레이아웃 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)
+
+* **좌측 사이드바 (`Sidebar.tsx`)**:
+  * 상단: `AI 인플루언서 자동화` + `v1.06` 배지 + `← 다른 프로그램 보기` (`https://www.buylife.xyz/programs`)
+  * `🏠 대시보드`
+  * 번호형 작업 흐름 (원형 핑크 배지 1~5 + 세로 연결선):
+    * Step 1: 외형 스타일링 (`#step-1-appearance`)
+    * Step 2: 일과 & 앵글 기획 (`#step-2-routine`)
+    * Step 3: 표정·포즈 & 연출 (`#step-3-styling`)
+    * Step 4: 광고/공구 모드 (`#step-4-admode`)
+    * Step 5: 화보 & 캡션 생성 (`#step-5-generate`)
+  * 구분선 아래:
+    * `🔑 API키등록·플랫폼연동`
+    * `💡 사용 가이드`
+    * `⚙️ 작업 히스토리`
+    * 회원 계정 이메일과 로그아웃 버튼 **바짝 밀착** 배치 (`mt-auto` 금지 규칙 준수)
+* **중앙 컨트롤 패널 (`ControlPanel.tsx`)**:
+  * 상단 툴바: 불필요한 중복 타이틀 완전 삭제, `px-5 py-2.5` 슬림형 도구 바로 우측 정렬(`justify-end`)
+  * 도구 버튼: 물음표(가이드), 톱니바퀴(API 설정), 주사위(전체 옵션 랜덤 믹스 🎲), 슬라이더(작업 히스토리)
+  * 스크롤 동기화: 사용자가 스크롤할 때 `IntersectionObserver`로 좌측 사이드바 스텝 자동 하이라이트
+
+---
+
+## 4. 버전 갱신 규칙 (절대 불변)
+
+프로그램을 수정하고 배포할 때마다 마이너 버전을 +0.01 올리며, 다음 3곳을 반드시 함께 동기화합니다:
+1. `src/lib/version.ts`: `export const APP_VERSION = 'v1.06';`
+2. `package.json`: `"version": "1.06.0"`
+3. Supabase DB `programs` 테이블: `version = 'v1.06'` (scripts를 통해 갱신)
+4. `README.md`, `MANUAL.md`, `docs/HANDOFF.md`에 변경 내용 기록.
+
+---
+
+## 5. 버전별 변경 이력
+
+- **v1.01**: 원본 레퍼런스(PureGlow Pro) 정밀 분석 및 핵심 엔진/타입/프리셋 구축
+- **v1.02**: 15개 섹션 전수 확장, K-Glass 물광 등 피부 30종, 일과 기획 & 단일 이벤트 변형 엔진 탑재
+- **v1.03**: 접속 시 아무 옵션도 선택되지 않은 "빈 값(미선택/플레이스홀더)"을 기본값으로 전면 개편
+- **v1.04**: 상단 툴바 주사위(Dices 🎲) 전체 옵션 무작위 믹스 엔진 구현
+- **v1.05**: 플랫폼 공통 표준 지침 준수 좌측 표준 사이드바 메뉴(`Sidebar.tsx`) 구축 및 1~5단계 네비게이션 연동
+- **v1.06**: 컨트롤 패널 상단 중복 브랜드 타이틀 블록 완전 삭제, 슬림형 도구바 정돈, 사용 매뉴얼(`MANUAL.md`) 및 인수인계 문서(`AGENTS.md`) 완비

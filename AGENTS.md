@@ -309,6 +309,7 @@ vercel deploy --prod --yes --scope buylife
 | 네이버 | 네이버 블로그 에이전트 | naver-blog-agent | https://naver-blog-agent.vercel.app (현재 v1.28, 5단계 AI 글 생성 + 크롬 확장 스마트에디터 ONE 자동 타이핑 + 글감 수집소 + Tiptap 스마트 에디터 원고 보관함) |
 | 멀티미디어 | 이미지 스타일 분석기 | style-dna-analyzer | https://style-dna-analyzer.buylife.xyz (현재 v1.12, 3단 스튜디오 레이아웃 + 미학적 팔레트 & 컬러 스와치 100% 렌더링 + 마스터 프롬프트 EN/KO 추출 + 3단계 결과 테스트 및 색감 일치율 측정, 상세는 `style-dna-analyzer/AGENTS.md`) |
 | 멀티미디어 | 이미지 변환 스튜디오 | image-convert-studio | https://image-convert-studio.buylife.xyz (현재 v1.04, 여러 이미지를 WebP·PNG·JPEG·AVIF로 일괄 변환, 고품질 리사이징 및 콜라주 합성, 서버 미전송 브라우저 처리) |
+| 멀티미디어 | AI 인플루언서 자동화 | ai-influencer-studio | https://ai-influencer.buylife.xyz (현재 v1.06, 초현실적 K-인플루언서 화보 & 3종 맞춤 인스타 캡션, 5대 일과 플래닝, 5대 PPL 광고/공구 모드, 주사위 전체 옵션 무작위 믹스, 플랫폼 표준 좌측 사이드바 연동, 상세는 `ai-influencer-studio/AGENTS.md` / `MANUAL.md`) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
