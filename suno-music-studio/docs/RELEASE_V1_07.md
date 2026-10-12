@@ -31,6 +31,14 @@
 
 ## 운영 반영
 
-코드·패키지 v1.07, 프로그램 DB 버전 메타데이터를 같은 작업에서 갱신합니다. 확장 프로그램이 없으므로 ZIP/확장 버전 작업은 없습니다. 커밋·푸시·프로덕션 배포·배포 SHA/도메인/HTTP 확인 결과는 완료 후 이 절에 추가합니다.
+코드·패키지와 공용 `programs.version` 모두 v1.07로 일치합니다. 확장 프로그램이 없으므로 ZIP/확장 버전 작업은 없습니다.
+
+- 구현 커밋: `959a6cdb093119ea09e3504177dfe7132abac802`, `origin/master` 푸시 성공.
+- Vercel 프로젝트: `suno-music-studio`, 팀 `buylife`, 프로덕션 READY.
+- 배포 ID: `dpl_GmKG6s4C7mBdTNBDvsLfLB98BWkJ`; 배포 Git SHA가 구현 커밋과 일치합니다.
+- 도메인: https://suno-music-studio.buylife.xyz/?section=album (기존 별칭 유지).
+- DB: 프로그램 ID `bd242e47-7c13-4973-950d-9027f1bbfba9`, slug `suno-music-studio`, v1.07, extension 필드 null 유지. DML 원본은 `supabase/migrations/20261012131728_suno_album_layout_v107.sql`입니다.
+- 배포 후 HTTP 14항목: 로그인 200, 작업 화면/설정 307 로그인 이동, 보호 API 401. 모두 private/no-store와 Cache MISS. 로그인 화면 JS 8개 200. [운영 검증](assets/live-v107-http.json).
+- 인수인계 증거는 후속 문서 커밋으로 함께 보관합니다. 원본 공개 관측 및 모의 화면 도구는 `D:/PDS/suno-comparison-20261012/`에 있습니다.
 
 남은 기능 구현은 없습니다. 신규 실회원 유료 AI 호출은 이번 레이아웃 검수 범위에 포함하지 않습니다.
