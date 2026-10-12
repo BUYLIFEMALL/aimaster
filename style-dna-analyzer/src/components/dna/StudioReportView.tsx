@@ -129,27 +129,51 @@ export function StudioReportView({ record, isDark = false }: StudioReportViewPro
       {/* 5. 마스터 프롬프트 (EN) */}
       <div className={`rounded-xl border overflow-hidden shadow-xs ${promptBoxBg}`}>
         <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-800 bg-black/40">
-          <span className="text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">
-            마스터 프롬프트 (EN)
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">
+              마스터 프롬프트 (EN)
+            </span>
+            {r.masterPromptEn.includes("[첨부 이미지]") && (
+              <span className="rounded-full bg-cyan-950/90 text-cyan-300 border border-cyan-800/80 px-2 py-0.5 text-[10px] font-bold">
+                🖼️ [첨부 이미지] 참조 모드
+              </span>
+            )}
+          </div>
           <CopyButton text={r.masterPromptEn} />
         </div>
         <p className="p-4 text-xs font-mono leading-relaxed whitespace-pre-wrap select-all text-slate-200">
           {r.masterPromptEn}
         </p>
+        {r.masterPromptEn.includes("[첨부 이미지]") && (
+          <div className="px-4 py-2 border-t border-slate-800/60 bg-cyan-950/30 text-[11px] text-cyan-300/90">
+            💡 <strong>활용 팁:</strong> AI 이미지 생성기(Midjourney, Gemini, ChatGPT 등)에 프롬프트 입력 시 <strong>원본 사진을 파일로 함께 첨부</strong>하세요.
+          </div>
+        )}
       </div>
 
       {/* 6. 마스터 프롬프트 (KO) */}
       <div className={`rounded-xl border overflow-hidden shadow-xs ${promptBoxBg}`}>
         <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-800 bg-black/40">
-          <span className="text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">
-            마스터 프롬프트 (KO)
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">
+              마스터 프롬프트 (KO)
+            </span>
+            {r.masterPromptKo.includes("[첨부 이미지]") && (
+              <span className="rounded-full bg-cyan-950/90 text-cyan-300 border border-cyan-800/80 px-2 py-0.5 text-[10px] font-bold">
+                🖼️ [첨부 이미지] 참조 모드
+              </span>
+            )}
+          </div>
           <CopyButton text={r.masterPromptKo} />
         </div>
         <p className="p-4 text-xs font-mono leading-relaxed whitespace-pre-wrap select-all text-slate-200">
           {r.masterPromptKo}
         </p>
+        {r.masterPromptKo.includes("[첨부 이미지]") && (
+          <div className="px-4 py-2 border-t border-slate-800/60 bg-cyan-950/30 text-[11px] text-cyan-300/90">
+            💡 <strong>활용 팁:</strong> AI 이미지 생성기에 프롬프트 입력 시 <strong>원본 사진을 파일로 함께 첨부</strong>하세요.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import {
   Sun,
   Moon,
   FlaskConical,
+  Wand2,
 } from "lucide-react";
 import {
   MODES,
@@ -66,7 +67,33 @@ export default function AnalyzePage() {
   const [drag, setDrag] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [isDark, setIsDark] = useState(false); // 플랫폼 표준: 기본 흰색 베이스 (Clean White Studio)
+  const [refineFeedback, setRefineFeedback] = useState("");
+  const [refineBusy, setRefineBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleRefine = async () => {
+    if (!record || !refineFeedback.trim()) return;
+    setRefineBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/refine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: record.id, feedback: refineFeedback, engine }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw Object.assign(new Error(data.error || "보정하지 못했습니다."), { needKey: !!data.needApiKey });
+      setRecord(data.record as AnalysisRecord);
+      setRefineFeedback("");
+    } catch (e) {
+      setError({
+        message: e instanceof Error ? e.message : "보정하지 못했습니다.",
+        needKey: (e as { needKey?: boolean }).needKey,
+      });
+    } finally {
+      setRefineBusy(false);
+    }
+  };
 
   const pick = async (file: File | undefined) => {
     if (!file) return;
@@ -284,16 +311,41 @@ export default function AnalyzePage() {
                   시스템 가이던스
                 </h2>
               </div>
-              {/* 첨부 이미지 제공 체크박스 */}
-              <label className="flex items-center gap-1.5 cursor-pointer text-[10.5px] font-medium">
-                <input
-                  type="checkbox"
-                  checked={includeImageTag}
-                  onChange={(e) => setIncludeImageTag(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
-                />
-                <span className={isDark ? "text-slate-300" : "text-slate-700"}>첨부 이미지 제공</span>
-              </label>
+              {/* 첨부 이미지 제공 체크박스 + 툴팁 */}
+              <div className="relative group flex items-center gap-1.5">
+                <label className="flex items-center gap-1.5 cursor-pointer text-[10.5px] font-bold">
+                  <input
+                    type="checkbox"
+                    checked={includeImageTag}
+                    onChange={(e) => setIncludeImageTag(e.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                  />
+                  <span className={isDark ? "text-slate-300 group-hover:text-cyan-400" : "text-slate-700 group-hover:text-cyan-700"}>
+                    첨부 이미지 제공
+                  </span>
+                </label>
+                <div className="relative">
+                  <span
+                    className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-black cursor-help transition ${
+                      isDark ? "bg-slate-800 text-slate-300 hover:bg-cyan-900 hover:text-cyan-200" : "bg-slate-200/80 text-slate-600 hover:bg-cyan-100 hover:text-cyan-800"
+                    }`}
+                    title="기능 안내 보기"
+                  >
+                    ?
+                  </span>
+                  {/* 호버 안내 툴팁 카드 */}
+                  <div className="absolute right-0 top-6 z-40 hidden w-72 rounded-xl border border-slate-200 bg-white p-3 text-[11px] leading-relaxed text-slate-700 shadow-xl group-hover:block">
+                    <p className="font-bold text-cyan-700 mb-1 flex items-center gap-1">
+                      <span>🖼️</span> [첨부 이미지] 제공 기능이란?
+                    </p>
+                    <p className="text-slate-600">
+                      체크 시 프롬프트에 <strong>&apos;[첨부 이미지]&apos;</strong> 태그가 자동 삽입됩니다. 
+                      Midjourney, Gemini, ChatGPT 등 이미지 생성 AI에 프롬프트를 입력할 때 <strong>원본 사진을 파일로 함께 첨부</strong>하면, 
+                      AI가 원본의 구도·조명·화풍을 100% 스타일 앵커로 직접 참조하여 완벽한 스타일 전이(Style Transfer)를 수행합니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* 모드 토글 (유전자 복제 vs 유전자 변이) */}
@@ -467,6 +519,79 @@ export default function AnalyzePage() {
           />
         </aside>
       </div>
+
+      {/* 3. 하단 추론 인터페이스 바 (미세 보정 & 3단계 결과 테스트 바로가기) */}
+      <footer className={`mt-5 rounded-2xl border p-4 shadow-xs transition-colors ${cardTheme}`}>
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+          {/* 브랜드 / 엔진 */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl font-black text-sm shadow-2xs ${isDark ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" : "bg-cyan-600 text-white"}`}>
+              AI
+            </div>
+            <div>
+              <p className="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-400">
+                PROMPT ENGINE / STUDIO
+              </p>
+              <p className={`text-xs font-black ${isDark ? "text-slate-100" : "text-slate-800"}`}>
+                AIMaster 이미지 스타일 분석기
+              </p>
+            </div>
+          </div>
+
+          {/* 중앙 추론 인터페이스 (미세 보정 입력창) */}
+          <div className="flex-1 max-w-3xl">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse" />
+              <span className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? "text-cyan-400" : "text-slate-800"}`}>
+                ◎ 추론 인터페이스 (실시간 미세 보정)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                disabled={!record || refineBusy}
+                value={refineFeedback}
+                onChange={(e) => setRefineFeedback(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && void handleRefine()}
+                placeholder={record ? "스타일 보정을 위한 피드백 입력 (예: '조명을 더 따뜻하게', '배경을 단순하게')..." : "분석 완료 후 보정 피드백을 입력할 수 있습니다..."}
+                className={`flex-1 rounded-xl border px-3.5 py-2 text-xs transition ${
+                  isDark
+                    ? "bg-black/40 border-slate-800 text-slate-200 placeholder-slate-500 focus:border-cyan-500"
+                    : "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-cyan-600"
+                } outline-hidden`}
+              />
+              <button
+                type="button"
+                disabled={!record || !refineFeedback.trim() || refineBusy}
+                onClick={() => void handleRefine()}
+                className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  !record || !refineFeedback.trim() || refineBusy
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-cyan-600 hover:bg-cyan-700 text-white shadow-xs"
+                }`}
+              >
+                {refineBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+                <span>미세 보정 요청</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 우측 결과 테스트 바로가기 버튼 */}
+          <div className="shrink-0 flex items-center justify-end">
+            <Link
+              href="/test"
+              className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-bold transition shadow-2xs ${
+                record
+                  ? "bg-cyan-50 border-cyan-300 text-cyan-800 hover:bg-cyan-100"
+                  : "bg-slate-100 border-slate-200 text-slate-400 pointer-events-none"
+              }`}
+            >
+              <FlaskConical className={`h-4 w-4 ${record ? "text-cyan-600" : "text-slate-400"}`} />
+              <span>3단계 결과 테스트</span>
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
