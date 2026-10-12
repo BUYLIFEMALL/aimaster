@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen flex-col bg-gray-50/60 font-sans text-gray-900 antialiased md:flex-row">
       <Sidebar userEmail={user.email} />
       <main className="flex-1 min-w-0 overflow-y-auto">
-        <div className="mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
+        <div className="mx-auto max-w-[1760px] p-3 sm:p-5 md:p-6">
           <AnalysisProvider>{children}</AnalysisProvider>
         </div>
       </main>
