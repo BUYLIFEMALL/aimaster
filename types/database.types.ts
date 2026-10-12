@@ -11,6 +11,8 @@ export interface MemberGrade {
   color: string | null;
   sort_order: number;
   max_programs: number | null;
+  auto_grant?: boolean;
+  default_access_days?: number | null;
   created_at: string;
 }
 

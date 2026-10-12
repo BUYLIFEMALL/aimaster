@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import AccessMatrixManager from "@/components/admin/AccessMatrixManager";
+import GradeAccessPolicy from "@/components/admin/GradeAccessPolicy";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -25,6 +26,11 @@ export default async function AccessMatrixPage() {
         </h1>
         <p className="text-subtext mt-1">등급별로 프로그램 접근 권한을 설정합니다</p>
       </div>
+
+      <GlassCard className="mb-6 p-5">
+        <h2 className="text-white font-bold mb-3">등급별 자동 부여 · 사용기간</h2>
+        <GradeAccessPolicy grades={(grades ?? []).filter((g: { name: string }) => g.name !== "일반" && g.name !== "실버")} />
+      </GlassCard>
 
       <GlassCard className="p-0 overflow-hidden">
         <AccessMatrixManager
