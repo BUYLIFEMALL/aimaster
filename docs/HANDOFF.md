@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Website Scraper (website-scraper v1.08) Vercel 도메인 오타(whbsite-*) 전면 삭제 및 간결 주소(website-scraper-ai.vercel.app) 추가 연동
+
+주인님 요청("vercel 주소도 잘못되었네 website scraper 로 다시 싹 찾아보고 수정해줘")에 따라 Vercel 도메인 및 코드베이스의 오타 잔여물을 전수 조사하여 완결 조치했습니다.
+- **Vercel 도메인 오타 삭제 및 정식 주소 연동**:
+  - 오타 도메인 삭제 완료: `whbsite-scraper.vercel.app`, `whbsite-scraper-buylife.vercel.app`, `whbsite-scraper.buylife.xyz`를 Vercel 프로젝트 도메인 목록에서 깨끗이 삭제.
+  - 정식 Vercel 간결 주소 추가: `https://website-scraper-ai.vercel.app` (정식 등록 및 alias 완료).
+  - 정식 Vercel 팀 주소 유지: `https://website-scraper-buylife.vercel.app` 및 공식 도메인 `https://website-scraper.buylife.xyz`.
+- **코드 내 잔여 오타 전수 교정**:
+  - `HelpModal.tsx`: `Whbsite Scraper` ➔ `Website Scraper 5단계 워크플로우 가이드`
+  - `auth.ts`: 호스트 폴백 `whbsite-scraper.buylife.xyz` ➔ `website-scraper.buylife.xyz`
+  - `types.ts`: 주석 표기 교정
+  - `ScraperWorkspace.tsx`: `generator: "Website Scraper v1.08"`
+  - 코드 및 DB `programs.version = 'v1.08'` 판올림.
+- **배포 및 검증**: Vercel 프로덕션 재배포 완료 (`https://website-scraper.buylife.xyz`, `https://website-scraper-ai.vercel.app`), HTTP 307 SSO 게이트 정상 작동 확인.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0010_update_website_scraper_v108.sql`.
+
 ## 2026-10-12 Antigravity — Website Scraper (website-scraper v1.07) 프로그램명 오타 교정(Whbsite ➔ Website) 및 Vercel 연동 완료
 
 주인님 요청("오타 수정해줘 다른데도 오타 없는지 확인해서 수정해주고")에 따라 프로그램명 오타(`Whbsite Scraper` ➔ `Website Scraper`)를 전면 교정하고 슬러그 및 도메인 동기화, v1.07 판올림을 완료했습니다.

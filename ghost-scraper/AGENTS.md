@@ -3,17 +3,17 @@
 ## 1. 프로그램 개요
 - **프로그램명**: Website Scraper (웹 데이터 크롤러 & AI 추출기)
 - **Slug**: `website-scraper`
-- **버전**: `v1.07`
+- **버전**: `v1.08`
 - **배지**: `["new", "free"]` (가입 회원 누구나 무료 사용)
-- **라이브 도메인**: `https://website-scraper.buylife.xyz` (기존 `https://whbsite-scraper.buylife.xyz`, `https://ghost-scraper.buylife.xyz` 유지)
-- **Vercel 프로젝트 & 주소**: 프로젝트명 `website-scraper` / `https://website-scraper.buylife.xyz` (Vercel 기본: `https://website-scraper-buylife.vercel.app`, `https://whbsite-scraper.vercel.app`)
+- **라이브 도메인**: `https://website-scraper.buylife.xyz` (기존 `https://ghost-scraper.buylife.xyz` 유지)
+- **Vercel 프로젝트 & 주소**: 프로젝트명 `website-scraper` / 공식 주소 `https://website-scraper.buylife.xyz` / Vercel 기본 `https://website-scraper-ai.vercel.app`, `https://website-scraper-buylife.vercel.app`
 - **목적**: 웹사이트 URL을 입력하여 메타데이터, 헤딩 구조, 글목록, 표, 링크, 이미지를 실시간 스크래핑하고, Gemini AI로 비정형 웹 리스트를 구조화된 데이터(순번, 제목, 링크, 썸네일)로 자동 추출하는 지능형 웹 데이터 수집 솔루션.
 
 ## 2. 핵심 불변 원칙 준수
 1. **사용자 본인 API 키 원칙 (최상위 규칙)**: Google Gemini API 키는 사용자의 브라우저 `localStorage`에 격리 보관되며, 플랫폼 공용 DB `user_api_keys` 테이블과 `/api/user/key`로 동기화된다. 운영자 공용 키 폴백 없음.
 2. **AIMaster 통합 이용 권한 게이트**: `src/lib/access.ts`의 `requireProgramAccess()` 적용으로 비로그인 접근 시 메인 SSO(`https://buylife.xyz/login`)로 307 리다이렉트. `free` 배지로 로그인 회원은 즉시 무료 사용.
 3. **좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
-   - 상단 프로그램명 + 버전 `v1.07` + FREE 배지
+   - 상단 프로그램명 + 버전 `v1.08` + FREE 배지
    - `← 다른 프로그램 보기`
    - 대시보드 메인
    - 번호형 작업 흐름 (1: URL 입력 & 탐색 → 2: 데이터 검토 & 분류 → 3: 시각적 섹터 선택 → 4: AI 지능형 분석)
@@ -30,6 +30,11 @@
 - **POST `/api/auth/logout`**: 안전한 로그아웃 후 메인 로그인으로 리다이렉트.
 
 ## 4. 버전 변경 이력
+- `v1.08` (2026-10-12):
+   - 주인님 지시로 Vercel 도메인 및 코드베이스 전수 재검사 및 오타 완전 제거.
+   - Vercel 오타 도메인(`whbsite-*`) 3건 삭제 완료, 정식 간결 도메인 `https://website-scraper-ai.vercel.app` 및 `https://website-scraper-buylife.vercel.app` 등록 및 alias 연결.
+   - `HelpModal.tsx`, `auth.ts`, `types.ts` 내 잔여 `Whbsite` 표기 전수 수정.
+   - 코드 및 DB `programs.version = 'v1.08'` 판올림 및 Vercel 프로덕션 재배포 완료.
 - `v1.07` (2026-10-12):
    - 주인님 지시로 프로그램명 오타 교정 (`Whbsite Scraper` ➔ `Website Scraper`, slug: `website-scraper`).
    - Vercel 프로젝트명 `website-scraper` 동기화 및 도메인 `https://website-scraper.buylife.xyz`, `https://website-scraper-buylife.vercel.app` 연동 (기존 `whbsite-*`, `ghost-*` 하위 호환 유지).

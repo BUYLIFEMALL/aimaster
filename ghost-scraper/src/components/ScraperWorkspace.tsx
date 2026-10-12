@@ -153,7 +153,7 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
       crawlResult,
       aiItems,
       exportedAt: new Date().toISOString(),
-      generator: "Website Scraper v1.07",
+      generator: "Website Scraper v1.08",
     };
     exportDataAsJson(exportData, `website_scraper_${new URL(crawlResult.metadata.url).hostname}`);
   };
