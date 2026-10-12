@@ -626,65 +626,65 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
               />
             </div>
           </div>
-        </div>
 
-        {/* SEO Keywords Input & AI Auto Extraction */}
-        <div className="bg-slate-50/80 rounded-xl border border-slate-200/90 p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
-              <h4 className="text-xs font-bold text-slate-800">SEO 키워드 설정 (선택)</h4>
+          {/* SEO Keywords Input & AI Auto Extraction */}
+          <div className="pt-4 border-t border-slate-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <h4 className="text-xs font-bold text-slate-800">SEO 키워드 설정 (선택)</h4>
+              </div>
+              <button
+                type="button"
+                onClick={handleExtractKeywords}
+                disabled={isExtractingKeywords || !placeName.trim()}
+                className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg transition shadow-2xs"
+              >
+                {isExtractingKeywords ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>키워드 추출 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3 h-3 text-amber-300" />
+                    <span>AI 키워드 자동 추출</span>
+                  </>
+                )}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleExtractKeywords}
-              disabled={isExtractingKeywords || !placeName.trim()}
-              className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg transition shadow-2xs"
-            >
-              {isExtractingKeywords ? (
-                <>
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  <span>키워드 추출 중...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3 h-3 text-amber-300" />
-                  <span>AI 키워드 자동 추출</span>
-                </>
-              )}
-            </button>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  메인 타겟 키워드
+                </label>
+                <input
+                  type="text"
+                  value={mainKeyword}
+                  onChange={(e) => setMainKeyword(e.target.value)}
+                  placeholder="예: 성수동 브런치 카페, 강릉 감성숙소 등"
+                  className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  서브 키워드 (쉼표 구분)
+                </label>
+                <input
+                  type="text"
+                  value={subKeywords}
+                  onChange={(e) => setSubKeywords(e.target.value)}
+                  placeholder="예: 성수역 맛집, 주말 데이트 코스, 내돈내산 추천"
+                  className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              💡 입력하지 않으셔도 업로드된 사진과 장소명을 분석하여 네이버 상위노출 키워드가 본문에 자동으로 자연스럽게 배치됩니다.
+            </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                메인 타겟 키워드
-              </label>
-              <input
-                type="text"
-                value={mainKeyword}
-                onChange={(e) => setMainKeyword(e.target.value)}
-                placeholder="예: 성수동 브런치 카페, 강릉 감성숙소 등"
-                className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                서브 키워드 (쉼표 구분)
-              </label>
-              <input
-                type="text"
-                value={subKeywords}
-                onChange={(e) => setSubKeywords(e.target.value)}
-                placeholder="예: 성수역 맛집, 주말 데이트 코스, 내돈내산 추천"
-                className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-          <p className="text-[11px] text-slate-400">
-            💡 입력하지 않으셔도 업로드된 사진과 장소명을 분석하여 네이버 상위노출 키워드가 본문에 자동으로 자연스럽게 배치됩니다.
-          </p>
         </div>
 
         <GenerationPanel
