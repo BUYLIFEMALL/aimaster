@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 메인 사이트 관리자용 [편집] 버튼 (루트 앱)
+
+주인님 요청: 관리자로 로그인하면 프로그램 카드(홈·/programs·카테고리 목록) 하단 버튼 맨 오른쪽에 [편집]이 보이고, 누르면 `/admin/programs/<id>/edit`로 이동합니다. `components/programs/ProgramCard.tsx`의 `isAdmin` prop, 판별은 `lib/access/getIsAdmin.ts`(`profiles.is_admin`, 화면 표시 전용 — /admin 자체는 기존 미들웨어·레이아웃이 막음). 대기 중 요청: 헤더 사용자 버튼 옆 '관리자' 표시, 드롭다운 [관리자 패널] 아래에 관리자 좌측 메뉴 바로가기.
+
 ## 2026-10-12 Antigravity — 신규 프로그램 eBook Studio (ebook-studio v1.01) 웹/HTML 전자책 제작 & 배포 스튜디오 신규 출시 완료
 
 주인님 요청("새로운 프로젝트 추가 하자 웹배포 전자책 만들기 인데 이건 먼거 니가 구현 가능한지 면밀히 검토해봐", "영어명 ebook Stueio 로 하자 한글명도 eBook Studio")에 따라 레퍼런스(Folio) 분석부터 3-Column 스튜디오 UI, 4단계 올인원 워크플로우, 21종 테마·5종 서체·AI 표지, 멀티 포맷 배포(단일 HTML, Vercel Drop ZIP, EPUB, PDF 인쇄), Supabase DB 등록 및 프로덕션 배포까지 원스톱으로 완결 구축했습니다.

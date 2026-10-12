@@ -7,6 +7,7 @@ import CategoryNav from "@/components/programs/CategoryNav";
 import ProgramSearch from "@/components/programs/ProgramSearch";
 import { createClient } from "@/lib/supabase/server";
 import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
+import { getIsAdmin } from "@/lib/access/getIsAdmin";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -77,6 +78,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
   ]);
   const supabase = await createClient();
   const accessByProgramId = await getProgramAccessMap(supabase, programs);
+  const isAdmin = await getIsAdmin(supabase);
 
   const showBlocks = !sp.q;
   const categoryBlocks = categories
@@ -145,7 +147,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {catPrograms.map((program) => (
-                  <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} />
+                  <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdmin} />
                 ))}
               </div>
             </div>
@@ -154,7 +156,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {programs.map((program) => (
-            <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} />
+            <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdmin} />
           ))}
         </div>
       )}
