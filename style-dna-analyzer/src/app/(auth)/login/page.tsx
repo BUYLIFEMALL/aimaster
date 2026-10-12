@@ -23,10 +23,11 @@ function LoginCard() {
     try {
       const result = await signInAction({}, formData);
       if (result?.error) setError(result.error);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // redirect()는 내부적으로 NEXT_REDIRECT 에러를 throw하므로 통과
-      if (!err?.message?.includes("NEXT_REDIRECT")) {
-        setError(err.message || "로그인 중 오류가 발생했습니다.");
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!msg.includes("NEXT_REDIRECT")) {
+        setError(msg || "로그인 중 오류가 발생했습니다.");
       }
     } finally {
       setIsPending(false);

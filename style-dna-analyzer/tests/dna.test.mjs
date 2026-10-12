@@ -161,3 +161,54 @@ test("callLlm image 옵션: 공급사별 이미지 페이로드", async () => {
   const ac = sent.anthropic.body.messages[0].content;
   assert.deepEqual(ac[0], { type: "image", source: { type: "base64", media_type: "image/jpeg", data: "QUJD" } });
 });
+
+test("buildAnalysisSystem: 확장 옵션(mutationLevel, includeImageTag, targetModel) 검증", () => {
+  const mut = buildAnalysisSystem("mutate", 2026, {
+    mutationLevel: 85,
+    includeImageTag: true,
+    targetModel: "gemini-2.5-flash-image",
+    aspectRatio: "16:9",
+  });
+  assert.match(mut, /Genomic Chaos/);
+  assert.match(mut, /85%/);
+  assert.match(mut, /\[첨부 이미지\]/);
+  assert.match(mut, /Gemini 2.5 Flash Image/);
+  assert.match(mut, /16:9 감지/);
+
+  const clone = buildAnalysisSystem("replicate", 2026, {
+    includeImageTag: false,
+    targetModel: "gemini-3.1-flash-image-preview",
+  });
+  assert.match(clone, /유전자 복제/);
+  assert.match(clone, /Gemini 3.1 Flash Image/);
+});
+
+test("parseAnalysis: 원본 스키마(symbolicTitle, structuralBlueprint, aspectRatio) 파싱 검증", () => {
+  const payload = {
+    symbolicTitle: "<strong>EN</strong>: Cybernetic Seoul <br> <strong>KR</strong>: 사이버네틱 서울",
+    structuralBlueprint: "<ul><li><strong>📸 앵글/구도</strong>: 로우 앵글</li><li><strong>🎥 렌즈/심도</strong>: 24mm 광각</li></ul>",
+    styleAnalysis: "<ul><li><strong>🎨 아트 스타일</strong>: 네오 사이버펑크</li><li><strong>💡 조명/분위기</strong>: 네온 백라이트</li></ul>",
+    usageTips: "<ul><li><strong>🎯 추천 피사체</strong>: 사이보그 인물</li></ul>",
+    aspectRatio: "16:9",
+    matchScore: 92,
+    camera: { angle: "로우 앵글", shotType: "풀샷", lens: "24mm", focalLength: "24mm", depthOfField: "깊음" },
+    light: { timeOfDay: "자정", direction: "하단", elevation: "낮음", contrast: "극단적", shadows: "짙은 그림자" },
+    styleDna: [{ label: "CYBERPUNK", value: 95 }, { label: "NEON", value: 88 }],
+    masterPrompt: "A cinematic shot of [INSERT SUBJECT HERE] 16:9 aspect ratio",
+    promptKo: "[주제 입력]이 네온 아래에 서 있는 16:9 비율",
+    keywords: ["cyberpunk", "seoul", "neon"],
+  };
+
+  const res = parseAnalysis(JSON.stringify(payload));
+  assert.ok(res);
+  assert.equal(res.titleEn, "Cybernetic Seoul");
+  assert.equal(res.titleKo, "사이버네틱 서울");
+  assert.equal(res.aspectRatio, "16:9");
+  assert.equal(res.matchRate, 92);
+  assert.equal(res.dna.length, 2);
+  assert.equal(res.structure.length, 2);
+  assert.equal(res.structure[0].label, "📸 앵글/구도");
+  assert.equal(res.structure[0].text, "로우 앵글");
+  assert.equal(res.masterPromptEn, "A cinematic shot of [INSERT SUBJECT HERE] 16:9 aspect ratio");
+});
+

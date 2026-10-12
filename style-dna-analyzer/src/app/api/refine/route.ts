@@ -4,6 +4,7 @@ import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildRefineSystem, buildRefineUser, parseRefine } from "@/lib/ai/dnaPrompts";
 import { toRecord, UUID_RE } from "@/lib/dna/records";
 import { createClient } from "@/lib/supabase/server";
+import type { TargetImageModel } from "@/lib/dna/types";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -37,13 +38,17 @@ export async function POST(request: Request) {
     if (!row) return NextResponse.json({ error: "분석 기록을 찾을 수 없습니다." }, { status: 404 });
     const current = toRecord(row);
 
+    const includeImageTag = typeof body.includeImageTag === "boolean" ? body.includeImageTag : current.includeImageTag;
+    const targetModel: TargetImageModel =
+      body.targetModel === "gemini-2.5-flash-image" ? "gemini-2.5-flash-image" : "gemini-3.1-flash-image-preview";
+
     let text: string;
     try {
       text = await callLlm({
         provider: engine.provider,
         model: engine.model,
         apiKey: key.apiKey,
-        system: buildRefineSystem(new Date().getFullYear()),
+        system: buildRefineSystem(new Date().getFullYear(), { includeImageTag, targetModel }),
         user: buildRefineUser(current.result, feedback),
         json: true,
       });
@@ -54,7 +59,13 @@ export async function POST(request: Request) {
     const refined = parseRefine(text);
     if (!refined) return NextResponse.json({ error: "보정 결과를 읽지 못했습니다. 다시 시도해주세요." }, { status: 502 });
 
-    const result = { ...current.result, masterPromptEn: refined.masterPromptEn, masterPromptKo: refined.masterPromptKo };
+    const result = {
+      ...current.result,
+      masterPromptEn: refined.masterPromptEn,
+      masterPromptKo: refined.masterPromptKo,
+      structuralBlueprintHtml: refined.structuralBlueprintHtml || current.result.structuralBlueprintHtml,
+      styleAnalysisHtml: refined.styleAnalysisHtml || current.result.styleAnalysisHtml,
+    };
     const history = [...current.history, { at: new Date().toISOString(), feedback: feedback.slice(0, 600), note: refined.note }].slice(-20);
     const { data, error } = await supabase
       .from("sda_analyses")

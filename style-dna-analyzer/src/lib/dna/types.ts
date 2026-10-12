@@ -7,15 +7,30 @@ export const MODES: { value: DnaMode; label: string; desc: string }[] = [
   { value: "mutate", label: "유전자 변이", desc: "스타일 DNA는 유지하되 지침에 따라 장면·소품·분위기를 새롭게 변형" },
 ];
 
+export type TargetImageModel = "gemini-2.5-flash-image" | "gemini-3.1-flash-image-preview";
+
+export const TARGET_IMAGE_MODELS: { value: TargetImageModel; label: string; desc: string }[] = [
+  { value: "gemini-3.1-flash-image-preview", label: "Gemini 3.1 Flash Image (Nano Banana 2)", desc: "최신 플래그십 최고화질 및 디테일 구도 최적화" },
+  { value: "gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image (Nano Banana)", desc: "빠른 생성 속도와 충실한 자연어 프롬프트 준수" },
+];
+
 /** 소제목이 붙은 설명 한 줄 (예: 앵글/구도: …) */
 export interface Fact {
   label: string;
   text: string;
 }
 
+export interface DnaAnchor {
+  label: string;
+  text: string;
+  x: number;
+  y: number;
+}
+
 export interface DnaResult {
   titleEn: string;
   titleKo: string;
+  symbolicTitle?: string;
   camera: { angle: string; shotType: string; lens: string; focusDistance: string; depthOfField: string };
   lighting: { timeOfDay: string; direction: string; altitude: string; contrast: string; shadows: string };
   dna: { label: string; score: number }[];
@@ -24,6 +39,12 @@ export interface DnaResult {
   structure: Fact[];
   style: Fact[];
   tips: Fact[];
+  structuralBlueprintHtml?: string;
+  styleAnalysisHtml?: string;
+  usageTipsHtml?: string;
+  analysisSummary?: string;
+  aspectRatio?: string;
+  anchors?: DnaAnchor[];
   masterPromptEn: string;
   masterPromptKo: string;
   keywords: string[];
@@ -45,6 +66,9 @@ export interface AnalysisRecord {
   title: string;
   mode: DnaMode;
   guidance: string;
+  mutationLevel?: number;
+  includeImageTag?: boolean;
+  targetModel?: TargetImageModel;
   engine: { provider: AiProvider; model: string };
   imageUrl: string;
   aspectRatio: string;
@@ -66,9 +90,23 @@ export interface AnalysisSummary {
 
 export const SUBJECT_PLACEHOLDER_EN = "[INSERT SUBJECT HERE]";
 export const SUBJECT_PLACEHOLDER_KO = "[주제 입력]";
+export const ATTACHED_IMAGE_TAG = "[첨부 이미지]";
 
-/** 지원하는 생성 비율(Gemini imageConfig.aspectRatio) */
-export const ASPECT_RATIOS = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9"] as const;
+/** 지원하는 생성 및 감지 비율 (12종 풀 지원) */
+export const ASPECT_RATIOS = [
+  "1:1",
+  "16:9",
+  "9:16",
+  "4:3",
+  "3:4",
+  "3:2",
+  "2:3",
+  "21:9",
+  "5:4",
+  "4:5",
+  "16:10",
+  "10:16",
+] as const;
 
 /** 가로·세로 크기에 가장 가까운 지원 비율 */
 export function nearestAspectRatio(width: number, height: number): string {

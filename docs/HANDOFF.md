@@ -1,6 +1,43 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-12 Codex — 좌측 계정 메뉴 밀착 공통 지침·Suno v1.02
+## 2026-10-12 Antigravity — 스타일 DNA 분석기 (style-dna-analyzer v1.03) 원본(style-dna-3) 정밀 역분석 기반 변이레벨·첨부이미지앵커·타겟모델·도움말모달 기능 확장 및 프로덕션 배포 완료
+
+주인님 요청("https://style-dna-3.vercel.app/ 이프로그램을 원본으로 https://style-dna-analyzer.buylife.xyz/dashboard 이걸 구현한 한건데 원본싸이트 자세하고 면밀히 분석한 후에 전체로직,기능구현,옵션 등 제대로 구현되었는지 비교하고 부족한부분이 있으면 기능확장 구현해줘")에 따라, 원본 사이트의 메인 JS 번들(`index-BGjzrCkN.js`, 655KB)을 전수 스크래핑 및 역분석하여 부족했던 핵심 옵션 및 세부 기능을 100% 보강하고 실서버에 배포 완료했습니다:
+
+1. **원본 정밀 역분석 완료**:
+   - `scratch/style_dna_analysis/`: 원본 번들에서 프롬프트 생성 인스트럭션(`ZE`), JSON 스키마 구조체(`WE`), 112개 한국어 번역 리소스(`te.ko`), 이미지 처리 및 API 호출 함수군(`kL`, `GL`, `HL`) 통째로 추출 및 대조 분석.
+2. **핵심 확장 구현 내역**:
+   - **변이 강도 슬라이더 (0~100%)**:
+     - `0~30%`: 안정적 미세 변형 (Stable)
+     - `31~70%`: 하이브리드 균형 변형 (Hybrid)
+     - `71~100%`: 실험적 파격 변형 (Chaotic)
+     - 프롬프트 생성 시스템 및 결과 뷰에 실시간 변이 레벨 위젯 및 빠른 재변이 연동.
+   - **원본 참조 이미지 태그 강제 주입 토글 (`[첨부 이미지]` / `[Attached Image]`)**:
+     - 미드저니/Gemini 등 멀티모달 프롬프트에서 원본 이미지 직접 참조 태그를 활성화할 수 있도록 토글 스위치 제공.
+   - **타겟 이미지 생성 모델 최적화**:
+     - Midjourney v6, Stable Diffusion 3, Flux 1, Gemini/Imagen 3 타겟 모델별 맞춤형 파라미터 및 프롬프트 문법 튜닝.
+   - **12종 화면 비율 (Aspect Ratio) 풀 지원**:
+     - 1:1, 16:9, 9:16, 4:3, 3:4, 21:9, 9:21, 3:2, 2:3, 4:5, 5:4, 2:1 등 전 비율 감지 및 프롬프트 매핑.
+   - **리치 구조 청사진 & 활용 팁 HTML 렌더링**:
+     - `<b class="text-indigo-600">`, 불릿 등 원본 구조화 청사진을 안전하게 렌더링하도록 DOMPurify 기반 RichHtml 뷰어 적용.
+   - **이용 가이드 & 핵심 팁 모달 (`HelpGuideModal`)**:
+     - 원본 `te.ko`의 5단계 가이드와 3대 스타일 추출 꿀팁(고해상도 피사체 명확, 톤앤매너 집중, 반복 생성 일관성) 내장.
+   - **3단계 테스트 랩 프롬프트 커스텀 편집 및 확대 줌(Zoom) 모달**:
+     - 피사체 자동 합성 외에 사용자가 직접 프롬프트 편집(`customPrompt`) 가능.
+     - 원본/생성 이미지 나란히 비교 시 클릭하여 고해상도 확대 및 다운로드 팝업 지원.
+3. **버전 및 DB 동기화**:
+   - `src/lib/version.ts`: `v1.03`
+   - `package.json`: `1.03.0`
+   - 공용 DB `programs.version`: `v1.03` 업데이트 완료 (`slug = 'style-dna-analyzer'`)
+   - 마이그레이션 SQL: `supabase/migrations/20261012062000_v1_03_features.sql`
+4. **검수 및 배포 결과**:
+   - `npm test`: 23개 테스트 100% 통과 (Pass 23 / Fail 0)
+   - `npm run lint`: 0 error / 0 warning 통과
+   - `npm run build`: Next.js Turbopack 프로덕션 빌드 성공
+   - Vercel 프로덕션 배포: `https://style-dna-analyzer.buylife.xyz` (HTTP 200 확인 완료)
+
+---
+
 
 주인님이 계정 이메일·로그아웃을 위쪽 메뉴에 항상 바짝 붙이라고 재확정했습니다. 루트 AGENTS.md·CLAUDE.md, SIDEBAR_LAYOUT_STANDARD.md, PLATFORM_PATTERNS §27에 ‘마지막 메뉴 아래 8~16px 밀착·화면 높이에 따라 빈 공간 늘리지 않음’ 기준을 추가하고 기존 ‘하단 고정’을 교정했습니다. Suno 메뉴 `flex: 1`을 `flex: 0 1 auto; min-height: 0`으로 변경하고 계정 `margin-top: 8px; flex-shrink: 0` 적용. 린트·빌드 성공, 실제 Sidebar 격리 렌더링 높은/낮은/모바일 펼침 배치 모두 간격 8px·계정 표시 확인. 변경·운영 기록: [suno-music-studio/docs/RELEASE_V1_02.md](../suno-music-studio/docs/RELEASE_V1_02.md). 다른 프로그램 코드는 건드리지 않았고, 모든 신규 개발·좌측 메뉴 수정의 공통 기준으로 적용합니다.
 

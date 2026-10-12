@@ -3,7 +3,7 @@ import { authorize, requireOwnKey } from "@/lib/dna/apiGuard";
 import { generateImage } from "@/lib/ai/image";
 import { findImageModel } from "@/lib/ai/imageModels";
 import { optimizeBackground } from "@/lib/ai/imageOptimize";
-import { buildTestPrompt, fillSubject, hasPlaceholder } from "@/lib/ai/dnaPrompts";
+import { buildTestPrompt, fillSubject, hasPlaceholder, KOREAN_PEOPLE_RULE, NO_TEXT_RULE } from "@/lib/ai/dnaPrompts";
 import { BUCKET, toRecord, UUID_RE } from "@/lib/dna/records";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -37,16 +37,25 @@ export async function POST(request: Request) {
     if (!row) return NextResponse.json({ error: "분석 기록을 찾을 수 없습니다." }, { status: 404 });
     const record = toRecord(row);
 
-    // 피사체 자리표시자가 남아 있으면 생성하지 않는다.
-    if (hasPlaceholder(fillSubject(record.result.masterPromptEn, subject))) {
-      return NextResponse.json({ error: "프롬프트의 [INSERT SUBJECT HERE] 자리에 넣을 피사체를 입력해주세요." }, { status: 400 });
+    const customPrompt = typeof body.customPrompt === "string" ? body.customPrompt.trim() : "";
+    const customReference = typeof body.customReference === "string" ? body.customReference : "";
+    const ratio = typeof body.ratio === "string" ? body.ratio : record.aspectRatio;
+
+    // 피사체 자리표시자 검사 (customPrompt가 없거나 자리표시자가 남아 있는 경우)
+    const effectivePrompt = customPrompt || fillSubject(record.result.masterPromptEn, subject);
+    if (hasPlaceholder(effectivePrompt)) {
+      return NextResponse.json({ error: "프롬프트의 [INSERT SUBJECT HERE] 자리에 넣을 피사체를 입력하거나 프롬프트를 완성해주세요." }, { status: 400 });
     }
 
     const key = await requireOwnKey(userId, "gemini", "Google Gemini");
     if (!key.ok) return key.response;
 
     let reference: { mime: string; base64: string } | undefined;
-    if (attachImage) {
+    if (customReference.startsWith("data:image/")) {
+      const parts = customReference.split(",");
+      const mime = parts[0].split(":")[1].split(";")[0];
+      reference = { mime, base64: parts[1] };
+    } else if (attachImage) {
       const path = (row.image_path as string) ?? "";
       if (!path.startsWith(`${userId}/`)) return NextResponse.json({ error: "원본 이미지를 찾을 수 없습니다." }, { status: 404 });
       const dl = await createAdminClient().storage.from(BUCKET).download(path);
@@ -54,8 +63,17 @@ export async function POST(request: Request) {
       reference = { mime: "image/webp", base64: Buffer.from(await dl.data.arrayBuffer()).toString("base64") };
     }
 
-    const prompt = buildTestPrompt(record.result.masterPromptEn, subject, record.aspectRatio, !!reference);
-    const image = await generateImage({ apiKey: key.apiKey, imageModel, prompt, ratio: record.aspectRatio, reference });
+    const prompt = customPrompt
+      ? [
+          customPrompt,
+          reference ? "Use the attached image as a style reference. Create a NEW image based on the prompt." : "",
+          `Aspect ratio ${ratio}.`,
+          KOREAN_PEOPLE_RULE,
+          NO_TEXT_RULE,
+        ].filter(Boolean).join("\n")
+      : buildTestPrompt(record.result.masterPromptEn, subject, ratio, !!reference);
+
+    const image = await generateImage({ apiKey: key.apiKey, imageModel, prompt, ratio, reference });
     const optimized = await optimizeBackground(image.bytes, image.mime);
     return NextResponse.json({ image: `data:${optimized.mime};base64,${optimized.bytes.toString("base64")}` });
   } catch (err) {

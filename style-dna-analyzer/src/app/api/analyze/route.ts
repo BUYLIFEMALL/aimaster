@@ -4,7 +4,7 @@ import { authorize, parseEngine, requireOwnKey } from "@/lib/dna/apiGuard";
 import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildAnalysisSystem, buildAnalysisUser, parseAnalysis } from "@/lib/ai/dnaPrompts";
 import { paletteFromRgba } from "@/lib/dna/palette";
-import { nearestAspectRatio, type DnaMode } from "@/lib/dna/types";
+import { nearestAspectRatio, type DnaMode, type TargetImageModel } from "@/lib/dna/types";
 import { BUCKET, MAX_ANALYSES, toRecord } from "@/lib/dna/records";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -38,6 +38,11 @@ export async function POST(request: Request) {
 
     const mode: DnaMode = body.mode === "mutate" ? "mutate" : "replicate";
     const guidance = typeof body.guidance === "string" ? body.guidance : "";
+    const mutationLevel = typeof body.mutationLevel === "number" ? Math.min(100, Math.max(0, body.mutationLevel)) : 30;
+    const includeImageTag = Boolean(body.includeImageTag);
+    const targetModel: TargetImageModel =
+      body.targetModel === "gemini-2.5-flash-image" ? "gemini-2.5-flash-image" : "gemini-3.1-flash-image-preview";
+
     const engine = parseEngine(body.engine);
     if (!engine.ok) return engine.response;
     const key = await requireOwnKey(userId, engine.provider, engine.label);
@@ -49,14 +54,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `보관함은 ${MAX_ANALYSES}개까지 저장할 수 있습니다. 쓰지 않는 분석을 삭제해주세요.` }, { status: 400 });
     }
 
+    // 종횡비 사전 감지
+    const meta = await sharp(bytes).metadata();
+    const aspectRatio = nearestAspectRatio(meta.width ?? 1, meta.height ?? 1);
+
+    const promptOptions = {
+      mutationLevel,
+      includeImageTag,
+      targetModel,
+      aspectRatio,
+    };
+
     let text: string;
     try {
       text = await callLlm({
         provider: engine.provider,
         model: engine.model,
         apiKey: key.apiKey,
-        system: buildAnalysisSystem(mode, new Date().getFullYear()),
-        user: buildAnalysisUser(mode, guidance),
+        system: buildAnalysisSystem(mode, new Date().getFullYear(), promptOptions),
+        user: buildAnalysisUser(mode, guidance, promptOptions),
         image: { mime, base64: m[2] },
         json: true,
       });
@@ -69,10 +85,11 @@ export async function POST(request: Request) {
     if (!result) return NextResponse.json({ error: "AI 분석 결과를 읽지 못했습니다. 다시 시도하거나 다른 모델을 선택해보세요." }, { status: 502 });
 
     // 색상 팔레트는 AI 추측이 아니라 실제 픽셀에서 계산한다.
-    const meta = await sharp(bytes).metadata();
     const raw = await sharp(bytes).resize(96, 96, { fit: "inside" }).ensureAlpha().raw().toBuffer();
     const palette = paletteFromRgba(raw, 5);
-    const aspectRatio = nearestAspectRatio(meta.width ?? 1, meta.height ?? 1);
+    if (!result.aspectRatio) {
+      result.aspectRatio = aspectRatio;
+    }
 
     // 보관용 원본은 긴 변 1600px WebP로 줄여 저장한다.
     const stored = await sharp(bytes).rotate().resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true }).webp({ quality: 85 }).toBuffer();

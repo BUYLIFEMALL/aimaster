@@ -7,7 +7,17 @@ import { useDna } from "@/components/dna/AnalysisProvider";
 import { PromptBox } from "@/components/dna/ResultView";
 import { BTN_GHOST, BTN_PRIMARY, Card, EnginePicker, ErrorNote, INPUT, NeedAnalysis, StepHeader } from "@/components/dna/ui";
 
-const QUICK = ["색감을 더 따뜻하게", "조명을 더 부드럽게", "배경을 단순하게", "질감과 디테일을 더 강조", "더 시네마틱한 분위기로", "채도를 낮춰 차분하게"];
+const QUICK = [
+  "색감을 더 따뜻하게",
+  "조명을 더 부드럽게",
+  "배경을 단순하게",
+  "질감과 디테일을 더 강조",
+  "더 시네마틱한 분위기로",
+  "변이 강도 50% 적용 (Hybrid)",
+  "변이 강도 80% 적용 (Chaotic)",
+  "사이버네틱 네온 질감 주입",
+  "브루탈리즘 건축 미학 적용",
+];
 
 export default function RefinePage() {
   const { record, setRecord, engine } = useDna();
