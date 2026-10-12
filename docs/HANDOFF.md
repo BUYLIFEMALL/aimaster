@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 세션 3부 통합 인수인계 (핸드폰 필수 정책 · 등급/프리미엄 과금 정책 · 프리미엄 권한 강제)
+
+핸드폰 번호 필수 정책(메인 사이트+서브프로그램 45개+cron 13개), 등급·과금 정책 매뉴얼, 프리미엄 뱃지·권한 강제(DB 트리거, 실제 프로그램엔 미적용)를 한 문서로 모았습니다: **`docs/HANDOFF_CLAUDE_SESSION_2026-10-12_PART3.md`**. 대기: suno-music-studio 정책 배포(Codex 완료 후), 관리자 화면·신규 가입 화면 확인, 회원 공지, 결제 연동 후 프리미엄 지정.
+
 ## 2026-10-12 Claude — 프리미엄 권한 강제 완료(0031 전부 적용·검증)
 
 주인님 승인 후 `0031_premium_enforcement.sql`의 나머지(`programs_premium_badge()` 함수, `programs_premium_badge`·`user_program_access_premium_guard` 트리거)를 적용하고 임시 시험 프로그램(`zz-premium-test`, 삭제함)으로 검증했습니다: 뱃지 달기 → 기존 권한 즉시 무효·FREE 자동 제거·등급 채움 / 무효 상태에서 재부여해도 무효 / 뱃지 떼기 → 복원. 현재 프리미엄 뱃지가 달린 실제 프로그램은 0개, 정지된 권한 0건, 실제 권한 8,947건 그대로. 결제 연동 후 주인님이 뱃지를 달면 즉시 적용됩니다. 상세·정책: `docs/GRADE_AND_BILLING_POLICY.md`.
