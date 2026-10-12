@@ -420,7 +420,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-lg text-xs font-medium transition-all"
               >
                 <Layers size={14} />
-                [{activeTargetGrade.name}] 사용 프로그램·기간 일괄 설정
+                [{activeTargetGrade.name}] 사용 프로그램 설정
               </Link>
             )}
           <button
