@@ -7,7 +7,6 @@ import { Eye, Search, Ban, RotateCcw, Trash2, CalendarClock, UserPlus, Layers } 
 import MemberGradeSelect from "@/components/admin/MemberGradeSelect";
 import SetExpiryModal from "@/components/admin/SetExpiryModal";
 import AddMembersToGradeModal from "@/components/admin/AddMembersToGradeModal";
-import GradeProgramsModal from "@/components/admin/GradeProgramsModal";
 import { formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { Profile, MemberGrade, Program } from "@/types/database.types";
@@ -32,7 +31,6 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
   const [search, setSearch] = useState("");
   const [selectedGradeId, setSelectedGradeId] = useState<string>("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isGradeProgramsOpen, setIsGradeProgramsOpen] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -416,15 +414,6 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
         {/* 특정 등급 탭 선택 시 "해당 등급으로 회원 추가/이동" 핫버튼 */}
         {activeTargetGrade && (
           <div className="flex flex-wrap items-center gap-2">
-            {activeTargetGrade.auto_grant && (
-              <button
-                onClick={() => setIsGradeProgramsOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-lg text-xs font-medium transition-all cursor-pointer"
-              >
-                <Layers size={14} />
-                [{activeTargetGrade.name}] 사용 프로그램 설정
-              </button>
-            )}
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/40 rounded-lg text-xs font-medium transition-all cursor-pointer shadow-sm hover:border-gold"
@@ -755,9 +744,6 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
       )}
 
       {/* 등급 카테고리로 회원 일괄 추가/이동 모달 */}
-      {isGradeProgramsOpen && activeTargetGrade && (
-        <GradeProgramsModal grade={activeTargetGrade} programs={programs} onClose={() => setIsGradeProgramsOpen(false)} />
-      )}
       {isAddModalOpen && activeTargetGrade && (
         <AddMembersToGradeModal
           targetGrade={activeTargetGrade}
