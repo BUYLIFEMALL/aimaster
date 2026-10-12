@@ -1,7 +1,7 @@
 # 플레이리스트 채널 제작 자동화 — 사용 매뉴얼
 
 > 대상: 이 프로그램을 쓰는 회원과, 회원 문의를 받는 운영 담당자. (개발·배포 인수인계는 [`AGENTS.md`](AGENTS.md))
-> 주소: https://playlist-channel-studio.buylife.xyz · 현재 버전 v1.03 · FREE (가입 회원 누구나, 핸드폰 번호 등록 필수)
+> 주소: https://playlist-channel-studio.buylife.xyz · 현재 버전 v1.05 · FREE (가입 회원 누구나, 핸드폰 번호 등록 필수)
 
 ## 1. 한 줄 설명
 장르만 고르면 유튜브 플레이리스트 채널 운영에 필요한 **제목, Suno 프롬프트, 가사, 유튜브 설명·태그, 썸네일**을 한 번에 만들어 줍니다.

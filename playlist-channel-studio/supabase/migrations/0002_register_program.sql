@@ -33,3 +33,9 @@ UPDATE public.programs SET version = 'v1.02', updated_at = NOW() WHERE slug = 'p
 
 -- v1.03 (2026-10-13): 장르 23개로 확장
 UPDATE public.programs SET version = 'v1.03', updated_at = NOW() WHERE slug = 'playlist-channel-studio';
+
+-- v1.04 (2026-10-13): 가사 누락 곡 재시도
+UPDATE public.programs SET version = 'v1.04', updated_at = NOW() WHERE slug = 'playlist-channel-studio';
+
+-- v1.05 (2026-10-13): 가사 곡 번호 짝짓기 보정
+UPDATE public.programs SET version = 'v1.05', updated_at = NOW() WHERE slug = 'playlist-channel-studio';

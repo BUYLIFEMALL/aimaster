@@ -81,28 +81,39 @@ export async function POST(req: NextRequest, ctx: Ctx) {
       .map((s, i) => ({ ...s, no: i + 1 }));
     if (!planned.length) return fail("AI가 곡 구성을 만들지 못했습니다. 다시 시도해 주세요.", 502);
 
-    const results = await Promise.all(chunk(planned, 4).map((group) => generateJson(modelId, a.apiKey, lyricsPrompt(p.genre, title, opts, group, year))));
-    const firstFail = results.find((r) => !r.ok);
-    const okResults = results.filter((r): r is Extract<typeof r, { ok: true }> => r.ok);
-    if (!okResults.length && firstFail && !firstFail.ok) return fail(firstFail.error, firstFail.status);
-
+    // 4곡씩 병렬로 쓰고, 실패하거나 빠진 곡은 한 번 더 시도한다
     const byNo = new Map<number, SongLyrics>();
     const structure = resolveStructure(opts.structure, p.genre).sections;
-    for (const r of okResults) {
-      const songs = ((r.data as { songs?: unknown })?.songs ?? r.data) as unknown;
-      for (const s of Array.isArray(songs) ? songs : []) {
-        const o = s as { no?: unknown; title?: unknown; lyrics?: unknown };
-        const no = Math.round(Number(o.no));
-        const plannedSong = planned.find((x) => x.no === no);
-        const lyrics = typeof o.lyrics === "string" ? o.lyrics.trim() : "";
-        if (plannedSong && lyrics) byNo.set(no, { no, title: plannedSong.title, structure, lyrics });
+    const usages: UsageInfo[] = [plan.usage];
+    let firstError: { error: string; status: number } | null = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const todo = planned.filter((s) => !byNo.has(s.no));
+      if (!todo.length) break;
+      const groups = chunk(todo, 4);
+      const results = await Promise.all(groups.map((group) => generateJson(modelId, a.apiKey, lyricsPrompt(p.genre, title, opts, group, year))));
+      for (let gi = 0; gi < results.length; gi++) {
+        const r = results[gi];
+        const group = groups[gi];
+        if (!r.ok) { firstError ??= { error: r.error, status: r.status }; continue; }
+        usages.push(r.usage);
+        const songs = ((r.data as { songs?: unknown })?.songs ?? r.data) as unknown;
+        (Array.isArray(songs) ? songs : []).forEach((sg, i) => {
+          const o = sg as { no?: unknown; lyrics?: unknown };
+          // 모델이 번호를 다시 1부터 매기는 경우가 있어, 이 묶음에 있는 번호면 그대로 쓰고 아니면 순서로 짝짓는다
+          const no = Math.round(Number(o.no));
+          const target = group.find((x) => x.no === no) ?? group[i];
+          const lyrics = typeof o.lyrics === "string" ? o.lyrics.trim() : "";
+          if (target && lyrics && !byNo.has(target.no)) byNo.set(target.no, { no: target.no, title: target.title, structure, lyrics });
+        });
       }
     }
+    if (!byNo.size && firstError) return fail(firstError.error, firstError.status);
+
     const songs = planned.map((s) => byNo.get(s.no)).filter((s): s is SongLyrics => !!s);
     if (!songs.length) return fail("AI가 가사를 만들지 못했습니다. 다시 시도해 주세요.", 502);
     const missing = planned.length - songs.length;
     await updateOwnedProject(a.user.id, id, { content: { ...content, lyrics: { options: opts, songs } }, status: "content" });
-    return NextResponse.json({ lyrics: { options: opts, songs }, missing, usage: sumUsage([plan.usage, ...okResults.map((r) => r.usage)]) });
+    return NextResponse.json({ lyrics: { options: opts, songs }, missing, usage: sumUsage(usages) });
   }
 
   // ④ 유튜브 메타데이터
