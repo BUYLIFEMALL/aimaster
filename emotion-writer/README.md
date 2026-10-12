@@ -1,5 +1,7 @@
 # 감성 글귀 이미지 v1.01
 
+후속: 프로그램 목록·기본 요금제·썸네일 등록 완료. [등록 기록](docs/catalog/REGISTRATION.md). 목록에는 운영 준비 상태를 표시하며 앱 배포는 아직입니다.
+
 회원 본인 API 키로 글귀 5개와 배경을 만들고 한글 문구를 합성해 PNG/JPEG로 저장하는 도구입니다. 직접 입력 문구와 본인 Pixabay/Pexels 사진도 사용할 수 있습니다.
 
 2026-10-12 현재 **구현·로컬 검수 완료 / 운영 연결 승인 대기**입니다. 프로덕션 배포와 정상 회원의 실제 생성·다운로드는 아직 검수하지 않았습니다. 참고 사이트 `emotion-writer.vercel.app`를 소유하거나 수정한 것은 아닙니다. 새 `buylife/emotion-writer` 프로젝트의 목표 주소는 `https://emotion-writer.buylife.xyz`입니다.

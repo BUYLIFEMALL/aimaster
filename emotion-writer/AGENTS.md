@@ -1,5 +1,7 @@
 # 감성 글귀 이미지 — AI 에이전트 인수인계
 
+후속(2026-10-12): 주인님의 별도 요청으로 프로그램 카탈로그·기본 3개 요금제·기존 보유 실사 썸네일을 등록했습니다. [등록 기록](docs/catalog/REGISTRATION.md). DB 스키마/환경변수는 미변경이며 운영 연결·배포·실제 API 검수는 여전히 승인 대기입니다.
+
 최상위: 회원 본인 계정·본인 API 키만 사용합니다. 루트 AGENTS.md, docs/HANDOFF.md, docs/ERROR_LESSONS.md, docs/TOP_RULE_PERSONAL_ACCOUNT_API.md, docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md를 먼저 읽습니다.
 
 2026-10-12 현재 **v1.01 구현·로컬 검수 완료 / 운영 연결 승인 대기**입니다. 이어서 [현황과 재개 절차](docs/IMPLEMENTATION_HANDOFF_2026-10-12.md)를 읽습니다. 빌드·타입 검사, 테스트 20개, ESLint 오류/경고 0개를 확인했습니다. 첨부 화면과 emotion-writer.vercel.app은 참고 사이트이며 주인님 Vercel 팀/저장소에서 해당 원본 프로젝트를 찾지 못했습니다. 새 AIMaster/emotion-writer/와 buylife/emotion-writer 프로젝트를 사용합니다. 목표 주소는 https://emotion-writer.buylife.xyz이며 아직 배포하지 않았습니다. 참고 번들 원본은 Git 제외 docs/reference에 보관하고 자체 분석은 docs/REFERENCE_ANALYSIS.md에 기록합니다.
