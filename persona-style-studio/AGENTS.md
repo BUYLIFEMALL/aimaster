@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 페르소나 문체 자동화 / `persona-style-studio` |
-| 현재 버전 | **v1.02** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.04** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://persona-style-studio.buylife.xyz (옛 `persona-style-studio.vercel.app` 유지) |
 | Vercel | 팀 `buylife`, 프로젝트 `persona-style-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, Tools, 최소 등급 일반, 요금제 1·2·3개월(1만/2만/3만원) 등록 |
@@ -55,11 +55,13 @@ tests/persona.test.mjs · access.test.mjs   `npm test` 14개 통과
 - 환경변수 4개(Supabase URL/ANON/SERVICE_ROLE, `NEXT_PUBLIC_MAIN_SITE_URL`)는 `scripts/add-persona-style-vercel-env.mjs`로 production에 등록 완료.
 
 ## 7. 알려진 한계·남은 일
-- 화면 검수: 로그인한 관리자 계정으로 페르소나 선택·슬라이더 연동·샘플 로드·실제 다시쓰기(본인 키)·API CRUD/제한값을 확인했다. **페르소나 수정 패널(AI 자동 생성 버튼), 가져오기/내보내기 파일, 초안 불러오기 모달, English 전환, 키 미등록 팝업, 모바일 폭**은 화면으로 직접 시험하지 못했다(코드·API 레벨만 확인). 일반 회원(`buylifemall@naver.com`) 계정으로 한 번 더 시험할 것.
-- 슬라이더는 Pointer Events로 드래그하며 키보드(방향키/PageUp·Down/Home/End)도 지원하지만 실제 터치 기기에서는 시험하지 못했다.
+- 화면 검수(2026-10-13, 일반 회원 `buylifemall@naver.com` 실제 Chrome): 접근 판정 통과, 페르소나 만들기+**AI 자동 생성**(본인 키)+저장, 내보내기(JSON 내용 확인)·가져오기(기본 페르소나 수정본+새 인물)·초기화·삭제, 초안 저장(txt 다운로드 내용 확인)·불러오기 모달·초안 반영, English 전환(전 영역), 키 없음 팝업(응답을 흉내 내 확인 — 이 계정은 키가 등록돼 있어 실제 미등록 상태는 못 봄), 슬라이더 **마우스 드래그**(85→21)·키보드·프리셋 선택/해제, 모바일 폭(390px) 가로 넘침 없음. 시험 데이터는 모두 삭제함.
+- 슬라이더는 Pointer Events(마우스 드래그 확인)와 키보드를 지원하지만 실제 **터치 기기**에서는 시험하지 못했다.
 - 결과 비교(원문/결과 나란히)는 만들지 않았다(되돌리기만).
 - 모델 응답이 매우 길면 Vercel 함수 기본 시간 안에 끝나는지(8,000자 입력 + 긴 출력) 점검 필요.
 
 ## 8. 작업 기록 (추가만)
 - **2026-10-13 v1.01** 신규 구축·배포·프로그램 등록·도메인 연결, 테이블 마이그레이션 적용.
 - **2026-10-13 v1.02** Gemini thinking 끔(응답 약 20초 → 1~3초), 페르소나 패널 머리글 줄바꿈 수정. 썸네일 생성·등록(관리자 Gemini 키 1회 사용, 임시 파일 삭제).
+- **2026-10-13 v1.03** 일반 회원 화면 시험 결과 반영: 내보내기 파일 날짜를 한국 날짜로, 페르소나 패널을 화면 높이 안으로 제한(수정 패널의 저장 버튼이 화면 밖으로 밀리던 문제).
+- **2026-10-13 v1.04** 페르소나 패널 높이를 `100vh-7rem`으로 더 줄여 스크롤 없이 수정 패널의 저장 버튼이 보이게 함(확인 완료).

@@ -1,9 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-13 Claude — 페르소나 문체 자동화 (persona-style-studio v1.02) 신규 구축·배포
+## 2026-10-13 Claude — 페르소나 문체 자동화 (persona-style-studio v1.04) 신규 구축·배포·일반 회원 화면 시험 완료
 
 - 참고 prompt-equalizer.vercel.app을 번들까지 분석해 새로 구현(문구·데이터는 직접 작성). 회원 본인 Gemini 키(서버 호출), 페르소나·초안은 내 계정 DB(`persona_style_personas`, `persona_style_drafts`, RLS), FREE+new, 도메인 `persona-style-studio.buylife.xyz`, 썸네일 등록.
-- 검수: 테스트 14개, 실제 Chrome에서 페르소나 선택·슬라이더 연동·샘플·실제 다시쓰기, API CRUD/제한/비로그인 401. **남은 일**: 페르소나 수정 패널·가져오기/내보내기·English·키 미등록 팝업·모바일은 화면 시험 미완료(일반 회원 계정으로 확인). 상세는 `persona-style-studio/AGENTS.md`.
+- 검수: 테스트 14개, 실제 Chrome에서 페르소나 선택·슬라이더 연동·샘플·실제 다시쓰기, API CRUD/제한/비로그인 401. 2026-10-13 일반 회원(naver) 계정으로 페르소나 수정·AI 자동 생성·가져오기/내보내기·초안·English·키 팝업·슬라이더 드래그·모바일 폭 시험 완료(v1.04). **남은 일**: 실제 터치 기기, 키 미등록 계정의 실제 상태. 상세는 `persona-style-studio/AGENTS.md`.
 
 ## 2026-10-13 Antigravity — AI 프롬프트 템플릿 자동화 (prompt-template-studio v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 1위 등록 완료
 

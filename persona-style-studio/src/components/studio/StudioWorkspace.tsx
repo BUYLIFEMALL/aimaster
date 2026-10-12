@@ -158,7 +158,7 @@ export function StudioWorkspace() {
   }
 
   function exportPersonas() {
-    download(`personas_${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ app: "persona-style-studio", personas }, null, 2), "application/json");
+    download(`personas_${new Date().toLocaleDateString("sv-SE")}.json`, JSON.stringify({ app: "persona-style-studio", personas }, null, 2), "application/json");
   }
 
   async function importPersonas(file: File) {

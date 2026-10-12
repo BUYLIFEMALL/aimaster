@@ -118,7 +118,7 @@ export function PersonaPanel({
   );
 
   return (
-    <aside className="relative flex max-h-[80vh] min-h-[28rem] flex-col rounded-2xl border border-slate-200 bg-white p-4 xl:max-h-none">
+    <aside className="relative flex max-h-[80vh] min-h-[28rem] flex-col rounded-2xl border border-slate-200 bg-white p-4 xl:sticky xl:top-4 xl:max-h-[calc(100vh-7rem)]">
       <div className="mb-3 space-y-2">
         <h2 className="flex items-center gap-2 whitespace-nowrap text-base font-black text-slate-800">
           <UserRound size={18} className="text-violet-700" />
