@@ -95,18 +95,13 @@ export function Sidebar({ email }: SidebarProps) {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-rose-500 via-pink-600 to-rose-400 text-white shadow-2xs group-hover:scale-105 transition-transform">
                 <Heart className="h-4 w-4 text-rose-100 fill-rose-200/40" />
               </div>
-              <div className="min-w-0">
-                <h1 className="text-xs font-black text-slate-900 tracking-tight group-hover:text-rose-600 transition-colors truncate">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xs font-black text-slate-900 tracking-tight group-hover:text-rose-600 transition-colors whitespace-nowrap">
                   {APP_NAME}
                 </h1>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] font-bold text-slate-500">
-                    {APP_VERSION}
-                  </span>
-                  <span className="px-1.5 py-0.2 text-[8.5px] font-extrabold bg-emerald-500 text-white rounded tracking-wide">
-                    FREE
-                  </span>
-                </div>
+                <p className="text-[10.5px] font-bold text-slate-400 font-mono mt-0.5">
+                  {APP_VERSION}
+                </p>
               </div>
             </Link>
 

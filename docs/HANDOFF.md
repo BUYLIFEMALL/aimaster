@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.05) FREE 배지 제거·사이드바 제목 꺾임 방지 및 Vercel 프로덕션 배포 완료
+
+주인님 질의("무료 상태가 아닌데 왜 Free 배치가 붙어 있지?")에 따라 사이드바 헤더 배지와 제목 텍스트를 수정했습니다:
+1. **FREE 배지 노출 원인 규명 및 제거**:
+   - 원인: 템플릿(ebook-studio) 이식 당시 잔여 코드였던 `<span ...>FREE</span>` 태그가 `Sidebar.tsx` 헤더에 하드코딩되어 있어, 유료 프로그램임에도 무료 배지가 상단에 노출되고 있었음 (공용 DB `programs.badges`는 애초에 `['new']`로 정상 상태였음).
+   - 조치: `Sidebar.tsx` 헤더에서 하드코딩된 `FREE` 배지 span 태그를 완전 삭제하여 유료 프로그램 권한 정책과 완벽히 일치시킴.
+2. **사이드바 헤더 제목 꺾임(줄바꿈) 방지**:
+   - `Sidebar.tsx` 헤더의 `h1` 태그에 `whitespace-nowrap`을 적용하여, 너비가 좁은 화면에서도 "감성 글귀 이미" / "지"로 글자가 끊겨 밀리는 현상을 원천 차단.
+3. **버전 및 배포 검증**:
+   - `v1.05` 버전 업 (`src/lib/version.ts`, `package.json`, 공용 DB `programs.version = 'v1.05'`).
+   - 테스트 20개 전원 통과 (Pass 20 / Fail 0), ESLint 0 오류/경고, TypeScript 컴파일 정상.
+   - Vercel 프로덕션 배포 완료 (`https://emotion-writer.buylife.xyz`, HTTP 200 검증 완료).
+
 ## 2026-10-12 Claude Code — 올인원 네이버 카테고리 '확장 연결 안 됨' 직접 검수 결과
 
 주인님이 확장을 업데이트했는데도 [카테고리 불러오기]가 '확장이 연결되지 않았습니다'로 실패한다고 신고. 직접 검수: ① 배포 ZIP·`naver-blog-allinone/extension` 폴더는 정상(매니페스트의 모든 파일 존재, 문법 통과, 이 사이트 주소 허용) ② 이 PC Chrome(Default 프로필)의 개발자 모드 확장 목록(`node scripts/check-chrome-extension-loaded.mjs naver-blog-allinone`)에 **올인원 확장이 없음**(로드된 것은 tistory-auto-blog·naver-blog-agent·naver-blog-seo-studio·ai-auto-blog 폴더뿐) ③ 이 Chrome 탭에서 연결 신호(ping)를 보내도 응답 없음. → 원인: 올인원 확장이 Chrome에 아직 로드되지 않았음(다른 확장을 새로고침했거나 올인원 폴더를 선택하지 않음). 조치: chrome://extensions → 개발자 모드 → [압축해제된 확장 프로그램을 로드합니다] → `D:\Antigravity\AIMaster
