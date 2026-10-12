@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.27) 맛집 탭 섹션 순서 통일
+
+주인님 요청으로 맛집/카페/여행 탭의 섹션 순서를 아이디어 탭과 같게(분류 → 글 생성 설정 보라 박스 → 모델·디자인·이미지 하늘색 박스+설정값 저장 → 생성 버튼) 정리했습니다. 확장 ZIP·DB v1.27.
+
 ## 2026-10-12 Antigravity — Website Scraper (website-scraper v1.08) Vercel 도메인 오타(whbsite-*) 전면 삭제 및 간결 주소(website-scraper-ai.vercel.app) 추가 연동
 
 주인님 요청("vercel 주소도 잘못되었네 website scraper 로 다시 싹 찾아보고 수정해줘")에 따라 Vercel 도메인 및 코드베이스의 오타 잔여물을 전수 조사하여 완결 조치했습니다.

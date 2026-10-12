@@ -12,6 +12,8 @@ import {
   MessageSquare,
   FileText,
   Palette,
+  RotateCcw,
+  Save,
   Settings2,
   CheckSquare,
   Square,
@@ -35,6 +37,7 @@ import type { WritingStyle, WritingTone } from "@/lib/blog/styles";
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
 import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
 import { CategorySelect } from "@/components/blog/CategorySelect";
+import { clearGenPrefs, loadGenPrefs, prefsSavedAt, saveGenPrefs, PLACES_PREFS_KEY } from "@/lib/blog/prefs";
 import { NaverCategoryPicker } from "@/components/blog/NaverCategoryPicker";
 import { loadLastNaverCategory, saveLastNaverCategory, type NaverCategory } from "@/lib/blog/naverCategory";
 import { PostWorkspaceView } from "@/components/blog/PostWorkspaceView";
@@ -92,9 +95,44 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
   const [thumbnailText, setThumbnailText] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "1:1">("16:9");
   const [personaId, setPersonaId] = useState<string | null>(null);
+  const [prefsNotice, setPrefsNotice] = useState("");
+  const [prefsAt, setPrefsAt] = useState<string | null>(null);
   const [targetLength, setTargetLength] = useState(2000);
   const [tone, setTone] = useState<WritingTone>("해요체");
   const [style, setStyle] = useState<WritingStyle>("conversational");
+
+  // 설정값 저장(이 브라우저에 기본값으로 저장) — 아이디어 탭과 같은 방식, 맛집 탭 전용 키
+  useEffect(() => {
+    const saved = loadGenPrefs(window.localStorage, PLACES_PREFS_KEY);
+    setPrefsAt(prefsSavedAt(window.localStorage, PLACES_PREFS_KEY));
+    if (!saved) return;
+    if (saved.themeId) setSelectedTheme(saved.themeId);
+    if (saved.ratio === "16:9" || saved.ratio === "1:1") setAspectRatio(saved.ratio);
+    if (saved.thumbnailText !== undefined) setThumbnailText(saved.thumbnailText);
+    if (saved.tone) setTone(saved.tone);
+    if (saved.style) setStyle(saved.style);
+    if (saved.targetLength) setTargetLength(saved.targetLength);
+    if (saved.personaId !== undefined) setPersonaId(saved.personaId);
+  }, []);
+
+  const savePrefs = () => {
+    const ok = saveGenPrefs(window.localStorage, { themeId: selectedTheme, ratio: aspectRatio, thumbnailText, tone, style, targetLength, personaId }, PLACES_PREFS_KEY);
+    setPrefsAt(ok ? prefsSavedAt(window.localStorage, PLACES_PREFS_KEY) : prefsAt);
+    setPrefsNotice(ok ? "현재 설정값을 이 브라우저에 기본값으로 저장했습니다. 다음 접속부터 자동으로 적용됩니다." : "저장하지 못했습니다. 브라우저 저장 공간을 확인해주세요.");
+  };
+
+  const resetPrefs = () => {
+    clearGenPrefs(window.localStorage, PLACES_PREFS_KEY);
+    setPrefsAt(null);
+    setSelectedTheme("green-orange");
+    setAspectRatio("16:9");
+    setThumbnailText(false);
+    setTone("해요체");
+    setStyle("conversational");
+    setTargetLength(2000);
+    setPersonaId(null);
+    setPrefsNotice("저장된 기본값을 지우고 처음 설정으로 되돌렸습니다.");
+  };
   const [stepMsg, setStepMsg] = useState("");
   const [extraRequest, setExtraRequest] = useState("");
 
@@ -645,133 +683,6 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
           </p>
         </div>
 
-        {/* Color Theme & Advanced Options */}
-        <div className="bg-slate-50/80 rounded-xl border border-slate-200/90 p-5 space-y-4">
-          <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2.5">
-            <Palette className="w-4 h-4 text-indigo-600" />
-            <h4 className="text-xs font-bold text-slate-800">컬러 테마 및 고급 옵션</h4>
-          </div>
-
-          {/* Theme Palette Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
-            {COLOR_THEMES.map((theme) => {
-              const isSelected = selectedTheme === theme.id;
-              return (
-                <button
-                  key={theme.id}
-                  type="button"
-                  onClick={() => setSelectedTheme(theme.id)}
-                  className={`p-2 rounded-xl border text-center transition flex flex-col items-center gap-1.5 ${
-                    isSelected
-                      ? "border-indigo-600 bg-white ring-2 ring-indigo-400/40 shadow-xs"
-                      : "border-slate-200 bg-white/70 hover:border-slate-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-1">
-                    <span
-                      className="w-3.5 h-3.5 rounded-full shadow-2xs"
-                      style={{ backgroundColor: theme.color }}
-                    />
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shadow-2xs opacity-80"
-                      style={{ backgroundColor: theme.subColor }}
-                    />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-800">{theme.name}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Options Toggles */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
-            <div className="space-y-3">
-              <label
-                onClick={() => setIncludeFaq(!includeFaq)}
-                className="flex items-start gap-2.5 cursor-pointer text-xs group"
-              >
-                {includeFaq ? (
-                  <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                ) : (
-                  <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                )}
-                <div>
-                  <div className="font-bold text-slate-800">FAQ 섹션 포함</div>
-                  <p className="text-[11px] text-slate-500">
-                    포스트 하단에 주차, 예약 등 자주 묻는 질문과 답변(FAQ) 섹션을 자동 생성합니다.
-                  </p>
-                </div>
-              </label>
-
-              <label
-                onClick={() => setThumbnailText(!thumbnailText)}
-                className="flex items-start gap-2.5 cursor-pointer text-xs group"
-              >
-                {thumbnailText ? (
-                  <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                ) : (
-                  <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                )}
-                <div>
-                  <div className="font-bold text-slate-800">썸네일용 텍스트 추가</div>
-                  <p className="text-[11px] text-slate-500">
-                    대표 이미지에 클릭을 유도하는 제목 카피를 안내합니다.
-                  </p>
-                </div>
-              </label>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  대표 이미지/썸네일 비율
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setAspectRatio("16:9")}
-                    className={`py-1.5 text-xs font-semibold rounded-lg border transition ${
-                      aspectRatio === "16:9"
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    16:9 (와이드)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAspectRatio("1:1")}
-                    className={`py-1.5 text-xs font-semibold rounded-lg border transition ${
-                      aspectRatio === "1:1"
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    1:1 (정사각형)
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Extra Request */}
-          <div className="pt-2 border-t border-slate-200">
-            <label className="block text-[11px] font-bold text-slate-700 mb-1">
-              추가 요청사항 (선택)
-            </label>
-            <input
-              type="text"
-              value={extraRequest}
-              onChange={(e) => setExtraRequest(e.target.value)}
-              placeholder="예: 분위기를 더 감성적으로 묘사해줘, 메뉴 가격 정보를 강조해줘 등"
-              className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-        </div>
-
-        <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} showImage={false} />
-
         <CategorySelect value={categoryId} onChange={setCategoryId} />
         <NaverCategoryPicker value={naverCategory} onChange={(c) => { setNaverCategory(c); saveLastNaverCategory(window.localStorage, c); }} disabled={loading} />
 
@@ -790,6 +701,156 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
           hideDetails
           disabled={loading}
         />
+
+        {/* 모델 · 디자인 · 이미지 설정 (아이디어 탭과 같은 하늘색 박스) */}
+        <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/50 p-5 space-y-6">
+          <div className="flex flex-wrap items-center gap-2 border-b border-sky-200 pb-3">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-600 text-white text-sm">🎨</span>
+            <h3 className="text-sm font-extrabold text-sky-950">AI 모델 · 디자인 · 이미지 설정</h3>
+            <span className="text-[11px] text-sky-700/80">글 AI, 컬러 테마, 이미지 옵션을 정하고 [설정값 저장]으로 기본값으로 남길 수 있습니다</span>
+          </div>
+
+  <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} showImage={false} />
+
+          {/* Color Theme & Advanced Options */}
+          <div className="bg-slate-50/80 rounded-xl border border-slate-200/90 p-5 space-y-4">
+            <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2.5">
+              <Palette className="w-4 h-4 text-indigo-600" />
+              <h4 className="text-xs font-bold text-slate-800">컬러 테마 및 고급 옵션</h4>
+            </div>
+
+            {/* Theme Palette Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+              {COLOR_THEMES.map((theme) => {
+                const isSelected = selectedTheme === theme.id;
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => setSelectedTheme(theme.id)}
+                    className={`p-2 rounded-xl border text-center transition flex flex-col items-center gap-1.5 ${
+                      isSelected
+                        ? "border-indigo-600 bg-white ring-2 ring-indigo-400/40 shadow-xs"
+                        : "border-slate-200 bg-white/70 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1">
+                      <span
+                        className="w-3.5 h-3.5 rounded-full shadow-2xs"
+                        style={{ backgroundColor: theme.color }}
+                      />
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shadow-2xs opacity-80"
+                        style={{ backgroundColor: theme.subColor }}
+                      />
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-800">{theme.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Options Toggles */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+              <div className="space-y-3">
+                <label
+                  onClick={() => setIncludeFaq(!includeFaq)}
+                  className="flex items-start gap-2.5 cursor-pointer text-xs group"
+                >
+                  {includeFaq ? (
+                    <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <div className="font-bold text-slate-800">FAQ 섹션 포함</div>
+                    <p className="text-[11px] text-slate-500">
+                      포스트 하단에 주차, 예약 등 자주 묻는 질문과 답변(FAQ) 섹션을 자동 생성합니다.
+                    </p>
+                  </div>
+                </label>
+
+                <label
+                  onClick={() => setThumbnailText(!thumbnailText)}
+                  className="flex items-start gap-2.5 cursor-pointer text-xs group"
+                >
+                  {thumbnailText ? (
+                    <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <div className="font-bold text-slate-800">썸네일용 텍스트 추가</div>
+                    <p className="text-[11px] text-slate-500">
+                      대표 이미지에 클릭을 유도하는 제목 카피를 안내합니다.
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    대표 이미지/썸네일 비율
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAspectRatio("16:9")}
+                      className={`py-1.5 text-xs font-semibold rounded-lg border transition ${
+                        aspectRatio === "16:9"
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      16:9 (와이드)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAspectRatio("1:1")}
+                      className={`py-1.5 text-xs font-semibold rounded-lg border transition ${
+                        aspectRatio === "1:1"
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      1:1 (정사각형)
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Extra Request */}
+            <div className="pt-2 border-t border-slate-200">
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                추가 요청사항 (선택)
+              </label>
+              <input
+                type="text"
+                value={extraRequest}
+                onChange={(e) => setExtraRequest(e.target.value)}
+                placeholder="예: 분위기를 더 감성적으로 묘사해줘, 메뉴 가격 정보를 강조해줘 등"
+                className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sky-200 pt-4">
+            <p className="text-[11px] text-sky-900/80">
+              {prefsNotice || (prefsAt ? `저장된 기본값이 있습니다 (${new Date(prefsAt).toLocaleString("ko-KR")}). 접속할 때 자동 적용됩니다.` : "아직 저장한 기본값이 없습니다. 자주 쓰는 설정을 저장해 두면 다음부터 바로 적용됩니다.")}
+            </p>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={resetPrefs} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50">
+                <RotateCcw className="w-3.5 h-3.5" /> 초기화
+              </button>
+              <button type="button" onClick={savePrefs} className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-sky-600 text-white hover:bg-sky-700">
+                <Save className="w-3.5 h-3.5" /> 설정값 저장
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Error Msg */}
         {(errorMsg || ws.errorMsg) && (
