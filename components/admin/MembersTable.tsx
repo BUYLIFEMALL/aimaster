@@ -418,7 +418,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
             className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-lg text-xs font-medium transition-all"
           >
             <Layers size={14} />
-            등급별 프로그램|권한설정
+            프로그램 접근권한관리
           </Link>
           {activeTargetGrade && (
             <button
