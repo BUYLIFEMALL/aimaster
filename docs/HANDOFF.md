@@ -1,5 +1,31 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — AI 12단 상세페이지 자동화 (detail-page-12p v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 1위 등록 완료
+
+주인님 요청("https://aistudio.google.com/apps/56cd0944-e63f-4461-8aaf-0506bacfde84?fullscreenApplet=true&showAssistant=true&showPreview=true 면밀히 분석하고 개발 플랜을 세워줘", "AI 12단 상세페이지 자동화 로 하자")에 따라, Google AI Studio 레퍼런스 앱 전수 역분석(실기 구동 및 Cloud Run SPA DOM 트리 분석)을 100% 반영한 신규 서브프로젝트 **`AI 12단 상세페이지 자동화` (`detail-page-12p v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위(`sort_order: 127`) 등록을 완벽히 완료했습니다:
+
+1. **레퍼런스 전수 역분석 및 실기 기능 구현 완결 (Rule 15)**:
+   - **플랫폼 규격 최적화**: 쿠팡 로켓배송 860px 12장면 풀 시퀀스 vs 네이버 스마트스토어 9장면 스토리형 시퀀스 완비.
+   - **1초 스펙 자동검색**: 상품명 하나만 입력하면 핵심 스펙 4종, 설득력 있는 제품 설명, 타겟 고객, 추천 할인율, 3대 후킹 포인트를 Gemini 2.5 Flash가 1초 만에 자동 조사/채우기 지원.
+   - **사양서 및 다각도 실물 사진 인식**: PDF, TXT, MD 사양서 파싱 및 #FFFFFF 순백 배경 제품 실물 사진 다각도 분석 렌더링.
+   - **AI 모델 선택**: ⚡ Nano Banana (초고속 상업용 렌더링) vs ✨ Nano Banana2 (초고해상도 극세사 질감).
+   - **실시간 스마트폰 라이브 시뮬레이터**: 소비자가 실제 쿠팡/네이버 앱에서 스크롤하며 보는 화면을 실시간 시뮬레이션.
+   - **860px 쿠팡 표준 세로 통상세페이지 자동 합성 & 원클릭 다운로드**: HTML5 Canvas를 활용해 12개 장면을 긴 세로 통상세페이지(860px 너비)로 원클릭 자동 합성 및 다운로드 지원.
+2. **플랫폼 표준 불변 지침 완벽 준수**:
+   - **최상위 절대 불변 규칙**: 사용자 본인 Gemini API 키(`user_api_keys.provider = 'gemini'`) 직접 등록 및 연동 (운영자/타인 키 폴백 금지, 키 미등록 시 등록 모달 안내).
+   - **표준 좌측 사이드바 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**: `← 다른 프로그램 보기`, `대시보드 홈`, 번호형 3단계 핵심 흐름(`1. 제품 정보 입력` ➔ `2. 12단 상세 스튜디오` ➔ `3. 보관함 & 다운로드`), `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`, 하단 계정/로그아웃 8~16px 밀착 배치.
+   - **화이트 베이스 클린 테마 (Rule 8)**: 밝고 세련된 화이트/중성색 바탕의 최신 웹 스튜디오 UI.
+   - **기준 연도 2026년 동적 주입 (Rule 9)**: `new Date().getFullYear()`로 현재 2026년 기준 결과물 보장.
+3. **16:9 고화질 실사 썸네일 생성 및 플랫폼 Storage 등록**:
+   - 전문 한국인 이커머스 MD/디자이너가 듀얼 모니터에서 12단 시퀀스 카드와 모바일 860px 상세페이지 뷰를 검토하는 16:9 와이드 실사 썸네일 생성.
+   - Supabase Storage `program-images/catalog/detail-page-12p-thumbnail.jpg` (HTTP 200) 업로드 완료.
+4. **플랫폼 DB 등록 및 기본 요금제 3종 완비**:
+   - `programs` 테이블 등록: 카탈로그 최상단 1순위(`sort_order: 127`), 배지 `['free', 'new']`, `version: 'v1.01'`, `slug: 'detail-page-12p'`, `app_url: 'https://detail-12p.buylife.xyz'`.
+   - `pricing_plans` 기본 3종 플랜(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원) 자동 등록 완비.
+5. **Vercel 프로덕션 배포 및 커스텀 도메인 연동**:
+   - 공식 도메인: [https://detail-12p.buylife.xyz](https://detail-12p.buylife.xyz) (Vercel Production 배포 완료, HTTP 307 SSO 리다이렉트 및 정상 작동 확인).
+   - 환경변수: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL` Vercel Production 등록 완료.
+
 ## 2026-10-13 Claude — 페르소나 문체 자동화 (persona-style-studio v1.04) 신규 구축·배포·일반 회원 화면 시험 완료
 
 - 참고 prompt-equalizer.vercel.app을 번들까지 분석해 새로 구현(문구·데이터는 직접 작성). 회원 본인 Gemini 키(서버 호출), 페르소나·초안은 내 계정 DB(`persona_style_personas`, `persona_style_drafts`, RLS), FREE+new, 도메인 `persona-style-studio.buylife.xyz`, 썸네일 등록.
