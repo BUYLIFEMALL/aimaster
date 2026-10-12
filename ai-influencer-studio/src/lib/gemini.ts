@@ -136,17 +136,17 @@ export async function generateInstagramCaption(
 [AD MODE CONTEXT INTEGRATION]
 - Situation: Promoting "${prodName}". Ad Type: ${adLabel}.
 - Year: ${currentYear}.
-- CRITICAL: Seamlessly integrate the scene location (${config.location}) and story (${config.storyContext || "daily life"}) into the product introduction.
+- CRITICAL: Seamlessly integrate the scene location (${config.location || "trendy spot"}) and story (${config.storyContext || "daily life"}) into the product introduction.
 - Do NOT just sell the product blindly. Describe the organic lifestyle experience of using it in this specific scene.`;
   } else {
     situationContext = `
 Situation: Daily influencer lifestyle post (${currentYear}).
-Context: At ${config.location}, wearing ${config.outfit}.
+Context: At ${config.location || "an aesthetic lifestyle spot"}, wearing ${config.outfit || "a stylish aesthetic outfit"}.
 Story: ${config.storyContext || "Casual aesthetic day."}`;
   }
 
   const promptText = `
-Role: You are a famous Korean Instagram Influencer (${config.age}-year-old ${config.gender}).
+Role: You are a famous Korean Instagram Influencer (${config.age || "20s"}-year-old ${config.gender || "female"}).
 Task: Write 3 DISTINCT caption options in natural, trendy Korean for this Instagram post.
 ${situationContext}
 ${refinementRequest ? `Refinement / Feedback Request: ${refinementRequest}` : ""}
@@ -197,7 +197,7 @@ General Rules:
       ];
     } else {
       return [
-        `${greeting}\n\n${locShort}에서 ${config.outfit} 입고 기분 전환 중이에요! 📸\n분위기 너무 좋아서 시간 가는 줄 모르겠네 ㅎㅎ\n다들 오늘 하루 어떠셨나요?\n\n${tagBase}`,
+        `${greeting}\n\n${locShort}에서 ${config.outfit || "예쁜 착장"} 입고 기분 전환 중이에요! 📸\n분위기 너무 좋아서 시간 가는 줄 모르겠네 ㅎㅎ\n다들 오늘 하루 어떠셨나요?\n\n${tagBase}`,
         `${locShort} 바이브 ✨\n오늘 룩 맘에 들어서 박제! 😎\n\n${tagBase}`,
         `${locShort} 왔는데 여기 아시는 분? 🙋‍♀️\n다음에 또 오고 싶은데 근처 맛집 추천해주세요!\n\n${tagBase}`,
       ];

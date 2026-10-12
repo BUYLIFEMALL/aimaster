@@ -40,6 +40,7 @@ import {
   QUALITY_OPTIONS,
   ASPECT_RATIO_OPTIONS,
 } from "@/data/influencer-options";
+import { APP_VERSION } from "@/lib/version";
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
 
 interface ControlPanelProps {
@@ -126,7 +127,7 @@ export function ControlPanel({
 
     setIsPlanningRoutine(true);
     try {
-      const persona = `${config.age}-year-old ${config.ethnicity} ${config.gender}`;
+      const persona = `${config.age || "24"}-year-old ${config.ethnicity || "kr"} ${config.gender || "female"}`;
       const res = await fetch("/api/plan-day", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -162,7 +163,7 @@ export function ControlPanel({
 
     setIsPlanningEvent(true);
     try {
-      const persona = `${config.age}-year-old ${config.ethnicity} ${config.gender}`;
+      const persona = `${config.age || "24"}-year-old ${config.ethnicity || "kr"} ${config.gender || "female"}`;
       const res = await fetch("/api/plan-variations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -213,7 +214,7 @@ export function ControlPanel({
           <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
             <span>PureGlow Pro</span>
             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 border border-pink-200">
-              v1.01
+              {APP_VERSION}
             </span>
           </h2>
           <p className="text-[10px] font-bold text-pink-500 tracking-widest uppercase mt-0.5">
@@ -273,10 +274,11 @@ export function ControlPanel({
                 성별
               </label>
               <select
-                value={config.gender}
+                value={config.gender || ""}
                 onChange={(e) => setConfig({ ...config, gender: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
+                <option value="">성별 선택...</option>
                 {GENDERS.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.labelKo}
@@ -291,10 +293,11 @@ export function ControlPanel({
                 국적
               </label>
               <select
-                value={config.ethnicity}
+                value={config.ethnicity || ""}
                 onChange={(e) => setConfig({ ...config, ethnicity: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
+                <option value="">국적 선택...</option>
                 {ETHNICITIES.map((eth) => (
                   <option key={eth.id} value={eth.id}>
                     {eth.labelKo}
@@ -309,10 +312,11 @@ export function ControlPanel({
                 나이
               </label>
               <select
-                value={config.age}
+                value={config.age || ""}
                 onChange={(e) => setConfig({ ...config, age: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
+                <option value="">나이 선택...</option>
                 {AGES.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.labelKo}
@@ -327,10 +331,11 @@ export function ControlPanel({
                 헤어스타일
               </label>
               <select
-                value={config.hairStyle}
+                value={config.hairStyle || ""}
                 onChange={(e) => setConfig({ ...config, hairStyle: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
+                <option value="">헤어스타일 선택...</option>
                 {HAIR_STYLES.map((h) => (
                   <option key={h.id} value={h.id}>
                     {h.labelKo}
@@ -663,15 +668,15 @@ export function ControlPanel({
               </label>
               <select
                 value={
-                  EXPRESSIONS.find((e) => e.detail === config.expression)?.id ||
-                  EXPRESSIONS[0]?.id
+                  EXPRESSIONS.find((e) => e.detail === config.expression)?.id || ""
                 }
                 onChange={(e) => {
                   const opt = EXPRESSIONS.find((item) => item.id === e.target.value);
-                  if (opt) setConfig({ ...config, expression: opt.detail });
+                  setConfig({ ...config, expression: opt ? opt.detail : "" });
                 }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
               >
+                <option value="">표정 선택...</option>
                 {EXPRESSIONS.map((ex) => (
                   <option key={ex.id} value={ex.id}>
                     {ex.labelKo}
@@ -686,14 +691,15 @@ export function ControlPanel({
               </label>
               <select
                 value={
-                  POSES.find((p) => p.detail === config.pose)?.id || POSES[0]?.id
+                  POSES.find((p) => p.detail === config.pose)?.id || ""
                 }
                 onChange={(e) => {
                   const opt = POSES.find((item) => item.id === e.target.value);
-                  if (opt) setConfig({ ...config, pose: opt.detail });
+                  setConfig({ ...config, pose: opt ? opt.detail : "" });
                 }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
               >
+                <option value="">포즈 선택...</option>
                 {POSES.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.labelKo}
@@ -707,15 +713,17 @@ export function ControlPanel({
           <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
-              value={config.expression}
+              placeholder="표정 직접 입력 (영문) 또는 위에서 선택"
+              value={config.expression || ""}
               onChange={(e) => setConfig({ ...config, expression: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500"
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
             />
             <input
               type="text"
-              value={config.pose}
+              placeholder="포즈 직접 입력 (영문) 또는 위에서 선택"
+              value={config.pose || ""}
               onChange={(e) => setConfig({ ...config, pose: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 truncate"
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
             />
           </div>
         </div>
@@ -731,10 +739,13 @@ export function ControlPanel({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <select
+                value={
+                  OUTFIT_CATEGORIES.flatMap((c) => c.options).find((o) => o.detail === config.outfit)?.id || ""
+                }
                 onChange={(e) => {
                   const allOpts = OUTFIT_CATEGORIES.flatMap((c) => c.options);
                   const opt = allOpts.find((o) => o.id === e.target.value);
-                  if (opt) setConfig({ ...config, outfit: opt.detail });
+                  setConfig({ ...config, outfit: opt ? opt.detail : "" });
                 }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
               >
@@ -753,10 +764,13 @@ export function ControlPanel({
 
             <div>
               <select
+                value={
+                  LOCATION_CATEGORIES.flatMap((c) => c.options).find((o) => o.detail === config.location)?.id || ""
+                }
                 onChange={(e) => {
                   const allOpts = LOCATION_CATEGORIES.flatMap((c) => c.options);
                   const opt = allOpts.find((o) => o.id === e.target.value);
-                  if (opt) setConfig({ ...config, location: opt.detail });
+                  setConfig({ ...config, location: opt ? opt.detail : "" });
                 }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
               >
@@ -778,15 +792,17 @@ export function ControlPanel({
           <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
-              value={config.outfit}
+              placeholder="의상 직접 입력 (영문) 또는 위에서 선택"
+              value={config.outfit || ""}
               onChange={(e) => setConfig({ ...config, outfit: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 truncate"
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
             />
             <input
               type="text"
-              value={config.location}
+              placeholder="장소 직접 입력 (영문) 또는 위에서 선택"
+              value={config.location || ""}
               onChange={(e) => setConfig({ ...config, location: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 truncate"
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
             />
           </div>
         </div>
@@ -805,10 +821,11 @@ export function ControlPanel({
                 조명
               </label>
               <select
-                value={config.lighting}
+                value={config.lighting || ""}
                 onChange={(e) => setConfig({ ...config, lighting: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
               >
+                <option value="">조명 선택...</option>
                 {LIGHTINGS.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.labelKo}
@@ -822,10 +839,11 @@ export function ControlPanel({
                 촬영 기기 (SELFIE 특화)
               </label>
               <select
-                value={config.camera}
+                value={config.camera || ""}
                 onChange={(e) => setConfig({ ...config, camera: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
               >
+                <option value="">촬영 기기 선택...</option>
                 {CAMERA_MODES.map((group) => (
                   <optgroup key={group.category} label={group.category}>
                     {group.options.map((opt) => (
@@ -845,10 +863,11 @@ export function ControlPanel({
               필름 스톡
             </label>
             <select
-              value={config.filmStock}
+              value={config.filmStock || ""}
               onChange={(e) => setConfig({ ...config, filmStock: e.target.value })}
               className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
             >
+              <option value="">필름 스톡 선택...</option>
               {FILM_STOCKS.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.labelKo}

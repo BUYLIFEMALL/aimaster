@@ -19,23 +19,36 @@ import type { InfluencerConfig } from "@/types/influencer";
 export function buildInfluencerPrompt(config: InfluencerConfig): string {
   const currentYear = new Date().getFullYear();
 
-  // 1. 세부 디테일 매핑
-  const genderDetail = GENDERS.find((g) => g.id === config.gender)?.detail || config.gender;
-  const ethnicityDetail = ETHNICITIES.find((e) => e.id === config.ethnicity)?.detail || config.ethnicity;
-  const faceDetail = FACE_STYLES.find((f) => f.id === config.faceStyle)?.detail || config.faceStyle;
+  // 1. 세부 디테일 매핑 (기본 미선택 시 자연스러운 K-인플루언서 기본 폴백 적용)
+  const genderDetail =
+    GENDERS.find((g) => g.id === config.gender)?.detail || (config.gender ? config.gender : "female");
+  const ethnicityDetail =
+    ETHNICITIES.find((e) => e.id === config.ethnicity)?.detail ||
+    (config.ethnicity ? config.ethnicity : "East Asian (Korean)");
+  const ageDetail = config.age ? `${config.age}-year-old` : "young adult in 20s";
+  const faceDetail =
+    FACE_STYLES.find((f) => f.id === config.faceStyle)?.detail ||
+    (config.faceStyle || "natural aesthetic facial features");
 
   // 헤어스타일 특수 처리 (레퍼런스와 동일 옵션)
   const hairDetail =
     config.hairStyle === "ref_same"
       ? "EXACTLY MATCH THE HAIR STYLE, TEXTURE, AND COLOR OF THE PERSON IN IMAGE 1"
-      : HAIR_STYLES.find((h) => h.id === config.hairStyle)?.detail || config.hairStyle;
+      : HAIR_STYLES.find((h) => h.id === config.hairStyle)?.detail ||
+        (config.hairStyle || "natural stylish hair");
 
-  const lightingDetail = LIGHTINGS.find((l) => l.id === config.lighting)?.detail || config.lighting;
+  const lightingDetail =
+    LIGHTINGS.find((l) => l.id === config.lighting)?.detail ||
+    (config.lighting || "natural soft flattering light");
 
   // 카메라 모드
   const allCameras = CAMERA_MODES.flatMap((c) => c.options);
-  const cameraDetail = allCameras.find((c) => c.id === config.camera)?.detail || config.camera;
-  const filmDetail = FILM_STOCKS.find((f) => f.id === config.filmStock)?.detail || config.filmStock;
+  const cameraDetail =
+    allCameras.find((c) => c.id === config.camera)?.detail ||
+    (config.camera || "high-end smartphone selfie camera");
+  const filmDetail =
+    FILM_STOCKS.find((f) => f.id === config.filmStock)?.detail ||
+    (config.filmStock || "crisp digital photography");
 
   // 피부 질감 멀티 매핑
   const skinArray = Array.isArray(config.skin) ? config.skin : [];
@@ -43,7 +56,9 @@ export function buildInfluencerPrompt(config: InfluencerConfig): string {
     .map((sId) => SKIN_TEXTURES.find((st) => st.id === sId)?.detail || sId)
     .filter(Boolean)
     .join(", ");
-  const skinString = skinDetails ? `${skinDetails}, hyper-realistic skin texture` : "realistic skin texture";
+  const skinString = skinDetails
+    ? `${skinDetails}, hyper-realistic skin texture`
+    : "natural clean skin texture";
 
   // 포즈 및 시점 제어
   const poseLower = (config.pose || "selfie pose").toLowerCase();
@@ -103,7 +118,7 @@ export function buildInfluencerPrompt(config: InfluencerConfig): string {
 [Technical] ${lightingDetail}, ${cameraDetail}, ${filmDetail}. Skin: ${skinString}.
 [Perspective]
 ${perspectiveBlock}
-[Subject] ${genderDetail}, ${ethnicityDetail}, ${config.age}-year-old, ${faceDetail}. Hair: ${hairDetail}. Expression: ${config.expression || "natural neutral expression"}. Pose: ${finalPose}.
+[Subject] ${genderDetail}, ${ethnicityDetail}, ${ageDetail}, ${faceDetail}. Hair: ${hairDetail}. Expression: ${config.expression || "natural neutral expression"}. Pose: ${finalPose}.
 [Setting] ${config.placeImage ? "MATCH PROVIDED BACKGROUND" : config.location || "minimalist aesthetic background"}. Outfit: ${config.outfit || "stylish casual chic outfit"}.
 ${narrativeBlock}
 ${adBlock}

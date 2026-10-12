@@ -15,21 +15,21 @@ interface InfluencerStudioProps {
 const LOCAL_STORAGE_KEY = "ai_influencer_history_v1";
 
 export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
-  // 인플루언서 설정 기본값 (스크린샷 기본값과 1:1 일치)
+  // 인플루언서 설정 기본값 (기본 선택은 아무것도 안 되어 있는 값)
   const [config, setConfig] = useState<InfluencerConfig>({
-    gender: "female",
-    ethnicity: "kr",
-    age: "24",
-    hairStyle: "l_str_b", // 긴 검정 생머리
-    faceStyle: "elegant",
-    expression: "soft gentle smile",
-    pose: "holding a gimbal stabilizer while walking for a POV selfie",
-    outfit: "oversized white crisp button-up shirt",
-    location: "cozy sunlight-filled bedroom",
-    lighting: "m_win", // 아침 창가광
-    camera: "iphone_rear", // 폰카 후면 (기본)
-    filmStock: "p_400", // 코닥 포트라 400
-    skin: ["pore", "glow"], // 초정밀 모공, 건강한 광채
+    gender: "",
+    ethnicity: "",
+    age: "",
+    hairStyle: "",
+    faceStyle: "",
+    expression: "",
+    pose: "",
+    outfit: "",
+    location: "",
+    lighting: "",
+    camera: "",
+    filmStock: "",
+    skin: [], // 기본 선택 없음
     aspectRatio: "9:16",
     quality: "1K",
     isAdMode: false,
