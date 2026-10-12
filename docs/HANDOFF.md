@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 이미지 변환 스튜디오 (image-convert-studio) 카탈로그 고화질 실사 썸네일 생성 및 등록 완료
+
+주인님 요청("프로그램 기능에 맞는 썸네일 생성해서 넣어줘")에 따라, '이미지 변환 스튜디오'의 고유 기능(WebP·PNG·JPEG·AVIF 배치 일괄 변환, 리사이징, 다중 콜라주 합성)에 100% 최적화된 16:9 고화질 실사 포토리얼 썸네일을 생성하여 스토리지 업로드 및 DB 카탈로그 연동을 완료했습니다:
+
+1. **썸네일 기획 및 생성**:
+   - 플랫폼 표준 규격: 16:9 비율, 한국인 여성 디지털 디자이너/크리에이터가 자연광이 비치는 모던 스튜디오 우드 데스크에서 작업하는 극사실적 포토리얼리즘 사진.
+   - 듀얼 모니터 UI: 왼쪽 화면에 "BATCH CONVERSION"(이미지 일괄 변환 포맷 그리드), 오른쪽 화면에 "LAYOUT PRESETS"(콜라주 레이아웃 프리셋) 작업 화면이 또렷하게 렌더링되어 프로그램의 핵심 정체성을 한눈에 전달.
+2. **스토리지 업로드 및 로컬 동기화**:
+   - 로컬 복사: `image-convert-studio/public/image-convert-studio-thumbnail.jpg` 및 `scratch/image-convert-studio-thumbnail.jpg`.
+   - Supabase Storage: `program-images` 버킷의 `catalog/image-convert-studio-thumbnail.jpg`에 업로드 완료 (`upsert: true`, HTTP 200 검증 완료).
+3. **DB 카탈로그 테이블 갱신**:
+   - `programs` 테이블에서 `slug = 'image-convert-studio'`의 `thumbnail_url`을 공개 스토리지 URL(`https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/image-convert-studio-thumbnail.jpg?v=1791796741229`)로 갱신 완료.
+   - 마이그레이션 SQL: `supabase/migrations/0025_set_image_convert_studio_thumbnail.sql`.
+
+---
+
 ## 2026-10-12 Antigravity — 이미지 스타일 분석기 (style-dna-analyzer v1.12) 써클 꽉 찬 색상 채움, 동적 색상 바(점선 박스 제거) 및 원형 컬러 스와치 입체화 배포 완료
 
 주인님 요청("위에 바에는 색상바로 칠해주고 그위 대기중쪽의 써클도 색상채워주고 분석된 색상코드값으로 구현해줄수 없나?")에 따라, 원본 스튜디오 번들 로직을 1:1로 정밀 구현하여 분석된 색상 코드값으로 써클 도넛, 색상 바, 하단 목록 원이 100% 빈틈없이 채워지도록 완성 배포했습니다:

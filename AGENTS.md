@@ -308,6 +308,7 @@ vercel deploy --prod --yes --scope buylife
 | 쇼츠 | 쇼츠 떡상 분석·대본 자동화 | shorts-viral-studio | https://shorts-viral-studio.vercel.app (2026-10-04 신설 v1.01, 유료, 회원 본인 YouTube·AI 키 사용, 상세는 `shorts-viral-studio/AGENTS.md`) |
 | 네이버 | 네이버 블로그 에이전트 | naver-blog-agent | https://naver-blog-agent.vercel.app (현재 v1.28, 5단계 AI 글 생성 + 크롬 확장 스마트에디터 ONE 자동 타이핑 + 글감 수집소 + Tiptap 스마트 에디터 원고 보관함) |
 | 멀티미디어 | 이미지 스타일 분석기 | style-dna-analyzer | https://style-dna-analyzer.buylife.xyz (현재 v1.12, 3단 스튜디오 레이아웃 + 미학적 팔레트 & 컬러 스와치 100% 렌더링 + 마스터 프롬프트 EN/KO 추출 + 3단계 결과 테스트 및 색감 일치율 측정, 상세는 `style-dna-analyzer/AGENTS.md`) |
+| 멀티미디어 | 이미지 변환 스튜디오 | image-convert-studio | https://image-convert-studio.buylife.xyz (현재 v1.04, 여러 이미지를 WebP·PNG·JPEG·AVIF로 일괄 변환, 고품질 리사이징 및 콜라주 합성, 서버 미전송 브라우저 처리) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
