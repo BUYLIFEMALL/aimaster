@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import GoldButton from "@/components/ui/GoldButton";
 import type { Profile, Program } from "@/types/database.types";
@@ -42,6 +42,23 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
   const [quickPreset, setQuickPreset] = useState("30");
 
   const isBulk = members.length > 1;
+
+  // 팝업을 열면 선택한 회원이 "지금 사용 가능한 프로그램"(유효한 부여 + 골드·VIP는 등급 프로그램)이 미리 체크된다.
+  // 여러 회원을 선택했으면 모두가 공통으로 쓰고 있는 프로그램만 미리 체크한다. 이후 자유롭게 추가·해제할 수 있다.
+  useEffect(() => {
+    let alive = true;
+    fetch(`/api/admin/user-access?user_ids=${members.map((m) => m.id).join(",")}`)
+      .then((r) => r.json())
+      .then((d: { by_user?: Record<string, string[]> }) => {
+        if (!alive || !d.by_user) return;
+        const lists = members.map((m) => new Set(d.by_user![m.id] ?? []));
+        const common = Array.from(lists[0] ?? []).filter((id) => lists.every((l) => l.has(id)));
+        setProgramIds(new Set(common));
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const saveLabelSuffix = (() => {
     const parts: string[] = [];

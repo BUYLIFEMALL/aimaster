@@ -85,3 +85,49 @@ export async function DELETE(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }
+
+/**
+ * GET ?user_ids=a,b — 회원별로 "지금 사용 가능한 프로그램" id 목록(사용만료기간 설정 팝업에서 미리 선택해 두는 용도).
+ *  - 현재 유효한 부여(user_program_access: 만료 안 됨·프리미엄 정지 아님)
+ *  - 자동 부여 등급(골드·VIP)이면 그 등급에 체크된 프로그램도 포함 (일반·실버는 등급 체크가 권한이 아니므로 실제 부여만)
+ */
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin();
+  if ("error" in auth)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+  const ids = (req.nextUrl.searchParams.get("user_ids") ?? "").split(",").filter(Boolean);
+  if (ids.length === 0) return NextResponse.json({ error: "user_ids 필수" }, { status: 400 });
+
+  const service = createServiceClient();
+  const nowIso = new Date().toISOString();
+  const [{ data: profiles }, { data: grants }, { data: grades }, { data: gradeAccess }] = await Promise.all([
+    service.from("profiles").select("id, grade_id").in("id", ids),
+    service
+      .from("user_program_access")
+      .select("user_id, program_id, expires_at, premium_suspended")
+      .in("user_id", ids),
+    service.from("member_grades").select("id, auto_grant"),
+    service.from("grade_program_access").select("grade_id, program_id").eq("can_access", true),
+  ]);
+
+  const autoGrades = new Set<string>((grades ?? []).filter((g: { auto_grant: boolean }) => g.auto_grant).map((g: { id: string }) => g.id));
+  const gradePrograms = new Map<string, string[]>();
+  (gradeAccess ?? []).forEach((r: { grade_id: string; program_id: string }) => {
+    if (!autoGrades.has(r.grade_id)) return;
+    gradePrograms.set(r.grade_id, [...(gradePrograms.get(r.grade_id) ?? []), r.program_id]);
+  });
+
+  const byUser: Record<string, string[]> = {};
+  ids.forEach((id) => (byUser[id] = []));
+  (grants ?? []).forEach((g: { user_id: string; program_id: string; expires_at: string | null; premium_suspended: boolean }) => {
+    if (g.premium_suspended) return;
+    if (g.expires_at && g.expires_at <= nowIso) return;
+    byUser[g.user_id].push(g.program_id);
+  });
+  (profiles ?? []).forEach((p: { id: string; grade_id: string | null }) => {
+    if (p.grade_id && gradePrograms.has(p.grade_id)) byUser[p.id].push(...gradePrograms.get(p.grade_id)!);
+    byUser[p.id] = Array.from(new Set(byUser[p.id]));
+  });
+  return NextResponse.json({ by_user: byUser });
+}
