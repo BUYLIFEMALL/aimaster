@@ -1,5 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — AI 프롬프트 템플릿 자동화 (prompt-template-studio v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 1위 등록 완료
+
+주인님 요청("https://prompt-master-ten-flax.vercel.app/ 프로그램 자세히 분석후 실행해보고 개발 플랜을 새워줘", "AI 프롬프트 템플릿 자동화 로 하자")에 따라, 레퍼런스 사이트 전수 스크래핑(HTML/JS 번들 510KB 정밀 역분석) 및 사용자 첨부 화면을 100% 반영한 신규 서브프로젝트 **`AI 프롬프트 템플릿 자동화` (`prompt-template-studio v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위 등록을 완벽히 완료했습니다:
+
+1. **레퍼런스 전수 스크래핑 및 역분석 완결 (Rule 15)**:
+   - 9종 기본 프리셋 및 5대 카테고리(`Writing`, `Coding`, `Business`, `Marketing`, `Personal`) 내장.
+   - 정규식 `\{\{([^}]+)\}\}` 기반 동적 변수 실시간 감지 및 가변 입력 폼 자동 생성.
+   - AI 3단 스마트 제안 기능: 제목 입력 시 `설명 자동 생성`, 설명 입력 시 `프롬프트 템플릿 본문 및 변수 구조 자동 생성`, 본문 입력 시 `제목 추천` 상호작용 완결.
+   - 프롬프트 실행 모달: 템플릿 선택 시 변수 실시간 주입 미리보기, Gemini AI 기반 `변수 원클릭 자동 채우기`, `원클릭 프롬프트 실행 및 결과 마크다운 렌더링`, 원클릭 복사 및 `.md` 다운로드 완비.
+   - JSON 템플릿 백업 및 복원(가져오기/내보내기) 기능 지원.
+2. **플랫폼 표준 불변 지침 완벽 준수**:
+   - **최상위 절대 불변 규칙**: 사용자 본인 Gemini API 키(`user_api_keys.provider = 'gemini'`) 직접 등록 및 관리 (운영자 키 폴백 금지, 키 미등록 시 등록 모달 안내).
+   - **표준 좌측 사이드바 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**: `← 다른 프로그램 보기`, `대시보드 홈`, 번호형 3단계 핵심 흐름(`1. 템플릿 라이브러리` ➔ `2. 새 프롬프트 제작` ➔ `3. 백업 & 동기화`), `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`, 하단 계정/로그아웃 8~16px 밀착 배치.
+   - **화이트 베이스 클린 테마 (Rule 8)**: 밝고 세련된 화이트/중성색 바탕의 최신 웹 스튜디오 UI.
+   - **기준 연도 2026년 동적 주입 (Rule 9)**: `new Date().getFullYear()`로 현재 2026년 기준 결과물 보장.
+3. **16:9 고화질 실사 썸네일 생성 및 플랫폼 Storage 등록**:
+   - 전문 AI 크리에이터가 듀얼 모니터와 태블릿에서 프롬프트 템플릿 라이브러리와 동적 변수 실행 화면을 검토하는 세련된 16:9 와이드 실사 썸네일 생성.
+   - Supabase Storage `program-images/catalog/prompt-template-studio-thumbnail.jpg` (HTTP 200) 업로드 완료.
+4. **플랫폼 DB 등록 및 기본 요금제 3종 완비**:
+   - `programs` 테이블 등록: 카탈로그 1순위(`sort_order: 126`), 배지 `['free', 'new']`, `version: 'v1.01'`, `slug: 'prompt-template-studio'`, `app_url: 'https://prompt-template.buylife.xyz'`.
+   - `pricing_plans` 기본 3종 플랜(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원) 자동 등록 완비.
+5. **Vercel 프로덕션 배포 및 커스텀 도메인 연동**:
+   - 공식 도메인: [https://prompt-template.buylife.xyz](https://prompt-template.buylife.xyz) (Vercel Production 배포 완료, HTTP 307 SSO 리다이렉트 및 HTTP 200 정상 확인).
+   - 환경변수: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL` Vercel Production 등록 완료.
+
 ## 2026-10-13 Claude — 관리자 정책 지침 통합(ADMIN_POLICY_GUIDELINES.md) + 핵심 원칙 17번 등록
 
 - 2026-10-12~13에 진행한 관리자 페이지 정책(등급 자동 부여·사용기간 일괄/사람별·핸드폰 표기·프리미엄·비공개 프로그램 집계·구독 정리·메뉴/버튼 구성)을 `docs/ADMIN_POLICY_GUIDELINES.md` 한 문서로 정리하고 루트 `CLAUDE.md` 핵심 원칙 17번·`AGENTS.md` 16번에 등록했다. 이 영역 작업 전에 먼저 읽고 문서에는 **추가만** 한다.
