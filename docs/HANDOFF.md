@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Codex — Suno 음악 기획 스튜디오 v1.01 구현·자동 검수 완료, 운영 접속 설정 승인 대기
+
+주인님이 https://suno-prompt-manager-six.vercel.app/ 분석 후 AIMaster 구조로 구현 요청. 새 `suno-music-studio/`에서 공용 로그인·권한·개인 AI 키, 흰색 표준 메뉴, 스타일/작사/3~12곡 앨범/검수·보관 흐름, 독립 프리셋·순차 가사·중지·미완성 이어가기·복사/TXT/JSON/사용 안내 구현. 기존 music/참고 사이트 수정 없음. 추천 이름 후보와 원본 대비표는 [분석·계획](../suno-music-studio/docs/ANALYSIS_AND_PLAN.md).
+
+17개 자동 검사·ESLint·타입/빌드 통과, production audit 0. DB 프로그램·기본 3요금제 등록, 공개 전 is_active=false, 일반+기간/구독 정책(임의 FREE 없음). Vercel buylife/suno-music-studio 생성·연결, 환경변수 0개이며 아직 배포하지 않음. 루트 §2의 환경변수 사전 승인 규칙 때문에 공용 Supabase 접속 설정 3개 + 메인 URL의 새 프로젝트 production 등록과 로컬 동일 설정 승인 필요. 승인 후 배포·도메인·실제 회원 검사·활성화까지 진행. 실제 AI/Suno 유료 호출·회원 UI 검수 미실행. [검수/승인/재개 절차](../suno-music-studio/docs/RELEASE_V1_01.md).
+
 ## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.05) FREE 배지 제거·사이드바 제목 꺾임 방지 및 Vercel 프로덕션 배포 완료
 
 주인님 질의("무료 상태가 아닌데 왜 Free 배치가 붙어 있지?")에 따라 사이드바 헤더 배지와 제목 텍스트를 수정했습니다:
