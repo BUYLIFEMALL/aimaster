@@ -2,7 +2,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import MembersTable from "@/components/admin/MembersTable";
 
-type ExpiryRow = { user_id: string | null; expires_at: string | null };
+type ExpiryRow = { user_id: string | null; program_id?: string | null; expires_at: string | null };
 
 /**
  * Supabase(PostgREST)는 한 요청당 기본 최대 1000행만 반환한다 — .range()로 명시적으로
@@ -57,7 +57,7 @@ export default async function AdminMembersPage() {
     fetchAllRows((from, to) =>
       supabase
         .from("user_program_access")
-        .select("user_id, expires_at")
+        .select("user_id, program_id, expires_at")
         .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
         .range(from, to),
     ),
@@ -82,7 +82,11 @@ export default async function AdminMembersPage() {
     expiryByUserId.set(userId, entry);
   }
   for (const sub of activeSubs) addExpiryEntry(sub.user_id, sub.expires_at);
-  for (const access of activeAccess) addExpiryEntry(access.user_id, access.expires_at);
+  // 비공개(is_active=false) 프로그램의 부여는 "사용 가능 권한" 개수·만료일에서 뺀다(2026-10-13 주인님 지시)
+  const publicProgramIds = new Set((programs ?? []).map((p: { id: string }) => p.id));
+  for (const access of activeAccess) {
+    if (access.program_id && publicProgramIds.has(access.program_id)) addExpiryEntry(access.user_id, access.expires_at);
+  }
 
   return (
     <div>

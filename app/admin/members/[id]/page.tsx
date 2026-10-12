@@ -42,7 +42,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
         .order("created_at", { ascending: false }),
       supabase
         .from("user_program_access")
-        .select("*, program:programs(id, name, slug)")
+        .select("*, program:programs(id, name, slug, is_active)")
         .eq("user_id", id)
         .order("granted_at", { ascending: false }),
       supabase
@@ -78,7 +78,8 @@ export default async function MemberDetailPage({ params }: PageProps) {
       <MemberDetail
         member={member}
         subscriptions={subscriptions ?? []}
-        manualAccess={manualAccess ?? []}
+        // 비공개(is_active=false) 프로그램의 부여는 사용 가능 권한 목록·개수에서 뺀다(2026-10-13 주인님 지시)
+        manualAccess={(manualAccess ?? []).filter((a: { program?: { is_active?: boolean } | null }) => a.program?.is_active !== false)}
         sessions={sessions ?? []}
         allPrograms={allPrograms ?? []}
       />

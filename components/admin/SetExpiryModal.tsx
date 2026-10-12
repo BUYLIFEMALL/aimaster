@@ -55,7 +55,9 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
       .then((d: { by_user?: Record<string, string[]> }) => {
         if (!alive || !d.by_user) return;
         const lists = members.map((m) => new Set(d.by_user![m.id] ?? []));
-        const common = Array.from(lists[0] ?? []).filter((id) => lists.every((l) => l.has(id)));
+        // 비공개 프로그램은 목록에 없으므로 미리 체크에서도 제외한다
+        const listed = new Set(programs.map((p) => p.id));
+        const common = Array.from(lists[0] ?? []).filter((id) => listed.has(id) && lists.every((l) => l.has(id)));
         setProgramIds(new Set(common));
       })
       .catch(() => {});
