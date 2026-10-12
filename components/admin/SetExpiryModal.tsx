@@ -134,7 +134,12 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
         )}
 
         <div className="flex items-center justify-between mb-1">
-          <label className="text-subtext text-xs">프로그램 (복수 선택 가능)</label>
+          <label className="text-subtext text-xs">
+            프로그램 (복수 선택 가능){" "}
+            <span className="text-gold font-semibold">
+              · 선택 {programIds.size} / 전체 {programs.length}
+            </span>
+          </label>
           <button
             type="button"
             onClick={toggleAllPrograms}
