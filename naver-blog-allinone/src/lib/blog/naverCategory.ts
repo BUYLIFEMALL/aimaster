@@ -7,6 +7,7 @@ export interface NaverCategory {
 
 export const NAVER_LAST_KEY = "naver_blog_allinone_naver_category_last_v1";
 export const NAVER_LIST_KEY = "naver_blog_allinone_naver_category_list_v1";
+export const NAVER_LIST_AT_KEY = "naver_blog_allinone_naver_category_list_at_v1";
 
 /** 형식이 올바르지 않으면 null(= 지정 안 함) */
 export function readNaverCategory(value: unknown): NaverCategory | null {
@@ -67,6 +68,7 @@ export function loadNaverCategoryList(storage: ReadStorage): NaverCategory[] {
 export function saveNaverCategoryList(storage: WriteStorage, list: NaverCategory[]): void {
   try {
     storage.setItem(NAVER_LIST_KEY, JSON.stringify(list));
+    storage.setItem(NAVER_LIST_AT_KEY, new Date().toISOString());
   } catch {
     /* ignore */
   }
@@ -88,4 +90,13 @@ export function extensionVersionAtLeast(version: unknown, minimum: string): bool
   const b = parse(minimum);
   if (!a || !b) return false;
   return a[0] > b[0] || (a[0] === b[0] && a[1] >= b[1]);
+}
+
+/** 저장된 목록을 마지막으로 불러온 시각(없으면 null) */
+export function loadNaverCategoryListAt(storage: ReadStorage): string | null {
+  try {
+    return storage.getItem(NAVER_LIST_AT_KEY);
+  } catch {
+    return null;
+  }
 }

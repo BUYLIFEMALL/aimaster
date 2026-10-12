@@ -7,6 +7,7 @@ import { Loader2, RefreshCw } from "lucide-react";
 import {
   extensionVersionAtLeast,
   loadNaverCategoryList,
+  loadNaverCategoryListAt,
   reconcileNaverCategory,
   readNaverCategoryList,
   saveNaverCategoryList,
@@ -45,7 +46,12 @@ export function NaverCategoryPicker({ value, onChange, disabled, compact }: Prop
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    setList(loadNaverCategoryList(window.localStorage));
+    const saved = loadNaverCategoryList(window.localStorage);
+    setList(saved);
+    if (saved.length) {
+      const at = loadNaverCategoryListAt(window.localStorage);
+      setMessage(`이 브라우저에 저장된 목록 ${saved.length}개를 보여 주는 중입니다${at ? ` (불러온 시각: ${new Date(at).toLocaleString("ko-KR")})` : " (불러온 시각을 알 수 없음)"}. 내 네이버 블로그와 다르면 [카테고리 불러오기]로 최신 목록을 읽어 주세요.`);
+    }
   }, []);
 
   const load = async () => {
