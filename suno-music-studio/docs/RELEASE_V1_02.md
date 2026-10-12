@@ -24,4 +24,8 @@
 
 ## 운영 반영
 
-로컬 검수·인수인계 반영 후 커밋→푸시→Suno 프로그램만 운영 배포→운영 CSS·버전·접속 결과 확인 순서로 처리합니다. 배포 완료 결과는 이 절에 후속 기록합니다.
+코드 커밋 `8ddd2756` → origin/master 푸시 → `vercel deploy --prod --yes --scope buylife` 완료. 배포 `dpl_AVyPyZeThenzMS4A2xTyKKkxgXfA`, Next.js 16.4.0, READY, https://suno-music-studio-x2r914h3z-buylife.vercel.app → https://suno-music-studio.buylife.xyz.
+
+DB `programs.version=v1.02` 확인. 운영 `/login` HTTP 200, 공유 CSS 응답 200 및 메뉴 `flex:0 auto; min-height:0; overflow-y:auto`, 계정 `margin-top:8px; flex-shrink:0` 확인했습니다. CSS 최적화가 `flex:0 1 auto`를 같은 의미의 `flex:0 auto`로 축약합니다. 비로그인 `/`·`/settings`는 로그인으로 307이며 보호 규칙이 유지됩니다. 카탈로그 상세는 200 및 v1.02 확인했습니다.
+
+기존 Chrome의 일반 테스트 회원 `buylifemall@naver.com` 실제 로그인 화면을 새로고침한 후 v1.02·사용 안내 아래 계정/로그아웃 배치를 접근성 트리와 [실제 운영 화면](assets/sidebar-v102-live-member.png)으로 확인했습니다. 이 검수에서 로그아웃·AI 생성은 실행하지 않았습니다. 이번 계정 메뉴 배치·공통 지침 요청의 남은 작업은 없습니다.
