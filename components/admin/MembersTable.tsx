@@ -413,6 +413,16 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
 
         {/* 특정 등급 탭 선택 시 "해당 등급으로 회원 추가/이동" 핫버튼 */}
         {activeTargetGrade && (
+          <div className="flex flex-wrap items-center gap-2">
+            {activeTargetGrade.auto_grant && (
+              <Link
+                href="/admin/access-matrix"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-lg text-xs font-medium transition-all"
+              >
+                <Layers size={14} />
+                [{activeTargetGrade.name}] 사용 프로그램·기간 일괄 설정
+              </Link>
+            )}
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/40 rounded-lg text-xs font-medium transition-all cursor-pointer shadow-sm hover:border-gold"
@@ -420,6 +430,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
             <UserPlus size={14} />
             + [{activeTargetGrade.name}] 카테고리에 회원 추가/이동
           </button>
+          </div>
         )}
       </div>
 
