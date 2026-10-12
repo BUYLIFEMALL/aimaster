@@ -197,8 +197,7 @@ vercel deploy --prod --yes --scope buylife
   | 3개월 | quarterly | 30000 | 30000 |
 
   전부 `is_active: true`. `biannual`/`annual`/`lifetime`은 여전히 선택 가능한 billing_type이지만
-  기본값에서는 빠졌다. 관리자 UI("새 프로그램 등록" 폼)를 거치지 않고 Supabase에 직접 insert로
-  프로그램을 만들면 이 기본값이 자동으로 안 채워지므로 수동으로 넣어야 한다.
+  기본값에서는 빠졌다. **CLI 스크립트로 새 프로그램을 등록할 때도 programs insert 후 반드시 pricing_plans 테이블에 위 기본 3단계를 세트로 함께 등록해야 한다.** 관리자 수정 화면(ProgramForm.tsx)에서도 기존 플랜이 0개인 경우 자동으로 위 기본 플랜을 기본값으로 제안하며, 언제든 "기본 플랜(1/2/3개월) 불러오기" 버튼으로 즉시 복원할 수 있다.
 
 ---
 

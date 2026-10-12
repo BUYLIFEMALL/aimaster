@@ -148,11 +148,13 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [affiliateRate, setAffiliateRate] = useState("10");
 
   const [plans, setPlans] = useState<PricingPlanInput[]>(
-    program?.pricing_plans?.map((p) => ({
-      ...p,
-      price: String(p.price),
-      original_price: String(p.original_price ?? ""),
-    })) ?? (isEdit ? [] : DEFAULT_PLANS)
+    program?.pricing_plans && program.pricing_plans.length > 0
+      ? program.pricing_plans.map((p) => ({
+          ...p,
+          price: String(p.price),
+          original_price: String(p.original_price ?? ""),
+        }))
+      : DEFAULT_PLANS
   );
 
   useEffect(() => {
@@ -590,15 +592,33 @@ export default function ProgramForm({ program }: ProgramFormProps) {
               <h2 className="text-base font-bold text-white whitespace-nowrap">가격 플랜</h2>
               <div className="flex-1 h-px bg-white/10" />
             </div>
-            <GoldButton type="button" variant="outline" size="sm" onClick={addPlan} className="ml-4 flex-shrink-0">
-              <Plus size={14} /> 플랜 추가
-            </GoldButton>
+            <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setPlans(DEFAULT_PLANS)}
+                className="px-3 py-1.5 rounded-lg border border-gold/40 text-gold text-xs hover:bg-gold/10 transition-colors"
+                title="기본 1/2/3개월(1만/2만/3만원) 플랜으로 초기화"
+              >
+                기본 플랜(1/2/3개월) 불러오기
+              </button>
+              <GoldButton type="button" variant="outline" size="sm" onClick={addPlan}>
+                <Plus size={14} /> 플랜 추가
+              </GoldButton>
+            </div>
           </div>
 
           {plans.length === 0 ? (
             <div className="text-center py-8 border border-dashed border-white/10 rounded-xl">
               <p className="text-subtext text-sm">플랜이 없습니다.</p>
-              <button type="button" onClick={addPlan} className="text-gold text-sm mt-1 hover:underline">+ 플랜 추가</button>
+              <div className="flex items-center justify-center gap-3 mt-2">
+                <button type="button" onClick={() => setPlans(DEFAULT_PLANS)} className="text-gold text-sm hover:underline">
+                  + 기본 플랜(1/2/3개월) 채우기
+                </button>
+                <span className="text-white/20">|</span>
+                <button type="button" onClick={addPlan} className="text-subtext text-sm hover:text-white">
+                  + 빈 플랜 직접 추가
+                </button>
+              </div>
             </div>
           ) : (
             <div className="overflow-x-auto">

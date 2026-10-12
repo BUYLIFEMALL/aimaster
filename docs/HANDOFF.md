@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — 기본 요금제 플랜(pricing_plans) 추가 및 프로그램 관리 폼(ProgramForm) 기본 플랜 불러오기 기능 완비
+
+주인님 지시("https://www.buylife.xyz/admin/programs/84a87995-28c7-42bc-9b6a-c25c42dd90b4/edit 왜 플랜이 추가 안되었지 프로그램 등록시 기본값으로 등록되게 되어 있는데", "지침 확인하고 추가해줘")에 따라, 원인 규명 및 기본 플랜 등록, UI 보완 및 플랫폼 전체 지침 문서 갱신을 완료했습니다:
+
+1. **원인 규명 및 DB 등록 조치**:
+   - 웹 관리자 UI(`/admin/programs/new`) 등록 시에는 `DEFAULT_PLANS`(1/2/3개월)가 폼 기본값으로 `pricing_plans`에 저장되지만, 스크립트(`register_yt_playlist_studio.mjs`)로 등록할 때 `pricing_plans` insert 로직이 누락되어 있었습니다.
+   - `scripts/add_default_pricing_plans.mjs`를 실행하여 해당 프로그램(`84a87995-28c7-42bc-9b6a-c25c42dd90b4`, `Youtube Playlist 자동화`) 및 `ai-influencer-studio`에 표준 3단계 요금제(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원)를 즉시 등록 완료했습니다.
+2. **관리자 폼(ProgramForm.tsx) 개선**:
+   - 기존 프로그램 수정 화면(`[id]/edit`) 진입 시 기존 플랜이 0개인 경우에도 자동으로 `DEFAULT_PLANS`를 기본값으로 제안하도록 fallback 로직 보완.
+   - 플랜 헤더 및 빈 상태 영역에 원클릭 `기본 플랜(1/2/3개월) 불러오기` 버튼을 추가하여 관리자가 언제든 표준 요금제를 원클릭으로 채울 수 있도록 구현.
+3. **지침 문서 동기화 완료**:
+   - `docs/ERROR_LESSONS.md`: CLI 스크립트 프로그램 등록 시 `pricing_plans` 세트 동시 등록 의무 지침 추가.
+   - `AGENTS.md` & `CLAUDE.md`: CLI 스크립트 등록 시 `pricing_plans` 표준 3단계(1만/2만/3만) 동시 등록 규칙 명시.
+
+---
+
 ## 2026-10-13 Antigravity — Youtube Playlist 자동화 (yt-playlist-studio v1.02) 명칭 전면 변경 · 신규 도메인 동기화 · 신규 16:9 고화질 실사 썸네일 등록 완료
 
 주인님 요청("프로그램 제목을 Youtube Playlist 자동화 로 수정 변경해주고 프로그램내 명칭도 바꿔주고 vecel 배포 주소도 프로그램 명으로 바꿔서 다시 배포해줘", "그리고 프로그램 등록하고 썸네일도 맞게 생성 등록해줘")에 따라, 프로그램 명칭을 'Youtube Playlist 자동화'로 전면 변경하고 신규 도메인 연동 및 16:9 고화질 실사 썸네일을 새로 생성하여 플랫폼 Storage/DB 등록을 완벽히 완료했습니다:

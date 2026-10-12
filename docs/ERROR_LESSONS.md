@@ -1,5 +1,16 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-13 — CLI 스크립트로 프로그램 등록 시 pricing_plans 기본값 누락 방지 (Youtube Playlist 자동화 / yt-playlist-studio)
+
+- **증상**: 신규 프로그램 등록 후 관리자 프로그램 수정 화면(`/admin/programs/[id]/edit`) 진입 시 요금제 플랜(pricing_plans)이 비어 있고 추가되어 있지 않음.
+- **원인**: 웹 관리자 UI(`/admin/programs/new`)를 거칠 때는 `DEFAULT_PLANS`(1개월 1만, 2개월 2만, 3개월 3만)가 폼 기본값으로 채워져 `pricing_plans` 테이블에 함께 insert되지만, CLI 등록 스크립트 작성 시 `programs` 테이블만 단독 insert하고 `pricing_plans` 삽입 로직을 누락함. 또한 `ProgramForm.tsx`가 `isEdit` 상태에서 기존 플랜이 0개일 때 빈 배열(`[]`)로 초기화되어 기본값이 채워지지 않았음.
+- **해결(위치)**:
+  1. `scripts/add_default_pricing_plans.mjs`를 작성·실행하여 대상 프로그램(`84a87995-28c7-42bc-9b6a-c25c42dd90b4`, `yt-playlist-studio`) 및 `b57915bb-4446-40e5-b3e9-9e4d902c027f`(`ai-influencer-studio`)에 표준 기본 요금제 3종(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원)을 Supabase DB `pricing_plans`에 즉시 추가 등록함.
+  2. `components/admin/ProgramForm.tsx`에서 기존 플랜이 0개일 때도 `DEFAULT_PLANS`로 fallback되도록 개선하고, 원클릭 "기본 플랜(1/2/3개월) 불러오기" 버튼을 추가함.
+- **다음부터 확인**:
+  1. CLI 스크립트로 새 프로그램을 등록할 때도 반드시 `programs` insert 후 `pricing_plans`에 표준 3단계(1만/2만/3만, SSOT: `DEFAULT_PLANS`)를 반드시 세트로 함께 insert한다.
+  2. 관리자 프로그램 수정 화면에서 플랜이 0개인 예외 프로그램도 자동으로 기본 플랜을 제안받을 수 있도록 보장한다.
+
 ## 2026-10-12 — 프리셋 해제 시 보컬 기본값을 빈 문자열로 만드는 문제
 
 - 증상: 앨범 참고 프리셋을 해제한 뒤 생성하면 트랙 목록이 나타나지 않음.
