@@ -1,7 +1,7 @@
-# 유튜브 플레이리스트 스튜디오 (YouTube Playlist Studio)
+# Youtube Playlist 자동화 (YouTube Playlist Automation)
 
-> **버전**: `v1.01`  
-> **도메인**: `https://yt-playlist.buylife.xyz`  
+> **버전**: `v1.02`  
+> **공식 도메인**: `https://youtube-playlist.buylife.xyz` (기존: `https://yt-playlist.buylife.xyz`)  
 > **플랫폼**: AIMaster 통합 서브프로젝트
 
 ## 주요 기능

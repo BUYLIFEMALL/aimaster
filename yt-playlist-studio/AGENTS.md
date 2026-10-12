@@ -1,7 +1,7 @@
-# 유튜브 플레이리스트 스튜디오 — AI 에이전트 인수인계 문서 (AGENTS.md)
+# Youtube Playlist 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
-> **프로그램 버전**: `v1.01` (2026-10-13 신규 구축: 스펙트럼 스튜디오 PRO 전수 역분석 및 WebCodecs 1080p MP4 인코딩, Gemini AI 배경 생성기 완비)  
-> **공식 커스텀 도메인**: [https://yt-playlist.buylife.xyz](https://yt-playlist.buylife.xyz) (Vercel: `https://yt-playlist.vercel.app`)  
+> **프로그램 버전**: `v1.02` (2026-10-13 프로그램 명칭을 'Youtube Playlist 자동화'로 변경, Vercel 배포 주소 및 커스텀 도메인 동기화)  
+> **공식 커스텀 도메인**: [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) (기존: `https://yt-playlist.buylife.xyz`)  
 > **프로그램 slug**: `yt-playlist-studio`  
 > **카테고리**: 음악 / 멀티미디어 / 크리에이터  
 > **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)

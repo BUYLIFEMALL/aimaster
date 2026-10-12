@@ -20,8 +20,8 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <HelpCircle className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-base">유튜브 플레이리스트 스튜디오 이용 가이드</h3>
-              <p className="text-xs text-slate-500">감성 유튜브 플레이리스트 및 스펙트럼 롱폼 영상 제작</p>
+              <h3 className="font-bold text-slate-900 text-base">Youtube Playlist 자동화 이용 가이드</h3>
+              <p className="text-xs text-slate-500">감성 YouTube 플레이리스트 및 실시간 스펙트럼 영상 제작 자동화</p>
             </div>
           </div>
           <button

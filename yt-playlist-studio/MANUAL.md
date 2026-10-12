@@ -1,14 +1,14 @@
-# 유튜브 플레이리스트 스튜디오 (YouTube Playlist Studio) — 상세 매뉴얼
+# Youtube Playlist 자동화 (YouTube Playlist Automation) — 상세 매뉴얼
 
-본 매뉴얼은 **유튜브 플레이리스트 스튜디오**의 핵심 기능, 워크플로우, 조작법 및 기술적 세부사항을 다룹니다.
+본 매뉴얼은 **Youtube Playlist 자동화**의 핵심 기능, 워크플로우, 조작법 및 기술적 세부사항을 다룹니다.
 
 ---
 
 ## 1. 개요
-- **서비스명**: 유튜브 플레이리스트 스튜디오 (YouTube Playlist Studio)
-- **도메인**: `https://yt-playlist.buylife.xyz`
-- **버전**: `v1.01`
-- **목적**: 감성적인 배경 위에 비트와 주파수에 반응하는 실시간 오디오 스펙트럼과 파티클 FX를 결합하여, 유튜브용 롱폼 음악 플레이리스트 비디오(1080p MP4)를 브라우저 내에서 고속 제작합니다.
+- **서비스명**: Youtube Playlist 자동화 (YouTube Playlist Automation)
+- **도메인**: `https://youtube-playlist.buylife.xyz`
+- **버전**: `v1.02`
+- **목적**: 감성적인 배경 위에 비트와 주파수에 반응하는 실시간 오디오 스펙트럼과 파티클 FX를 결합하여, 유튜브용 롱폼 음악 플레이리스트 비디오(1080p MP4)를 브라우저 내에서 고속 제작 자동화합니다.
 
 ---
 
