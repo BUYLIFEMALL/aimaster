@@ -16,7 +16,7 @@ interface ProgramCardProps {
   // 명시적으로 넘기면 그것만 단독으로 쓰고, 안 넘기면 관리자가 프로그램 편집에서 지정한
   // program.badges(DB 값, 여러 개 가능)를 전부 보여준다.
   badge?: "new" | "best" | "sale" | "coming" | "free";
-  // 관리자로 로그인했을 때만 true — 하단 버튼 맨 오른쪽에 [편집] 버튼(관리자 프로그램 편집 화면 이동)을 보여준다.
+  // 관리자로 로그인했을 때만 true — 썸네일 우상단에 [편집] 버튼(관리자 프로그램 편집 화면 이동)을 보여준다.
   isAdmin?: boolean;
 }
 
@@ -56,6 +56,15 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                   <Badge key={b} variant={b} />
                 ))}
               </div>
+            )}
+            {isAdmin && (
+              <Link
+                href={`/admin/programs/${program.id}/edit`}
+                title="관리자: 이 프로그램 편집"
+                className="absolute top-3 right-3 z-10 px-3 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm border border-gold/50 text-gold text-xs font-bold hover:bg-gold hover:text-black transition-colors whitespace-nowrap"
+              >
+                편집
+              </Link>
             )}
             {program.video_url && (
               <div className="absolute bottom-3 right-3">
@@ -134,11 +143,6 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
             <Link href={"/programs/" + program.slug}>
               <GoldButton size="sm">자세히 보기</GoldButton>
             </Link>
-            {isAdmin && (
-              <Link href={`/admin/programs/${program.id}/edit`} title="관리자: 이 프로그램 편집">
-                <GoldButton size="sm" variant="outline">편집</GoldButton>
-              </Link>
-            )}
           </div>
         </div>
       </div>
