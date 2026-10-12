@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 뮤직비디오 자동화 카탈로그 썸네일 등록 (music-video-studio)
+
+주인님 요청으로 `scripts/generate-program-thumbnail.mjs`(관리자 Gemini 키 1회, 나노바나나 프로)로 16:9 실사 썸네일을 만들어 Storage `program-images/catalog/music-video-studio-thumbnail.jpg`에 올리고 `programs.thumbnail_url`을 갱신했습니다(공개 주소 200 확인). 내용: 한국인 크리에이터가 이중 모니터(왼쪽 SCENE 1~4 스토리보드, 오른쪽 영상 타임라인)로 작업하는 장면. 기록 SQL 주석: `music-video-studio/supabase/migrations/0002_thumbnail.sql`. 재배포 불필요(DB 값). 남은 일: 없음.
+
 ## 2026-10-12 Claude — 프로그램명 변경: 뮤직비디오 스튜디오 → 뮤직비디오 자동화 (music-video-studio v1.02)
 
 주인님 지시로 화면(`APP_NAME`)·메타데이터·DB `programs.name/short_desc`·README/AGENTS·마이그레이션 SQL·`HANDOFF_CLAUDE_SESSION_2026-10-12_PART2.md`의 이름을 바꿨습니다(slug·주소 `music-video-studio.buylife.xyz` 그대로, 버전 v1.02, 배포 완료). 이 문서 아래의 이전 항목에 남은 옛 이름은 당시 기록이라 그대로 둡니다. 저장소·DB(programs, platform_guides)에서 옛 이름 잔여는 없음을 검색으로 확인했습니다.

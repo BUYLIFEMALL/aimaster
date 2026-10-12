@@ -29,3 +29,4 @@
 - 등록 SQL: `supabase/migrations/0001_register_program.sql`
 - **고도화 예정(2026-10-12 주인님 확정): Suno 음악기획 자동화(`suno-music-studio`)와 연계.** 1단계 가사 생성이 겹치므로, Suno 음악기획의 저장곡 JSON을 불러오거나 1단계를 가사 붙여 넣기 중심으로 줄이는 방향. 상세: `docs/HANDOFF_CLAUDE_SESSION_2026-10-12_PART2.md` 3번.
 - v1.02 (2026-10-12): 주인님 지시로 프로그램명을 "뮤직비디오 스튜디오"에서 **"뮤직비디오 자동화"**로 변경(화면·메타데이터·DB). slug·주소는 그대로.
+- 카탈로그 썸네일 등록(2026-10-12): `programs.thumbnail_url`, 기록 `supabase/migrations/0002_thumbnail.sql`.
