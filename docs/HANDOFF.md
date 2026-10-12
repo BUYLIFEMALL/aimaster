@@ -1,6 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.02) 디자인 템플릿 전면 개편·사이드바 표준화 및 Vercel 프로덕션 배포 완료
+## 2026-10-12 Antigravity — 감성 글귀 이미지 (emotion-writer v1.03) UI 폰트 표준화 및 Vercel 프로덕션 배포 완료
+
+주인님 요청("폰트도 다른 프로그램 뭘 사용했나 찾아보고 같이 맞춰줘")에 따라 다른 메인 프로그램들의 폰트를 조사하고 통일화했습니다:
+1. **폰트 조사 및 문제 원인 규명**:
+   - 다른 메인 프로그램(`cardnews-studio`, `ai-webtoon-studio`, `naver-blog-allinone`, 루트 `AIMaster`): `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial, sans-serif` 고가독성 시스템 산세리프 폰트 스택 사용.
+   - 기존 `emotion-writer`: UI 기본 폰트에 `"Gowun Dodum"`(고운돋움 손글씨체 웹폰트)이 지정되어 있어 Windows 환경에서 UI 전체 텍스트가 둥글둥글한 고운돋움으로 렌더링되어 다른 프로그램과 이질감이 발생했음.
+2. **UI 폰트 표준화 적용**:
+   - `globals.css` body 폰트를 플랫폼 표준 폰트 스택(`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial, sans-serif`)으로 교체.
+   - 캔버스 서체 선택용 고운돋움/나눔명조/나눔손글씨 웹폰트는 캔버스 렌더링에만 독립 적용되도록 분리 유지.
+3. **버전 및 배포 검증**:
+   - `v1.03` 버전 업 (`src/lib/version.ts`, `package.json`, 공용 DB `programs.version`).
+   - 테스트 20개 전원 통과, ESLint 0 오류/경고, TypeScript 컴파일 정상.
+   - Vercel 프로덕션 배포 완료 (`https://emotion-writer.buylife.xyz`). 실제 Chrome 브라우저에서 깔끔한 표준 산세리프 폰트 렌더링 확인.
 
 주인님 요청("디자인을 다른 프로그램 템플릿에 맞추어 바꿔줘 좌측 매뉴도 그렇고 사용된 이모티콘도 어울리게 수정해줘")에 따라 다음과 같이 플랫폼 표준 디자인 템플릿으로 전면 개편했습니다:
 1. **좌측 사이드바 표준화 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 준수)**:
