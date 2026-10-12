@@ -343,7 +343,7 @@ export function ControlPanel({
       {/* 2. 전체 옵션 세로 스크롤 영역 (스크린샷 규격과 동일) */}
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6 text-xs text-slate-700">
         {/* [섹션 1] 기본 외형 설정 (2x2 그리드) */}
-        <div className="space-y-3">
+        <div id="step-1-appearance" className="space-y-3 scroll-mt-4">
           <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
             <User className="w-3.5 h-3.5" />
             <span>기본 외형 설정</span>
@@ -429,7 +429,7 @@ export function ControlPanel({
         </div>
 
         {/* [섹션 2] 인플루언서의 하루 (AI 플래닝) */}
-        <div className="space-y-2">
+        <div id="step-2-routine" className="space-y-2 scroll-mt-4">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5" />
@@ -532,7 +532,7 @@ export function ControlPanel({
         </div>
 
         {/* [섹션 4] 광고/공구 모드 (AD MODE) */}
-        <div className="space-y-3 pt-1">
+        <div id="step-4-admode" className="space-y-3 pt-1 scroll-mt-4">
           <div className="flex items-center justify-between">
             <span
               className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
@@ -736,7 +736,7 @@ export function ControlPanel({
         </div>
 
         {/* [섹션 6] 표정 및 포즈 (셀카 특화) */}
-        <div className="space-y-2.5">
+        <div id="step-3-styling" className="space-y-2.5 scroll-mt-4">
           <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
             <Smile className="w-3.5 h-3.5" />
             <span>표정 및 포즈 (셀카 특화)</span>
@@ -997,7 +997,7 @@ export function ControlPanel({
         </div>
 
         {/* [섹션 10] 출력 설정 */}
-        <div className="space-y-3">
+        <div id="step-5-generate" className="space-y-3 scroll-mt-4">
           <span className="text-[11px] font-bold text-pink-600 uppercase tracking-wider block">
             출력 설정
           </span>

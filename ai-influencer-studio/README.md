@@ -1,6 +1,6 @@
 # AI 인플루언서 자동화 (AI Influencer Studio)
 
-- **버전**: `v1.04`
+- **버전**: `v1.05`
 - **도메인**: `ai-influencer.buylife.xyz`
 - **프로그램 명칭**: **AI 인플루언서 자동화 (AI Influencer Studio)**
 - **정체성**: 인스타그램 및 SNS 마케팅에 즉시 활용 가능한 초현실적(Hyper-realistic) AI 가상 인플루언서 화보 및 3종 맞춤 캡션(해시태그 포함) 자동 생성 스튜디오
@@ -8,6 +8,22 @@
 ---
 
 ## 핵심 엔진 & 주요 기능
+
+0. **AIMaster 메인 지침 준수 좌측 표준 사이드바 메뉴 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**
+   - 상단 프로그램명 + 버전 배지(`v1.05`) + `← 다른 프로그램 보기`
+   - `🏠 대시보드` 진입점
+   - 번호형 핵심 작업 흐름 (원형 배지 + 연결선):
+     - Step 1: 외형 스타일링 (`#step-1-appearance`)
+     - Step 2: 일과 & 앵글 기획 (`#step-2-routine`)
+     - Step 3: 표정·포즈 & 연출 (`#step-3-styling`)
+     - Step 4: 광고/공구 모드 (`#step-4-admode`)
+     - Step 5: 화보 & 캡션 생성 (`#step-5-generate`)
+   - 하단 구분선 아래:
+     - `🔑 API키등록·플랫폼연동`
+     - `💡 사용 가이드`
+     - `⚙️ 작업 히스토리`
+     - 회원 이메일 및 로그아웃 폼 바짝 밀착 (2026-10-12 주인님 확정 규격)
+
 
 1. **초정밀 이미지 생성 엔진 (Gemini 3 Pro Image Preview)**
    - 1K / 2K / 4K 초고해상도 렌더링 지원

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Sidebar } from "@/components/Sidebar";
 import { ControlPanel } from "@/components/ControlPanel";
 import { ImageDisplay } from "@/components/ImageDisplay";
 import { ApiKeyModal } from "@/components/ApiKeyModal";
@@ -52,6 +53,9 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
   const [hasApiKey, setHasApiKey] = useState(false);
   const [maskedKey, setMaskedKey] = useState<string | null>(null);
 
+  // 활성 스텝 (사이드바 1~5 연동)
+  const [activeStep, setActiveStep] = useState(1);
+
   // 작업 히스토리 목록
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
@@ -68,6 +72,38 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
     } catch (e) {
       console.warn("히스토리 로드 실패:", e);
     }
+  }, []);
+
+  // 컨트롤 패널 내 스텝 스크롤 위치 감지 (사이드바 활성화 동기화)
+  useEffect(() => {
+    const stepIds = [
+      "step-1-appearance",
+      "step-2-routine",
+      "step-3-styling",
+      "step-4-admode",
+      "step-5-generate",
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = stepIds.indexOf(entry.target.id);
+            if (idx !== -1) {
+              setActiveStep(idx + 1);
+            }
+          }
+        });
+      },
+      { threshold: 0.3, rootMargin: "-10% 0px -50% 0px" }
+    );
+
+    stepIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const checkApiKeyStatus = async () => {
@@ -256,8 +292,18 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 overflow-hidden font-sans">
-      {/* 좌측 패널 (스크린샷 규격과 동일) */}
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 overflow-hidden font-sans">
+      {/* 1. AIMaster 표준 좌측 사이드바 (지침 준수) */}
+      <Sidebar
+        userEmail={userEmail}
+        activeStep={activeStep}
+        onSelectStep={setActiveStep}
+        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        onOpenHelpModal={() => setIsHelpModalOpen(true)}
+        onOpenHistory={() => setIsHistoryOpen(true)}
+      />
+
+      {/* 2. 중앙 옵션 컨트롤 패널 (스크린샷 규격과 동일) */}
       <ControlPanel
         config={config}
         setConfig={setConfig}
@@ -270,7 +316,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
         hasApiKey={hasApiKey}
       />
 
-      {/* 우측 뷰어 & 캡션 스튜디오 */}
+      {/* 3. 우측 뷰어 & 캡션 스튜디오 */}
       <ImageDisplay
         result={result}
         onRefineImage={(feedback) => handleGenerate(feedback)}

@@ -1,5 +1,34 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — AI 인플루언서 자동화 (ai-influencer-studio v1.05) 메인 지침 준수 좌측 표준 사이드바 메뉴 연동 배포 완료
+
+주인님 요청("메인 지침 확인해서 좌측에 메뉴구성해줘")에 따라, AIMaster 플랫폼 공통 좌측 메뉴 표준 지침([`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md))을 100% 준수한 사이드바 컴포넌트(`Sidebar.tsx`)를 구축하고 연동 배포 완료했습니다:
+
+1. **상단 브랜드 헤더 규격 준수**:
+   - 프로그램명(`AI 인플루언서 자동화`) + 버전 배지(`v1.05`)
+   - `← 다른 프로그램 보기` (`https://www.buylife.xyz/programs`) 링크 배치
+2. **네비게이션 메뉴 구조**:
+   - `🏠 대시보드` 진입점 (최상단 스텝으로 스크롤 이동)
+   - **번호형 핵심 작업 흐름 (원형 번호 배지 1~5 + 세로 연결선)**:
+     - **1. 외형 스타일링** (`step-1-appearance`): 성별·국적·나이·헤어스타일
+     - **2. 일과 & 앵글 기획** (`step-2-routine`): 인플루언서 하루 5대 타임라인
+     - **3. 표정·포즈 & 연출** (`step-3-styling`): 셀카 각도·의상·장소·조명·필름
+     - **4. 광고/공구 모드** (`step-4-admode`): PPL 제품 사진 1:1 합성 & 5대 광고
+     - **5. 화보 & 캡션 생성** (`step-5-generate`): Gemini 3 Pro 화보 & 3종 캡션
+   - 클릭 시 부드러운 스무스 스크롤(`scrollIntoView`) 및 화면 스크롤 시 `IntersectionObserver`로 현재 스텝 자동 하이라이트 동기화
+3. **구분선 아래 공통 연동 및 계정 정보 (2026-10-12 주인님 확정 바짝 밀착 규격)**:
+   - `🔑 API키등록·플랫폼연동` (공식 표준 명칭 준수, 클릭 시 ApiKeyModal 오픈)
+   - `💡 사용 가이드` (클릭 시 HelpModal 오픈)
+   - `⚙️ 작업 히스토리` (클릭 시 HistoryDrawer 오픈)
+   - 마지막 메뉴 바로 아래 8~16px 간격으로 회원 계정 이메일과 로그아웃 버튼 바짝 밀착 배치 (`mt-auto` 하단 고정 금지 규칙 준수)
+4. **반응형 지원**:
+   - 데스크톱: `md:w-60` 고정 좌측 바
+   - 모바일: 상단 헤더 바 + 햄버거 메뉴를 통한 슬라이드 드로어 지원
+5. **버전 관리 및 DB 동기화**:
+   - 버전 `v1.05` 상향 (`src/lib/version.ts`, `package.json`, Supabase `programs.version = 'v1.05'`)
+
+---
+
 ## 2026-10-12 Claude — 프리미엄 권한 강제(0031) 구현안 작성, DB 일부만 적용 (승인 대기)
 
 주인님 지시("뱃지를 다는 순간 동작, 이미 부여된 권한도 같은 기준", "결제 연동 전이라 실제 실행은 안 함"). `supabase/migrations/0031_premium_enforcement.sql` 작성. **적용된 것**: `user_program_access.premium_suspended`·`premium_prev_expires_at` 열, `user_program_access_premium_guard()` 함수(트리거는 아직 안 걺). **미적용(도구 권한 거부)**: `programs_premium_badge()` 함수와 두 트리거. 현재 DB에는 프리미엄 뱃지가 달린 프로그램이 없어 동작 변화 없음. 관리자 편집 폼은 프리미엄 선택 시 FREE 자동 해제. 다음: 승인 후 0031 나머지 적용 → 임시 프로그램으로 검증 → 정리.
