@@ -2312,8 +2312,9 @@ export const RANDOM_ROUTINE_PRESETS = [
 
 // 17. 화질 및 해상도
 export const QUALITY_OPTIONS = [
-  { id: "1K", labelKo: "1K (표준 고화질)", labelEn: "1K" },
-  { id: "2K", labelKo: "2K (초고화질 디테일)", labelEn: "2K" }
+  { id: "1K", labelKo: "1K", labelEn: "1K" },
+  { id: "2K", labelKo: "2K", labelEn: "2K" },
+  { id: "4K", labelKo: "4K", labelEn: "4K" }
 ];
 
 export const ASPECT_RATIO_OPTIONS = [

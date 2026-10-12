@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
 import { ControlPanel } from "@/components/ControlPanel";
 import { ImageDisplay } from "@/components/ImageDisplay";
 import { ApiKeyModal } from "@/components/ApiKeyModal";
@@ -16,24 +15,25 @@ interface InfluencerStudioProps {
 const LOCAL_STORAGE_KEY = "ai_influencer_history_v1";
 
 export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
-  // 인플루언서 설정 기본값
+  // 인플루언서 설정 기본값 (스크린샷 기본값과 1:1 일치)
   const [config, setConfig] = useState<InfluencerConfig>({
     gender: "female",
     ethnicity: "kr",
     age: "24",
-    hairStyle: "l_str_b",
+    hairStyle: "l_str_b", // 긴 검정 생머리
     faceStyle: "elegant",
     expression: "soft gentle smile",
     pose: "holding a gimbal stabilizer while walking for a POV selfie",
     outfit: "oversized white crisp button-up shirt",
     location: "cozy sunlight-filled bedroom",
-    lighting: "m_win",
-    camera: "iphone_rear",
-    filmStock: "p_400",
-    skin: ["pore", "glow"],
+    lighting: "m_win", // 아침 창가광
+    camera: "iphone_rear", // 폰카 후면 (기본)
+    filmStock: "p_400", // 코닥 포트라 400
+    skin: ["pore", "glow"], // 초정밀 모공, 건강한 광채
     aspectRatio: "9:16",
     quality: "1K",
     isAdMode: false,
+    adType: "group_buy",
     productImages: [],
   });
 
@@ -56,7 +56,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
 
-  // 1. 마운트 시 사용자 API 키 상태 및 로컬 히스토리 로드
+  // 마운트 시 사용자 API 키 상태 및 로컬 히스토리 로드
   useEffect(() => {
     checkApiKeyStatus();
 
@@ -117,7 +117,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
       summary: `${usedConfig.age}세 ${usedConfig.ethnicity === "kr" ? "한국인" : "모델"} · ${usedConfig.location.slice(0, 15)}`,
     };
 
-    const updated = [newItem, ...historyItems.slice(0, 29)]; // 최대 30개
+    const updated = [newItem, ...historyItems.slice(0, 29)];
     setHistoryItems(updated);
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
@@ -153,7 +153,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
     }
   };
 
-  // 2. 이미지 & 캡션 생성 실행 함수
+  // 이미지 & 캡션 생성 실행 함수
   const handleGenerate = async (refinementFeedback?: string) => {
     if (!hasApiKey) {
       setIsApiKeyModalOpen(true);
@@ -235,7 +235,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
     }
   };
 
-  // 3. 캡션 단독 재생성 / 피드백
+  // 캡션 단독 재생성 / 피드백
   const handleRegenerateCaption = async (captionFeedback: string) => {
     setIsGeneratingCaption(true);
     try {
@@ -256,32 +256,27 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* 최상단 헤더 */}
-      <Header
-        userEmail={userEmail}
-        hasApiKey={hasApiKey}
-        historyCount={historyItems.length}
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 overflow-hidden font-sans">
+      {/* 좌측 패널 (스크린샷 규격과 동일) */}
+      <ControlPanel
+        config={config}
+        setConfig={setConfig}
+        onGenerate={() => handleGenerate()}
+        isLoading={result.loading}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         onOpenHelpModal={() => setIsHelpModalOpen(true)}
         onOpenHistory={() => setIsHistoryOpen(true)}
+        historyCount={historyItems.length}
+        hasApiKey={hasApiKey}
       />
 
-      {/* 메인 스튜디오 본문 (좌: 컨트롤 패널 / 우: 뷰어 & 캡션) */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        <ControlPanel
-          config={config}
-          setConfig={setConfig}
-          onGenerate={() => handleGenerate()}
-          isLoading={result.loading}
-        />
-        <ImageDisplay
-          result={result}
-          onRefineImage={(feedback) => handleGenerate(feedback)}
-          onRegenerateCaption={handleRegenerateCaption}
-          isGeneratingCaption={isGeneratingCaption}
-        />
-      </div>
+      {/* 우측 뷰어 & 캡션 스튜디오 */}
+      <ImageDisplay
+        result={result}
+        onRefineImage={(feedback) => handleGenerate(feedback)}
+        onRegenerateCaption={handleRegenerateCaption}
+        isGeneratingCaption={isGeneratingCaption}
+      />
 
       {/* 모달 컴포넌트들 */}
       <ApiKeyModal

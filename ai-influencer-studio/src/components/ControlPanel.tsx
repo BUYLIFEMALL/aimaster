@@ -11,16 +11,20 @@ import {
   Sliders,
   Upload,
   X,
-  ChevronDown,
-  ChevronUp,
-  Clock,
+  Send,
   Check,
   Loader2,
-  RefreshCw,
+  ExternalLink,
+  Shirt,
+  Sun,
+  Smile,
+  Shield,
+  Palette,
 } from "lucide-react";
 import {
   GENDERS,
   ETHNICITIES,
+  AGES,
   HAIR_STYLES,
   FACE_STYLES,
   EXPRESSIONS,
@@ -43,6 +47,11 @@ interface ControlPanelProps {
   setConfig: React.Dispatch<React.SetStateAction<InfluencerConfig>>;
   onGenerate: () => void;
   isLoading: boolean;
+  onOpenApiKeyModal: () => void;
+  onOpenHelpModal: () => void;
+  onOpenHistory: () => void;
+  historyCount: number;
+  hasApiKey: boolean;
 }
 
 export function ControlPanel({
@@ -50,21 +59,12 @@ export function ControlPanel({
   setConfig,
   onGenerate,
   isLoading,
+  onOpenApiKeyModal,
+  onOpenHelpModal,
+  onOpenHistory,
+  historyCount,
+  hasApiKey,
 }: ControlPanelProps) {
-  // 섹션 아코디언 접기/펼치기 상태
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    appearance: true,
-    routine: true,
-    adMode: false,
-    reference: false,
-    styling: true,
-    cameraSkin: false,
-  });
-
-  const toggleSection = (section: string) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
-
   // 일과 플래닝 상태
   const [routineInput, setRoutineInput] = useState("");
   const [eventInput, setEventInput] = useState("");
@@ -142,7 +142,7 @@ export function ControlPanel({
         alert(data.error || "일과 플래닝 실패");
       }
     } catch (err: any) {
-      alert("플래닝 요청 중 오류가 발생했습니다: " + err.message);
+      alert("플래닝 요청 중 오류 발생: " + err.message);
     } finally {
       setIsPlanningRoutine(false);
     }
@@ -203,300 +203,281 @@ export function ControlPanel({
     }));
   };
 
+  const selectedAdType = AD_TYPES.find((a) => a.id === config.adType) || AD_TYPES[0];
+
   return (
-    <aside className="w-full lg:w-[480px] xl:w-[520px] bg-white border-r border-slate-200 flex flex-col h-[calc(100vh-61px)] shrink-0 overflow-hidden">
-      {/* 스크롤 가능한 본문 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* [섹션 1] 기본 외형 설정 */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-          <button
-            onClick={() => toggleSection("appearance")}
-            className="w-full px-4 py-3 bg-slate-50 flex items-center justify-between text-left text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-pink-500" />
-              <span>1. 기본 외형 설정 (Character Profile)</span>
-            </div>
-            {openSections.appearance ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            )}
-          </button>
-
-          {openSections.appearance && (
-            <div className="p-4 space-y-3.5 text-xs">
-              {/* 성별 & 나이 */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                    성별
-                  </label>
-                  <select
-                    value={config.gender}
-                    onChange={(e) => setConfig({ ...config, gender: e.target.value })}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                  >
-                    {GENDERS.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.labelKo} ({g.labelEn})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                    나이 ({config.age}세)
-                  </label>
-                  <input
-                    type="range"
-                    min="18"
-                    max="45"
-                    value={config.age}
-                    onChange={(e) => setConfig({ ...config, age: e.target.value })}
-                    className="w-full accent-pink-500 cursor-pointer mt-1"
-                  />
-                </div>
-              </div>
-
-              {/* 국적 / 인종 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  국적 / 인종 (30종)
-                </label>
-                <select
-                  value={config.ethnicity}
-                  onChange={(e) => setConfig({ ...config, ethnicity: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                >
-                  {ETHNICITIES.map((eth) => (
-                    <option key={eth.id} value={eth.id}>
-                      {eth.labelKo} ({eth.labelEn})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 얼굴형 / 분위기 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  얼굴형 / 분위기 (30종)
-                </label>
-                <select
-                  value={config.faceStyle}
-                  onChange={(e) => setConfig({ ...config, faceStyle: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                >
-                  {FACE_STYLES.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.labelKo} ({f.labelEn})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 헤어스타일 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  헤어스타일 (31종)
-                </label>
-                <select
-                  value={config.hairStyle}
-                  onChange={(e) => setConfig({ ...config, hairStyle: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                >
-                  {HAIR_STYLES.map((h) => (
-                    <option key={h.id} value={h.id}>
-                      {h.labelKo} ({h.labelEn})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
+    <aside className="w-full lg:w-[460px] xl:w-[490px] bg-white border-r border-slate-200 flex flex-col h-screen shrink-0 overflow-hidden shadow-sm">
+      {/* 1. 상단 브랜드 헤더 (스크린샷 규격 1:1) */}
+      <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+        <div>
+          <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+            <span>PureGlow Pro</span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 border border-pink-200">
+              v1.01
+            </span>
+          </h2>
+          <p className="text-[10px] font-bold text-pink-500 tracking-widest uppercase mt-0.5">
+            AI INFLUENCER STORY ENGINE
+          </p>
         </div>
 
-        {/* [섹션 2] 인플루언서의 하루 AI 플래닝 & 변형 (PRO 핵심 기능) */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+        {/* 우측 3개 아이콘 도구 */}
+        <div className="flex items-center gap-1.5">
+          {/* 가이드 */}
           <button
-            onClick={() => toggleSection("routine")}
-            className="w-full px-4 py-3 bg-gradient-to-r from-pink-50/70 to-rose-50/70 flex items-center justify-between text-left text-xs font-bold text-slate-800 hover:bg-pink-50 transition-colors"
+            onClick={onOpenHelpModal}
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            title="사용 가이드"
           >
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-pink-600" />
-              <span>2. 인플루언서의 하루 AI 플래닝 (PRO)</span>
-            </div>
-            {openSections.routine ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+            <Sparkles className="w-4 h-4 text-pink-500" />
+          </button>
+          {/* API 키 설정 */}
+          <button
+            onClick={onOpenApiKeyModal}
+            className={`p-2 rounded-lg border transition-all ${
+              hasApiKey
+                ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+                : "text-rose-600 border-rose-300 bg-rose-50 hover:bg-rose-100 animate-pulse"
+            }`}
+            title="Gemini API 키 설정"
+          >
+            <Shield className="w-4 h-4" />
+          </button>
+          {/* 히스토리 */}
+          <button
+            onClick={onOpenHistory}
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors relative"
+            title="작업 히스토리"
+          >
+            <Sliders className="w-4 h-4" />
+            {historyCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-pink-500"></span>
             )}
           </button>
-
-          {openSections.routine && (
-            <div className="p-4 space-y-4 text-xs">
-              {/* 하루 일과 입력 */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-semibold text-slate-700">
-                    오늘 하루 일정 입력 (5개 타임라인 자동 기획)
-                  </label>
-                  <button
-                    onClick={handleRandomRoutine}
-                    disabled={isPlanningRoutine}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-pink-600 hover:text-pink-700 hover:underline transition-all"
-                  >
-                    <Dices className="w-3.5 h-3.5" />
-                    <span>🎲 랜덤 일과</span>
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="예: 오늘 친구랑 성수동 카페 갔다가 저녁에 한강 러닝 뛸거야"
-                    value={routineInput}
-                    onChange={(e) => setRoutineInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handlePlanDay()}
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                  />
-                  <button
-                    onClick={() => handlePlanDay()}
-                    disabled={isPlanningRoutine || !routineInput.trim()}
-                    className="px-3.5 py-2 rounded-lg bg-pink-500 text-white font-semibold hover:bg-pink-600 disabled:opacity-50 transition-colors flex items-center gap-1 text-xs shrink-0"
-                  >
-                    {isPlanningRoutine ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-3.5 h-3.5" />
-                    )}
-                    <span>플래닝</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 단일 이벤트 5각 변형 */}
-              <div className="space-y-1.5 pt-1 border-t border-slate-100">
-                <label className="block text-[11px] font-semibold text-slate-700">
-                  단일 이벤트 변형 (Event Variations)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="예: 브랜드 런칭 파티, 제주도 풀빌라 호캉스..."
-                    value={eventInput}
-                    onChange={(e) => setEventInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handlePlanEvent()}
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                  />
-                  <button
-                    onClick={handlePlanEvent}
-                    disabled={isPlanningEvent || !eventInput.trim()}
-                    className="px-3.5 py-2 rounded-lg bg-slate-800 text-white font-semibold hover:bg-slate-900 disabled:opacity-50 transition-colors flex items-center gap-1 text-xs shrink-0"
-                  >
-                    {isPlanningEvent ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Layers className="w-3.5 h-3.5" />
-                    )}
-                    <span>변형 설계</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 생성된 타임라인 시나리오 목록 */}
-              {timelineScenarios.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-slate-100">
-                  <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-pink-500" />
-                    기획된 5대 시나리오 (클릭 시 옵션 즉시 반영)
-                  </span>
-                  <div className="grid grid-cols-1 gap-2">
-                    {timelineScenarios.map((sc) => {
-                      const isSelected = selectedScenarioId === sc.id;
-                      return (
-                        <div
-                          key={sc.id}
-                          onClick={() => applyScenario(sc)}
-                          className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-start gap-2.5 ${
-                            isSelected
-                              ? "bg-pink-50/80 border-pink-400 ring-1 ring-pink-400"
-                              : "bg-white border-slate-200 hover:border-pink-200 hover:bg-slate-50/60"
-                          }`}
-                        >
-                          <span
-                            className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold shrink-0 mt-0.5 ${
-                              isSelected
-                                ? "bg-pink-500 text-white"
-                                : "bg-slate-200 text-slate-700"
-                            }`}
-                          >
-                            {sc.timeOrder}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-slate-900 truncate">
-                                {sc.labelKo}
-                              </span>
-                              <span className="text-[10px] text-slate-400">{sc.labelEn}</span>
-                            </div>
-                            <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                              {sc.story}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
+      </div>
 
-        {/* [섹션 3] 광고 / 공구 모드 (Ad Mode) */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-          <div className="px-4 py-3 bg-slate-50 flex items-center justify-between">
-            <button
-              onClick={() => toggleSection("adMode")}
-              className="flex items-center gap-2 text-left text-xs font-bold text-slate-800"
-            >
-              <ShoppingBag className="w-4 h-4 text-pink-500" />
-              <span>3. 광고 / 공구 모드 (Ad Mode)</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={config.isAdMode || false}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setConfig((prev) => ({ ...prev, isAdMode: checked }));
-                    if (checked && !openSections.adMode) {
-                      setOpenSections((prev) => ({ ...prev, adMode: true }));
-                    }
-                  }}
-                  className="sr-only peer"
-                />
-                <div className="w-8 h-4 bg-slate-300 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-pink-500"></div>
-              </label>
-              <button onClick={() => toggleSection("adMode")}>
-                {openSections.adMode ? (
-                  <ChevronUp className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                )}
-              </button>
-            </div>
+      {/* 2. 전체 옵션 세로 스크롤 영역 (스크린샷 규격과 동일) */}
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6 text-xs text-slate-700">
+        {/* [섹션 1] 기본 외형 설정 (2x2 그리드) */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+            <User className="w-3.5 h-3.5" />
+            <span>기본 외형 설정</span>
           </div>
 
-          {openSections.adMode && (
-            <div className="p-4 space-y-3.5 text-xs bg-pink-50/20">
-              {/* 광고 유형 선택 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  광고 유형 (Ad Type)
+          <div className="grid grid-cols-2 gap-3">
+            {/* 성별 */}
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                성별
+              </label>
+              <select
+                value={config.gender}
+                onChange={(e) => setConfig({ ...config, gender: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              >
+                {GENDERS.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.labelKo}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 국적 */}
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                국적
+              </label>
+              <select
+                value={config.ethnicity}
+                onChange={(e) => setConfig({ ...config, ethnicity: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              >
+                {ETHNICITIES.map((eth) => (
+                  <option key={eth.id} value={eth.id}>
+                    {eth.labelKo}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 나이 (드롭다운) */}
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                나이
+              </label>
+              <select
+                value={config.age}
+                onChange={(e) => setConfig({ ...config, age: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              >
+                {AGES.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.labelKo}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 헤어스타일 */}
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                헤어스타일
+              </label>
+              <select
+                value={config.hairStyle}
+                onChange={(e) => setConfig({ ...config, hairStyle: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              >
+                {HAIR_STYLES.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {h.labelKo}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* [섹션 2] 인플루언서의 하루 (AI 플래닝) */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>인플루언서의 하루 (AI 플래닝)</span>
+            </span>
+            <button
+              type="button"
+              onClick={handleRandomRoutine}
+              disabled={isPlanningRoutine}
+              className="text-[10px] bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 px-2.5 py-1 rounded-md text-slate-600 border border-slate-200 transition-colors flex items-center gap-1 font-semibold"
+            >
+              <Dices className={`w-3 h-3 ${isPlanningRoutine ? "animate-spin" : ""}`} />
+              <span>랜덤 일과</span>
+            </button>
+          </div>
+
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              placeholder="(자동 생성된 테마) K-POP 아이돌 연습생의 하루"
+              value={routineInput}
+              onChange={(e) => setRoutineInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handlePlanDay()}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-10 text-xs text-slate-900 focus:border-indigo-500 focus:bg-white outline-hidden transition-all placeholder:text-slate-400"
+            />
+            <button
+              onClick={() => handlePlanDay()}
+              disabled={isPlanningRoutine || !routineInput.trim()}
+              className="absolute right-1.5 p-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 transition-colors"
+              title="플래닝 실행"
+            >
+              {isPlanningRoutine ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+            </button>
+          </div>
+
+          {/* 기획된 5대 시나리오 칩 */}
+          {timelineScenarios.length > 0 && (
+            <div className="pt-2 space-y-1.5">
+              <span className="text-[10px] font-bold text-slate-500 block">
+                기획된 5대 장면 (클릭 시 옵션 자동 세팅)
+              </span>
+              <div className="grid grid-cols-1 gap-1.5">
+                {timelineScenarios.map((sc) => {
+                  const isSelected = selectedScenarioId === sc.id;
+                  return (
+                    <button
+                      key={sc.id}
+                      type="button"
+                      onClick={() => applyScenario(sc)}
+                      className={`w-full text-left p-2 rounded-lg border text-[11px] transition-all flex items-center gap-2 ${
+                        isSelected
+                          ? "bg-indigo-50 border-indigo-400 text-indigo-900 font-bold"
+                          : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
+                      }`}
+                    >
+                      <span className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] flex items-center justify-center font-bold shrink-0">
+                        {sc.timeOrder}
+                      </span>
+                      <span className="truncate flex-1">{sc.labelKo}</span>
+                      <span className="text-[10px] text-slate-400 shrink-0">{sc.labelEn}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* [섹션 3] 단일 이벤트 변형 (EVENT VARIATIONS) */}
+        <div className="space-y-2">
+          <span className="text-[11px] font-bold text-pink-600 uppercase tracking-wider block">
+            단일 이벤트 변형 (EVENT VARIATIONS)
+          </span>
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              placeholder="예: 한강 피크닉, 브랜드 런칭 파티..."
+              value={eventInput}
+              onChange={(e) => setEventInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handlePlanEvent()}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-10 text-xs text-slate-900 focus:border-pink-500 focus:bg-white outline-hidden transition-all placeholder:text-slate-400"
+            />
+            <button
+              onClick={() => handlePlanEvent()}
+              disabled={isPlanningEvent || !eventInput.trim()}
+              className="absolute right-1.5 p-1.5 rounded-lg bg-pink-500 text-white hover:bg-pink-600 disabled:opacity-40 transition-colors"
+              title="변형 설계 실행"
+            >
+              {isPlanningEvent ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* [섹션 4] 광고/공구 모드 (AD MODE) */}
+        <div className="space-y-3 pt-1">
+          <div className="flex items-center justify-between">
+            <span
+              className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                config.isAdMode ? "text-amber-600" : "text-slate-500"
+              }`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>광고/공구 모드 (AD MODE)</span>
+            </span>
+
+            {/* 골드/주황 사각 토글 */}
+            <button
+              type="button"
+              onClick={() => setConfig({ ...config, isAdMode: !config.isAdMode })}
+              className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                config.isAdMode
+                  ? "bg-amber-500 border-amber-500 text-white shadow-2xs"
+                  : "border-slate-300 bg-white"
+              }`}
+            >
+              {config.isAdMode && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+            </button>
+          </div>
+
+          {config.isAdMode && (
+            <div className="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 space-y-3 animate-in fade-in duration-200">
+              {/* 광고 유형 5개 세로 목록 버튼 */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-slate-500 font-bold uppercase block">
+                  광고 유형 (AD TYPE)
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                <div className="space-y-1">
                   {AD_TYPES.map((ad) => {
                     const isSelected = config.adType === ad.id;
                     return (
@@ -504,41 +485,49 @@ export function ControlPanel({
                         key={ad.id}
                         type="button"
                         onClick={() => setConfig({ ...config, adType: ad.id })}
-                        className={`px-2 py-1.5 rounded-lg border text-left text-[11px] transition-all ${
+                        className={`w-full text-left px-3 py-2 rounded-lg border text-xs font-semibold transition-all flex items-center justify-between ${
                           isSelected
-                            ? "bg-pink-500 text-white border-pink-500 font-semibold shadow-2xs"
-                            : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                            ? "bg-white border-amber-400 text-amber-900 shadow-2xs ring-1 ring-amber-400"
+                            : "bg-white/80 border-slate-200 text-slate-700 hover:bg-white"
                         }`}
-                        title={ad.description}
                       >
-                        {ad.labelKo}
+                        <span>{ad.labelKo}</span>
+                        {isSelected && (
+                          <ExternalLink className="w-3 h-3 text-amber-500 shrink-0" />
+                        )}
                       </button>
                     );
                   })}
                 </div>
               </div>
 
+              {/* 선택된 광고 유형 설명 카드 */}
+              {selectedAdType && (
+                <div className="p-2.5 rounded-lg bg-amber-100/60 border border-amber-200/80 text-[11px] text-amber-900/90 leading-relaxed flex items-start gap-1.5">
+                  <span className="text-amber-600 font-bold shrink-0 mt-0.5">💡</span>
+                  <span>{selectedAdType.description}</span>
+                </div>
+              )}
+
               {/* 상품명 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  상품명 (Product Name)
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold uppercase block">
+                  상품명 (PRODUCT NAME)
                 </label>
                 <input
                   type="text"
-                  placeholder="예: 루미너스 앰플, 다이어트 단백질 쉐이크..."
+                  placeholder="예: 루미너스 앰플, 다이어트 쉐이크..."
                   value={config.productName || ""}
                   onChange={(e) => setConfig({ ...config, productName: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                 />
               </div>
 
-              {/* 제품 사진 업로드 (최대 3장) */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[11px] font-semibold text-slate-700">
-                    제품 사진 업로드 (최대 3장)
-                  </label>
-                  <span className="text-[10px] text-slate-400">
+              {/* 상품 사진 (최대 3장) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-slate-500 font-bold uppercase">상품 사진 (최대 3장)</span>
+                  <span className="text-amber-700 font-semibold">
                     {config.productImages?.length || 0} / 3장
                   </span>
                 </div>
@@ -557,7 +546,7 @@ export function ControlPanel({
                             productImages: prev.productImages?.filter((_, i) => i !== idx),
                           }))
                         }
-                        className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 hover:bg-rose-600 transition-colors"
+                        className="absolute top-0.5 right-0.5 bg-black/70 text-white rounded-full p-0.5 hover:bg-rose-600 transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -565,9 +554,9 @@ export function ControlPanel({
                   ))}
 
                   {(config.productImages?.length || 0) < 3 && (
-                    <label className="w-16 h-16 rounded-lg border border-dashed border-pink-300 bg-pink-50/50 hover:bg-pink-50 flex flex-col items-center justify-center cursor-pointer transition-colors text-pink-600">
+                    <label className="w-16 h-16 rounded-lg border-2 border-dashed border-amber-300 bg-white hover:bg-amber-50 flex flex-col items-center justify-center cursor-pointer transition-colors text-amber-600">
                       <Upload className="w-4 h-4 mb-0.5" />
-                      <span className="text-[10px] font-medium">+ 추가</span>
+                      <span className="text-[10px] font-bold">+ 추가</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -583,370 +572,385 @@ export function ControlPanel({
           )}
         </div>
 
-        {/* [섹션 4] 일관성 유지 (레퍼런스 이미지) */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-          <button
-            onClick={() => toggleSection("reference")}
-            className="w-full px-4 py-3 bg-slate-50 flex items-center justify-between text-left text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Camera className="w-4 h-4 text-pink-500" />
-              <span>4. 일관성 유지 (인물 & 장소 레퍼런스)</span>
-            </div>
-            {openSections.reference ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            )}
-          </button>
+        {/* [섹션 5] 일관성 유지 (레퍼런스 이미지) */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+            <Camera className="w-3.5 h-3.5" />
+            <span>일관성 유지 (레퍼런스 이미지)</span>
+          </div>
 
-          {openSections.reference && (
-            <div className="p-4 space-y-3.5 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                {/* 인물 고정 사진 */}
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                    인물 고정 (얼굴 일관성)
-                  </label>
-                  {config.personImage ? (
-                    <div className="w-full h-28 rounded-lg border border-slate-200 overflow-hidden relative group">
-                      <img
-                        src={config.personImage}
-                        alt="인물 고정"
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={() => setConfig({ ...config, personImage: undefined })}
-                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-rose-600 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="w-full h-28 rounded-lg border-2 border-dashed border-slate-200 hover:border-pink-300 hover:bg-pink-50/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-slate-400">
-                      <Upload className="w-5 h-5 mb-1 text-slate-400" />
-                      <span className="text-[11px] font-medium text-slate-600">얼굴 사진 업로드</span>
-                      <span className="text-[10px] text-slate-400">정면 고해상도 권장</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileUpload(e, "personImage")}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+          <div className="grid grid-cols-2 gap-3">
+            {/* 인물 고정 */}
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                인물 고정
+              </span>
+              {config.personImage ? (
+                <div className="w-full aspect-square rounded-xl border border-slate-200 overflow-hidden relative group">
+                  <img
+                    src={config.personImage}
+                    alt="인물 고정"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    onClick={() => setConfig({ ...config, personImage: undefined })}
+                    className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 hover:bg-rose-600 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
-
-                {/* 장소 고정 사진 */}
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                    장소 고정 (배경 일관성)
-                  </label>
-                  {config.placeImage ? (
-                    <div className="w-full h-28 rounded-lg border border-slate-200 overflow-hidden relative group">
-                      <img
-                        src={config.placeImage}
-                        alt="장소 고정"
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={() => setConfig({ ...config, placeImage: undefined })}
-                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-rose-600 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="w-full h-28 rounded-lg border-2 border-dashed border-slate-200 hover:border-pink-300 hover:bg-pink-50/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-slate-400">
-                      <Upload className="w-5 h-5 mb-1 text-slate-400" />
-                      <span className="text-[11px] font-medium text-slate-600">배경 사진 업로드</span>
-                      <span className="text-[10px] text-slate-400">카페, 침실, 스튜디오</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileUpload(e, "placeImage")}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
+              ) : (
+                <label className="w-full aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-pink-300 bg-slate-50 hover:bg-pink-50/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-slate-400">
+                  <User className="w-6 h-6 mb-1 text-slate-400" />
+                  <span className="text-[11px] font-semibold text-slate-600">사진 업로드</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, "personImage")}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
-          )}
+
+            {/* 장소 고정 */}
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                장소 고정
+              </span>
+              {config.placeImage ? (
+                <div className="w-full aspect-square rounded-xl border border-slate-200 overflow-hidden relative group">
+                  <img
+                    src={config.placeImage}
+                    alt="장소 고정"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    onClick={() => setConfig({ ...config, placeImage: undefined })}
+                    className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 hover:bg-rose-600 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <label className="w-full aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-pink-300 bg-slate-50 hover:bg-pink-50/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-slate-400">
+                  <Camera className="w-6 h-6 mb-1 text-slate-400" />
+                  <span className="text-[11px] font-semibold text-slate-600">장소 업로드</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, "placeImage")}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* [섹션 5] 스타일링 (표정, 포즈, 의상, 장소) */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-          <button
-            onClick={() => toggleSection("styling")}
-            className="w-full px-4 py-3 bg-slate-50 flex items-center justify-between text-left text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-pink-500" />
-              <span>5. 표정 & 포즈 & 의상 & 장소</span>
+        {/* [섹션 6] 표정 및 포즈 (셀카 특화) */}
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+            <Smile className="w-3.5 h-3.5" />
+            <span>표정 및 포즈 (셀카 특화)</span>
+          </div>
+
+          {/* 1행: 드롭다운 */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                표정
+              </label>
+              <select
+                value={
+                  EXPRESSIONS.find((e) => e.detail === config.expression)?.id ||
+                  EXPRESSIONS[0]?.id
+                }
+                onChange={(e) => {
+                  const opt = EXPRESSIONS.find((item) => item.id === e.target.value);
+                  if (opt) setConfig({ ...config, expression: opt.detail });
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+              >
+                {EXPRESSIONS.map((ex) => (
+                  <option key={ex.id} value={ex.id}>
+                    {ex.labelKo}
+                  </option>
+                ))}
+              </select>
             </div>
-            {openSections.styling ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            )}
-          </button>
 
-          {openSections.styling && (
-            <div className="p-4 space-y-3.5 text-xs">
-              {/* 표정 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  표정 (30종)
-                </label>
-                <div className="flex gap-2">
-                  <select
-                    value={config.expression}
-                    onChange={(e) => setConfig({ ...config, expression: e.target.value })}
-                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium"
-                  >
-                    {EXPRESSIONS.map((ex) => (
-                      <option key={ex.id} value={ex.detail}>
-                        {ex.labelKo} ({ex.labelEn})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* 포즈 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  포즈 (30종 - 셀카 특화)
-                </label>
-                <select
-                  value={config.pose}
-                  onChange={(e) => setConfig({ ...config, pose: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium"
-                >
-                  {POSES.map((p) => (
-                    <option key={p.id} value={p.detail}>
-                      {p.labelKo} ({p.labelEn})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 의상 프리셋 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  의상 프리셋 (5대 카테고리 51종)
-                </label>
-                <select
-                  onChange={(e) => setConfig({ ...config, outfit: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium mb-1.5"
-                >
-                  <option value="">의상 프리셋 선택...</option>
-                  {OUTFIT_CATEGORIES.map((cat) => (
-                    <optgroup key={cat.category} label={cat.category}>
-                      {cat.options.map((opt) => (
-                        <option key={opt.id} value={opt.detail}>
-                          {opt.labelKo} ({opt.labelEn})
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="의상 직접 상세 입력..."
-                  value={config.outfit}
-                  onChange={(e) => setConfig({ ...config, outfit: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs"
-                />
-              </div>
-
-              {/* 장소 / 배경 프리셋 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  장소 / 배경 프리셋 (30종)
-                </label>
-                <select
-                  onChange={(e) => setConfig({ ...config, location: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium mb-1.5"
-                >
-                  <option value="">장소 프리셋 선택...</option>
-                  {LOCATION_CATEGORIES.map((cat) => (
-                    <optgroup key={cat.category} label={cat.category}>
-                      {cat.options.map((opt) => (
-                        <option key={opt.id} value={opt.detail}>
-                          {opt.labelKo} ({opt.labelEn})
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="장소 직접 상세 입력..."
-                  value={config.location}
-                  onChange={(e) => setConfig({ ...config, location: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs"
-                />
-              </div>
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                포즈
+              </label>
+              <select
+                value={
+                  POSES.find((p) => p.detail === config.pose)?.id || POSES[0]?.id
+                }
+                onChange={(e) => {
+                  const opt = POSES.find((item) => item.id === e.target.value);
+                  if (opt) setConfig({ ...config, pose: opt.detail });
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+              >
+                {POSES.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.labelKo}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
+          </div>
+
+          {/* 2행: 직접 수정 인풋 (네온/퍼플 보더) */}
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              value={config.expression}
+              onChange={(e) => setConfig({ ...config, expression: e.target.value })}
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500"
+            />
+            <input
+              type="text"
+              value={config.pose}
+              onChange={(e) => setConfig({ ...config, pose: e.target.value })}
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 truncate"
+            />
+          </div>
         </div>
 
-        {/* [섹션 6] 조명, 카메라, 피부 텍스처, 출력 설정 */}
-        <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-          <button
-            onClick={() => toggleSection("cameraSkin")}
-            className="w-full px-4 py-3 bg-slate-50 flex items-center justify-between text-left text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Camera className="w-4 h-4 text-pink-500" />
-              <span>6. 촬영 환경 & 피부 디테일 & 출력 설정</span>
-            </div>
-            {openSections.cameraSkin ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            )}
-          </button>
+        {/* [섹션 7] 의상 및 장소 */}
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+            <Shirt className="w-3.5 h-3.5" />
+            <span>의상 및 장소</span>
+          </div>
 
-          {openSections.cameraSkin && (
-            <div className="p-4 space-y-3.5 text-xs">
-              {/* 조명 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  조명 및 분위기 (18종)
-                </label>
-                <select
-                  value={config.lighting}
-                  onChange={(e) => setConfig({ ...config, lighting: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium"
-                >
-                  {LIGHTINGS.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.labelKo} ({l.labelEn})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 카메라 모드 (셀카 vs 3인칭 화보) */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  촬영 기기 & 앵글 (11종)
-                </label>
-                <select
-                  value={config.camera}
-                  onChange={(e) => setConfig({ ...config, camera: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium"
-                >
-                  {CAMERA_MODES.map((group) => (
-                    <optgroup key={group.category} label={group.category}>
-                      {group.options.map((opt) => (
-                        <option key={opt.id} value={opt.id}>
-                          {opt.labelKo} ({opt.labelEn})
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-
-              {/* 필름 스톡 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  필름 스톡 및 톤 (11종)
-                </label>
-                <select
-                  value={config.filmStock}
-                  onChange={(e) => setConfig({ ...config, filmStock: e.target.value })}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 font-medium"
-                >
-                  {FILM_STOCKS.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.labelKo} ({f.labelEn})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 피부 텍스처 (30종 멀티 선택) */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[11px] font-semibold text-slate-700">
-                    피부 텍스처 디테일 (멀티 선택)
-                  </label>
-                  <span className="text-[10px] text-pink-600 font-medium">
-                    {config.skin?.length || 0}개 선택됨
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1 max-h-36 overflow-y-auto p-1.5 rounded-lg border border-slate-200 bg-slate-50/50">
-                  {SKIN_TEXTURES.map((st) => {
-                    const isChecked = config.skin?.includes(st.id);
-                    return (
-                      <button
-                        key={st.id}
-                        type="button"
-                        onClick={() => toggleSkinTexture(st.id)}
-                        className={`px-2 py-1 rounded-md text-[10px] font-medium transition-all ${
-                          isChecked
-                            ? "bg-pink-500 text-white font-semibold shadow-2xs"
-                            : "bg-white text-slate-600 border border-slate-200 hover:border-slate-300"
-                        }`}
-                      >
-                        {st.labelKo}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 화면 비율 & 화질 */}
-              <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                    화면 비율
-                  </label>
-                  <select
-                    value={config.aspectRatio}
-                    onChange={(e) => setConfig({ ...config, aspectRatio: e.target.value })}
-                    className="w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs bg-white"
-                  >
-                    {ASPECT_RATIO_OPTIONS.map((ar) => (
-                      <option key={ar.id} value={ar.id}>
-                        {ar.labelKo}
+          {/* 1행: 드롭다운 */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <select
+                onChange={(e) => {
+                  const allOpts = OUTFIT_CATEGORIES.flatMap((c) => c.options);
+                  const opt = allOpts.find((o) => o.id === e.target.value);
+                  if (opt) setConfig({ ...config, outfit: opt.detail });
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+              >
+                <option value="">의상 선택...</option>
+                {OUTFIT_CATEGORIES.map((cat) => (
+                  <optgroup key={cat.category} label={cat.category}>
+                    {cat.options.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.labelKo}
                       </option>
                     ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                    화질 (해상도)
-                  </label>
-                  <select
-                    value={config.quality}
-                    onChange={(e) => setConfig({ ...config, quality: e.target.value })}
-                    className="w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs bg-white"
-                  >
-                    {QUALITY_OPTIONS.map((q) => (
-                      <option key={q.id} value={q.id}>
-                        {q.labelKo}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <select
+                onChange={(e) => {
+                  const allOpts = LOCATION_CATEGORIES.flatMap((c) => c.options);
+                  const opt = allOpts.find((o) => o.id === e.target.value);
+                  if (opt) setConfig({ ...config, location: opt.detail });
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+              >
+                <option value="">장소 선택...</option>
+                {LOCATION_CATEGORIES.map((cat) => (
+                  <optgroup key={cat.category} label={cat.category}>
+                    {cat.options.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.labelKo}
                       </option>
                     ))}
-                  </select>
-                </div>
-              </div>
+                  </optgroup>
+                ))}
+              </select>
             </div>
-          )}
+          </div>
+
+          {/* 2행: 직접 수정 인풋 */}
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              value={config.outfit}
+              onChange={(e) => setConfig({ ...config, outfit: e.target.value })}
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 truncate"
+            />
+            <input
+              type="text"
+              value={config.location}
+              onChange={(e) => setConfig({ ...config, location: e.target.value })}
+              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 truncate"
+            />
+          </div>
+        </div>
+
+        {/* [섹션 8] 조명 및 카메라 촬영 */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+            <Sun className="w-3.5 h-3.5" />
+            <span>조명 및 카메라 촬영</span>
+          </div>
+
+          {/* 1행: 조명 & 촬영 기기 */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                조명
+              </label>
+              <select
+                value={config.lighting}
+                onChange={(e) => setConfig({ ...config, lighting: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+              >
+                {LIGHTINGS.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.labelKo}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+                촬영 기기 (SELFIE 특화)
+              </label>
+              <select
+                value={config.camera}
+                onChange={(e) => setConfig({ ...config, camera: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+              >
+                {CAMERA_MODES.map((group) => (
+                  <optgroup key={group.category} label={group.category}>
+                    {group.options.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.labelKo}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* 2행: 필름 스톡 (전체 너비) */}
+          <div>
+            <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              필름 스톡
+            </label>
+            <select
+              value={config.filmStock}
+              onChange={(e) => setConfig({ ...config, filmStock: e.target.value })}
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+            >
+              {FILM_STOCKS.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.labelKo}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* [섹션 9] 피부 텍스처 디테일 (2열 체크박스 그리드) */}
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+            <Palette className="w-3.5 h-3.5" />
+            <span>피부 텍스처 디테일</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {SKIN_TEXTURES.map((st) => {
+              const isChecked = config.skin?.includes(st.id);
+              return (
+                <button
+                  key={st.id}
+                  type="button"
+                  onClick={() => toggleSkinTexture(st.id)}
+                  className={`flex items-center gap-2 p-2 rounded-lg border text-[11px] font-medium transition-all text-left ${
+                    isChecked
+                      ? "bg-pink-50 border-pink-400 text-pink-900 font-bold"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100/60"
+                  }`}
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center shrink-0 transition-colors ${
+                      isChecked
+                        ? "bg-pink-500 border-pink-500 text-white"
+                        : "border-slate-300 bg-white"
+                    }`}
+                  >
+                    {isChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                  </div>
+                  <span className="truncate">{st.labelKo}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* [섹션 10] 출력 설정 */}
+        <div className="space-y-3">
+          <span className="text-[11px] font-bold text-pink-600 uppercase tracking-wider block">
+            출력 설정
+          </span>
+
+          {/* 화면비 (4분할 버튼) */}
+          <div className="grid grid-cols-4 gap-2">
+            {ASPECT_RATIO_OPTIONS.map((ar) => {
+              const isSelected = config.aspectRatio === ar.id;
+              return (
+                <button
+                  key={ar.id}
+                  type="button"
+                  onClick={() => setConfig({ ...config, aspectRatio: ar.id })}
+                  className={`py-2 rounded-lg text-xs font-bold border transition-all ${
+                    isSelected
+                      ? "bg-pink-500 border-pink-500 text-white shadow-xs"
+                      : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {ar.id}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 화질 (3분할 버튼: 1K / 2K / 4K) */}
+          <div className="grid grid-cols-3 gap-2">
+            {QUALITY_OPTIONS.map((q) => {
+              const isSelected = config.quality === q.id;
+              return (
+                <button
+                  key={q.id}
+                  type="button"
+                  onClick={() => setConfig({ ...config, quality: q.id })}
+                  className={`py-2 rounded-lg text-xs font-bold border transition-all ${
+                    isSelected
+                      ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
+                      : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {q.id}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* 하단 고정 생성 버튼 */}
-      <div className="p-4 border-t border-slate-200 bg-white/95 backdrop-blur-xs shrink-0 shadow-lg">
+      {/* 3. 하단 대형 생성 버튼 & 푸터 */}
+      <div className="p-4 border-t border-slate-200 bg-white shrink-0 space-y-2.5">
         <button
           onClick={onGenerate}
           disabled={isLoading}
-          className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 shadow-md shadow-pink-200 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+          className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 hover:from-purple-700 hover:to-rose-600 shadow-md shadow-pink-200 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <>
@@ -956,20 +960,33 @@ export function ControlPanel({
           ) : config.isAdMode ? (
             <>
               <ShoppingBag className="w-4 h-4" />
-              <span>🛍️ 광고 / 공구 화보 생성</span>
+              <span>광고/공구 이미지 생성</span>
             </>
           ) : config.personImage ? (
             <>
               <User className="w-4 h-4" />
-              <span>👤 인물 고정 화보 생성</span>
+              <span>인물 고정 이미지 생성</span>
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4" />
-              <span>🚀 AI 인플루언서 화보 생성</span>
+              <span>이미지 생성</span>
             </>
           )}
         </button>
+
+        {/* 푸터 (스크린샷 규격 1:1) */}
+        <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+          <span>개발자 : GPT PARK</span>
+          <a
+            href="https://pure-glow-pro-99gg.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold transition-colors inline-flex items-center gap-1"
+          >
+            <span>바로가기</span>
+          </a>
+        </div>
       </div>
     </aside>
   );
