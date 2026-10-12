@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude — 시네마틱 스토리보드 자동화 (cinematic-storyboard-studio v1.03) 신규 구축·배포
+
+- 참고 cinematic-storyboard-ai.vercel.app을 번들까지 분석해 새로 구현. 이미지 1장 → 분석 → 9컷 마스터 시트 → 자르기 ZIP → 영상 프롬프트(5/8/10/15초, 대사 옵션). 회원 본인 Gemini 키(서버), 프로젝트는 내 계정(`storyboard_projects` + 비공개 버킷 `storyboard-ai`, 30개 제한), FREE+new, 도메인 연결, 썸네일 등록.
+- 검수: 테스트 15개, 실제 Chrome(관리자 계정 본인 키)에서 전체 흐름·ZIP·복원·삭제(저장소 정리)·English·모바일. **남은 일**: Pro 엔진 실제 생성, 일반 회원(naver) 계정 시험, 키 미등록 상태, 한도 도달 메시지. 상세는 `cinematic-storyboard-studio/AGENTS.md`.
+
 ## 2026-10-13 Antigravity — AI 12단 상세페이지 자동화 (detail-page-12p v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 1위 등록 완료
 
 주인님 요청("https://aistudio.google.com/apps/56cd0944-e63f-4461-8aaf-0506bacfde84?fullscreenApplet=true&showAssistant=true&showPreview=true 면밀히 분석하고 개발 플랜을 세워줘", "AI 12단 상세페이지 자동화 로 하자")에 따라, Google AI Studio 레퍼런스 앱 전수 역분석(실기 구동 및 Cloud Run SPA DOM 트리 분석)을 100% 반영한 신규 서브프로젝트 **`AI 12단 상세페이지 자동화` (`detail-page-12p v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위(`sort_order: 127`) 등록을 완벽히 완료했습니다:
