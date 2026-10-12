@@ -1,5 +1,41 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — AI 바이닐 스튜디오 (vinyl-lp-studio v1.01) 신규 구축 및 프로덕션 배포 완료
+
+주인님 요청("다음 프로젝트 진행하자 https://spin-gen.vercel.app/ 자세히 분석후 구현해줘")에 따라, 원본 레퍼런스 사이트의 HTML 소스, 메인 번들 JS, Canvas 셰이더 및 WebCodecs/gifenc 인코딩 엔진을 100% 전수 역분석하고, AIMaster 플랫폼 표준 규격([`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md))과 최상위 절대 불변 규칙을 완벽하게 준수한 신규 서브프로젝트 **`vinyl-lp-studio` (v1.01)**을 구축하여 프로덕션 배포 완료했습니다:
+
+1. **원본 레퍼런스(SpinGen) 전수 분석 및 기능 100% 이식**:
+   - **CD & LP 2대 미디어 포맷 정밀 텍스처링 (`processDiscTexture`)**:
+     - CD: 무지개빛 홀로그램 반사광(`color-dodge`), 중앙 클램핑 링, 점선 레이저 서클, 투명 중앙 홀
+     - LP(바이닐): 딥 블랙 베이스, 미세 동심원 음각 그루브 라인, 45도/225도 코닉 회전 광택(`screen`), 센터 라벨 클리핑 및 스핀들 홀
+   - **AI 비주얼 스타일 추천 (`/api/suggest-style`)**:
+     - 앨범명, 아티스트, 장르 정보를 기반으로 Gemini 2.5 Flash가 감각적인 앨범 커버 스타일 프롬프트 자동 제안
+   - **고화질 앨범 아트워크 생성 (`/api/generate-artwork`)**:
+     - Gemini 3 Pro / Imagen 3.0 엔진 기반 1:1 정방형 앨범 아트 생성 (중앙 홀 회피 원형 호/상하단 텍스트 배치)
+   - **나만의 커스텀 이미지 직접 업로드**:
+     - 사용자 소장 이미지(PNG/JPG)를 원클릭으로 LP/CD 디스크 텍스처로 자동 변환
+   - **브라우저 100% 네이티브 비디오/GIF 인코더 (`renderSpinningAnimation`)**:
+     - **60fps MP4 비디오**: WebCodecs `VideoEncoder` + `mp4-muxer` (720x720, 5Mbps)
+     - **무한 루프 GIF**: `gifenc` (360x360, 256색 양자화 팔레트, 투명 배경 지원)
+     - 서버 통신 없이 사용자 브라우저에서 회전 주기를 수학적으로 일치시켜 무한 루프로 즉시 인코딩 및 다운로드
+2. **AIMaster 플랫폼 표준 좌측 사이드바 (`Sidebar.tsx`)**:
+   - 상단 `AI 바이닐 스튜디오 v1.01` 배지 + `← 다른 프로그램 보기` (`https://www.buylife.xyz/programs`)
+   - `🏠 대시보드`
+   - **1~4단계 번호형 핵심 흐름**: 미디어 & 메타데이터 → 비주얼 아트워크 → 턴테이블 & RPM → 애니메이션 내보내기
+   - 구분선 아래 `🔑 API키등록·플랫폼연동`, `💡 사용 가이드`, `⚙️ 작업 히스토리`
+   - **마지막 메뉴 바로 아래 회원 계정 이메일과 로그아웃 버튼 바짝 밀착** (`mt-auto` 금지 규칙 준수)
+3. **최상위 불변 규칙 준수**:
+   - 회원 본인 Gemini API 키 (`user_api_keys.provider = 'gemini'`) 직접 등록 및 연동 (운영자 키 폴백 금지)
+   - 작업 화면 클린 화이트 베이스 (`bg-white` / `bg-slate-50`)
+   - `FREE` 배지 프로그램으로 가입 회원 누구나 무료 이용 가능 (비로그인은 자체 `/login` 리다이렉트)
+4. **플랫폼 데이터베이스 및 문서 완비**:
+   - Supabase DB `programs` 테이블 등록 (`slug: vinyl-lp-studio`, `name: AI 바이닐 스튜디오`, `version: v1.01`, `badges: ['free', 'new']`, `app_url: https://vinyl-lp.buylife.xyz`)
+   - 기본 3단계 요금제(`pricing_plans`) 등록 완료
+   - 루트 [`AGENTS.md`](AGENTS.md) 제7조 카탈로그 등재 완료
+   - 상세 사용 매뉴얼([`vinyl-lp-studio/MANUAL.md`](vinyl-lp-studio/MANUAL.md)) 및 에이전트 인수인계서([`vinyl-lp-studio/AGENTS.md`](vinyl-lp-studio/AGENTS.md)) 완비
+
+---
+
 ## 2026-10-12 Codex — Suno 음악기획 자동화 v1.05 메뉴·레이아웃·기능 보강
 
 주인님의 원본 메뉴/레이아웃 일치 요청에 따라 빌더·앨범·프리셋·검색·댄스 머신·가이드·저장됨 순서와 좌우 배치를 구현했습니다. 빌더와 앨범 설정 분리, 다중 무드, 곡별 보컬/랩, 저장/초기화 되돌리기, 댄스 조합, 93개 가이드, 회원 본인 공급사/모델 웹 검색을 추가했습니다. 계정과 로그아웃은 메뉴 바로 아래 8px, 흰색 작업 화면 유지. 자동 검사 44개/프런트 모의 흐름 23개/린트·타입·빌드 통과. 구현 커밋 `37ba2e4a` 푸시, 프로덕션 `dpl_ABfzGxj6AvjArFvyKY1Xk78iG7Aj` READY, DB v1.05·배포 커밋 일치. 운영 로그인 200·회원 화면 비로그인 307·회원 API 401·private,no-store 및 실제 JS 8개 200 확인. 실제 회원의 신규 웹 검색·앨범 호출은 남아 있습니다. 비교 범위·원본과의 차이·완료 증거와 재개 항목은 [suno-music-studio/docs/RELEASE_V1_05.md](../suno-music-studio/docs/RELEASE_V1_05.md)에서 관리합니다. 다른 CLI 파일은 변경하지 않습니다.
