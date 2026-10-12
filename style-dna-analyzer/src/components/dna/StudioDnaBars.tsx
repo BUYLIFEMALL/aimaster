@@ -25,7 +25,7 @@ export function StudioDnaBars({ dnaBars, reproducibility, keywords, isDark = fal
       <div className={`rounded-xl border p-4 transition-colors ${cardBg}`}>
         <div className="flex items-center gap-1.5 mb-3 border-b pb-2.5 border-slate-100">
           <span className="text-sm">🧬</span>
-          <h2 className={`text-xs font-bold tracking-wide uppercase ${titleColor}`}>스타일 DNA</h2>
+          <h2 className={`text-xs font-bold tracking-wide uppercase ${titleColor}`}>스타일 핵심 요소</h2>
         </div>
         <div className="space-y-3">
           {dnaBars.map((b) => (
@@ -47,10 +47,10 @@ export function StudioDnaBars({ dnaBars, reproducibility, keywords, isDark = fal
         </div>
       </div>
 
-      {/* 2. 아이덴티티 일치 확률 (대형 스코어 카드) */}
+      {/* 2. 스타일 일치율 (대형 스코어 카드) */}
       <div className={`rounded-xl border p-5 text-center transition-colors ${cardBg}`}>
         <p className={`text-xs font-bold tracking-wider uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          아이덴티티 일치 확률
+          스타일 일치율
         </p>
         <div className="my-2.5 flex items-center justify-center">
           <span
@@ -62,7 +62,7 @@ export function StudioDnaBars({ dnaBars, reproducibility, keywords, isDark = fal
           </span>
         </div>
         <p className={`text-[11px] font-medium ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-          * AI 시각적 특징점 및 구조적 DNA 추출 신뢰도
+          * AI 시각적 특징 및 스타일 추출 정밀도
         </p>
       </div>
 

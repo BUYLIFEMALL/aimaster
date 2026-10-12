@@ -91,7 +91,7 @@ export default function DashboardPage() {
                 </div>
                 <p className="mt-2 truncate text-sm font-bold text-gray-900">{a.title}</p>
                 <p className="text-[11px] text-gray-500">
-                  {a.mode === "mutate" ? "유전자 변이" : "유전자 복제"} · {new Date(a.createdAt).toLocaleDateString("ko-KR")}
+                  {a.mode === "mutate" ? "스타일 변형" : "스타일 복제"} · {new Date(a.createdAt).toLocaleDateString("ko-KR")}
                 </p>
               </button>
               <div className="flex items-center justify-between gap-2">

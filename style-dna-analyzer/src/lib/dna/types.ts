@@ -3,8 +3,8 @@ import type { AiProvider } from "@/lib/ai/models";
 export type DnaMode = "replicate" | "mutate";
 
 export const MODES: { value: DnaMode; label: string; desc: string }[] = [
-  { value: "replicate", label: "유전자 복제", desc: "이미지의 스타일을 그대로 재현하는 프롬프트 (피사체만 바꿔 끼우기)" },
-  { value: "mutate", label: "유전자 변이", desc: "스타일 DNA는 유지하되 지침에 따라 장면·소품·분위기를 새롭게 변형" },
+  { value: "replicate", label: "스타일 복제", desc: "이미지의 화풍·조명·구도를 그대로 재현하는 프롬프트 (피사체만 바꿔 끼우기)" },
+  { value: "mutate", label: "스타일 변형", desc: "기본 스타일은 유지하되 지침에 따라 장면·소품·분위기를 새롭게 변형" },
 ];
 
 export type TargetImageModel = "gemini-2.5-flash-image" | "gemini-3.1-flash-image-preview";

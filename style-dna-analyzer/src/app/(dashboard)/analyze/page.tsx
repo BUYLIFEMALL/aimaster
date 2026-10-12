@@ -148,10 +148,10 @@ export default function AnalyzePage() {
 
   const mutationStage =
     mutationLevel <= 30
-      ? { label: "Stable (보수적 재현)", desc: "원본 DNA 엄격 보존, 미세 질감 개선만", color: "text-cyan-700 border-cyan-200 bg-cyan-50" }
+      ? { label: "안정 (원본 스타일 충실)", desc: "원본 스타일 엄격 보존, 미세 질감 개선만", color: "text-cyan-700 border-cyan-200 bg-cyan-50" }
       : mutationLevel <= 70
-        ? { label: "Hybrid (구조 하이브리드)", desc: "구도 유지, 아트스타일·조명 적극 변이", color: "text-purple-700 border-purple-200 bg-purple-50" }
-        : { label: "Chaotic (유전체 카오스)", desc: "핵심 축만 유지, 파격적/추상적 재해석", color: "text-rose-700 border-rose-200 bg-rose-50" };
+        ? { label: "조화 (스타일 변형·응용)", desc: "구도 유지, 아트스타일·조명 적극 변형", color: "text-purple-700 border-purple-200 bg-purple-50" }
+        : { label: "파격 (과감한 재해석)", desc: "핵심 축만 유지, 대담하고 새로운 재해석", color: "text-rose-700 border-rose-200 bg-rose-50" };
 
   const containerTheme = isDark
     ? "bg-[#090e1a] text-slate-100 min-h-screen -m-3 sm:-m-5 md:-m-6 p-4 sm:p-6"
@@ -281,15 +281,15 @@ export default function AnalyzePage() {
               />
             </div>
 
-            {/* 메인 버튼: 이미지 시퀀싱 시작 */}
+            {/* 메인 버튼: 스타일 분석 시작 */}
             <button
               type="button"
               disabled={(!image && !record?.imageUrl) || busy}
               onClick={() => void analyze()}
-              className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 text-xs sm:text-sm font-black tracking-wider uppercase shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 text-xs sm:text-sm font-black tracking-wide shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              <span>{busy ? "시퀀싱 중..." : "이미지 시퀀싱 시작"}</span>
+              <span>{busy ? "스타일 분석 중..." : "스타일 분석 시작"}</span>
             </button>
             {error && <div className="mt-2.5"><ErrorNote message={error.message} needKey={error.needKey} /></div>}
           </div>
@@ -370,13 +370,13 @@ export default function AnalyzePage() {
               ))}
             </div>
 
-            {/* 변이 모드 전용: 변이 강도 슬라이더 */}
+            {/* 변형 모드 전용: 변형 강도 슬라이더 */}
             {mode === "mutate" && (
               <div className={`rounded-xl border p-3 space-y-2 animate-in fade-in duration-200 ${isDark ? "border-purple-800/60 bg-purple-950/20" : "border-purple-200 bg-purple-50/50"}`}>
                 <div className="flex items-center justify-between text-xs font-bold">
                   <span className="flex items-center gap-1 text-purple-800">
                     <Sliders className="h-3.5 w-3.5 text-purple-600" />
-                    변이 강도
+                    변형 강도
                   </span>
                   <span className="font-mono text-xs font-extrabold text-purple-700">{mutationLevel}%</span>
                 </div>
@@ -416,10 +416,10 @@ export default function AnalyzePage() {
               </select>
             </div>
 
-            {/* 시스템 지침 터미널 인풋 */}
+            {/* 사용자 추가 지침 인풋 */}
             <div>
               <label className={`block mb-1 text-[11px] font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                가이던스 오버라이드
+                추가 분석 지침 (선택)
               </label>
               <textarea
                 className={`w-full h-20 rounded-xl border p-2.5 text-xs font-mono resize-none ${
@@ -430,7 +430,7 @@ export default function AnalyzePage() {
                 value={guidance}
                 maxLength={800}
                 onChange={(e) => setGuidance(e.target.value)}
-                placeholder=">> System guidance override..."
+                placeholder=">> 예: '조명과 표면 질감을 집중 분석', '따뜻한 감성 톤으로 추출' 등 자유 입력"
               />
             </div>
 

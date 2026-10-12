@@ -67,7 +67,7 @@ export function StudioCameraLighting({ camera, lighting, isDark = false, isAnaly
       <div className={`rounded-xl border p-4 transition-colors ${cardBg}`}>
         <div className="flex items-center gap-1.5 mb-3 border-b pb-2.5 border-slate-100">
           <span className="text-sm">🔆</span>
-          <h2 className={`text-xs font-bold tracking-wide uppercase ${titleColor}`}>조명 시퀀싱</h2>
+          <h2 className={`text-xs font-bold tracking-wide uppercase ${titleColor}`}>조명 환경 분석</h2>
         </div>
         <dl className={`divide-y ${rowBorder} text-xs`}>
           <div className="py-1.5 flex items-center justify-between gap-2">

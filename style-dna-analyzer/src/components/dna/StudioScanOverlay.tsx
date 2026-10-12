@@ -113,9 +113,9 @@ export function StudioScanOverlay({
               <Dna className="h-9 w-9 text-cyan-300 animate-pulse drop-shadow-[0_0_12px_#00f0ff]" />
             </div>
 
-            {/* 유전자 해독 중... 네온 텍스트 */}
+            {/* 스타일 분석 중... 네온 텍스트 */}
             <p className="mt-3.5 text-xs font-mono font-black tracking-[0.28em] text-cyan-300 uppercase drop-shadow-[0_0_10px_rgba(0,240,255,0.9)] animate-pulse">
-              유전자 해독 중...
+              스타일 분석 중...
             </p>
           </div>
         </>
