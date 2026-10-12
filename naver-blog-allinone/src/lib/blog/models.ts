@@ -124,6 +124,13 @@ export function resolveTextEngine(settings: AppSettings): ResolvedTextEngine {
   return { provider, model, apiKey: keyOf(settings, provider), label: findTextEngine(provider)!.label };
 }
 
+/** 모델 카드와 같은 친숙한 이름(앞의 이모지와 뒤의 괄호 설명을 뺀 것). 목록에 없는 모델이면 모델 ID 그대로. */
+export function textModelDisplayName(provider: TextProvider, modelId: string): string {
+  const label = findTextEngine(provider)?.models.find((m) => m.value === modelId)?.label;
+  if (!label) return modelId;
+  return label.replace(/^[^\p{L}\p{N}]+/u, "").split(" (")[0].trim() || modelId;
+}
+
 export interface ResolvedImageEngine {
   platform: ImagePlatform;
   model: string;

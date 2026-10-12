@@ -439,3 +439,12 @@ test("확장 버전 비교: 옛 확장(v1.04)은 카테고리 읽기를 지원�
   assert.equal(extensionVersionAtLeast("v2.01", "v1.25"), true);
   assert.equal(extensionVersionAtLeast(undefined, "v1.25"), false);
 });
+
+import { textModelDisplayName } from "../src/lib/blog/models.ts";
+
+test("헤더 모델 표시: 모델 카드와 같은 친숙한 이름", () => {
+  assert.equal(textModelDisplayName("gemini", "gemini-flash-latest"), "Gemini Flash");
+  assert.equal(textModelDisplayName("openai", "gpt-4.1"), "GPT-4.1");
+  assert.equal(textModelDisplayName("anthropic", "claude-sonnet-5"), "Claude Sonnet 5");
+  assert.equal(textModelDisplayName("gemini", "gemini-2.5-flash"), "gemini-2.5-flash");
+});

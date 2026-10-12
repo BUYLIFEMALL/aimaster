@@ -9,7 +9,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
-import { resolveImageEngine, resolveTextEngine } from "@/lib/blog/models";
+import { resolveImageEngine, resolveTextEngine, textModelDisplayName } from "@/lib/blog/models";
 
 interface HeaderProps {
   settings: AppSettings;
@@ -87,7 +87,7 @@ export function Header({
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 rounded-lg text-xs border border-slate-200">
             <span className="text-slate-500">텍스트:</span>
             <span className="font-semibold text-indigo-700">
-              {(() => { const e = resolveTextEngine(settings); return `${e.label} · ${e.model}`; })()}
+              {(() => { const e = resolveTextEngine(settings); return `${e.label} · ${textModelDisplayName(e.provider, e.model)}`; })()}
             </span>
           </div>
 
