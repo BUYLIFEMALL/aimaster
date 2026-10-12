@@ -91,3 +91,9 @@ select email, phone from profiles where phone is not null and phone<>'' and phon
 - **원인 1(조치함)**: 골드 22명 중 5명(yourownworld2·korvia001·heony.cmc·dmsrhb13·ohj8724)은 등급 프로그램 21개 중 1개(`web-crawler-saas` 4명, `booking-reminder` 1명)가 빠져 있었다. 등급 표에 체크는 돼 있었으나 이 회원들에게는 적용되지 않은 상태("지금 등급 회원 전원에 적용" 대기분). 같은 회원의 기존 등급 부여분과 같은 만료일(2027-04-10)·`grant_source='grade'`로 5행을 추가했다. 이후 골드·VIP에서 누락 0건 확인.
 - **원인 2(그대로 둠)**: 등급 부여분 외에 **자동 부여 정책 이전에 수동으로 넣은 개별 부여(`grant_source` 비어 있음)** 가 회원마다 6~19개씩 달라 총 개수(26~40)가 다르다. 정책상 수동 부여는 유지하므로 삭제하지 않았다. 골드 회원을 모두 같은 21개로 맞추려면 수동 부여 정리 여부를 주인님이 정해야 한다(삭제성 작업이라 미실행).
 - 점검 쿼리: 등급 프로그램 중 회원에게 유효한 부여가 없는 건수 = `profiles ⨝ grade_program_access`에서 `user_program_access` 없는 행 (일반 등급은 수동 부여 방식이라 대상 아님).
+
+## 2026-10-13 추가 — 골드·VIP 수동 부여 삭제, 등급 프로그램만 부여 (주인님 지시)
+- **골드(드림팀)·VIP(드림AI팀) 회원의 수동 개별 부여(`grant_source`가 `grade`가 아닌 행)를 모두 삭제**하고 등급 프로그램만 남겼다. 삭제 전 백업 테이블 `backup_gold_manual_grants_20261013`(816행·22명), `backup_vip_manual_grants_20261013`(4,382행·92명)에 보관(복구가 필요하면 이 표에서 되살린다. RLS 켬, 서비스 롤 전용).
+- 결과: 골드 22명 전원 정확히 21개, VIP 92명 전원 정확히 57개(=공개 프로그램 전부). VIP는 "모든 프로그램 사용 가능 등급"이므로 `grade_program_access`에 빠져 있던 공개 프로그램 2개(`allinone-graphic`, `playlist-channel-studio`)를 추가했다(등급 자동 부여 트리거가 회원에게 즉시 반영). **새 공개 프로그램을 만들면 VIP 등급 표에 체크하는 것을 잊지 않는다.**
+- 일반·실버는 기존대로 수동 부여 방식이며 이번에 건드리지 않았다. 관리자 화면의 개별 부여·기간 설정 기능도 그대로다(기능 제거 아님).
+- **프리미엄 우선 원칙(주인님 재확인)**: 나중에 프리미엄 뱃지를 다는 프로그램은 골드·VIP 등급 표에 체크돼 있어도 **프리미엄(유료결제)이 우선**한다. 이미 DB 트리거(`programs_premium_badge`, `user_program_access_premium_guard`, `grade_program_access_sync`)로 구현돼 있어, 뱃지를 다는 순간 기존 부여는 효력 정지(만료일을 과거로, 원래 값은 `premium_prev_expires_at`에 보관)되고 이후 등급 자동 부여분도 같은 방식으로 정지된다. 뱃지를 떼면 복원된다. 별도 코드 수정은 필요 없다.
