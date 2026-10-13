@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — 뮤직 플레이어 자동화 남은 검수 완료: 실제 Chrome 소리·EQ·저장·모바일 13/13
+
+- 숨김 창 한계를 우회해 `music-player/tests/browser.mjs`(esbuild 번들 + Playwright + 설치된 Chrome 보이는 창)로 실제 `Player`를 검수: 재생 시간 진행·분석기 에너지, EQ·프리앰프가 소리에 반영(RMS 0.136→0.745/0.035), 새로고침 복원, 비운 뒤 재추가 재생, ID3, 모바일 390px 넘침 없음. 앱 코드 변경 없음(v1.01 유지, 재배포 없음). 남은 일: 일반 회원 실계정, 실제 mp3 커버 확인.
+
 ## 2026-10-13 Claude Code — 뮤직 플레이어 자동화(`music-player`) v1.01 신규 개발·운영 배포
 
 - 요청: AI Studio "GPT PARK MUSIC PLAYER" 분석 → 계획 승인("진핼줘") → 구현. 계획 [DEVELOPMENT_PLAN](../music-player/docs/DEVELOPMENT_PLAN.md), 인수인계 [AGENTS](../music-player/AGENTS.md).

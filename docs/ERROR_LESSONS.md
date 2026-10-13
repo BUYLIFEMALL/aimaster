@@ -1,5 +1,7 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+- 2026-10-13 보강(music-player): MCP 제어 창이 숨김이라 소리 검수가 불가할 때는 **markdown-studio의 `tests/browser.mjs` 패턴**(esbuild로 컴포넌트 번들 + 로컬 http 서버 + Playwright `channel:"chrome", headless:false`)을 쓰면 보이는 Chrome에서 실제 재생·분석기·IndexedDB까지 검수할 수 있다(`music-player/tests/browser.mjs` 참고).
+
 ## 2026-10-13 — 숨김 상태 자동화 Chrome에서는 오디오 메타데이터가 로드되지 않음 (music-player v1.01)
 
 - 증상: 드롭으로 추가한 오디오의 길이가 `--:--`, 재생 시 0:00에서 진행 안 됨, 순수 `new Audio()`도 `loadedmetadata`가 오지 않음 → 원인: MCP 제어 Chrome 창이 `document.visibilityState === "hidden"`이라 브라우저가 미디어 로딩을 지연 → 조치: 앱 쪽은 길이를 재생 시점에 보완 반영하도록 방어(`Player.tsx` onMeta), 소리·시각화·EQ는 **보이는 Chrome에서만** 검수 가능 → 다음부터: 미디어/오디오 기능은 창이 보이는지(`visibilityState`) 먼저 확인하고, 숨김이면 "미검수"로 명시한다.
