@@ -22,6 +22,20 @@
 - 검수: 단위 45/45, 화면 11+13+10, 런타임 9/9, 취약점 0. 실제 Next 번들에서 PDF·DOCX·ZIP 생성 확인, PDF 육안 확인. 운영 v1.02 배포·DB `programs.version`/설명 갱신 완료. [기록](../markdown-studio/docs/PHASE3_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0002_v1_02_import_export.sql`.
 - **미확인**: 운영 사이트에서 실제 PDF/DOCX 파일 다운로드(허락 전), Word·Google Docs에서의 DOCX 표시, 대용량 성능. 다음: 4단계 본인 Google Drive(본인 OAuth 앱), 5단계 썸네일·매뉴얼 등록. ERROR_LESSONS에 PDF 글리프·mammoth 취약점 등 기록.
 
+## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.05) 도움말 모달 내 외부 개발자/스키마 명칭 전면 삭제 및 배포 완료
+
+주인님 요청("박스친 텍스트 사용된 부분 찾아서 삭제해줘 — Majin 스키마 기반, Kimura Yoshiki 스키마 기반, GPT PARK 전략 장표")에 따라, 해당 외부 개발자/출처 표기 텍스트를 프로젝트 전수 조사하여 완전히 삭제하고 순수 기능 안내로 정돈 및 프로덕션 배포를 완료했습니다:
+
+1. **외부 개발자/스키마 출처 텍스트 전면 삭제**:
+   - `src/components/guide/HelpModal.tsx`: 3대 포맷 카드 내 `Majin 스키마 기반`, `Kimura Yoshiki 스키마 기반`, `GPT PARK 전략 장표` 라인 완전 삭제
+   - `README.md`, `AGENTS.md`: 기능 목록 내 불필요한 인명 표기 전면 삭제
+2. **버전 및 DB 동기화 (Rule 5)**:
+   - `src/lib/version.ts`: `APP_VERSION = "v1.05"`
+   - Supabase DB `programs.version = 'v1.05'` 반영 완료
+3. **배포 및 검수**:
+   - `npm run build` 타입체크 및 번들링 100% 정상 통과 (오류 0건)
+   - Vercel 프로덕션 재배포 완료 (`https://ai-slide-builder.buylife.xyz`)
+
 ## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.04) 로그인 계정 연동 및 표준 로그아웃 시스템 구축 완료
 
 주인님 요청("로그인된 계정정보를 보여주고 로그아웃버튼을 달아줘야지 다른 프로그램 어떻게 해놨나보고 같은 방식으로 맞춰")에 따라, 타 프로그램(detail-page-12p, allinone-graphic, ai-audio-analyzer)의 표준 인증 구조와 전면 일치하도록 개편하여 실제 로그인된 사용자 계정 이메일과 로그아웃 기능을 완벽히 탑재하고 프로덕션 배포를 완료했습니다:

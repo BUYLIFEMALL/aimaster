@@ -59,22 +59,19 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                 <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">표준 형식</span>
-                <p className="text-xs font-semibold text-slate-800 mt-1">Majin 스키마 기반</p>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
+                <p className="text-[11px] text-slate-500 leading-relaxed pt-1">
                   22가지 전문 시각화 패턴, 논리적 기승전결(도입-목차-본문-맺음말), 발표자 스피커 노트 자동 생성.
                 </p>
               </div>
               <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                 <span className="text-xs font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">확장판</span>
-                <p className="text-xs font-semibold text-slate-800 mt-1">Kimura Yoshiki 스키마 기반</p>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
+                <p className="text-[11px] text-slate-500 leading-relaxed pt-1">
                   표/그래프 대용량 텍스트 안정적 렌더링, 13행 이상 표 자동 분할, 간결화 최적화.
                 </p>
               </div>
               <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-1">
                 <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">C-Suite 보고 형식</span>
-                <p className="text-xs font-semibold text-slate-800 mt-1">GPT PARK 전략 장표</p>
-                <p className="text-[11px] text-slate-600 leading-relaxed">
+                <p className="text-[11px] text-slate-600 leading-relaxed pt-1">
                   한국 대기업 임원 보고용 두괄식(So What? & Why?), 10대 주제·7대 목적·발표 시간별 분량 최적화.
                 </p>
               </div>

@@ -1,6 +1,6 @@
 # AI 슬라이드 자동화 (ai-slide-builder) 인수인계 문서
 
-> **버전**: v1.04  
+> **버전**: v1.05  
 > **프로그램명**: AI 슬라이드 자동화  
 > **슬러그**: `ai-slide-builder`  
 > **배포 URL**: `https://ai-slide-builder.buylife.xyz`  
@@ -16,9 +16,9 @@ Google Gemini AI(`gemini-2.5-flash`)와 멀티포맷 파일 파서를 기반으�
 ## 2. 핵심 아키텍처 및 지원 스키마
 
 ### 1) 3대 생성 프롬프트 엔진
-- **표준 형식** (Majin 기반): 22개 시각화 패턴, 논리적 기승전결, 발표자 스피커 노트(`notes`) 자동 생성
-- **확장판** (Kimura Yoshiki 기반): 표/차트 대용량 텍스트 대응 및 13행 이상 표 자동 분할
-- **C-Suite 보고 형식** (GPT PARK 기반): 한국 대기업 임원 보고용 두괄식(So What? & Why?), 10대 보고 주제, 7대 보고 목적, 발표 시간별 분량 최적화 (10분/15분/20~30분/30분 이상)
+- **표준 형식**: 22개 시각화 패턴, 논리적 기승전결, 발표자 스피커 노트(`notes`) 자동 생성
+- **확장판**: 표/차트 대용량 텍스트 대응 및 13행 이상 표 자동 분할
+- **C-Suite 보고 형식**: 한국 대기업 임원 보고용 두괄식(So What? & Why?), 10대 보고 주제, 7대 보고 목적, 발표 시간별 분량 최적화 (10분/15분/20~30분/30분 이상)
 
 ### 2) 22가지 전문 슬라이드 타입
 - `title`, `section`, `closing`, `content`, `agenda`, `compare`, `process`, `processList`, `timeline`, `diagram`, `cycle`, `cards`, `headerCards`, `table`, `progress`, `quote`, `kpi`, `bulletCards`, `faq`, `statsCompare`, `barCompare`, `triangle`, `pyramid`, `flowChart`, `stepUp`, `imageText`
