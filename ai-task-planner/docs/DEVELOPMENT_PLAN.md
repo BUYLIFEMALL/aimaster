@@ -1,6 +1,6 @@
 # AI 할 일·성과 관리 — 개발 계획
 
-2026-10-13 작성 당시의 초기 계획입니다. 공통 틀·핵심 기록 구현은 [PHASE1_IMPLEMENTATION](PHASE1_IMPLEMENTATION.md)에 업데이트했습니다. 서버 저장은 초기 7테이블 설계 대신 회원별 JSONB·revision·원자적RPC로 구현했으며 실제 DB/환경변수 적용은 승인 대기입니다. 아래 계획은 최초 제안과 후속 AI·복원·CSV·출시 검수 기준으로 보존합니다. 작업용 이름 `AI 할 일·성과 관리`, 폴더 `ai-task-planner`. 참고 앱의 앱 소스20개·실제 Chrome33개 관측에 기반합니다. 원본 상세는 [REFERENCE_ANALYSIS](REFERENCE_ANALYSIS.md).
+2026-10-13 작성 당시의 초기 계획입니다. 공통 틀·핵심 기록 구현은 [PHASE1_IMPLEMENTATION](PHASE1_IMPLEMENTATION.md)에 업데이트했습니다. 서버 저장은 초기 7테이블 설계 대신 회원별 JSONB·revision·원자적RPC로 구현했으며 주인님의 일괄 진행 지시에 따라 공유 DB·공통 인증 설정을 적용했습니다. 아래 계획은 최초 제안과 후속 AI·복원·CSV·출시 검수 기준으로 보존합니다. 작업용 이름 `AI 할 일·성과 관리`, 폴더 `ai-task-planner`. 참고 앱의 앱 소스20개·실제 Chrome33개 관측에 기반합니다. 원본 상세는 [REFERENCE_ANALYSIS](REFERENCE_ANALYSIS.md).
 
 ## 1. 목표와 출시 범위
 

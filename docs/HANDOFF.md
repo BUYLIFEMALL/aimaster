@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.01 운영 연결·썸네일
+
+- 주인님의 구체적 운영 적용안에 대한 일괄 실행 재지시로 DB·환경변수 승인 대기를 해제하고 실행했습니다. 같은 승인을 재요청하지 않습니다.
+- 공유 DB task_planner_workspaces + service-only invoker RPC 적용, RLS/직접 쓰기 차단 확인. buylife/ai-task-planner 생성 및 기존 공통 인증 환경변수3개 production 등록.
+- 카탈로그 v1.01·Tools·최소 일반·NEW(FREE 없음), 기본 1/2/3개월 요금제·VIP 전체 프로그램 정책 연결. 시험 회원은 비관리자 VIP이며 사용 권한1건 확인.
+- https://ai-task-planner.buylife.xyz 연결. 한국인 실사 썸네일을 내장 image_gen으로 생성해 기존 업로드 도구로 공개 Storage와 programs.thumbnail_url 등록. AI 기능에서 운영자 키를 쓰지 않습니다.
+- 빌드 및 단위/SQL14 재검수 통과. 이전 격리 Chrome16·런타임12 통과. 운영 배포와 실제 Chrome 확인 결과는 ai-task-planner/docs/PHASE1_IMPLEMENTATION.md에 이어 기록합니다. AI·JSON 복원·CSV는 후속 과제입니다.
+
 ## 2026-10-13 Claude Code — UI Canvas 자동화 v1.04~v1.05: 도구 아이콘·상세 사용 매뉴얼·버튼명 변경
 
 - v1.04: 컴포넌트 도구 24종 타일에 기능별 lucide 아이콘(3열), 탭 아이콘.
