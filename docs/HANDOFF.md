@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — UI Canvas 자동화(`ui-canvas`) v1.01 신규 개발·운영 배포
+
+- 요청: AI Studio "GPT PARK의 UI 캔버스 Pro" 분석 → 개발 계획 승인(주인님 "진행해줘") → 구현. 계획: [DEVELOPMENT_PLAN](../ui-canvas/docs/DEVELOPMENT_PLAN.md), 인수인계: [AGENTS](../ui-canvas/AGENTS.md).
+- 구현: 25종 컴포넌트 캔버스(생성·선택·이동·크기·그룹·잠금·레이어·프리셋·Undo/Redo), 회원별 프로젝트 DB 저장(`ui_canvas_projects`, RLS owner-only), PNG/컴포넌트 JSON/명세 JSON 내보내기·불러오기(원본 호환), AI 2종(명세 채우기·이미지→UI, 회원 본인 Gemini 키 `user_api_keys`, 폴백 없음).
+- 공용 DB 적용: 테이블·정책, `programs` 등록(Tools/일반/배지 new, v1.01), 기본 3요금제, VIP 등급 접근. 운영: https://ui-canvas.buylife.xyz (Vercel `buylife/ui-canvas`, 공용 인증 환경변수 3개 등록).
+- 검수: tsc·테스트 12/12·빌드, 실제 Chrome에서 생성/그룹/자동저장/새로고침 유지/AI 명세 채우기/이미지→UI API(실제 Gemini) 확인. 미검수: 일반 회원 계정·키 없는 회원 needKey 모달·파일 저장 내용·모바일 폭·썸네일 미등록.
+- 같은 날 별도 요청: Claude Code 상태바를 `모델·강도 | 5h % (시간) | weekly % (d h m) | context %`로 수정(`~/.claude/statusline-extra.js`, 정상본 `.good`). 저장소 밖 설정.
+
 ## 2026-10-13 Antigravity — 커스텀(/custom) 메뉴 및 페이지 명칭 '제작의뢰'로 변경 완료
 
 - **요청 사항**: https://www.buylife.xyz/custom 메뉴 및 페이지 명칭을 '제작의뢰'로 변경.

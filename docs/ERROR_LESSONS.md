@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-13 — 캔버스 에디터: 빠른 드래그 누락·테두리 없는 요소의 검은 선 (ui-canvas v1.01)
+
+- 증상: 자동화(CDP) 드래그로 도형이 안 만들어짐 / 텍스트 컴포넌트에 3px 검은 테두리 → 원인: ① 마우스 이동·놓기 리스너를 상태(`draw`) 의존 effect로 재등록해 mousedown 직후 빠른 mouseup을 놓침 ② `borderStyle: solid`만 있고 두께가 없으면 브라우저 기본 3px 검은 선 → 해결: `ui-canvas/src/components/canvas/Editor.tsx`(리스너 1회 등록 + ref로 최신값, mouseup 좌표를 끝점으로 사용), `ComponentView.tsx`(`hasBorder`) → 다음부터: 드래그/제스처 리스너는 ref 기반으로 한 번만 등록, 인라인 `borderStyle`은 두께가 있을 때만 지정. 화면 검수 때 도구 클릭 후 1초 대기.
+- 증상: 로컬(localhost)에서는 `.buylife.xyz` 쿠키가 없어 로그인 화면 검수 불가 → 조치: 운영 주소(주인님 로그인 세션)에서 검수. 비밀번호 입력 금지 원칙 유지.
+
 ## 2026-10-13 — 외부 서비스(Google Drive) 오류가 문서 저장 상태와 자동 저장을 멈춤 (markdown-studio v1.03)
 
 - 증상: Drive 호출 실패 시 화면 상단에 "저장 실패" 배너가 뜨고 자동 저장이 멈춤 → 원인: Drive 호출을 저장소 공용 `store.run()`으로 감싸면 모든 예외가 문서 저장 오류 상태(`store.error`)로 들어가고, 자동 저장 훅은 `error`가 있으면 저장을 건너뜀 → 해결: 오류 상태를 건드리지 않는 `runQuiet`을 추가해 외부 통신에만 사용(`markdown-studio/src/components/workspace/WorkspaceProvider.tsx`, `DriveProvider.tsx`), 화면 시험에 "Drive 오류가 저장 상태에 영향 없음" 단언 → 다음부터: 네트워크·외부 API 실패는 문서 저장 상태와 **다른 오류 채널**로 표시한다.
