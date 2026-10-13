@@ -11,6 +11,8 @@ type Store = {
   edit: (value: string) => void; save: () => Promise<void>;
   refresh: () => Promise<void>; select: (id: string) => Promise<void>;
   run: <T>(action: (repo: DocumentRepository) => Promise<T>) => Promise<T>;
+  /** run과 같지만 실패해도 문서 저장 오류 상태를 바꾸지 않는다(Google Drive 등 외부 통신용) */
+  runQuiet: <T>(action: (repo: DocumentRepository) => Promise<T>) => Promise<T>;
   setPreferences: (value: Partial<WorkspacePreferences>) => Promise<void>;
   reloadDraft: () => Promise<void>; downloadDraft: () => void;
 };
@@ -68,6 +70,14 @@ export function WorkspaceProvider({ userId, children }: { userId: string; childr
       await refresh(); channelRef.current?.postMessage({ changed: true });
       setError(""); return result;
     } catch (e) { if (aliveRef.current) setError(messageForError(e)); throw e; }
+  }, [checkSession, refresh]);
+  const runQuiet = useCallback(async <T,>(action: (repo: DocumentRepository) => Promise<T>): Promise<T> => {
+    await checkSession();
+    const repo = repoRef.current;
+    if (!repo) throw new Error("문서 보관함을 아직 열지 못했습니다.");
+    const result = await action(repo);
+    await refresh(); channelRef.current?.postMessage({ changed: true });
+    return result;
   }, [checkSession, refresh]);
   const save = useCallback(async function flush(): Promise<void> {
     if (saveRef.current) { await saveRef.current; return flush(); }
@@ -148,7 +158,7 @@ export function WorkspaceProvider({ userId, children }: { userId: string; childr
   return <WorkspaceContext.Provider value={{ nodes, preferences, loaded, error, saving, draft, dirty,
     reportError: value => setError(messageForError(value)),
     edit: value => { const current = draftRef.current; if (current) setDraft({ ...current, markdown: value }); },
-    save, run, refresh: async () => { await checkSession(); await refresh(); }, select, setPreferences, reloadDraft,
+    save, run, runQuiet, refresh: async () => { await checkSession(); await refresh(); }, select, setPreferences, reloadDraft,
     downloadDraft: () => { if (draftRef.current) downloadText("저장되지않은원고.md", draftRef.current.markdown); },
   }}>{children}</WorkspaceContext.Provider>;
 }

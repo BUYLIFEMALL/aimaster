@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio 4단계 본인 Google Drive 연동 (v1.03, 운영 배포 · 실제 Google 미검증)
+
+- 회원 본인 Google Cloud 앱(Client ID, Secret 없음)·본인 계정, 범위 drive.file, 접근 토큰은 메모리에만. Drive 올리기(ID 연결·전용 폴더 `마크다운 문서 자동화`·충돌 시 덮어쓰지 않음·루트 폴백 금지·이름/이동 반영)와 가져오기(목록·사본/교체·이력 보존), 401/403/429/5xx/네트워크 처리, 계정별 연결 기록 분리, 설정 화면(Client ID·연동 매뉴얼 팝업)·보관함 Drive 카드. 서버·DB·환경변수 변경 없음.
+- 검수는 **모의 Google(로그인 스텁+모의 Drive 서버)**: 단위 56/56, 화면 11+13+10+11, 런타임 9/9, 취약점 0. 운영 v1.03 배포·DB 갱신, 일반 회원 계정으로 `/settings` 표시 확인. **실제 Google OAuth·Drive 업로드/갱신/가져오기는 미검증** — [기록·실제 검수 절차](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0003_v1_03_google_drive.sql`.
+- 시험 중 Drive 오류가 전역 저장 오류 상태·자동 저장을 멈추는 결함을 발견해 `runQuiet`로 분리(ERROR_LESSONS 기록). 다음: 주인님이 본인 Google Cloud Client ID로 실제 검수, 5단계 썸네일·매뉴얼(platform_guides는 기존 `Google OAuth 클라이언트 만들기` 재사용) 등록.
+
 ## 2026-10-13 Claude Code — Markdown Studio 3단계 가져오기·백업·변환 내보내기 (v1.02, 운영 배포)
 
 - 파일·폴더 가져오기(.md/.markdown/.txt, EUC-KR 판별), 백업(JSON)·새 폴더 복원(원자적·검증), HTML·PDF(pdfmake+Noto Sans KR 텍스트 PDF)·Word(docx 표준 OOXML)·ZIP 내보내기(합치기/문서별, 폴더 구조, 부분 실패 보고). 공용 변환 모듈 `markdown-studio/src/lib/export/`. 글꼴은 `scripts/copy-fonts.mjs`가 빌드 때 복사(Git 제외).

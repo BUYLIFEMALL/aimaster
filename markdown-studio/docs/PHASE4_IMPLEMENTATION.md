@@ -1,0 +1,61 @@
+# 4단계 구현·검수 기록 — 회원 본인 Google Drive 연동
+
+2026-10-13, Claude Code. 앱 표시 버전 **v1.03**(운영 배포·DB 갱신 완료). 기준: [DEVELOPMENT_PLAN](DEVELOPMENT_PLAN.md) 4단계, 최상위 규칙(본인 계정·본인 앱).
+
+> **가장 중요한 한계: 실제 Google 계정·실제 Drive로는 아직 한 번도 검증하지 못했습니다.** 아래 시험은 모두 **모의 Google(로그인 스텁 + 모의 Drive 서버)** 기준입니다. 실제 검수는 회원이 본인 Google Cloud 프로젝트에서 OAuth Client ID를 만들어 와야 가능합니다(아래 "실제 검수 절차").
+
+## 구조 (서버·DB·환경변수 변경 없음)
+
+- **본인 앱·본인 계정**: 회원이 본인 Google Cloud 프로젝트의 OAuth Client ID(웹 애플리케이션)를 설정 화면에 저장한다(브라우저 IndexedDB, 회원별). Client Secret은 받지 않는다. 운영자 앱·키·서버 환경변수를 쓰지 않는다. 공용 OAuth 앱 없음.
+- **권한 범위**: `https://www.googleapis.com/auth/drive.file`(이 앱이 만든 파일만). 사용자가 체크를 해제하면 연결 거절.
+- **토큰**: Google Identity Services 토큰 모델. 접근 토큰은 **메모리에만** 두고 저장·기록·백업하지 않는다(새로고침하면 재연결). 만료 30초 전부터는 사용하지 않고 재연결을 요구(조용히 새로 받지 않음). 연결 해제 시 Google에 취소 요청.
+- **Drive 호출**: 브라우저가 Drive REST API(v3)를 직접 호출(서버 경유 없음). 전용 폴더 `마크다운 문서 자동화` 아래에만 올린다.
+
+## 구현한 것
+
+| 영역 | 내용 | 위치 |
+|---|---|---|
+| API 클라이언트 | 모든 응답 상태 검사, 401→재연결, 403(API 비활성/권한/한도) 구분 안내, 429·5xx는 `Retry-After`를 따르는 지수 백오프로 최대 3회 재시도, 네트워크·깨진 응답 오류 구분, 목록 전체 쪽 읽기, 쿼리 이스케이프 | `src/lib/drive/api.ts` |
+| 로그인 | GIS 스크립트 로드(사용자 클릭 시), Client ID 형식 검사, 거절·창 닫힘·팝업 차단·범위 누락 처리, 토큰 메모리 보관 | `src/lib/drive/auth.ts` |
+| 동기화 | **올리기**: 문서↔Drive 파일을 **ID로 연결**(이름이 같아도 덮어쓰지 않음), 폴더 구조 재현, 변경 없으면 요청 없음, 이름 변경·폴더 이동 반영, Drive에서 바뀌었거나 휴지통이면 **충돌로 알리고 덮어쓰지 않음**(명시적 '덮어쓰기' 선택 때만), Drive에서 사라진 파일은 새로 만들고 알림, **전용 폴더 준비 실패 시 중단(Drive 최상위로 폴백 금지)**. **가져오기**: Drive 목록(재귀·여러 쪽) → 새 파일은 새 폴더 `Drive에서 가져옴 날짜`에 구조 그대로 추가·연결, Drive에서 바뀐 파일은 **사본으로 추가(권장)** 또는 **본문 교체(이전 본문은 수정 이력)**, 양쪽 모두 변경이면 표시·확인. 항목별 결과·실패만 다시 시도, 인증 만료 시 남은 항목은 "중단됨"으로 기록 | `src/lib/drive/sync.ts` |
+| 연결 기록 | IndexedDB v2의 `drive` 저장소(설정·계정별 전용 폴더·문서/폴더↔Drive 파일 연결). **Google 계정(permissionId)별로 분리**되어 다른 계정은 이전 계정의 연결을 재사용하지 않음. 이 기기의 기록만 지우는 기능(Drive 파일은 건드리지 않음) | `repository.ts`, `model.ts` |
+| 화면 | 설정(`API키등록·플랫폼연동`): Client ID 저장·연결/해제·단계 안내·현재 주소 복사·**연동 매뉴얼 팝업 버튼**(platform_guides `Google OAuth 클라이언트 만들기` 재사용). 문서 보관함의 Google Drive 카드: 연결·올리기(현재/전체)·덮어쓰기 선택·목록·가져오기·결과·재시도 | `DriveSettings.tsx`, `DriveCard.tsx`, `DriveProvider.tsx` |
+| 오류 분리 | Drive 오류가 문서 저장 상태(`store.error`·자동 저장)에 영향을 주지 않도록 `runQuiet` 추가 | `WorkspaceProvider.tsx` |
+
+Drive 파일은 **삭제하지 않는다**(로컬 휴지통과 Drive는 별개). 폴더 이름 변경·이동은 Drive 폴더에 반영하지 않고(문서의 이름 변경·이동은 반영), 이는 화면에 안내.
+
+## 검수 결과 (2026-10-13, 모의 Google 기준)
+
+| 구분 | 결과 |
+|---|---|
+| TypeScript·프로덕션 빌드 | 정상 |
+| 단위 시험 | **56/56** (기존 45 + Drive 11: 첫 올리기·전용 폴더·ID 연결·충돌·강제·이름/이동·사라진/휴지통·401/429/5xx/네트워크/403/깨진 응답·루트 폴백 금지·계정 분리·페이지네이션·따옴표 이스케이프·가져오기 새 파일/사본/교체/이력·인증 중단) |
+| 기존 화면 검사 | 11/11, 편집기 13/13, 내보내기 10/10 (회귀 없음) |
+| **신규 화면 검사 `test:drive`** | **11/11** · [증거](evidence/phase4-drive-ui-results.json)(`mockGoogle:true, realGoogleVerified:false`) — Client ID 검증·저장, 거절/창 닫힘/범위 누락/성공 연결(drive.file만, Client Secret 없음), **토큰 미저장(localStorage·sessionStorage·쿠키·IndexedDB 전수 확인)**, 올리기 구조·재올리기 변경 없음, 원격 변경 감지→사본 가져오기, 충돌→강제, 401(재연결·연결 해제 표시)·403 안내, 429 재시도 후 성공·5xx 실패 보고(성공 알림 없음), 연결 해제 시 취소 요청·계정 전환, 만료 토큰 거절, 390px |
+| 실제 서버 `test:runtime` | 9/9 |
+| `npm audit` | 취약점 0건 |
+| 운영 배포 | `markdown-studio.buylife.xyz` v1.03, 일반 회원 계정으로 `/settings` 화면 표시 확인(승인된 JavaScript 원본에 운영 주소 자동 표시) |
+
+시험 중 발견·수정한 결함: Drive 통신 오류가 `store.run`의 전역 오류 상태에 들어가 상단에 "저장 실패" 배너를 띄우고 **자동 저장을 멈추게** 했음 → `runQuiet`로 분리하고 화면 시험에 "Drive 오류가 저장 상태에 영향 없음" 단언 추가.
+
+## 아직 확인하지 못한 것 (완료로 보고하지 않음)
+
+- **실제 Google OAuth·실제 Drive 업로드/갱신/가져오기/충돌** 전부. 모의 서버는 Google의 실제 동작(권한 동의 화면, 테스트 사용자 제한, 토큰 만료, 할당량, 응답 필드 차이, CORS 정책)을 보장하지 않는다.
+- GIS 토큰 팝업의 실제 동작(팝업 차단, 계정 선택, 범위 체크 해제).
+- 대용량(수백 개 문서) 올리기 시간·Drive 할당량. 업로드는 순차 실행.
+- 변경 목록 API·원격 삭제 감지는 구현하지 않음(Drive 목록을 직접 불러와 비교).
+- 이미지 등 첨부 파일 동기화 없음(마크다운 본문만).
+
+## 실제 검수 절차 (주인님 또는 회원이 본인 Google 계정으로)
+
+1. Google Cloud Console에서 프로젝트 생성 → **Google Drive API 사용 설정** → OAuth 동의 화면(테스트 상태면 본인 계정을 **테스트 사용자**로 추가) → 사용자 인증 정보 → OAuth 클라이언트 ID → **웹 애플리케이션**, 승인된 JavaScript 원본에 `https://markdown-studio.buylife.xyz` 추가.
+2. `API키등록·플랫폼연동`에서 Client ID 저장 → `Google에 연결` → 동의 화면에서 'Drive 파일 접근' 허용.
+3. 문서 보관함의 Google Drive 카드에서 현재/전체 올리기 → Drive에 `마크다운 문서 자동화` 폴더·파일 생성 확인 → Drive 웹에서 파일 수정 후 `Drive 목록 불러오기`에서 '변경됨' 표시·가져오기 확인 → 연결 해제.
+4. 확인 결과를 이 문서에 추가 기록(실제 계정 검수 완료로 표기).
+
+## 실행 방법
+
+```powershell
+Set-Location D:/Antigravity/AIMaster/markdown-studio
+npm ci; node scripts/copy-fonts.mjs; npm run build; npm test; npm run test:browser; npm run test:editor; npm run test:export; npm run test:drive; npm run test:runtime; npm audit
+```

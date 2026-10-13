@@ -28,6 +28,18 @@ export interface WorkspacePreferences {
 export const DEFAULT_PREFERENCES: WorkspacePreferences = {
   activeId: null, explorerOpen: true, editorPercent: 50,
 };
+/** Google Drive와 연결된 문서·폴더의 기록(이 기기 IndexedDB에만 저장). Drive 계정별로 구분한다 */
+export interface DriveMapping {
+  nodeId: string;
+  accountId: string;
+  kind: NodeKind;
+  fileId: string;
+  parentFileId: string | null;
+  lastSyncedRevision: number;
+  remoteModifiedTime: string;
+  remoteMd5?: string;
+  syncedAt: string;
+}
 export const MAX_MARKDOWN_LENGTH = 1_000_000;
 export class DocumentError extends Error {
   constructor(public code: "INVALID" | "OWNER" | "CONFLICT" | "NOT_FOUND" | "DUPLICATE", message: string) {

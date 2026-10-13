@@ -171,4 +171,4 @@ type DocumentNode = {
 
 ## 진행 현황 (2026-10-13 추가)
 
-- 1단계 완료(v1.01) · 2단계 [고급 편집기](PHASE2_IMPLEMENTATION.md) 완료 · 3단계 [가져오기·백업·변환](PHASE3_IMPLEMENTATION.md) 완료(v1.02, 운영 배포). 남은 단계: 4단계 본인 Google Drive, 5단계 출시 정리(썸네일·매뉴얼 등록).
+- 1단계 완료(v1.01) · 2단계 [고급 편집기](PHASE2_IMPLEMENTATION.md) 완료 · 3단계 [가져오기·백업·변환](PHASE3_IMPLEMENTATION.md) 완료(v1.02, 운영 배포). 4단계 [본인 Google Drive](PHASE4_IMPLEMENTATION.md) 코드 완료(v1.03, 모의 Google 기준 검수, 실제 Google 미검증). 남은 단계: 실제 Google 계정 검수, 5단계 출시 정리(썸네일·매뉴얼 등록).

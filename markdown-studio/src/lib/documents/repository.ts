@@ -2,7 +2,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import {
   DEFAULT_PREFERENCES, DocumentError, MAX_MARKDOWN_LENGTH, descendants,
   normalizeName, validatePlacement, verifyOwner,
-  type DocumentNode, type DocumentRevision, type NodeKind, type WorkspacePreferences,
+  type DocumentNode, type DocumentRevision, type DriveMapping, type NodeKind, type WorkspacePreferences,
 } from "./model";
 import { MAX_IMPORT_NODES, orderParentsFirst, uniqueName, validateTree, type ImportItem } from "./backup";
 
@@ -10,6 +10,7 @@ interface DocumentDatabase extends DBSchema {
   nodes: { key: string; value: DocumentNode };
   revisions: { key: string; value: DocumentRevision; indexes: { "by-node": string } };
   preferences: { key: string; value: WorkspacePreferences };
+  drive: { key: string; value: unknown };
 }
 // Per-member database + per-record owner checks. Local storage is device storage,
 // not server-side RLS and not encryption against other people using the same OS profile.
@@ -17,11 +18,14 @@ export class DocumentRepository {
   private dbPromise: Promise<IDBPDatabase<DocumentDatabase>>;
   constructor(readonly userId: string) {
     if (!/^[A-Za-z0-9_-]{1,80}$/.test(userId)) throw new DocumentError("OWNER", "회원 식별 정보가 올바르지 않습니다.");
-    this.dbPromise = openDB<DocumentDatabase>(`aimaster-markdown-v1-${userId}`, 1, {
-      upgrade(db) {
-        db.createObjectStore("nodes", { keyPath: "id" });
-        db.createObjectStore("revisions", { keyPath: "key" }).createIndex("by-node", "nodeId");
-        db.createObjectStore("preferences");
+    this.dbPromise = openDB<DocumentDatabase>(`aimaster-markdown-v1-${userId}`, 2, {
+      upgrade(db, oldVersion) {
+        if (oldVersion < 1) {
+          db.createObjectStore("nodes", { keyPath: "id" });
+          db.createObjectStore("revisions", { keyPath: "key" }).createIndex("by-node", "nodeId");
+          db.createObjectStore("preferences");
+        }
+        if (oldVersion < 2) db.createObjectStore("drive"); // v1.03: Google Drive 연결 기록
       },
       blocking: () => { void this.close(); },
     });
@@ -159,8 +163,40 @@ export class DocumentRepository {
         ids.set(item.key, node.id);
       }
       await tx.done;
-      return { created: items.length, renamed, firstDocumentId: items.filter(i => i.kind === "document").map(i => ids.get(i.key)!)[0] ?? null };
+      return { created: items.length, renamed, ids: Object.fromEntries(ids) as Record<string, string>, firstDocumentId: items.filter(i => i.kind === "document").map(i => ids.get(i.key)!)[0] ?? null };
     } catch (error) { try { tx.abort(); } catch {} await tx.done.catch(() => {}); throw error; }
+  }
+  // ---- Google Drive 연결 기록 (설정·계정별 연결 정보). 문서 본문과 토큰은 여기에 저장하지 않는다 ----
+  async driveSettings(): Promise<{ clientId: string; lastAccountId?: string }> {
+    const v = (await (await this.dbPromise).get("drive", "settings")) as { clientId?: string; lastAccountId?: string } | undefined;
+    return { clientId: v?.clientId ?? "", lastAccountId: v?.lastAccountId };
+  }
+  async saveDriveSettings(value: { clientId: string; lastAccountId?: string }) {
+    await (await this.dbPromise).put("drive", { clientId: value.clientId.trim(), lastAccountId: value.lastAccountId }, "settings");
+  }
+  async driveRootFolder(accountId: string): Promise<string | null> {
+    return ((await (await this.dbPromise).get("drive", `root:${accountId}`)) as string | undefined) ?? null;
+  }
+  async saveDriveRootFolder(accountId: string, folderId: string) {
+    await (await this.dbPromise).put("drive", folderId, `root:${accountId}`);
+  }
+  async driveMappings(accountId: string): Promise<DriveMapping[]> {
+    const prefix = `map:${accountId}:`;
+    const db = await this.dbPromise;
+    const rows = (await db.getAll("drive", IDBKeyRange.bound(prefix, `${prefix}￿`))) as DriveMapping[];
+    return rows.filter(r => r.accountId === accountId);
+  }
+  async saveDriveMapping(mapping: DriveMapping) {
+    await (await this.dbPromise).put("drive", mapping, `map:${mapping.accountId}:${mapping.nodeId}`);
+  }
+  /** 이 기기의 Drive 연결 기록만 지운다(Drive의 파일은 건드리지 않는다) */
+  async forgetDriveAccount(accountId: string) {
+    const db = await this.dbPromise;
+    const tx = db.transaction("drive", "readwrite");
+    const prefix = `map:${accountId}:`;
+    for (const key of await tx.store.getAllKeys(IDBKeyRange.bound(prefix, `${prefix}￿`))) await tx.store.delete(key);
+    await tx.store.delete(`root:${accountId}`);
+    await tx.done;
   }
   async history(id: string) {
     const node = await (await this.dbPromise).get("nodes", id);
