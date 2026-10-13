@@ -4432,3 +4432,11 @@ A안(새 프로그램 대신 기존 `shorts-viral-studio` 완성·출시)을 마
   - **정책 문서(필독): `docs/DOMAIN_SSO_POLICY.md`, 루트 `CLAUDE.md`/`AGENTS.md` 핵심 원칙 11·12번**(옛 주소 유지, 쿠키 domain 조건, `sb-*` 일괄 만료 금지, OAuth `redirect_uri` 고정 여부 사전 확인, 프로그램별 절차). `shots`는 `redirect_uri`가 환경변수 고정이라 Meta/Google 변경 불필요(확인함).
   - 선행 작업(완료, 주인님): Cloudflare DNS 에 와일드카드 `*` **A 레코드 → 76.76.21.21**(프록시 끔/DNS only). `shots.buylife.xyz` 인증서·200 확인, `programs.app_url`(auto-shorts-posting) 새 주소로 갱신. 다음 단계: 프로그램별 `vercel domains add <이름>.buylife.xyz` + `programs.app_url` 갱신.
   - 파일럿: 루트(v 없음) + `shots` v1.06 코드 반영. 나머지 프로그램은 파일럿 검증(주소 이동 후 로그인 공유 확인) 뒤 순서대로 진행. **OAuth 리디렉트 URI(회원이 본인 Meta/Google 앱에 등록한 주소)는 옛 vercel.app 주소 기준이므로 옛 주소는 계속 유지한다 — 새 주소만 추가.**
+
+
+## 2026-10-13 — Codex CLI 상태바 재설정 시간 표시 v1.01
+
+- 요청: 5시간·주간 한도 재설정까지 남은 시간을 상태바 안에 표시. 로컬 실행기 `codex-statusbar/`를 만들고 현재 사용자 npm Codex 실행기에 연결했다. 새로 실행하는 `codex`/`codex.cmd`부터 적용하며 이미 켜진 세션은 종료하지 않았다.
+- 본인 계정의 공식 app-server `account/rateLimits/read`만 사용한다. 60초마다 조회, 1초마다 카운트다운 계산. 비율 `left` 의미는 잔여량으로 유지. API 키·로그인·사용 권한 설정은 변경하지 않았다.
+- 검수: 자동 검사 16개·문법 빌드, 실제 계정 조회, 기본/인라인 실제 TUI의 카운트다운·입력·정상 종료, npm 실행기 복원·재설치, `--version` 보존 확인. 물리 창 크기 변경은 미검수; 자동 ANSI 하네스에서 크기 변경 확인.
+- [실행·복원 문서](../codex-statusbar/README.md), [CLI 인수인계](../codex-statusbar/AGENTS.md). 로컬 도구 설치이므로 Vercel·DB 배포 대상이 아니다. Codex npm 업데이트 시 `npm run install-launcher`를 다시 실행한다.
