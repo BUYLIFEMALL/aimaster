@@ -92,13 +92,93 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
   const list = summary ? [...summary.tasks].sort((a, b) => sort === "priority" ? ["high", "normal", "low"].indexOf(a.priority) - ["high", "normal", "low"].indexOf(b.priority) : sort === "newest" ? b.createdAt - a.createdAt : a.createdAt - b.createdAt) : [];
   const label = SCREENS.find(s => s.href === screen)?.label ?? APP_NAME;
   function taskCard(task: Task, trash = false) {
-    const category = w!.categories.find(c => c.id === task.categoryId)?.name;
-    return <article className="task-row" key={task.id}><div><div className="task-title"><span className={`state-dot ${task.status}`}/><strong>{task.title}</strong></div><p className="muted">{category} · 우선순위 {PRIORITY_LABELS[task.priority]} · {task.plannedDate} · {task.status === "done" ? "완료" : task.status === "doing" ? "진행중" : "미완료"}</p><p className="task-time">예상 {task.estimatedMinutes ? `${task.estimatedMinutes}분` : "미설정"} · 집중 {clock(focusMap.get(task.id) ?? 0)}</p></div><div className="actions">
-      {trash ? <button disabled={busy} onClick={() => action(task, "task.restore")}>복원</button> : <>
-        {task.status !== "done" && <button disabled={busy || !!active} onClick={async () => { if (await send({ type: "timer.start", mode: "focus", taskId: task.id })) { if (screen !== "dashboard") navigate("focus"); } }}>집중 시작</button>}
-        <button disabled={busy} onClick={() => action(task, task.status === "done" ? "task.undo" : "task.complete")}>{task.status === "done" ? "완료 취소" : "완료"}</button>
-        <button disabled={busy} onClick={() => { setEditing(task); if (screen !== "dashboard") navigate("plan"); }}>수정</button><button disabled={busy} className="danger" onClick={() => action(task, "task.trash")}>휴지통</button>
-      </>}</div></article>;
+    const category = w!.categories.find(c => c.id === task.categoryId)?.name ?? "기타";
+    const priorityClass = task.priority === "high" ? "badge-priority-high" : task.priority === "normal" ? "badge-priority-normal" : "badge-priority-low";
+    const isDoing = task.status === "doing";
+    const isDone = task.status === "done";
+    const actualSeconds = focusMap.get(task.id) ?? 0;
+    const actualText = clock(actualSeconds);
+
+    return (
+      <article className={`task-row-card ${isDone ? "is-done" : ""} ${isDoing ? "is-doing" : ""}`} key={task.id}>
+        <div className="task-row-main">
+          <div className="task-row-top">
+            <div className="task-title-group">
+              <span className={`state-dot ${task.status}`} />
+              <strong className="task-title-text">{task.title}</strong>
+            </div>
+            <div className="task-row-actions">
+              {trash ? (
+                <button className="row-action-btn restore" disabled={busy} onClick={() => action(task, "task.restore")} title="복원">
+                  복원
+                </button>
+              ) : (
+                <>
+                  {!isDone && (
+                    <button
+                      className="row-action-btn timer-btn"
+                      disabled={busy || !!active}
+                      onClick={async () => {
+                        if (await send({ type: "timer.start", mode: "focus", taskId: task.id })) {
+                          if (screen !== "dashboard") navigate("focus");
+                        }
+                      }}
+                      title="집중 시작"
+                    >
+                      {isDoing ? "⏸" : "▶"}
+                    </button>
+                  )}
+                  <button
+                    className={`row-action-btn check-btn ${isDone ? "done" : ""}`}
+                    disabled={busy}
+                    onClick={() => action(task, isDone ? "task.undo" : "task.complete")}
+                    title={isDone ? "완료 취소" : "완료"}
+                  >
+                    {isDone ? "↩" : "✓"}
+                  </button>
+                  <button
+                    className="row-action-btn edit-btn"
+                    disabled={busy}
+                    onClick={() => {
+                      setEditing(task);
+                      if (screen !== "dashboard") navigate("plan");
+                    }}
+                    title="수정"
+                  >
+                    ✏
+                  </button>
+                  <button
+                    className="row-action-btn delete-btn"
+                    disabled={busy}
+                    onClick={() => action(task, "task.trash")}
+                    title="휴지통"
+                  >
+                    🗑
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="task-row-meta">
+            <span className="task-time-info">
+              예상: {task.estimatedMinutes ? `${task.estimatedMinutes}분` : "미설정"} • 실제: {actualText}
+            </span>
+          </div>
+
+          <div className="task-row-badges">
+            <span className={`task-badge ${priorityClass}`}>
+              우선순위: {PRIORITY_LABELS[task.priority]}
+            </span>
+            <span className="task-badge badge-category">
+              {category}
+            </span>
+            {isDoing && <span className="task-badge badge-status-doing">진행중</span>}
+            {isDone && <span className="task-badge badge-status-done">완료</span>}
+          </div>
+        </div>
+      </article>
+    );
   }
   const scope = date + " (한국 시간) · " + (categoryId ? w?.categories.find(c => c.id === categoryId)?.name : "전체 분류") + (query ? ` · 제목 “${query}”` : "");
   const note = noteDrafts[date] ?? w?.notes[date] ?? "";
@@ -118,7 +198,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
     {!w ? <section className="card"><h2>{denied ? "로그인·이용 권한 확인이 필요합니다" : "회원 기록을 불러오고 있습니다"}</h2><p>기록을 확인한 뒤 할 일과 집중시간이 표시됩니다.</p>{denied && <a href="/login" className="button">로그인</a>}</section> : <>
       {!["settings", "guide"].includes(screen) && <div className="filters"><label>기록 날짜<input type="date" value={date} onChange={e => { if (e.target.value) { setDate(e.target.value); setEditing(undefined); setEditorKey(k => k + 1); } }}/></label><label>분류<select value={categoryId} onChange={e => setCategoryId(e.target.value)}><option value="">전체</option>{w.categories.filter(c => !c.archived).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>할 일 검색<input value={query} onChange={e => setQuery(e.target.value)} placeholder="제목에서 검색"/></label><label>정렬<select value={sort} onChange={e => setSort(e.target.value)}><option value="plan">계획 순서</option><option value="priority">우선순위</option><option value="newest">최근 작성</option></select></label></div>}
       {screen === "results" && summary && <SummaryPanel summary={summary} scope={scope}/>}
-      {screen === "dashboard" && summary && <Overview workspace={w} tasks={list} summary={summary} scope={scope} categoryId={categoryId} chooseCategory={setCategoryId} active={active} remaining={active ? clock(remainingMs(active, serverNow) / 1000) : "00:00"} busy={busy} command={send} backup={backup} manage={() => navigate("plan")} editor={editor()} taskCard={taskCard} note={note} savedNote={w.notes[date] ?? ""} changeNote={changeNote} saveNote={saveNote}/>}
+      {screen === "dashboard" && summary && <Overview workspace={w} tasks={list} summary={summary} scope={scope} categoryId={categoryId} chooseCategory={setCategoryId} active={active} remaining={active ? clock(remainingMs(active, serverNow) / 1000) : "00:00"} busy={busy} command={send} backup={backup} manage={() => navigate("plan")} editor={editor()} taskCard={taskCard} note={note} savedNote={w.notes[date] ?? ""} changeNote={changeNote} saveNote={saveNote} date={date}/>}
       {screen === "plan" && <div className="plan-grid"><div className="stack">{editor()}<section className="card"><h2>분류 관리</h2><form className="actions" onSubmit={async e => { e.preventDefault(); if (await send({ type: "category.add", name: categoryName })) setCategoryName(""); }}><input aria-label="새 분류 이름" value={categoryName} onChange={e => setCategoryName(e.target.value)} maxLength={30} required placeholder="새 분류 이름"/><button disabled={busy}>분류 추가</button></form><div className="chips">{w.categories.filter(c => !c.archived).map(c => <span key={c.id}>{c.name}<button disabled={busy} aria-label={`${c.name} 분류 보관`} onClick={() => send({ type: "category.archive", id: c.id })}>×</button></span>)}</div><p className="muted">전체는 필터 전용입니다. 기록에 사용 중인 분류는 보관할 수 없습니다.</p></section></div><section className="card"><h2>선택 날짜의 할 일 <small>{list.length}개</small></h2>{list.length ? list.map(t => taskCard(t)) : <p className="empty">등록한 할 일이 여기에 표시됩니다.</p>}</section></div>}
       {screen === "focus" && <section className="card timer-card"><p className="eyebrow">{active ? MODE_LABELS[active.mode] : "집중할 준비가 됐나요?"}</p><h2>{active?.taskId ? w.tasks.find(t => t.id === active.taskId)?.title : active ? "잠깐 쉬어가세요" : "할 일을 선택해 시작해주세요"}</h2><div className="timer" aria-label="남은 시간">{active ? clock(remainingMs(active, serverNow) / 1000) : clock(w.settings.durations.focus * 60)}</div><p>{active?.state === "paused" ? "일시정지 · 남은 시간과 집중 기록이 유지됩니다" : active ? "실행 중 · 종료 시각까지만 기록합니다" : "타이머 실행에 AI 키는 필요하지 않습니다"}</p><div className="actions centered">{active ? <><button className="primary" disabled={busy} onClick={() => send({ type: active.state === "paused" ? "timer.resume" : "timer.pause", sessionId: active.id })}>{active.state === "paused" ? "재개" : "일시정지"}</button><button disabled={busy} onClick={() => send({ type: "timer.end", sessionId: active.id })}>현재 타이머 종료</button>{remainingMs(active, serverNow) === 0 && <button disabled={busy} onClick={() => send({ type: "timer.finish", sessionId: active.id })}>종료 기록 다시 저장</button>}</> : <>{(["short", "long"] as Mode[]).map(mode => <button key={mode} disabled={busy} onClick={() => send({ type: "timer.start", mode, taskId: null })}>{MODE_LABELS[mode]} 시작</button>)}<button onClick={() => navigate("plan")}>할 일 선택</button></>}</div><p className="muted">작업 완료·휴지통 이동 시 실행 중인 시간을 정산하고 종료합니다. 다음 모드는 직접 선택합니다.</p></section>}
       {screen === "results" && summary && <div className="plan-grid"><ChartPanel bins={summary.bins}/><NotePanel note={note} savedNote={w.notes[date] ?? ""} busy={busy} change={changeNote} save={saveNote}/><AnalysisPanel/></div>}

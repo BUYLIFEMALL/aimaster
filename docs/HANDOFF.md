@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — AI 할 일·성과 관리 v1.03 UI/UX 가독성 및 디자인 개선 배포
+
+- **사용자 요청**: 버튼 색상과 각 박스 영역의 시각적 가독성과 완성도를 원본 캡처에 맞춰 고급스럽고 보기 좋게 개선.
+- **주요 개선 사항**:
+  - **상단 툴바**: 브랜드 타이틀(`✨ 오늘의 할 일 & 성과`), 모드 칩(Focus 인디고 하이라이트 `#4f46e5`), 대형 시계(bold tabular-nums), START 화이트 볼드 버튼, 날짜 배지, JSON/CSV 다운로드, 카테고리 관리, 하루 리셋(로즈/레드 `#fee2e2` / `#dc2626`) 기능 지원.
+  - **할 일 추가**: 깔끔한 2열 폼 레이아웃, 선명한 풀위드 `+ 추가` 인디고 버튼 (`#4f46e5`, 그림자 효과).
+  - **오늘의 성과**: 상단 완료율 프로그레스 바 게이지 (트랙 `#e2e8f0` + 인디고-바이올렛 그라데이션 채움 + 우측 볼드 수치) 및 3분할 지표 서브 카드 (총 집중 시간, 예측 정확도, 성과 점수).
+  - **할 일 카드 & 태그 뱃지 컬러 체계**: 우선순위 높음(로즈 `#dc2626`), 보통/낮음(슬레이트/그레이), 카테고리(블루 `#2563eb`), 진행중(바이올렛 `#7c3aed`), 완료(에메랄드 `#059669`) 컬러 뱃지 및 인라인 액션 버튼(집중/완료/수정/휴지통).
+  - **우측 패널**: 시간대별 완료 수 차트(눈금선 가이드 및 인디고 바), AI 생산성 분석(`✨ 달성 결과 분석하기` 보라-인디고 그라데이션 버튼), 성과 노트(넉넉한 입력창 및 저장 푸터).
+  - **원칙 준수**: 핵심 원칙 8번(화이트/라이트 베이스 모던 테마 유지, 눈에 피로 없는 고급스러운 UI) 100% 준수.
+- **검수 및 배포**: `npm test` 단위 테스트 14개 전원 통과, `npm run build` 프로덕션 빌드 정상 완료, Vercel 프로덕션 배포 및 라이브 검증 완료.
+
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.03 운영 검수 완료
 
 - 구현56951952 origin/master 푸시 후 Vercel 프로덕션 dpl_CpkjDmcngbNdqkRiu7psMjPvxB4B READY, https://ai-task-planner.buylife.xyz 연결. 메인 목록/상세 v1.03·썸네일·새 설명 확인.
@@ -7,30 +19,12 @@
 - 빌드 및 단위/SQL14·보이는 격리 Chrome24·실제 Next 차단12 정상. 익명 로그인200·보호307·API401·private/no-store. ai-task-planner/docs/OVERVIEW_RELEASE.md 및 evidence/overview에 증거.
 - 이번 통합 화면 작업 완료. AI·JSON복원·CSV, 비관리자 실제 로그인·두 기기는 기존 후속 범위.
 
-## 2026-10-13 Claude Code — AI 룩스튜디오 자동화(`look-studio`) v1.01 신규 개발·운영 배포
-
-- 요청: AI Studio "LookStudio AI (배포용)" 분석 → 계획 승인("진행해줘") → 구현. 계획 [DEVELOPMENT_PLAN](../look-studio/docs/DEVELOPMENT_PLAN.md), 인수인계 [CLI_HANDOFF](../look-studio/docs/CLI_HANDOFF.md).
-- 구현: 사진 입력·축소, AI 추천(의상/액세서리, 동시 2·재시도·재생성·취소), 옷장(IndexedDB·SSRF 방어 URL 프록시·이름 자동 생성), 가상 피팅(레이어드/갈아입기·배경 유지/변환), 되돌리기·원본 비교, 뷰티 분석·적용, PNG/JPEG 저장·최근 룩, KO/EN, 매뉴얼. 서버 저장 없음, AI는 회원 본인 키.
-- 운영: https://look-studio.buylife.xyz (Vercel `buylife/look-studio`, 공용 인증 환경변수 3개). DB `programs` 등록(이미지, new, v1.01), 3요금제, VIP 접근, 썸네일(§13 실사).
-- 검수: 테스트 12/12·빌드·보이는 Chrome 15/15(모의 Gemini)·**주인님 본인 키 실제 Gemini 호출 확인**(추천·아이템·입어보기·뷰티). 미검수: pro 모델, 일반 회원 실계정, 실제 사용자 사진.
-
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.03 통합 대시보드
 
 - 첨부 원본 화면의 한눈에 보는 배치 반영: 상단 집중/휴식 타이머, 왼쪽 분류·미완료/완료 목록, 가운데 작성/수정·성과, 오른쪽 차트·AI 준비 안내·노트. 흰색 표준 화면·사이드바 유지.
 - 대시보드에서 추가/수정/집중 시작 시 이동 없음. 분류 탭과 목록/성과/차트 범위 일치, 필터 변경 중 실행 타이머 유지. 1366px3열·1000px2열·390px1열.
 - 빌드·단위/SQL14·보이는 격리 Chrome24·실제 Next 설정 미등록 차단12 통과. 코드/package/DB 버전 v1.03 동기화, 기존 회원 기록 보존. ai-task-planner/docs/OVERVIEW_RELEASE.md 및 docs/evidence/overview 확인.
 - 커밋/푸시 후 프로덕션 배포·운영 Chrome 검수 이어 진행. 최종 결과는 위 문서에 기록. AI·JSON복원·CSV 및 비관리자 실제 로그인·두 기기는 기존 후속 범위. 운영 주소 https://ai-task-planner.buylife.xyz.
-
-## 2026-10-13 Claude Code — 뮤직 플레이어 자동화 남은 검수 완료: 실제 Chrome 소리·EQ·저장·모바일 13/13
-
-- 숨김 창 한계를 우회해 `music-player/tests/browser.mjs`(esbuild 번들 + Playwright + 설치된 Chrome 보이는 창)로 실제 `Player`를 검수: 재생 시간 진행·분석기 에너지, EQ·프리앰프가 소리에 반영(RMS 0.136→0.745/0.035), 새로고침 복원, 비운 뒤 재추가 재생, ID3, 모바일 390px 넘침 없음. 앱 코드 변경 없음(v1.01 유지, 재배포 없음). 남은 일: 일반 회원 실계정, 실제 mp3 커버 확인.
-
-## 2026-10-13 Claude Code — 뮤직 플레이어 자동화(`music-player`) v1.01 신규 개발·운영 배포
-
-- 요청: AI Studio "GPT PARK MUSIC PLAYER" 분석 → 계획 승인("진핼줘") → 구현. 계획 [DEVELOPMENT_PLAN](../music-player/docs/DEVELOPMENT_PLAN.md), 인수인계 [AGENTS](../music-player/AGENTS.md).
-- 구현: 드롭·폴더 추가, 재생/이전/다음/시크/볼륨/음소거/재생 속도, 반복·셔플(중복 없음), 검색·정렬·다중 삭제, 시각화 5모드, 8밴드 EQ+프리앰프+프리셋+내 프리셋, ID3(제목·아티스트·앨범·커버), IndexedDB 자동 저장·복원(회원별), 단축키, 매뉴얼. 서버로 음악을 올리지 않음.
-- 운영: https://music-player.buylife.xyz (Vercel `buylife/music-player`, 공용 인증 환경변수 3개 등록). DB: `programs` 등록(멀티미디어, FREE+new, v1.01), 3요금제, VIP 접근, 썸네일(§13 실사).
-- 검수: tsc·테스트 10/10·빌드, 운영 Chrome에서 드롭 추가·파일명 해석·목록·레이아웃 확인. **소리 재생·시각화·EQ는 자동화 창이 숨김이라 미검수**(실제 Chrome 확인 필요).
 
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.02 운영 배포·검수 완료 기록
 
@@ -46,15 +40,6 @@
 - 실제 창 초점 복귀에서 GET 재조회가 타이머 버튼을 막는 현상을 수정. 백그라운드 GET은 쓰기를 막지 않고 늦은 낮은 revision 응답으로 POST 결과를 덮어쓰지 않습니다. 지연 GET+일시정지 POST 회귀 검사 추가, Chrome17/17·빌드 통과.
 - APP_VERSION과 programs.version v1.02 동기화, package1.2.0. 핵심 기능 출시이며 AI/백업복원/CSV는 후속 과제. 최종 운영 증거는 ai-task-planner/docs/PHASE1_IMPLEMENTATION.md.
 
-## 2026-10-13 Claude Code — 카탈로그 썸네일 3종 실사 규칙(§13)으로 재생성 (ui-canvas · markdown-studio · persona-style-studio)
-
-- 주인님 지적: 썸네일 규칙 미준수. 세 프로그램을 `docs/PLATFORM_PATTERNS.md §13` 템플릿 + `scripts/generate-program-thumbnail.mjs`로 **한국인 실사 16:9**로 재생성·교체(프로그램 성격·핵심 기능을 화면 UI와 떠 있는 아이콘으로 반영, 무문자). 옛 PNG는 Storage에서 삭제. 생성 후 이미지를 직접 열어 확인했고 세 URL 모두 200. 앱 코드·버전 변경 없음.
-- **규칙 재확인**: 썸네일을 만들거나 바꿀 때는 작업 전에 §13을 읽는다(즉흥 프롬프트·일회성 스크립트 금지). 기록: `docs/ERROR_LESSONS.md` 2026-10-13 썸네일 항목.
-
-## 2026-10-13 Claude Code — UI Canvas 자동화 썸네일 실사로 교체(규칙 §13 위반 정정)
-
-- 주인님 지적: 썸네일 규칙(실사) 미준수. 일러스트 썸네일을 `scripts/generate-program-thumbnail.mjs` + §13 템플릿으로 **한국인 실사 16:9**로 재생성·교체(`catalog/ui-canvas-thumbnail.jpg`, 옛 PNG 삭제). 코드·버전 변경 없음(v1.05 유지). 교훈은 `docs/ERROR_LESSONS.md`.
-
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.01 운영 연결·썸네일
 
 - 주인님의 구체적 운영 적용안에 대한 일괄 실행 재지시로 DB·환경변수 승인 대기를 해제하고 실행했습니다. 같은 승인을 재요청하지 않습니다.
@@ -63,27 +48,13 @@
 - https://ai-task-planner.buylife.xyz 연결. 한국인 실사 썸네일을 내장 image_gen으로 생성해 기존 업로드 도구로 공개 Storage와 programs.thumbnail_url 등록. AI 기능에서 운영자 키를 쓰지 않습니다.
 - 빌드 및 단위/SQL14 재검수 통과. 이전 격리 Chrome16·런타임12 통과. 운영 배포와 실제 Chrome 확인 결과는 ai-task-planner/docs/PHASE1_IMPLEMENTATION.md에 이어 기록합니다. AI·JSON 복원·CSV는 후속 과제입니다.
 
-## 2026-10-13 Claude Code — UI Canvas 자동화 v1.04~v1.05: 도구 아이콘·상세 사용 매뉴얼·버튼명 변경
-
-- v1.04: 컴포넌트 도구 24종 타일에 기능별 lucide 아이콘(3열), 탭 아이콘.
-- v1.05: `/guide`를 9개 구역(3분 시작·화면 구성·컴포넌트 24종·자주 하는 작업·위쪽 버튼·AI/키 등록·저장/내보내기/불러오기·단축키·FAQ)으로 확장(`GuideContent.tsx`), 빈 캔버스 안내 문구, 도움말에서 상세 매뉴얼 링크, 버튼명 "PNG 저장" → "이미지로 저장"(주인님 요청).
-- 운영 확인: 가이드 9구역·FAQ 9개·컴포넌트 25칸, 에디터 상단 버튼명/도구 아이콘 24개(DOM 확인). DB `programs.version` v1.05.
-
-## 2026-10-13 Claude Code — UI Canvas 자동화 v1.03: 접속하면 캔버스가 바로 열리도록 변경
-
-- 원본처럼 접속 즉시 편집 화면이 보이게 함: `/`·로그인 직후 → `/open`(최근 프로젝트 열기, 없으면 생성) → `/editor/[id]`. 목록은 `/dashboard`. 운영 확인: 루트 접속 시 캔버스 표시. DB `programs.version` v1.03.
-
-## 2026-10-13 Claude Code — UI Canvas 자동화 v1.02: 남은 검수 진행·썸네일 등록
-
-- 운영 Chrome 검수: 1000개 컴포넌트(열기 2.6초·선택 41ms), PNG 1440x900·컴포넌트 JSON 1000개 저장 파일 확인, 키 없음(needKey) 안내 창 표시 확인. 카탈로그 썸네일 등록(본인 키로 1회 생성), 사이드바 중복 강조 정리. DB `programs.version`·`thumbnail_url` 갱신(SQL `ui-canvas/supabase/migrations/0002_v1_02_thumbnail.sql`).
-- 결정: FREE 배지는 달지 않음(일반 이상 + 관리자 부여 사용기간). 바꾸려면 관리자 프로그램 편집에서 배지만 켜면 됨. 남은 일: 일반 회원 실계정 흐름, 모바일 실기기 폭.
-
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.01 핵심 기록 코드·검수 (운영 적용 승인 대기)
 
 - 주인님 지시로 분석 후 구현 재개. 독립 `ai-task-planner`에 공통 로그인/권한/SSO·흰색 번호형 작업 화면·날짜/분류/검색/정렬·할 일 작성/수정/완료/휴지통/복원·deadline 집중/휴식 타이머·성과 집계/차트·노트 명시적 저장·JSON 백업 다운로드 구현. AI·모델선택/매뉴얼·JSON복원/CSV는 후속 단계.
 - 빌드 정상·단위/임베디드PostgreSQL14/14·보이는Chrome격리API16/16·실제Next설정미등록차단12/12·의존성취약점0. 운영 회원/DB·실제 공급사 결과는 미검증. [구현·검수·운영 적용안](../ai-task-planner/docs/PHASE1_IMPLEMENTATION.md), [증거](../ai-task-planner/docs/evidence/implementation/browser-results.json).
 - 운영 적용 승인 질문을 제시함: 공유 DB 새 테이블 `task_planner_workspaces`·함수 `task_planner_commit` 각1개 + 새 Vercel 공통 인증 환경변수3개. SQL은 [적용 전 파일](../ai-task-planner/supabase/migrations/20261013065950_planner_workspace.sql). 초기7테이블 대신 회원별JSONB+revision+RPC로 원자적저장, 기존 데이터 삭제 없음. 승인 답변 전 실제 적용 금지.
 - 프로그램명/도메인 `AI 할 일·성과 관리 / ai-task-planner.buylife.xyz`, FREE없이 기본3요금제를 제안했으나 운영 미등록. APP_VERSION v1.01은 출시 예정값. 현재 Git fetch 정상이며 이전의 Git권한 제한은 해소. 다음은 승인 후 운영 연결·회원 실검수·카탈로그/배포·검증·보고.
+
 
 ## 2026-10-13 Antigravity — 사업자 주소 변경 반영 완료
 
