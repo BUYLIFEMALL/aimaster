@@ -2,8 +2,8 @@
 
 > **React 19 & Tailwind CSS v4 기반 12대 필수 UI 컴포넌트 및 인터랙티브 데모 시뮬레이터, TSX 코드 복사기 & AI 웹 UI 자동 생성기**
 
-- **버전**: `v1.02`
-- **도메인**: [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (보조: `web-ui.buylife.xyz`, `react-ui-showcase.buylife.xyz`)
+- **버전**: `v1.03`
+- **도메인**: [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (카탈로그 상세: [https://www.buylife.xyz/programs/ai-web-ui](https://www.buylife.xyz/programs/ai-web-ui))
 - **개발 환경**: Next.js 16 (App Router), React 19, Tailwind CSS v4, TypeScript, Supabase SSR, Google Gemini 2.5 Flash
 
 ---

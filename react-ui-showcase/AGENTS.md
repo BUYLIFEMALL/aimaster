@@ -9,8 +9,8 @@
 ## 1. 프로그램 기본 정보 및 현황
 
 - **프로그램명**: **AI 웹 UI 제작 자동화** (Web UI AI Studio)
-- **슬러그 (Slug)**: `react-ui-showcase`
-- **현재 버전**: **`v1.02`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.02'`)
+- **슬러그 (Slug)**: `ai-web-ui` (카탈로그 상세: [https://www.buylife.xyz/programs/ai-web-ui](https://www.buylife.xyz/programs/ai-web-ui))
+- **현재 버전**: **`v1.03`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.03'`)
 - **공식 서비스 도메인**: [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (보조 도메인: `web-ui.buylife.xyz`, `react-ui-showcase.buylife.xyz`)
 - **Vercel 프로젝트**: `react-ui-showcase` (Team: `buylife`)
 - **카테고리**: 개발자 도구 / 디자인 시스템 / UI 자동화
