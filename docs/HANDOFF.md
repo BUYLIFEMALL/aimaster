@@ -12,6 +12,25 @@
 - 검수: 단위 45/45, 화면 11+13+10, 런타임 9/9, 취약점 0. 실제 Next 번들에서 PDF·DOCX·ZIP 생성 확인, PDF 육안 확인. 운영 v1.02 배포·DB `programs.version`/설명 갱신 완료. [기록](../markdown-studio/docs/PHASE3_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0002_v1_02_import_export.sql`.
 - **미확인**: 운영 사이트에서 실제 PDF/DOCX 파일 다운로드(허락 전), Word·Google Docs에서의 DOCX 표시, 대용량 성능. 다음: 4단계 본인 Google Drive(본인 OAuth 앱), 5단계 썸네일·매뉴얼 등록. ERROR_LESSONS에 PDF 글리프·mammoth 취약점 등 기록.
 
+## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.04) 로그인 계정 연동 및 표준 로그아웃 시스템 구축 완료
+
+주인님 요청("로그인된 계정정보를 보여주고 로그아웃버튼을 달아줘야지 다른 프로그램 어떻게 해놨나보고 같은 방식으로 맞춰")에 따라, 타 프로그램(detail-page-12p, allinone-graphic, ai-audio-analyzer)의 표준 인증 구조와 전면 일치하도록 개편하여 실제 로그인된 사용자 계정 이메일과 로그아웃 기능을 완벽히 탑재하고 프로덕션 배포를 완료했습니다:
+
+1. **표준 서버 인증 및 계정 주입 파이프라인 구축**:
+   - `src/app/page.tsx`: 동적 서버 컴포넌트로 개편하여 `requireProgramAccess()`를 통해 Supabase 통합 세션에서 실제 로그인된 회원 객체를 추출하고 `initialUserEmail={user?.email}` 주입
+   - `src/lib/access.ts`: `requireProgramAccess()` 및 API용 `checkProgramAccessApi()` 표준 가드 구현
+   - `src/lib/actions/auth.ts`: `signInAction`, `signOutAction` 서버 액션 구현
+   - `src/app/(auth)/login/page.tsx`: 미인증 사용자를 위한 AIMaster 표준 로그인 페이지 탑재
+2. **사이드바 & 헤더 양방향 계정 정보 및 로그아웃 버튼 탑재**:
+   - `src/components/layout/Sidebar.tsx`: 표준 좌측 사이드바 하단에 실제 로그인 계정 이메일(`userEmail`) 표시 및 로그아웃 아이콘 버튼 탑재
+   - `src/components/layout/Header.tsx`: 상단 헤더 우측에도 접속 상태 뱃지, 로그인 계정 이메일(`userEmail`), "로그아웃" 버튼을 추가로 배치하여 편리하게 확인 및 로그아웃 가능하도록 개선
+3. **버전 및 DB 동기화 (Rule 5)**:
+   - `src/lib/version.ts`: `APP_VERSION = "v1.04"`
+   - Supabase DB `programs.version = 'v1.04'` 반영 완료
+4. **배포 및 검수**:
+   - `npm run build` 타입체크 및 동적 라우트 번들링 100% 정상 통과
+   - Vercel 프로덕션 재배포 완료 (`https://ai-slide-builder.buylife.xyz`)
+
 ## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.03) 하단 외부 크레딧 링크 완전 삭제 및 배포 완료
 
 주인님 요청("하단 링크 삭제 해줘 사용 안해")에 따라, 화면 최하단에 노출되던 외부 크레딧 링크("슬라이드 스크립트 제공 스태프 - 표준형식 Majin, 확장형식 Kimura Yoshiki, C-Suite 보고 형식 GPT PARK") 섹션 전체를 완전히 삭제하고 심플한 플랫폼 카피라이트로 정돈하였습니다:

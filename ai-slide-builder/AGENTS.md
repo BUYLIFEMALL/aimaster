@@ -1,6 +1,6 @@
 # AI 슬라이드 자동화 (ai-slide-builder) 인수인계 문서
 
-> **버전**: v1.03  
+> **버전**: v1.04  
 > **프로그램명**: AI 슬라이드 자동화  
 > **슬러그**: `ai-slide-builder`  
 > **배포 URL**: `https://ai-slide-builder.buylife.xyz`  

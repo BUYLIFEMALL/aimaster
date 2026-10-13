@@ -8,9 +8,19 @@ interface HeaderProps {
   onOpenGuide: () => void;
   onOpenApiKey: () => void;
   hasApiKey: boolean;
+  userEmail?: string | null;
 }
 
-export default function Header({ onOpenGuide, onOpenApiKey, hasApiKey }: HeaderProps) {
+export default function Header({ onOpenGuide, onOpenApiKey, hasApiKey, userEmail }: HeaderProps) {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "https://www.buylife.xyz";
+    } catch {
+      window.location.href = "https://www.buylife.xyz";
+    }
+  };
+
   return (
     <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
       <div>
@@ -50,6 +60,25 @@ export default function Header({ onOpenGuide, onOpenApiKey, hasApiKey }: HeaderP
         >
           <HelpCircle size={14} className="text-blue-600" />
           <span>도움말</span>
+        </button>
+
+        {/* 상단 로그인 계정 정보 및 로그아웃 버튼 */}
+        <div className="h-4 w-px bg-slate-200 mx-1" />
+
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span className="font-semibold text-slate-800 max-w-[140px] truncate" title={userEmail || "회원"}>
+            {userEmail || "회원"}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          title="로그아웃"
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 transition"
+        >
+          <span>로그아웃</span>
         </button>
       </div>
     </header>

@@ -1,0 +1,35 @@
+import fs from "node:fs";
+import { createClient } from "@supabase/supabase-js";
+
+function loadEnv(path) {
+  const text = fs.readFileSync(path, "utf8");
+  const env = {};
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const idx = trimmed.indexOf("=");
+    if (idx === -1) continue;
+    env[trimmed.slice(0, idx)] = trimmed.slice(idx + 1).replace(/^["']|["']$/g, "");
+  }
+  return env;
+}
+
+const env = loadEnv("D:/Antigravity/AIMaster/.env.local");
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+
+async function main() {
+  const { data, error } = await supabase
+    .from("programs")
+    .update({ version: "v1.04" })
+    .eq("slug", "ai-slide-builder")
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Update error:", error);
+  } else {
+    console.log("Successfully updated programs version:", data.name, data.version);
+  }
+}
+
+main().catch(console.error);
