@@ -1,6 +1,6 @@
-# AI 키워드 파이터 자동화 (keyword-fighter) — 두 앱 통합 분석 및 개발 플랜 (2026-10-14, 승인 대기)
+# AI 블로그 키워드 자동화 (blog-keyword) — 두 앱 통합 분석 및 개발 플랜 (2026-10-14)
 
-> 상태: **분석·플랜 단계. 코드 미착수.**
+> 상태: **구현 완료(v1.01)**. 이름은 주인님이 "AI 블로그 키워드 자동화"로 확정했고 slug는 `blog-keyword`다(아래 본문의 `keyword-fighter`·"AI 키워드 파이터 자동화"는 승인 전 플랜 당시 이름). 결과·남은 일은 `CLI_HANDOFF.md`.
 > 참고 앱 2종(모두 Google AI Studio, 개발자 AIFACT GPT-PARK, 소스 전체 열람):
 > - **앱 A** "키워드 파이터 for Gemini (네이버 api 버전)" — `aistudio.google.com/apps/63da7702-8c0d-478f-83df-8e10f510f347` (소스 약 190KB: `keywordService.ts` 64KB·`App.tsx` 32KB·`server.ts` 등 + 컴포넌트 26개)
 > - **앱 B** "키워드 파이터 for Gemini" — `aistudio.google.com/apps/drive/1svIdLUbvazDZlgpKMYae0pMQFvm7wHr6` (소스 약 150KB: `keywordService.ts` 49KB·`App.tsx` 25KB + 컴포넌트 21개, 서버 없음)

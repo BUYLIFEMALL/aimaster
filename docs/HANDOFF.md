@@ -8,6 +8,13 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — 신규 프로그램: AI 블로그 키워드 자동화 (`blog-keyword` v1.01)
+
+- 참고: AI Studio "키워드 파이터 for Gemini" 2종(원본·네이버 API 버전)을 소스 전체 분석해 통합. 이름은 주인님이 "AI 블로그 키워드 자동화"로 확정(플랜 폴더 `keyword-fighter` → `blog-keyword`).
+- 기능: 자동완성(네이버/구글+주제 만들기)·AI 연관검색어·상위 블로그·키워드 경쟁력(실측 문서 수·월간 검색수·12개월 추이)·오늘의 전략 키워드·다각도 주제 40개·네이버 뉴스 전략·카테고리 트렌드·프롬프트 50개·기록 100건·Markdown/CSV. 회원 본인 Gemini·네이버 검색 API 키(검색광고 키는 선택), 폴백 없음.
+- 검수: 단위 13/13, 보이는 Chrome 14/14, 빌드, 실제 Gemini 호출 7기능, 운영 화면 로그인 상태 실행. 네이버 키 기능 3종은 모의 응답으로만 검증(실계정 확인은 남은 일).
+- 등록: `programs`·요금제 3종·VIP 접근·썸네일, `platform_guides` 네이버 키 매뉴얼 2건 추가, DB `blog_keyword_reports`. 남은 일·인수인계: [blog-keyword/docs/CLI_HANDOFF.md](../blog-keyword/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — AI 할 일·성과 관리 v1.05: 대시보드 가독성·레이아웃 정리
 
 - 주인님 요청: 직관적이고 가독성 있게 다듬고, 성과 노트는 세로로 더 길게 한눈에 많이 쓸 수 있게.

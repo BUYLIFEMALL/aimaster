@@ -1,0 +1,25 @@
+# AI 블로그 키워드 자동화 (blog-keyword) — 작업 지침
+
+> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+
+## 한 줄 요약
+키워드 하나로 자동완성·AI 연관검색어·상위 블로그·경쟁력·오늘의 전략 키워드·다각도 주제·뉴스·카테고리 트렌드를 한 화면에서 이어서 분석하고, 제목·썸네일 문구·공략법을 제안한다. 참고 원본은 AI Studio의 "키워드 파이터 for Gemini"(원본·네이버 API 버전, 개발자 AIFACT GPT-PARK) 두 앱이며 코드는 복제하지 않고 기능 구조만 참고해 새로 작성했다.
+
+## 구조
+- `src/lib/kw/` 순수 로직(단위 테스트 대상): `types`(기능·결과 타입), `util`(연도 주입·정규화·JSON 추출·빈출어·추이), `prompts`(기능별 프롬프트·스키마), `library`(프롬프트 50개), `links`(트렌드 도구·분야), `export`(Markdown/CSV).
+- 서버 전용: `kw/naver.ts`(검색·뉴스·데이터랩·검색광고·자동완성; API HUB 먼저, 401/403/404면 구방식 폴백), `kw/features.ts`(기능별 실행), `gemini.ts`(모델 폴백 `gemini-3.5-flash → 2.5-flash`, 구글 검색 그라운딩, JSON 재시도), `reports.ts`(기록 저장·100건 정리), `apiKeys.ts`, `aiRoute.ts`(`guardRoute`).
+- API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/analyze`(기능 실행+저장, 자동완성의 "주제 만들기"는 `params.action="topics"`), `GET/PATCH/DELETE /api/history`, `GET/POST/DELETE /api/keys`, `POST /api/keys/test`.
+- 화면: `/dashboard`(작업대 `components/kw/Workbench.tsx`, `?report=<id>`로 기록 열기), `/history`, `/settings`(키 3묶음), `/guide`.
+- DB: `blog_keyword_reports`(RLS owner-only, 서버는 service role + `user_id` 필터). 키는 공용 `user_api_keys`의 기존 provider(`gemini`, `naver_client_id/secret`, `naver_ads_api_key/secret_key/customer_id`)를 그대로 쓴다 — 제약 변경 없음.
+
+## 지킬 것
+- 키는 회원 본인 것만. Gemini 없으면 `needKey`, 네이버 없으면 `needNaver` 안내, 폴백 금지. 자동완성 목록만 Gemini 없이 허용.
+- 모든 프롬프트에 `yearGuard()`로 당해 연도·오늘 날짜 주입(핵심 원칙 8번). 새 프롬프트도 `prompts.ts`에 같은 방식으로 추가.
+- "AI 추정"(점수)과 "실측"(검색광고 월간 검색수·블로그 문서 수·데이터랩 추이)을 화면에서 구분해 표기한다. 추정 점수를 실측처럼 쓰지 않는다.
+- 외부 주소는 `naver.ts`의 고정 주소만. 임의 URL을 받는 프록시를 만들지 않는다(원본 앱의 열린 프록시는 복제하지 않았다).
+- 그라운딩 호출은 JSON 모드(`responseSchema`)를 쓸 수 없어 텍스트에서 JSON을 꺼낸다 → 항상 `util.str/num/objArr`로 정규화.
+- 버전은 `src/lib/version.ts`와 DB `programs.version`을 함께 올린다. Supabase MCP `execute_sql`은 문장별로 보낸다.
+
+## 검수
+- `npm test`(순수 로직 13건), `npm run test:browser`(보이는 Chrome, 모의 API 14건), `npm run build`.
+- 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [기능…]`(운영자 본인 Gemini 키, 네이버 키 없음 → autocomplete·topics·related·competition·recommend·sustainable·prompt). 출력은 파일로 리다이렉트한다. 네이버 키 기능(blogs·news·trend)은 모의 응답으로만 검증했다.
