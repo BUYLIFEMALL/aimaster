@@ -1,4 +1,4 @@
-# AI 패션스타일 자동화 (ai-fashion-style) — 분석 및 개발 플랜 (2026-10-13, 승인 대기)
+# AI 패션스타일 자동화 (fashion-style) — 분석 및 개발 플랜 (2026-10-13, 승인 대기)
 
 > 상태: **분석·플랜 단계. 코드 미착수.** 참고 원본: Google AI Studio 앱 "LookStudio AI (배포용)" (개발자 GPT PARK, 내부명 `nano-banana-virtual-try-on`).
 > 원본 소스 ZIP(주인님 승인 후 `D:\PDS\lookstudio-source`에 받아 전수 정독, 실행하지 않음, 약 102KB·22개 파일). 코드는 복제하지 않고 흐름·로직·프롬프트 구조만 참고한다.
@@ -54,7 +54,7 @@
 
 | 항목 | 결정 | 이유 |
 |---|---|---|
-| 이름 / slug | **AI 패션스타일 자동화** / `ai-fashion-style` | 플랫폼 명명 관례, 원본 "GPT PARK" 브랜딩 미사용 |
+| 이름 / slug | **AI 패션스타일 자동화** / `fashion-style` | 플랫폼 명명 관례, 원본 "GPT PARK" 브랜딩 미사용 |
 | AI 호출 | **서버 API 경유 + 회원 본인 Gemini 키**(`user_api_keys`), 키 없으면 `needKey` 안내, 폴백 금지 | 최상위 규칙. 브라우저에 키 노출 제거 |
 | 접근 | 일반 이상 + 관리자 부여 사용기간(FREE 아님), 기본 3요금제 | UI Canvas와 동일(AI 기능). 운영 실비는 서버리스 중계뿐이라 프리미엄 후보 아님 |
 | 사진·결과 저장 | **서버에 저장하지 않음**. 옷장·최근 룩은 회원 브라우저 IndexedDB | 민감한 인물 사진·스토리지 운영비 회피 |
@@ -85,7 +85,7 @@
 - 비용 안내 UI: 작업별 예상 호출 수 표시(추천 ≈ 이미지 4~6회 등), 본인 키 사용량이라는 점 명시.
 
 ## 5. DB·등록
-- 서버 테이블 없음(개인 이미지는 서버 저장 금지). `programs` 등록: slug `ai-fashion-style`, 카테고리 이미지(또는 Tools), 최소 등급 일반, 배지 new, 기본 3요금제, `app_url=https://ai-fashion-style.buylife.xyz`, v1.01.
+- 서버 테이블 없음(개인 이미지는 서버 저장 금지). `programs` 등록: slug `fashion-style`, 카테고리 이미지(또는 Tools), 최소 등급 일반, 배지 new, 기본 3요금제, `app_url=https://fashion-style.buylife.xyz`, v1.01.
 - 썸네일: **`PLATFORM_PATTERNS.md §13` 템플릿 + `scripts/generate-program-thumbnail.mjs`**(한국인 실사 16:9, 스타일링·피팅 화면 암시).
 
 ## 6. 단계

@@ -1,4 +1,4 @@
-// ai-fashion-style Vercel 프로젝트에 AIMaster 공용 인증 환경변수 3개를 등록한다 (주인님 승인 2026-10-13).
+// fashion-style Vercel 프로젝트에 AIMaster 공용 인증 환경변수 3개를 등록한다 (주인님 승인 2026-10-13).
 // 값은 루트 .env.local에서 읽어 표준입력으로만 전달하며 출력·기록하지 않는다.
 import fs from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -16,7 +16,7 @@ for (const key of keys) {
   for (const target of ["production", "development"]) {
     try {
       execFileSync("vercel", ["env", "add", key, target, "--force", "--scope", "buylife"], {
-        cwd: "D:/Antigravity/AIMaster/ai-fashion-style", input: env[key], stdio: ["pipe", "ignore", "pipe"], shell: true,
+        cwd: "D:/Antigravity/AIMaster/fashion-style", input: env[key], stdio: ["pipe", "ignore", "pipe"], shell: true,
       });
       console.log(`등록 완료: ${key} (${target})`);
     } catch (e) { console.error(`실패: ${key} (${target}) — ${String(e.stderr || e.message).slice(0, 200)}`); }

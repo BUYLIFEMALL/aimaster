@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — 주소 통일: 폴더·slug·Vercel·도메인을 모두 **`fashion-style`**로 (AI 패션스타일 자동화 v1.03)
+
+- 주인님 요청: 헷갈리지 않게 `look-studio` 주소를 `fashion-style`로 바꾸고 Vercel과 일치시킴. 이름은 "AI 패션스타일 자동화" 유지.
+- 변경: 폴더 `ai-fashion-style/` → `fashion-style/`, slug `fashion-style`, Vercel 프로젝트 `fashion-style`, 공식 주소 **https://fashion-style.buylife.xyz**, DB `programs.slug/app_url/version(v1.03)`. 이 프로그램의 옛 도메인 `look-studio.buylife.xyz`·`ai-fashion-style.buylife.xyz`와 옛 자동 별칭 `look-studio-ashen.vercel.app`은 프로젝트에서 제거(OAuth 콜백을 쓰지 않는 신규 프로그램이라 예외 적용, 이제 404). `fashion-style.vercel.app`은 이미 다른 곳이 사용 중이라 못 씀(배포 URL은 `fashion-style-<해시>-buylife.vercel.app`).
+- 검수: tsc·테스트 12/12·빌드, 새 주소 접속 확인.
+
 ## 2026-10-13 Codex — AI 할 일·성과 관리 작업대기 · 다른 CLI 인수인계
 
 - 주인님 지시: 남은 작업은 대기 목록에 남기고 다른 CLI가 이어받을 인수인계 작성. 후속 개발·추가 배포 대기, 현재 v1.03 유지.
@@ -11,7 +17,7 @@
 ## 2026-10-13 Claude Code — 프로그램명 변경: AI 룩스튜디오 자동화 → **AI 패션스타일 자동화** (`ai-fashion-style` v1.02)
 
 - 주인님 요청: 프로그램명을 "AI 패션스타일 자동화"로, Vercel 이름·주소도 일치, 프로그램 내 용어 수정.
-- 변경: 폴더 `look-studio/` → `ai-fashion-style/`(git mv), slug·`APP_NAME`·화면 제목(KO "AI 패션스타일", EN "AI Fashion Style")·문서·테스트·IndexedDB 이름(`ai-fashion-style-<userId>`)·다운로드 파일명 정리. DB `programs` slug/name/short_desc/app_url/version(v1.02) 갱신. Vercel 프로젝트 `look-studio` → `ai-fashion-style` 이름 변경, 새 도메인 https://ai-fashion-style.buylife.xyz 연결(옛 `look-studio.buylife.xyz`는 삭제하지 않고 유지 — 도메인 정책). 썸네일 파일 경로는 그대로(DB URL 유지).
+- 변경: 폴더 `look-studio/` → `ai-fashion-style/`(git mv), slug·`APP_NAME`·화면 제목(KO "AI 패션스타일", EN "AI Fashion Style")·문서·테스트·IndexedDB 이름(`ai-fashion-style-<userId>`)·다운로드 파일명 정리. DB `programs` slug/name/short_desc/app_url/version(v1.02) 갱신. Vercel 프로젝트 `look-studio` → `ai-fashion-style` 이름 변경, 새 도메인 https://fashion-style.buylife.xyz 연결(옛 `look-studio.buylife.xyz`는 삭제하지 않고 유지 — 도메인 정책). 썸네일 파일 경로는 그대로(DB URL 유지).
 - 검수: tsc·테스트 12/12·보이는 Chrome 15/15 통과, 새 주소 로그인 리다이렉트 확인. 옛 내용(look-studio)이 남은 곳은 과거 기록이므로 참고만.
 
 ## 2026-10-13 Antigravity — AI 할 일·성과 관리 v1.03 UI/UX 가독성 및 디자인 개선 배포
