@@ -11,6 +11,8 @@
 - Vercel `buylife/markdown-studio` 생성·연결 완료. 환경변수 등록, DB 쓰기/스키마 변경, 카탈로그·도메인·썸네일·운영 배포는 하지 않았습니다. 표시명·FREE 정책도 출시 전 확정해야 합니다.
 - `vercel link`가 자동 생성한 로컬 OIDC 전용 `.env.local`은 삭제했습니다. 토큰을 출력하거나 Git에 넣지 않았습니다. `.vercel/`, 환경변수, 시험 아티팩트는 Git 제외입니다.
 
+- **2026-10-13 운영 연결 완료**: 인증 환경변수 3개 등록(승인), Vercel 프로덕션 배포, 도메인 `https://markdown-studio.buylife.xyz`, 프로그램 등록(마크다운 문서 자동화·FREE+new·v1.01). 관리자 계정 운영 검수 통과, **일반 회원 로그인 검수 미실행**. 상세: [docs/PROVISIONING_PLAN.md](docs/PROVISIONING_PLAN.md).
+
 ## 읽는 순서
 
 1. 루트 `AGENTS.md`·`CLAUDE.md`, `docs/HANDOFF.md`.

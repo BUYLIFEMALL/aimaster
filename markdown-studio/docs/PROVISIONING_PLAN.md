@@ -26,3 +26,11 @@
 4. 프로덕션 배포 후 HTTP·캐시·쿠키·실제 화면 확인. 새 도메인은 `markdown-studio.buylife.xyz` 후보이며 충돌 확인 후 연결합니다. Vercel 원래 주소도 유지합니다.
 
 이번 턴의 완료 범위는 **코드·로컬 검수·인수인계·커밋·푸시**입니다. 운영 환경변수 등록·실제 회원 검수·운영 배포는 이 별도 승인 규칙 때문에 대기합니다.
+
+## 실행 결과 (2026-10-13, 주인님 승인 후 Claude Code)
+
+- 주인님이 `buylifemall@gmail.com`에 등록된 기존 값 사용을 승인. 루트 `.env.local`의 값을 `scripts/add-markdown-studio-vercel-env.mjs`로 표준입력 전달해 **Production·Development 각 3개(총 6건) 등록** — 비밀 값은 출력·기록하지 않음. `NEXT_PUBLIC_MAIN_SITE_URL`은 코드 기본값이 있어 등록하지 않음. Preview 미등록.
+- 프로젝트에 프레임워크 설정이 없어 첫 배포가 `public` 출력 폴더 오류로 실패 → `vercel.json {"framework":"nextjs"}` 추가 후 재배포 성공(기존 ERROR_LESSONS 항목 동일).
+- 프로덕션 배포 `markdown-studio-lwfc7et96-buylife.vercel.app`, 도메인 `https://markdown-studio.buylife.xyz` 연결(응답 확인: `/`→307 대시보드→로그인 흐름, `/login` 200, `/api/session` 401 + `no-store`).
+- `programs` 등록(`supabase/migrations/0001_register_program.sql`, 적용 완료): 표시명 **마크다운 문서 자동화**, 카테고리 Tools, 최소 등급 일반, **FREE+new**, v1.01, `app_url` 새 주소, 요금제 3개, VIP 등급 표 1건. 설명에는 현재 제공 범위(편집·보관·.md 저장)와 미제공 기능(변환·가져오기·Drive)을 명시. 표시명·FREE는 제안값이며 주인님이 바꾸면 관리자 화면에서 수정.
+- 관리자 계정으로 운영 화면 검수: SSO 쿠키 인식, 문서 만들기, 실제 키보드 한글 입력, Ctrl+B 굵게, 미리보기 반영 확인. **일반 회원(`buylifemall@naver.com`) 로그인 검수는 비밀번호 입력이 필요해 미실행.**

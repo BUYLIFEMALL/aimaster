@@ -1,4 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-13 Claude Code — Markdown Studio 운영 연결·배포 (v1.01, 마크다운 문서 자동화)
+
+- 주인님 승인(기존 buylifemall@gmail.com 값 사용)으로 `markdown-studio` Vercel 프로젝트에 인증 환경변수 3개를 Production·Development 등록, `vercel.json`(framework nextjs) 추가 후 프로덕션 배포, 도메인 https://markdown-studio.buylife.xyz 연결, `programs` 등록(Tools·FREE+new·요금제 3개·VIP 등급 표). [실행 결과](../markdown-studio/docs/PROVISIONING_PLAN.md), SQL: `markdown-studio/supabase/migrations/0001_register_program.sql`, 스크립트 `scripts/add-markdown-studio-vercel-env.mjs`.
+- 관리자 계정 운영 화면 검수 통과(SSO·문서 생성·한글 입력·Ctrl+B·미리보기). **일반 회원(naver) 로그인 검수·카탈로그 썸네일·매뉴얼 등록은 미실행.** 3단계(가져오기·백업·변환)가 다음. 카탈로그에 FREE+new로 노출 중이므로 3단계 전까지 설명에 미제공 기능을 명시함.
 
 ## 2026-10-13 Claude Code — Markdown Studio 2단계 고급 편집기 구현·로컬 검수 (v1.01 후보 유지)
 

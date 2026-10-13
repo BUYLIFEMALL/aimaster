@@ -22,7 +22,7 @@
 
 위 커밋 번호는 인수인계 시점의 기준이며 다른 CLI 커밋으로 HEAD는 바뀔 수 있습니다. 재개할 때 최신 상태를 확인하고 기존 변경을 되돌리지 않습니다.
 
-> **업데이트 2026-10-13 (Claude Code)**: 7번 표의 **2단계는 완료**되었습니다([구현·검수 기록](PHASE2_IMPLEMENTATION.md), [플랜](PHASE2_PLAN.md)). 다음은 3단계입니다. 환경변수 승인 대기·미배포 상태는 그대로입니다.
+> **업데이트 2026-10-13 (Claude Code)**: 7번 표의 **2단계는 완료**되었습니다([구현·검수 기록](PHASE2_IMPLEMENTATION.md), [플랜](PHASE2_PLAN.md)). 다음은 3단계입니다. **환경변수 승인·등록, 운영 배포, 도메인(markdown-studio.buylife.xyz), `programs` 등록(FREE+new, v1.01)은 완료**되었습니다([PROVISIONING_PLAN 실행 결과](PROVISIONING_PLAN.md)). 일반 회원 로그인 검수만 남았습니다.
 
 ## 2. 먼저 읽을 문서
 
