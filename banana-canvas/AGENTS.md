@@ -11,7 +11,7 @@
 - `src/lib/files.ts`(서버): Storage(비공개 `banana-canvas-files`) 읽기/쓰기/삭제/서명, `sharp` 처리(`isBackgroundEmpty`, `chromaKey`, `upscale`, `normalizeOutput`).
 - `src/lib/runner.ts`(서버): `runTask` — 단일 이미지 / 스토리(텍스트 모델이 8컷 기획 → 이전 컷을 참고해 순차 생성, 예산 230초) / 레시피(단계 기획 → 3병렬 생성). 결과는 항상 Storage 저장 후 목록 반환.
 - API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST/DELETE /api/upload`(서명 URL·임시 삭제), `POST /api/suggest`, `POST /api/run`(`maxDuration 300`), `GET /api/history`, `GET/PATCH/DELETE /api/history/[id]`, `/api/keys`.
-- 화면: `/open`→`/studio`(`components/studio/Studio.tsx`, `MaskEditor.tsx`), `/history`, `/settings`, `/guide`.
+- 화면: `/open`→`/studio`(`components/studio/Studio.tsx` — **탭 없는 한 화면 대시보드**: 1열 원본·생성·빠른 작업·스토리/레시피, 2열 편집·합성·인생 앨범·만화, 3열 결과(화면 고정, 1380px 이하는 결과가 위로), `MaskEditor.tsx`), `/history`, `/settings`, `/guide`.
 - DB: `banana_canvas_results`(RLS owner-only, 서버는 service role + `user_id` 필터, 최대 30건·즐겨찾기 보존). Storage 비공개 `banana-canvas-files`(정책 없음): `<uid>/in/`(입력·마스크, 1시간 후 정리) / `<uid>/out/`(결과).
 
 ## 지킬 것

@@ -77,12 +77,16 @@ await page.route("**/api/**", async (route) => {
 
 const results = [];
 const pass = (n) => { results.push(n); console.log("PASS", n); };
+const card = (title) => page.locator(".bc-card", { has: page.getByRole("heading", { name: title }) });
 const lastRun = () => calls.filter((c) => c.path === "/api/run").pop().body.params;
 try {
   await page.goto(origin);
   await page.getByText("클릭하거나 이미지를 끌어다 놓으세요").waitFor();
-  assert.equal(await page.getByRole("tab").count(), 5);
-  pass("초기 화면: 업로드 영역·작업 탭 5개");
+  for (const t of ["이미지 생성", "빠른 작업", "연속 스토리 · 이미지 레시피", "이미지 편집", "이미지 합성", "인생 앨범 제작", "만화 패널", "결과"]) {
+    await page.getByRole("heading", { name: t }).waitFor();
+  }
+  assert.equal(await page.locator(".bc-card.locked").count(), 5);
+  pass("초기 화면: 모든 기능 카드가 한 화면에 표시(원본 필요 카드 5개 잠김 표시)");
 
   await page.getByPlaceholder("예: 우주를 나는 고양이").fill("우주를 나는 고양이");
   await page.getByRole("button", { name: "이미지 생성", exact: true }).click();
@@ -112,11 +116,10 @@ try {
   assert.ok(calls.some((c) => c.path === "/api/upload" && c.method === "POST" && c.body.name === "photo.jpg"));
   pass("원본 이미지 업로드·미리보기");
 
-  await page.getByRole("tab", { name: "편집" }).click();
   await page.getByRole("button", { name: "복원", exact: true }).click();
   await page.getByRole("button", { name: "업스케일", exact: true }).click();
   await page.getByRole("button", { name: "4x", exact: true }).click();
-  await page.locator("select").nth(1).selectOption({ label: "유화" });
+  await page.getByLabel("스타일 변환").selectOption({ label: "유화" });
   await page.getByRole("button", { name: "편집 실행" }).click();
   await page.locator(".bc-out img").first().waitFor();
   const e = lastRun();
@@ -127,12 +130,10 @@ try {
   assert.ok(e.base.includes("/in/"));
   pass("편집: 처리·스타일·업스케일 4x 전달");
 
-  await page.getByRole("button", { name: "프롬프트 제안" }).first().click();
+  await card("이미지 편집").getByRole("button", { name: "프롬프트 제안" }).click();
   await page.waitForFunction(() => [...document.querySelectorAll("textarea")].some((t) => t.value.includes("제안된 문장(edit)")));
   pass("편집 프롬프트 제안 반영");
 
-  await page.getByRole("tab", { name: "합성" }).click();
-  await page.getByRole("button", { name: /소스 추가/ }).click({ trial: true });
   await page.locator("input[type=file]").nth(1).setInputFiles({ name: "src.png", mimeType: "image/png", buffer: jpg });
   await page.locator(".bc-src img").waitFor();
   await page.getByPlaceholder(/원본 인물에게 소스 갑옷/).fill("갑옷을 입혀주세요");
@@ -145,7 +146,6 @@ try {
   assert.equal(s.prompt, "갑옷을 입혀주세요");
   pass("합성: 소스 추가·실행");
 
-  await page.getByRole("tab", { name: "빠른 작업" }).click();
   await page.getByRole("button", { name: /배경 제거/ }).click();
   await page.waitForFunction(() => document.querySelectorAll(".bc-out img").length === 1);
   assert.equal(lastRun().kind, "bgremove");
@@ -172,14 +172,13 @@ try {
   assert.ok(calls.some((c) => c.path === "/api/upload" && c.body.name === "mask.png"));
   pass("부분 삭제: 브러시 마스크 업로드·실행");
 
-  await page.getByRole("tab", { name: "스페셜" }).click();
   await page.getByPlaceholder(/숲길을 따라 걷다/).fill("여행자 이야기");
-  await page.getByRole("button", { name: /스토리 생성/ }).click();
+  await page.getByRole("button", { name: /스토리 8컷 생성/ }).click();
   await page.waitForFunction(() => document.querySelectorAll(".bc-outs.multi .bc-out").length === 3);
   assert.equal(lastRun().kind, "story");
   pass("스페셜: 연속 스토리(다중 결과)");
 
-  await page.getByPlaceholder("예: 마카롱 굽는 법").fill("알리오올리오");
+  await page.getByPlaceholder(/마카롱 굽는 법/).fill("알리오올리오");
   await page.getByRole("button", { name: /레시피 생성/ }).click();
   await page.getByText("1단계는 이미지를 만들지 못해 설명만 표시합니다.").waitFor();
   await page.getByText("2단계: 볶기").waitFor();
@@ -188,7 +187,7 @@ try {
   await page.getByRole("button", { name: "만화 패널 생성" }).click();
   await page.waitForFunction(() => document.querySelectorAll(".bc-out img").length === 1);
   assert.equal(lastRun().kind, "comic");
-  await page.getByPlaceholder("예: 25").fill("30");
+  await page.getByPlaceholder(/현재 나이/).fill("30");
   await page.getByRole("button", { name: "앨범 제작 실행" }).click();
   await page.waitForFunction(() => document.querySelectorAll(".bc-out img").length === 1);
   assert.equal(lastRun().kind, "lifealbum");
@@ -200,8 +199,9 @@ try {
   pass("다운로드 파일명");
 
   await page.getByRole("button", { name: /이 결과로 계속 편집/ }).first().click();
-  await page.getByRole("tab", { name: "편집", selected: true }).waitFor();
-  pass("이 결과로 계속 편집 → 새 원본·편집 탭");
+  await page.getByText("결과가 여기에 표시됩니다").waitFor();
+  assert.ok(await page.locator(".bc-base img").count() === 1);
+  pass("이 결과로 계속 편집 → 새 원본으로 교체·결과 패널 초기화");
 
   await page.screenshot({ path: path.join(artifacts, "studio.png"), fullPage: true });
   assert.equal(errors.length, 0, errors.join("\n"));

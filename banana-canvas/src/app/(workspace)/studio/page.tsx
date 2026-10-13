@@ -11,8 +11,8 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
     <>
       <div className="page-heading">
         <p className="eyebrow">Nano Banana</p>
-        <h1>이미지 만들기 · 편집 · 합성</h1>
-        <p>사진 한 장으로 복원·스타일 변환·합성·배경 제거·증명사진·인생 앨범까지. 결과는 자동으로 기록에 저장됩니다.</p>
+        <h1>Banana Canvas — 한 화면 이미지 작업실</h1>
+        <p>원본을 올리고 원하는 카드의 버튼만 누르세요. 결과는 오른쪽에 바로 나타나고 자동으로 기록에 저장됩니다.</p>
       </div>
       <Studio fromId={isUuid(from) ? from : undefined} fromIndex={Number.isInteger(idx) && idx >= 0 ? idx : 0} />
     </>

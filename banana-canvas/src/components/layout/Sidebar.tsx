@@ -32,8 +32,8 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
         <a className="flow-item" aria-current={currentPath === "/studio" ? "page" : undefined} href="/studio#source">
           <span className="step-number">1</span><div><strong>원본 이미지</strong><small>업로드 · 이미지 없이 만들기</small></div>
         </a>
-        <a className="flow-item" href="/studio#tools">
-          <span className="step-number">2</span><div><strong>작업 선택</strong><small>만들기 · 편집 · 합성 · 빠른 작업</small></div>
+        <a className="flow-item" href="/studio#source">
+          <span className="step-number">2</span><div><strong>작업 카드 실행</strong><small>생성 · 편집 · 합성 · 빠른 작업</small></div>
         </a>
         <a className="flow-item" href="/studio#result">
           <span className="step-number">3</span><div><strong>결과</strong><small>다운로드 · 계속 편집</small></div>

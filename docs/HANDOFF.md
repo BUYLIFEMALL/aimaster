@@ -8,6 +8,12 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — AI 바나나 캔버스 자동화 v1.02: 한 화면 대시보드로 재구성
+
+- 주인님 요청: 원본 Banana Canvas처럼 인터페이스를 한눈에 보이게, 직관적으로.
+- 변경: 탭 제거 → 1열(원본·생성·빠른 작업·스토리/레시피) / 2열(편집·합성·인생 앨범·만화) / 3열(결과, 화면 고정) 한 화면 배치. 카드마다 아이콘·한 줄 설명·"원본 이미지 필요" 배지, 원본 없으면 잠김 표시. 작업 로직·API 변경 없음. 버전 v1.01→v1.02(코드·DB).
+- 검수: Chrome 하네스 17/17, 빌드, 운영 화면 확인. 상세: [banana-canvas/docs/CLI_HANDOFF.md](../banana-canvas/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — 신규 프로그램: AI 바나나 캔버스 자동화 (`banana-canvas` v1.01)
 
 - 주인님 요청: AI Studio 앱 "Banana Canvas"(`aistudio.google.com/apps/8a6f8974-…`) 개발 여부 확인 → 소스 전체 분석·플랜(2dc3c6de) → "진행해줘"로 구현·배포.
