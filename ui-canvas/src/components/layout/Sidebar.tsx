@@ -33,7 +33,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
         <a className="flow-item" href="/dashboard">
           <span className="step-number">1</span><div><strong>프로젝트 만들기</strong><small>새 디자인 · 불러오기</small></div>
         </a>
-        <a className="flow-item" aria-current={currentPath.startsWith("/editor") ? "page" : undefined} href="/dashboard">
+        <a className="flow-item" aria-current={currentPath.startsWith("/editor") ? "page" : undefined} href="/open">
           <span className="step-number">2</span><div><strong>캔버스 편집</strong><small>배치 · 속성 · 레이어 · AI</small></div>
         </a>
         <a className="flow-item" href="/dashboard">

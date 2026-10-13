@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — UI Canvas 자동화 v1.03: 접속하면 캔버스가 바로 열리도록 변경
+
+- 원본처럼 접속 즉시 편집 화면이 보이게 함: `/`·로그인 직후 → `/open`(최근 프로젝트 열기, 없으면 생성) → `/editor/[id]`. 목록은 `/dashboard`. 운영 확인: 루트 접속 시 캔버스 표시. DB `programs.version` v1.03.
+
 ## 2026-10-13 Claude Code — UI Canvas 자동화 v1.02: 남은 검수 진행·썸네일 등록
 
 - 운영 Chrome 검수: 1000개 컴포넌트(열기 2.6초·선택 41ms), PNG 1440x900·컴포넌트 JSON 1000개 저장 파일 확인, 키 없음(needKey) 안내 창 표시 확인. 카탈로그 썸네일 등록(본인 키로 1회 생성), 사이드바 중복 강조 정리. DB `programs.version`·`thumbnail_url` 갱신(SQL `ui-canvas/supabase/migrations/0002_v1_02_thumbnail.sql`).

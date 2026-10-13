@@ -9,7 +9,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | UI Canvas 자동화 / `ui-canvas` |
-| 현재 버전 | **v1.02** (`src/lib/version.ts` = DB `programs.version`) |
+| 현재 버전 | **v1.03** (`src/lib/version.ts` = DB `programs.version`) |
 | 주소 | https://ui-canvas.buylife.xyz (Vercel `buylife/ui-canvas`, 직접 `vercel deploy --prod`) |
 | 카테고리 / 접근 | Tools / 최소 등급 일반, FREE 아님(일반 이상 + 관리자 부여 사용기간), 기본 3요금제 |
 | 참고 원본 | AI Studio "GPT PARK의 UI 캔버스 Pro" (소스는 참고만, 코드 복제 없음) |
@@ -28,6 +28,8 @@
 - 접근 판정은 `src/lib/access.ts` + `programAccess.ts`(루트 `lib/access/checkProgramAccess.ts` 사본, 핸드폰 필수 포함). 권한 테이블 조회는 `createAdminClient()`.
 
 ## 동작 요약
+
+- 진입: 루트(`/`)·로그인 직후 `/open`이 가장 최근 프로젝트의 캔버스를 바로 연다(없으면 새로 만든다). 프로젝트 목록은 `/dashboard`, 에디터 왼쪽 위 [목록]에서 연다(v1.03).
 
 - 새 프로젝트 → `/editor/[id]`. 변경 1.5초 뒤 자동 저장, 실패 시 8초마다 재시도, 다른 창에서 먼저 저장하면 충돌 표시.
 - 편집: 도구 선택 후 드래그 생성, Shift/마퀴 다중 선택, 방향키 이동, 우측 속성(X/Y 직접 입력 가능), 그룹(상대좌표), 컨테이너 잠금, Ctrl+Z/Shift+Z/D/G.
