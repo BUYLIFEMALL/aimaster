@@ -30,7 +30,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
       <nav className="sidebar-nav" aria-label="프로그램 메뉴">
         <a className="nav-item" aria-current={currentPath === "/dashboard" ? "page" : undefined} href="/dashboard"><LayoutDashboard size={17} />내 프로젝트</a>
         <p className="nav-caption">작업 흐름</p>
-        <a className="flow-item" aria-current={currentPath === "/dashboard" ? "page" : undefined} href="/dashboard">
+        <a className="flow-item" href="/dashboard">
           <span className="step-number">1</span><div><strong>프로젝트 만들기</strong><small>새 디자인 · 불러오기</small></div>
         </a>
         <a className="flow-item" aria-current={currentPath.startsWith("/editor") ? "page" : undefined} href="/dashboard">
