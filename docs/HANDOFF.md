@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — 사업자 주소 변경 반영 완료
+
+- **요청 사항**: 사이트 하단 및 사용처의 사업자 주소를 "경기도 고양시 일산동구 호수로 336 (브라운스톤) 103동 747호"로 변경.
+- **수정 내역**:
+  1. `components/layout/Footer.tsx`: 기존 `주소: 경기도 고양시 일산동구 장항로 203-21 바동`을 `주소: 경기도 고양시 일산동구 호수로 336 (브라운스톤) 103동 747호`로 갱신 완료.
+  2. 코드베이스 전수 검색(`git grep`) 결과 푸터 외 다른 하드코딩된 주소 사용처 없음을 확인.
+- **검수 및 배포**: `npm run build` 통과 후 Vercel 프로덕션 배포 완료.
+
 ## 2026-10-13 Claude Code — UI Canvas 자동화(`ui-canvas`) v1.01 신규 개발·운영 배포
 
 - 요청: AI Studio "GPT PARK의 UI 캔버스 Pro" 분석 → 개발 계획 승인(주인님 "진행해줘") → 구현. 계획: [DEVELOPMENT_PLAN](../ui-canvas/docs/DEVELOPMENT_PLAN.md), 인수인계: [AGENTS](../ui-canvas/AGENTS.md).
@@ -26,14 +34,14 @@
 - [원본 분석](../ai-task-planner/docs/REFERENCE_ANALYSIS.md), [개발 계획](../ai-task-planner/docs/DEVELOPMENT_PLAN.md), [33개 관측](../ai-task-planner/docs/evidence/browser-results.json), [인수인계](../ai-task-planner/AGENTS.md). 다음 구현 순서: 공통 틀/모델 → 회원별 실제 저장 → 정확한 타이머 → 성과/본인 Gemini → 백업/출시. DB·환경변수는 설계만 작성했으며 실제 적용은 특수 작업 승인 범위입니다.
 - 시작 시 로컬 HEAD/기존 origin/master는 ac332a89·비교0/0. `.git/FETCH_HEAD` 쓰기·GitHub 접속 제한으로 실제 원격 최신 확인은 못 했습니다. 최종 문서 링크·증거 JSON·공백 검사 정상, 지정 경로 git add는 `.git/index.lock: Permission denied`로 차단되어 커밋/푸시 미완료입니다. 분석·계획은 로컬 파일에 보존됐습니다.
 
-
-## 2026-10-13 Claude Code — 접근 권한 관리: 카테고리별 묶음(프로그램 관리와 연동)·전체 선택 체크박스 통일·안내문 줄바꿈
-
-- 프로그램 관리와 같은 카테고리/정렬 규칙으로 표를 카테고리 구역별로 묶고(미분류 맨 아래, 프로그램 관리에서 카테고리를 바꾸면 이 표도 바뀜), 등급 머리글 전체 선택을 ✓ 체크박스 모양으로 통일, 카테고리 행에서 카테고리 단위 선택 가능, 상단 안내문 두 줄로 줄바꿈. 임시 미리보기(7개 프로그램·섞인 카테고리 순서)로 정렬·✓ 전환·카테고리 토글·API 호출 내용·모바일 넘침 없음 확인(미리보기 삭제). 상세는 [ADMIN_POLICY_GUIDELINES](ADMIN_POLICY_GUIDELINES.md) 마지막 절.
-
-## 2026-10-13 Claude Code — Markdown Studio v1.07: 실제 Drive 가져오기 통과 + 가져온 파일이 새 폴더로 옮겨지던 결함 수정
-
-- 실제 Drive에서 새 파일 가져오기 성공. 가져온 문서를 올릴 때 Drive 파일이 `Drive에서 가져옴 …` 하위 폴더로 이동되던 결함을 발견해 정리 폴더를 전용 폴더와 연결하도록 수정(v1.07, `pullEntries(…, rootId)`, SQL `0008_v1_07_pull_keeps_location.sql`). 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·충돌·사본/교체 가져오기.
+
+## 2026-10-13 Claude Code — 접근 권한 관리: 카테고리별 묶음(프로그램 관리와 연동)·전체 선택 체크박스 통일·안내문 줄바꿈
+
+- 프로그램 관리와 같은 카테고리/정렬 규칙으로 표를 카테고리 구역별로 묶고(미분류 맨 아래, 프로그램 관리에서 카테고리를 바꾸면 이 표도 바뀜), 등급 머리글 전체 선택을 ✓ 체크박스 모양으로 통일, 카테고리 행에서 카테고리 단위 선택 가능, 상단 안내문 두 줄로 줄바꿈. 임시 미리보기(7개 프로그램·섞인 카테고리 순서)로 정렬·✓ 전환·카테고리 토글·API 호출 내용·모바일 넘침 없음 확인(미리보기 삭제). 상세는 [ADMIN_POLICY_GUIDELINES](ADMIN_POLICY_GUIDELINES.md) 마지막 절.
+
+## 2026-10-13 Claude Code — Markdown Studio v1.07: 실제 Drive 가져오기 통과 + 가져온 파일이 새 폴더로 옮겨지던 결함 수정
+
+- 실제 Drive에서 새 파일 가져오기 성공. 가져온 문서를 올릴 때 Drive 파일이 `Drive에서 가져옴 …` 하위 폴더로 이동되던 결함을 발견해 정리 폴더를 전용 폴더와 연결하도록 수정(v1.07, `pullEntries(…, rootId)`, SQL `0008_v1_07_pull_keeps_location.sql`). 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·충돌·사본/교체 가져오기.
 
 ## 2026-10-13 Antigravity — AI 웹 UI 제작 자동화 (ai-web-ui v1.03) 썸네일·슬러그 및 카탈로그 등록 완료
 
@@ -55,10 +63,10 @@
 - **검수 및 운영 현황**: 로컬 프로덕션 빌드 `npm run build` 100% 정상 통과 (Exit code 0), Vercel 프로덕션 배포 및 라이브 검증 완료.
 
 
-
-## 2026-10-13 Claude Code — 관리자 접근 권한 관리 표 세로 배치 (등급 위·프로그램 왼쪽 세로 목록)
-
-- 요청: 프로그램이 많아져 가로 스크롤이 길어서 불편 → 상단에 일반|실버|골드(드림팀)|VIP(드림AI팀), 왼쪽에 프로그램 세로 열. `components/admin/AccessMatrixManager.tsx`만 수정(동작·API 불변), 머리글 고정·등급별 전체 선택/개수 유지. 임시 미리보기(61개 프로그램 가짜 데이터)로 데스크톱 1500px 가로 스크롤 없음·390px 페이지 넘침 없음 확인(미리보기 파일은 삭제). 자세한 내용은 [ADMIN_POLICY_GUIDELINES](ADMIN_POLICY_GUIDELINES.md) 마지막 절.
+
+## 2026-10-13 Claude Code — 관리자 접근 권한 관리 표 세로 배치 (등급 위·프로그램 왼쪽 세로 목록)
+
+- 요청: 프로그램이 많아져 가로 스크롤이 길어서 불편 → 상단에 일반|실버|골드(드림팀)|VIP(드림AI팀), 왼쪽에 프로그램 세로 열. `components/admin/AccessMatrixManager.tsx`만 수정(동작·API 불변), 머리글 고정·등급별 전체 선택/개수 유지. 임시 미리보기(61개 프로그램 가짜 데이터)로 데스크톱 1500px 가로 스크롤 없음·390px 페이지 넘침 없음 확인(미리보기 파일은 삭제). 자세한 내용은 [ADMIN_POLICY_GUIDELINES](ADMIN_POLICY_GUIDELINES.md) 마지막 절.
 
 ## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.05) 인수인계 완료 및 프로덕션 운영 현황
 
@@ -75,52 +83,52 @@
   5. **도움말 모달 정돈 완료 (v1.05)**: 원본 레퍼런스 유입 외부 개발자/출처 표기(`Majin`, `Kimura Yoshiki`, `GPT PARK`) 전면 삭제 및 순수 기능 안내로 정돈 완료.
 - **검수 및 운영 현황**: `npm run build` 100% 정상 통과, Vercel 프로덕션 배포 완료 (`https://ai-slide-builder.buylife.xyz`), 라이브 사이트 검증 완료.
 
-
-## 2026-10-13 Claude Code — Markdown Studio 실제 Google Drive 올리기·목록·갱신 검증 통과 (충돌·가져오기는 Drive 쪽 수정 후 확인 대기)
-
-- 운영 v1.06, 주인님 계정으로 실제 Drive에 올리기(새로 올림)·목록 조회·이름 변경 후 갱신(복제 없음) 성공. 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·사본/교체 가져오기·충돌·401. 테스트 파일은 사용자 Drive의 `마크다운 문서 자동화/회원 검수(Drive 시험).md`(삭제하지 않음).
-
-## 2026-10-13 Claude Code — Markdown Studio v1.06: Drive 연결 유지 안내 정정 (실제 업로드 확인 대기)
-
-- 화면 이동·새로고침 시 Drive 연결이 풀리는 것이 정상(토큰 메모리 전용, 사이드바는 전체 새로고침 이동). 이전 "메뉴 이동해도 유지" 안내를 매뉴얼 9단계·설정 화면에서 정정, 연결은 `4. 문서 보관함` Drive 카드에서. v1.06 배포·DB 갱신, SQL `0007_v1_06_drive_connect_note.sql`.
-- 실제 Drive 업로드/가져오기는 보관함에서 사용자가 Google 창(계정 선택)을 직접 처리해 연결한 뒤 확인해야 함 — 미확인.
-
-## 2026-10-13 Claude Code — Markdown Studio v1.05: 실제 Google 연결 성공(올리기 미확인) + Drive 연동 매뉴얼 초보자용 보강
-
-- 주인님 계정에서 실제 Google OAuth 연결 성공(`연결됨: buylifemall@gmail.com`, 실제 Drive `about` 응답). 원인은 클라이언트의 **승인된 JavaScript 원본** 누락이었음. **실제 업로드/가져오기는 아직 미확인**(토큰이 사용자 탭 메모리에만 있음) — [확인 방법](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
-- 매뉴얼: `markdown-studio/docs/guide-drive-oauth.html`(원문) → `scripts/publish-drive-guide.mjs`로 platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e` 게시. 설정 화면 체크리스트·오류 요약 추가. v1.05 배포·DB 갱신, SQL `markdown-studio/supabase/migrations/0006_v1_05_drive_guide.sql`.
-
-## 2026-10-13 Claude Code — Markdown Studio v1.04: Google Drive는 회원 각자 본인 앱 등록 확정 + 전용 매뉴얼
-
-- **주인님 결정**: AIMaster 기본 정책대로 회원이 각자 본인 Google Cloud OAuth 클라이언트를 등록한다. 운영자 공용 앱은 쓰지 않는다(다른 CLI도 제안·구현 금지). 기록: [PHASE4_IMPLEMENTATION 결정 기록](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
-- 전용 매뉴얼 `Google Drive 연동용 OAuth 클라이언트 만들기`(platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e`, 웹 애플리케이션·JavaScript 원본·Secret 불필요)를 등록해 설정 화면 버튼을 교체(기존 `523e7401-…`는 서버 OAuth용이라 방식이 달라 연결 해제). v1.04 배포·DB 갱신. SQL `markdown-studio/supabase/migrations/0005_v1_04_per_member_google_app.sql`.
-- 주인님 테스트 계정: 프로젝트 `dreamai-461811`의 **웹 애플리케이션** 클라이언트에 승인된 JavaScript 원본 `https://markdown-studio.buylife.xyz` 추가 후 연결 시험 대기. 실제 Google 검수는 여전히 미완.
-
-## 2026-10-13 Claude Code — Markdown Studio 실제 Google 연결 시도(미완, 원인 확인 대기)
-
-- 관리자 계정의 `google_client_id`를 운영 설정 화면에 저장하고 연결 시도 → Google 창이 곧바로 닫힘. 다음: 사용자가 직접 `Google에 연결`을 눌러 Google 오류 문구 확인(승인된 JavaScript 원본에 `https://markdown-studio.buylife.xyz` 추가·Drive API 사용 설정·테스트 사용자 확인) 후 실제 업로드/가져오기 검수. 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
-
-## 2026-10-13 Claude Code — Markdown Studio 운영 PDF·Word 다운로드 검증 (앱 변경 없음)
-
-- 사용자 허락 후 운영 `markdown-studio.buylife.xyz/export`에서 일반 회원 계정으로 PDF·DOCX를 실제로 내려받아(`D:\PDS\회원 검수.pdf/.docx`) 검사: PDF 한글 글꼴 임베드·글자 추출·육안 확인, DOCX XML·구조 확인, **Microsoft Word(Office 2024)에서 열어 표시 확인**(표·알파벳 목록·링크 포함 시험 파일도). 기록: [PHASE5_RELEASE](../markdown-studio/docs/PHASE5_RELEASE.md).
-- 남은 미확인: 실제 Google 계정 Drive 검수(본인 Client ID 필요), Google Docs·한컴 등 다른 앱의 DOCX 표시, 등급 없는 가입자·핸드폰 미등록 운영 시험, 대용량 성능.
-
-## 2026-10-13 Claude Code — Markdown Studio 5단계 출시 정리 (카탈로그 썸네일, v1.03 유지)
-
-- 카탈로그 썸네일(한국인 인물·분할 편집 화면, 운영자 본인 Gemini 키 1회) 등록, 카탈로그 상세·`지금 바로 이용하기`→앱 이동을 일반 회원 계정 Chrome으로 확인. 앱 코드·버전 변경 없음. [기록](../markdown-studio/docs/PHASE5_RELEASE.md), SQL `markdown-studio/supabase/migrations/0004_catalog_thumbnail.sql`.
-- **남은 일**: ① 실제 Google 계정 Drive 검수(회원 본인 Client ID 필요) ② 운영 실제 PDF/DOCX 다운로드(허락 후) ③ Word/Google Docs에서 DOCX 표시 ④ 등급 없는 가입자·핸드폰 미등록 차단 운영 시험 ⑤ 대용량 성능. 1~5단계 구현은 모두 완료.
-
-## 2026-10-13 Claude Code — Markdown Studio 4단계 본인 Google Drive 연동 (v1.03, 운영 배포 · 실제 Google 미검증)
-
-- 회원 본인 Google Cloud 앱(Client ID, Secret 없음)·본인 계정, 범위 drive.file, 접근 토큰은 메모리에만. Drive 올리기(ID 연결·전용 폴더 `마크다운 문서 자동화`·충돌 시 덮어쓰지 않음·루트 폴백 금지·이름/이동 반영)와 가져오기(목록·사본/교체·이력 보존), 401/403/429/5xx/네트워크 처리, 계정별 연결 기록 분리, 설정 화면(Client ID·연동 매뉴얼 팝업)·보관함 Drive 카드. 서버·DB·환경변수 변경 없음.
-- 검수는 **모의 Google(로그인 스텁+모의 Drive 서버)**: 단위 56/56, 화면 11+13+10+11, 런타임 9/9, 취약점 0. 운영 v1.03 배포·DB 갱신, 일반 회원 계정으로 `/settings` 표시 확인. **실제 Google OAuth·Drive 업로드/갱신/가져오기는 미검증** — [기록·실제 검수 절차](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0003_v1_03_google_drive.sql`.
-- 시험 중 Drive 오류가 전역 저장 오류 상태·자동 저장을 멈추는 결함을 발견해 `runQuiet`로 분리(ERROR_LESSONS 기록). 다음: 주인님이 본인 Google Cloud Client ID로 실제 검수, 5단계 썸네일·매뉴얼(platform_guides는 기존 `Google OAuth 클라이언트 만들기` 재사용) 등록.
-
-## 2026-10-13 Claude Code — Markdown Studio 3단계 가져오기·백업·변환 내보내기 (v1.02, 운영 배포)
-
-- 파일·폴더 가져오기(.md/.markdown/.txt, EUC-KR 판별), 백업(JSON)·새 폴더 복원(원자적·검증), HTML·PDF(pdfmake+Noto Sans KR 텍스트 PDF)·Word(docx 표준 OOXML)·ZIP 내보내기(합치기/문서별, 폴더 구조, 부분 실패 보고). 공용 변환 모듈 `markdown-studio/src/lib/export/`. 글꼴은 `scripts/copy-fonts.mjs`가 빌드 때 복사(Git 제외).
-- 검수: 단위 45/45, 화면 11+13+10, 런타임 9/9, 취약점 0. 실제 Next 번들에서 PDF·DOCX·ZIP 생성 확인, PDF 육안 확인. 운영 v1.02 배포·DB `programs.version`/설명 갱신 완료. [기록](../markdown-studio/docs/PHASE3_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0002_v1_02_import_export.sql`.
-- **미확인**: 운영 사이트에서 실제 PDF/DOCX 파일 다운로드(허락 전), Word·Google Docs에서의 DOCX 표시, 대용량 성능. 다음: 4단계 본인 Google Drive(본인 OAuth 앱), 5단계 썸네일·매뉴얼 등록. ERROR_LESSONS에 PDF 글리프·mammoth 취약점 등 기록.
+
+## 2026-10-13 Claude Code — Markdown Studio 실제 Google Drive 올리기·목록·갱신 검증 통과 (충돌·가져오기는 Drive 쪽 수정 후 확인 대기)
+
+- 운영 v1.06, 주인님 계정으로 실제 Drive에 올리기(새로 올림)·목록 조회·이름 변경 후 갱신(복제 없음) 성공. 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·사본/교체 가져오기·충돌·401. 테스트 파일은 사용자 Drive의 `마크다운 문서 자동화/회원 검수(Drive 시험).md`(삭제하지 않음).
+
+## 2026-10-13 Claude Code — Markdown Studio v1.06: Drive 연결 유지 안내 정정 (실제 업로드 확인 대기)
+
+- 화면 이동·새로고침 시 Drive 연결이 풀리는 것이 정상(토큰 메모리 전용, 사이드바는 전체 새로고침 이동). 이전 "메뉴 이동해도 유지" 안내를 매뉴얼 9단계·설정 화면에서 정정, 연결은 `4. 문서 보관함` Drive 카드에서. v1.06 배포·DB 갱신, SQL `0007_v1_06_drive_connect_note.sql`.
+- 실제 Drive 업로드/가져오기는 보관함에서 사용자가 Google 창(계정 선택)을 직접 처리해 연결한 뒤 확인해야 함 — 미확인.
+
+## 2026-10-13 Claude Code — Markdown Studio v1.05: 실제 Google 연결 성공(올리기 미확인) + Drive 연동 매뉴얼 초보자용 보강
+
+- 주인님 계정에서 실제 Google OAuth 연결 성공(`연결됨: buylifemall@gmail.com`, 실제 Drive `about` 응답). 원인은 클라이언트의 **승인된 JavaScript 원본** 누락이었음. **실제 업로드/가져오기는 아직 미확인**(토큰이 사용자 탭 메모리에만 있음) — [확인 방법](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
+- 매뉴얼: `markdown-studio/docs/guide-drive-oauth.html`(원문) → `scripts/publish-drive-guide.mjs`로 platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e` 게시. 설정 화면 체크리스트·오류 요약 추가. v1.05 배포·DB 갱신, SQL `markdown-studio/supabase/migrations/0006_v1_05_drive_guide.sql`.
+
+## 2026-10-13 Claude Code — Markdown Studio v1.04: Google Drive는 회원 각자 본인 앱 등록 확정 + 전용 매뉴얼
+
+- **주인님 결정**: AIMaster 기본 정책대로 회원이 각자 본인 Google Cloud OAuth 클라이언트를 등록한다. 운영자 공용 앱은 쓰지 않는다(다른 CLI도 제안·구현 금지). 기록: [PHASE4_IMPLEMENTATION 결정 기록](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
+- 전용 매뉴얼 `Google Drive 연동용 OAuth 클라이언트 만들기`(platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e`, 웹 애플리케이션·JavaScript 원본·Secret 불필요)를 등록해 설정 화면 버튼을 교체(기존 `523e7401-…`는 서버 OAuth용이라 방식이 달라 연결 해제). v1.04 배포·DB 갱신. SQL `markdown-studio/supabase/migrations/0005_v1_04_per_member_google_app.sql`.
+- 주인님 테스트 계정: 프로젝트 `dreamai-461811`의 **웹 애플리케이션** 클라이언트에 승인된 JavaScript 원본 `https://markdown-studio.buylife.xyz` 추가 후 연결 시험 대기. 실제 Google 검수는 여전히 미완.
+
+## 2026-10-13 Claude Code — Markdown Studio 실제 Google 연결 시도(미완, 원인 확인 대기)
+
+- 관리자 계정의 `google_client_id`를 운영 설정 화면에 저장하고 연결 시도 → Google 창이 곧바로 닫힘. 다음: 사용자가 직접 `Google에 연결`을 눌러 Google 오류 문구 확인(승인된 JavaScript 원본에 `https://markdown-studio.buylife.xyz` 추가·Drive API 사용 설정·테스트 사용자 확인) 후 실제 업로드/가져오기 검수. 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
+
+## 2026-10-13 Claude Code — Markdown Studio 운영 PDF·Word 다운로드 검증 (앱 변경 없음)
+
+- 사용자 허락 후 운영 `markdown-studio.buylife.xyz/export`에서 일반 회원 계정으로 PDF·DOCX를 실제로 내려받아(`D:\PDS\회원 검수.pdf/.docx`) 검사: PDF 한글 글꼴 임베드·글자 추출·육안 확인, DOCX XML·구조 확인, **Microsoft Word(Office 2024)에서 열어 표시 확인**(표·알파벳 목록·링크 포함 시험 파일도). 기록: [PHASE5_RELEASE](../markdown-studio/docs/PHASE5_RELEASE.md).
+- 남은 미확인: 실제 Google 계정 Drive 검수(본인 Client ID 필요), Google Docs·한컴 등 다른 앱의 DOCX 표시, 등급 없는 가입자·핸드폰 미등록 운영 시험, 대용량 성능.
+
+## 2026-10-13 Claude Code — Markdown Studio 5단계 출시 정리 (카탈로그 썸네일, v1.03 유지)
+
+- 카탈로그 썸네일(한국인 인물·분할 편집 화면, 운영자 본인 Gemini 키 1회) 등록, 카탈로그 상세·`지금 바로 이용하기`→앱 이동을 일반 회원 계정 Chrome으로 확인. 앱 코드·버전 변경 없음. [기록](../markdown-studio/docs/PHASE5_RELEASE.md), SQL `markdown-studio/supabase/migrations/0004_catalog_thumbnail.sql`.
+- **남은 일**: ① 실제 Google 계정 Drive 검수(회원 본인 Client ID 필요) ② 운영 실제 PDF/DOCX 다운로드(허락 후) ③ Word/Google Docs에서 DOCX 표시 ④ 등급 없는 가입자·핸드폰 미등록 차단 운영 시험 ⑤ 대용량 성능. 1~5단계 구현은 모두 완료.
+
+## 2026-10-13 Claude Code — Markdown Studio 4단계 본인 Google Drive 연동 (v1.03, 운영 배포 · 실제 Google 미검증)
+
+- 회원 본인 Google Cloud 앱(Client ID, Secret 없음)·본인 계정, 범위 drive.file, 접근 토큰은 메모리에만. Drive 올리기(ID 연결·전용 폴더 `마크다운 문서 자동화`·충돌 시 덮어쓰지 않음·루트 폴백 금지·이름/이동 반영)와 가져오기(목록·사본/교체·이력 보존), 401/403/429/5xx/네트워크 처리, 계정별 연결 기록 분리, 설정 화면(Client ID·연동 매뉴얼 팝업)·보관함 Drive 카드. 서버·DB·환경변수 변경 없음.
+- 검수는 **모의 Google(로그인 스텁+모의 Drive 서버)**: 단위 56/56, 화면 11+13+10+11, 런타임 9/9, 취약점 0. 운영 v1.03 배포·DB 갱신, 일반 회원 계정으로 `/settings` 표시 확인. **실제 Google OAuth·Drive 업로드/갱신/가져오기는 미검증** — [기록·실제 검수 절차](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0003_v1_03_google_drive.sql`.
+- 시험 중 Drive 오류가 전역 저장 오류 상태·자동 저장을 멈추는 결함을 발견해 `runQuiet`로 분리(ERROR_LESSONS 기록). 다음: 주인님이 본인 Google Cloud Client ID로 실제 검수, 5단계 썸네일·매뉴얼(platform_guides는 기존 `Google OAuth 클라이언트 만들기` 재사용) 등록.
+
+## 2026-10-13 Claude Code — Markdown Studio 3단계 가져오기·백업·변환 내보내기 (v1.02, 운영 배포)
+
+- 파일·폴더 가져오기(.md/.markdown/.txt, EUC-KR 판별), 백업(JSON)·새 폴더 복원(원자적·검증), HTML·PDF(pdfmake+Noto Sans KR 텍스트 PDF)·Word(docx 표준 OOXML)·ZIP 내보내기(합치기/문서별, 폴더 구조, 부분 실패 보고). 공용 변환 모듈 `markdown-studio/src/lib/export/`. 글꼴은 `scripts/copy-fonts.mjs`가 빌드 때 복사(Git 제외).
+- 검수: 단위 45/45, 화면 11+13+10, 런타임 9/9, 취약점 0. 실제 Next 번들에서 PDF·DOCX·ZIP 생성 확인, PDF 육안 확인. 운영 v1.02 배포·DB `programs.version`/설명 갱신 완료. [기록](../markdown-studio/docs/PHASE3_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0002_v1_02_import_export.sql`.
+- **미확인**: 운영 사이트에서 실제 PDF/DOCX 파일 다운로드(허락 전), Word·Google Docs에서의 DOCX 표시, 대용량 성능. 다음: 4단계 본인 Google Drive(본인 OAuth 앱), 5단계 썸네일·매뉴얼 등록. ERROR_LESSONS에 PDF 글리프·mammoth 취약점 등 기록.
 
 ## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.05) 도움말 모달 내 외부 개발자/스키마 명칭 전면 삭제 및 배포 완료
 
@@ -220,11 +228,11 @@
 
 
 # 작업 인수인계 현황판 (HANDOFF.md)
-
-## 2026-10-13 Claude Code — Markdown Studio 운영 연결·배포 (v1.01, 마크다운 문서 자동화)
-
-- 주인님 승인(기존 buylifemall@gmail.com 값 사용)으로 `markdown-studio` Vercel 프로젝트에 인증 환경변수 3개를 Production·Development 등록, `vercel.json`(framework nextjs) 추가 후 프로덕션 배포, 도메인 https://markdown-studio.buylife.xyz 연결, `programs` 등록(Tools·FREE+new·요금제 3개·VIP 등급 표). [실행 결과](../markdown-studio/docs/PROVISIONING_PLAN.md), SQL: `markdown-studio/supabase/migrations/0001_register_program.sql`, 스크립트 `scripts/add-markdown-studio-vercel-env.mjs`.
-- 관리자 계정 운영 화면 검수 통과(SSO·문서 생성·한글 입력·Ctrl+B·미리보기). 일반 회원(naver, 등급 VIP) 운영 검수 통과(문서 격리·생성·입력·새로고침 복원). **카탈로그 썸네일·매뉴얼 등록, 등급 없는 가입자·휴대폰 미등록 차단 확인은 미실행.** 3단계(가져오기·백업·변환)가 다음. 카탈로그에 FREE+new로 노출 중이므로 3단계 전까지 설명에 미제공 기능을 명시함.
+
+## 2026-10-13 Claude Code — Markdown Studio 운영 연결·배포 (v1.01, 마크다운 문서 자동화)
+
+- 주인님 승인(기존 buylifemall@gmail.com 값 사용)으로 `markdown-studio` Vercel 프로젝트에 인증 환경변수 3개를 Production·Development 등록, `vercel.json`(framework nextjs) 추가 후 프로덕션 배포, 도메인 https://markdown-studio.buylife.xyz 연결, `programs` 등록(Tools·FREE+new·요금제 3개·VIP 등급 표). [실행 결과](../markdown-studio/docs/PROVISIONING_PLAN.md), SQL: `markdown-studio/supabase/migrations/0001_register_program.sql`, 스크립트 `scripts/add-markdown-studio-vercel-env.mjs`.
+- 관리자 계정 운영 화면 검수 통과(SSO·문서 생성·한글 입력·Ctrl+B·미리보기). 일반 회원(naver, 등급 VIP) 운영 검수 통과(문서 격리·생성·입력·새로고침 복원). **카탈로그 썸네일·매뉴얼 등록, 등급 없는 가입자·휴대폰 미등록 차단 확인은 미실행.** 3단계(가져오기·백업·변환)가 다음. 카탈로그에 FREE+new로 노출 중이므로 3단계 전까지 설명에 미제공 기능을 명시함.
 
 ## 2026-10-13 Claude Code — Markdown Studio 2단계 고급 편집기 구현·로컬 검수 (v1.01 후보 유지)
 
