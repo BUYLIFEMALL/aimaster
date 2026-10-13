@@ -2,14 +2,25 @@
 "use client";
 import { useState } from "react";
 import {
-  ChevronDown, ChevronRight, ChevronUp, ChevronsDown, ChevronsUp, Copy, Group, Lock, LockOpen, Sparkles, Trash2, Ungroup,
+  AppWindow, ChartColumn, ChartLine, ChartPie, ChevronDown, ChevronRight, ChevronUp, ChevronsDown, ChevronsUp, CircleDot, Copy, Frame,
+  Gauge, Group, Image as ImageIcon, List, ListChecks, LoaderCircle, Lock, LockOpen, MessageSquare, MessageSquareMore, MousePointerClick,
+  PanelTop, Rows3, Shapes, Smile, SlidersHorizontal, Sparkles, SquareCheck, SquareChevronDown, TextCursorInput, ToggleRight, FileText, Trash2,
+  TriangleAlert, Type, Ungroup,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { CanvasComponent, ComponentType, DesignSpec } from "@/lib/canvas/types";
 import { TOOLBOX, TYPE_LABEL, PRESETS, ICON_NAMES } from "@/lib/canvas/constants";
 import type { LayerMove } from "@/lib/canvas/model";
 import { ICON_LABEL } from "./icons";
 
 // ---------------- 도구 상자 ----------------
+export const TOOL_ICONS: Record<ComponentType, LucideIcon> = {
+  Container: Frame, Text: Type, Button: MousePointerClick, Input: TextCursorInput, Listbox: List, Image: ImageIcon, Tabs: PanelTop,
+  Accordion: Rows3, Dropdown: SquareChevronDown, Radio: CircleDot, Checkbox: SquareCheck, Toggle: ToggleRight, Slider: SlidersHorizontal,
+  Alert: TriangleAlert, Loader: LoaderCircle, Progress: Gauge, Tooltip: MessageSquare, Modal: AppWindow, Popover: MessageSquareMore,
+  Icon: Smile, BarChart: ChartColumn, LineChart: ChartLine, PieChart: ChartPie, Misc: Shapes, Group: Group,
+};
+
 export function Toolbox({ active, onPick }: { active: ComponentType | null; onPick: (t: ComponentType | null) => void }) {
   return (
     <div className="uc-toolbox">
@@ -24,7 +35,8 @@ export function Toolbox({ active, onPick }: { active: ComponentType | null; onPi
             className={`uc-tool ${active === t.type ? "active" : ""}`}
             onClick={() => onPick(active === t.type ? null : t.type)}
           >
-            {t.label}
+            {(() => { const Icon = TOOL_ICONS[t.type]; return <Icon size={18} aria-hidden />; })()}
+            <span>{t.label}</span>
           </button>
         ))}
       </div>
@@ -379,8 +391,8 @@ export function PropertiesPanel(p: PropertiesProps) {
   return (
     <aside className="uc-right" aria-label="속성 패널">
       <div className="uc-tabs">
-        <button type="button" disabled={!c} aria-pressed={active === "props"} onClick={() => setTab("props")}>속성</button>
-        <button type="button" aria-pressed={active === "spec"} onClick={() => setTab("spec")}>명세</button>
+        <button type="button" disabled={!c} aria-pressed={active === "props"} onClick={() => setTab("props")}><SlidersHorizontal size={15} />속성</button>
+        <button type="button" aria-pressed={active === "spec"} onClick={() => setTab("spec")}><FileText size={15} />명세</button>
       </div>
       <div className="uc-right-body">
         {active === "props" && c ? body() : (

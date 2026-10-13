@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, Download, FileJson, FileText, FolderOpen, Group, HelpCircle, Image as ImageIcon, ImagePlus, Moon, Redo2, Sun, Ungroup, Undo2, X,
+  ArrowLeft, Component, Download, FileJson, FileText, FolderOpen, Group, HelpCircle, ImagePlus, Layers, Moon, Redo2, Sun, Ungroup, Undo2, X,
 } from "lucide-react";
 import type { CanvasComponent, CanvasSize, ComponentType, DesignSpec, ProjectDoc } from "@/lib/canvas/types";
 import { CANVAS_PRESETS } from "@/lib/canvas/types";
@@ -485,8 +485,8 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
       <div className="uc-body">
         <aside className="uc-left" aria-label="컴포넌트·레이어">
           <div className="uc-tabs">
-            <button type="button" aria-pressed={leftTab === "tools"} onClick={() => setLeftTab("tools")}>컴포넌트</button>
-            <button type="button" aria-pressed={leftTab === "layers"} onClick={() => setLeftTab("layers")}>레이어 ({components.length})</button>
+            <button type="button" aria-pressed={leftTab === "tools"} onClick={() => setLeftTab("tools")}><Component size={15} />컴포넌트</button>
+            <button type="button" aria-pressed={leftTab === "layers"} onClick={() => setLeftTab("layers")}><Layers size={15} />레이어 ({components.length})</button>
           </div>
           <div className="uc-left-body">
             {leftTab === "tools" ? (
