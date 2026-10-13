@@ -46,3 +46,14 @@
 .html-source{margin:0;padding:16px;background:#f8f9fb;color:#334155;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
 .markdown-content ol[type=a]{list-style-type:lower-alpha}
 @media(max-width:767px){.editor-toolbar{flex-wrap:nowrap;overflow-x:auto;gap:4px 6px}.tool-group{flex-shrink:0}.tool-button{min-width:40px;height:40px}.cm-host{min-height:360px}.cm-host .cm-editor{min-height:360px}}
+
+/* ---- 3단계: 가져오기·내보내기 ---- */
+.option-group{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0;min-width:0}
+.option-group legend{padding:0 6px;font-size:12px;font-weight:700;color:#334155}
+.option-row{display:flex;flex-wrap:wrap;gap:8px}
+.choice{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:500}
+.choice input{margin:0}
+.choice.chosen{border-color:#818cf8;background:#f5f5ff}
+.option-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.notice ul{margin:8px 0 0;padding-left:18px;list-style:disc;font-size:11px;line-height:1.7}
+@media(max-width:767px){.option-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.choice{flex:1 1 100%}}

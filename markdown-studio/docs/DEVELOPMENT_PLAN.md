@@ -168,3 +168,7 @@ type DocumentNode = {
 - [Supabase RLS: 회원 소유 행 격리](https://supabase.com/docs/guides/database/postgres/row-level-security)
 
 링크는 후보 기술의 기능·제약 확인용입니다. 채택 계획을 설치·운영 동작 실적으로 보고하지 않습니다.
+
+## 진행 현황 (2026-10-13 추가)
+
+- 1단계 완료(v1.01) · 2단계 [고급 편집기](PHASE2_IMPLEMENTATION.md) 완료 · 3단계 [가져오기·백업·변환](PHASE3_IMPLEMENTATION.md) 완료(v1.02, 운영 배포). 남은 단계: 4단계 본인 Google Drive, 5단계 출시 정리(썸네일·매뉴얼 등록).

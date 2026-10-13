@@ -26,4 +26,4 @@ export async function proxy(request: NextRequest) {
   await supabase.auth.getClaims();
   return response;
 }
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|setup|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|fonts/|setup|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };

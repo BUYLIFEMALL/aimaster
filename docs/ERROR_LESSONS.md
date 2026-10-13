@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-13 — PDF·DOCX 내보내기 구현에서 확인한 함정 (markdown-studio v1.02)
+
+- 증상: PDF에서 체크박스 `☑`가 통째로 사라짐 → 원인: Noto Sans KR에 U+2611(☑)·U+2610(☐) 글리프가 없음. 텍스트 추출은 통과할 수 있어 눈으로 보기 전에는 모름 → 해결: PDF만 `[✓]`/`[  ]`로 표시(`markdown-studio/src/lib/export/pdf.ts`), Word는 맑은 고딕 폴백이라 ☑ 유지 → 다음부터: 글꼴을 임베드하는 PDF는 특수 기호를 **이미지로 렌더링(PyMuPDF 등)해 눈으로** 확인한다. 글자 추출 성공 ≠ 글리프 표시.
+- 증상: 검수용 `mammoth`(DOCX 읽기)를 devDependency로 넣자 `npm audit` 중간 취약점 3건 → 원인: 하위 `argparse`→`sprintf-js` → 해결: 제거하고 `jszip`으로 `word/document.xml`을 직접 열어 구조 검사 + `@xmldom/xmldom`으로 XML 올바름 검사 → 다음부터: 검수 전용 패키지도 `npm audit`가 0건이어야 한다.
+- 증상: `pdfmake.addFontContainer is not a function` → 원인: pdfmake 0.3은 0.2의 vfs 방식이 아님 → 해결: Node는 `pdfmake.setFonts({폰트:{normal:경로}})`, 브라우저는 `pdfMake.addFonts({폰트:{normal:URL}})`, `getBlob()`은 Promise → 다음부터: 라이브러리 메이저가 바뀌면 예제 코드를 그대로 복사하지 말고 설치된 버전의 README/타입으로 확인.
+- 증상: 12MB 한글 글꼴을 Git에 넣기 부담 → 해결: `scripts/copy-fonts.mjs`가 `prebuild`/`predev`에서 `@expo-google-fonts/noto-sans-kr`(devDependency, MIT·OFL)의 TTF를 `public/fonts`(Git 제외)로 복사, `/fonts/*`에 30일 캐시 헤더 → 다음부터: 글꼴 변경 시 이 스크립트와 `next.config.ts`를 함께 확인.
+- 증상: 가져오기 시험에서 `../탈출.md`가 가져와지지 않음 → 원인: 의도된 보안 동작(숨김/상위 경로 구간은 건너뜀) → 다음부터: 경로 이탈 파일은 "건너뜀" 목록에 이유와 함께 표시되는 것이 정상.
+
 ## 2026-10-13 — 새 문서 앱의 의존성·저장 실패·실험 증거 구분
 
 - 증상: 인접 앱의 패키지 버전을 새 앱에 복사하면 빌드가 되더라도 보안 감사에 높은 취약점이 남음. 원인: 기존 고정 버전·직접 추가한 오래된 PostCSS 버전을 현재 날짜에 검증하지 않음. 해결: `markdown-studio/package.json`·lock에서 Next 16.4.0/React 19.3.0/PostCSS 8.5.29 등 공식 릴리스·호환 빌드·`npm audit` 확인 후 고정, 현재 취약점 0건. 다음 확인: 직접·개발 의존성 모두 감사하고 다른 프로젝트의 고정 버전까지 임의 수정하지 않음.

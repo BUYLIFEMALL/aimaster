@@ -4,6 +4,7 @@ import {
   normalizeName, validatePlacement, verifyOwner,
   type DocumentNode, type DocumentRevision, type NodeKind, type WorkspacePreferences,
 } from "./model";
+import { MAX_IMPORT_NODES, orderParentsFirst, uniqueName, validateTree, type ImportItem } from "./backup";
 
 interface DocumentDatabase extends DBSchema {
   nodes: { key: string; value: DocumentNode };
@@ -115,6 +116,50 @@ export class DocumentRepository {
         }
       }
       await tx.done;
+    } catch (error) { try { tx.abort(); } catch {} await tx.done.catch(() => {}); throw error; }
+  }
+  /**
+   * 가져오기·복원: 항목들을 새 문서·폴더로 한 번에 만든다. 하나라도 실패하면 아무것도 만들지 않는다(원자적).
+   * 기존 항목은 덮어쓰지 않으며, 같은 폴더에 같은 이름이 있으면 (2), (3)을 붙인다.
+   */
+  async importTree(items: ImportItem[], targetParentId: string | null = null) {
+    if (!items.length) throw new DocumentError("INVALID", "가져올 항목이 없습니다.");
+    if (items.length > MAX_IMPORT_NODES) throw new DocumentError("INVALID", `한 번에 ${MAX_IMPORT_NODES.toLocaleString()}개까지 가져올 수 있습니다.`);
+    validateTree(items);
+    const db = await this.dbPromise;
+    const tx = db.transaction(["nodes", "revisions"], "readwrite");
+    try {
+      const nodes = await tx.objectStore("nodes").getAll();
+      nodes.forEach(n => verifyOwner(n, this.userId));
+      if (targetParentId) {
+        const parent = nodes.find(n => n.id === targetParentId);
+        if (!parent || parent.deletedAt || parent.kind !== "folder") throw new DocumentError("INVALID", "대상 폴더를 찾을 수 없습니다.");
+      }
+      const live = nodes.filter(n => !n.deletedAt);
+      const taken = new Map<string | null, Set<string>>();
+      const siblings = (parentId: string | null) => {
+        let set = taken.get(parentId);
+        if (!set) { set = new Set(live.filter(n => n.parentId === parentId).map(n => n.name.toLocaleLowerCase())); taken.set(parentId, set); }
+        return set;
+      };
+      const ids = new Map<string, string>();
+      const now = new Date().toISOString();
+      let renamed = 0;
+      for (const item of orderParentsFirst(items)) {
+        const parentId = item.parentKey ? ids.get(item.parentKey)! : targetParentId;
+        const set = siblings(parentId);
+        const name = uniqueName(normalizeName(item.name), set);
+        if (name !== item.name) renamed++;
+        set.add(name.toLocaleLowerCase());
+        if (item.markdown.length > MAX_MARKDOWN_LENGTH) throw new DocumentError("INVALID", `'${item.name}'의 본문이 너무 깁니다. 문서 한 개는 100만 자까지입니다.`);
+        const node: DocumentNode = { id: crypto.randomUUID(), userId: this.userId, kind: item.kind, parentId, name,
+          markdown: item.kind === "document" ? item.markdown : "", revision: 1, updatedAt: now, deletedAt: null, trashBatchId: null };
+        await tx.objectStore("nodes").add(node);
+        if (node.kind === "document") await tx.objectStore("revisions").put(this.snapshot(node));
+        ids.set(item.key, node.id);
+      }
+      await tx.done;
+      return { created: items.length, renamed, firstDocumentId: items.filter(i => i.kind === "document").map(i => ids.get(i.key)!)[0] ?? null };
     } catch (error) { try { tx.abort(); } catch {} await tx.done.catch(() => {}); throw error; }
   }
   async history(id: string) {

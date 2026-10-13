@@ -1,4 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-13 Claude Code — Markdown Studio 3단계 가져오기·백업·변환 내보내기 (v1.02, 운영 배포)
+
+- 파일·폴더 가져오기(.md/.markdown/.txt, EUC-KR 판별), 백업(JSON)·새 폴더 복원(원자적·검증), HTML·PDF(pdfmake+Noto Sans KR 텍스트 PDF)·Word(docx 표준 OOXML)·ZIP 내보내기(합치기/문서별, 폴더 구조, 부분 실패 보고). 공용 변환 모듈 `markdown-studio/src/lib/export/`. 글꼴은 `scripts/copy-fonts.mjs`가 빌드 때 복사(Git 제외).
+- 검수: 단위 45/45, 화면 11+13+10, 런타임 9/9, 취약점 0. 실제 Next 번들에서 PDF·DOCX·ZIP 생성 확인, PDF 육안 확인. 운영 v1.02 배포·DB `programs.version`/설명 갱신 완료. [기록](../markdown-studio/docs/PHASE3_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0002_v1_02_import_export.sql`.
+- **미확인**: 운영 사이트에서 실제 PDF/DOCX 파일 다운로드(허락 전), Word·Google Docs에서의 DOCX 표시, 대용량 성능. 다음: 4단계 본인 Google Drive(본인 OAuth 앱), 5단계 썸네일·매뉴얼 등록. ERROR_LESSONS에 PDF 글리프·mammoth 취약점 등 기록.
 
 ## 2026-10-13 Antigravity — AI 슬라이드 빌더 PRO (ai-slide-builder v1.01) 구축, 배포 및 플랫폼 등록 완료
 

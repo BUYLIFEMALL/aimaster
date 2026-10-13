@@ -17,6 +17,7 @@ const server = createServer((req,res) => {
     res.setHeader("Content-Type","application/json"); res.statusCode = forcedStatus;
     const member = /fixture-member=([^;]+)/.exec(req.headers.cookie || "")?.[1] || "fixture-a";
     res.end(JSON.stringify(forcedStatus === 200 ? { userId:member } : { error:"시험용 서버 연결 실패" }));
+  } else if (req.url.startsWith("/fonts/")) { readFile(path.join("public", decodeURIComponent(req.url))).then(buf => { res.setHeader("Content-Type","font/ttf"); res.end(buf); }, () => { res.statusCode = 404; res.end(); });
   } else if (req.url === "/test.js") { res.setHeader("Content-Type","application/javascript");res.end(bundle.outputFiles[0].text); }
   else if (req.url === "/test.css") { res.setHeader("Content-Type","text/css");res.end(css.css); }
   else { res.setHeader("Content-Type","text/html;charset=utf-8");res.end('<!doctype html><html lang="ko"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Markdown component fixture</title><link rel="stylesheet" href="/test.css"><div id="root"></div><script src="/test.js"></script></html>'); }

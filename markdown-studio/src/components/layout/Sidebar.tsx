@@ -5,10 +5,10 @@ import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 import { useWorkspace, messageForError } from "@/components/workspace/WorkspaceProvider";
 
 const STEPS = [
-  { step: 1, href: "/prepare", name: "문서 준비", detail: "새 문서 · 템플릿으로 시작", icon: FilePlus2 },
+  { step: 1, href: "/prepare", name: "문서 준비", detail: "새 문서 · 파일 가져오기", icon: FilePlus2 },
   { step: 2, href: "/editor", name: "편집·미리보기", detail: "마크다운 작성 · 서식 확인", icon: FilePenLine },
-  { step: 3, href: "/export", name: "변환·내보내기", detail: "원문 저장 · 변환 준비", icon: Download },
-  { step: 4, href: "/library", name: "문서 보관함", detail: "폴더 · 수정 이력 · 휴지통", icon: FolderOpen },
+  { step: 3, href: "/export", name: "변환·내보내기", detail: "HTML · PDF · Word · ZIP", icon: Download },
+  { step: 4, href: "/library", name: "문서 보관함", detail: "폴더 · 이력 · 백업·복원", icon: FolderOpen },
 ];
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
   const [open, setOpen] = useState(false);

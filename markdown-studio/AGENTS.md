@@ -13,6 +13,8 @@
 
 - **2026-10-13 운영 연결 완료**: 인증 환경변수 3개 등록(승인), Vercel 프로덕션 배포, 도메인 `https://markdown-studio.buylife.xyz`, 프로그램 등록(마크다운 문서 자동화·FREE+new·v1.01). 관리자 계정 운영 검수 통과, 일반 회원(naver, VIP 등급) 운영 검수 통과(문서 격리·생성·입력·복원). 등급 없는 가입자·휴대폰 미등록 차단은 미확인. 상세: [docs/PROVISIONING_PLAN.md](docs/PROVISIONING_PLAN.md).
 
+- **2026-10-13 v1.02 (3단계 완료)**: `.md/.txt` 파일·폴더 가져오기, 백업(JSON)·새 폴더 복원, HTML·PDF(한글 텍스트 PDF)·Word(표준 DOCX)·ZIP 내보내기. 단위 45·화면 11+13+10·런타임 9·취약점 0, 운영 배포·DB v1.02. 기록: [docs/PHASE3_IMPLEMENTATION.md](docs/PHASE3_IMPLEMENTATION.md). 남은 것: 4단계 본인 Google Drive, 5단계 썸네일·매뉴얼 등록, Word/Docs 표시·운영 실파일 다운로드 미확인.
+
 ## 읽는 순서
 
 1. 루트 `AGENTS.md`·`CLAUDE.md`, `docs/HANDOFF.md`.
@@ -36,7 +38,7 @@
 
 1. [구현·검수 기록](docs/PHASE1_IMPLEMENTATION.md)과 [운영 설정안](docs/PROVISIONING_PLAN.md)을 읽습니다. AIMaster 인증 환경변수 3개의 새 프로젝트 등록 승인을 받은 뒤 실제 회원 검수·운영 배포를 진행합니다. 승인 없이 다른 프로젝트 설정을 복사해 등록하지 않습니다.
 2. ~~고급 편집기~~ **완료(2026-10-13, Claude Code)**: CodeMirror 6, 서식 명령 20개·목록 3종+체크·기호 32종·표 편집·찾기/바꾸기·단축키·HTML 소스/목차/글자 수. 자동 검사 단위 31·화면 11+13·런타임 9·취약점 0. 기록: [docs/PHASE2_IMPLEMENTATION.md](docs/PHASE2_IMPLEMENTATION.md). 실제 회원 로그인·직접 한글 키보드 입력은 미검수.
-3. `.md`/`.txt`/JSON 가져오기와 백업, HTML/텍스트 PDF/표준 DOCX/ZIP 결과 검증을 구현합니다.
+3. ~~가져오기·백업·변환~~ **완료(v1.02)**: [PHASE3_IMPLEMENTATION](docs/PHASE3_IMPLEMENTATION.md) 참고.
 4. 본인 Drive OAuth와 업로드/가져오기/충돌 처리. 별도 스키마가 필요하면 SQL을 준비하고 승인을 받습니다.
 5. 일반 회원 SSO·본인 데이터·출력 결과를 검수한 뒤 카탈로그/기본 요금제 3개/썸네일/도메인/매뉴얼을 등록하고 운영 검증합니다.
 
