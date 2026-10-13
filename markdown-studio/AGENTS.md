@@ -19,6 +19,8 @@
 
 - **2026-10-13 5단계(출시 정리) 완료**: 카탈로그 썸네일 등록, 카탈로그→앱 이동 확인(v1.03 유지). 남은 것은 실제 Google 검수·운영 실파일 다운로드·Word/Docs 표시 확인 등 — [docs/PHASE5_RELEASE.md](docs/PHASE5_RELEASE.md).
 
+- **결정(2026-10-13)**: Google Drive는 **회원 각자 본인 Google Cloud 앱(Client ID) 등록 방식 유지, 운영자 공용 앱 사용 금지**(AIMaster 기본 정책). v1.04에서 전용 매뉴얼로 교체 — [docs/PHASE4_IMPLEMENTATION.md](docs/PHASE4_IMPLEMENTATION.md) "결정 기록".
+
 ## 읽는 순서
 
 1. 루트 `AGENTS.md`·`CLAUDE.md`, `docs/HANDOFF.md`.

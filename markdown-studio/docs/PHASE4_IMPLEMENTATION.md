@@ -65,3 +65,9 @@ npm ci; node scripts/copy-fonts.mjs; npm run build; npm test; npm run test:brows
 - 관리자 계정(`buylifemall@gmail.com`)의 공용 `user_api_keys`에 `google_client_id`(2026-08-07 등록, 형식 유효)와 `google_client_secret`이 있고 `youtube_accounts`에 YouTube 채널 연동이 있음(YouTube 프로그램용 앱). 이 앱의 Client ID(공개 식별자)를 운영 설정 화면에 저장하고 `Google에 연결`을 눌렀으나 **Google 창이 곧바로 닫히며 "연결 창이 닫혔습니다"가 표시**됨. 자동화 도구로는 팝업 창 내용을 볼 수 없어 원인 미확정.
 - 가능한 원인(확인 필요): ① 해당 OAuth 클라이언트의 **승인된 JavaScript 원본에 `https://markdown-studio.buylife.xyz`가 없음**(원본 불일치 오류) ② 같은 프로젝트에서 **Google Drive API 미사용 설정** ③ 동의 화면 테스트 사용자·범위 제한 ④ 팝업 차단. 사용자가 직접 `Google에 연결`을 눌러 Google 창의 오류 문구를 확인해야 함.
 - 이 앱의 Drive 연동은 Client Secret·YouTube 토큰을 쓰지 않으며, 조회 중 노출된 YouTube 토큰은 사용·복사하지 않았다.
+
+## 결정 기록 — 회원 각자 본인 Google 앱 등록 (2026-10-13, 주인님 확정)
+
+- AIMaster 기본 정책(회원이 본인 계정·본인 앱으로 연동)에 따라 **Drive도 회원마다 본인 Google Cloud OAuth 클라이언트 ID를 등록**한다. **운영자 공용 Client ID는 쓰지 않는다**(drive.file이 비민감 범위라 기술적으로는 가능하지만 정책상 사용하지 않기로 결정). 이후 다른 CLI도 공용 앱 방식을 제안·구현하지 않는다.
+- 진입장벽 완화: 설정 화면의 단계 안내·현재 주소 복사·`origin_mismatch` 등 오류별 안내, 전용 매뉴얼(platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e`, 웹 애플리케이션·JavaScript 원본·Client Secret 불필요). 기존 매뉴얼(`523e7401-…`)은 서버 OAuth용(리디렉션 URI·Secret)이라 이 앱과 방식이 달라 연결하지 않는다.
+- 주인님 계정 시험: 프로젝트 `dreamai-461811`(번호 893121785673)의 클라이언트 중 **웹 애플리케이션 유형**(ID `893121785673-2l5n…`)을 열어 **승인된 JavaScript 원본**에 `https://markdown-studio.buylife.xyz` 추가 필요(데스크톱 유형 클라이언트는 해당 없음).

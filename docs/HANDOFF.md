@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio v1.04: Google Drive는 회원 각자 본인 앱 등록 확정 + 전용 매뉴얼
+
+- **주인님 결정**: AIMaster 기본 정책대로 회원이 각자 본인 Google Cloud OAuth 클라이언트를 등록한다. 운영자 공용 앱은 쓰지 않는다(다른 CLI도 제안·구현 금지). 기록: [PHASE4_IMPLEMENTATION 결정 기록](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
+- 전용 매뉴얼 `Google Drive 연동용 OAuth 클라이언트 만들기`(platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e`, 웹 애플리케이션·JavaScript 원본·Secret 불필요)를 등록해 설정 화면 버튼을 교체(기존 `523e7401-…`는 서버 OAuth용이라 방식이 달라 연결 해제). v1.04 배포·DB 갱신. SQL `markdown-studio/supabase/migrations/0005_v1_04_per_member_google_app.sql`.
+- 주인님 테스트 계정: 프로젝트 `dreamai-461811`의 **웹 애플리케이션** 클라이언트에 승인된 JavaScript 원본 `https://markdown-studio.buylife.xyz` 추가 후 연결 시험 대기. 실제 Google 검수는 여전히 미완.
+
 ## 2026-10-13 Claude Code — Markdown Studio 실제 Google 연결 시도(미완, 원인 확인 대기)
 
 - 관리자 계정의 `google_client_id`를 운영 설정 화면에 저장하고 연결 시도 → Google 창이 곧바로 닫힘. 다음: 사용자가 직접 `Google에 연결`을 눌러 Google 오류 문구 확인(승인된 JavaScript 원본에 `https://markdown-studio.buylife.xyz` 추가·Drive API 사용 설정·테스트 사용자 확인) 후 실제 업로드/가져오기 검수. 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).

@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { MAIN_SITE } from "@/lib/version";
 import { useDrive } from "./DriveProvider";
 
-const GUIDE_ID = "523e7401-7393-44f5-ba45-dd437e10fa2d"; // platform_guides: Google OAuth 클라이언트 만들기 (Gmail·Drive 등)
+const GUIDE_ID = "7d473e83-e9ce-4f68-ab52-92015a98148e"; // platform_guides: Google Drive 연동용 OAuth 클라이언트 만들기 (웹 애플리케이션·JavaScript 원본)
 
 /** 연동 매뉴얼을 팝업창으로 연다(옆에 두고 따라 할 수 있게) */
 function GuideLinkButton() {
-  return <button type="button" onClick={() => window.open(`${MAIN_SITE}/guides/${GUIDE_ID}`, "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes")}>📄 Google OAuth 클라이언트 만들기 매뉴얼</button>;
+  return <button type="button" onClick={() => window.open(`${MAIN_SITE}/guides/${GUIDE_ID}`, "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes")}>📄 Drive 연동용 OAuth 클라이언트 만들기 매뉴얼</button>;
 }
 
 /** 회원 본인의 Google Cloud 앱(Client ID)을 등록하고 본인 계정에 연결한다. 운영자 앱·키는 사용하지 않는다 */
@@ -25,7 +25,7 @@ export function DriveSettings() {
     <p className="muted">문서를 <strong>내 Google Drive</strong>에 올리고 가져옵니다. 운영자의 앱이 아니라 <strong>내가 만든 Google Cloud 앱(OAuth Client ID)</strong>과 내 Google 계정으로만 연결하며, 이 프로그램은 앱이 만든 파일만 볼 수 있는 ‘Drive 파일 접근(drive.file)’ 권한만 요청합니다. 접근 토큰은 이 브라우저 메모리에만 있고 저장되지 않습니다.</p>
 
     <ol className="manual-list">
-      <li><strong>Google Cloud 프로젝트에서 준비</strong><p>① Google Drive API 사용 설정 ② OAuth 동의 화면 만들기(테스트 상태면 내 Google 계정을 ‘테스트 사용자’로 추가) ③ 사용자 인증 정보 → OAuth 클라이언트 ID → 유형 <em>웹 애플리케이션</em> 만들기.</p></li>
+      <li><strong>Google Cloud 프로젝트에서 준비</strong><p>① Google Drive API 사용 설정 ② OAuth 동의 화면 만들기(테스트 상태면 내 Google 계정을 ‘테스트 사용자’로 추가) — 주소 오류(origin_mismatch)가 나오면 아래 2번 원본 주소가 빠진 것입니다 ③ 사용자 인증 정보 → OAuth 클라이언트 ID → 유형 <em>웹 애플리케이션</em> 만들기.</p></li>
       <li><strong>승인된 JavaScript 원본에 아래 주소 추가</strong><p><code>{origin || "…"}</code> <button type="button" onClick={() => copy(origin)}>주소 복사</button> {copied ? <small role="status">{copied}</small> : null}</p></li>
       <li><strong>발급된 Client ID를 아래에 저장</strong><p>Client Secret은 필요하지 않습니다. 입력하지 마세요.</p></li>
     </ol>
@@ -48,7 +48,7 @@ export function DriveSettings() {
 
     <div className="notice">
       <strong>📖 연동 매뉴얼</strong>
-      <p>Google Cloud 프로젝트에서 OAuth 클라이언트를 만드는 방법을 단계별로 안내합니다.</p>
+      <p>화면 순서대로 따라 할 수 있는 단계별 안내와 오류별 해결 방법이 있습니다. 모든 회원이 <strong>본인 Google Cloud 앱</strong>으로 연결하며, 운영자 앱은 사용하지 않습니다.</p>
       <GuideLinkButton/>
       <ul>
         <li>연결을 끊어도 Drive의 파일은 지워지지 않습니다. 이 프로그램은 Drive 파일을 삭제하지 않습니다.</li>
