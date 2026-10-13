@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-13 — 프로그램 이름·주소 변경 후 Vercel 쪽에 옛 이름이 남아 헷갈림 (fashion-style v1.03)
+
+- 증상: 도메인을 `fashion-style.buylife.xyz`로 바꿨는데 Vercel 프로젝트 목록의 Latest Production URL은 옛 `look-studio.buylife.xyz`, 옛 이름의 `*-buylife.vercel.app` 별칭은 옛 배포를 계속 가리킴, `fashion-style.vercel.app`은 "이미 사용 중" → 원인: ① Production URL은 배포 시점의 별칭으로 저장되어 이름 변경만으로는 갱신되지 않음 ② 프로젝트 이름 변경 시 옛 팀 별칭이 지워지지 않음 ③ `.vercel.app` 이름은 전 세계 공유라 다른 사용자가 선점 → 해결: `vercel project rename` → 재배포 → 옛 도메인(`vercel api -X DELETE …`)·별칭(`vercel alias rm`) 제거, `.vercel.app` 이름은 가져올 수 없다고 판단하고 공식 주소를 `.buylife.xyz`로 고정 → 다음부터: 새 프로그램은 **처음부터 이름·폴더·slug·Vercel·도메인을 같은 이름**으로 만들고, 새 이름의 `.vercel.app` 가용성은 `vercel domains add <이름>.vercel.app <프로젝트>`로 미리 확인한다. 이름 변경 순서는 `fashion-style/docs/CLI_HANDOFF.md` §7.
+
 ## 2026-10-13 — AI 이미지 응답(PNG 1~2.4MB)을 그대로 다시 보내면 레이어드 누적이 413 (fashion-style, 구 look-studio)
 
 - 증상(실호출로 발견): 입어보기 결과 PNG가 2.4MB(base64 3.2MB)라 이를 기준 이미지로 아이템(1.2MB)과 함께 다시 보내면 요청 본문이 Vercel 한도(4.5MB)를 넘음 → 원인: AI 응답 이미지를 가공 없이 상태에 보관 → 해결: 응답 직후 `shrinkImage`(JPEG ≤1600px)로 줄여 보관(`fashion-style/src/components/look/Studio.tsx`, `lib/look/clientImages.ts`), 서버 `validateImage`는 장당 base64 3.4MB 상한 → 다음부터: 이미지 생성 프로그램은 **응답 크기를 실호출로 먼저 재고**, 되돌려 보내는 구조면 즉시 축소한다. 모의 응답만으로는 이 문제가 드러나지 않는다.

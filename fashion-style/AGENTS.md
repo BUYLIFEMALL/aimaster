@@ -10,8 +10,8 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | AI 패션스타일 자동화 / `fashion-style` |
-| 버전 | **v1.01** (`src/lib/version.ts` = DB `programs.version`) |
-| 주소 | https://fashion-style.buylife.xyz (Vercel `buylife/fashion-style`, CLI 직접 배포) |
+| 버전 | **v1.03** (`src/lib/version.ts` = DB `programs.version`) |
+| 주소 | https://fashion-style.buylife.xyz — 이름·폴더·slug·Vercel·도메인 모두 `fashion-style` (Vercel `buylife/fashion-style`, CLI 직접 배포) |
 | 카테고리 / 접근 | 이미지 / 최소 등급 일반 + 관리자 부여 사용기간(FREE 아님), 기본 3요금제 |
 | 참고 원본 | AI Studio "LookStudio AI (배포용)" — 흐름·프롬프트 구조만 참고, 코드 복제 없음. 분석·계획 [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md) |
 
