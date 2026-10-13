@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio 실제 Google Drive 올리기·목록·갱신 검증 통과 (충돌·가져오기는 Drive 쪽 수정 후 확인 대기)
+
+- 운영 v1.06, 주인님 계정으로 실제 Drive에 올리기(새로 올림)·목록 조회·이름 변경 후 갱신(복제 없음) 성공. 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·사본/교체 가져오기·충돌·401. 테스트 파일은 사용자 Drive의 `마크다운 문서 자동화/회원 검수(Drive 시험).md`(삭제하지 않음).
+
 ## 2026-10-13 Claude Code — Markdown Studio v1.06: Drive 연결 유지 안내 정정 (실제 업로드 확인 대기)
 
 - 화면 이동·새로고침 시 Drive 연결이 풀리는 것이 정상(토큰 메모리 전용, 사이드바는 전체 새로고침 이동). 이전 "메뉴 이동해도 유지" 안내를 매뉴얼 9단계·설정 화면에서 정정, 연결은 `4. 문서 보관함` Drive 카드에서. v1.06 배포·DB 갱신, SQL `0007_v1_06_drive_connect_note.sql`.
