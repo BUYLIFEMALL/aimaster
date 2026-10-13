@@ -1,7 +1,7 @@
 import type { Lang } from "./types";
 
 const ko = {
-  title: "AI 룩스튜디오",
+  title: "AI 패션스타일",
   subtitle: "AI 퍼스널 스타일리스트와 함께 완벽한 룩을 완성하세요.",
   aiTitle: "AI 추천 스타일",
   aiDesc: "상황을 입력하면 TPO에 맞는 스타일을 제안합니다.",
@@ -78,7 +78,7 @@ const ko = {
 export type Strings = { [K in keyof typeof ko]: string };
 
 const en: Strings = {
-  title: "AI LookStudio",
+  title: "AI Fashion Style",
   subtitle: "Create your perfect look with your personal AI stylist.",
   aiTitle: "AI Style Guide",
   aiDesc: "Enter an occasion and AI will suggest matching styles.",

@@ -16,7 +16,7 @@ export const MAX_LOOKS = 12;
 
 /** 회원별로 분리된 브라우저 저장소(사진·옷장·룩은 서버로 보내지 않는다) */
 export function openStore(userId: string): Promise<LookStore> {
-  return openDB<LookDB>(`look-studio-${userId}`, 1, {
+  return openDB<LookDB>(`ai-fashion-style-${userId}`, 1, {
     upgrade(db) {
       db.createObjectStore("wardrobe", { keyPath: "id" });
       db.createObjectStore("looks", { keyPath: "id" });

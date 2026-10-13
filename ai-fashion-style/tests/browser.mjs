@@ -214,7 +214,7 @@ try {
 
   // 11) 저장(PNG)
   const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "저장하기" }).click()]);
-  assert.match(dl.suggestedFilename(), /^look-studio-\d+\.png$/);
+  assert.match(dl.suggestedFilename(), /^ai-fashion-style-\d+\.png$/);
   await page.getByText("최근 룩").waitFor();
   await page.waitForFunction(() => document.querySelectorAll(".ls-look").length >= 1, null, { timeout: 8000 });
   ok("PNG 저장·최근 룩 보관", { file: dl.suggestedFilename() });
@@ -251,15 +251,15 @@ try {
   await page.waitForTimeout(400);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   assert.ok(overflow <= 1, `모바일 가로 넘침 ${overflow}px`);
-  await page.screenshot({ path: path.join(artifacts, "look-studio-mobile.png"), fullPage: true });
+  await page.screenshot({ path: path.join(artifacts, "ai-fashion-style-mobile.png"), fullPage: true });
   await page.setViewportSize({ width: 1500, height: 950 });
-  await page.screenshot({ path: path.join(artifacts, "look-studio.png"), fullPage: true });
+  await page.screenshot({ path: path.join(artifacts, "ai-fashion-style.png"), fullPage: true });
   ok("모바일 390px 가로 넘침 없음", { overflow });
 
   assert.deepEqual(errors, []);
   ok("페이지 오류 없음");
 } catch (e) {
-  await page.screenshot({ path: path.join(artifacts, "look-studio-fail.png"), fullPage: true }).catch(() => undefined);
+  await page.screenshot({ path: path.join(artifacts, "ai-fashion-style-fail.png"), fullPage: true }).catch(() => undefined);
   console.error("FAIL", e.message);
   checks.push({ name: "FAILED", passed: false, error: e.message, pageErrors: errors });
   process.exitCode = 1;

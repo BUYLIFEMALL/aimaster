@@ -1,4 +1,4 @@
-# AI 룩스튜디오 자동화 (look-studio) — 인수인계
+# AI 패션스타일 자동화 (ai-fashion-style) — 인수인계
 
 > ★ 최상위 규칙: AI는 **회원 본인 Gemini 키**(`user_api_keys`)로만 호출한다. 키가 없으면 `needKey` 안내, 운영자·다른 회원 키 폴백 금지. 사진·옷장·결과는 서버에 저장하지 않는다. ([TOP_RULE](../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md))
 
@@ -9,9 +9,9 @@
 
 | 항목 | 값 |
 |---|---|
-| 이름 / slug | AI 룩스튜디오 자동화 / `look-studio` |
+| 이름 / slug | AI 패션스타일 자동화 / `ai-fashion-style` |
 | 버전 | **v1.01** (`src/lib/version.ts` = DB `programs.version`) |
-| 주소 | https://look-studio.buylife.xyz (Vercel `buylife/look-studio`, CLI 직접 배포) |
+| 주소 | https://ai-fashion-style.buylife.xyz (Vercel `buylife/ai-fashion-style`, CLI 직접 배포) |
 | 카테고리 / 접근 | 이미지 / 최소 등급 일반 + 관리자 부여 사용기간(FREE 아님), 기본 3요금제 |
 | 참고 원본 | AI Studio "LookStudio AI (배포용)" — 흐름·프롬프트 구조만 참고, 코드 복제 없음. 분석·계획 [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md) |
 

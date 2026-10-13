@@ -295,7 +295,7 @@ export function Studio({ userId }: { userId: string }) {
       const a = document.createElement("a");
       const url = URL.createObjectURL(blob);
       a.href = url;
-      a.download = `look-studio-${Date.now()}.${format === "png" ? "png" : "jpg"}`;
+      a.download = `ai-fashion-style-${Date.now()}.${format === "png" ? "png" : "jpg"}`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       if (db && edited) {

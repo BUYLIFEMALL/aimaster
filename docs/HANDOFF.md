@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — 프로그램명 변경: AI 룩스튜디오 자동화 → **AI 패션스타일 자동화** (`ai-fashion-style` v1.02)
+
+- 주인님 요청: 프로그램명을 "AI 패션스타일 자동화"로, Vercel 이름·주소도 일치, 프로그램 내 용어 수정.
+- 변경: 폴더 `look-studio/` → `ai-fashion-style/`(git mv), slug·`APP_NAME`·화면 제목(KO "AI 패션스타일", EN "AI Fashion Style")·문서·테스트·IndexedDB 이름(`ai-fashion-style-<userId>`)·다운로드 파일명 정리. DB `programs` slug/name/short_desc/app_url/version(v1.02) 갱신. Vercel 프로젝트 `look-studio` → `ai-fashion-style` 이름 변경, 새 도메인 https://ai-fashion-style.buylife.xyz 연결(옛 `look-studio.buylife.xyz`는 삭제하지 않고 유지 — 도메인 정책). 썸네일 파일 경로는 그대로(DB URL 유지).
+- 검수: tsc·테스트 12/12·보이는 Chrome 15/15 통과, 새 주소 로그인 리다이렉트 확인. 옛 내용(look-studio)이 남은 곳은 과거 기록이므로 참고만.
+
 ## 2026-10-13 Antigravity — AI 할 일·성과 관리 v1.03 UI/UX 가독성 및 디자인 개선 배포
 
 - **사용자 요청**: 버튼 색상과 각 박스 영역의 시각적 가독성과 완성도를 원본 캡처에 맞춰 고급스럽고 보기 좋게 개선.

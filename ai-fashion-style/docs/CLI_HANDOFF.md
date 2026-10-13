@@ -1,4 +1,4 @@
-# AI 룩스튜디오 자동화 — 작업 재개 인수인계 (CLI_HANDOFF)
+# AI 패션스타일 자동화 — 작업 재개 인수인계 (CLI_HANDOFF)
 
 작성: 2026-10-13 (Claude Code). 이어받는 CLI는 **이 문서 → [AGENTS.md](../AGENTS.md) → [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)** 순서로 읽으세요.
 
@@ -6,12 +6,12 @@
 
 | 항목 | 값 |
 |---|---|
-| 프로그램 | AI 룩스튜디오 자동화 (`slug: look-studio`) — 코디 추천 → 가상 피팅 → 뷰티 → 저장 |
+| 프로그램 | AI 패션스타일 자동화 (`slug: ai-fashion-style`) — 코디 추천 → 가상 피팅 → 뷰티 → 저장 |
 | 버전 | **v1.01** (`src/lib/version.ts` = DB `programs.version`) |
-| 주소 | https://look-studio.buylife.xyz (카탈로그 https://www.buylife.xyz/programs/look-studio) |
-| Vercel | `buylife/look-studio`, Git 미연동, 폴더 `look-studio/`에서 `vercel deploy --prod --yes --scope buylife` |
+| 주소 | https://ai-fashion-style.buylife.xyz (카탈로그 https://www.buylife.xyz/programs/ai-fashion-style) |
+| Vercel | `buylife/ai-fashion-style`, Git 미연동, 폴더 `ai-fashion-style/`에서 `vercel deploy --prod --yes --scope buylife` |
 | DB | 전용 테이블 없음. `programs`(이미지, new, 최소 일반), 3요금제, VIP 접근, 썸네일 등록 |
-| 저장 | 사진·옷장·최근 룩·설정은 회원 브라우저 IndexedDB(`look-studio-<userId>`). 서버 저장 없음 |
+| 저장 | 사진·옷장·최근 룩·설정은 회원 브라우저 IndexedDB(`ai-fashion-style-<userId>`). 서버 저장 없음 |
 | AI | 서버 라우트에서만, 회원 본인 Gemini 키. 키 없으면 `needKey` |
 | 참고 원본 | AI Studio "LookStudio AI (배포용)" (코드 복제 없음) |
 
@@ -37,14 +37,14 @@ tests/browser.mjs + browser-entry.tsx   보이는 Chrome 15개(모의 Gemini)
 ## 4. 개발·검수·배포
 
 ```bash
-cd look-studio && npm install
+cd ai-fashion-style && npm install
 npm test && npx tsc --noEmit
 npm run test:browser          # Playwright + Chrome(보이는 창), Gemini는 모의 응답
 npx next build && vercel deploy --prod --yes --scope buylife
 # 수정 때마다 DB 버전 +0.01
 ```
 - 실제 Gemini 형식 점검은 `NODE_OPTIONS=--conditions=react-server node --import tsx <스크립트>`로 `src/lib/gemini.ts`를 직접 호출(주인님 본인 키, 가상 인물 이미지만 사용, 소액).
-- 커밋은 경로 명시(`git add look-studio`), 루트 `HANDOFF.md`·`ERROR_LESSONS.md`는 다른 CLI의 미커밋 변경이 섞여 있어 내 블록만 별도 반영.
+- 커밋은 경로 명시(`git add ai-fashion-style`), 루트 `HANDOFF.md`·`ERROR_LESSONS.md`는 다른 CLI의 미커밋 변경이 섞여 있어 내 블록만 별도 반영.
 - 썸네일 교체는 `PLATFORM_PATTERNS.md §13` + `scripts/generate-program-thumbnail.mjs`만.
 
 ## 5. 검수 증거 (2026-10-13)

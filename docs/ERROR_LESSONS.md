@@ -1,8 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
-## 2026-10-13 — AI 이미지 응답(PNG 1~2.4MB)을 그대로 다시 보내면 레이어드 누적이 413 (look-studio)
+## 2026-10-13 — AI 이미지 응답(PNG 1~2.4MB)을 그대로 다시 보내면 레이어드 누적이 413 (ai-fashion-style, 구 look-studio)
 
-- 증상(실호출로 발견): 입어보기 결과 PNG가 2.4MB(base64 3.2MB)라 이를 기준 이미지로 아이템(1.2MB)과 함께 다시 보내면 요청 본문이 Vercel 한도(4.5MB)를 넘음 → 원인: AI 응답 이미지를 가공 없이 상태에 보관 → 해결: 응답 직후 `shrinkImage`(JPEG ≤1600px)로 줄여 보관(`look-studio/src/components/look/Studio.tsx`, `lib/look/clientImages.ts`), 서버 `validateImage`는 장당 base64 3.4MB 상한 → 다음부터: 이미지 생성 프로그램은 **응답 크기를 실호출로 먼저 재고**, 되돌려 보내는 구조면 즉시 축소한다. 모의 응답만으로는 이 문제가 드러나지 않는다.
+- 증상(실호출로 발견): 입어보기 결과 PNG가 2.4MB(base64 3.2MB)라 이를 기준 이미지로 아이템(1.2MB)과 함께 다시 보내면 요청 본문이 Vercel 한도(4.5MB)를 넘음 → 원인: AI 응답 이미지를 가공 없이 상태에 보관 → 해결: 응답 직후 `shrinkImage`(JPEG ≤1600px)로 줄여 보관(`ai-fashion-style/src/components/look/Studio.tsx`, `lib/look/clientImages.ts`), 서버 `validateImage`는 장당 base64 3.4MB 상한 → 다음부터: 이미지 생성 프로그램은 **응답 크기를 실호출로 먼저 재고**, 되돌려 보내는 구조면 즉시 축소한다. 모의 응답만으로는 이 문제가 드러나지 않는다.
 - `server-only` 모듈을 스크립트로 시험할 때는 `NODE_OPTIONS=--conditions=react-server` + `tsx`.
 
 - 2026-10-13 보강(music-player): MCP 제어 창이 숨김이라 소리 검수가 불가할 때는 **markdown-studio의 `tests/browser.mjs` 패턴**(esbuild로 컴포넌트 번들 + 로컬 http 서버 + Playwright `channel:"chrome", headless:false`)을 쓰면 보이는 Chrome에서 실제 재생·분석기·IndexedDB까지 검수할 수 있다(`music-player/tests/browser.mjs` 참고).
