@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — 카탈로그 썸네일 3종 실사 규칙(§13)으로 재생성 (ui-canvas · markdown-studio · persona-style-studio)
+
+- 주인님 지적: 썸네일 규칙 미준수. 세 프로그램을 `docs/PLATFORM_PATTERNS.md §13` 템플릿 + `scripts/generate-program-thumbnail.mjs`로 **한국인 실사 16:9**로 재생성·교체(프로그램 성격·핵심 기능을 화면 UI와 떠 있는 아이콘으로 반영, 무문자). 옛 PNG는 Storage에서 삭제. 생성 후 이미지를 직접 열어 확인했고 세 URL 모두 200. 앱 코드·버전 변경 없음.
+- **규칙 재확인**: 썸네일을 만들거나 바꿀 때는 작업 전에 §13을 읽는다(즉흥 프롬프트·일회성 스크립트 금지). 기록: `docs/ERROR_LESSONS.md` 2026-10-13 썸네일 항목.
+
 ## 2026-10-13 Claude Code — UI Canvas 자동화 썸네일 실사로 교체(규칙 §13 위반 정정)
 
 - 주인님 지적: 썸네일 규칙(실사) 미준수. 일러스트 썸네일을 `scripts/generate-program-thumbnail.mjs` + §13 템플릿으로 **한국인 실사 16:9**로 재생성·교체(`catalog/ui-canvas-thumbnail.jpg`, 옛 PNG 삭제). 코드·버전 변경 없음(v1.05 유지). 교훈은 `docs/ERROR_LESSONS.md`.
