@@ -2,6 +2,8 @@
 
 > ★ 최상위 규칙: 회원은 **본인 계정·본인 Gemini API 키**로만 AI를 쓴다. 키가 없으면 폴백하지 않고 등록 안내(`needKey`)를 돌려준다. 운영자·다른 회원 키 사용 금지. ([TOP_RULE](../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md))
 
+**이어받는 CLI는 [docs/CLI_HANDOFF.md](docs/CLI_HANDOFF.md)(완료 커밋·코드 지도·절차·남은 일·함정)부터 읽으세요.**
+
 작업 시작 전: 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`를 먼저 읽는다.
 
 ## 기본 정보
