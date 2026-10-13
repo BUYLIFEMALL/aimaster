@@ -1,6 +1,6 @@
 {
   "name": "react-ui-showcase",
-  "version": "1.01.0",
+  "version": "1.02.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3017",

@@ -62,11 +62,11 @@ export const ShowcaseDashboard: React.FC<ShowcaseDashboardProps> = ({
                 PRODUCTION READY UI SUITE
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                React 19 & Tailwind CSS 컴포넌트 쇼케이스
+                AI 웹 UI 제작 자동화 스튜디오
               </h2>
               <p className="mt-2 text-sm text-blue-100 leading-relaxed">
                 모던 웹 서비스 개발에 필수적인 12대 핵심 UI 컴포넌트와 10종의 인터랙티브 데모 시뮬레이터를 즉시 체험하고, 
-                클린 TSX 코드를 복사하거나 회원 본인의 Gemini AI로 맞춤 컴포넌트를 생성하세요.
+                클린 TSX 코드를 복사하거나 회원 본인의 Gemini AI로 맞춤 웹 UI를 자동으로 제작하세요.
               </p>
               <div className="flex flex-wrap gap-2.5 mt-5">
                 <button

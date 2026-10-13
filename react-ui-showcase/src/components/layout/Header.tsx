@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ hasApiKey = false, userEmail = "
           {PROGRAM_NAME}
         </h1>
         <span className="hidden sm:inline-block text-xs text-slate-400">
-          | React 19 & Tailwind CSS 필수 UI 컴포넌트 라이브러리
+          | React 19 & Tailwind CSS 기반 웹 UI 자동 생성 & 컴포넌트 라이브러리
         </span>
       </div>
 

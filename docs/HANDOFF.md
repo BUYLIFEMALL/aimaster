@@ -8,21 +8,23 @@
 
 - 실제 Drive에서 새 파일 가져오기 성공. 가져온 문서를 올릴 때 Drive 파일이 `Drive에서 가져옴 …` 하위 폴더로 이동되던 결함을 발견해 정리 폴더를 전용 폴더와 연결하도록 수정(v1.07, `pullEntries(…, rootId)`, SQL `0008_v1_07_pull_keeps_location.sql`). 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·충돌·사본/교체 가져오기.
 
-## 2026-10-13 Antigravity — React UI 컴포넌트 쇼케이스 (react-ui-showcase v1.01) 신규 개발·인수인계 완료 및 운영 배포
+## 2026-10-13 Antigravity — AI 웹 UI 제작 자동화 (react-ui-showcase v1.02) 명칭 정정·도메인 매칭 및 운영 배포
 
-- **프로그램명**: **React UI 컴포넌트 쇼케이스** (React UI Component Showcase & AI Studio)
-- **슬러그 / URL**: `react-ui-showcase` / [https://react-ui-showcase.buylife.xyz](https://react-ui-showcase.buylife.xyz)
-- **현재 버전**: **`v1.01`** (`src/lib/version.ts` 및 DB `programs.version = 'v1.01'`)
+- **프로그램명**: **AI 웹 UI 제작 자동화** (Web UI AI Studio)
+- **슬러그 / URL**: `react-ui-showcase` / [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (보조: `web-ui.buylife.xyz`, `react-ui-showcase.buylife.xyz`)
+- **현재 버전**: **`v1.02`** (`src/lib/version.ts` 및 DB `programs.version = 'v1.02'`)
 - **최상위 원칙 준수**: 사용자는 본인의 계정과 본인의 Gemini API 키를 직접 등록하여 사용 (운영자 키 폴백 금지, 암호화 격리 저장).
 - **프로젝트 상세 인수인계서**: [react-ui-showcase/AGENTS.md](../react-ui-showcase/AGENTS.md) 및 [react-ui-showcase/README.md](../react-ui-showcase/README.md) 완비.
 - **핵심 아키텍처 및 구현 현황**:
-  1. **12대 필수 UI 컴포넌트 갤러리**: Button, Input, Modal, Tabs, Select, RadioGroup, Checkbox, Toggle, Slider, Alert, Spinner, ProgressBar, Tooltip, Popover 등 실무 필수 요소의 모든 변형(Variants), 사이즈, 활성/비활성/로딩 상태를 그리드 뷰로 라이브 비교 및 테스트.
-  2. **10종 인터랙티브 데모 시뮬레이터**: 미니 RPG 어드벤처 버튼 게임, 실시간 뉴스레터 폼 유효성 검사, 이커머스 상세 탭, 다국어/테마 설정 컨트롤, 미디어 플레이어 볼륨 슬라이더 동기화, 파일 업로드 결과 알림, 비동기 로더, 툴팁, 모달 vs 팝업, 퀵 프로필 팝오버를 모달로 직접 시뮬레이션.
-  3. **클린 TSX 소스 코드 원클릭 복사**: 불필요한 무거운 의존성 없이 순수 React 19와 최신 Tailwind CSS v4로 작성된 단일 파일 TSX 소스 코드를 구문 강조 뷰어와 클립보드 원클릭 복사로 즉시 제공.
-  4. **Gemini AI 컴포넌트 자동 빌더**: 회원 본인의 Gemini 2.5 Flash API 연동을 통해 한 줄 자연어 프롬프트("다크 테마 차트 카드 컴포넌트 만들어줘")로 고품질 커스텀 TSX 코드를 실시간 스트리밍 생성.
-  5. **플랫폼 표준 UI 규격 준수**: 화이트 테마 베이스, 좌측 사이드바(`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격, 1-2-3-4 작업 흐름, API키등록, 연동 매뉴얼, 실제 로그인 계정 표시 및 로그아웃 버튼).
-  6. **Supabase 카탈로그 등록 완료**: 16:9 와이드 고화질 카탈로그 썸네일 Storage 업로드, `programs` 테이블 신규 등록 (`ID: 582c3689-4a6f-4de5-9e87-d2d6a23eab01`, `category_id: Tools`, `badges: ['free', 'new']`, 3종 가격 플랜 등록).
+  1. **직관적 프로그램 명칭 정정 (v1.02)**: 주인님 요청에 따라 직관적인 명칭인 **「AI 웹 UI 제작 자동화」**로 프로그램명, 사이드바, 헤더, 대시보드 배너 및 DB `programs` 일괄 반영 완료.
+  2. **Vercel 매칭 도메인 연결**: `ai-web-ui.buylife.xyz` 및 `web-ui.buylife.xyz` 도메인 Vercel 프로젝트 연결 및 DB `programs.app_url` 동기화 완료.
+  3. **12대 필수 UI 컴포넌트 갤러리**: Button, Input, Modal, Tabs, Select, RadioGroup, Checkbox, Toggle, Slider, Alert, Spinner, ProgressBar, Tooltip, Popover 등 실무 필수 요소의 모든 변형(Variants), 사이즈, 활성/비활성/로딩 상태를 그리드 뷰로 라이브 비교 및 테스트.
+  4. **10종 인터랙티브 데모 시뮬레이터**: 미니 RPG 어드벤처 버튼 게임, 실시간 뉴스레터 폼 유효성 검사, 이커머스 상세 탭, 다국어/테마 설정 컨트롤, 미디어 플레이어 볼륨 슬라이더 동기화, 파일 업로드 결과 알림, 비동기 로더, 툴팁, 모달 vs 팝업, 퀵 프로필 팝오버를 모달로 직접 시뮬레이션.
+  5. **클린 TSX 소스 코드 원클릭 복사**: 불필요한 무거운 의존성 없이 순수 React 19와 최신 Tailwind CSS v4로 작성된 단일 파일 TSX 소스 코드를 구문 강조 뷰어와 클립보드 원클릭 복사로 즉시 제공.
+  6. **Gemini AI 컴포넌트 자동 빌더**: 회원 본인의 Gemini 2.5 Flash API 연동을 통해 한 줄 자연어 프롬프트("다크 테마 차트 카드 컴포넌트 만들어줘")로 고품질 커스텀 TSX 코드를 실시간 스트리밍 생성.
+  7. **플랫폼 표준 UI 규격 준수**: 화이트 테마 베이스, 좌측 사이드바(`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격, 1-2-3-4 작업 흐름, API키등록, 연동 매뉴얼, 실제 로그인 계정 표시 및 로그아웃 버튼).
 - **검수 및 운영 현황**: 로컬 프로덕션 빌드 `npm run build` 100% 정상 통과 (Exit code 0), Vercel 프로덕션 배포 및 라이브 검증 완료.
+
 
 
 ## 2026-10-13 Claude Code — 관리자 접근 권한 관리 표 세로 배치 (등급 위·프로그램 왼쪽 세로 목록)

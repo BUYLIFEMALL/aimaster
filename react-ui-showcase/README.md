@@ -1,9 +1,9 @@
-# React UI 컴포넌트 쇼케이스 (React UI Component Showcase)
+# AI 웹 UI 제작 자동화 (Web UI AI Studio)
 
-> **React 19 & Tailwind CSS v4 기반 12대 필수 UI 컴포넌트 및 인터랙티브 데모 시뮬레이터, TSX 코드 복사기 & AI 컴포넌트 생성기**
+> **React 19 & Tailwind CSS v4 기반 12대 필수 UI 컴포넌트 및 인터랙티브 데모 시뮬레이터, TSX 코드 복사기 & AI 웹 UI 자동 생성기**
 
-- **버전**: `v1.01`
-- **도메인**: [https://react-ui-showcase.buylife.xyz](https://react-ui-showcase.buylife.xyz)
+- **버전**: `v1.02`
+- **도메인**: [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (보조: `web-ui.buylife.xyz`, `react-ui-showcase.buylife.xyz`)
 - **개발 환경**: Next.js 16 (App Router), React 19, Tailwind CSS v4, TypeScript, Supabase SSR, Google Gemini 2.5 Flash
 
 ---
@@ -17,7 +17,7 @@
 3. **클린 TSX 소스 코드 원클릭 복사**:
    - 외부 무거운 의존성 없이 순수 React와 Tailwind CSS로 작성된 컴포넌트 코드를 원클릭 복사하여 프로젝트에 즉시 활용
 4. **Gemini AI 컴포넌트 자동 빌더**:
-   - 회원 본인의 Gemini API 키를 연동하여 자연어 프롬프트 기반으로 즉시 맞춤형 TSX 컴포넌트 코드 생성
+   - 회원 본인의 Gemini API 키를 연동하여 자연어 프롬프트 기반으로 즉시 맞춤형 TSX 컴포넌트 코드 자동 생성
 
 ---
 

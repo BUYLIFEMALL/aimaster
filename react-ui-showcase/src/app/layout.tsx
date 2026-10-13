@@ -4,7 +4,7 @@ import { PROGRAM_NAME } from "@/lib/version";
 
 export const metadata: Metadata = {
   title: `${PROGRAM_NAME} | AIMaster`,
-  description: "React 19, TypeScript, Tailwind CSS 기반 12대 필수 UI 컴포넌트 쇼케이스 & 실시간 AI 컴포넌트 생성 스튜디오",
+  description: "React 19, TypeScript, Tailwind CSS 기반 12대 필수 UI 컴포넌트 라이브러리 & 실시간 AI 웹 UI 제작 자동화 스튜디오",
 };
 
 export default function RootLayout({

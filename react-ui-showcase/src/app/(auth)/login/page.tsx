@@ -45,7 +45,7 @@ function LoginCard() {
           </span>
         </div>
         <p className="text-xs text-slate-500 mt-1">
-          AIMaster 계정으로 로그인하여 12대 핵심 UI 컴포넌트와 AI 생성기를 시작하세요
+          AIMaster 계정으로 로그인하여 12대 핵심 UI 컴포넌트와 AI 웹 UI 제작 자동화를 시작하세요
         </p>
       </div>
 

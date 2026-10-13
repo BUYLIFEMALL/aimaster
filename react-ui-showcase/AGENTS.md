@@ -1,4 +1,4 @@
-# React UI 컴포넌트 쇼케이스 (react-ui-showcase) 인수인계 문서 (AGENTS.md)
+# AI 웹 UI 제작 자동화 (react-ui-showcase) 인수인계 문서 (AGENTS.md)
 
 > # ★★★ 절대 불변 최상위 규칙 (2026-10-09 주인님 지시 — 어떤 경우에도 바뀔 수 없음)
 > **사용자는 본인의 계정과, 본인이 사용할 본인 Gemini API 키를 각각 직접 등록·연동해서 사용한다.**
@@ -8,19 +8,19 @@
 
 ## 1. 프로그램 기본 정보 및 현황
 
-- **프로그램명**: **React UI 컴포넌트 쇼케이스** (React UI Component Showcase & AI Studio)
+- **프로그램명**: **AI 웹 UI 제작 자동화** (Web UI AI Studio)
 - **슬러그 (Slug)**: `react-ui-showcase`
-- **현재 버전**: **`v1.01`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.01'`)
-- **공식 서비스 도메인**: [https://react-ui-showcase.buylife.xyz](https://react-ui-showcase.buylife.xyz)
+- **현재 버전**: **`v1.02`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.02'`)
+- **공식 서비스 도메인**: [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (보조 도메인: `web-ui.buylife.xyz`, `react-ui-showcase.buylife.xyz`)
 - **Vercel 프로젝트**: `react-ui-showcase` (Team: `buylife`)
-- **카테고리**: 개발자 도구 / 디자인 시스템
+- **카테고리**: 개발자 도구 / 디자인 시스템 / UI 자동화
 - **인증 및 세션**: Supabase Auth (AIMaster 공유 프로젝트 `esgxyikcnnvmlhygjkth`, `.buylife.xyz` 통합 SSO 쿠키)
 
 ---
 
 ## 2. 프로그램 개요 및 목적
 
-현대적인 프론트엔드 웹 애플리케이션 개발에 필수적인 **12대 핵심 UI 컴포넌트 라이브러리**와 **10가지 인터랙티브 실사용 시뮬레이터 데모**, **클린 TSX 원클릭 소스 코드 복사기**를 완벽 제공하고, 회원 본인의 Google Gemini API 키를 연동하여 자연어 프롬프트 기반으로 즉시 커스텀 UI 컴포넌트 TSX 코드를 생성해 낼 수 있는 올인원 React 19 & Tailwind CSS 쇼케이스 스튜디오입니다.
+현대적인 프론트엔드 웹 애플리케이션 개발에 필수적인 **12대 핵심 UI 컴포넌트 라이브러리**와 **10가지 인터랙티브 실사용 시뮬레이터 데모**, **클린 TSX 원클릭 소스 코드 복사기**를 완벽 제공하고, 회원 본인의 Google Gemini API 키를 연동하여 자연어 프롬프트 기반으로 즉시 커스텀 UI 컴포넌트 TSX 코드를 생성해 낼 수 있는 올인원 웹 UI 자동화 스튜디오입니다.
 
 ---
 
@@ -62,8 +62,8 @@
 react-ui-showcase/
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx                     # 메인 쇼케이스 대시보드
-│   │   ├── layout.tsx                   # 전역 레이아웃
+│   │   ├── page.tsx                     # 메인 대시보드 (ShowcaseDashboard)
+│   │   ├── layout.tsx                   # 전역 레이아웃 및 메타데이터
 │   │   ├── globals.css                  # Tailwind CSS v4 테마
 │   │   ├── (auth)/
 │   │   │   └── login/page.tsx           # AIMaster 통합 로그인
@@ -89,7 +89,7 @@ react-ui-showcase/
 │   │   │   └── AiComponentGenerator.tsx # Gemini AI 프롬프트 기반 컴포넌트 생성 모달
 │   │   └── ui/                          # 16대 핵심 UI 컴포넌트 라이브러리
 │   └── lib/
-│       ├── version.ts                   # 프로그램 버전 관리 (v1.01)
+│       ├── version.ts                   # 프로그램 버전 관리 (v1.02)
 │       ├── access.ts                    # 권한 판정 (requireProgramAccess)
 │       ├── apiKeys.ts                   # Supabase user_api_keys 격리 조회/저장/삭제
 │       ├── gemini.ts                    # 회원 키 기반 Gemini 2.5 Flash 호출 클라이언트
@@ -111,7 +111,7 @@ react-ui-showcase/
 
 ## 6. 개발 및 유지보수 가이드
 
-- **로컬 실행**: `npm run dev` (포트 3000)
+- **로컬 실행**: `npm run dev`
 - **프로덕션 빌드 검증**: `npm run build`
 - **배포 명령**: `vercel deploy --prod --yes`
-- **버전 상향 규칙**: 사소한 수정/패치 시 `v1.01 -> v1.02` 상향, 코드 `src/lib/version.ts` 및 DB `programs.version` 동시 갱신.
+- **버전 상향 규칙**: 사소한 수정/패치 시 마이너 버전 상향(`v1.01 -> v1.02`), 코드 `src/lib/version.ts` 및 DB `programs.version` 동시 갱신.

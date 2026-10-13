@@ -1,3 +1,3 @@
-export const APP_VERSION = "v1.01";
+export const APP_VERSION = "v1.02";
 export const PROGRAM_SLUG = "react-ui-showcase";
-export const PROGRAM_NAME = "React UI 컴포넌트 쇼케이스";
+export const PROGRAM_NAME = "AI 웹 UI 제작 자동화";
