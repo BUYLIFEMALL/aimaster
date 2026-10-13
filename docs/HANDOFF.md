@@ -8,6 +8,14 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — 신규 프로그램: AI 썸네일 마스터 자동화 (`thumbnail-master` v1.01)
+
+- 주인님 요청: https://youtube-thumbnail-master-ai-pro.vercel.app/ 를 별도 프로그램으로 분석 → 플랜(752e9c8b) → "진행해줘"로 구현·배포.
+- 구현: 주제·대본 → 피사체·타겟 → A/B 전략(문구·프롬프트) → 문구가 박힌 16:9 썸네일 2종 병렬 생성(서버가 JPEG 변환 후 비공개 Storage 저장, 서명 URL 반환) → 지시문 수정·버전 되돌리기·JPG 다운로드·프로젝트 저장. 회원 본인 Gemini 키만 사용.
+- DB: `thumbnail_master_projects`(RLS, A/B 이미지 컬럼 분리), Storage 비공개 `thumbnail-master-images`, `programs` 등록+요금제 3종+VIP 접근, §13 실사 썸네일. 기존 `seo-thumbnail-pro`와 역할 구분.
+- 검수: 단위 11/11, 보이는 Chrome 14/14, 빌드, 실제 Gemini 전략 9초·1K 이미지 18초·수정 18초, 운영 화면(관리자 로그인)에서 2K 2종 생성 확인 후 검수 데이터 삭제. 운영 https://thumbnail-master.buylife.xyz
+- 남은 일·인수인계: [thumbnail-master/docs/CLI_HANDOFF.md](../thumbnail-master/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — 신규 프로그램: AI 리버스 프롬프트 자동화 (`reverse-prompt` v1.01)
 
 - 주인님 요청: https://reverse-prompt-architect.vercel.app/ 분석 → 플랜(ad435d1f) → "진행해줘"로 구현·배포.

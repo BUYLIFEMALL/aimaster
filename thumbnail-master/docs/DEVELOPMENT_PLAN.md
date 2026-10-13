@@ -1,6 +1,6 @@
-# AI 썸네일 마스터 자동화 (thumbnail-master) — 분석 및 개발 플랜 (2026-10-14, 승인 대기)
+# AI 썸네일 마스터 자동화 (thumbnail-master) — 분석 및 개발 플랜 (2026-10-14 작성·구현 완료)
 
-> 상태: **분석·플랜 단계. 코드 미착수.** 참고 사이트: https://youtube-thumbnail-master-ai-pro.vercel.app/ ("썸네일 마스터 AI Pro", 개발자 GPT PARK).
+> 상태: **구현·배포 완료(v1.01, 2026-10-14).** 운영 https://thumbnail-master.buylife.xyz — 인수인계는 [CLI_HANDOFF.md](CLI_HANDOFF.md), 구조·규칙은 [../AGENTS.md](../AGENTS.md). 참고 사이트: https://youtube-thumbnail-master-ai-pro.vercel.app/ ("썸네일 마스터 AI Pro", 개발자 GPT PARK).
 > 분석 방법(핵심 원칙 14번): 공개 HTML과 메인 JS 번들(`/assets/index-BONrdSW4.js`, 450KB)을 통째로 내려받아 앱 코드 구간(전략 생성 프롬프트·응답 스키마·이미지 생성/수정 프롬프트·컴포넌트 5단계·도움말·키 저장 로직)을 전부 정독했다. 서버·별도 API 없음 — 순수 클라이언트 앱이다. 내려받은 파일은 실행하지 않고 읽기만 했다.
 > 별도 프로그램으로 개발하기로 결정됨(주인님 지시 2026-10-14). 기존 `seo-thumbnail-pro`(AI 유튜브 썸네일 프로)와 기능 일부가 겹치지만 참고 원본·흐름이 다르다(§1-7).
 

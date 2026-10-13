@@ -1741,6 +1741,12 @@
 
 - 증상: Suno 운영 API 비로그인 오류 응답은 성공 응답과 달리 Cache-Control이 public,max-age=0 → 원인: `guarded()` 성공 경로에만 no-store 지정 → 해결: `suno-music-studio/src/lib/apiGuard.ts` 모든 응답에 private,no-store 적용(v1.04) → 다음부터 확인: 동적 라우트 선언만 확인하지 말고 성공/401/403/검증 오류의 실제 응답 헤더를 각각 확인.
 
+## 2026-10-14 thumbnail-master v1.01 — 이미지 응답 한도·병렬 저장
+
+- 증상(예방): Gemini 2K 이미지 응답은 PNG로 4~7MB라 Vercel 함수 응답 한도(4.5MB)를 넘길 수 있고, 수정 요청 때 클라이언트가 큰 이미지를 다시 보내도 요청 한도에 걸린다 → 해결: 서버가 `sharp`로 JPEG(q90) 변환 후 비공개 Storage에 저장하고 서명 URL만 반환, 수정은 서버가 Storage 원본을 읽음(`thumbnail-master/src/lib/images.ts`) → 다음부터: 이미지를 JSON 응답/요청에 base64로 싣지 않는다.
+- 증상(예방): A/B 두 이미지를 병렬 요청으로 만들 때 한 JSON 컬럼을 읽고-쓰기하면 서로 덮어씀 → 해결: 옵션별 컬럼(`images_a`, `images_b`)으로 분리, 자동 저장 PUT은 이미지 컬럼을 건드리지 않음 → 다음부터: 병렬로 갱신하는 값은 컬럼을 나누거나 원자적 갱신을 쓴다.
+- 증상: `bash` 안의 `python - <<'EOF'` 같은 heredoc에 따옴표·한글이 섞이면 "unexpected EOF"로 명령 전체가 실행되지 않음 → 해결: 스크립트를 Write 도구로 파일에 쓴 뒤 실행한다.
+
 ## 2026-10-14 reverse-prompt v1.01 — 큰 파일 업로드·MCP SQL·실호출 스크립트
 
 - 증상: Supabase MCP `execute_sql`에 DDL 여러 문장(테이블+정책+버킷)을 한 번에 보내면 "Invalid or expired requestState"로 거부 → 해결: 문장 하나씩 보내면 정상 적용(DELETE 같은 파괴적 문장도 거부될 수 있어 서비스 롤 스크립트로 정리) → 다음부터: DDL은 문장별로 적용하고 마이그레이션 파일에는 전체를 남긴다.
