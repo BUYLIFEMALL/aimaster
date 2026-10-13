@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { normalizePlan, normalizeSection, parseJsonLoose, cleanKeyword } from "../src/lib/lpa/plan.ts";
-import { extractHtml, validateHtml, extractImageKeywords, replaceImages } from "../src/lib/lpa/html.ts";
+import { extractHtml, validateHtml, extractImageKeywords, replaceImages, fallbackPicsum } from "../src/lib/lpa/html.ts";
 import { cleanInputs, missingInputs } from "../src/lib/lpa/validate.ts";
 import { planPrompt, codePrompt, yearGuard } from "../src/lib/lpa/prompts.ts";
 import { TEMPLATES, templateById } from "../src/lib/lpa/templates.ts";
@@ -104,4 +104,11 @@ test("프로젝트 문서 정리", () => {
   assert.equal(stageOf({ ...doc, html: "" }), "plan");
   assert.equal(sanitizeDoc({ inputs: {}, plan: { bad: 1 } }), null);
   assert.equal(sanitizeDoc({ inputs: {}, plan: null, html: "<p>x</p>" }), null);
+});
+
+test("fallbackPicsum: loremflickr를 Picsum 시드로 바꾼다", () => {
+  const out = fallbackPicsum('<img src="https://loremflickr.com/1600/900/Cafe,Tea"><img src="https://x/y.jpg">');
+  assert.ok(out.includes("https://picsum.photos/seed/cafe%2Ctea/1600/900"));
+  assert.ok(!out.includes("loremflickr"));
+  assert.ok(out.includes("https://x/y.jpg"));
 });

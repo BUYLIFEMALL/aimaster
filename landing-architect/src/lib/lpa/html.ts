@@ -33,6 +33,11 @@ export function replaceImages(html: string, map: Record<string, string>): string
   return html.replace(IMG_RE, (full, _w, _h, kw: string) => map[kw.toLowerCase()] ?? full);
 }
 
+/** 남은 loremflickr 플레이스홀더(서비스가 막혀 있어 이미지가 깨짐)를 키 없이 항상 뜨는 Picsum 시드 이미지로 바꾼다 */
+export function fallbackPicsum(html: string): string {
+  return html.replace(IMG_RE, (_f, w: string, h: string, kw: string) => `https://picsum.photos/seed/${encodeURIComponent(kw.toLowerCase())}/${w}/${h}`);
+}
+
 /** 미리보기 위험 요소 제거 후 srcDoc으로 쓸 문자열(원본은 그대로 보관) */
 export function previewDoc(html: string): string {
   return html;

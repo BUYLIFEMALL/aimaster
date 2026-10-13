@@ -59,7 +59,7 @@ export default function GuidePage() {
           <h2>③ 옵션 설명</h2>
           <div className="gd-cards">
             <article><h3>레이아웃 5종</h3><p>카드형(링크 인 바이오), 문서형(이력서), 히어로형(입력 폼), 갤러리형(포트폴리오), 랜딩형(섹션 스크롤). 주제 예시가 기본 유형을 정합니다.</p></article>
-            <article><h3>이미지 소스</h3><p>LoremFlickr는 키 없이 무작위 무료 사진을 씁니다. Unsplash·Pexels·Pixabay는 본인 키를 등록하면 키워드에 더 잘 맞는 사진을 찾아 줍니다.</p></article>
+            <article><h3>이미지 소스</h3><p>기본값은 키 없이 쓰는 무료 임의 사진(Picsum)이며 주제와 무관한 사진이 들어갑니다. Unsplash·Pexels·Pixabay는 본인 키를 등록하면 키워드에 더 잘 맞는 사진을 찾아 줍니다.</p></article>
             <article><h3>AI 모델</h3><p>Pro는 품질이 높고 느리며, 계정에서 쓸 수 없으면 자동으로 다음 모델로 처리합니다. Standard는 빠릅니다.</p></article>
             <article><h3>섹션 편집·다시 만들기</h3><p>프로젝트 정보, 페이지 구조, 콘텐츠 전략, 디자인 시스템, 개발 가이드, 이미지 에셋을 따로 고치거나 다시 받습니다.</p></article>
           </div>
@@ -88,7 +88,7 @@ export default function GuidePage() {
           <div className="gd-faq">
             <details><summary>“API 키 등록이 필요합니다”라고 나와요.</summary><p>①의 순서대로 본인 키를 등록하세요. 키는 다른 회원이나 운영자와 공유되지 않습니다.</p></details>
             <details><summary>“AI가 올바른 형식으로 응답하지 못했습니다”라고 나와요.</summary><p>AI 응답이 형식에서 벗어난 경우입니다. 같은 버튼을 한 번 더 눌러 주세요. 계속되면 Standard 모델로 바꿔 보세요.</p></details>
-            <details><summary>이미지가 주제와 안 맞아요.</summary><p>LoremFlickr는 무작위 사진입니다. 이미지 소스를 Unsplash/Pexels/Pixabay로 바꾸고 본인 키를 등록한 뒤 [이미지 다시 찾기]를 누르세요.</p></details>
+            <details><summary>이미지가 주제와 안 맞아요.</summary><p>기본 무료 사진은 주제와 무관한 임의 사진입니다. 이미지 소스를 Unsplash/Pexels/Pixabay로 바꾸고 본인 키를 등록한 뒤 [이미지 다시 찾기]를 누르세요.</p></details>
             <details><summary>미리보기가 비어 보여요.</summary><p>프로토타입은 외부 CDN(Tailwind)을 사용합니다. 인터넷 연결과 광고 차단 설정을 확인하고 다시 만들어 보세요.</p></details>
             <details><summary>“다른 창에서 먼저 저장되었습니다”라고 나와요.</summary><p>같은 프로젝트를 여러 창에서 열어 둔 경우입니다. 새로고침한 뒤 이어서 작업하세요.</p></details>
           </div>

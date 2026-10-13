@@ -126,6 +126,7 @@ try {
   await page.locator("select").nth(1).selectOption("pexels");
   await page.getByRole("button", { name: /프로토타입 다시 만들기/ }).click();
   await page.waitForFunction(() => document.querySelector("iframe")?.srcdoc.includes("images.example/p.jpg"));
+  assert.ok(!(await page.locator("iframe").getAttribute("srcdoc")).includes("loremflickr"));
   pass("외부 이미지 소스 선택 시 이미지 치환");
   console.log(`\n${results.length}개 검사 통과`);
 } catch (e) {

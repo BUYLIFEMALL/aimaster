@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const key = await getUserApiKey(access.user.id, provider);
   if (!key) {
     return NextResponse.json(
-      { error: `${LABEL[provider]} API 키가 등록되지 않았습니다. [API키등록·플랫폼연동]에서 본인 키를 등록하거나 이미지 소스를 LoremFlickr(무료)로 바꿔 주세요.`, needKey: provider },
+      { error: `${LABEL[provider]} API 키가 등록되지 않았습니다. [API키등록·플랫폼연동]에서 본인 키를 등록하거나 이미지 소스를 무료 임의 사진으로 바꿔 주세요.`, needKey: provider },
       { status: 400, headers: NO_STORE },
     );
   }

@@ -5,7 +5,7 @@ import type { Inputs, Plan, PlanSection, ProjectDoc } from "@/lib/lpa/types";
 import { PLAN_SECTIONS } from "@/lib/lpa/types";
 import { LAYOUT_LABELS, TEMPLATES, templateById } from "@/lib/lpa/templates";
 import { normalizeSection, planToMarkdown } from "@/lib/lpa/plan";
-import { CONVERT_PROMPT, extractImageKeywords, replaceImages } from "@/lib/lpa/html";
+import { CONVERT_PROMPT, extractImageKeywords, fallbackPicsum, replaceImages } from "@/lib/lpa/html";
 
 type Device = "mobile" | "tablet" | "desktop";
 type Busy = "" | "suggest" | "plan" | "section" | "code" | "images";
@@ -37,7 +37,7 @@ export function Workspace({ projectId, initialName, initialDoc, initialUpdatedAt
   const [name, setName] = useState(initialName);
   const [inputs, setInputs] = useState<Inputs>(initialDoc.inputs);
   const [plan, setPlan] = useState<Plan | null>(initialDoc.plan);
-  const [html, setHtml] = useState(initialDoc.html);
+  const [html, setHtml] = useState(() => fallbackPicsum(initialDoc.html)); // 이전 버전(v1.01~02)에서 저장한 loremflickr 주소도 열 때 대체
   const [busy, setBusy] = useState<Busy>("");
   const [error, setError] = useState("");
   const [needKey, setNeedKey] = useState(false);
@@ -130,13 +130,13 @@ export function Workspace({ projectId, initialName, initialDoc, initialUpdatedAt
   }
 
   async function applyImages(source: string, provider = inputs.imageProvider) {
-    if (provider === "loremflickr") return source;
+    if (provider === "loremflickr") return fallbackPicsum(source);
     const keywords = extractImageKeywords(source);
     if (!keywords.length) return source;
     const r = await post<{ urls: Record<string, string>; failed: string[] }>("/api/images/resolve", { provider, keywords });
-    if (!r.ok) { fail(r); return source; }
-    if (r.data.failed.length) setNotice(`일부 이미지(${r.data.failed.length}개)는 찾지 못해 무료 이미지로 남겨 두었습니다.`);
-    return replaceImages(source, r.data.urls);
+    if (!r.ok) { fail(r); return fallbackPicsum(source); }
+    if (r.data.failed.length) setNotice(`일부 이미지(${r.data.failed.length}개)는 찾지 못해 무료 임의 사진으로 대체했습니다.`);
+    return fallbackPicsum(replaceImages(source, r.data.urls));
   }
 
   async function makeCode() {
@@ -217,7 +217,7 @@ export function Workspace({ projectId, initialName, initialDoc, initialUpdatedAt
           </label>
           <label>이미지 소스
             <select value={inputs.imageProvider} disabled={working} onChange={(e) => set("imageProvider", e.target.value as Inputs["imageProvider"])}>
-              <option value="loremflickr">LoremFlickr (무료·키 불필요)</option>
+              <option value="loremflickr">무료 임의 사진 (키 불필요)</option>
               <option value="unsplash">Unsplash (본인 키)</option>
               <option value="pexels">Pexels (본인 키)</option>
               <option value="pixabay">Pixabay (본인 키)</option>
@@ -294,7 +294,7 @@ export function Workspace({ projectId, initialName, initialDoc, initialUpdatedAt
               </div>
               <button type="button" onClick={() => copy("html", html)}>{copied === "html" ? <Check size={14} /> : <ClipboardCopy size={14} />}HTML 복사</button>
               <button type="button" onClick={() => download("landing-page.html", html, "text/html")}><Download size={14} />HTML 다운로드</button>
-              {hasKeywords && inputs.imageProvider !== "loremflickr" && <button type="button" disabled={working} onClick={reapplyImages}><RefreshCw size={13} />이미지 다시 찾기</button>}
+              {inputs.imageProvider !== "loremflickr" && /picsum\.photos\/seed\//.test(html) && <button type="button" disabled={working} onClick={reapplyImages}><RefreshCw size={13} />이미지 다시 찾기</button>}
             </div>
           </div>
           <div className="lp-preview">
