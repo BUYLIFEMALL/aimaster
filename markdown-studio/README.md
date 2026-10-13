@@ -10,6 +10,7 @@
 - [개발 순서·설계·완료 기준](docs/DEVELOPMENT_PLAN.md)
 - [브라우저 실험 결과](docs/evidence/review-results.json)
 - [다음 에이전트 안내](AGENTS.md)
+- [다른 CLI 작업 재개 인수인계·전달 문구](docs/CLI_HANDOFF.md)
 
 ## 구현된 기능
 
