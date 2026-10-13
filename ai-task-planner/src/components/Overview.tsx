@@ -107,6 +107,7 @@ export function NotePanel({
     <section className="card note-panel">
       <div className="section-header">
         <h2>성과 노트</h2>
+        <span className="note-count" aria-live="polite">{note.length.toLocaleString()} / 10,000자</span>
       </div>
       <div className="note-content">
         <textarea
@@ -114,10 +115,10 @@ export function NotePanel({
           maxLength={10000}
           value={note}
           onChange={e => change(e.target.value)}
-          placeholder="오늘 무엇이 잘 됐나요? 내일 개선할 점은?"
+          placeholder={"오늘 무엇이 잘 됐나요? 내일 개선할 점은?\n\n· 잘한 점\n· 아쉬운 점\n· 내일 가장 먼저 할 일"}
         />
         <div className="note-footer">
-          <p className="note-status-text">
+          <p className={`note-status-text ${note === savedNote ? "saved" : "dirty"}`}>
             {note === savedNote ? "현재 저장된 내용입니다." : "변경한 내용은 아직 저장하지 않았습니다."}
           </p>
           <button className="primary note-save-btn" disabled={busy} onClick={save}>
@@ -397,15 +398,15 @@ export function Overview({
           </div>
         </section>
 
-        {/* 중앙 열: 할 일 추가 + 오늘의 성과 */}
+        {/* 중앙 열: 할 일 추가 + 오늘의 성과 + 시간대별 차트 */}
         <div className="overview-planning stack">
           {editor}
           <SummaryPanel summary={summary} scope={scope} compact />
+          <ChartPanel bins={summary.bins} />
         </div>
 
-        {/* 우측 열: 차트 + AI 생산성 분석 + 성과 노트 */}
+        {/* 우측 열: AI 생산성 분석 + 성과 노트(세로로 길게) */}
         <div className="overview-insights stack">
-          <ChartPanel bins={summary.bins} />
           <AnalysisPanel key={`${date}-${categoryId}-${query}-${revision}`} date={date!} categoryId={categoryId} query={query} revision={revision} completedCount={completed.length} scope={scope} busy={busy}/>
           <NotePanel note={note} savedNote={savedNote} busy={busy} change={changeNote} save={saveNote} />
         </div>

@@ -8,6 +8,12 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — AI 할 일·성과 관리 v1.05: 대시보드 가독성·레이아웃 정리
+
+- 주인님 요청: 직관적이고 가독성 있게 다듬고, 성과 노트는 세로로 더 길게 한눈에 많이 쓸 수 있게.
+- 변경(화면만, 로직·API 무변경): 왼쪽 할 일 목록 / 가운데 할 일 추가+오늘의 성과+시간대별 차트 / 오른쪽 AI 분석+성과 노트(남는 세로 공간 전체, 글자 수·저장 상태 표시). 글자 크기 상향, 카드 제목 2줄 표시, 지표 한 줄 행. 버전 v1.04→v1.05(코드·package·DB).
+- 검수: 단위 22/22, 보이는 Chrome 30/30, 빌드, 운영 화면 확인. 상세: [ai-task-planner/AGENTS.md](../ai-task-planner/AGENTS.md)
+
 ## 2026-10-14 Claude Code — AI 바나나 캔버스 자동화 v1.02: 한 화면 대시보드로 재구성
 
 - 주인님 요청: 원본 Banana Canvas처럼 인터페이스를 한눈에 보이게, 직관적으로.

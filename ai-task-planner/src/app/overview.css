@@ -218,3 +218,133 @@
 .analysis-modal::backdrop{background:rgba(15,23,42,.45)}
 .restore-settings{display:flex;flex-direction:row;align-items:center;margin-top:12px}
 .restore-settings input{width:auto}
+
+/* ===== v1.05 가독성·레이아웃 정리 (2026-10-14) ===== */
+.overview-main{padding:20px 28px 40px;max-width:2200px}
+.overview-main .page-heading h1{font-size:24px}
+.overview-main .filters{padding:12px 16px;gap:12px}
+.overview-main .filters label,.overview-main .filters span{font-size:13px;color:#475569}
+.overview-main .filters input,.overview-main .filters select{padding:9px 12px;font-size:14px;min-height:38px}
+
+.overview-container .card{padding:20px;border-radius:14px}
+.section-header{margin-bottom:14px;align-items:center}
+.section-header h2{font-size:17px;letter-spacing:-.3px}
+
+/* 상단 타이머 툴바: 글자·버튼을 키워 한눈에 */
+.overview-toolbar{padding:16px 22px}
+.toolbar-title{font-size:19px}
+.brand-sparkle{font-size:20px}
+.mode-tab{padding:7px 14px;font-size:13px}
+.overview-clock{font-size:34px;min-width:104px}
+.timer-task-picker select{padding:8px 11px;font-size:13px;max-width:240px;min-height:38px}
+.timer-start-btn{font-size:14px;padding:8px 20px}
+.timer-action-btn{font-size:13px;padding:8px 14px}
+.date-chip{font-size:13px;padding:7px 11px}
+.util-btn{font-size:13px;padding:7px 12px;min-height:36px}
+.toolbar-caption-row{font-size:13px;margin-top:10px;color:#475569}
+
+/* 3열: 높이를 맞추고(성과 노트가 남는 세로 공간을 모두 사용) 가운데 열에 차트를 둔다 */
+.overview-grid{grid-template-columns:minmax(250px,.9fr) minmax(300px,1.05fr) minmax(330px,1.25fr);gap:16px;align-items:stretch}
+.overview-task-list{display:flex;flex-direction:column;min-height:640px}
+.overview-task-scroll{flex:1;max-height:calc(100dvh - 330px);min-height:420px;overflow-y:auto;padding-right:4px}
+.category-filter-tabs{padding-bottom:10px;margin-bottom:12px}
+.cat-tab{padding:6px 12px;font-size:13px;border-radius:7px}
+.task-section-header h3{font-size:14px}
+.count-badge{font-size:12px;padding:3px 9px}
+.task-row-card{padding:13px 14px;border-radius:10px;margin-bottom:10px}
+.task-title-text{font-size:15px}
+.task-time-info,.task-row-meta{font-size:12px;color:#64748b}
+.task-badge{font-size:12px;padding:3px 8px}
+.row-action-btn{font-size:12px;padding:5px 9px;min-height:30px}
+.task-section .empty{font-size:13px;padding:18px 8px;text-align:center}
+
+.field-label{font-size:13px}
+.task-editor-form{gap:12px}
+.task-editor-form input,.task-editor-form select{padding:10px 12px;font-size:14px;min-height:40px}
+.add-task-submit-btn{min-height:44px;font-size:15px}
+.error-text{font-size:13px}
+
+.progress-section{padding:14px 16px}
+.progress-title{font-size:14px}
+.progress-ratio{font-size:13px}
+.progress-track{height:10px}
+.progress-percent{font-size:18px}
+.metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.metric-box:last-child{grid-column:auto}
+.metric-box{padding:14px}
+.metric-title{font-size:12px}
+.metric-number{font-size:28px}
+.metric-number em{font-size:14px}
+.metric-sub{font-size:11px;color:#64748b}
+.scope-hint{font-size:12px;color:#64748b}
+
+.chart{height:126px}
+.col-bar-track{height:100px;max-width:20px}
+.chart-grid-lines{height:100px;top:15px;font-size:10px;color:#64748b}
+.chart .col-count{font-size:10px;line-height:11px}
+.chart .col-label,.col-label{font-size:10px;color:#64748b}
+
+.analysis-desc{font-size:13px;color:#475569}
+.ai-analyze-btn{min-height:44px;font-size:14px}
+.analysis-result p,.analysis-result li{font-size:13px}
+
+/* 오른쪽 열: AI 분석은 위에 작게, 성과 노트는 남는 세로 공간 전체를 사용 */
+.overview-insights.stack{display:flex;flex-direction:column;gap:16px;min-height:0}
+.overview-insights .analysis-panel{flex:none}
+.overview-insights .note-panel{flex:1;display:flex;flex-direction:column;min-height:560px}
+.note-panel .note-content{flex:1;display:flex;flex-direction:column;min-height:0}
+.note-panel textarea{flex:1;min-height:480px;font-size:15px;line-height:1.75;padding:14px 16px;resize:none;border-radius:10px}
+.note-count{font-size:12px;color:#64748b;font-variant-numeric:tabular-nums}
+.note-footer{margin-top:12px}
+.note-status-text{font-size:13px}
+.note-status-text.saved{color:#059669}
+.note-status-text.saved::before{content:"✓ "}
+.note-status-text.dirty{color:#b45309;font-weight:600}
+.note-status-text.dirty::before{content:"● "}
+.note-save-btn{font-size:14px;padding:9px 18px;min-height:40px}
+
+@media(max-width:1320px){
+  .overview-clock{font-size:30px}
+}
+@media(max-width:1180px){
+  .overview-grid{grid-template-columns:minmax(300px,1fr) minmax(340px,1.1fr)}
+  .overview-insights.stack{grid-column:1/-1;display:flex;flex-direction:column}
+  .overview-insights .note-panel{min-height:480px}
+  .note-panel textarea{min-height:380px}
+  .overview-task-scroll{max-height:620px}
+}
+@media(max-width:767px){
+  .overview-main{padding:16px 12px}
+  .overview-grid{grid-template-columns:minmax(0,1fr)}
+  .metrics-grid{grid-template-columns:1fr}
+  .overview-task-list{min-height:0}
+  .overview-task-scroll{max-height:480px;min-height:0}
+  .overview-insights .note-panel{min-height:420px}
+  .note-panel textarea{min-height:320px}
+  .overview-clock{font-size:28px}
+}
+
+/* ===== v1.05 보완: 제목 잘림 방지·지표 한 줄 표시·노트 높이·툴바 높이 ===== */
+.overview-toolbar{padding:14px 20px}
+.toolbar-top-row{gap:10px 14px}
+.overview-toolbar .toolbar-caption-row{margin:8px 0 0}
+.overview-grid{min-height:calc(100dvh - 300px)}
+
+/* 할 일 카드: 제목은 한 줄 전체를 쓰고(2줄까지 표시) 동작 버튼은 아래 줄로 */
+.task-row-top{flex-wrap:wrap;align-items:flex-start;row-gap:8px}
+.task-title-group{flex:1 1 100%}
+.task-title-text{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
+.task-row-actions{margin-left:auto}
+
+/* 성과 지표: 라벨·설명은 왼쪽, 숫자는 오른쪽에 크게 — 칸이 좁아도 줄바꿈 없이 읽힌다 */
+.metrics-grid{grid-template-columns:1fr;gap:8px}
+.metric-box{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"title number" "sub number";align-items:center;column-gap:12px;row-gap:2px;padding:12px 16px}
+.metric-box .metric-title{grid-area:title;font-size:13px;color:#334155;font-weight:700}
+.metric-box .metric-number{grid-area:number;font-size:30px;line-height:1}
+.metric-box .metric-sub{grid-area:sub;font-size:12px}
+
+/* 성과 노트: 화면 높이에 맞춰 세로로 길게 */
+.note-panel textarea{min-height:max(480px,calc(100dvh - 520px))}
+.overview-insights .note-panel{min-height:max(560px,calc(100dvh - 380px))}
+@media(max-width:1180px){.note-panel textarea{min-height:380px}.overview-insights .note-panel{min-height:480px}.overview-grid{min-height:0}}
+@media(max-width:767px){.note-panel textarea{min-height:320px}.overview-insights .note-panel{min-height:420px}}
