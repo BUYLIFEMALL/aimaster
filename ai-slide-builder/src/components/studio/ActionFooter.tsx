@@ -74,7 +74,7 @@ export default function ActionFooter({ onExportPptx, hasSlides }: ActionFooterPr
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
-              まじん
+              Majin
             </a>
           </div>
           <div>
@@ -85,7 +85,7 @@ export default function ActionFooter({ onExportPptx, hasSlides }: ActionFooterPr
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
-              kimura_yoshiki
+              Kimura Yoshiki
             </a>
           </div>
           <div>

@@ -15,7 +15,8 @@
    - `src/app/layout.tsx`: 브라우저 탭 타이틀 `AI 슬라이드 자동화 | AIMaster`로 정정
    - `src/components/layout/Header.tsx`: 헤더 타이틀 컴포넌트 `AI 슬라이드 자동화 v1.02`로 일원화
    - `src/components/guide/HelpModal.tsx`: 이용 가이드 모달 타이틀 및 본문 설명문 명칭 정정
-   - `README.md`, `AGENTS.md`: 프로그램명 및 버전 정정
+   - `src/components/studio/ActionFooter.tsx`: 하단 푸터 크레딧의 일본어(まじん)를 영문(Majin, Kimura Yoshiki)으로 정정
+   - `README.md`, `AGENTS.md`: 프로그램명 및 버전 정정, 일본어 표기 영문 교체
 2. **공용 DB programs 테이블 동기화 (Rule 5)**:
    - `programs.name = 'AI 슬라이드 자동화'`
    - `programs.version = 'v1.02'`
@@ -30,8 +31,8 @@
 
 1. **레퍼런스 전수 역분석 및 실기 기능 구현 완결 (Rule 15)**:
    - **3대 특화 생성 포맷 (프롬프트 엔진)**:
-     - 표준 형식 (まじん 기반, 22개 시각화 패턴 및 발표자 스피커 노트 자동 생성)
-     - 확장판 (kimura_yoshiki 기반, 표/차트 대용량 대응 및 13행 이상 표 자동 분할)
+     - 표준 형식 (Majin 기반, 22개 시각화 패턴 및 발표자 스피커 노트 자동 생성)
+     - 확장판 (Kimura Yoshiki 기반, 표/차트 대용량 대응 및 13행 이상 표 자동 분할)
      - C-Suite 보고 형식 (GPT PARK 기반, 대기업 임원 보고용 두괄식 So What/Why, 10대 주제·7대 목적·4대 발표 시간별 분량 조절·5대 핵심 목차 템플릿)
    - **웹 검색 실시간 연동 (Google Search)**: 자료 없이 주제만 입력했거나 최신 통계가 필요할 때 웹 검색 토글 지원
    - **멀티포맷 파일 파서**: DOCX, PDF, TXT, MD, CSV, XLS, XLSX 원클릭 드래그앤드롭 업로드 및 Gemini 기반 구조적 자동 요약
