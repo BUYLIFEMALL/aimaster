@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio v1.06: Drive 연결 유지 안내 정정 (실제 업로드 확인 대기)
+
+- 화면 이동·새로고침 시 Drive 연결이 풀리는 것이 정상(토큰 메모리 전용, 사이드바는 전체 새로고침 이동). 이전 "메뉴 이동해도 유지" 안내를 매뉴얼 9단계·설정 화면에서 정정, 연결은 `4. 문서 보관함` Drive 카드에서. v1.06 배포·DB 갱신, SQL `0007_v1_06_drive_connect_note.sql`.
+- 실제 Drive 업로드/가져오기는 보관함에서 사용자가 Google 창(계정 선택)을 직접 처리해 연결한 뒤 확인해야 함 — 미확인.
+
 ## 2026-10-13 Claude Code — Markdown Studio v1.05: 실제 Google 연결 성공(올리기 미확인) + Drive 연동 매뉴얼 초보자용 보강
 
 - 주인님 계정에서 실제 Google OAuth 연결 성공(`연결됨: buylifemall@gmail.com`, 실제 Drive `about` 응답). 원인은 클라이언트의 **승인된 JavaScript 원본** 누락이었음. **실제 업로드/가져오기는 아직 미확인**(토큰이 사용자 탭 메모리에만 있음) — [확인 방법](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).

@@ -69,6 +69,7 @@ export function DriveSettings() {
     <div role="status" aria-live="polite">
       {drive.account ? <p><strong>연결됨:</strong> {drive.account.email}{drive.account.name ? ` (${drive.account.name})` : ""}</p> : <p className="muted">연결되지 않았습니다.</p>}
       {drive.message ? <p>{drive.message}</p> : null}
+      {drive.account ? <p className="muted"><small>이 화면의 연결은 설정이 맞는지 확인하는 용도입니다. 보안을 위해 다른 화면으로 이동하면 연결이 풀리니, 실제로 올릴 때는 <strong>4. 문서 보관함</strong>의 Google Drive 카드에서 다시 연결하세요.</small></p> : null}
     </div>
     {drive.error ? <p className="error" role="alert">{drive.error}</p> : null}
 
