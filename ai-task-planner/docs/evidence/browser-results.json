@@ -1,0 +1,331 @@
+{
+  "origin": "http://127.0.0.1:64621",
+  "reference": "Drive ZIP source, local visible Chrome replay",
+  "ai": "mock only, no paid network call",
+  "css": "Tailwind 4 fixture instead of original CDN Tailwind",
+  "checks": [
+    {
+      "name": "initial defaults",
+      "details": {
+        "timer": "25:00",
+        "category": "학습",
+        "priority": "보통",
+        "estimate": "30",
+        "summary": "오늘의 성과\n완료율\n2 / 3\n\n67%\n\n총 집중 시간\n\n25분\n\n실제 타이머 누적\n\n예측 정확도\n\n0%\n\n완료된 예측 작업 기준\n\n성과 점수\n\n47점\n\n완료율과 예측 정확도 기반"
+      }
+    },
+    {
+      "name": "header pause resets remaining duration",
+      "details": {
+        "before": "24:59",
+        "after": "25:00"
+      }
+    },
+    {
+      "name": "short break option",
+      "details": {
+        "remaining": "05:00"
+      }
+    },
+    {
+      "name": "long break option",
+      "details": {
+        "remaining": "15:00"
+      }
+    },
+    {
+      "name": "duration save for current mode",
+      "details": {
+        "remaining": "20:00"
+      }
+    },
+    {
+      "name": "saved focus option",
+      "details": {
+        "remaining": "40:00"
+      }
+    },
+    {
+      "name": "zero duration blocked by HTML validity",
+      "details": {
+        "dialogStillOpen": 1,
+        "invalid": true
+      }
+    },
+    {
+      "name": "add task values and form reset",
+      "details": {
+        "card": "검수 할 일\n\n예상: 45분 • 실제: 00:00\n\n우선순위: 높음\n개인\n미완료",
+        "defaultCategory": "학습",
+        "defaultPriority": "보통",
+        "defaultTime": "30"
+      }
+    },
+    {
+      "name": "filter affects list only",
+      "details": {
+        "reportInList": 0,
+        "summary": "오늘의 성과\n완료율\n2 / 4\n\n50%\n\n총 집중 시간\n\n25분\n\n실제 타이머 누적\n\n예측 정확도\n\n0%\n\n완료된 예측 작업 기준\n\n성과 점수\n\n35점\n\n완료율과 예측 정확도 기반"
+      }
+    },
+    {
+      "name": "start task does not change status",
+      "details": {
+        "card": "검수 할 일\n\n예상: 45분 • 실제: 00:01\n\n우선순위: 높음\n개인\n미완료"
+      }
+    },
+    {
+      "name": "task pause button restarts timer",
+      "details": {
+        "headerShowsPause": 1,
+        "remaining": "25:00"
+      }
+    },
+    {
+      "name": "completing active task keeps accumulating time",
+      "details": {
+        "headerShowsPause": 1,
+        "card": "검수 할 일\n\n예상: 45분 • 실제: 00:02\n\n우선순위: 높음\n개인\n완료"
+      }
+    },
+    {
+      "name": "reopen task goes in progress",
+      "details": {
+        "card": "검수 할 일\n\n예상: 45분 • 실제: 00:02\n\n우선순위: 높음\n개인\n진행중"
+      }
+    },
+    {
+      "name": "deleting active task leaves timer active",
+      "details": {
+        "headerShowsPause": 1,
+        "remaining": "24:59"
+      }
+    },
+    {
+      "name": "category usage deletion guards",
+      "details": {
+        "workDisabled": 2,
+        "freeDeleteButtons": 2
+      }
+    },
+    {
+      "name": "new category appears in selectors",
+      "details": {
+        "filter": 1,
+        "options": [
+          "업무",
+          "개인",
+          "학습",
+          "기타",
+          "운동"
+        ]
+      }
+    },
+    {
+      "name": "reserved all category is accepted",
+      "details": {
+        "allFilterButtons": 2,
+        "options": [
+          "업무",
+          "개인",
+          "학습",
+          "기타",
+          "운동",
+          "전체"
+        ]
+      }
+    },
+    {
+      "name": "AI request shape captured without network",
+      "details": {
+        "request": {
+          "model": "gemini-2.5-flash",
+          "contents": "\n      다음은 오늘 내가 완료한 작업 목록입니다.\n      - 이메일 확인 (카테고리: 업무, 예상시간: 10분, 실제 걸린 시간: 0분)\n- 영어 학원 (카테고리: 학습, 예상시간: 120분, 실제 걸린 시간: 0분)\n\n      이 데이터를 기반으로 나의 생산성 패턴을 분석하고, 학습 습관이나 업무 효율성을 개선할 수 있는 구체적인 조언 3가지를 한국어로 제안해주세요.\n      결과는 아래 JSON 형식으로 반환해주세요.\n      \n      {\n        \"analysis\": \"당신의 생산성 패턴에 대한 전반적인 분석입니다.\",\n        \"suggestions\": [\n          { \"title\": \"제안 1 제목\", \"description\": \"첫 번째 제안에 대한 상세 설명입니다.\" },\n          { \"title\": \"제안 2 제목\", \"description\": \"두 번째 제안에 대한 상세 설명입니다.\" },\n          { \"title\": \"제안 3 제목\", \"description\": \"세 번째 제안에 대한 상세 설명입니다.\" }\n        ]\n      }\n    ",
+          "config": {
+            "responseMimeType": "application/json",
+            "responseSchema": {
+              "type": "OBJECT",
+              "properties": {
+                "analysis": {
+                  "type": "STRING"
+                },
+                "suggestions": {
+                  "type": "ARRAY",
+                  "items": {
+                    "type": "OBJECT",
+                    "properties": {
+                      "title": {
+                        "type": "STRING"
+                      },
+                      "description": {
+                        "type": "STRING"
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "description"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "suggestions": 3
+      }
+    },
+    {
+      "name": "JSON export",
+      "details": {
+        "filename": "tasks-2026-10-13.json",
+        "content": "[\n  {\n    \"id\": 1,\n    \"title\": \"보고서 작성\",\n    \"category\": \"업무\",\n    \"priority\": \"높음\",\n    \"estimatedTime\": 60,\n    \"actualTime\": 1512,\n    \"status\": \"진행중\",\n    \"createdAt\": \"2026-10-13T06:32:26.383Z\"\n  },\n  {\n    \"id\": 2,\n    \"title\": \"이메일 확인\",\n    \"category\": \"업무\",\n    \"priority\": \"보통\",\n    \"estimatedTime\": 10,\n    \"actualTime\": 0,\n    \"status\": \"완료\",\n    \"createdAt\": \"2026-10-13T04:32:26.383Z\",\n    \"completedAt\": \"2026-10-13T09:32:26.383Z\"\n  },\n  {\n    \"id\": 3,\n    \"title\": \"영어 학원\",\n    \"category\": \"학습\",\n    \"priority\": \"보통\",\n    \"estimatedTime\": 120,\n    \"actualTime\": 0,\n    \"status\": \"완료\",\n    \"createdAt\": \"2026-10-13T03:32:26.383Z\",\n    \"completedAt\": \"2026-10-13T09:32:26.383Z\"\n  }\n]"
+      }
+    },
+    {
+      "name": "CSV export",
+      "details": {
+        "filename": "tasks-2026-10-13.csv",
+        "content": "﻿id,title,category,priority,estimatedTime,actualTime,status,createdAt,completedAt\n1,\"보고서 작성\",업무,높음,60,1512,진행중,2026-10-13T06:32:26.383Z,\n2,\"이메일 확인\",업무,보통,10,0,완료,2026-10-13T04:32:26.383Z,2026-10-13T09:32:26.383Z\n3,\"영어 학원\",학습,보통,120,0,완료,2026-10-13T03:32:26.383Z,2026-10-13T09:32:26.383Z"
+      }
+    },
+    {
+      "name": "reload discards note settings and tasks",
+      "details": {
+        "note": "",
+        "time": "25:00",
+        "tasks": 3
+      }
+    },
+    {
+      "name": "reset clears all tasks",
+      "details": {
+        "remaining": "25:00",
+        "summary": "오늘의 성과\n완료율\n0 / 0\n\n0%\n\n총 집중 시간\n\n0분\n\n실제 타이머 누적\n\n예측 정확도\n\n0%\n\n완료된 예측 작업 기준\n\n성과 점수\n\n0점\n\n완료율과 예측 정확도 기반"
+      }
+    },
+    {
+      "name": "focus without task blocked",
+      "details": {
+        "latestDialog": {
+          "type": "alert",
+          "message": "Please select a task to start the timer."
+        }
+      }
+    },
+    {
+      "name": "AI no completed tasks stops before provider",
+      "details": {
+        "message": "완료된 작업 없음"
+      }
+    },
+    {
+      "name": "edit task options",
+      "details": {
+        "card": "수정한 보고서\n\n예상: 90분 • 실제: 25:12\n\n우선순위: 낮음\n기타\n진행중"
+      }
+    },
+    {
+      "name": "editing running task overwrites elapsed accumulation",
+      "details": {
+        "beforeEdit": "수정한 보고서\n\n예상: 90분 • 실제: 25:13\n\n우선순위: 낮음\n기타\n진행중",
+        "beforeSave": "수정한 보고서\n\n예상: 90분 • 실제: 25:15\n\n우선순위: 낮음\n기타\n진행중",
+        "afterSave": "수정한 보고서\n\n예상: 90분 • 실제: 25:13\n\n우선순위: 낮음\n기타\n진행중"
+      }
+    },
+    {
+      "name": "deleted default study category makes visible selector fallback inconsistent with state",
+      "details": {
+        "selector": "업무",
+        "options": [
+          "업무",
+          "개인",
+          "기타"
+        ]
+      }
+    },
+    {
+      "name": "deleted default category still assigned to new task",
+      "details": {
+        "card": "삭제된 카테고리로 추가\n\n예상: 30분 • 실제: 00:00\n\n우선순위: 보통\n학습\n미완료"
+      }
+    },
+    {
+      "name": "non JSON AI result falls back to raw text",
+      "details": {
+        "result": "JSON이 아닌 텍스트"
+      }
+    },
+    {
+      "name": "provider error uses generic error",
+      "details": {
+        "result": "generic error, mock provider"
+      }
+    },
+    {
+      "name": "valid JSON missing suggestions crashes app",
+      "details": {
+        "errors": [
+          "Cannot read properties of undefined (reading 'map')",
+          "Cannot read properties of undefined (reading 'map')",
+          "Cannot read properties of undefined (reading 'map')"
+        ],
+        "rootIsEmpty": true
+      }
+    },
+    {
+      "name": "mobile document overflow",
+      "details": {
+        "viewport": 390,
+        "scrollWidth": 848
+      }
+    },
+    {
+      "name": "timer expiry returns default duration without auto break",
+      "details": {
+        "remaining": "01:00",
+        "startButton": 1,
+        "dialogs": [
+          {
+            "type": "alert",
+            "message": "Focus time is over!",
+            "fixture": "virtual clock"
+          },
+          {
+            "type": "alert",
+            "message": "Focus time is over!",
+            "fixture": "virtual clock"
+          }
+        ]
+      }
+    }
+  ],
+  "pageErrors": [
+    "Cannot read properties of undefined (reading 'map')",
+    "Cannot read properties of undefined (reading 'map')",
+    "Cannot read properties of undefined (reading 'map')"
+  ],
+  "dialogs": [
+    {
+      "type": "confirm",
+      "message": "정말로 모든 작업을 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+    },
+    {
+      "type": "alert",
+      "message": "Please select a task to start the timer."
+    },
+    {
+      "type": "confirm",
+      "message": "정말로 모든 작업을 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+    },
+    {
+      "type": "alert",
+      "message": "Focus time is over!",
+      "fixture": "virtual clock"
+    },
+    {
+      "type": "alert",
+      "message": "Focus time is over!",
+      "fixture": "virtual clock"
+    }
+  ]
+}

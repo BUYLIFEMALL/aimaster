@@ -1,0 +1,26 @@
+{
+  "passed": 16,
+  "fixture": true,
+  "visibleChrome": true,
+  "realMemberLoginVerified": false,
+  "liveDatabaseVerified": false,
+  "checks": [
+    "empty member workspace contains no reference demo tasks",
+    "real component task creation reaches the isolated API and confirms saving",
+    "literal bracket search does not crash",
+    "pause freezes countdown and preserves actual segment",
+    "editing task metadata preserves the running session",
+    "completion commits task and ends focus timing together",
+    "notes confirm server acknowledgment before reporting saved",
+    "refresh rehydrates API records and notes without demo resets",
+    "trash and restore keep the original task and session history",
+    "actual JSON download parses and includes personal records but no API key fields",
+    "503 save failure preserves input and does not claim success",
+    "acknowledgement loss plus refresh retries the original command ID without duplicate creation",
+    "revision conflict keeps user input",
+    "account stays immediately below the menu on a tall viewport",
+    "390px layout and mobile menu are usable without horizontal overflow",
+    "session denial clears all personal workspace content"
+  ],
+  "pageErrors": []
+}

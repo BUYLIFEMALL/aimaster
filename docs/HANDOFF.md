@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.01 핵심 기록 코드·검수 (운영 적용 승인 대기)
+
+- 주인님 지시로 분석 후 구현 재개. 독립 `ai-task-planner`에 공통 로그인/권한/SSO·흰색 번호형 작업 화면·날짜/분류/검색/정렬·할 일 작성/수정/완료/휴지통/복원·deadline 집중/휴식 타이머·성과 집계/차트·노트 명시적 저장·JSON 백업 다운로드 구현. AI·모델선택/매뉴얼·JSON복원/CSV는 후속 단계.
+- 빌드 정상·단위/임베디드PostgreSQL14/14·보이는Chrome격리API16/16·실제Next설정미등록차단12/12·의존성취약점0. 운영 회원/DB·실제 공급사 결과는 미검증. [구현·검수·운영 적용안](../ai-task-planner/docs/PHASE1_IMPLEMENTATION.md), [증거](../ai-task-planner/docs/evidence/implementation/browser-results.json).
+- 운영 적용 승인 질문을 제시함: 공유 DB 새 테이블 `task_planner_workspaces`·함수 `task_planner_commit` 각1개 + 새 Vercel 공통 인증 환경변수3개. SQL은 [적용 전 파일](../ai-task-planner/supabase/migrations/20261013065950_planner_workspace.sql). 초기7테이블 대신 회원별JSONB+revision+RPC로 원자적저장, 기존 데이터 삭제 없음. 승인 답변 전 실제 적용 금지.
+- 프로그램명/도메인 `AI 할 일·성과 관리 / ai-task-planner.buylife.xyz`, FREE없이 기본3요금제를 제안했으나 운영 미등록. APP_VERSION v1.01은 출시 예정값. 현재 Git fetch 정상이며 이전의 Git권한 제한은 해소. 다음은 승인 후 운영 연결·회원 실검수·카탈로그/배포·검증·보고.
+
 ## 2026-10-13 Antigravity — 사업자 주소 변경 반영 완료
 
 - **요청 사항**: 사이트 하단 및 사용처의 사업자 주소를 "경기도 고양시 일산동구 호수로 336 (브라운스톤) 103동 747호"로 변경.

@@ -1,0 +1,685 @@
+{
+  "collectedAt": "2026-10-13",
+  "referenceUrl": "https://aistudio.google.com/apps/drive/1iLQSTMxTbksuw5yv54XUgYP9q79ITS3I?showAssistant=true&showPreview=true",
+  "driveFile": {
+    "id": "1iLQSTMxTbksuw5yv54XUgYP9q79ITS3I",
+    "name": "오늘의 할 일 & 성과 (Today's To-Do & Achievements)",
+    "mimeType": "application/vnd.google-makersuite.applet+zip",
+    "modifiedTime": "2025-10-12T04:50:38.012Z"
+  },
+  "zip": {
+    "bytes": 23446,
+    "sha256": "c19bf22bb022744473195cc50d35cb561259beb13e1f26f884cd8a096ce55793"
+  },
+  "files": [
+    {
+      "path": "App.tsx",
+      "bytes": 11563,
+      "lines": 306,
+      "sha256": "01699fa8ce47ae1371da263ad5ddfe410b5cf73bb125ff7ad711eccf53c53780"
+    },
+    {
+      "path": "components/AIAnalysisModal.tsx",
+      "bytes": 3398,
+      "lines": 87,
+      "sha256": "b563cf4e56419eb5b9d7564fb52235413f09b611fb4a13a1c228643b0d0201b1"
+    },
+    {
+      "path": "components/AddTaskForm.tsx",
+      "bytes": 3431,
+      "lines": 83,
+      "sha256": "0751979f19cf306c04dcb4b55059173520e84191c021ff47c2d0086b8c6da0b2"
+    },
+    {
+      "path": "components/AnalysisPanel.tsx",
+      "bytes": 3252,
+      "lines": 72,
+      "sha256": "bd1f9f7175dcf7e56f8f753f978a79802e19693e60b596078582d3af7f6283dd"
+    },
+    {
+      "path": "components/AppInfoModal.tsx",
+      "bytes": 2364,
+      "lines": 38,
+      "sha256": "21208cda78a0847c705e0ebe183c00e067450cfd0d004ceb26567edee3ae0dae"
+    },
+    {
+      "path": "components/CategoryManagerModal.tsx",
+      "bytes": 3943,
+      "lines": 90,
+      "sha256": "979816e0d1d38de9f248d7db7930014f7736f66482172ed21341bf0386c90c0d"
+    },
+    {
+      "path": "components/EditTaskModal.tsx",
+      "bytes": 3438,
+      "lines": 86,
+      "sha256": "3439e7cbf9f66bef2cfa59e87e4cd9743a1bd17678beb4a26ecbaf4760db611d"
+    },
+    {
+      "path": "components/Header.tsx",
+      "bytes": 4229,
+      "lines": 76,
+      "sha256": "9c6e3686d06a67afe3626ed678ef19c1ecb330c54119bb5a29280c4ec3f74b1f"
+    },
+    {
+      "path": "components/Icon.tsx",
+      "bytes": 4776,
+      "lines": 58,
+      "sha256": "63db3f4c8f6c1ac4f8a37550de893b5df9fc33e077d07bd66f05f926ba80e977"
+    },
+    {
+      "path": "components/MainPanel.tsx",
+      "bytes": 616,
+      "lines": 20,
+      "sha256": "191a7da706c21fdc39d507c9fbd6c446ef2bb991e45fed839fe3504f63839efd"
+    },
+    {
+      "path": "components/Modal.tsx",
+      "bytes": 1522,
+      "lines": 53,
+      "sha256": "0b90338503e71048244d7166d6afd32d1fbd3585645f81b2aa31d0e56ebe2b05"
+    },
+    {
+      "path": "components/PerformanceSummary.tsx",
+      "bytes": 3230,
+      "lines": 75,
+      "sha256": "21d5b2300a3f8a234b765f1e5ba3a2349c5a9f53ece338927f4978a3d91a5613"
+    },
+    {
+      "path": "components/SettingsModal.tsx",
+      "bytes": 3277,
+      "lines": 85,
+      "sha256": "7438908fedc77abcfb37d34fba6fef78efbe84ee2865305b96d5df3b7ee4cc8e"
+    },
+    {
+      "path": "components/TaskItem.tsx",
+      "bytes": 3628,
+      "lines": 71,
+      "sha256": "c1da2cb5c3b308798e0810b6103e8fa96e76aa693d0424a86a20b283df048a6d"
+    },
+    {
+      "path": "components/TaskList.tsx",
+      "bytes": 2509,
+      "lines": 60,
+      "sha256": "86978914eebf235a91e3eb024637fac020198767cac62e76bce04799c7ed2c38"
+    },
+    {
+      "path": "constants.ts",
+      "bytes": 1328,
+      "lines": 46,
+      "sha256": "94be3968d04aacc03e088b27db1c55607719c4c99611af21dc003f50a6266b1d"
+    },
+    {
+      "path": "index.html",
+      "bytes": 749,
+      "lines": 26,
+      "sha256": "5885ff72931b149c0b5538c7a78b1e7fa5f37a58d9932fafff03ab13cf48f0f6"
+    },
+    {
+      "path": "index.tsx",
+      "bytes": 351,
+      "lines": 17,
+      "sha256": "ae81dfafdff7a6fad7980c40d898be4abe99641e0c1dfab81e41906b73e64a91"
+    },
+    {
+      "path": "metadata.json",
+      "bytes": 400,
+      "lines": 5,
+      "sha256": "02ba2fc39e7044488ccbcbe14c823e324f587b97fbae424d7fb51554937d911b"
+    },
+    {
+      "path": "types.ts",
+      "bytes": 643,
+      "lines": 39,
+      "sha256": "55c21886b27f9f272b74838ab5318b84ba79186d74daa1bebb5e3ebb18b97d60"
+    }
+  ],
+  "enums": {
+    "Category": [
+      {
+        "name": "All",
+        "value": "'전체'"
+      },
+      {
+        "name": "Work",
+        "value": "'업무'"
+      },
+      {
+        "name": "Personal",
+        "value": "'개인'"
+      },
+      {
+        "name": "Study",
+        "value": "'학습'"
+      },
+      {
+        "name": "Other",
+        "value": "'기타'"
+      }
+    ],
+    "Priority": [
+      {
+        "name": "High",
+        "value": "'높음'"
+      },
+      {
+        "name": "Normal",
+        "value": "'보통'"
+      },
+      {
+        "name": "Low",
+        "value": "'낮음'"
+      }
+    ],
+    "Status": [
+      {
+        "name": "Todo",
+        "value": "'미완료'"
+      },
+      {
+        "name": "InProgress",
+        "value": "'진행중'"
+      },
+      {
+        "name": "Done",
+        "value": "'완료'"
+      }
+    ],
+    "TimerMode": [
+      {
+        "name": "Focus",
+        "value": "'Focus'"
+      },
+      {
+        "name": "ShortBreak",
+        "value": "'Short Break'"
+      },
+      {
+        "name": "LongBreak",
+        "value": "'Long Break'"
+      }
+    ]
+  },
+  "states": [
+    {
+      "binding": "[tasks, setTasks]",
+      "initial": "INITIAL_TASKS",
+      "file": "App.tsx",
+      "line": 16
+    },
+    {
+      "binding": "[filterCategory, setFilterCategory]",
+      "initial": "Category.All",
+      "file": "App.tsx",
+      "line": 17
+    },
+    {
+      "binding": "[timerMode, setTimerMode]",
+      "initial": "TimerMode.Focus",
+      "file": "App.tsx",
+      "line": 18
+    },
+    {
+      "binding": "[timerDurations, setTimerDurations]",
+      "initial": "TIMER_DURATIONS",
+      "file": "App.tsx",
+      "line": 19
+    },
+    {
+      "binding": "[time, setTime]",
+      "initial": "timerDurations[timerMode]",
+      "file": "App.tsx",
+      "line": 20
+    },
+    {
+      "binding": "[isActive, setIsActive]",
+      "initial": "false",
+      "file": "App.tsx",
+      "line": 21
+    },
+    {
+      "binding": "[activeTaskId, setActiveTaskId]",
+      "initial": "1",
+      "file": "App.tsx",
+      "line": 22
+    },
+    {
+      "binding": "[note, setNote]",
+      "initial": "''",
+      "file": "App.tsx",
+      "line": 23
+    },
+    {
+      "binding": "[showAIModal, setShowAIModal]",
+      "initial": "false",
+      "file": "App.tsx",
+      "line": 24
+    },
+    {
+      "binding": "[aiAnalysisResult, setAiAnalysisResult]",
+      "initial": "''",
+      "file": "App.tsx",
+      "line": 25
+    },
+    {
+      "binding": "[isAnalyzing, setIsAnalyzing]",
+      "initial": "false",
+      "file": "App.tsx",
+      "line": 26
+    },
+    {
+      "binding": "[editingTask, setEditingTask]",
+      "initial": "null",
+      "file": "App.tsx",
+      "line": 29
+    },
+    {
+      "binding": "[showSettingsModal, setShowSettingsModal]",
+      "initial": "false",
+      "file": "App.tsx",
+      "line": 30
+    },
+    {
+      "binding": "[showCategoryModal, setShowCategoryModal]",
+      "initial": "false",
+      "file": "App.tsx",
+      "line": 31
+    },
+    {
+      "binding": "[categories, setCategories]",
+      "initial": "CATEGORIES",
+      "file": "App.tsx",
+      "line": 32
+    },
+    {
+      "binding": "[showAppInfoModal, setShowAppInfoModal]",
+      "initial": "false",
+      "file": "App.tsx",
+      "line": 33
+    },
+    {
+      "binding": "[title, setTitle]",
+      "initial": "''",
+      "file": "components/AddTaskForm.tsx",
+      "line": 11
+    },
+    {
+      "binding": "[category, setCategory]",
+      "initial": "Category.Study",
+      "file": "components/AddTaskForm.tsx",
+      "line": 12
+    },
+    {
+      "binding": "[priority, setPriority]",
+      "initial": "Priority.Normal",
+      "file": "components/AddTaskForm.tsx",
+      "line": 13
+    },
+    {
+      "binding": "[estimatedTime, setEstimatedTime]",
+      "initial": "30",
+      "file": "components/AddTaskForm.tsx",
+      "line": 14
+    },
+    {
+      "binding": "[localCategories, setLocalCategories]",
+      "initial": "categories",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 15
+    },
+    {
+      "binding": "[newCategory, setNewCategory]",
+      "initial": "''",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 16
+    },
+    {
+      "binding": "[editedTask, setEditedTask]",
+      "initial": "task",
+      "file": "components/EditTaskModal.tsx",
+      "line": 15
+    },
+    {
+      "binding": "[durations, setDurations]",
+      "initial": "{\n    [TimerMode.Focus]: Math.floor(currentDurations[TimerMode.Focus] / 60),\n    [TimerMode.ShortBreak]: Math.floor(currentDurations[TimerMode.ShortBreak] / 60),\n    [TimerMode.LongBreak]: Math.floor(currentDurations[TimerMode.LongBreak] / 60),\n  }",
+      "file": "components/SettingsModal.tsx",
+      "line": 13
+    }
+  ],
+  "handlers": [
+    {
+      "name": "handleAddTask",
+      "file": "App.tsx",
+      "line": 81
+    },
+    {
+      "name": "handleTaskAction",
+      "file": "App.tsx",
+      "line": 92
+    },
+    {
+      "name": "handleUpdateTask",
+      "file": "App.tsx",
+      "line": 108
+    },
+    {
+      "name": "handleExport",
+      "file": "App.tsx",
+      "line": 113
+    },
+    {
+      "name": "handleResetDay",
+      "file": "App.tsx",
+      "line": 133
+    },
+    {
+      "name": "handleUpdateSettings",
+      "file": "App.tsx",
+      "line": 144
+    },
+    {
+      "name": "handleUpdateCategories",
+      "file": "App.tsx",
+      "line": 149
+    },
+    {
+      "name": "analyzeWithAI",
+      "file": "App.tsx",
+      "line": 154
+    },
+    {
+      "name": "handleSubmit",
+      "file": "components/AddTaskForm.tsx",
+      "line": 16
+    },
+    {
+      "name": "handleAddCategory",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 18
+    },
+    {
+      "name": "handleDeleteCategory",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 27
+    },
+    {
+      "name": "handleSubmit",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 35
+    },
+    {
+      "name": "handleChange",
+      "file": "components/EditTaskModal.tsx",
+      "line": 21
+    },
+    {
+      "name": "handleSubmit",
+      "file": "components/EditTaskModal.tsx",
+      "line": 26
+    },
+    {
+      "name": "handleKeyDown",
+      "file": "components/Modal.tsx",
+      "line": 13
+    },
+    {
+      "name": "handleChange",
+      "file": "components/SettingsModal.tsx",
+      "line": 19
+    },
+    {
+      "name": "handleSubmit",
+      "file": "components/SettingsModal.tsx",
+      "line": 26
+    }
+  ],
+  "controls": [
+    {
+      "tag": "button",
+      "attributes": "onClick={onClose} className=\"text-slate-400 hover:text-white\"",
+      "file": "components/AIAnalysisModal.tsx",
+      "line": 75
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onClose} className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-md transition text-sm\"",
+      "file": "components/AIAnalysisModal.tsx",
+      "line": 79
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"text\"\n            id=\"title\"\n            value={title}\n            onChange={(e) => setTitle(e.target.value)}\n            placeholder=\"예: 보고서 초안 작성\"\n            className={commonInputClasses}\n            required",
+      "file": "components/AddTaskForm.tsx",
+      "line": 41
+    },
+    {
+      "tag": "select",
+      "attributes": "id=\"category\" value={category} onChange={(e) => setCategory(e.target.value as Category)} className={commonInputClasses}",
+      "file": "components/AddTaskForm.tsx",
+      "line": 53
+    },
+    {
+      "tag": "select",
+      "attributes": "id=\"priority\" value={priority} onChange={(e) => setPriority(e.target.value as Priority)} className={commonInputClasses}",
+      "file": "components/AddTaskForm.tsx",
+      "line": 60
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"number\"\n                    id=\"time\"\n                    value={estimatedTime}\n                    min=\"0\"\n                    onChange={(e) => setEstimatedTime(Number(e.target.value))}\n                    className={commonInputClasses}",
+      "file": "components/AddTaskForm.tsx",
+      "line": 66
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"submit\" className=\"w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-md transition text-sm\"",
+      "file": "components/AddTaskForm.tsx",
+      "line": 76
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onAnalyze}\n            className=\"w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-bold py-3 px-4 rounded-md transition text-sm\"",
+      "file": "components/AnalysisPanel.tsx",
+      "line": 52
+    },
+    {
+      "tag": "textarea",
+      "attributes": "value={note}\n          onChange={(e) => onNoteChange(e.target.value)}\n          placeholder=\"오늘 무엇이 잘 됐나요? 내일 개선할 점은?\"\n          className=\"w-full flex-grow bg-slate-700 border border-slate-600 rounded-md p-2.5 text-sm text-white placeholder-slate-400 focus:ring-indigo-500 focus:border-indigo-500 transition resize-none\"",
+      "file": "components/AnalysisPanel.tsx",
+      "line": 61
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"button\" onClick={onClose} className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-md transition text-sm\"",
+      "file": "components/AppInfoModal.tsx",
+      "line": 32
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => handleDeleteCategory(cat)}\n                                disabled={isCategoryInUse(cat)}\n                                className=\"text-slate-400 hover:text-red-500 disabled:text-slate-600 disabled:cursor-not-allowed transition\"\n                                title={isCategoryInUse(cat) ? \"이 카테고리는 현재 사용 중이라 삭제할 수 없습니다.\" : \"카테고리 삭제\"}",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 51
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"text\"\n                        id=\"newCategory\"\n                        value={newCategory}\n                        onChange={e => setNewCategory(e.target.value)}\n                        placeholder=\"예: 운동\"\n                        className={commonInputClasses}",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 67
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"button\" onClick={handleAddCategory} className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition text-sm\"",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 75
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"button\" onClick={handleSubmit} className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-md transition text-sm\"",
+      "file": "components/CategoryManagerModal.tsx",
+      "line": 82
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"text\"\n            id=\"title\"\n            name=\"title\"\n            value={editedTask.title}\n            onChange={handleChange}\n            className={commonInputClasses}\n            required",
+      "file": "components/EditTaskModal.tsx",
+      "line": 38
+    },
+    {
+      "tag": "select",
+      "attributes": "id=\"category\" name=\"category\" value={editedTask.category} onChange={handleChange} className={commonInputClasses}",
+      "file": "components/EditTaskModal.tsx",
+      "line": 50
+    },
+    {
+      "tag": "select",
+      "attributes": "id=\"priority\" name=\"priority\" value={editedTask.priority} onChange={handleChange} className={commonInputClasses}",
+      "file": "components/EditTaskModal.tsx",
+      "line": 57
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"number\"\n                    id=\"estimatedTime\"\n                    name=\"estimatedTime\"\n                    value={editedTask.estimatedTime}\n                    min=\"0\"\n                    onChange={handleChange}\n                    className={commonInputClasses}",
+      "file": "components/EditTaskModal.tsx",
+      "line": 63
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"button\" onClick={onClose} className=\"bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-md transition text-sm\"",
+      "file": "components/EditTaskModal.tsx",
+      "line": 75
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"submit\" className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition text-sm\"",
+      "file": "components/EditTaskModal.tsx",
+      "line": 78
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onClick(mode)}\n            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${isActive ? 'bg-indigo-600 text-white' : 'bg-slate-700 hover:bg-slate-600'}`}",
+      "file": "components/Header.tsx",
+      "line": 35
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onToggleTimer} className=\"px-5 py-2 text-sm font-bold bg-white text-slate-900 rounded-md hover:bg-slate-200 transition-colors\"",
+      "file": "components/Header.tsx",
+      "line": 56
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onShowSettings} className=\"p-2 bg-slate-700 rounded-md hover:bg-slate-600 transition-colors\" title=\"타이머 설정\"",
+      "file": "components/Header.tsx",
+      "line": 59
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onExport('json')} className=\"px-3 py-1.5 text-xs font-semibold bg-slate-700 hover:bg-slate-600 rounded-md transition-colors\"",
+      "file": "components/Header.tsx",
+      "line": 66
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onExport('csv')} className=\"px-3 py-1.5 text-xs font-semibold bg-slate-700 hover:bg-slate-600 rounded-md transition-colors\"",
+      "file": "components/Header.tsx",
+      "line": 67
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onShowCategoryManager} className=\"px-3 py-1.5 text-xs font-semibold bg-slate-700 hover:bg-slate-600 rounded-md transition-colors\"",
+      "file": "components/Header.tsx",
+      "line": 68
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onResetDay} className=\"px-3 py-1.5 text-xs font-semibold bg-red-600/50 hover:bg-red-600/80 rounded-md transition-colors\"",
+      "file": "components/Header.tsx",
+      "line": 69
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onShowAppInfo} className=\"p-2 bg-slate-700 rounded-md hover:bg-slate-600 transition-colors\" title=\"앱 설명서\"",
+      "file": "components/Header.tsx",
+      "line": 70
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={onClose} className=\"text-slate-400 hover:text-white\" aria-label=\"Close modal\"",
+      "file": "components/Modal.tsx",
+      "line": 42
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"number\"\n            id=\"focus\"\n            min=\"1\"\n            value={durations[TimerMode.Focus]}\n            onChange={(e) => handleChange(TimerMode.Focus, e.target.value)}\n            className={commonInputClasses}",
+      "file": "components/SettingsModal.tsx",
+      "line": 42
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"number\"\n            id=\"shortBreak\"\n            min=\"1\"\n            value={durations[TimerMode.ShortBreak]}\n            onChange={(e) => handleChange(TimerMode.ShortBreak, e.target.value)}\n            className={commonInputClasses}",
+      "file": "components/SettingsModal.tsx",
+      "line": 53
+    },
+    {
+      "tag": "input",
+      "attributes": "type=\"number\"\n            id=\"longBreak\"\n            min=\"1\"\n            value={durations[TimerMode.LongBreak]}\n            onChange={(e) => handleChange(TimerMode.LongBreak, e.target.value)}\n            className={commonInputClasses}",
+      "file": "components/SettingsModal.tsx",
+      "line": 64
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"button\" onClick={onClose} className=\"bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-md transition text-sm\"",
+      "file": "components/SettingsModal.tsx",
+      "line": 74
+    },
+    {
+      "tag": "button",
+      "attributes": "type=\"submit\" className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition text-sm\"",
+      "file": "components/SettingsModal.tsx",
+      "line": 77
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onAction(task.id, 'start')} className=\"hover:text-white transition-colors p-1\" aria-label={isActive ? 'Pause task' : 'Start task'}",
+      "file": "components/TaskItem.tsx",
+      "line": 51
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onAction(task.id, 'toggle')} className=\"hover:text-white transition-colors p-1\" aria-label=\"Complete task\"",
+      "file": "components/TaskItem.tsx",
+      "line": 52
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onAction(task.id, 'toggle')} className=\"hover:text-white transition-colors p-1\" aria-label=\"Mark task as not completed\"",
+      "file": "components/TaskItem.tsx",
+      "line": 55
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onAction(task.id, 'edit')} className=\"hover:text-white transition-colors p-1\" aria-label=\"Edit task\"",
+      "file": "components/TaskItem.tsx",
+      "line": 59
+    },
+    {
+      "tag": "button",
+      "attributes": "onClick={() => onAction(task.id, 'delete')} className=\"hover:text-white transition-colors p-1\" aria-label=\"Delete task\"",
+      "file": "components/TaskItem.tsx",
+      "line": 60
+    },
+    {
+      "tag": "button",
+      "attributes": "key={tab}\n              onClick={() => onFilterChange(tab)}\n              className={`px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === tab ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-slate-400 hover:text-white'}`}",
+      "file": "components/TaskList.tsx",
+      "line": 25
+    }
+  ],
+  "limitations": [
+    "AI Studio production preview not observed",
+    "AI Studio host/proxy internals absent from source ZIP",
+    "Local visible Chrome replay, AI SDK mock only",
+    "Tailwind 4 instead of original CDN in local replay",
+    "No real user keys or real provider request",
+    "Original sources kept in local scratch, excluded from planned commit"
+  ]
+}
