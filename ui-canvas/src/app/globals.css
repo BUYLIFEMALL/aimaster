@@ -184,3 +184,54 @@ small{font-size:11px}
   .uc-center{min-height:420px}
   .uc-name{width:140px!important}
 }
+/* ---- 사용 매뉴얼 ---- */
+.gd{display:flex;flex-direction:column;gap:20px}
+.gd section h2{font-size:18px;margin-bottom:10px}
+.gd section h3{font-size:14px;margin:18px 0 8px}
+.gd-lead{color:#475569;font-size:13px;margin-bottom:14px}
+.gd-toc{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;position:sticky;top:0;z-index:5;padding:12px 16px}
+.gd-toc a{font-size:12px;font-weight:600;color:#4338ca;padding:4px 8px;border-radius:8px}
+.gd-toc a:hover{background:#eef2ff}
+.gd-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.gd-step{display:flex;gap:12px;align-items:flex-start}
+.gd-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.gd-step strong{display:block;font-size:14px}
+.gd-step p{margin-top:3px;color:#475569;font-size:13px}
+.gd-tip{margin-top:16px;padding:10px 14px;border-radius:10px;background:#f0f7ff;border:1px solid #bfdbfe;font-size:13px;color:#1e3a8a}
+.gd-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:#334155}
+.gd-kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid #cbd5e1;border-bottom-width:2px;border-radius:5px;background:#f8fafc;font-family:inherit;font-size:11px;font-weight:700;text-align:center;color:#334155}
+.gd-map{border:2px solid #c7d2fe;border-radius:12px;overflow:hidden;font-size:12px;font-weight:700;text-align:center;margin-bottom:14px}
+.gd-map-top{background:#eef2ff;padding:10px;border-bottom:2px solid #c7d2fe}
+.gd-map-body{display:grid;grid-template-columns:1fr 2.2fr 1fr;min-height:140px}
+.gd-map-left{background:#f5f3ff;border-right:2px solid #c7d2fe;padding:14px 6px}
+.gd-map-center{background:#fff;padding:14px 6px;background-image:linear-gradient(#f1f5f9 1px,transparent 1px),linear-gradient(90deg,#f1f5f9 1px,transparent 1px);background-size:16px 16px}
+.gd-map-center small{font-weight:500;color:#64748b}
+.gd-map-right{background:#f5f3ff;border-left:2px solid #c7d2fe;padding:14px 6px}
+.gd-parts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.gd-part{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.gd-part-icon{flex-shrink:0;width:36px;height:36px;border-radius:9px;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center}
+.gd-part strong{display:block;font-size:13px}
+.gd-part small{display:block;margin-top:2px;line-height:1.5}
+.gd-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.gd-cards article{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fcfcff}
+.gd-cards h3{margin:0 0 6px;font-size:14px;color:#3730a3}
+.gd-cards p{font-size:13px;color:#475569}
+.gd-cards code,.gd code{background:#f4f5f7;padding:1px 6px;border-radius:4px;overflow-wrap:anywhere;font-size:12px}
+.gd-btns{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.gd-btns>div{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.gd-btns span{flex-shrink:0;display:flex;gap:4px;min-width:34px;justify-content:center;padding:6px;border-radius:8px;background:#f1f5f9;color:#334155}
+.gd-btns p{font-size:13px;color:#475569}
+.gd-table{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.gd-table>div{display:grid;grid-template-columns:minmax(150px,1fr) 2.2fr;gap:12px;padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px}
+.gd-table>div:last-child{border-bottom:0}
+.gd-table span{color:#475569}
+.gd-faq{display:flex;flex-direction:column;gap:8px}
+.gd-faq details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff}
+.gd-faq summary{cursor:pointer;font-weight:700;font-size:13px}
+.gd-faq p{margin-top:8px;font-size:13px;color:#475569}
+@media(max-width:767px){.gd-table>div{grid-template-columns:1fr}.gd-map-body{grid-template-columns:1fr}.gd-map-left,.gd-map-right{border:0;border-bottom:2px solid #c7d2fe}.gd-toc{position:static}}
+
+/* ---- 빈 캔버스 안내 ---- */
+.uc-empty-hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:18px 24px;border:2px dashed #a5b4fc;border-radius:14px;background:rgba(255,255,255,.92);text-align:center;pointer-events:none;font-size:14px;color:#3730a3;max-width:420px}
+.uc-empty-hint b{display:block;font-size:16px;margin-bottom:6px}
+.uc-empty-hint span{color:#475569;font-size:12px}

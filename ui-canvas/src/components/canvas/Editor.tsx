@@ -476,7 +476,7 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
         <button type="button" onClick={() => jsonInput.current?.click()} title="저장한 JSON 불러오기"><FolderOpen size={15} />불러오기</button>
         <button type="button" onClick={exportComponents}><FileJson size={15} />컴포넌트 JSON</button>
         <button type="button" onClick={exportSpec}><FileText size={15} />명세 JSON</button>
-        <button type="button" className="primary" onClick={exportPng}><Download size={15} />PNG 저장</button>
+        <button type="button" className="primary" onClick={exportPng}><Download size={15} />이미지로 저장</button>
         <button type="button" title="도움말" onClick={() => setHelp(true)}><HelpCircle size={15} /></button>
         <input ref={jsonInput} type="file" accept=".json,application/json" multiple hidden onChange={(e) => onJsonFiles(e.target.files)} />
         <input ref={imageInput} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => onImageFile(e.target.files?.[0])} />
@@ -565,6 +565,9 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
                     </div>
                   );
                 })}
+                {components.length === 0 && !draw && (
+                  <div className="uc-empty-hint"><b>여기가 작업판입니다</b>왼쪽에서 컴포넌트(예: 버튼)를 고른 뒤<br />이 판 위에서 마우스를 끌어 보세요.<br /><span>또는 위쪽 [이미지로 만들기]로 화면 캡처에서 자동 생성</span></div>
+                )}
                 {draw?.mode === "draw" && (
                   <div className="uc-draw" style={{ left: Math.min(draw.sx, draw.ex), top: Math.min(draw.sy, draw.ey), width: Math.abs(draw.sx - draw.ex), height: Math.abs(draw.sy - draw.ey) }} />
                 )}
@@ -651,6 +654,7 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
               <li><b>AI:</b> [이미지로 만들기]는 UI 스크린샷을 분석해 컴포넌트와 명세를 만듭니다. [명세] 탭의 [AI로 내용 채우기]는 현재 캔버스를 보고 명세를 작성합니다. 본인 Gemini 키가 필요합니다.</li>
               <li><b>저장:</b> 변경하면 자동으로 저장됩니다. JSON·PNG로 내보낼 수도 있습니다.</li>
             </ul>
+            <div className="actions"><a className="button primary" href="/guide" target="_blank" rel="noopener">그림·단계별 상세 매뉴얼 열기</a></div>
           </div>
         </div>
       )}
