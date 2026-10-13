@@ -18,16 +18,16 @@ export function SummaryPanel({ summary, scope, compact = false }: { summary: Sum
       </div>
 
       {/* 완료율 프로그레스 게이지 */}
-      <div className="progress-section">
+      <div className="progress-section metric" aria-label="완료율">
         <div className="progress-label-row">
           <span className="progress-title">완료율</span>
-          <span className="progress-ratio">{completedCount} / {totalCount}</span>
+          <small className="progress-ratio">{completedCount} / {totalCount}개 계획 완료</small>
         </div>
         <div className="progress-track" role="progressbar" aria-valuenow={completionRate} aria-valuemin={0} aria-valuemax={100}>
           <div className="progress-fill" style={{ width: `${Math.min(100, Math.max(0, completionRate))}%` }} />
         </div>
         <div className="progress-percent-row">
-          <span className="progress-percent">{completionRate}%</span>
+          <strong className="progress-percent">{completionRate}%</strong>
         </div>
       </div>
 
@@ -62,8 +62,7 @@ export function ChartPanel({ bins }: { bins: number[] }) {
   return (
     <section className="card chart-panel">
       <div className="section-header">
-        <h2>차트</h2>
-        <span className="section-sub">시간대별 완료 수</span>
+        <h2>시간대별 완료 수</h2>
       </div>
       <div className="chart-wrapper">
         <div className="chart-grid-lines">
@@ -76,7 +75,7 @@ export function ChartPanel({ bins }: { bins: number[] }) {
         <div className="chart" aria-label="시간대별 완료 수">
           {bins.map((count, index) => (
             <div key={index} className="chart-col">
-              <span className={`col-count ${count > 0 ? "active" : ""}`}>{count > 0 ? count : ""}</span>
+              <span className={`col-count ${count > 0 ? "active" : ""}`}>{count}</span>
               <div className="col-bar-track">
                 <i
                   className={`col-bar ${count > 0 ? "filled" : ""}`}
@@ -112,6 +111,7 @@ export function NotePanel({
       </div>
       <div className="note-content">
         <textarea
+          aria-label="하루 돌아보기"
           maxLength={10000}
           value={note}
           onChange={e => change(e.target.value)}
@@ -119,7 +119,7 @@ export function NotePanel({
         />
         <div className="note-footer">
           <p className="note-status-text">
-            {note === savedNote ? "자동 저장됩니다" : "변경 내용이 아직 저장되지 않았습니다"}
+            {note === savedNote ? "현재 저장된 내용입니다." : "변경한 내용은 아직 저장하지 않았습니다."}
           </p>
           <button className="primary note-save-btn" disabled={busy} onClick={save}>
             노트 저장
@@ -141,7 +141,7 @@ export function AnalysisPanel() {
   return (
     <section className="card analysis-panel">
       <div className="section-header">
-        <h2>AI 생산성 분석</h2>
+        <h2>AI 성과 분석</h2>
       </div>
       <p className="analysis-desc">완료된 할 일을 기반으로 AI가 학습 패턴과 개선점을 찾아줘요.</p>
       <button className="ai-analyze-btn" onClick={handleAnalyze} disabled={analyzing}>
@@ -256,6 +256,7 @@ function FocusToolbar({
                 key={value}
                 className={`mode-tab ${currentMode === value ? "active" : ""}`}
                 aria-pressed={currentMode === value}
+                aria-label={MODE_LABELS[value]}
                 disabled={busy || !!active}
                 onClick={() => setMode(value)}
               >
@@ -279,8 +280,13 @@ function FocusToolbar({
               >
                 {active.state === "paused" ? "재개" : "일시정지"}
               </button>
-              <button className="timer-action-btn secondary" disabled={busy} onClick={() => void command({ type: "timer.end", sessionId: active.id })}>
-                종료
+              <button
+                className="timer-action-btn secondary"
+                aria-label="현재 타이머 종료"
+                disabled={busy}
+                onClick={() => void command({ type: "timer.end", sessionId: active.id })}
+              >
+                현재 타이머 종료
               </button>
             </div>
           ) : (
@@ -299,6 +305,7 @@ function FocusToolbar({
               )}
               <button
                 className="timer-start-btn"
+                aria-label="시작"
                 disabled={busy || (mode === "focus" && !taskId)}
                 onClick={() => void command({ type: "timer.start", mode, taskId: mode === "focus" ? taskId : null })}
               >
@@ -326,13 +333,13 @@ function FocusToolbar({
         </div>
       </div>
 
-      <div className="toolbar-caption-row">
+      <p className="timer-caption toolbar-caption-row">
         <span className={`state-dot ${active ? (active.state === "paused" ? "paused" : "running") : "idle"}`} />
         <span className="caption-text">
           {currentTitle}
           {active && ` · ${active.state === "paused" ? "일시정지" : "실행 중"}`}
         </span>
-      </div>
+      </p>
     </section>
   );
 }
@@ -401,7 +408,7 @@ export function Overview({
         {/* 좌측 열: 할 일 목록 */}
         <section className="card overview-task-list" aria-label="할 일 목록">
           {/* 카테고리 탭 필터 */}
-          <div className="category-filter-tabs" role="group" aria-label="카테고리 필터">
+          <div className="category-filter-tabs category-tabs" role="group" aria-label="분류 빠른 선택">
             <button className={`cat-tab ${!categoryId ? "active" : ""}`} aria-pressed={!categoryId} onClick={() => chooseCategory("")}>
               전체
             </button>

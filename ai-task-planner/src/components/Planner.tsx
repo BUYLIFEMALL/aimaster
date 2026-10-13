@@ -100,7 +100,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
     const actualText = clock(actualSeconds);
 
     return (
-      <article className={`task-row-card ${isDone ? "is-done" : ""} ${isDoing ? "is-doing" : ""}`} key={task.id}>
+      <article className={`task-row task-row-card ${isDone ? "is-done" : ""} ${isDoing ? "is-doing" : ""}`} key={task.id}>
         <div className="task-row-main">
           <div className="task-row-top">
             <div className="task-title-group">
@@ -109,7 +109,13 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
             </div>
             <div className="task-row-actions">
               {trash ? (
-                <button className="row-action-btn restore" disabled={busy} onClick={() => action(task, "task.restore")} title="복원">
+                <button
+                  className="row-action-btn restore"
+                  disabled={busy}
+                  onClick={() => action(task, "task.restore")}
+                  title="복원"
+                  aria-label="복원"
+                >
                   복원
                 </button>
               ) : (
@@ -124,6 +130,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
                         }
                       }}
                       title="집중 시작"
+                      aria-label="집중 시작"
                     >
                       {isDoing ? "⏸" : "▶"}
                     </button>
@@ -133,6 +140,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
                     disabled={busy}
                     onClick={() => action(task, isDone ? "task.undo" : "task.complete")}
                     title={isDone ? "완료 취소" : "완료"}
+                    aria-label={isDone ? "완료 취소" : "완료"}
                   >
                     {isDone ? "↩" : "✓"}
                   </button>
@@ -144,6 +152,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
                       if (screen !== "dashboard") navigate("plan");
                     }}
                     title="수정"
+                    aria-label="수정"
                   >
                     ✏
                   </button>
@@ -152,6 +161,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
                     disabled={busy}
                     onClick={() => action(task, "task.trash")}
                     title="휴지통"
+                    aria-label="휴지통"
                   >
                     🗑
                   </button>

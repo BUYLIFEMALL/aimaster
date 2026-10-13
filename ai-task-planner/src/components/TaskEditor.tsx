@@ -44,7 +44,7 @@ export function TaskEditor({
   return (
     <section className="card task-editor-card">
       <div className="section-header">
-        <h2>{editing ? "할 일 수정" : "할 일 추가"}</h2>
+        <h2>{editing ? "할 일 수정" : "새 할 일"}</h2>
       </div>
       <form onSubmit={submit} className="task-editor-form">
         <label className="form-field">
@@ -107,7 +107,12 @@ export function TaskEditor({
         )}
 
         <div className="form-submit-row">
-          <button type="submit" className="add-task-submit-btn" disabled={busy}>
+          <button
+            type="submit"
+            className="add-task-submit-btn"
+            disabled={busy}
+            aria-label={editing ? "수정 저장" : "할 일 추가"}
+          >
             {busy ? "저장 중…" : editing ? "수정 저장" : "+ 추가"}
           </button>
           {editing && (
