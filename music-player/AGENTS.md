@@ -2,6 +2,8 @@
 
 > ★ 최상위 규칙: 이 프로그램은 AI·외부 계정을 쓰지 않는 브라우저 기능이다. 나중에 AI(예: 곡 분석)를 붙이면 **회원 본인 Gemini 키**만 사용하고 운영자 키로 폴백하지 않는다. ([TOP_RULE](../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md))
 
+**이어받는 CLI는 [docs/CLI_HANDOFF.md](docs/CLI_HANDOFF.md)(완료 커밋·코드 지도·절차·남은 일·함정)부터 읽으세요.**
+
 작업 시작 전: 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`를 먼저 읽는다. 썸네일은 **`docs/PLATFORM_PATTERNS.md §13` + `scripts/generate-program-thumbnail.mjs`**만 쓴다.
 
 ## 기본 정보
