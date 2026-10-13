@@ -59,3 +59,9 @@ Drive 파일은 **삭제하지 않는다**(로컬 휴지통과 Drive는 별개).
 Set-Location D:/Antigravity/AIMaster/markdown-studio
 npm ci; node scripts/copy-fonts.mjs; npm run build; npm test; npm run test:browser; npm run test:editor; npm run test:export; npm run test:drive; npm run test:runtime; npm audit
 ```
+
+## 실제 Google 검수 시도 기록 (2026-10-13)
+
+- 관리자 계정(`buylifemall@gmail.com`)의 공용 `user_api_keys`에 `google_client_id`(2026-08-07 등록, 형식 유효)와 `google_client_secret`이 있고 `youtube_accounts`에 YouTube 채널 연동이 있음(YouTube 프로그램용 앱). 이 앱의 Client ID(공개 식별자)를 운영 설정 화면에 저장하고 `Google에 연결`을 눌렀으나 **Google 창이 곧바로 닫히며 "연결 창이 닫혔습니다"가 표시**됨. 자동화 도구로는 팝업 창 내용을 볼 수 없어 원인 미확정.
+- 가능한 원인(확인 필요): ① 해당 OAuth 클라이언트의 **승인된 JavaScript 원본에 `https://markdown-studio.buylife.xyz`가 없음**(원본 불일치 오류) ② 같은 프로젝트에서 **Google Drive API 미사용 설정** ③ 동의 화면 테스트 사용자·범위 제한 ④ 팝업 차단. 사용자가 직접 `Google에 연결`을 눌러 Google 창의 오류 문구를 확인해야 함.
+- 이 앱의 Drive 연동은 Client Secret·YouTube 토큰을 쓰지 않으며, 조회 중 노출된 YouTube 토큰은 사용·복사하지 않았다.

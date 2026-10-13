@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio 실제 Google 연결 시도(미완, 원인 확인 대기)
+
+- 관리자 계정의 `google_client_id`를 운영 설정 화면에 저장하고 연결 시도 → Google 창이 곧바로 닫힘. 다음: 사용자가 직접 `Google에 연결`을 눌러 Google 오류 문구 확인(승인된 JavaScript 원본에 `https://markdown-studio.buylife.xyz` 추가·Drive API 사용 설정·테스트 사용자 확인) 후 실제 업로드/가져오기 검수. 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
+
 ## 2026-10-13 Claude Code — Markdown Studio 운영 PDF·Word 다운로드 검증 (앱 변경 없음)
 
 - 사용자 허락 후 운영 `markdown-studio.buylife.xyz/export`에서 일반 회원 계정으로 PDF·DOCX를 실제로 내려받아(`D:\PDS\회원 검수.pdf/.docx`) 검사: PDF 한글 글꼴 임베드·글자 추출·육안 확인, DOCX XML·구조 확인, **Microsoft Word(Office 2024)에서 열어 표시 확인**(표·알파벳 목록·링크 포함 시험 파일도). 기록: [PHASE5_RELEASE](../markdown-studio/docs/PHASE5_RELEASE.md).
