@@ -7,7 +7,7 @@
 
 ## 구조
 - `src/lib/lpa/` 순수 로직(단위 테스트 대상): `templates`(주제 20종), `prompts`(연도 주입·한국어·구조 고정), `plan`(JSON 파싱·검증·정규화·Markdown), `html`(HTML 추출·검증·이미지 키워드), `validate`(입력 정리), `types`.
-- `src/lib/gemini.ts`(서버): 모델 폴백 `gemini-3.1-pro-preview → gemini-2.5-pro → gemini-2.5-flash`(standard는 flash), 기획안은 형식 오류 시 1회 재시도. `src/lib/images.ts`(서버): Unsplash/Pexels/Pixabay 조회.
+- `src/lib/gemini.ts`(서버): 모델 폴백 `gemini-3.1-pro-preview → gemini-2.5-flash(gemini-2.5-pro는 신규 계정 사용 불가로 제외, 2026-10-13 확인)`(standard는 flash), 기획안은 형식 오류 시 1회 재시도. `src/lib/images.ts`(서버): Unsplash/Pexels/Pixabay 조회.
 - API(모두 `checkProgramAccessApi` + `force-dynamic`): `/api/ai/suggest|plan|code`, `/api/images/resolve`, `/api/keys`, `/api/projects(/[id])`.
 - 화면: `/open`(최근 프로젝트 열기) → `/project/[id]`(`components/studio/Workspace.tsx`), `/dashboard`, `/settings`(API키등록·플랫폼연동), `/guide`.
 
