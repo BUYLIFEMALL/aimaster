@@ -27,6 +27,15 @@
 
 ## 운영 적용
 
+### 2026-10-13 운영 배포 결과
+
+- 구현 커밋 `3db81143`을 `origin/master`에 푸시했습니다. 다른 CLI의 변경은 포함하지 않았습니다.
+- `vercel deploy --prod --yes --scope buylife` 성공. 배포 `dpl_DrXFY2gD8qcJPPnJTXq6L3siMKGQ`, 상태 READY, production.
+- 운영 별칭: https://ai-task-planner.buylife.xyz. 배포 주소: https://ai-task-planner-n1rwrolej-buylife.vercel.app.
+- 공용 DB `programs.version`을 v1.04로 갱신하고 재조회했습니다. `app_url`은 운영 별칭이며 활성 요금제 3개, 기존 workspace 1개를 확인했습니다. 스키마·회원 기록·키는 변경하지 않았습니다.
+- 운영 HTTP/API 검사 **10개 통과**: 로그인 200, 회원 화면 3개 로그인 리다이렉트, 익명 workspace/keys 차단, 잘못된 출처 분석 차단, 익명 분석 차단, 메인 상세의 v1.04 표시, 실제 Gemini 가이드 200. 회원 화면/API는 private/no-store 및 `X-Vercel-Cache: MISS`를 확인했습니다. [운영 검사 원자료](evidence/continuation/live-results.json).
+- 자동/격리 검수 총67개와 프로덕션 빌드, 운영 검사10개가 통과했습니다. 실제 비관리자 로그인·본인 Gemini 생성·두 실제 기기 검수는 여전히 미완료이며 W06과 연결해 재개합니다. 브라우저 fixture 결과를 실제 회원/공급사 성공으로 대체하지 않습니다.
+
 - 코드 `APP_VERSION` v1.04·package1.4.0. 프로그램 DB 버전 갱신 SQL: `supabase/migrations/20261013120750_planner_continuation_v104.sql`.
 - 기존 공유 인증·DB·RPC·SSO·회원 기록은 유지. 새 DB 스키마/환경변수/키 변경·확장 추가 없음.
 - 운영: https://ai-task-planner.buylife.xyz/dashboard

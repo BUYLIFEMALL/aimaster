@@ -2,6 +2,8 @@
 
 ## 2026-10-13 재개 — v1.04 후속 기능
 
+운영 배포 완료: 구현 커밋 `3db81143` 푸시, 배포 `dpl_DrXFY2gD8qcJPPnJTXq6L3siMKGQ` READY, https://ai-task-planner.buylife.xyz. 코드·DB v1.04 동기화, 자동/격리 검수67개·운영 HTTP/API10개 통과. 실제 비관리자 로그인·본인 Gemini·두 실제 기기 검수는 남았습니다. 상세 결과와 원자료는 [출시 기록](docs/CONTINUATION_RELEASE.md)을 확인하세요.
+
 주인님의 재개 지시로 최신 화면 회귀·본인 Gemini 키 등록 상태/모델/매뉴얼·서버 AI 성과 분석·JSON 가져오기·범위 일치 CSV를 구현했습니다. 본인 키만 조회하며 등록·변경은 회원이 AIMaster 공통 설정에서 직접 합니다. 이전 대기 기록은 이력입니다. 코드 v1.04/package1.4.0, DB 메타데이터 갱신 SQL 준비. [출시·검수 기록](docs/CONTINUATION_RELEASE.md), [최신 작업 목록](docs/WORK_QUEUE.md)을 먼저 읽으세요.
 
 검사: 단위/SQL/API/공급사 모의22·보이는 격리 Chrome30·실제 Next 설정미등록 차단15·프로덕션 빌드 통과. 실제 운영 로그인·Gemini 호출·두 실제 기기 검수는 남았습니다. 운영 데이터·키/환경변수/스키마는 변경하지 않습니다. 커밋/푸시/배포 결과는 출시 문서에 이어 기록합니다.
