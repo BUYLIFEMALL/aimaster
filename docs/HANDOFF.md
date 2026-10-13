@@ -1,4 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.05) 인수인계 완료 및 프로덕션 운영 현황
+
+- **프로그램명**: AI 슬라이드 자동화 (Slide Builder AI)
+- **슬러그 / URL**: `ai-slide-builder` / [https://ai-slide-builder.buylife.xyz](https://ai-slide-builder.buylife.xyz)
+- **현재 버전**: **`v1.05`** (`src/lib/version.ts` 및 DB `programs.version = 'v1.05'`)
+- **최상위 원칙 준수**: 사용자는 본인의 계정과 본인의 Gemini API 키를 직접 등록하여 사용 (운영자 키 폴백 금지).
+- **프로젝트 상세 인수인계서**: [ai-slide-builder/AGENTS.md](../ai-slide-builder/AGENTS.md) 및 [ai-slide-builder/README.md](../ai-slide-builder/README.md) 완비.
+- **핵심 아키텍처 및 구현 현황**:
+  1. **3대 생성 프롬프트 엔진**: 표준 형식(10~12P, 22개 시각화 레이아웃, 스피커 노트 자동 생성), 확장판(14~16P, 13행 이상 표 자동 분할), C-Suite 보고 형식(CEO/임원 결재용 두괄식, 10대 보고 주제, 7대 보고 목적, 발표 시간별 분량 조절).
+  2. **22가지 전문 슬라이드 타입**: `title`, `section`, `closing`, `agenda`, `content`, `compare`, `process`, `processList`, `timeline`, `diagram`, `cycle`, `cards`, `headerCards`, `table`, `progress`, `quote`, `kpi`, `bulletCards`, `faq`, `statsCompare`, `barCompare`, `triangle`, `pyramid`, `flowChart`, `stepUp`, `imageText`.
+  3. **멀티포맷 파서 & 16:9 와이드스크린 PPTX 생성기**: PDF, DOCX, XLSX, TXT, CSV 파일 드래그앤드롭 업로드 파싱 및 `pptxgenjs` 기반 파워포인트 바이너리 즉시 다운로드 (스피커 노트 자동 삽입).
+  4. **플랫폼 표준 UI 규격 준수**: 화이트 테마 베이스, 좌측 사이드바(`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격, 1-2-3 작업 흐름, API키등록, 실제 로그인 계정 표시 및 로그아웃 버튼).
+  5. **도움말 모달 정돈 완료 (v1.05)**: 원본 레퍼런스 유입 외부 개발자/출처 표기(`Majin`, `Kimura Yoshiki`, `GPT PARK`) 전면 삭제 및 순수 기능 안내로 정돈 완료.
+- **검수 및 운영 현황**: `npm run build` 100% 정상 통과, Vercel 프로덕션 배포 완료 (`https://ai-slide-builder.buylife.xyz`), 라이브 사이트 검증 완료.
+
 
 ## 2026-10-13 Claude Code — Markdown Studio 실제 Google Drive 올리기·목록·갱신 검증 통과 (충돌·가져오기는 Drive 쪽 수정 후 확인 대기)
 

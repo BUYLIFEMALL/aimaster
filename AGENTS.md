@@ -317,6 +317,8 @@ vercel deploy --prod --yes --scope buylife
 | 유틸리티 | AI 프롬프트 템플릿 자동화 | prompt-template-studio | https://prompt-template.buylife.xyz (현재 v1.01, 9종 기본 프리셋 및 5대 카테고리, {{variable}} 동적 변수 실시간 감지, AI 3단 스마트 제안, 실행 시 AI 변수 자동 채우기, Gemini 2.5 Flash 원클릭 실행 및 마크다운 렌더링, JSON 백업/복원, 상세는 `prompt-template-studio/AGENTS.md` / `README.md`) |
 | 이커머스 | AI 12단 상세페이지 자동화 | detail-page-12p | https://detail-12p.buylife.xyz (현재 v1.01, 쿠팡 12단 & 스마트스토어 9단 규격 자동 최적화, 1초 스펙 자동검색, 사양서 문서 파싱, Nano Banana AI 멀티모달 렌더링, 860px 세로 통이미지 원클릭 자동 합성/다운로드, 실시간 스마트폰 앱 라이브 시뮬레이터, 상세는 `detail-page-12p/AGENTS.md` / `README.md`) |
 | 이미지 | AI 올인원 그래픽 자동화 | allinone-graphic | https://graphic.buylife.xyz (현재 v1.01, 19개 전문 직군 123종 프리셋 템플릿, AI 입력 도우미(기획서/사양서 파일 분석 자동입력), 나노바나나(1K 표준) 및 나노바나나2 Pro(2K/4K 초고화질) 엔진, 브러시 마스크 인페인팅 & 아웃페인팅 스마트 매직 에디터, 11대 화풍 스타일, 다국어 텍스트 렌더링, 상세는 `allinone-graphic/AGENTS.md` / `MANUAL.md`) |
+| 오디오 | AI Audio분석 자동화 | ai-audio-analyzer | https://audio-lab.buylife.xyz (현재 v1.01, Web Audio 실시간 파형/스펙트럼 분석기, 음성 인텔리전스 화자별 회의록 자동 요약, Suno AI v5 음악 역설계 프롬프트 추출기, 보컬/악기 음원 포렌식 분석, 상세는 `ai-audio-analyzer/AGENTS.md`) |
+| 유틸리티 | AI 슬라이드 자동화 | ai-slide-builder | https://ai-slide-builder.buylife.xyz (현재 v1.05, 비정형 텍스트/기획서 기반 22개 시각화 패턴 프레젠테이션 자동 생성, 3대 프롬프트 엔진(표준/확장판/C-Suite 보고용), 멀티포맷 파일 파서, 16:9 와이드스크린 PPTX 원클릭 다운로드, 스피커 노트 자동 삽입, 상세는 `ai-slide-builder/AGENTS.md` / `README.md`) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
