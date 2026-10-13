@@ -1741,6 +1741,12 @@
 
 - 증상: Suno 운영 API 비로그인 오류 응답은 성공 응답과 달리 Cache-Control이 public,max-age=0 → 원인: `guarded()` 성공 경로에만 no-store 지정 → 해결: `suno-music-studio/src/lib/apiGuard.ts` 모든 응답에 private,no-store 적용(v1.04) → 다음부터 확인: 동적 라우트 선언만 확인하지 말고 성공/401/403/검증 오류의 실제 응답 헤더를 각각 확인.
 
+## 2026-10-14 reverse-prompt v1.01 — 큰 파일 업로드·MCP SQL·실호출 스크립트
+
+- 증상: Supabase MCP `execute_sql`에 DDL 여러 문장(테이블+정책+버킷)을 한 번에 보내면 "Invalid or expired requestState"로 거부 → 해결: 문장 하나씩 보내면 정상 적용(DELETE 같은 파괴적 문장도 거부될 수 있어 서비스 롤 스크립트로 정리) → 다음부터: DDL은 문장별로 적용하고 마이그레이션 파일에는 전체를 남긴다.
+- 증상: 실호출 스크립트를 `| tail`로 파이프하면 끝날 때까지 출력이 안 보여 멈춘 것처럼 보임(터미널 제한 시 백그라운드로 넘어감) → 해결: 파일로 리다이렉트하고 `timeout`을 건다 → 다음부터: 긴 AI 호출은 파이프 대신 파일 출력.
+- 설계: Vercel 본문 4.5MB 한도 때문에 영상·오디오는 브라우저가 서명 URL로 Storage에 직접 올리고(`createSignedUploadUrl` + `uploadToSignedUrl`), 서버가 읽어 Gemini Files API로 넘긴다. 버킷은 정책 없이 비공개(서버만 접근), 경로 첫 폴더=uid를 `isOwnTempPath`로 검증. `reverse-prompt.vercel.app` 이름은 선점되어 있어 공식 주소는 buylife.xyz 서브도메인만 쓴다.
+
 ## 2026-10-13 landing-architect v1.01 — 새 provider 키·배포·테스트 하네스
 
 - 증상: 회원 본인 이미지 제공자 키(unsplash/pexels/pixabay)를 `user_api_keys`에 저장하려면 provider CHECK 제약에 없어서 실패 → 해결: `landing-architect/supabase/migrations/0002_image_provider_keys.sql`로 제약 확장(기존 값 유지, PLATFORM_PATTERNS §14) → 다음부터: 새 provider를 쓰기 전에 `pg_get_constraintdef`로 현재 허용값을 먼저 확인.

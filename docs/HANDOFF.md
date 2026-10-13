@@ -8,6 +8,14 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — 신규 프로그램: AI 리버스 프롬프트 자동화 (`reverse-prompt` v1.01)
+
+- 주인님 요청: https://reverse-prompt-architect.vercel.app/ 분석 → 플랜(ad435d1f) → "진행해줘"로 구현·배포.
+- 구현: 이미지·동영상·오디오 → 비공개 임시 버킷 직접 업로드 → 서버 Gemini(이미지 인라인, 영상·오디오 Files API) → 대상 도구별 프롬프트+JSON → 편집·명령어 재조합·재분석·기록(100건)·JSON/Markdown 내보내기. 회원 본인 Gemini 키만 사용.
+- DB: `reverse_prompt_history`(RLS), Storage 비공개 `reverse-prompt-tmp`, `programs` 등록+요금제 3종+VIP 접근, §13 실사 썸네일.
+- 검수: 단위 15/15, 보이는 Chrome 16/16, 빌드, 실제 Gemini 이미지 12초·오디오 14초·영상 18초, 운영 화면(관리자 로그인)에서 업로드→분석→기록→임시파일 삭제 확인. 운영 https://reverse-prompt.buylife.xyz
+- 남은 일·인수인계: [reverse-prompt/docs/CLI_HANDOFF.md](../reverse-prompt/docs/CLI_HANDOFF.md)
+
 ## 2026-10-13 Claude Code — 신규 프로그램: AI 랜딩페이지 기획 자동화 (`landing-architect` v1.01)
 
 - 주인님 요청: AI Studio "AI Landing Page Architect Enhance"를 분석해 개발(분석·플랜 9b88bfba → 구현·배포).

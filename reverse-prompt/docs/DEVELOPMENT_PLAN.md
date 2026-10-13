@@ -1,6 +1,6 @@
-# AI 리버스 프롬프트 자동화 (reverse-prompt) — 분석 및 개발 플랜 (2026-10-13, 승인 대기)
+# AI 리버스 프롬프트 자동화 (reverse-prompt) — 분석 및 개발 플랜 (2026-10-13 작성, 2026-10-14 구현 완료)
 
-> 상태: **분석·플랜 단계. 코드 미착수.** 참고 사이트: https://reverse-prompt-architect.vercel.app/ ("Reverse Prompt Architect", 개발자 GPT PARK).
+> 상태: **구현·배포 완료(v1.01, 2026-10-14).** 운영 https://reverse-prompt.buylife.xyz — 인수인계는 [CLI_HANDOFF.md](CLI_HANDOFF.md), 구조·규칙은 [../AGENTS.md](../AGENTS.md). 참고 사이트: https://reverse-prompt-architect.vercel.app/ ("Reverse Prompt Architect", 개발자 GPT PARK).
 > 분석 방법(핵심 원칙 14번): 공개 HTML(`index.html`), 메인 JS 번들(`/assets/index-Ccw_J4qu.js`, 487KB)을 통째로 내려받아 앱 코드 구간(시스템 지침·응답 스키마 3종·i18n 전문·컴포넌트·키 저장 로직)을 전부 정독했다. 소스맵·별도 API 엔드포인트는 없음(404) — 서버 없는 순수 클라이언트 앱이다. 내려받은 파일은 실행하지 않고 읽기만 했다.
 
 ## 1. 원본 분석
