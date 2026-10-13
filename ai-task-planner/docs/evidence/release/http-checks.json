@@ -1,0 +1,48 @@
+{
+  "version": "v1.02",
+  "checkedAt": "2026-10-13T08:38:47.188Z",
+  "checks": [
+    {
+      "path": "/login",
+      "status": 200,
+      "cache": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "path": "/dashboard",
+      "status": 307,
+      "cache": "private, no-cache, no-store, max-age=0, must-revalidate"
+    },
+    {
+      "path": "/api/workspace",
+      "status": 401,
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/programs",
+      "status": 200,
+      "catalogLinkFound": true,
+      "thumbnailFound": true,
+      "anonymous": true
+    },
+    {
+      "path": "/programs/ai-task-planner",
+      "status": 200,
+      "catalogLinkFound": true,
+      "thumbnailFound": true,
+      "anonymous": true
+    },
+    {
+      "path": "thumbnail",
+      "status": 200,
+      "contentType": "image/png"
+    },
+    {
+      "path": "live Chrome JSON download",
+      "valid": true,
+      "version": "v1.02",
+      "taskCount": 1,
+      "sessionState": "ended",
+      "secretFields": false
+    }
+  ]
+}

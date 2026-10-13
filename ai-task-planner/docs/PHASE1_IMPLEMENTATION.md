@@ -69,3 +69,15 @@
 - 지연된 GET과 일시정지 POST의 순서를 뒤집는 Chrome 회귀 검사 추가. 보이는 격리 Chrome17/17 및 로컬 빌드 통과. 기존 단위/SQL14·런타임12 통과.
 - 코드 APP_VERSION·공용 programs.version v1.02, package1.2.0 동기화. 기존 회원 데이터와 타이머 세션 보존.
 - 익명 운영 API401·보호 화면307·로그인200·캐시 private/no-store, 공개 썸네일200 확인. 최종 배포 후 검수 결과는 이어 기록합니다.
+
+## v1.02 최종 운영 결과
+
+- 커밋 `7034debf` origin/master 푸시 성공 후 Vercel 프로덕션 배포 `dpl_SsC7MPefdangHBA8dPLc4GemaaHb` READY. 배포 주소 https://ai-task-planner-4hr1j2u1z-buylife.vercel.app, 운영 도메인 https://ai-task-planner.buylife.xyz.
+- 실제 로그인된 Chrome은 관리자 `buylifemall@gmail.com`. 메인 목록/상세의 썸네일·실행 링크와 프로그램 SSO 열림 확인. Tools 카드의 v1.02 및 한국인 실사 사진을 이웃 프로그램 썸네일과 나란히 확인했습니다.
+- 실제 할 일1개 생성(revision1), 집중 시작(2), v1.02 배포 후 기존 타이머 보존, 일시정지(3), 새로고침 뒤 `15:57` 유지 및 DB paused 확인, 재개(4), 완료(5) 시 done+ended 원자적 변경 확인. 실제 집중 구간 합계593,057ms(화면9분·예측 정확도33%·완료율100%). 일시정지 구간은 합계에 포함하지 않았습니다.
+- 성과 노트 명시적 저장(6), 새로고침 후 본문 유지 및 운영 DB 값 일치. 운영 검수용 할 일과 노트는 이 관리자 본인 기록에만 남겼으며 삭제하지 않았습니다.
+- 실제 Chrome JSON 다운로드 완료. 저장된 파일을 직접 파싱해 v1.02·할 일1개·종료 세션·노트를 확인했습니다. API 키·토큰·서비스 키 필드 없음.
+- 운영 익명 로그인200·보호 화면307·API401·private/no-store 확인. 메인 목록/상세200 및 카탈로그 레코드·썸네일 포함, 공개 이미지200/image/png 확인.
+- [HTTP/다운로드 검사](evidence/release/http-checks.json), [메인 Tools 카드](evidence/release/catalog-tools.png), [정지 후 새로고침](evidence/release/paused-after-reload.png), [노트 재조회](evidence/release/results-after-reload.png).
+- **남은 검수:** 비관리자 시험 계정의 실제 로그인 및 두 실제 기기. 시험 계정은 현재 VIP이고 이용 권한1건을 DB에서 확인했지만 해당 계정의 실제 로그인 성공으로 보고하지 않습니다. 비밀번호 대신 입력·회원 인증 우회는 하지 않았습니다.
+- **후속 기능:** 회원 본인 Gemini 키·모델선택·AI 분석·전용 연동 매뉴얼·전체백업 복원·CSV. 현재 핵심 기록 기능 배포와 전체 개발 계획의 완료를 구분합니다.

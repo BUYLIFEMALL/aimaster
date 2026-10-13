@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.02 운영 배포·검수 완료 기록
+
+- 코드7034debf 푸시 후 Vercel 프로덕션 dpl_SsC7MPefdangHBA8dPLc4GemaaHb READY, https://ai-task-planner.buylife.xyz 연결. 핵심 기능 출시.
+- 실제 관리자 Chrome에서 메인 목록/상세 썸네일·실행 링크 → SSO → 할 일 저장 → 집중 시작/일시정지/새로고침15:57유지/재개 → 완료와 세션종료 → 노트 저장/재조회 → JSON 다운로드/파일 파싱 확인. 운영 DB revision6, 집중 구간593057ms와 화면 집계 일치. 시험 기록은 관리자 본인 한행에만 남음.
+- 익명 API401·보호 화면307·로그인200·private/no-store, 메인 목록/상세200·공개 썸네일200. 코드/DB/메인 카드 버전 v1.02 일치. 검수 증거 ai-task-planner/docs/evidence/release, 자세한 결과 docs/PHASE1_IMPLEMENTATION.md.
+- 자동 검수 단위/SQL14·보이는 격리 Chrome17·설정 미등록 런타임12 통과. 새 DB/RPC 관련 보안 점검 경고 없음.
+- 남은 기능: 회원 본인 Gemini AI·모델선택·연동 매뉴얼·JSON 복원·CSV. 남은 실제 검수: 비관리자 시험 계정 로그인·두 실제 기기. 현재 시험 계정은 비관리자 VIP이고 권한1건 확인했지만 로그인된 실제 Chrome은 관리자이므로 비관리자 검수를 완료했다고 보고하지 않음.
+
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.02 운영 화면 문제 수정
 
 - v1.01 첫 운영 배포 READY 및 메인 썸네일/이용 링크/SSO/실제 관리자 본인 저장/집중 실행 확인. 운영 연결 커밋7fae5ee0 푸시 성공.
