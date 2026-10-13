@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — AI 룩스튜디오 자동화(`look-studio`) v1.01 신규 개발·운영 배포
+
+- 요청: AI Studio "LookStudio AI (배포용)" 분석 → 계획 승인("진행해줘") → 구현. 계획 [DEVELOPMENT_PLAN](../look-studio/docs/DEVELOPMENT_PLAN.md), 인수인계 [CLI_HANDOFF](../look-studio/docs/CLI_HANDOFF.md).
+- 구현: 사진 입력·축소, AI 추천(의상/액세서리, 동시 2·재시도·재생성·취소), 옷장(IndexedDB·SSRF 방어 URL 프록시·이름 자동 생성), 가상 피팅(레이어드/갈아입기·배경 유지/변환), 되돌리기·원본 비교, 뷰티 분석·적용, PNG/JPEG 저장·최근 룩, KO/EN, 매뉴얼. 서버 저장 없음, AI는 회원 본인 키.
+- 운영: https://look-studio.buylife.xyz (Vercel `buylife/look-studio`, 공용 인증 환경변수 3개). DB `programs` 등록(이미지, new, v1.01), 3요금제, VIP 접근, 썸네일(§13 실사).
+- 검수: 테스트 12/12·빌드·보이는 Chrome 15/15(모의 Gemini)·**주인님 본인 키 실제 Gemini 호출 확인**(추천·아이템·입어보기·뷰티). 미검수: pro 모델, 일반 회원 실계정, 실제 사용자 사진.
+
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.03 통합 대시보드
 
 - 첨부 원본 화면의 한눈에 보는 배치 반영: 상단 집중/휴식 타이머, 왼쪽 분류·미완료/완료 목록, 가운데 작성/수정·성과, 오른쪽 차트·AI 준비 안내·노트. 흰색 표준 화면·사이드바 유지.
