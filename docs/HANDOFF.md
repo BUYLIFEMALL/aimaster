@@ -1,8 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-13 Antigravity — AI 슬라이드 빌더 PRO (ai-slide-builder v1.01) 신규 구축 및 빌드 검수 완료
+## 2026-10-13 Antigravity — AI 슬라이드 빌더 PRO (ai-slide-builder v1.01) 구축, 배포 및 플랫폼 등록 완료
 
-주인님 요청("새프로젝트 시작하자 슬라이드 빌더 AI PRO 자세하고 면밀히 분석후 개발 플랜을 세워줘", "단계별로 작업 진행해줘")에 따라, 레퍼런스 앱(**슬라이드 빌더 AI PRO**)의 소스코드 100% 전수 역분석 및 신규 서브프로젝트 **`AI 슬라이드 빌더 PRO` (`ai-slide-builder v1.01`)** 구축을 완벽히 완료했습니다:
+주인님 요청("새프로젝트 시작하자 슬라이드 빌더 AI PRO 자세하고 면밀히 분석후 개발 플랜을 세워줘", "단계별로 작업 진행해줘")에 따라, 레퍼런스 앱(**슬라이드 빌더 AI PRO**)의 소스코드 100% 전수 역분석 및 신규 서브프로젝트 **`AI 슬라이드 빌더 PRO` (`ai-slide-builder v1.01`)** 구축, Vercel 프로덕션 배포, 도메인 연결, Supabase DB 등록 및 썸네일 반영을 완벽히 완료했습니다:
 
 1. **레퍼런스 전수 역분석 및 실기 기능 구현 완결 (Rule 15)**:
    - **3대 특화 생성 포맷 (프롬프트 엔진)**:
@@ -22,9 +22,14 @@
    - **화이트 베이스 UI (Rule 8)**: 깔끔한 화이트/소프트 그레이 작업 화면
    - **당해 연도(2026년) 동적 주입 (Rule 9)**: `new Date().getFullYear()` 동적 주입
    - **표준 좌측 메뉴 레이아웃 규격 준수 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**: 프로그램명+버전, 다른 프로그램 보기, 1-2-3 작업 흐름, API키등록, 바짝 붙은 계정 및 로그아웃
-4. **검수 결과**:
+4. **프로덕션 배포 및 플랫폼 등록**:
+   - Vercel 프로덕션 배포 완료: `https://ai-slide-builder.buylife.xyz`
+   - Supabase DB `programs` 등록 완료: slug `ai-slide-builder`, Tools 카테고리, 배지 `['free', 'new']`, 버전 `v1.01`
+   - 고화질 16:9 썸네일 생성 및 Supabase Storage `catalog/ai-slide-builder-thumbnail.jpg` 업로드 및 등록 완료
+5. **검수 결과**:
    - TypeScript 컴파일 및 Next.js 16 프로덕션 빌드 100% 성공 (`npm run build`)
    - 버전: `v1.01` (`src/lib/version.ts`)
+
 
 # 작업 인수인계 현황판 (HANDOFF.md)
 
