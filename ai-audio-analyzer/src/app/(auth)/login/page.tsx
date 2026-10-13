@@ -3,10 +3,10 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signInAction } from "@/lib/actions/auth";
-import { Sparkles, Lock, Mail, ArrowRight } from "lucide-react";
+import { Activity, Lock, Mail, ArrowRight } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 
-const MAIN_SITE_URL = "https://aimaster.buylife.xyz";
+const MAIN_SITE_URL = "https://www.buylife.xyz";
 
 function LoginCard() {
   const searchParams = useSearchParams();
@@ -36,17 +36,17 @@ function LoginCard() {
     <div className="w-full max-w-md mx-auto">
       {/* 헤더 로고 */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/20 mb-3">
-          <Sparkles className="w-7 h-7" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 mb-3">
+          <Activity className="w-7 h-7" />
         </div>
         <div className="flex items-center justify-center gap-2">
           <h1 className="text-xl font-bold text-slate-900">{APP_NAME}</h1>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200">
             {APP_VERSION}
           </span>
         </div>
         <p className="text-xs text-slate-500 mt-1">
-          AIMaster 계정으로 로그인하여 123종 상업용 비주얼을 원클릭으로 생성하세요
+          AIMaster 계정으로 로그인하여 AI 음성 인텔리전스 및 음악 역설계를 시작하세요
         </p>
       </div>
 
@@ -69,7 +69,7 @@ function LoginCard() {
                 name="email"
                 required
                 placeholder="buylifemall@naver.com"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all outline-hidden"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-hidden"
               />
             </div>
           </div>
@@ -83,7 +83,7 @@ function LoginCard() {
                 name="password"
                 required
                 placeholder="비밀번호를 입력하세요"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all outline-hidden"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-hidden"
               />
             </div>
           </div>
@@ -91,7 +91,7 @@ function LoginCard() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl text-xs shadow-md shadow-amber-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full mt-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isPending ? (
               <span>로그인 중...</span>
@@ -109,7 +109,7 @@ function LoginCard() {
             아직 AIMaster 계정이 없으신가요?{" "}
             <a
               href={`${MAIN_SITE_URL}/signup`}
-              className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-0.5"
+              className="text-indigo-600 font-semibold hover:underline inline-flex items-center gap-0.5"
             >
               회원가입하기
             </a>
