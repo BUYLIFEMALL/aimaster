@@ -1,0 +1,59 @@
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.overview-main{padding:22px 24px 32px;max-width:2100px}
+.overview-main .page-heading{margin-bottom:14px}
+.overview-main .page-heading h1{font-size:24px;margin-bottom:0}
+.overview-main .page-heading p:not(.eyebrow){display:none}
+.overview-main .filters{padding:12px 16px;margin-bottom:14px;gap:10px}
+.overview-main .filters input,.overview-main .filters select{padding:8px 10px}
+.overview .card{padding:16px;margin:0}
+.overview h2{font-size:14px;margin-bottom:13px}
+.overview .stack{gap:14px}
+.overview-grid{display:grid;grid-template-columns:minmax(230px,.86fr) minmax(300px,1.07fr) minmax(270px,1fr);gap:14px;align-items:start}
+.overview-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;margin-bottom:14px!important}
+.toolbar-main{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
+.mode-buttons{display:flex;gap:3px;padding:3px;background:#f5f5fa;border-radius:9px;flex-wrap:wrap}
+.mode-buttons button{min-height:31px;padding:6px 9px;font-size:11px;border:0;background:transparent}
+.mode-buttons button[aria-pressed=true]{background:#4f46e5;color:white}
+.overview-clock{font-size:26px;letter-spacing:-1px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.timer-start-controls{display:flex;gap:8px;align-items:center;min-width:0}
+.timer-task-picker{max-width:220px;min-width:150px}
+.timer-task-picker select{padding:8px;font-size:12px}
+.overview-tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.overview-tools button{font-size:11px;padding:7px 9px;min-height:32px}
+.timer-caption{display:flex;align-items:center;gap:7px;grid-column:1/-1;color:#727c8d;font-size:11px;line-height:1.4;margin:0;min-width:0;overflow-wrap:anywhere}
+.category-tabs{display:flex;gap:3px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid #e7e9f0;margin-bottom:12px}
+.category-tabs button{font-size:11px;min-height:29px;padding:5px 9px;border:0;background:transparent}
+.category-tabs button[aria-pressed=true]{background:#efefff;color:#4f46e5}
+.overview-task-scroll{max-height:570px;overflow-y:auto;padding-right:3px}
+.overview-task-scroll h3{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12px;margin:12px 0 8px}
+.overview-task-scroll h3 small{font-weight:400;color:#727c8d;border-radius:12px;background:#f2f3f7;padding:3px 6px}
+.overview-task-scroll .task-row{padding:12px;border:1px solid #e5e7ef;border-radius:9px;margin-bottom:10px;gap:9px;background:#fcfcfe}
+.overview-task-scroll .task-title strong{font-size:12px}
+.overview-task-scroll .task-title:has(.done) strong{text-decoration:line-through;color:#727c8d}
+.overview-task-scroll .task-row .muted{font-size:10px;line-height:1.5}
+.overview-task-scroll .task-time{font-size:10px}
+.overview-task-scroll .actions{gap:5px}
+.overview-task-scroll .actions button{font-size:10px;min-height:28px;padding:5px 7px}
+.overview .empty{font-size:11px;padding:16px 0;margin:0}
+.overview-planning form.stack{gap:11px}
+.overview-planning .form-grid{gap:10px}
+.overview-planning input,.overview-planning select{padding:8px 9px}
+.overview-planning form .muted{font-size:10px;line-height:1.4;margin:0}
+.overview-summary .metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.overview-summary .metric{padding:10px 11px;gap:6px;background:#f9fafc;border-color:#edf0f5}
+.overview-summary .metric span{font-size:10px}
+.overview-summary .metric strong{font-size:24px}
+.overview-summary .metric small{font-size:9px;line-height:1.3}
+.overview-summary .scope-hint{font-size:9px;line-height:1.5;margin:10px 0 0}
+.overview-insights .chart{height:118px;margin-top:10px;gap:4px}
+.overview-insights .chart i{max-height:80px}
+.overview-insights .card>p{font-size:10px;line-height:1.5;margin:0 0 10px}
+.overview-insights .note-panel textarea{min-height:115px;font-size:12px;padding:10px}
+.note-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.note-footer p{font-size:10px;line-height:1.5;margin:0;flex:1}
+.note-footer button{font-size:11px;min-height:32px;padding:7px 9px;flex-shrink:0}
+.overview-insights .analysis-panel button{width:100%;font-size:11px;min-height:31px}
+.summary-panel .scope-hint{margin-top:0}
+@media(max-width:1320px){.overview-toolbar{grid-template-columns:1fr}.overview-tools{justify-content:flex-start;grid-row:2}.timer-caption{grid-row:3}.toolbar-main{gap:10px}}
+@media(max-width:1120px){.overview-grid{grid-template-columns:minmax(230px,.9fr) minmax(300px,1.1fr)}.overview-insights{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;align-items:start}.overview-insights .note-panel{grid-column:1/-1}.overview-task-scroll{max-height:580px}}
+@media(max-width:767px){.overview-main{padding:20px 14px}.overview-grid{grid-template-columns:minmax(0,1fr)}.overview-insights{grid-column:auto;display:flex}.overview-toolbar{padding:14px!important}.toolbar-main{gap:10px}.timer-start-controls{width:100%;flex-wrap:wrap}.timer-task-picker{max-width:none;flex:1}.mode-buttons button{font-size:10px;padding:6px 8px}.overview-clock{font-size:27px}.overview-task-scroll{max-height:420px}.overview-insights .chart{height:140px}.overview .note-panel textarea{min-height:130px}}

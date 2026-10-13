@@ -2,9 +2,12 @@
 
 ## 현재 상태
 
+- 2026-10-13: v1.03 통합 대시보드. 상단 집중/휴식 타이머, 왼쪽 분류·미완료/완료 목록, 가운데 작성/수정·성과, 오른쪽 차트·AI 준비 안내·노트를 함께 표시합니다. 추가·수정·집중 시작으로 화면 이동하지 않습니다. 분류 탭은 목록·수치·차트를 함께 필터링하고 진행 중 타이머는 유지합니다. 흰색 공통 사이드바 유지. 상세: [검수·배포 기록](docs/OVERVIEW_RELEASE.md).
+- v1.03 로컬 빌드·단위/SQL14·보이는 격리 Chrome24 통과. 1366px 3열, 1000px 2열, 390px 1열 검수. 코드/패키지/DB 버전 동기화. 운영 배포 결과는 위 기록에 추가합니다.
+
 - 2026-10-13: 주인님의 일괄 진행 지시로 v1.02 핵심 기록 기능과 운영 DB·공통 인증·카탈로그·요금제·도메인을 연결했습니다. 같은 승인을 재요청하지 않습니다.
 - 빌드 정상, 단위/SQL14·보이는 격리 Chrome17·설정 미등록 프로덕션 차단12 검사 통과, 취약점0. 실제 운영 관리자 SSO·저장·타이머·완료·노트·JSON 다운로드 검수 완료. [구현 및 운영 결과](docs/PHASE1_IMPLEMENTATION.md).
-- 프로그램: AI 할 일·성과 관리, https://ai-task-planner.buylife.xyz, v1.02, Tools·최소 일반·NEW(FREE 아님), 1/2/3개월 1/2/3만원. 기존 VIP 전체 프로그램 정책 연결. 시험 회원 buylifemall@naver.com은 비관리자이며 현재 VIP입니다.
+- 프로그램: AI 할 일·성과 관리, https://ai-task-planner.buylife.xyz, v1.03, Tools·최소 일반·NEW(FREE 아님), 1/2/3개월 1/2/3만원. 기존 VIP 전체 프로그램 정책 연결. 시험 회원 buylifemall@naver.com은 비관리자이며 현재 VIP입니다.
 - 회원별 JSONB 한행+revision+원자적RPC. 운영 SQL은 supabase/migrations/20261013065950_planner_workspace.sql 및 20261013075903_planner_catalog.sql. RLS 활성, 직접 회원 쓰기/RPC 불허, 이용 권한 확인한 서버 API만 저장합니다.
 - 노트는 명시적 저장. AI 분석·모델선택·전용 키 등록 매뉴얼·전체백업 복원·CSV는 후속 구현입니다. 두 실제 기기·본인 Gemini 호출은 미검증입니다.
 - 핵심 코드 f07031b5·운영 연결7fae5ee0·v1.02 수정7034debf 원격 푸시 성공. Vercel 프로덕션 `dpl_SsC7MPefdangHBA8dPLc4GemaaHb` READY, 운영 도메인 연결 완료. 검수 증거는 docs/evidence/release에 있습니다.
