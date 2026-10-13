@@ -12,10 +12,12 @@ export const metadata = { title: "접근 권한 관리" };
 export default async function AccessMatrixPage() {
   const supabase = createServiceClient();
 
-  const [{ data: grades }, { data: programs }, { data: access }] = await Promise.all([
+  // 프로그램 관리와 같은 데이터(카테고리·정렬)를 매번 새로 읽어, 프로그램 관리에서 카테고리를 바꾸면 이 표의 위치도 바뀐다
+  const [{ data: grades }, { data: programs }, { data: access }, { data: categories }] = await Promise.all([
     supabase.from("member_grades").select("*").order("sort_order"),
-    supabase.from("programs").select("id, name, slug, is_active").eq("is_active", true).order("sort_order"),
+    supabase.from("programs").select("id, name, slug, is_active, sort_order, category_id").eq("is_active", true).order("sort_order"),
     supabase.from("grade_program_access").select("grade_id, program_id"),
+    supabase.from("categories").select("id, name, sort_order").order("sort_order"),
   ]);
 
   return (
@@ -36,6 +38,7 @@ export default async function AccessMatrixPage() {
         <AccessMatrixManager
           grades={grades ?? []}
           programs={programs ?? []}
+          categories={categories ?? []}
           initialAccess={access ?? []}
         />
       </GlassCard>

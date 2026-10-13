@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — 접근 권한 관리: 카테고리별 묶음(프로그램 관리와 연동)·전체 선택 체크박스 통일·안내문 줄바꿈
+
+- 프로그램 관리와 같은 카테고리/정렬 규칙으로 표를 카테고리 구역별로 묶고(미분류 맨 아래, 프로그램 관리에서 카테고리를 바꾸면 이 표도 바뀜), 등급 머리글 전체 선택을 ✓ 체크박스 모양으로 통일, 카테고리 행에서 카테고리 단위 선택 가능, 상단 안내문 두 줄로 줄바꿈. 임시 미리보기(7개 프로그램·섞인 카테고리 순서)로 정렬·✓ 전환·카테고리 토글·API 호출 내용·모바일 넘침 없음 확인(미리보기 삭제). 상세는 [ADMIN_POLICY_GUIDELINES](ADMIN_POLICY_GUIDELINES.md) 마지막 절.
+
 ## 2026-10-13 Claude Code — Markdown Studio v1.07: 실제 Drive 가져오기 통과 + 가져온 파일이 새 폴더로 옮겨지던 결함 수정
 
 - 실제 Drive에서 새 파일 가져오기 성공. 가져온 문서를 올릴 때 Drive 파일이 `Drive에서 가져옴 …` 하위 폴더로 이동되던 결함을 발견해 정리 폴더를 전용 폴더와 연결하도록 수정(v1.07, `pullEntries(…, rootId)`, SQL `0008_v1_07_pull_keeps_location.sql`). 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·충돌·사본/교체 가져오기.

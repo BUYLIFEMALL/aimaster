@@ -13,11 +13,15 @@ import type { MemberGrade } from "@/types/database.types";
 export default function GradeAccessPolicy({ grades }: { grades: MemberGrade[] }) {
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-subtext leading-relaxed">
-        등급에 프로그램을 체크해 두면 <b className="text-white">자동 부여가 켜진 등급</b>의 회원에게 사용권한이 한꺼번에 부여됩니다
-        (체크를 풀면 자동 부여분만 회수, 관리자가 직접 준 권한은 유지). 사용기간은 회원마다 가입·등급 지정 시점이 달라{" "}
-        <b className="text-white">부여된 날부터 기본 기간</b>이 각자 계산되며, 아래 <b className="text-white">일괄 연장</b> 또는 회원 관리의
-        <b className="text-white"> 사람별 만료기간 설정</b> 두 가지로 바꿀 수 있습니다.
+      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-subtext leading-relaxed space-y-1.5">
+        <p>
+          등급에 프로그램을 체크해 두면 <b className="text-white">자동 부여가 켜진 등급</b>의 회원에게 사용권한이 한꺼번에 부여됩니다
+          (체크를 풀면 자동 부여분만 회수, 관리자가 직접 준 권한은 유지).
+        </p>
+        <p>
+          사용기간은 회원마다 가입·등급 지정 시점이 달라 <b className="text-white">부여된 날부터 기본 기간</b>이 각자 계산되며,
+          아래 <b className="text-white">일괄 연장</b> 또는 회원 관리의 <b className="text-white">사람별 만료기간 설정</b> 두 가지로 바꿀 수 있습니다.
+        </p>
       </div>
       {grades.map((g) => (
         <GradeRow key={g.id} grade={g} />
