@@ -22,6 +22,12 @@
 
 ## 운영 결과
 
-커밋·푸시·프로덕션 배포 후 실제 Chrome과 DB 검수 결과를 여기에 추가합니다.
+- 구현 커밋 `56951952`, origin/master 푸시 성공. 해당 코드의 Vercel 프로덕션 `dpl_CpkjDmcngbNdqkRiu7psMjPvxB4B` READY. https://ai-task-planner-72lggweik-buylife.vercel.app, 운영 도메인 https://ai-task-planner.buylife.xyz 연결 완료.
+- 실제 로그인된 관리자 Chrome에서 v1.03·흰색 3열 화면·모든 패널·기존 할 일/집중 기록/노트를 확인했습니다. 별도 인증 우회나 비밀번호 입력은 없습니다.
+- 운영 대시보드에서 새 검수 할 일 저장(revision7) → 화면 이동 없이 집중 시작(8) → 일시정지(9, 화면24:43/DB1,482,826ms) → 학습 분류 클릭 후 목록0개·완료율0%·정확도미측정·완료차트0 유지 → 전체 복귀 → 인라인 수정(10) → 완료(11) → 새로고침 뒤 완료 목록2개·기존 노트 유지 확인.
+- DB의 새 할 일 `통합 화면 운영 검수 v1.03 완료`는 done, 새 세션은 ended, 실제 집중 구간17,174ms. 기존 할 일/세션/노트는 그대로입니다. 검수용 본인 관리자 기록만 추가했으며 다른 회원 기록은 수정하지 않았습니다.
+- 익명 로그인200, 대시보드307, API401, private/no-store. 메인 목록200·v1.03·프로그램 실행 링크, 상세200·v1.03·새 설명·썸네일 확인. 익명 상세 화면에는 로그인/이용 권한에 따라 실행 링크가 표시되지 않는 정상 동작을 구분했습니다.
+- [운영 HTTP/DB 대조 기록](evidence/overview/live-results.json), [운영 전체 화면](evidence/overview/live-overview.png), [분류 변경 후 정지 타이머 보존](evidence/overview/live-filter-paused.png).
+- 최종 로컬 검사: 빌드 정상, 단위/SQL14·보이는 격리 Chrome24·실제 Next 설정 미등록 차단12, 총50개 통과. 변경 화면과 기존 기록 흐름 모두 정상입니다.
 
 비관리자 실제 로그인·두 실제 기기 검수는 이전부터 남아 있으며 이번 격리 Chrome 성공을 그 검수 완료로 표시하지 않습니다.

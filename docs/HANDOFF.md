@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.03 운영 검수 완료
+
+- 구현56951952 origin/master 푸시 후 Vercel 프로덕션 dpl_CpkjDmcngbNdqkRiu7psMjPvxB4B READY, https://ai-task-planner.buylife.xyz 연결. 메인 목록/상세 v1.03·썸네일·새 설명 확인.
+- 실제 관리자 Chrome 통합 대시보드에서 추가→집중→정지24:43→학습 필터 목록/성과/차트0 및 타이머보존→전체 복귀→인라인 수정→완료→새로고침 검수. 운영DB revision11·신규작업done·세션ended·집중17174ms. 기존 기록/노트 보존.
+- 빌드 및 단위/SQL14·보이는 격리 Chrome24·실제 Next 차단12 정상. 익명 로그인200·보호307·API401·private/no-store. ai-task-planner/docs/OVERVIEW_RELEASE.md 및 evidence/overview에 증거.
+- 이번 통합 화면 작업 완료. AI·JSON복원·CSV, 비관리자 실제 로그인·두 기기는 기존 후속 범위.
+
 ## 2026-10-13 Claude Code — AI 룩스튜디오 자동화(`look-studio`) v1.01 신규 개발·운영 배포
 
 - 요청: AI Studio "LookStudio AI (배포용)" 분석 → 계획 승인("진행해줘") → 구현. 계획 [DEVELOPMENT_PLAN](../look-studio/docs/DEVELOPMENT_PLAN.md), 인수인계 [CLI_HANDOFF](../look-studio/docs/CLI_HANDOFF.md).
