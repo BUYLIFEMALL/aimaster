@@ -88,42 +88,31 @@ export default function AccessMatrixManager({ grades, programs, initialAccess }:
     }
   };
 
+  /** 등급별 선택 개수 */
+  const countFor = (gradeId: string) => programs.filter((p) => accessSet.has(`${gradeId}:${p.id}`)).length;
+
+  // 세로 배치: 위쪽에 등급(일반|실버|골드|VIP) 열, 왼쪽에 프로그램을 세로 목록으로 나열한다(프로그램이 늘어나도 가로 스크롤이 생기지 않음).
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-white/10">
-            <th className="text-left text-xs text-subtext font-medium p-3 sticky left-0 bg-surface z-10 min-w-[160px] whitespace-nowrap">
-              등급 / 프로그램
+    <div className="max-h-[75vh] overflow-y-auto overflow-x-auto">
+      <table className="w-full text-sm border-separate border-spacing-0">
+        <thead className="sticky top-0 z-20 bg-surface">
+          <tr>
+            <th className="text-left text-xs text-subtext font-medium p-3 border-b border-white/10 min-w-[150px] sm:min-w-[200px] bg-surface">
+              프로그램 <span className="text-white/40">({programs.length})</span>
             </th>
-            <th className="text-center text-xs text-subtext font-medium p-3 min-w-[120px] whitespace-nowrap">전체 선택/해제</th>
-            {programs.map((p) => (
-              <th key={p.id} className="text-center text-xs text-subtext font-medium p-3 min-w-[100px]">
-                <div className="truncate max-w-[100px]" title={p.name}>{p.name}</div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {grades.map((grade) => (
-            <tr key={grade.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-              <td className="p-3 sticky left-0 bg-surface z-10 whitespace-nowrap">
-                <div className="flex items-center gap-2">
-                  {grade.color && (
-                    <span
-                      className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: grade.color }}
-                    />
-                  )}
-                  <span className="text-white font-medium whitespace-nowrap">{grade.name}</span>
-                </div>
-              </td>
-              <td className="p-3 text-center">
-                {(() => {
-                  const checkedCount = programs.filter((p) => accessSet.has(`${grade.id}:${p.id}`)).length;
-                  const all = programs.length > 0 && checkedCount === programs.length;
-                  return (
-                    <label className="inline-flex flex-col items-center gap-0.5 cursor-pointer" title="이 등급의 모든 프로그램을 한 번에 선택/해제">
+            {grades.map((grade) => {
+              const checkedCount = countFor(grade.id);
+              const all = programs.length > 0 && checkedCount === programs.length;
+              return (
+                <th key={grade.id} className="p-3 border-b border-white/10 min-w-[96px] sm:min-w-[120px] bg-surface font-normal">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="flex items-center gap-2">
+                      {grade.color && (
+                        <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: grade.color }} />
+                      )}
+                      <span className="text-white font-medium text-sm whitespace-nowrap">{grade.name}</span>
+                    </div>
+                    <label className="inline-flex items-center gap-1.5 cursor-pointer" title="이 등급의 모든 프로그램을 한 번에 선택/해제">
                       <input
                         type="checkbox"
                         checked={all}
@@ -132,22 +121,33 @@ export default function AccessMatrixManager({ grades, programs, initialAccess }:
                         onChange={() => toggleRow(grade, !all)}
                         className="w-4 h-4 accent-gold"
                       />
-                      <span className="text-[10px] text-subtext">{checkedCount}/{programs.length}</span>
+                      <span className="text-[11px] text-subtext whitespace-nowrap">전체 {checkedCount}/{programs.length}</span>
                     </label>
-                  );
-                })()}
+                  </div>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {programs.map((program, index) => (
+            <tr key={program.id} className="hover:bg-white/[0.03]">
+              <td className="p-3 border-b border-white/5 text-white">
+                <span className="inline-block w-6 text-xs text-white/30">{index + 1}</span>
+                <span className="font-medium" title={program.name}>{program.name}</span>
               </td>
-              {programs.map((program) => {
+              {grades.map((grade) => {
                 const key = `${grade.id}:${program.id}`;
                 const checked = accessSet.has(key);
                 const isLoading = loading === key;
 
                 return (
-                  <td key={program.id} className="p-3 text-center">
+                  <td key={grade.id} className="p-2 border-b border-white/5 text-center">
                     <button
                       type="button"
                       onClick={() => toggle(grade.id, program.id)}
                       disabled={isLoading}
+                      aria-label={`${grade.name} · ${program.name} ${checked ? "허용됨" : "허용 안 됨"}`}
                       className={`w-8 h-8 rounded-lg transition-all flex items-center justify-center mx-auto ${
                         checked
                           ? "bg-gold/20 text-gold border border-gold/40"

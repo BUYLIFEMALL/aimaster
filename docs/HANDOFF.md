@@ -1,4 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-13 Claude Code — 관리자 접근 권한 관리 표 세로 배치 (등급 위·프로그램 왼쪽 세로 목록)
+
+- 요청: 프로그램이 많아져 가로 스크롤이 길어서 불편 → 상단에 일반|실버|골드(드림팀)|VIP(드림AI팀), 왼쪽에 프로그램 세로 열. `components/admin/AccessMatrixManager.tsx`만 수정(동작·API 불변), 머리글 고정·등급별 전체 선택/개수 유지. 임시 미리보기(61개 프로그램 가짜 데이터)로 데스크톱 1500px 가로 스크롤 없음·390px 페이지 넘침 없음 확인(미리보기 파일은 삭제). 자세한 내용은 [ADMIN_POLICY_GUIDELINES](ADMIN_POLICY_GUIDELINES.md) 마지막 절.
 
 ## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.05) 인수인계 완료 및 프로덕션 운영 현황
 
