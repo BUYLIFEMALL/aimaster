@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio 5단계 출시 정리 (카탈로그 썸네일, v1.03 유지)
+
+- 카탈로그 썸네일(한국인 인물·분할 편집 화면, 운영자 본인 Gemini 키 1회) 등록, 카탈로그 상세·`지금 바로 이용하기`→앱 이동을 일반 회원 계정 Chrome으로 확인. 앱 코드·버전 변경 없음. [기록](../markdown-studio/docs/PHASE5_RELEASE.md), SQL `markdown-studio/supabase/migrations/0004_catalog_thumbnail.sql`.
+- **남은 일**: ① 실제 Google 계정 Drive 검수(회원 본인 Client ID 필요) ② 운영 실제 PDF/DOCX 다운로드(허락 후) ③ Word/Google Docs에서 DOCX 표시 ④ 등급 없는 가입자·핸드폰 미등록 차단 운영 시험 ⑤ 대용량 성능. 1~5단계 구현은 모두 완료.
+
 ## 2026-10-13 Claude Code — Markdown Studio 4단계 본인 Google Drive 연동 (v1.03, 운영 배포 · 실제 Google 미검증)
 
 - 회원 본인 Google Cloud 앱(Client ID, Secret 없음)·본인 계정, 범위 drive.file, 접근 토큰은 메모리에만. Drive 올리기(ID 연결·전용 폴더 `마크다운 문서 자동화`·충돌 시 덮어쓰지 않음·루트 폴백 금지·이름/이동 반영)와 가져오기(목록·사본/교체·이력 보존), 401/403/429/5xx/네트워크 처리, 계정별 연결 기록 분리, 설정 화면(Client ID·연동 매뉴얼 팝업)·보관함 Drive 카드. 서버·DB·환경변수 변경 없음.

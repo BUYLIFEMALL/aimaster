@@ -17,6 +17,8 @@
 
 - **2026-10-13 v1.03 (4단계 코드·모의 검수 완료)**: 회원 본인 Google Cloud 앱(Client ID)·본인 계정(drive.file)으로 Drive에 올리기·가져오기(ID 연결·충돌 보호·계정별 분리·재시도). 단위 56·화면 11+13+10+11·런타임 9·취약점 0, 운영 배포. **실제 Google/Drive 검증은 아직 없음(모의 Google 기준)** — [docs/PHASE4_IMPLEMENTATION.md](docs/PHASE4_IMPLEMENTATION.md)의 "실제 검수 절차" 참고.
 
+- **2026-10-13 5단계(출시 정리) 완료**: 카탈로그 썸네일 등록, 카탈로그→앱 이동 확인(v1.03 유지). 남은 것은 실제 Google 검수·운영 실파일 다운로드·Word/Docs 표시 확인 등 — [docs/PHASE5_RELEASE.md](docs/PHASE5_RELEASE.md).
+
 ## 읽는 순서
 
 1. 루트 `AGENTS.md`·`CLAUDE.md`, `docs/HANDOFF.md`.
