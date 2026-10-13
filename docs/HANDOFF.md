@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — 신규 프로그램: AI 랜딩페이지 기획 자동화 (`landing-architect` v1.01)
+
+- 주인님 요청: AI Studio "AI Landing Page Architect Enhance"를 분석해 개발(분석·플랜 9b88bfba → 구현·배포).
+- 구현: 주제·타겟·목표 → AI 기획안(6섹션, 편집·섹션 재생성) → 무상태 HTML 프로토타입 → 이미지 치환(LoremFlickr/본인 키 Unsplash·Pexels·Pixabay) → 미리보기·HTML/JSON 내보내기·프로젝트 저장. 회원 본인 Gemini 키, 서버 경유.
+- DB: `landing_architect_projects`(RLS), `user_api_keys` provider 제약에 unsplash/pexels/pixabay 추가, `programs` 등록+요금제 3종+VIP 접근, §13 실사 썸네일.
+- 검수: 단위 11/11, 보이는 Chrome 14/14, 빌드, 실제 Gemini 1회(기획안 20초·HTML 71초). 운영 https://landing-architect.buylife.xyz
+- 남은 일·인수인계: [landing-architect/docs/CLI_HANDOFF.md](../landing-architect/docs/CLI_HANDOFF.md)
+
 ## 2026-10-13 Claude Code — 주소 통일: 폴더·slug·Vercel·도메인을 모두 **`fashion-style`**로 (AI 패션스타일 자동화 v1.03)
 
 - 주인님 요청: 헷갈리지 않게 `look-studio` 주소를 `fashion-style`로 바꾸고 Vercel과 일치시킴. 이름은 "AI 패션스타일 자동화" 유지.

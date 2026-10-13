@@ -1732,3 +1732,10 @@
 - 증상: 선택/입력란 이름이 옵션 수백 개 또는 가사 내용까지 포함되어 화면 검수 대상 검색 실패 → 원인: 래핑 label의 값/옵션을 접근성 도구가 이름으로 인식 → 해결: LibraryPicker·BriefControls·TrackEditor 주요 입력에 짧은 aria-label 부여 → 다음부터 확인: 내용 있는 입력·대용량 선택지의 실제 접근성 이름으로 조작하고 모바일 가로 넘침 확인.
 
 - 증상: Suno 운영 API 비로그인 오류 응답은 성공 응답과 달리 Cache-Control이 public,max-age=0 → 원인: `guarded()` 성공 경로에만 no-store 지정 → 해결: `suno-music-studio/src/lib/apiGuard.ts` 모든 응답에 private,no-store 적용(v1.04) → 다음부터 확인: 동적 라우트 선언만 확인하지 말고 성공/401/403/검증 오류의 실제 응답 헤더를 각각 확인.
+
+## 2026-10-13 landing-architect v1.01 — 새 provider 키·배포·테스트 하네스
+
+- 증상: 회원 본인 이미지 제공자 키(unsplash/pexels/pixabay)를 `user_api_keys`에 저장하려면 provider CHECK 제약에 없어서 실패 → 해결: `landing-architect/supabase/migrations/0002_image_provider_keys.sql`로 제약 확장(기존 값 유지, PLATFORM_PATTERNS §14) → 다음부터: 새 provider를 쓰기 전에 `pg_get_constraintdef`로 현재 허용값을 먼저 확인.
+- 증상: `vercel deploy --prod`가 첫 시도에 `Error: Not authorized` → 재시도하면 성공(일시 오류) → 다음부터: 같은 명령을 한 번 더 실행하고 인증은 건드리지 않는다.
+- 증상: `vercel link` 뒤 폴더 `.env.local`에 Supabase 값이 없어 로컬 실호출 스크립트가 `supabaseUrl is required` → 해결: 루트 `.env.local`을 읽는다(스크립트는 프로젝트 안 `test-artifacts/`에서 실행해야 패키지가 해석됨).
+- 증상: Playwright에서 접힌 `<details>` 안 버튼의 `nth(n)`이 대기만 함 → 원인: 닫힌 섹션 버튼은 접근성 트리에서 제외 → 해결: 열린 섹션 기준 `.first()`를 쓴다.
