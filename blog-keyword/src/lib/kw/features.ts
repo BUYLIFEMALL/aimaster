@@ -241,7 +241,7 @@ export async function runNews(ctx: Ctx, keyword: string): Promise<NewsResult> {
 // ⑧ 카테고리 트렌드 ----------------------------------------------------
 export async function runTrend(ctx: Ctx, category: string): Promise<TrendResult> {
   const naver = needNaver(ctx);
-  const search = await naverSearch(naver, "blog", category, { display: 50, sort: "date" });
+  const search = await naverSearch(naver, "blog", category, { display: 100, sort: "date" });
   if (!search.items.length) throw new NaverError("http", "이 분야의 최신 블로그 글을 찾지 못했습니다. 분야 이름을 바꿔 시도해 주세요.", 404);
   const posts = postsFrom(search.items);
   const base = frequentWords(posts.map((p) => p.title), [category], 10);

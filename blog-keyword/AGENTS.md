@@ -22,4 +22,4 @@
 
 ## 검수
 - `npm test`(순수 로직 13건), `npm run test:browser`(보이는 Chrome, 모의 API 14건), `npm run build`.
-- 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [기능…]`(운영자 본인 Gemini 키, 네이버 키 없음 → autocomplete·topics·related·competition·recommend·sustainable·prompt). 출력은 파일로 리다이렉트한다. 네이버 키 기능(blogs·news·trend)은 모의 응답으로만 검증했다.
+- 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [기능…]`(운영자 본인 계정에 등록된 Gemini·네이버·검색광고 키 사용). 출력은 파일로 리다이렉트한다. 네이버 키가 있는 계정이면 blogs·news·trend·실측 지표(검색광고·데이터랩)도 함께 실호출된다(`trend-check.mts`로 빈출어·추이만 확인).

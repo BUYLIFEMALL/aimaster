@@ -8,6 +8,11 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — AI 블로그 키워드 자동화 v1.02: 네이버 실계정 검증·빈출어 품질 개선
+
+- 주인님 안내: 네이버 API 키는 다른 프로그램에 이미 등록돼 있음 → 운영자 본인 계정(buylifemall@gmail.com)에 등록된 네이버 검색 API·검색광고 키로 상위 블로그·뉴스·트렌드·경쟁력 실측을 실호출해 확인(모두 정상). 앞 항목의 "네이버 3기능 모의 응답만 검증"은 이 항목으로 해소됨.
+- 변경: 카테고리 트렌드 빈출어 불용어 보강·표본 100건·날짜 토큰 제외(코드만). 버전 v1.01→v1.02(코드·package·DB). 남은 일: [blog-keyword/docs/CLI_HANDOFF.md](../blog-keyword/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — 신규 프로그램: AI 블로그 키워드 자동화 (`blog-keyword` v1.01)
 
 - 참고: AI Studio "키워드 파이터 for Gemini" 2종(원본·네이버 API 버전)을 소스 전체 분석해 통합. 이름은 주인님이 "AI 블로그 키워드 자동화"로 확정(플랜 폴더 `keyword-fighter` → `blog-keyword`).
