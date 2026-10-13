@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — AI 할 일·성과 관리 작업대기 · 다른 CLI 인수인계
+
+- 주인님 지시: 남은 작업은 대기 목록에 남기고 다른 CLI가 이어받을 인수인계 작성. 후속 개발·추가 배포 대기, 현재 v1.03 유지.
+- **재개 진입점:** [전용 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md) → [작업대기 목록](../ai-task-planner/docs/WORK_QUEUE.md). 프로그램 AGENTS/README에도 연결했습니다.
+- 대기 순서: 최신 UI 회귀 검수 → 본인 Gemini 키/모델/매뉴얼 → 실제 AI 분석 → JSON 복원 → CSV 보완/검수 → 비관리자 실제 로그인·두 기기. 기능 완료 시 버전·검수·커밋/푸시·배포·운영 확인·보고.
+- 최신 다른 CLI 화면 개선4acdce4d에는 날짜별 CSV 코드가 있으며 기존 Codex 검수56951952/50개와 구분. 기존 테스트 선택자 변경·미측정0%표기·차트척도·리셋 실제 동작 확인 항목을 목록에 기록했습니다. TaskEditor 접근성 이름 미커밋 변경 및 다른 프로젝트 스테이징은 건드리지 않습니다.
+- 본인 계정/API·공통 권한·회원별 서버 기록·원자적 타이머 보존. 운영 https://ai-task-planner.buylife.xyz/dashboard, 메인 https://www.buylife.xyz/programs/ai-task-planner.
+
 ## 2026-10-13 Claude Code — 프로그램명 변경: AI 룩스튜디오 자동화 → **AI 패션스타일 자동화** (`ai-fashion-style` v1.02)
 
 - 주인님 요청: 프로그램명을 "AI 패션스타일 자동화"로, Vercel 이름·주소도 일치, 프로그램 내 용어 수정.
