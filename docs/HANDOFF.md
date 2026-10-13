@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio 2단계 고급 편집기 구현·로컬 검수 (v1.01 후보 유지)
+
+- Codex 인수 후 인수인계 보완점 12건을 검토해 [2단계 플랜](../markdown-studio/docs/PHASE2_PLAN.md)을 만들고 구현. CodeMirror 6 편집기, 원본 20개 서식 명령·목록 3종(+체크)·기호 32종, 표 행/열 삭제·정렬, 찾기·바꾸기, 단축키, 알파벳 목록 렌더링 공용 모듈, HTML 소스·목차·글자 수·복사.
+- 검수: 단위 31/31, 기존 화면 11/11 재통과, 신규 화면 13/13(한글 IME 조합 이벤트·390px 포함), 런타임 9/9, 취약점 0. 증거는 [구현 기록](../markdown-studio/docs/PHASE2_IMPLEMENTATION.md). **실제 일반 회원 로그인·직접 한글 키보드 입력은 미검수.**
+- 환경변수 3개 등록은 아직 승인 대기라 **운영 배포 보류**(배포해도 /setup만 표시). 다음: 3단계(가져오기·백업·HTML/PDF/DOCX/ZIP, 시작 때 PDF/DOCX 기술 검증). Suno 보류·다른 CLI 프로젝트 미변경.
+
 ## 2026-10-13 Antigravity — AI Audio분석 자동화 (ai-audio-analyzer v1.02) 좌측 메뉴 레이아웃 표준 지침 개편 완료
 
 주인님 요청("좌측 메뉴 레이아웃 지침 확인후 기준에 맞춰 다시 수정 보완해줘")에 따라, [`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md) 표준 규격을 전면 점검 및 완벽히 반영하여 `v1.02`로 업데이트하고 프로덕션 배포를 완료했습니다:

@@ -1,0 +1,59 @@
+{
+  "fixture": true,
+  "realMemberLoginVerified": false,
+  "checks": [
+    {
+      "name": "heading toggle and Korean typing",
+      "passed": true
+    },
+    {
+      "name": "Ctrl+B, Ctrl+I, undo and redo",
+      "passed": true
+    },
+    {
+      "name": "list continuation: numbers, alphabet, checklist, empty-item exit",
+      "passed": true
+    },
+    {
+      "name": "list buttons, indent/outdent/Tab, quote toggle",
+      "passed": true
+    },
+    {
+      "name": "Esc then Tab leaves the editor",
+      "passed": true
+    },
+    {
+      "name": "link/image dialogs block unsafe URLs and harden preview links",
+      "passed": true
+    },
+    {
+      "name": "code language, rule, 32 symbols",
+      "passed": true
+    },
+    {
+      "name": "table insert/add/delete/align",
+      "passed": true
+    },
+    {
+      "name": "find/replace with literal [ and Korean panel",
+      "passed": true
+    },
+    {
+      "name": "Korean IME composition via Chrome DevTools Protocol",
+      "passed": true
+    },
+    {
+      "name": "html source, toc, counts, clipboard copy",
+      "passed": true
+    },
+    {
+      "name": "autosave survives reload with new editor",
+      "passed": true
+    },
+    {
+      "name": "390px mobile: no horizontal overflow, scrollable toolbar, 40px touch targets",
+      "passed": true
+    }
+  ],
+  "pageErrors": []
+}

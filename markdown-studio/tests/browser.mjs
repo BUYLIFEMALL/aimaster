@@ -28,6 +28,7 @@ const context = await browser.newContext({ viewport:{ width:1600,height:950 },ac
 await context.addCookies([{ name:"fixture-member",value:"fixture-a",url:origin }]);
 const page = await context.newPage(); const errors=[]; page.on("pageerror", e => errors.push(e.message));
 const checks=[];
+const textOf = loc => loc.evaluate(el => Array.from(el.querySelectorAll(".cm-line")).map(l => l.textContent).join("\n"));
 const record = (name,extra={}) => checks.push({ name, passed:true, ...extra });
 try {
   await page.goto(`${origin}/editor`); await page.getByRole("button",{name:"새 폴더",exact:true}).waitFor();
@@ -49,7 +50,7 @@ try {
   await page.getByRole("textbox",{name:"문서 검색"}).fill("[");
   assert.equal(await page.getByRole("button",{name:"배열[1].md 열기",exact:true}).count(),1);
   await page.getByRole("textbox",{name:"문서 검색"}).fill(""); record("literal special-character search");
-  await page.reload(); await source.waitFor(); assert.equal(await source.inputValue(),original); record("active document and body persist across reload");
+  await page.reload(); await source.waitFor(); assert.equal(await textOf(source),original); record("active document and body persist across reload");
   const downloadPromise=page.waitForEvent("download"); await page.getByRole("button",{name:"원문 저장",exact:true}).click();
   const download=await downloadPromise; await download.saveAs(path.join(artifacts,"original.md"));
   assert.equal(await readFile(path.join(artifacts,"original.md"),"utf8"),original); record("download preserves the exact unsanitized Markdown source");
@@ -64,11 +65,11 @@ try {
   await peer.getByRole("textbox",{name:"마크다운 원문"}).fill("# 이 탭의 미저장 원고");
   await peer.getByRole("button",{name:"저장",exact:true}).click();
   await peer.getByRole("alert").filter({hasText:"다른 탭에서 수정"}).first().waitFor();
-  assert.equal(await peer.getByRole("textbox",{name:"마크다운 원문"}).inputValue(),"# 이 탭의 미저장 원고");
+  assert.equal(await textOf(peer.getByRole("textbox",{name:"마크다운 원문"})),"# 이 탭의 미저장 원고");
   record("stale concurrent edit is blocked and the losing draft remains available"); await peer.close();
   await source.fill("# 저장 실패에서도 남는 원고"); forcedStatus=503;
   await page.getByRole("button",{name:"저장",exact:true}).click(); await page.getByRole("alert").filter({hasText:"시험용 서버 연결 실패"}).first().waitFor();
-  assert.equal(await source.inputValue(),"# 저장 실패에서도 남는 원고"); record("server connection failure retains unsaved draft and never displays save success");
+  assert.equal(await textOf(source),"# 저장 실패에서도 남는 원고"); record("server connection failure retains unsaved draft and never displays save success");
   forcedStatus=200; await page.getByRole("button",{name:"저장 다시 시도"}).click(); await page.getByRole("status").filter({hasText:"저장 완료"}).waitFor();
 
   await page.setViewportSize({width:390,height:844}); await page.getByRole("tab",{name:"미리보기",exact:true}).click();
