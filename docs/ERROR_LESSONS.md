@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-13 — 할 일 앱 후속 UI의 지표·차트와 백업/AI 검수 (v1.04)
+
+- 증상: 정확도 실측이 없는데0%, 고정0~4 눈금에 최댓값 기준 막대 → 원인: null을0으로 표시하고 눈금/높이 척도가 다름 → 해결(위치): `ai-task-planner/src/components/Overview.tsx`의 미측정 구분·4단계 동적 축·0 높이 → 다음부터: 실측 없음과 실제0을 구분하고5건 이상도 같은 척도로 표현할 것.
+- 증상: 축 수치는 맞지만0 눈금이 막대 기준선 위에 보임 → 원인: 공통 `.chart`의 margin-top20px, 자식 gap7px가 새 차트에 남음 → 해결: `src/app/overview.css`의 margin/gap 해제·축/막대 좌표 정렬, `tests/browser.mjs`의 실제0눈금 중심-기준선 비교 → 다음부터: 소스 계산뿐 아니라 화면 캡처·DOM 위치로 축을 확인.
+- 증상: 단순 JSON 덮어쓰기 복원은 최신 작업/노트 소실·타이머 중복 실행 위험 → 원인: 파일 기록과 현재 서버 상태를 구분하지 않음 → 해결: `src/lib/planner/backup.ts`·`BackupImport.tsx`에서 검증/미리보기/추가 병합·충돌 보존·정지세션 종료·구간겹침 전체거부·revision/RPC → 다음부터: 재가져오기·ID 충돌·노트 충돌·현재활성타이머·실패 시 원본 보존을 실제로 검수.
+- 점검: 공급사 응답은 JSON 문법만 검사하지 말고 종료 상태와 필수 결과/제안3개를 확인. 키/공급사 오류 원문을 로그·응답에 넣지 않음. 본인 키가 없을 때 다른 회원 키를 읽지 않는지 실제 API 코드로 회원A/B 격리 검수(`tests/authorization.test.mjs`). 모의 성공과 실제 Gemini 성공은 구분.
+- 점검: `window.open`에 noopener를 지정하면 열린 창 참조가null일 수 있음. 이를 실패로 간주해 두 번째 창을 열지 말 것(`AiSettings.tsx` 매뉴얼 팝업).
+
 ## 2026-10-13 — 프로그램 이름·주소 변경 후 Vercel 쪽에 옛 이름이 남아 헷갈림 (fashion-style v1.03)
 
 - 증상: 도메인을 `fashion-style.buylife.xyz`로 바꿨는데 Vercel 프로젝트 목록의 Latest Production URL은 옛 `look-studio.buylife.xyz`, 옛 이름의 `*-buylife.vercel.app` 별칭은 옛 배포를 계속 가리킴, `fashion-style.vercel.app`은 "이미 사용 중" → 원인: ① Production URL은 배포 시점의 별칭으로 저장되어 이름 변경만으로는 갱신되지 않음 ② 프로젝트 이름 변경 시 옛 팀 별칭이 지워지지 않음 ③ `.vercel.app` 이름은 전 세계 공유라 다른 사용자가 선점 → 해결: `vercel project rename` → 재배포 → 옛 도메인(`vercel api -X DELETE …`)·별칭(`vercel alias rm`) 제거, `.vercel.app` 이름은 가져올 수 없다고 판단하고 공식 주소를 `.buylife.xyz`로 고정 → 다음부터: 새 프로그램은 **처음부터 이름·폴더·slug·Vercel·도메인을 같은 이름**으로 만들고, 새 이름의 `.vercel.app` 가용성은 `vercel domains add <이름>.vercel.app <프로젝트>`로 미리 확인한다. 이름 변경 순서는 `fashion-style/docs/CLI_HANDOFF.md` §7.

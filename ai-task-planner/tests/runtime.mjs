@@ -12,5 +12,8 @@ try {
   const wrongOrigin = await fetch(`${origin}/api/workspace`, { method: "POST", headers: { origin: "https://attacker.example" }, body: "{}" }); assert.equal(wrongOrigin.status, 403);
   const sameOrigin = await fetch(`${origin}/api/workspace`, { method: "POST", headers: { origin }, body: "{}" }); assert.equal(sameOrigin.status, 503);
   const logout = await fetch(`${origin}/api/auth/logout`, { method: "POST", headers: { origin: "https://attacker.example" } }); assert.equal(logout.status, 403);
-  console.log(JSON.stringify({ passed: 12, realMemberLoginVerified: false, scope: "unconfigured production runtime is fail-closed" }));
+  const keys = await fetch(`${origin}/api/keys`); assert.equal(keys.status, 503); assert.match(keys.headers.get("cache-control"), /no-store/);
+  const badAnalysis = await fetch(`${origin}/api/analysis`, { method: "POST", headers: { origin: "https://attacker.example" }, body: "{}" }); assert.equal(badAnalysis.status, 403);
+  const analysis = await fetch(`${origin}/api/analysis`, { method: "POST", headers: { origin }, body: "{}" }); assert.equal(analysis.status, 503);
+  console.log(JSON.stringify({ passed: 15, realMemberLoginVerified: false, scope: "unconfigured production runtime is fail-closed" }));
 } finally { server.kill(); }

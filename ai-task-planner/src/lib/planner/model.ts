@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// 모델 설정은 기존 JSON 기록과 호환되도록 선택 필드로 추가합니다.
+const aiModel = z.enum(["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.1-pro-preview"]);
+
 const id = z.string().uuid();
 export const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
   const parsed = new Date(`${value}T00:00:00Z`);
@@ -42,6 +45,7 @@ const sessionSchema = z.object({
 });
 export const settingsSchema = z.object({
   timezone: z.literal("Asia/Seoul"), defaultCategoryId: id,
+  aiModel: aiModel.optional(),
   durations: z.object({ focus: z.number().int().min(1).max(180), short: z.number().int().min(1).max(60), long: z.number().int().min(1).max(120) }).strict()
 }).strict();
 export const workspaceSchema = z.object({

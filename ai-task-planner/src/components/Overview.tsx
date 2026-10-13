@@ -1,8 +1,10 @@
 "use client";
 import { useState, type ReactNode } from "react";
-import { MODE_LABELS, PRIORITY_LABELS, type Mode, type Session, type Task, type Workspace } from "@/lib/planner/model";
+import { MODE_LABELS, type Mode, type Session, type Task, type Workspace } from "@/lib/planner/model";
 import type { Command } from "@/lib/planner/engine";
 import type { metrics } from "@/lib/planner/metrics";
+
+import { AnalysisPanel } from "./AnalysisPanel";
 
 type Summary = ReturnType<typeof metrics>;
 
@@ -40,7 +42,7 @@ export function SummaryPanel({ summary, scope, compact = false }: { summary: Sum
         </div>
         <div className="metric-box">
           <span className="metric-title">예측 정확도</span>
-          <strong className="metric-number">{summary.accuracy === null ? "0%" : `${summary.accuracy}%`}</strong>
+          <strong className="metric-number">{summary.accuracy === null ? "미측정" : `${summary.accuracy}%`}</strong>
           <small className="metric-sub">완료된 예측 작업 기준</small>
         </div>
         <div className="metric-box">
@@ -56,7 +58,8 @@ export function SummaryPanel({ summary, scope, compact = false }: { summary: Sum
 }
 
 export function ChartPanel({ bins }: { bins: number[] }) {
-  const maximum = Math.max(1, ...bins);
+  const step = Math.max(1, Math.ceil(Math.max(0, ...bins) / 4));
+  const maximum = step * 4;
   const timeLabels = ["0시", "2시", "4시", "6시", "8시", "10시", "12시", "14시", "16시", "18시", "20시", "22시"];
 
   return (
@@ -66,11 +69,7 @@ export function ChartPanel({ bins }: { bins: number[] }) {
       </div>
       <div className="chart-wrapper">
         <div className="chart-grid-lines">
-          <span>4</span>
-          <span>3</span>
-          <span>2</span>
-          <span>1</span>
-          <span>0</span>
+          {[4, 3, 2, 1, 0].map(value => <span key={value}>{value * step}</span>)}
         </div>
         <div className="chart" aria-label="시간대별 완료 수">
           {bins.map((count, index) => (
@@ -79,7 +78,7 @@ export function ChartPanel({ bins }: { bins: number[] }) {
               <div className="col-bar-track">
                 <i
                   className={`col-bar ${count > 0 ? "filled" : ""}`}
-                  style={{ height: `${Math.max(4, (count / maximum) * 90)}%` }}
+                  style={{ height: `${(count / maximum) * 100}%` }}
                 />
               </div>
               <small className="col-label">{timeLabels[index] ?? `${index * 2}시`}</small>
@@ -130,45 +129,6 @@ export function NotePanel({
   );
 }
 
-export function AnalysisPanel() {
-  const [analyzing, setAnalyzing] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const handleAnalyze = () => {
-    setModalOpen(true);
-  };
-
-  return (
-    <section className="card analysis-panel">
-      <div className="section-header">
-        <h2>AI 성과 분석</h2>
-      </div>
-      <p className="analysis-desc">완료된 할 일을 기반으로 AI가 학습 패턴과 개선점을 찾아줘요.</p>
-      <button className="ai-analyze-btn" onClick={handleAnalyze} disabled={analyzing}>
-        <span className="sparkle">✨</span> 달성 결과 분석하기
-      </button>
-
-      {modalOpen && (
-        <div className="analysis-modal-backdrop" onClick={() => setModalOpen(false)}>
-          <div className="analysis-modal" onClick={e => e.stopPropagation()}>
-            <h3>✨ AI 생산성 분석 안내</h3>
-            <p>
-              회원 본인의 Gemini API 키를 기반으로 맞춤 생산성 패턴 분석을 진행합니다.
-              <br />
-              현재 분석 엔진 연동 준비 중이며, 상단 <strong>설정</strong> 메뉴에서 본인 API 키를 등록해두시면 곧바로 이용하실 수 있습니다.
-            </p>
-            <div className="modal-actions">
-              <button className="primary" onClick={() => setModalOpen(false)}>
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </section>
-  );
-}
-
 function FocusToolbar({
   workspace,
   tasks,
@@ -177,6 +137,7 @@ function FocusToolbar({
   busy,
   command,
   backup,
+  exportCsv,
   manage,
   date
 }: {
@@ -187,6 +148,7 @@ function FocusToolbar({
   busy: boolean;
   command: (command: Command) => Promise<boolean>;
   backup: () => void;
+  exportCsv: () => void;
   manage: () => void;
   date?: string;
 }) {
@@ -199,29 +161,6 @@ function FocusToolbar({
     : active
     ? "휴식 중"
     : "할 일을 선택하고 집중을 시작해주세요";
-
-  // CSV 내보내기 기능
-  const exportCsv = () => {
-    const targetDate = date || new Date().toISOString().slice(0, 10);
-    const dayTasks = workspace.tasks.filter(t => t.deletedAt === null && t.plannedDate === targetDate);
-    const headers = ["제목", "카테고리", "우선순위", "예상시간(분)", "계획날짜", "상태"];
-    const rows = dayTasks.map(t => [
-      `"${t.title.replace(/"/g, '""')}"`,
-      `"${workspace.categories.find(c => c.id === t.categoryId)?.name ?? "기타"}"`,
-      PRIORITY_LABELS[t.priority] || t.priority,
-      t.estimatedMinutes,
-      t.plannedDate,
-      t.status === "done" ? "완료" : t.status === "doing" ? "진행중" : "미완료"
-    ]);
-    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `할일목록-${targetDate}.csv`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
 
   // 하루 리셋 (실행 중인 세션 종료 및 알림)
   const handleResetDay = async () => {
@@ -328,7 +267,7 @@ function FocusToolbar({
             카테고리 관리
           </button>
           <button className="util-btn reset-btn" disabled={busy} onClick={handleResetDay}>
-            하루 리셋
+            타이머 정산
           </button>
         </div>
       </div>
@@ -356,6 +295,7 @@ export function Overview({
   busy,
   command,
   backup,
+  exportCsv,
   manage,
   editor,
   taskCard,
@@ -363,6 +303,8 @@ export function Overview({
   savedNote,
   changeNote,
   saveNote,
+  revision,
+  query,
   date
 }: {
   workspace: Workspace;
@@ -376,6 +318,7 @@ export function Overview({
   busy: boolean;
   command: (command: Command) => Promise<boolean>;
   backup: () => void;
+  exportCsv: () => void;
   manage: () => void;
   editor: ReactNode;
   taskCard: (task: Task) => ReactNode;
@@ -383,6 +326,8 @@ export function Overview({
   savedNote: string;
   changeNote: (note: string) => void;
   saveNote: () => void;
+  revision: number;
+  query: string;
   date?: string;
 }) {
   const pending = tasks.filter(t => t.status !== "done");
@@ -399,6 +344,7 @@ export function Overview({
         busy={busy}
         command={command}
         backup={backup}
+        exportCsv={exportCsv}
         manage={manage}
         date={date}
       />
@@ -460,11 +406,10 @@ export function Overview({
         {/* 우측 열: 차트 + AI 생산성 분석 + 성과 노트 */}
         <div className="overview-insights stack">
           <ChartPanel bins={summary.bins} />
-          <AnalysisPanel />
+          <AnalysisPanel key={`${date}-${categoryId}-${query}-${revision}`} date={date!} categoryId={categoryId} query={query} revision={revision} completedCount={completed.length} scope={scope} busy={busy}/>
           <NotePanel note={note} savedNote={savedNote} busy={busy} change={changeNote} save={saveNote} />
         </div>
       </div>
     </div>
   );
 }
-

@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { workspaceSchema, taskInputSchema, dateSchema, settingsSchema, modeSchema, type Workspace, type Session } from "./model";
+import { backupSchema, mergeBackup } from "./backup";
 
 const id = z.string().uuid();
 export const commandSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("backup.merge"), backup: backupSchema, restoreSettings: z.boolean().optional() }).strict(),
   z.object({ type: z.literal("task.add"), input: taskInputSchema }).strict(),
   z.object({ type: z.literal("task.edit"), id, input: taskInputSchema }).strict(),
   z.object({ type: z.enum(["task.complete", "task.undo", "task.trash", "task.restore"]), id }).strict(),
@@ -38,6 +40,10 @@ function endSession(s: Session, now: number) {
 }
 export function applyCommand(source: Workspace, raw: unknown, now: number, newId: () => string = () => crypto.randomUUID()): Workspace {
   const command = commandSchema.parse(raw);
+  if (command.type === "backup.merge") {
+    try { return mergeBackup(source, command.backup, now, command.restoreSettings ?? false).workspace; }
+    catch (error) { throw new PlannerError(error instanceof Error ? error.message : "백업을 가져오지 못했습니다."); }
+  }
   const w = structuredClone(source);
   // Expired runs are reconciled with the recorded deadline, exactly once.
   const previous = activeSession(w);

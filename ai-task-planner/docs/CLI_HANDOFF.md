@@ -1,5 +1,13 @@
 # AI 할 일·성과 관리 — 작업 재개 인수인계
 
+## 2026-10-13 재개 이후 최신 상태 — v1.04
+
+주인님이 “남은 작업 이어가줘”로 대기를 해제했습니다. W01~W05 코드를 구현하고 빌드·단위/SQL/API/공급사 모의22·보이는 격리 Chrome30·실제 Next 차단15 검수를 완료했습니다. 상세와 운영 결과는 [CONTINUATION_RELEASE](CONTINUATION_RELEASE.md), 남은 실검수는 [WORK_QUEUE](WORK_QUEUE.md)를 먼저 보세요. 아래 v1.03 작성 시점의 ‘구현 대기’·미커밋 파일 기록은 과거 이력이며 현재 Git를 기준으로 확인합니다. 기존 다른 CLI의 수정·인덱스는 포함하지 않습니다.
+
+새 코드 지도: `src/lib/planner/ai.ts`·`gemini.ts`·`api.ts`, `/api/analysis`·`/api/keys`, `src/lib/apiKeys.ts`, `AnalysisPanel.tsx`·`AiSettings.tsx`, `backup.ts`·`BackupImport.tsx`·`csv.ts`. JSONB 선택 필드 `settings.aiModel`, 원자적 `backup.merge` 명령. 키 API는 등록 여부만 반환하며 등록·변경은 기존 메인 공통 화면을 사용합니다. 백업은 기본적으로 기존 설정/노트를 유지하며 설정 적용은 선택 사항입니다.
+
+실제 일반 회원 로그인·본인 Gemini 실제 호출·두 실제 기기는 미검수입니다. Chrome 초점 복원 실패, Chrome 실행 자동검토 차단, Aside 미실행으로 이를 격리 검수로 대신 완료 처리하지 않았습니다. 비밀번호·API 키 입력/변경은 회원이 직접 합니다.
+
 작성: 2026-10-13, Codex. **주인님 요청으로 남은 개발과 검수는 작업대기 목록에 보관했습니다.** 재개 지시 전에는 아래 미완료 기능을 자동 구현하지 않습니다.
 
 ## 1. 먼저 읽을 문서

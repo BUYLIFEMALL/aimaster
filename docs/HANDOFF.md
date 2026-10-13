@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.04 후속 작업 재개
+
+- 주인님의 “남은 작업 이어가줘”로 W01~W05 재개. 미측정/차트/타이머정산 이름, 본인 Gemini 키 상태·모델·실제 발급 매뉴얼, 서버 AI 분석, JSON 가져오기 미리보기·원자적 추가 병합·충돌 보존·선택 설정복원, 범위 일치/실제초/수식보호 CSV 구현.
+- 본인 user_id 키만 서버 조회. 회원이 기존 공통 화면에서 직접 키 등록. 운영자/타인키·모델 폴백 없음. 기존 JSONB/RPC 사용, 스키마·환경변수·회원키·기존 운영기록 변경 없음.
+- 검수: 빌드·단위/SQL/API/공급사 모의22·보이는 격리 Chrome30·실제 Next 차단15 통과. 코드 v1.04/package1.4.0. 커밋/푸시/운영배포/익명 API·DB 확인 결과는 [출시 기록](../ai-task-planner/docs/CONTINUATION_RELEASE.md)에 이어 기록합니다.
+- 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
+- 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
+
 ## 2026-10-13 Claude Code — 신규 프로그램: AI 랜딩페이지 기획 자동화 (`landing-architect` v1.01)
 
 - 주인님 요청: AI Studio "AI Landing Page Architect Enhance"를 분석해 개발(분석·플랜 9b88bfba → 구현·배포).

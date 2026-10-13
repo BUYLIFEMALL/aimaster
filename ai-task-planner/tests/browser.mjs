@@ -12,11 +12,20 @@ const bundle = await build({ entryPoints: ["tests/browser-entry.tsx"], bundle: t
 const css = await readFile("src/app/globals.css", "utf8") + await readFile("src/app/overview.css", "utf8");
 let workspace = emptyWorkspace(), revision = 0, failStatus = 0, loseNextAcknowledgement = false;
 let holdNextRead = false, releaseRead, readStarted;
+let analysisMode = "success", analysisCalls = 0;
 const commandIds = new Set(), requests = [];
 const snapshot = () => ({ workspace, revision, serverNow: Date.now(), userId: "fixture-member" });
 const server = createServer(async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
-  if (req.url.startsWith("/api/workspace")) {
+  if (req.url === "/api/keys") { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify({ hasKey: true })); }
+  else if (req.url === "/api/analysis") {
+    analysisCalls++; const chunks = []; for await (const chunk of req) chunks.push(chunk);
+    const input = JSON.parse(Buffer.concat(chunks).toString());
+    res.setHeader("Content-Type", "application/json");
+    if (analysisMode === "missing") { res.statusCode = 400; res.end(JSON.stringify({ error: "본인 Gemini 키를 등록해주세요.", needKey: true })); }
+    else res.end(JSON.stringify({ revision: input.revision, date: input.date, model: workspace.settings.aiModel, analyzedAt: new Date().toISOString(), result: analysisMode === "malformed" ? { summary: "필드 누락" } : { summary: "모의 분석 결과입니다.", strengths: ["완료 기록 확인"], suggestions: Array.from({ length: 3 }, (_, i) => ({ action: `개선 ${i + 1}`, evidence: "제공한 완료 기록" })) } }));
+  }
+  else if (req.url.startsWith("/api/workspace")) {
     res.setHeader("Content-Type", "application/json;charset=utf-8");
     if (failStatus) { res.statusCode = failStatus; res.end(JSON.stringify({ error: "검수용 서버 연결 실패" })); return; }
     if (req.method === "GET" && holdNextRead) {
@@ -58,6 +67,8 @@ async function add(title) {
 try {
   await page.goto(origin); await page.getByText("최신 기록 확인 완료", { exact: true }).waitFor();
   assert.equal(await page.locator(".task-row").count(), 0); check("empty member workspace contains no reference demo tasks");
+  assert.equal(await page.getByRole("button", { name: "✨ 달성 결과 분석하기", exact: true }).isDisabled(), true);
+  assert.equal(analysisCalls, 0); check("AI makes no request when the selected scope has no completed work");
   await menu("할 일 계획").click();
   await add("보고서 [검수] 작성"); assert.equal(workspace.tasks.length, 1); check("real component task creation reaches the isolated API and confirms saving");
   await page.getByRole("textbox", { name: "할 일 검색" }).fill("["); assert.equal(await page.locator(".task-row").count(), 1);
@@ -174,6 +185,33 @@ try {
   await page.reload(); await page.getByText("최신 기록 확인 완료", { exact: true }).waitFor();
   assert.equal(await page.getByRole("textbox", { name: "하루 돌아보기" }).inputValue(), "대시보드에서 한눈에 확인하고 저장했습니다.");
   check("overview note survives a server reload and shares the same saved record as the results screen");
+  assert.equal(await page.getByRole("button", { name: "타이머 정산", exact: true }).isVisible(), true);
+  const emptyScope = page.getByRole("group", { name: "분류 빠른 선택" }); await emptyScope.getByRole("button", { name: "학습", exact: true }).click();
+  assert.equal(await page.getByText("미측정", { exact: true }).isVisible(), true); assert.deepEqual(await page.locator(".chart-grid-lines span").allTextContents(), ["4", "3", "2", "1", "0"]);
+  assert.ok((await page.locator(".col-bar").evaluateAll(nodes => nodes.map(n => n.style.height))).every(height => height === "0%"));
+  const zeroAxis = await page.locator(".chart-grid-lines span").last().boundingBox(), barTrack = await page.locator(".col-bar-track").first().boundingBox();
+  assert.ok(Math.abs(zeroAxis.y + zeroAxis.height / 2 - barTrack.y - barTrack.height) <= 1, "zero tick aligns with bar baseline");
+  await emptyScope.getByRole("button", { name: "전체", exact: true }).click(); check("unmeasured accuracy is distinct from zero and empty chart bars match the axis");
+  await menu("API키등록·플랫폼연동").click(); await page.getByText("본인 Gemini 키가 등록되어 있습니다.", { exact: true }).waitFor();
+  await page.getByRole("combobox", { name: "Gemini 모델", exact: true }).selectOption("gemini-3.8-flash"); await page.getByRole("button", { name: "분석 모델 저장", exact: true }).click(); await page.getByText("서버 저장 완료", { exact: true }).waitFor();
+  assert.equal(workspace.settings.aiModel, "gemini-3.8-flash"); await page.reload(); await page.getByText("최신 기록 확인 완료", { exact: true }).waitFor(); await menu("API키등록·플랫폼연동").click(); assert.equal(await page.getByRole("combobox", { name: "Gemini 모델", exact: true }).inputValue(), "gemini-3.8-flash");
+  assert.ok((await page.getByRole("link", { name: "Gemini API 키 발급 매뉴얼 (팝업)" }).getAttribute("href")).includes("f442cd37")); check("own-key status, persisted model selection and platform manual are connected");
+  await page.screenshot({ path: path.join(artifacts, "continuation-settings.png"), fullPage: true });
+  await menu("대시보드").click(); analysisMode = "missing"; await page.getByRole("button", { name: "✨ 달성 결과 분석하기", exact: true }).click(); await page.getByRole("dialog", { name: "본인 Gemini 키 등록 안내" }).waitFor(); await page.getByRole("button", { name: "닫기", exact: true }).click();
+  analysisMode = "malformed"; await page.getByRole("button", { name: "✨ 달성 결과 분석하기", exact: true }).click(); await page.getByRole("alert").waitFor(); assert.equal(await page.getByRole("heading", { name: "오늘의 성과", exact: true }).isVisible(), true);
+  analysisMode = "success"; await page.getByRole("button", { name: "✨ 달성 결과 분석하기", exact: true }).click(); await page.getByText("모의 분석 결과입니다.", { exact: true }).waitFor();
+  await page.screenshot({ path: path.join(artifacts, "continuation-analysis-fixture.png"), fullPage: true });
+  await page.getByRole("textbox", { name: "할 일 검색" }).fill("없는 범위"); assert.equal(await page.getByText("모의 분석 결과입니다.", { exact: true }).count(), 0); await page.getByRole("textbox", { name: "할 일 검색" }).fill(""); check("missing key opens guidance, malformed analysis preserves UI, and a scope change clears old analysis");
+  await menu("기록·백업").click(); let incoming = emptyWorkspace();
+  incoming.categories = structuredClone(workspace.categories); incoming.settings.defaultCategoryId = workspace.settings.defaultCategoryId;
+  incoming = applyCommand(incoming, { type: "task.add", input: { title: '=SUM(1,2) 한글 "인용"', categoryId: incoming.settings.defaultCategoryId, priority: "normal", estimatedMinutes: 1, plannedDate: localDate(Date.now()) } }, Date.now());
+  const backupCount = workspace.tasks.length; const payload = { program: "ai-task-planner", appVersion: "v1.04", exportedAt: new Date().toISOString(), workspace: incoming };
+  await page.getByLabel("백업 JSON 파일 (4MiB 이하)").setInputFiles({ name: "fixture.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(payload)) }); await page.getByLabel("백업 가져오기 미리보기").waitFor(); assert.equal(workspace.tasks.length, backupCount);
+  await page.screenshot({ path: path.join(artifacts, "continuation-import-preview.png"), fullPage: true });
+  await page.getByRole("button", { name: "가져오기 확정", exact: true }).click(); await page.getByText("백업 항목을 서버에 추가했습니다. 기존 기록은 보존했습니다.", { exact: true }).waitFor(); assert.equal(workspace.tasks.length, backupCount + 1); assert.equal(workspace.notes[localDate(Date.now())], "대시보드에서 한눈에 확인하고 저장했습니다.");
+  await page.getByLabel("백업 JSON 파일 (4MiB 이하)").setInputFiles({ name: "broken.json", mimeType: "application/json", buffer: Buffer.from('{"program":"wrong"}') }); await page.getByRole("alert").waitFor(); assert.equal(workspace.tasks.length, backupCount + 1); check("JSON preview writes nothing before confirmation; restore adds records and invalid files preserve existing notes/tasks");
+  await page.getByRole("textbox", { name: "할 일 검색" }).fill("SUM"); const csvDownloadPromise = page.waitForEvent("download"); await page.getByRole("button", { name: "선택 범위 CSV 다운로드" }).click(); const csvDownload = await csvDownloadPromise; const csv = await readFile(await csvDownload.path(), "utf8"); assert.ok(csv.startsWith("\uFEFF")); assert.ok(csv.includes("실제집중(초·전체기간)")); assert.ok(csv.includes("'=SUM(1,2) 한글")); assert.equal(csv.includes("보고서 수정 완료"), false); check("actual Unicode CSV download respects the search scope and escapes a formula title");
+  await page.getByRole("textbox", { name: "할 일 검색" }).fill(""); await menu("대시보드").click();
   await page.screenshot({ path: path.join(artifacts, "overview-desktop.png"), fullPage: true });
   await page.setViewportSize({ width: 1000, height: 950 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
