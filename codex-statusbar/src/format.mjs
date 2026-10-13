@@ -1,4 +1,4 @@
-export const APP_VERSION = 'v1.01';
+export const APP_VERSION = 'v1.02';
 export const MAX_AGE_MS = 150_000;
 
 export function readWindows(result, now = Date.now()) {
@@ -25,8 +25,7 @@ export function countdown(resetsAt, now = Date.now()) {
   const hours = Math.floor((minutes % 1440) / 60);
   const rest = minutes % 60;
   if (days) return `${days}d ${hours}h ${rest}m`;
-  if (hours) return `${hours}h ${rest}m`;
-  return `${rest}m`;
+  return `${hours}h ${rest}m`;
 }
 
 export function isFooter(line) {
@@ -54,21 +53,30 @@ export function fit(text, columns) {
 }
 
 export function formatFooter(line, snapshot, columns, now = Date.now()) {
-  if (!isFooter(line) || !snapshot || now - snapshot.updatedAt > MAX_AGE_MS || now < snapshot.updatedAt) return null;
-  let inserted = 0;
-  let output = line.trim().replace(/\b(5h|weekly)\s+(\d+)%\s+left/g, (match, label, remaining) => {
+  if (!isFooter(line)) return null;
+  const fresh = snapshot && now - snapshot.updatedAt <= MAX_AGE_MS && now >= snapshot.updatedAt;
+  const firstQuota = line.search(/\b(?:5h|weekly)\s+\d+%\s+left/);
+  const model = line.slice(0, firstQuota).trim().replace(/[·|]\s*$/, '').trim().split(/\s*[·|]\s*/).join('');
+  const quotas = [...line.matchAll(/\b(5h|weekly)\s+(\d+)%\s+left/g)].map(([, label, remaining]) => {
+    const text = `${label} ${remaining}%`;
+    if (!fresh) return text;
     const window = label === '5h' ? snapshot.fiveHour : snapshot.weekly;
     // Keep the CLI's exact percentages; never attach another bucket's clock.
-    if (!window || Math.abs(window.remaining - Number(remaining)) > 1) return match;
+    if (!window || Math.abs(window.remaining - Number(remaining)) > 1) return text;
     const time = countdown(window.resetsAt, now);
-    if (!time) return match;
-    inserted++;
-    return `${match} (${time})`;
+    return time ? `${text} (${time})` : text;
   });
-  if (!inserted) return null;
+  const context = `context ${line.match(/Context\s+(\d+)%\s+left/)[1]}%`;
+  const fields = [...quotas, context];
+  let output = [model, ...fields].filter(Boolean).join(' | ');
   const max = Math.max(0, columns - 3); // Two left-padding cells, one wrap guard.
-  if (width(output) > max) output = output.replace('Context ', 'ctx ').replace(/(\d+)d (\d+)h (\d+)m/g, '$1d$2h$3m').replace(/(\d+)h (\d+)m/g, '$1h$2m');
-  if (width(output) > max) output = output.replace(/% left/g, '%left').replace(/weekly /g, 'wk ').replace(/ \(/g, '(');
-  if (width(output) > max) output = output.replace(/GPT-/g, '');
+  // Keep full labels; only reduce spacing when the terminal is too narrow.
+  if (width(output) > max) output = output.replace(/(\d+)d (\d+)h (\d+)m/g, '$1d$2h$3m').replace(/(\d+)h (\d+)m/g, '$1h$2m');
+  if (width(output) > max) output = output.replace(/ \| /g, '|');
+  if (width(output) > max && model) {
+    const suffix = output.slice(model.length);
+    const budget = max - width(suffix);
+    if (budget > 0) output = fit(model, budget) + suffix;
+  }
   return '  ' + fit(output, max);
 }

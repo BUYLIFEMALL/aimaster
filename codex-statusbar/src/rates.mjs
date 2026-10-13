@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { readWindows } from './format.mjs';
+import { APP_VERSION, readWindows } from './format.mjs';
 
 export function createRatesClient(binaryPath, env, onSnapshot = () => {}) {
   const server = spawn(binaryPath, ['app-server'], { env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -66,7 +66,7 @@ export function createRatesClient(binaryPath, env, onSnapshot = () => {}) {
     finally { refreshing = false; }
   }
   const ready = (async () => {
-    await request('initialize', { clientInfo: { name: 'aimaster_codex_statusbar', title: 'Codex reset countdown statusbar', version: '1.0.1' } });
+    await request('initialize', { clientInfo: { name: 'aimaster_codex_statusbar', title: 'Codex reset countdown statusbar', version: APP_VERSION } });
     send({ method: 'initialized', params: {} });
     const snapshot = await refresh();
     interval = setInterval(() => { void refresh(); }, 60_000);

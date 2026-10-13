@@ -26,7 +26,7 @@ test('rejects missing and nonnumeric percentages and unknown reset times', () =>
 test('countdown supports hours, days, remaining minute and expiration', () => {
   assert.equal(countdown(now / 1000 + 5040, now), '1h 24m');
   assert.equal(countdown(now / 1000 + 2 * 86400 + 3 * 3600 + 60, now), '2d 3h 1m');
-  assert.equal(countdown(now / 1000 + 1, now), '1m');
+  assert.equal(countdown(now / 1000 + 1, now), '0h 1m');
   assert.equal(countdown(now / 1000, now), 'resetting');
   assert.equal(countdown(null, now), null);
 });
@@ -35,23 +35,22 @@ test('countdown changes as wall-clock time advances', () => {
 });
 test('adds both reset countdowns while keeping the original remaining values', () => {
   const rendered = formatFooter(line, readWindows(result, now), 150, now);
-  assert.match(rendered, /5h 85% left \(1h 24m\)/);
-  assert.match(rendered, /weekly 82% left \(2d 7h 34m\)/);
-  assert.match(rendered, /Context 49% left/);
+  assert.equal(rendered, '  GPT-6.1-Solhigh | 5h 85% (1h 24m) | weekly 82% (2d 7h 34m) | context 49%');
 });
 test('does not attach clocks to a mismatched percentage', () => {
-  assert.equal(formatFooter(line.replace('85%', '20%').replace('82%', '21%'), readWindows(result, now), 150, now), null);
+  assert.equal(formatFooter(line.replace('85%', '20%').replace('82%', '21%'), readWindows(result, now), 150, now), '  GPT-6.1-Solhigh | 5h 20% | weekly 21% | context 49%');
 });
 test('hides old or missing account data instead of keeping an old countdown', () => {
-  assert.equal(formatFooter(line, null, 150, now), null);
-  assert.equal(formatFooter(line, readWindows(result, now), 150, now + 150001), null);
-  assert.equal(formatFooter(line, readWindows(result, now + 1), 150, now), null);
+  const withoutClocks = '  GPT-6.1-Solhigh | 5h 85% | weekly 82% | context 49%';
+  assert.equal(formatFooter(line, null, 150, now), withoutClocks);
+  assert.equal(formatFooter(line, readWindows(result, now), 150, now + 150001), withoutClocks);
+  assert.equal(formatFooter(line, readWindows(result, now + 1), 150, now), withoutClocks);
 });
 test('supports a single quota window without inventing another', () => {
   const snapshot = readWindows({ rateLimits: { primary: result.rateLimits.primary } }, now);
   const rendered = formatFooter(line, snapshot, 150, now);
-  assert.match(rendered, /5h 85% left \(/);
-  assert.match(rendered, /weekly 82% left ·/);
+  assert.match(rendered, /5h 85% \(/);
+  assert.match(rendered, /weekly 82% \|/);
 });
 test('never matches the help text, transcript or status details as a footer', () => {
   for (const text of ['Context 49% left', '5h limit: 85% left', 'weekly limit: 82% left', '? for shortcuts']) assert.equal(isFooter(text), false);
@@ -59,9 +58,9 @@ test('never matches the help text, transcript or status details as a footer', ()
 test('compact form keeps both quota clocks and context within 80 columns', () => {
   const rendered = formatFooter(line, readWindows(result, now), 80, now);
   assert.ok(width(rendered) < 80);
-  assert.match(rendered, /5h 85%left\(1h24m\)/);
-  assert.match(rendered, /wk 82%left\(2d7h34m\)/);
-  assert.match(rendered, /ctx 49%left/);
+  assert.match(rendered, /5h 85% \(1h 24m\)/);
+  assert.match(rendered, /weekly 82% \(2d 7h 34m\)/);
+  assert.match(rendered, /context 49%/);
 });
 test('all narrow widths avoid writing into the last terminal column', () => {
   for (const columns of [20, 40, 60, 80, 100, 140]) assert.ok(width(formatFooter(line, readWindows(result, now), columns, now)) < columns);

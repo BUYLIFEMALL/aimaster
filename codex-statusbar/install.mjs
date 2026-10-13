@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { APP_VERSION } from './src/format.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const local = path.join(root, '.local');
@@ -34,7 +35,7 @@ if (process.argv.includes('--restore')) {
     fs.mkdirSync(local, { recursive: true });
     const backup = path.join(local, `codex-launcher-${digest(original).slice(0, 16)}.js`);
     if (!fs.existsSync(backup)) fs.writeFileSync(backup, original, { flag: 'wx' });
-    fs.writeFileSync(manifestPath, JSON.stringify({ installedOn: new Date().toISOString(), launcher, backup, originalSha256: digest(original), patchedSha256: digest(patched), version: 'v1.01' }, null, 2) + '\n');
+    fs.writeFileSync(manifestPath, JSON.stringify({ installedOn: new Date().toISOString(), launcher, backup, originalSha256: digest(original), patchedSha256: digest(patched), version: APP_VERSION }, null, 2) + '\n');
     fs.writeFileSync(launcher, patched);
     console.log('Codex countdown installed for new interactive codex/codex.cmd sessions. Original launcher backed up; running sessions preserved.');
   }
