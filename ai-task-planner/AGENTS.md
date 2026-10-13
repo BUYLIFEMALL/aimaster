@@ -2,9 +2,9 @@
 
 ## 현재 상태
 
-- 2026-10-13: 주인님의 일괄 진행 지시로 v1.01 핵심 기록 기능과 운영 DB·공통 인증·카탈로그·요금제·도메인을 연결했습니다. 같은 승인을 재요청하지 않습니다.
+- 2026-10-13: 주인님의 일괄 진행 지시로 v1.02 핵심 기록 기능과 운영 DB·공통 인증·카탈로그·요금제·도메인을 연결했습니다. 같은 승인을 재요청하지 않습니다.
 - 빌드 정상, 단위/SQL14·보이는 Chrome16·프로덕션 차단12 검사 통과, 취약점0. [구현 및 운영 결과](docs/PHASE1_IMPLEMENTATION.md).
-- 프로그램: AI 할 일·성과 관리, https://ai-task-planner.buylife.xyz, Tools·최소 일반·NEW(FREE 아님), 1/2/3개월 1/2/3만원. 기존 VIP 전체 프로그램 정책 연결. 시험 회원 buylifemall@naver.com은 비관리자이며 현재 VIP입니다.
+- 프로그램: AI 할 일·성과 관리, https://ai-task-planner.buylife.xyz, v1.02, Tools·최소 일반·NEW(FREE 아님), 1/2/3개월 1/2/3만원. 기존 VIP 전체 프로그램 정책 연결. 시험 회원 buylifemall@naver.com은 비관리자이며 현재 VIP입니다.
 - 회원별 JSONB 한행+revision+원자적RPC. 운영 SQL은 supabase/migrations/20261013065950_planner_workspace.sql 및 20261013075903_planner_catalog.sql. RLS 활성, 직접 회원 쓰기/RPC 불허, 이용 권한 확인한 서버 API만 저장합니다.
 - 노트는 명시적 저장. AI 분석·모델선택·전용 키 등록 매뉴얼·전체백업 복원·CSV는 후속 구현입니다. 두 실제 기기·본인 Gemini 호출은 미검증입니다.
 - 핵심 코드 f07031b5 및 문서 1a809718 원격 푸시 성공. 운영 연결 변경을 커밋·푸시한 뒤 프로덕션 배포와 실제 Chrome 검수 결과를 구현 문서에 남깁니다.

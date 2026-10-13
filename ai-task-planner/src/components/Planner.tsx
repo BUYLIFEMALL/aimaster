@@ -21,6 +21,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
   const lock = useRef(false), currentRecord = useRef<Snapshot | null>(null), clockBase = useRef({ server: Date.now(), monotonic: 0 });
   const pendingRequest = useRef<{ fingerprint: string; body: { commandId: string; revision: number; command: Command } } | null>(null);
   const finished = useRef<string | null>(null);
+  const refreshing = useRef(false);
   function now() { return clockBase.current.monotonic ? clockBase.current.server + performance.now() - clockBase.current.monotonic : Date.now(); }
   function accept(raw: unknown) {
     const result = snapshotSchema.parse(raw);
@@ -29,20 +30,25 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
     currentRecord.current = result; setRecord(result); setDenied(false);
   }
   function clearMember() { currentRecord.current = null; setRecord(null); setEditing(undefined); setNoteDrafts({}); pendingRequest.current = null; setDenied(true); }
-  const refresh = useCallback(async () => {
-    if (lock.current) return;
-    lock.current = true; setBusy(true); setError("");
+  const refresh = useCallback(async (background = false) => {
+    if (lock.current || refreshing.current) return;
+    const passive = background && currentRecord.current !== null;
+    refreshing.current = true;
+    if (!passive) { lock.current = true; setBusy(true); setError(""); }
     try {
       const response = await fetch("/api/workspace", { cache: "no-store", credentials: "same-origin" });
       const data = await response.json();
+      // Window focus must not disable a timer click or let a delayed GET replace a newer POST.
+      if (passive && lock.current) return;
       if (!response.ok) { if (response.status === 401 || response.status === 403) clearMember(); throw new Error(data.error || "기록을 불러오지 못했습니다."); }
+      if (passive && data.userId === userId && data.revision < (currentRecord.current?.revision ?? 0)) return;
       accept(data); setStatus("최신 기록 확인 완료");
-    } catch (e) { setError(message(e)); setStatus("불러오기 실패"); }
-    finally { lock.current = false; setBusy(false); }
+    } catch (e) { if (!passive || !lock.current) { setError(message(e)); setStatus("불러오기 실패"); } }
+    finally { refreshing.current = false; if (!passive) { lock.current = false; setBusy(false); } }
   // userId is fixed by the authenticated server layout; a change remounts the workspace.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
-  useEffect(() => { void refresh(); const handler = () => void refresh(); window.addEventListener("focus", handler); return () => window.removeEventListener("focus", handler); }, [refresh]);
+  useEffect(() => { void refresh(); const handler = () => void refresh(true); window.addEventListener("focus", handler); return () => window.removeEventListener("focus", handler); }, [refresh]);
   useEffect(() => { const timer = window.setInterval(() => setTick(t => t + 1), 500); return () => clearInterval(timer); }, []);
   useEffect(() => { const handler = () => setScreen(window.location.pathname.slice(1) || "dashboard"); window.addEventListener("popstate", handler); return () => window.removeEventListener("popstate", handler); }, []);
   useEffect(() => { const handler = (e: BeforeUnloadEvent) => { const w = currentRecord.current?.workspace; if (lock.current || Object.entries(noteDrafts).some(([day, draft]) => draft !== (w?.notes[day] ?? ""))) { e.preventDefault(); } }; window.addEventListener("beforeunload", handler); return () => window.removeEventListener("beforeunload", handler); }, [noteDrafts]);

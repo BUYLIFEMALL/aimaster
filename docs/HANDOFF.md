@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.02 운영 화면 문제 수정
+
+- v1.01 첫 운영 배포 READY 및 메인 썸네일/이용 링크/SSO/실제 관리자 본인 저장/집중 실행 확인. 운영 연결 커밋7fae5ee0 푸시 성공.
+- 실제 창 초점 복귀에서 GET 재조회가 타이머 버튼을 막는 현상을 수정. 백그라운드 GET은 쓰기를 막지 않고 늦은 낮은 revision 응답으로 POST 결과를 덮어쓰지 않습니다. 지연 GET+일시정지 POST 회귀 검사 추가, Chrome17/17·빌드 통과.
+- APP_VERSION과 programs.version v1.02 동기화, package1.2.0. 핵심 기능 출시이며 AI/백업복원/CSV는 후속 과제. 최종 운영 증거는 ai-task-planner/docs/PHASE1_IMPLEMENTATION.md.
+
 ## 2026-10-13 Claude Code — 카탈로그 썸네일 3종 실사 규칙(§13)으로 재생성 (ui-canvas · markdown-studio · persona-style-studio)
 
 - 주인님 지적: 썸네일 규칙 미준수. 세 프로그램을 `docs/PLATFORM_PATTERNS.md §13` 템플릿 + `scripts/generate-program-thumbnail.mjs`로 **한국인 실사 16:9**로 재생성·교체(프로그램 성격·핵심 기능을 화면 UI와 떠 있는 아이콘으로 반영, 무문자). 옛 PNG는 Storage에서 삭제. 생성 후 이미지를 직접 열어 확인했고 세 URL 모두 200. 앱 코드·버전 변경 없음.

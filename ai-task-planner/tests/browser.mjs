@@ -11,6 +11,7 @@ const artifacts = path.resolve("test-artifacts"); await mkdir(artifacts, { recur
 const bundle = await build({ entryPoints: ["tests/browser-entry.tsx"], bundle: true, write: false, format: "iife", platform: "browser", jsx: "automatic", define: { "process.env.NODE_ENV": '"development"' }, tsconfig: "tsconfig.json" });
 const css = await readFile("src/app/globals.css", "utf8");
 let workspace = emptyWorkspace(), revision = 0, failStatus = 0, loseNextAcknowledgement = false;
+let holdNextRead = false, releaseRead, readStarted;
 const commandIds = new Set(), requests = [];
 const snapshot = () => ({ workspace, revision, serverNow: Date.now(), userId: "fixture-member" });
 const server = createServer(async (req, res) => {
@@ -18,6 +19,12 @@ const server = createServer(async (req, res) => {
   if (req.url.startsWith("/api/workspace")) {
     res.setHeader("Content-Type", "application/json;charset=utf-8");
     if (failStatus) { res.statusCode = failStatus; res.end(JSON.stringify({ error: "검수용 서버 연결 실패" })); return; }
+    if (req.method === "GET" && holdNextRead) {
+      holdNextRead = false;
+      const stale = JSON.stringify(snapshot());
+      await new Promise(resolve => { releaseRead = resolve; readStarted(); });
+      res.end(stale); return;
+    }
     if (req.method === "POST") {
       const chunks = []; for await (const chunk of req) chunks.push(chunk);
       const body = JSON.parse(Buffer.concat(chunks).toString()); requests.push(body);
@@ -57,8 +64,16 @@ try {
   await page.getByRole("textbox", { name: "할 일 검색" }).fill(""); check("literal bracket search does not crash");
   await page.getByRole("button", { name: "집중 시작", exact: true }).click();
   await page.getByRole("heading", { name: "집중 실행", exact: true }).waitFor();
-  await page.waitForTimeout(1200); await page.getByRole("button", { name: "일시정지", exact: true }).click();
+  await page.waitForTimeout(1200);
+  const started = new Promise(resolve => { readStarted = resolve; }); holdNextRead = true;
+  await page.evaluate(() => window.dispatchEvent(new Event("focus"))); await started;
+  assert.equal(await page.getByRole("button", { name: "일시정지", exact: true }).isEnabled(), true);
+  await page.getByRole("button", { name: "일시정지", exact: true }).click();
   await page.getByRole("button", { name: "재개", exact: true }).waitFor();
+  const staleResponse = page.waitForResponse(response => response.url().endsWith("/api/workspace") && response.request().method() === "GET");
+  releaseRead(); await (await staleResponse).finished(); await page.waitForTimeout(200);
+  assert.equal(await page.getByRole("button", { name: "재개", exact: true }).isVisible(), true);
+  check("focus refresh leaves timer controls enabled and a delayed old GET cannot overwrite a saved pause");
   const paused = await page.getByLabel("남은 시간").textContent(); await page.waitForTimeout(1200);
   assert.equal(await page.getByLabel("남은 시간").textContent(), paused); assert.ok(workspace.sessions[0].segments.length > 0); check("pause freezes countdown and preserves actual segment");
   await page.getByRole("button", { name: "재개", exact: true }).click(); await page.getByRole("button", { name: "일시정지", exact: true }).waitFor();

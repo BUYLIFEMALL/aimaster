@@ -1,5 +1,5 @@
 {
-  "passed": 16,
+  "passed": 17,
   "fixture": true,
   "visibleChrome": true,
   "realMemberLoginVerified": false,
@@ -8,6 +8,7 @@
     "empty member workspace contains no reference demo tasks",
     "real component task creation reaches the isolated API and confirms saving",
     "literal bracket search does not crash",
+    "focus refresh leaves timer controls enabled and a delayed old GET cannot overwrite a saved pause",
     "pause freezes countdown and preserves actual segment",
     "editing task metadata preserves the running session",
     "completion commits task and ends focus timing together",
