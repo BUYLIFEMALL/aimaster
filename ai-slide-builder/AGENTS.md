@@ -1,9 +1,9 @@
-# AI 슬라이드 빌더 PRO (ai-slide-builder) 인수인계 문서
+# AI 슬라이드 자동화 (ai-slide-builder) 인수인계 문서
 
-> **버전**: v1.01  
-> **프로그램명**: AI 슬라이드 빌더 PRO (Slide Builder AI)  
+> **버전**: v1.02  
+> **프로그램명**: AI 슬라이드 자동화  
 > **슬러그**: `ai-slide-builder`  
-> **배포 URL**: `https://ai-slide-builder.buylife.xyz` (또는 Vercel 배포 도메인)  
+> **배포 URL**: `https://ai-slide-builder.buylife.xyz`  
 > **공통 최상위 규칙 준수**: 사용자는 본인의 계정과 본인의 Gemini API 키를 직접 등록하여 사용한다.
 
 ---

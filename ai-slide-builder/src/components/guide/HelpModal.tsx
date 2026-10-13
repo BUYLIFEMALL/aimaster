@@ -26,7 +26,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <FileText className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800">슬라이드 빌더 AI PRO 이용 가이드</h2>
+              <h2 className="text-lg font-bold text-slate-800">AI 슬라이드 자동화 이용 가이드</h2>
               <p className="text-xs text-slate-500">비정형 텍스트로부터 프레젠테이션 자동 생성 & 슬라이드 편집</p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
               프로그램 개요
             </h3>
             <p className="leading-relaxed text-slate-600">
-              <strong>슬라이드 빌더 AI PRO (Slide Builder AI)</strong>는 회의록, 기획서, 보고서, 논문 등 긴 비정형 텍스트를 입력하거나 파일을 업로드하면,
+              <strong>AI 슬라이드 자동화</strong>는 회의록, 기획서, 보고서, 논문 등 긴 비정형 텍스트를 입력하거나 파일을 업로드하면,
               Google의 Gemini AI가 내용을 분석하여 22가지 전문 장표 레이아웃의 프레젠테이션 JSON 구성안을 자동 생성하고
               원클릭으로 파워포인트(PPTX) 또는 Google Slides로 변환해주는 올인원 솔루션입니다.
             </p>

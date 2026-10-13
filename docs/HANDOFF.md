@@ -6,9 +6,27 @@
 - 검수: 단위 45/45, 화면 11+13+10, 런타임 9/9, 취약점 0. 실제 Next 번들에서 PDF·DOCX·ZIP 생성 확인, PDF 육안 확인. 운영 v1.02 배포·DB `programs.version`/설명 갱신 완료. [기록](../markdown-studio/docs/PHASE3_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0002_v1_02_import_export.sql`.
 - **미확인**: 운영 사이트에서 실제 PDF/DOCX 파일 다운로드(허락 전), Word·Google Docs에서의 DOCX 표시, 대용량 성능. 다음: 4단계 본인 Google Drive(본인 OAuth 앱), 5단계 썸네일·매뉴얼 등록. ERROR_LESSONS에 PDF 글리프·mammoth 취약점 등 기록.
 
-## 2026-10-13 Antigravity — AI 슬라이드 빌더 PRO (ai-slide-builder v1.01) 구축, 배포 및 플랫폼 등록 완료
+## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.02) 프로그램명 정정 및 배포 완료
 
-주인님 요청("새프로젝트 시작하자 슬라이드 빌더 AI PRO 자세하고 면밀히 분석후 개발 플랜을 세워줘", "단계별로 작업 진행해줘")에 따라, 레퍼런스 앱(**슬라이드 빌더 AI PRO**)의 소스코드 100% 전수 역분석 및 신규 서브프로젝트 **`AI 슬라이드 빌더 PRO` (`ai-slide-builder v1.01`)** 구축, Vercel 프로덕션 배포, 도메인 연결, Supabase DB 등록 및 썸네일 반영을 완벽히 완료했습니다:
+주인님 요청("프로그램 명을 AI 슬라이드 자동화 로 수정해주고 프로그램내 명칭도 정정해서 다시 수정 보완해줘")에 따라, 프로그램명을 **`AI 슬라이드 자동화`**로 전면 정정하고 프로그램 내부 명칭(헤더, 브라우저 타이틀, 가이드 모달, 사이드바, 설명문) 및 버전(`v1.02`) 동기화, 프로덕션 재배포를 완료했습니다:
+
+1. **프로그램 내부 명칭 전면 정정**:
+   - `src/lib/version.ts`: `APP_NAME = "AI 슬라이드 자동화"`, `APP_VERSION = "v1.02"`
+   - `src/app/layout.tsx`: 브라우저 탭 타이틀 `AI 슬라이드 자동화 | AIMaster`로 정정
+   - `src/components/layout/Header.tsx`: 헤더 타이틀 컴포넌트 `AI 슬라이드 자동화 v1.02`로 일원화
+   - `src/components/guide/HelpModal.tsx`: 이용 가이드 모달 타이틀 및 본문 설명문 명칭 정정
+   - `README.md`, `AGENTS.md`: 프로그램명 및 버전 정정
+2. **공용 DB programs 테이블 동기화 (Rule 5)**:
+   - `programs.name = 'AI 슬라이드 자동화'`
+   - `programs.version = 'v1.02'`
+   - `programs.short_desc` 및 `programs.description` 정정 완료
+3. **배포 및 검수**:
+   - `npm run build` 타입체크 및 번들링 100% 정상 통과
+   - Vercel 프로덕션 재배포 완료 (`https://ai-slide-builder.buylife.xyz`)
+
+## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.01) 구축, 배포 및 플랫폼 등록 완료
+
+주인님 요청("새프로젝트 시작하자 슬라이드 빌더 AI PRO 자세하고 면밀히 분석후 개발 플랜을 세워줘", "단계별로 작업 진행해줘")에 따라, 레퍼런스 앱(**슬라이드 빌더 AI PRO**)의 소스코드 100% 전수 역분석 및 신규 서브프로젝트 **`AI 슬라이드 자동화` (`ai-slide-builder v1.01`)** 구축, Vercel 프로덕션 배포, 도메인 연결, Supabase DB 등록 및 썸네일 반영을 완벽히 완료했습니다:
 
 1. **레퍼런스 전수 역분석 및 실기 기능 구현 완결 (Rule 15)**:
    - **3대 특화 생성 포맷 (프롬프트 엔진)**:

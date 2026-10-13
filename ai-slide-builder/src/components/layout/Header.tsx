@@ -17,13 +17,7 @@ export default function Header({ onOpenGuide, onOpenApiKey, hasApiKey }: HeaderP
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              슬라이드 빌더 AI
-            </span>
-            <sup className="text-xs font-bold text-red-500 bg-red-50 px-1 py-0.2 rounded border border-red-200">
-              PRO
-            </sup>
-            <span className="text-slate-500 text-sm font-medium ml-1">
-              (Slide Builder AI)
+              {APP_NAME}
             </span>
           </h1>
           <span className="text-xs font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">

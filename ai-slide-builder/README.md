@@ -1,9 +1,9 @@
-# AI 슬라이드 빌더 PRO (ai-slide-builder)
+# AI 슬라이드 자동화 (ai-slide-builder)
 
-> **버전**: v1.01  
-> **프로그램명**: AI 슬라이드 빌더 PRO (Slide Builder AI)  
+> **버전**: v1.02  
+> **프로그램명**: AI 슬라이드 자동화  
 > **슬러그**: `ai-slide-builder`  
-> **도메인**: `https://ai-slide-builder.buylife.xyz` (또는 Vercel 배포 도메인)
+> **도메인**: `https://ai-slide-builder.buylife.xyz`
 
 Google Gemini AI 및 멀티포맷 파일 파서를 활용하여 회의록, 기획서, 논문 등 비정형 텍스트로부터 전문 프레젠테이션 JSON 구성안을 자동 생성하고, 22개 전문 슬라이드 카드 편집 및 원클릭 PPTX 다운로드를 지원하는 웹 기반 슬라이드 자동화 스튜디오입니다.
 
