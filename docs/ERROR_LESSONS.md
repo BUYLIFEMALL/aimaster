@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-13 — 카탈로그 썸네일을 즉흥 프롬프트로 만들어 실사 규칙 위반 (ui-canvas v1.02)
+
+- 증상: 신규 프로그램 썸네일을 "flat modern illustration" 프롬프트로 직접 생성해 올림 → 원인: 새 프로그램 등록 때 `PLATFORM_PATTERNS.md §13`(실사 템플릿 고정)을 읽지 않고 이전 프로그램의 일회성 스크립트를 복사·수정함 → 해결: `scripts/generate-program-thumbnail.mjs <slug> <관리자 uid> "<§13 템플릿 프롬프트>"`로 실사(한국인·shallow depth of field·natural skin texture·85mm·16:9·텍스트 없음) 재생성, 옛 PNG 삭제 → 다음부터: 썸네일은 **항상 §13 템플릿 + `generate-program-thumbnail.mjs`**만 쓰고, 결과를 육안으로 확인한 뒤 등록한다. 신규 프로그램 체크리스트에 "썸네일 = §13" 포함.
+
 ## 2026-10-13 — 할 일 저장 응답 유실 뒤 재조회·재시도의 중복 생성 방지
 
 - 증상: 서버 저장은 성공했지만 응답이 유실된 뒤 GET으로 새 revision을 읽으면, 같은 입력의 재시도가 새 command ID를 발급해 중복 생성할 수 있음 → 원인: 현재 revision이 바뀌었다는 이유만으로 미확정 요청 ID까지 교체 → 해결: `ai-task-planner/src/components/Planner.tsx`에서 같은 명령의 미확정 ID를 최신 조회 뒤에도 보존, API/RPC에서 중복 ID 성공 재응답·오래된 revision 차단 → 다음부터: 저장실패뿐 아니라 “실제 저장→응답유실→재조회→같은 입력 재시도”를 연결해 검사.

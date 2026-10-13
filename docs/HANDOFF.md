@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — UI Canvas 자동화 썸네일 실사로 교체(규칙 §13 위반 정정)
+
+- 주인님 지적: 썸네일 규칙(실사) 미준수. 일러스트 썸네일을 `scripts/generate-program-thumbnail.mjs` + §13 템플릿으로 **한국인 실사 16:9**로 재생성·교체(`catalog/ui-canvas-thumbnail.jpg`, 옛 PNG 삭제). 코드·버전 변경 없음(v1.05 유지). 교훈은 `docs/ERROR_LESSONS.md`.
+
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.01 운영 연결·썸네일
 
 - 주인님의 구체적 운영 적용안에 대한 일괄 실행 재지시로 DB·환경변수 승인 대기를 해제하고 실행했습니다. 같은 승인을 재요청하지 않습니다.

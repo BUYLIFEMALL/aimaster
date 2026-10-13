@@ -5,3 +5,7 @@ SET version = 'v1.02',
     thumbnail_url = 'https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/ui-canvas-thumbnail.png?v=1791876216511',
     updated_at = NOW()
 WHERE slug = 'ui-canvas';
+
+-- 2026-10-13 정정: 위 썸네일은 일러스트 스타일이라 카탈로그 실사 규칙(PLATFORM_PATTERNS §13) 위반이었음.
+--  `scripts/generate-program-thumbnail.mjs`(규칙 템플릿)로 실사 이미지를 다시 만들어 `catalog/ui-canvas-thumbnail.jpg`로 교체했고
+--  programs.thumbnail_url을 갱신했다(옛 PNG는 Storage에서 삭제).
