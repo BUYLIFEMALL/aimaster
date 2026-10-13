@@ -1,4 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-13 Claude Code — Markdown Studio v1.07: 실제 Drive 가져오기 통과 + 가져온 파일이 새 폴더로 옮겨지던 결함 수정
+
+- 실제 Drive에서 새 파일 가져오기 성공. 가져온 문서를 올릴 때 Drive 파일이 `Drive에서 가져옴 …` 하위 폴더로 이동되던 결함을 발견해 정리 폴더를 전용 폴더와 연결하도록 수정(v1.07, `pullEntries(…, rootId)`, SQL `0008_v1_07_pull_keeps_location.sql`). 기록: [PHASE4_IMPLEMENTATION](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md). 남은 실제 확인: Drive 쪽 변경 감지·충돌·사본/교체 가져오기.
 
 ## 2026-10-13 Antigravity — React UI 컴포넌트 쇼케이스 (react-ui-showcase v1.01) 신규 개발·인수인계 완료 및 운영 배포
 

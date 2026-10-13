@@ -140,8 +140,10 @@ const mdName = (name: string) => { const n = safeFilename(name).replace(/\.markd
 /**
  * 선택한 Drive 파일을 가져온다. 새 파일은 새 폴더 'Drive에서 가져옴 …' 안에 만들고 연결하며,
  * 이미 연결된 파일이 Drive에서 바뀌었으면 strategy에 따라 '사본으로 추가(copy)' 또는 '내 문서 본문 교체(replace, 이전 본문은 수정 이력에 남음)'.
+ * 정리용 폴더 'Drive에서 가져옴 …'은 Drive의 전용 폴더(rootId)와 연결한다. 그렇지 않으면 다음 올리기에서 이미 있던 Drive 파일이
+ * 새 하위 폴더로 옮겨지는 예기치 않은 변화가 생긴다(실제 Drive 검수에서 발견).
  */
-export async function pullEntries(repo: DocumentRepository, session: Session, entries: RemoteEntry[], strategy: PullStrategy): Promise<PullResult[]> {
+export async function pullEntries(repo: DocumentRepository, session: Session, entries: RemoteEntry[], strategy: PullStrategy, rootId: string): Promise<PullResult[]> {
   const { api, accountId } = session;
   const results: PullResult[] = [];
   const contents = new Map<string, string>();
@@ -200,6 +202,7 @@ export async function pullEntries(repo: DocumentRepository, session: Session, en
     try {
       const result = await repo.importTree(items);
       const now = new Date().toISOString();
+      await repo.saveDriveMapping({ nodeId: result.ids[wrapperKey], accountId, kind: "folder", fileId: rootId, parentFileId: null, lastSyncedRevision: 1, remoteModifiedTime: now, syncedAt: now });
       for (const [key, fileId] of folderFile) { // 가져온 Drive 폴더는 로컬 폴더와 연결해 다음 업로드에서 재사용
         await repo.saveDriveMapping({ nodeId: result.ids[key], accountId, kind: "folder", fileId, parentFileId: null, lastSyncedRevision: 1, remoteModifiedTime: now, syncedAt: now });
       }

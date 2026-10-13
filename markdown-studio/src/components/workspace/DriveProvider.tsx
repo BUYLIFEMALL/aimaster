@@ -123,12 +123,12 @@ export function DriveProvider({ children }: { children: React.ReactNode }) {
   const pull = useCallback((entries: RemoteEntry[], strategy: PullStrategy) => guarded(async () => {
     await store.save();
     const s = session();
-    const results = await store.runQuiet(repo => pullEntries(repo, s, entries, strategy));
+    const rootId = await store.runQuiet(repo => ensureRootFolder(repo, s));
+    const results = await store.runQuiet(repo => pullEntries(repo, s, entries, strategy, rootId));
     setPullResults(results);
     const ok = results.filter(r => r.status === "imported" || r.status === "copied" || r.status === "replaced").length;
     const bad = results.filter(r => r.status === "failed").length;
     setMessage(`가져오기 결과: 성공 ${ok}개${bad ? ` · 실패 ${bad}개` : ""}.`);
-    const rootId = await store.runQuiet(repo => ensureRootFolder(repo, s));
     const refreshed = await store.runQuiet(repo => listRemote(repo, s, rootId));
     setRemote(refreshed.entries);
   }), [guarded, store]);

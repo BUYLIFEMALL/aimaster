@@ -195,7 +195,7 @@ test("Drive에서 가져오기: 새 파일은 새 폴더에 구조 그대로, �
   const { entries, ignored } = await listRemote(repo, session, root);
   assert.deepEqual(entries.map(e => [e.path, e.status]), [["b.markdown", "new"], ["큼.md", "new"], ["자료/a.md", "new"]].sort((x, y) => x[0].localeCompare(y[0], "ko")));
   assert.equal(ignored, 1);
-  const res = await pullEntries(repo, session, entries, "copy");
+  const res = await pullEntries(repo, session, entries, "copy", root);
   assert.deepEqual(Object.fromEntries(res.map(r => [r.path, r.status])), { "b.markdown": "imported", "자료/a.md": "imported", "큼.md": "failed" });
   assert.match(res.find(r => r.path === "큼.md").message, /너무 깁니다/);
   const nodes = (await repo.list()).filter(n => !n.deletedAt);
@@ -205,6 +205,15 @@ test("Drive에서 가져오기: 새 파일은 새 폴더에 구조 그대로, �
   assert.equal(nodes.find(n => n.id === a.parentId).name, "자료");
   assert.equal(nodes.find(n => n.id === nodes.find(x => x.id === a.parentId).parentId).id, wrapper.id);
   assert.ok(nodes.some(n => n.name === "b.md"), ".markdown은 .md로");
+  // 가져온 Drive 파일은 정리용 폴더에 있어도 Drive에서 옮겨지지 않는다(실제 Drive 검수에서 발견한 문제의 재발 방지)
+  const b = nodes.find(n => n.name === "b.md");
+  await repo.update(b.id, b.revision, { name: "b2.md" });
+  const moveCheck = await uploadDocuments(repo, session, root, [b.id]);
+  assert.equal(moveCheck[0].status, "updated");
+  assert.equal(moveCheck[0].message, undefined, "다른 폴더로 옮겼다는 안내가 없어야 함");
+  assert.equal(mock.byName("b2.md")[0].parents[0], root, "Drive 파일은 전용 폴더에 그대로");
+  assert.equal(mock.files.size, [...mock.files.values()].length);
+  assert.ok(![...mock.files.values()].some(f => f.name.startsWith("Drive에서 가져옴")), "정리용 폴더가 Drive에 새로 만들어지지 않음");
   // 두 번째 목록: 큼.md만 new, 나머지 same
   const again = (await listRemote(repo, session, root)).entries;
   assert.deepEqual(again.map(e => e.status).sort(), ["new", "same", "same"]);
@@ -212,7 +221,7 @@ test("Drive에서 가져오기: 새 파일은 새 폴더에 구조 그대로, �
   const fa = mock.byName("a.md")[0]; mock.edit(fa.id, "A 원격 수정");
   let list = (await listRemote(repo, session, root)).entries.filter(e => e.path.endsWith("a.md"));
   assert.equal(list[0].status, "remote-changed");
-  const copied = await pullEntries(repo, session, list, "copy");
+  const copied = await pullEntries(repo, session, list, "copy", root);
   assert.equal(copied[0].status, "copied");
   const after = (await repo.list()).filter(n => !n.deletedAt);
   assert.equal(after.find(n => n.id === a.id).markdown, "A 본문\n둘째 줄");
@@ -221,7 +230,7 @@ test("Drive에서 가져오기: 새 파일은 새 폴더에 구조 그대로, �
   await repo.update(a.id, a.revision, { markdown: "내 수정" });
   list = (await listRemote(repo, session, root)).entries.filter(e => e.path.endsWith("/a.md") || e.path === "자료/a.md");
   assert.equal(list[0].status, "both-changed");
-  const replaced = await pullEntries(repo, session, list, "replace");
+  const replaced = await pullEntries(repo, session, list, "replace", root);
   assert.equal(replaced[0].status, "replaced");
   const final = (await repo.list()).find(n => n.id === a.id);
   assert.equal(final.markdown, "A 원격 수정");
@@ -236,7 +245,7 @@ test("가져오기 중 401이면 남은 항목을 중단으로 기록하고 아�
   mock.add({ name: "1.md", parents: [root], content: "1" }); mock.add({ name: "2.md", parents: [root], content: "2" });
   const { entries } = await listRemote(repo, session, root);
   mock.failNext(1, 401, "authError", { match: (m, u) => u.searchParams.get("alt") === "media" });
-  const res = await pullEntries(repo, session, entries, "copy");
+  const res = await pullEntries(repo, session, entries, "copy", root);
   assert.deepEqual(res.map(r => r.status), ["failed", "failed"]);
   assert.match(res[1].message, /중단됨/);
   assert.equal((await repo.list()).length, 0);
