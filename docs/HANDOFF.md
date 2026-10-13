@@ -1,4 +1,23 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-13 Antigravity — 커스텀(/custom) 메뉴 및 페이지 명칭 '제작의뢰'로 변경 완료
+
+- **요청 사항**: https://www.buylife.xyz/custom 메뉴 및 페이지 명칭을 '제작의뢰'로 변경.
+- **수정 내역**:
+  1. `components/layout/Header.tsx`: 상단 네비게이션 링크 라벨을 `커스텀` -> `제작의뢰`로 변경.
+  2. `components/layout/Footer.tsx`: 하단 푸터 서비스 링크 라벨을 `커스텀 제작` -> `제작의뢰`로 변경.
+  3. `app/(main)/custom/page.tsx`: 메타데이터 `title: "제작의뢰"`, OpenGraph title, Hero 섹션 배지 `제작의뢰` 및 제목 `비즈니스에 맞춘 맞춤 제작의뢰 솔루션`으로 반영.
+  4. `app/(main)/support/page.tsx`: 고객지원 FAQ("맞춤 제작의뢰도 가능한가요?", '제작의뢰' 페이지 안내) 및 문의 유형 목록("제작의뢰 상담") 명칭 동기화.
+- **검수 및 배포**: 루트 프로젝트 `npm run build` 100% 정상 통과 (Exit code 0), Git 커밋/푸시 및 Vercel 프로덕션 배포 완료.
+
+## 2026-10-13 Codex — AI 할 일·성과 관리 참고 앱 분석·개발 계획 (구현 전)
+
+- 주인님 요청은 [AI Studio 오늘의 할 일 & 성과](https://aistudio.google.com/apps/drive/1iLQSTMxTbksuw5yv54XUgYP9q79ITS3I)의 전체 로직·옵션 결과 분석과 개발 계획입니다. 작업용 폴더 [ai-task-planner](../ai-task-planner/README.md)에 문서·근거를 보관했습니다. 이름/슬러그/도메인/요금·FREE는 미확정, 구현·운영 등록·배포 전입니다.
+- Drive에서 원본 소스 ZIP 23,446바이트·20개 파일 전수 확보/열람, 보이는 독립 Chrome에서 **33개 시나리오 관측**. AI SDK만 모의 응답, 실제 Gemini 호출 없음. AI Studio 운영 미리보기·호스트 프록시·실제 회원 공급사 응답은 미확인입니다.
+- 주요 결함: 저장 없는 자동 저장 문구/새로고침 소실, PAUSE 초기화·카드 Pause 재시작, 완료/삭제 후 계속 실행, 수정 시 집중시간 역행, 분류 기본값 불일치/전체 중복, 불완전 AI JSON 화면 소실. 우선순위는 정렬·점수·AI 입력에 미반영, 노트도 AI 입력에 없음.
+- [원본 분석](../ai-task-planner/docs/REFERENCE_ANALYSIS.md), [개발 계획](../ai-task-planner/docs/DEVELOPMENT_PLAN.md), [33개 관측](../ai-task-planner/docs/evidence/browser-results.json), [인수인계](../ai-task-planner/AGENTS.md). 다음 구현 순서: 공통 틀/모델 → 회원별 실제 저장 → 정확한 타이머 → 성과/본인 Gemini → 백업/출시. DB·환경변수는 설계만 작성했으며 실제 적용은 특수 작업 승인 범위입니다.
+- 시작 시 로컬 HEAD/기존 origin/master는 ac332a89·비교0/0. `.git/FETCH_HEAD` 쓰기·GitHub 접속 제한으로 실제 원격 최신 확인은 못 했습니다. 최종 문서 링크·증거 JSON·공백 검사 정상, 지정 경로 git add는 `.git/index.lock: Permission denied`로 차단되어 커밋/푸시 미완료입니다. 분석·계획은 로컬 파일에 보존됐습니다.
+
 
 ## 2026-10-13 Claude Code — 접근 권한 관리: 카테고리별 묶음(프로그램 관리와 연동)·전체 선택 체크박스 통일·안내문 줄바꿈
 

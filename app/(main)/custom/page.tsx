@@ -5,10 +5,10 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 
 export const metadata = {
-  title: "커스텀 솔루션",
-  description: "비즈니스에 맞춤화된 AI 마케팅 자동화 솔루션을 제작해드립니다. 맞춤 개발, 컨설팅, 디자인 서비스 제공.",
+  title: "제작의뢰",
+  description: "비즈니스에 맞춤화된 AI 마케팅 자동화 솔루션 제작을 의뢰하세요. 맞춤 개발, 컨설팅, 디자인 서비스 제공.",
   openGraph: {
-    title: "커스텀 솔루션 | AI Master",
+    title: "제작의뢰 | AI Master",
     description: "비즈니스에 맞춤화된 AI 마케팅 자동화 솔루션을 제작해드립니다.",
   },
 };
@@ -48,10 +48,10 @@ export default function CustomPage() {
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/30 text-gold text-sm font-medium mb-6">
           <Wrench size={14} />
-          맞춤 솔루션
+          제작의뢰
         </div>
         <h1 className="text-3xl md:text-5xl font-black text-white mb-4">
-          비즈니스에 맞춘 <GoldGradientText>커스텀</GoldGradientText> 솔루션
+          비즈니스에 맞춘 <GoldGradientText>맞춤 제작의뢰</GoldGradientText> 솔루션
         </h1>
         <p className="text-subtext text-lg max-w-2xl mx-auto mb-8">
           표준 프로그램으로 부족하신가요?

@@ -6,7 +6,7 @@ const FOOTER_LINKS = {
     { href: "/programs", label: "프로그램 목록" },
     { href: "/packages", label: "패키지 플랜" },
     { href: "/revenue-share", label: "수익 공유" },
-    { href: "/custom", label: "커스텀 제작" },
+    { href: "/custom", label: "제작의뢰" },
   ],
   고객지원: [
     { href: "/guides", label: "이용 가이드 (API연동)" },
