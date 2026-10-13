@@ -30,6 +30,8 @@
 
 ## 다음 작업
 
+0. **2단계 상세 플랜·인계 보완점은 [docs/PHASE2_PLAN.md](docs/PHASE2_PLAN.md)** (2026-10-13 Claude Code 작성, 구현 전).
+
 1. [구현·검수 기록](docs/PHASE1_IMPLEMENTATION.md)과 [운영 설정안](docs/PROVISIONING_PLAN.md)을 읽습니다. AIMaster 인증 환경변수 3개의 새 프로젝트 등록 승인을 받은 뒤 실제 회원 검수·운영 배포를 진행합니다. 승인 없이 다른 프로젝트 설정을 복사해 등록하지 않습니다.
 2. 원본 20개 편집 명령/목록 3종/기호 32종, 선택 영역·실행 취소/다시 실행·찾기/바꾸기를 CodeMirror로 연결합니다. 현재 기본 textarea를 전체 편집 기능 완성으로 취급하지 않습니다.
 3. `.md`/`.txt`/JSON 가져오기와 백업, HTML/텍스트 PDF/표준 DOCX/ZIP 결과 검증을 구현합니다.
