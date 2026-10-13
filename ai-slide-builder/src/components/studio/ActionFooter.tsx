@@ -62,47 +62,9 @@ export default function ActionFooter({ onExportPptx, hasSlides }: ActionFooterPr
         </div>
       </div>
 
-      {/* 크레딧 정보 */}
-      <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-slate-200 text-center">
-        <h4 className="text-xs font-bold text-slate-500 mb-3">슬라이드 스크립트 제공 스태프</h4>
-        <div className="grid grid-cols-3 gap-3 text-xs text-slate-600">
-          <div>
-            <p className="font-semibold text-slate-800">표준형식</p>
-            <a
-              href="https://note.com/majin_108"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Majin
-            </a>
-          </div>
-          <div>
-            <p className="font-semibold text-slate-800">확장형식</p>
-            <a
-              href="https://note.com/cozy_auklet6005"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Kimura Yoshiki
-            </a>
-          </div>
-          <div>
-            <p className="font-semibold text-slate-800">C-Suite 보고 형식</p>
-            <a
-              href="https://www.youtube.com/@AIFACT-GPTPARK"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline inline-flex items-center gap-1"
-            >
-              GPT PARK
-            </a>
-          </div>
-        </div>
-
-        <p className="text-[11px] text-slate-400 mt-6 pb-4">
-          AI 기반 프레젠테이션 자동화 & 슬라이드 빌더 스튜디오 • AIMaster
+      <div className="text-center mt-8 pt-6 border-t border-slate-200">
+        <p className="text-xs text-slate-400">
+          AI 슬라이드 자동화 • AIMaster
         </p>
       </div>
     </footer>

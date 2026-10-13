@@ -12,6 +12,20 @@
 - 검수: 단위 45/45, 화면 11+13+10, 런타임 9/9, 취약점 0. 실제 Next 번들에서 PDF·DOCX·ZIP 생성 확인, PDF 육안 확인. 운영 v1.02 배포·DB `programs.version`/설명 갱신 완료. [기록](../markdown-studio/docs/PHASE3_IMPLEMENTATION.md), SQL `markdown-studio/supabase/migrations/0002_v1_02_import_export.sql`.
 - **미확인**: 운영 사이트에서 실제 PDF/DOCX 파일 다운로드(허락 전), Word·Google Docs에서의 DOCX 표시, 대용량 성능. 다음: 4단계 본인 Google Drive(본인 OAuth 앱), 5단계 썸네일·매뉴얼 등록. ERROR_LESSONS에 PDF 글리프·mammoth 취약점 등 기록.
 
+## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.03) 하단 외부 크레딧 링크 완전 삭제 및 배포 완료
+
+주인님 요청("하단 링크 삭제 해줘 사용 안해")에 따라, 화면 최하단에 노출되던 외부 크레딧 링크("슬라이드 스크립트 제공 스태프 - 표준형식 Majin, 확장형식 Kimura Yoshiki, C-Suite 보고 형식 GPT PARK") 섹션 전체를 완전히 삭제하고 심플한 플랫폼 카피라이트로 정돈하였습니다:
+
+1. **하단 외부 크레딧 링크 섹션 완전 삭제**:
+   - `src/components/studio/ActionFooter.tsx`: 외부 블로그 및 유튜브 채널 링크 그리드(`슬라이드 스크립트 제공 스태프`) 삭제, `AI 슬라이드 자동화 • AIMaster` 심플 푸터로 교체
+2. **버전 및 DB 동기화 (Rule 5)**:
+   - `src/lib/version.ts`: `APP_VERSION = "v1.03"`
+   - Supabase DB `programs.version = 'v1.03'`
+   - `README.md`, `AGENTS.md` 버전 갱신
+3. **배포 및 검수**:
+   - `npm run build` 타입체크 및 번들링 100% 정상 통과
+   - Vercel 프로덕션 재배포 완료 (`https://ai-slide-builder.buylife.xyz`)
+
 ## 2026-10-13 Antigravity — AI 슬라이드 자동화 (ai-slide-builder v1.02) 프로그램명 정정 및 배포 완료
 
 주인님 요청("프로그램 명을 AI 슬라이드 자동화 로 수정해주고 프로그램내 명칭도 정정해서 다시 수정 보완해줘")에 따라, 프로그램명을 **`AI 슬라이드 자동화`**로 전면 정정하고 프로그램 내부 명칭(헤더, 브라우저 타이틀, 가이드 모달, 사이드바, 설명문) 및 버전(`v1.02`) 동기화, 프로덕션 재배포를 완료했습니다:
