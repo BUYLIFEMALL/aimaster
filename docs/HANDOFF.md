@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio 운영 PDF·Word 다운로드 검증 (앱 변경 없음)
+
+- 사용자 허락 후 운영 `markdown-studio.buylife.xyz/export`에서 일반 회원 계정으로 PDF·DOCX를 실제로 내려받아(`D:\PDS\회원 검수.pdf/.docx`) 검사: PDF 한글 글꼴 임베드·글자 추출·육안 확인, DOCX XML·구조 확인, **Microsoft Word(Office 2024)에서 열어 표시 확인**(표·알파벳 목록·링크 포함 시험 파일도). 기록: [PHASE5_RELEASE](../markdown-studio/docs/PHASE5_RELEASE.md).
+- 남은 미확인: 실제 Google 계정 Drive 검수(본인 Client ID 필요), Google Docs·한컴 등 다른 앱의 DOCX 표시, 등급 없는 가입자·핸드폰 미등록 운영 시험, 대용량 성능.
+
 ## 2026-10-13 Claude Code — Markdown Studio 5단계 출시 정리 (카탈로그 썸네일, v1.03 유지)
 
 - 카탈로그 썸네일(한국인 인물·분할 편집 화면, 운영자 본인 Gemini 키 1회) 등록, 카탈로그 상세·`지금 바로 이용하기`→앱 이동을 일반 회원 계정 Chrome으로 확인. 앱 코드·버전 변경 없음. [기록](../markdown-studio/docs/PHASE5_RELEASE.md), SQL `markdown-studio/supabase/migrations/0004_catalog_thumbnail.sql`.

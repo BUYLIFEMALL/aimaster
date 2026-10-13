@@ -14,11 +14,18 @@
 | 도메인·SSO | `markdown-studio.buylife.xyz`, `.buylife.xyz` 쿠키 공유로 메인 사이트 로그인 유지 |
 | 운영 확인(실제 Chrome, 일반 회원 `buylifemall@naver.com`=VIP) | 카탈로그 상세(썸네일·Tools·FREE·v1.03·요금제 3종) 표시, `지금 바로 이용하기` → 앱 대시보드 이동(로그인 유지), 편집·문서 격리·새로고침 복원, `/export`·`/settings` 표시 |
 
+## 운영 다운로드 검증 (2026-10-13, 사용자 허락 후, 일반 회원 `buylifemall@naver.com`, 운영 `markdown-studio.buylife.xyz` v1.03)
+
+- Chrome 내려받기 폴더(`D:\PDS`)에 `회원 검수.pdf`(5,736B)·`회원 검수.docx`(10,787B)가 실제로 저장됨을 파일 시스템에서 확인.
+- **PDF**: 1쪽, A4(595.28×841.89), 제목 `회원 검수`, 글꼴 NotoSansKR Regular/Bold 임베드, 글자 추출 가능, 이미지 렌더링으로 한글 제목·번호 목록·쪽 번호 육안 확인. (일부 추출기는 목록 번호를 글자 뒤에 추출함 — 화면 표시는 정상)
+- **DOCX**: 압축 구조·`document.xml`/`numbering.xml` XML 올바름, altChunk 없음, 제목 스타일·번호 목록·A4 세로, 문서 제목 메타. **Microsoft Word(Office 2024)에서 읽기 전용으로 열어** 1쪽·문단 3개·첫 문단 스타일 `제목 2`·글꼴 맑은 고딕 확인 후 Word가 만든 PDF를 렌더링해 확인. 표·알파벳 목록·링크가 든 시험 파일도 Word에서 열어 표(머리글 음영, 오른쪽 정렬)·`a. b.` 목록·하이퍼링크·한글 정상 표시 확인.
+- 확인용 파일은 사용자 PC `D:\PDS`에 남아 있음(삭제하지 않음).
+
 ## 아직 완료로 보고하지 않는 것
 
 1. **실제 Google 계정으로 Drive 연동 검수** — 회원 본인 Google Cloud Client ID가 필요([절차](PHASE4_IMPLEMENTATION.md)). 현재는 모의 Google 기준.
-2. **운영 사이트에서 실제 PDF/DOCX 다운로드** — 사용자 PC에 파일이 저장되는 동작이라 사용자 허락 후 진행. (로컬 Chrome 다운로드 시험·실제 Next 번들 생성 시험은 완료)
-3. **Word·Google Docs에서 DOCX 표시 확인**(구조·XML 검사만 완료).
+2. ~~운영 사이트에서 실제 PDF/DOCX 다운로드~~ → **완료(아래 "운영 다운로드 검증")**.
+3. ~~Word에서 DOCX 표시 확인~~ → **Microsoft Word(Office 2024)로 완료**. Google Docs·한컴오피스·Pages 등 다른 앱은 미확인.
 4. **등급 없는 가입자(FREE 경로)·핸드폰 미등록 차단의 운영 시험** — 테스트 계정이 VIP·핸드폰 등록 상태라 직접 확인 불가. 판정 코드는 루트와 같은 사본이며 `tests/access.test.mjs`가 루트와의 일치를 검사한다.
 5. 로그아웃·회원 전환의 운영 시험(비밀번호 입력이 필요해 미실행; 격리 화면 시험에서는 확인).
 6. 대용량(수백 개 문서) 변환·업로드 성능.
