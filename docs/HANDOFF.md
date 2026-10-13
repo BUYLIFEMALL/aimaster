@@ -8,6 +8,14 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — 신규 프로그램: AI 바나나 캔버스 자동화 (`banana-canvas` v1.01)
+
+- 주인님 요청: AI Studio 앱 "Banana Canvas"(`aistudio.google.com/apps/8a6f8974-…`) 개발 여부 확인 → 소스 전체 분석·플랜(2dc3c6de) → "진행해줘"로 구현·배포.
+- 구현: 생성·편집(처리 4·스타일 20)·합성(소스 5장)·빠른 작업(배경 제거·부분 삭제·증명사진·평면도 3D)·스페셜(인생 앨범·만화 패널·연속 스토리 8컷·이미지 레시피), 프롬프트 제안, 결과 기록 30건·계속 편집. 서버 `sharp`로 배경 제거(크로마키)·업스케일. 회원 본인 Gemini 키만 사용.
+- DB: `banana_canvas_results`(RLS), Storage 비공개 `banana-canvas-files`(in/out), `programs` 등록+요금제 3종+VIP 접근, §13 실사 썸네일. 기존 `ai-image-studio`·`allinone-graphic`과 역할 구분.
+- 검수: 단위 7/7, 보이는 Chrome 17/17, 빌드, 실제 Gemini 9종(스토리 8컷 98초·레시피 41초), 운영 화면(관리자 로그인) 배경 제거 확인 후 검수 데이터 삭제. 운영 https://banana-canvas.buylife.xyz
+- 남은 일·인수인계: [banana-canvas/docs/CLI_HANDOFF.md](../banana-canvas/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — 신규 프로그램: AI 썸네일 마스터 자동화 (`thumbnail-master` v1.01)
 
 - 주인님 요청: https://youtube-thumbnail-master-ai-pro.vercel.app/ 를 별도 프로그램으로 분석 → 플랜(752e9c8b) → "진행해줘"로 구현·배포.

@@ -1741,6 +1741,12 @@
 
 - 증상: Suno 운영 API 비로그인 오류 응답은 성공 응답과 달리 Cache-Control이 public,max-age=0 → 원인: `guarded()` 성공 경로에만 no-store 지정 → 해결: `suno-music-studio/src/lib/apiGuard.ts` 모든 응답에 private,no-store 적용(v1.04) → 다음부터 확인: 동적 라우트 선언만 확인하지 말고 성공/401/403/검증 오류의 실제 응답 헤더를 각각 확인.
 
+## 2026-10-14 banana-canvas v1.01 — 모델 마스크 출력·AI Studio 소스 읽기·골격 복사
+
+- 증상: 이미지 모델에 "피사체 흰색·배경 검정 마스크만 출력"을 시켜도 흑백 **사진**을 돌려줌(원본 AI Studio 앱의 배경 제거도 같은 한계) → 해결: "배경을 순수 녹색(#00FF00)으로 바꾸게" 한 뒤 서버 `sharp` 크로마키로 알파 생성(키 색은 가장자리 추정, 가장자리와 연결된 배경만 투명 — `banana-canvas/src/lib/files.ts` `chromaKey`). 자주색 키는 피부색과 가까워 얼굴에 구멍이 생김 → 다음부터: 모델에 이진 마스크를 기대하지 말고 단색 배경 교체 + 크로마키를 쓴다.
+- 증상: 다른 프로그램에서 골격을 복사한 직후 `src/lib/version.ts`의 이름·slug를 안 고쳐 배포 화면 제목이 옛 프로그램 이름으로 나옴 → 해결: 수정 후 재배포 → 다음부터: 복사 직후 `grep -rn "<옛 slug>\|<옛 이름>" src`로 확인.
+- 도구: AI Studio 공유 앱 소스는 "Continue to the app" 후 코드 보기(`<>`)에서 읽을 수 있다. Monaco 모델은 `window.monaco.editor.getModels()`로 접근되지만 `javascript_tool` 출력이 약 1000자로 잘리므로, 파일 내용을 페이지에 `<article><pre>`로 풀어 놓고 `get_page_text`로 읽는다(className 제거로 용량 절감).
+
 ## 2026-10-14 thumbnail-master v1.01 — 이미지 응답 한도·병렬 저장
 
 - 증상(예방): Gemini 2K 이미지 응답은 PNG로 4~7MB라 Vercel 함수 응답 한도(4.5MB)를 넘길 수 있고, 수정 요청 때 클라이언트가 큰 이미지를 다시 보내도 요청 한도에 걸린다 → 해결: 서버가 `sharp`로 JPEG(q90) 변환 후 비공개 Storage에 저장하고 서명 URL만 반환, 수정은 서버가 Storage 원본을 읽음(`thumbnail-master/src/lib/images.ts`) → 다음부터: 이미지를 JSON 응답/요청에 base64로 싣지 않는다.

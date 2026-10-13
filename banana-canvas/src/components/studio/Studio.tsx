@@ -1,0 +1,431 @@
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Download, ImagePlus, Loader2, Maximize2, Plus, RefreshCw, Sparkles, Star, Trash2, Wand2, X } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, Kind, ModelLevel } from "@/lib/bnc/types";
+import { ASPECTS, BUCKET, KIND_LABEL, MAX_SOURCES } from "@/lib/bnc/types";
+import { CATEGORIES, PROCESSES, STYLES } from "@/lib/bnc/styles";
+import { ACCEPT_ATTR, FORMAT_HELP, detectImage, sizeError } from "@/lib/bnc/paths";
+import { MaskEditor } from "./MaskEditor";
+
+interface Img { path: string; url: string; name: string }
+interface Out { path: string; url: string | null; w: number; h: number; text?: string; mime?: string }
+interface Result { id: string; kind: Kind; title: string; outputs: Out[]; model: string; warning: string | null }
+type Tab = "make" | "edit" | "synth" | "quick" | "special";
+interface ApiErr { error?: string; needKey?: boolean; expired?: boolean }
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "make", label: "만들기" }, { id: "edit", label: "편집" }, { id: "synth", label: "합성" },
+  { id: "quick", label: "빠른 작업" }, { id: "special", label: "스페셜" },
+];
+
+async function api<T>(url: string, method: string, body?: unknown): Promise<{ ok: true; data: T } | { ok: false; error: string; needKey: boolean; expired: boolean }> {
+  try {
+    const res = await fetch(url, { method, headers: body ? { "Content-Type": "application/json" } : undefined, body: body ? JSON.stringify(body) : undefined });
+    const data = (await res.json().catch(() => ({}))) as T & ApiErr;
+    if (!res.ok) return { ok: false, error: data.error ?? "요청을 처리하지 못했습니다.", needKey: !!data.needKey, expired: !!data.expired };
+    return { ok: true, data };
+  } catch {
+    return { ok: false, error: "서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.", needKey: false, expired: false };
+  }
+}
+
+async function saveImage(url: string, name: string) {
+  try {
+    const blob = await (await fetch(url)).blob();
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 1500);
+  } catch { window.open(url, "_blank", "noopener"); }
+}
+
+function AspectPick({ value, onChange, withOriginal, options }: { value: AspectOrOriginal; onChange: (a: AspectOrOriginal) => void; withOriginal?: boolean; options?: Aspect[] }) {
+  const list: AspectOrOriginal[] = [...(withOriginal ? (["original"] as const) : []), ...(options ?? ASPECTS)];
+  return (
+    <div className="bc-seg" role="group" aria-label="종횡비">
+      {list.map((a) => <button key={a} type="button" aria-pressed={value === a} onClick={() => onChange(a)}>{a === "original" ? "원본 비율" : a}</button>)}
+    </div>
+  );
+}
+
+export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: number }) {
+  const [tab, setTab] = useState<Tab>("make");
+  const [model, setModel] = useState<ModelLevel>("flash");
+  const [base, setBase] = useState<Img | null>(null);
+  const [sources, setSources] = useState<Img[]>([]);
+  const [busy, setBusy] = useState<"" | "upload" | "suggest" | Kind>("");
+  const [error, setError] = useState<{ text: string; needKey: boolean } | null>(null);
+  const [result, setResult] = useState<Result | null>(null);
+  const [zoom, setZoom] = useState<string | null>(null);
+  const [maskMode, setMaskMode] = useState(false);
+  const [over, setOver] = useState(false);
+
+  // make
+  const [idea, setIdea] = useState("");
+  const [category, setCategory] = useState("default");
+  const [genAspect, setGenAspect] = useState<Aspect>("1:1");
+  // edit
+  const [processes, setProcesses] = useState<string[]>([]);
+  const [style, setStyle] = useState("");
+  const [custom, setCustom] = useState("");
+  const [upscaleF, setUpscaleF] = useState<2 | 4>(2);
+  // synth
+  const [synthPrompt, setSynthPrompt] = useState("");
+  const [synthAspect, setSynthAspect] = useState<AspectOrOriginal>("original");
+  // quick / special
+  const [planAspect, setPlanAspect] = useState<Aspect>("4:3");
+  const [age, setAge] = useState("");
+  const [albumAspect, setAlbumAspect] = useState<Aspect>("16:9");
+  const [comicStyle, setComicStyle] = useState<ComicStyle>("noir");
+  const [comicLang, setComicLang] = useState<ComicLang>("ko");
+  const [comicText, setComicText] = useState("");
+  const [comicAspect, setComicAspect] = useState<Aspect>("4:3");
+  const [storyIdea, setStoryIdea] = useState("");
+  const [dish, setDish] = useState("");
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  const srcRef = useRef<HTMLInputElement>(null);
+  const basePathRef = useRef<string | null>(null);
+  basePathRef.current = base?.path ?? null;
+
+  const fail = (r: { error: string; needKey: boolean }) => setError({ text: r.error, needKey: r.needKey });
+
+  // 기록에서 "계속 편집"으로 들어온 경우
+  useEffect(() => {
+    if (!fromId) return;
+    (async () => {
+      const r = await api<{ item: { outputs: Out[] } }>(`/api/history/${fromId}`, "GET");
+      if (!r.ok) { fail(r); return; }
+      const o = r.data.item.outputs.filter((x) => x.path && x.url)[fromIndex ?? 0];
+      if (o?.url) { setBase({ path: o.path, url: o.url, name: "result" }); setTab("edit"); }
+    })();
+  }, [fromId, fromIndex]);
+
+  const dropTemp = useCallback((path: string | null) => {
+    if (path && path.includes("/in/")) void fetch(`/api/upload?path=${encodeURIComponent(path)}`, { method: "DELETE", keepalive: true }).catch(() => {});
+  }, []);
+
+  async function uploadFile(file: File): Promise<Img | null> {
+    const det = detectImage(file.name, file.type);
+    if (!det) { setError({ text: `지원하지 않는 형식입니다. ${FORMAT_HELP}만 올릴 수 있습니다.`, needKey: false }); return null; }
+    const big = sizeError(file.size);
+    if (big) { setError({ text: big, needKey: false }); return null; }
+    const sign = await api<{ path: string; token: string }>("/api/upload", "POST", { name: file.name, mime: det.mime, size: file.size });
+    if (!sign.ok) { fail(sign); return null; }
+    const { error: upErr } = await createClient().storage.from(BUCKET).uploadToSignedUrl(sign.data.path, sign.data.token, file, { contentType: det.mime });
+    if (upErr) { setError({ text: "파일 업로드에 실패했습니다. 네트워크를 확인하고 다시 시도해 주세요.", needKey: false }); return null; }
+    return { path: sign.data.path, url: URL.createObjectURL(file), name: file.name };
+  }
+
+  async function pickBase(file: File | undefined | null) {
+    if (!file) return;
+    setError(null); setBusy("upload");
+    const img = await uploadFile(file);
+    setBusy("");
+    if (!img) return;
+    dropTemp(basePathRef.current);
+    setBase(img); setResult(null); setMaskMode(false);
+  }
+
+  async function addSource(file: File | undefined | null) {
+    if (!file) return;
+    if (sources.length >= MAX_SOURCES) { setError({ text: `합성 소스는 최대 ${MAX_SOURCES}장까지 추가할 수 있습니다.`, needKey: false }); return; }
+    setError(null); setBusy("upload");
+    const img = await uploadFile(file);
+    setBusy("");
+    if (img) setSources((s) => [...s, img]);
+  }
+
+  function clearBase() {
+    dropTemp(base?.path ?? null);
+    for (const s of sources) dropTemp(s.path);
+    setBase(null); setSources([]); setResult(null); setMaskMode(false);
+  }
+
+  async function run(kind: Kind, extra: Record<string, unknown> = {}) {
+    setError(null); setBusy(kind); setResult(null);
+    const r = await api<Result>("/api/run", "POST", {
+      params: { kind, model, base: base?.path, sources: sources.map((s) => s.path), ...extra },
+    });
+    setBusy("");
+    if (!r.ok) {
+      fail(r);
+      if (r.expired) { setBase(null); setSources([]); }
+      return;
+    }
+    setResult(r.data);
+    setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }
+
+  async function suggest(type: "generate" | "edit" | "synthesis" | "story" | "recipe", set: (t: string) => void) {
+    setError(null); setBusy("suggest");
+    const r = await api<{ text: string }>("/api/suggest", "POST", {
+      type, base: base?.path, sources: sources.map((s) => s.path), prompt: type === "generate" ? idea : custom,
+      category, processes, style, aspect: synthAspect,
+    });
+    setBusy("");
+    if (!r.ok) { fail(r); return; }
+    set(r.data.text);
+  }
+
+  async function runInpaint(mask: Blob) {
+    setError(null); setBusy("inpaint");
+    const file = new File([mask], "mask.png", { type: "image/png" });
+    const m = await uploadFile(file);
+    if (!m) { setBusy(""); return; }
+    setBusy("");
+    await run("inpaint", { mask: m.path });
+    setMaskMode(false);
+    void dropTemp(m.path);
+  }
+
+  function useAsBase(o: Out) {
+    if (!o.url || !o.path) return;
+    dropTemp(basePathRef.current);
+    setBase({ path: o.path, url: o.url, name: "result" });
+    setResult(null);
+    setTab("edit");
+    document.getElementById("source")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const working = busy !== "" && busy !== "suggest" && busy !== "upload";
+  const disabled = busy !== "";
+  const needsBase = !base;
+
+  const toggleProcess = (id: string) => setProcesses((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  const estimate = busy === "story" || busy === "recipe" ? "이미지 8장 안팎을 생성합니다. 1~2분 걸릴 수 있습니다." : "보통 10~30초 걸립니다.";
+
+  return (
+    <div className="bc">
+      {error && (
+        <div className="lp-alert" role="alert">
+          <span>{error.text}{error.needKey && <> <a href="/settings" style={{ textDecoration: "underline" }}>API키등록·플랫폼연동 열기</a></>}</span>
+          <button type="button" aria-label="닫기" onClick={() => setError(null)}><X size={16} /></button>
+        </div>
+      )}
+
+      <div className="bc-grid">
+        <div className="bc-left">
+          <section className="card" id="source">
+            <h2><span className="gd-num">1</span> 원본 이미지</h2>
+            {maskMode && base ? (
+              <MaskEditor src={base.url} busy={busy === "inpaint" || busy === "upload"} onApply={(m) => void runInpaint(m)} onCancel={() => setMaskMode(false)} />
+            ) : !base ? (
+              <button
+                type="button" className={`bc-drop${over ? " over" : ""}`} disabled={disabled}
+                onClick={() => fileRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)}
+                onDrop={(e) => { e.preventDefault(); setOver(false); void pickBase(e.dataTransfer.files?.[0]); }}
+              >
+                {busy === "upload" ? <Loader2 className="ls-spin" /> : <ImagePlus size={28} />}
+                <strong>{busy === "upload" ? "업로드 중…" : "클릭하거나 이미지를 끌어다 놓으세요"}</strong>
+                <small>{FORMAT_HELP} · 만들기·스페셜(스토리·레시피)은 이미지 없이도 가능합니다.</small>
+              </button>
+            ) : (
+              <div className="bc-base">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={base.url} alt="원본 이미지" onClick={() => setZoom(base.url)} />
+                <div className="actions">
+                  <button type="button" disabled={disabled} onClick={() => fileRef.current?.click()}>다른 이미지로 바꾸기</button>
+                  <button type="button" disabled={disabled} onClick={clearBase}><Trash2 size={14} />삭제</button>
+                </div>
+              </div>
+            )}
+            <input ref={fileRef} type="file" hidden accept={ACCEPT_ATTR} onChange={(e) => { void pickBase(e.target.files?.[0]); e.target.value = ""; }} />
+            <p className="bc-privacy">올린 이미지는 작업에만 쓰이고 1시간 안에 자동 삭제됩니다. 본인 사진 또는 사용 동의를 받은 사진만 올려 주세요.</p>
+            <label className="bc-field" style={{ marginTop: 10 }}>AI 모델
+              <select value={model} onChange={(e) => setModel(e.target.value === "pro" ? "pro" : "flash")} disabled={disabled}>
+                <option value="flash">Nano Banana (gemini-2.5-flash-image) — 빠름(기본)</option>
+                <option value="pro">Nano Banana Pro (gemini-3-pro-image-preview) — 정밀</option>
+              </select>
+            </label>
+          </section>
+
+          <section className="card" id="tools">
+            <h2><span className="gd-num">2</span> 작업 선택</h2>
+            <div className="bc-tabs" role="tablist">
+              {TABS.map((t) => <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} aria-pressed={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</button>)}
+            </div>
+
+            {tab === "make" && (
+              <div className="bc-panel">
+                <label className="bc-field">이미지 아이디어
+                  <textarea rows={4} value={idea} maxLength={600} onChange={(e) => setIdea(e.target.value)} placeholder="예: 우주를 나는 고양이" disabled={disabled} />
+                </label>
+                <label className="bc-field">카테고리 (프롬프트 제안용)
+                  <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={disabled}>
+                    {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </label>
+                <div><small className="bc-label">종횡비</small><AspectPick value={genAspect} onChange={(a) => setGenAspect(a as Aspect)} /></div>
+                <div className="actions">
+                  <button type="button" disabled={disabled || !idea.trim()} onClick={() => void suggest("generate", setIdea)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
+                  <button type="button" className="primary" disabled={disabled || !idea.trim()} onClick={() => void run("generate", { prompt: idea, category, aspect: genAspect })}><Wand2 size={14} />이미지 생성</button>
+                </div>
+              </div>
+            )}
+
+            {tab === "edit" && (
+              <div className="bc-panel">
+                <div><small className="bc-label">처리 방식 (복수 선택)</small>
+                  <div className="bc-seg">
+                    {PROCESSES.map((p) => <button key={p.id} type="button" aria-pressed={processes.includes(p.id)} disabled={disabled || needsBase} onClick={() => toggleProcess(p.id)}>{p.name}</button>)}
+                  </div>
+                  {processes.includes("upscale") && (
+                    <div className="bc-seg" style={{ marginTop: 6 }}>
+                      <small>배율</small>
+                      <button type="button" aria-pressed={upscaleF === 2} onClick={() => setUpscaleF(2)}>2x</button>
+                      <button type="button" aria-pressed={upscaleF === 4} onClick={() => setUpscaleF(4)}>4x</button>
+                    </div>
+                  )}
+                </div>
+                <label className="bc-field">스타일 변환
+                  <select value={style} onChange={(e) => setStyle(e.target.value)} disabled={disabled || needsBase}>
+                    <option value="">스타일을 선택하세요…</option>
+                    {STYLES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </label>
+                <label className="bc-field">추가 요청
+                  <textarea rows={3} value={custom} maxLength={600} onChange={(e) => setCustom(e.target.value)} placeholder="예: 배경에 은하수를 추가해줘" disabled={disabled || needsBase} />
+                </label>
+                <div className="actions">
+                  <button type="button" disabled={disabled || needsBase || (!processes.length && !style && !custom.trim())} onClick={() => void suggest("edit", setCustom)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
+                  <button type="button" className="primary" disabled={disabled || needsBase || (!processes.length && !style && !custom.trim())}
+                    onClick={() => void run("edit", { processes, style: style || undefined, prompt: custom, upscale: processes.includes("upscale") ? upscaleF : 0 })}>편집 실행</button>
+                </div>
+              </div>
+            )}
+
+            {tab === "synth" && (
+              <div className="bc-panel">
+                <div className="bc-sources">
+                  {sources.map((s, i) => (
+                    <div key={s.path} className="bc-src">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={s.url} alt={`소스 ${i + 1}`} />
+                      <button type="button" aria-label={`소스 ${i + 1} 삭제`} onClick={() => { dropTemp(s.path); setSources((x) => x.filter((y) => y.path !== s.path)); }}><X size={12} /></button>
+                    </div>
+                  ))}
+                </div>
+                <input ref={srcRef} type="file" hidden accept={ACCEPT_ATTR} onChange={(e) => { void addSource(e.target.files?.[0]); e.target.value = ""; }} />
+                <div className="actions">
+                  <button type="button" disabled={disabled || needsBase || sources.length >= MAX_SOURCES} onClick={() => srcRef.current?.click()}><Plus size={14} />소스 추가 ({sources.length}/{MAX_SOURCES})</button>
+                </div>
+                <label className="bc-field">합성 방식
+                  <textarea rows={3} value={synthPrompt} maxLength={600} onChange={(e) => setSynthPrompt(e.target.value)} placeholder="예: 원본 인물에게 소스 갑옷을 입혀주세요" disabled={disabled || needsBase} />
+                </label>
+                <div><small className="bc-label">결과물 종횡비</small><AspectPick value={synthAspect} onChange={setSynthAspect} withOriginal /></div>
+                <div className="actions">
+                  <button type="button" disabled={disabled || needsBase || !sources.length} onClick={() => void suggest("synthesis", setSynthPrompt)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
+                  <button type="button" className="primary" disabled={disabled || needsBase || !sources.length || !synthPrompt.trim()} onClick={() => void run("synthesis", { prompt: synthPrompt, aspect: synthAspect })}>합성 실행</button>
+                </div>
+              </div>
+            )}
+
+            {tab === "quick" && (
+              <div className="bc-panel">
+                <div className="bc-quick">
+                  <button type="button" disabled={disabled || needsBase} onClick={() => void run("bgremove")}>✂️ 배경 제거<small>투명 배경 PNG</small></button>
+                  <button type="button" disabled={disabled || needsBase} onClick={() => setMaskMode(true)}>🎨 부분 삭제<small>브러시로 칠해 지우기</small></button>
+                  <button type="button" disabled={disabled || needsBase} onClick={() => void run("idphoto")}>🆔 증명사진 변환<small>정장·흰 배경·3:4</small></button>
+                </div>
+                <div className="bc-box">
+                  <b>🏠 평면도를 3D로</b>
+                  <small className="bc-label">결과물 종횡비</small>
+                  <AspectPick value={planAspect} onChange={(a) => setPlanAspect(a as Aspect)} options={["4:3", "16:9", "1:1"]} />
+                  <button type="button" className="primary" disabled={disabled || needsBase} onClick={() => void run("floorplan", { aspect: planAspect })}>3D 변환 실행</button>
+                </div>
+              </div>
+            )}
+
+            {tab === "special" && (
+              <div className="bc-panel">
+                <div className="bc-box">
+                  <b>인생 앨범 제작</b>
+                  <label className="bc-field">사진 속 인물의 현재 나이
+                    <input type="number" min={1} max={120} value={age} onChange={(e) => setAge(e.target.value)} placeholder="예: 25" disabled={disabled || needsBase} />
+                  </label>
+                  <AspectPick value={albumAspect} onChange={(a) => setAlbumAspect(a as Aspect)} options={["16:9", "9:16", "1:1"]} />
+                  <button type="button" className="primary" disabled={disabled || needsBase || !age.trim()} onClick={() => void run("lifealbum", { age: Number(age), aspect: albumAspect })}>앨범 제작 실행</button>
+                </div>
+                <div className="bc-box">
+                  <b>만화 패널</b>
+                  <div className="bc-seg">
+                    {([["noir", "느와르"], ["webtoon", "웹툰"], ["american", "미국 코믹스"]] as [ComicStyle, string][]).map(([v, l]) => <button key={v} type="button" aria-pressed={comicStyle === v} onClick={() => setComicStyle(v)}>{l}</button>)}
+                  </div>
+                  <div className="bc-seg">
+                    <button type="button" aria-pressed={comicLang === "ko"} onClick={() => setComicLang("ko")}>한국어</button>
+                    <button type="button" aria-pressed={comicLang === "en"} onClick={() => setComicLang("en")}>영어</button>
+                  </div>
+                  <AspectPick value={comicAspect} onChange={(a) => setComicAspect(a as Aspect)} options={["4:3", "1:1", "16:9"]} />
+                  <textarea rows={2} value={comicText} maxLength={300} onChange={(e) => setComicText(e.target.value)} placeholder="만화에 들어갈 대사나 캡션 (비워 두면 글자 없이)" disabled={disabled} />
+                  <button type="button" className="primary" disabled={disabled || needsBase} onClick={() => void run("comic", { comicStyle, comicLang, comicText, aspect: comicAspect })}>만화 패널 생성</button>
+                </div>
+                <div className="bc-box">
+                  <b>연속 스토리 이미지 (8컷)</b>
+                  <textarea rows={3} value={storyIdea} maxLength={600} onChange={(e) => setStoryIdea(e.target.value)} placeholder="예: 숲길을 따라 걷다 작은 오두막을 발견하는 여행자 이야기 (이미지가 있으면 그 이미지에서 시작)" disabled={disabled} />
+                  <div className="actions">
+                    {base && <button type="button" disabled={disabled} onClick={() => void suggest("story", setStoryIdea)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "이미지에서 제안"}</button>}
+                    <button type="button" className="primary" disabled={disabled || !storyIdea.trim()} onClick={() => void run("story", { prompt: storyIdea })}>스토리 생성 (이미지 8건)</button>
+                  </div>
+                </div>
+                <div className="bc-box">
+                  <b>이미지 레시피</b>
+                  <input value={dish} maxLength={100} onChange={(e) => setDish(e.target.value)} placeholder="예: 마카롱 굽는 법" disabled={disabled} />
+                  <div className="actions">
+                    {base && <button type="button" disabled={disabled} onClick={() => void suggest("recipe", setDish)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "사진에서 요리명 제안"}</button>}
+                    <button type="button" className="primary" disabled={disabled || !dish.trim()} onClick={() => void run("recipe", { prompt: dish })}>레시피 생성 (이미지 6~8건)</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+
+        <section className="card bc-right" id="result">
+          <h2><span className="gd-num">3</span> 결과</h2>
+          {working && (
+            <div className="bc-wait" role="status"><Loader2 className="ls-spin" size={18} />{KIND_LABEL[busy as Kind]} 중… {estimate}</div>
+          )}
+          {!working && !result && <p className="empty">작업을 실행하면 결과가 여기에 표시됩니다.</p>}
+          {result && (
+            <>
+              <div className="bc-result-head">
+                <b>{KIND_LABEL[result.kind]}</b> <small>· {result.title} · 모델 {result.model}</small>
+              </div>
+              {result.warning && <div className="notice warning" style={{ marginBottom: 10 }}>{result.warning}</div>}
+              <div className={`bc-outs${result.outputs.length > 1 ? " multi" : ""}`}>
+                {result.outputs.map((o, i) => (
+                  <figure key={`${o.path}-${i}`} className="bc-out">
+                    {o.url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={o.url} alt={`결과 ${i + 1}`} onClick={() => setZoom(o.url)} /> : <div className="bc-noimg">이미지를 만들지 못했습니다</div>}
+                    {o.text && result.kind !== "comic" && <figcaption>{o.text}</figcaption>}
+                    {o.url && (
+                      <div className="actions">
+                        <button type="button" onClick={() => void saveImage(o.url!, `banana_${result.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`)}><Download size={13} />다운로드</button>
+                        <button type="button" onClick={() => setZoom(o.url)}><Maximize2 size={13} />크게 보기{o.w ? ` (${o.w}×${o.h})` : ""}</button>
+                        <button type="button" onClick={() => useAsBase(o)}><RefreshCw size={13} />이 결과로 계속 편집</button>
+                      </div>
+                    )}
+                  </figure>
+                ))}
+              </div>
+              <div className="actions" style={{ marginTop: 12 }}>
+                <a className="button" href="/history"><Star size={13} />결과 기록 보기</a>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+
+      {zoom && (
+        <div className="bc-zoom" role="dialog" aria-modal="true" onClick={() => setZoom(null)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={zoom} alt="확대 보기" onClick={(e) => e.stopPropagation()} />
+          <button type="button" aria-label="닫기" onClick={() => setZoom(null)}><X size={20} /></button>
+        </div>
+      )}
+    </div>
+  );
+}
