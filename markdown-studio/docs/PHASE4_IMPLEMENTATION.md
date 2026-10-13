@@ -71,3 +71,9 @@ npm ci; node scripts/copy-fonts.mjs; npm run build; npm test; npm run test:brows
 - AIMaster 기본 정책(회원이 본인 계정·본인 앱으로 연동)에 따라 **Drive도 회원마다 본인 Google Cloud OAuth 클라이언트 ID를 등록**한다. **운영자 공용 Client ID는 쓰지 않는다**(drive.file이 비민감 범위라 기술적으로는 가능하지만 정책상 사용하지 않기로 결정). 이후 다른 CLI도 공용 앱 방식을 제안·구현하지 않는다.
 - 진입장벽 완화: 설정 화면의 단계 안내·현재 주소 복사·`origin_mismatch` 등 오류별 안내, 전용 매뉴얼(platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e`, 웹 애플리케이션·JavaScript 원본·Client Secret 불필요). 기존 매뉴얼(`523e7401-…`)은 서버 OAuth용(리디렉션 URI·Secret)이라 이 앱과 방식이 달라 연결하지 않는다.
 - 주인님 계정 시험: 프로젝트 `dreamai-461811`(번호 893121785673)의 클라이언트 중 **웹 애플리케이션 유형**(ID `893121785673-2l5n…`)을 열어 **승인된 JavaScript 원본**에 `https://markdown-studio.buylife.xyz` 추가 필요(데스크톱 유형 클라이언트는 해당 없음).
+
+## 실제 Google 연결 결과 (2026-10-13, 주인님 계정) · v1.05 매뉴얼 보강
+
+- 프로젝트 `dreamai-461811`의 **웹 애플리케이션** 클라이언트의 **승인된 JavaScript 원본**에 `https://markdown-studio.buylife.xyz`를 추가(처음에는 리디렉션 URI 칸에 잘못 넣었다가 정정)한 뒤, 주인님 브라우저에서 `Google에 연결`이 **성공**: 설정 화면에 `연결됨: buylifemall@gmail.com (바이라이프BUYLIFE)`(주인님 스크린샷). 이는 **실제 Google OAuth(GIS 토큰)와 실제 Drive API `about` 호출이 성공**했다는 증거다(이 이름·이메일은 모의 서버가 아니라 Google이 돌려준 값).
+- **아직 실제로 확인하지 못한 것**: 실제 Drive에 문서 올리기(폴더·파일 생성), Drive 목록·가져오기, 충돌, 재연결. 접근 토큰은 주인님 탭 메모리에만 있어 자동화 도구가 다른 탭에서 이어받을 수 없다. 확인 방법: 연결된 탭에서 사이드바 `4. 문서 보관함`(새로고침하지 말고 메뉴로 이동) → Google Drive 카드 `현재 문서 올리기` → drive.google.com에서 `마크다운 문서 자동화` 폴더 확인 → Drive에서 파일 수정 후 `Drive 목록 불러오기`.
+- **v1.05 매뉴얼 보강(일반 회원 눈높이)**: 전용 매뉴얼 원문 `docs/guide-drive-oauth.html`(9단계: 로그인·프로젝트 만들기·Drive API·동의 화면·테스트 사용자·웹 클라이언트·ID 복사·연결·시험 + 오류별 해결 + FAQ + 체크리스트, 신·구 콘솔 메뉴 이름 병기)을 `node scripts/publish-drive-guide.mjs`로 platform_guides `7d473e83-…`에 게시. 설정 화면: 시작 박스(매뉴얼 버튼 최상단·소요 시간·무료 안내), 진행 체크리스트(브라우저에만 저장), 주소 복사, 자주 나는 오류 요약. 화면 시험에 매뉴얼 팝업 주소·체크리스트 유지 단언 추가(11/11).

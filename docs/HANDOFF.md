@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — Markdown Studio v1.05: 실제 Google 연결 성공(올리기 미확인) + Drive 연동 매뉴얼 초보자용 보강
+
+- 주인님 계정에서 실제 Google OAuth 연결 성공(`연결됨: buylifemall@gmail.com`, 실제 Drive `about` 응답). 원인은 클라이언트의 **승인된 JavaScript 원본** 누락이었음. **실제 업로드/가져오기는 아직 미확인**(토큰이 사용자 탭 메모리에만 있음) — [확인 방법](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).
+- 매뉴얼: `markdown-studio/docs/guide-drive-oauth.html`(원문) → `scripts/publish-drive-guide.mjs`로 platform_guides `7d473e83-e9ce-4f68-ab52-92015a98148e` 게시. 설정 화면 체크리스트·오류 요약 추가. v1.05 배포·DB 갱신, SQL `markdown-studio/supabase/migrations/0006_v1_05_drive_guide.sql`.
+
 ## 2026-10-13 Claude Code — Markdown Studio v1.04: Google Drive는 회원 각자 본인 앱 등록 확정 + 전용 매뉴얼
 
 - **주인님 결정**: AIMaster 기본 정책대로 회원이 각자 본인 Google Cloud OAuth 클라이언트를 등록한다. 운영자 공용 앱은 쓰지 않는다(다른 CLI도 제안·구현 금지). 기록: [PHASE4_IMPLEMENTATION 결정 기록](../markdown-studio/docs/PHASE4_IMPLEMENTATION.md).

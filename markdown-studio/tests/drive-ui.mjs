@@ -84,7 +84,13 @@ try {
   await idInput.fill("not-a-client-id"); await tool("Client ID 저장").click();
   await page.getByRole("alert").filter({ hasText: "형식이 올바르지 않습니다" }).waitFor();
   await idInput.fill(CLIENT_ID); await tool("Client ID 저장").click(); await status("Client ID를 이 브라우저에 저장했습니다").waitFor();
-  assert.match(await page.locator(".manual-list code").innerText(), /127\.0\.0\.1/, "현재 주소 표시");
+  assert.match(await page.locator("code").filter({ hasText: "127.0.0.1" }).first().innerText(), /^http:\/\/127\.0\.0\.1:\d+$/, "현재 주소 표시");
+  // 초보자용 안내: 매뉴얼 팝업(전용 게시글), 진행 체크리스트는 이 브라우저에 유지
+  const [popup] = await Promise.all([page.waitForEvent("popup"), page.getByRole("button", { name: /Drive 연동용 OAuth 클라이언트 만들기 매뉴얼/ }).first().click()]);
+  await popup.waitForURL(/\/guides\/7d473e83-e9ce-4f68-ab52-92015a98148e$/, { timeout: 30000 }); await popup.close();
+  assert.equal(await page.getByText("0/6 완료", { exact: false }).count(), 1);
+  await page.getByRole("checkbox", { name: "1단계 완료" }).check(); await page.getByRole("checkbox", { name: "2단계 완료" }).check();
+  await page.getByText("2/6 완료", { exact: false }).waitFor();
   for (const [mode, msg] of [["deny", "허용하지 않았습니다"], ["closed", "연결 창이 닫혔습니다"], ["noscope", "Drive 파일 접근"]]) {
     await page.evaluate(m => { window.__gisMode = m; }, mode);
     await tool("Google에 연결").click(); await page.getByRole("alert").filter({ hasText: msg }).waitFor();
@@ -100,6 +106,7 @@ try {
   // 3) 새로고침하면 연결은 풀리고(토큰 미저장), Client ID는 남는다
   await page.reload(); await idInput.waitFor(); await page.waitForFunction(() => document.querySelector('input[aria-label="Google Client ID"]')?.value);
   assert.equal(await idInput.inputValue(), CLIENT_ID); await page.getByText("연결되지 않았습니다").waitFor();
+  await page.getByText("2/6 완료", { exact: false }).waitFor(); assert.equal(await page.getByRole("checkbox", { name: "1단계 완료" }).isChecked(), true, "체크리스트 유지");
   const stored = await page.evaluate(async () => {
     const dbs = await indexedDB.databases(); let dump = JSON.stringify(Object.entries(localStorage)) + JSON.stringify(Object.entries(sessionStorage)) + document.cookie;
     for (const info of dbs) await new Promise(res => { const r = indexedDB.open(info.name); r.onsuccess = () => { const db = r.result; const names = [...db.objectStoreNames]; let n = names.length; if (!n) return res(); names.forEach(s => { const g = db.transaction(s).objectStore(s).getAll(); g.onsuccess = () => { dump += JSON.stringify(g.result); if (!--n) { db.close(); res(); } }; }); }; });

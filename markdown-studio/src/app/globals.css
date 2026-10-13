@@ -63,3 +63,7 @@
 .drive-list li{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #f1f3f5;padding:6px 2px}
 .drive-list .checkbox-label{font-size:12px;color:#334155;overflow-wrap:anywhere}
 .manual-list code{background:#f4f5f7;padding:2px 6px;border-radius:4px;overflow-wrap:anywhere}
+.start-box{background:#f0f7ff;border-color:#bfdbfe}.start-box strong{font-size:13px}.start-box p{margin:6px 0 10px}
+.check-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.check-list .checkbox-label{align-items:flex-start;font-size:12px;color:#334155;font-weight:500}
+.check-list .checkbox-label input{margin-top:3px}
