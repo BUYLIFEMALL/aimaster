@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Claude Code — 뮤직 플레이어 자동화(`music-player`) v1.01 신규 개발·운영 배포
+
+- 요청: AI Studio "GPT PARK MUSIC PLAYER" 분석 → 계획 승인("진핼줘") → 구현. 계획 [DEVELOPMENT_PLAN](../music-player/docs/DEVELOPMENT_PLAN.md), 인수인계 [AGENTS](../music-player/AGENTS.md).
+- 구현: 드롭·폴더 추가, 재생/이전/다음/시크/볼륨/음소거/재생 속도, 반복·셔플(중복 없음), 검색·정렬·다중 삭제, 시각화 5모드, 8밴드 EQ+프리앰프+프리셋+내 프리셋, ID3(제목·아티스트·앨범·커버), IndexedDB 자동 저장·복원(회원별), 단축키, 매뉴얼. 서버로 음악을 올리지 않음.
+- 운영: https://music-player.buylife.xyz (Vercel `buylife/music-player`, 공용 인증 환경변수 3개 등록). DB: `programs` 등록(멀티미디어, FREE+new, v1.01), 3요금제, VIP 접근, 썸네일(§13 실사).
+- 검수: tsc·테스트 10/10·빌드, 운영 Chrome에서 드롭 추가·파일명 해석·목록·레이아웃 확인. **소리 재생·시각화·EQ는 자동화 창이 숨김이라 미검수**(실제 Chrome 확인 필요).
+
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.02 운영 배포·검수 완료 기록
 
 - 코드7034debf 푸시 후 Vercel 프로덕션 dpl_SsC7MPefdangHBA8dPLc4GemaaHb READY, https://ai-task-planner.buylife.xyz 연결. 핵심 기능 출시.
