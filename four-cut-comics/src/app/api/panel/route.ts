@@ -15,10 +15,10 @@ export async function POST(request: NextRequest) {
   const parsed = parsePanelRequest(g.body);
   if (!parsed.ok) return json({ error: parsed.error }, 400);
   const v = parsed.value;
-  const prompt = buildPanelPrompt({ description: v.description, styleId: v.styleId, hasSheets: v.sheets.length > 0 });
+  const prompt = buildPanelPrompt({ description: v.description, styleId: v.styleId, hasSheets: v.sheets.length > 0, aspect: v.aspect });
   if (!prompt) return json({ error: "그림 스타일이 올바르지 않습니다." }, 400);
   try {
-    const image = await generateImage({ apiKey: g.apiKey, model: v.model, prompt, refs: v.sheets });
+    const image = await generateImage({ apiKey: g.apiKey, model: v.model, prompt, refs: v.sheets, aspectRatio: v.aspect });
     return json({ image });
   } catch (e) {
     return fail(e);

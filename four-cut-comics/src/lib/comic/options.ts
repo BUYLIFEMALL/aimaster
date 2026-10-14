@@ -49,6 +49,67 @@ export const STYLES: StyleOption[] = [
   },
 ];
 
+STYLES.push(
+  {
+    id: "instatoon", name: "인스타툰 미니멀", summary: "굵고 깔끔한 선, 넓은 여백, 2~3가지 색의 SNS 일상툰",
+    role: "You are a popular Korean Instagram daily-life comic (instatoon) artist with a clean minimal style.",
+    guide: [
+      "1. Character design: simple round faces, small dot or short-line eyes, expressive mouths, 3-4 heads tall, cute but not childish.",
+      "2. Line and color: confident uniform dark outlines, flat fills limited to 2-3 soft colors plus white, no gradients or textures.",
+      "3. Background and vibe: mostly empty or one or two simple props, lots of white space, cozy and relatable mood.",
+    ].join("\n"),
+    avoid: "Avoid detailed backgrounds, realistic shading, many colors, dramatic lighting.",
+  },
+  {
+    id: "watercolor", name: "수채화 동화", summary: "번지는 수채 물감과 부드러운 연필선의 그림책 스타일",
+    role: "You are a children's picture-book illustrator who paints with soft watercolor.",
+    guide: [
+      "1. Character design: gentle rounded proportions, 3-4 heads tall, warm friendly expressions.",
+      "2. Line and color: light pencil or thin ink lines, transparent watercolor washes with soft bleeding edges and visible paper texture, warm pastel palette.",
+      "3. Background and vibe: airy painted backgrounds with simple shapes, calm, warm, storybook mood.",
+    ].join("\n"),
+    avoid: "Avoid hard cel shading, neon colors, heavy black outlines, photorealism.",
+  },
+  {
+    id: "pencil", name: "연필 스케치", summary: "흑백 연필 드로잉과 해칭 명암의 손그림 스타일",
+    role: "You are a sketchbook artist who draws expressive comics with graphite pencil.",
+    guide: [
+      "1. Character design: loose but accurate proportions, 4-5 heads tall, lively expressions.",
+      "2. Line and color: graphite pencil lines of varied pressure, hatching and cross-hatching for shading, monochrome grayscale only, slight paper grain.",
+      "3. Background and vibe: lightly sketched backgrounds that fade at the edges, handmade, nostalgic mood.",
+    ].join("\n"),
+    avoid: "Avoid any color, digital flat fills, clean vector lines.",
+  },
+  {
+    id: "3d", name: "3D 애니메이션", summary: "말랑한 입체감과 부드러운 조명의 3D 애니메이션 영화 스타일",
+    role: "You are a 3D character artist for family animated feature films.",
+    guide: [
+      "1. Character design: stylized appealing 3D characters with slightly large heads and expressive eyes, 3-4 heads tall, soft rounded forms.",
+      "2. Line and color: no outlines, smooth subsurface-scattered skin, soft global illumination, gentle rim light, saturated but harmonious colors.",
+      "3. Background and vibe: simplified 3D sets with shallow depth of field, warm cinematic family-film mood.",
+    ].join("\n"),
+    avoid: "Avoid 2D line art, photorealistic humans, uncanny realism, harsh shadows.",
+  },
+);
+
+/** 컷 수(v1.05). 프로그램 이름은 4컷이지만 3컷·6컷도 만들 수 있다 */
+export const PANEL_COUNTS = [3, 4, 6] as const;
+export type PanelCount = (typeof PANEL_COUNTS)[number];
+export const DEFAULT_PANEL_COUNT: PanelCount = 4;
+export function isPanelCount(v: unknown): v is PanelCount { return (PANEL_COUNTS as readonly unknown[]).includes(v); }
+
+/** 컷 그림 비율(v1.05). Gemini imageConfig.aspectRatio 값과 같다 */
+export const ASPECTS = [
+  { id: "1:1", name: "정사각 1:1", hint: "인스타 피드 기본" },
+  { id: "4:5", name: "세로 4:5", hint: "인스타 세로 게시물" },
+  { id: "3:4", name: "세로 3:4", hint: "세로로 긴 장면" },
+  { id: "16:9", name: "가로 16:9", hint: "와이드·유튜브 커뮤니티" },
+] as const;
+export const DEFAULT_ASPECT = "1:1";
+export function isAspect(v: unknown): v is string { return ASPECTS.some((a) => a.id === v); }
+/** "4:5" → 0.8 (너비/높이) */
+export function aspectValue(id: string): number { const [w, h] = id.split(":").map(Number); return w > 0 && h > 0 ? w / h : 1; }
+
 export const GENRES: GenreOption[] = [
   { id: "free", role: "You are a 4-panel comic writer who best expresses the given topic. Capture the core content and mood of the topic and write a 4-panel script in the most fitting style, focusing only on the topic.", rules: "" },
   { id: "satire", role: "You are a cynical, satirical 4-panel comic scriptwriter. The last panel must contain a sharp punchline that hits the core of the story.", rules: "1. Overall mood in the style of late-1990s everyday comic animation.\n2. Very important: the last panel's line must be a strong, cynical punchline.", search: true },
@@ -69,7 +130,7 @@ export const GENRE_LABELS: Record<string, string> = {
 };
 
 export const FORMATS = [
-  { id: "single", name: "4컷 단편", hint: "4컷 안에서 이야기가 끝납니다." },
+  { id: "single", name: "단편", hint: "이번 한 편 안에서 이야기가 끝납니다." },
   { id: "serial", name: "연속 만화", hint: "1화로 시작해 다음 화가 궁금하게 끝납니다." },
 ] as const;
 

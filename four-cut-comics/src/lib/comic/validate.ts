@@ -1,5 +1,5 @@
-import { genreById, isImageModel, styleById } from "./options";
-import { MAX_FIELD, MAX_TOPIC, normalizeScript } from "./script";
+import { genreById, isAspect, isImageModel, isPanelCount, styleById } from "./options";
+import { MAX_FIELD, MAX_TOPIC, PANEL_COUNT, normalizeScript } from "./script";
 import type { Script } from "./script";
 
 // 요청 본문 검증(서버 라우트용 순수 함수). 옵션은 id만 받고 자유 텍스트는 길이를 제한한다.
@@ -18,7 +18,7 @@ function str(v: unknown, max: number): string | null {
 
 export type ScriptRequest =
   | { kind: "ideas"; genreId: string }
-  | { kind: "script"; genreId: string; topic: string; format: "single" | "serial" }
+  | { kind: "script"; genreId: string; topic: string; format: "single" | "serial"; panelCount: number }
   | { kind: "followup"; genreId: string; topic: string; script: Script; nextTopic: string; ending: "continue" | "end" };
 
 export function parseScriptRequest(b: Record<string, unknown>): Parsed<ScriptRequest> {
@@ -29,10 +29,12 @@ export function parseScriptRequest(b: Record<string, unknown>): Parsed<ScriptReq
   if (b.kind === "script") {
     if (!topic) return fail("주제를 입력해 주세요.");
     const format = b.format === "serial" ? "serial" : "single";
-    return { ok: true, value: { kind: "script", genreId, topic, format } };
+    const panelCount = isPanelCount(b.panelCount) ? b.panelCount : PANEL_COUNT;
+    return { ok: true, value: { kind: "script", genreId, topic, format, panelCount } };
   }
   if (b.kind === "followup") {
-    const script = normalizeScript(b.script);
+    const prevCount = Array.isArray((b.script as { panels?: unknown } | null)?.panels) ? ((b.script as { panels: unknown[] }).panels.length) : PANEL_COUNT;
+    const script = normalizeScript(b.script, prevCount);
     if (!script) return fail("이전 대본이 올바르지 않습니다.");
     const nextTopic = str(b.nextTopic ?? "", MAX_TOPIC) ?? "";
     const ending = b.ending === "end" ? "end" : "continue";
@@ -52,7 +54,7 @@ export function parseCharacterRequest(b: Record<string, unknown>): Parsed<Charac
   return { ok: true, value: { name, description, styleId: b.styleId, model: b.model } };
 }
 
-export interface PanelRequest { description: string; styleId: string; model: string; sheets: { data: string; mimeType: string }[] }
+export interface PanelRequest { description: string; styleId: string; model: string; aspect: string; sheets: { data: string; mimeType: string }[] }
 
 export function parsePanelRequest(b: Record<string, unknown>): Parsed<PanelRequest> {
   const description = str(b.description, MAX_FIELD)?.trim() ?? "";
@@ -69,7 +71,8 @@ export function parsePanelRequest(b: Record<string, unknown>): Parsed<PanelReque
     if (o.data.length < 100 || o.data.length > MAX_SHEET_B64 || !B64.test(o.data)) return fail("캐릭터 그림 데이터가 올바르지 않습니다.");
     sheets.push({ data: o.data, mimeType: o.mimeType });
   }
-  return { ok: true, value: { description, styleId: b.styleId, model: b.model, sheets } };
+  const aspect = isAspect(b.aspect) ? b.aspect : "1:1";
+  return { ok: true, value: { description, styleId: b.styleId, model: b.model, aspect, sheets } };
 }
 
 export interface BalloonRequest { dialogue: string; character: string; image: { data: string; mimeType: string } }
@@ -90,7 +93,8 @@ export interface InstaRequest { topic: string; script: Script }
 
 export function parseInstaRequest(b: Record<string, unknown>): Parsed<InstaRequest> {
   const topic = str(b.topic ?? "", MAX_TOPIC)?.trim() ?? "";
-  const script = normalizeScript(b.script);
+  const count = Array.isArray((b.script as { panels?: unknown } | null)?.panels) ? ((b.script as { panels: unknown[] }).panels.length) : PANEL_COUNT;
+  const script = normalizeScript(b.script, count);
   if (!script) return fail("대본이 올바르지 않습니다.");
   return { ok: true, value: { topic, script } };
 }

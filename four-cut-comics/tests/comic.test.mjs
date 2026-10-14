@@ -6,7 +6,8 @@ import { buildCharacterPrompt, buildFollowupPrompt, buildIdeasPrompt, buildPanel
 import { parseBalloonRequest, parseCharacterRequest, parsePanelRequest, parseScriptRequest } from "../src/lib/comic/validate.ts";
 import { MAX_TAIL, MIN_H, MIN_W, shortenTail, applyDrag, defaultBalloon, fitText, normalizeBalloon, parseBalloonAi, rotatePoint, shapeFor } from "../src/lib/comic/balloon.ts";
 import { buildBalloonPrompt } from "../src/lib/comic/prompt.ts";
-import { isBalloonMode } from "../src/lib/comic/options.ts";
+import { isBalloonMode, isAspect, isPanelCount, aspectValue, ASPECTS, PANEL_COUNTS } from "../src/lib/comic/options.ts";
+import { MAX_SAVED, addToIndex, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "../src/lib/comic/savedIndex.ts";
 import { MAX_WORKS, cleanHashtag, continueScript, instaText, normalizeInsta, stackLayout, trimWorks } from "../src/lib/comic/extras.ts";
 import { buildInstaPrompt, koreaMonth } from "../src/lib/comic/prompt.ts";
 import { parseInstaRequest } from "../src/lib/comic/validate.ts";
@@ -18,7 +19,7 @@ const script = () => ({
 
 test("옵션: id 고유, 검증 함수", () => {
   for (const list of [STYLES, GENRES, BUBBLES, IMAGE_MODELS]) assert.equal(new Set(list.map((x) => x.id)).size, list.length);
-  assert.equal(STYLES.length, 4); assert.equal(GENRES.length, 11); assert.equal(BUBBLES.length, 6); assert.equal(BUBBLES[0].id, "ai");
+  assert.equal(STYLES.length, 8); assert.equal(GENRES.length, 11); assert.equal(BUBBLES.length, 6); assert.equal(BUBBLES[0].id, "ai");
   assert.ok(styleById("meongrang")); assert.equal(styleById("nope"), undefined);
   assert.ok(isImageModel(IMAGE_MODELS[0].id)); assert.equal(isImageModel("x"), false);
   assert.ok(isBubble("webtoon")); assert.ok(isBubble("ai")); assert.ok(isBubble("manual")); assert.equal(isBubble("ai-bubble"), false);
@@ -224,4 +225,44 @@ test("프롬프트: 한국 시간 기준 현재 월을 함께 알린다", () => 
   const m = koreaMonth();
   assert.ok(buildInstaPrompt({ topic: "a", script: script(), year: 2026 }).includes(`2026년 ${m}월`));
   assert.ok(buildIdeasPrompt("daily", 2026).includes(`${m}월에 맞추고`));
+});
+
+test("v1.05 컷 수·비율·스타일", () => {
+  assert.deepEqual([...PANEL_COUNTS], [3, 4, 6]);
+  assert.ok(isPanelCount(6) && !isPanelCount(5) && !isPanelCount("4"));
+  assert.ok(isAspect("4:5") && !isAspect("2:1"));
+  assert.equal(aspectValue("16:9"), 16 / 9); assert.equal(aspectValue("x"), 1);
+  assert.equal(ASPECTS[0].id, "1:1");
+  for (const id of ["instatoon", "watercolor", "pencil", "3d"]) assert.ok(styleById(id), id);
+  const six = { characters: [{ name: "가", description: "" }], panels: Array.from({ length: 6 }, () => ({ character: "가", description: "d", dialogue: "" })) };
+  assert.ok(normalizeScript(six, 6)); assert.equal(normalizeScript(six), null, "기본은 4컷"); assert.equal(normalizeScript(six, 5), null);
+  const sp = parseScriptRequest({ kind: "script", genreId: "daily", topic: "a", panelCount: 6 });
+  assert.equal(sp.value.panelCount, 6);
+  assert.equal(parseScriptRequest({ kind: "script", genreId: "daily", topic: "a", panelCount: 9 }).value.panelCount, 4);
+  const fu = parseScriptRequest({ kind: "followup", genreId: "daily", topic: "a", script: six, nextTopic: "", ending: "end" });
+  assert.ok(fu.ok, "후속편은 이전 대본의 컷 수를 따른다");
+  const p = buildScriptPrompt({ topic: "t", genreId: "daily", format: "single", year: 2026, panelCount: 6 });
+  assert.ok(p.includes("정확히 6개") && p.includes("panel(1~6)"));
+  assert.ok(buildFollowupPrompt({ topic: "t", script: six, nextTopic: "", ending: "end", genreId: "daily", year: 2026 }).includes("이번 6컷은 이야기의 완결"));
+  const pp = buildPanelPrompt({ description: "장면", styleId: "watercolor", hasSheets: false, aspect: "16:9" });
+  assert.ok(pp.includes("16:9 (width:height)"));
+  const sheet = { data: "A".repeat(200), mimeType: "image/png" };
+  assert.equal(parsePanelRequest({ description: "d", styleId: "pencil", model: IMAGE_MODELS[0].id, aspect: "4:5", sheets: [sheet] }).value.aspect, "4:5");
+  assert.equal(parsePanelRequest({ description: "d", styleId: "pencil", model: IMAGE_MODELS[0].id, aspect: "9:1", sheets: [] }).value.aspect, "1:1");
+  assert.ok(parseInstaRequest({ topic: "a", script: six }).ok, "인스타 문구도 6컷 대본 허용");
+});
+
+test("서버 보관함 목록(index.json) 계산", () => {
+  const id = (n) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+  const meta = (n, extra = {}) => ({ id: id(n), title: "t" + n, episode: 1, panelCount: 4, aspect: "1:1", styleId: "pencil", script: script(), bytes: 1, createdAt: new Date(2026, 9, 1, 0, n).toISOString(), expiresAt: null, ...extra });
+  assert.ok(isSavedId(id(1))); assert.equal(isSavedId("../x"), false);
+  assert.equal(normalizeRetention(7), 7); assert.equal(normalizeRetention(5), 30); assert.equal(normalizeRetention("0"), 30);
+  assert.equal(expiresAtFor(0), null); assert.equal(expiresAtFor(1, new Date("2026-10-01T00:00:00Z")), "2026-10-02T00:00:00.000Z");
+  assert.equal(parseIndex([meta(1), { id: "bad" }, null]).length, 1); assert.deepEqual(parseIndex("x"), []);
+  const now = new Date("2026-10-10T00:00:00Z");
+  const s = splitExpired([meta(1, { expiresAt: "2026-10-09T00:00:00Z" }), meta(2, { expiresAt: "2026-10-11T00:00:00Z" }), meta(3)], now);
+  assert.deepEqual(s.expired.map((m) => m.title), ["t1"]); assert.equal(s.keep.length, 2);
+  const list = Array.from({ length: MAX_SAVED }, (_, i) => meta(i));
+  const r = addToIndex(list, meta(99));
+  assert.equal(r.keep.length, MAX_SAVED); assert.equal(r.keep[0].title, "t99"); assert.deepEqual(r.drop.map((m) => m.title), ["t0"]);
 });

@@ -1,5 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — SQL 실행 도구가 없을 때 서버 보관함을 버킷만으로 만들기 (four-cut-comics v1.05)
+- 상황: Claude Code 보조 계정 세션에는 Supabase MCP가 없고 Supabase CLI도 로그인되어 있지 않아(`AccessTokenRequiredError`) DDL(테이블·RLS)을 실행할 수 없음 → 해결: 회원별 목록은 비공개 버킷 안 `<userId>/index.json`, 이미지는 `<userId>/<id>.jpg`로 저장하고 버킷은 service role의 `storage.createBucket(public:false, fileSizeLimit, allowedMimeTypes)`으로 생성(`four-cut-comics/src/lib/saved.ts`) → 다음부터 확인: 버킷에 정책을 만들지 않으면 익명·로그인 키로는 접근할 수 없고 서버(service role)만 접근한다 — 서버 코드가 반드시 로그인 회원 id 폴더로만 경로를 만드는지, id는 UUID 형식만 받는지 확인한다. 같은 결과의 SQL은 마이그레이션 파일에 기록한다. 목록이 수백 개로 커지거나 검색이 필요하면 DB 테이블 방식(portrait-photo `0003_saved_storage.sql`)으로 옮긴다.
+
 ## 2026-10-14 — AI 콘텐츠의 계절 착오와 엣지 연속 다운로드 차단 (four-cut-comics v1.04)
 - 증상: 2026년 10월인데 대본·인스타 문구에 "2026년 봄"이 나옴 → 원인: 핵심 원칙 8번대로 연도만 주입하면 모델이 계절·시기를 임의로 지어냄 → 해결: 연도 지시문에 한국 시간 기준 현재 월(`Intl.DateTimeFormat` `timeZone:"Asia/Seoul"`)을 함께 넣고 "계절 표현은 현재 월에 맞추고 연도·계절을 굳이 대사에 넣지 말 것"을 추가(`four-cut-comics/src/lib/comic/prompt.ts` `YEAR_RULE`·`koreaMonth`) → 다음부터 확인: 다른 프로그램의 연도 지시문에도 현재 월을 같이 넣는다(서버 시간은 UTC라 한국 날짜와 다를 수 있음).
 - 증상: 같은 화면에서 두 번째 저장 버튼을 눌러도 `D:\PDS`에 파일이 생기지 않음 → 원인: 엣지가 같은 사이트의 연속 자동 다운로드를 막음(앱은 `a.download` 클릭까지 정상) → 다운로드 검수는 화면을 새로 연 뒤 한 번만 하거나, `HTMLAnchorElement.prototype.click`을 가로채 만든 데이터 URL을 직접 열어 크기·픽셀을 확인한다. claude-in-chrome `file_upload`는 세션에 공유된 폴더의 파일만 올릴 수 있어, 파일 선택 칸 검수는 페이지 안에서 `DataTransfer`로 시험 파일을 넣어 `change` 이벤트를 보낸다.

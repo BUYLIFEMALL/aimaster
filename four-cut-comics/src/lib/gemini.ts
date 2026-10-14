@@ -80,9 +80,9 @@ export async function generateVisionJson(o: { apiKey: string; prompt: string; im
 
 export interface GeneratedImage { data: string; mimeType: string }
 
-/** 이미지 1장 생성(정사각형). parts에는 참고 이미지(inlineData)와 지시문(text)을 순서대로 넣는다 */
+/** 이미지 1장 생성(기본 정사각형, 컷은 회원이 고른 비율). parts에는 참고 이미지(inlineData)와 지시문(text)을 순서대로 넣는다 */
 export async function generateImage(o: {
-  apiKey: string; model: string; prompt: string; refs?: { data: string; mimeType: string }[];
+  apiKey: string; model: string; prompt: string; refs?: { data: string; mimeType: string }[]; aspectRatio?: string;
 }): Promise<GeneratedImage> {
   const ai = new GoogleGenAI({ apiKey: o.apiKey });
   const parts = [
@@ -92,7 +92,7 @@ export async function generateImage(o: {
   const res = await withRetry(() => ai.models.generateContent({
     model: o.model,
     contents: { parts },
-    config: { imageConfig: { aspectRatio: "1:1" } },
+    config: { imageConfig: { aspectRatio: o.aspectRatio ?? "1:1" } },
   }));
   const cand = res.candidates?.[0];
   const list = [...(cand?.content?.parts ?? [])].reverse();

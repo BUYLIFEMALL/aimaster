@@ -1,9 +1,11 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, BookmarkPlus, Copy, Download, Layers, Lightbulb, MessageSquare, RefreshCw, Sparkles, Upload } from "lucide-react";
+import { ArrowLeft, BookmarkPlus, CloudUpload, Copy, Download, Layers, Lightbulb, MessageSquare, RefreshCw, Sparkles, Upload } from "lucide-react";
 import {
-  BUBBLES, DEFAULT_IMAGE_MODEL, FORMATS, GENRES, GENRE_LABELS, IMAGE_MODELS, NO_SPEAKER, STYLES, THOUGHT_SPEAKER, isBalloonMode, isImageModel,
+  ASPECTS, BUBBLES, DEFAULT_ASPECT, DEFAULT_IMAGE_MODEL, DEFAULT_PANEL_COUNT, FORMATS, GENRES, GENRE_LABELS, IMAGE_MODELS, NO_SPEAKER, PANEL_COUNTS, STYLES,
+  THOUGHT_SPEAKER, isBalloonMode, isImageModel,
 } from "@/lib/comic/options";
+import { RETENTION_DAYS } from "@/lib/comic/savedIndex";
 import { hasDialogue, renameCharacter } from "@/lib/comic/script";
 import { defaultBalloon } from "@/lib/comic/balloon";
 import type { Balloon } from "@/lib/comic/balloon";
@@ -33,7 +35,10 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 const imgUrl = (i: { data: string; mimeType: string }) => `data:${i.mimeType};base64,${i.data}`;
-const EMPTY4 = <T,>(): (T | null)[] => [null, null, null, null];
+const empty = <T,>(n: number): (T | null)[] => Array.from({ length: n }, () => null);
+const cssRatio = (a: string) => a.replace(":", " / ");
+/** 바둑판 저장 이름: 4컷 2x2, 6컷 2x3, 3컷 1x3 */
+const gridName = (n: number) => (n === 3 ? "1x3" : n === 6 ? "2x3" : "2x2");
 
 export function Studio({ userId }: { userId: string }) {
   const [step, setStep] = useState<Step>(1);
@@ -46,10 +51,13 @@ export function Studio({ userId }: { userId: string }) {
   const [ideas, setIdeas] = useState<string[]>([]);
   const [script, setScript] = useState<Script | null>(null);
   const [sheets, setSheets] = useState<(string | null)[]>([]);
-  const [raw, setRaw] = useState<(string | null)[]>([null, null, null, null]);
-  const [composed, setComposed] = useState<(string | null)[]>([null, null, null, null]);
-  const [panelErr, setPanelErr] = useState<(string | null)[]>([null, null, null, null]);
-  const [balloons, setBalloons] = useState<(Balloon | null)[]>(EMPTY4<Balloon>());
+  // v1.05: 컷 수(3·4·6)·비율 — 대본을 만들 때 정해지고 이어서 만들기에도 그대로 쓴다
+  const [panelCount, setPanelCount] = useState<number>(DEFAULT_PANEL_COUNT);
+  const [aspect, setAspect] = useState<string>(DEFAULT_ASPECT);
+  const [raw, setRaw] = useState<(string | null)[]>(empty<string>(4));
+  const [composed, setComposed] = useState<(string | null)[]>(empty<string>(4));
+  const [panelErr, setPanelErr] = useState<(string | null)[]>(empty<string>(4));
+  const [balloons, setBalloons] = useState<(Balloon | null)[]>(empty<Balloon>(4));
   const [placing, setPlacing] = useState<boolean[]>([false, false, false, false]);
   const [editing, setEditing] = useState<number | null>(null);
   const pending = useRef(new Set<number>());
@@ -62,6 +70,11 @@ export function Studio({ userId }: { userId: string }) {
   const [mergeSeed, setMergeSeed] = useState<MergeItem[] | null>(null);
   const [showMerge, setShowMerge] = useState(false);
   const [savedEpisode, setSavedEpisode] = useState(0);
+  // v1.05: 완결 처리·서버 보관함
+  const [finished, setFinished] = useState(false);
+  const [extraOpen, setExtraOpen] = useState(false);
+  const [retention, setRetention] = useState(30);
+  const [serverSavedEpisode, setServerSavedEpisode] = useState(0);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [needKey, setNeedKey] = useState(false);
@@ -73,6 +86,12 @@ export function Studio({ userId }: { userId: string }) {
   function chooseModel(id: string) {
     setModel(id);
     try { localStorage.setItem(MODEL_KEY, id); } catch { /* 무시 */ }
+  }
+
+  /** 컷 수 n에 맞춰 컷 관련 상태를 비운다 */
+  function resetPanels(n: number) {
+    setRaw(empty<string>(n)); setComposed(empty<string>(n)); setPanelErr(empty<string>(n));
+    setBalloons(empty<Balloon>(n)); setPlacing(Array.from({ length: n }, () => false)); setEditing(null);
   }
 
   function fail(e: unknown, fallback: string) {
@@ -93,10 +112,10 @@ export function Studio({ userId }: { userId: string }) {
     if (!topic.trim()) { setError("주제를 입력해 주세요."); return; }
     clearMsg(); setBusy("script");
     try {
-      const r = await post<{ script: Script }>("/api/script", { kind: "script", genreId, topic, format });
-      setScript(r.script); setSheets(r.script.characters.map(() => null)); setRaw([null, null, null, null]); setComposed([null, null, null, null]);
-      setBalloons(EMPTY4<Balloon>()); setEditing(null);
+      const r = await post<{ script: Script }>("/api/script", { kind: "script", genreId, topic, format, panelCount });
+      setScript(r.script); setSheets(r.script.characters.map(() => null)); resetPanels(r.script.panels.length);
       setInsta(null); setEpisode(1); setEpisodes([]); setMergeSeed(null); setSavedEpisode(0);
+      setFinished(false); setExtraOpen(false); setServerSavedEpisode(0);
       setStep(2);
     } catch (e) { fail(e, "대본을 만들지 못했습니다."); }
     finally { setBusy(""); }
@@ -153,7 +172,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!script) return;
     const refs = await Promise.all(sheets.filter((s): s is string => !!s).map((s) => shrinkForUpload(s)));
     const r = await post<{ image: { data: string; mimeType: string } }>("/api/panel", {
-      description: script.panels[i].description, styleId, model, sheets: refs.slice(0, 3),
+      description: script.panels[i].description, styleId, model, aspect, sheets: refs.slice(0, 3),
     });
     setRaw((cur) => cur.map((s, k) => (k === i ? imgUrl(r.image) : s)));
     setBalloons((cur) => cur.map((b, k) => (k === i ? null : b))); // 새 그림이면 말풍선 위치도 새로 정한다
@@ -162,7 +181,7 @@ export function Studio({ userId }: { userId: string }) {
   async function makePanels(only?: number) {
     if (!script) return;
     clearMsg(); setBusy(only === undefined ? "panels" : `panel-${only}`);
-    const targets = only === undefined ? [0, 1, 2, 3].filter((i) => !raw[i]) : [only];
+    const targets = only === undefined ? script.panels.map((_, i) => i).filter((i) => !raw[i]) : [only];
     for (const i of targets) {
       try { await makePanel(i); }
       catch (e) {
@@ -200,8 +219,8 @@ export function Studio({ userId }: { userId: string }) {
   // 말풍선 방식이면 그림이 생긴(또는 다시 그린) 대사 있는 컷에 말풍선을 자동으로 놓는다
   useEffect(() => {
     if (!script || !isBalloonMode(bubbleId)) return;
-    [0, 1, 2, 3].forEach((i) => {
-      if (raw[i] && !balloons[i] && hasDialogue(script.panels[i])) placeBalloon(i, bubbleId === "ai");
+    script.panels.forEach((p, i) => {
+      if (raw[i] && !balloons[i] && hasDialogue(p)) placeBalloon(i, bubbleId === "ai");
     });
   }, [raw, balloons, script, bubbleId, placeBalloon]);
 
@@ -211,13 +230,14 @@ export function Studio({ userId }: { userId: string }) {
     let alive = true;
     (async () => {
       const out: (string | null)[] = [];
-      for (let i = 0; i < 4; i++) out.push(raw[i] ? await composePanel(raw[i] as string, script.panels[i], bubbleId, balloons[i]).catch(() => raw[i]) : null);
+      for (let i = 0; i < script.panels.length; i++) out.push(raw[i] ? await composePanel(raw[i] as string, script.panels[i], bubbleId, balloons[i]).catch(() => raw[i]) : null);
       if (alive) setComposed(out);
     })();
     return () => { alive = false; };
   }, [raw, script, bubbleId, balloons]);
 
-  const allDone = composed.every(Boolean);
+  const count = script?.panels.length ?? panelCount;
+  const allDone = composed.length === count && composed.every(Boolean);
   const missing = useMemo(() => raw.filter((r) => !r).length, [raw]);
 
   async function saveLayout(layout: SaveLayout) {
@@ -238,6 +258,21 @@ export function Studio({ userId }: { userId: string }) {
       setSavedEpisode(episode);
       setNotice(`[내 작품]에 저장했습니다(${episode}화).${r.dropped ? ` 20개를 넘어 가장 오래된 작품 ${r.dropped}개를 지웠습니다.` : ""}`);
     } catch (e) { fail(e, "내 작품에 저장하지 못했습니다."); }
+    finally { setBusy(""); }
+  }
+
+  /** 서버 보관함(선택): 바둑판 JPEG와 대본을 비공개 저장소에 저장해 다른 기기에서도 본다 */
+  async function saveToServer() {
+    if (!script) return;
+    clearMsg(); setBusy("server");
+    try {
+      const image = (await gridJpeg()).split(",")[1];
+      const r = await post<{ id: string; dropped: number }>("/api/saved", {
+        image, title: titleOf(), episode, panelCount: count, aspect, styleId, script, retentionDays: retention,
+      });
+      setServerSavedEpisode(episode);
+      setNotice(`서버 보관함에 저장했습니다(${episode}화, ${retention ? `${retention}일 보관` : "직접 지울 때까지"}).${r.dropped ? ` 30개를 넘어 가장 오래된 작품 ${r.dropped}개를 지웠습니다.` : ""}`);
+    } catch (e) { fail(e, "서버 보관함에 저장하지 못했습니다."); }
     finally { setBusy(""); }
   }
 
@@ -263,10 +298,11 @@ export function Studio({ userId }: { userId: string }) {
       const current = await gridJpeg();
       setEpisodes((cur) => [...cur, { name: `${episode}화`, url: current }]);
       setScript(continueScript(script, r.script));
-      setRaw([null, null, null, null]); setComposed([null, null, null, null]); setPanelErr([null, null, null, null]);
-      setBalloons(EMPTY4<Balloon>()); setEditing(null); setInsta(null); setMergeSeed(null); setNextTopic("");
+      resetPanels(script.panels.length); setInsta(null); setMergeSeed(null); setNextTopic("");
+      setFinished(ending === "end"); setExtraOpen(false);
       setEpisode((n) => n + 1);
-      setNotice(`${episode + 1}화 대본을 만들었습니다. 등장인물과 캐릭터 그림은 그대로 다시 씁니다.`);
+      setNotice(`${episode + 1}화${ending === "end" ? "(완결)" : ""} 대본을 만들었습니다. 등장인물과 캐릭터 그림은 그대로 다시 씁니다.`);
+      setEnding("continue");
       setStep(2);
     } catch (e) { fail(e, "다음 화 대본을 만들지 못했습니다."); }
     finally { setBusy(""); }
@@ -280,13 +316,13 @@ export function Studio({ userId }: { userId: string }) {
   }
 
   function saveEach() {
-    (composed as string[]).forEach((u, i) => setTimeout(() => downloadUrl(u, `4컷만화-${i + 1}컷.png`), i * 250));
+    (composed as string[]).forEach((u, i) => setTimeout(() => downloadUrl(u, `만화-${i + 1}컷.png`), i * 250));
   }
 
   function restart() {
-    setStep(1); setScript(null); setSheets([]); setRaw([null, null, null, null]); setComposed([null, null, null, null]); setPanelErr([null, null, null, null]);
-    setBalloons(EMPTY4<Balloon>()); setEditing(null); clearMsg();
+    setStep(1); setScript(null); setSheets([]); resetPanels(panelCount); clearMsg();
     setInsta(null); setEpisode(1); setEpisodes([]); setMergeSeed(null); setSavedEpisode(0); setNextTopic("");
+    setFinished(false); setExtraOpen(false); setServerSavedEpisode(0); setEnding("continue");
   }
 
   const stepper = (
@@ -328,6 +364,22 @@ export function Studio({ userId }: { userId: string }) {
             </select>
             <small className="muted">{BUBBLES.find((b) => b.id === bubbleId)?.hint}</small>
           </label>
+          <div className="cc-two">
+            <div>
+              <b className="cc-label">컷 수</b>
+              <div className="chips">
+                {PANEL_COUNTS.map((n) => <button key={n} type="button" className={`chip${panelCount === n ? " on" : ""}`} aria-pressed={panelCount === n} onClick={() => setPanelCount(n)}>{n}컷</button>)}
+              </div>
+              <small className="muted">컷이 많을수록 그림 생성 횟수(본인 키 사용량)도 늘어납니다.</small>
+            </div>
+            <div>
+              <b className="cc-label">컷 비율</b>
+              <div className="chips">
+                {ASPECTS.map((a) => <button key={a.id} type="button" className={`chip${aspect === a.id ? " on" : ""}`} aria-pressed={aspect === a.id} onClick={() => setAspect(a.id)}>{a.name}</button>)}
+              </div>
+              <small className="muted">{ASPECTS.find((a) => a.id === aspect)?.hint}</small>
+            </div>
+          </div>
           <div>
             <b className="cc-label">만화 장르</b>
             <div className="cc-row">
@@ -406,7 +458,7 @@ export function Studio({ userId }: { userId: string }) {
       {step === 3 && script && (
         <section className="card cc-form">
           <h2 className="cc-h">등장인물 확인</h2>
-          <p className="muted">캐릭터 그림은 4컷 모두에 참고 이미지로 들어가 같은 인물이 같은 모습으로 나오게 해 줍니다. 마음에 들 때까지 다듬어 주세요.</p>
+          <p className="muted">캐릭터 그림은 모든 컷에 참고 이미지로 들어가 같은 인물이 같은 모습으로 나오게 해 줍니다. 마음에 들 때까지 다듬어 주세요.</p>
           <div className="cc-sheets">
             {script.characters.map((c, i) => (
               <figure key={c.name} className="cc-sheet">
@@ -433,10 +485,11 @@ export function Studio({ userId }: { userId: string }) {
 
       {step === 4 && script && (
         <section className="card cc-form">
-          <h2 className="cc-h">만화 생성{episode > 1 ? ` — ${episode}화` : ""}</h2>
+          <h2 className="cc-h">만화 생성{episode > 1 ? ` — ${episode}화` : ""}{finished ? " (완결)" : ""}</h2>
+          <small className="muted">{count}컷 · 비율 {aspect} — 컷 수와 비율은 1단계에서 정하며 이어서 만들기에도 그대로 쓰입니다.</small>
           <div className="actions">
             <button type="button" className="primary" onClick={() => makePanels()} disabled={!!busy || missing === 0}>
-              {busy === "panels" ? "그리는 중..." : missing === 4 ? "모든 이미지 한번에 생성" : missing === 0 ? "모든 컷 완성" : "남은 이미지 생성"}
+              {busy === "panels" ? "그리는 중..." : missing === count ? "모든 이미지 한번에 생성" : missing === 0 ? "모든 컷 완성" : "남은 이미지 생성"}
             </button>
             <label className="cc-inline">모델
               <select value={model} onChange={(e) => chooseModel(e.target.value)}>
@@ -450,12 +503,12 @@ export function Studio({ userId }: { userId: string }) {
             </label>
           </div>
           <div className="cc-grid">
-            {[0, 1, 2, 3].map((i) => (
+            {script.panels.map((_, i) => (
               <figure key={i} className="cc-cut">
                 {composed[i]
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={composed[i] as string} alt={`${i + 1}컷`} />
-                  : <div className="cc-placeholder">{busy === "panels" || busy === `panel-${i}` ? "그리는 중..." : panelErr[i] ? "실패" : `${i + 1}컷`}</div>}
+                  ? <img src={composed[i] as string} alt={`${i + 1}컷`} style={{ aspectRatio: cssRatio(aspect) }} />
+                  : <div className="cc-placeholder" style={{ aspectRatio: cssRatio(aspect) }}>{busy === "panels" || busy === `panel-${i}` ? "그리는 중..." : panelErr[i] ? "실패" : `${i + 1}컷`}</div>}
                 {panelErr[i] && <small className="error" role="alert">{panelErr[i]}</small>}
                 {placing[i] && <small className="muted" role="status">AI가 말풍선 자리를 찾는 중...</small>}
                 <div className="actions">
@@ -474,6 +527,7 @@ export function Studio({ userId }: { userId: string }) {
               key={editing}
               index={editing}
               image={raw[editing] as string}
+              ratio={cssRatio(aspect)}
               text={script.panels[editing].dialogue.trim()}
               balloon={balloons[editing] as Balloon}
               busy={placing[editing]}
@@ -487,13 +541,22 @@ export function Studio({ userId }: { userId: string }) {
             <div className="cc-save">
               <b className="cc-label">저장하기</b>
               <div className="actions">
-                <button type="button" className="primary" onClick={() => saveLayout("grid")}><Download size={14} />바둑판(2x2)</button>
+                <button type="button" className="primary" onClick={() => saveLayout("grid")}><Download size={14} />바둑판({gridName(count)})</button>
                 <button type="button" onClick={() => saveLayout("horizontal")}><Download size={14} />가로 연속</button>
                 <button type="button" onClick={() => saveLayout("vertical")}><Download size={14} />세로 연속</button>
-                <button type="button" onClick={saveEach}><Download size={14} />개별 파일 4장</button>
+                <button type="button" onClick={saveEach}><Download size={14} />개별 파일 {count}장</button>
                 <button type="button" onClick={saveToWorks} disabled={!!busy || savedEpisode === episode}><BookmarkPlus size={14} />{busy === "work" ? "저장 중..." : savedEpisode === episode ? "내 작품에 저장됨" : "내 작품에 저장"}</button>
               </div>
               <small className="muted">개별 파일은 브라우저가 여러 파일 다운로드 허용을 물으면 허용해 주세요. [내 작품]은 이 브라우저에만 최근 20개까지 보관됩니다.</small>
+              <div className="actions">
+                <button type="button" onClick={saveToServer} disabled={!!busy || serverSavedEpisode === episode}><CloudUpload size={14} />{busy === "server" ? "올리는 중..." : serverSavedEpisode === episode ? "서버 보관함에 저장됨" : "서버 보관함에 저장"}</button>
+                <label className="cc-inline">보관 기간
+                  <select value={retention} onChange={(e) => setRetention(Number(e.target.value))}>
+                    {RETENTION_DAYS.map((d) => <option key={d} value={d}>{d ? `${d}일` : "직접 지울 때까지"}</option>)}
+                  </select>
+                </label>
+              </div>
+              <small className="muted">서버 보관함은 선택 기능입니다. 누른 작품만 비공개로 저장되어 다른 기기·브라우저의 [내 작품]에서도 볼 수 있습니다(회원당 최대 30개, 기간이 지나면 자동 삭제).</small>
             </div>
           )}
           {allDone && (
@@ -506,18 +569,31 @@ export function Studio({ userId }: { userId: string }) {
               {insta && <textarea className="cc-insta" readOnly rows={7} value={instaText(insta)} aria-label="인스타 게시 문구" />}
             </div>
           )}
-          {allDone && (
+          {allDone && finished && (
+            <div className="cc-save cc-finished">
+              <b className="cc-label">완결</b>
+              <p>이 이야기는 <b>{episode}화로 완결</b>되었습니다. 지금 화를 저장하고, 새 이야기를 시작하거나 연재 전체를 한 장으로 합쳐 보세요.</p>
+              <div className="actions">
+                {episodes.length > 0 && <button type="button" className="primary" onClick={prepareSeriesMerge} disabled={!!busy}><Layers size={14} />{busy === "merge" ? "준비 중..." : `1~${episode}화 세로로 합치기`}</button>}
+                <button type="button" onClick={restart}><Sparkles size={14} />새 이야기 시작하기</button>
+                <button type="button" onClick={() => setExtraOpen((v) => !v)} aria-expanded={extraOpen}>그래도 이어서 만들기(번외편)</button>
+              </div>
+              {mergeSeed && !extraOpen && <MergeTool key={mergeSeed.length} seed={mergeSeed} title="연재 합치기" />}
+            </div>
+          )}
+          {allDone && (!finished || extraOpen) && (
             <div className="cc-save">
-              <b className="cc-label">이어서 만들기 ({episode + 1}화)</b>
+              <b className="cc-label">{finished ? `번외편 만들기 (${episode + 1}화)` : `이어서 만들기 (${episode + 1}화)`}</b>
               <label>다음 화 주제 (비우면 AI가 이야기를 이어서 정합니다)
                 <textarea rows={2} value={nextTopic} maxLength={2000} onChange={(e) => setNextTopic(e.target.value)} placeholder="예: 다음 날 팀장이 커피를 두 잔 사 온다" />
               </label>
               <div className="chips">
                 <button type="button" className={`chip${ending === "continue" ? " on" : ""}`} onClick={() => setEnding("continue")}>계속 (다음 화가 궁금하게)</button>
-                <button type="button" className={`chip${ending === "end" ? " on" : ""}`} onClick={() => setEnding("end")}>완결 (이야기 마무리)</button>
+                <button type="button" className={`chip${ending === "end" ? " on" : ""}`} onClick={() => setEnding("end")}>완결 (다음 화로 마무리)</button>
               </div>
+              <small className="muted">{ending === "end" ? `${episode + 1}화가 마지막 화가 됩니다. 다 만들면 이어서 만들기 대신 저장·새 이야기 시작을 안내합니다.` : `${episode + 1}화는 다음 화가 궁금하게 끝납니다.`}</small>
               <div className="actions">
-                <button type="button" className="primary" onClick={makeNextEpisode} disabled={!!busy}><Sparkles size={14} />{busy === "followup" ? "다음 화 대본 만드는 중..." : `${episode + 1}화 대본 만들기`}</button>
+                <button type="button" className="primary" onClick={makeNextEpisode} disabled={!!busy}><Sparkles size={14} />{busy === "followup" ? "다음 화 대본 만드는 중..." : `${episode + 1}화${ending === "end" ? "(완결)" : ""} 대본 만들기`}</button>
                 {episodes.length > 0 && <button type="button" onClick={prepareSeriesMerge} disabled={!!busy}><Layers size={14} />{busy === "merge" ? "준비 중..." : `1~${episode}화 세로로 합치기`}</button>}
               </div>
               <small className="muted">지금 화는 다음 화로 넘어갈 때 연재 합치기용으로 이 화면에만 보관됩니다. 남기려면 먼저 [내 작품에 저장]을 눌러 주세요.</small>

@@ -1,4 +1,4 @@
-import { NO_SPEAKER, THOUGHT_SPEAKER } from "./options";
+import { NO_SPEAKER, THOUGHT_SPEAKER, isPanelCount } from "./options";
 
 // 대본 데이터 타입과 순수 함수(서버·클라이언트 공용, 테스트 대상).
 
@@ -28,11 +28,12 @@ export function extractJson(text: string): unknown {
   return null;
 }
 
-/** 대본 JSON 검증·정규화. 컷이 정확히 4개가 아니면 null. */
-export function normalizeScript(raw: unknown): Script | null {
+/** 대본 JSON 검증·정규화. 컷이 정확히 count개(3·4·6 중)가 아니면 null. */
+export function normalizeScript(raw: unknown, count: number = PANEL_COUNT): Script | null {
+  if (!isPanelCount(count)) return null;
   if (!raw || typeof raw !== "object") return null;
   const r = raw as { characters?: unknown; panels?: unknown };
-  if (!Array.isArray(r.characters) || !Array.isArray(r.panels) || r.panels.length !== PANEL_COUNT) return null;
+  if (!Array.isArray(r.characters) || !Array.isArray(r.panels) || r.panels.length !== count) return null;
   const characters = r.characters.slice(0, 4).map((c) => {
     const o = (c ?? {}) as Record<string, unknown>;
     return { name: clip(o.name, 40).trim(), description: clip(o.description) };

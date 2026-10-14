@@ -12,10 +12,10 @@ type Mode = "move" | "resize" | "tail";
  * 마우스·터치로 끌어 이동·크기·꼬리를 바꾼다. 끄는 동안은 화면 안에서만 바꾸고, 손을 떼면 onCommit으로 확정한다.
  */
 export function BalloonEditor(props: {
-  index: number; image: string; text: string; balloon: Balloon; busy: boolean;
+  index: number; image: string; text: string; balloon: Balloon; busy: boolean; ratio?: string;
   onCommit: (b: Balloon) => void; onReset: () => void; onRelayout?: () => void; onClose: () => void;
 }) {
-  const { index, image, text, balloon, busy, onCommit, onReset, onRelayout, onClose } = props;
+  const { index, image, text, balloon, busy, ratio = "1 / 1", onCommit, onReset, onRelayout, onClose } = props;
   const [draft, setDraft] = useState(balloon);
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -82,7 +82,7 @@ export function BalloonEditor(props: {
         <b>{index + 1}컷 말풍선 편집</b>
         <small className="muted">상자를 끌어 옮기고, 오른쪽 아래 점으로 크기, 꼬리 끝 점으로 방향을 바꿉니다. 키보드: 화살표 이동, Shift+화살표 크기. 주황 점은 저장 그림에 들어가지 않습니다.</small>
       </div>
-      <div className="cc-stage" ref={stage}>
+      <div className="cc-stage" ref={stage} style={{ aspectRatio: ratio }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={image} alt={`${index + 1}컷 그림`} draggable={false} />
         <canvas ref={canvas} aria-hidden="true" />

@@ -232,7 +232,8 @@ export async function layoutPanels(urls: string[], layout: SaveLayout): Promise<
   const imgs = await Promise.all(urls.map(loadImage));
   const cw = imgs[0].naturalWidth;
   const ch = imgs[0].naturalHeight;
-  const cols = layout === "grid" ? 2 : layout === "horizontal" ? imgs.length : 1;
+  // 바둑판: 3컷은 한 줄(1x3), 4컷 2x2, 6컷 2x3
+  const cols = layout === "grid" ? (imgs.length === 3 ? 3 : 2) : layout === "horizontal" ? imgs.length : 1;
   const rows = Math.ceil(imgs.length / cols);
   const gap = Math.round(cw * 0.02);
   const c = document.createElement("canvas");
