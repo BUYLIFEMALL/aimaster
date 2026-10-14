@@ -1,5 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — 큰 배열을 함수 인자로 펼치면 Worker에서 스택이 넘친다 (file-merge v1.02)
+- 증상: 엑셀 20만 행을 Web Worker로 옮기자 미리보기에서 "Maximum call stack size exceeded" — 화면(메인)에서 처리하던 v1.01에서는 안 나던 오류 → 원인: `Math.max(0, ...aoa.map(r => r.length))`처럼 행 목록 전체를 함수 인자로 펼침. 인자 수가 수만~수십만이면 스택을 넘고, Worker는 스택이 더 작아 먼저 터진다 → 해결: 반복문으로 최댓값을 구함(`file-merge/src/lib/files/table.ts` `toTable`), 30만 행 회귀 테스트와 `node --stack-size=200`으로 확인 → 다음부터 확인: 행·파일 수에 비례하는 배열에는 `Math.max(...arr)`·`fn(...arr)`·`arr.push(...big)`을 쓰지 않는다(배열 리터럴 `[a, ...rows]`는 괜찮음). 큰 데이터 처리는 Worker로 옮길 때 화면과 Worker 사이에 큰 배열을 주고받지 말고 Worker에 보관한 채 작은 결과만 돌려준다(주고받는 복사 자체가 수 초 멈춤을 만든다).
+
 ## 2026-10-15 — 엑셀 라이브러리 버전과 화면 자동 검수 타이밍 (file-merge v1.01)
 - SheetJS: npm의 `xlsx`는 0.18.5에서 멈춰 있고 공식 문서가 "registry is out of date"라고 안내 → 새 프로그램은 `"xlsx": "https://cdn.sheetjs.com/xlsx-<버전>/xlsx-<버전>.tgz"`(2026-10-15 기준 0.20.3)로 설치한다. 기존 `stepmail`·`kakao_auto_poster`는 npm 0.18.5를 쓰고 있어 점검 후보.
 - 증상: claude-in-chrome `navigate` 직후 스크립트로 파일 입력·체크박스를 조작하면 React가 붙기 전이라 무시되고, 저장 대기 Promise가 끝나지 않아 `Runtime.evaluate timed out` → 원인: 화면 준비(hydration) 전 조작. 이때 눌린 체크박스는 DOM만 바뀌어 다음 클릭에서 상태가 반대로 됨 → 해결: 대상 요소·화면 반응(목록 표시 등)을 기다린 뒤 조작하고, 대기 Promise에는 시간 제한을 둔다. 체크 상태가 이상하면 실제 마우스 클릭으로 다시 확인한다.

@@ -168,3 +168,4 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
   제외되는지, (3) "전체 수신자"로 되돌렸을 때 다시 전원에게 나가는지 확인할 것.
 - v1.04 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
 - v1.05 (2026-10-12): 예약·자동 실행(cron/스케줄) 작업에도 핸드폰 번호 필수 정책 적용 — 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않습니다. 상세: `docs/PHONE_REQUIRED_POLICY.md`.
+- v1.06 (2026-10-15): 엑셀 라이브러리 `xlsx`를 npm 0.18.5(배포 중단·알려진 취약점)에서 **SheetJS 공식 CDN 패키지 0.20.3**(`https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`)으로 교체 — 회원이 올린 엑셀을 서버에서 읽는 `src/lib/broadcastRecipients.ts parseBroadcastRecipientsWorkbook`와 양식 다운로드 라우트가 대상. 사용 API(read·sheet_to_json·aoa_to_sheet·write) 변경 없음. 검수: 빌드, `server-only`를 뺀 임시 사본으로 새 판에서 실제 파싱 함수 실행(전화번호 보정·이메일 처리 동일), `npm audit`에서 xlsx 항목 사라짐(다른 패키지 취약점은 남아 있음), 프로덕션 배포·비로그인 401 확인. 로그인 상태 양식 다운로드는 엣지가 `vercel.app` 주소에 로그인되어 있지 않아 미확인.

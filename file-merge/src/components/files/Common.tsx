@@ -57,7 +57,8 @@ export function FileList<T extends { id: string; file: File }>({ items, onChange
 const show = (v: Cell) => (v === null ? "" : v instanceof Date ? v.toISOString().slice(0, 10) : String(v));
 
 /** 결과 미리보기 표(앞 limit행) */
-export function PreviewTable({ header, rows, limit = 20 }: { header: string[]; rows: Cell[][]; limit?: number }) {
+export function PreviewTable({ header, rows, limit = 20, total }: { header: string[]; rows: Cell[][]; limit?: number; total?: number }) {
+  const all = total ?? rows.length;
   return (
     <div className="fm-table-wrap">
       <table className="fm-table">
@@ -68,7 +69,7 @@ export function PreviewTable({ header, rows, limit = 20 }: { header: string[]; r
           ))}
         </tbody>
       </table>
-      {rows.length > limit && <small className="muted">앞 {limit}행만 보여 줍니다(전체 {rows.length.toLocaleString()}행).</small>}
+      {all > limit && <small className="muted">앞 {limit}행만 보여 줍니다(전체 {all.toLocaleString()}행).</small>}
     </div>
   );
 }

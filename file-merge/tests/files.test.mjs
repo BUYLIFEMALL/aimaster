@@ -105,3 +105,10 @@ test("ZIP 생성", () => {
   const z = createZip([{ name: "가.xlsx", data: new Uint8Array([1, 2]) }]);
   assert.equal(new DataView(z.buffer).getUint32(0, true), 0x04034b50);
 });
+
+test("아주 많은 행(30만 행)에서도 스택이 넘치지 않는다", () => {
+  const aoa = [["a", "b"], ...Array.from({ length: 300000 }, (_, i) => [i, "x"])];
+  const t = toTable("f", "s", aoa, 1);
+  assert.equal(t.rows.length, 300000); assert.deepEqual(t.header, ["a", "b"]);
+  assert.equal(mergeByHeader([t, t]).rows.length, 600000);
+});

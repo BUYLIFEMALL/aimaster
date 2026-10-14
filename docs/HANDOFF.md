@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — 엑셀 합치기 v1.02(큰 파일·Worker), stepmail·카카오 엑셀 라이브러리 교체
+
+- `file-merge` v1.02: 큰 파일 실측(엑셀 20만 행 32MB — 읽기 중 약 4.4초·저장 중 7.3초 화면 멈춤) → 엑셀 원본·처리를 백그라운드(Web Worker)로 옮겨 **멈춤 0**(읽기+미리보기 5.5초, 저장 7.7초, 나누기 10만 행 1~2초). 20만 행에서 나던 "Maximum call stack size exceeded"(`Math.max(...행)`) 수정. 텍스트 30MB는 원래 1초 안팎. FREE 배지는 주인님 결정으로 **달지 않음**.
+- `stepmail` v1.06·`kakao-auto-posting`(폴더 `kakao_auto_poster`) v1.06: 회원 엑셀을 서버에서 읽는 `xlsx`를 npm 0.18.5 → SheetJS 공식 0.20.3. 실제 파싱 함수 새 판 실행 확인, `npm audit`에서 xlsx 사라짐(다른 패키지 취약점 stepmail 49·kakao 11건은 남음 — 별도 점검 후보), 배포·비로그인 401. 로그인 상태 화면 확인은 엣지가 두 `vercel.app` 주소에 로그인되어 있지 않아 미확인.
+- 상세: [file-merge/docs/CLI_HANDOFF.md](../file-merge/docs/CLI_HANDOFF.md) §2-1, 각 프로그램 `AGENTS.md` v1.06 줄.
+
 ## 2026-10-15 Claude Code(보조 계정) — 신규 프로그램: AI 엑셀·텍스트 합치기 자동화 (`file-merge` v1.01)
 
 - 레퍼런스 "Playful File Helper"(xel-fusion-v2) 분석 결과를 바탕으로 4기능(엑셀 합치기·나누기, 텍스트 합치기·나누기)을 새로 구현. 원본 결함(엑셀 잇기 시 머리글 반복·열 어긋남·다른 시트 섞임, 텍스트 조각 불균등, CP949 깨짐)을 고침: 머리글 이름 기준 정렬·원본 파일/시트 열, 열 값별·N행씩 나누기, 글자 수 경계 보존 분할, 인코딩 자동 인식, 미리보기.

@@ -12,7 +12,9 @@ export interface Table {
 
 /** 시트 한 장의 2차원 배열을 머리글 행 기준 표로 바꾼다. headerRow는 1부터, 0이면 머리글 없음(열1·열2…) */
 export function toTable(file: string, sheet: string, aoa: Cell[][], headerRow = 1): Table {
-  const width = Math.max(0, ...aoa.map((r) => r.length));
+  // Math.max(...행 목록)은 행이 수만 개를 넘으면 호출 스택이 넘친다(특히 Worker) — 반복문으로 구한다(v1.02)
+  let width = 0;
+  for (const r of aoa) if (r.length > width) width = r.length;
   const hi = headerRow - 1;
   const raw = headerRow > 0 && aoa[hi] ? aoa[hi] : [];
   const header = uniqueHeaders(Array.from({ length: width }, (_, c) => raw[c]));

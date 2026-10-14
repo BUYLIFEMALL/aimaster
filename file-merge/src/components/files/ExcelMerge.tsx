@@ -1,16 +1,22 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download, Layers } from "lucide-react";
-import { ACCEPT_SHEETS, isCsv, readSheets, writeCsv, writeXlsx, writeXlsxAoa, type RawSheet } from "@/lib/files/sheetio";
-import { mergeByHeader, safeFileName, safeSheetName, stem, toTable } from "@/lib/files/table";
+import { ACCEPT_SHEETS, isCsv } from "@/lib/files/sheetio";
+import { collectWrite, dropFile, loadFile, mergePreview, mergeWrite } from "@/lib/files/sheetClient";
+import type { Pick, SheetMeta } from "@/lib/files/sheetStore";
+import { safeFileName, type Cell } from "@/lib/files/table";
 import type { Encoding } from "@/lib/files/text";
-import { CSV_MIME, XLSX_MIME, downloadBytes, readBytes } from "@/lib/files/download";
+import { CSV_MIME, XLSX_MIME, downloadBytes } from "@/lib/files/download";
 import { FileDrop, FileList, Messages, NameInput, PreviewTable, newId } from "./Common";
 
-interface Item { id: string; file: File; bytes: Uint8Array; sheets: RawSheet[]; picked: boolean[] }
+interface Item { id: string; file: File; sheets: SheetMeta[]; picked: boolean[] }
 type Mode = "align" | "sheets";
+interface Preview { header: string[]; rows: Cell[][]; total: number; collect: { name: string; rows: number }[] }
 
-/** 엑셀 합치기: 머리글 이름 기준으로 이어 붙이기(열 순서가 달라도 맞춤) 또는 시트별로 모으기 */
+/**
+ * 엑셀 합치기: 머리글 이름 기준으로 이어 붙이기(열 순서가 달라도 맞춤) 또는 시트별로 모으기.
+ * 원본 데이터는 백그라운드 작업(Worker)에만 두고 화면은 미리보기 20행과 행·열 수만 받는다(v1.02 — 큰 파일에서 화면 멈춤 방지).
+ */
 export function ExcelMerge() {
   const [items, setItems] = useState<Item[]>([]);
   const [mode, setMode] = useState<Mode>("align");
@@ -19,6 +25,8 @@ export function ExcelMerge() {
   const [format, setFormat] = useState<"xlsx" | "csv">("xlsx");
   const [enc, setEnc] = useState<Encoding>("auto");
   const [name, setName] = useState("합친_결과");
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -26,60 +34,73 @@ export function ExcelMerge() {
     setError(""); setNotice("");
     const ok = files.filter((f) => /\.(xlsx|xls|xlsm|csv)$/i.test(f.name));
     if (ok.length < files.length) setError("엑셀(.xlsx·.xls·.xlsm)과 CSV 파일만 추가했습니다.");
-    const next: Item[] = [];
-    for (const file of ok) {
+    for (const [k, file] of ok.entries()) {
+      setBusy(`읽는 중... (${k + 1}/${ok.length}) ${file.name}`);
+      const id = newId();
       try {
-        const bytes = await readBytes(file);
-        const sheets = readSheets(bytes, file.name, enc);
-        next.push({ id: newId(), file, bytes, sheets, picked: sheets.map((s) => s.aoa.length > 0) });
+        const sheets = await loadFile(id, file, enc);
+        setItems((cur) => [...cur, { id, file, sheets, picked: sheets.map((s) => s.rows > 0) }]);
       } catch { setError(`${file.name}을(를) 읽지 못했습니다. 암호가 걸렸거나 손상된 파일인지 확인해 주세요.`); }
     }
-    setItems((cur) => [...cur, ...next]);
+    setBusy("");
   }
-  /** CSV 문자 인코딩을 바꾸면 CSV 파일만 다시 읽는다 */
-  function changeEnc(e: Encoding) {
-    setEnc(e);
-    setItems((cur) => cur.map((it) => (isCsv(it.file.name) ? { ...it, sheets: readSheets(it.bytes, it.file.name, e) } : it)));
+  function changeItems(next: Item[]) {
+    items.filter((it) => !next.some((n) => n.id === it.id)).forEach((it) => { dropFile(it.id).catch(() => undefined); });
+    setItems(next);
+  }
+  /** CSV 글자 인코딩을 바꾸면 CSV 파일만 다시 읽는다 */
+  async function changeEnc(e: Encoding) {
+    setEnc(e); setBusy("CSV를 다시 읽는 중...");
+    try {
+      const next = await Promise.all(items.map(async (it) => (isCsv(it.file.name) ? { ...it, sheets: await loadFile(it.id, it.file, e) } : it)));
+      setItems(next);
+    } catch { setError("CSV를 다시 읽지 못했습니다."); }
+    finally { setBusy(""); }
   }
   const togglePick = (id: string, i: number) => setItems((cur) => cur.map((it) => (it.id === id ? { ...it, picked: it.picked.map((p, k) => (k === i ? !p : p)) } : it)));
 
-  const picked = useMemo(() => items.flatMap((it) => it.sheets.filter((_, i) => it.picked[i]).map((s) => ({ file: it.file.name, sheet: s }))), [items]);
-  const merged = useMemo(() => (mode === "align" && picked.length
-    ? mergeByHeader(picked.map((p) => toTable(p.file, p.sheet.name, p.sheet.aoa, headerRow)), { addSource })
-    : null), [mode, picked, headerRow, addSource]);
-  const collected = useMemo(() => {
-    const used = new Set<string>();
-    return picked.map((p) => ({ name: safeSheetName(p.sheet.name ? `${stem(p.file)}_${p.sheet.name}` : stem(p.file), used), aoa: p.sheet.aoa }));
-  }, [picked]);
+  const picks: Pick[] = useMemo(() => items.flatMap((it) => it.sheets.map((_, i) => i).filter((i) => it.picked[i]).map((sheet) => ({ fileId: it.id, fileName: it.file.name, sheet }))), [items]);
 
-  function save() {
+  // 미리보기는 백그라운드에서 계산해 받아온다(옵션을 바꿀 때마다 다시)
+  useEffect(() => {
+    if (!picks.length) { setPreview(null); return; }
+    let alive = true;
+    mergePreview(picks, headerRow, addSource).then((p) => { if (alive) setPreview(p); }).catch((e) => { if (alive) setError(e instanceof Error ? e.message : "미리보기를 만들지 못했습니다."); });
+    return () => { alive = false; };
+  }, [picks, headerRow, addSource]);
+
+  async function save() {
     setError(""); setNotice("");
-    if (!picked.length) { setError("합칠 시트를 하나 이상 골라 주세요."); return; }
+    if (!picks.length) { setError("합칠 시트를 하나 이상 골라 주세요."); return; }
     const base = safeFileName(name) || "합친_결과";
+    setBusy("파일을 만드는 중... 큰 파일은 수 초 걸릴 수 있습니다.");
     try {
-      if (mode === "align" && merged) {
-        if (format === "csv") downloadBytes(writeCsv(merged.header, merged.rows), `${base}.csv`, CSV_MIME);
-        else downloadBytes(writeXlsx([{ name: "합친 결과", header: merged.header, rows: merged.rows }]), `${base}.xlsx`, XLSX_MIME);
-        setNotice(`${picked.length}개 시트를 ${merged.rows.length.toLocaleString()}행 · ${merged.header.length}열로 합쳐 저장했습니다.`);
+      if (mode === "align") {
+        const r = await mergeWrite(picks, headerRow, addSource, format);
+        downloadBytes(r.bytes, `${base}.${format}`, format === "csv" ? CSV_MIME : XLSX_MIME);
+        setNotice(`${picks.length}개 시트를 ${r.rows.toLocaleString()}행 · ${r.cols}열로 합쳐 저장했습니다.`);
       } else {
-        downloadBytes(writeXlsxAoa(collected), `${base}.xlsx`, XLSX_MIME);
-        setNotice(`${collected.length}개 시트를 한 파일에 모아 저장했습니다.`);
+        const r = await collectWrite(picks);
+        downloadBytes(r.bytes, `${base}.xlsx`, XLSX_MIME);
+        setNotice(`${picks.length}개 시트를 한 파일에 모아 저장했습니다.`);
       }
     } catch (e) { setError(`저장하지 못했습니다: ${e instanceof Error ? e.message : "알 수 없는 오류"}`); }
+    finally { setBusy(""); }
   }
 
   return (
     <div className="fm-tool">
       <section className="card fm-step">
         <h2><span>1</span>파일 올리기</h2>
+        {busy && <p role="status" className="notice fm-busy">{busy}</p>}
         <FileDrop accept={ACCEPT_SHEETS} multiple hint="엑셀(.xlsx·.xls·.xlsm)과 CSV를 여러 개 고를 수 있습니다. 파일은 서버로 보내지 않고 이 브라우저에서만 처리합니다." onFiles={add} />
         {items.length > 0 && (
-          <FileList items={items} onChange={setItems} render={(it) => (
+          <FileList items={items} onChange={changeItems} render={(it) => (
             <div className="fm-sheets">
               {it.sheets.map((s, i) => (
                 <label key={i} className="fm-check">
                   <input type="checkbox" checked={it.picked[i]} onChange={() => togglePick(it.id, i)} />
-                  {s.name || "CSV"} <small className="muted">{s.aoa.length.toLocaleString()}행</small>
+                  {s.name || "CSV"} <small className="muted">{s.rows.toLocaleString()}행</small>
                 </label>
               ))}
             </div>
@@ -123,14 +144,15 @@ export function ExcelMerge() {
 
       <section className="card fm-step">
         <h2><span>3</span>미리보기</h2>
-        {!picked.length ? <p className="muted">파일을 올리고 합칠 시트를 고르면 결과가 여기에 보입니다.</p>
-          : mode === "align" && merged ? (
+        {!picks.length ? <p className="muted">파일을 올리고 합칠 시트를 고르면 결과가 여기에 보입니다.</p>
+          : !preview ? <p className="muted" role="status">미리보기를 만드는 중...</p>
+          : mode === "align" ? (
             <>
-              <p className="fm-summary"><b>{picked.length}</b>개 시트 → <b>{merged.rows.length.toLocaleString()}</b>행 · <b>{merged.header.length}</b>열</p>
-              <PreviewTable header={merged.header} rows={merged.rows} />
+              <p className="fm-summary"><b>{picks.length}</b>개 시트 → <b>{preview.total.toLocaleString()}</b>행 · <b>{preview.header.length}</b>열</p>
+              <PreviewTable header={preview.header} rows={preview.rows} total={preview.total} />
             </>
           ) : (
-            <ul className="fm-outs">{collected.map((c, i) => <li key={i}><Layers size={14} />{c.name} <small className="muted">{c.aoa.length.toLocaleString()}행</small></li>)}</ul>
+            <ul className="fm-outs">{preview.collect.map((c, i) => <li key={i}><Layers size={14} />{c.name} <small className="muted">{c.rows.toLocaleString()}행</small></li>)}</ul>
           )}
       </section>
 
@@ -138,7 +160,8 @@ export function ExcelMerge() {
         <h2><span>4</span>저장</h2>
         <NameInput value={name} onChange={setName} ext={mode === "align" && format === "csv" ? ".csv" : ".xlsx"} />
         <Messages error={error} notice={notice} />
-        <div className="actions"><button type="button" className="primary" onClick={save} disabled={!picked.length}><Download size={15} />합쳐서 저장</button></div>
+        {busy && <p role="status" className="notice fm-busy">{busy}</p>}
+        <div className="actions"><button type="button" className="primary" onClick={save} disabled={!picks.length || !!busy}><Download size={15} />{busy ? "처리 중..." : "합쳐서 저장"}</button></div>
       </section>
     </div>
   );
