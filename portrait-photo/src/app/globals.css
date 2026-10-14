@@ -253,3 +253,16 @@ a.project-card{color:inherit}
 .usage{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:8px 0;font-size:12px}
 .usage-bar{display:inline-block;width:160px;height:8px;border-radius:99px;background:#e5e7eb;overflow:hidden}
 .usage-bar i{display:block;height:100%;background:var(--brand)}
+
+/* ---- v1.06 ---- */
+.zc{border:1px solid var(--line);border-radius:12px;padding:10px;background:#f8fafc}
+.zc-bar{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.zc-bar .slider{flex:1;margin:0}
+.zc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.zc-pane{min-width:0}
+.zc-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}
+.zc-head label{display:flex;align-items:center;gap:6px}
+.zc-head select{width:auto}
+.zc-view{width:100%;border:1px solid var(--line);border-radius:8px;background-repeat:no-repeat;background-color:#e2e8f0;cursor:crosshair;touch-action:none}
+.names{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px}
+.name-row{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;font-weight:400}

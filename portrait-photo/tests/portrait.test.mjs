@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 9);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 9);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 12);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 12);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -167,7 +167,7 @@ test("규격 프리셋·후보 수 범위", async () => {
   const cv = sizePresetById("china-visa");
   assert.ok(cv.width >= 354 && cv.width <= 420 && cv.height >= 472 && cv.height <= 560, "중국 비자 전자 사진 픽셀 범위");
   for (const p of SIZE_PRESETS) {
-    assert.ok(p.width > 0 && p.height > 0 && p.maxBytes >= 100 * 1024, p.id);
+    assert.ok(p.width > 0 && p.height > 0 && p.maxBytes >= 50 * 1024, p.id);
     assert.ok(p.note.includes(`${p.width}×${p.height}`), `${p.id} 안내 문구에 크기 포함`);
   }
   assert.equal(sizePresetById("us-visa").width, sizePresetById("us-visa").height, "미국 비자는 정사각");
@@ -222,7 +222,7 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 9);
+  assert.equal(SIZE_PRESETS.length, 12);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
@@ -239,4 +239,27 @@ test("규격 프리셋(인도, 공식 안내 확인분)", async () => {
   const iv = sizePresetById("india-visa");
   assert.equal(iv.width, iv.height, "인도 비자는 가로·세로 같음");
   assert.deepEqual([iv.minBytes, iv.maxBytes], [10 * 1024, 300 * 1024], "indianvisaonline.gov.in 10~300KB");
+});
+
+test("규격(미국 여권·싱가포르·베트남, 공식 안내 확인분)과 저장 이름 정리", async () => {
+  const { sizePresetById, safeFileName, baseNameOf, SIZE_PRESETS } = await import("../src/lib/portrait/post.ts");
+  const us = sizePresetById("us-passport");
+  assert.equal(us.width, us.height);
+  assert.ok(us.width >= 600 && us.width <= 1200, "travel.state.gov 정사각 600~1200px 범위");
+  assert.deepEqual([us.minBytes, us.maxBytes], [54 * 1024, 10 * 1024 * 1024]);
+  const sg = sizePresetById("sg-passport");
+  assert.deepEqual([sg.width, sg.height], [400, 514], "ica.gov.sg 400×514");
+  assert.ok(sg.maxBytes <= 150 * 1024, "안내 간 차이가 있어 보수적(150KB 이하)");
+  const vn = sizePresetById("vn-evisa");
+  assert.ok(Math.abs(vn.width / vn.height - 4 / 6) < 0.01, "4×6cm 비율");
+  assert.ok(vn.maxBytes <= 50 * 1024);
+  for (const p of SIZE_PRESETS.filter((x) => x.caution)) assert.ok(p.caution.length > 20, p.id);
+
+  assert.equal(safeFileName('a/b\c:d*e?f"g<h>i|j', "x"), "abcdefghij");
+  assert.equal(safeFileName("   ", "대체"), "대체");
+  assert.equal(safeFileName("..숨김", "x"), "숨김");
+  assert.equal(safeFileName("가".repeat(60), "x").length, 40);
+  assert.equal(safeFileName("내   사진   01", "x"), "내 사진 01");
+  assert.equal(baseNameOf("홍길동.증명.jpg"), "홍길동.증명");
+  assert.equal(baseNameOf("noext"), "noext");
 });

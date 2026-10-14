@@ -7,13 +7,14 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, sizePresetById, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, safeFileName, sizePresetById, toneFilter } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
 import { GuideOverlay } from "./GuideOverlay";
+import { ZoomCompare } from "./ZoomCompare";
 
 const OUTFIT_CATS = [
   { id: "all", label: "전체" }, { id: "formal", label: "포멀" }, { id: "casual", label: "캐주얼" },
@@ -72,10 +73,16 @@ export function Studio({ userId }: { userId: string }) {
   const [sizeId, setSizeId] = useState(SIZE_PRESETS[0].id);
   const [compare, setCompare] = useState(false);
   const [grid, setGrid] = useState(false);
+  const [zoomOn, setZoomOn] = useState(false);
+  const [names, setNames] = useState<Record<number, string>>({});
   const [cmpPos, setCmpPos] = useState(50);
   const result = results[active] ?? null;
   const sourceIdx = sources[active] ?? 0;
   const comparePreview = previews[sourceIdx] ?? previewUrl;
+  const batchMode = files.length > 1;
+  /** 일괄 모드에서 사진(원본 파일 번호)별 저장 이름 — 지정하지 않으면 업로드 파일 이름을 쓴다 */
+  const nameFor = (fileIdx: number, fallback: string) =>
+    safeFileName(names[fileIdx] ?? baseNameOf(files[fileIdx]?.name ?? ""), fallback);
   const [cleaned, setCleaned] = useState<{ url: string; ratio: number } | null>(null);
   const [cleaning, setCleaning] = useState(false);
   const [mirrored, setMirrored] = useState(false);
@@ -137,7 +144,7 @@ export function Studio({ userId }: { userId: string }) {
     const chosen = picked.slice(0, MAX_BATCH);
     previews.forEach((u) => URL.revokeObjectURL(u));
     const urls = chosen.map((f) => URL.createObjectURL(f));
-    setFiles(chosen); setPreviews(urls);
+    setNames({}); setZoomOn(false); setFiles(chosen); setPreviews(urls);
     setFile(chosen[0]); setPreviewUrl(urls[0]);
     setResults([]); setSources([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
     setNotice(picked.length > MAX_BATCH ? `사진은 한 번에 ${MAX_BATCH}장까지 처리합니다. 앞의 ${MAX_BATCH}장만 사용합니다.` : chosen.length > 1 ? `${chosen.length}장을 한 번에 처리합니다(사진마다 결과 1장).` : "");
@@ -148,7 +155,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setGrid(false); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setZoomOn(false); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -235,7 +242,7 @@ export function Studio({ userId }: { userId: string }) {
         let src = results[i];
         if (whiten) { try { src = (await whitenDataUrl(src)).dataUrl; } catch { /* 원본 사용 */ } }
         const blob = await renderPng(src, { mirrored, filter, applyFilter: toneActive, resolution });
-        entries.push({ name: `인물사진-${String(i + 1).padStart(2, "0")}-${aspect.replace(":", "x")}-${resolution}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
+        entries.push({ name: `${batchMode ? nameFor(sources[i] ?? i, `인물사진-${i + 1}`) : `인물사진-${String(i + 1).padStart(2, "0")}`}-${aspect.replace(":", "x")}-${resolution}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
       }
       const zip = createZip(entries);
       downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `인물사진-${results.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
@@ -248,7 +255,7 @@ export function Studio({ userId }: { userId: string }) {
     setSaving("png");
     try {
       const blob = await renderPng(shown, { mirrored, filter, applyFilter: toneActive, resolution });
-      downloadBlob(blob, `인물사진-${aspect.replace(":", "x")}-${resolution}${whiten ? "-순백" : ""}.png`);
+      downloadBlob(blob, `${batchMode ? nameFor(sourceIdx, "인물사진") : "인물사진"}-${aspect.replace(":", "x")}-${resolution}${whiten ? "-순백" : ""}.png`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -258,7 +265,7 @@ export function Studio({ userId }: { userId: string }) {
     setSaving("lic");
     try {
       const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive });
-      downloadBlob(r.blob, `증명사진-${preset.id}-${preset.width}x${preset.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
+      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}-${preset.width}x${preset.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
       const extra = [r.underMin ? `용량(${Math.round(r.bytes / 1024)}KB)이 최소 ${Math.round((preset.minBytes ?? 0) / 1024)}KB보다 작습니다. 제출처 기준을 확인해 주세요.` : "", preset.caution ?? ""].filter(Boolean).join(" ");
       setNotice(
         r.overLimit
@@ -366,7 +373,10 @@ export function Studio({ userId }: { userId: string }) {
               <h2><Sparkles size={16} /> 생성 결과</h2>
               <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}{count > 1 ? ` · ${count}장` : ""}</span>
             </div>
-            {grid && results.length > 1 && (
+            {zoomOn && results.length > 1 && (
+              <ZoomCompare urls={results} initialA={active} aspect={aspect} onClose={() => setZoomOn(false)} onPick={(i) => { setActive(i); setCleaned(null); setZoomOn(false); setGrid(false); }} />
+            )}
+            {grid && results.length > 1 && !zoomOn && (
               <div className="cand-grid" role="listbox" aria-label="후보 한눈에 비교">
                 {results.map((u, i) => (
                   <button key={i} type="button" role="option" aria-selected={i === active} className={i === active ? "cand-cell on" : "cand-cell"}
@@ -378,7 +388,7 @@ export function Studio({ userId }: { userId: string }) {
                 ))}
               </div>
             )}
-            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / "), display: grid && results.length > 1 ? "none" : undefined }}>
+            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / "), display: (grid || zoomOn) && results.length > 1 ? "none" : undefined }}>
               {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>{progress || "보통 10~40초가 걸립니다."}</small>
                 <button type="button" onClick={() => abortRef.current?.abort()}>취소</button></div>}
               {shown ? (
@@ -400,6 +410,26 @@ export function Studio({ userId }: { userId: string }) {
             {shown && compare && comparePreview && (
               <label className="slider cmp-slider"><span>원본</span><input type="range" min={0} max={100} value={cmpPos} onChange={(e) => setCmpPos(Number(e.target.value))} aria-label="원본과 결과 비교 슬라이더" /><b>결과</b></label>
             )}
+            {batchMode && results.length > 0 && (
+              <div className="names" aria-label="저장 이름">
+                <b>저장 이름</b>
+                {results.map((_, i) => {
+                  const fi = sources[i] ?? i;
+                  return (
+                    <label key={i} className="name-row">
+                      <span>{i + 1}</span>
+                      <input
+                        type="text" maxLength={40} value={names[fi] ?? baseNameOf(files[fi]?.name ?? "")}
+                        placeholder={`인물사진-${i + 1}`}
+                        onChange={(e) => setNames((cur) => ({ ...cur, [fi]: e.target.value }))}
+                        aria-label={`${i + 1}번 저장 이름`}
+                      />
+                    </label>
+                  );
+                })}
+                <small className="muted">ZIP과 개별 저장 파일 이름에 사용됩니다(금지 문자는 자동 제거).</small>
+              </div>
+            )}
             {results.length > 1 && (
               <div className="cands" role="listbox" aria-label="후보 사진">
                 {results.map((u, i) => (
@@ -415,6 +445,7 @@ export function Studio({ userId }: { userId: string }) {
                 <label className="check"><input type="checkbox" checked={whiten} onChange={(e) => setWhiten(e.target.checked)} /><span>배경 순백 정리 {cleaning ? "(처리 중…)" : whiten && cleaned ? `(배경 ${Math.round(cleaned.ratio * 100)}% 정리)` : ""}</span></label>
                 <label className="check"><input type="checkbox" checked={guide} onChange={(e) => setGuide(e.target.checked)} /><span>증명사진 가이드선</span></label>
                 <label className="check"><input type="checkbox" checked={mirrored} onChange={(e) => setMirrored(e.target.checked)} /><span>거울상으로 보기</span></label>
+                {results.length > 1 && <label className="check"><input type="checkbox" checked={zoomOn} onChange={(e) => { setZoomOn(e.target.checked); if (e.target.checked) setGrid(false); }} /><span>확대 비교(두 장)</span></label>}
                 {results.length > 1 && <label className="check"><input type="checkbox" checked={grid} onChange={(e) => setGrid(e.target.checked)} /><span>후보 한눈에 비교</span></label>}
                 {previewUrl && <label className="check"><input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} /><span>원본과 비교</span></label>}
               </div>

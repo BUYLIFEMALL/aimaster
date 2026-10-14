@@ -94,7 +94,7 @@ export const SIZE_PRESETS: SizePreset[] = [
   { id: "passport", label: "여권·주민등록증·운전면허·일본 여권 (3.5×4.5cm)", width: 413, height: 531, maxBytes: 250 * 1024, note: "413×531px · 250KB 이하" },
   { id: "resume", label: "이력서·반명함 증명사진 (3×4cm)", width: 354, height: 472, maxBytes: 250 * 1024, note: "354×472px · 250KB 이하" },
   { id: "china-visa", label: "중국 비자 (33×48mm, 자료 간 차이 있음)", width: 380, height: 553, maxBytes: 120 * 1024, note: "380×553px · 120KB 이하" },
-  { id: "us-visa", label: "미국 비자 (2×2인치 정사각)", width: 600, height: 600, maxBytes: 240 * 1024, note: "600×600px · 240KB 이하" },
+  { id: "us-visa", label: "미국 비자·DV (travel.state.gov 안내, 정사각)", width: 600, height: 600, maxBytes: 240 * 1024, note: "600×600px · 240KB 이하" },
   {
     id: "canada-passport", label: "캐나다 여권 온라인 (canada.ca 안내)", width: 1200, height: 1800, maxBytes: 5 * 1024 * 1024, minBytes: 200 * 1024, note: "1200×1800px · 200KB~5MB",
     caution: "캐나다는 상업 사진사가 직접 촬영한 카메라 원본 파일만 인정한다고 안내합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
@@ -111,6 +111,18 @@ export const SIZE_PRESETS: SizePreset[] = [
     id: "india-visa", label: "인도 비자 온라인 (indianvisaonline.gov.in 안내)", width: 600, height: 600, maxBytes: 300 * 1024, minBytes: 10 * 1024, note: "600×600px 정사각 · 10KB~300KB",
     caution: "인도 비자 사진은 JPEG이며 가로·세로가 같아야 합니다. 얼굴이 정면이고 변형 없는 최근 사진이 필요하니 제출 사이트의 안내를 확인해 주세요.",
   },
+  {
+    id: "us-passport", label: "미국 여권 온라인 갱신 (travel.state.gov 안내)", width: 1200, height: 1200, maxBytes: 10 * 1024 * 1024, minBytes: 54 * 1024, note: "1200×1200px 정사각 · 54KB~10MB",
+    caution: "미국 여권 갱신 사진은 촬영 후 6개월 이내의 변형하지 않은 사진이어야 합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
+  {
+    id: "sg-passport", label: "싱가포르 여권·ICA 온라인 (ica.gov.sg 안내)", width: 400, height: 514, maxBytes: 150 * 1024, note: "400×514px · 150KB 이하(안내 간 차이로 보수적)",
+    caution: "싱가포르 ICA는 사진을 변경·보정하지 않은 것을 요구합니다(크기 조정만 허용). 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
+  {
+    id: "vn-evisa", label: "베트남 전자비자 4×6cm (evisa.gov.vn 안내)", width: 472, height: 709, maxBytes: 50 * 1024, note: "472×709px(300dpi 환산) · 50KB 이하(안내 간 차이로 보수적)",
+    caution: "베트남 전자비자 사진은 정면·안경 없음·흰 배경의 최근 사진이어야 하며 픽셀 기준은 안내되지 않아 300dpi로 환산했습니다. 제출 사이트의 안내를 확인해 주세요.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 
@@ -122,4 +134,22 @@ export function sizePresetById(id: string): SizePreset {
 export const MAX_CANDIDATES = 4;
 export function clampCandidates(n: number): number {
   return Math.max(1, Math.min(MAX_CANDIDATES, Math.round(Number.isFinite(n) ? n : 1)));
+}
+
+/** 저장 파일 이름으로 쓸 수 있게 다듬는다(금지 문자 제거·공백 정리·길이 제한). 비면 fallback. */
+export function safeFileName(name: string, fallback: string): string {
+  const cleaned = name
+    .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^\.+/, "")
+    .slice(0, 40)
+    .trim();
+  return cleaned || fallback;
+}
+
+/** 업로드 파일 이름에서 확장자를 뗀 기본 이름 */
+export function baseNameOf(fileName: string): string {
+  const dot = fileName.lastIndexOf(".");
+  return dot > 0 ? fileName.slice(0, dot) : fileName;
 }
