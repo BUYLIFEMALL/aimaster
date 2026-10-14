@@ -86,3 +86,36 @@ export async function generatePlain(o: { apiKey: string; system: string; user: s
   if (!text) throw new AiError("noimage");
   return text;
 }
+
+export interface HeadMeasure { found: boolean; crownY: number; chinY: number }
+
+/** 정수리(머리카락 제외 최상부)와 턱 끝의 세로 위치를 이미지 높이 대비 0~1로 추정한다. */
+export async function detectHead(apiKey: string, base64: string, mimeType: string): Promise<HeadMeasure> {
+  const ai = new GoogleGenAI({ apiKey });
+  const res = await ai.models.generateContent({
+    model: TEXT_MODEL,
+    contents: {
+      parts: [
+        { inlineData: { data: base64, mimeType } },
+        { text: "This is an ID-style portrait photo. Estimate the vertical position of two landmarks as fractions of the full image height (0 = top edge, 1 = bottom edge): crownY = the top of the skull/head (the highest point of the head, ignoring any hair volume or hair tufts above the skull when possible), chinY = the bottom of the chin. If there is no single clearly visible face, set found=false and both values 0. Respond only with JSON." },
+      ],
+    },
+    config: {
+      temperature: 0,
+      maxOutputTokens: 1024,
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: { found: { type: "BOOLEAN" }, crownY: { type: "NUMBER" }, chinY: { type: "NUMBER" } },
+        required: ["found", "crownY", "chinY"],
+      } as never,
+    },
+  });
+  let parsed: { found?: unknown; crownY?: unknown; chinY?: unknown } = {};
+  try { parsed = JSON.parse((res.text ?? "").trim()); } catch { /* 아래에서 처리 */ }
+  const crown = Number(parsed.crownY);
+  const chin = Number(parsed.chinY);
+  const ok = parsed.found === true && Number.isFinite(crown) && Number.isFinite(chin) && crown >= 0 && chin <= 1 && chin > crown + 0.05;
+  if (!ok) return { found: false, crownY: 0, chinY: 0 };
+  return { found: true, crownY: crown, chinY: chin };
+}

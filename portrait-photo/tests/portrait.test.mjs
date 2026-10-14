@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 12);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 12);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 14);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 14);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -222,7 +222,7 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 12);
+  assert.equal(SIZE_PRESETS.length, 14);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
@@ -262,4 +262,50 @@ test("규격(미국 여권·싱가포르·베트남, 공식 안내 확인분)과
   assert.equal(safeFileName("내   사진   01", "x"), "내 사진 01");
   assert.equal(baseNameOf("홍길동.증명.jpg"), "홍길동.증명");
   assert.equal(baseNameOf("noext"), "noext");
+});
+
+test("머리 비율 평가·순서 이동·신규 규격(공식 확인분)", async () => {
+  const { evaluateHead, headInCrop, moveItem, sizePresetById, SIZE_PRESETS } = await import("../src/lib/portrait/post.ts");
+  // 공식 범위(출처와 함께)
+  const near = (a, b) => Math.abs(a - b) < 1e-9;
+  const kr = sizePresetById("passport");
+  assert.ok(near(kr.headRange[0], 32 / 45) && near(kr.headRange[1], 36 / 45));
+  assert.deepEqual(sizePresetById("canada-passport").headRange, [0.45, 0.5]);
+  assert.deepEqual(sizePresetById("us-visa").headRange, [0.5, 0.69]);
+  assert.ok(near(sizePresetById("hk-passport").headRange[0], 32 / 50));
+  for (const p of SIZE_PRESETS.filter((x) => x.headRange)) {
+    assert.ok(p.headSource, `${p.id} 출처 필요`);
+    assert.ok(p.headRange[0] > 0.3 && p.headRange[1] < 0.9 && p.headRange[0] < p.headRange[1], p.id);
+  }
+  assert.ok(sizePresetById("passport").caution.includes("AI"), "외교부 여권안내 AI 불허 안내");
+  const hk = sizePresetById("hk-passport");
+  assert.ok(hk.width >= 1200 && hk.height >= 1600 && Math.abs(hk.width / hk.height - 0.8) < 0.01, "홍콩 40×50, 최소 1200×1600");
+  const nz = sizePresetById("nz-passport");
+  assert.ok(nz.width >= 900 && nz.width <= 4500 && nz.height >= 1200 && nz.height <= 6000 && Math.abs(nz.width / nz.height - 0.75) < 0.01, "뉴질랜드 3:4 범위");
+  assert.deepEqual([nz.minBytes, nz.maxBytes], [250 * 1024, 5 * 1024 * 1024]);
+
+  // 평가
+  const range = [0.71, 0.8];
+  assert.equal(evaluateHead(0.75, range).status, "ok");
+  assert.equal(evaluateHead(0.69, range).status, "ok", "허용 오차 0.02");
+  assert.equal(evaluateHead(0.6, range).status, "small");
+  assert.equal(evaluateHead(0.9, range).status, "large");
+  // 3:4 이미지(864×1184)에서 규격 413×531로 자르면 가로가 더 좁아져 세로 비율이 거의 같다
+  const m = headInCrop(0.2, 0.7, 864, 1184, { width: 413, height: 531 });
+  assert.ok(m.ratio > 0.48 && m.ratio < 0.56, `비율 ${m.ratio}`);
+  assert.ok(m.topMargin > 0.15 && m.topMargin < 0.25);
+  assert.equal(m.cropped, false);
+  // 가로로 긴 이미지를 정사각 규격으로 자르면 세로 전체가 쓰여 비율 = 원래 비율
+  const sq = headInCrop(0.2, 0.7, 2000, 1000, { width: 600, height: 600 });
+  assert.ok(Math.abs(sq.ratio - 0.5) < 1e-6);
+  // 머리가 잘리는 경우
+  assert.equal(headInCrop(0.02, 0.5, 1000, 2000, { width: 413, height: 531 }).cropped, true);
+
+  // 순서 이동
+  assert.deepEqual(moveItem([1, 2, 3, 4], 0, 2), [2, 3, 1, 4]);
+  assert.deepEqual(moveItem([1, 2, 3], 2, 0), [3, 1, 2]);
+  const same = [1, 2, 3];
+  assert.equal(moveItem(same, 1, 1), same);
+  assert.equal(moveItem(same, -1, 1), same);
+  assert.equal(moveItem(same, 0, 3), same);
 });

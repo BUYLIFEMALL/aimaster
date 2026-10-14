@@ -7,7 +7,7 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, safeFileName, sizePresetById, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, evaluateHead, headInCrop, moveItem, safeFileName, sizePresetById, toneFilter } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
@@ -74,6 +74,9 @@ export function Studio({ userId }: { userId: string }) {
   const [compare, setCompare] = useState(false);
   const [grid, setGrid] = useState(false);
   const [zoomOn, setZoomOn] = useState(false);
+  const [skip, setSkip] = useState<boolean[]>([]);
+  const [headBusy, setHeadBusy] = useState(false);
+  const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
   const [cmpPos, setCmpPos] = useState(50);
   const result = results[active] ?? null;
@@ -155,7 +158,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setGrid(false); setZoomOn(false); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setZoomOn(false); setSkip([]); setHeadMsg(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -199,6 +202,8 @@ export function Studio({ userId }: { userId: string }) {
       ok.sort((a, b) => a.src - b.src);
       setResults(ok.map((r) => r.url));
       setSources(ok.map((r) => r.src));
+      setSkip(ok.map(() => false));
+      setHeadMsg(null);
       if (ok.length > 1 && !batch) setGrid(true);
       if (failed.length > 0) setNotice(`${jobs.length}장 중 ${ok.length}장을 만들었습니다. 나머지는 실패해 다시 시도해 주세요.`);
       else if (batch) setNotice(`${ok.length}장을 모두 만들었습니다. 아래에서 사진을 눌러 확인하고 [전체 저장]으로 한꺼번에 받을 수 있어요.`);
@@ -233,20 +238,64 @@ export function Studio({ userId }: { userId: string }) {
     }
   }
 
+  function moveResult(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= results.length) return;
+    setResults((a) => moveItem(a, i, j));
+    setSources((a) => moveItem(a, i, j));
+    setSkip((a) => moveItem(a, i, j));
+    setActive((cur) => (cur === i ? j : cur === j ? i : cur));
+    setCleaned(null);
+  }
+
+  async function checkHead() {
+    if (!shown) return;
+    const preset = sizePresetById(sizeId);
+    if (!preset.headRange) { setHeadMsg({ tone: "info", text: "이 규격은 공식 안내에서 머리 높이 비율 기준을 확인하지 못해 검사하지 않습니다." }); return; }
+    setHeadBusy(true); setHeadMsg(null); setError(""); setNeedKey(false);
+    try {
+      const up = await toUploadJpeg(shown);
+      if (!up) throw new Error("검사용 이미지를 만들지 못했습니다.");
+      const res = await fetch("/api/headcheck", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: { data: up.base64, mimeType: up.mimeType } }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setNeedKey(!!data.needKey); throw new Error(data.error || "머리 비율을 검사하지 못했습니다."); }
+      if (!data.found) { setHeadMsg({ tone: "warn", text: "얼굴 위치를 찾지 못했습니다. 정면이 뚜렷한 사진으로 다시 시도해 주세요." }); return; }
+      // 저장 규격으로 잘렸을 때의 머리 비율로 계산한다
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); img.src = shown; });
+      const m = headInCrop(data.crownY, data.chinY, img.naturalWidth, img.naturalHeight, preset);
+      const ev = evaluateHead(m.ratio, preset.headRange);
+      const pct = (n: number) => Math.round(n * 100);
+      const range = `${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%`;
+      const verdict = ev.status === "ok" ? "기준 범위 안입니다." : ev.status === "small" ? "기준보다 머리가 작게 나옵니다. 가까이 찍은 사진·4:5에 가까운 비율로 다시 만들어 보세요." : "기준보다 머리가 크게 나옵니다. 상체가 더 보이는 사진·여백이 있는 구도로 다시 만들어 보세요.";
+      setHeadMsg({
+        tone: ev.status === "ok" ? "ok" : "warn",
+        text: `머리 높이 약 ${pct(m.ratio)}% (기준 ${range}, ${preset.headSource}) · 정수리 위 여백 약 ${Math.max(0, pct(m.topMargin))}%. ${verdict}${m.cropped ? " 저장 규격으로 자를 때 머리가 잘릴 수 있습니다." : ""} AI 추정치라 오차가 있습니다.`,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "머리 비율을 검사하지 못했습니다.");
+    } finally { setHeadBusy(false); }
+  }
+
   async function saveAll() {
     if (results.length === 0) return;
     setSaving("all");
     try {
       const entries: { name: string; data: Uint8Array }[] = [];
-      for (let i = 0; i < results.length; i++) {
+      const keep = results.map((_, i) => i).filter((i) => !skip[i]);
+      if (keep.length === 0) { setError("저장할 사진이 없습니다. 제외 표시를 확인해 주세요."); setSaving(""); return; }
+      for (const i of keep) {
         let src = results[i];
         if (whiten) { try { src = (await whitenDataUrl(src)).dataUrl; } catch { /* 원본 사용 */ } }
         const blob = await renderPng(src, { mirrored, filter, applyFilter: toneActive, resolution });
         entries.push({ name: `${batchMode ? nameFor(sources[i] ?? i, `인물사진-${i + 1}`) : `인물사진-${String(i + 1).padStart(2, "0")}`}-${aspect.replace(":", "x")}-${resolution}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
       }
       const zip = createZip(entries);
-      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `인물사진-${results.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
-      setNotice(`${results.length}장을 ZIP 파일 하나로 저장했습니다(${Math.round(zip.length / 1024)}KB).`);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `인물사진-${entries.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
+      setNotice(`${entries.length}장을 ZIP 파일 하나로 저장했습니다(${Math.round(zip.length / 1024)}KB).`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -416,7 +465,7 @@ export function Studio({ userId }: { userId: string }) {
                 {results.map((_, i) => {
                   const fi = sources[i] ?? i;
                   return (
-                    <label key={i} className="name-row">
+                    <div key={i} className={skip[i] ? "name-row skipped" : "name-row"}>
                       <span>{i + 1}</span>
                       <input
                         type="text" maxLength={40} value={names[fi] ?? baseNameOf(files[fi]?.name ?? "")}
@@ -424,17 +473,22 @@ export function Studio({ userId }: { userId: string }) {
                         onChange={(e) => setNames((cur) => ({ ...cur, [fi]: e.target.value }))}
                         aria-label={`${i + 1}번 저장 이름`}
                       />
-                    </label>
+                      <span className="row-tools">
+                        <button type="button" onClick={() => moveResult(i, -1)} disabled={i === 0} aria-label={`${i + 1}번 위로`}>↑</button>
+                        <button type="button" onClick={() => moveResult(i, 1)} disabled={i === results.length - 1} aria-label={`${i + 1}번 아래로`}>↓</button>
+                        <label className="check"><input type="checkbox" checked={!!skip[i]} onChange={(e) => setSkip((a) => a.map((v, k) => (k === i ? e.target.checked : v)))} /><span>제외</span></label>
+                      </span>
+                    </div>
                   );
                 })}
-                <small className="muted">ZIP과 개별 저장 파일 이름에 사용됩니다(금지 문자는 자동 제거).</small>
+                <small className="muted">ZIP과 개별 저장 파일 이름에 사용됩니다(금지 문자는 자동 제거). ↑↓로 순서를 바꾸고, 제외한 사진은 [ZIP으로 전체 저장]에서 빠집니다.</small>
               </div>
             )}
             {results.length > 1 && (
               <div className="cands" role="listbox" aria-label="후보 사진">
                 {results.map((u, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <button key={i} type="button" role="option" aria-selected={i === active} className={i === active ? "cand on" : "cand"} onClick={() => { setActive(i); setCleaned(null); }}>
+                  <button key={i} type="button" role="option" aria-selected={i === active} className={`${i === active ? "cand on" : "cand"}${skip[i] ? " skipped" : ""}`} onClick={() => { setActive(i); setCleaned(null); }}>
                     <img src={u} alt={`후보 ${i + 1}`} /><span>{i + 1}</span>
                   </button>
                 ))}
@@ -457,14 +511,16 @@ export function Studio({ userId }: { userId: string }) {
               <p role="alert" className="lp-alert"><span>{error}{needKey && <> <a className="subtle-link" href="/settings">API키등록·플랫폼연동으로 이동</a></>}</span></p>
             )}
             {notice && !error && <p className="notice">{notice}</p>}
+            {headMsg && <p className={headMsg.tone === "ok" ? "notice head-ok" : headMsg.tone === "warn" ? "notice warning" : "notice"} role="status">{headMsg.text}</p>}
             <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
               {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
             </button>
             {shown && (
               <div className="actions st-save">
-                {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length}장)</button>}
+                {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
-                <select value={sizeId} onChange={(e) => setSizeId(e.target.value)} aria-label="증명사진 규격" className="size-select">
+                <button type="button" onClick={checkHead} disabled={headBusy || !!saving} title="선택한 규격의 공식 머리 높이 기준과 견줍니다(본인 키 1회 호출)">{headBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}머리 비율 검사 (AI 1회)</button>
+                <select value={sizeId} onChange={(e) => { setSizeId(e.target.value); setHeadMsg(null); }} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
                 </select>
                 <button type="button" onClick={saveSized} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격 저장 ({sizePresetById(sizeId).note})</button>

@@ -98,6 +98,14 @@ export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirr
     quality = Math.round((quality - 0.07) * 100) / 100;
     blob = await canvasToBlob(canvas, "image/jpeg", quality);
   }
+  // 최소 용량 기준이 있으면(예: 250KB 이상) 품질을 올려 다시 시도한다
+  if (preset.minBytes && blob.size < preset.minBytes) {
+    for (const q of [0.97, 1]) {
+      const bigger = await canvasToBlob(canvas, "image/jpeg", q);
+      if (bigger.size <= preset.maxBytes) { blob = bigger; quality = q; }
+      if (blob.size >= preset.minBytes) break;
+    }
+  }
   return { blob, bytes: blob.size, quality, overLimit: blob.size > preset.maxBytes, underMin: !!preset.minBytes && blob.size < preset.minBytes };
 }
 

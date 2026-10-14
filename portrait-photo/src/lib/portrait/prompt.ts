@@ -38,7 +38,7 @@ const KEEP_ORIENTATION = `FACIAL ORIENTATION:
 const SYMMETRY = `ID-STYLE FRAMING:
 - Frontal head-on composition with the eyes looking straight into the lens on a level eye line.
 - Balanced natural facial symmetry, both ears visible and level, shoulders balanced and horizontal.
-- Head and face fill roughly 70-80% of the frame height from crown to chin.
+- TIGHT ID FRAMING: the distance from the top of the head to the bottom of the chin must be about 80% of the full image height (a very tight, close-up ID framing). The head almost fills the frame, with only a thin margin above the head, and only the neck and the very top of the shoulders visible at the bottom edge.
 - Neutral composed expression with the mouth closed.
 - Even, shadowless lighting with a clean separation from the backdrop and no shadow behind the shoulders or neck.`;
 
