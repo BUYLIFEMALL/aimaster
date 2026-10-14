@@ -277,3 +277,15 @@ a.project-card{color:inherit}
 
 /* ---- v1.08 ---- */
 .st-tight{width:100%;margin-top:8px}
+
+/* ---- v1.09 ---- */
+.ca{border:1px solid var(--line);border-radius:12px;padding:10px;background:#f8fafc;display:flex;flex-direction:column;gap:10px}
+.ca-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ca-title{display:block;font-size:12px;margin-bottom:4px}
+.ca-src{position:relative;width:100%;touch-action:none;cursor:grab;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#e2e8f0}
+.ca-src img{width:100%;height:100%;display:block;object-fit:fill;user-select:none}
+.ca-frame{position:absolute;border:2px solid var(--brand);box-shadow:0 0 0 9999px #0f172a66;pointer-events:none}
+.ca-line{position:absolute;left:0;right:0;height:0;border-top:1px dashed #0ea5e9;pointer-events:none}
+.ca-line.chin{border-top-color:#f59e0b}
+.ca-out{width:100%;border:1px solid var(--line);border-radius:8px;background-repeat:no-repeat;background-color:#e2e8f0}
+.ca-controls{display:flex;flex-direction:column;gap:2px}

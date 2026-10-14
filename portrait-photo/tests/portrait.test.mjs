@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 15);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 15);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 16);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 16);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "id-evisa", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -222,7 +222,7 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 15);
+  assert.equal(SIZE_PRESETS.length, 16);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
@@ -354,4 +354,34 @@ test("확대 자르기: 얼굴이 가로 중앙에서 벗어난 경우 얼굴 �
   // 기본값(0.5)은 이전과 같다
   const d = tightCrop(0.2, 0.5, 1000, 1000, preset, 0.755);
   assert.ok(Math.abs(d.crop.sx + d.crop.sw / 2 - 500) <= 1);
+});
+
+test("자르기 영역 조정 계산·인도네시아 규격", async () => {
+  const { cropFromControls, controlsFromCrop, maxHeightFrac, sizePresetById, tightCrop } = await import("../src/lib/portrait/post.ts");
+  const ie = sizePresetById("id-evisa");
+  assert.ok(ie.width >= 400 && ie.height >= 600 && Math.abs(ie.width / ie.height - 4 / 6) < 0.01, "4×6cm, 최소 400×600");
+  assert.deepEqual(ie.headRange, [0.5, 0.6]);
+  assert.ok(ie.maxBytes <= 200 * 1024, "공식 안내 간 차이 → 보수적 200KB");
+  assert.ok(ie.headSource.includes("evisa.imigrasi.go.id"));
+
+  const aspect = 413 / 531;
+  // 정사각 원본에서의 최대 높이 비율: 가로가 한계
+  assert.ok(Math.abs(maxHeightFrac(1000, 1000, aspect) - 1) < 1e-9 || maxHeightFrac(1000, 1000, aspect) <= 1);
+  assert.ok(Math.abs(maxHeightFrac(300, 1000, aspect) - 300 / aspect / 1000) < 1e-9, "가로가 좁으면 높이 제한");
+
+  const c = cropFromControls({ centerX: 0.5, centerY: 0.5, heightFrac: 0.5 }, 1000, 1000, aspect);
+  assert.equal(c.sh, 500);
+  assert.ok(Math.abs(c.sw / c.sh - aspect) < 0.01);
+  assert.ok(Math.abs(c.sx + c.sw / 2 - 500) <= 1 && Math.abs(c.sy + c.sh / 2 - 500) <= 1);
+  // 가장자리로 끌면 원본 안으로 보정
+  const e = cropFromControls({ centerX: 0, centerY: 1, heightFrac: 0.5 }, 1000, 1000, aspect);
+  assert.equal(e.sx, 0);
+  assert.equal(e.sy + e.sh, 1000);
+  // 너무 큰 높이는 최대값으로
+  const big = cropFromControls({ centerX: 0.5, centerY: 0.5, heightFrac: 5 }, 800, 1200, aspect);
+  assert.ok(big.sw <= 800 && big.sh <= 1200);
+  // 역변환 왕복
+  const t = tightCrop(0.2, 0.56, 864, 1184, { width: 413, height: 531 }, 0.755, 0.45).crop;
+  const back = cropFromControls(controlsFromCrop(t, 864, 1184), 864, 1184, 413 / 531);
+  for (const k of ["sx", "sy", "sw", "sh"]) assert.ok(Math.abs(back[k] - t[k]) <= 1, `${k} 왕복`);
 });

@@ -7,7 +7,7 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, evaluateHead, headInCrop, moveItem, safeFileName, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, coverCrop, evaluateHead, headInCrop, moveItem, safeFileName, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
@@ -15,6 +15,7 @@ import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
 import { GuideOverlay } from "./GuideOverlay";
 import { ZoomCompare } from "./ZoomCompare";
+import { CropAdjuster } from "./CropAdjuster";
 
 const OUTFIT_CATS = [
   { id: "all", label: "전체" }, { id: "formal", label: "포멀" }, { id: "casual", label: "캐주얼" },
@@ -76,6 +77,7 @@ export function Studio({ userId }: { userId: string }) {
   const [zoomOn, setZoomOn] = useState(false);
   const [skip, setSkip] = useState<boolean[]>([]);
   const [headBusy, setHeadBusy] = useState(false);
+  const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
   const [headMeasure, setHeadMeasure] = useState<{ url: string; crownY: number; chinY: number; centerX: number; srcW: number; srcH: number } | null>(null);
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
@@ -139,6 +141,7 @@ export function Studio({ userId }: { userId: string }) {
   }, [result, whiten]);
 
   const shown = whiten && cleaned ? cleaned.url : result;
+  useEffect(() => { setCropOpen(null); }, [shown]);
   const filter = useMemo(() => toneFilter(brightness, exposure, contrast), [brightness, exposure, contrast]);
   const toneActive = brightness !== 0 || exposure !== 0 || contrast !== 0;
 
@@ -159,7 +162,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setGrid(false); setZoomOn(false); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setZoomOn(false); setCropOpen(null); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -238,6 +241,29 @@ export function Studio({ userId }: { userId: string }) {
     } finally {
       setBusy(false); setProgress(""); abortRef.current = null;
     }
+  }
+
+  async function openCrop() {
+    if (!shown) return;
+    try {
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); img.src = shown; });
+      setGrid(false); setZoomOn(false);
+      setCropOpen({ w: img.naturalWidth, h: img.naturalHeight });
+    } catch (e) { setError(e instanceof Error ? e.message : "이미지를 읽지 못했습니다."); }
+  }
+
+  /** 조정한 영역으로 규격 크기 저장 */
+  async function saveCropped(crop: { sx: number; sy: number; sw: number; sh: number }) {
+    if (!shown) return;
+    const preset = sizePresetById(sizeId);
+    setSaving("lic");
+    try {
+      const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive, crop });
+      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}-조정-${preset.width}x${preset.height}.jpg`);
+      const up = crop.sw < preset.width ? " 원본보다 확대돼 선명도가 낮을 수 있습니다." : "";
+      setNotice(`조정한 영역으로 ${preset.width}×${preset.height}px 저장했습니다(${Math.round(r.bytes / 1024)}KB).${up} 제출 기관의 사진 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
   /** 머리 비율 검사 결과로 규격에 맞춰 얼굴 쪽을 더 가깝게 잘라 저장한다 */
@@ -442,6 +468,24 @@ export function Studio({ userId }: { userId: string }) {
               <h2><Sparkles size={16} /> 생성 결과</h2>
               <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}{count > 1 ? ` · ${count}장` : ""}</span>
             </div>
+            {cropOpen && shown && (() => {
+              const pr = sizePresetById(sizeId);
+              const aspect = pr.width / pr.height;
+              const base = coverCrop(cropOpen.w, cropOpen.h, pr.width, pr.height, 0.15);
+              const m = headMeasure && headMeasure.url === (result ?? shown) ? headMeasure : null;
+              const rec = m && pr.headRange
+                ? tightCrop(m.crownY, m.chinY, m.srcW, m.srcH, pr, (pr.headRange[0] + pr.headRange[1]) / 2, m.centerX).crop
+                : base;
+              void aspect;
+              return (
+                <CropAdjuster
+                  key={`${shown.length}-${sizeId}`}
+                  url={shown} srcW={cropOpen.w} srcH={cropOpen.h} preset={pr} initial={rec} recommended={rec}
+                  measure={m ? { crownY: m.crownY, chinY: m.chinY } : null} mirrored={mirrored}
+                  busy={!!saving} onClose={() => setCropOpen(null)} onSave={(c) => { void saveCropped(c); }}
+                />
+              );
+            })()}
             {zoomOn && results.length > 1 && (
               <ZoomCompare urls={results} initialA={active} aspect={aspect} onClose={() => setZoomOn(false)} onPick={(i) => { setActive(i); setCleaned(null); setZoomOn(false); setGrid(false); }} />
             )}
@@ -457,7 +501,7 @@ export function Studio({ userId }: { userId: string }) {
                 ))}
               </div>
             )}
-            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / "), display: (grid || zoomOn) && results.length > 1 ? "none" : undefined }}>
+            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / "), display: ((grid || zoomOn) && results.length > 1) || cropOpen ? "none" : undefined }}>
               {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>{progress || "보통 10~40초가 걸립니다."}</small>
                 <button type="button" onClick={() => abortRef.current?.abort()}>취소</button></div>}
               {shown ? (
@@ -552,6 +596,7 @@ export function Studio({ userId }: { userId: string }) {
                 {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
                 <button type="button" onClick={checkHead} disabled={headBusy || !!saving} title="선택한 규격의 공식 머리 높이 기준과 견줍니다(본인 키 1회 호출)">{headBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}머리 비율 검사 (AI 1회)</button>
+                <button type="button" onClick={openCrop} disabled={!!saving} title="저장될 영역을 미리 보고 위치·확대를 직접 조정합니다">자르기 영역 조정</button>
                 <select value={sizeId} onChange={(e) => { setSizeId(e.target.value); setHeadMsg(null); }} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
                 </select>

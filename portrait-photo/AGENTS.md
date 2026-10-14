@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.08)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.09)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -14,6 +14,7 @@
 - v1.06 추가: 규격 프리셋 12종(공식 사이트 확인분 미국 여권 온라인 갱신 `travel.state.gov` 54KB~10MB, 싱가포르 `ica.gov.sg` 400×514, 베트남 전자비자 `evisa.gov.vn` 4×6cm 추가; 미국 비자·DV 정사각 600~1200·≤240KB 안내를 us-visa 라벨에 반영), **확대 비교**(`ZoomCompare.tsx`: 후보 두 장을 같은 위치·배율로 나란히 확대, 포인터 위치 공유), **일괄 모드 저장 이름**(`safeFileName`·`baseNameOf`: 업로드 파일 이름 기본값, 금지 문자 제거, 40자 제한 → ZIP·개별 저장 파일명).
 - v1.07 추가: 규격 14종(홍콩 `immd.gov.hk` 1280×1600·≤5MB, 뉴질랜드 `passports.govt.nz` 900×1200·250KB~5MB 추가, 한국 여권은 외교부 여권안내의 **AI 편집·합성·생성 사진 불허·흰색 의상 금지** 경고 추가), **머리 비율 검사**(`/api/headcheck`·`detectHead`: 정수리·턱 위치를 AI가 추정 → `headInCrop`/`evaluateHead`로 규격 공식 범위와 비교, 범위가 확인된 규격만: 한국/일본 71~80%, 캐나다 45~50%, 미국 50~69%, 영국 64~76%, 홍콩 64~72%), **일괄 모드 순서 변경(↑↓)·저장 제외**(`moveItem`, `skip[]`), 증명사진 프롬프트의 머리 크기 지시 강화(약 80%, 실측 추정 37%→50~56%), 최소 용량 규격은 품질을 올려 재시도.
 - v1.08 추가: **얼굴 확대 자르기**(`tightCrop`: 머리 비율 검사 결과(정수리·턱·얼굴 중심 X)로 규격 비율 영역을 계산해 머리가 공식 범위 중간값이 되도록 더 가깝게 잘라 저장, 머리 비율 검사에서 "작게 나옴"일 때만 버튼 표시, 원본 한계는 `clamped`로 알림, `renderSized`의 `crop` 인자), `detectHead`가 `centerX`(얼굴 가로 중심)도 반환, 규격 15종(대만 `boca.gov.tw` 413×531 이상·JPEG ≤5MB 추가, 수정·거울상 불허 경고).
+- v1.09 추가: **자르기 영역 미리보기·수동 조정**(`CropAdjuster.tsx`: 원본 위 잘리는 영역(드래그)·확대/가로/세로 슬라이더·저장될 모습 미리보기·머리 높이 비율 표시·추천 영역 되돌리기, 순수 계산 `cropFromControls`/`controlsFromCrop`/`maxHeightFrac`), 규격 16종(인도네시아 전자비자 `evisa.imigrasi.go.id` 400×600 이상·머리 50~60% 추가).
 - 클라이언트 전용: `canvas.ts`(입력 1,600px JPEG 축소+셀카 반전, 순백 정리, PNG/413×531 렌더, 썸네일), `history.ts`(IndexedDB `portrait-photo:<userId>`, 최대 20).
 - 서버: `gemini.ts`(`IMAGE_MODELS` flash=`gemini-2.5-flash-image`, pro=`gemini-3-pro-image-preview`(imageSize는 pro만), pro 없음→flash 폴백, 오류 분류 key/quota/timeout/safety/noimage), `aiRoute.ts`(`guardAi(request, maxBody)`: 권한→본문 한도→본인 키).
 - API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/generate`, `/api/keys`(+`/test`).
@@ -31,12 +32,12 @@
 - 화면은 흰색 베이스 + 표준 사이드바(계정은 마지막 메뉴 바로 아래, `← 다른 프로그램 보기` 상단).
 
 ## 검수
-- `npm test`(순수 로직 14건: 확대 자르기(달성 비율·범위·중심 X·한계)·대만 규격 포함, 머리 비율 평가·순서 이동·홍콩/뉴질랜드 규격 포함, 파일 이름 정리·미국/싱가포르/베트남 규격 포함, 규격 비율·픽셀 범위(캐나다·영국·인도), ZIP 구조·CRC32 표준값, 보관 기간), `npx tsc --noEmit`, `npm run build`.
+- `npm test`(순수 로직 15건: 자르기 영역 계산·왕복·경계 보정·인도네시아 규격 포함, 확대 자르기(달성 비율·범위·중심 X·한계)·대만 규격 포함, 머리 비율 평가·순서 이동·홍콩/뉴질랜드 규격 포함, 파일 이름 정리·미국/싱가포르/베트남 규격 포함, 규격 비율·픽셀 범위(캐나다·영국·인도), ZIP 구조·CRC32 표준값, 보관 기간), `npx tsc --noEmit`, `npm run build`.
 - 실제 생성: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [flash|pro] [id-photo|business|sns|cinematic]`(운영자 키, 비용 발생. 입력은 AI가 만든 가상 인물 썸네일). 실측: flash 9초(PNG 1.5MB), pro 19초(JPEG 0.6MB).
 - 운영 확인(2026-10-14): 로그인 Chrome에서 사진 올리기 → 동의 체크 없을 때 안내 → 생성(864×1184) → 순백 정리 44% → 가이드선 → PNG(843KB)·413×531 JPEG(30KB) 저장 → 기록 목록·전체 삭제.
 
-## 남은 일 (v1.09 후보)
-- 확대 자르기 미리보기(저장 전 잘리는 영역 표시)·수동 위치 조정, 규격은 공식 사이트로 확인된 것만 계속 추가(호주·솅겐·태국 보류 유지, 독일은 2025-05-01부터 관청·보안 클라우드 사진만).
+## 남은 일 (v1.10 후보)
+- 조정 영역 기억(규격별), 일괄 모드에서 사진마다 다른 영역 지정, 규격은 공식 사이트로 확인된 것만 계속 추가(호주·솅겐·태국·말레이시아·필리핀 보류 유지).
 - 일반 회원(`buylifemall@naver.com`) 로그인 흐름 재확인(주인님 로그인 후).
 - v1.02 운영 확인(2026-10-14): 후보 3장 15초에 동시 생성 → 후보 선택 → 원본 비교 슬라이더 → 미국 비자 600×600(51KB) 저장 → 기록 삭제.
 - v1.03 운영 확인(2026-10-14): 사진 2장 일괄 생성 21초 → 서버 보관함 자동 저장 → 서명 URL 이미지 200(JPEG 106KB) → 없는 id 삭제 404 → 보관함·기록 전체 삭제.
@@ -51,3 +52,5 @@
 - 규격 확인(공식 검색 2026-10-14): passport.go.kr/mofa.go.kr(여권 3.5×4.5cm, 머리 3.2~3.6cm, 온라인 413×531 권장, AI 편집 불허·흰색 의상 금지·6개월 이내), immd.gov.hk(40×50mm, JPEG ≤5MB, 카메라 최소 1200×1600, 머리 32~36mm), passports.govt.nz(JPEG 250KB~5MB, 900~4500×1200~6000, 3:4).
 - v1.08 운영 확인(2026-10-14): SNS 목적 결과(머리 약 43%)로 머리 비율 검사 → 확대 자르기 버튼 `머리 약 43% → 76%` → 413×531 JPEG 52KB 저장·안내 문구 → 화면 확인(처음에는 얼굴이 가로 중앙이 아니어서 잘림 → `centerX` 반영 후 얼굴 중앙·전체 포함 확인) → 기록 삭제.
 - 규격 확인(공식 검색 2026-10-14): boca.gov.tw(전자 파일 JPEG·RGB 24비트·≤5MB·413×531px 이상, 머리 3.2~3.6cm, 수정·합성·거울상 불허), bmi.bund.de(독일 35×45mm·머리 32~36mm, 2025-05-01부터 사진 제출 방식 변경, 디지털 픽셀 규격 미확인), mfa.go.th(태국 전자비자: 3MB와 200KB 안내 불일치·픽셀 없음).
+- v1.09 운영 확인(2026-10-14): SNS 목적 결과 → 머리 비율 검사 → [자르기 영역 조정] 열기(추천 영역 머리 76% 범위 안, 스테이지 숨김) → 확대 슬라이더 변경 시 머리 67% 작음으로 갱신 → 가로 45로 이동 후 저장 413×531 51KB `증명사진-passport-조정-…jpg` → 추천 영역으로 되돌리기 76% → 닫기 시 스테이지 복귀 → 기록 삭제.
+- 규격 확인(공식 검색 2026-10-14): evisa.imigrasi.go.id(4×6cm, 최소 400×600, 포털 2MB·다른 공식 페이지 200KB, 머리 50~60%), dfa.gov.ph(필리핀 여권은 사진을 DFA에서 직접 촬영 — 디지털 규격 없음), imi.gov.my/kln.gov.my(말레이시아 여권 온라인은 사진관 제출 형식·픽셀 미확인, 비자 포털은 25KB).

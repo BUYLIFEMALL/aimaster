@@ -148,6 +148,11 @@ export const SIZE_PRESETS: SizePreset[] = [
     headRange: [32 / 45, 36 / 45], headSource: "boca.gov.tw(머리 3.2~3.6cm / 사진 4.5cm)",
     caution: "대만 영사사무국은 수정·합성·좌우 반전(거울상) 사진을 받지 않으며 어길 경우 재신청·수수료 재납부가 필요합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
   },
+  {
+    id: "id-evisa", label: "인도네시아 전자비자 4×6cm (evisa.imigrasi.go.id 안내)", width: 400, height: 600, maxBytes: 200 * 1024, note: "400×600px(최소) · 200KB 이하(안내 간 차이로 보수적, 포털 최대 2MB)",
+    headRange: [0.5, 0.6], headSource: "evisa.imigrasi.go.id(머리카락 끝~턱이 사진 높이의 50~60%)",
+    caution: "인도네시아 전자비자 사진은 최근의 정면·무표정·변형하지 않은 사진이어야 합니다. 이 파일은 크기 참고용이며 제출 사이트의 안내를 확인해 주세요.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 
@@ -233,4 +238,31 @@ export function tightCrop(
   const sx = Math.max(0, Math.min(srcW - cw, cxPx - cw / 2));
   const crop = { sx: Math.round(sx), sy: Math.round(sy), sw: Math.round(cw), sh: Math.round(ch) };
   return { crop, achievedRatio: headPx / crop.sh, clamped };
+}
+
+export interface CropControls { centerX: number; centerY: number; heightFrac: number }
+
+/** 규격 비율을 유지하며 원본 안에 들어갈 수 있는 최대 높이 비율(0~1) */
+export function maxHeightFrac(srcW: number, srcH: number, aspect: number): number {
+  return Math.min(1, srcW / aspect / srcH);
+}
+
+/** 슬라이더 값(중심 위치·높이 비율)으로 자르기 영역을 만든다. 원본 밖으로 나가지 않게 보정한다. */
+export function cropFromControls(c: CropControls, srcW: number, srcH: number, aspect: number): CropRect {
+  const maxH = maxHeightFrac(srcW, srcH, aspect);
+  const hf = Math.max(0.1, Math.min(maxH, c.heightFrac));
+  const ch = hf * srcH;
+  const cw = ch * aspect;
+  const sx = Math.max(0, Math.min(srcW - cw, c.centerX * srcW - cw / 2));
+  const sy = Math.max(0, Math.min(srcH - ch, c.centerY * srcH - ch / 2));
+  return { sx: Math.round(sx), sy: Math.round(sy), sw: Math.round(cw), sh: Math.round(ch) };
+}
+
+/** 자르기 영역 → 슬라이더 값(cropFromControls의 역) */
+export function controlsFromCrop(crop: CropRect, srcW: number, srcH: number): CropControls {
+  return {
+    centerX: (crop.sx + crop.sw / 2) / srcW,
+    centerY: (crop.sy + crop.sh / 2) / srcH,
+    heightFrac: crop.sh / srcH,
+  };
 }
