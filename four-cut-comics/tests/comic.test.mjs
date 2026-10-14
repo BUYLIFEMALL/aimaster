@@ -8,7 +8,7 @@ import { MAX_TAIL, MIN_H, MIN_W, shortenTail, applyDrag, defaultBalloon, fitText
 import { buildBalloonPrompt } from "../src/lib/comic/prompt.ts";
 import { isBalloonMode, isAspect, isPanelCount, aspectValue, ASPECTS, PANEL_COUNTS } from "../src/lib/comic/options.ts";
 import { MAX_SAVED, addToIndex, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "../src/lib/comic/savedIndex.ts";
-import { MAX_WORKS, cleanHashtag, continueScript, instaText, normalizeInsta, stackLayout, trimWorks } from "../src/lib/comic/extras.ts";
+import { MAX_WORKS, cleanHashtag, continueScript, instaText, normalizeInsta, stackLayout, trimWorks, webtoonLayout } from "../src/lib/comic/extras.ts";
 import { buildInstaPrompt, koreaMonth } from "../src/lib/comic/prompt.ts";
 import { parseInstaRequest } from "../src/lib/comic/validate.ts";
 
@@ -265,4 +265,17 @@ test("서버 보관함 목록(index.json) 계산", () => {
   const list = Array.from({ length: MAX_SAVED }, (_, i) => meta(i));
   const r = addToIndex(list, meta(99));
   assert.equal(r.keep.length, MAX_SAVED); assert.equal(r.keep[0].title, "t99"); assert.deepEqual(r.drop.map((m) => m.title), ["t0"]);
+});
+
+test("웹툰형 세로 저장: 가로 800·여백·간격, 높이 한도 축소", () => {
+  const l = webtoonLayout(Array.from({ length: 6 }, () => ({ w: 1024, h: 1024 })));
+  assert.equal(l.width, 800);
+  assert.deepEqual(l.rects[0], { x: 48, y: 48, w: 704, h: 704 });
+  assert.equal(l.rects[1].y, 48 + 704 + 96);
+  assert.equal(l.height, 48 * 2 + 704 * 6 + 96 * 5);
+  const wide = webtoonLayout([{ w: 1376, h: 768 }], { width: 800, gap: 0, pad: 0 });
+  assert.deepEqual(wide.rects[0], { x: 0, y: 0, w: 800, h: 447 });
+  const tall = webtoonLayout(Array.from({ length: 30 }, () => ({ w: 100, h: 1000 })), { maxHeight: 10000 });
+  assert.equal(tall.height, 10000); assert.ok(tall.width < 800);
+  assert.throws(() => webtoonLayout([]));
 });

@@ -1,5 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — 서브프로젝트 배포 명령이 루트 사이트를 배포함 (four-cut-comics v1.06 작업 중 사고)
+- 증상: `cd four-cut-comics && node 수정스크립트 && npx tsc && npm run build; vercel deploy --prod --yes` 실행 중 앞 단계(node)가 실패 → `;` 뒤의 `vercel deploy`는 그대로 실행됐고, Bash 도구의 작업 폴더가 루트였기 때문에 **루트 AIMaster(www.buylife.xyz)가 프로덕션 배포됨** → 원인: ① `&&`와 `;`를 섞어 실패해도 배포가 실행되는 체인 ② 셸 작업 폴더가 호출마다 루트로 되돌아가는 환경에서 상대 경로·`cd`에 의존 → 해결(이번 작업부터): 배포는 **`vercel deploy --cwd <서브프로젝트 절대경로>`**로만 하고, 그 전에 `<폴더>/.vercel/project.json`의 `"projectName"`이 대상 프로그램인지 `grep`으로 확인한 뒤 실패 시 즉시 중단(`|| exit 1`)한다. 빌드 실패 시 배포가 실행되지 않게 `;` 대신 `&&`만 쓴다 → 사고 시 확인: `git status --porcelain -- app lib components middleware.ts next.config.mjs package.json`로 루트 앱 코드에 미커밋 변경이 없는지(없으면 커밋본과 같은 코드), `vercel ls aimaster --scope buylife --prod`로 직전 배포 시각, 주요 페이지 200을 확인하고 보고한다.
+
 ## 2026-10-14 — SQL 실행 도구가 없을 때 서버 보관함을 버킷만으로 만들기 (four-cut-comics v1.05)
 - 상황: Claude Code 보조 계정 세션에는 Supabase MCP가 없고 Supabase CLI도 로그인되어 있지 않아(`AccessTokenRequiredError`) DDL(테이블·RLS)을 실행할 수 없음 → 해결: 회원별 목록은 비공개 버킷 안 `<userId>/index.json`, 이미지는 `<userId>/<id>.jpg`로 저장하고 버킷은 service role의 `storage.createBucket(public:false, fileSizeLimit, allowedMimeTypes)`으로 생성(`four-cut-comics/src/lib/saved.ts`) → 다음부터 확인: 버킷에 정책을 만들지 않으면 익명·로그인 키로는 접근할 수 없고 서버(service role)만 접근한다 — 서버 코드가 반드시 로그인 회원 id 폴더로만 경로를 만드는지, id는 UUID 형식만 받는지 확인한다. 같은 결과의 SQL은 마이그레이션 파일에 기록한다. 목록이 수백 개로 커지거나 검색이 필요하면 DB 테이블 방식(portrait-photo `0003_saved_storage.sql`)으로 옮긴다.
 

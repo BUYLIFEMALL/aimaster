@@ -67,6 +67,20 @@ export async function saveComic(userId: string, o: {
   return { id, dropped: drop.length };
 }
 
+/** 회원 본인 폴더의 파일(목록·이미지)을 모두 지운다. 지운 작품 수를 돌려준다 */
+export async function deleteAllSaved(userId: string): Promise<number> {
+  const count = (await readIndex(userId)).length;
+  const bucket = createAdminClient().storage.from(BUCKET);
+  // 목록에서 빠진 이미지가 남지 않도록 폴더 안 파일을 직접 나열해 지운다(최대 1000개씩)
+  for (let round = 0; round < 5; round++) {
+    const { data } = await bucket.list(userId, { limit: 1000 });
+    const files = (data ?? []).filter((f) => f.id).map((f) => `${userId}/${f.name}`);
+    if (!files.length) break;
+    await bucket.remove(files);
+  }
+  return count;
+}
+
 export async function deleteSaved(userId: string, id: string): Promise<boolean> {
   if (!isSavedId(id)) return false;
   const list = await readIndex(userId);

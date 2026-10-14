@@ -4,7 +4,7 @@ import type { Panel } from "./script";
 import { SCALE, fitText, rotatePoint, textAreaRatio } from "./balloon";
 import type { Balloon, BalloonShape } from "./balloon";
 import { isBalloonMode } from "./options";
-import { stackLayout } from "./extras";
+import { stackLayout, webtoonLayout } from "./extras";
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -248,6 +248,20 @@ export async function layoutPanels(urls: string[], layout: SaveLayout): Promise<
     ctx.drawImage(im, x, y, cw, ch);
   });
   return c.toDataURL("image/png");
+}
+
+/** 웹툰형 세로 저장(v1.06): 가로 800px·컷 사이 넓은 여백의 세로 스크롤용 한 장(JPEG — 세로로 길어 PNG는 용량이 큼) */
+export async function layoutWebtoon(urls: string[]): Promise<string> {
+  const imgs = await Promise.all(urls.map(loadImage));
+  const plan = webtoonLayout(imgs.map((i) => ({ w: i.naturalWidth, h: i.naturalHeight })));
+  const c = document.createElement("canvas");
+  c.width = plan.width;
+  c.height = plan.height;
+  const ctx = context(c);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  imgs.forEach((im, i) => { const r = plan.rects[i]; ctx.drawImage(im, r.x, r.y, r.w, r.h); });
+  return c.toDataURL("image/jpeg", 0.92);
 }
 
 /** 이미지 여러 장을 세로로 이어 한 장으로(만화 합치기). 흰 배경 PNG 데이터 URL */

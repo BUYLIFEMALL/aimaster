@@ -63,6 +63,27 @@ export function stackLayout(sizes: { w: number; h: number }[], o: { gap?: number
   return { width: Math.round(width), height: Math.round(height), rects };
 }
 
+/**
+ * 웹툰형 세로 저장 배치(v1.06): 모바일 웹툰처럼 가로 width(기본 800px)에 맞추고, 컷 사이를 넓게(gap) 띄워
+ * 스크롤 호흡을 주며 위·아래·좌우에 여백(pad)을 둔다. 결과 높이가 maxHeight를 넘으면 전체를 비율대로 줄인다.
+ */
+export function webtoonLayout(sizes: { w: number; h: number }[], o: { width?: number; gap?: number; pad?: number; maxHeight?: number } = {}): { width: number; height: number; rects: StackRect[] } {
+  if (!sizes.length || sizes.some((s) => !(s.w > 0 && s.h > 0))) throw new Error("이미지 크기가 올바르지 않습니다.");
+  let width = o.width ?? 800;
+  let gap = o.gap ?? 96;
+  let pad = o.pad ?? 48;
+  const inner = width - pad * 2;
+  let heights = sizes.map((s) => (s.h * inner) / s.w);
+  let height = pad * 2 + heights.reduce((a, b) => a + b, 0) + gap * (sizes.length - 1);
+  const maxHeight = o.maxHeight ?? 16000;
+  let k = 1;
+  if (height > maxHeight) { k = maxHeight / height; width *= k; gap *= k; pad *= k; heights = heights.map((h) => h * k); height = maxHeight; }
+  const rects: StackRect[] = [];
+  let y = pad;
+  for (const h of heights) { rects.push({ x: Math.round(pad), y: Math.round(y), w: Math.round(inner * k), h: Math.round(h) }); y += h + gap; }
+  return { width: Math.round(width), height: Math.round(height), rects };
+}
+
 export const MAX_WORKS = 20;
 
 /** 내 작품 목록: 최신순으로 정렬해 최대 max개만 남기고, 넘친 항목의 id를 돌려준다(오래된 것부터 삭제) */

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
-import { MAX_SAVED_B64, deleteSaved, listSaved, saveComic } from "@/lib/saved";
+import { MAX_SAVED_B64, deleteAllSaved, deleteSaved, listSaved, saveComic } from "@/lib/saved";
 import { isAspect, isPanelCount, styleById } from "@/lib/comic/options";
 import { normalizeScript } from "@/lib/comic/script";
 
@@ -41,10 +41,14 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(saved, { headers: NO_STORE });
 }
 
-/** ?id=<id> 한 개 삭제 */
+/** ?id=<id> 한 개 삭제, ?all=1 본인 보관함 전체 삭제 */
 export async function DELETE(request: NextRequest) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return err(access.error, access.status);
+  if (request.nextUrl.searchParams.get("all") === "1") {
+    const deleted = await deleteAllSaved(access.user.id);
+    return NextResponse.json({ success: true, deleted }, { headers: NO_STORE });
+  }
   const ok = await deleteSaved(access.user.id, request.nextUrl.searchParams.get("id") ?? "");
   if (!ok) return err("삭제하지 못했습니다.", 404);
   return NextResponse.json({ success: true }, { headers: NO_STORE });

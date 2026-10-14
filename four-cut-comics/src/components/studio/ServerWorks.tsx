@@ -15,6 +15,7 @@ export function ServerWorks() {
   const [error, setError] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setError("");
@@ -43,12 +44,26 @@ export function ServerWorks() {
     if (!r.ok) { setError("삭제하지 못했습니다."); return; }
     setItems((cur) => (cur ?? []).filter((x) => x.id !== id)); setConfirm(null);
   }
+  async function removeAll() {
+    setError(""); setDeleting(true);
+    try {
+      const r = await fetch("/api/saved?all=1", { method: "DELETE" });
+      if (!r.ok) { setError("전체 삭제하지 못했습니다."); return; }
+      setItems([]); setConfirm(null);
+    } finally { setDeleting(false); }
+  }
 
   return (
     <section className="studio" aria-label="서버 보관함">
       <div className="cc-row">
         <h2 className="cc-h">서버 보관함</h2>
         <button type="button" onClick={load}><RefreshCw size={14} />새로고침</button>
+        {!!items?.length && (confirm === "all"
+          ? <>
+              <button type="button" className="danger" onClick={removeAll} disabled={deleting}><Trash2 size={14} />{deleting ? "삭제 중..." : `${items.length}개 모두 삭제`}</button>
+              <button type="button" onClick={() => setConfirm(null)} disabled={deleting}>취소</button>
+            </>
+          : <button type="button" onClick={() => setConfirm("all")}><Trash2 size={14} />전체 삭제</button>)}
       </div>
       <p className="muted">[서버 보관함에 저장]한 작품입니다. 다른 기기·브라우저에서도 보이며 회원당 최대 {MAX_SAVED}개, 정한 보관 기간이 지나면 자동으로 지워집니다.</p>
       {error && <p role="alert" className="notice lp-alert">{error}</p>}

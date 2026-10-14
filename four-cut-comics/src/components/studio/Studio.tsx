@@ -11,7 +11,7 @@ import { defaultBalloon } from "@/lib/comic/balloon";
 import type { Balloon } from "@/lib/comic/balloon";
 import { BalloonEditor } from "./BalloonEditor";
 import type { Script } from "@/lib/comic/script";
-import { composePanel, downloadUrl, fileToSheet, layoutPanels, shrinkForUpload, toJpeg } from "@/lib/comic/draw";
+import { composePanel, downloadUrl, fileToSheet, layoutPanels, layoutWebtoon, shrinkForUpload, toJpeg } from "@/lib/comic/draw";
 import { continueScript, instaText } from "@/lib/comic/extras";
 import type { InstaCopy } from "@/lib/comic/extras";
 import { saveWork } from "@/lib/comic/gallery";
@@ -315,6 +315,12 @@ export function Studio({ userId }: { userId: string }) {
     finally { setBusy(""); }
   }
 
+  /** 웹툰형 세로: 가로 800px·컷 사이 넓은 여백(모바일 스크롤용), 컷이 많을수록 유용 */
+  async function saveWebtoon() {
+    try { downloadUrl(await layoutWebtoon(composed as string[]), `만화-웹툰형-${count}컷.jpg`); }
+    catch (e) { fail(e, "저장하지 못했습니다."); }
+  }
+
   function saveEach() {
     (composed as string[]).forEach((u, i) => setTimeout(() => downloadUrl(u, `만화-${i + 1}컷.png`), i * 250));
   }
@@ -544,6 +550,7 @@ export function Studio({ userId }: { userId: string }) {
                 <button type="button" className="primary" onClick={() => saveLayout("grid")}><Download size={14} />바둑판({gridName(count)})</button>
                 <button type="button" onClick={() => saveLayout("horizontal")}><Download size={14} />가로 연속</button>
                 <button type="button" onClick={() => saveLayout("vertical")}><Download size={14} />세로 연속</button>
+                <button type="button" onClick={saveWebtoon}><Download size={14} />웹툰형 세로(800px)</button>
                 <button type="button" onClick={saveEach}><Download size={14} />개별 파일 {count}장</button>
                 <button type="button" onClick={saveToWorks} disabled={!!busy || savedEpisode === episode}><BookmarkPlus size={14} />{busy === "work" ? "저장 중..." : savedEpisode === episode ? "내 작품에 저장됨" : "내 작품에 저장"}</button>
               </div>
