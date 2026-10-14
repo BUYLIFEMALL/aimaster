@@ -13,6 +13,6 @@ from public.profiles m,public.member_grades g,public.programs p
 where u.user_id=m.id and m.grade_id=g.id and u.granted_grade_id=g.id
 and u.program_id=p.id and u.grant_source='grade'
 and g.slug='vip' and p.slug='document-translator';
-update public.programs set is_active=true,version='v1.02',updated_at=now()
+update public.programs set is_active=true,version='v1.03',updated_at=now()
 where slug='document-translator' and thumbnail_url is not null;
 commit;

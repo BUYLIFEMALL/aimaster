@@ -1,5 +1,6 @@
 import "server-only";
 import { providerSchema } from "./providerSchema";
+import { normalizeOutputBreaks } from "./outputText";
 import { AppError } from "./api";
 import {
   LANGUAGES,
@@ -116,6 +117,10 @@ export async function generate(
         result.blocks.some((b, i) => b.id !== request.blocks[i].id)
       )
         throw new Error("block mismatch");
+      result.blocks.forEach((block, i) => {
+        block.text = normalizeOutputBreaks(request.blocks[i].text, block.text);
+      });
+      schema.parse(result);
     }
     return {
       ...result,

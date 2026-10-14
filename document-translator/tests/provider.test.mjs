@@ -122,6 +122,22 @@ test("provider uses only supplied own key and model, validates completion and sc
       (await generate("member-key", request)).blocks[0].text,
       valid.blocks[0].text,
     );
+    const sourceText = request.blocks[0].text;
+    const translatedText = valid.blocks[0].text;
+    request.blocks[0].text = "문의: https://example.com/help\n2020년 날짜 보존";
+    valid.blocks[0].text = "Contact: https://example.com/help\\nKeep the 2020 date.";
+    assert.equal(
+      (await generate("member-key", request)).blocks[0].text,
+      "Contact: https://example.com/help\nKeep the 2020 date.",
+    );
+    request.blocks[0].text = '2020 JSON string "\\n"\n다음 줄';
+    valid.blocks[0].text = '2020 JSON string "\\n"\nNext line';
+    assert.equal(
+      (await generate("member-key", request)).blocks[0].text,
+      valid.blocks[0].text,
+    );
+    request.blocks[0].text = sourceText;
+    valid.blocks[0].text = translatedText;
     for (mode of [
       "429",
       "403",

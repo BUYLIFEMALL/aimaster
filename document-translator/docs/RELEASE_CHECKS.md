@@ -1,4 +1,4 @@
-# 운영 적용 및 검수 — v1.02
+# 운영 적용 및 검수 — v1.03
 
 2026-10-14. 주인님의 ‘전체 범위 승인 — 운영 연결·배포·실제 검수 진행’에 따른 작업입니다.
 
@@ -24,3 +24,10 @@ Chrome에 남아 있는 buylifemall@naver.com 로그인으로 새 도메인에 �
 ## 의존성 점검
 
 현재 npm audit에서 sprintf-js→argparse→mammoth 중간 등급3건이 보고됩니다. 공급사 수정 버전은 아직 없으며 강제 수정 명령은 Mammoth를0.3.29로 되돌립니다. 앱은 Node CLI가 아닌 `mammoth.browser.js`를 작업자에 포함하고, 실제 생성 번들과 브라우저 파일에 argparse/sprintf가 없음을 확인했습니다. 파일 처리 시간/압축 총량도 제한합니다. 과거 버전으로 자동 회귀시키거나 audit0으로 보고하지 않습니다. [업스트림 권고](https://github.com/advisories/GHSA-hp3w-g68c-fv3c).
+
+## 2026-10-14 재개 — v1.03 사전 검수
+
+- 현재 운영 v1.02: Vercel dpl_4M1zcMHHiBDxC8v8sZnJRAm8gun7 READY, 카탈로그 활성/v1.02·도메인·썸네일 확인, 로그인 HTTP200.
+- v1.03 줄바꿈 정규화 및 정상 코드 문자열 보존: 자동10개 통과. generate() 공급사 응답 경로에서 URL 다음 문장 개행과 코드 리터럴 보존까지 회귀 검사. 프로덕션 빌드 성공.
+- 새 Chrome 실행은 자동 검토가 blocked by policy로 거절. 기존 Edge는 restoreWindow 후에도 window_not_focused, Aside는 사이트 로그인 없음. 실제 Chrome 시험 회원 로그인 화면 준비를 요청했습니다. 비밀번호/키 입력·쿠키 복사·인증 우회는 하지 않습니다.
+- 다음: v1.03 커밋·푸시·배포·DB 버전 일치, 실제 회원 전체 UI 흐름 및 다운로드 검수.
