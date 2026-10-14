@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 7);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 7);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 9);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 9);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -222,11 +222,21 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 7);
+  assert.equal(SIZE_PRESETS.length, 9);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
   const days = [0, 7, 30, 90];
   const normalize = (v) => (typeof v === "number" && days.includes(v) ? v : 30);
   assert.deepEqual([0, 7, 30, 90, 45, "7", null, -1].map(normalize), [0, 7, 30, 90, 30, 30, 30, 30]);
+});
+
+test("규격 프리셋(인도, 공식 안내 확인분)", async () => {
+  const { sizePresetById } = await import("../src/lib/portrait/post.ts");
+  const ip = sizePresetById("india-passport");
+  assert.deepEqual([ip.width, ip.height], [630, 810], "passportindia.gov.in ICAO 안내 630×810");
+  assert.ok(ip.caution.includes("변경하지 않은"));
+  const iv = sizePresetById("india-visa");
+  assert.equal(iv.width, iv.height, "인도 비자는 가로·세로 같음");
+  assert.deepEqual([iv.minBytes, iv.maxBytes], [10 * 1024, 300 * 1024], "indianvisaonline.gov.in 10~300KB");
 });

@@ -103,6 +103,14 @@ export const SIZE_PRESETS: SizePreset[] = [
     id: "uk-passport", label: "영국 여권 온라인 (gov.uk 안내)", width: 600, height: 750, maxBytes: 10 * 1024 * 1024, minBytes: 50 * 1024, note: "600×750px(최소) · 50KB~10MB",
     caution: "영국은 컴퓨터 소프트웨어로 변경하지 않은 사진만 받습니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
   },
+  {
+    id: "india-passport", label: "인도 여권 온라인 (passportindia.gov.in 안내)", width: 630, height: 810, maxBytes: 2 * 1024 * 1024, note: "630×810px (용량 기준 안내 없음)",
+    caution: "인도 여권 안내는 컴퓨터 소프트웨어로 변경하지 않은 ICAO 규격 사진을 요구합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
+  {
+    id: "india-visa", label: "인도 비자 온라인 (indianvisaonline.gov.in 안내)", width: 600, height: 600, maxBytes: 300 * 1024, minBytes: 10 * 1024, note: "600×600px 정사각 · 10KB~300KB",
+    caution: "인도 비자 사진은 JPEG이며 가로·세로가 같아야 합니다. 얼굴이 정면이고 변형 없는 최근 사진이 필요하니 제출 사이트의 안내를 확인해 주세요.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 

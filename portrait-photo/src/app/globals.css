@@ -243,3 +243,13 @@ a.project-card{color:inherit}
 
 /* ---- v1.04 ---- */
 .st-retention{grid-template-columns:70px 1fr 0;margin-top:8px}
+
+/* ---- v1.05 ---- */
+.cand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cand-cell{flex-direction:column;align-items:stretch;gap:6px;padding:6px;border:2px solid transparent;border-radius:12px;background:#f8fafc}
+.cand-cell img{width:100%;object-fit:cover;border-radius:8px;display:block;background:#e2e8f0}
+.cand-cell span{font-size:12px;font-weight:700}
+.cand-cell.on{border-color:var(--brand);background:#eef2ff}
+.usage{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:8px 0;font-size:12px}
+.usage-bar{display:inline-block;width:160px;height:8px;border-radius:99px;background:#e5e7eb;overflow:hidden}
+.usage-bar i{display:block;height:100%;background:var(--brand)}

@@ -83,6 +83,13 @@ export function HistoryList({ userId }: { userId: string }) {
 
       <section className="saved-section">
         <h2>서버 보관함 <small className="muted">(선택 기능 · 최대 30장 · 비공개)</small></h2>
+        {saved && saved.length > 0 && (
+          <p className="usage" aria-label="보관함 사용량">
+            <b>{saved.length}장 / 30장</b> · 합계 {(saved.reduce((n, x) => n + x.bytes, 0) / (1024 * 1024)).toFixed(1)}MB
+            <span className="usage-bar"><i style={{ width: `${Math.min(100, Math.round((saved.length / 30) * 100))}%` }} /></span>
+            {saved.length >= 30 && <small className="muted"> 가득 찼습니다. 새로 저장하면 가장 오래된 사진부터 자동으로 지워집니다.</small>}
+          </p>
+        )}
         <p className="muted">스튜디오에서 [서버 보관함에도 저장]을 켠 경우에만 결과 사진(원본 제외)이 저장됩니다. 본인만 볼 수 있고 언제든 삭제할 수 있습니다.</p>
         {savedError && <p role="alert" className="error">{savedError}</p>}
         {saved === null ? <p className="empty">불러오는 중…</p> : saved.length === 0 ? (

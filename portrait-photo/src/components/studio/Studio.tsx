@@ -71,6 +71,7 @@ export function Studio({ userId }: { userId: string }) {
   const [count, setCount] = useState(1);
   const [sizeId, setSizeId] = useState(SIZE_PRESETS[0].id);
   const [compare, setCompare] = useState(false);
+  const [grid, setGrid] = useState(false);
   const [cmpPos, setCmpPos] = useState(50);
   const result = results[active] ?? null;
   const sourceIdx = sources[active] ?? 0;
@@ -147,7 +148,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -191,6 +192,7 @@ export function Studio({ userId }: { userId: string }) {
       ok.sort((a, b) => a.src - b.src);
       setResults(ok.map((r) => r.url));
       setSources(ok.map((r) => r.src));
+      if (ok.length > 1 && !batch) setGrid(true);
       if (failed.length > 0) setNotice(`${jobs.length}장 중 ${ok.length}장을 만들었습니다. 나머지는 실패해 다시 시도해 주세요.`);
       else if (batch) setNotice(`${ok.length}장을 모두 만들었습니다. 아래에서 사진을 눌러 확인하고 [전체 저장]으로 한꺼번에 받을 수 있어요.`);
       else if (ok.length > 1) setNotice(`후보 ${ok.length}장을 만들었습니다. 마음에 드는 사진을 눌러 고르세요.`);
@@ -364,7 +366,19 @@ export function Studio({ userId }: { userId: string }) {
               <h2><Sparkles size={16} /> 생성 결과</h2>
               <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}{count > 1 ? ` · ${count}장` : ""}</span>
             </div>
-            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / ") }}>
+            {grid && results.length > 1 && (
+              <div className="cand-grid" role="listbox" aria-label="후보 한눈에 비교">
+                {results.map((u, i) => (
+                  <button key={i} type="button" role="option" aria-selected={i === active} className={i === active ? "cand-cell on" : "cand-cell"}
+                    onClick={() => { setActive(i); setCleaned(null); setGrid(false); }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={u} alt={`후보 ${i + 1}`} style={{ aspectRatio: aspect.replace(":", " / ") }} />
+                    <span>{i + 1}번 선택{i === active ? " (현재)" : ""}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / "), display: grid && results.length > 1 ? "none" : undefined }}>
               {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>{progress || "보통 10~40초가 걸립니다."}</small>
                 <button type="button" onClick={() => abortRef.current?.abort()}>취소</button></div>}
               {shown ? (
@@ -401,6 +415,7 @@ export function Studio({ userId }: { userId: string }) {
                 <label className="check"><input type="checkbox" checked={whiten} onChange={(e) => setWhiten(e.target.checked)} /><span>배경 순백 정리 {cleaning ? "(처리 중…)" : whiten && cleaned ? `(배경 ${Math.round(cleaned.ratio * 100)}% 정리)` : ""}</span></label>
                 <label className="check"><input type="checkbox" checked={guide} onChange={(e) => setGuide(e.target.checked)} /><span>증명사진 가이드선</span></label>
                 <label className="check"><input type="checkbox" checked={mirrored} onChange={(e) => setMirrored(e.target.checked)} /><span>거울상으로 보기</span></label>
+                {results.length > 1 && <label className="check"><input type="checkbox" checked={grid} onChange={(e) => setGrid(e.target.checked)} /><span>후보 한눈에 비교</span></label>}
                 {previewUrl && <label className="check"><input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} /><span>원본과 비교</span></label>}
               </div>
             )}
