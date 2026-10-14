@@ -68,7 +68,18 @@ test("provider uses only supplied own key and model, validates completion and sc
     assert.equal(init.cache, "no-store");
     const sent = JSON.parse(init.body);
     assert.equal(sent.generationConfig.responseMimeType, "application/json");
-    assert.ok(sent.generationConfig.responseJsonSchema.properties);
+    assert.equal(sent.generationConfig.responseSchema.type, "OBJECT");
+    assert.ok(sent.generationConfig.responseSchema.properties);
+    assert.ok(
+      !JSON.stringify(sent.generationConfig.responseSchema).includes(
+        '"$schema"',
+      ),
+    );
+    assert.equal(
+      sent.generationConfig.responseSchema.properties.analysis.properties.style
+        .properties.score.maximum,
+      10,
+    );
     assert.match(
       sent.contents[0].parts[0].text,
       new RegExp(`Current year: ${new Date().getFullYear()}`),
@@ -76,6 +87,16 @@ test("provider uses only supplied own key and model, validates completion and sc
     assert.match(sent.contents[0].parts[0].text, /2020/);
     if (mode === "429") return new Response("{}", { status: 429 });
     if (mode === "403") return new Response("{}", { status: 403 });
+    if (mode === "400-format")
+      return Response.json(
+        { error: { status: "INVALID_ARGUMENT" } },
+        { status: 400 },
+      );
+    if (mode === "400-key")
+      return Response.json(
+        { error: { details: [{ reason: "API_KEY_INVALID" }] } },
+        { status: 400 },
+      );
     if (mode === "network") throw new Error("secret provider detail");
     const result = structuredClone(valid);
     if (mode === "wrong-score") result.analysis.style.score = 11;
@@ -104,6 +125,8 @@ test("provider uses only supplied own key and model, validates completion and sc
     for (mode of [
       "429",
       "403",
+      "400-format",
+      "400-key",
       "network",
       "wrong-score",
       "wrong-id",

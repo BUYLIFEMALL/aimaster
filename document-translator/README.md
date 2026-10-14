@@ -1,8 +1,8 @@
-# AI 문서번역 자동화 — v1.01
+# AI 문서번역 자동화 — v1.02
 
-2026-10-14. 주인님의 ‘진행해줘’에 따라 첫 버전을 구현했습니다. **로컬 코드·빌드·모의 화면 검수 완료, 운영 DB·환경변수 승인 대기**입니다. 실제 회원 Gemini 호출·운영 저장·프로덕션 배포는 아직 확인하지 않았습니다.
+2026-10-14. 주인님이 운영 연결·배포·실제 검수 전체 범위를 승인했습니다. DB·환경변수·Cron·요금제·VIP·도메인·첫 배포 완료, 실제 회원 SSO 확인입니다. 실제 번역의 공급사 스키마 오류를 수정한 **v1.02 재배포·UI 검수 진행 중**입니다. 현재 증거와 남은 일은 [운영 검수 기록](docs/RELEASE_CHECKS.md)을 확인합니다.
 
-- 프로그램명: **AI 문서번역 자동화**, 코드 **v1.01**.
+- 프로그램명: **AI 문서번역 자동화**, 코드 **v1.02**.
 - 폴더·slug·예정 배포 프로젝트: `document-translator`.
 - 제품 목표: 문서·텍스트를 번역하고 원문과 비교하며 문맥·전문 용어·문체를 검수하는 작업 공간.
 - 원본: [번역의 정석](https://aistudio.google.com/apps/9596827a-a428-415c-aaae-8547cbe137ea?fullscreenApplet=true&showAssistant=true&showPreview=true).
@@ -28,4 +28,4 @@ TXT·텍스트 PDF·Word 가져오기,10개 언어 번역, 문단별 수정·수
 
 자동 검사9개·Chrome 모의 화면14개·실제 Next 설정 실패 시 접근 차단8개 경계 검사를 통과했습니다. 실제 번역 품질·운영 회원 검수와 구분합니다. [구현 기록](docs/IMPLEMENTATION_STATUS.md), [운영 변경과 승인 범위](docs/OPERATING_CHANGES.md)를 확인해주세요.
 
-운영 주소 예정: `https://document-translator.buylife.xyz`. 운영 등록 SQL은 `supabase/register-program.sql`에 준비했으며 적용하지 않았습니다. FREE 배지를 넣지 않고 기존 일반 이상+사용기간/결제 구독·VIP 자동 부여 정책을 따릅니다. 스캔 PDF·HWP·PPTX·XLSX·완전한 원본 배치 재현은 후속 범위입니다.
+운영 주소: `https://document-translator.buylife.xyz`. 운영 등록 및 출시 SQL은 supabase/에 보관했습니다. FREE 배지를 넣지 않고 기존 일반 이상+사용기간/결제 구독·VIP 자동 부여 정책을 따릅니다. 스캔 PDF·HWP·PPTX·XLSX·완전한 원본 배치 재현은 후속 범위입니다.

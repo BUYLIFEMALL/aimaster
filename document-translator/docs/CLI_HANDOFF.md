@@ -1,6 +1,6 @@
 # AI 문서번역 자동화 — 재개 인수인계
 
-2026-10-14, Codex. **현재 v1.01 로컬 구현·검수 완료, 운영 변경 승인 대기.** 주인님이 ‘진행해줘’로 구현을 지시하셨습니다. 운영 테이블3개·함수4개·Supabase 연결값3개 승인 질문에 답변이 없으며, 이후 준비한 pg_cron 활성화/30일 만료 정리 작업1개도 추가 범위 승인 전입니다. 운영 SQL·환경변수·등록·실제 Gemini·배포는 하지 않았습니다. [구현 현황](IMPLEMENTATION_STATUS.md), [승인 범위](OPERATING_CHANGES.md) 필독.
+2026-10-14, Codex. **운영 전체 범위 승인·연결·첫 배포 완료, v1.02 수정 배포 후 실제 UI 검수 진행 단계입니다.** 테이블3개·함수4개·Supabase 연결값3개·pg_cron 활성화/정리 작업1개를 승인 후 적용했습니다. 실제 회원 SSO·Cron 삭제·요금제/VIP·썸네일·도메인 확인입니다. 원래 전체 Zod JSON Schema를 공급사가 거부하는400을 발견해 지원되는 OpenAPI 직렬화로 수정했고 같은 회원 키의 실제 번역 성공·자동9개/빌드 성공입니다. [운영 검수](RELEASE_CHECKS.md), [승인 범위](OPERATING_CHANGES.md)를 먼저 읽으며 승인 질문을 다시 하지 않습니다.
 
 ## 먼저 읽을 문서
 
@@ -29,7 +29,7 @@ README.md → AGENTS.md → docs/REFERENCE_ANALYSIS.md → docs/DEVELOPMENT_PLAN
 
 ## 다음 작업
 
-1. 주인님의 운영 변경 승인 답변을 확인합니다. 구현 지시는 이미 받았으므로 다시 묻지 않습니다. DB/환경변수/pg_cron 정리의 상세 범위만 확인합니다.
+1. 운영 전체 범위 승인은 완료입니다. RELEASE_CHECKS.md의 실제 검수 진행 상태를 확인하고 이어갑니다.
 2. git status/log/fetch를 확인합니다. 다른 CLI는 portrait-photo 등에서 작업 중이었고, codex-statusbar·root HANDOFF/ERROR_LESSONS에도 별도 변경이 있습니다. 스테이징을 덮어쓰거나 전체 git add를 하지 않습니다.
 3. 승인 후 프로젝트 전용 .env.local과 Vercel에 기존 Supabase URL/공개키/서비스키 하나만 안전하게 복사합니다. Gemini 키를 환경변수나 클라이언트에 넣지 않습니다. migration2개 적용 후 테이블/RLS/RPC/Cron 실제 상태를 확인합니다.
 4. 등록 SQL의 is_active=false 상태로 프로그램/요금제3종을 준비하고 표준 썸네일을 생성·검수합니다. 기존 VIP 등급 자동 부여 패턴과 도메인/SSO를 연결하고 실제 회원 검수 후 공개합니다. 기존 프로그램/회원 키를 변경하지 않습니다.

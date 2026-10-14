@@ -1,5 +1,5 @@
 import "server-only";
-import { z } from "zod";
+import { providerSchema } from "./providerSchema";
 import { AppError } from "./api";
 import {
   LANGUAGES,
@@ -49,7 +49,7 @@ export async function generate(
           contents: [{ parts: [{ text: translationPrompt(request) }] }],
           generationConfig: {
             responseMimeType: "application/json",
-            responseJsonSchema: z.toJSONSchema(schema),
+            responseSchema: providerSchema(schema),
             maxOutputTokens: 12_288,
           },
         }),
@@ -67,7 +67,20 @@ export async function generate(
         "본인 Gemini 계정의 사용 한도를 확인하거나 잠시 후 다시 시도해주세요.",
         429,
       );
-    if ([400, 401, 403].includes(response.status))
+    if (response.status === 400) {
+      const body = await response.json().catch(() => null);
+      const invalidKey = body?.error?.details?.some(
+        (detail: { reason?: string }) => detail.reason === "API_KEY_INVALID",
+      );
+      throw new AppError(
+        invalidKey
+          ? "본인 Gemini 키를 다시 확인해주세요."
+          : "AI 서버가 요청 형식을 처리하지 못했습니다. 현재 작업은 유지됩니다.",
+        invalidKey ? 400 : 502,
+        Boolean(invalidKey),
+      );
+    }
+    if ([401, 403].includes(response.status))
       throw new AppError(
         "본인 Gemini 키와 선택 모델의 사용 권한을 확인해주세요.",
         400,

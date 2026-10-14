@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-2026-10-14, Codex. 주인님의 ‘진행해줘’로 **AI 문서번역 자동화**, slug `document-translator`, 코드 v1.01을 구현했습니다. 로컬 빌드·자동 검사·보이는 Chrome 모의 검사 완료입니다. 공용 DB 테이블3개/함수4개·새 프로젝트 Supabase 연결값3개에 대한 승인 질문은 답변 대기입니다. 추가로30일 만료 기록의 실제 삭제를 위한 pg_cron 활성화/작업1개도 준비했으며 별도 범위 승인이 필요합니다. 운영 SQL/환경변수·등록·실제 Gemini·배포는 미실행입니다. 상세는 docs/IMPLEMENTATION_STATUS.md와 OPERATING_CHANGES.md.
+2026-10-14, Codex. 주인님이 **운영 연결·배포·실제 검수 전체 범위**를 승인했습니다. DB·연결값·Cron·카탈로그/요금제·VIP·도메인을 적용하고 첫 v1.01을 배포했습니다. 실제 Chrome의 테스트 회원 SSO·프로그램 접근·만료 기록 정리를 확인했습니다. 실제 번역에서 공급사 JSON Schema 설정400을 발견해 좁은 OpenAPI 스키마로 직렬화하고 키 오류와 요청 형식 오류를 구분하는 **v1.02**를 준비했습니다. 같은 회원 키·Gemini 3.8 Flash로 변환한 실제 번역 응답의 Zod 검증 성공, 자동9개·빌드 성공입니다. 다음은 수정 버전 배포 후 실제 UI 번역·저장·복원 검수입니다. 운영 변경 승인을 다시 요청하지 않습니다.
 
 작업 전 루트 AGENTS.md, docs/HANDOFF.md, docs/ERROR_LESSONS.md, docs/TOP_RULE_PERSONAL_ACCOUNT_API.md, docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md와 이 폴더의 README·docs/CLI_HANDOFF.md·docs/DEVELOPMENT_PLAN.md를 읽습니다. 공유 저장소·인덱스에서 다른 CLI 변경을 보존합니다.
 
