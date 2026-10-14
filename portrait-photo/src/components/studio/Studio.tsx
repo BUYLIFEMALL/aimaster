@@ -7,7 +7,7 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, decideBatchCrop, evaluateHead, headInCrop, moveItem, parseStoredControls, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
@@ -80,6 +80,7 @@ export function Studio({ userId }: { userId: string }) {
   const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
   const [autoConfirm, setAutoConfirm] = useState(false);
   const [pendingCrop, setPendingCrop] = useState(false);
+  const [measures, setMeasures] = useState<Record<number, { crownY: number; chinY: number; centerX: number; srcW: number; srcH: number; manual: boolean }>>({});
   const [markStart, setMarkStart] = useState(false);
   const [retryConfirm, setRetryConfirm] = useState(false);
   const [centerOk, setCenterOk] = useState(false);
@@ -167,7 +168,7 @@ export function Studio({ userId }: { userId: string }) {
     const chosen = picked.slice(0, MAX_BATCH);
     previews.forEach((u) => URL.revokeObjectURL(u));
     const urls = chosen.map((f) => URL.createObjectURL(f));
-    setNames({}); setBatchCrops({}); setBatchReport([]); setAutoConfirm(false); setZoomOn(false); setFiles(chosen); setPreviews(urls);
+    setNames({}); setBatchCrops({}); setMeasures({}); setBatchReport([]); setAutoConfirm(false); setZoomOn(false); setFiles(chosen); setPreviews(urls);
     setFile(chosen[0]); setPreviewUrl(urls[0]);
     setResults([]); setSources([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
     setNotice(picked.length > MAX_BATCH ? `사진은 한 번에 ${MAX_BATCH}장까지 처리합니다. 앞의 ${MAX_BATCH}장만 사용합니다.` : chosen.length > 1 ? `${chosen.length}장을 한 번에 처리합니다(사진마다 결과 1장).` : "");
@@ -178,7 +179,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setGrid(false); setZoomOn(false); setCropOpen(null); setBatchCrops({}); setBatchReport([]); setAutoConfirm(false); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setZoomOn(false); setCropOpen(null); setBatchCrops({}); setMeasures({}); setBatchReport([]); setAutoConfirm(false); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -259,6 +260,34 @@ export function Studio({ userId }: { userId: string }) {
     }
   }
 
+  /** 규격을 바꾸면 이미 얻은 머리 위치(AI 추정·직접 지정)로 새 규격의 자르기 영역과 보고를 다시 계산한다(AI 호출 없음) */
+  function changePreset(id: string) {
+    const p = sizePresetById(id);
+    setSizeId(id); setHeadMsg(null); setAutoConfirm(false); setRetryConfirm(false);
+    if (!batchMode || Object.keys(measures).length === 0 || !p.headRange) { setBatchReport([]); return; }
+    const rep: { idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[] = [];
+    const next = { ...batchCrops };
+    results.forEach((_, i) => {
+      if (skip[i]) return;
+      const fi = sources[i] ?? i;
+      const label = nameFor(fi, `${i + 1}번`);
+      const m = measures[fi];
+      if (!m) {
+        const old = batchReport.find((r) => r.idx === i && r.text.includes("얼굴 위치를 찾지 못해"));
+        if (old) rep.push(old);
+        return;
+      }
+      const d = decideBatchCrop({ found: true, crownY: m.crownY, chinY: m.chinY, centerX: m.centerX }, p, m.srcW, m.srcH, centerOk);
+      if (d.crop) next[fi] = { presetId: p.id, crop: d.crop, srcW: m.srcW, srcH: m.srcH };
+      else if (next[fi] && next[fi].presetId !== p.id) delete next[fi];
+      const t = describeBatchDecision(d, m.manual);
+      rep.push({ idx: i, name: label, text: t.text, tone: t.tone });
+    });
+    setBatchCrops(next);
+    setBatchReport(rep);
+    setNotice(`${p.label.split(" (")[0]} 규격으로 바꿔 이미 얻은 머리 위치로 다시 계산했습니다(AI 호출 없음).`);
+  }
+
   /** 일괄 검사 보고에서 해당 사진의 영역 조정(또는 얼굴 위치 직접 지정)을 연다 */
   function gotoCrop(i: number, mark: boolean) {
     setGrid(false); setZoomOn(false); setCropOpen(null); setCleaned(null);
@@ -272,6 +301,7 @@ export function Studio({ userId }: { userId: string }) {
     const url = result ?? shown;
     if (!url) return;
     setHeadMeasure({ url, crownY: mk.crownY, chinY: mk.chinY, centerX: mk.centerX, srcW: cropOpen.w, srcH: cropOpen.h });
+    setMeasures((cur) => ({ ...cur, [sources[active] ?? active]: { crownY: mk.crownY, chinY: mk.chinY, centerX: mk.centerX, srcW: cropOpen.w, srcH: cropOpen.h, manual: true } }));
     setMarkStart(false);
     if (!preset.headRange) { setNotice("이 규격은 공식 머리 기준이 없어 위치만 기록했습니다."); return; }
     const t = tightCrop(mk.crownY, mk.chinY, cropOpen.w, cropOpen.h, preset, (preset.headRange[0] + preset.headRange[1]) / 2, mk.centerX);
@@ -353,6 +383,10 @@ export function Studio({ userId }: { userId: string }) {
           const im = new Image();
           await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = results[i]; });
           const d = decideBatchCrop(data, preset, im.naturalWidth, im.naturalHeight, centerOk);
+          if (d.status !== "notfound") {
+            const mm = { crownY: data.crownY as number, chinY: data.chinY as number, centerX: typeof data.centerX === "number" ? (data.centerX as number) : 0.5, srcW: im.naturalWidth, srcH: im.naturalHeight, manual: false };
+            setMeasures((cur) => ({ ...cur, [fileIdx]: mm }));
+          }
           if (d.status === "notfound") report.push({ idx: i, name: label, text: "얼굴 위치를 찾지 못해 자동 중앙 자르기를 씁니다.", tone: "warn" });
           else if (d.status === "ok" || d.status === "large") {
             if (d.crop) {
@@ -606,7 +640,8 @@ export function Studio({ userId }: { userId: string }) {
               const pr = sizePresetById(sizeId);
               const aspect = pr.width / pr.height;
               const base = coverCrop(cropOpen.w, cropOpen.h, pr.width, pr.height, 0.15);
-              const m = headMeasure && headMeasure.url === (result ?? shown) ? headMeasure : null;
+              const bm = measures[sourceIdx];
+              const m = headMeasure && headMeasure.url === (result ?? shown) ? headMeasure : (bm ? { url: result ?? shown, crownY: bm.crownY, chinY: bm.chinY, centerX: bm.centerX, srcW: bm.srcW, srcH: bm.srcH } : null);
               const rec = m && pr.headRange
                 ? tightCrop(m.crownY, m.chinY, m.srcW, m.srcH, pr, (pr.headRange[0] + pr.headRange[1]) / 2, m.centerX).crop
                 : base;
@@ -731,9 +766,12 @@ export function Studio({ userId }: { userId: string }) {
               <ul className="batch-report" aria-label="일괄 머리 비율 검사 결과">
                 {batchReport.map((r) => (
                   <li key={r.idx} className={r.tone === "ok" ? "ok" : "warn"}>
-                    <b>{r.name}</b> {r.text}{" "}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className="rep-thumb" src={results[r.idx]} alt="" />
+                    <span className="rep-body"><b>{r.name}</b> {r.text}{" "}
                     <button type="button" className="mini" onClick={() => gotoCrop(r.idx, false)}>영역 조정</button>
                     {r.text.includes("얼굴 위치를 찾지 못해") && <button type="button" className="mini" onClick={() => gotoCrop(r.idx, true)}>얼굴 위치 직접 지정</button>}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -771,7 +809,7 @@ export function Studio({ userId }: { userId: string }) {
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
                 <button type="button" onClick={checkHead} disabled={headBusy || !!saving} title="선택한 규격의 공식 머리 높이 기준과 견줍니다(본인 키 1회 호출)">{headBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}머리 비율 검사 (AI 1회)</button>
                 <button type="button" onClick={openCrop} disabled={!!saving} title="저장될 영역을 미리 보고 위치·확대를 직접 조정합니다">자르기 영역 조정</button>
-                <select value={sizeId} onChange={(e) => { setSizeId(e.target.value); setHeadMsg(null); setBatchReport([]); setAutoConfirm(false); }} aria-label="증명사진 규격" className="size-select">
+                <select value={sizeId} onChange={(e) => changePreset(e.target.value)} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
                 </select>
                 <button type="button" onClick={saveSized} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격 저장 ({sizePresetById(sizeId).note})</button>

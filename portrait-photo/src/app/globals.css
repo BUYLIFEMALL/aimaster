@@ -298,3 +298,8 @@ a.project-card{color:inherit}
 /* ---- v1.13 ---- */
 .ca-dot{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-size:11px;font-style:normal;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:0 0 0 2px #fff}
 .batch-report .mini{padding:2px 8px;font-size:11px;margin-left:4px}
+
+/* ---- v1.14 ---- */
+.batch-report li{display:flex;gap:10px;align-items:flex-start}
+.rep-thumb{width:36px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#e2e8f0}
+.rep-body{min-width:0;line-height:1.6}

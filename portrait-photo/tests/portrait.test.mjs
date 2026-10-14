@@ -500,3 +500,33 @@ test("직접 지정 두 점 → 측정값·폴란드 규격", async () => {
   assert.equal(evaluateHead(t.achievedRatio, kr.headRange).status, "ok");
   assert.ok(Math.abs(t.crop.sx + t.crop.sw / 2 - 0.35 * 864) <= 1 || t.crop.sx === 0, "지정한 가로 중심");
 });
+
+test("규격 변경 시 측정값 재사용·보고 문구·한국 여권 공식 사양 표기", async () => {
+  const { decideBatchCrop, describeBatchDecision, sizePresetById } = await import("../src/lib/portrait/post.ts");
+  const kr = sizePresetById("passport");
+  assert.ok(kr.note.includes("395~431") && kr.note.includes("500KB"), "외교부 여권안내 허용 범위·500KB 표기");
+  assert.ok(kr.caution.includes("주민등록증"), "행정안전부 안내 반영");
+
+  // 같은 측정값(머리 정수리 20%~턱 50%)을 규격마다 다시 판정 — AI 호출 없이 계산만
+  const m = { found: true, crownY: 0.2, chinY: 0.5, centerX: 0.5 };
+  const W = 864, H = 1184;
+  const forKr = decideBatchCrop(m, kr, W, H);
+  const forCa = decideBatchCrop(m, sizePresetById("canada-passport"), W, H);     // 기준 45~50%
+  const forUsVisa = decideBatchCrop(m, sizePresetById("us-visa"), W, H);          // 기준 50~69%
+  assert.equal(forKr.status, "small");
+  assert.ok(forKr.crop);
+  // 같은 사진이어도 규격마다 판정 기준이 달라 결과가 갈릴 수 있다(여기서는 모두 작음 또는 범위 판정이 규격 값과 일치)
+  for (const d of [forCa, forUsVisa]) assert.ok(["small", "ok", "large"].includes(d.status));
+  assert.notEqual(forKr.achieved, forUsVisa.achieved ?? -1, "목표 비율이 규격마다 다르다");
+  // 머리 기준이 없는 규격은 판정하지 않는다
+  assert.equal(decideBatchCrop(m, sizePresetById("resume"), W, H).status, "notfound");
+
+  // 보고 문구
+  assert.equal(describeBatchDecision({ status: "notfound" }).tone, "warn");
+  assert.match(describeBatchDecision({ status: "ok", ratio: 0.76 }).text, /범위 안\(자동 중앙 자르기\)/);
+  assert.match(describeBatchDecision({ status: "ok", ratio: 0.76, crop: { sx: 0, sy: 0, sw: 1, sh: 1 } }).text, /얼굴 가로 중앙 맞춤/);
+  assert.match(describeBatchDecision({ status: "large", ratio: 0.9 }).text, /기준보다 큼/);
+  const small = describeBatchDecision({ status: "small", ratio: 0.43, achieved: 0.76, crop: { sx: 0, sy: 0, sw: 1, sh: 1 } }, true);
+  assert.match(small.text, /^수동 지정: 머리 약 43% → 확대 자르기로 약 76%$/);
+  assert.match(describeBatchDecision({ status: "small", ratio: 0.3, achieved: 0.6, clamped: true, crop: { sx: 0, sy: 0, sw: 1, sh: 1 } }).text, /원본 한계/);
+});

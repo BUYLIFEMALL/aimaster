@@ -96,9 +96,9 @@ export interface SizePreset {
 /** 자주 쓰는 증명사진 규격(300dpi 환산 픽셀). 제출 기관의 요구 사항이 우선이므로 통과를 보장하지 않는다. */
 export const SIZE_PRESETS: SizePreset[] = [
   {
-    id: "passport", label: "여권·주민등록증·운전면허·일본 여권 (3.5×4.5cm)", width: 413, height: 531, maxBytes: 250 * 1024, note: "413×531px · 250KB 이하",
+    id: "passport", label: "여권·주민등록증·운전면허·일본 여권 (3.5×4.5cm)", width: 413, height: 531, maxBytes: 250 * 1024, note: "413×531px(여권 온라인 허용 395~431×507~550) · 250KB 이하(공식 500KB 이하)",
     headRange: [32 / 45, 36 / 45], headSource: "외교부 여권안내 passport.go.kr(머리 3.2~3.6cm / 사진 4.5cm)",
-    caution: "외교부 여권안내는 AI로 편집·가공·합성·생성한 사진을 허용하지 않으며 흰색 의상도 금지합니다. 이 파일은 크기 참고용입니다. 여권 신청에는 실제 촬영한 사진을 쓰세요.",
+    caution: "외교부 여권안내는 AI로 편집·가공·합성·생성한 사진을 허용하지 않으며 흰색 의상도 금지합니다. 행정안전부 주민등록증 안내도 보정·변형·스티커·복사 사진을 사용할 수 없다고 합니다. 이 파일은 크기 참고용입니다. 여권·주민등록증 신청에는 실제 촬영한 사진을 쓰세요.",
   },
   { id: "resume", label: "이력서·반명함 증명사진 (3×4cm)", width: 354, height: 472, maxBytes: 250 * 1024, note: "354×472px · 250KB 이하" },
   { id: "china-visa", label: "중국 비자 (33×48mm, 자료 간 차이 있음)", width: 380, height: 553, maxBytes: 120 * 1024, note: "380×553px · 120KB 이하" },
@@ -351,4 +351,15 @@ export function marksToMeasure(
   const chinY = clamp(Math.max(a.y, b.y));
   if (chinY - crownY < 0.05) return null;
   return { crownY, chinY, centerX: clamp((a.x + b.x) / 2) };
+}
+
+/** 일괄 판정 결과를 사용자에게 보여 줄 한 줄 문구로 만든다(자동/수동 공용) */
+export function describeBatchDecision(d: BatchDecision, manual = false): { text: string; tone: "ok" | "warn" } {
+  const pct = (n: number) => Math.round(n * 100);
+  if (d.status === "notfound") return { text: "얼굴 위치를 찾지 못해 자동 중앙 자르기를 씁니다.", tone: "warn" };
+  const where = d.crop ? "얼굴 가로 중앙 맞춤" : "자동 중앙 자르기";
+  if (d.status === "ok") return { text: `머리 약 ${pct(d.ratio ?? 0)}% — 범위 안(${where})`, tone: "ok" };
+  if (d.status === "large") return { text: `머리 약 ${pct(d.ratio ?? 0)}% — 기준보다 큼(${where}, 필요하면 [자르기 영역 조정])`, tone: "warn" };
+  const base = `머리 약 ${pct(d.ratio ?? 0)}% → 확대 자르기로 약 ${pct(d.achieved ?? 0)}%${d.clamped ? " (원본 한계로 더 확대하지 못함)" : ""}`;
+  return { text: manual ? `수동 지정: ${base}` : base, tone: "ok" };
 }
