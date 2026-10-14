@@ -6,6 +6,8 @@ import {
 } from "../src/lib/we/util.ts";
 import { generatePrompt, rewritePrompt, analyzePrompt, formatLabel } from "../src/lib/we/prompts.ts";
 import { FORMATS, ACTIONS, isFormat, isAction, isTone, isLength } from "../src/lib/we/types.ts";
+import { findAllText, findText, rangeText } from "../src/lib/we/pmText.ts";
+import { Schema } from "@tiptap/pm/model";
 
 test("한국 시간 기준 날짜와 연도 지침", () => {
   assert.equal(todayKst(new Date("2026-12-31T16:00:00Z")).year, 2027);
@@ -116,4 +118,44 @@ test("출처 정리·파일 확장자·타입 가드", () => {
   assert.equal(FORMATS.length, 9);
   assert.equal(ACTIONS.length, 5);
   assert.ok(isFormat("sns") && !isFormat("x") && isAction("shorten") && isTone("formal") && isLength("long") && !isLength("x"));
+});
+
+// ---- 서식 에디터 위치 찾기(ProseMirror 스키마로 DOM 없이 검증) ----
+const schema = new Schema({
+  nodes: {
+    doc: { content: "block+" },
+    paragraph: { content: "inline*", group: "block" },
+    text: { group: "inline" },
+    hard_break: { inline: true, group: "inline", selectable: false },
+  },
+  marks: { strong: {} },
+});
+const p = (...c) => schema.node("paragraph", null, c);
+const t = (s, strong = false) => schema.text(s, strong ? [schema.marks.strong.create()] : undefined);
+const doc = schema.node("doc", null, [
+  p(t("첫째 문장입니다. 맛있고 "), t("맛있고", true), t(" 또 맛있었습니다.")),
+  p(t("둘째 문단. 집에 갔다."), schema.node("hard_break"), t("다음 줄. 집에 갔다.")),
+]);
+
+test("서식(굵게)으로 나뉜 텍스트도 한 문장으로 찾고, 위치로 되돌려 읽으면 같은 문자열", () => {
+  const r = findText(doc, "맛있고 맛있고 또 맛있었습니다.");
+  assert.ok(r);
+  assert.equal(rangeText(doc, r.from, r.to), "맛있고 맛있고 또 맛있었습니다.");
+});
+
+test("같은 문장이 여럿이면 hint에 가까운 곳, 블록 경계를 넘는 문자열은 찾지 않음", () => {
+  const all = findAllText(doc, "집에 갔다.");
+  assert.equal(all.length, 2);
+  const near = findText(doc, "집에 갔다.", all[1].from + 1);
+  assert.equal(near.from, all[1].from);
+  assert.equal(findText(doc, "맛있었습니다.둘째"), null);
+  assert.equal(findText(doc, "없는 문장"), null);
+  assert.equal(findAllText(doc, "   ").length, 0);
+});
+
+test("hard break를 포함한 문자열(줄바꿈)", () => {
+  const text = ["집에 갔다.", "다음 줄."].join(String.fromCharCode(10));
+  const r = findText(doc, text);
+  assert.ok(r);
+  assert.equal(rangeText(doc, r.from, r.to), text);
 });

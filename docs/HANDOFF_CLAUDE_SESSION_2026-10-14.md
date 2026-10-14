@@ -105,3 +105,8 @@
 | 상세 | `ai-writing-editor/AGENTS.md`, `ai-writing-editor/docs/CLI_HANDOFF.md` |
 | 주의 | 사고 토큰이 `maxOutputTokens`에 포함됨 → 짧은 호출도 한도를 넉넉히(수정 6,144) 하고 `truncated`는 적용하지 않는다 |
 | 남은 일 | 일반 회원 계정 로그인 확인, 인터넷 검색 출처 보장 한계, 리치 텍스트 서식 에디터(후속) |
+
+
+### 7-1. v1.03 — 서식 에디터 (2026-10-14)
+- Tiptap(`@tiptap/* 3.31.4`) 서식 에디터로 교체. 마크다운 저장 유지, 버블 툴바(AI 수정 5동작+직접 지시+굵게·기울임), 서식 도구줄, 서식 복사(HTML+텍스트), .md/.html/.txt, Tiptap 이력 기반 실행 취소.
+- 핵심 구현: `src/lib/we/pmText.ts`(문서 위치 찾기), `components/editor/{Editor,RichToolbar,BubbleToolbar}.tsx`. 검수: 단위 14/14, Chrome 15/15, 운영 확인. 상세는 `ai-writing-editor/AGENTS.md`·`docs/CLI_HANDOFF.md`.

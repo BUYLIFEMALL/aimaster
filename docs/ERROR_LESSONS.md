@@ -1784,3 +1784,10 @@
 - 증상: 선택 문장 수정 응답이 "되였습니다 is a typo… Wait, if [[선택 부분]]"처럼 모델의 사고 내용이 섞인 잘린 텍스트로 옴 → 원인: Gemini 3.5/2.5 flash의 사고(thinking) 토큰(약 800~1,000)이 `maxOutputTokens`에 포함돼 1,024 한도에서 본문이 중간에 끊김(`finishReason: MAX_TOKENS`) → 해결: 수정 호출 한도 6,144, 키 확인 2,048, `generatePlain`이 `truncated`를 돌려주고 수정 라우트가 끊긴 응답을 본문에 적용하지 않음(`ai-writing-editor/src/lib/gemini.ts`, `api/rewrite/route.ts`) → 다음부터 확인: 짧은 출력용 호출도 `maxOutputTokens`를 사고량 이상으로 잡고 `finishReason`을 확인한다(`test-artifacts/rewrite-debug.mts`로 usage의 `thoughtsTokenCount` 확인).
 - 증상: 분석 제안 [적용]이 본문의 다른 위치(첫 일치)를 바꾸거나 본문이 바뀐 뒤에도 적용된 것처럼 보임(원본 앱 방식) → 해결: 적용 시점에 `findRange`로 위치를 다시 찾고(원래 위치에 가까운 일치 우선) 못 찾으면 목록에서 빼고 안내, 서버는 본문에 없는 원문을 걸러냄(`we/util.ts` `normalizeSuggestions`·`replaceOnce`·`applyAll`) → 다음부터 확인: "찾아서 바꾸기" 기능은 중복 문장·본문 변경 후 적용을 단위 테스트에 포함.
 - 증상: 블로그 초안에 `**메타 제목:**`·`---`가 그대로 보이고 문서 제목에도 `**`가 남음 → 원인: 에디터가 plain textarea인데 모델이 마크다운 강조를 사용 → 해결: 프롬프트에 강조 기호·구분선 금지, `deriveTitle`이 기호·라벨 제거 → 다음부터 확인: 렌더링하지 않는 편집기에는 마크다운 강조를 쓰지 않게 지시한다.
+
+## 2026-10-14 — ai-writing-editor v1.03 (Tiptap 서식 에디터)
+
+- 증상: 서식 에디터 전환 후 "본문에서 보기"(`setTextSelection`) 직후 `window.getSelection()`이 이전 선택을 돌려줌 → 원인: Tiptap의 `focus()` 명령이 다음 프레임에 DOM 선택·포커스를 반영함 → 해결: 화면 시험은 `waitForFunction`으로 선택이 바뀔 때까지 기다림 → 다음부터 확인: Tiptap 명령 직후 DOM 상태를 단정하지 말고 다음 프레임까지 기다린다.
+- 증상: AI 수정을 실행 취소한 직후 같은 문단을 3중 클릭하면 "."만 선택됨 → 원인: 취소 후 선택이 남아 있는 텍스트를 바로 클릭하면 브라우저가 텍스트 끌기로 처리(에디터 결함 아님) → 해결: 시험에서 다른 곳을 먼저 클릭해 선택을 풀고 다시 선택 → 다음부터 확인: 선택 유지 상태에서의 재선택 시험은 먼저 선택을 해제한다.
+- 증상: 서식(굵게·링크)으로 텍스트 노드가 나뉜 문장을 분석 제안으로 찾지 못함 우려 → 해결: `ai-writing-editor/src/lib/we/pmText.ts`가 텍스트 블록의 `textBetween(..., leafText)`로 평문 인덱스와 문서 위치를 1:1로 맞춰 찾고(`@tiptap/pm/model` 스키마로 DOM 없이 단위 시험), 적용은 `tr.insertText`로 그 자리 서식 유지 → 다음부터 확인: 리치 에디터에서 평문 기반 찾기·바꾸기는 위치 계산을 문서 모델 기준으로 하고 서식 경계·hard break·중복 문장을 시험한다.
+- 증상: Next.js에서 Tiptap 사용 시 하이드레이션 불일치 경고 가능 → 해결: `useEditor({ immediatelyRender: false })`, BubbleMenu는 `@tiptap/react/menus`(+`@floating-ui/dom` 설치), 패키지는 정확 버전 고정(3.31.4, 출시 2주 경과분) → 다음부터 확인: 신규 의존성은 막 출시된 버전을 피하고 정확 버전으로 고정한다.

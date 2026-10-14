@@ -36,10 +36,36 @@ button[aria-pressed=true]{background:#eef2ff;border-color:#a5b4fc;color:#4338ca}
 .we-save.saved{color:#166534}
 .we-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
 .we-chars{margin-left:auto;font-size:12px}
+.we-sheet{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.we-rich{position:sticky;top:0;z-index:10;background:#fbfcfe;border-bottom:1px solid var(--line);padding:6px 8px}
+.we-rich-row{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.we-rich button{padding:5px 7px;border-radius:7px;border-color:transparent;background:transparent}
+.we-rich button:hover{background:#eef2ff}
+.we-rich button[aria-pressed=true]{background:#e0e7ff;border-color:#a5b4fc;color:#3730a3}
+.we-rich button:disabled{opacity:.35}
+.we-sep{width:1px;height:18px;background:var(--line);margin:0 5px;display:inline-block}
+.we-link-row{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.we-link-row input{flex:1;min-width:200px;padding:6px 8px!important;font-size:12px}
 .we-editor-wrap{position:relative}
-.we-textarea{display:block;width:100%;min-height:calc(100dvh - 300px);resize:vertical;padding:18px 20px!important;font-size:15px;line-height:1.85;border-radius:14px!important;background:#fff;tab-size:2;white-space:pre-wrap;overflow-wrap:break-word}
-.we-textarea::selection{background:#c7d2fe}
-.we-toolbar{position:absolute;z-index:20;display:flex;flex-wrap:wrap;gap:4px;align-items:center;max-width:min(560px,calc(100% - 16px));padding:6px;border:1px solid #c7d2fe;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.14)}
+.we-prose{min-height:calc(100dvh - 330px);padding:22px 26px 60px;outline:none;font-size:15.5px;line-height:1.9;color:#172033;overflow-wrap:anywhere;word-break:keep-all}
+.we-prose>*:first-child{margin-top:0}
+.we-prose p{margin:0 0 .85em}
+.we-prose h1{font-size:1.75em;line-height:1.35;margin:1.2em 0 .5em;font-weight:800;letter-spacing:-.02em}
+.we-prose h2{font-size:1.4em;line-height:1.4;margin:1.1em 0 .45em;font-weight:750;letter-spacing:-.015em}
+.we-prose h3{font-size:1.15em;line-height:1.45;margin:1em 0 .4em;font-weight:700}
+.we-prose strong{font-weight:750}
+.we-prose a{color:#2563eb;text-decoration:underline;cursor:text}
+.we-prose ul,.we-prose ol{margin:0 0 .85em;padding-left:1.5em}
+.we-prose li{margin:.15em 0}
+.we-prose li>p{margin:0}
+.we-prose blockquote{margin:0 0 .85em;padding:.2em 1em;border-left:4px solid #c7d2fe;background:#f8faff;color:#475569}
+.we-prose code{background:#f1f5f9;border-radius:5px;padding:.1em .35em;font-size:.9em;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.we-prose pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;overflow:auto;margin:0 0 .85em}
+.we-prose pre code{background:transparent;color:inherit;padding:0}
+.we-prose hr{border:0;border-top:1px solid var(--line);margin:1.4em 0}
+.we-prose ::selection{background:#c7d2fe}
+.we-prose p.is-editor-empty:first-child::before{content:attr(data-placeholder);color:#94a3b8;float:left;height:0;pointer-events:none}
+.we-toolbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:max-content;max-width:min(580px,calc(100vw - 32px));padding:6px;border:1px solid #c7d2fe;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.16);z-index:30}
 .we-toolbar button{padding:5px 9px;font-size:12px}
 .we-toolbar-custom{display:flex;gap:4px;width:100%;margin-top:2px}
 .we-toolbar-custom input{flex:1;min-width:0;padding:6px 8px!important;font-size:12px}
@@ -67,4 +93,4 @@ button[aria-pressed=true]{background:#eef2ff;border-color:#a5b4fc;color:#4338ca}
 .we-new{font-size:13px;color:#166534;background:#f0fdf4;border-radius:8px;padding:6px 8px;margin:6px 0 8px;overflow-wrap:anywhere;white-space:pre-wrap}
 
 @media(max-width:1100px){.we-editor.with-panel{grid-template-columns:minmax(0,1fr)}.we-panel{position:static;max-height:none}}
-@media(max-width:767px){.we-grid{grid-template-columns:1fr}.we-textarea{min-height:60dvh}}
+@media(max-width:767px){.we-grid{grid-template-columns:1fr}.we-prose{min-height:60dvh;padding:16px 16px 48px}}

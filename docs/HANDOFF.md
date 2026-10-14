@@ -8,6 +8,11 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — AI 글쓰기 에디터 자동화 v1.03: 서식 에디터로 확장
+
+- 주인님 요청: 서식 에디터로 기능 확장. 평문 textarea → **Tiptap(ProseMirror) 서식 에디터**(제목·굵게·기울임·취소선·코드·목록·번호·인용·링크·구분선·실행 취소). 저장은 마크다운 그대로(DB 변경 없음, 기존 문서 호환), AI 수정은 선택 시 버블 툴바, 제안 적용은 그 자리의 서식을 유지, 서식 복사(HTML+텍스트)·.md/.html/.txt.
+- 검수: 단위 14/14(ProseMirror 위치 찾기), Chrome 15/15, 빌드, 운영 화면 로그인 상태 생성→서식 렌더링→문단 [친근하게] 수정(테스트 문서 삭제). 버전 v1.02→v1.03(코드·package·DB). 상세: [ai-writing-editor/docs/CLI_HANDOFF.md](../ai-writing-editor/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — 신규 프로그램: AI 글쓰기 에디터 자동화 (`ai-writing-editor` v1.02)
 
 - 참고: AI Studio "매직 에디터 (Magic Editor)"(글쓰기 도구, 순수 클라이언트 앱) 소스 직접 분석. 이름은 주인님이 "AI 글쓰기 에디터 자동화"로 확정(올인원 그래픽의 이미지 "매직 에디터"와 별개).

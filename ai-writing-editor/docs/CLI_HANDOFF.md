@@ -1,4 +1,4 @@
-# ai-writing-editor CLI 인수인계 (2026-10-14, v1.02)
+# ai-writing-editor CLI 인수인계 (2026-10-14, v1.03 서식 에디터)
 
 | 항목 | 값 |
 |---|---|
@@ -8,7 +8,7 @@
 | DB | `ai_writing_editor_documents`(0001, RLS owner-only), `programs` 등록·요금제 3종·VIP 등급 접근·썸네일(0002), 카테고리 Tools |
 | 환경변수 | 공용 Supabase 3종만(`scripts/add-ai-writing-editor-vercel-env.mjs`로 등록 완료). 운영자 AI 키는 등록하지 않음 |
 | 키 매뉴얼 | 기존 Gemini 매뉴얼 `f442cd37-…` 재사용(새 매뉴얼 없음) |
-| 버전 | v1.02 (코드 `src/lib/version.ts`, package.json 1.0.2, DB `programs.version`) |
+| 버전 | v1.03 (코드 `src/lib/version.ts`, package.json 1.0.3, DB `programs.version`) |
 
 ## 완료·검증 (2026-10-14)
 - 원본 분석: AI Studio "매직 에디터" `geminiService.ts`·`types.ts`·`App.tsx`·`HomeScreen.tsx`·`FloatingToolbar.tsx`와 사용법 화면 직접 열람(플랜: `DEVELOPMENT_PLAN.md`). 이름은 주인님이 "AI 글쓰기 에디터 자동화"로 확정.
@@ -18,8 +18,14 @@
 - `X-Vercel-Cache`/헤더는 blog-keyword와 같은 골격(`private, no-store`).
 - v1.02: 운영 확인 중 발견한 두 가지 수정 — 블로그 초안의 `**` 굵게 기호·구분선(프롬프트에서 금지), 문서 제목에 `**메타 제목:**`가 남던 문제(`deriveTitle` 정리).
 
+## v1.03 — 서식 에디터 (2026-10-14)
+- 요청: "서식 에디터로 기능 확장". 평문 textarea를 **Tiptap(ProseMirror) 서식 에디터**로 교체. 저장은 마크다운 그대로(기존 문서 호환, DB 변경 없음).
+- 추가: 서식 도구(제목1~3·굵게·기울임·취소선·코드·목록·번호·인용·링크·구분선·서식 지우기·실행 취소/다시 실행), 선택 시 버블 툴바(굵게·기울임 + AI 수정 5동작 + 직접 지시), 서식 복사(HTML+텍스트로 블로그·문서에 붙여넣기), .md/.html/.txt 내려받기, 마크다운 복사.
+- 바뀐 동작: 되돌리기는 Tiptap 이력(AI 수정·제안 적용 포함), 제안 적용은 `insertText`로 그 자리 서식 유지, AI 프롬프트가 마크다운 서식을 쓰도록 허용(표·HTML 금지).
+- 검수: 단위 14/14(ProseMirror 위치 찾기 3건 추가), Chrome 15/15(마크다운 렌더링·버블 툴바·서식 도구·링크 주소 검증·서식 유지 적용·서식 복사 HTML·다운로드), 빌드. 실제 호출은 `real-call.mts` 참고.
+
 ## 알려진 한계 / 남은 일
 1. 일반 회원(buylifemall@naver.com) 계정으로 로그인한 화면 확인(비밀번호 입력은 에이전트가 하지 않음).
 2. 인터넷 검색 옵션은 모델이 실제로 검색했을 때만 출처가 붙는다(검색하지 않으면 출처 0건). 프롬프트에 "반드시 검색"을 넣었지만 보장은 아니다.
-3. 에디터는 plain textarea라 마크다운이 서식으로 렌더링되지 않는다(.md로 내려받아 다른 도구에서 본다). 서식 에디터(리치 텍스트)는 후속 아이디어.
+3. 마크다운으로 표현되지 않는 서식(밑줄·글자색·표·이미지)은 지원하지 않는다(저장 형식이 마크다운). 표·이미지가 필요하면 별도 확장(Table 확장 + GFM 표 직렬화 검증) 필요. 여러 문단에 걸친 문자열은 분석 제안으로 적용되지 않는다.
 4. 후속 아이디어: 문서 버전 기록, 여러 제안 중 선택 적용 미리보기(diff), 말투 프리셋을 페르소나 문체 자동화와 연결.
