@@ -1,5 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — Claude Code 보조 계정에서 하단 상태바가 재실행 후 빠짐 (로컬 PC 설정)
+- 증상: Claude Code 터미널을 다시 켜면 하단 상태바(모델·5h·weekly·context)가 안 나오거나 Orca 기본 표시만 나옴 → 원인: Orca가 `settings.json`의 `statusLine`을 다시 쓰면서 `statusline-extra.js` 호출을 지우는데, 복구 스크립트 `C:/Users/Administrator/.claude/statusline-guard.js`가 기본 폴더(`~/.claude`)만 고치고, 보조 계정이 쓰는 `~/.claude-account2/settings.json`에는 복구 훅도 없었음 → 해결: guard가 `~/.claude`·`~/.claude-account2`·`CLAUDE_CONFIG_DIR`을 모두 점검하도록 수정하고, `~/.claude-account2/settings.json`에 `SessionStart`·`UserPromptSubmit` 훅으로 guard를 등록함(재실행·질문할 때마다 자동 복구) → 다음부터 확인: 새 Claude 계정 폴더를 추가하면 그 `settings.json`에도 같은 guard 훅을 넣고, guard의 점검 폴더 목록에 추가한다. 상태바 표시 내용은 `statusline-extra.js`(원본 백업 `statusline-extra.js.good`)에서만 고친다.
+
 ## 2026-10-14 — 문서번역 구현: PDF Worker·Unicode 분할·숫자 부분일치·만료 RLS
 
 - 증상: 보이는 Chrome에서 정상 텍스트 PDF도 가져오기 실패 → 원인: PDF.js6 표시 API의 window/document 접근을 앱 가져오기 Worker 안에서 기본 초기화 → 해결: `document-translator/src/workers/import.worker.ts`에 명시적 nested Worker port·useWorkerFetch·finally 정리 → 다음 확인: 원본 PDF 실제 표본을 읽고 준비된 정적 Worker/글꼴 자산까지 함께 검수합니다.
