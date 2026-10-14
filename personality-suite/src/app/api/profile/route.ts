@@ -5,7 +5,7 @@ import { generateJson } from "@/lib/gemini";
 import { getProfile, latestPerTest, saveProfile } from "@/lib/results";
 import { normalizeProfile, profilePrompt, profileSchema } from "@/lib/tests/ai";
 import { describeForAi } from "@/lib/tests/report";
-import { getTest } from "@/lib/tests/registry";
+import { getTest, isSensitive } from "@/lib/tests/registry";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,13 +22,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const g = await guardAi(request);
   if (g instanceof NextResponse) return g;
-  const latest = (await latestPerTest(g.userId)).slice(0, 8);
+  const latest = (await latestPerTest(g.userId)).filter((r) => !isSensitive(r.test_id)).slice(0, 8);
   const texts: string[] = [];
   const basedOn: { testId: string; headline: string }[] = [];
   for (const r of latest) {
     const t = getTest(r.test_id);
     if (!t) continue;
-    texts.push(describeForAi(t, r.result));
+    const prev = r.previous
+      ? `\n이전 결과(${new Date(r.previous.created_at).toLocaleDateString("ko-KR")}): ${describeForAi(t, r.previous.result).split("\n").slice(1).join(" / ")}`
+      : "";
+    texts.push(describeForAi(t, r.result) + prev);
     basedOn.push({ testId: r.test_id, headline: r.headline });
   }
   if (texts.length < 2) return json({ error: "종합 프로필은 서로 다른 검사 2개 이상을 마친 뒤 만들 수 있습니다." }, 400);

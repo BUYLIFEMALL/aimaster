@@ -4,7 +4,7 @@ import { generateJson } from "@/lib/gemini";
 import { getResult, saveAnalysis } from "@/lib/results";
 import { analysisPrompt, analysisSchema, normalizeAnalysis } from "@/lib/tests/ai";
 import { describeForAi } from "@/lib/tests/report";
-import { getTest } from "@/lib/tests/registry";
+import { getTest, isSensitive } from "@/lib/tests/registry";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
   if (!row) return json({ error: "결과를 찾을 수 없습니다." }, 404);
   const test = getTest(row.test_id);
   if (!test) return json({ error: "지원하지 않는 검사입니다." }, 400);
+  if (isSensitive(test.id)) return json({ error: "마음 상태 점검 결과는 AI 분석 대상이 아닙니다." }, 400);
   try {
     const { system, user } = analysisPrompt(describeForAi(test, row.result));
     const { data } = await generateJson({ apiKey: g.apiKey, system, user, schema: analysisSchema, temperature: 0.6, maxOutputTokens: 8192 });

@@ -1,8 +1,8 @@
 // AI 종합 성격 진단 — 검사 공통 타입(서버·클라이언트 공용, 비밀 값 없음).
 // 모든 문항·해석 문구는 이 프로그램에서 새로 작성한 콘텐츠다(원본 앱·공식 검사의 문장을 쓰지 않는다).
 
-export type TestKind = "type16" | "bigfive" | "behavior" | "attachment" | "enneagram";
-export type TestGroup = "type16" | "psych";
+export type TestKind = "type16" | "bigfive" | "behavior" | "attachment" | "enneagram" | "temperament" | "wellbeing";
+export type TestGroup = "type16" | "psych" | "care";
 
 /** 5단계 동의 척도(1~5). 모든 검사가 같은 척도를 쓴다. */
 export const SCALE = [
@@ -45,7 +45,11 @@ export interface BehaviorTest extends Base { kind: "behavior"; questions: TraitQ
 export interface AttachmentTest extends Base { kind: "attachment"; questions: TraitQuestion[] }
 export interface EnneagramTest extends Base { kind: "enneagram"; questions: TraitQuestion[] }
 
-export type Test = Type16Test | BigFiveTest | BehaviorTest | AttachmentTest | EnneagramTest;
+export interface TemperamentTest extends Base { kind: "temperament"; questions: TraitQuestion[] }
+/** 마음 상태 자기점검: 점수가 높을수록 부담이 큰 쪽(역문항은 지지·회복 문항). 기본은 저장하지 않는다. */
+export interface WellbeingTest extends Base { kind: "wellbeing"; questions: TraitQuestion[] }
+
+export type Test = Type16Test | BigFiveTest | BehaviorTest | AttachmentTest | EnneagramTest | TemperamentTest | WellbeingTest;
 
 // ---- 결과 ----
 export interface AxisScore {

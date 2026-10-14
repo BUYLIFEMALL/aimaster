@@ -152,3 +152,6 @@ a.project-card{color:inherit}
   .scale-btn span{text-align:left;font-size:12px}
   .bar-row.single{grid-template-columns:90px 1fr}
 }
+.care-notice{border-color:#c7d2fe;background:#f5f7ff;margin-bottom:14px}
+.care-notice strong{display:block;margin-bottom:4px}
+.care-notice .gd-list{margin-top:8px}

@@ -30,7 +30,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
       <nav className="sidebar-nav" aria-label="프로그램 메뉴">
         <p className="nav-caption">작업 흐름</p>
         <a className="flow-item" aria-current={currentPath === "/dashboard" || currentPath.startsWith("/test/") ? "page" : undefined} href="/dashboard">
-          <span className="step-number">1</span><div><strong>검사하기</strong><small>16유형 상황별 · 심리 검사 14종</small></div>
+          <span className="step-number">1</span><div><strong>검사하기</strong><small>상황별 16유형 · 심리·마음 점검</small></div>
         </a>
         <a className="flow-item" aria-current={currentPath === "/history" || currentPath.startsWith("/result/") ? "page" : undefined} href="/history">
           <span className="step-number">2</span><div><strong>내 결과</strong><small>결과 보기 · AI 심층 분석</small></div>

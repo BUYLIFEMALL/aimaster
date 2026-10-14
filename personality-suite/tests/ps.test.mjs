@@ -4,17 +4,20 @@ import { ALL_TESTS, getTest, testsOf } from "../src/lib/tests/registry.ts";
 import { scoreTest, validateAnswers } from "../src/lib/tests/scoring.ts";
 import { TYPE16_PROFILES } from "../src/lib/tests/content/type16Profiles.ts";
 import { ATTACHMENT_PROFILES, BEHAVIOR_PROFILES, BIGFIVE_TEXT, ENNEAGRAM_PROFILES } from "../src/lib/tests/content/psychProfiles.ts";
-import { buildReport, describeForAi } from "../src/lib/tests/report.ts";
+import { buildReport, compareResults, describeForAi } from "../src/lib/tests/report.ts";
 import { analysisPrompt, profilePrompt, normalizeAnalysis, normalizeProfile, yearGuard } from "../src/lib/tests/ai.ts";
 import { AXES, AXIS_POLES } from "../src/lib/tests/types.ts";
+import { CRISIS_NOTICE, TEMPERAMENT_TEXT, WELLBEING_TEXT } from "../src/lib/tests/content/careTests.ts";
+import { isSensitive } from "../src/lib/tests/registry.ts";
 
 const all = (n, v) => Array(n).fill(v);
 
-test("검사 목록: 14종, id 중복 없음, 그룹별 개수", () => {
-  assert.equal(ALL_TESTS.length, 14);
-  assert.equal(new Set(ALL_TESTS.map((t) => t.id)).size, 14);
+test("검사 목록: 16종, id 중복 없음, 그룹별 개수", () => {
+  assert.equal(ALL_TESTS.length, 16);
+  assert.equal(new Set(ALL_TESTS.map((t) => t.id)).size, 16);
   assert.equal(testsOf("type16").length, 10);
-  assert.equal(testsOf("psych").length, 4);
+  assert.equal(testsOf("psych").length, 5);
+  assert.equal(testsOf("care").length, 1);
   assert.ok(getTest("type16-korean"));
   assert.equal(getTest("nope"), undefined);
 });
@@ -193,4 +196,68 @@ test("AI 프롬프트: 연도 지침·진단 금지·데이터 취급, 응답 �
   const prof = normalizeProfile({ headline: "h", commonThemes: ["a"], tensions: [], strengths: [], growthPlan: [], caution: "c" });
   assert.equal(prof.headline, "h");
   assert.equal(normalizeProfile({ headline: "", commonThemes: [] }), null);
+});
+
+test("기질·성향 점검: 요인 균형·역문항·순위", () => {
+  const t = getTest("temperament");
+  assert.equal(t.questions.length, 24);
+  for (const k of ["explore", "caution", "bond", "persist"]) {
+    const qs = t.questions.filter((q) => q.trait === k);
+    assert.equal(qs.length, 6, k);
+    assert.ok(qs.some((q) => q.reverse) && qs.some((q) => !q.reverse), k + " 역문항 혼합");
+    assert.ok(TEMPERAMENT_TEXT[k].low && TEMPERAMENT_TEXT[k].mid && TEMPERAMENT_TEXT[k].high);
+  }
+  const a = t.questions.map((q) => (q.trait === "persist" ? (q.reverse ? 1 : 5) : q.trait === "explore" ? (q.reverse ? 2 : 4) : 3));
+  const r = scoreTest(t, a);
+  assert.equal(r.code, "persist");
+  assert.deepEqual(r.ranking.slice(0, 2), ["persist", "explore"]);
+  assert.match(buildReport(t, r).title, /지속력 \+ 탐색 성향/);
+  assert.equal(scoreTest(t, all(24, 3)).code, "explore", "동점이면 정의된 순서");
+});
+
+test("마음 상태 점검: 점수 방향·수준·고정 안내·민감 처리", () => {
+  const t = getTest("wellbeing");
+  assert.equal(t.questions.length, 20);
+  for (const k of ["tension", "energy", "sleep", "support"]) {
+    assert.equal(t.questions.filter((q) => q.trait === k).length, 5, k);
+    assert.ok(WELLBEING_TEXT[k].low && WELLBEING_TEXT[k].mid && WELLBEING_TEXT[k].high && WELLBEING_TEXT[k].tip);
+  }
+  // 모든 부담 문항 5점, 지지·회복 문항 1점 = 최대 부담
+  const worst = scoreTest(t, t.questions.map((q) => (q.reverse ? 1 : 5)));
+  assert.ok(worst.traits.every((x) => x.score === 100 && x.level === "high"));
+  assert.equal(worst.code, "high");
+  const best = scoreTest(t, t.questions.map((q) => (q.reverse ? 5 : 1)));
+  assert.ok(best.traits.every((x) => x.score === 0));
+  assert.equal(best.code, "low");
+  assert.equal(scoreTest(t, all(20, 3)).code, "mid");
+  const rep = buildReport(t, worst);
+  assert.match(rep.summary, /긴장·스트레스|에너지·의욕|수면·회복|관계·지지/);
+  assert.ok(rep.tips.length === 3 && rep.notes.length === 1);
+  assert.ok(CRISIS_NOTICE.lines.some((l) => l.includes("109")) && CRISIS_NOTICE.lines.some((l) => l.includes("1577-0199")) && CRISIS_NOTICE.lines.some((l) => l.includes("1388")));
+  assert.equal(isSensitive("wellbeing"), true);
+  assert.equal(isSensitive("bigfive"), false);
+  // 진단 용어를 문항·해석에 쓰지 않는다
+  const text = JSON.stringify([t, WELLBEING_TEXT]);
+  assert.ok(!/우울증|불안장애|공황|자살|자해|진단됩/.test(text));
+});
+
+test("결과 비교: 변화가 있을 때만 문장 생성", () => {
+  const t = getTest("bigfive");
+  const base = t.questions.map(() => 3);
+  const up = t.questions.map((q) => (q.trait === "E" ? (q.reverse ? 1 : 5) : 3));
+  const a = scoreTest(t, base);
+  const b = scoreTest(t, up);
+  assert.deepEqual(compareResults(a, a), []);
+  const c = compareResults(a, b);
+  assert.ok(c.some((s) => s.startsWith("외향성: 50점 → 100점")));
+  const t16 = getTest("type16-standard");
+  const x = scoreTest(t16, t16.questions.map((q) => (q.pole === "E" || q.pole === "S" ? 5 : 1)));
+  const y = scoreTest(t16, t16.questions.map((q) => (q.pole === "I" || q.pole === "S" ? 5 : 1)));
+  assert.ok(compareResults(x, y).some((s) => s.includes("E → I")));
+});
+
+test("종합 프로필 정규화: changes 필드는 선택, 최대 2개", () => {
+  const p = normalizeProfile({ headline: "h", commonThemes: ["a"], tensions: [], strengths: [], growthPlan: [], changes: ["x", "y", "z"], caution: "" });
+  assert.equal(p.changes.length, 2);
+  assert.deepEqual(normalizeProfile({ headline: "h", commonThemes: ["a"] }).changes, []);
 });

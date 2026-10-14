@@ -2,6 +2,7 @@ import {
   ANSWER_MAX, ANSWER_MIN, AXES, AXIS_POLES,
   type AxisScore, type ScoredResult, type Test, type TraitScore,
 } from "./types";
+import { TEMPERAMENT_LABELS, TEMPERAMENT_ORDER, WELLBEING_LABELS, WELLBEING_ORDER } from "./content/careTests";
 
 // 점수 계산(순수 함수, 서버가 답변으로 다시 계산한다 — 클라이언트가 보낸 점수는 믿지 않는다).
 
@@ -121,6 +122,34 @@ function scoreEnneagram(test: Extract<Test, { kind: "enneagram" }>, answers: num
   };
 }
 
+// ---- 기질·성향 ----
+function scoreTemperament(test: Extract<Test, { kind: "temperament" }>, answers: number[]): ScoredResult {
+  const m = traitMeans(test, answers);
+  const traits: TraitScore[] = TEMPERAMENT_ORDER.map((k) => {
+    const score = to100(m.get(k) ?? 3);
+    return { key: k, label: TEMPERAMENT_LABELS[k], score, level: level(score) };
+  });
+  const ranked = [...traits].sort((a, b) => b.score - a.score || TEMPERAMENT_ORDER.indexOf(a.key) - TEMPERAMENT_ORDER.indexOf(b.key));
+  return {
+    testId: test.id, kind: "temperament", headline: `${ranked[0].label} + ${ranked[1].label} 기질`, code: ranked[0].key,
+    traits, ranking: ranked.map((t) => t.key), close: ranked[0].score - ranked[1].score <= 5,
+  };
+}
+
+// ---- 스트레스·마음 상태(점수가 높을수록 부담) ----
+function scoreWellbeing(test: Extract<Test, { kind: "wellbeing" }>, answers: number[]): ScoredResult {
+  const m = traitMeans(test, answers);
+  const traits: TraitScore[] = WELLBEING_ORDER.map((k) => {
+    const score = to100(m.get(k) ?? 3);
+    return { key: k, label: WELLBEING_LABELS[k], score, level: level(score) };
+  });
+  const avg = Math.round(mean(traits.map((t) => t.score)));
+  const overall = level(avg);
+  const headline = overall === "low" ? "지금은 비교적 안정적인 상태" : overall === "mid" ? "조금 지친 상태" : "부담이 큰 시기";
+  const ranked = [...traits].sort((a, b) => b.score - a.score || WELLBEING_ORDER.indexOf(a.key) - WELLBEING_ORDER.indexOf(b.key));
+  return { testId: test.id, kind: "wellbeing", headline, code: overall, traits, ranking: ranked.map((t) => t.key) };
+}
+
 /** 검사 종류에 맞춰 점수를 계산한다(답변은 validateAnswers를 통과한 값) */
 export function scoreTest(test: Test, answers: number[]): ScoredResult {
   switch (test.kind) {
@@ -129,5 +158,7 @@ export function scoreTest(test: Test, answers: number[]): ScoredResult {
     case "behavior": return scoreBehavior(test, answers);
     case "attachment": return scoreAttachment(test, answers);
     case "enneagram": return scoreEnneagram(test, answers);
+    case "temperament": return scoreTemperament(test, answers);
+    case "wellbeing": return scoreWellbeing(test, answers);
   }
 }

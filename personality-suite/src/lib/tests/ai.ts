@@ -42,7 +42,7 @@ export function profilePrompt(results: string[], now?: Date): { system: string; 
     yearGuard(now),
     PERSONA,
     "여러 검사의 결과를 한 사람의 종합 프로필로 묶어 해석합니다. 검사마다 기준이 달라 점수를 직접 비교하지 말고, 결과가 공통으로 가리키는 주제와 서로 어긋나 보이는 지점을 구분해 설명하세요.",
-    "headline: 종합 프로필을 한 줄로. commonThemes: 여러 결과가 공통으로 가리키는 주제 3개(각 한두 문장). tensions: 서로 어긋나거나 상황에 따라 달라 보이는 지점 1~2개(각 한두 문장, 모순이 아니라 맥락 차이로 설명). strengths: 종합 강점 3개. growthPlan: 앞으로 2주간 해 볼 실천 3개(title 짧은 한 줄, detail 2문장). caution: 결과를 해석할 때 유의할 점 한 문장.",
+    "headline: 종합 프로필을 한 줄로. commonThemes: 여러 결과가 공통으로 가리키는 주제 3개(각 한두 문장). tensions: 서로 어긋나거나 상황에 따라 달라 보이는 지점 1~2개(각 한두 문장, 모순이 아니라 맥락 차이로 설명). strengths: 종합 강점 3개. growthPlan: 앞으로 2주간 해 볼 실천 3개(title 짧은 한 줄, detail 2문장). changes: 결과에 ‘이전 결과’가 함께 있을 때만 달라진 점 0~2개(각 한 문장, 변화를 좋고 나쁨으로 단정하지 말 것), 없으면 빈 배열. caution: 결과를 해석할 때 유의할 점 한 문장.",
     DATA_NOTE,
   ].join("\n");
   const user = `여러 검사 결과(데이터):\n${results.map((r, i) => `[${i + 1}]\n${r}`).join("\n\n")}`;
@@ -69,6 +69,7 @@ export const profileSchema = OBJ({
   tensions: ARR(S),
   strengths: ARR(S),
   growthPlan: ARR(OBJ({ title: S, detail: S })),
+  changes: ARR(S),
   caution: S,
 });
 
@@ -107,6 +108,7 @@ export interface Profile {
   tensions: string[];
   strengths: string[];
   growthPlan: Advice[];
+  changes: string[];
   caution: string;
 }
 
@@ -119,6 +121,7 @@ export function normalizeProfile(raw: unknown): Profile | null {
     tensions: strList(o.tensions, 2, 500),
     strengths: strList(o.strengths, 3),
     growthPlan: advList(o.growthPlan, 3),
+    changes: strList(o.changes, 2),
     caution: str(o.caution, 400),
   };
   if (!p.headline || p.commonThemes.length === 0) return null;

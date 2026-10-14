@@ -70,22 +70,36 @@ export async function saveAnalysis(userId: string, id: string, analysis: Analysi
   return !error;
 }
 
-/** 검사마다 가장 최근 결과 1건씩(종합 프로필 재료) */
-export async function latestPerTest(userId: string): Promise<ResultRow[]> {
+export interface LatestRow extends ResultRow { previous: ResultRow | null }
+
+/** 검사마다 가장 최근 결과 1건과 그 직전 결과(종합 프로필 재료·변화 비교용) */
+export async function latestPerTest(userId: string): Promise<LatestRow[]> {
   const { data } = await createAdminClient()
     .from("personality_suite_results")
     .select(COLS)
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(MAX_RESULTS);
-  const seen = new Set<string>();
-  const out: ResultRow[] = [];
+  const out = new Map<string, LatestRow>();
   for (const r of (data ?? []) as ResultRow[]) {
-    if (seen.has(r.test_id)) continue;
-    seen.add(r.test_id);
-    out.push(r);
+    const cur = out.get(r.test_id);
+    if (!cur) out.set(r.test_id, { ...r, previous: null });
+    else if (!cur.previous) cur.previous = r;
   }
-  return out;
+  return [...out.values()];
+}
+
+/** 같은 검사의 바로 이전 결과(결과 화면의 변화 비교용) */
+export async function getPreviousResult(userId: string, testId: string, beforeIso: string): Promise<ResultRow | null> {
+  const { data } = await createAdminClient()
+    .from("personality_suite_results")
+    .select(COLS)
+    .eq("user_id", userId)
+    .eq("test_id", testId)
+    .lt("created_at", beforeIso)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  return ((data ?? [])[0] as ResultRow | undefined) ?? null;
 }
 
 export interface StoredProfile { profile: Profile; basedOn: { testId: string; headline: string }[]; updatedAt: string }

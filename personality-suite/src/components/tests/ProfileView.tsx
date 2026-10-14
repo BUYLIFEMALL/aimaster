@@ -57,6 +57,7 @@ export function ProfileView({ initial, doneCount }: { initial: StoredProfile | n
               </ol>
             </section>
           )}
+          {p.changes?.length > 0 && <section className="card"><h2>지난 결과와 달라진 점</h2><ul className="gd-list">{p.changes.map((s, i) => <li key={i}>{s}</li>)}</ul></section>}
           {p.caution && <div className="notice">{p.caution}</div>}
         </>
       )}

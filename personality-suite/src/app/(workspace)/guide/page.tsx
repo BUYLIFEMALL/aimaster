@@ -75,6 +75,8 @@ export default function GuidePage() {
           <div className="gd-faq">
             <details><summary>“Gemini API 키가 등록되지 않았습니다”라고 나와요.</summary><p>③의 순서대로 본인 키를 등록하세요. 검사와 기본 해석은 키 없이도 됩니다.</p></details>
             <details><summary>“AI가 올바른 형식으로 응답하지 못했습니다”라고 나와요.</summary><p>같은 버튼을 한 번 더 누르세요.</p></details>
+            <details><summary>마음 상태 점검 결과는 왜 저장되지 않나요?</summary><p>민감한 내용이라 기본적으로 저장하지 않고 화면에서만 보여 드립니다. 비교해 보고 싶을 때만 [내 기록에 저장]을 누르세요. 저장해도 AI 분석과 종합 프로필에는 쓰이지 않습니다. 이 점검은 진단이 아니며, 많이 힘들다면 결과 화면의 상담 창구(109·1577-0199·1388)를 이용해 주세요.</p></details>
+            <details><summary>같은 검사를 다시 하면 이전 결과와 비교되나요?</summary><p>저장된 이전 결과가 있으면 결과 화면에 &quot;지난 결과와 비교&quot;가 나타납니다. 종합 프로필에도 검사별 직전 결과가 함께 반영되어 달라진 점을 알려 줍니다.</p></details>
             <details><summary>결과를 지우면 복구되나요?</summary><p>삭제한 결과는 복구할 수 없습니다. 결과는 본인만 볼 수 있으며 최대 100개까지 보관됩니다.</p></details>
             <details><summary>같은 검사를 다시 하면 어떻게 되나요?</summary><p>새 결과로 따로 저장됩니다. 종합 프로필에는 검사별 가장 최근 결과가 쓰입니다.</p></details>
           </div>

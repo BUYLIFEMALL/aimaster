@@ -2,7 +2,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
-import { SCALE, type Test } from "@/lib/tests/types";
+import { SCALE, type ScoredResult, type Test } from "@/lib/tests/types";
+import { CRISIS_NOTICE } from "@/lib/tests/content/careTests";
+import { ResultView } from "./ResultView";
 
 // 한 화면에 한 문항. 답은 브라우저 메모리에만 두고, 마지막 문항에서 서버로 한 번에 보낸다(서버가 점수를 다시 계산).
 export function TestRunner({ test }: { test: Test }) {
@@ -12,6 +14,8 @@ export function TestRunner({ test }: { test: Test }) {
   const [index, setIndex] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [temp, setTemp] = useState<ScoredResult | null>(null);
+  const sensitive = test.kind === "wellbeing";
 
   const done = answers.every((a) => a !== null);
   const current = answers[index];
@@ -26,7 +30,9 @@ export function TestRunner({ test }: { test: Test }) {
         body: JSON.stringify({ testId: test.id, answers: finalAnswers }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.id) throw new Error(data.error || "결과를 저장하지 못했습니다.");
+      if (!res.ok) throw new Error(data.error || "결과를 저장하지 못했습니다.");
+      if (data.result && data.saved === false) { setTemp(data.result as ScoredResult); setBusy(false); return; }
+      if (!data.id) throw new Error("결과를 저장하지 못했습니다.");
       router.push(`/result/${data.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "결과를 저장하지 못했습니다.");
@@ -52,11 +58,25 @@ export function TestRunner({ test }: { test: Test }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [pick]);
 
+  async function saveTemp() {
+    const res = await fetch("/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ testId: test.id, answers, save: true }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.id) throw new Error(data.error || "저장하지 못했습니다.");
+    router.push(`/result/${data.id}`);
+  }
+
+  if (temp) return <ResultView testId={test.id} result={temp} onSave={saveTemp} />;
+
   const q = test.questions[index];
   const pct = Math.round((answers.filter((a) => a !== null).length / total) * 100);
 
   return (
     <div className="runner card">
+      {sensitive && index === 0 && <p className="notice care-notice" role="note">{CRISIS_NOTICE.body} ({CRISIS_NOTICE.lines.slice(0, 2).join(" · ")})</p>}
       <div className="runner-top">
         <span>{index + 1} / {total}</span>
         <div className="runner-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><i style={{ width: `${pct}%` }} /></div>
