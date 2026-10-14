@@ -1,4 +1,4 @@
-# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.03)
+# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.04)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -9,6 +9,7 @@
 - `src/lib/tests/` **순수 로직(단위 테스트 대상)**: `types`(5단계 척도, 검사·결과 타입), `scoring`(`validateAnswers`·`scoreTest`: 서버가 점수를 다시 계산), `content/*`(문항·유형 해석), `registry`(`ALL_TESTS`·`GROUPS`), `report`(`buildReport`·`describeForAi`), `ai`(프롬프트·스키마·응답 정규화·`yearGuard`).
 - v1.02 추가: `content/careTests.ts`(기질·성향 24문항·마음 상태 20문항·해석·`CRISIS_NOTICE`), `registry.isSensitive()`, `report.compareResults()`(같은 검사 이전 결과 비교), `results.getPreviousResult()`·`latestPerTest()`(직전 결과 포함).
 - v1.03 추가: `lib/tests/trends.ts`(`buildTrends` 순수 함수: 2회 이상 한 점수형 검사만 시간순·최대 12점, 민감 검사 제외), `components/tests/TrendChart.tsx`(SVG 꺾은선, 프로필 화면 하단), `lib/shareImage.ts`(결과 카드를 브라우저 canvas로 PNG 생성 — 서버 전송 없음, 마음 상태 점검은 제외), 결과 화면 [인쇄·PDF 저장](`window.print` + `@media print`).
+- v1.04 추가: 종합 프로필 **검사별 반영 비중**(`ai.ts` `Weight` 0~3·`WEIGHT_LABELS`·`normalizeWeights`). 회원이 프로필 화면에서 검사별 제외/참고/중요/핵심을 고르면 `POST /api/profile`의 `weights`로 보내고, 서버가 검증해 제외 검사를 빼고 비중순으로 정렬해 프롬프트에 `중요도:` 줄로 전달한다. `basedOn`에 `weight`를 함께 저장(스키마 변경 없음). 선택값은 이 브라우저 localStorage에만 기억한다.
 - 서버 전용: `gemini.ts`(모델 폴백 `gemini-3.5-flash → 2.5-flash`, JSON 재시도, MAX_TOKENS 감지), `results.ts`(결과·프로필 CRUD, 항상 `user_id` 필터, 회원당 결과 100개 정리), `apiKeys.ts`, `aiRoute.ts`(`guardAi`).
 - API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/submit`(키 불필요), `GET /api/results`, `GET/DELETE /api/results/[id]`, `POST /api/analyze`(본인 키), `GET/POST /api/profile`(본인 키), `/api/keys`(+`/test`).
 - 화면: `/dashboard`(검사 목록) → `/test/[id]`(`TestRunner`) → `/result/[id]`(`ResultView`), `/history`, `/profile`, `/settings`, `/guide`.
@@ -24,9 +25,9 @@
 - 화면은 흰색 베이스 + 표준 사이드바(계정은 마지막 메뉴 바로 아래).
 
 ## 검수
-- `npm test`(순수 로직 18건: 문항 균형·16유형 전 도달·역문항·동점·AI 정규화), `npx tsc --noEmit`, `npm run build`.
+- `npm test`(순수 로직 19건: 문항 균형·16유형 전 도달·역문항·동점·AI 정규화), `npx tsc --noEmit`, `npm run build`.
 - 운영 확인(2026-10-14): 로그인 상태에서 성격 5요인 30문항 → 결과 → AI 심층 분석 → 삭제까지 확인(테스트 결과 삭제).
 
 ## 남은 일 (v1.03 후보)
-- 종합 프로필 검사별 가중, 일반 회원 계정 흐름 재확인(주인님 로그인 후).
+- 일반 회원 계정 흐름 재확인(주인님 로그인 후). 그 외 확정된 후속 과제 없음.
 - v1.02 운영 확인(2026-10-14): 마음 상태 점검 미저장→저장→AI 차단·삭제, 기질 검사 2회 비교 문구, 프로필 `changes` 생성 확인(테스트 결과·프로필 삭제).

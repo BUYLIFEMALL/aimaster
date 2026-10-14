@@ -282,3 +282,14 @@ test("변화 추이: 2회 이상만, 시간순, 최대 12점, 민감 검사 제�
   assert.equal(ax.series.length, 4);
   assert.ok(ax.series[0].label.includes("E"));
 });
+
+test("종합 프로필 가중치: 정규화·프롬프트 문구", async () => {
+  const { normalizeWeights, WEIGHT_LABELS } = await import("../src/lib/tests/ai.ts");
+  const w = normalizeWeights({ a: 3, b: 0, c: 7, d: "2", zzz: 3 }, ["a", "b", "c", "d", "e"]);
+  assert.deepEqual(w, { a: 3, b: 0, c: 1, d: 1, e: 1 });
+  assert.deepEqual(normalizeWeights(null, ["a"]), { a: 1 });
+  assert.deepEqual(normalizeWeights([1, 2], ["a"]), { a: 1 });
+  assert.deepEqual([WEIGHT_LABELS[1], WEIGHT_LABELS[2], WEIGHT_LABELS[3]], ["참고", "중요", "핵심"]);
+  const p = profilePrompt(["중요도: 핵심\n검사: x"], new Date("2026-10-14T00:00:00Z"));
+  assert.match(p.system, /핵심 > 중요 > 참고/);
+});

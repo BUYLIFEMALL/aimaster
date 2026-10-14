@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — AI 종합 성격 진단 자동화 v1.04 (`personality-suite`)
+
+- 추가: 종합 프로필 검사별 반영 비중(제외·참고·중요·핵심) — 서버가 검증 후 제외 검사를 빼고 비중순으로 AI에 전달, 결과에 비중 표시. 프로필 화면의 검사 개수에 민감 검사(마음 상태)가 섞이던 문제 수정. DB 스키마 변경 없음.
+- 검수: 단위 19/19, tsc·빌드, 운영 로그인 화면에서 제외·비중 저장·화면 표시 확인(테스트 데이터 삭제). 버전 v1.03→v1.04(코드·package·DB). 상세: [personality-suite/docs/CLI_HANDOFF.md](../personality-suite/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — AI 종합 성격 진단 자동화 v1.03 (`personality-suite`)
 
 - 추가: 결과 공유 이미지(브라우저 canvas PNG, 서버 전송 없음), 인쇄·PDF 저장, 종합 프로필 화면의 시기별 변화 추이 그래프(2회 이상 한 점수형 검사). 마음 상태 점검은 이미지·추이에서 제외. DB 스키마 변경 없음.

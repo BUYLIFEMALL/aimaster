@@ -3,7 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { fail, guardAi, json } from "@/lib/aiRoute";
 import { generateJson } from "@/lib/gemini";
 import { getProfile, latestPerTest, saveProfile } from "@/lib/results";
-import { normalizeProfile, profilePrompt, profileSchema } from "@/lib/tests/ai";
+import { normalizeProfile, normalizeWeights, profilePrompt, profileSchema, WEIGHT_LABELS } from "@/lib/tests/ai";
 import { describeForAi } from "@/lib/tests/report";
 import { getTest, isSensitive } from "@/lib/tests/registry";
 
@@ -22,17 +22,21 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const g = await guardAi(request);
   if (g instanceof NextResponse) return g;
-  const latest = (await latestPerTest(g.userId)).filter((r) => !isSensitive(r.test_id)).slice(0, 8);
+  const all = (await latestPerTest(g.userId)).filter((r) => !isSensitive(r.test_id));
+  const weights = normalizeWeights(g.body.weights, all.map((r) => r.test_id));
+  // 제외(0) 검사는 빼고, 비중이 높은 검사를 앞에 둔다(같으면 최근 순 유지)
+  const latest = all.filter((r) => weights[r.test_id] > 0).sort((a, b) => weights[b.test_id] - weights[a.test_id]).slice(0, 8);
   const texts: string[] = [];
-  const basedOn: { testId: string; headline: string }[] = [];
+  const basedOn: { testId: string; headline: string; weight: number }[] = [];
   for (const r of latest) {
     const t = getTest(r.test_id);
     if (!t) continue;
     const prev = r.previous
       ? `\n이전 결과(${new Date(r.previous.created_at).toLocaleDateString("ko-KR")}): ${describeForAi(t, r.previous.result).split("\n").slice(1).join(" / ")}`
       : "";
-    texts.push(describeForAi(t, r.result) + prev);
-    basedOn.push({ testId: r.test_id, headline: r.headline });
+    const w = weights[r.test_id] as 1 | 2 | 3;
+    texts.push(`중요도: ${WEIGHT_LABELS[w]}\n` + describeForAi(t, r.result) + prev);
+    basedOn.push({ testId: r.test_id, headline: r.headline, weight: w });
   }
   if (texts.length < 2) return json({ error: "종합 프로필은 서로 다른 검사 2개 이상을 마친 뒤 만들 수 있습니다." }, 400);
   try {

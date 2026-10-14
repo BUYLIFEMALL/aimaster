@@ -12,6 +12,7 @@ export default async function ProfilePage() {
   const user = await requireUser();
   const [stored, latest, rows] = await Promise.all([getProfile(user.id), latestPerTest(user.id), listForTrends(user.id)]);
   const trends = buildTrends(rows, isSensitive);
+  const candidates = latest.filter((r) => !isSensitive(r.test_id)).map((r) => ({ testId: r.test_id, headline: r.headline, at: r.created_at }));
   return (
     <>
       <div className="page-heading">
@@ -19,7 +20,7 @@ export default async function ProfilePage() {
         <h1>여러 검사를 하나로 묶어 보기</h1>
         <p>검사마다 기준이 달라 점수를 직접 비교하지 않고, 결과들이 공통으로 가리키는 주제를 중심으로 해석합니다.</p>
       </div>
-      <ProfileView initial={stored} doneCount={latest.length} />
+      <ProfileView initial={stored} candidates={candidates} />
       <section className="card trends" style={{ marginTop: 16 }}>
         <h2>시기별 변화 추이</h2>
         {trends.length === 0

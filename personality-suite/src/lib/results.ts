@@ -113,7 +113,7 @@ export async function getPreviousResult(userId: string, testId: string, beforeIs
   return ((data ?? [])[0] as ResultRow | undefined) ?? null;
 }
 
-export interface StoredProfile { profile: Profile; basedOn: { testId: string; headline: string }[]; updatedAt: string }
+export interface StoredProfile { profile: Profile; basedOn: { testId: string; headline: string; weight?: number }[]; updatedAt: string }
 
 export async function getProfile(userId: string): Promise<StoredProfile | null> {
   const { data } = await createAdminClient().from("personality_suite_profiles").select("profile, based_on, updated_at").eq("user_id", userId).maybeSingle();

@@ -160,3 +160,9 @@ a.project-card{color:inherit}
 .trend-legend{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:#475569}
 .trend-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
 @media print{.desktop-sidebar,.mobile-sidebar,.no-print,.head-row button,.runner-nav{display:none!important}.app-shell{display:block}.workspace-content{max-width:none;padding:0}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
+.weight-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:8px}
+.weight-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;border-bottom:1px solid #f1f5f9;font-weight:400}
+.weight-row:last-child{border-bottom:0}
+.weight-row span{display:flex;flex-direction:column;min-width:0}
+.weight-row b{font-size:13px}
+.weight-row select{width:96px;flex-shrink:0}
