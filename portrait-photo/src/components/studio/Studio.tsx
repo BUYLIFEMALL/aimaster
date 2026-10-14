@@ -79,6 +79,8 @@ export function Studio({ userId }: { userId: string }) {
   const [headBusy, setHeadBusy] = useState(false);
   const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
   const [autoConfirm, setAutoConfirm] = useState(false);
+  const [retryConfirm, setRetryConfirm] = useState(false);
+  const [centerOk, setCenterOk] = useState(false);
   const [autoBusy, setAutoBusy] = useState(false);
   const [autoProgress, setAutoProgress] = useState("");
   const [batchReport, setBatchReport] = useState<{ idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[]>([]);
@@ -292,13 +294,14 @@ export function Studio({ userId }: { userId: string }) {
   }
 
   /** 일괄 모드: 사진마다 머리 비율을 AI로 검사하고, 작게 나온 사진은 자동 확대 자르기 영역을 지정한다(AI N회 호출) */
-  async function autoCropBatch() {
+  async function autoCropBatch(only?: number[]) {
     const preset = sizePresetById(sizeId);
     if (!preset.headRange) return;
-    const keep = results.map((_, i) => i).filter((i) => !skip[i]);
+    const keep = results.map((_, i) => i).filter((i) => !skip[i]).filter((i) => !only || only.includes(i));
     if (keep.length === 0) { setError("검사할 사진이 없습니다. 제외 표시를 확인해 주세요."); return; }
-    setAutoConfirm(false); setAutoBusy(true); setError(""); setNeedKey(false); setBatchReport([]);
-    const report: { idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[] = [];
+    setAutoConfirm(false); setRetryConfirm(false); setAutoBusy(true); setError(""); setNeedKey(false);
+    const report: { idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[] = only ? batchReport.filter((r) => !only.includes(r.idx)) : [];
+    if (!only) setBatchReport([]);
     let stop = false;
     let done = 0;
     let next = 0;
@@ -316,10 +319,18 @@ export function Studio({ userId }: { userId: string }) {
           if (!res.ok) { if (data.needKey) { setNeedKey(true); stop = true; } throw new Error(data.error || "검사하지 못했습니다."); }
           const im = new Image();
           await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = results[i]; });
-          const d = decideBatchCrop(data, preset, im.naturalWidth, im.naturalHeight);
+          const d = decideBatchCrop(data, preset, im.naturalWidth, im.naturalHeight, centerOk);
           if (d.status === "notfound") report.push({ idx: i, name: label, text: "얼굴 위치를 찾지 못해 자동 중앙 자르기를 씁니다.", tone: "warn" });
-          else if (d.status === "ok") report.push({ idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 범위 안(자동 중앙 자르기)`, tone: "ok" });
-          else if (d.status === "large") report.push({ idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 기준보다 큼(자동 중앙 자르기, 필요하면 [자르기 영역 조정])`, tone: "warn" });
+          else if (d.status === "ok" || d.status === "large") {
+            if (d.crop) {
+              const crop = d.crop;
+              setBatchCrops((cur) => ({ ...cur, [fileIdx]: { presetId: preset.id, crop, srcW: im.naturalWidth, srcH: im.naturalHeight } }));
+            }
+            const where = d.crop ? "얼굴 가로 중앙 맞춤" : "자동 중앙 자르기";
+            report.push(d.status === "ok"
+              ? { idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 범위 안(${where})`, tone: "ok" }
+              : { idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 기준보다 큼(${where}, 필요하면 [자르기 영역 조정])`, tone: "warn" });
+          }
           else if (d.crop) {
             const crop = d.crop;
             setBatchCrops((cur) => ({ ...cur, [fileIdx]: { presetId: preset.id, crop, srcW: im.naturalWidth, srcH: im.naturalHeight } }));
@@ -681,6 +692,7 @@ export function Studio({ userId }: { userId: string }) {
               );
             })()}
             {autoConfirm && !autoBusy && <p className="notice warning" role="status">사진 {results.length - skip.filter(Boolean).length}장을 각각 검사하므로 <b>본인 Gemini 키로 {results.length - skip.filter(Boolean).length}회</b> 호출됩니다. 계속하려면 [확인하고 시작]을 누르세요.</p>}
+            {retryConfirm && !autoBusy && <p className="notice warning" role="status">얼굴을 찾지 못한 사진만 다시 검사하며 <b>본인 Gemini 키로 {batchReport.filter((r) => r.text.includes("얼굴 위치를 찾지 못해") && !skip[r.idx]).length}회</b> 호출됩니다. 계속하려면 [확인하고 다시 검사]를 누르세요.</p>}
             {batchReport.length > 0 && (
               <ul className="batch-report" aria-label="일괄 머리 비율 검사 결과">
                 {batchReport.map((r) => <li key={r.idx} className={r.tone === "ok" ? "ok" : "warn"}><b>{r.name}</b> {r.text}</li>)}
@@ -699,6 +711,21 @@ export function Studio({ userId }: { userId: string }) {
                     {autoBusy ? `검사 중… ${autoProgress}` : autoConfirm ? `확인하고 시작 (AI ${results.length - skip.filter(Boolean).length}회 호출)` : "일괄 머리 비율 검사 + 자동 확대 자르기"}
                   </button>
                 )}
+                {batchMode && results.length > 1 && sizePresetById(sizeId).headRange && (
+                  <label className="check" title="머리 비율이 범위 안이거나 큰 사진도 얼굴을 가로 중앙에 맞춰 자릅니다">
+                    <input type="checkbox" checked={centerOk} onChange={(e) => setCenterOk(e.target.checked)} />
+                    <span>범위 안 사진도 얼굴을 가로 중앙에 맞춤(다음 일괄 검사부터)</span>
+                  </label>
+                )}
+                {(() => {
+                  const missed = batchReport.filter((r) => r.text.includes("얼굴 위치를 찾지 못해") && !skip[r.idx]).map((r) => r.idx);
+                  if (!batchMode || missed.length === 0 || autoBusy) return null;
+                  return (
+                    <button type="button" disabled={!!saving} onClick={() => (retryConfirm ? void autoCropBatch(missed) : setRetryConfirm(true))}>
+                      <Sparkles size={14} />{retryConfirm ? `확인하고 다시 검사 (AI ${missed.length}회 호출)` : `얼굴 없음 ${missed.length}장만 다시 검사`}
+                    </button>
+                  );
+                })()}
                 {batchMode && results.length > 1 && <button type="button" onClick={saveSizedBatch} disabled={!!saving}>{saving === "batch" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격으로 일괄 저장 ({sizePresetById(sizeId).width}×{sizePresetById(sizeId).height}, ZIP)</button>}
                 {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>

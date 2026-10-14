@@ -157,6 +157,11 @@ export const SIZE_PRESETS: SizePreset[] = [
     id: "ie-passport", label: "아일랜드 여권 온라인 (ireland.ie 안내)", width: 715, height: 951, maxBytes: 9 * 1024 * 1024, note: "715×951px(최소) · JPEG ≤9MB",
     caution: "아일랜드는 디지털 원본만 받으며(스캔·셀카·웹캠 불가) 보정·변형한 사진을 허용하지 않습니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
   },
+  {
+    id: "au-citizenship", label: "호주 시민권 신청 (immi.homeaffairs.gov.au 안내)", width: 1200, height: 1600, maxBytes: 3.5 * 1024 * 1024, minBytes: 70 * 1024, note: "1200×1600px(선호) · JPEG 70KB~3.5MB",
+    headRange: [32 / 50, 36 / 45], headSource: "immi.homeaffairs.gov.au(턱~정수리 32~36mm, 인쇄 사진 45~50mm)",
+    caution: "호주 내무부는 디지털 사진을 편집하지 않은 원본이어야 하며 스캔·사진의 사진을 받지 않는다고 안내합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 
@@ -306,11 +311,25 @@ export function decideBatchCrop(
   m: { found: boolean; crownY: number; chinY: number; centerX?: number } | null,
   preset: { width: number; height: number; headRange?: [number, number] },
   srcW: number, srcH: number,
+  centerOk = false,
 ): BatchDecision {
   if (!m || !m.found || !preset.headRange) return { status: "notfound" };
   const cur = headInCrop(m.crownY, m.chinY, srcW, srcH, preset).ratio;
   const ev = evaluateHead(cur, preset.headRange);
-  if (ev.status !== "small") return { status: ev.status, ratio: cur };
+  if (ev.status !== "small") {
+    // 범위 안·큼: 기본 자르기 크기를 유지한 채 얼굴만 가로 중앙으로 맞추는 옵션
+    return centerOk && typeof m.centerX === "number"
+      ? { status: ev.status, ratio: cur, crop: centerFaceCrop(m.centerX, srcW, srcH, preset) }
+      : { status: ev.status, ratio: cur };
+  }
   const t = tightCrop(m.crownY, m.chinY, srcW, srcH, preset, (preset.headRange[0] + preset.headRange[1]) / 2, m.centerX ?? 0.5);
   return { status: "small", ratio: cur, crop: t.crop, achieved: t.achievedRatio, clamped: t.clamped };
+}
+
+/** 기본 자르기(coverCrop)와 같은 크기로, 얼굴 가로 중심(centerX 0~1)이 영역 가운데에 오도록 좌우만 옮긴 영역 */
+export function centerFaceCrop(centerX: number, srcW: number, srcH: number, preset: { width: number; height: number }, topBias = 0.15): CropRect {
+  const base = coverCrop(srcW, srcH, preset.width, preset.height, topBias);
+  const cx = Math.max(0.05, Math.min(0.95, centerX)) * srcW;
+  const sx = Math.max(0, Math.min(srcW - base.sw, cx - base.sw / 2));
+  return { sx: Math.round(sx), sy: base.sy, sw: base.sw, sh: base.sh };
 }

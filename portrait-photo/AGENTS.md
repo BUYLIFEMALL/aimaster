@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.11)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.12)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -17,6 +17,7 @@
 - v1.09 추가: **자르기 영역 미리보기·수동 조정**(`CropAdjuster.tsx`: 원본 위 잘리는 영역(드래그)·확대/가로/세로 슬라이더·저장될 모습 미리보기·머리 높이 비율 표시·추천 영역 되돌리기, 순수 계산 `cropFromControls`/`controlsFromCrop`/`maxHeightFrac`), 규격 16종(인도네시아 전자비자 `evisa.imigrasi.go.id` 400×600 이상·머리 50~60% 추가).
 - v1.10 추가: **규격별 조정 값 기억**(저장 시 `controlsFromCrop`을 localStorage `portrait-photo:crop:<presetId>`에 저장, `parseStoredControls`로 검증해 [지난 조정 값 불러오기]로 사용), **일괄 모드 사진별 영역 지정**(`batchCrops`: 사진 번호·규격·영역·기준 크기 저장 → 크기가 달라지면 `scaleCrop`으로 비례 변환), [규격으로 일괄 저장 (ZIP)]: 제외하지 않은 모든 결과를 선택 규격 JPEG로 ZIP 저장(지정 영역 우선·나머지는 자동 중앙 자르기, 이름 지정 반영). 규격 수는 16종 유지(공식 확인된 신규 디지털 규격 없음).
 - v1.11 추가: **일괄 머리 비율 검사 + 자동 확대 자르기**(`autoCropBatch`: 제외하지 않은 사진마다 `/api/headcheck`를 동시 2건으로 호출 → `decideBatchCrop`이 범위 안/큼/작음/얼굴 없음을 판정, 작음이면 `tightCrop` 영역을 `batchCrops`에 지정, 결과 목록 표시. **비용 안내 2단계 확인**: 첫 클릭은 "AI N회 호출" 안내만, 두 번째 클릭에서 시작), 규격 17종(아일랜드 `ireland.ie` 715×951 이상·JPEG ≤9MB 추가).
+- v1.12 추가: **"얼굴 없음"만 다시 검사**(`autoCropBatch(only)`: 보고 목록에서 얼굴을 찾지 못한 사진 번호만 재호출, 나머지 보고는 유지, 2단계 비용 확인), **범위 안 사진도 얼굴 중앙 맞춤 옵션**(`centerFaceCrop`·`decideBatchCrop(..., centerOk)`: 크기는 기본 자르기와 같고 얼굴 가로 중심만 맞춤), 규격 18종(호주 시민권 신청 `immi.homeaffairs.gov.au` 1200×1600 선호·JPEG 70KB~3.5MB·머리 32~36mm 추가).
 - 클라이언트 전용: `canvas.ts`(입력 1,600px JPEG 축소+셀카 반전, 순백 정리, PNG/413×531 렌더, 썸네일), `history.ts`(IndexedDB `portrait-photo:<userId>`, 최대 20).
 - 서버: `gemini.ts`(`IMAGE_MODELS` flash=`gemini-2.5-flash-image`, pro=`gemini-3-pro-image-preview`(imageSize는 pro만), pro 없음→flash 폴백, 오류 분류 key/quota/timeout/safety/noimage), `aiRoute.ts`(`guardAi(request, maxBody)`: 권한→본문 한도→본인 키).
 - API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/generate`, `/api/keys`(+`/test`).
@@ -34,7 +35,7 @@
 - 화면은 흰색 베이스 + 표준 사이드바(계정은 마지막 메뉴 바로 아래, `← 다른 프로그램 보기` 상단).
 
 ## 검수
-- `npm test`(순수 로직 17건: 일괄 판정(작음·범위 안·큼·얼굴 없음·범위 없는 규격·얼굴 중심)·아일랜드 규격 포함, 조정 값 검증·영역 비례 변환 포함, 자르기 영역 계산·왕복·경계 보정·인도네시아 규격 포함, 확대 자르기(달성 비율·범위·중심 X·한계)·대만 규격 포함, 머리 비율 평가·순서 이동·홍콩/뉴질랜드 규격 포함, 파일 이름 정리·미국/싱가포르/베트남 규격 포함, 규격 비율·픽셀 범위(캐나다·영국·인도), ZIP 구조·CRC32 표준값, 보관 기간), `npx tsc --noEmit`, `npm run build`.
+- `npm test`(순수 로직 18건: 얼굴 중앙 맞춤·호주 규격 포함, 일괄 판정(작음·범위 안·큼·얼굴 없음·범위 없는 규격·얼굴 중심)·아일랜드 규격 포함, 조정 값 검증·영역 비례 변환 포함, 자르기 영역 계산·왕복·경계 보정·인도네시아 규격 포함, 확대 자르기(달성 비율·범위·중심 X·한계)·대만 규격 포함, 머리 비율 평가·순서 이동·홍콩/뉴질랜드 규격 포함, 파일 이름 정리·미국/싱가포르/베트남 규격 포함, 규격 비율·픽셀 범위(캐나다·영국·인도), ZIP 구조·CRC32 표준값, 보관 기간), `npx tsc --noEmit`, `npm run build`.
 - 실제 생성: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [flash|pro] [id-photo|business|sns|cinematic]`(운영자 키, 비용 발생. 입력은 AI가 만든 가상 인물 썸네일). 실측: flash 9초(PNG 1.5MB), pro 19초(JPEG 0.6MB).
 - 운영 확인(2026-10-14): 로그인 Chrome에서 사진 올리기 → 동의 체크 없을 때 안내 → 생성(864×1184) → 순백 정리 44% → 가이드선 → PNG(843KB)·413×531 JPEG(30KB) 저장 → 기록 목록·전체 삭제.
 
@@ -60,3 +61,5 @@
 - 규격 확인(공식 검색 2026-10-14): gov.br/mre·pf.gov.br(브라질: 인쇄 5×7cm만, 3세 이상은 창구 촬영), icp.gov.ae(UAE 3.5×4.5cm·얼굴 70~80%, 디지털 규격 미확인), mfa.gov.tr(튀르키예 영사관별 50×60mm/5×5cm 불일치) — 모두 디지털 규격 미확인으로 추가하지 않음.
 - v1.11 운영 확인(2026-10-14): 일괄 2장(SNS 목적·3:4) → 첫 클릭 `확인하고 시작 (AI 2회 호출)` + 비용 안내 → 실제 `/api/headcheck` 2회 → 보고 `가 머리 약 36% → 확대 자르기로 약 76%`, `나 얼굴 위치를 찾지 못해 자동 중앙 자르기` → [규격으로 일괄 저장] ZIP 2장(직접 지정 1·자동 1) → 기록 삭제.
 - 규격 확인(공식 검색 2026-10-14): ireland.ie(715×951 이상·JPEG·≤9MB·디지털 원본만·셀카/웹캠 불가), fedpol.admin.ch(스위스 35×45mm·얼굴 29mm 이상, 디지털 규격 미확인), dha.gov.za(남아공은 지점 촬영) — 스위스·남아공은 추가하지 않음.
+- v1.12 운영 확인(2026-10-14): 일괄 2장 → 중앙 맞춤 옵션 표시 → 일괄 검사 AI 2회 → 보고(가 32%→76%, 나 48%→76%) → 모의 응답으로 얼굴 없음 상태를 만든 뒤 `얼굴 없음 N장만 다시 검사` 버튼 → `확인하고 다시 검사 (AI 1회 호출)`·비용 안내 → 실제 호출 정확히 1회·다른 사진 보고 유지 → 기록 삭제. 범위 안·큼 사진의 중앙 맞춤은 운영에서 해당 상태를 만들기 어려워 단위 테스트로 검증(AI 검출은 호출마다 달라질 수 있음).
+- 규격 확인(공식 검색 2026-10-14): immi.homeaffairs.gov.au(시민권 신청 사진: JPEG 70KB~3.5MB, 선호 1200×1600, 편집 불가), rijksoverheid.nl(네덜란드 35×45mm·인쇄 400dpi, 픽셀 규격 없음), polisen.se(스웨덴은 경찰서에서 직접 촬영) — 호주만 추가.

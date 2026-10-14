@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — AI 인물사진 자동화 v1.12 (`portrait-photo`)
+
+- 추가: 일괄 검사에서 얼굴을 못 찾은 사진만 다시 검사(AI 호출 횟수 2단계 확인), 범위 안·큰 사진도 얼굴 가로 중앙 맞춤 옵션, 규격 18종(공식 확인한 호주 시민권 신청 1200×1600 선호·JPEG 70KB~3.5MB). 네덜란드·스웨덴은 디지털 규격 없음으로 보류. DB 변경 없음.
+- 검수: 단위 18/18, tsc·빌드, 운영 로그인 화면에서 실제 AI 호출·재검사(정확히 1회)·보고 유지 확인(테스트 데이터 삭제). 버전 v1.11→v1.12(코드·package·DB). 상세: [portrait-photo/docs/CLI_HANDOFF.md](../portrait-photo/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Codex — 새 번역 프로그램 정밀 분석·개발 플랜 (`document-translator`, 구현 전)
 
 - 주인님 요청: Google AI Studio 앱 `9596827a-a428-415c-aaae-8547cbe137ea` 면밀한 분석·명칭 추천 → 개발 플랜 작성. 원본 "번역의 정석" 소스19개/77,015 bytes·HTML·실행 JS1,684,474 bytes 확보·대조.

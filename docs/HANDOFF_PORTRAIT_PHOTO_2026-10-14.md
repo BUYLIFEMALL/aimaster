@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (`portrait-photo`) — 인수인계 문서 (2026-10-14, v1.11)
+# AI 인물사진 자동화 (`portrait-photo`) — 인수인계 문서 (2026-10-14, v1.12)
 
 다른 CLI(Codex·Gemini·다른 Claude 세션)가 이 대화 없이 바로 이어받을 수 있도록 정리한 한 장 요약입니다. 상세는 [`portrait-photo/AGENTS.md`](../portrait-photo/AGENTS.md), [`portrait-photo/docs/CLI_HANDOFF.md`](../portrait-photo/docs/CLI_HANDOFF.md), 원본 분석·계획은 [`portrait-photo/docs/DEVELOPMENT_PLAN.md`](../portrait-photo/docs/DEVELOPMENT_PLAN.md).
 
@@ -35,7 +35,8 @@
 | v1.08 | 얼굴 확대 자르기, 규격 15종(대만) | `0c3a4151` |
 | v1.09 | 자르기 영역 미리보기·수동 조정, 규격 16종(인도네시아) | `36af1b18` |
 | v1.10 | 규격별 조정 값 기억, 일괄 사진별 영역·규격 일괄 ZIP | `42f6a0db` |
-| v1.11 | 일괄 머리 비율 검사 + 자동 확대 자르기, 규격 17종(아일랜드) | git log `portrait-photo` |
+| v1.11 | 일괄 머리 비율 검사 + 자동 확대 자르기, 규격 17종(아일랜드) | `d9273cbc` |
+| v1.12 | 얼굴 없음 재검사, 얼굴 중앙 맞춤 옵션, 규격 18종(호주 시민권) | git log `portrait-photo` |
 
 ## 5. 반드시 지킬 것
 - 키는 회원 본인 것만, 폴백 금지. 원본 얼굴 사진은 서버 저장·로그 금지(생성 결과는 회원이 보관함을 켠 경우만 저장), 생성 전 "본인/동의받은 사진" 확인 체크.

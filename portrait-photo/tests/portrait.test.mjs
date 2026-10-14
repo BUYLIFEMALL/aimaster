@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 17);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 17);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "id-evisa", "ie-passport", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 18);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 18);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "id-evisa", "ie-passport", "au-citizenship", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -222,7 +222,7 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 17);
+  assert.equal(SIZE_PRESETS.length, 18);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
@@ -437,4 +437,37 @@ test("일괄 자동 판정·아일랜드 규격", async () => {
   // 얼굴 중심이 한쪽으로 치우친 경우 그 위치 기준으로 자른다
   const off = decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.5, centerX: 0.3 }, preset, 1000, 1000);
   assert.ok(Math.abs(off.crop.sx + off.crop.sw / 2 - 300) <= 1 || off.crop.sx === 0);
+});
+
+test("얼굴 중앙 맞춤 옵션·호주 규격", async () => {
+  const { centerFaceCrop, decideBatchCrop, sizePresetById, coverCrop } = await import("../src/lib/portrait/post.ts");
+  const au = sizePresetById("au-citizenship");
+  assert.deepEqual([au.width, au.height], [1200, 1600], "immi.homeaffairs.gov.au 선호 해상도");
+  assert.deepEqual([au.minBytes, au.maxBytes], [70 * 1024, Math.round(3.5 * 1024 * 1024)]);
+  assert.ok(au.headRange[0] < au.headRange[1] && au.headSource.includes("immi.homeaffairs.gov.au"));
+
+  const preset = { width: 413, height: 531 };
+  // 크기는 기본 자르기와 같고 얼굴이 가로 중앙으로
+  const base = coverCrop(2000, 1000, 413, 531, 0.15);
+  const c = centerFaceCrop(0.3, 2000, 1000, preset);
+  assert.equal(c.sw, base.sw);
+  assert.equal(c.sh, base.sh);
+  assert.equal(c.sy, base.sy);
+  assert.ok(Math.abs(c.sx + c.sw / 2 - 600) <= 1 || c.sx === 0);
+  // 가장자리 얼굴도 원본 안으로
+  const e = centerFaceCrop(0.99, 2000, 1000, preset);
+  assert.ok(e.sx + e.sw <= 2000 && e.sx >= 0);
+
+  const kr = sizePresetById("passport");
+  const m = { found: true, crownY: 0.02, chinY: 0.78, centerX: 0.3 };
+  const off = decideBatchCrop(m, kr, 1000, 1000, false);
+  assert.equal(off.crop, undefined, "옵션 끄면 범위 안은 영역 없음");
+  const on = decideBatchCrop(m, kr, 1000, 1000, true);
+  assert.ok(on.crop, "옵션 켜면 중앙 맞춤 영역");
+  assert.equal(on.status, off.status, "판정 상태는 같다");
+  assert.equal(on.status, "ok");
+  // 작은 머리는 옵션과 상관없이 확대 자르기
+  const small = decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.5, centerX: 0.5 }, kr, 1000, 1000, true);
+  assert.equal(small.status, "small");
+  assert.ok(small.achieved > 0.7);
 });
