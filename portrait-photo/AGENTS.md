@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.01)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.02)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -7,6 +7,7 @@
 
 ## 구조
 - `src/lib/portrait/` **순수 로직(단위 테스트)**: `options`(옵션 데이터·id), `purposes`(목적 프리셋 5종 — 모든 id가 실제 옵션을 가리켜야 함), `prompt`(`buildPrompt`: 옵션 **id만** 받아 서버가 영어 프롬프트 조립 — 임의 문장 주입 불가), `validate`(`parseGenerateRequest`: 이미지 base64 3.2M자·MIME·옵션 형식), `post`(순백 정리 BFS·`coverCrop`·`fitWithin`·`toneFilter`).
+- v1.02 추가: `post.ts`의 `SIZE_PRESETS`(여권·운전면허 413×531, 주민등록증·이력서 354×472, 미국 비자 600×600, 반명함 709×945)·`clampCandidates`(1~4장), `canvas.ts`의 `renderSized`, Studio의 **후보 N장 동시 생성**(요청 N건을 `Promise.allSettled`로 병렬, 일부 실패 허용)·후보 선택 줄·**원본/결과 비교 슬라이더**(`clip-path`).
 - 클라이언트 전용: `canvas.ts`(입력 1,600px JPEG 축소+셀카 반전, 순백 정리, PNG/413×531 렌더, 썸네일), `history.ts`(IndexedDB `portrait-photo:<userId>`, 최대 20).
 - 서버: `gemini.ts`(`IMAGE_MODELS` flash=`gemini-2.5-flash-image`, pro=`gemini-3-pro-image-preview`(imageSize는 pro만), pro 없음→flash 폴백, 오류 분류 key/quota/timeout/safety/noimage), `aiRoute.ts`(`guardAi(request, maxBody)`: 권한→본문 한도→본인 키).
 - API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/generate`, `/api/keys`(+`/test`).
@@ -24,10 +25,11 @@
 - 화면은 흰색 베이스 + 표준 사이드바(계정은 마지막 메뉴 바로 아래, `← 다른 프로그램 보기` 상단).
 
 ## 검수
-- `npm test`(순수 로직 6건), `npx tsc --noEmit`, `npm run build`.
+- `npm test`(순수 로직 7건), `npx tsc --noEmit`, `npm run build`.
 - 실제 생성: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [flash|pro] [id-photo|business|sns|cinematic]`(운영자 키, 비용 발생. 입력은 AI가 만든 가상 인물 썸네일). 실측: flash 9초(PNG 1.5MB), pro 19초(JPEG 0.6MB).
 - 운영 확인(2026-10-14): 로그인 Chrome에서 사진 올리기 → 동의 체크 없을 때 안내 → 생성(864×1184) → 순백 정리 44% → 가이드선 → PNG(843KB)·413×531 JPEG(30KB) 저장 → 기록 목록·전체 삭제.
 
-## 남은 일 (v1.02 후보)
-- 한 번에 후보 2~4장 생성, 규격 프리셋 확장(여권 3.5×4.5·비자·이력서), 전/후 비교 슬라이더, 서버 보관(선택).
+## 남은 일 (v1.03 후보)
+- 서버 보관(선택), 규격 프리셋 추가(기관별 요구 확인 후), 일괄 처리.
 - 일반 회원(`buylifemall@naver.com`) 로그인 흐름 재확인(주인님 로그인 후).
+- v1.02 운영 확인(2026-10-14): 후보 3장 15초에 동시 생성 → 후보 선택 → 원본 비교 슬라이더 → 미국 비자 600×600(51KB) 저장 → 기록 삭제.

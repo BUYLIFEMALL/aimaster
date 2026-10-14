@@ -7,8 +7,8 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { LICENSE, toneFilter } from "@/lib/portrait/post";
-import { downloadBlob, makeThumb, prepareInput, renderLicense, renderPng, whitenDataUrl } from "@/lib/portrait/canvas";
+import { MAX_CANDIDATES, SIZE_PRESETS, sizePresetById, toneFilter } from "@/lib/portrait/post";
+import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { GuideOverlay } from "./GuideOverlay";
 
@@ -57,7 +57,13 @@ export function Studio({ userId }: { userId: string }) {
   const [model, setModel] = useState<ModelLevel>("flash");
   const [resolution, setResolution] = useState<Resolution>("1K");
 
-  const [result, setResult] = useState<string | null>(null);
+  const [results, setResults] = useState<string[]>([]);
+  const [active, setActive] = useState(0);
+  const [count, setCount] = useState(1);
+  const [sizeId, setSizeId] = useState(SIZE_PRESETS[0].id);
+  const [compare, setCompare] = useState(false);
+  const [cmpPos, setCmpPos] = useState(50);
+  const result = results[active] ?? null;
   const [cleaned, setCleaned] = useState<{ url: string; ratio: number } | null>(null);
   const [cleaning, setCleaning] = useState(false);
   const [mirrored, setMirrored] = useState(false);
@@ -102,38 +108,52 @@ export function Studio({ userId }: { userId: string }) {
     if (!f) return;
     if (!/^image\/(png|jpeg|webp)$/.test(f.type)) { setError("PNG, JPG, WEBP 사진만 올릴 수 있습니다."); return; }
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setFile(f); setPreviewUrl(URL.createObjectURL(f)); setResult(null); setCleaned(null); setError(""); setNeedKey(false);
+    setFile(f); setPreviewUrl(URL.createObjectURL(f)); setResults([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
   }
 
   async function generate() {
     if (!file) { setError("인물 사진을 먼저 올려 주세요."); return; }
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
-    setBusy(true); setError(""); setNeedKey(false); setResult(null); setCleaned(null); setMirrored(false);
+    setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0);
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     try {
       const input = await prepareInput(file, selfie);
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: ctrl.signal,
-        body: JSON.stringify({
-          image: { data: input.base64, mimeType: input.mimeType },
-          model, resolution, aspect,
-          options: { lightingId, cameraId, poseId, outfitId, filmId, colorId, backgroundId, skinIds, retouch, truePerspective: selfie, symmetry },
-        }),
+      const body = JSON.stringify({
+        image: { data: input.base64, mimeType: input.mimeType },
+        model, resolution, aspect,
+        options: { lightingId, cameraId, poseId, outfitId, filmId, colorId, backgroundId, skinIds, retouch, truePerspective: selfie, symmetry },
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setNeedKey(!!data.needKey); throw new Error(data.error || "이미지를 만들지 못했습니다."); }
-      const url = `data:${data.image.mimeType};base64,${data.image.data}`;
-      setResult(url);
+      // 후보를 동시에 요청한다(요청 1건 = 이미지 1장 = 본인 키 호출 1회)
+      const settled = await Promise.allSettled(
+        Array.from({ length: count }, async () => {
+          const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctrl.signal, body });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) { const err = new Error(data.error || "이미지를 만들지 못했습니다.") as Error & { needKey?: boolean }; err.needKey = !!data.needKey; throw err; }
+          return { url: `data:${data.image.mimeType};base64,${data.image.data}`, model: (data.model as string | undefined) ?? model };
+        }),
+      );
+      const ok = settled.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+      const failed = settled.flatMap((r) => (r.status === "rejected" ? [r.reason as Error & { needKey?: boolean }] : []));
+      if (ok.length === 0) {
+        const first = failed[0];
+        if (first?.name === "AbortError") throw first;
+        setNeedKey(!!first?.needKey);
+        throw new Error(first?.message || "이미지를 만들지 못했습니다.");
+      }
+      setResults(ok.map((r) => r.url));
+      if (failed.length > 0) setNotice(`${count}장 중 ${ok.length}장을 만들었습니다. 나머지는 실패해 다시 시도해 주세요.`);
+      else if (ok.length > 1) setNotice(`후보 ${ok.length}장을 만들었습니다. 마음에 드는 사진을 눌러 고르세요.`);
       const purpose = getPurpose(purposeId);
-      makeThumb(url).then((thumb) => addHistory(userId, {
-        id: crypto.randomUUID(), createdAt: Date.now(), purposeLabel: purpose?.label ?? "자유", aspect, model: data.model ?? model, thumb,
-      })).catch(() => undefined);
+      for (const r of ok) {
+        makeThumb(r.url).then((thumb) => addHistory(userId, {
+          id: crypto.randomUUID(), createdAt: Date.now(), purposeLabel: purpose?.label ?? "자유", aspect, model: r.model, thumb,
+        })).catch(() => undefined);
+      }
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") setError("생성을 취소했습니다.");
+      else if (e instanceof Error && e.name === "AbortError") setError("생성을 취소했습니다.");
       else setError(e instanceof Error ? e.message : "이미지를 만들지 못했습니다.");
     } finally {
       setBusy(false); abortRef.current = null;
@@ -149,13 +169,18 @@ export function Studio({ userId }: { userId: string }) {
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
-  async function saveLicense() {
+  async function saveSized() {
     if (!shown) return;
+    const preset = sizePresetById(sizeId);
     setSaving("lic");
     try {
-      const r = await renderLicense(shown, { mirrored, filter, applyFilter: toneActive });
-      downloadBlob(r.blob, `증명사진-${LICENSE.width}x${LICENSE.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
-      setNotice(`413×531px로 저장했습니다(${Math.round(r.bytes / 1024)}KB). 제출 기관의 사진 규정은 별도로 확인해 주세요.`);
+      const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive });
+      downloadBlob(r.blob, `증명사진-${preset.id}-${preset.width}x${preset.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
+      setNotice(
+        r.overLimit
+          ? `${preset.width}×${preset.height}px로 저장했지만 용량(${Math.round(r.bytes / 1024)}KB)이 제한(${Math.round(preset.maxBytes / 1024)}KB)을 넘습니다. 제출처에서 다시 압축해 주세요.`
+          : `${preset.width}×${preset.height}px로 저장했습니다(${Math.round(r.bytes / 1024)}KB). 제출 기관의 사진 규정은 별도로 확인해 주세요.`,
+      );
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -225,6 +250,12 @@ export function Studio({ userId }: { userId: string }) {
             {model === "flash" && <small className="muted">해상도 선택은 Pro 모델에서만 적용됩니다.</small>}
           </Section>
 
+          <Section title="한 번에 만들 장수" sub="여러 장을 만들어 마음에 드는 사진을 고릅니다. 장수만큼 본인 키 사용량이 늘어요.">
+            <div className="chips">
+              {Array.from({ length: MAX_CANDIDATES }, (_, i) => i + 1).map((n) => <Chip key={n} on={count === n} onClick={() => setCount(n)}>{n}장</Chip>)}
+            </div>
+          </Section>
+
           <Section title="이미지 비율">
             <div className="chips">
               {ASPECTS.map((a) => <Chip key={a.value} on={aspect === a.value} onClick={() => setAspect(a.value)} title={a.desc}>{a.value}</Chip>)}
@@ -237,7 +268,7 @@ export function Studio({ userId }: { userId: string }) {
           <section className="card st-result">
             <div className="st-result-head">
               <h2><Sparkles size={16} /> 생성 결과</h2>
-              <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}</span>
+              <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}{count > 1 ? ` · ${count}장` : ""}</span>
             </div>
             <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / ") }}>
               {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>보통 10~40초가 걸립니다.</small>
@@ -248,13 +279,35 @@ export function Studio({ userId }: { userId: string }) {
               ) : (
                 !busy && <div className="st-placeholder"><ImageIcon size={34} /><p>옵션을 고르고 [인물 사진 만들기]를 눌러 주세요.</p></div>
               )}
-              {shown && guide && <GuideOverlay />}
+              {shown && compare && previewUrl && (
+                <div className="cmp" style={{ clipPath: `inset(0 ${100 - cmpPos}% 0 0)` }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={previewUrl} alt="원본 사진" style={{ transform: selfie ? "scaleX(-1)" : undefined }} />
+                  <span className="cmp-tag">원본</span>
+                </div>
+              )}
+              {shown && compare && previewUrl && <div className="cmp-handle" style={{ left: `${cmpPos}%` }} aria-hidden="true" />}
+              {shown && guide && !compare && <GuideOverlay />}
             </div>
+            {shown && compare && previewUrl && (
+              <label className="slider cmp-slider"><span>원본</span><input type="range" min={0} max={100} value={cmpPos} onChange={(e) => setCmpPos(Number(e.target.value))} aria-label="원본과 결과 비교 슬라이더" /><b>결과</b></label>
+            )}
+            {results.length > 1 && (
+              <div className="cands" role="listbox" aria-label="후보 사진">
+                {results.map((u, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <button key={i} type="button" role="option" aria-selected={i === active} className={i === active ? "cand on" : "cand"} onClick={() => { setActive(i); setCleaned(null); }}>
+                    <img src={u} alt={`후보 ${i + 1}`} /><span>{i + 1}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             {shown && (
               <div className="st-tools">
                 <label className="check"><input type="checkbox" checked={whiten} onChange={(e) => setWhiten(e.target.checked)} /><span>배경 순백 정리 {cleaning ? "(처리 중…)" : whiten && cleaned ? `(배경 ${Math.round(cleaned.ratio * 100)}% 정리)` : ""}</span></label>
                 <label className="check"><input type="checkbox" checked={guide} onChange={(e) => setGuide(e.target.checked)} /><span>증명사진 가이드선</span></label>
                 <label className="check"><input type="checkbox" checked={mirrored} onChange={(e) => setMirrored(e.target.checked)} /><span>거울상으로 보기</span></label>
+                {previewUrl && <label className="check"><input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} /><span>원본과 비교</span></label>}
               </div>
             )}
             {shown && whiten && cleaned && (cleaned.ratio < 0.03 || cleaned.ratio > 0.9) && (
@@ -270,7 +323,10 @@ export function Studio({ userId }: { userId: string }) {
             {shown && (
               <div className="actions st-save">
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
-                <button type="button" onClick={saveLicense} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}증명사진 {LICENSE.width}×{LICENSE.height}px</button>
+                <select value={sizeId} onChange={(e) => setSizeId(e.target.value)} aria-label="증명사진 규격" className="size-select">
+                  {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
+                </select>
+                <button type="button" onClick={saveSized} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격 저장 ({sizePresetById(sizeId).note})</button>
               </div>
             )}
           </section>

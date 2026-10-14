@@ -154,3 +154,20 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
   const all = canvasOf(8, 8, () => [215, 215, 215]);
   assert.equal(whitenBackground(all, 8, 8).ratio, 1);
 });
+
+test("규격 프리셋·후보 수 범위", async () => {
+  const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
+  assert.equal(SIZE_PRESETS.length, 4);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 4);
+  for (const p of SIZE_PRESETS) {
+    assert.ok(p.width > 0 && p.height > 0 && p.maxBytes >= 200 * 1024, p.id);
+    assert.ok(p.note.includes(`${p.width}×${p.height}`), `${p.id} 안내 문구에 크기 포함`);
+  }
+  assert.equal(sizePresetById("us-visa").width, sizePresetById("us-visa").height, "미국 비자는 정사각");
+  assert.equal(sizePresetById("nope").id, "passport", "알 수 없으면 기본 규격");
+  assert.equal(MAX_CANDIDATES, 4);
+  assert.deepEqual([0, 1, 2.6, 4, 9, NaN].map(clampCandidates), [1, 1, 3, 4, 4, 1]);
+  // 정사각 규격에서도 자르기 비율이 맞는다
+  const c = coverCrop(864, 1184, 600, 600);
+  assert.ok(Math.abs(c.sw / c.sh - 1) < 0.01);
+});

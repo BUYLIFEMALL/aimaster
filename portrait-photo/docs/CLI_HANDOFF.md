@@ -1,6 +1,9 @@
 # portrait-photo 인수인계 (CLI_HANDOFF)
 
-## 현재 상태 (2026-10-14, v1.01)
+## 현재 상태 (2026-10-14, v1.02)
+- **v1.02**: 후보 1~4장 동시 생성·선택, 증명사진 규격 프리셋 4종, 원본/결과 비교 슬라이더. 코드·package(1.0.2)·DB `programs.version` v1.02. DB 스키마 변경 없음. 검수: 단위 7/7, tsc·빌드, 운영 화면 확인(테스트 기록 삭제).
+
+### v1.01 기준
 - 신규 프로그램 **AI 인물사진 자동화** 구현·등록·배포 완료. 주소: https://portrait-photo.buylife.xyz (옛 `portrait-photo-tau.vercel.app`도 유지).
 - 등록: `programs`(slug `portrait-photo`, 카테고리 이미지, 배지 `new`(FREE 아님), 최소 등급 일반), 요금제 3종(1/2/3개월 10,000/20,000/30,000), VIP 접근, 실사 16:9 썸네일(§13). 마이그레이션 SQL: `supabase/migrations/0001_register_program.sql`.
 - DB 스키마 변경 없음(테이블 없음). 키는 공용 `user_api_keys`.

@@ -1,5 +1,6 @@
 "use client";
-import { LICENSE, coverCrop, edgeFor, fitWithin, whitenBackground } from "./post";
+import { coverCrop, edgeFor, fitWithin, whitenBackground } from "./post";
+import type { SizePreset } from "./post";
 import { MAX_IMAGE_B64 } from "./validate";
 import type { Resolution } from "./options";
 
@@ -78,12 +79,12 @@ export function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: 
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("이미지를 만들지 못했습니다."))), type, quality));
 }
 
-/** 413×531 JPEG(250KB 이하, 흰 바탕). 용량이 넘으면 품질을 낮춰 맞춘다. */
-export async function renderLicense(dataUrl: string, o: { mirrored: boolean; filter: string; applyFilter: boolean }): Promise<{ blob: Blob; bytes: number; quality: number }> {
+/** 선택한 규격 크기의 JPEG(흰 바탕). 용량 제한을 넘으면 품질을 낮춰 맞춘다. */
+export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirrored: boolean; filter: string; applyFilter: boolean }): Promise<{ blob: Blob; bytes: number; quality: number; overLimit: boolean }> {
   const img = await loadImage(dataUrl);
-  const crop = coverCrop(img.naturalWidth, img.naturalHeight, LICENSE.width, LICENSE.height, 0.15);
+  const crop = coverCrop(img.naturalWidth, img.naturalHeight, preset.width, preset.height, 0.15);
   const canvas = document.createElement("canvas");
-  canvas.width = LICENSE.width; canvas.height = LICENSE.height;
+  canvas.width = preset.width; canvas.height = preset.height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("이 브라우저에서는 저장할 수 없습니다.");
   ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -93,11 +94,11 @@ export async function renderLicense(dataUrl: string, o: { mirrored: boolean; fil
   ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, canvas.width, canvas.height);
   let quality = 0.93;
   let blob = await canvasToBlob(canvas, "image/jpeg", quality);
-  while (blob.size > LICENSE.maxBytes && quality > 0.5) {
+  while (blob.size > preset.maxBytes && quality > 0.4) {
     quality = Math.round((quality - 0.07) * 100) / 100;
     blob = await canvasToBlob(canvas, "image/jpeg", quality);
   }
-  return { blob, bytes: blob.size, quality };
+  return { blob, bytes: blob.size, quality, overLimit: blob.size > preset.maxBytes };
 }
 
 /** 기록용 작은 미리보기(긴 변 900px JPEG) */

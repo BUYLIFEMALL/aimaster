@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — AI 인물사진 자동화 v1.02 (`portrait-photo`)
+
+- 추가: 후보 1~4장 동시 생성·선택(일부 실패 허용, 장수만큼 본인 키 사용량 증가 안내), 증명사진 규격 프리셋 4종(여권·면허 413×531 / 주민등록증·이력서 354×472 / 미국 비자 600×600 / 반명함 709×945), 원본/결과 비교 슬라이더. DB 스키마 변경 없음.
+- 검수: 단위 7/7, tsc·빌드, 운영 로그인 화면에서 3장 15초 동시 생성·후보 선택·비교·600×600 저장 확인(테스트 기록 삭제). 버전 v1.01→v1.02(코드·package·DB). 상세: [portrait-photo/docs/CLI_HANDOFF.md](../portrait-photo/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — 신규 프로그램: AI 인물사진 자동화 (`portrait-photo` v1.01)
 
 - 참고 원본: AI Studio "Cinematic Portrait Studio 2"(소스 41개 파일 전수 분석). 코드·문구·브랜드 복제 없이 기능 구조만 참고. 기존 프로그램과 비교해 동일 기능 없음(banana-canvas 증명사진 1기능만 부분 중복).
