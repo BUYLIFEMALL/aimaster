@@ -1,4 +1,4 @@
-# AI 포트레이트 스튜디오 자동화 (`portrait-studio`) — 분석·개발 플랜 (구현 전, 2026-10-14)
+# AI 인물사진 자동화 (`portrait-photo`) — 분석·개발 플랜 (구현 전, 2026-10-14)
 
 > 참고 원본: AI Studio 앱 **"Cinematic Portrait Studio 2"** (`a9e74780-5e2f-41b7-9870-6c64b8fe36fc`, 내부 푸터 표기 "PureGlow Studio v2.4").
 > 규칙 14번(레퍼런스 전수 분석)에 따라 원본의 **전체 소스 41개 파일(약 200KB)을 코드 보기로 직접 읽어** 분석했습니다. 이 문서는 구현 전 계획이며 승인 후 착수합니다.
@@ -56,12 +56,12 @@
 - 서버 DB 테이블 **없음**(사진·결과는 회원 브라우저 IndexedDB). 필요 시 v1.02에서 검토.
 
 ## 4. 이름·등록 제안
-- 이름: **AI 포트레이트 스튜디오 자동화** (slug `portrait-studio`). 대안: AI 프로필사진 스튜디오 자동화 / AI 증명사진·프로필 스튜디오 자동화.
+- 이름: **AI 인물사진 자동화** (slug `portrait-photo`, 2026-10-14 주인님 확정).
 - 카테고리 이미지(fashion-style과 동일), 최소 등급 일반, 배지 `new`(FREE 아님 — 이미지 계열 기존 프로그램과 동일), 기본 요금제 1/2/3개월(1/2/3만원), VIP 접근, 썸네일은 §13 실사 16:9, v1.01 시작.
 
 ## 5. 구현 설계
 
-### 5-1. 구조 (`portrait-studio/`, fashion-style·ai-writing-editor 스캐폴드 기반)
+### 5-1. 구조 (`portrait-photo/`, fashion-style·ai-writing-editor 스캐폴드 기반)
 - Next.js 16 + React 19 + TS, 순수 CSS, `idb`, `@google/genai`(서버만). 공용 권한 판정(`access.ts`, 핸드폰 필수·FREE·구독·등급+기간), `user_api_keys`(provider `gemini`) 재사용.
 - `src/lib/portrait/` **순수 로직(단위 테스트)**: `options`(옵션 데이터·id 일관성), `purposes`(목적 프리셋), `prompt`(슬롯 치환 `buildPrompt()`), `validate`(요청·응답 검증), `size`(종횡비·축소 계산).
 - `src/lib/portrait/post/` 클라이언트 후처리: `flip`, `whiteClean`(BFS, 크기 제한·진행 표시), `licenseSize`(413×531, 250KB 이하로 품질 조정), `tone`(밝기·노출·대비).
@@ -103,7 +103,7 @@
 | 비용 | 프로·4K는 본인 키 요금 발생 문구, 기본값 flash·1K |
 
 ## 9. 확인이 필요한 결정 (권장안 포함)
-1. 이름: **AI 포트레이트 스튜디오 자동화** (권장).
+1. 이름: **AI 인물사진 자동화** (주인님 확정).
 2. 배지: FREE 아님(`new`), 일반 등급+사용기간 (권장 — 기존 이미지 프로그램과 동일).
 3. v1.01에서 공식 서류 규격(순백·413×531·가이드)을 **포함**하되 보장 문구 없이 안내만 (권장).
 4. 영어(en) 번역 **제외**, 개발자 크레딧·외부 링크 **제외** (권장).
