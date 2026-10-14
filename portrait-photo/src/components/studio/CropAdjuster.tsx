@@ -1,16 +1,19 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import { Download } from "lucide-react";
-import { controlsFromCrop, cropFromControls, evaluateHead, maxHeightFrac } from "@/lib/portrait/post";
+import { controlsFromCrop, cropFromControls, evaluateHead, marksToMeasure, maxHeightFrac } from "@/lib/portrait/post";
 import type { CropControls, CropRect, SizePreset } from "@/lib/portrait/post";
 
 // 저장 전 자르기 영역 미리보기·수동 조정. 왼쪽은 원본 위의 잘리는 영역, 오른쪽은 실제 저장될 모습이다.
-export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, measure, mirrored, onSave, onClose, busy, remembered, onAssign, assigned }: {
+export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, measure, mirrored, onSave, onClose, busy, remembered, onAssign, assigned, onMark, startInMark }: {
   url: string; srcW: number; srcH: number; preset: SizePreset; initial: CropRect; recommended: CropRect;
   measure: { crownY: number; chinY: number } | null; mirrored: boolean;
   onSave: (crop: CropRect) => void; onClose: () => void; busy: boolean;
   /** 이 규격에서 지난번에 조정한 값 */
   remembered?: CropControls | null;
+  /** 얼굴 위치 직접 지정(정수리·턱 두 점 클릭) */
+  onMark?: (m: { crownY: number; chinY: number; centerX: number }) => void;
+  startInMark?: boolean;
   /** 일괄 모드: 이 사진의 영역으로 지정 */
   onAssign?: (crop: CropRect) => void;
   assigned?: boolean;
@@ -19,6 +22,9 @@ export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, me
   const maxH = maxHeightFrac(srcW, srcH, aspect);
   const [c, setC] = useState(() => controlsFromCrop(initial, srcW, srcH));
   const dragging = useRef(false);
+  const [mark, setMark] = useState(!!startInMark && !!onMark);
+  const [pts, setPts] = useState<{ x: number; y: number }[]>([]);
+  const [markError, setMarkError] = useState("");
   const crop = useMemo(() => cropFromControls(c, srcW, srcH, aspect), [c, srcW, srcH, aspect]);
 
   function pointToCenter(e: React.PointerEvent<HTMLDivElement>) {
@@ -59,8 +65,20 @@ export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, me
           <div
             className="ca-src"
             style={{ aspectRatio: `${srcW} / ${srcH}` }}
-            onPointerDown={(e) => { dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); pointToCenter(e); }}
-            onPointerMove={(e) => { if (dragging.current) pointToCenter(e); }}
+            onPointerDown={(e) => {
+              if (mark) {
+                const r = e.currentTarget.getBoundingClientRect();
+                const p = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+                const next = [...pts, p];
+                if (next.length < 2) { setPts(next); setMarkError(""); return; }
+                const m = marksToMeasure(next[0], next[1]);
+                if (!m) { setPts([]); setMarkError("두 점이 너무 가깝습니다. 정수리와 턱 끝을 다시 눌러 주세요."); return; }
+                setPts(next); setMark(false); onMark?.(m);
+                return;
+              }
+              dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); pointToCenter(e);
+            }}
+            onPointerMove={(e) => { if (dragging.current && !mark) pointToCenter(e); }}
             onPointerUp={() => { dragging.current = false; }}
             role="application"
             aria-label="자르기 영역 위치(끌어서 이동)"
@@ -68,6 +86,7 @@ export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, me
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={url} alt="원본 사진" draggable={false} />
             <div className="ca-frame" style={{ left: `${left}%`, top: `${top}%`, width: `${w}%`, height: `${h}%` }} />
+            {pts.map((p, i) => <i key={i} className="ca-dot" style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}>{i + 1}</i>)}
             {measure && (
               <>
                 <i className="ca-line" style={{ top: `${measure.crownY * 100}%` }} title="정수리(추정)" />
@@ -75,7 +94,8 @@ export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, me
               </>
             )}
           </div>
-          <small className="muted">사진 위를 끌면 영역이 움직입니다. 가는 선은 AI가 추정한 정수리·턱 위치입니다.</small>
+          <small className="muted">{mark ? `얼굴 위치 지정 중: ${pts.length === 0 ? "① 정수리" : "② 턱 끝"}을 사진에서 클릭하세요.` : "사진 위를 끌면 영역이 움직입니다. 가는 선은 추정한 정수리·턱 위치입니다."}</small>
+          {markError && <small className="error" role="alert">{markError}</small>}
         </div>
         <div>
           <b className="ca-title">저장될 모습 ({preset.width}×{preset.height}px)</b>
@@ -115,6 +135,7 @@ export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, me
       <div className="actions">
         <button type="button" className="primary" disabled={busy} onClick={() => onSave(crop)}><Download size={14} />이 영역으로 규격 저장</button>
         {onAssign && <button type="button" onClick={() => onAssign(crop)}>{assigned ? "✓ 이 사진 영역 지정됨(다시 지정)" : "이 사진의 영역으로 지정 (일괄 저장용)"}</button>}
+        {onMark && <button type="button" onClick={() => { setMark((v) => !v); setPts([]); setMarkError(""); }}>{mark ? "얼굴 위치 지정 취소" : "얼굴 위치 직접 지정"}</button>}
         {remembered && <button type="button" onClick={() => setC(remembered)}>지난 조정 값 불러오기 ({preset.id})</button>}
         <button type="button" onClick={() => setC(controlsFromCrop(recommended, srcW, srcH))}>추천 영역으로 되돌리기</button>
         <button type="button" onClick={onClose}>닫기</button>

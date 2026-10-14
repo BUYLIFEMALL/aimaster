@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 18);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 18);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "id-evisa", "ie-passport", "au-citizenship", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 19);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 19);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "id-evisa", "ie-passport", "au-citizenship", "pl-id", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -222,7 +222,7 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 18);
+  assert.equal(SIZE_PRESETS.length, 19);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
@@ -470,4 +470,33 @@ test("얼굴 중앙 맞춤 옵션·호주 규격", async () => {
   const small = decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.5, centerX: 0.5 }, kr, 1000, 1000, true);
   assert.equal(small.status, "small");
   assert.ok(small.achieved > 0.7);
+});
+
+test("직접 지정 두 점 → 측정값·폴란드 규격", async () => {
+  const { marksToMeasure, sizePresetById, tightCrop, headInCrop, evaluateHead } = await import("../src/lib/portrait/post.ts");
+  const pl = sizePresetById("pl-id");
+  assert.ok(pl.width >= 492 && pl.height >= 633 && Math.abs(pl.width / pl.height - 35 / 45) < 0.01, "gov.pl 492×633, 35:45 비율");
+  assert.equal(pl.maxBytes, Math.round(2.5 * 1024 * 1024));
+  assert.deepEqual(pl.headRange, [0.7, 0.8]);
+  assert.ok(pl.caution.includes("신분증"));
+
+  // 순서 무관: 위쪽 점이 정수리
+  const a = marksToMeasure({ x: 0.4, y: 0.7 }, { x: 0.6, y: 0.2 });
+  assert.deepEqual(a, { crownY: 0.2, chinY: 0.7, centerX: 0.5 });
+  const b = marksToMeasure({ x: 0.3, y: 0.2 }, { x: 0.3, y: 0.7 });
+  assert.equal(b.centerX, 0.3);
+  // 너무 가까우면 거부
+  assert.equal(marksToMeasure({ x: 0.5, y: 0.5 }, { x: 0.5, y: 0.53 }), null);
+  // 범위를 벗어난 좌표는 0~1로 보정
+  const c = marksToMeasure({ x: -0.2, y: -0.1 }, { x: 1.4, y: 0.6 });
+  assert.deepEqual(c, { crownY: 0, chinY: 0.6, centerX: 0.6 });
+
+  // 수동 지정 → 확대 자르기 → 공식 범위 안
+  const kr = sizePresetById("passport");
+  const m = marksToMeasure({ x: 0.35, y: 0.22 }, { x: 0.35, y: 0.5 });
+  const cur = headInCrop(m.crownY, m.chinY, 864, 1184, kr).ratio;
+  assert.ok(cur < 0.4);
+  const t = tightCrop(m.crownY, m.chinY, 864, 1184, kr, (kr.headRange[0] + kr.headRange[1]) / 2, m.centerX);
+  assert.equal(evaluateHead(t.achievedRatio, kr.headRange).status, "ok");
+  assert.ok(Math.abs(t.crop.sx + t.crop.sw / 2 - 0.35 * 864) <= 1 || t.crop.sx === 0, "지정한 가로 중심");
 });

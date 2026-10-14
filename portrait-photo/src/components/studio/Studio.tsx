@@ -79,6 +79,8 @@ export function Studio({ userId }: { userId: string }) {
   const [headBusy, setHeadBusy] = useState(false);
   const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
   const [autoConfirm, setAutoConfirm] = useState(false);
+  const [pendingCrop, setPendingCrop] = useState(false);
+  const [markStart, setMarkStart] = useState(false);
   const [retryConfirm, setRetryConfirm] = useState(false);
   const [centerOk, setCenterOk] = useState(false);
   const [autoBusy, setAutoBusy] = useState(false);
@@ -149,6 +151,13 @@ export function Studio({ userId }: { userId: string }) {
 
   const shown = whiten && cleaned ? cleaned.url : result;
   useEffect(() => { setCropOpen(null); }, [shown]);
+  useEffect(() => {
+    if (!pendingCrop || !result) return;
+    if (whiten && (cleaning || !cleaned)) return;
+    setPendingCrop(false);
+    void openCrop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingCrop, result, shown, whiten, cleaning, cleaned]);
   const filter = useMemo(() => toneFilter(brightness, exposure, contrast), [brightness, exposure, contrast]);
   const toneActive = brightness !== 0 || exposure !== 0 || contrast !== 0;
 
@@ -248,6 +257,30 @@ export function Studio({ userId }: { userId: string }) {
     } finally {
       setBusy(false); setProgress(""); abortRef.current = null;
     }
+  }
+
+  /** 일괄 검사 보고에서 해당 사진의 영역 조정(또는 얼굴 위치 직접 지정)을 연다 */
+  function gotoCrop(i: number, mark: boolean) {
+    setGrid(false); setZoomOn(false); setCropOpen(null); setCleaned(null);
+    setActive(i); setMarkStart(mark); setPendingCrop(true);
+  }
+
+  /** 사용자가 직접 지정한 정수리·턱으로 확대 자르기 영역을 정한다 */
+  function handleMark(mk: { crownY: number; chinY: number; centerX: number }) {
+    if (!cropOpen) return;
+    const preset = sizePresetById(sizeId);
+    const url = result ?? shown;
+    if (!url) return;
+    setHeadMeasure({ url, crownY: mk.crownY, chinY: mk.chinY, centerX: mk.centerX, srcW: cropOpen.w, srcH: cropOpen.h });
+    setMarkStart(false);
+    if (!preset.headRange) { setNotice("이 규격은 공식 머리 기준이 없어 위치만 기록했습니다."); return; }
+    const t = tightCrop(mk.crownY, mk.chinY, cropOpen.w, cropOpen.h, preset, (preset.headRange[0] + preset.headRange[1]) / 2, mk.centerX);
+    const cur = headInCrop(mk.crownY, mk.chinY, cropOpen.w, cropOpen.h, preset).ratio;
+    const pct = (n: number) => Math.round(n * 100);
+    const fileIdx = sources[active] ?? active;
+    if (batchMode) setBatchCrops((c) => ({ ...c, [fileIdx]: { presetId: preset.id, crop: t.crop, srcW: cropOpen.w, srcH: cropOpen.h } }));
+    setBatchReport((rep) => rep.map((r) => (r.idx === active ? { ...r, text: `수동 지정: 머리 약 ${pct(cur)}% → 확대 자르기로 약 ${pct(t.achievedRatio)}%`, tone: "ok" as const } : r)));
+    setNotice(`얼굴 위치를 지정했습니다(머리 약 ${pct(cur)}% → ${pct(t.achievedRatio)}%). 추천 영역이 갱신됐습니다.`);
   }
 
   async function openCrop() {
@@ -580,13 +613,14 @@ export function Studio({ userId }: { userId: string }) {
               void aspect;
               return (
                 <CropAdjuster
-                  key={`${shown.length}-${sizeId}`}
+                  key={`${shown.length}-${sizeId}-${m ? Math.round(m.crownY * 1000) + "-" + Math.round(m.chinY * 1000) : "x"}`}
                   url={shown} srcW={cropOpen.w} srcH={cropOpen.h} preset={pr} initial={rec} recommended={rec}
                   measure={m ? { crownY: m.crownY, chinY: m.chinY } : null} mirrored={mirrored}
                   busy={!!saving} onClose={() => setCropOpen(null)} onSave={(c) => { void saveCropped(c); }}
                   remembered={(() => { try { return parseStoredControls(localStorage.getItem(`portrait-photo:crop:${pr.id}`)); } catch { return null; } })()}
                   onAssign={batchMode ? (c) => { setBatchCrops((cur) => ({ ...cur, [sourceIdx]: { presetId: pr.id, crop: c, srcW: cropOpen.w, srcH: cropOpen.h } })); setNotice(`${sourceIdx + 1}번 사진의 영역을 지정했습니다. [규격으로 일괄 저장]에서 사용됩니다.`); } : undefined}
                   assigned={batchMode && batchCrops[sourceIdx]?.presetId === pr.id}
+                  onMark={handleMark} startInMark={markStart}
                 />
               );
             })()}
@@ -695,7 +729,13 @@ export function Studio({ userId }: { userId: string }) {
             {retryConfirm && !autoBusy && <p className="notice warning" role="status">얼굴을 찾지 못한 사진만 다시 검사하며 <b>본인 Gemini 키로 {batchReport.filter((r) => r.text.includes("얼굴 위치를 찾지 못해") && !skip[r.idx]).length}회</b> 호출됩니다. 계속하려면 [확인하고 다시 검사]를 누르세요.</p>}
             {batchReport.length > 0 && (
               <ul className="batch-report" aria-label="일괄 머리 비율 검사 결과">
-                {batchReport.map((r) => <li key={r.idx} className={r.tone === "ok" ? "ok" : "warn"}><b>{r.name}</b> {r.text}</li>)}
+                {batchReport.map((r) => (
+                  <li key={r.idx} className={r.tone === "ok" ? "ok" : "warn"}>
+                    <b>{r.name}</b> {r.text}{" "}
+                    <button type="button" className="mini" onClick={() => gotoCrop(r.idx, false)}>영역 조정</button>
+                    {r.text.includes("얼굴 위치를 찾지 못해") && <button type="button" className="mini" onClick={() => gotoCrop(r.idx, true)}>얼굴 위치 직접 지정</button>}
+                  </li>
+                ))}
               </ul>
             )}
             {headMsg && <p className={headMsg.tone === "ok" ? "notice head-ok" : headMsg.tone === "warn" ? "notice warning" : "notice"} role="status">{headMsg.text}</p>}

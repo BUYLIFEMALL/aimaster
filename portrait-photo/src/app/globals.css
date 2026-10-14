@@ -294,3 +294,7 @@ a.project-card{color:inherit}
 .batch-report{list-style:none;margin:8px 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;gap:4px;font-size:12px}
 .batch-report li.ok{color:#166534}
 .batch-report li.warn{color:#92400e}
+
+/* ---- v1.13 ---- */
+.ca-dot{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-size:11px;font-style:normal;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:0 0 0 2px #fff}
+.batch-report .mini{padding:2px 8px;font-size:11px;margin-left:4px}

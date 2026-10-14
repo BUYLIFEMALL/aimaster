@@ -162,6 +162,11 @@ export const SIZE_PRESETS: SizePreset[] = [
     headRange: [32 / 50, 36 / 45], headSource: "immi.homeaffairs.gov.au(턱~정수리 32~36mm, 인쇄 사진 45~50mm)",
     caution: "호주 내무부는 디지털 사진을 편집하지 않은 원본이어야 하며 스캔·사진의 사진을 받지 않는다고 안내합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
   },
+  {
+    id: "pl-id", label: "폴란드 신분증 전자 신청 (gov.pl 안내, 35×45mm)", width: 492, height: 633, maxBytes: 2.5 * 1024 * 1024, note: "492×633px(최소) · 2.5MB 이하",
+    headRange: [0.7, 0.8], headSource: "gov.pl 도지사청 안내(얼굴이 사진의 70~80%)",
+    caution: "이 규격은 폴란드 gov.pl의 신분증 전자 신청 안내이며 안내 문서가 오래됐을 수 있습니다. 여권 전자 사양은 확인하지 못했습니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 
@@ -332,4 +337,18 @@ export function centerFaceCrop(centerX: number, srcW: number, srcH: number, pres
   const cx = Math.max(0.05, Math.min(0.95, centerX)) * srcW;
   const sx = Math.max(0, Math.min(srcW - base.sw, cx - base.sw / 2));
   return { sx: Math.round(sx), sy: base.sy, sw: base.sw, sh: base.sh };
+}
+
+/**
+ * 사용자가 사진에서 직접 찍은 두 점(정수리, 턱 끝)을 머리 측정값(0~1)으로 바꾼다.
+ * 위쪽 점이 정수리·아래쪽 점이 턱이며, 가로 중심은 두 점의 평균이다. 두 점이 너무 가까우면 null.
+ */
+export function marksToMeasure(
+  a: { x: number; y: number }, b: { x: number; y: number },
+): { crownY: number; chinY: number; centerX: number } | null {
+  const clamp = (n: number) => Math.max(0, Math.min(1, n));
+  const crownY = clamp(Math.min(a.y, b.y));
+  const chinY = clamp(Math.max(a.y, b.y));
+  if (chinY - crownY < 0.05) return null;
+  return { crownY, chinY, centerX: clamp((a.x + b.x) / 2) };
 }
