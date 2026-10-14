@@ -71,3 +71,17 @@ export function parsePanelRequest(b: Record<string, unknown>): Parsed<PanelReque
   }
   return { ok: true, value: { description, styleId: b.styleId, model: b.model, sheets } };
 }
+
+export interface BalloonRequest { dialogue: string; character: string; image: { data: string; mimeType: string } }
+
+/** 말풍선 위치 요청: 완성된 컷(768px JPEG 등)과 대사·화자 */
+export function parseBalloonRequest(b: Record<string, unknown>): Parsed<BalloonRequest> {
+  const dialogue = str(b.dialogue, MAX_FIELD)?.trim() ?? "";
+  if (!dialogue) return fail("대사가 없는 컷에는 말풍선을 놓지 않습니다.");
+  const character = str(b.character ?? "", 40)?.trim() ?? "";
+  const o = (b.image ?? {}) as { data?: unknown; mimeType?: unknown };
+  if (typeof o.data !== "string" || typeof o.mimeType !== "string") return fail("컷 그림이 필요합니다.");
+  if (!["image/png", "image/jpeg", "image/webp"].includes(o.mimeType)) return fail("지원하지 않는 이미지 형식입니다.");
+  if (o.data.length < 100 || o.data.length > MAX_SHEET_B64 || !B64.test(o.data)) return fail("컷 그림 데이터가 올바르지 않습니다.");
+  return { ok: true, value: { dialogue, character, image: { data: o.data, mimeType: o.mimeType } } };
+}

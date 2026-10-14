@@ -130,3 +130,23 @@ ${o.description}
 ${d.avoid}
 Additional rule: never include speech bubbles, captions or any lettering.`;
 }
+
+/** 완성된 컷 그림(첨부)에서 말풍선을 놓을 빈 곳과 화자 입 위치를 찾게 한다. 응답은 JSON만. */
+export function buildBalloonPrompt(o: { dialogue: string; speaker: string; thought: boolean; narration: boolean }): string {
+  const who = o.narration
+    ? "This line is narration with no speaker, so set \"tail\" to null."
+    : o.thought
+      ? "This line is the inner thought of the main character in the panel. Point the tail at that character's head."
+      : `The speaker is the character named "${o.speaker.replace(/["<>]/g, "")}". If several people appear, pick the one who most plausibly says the line. Point the tail at the speaker's mouth.`;
+  return `You are a professional comic letterer. The attached image is one square comic panel. Place one balloon for the line below.
+
+# Rules
+1. Coordinates are integers from 0 to 1000 relative to the image (x to the right, y downward; 0,0 is the top-left).
+2. "box" is the balloon rectangle {"x","y","w","h"}. Put it on the emptiest area (sky, wall, ceiling, plain background). It must not overlap any person's head, hair, face or hands, nor the key action; if space is tight, prefer a smaller box near an image edge. Keep it fully inside the image.
+3. Size the box so the line fits comfortably: roughly w 300-800 and h 150-400; longer lines need bigger boxes.
+4. "tail" is the tail tip {"x","y"} outside the box, at the speaker's mouth (or head for thoughts). The app shortens the tail so it stops before the face, so place the box so that the straight line from the box to the speaker does not cross another person's face. ${who}
+5. "shape" is "speech" for normal talk, "thought" for inner thoughts, "shout" for yelling or strong surprise.
+6. Reply with JSON only: {"box":{"x":0,"y":0,"w":0,"h":0},"tail":{"x":0,"y":0},"shape":"speech"}
+
+${quoted("dialogue", o.dialogue)}`;
+}

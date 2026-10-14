@@ -57,10 +57,20 @@
 - **썸네일 등록**: `scripts/generate-program-thumbnail.mjs`(관리자 키 1회, `gemini-3-pro-image-preview`) → `program-images/catalog/four-cut-comics-thumbnail.jpg`, 공개 주소 200, 메인 상세 화면 표시 확인. 기록 SQL `supabase/migrations/0002_thumbnail.sql`. 코드 변경이 없어 버전은 v1.01 유지.
 - 루트 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md` 기록 완료(아래 §7 반영).
 
+### 2026-10-14 밤 v1.02 완료 — AI 자동 말풍선 + 말풍선 직접 배치 편집
+- **대사 표시 방식 6종**(`options.ts` `BUBBLES`): `ai`(AI 자동 말풍선, 기본·추천) / `manual`(말풍선 직접 배치, AI 호출 없음) / 기존 고정형 4종. `isBalloonMode()`가 ai·manual 판별.
+- **순수 모듈 `src/lib/comic/balloon.ts`**: 좌표 0~1000 정규화(`normalizeBalloon` — 컷 안·최소 크기 160×110·회전 ±30°·허용 색 6개만), 기본 위치(컷 상단 중앙, 나레이션은 꼬리 없음, `!`가 2개 이상이면 외침·생각 화자는 생각풍선), AI 응답 해석(`parseBalloonAi`), **꼬리 줄이기(`shortenTail` — 방향은 화자 쪽, 길이는 테두리 밖 남은 거리의 50%·최대 110)**, 글자 크기 맞춤(`fitText`), 끌기(`applyDrag` move·resize·tail).
+- **서버 `/api/balloon`**: 완성 컷(768px JPEG)+대사+화자 → `generateVisionJson`(텍스트 모델 `gemini-flash-lite-latest`, JSON) → 해석 실패 시 오류 대신 기본 위치를 `fallback:true`로. 권한·본인 키는 `guardAi`, 그림 저장 없음. 프롬프트 `buildBalloonPrompt`(사람 머리·얼굴·손을 가리지 말 것, 대사는 `<dialogue>`로 격리).
+- **그리기 `draw.ts` `drawBalloon`**: 말풍선(타원)·생각(구름 혹+작아지는 동그라미 꼬리)·외침(뾰족), 회전, 테두리 두껍게 그린 뒤 흰색 채우기로 꼬리와 본체 윤곽을 합침. 미리보기 오버레이와 저장 합성이 같은 함수.
+- **편집기 `src/components/studio/BalloonEditor.tsx`**: 컷 아래 [말풍선 편집] → 상자 끌어 이동, 오른쪽 아래 점 크기, 꼬리 끝 점 방향(pointer 이벤트라 터치 가능), 모양·꼬리 있음/없음·회전 슬라이더·테두리 색, [AI 다시 배치](ai 방식)·[기본 위치로]. 끄는 동안은 편집기 안에서만 바꾸고 손을 떼면 확정(4컷 재합성 횟수 줄임). 키보드 화살표 이동·Shift+화살표 크기. 주황 점·점선은 DOM이라 저장 그림에 안 들어감.
+- `Studio.tsx`: 말풍선 방식이면 그림이 생긴 컷마다 자동 배치(중복 호출은 `pending` ref로 막음), 컷을 다시 그리면 그 컷 말풍선 초기화, 실패 시 기본 위치+안내.
+- 검수: 단위 14/14(말풍선 7건 추가), tsc·빌드, 프로덕션 배포. **운영 실호출(엣지, 일반 회원 본인 키)**: 등장인물 2명(김팀장·박신입) 대본 → **Nano Banana 2** 시트 2장·4컷 생성 → AI 말풍선 4건 모두 200·자동 배치 → 편집기 끌기(꼬리·이동)·외침/생각·빨강·회전 8°·AI 다시 배치 확인 → **[바둑판] 저장 실제 파일 확인**(엣지 다운로드 폴더 `D:\PDS`, 2108×2108 PNG, 말풍선 포함·주황 점 없음). 첫 배포에서 꼬리가 화자 얼굴을 가로지르는 것을 보고 `shortenTail`·프롬프트 보강 후 재배포·재확인.
+- 버전 v1.01→v1.02(`version.ts`·`package.json` 1.0.2·DB `programs.version`, 기록 `supabase/migrations/0003_version_v1_02.sql`).
+
 ### 남은 일 (다음 계정이 이어서)
-1. 위 "미확인" 항목(저장 다운로드·Nano Banana 2·다인물·모바일)은 v1.02 작업 때 함께 확인한다.
+1. **모바일 폭(390px) 화면 미확인**: 엣지 창이 최대화 상태라 `resize_window`가 적용되지 않았다(innerWidth 1768 유지). 창 최대화를 풀거나 개발자 도구 기기 모드로 편집기 1열 배치(`@media (max-width:720px)`)와 터치 끌기를 확인한다. 꼬리 50%·110 축소 후의 실제 AI 배치도 다음 생성 때 한 번 더 육안 확인.
 2. **버전 규칙**: 이후 수정마다 `src/lib/version.ts`+`package.json`+`programs.version`을 +0.01.
-3. **v1.02**: AI 자동 말풍선(완성 컷을 텍스트 모델에 보내 JSON: 빈 영역 0~1000·화자 입 위치·speech/thought/shout) + 직접 배치 편집(이동·크기·회전·꼬리·모양·색, 터치) + 재배치. **v1.03**: 인스타 문구, 이어서 만들기(단편·계속·완결 — `/api/script` `followup`은 이미 구현, UI만 필요), 만화 합치기, 내 작품(IndexedDB 20개). **v1.04**: 스타일·컷 수·비율·서버 보관함.
+3. **v1.03**: 인스타 문구, 이어서 만들기(단편·계속·완결 — `/api/script` `followup`은 이미 구현, UI만 필요), 만화 합치기, 내 작품(IndexedDB 20개). **v1.04**: 스타일·컷 수·비율·서버 보관함.
 4. (완료 2026-10-14) 루트 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md` 기록.
 
 ## 7. 이번 작업에서 배운 점(ERROR_LESSONS에 옮김, 2026-10-14)

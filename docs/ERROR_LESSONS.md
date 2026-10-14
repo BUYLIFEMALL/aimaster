@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — 엣지 검수 함정과 AI 말풍선 꼬리 (four-cut-comics v1.02)
+- 증상: 저장 버튼을 눌렀는데 `Downloads`에 파일이 없음 → 원인: 이 PC 엣지의 다운로드 폴더가 `D:\PDS`(Preferences `download.default_directory`) → 다운로드 검수는 `D:\PDS`에서 확인한다(같은 이름이면 `(1)`이 붙음).
+- 증상: 엣지 탭 캡처가 `Page.captureScreenshot timed out` → 원인: 엣지 창이 가려지거나 최소화되어 `document.visibilityState=hidden` → 화면 대신 저장 파일을 내려받아 확인하거나 주인님께 창을 앞으로 띄워 달라고 한다. `resize_window`도 창이 최대화 상태면 적용되지 않음(innerWidth 그대로) → 모바일 폭 검수는 최대화 해제 후 진행.
+- 증상: AI가 준 꼬리 끝(화자 입)까지 꼬리를 그리면 꼬리가 화자 얼굴을 가로지름 → 해결: 방향만 유지하고 길이를 테두리 밖 남은 거리의 50%·최대 110(0~1000 기준)으로 줄임(`four-cut-comics/src/lib/comic/balloon.ts` `shortenTail`), 프롬프트에 머리·머리카락·얼굴·손을 가리지 말 것 명시 → 다른 프로그램에서 AI 좌표로 말풍선·주석을 그릴 때도 같은 보정을 쓴다.
+
 ## 2026-10-14 — 4컷 만화 개발 중 확인한 도구 함정 (four-cut-comics v1.01)
 - Bash 도구가 한글+작은따옴표가 섞인 긴 heredoc을 "unexpected EOF"로 거부함 → 긴 파일은 Write/Edit 도구로 만들고 Bash는 짧은 명령만 쓴다.
 - PowerShell 5.1 `Get-Content`/`Set-Content -Encoding utf8`로 한글 소스를 치환하면 인코딩이 깨져 TSX가 망가짐 → 치환은 Edit 도구나 node 스크립트로 한다.

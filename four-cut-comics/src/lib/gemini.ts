@@ -65,6 +65,19 @@ export async function generateText(o: { apiKey: string; prompt: string; json?: b
   return text;
 }
 
+/** 이미지 1장을 보고 JSON 텍스트로 답하게 한다(말풍선 위치 판단). 텍스트 모델 사용 */
+export async function generateVisionJson(o: { apiKey: string; prompt: string; image: { data: string; mimeType: string } }): Promise<string> {
+  const ai = new GoogleGenAI({ apiKey: o.apiKey });
+  const res = await withRetry(() => ai.models.generateContent({
+    model: TEXT_MODEL,
+    contents: { parts: [{ inlineData: { data: o.image.data, mimeType: o.image.mimeType } }, { text: o.prompt }] },
+    config: { responseMimeType: "application/json" },
+  }));
+  const text = (res.text ?? "").trim();
+  if (!text) throw new AiError("badjson");
+  return text;
+}
+
 export interface GeneratedImage { data: string; mimeType: string }
 
 /** 이미지 1장 생성(정사각형). parts에는 참고 이미지(inlineData)와 지시문(text)을 순서대로 넣는다 */

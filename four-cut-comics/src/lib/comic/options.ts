@@ -79,8 +79,10 @@ export const IMAGE_MODELS = [
 ] as const;
 export const DEFAULT_IMAGE_MODEL: string = IMAGE_MODELS[0].id;
 
-// 대사를 그림 위에 합성하는 방식. 말풍선(AI 자동 배치·직접 편집)은 v1.02에서 추가한다.
+// 대사를 그림 위에 합성하는 방식. ai·manual은 컷마다 위치를 편집할 수 있는 말풍선이다(v1.02).
 export const BUBBLES: BubbleOption[] = [
+  { id: "ai", name: "AI 자동 말풍선 (추천)", hint: "AI가 컷마다 빈 곳을 찾아 말풍선을 놓고 꼬리를 화자 쪽으로 향하게 합니다. 놓인 뒤 직접 고칠 수 있습니다." },
+  { id: "manual", name: "말풍선 직접 배치", hint: "AI 호출 없이 컷 위쪽에 말풍선을 놓고, 직접 옮기고 크기·꼬리·모양을 고칩니다." },
   { id: "simple", name: "심플 (반투명 흰색)", hint: "아래쪽 반투명 흰색 상자" },
   { id: "webtoon", name: "웹툰 (흰색 테두리)", hint: "아래쪽 흰색 둥근 상자와 테두리, 화자 이름은 주황색" },
   { id: "narration", name: "나레이션 (상단 노란색)", hint: "위쪽 노란색 상자" },
@@ -94,4 +96,6 @@ export function styleById(id: string) { return STYLES.find((s) => s.id === id); 
 export function genreById(id: string) { return GENRES.find((g) => g.id === id); }
 export function isImageModel(id: unknown): id is string { return IMAGE_MODELS.some((m) => m.id === id); }
 export function isBubble(id: unknown): id is string { return BUBBLES.some((b) => b.id === id); }
+/** 컷마다 편집 가능한 말풍선을 쓰는 방식인지 */
+export function isBalloonMode(id: string) { return id === "ai" || id === "manual"; }
 export function styleDirectives(s: StyleOption) { return { role: s.role, guide: s.guide, avoid: `${TEXT_RULE}\n${s.avoid}` }; }

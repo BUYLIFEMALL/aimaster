@@ -1,6 +1,9 @@
 // 브라우저 Canvas 합성. 순수 계산은 script.ts(wrapText 등)에 있고 여기는 그리기만 한다.
 import { hasDialogue, lineFor, showsSpeaker, wrapText } from "./script";
 import type { Panel } from "./script";
+import { SCALE, fitText, rotatePoint, textAreaRatio } from "./balloon";
+import type { Balloon, BalloonShape } from "./balloon";
+import { isBalloonMode } from "./options";
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -44,8 +47,107 @@ function drawLine(ctx: CanvasRenderingContext2D, line: string, x: number, y: num
   }
 }
 
-/** 컷 그림 위에 대사를 합성한 PNG 데이터 URL. 대사가 없으면 그림 그대로. */
-export async function composePanel(imageUrl: string, panel: Panel, bubbleId: string): Promise<string> {
+/** 말풍선 테두리 모양(타원 둘레의 점들). 외침은 뾰족하게, 생각은 구름처럼 둥근 혹을 붙인다. */
+function outlineParts(shape: BalloonShape, rx: number, ry: number): ((ctx: CanvasRenderingContext2D) => void)[] {
+  if (shape === "shout") {
+    const n = 22;
+    return [(ctx) => {
+      ctx.beginPath();
+      for (let k = 0; k <= n * 2; k++) {
+        const a = (k / (n * 2)) * Math.PI * 2;
+        const f = k % 2 === 0 ? 1.08 : 0.86;
+        const px = Math.cos(a) * rx * f;
+        const py = Math.sin(a) * ry * f;
+        if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+    }];
+  }
+  const body = (ctx: CanvasRenderingContext2D) => { ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); };
+  if (shape === "speech") return [body];
+  const bumps = 12;
+  const br = Math.min(rx, ry) * 0.32;
+  return [body, ...Array.from({ length: bumps }, (_, k) => (ctx: CanvasRenderingContext2D) => {
+    const a = (k / bumps) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * rx * 0.88, Math.sin(a) * ry * 0.88, br, 0, Math.PI * 2);
+  })];
+}
+
+/** 꼬리 모양(말풍선 중심 좌표계). 생각은 작아지는 동그라미 3개, 나머지는 삼각형. */
+function tailParts(shape: BalloonShape, tip: { x: number; y: number }, rx: number, ry: number): ((ctx: CanvasRenderingContext2D) => void)[] {
+  const len = Math.hypot(tip.x, tip.y);
+  if (len < 1) return [];
+  const ux = tip.x / len;
+  const uy = tip.y / len;
+  if (shape === "thought") {
+    const edge = 1 / Math.hypot(ux / rx, uy / ry); // 이 방향으로 타원 테두리까지의 거리
+    const r0 = Math.min(rx, ry) * 0.16;
+    return [0.35, 0.65, 0.95].map((t, k) => (ctx: CanvasRenderingContext2D) => {
+      const d = edge + (len - edge) * t;
+      ctx.beginPath();
+      ctx.arc(ux * d, uy * d, Math.max(3, r0 * (1 - k * 0.3)), 0, Math.PI * 2);
+    });
+  }
+  const half = Math.min(rx, ry) * 0.28;
+  const base = { x: ux * rx * 0.6, y: uy * ry * 0.6 };
+  return [(ctx) => {
+    ctx.beginPath();
+    ctx.moveTo(base.x - uy * half, base.y + ux * half);
+    ctx.lineTo(tip.x, tip.y);
+    ctx.lineTo(base.x + uy * half, base.y - ux * half);
+    ctx.closePath();
+  }];
+}
+
+/**
+ * 말풍선 하나를 그린다(W×H 캔버스, 좌표는 0~1000 정규화 값). 미리보기 오버레이와 저장 합성이 같은 함수를 쓴다.
+ * 모든 조각의 테두리를 두껍게 먼저 그리고 흰색으로 채워, 겹친 부분 안쪽 선은 지우고 바깥 윤곽만 남긴다.
+ */
+export function drawBalloon(ctx: CanvasRenderingContext2D, W: number, H: number, b: Balloon, text: string) {
+  const sx = W / SCALE;
+  const sy = H / SCALE;
+  const cx = (b.x + b.w / 2) * sx;
+  const cy = (b.y + b.h / 2) * sy;
+  const rx = (b.w / 2) * sx;
+  const ry = (b.h / 2) * sy;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate((b.rotation * Math.PI) / 180);
+  let parts = outlineParts(b.shape, rx, ry);
+  if (b.tail) {
+    // 꼬리 끝은 화면 좌표로 고정되어 있으므로, 회전한 좌표계 안의 위치로 되돌려 계산한다
+    const local = rotatePoint({ x: b.tail.x * sx, y: b.tail.y * sy }, { x: cx, y: cy }, -b.rotation);
+    parts = [...parts, ...tailParts(b.shape, { x: local.x - cx, y: local.y - cy }, rx, ry)];
+  }
+  const lw = Math.max(2, Math.min(W, H) * 0.005);
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = b.color;
+  ctx.lineWidth = lw * 2;
+  for (const p of parts) { p(ctx); ctx.stroke(); }
+  ctx.fillStyle = "#ffffff";
+  for (const p of parts) { p(ctx); ctx.fill(); }
+
+  const ratio = textAreaRatio(b.shape);
+  const boxW = rx * 2 * ratio;
+  const boxH = ry * 2 * ratio;
+  const maxPx = Math.max(12, Math.min(W, H) * 0.06);
+  const minPx = Math.max(9, Math.min(W, H) * 0.022);
+  const measure = (px: number, t: string) => { ctx.font = FONT(px); return ctx.measureText(t).width; };
+  const wrap = (px: number, t: string, mw: number) => { ctx.font = FONT(px); return wrapText((s) => ctx.measureText(s).width, t, mw).map((l) => l.trim()); };
+  const fit = fitText(measure, wrap, text, boxW, boxH, maxPx, minPx);
+  ctx.font = FONT(fit.px);
+  ctx.fillStyle = "#111111";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const lh = fit.px * 1.25;
+  const top = -((fit.lines.length - 1) * lh) / 2;
+  fit.lines.forEach((l, i) => ctx.fillText(l, 0, top + i * lh));
+  ctx.restore();
+}
+
+/** 컷 그림 위에 대사를 합성한 PNG 데이터 URL. 대사가 없으면 그림 그대로. balloon은 ai·manual 방식에서만 쓴다. */
+export async function composePanel(imageUrl: string, panel: Panel, bubbleId: string, balloon?: Balloon | null): Promise<string> {
   const img = await loadImage(imageUrl);
   const c = document.createElement("canvas");
   c.width = img.naturalWidth;
@@ -53,6 +155,10 @@ export async function composePanel(imageUrl: string, panel: Panel, bubbleId: str
   const ctx = context(c);
   ctx.drawImage(img, 0, 0);
   if (!hasDialogue(panel)) return c.toDataURL("image/png");
+  if (isBalloonMode(bubbleId)) {
+    if (balloon) drawBalloon(ctx, c.width, c.height, balloon, panel.dialogue.trim());
+    return c.toDataURL("image/png");
+  }
 
   const W = c.width;
   const H = c.height;

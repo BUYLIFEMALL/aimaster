@@ -1,10 +1,13 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Download, Lightbulb, RefreshCw, Sparkles, Upload } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Download, Lightbulb, MessageSquare, RefreshCw, Sparkles, Upload } from "lucide-react";
 import {
-  BUBBLES, DEFAULT_IMAGE_MODEL, FORMATS, GENRES, GENRE_LABELS, IMAGE_MODELS, NO_SPEAKER, STYLES, THOUGHT_SPEAKER, isImageModel,
+  BUBBLES, DEFAULT_IMAGE_MODEL, FORMATS, GENRES, GENRE_LABELS, IMAGE_MODELS, NO_SPEAKER, STYLES, THOUGHT_SPEAKER, isBalloonMode, isImageModel,
 } from "@/lib/comic/options";
-import { renameCharacter } from "@/lib/comic/script";
+import { hasDialogue, renameCharacter } from "@/lib/comic/script";
+import { defaultBalloon } from "@/lib/comic/balloon";
+import type { Balloon } from "@/lib/comic/balloon";
+import { BalloonEditor } from "./BalloonEditor";
 import type { Script } from "@/lib/comic/script";
 import { composePanel, downloadUrl, fileToSheet, layoutPanels, shrinkForUpload } from "@/lib/comic/draw";
 import type { SaveLayout } from "@/lib/comic/draw";
@@ -25,6 +28,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 const imgUrl = (i: { data: string; mimeType: string }) => `data:${i.mimeType};base64,${i.data}`;
+const EMPTY4 = <T,>(): (T | null)[] => [null, null, null, null];
 
 export function Studio() {
   const [step, setStep] = useState<Step>(1);
@@ -40,6 +44,10 @@ export function Studio() {
   const [raw, setRaw] = useState<(string | null)[]>([null, null, null, null]);
   const [composed, setComposed] = useState<(string | null)[]>([null, null, null, null]);
   const [panelErr, setPanelErr] = useState<(string | null)[]>([null, null, null, null]);
+  const [balloons, setBalloons] = useState<(Balloon | null)[]>(EMPTY4<Balloon>());
+  const [placing, setPlacing] = useState<boolean[]>([false, false, false, false]);
+  const [editing, setEditing] = useState<number | null>(null);
+  const pending = useRef(new Set<number>());
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [needKey, setNeedKey] = useState(false);
@@ -73,6 +81,7 @@ export function Studio() {
     try {
       const r = await post<{ script: Script }>("/api/script", { kind: "script", genreId, topic, format });
       setScript(r.script); setSheets(r.script.characters.map(() => null)); setRaw([null, null, null, null]); setComposed([null, null, null, null]);
+      setBalloons(EMPTY4<Balloon>()); setEditing(null);
       setStep(2);
     } catch (e) { fail(e, "대본을 만들지 못했습니다."); }
     finally { setBusy(""); }
@@ -132,6 +141,7 @@ export function Studio() {
       description: script.panels[i].description, styleId, model, sheets: refs.slice(0, 3),
     });
     setRaw((cur) => cur.map((s, k) => (k === i ? imgUrl(r.image) : s)));
+    setBalloons((cur) => cur.map((b, k) => (k === i ? null : b))); // 새 그림이면 말풍선 위치도 새로 정한다
     setPanelErr((cur) => cur.map((s, k) => (k === i ? null : s)));
   }
   async function makePanels(only?: number) {
@@ -149,17 +159,48 @@ export function Studio() {
     setBusy("");
   }
 
-  // 대사·말풍선 방식이 바뀌면 합성 결과를 다시 만든다
+  // ---- 말풍선(AI 자동·직접 배치) ----
+  const setBalloonAt = (i: number, b: Balloon | null) => setBalloons((cur) => cur.map((x, k) => (k === i ? b : x)));
+  const setPlacingAt = (i: number, v: boolean) => setPlacing((cur) => cur.map((x, k) => (k === i ? v : x)));
+
+  /** 컷 i의 말풍선 위치. AI 방식이면 본인 키로 1회 판단, 실패하면 컷 상단 중앙 기본 위치 */
+  const placeBalloon = useCallback(async (i: number, useAi: boolean) => {
+    const img = raw[i];
+    if (!script || !img || pending.current.has(i)) return;
+    const panel = script.panels[i];
+    if (!useAi) { setBalloonAt(i, defaultBalloon(panel)); return; }
+    pending.current.add(i); setPlacingAt(i, true);
+    try {
+      const image = await shrinkForUpload(img, 768);
+      const r = await post<{ balloon: Balloon; fallback: boolean }>("/api/balloon", { dialogue: panel.dialogue, character: panel.character, image });
+      setBalloonAt(i, r.balloon);
+      if (r.fallback) setNotice(`${i + 1}컷은 AI가 빈 곳을 찾지 못해 위쪽 가운데에 놓았습니다. [말풍선 편집]으로 옮겨 주세요.`);
+    } catch (e) {
+      setBalloonAt(i, defaultBalloon(panel));
+      if ((e as ApiError).needKey) fail(e, "말풍선을 놓지 못했습니다.");
+      else setNotice(`${i + 1}컷 말풍선 자동 배치에 실패해 위쪽 가운데에 놓았습니다. (${e instanceof Error ? e.message : "오류"})`);
+    } finally { pending.current.delete(i); setPlacingAt(i, false); }
+  }, [raw, script]);
+
+  // 말풍선 방식이면 그림이 생긴(또는 다시 그린) 대사 있는 컷에 말풍선을 자동으로 놓는다
+  useEffect(() => {
+    if (!script || !isBalloonMode(bubbleId)) return;
+    [0, 1, 2, 3].forEach((i) => {
+      if (raw[i] && !balloons[i] && hasDialogue(script.panels[i])) placeBalloon(i, bubbleId === "ai");
+    });
+  }, [raw, balloons, script, bubbleId, placeBalloon]);
+
+  // 대사·말풍선 방식·말풍선 위치가 바뀌면 합성 결과를 다시 만든다
   useEffect(() => {
     if (!script) return;
     let alive = true;
     (async () => {
       const out: (string | null)[] = [];
-      for (let i = 0; i < 4; i++) out.push(raw[i] ? await composePanel(raw[i] as string, script.panels[i], bubbleId).catch(() => raw[i]) : null);
+      for (let i = 0; i < 4; i++) out.push(raw[i] ? await composePanel(raw[i] as string, script.panels[i], bubbleId, balloons[i]).catch(() => raw[i]) : null);
       if (alive) setComposed(out);
     })();
     return () => { alive = false; };
-  }, [raw, script, bubbleId]);
+  }, [raw, script, bubbleId, balloons]);
 
   const allDone = composed.every(Boolean);
   const missing = useMemo(() => raw.filter((r) => !r).length, [raw]);
@@ -175,7 +216,8 @@ export function Studio() {
   }
 
   function restart() {
-    setStep(1); setScript(null); setSheets([]); setRaw([null, null, null, null]); setComposed([null, null, null, null]); setPanelErr([null, null, null, null]); clearMsg();
+    setStep(1); setScript(null); setSheets([]); setRaw([null, null, null, null]); setComposed([null, null, null, null]); setPanelErr([null, null, null, null]);
+    setBalloons(EMPTY4<Balloon>()); setEditing(null); clearMsg();
   }
 
   const stepper = (
@@ -343,12 +385,32 @@ export function Studio() {
                   ? <img src={composed[i] as string} alt={`${i + 1}컷`} />
                   : <div className="cc-placeholder">{busy === "panels" || busy === `panel-${i}` ? "그리는 중..." : panelErr[i] ? "실패" : `${i + 1}컷`}</div>}
                 {panelErr[i] && <small className="error" role="alert">{panelErr[i]}</small>}
+                {placing[i] && <small className="muted" role="status">AI가 말풍선 자리를 찾는 중...</small>}
                 <div className="actions">
                   <button type="button" onClick={() => makePanels(i)} disabled={!!busy}><RefreshCw size={14} />{raw[i] ? "다시 그리기" : panelErr[i] ? "다시 시도" : "이 컷 그리기"}</button>
+                  {isBalloonMode(bubbleId) && raw[i] && balloons[i] && hasDialogue(script.panels[i]) && (
+                    <button type="button" className={editing === i ? "on" : ""} onClick={() => setEditing(editing === i ? null : i)} aria-expanded={editing === i}>
+                      <MessageSquare size={14} />말풍선 편집
+                    </button>
+                  )}
                 </div>
               </figure>
             ))}
           </div>
+          {editing !== null && isBalloonMode(bubbleId) && raw[editing] && balloons[editing] && (
+            <BalloonEditor
+              key={editing}
+              index={editing}
+              image={raw[editing] as string}
+              text={script.panels[editing].dialogue.trim()}
+              balloon={balloons[editing] as Balloon}
+              busy={placing[editing]}
+              onCommit={(b) => setBalloonAt(editing, b)}
+              onReset={() => setBalloonAt(editing, defaultBalloon(script.panels[editing]))}
+              onRelayout={bubbleId === "ai" ? () => placeBalloon(editing, true) : undefined}
+              onClose={() => setEditing(null)}
+            />
+          )}
           {allDone && (
             <div className="cc-save">
               <b className="cc-label">저장하기</b>
