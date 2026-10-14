@@ -240,3 +240,6 @@ a.project-card{color:inherit}
 /* ---- v1.03 ---- */
 .st-server{margin-top:10px;padding-top:10px;border-top:1px solid #dfe4ee}
 .saved-section{margin-top:28px}
+
+/* ---- v1.04 ---- */
+.st-retention{grid-template-columns:70px 1fr 0;margin-top:8px}

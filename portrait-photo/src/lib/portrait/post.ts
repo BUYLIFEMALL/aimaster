@@ -81,14 +81,28 @@ export function toneFilter(brightness: number, exposure: number, contrast: numbe
 
 export const LICENSE = { width: 413, height: 531, maxBytes: 250 * 1024 } as const;
 
-export interface SizePreset { id: string; label: string; width: number; height: number; maxBytes: number; note: string }
+export interface SizePreset {
+  id: string; label: string; width: number; height: number; maxBytes: number; note: string;
+  /** 최소 용량(공식 안내에 있는 경우) */
+  minBytes?: number;
+  /** 저장 후 함께 보여 줄 주의 문구 */
+  caution?: string;
+}
 
 /** 자주 쓰는 증명사진 규격(300dpi 환산 픽셀). 제출 기관의 요구 사항이 우선이므로 통과를 보장하지 않는다. */
 export const SIZE_PRESETS: SizePreset[] = [
-  { id: "passport", label: "여권·주민등록증·운전면허 (3.5×4.5cm)", width: 413, height: 531, maxBytes: 250 * 1024, note: "413×531px · 250KB 이하" },
+  { id: "passport", label: "여권·주민등록증·운전면허·일본 여권 (3.5×4.5cm)", width: 413, height: 531, maxBytes: 250 * 1024, note: "413×531px · 250KB 이하" },
   { id: "resume", label: "이력서·반명함 증명사진 (3×4cm)", width: 354, height: 472, maxBytes: 250 * 1024, note: "354×472px · 250KB 이하" },
   { id: "china-visa", label: "중국 비자 (33×48mm, 자료 간 차이 있음)", width: 380, height: 553, maxBytes: 120 * 1024, note: "380×553px · 120KB 이하" },
   { id: "us-visa", label: "미국 비자 (2×2인치 정사각)", width: 600, height: 600, maxBytes: 240 * 1024, note: "600×600px · 240KB 이하" },
+  {
+    id: "canada-passport", label: "캐나다 여권 온라인 (canada.ca 안내)", width: 1200, height: 1800, maxBytes: 5 * 1024 * 1024, minBytes: 200 * 1024, note: "1200×1800px · 200KB~5MB",
+    caution: "캐나다는 상업 사진사가 직접 촬영한 카메라 원본 파일만 인정한다고 안내합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
+  {
+    id: "uk-passport", label: "영국 여권 온라인 (gov.uk 안내)", width: 600, height: 750, maxBytes: 10 * 1024 * 1024, minBytes: 50 * 1024, note: "600×750px(최소) · 50KB~10MB",
+    caution: "영국은 컴퓨터 소프트웨어로 변경하지 않은 사진만 받습니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 

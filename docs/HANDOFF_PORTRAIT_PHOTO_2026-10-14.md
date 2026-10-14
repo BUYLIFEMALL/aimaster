@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (`portrait-photo`) — 인수인계 문서 (2026-10-14, v1.03)
+# AI 인물사진 자동화 (`portrait-photo`) — 인수인계 문서 (2026-10-14, v1.04)
 
 다른 CLI(Codex·Gemini·다른 Claude 세션)가 이 대화 없이 바로 이어받을 수 있도록 정리한 한 장 요약입니다. 상세는 [`portrait-photo/AGENTS.md`](../portrait-photo/AGENTS.md), [`portrait-photo/docs/CLI_HANDOFF.md`](../portrait-photo/docs/CLI_HANDOFF.md), 원본 분석·계획은 [`portrait-photo/docs/DEVELOPMENT_PLAN.md`](../portrait-photo/docs/DEVELOPMENT_PLAN.md).
 
@@ -27,7 +27,8 @@
 | 계획 | 원본 전수 분석·기존 프로그램 비교·개발 플랜 | `cca7f622`, `d0bf879f`(이름 확정) |
 | v1.01 | 신규 구현·등록·배포 | `86a292b2` |
 | v1.02 | 후보 2~4장 동시 생성, 규격 프리셋 4종, 원본 비교 슬라이더 | `264679df` |
-| v1.03 | 서버 보관함(선택), 일괄 처리, 규격 5종(중국 비자·주민등록증 정정) | git log `portrait-photo` |
+| v1.03 | 서버 보관함(선택), 일괄 처리, 규격 5종(중국 비자·주민등록증 정정) | `a36b1ccc` |
+| v1.04 | ZIP 일괄 저장, 규격 7종(캐나다·영국, 공식 확인·주의 문구), 보관 기간 설정 | git log `portrait-photo` |
 
 ## 5. 반드시 지킬 것
 - 키는 회원 본인 것만, 폴백 금지. 원본 얼굴 사진은 서버 저장·로그 금지(생성 결과는 회원이 보관함을 켠 경우만 저장), 생성 전 "본인/동의받은 사진" 확인 체크.

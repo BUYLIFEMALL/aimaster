@@ -80,7 +80,7 @@ export function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: 
 }
 
 /** 선택한 규격 크기의 JPEG(흰 바탕). 용량 제한을 넘으면 품질을 낮춰 맞춘다. */
-export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirrored: boolean; filter: string; applyFilter: boolean }): Promise<{ blob: Blob; bytes: number; quality: number; overLimit: boolean }> {
+export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirrored: boolean; filter: string; applyFilter: boolean }): Promise<{ blob: Blob; bytes: number; quality: number; overLimit: boolean; underMin: boolean }> {
   const img = await loadImage(dataUrl);
   const crop = coverCrop(img.naturalWidth, img.naturalHeight, preset.width, preset.height, 0.15);
   const canvas = document.createElement("canvas");
@@ -98,7 +98,7 @@ export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirr
     quality = Math.round((quality - 0.07) * 100) / 100;
     blob = await canvasToBlob(canvas, "image/jpeg", quality);
   }
-  return { blob, bytes: blob.size, quality, overLimit: blob.size > preset.maxBytes };
+  return { blob, bytes: blob.size, quality, overLimit: blob.size > preset.maxBytes, underMin: !!preset.minBytes && blob.size < preset.minBytes };
 }
 
 /** 기록용 작은 미리보기(긴 변 900px JPEG) */

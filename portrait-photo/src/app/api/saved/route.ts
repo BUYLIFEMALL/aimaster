@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
-import { MAX_SAVED_B64, deleteAllSaved, deleteSaved, listSaved, saveImage } from "@/lib/saved";
+import { MAX_SAVED_B64, deleteAllSaved, deleteSaved, listSaved, normalizeRetention, saveImage } from "@/lib/saved";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status, headers: NO_STORE });
   const raw = await request.text();
   if (raw.length > MAX_SAVED_B64 + 2_000) return NextResponse.json({ error: "이미지가 너무 큽니다." }, { status: 413, headers: NO_STORE });
-  let body: { image?: { data?: unknown; mimeType?: unknown }; purposeLabel?: unknown; aspect?: unknown; model?: unknown } = {};
+  let body: { image?: { data?: unknown; mimeType?: unknown }; purposeLabel?: unknown; aspect?: unknown; model?: unknown; retentionDays?: unknown } = {};
   try { body = JSON.parse(raw); } catch { /* 아래에서 처리 */ }
   const img = body.image;
   if (!img || typeof img.data !== "string" || typeof img.mimeType !== "string") return NextResponse.json({ error: "이미지가 없습니다." }, { status: 400, headers: NO_STORE });
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   if (img.data.length < 100 || img.data.length > MAX_SAVED_B64 || !B64.test(img.data)) return NextResponse.json({ error: "이미지 데이터가 올바르지 않습니다." }, { status: 400, headers: NO_STORE });
   const str = (v: unknown) => (typeof v === "string" ? v : "");
   const saved = await saveImage(access.user.id, {
-    base64: img.data, mimeType: img.mimeType, purposeLabel: str(body.purposeLabel), aspect: str(body.aspect), model: str(body.model),
+    base64: img.data, mimeType: img.mimeType, purposeLabel: str(body.purposeLabel), aspect: str(body.aspect), model: str(body.model), retentionDays: normalizeRetention(body.retentionDays),
   });
   if (!saved) return NextResponse.json({ error: "보관함에 저장하지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 500, headers: NO_STORE });
   return NextResponse.json({ id: saved.id }, { headers: NO_STORE });

@@ -12,6 +12,7 @@ import { MAX_CANDIDATES, SIZE_PRESETS, sizePresetById, toneFilter } from "@/lib/
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
+import { createZip } from "@/lib/portrait/zip";
 import { GuideOverlay } from "./GuideOverlay";
 
 const OUTFIT_CATS = [
@@ -64,6 +65,7 @@ export function Studio({ userId }: { userId: string }) {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [serverSave, setServerSave] = useState(false);
+  const [retention, setRetention] = useState(30);
   const [progress, setProgress] = useState("");
   const [active, setActive] = useState(0);
   const [count, setCount] = useState(1);
@@ -89,8 +91,16 @@ export function Studio({ userId }: { userId: string }) {
 
   useEffect(() => () => { previews.forEach((u) => URL.revokeObjectURL(u)); }, [previews]);
   useEffect(() => {
-    try { setServerSave(localStorage.getItem("portrait-photo:server-save") === "1"); } catch { /* 무시 */ }
+    try {
+      setServerSave(localStorage.getItem("portrait-photo:server-save") === "1");
+      const r = Number(localStorage.getItem("portrait-photo:retention"));
+      if ([0, 7, 30, 90].includes(r) && localStorage.getItem("portrait-photo:retention") !== null) setRetention(r);
+    } catch { /* 무시 */ }
   }, []);
+  function changeRetention(days: number) {
+    setRetention(days);
+    try { localStorage.setItem("portrait-photo:retention", String(days)); } catch { /* 무시 */ }
+  }
   function toggleServerSave(on: boolean) {
     setServerSave(on);
     try { localStorage.setItem("portrait-photo:server-save", on ? "1" : "0"); } catch { /* 무시 */ }
@@ -198,7 +208,7 @@ export function Studio({ userId }: { userId: string }) {
             if (!up) { serverFail++; continue; }
             const res = await fetch("/api/saved", {
               method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ image: { data: up.base64, mimeType: up.mimeType }, purposeLabel: purpose?.label ?? "자유", aspect, model: r.model }),
+              body: JSON.stringify({ image: { data: up.base64, mimeType: up.mimeType }, purposeLabel: purpose?.label ?? "자유", aspect, model: r.model, retentionDays: retention }),
             });
             if (!res.ok) serverFail++;
           } catch { serverFail++; }
@@ -218,14 +228,16 @@ export function Studio({ userId }: { userId: string }) {
     if (results.length === 0) return;
     setSaving("all");
     try {
+      const entries: { name: string; data: Uint8Array }[] = [];
       for (let i = 0; i < results.length; i++) {
         let src = results[i];
         if (whiten) { try { src = (await whitenDataUrl(src)).dataUrl; } catch { /* 원본 사용 */ } }
         const blob = await renderPng(src, { mirrored, filter, applyFilter: toneActive, resolution });
-        downloadBlob(blob, `인물사진-${String(i + 1).padStart(2, "0")}-${aspect.replace(":", "x")}-${resolution}.png`);
-        await new Promise((r) => setTimeout(r, 400));
+        entries.push({ name: `인물사진-${String(i + 1).padStart(2, "0")}-${aspect.replace(":", "x")}-${resolution}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
       }
-      setNotice(`${results.length}장을 저장했습니다. 브라우저가 여러 파일 다운로드를 물으면 허용해 주세요.`);
+      const zip = createZip(entries);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `인물사진-${results.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
+      setNotice(`${results.length}장을 ZIP 파일 하나로 저장했습니다(${Math.round(zip.length / 1024)}KB).`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -245,11 +257,13 @@ export function Studio({ userId }: { userId: string }) {
     try {
       const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive });
       downloadBlob(r.blob, `증명사진-${preset.id}-${preset.width}x${preset.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
+      const extra = [r.underMin ? `용량(${Math.round(r.bytes / 1024)}KB)이 최소 ${Math.round((preset.minBytes ?? 0) / 1024)}KB보다 작습니다. 제출처 기준을 확인해 주세요.` : "", preset.caution ?? ""].filter(Boolean).join(" ");
       setNotice(
         r.overLimit
           ? `${preset.width}×${preset.height}px로 저장했지만 용량(${Math.round(r.bytes / 1024)}KB)이 제한(${Math.round(preset.maxBytes / 1024)}KB)을 넘습니다. 제출처에서 다시 압축해 주세요.`
           : `${preset.width}×${preset.height}px로 저장했습니다(${Math.round(r.bytes / 1024)}KB). 제출 기관의 사진 규정은 별도로 확인해 주세요.`,
       );
+      if (extra) setNotice((n) => `${n} ${extra}`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -270,6 +284,13 @@ export function Studio({ userId }: { userId: string }) {
           <input type="checkbox" checked={serverSave} onChange={(e) => toggleServerSave(e.target.checked)} />
           <span><b>생성 결과를 내 서버 보관함에도 저장 (선택, 최대 30장)</b><small>켜면 결과 사진(원본 제외)이 비공개 저장소에 보관되어 다른 기기에서도 볼 수 있어요. 언제든 [내 기록]에서 삭제할 수 있습니다.</small></span>
         </label>
+        {serverSave && (
+          <label className="slider st-retention"><span>보관 기간</span>
+            <select value={retention} onChange={(e) => changeRetention(Number(e.target.value))} aria-label="서버 보관 기간">
+              <option value={7}>7일 후 자동 삭제</option><option value={30}>30일 후 자동 삭제</option><option value={90}>90일 후 자동 삭제</option><option value={0}>직접 삭제할 때까지</option>
+            </select><b />
+          </label>
+        )}
       </div>
 
       <div className="purposes" role="tablist" aria-label="촬영 목적">
@@ -395,7 +416,7 @@ export function Studio({ userId }: { userId: string }) {
             </button>
             {shown && (
               <div className="actions st-save">
-                {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}전체 저장 ({results.length}장)</button>}
+                {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
                 <select value={sizeId} onChange={(e) => setSizeId(e.target.value)} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}

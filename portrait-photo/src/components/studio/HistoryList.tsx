@@ -4,7 +4,7 @@ import { Download, Trash2 } from "lucide-react";
 import { clearHistory, listHistory, removeHistory } from "@/lib/portrait/history";
 import type { HistoryItem } from "@/lib/portrait/history";
 
-interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string }
+interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string; expiresAt: string | null }
 
 export function HistoryList({ userId }: { userId: string }) {
   const [items, setItems] = useState<HistoryItem[] | null>(null);
@@ -108,6 +108,7 @@ export function HistoryList({ userId }: { userId: string }) {
                   <small>{new Date(it.createdAt).toLocaleString("ko-KR")}</small>
                   <h3>{it.purposeLabel}</h3>
                   <p className="muted">{it.aspect} · {Math.round(it.bytes / 1024)}KB</p>
+                  <small className="muted">{it.expiresAt ? `${new Date(it.expiresAt).toLocaleDateString("ko-KR")}에 자동 삭제` : "직접 삭제할 때까지 보관"}</small>
                   <div className="actions">
                     {it.url && <a className="button" href={it.url} download={`인물사진-보관-${it.id.slice(0, 8)}.jpg`} target="_blank" rel="noopener noreferrer"><Download size={13} />저장</a>}
                     <button type="button" onClick={() => removeSaved(it.id)} aria-label="보관 사진 삭제"><Trash2 size={13} /></button>

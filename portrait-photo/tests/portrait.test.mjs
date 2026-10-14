@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 5);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 5);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 7);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 7);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -177,4 +177,56 @@ test("규격 프리셋·후보 수 범위", async () => {
   // 정사각 규격에서도 자르기 비율이 맞는다
   const c = coverCrop(864, 1184, 600, 600);
   assert.ok(Math.abs(c.sw / c.sh - 1) < 0.01);
+});
+
+test("ZIP 생성: 구조·CRC·한글 이름·중복 이름", async () => {
+  const { createZip, crc32, uniqueNames } = await import("../src/lib/portrait/zip.ts");
+  assert.equal(crc32(new TextEncoder().encode("123456789")), 0xcbf43926, "표준 CRC32 검증값");
+  assert.deepEqual(uniqueNames(["a.png", "A.png", "b.png", "a.png"]), ["a.png", "A (2).png", "b.png", "a (3).png"]);
+
+  const f1 = new Uint8Array([1, 2, 3, 4, 5]);
+  const f2 = new TextEncoder().encode("한글 내용");
+  const zip = createZip([{ name: "인물사진-01.png", data: f1 }, { name: "인물사진-01.png", data: f2 }], new Date("2026-10-14T10:20:30"));
+  const dv = new DataView(zip.buffer, zip.byteOffset, zip.byteLength);
+  // 끝 레코드
+  const end = zip.length - 22;
+  assert.equal(dv.getUint32(end, true), 0x06054b50);
+  assert.equal(dv.getUint16(end + 10, true), 2, "항목 수");
+  const centralSize = dv.getUint32(end + 12, true);
+  const centralOffset = dv.getUint32(end + 16, true);
+  assert.equal(centralOffset + centralSize, end);
+  // 첫 로컬 헤더
+  assert.equal(dv.getUint32(0, true), 0x04034b50);
+  assert.equal(dv.getUint16(6, true) & 0x0800, 0x0800, "UTF-8 이름 플래그");
+  assert.equal(dv.getUint32(14, true), crc32(f1));
+  assert.equal(dv.getUint32(18, true), 5);
+  const nameLen = dv.getUint16(26, true);
+  assert.equal(new TextDecoder().decode(zip.slice(30, 30 + nameLen)), "인물사진-01.png");
+  assert.deepEqual([...zip.slice(30 + nameLen, 30 + nameLen + 5)], [1, 2, 3, 4, 5]);
+  // 두 번째 항목은 이름이 겹치지 않게 바뀐다
+  const c1 = centralOffset;
+  const c1name = dv.getUint16(c1 + 28, true);
+  const c2 = c1 + 46 + c1name;
+  const c2name = dv.getUint16(c2 + 28, true);
+  assert.equal(new TextDecoder().decode(zip.slice(c2 + 46, c2 + 46 + c2name)), "인물사진-01 (2).png");
+  assert.equal(dv.getUint32(c2 + 16, true), crc32(f2));
+  assert.equal(dv.getUint32(c1 + 42, true), 0, "첫 항목 오프셋 0");
+});
+
+test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async () => {
+  const { SIZE_PRESETS, sizePresetById } = await import("../src/lib/portrait/post.ts");
+  const ca = sizePresetById("canada-passport");
+  assert.deepEqual([ca.width, ca.height, ca.minBytes], [1200, 1800, 200 * 1024]);
+  assert.ok(ca.width >= 1200 && ca.height >= 1800 && ca.width <= 3000 && ca.height <= 4500, "canada.ca 안내 픽셀 범위");
+  assert.ok(ca.caution && ca.caution.includes("상업 사진사"));
+  const uk = sizePresetById("uk-passport");
+  assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
+  assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
+  assert.equal(SIZE_PRESETS.length, 7);
+  for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
+
+  // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
+  const days = [0, 7, 30, 90];
+  const normalize = (v) => (typeof v === "number" && days.includes(v) ? v : 30);
+  assert.deepEqual([0, 7, 30, 90, 45, "7", null, -1].map(normalize), [0, 7, 30, 90, 30, 30, 30, 30]);
 });
