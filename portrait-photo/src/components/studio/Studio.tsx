@@ -77,6 +77,7 @@ export function Studio({ userId }: { userId: string }) {
   const [zoomOn, setZoomOn] = useState(false);
   const [skip, setSkip] = useState<boolean[]>([]);
   const [headBusy, setHeadBusy] = useState(false);
+  const [repZoom, setRepZoom] = useState<number | null>(null);
   const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
   const [autoConfirm, setAutoConfirm] = useState(false);
   const [pendingCrop, setPendingCrop] = useState(false);
@@ -764,10 +765,20 @@ export function Studio({ userId }: { userId: string }) {
             {retryConfirm && !autoBusy && <p className="notice warning" role="status">얼굴을 찾지 못한 사진만 다시 검사하며 <b>본인 Gemini 키로 {batchReport.filter((r) => r.text.includes("얼굴 위치를 찾지 못해") && !skip[r.idx]).length}회</b> 호출됩니다. 계속하려면 [확인하고 다시 검사]를 누르세요.</p>}
             {batchReport.length > 0 && (
               <ul className="batch-report" aria-label="일괄 머리 비율 검사 결과">
+                {repZoom !== null && results[repZoom] && (
+                  <div className="rep-zoom" role="dialog" aria-label="사진 크게 보기" onClick={() => setRepZoom(null)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={results[repZoom]} alt="크게 보기" />
+                    <small>클릭하면 닫힙니다</small>
+                  </div>
+                )}
                 {batchReport.map((r) => (
                   <li key={r.idx} className={r.tone === "ok" ? "ok" : "warn"}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className="rep-thumb" src={results[r.idx]} alt="" />
+                    <button type="button" className="rep-thumb-btn" onClick={() => setRepZoom(r.idx)} aria-label={r.name + " 크게 보기"}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img className="rep-thumb" src={results[r.idx]} alt="" />
+                    </button>
                     <span className="rep-body"><b>{r.name}</b> {r.text}{" "}
                     <button type="button" className="mini" onClick={() => gotoCrop(r.idx, false)}>영역 조정</button>
                     {r.text.includes("얼굴 위치를 찾지 못해") && <button type="button" className="mini" onClick={() => gotoCrop(r.idx, true)}>얼굴 위치 직접 지정</button>}

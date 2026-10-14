@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.14)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.15)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -69,3 +69,4 @@
 - v1.14 추가: **직접 지정한 얼굴 위치 재사용**(`measures` 상태에 사진별 측정값 보관, `changePreset(id)`가 규격 변경 시 AI 호출 없이 `decideBatchCrop`으로 영역·보고를 다시 계산), **보고 행 사진 썸네일**(`.rep-thumb`), `describeBatchDecision` 순수 함수 분리, 한국 여권 안내 보강(공식: passport.go.kr 413×531 권장·허용 395~431×507~550·≤500KB, mois.go.kr 주민등록증 보정 불가). 규격은 19종 유지(이번 후보 중 새로 공식 확인된 규격 없음).
 - v1.14 검수(2026-10-14): 단위 20/20, tsc 정상, 배포·DB v1.14 완료. **운영 화면 확인은 buylife 세션 만료("로그인이 필요합니다.")로 미완료** — 로그인 후 일괄 검사 → 규격 변경 → 재계산(AI 호출 0회)·썸네일 표시 확인 필요.
 - 남은 일(v1.15 후보): 썸네일 확대 보기, 공식 확인된 규격만 추가(솅겐·태국·말레이시아·필리핀·브라질·UAE·튀르키예·스위스·남아공·네덜란드·스웨덴·오스트리아·체코·이탈리아 보류).
+- v1.15 추가: **일괄 보고 썸네일 확대 보기**(`rep-thumb-btn` 클릭 → `repZoom` 오버레이, 클릭하면 닫힘). 규격은 19종 유지(이번에도 새로 공식 확인된 규격 없음 — 추측으로 추가하지 않음). 검수: 단위 20/20, tsc·빌드 정상, 배포·DB v1.15. 운영 화면 확인은 로그인 세션 필요(v1.14 항목과 함께 대기).

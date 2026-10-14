@@ -303,3 +303,7 @@ a.project-card{color:inherit}
 .batch-report li{display:flex;gap:10px;align-items:flex-start}
 .rep-thumb{width:36px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#e2e8f0}
 .rep-body{min-width:0;line-height:1.6}
+.rep-thumb-btn{padding:0;border:0;background:none;cursor:zoom-in;flex-shrink:0}
+.rep-zoom{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:zoom-out}
+.rep-zoom img{max-width:90vw;max-height:85vh;border-radius:8px;background:#fff}
+.rep-zoom small{color:#fff}
