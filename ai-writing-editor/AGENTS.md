@@ -26,3 +26,9 @@
 ## 검수
 - `npm test`(순수 로직 17건: 위치 찾기·여러 문단·HTML 평문·이미지 판별), `npm run test:browser`(보이는 Chrome, 모의 API 20건: 마크다운/HTML 렌더링·버블 툴바·서식 도구·표·이미지(선택·붙여넣기·실패)·밑줄/색/형광펜/정렬·문단 병합 제안·서식 복사 HTML), `npm run build`. 실제 인프라 검증: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/image-real.mts`(업로드·공개 주소·문서 삭제 시 이미지 정리). 하네스 팁: 선택이 남아 있는 곳을 바로 3중 클릭하면 브라우저가 텍스트 끌기로 처리하므로 먼저 다른 곳을 클릭해 선택을 푼다; Tiptap `focus()`는 다음 프레임에 DOM 선택을 반영하므로 `waitForFunction`으로 기다린다.
 - 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [generate|generate-web|rewrite|instruction|analyze]`(운영자 본인 Gemini 키). 출력은 파일로 리다이렉트. `rewrite-debug.mts`(사고 토큰·truncated 확인), `grounding-debug.mts`(모델별 출처 구조).
+
+## 2026-10-14 v1.06 — 모바일 셸 CSS 추가 (Claude Code)
+
+- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
+- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.06(코드·package·DB).
+- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.

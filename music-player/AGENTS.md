@@ -48,3 +48,9 @@
 - MCP 제어 Chrome 창은 숨김이라 미디어가 로드되지 않는다 → 소리·재생 검수는 `npm run test:browser`(보이는 Chrome)로 한다. 시각화 캔버스 그림 자체는 단순 톤에서 막대 하나만 보이므로 실제 음악으로 육안 확인을 권장.
 - `webkitdirectory`는 타입이 없어 스프레드로 전달한다. Safari 일부 버전은 폴더 선택 미지원.
 - IndexedDB는 시크릿 창·사이트 데이터 삭제 시 비어 있다(매뉴얼에 안내).
+
+## 2026-10-14 v1.02 — 모바일 셸 CSS 추가 (Claude Code)
+
+- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
+- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.02(코드·package·DB).
+- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.

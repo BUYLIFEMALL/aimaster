@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — 웹 프로그램 10개 모바일 화면 수정 (좌측 메뉴 → 위쪽 접는 메뉴)
+
+- 4컷 만화 v1.03에서 찾은 뼈대 공통 누락(767px 이하 전환 CSS 없음)을 나머지 10개에도 같은 규칙으로 고쳐 각각 버전 +0.01·빌드·프로덕션 배포·DB 버전 반영: ai-writing-editor v1.06, banana-canvas v1.03, blog-keyword v1.03, fashion-style v1.04, landing-architect v1.04, music-player v1.02, personality-suite v1.05, portrait-photo v1.18, reverse-prompt v1.02, thumbnail-master v1.02. 기능 로직 변경 없음.
+- 검수: 10개 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인(엣지 일반 회원 로그인). 실제 휴대폰 터치·각 화면 내부 구성의 모바일 배치는 미확인. 각 프로그램 `AGENTS.md`에 기록.
+
 ## 2026-10-14 Claude Code — AI 4컷 만화 자동화 v1.03: 모바일 화면 수정 (`four-cut-comics`)
 
 - 모바일 폭 검수에서 좁은 화면에도 좌측 메뉴가 남아 본문이 약 250px로 눌리는 결함을 발견해, 767px 이하에서 위쪽 접는 메뉴로 바꾸는 CSS를 추가했습니다(markdown-studio 규칙 재사용). 엣지 492px에서 메뉴·만화 1세트·말풍선 편집기·끌기 확인, 꼬리 축소 후 AI 배치도 확인. 버전 v1.02→v1.03(코드·package·DB).

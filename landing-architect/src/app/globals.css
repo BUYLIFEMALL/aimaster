@@ -211,3 +211,17 @@ small{font-size:11px}
 .lp-preview{display:flex;justify-content:center;background:#f1f5f9;border:1px solid var(--line);border-radius:12px;padding:12px;overflow:auto}
 .lp-preview iframe{height:70vh;min-height:480px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;max-width:100%}
 @media(max-width:767px){.lp-grid{grid-template-columns:1fr}}
+
+/* v1.04 모바일: 좁은 화면에서는 좌측 메뉴 대신 위쪽 접는 메뉴(markdown-studio·four-cut-comics와 같은 셸 규칙) */
+@media(max-width:767px){
+  .app-shell{display:block}
+  .desktop-sidebar{display:none}
+  .mobile-sidebar{display:block;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+  .mobile-header{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;font-size:13px}
+  .mobile-header button{border:0;padding:4px}
+  .mobile-menu{max-height:calc(100dvh - 60px);overflow:auto;display:flex;flex-direction:column}
+  .mobile-menu .sidebar-brand{padding:15px}
+  .mobile-menu .sidebar-nav{overflow:visible}
+  .workspace-content{padding:23px 14px}
+  .card{padding:18px}
+}

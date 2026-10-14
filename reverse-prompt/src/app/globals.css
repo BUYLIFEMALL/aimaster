@@ -151,3 +151,17 @@ small{font-size:11px}
 .rp-snippet{font-size:12px;color:#475569;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 button[aria-pressed=true]{background:#eef2ff;border-color:#a5b4fc;color:#4338ca}
 @media(max-width:767px){.rp-file,.rp-grid{grid-template-columns:1fr}}
+
+/* v1.02 모바일: 좁은 화면에서는 좌측 메뉴 대신 위쪽 접는 메뉴(markdown-studio·four-cut-comics와 같은 셸 규칙) */
+@media(max-width:767px){
+  .app-shell{display:block}
+  .desktop-sidebar{display:none}
+  .mobile-sidebar{display:block;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+  .mobile-header{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;font-size:13px}
+  .mobile-header button{border:0;padding:4px}
+  .mobile-menu{max-height:calc(100dvh - 60px);overflow:auto;display:flex;flex-direction:column}
+  .mobile-menu .sidebar-brand{padding:15px}
+  .mobile-menu .sidebar-nav{overflow:visible}
+  .workspace-content{padding:23px 14px}
+  .card{padding:18px}
+}

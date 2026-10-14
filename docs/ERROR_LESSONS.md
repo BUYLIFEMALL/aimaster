@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — 모바일 메뉴 CSS 누락 일괄 수정 완료 + 숨은 창에서 좁은 화면 검수하는 법
+- 위 항목(뼈대 모바일 CSS 누락)은 10개 프로그램 모두 고쳐 배포했다. 점검 명령 `grep -L "mobile-sidebar{display:block" */src/app/globals.css`로 남은 곳이 없는지 확인한다.
+- 증상: claude-in-chrome이 새로 만든 탭 그룹 창이 숨김 상태라 `resize_window`·캡처가 안 됨 → 해결: 페이지 안에 `width:400px` iframe으로 같은 주소를 열고 iframe 안의 `getComputedStyle`로 미디어 규칙 적용을 확인한다(미디어 쿼리는 iframe 폭 기준, 같은 도메인이라 로그인 쿠키 유지). 눈으로 보는 확인이 필요하면 주인님께 그 창을 앞으로 띄우고 최대화를 풀어 달라고 요청한다.
+
 ## 2026-10-14 — 복사한 뼈대의 모바일 메뉴 CSS 누락 (four-cut-comics v1.03, 다른 10개 프로그램 동일)
 - 증상: 휴대폰 폭에서도 좌측 메뉴(244px)가 그대로 남아 본문이 약 250px로 눌림 → 원인: `Sidebar.tsx`에는 `.mobile-sidebar`(위쪽 접는 메뉴)가 있지만 `globals.css`에 `.mobile-sidebar{display:none}`만 있고 767px 이하 전환 규칙이 없음(portrait-photo 뼈대를 복사한 프로그램 공통) → 해결: `markdown-studio`의 `@media(max-width:767px){.app-shell{display:block}.desktop-sidebar{display:none}.mobile-sidebar{display:block;...}}` 셸 규칙을 넣음(`four-cut-comics/src/app/globals.css` 끝) → 다음부터 확인: 뼈대를 복사해 새 프로그램을 만들면 엣지 창 최대화를 풀고 `resize_window`로 좁혀 위쪽 메뉴가 나오는지 본다. 점검 명령: `grep -L "mobile-header" */src/app/globals.css`(규칙 없는 파일).
 

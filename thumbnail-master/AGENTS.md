@@ -25,3 +25,9 @@
 ## 검수
 - `npm test`(순수 로직 11건), `npm run test:browser`(보이는 Chrome, 모의 API 14건, `test-artifacts/gen-a.jpg` 필요 — 임의 JPG를 그 이름으로 두면 됨), `npm run build`.
 - 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [strategy]`(운영자 본인 키; 2026-10-14: 전략 9초, 1K 이미지 18초, 수정 18초). 출력을 파이프로 받으면 끝날 때까지 안 보이니 파일로 리다이렉트한다. 2K 이미지는 운영 화면에서 약 40초.
+
+## 2026-10-14 v1.02 — 모바일 셸 CSS 추가 (Claude Code)
+
+- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
+- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.02(코드·package·DB).
+- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
