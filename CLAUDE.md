@@ -270,6 +270,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 18. **주인님 계정 구분 — 메인 계정과 보조 계정 (2026-10-14 주인님 지시, 모든 CLI 공통).**
     - **메인 계정: `buylifemall@gmail.com`** — 주인님 본인의 기준 계정이다. 사이트 유일한 관리자 계정이며, Git 커밋 작성자(BUYLIFE / buylifemall@gmail.com), GitHub(`BUYLIFEMALL`), Vercel(`buylifemall`, 팀 `buylife`), Supabase 공용 DB 운영이 모두 이 계정 기준이다.
     - **보조 계정: `buylifemall1@gmail.com`** — Claude Code 로그인용 보조 계정일 뿐이다(설정 폴더 `.claude-account2`). 사이트 관리자·회원 계정이 아니고, 커밋 작성자·GitHub·Vercel·DB 운영 계정으로 쓰지 않는다.
+    - **Claude 계정마다 크롬 프로필을 따로 둔다**: Claude in Chrome 확장은 한 번에 Claude 계정 하나에만 연결되므로, 계정별 크롬 프로필에 확장을 설치해 각자 로그인하고 사이트 로그인은 프로필마다 주인님이 직접 해 둔다. 상세: `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2.
     - 계정 이름이 비슷하니 착오하지 않는다: 관리자 권한·커밋·배포·DB·문서에 적는 "주인님 계정"은 항상 `buylifemall@gmail.com`이다. 시험용 일반 회원 계정 `buylifemall@naver.com`(핵심 원칙 0번)과도 구분한다.
 
 ## Communication
