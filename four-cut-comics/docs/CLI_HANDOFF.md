@@ -39,3 +39,28 @@
 - 원본의 모델 ID(`gemini-3.1-*`)는 계정마다 열려 있지 않을 수 있다 → 연결 테스트 결과에 맞춰 `IMAGE_MODELS`를 조정.
 - 공식 서류·저작권 이슈 없음(창작 만화). 단, 실존 인물·유명인 풍자 대본은 안전 필터에 걸릴 수 있어 안내 문구를 둔다.
 - 다른 CLI가 동시에 같은 저장소를 쓴다: 스테이징은 커밋 직전, `git add` 명시 경로만.
+
+---
+## 6. 진행 상황 업데이트 (2026-10-14 후반) — v1.01 코드·등록·배포 완료, 운영 검증·썸네일 남음
+**위 §2·§3의 1~6번은 끝났다.** 아래가 실제 현재 상태이며 §2의 "빌드 전"·§5의 "미배포·미등록" 문구는 낡았다.
+
+### 완료
+- 치환·재작성: `version.ts`(v1.01), `access.ts`(slug), `package.json`(1.0.1, 포트 3031), `Sidebar`(만화 만들기·API키·매뉴얼), `settings` 문구, `layout` 설명.
+- 서버: `src/lib/gemini.ts`(텍스트 `gemini-flash-lite-latest`, 이미지 1:1, 재시도 2회, 오류 한글화), 라우트 `/api/script`(ideas·script·followup, 시사 풍자만 검색 근거), `/api/character`, `/api/panel`(시트 ≤3장·각 1MB base64), `src/lib/comic/validate.ts`. 모두 `guardAi`(권한+본인 키), 이미지·입력 서버 비저장.
+- 클라이언트: `src/lib/comic/draw.ts`(심플·웹툰·나레이션·시네마틱 합성, 바둑판·가로·세로·개별 저장, 시트 768px 축소·교체 업로드), `src/components/studio/Studio.tsx`(4단계: 주제→대본 편집(이름 변경 연동)→캐릭터 시트(재생성·교체)→컷 일괄/개별 생성·저장), `/studio`·`/guide` 페이지, CSS(`.cc-*`).
+- 테스트 `tests/comic.test.mjs` 7건 통과, `tsc` 정상, `npm run build` 정상.
+- **DB 등록 완료**(공용 Supabase): `programs`(id `d39acd06-6ee9-4d6f-924a-82382eb8e146`, slug `four-cut-comics`, v1.01, app_url `https://four-cut-comics.buylife.xyz`, badges `["new"]`, 카테고리·최소 등급은 portrait-photo와 동일), `pricing_plans` 3단계, VIP 등급 접근. 마이그레이션 `supabase/migrations/0001_register_program.sql`(설명 본문은 운영 DB가 정본).
+- **Vercel**: 프로젝트 `four-cut-comics`(buylife 팀) 생성·`.vercel` 링크, 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`·`NEXT_PUBLIC_MAIN_SITE_URL`)를 `scripts/add-four-cut-comics-vercel-env.mjs`로 등록, 도메인 `four-cut-comics.buylife.xyz` 연결, 프로덕션 배포 READY, 미로그인 `/studio` → `/login` 307 확인.
+
+### 남은 일 (다음 계정이 이어서)
+1. **운영 화면 확인(주인님 로그인 필요, 비밀번호는 주인님이 직접)**: `https://four-cut-comics.buylife.xyz/studio` — 일반 회원 `buylifemall@naver.com`으로 4단계 흐름 1세트(시트 2장+컷 4장) 실호출 → 결과 확인 → 테스트 정리(서버 저장 없음). **본인 Gemini 키가 등록돼 있어야 하며 사용량이 발생한다.** 그림 모델 ID(`gemini-3.1-flash-lite-image`, `gemini-3.1-flash-image`)가 이 키에서 열려 있는지 [API키등록·플랫폼연동]의 연결 확인과 실제 생성으로 검증 — 안 열리면 `src/lib/comic/options.ts`의 `IMAGE_MODELS`를 계정에서 되는 모델로 교체.
+2. **썸네일 등록**: `docs/PLATFORM_PATTERNS.md` §13 템플릿(실사 16:9, "photorealistic·shallow depth of field·natural skin texture·85mm"), `node scripts/generate-program-thumbnail.mjs four-cut-comics <geminiUserId> "<프롬프트>"` (주인님 Gemini 키 비용 — 실행 전 확인). 지금은 `programs.thumbnail_url`이 비어 있다.
+3. **버전 규칙**: 이후 수정마다 `src/lib/version.ts`+`package.json`+`programs.version`을 +0.01.
+4. **v1.02**: AI 자동 말풍선(완성 컷을 텍스트 모델에 보내 JSON: 빈 영역 0~1000·화자 입 위치·speech/thought/shout) + 직접 배치 편집(이동·크기·회전·꼬리·모양·색, 터치) + 재배치. **v1.03**: 인스타 문구, 이어서 만들기(단편·계속·완결 — `/api/script` `followup`은 이미 구현, UI만 필요), 만화 합치기, 내 작품(IndexedDB 20개). **v1.04**: 스타일·컷 수·비율·서버 보관함.
+5. 루트 `docs/HANDOFF.md`에 항목 추가(다른 CLI 수정 중이면 HEAD blob 방식), `docs/ERROR_LESSONS.md`에 새로 배운 점 추가(아래 §7).
+
+## 7. 이번 작업에서 배운 점(ERROR_LESSONS에 옮길 것)
+- 이 환경의 Bash 도구는 한글+작은따옴표가 섞인 긴 heredoc을 "unexpected EOF"로 거부한다 → 파일은 Write/Edit 도구로 만들고, Bash는 짧은 명령만 쓴다.
+- PowerShell 5.1에서 `Get-Content`/`Set-Content -Encoding utf8`로 한글 소스를 치환하면 인코딩이 깨져 TSX가 망가진다 → 치환은 Edit 도구나 node 스크립트로 한다.
+- 일본 외무성(`mofa.go.jp`)은 curl·WebFetch가 403이라 로그인된 Chrome(`claude-in-chrome`)으로 열어야 읽힌다.
+- `vercel link --yes --project <새이름>`이 프로젝트를 자동 생성하고 `.env.local`을 만든다(`.gitignore`의 `.env*`로 제외됨).

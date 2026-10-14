@@ -307,3 +307,27 @@ a.project-card{color:inherit}
 .rep-zoom{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:zoom-out}
 .rep-zoom img{max-width:90vw;max-height:85vh;border-radius:8px;background:#fff}
 .rep-zoom small{color:#fff}
+
+/* ---- AI 4컷 만화 자동화 ---- */
+.cc-steps{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin:0}
+.cc-steps li{display:flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);background:#fff}
+.cc-steps li span{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e2e8f0;font-size:12px;font-weight:700}
+.cc-steps li.on{border-color:var(--brand);color:#3730a3;font-weight:700}
+.cc-steps li.on span,.cc-steps li.done span{background:var(--brand);color:#fff}
+.cc-form{display:flex;flex-direction:column;gap:16px}
+.cc-form label{display:flex;flex-direction:column;gap:5px;font-weight:600;font-size:13px}
+.cc-label{display:block;font-size:13px}
+.cc-h{font-size:16px;margin:0}
+.cc-row{display:flex;gap:8px;align-items:center}
+.cc-row select{flex:1}
+.cc-ideas{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
+.cc-ideas button{width:100%;text-align:left;font-weight:500;font-size:13px}
+.cc-char,.cc-panel-edit{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fafbfc}
+.cc-sheets,.cc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.cc-sheet,.cc-cut{margin:0;display:flex;flex-direction:column;gap:8px}
+.cc-sheet img,.cc-cut img{width:100%;aspect-ratio:1/1;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#fff}
+.cc-placeholder{display:grid;place-items:center;aspect-ratio:1/1;border:1px dashed #cbd5e1;border-radius:10px;color:var(--muted);font-size:13px;background:#f8fafc}
+.cc-file{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:5px!important;padding:7px 10px;border:1px solid #d8dde5;border-radius:8px;cursor:pointer;font-size:13px}
+.cc-inline{flex-direction:row!important;align-items:center;gap:6px!important}
+.cc-inline select{width:auto}
+.cc-save{padding:14px;border:1px solid var(--line);border-radius:10px;background:#f8faff;display:flex;flex-direction:column;gap:8px}

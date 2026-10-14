@@ -16,3 +16,8 @@
 ## 이 세션의 다른 결과(참고)
 - `portrait-photo` v1.17 배포 완료(규격 21종, 일본 여권·K-ETA 공식 확인 추가), 운영 화면 확인 완료, 인수인계 `docs/HANDOFF_PORTRAIT_PHOTO_2026-10-14.md`.
 - 보류 규격(공식 사양 미확인): 태국·이탈리아·솅겐·말레이시아·필리핀·브라질·UAE·튀르키예·스위스·남아공·네덜란드·스웨덴·오스트리아·체코.
+
+## 업데이트 (2026-10-14 후반)
+- **v1.01 완료·배포됨**: 코드(서버 라우트 3종·Canvas 합성·4단계 UI·매뉴얼), 단위 테스트 7건·tsc·빌드 통과, 공용 DB `programs` 등록(id `d39acd06-6ee9-4d6f-924a-82382eb8e146`)+요금제 3단계+VIP 접근, Vercel 프로젝트·환경변수·도메인 `four-cut-comics.buylife.xyz`, 프로덕션 READY(미로그인 `/studio` → `/login` 307).
+- **남은 일**: ① 주인님 로그인 후 운영 화면 확인·실호출 1세트(본인 Gemini 키 사용량 발생, 그림 모델 ID 가용성 검증) ② 썸네일 등록(§13 템플릿, 주인님 키 비용) ③ v1.02 AI 자동 말풍선 ④ 루트 `docs/HANDOFF.md`·`ERROR_LESSONS.md` 항목 추가.
+- 자세한 순서와 배운 점: `four-cut-comics/docs/CLI_HANDOFF.md` §6·§7.

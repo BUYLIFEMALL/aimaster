@@ -1,9 +1,9 @@
 {
-  "name": "portrait-photo",
-  "version": "1.0.17",
+  "name": "four-cut-comics",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3030",
+    "dev": "next dev -p 3031",
     "build": "next build",
     "start": "next start",
     "test": "node --import tsx --test tests/*.test.mjs",

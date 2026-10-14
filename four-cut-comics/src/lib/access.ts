@@ -4,7 +4,7 @@ import { requireUser, getUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccess } from "@/lib/programAccess";
 
-export const THIS_PROGRAM_SLUG = "portrait-photo";
+export const THIS_PROGRAM_SLUG = "four-cut-comics";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
 
 // 판정 규칙은 루트 lib/access/checkProgramAccess.ts의 사본(src/lib/programAccess.ts)을 그대로 쓴다

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, Camera, KeyRound, LogOut, Menu, X } from "lucide-react";
+import { BookOpen, Clapperboard, KeyRound, LogOut, Menu, X } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
@@ -22,7 +22,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
     <>
       <div className="sidebar-brand">
         <a href="/studio" className="brand-row">
-          <span className="brand-icon"><Camera size={20} /></span>
+          <span className="brand-icon"><Clapperboard size={20} /></span>
           <div><strong>{APP_NAME}</strong><small>{APP_VERSION}</small></div>
         </a>
         <a className="other-programs" href={`${MAIN_SITE}/programs`}>← 다른 프로그램 보기</a>
@@ -30,10 +30,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
       <nav className="sidebar-nav" aria-label="프로그램 메뉴">
         <p className="nav-caption">작업 흐름</p>
         <a className="flow-item" aria-current={currentPath === "/studio" ? "page" : undefined} href="/studio">
-          <span className="step-number">1</span><div><strong>인물사진 만들기</strong><small>목적 선택 · 옵션 · 생성 · 저장</small></div>
-        </a>
-        <a className="flow-item" aria-current={currentPath === "/history" ? "page" : undefined} href="/history">
-          <span className="step-number">2</span><div><strong>내 기록</strong><small>최근 20장 · 이 브라우저에만 보관</small></div>
+          <span className="step-number">1</span><div><strong>만화 만들기</strong><small>주제 · 대본 · 캐릭터 · 컷 생성 · 저장</small></div>
         </a>
         <div className="utility-menu">
           <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings"><KeyRound size={17} />API키등록·플랫폼연동</a>
