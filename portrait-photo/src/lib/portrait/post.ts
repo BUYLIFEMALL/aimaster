@@ -153,6 +153,10 @@ export const SIZE_PRESETS: SizePreset[] = [
     headRange: [0.5, 0.6], headSource: "evisa.imigrasi.go.id(머리카락 끝~턱이 사진 높이의 50~60%)",
     caution: "인도네시아 전자비자 사진은 최근의 정면·무표정·변형하지 않은 사진이어야 합니다. 이 파일은 크기 참고용이며 제출 사이트의 안내를 확인해 주세요.",
   },
+  {
+    id: "ie-passport", label: "아일랜드 여권 온라인 (ireland.ie 안내)", width: 715, height: 951, maxBytes: 9 * 1024 * 1024, note: "715×951px(최소) · JPEG ≤9MB",
+    caution: "아일랜드는 디지털 원본만 받으며(스캔·셀카·웹캠 불가) 보정·변형한 사진을 허용하지 않습니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 
@@ -284,4 +288,29 @@ export function scaleCrop(crop: CropRect, fromW: number, fromH: number, toW: num
   const kx = toW / fromW;
   const ky = toH / fromH;
   return { sx: Math.round(crop.sx * kx), sy: Math.round(crop.sy * ky), sw: Math.round(crop.sw * kx), sh: Math.round(crop.sh * ky) };
+}
+
+export interface BatchDecision {
+  status: "ok" | "small" | "large" | "notfound";
+  ratio?: number;
+  crop?: CropRect;
+  achieved?: number;
+  clamped?: boolean;
+}
+
+/**
+ * 일괄 모드: 사진 한 장의 머리 위치 추정(AI)을 규격의 공식 범위와 견줘 자동 확대 자르기 영역을 정한다.
+ * 범위 안/크게 나옴이면 영역을 만들지 않는다(자동 중앙 자르기 유지). 규격에 범위가 없으면 notfound.
+ */
+export function decideBatchCrop(
+  m: { found: boolean; crownY: number; chinY: number; centerX?: number } | null,
+  preset: { width: number; height: number; headRange?: [number, number] },
+  srcW: number, srcH: number,
+): BatchDecision {
+  if (!m || !m.found || !preset.headRange) return { status: "notfound" };
+  const cur = headInCrop(m.crownY, m.chinY, srcW, srcH, preset).ratio;
+  const ev = evaluateHead(cur, preset.headRange);
+  if (ev.status !== "small") return { status: ev.status, ratio: cur };
+  const t = tightCrop(m.crownY, m.chinY, srcW, srcH, preset, (preset.headRange[0] + preset.headRange[1]) / 2, m.centerX ?? 0.5);
+  return { status: "small", ratio: cur, crop: t.crop, achieved: t.achievedRatio, clamped: t.clamped };
 }

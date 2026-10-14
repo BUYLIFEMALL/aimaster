@@ -7,7 +7,7 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, evaluateHead, headInCrop, moveItem, parseStoredControls, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, decideBatchCrop, evaluateHead, headInCrop, moveItem, parseStoredControls, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
@@ -78,6 +78,10 @@ export function Studio({ userId }: { userId: string }) {
   const [skip, setSkip] = useState<boolean[]>([]);
   const [headBusy, setHeadBusy] = useState(false);
   const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
+  const [autoConfirm, setAutoConfirm] = useState(false);
+  const [autoBusy, setAutoBusy] = useState(false);
+  const [autoProgress, setAutoProgress] = useState("");
+  const [batchReport, setBatchReport] = useState<{ idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[]>([]);
   const [batchCrops, setBatchCrops] = useState<Record<number, { presetId: string; crop: { sx: number; sy: number; sw: number; sh: number }; srcW: number; srcH: number }>>({});
   const [headMeasure, setHeadMeasure] = useState<{ url: string; crownY: number; chinY: number; centerX: number; srcW: number; srcH: number } | null>(null);
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
@@ -152,7 +156,7 @@ export function Studio({ userId }: { userId: string }) {
     const chosen = picked.slice(0, MAX_BATCH);
     previews.forEach((u) => URL.revokeObjectURL(u));
     const urls = chosen.map((f) => URL.createObjectURL(f));
-    setNames({}); setBatchCrops({}); setZoomOn(false); setFiles(chosen); setPreviews(urls);
+    setNames({}); setBatchCrops({}); setBatchReport([]); setAutoConfirm(false); setZoomOn(false); setFiles(chosen); setPreviews(urls);
     setFile(chosen[0]); setPreviewUrl(urls[0]);
     setResults([]); setSources([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
     setNotice(picked.length > MAX_BATCH ? `사진은 한 번에 ${MAX_BATCH}장까지 처리합니다. 앞의 ${MAX_BATCH}장만 사용합니다.` : chosen.length > 1 ? `${chosen.length}장을 한 번에 처리합니다(사진마다 결과 1장).` : "");
@@ -163,7 +167,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setGrid(false); setZoomOn(false); setCropOpen(null); setBatchCrops({}); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setZoomOn(false); setCropOpen(null); setBatchCrops({}); setBatchReport([]); setAutoConfirm(false); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -285,6 +289,56 @@ export function Studio({ userId }: { userId: string }) {
       const up = t.crop.sw < preset.width ? " 원본 해상도보다 확대돼 선명도가 낮을 수 있습니다." : "";
       setNotice(`얼굴 확대 자르기로 저장했습니다(머리 약 ${pct(t.achievedRatio)}%, 기준 ${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%${t.clamped ? ", 사진 크기 한계로 더 확대하지 못했습니다" : ""}).${up} 머리 위치는 AI 추정이라 결과를 눈으로 확인하세요. 제출 기관 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  }
+
+  /** 일괄 모드: 사진마다 머리 비율을 AI로 검사하고, 작게 나온 사진은 자동 확대 자르기 영역을 지정한다(AI N회 호출) */
+  async function autoCropBatch() {
+    const preset = sizePresetById(sizeId);
+    if (!preset.headRange) return;
+    const keep = results.map((_, i) => i).filter((i) => !skip[i]);
+    if (keep.length === 0) { setError("검사할 사진이 없습니다. 제외 표시를 확인해 주세요."); return; }
+    setAutoConfirm(false); setAutoBusy(true); setError(""); setNeedKey(false); setBatchReport([]);
+    const report: { idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[] = [];
+    let stop = false;
+    let done = 0;
+    let next = 0;
+    const pct = (n: number) => Math.round(n * 100);
+    const worker = async () => {
+      while (!stop && next < keep.length) {
+        const i = keep[next++];
+        const fileIdx = sources[i] ?? i;
+        const label = nameFor(fileIdx, `${i + 1}번`);
+        try {
+          const up = await toUploadJpeg(results[i]);
+          if (!up) throw new Error("검사용 이미지를 만들지 못했습니다.");
+          const res = await fetch("/api/headcheck", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: { data: up.base64, mimeType: up.mimeType } }) });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) { if (data.needKey) { setNeedKey(true); stop = true; } throw new Error(data.error || "검사하지 못했습니다."); }
+          const im = new Image();
+          await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = results[i]; });
+          const d = decideBatchCrop(data, preset, im.naturalWidth, im.naturalHeight);
+          if (d.status === "notfound") report.push({ idx: i, name: label, text: "얼굴 위치를 찾지 못해 자동 중앙 자르기를 씁니다.", tone: "warn" });
+          else if (d.status === "ok") report.push({ idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 범위 안(자동 중앙 자르기)`, tone: "ok" });
+          else if (d.status === "large") report.push({ idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 기준보다 큼(자동 중앙 자르기, 필요하면 [자르기 영역 조정])`, tone: "warn" });
+          else if (d.crop) {
+            const crop = d.crop;
+            setBatchCrops((cur) => ({ ...cur, [fileIdx]: { presetId: preset.id, crop, srcW: im.naturalWidth, srcH: im.naturalHeight } }));
+            report.push({ idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% → 확대 자르기로 약 ${pct(d.achieved ?? 0)}%${d.clamped ? " (원본 한계로 더 확대하지 못함)" : ""}`, tone: "ok" });
+          }
+        } catch (e) {
+          report.push({ idx: i, name: label, text: e instanceof Error ? e.message : "검사하지 못했습니다.", tone: "warn" });
+        }
+        done++;
+        setAutoProgress(`${done}/${keep.length}장 검사됨`);
+      }
+    };
+    try {
+      await Promise.all(Array.from({ length: Math.min(2, keep.length) }, worker));
+      report.sort((a, b) => a.idx - b.idx);
+      setBatchReport(report);
+      const applied = report.filter((r) => r.text.includes("확대 자르기로")).length;
+      setNotice(`일괄 머리 비율 검사를 마쳤습니다(${keep.length}장 중 확대 자르기 지정 ${applied}장). [규격으로 일괄 저장]을 누르면 지정된 영역으로 저장됩니다. 머리 위치는 AI 추정이라 결과를 눈으로 확인하세요.`);
+    } finally { setAutoBusy(false); setAutoProgress(""); }
   }
 
   /** 일괄 모드: 제외하지 않은 모든 결과를 선택한 규격 크기 JPEG로 만들어 ZIP 하나로 저장(사진마다 지정한 영역 우선) */
@@ -626,18 +680,31 @@ export function Studio({ userId }: { userId: string }) {
                 </button>
               );
             })()}
+            {autoConfirm && !autoBusy && <p className="notice warning" role="status">사진 {results.length - skip.filter(Boolean).length}장을 각각 검사하므로 <b>본인 Gemini 키로 {results.length - skip.filter(Boolean).length}회</b> 호출됩니다. 계속하려면 [확인하고 시작]을 누르세요.</p>}
+            {batchReport.length > 0 && (
+              <ul className="batch-report" aria-label="일괄 머리 비율 검사 결과">
+                {batchReport.map((r) => <li key={r.idx} className={r.tone === "ok" ? "ok" : "warn"}><b>{r.name}</b> {r.text}</li>)}
+              </ul>
+            )}
             {headMsg && <p className={headMsg.tone === "ok" ? "notice head-ok" : headMsg.tone === "warn" ? "notice warning" : "notice"} role="status">{headMsg.text}</p>}
             <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
               {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
             </button>
             {shown && (
               <div className="actions st-save">
+                {batchMode && results.length > 1 && sizePresetById(sizeId).headRange && (
+                  <button type="button" onClick={() => (autoConfirm ? void autoCropBatch() : setAutoConfirm(true))} disabled={!!saving || autoBusy}
+                    title="사진마다 머리 비율을 AI로 검사하고 작게 나온 사진은 자동으로 확대 자르기를 지정합니다">
+                    {autoBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}
+                    {autoBusy ? `검사 중… ${autoProgress}` : autoConfirm ? `확인하고 시작 (AI ${results.length - skip.filter(Boolean).length}회 호출)` : "일괄 머리 비율 검사 + 자동 확대 자르기"}
+                  </button>
+                )}
                 {batchMode && results.length > 1 && <button type="button" onClick={saveSizedBatch} disabled={!!saving}>{saving === "batch" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격으로 일괄 저장 ({sizePresetById(sizeId).width}×{sizePresetById(sizeId).height}, ZIP)</button>}
                 {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
                 <button type="button" onClick={checkHead} disabled={headBusy || !!saving} title="선택한 규격의 공식 머리 높이 기준과 견줍니다(본인 키 1회 호출)">{headBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}머리 비율 검사 (AI 1회)</button>
                 <button type="button" onClick={openCrop} disabled={!!saving} title="저장될 영역을 미리 보고 위치·확대를 직접 조정합니다">자르기 영역 조정</button>
-                <select value={sizeId} onChange={(e) => { setSizeId(e.target.value); setHeadMsg(null); }} aria-label="증명사진 규격" className="size-select">
+                <select value={sizeId} onChange={(e) => { setSizeId(e.target.value); setHeadMsg(null); setBatchReport([]); setAutoConfirm(false); }} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
                 </select>
                 <button type="button" onClick={saveSized} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격 저장 ({sizePresetById(sizeId).note})</button>

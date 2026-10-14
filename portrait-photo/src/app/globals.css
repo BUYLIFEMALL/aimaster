@@ -289,3 +289,8 @@ a.project-card{color:inherit}
 .ca-line.chin{border-top-color:#f59e0b}
 .ca-out{width:100%;border:1px solid var(--line);border-radius:8px;background-repeat:no-repeat;background-color:#e2e8f0}
 .ca-controls{display:flex;flex-direction:column;gap:2px}
+
+/* ---- v1.11 ---- */
+.batch-report{list-style:none;margin:8px 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;gap:4px;font-size:12px}
+.batch-report li.ok{color:#166534}
+.batch-report li.warn{color:#92400e}

@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 16);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 16);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "id-evisa", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 17);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 17);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "id-evisa", "ie-passport", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -222,7 +222,7 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 16);
+  assert.equal(SIZE_PRESETS.length, 17);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
@@ -406,4 +406,35 @@ test("조정 값 기억 검증·영역 비례 변환", async () => {
   const a = controlsFromCrop(crop, 864, 1184);
   const b = controlsFromCrop(scaleCrop(crop, 864, 1184, 1728, 2368), 1728, 2368);
   assert.ok(Math.abs(a.centerX - b.centerX) < 0.002 && Math.abs(a.centerY - b.centerY) < 0.002 && Math.abs(a.heightFrac - b.heightFrac) < 0.002);
+});
+
+test("일괄 자동 판정·아일랜드 규격", async () => {
+  const { decideBatchCrop, sizePresetById } = await import("../src/lib/portrait/post.ts");
+  const ie = sizePresetById("ie-passport");
+  assert.ok(ie.width >= 715 && ie.height >= 951, "ireland.ie 최소 715×951");
+  assert.equal(ie.maxBytes, 9 * 1024 * 1024);
+  assert.ok(ie.caution.includes("스캔") && ie.caution.includes("AI"));
+
+  const preset = sizePresetById("passport");
+  const W = 864, H = 1184;
+  // 머리가 작은 사진 → 확대 자르기 영역이 만들어지고 범위 안으로 들어온다
+  const small = decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.56, centerX: 0.5 }, preset, W, H);
+  assert.equal(small.status, "small");
+  assert.ok(small.crop && small.achieved > 0.7 && small.achieved < 0.82);
+  assert.ok(small.ratio < 0.45);
+  // 범위 안 → 영역 없음
+  const ok = decideBatchCrop({ found: true, crownY: 0.02, chinY: 0.7, centerX: 0.5 }, preset, W, H);
+  assert.equal(ok.status, "ok");
+  assert.equal(ok.crop, undefined);
+  // 크게 → 영역 없음
+  const large = decideBatchCrop({ found: true, crownY: 0.01, chinY: 0.97, centerX: 0.5 }, preset, W, H);
+  assert.equal(large.status, "large");
+  assert.equal(large.crop, undefined);
+  // 얼굴 못 찾음·검사 실패·범위 없는 규격
+  assert.equal(decideBatchCrop({ found: false, crownY: 0, chinY: 0 }, preset, W, H).status, "notfound");
+  assert.equal(decideBatchCrop(null, preset, W, H).status, "notfound");
+  assert.equal(decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.5 }, sizePresetById("resume"), W, H).status, "notfound");
+  // 얼굴 중심이 한쪽으로 치우친 경우 그 위치 기준으로 자른다
+  const off = decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.5, centerX: 0.3 }, preset, 1000, 1000);
+  assert.ok(Math.abs(off.crop.sx + off.crop.sw / 2 - 300) <= 1 || off.crop.sx === 0);
 });
