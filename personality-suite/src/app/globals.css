@@ -155,3 +155,8 @@ a.project-card{color:inherit}
 .care-notice{border-color:#c7d2fe;background:#f5f7ff;margin-bottom:14px}
 .care-notice strong{display:block;margin-bottom:4px}
 .care-notice .gd-list{margin-top:8px}
+.trend h3{font-size:14px;margin:6px 0}
+.trend svg{width:100%;max-width:640px;height:auto}
+.trend-legend{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:#475569}
+.trend-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+@media print{.desktop-sidebar,.mobile-sidebar,.no-print,.head-row button,.runner-nav{display:none!important}.app-shell{display:block}.workspace-content{max-width:none;padding:0}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}

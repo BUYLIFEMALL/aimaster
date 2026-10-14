@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Save, Sparkles, Trash2 } from "lucide-react";
+import { Image as ImageIcon, Loader2, Printer, Save, Sparkles, Trash2 } from "lucide-react";
+import { downloadCanvas, renderShareCard } from "@/lib/shareImage";
 import { buildReport, compareResults } from "@/lib/tests/report";
 import { getTest } from "@/lib/tests/registry";
 import { CRISIS_NOTICE } from "@/lib/tests/content/careTests";
@@ -53,6 +54,13 @@ export function ResultView({ id, testId, result, analysis: initial = null, creat
     if (!id || !window.confirm("이 결과를 삭제할까요? 되돌릴 수 없습니다.")) return;
     const res = await fetch(`/api/results/${id}`, { method: "DELETE" });
     if (res.ok) router.push("/history"); else setError("삭제하지 못했습니다.");
+  }
+
+  function printPage() { window.print(); }
+
+  function shareImage() {
+    if (!test) return;
+    downloadCanvas(renderShareCard(test.title, report, result), `성격진단-${test.id}.png`);
   }
 
   async function save() {
@@ -179,10 +187,12 @@ export function ResultView({ id, testId, result, analysis: initial = null, creat
         </section>
       )}
 
-      <div className="actions">
+      <div className="actions no-print">
         <a className="button primary" href="/dashboard">다른 검사 하기</a>
         <a className="button" href={`/test/${test.id}`}>이 검사 다시 하기</a>
         {!sensitive && <a className="button" href="/profile">종합 프로필 보기</a>}
+        <button type="button" onClick={printPage}><Printer size={14} />인쇄·PDF 저장</button>
+        {!sensitive && <button type="button" onClick={shareImage}><ImageIcon size={14} />결과 이미지 저장</button>}
         {!id && onSave && <button type="button" onClick={save} disabled={saving}>{saving ? <Loader2 size={14} className="ls-spin" /> : <Save size={14} />}내 기록에 저장</button>}
         {id && <button type="button" onClick={remove}><Trash2 size={14} />결과 삭제</button>}
       </div>

@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — AI 종합 성격 진단 자동화 v1.03 (`personality-suite`)
+
+- 추가: 결과 공유 이미지(브라우저 canvas PNG, 서버 전송 없음), 인쇄·PDF 저장, 종합 프로필 화면의 시기별 변화 추이 그래프(2회 이상 한 점수형 검사). 마음 상태 점검은 이미지·추이에서 제외. DB 스키마 변경 없음.
+- 검수: 단위 18/18, tsc·빌드, 운영 로그인 화면에서 이미지 다운로드·카드 렌더링·추이 그래프 확인(테스트 결과 삭제). 버전 v1.02→v1.03(코드·package·DB). 상세: [personality-suite/docs/CLI_HANDOFF.md](../personality-suite/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — AI 종합 성격 진단 자동화 v1.02 (`personality-suite`)
 
 - 추가: 기질·성향 점검(24문항), 스트레스·마음 상태 자기점검(20문항), 같은 검사 이전 결과 비교, 종합 프로필에 검사별 직전 결과 반영(`changes`). 검사 총 16종.

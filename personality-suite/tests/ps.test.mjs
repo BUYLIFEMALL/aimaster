@@ -261,3 +261,24 @@ test("종합 프로필 정규화: changes 필드는 선택, 최대 2개", () => 
   assert.equal(p.changes.length, 2);
   assert.deepEqual(normalizeProfile({ headline: "h", commonThemes: ["a"] }).changes, []);
 });
+
+test("변화 추이: 2회 이상만, 시간순, 최대 12점, 민감 검사 제외", async () => {
+  const { buildTrends } = await import("../src/lib/tests/trends.ts");
+  const big = getTest("bigfive");
+  const t16 = getTest("type16-standard");
+  const wb = getTest("wellbeing");
+  const mkRow = (test, fill, day) => ({ test_id: test.id, result: scoreTest(test, test.questions.map(() => fill)), created_at: `2026-10-${String(day).padStart(2, "0")}T00:00:00Z` });
+  const rows = [mkRow(big, 5, 3), mkRow(big, 1, 1), mkRow(t16, 3, 2), mkRow(wb, 5, 1), mkRow(wb, 1, 2)];
+  const trends = buildTrends(rows, isSensitive);
+  assert.equal(trends.length, 1, "bigfive만(16유형 1회·마음 상태 제외)");
+  assert.equal(trends[0].testId, "bigfive");
+  assert.deepEqual(trends[0].points.map((p) => p.at.slice(8, 10)), ["01", "03"]);
+  assert.equal(trends[0].series.length, 5);
+  assert.equal(trends[0].points[0].scores.O, 50 - 50 + scoreTest(big, big.questions.map(() => 1)).traits[0].score);
+  const many = Array.from({ length: 15 }, (_, i) => mkRow(big, 3, i + 1));
+  assert.equal(buildTrends(many)[0].points.length, 12);
+  const axisRows = [mkRow(t16, 5, 1), mkRow(t16, 1, 2)];
+  const ax = buildTrends(axisRows)[0];
+  assert.equal(ax.series.length, 4);
+  assert.ok(ax.series[0].label.includes("E"));
+});

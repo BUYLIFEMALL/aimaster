@@ -70,6 +70,17 @@ export async function saveAnalysis(userId: string, id: string, analysis: Analysi
   return !error;
 }
 
+/** 변화 추이 차트 재료: 모든 결과의 점수만(분석 본문 제외) */
+export async function listForTrends(userId: string): Promise<{ test_id: string; result: ScoredResult; created_at: string }[]> {
+  const { data } = await createAdminClient()
+    .from("personality_suite_results")
+    .select("test_id, result, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(MAX_RESULTS);
+  return (data ?? []) as { test_id: string; result: ScoredResult; created_at: string }[];
+}
+
 export interface LatestRow extends ResultRow { previous: ResultRow | null }
 
 /** 검사마다 가장 최근 결과 1건과 그 직전 결과(종합 프로필 재료·변화 비교용) */
