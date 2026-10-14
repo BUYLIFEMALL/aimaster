@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.15)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.16)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -71,3 +71,5 @@
 - 남은 일(v1.15 후보): 썸네일 확대 보기, 공식 확인된 규격만 추가(솅겐·태국·말레이시아·필리핀·브라질·UAE·튀르키예·스위스·남아공·네덜란드·스웨덴·오스트리아·체코·이탈리아 보류).
 - v1.15 추가: **일괄 보고 썸네일 확대 보기**(`rep-thumb-btn` 클릭 → `repZoom` 오버레이, 클릭하면 닫힘). 규격은 19종 유지(이번에도 새로 공식 확인된 규격 없음 — 추측으로 추가하지 않음). 검수: 단위 20/20, tsc·빌드 정상, 배포·DB v1.15. 운영 화면 확인은 로그인 세션 필요(v1.14 항목과 함께 대기).
 - 규격 확인(검색 2026-10-14, v1.15 이후): 일본 여권 온라인(MOFA)·한국 K-ETA(k-eta.go.kr)·이탈리아 여권(Polizia di Stato)은 공식 페이지 디지털 사양을 확인하지 못했고 제3자 사이트들의 수치(K-ETA 100KB/300KB, 600/700px 등)가 서로 달라 **추가하지 않음**. 공식 페이지(mofa.go.jp, k-eta.go.kr, poliziadistato.it)를 직접 열어 확인되면 추가한다. 코드 변경 없음(버전 v1.15 유지).
+- v1.16 추가: **일본 여권 온라인 신청 규격(`jp-passport`)** — 규격 20종. 공식 확인(외무성 mofa.go.jp, 2026-10-14, 브라우저로 열람; WebFetch·curl은 Akamai 403): `pass_2.html` 35×45mm 테두리 없음·무배경(흰색 권장)·6개월 이내·머리 34±2mm, `page24_002222.html` 온라인 업로드 JPG·마이나포털 600KB 이하·ORRnet 20KB~2MB, 픽셀 수 규정 없음 → 300dpi 환산 413×531로 표기. 단위 20/20·DB v1.16.
+- 규격 확인 보류 유지: K-ETA(k-eta.go.kr 공식 페이지에 사진 사양 문구 없음, FAQ만 확인), 이탈리아(poliziadistato.it 해당 페이지 404). 막힌 공식 사이트는 로그인된 Chrome으로 열면 읽을 수 있다.

@@ -167,6 +167,11 @@ export const SIZE_PRESETS: SizePreset[] = [
     headRange: [0.7, 0.8], headSource: "gov.pl 도지사청 안내(얼굴이 사진의 70~80%)",
     caution: "이 규격은 폴란드 gov.pl의 신분증 전자 신청 안내이며 안내 문서가 오래됐을 수 있습니다. 여권 전자 사양은 확인하지 못했습니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
   },
+  {
+    id: "jp-passport", label: "일본 여권 온라인 신청 (외무성 안내, 35×45mm)", width: 413, height: 531, maxBytes: 600 * 1024, note: "413×531px(300dpi 환산, 픽셀 규정 없음) · JPG 600KB 이하(마이나포털, ORRnet은 20KB~2MB)",
+    headRange: [0.71, 0.8], headSource: "외무성 안내(머리 정수리~턱 34±2mm ÷ 세로 45mm)",
+    caution: "일본 외무성 안내: 세로45×가로35mm·테두리 없음·무배경(흰색 권장)·6개월 이내·무모 정면. 온라인 업로드 규정은 JPG 형식·용량뿐이며 픽셀 수 규정은 없어 300dpi 환산값입니다. 이 파일은 크기 참고용이며 접수·합격을 보장하지 않습니다.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 
