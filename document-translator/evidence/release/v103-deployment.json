@@ -12,6 +12,6 @@
   "rlsTables": 3,
   "serverOnlyFunctions": 4,
   "latestCronStatus": "succeeded",
-  "authenticatedUi": "pending actual logged-in Chrome",
-  "paidAiCallsThisContinuation": 0
+  "authenticatedUi": "completed actual logged-in Chrome flow",
+  "paidAiCallsThisContinuation": 3
 }

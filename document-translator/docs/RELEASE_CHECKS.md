@@ -42,3 +42,22 @@ Chrome에 남아 있는 buylifemall@naver.com 로그인으로 새 도메인에 �
 - Aside의 실제 공개 로그인 화면을 직접 열어 캡처·육안 확인(evidence/release/v103-login.png). 로그인되지 않은 상태의 화면 검사이며 Chrome 회원 검수와 구분합니다. Chrome 새 창 자동 검토 거절·Edge 도구 포커스 실패로 주인님께 Chrome의 시험 회원 로그인 창 준비를 요청해 둔 상태입니다.
 - **남은 작업**: 실제 회원의 번역→편집→재검수→역번역→다운로드/백업→선택 저장→새로고침/복원·용어집·모바일 흐름, API/DB 대조. 모의 검사와 HTTP 검사로 이 항목을 완료 처리하지 않습니다. 비밀번호/키·쿠키를 복사하거나 인증을 우회하지 않습니다.
 - 확장 프로그램 없음으로 ZIP/extension 버전 갱신은 대상이 아닙니다. 기존 의존성 중간 등급3건과 브라우저 번들에서 비포함 확인 기록은 위 의존성 점검을 따릅니다.
+
+## 2026-10-14 — 실제 Chrome 회원 최종 검수 완료(v1.03 유지)
+
+주인님이 Chrome 창을 열어주신 뒤 실제 시험 회원 buylifemall@naver.com SSO로 검수했습니다. 이전 Chrome 준비 대기 조건은 해소됐습니다. 기존 본인 키만 사용하고 비밀번호/키·쿠키는 입력/복사하지 않았습니다.
+
+| 단계 | 실제 확인 | 증거 |
+|---|---|---|
+| 번역·수정·재검수·역번역 | 짧은 원문141자, 본인 Gemini3.8 Flash3회. 수정 제목 Operational Verification Notice 보존, URL 뒤 문장 분리·2026/2020 날짜·20명 보존 | dt_operations translate/review/reverse 각done; /api/ai3건200; chrome-translation/review/reverse 캡처 |
+| 저장·새로고침·복원 | 동의 후 저장, DB revision1/30일, 실제 브라우저 새로고침 후 보관함에서 수동 수정본·검수·역번역 복원 | chrome-save/history-reloaded/restored 캡처·운영 DB 확인 |
+| 실제 다운로드 | TXT260B·MD260B·DOCX10060B·JSON4114B. 실제 개행·안전한 URL 분리·DOCX Heading1/numPr/hyperlink·JSON 정렬/문단/역번역 일치 | v103-download-checks.json·v103-live-translation.*·v103-live-backup.json |
+| 백업 UI 복원 | JSON 파일 선택→미리보기→새 작업으로 불러오기, 수정본/검수/역번역 복원, 보관함에 자동 저장하지 않음 | chrome-backup-import/backup-restored/mobile-backup-result 캡처 |
+| 용어집 | API→Application Programming Interface 추가·저장·현재 번역에 적용·CSV 다운로드·새로고침 후 선택/복원, DB revision1/용어1개 | chrome-glossary/glossary-restored 캡처·v103-live-glossary.csv |
+| 좁은 화면 | 실제 Chrome 창516px, 메뉴 열기/닫기·원문/번역문/검수 탭 조작·흰색 본문/전체 폭 확인. 이후1560×1372 복원 | chrome-mobile-source/translation/review/menu 캡처 |
+
+- API 로그는 원문/키 없이 시간·경로·상태·캐시만 추려 v103-live-ai-log-summary.json 및 v103-live-api-log-summary.json에 보관합니다. 일부 항목은 middleware 계층 기록이므로 DB done/내용·실제 화면과 함께 판단했습니다.
+- 실제 내려받은 백업을 parseBackup 전체 스키마로 검증하고 텍스트/Word ZIP/XML을 대조했습니다. 원문표본만 포함하며 키/토큰/공급사 원시 응답을 공개 증거에 넣지 않습니다.
+- 검수용 프로젝트1개(Codex-v103-live-20261014-2145,30일)와 용어집1개(Codex-v103-terms-20261014)는 주인님 참고용으로 남겼습니다. 기존 사용자 자료는 변경/삭제하지 않았습니다.
+- 코드 수정 없이 최종 검수/기록만 추가하므로 프로그램 v1.03 유지. 자동10개·재빌드 성공. 이번 요청 범위 남은 작업 없음. 실제 휴대폰 기기/전 언어·전 파일 표본을 모두 확인했다는 뜻은 아닙니다.
+- 네이티브 파일 창은 별도 Windows 프로세스여서 Chrome 루트에 보낸 단축키가 다른 화면을 열 수 있습니다. 실제 핸들/파일명 입력 확인→역슬래시 절대 경로→비동기 Open→앱 미리보기/복원으로 성공을 판정했습니다. 다운로드 허용도 파일 실재를 대조했습니다.
