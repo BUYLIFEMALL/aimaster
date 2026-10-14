@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.vercel/
+.env*
+!.env.example
+test-artifacts/
+*.tsbuildinfo
+next-env.d.ts
+supabase/.temp/
+public/pdf/
+public/workers/

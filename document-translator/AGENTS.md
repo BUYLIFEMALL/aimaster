@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-2026-10-14, Codex. 분석·명칭 추천·개발 플랜 요청만 받았습니다. 코드 구현 지시는 아직 받지 않았습니다. 이름 **AI 문서번역 자동화**, slug `document-translator`는 제안이며 등록되지 않았습니다. `APP_VERSION`, package.json, 운영 URL, DB 스키마도 아직 없습니다. 최초 출시 버전 계획은 v1.01입니다.
+2026-10-14, Codex. 주인님의 ‘진행해줘’로 **AI 문서번역 자동화**, slug `document-translator`, 코드 v1.01을 구현했습니다. 로컬 빌드·자동 검사·보이는 Chrome 모의 검사 완료입니다. 공용 DB 테이블3개/함수4개·새 프로젝트 Supabase 연결값3개에 대한 승인 질문은 답변 대기입니다. 추가로30일 만료 기록의 실제 삭제를 위한 pg_cron 활성화/작업1개도 준비했으며 별도 범위 승인이 필요합니다. 운영 SQL/환경변수·등록·실제 Gemini·배포는 미실행입니다. 상세는 docs/IMPLEMENTATION_STATUS.md와 OPERATING_CHANGES.md.
 
 작업 전 루트 AGENTS.md, docs/HANDOFF.md, docs/ERROR_LESSONS.md, docs/TOP_RULE_PERSONAL_ACCOUNT_API.md, docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md와 이 폴더의 README·docs/CLI_HANDOFF.md·docs/DEVELOPMENT_PLAN.md를 읽습니다. 공유 저장소·인덱스에서 다른 CLI 변경을 보존합니다.
 
@@ -12,7 +12,7 @@
 - ZIP의 파일19개 전수 확보: 77,015 bytes. HTML과 실행 번들1,684,474 bytes도 수집·대조했습니다.
 - 소스 전체는 로컬 scratch/translation-reference-20261014와 Aside 세션에 보관했습니다. 타 개발자의 원본 코드를 공개 저장소에 복제하지 않고 파일명·SHA256·관찰 증거만 커밋합니다.
 - 실제 확인: 언어10종, 사용법, 입력·수정, DOCX 다운로드·XML, 모바일 미리보기, 새로고침 초기화.
-- 미확인: 실제 AI 번역 품질, PDF·DOCX 입력의 실제 AI 구조화, 역번역 결과, 새 프로그램 구현·회원격리·배포.
+- 원본의 실제 AI 품질은 미확인입니다. 새 구현은 파일 작업자·UI 요청·로컬 PostgreSQL 회원격리를 검사했지만 실제 운영 회원/공급사/DB 연결은 미확인입니다.
 
 ## 구현 시 핵심
 
@@ -24,4 +24,4 @@
 6. 작업 화면은 흰색, 표준 번호형 사이드바, 원문·번역문 비교, 모바일 탭. API키등록·플랫폼연동·실제 매뉴얼·메뉴 바로 아래 계정/로그아웃.
 7. 새 DB 스키마·환경변수 작업은 기존 사전 승인 규칙을 따릅니다. 이번 계획 작성은 해당 변경의 실행 승인이 아닙니다.
 
-전체 설계·완료 기준은 docs/DEVELOPMENT_PLAN.md를 기준으로 하며, 이름 확정·구현 지시가 오면 먼저 최신 Git 상태와 문서를 재확인합니다.
+전체 설계는 docs/DEVELOPMENT_PLAN.md, 실제 현재 상태는 docs/IMPLEMENTATION_STATUS.md를 기준으로 합니다. 운영 승인 답변을 확인하고 최신 Git 상태를 재확인한 뒤 CLI_HANDOFF.md의 남은 절차를 이어갑니다. 미승인 SQL을 적용하거나 모의 검사를 실제 회원 검수로 보고하지 않습니다.

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — 문서번역 구현: PDF Worker·Unicode 분할·숫자 부분일치·만료 RLS
+
+- 증상: 보이는 Chrome에서 정상 텍스트 PDF도 가져오기 실패 → 원인: PDF.js6 표시 API의 window/document 접근을 앱 가져오기 Worker 안에서 기본 초기화 → 해결: `document-translator/src/workers/import.worker.ts`에 명시적 nested Worker port·useWorkerFetch·finally 정리 → 다음 확인: 원본 PDF 실제 표본을 읽고 준비된 정적 Worker/글꼴 자산까지 함께 검수합니다.
+- 증상: 이모지 문단의 조각이4,000 Unicode 문자 한도를 넘음 → 원인: UTF-16 문자열 인덱스를 문자 배열 분할 인덱스로 사용 → 해결: `src/lib/translation/document.ts`의 문자 배열 경계 검사 → 다음 확인: 한글·이모지·긴 문단의 조각별 한도와 재결합 원문 보존을 검사합니다.
+- 증상: 원문 숫자20을 지워도 번역문2026의 일부와 일치해 통과 → 원인: 문자열 includes 대조 → 해결: 같은 파일의 숫자 토큰 집합 비교 → 다음 확인: 수치 검사 결과는 오역 확정이 아닌 직접 대조 제안으로 표시합니다.
+- 확인: API의 expires_at 필터만으로는 직접 PostgREST 읽기가 만료 원문을 반환할 수 있음 → 해결: 새 dt_projects RLS에도 만료 조건 포함, PGlite 역할 검사 → 다음 확인: UI/API/RLS 읽기 차단과 실제 DB 만료 삭제 작업을 구분합니다. 운영 Cron은 아직 승인·적용 전입니다.
+
 ## 2026-10-14 — 번역 참고 앱: DOCX 서식·원문 수정 유실·파일 자동 AI 호출 (구현 전)
 
 - 증상: Markdown 제목/목록을 DOCX로 저장해도 Word 제목/목록이 아님 → 원인: 모든 줄을 일반 Paragraph(text)로 저장 → 확인: 직접 작성 샘플 다운로드의 word/document.xml에 pStyle/numPr 없음 → 다음 확인: 내보내기 파일을 실제 파싱하고 지원 서식 범위만 표시. [분석·증거](../document-translator/docs/REFERENCE_ANALYSIS.md).

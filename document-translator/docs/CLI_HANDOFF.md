@@ -1,6 +1,6 @@
 # AI 문서번역 자동화 — 재개 인수인계
 
-2026-10-14, Codex. **현재 분석·개발 플랜 완료, 구현 대기.** 주인님의 요청은 참고 앱 정밀 분석·프로그램명 추천·개발 플랜 작성입니다. 실제 앱 구현·새 운영 스키마·환경변수·프로덕션 배포를 진행한 기록은 없습니다.
+2026-10-14, Codex. **현재 v1.01 로컬 구현·검수 완료, 운영 변경 승인 대기.** 주인님이 ‘진행해줘’로 구현을 지시하셨습니다. 운영 테이블3개·함수4개·Supabase 연결값3개 승인 질문에 답변이 없으며, 이후 준비한 pg_cron 활성화/30일 만료 정리 작업1개도 추가 범위 승인 전입니다. 운영 SQL·환경변수·등록·실제 Gemini·배포는 하지 않았습니다. [구현 현황](IMPLEMENTATION_STATUS.md), [승인 범위](OPERATING_CHANGES.md) 필독.
 
 ## 먼저 읽을 문서
 
@@ -15,12 +15,11 @@ README.md → AGENTS.md → docs/REFERENCE_ANALYSIS.md → docs/DEVELOPMENT_PLAN
 - 공급사 생성 호출0회. 실제 번역 품질·역번역·파일 구조화 성공은 검증하지 않았음. 수동 샘플을 AI 생성 결과로 보고하지 않음.
 - Code UI의 파일 클릭이 변화를 만들지 않을 때, 공개 DOM의 해당 버튼 click 이벤트로 탐색·Export를 수행한 뒤 새 snapshot/Monaco 모델로 확인. 원본 코드를 편집하거나 Remix하지 않음.
 
-## 아직 제안인 결정
+## 적용한 결정과 남은 운영 작업
 
-- 이름: AI 문서번역 자동화(1순위), AI 번역검수 자동화, AI 다국어 번역 스튜디오.
-- 후보 slug/폴더/Vercel 프로젝트: document-translator. 이름 확정 시 필요하면 이 계획 폴더를 조정하되 다른 프로그램과 충돌하지 않도록 확인.
-- 후보 주소 document-translator.buylife.xyz, 최초 v1.01. 선점·등록·배포 미확인.
-- 범위/파일 제한/기록 정책/DB3종/모델/가격·배지는 DEVELOPMENT_PLAN의 제안. 무료·권한 정책·운영 스키마/환경변수 실행은 별도 확정 필요.
+- 이름 AI 문서번역 자동화, slug/폴더 document-translator, 코드 v1.01을 적용했습니다. 예정 주소 document-translator.buylife.xyz, Vercel 프로젝트는 아직 만들지 않았습니다.
+- 자체 CSS·AI kind4종 공통 라우트·번역 최대10구간·메타데이터24시간 중복 방지로 초기 플랜을 구체화했습니다. 실제 AI 결과를 서버 임시 캐시에 저장하지 않습니다.
+- SQL2개와 비공개 카탈로그/요금제 등록 SQL을 준비했습니다. 적용 승인과 출시 전 운영 검수를 확인한 후 진행합니다.
 
 ## 보관한 증거와 재수집
 
@@ -30,10 +29,10 @@ README.md → AGENTS.md → docs/REFERENCE_ANALYSIS.md → docs/DEVELOPMENT_PLAN
 
 ## 다음 작업
 
-1. 주인님의 이름 확정·구현 지시를 확인합니다. 현재 계획만으로 구현 시작 승인을 추정하지 않습니다.
+1. 주인님의 운영 변경 승인 답변을 확인합니다. 구현 지시는 이미 받았으므로 다시 묻지 않습니다. DB/환경변수/pg_cron 정리의 상세 범위만 확인합니다.
 2. git status/log/fetch를 확인합니다. 다른 CLI는 portrait-photo 등에서 작업 중이었고, codex-statusbar·root HANDOFF/ERROR_LESSONS에도 별도 변경이 있습니다. 스테이징을 덮어쓰거나 전체 git add를 하지 않습니다.
-3. P01부터 진행하고 적용할 스키마·환경변수 작업을 먼저 구체화합니다. 기존 규칙상 승인 필요한 작업은 그 범위를 설명하고 확인합니다.
-4. 실제 회원 본인 키·권한·서버 호출을 설계합니다. 원본 API_KEY 브라우저 치환은 복사하지 않습니다.
-5. 단계별 검사·화면 검수·운영 확인의 증거를 구분하고 완료 보고 절차까지 이어갑니다.
+3. 승인 후 프로젝트 전용 .env.local과 Vercel에 기존 Supabase URL/공개키/서비스키 하나만 안전하게 복사합니다. Gemini 키를 환경변수나 클라이언트에 넣지 않습니다. migration2개 적용 후 테이블/RLS/RPC/Cron 실제 상태를 확인합니다.
+4. 등록 SQL의 is_active=false 상태로 프로그램/요금제3종을 준비하고 표준 썸네일을 생성·검수합니다. 기존 VIP 등급 자동 부여 패턴과 도메인/SSO를 연결하고 실제 회원 검수 후 공개합니다. 기존 프로그램/회원 키를 변경하지 않습니다.
+5. 실제 buylifemall@naver.com Chrome 세션으로 본인 키·소량 Gemini·저장/복원·권한을 검사합니다. 키 입력/비밀번호 입력을 대신 하지 않습니다. 모의 결과와 실제 생성 결과를 구분하고 버전/커밋/푸시/배포/라이브/남은 일 보고까지 이어갑니다.
 
-현재 build/test 명령을 실행할 package.json은 없습니다. 문서 검수와 원본 관찰은 앱 구현 테스트와 구분합니다.
+`npm ci` → `npm test` → `npm run typecheck` → `npm run build`. `npm run test:browser`는 보이는 Chrome의 시험 fixture입니다. 운영 환경이 없는 빌드를4389포트에서 실행한 경우 `npm run test:runtime`으로 실패 차단을 검사합니다. 로컬 검수는 자동9개·화면14개·런타임8개 경계 통과입니다. 실제 회원/공급사/DB/Cron 검증은 아직입니다. evidence/implementation의 캡처·보고와 src/lib/version.ts v1.01을 확인합니다.
