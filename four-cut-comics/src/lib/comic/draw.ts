@@ -4,7 +4,8 @@ import type { Panel } from "./script";
 import { SCALE, fitText, rotatePoint, textAreaRatio } from "./balloon";
 import type { Balloon, BalloonShape } from "./balloon";
 import { isBalloonMode } from "./options";
-import { stackLayout, webtoonLayout } from "./extras";
+import { panelsLayout, splitRanges, stackLayout, webtoonLayout } from "./extras";
+import { createZip } from "./zip";
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -230,30 +231,8 @@ export type SaveLayout = "grid" | "horizontal" | "vertical";
 /** 합성된 컷들을 한 장으로 이어 붙인 PNG 데이터 URL */
 export async function layoutPanels(urls: string[], layout: SaveLayout): Promise<string> {
   const imgs = await Promise.all(urls.map(loadImage));
-  const cw = imgs[0].naturalWidth;
-  const ch = imgs[0].naturalHeight;
-  // 바둑판: 3컷은 한 줄(1x3), 4컷 2x2, 6컷 2x3
-  const cols = layout === "grid" ? (imgs.length === 3 ? 3 : 2) : layout === "horizontal" ? imgs.length : 1;
-  const rows = Math.ceil(imgs.length / cols);
-  const gap = Math.round(cw * 0.02);
-  const c = document.createElement("canvas");
-  c.width = cols * cw + (cols + 1) * gap;
-  c.height = rows * ch + (rows + 1) * gap;
-  const ctx = context(c);
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, c.width, c.height);
-  imgs.forEach((im, i) => {
-    const x = gap + (i % cols) * (cw + gap);
-    const y = gap + Math.floor(i / cols) * (ch + gap);
-    ctx.drawImage(im, x, y, cw, ch);
-  });
-  return c.toDataURL("image/png");
-}
-
-/** 웹툰형 세로 저장(v1.06): 가로 800px·컷 사이 넓은 여백의 세로 스크롤용 한 장(JPEG — 세로로 길어 PNG는 용량이 큼) */
-export async function layoutWebtoon(urls: string[]): Promise<string> {
-  const imgs = await Promise.all(urls.map(loadImage));
-  const plan = webtoonLayout(imgs.map((i) => ({ w: i.naturalWidth, h: i.naturalHeight })));
+  // 바둑판: 3컷은 한 줄(1x3), 4컷 2x2, 6컷 2x3. 컷마다 비율이 달라도 열 너비를 맞춰 배치한다(v1.07)
+  const plan = panelsLayout(imgs.map((i) => ({ w: i.naturalWidth, h: i.naturalHeight })), layout);
   const c = document.createElement("canvas");
   c.width = plan.width;
   c.height = plan.height;
@@ -261,7 +240,42 @@ export async function layoutWebtoon(urls: string[]): Promise<string> {
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, c.width, c.height);
   imgs.forEach((im, i) => { const r = plan.rects[i]; ctx.drawImage(im, r.x, r.y, r.w, r.h); });
-  return c.toDataURL("image/jpeg", 0.92);
+  return c.toDataURL("image/png");
+}
+
+/**
+ * 웹툰형 세로 저장(v1.06~): 가로 width px·컷 사이 넓은 여백의 세로 스크롤용 JPEG.
+ * maxHeight를 주면 한 장당 그 높이 이하로 컷 사이 여백에서 나눠 여러 장을 돌려준다(v1.07).
+ */
+export async function webtoonImages(urls: string[], width = 800, maxHeight = 0): Promise<string[]> {
+  const imgs = await Promise.all(urls.map(loadImage));
+  const scale = width / 800;
+  const plan = webtoonLayout(imgs.map((i) => ({ w: i.naturalWidth, h: i.naturalHeight })), { width, gap: Math.round(96 * scale), pad: Math.round(48 * scale) });
+  const c = document.createElement("canvas");
+  c.width = plan.width;
+  c.height = plan.height;
+  const ctx = context(c);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  imgs.forEach((im, i) => { const r = plan.rects[i]; ctx.drawImage(im, r.x, r.y, r.w, r.h); });
+  return splitRanges(plan.rects, plan.height, maxHeight).map(([y0, y1]) => {
+    const part = document.createElement("canvas");
+    part.width = plan.width;
+    part.height = y1 - y0;
+    context(part).drawImage(c, 0, y0, plan.width, y1 - y0, 0, 0, plan.width, y1 - y0);
+    return part.toDataURL("image/jpeg", 0.92);
+  });
+}
+
+/** 데이터 URL 여러 개를 ZIP 한 개로(저장 방식) — 브라우저 연속 다운로드 차단을 피하려고 묶어서 내려받는다 */
+export function dataUrlsToZip(items: { name: string; url: string }[]): Blob {
+  const entries = items.map((it) => {
+    const bin = atob(it.url.split(",")[1] ?? "");
+    const data = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i);
+    return { name: it.name, data };
+  });
+  return new Blob([createZip(entries) as BlobPart], { type: "application/zip" });
 }
 
 /** 이미지 여러 장을 세로로 이어 한 장으로(만화 합치기). 흰 배경 PNG 데이터 URL */

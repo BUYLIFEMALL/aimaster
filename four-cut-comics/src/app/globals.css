@@ -371,6 +371,10 @@ a.project-card{color:inherit}
 .cc-finished p{margin:6px 0 10px;font-size:13px}
 .cc-cut img,.cc-cut .cc-placeholder{object-fit:contain}
 
+/* v1.07 컷별 비율 */
+.cc-cut-aspect{font-size:12px}
+.cc-cut-aspect select{padding:4px 6px;font-size:12px}
+
 /* v1.02 모바일: 좁은 화면에서는 좌측 메뉴 대신 위쪽 접는 메뉴(markdown-studio 규칙과 동일한 셸 부분) */
 @media(max-width:767px){
   .app-shell{display:block}

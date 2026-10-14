@@ -8,7 +8,8 @@ import { MAX_TAIL, MIN_H, MIN_W, shortenTail, applyDrag, defaultBalloon, fitText
 import { buildBalloonPrompt } from "../src/lib/comic/prompt.ts";
 import { isBalloonMode, isAspect, isPanelCount, aspectValue, ASPECTS, PANEL_COUNTS } from "../src/lib/comic/options.ts";
 import { MAX_SAVED, addToIndex, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "../src/lib/comic/savedIndex.ts";
-import { MAX_WORKS, cleanHashtag, continueScript, instaText, normalizeInsta, stackLayout, trimWorks, webtoonLayout } from "../src/lib/comic/extras.ts";
+import { MAX_WORKS, cleanHashtag, continueScript, instaText, normalizeInsta, stackLayout, trimWorks, webtoonLayout, panelsLayout, splitRanges } from "../src/lib/comic/extras.ts";
+import { createZip, crc32 } from "../src/lib/comic/zip.ts";
 import { buildInstaPrompt, koreaMonth } from "../src/lib/comic/prompt.ts";
 import { parseInstaRequest } from "../src/lib/comic/validate.ts";
 
@@ -278,4 +279,41 @@ test("웹툰형 세로 저장: 가로 800·여백·간격, 높이 한도 축소"
   const tall = webtoonLayout(Array.from({ length: 30 }, () => ({ w: 100, h: 1000 })), { maxHeight: 10000 });
   assert.equal(tall.height, 10000); assert.ok(tall.width < 800);
   assert.throws(() => webtoonLayout([]));
+});
+
+test("v1.07 저장 배치: 같은 크기는 이전과 동일, 비율이 섞여도 열 너비 통일", () => {
+  const sq = Array.from({ length: 4 }, () => ({ w: 1000, h: 1000 }));
+  const g = panelsLayout(sq, "grid");
+  assert.equal(g.width, 2 * 1000 + 3 * 20); assert.equal(g.height, 2 * 1000 + 3 * 20);
+  assert.deepEqual(g.rects[3], { x: 20 + 1020, y: 20 + 1020, w: 1000, h: 1000 });
+  const mixed = panelsLayout([{ w: 1000, h: 1000 }, { w: 1376, h: 768 }, { w: 800, h: 1000 }], "grid");
+  assert.equal(mixed.rects.length, 3); assert.ok(mixed.rects.every((r) => r.w === 1376), "1x3 바둑판, 가장 넓은 컷 너비로 통일");
+  assert.equal(mixed.height, 1720 + 2 * 28, "행 높이는 가장 높은 컷(800x1000을 1376폭으로 = 1720)");
+  const v = panelsLayout([{ w: 1000, h: 1000 }, { w: 1000, h: 500 }], "vertical");
+  assert.equal(v.rects[1].y, 20 + 1000 + 20); assert.equal(v.height, 20 + 1000 + 20 + 500 + 20);
+  const h = panelsLayout([{ w: 1000, h: 1000 }, { w: 1600, h: 900 }], "horizontal");
+  assert.ok(h.rects.every((r) => r.h === 1000)); assert.equal(h.rects[1].w, 1778);
+});
+
+test("v1.07 웹툰 나눠 저장: 컷 사이 여백에서 자르고, 긴 컷은 컷 안에서 자른다", () => {
+  const l = webtoonLayout(Array.from({ length: 6 }, () => ({ w: 1000, h: 1000 })));
+  assert.deepEqual(splitRanges(l.rects, l.height, 0), [[0, l.height]]);
+  const parts = splitRanges(l.rects, l.height, 1600);
+  assert.ok(parts.length >= 3);
+  assert.equal(parts[0][0], 0); assert.equal(parts[parts.length - 1][1], l.height);
+  for (let i = 0; i + 1 < parts.length; i++) assert.equal(parts[i][1], parts[i + 1][0], "빈틈·겹침 없음");
+  for (const [s, e] of parts) assert.ok(e - s <= 1600);
+  const gapMids = l.rects.slice(0, -1).map((r, i) => Math.round((r.y + r.h + l.rects[i + 1].y) / 2));
+  assert.ok(parts.slice(0, -1).every(([, e]) => gapMids.includes(e)), "모든 경계가 컷 사이 여백");
+  const tall = webtoonLayout([{ w: 100, h: 1000 }], { width: 800 });
+  const tp = splitRanges(tall.rects, tall.height, 2000);
+  assert.ok(tp.length >= 3 && tp.every(([s, e]) => e - s <= 2000), "한 컷이 길면 컷 안에서 자름");
+});
+
+test("ZIP: 항목 수·이름·CRC", () => {
+  const z = createZip([{ name: "가.jpg", data: new Uint8Array([1, 2, 3]) }, { name: "b.jpg", data: new Uint8Array([4]) }]);
+  const s = new TextDecoder().decode(z);
+  assert.ok(s.includes("가.jpg") && s.includes("b.jpg"));
+  assert.equal(new DataView(z.buffer).getUint32(0, true), 0x04034b50, "로컬 헤더 서명");
+  assert.equal(crc32(new TextEncoder().encode("123456789")) >>> 0, 0xcbf43926);
 });

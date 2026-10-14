@@ -84,6 +84,63 @@ export function webtoonLayout(sizes: { w: number; h: number }[], o: { width?: nu
   return { width: Math.round(width), height: Math.round(height), rects };
 }
 
+/**
+ * 컷 저장 배치(v1.07, 컷마다 비율이 달라도 동작). 바둑판은 열마다 같은 너비로 맞추고 행 높이는 그 행에서 가장 높은 컷,
+ * 세로 연속은 같은 너비, 가로 연속은 같은 높이로 맞춘다. 모든 컷 크기가 같으면 v1.06과 같은 결과가 나온다.
+ */
+export function panelsLayout(sizes: { w: number; h: number }[], layout: "grid" | "horizontal" | "vertical"): { width: number; height: number; rects: StackRect[] } {
+  if (!sizes.length || sizes.some((s) => !(s.w > 0 && s.h > 0))) throw new Error("이미지 크기가 올바르지 않습니다.");
+  const n = sizes.length;
+  if (layout === "horizontal") {
+    const H = Math.max(...sizes.map((s) => s.h));
+    const gap = Math.round(H * 0.02);
+    const widths = sizes.map((s) => Math.round((s.w * H) / s.h));
+    const rects: StackRect[] = [];
+    let x = gap;
+    for (const w of widths) { rects.push({ x, y: gap, w, h: H }); x += w + gap; }
+    return { width: x, height: H + gap * 2, rects };
+  }
+  const W = Math.max(...sizes.map((s) => s.w));
+  const gap = Math.round(W * 0.02);
+  const cols = layout === "vertical" ? 1 : n === 3 ? 3 : 2;
+  const scaled = sizes.map((s) => Math.round((s.h * W) / s.w));
+  const rects: StackRect[] = [];
+  let y = gap;
+  for (let r = 0; r * cols < n; r++) {
+    const row = scaled.slice(r * cols, r * cols + cols);
+    const rowH = Math.max(...row);
+    row.forEach((h, c) => rects.push({ x: gap + c * (W + gap), y: y + Math.round((rowH - h) / 2), w: W, h }));
+    y += rowH + gap;
+  }
+  return { width: cols * W + (cols + 1) * gap, height: y, rects };
+}
+
+/**
+ * 웹툰형 세로 이미지를 한 장당 maxHeight 이하로 나눌 구간(v1.07). 가능하면 컷 사이 여백 한가운데에서 자르고,
+ * 한 컷이 maxHeight보다 길면 그 컷 안에서 자른다. 반환: [시작, 끝) 픽셀 구간 목록.
+ */
+export function splitRanges(rects: StackRect[], totalHeight: number, maxHeight: number): [number, number][] {
+  if (!(maxHeight > 0) || totalHeight <= maxHeight) return [[0, totalHeight]];
+  // 자르기 좋은 위치: 컷과 컷 사이 여백의 한가운데
+  const cuts: number[] = [];
+  for (let i = 0; i + 1 < rects.length; i++) {
+    const end = rects[i].y + rects[i].h;
+    const next = rects[i + 1].y;
+    if (next > end) cuts.push(Math.round((end + next) / 2));
+  }
+  const out: [number, number][] = [];
+  let start = 0;
+  while (totalHeight - start > maxHeight) {
+    const limit = start + maxHeight;
+    const good = cuts.filter((c) => c > start + maxHeight * 0.3 && c <= limit);
+    const end = good.length ? good[good.length - 1] : limit;
+    out.push([start, end]);
+    start = end;
+  }
+  out.push([start, totalHeight]);
+  return out;
+}
+
 export const MAX_WORKS = 20;
 
 /** 내 작품 목록: 최신순으로 정렬해 최대 max개만 남기고, 넘친 항목의 id를 돌려준다(오래된 것부터 삭제) */

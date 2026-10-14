@@ -1,5 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — claude-in-chrome 검수 탭이 엣지 절전 탭으로 멈춤 (four-cut-comics v1.06~v1.07)
+- 증상: 생성·저장 확인 스크립트가 `Runtime.evaluate timed out after 45000ms`, 캡처도 시간 초과, `document.visibilityState`는 hidden → 원인: claude-in-chrome이 탭 그룹을 새 창에 열어 화면 뒤에 숨고, 엣지 "절전 탭"이 숨은 탭의 스크립트를 멈춤(타이머는 1분 단위로 느려짐) → 해결: 주인님께 그 창(탭 제목)을 화면 앞으로 띄워 달라고 요청하면 그대로 이어서 진행됨(결과는 탭에 남아 있음). 오래 걸리는 생성은 창이 보이는 동안 시작하고, 대기 루프는 짧게 나눠 호출한다 → 다음부터: 엣지 설정 → 시스템 및 성능에서 `buylife.xyz`를 절전 예외로 두면 이 문제가 줄어든다(브라우저 설정은 에이전트가 직접 바꾸지 않고 주인님께 안내).
+
 ## 2026-10-14 — 서브프로젝트 배포 명령이 루트 사이트를 배포함 (four-cut-comics v1.06 작업 중 사고)
 - 증상: `cd four-cut-comics && node 수정스크립트 && npx tsc && npm run build; vercel deploy --prod --yes` 실행 중 앞 단계(node)가 실패 → `;` 뒤의 `vercel deploy`는 그대로 실행됐고, Bash 도구의 작업 폴더가 루트였기 때문에 **루트 AIMaster(www.buylife.xyz)가 프로덕션 배포됨** → 원인: ① `&&`와 `;`를 섞어 실패해도 배포가 실행되는 체인 ② 셸 작업 폴더가 호출마다 루트로 되돌아가는 환경에서 상대 경로·`cd`에 의존 → 해결(이번 작업부터): 배포는 **`vercel deploy --cwd <서브프로젝트 절대경로>`**로만 하고, 그 전에 `<폴더>/.vercel/project.json`의 `"projectName"`이 대상 프로그램인지 `grep`으로 확인한 뒤 실패 시 즉시 중단(`|| exit 1`)한다. 빌드 실패 시 배포가 실행되지 않게 `;` 대신 `&&`만 쓴다 → 사고 시 확인: `git status --porcelain -- app lib components middleware.ts next.config.mjs package.json`로 루트 앱 코드에 미커밋 변경이 없는지(없으면 커밋본과 같은 코드), `vercel ls aimaster --scope buylife --prod`로 직전 배포 시각, 주요 페이지 200을 확인하고 보고한다.
 

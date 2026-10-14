@@ -11,7 +11,7 @@ import { defaultBalloon } from "@/lib/comic/balloon";
 import type { Balloon } from "@/lib/comic/balloon";
 import { BalloonEditor } from "./BalloonEditor";
 import type { Script } from "@/lib/comic/script";
-import { composePanel, downloadUrl, fileToSheet, layoutPanels, layoutWebtoon, shrinkForUpload, toJpeg } from "@/lib/comic/draw";
+import { composePanel, dataUrlsToZip, downloadUrl, fileToSheet, layoutPanels, shrinkForUpload, toJpeg, webtoonImages } from "@/lib/comic/draw";
 import { continueScript, instaText } from "@/lib/comic/extras";
 import type { InstaCopy } from "@/lib/comic/extras";
 import { saveWork } from "@/lib/comic/gallery";
@@ -75,6 +75,11 @@ export function Studio({ userId }: { userId: string }) {
   const [extraOpen, setExtraOpen] = useState(false);
   const [retention, setRetention] = useState(30);
   const [serverSavedEpisode, setServerSavedEpisode] = useState(0);
+  // v1.07: 컷마다 다른 비율(null이면 전체 비율), 실제로 그린 비율, 웹툰형 나눠 저장 설정
+  const [panelAspects, setPanelAspects] = useState<(string | null)[]>(empty<string>(4));
+  const [drawnAspects, setDrawnAspects] = useState<(string | null)[]>(empty<string>(4));
+  const [webtoonWidth, setWebtoonWidth] = useState(800);
+  const [webtoonMaxH, setWebtoonMaxH] = useState(0);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [needKey, setNeedKey] = useState(false);
@@ -88,11 +93,16 @@ export function Studio({ userId }: { userId: string }) {
     try { localStorage.setItem(MODEL_KEY, id); } catch { /* 무시 */ }
   }
 
-  /** 컷 수 n에 맞춰 컷 관련 상태를 비운다 */
-  function resetPanels(n: number) {
+  /** 컷 수 n에 맞춰 컷 관련 상태를 비운다. keepAspects면 컷별 비율 설정은 남긴다(이어서 만들기) */
+  function resetPanels(n: number, keepAspects = false) {
     setRaw(empty<string>(n)); setComposed(empty<string>(n)); setPanelErr(empty<string>(n));
     setBalloons(empty<Balloon>(n)); setPlacing(Array.from({ length: n }, () => false)); setEditing(null);
+    setDrawnAspects(empty<string>(n));
+    if (!keepAspects) setPanelAspects(empty<string>(n));
   }
+  /** 컷 i에 쓸 비율: 컷별 설정이 없으면 전체 비율 */
+  const effAspect = (i: number) => panelAspects[i] ?? aspect;
+  const setPanelAspectAt = (i: number, v: string) => setPanelAspects((cur) => cur.map((x, k) => (k === i ? (v === "" ? null : v) : x)));
 
   function fail(e: unknown, fallback: string) {
     const err = e as ApiError;
@@ -172,9 +182,11 @@ export function Studio({ userId }: { userId: string }) {
     if (!script) return;
     const refs = await Promise.all(sheets.filter((s): s is string => !!s).map((s) => shrinkForUpload(s)));
     const r = await post<{ image: { data: string; mimeType: string } }>("/api/panel", {
-      description: script.panels[i].description, styleId, model, aspect, sheets: refs.slice(0, 3),
+      description: script.panels[i].description, styleId, model, aspect: effAspect(i), sheets: refs.slice(0, 3),
     });
+    const drawn = effAspect(i);
     setRaw((cur) => cur.map((s, k) => (k === i ? imgUrl(r.image) : s)));
+    setDrawnAspects((cur) => cur.map((s, k) => (k === i ? drawn : s)));
     setBalloons((cur) => cur.map((b, k) => (k === i ? null : b))); // 새 그림이면 말풍선 위치도 새로 정한다
     setPanelErr((cur) => cur.map((s, k) => (k === i ? null : s)));
   }
@@ -298,7 +310,7 @@ export function Studio({ userId }: { userId: string }) {
       const current = await gridJpeg();
       setEpisodes((cur) => [...cur, { name: `${episode}화`, url: current }]);
       setScript(continueScript(script, r.script));
-      resetPanels(script.panels.length); setInsta(null); setMergeSeed(null); setNextTopic("");
+      resetPanels(script.panels.length, true); setInsta(null); setMergeSeed(null); setNextTopic("");
       setFinished(ending === "end"); setExtraOpen(false);
       setEpisode((n) => n + 1);
       setNotice(`${episode + 1}화${ending === "end" ? "(완결)" : ""} 대본을 만들었습니다. 등장인물과 캐릭터 그림은 그대로 다시 씁니다.`);
@@ -317,8 +329,18 @@ export function Studio({ userId }: { userId: string }) {
 
   /** 웹툰형 세로: 가로 800px·컷 사이 넓은 여백(모바일 스크롤용), 컷이 많을수록 유용 */
   async function saveWebtoon() {
-    try { downloadUrl(await layoutWebtoon(composed as string[]), `만화-웹툰형-${count}컷.jpg`); }
-    catch (e) { fail(e, "저장하지 못했습니다."); }
+    clearMsg(); setBusy("webtoon");
+    try {
+      const parts = await webtoonImages(composed as string[], webtoonWidth, webtoonMaxH);
+      if (parts.length === 1) { downloadUrl(parts[0], `만화-웹툰형-${count}컷.jpg`); return; }
+      // 여러 장은 브라우저의 연속 다운로드 차단을 피하려고 ZIP 한 개로 묶는다
+      const zip = dataUrlsToZip(parts.map((url, i) => ({ name: `만화-웹툰형-${String(i + 1).padStart(2, "0")}.jpg`, url })));
+      const href = URL.createObjectURL(zip);
+      downloadUrl(href, `만화-웹툰형-${parts.length}장.zip`);
+      setTimeout(() => URL.revokeObjectURL(href), 10000);
+      setNotice(`웹툰형 이미지를 ${parts.length}장으로 나눠 ZIP으로 저장했습니다(가로 ${webtoonWidth}px, 장당 높이 ${webtoonMaxH}px 이하).`);
+    } catch (e) { fail(e, "저장하지 못했습니다."); }
+    finally { setBusy(""); }
   }
 
   function saveEach() {
@@ -438,6 +460,12 @@ export function Studio({ userId }: { userId: string }) {
           {script.panels.map((p, i) => (
             <div key={i} className="cc-panel-edit">
               <b>{i + 1}컷</b>
+              <label>이 컷 비율
+                <select value={panelAspects[i] ?? ""} onChange={(e) => setPanelAspectAt(i, e.target.value)}>
+                  <option value="">전체 설정 따름 ({aspect})</option>
+                  {ASPECTS.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+              </label>
               <label>화자
                 <select value={p.character} onChange={(e) => editPanel(i, { character: e.target.value })}>
                   {script.characters.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
@@ -513,10 +541,17 @@ export function Studio({ userId }: { userId: string }) {
               <figure key={i} className="cc-cut">
                 {composed[i]
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={composed[i] as string} alt={`${i + 1}컷`} style={{ aspectRatio: cssRatio(aspect) }} />
-                  : <div className="cc-placeholder" style={{ aspectRatio: cssRatio(aspect) }}>{busy === "panels" || busy === `panel-${i}` ? "그리는 중..." : panelErr[i] ? "실패" : `${i + 1}컷`}</div>}
+                  ? <img src={composed[i] as string} alt={`${i + 1}컷`} style={{ aspectRatio: cssRatio(drawnAspects[i] ?? effAspect(i)) }} />
+                  : <div className="cc-placeholder" style={{ aspectRatio: cssRatio(effAspect(i)) }}>{busy === "panels" || busy === `panel-${i}` ? "그리는 중..." : panelErr[i] ? "실패" : `${i + 1}컷`}</div>}
                 {panelErr[i] && <small className="error" role="alert">{panelErr[i]}</small>}
                 {placing[i] && <small className="muted" role="status">AI가 말풍선 자리를 찾는 중...</small>}
+                <label className="cc-inline cc-cut-aspect">비율
+                  <select value={panelAspects[i] ?? ""} onChange={(e) => setPanelAspectAt(i, e.target.value)} aria-label={`${i + 1}컷 비율`}>
+                    <option value="">전체({aspect})</option>
+                    {ASPECTS.map((a) => <option key={a.id} value={a.id}>{a.id}</option>)}
+                  </select>
+                </label>
+                {raw[i] && drawnAspects[i] && drawnAspects[i] !== effAspect(i) && <small className="muted" role="status">비율을 {effAspect(i)}로 바꿨습니다. [다시 그리기]를 눌러야 적용됩니다.</small>}
                 <div className="actions">
                   <button type="button" onClick={() => makePanels(i)} disabled={!!busy}><RefreshCw size={14} />{raw[i] ? "다시 그리기" : panelErr[i] ? "다시 시도" : "이 컷 그리기"}</button>
                   {isBalloonMode(bubbleId) && raw[i] && balloons[i] && hasDialogue(script.panels[i]) && (
@@ -533,7 +568,7 @@ export function Studio({ userId }: { userId: string }) {
               key={editing}
               index={editing}
               image={raw[editing] as string}
-              ratio={cssRatio(aspect)}
+              ratio={cssRatio(drawnAspects[editing] ?? effAspect(editing))}
               text={script.panels[editing].dialogue.trim()}
               balloon={balloons[editing] as Balloon}
               busy={placing[editing]}
@@ -550,11 +585,24 @@ export function Studio({ userId }: { userId: string }) {
                 <button type="button" className="primary" onClick={() => saveLayout("grid")}><Download size={14} />바둑판({gridName(count)})</button>
                 <button type="button" onClick={() => saveLayout("horizontal")}><Download size={14} />가로 연속</button>
                 <button type="button" onClick={() => saveLayout("vertical")}><Download size={14} />세로 연속</button>
-                <button type="button" onClick={saveWebtoon}><Download size={14} />웹툰형 세로(800px)</button>
+                <button type="button" onClick={saveWebtoon} disabled={busy === "webtoon"}><Download size={14} />{busy === "webtoon" ? "만드는 중..." : "웹툰형 세로"}</button>
                 <button type="button" onClick={saveEach}><Download size={14} />개별 파일 {count}장</button>
                 <button type="button" onClick={saveToWorks} disabled={!!busy || savedEpisode === episode}><BookmarkPlus size={14} />{busy === "work" ? "저장 중..." : savedEpisode === episode ? "내 작품에 저장됨" : "내 작품에 저장"}</button>
               </div>
-              <small className="muted">개별 파일은 브라우저가 여러 파일 다운로드 허용을 물으면 허용해 주세요. [내 작품]은 이 브라우저에만 최근 20개까지 보관됩니다.</small>
+              <div className="actions">
+                <label className="cc-inline">웹툰형 가로
+                  <select value={webtoonWidth} onChange={(e) => setWebtoonWidth(Number(e.target.value))}>
+                    {[690, 800, 1080].map((w) => <option key={w} value={w}>{w}px</option>)}
+                  </select>
+                </label>
+                <label className="cc-inline">한 장 최대 높이
+                  <select value={webtoonMaxH} onChange={(e) => setWebtoonMaxH(Number(e.target.value))}>
+                    <option value={0}>나누지 않음(한 장)</option>
+                    {[1280, 1600, 2000, 3000].map((h) => <option key={h} value={h}>{h}px (ZIP)</option>)}
+                  </select>
+                </label>
+              </div>
+              <small className="muted">웹툰형은 컷 사이 넓은 여백의 세로 스크롤용입니다. 올릴 곳의 가로 폭·한 장 높이 제한을 확인해 고르세요 — 나눌 때는 컷 사이 여백에서 자르고 여러 장은 ZIP 하나로 저장합니다. 개별 파일은 브라우저가 여러 파일 다운로드 허용을 물으면 허용해 주세요. [내 작품]은 이 브라우저에만 최근 20개까지 보관됩니다.</small>
               <div className="actions">
                 <button type="button" onClick={saveToServer} disabled={!!busy || serverSavedEpisode === episode}><CloudUpload size={14} />{busy === "server" ? "올리는 중..." : serverSavedEpisode === episode ? "서버 보관함에 저장됨" : "서버 보관함에 저장"}</button>
                 <label className="cc-inline">보관 기간
