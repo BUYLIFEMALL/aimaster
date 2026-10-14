@@ -7,6 +7,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Codex 새 터미널 상태바 자동 적용(2026-10-14 주인님 지시):** [docs/CODEX_STATUSBAR_STARTUP.md](docs/CODEX_STATUSBAR_STARTUP.md)를 읽고 설치된 `codex-statusbar` 실행기 연결을 확인한다. 표시 형식은 `[모델명] [effort] | 5h [잔여%] ([남은 시간]) | weekly [잔여%] ([남은 시간]) | context [잔여%]`이며 `0h 34m`·`3d 4h 14m`처럼 공백을 유지한다. 새 대화형 `codex`·`codex.cmd` 실행마다 현재 표시 코드를 자동으로 불러오며, Codex npm 업데이트로 연결이 사라지면 문서의 설치 명령으로 복구한다. 작업 중인 기존 세션을 강제 종료하지 않는다.
+
 **공식 공통 개발 방식은 「AI 에이전트 기반 자율 개발·검수·배포」입니다.** 다른 프로그램 개발이나 CLI 인수인계 시 [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md)를 함께 읽습니다. 실제 사용 도구, 조사·구현·검수·배포 절차, 완료 증거와 재개 양식을 이 문서에서 관리합니다.
 
 ## 🔒 불변의 핵심 원칙 (모든 에이전트가 예외 없이 따라야 함)

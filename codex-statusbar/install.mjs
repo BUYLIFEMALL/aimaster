@@ -25,7 +25,13 @@ if (process.argv.includes('--restore')) {
   const anchor = 'const child = spawn(binaryPath, process.argv.slice(2), {';
   if (text.includes(start)) {
     if (!text.includes(end)) throw new Error('Incomplete statusbar installation marker');
-    console.log('Codex countdown statusbar is already installed.');
+    const moduleUrl = pathToFileURL(path.join(root, 'src/run.mjs')).href;
+    const block = text.slice(text.indexOf(start), text.indexOf(end));
+    if (!block.includes(`await import(${JSON.stringify(moduleUrl)})`)) throw new Error('Statusbar launcher points to another checkout; no file was changed.');
+    const record = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    if (record.launcher !== launcher || digest(original) !== record.patchedSha256) throw new Error('Launcher changed outside this installer; automatic update refused.');
+    fs.writeFileSync(manifestPath, JSON.stringify({ ...record, version: APP_VERSION, verifiedOn: new Date().toISOString() }, null, 2) + '\n');
+    console.log(`Codex statusbar ${APP_VERSION} verified. New interactive sessions automatically load this checkout's current display code.`);
   } else {
     if (text.split(anchor).length !== 2) throw new Error('Unsupported npm launcher layout; no file was changed.');
     const commands = ['exec', 'e', 'review', 'login', 'logout', 'mcp', 'mcp-server', 'app-server', 'app', 'completion', 'sandbox', 'debug', 'doctor', 'apply', 'a', 'cloud', 'features', 'plugins', 'remote-control', 'queue', 'archive', 'delete', '--help', '-h', '--version', '-V'];

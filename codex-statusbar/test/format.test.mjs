@@ -35,13 +35,13 @@ test('countdown changes as wall-clock time advances', () => {
 });
 test('adds both reset countdowns while keeping the original remaining values', () => {
   const rendered = formatFooter(line, readWindows(result, now), 150, now);
-  assert.equal(rendered, '  GPT-6.1-Solhigh | 5h 85% (1h 24m) | weekly 82% (2d 7h 34m) | context 49%');
+  assert.equal(rendered, '  GPT-6.1-Sol high | 5h 85% (1h 24m) | weekly 82% (2d 7h 34m) | context 49%');
 });
 test('does not attach clocks to a mismatched percentage', () => {
-  assert.equal(formatFooter(line.replace('85%', '20%').replace('82%', '21%'), readWindows(result, now), 150, now), '  GPT-6.1-Solhigh | 5h 20% | weekly 21% | context 49%');
+  assert.equal(formatFooter(line.replace('85%', '20%').replace('82%', '21%'), readWindows(result, now), 150, now), '  GPT-6.1-Sol high | 5h 20% | weekly 21% | context 49%');
 });
 test('hides old or missing account data instead of keeping an old countdown', () => {
-  const withoutClocks = '  GPT-6.1-Solhigh | 5h 85% | weekly 82% | context 49%';
+  const withoutClocks = '  GPT-6.1-Sol high | 5h 85% | weekly 82% | context 49%';
   assert.equal(formatFooter(line, null, 150, now), withoutClocks);
   assert.equal(formatFooter(line, readWindows(result, now), 150, now + 150001), withoutClocks);
   assert.equal(formatFooter(line, readWindows(result, now + 1), 150, now), withoutClocks);
@@ -55,12 +55,18 @@ test('supports a single quota window without inventing another', () => {
 test('never matches the help text, transcript or status details as a footer', () => {
   for (const text of ['Context 49% left', '5h limit: 85% left', 'weekly limit: 82% left', '? for shortcuts']) assert.equal(isFooter(text), false);
 });
-test('compact form keeps both quota clocks and context within 80 columns', () => {
+test('narrow form keeps spaced clocks, separators and context within 80 columns', () => {
   const rendered = formatFooter(line, readWindows(result, now), 80, now);
   assert.ok(width(rendered) < 80);
   assert.match(rendered, /5h 85% \(1h 24m\)/);
   assert.match(rendered, /weekly 82% \(2d 7h 34m\)/);
   assert.match(rendered, /context 49%/);
+  assert.equal((rendered.match(/ \| /g) || []).length, 3);
+});
+test('matches the requested remaining-percent and countdown format', () => {
+  const input = 'GPT-6.1-Sol · high · 5h 17% left · weekly 5% left · Context 23% left';
+  const snapshot = { updatedAt: now, fiveHour: { remaining: 17, resetsAt: now / 1000 + 34 * 60 }, weekly: { remaining: 5, resetsAt: now / 1000 + 3 * 86400 + 4 * 3600 + 14 * 60 } };
+  assert.equal(formatFooter(input, snapshot, 100, now), '  GPT-6.1-Sol high | 5h 17% (0h 34m) | weekly 5% (3d 4h 14m) | context 23%');
 });
 test('all narrow widths avoid writing into the last terminal column', () => {
   for (const columns of [20, 40, 60, 80, 100, 140]) assert.ok(width(formatFooter(line, readWindows(result, now), columns, now)) < columns);

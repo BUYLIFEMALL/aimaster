@@ -1,4 +1,4 @@
-export const APP_VERSION = 'v1.02';
+export const APP_VERSION = 'v1.04';
 export const MAX_AGE_MS = 150_000;
 
 export function readWindows(result, now = Date.now()) {
@@ -56,7 +56,7 @@ export function formatFooter(line, snapshot, columns, now = Date.now()) {
   if (!isFooter(line)) return null;
   const fresh = snapshot && now - snapshot.updatedAt <= MAX_AGE_MS && now >= snapshot.updatedAt;
   const firstQuota = line.search(/\b(?:5h|weekly)\s+\d+%\s+left/);
-  const model = line.slice(0, firstQuota).trim().replace(/[·|]\s*$/, '').trim().split(/\s*[·|]\s*/).join('');
+  const model = line.slice(0, firstQuota).trim().replace(/[·|]\s*$/, '').trim().split(/\s*[·|]\s*/).join(' ');
   const quotas = [...line.matchAll(/\b(5h|weekly)\s+(\d+)%\s+left/g)].map(([, label, remaining]) => {
     const text = `${label} ${remaining}%`;
     if (!fresh) return text;
@@ -70,9 +70,8 @@ export function formatFooter(line, snapshot, columns, now = Date.now()) {
   const fields = [...quotas, context];
   let output = [model, ...fields].filter(Boolean).join(' | ');
   const max = Math.max(0, columns - 3); // Two left-padding cells, one wrap guard.
-  // Keep full labels; only reduce spacing when the terminal is too narrow.
-  if (width(output) > max) output = output.replace(/(\d+)d (\d+)h (\d+)m/g, '$1d$2h$3m').replace(/(\d+)h (\d+)m/g, '$1h$2m');
-  if (width(output) > max) output = output.replace(/ \| /g, '|');
+  // Preserve the requested time-unit and separator spaces at every width.
+  // Shorten only the model when necessary to keep the quota fields visible.
   if (width(output) > max && model) {
     const suffix = output.slice(model.length);
     const budget = max - width(suffix);
