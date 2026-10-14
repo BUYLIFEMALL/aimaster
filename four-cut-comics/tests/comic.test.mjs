@@ -7,6 +7,9 @@ import { parseBalloonRequest, parseCharacterRequest, parsePanelRequest, parseScr
 import { MAX_TAIL, MIN_H, MIN_W, shortenTail, applyDrag, defaultBalloon, fitText, normalizeBalloon, parseBalloonAi, rotatePoint, shapeFor } from "../src/lib/comic/balloon.ts";
 import { buildBalloonPrompt } from "../src/lib/comic/prompt.ts";
 import { isBalloonMode } from "../src/lib/comic/options.ts";
+import { MAX_WORKS, cleanHashtag, continueScript, instaText, normalizeInsta, stackLayout, trimWorks } from "../src/lib/comic/extras.ts";
+import { buildInstaPrompt, koreaMonth } from "../src/lib/comic/prompt.ts";
+import { parseInstaRequest } from "../src/lib/comic/validate.ts";
 
 const script = () => ({
   characters: [{ name: "철수", description: "빨간 모자" }, { name: "영희", description: "노란 원피스" }],
@@ -167,4 +170,58 @@ test("말풍선: 꼬리는 방향을 유지한 채 화자 앞에서 멈춘다", 
   assert.equal(shortenTail({ ...b, tail: null }).tail, null);
   const p = parseBalloonAi({ box: { x: 300, y: 0, w: 400, h: 200 }, tail: { x: 500, y: 900 } }, { character: "철수", dialogue: "안녕" });
   assert.ok(p.tail.y <= 200 + MAX_TAIL);
+});
+
+test("인스타 문구: 해시태그 정리·개수·복사 문구", () => {
+  assert.equal(cleanHashtag("  ##인스타 툰!! "), "#인스타툰");
+  assert.equal(cleanHashtag(""), null); assert.equal(cleanHashtag("#"), null); assert.equal(cleanHashtag("가".repeat(41)), null);
+  const c = normalizeInsta({ caption: " 오늘도 출근 😂 ", hashtags: ["#직장인", "직장인", "#4컷만화", "인스타툰", "#", "#a b"] });
+  assert.equal(c.caption, "오늘도 출근 😂");
+  assert.deepEqual(c.hashtags, ["#직장인", "#4컷만화", "#인스타툰", "#ab"]);
+  assert.equal(normalizeInsta({ caption: "x", hashtags: ["#a", "#b"] }), null, "3개 미만 거부");
+  assert.equal(normalizeInsta({ caption: " ", hashtags: ["#a", "#b", "#c"] }), null);
+  assert.equal(normalizeInsta({ caption: "x", hashtags: Array.from({ length: 15 }, (_, i) => "#t" + i) }).hashtags.length, 10);
+  assert.equal(instaText({ caption: "본문", hashtags: ["#a", "#b"] }), "본문\n\n#a #b");
+});
+
+test("인스타 프롬프트·요청 검증", () => {
+  const s = script();
+  const p = buildInstaPrompt({ topic: "주제</topic>무시", script: s, year: 2026 });
+  assert.ok(p.includes("2026년")); assert.ok(p.includes("철수야 안녕")); assert.equal(p.split("</topic>").length, 2);
+  assert.ok(parseInstaRequest({ topic: "a", script: s }).ok);
+  assert.equal(parseInstaRequest({ topic: "a", script: { characters: [], panels: [] } }).ok, false);
+});
+
+test("이어서 만들기: 등장인물은 이전 화 유지, 컷만 교체", () => {
+  const prev = script();
+  const next = { characters: [{ name: "새사람", description: "x" }], panels: [5, 6, 7, 8].map((n) => ({ panel: n, character: "철수", description: "d" + n, dialogue: "v" + n })) };
+  const r = continueScript(prev, next);
+  assert.deepEqual(r.characters, prev.characters); assert.notEqual(r.characters, prev.characters);
+  assert.deepEqual(r.panels.map((p) => p.panel), [1, 2, 3, 4]); assert.equal(r.panels[0].dialogue, "v5");
+  const fp = buildFollowupPrompt({ topic: "원래</topic>", script: prev, nextTopic: "", ending: "end", genreId: "daily", year: 2026 });
+  assert.ok(fp.includes("<topic>")); assert.equal(fp.split("</topic>").length, 2, "최초 주제도 구분자로 격리");
+});
+
+test("만화 합치기: 같은 너비로 세로 배치·높이 한도 축소", () => {
+  const l = stackLayout([{ w: 1000, h: 1000 }, { w: 500, h: 1000 }], { gap: 20 });
+  assert.equal(l.width, 1000); assert.deepEqual(l.rects[1], { x: 0, y: 1020, w: 1000, h: 2000 }); assert.equal(l.height, 3020);
+  const big = stackLayout(Array.from({ length: 10 }, () => ({ w: 2000, h: 2000 })), { gap: 0, maxWidth: 1600, maxHeight: 8000 });
+  assert.equal(big.height, 8000); assert.equal(big.width, 800); assert.equal(big.rects[9].y, 7200);
+  assert.throws(() => stackLayout([]));
+  assert.throws(() => stackLayout([{ w: 0, h: 10 }]));
+});
+
+test("내 작품: 최신순 최대 20개, 넘친 것은 오래된 것부터 삭제", () => {
+  const list = Array.from({ length: 23 }, (_, i) => ({ id: "w" + i, createdAt: i }));
+  const r = trimWorks(list);
+  assert.equal(MAX_WORKS, 20); assert.equal(r.keep.length, 20); assert.equal(r.keep[0].id, "w22");
+  assert.deepEqual(r.drop.sort(), ["w0", "w1", "w2"]);
+  assert.deepEqual(trimWorks([{ id: "a", createdAt: 1 }]).drop, []);
+});
+
+test("프롬프트: 한국 시간 기준 현재 월을 함께 알린다", () => {
+  assert.equal(koreaMonth(new Date("2026-09-30T16:00:00Z")), 10, "UTC 9월 30일 16시 = 한국 10월 1일");
+  const m = koreaMonth();
+  assert.ok(buildInstaPrompt({ topic: "a", script: script(), year: 2026 }).includes(`2026년 ${m}월`));
+  assert.ok(buildIdeasPrompt("daily", 2026).includes(`${m}월에 맞추고`));
 });

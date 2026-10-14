@@ -3,8 +3,14 @@ import type { Script } from "./script";
 
 // 서버에서만 호출한다. 클라이언트는 옵션 id와 주제·대사 같은 자유 텍스트만 보낸다.
 
-const YEAR_RULE = (year: number) =>
-  `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 연도·시사·정보가 나오면 반드시 ${year}년(당해 연도)을 기준으로 하고 과거 연도로 퇴행하지 마세요.]`;
+/** 한국 시간 기준 현재 월(1~12). 계절 표현이 실제 시기와 어긋나지 않게 프롬프트에 넣는다 */
+export function koreaMonth(now = new Date()): number {
+  return Number(new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", month: "numeric" }).format(now));
+}
+
+// 연도만 주면 모델이 계절을 임의로 지어내(10월인데 "2026년 봄") 현재 월도 함께 알린다(v1.04)
+const YEAR_RULE = (year: number, month = koreaMonth()) =>
+  `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 연도·시사·정보가 나오면 반드시 ${year}년(당해 연도)을 기준으로 하고 과거 연도로 퇴행하지 마세요. 지금은 ${year}년 ${month}월이므로 계절·날씨·시기 표현은 ${month}월에 맞추고, 연도나 계절을 대사·문구에 굳이 넣을 필요는 없습니다.]`;
 
 const KOREAN_RULE =
   "인물은 별도 지시가 없으면 한국인(동아시아인) 외모와 한국 일상 배경으로 설정하세요. 주제가 해외 인물·장소를 명시하는 경우에만 그 맥락을 따릅니다.";
@@ -69,7 +75,8 @@ ${YEAR_RULE(o.year)}
 당신은 4컷 만화의 후속편 시나리오 작가입니다. 아래 기존 만화 정보를 바탕으로 자연스럽게 이어지는 다음 4컷의 대본을 생성해주세요.
 
 # 기존 만화 정보
-* 최초 주제: ${o.topic}
+* 최초 주제:
+${quoted("topic", o.topic)}
 * 이전 4컷 요약:
 ${prev}
 * 등장인물(절대 변경 금지, 새 인물 추가 금지):
@@ -149,4 +156,21 @@ export function buildBalloonPrompt(o: { dialogue: string; speaker: string; thoug
 6. Reply with JSON only: {"box":{"x":0,"y":0,"w":0,"h":0},"tail":{"x":0,"y":0},"shape":"speech"}
 
 ${quoted("dialogue", o.dialogue)}`;
+}
+
+/** 완성된 4컷 대본으로 인스타그램 게시 문구를 만든다(JSON). 당해 연도·한국어 기준 */
+export function buildInstaPrompt(o: { topic: string; script: Script; year: number }): string {
+  const lines = o.script.panels.map((p) => `컷 ${p.panel}: [${p.character}] ${p.dialogue} (${p.description})`).join("\n");
+  return `당신은 인스타그램 인스타툰 계정을 운영하는 SNS 마케터입니다. 아래 4컷 만화를 올릴 때 쓸 게시 문구를 한국어로 작성하세요.
+${YEAR_RULE(o.year)}
+
+# 만화 정보
+${quoted("topic", o.topic)}
+${lines}
+
+# 규칙
+1. caption: 만화의 재미 포인트를 살린 2~4문장. 이모지는 1~3개만 자연스럽게 쓰고, 마지막 문장은 독자가 댓글로 답하고 싶어지는 질문으로 끝내세요. 결말(마지막 컷 반전)은 직접 말하지 마세요.
+2. hashtags: 주제·장르·인스타툰 관련 해시태그 5~10개. 각 항목은 #으로 시작하는 한 단어(띄어쓰기 없음)입니다.
+3. 특정 실존 인물·브랜드를 비방하지 마세요.
+4. JSON 형식으로만 응답하세요. 응답 형식: {"caption":"","hashtags":["#",""]}`;
 }

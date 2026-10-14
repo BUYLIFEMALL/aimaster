@@ -1,9 +1,11 @@
 import { Studio } from "@/components/studio/Studio";
+import { requireProgramAccess } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default function StudioPage() {
+export default async function StudioPage() {
+  const user = await requireProgramAccess();
   return (
     <>
       <div className="page-heading">
@@ -11,7 +13,7 @@ export default function StudioPage() {
         <h1>AI 4컷 만화 자동화</h1>
         <p>주제를 입력하면 AI가 대본과 캐릭터, 컷 그림을 만들고 대사까지 얹어 4컷 만화를 완성합니다.</p>
       </div>
-      <Studio />
+      <Studio userId={user.id} />
     </>
   );
 }

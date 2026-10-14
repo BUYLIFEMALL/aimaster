@@ -4,6 +4,7 @@ import type { Panel } from "./script";
 import { SCALE, fitText, rotatePoint, textAreaRatio } from "./balloon";
 import type { Balloon, BalloonShape } from "./balloon";
 import { isBalloonMode } from "./options";
+import { stackLayout } from "./extras";
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -246,6 +247,45 @@ export async function layoutPanels(urls: string[], layout: SaveLayout): Promise<
     ctx.drawImage(im, x, y, cw, ch);
   });
   return c.toDataURL("image/png");
+}
+
+/** 이미지 여러 장을 세로로 이어 한 장으로(만화 합치기). 흰 배경 PNG 데이터 URL */
+export async function stackImages(urls: string[], gapRatio = 0.02): Promise<string> {
+  const imgs = await Promise.all(urls.map(loadImage));
+  const width = Math.min(1600, Math.max(...imgs.map((i) => i.naturalWidth)));
+  const plan = stackLayout(imgs.map((i) => ({ w: i.naturalWidth, h: i.naturalHeight })), { gap: Math.round(width * gapRatio) });
+  const c = document.createElement("canvas");
+  c.width = plan.width;
+  c.height = plan.height;
+  const ctx = context(c);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  imgs.forEach((im, i) => { const r = plan.rects[i]; ctx.drawImage(im, r.x, r.y, r.w, r.h); });
+  return c.toDataURL("image/png");
+}
+
+/** 이미지를 긴 변 maxEdge 이하 JPEG 데이터 URL로(내 작품 보관용 용량 절약) */
+export async function toJpeg(url: string, maxEdge = 1400, quality = 0.85): Promise<string> {
+  const img = await loadImage(url);
+  const s = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.naturalWidth * s));
+  c.height = Math.max(1, Math.round(img.naturalHeight * s));
+  const ctx = context(c);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", quality);
+}
+
+/** 사용자가 고른 이미지 파일을 데이터 URL로 */
+export function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(new Error(`파일을 읽지 못했습니다: ${file.name}`));
+    r.readAsDataURL(file);
+  });
 }
 
 /** 캐릭터 시트를 서버로 보낼 때 긴 변 768px JPEG로 줄인다(요청 크기 한도) */

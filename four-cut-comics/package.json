@@ -1,6 +1,6 @@
 {
   "name": "four-cut-comics",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3031",

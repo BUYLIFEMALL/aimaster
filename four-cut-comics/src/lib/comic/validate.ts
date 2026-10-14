@@ -85,3 +85,12 @@ export function parseBalloonRequest(b: Record<string, unknown>): Parsed<BalloonR
   if (o.data.length < 100 || o.data.length > MAX_SHEET_B64 || !B64.test(o.data)) return fail("컷 그림 데이터가 올바르지 않습니다.");
   return { ok: true, value: { dialogue, character, image: { data: o.data, mimeType: o.mimeType } } };
 }
+
+export interface InstaRequest { topic: string; script: Script }
+
+export function parseInstaRequest(b: Record<string, unknown>): Parsed<InstaRequest> {
+  const topic = str(b.topic ?? "", MAX_TOPIC)?.trim() ?? "";
+  const script = normalizeScript(b.script);
+  if (!script) return fail("대본이 올바르지 않습니다.");
+  return { ok: true, value: { topic, script } };
+}

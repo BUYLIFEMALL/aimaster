@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Download, Lightbulb, MessageSquare, RefreshCw, Sparkles, Upload } from "lucide-react";
+import { ArrowLeft, BookmarkPlus, Copy, Download, Layers, Lightbulb, MessageSquare, RefreshCw, Sparkles, Upload } from "lucide-react";
 import {
   BUBBLES, DEFAULT_IMAGE_MODEL, FORMATS, GENRES, GENRE_LABELS, IMAGE_MODELS, NO_SPEAKER, STYLES, THOUGHT_SPEAKER, isBalloonMode, isImageModel,
 } from "@/lib/comic/options";
@@ -9,7 +9,12 @@ import { defaultBalloon } from "@/lib/comic/balloon";
 import type { Balloon } from "@/lib/comic/balloon";
 import { BalloonEditor } from "./BalloonEditor";
 import type { Script } from "@/lib/comic/script";
-import { composePanel, downloadUrl, fileToSheet, layoutPanels, shrinkForUpload } from "@/lib/comic/draw";
+import { composePanel, downloadUrl, fileToSheet, layoutPanels, shrinkForUpload, toJpeg } from "@/lib/comic/draw";
+import { continueScript, instaText } from "@/lib/comic/extras";
+import type { InstaCopy } from "@/lib/comic/extras";
+import { saveWork } from "@/lib/comic/gallery";
+import { MergeTool } from "./MergeTool";
+import type { MergeItem } from "./MergeTool";
 import type { SaveLayout } from "@/lib/comic/draw";
 
 type Step = 1 | 2 | 3 | 4;
@@ -30,7 +35,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 const imgUrl = (i: { data: string; mimeType: string }) => `data:${i.mimeType};base64,${i.data}`;
 const EMPTY4 = <T,>(): (T | null)[] => [null, null, null, null];
 
-export function Studio() {
+export function Studio({ userId }: { userId: string }) {
   const [step, setStep] = useState<Step>(1);
   const [styleId, setStyleId] = useState(STYLES[0].id);
   const [model, setModel] = useState<string>(DEFAULT_IMAGE_MODEL);
@@ -48,6 +53,15 @@ export function Studio() {
   const [placing, setPlacing] = useState<boolean[]>([false, false, false, false]);
   const [editing, setEditing] = useState<number | null>(null);
   const pending = useRef(new Set<number>());
+  // v1.04: 인스타 문구·이어서 만들기·만화 합치기·내 작품
+  const [insta, setInsta] = useState<InstaCopy | null>(null);
+  const [nextTopic, setNextTopic] = useState("");
+  const [ending, setEnding] = useState<"continue" | "end">("continue");
+  const [episode, setEpisode] = useState(1);
+  const [episodes, setEpisodes] = useState<MergeItem[]>([]);
+  const [mergeSeed, setMergeSeed] = useState<MergeItem[] | null>(null);
+  const [showMerge, setShowMerge] = useState(false);
+  const [savedEpisode, setSavedEpisode] = useState(0);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [needKey, setNeedKey] = useState(false);
@@ -82,6 +96,7 @@ export function Studio() {
       const r = await post<{ script: Script }>("/api/script", { kind: "script", genreId, topic, format });
       setScript(r.script); setSheets(r.script.characters.map(() => null)); setRaw([null, null, null, null]); setComposed([null, null, null, null]);
       setBalloons(EMPTY4<Balloon>()); setEditing(null);
+      setInsta(null); setEpisode(1); setEpisodes([]); setMergeSeed(null); setSavedEpisode(0);
       setStep(2);
     } catch (e) { fail(e, "대본을 만들지 못했습니다."); }
     finally { setBusy(""); }
@@ -211,6 +226,59 @@ export function Studio() {
       downloadUrl(url, `4컷만화-${layout}.png`);
     } catch (e) { fail(e, "저장하지 못했습니다."); }
   }
+  // ---- v1.04: 내 작품 저장·인스타 문구·이어서 만들기·연재 합치기 ----
+  const titleOf = () => (topic.trim() || script?.panels[0]?.dialogue || "4컷 만화").slice(0, 60);
+  async function gridJpeg() { return toJpeg(await layoutPanels(composed as string[], "grid")); }
+
+  async function saveToWorks() {
+    if (!script) return;
+    clearMsg(); setBusy("work");
+    try {
+      const r = await saveWork(userId, { title: titleOf(), episode, styleId, script, image: await gridJpeg() });
+      setSavedEpisode(episode);
+      setNotice(`[내 작품]에 저장했습니다(${episode}화).${r.dropped ? ` 20개를 넘어 가장 오래된 작품 ${r.dropped}개를 지웠습니다.` : ""}`);
+    } catch (e) { fail(e, "내 작품에 저장하지 못했습니다."); }
+    finally { setBusy(""); }
+  }
+
+  async function makeInsta() {
+    if (!script) return;
+    clearMsg(); setBusy("insta");
+    try { setInsta((await post<{ copy: InstaCopy }>("/api/insta", { topic, script })).copy); }
+    catch (e) { fail(e, "인스타 문구를 만들지 못했습니다."); }
+    finally { setBusy(""); }
+  }
+  async function copyInsta() {
+    if (!insta) return;
+    try { await navigator.clipboard.writeText(instaText(insta)); setNotice("인스타 문구를 복사했습니다."); }
+    catch { setError("복사하지 못했습니다. 글상자에서 직접 선택해 복사해 주세요."); }
+  }
+
+  /** 같은 등장인물·캐릭터 그림으로 다음 화 대본을 만든다. 지금 화의 바둑판 이미지는 연재 합치기용으로 보관 */
+  async function makeNextEpisode() {
+    if (!script) return;
+    clearMsg(); setBusy("followup");
+    try {
+      const r = await post<{ script: Script }>("/api/script", { kind: "followup", genreId, topic, script, nextTopic, ending });
+      const current = await gridJpeg();
+      setEpisodes((cur) => [...cur, { name: `${episode}화`, url: current }]);
+      setScript(continueScript(script, r.script));
+      setRaw([null, null, null, null]); setComposed([null, null, null, null]); setPanelErr([null, null, null, null]);
+      setBalloons(EMPTY4<Balloon>()); setEditing(null); setInsta(null); setMergeSeed(null); setNextTopic("");
+      setEpisode((n) => n + 1);
+      setNotice(`${episode + 1}화 대본을 만들었습니다. 등장인물과 캐릭터 그림은 그대로 다시 씁니다.`);
+      setStep(2);
+    } catch (e) { fail(e, "다음 화 대본을 만들지 못했습니다."); }
+    finally { setBusy(""); }
+  }
+
+  async function prepareSeriesMerge() {
+    clearMsg(); setBusy("merge");
+    try { setMergeSeed([...episodes, { name: `${episode}화`, url: await gridJpeg() }]); }
+    catch (e) { fail(e, "합칠 이미지를 준비하지 못했습니다."); }
+    finally { setBusy(""); }
+  }
+
   function saveEach() {
     (composed as string[]).forEach((u, i) => setTimeout(() => downloadUrl(u, `4컷만화-${i + 1}컷.png`), i * 250));
   }
@@ -218,6 +286,7 @@ export function Studio() {
   function restart() {
     setStep(1); setScript(null); setSheets([]); setRaw([null, null, null, null]); setComposed([null, null, null, null]); setPanelErr([null, null, null, null]);
     setBalloons(EMPTY4<Balloon>()); setEditing(null); clearMsg();
+    setInsta(null); setEpisode(1); setEpisodes([]); setMergeSeed(null); setSavedEpisode(0); setNextTopic("");
   }
 
   const stepper = (
@@ -286,13 +355,16 @@ export function Studio() {
           </label>
           <div className="actions">
             <button type="button" className="primary" onClick={makeScript} disabled={!!busy}><Sparkles size={15} />{busy === "script" ? "대본 만드는 중..." : "대본 생성하기"}</button>
+            <button type="button" onClick={() => setShowMerge((v) => !v)} aria-expanded={showMerge}><Layers size={15} />만화 합치기</button>
           </div>
+          {showMerge && <MergeTool />}
           <small className="muted">대본·그림 생성은 등록한 본인 Gemini 키 사용량으로 계산됩니다. 결과는 서버에 저장되지 않고 이 화면에만 있으니 저장 전에 새로고침하지 마세요.</small>
         </section>
       )}
 
       {step === 2 && script && (
         <section className="card cc-form">
+          {episode > 1 && <p className="notice">{episode}화 — 이전 화와 같은 등장인물·캐릭터 그림을 씁니다. 대본을 확인하고 [캐릭터 생성하고 계속하기]를 누르면 그림 생성 없이 바로 넘어갑니다.</p>}
           <h2 className="cc-h">등장인물</h2>
           {script.characters.map((c, i) => (
             <div key={i} className="cc-char">
@@ -361,7 +433,7 @@ export function Studio() {
 
       {step === 4 && script && (
         <section className="card cc-form">
-          <h2 className="cc-h">만화 생성</h2>
+          <h2 className="cc-h">만화 생성{episode > 1 ? ` — ${episode}화` : ""}</h2>
           <div className="actions">
             <button type="button" className="primary" onClick={() => makePanels()} disabled={!!busy || missing === 0}>
               {busy === "panels" ? "그리는 중..." : missing === 4 ? "모든 이미지 한번에 생성" : missing === 0 ? "모든 컷 완성" : "남은 이미지 생성"}
@@ -419,8 +491,37 @@ export function Studio() {
                 <button type="button" onClick={() => saveLayout("horizontal")}><Download size={14} />가로 연속</button>
                 <button type="button" onClick={() => saveLayout("vertical")}><Download size={14} />세로 연속</button>
                 <button type="button" onClick={saveEach}><Download size={14} />개별 파일 4장</button>
+                <button type="button" onClick={saveToWorks} disabled={!!busy || savedEpisode === episode}><BookmarkPlus size={14} />{busy === "work" ? "저장 중..." : savedEpisode === episode ? "내 작품에 저장됨" : "내 작품에 저장"}</button>
               </div>
-              <small className="muted">개별 파일은 브라우저가 여러 파일 다운로드 허용을 물으면 허용해 주세요.</small>
+              <small className="muted">개별 파일은 브라우저가 여러 파일 다운로드 허용을 물으면 허용해 주세요. [내 작품]은 이 브라우저에만 최근 20개까지 보관됩니다.</small>
+            </div>
+          )}
+          {allDone && (
+            <div className="cc-save">
+              <b className="cc-label">인스타 게시 문구</b>
+              <div className="actions">
+                <button type="button" onClick={makeInsta} disabled={!!busy}><Sparkles size={14} />{busy === "insta" ? "문구 만드는 중..." : insta ? "다시 만들기" : "인스타 문구 만들기"}</button>
+                {insta && <button type="button" onClick={copyInsta}><Copy size={14} />복사</button>}
+              </div>
+              {insta && <textarea className="cc-insta" readOnly rows={7} value={instaText(insta)} aria-label="인스타 게시 문구" />}
+            </div>
+          )}
+          {allDone && (
+            <div className="cc-save">
+              <b className="cc-label">이어서 만들기 ({episode + 1}화)</b>
+              <label>다음 화 주제 (비우면 AI가 이야기를 이어서 정합니다)
+                <textarea rows={2} value={nextTopic} maxLength={2000} onChange={(e) => setNextTopic(e.target.value)} placeholder="예: 다음 날 팀장이 커피를 두 잔 사 온다" />
+              </label>
+              <div className="chips">
+                <button type="button" className={`chip${ending === "continue" ? " on" : ""}`} onClick={() => setEnding("continue")}>계속 (다음 화가 궁금하게)</button>
+                <button type="button" className={`chip${ending === "end" ? " on" : ""}`} onClick={() => setEnding("end")}>완결 (이야기 마무리)</button>
+              </div>
+              <div className="actions">
+                <button type="button" className="primary" onClick={makeNextEpisode} disabled={!!busy}><Sparkles size={14} />{busy === "followup" ? "다음 화 대본 만드는 중..." : `${episode + 1}화 대본 만들기`}</button>
+                {episodes.length > 0 && <button type="button" onClick={prepareSeriesMerge} disabled={!!busy}><Layers size={14} />{busy === "merge" ? "준비 중..." : `1~${episode}화 세로로 합치기`}</button>}
+              </div>
+              <small className="muted">지금 화는 다음 화로 넘어갈 때 연재 합치기용으로 이 화면에만 보관됩니다. 남기려면 먼저 [내 작품에 저장]을 눌러 주세요.</small>
+              {mergeSeed && <MergeTool key={mergeSeed.length} seed={mergeSeed} title="연재 합치기" />}
             </div>
           )}
           <div className="actions">
