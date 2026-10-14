@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — stepmail·카카오톡 뉴스레터 패키지 보안 업데이트 (각 v1.07, 주인님 승인 후 배포)
+
+- `kakao-auto-posting`(폴더 `kakao_auto_poster`): next 16.2.11→16.4.0, nodemailer 9→10.1.1, audit fix → 운영 의존성 취약점 **5→0**(개발용 eslint 안 5건만 남음).
+- `stepmail`: next 14.2.35→**15.5.27**+React 19(params·searchParams Promise 대응 3파일), tiptap 3.32.0(편집기 XSS), nodemailer 6→10.1.1, audit fix → 운영 의존성 취약점 **37→2**(Next 15 내장 postcss 8.4.31 — 우리 CSS만 처리해 실사용 위험 낮음, Next 16 이전 시 해소).
+- 검수: 빌드, 로컬 next start(로그인 200·보호 화면 307·API 401), nodemailer 메일 생성(발송 없음), 프로덕션 배포·운영 같은 확인·로그인 화면 렌더링. vercel.json cron 변경 없음, 실제 발송 없음. 로그인 상태 화면은 미확인(엣지가 두 vercel.app 주소에 로그인 안 됨).
+- **정정**: 두 프로그램의 `AGENTS.md`에 "Git push·프로덕션 배포 전 사전 승인" 규칙이 있는데, 같은 날 앞선 v1.06(xlsx 교체)은 이를 확인하지 못하고 승인 없이 배포했다(변경은 xlsx뿐, cron 그대로). v1.07은 승인받고 배포.
+
 ## 2026-10-15 Claude Code(보조 계정) — 엑셀 합치기 v1.02(큰 파일·Worker), stepmail·카카오 엑셀 라이브러리 교체
 
 - `file-merge` v1.02: 큰 파일 실측(엑셀 20만 행 32MB — 읽기 중 약 4.4초·저장 중 7.3초 화면 멈춤) → 엑셀 원본·처리를 백그라운드(Web Worker)로 옮겨 **멈춤 0**(읽기+미리보기 5.5초, 저장 7.7초, 나누기 10만 행 1~2초). 20만 행에서 나던 "Maximum call stack size exceeded"(`Math.max(...행)`) 수정. 텍스트 30MB는 원래 1초 안팎. FREE 배지는 주인님 결정으로 **달지 않음**.

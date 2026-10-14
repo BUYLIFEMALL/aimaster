@@ -31,11 +31,13 @@ const STATUS_FILTERS = [
 type StatusFilterKey = (typeof STATUS_FILTERS)[number]["key"];
 const SEND_COUNT_FILTER_KEYS = ["sent_1", "sent_2", "sent_3", "sent_4", "sent_5"] as const;
 
+// Next 15부터 searchParams는 Promise다(v1.07)
 export default async function LeadsPage({
-  searchParams,
+  searchParams: sp,
 }: {
-  searchParams: { page?: string; status?: string; limit?: string };
+  searchParams: Promise<{ page?: string; status?: string; limit?: string }>;
 }) {
+  const searchParams = await sp;
   const user = await requireProgramAccess();
   const supabase = await createClient();
 

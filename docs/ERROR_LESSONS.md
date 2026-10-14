@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — 서브프로젝트 AGENTS.md의 "사전 승인" 규칙을 배포 전에 확인하지 않음 (stepmail·kakao_auto_poster v1.06)
+- 증상: 루트 지침(작업 끝까지 배포)만 보고 stepmail·kakao_auto_poster를 승인 없이 푸시·배포 → 두 폴더 `AGENTS.md`에는 "Git push·실제 서비스 배포(Vercel 프로덕션)·실제 발송·cron 활성화는 사전 승인 필수"가 있었다(실제 메일·카카오 발송 위험 때문) → 원인: 처음 손대는 서브프로젝트의 `AGENTS.md`를 작업 전에 읽지 않음 → 다음부터: **서브프로젝트를 고치기 전에 그 폴더 `AGENTS.md`·`CLAUDE.md`의 승인 규칙을 먼저 확인**하고, 루트보다 엄격하면 그 규칙을 따른다. 점검 명령: `grep -n "사전 승인\|승인 없이 금지" <폴더>/AGENTS.md`. 발송·cron이 있는 프로그램은 `vercel.json` 변경 여부도 함께 보고한다.
+- Next 14 → 15 이전 요점(stepmail): `params`·`searchParams`는 Promise(`{ searchParams: sp }` 후 `const searchParams = await sp`로 본문 변경 최소화), `cookies()`·`headers()`도 await, React 19 필요. 로컬 검수는 공용 DB 값을 실행할 때만 환경변수로 넘겨 `next start` 후 보호 화면 307·API 401을 확인한다(파일로 비밀값을 만들지 않음).
+
 ## 2026-10-15 — 큰 배열을 함수 인자로 펼치면 Worker에서 스택이 넘친다 (file-merge v1.02)
 - 증상: 엑셀 20만 행을 Web Worker로 옮기자 미리보기에서 "Maximum call stack size exceeded" — 화면(메인)에서 처리하던 v1.01에서는 안 나던 오류 → 원인: `Math.max(0, ...aoa.map(r => r.length))`처럼 행 목록 전체를 함수 인자로 펼침. 인자 수가 수만~수십만이면 스택을 넘고, Worker는 스택이 더 작아 먼저 터진다 → 해결: 반복문으로 최댓값을 구함(`file-merge/src/lib/files/table.ts` `toTable`), 30만 행 회귀 테스트와 `node --stack-size=200`으로 확인 → 다음부터 확인: 행·파일 수에 비례하는 배열에는 `Math.max(...arr)`·`fn(...arr)`·`arr.push(...big)`을 쓰지 않는다(배열 리터럴 `[a, ...rows]`는 괜찮음). 큰 데이터 처리는 Worker로 옮길 때 화면과 Worker 사이에 큰 배열을 주고받지 말고 Worker에 보관한 채 작은 결과만 돌려준다(주고받는 복사 자체가 수 초 멈춤을 만든다).
 

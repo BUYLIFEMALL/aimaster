@@ -6,14 +6,16 @@ import { DraftEditor } from "@/components/drafts/DraftEditor";
 
 export const dynamic = "force-dynamic";
 
-export default async function DraftDetailPage({ params }: { params: { id: string } }) {
+// Next 15부터 params는 Promise다(v1.07 — Next 14 → 15.5.27 보안 업데이트)
+export default async function DraftDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
   const { data: draft } = await supabase
     .from("stepmail_email_drafts")
     .select("id, subject, body_html")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
     .single();
 

@@ -4,7 +4,9 @@ import { CampaignForm } from "@/components/campaigns/CampaignForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewCampaignPage({ searchParams }: { searchParams: { draftId?: string } }) {
+// Next 15부터 searchParams는 Promise다(v1.07)
+export default async function NewCampaignPage({ searchParams: sp }: { searchParams: Promise<{ draftId?: string }> }) {
+  const searchParams = await sp;
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
