@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Codex — 새 번역 프로그램 정밀 분석·개발 플랜 (`document-translator`, 구현 전)
+
+- 주인님 요청: Google AI Studio 앱 `9596827a-a428-415c-aaae-8547cbe137ea` 면밀한 분석·명칭 추천 → 개발 플랜 작성. 원본 "번역의 정석" 소스19개/77,015 bytes·HTML·실행 JS1,684,474 bytes 확보·대조.
+- 추천 이름 **AI 문서번역 자동화**(미확정), 대안 AI 번역검수 자동화/AI 다국어 번역 스튜디오. 후보 document-translator, 첫 출시 v1.01 계획. 프로그램 코드·DB 등록·스키마·배포 없음.
+- 실제 관찰:10개 언어·도움말·입력/수정·DOCX 저장 XML·375px·새로고침. 원문 수정 시 번역 유실, 제목/목록 DOCX 서식 유실, 모바일 검수 패널 압축 확인. AI 생성0회이며 실제 번역·역번역·파일 구조화 성공과 구분.
+- 계획: 본인 Gemini 서버 호출·명시적 AI 실행·문서 분할·3종 검수/역번역·수정본 보존·TXT/MD/DOCX/CSV·선택 저장/RLS·표준 흰색 UI, P01~P07. 운영 DDL/환경 변경은 미승인·미실행.
+- 재개: [CLI 인수인계](../document-translator/docs/CLI_HANDOFF.md) → [개발 플랜](../document-translator/docs/DEVELOPMENT_PLAN.md) → [원본 분석](../document-translator/docs/REFERENCE_ANALYSIS.md). 이름 확정·구현 지시를 확인하고 시작. 다른 CLI 파일·루트의 별도 미커밋 변경 보존.
+
 ## 2026-10-14 Claude Code — AI 인물사진 자동화 v1.11 (`portrait-photo`)
 
 - 추가: 일괄 머리 비율 검사 + 자동 확대 자르기(사진마다 AI 검사, 작게 나온 사진만 영역 지정, **AI N회 호출을 2단계로 확인**), 규격 17종(공식 확인한 아일랜드 715×951 이상·JPEG ≤9MB). 스위스·남아공은 디지털 규격 미확인으로 보류. DB 변경 없음.
