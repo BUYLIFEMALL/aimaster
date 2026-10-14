@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — AI 포토 리메이크 자동화(`photo-remake-studio`) v1.01 출시(이어받기)
+
+- 다른 CLI가 2026-10-14 미커밋으로 멈춘 구현을 주인님 지시로 이어받아 출시: 테스트 17/17·빌드, 주인님 승인 후 공용 연결 환경변수 3종, DB(programs·요금제 3종·VIP 자동 부여)·새 썸네일·도메인 https://photo-remake-studio.buylife.xyz·배포·활성화. **남은 일: 로그인한 일반 회원의 실제 복원/합성 생성 검수(보조 계정 엣지 미연결로 미실행)** — `photo-remake-studio/docs/RELEASE_CHECKS.md`, 작업 목록 A3.
+
 ## 2026-10-15 Claude Code(보조 계정) — 세션 인수인계 문서(새벽 작업분)
 
 - `file-merge` 신규 v1.01→v1.02(큰 파일 Worker 이전), stepmail·카카오 xlsx 교체(v1.06)·보안 업데이트(v1.07, 승인 후 배포), 승인 규칙 미확인 사고 정정, 이어서 작업하는 법: [HANDOFF_CLAUDE_SESSION_2026-10-15_ACCOUNT2.md](HANDOFF_CLAUDE_SESSION_2026-10-15_ACCOUNT2.md). 남은 일은 [WORK_QUEUE_2026-10-15.md](WORK_QUEUE_2026-10-15.md). 진행 중인 미완성 작업 없음.
