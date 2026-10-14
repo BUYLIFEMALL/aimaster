@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — 신규 프로그램: AI 인물사진 자동화 (`portrait-photo` v1.01)
+
+- 참고 원본: AI Studio "Cinematic Portrait Studio 2"(소스 41개 파일 전수 분석). 코드·문구·브랜드 복제 없이 기능 구조만 참고. 기존 프로그램과 비교해 동일 기능 없음(banana-canvas 증명사진 1기능만 부분 중복).
+- 구현: 촬영 목적 5종·옵션 조합·보정 4종, 본인 Gemini 키 생성(flash/pro), 브라우저 후처리(순백 정리·413×531·톤·가이드선), 브라우저 기록 20장(서버 저장 없음).
+- 등록: `programs`(이미지, 배지 new)·요금제 3종·VIP 접근·썸네일, https://portrait-photo.buylife.xyz. 검수: 단위 6/6, 빌드, 실제 생성(flash 9초·pro 19초), 운영 화면 전체 흐름 확인(테스트 기록 삭제).
+- 남은 일: 일반 회원 로그인 확인, v1.02 후보. 상세: [portrait-photo/docs/CLI_HANDOFF.md](../portrait-photo/docs/CLI_HANDOFF.md), 한 장 요약: [docs/HANDOFF_PORTRAIT_PHOTO_2026-10-14.md](HANDOFF_PORTRAIT_PHOTO_2026-10-14.md)
+
 ## 2026-10-14 Claude Code — AI 종합 성격 진단 자동화 v1.04 (`personality-suite`)
 
 - 추가: 종합 프로필 검사별 반영 비중(제외·참고·중요·핵심) — 서버가 검증 후 제외 검사를 빼고 비중순으로 AI에 전달, 결과에 비중 표시. 프로필 화면의 검사 개수에 민감 검사(마음 상태)가 섞이던 문제 수정. DB 스키마 변경 없음.

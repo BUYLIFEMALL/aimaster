@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — 새 도메인 연결 직후 접속 실패, 원본 앱의 조용한 옵션 id 불일치 (portrait-photo v1.01)
+
+- 증상: `vercel domains add` 직후 `ERR_CONNECTION_CLOSED`(curl 35). / 원본 AI Studio 앱은 목적 프리셋이 없는 옵션 id를 가리켜, `find` 실패 시 이전 선택이 남아 옵션이 안 바뀜.
+- 원인: 새 서브도메인 인증서 발급에 수 분 걸림 / 문자열 id 참조를 검증 없이 `find`로만 처리.
+- 해결: `curl --retry 10 --retry-delay 10 --retry-all-errors`로 200을 확인한 뒤 Chrome 검수. 프리셋·옵션 id 일관성을 단위 테스트(`portrait-photo/tests/portrait.test.mjs`)로 고정. 영어 프롬프트에는 한국어 라벨 대신 영어 `name`을 쓴다(테스트가 잡음).
+- 다음부터 확인: 새 도메인 배포 직후 바로 화면 검수하지 말고 curl로 200부터 확인. 옵션 데이터가 id로 서로 참조되면 참조 무결성 테스트를 먼저 만든다.
+
 ## 2026-10-14 — 뼈대 복사 후 정규식 치환이 함수를 통째로 지우고, 셸 here-document가 따옴표로 깨짐 (personality-suite v1.01)
 
 - 증상: 복사한 `gemini.ts`의 import 정리를 정규식 한 번으로 하다가 `generatePlain` 함수가 함께 사라져 `tsc`에서 뒤늦게 발견. 한글+따옴표가 섞인 긴 Bash here-document는 `unexpected EOF`로 통째로 실패해 일부만 적용된 상태가 됨.

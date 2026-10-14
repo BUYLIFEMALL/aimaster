@@ -1,0 +1,332 @@
+"use client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Download, Image as ImageIcon, Loader2, Sparkles, Upload } from "lucide-react";
+import {
+  ASPECTS, BACKGROUND, CAMERA, COLOR, FILM, LIGHTING, OUTFIT, POSE, RESOLUTIONS, RETOUCH, SKIN, byId,
+} from "@/lib/portrait/options";
+import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
+import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
+import type { Purpose } from "@/lib/portrait/purposes";
+import { LICENSE, toneFilter } from "@/lib/portrait/post";
+import { downloadBlob, makeThumb, prepareInput, renderLicense, renderPng, whitenDataUrl } from "@/lib/portrait/canvas";
+import { addHistory } from "@/lib/portrait/history";
+import { GuideOverlay } from "./GuideOverlay";
+
+const OUTFIT_CATS = [
+  { id: "all", label: "전체" }, { id: "formal", label: "포멀" }, { id: "casual", label: "캐주얼" },
+  { id: "editorial", label: "화보" }, { id: "cozy", label: "편안한" },
+] as const;
+
+function Section({ n, title, sub, children }: { n?: number; title: string; sub?: string; children: React.ReactNode }) {
+  return (
+    <section className="card st-sec">
+      <div className="st-sec-head">{n !== undefined && <span className="gd-num">{n}</span>}<h2>{title}</h2></div>
+      {sub && <p className="muted">{sub}</p>}
+      {children}
+    </section>
+  );
+}
+
+function Chip({ on, onClick, children, title }: { on: boolean; onClick: () => void; children: React.ReactNode; title?: string }) {
+  return <button type="button" className={on ? "chip on" : "chip"} aria-pressed={on} onClick={onClick} title={title}>{children}</button>;
+}
+
+export function Studio({ userId }: { userId: string }) {
+  const first = PURPOSES[0];
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selfie, setSelfie] = useState(false);
+  const [confirmOwn, setConfirmOwn] = useState(false);
+
+  const [purposeId, setPurposeId] = useState<PurposeId>(first.id);
+  const [aspect, setAspect] = useState<AspectRatio>(first.aspect);
+  const [poseId, setPoseId] = useState(first.poseId);
+  const [lightingId, setLightingId] = useState(first.lightingId);
+  const [backgroundId, setBackgroundId] = useState(first.backgroundId);
+  const [colorId, setColorId] = useState(first.colorId);
+  const [outfitId, setOutfitId] = useState(first.outfitId);
+  const [filmId, setFilmId] = useState(first.filmId);
+  const [cameraId, setCameraId] = useState(first.cameraId);
+  const [skinIds, setSkinIds] = useState<string[]>(first.skinIds);
+  const [symmetry, setSymmetry] = useState(first.symmetry);
+  const [guide, setGuide] = useState(first.guide);
+  const [whiten, setWhiten] = useState(first.whiteClean);
+  const [retouch, setRetouch] = useState<Retouch>(first.retouch);
+  const [outfitCat, setOutfitCat] = useState<(typeof OUTFIT_CATS)[number]["id"]>("all");
+
+  const [model, setModel] = useState<ModelLevel>("flash");
+  const [resolution, setResolution] = useState<Resolution>("1K");
+
+  const [result, setResult] = useState<string | null>(null);
+  const [cleaned, setCleaned] = useState<{ url: string; ratio: number } | null>(null);
+  const [cleaning, setCleaning] = useState(false);
+  const [mirrored, setMirrored] = useState(false);
+  const [brightness, setBrightness] = useState(0);
+  const [exposure, setExposure] = useState(0);
+  const [contrast, setContrast] = useState(0);
+
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [needKey, setNeedKey] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [saving, setSaving] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
+
+  const applyPurpose = useCallback((p: Purpose) => {
+    setPurposeId(p.id); setAspect(p.aspect); setPoseId(p.poseId); setLightingId(p.lightingId);
+    setBackgroundId(p.backgroundId); setColorId(p.colorId); setOutfitId(p.outfitId); setFilmId(p.filmId);
+    setCameraId(p.cameraId); setSkinIds(p.skinIds); setSymmetry(p.symmetry); setGuide(p.guide);
+    setWhiten(p.whiteClean); setRetouch(p.retouch); setMirrored(false);
+    setNotice(`‘${p.label}’에 맞는 촬영 설정을 적용했습니다.`);
+  }, []);
+
+  // 생성 결과가 바뀌거나 순백 정리를 켜면 배경 정리본을 만든다
+  useEffect(() => {
+    let alive = true;
+    if (!result || !whiten) { setCleaned(null); return; }
+    setCleaning(true);
+    whitenDataUrl(result)
+      .then((r) => { if (alive) setCleaned({ url: r.dataUrl, ratio: r.ratio }); })
+      .catch(() => { if (alive) setCleaned(null); })
+      .finally(() => { if (alive) setCleaning(false); });
+    return () => { alive = false; };
+  }, [result, whiten]);
+
+  const shown = whiten && cleaned ? cleaned.url : result;
+  const filter = useMemo(() => toneFilter(brightness, exposure, contrast), [brightness, exposure, contrast]);
+  const toneActive = brightness !== 0 || exposure !== 0 || contrast !== 0;
+
+  function onPick(f: File | null) {
+    if (!f) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(f.type)) { setError("PNG, JPG, WEBP 사진만 올릴 수 있습니다."); return; }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(f); setPreviewUrl(URL.createObjectURL(f)); setResult(null); setCleaned(null); setError(""); setNeedKey(false);
+  }
+
+  async function generate() {
+    if (!file) { setError("인물 사진을 먼저 올려 주세요."); return; }
+    if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
+    setBusy(true); setError(""); setNeedKey(false); setResult(null); setCleaned(null); setMirrored(false);
+    setBrightness(0); setExposure(0); setContrast(0);
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    try {
+      const input = await prepareInput(file, selfie);
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: ctrl.signal,
+        body: JSON.stringify({
+          image: { data: input.base64, mimeType: input.mimeType },
+          model, resolution, aspect,
+          options: { lightingId, cameraId, poseId, outfitId, filmId, colorId, backgroundId, skinIds, retouch, truePerspective: selfie, symmetry },
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setNeedKey(!!data.needKey); throw new Error(data.error || "이미지를 만들지 못했습니다."); }
+      const url = `data:${data.image.mimeType};base64,${data.image.data}`;
+      setResult(url);
+      const purpose = getPurpose(purposeId);
+      makeThumb(url).then((thumb) => addHistory(userId, {
+        id: crypto.randomUUID(), createdAt: Date.now(), purposeLabel: purpose?.label ?? "자유", aspect, model: data.model ?? model, thumb,
+      })).catch(() => undefined);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") setError("생성을 취소했습니다.");
+      else setError(e instanceof Error ? e.message : "이미지를 만들지 못했습니다.");
+    } finally {
+      setBusy(false); abortRef.current = null;
+    }
+  }
+
+  async function savePng() {
+    if (!shown) return;
+    setSaving("png");
+    try {
+      const blob = await renderPng(shown, { mirrored, filter, applyFilter: toneActive, resolution });
+      downloadBlob(blob, `인물사진-${aspect.replace(":", "x")}-${resolution}${whiten ? "-순백" : ""}.png`);
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  }
+
+  async function saveLicense() {
+    if (!shown) return;
+    setSaving("lic");
+    try {
+      const r = await renderLicense(shown, { mirrored, filter, applyFilter: toneActive });
+      downloadBlob(r.blob, `증명사진-${LICENSE.width}x${LICENSE.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
+      setNotice(`413×531px로 저장했습니다(${Math.round(r.bytes / 1024)}KB). 제출 기관의 사진 규정은 별도로 확인해 주세요.`);
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  }
+
+  const toggleSkin = (id: string) => setSkinIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : cur.length >= 6 ? cur : [...cur, id]));
+  const outfits = OUTFIT.filter((o) => outfitCat === "all" || o.category === outfitCat || o.category === "keep");
+  const purpose = getPurpose(purposeId);
+  const solidBg = backgroundId === "solid";
+
+  return (
+    <div className="studio">
+      <div className="notice st-own">
+        <label className="check">
+          <input type="checkbox" checked={confirmOwn} onChange={(e) => setConfirmOwn(e.target.checked)} />
+          <span>본인 사진이거나 사진 속 인물의 사용 동의를 받았습니다. 타인·유명인의 사진을 무단으로 쓰지 않겠습니다.</span>
+        </label>
+        <small>사진과 결과는 서버에 저장되지 않으며 이 브라우저에만 보관됩니다. AI 생성은 본인 Gemini 키 사용량으로 계산됩니다.</small>
+      </div>
+
+      <div className="purposes" role="tablist" aria-label="촬영 목적">
+        {PURPOSES.map((p) => (
+          <button key={p.id} type="button" role="tab" aria-selected={purposeId === p.id} className={purposeId === p.id ? "purpose on" : "purpose"} onClick={() => applyPurpose(p)}>
+            <span className="purpose-icon">{p.icon}</span>
+            <strong>{p.label}</strong>
+            <small>{p.badge}</small>
+          </button>
+        ))}
+      </div>
+      {purpose && <p className="muted st-purpose-desc">{purpose.desc}</p>}
+
+      <div className="st-grid">
+        <div className="st-col">
+          <Section n={1} title="인물 사진" sub="얼굴이 정면에 가깝고 밝은 사진을 권장합니다. PNG·JPG·WEBP">
+            <label className={previewUrl ? "dropzone has" : "dropzone"} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onPick(e.dataTransfer.files?.[0] ?? null); }}>
+              {previewUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={previewUrl} alt="업로드한 참조 사진" style={selfie ? { transform: "scaleX(-1)" } : undefined} />
+              ) : (
+                <span className="drop-empty"><Upload size={22} /><b>클릭하거나 사진을 끌어다 놓으세요</b><small>얼굴 위주 사진 권장</small></span>
+              )}
+              <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
+            </label>
+            <label className="check st-selfie">
+              <input type="checkbox" checked={selfie} onChange={(e) => setSelfie(e.target.checked)} />
+              <span><b>전면 카메라 셀카입니다</b><small>켜면 좌우를 뒤집어 남들이 보는 실제 방향으로 만들어요(가르마·점 위치 유지).</small></span>
+            </label>
+          </Section>
+
+          <Section title="자세·디테일 보정" sub="얼굴 생김새는 바꾸지 않고 자연스럽게만 다듬습니다.">
+            <div className="stack-sm">
+              {RETOUCH.map((r) => (
+                <label key={r.key} className="check">
+                  <input type="checkbox" checked={retouch[r.key]} onChange={(e) => setRetouch({ ...retouch, [r.key]: e.target.checked })} />
+                  <span><b>{r.label}</b><small>{r.desc}</small></span>
+                </label>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="모델·해상도" sub="프로·고해상도일수록 본인 키 요금이 늘어납니다.">
+            <div className="chips">
+              <Chip on={model === "flash"} onClick={() => setModel("flash")}>빠른 생성 (Flash)</Chip>
+              <Chip on={model === "pro"} onClick={() => setModel("pro")}>고품질 (Pro)</Chip>
+            </div>
+            <div className="chips" style={{ marginTop: 8 }}>
+              {RESOLUTIONS.map((r) => <Chip key={r} on={resolution === r} onClick={() => setResolution(r)} title={model === "flash" ? "해상도는 Pro에서 적용됩니다" : undefined}>{r}</Chip>)}
+            </div>
+            {model === "flash" && <small className="muted">해상도 선택은 Pro 모델에서만 적용됩니다.</small>}
+          </Section>
+
+          <Section title="이미지 비율">
+            <div className="chips">
+              {ASPECTS.map((a) => <Chip key={a.value} on={aspect === a.value} onClick={() => setAspect(a.value)} title={a.desc}>{a.value}</Chip>)}
+            </div>
+            <small className="muted">{byId(ASPECTS.map((a) => ({ ...a, id: a.value })), aspect)?.desc}</small>
+          </Section>
+        </div>
+
+        <div className="st-col st-center">
+          <section className="card st-result">
+            <div className="st-result-head">
+              <h2><Sparkles size={16} /> 생성 결과</h2>
+              <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}</span>
+            </div>
+            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / ") }}>
+              {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>보통 10~40초가 걸립니다.</small>
+                <button type="button" onClick={() => abortRef.current?.abort()}>취소</button></div>}
+              {shown ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={shown} alt="생성된 인물 사진" style={{ filter: toneActive ? filter : undefined, transform: mirrored ? "scaleX(-1)" : undefined }} />
+              ) : (
+                !busy && <div className="st-placeholder"><ImageIcon size={34} /><p>옵션을 고르고 [인물 사진 만들기]를 눌러 주세요.</p></div>
+              )}
+              {shown && guide && <GuideOverlay />}
+            </div>
+            {shown && (
+              <div className="st-tools">
+                <label className="check"><input type="checkbox" checked={whiten} onChange={(e) => setWhiten(e.target.checked)} /><span>배경 순백 정리 {cleaning ? "(처리 중…)" : whiten && cleaned ? `(배경 ${Math.round(cleaned.ratio * 100)}% 정리)` : ""}</span></label>
+                <label className="check"><input type="checkbox" checked={guide} onChange={(e) => setGuide(e.target.checked)} /><span>증명사진 가이드선</span></label>
+                <label className="check"><input type="checkbox" checked={mirrored} onChange={(e) => setMirrored(e.target.checked)} /><span>거울상으로 보기</span></label>
+              </div>
+            )}
+            {shown && whiten && cleaned && (cleaned.ratio < 0.03 || cleaned.ratio > 0.9) && (
+              <p className="notice">배경 영역을 정확히 찾지 못했을 수 있습니다({Math.round(cleaned.ratio * 100)}%). 결과를 눈으로 확인해 주세요.</p>
+            )}
+            {error && (
+              <p role="alert" className="lp-alert"><span>{error}{needKey && <> <a className="subtle-link" href="/settings">API키등록·플랫폼연동으로 이동</a></>}</span></p>
+            )}
+            {notice && !error && <p className="notice">{notice}</p>}
+            <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
+              {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
+            </button>
+            {shown && (
+              <div className="actions st-save">
+                <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
+                <button type="button" onClick={saveLicense} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}증명사진 {LICENSE.width}×{LICENSE.height}px</button>
+              </div>
+            )}
+          </section>
+
+          {shown && (
+            <Section title="세부 조정" sub="화면과 저장 파일에 함께 적용됩니다.">
+              {([["밝기", brightness, setBrightness], ["노출", exposure, setExposure], ["대비", contrast, setContrast]] as const).map(([label, v, set]) => (
+                <label key={label} className="slider"><span>{label}</span><input type="range" min={-50} max={50} value={v} onChange={(e) => set(Number(e.target.value))} /><b>{v}</b></label>
+              ))}
+              <button type="button" onClick={() => { setBrightness(0); setExposure(0); setContrast(0); }}>초기화</button>
+            </Section>
+          )}
+        </div>
+
+        <div className="st-col">
+          <Section n={2} title="조명">
+            <div className="chips">{LIGHTING.map((o) => <Chip key={o.id} on={lightingId === o.id} onClick={() => setLightingId(o.id)}>{o.label}</Chip>)}</div>
+          </Section>
+          <Section n={3} title="카메라·렌즈">
+            <div className="chips">{CAMERA.map((o) => <Chip key={o.id} on={cameraId === o.id} onClick={() => setCameraId(o.id)}>{o.label}</Chip>)}</div>
+          </Section>
+          <Section n={4} title="배경">
+            <div className="chips">{BACKGROUND.map((o) => <Chip key={o.id} on={backgroundId === o.id} onClick={() => setBackgroundId(o.id)}>{o.label}</Chip>)}</div>
+            {solidBg && (
+              <div className="colors" aria-label="배경 색">
+                {COLOR.map((c) => (
+                  <button key={c.id} type="button" className={colorId === c.id ? "swatch on" : "swatch"} style={{ background: c.hex }} title={c.label} aria-label={c.label} aria-pressed={colorId === c.id} onClick={() => setColorId(c.id)} />
+                ))}
+              </div>
+            )}
+          </Section>
+          <Section n={5} title="포즈·표정">
+            <div className="chips">{POSE.map((o) => <Chip key={o.id} on={poseId === o.id} onClick={() => setPoseId(o.id)}>{o.label}</Chip>)}</div>
+          </Section>
+          <Section n={6} title="복장">
+            <div className="chips cats">{OUTFIT_CATS.map((c) => <Chip key={c.id} on={outfitCat === c.id} onClick={() => setOutfitCat(c.id)}>{c.label}</Chip>)}</div>
+            <div className="outfits">
+              {outfits.map((o) => (
+                <button key={o.id} type="button" className={outfitId === o.id ? "outfit on" : "outfit"} aria-pressed={outfitId === o.id} onClick={() => setOutfitId(o.id)}>
+                  <b>{o.label}</b><small>{o.desc}</small>
+                </button>
+              ))}
+            </div>
+          </Section>
+          <Section n={7} title="피부 질감" sub="최대 6개까지 고를 수 있어요.">
+            <div className="chips">{SKIN.map((o) => <Chip key={o.id} on={skinIds.includes(o.id)} onClick={() => toggleSkin(o.id)}>{o.label}</Chip>)}</div>
+          </Section>
+          <Section n={8} title="필름 룩">
+            <div className="chips">{FILM.map((o) => <Chip key={o.id} on={filmId === o.id} onClick={() => setFilmId(o.id)}>{o.label}</Chip>)}</div>
+            <label className="check" style={{ marginTop: 10 }}>
+              <input type="checkbox" checked={symmetry} onChange={(e) => setSymmetry(e.target.checked)} />
+              <span><b>정면·좌우 대칭 구도</b><small>눈높이 수평, 양쪽 귀 노출, 어깨 수평의 증명사진식 구도</small></span>
+            </label>
+          </Section>
+        </div>
+      </div>
+    </div>
+  );
+}
