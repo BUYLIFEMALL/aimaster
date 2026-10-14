@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.16)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.17)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -73,3 +73,5 @@
 - 규격 확인(검색 2026-10-14, v1.15 이후): 일본 여권 온라인(MOFA)·한국 K-ETA(k-eta.go.kr)·이탈리아 여권(Polizia di Stato)은 공식 페이지 디지털 사양을 확인하지 못했고 제3자 사이트들의 수치(K-ETA 100KB/300KB, 600/700px 등)가 서로 달라 **추가하지 않음**. 공식 페이지(mofa.go.jp, k-eta.go.kr, poliziadistato.it)를 직접 열어 확인되면 추가한다. 코드 변경 없음(버전 v1.15 유지).
 - v1.16 추가: **일본 여권 온라인 신청 규격(`jp-passport`)** — 규격 20종. 공식 확인(외무성 mofa.go.jp, 2026-10-14, 브라우저로 열람; WebFetch·curl은 Akamai 403): `pass_2.html` 35×45mm 테두리 없음·무배경(흰색 권장)·6개월 이내·머리 34±2mm, `page24_002222.html` 온라인 업로드 JPG·마이나포털 600KB 이하·ORRnet 20KB~2MB, 픽셀 수 규정 없음 → 300dpi 환산 413×531로 표기. 단위 20/20·DB v1.16.
 - 규격 확인 보류 유지: K-ETA(k-eta.go.kr 공식 페이지에 사진 사양 문구 없음, FAQ만 확인), 이탈리아(poliziadistato.it 해당 페이지 404). 막힌 공식 사이트는 로그인된 Chrome으로 열면 읽을 수 있다.
+- v1.17 추가: **한국 K-ETA 안면 사진 규격(`kr-keta`)** — 규격 21종. 공식 확인: 법무부 출입국·외국인정책본부 K-ETA FAQ(immigration.go.kr 게시 PDF, 2026-10-14 열람) "안면 사진 JPG, 100KB 이하, 가로세로 700픽셀 이하, 앱 촬영 시 자동 보정", 여권 인적면 사진은 선택·JPG 300KB 이하. 비율·머리 비율 규정 없음 → 3:4 525×700 표기, 머리 검사 없음. 제3자의 600px·300KB 수치는 옛 자료로 판단.
+- 보류 유지: 태국 e-Visa(thaievisa.go.th 메인에 사양 없음·FAQ/사용자 매뉴얼 필요, 제3자는 3MB·1MB·120KB 불일치), 이탈리아(vistoperitalia 포털 업로드 안내 미확인), 솅겐·말레이시아·필리핀·브라질·UAE·튀르키예·스위스·남아공·네덜란드·스웨덴·오스트리아·체코.
