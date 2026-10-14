@@ -91,6 +91,10 @@
     - 번들 JS(`assets/*.js`)에서 이용 가이드 전문, 테마 컬러 팔레트, 프리셋 설정값, 프롬프트 템플릿, 내장 스크립트 코드 등을 통째로 추출하여 대조 분석하고 전체 구현 플랜을 먼저 수립해 보고한 후 구현한다. 전문은 루트 `CLAUDE.md` 핵심 원칙 14번.
 
 16. **관리자 정책 지침(회원 등급·권한·사용기간·핸드폰·프리미엄, 2026-10-13 주인님 지시)** — 확정 정책·화면 구성·DB 구조·점검 쿼리·남은 일은 [`docs/ADMIN_POLICY_GUIDELINES.md`](docs/ADMIN_POLICY_GUIDELINES.md)에 모여 있다(루트 `CLAUDE.md` 핵심 원칙 17번과 같은 내용). 이 영역을 건드리기 전에 읽고, 바뀐 내용은 그 문서에 추가만 한다.
+17. **주인님 계정 구분 — 메인 계정과 보조 계정 (2026-10-14 주인님 지시, 모든 CLI 공통).**
+    - **메인 계정: `buylifemall@gmail.com`** — 주인님 본인의 기준 계정이다. 사이트 유일한 관리자 계정이며, Git 커밋 작성자(BUYLIFE / buylifemall@gmail.com), GitHub(`BUYLIFEMALL`), Vercel(`buylifemall`, 팀 `buylife`), Supabase 공용 DB 운영이 모두 이 계정 기준이다.
+    - **보조 계정: `buylifemall1@gmail.com`** — Claude Code 로그인용 보조 계정일 뿐이다(설정 폴더 `.claude-account2`). 사이트 관리자·회원 계정이 아니고, 커밋 작성자·GitHub·Vercel·DB 운영 계정으로 쓰지 않는다.
+    - 계정 이름이 비슷하니 착오하지 않는다: 관리자 권한·커밋·배포·DB·문서에 적는 "주인님 계정"은 항상 `buylifemall@gmail.com`이다. 시험용 일반 회원 계정 `buylifemall@naver.com`과도 구분한다. 루트 `CLAUDE.md` 핵심 원칙 18번과 같은 내용이다.
 
 ## 2. 작업 자율성 규칙 (사용자가 명시적으로 확정한 워크플로우)
 
