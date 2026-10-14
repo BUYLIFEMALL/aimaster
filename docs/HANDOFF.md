@@ -8,6 +8,13 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — 신규 프로그램: AI 글쓰기 에디터 자동화 (`ai-writing-editor` v1.02)
+
+- 참고: AI Studio "매직 에디터 (Magic Editor)"(글쓰기 도구, 순수 클라이언트 앱) 소스 직접 분석. 이름은 주인님이 "AI 글쓰기 에디터 자동화"로 확정(올인원 그래픽의 이미지 "매직 에디터"와 별개).
+- 기능: 새 글 생성(형식 9·톤·분량·참고 파일·인터넷 검색+출처) / 기존 글 분석 / 에디터(문장 드래그 플로팅 툴바 5동작+직접 지시, 되돌리기 50, 자동 저장 30개) / 전체 글 분석 제안(분류 필터·적용 시점 위치 재탐색·모두 적용) / .md·.txt. 회원 본인 Gemini 키만.
+- 검수: 단위 11/11, 보이는 Chrome 14/14, 빌드, 실제 Gemini 호출 5종, 운영 화면 로그인 상태 생성·수정·분석(테스트 문서 삭제). 교훈: 사고(thinking) 토큰이 maxOutputTokens에 포함됨.
+- 등록: `programs`·요금제 3종·VIP 접근·썸네일, DB `ai_writing_editor_documents`. 남은 일·인수인계: [ai-writing-editor/docs/CLI_HANDOFF.md](../ai-writing-editor/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — AI 블로그 키워드 자동화 v1.02: 네이버 실계정 검증·빈출어 품질 개선
 
 - 주인님 안내: 네이버 API 키는 다른 프로그램에 이미 등록돼 있음 → 운영자 본인 계정(buylifemall@gmail.com)에 등록된 네이버 검색 API·검색광고 키로 상위 블로그·뉴스·트렌드·경쟁력 실측을 실호출해 확인(모두 정상). 앞 항목의 "네이버 3기능 모의 응답만 검증"은 이 항목으로 해소됨.

@@ -1778,3 +1778,9 @@
 - 증상: 새 프로그램에서 네이버 검색·데이터랩이 인증 실패 → 원인: 2026-07-31부터 신규 발급은 NAVER API HUB(NCP)이며 구 개발자센터 키는 2027-06-30까지 기존 신청자만 유효 → 해결: `blog-keyword/src/lib/kw/naver.ts`가 API HUB를 먼저 호출하고 401/403/404면 구방식으로 폴백(threads-affiliate-poster와 같은 방식), 회원 본인 키만 사용 → 다음부터 확인: 네이버 API는 개발자센터 문서가 아니라 API HUB 기준으로 만들고, 실계정 응답을 본 적 없으면 CLI_HANDOFF "남은 일"에 명시한다.
 - 증상: 셸 here-doc으로 파일을 만들면 따옴표·역슬래시가 깨지거나 `"\n"`이 실제 줄바꿈으로 확장돼 `Unterminated string literal` → 해결: 파일은 Write/Edit 도구로 만들고 python 스크립트도 파일로 저장해 실행 → 다음부터 확인: 한국어·따옴표·정규식이 든 내용을 `bash -c`/here-doc에 넣지 않는다.
 - 증상: 검사 보조 함수 `num("abc", 0, 100, -1)`가 -1이 아니라 0을 돌려줌(모델이 점수를 안 줘도 0점으로 통과) → 원인: 숫자가 아닌 문자를 지운 뒤 빈 문자열을 `Number("")=0`으로 변환 → 해결: 숫자가 하나도 없으면 fallback 반환(`src/lib/kw/util.ts`, 단위 테스트 추가) → 다음부터 확인: AI 응답 정규화는 "값이 없음"과 "0"을 구분하는 테스트를 둔다.
+
+## 2026-10-14 — ai-writing-editor(AI 글쓰기 에디터 자동화) v1.02
+
+- 증상: 선택 문장 수정 응답이 "되였습니다 is a typo… Wait, if [[선택 부분]]"처럼 모델의 사고 내용이 섞인 잘린 텍스트로 옴 → 원인: Gemini 3.5/2.5 flash의 사고(thinking) 토큰(약 800~1,000)이 `maxOutputTokens`에 포함돼 1,024 한도에서 본문이 중간에 끊김(`finishReason: MAX_TOKENS`) → 해결: 수정 호출 한도 6,144, 키 확인 2,048, `generatePlain`이 `truncated`를 돌려주고 수정 라우트가 끊긴 응답을 본문에 적용하지 않음(`ai-writing-editor/src/lib/gemini.ts`, `api/rewrite/route.ts`) → 다음부터 확인: 짧은 출력용 호출도 `maxOutputTokens`를 사고량 이상으로 잡고 `finishReason`을 확인한다(`test-artifacts/rewrite-debug.mts`로 usage의 `thoughtsTokenCount` 확인).
+- 증상: 분석 제안 [적용]이 본문의 다른 위치(첫 일치)를 바꾸거나 본문이 바뀐 뒤에도 적용된 것처럼 보임(원본 앱 방식) → 해결: 적용 시점에 `findRange`로 위치를 다시 찾고(원래 위치에 가까운 일치 우선) 못 찾으면 목록에서 빼고 안내, 서버는 본문에 없는 원문을 걸러냄(`we/util.ts` `normalizeSuggestions`·`replaceOnce`·`applyAll`) → 다음부터 확인: "찾아서 바꾸기" 기능은 중복 문장·본문 변경 후 적용을 단위 테스트에 포함.
+- 증상: 블로그 초안에 `**메타 제목:**`·`---`가 그대로 보이고 문서 제목에도 `**`가 남음 → 원인: 에디터가 plain textarea인데 모델이 마크다운 강조를 사용 → 해결: 프롬프트에 강조 기호·구분선 금지, `deriveTitle`이 기호·라벨 제거 → 다음부터 확인: 렌더링하지 않는 편집기에는 마크다운 강조를 쓰지 않게 지시한다.

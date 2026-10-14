@@ -90,3 +90,18 @@
 - 작업 폴더는 Codex 등 다른 CLI와 공유한다. 커밋은 항상 명시한 경로만 스테이징하고, `git add -A`를 쓰지 않는다.
 - `blog-keyword/.env.local`은 `vercel link` 때 Vercel이 덮어쓴 파일이며 `.gitignore`로 제외돼 있다(커밋 대상 아님).
 - `test-artifacts/`는 각 프로그램 `.gitignore`에 있어 커밋되지 않는다(실호출 스크립트·스크린샷 포함).
+
+
+---
+
+## 7. 추가 작업 — AI 글쓰기 에디터 자동화 (`ai-writing-editor` v1.02, 2026-10-14)
+
+| 항목 | 값 |
+|---|---|
+| 운영 주소 | https://ai-writing-editor.buylife.xyz |
+| 원본 | AI Studio "매직 에디터 (Magic Editor)" — 글쓰기 도구(이미지 편집 아님). 코드는 복제하지 않고 기능 구조만 참고 |
+| 핵심 | 형식 9종 초안 생성(+인터넷 검색 출처) · 플로팅 툴바 문장 수정(5동작+직접 지시) · 글 분석 제안(분류·적용 시점 위치 재탐색·모두 적용) · 되돌리기 · 자동 저장 · 내보내기 |
+| 검수 | 단위 11/11, Chrome 14/14, 실제 Gemini 5종, 운영 화면 생성·수정·분석 |
+| 상세 | `ai-writing-editor/AGENTS.md`, `ai-writing-editor/docs/CLI_HANDOFF.md` |
+| 주의 | 사고 토큰이 `maxOutputTokens`에 포함됨 → 짧은 호출도 한도를 넉넉히(수정 6,144) 하고 `truncated`는 적용하지 않는다 |
+| 남은 일 | 일반 회원 계정 로그인 확인, 인터넷 검색 출처 보장 한계, 리치 텍스트 서식 에디터(후속) |
