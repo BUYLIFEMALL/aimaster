@@ -267,6 +267,11 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - 이 영역의 확정 정책·화면 구성·DB 구조·점검 쿼리·남은 일은 **[`docs/ADMIN_POLICY_GUIDELINES.md`](docs/ADMIN_POLICY_GUIDELINES.md)** 한 곳에 모아 두었다. 등급·권한·사용기간·핸드폰·프리미엄·관리자 회원 관리/접근 권한 관리 화면을 건드리기 전에 반드시 먼저 읽고, 바뀐 내용은 이 문서에 **추가만** 한다(삭제·덮어쓰기 금지).
     - 핵심: ① 골드(180일)·VIP(365일)는 **등급 표에 체크한 프로그램이 등급 회원 전원에게 자동 부여**(체크 해제 시 자동분만 회수, 수동 부여 유지), 일반·실버는 수동 부여. ② 사용기간은 **일괄**(등급 전원 연장·날짜 지정)과 **사람별 선택**(만료일 지정 / 현재 만료일에서 N일 연장 / 등급 지정일 + 기본 기간) 두 가지. ③ **비공개 프로그램은 사용 가능 권한의 개수·목록에서 제외**, 개수는 프로그램 단위(구독+부여 중복 1개). ④ 핸드폰은 `010-1234-5678` 표기(DB 트리거로 자동). ⑤ 결제 연동 전 활성 구독은 0건이 정상이고 프리미엄 뱃지는 아직 달지 않는다. ⑥ 접근 판정 코드(정지 → 관리자 → 핸드폰 → FREE → 구독 → 등급+부여)는 바꾸지 않는다.
 
+18. **주인님 계정 구분 — 메인 계정과 보조 계정 (2026-10-14 주인님 지시, 모든 CLI 공통).**
+    - **메인 계정: `buylifemall@gmail.com`** — 주인님 본인의 기준 계정이다. 사이트 유일한 관리자 계정이며, Git 커밋 작성자(BUYLIFE / buylifemall@gmail.com), GitHub(`BUYLIFEMALL`), Vercel(`buylifemall`, 팀 `buylife`), Supabase 공용 DB 운영이 모두 이 계정 기준이다.
+    - **보조 계정: `buylifemall1@gmail.com`** — Claude Code 로그인용 보조 계정일 뿐이다(설정 폴더 `.claude-account2`). 사이트 관리자·회원 계정이 아니고, 커밋 작성자·GitHub·Vercel·DB 운영 계정으로 쓰지 않는다.
+    - 계정 이름이 비슷하니 착오하지 않는다: 관리자 권한·커밋·배포·DB·문서에 적는 "주인님 계정"은 항상 `buylifemall@gmail.com`이다. 시험용 일반 회원 계정 `buylifemall@naver.com`(핵심 원칙 0번)과도 구분한다.
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.
