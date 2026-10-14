@@ -15,7 +15,7 @@
 ## 2026-10-14 Codex — AI 문서번역 자동화 v1.03 줄바꿈 수정·운영 검수 재개
 
 - 운영 전체 범위 승인은 완료입니다. v1.02 커밋 7cb27836·프로덕션 READY·카탈로그 활성, DB/RLS/RPC/Cron·요금제/VIP·썸네일·SSO/도메인 적용 기록을 확인했습니다. 과거 승인 대기 항목보다 프로그램 전용 RELEASE_CHECKS.md의 최신 상태를 따릅니다.
-- v1.03: 이중 이스케이프된 번역 개행만 정규화하고 원문 리터럴 이스케이프/코드/경로 보존. 자동10개·빌드·운영 HTTP10개 통과. 수정 커밋8d34b366 원격 푸시·프로덕션 dpl_G7Md8LUSXVR5XmNC8EjjsRBTgikh READY·카탈로그 v1.03 동기화 완료. RLS3개·서버 전용 RPC4개·Cron 최신 성공 확인. evidence/release에 HTTP 검사와 공개 로그인 캡처 보관.
+- v1.03: 이중 이스케이프된 번역 개행만 정규화하고 원문 리터럴 이스케이프/코드/경로 보존. 자동10개·빌드·운영 HTTP10개 통과. 수정 커밋8d34b366 원격 푸시·프로덕션 dpl_24P3TriNLZV9gPDcahnegaeUVdMA READY(최종 재배포, 소스 동일)·카탈로그 v1.03 동기화 완료. RLS3개·서버 전용 RPC4개·Cron 최신 성공 확인. evidence/release에 HTTP 검사와 공개 로그인 캡처 보관.
 - 최종 실제 회원 검수 완료: 주인님이 열어주신 Chrome의 시험 회원·본인 Gemini3회(번역/재검수/역번역) done/API200. 저장/새로고침/보관함 복원·TXT/MD/DOCX/JSON/CSV 실제 다운로드/내용·백업 UI 복원·용어집 저장/적용/복원·창516px 메뉴/문서3탭 조작 확인. 소스 추가 수정 없이 v1.03 유지. 이번 요청 범위 남은 작업 없음. 참고용 프로젝트/용어집 각1개 남김. 실제 휴대폰 기기 검수와 구분.
 - 재개: [운영 검수](../document-translator/docs/RELEASE_CHECKS.md), [CLI 인수인계](../document-translator/docs/CLI_HANDOFF.md). 다른 CLI 변경을 스테이징하지 않습니다.
 

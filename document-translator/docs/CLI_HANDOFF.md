@@ -1,6 +1,6 @@
 # AI 문서번역 자동화 — 재개 인수인계
 
-2026-10-14, Codex. 코드·카탈로그 v1.03, 운영 승인 완료. 수정 커밋8d34b366 원격 푸시, 프로덕션 dpl_G7Md8LUSXVR5XmNC8EjjsRBTgikh READY(2026-10-14 21:34 KST). 자동10개·프로덕션 빌드·운영 HTTP10개 통과, 테이블3개 RLS·함수4개 서버 전용 권한·Cron 정상 실행 확인입니다. 실제 회원 전체 화면 검수를 완료했습니다. 본인 Gemini 번역/재검수/역번역3회 done·API200, 저장/새로고침/복원·용어집·실제 다운로드/백업 UI 복원·창516px 메뉴/탭을 확인했습니다. 상세 증거는 RELEASE_CHECKS.md의 최신 절과 evidence/release/v103-chrome-verification.json입니다.
+2026-10-14, Codex. 코드·카탈로그 v1.03, 운영 승인 완료. 수정 커밋8d34b366 원격 푸시, 최종 프로덕션 dpl_24P3TriNLZV9gPDcahnegaeUVdMA READY(2026-10-14 22:10 KST), 배포 원본 커밋dec1eccd. 실제 회원 검수는 같은 v1.03 소스의 직전 배포에서 수행했고 최종 배포에서도 HTTP10개·DB 버전을 재확인했습니다. 자동10개·프로덕션 빌드·운영 HTTP10개 통과, 테이블3개 RLS·함수4개 서버 전용 권한·Cron 정상 실행 확인입니다. 실제 회원 전체 화면 검수를 완료했습니다. 본인 Gemini 번역/재검수/역번역3회 done·API200, 저장/새로고침/복원·용어집·실제 다운로드/백업 UI 복원·창516px 메뉴/탭을 확인했습니다. 상세 증거는 RELEASE_CHECKS.md의 최신 절과 evidence/release/v103-chrome-verification.json입니다.
 
 ## 필독과 승인 범위
 
