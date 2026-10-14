@@ -1,6 +1,6 @@
 # AI 글쓰기 에디터 자동화 (ai-writing-editor) — 분석·개발 플랜 (2026-10-14)
 
-> 상태: **구현 완료(v1.03 서식 에디터까지)** — 결과·남은 일은 `CLI_HANDOFF.md`.
+> 상태: **구현 완료(v1.04: 서식 에디터·표·이미지·글자 색·정렬·여러 문단 제안까지)** — 결과·남은 일은 `CLI_HANDOFF.md`.
 
 > 참고 앱: AI Studio "매직 에디터 (Magic Editor)" — `aistudio.google.com/apps/138f85e0-2a10-4056-bed0-a4d67714c8a0` (순수 클라이언트 앱, 소스 약 20KB: `App.tsx`·`geminiService.ts`·컴포넌트 5개·`types.ts`).
 > 분석 방법(핵심 원칙 14번): AI Studio 코드 보기로 `geminiService.ts`·`types.ts`·`App.tsx`·`HomeScreen.tsx`·`FloatingToolbar.tsx`와 사용법 화면을 직접 읽었다. 코드는 복제하지 않고 기능 구조만 참고해 새로 작성한다.

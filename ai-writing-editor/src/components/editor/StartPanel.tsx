@@ -54,7 +54,7 @@ export function StartPanel() {
     const res = await fetch("/api/documents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: deriveTitle(content), content, format: fmt, sources }),
+      body: JSON.stringify({ title: deriveTitle(content), content, content_type: "markdown", format: fmt, sources }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.document?.id) throw new Error(data.error ?? "문서를 저장하지 못했습니다.");

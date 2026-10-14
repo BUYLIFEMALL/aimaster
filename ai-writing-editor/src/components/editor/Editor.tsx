@@ -4,13 +4,20 @@ import { EditorContent, useEditor, useEditorState, type Editor as TiptapEditor }
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
 import Placeholder from "@tiptap/extension-placeholder";
+import { TableKit } from "@tiptap/extension-table";
+import Image from "@tiptap/extension-image";
+import { TextStyle, Color } from "@tiptap/extension-text-style";
+import Highlight from "@tiptap/extension-highlight";
+import TextAlign from "@tiptap/extension-text-align";
 import { ArrowLeft, Check, ClipboardCopy, Download, FileText, Loader2, Wand2 } from "lucide-react";
-import { FORMATS, LIMITS, type ActionId, type FormatId, type Source, type Suggestion } from "@/lib/we/types";
+import { FORMATS, LIMITS, type ActionId, type ContentType, type FormatId, type Source, type Suggestion } from "@/lib/we/types";
 import { deriveTitle } from "@/lib/we/util";
-import { findText, rangeText } from "@/lib/we/pmText";
+import { findText, rangeText, splitParagraphs } from "@/lib/we/pmText";
 import { BubbleToolbar } from "./BubbleToolbar";
+import { ImageMenu } from "./ImageMenu";
 import { RichToolbar } from "./RichToolbar";
 import { SuggestionPanel } from "./SuggestionPanel";
+import { isImageFile, uploadImage } from "./imageUpload";
 
 type SaveState = "saved" | "dirty" | "saving" | "error";
 const BLOCK = "\n\n";
@@ -37,18 +44,22 @@ function toNodes(editor: TiptapEditor, md: string) {
 }
 
 export function Editor({
-  id, initialTitle, initialContent, format, sources, autoAnalyze,
+  id, initialTitle, initialContent, initialContentType, format, sources, autoAnalyze,
 }: {
   id: string;
   initialTitle: string;
   initialContent: string;
+  initialContentType: ContentType;
   format: FormatId;
   sources: Source[];
   autoAnalyze: boolean;
 }) {
   const [title, setTitle] = useState(initialTitle);
-  const [content, setContent] = useState(initialContent); // 저장용 마크다운
+  // 저장용 본문: 처음에는 불러온 그대로(마크다운 또는 HTML), 편집이 시작되면 HTML로 바뀐다
+  const [content, setContent] = useState(initialContent);
+  const [ctype, setCtype] = useState<ContentType>(initialContentType);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [save, setSave] = useState<SaveState>("saved");
   const [panelOpen, setPanelOpen] = useState(false);
@@ -59,6 +70,8 @@ export function Editor({
   const [notice, setNotice] = useState("");
   const first = useRef(true);
   const ranAuto = useRef(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const uploadRef = useRef<(files: File[], at?: number) => Promise<void>>(async () => {});
   const formatLabel = FORMATS.find((f) => f.id === format)?.label ?? "자유 형식";
 
   const editor = useEditor({
@@ -66,18 +79,42 @@ export function Editor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
-        underline: false, // 마크다운으로 저장되지 않는 서식은 쓰지 않는다
         link: { openOnClick: false, autolink: true, HTMLAttributes: { rel: "noreferrer noopener", target: "_blank" } },
       }),
       Markdown.configure({ markedOptions: { gfm: true, breaks: true } }),
       Placeholder.configure({ placeholder: "여기에 글을 쓰거나 붙여 넣으세요. 문장을 드래그하면 AI 수정 툴바가 나타납니다." }),
+      TableKit.configure({ table: { resizable: true } }),
+      Image.configure({
+        allowBase64: false,
+        resize: { enabled: true, directions: ["bottom-right", "bottom-left"], minWidth: 80, minHeight: 40, alwaysPreserveAspectRatio: true },
+      }),
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content: initialContent,
-    contentType: "markdown",
+    contentType: initialContentType,
     editorProps: {
       attributes: { class: "we-prose", "aria-label": "본문 편집기", "aria-multiline": "true", spellcheck: "false" },
+      // 이미지를 붙여 넣거나 끌어다 놓으면 올려서 넣는다(base64로 본문에 들어가지 않게)
+      handlePaste: (_view, event) => {
+        const files = Array.from(event.clipboardData?.files ?? []).filter(isImageFile);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        void uploadRef.current(files);
+        return true;
+      },
+      handleDrop: (view, event) => {
+        const files = Array.from((event as DragEvent).dataTransfer?.files ?? []).filter(isImageFile);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        const at = view.posAtCoords({ left: (event as DragEvent).clientX, top: (event as DragEvent).clientY })?.pos;
+        void uploadRef.current(files, at);
+        return true;
+      },
     },
-    onUpdate: ({ editor: e }) => setContent(e.getMarkdown()),
+    onUpdate: ({ editor: e }) => { setContent(e.getHTML()); setCtype("html"); },
   });
 
   const stats = useEditorState({
@@ -98,15 +135,35 @@ export function Editor({
         const res = await fetch("/api/documents", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id, title: title.trim() || deriveTitle(content), content, format, sources }),
+          body: JSON.stringify({
+            id,
+            title: title.trim() || deriveTitle(editor?.getText({ blockSeparator: BLOCK }) ?? ""),
+            content, content_type: ctype, format, sources,
+          }),
         });
         setSave(res.ok ? "saved" : "error");
       } catch { setSave("error"); }
     }, 1500);
     return () => clearTimeout(t);
-  }, [id, title, content, format, sources]);
+  }, [id, title, content, ctype, format, sources, editor]);
 
   function showError(message: string, needKey?: boolean) { setError({ message, needKey }); }
+
+  // ---- 이미지 넣기 ----
+  const insertImages = useCallback(async (files: File[], at?: number) => {
+    if (!editor || files.length === 0) return;
+    setUploading(true); setError(null);
+    try {
+      for (const f of files) {
+        const r = await uploadImage(f);
+        if (!r.ok) { showError(r.error); break; }
+        const chain = editor.chain().focus();
+        if (typeof at === "number") chain.setTextSelection(at);
+        chain.setImage({ src: r.url, alt: r.alt }).run();
+      }
+    } finally { setUploading(false); }
+  }, [editor]);
+  useEffect(() => { uploadRef.current = insertImages; }, [insertImages]);
 
   // ---- 선택한 부분 수정 ----
   async function rewrite(payload: { action?: ActionId; instruction?: string }) {
@@ -164,12 +221,24 @@ export function Editor({
     }
   }, [autoAnalyze, editor, analyze, id]);
 
-  /** 제안 한 개를 본문의 현재 위치에서 찾아 바꾼다(서식은 그 자리의 서식을 이어받는다). 못 찾으면 false. */
+  /**
+   * 제안 한 개를 본문의 현재 위치에서 찾아 바꾼다. 못 찾으면 false.
+   * - 한 문단 안: insertText(그 자리의 서식을 이어받음)
+   * - 문단 경계를 넘는 제안: 합쳐서 한 문단으로 바꾸거나(교체문에 빈 줄이 없을 때), 교체문의 문단 수만큼 문단으로 나눈다
+   */
   const applySuggestion = useCallback((s: Suggestion): boolean => {
     if (!editor) return false;
-    const r = findText(editor.state.doc, s.originalText);
+    const doc = editor.state.doc;
+    const r = findText(doc, s.originalText);
     if (!r) return false;
-    editor.view.dispatch(editor.state.tr.insertText(s.suggestedText, r.from, r.to));
+    const parts = splitParagraphs(s.suggestedText);
+    if (parts.length > 1) {
+      editor.chain().insertContentAt(r, parts.map((p) => ({ type: "paragraph", content: [{ type: "text", text: p }] }))).run();
+    } else {
+      const text = (parts[0] ?? s.suggestedText).replace(/\n/g, " ");
+      // 문단을 넘는 범위도 insertText가 앞 문단 끝과 뒤 문단 시작을 하나로 합친다
+      editor.view.dispatch(editor.state.tr.insertText(text, r.from, r.to));
+    }
     return true;
   }, [editor]);
 
@@ -229,10 +298,10 @@ export function Editor({
           <span className={`we-save ${save}`} role="status">{saveLabel}</span>
         </div>
         <div className="we-actions">
-          <button type="button" onClick={copyRich} disabled={!hasText} title="서식을 유지한 채 복사(블로그·문서에 붙여 넣기)">
+          <button type="button" onClick={copyRich} disabled={!hasText} title="서식·표·이미지를 유지한 채 복사(블로그·문서에 붙여 넣기)">
             {copied === "rich" ? <Check size={13} /> : <ClipboardCopy size={13} />}{copied === "rich" ? "복사 완료" : "서식 복사"}
           </button>
-          <button type="button" onClick={copyMarkdown} disabled={!hasText}>
+          <button type="button" onClick={copyMarkdown} disabled={!hasText} title="글자 색·정렬·형광펜은 마크다운에 담기지 않습니다">
             {copied === "md" ? <Check size={13} /> : <FileText size={13} />}{copied === "md" ? "복사 완료" : "마크다운 복사"}
           </button>
           <button type="button" disabled={!hasText} onClick={() => editor && download(`${safeName}.md`, editor.getMarkdown(), "text/markdown;charset=utf-8")}><Download size={13} />.md</button>
@@ -251,17 +320,29 @@ export function Editor({
           </p>
         )}
         {notice && <p className="notice" role="status">{notice}</p>}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          multiple
+          hidden
+          aria-label="이미지 파일 선택"
+          onChange={(e) => { const files = Array.from(e.target.files ?? []); e.target.value = ""; void insertImages(files); }}
+        />
         <div className="we-sheet">
-          {editor && <RichToolbar editor={editor} />}
+          {editor && <RichToolbar editor={editor} uploading={uploading} onPickImage={() => fileRef.current?.click()} />}
           <div className="we-editor-wrap">
             <EditorContent editor={editor} />
             {editor && (
-              <BubbleToolbar
-                editor={editor}
-                busy={busy}
-                onAction={(a) => void rewrite({ action: a })}
-                onInstruction={(t) => void rewrite({ instruction: t })}
-              />
+              <>
+                <BubbleToolbar
+                  editor={editor}
+                  busy={busy}
+                  onAction={(a) => void rewrite({ action: a })}
+                  onInstruction={(t) => void rewrite({ instruction: t })}
+                />
+                <ImageMenu editor={editor} />
+              </>
             )}
           </div>
         </div>

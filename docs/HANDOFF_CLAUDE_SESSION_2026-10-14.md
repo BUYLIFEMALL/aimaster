@@ -110,3 +110,9 @@
 ### 7-1. v1.03 — 서식 에디터 (2026-10-14)
 - Tiptap(`@tiptap/* 3.31.4`) 서식 에디터로 교체. 마크다운 저장 유지, 버블 툴바(AI 수정 5동작+직접 지시+굵게·기울임), 서식 도구줄, 서식 복사(HTML+텍스트), .md/.html/.txt, Tiptap 이력 기반 실행 취소.
 - 핵심 구현: `src/lib/we/pmText.ts`(문서 위치 찾기), `components/editor/{Editor,RichToolbar,BubbleToolbar}.tsx`. 검수: 단위 14/14, Chrome 15/15, 운영 확인. 상세는 `ai-writing-editor/AGENTS.md`·`docs/CLI_HANDOFF.md`.
+
+
+### 7-2. v1.04~v1.05 — 표·이미지·글자 색·정렬·여러 문단 제안 (2026-10-14)
+- 저장 형식 `content_type`(markdown|html) 도입(이전 문서 호환), 공개 Storage 버킷 `ai-writing-editor-images`(UUID 경로, 회원당 60개, 캐시 1시간, 문서 삭제 시 미사용 이미지 정리).
+- Tiptap 확장: TableKit·Image(리사이즈)·TextStyle/Color·Highlight·TextAlign·Underline. 문단 경계를 넘는 제안은 `pmText.flatten`으로 찾고 문단 병합/분할로 적용.
+- 검수: 단위 17/17, Chrome 20/20, `image-real.mts`(실제 Storage·DB), 운영 화면(이미지 붙여넣기·표·새로고침 유지). 남은 한계: .md에는 색·정렬 미포함, 이미지는 공개 주소.

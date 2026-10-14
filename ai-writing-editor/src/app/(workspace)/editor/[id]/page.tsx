@@ -18,6 +18,7 @@ export default async function EditorPage({ params, searchParams }: { params: Pro
       id={doc.id}
       initialTitle={doc.title}
       initialContent={doc.content}
+      initialContentType={doc.content_type}
       format={doc.format}
       sources={doc.sources}
       autoAnalyze={analyze === "1"}

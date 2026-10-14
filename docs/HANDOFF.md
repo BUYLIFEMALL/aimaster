@@ -8,6 +8,12 @@
 - 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
 - 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
+## 2026-10-14 Claude Code — AI 글쓰기 에디터 자동화 v1.04~v1.05: 표·이미지·글자 색·정렬·여러 문단 제안
+
+- 주인님 요청: 마크다운 한계(표·이미지·글자 색·밑줄, 여러 문단 제안) 확장 가능성 검토 후 구현. 검토: 표·이미지·밑줄·형광펜은 마크다운 직렬화 가능, 글자 색·정렬은 불가 → 저장 형식을 `content_type`(markdown|html)으로 확장(이전 문서 호환).
+- 구현: Tiptap 표(TableKit)·이미지(공개 버킷 업로드·붙여넣기·끌어놓기·alt·크기)·글자 색 9·형광펜 6·밑줄·정렬, 문단 경계를 넘는 분석 제안 찾기·적용. DB: `content_type` 컬럼, 공개 버킷 `ai-writing-editor-images`(0003).
+- 검수: 단위 17/17, Chrome 20/20, 실제 Storage·DB 검증(업로드·공개 주소·삭제 시 정리·공유 이미지 보존), 운영 화면 확인(테스트 문서·이미지 삭제). 버전 v1.03→v1.05(코드·package·DB). 상세: [ai-writing-editor/docs/CLI_HANDOFF.md](../ai-writing-editor/docs/CLI_HANDOFF.md)
+
 ## 2026-10-14 Claude Code — AI 글쓰기 에디터 자동화 v1.03: 서식 에디터로 확장
 
 - 주인님 요청: 서식 에디터로 기능 확장. 평문 textarea → **Tiptap(ProseMirror) 서식 에디터**(제목·굵게·기울임·취소선·코드·목록·번호·인용·링크·구분선·실행 취소). 저장은 마크다운 그대로(DB 변경 없음, 기존 문서 호환), AI 수정은 선택 시 버블 툴바, 제안 적용은 그 자리의 서식을 유지, 서식 복사(HTML+텍스트)·.md/.html/.txt.

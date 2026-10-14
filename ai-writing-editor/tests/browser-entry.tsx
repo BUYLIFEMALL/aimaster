@@ -7,12 +7,12 @@ import { DocumentList } from "../src/components/editor/DocumentList";
 import { KeyManager } from "../src/components/workspace/KeyManager";
 
 function EditorLoader({ id, analyze }: { id: string; analyze: boolean }) {
-  const [doc, setDoc] = useState<{ id: string; title: string; content: string; format: "free"; sources: { uri: string; title: string }[] } | null>(null);
+  const [doc, setDoc] = useState<{ id: string; title: string; content: string; content_type?: "markdown" | "html"; format: "free"; sources: { uri: string; title: string }[] } | null>(null);
   useEffect(() => {
     fetch(`/api/documents?id=${id}`).then((r) => r.json()).then((d) => setDoc(d.document));
   }, [id]);
   if (!doc) return <p>불러오는 중…</p>;
-  return <Editor id={doc.id} initialTitle={doc.title} initialContent={doc.content} format={doc.format} sources={doc.sources} autoAnalyze={analyze} />;
+  return <Editor id={doc.id} initialTitle={doc.title} initialContent={doc.content} initialContentType={doc.content_type ?? "markdown"} format={doc.format} sources={doc.sources} autoAnalyze={analyze} />;
 }
 
 const q = new URLSearchParams(location.search);

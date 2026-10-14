@@ -168,3 +168,32 @@ export function cleanSources(raw: { uri?: string; title?: string }[]): Source[] 
 export function isTextFileName(name: string): boolean {
   return /\.(txt|md|markdown|csv)$/i.test(name);
 }
+
+const NAMED: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+
+/** 저장된 HTML을 평문으로(서버: 글자 수·제목 계산용). 태그를 지우고 문단 경계는 줄바꿈으로 바꾼다. 렌더링에는 쓰지 않는다. */
+export function htmlToPlain(html: string): string {
+  return String(html ?? "")
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|tr|blockquote|pre|table|ul|ol)>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, g: string) => {
+      if (g[0] === "#") {
+        const code = g[1].toLowerCase() === "x" ? parseInt(g.slice(2), 16) : parseInt(g.slice(1), 10);
+        return Number.isFinite(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : m;
+      }
+      return NAMED[g.toLowerCase()] ?? m;
+    })
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/** 본문에 들어 있는 이 프로그램 이미지 저장소(공개 버킷) 경로를 모은다(문서 삭제 시 정리용) */
+export function imagePathsIn(content: string, bucket: string): string[] {
+  const out = new Set<string>();
+  const re = new RegExp(`/storage/v1/object/public/${bucket}/([A-Za-z0-9_./-]+)`, "g");
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content))) out.add(m[1]);
+  return [...out];
+}

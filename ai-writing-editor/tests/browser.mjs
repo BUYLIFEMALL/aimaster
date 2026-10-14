@@ -14,8 +14,10 @@ const bundle = await build({
 });
 const css = (await readFile("src/app/globals.css", "utf8")) + "\n" + (await readFile("src/app/we.css", "utf8"));
 const PAGE = '<!doctype html><html lang="ko"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/test.css"><body><div style="padding:20px;max-width:1200px;margin:0 auto"><div id="root"></div></div><script src="/test.js"></script></body></html>';
+const PNG_1PX = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
 const server = createServer((req, res) => {
   res.setHeader("Cache-Control", "no-store");
+  if (req.url.startsWith("/img/")) { res.setHeader("Content-Type", "image/png"); res.end(PNG_1PX); return; }
   if (req.url.startsWith("/test.js")) { res.setHeader("Content-Type", "application/javascript"); res.end(bundle.outputFiles[0].text); }
   else if (req.url.startsWith("/test.css")) { res.setHeader("Content-Type", "text/css"); res.end(css); }
   else { res.setHeader("Content-Type", "text/html;charset=utf-8"); res.end(PAGE); }
@@ -44,7 +46,8 @@ await page.route("**/api/**", async (route) => {
   const url = new URL(route.request().url());
   const method = route.request().method();
   const raw = route.request().postData();
-  const body = raw ? JSON.parse(raw) : {};
+  const isJson = (route.request().headers()["content-type"] ?? "").includes("json");
+  const body = raw && isJson ? JSON.parse(raw) : {};
   const j = (data, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(data) });
   if (state.fail && ["/api/generate", "/api/rewrite", "/api/analyze"].includes(url.pathname)) return j(state.fail.body, state.fail.status);
   if (url.pathname === "/api/generate") { store.generated = body; return j({ content: GENERATED, sources: [{ uri: "https://example.com/a", title: "출처 A" }], format: body.format }); }
@@ -68,12 +71,20 @@ await page.route("**/api/**", async (route) => {
     store.analyzes += 1;
     const c = body.content;
     const pick = (t) => (c.includes(t) ? t : null);
+    if (c.includes("두 문단 합치기")) {
+      return j({ suggestions: [{ originalText: "첫 문단 끝입니다.\n\n두 문단 합치기 대상입니다.", suggestedText: "첫 문단 끝입니다. 두 문단 합치기 대상입니다.", reason: "문단 병합", category: "구조" }], truncated: false });
+    }
     const list = [
       { originalText: pick("식당에 갔다 왔어요."), suggestedText: "식당에 갔습니다.", reason: "경어체 통일", category: "문법" },
       { originalText: pick("맛있고 맛있고 또 맛있었습니다."), suggestedText: "매우 맛있었습니다.", reason: "반복 제거", category: "표현" },
       { originalText: pick("규칙적으로 쉽니다."), suggestedText: "규칙적으로 휴식합니다.", reason: "어휘 다듬기", category: "표현" },
     ].filter((s) => s.originalText);
     return j({ suggestions: list, truncated: false });
+  }
+  if (url.pathname === "/api/images" && method === "POST") {
+    store.images = (store.images ?? 0) + 1;
+    if (state.imageFail) return j({ error: "이미지는 최대 60개까지 올릴 수 있습니다." }, 409);
+    return j({ url: `${origin}/img/u${store.images}.png`, path: `u/${store.images}.png` });
   }
   if (url.pathname === "/api/keys" && method === "GET") return j({ keys: { gemini: { hasKey: keyState.gemini, maskedKey: keyState.gemini ? "AIza…wxyz" : null } } });
   if (url.pathname === "/api/keys" && method === "POST") { keyState.gemini = true; return j({ success: true }); }
@@ -221,8 +232,9 @@ await page.waitForFunction(() => document.querySelector(".we-save")?.textContent
 const lastPut = store.puts[store.puts.length - 1];
 assert.equal(lastPut.id, DOC_ID);
 assert.ok(lastPut.content.includes("규칙적으로 휴식합니다."));
-assert.match(lastPut.content, /^# 생산성을 높이는 방법/m);
-pass("1.5초 디바운스 자동 저장(마크다운)");
+assert.equal(lastPut.content_type, "html", "편집 후에는 HTML로 저장");
+assert.ok(lastPut.content.includes("<h1>생산성을 높이는 방법</h1>"));
+pass("1.5초 디바운스 자동 저장(HTML)");
 
 // 10) 서식 복사(HTML+텍스트)·내려받기
 await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin });
@@ -258,6 +270,117 @@ await page.getByRole("alert").getByText("Gemini API 키가 등록되지 않았�
 await page.getByRole("link", { name: "키 등록하러 가기" }).waitFor();
 state.fail = null;
 pass("키 없음 오류 → 등록 안내");
+
+// 11-1) 확장 서식: 밑줄·글자 색·형광펜·정렬
+const html = () => page.evaluate(() => document.querySelector(".ProseMirror").editor.getHTML());
+await page.locator(".we-prose").click({ position: { x: 30, y: 520 } });
+await para("첫째, 우선순위를 정합니다.").click({ clickCount: 3 });
+const rich = page.getByRole("toolbar", { name: "서식 도구" });
+await rich.getByRole("button", { name: "밑줄" }).click();
+assert.match(await html(), /<u>[^<]*첫째/, "밑줄이 <u>로 저장");
+await rich.getByRole("button", { name: "글자 색" }).click();
+await page.getByRole("button", { name: "글자 색 #dc2626" }).click();
+assert.match(await html(), /color:\s*(#dc2626|rgb\(220,\s*38,\s*38\))/i, "글자 색이 style로 저장");
+await rich.getByRole("button", { name: "형광펜" }).click();
+await page.getByRole("button", { name: "형광펜 #fef08a" }).click();
+assert.match(await html(), /<mark[^>]*>/i, "형광펜이 <mark>로 저장");
+await rich.getByRole("button", { name: "가운데 정렬" }).click();
+assert.match(await html(), /text-align:\s*center/i, "정렬이 style로 저장");
+await page.screenshot({ path: "test-artifacts/06-color-align.png", fullPage: true });
+pass("밑줄·글자 색·형광펜·가운데 정렬");
+
+// 11-2) 표: 넣기·행 추가·삭제
+await page.locator(".we-prose").click({ position: { x: 30, y: 600 } });
+await rich.getByRole("button", { name: "표 넣기" }).click();
+assert.equal(await page.locator(".we-prose table").count(), 1);
+assert.equal(await page.locator(".we-prose table tr").count(), 3);
+assert.equal(await page.locator(".we-prose table th").count(), 3, "머리글 행");
+const tableGroup = page.getByRole("group", { name: "표 편집" });
+await tableGroup.getByRole("button", { name: "아래에 행 추가" }).click();
+assert.equal(await page.locator(".we-prose table tr").count(), 4);
+await tableGroup.getByRole("button", { name: "오른쪽에 열 추가" }).click();
+assert.equal(await page.locator(".we-prose table tr").first().locator("th,td").count(), 4);
+await page.locator(".we-prose table td").first().click();
+await page.keyboard.type("셀 내용");
+assert.match(await md(), /\| 셀 내용 \|/, "표가 GFM 마크다운으로도 직렬화");
+await page.screenshot({ path: "test-artifacts/07-table.png", fullPage: true });
+await tableGroup.getByRole("button", { name: "표 삭제" }).click();
+assert.equal(await page.locator(".we-prose table").count(), 0);
+pass("표 넣기·행/열 추가·셀 입력·GFM 직렬화·삭제");
+
+// 11-3) 이미지: 파일 선택 업로드·설명·크기·삭제·붙여넣기·실패 안내
+const PNG = PNG_1PX;
+await page.getByLabel("이미지 파일 선택").setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: PNG });
+await page.locator(".we-prose img").first().waitFor();
+assert.equal(await page.locator(".we-prose img").count(), 1);
+assert.match(await page.locator(".we-prose img").first().getAttribute("src"), /\/img\/u1\.png$/);
+assert.equal(await page.locator(".we-prose img").first().getAttribute("alt"), "photo");
+await page.locator(".we-prose img").first().click();
+const imgMenu = page.getByRole("toolbar", { name: "이미지 설정" });
+await imgMenu.waitFor();
+await imgMenu.getByLabel("이미지 설명").fill("업무 책상 사진");
+await imgMenu.getByRole("button", { name: "크게" }).click();
+const htmlImg = await html();
+assert.match(htmlImg, /alt="업무 책상 사진"/);
+assert.match(htmlImg, /width="720"|width:\s*720/);
+await page.screenshot({ path: "test-artifacts/08-image.png", fullPage: true });
+// 붙여넣기(클립보드에 이미지 파일)
+// 이미지가 선택된 상태에서 붙여 넣으면 그 이미지가 교체되므로, 먼저 본문 글자 안을 클릭해 선택을 푼다
+await para("첫째").click();
+await page.keyboard.press("End");
+await page.evaluate(() => {
+  const dt = new DataTransfer();
+  dt.items.add(new File([new Uint8Array([137, 80, 78, 71])], "pasted.png", { type: "image/png" }));
+  document.querySelector(".ProseMirror").dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
+});
+await page.waitForFunction(() => document.querySelectorAll(".we-prose img").length === 2);
+assert.equal(store.images, 2, "붙여넣은 이미지도 서버로 올라감");
+// 이미지 삭제
+await page.locator(".we-prose img").first().click();
+await imgMenu.getByRole("button", { name: "이미지 삭제" }).click();
+await page.waitForFunction(() => document.querySelectorAll(".we-prose img").length === 1);
+// 업로드 실패 안내
+state.imageFail = true;
+await page.getByLabel("이미지 파일 선택").setInputFiles({ name: "again.png", mimeType: "image/png", buffer: PNG });
+await page.getByRole("alert").getByText("이미지는 최대 60개까지 올릴 수 있습니다.").waitFor();
+state.imageFail = false;
+await page.getByRole("alert").getByRole("button", { name: "닫기" }).click();
+pass("이미지: 업로드·설명·크기·삭제·붙여넣기·실패 안내");
+
+// 11-4) 저장 형식: HTML(표·이미지·색 보존), 서식 복사 HTML에 이미지 포함
+await page.waitForFunction(() => document.querySelector(".we-save")?.textContent?.includes("저장됨"), null, { timeout: 8000 });
+const put = store.puts[store.puts.length - 1];
+assert.equal(put.content_type, "html");
+assert.match(put.content, /<img[^>]+src="[^"]+\/img\/u\d\.png"/);
+assert.match(put.content, /text-align:\s*center/i);
+const clip2 = await (async () => {
+  await page.getByRole("button", { name: "서식 복사" }).click();
+  await page.getByText("복사 완료").first().waitFor();
+  return page.evaluate(async () => {
+    const items = await navigator.clipboard.read();
+    const out = {};
+    for (const it of items) for (const t of it.types) out[t] = await (await it.getType(t)).text();
+    return out;
+  });
+})();
+assert.match(clip2["text/html"], /<img[^>]+src=/);
+pass("저장 형식 HTML(content_type) 및 서식 복사에 이미지 포함");
+
+// 12-0) 여러 문단에 걸친 분석 제안 적용(문단 병합)
+await page.goto(`${origin}/dashboard`);
+await page.getByRole("tab", { name: "기존 글 분석" }).click();
+await page.getByLabel("분석할 글").fill("첫 문단 끝입니다.\n\n두 문단 합치기 대상입니다.\n\n마지막 문단입니다.");
+await page.getByRole("button", { name: "에디터에서 분석하기" }).click();
+await page.waitForURL(`**/editor/${DOC_ID}?analyze=1`);
+const panel2 = page.getByLabel("글 분석 제안");
+await panel2.getByText("문단 병합").waitFor();
+assert.equal(await page.locator(".we-prose p").count(), 3);
+await panel2.getByRole("button", { name: "본문에서 보기" }).click();
+await page.waitForFunction(() => window.getSelection()?.toString().includes("두 문단 합치기 대상입니다."));
+await panel2.getByRole("button", { name: "적용", exact: true }).click();
+await page.waitForFunction(() => document.querySelectorAll(".we-prose p").length === 2);
+assert.ok((await page.locator(".we-prose").innerText()).includes("첫 문단 끝입니다. 두 문단 합치기 대상입니다."));
+pass("문단 경계를 넘는 제안 찾기·선택·적용(문단 병합)");
 
 // 12) 기존 글 분석 시작(자동 분석)
 await page.goto(`${origin}/dashboard`);

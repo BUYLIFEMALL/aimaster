@@ -53,12 +53,24 @@ export const LIMITS = {
   prompt: 2000,
   reference: 30_000,
   document: 60_000,
+  /** HTML로 저장하는 본문의 최대 길이(서식·이미지 주소 태그 포함) */
+  documentHtml: 240_000,
+  images: 60,
+  imageBytes: 4_000_000,
   analyze: 30_000,
   selection: 5_000,
   instruction: 200,
   title: 80,
   maxDocuments: 30,
 } as const;
+
+export type ContentType = "markdown" | "html";
+export function isContentType(v: unknown): v is ContentType {
+  return v === "markdown" || v === "html";
+}
+
+/** 문서 이미지 공개 버킷(파일명은 추측 불가능한 UUID) */
+export const IMAGE_BUCKET = "ai-writing-editor-images";
 
 export function isFormat(v: unknown): v is FormatId {
   return typeof v === "string" && FORMATS.some((f) => f.id === v);

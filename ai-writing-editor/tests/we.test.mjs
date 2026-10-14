@@ -2,11 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   todayKst, yearGuard, cleanText, cleanLine, parseJsonLoose, normalizeSuggestions, findRange, replaceOnce, applyAll,
-  charCount, deriveTitle, pushHistory, cleanSources, isTextFileName,
+  charCount, deriveTitle, pushHistory, cleanSources, isTextFileName, htmlToPlain, imagePathsIn,
 } from "../src/lib/we/util.ts";
 import { generatePrompt, rewritePrompt, analyzePrompt, formatLabel } from "../src/lib/we/prompts.ts";
 import { FORMATS, ACTIONS, isFormat, isAction, isTone, isLength } from "../src/lib/we/types.ts";
-import { findAllText, findText, rangeText } from "../src/lib/we/pmText.ts";
+import { findAllText, findText, rangeText, spansBlocks, splitParagraphs } from "../src/lib/we/pmText.ts";
+import { sniffImage } from "../src/lib/we/imageSniff.ts";
 import { Schema } from "@tiptap/pm/model";
 
 test("한국 시간 기준 날짜와 연도 지침", () => {
@@ -158,4 +159,49 @@ test("hard break를 포함한 문자열(줄바꿈)", () => {
   const r = findText(doc, text);
   assert.ok(r);
   assert.equal(rangeText(doc, r.from, r.to), text);
+});
+
+// ---- 확장: 여러 문단에 걸친 찾기, HTML 평문 변환, 이미지 판별 ----
+test("여러 문단에 걸친 문자열을 찾고 위치로 되돌려 읽으면 같은 문자열", () => {
+  const two = schema.node("doc", null, [
+    p(t("첫 문단의 끝 문장입니다.")),
+    p(t("둘째 문단의 "), t("시작", true), t(" 문장입니다.")),
+    p(t("셋째 문단.")),
+  ]);
+  const needle = "끝 문장입니다.\n\n둘째 문단의 시작 문장입니다.";
+  const r = findText(two, needle);
+  assert.ok(r, "블록 경계를 넘는 일치");
+  assert.equal(rangeText(two, r.from, r.to), needle);
+  assert.equal(spansBlocks(two, r), true);
+  const single = findText(two, "둘째 문단의 시작");
+  assert.equal(spansBlocks(two, single), false);
+  assert.ok(findText(two, "문장입니다.\n\n셋째"), "둘째→셋째 문단 경계는 실제로 이어진다");
+  assert.equal(findText(two, "끝 문장입니다.\n\n셋째 문단."), null, "중간 문단을 건너뛴 문자열은 찾지 않음");
+  assert.deepEqual(splitParagraphs("가.\n\n나.\n\n\n다."), ["가.", "나.", "다."]);
+  assert.deepEqual(splitParagraphs("한 문단\n줄바꿈만"), ["한 문단\n줄바꿈만"]);
+});
+
+test("HTML → 평문(글자 수·제목용)", () => {
+  const html = '<h1>제목입니다</h1><p>본문 <strong>굵게</strong> &amp; 끝<br>다음 줄</p><table><tr><td>셀1</td><td>셀2</td></tr></table><script>alert(1)</script><img src="x" alt="그림">';
+  const plain = htmlToPlain(html);
+  assert.match(plain, /^제목입니다\n/);
+  assert.ok(plain.includes("본문 굵게 & 끝\n다음 줄"));
+  assert.ok(plain.includes("셀1셀2"));
+  assert.ok(!plain.includes("alert") && !plain.includes("<"));
+  assert.equal(deriveTitle(htmlToPlain("<p><strong>메타 제목:</strong> 멋진 글</p>")), "멋진 글");
+});
+
+test("이미지 경로 추출·형식 판별", () => {
+  const bucket = "ai-writing-editor-images";
+  const html = '<img src="https://x.supabase.co/storage/v1/object/public/ai-writing-editor-images/u1/aaa.webp"><img src="https://x.supabase.co/storage/v1/object/public/ai-writing-editor-images/u1/bbb.png"><img src="https://other.com/a.png">';
+  assert.deepEqual(imagePathsIn(html, bucket).sort(), ["u1/aaa.webp", "u1/bbb.png"]);
+  const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
+  const jpg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const webp = new Uint8Array([0x52, 0x49, 0x46, 0x46, 1, 2, 3, 4, 0x57, 0x45, 0x42, 0x50]);
+  const exe = new Uint8Array([0x4d, 0x5a, 0x90, 0, 3, 0, 0, 0, 4, 0, 0, 0]);
+  assert.equal(sniffImage(png).ext, "png");
+  assert.equal(sniffImage(jpg).mime, "image/jpeg");
+  assert.equal(sniffImage(webp).ext, "webp");
+  assert.equal(sniffImage(exe), null);
+  assert.equal(sniffImage(new Uint8Array(4)), null);
 });
