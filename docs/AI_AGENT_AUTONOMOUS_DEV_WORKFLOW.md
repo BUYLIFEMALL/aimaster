@@ -209,7 +209,7 @@ Claude Code도 Codex(Orca)와 같은 방식으로, 주인님이 로그인해 둔
   | 메인 `buylifemall@gmail.com` | **크롬** 기존 기본 프로필(이전과 같음) | `3208dd7d-d933-4487-a96f-61fbf8cf69dd` |
   | 보조 `buylifemall1@gmail.com` | **엣지**(Microsoft Edge) 기본 프로필 | `6455da5d-f53b-4860-b2f4-edb55347a056` (2026-10-14 연결·`Edg/155` 확인) |
 
-  - 확장을 다시 설치하면 deviceId가 바뀔 수 있으니, 바뀌면 이 표를 고친다. 시험용으로 만든 크롬 새 프로필(`66bc74e9-75ad-4055-8567-2b308a702e70`)은 어느 계정도 쓰지 않는다.
+  - 확장을 다시 설치하면 deviceId가 바뀔 수 있으니, 바뀌면 이 표를 고친다. 시험용으로 만들었던 크롬 새 프로필(`66bc74e9…`, 구글 `buylifemall1`)은 2026-10-14 삭제했다 — 크롬에는 메인 계정의 기본 프로필 하나만 둔다.
   - 엣지는 이 PC에 Claude Code 연결(native messaging host `com.anthropic.claude_code_browser_extension`)이 등록돼 있어 쓸 수 있다. 네이버 웨일·Aside는 등록이 없어 쓰지 않는다. 엣지 확장은 크롬 웹스토어의 같은 확장(`fcoeoabgfenejglbffodgkkbkcdhcgfn`)을 설치한다.
 - 실측(2026-10-14): 크롬 새 프로필에 확장을 설치하고 **다른 Claude 계정으로 로그인한 뒤 다시 연결해도**, 보조 계정 세션의 `list_connected_browsers`에 두 프로필이 모두 보였다. 즉 **확장의 Claude 계정과 상관없이 이 PC의 Claude Code는 연결된 브라우저를 모두 볼 수 있다**(처음에 "확장은 한 계정에만 연결된다"고 적었던 설명은 틀려서 정정함).
 - 규칙: **각 세션은 위 표에서 자기 계정에 정해진 브라우저만 조작한다.** 두 세션이 같은 브라우저를 동시에 조작하면 탭·입력이 서로 꼬인다. 작업 시작 때 `list_connected_browsers`로 `inUse`가 자기 브라우저인지 확인하고, 아니면 `select_browser`로 표의 deviceId를 고른다. 표에 없는 브라우저만 보이면 임의로 고르지 않고 주인님께 묻는다.
