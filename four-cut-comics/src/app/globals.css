@@ -350,3 +350,19 @@ a.project-card{color:inherit}
 .cc-swatch{width:28px;height:28px;padding:0;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
 .cc-swatch.on{box-shadow:0 0 0 2px var(--brand)}
 @media (max-width:720px){.cc-editor{grid-template-columns:1fr}.cc-handle{width:24px;height:24px}.cc-resize{right:-13px;bottom:-13px}}
+
+/* v1.02 모바일: 좁은 화면에서는 좌측 메뉴 대신 위쪽 접는 메뉴(markdown-studio 규칙과 동일한 셸 부분) */
+@media(max-width:767px){
+  .app-shell{display:block}
+  .desktop-sidebar{display:none}
+  .mobile-sidebar{display:block;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+  .mobile-header{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;font-size:13px}
+  .mobile-header button{border:0;padding:4px}
+  .mobile-menu{max-height:calc(100dvh - 60px);overflow:auto;display:flex;flex-direction:column}
+  .mobile-menu .sidebar-brand{padding:15px}
+  .mobile-menu .sidebar-nav{overflow:visible}
+  .workspace-content{padding:23px 14px}
+  .card{padding:18px}
+  .cc-steps{flex-wrap:wrap}
+  .cc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+}

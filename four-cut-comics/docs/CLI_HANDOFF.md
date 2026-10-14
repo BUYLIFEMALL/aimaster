@@ -67,10 +67,16 @@
 - 검수: 단위 14/14(말풍선 7건 추가), tsc·빌드, 프로덕션 배포. **운영 실호출(엣지, 일반 회원 본인 키)**: 등장인물 2명(김팀장·박신입) 대본 → **Nano Banana 2** 시트 2장·4컷 생성 → AI 말풍선 4건 모두 200·자동 배치 → 편집기 끌기(꼬리·이동)·외침/생각·빨강·회전 8°·AI 다시 배치 확인 → **[바둑판] 저장 실제 파일 확인**(엣지 다운로드 폴더 `D:\PDS`, 2108×2108 PNG, 말풍선 포함·주황 점 없음). 첫 배포에서 꼬리가 화자 얼굴을 가로지르는 것을 보고 `shortenTail`·프롬프트 보강 후 재배포·재확인.
 - 버전 v1.01→v1.02(`version.ts`·`package.json` 1.0.2·DB `programs.version`, 기록 `supabase/migrations/0003_version_v1_02.sql`).
 
+### 2026-10-14 밤 v1.03 — 모바일 셸 수정
+- 모바일 폭 검수에서 **좌측 메뉴가 좁은 화면에서도 그대로 남아 본문이 약 250px로 눌리는 결함** 발견: `Sidebar.tsx`에 `.mobile-sidebar`(위쪽 접는 메뉴) 마크업은 있으나 `globals.css`에 767px 이하 전환 규칙이 없었다(portrait-photo에서 복사한 뼈대 그대로). `markdown-studio`의 셸 규칙을 옮겨 `@media(max-width:767px)` 추가(+ 컷 목록 2열·단계 표시 줄바꿈).
+- 검수(엣지 창 492px — 엣지 최소 폭): 위쪽 메뉴 열기/닫기·v1.03 표시·계정/로그아웃 위치, 가로 넘침 없음, Lite 모델로 대본→시트 2장→4컷→AI 말풍선 4건, 편집기 1열·조절 점 24px·끌기 확인. 꼬리 50%·110 축소 후 AI 배치에서 꼬리가 얼굴을 가로지르지 않음 확인. 검수 후 창 크기 복원(1792×1000).
+- 버전 v1.02→v1.03(`version.ts`·`package.json` 1.0.3·DB, 기록 `supabase/migrations/0004_version_v1_03.sql`).
+- **같은 누락이 다른 프로그램 10개에 있다**(2026-10-14 `grep` 기준: ai-writing-editor·banana-canvas·blog-keyword·fashion-style·landing-architect·music-player·personality-suite·portrait-photo·reverse-prompt·thumbnail-master). 각 프로그램을 고칠 때 같은 규칙을 넣고 버전 +0.01.
+
 ### 남은 일 (다음 계정이 이어서)
-1. **모바일 폭(390px) 화면 미확인**: 엣지 창이 최대화 상태라 `resize_window`가 적용되지 않았다(innerWidth 1768 유지). 창 최대화를 풀거나 개발자 도구 기기 모드로 편집기 1열 배치(`@media (max-width:720px)`)와 터치 끌기를 확인한다. 꼬리 50%·110 축소 후의 실제 AI 배치도 다음 생성 때 한 번 더 육안 확인.
+1. 실제 휴대폰(390px) 터치 끌기는 엣지 최소 폭(492px) 때문에 미확인 — 휴대폰이나 개발자 도구 기기 모드로 확인.
 2. **버전 규칙**: 이후 수정마다 `src/lib/version.ts`+`package.json`+`programs.version`을 +0.01.
-3. **v1.03**: 인스타 문구, 이어서 만들기(단편·계속·완결 — `/api/script` `followup`은 이미 구현, UI만 필요), 만화 합치기, 내 작품(IndexedDB 20개). **v1.04**: 스타일·컷 수·비율·서버 보관함.
+3. **다음 버전(v1.04~)**: 인스타 문구, 이어서 만들기(단편·계속·완결 — `/api/script` `followup`은 이미 구현, UI만 필요), 만화 합치기, 내 작품(IndexedDB 20개). **v1.04**: 스타일·컷 수·비율·서버 보관함.
 4. (완료 2026-10-14) 루트 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md` 기록.
 
 ## 7. 이번 작업에서 배운 점(ERROR_LESSONS에 옮김, 2026-10-14)

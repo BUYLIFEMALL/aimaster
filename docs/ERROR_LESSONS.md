@@ -1,5 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — 복사한 뼈대의 모바일 메뉴 CSS 누락 (four-cut-comics v1.03, 다른 10개 프로그램 동일)
+- 증상: 휴대폰 폭에서도 좌측 메뉴(244px)가 그대로 남아 본문이 약 250px로 눌림 → 원인: `Sidebar.tsx`에는 `.mobile-sidebar`(위쪽 접는 메뉴)가 있지만 `globals.css`에 `.mobile-sidebar{display:none}`만 있고 767px 이하 전환 규칙이 없음(portrait-photo 뼈대를 복사한 프로그램 공통) → 해결: `markdown-studio`의 `@media(max-width:767px){.app-shell{display:block}.desktop-sidebar{display:none}.mobile-sidebar{display:block;...}}` 셸 규칙을 넣음(`four-cut-comics/src/app/globals.css` 끝) → 다음부터 확인: 뼈대를 복사해 새 프로그램을 만들면 엣지 창 최대화를 풀고 `resize_window`로 좁혀 위쪽 메뉴가 나오는지 본다. 점검 명령: `grep -L "mobile-header" */src/app/globals.css`(규칙 없는 파일).
+
 ## 2026-10-14 — 엣지 검수 함정과 AI 말풍선 꼬리 (four-cut-comics v1.02)
 - 증상: 저장 버튼을 눌렀는데 `Downloads`에 파일이 없음 → 원인: 이 PC 엣지의 다운로드 폴더가 `D:\PDS`(Preferences `download.default_directory`) → 다운로드 검수는 `D:\PDS`에서 확인한다(같은 이름이면 `(1)`이 붙음).
 - 증상: 엣지 탭 캡처가 `Page.captureScreenshot timed out` → 원인: 엣지 창이 가려지거나 최소화되어 `document.visibilityState=hidden` → 화면 대신 저장 파일을 내려받아 확인하거나 주인님께 창을 앞으로 띄워 달라고 한다. `resize_window`도 창이 최대화 상태면 적용되지 않음(innerWidth 그대로) → 모바일 폭 검수는 최대화 해제 후 진행.

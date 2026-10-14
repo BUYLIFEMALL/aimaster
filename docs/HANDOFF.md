@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — AI 4컷 만화 자동화 v1.03: 모바일 화면 수정 (`four-cut-comics`)
+
+- 모바일 폭 검수에서 좁은 화면에도 좌측 메뉴가 남아 본문이 약 250px로 눌리는 결함을 발견해, 767px 이하에서 위쪽 접는 메뉴로 바꾸는 CSS를 추가했습니다(markdown-studio 규칙 재사용). 엣지 492px에서 메뉴·만화 1세트·말풍선 편집기·끌기 확인, 꼬리 축소 후 AI 배치도 확인. 버전 v1.02→v1.03(코드·package·DB).
+- **같은 누락이 다른 프로그램 10개에 있습니다**: ai-writing-editor·banana-canvas·blog-keyword·fashion-style·landing-architect·music-player·personality-suite·portrait-photo·reverse-prompt·thumbnail-master. 상세: [four-cut-comics/docs/CLI_HANDOFF.md](../four-cut-comics/docs/CLI_HANDOFF.md) §6.
+
 ## 2026-10-14 Claude Code — AI 4컷 만화 자동화 v1.02: AI 자동 말풍선·말풍선 직접 배치 (`four-cut-comics`)
 
 - 추가: 대사 표시 방식 "AI 자동 말풍선"(기본)·"말풍선 직접 배치". AI가 완성 컷을 보고 빈 곳·꼬리 방향·모양(말풍선/생각/외침)을 정하고(`/api/balloon`, 본인 키 텍스트 1회/컷, 실패 시 상단 중앙), [말풍선 편집]에서 끌어 이동·크기·꼬리, 모양·회전·테두리 색, AI 다시 배치. 꼬리는 화자 얼굴을 가로지르지 않게 자동으로 줄임. DB 스키마 변경 없음.
