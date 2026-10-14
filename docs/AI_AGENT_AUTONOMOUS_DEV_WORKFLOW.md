@@ -207,7 +207,7 @@ Claude Code도 Codex(Orca)와 같은 방식으로, 주인님이 로그인해 둔
   | Claude 계정 | 브라우저 | deviceId |
   |---|---|---|
   | 메인 `buylifemall@gmail.com` | **크롬** 기존 기본 프로필(이전과 같음) | `3208dd7d-d933-4487-a96f-61fbf8cf69dd` |
-  | 보조 `buylifemall1@gmail.com` | **엣지**(Microsoft Edge) | 엣지에 확장 설치·연결 후 기록 |
+  | 보조 `buylifemall1@gmail.com` | **엣지**(Microsoft Edge) 기본 프로필 | `6455da5d-f53b-4860-b2f4-edb55347a056` (2026-10-14 연결·`Edg/155` 확인) |
 
   - 확장을 다시 설치하면 deviceId가 바뀔 수 있으니, 바뀌면 이 표를 고친다. 시험용으로 만든 크롬 새 프로필(`66bc74e9-75ad-4055-8567-2b308a702e70`)은 어느 계정도 쓰지 않는다.
   - 엣지는 이 PC에 Claude Code 연결(native messaging host `com.anthropic.claude_code_browser_extension`)이 등록돼 있어 쓸 수 있다. 네이버 웨일·Aside는 등록이 없어 쓰지 않는다. 엣지 확장은 크롬 웹스토어의 같은 확장(`fcoeoabgfenejglbffodgkkbkcdhcgfn`)을 설치한다.
