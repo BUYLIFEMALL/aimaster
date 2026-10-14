@@ -28,3 +28,5 @@
 ## 함정
 - 이 폴더는 `ai-writing-editor` 뼈대를 복사해 만들었다. 복사 후 `@/lib/we/*`·`we.css` 잔재와 slug(`access.ts`)·`version.ts`를 먼저 `tsc`로 확인할 것.
 - Vercel CLI 배포 출력이 JSON 안내만 보여도 배포는 진행된다 — `vercel ls --scope buylife`로 상태 확인.
+
+- 한 장 요약 인수인계: [docs/HANDOFF_PERSONALITY_SUITE_2026-10-14.md](../../docs/HANDOFF_PERSONALITY_SUITE_2026-10-14.md)
