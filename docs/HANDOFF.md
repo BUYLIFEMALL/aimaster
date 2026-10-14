@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code(보조 계정) — 새 프로그램 분석·개발 플랜: 엑셀·텍스트 파일 합치기·나누기 (가칭 `file-merge`, 구현 전)
+
+- 주인님 요청: https://xel-fusion-v2.vercel.app/ ("Playful File Helper") 분석 → 이름 추천·개발 플랜. HTML·번들·처리 코드 전수 분석, 엣지에서 시험 파일로 실제 동작 확인(엑셀 잇기 시 머리글 반복·열 어긋남·다른 시트 섞임, 텍스트 나누기 조각 크기 불균등).
+- 추천 이름 **AI 엑셀·텍스트 합치기 자동화**(미확정), slug `file-merge`. 브라우저 안 처리라 AI 키·운영 비용 없음 → FREE 배지 후보. 코드·DB·배포 없음.
+- 재개: [file-merge/docs/DEVELOPMENT_PLAN.md](../file-merge/docs/DEVELOPMENT_PLAN.md) §6 결정 사항(이름·FREE·범위) 확인 후 P1부터. 분석: [file-merge/docs/REFERENCE_ANALYSIS.md](../file-merge/docs/REFERENCE_ANALYSIS.md).
+
 
 ## 2026-10-14 Codex — 상태바 v1.04 공백 유지·새 터미널 자동 적용
 
