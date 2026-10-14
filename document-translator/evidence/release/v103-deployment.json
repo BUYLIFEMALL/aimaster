@@ -1,0 +1,17 @@
+{
+  "version": "v1.03",
+  "codeCommit": "8d34b366",
+  "deploymentId": "dpl_G7Md8LUSXVR5XmNC8EjjsRBTgikh",
+  "readyState": "READY",
+  "target": "production",
+  "liveUrl": "https://document-translator.buylife.xyz",
+  "deploymentUrl": "https://document-translator-5ut7ej3n9-buylife.vercel.app",
+  "catalogVersion": "v1.03",
+  "automaticChecks": 10,
+  "httpChecks": 10,
+  "rlsTables": 3,
+  "serverOnlyFunctions": 4,
+  "latestCronStatus": "succeeded",
+  "authenticatedUi": "pending actual logged-in Chrome",
+  "paidAiCallsThisContinuation": 0
+}

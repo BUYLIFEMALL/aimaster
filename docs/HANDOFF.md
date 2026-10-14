@@ -3,7 +3,7 @@
 ## 2026-10-14 Codex — AI 문서번역 자동화 v1.03 줄바꿈 수정·운영 검수 재개
 
 - 운영 전체 범위 승인은 완료입니다. v1.02 커밋 7cb27836·프로덕션 READY·카탈로그 활성, DB/RLS/RPC/Cron·요금제/VIP·썸네일·SSO/도메인 적용 기록을 확인했습니다. 과거 승인 대기 항목보다 프로그램 전용 RELEASE_CHECKS.md의 최신 상태를 따릅니다.
-- v1.03: 이중 이스케이프된 번역 개행만 정규화하고 원문 리터럴 이스케이프/코드/경로 보존. 자동10개와 프로덕션 빌드 통과. 커밋·푸시·운영 배포·실제 회원 검수를 이어갑니다.
+- v1.03: 이중 이스케이프된 번역 개행만 정규화하고 원문 리터럴 이스케이프/코드/경로 보존. 자동10개·빌드·운영 HTTP10개 통과. 수정 커밋8d34b366 원격 푸시·프로덕션 dpl_G7Md8LUSXVR5XmNC8EjjsRBTgikh READY·카탈로그 v1.03 동기화 완료. RLS3개·서버 전용 RPC4개·Cron 최신 성공 확인. evidence/release에 HTTP 검사와 공개 로그인 캡처 보관.
 - 화면 검수: 새 Chrome 실행 자동 검토 거절(blocked by policy), 기존 Edge 도구 포커스 확보 실패. 주인님께 Chrome 시험 회원 로그인 창 준비 요청. 회원 대신 비밀번호/키 입력·쿠키 복사·인증 우회 없음. 실제 편집/재검수/역번역/저장/복원/다운로드는 아직 최종 확인하지 않았습니다.
 - 재개: [운영 검수](../document-translator/docs/RELEASE_CHECKS.md), [CLI 인수인계](../document-translator/docs/CLI_HANDOFF.md). 다른 CLI 변경을 스테이징하지 않습니다.
 

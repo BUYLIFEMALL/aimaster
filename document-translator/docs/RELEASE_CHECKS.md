@@ -19,7 +19,7 @@ Chrome에 남아 있는 buylifemall@naver.com 로그인으로 새 도메인에 �
 
 수정: `providerSchema.ts`가 공급사 스키마만 변환하며 응답의 전체 Zod 길이·문단·점수·필드 검증은 유지합니다.400 요청 형식 실패를 키 오류로 잘못 안내하던 것도 수정했습니다. [공식 generateContent 스키마 API](https://ai.google.dev/api/generate-content?hl=en), [현재 구조화 출력 안내](https://ai.google.dev/gemini-api/docs/generate-content/structured-output?hl=en).
 
-자동9개와 운영 연결값을 사용한 빌드를 통과했습니다. v1.02 배포 후 UI의 실제 번역·편집·재검수·역번역·저장·새로고침 복원 및 실제 다운로드 검수가 남아 있습니다.
+자동9개와 운영 연결값을 사용한 빌드를 통과했습니다. v1.02 수정 배포는 완료했으며 UI의 실제 번역·편집·재검수·역번역·저장·새로고침 복원 및 실제 다운로드 최종 검수가 남아 있습니다. 아래 최신 v1.03 상태를 기준으로 재개합니다.
 
 ## 의존성 점검
 
@@ -31,3 +31,14 @@ Chrome에 남아 있는 buylifemall@naver.com 로그인으로 새 도메인에 �
 - v1.03 줄바꿈 정규화 및 정상 코드 문자열 보존: 자동10개 통과. generate() 공급사 응답 경로에서 URL 다음 문장 개행과 코드 리터럴 보존까지 회귀 검사. 프로덕션 빌드 성공.
 - 새 Chrome 실행은 자동 검토가 blocked by policy로 거절. 기존 Edge는 restoreWindow 후에도 window_not_focused, Aside는 사이트 로그인 없음. 실제 Chrome 시험 회원 로그인 화면 준비를 요청했습니다. 비밀번호/키 입력·쿠키 복사·인증 우회는 하지 않습니다.
 - 다음: v1.03 커밋·푸시·배포·DB 버전 일치, 실제 회원 전체 UI 흐름 및 다운로드 검수.
+
+## 2026-10-14 21:36 KST — v1.03 배포 후 확인
+
+- 코드 수정 커밋 **8d34b366**, git push origin master 성공. 다른 CLI 파일/루트 미커밋 변경은 제외하고 루트 문서는 HEAD에 본 작업 항목만 반영했습니다.
+- 프로덕션 **dpl_G7Md8LUSXVR5XmNC8EjjsRBTgikh READY**, https://document-translator.buylife.xyz 에 연결. 배포 원본 https://document-translator-5ut7ej3n9-buylife.vercel.app . 원격 npm ci·빌드 성공. 카탈로그는 version만 v1.02→v1.03 갱신하고 기존 권한/VIP 부여는 다시 적용하지 않았습니다.
+- HTTP10개 통과: 로그인200, 작업 화면 익명307, keys/projects/glossaries 및 정상 형식 ai/remove 익명401, ai 외부 출처403·잘못된 형식415·임의 소유자 필드400. 전부 private/no-store, X-Vercel-Cache MISS. 증거 evidence/release/v103-http-checks.json. 유료 AI 호출0회입니다.
+- 운영 테이블3개 RLS=true. 함수4개 모두 authenticated EXECUTE=false, service_role=true. Cron active=true, 최신 실행2026-10-14 12:35 UTC succeeded. 이 확인에서 실제 회원 저장/복원을 대신 처리하지 않았습니다.
+- 배포 로그 조회(--level error --since 30m) 결과 No logs found. 전체 회원 동작 무오류를 의미하지는 않습니다.
+- Aside의 실제 공개 로그인 화면을 직접 열어 캡처·육안 확인(evidence/release/v103-login.png). 로그인되지 않은 상태의 화면 검사이며 Chrome 회원 검수와 구분합니다. Chrome 새 창 자동 검토 거절·Edge 도구 포커스 실패로 주인님께 Chrome의 시험 회원 로그인 창 준비를 요청해 둔 상태입니다.
+- **남은 작업**: 실제 회원의 번역→편집→재검수→역번역→다운로드/백업→선택 저장→새로고침/복원·용어집·모바일 흐름, API/DB 대조. 모의 검사와 HTTP 검사로 이 항목을 완료 처리하지 않습니다. 비밀번호/키·쿠키를 복사하거나 인증을 우회하지 않습니다.
+- 확장 프로그램 없음으로 ZIP/extension 버전 갱신은 대상이 아닙니다. 기존 의존성 중간 등급3건과 브라우저 번들에서 비포함 확인 기록은 위 의존성 점검을 따릅니다.
