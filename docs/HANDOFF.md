@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — 신규 프로그램: AI 종합 성격 진단 자동화 (`personality-suite` v1.01)
+
+- 참고 원본: AI Studio "다기능 종합 성격 진단기". 코드·문항·해석은 복제하지 않고 새로 작성(상표명 미사용, 진단 아님 안내). 상황별 16유형 10종 + 성격 5요인·행동 스타일·애착·에니어그램 = 14종.
+- 구현: 한 문항씩 진행, 서버가 점수 재계산·저장(AI 없이도 동작), 회원 본인 Gemini 키로 AI 심층 분석·종합 프로필. DB `personality_suite_results`·`personality_suite_profiles`(RLS owner-only).
+- 등록: `programs`(배지 new+free)·요금제 3종·VIP 접근·썸네일, 주소 https://personality-suite.buylife.xyz. 검수: 단위 13/13, 빌드, 운영 로그인 화면에서 검사→결과→AI 분석→삭제 확인.
+- 남은 일(v1.02): 기질·성향 점검, 스트레스·마음 상태 자기점검(위기 안내 고정 문구), 종합 프로필 고도화. 상세: [personality-suite/docs/CLI_HANDOFF.md](../personality-suite/docs/CLI_HANDOFF.md)
+
 ## 2026-10-13 Codex — AI 할 일·성과 관리 v1.04 후속 작업 재개
 
 - 주인님의 “남은 작업 이어가줘”로 W01~W05 재개. 미측정/차트/타이머정산 이름, 본인 Gemini 키 상태·모델·실제 발급 매뉴얼, 서버 AI 분석, JSON 가져오기 미리보기·원자적 추가 병합·충돌 보존·선택 설정복원, 범위 일치/실제초/수식보호 CSV 구현.
