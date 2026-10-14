@@ -7,7 +7,7 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, coverCrop, evaluateHead, headInCrop, moveItem, safeFileName, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, evaluateHead, headInCrop, moveItem, parseStoredControls, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
@@ -78,6 +78,7 @@ export function Studio({ userId }: { userId: string }) {
   const [skip, setSkip] = useState<boolean[]>([]);
   const [headBusy, setHeadBusy] = useState(false);
   const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
+  const [batchCrops, setBatchCrops] = useState<Record<number, { presetId: string; crop: { sx: number; sy: number; sw: number; sh: number }; srcW: number; srcH: number }>>({});
   const [headMeasure, setHeadMeasure] = useState<{ url: string; crownY: number; chinY: number; centerX: number; srcW: number; srcH: number } | null>(null);
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
@@ -151,7 +152,7 @@ export function Studio({ userId }: { userId: string }) {
     const chosen = picked.slice(0, MAX_BATCH);
     previews.forEach((u) => URL.revokeObjectURL(u));
     const urls = chosen.map((f) => URL.createObjectURL(f));
-    setNames({}); setZoomOn(false); setFiles(chosen); setPreviews(urls);
+    setNames({}); setBatchCrops({}); setZoomOn(false); setFiles(chosen); setPreviews(urls);
     setFile(chosen[0]); setPreviewUrl(urls[0]);
     setResults([]); setSources([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
     setNotice(picked.length > MAX_BATCH ? `사진은 한 번에 ${MAX_BATCH}장까지 처리합니다. 앞의 ${MAX_BATCH}장만 사용합니다.` : chosen.length > 1 ? `${chosen.length}장을 한 번에 처리합니다(사진마다 결과 1장).` : "");
@@ -162,7 +163,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setGrid(false); setZoomOn(false); setCropOpen(null); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setZoomOn(false); setCropOpen(null); setBatchCrops({}); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -257,6 +258,9 @@ export function Studio({ userId }: { userId: string }) {
   async function saveCropped(crop: { sx: number; sy: number; sw: number; sh: number }) {
     if (!shown) return;
     const preset = sizePresetById(sizeId);
+    if (cropOpen) {
+      try { localStorage.setItem(`portrait-photo:crop:${preset.id}`, JSON.stringify(controlsFromCrop(crop, cropOpen.w, cropOpen.h))); } catch { /* 무시 */ }
+    }
     setSaving("lic");
     try {
       const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive, crop });
@@ -280,6 +284,38 @@ export function Studio({ userId }: { userId: string }) {
       const pct = (n: number) => Math.round(n * 100);
       const up = t.crop.sw < preset.width ? " 원본 해상도보다 확대돼 선명도가 낮을 수 있습니다." : "";
       setNotice(`얼굴 확대 자르기로 저장했습니다(머리 약 ${pct(t.achievedRatio)}%, 기준 ${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%${t.clamped ? ", 사진 크기 한계로 더 확대하지 못했습니다" : ""}).${up} 머리 위치는 AI 추정이라 결과를 눈으로 확인하세요. 제출 기관 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  }
+
+  /** 일괄 모드: 제외하지 않은 모든 결과를 선택한 규격 크기 JPEG로 만들어 ZIP 하나로 저장(사진마다 지정한 영역 우선) */
+  async function saveSizedBatch() {
+    const preset = sizePresetById(sizeId);
+    const keep = results.map((_, i) => i).filter((i) => !skip[i]);
+    if (keep.length === 0) { setError("저장할 사진이 없습니다. 제외 표시를 확인해 주세요."); return; }
+    setSaving("batch");
+    try {
+      const entries: { name: string; data: Uint8Array }[] = [];
+      let custom = 0;
+      let over = 0;
+      for (const i of keep) {
+        let src = results[i];
+        if (whiten) { try { src = (await whitenDataUrl(src)).dataUrl; } catch { /* 원본 사용 */ } }
+        const fileIdx = sources[i] ?? i;
+        const bc = batchCrops[fileIdx];
+        let crop: { sx: number; sy: number; sw: number; sh: number } | undefined;
+        if (bc && bc.presetId === preset.id) {
+          const im = new Image();
+          await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = src; });
+          crop = scaleCrop(bc.crop, bc.srcW, bc.srcH, im.naturalWidth, im.naturalHeight);
+          custom++;
+        }
+        const r = await renderSized(src, preset, { mirrored, filter, applyFilter: toneActive, crop });
+        if (r.overLimit) over++;
+        entries.push({ name: `${nameFor(fileIdx, `증명사진-${i + 1}`)}-${preset.id}-${preset.width}x${preset.height}.jpg`, data: new Uint8Array(await r.blob.arrayBuffer()) });
+      }
+      const zip = createZip(entries);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `증명사진-${preset.id}-${entries.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
+      setNotice(`${entries.length}장을 ${preset.width}×${preset.height}px로 ZIP 저장했습니다(직접 지정한 영역 ${custom}장, 자동 중앙 자르기 ${entries.length - custom}장${over ? `, 용량 제한을 넘은 파일 ${over}장` : ""}). 제출 기관의 사진 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -483,6 +519,9 @@ export function Studio({ userId }: { userId: string }) {
                   url={shown} srcW={cropOpen.w} srcH={cropOpen.h} preset={pr} initial={rec} recommended={rec}
                   measure={m ? { crownY: m.crownY, chinY: m.chinY } : null} mirrored={mirrored}
                   busy={!!saving} onClose={() => setCropOpen(null)} onSave={(c) => { void saveCropped(c); }}
+                  remembered={(() => { try { return parseStoredControls(localStorage.getItem(`portrait-photo:crop:${pr.id}`)); } catch { return null; } })()}
+                  onAssign={batchMode ? (c) => { setBatchCrops((cur) => ({ ...cur, [sourceIdx]: { presetId: pr.id, crop: c, srcW: cropOpen.w, srcH: cropOpen.h } })); setNotice(`${sourceIdx + 1}번 사진의 영역을 지정했습니다. [규격으로 일괄 저장]에서 사용됩니다.`); } : undefined}
+                  assigned={batchMode && batchCrops[sourceIdx]?.presetId === pr.id}
                 />
               );
             })()}
@@ -593,6 +632,7 @@ export function Studio({ userId }: { userId: string }) {
             </button>
             {shown && (
               <div className="actions st-save">
+                {batchMode && results.length > 1 && <button type="button" onClick={saveSizedBatch} disabled={!!saving}>{saving === "batch" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격으로 일괄 저장 ({sizePresetById(sizeId).width}×{sizePresetById(sizeId).height}, ZIP)</button>}
                 {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
                 <button type="button" onClick={checkHead} disabled={headBusy || !!saving} title="선택한 규격의 공식 머리 높이 기준과 견줍니다(본인 키 1회 호출)">{headBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}머리 비율 검사 (AI 1회)</button>

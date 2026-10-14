@@ -385,3 +385,25 @@ test("자르기 영역 조정 계산·인도네시아 규격", async () => {
   const back = cropFromControls(controlsFromCrop(t, 864, 1184), 864, 1184, 413 / 531);
   for (const k of ["sx", "sy", "sw", "sh"]) assert.ok(Math.abs(back[k] - t[k]) <= 1, `${k} 왕복`);
 });
+
+test("조정 값 기억 검증·영역 비례 변환", async () => {
+  const { parseStoredControls, scaleCrop, controlsFromCrop } = await import("../src/lib/portrait/post.ts");
+  const ok = parseStoredControls(JSON.stringify({ centerX: 0.4, centerY: 0.5, heightFrac: 0.6 }));
+  assert.deepEqual(ok, { centerX: 0.4, centerY: 0.5, heightFrac: 0.6 });
+  assert.equal(parseStoredControls(null), null);
+  assert.equal(parseStoredControls(""), null);
+  assert.equal(parseStoredControls("not json"), null);
+  assert.equal(parseStoredControls(JSON.stringify({ centerX: 2, centerY: 0.5, heightFrac: 0.6 })), null, "범위 밖");
+  assert.equal(parseStoredControls(JSON.stringify({ centerX: 0.5, centerY: 0.5, heightFrac: 0.05 })), null, "너무 작은 높이");
+  assert.equal(parseStoredControls(JSON.stringify({ centerX: "0.5", centerY: 0.5, heightFrac: 0.5 })), null, "문자열");
+  assert.equal(parseStoredControls(JSON.stringify({ centerX: 0.5, centerY: 0.5 })), null, "누락");
+
+  const crop = { sx: 100, sy: 200, sw: 400, sh: 600 };
+  assert.equal(scaleCrop(crop, 864, 1184, 864, 1184), crop, "크기가 같으면 그대로");
+  const half = scaleCrop(crop, 864, 1184, 432, 592);
+  assert.deepEqual(half, { sx: 50, sy: 100, sw: 200, sh: 300 });
+  // 비율 위치는 유지된다
+  const a = controlsFromCrop(crop, 864, 1184);
+  const b = controlsFromCrop(scaleCrop(crop, 864, 1184, 1728, 2368), 1728, 2368);
+  assert.ok(Math.abs(a.centerX - b.centerX) < 0.002 && Math.abs(a.centerY - b.centerY) < 0.002 && Math.abs(a.heightFrac - b.heightFrac) < 0.002);
+});

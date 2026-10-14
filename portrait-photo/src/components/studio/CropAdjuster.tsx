@@ -2,13 +2,18 @@
 import { useMemo, useRef, useState } from "react";
 import { Download } from "lucide-react";
 import { controlsFromCrop, cropFromControls, evaluateHead, maxHeightFrac } from "@/lib/portrait/post";
-import type { CropRect, SizePreset } from "@/lib/portrait/post";
+import type { CropControls, CropRect, SizePreset } from "@/lib/portrait/post";
 
 // 저장 전 자르기 영역 미리보기·수동 조정. 왼쪽은 원본 위의 잘리는 영역, 오른쪽은 실제 저장될 모습이다.
-export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, measure, mirrored, onSave, onClose, busy }: {
+export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, measure, mirrored, onSave, onClose, busy, remembered, onAssign, assigned }: {
   url: string; srcW: number; srcH: number; preset: SizePreset; initial: CropRect; recommended: CropRect;
   measure: { crownY: number; chinY: number } | null; mirrored: boolean;
   onSave: (crop: CropRect) => void; onClose: () => void; busy: boolean;
+  /** 이 규격에서 지난번에 조정한 값 */
+  remembered?: CropControls | null;
+  /** 일괄 모드: 이 사진의 영역으로 지정 */
+  onAssign?: (crop: CropRect) => void;
+  assigned?: boolean;
 }) {
   const aspect = preset.width / preset.height;
   const maxH = maxHeightFrac(srcW, srcH, aspect);
@@ -109,6 +114,8 @@ export function CropAdjuster({ url, srcW, srcH, preset, initial, recommended, me
 
       <div className="actions">
         <button type="button" className="primary" disabled={busy} onClick={() => onSave(crop)}><Download size={14} />이 영역으로 규격 저장</button>
+        {onAssign && <button type="button" onClick={() => onAssign(crop)}>{assigned ? "✓ 이 사진 영역 지정됨(다시 지정)" : "이 사진의 영역으로 지정 (일괄 저장용)"}</button>}
+        {remembered && <button type="button" onClick={() => setC(remembered)}>지난 조정 값 불러오기 ({preset.id})</button>}
         <button type="button" onClick={() => setC(controlsFromCrop(recommended, srcW, srcH))}>추천 영역으로 되돌리기</button>
         <button type="button" onClick={onClose}>닫기</button>
       </div>

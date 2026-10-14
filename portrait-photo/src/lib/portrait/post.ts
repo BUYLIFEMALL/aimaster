@@ -266,3 +266,22 @@ export function controlsFromCrop(crop: CropRect, srcW: number, srcH: number): Cr
     heightFrac: crop.sh / srcH,
   };
 }
+
+/** localStorage에 저장한 자르기 조정 값을 검증해 읽는다(깨졌거나 범위를 벗어나면 null) */
+export function parseStoredControls(raw: string | null | undefined): CropControls | null {
+  if (!raw) return null;
+  try {
+    const v = JSON.parse(raw) as Partial<CropControls>;
+    const ok = (n: unknown, lo: number, hi: number): n is number => typeof n === "number" && Number.isFinite(n) && n >= lo && n <= hi;
+    if (ok(v.centerX, 0, 1) && ok(v.centerY, 0, 1) && ok(v.heightFrac, 0.1, 1)) return { centerX: v.centerX, centerY: v.centerY, heightFrac: v.heightFrac };
+  } catch { /* 무시 */ }
+  return null;
+}
+
+/** 다른 크기의 이미지에 같은 비율 위치로 옮긴 자르기 영역(원본 크기가 달라졌을 때) */
+export function scaleCrop(crop: CropRect, fromW: number, fromH: number, toW: number, toH: number): CropRect {
+  if (fromW === toW && fromH === toH) return crop;
+  const kx = toW / fromW;
+  const ky = toH / fromH;
+  return { sx: Math.round(crop.sx * kx), sy: Math.round(crop.sy * ky), sw: Math.round(crop.sw * kx), sh: Math.round(crop.sh * ky) };
+}
