@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-14 — 4컷 만화 개발 중 확인한 도구 함정 (four-cut-comics v1.01)
+- Bash 도구가 한글+작은따옴표가 섞인 긴 heredoc을 "unexpected EOF"로 거부함 → 긴 파일은 Write/Edit 도구로 만들고 Bash는 짧은 명령만 쓴다.
+- PowerShell 5.1 `Get-Content`/`Set-Content -Encoding utf8`로 한글 소스를 치환하면 인코딩이 깨져 TSX가 망가짐 → 치환은 Edit 도구나 node 스크립트로 한다.
+- 일본 외무성(`mofa.go.jp`)은 curl·WebFetch가 403 → 로그인된 브라우저(claude-in-chrome)로 연다.
+- `vercel link --yes --project <새이름>`은 프로젝트를 자동 생성하고 `.env.local`을 만든다(`.gitignore`의 `.env*`로 제외됨) → 새 프로그램 연결 시 의도한 이름인지 먼저 확인한다.
+- 다른 CLI가 루트 문서를 수정 중이면 `git show HEAD:<파일>`에 내 항목만 넣어 `git hash-object -w` + `git update-index --cacheinfo`로 커밋한다(작업 폴더의 남의 변경을 섞지 않음).
+
 ## 2026-10-14 — Claude Code 보조 계정에서 하단 상태바가 재실행 후 빠짐 (로컬 PC 설정)
 - 증상: Claude Code 터미널을 다시 켜면 하단 상태바(모델·5h·weekly·context)가 안 나오거나 Orca 기본 표시만 나옴 → 원인: Orca가 `settings.json`의 `statusLine`을 다시 쓰면서 `statusline-extra.js` 호출을 지우는데, 복구 스크립트 `C:/Users/Administrator/.claude/statusline-guard.js`가 기본 폴더(`~/.claude`)만 고치고, 보조 계정이 쓰는 `~/.claude-account2/settings.json`에는 복구 훅도 없었음 → 해결: guard가 `~/.claude`·`~/.claude-account2`·`CLAUDE_CONFIG_DIR`을 모두 점검하도록 수정하고, `~/.claude-account2/settings.json`에 `SessionStart`·`UserPromptSubmit` 훅으로 guard를 등록함(재실행·질문할 때마다 자동 복구) → 다음부터 확인: 새 Claude 계정 폴더를 추가하면 그 `settings.json`에도 같은 guard 훅을 넣고, guard의 점검 폴더 목록에 추가한다. 상태바 표시 내용은 `statusline-extra.js`(원본 백업 `statusline-extra.js.good`)에서만 고친다.
 

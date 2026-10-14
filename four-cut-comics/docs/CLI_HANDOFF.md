@@ -52,14 +52,18 @@
 - **DB 등록 완료**(공용 Supabase): `programs`(id `d39acd06-6ee9-4d6f-924a-82382eb8e146`, slug `four-cut-comics`, v1.01, app_url `https://four-cut-comics.buylife.xyz`, badges `["new"]`, 카테고리·최소 등급은 portrait-photo와 동일), `pricing_plans` 3단계, VIP 등급 접근. 마이그레이션 `supabase/migrations/0001_register_program.sql`(설명 본문은 운영 DB가 정본).
 - **Vercel**: 프로젝트 `four-cut-comics`(buylife 팀) 생성·`.vercel` 링크, 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`·`NEXT_PUBLIC_MAIN_SITE_URL`)를 `scripts/add-four-cut-comics-vercel-env.mjs`로 등록, 도메인 `four-cut-comics.buylife.xyz` 연결, 프로덕션 배포 READY, 미로그인 `/studio` → `/login` 307 확인.
 
-### 남은 일 (다음 계정이 이어서)
-1. **운영 화면 확인(주인님 로그인 필요, 비밀번호는 주인님이 직접)**: `https://four-cut-comics.buylife.xyz/studio` — 일반 회원 `buylifemall@naver.com`으로 4단계 흐름 1세트(시트 2장+컷 4장) 실호출 → 결과 확인 → 테스트 정리(서버 저장 없음). **본인 Gemini 키가 등록돼 있어야 하며 사용량이 발생한다.** 그림 모델 ID(`gemini-3.1-flash-lite-image`, `gemini-3.1-flash-image`)가 이 키에서 열려 있는지 [API키등록·플랫폼연동]의 연결 확인과 실제 생성으로 검증 — 안 열리면 `src/lib/comic/options.ts`의 `IMAGE_MODELS`를 계정에서 되는 모델로 교체.
-2. **썸네일 등록**: `docs/PLATFORM_PATTERNS.md` §13 템플릿(실사 16:9, "photorealistic·shallow depth of field·natural skin texture·85mm"), `node scripts/generate-program-thumbnail.mjs four-cut-comics <geminiUserId> "<프롬프트>"` (주인님 Gemini 키 비용 — 실행 전 확인). 지금은 `programs.thumbnail_url`이 비어 있다.
-3. **버전 규칙**: 이후 수정마다 `src/lib/version.ts`+`package.json`+`programs.version`을 +0.01.
-4. **v1.02**: AI 자동 말풍선(완성 컷을 텍스트 모델에 보내 JSON: 빈 영역 0~1000·화자 입 위치·speech/thought/shout) + 직접 배치 편집(이동·크기·회전·꼬리·모양·색, 터치) + 재배치. **v1.03**: 인스타 문구, 이어서 만들기(단편·계속·완결 — `/api/script` `followup`은 이미 구현, UI만 필요), 만화 합치기, 내 작품(IndexedDB 20개). **v1.04**: 스타일·컷 수·비율·서버 보관함.
-5. 루트 `docs/HANDOFF.md`에 항목 추가(다른 CLI 수정 중이면 HEAD blob 방식), `docs/ERROR_LESSONS.md`에 새로 배운 점 추가(아래 §7).
+### 2026-10-14 저녁 완료 (Claude Code 보조 계정, 엣지)
+- **운영 화면 검수 통과**: 엣지에서 일반 회원 `buylifemall@naver.com`(본인 Gemini 키)으로 `https://four-cut-comics.buylife.xyz/studio` 실호출 — 주제 "출근길 지하철에서 우산을 두고 내린 직장인" → 대본(등장인물 1명·한국인 묘사·4컷) → 캐릭터 시트 1장 → 기본 모델 `gemini-3.1-flash-lite-image`로 4컷 일괄 생성(약 30초, 캐릭터 일관·한글 대사 합성 정상) → 1컷 [다시 그리기] `/api/panel` 200. 콘솔 오류 없음. 서버 저장이 없어 정리할 테스트 데이터 없음. **미확인**: 저장 버튼(바둑판·가로·세로·개별) 실제 파일 다운로드, `Nano Banana 2`(`gemini-3.1-flash-image`) 모델, 등장인물 2명 이상, 모바일 폭.
+- **썸네일 등록**: `scripts/generate-program-thumbnail.mjs`(관리자 키 1회, `gemini-3-pro-image-preview`) → `program-images/catalog/four-cut-comics-thumbnail.jpg`, 공개 주소 200, 메인 상세 화면 표시 확인. 기록 SQL `supabase/migrations/0002_thumbnail.sql`. 코드 변경이 없어 버전은 v1.01 유지.
+- 루트 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md` 기록 완료(아래 §7 반영).
 
-## 7. 이번 작업에서 배운 점(ERROR_LESSONS에 옮길 것)
+### 남은 일 (다음 계정이 이어서)
+1. 위 "미확인" 항목(저장 다운로드·Nano Banana 2·다인물·모바일)은 v1.02 작업 때 함께 확인한다.
+2. **버전 규칙**: 이후 수정마다 `src/lib/version.ts`+`package.json`+`programs.version`을 +0.01.
+3. **v1.02**: AI 자동 말풍선(완성 컷을 텍스트 모델에 보내 JSON: 빈 영역 0~1000·화자 입 위치·speech/thought/shout) + 직접 배치 편집(이동·크기·회전·꼬리·모양·색, 터치) + 재배치. **v1.03**: 인스타 문구, 이어서 만들기(단편·계속·완결 — `/api/script` `followup`은 이미 구현, UI만 필요), 만화 합치기, 내 작품(IndexedDB 20개). **v1.04**: 스타일·컷 수·비율·서버 보관함.
+4. (완료 2026-10-14) 루트 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md` 기록.
+
+## 7. 이번 작업에서 배운 점(ERROR_LESSONS에 옮김, 2026-10-14)
 - 이 환경의 Bash 도구는 한글+작은따옴표가 섞인 긴 heredoc을 "unexpected EOF"로 거부한다 → 파일은 Write/Edit 도구로 만들고, Bash는 짧은 명령만 쓴다.
 - PowerShell 5.1에서 `Get-Content`/`Set-Content -Encoding utf8`로 한글 소스를 치환하면 인코딩이 깨져 TSX가 망가진다 → 치환은 Edit 도구나 node 스크립트로 한다.
 - 일본 외무성(`mofa.go.jp`)은 curl·WebFetch가 403이라 로그인된 Chrome(`claude-in-chrome`)으로 열어야 읽힌다.

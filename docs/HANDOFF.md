@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code — AI 4컷 만화 자동화 v1.01 운영 검수·썸네일 (`four-cut-comics`)
+
+- v1.01은 코드·DB 등록·Vercel 배포까지 커밋 b0ad33e4로 끝나 있었고, 이번에 남은 일을 처리했습니다. 코드 변경이 없어 버전은 v1.01 유지입니다.
+- 운영 검수: 엣지에서 일반 회원 `buylifemall@naver.com`(본인 Gemini 키)으로 주제 → 대본 → 캐릭터 시트 → 4컷 일괄 생성 → 1컷 다시 그리기(`/api/panel` 200)를 실호출로 확인했습니다. 캐릭터 일관·한글 대사 합성 정상, 콘솔 오류 없음, 서버 저장이 없어 정리할 데이터 없음. 저장 다운로드·Nano Banana 2·다인물·모바일은 미확인입니다.
+- 썸네일: 관리자 키 1회로 §13 실사 썸네일 생성·등록, 메인 상세 화면 표시 확인. 기록 SQL `four-cut-comics/supabase/migrations/0002_thumbnail.sql`.
+- 남은 일: v1.02(자동 말풍선·직접 배치) 이후. 상세: [four-cut-comics/docs/CLI_HANDOFF.md](../four-cut-comics/docs/CLI_HANDOFF.md) §6.
+
+## 2026-10-14 Claude Code — 상태바 자동 복구·Claude 계정별 브라우저 정리 (로컬 PC 설정·지침)
+
+- 보조 계정(`.claude-account2`)에서 하단 상태바가 빠지던 문제: `~/.claude/statusline-guard.js`가 두 계정 폴더를 모두 점검하게 하고 보조 계정 설정에 SessionStart·UserPromptSubmit 훅을 등록했습니다(ERROR_LESSONS 2026-10-14).
+- 계정별 브라우저 확정: 메인 `buylifemall@gmail.com` = 크롬 기본 프로필, 보조 `buylifemall1@gmail.com` = 엣지(일반 회원 `buylifemall@naver.com` 로그인 완료). 이 PC의 Claude Code는 확장 계정과 무관하게 연결된 브라우저를 모두 보므로 세션마다 자기 브라우저만 조작합니다. 상세·deviceId: `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2, CLAUDE.md 원칙 18번.
+- 주의: 이 시점 작업 폴더의 `docs/HANDOFF.md`는 다른 CLI의 미커밋 사본이라 HEAD보다 옛 내용(랜딩페이지 기획·fashion-style 주소 통일 항목 누락)입니다. 그대로 커밋하지 말고 HEAD와 합친 뒤 커밋해야 합니다.
+
 ## 2026-10-14 Codex — AI 문서번역 자동화 v1.01 로컬 구현·운영 승인 대기
 
 - 주인님의 ‘진행해줘’로 `document-translator` 첫 버전을 구현했습니다. 파일 작업자·본인 Gemini 서버 경계·번역/3종 검수/수정본 재검수/역번역·용어집·다운로드/백업·선택 저장·표준 흰색 화면/모바일 탭.
