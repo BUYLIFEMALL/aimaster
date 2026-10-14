@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — 신규 프로그램: AI 엑셀·텍스트 합치기 자동화 (`file-merge` v1.01)
+
+- 레퍼런스 "Playful File Helper"(xel-fusion-v2) 분석 결과를 바탕으로 4기능(엑셀 합치기·나누기, 텍스트 합치기·나누기)을 새로 구현. 원본 결함(엑셀 잇기 시 머리글 반복·열 어긋남·다른 시트 섞임, 텍스트 조각 불균등, CP949 깨짐)을 고침: 머리글 이름 기준 정렬·원본 파일/시트 열, 열 값별·N행씩 나누기, 글자 수 경계 보존 분할, 인코딩 자동 인식, 미리보기.
+- 파일은 브라우저 안에서만 처리(서버 전송·저장·API 키 없음). 엑셀은 SheetJS 0.20.3 공식 CDN 패키지(npm `xlsx`는 0.18.5에서 멈춤).
+- 등록: `programs`(Tools·배지 new·FREE 아님)·요금제 3종·VIP 접근·썸네일, Vercel `file-merge`·환경변수 4개·도메인 https://file-merge.buylife.xyz. 검수: 단위 10/10, 빌드, 운영 엣지 일반 회원 4기능 실제 파일 확인, 모바일 400px. 상세: [file-merge/docs/CLI_HANDOFF.md](../file-merge/docs/CLI_HANDOFF.md).
+
 ## 2026-10-14 Claude Code(보조 계정) — 새 프로그램 분석·개발 플랜: 엑셀·텍스트 파일 합치기·나누기 (가칭 `file-merge`, 구현 전)
 
 - 주인님 요청: https://xel-fusion-v2.vercel.app/ ("Playful File Helper") 분석 → 이름 추천·개발 플랜. HTML·번들·처리 코드 전수 분석, 엣지에서 시험 파일로 실제 동작 확인(엑셀 잇기 시 머리글 반복·열 어긋남·다른 시트 섞임, 텍스트 나누기 조각 크기 불균등).

@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — 엑셀 라이브러리 버전과 화면 자동 검수 타이밍 (file-merge v1.01)
+- SheetJS: npm의 `xlsx`는 0.18.5에서 멈춰 있고 공식 문서가 "registry is out of date"라고 안내 → 새 프로그램은 `"xlsx": "https://cdn.sheetjs.com/xlsx-<버전>/xlsx-<버전>.tgz"`(2026-10-15 기준 0.20.3)로 설치한다. 기존 `stepmail`·`kakao_auto_poster`는 npm 0.18.5를 쓰고 있어 점검 후보.
+- 증상: claude-in-chrome `navigate` 직후 스크립트로 파일 입력·체크박스를 조작하면 React가 붙기 전이라 무시되고, 저장 대기 Promise가 끝나지 않아 `Runtime.evaluate timed out` → 원인: 화면 준비(hydration) 전 조작. 이때 눌린 체크박스는 DOM만 바뀌어 다음 클릭에서 상태가 반대로 됨 → 해결: 대상 요소·화면 반응(목록 표시 등)을 기다린 뒤 조작하고, 대기 Promise에는 시간 제한을 둔다. 체크 상태가 이상하면 실제 마우스 클릭으로 다시 확인한다.
+
 
 ## 2026-10-14 — Codex 상태바 공백이 없어지고 현재 세션에 수정이 반영되지 않음
 
