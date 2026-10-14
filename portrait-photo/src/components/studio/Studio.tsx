@@ -7,7 +7,7 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, evaluateHead, headInCrop, moveItem, safeFileName, sizePresetById, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, evaluateHead, headInCrop, moveItem, safeFileName, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
@@ -76,6 +76,7 @@ export function Studio({ userId }: { userId: string }) {
   const [zoomOn, setZoomOn] = useState(false);
   const [skip, setSkip] = useState<boolean[]>([]);
   const [headBusy, setHeadBusy] = useState(false);
+  const [headMeasure, setHeadMeasure] = useState<{ url: string; crownY: number; chinY: number; centerX: number; srcW: number; srcH: number } | null>(null);
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
   const [cmpPos, setCmpPos] = useState(50);
@@ -158,7 +159,7 @@ export function Studio({ userId }: { userId: string }) {
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
     const batch = files.length > 1;
     const inputs = batch ? files : [file as File];
-    setGrid(false); setZoomOn(false); setSkip([]); setHeadMsg(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setGrid(false); setZoomOn(false); setSkip([]); setHeadMsg(null); setHeadMeasure(null); setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
     setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -204,6 +205,7 @@ export function Studio({ userId }: { userId: string }) {
       setSources(ok.map((r) => r.src));
       setSkip(ok.map(() => false));
       setHeadMsg(null);
+      setHeadMeasure(null);
       if (ok.length > 1 && !batch) setGrid(true);
       if (failed.length > 0) setNotice(`${jobs.length}장 중 ${ok.length}장을 만들었습니다. 나머지는 실패해 다시 시도해 주세요.`);
       else if (batch) setNotice(`${ok.length}장을 모두 만들었습니다. 아래에서 사진을 눌러 확인하고 [전체 저장]으로 한꺼번에 받을 수 있어요.`);
@@ -238,6 +240,23 @@ export function Studio({ userId }: { userId: string }) {
     }
   }
 
+  /** 머리 비율 검사 결과로 규격에 맞춰 얼굴 쪽을 더 가깝게 잘라 저장한다 */
+  async function saveTight() {
+    if (!shown || !headMeasure) return;
+    const preset = sizePresetById(sizeId);
+    if (!preset.headRange) return;
+    const target = (preset.headRange[0] + preset.headRange[1]) / 2;
+    const t = tightCrop(headMeasure.crownY, headMeasure.chinY, headMeasure.srcW, headMeasure.srcH, preset, target, headMeasure.centerX);
+    setSaving("lic");
+    try {
+      const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive, crop: t.crop });
+      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}-확대-${preset.width}x${preset.height}.jpg`);
+      const pct = (n: number) => Math.round(n * 100);
+      const up = t.crop.sw < preset.width ? " 원본 해상도보다 확대돼 선명도가 낮을 수 있습니다." : "";
+      setNotice(`얼굴 확대 자르기로 저장했습니다(머리 약 ${pct(t.achievedRatio)}%, 기준 ${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%${t.clamped ? ", 사진 크기 한계로 더 확대하지 못했습니다" : ""}).${up} 머리 위치는 AI 추정이라 결과를 눈으로 확인하세요. 제출 기관 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  }
+
   function moveResult(i: number, dir: -1 | 1) {
     const j = i + dir;
     if (j < 0 || j >= results.length) return;
@@ -266,6 +285,7 @@ export function Studio({ userId }: { userId: string }) {
       // 저장 규격으로 잘렸을 때의 머리 비율로 계산한다
       const img = new Image();
       await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); img.src = shown; });
+      setHeadMeasure({ url: result ?? shown, crownY: data.crownY, chinY: data.chinY, centerX: typeof data.centerX === "number" ? data.centerX : 0.5, srcW: img.naturalWidth, srcH: img.naturalHeight });
       const m = headInCrop(data.crownY, data.chinY, img.naturalWidth, img.naturalHeight, preset);
       const ev = evaluateHead(m.ratio, preset.headRange);
       const pct = (n: number) => Math.round(n * 100);
@@ -511,6 +531,18 @@ export function Studio({ userId }: { userId: string }) {
               <p role="alert" className="lp-alert"><span>{error}{needKey && <> <a className="subtle-link" href="/settings">API키등록·플랫폼연동으로 이동</a></>}</span></p>
             )}
             {notice && !error && <p className="notice">{notice}</p>}
+            {headMeasure && headMeasure.url === (result ?? shown) && (() => {
+              const pr = sizePresetById(sizeId);
+              if (!pr.headRange) return null;
+              const cur = headInCrop(headMeasure.crownY, headMeasure.chinY, headMeasure.srcW, headMeasure.srcH, pr).ratio;
+              if (evaluateHead(cur, pr.headRange).status !== "small") return null;
+              const t = tightCrop(headMeasure.crownY, headMeasure.chinY, headMeasure.srcW, headMeasure.srcH, pr, (pr.headRange[0] + pr.headRange[1]) / 2, headMeasure.centerX);
+              return (
+                <button type="button" className="primary st-tight" onClick={saveTight} disabled={!!saving}>
+                  <Download size={14} />얼굴 확대 자르기로 규격 저장 (머리 약 {Math.round(cur * 100)}% → {Math.round(t.achievedRatio * 100)}%)
+                </button>
+              );
+            })()}
             {headMsg && <p className={headMsg.tone === "ok" ? "notice head-ok" : headMsg.tone === "warn" ? "notice warning" : "notice"} role="status">{headMsg.text}</p>}
             <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
               {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}

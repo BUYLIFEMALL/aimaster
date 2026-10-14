@@ -1,6 +1,6 @@
 "use client";
 import { coverCrop, edgeFor, fitWithin, whitenBackground } from "./post";
-import type { SizePreset } from "./post";
+import type { CropRect, SizePreset } from "./post";
 import { MAX_IMAGE_B64 } from "./validate";
 import type { Resolution } from "./options";
 
@@ -80,9 +80,9 @@ export function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: 
 }
 
 /** 선택한 규격 크기의 JPEG(흰 바탕). 용량 제한을 넘으면 품질을 낮춰 맞춘다. */
-export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirrored: boolean; filter: string; applyFilter: boolean }): Promise<{ blob: Blob; bytes: number; quality: number; overLimit: boolean; underMin: boolean }> {
+export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirrored: boolean; filter: string; applyFilter: boolean; crop?: CropRect }): Promise<{ blob: Blob; bytes: number; quality: number; overLimit: boolean; underMin: boolean }> {
   const img = await loadImage(dataUrl);
-  const crop = coverCrop(img.naturalWidth, img.naturalHeight, preset.width, preset.height, 0.15);
+  const crop = o.crop ?? coverCrop(img.naturalWidth, img.naturalHeight, preset.width, preset.height, 0.15);
   const canvas = document.createElement("canvas");
   canvas.width = preset.width; canvas.height = preset.height;
   const ctx = canvas.getContext("2d");

@@ -157,9 +157,9 @@ test("순백 배경 정리: 가장자리와 이어진 밝은 영역만 바뀐다
 
 test("규격 프리셋·후보 수 범위", async () => {
   const { SIZE_PRESETS, sizePresetById, clampCandidates, MAX_CANDIDATES, coverCrop } = await import("../src/lib/portrait/post.ts");
-  assert.equal(SIZE_PRESETS.length, 14);
-  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 14);
-  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "print-hires"]);
+  assert.equal(SIZE_PRESETS.length, 15);
+  assert.equal(new Set(SIZE_PRESETS.map((p) => p.id)).size, 15);
+  assert.deepEqual(SIZE_PRESETS.map((p) => p.id), ["passport", "resume", "china-visa", "us-visa", "canada-passport", "uk-passport", "india-passport", "india-visa", "us-passport", "sg-passport", "vn-evisa", "hk-passport", "nz-passport", "tw-passport", "print-hires"]);
   const ratio = (id) => { const p = sizePresetById(id); return p.width / p.height; };
   assert.ok(Math.abs(ratio("china-visa") - 33 / 48) < 0.01, "중국 비자 33:48 비율");
   assert.ok(Math.abs(ratio("passport") - 35 / 45) < 0.01, "여권 35:45 비율");
@@ -222,7 +222,7 @@ test("규격 프리셋 확장(공식 안내 확인분)·보관 기간", async ()
   const uk = sizePresetById("uk-passport");
   assert.ok(uk.width >= 600 && uk.height >= 750, "gov.uk 최소 해상도");
   assert.ok(uk.caution && uk.caution.includes("변경하지 않은"));
-  assert.equal(SIZE_PRESETS.length, 14);
+  assert.equal(SIZE_PRESETS.length, 15);
   for (const p of SIZE_PRESETS) assert.ok(!p.minBytes || p.minBytes < p.maxBytes, p.id);
 
   // 서버 보관 기간 계산(순수 함수만 — server-only 모듈이라 로직을 같은 규칙으로 검사)
@@ -308,4 +308,50 @@ test("머리 비율 평가·순서 이동·신규 규격(공식 확인분)", asy
   assert.equal(moveItem(same, 1, 1), same);
   assert.equal(moveItem(same, -1, 1), same);
   assert.equal(moveItem(same, 0, 3), same);
+});
+
+test("확대 자르기·대만 규격", async () => {
+  const { tightCrop, headInCrop, evaluateHead, sizePresetById } = await import("../src/lib/portrait/post.ts");
+  const tw = sizePresetById("tw-passport");
+  assert.deepEqual([tw.width, tw.height], [413, 531], "boca.gov.tw 최소 413×531");
+  assert.equal(tw.maxBytes, 5 * 1024 * 1024);
+  assert.ok(Math.abs(tw.headRange[0] - 32 / 45) < 1e-9 && tw.headSource.includes("boca.gov.tw"));
+  assert.ok(tw.caution.includes("거울상"));
+
+  const preset = { width: 413, height: 531 };
+  // 머리가 작은 사진: 864×1184, 정수리 20% ~ 턱 56%(머리 36%)
+  const before = headInCrop(0.2, 0.56, 864, 1184, preset);
+  assert.ok(before.ratio < 0.45, "원래 머리가 작다");
+  const t = tightCrop(0.2, 0.56, 864, 1184, preset, 0.755);
+  assert.ok(Math.abs(t.achievedRatio - 0.755) < 0.01, `달성 ${t.achievedRatio}`);
+  assert.equal(t.clamped, false);
+  assert.ok(Math.abs(t.crop.sw / t.crop.sh - 413 / 531) < 0.01, "규격 비율");
+  assert.ok(t.crop.sx >= 0 && t.crop.sy >= 0 && t.crop.sx + t.crop.sw <= 864 && t.crop.sy + t.crop.sh <= 1184, "원본 범위 안");
+  assert.ok(Math.abs(t.crop.sx + t.crop.sw / 2 - 432) <= 1, "가로 중앙");
+  const crownPx = 0.2 * 1184, chinPx = 0.56 * 1184;
+  assert.ok(crownPx > t.crop.sy && chinPx < t.crop.sy + t.crop.sh, "머리가 잘리지 않음");
+  assert.equal(evaluateHead(t.achievedRatio, [32 / 45, 36 / 45]).status, "ok");
+
+  // 확대 한계(머리가 이미 크고 위쪽에 붙어 있어 더 못 줄임) → clamped, 달성 비율은 가능한 만큼
+  const c = tightCrop(0.0, 0.9, 864, 1184, preset, 0.755);
+  assert.equal(c.clamped, true);
+  assert.ok(c.achievedRatio > 0.9 && c.crop.sh <= 1184 && c.crop.sw <= 864 && c.crop.sx === 0 && c.crop.sy === 0, "한계까지만 자름");
+  // 가로가 좁은 원본: 가로 한계로 clamped
+  const n = tightCrop(0.1, 0.3, 200, 1184, preset, 0.755);
+  assert.equal(n.clamped, true);
+  assert.equal(n.crop.sw, 200);
+});
+
+test("확대 자르기: 얼굴이 가로 중앙에서 벗어난 경우 얼굴 중심 기준", async () => {
+  const { tightCrop } = await import("../src/lib/portrait/post.ts");
+  const preset = { width: 413, height: 531 };
+  // 얼굴 중심이 이미지 왼쪽 30% 지점
+  const t = tightCrop(0.2, 0.5, 1000, 1000, preset, 0.755, 0.3);
+  const faceCenterPx = 300;
+  assert.ok(Math.abs(t.crop.sx + t.crop.sw / 2 - faceCenterPx) <= 1 || t.crop.sx === 0, "얼굴 중심이 잘린 영역 중앙(또는 왼쪽 경계)");
+  assert.ok(faceCenterPx > t.crop.sx && faceCenterPx < t.crop.sx + t.crop.sw, "얼굴이 영역 안");
+  assert.ok(t.crop.sx >= 0 && t.crop.sx + t.crop.sw <= 1000);
+  // 기본값(0.5)은 이전과 같다
+  const d = tightCrop(0.2, 0.5, 1000, 1000, preset, 0.755);
+  assert.ok(Math.abs(d.crop.sx + d.crop.sw / 2 - 500) <= 1);
 });

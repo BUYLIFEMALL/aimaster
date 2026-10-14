@@ -274,3 +274,6 @@ a.project-card{color:inherit}
 .row-tools button{padding:4px 8px}
 .cand.skipped{opacity:.35}
 .head-ok{border-color:#86efac;background:#f0fdf4;color:#166534}
+
+/* ---- v1.08 ---- */
+.st-tight{width:100%;margin-top:8px}

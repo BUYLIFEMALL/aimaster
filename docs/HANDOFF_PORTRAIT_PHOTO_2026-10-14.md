@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (`portrait-photo`) — 인수인계 문서 (2026-10-14, v1.07)
+# AI 인물사진 자동화 (`portrait-photo`) — 인수인계 문서 (2026-10-14, v1.08)
 
 다른 CLI(Codex·Gemini·다른 Claude 세션)가 이 대화 없이 바로 이어받을 수 있도록 정리한 한 장 요약입니다. 상세는 [`portrait-photo/AGENTS.md`](../portrait-photo/AGENTS.md), [`portrait-photo/docs/CLI_HANDOFF.md`](../portrait-photo/docs/CLI_HANDOFF.md), 원본 분석·계획은 [`portrait-photo/docs/DEVELOPMENT_PLAN.md`](../portrait-photo/docs/DEVELOPMENT_PLAN.md).
 
@@ -31,7 +31,8 @@
 | v1.04 | ZIP 일괄 저장, 규격 7종(캐나다·영국, 공식 확인·주의 문구), 보관 기간 설정 | `3d38e569` |
 | v1.05 | 규격 9종(인도 여권·비자), 후보 한눈에 비교, 보관함 사용량 표시 | `ac03b30e` |
 | v1.06 | 규격 12종(미국 여권·싱가포르·베트남), 확대 비교, 일괄 저장 이름 지정 | `727878d0` |
-| v1.07 | 규격 14종(홍콩·뉴질랜드), 머리 비율 검사, 일괄 순서·제외, 한국 여권 AI 불허 경고 | git log `portrait-photo` |
+| v1.07 | 규격 14종(홍콩·뉴질랜드), 머리 비율 검사, 일괄 순서·제외, 한국 여권 AI 불허 경고 | `8b345b0e` |
+| v1.08 | 얼굴 확대 자르기, 규격 15종(대만) | git log `portrait-photo` |
 
 ## 5. 반드시 지킬 것
 - 키는 회원 본인 것만, 폴백 금지. 원본 얼굴 사진은 서버 저장·로그 금지(생성 결과는 회원이 보관함을 켠 경우만 저장), 생성 전 "본인/동의받은 사진" 확인 체크.

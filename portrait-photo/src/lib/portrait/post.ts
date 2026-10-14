@@ -143,6 +143,11 @@ export const SIZE_PRESETS: SizePreset[] = [
     id: "nz-passport", label: "뉴질랜드 여권 온라인 (passports.govt.nz 안내)", width: 900, height: 1200, maxBytes: 5 * 1024 * 1024, minBytes: 250 * 1024, note: "900×1200px(3:4) · 250KB~5MB",
     caution: "뉴질랜드는 인화 사진 스캔본을 받지 않으며 6개월 이내 촬영한 사진을 요구합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
   },
+  {
+    id: "tw-passport", label: "대만 여권 온라인 (boca.gov.tw 안내, 3.5×4.5cm)", width: 413, height: 531, maxBytes: 5 * 1024 * 1024, note: "413×531px(최소) · JPEG ≤5MB",
+    headRange: [32 / 45, 36 / 45], headSource: "boca.gov.tw(머리 3.2~3.6cm / 사진 4.5cm)",
+    caution: "대만 영사사무국은 수정·합성·좌우 반전(거울상) 사진을 받지 않으며 어길 경우 재신청·수수료 재납부가 필요합니다. 이 파일은 크기 참고용이며 AI로 만든 사진은 접수되지 않을 수 있습니다.",
+  },
   { id: "print-hires", label: "인화용 고해상도 (3×4cm, 600dpi)", width: 709, height: 945, maxBytes: 400 * 1024, note: "709×945px · 400KB 이하" },
 ]
 
@@ -204,4 +209,28 @@ export function moveItem<T>(arr: T[], from: number, to: number): T[] {
   const [it] = next.splice(from, 1);
   next.splice(to, 0, it);
   return next;
+}
+
+/**
+ * 머리가 작게 나온 사진을 규격 비율로 더 가깝게 자를 영역을 계산한다.
+ * 정수리~턱 높이가 잘린 영역 높이의 targetRatio가 되도록 하고, 얼굴 중심(centerX, 0~1)을 가로 중앙에 둔다.
+ * 원본 범위를 넘으면 가능한 최대한만 확대하고 clamped=true, 실제 달성 비율을 돌려준다.
+ */
+export function tightCrop(
+  crownY: number, chinY: number, srcW: number, srcH: number, preset: { width: number; height: number }, targetRatio: number, centerX = 0.5,
+): { crop: CropRect; achievedRatio: number; clamped: boolean } {
+  const aspect = preset.width / preset.height;
+  const crownPx = crownY * srcH;
+  const headPx = Math.max(1, (chinY - crownY) * srcH);
+  let ch = headPx / Math.max(0.2, Math.min(0.95, targetRatio));
+  let cw = ch * aspect;
+  let clamped = false;
+  if (cw > srcW) { cw = srcW; ch = cw / aspect; clamped = true; }
+  if (ch > srcH) { ch = srcH; cw = ch * aspect; clamped = true; }
+  const topMargin = ch * (1 - Math.min(0.95, targetRatio)) * 0.3;
+  const sy = Math.max(0, Math.min(srcH - ch, crownPx - topMargin));
+  const cxPx = Math.max(0.05, Math.min(0.95, centerX)) * srcW;
+  const sx = Math.max(0, Math.min(srcW - cw, cxPx - cw / 2));
+  const crop = { sx: Math.round(sx), sy: Math.round(sy), sw: Math.round(cw), sh: Math.round(ch) };
+  return { crop, achievedRatio: headPx / crop.sh, clamped };
 }
