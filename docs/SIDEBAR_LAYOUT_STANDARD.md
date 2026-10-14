@@ -32,6 +32,37 @@
 - 메뉴 항목을 페이지 상단의 임의 위치에 흩어놓지 말고, 작업 흐름은 한 블록으로, 유틸리티는 구분선 아래 한 블록으로 둔다.
 - 현재 화면은 URL prefix로 활성 상태를 판단한다. 새 페이지를 추가하면 해당 흐름 단계 또는 유틸리티에 함께 연결한다.
 
+### 모바일 레이아웃 — 2026-10-14 주인님 지시
+
+**모든 웹 서브프로그램은 휴대폰 폭(767px 이하)에서 좌측 메뉴를 숨기고 위쪽 접는 메뉴(☰)로 바꿔, 본문이 화면 전체 폭을 쓰게 한다.** 좌측 메뉴(약 244px)가 그대로 남으면 휴대폰에서 본문이 절반 이하로 눌려 사용할 수 없다.
+
+- 사고 사례: 2026-10-14 `four-cut-comics` 모바일 검수에서 본문이 약 250px로 눌린 것을 발견했다. `Sidebar.tsx`에 위쪽 메뉴 마크업(`.mobile-sidebar`·`.mobile-header`·`.mobile-menu`)은 있었지만 `globals.css`에 `.mobile-sidebar{display:none}`만 있고 전환 규칙이 없었다. 이 뼈대를 복사한 10개 프로그램(ai-writing-editor·banana-canvas·blog-keyword·fashion-style·landing-architect·music-player·personality-suite·portrait-photo·reverse-prompt·thumbnail-master)도 같았고, 같은 날 모두 고쳐 각각 버전을 올려 배포했다.
+- **마크업과 CSS는 한 세트다.** 위쪽 메뉴 마크업을 만들거나 복사하면 같은 작업에서 아래 셸 규칙을 반드시 함께 넣는다(기준 구현: `markdown-studio`·`four-cut-comics`의 `src/app/globals.css` 끝).
+
+```css
+@media(max-width:767px){
+  .app-shell{display:block}
+  .desktop-sidebar{display:none}
+  .mobile-sidebar{display:block;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+  .mobile-header{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;font-size:13px}
+  .mobile-header button{border:0;padding:4px}
+  .mobile-menu{max-height:calc(100dvh - 60px);overflow:auto;display:flex;flex-direction:column}
+  .mobile-menu .sidebar-brand{padding:15px}
+  .mobile-menu .sidebar-nav{overflow:visible}
+  .workspace-content{padding:23px 14px}
+  .card{padding:18px}
+}
+```
+
+- Tailwind로 만든 프로그램은 `hidden md:flex`(데스크톱 좌측 바) + `md:hidden`(모바일 상단 바)처럼 같은 효과를 내면 된다. 클래스 이름이 아니라 **767px 이하에서 좌측 바가 사라지고 본문이 전체 폭인지**가 기준이다.
+- 위쪽 펼침 메뉴에도 데스크톱과 같은 항목·순서(프로그램명·버전·다른 프로그램 보기 → 작업 흐름 → API키등록·플랫폼연동 → 계정·로그아웃)를 둔다. 계정은 마지막 메뉴 바로 아래 규칙을 그대로 따른다.
+- 본문 안의 여러 열 배치(카드 격자·편집기 좌우 분할 등)도 767px 이하에서 1~2열로 줄이고, 끌기 조절 점처럼 손가락으로 누르는 요소는 24px 이상으로 키운다(예: `four-cut-comics` 말풍선 편집기).
+- **검수 방법(배포 후 필수)**:
+  1. 실제 브라우저 창 폭을 줄여 확인한다(claude-in-chrome `resize_window`). 창이 최대화되어 있으면 크기가 바뀌지 않으므로 주인님께 최대화 해제를 요청한다. 엣지 창은 약 492px보다 좁아지지 않는다.
+  2. 창이 숨김 상태라 캡처·크기 조절이 안 되면, 페이지 안에 `width:400px` iframe으로 같은 주소를 열고 iframe 안의 `getComputedStyle`로 `.desktop-sidebar`=none·`.mobile-sidebar`=block·본문 폭·가로 넘침 없음을 확인한다(미디어 쿼리는 iframe 폭 기준, 같은 도메인이라 로그인 유지). 보고에는 "화면으로 본 것"과 "스타일 값으로 확인한 것"을 구분해 적는다.
+  3. 점검 명령(위쪽 메뉴 코드는 있는데 전환 규칙이 없는 프로그램만 출력, 2026-10-14 기준 0개):
+     `for d in */; do p=${d%/}; grep -rqs 'className="mobile-sidebar"' $p/src --include=*.tsx && ! grep -q "mobile-sidebar{display:block" $p/src/app/globals.css && echo $p; done`
+
 ## 구현 골격
 
 ```tsx
@@ -55,6 +86,7 @@ const UTILITY_ITEMS = [
 - [ ] 사용자 이메일과 로그아웃은 마지막 메뉴 바로 아래 8~16px 간격으로 붙으며, 화면 높이가 늘어나도 사이에 빈 공간이 늘어나지 않는다.
 - [ ] 낮은 화면에서 메뉴만 내부 스크롤되고 계정·로그아웃에 접근할 수 있다.
 - [ ] 모바일 메뉴에서도 동일한 항목과 순서를 확인했다.
+- [ ] 767px 이하에서 좌측 메뉴가 숨고 위쪽 접는 메뉴가 나오며 본문이 화면 전체 폭이다(전환 CSS 포함, 가로 넘침 없음 — 위 "모바일 레이아웃" 검수 방법으로 확인).
 - [ ] 링크 대상과 활성 상태를 브라우저에서 확인했다.
 
 ## 예외

@@ -273,6 +273,13 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - **Claude 계정별 브라우저: 메인 `buylifemall@gmail.com`은 크롬(기존 기본 프로필), 보조 `buylifemall1@gmail.com`은 엣지를 쓰고, 각 세션은 자기 브라우저만 조작한다**: 이 PC의 Claude Code는 확장의 Claude 계정과 상관없이 연결된 브라우저를 모두 볼 수 있으므로(2026-10-14 실측), 작업 전에 `list_connected_browsers`로 확인하고 정해진 브라우저를 고른다. 사이트 로그인은 브라우저마다 주인님이 직접 해 둔다. 상세·deviceId 표: `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2.
     - 계정 이름이 비슷하니 착오하지 않는다: 관리자 권한·커밋·배포·DB·문서에 적는 "주인님 계정"은 항상 `buylifemall@gmail.com`이다. 시험용 일반 회원 계정 `buylifemall@naver.com`(핵심 원칙 0번)과도 구분한다.
 
+19. **모바일 레이아웃 지침 — 모든 웹 서브프로그램은 휴대폰 폭(767px 이하)에서 좌측 메뉴를 숨기고 위쪽 접는 메뉴(☰)로 바꾼다 (2026-10-14 주인님 지시, 모든 CLI 공통).**
+    - 좌측 메뉴가 휴대폰에서도 남으면 본문이 절반 이하로 눌려 쓸 수 없다. 2026-10-14 `four-cut-comics`와 같은 뼈대를 복사한 10개 프로그램에서 실제로 발견해 모두 고쳤다(위쪽 메뉴 마크업은 있었지만 `globals.css`의 전환 규칙이 빠져 있었음).
+    - **위쪽 메뉴 마크업과 767px 이하 전환 CSS는 한 세트로 만든다.** 새 프로그램을 만들거나 뼈대를 복사할 때 같은 작업에서 함께 넣는다(기준: `markdown-studio`·`four-cut-comics`의 `src/app/globals.css` 끝, Tailwind는 `hidden md:flex` + `md:hidden`). 펼침 메뉴의 항목·순서·계정 위치는 데스크톱과 같다.
+    - 본문의 여러 열 배치는 좁은 화면에서 1~2열로 줄이고, 손가락으로 누르는 조절 점은 24px 이상으로 한다.
+    - **배포 후 좁은 화면 검수는 필수다**: 브라우저 창 폭을 줄여 확인하고(창이 최대화면 주인님께 해제 요청), 창이 숨김이면 400px iframe 안의 스타일 값으로 확인하되 보고에서 구분한다.
+    - 상세 CSS·검수 방법·점검 명령: [`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md) "모바일 레이아웃".
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.

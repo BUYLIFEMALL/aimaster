@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-14 Claude Code(보조 계정) — 세션 인수인계: 모바일 레이아웃 지침 추가 + 오늘 작업 전체 정리
+
+- **새 메인 지침**: CLAUDE.md 원칙 19번·AGENTS.md 원칙 18번 "모바일 레이아웃 지침"(767px 이하 좌측 메뉴 숨김·위쪽 접는 메뉴·본문 전체 폭, 마크업과 전환 CSS는 한 세트, 배포 후 좁은 화면 검수 필수). 상세 CSS·검수 방법·점검 명령은 [docs/SIDEBAR_LAYOUT_STANDARD.md](SIDEBAR_LAYOUT_STANDARD.md) "모바일 레이아웃"과 새 프로그램 점검 목록.
+- **오늘 이 세션에서 끝낸 일**(모두 커밋·푸시·배포·운영 확인 완료):
+  1. 로컬 PC: Claude Code 보조 계정 하단 상태바 자동 복구(`~/.claude/statusline-guard.js` + 보조 계정 훅), 계정별 브라우저 확정(메인=크롬, 보조=엣지 — AI_AGENT_AUTONOMOUS_DEV_WORKFLOW 8-1-2).
+  2. four-cut-comics v1.01 운영 검수·썸네일 → v1.02 AI 자동 말풍선·직접 배치 편집 → v1.03 모바일 셸 수정.
+  3. 같은 뼈대 10개 프로그램 모바일 셸 수정·배포(ai-writing-editor v1.06, banana-canvas v1.03, blog-keyword v1.03, fashion-style v1.04, landing-architect v1.04, music-player v1.02, personality-suite v1.05, portrait-photo v1.18, reverse-prompt v1.02, thumbnail-master v1.02).
+- **남은 일**:
+  1. 실제 휴대폰으로 위 11개 프로그램의 메뉴·본문 배치 확인(이번 검수는 엣지 492px 화면 1개 + 400px iframe 스타일 값). 본문 안 표·편집 화면의 모바일 배치는 프로그램별로 따로 점검해야 함.
+  2. four-cut-comics 다음 버전(v1.04~): 인스타 문구, 이어서 만들기(`/api/script` followup은 구현됨, UI 필요), 만화 합치기, 내 작품(IndexedDB) — [four-cut-comics/docs/CLI_HANDOFF.md](../four-cut-comics/docs/CLI_HANDOFF.md) §6.
+  3. 작업 폴더의 `docs/HANDOFF.md`는 다른 CLI의 미커밋 사본이라 HEAD보다 옛 항목(랜딩페이지 기획·fashion-style 주소 통일 누락)을 담고 있음 — 그 CLI가 커밋할 때 HEAD와 합칠 것. 루트 문서는 HEAD blob 방식(`git show HEAD:` → `hash-object -w` → `update-index --cacheinfo`)으로만 커밋했음.
+  4. 다른 CLI 작업 중(건드리지 않음): document-translator v1.03, codex-statusbar 1.0.3 미커밋 변경.
+- 검수 환경 메모: 보조 계정 세션은 엣지(deviceId `6455da5d…`)만 조작, 엣지 다운로드 폴더는 `D:PDS`, 새 탭 그룹 창이 숨김이면 캡처·크기 조절 불가(주인님께 창 띄우기 요청 또는 iframe 검수).
+
 ## 2026-10-14 Claude Code — 웹 프로그램 10개 모바일 화면 수정 (좌측 메뉴 → 위쪽 접는 메뉴)
 
 - 4컷 만화 v1.03에서 찾은 뼈대 공통 누락(767px 이하 전환 CSS 없음)을 나머지 10개에도 같은 규칙으로 고쳐 각각 버전 +0.01·빌드·프로덕션 배포·DB 버전 반영: ai-writing-editor v1.06, banana-canvas v1.03, blog-keyword v1.03, fashion-style v1.04, landing-architect v1.04, music-player v1.02, personality-suite v1.05, portrait-photo v1.18, reverse-prompt v1.02, thumbnail-master v1.02. 기능 로직 변경 없음.
