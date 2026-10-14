@@ -236,3 +236,7 @@ a.project-card{color:inherit}
 .cmp-handle{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 0 1px #0004;z-index:4}
 .cmp-slider{margin-top:8px}
 .size-select{width:auto;max-width:100%;font-size:12px}
+
+/* ---- v1.03 ---- */
+.st-server{margin-top:10px;padding-top:10px;border-top:1px solid #dfe4ee}
+.saved-section{margin-top:28px}

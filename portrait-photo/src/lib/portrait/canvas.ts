@@ -114,6 +114,24 @@ export async function makeThumb(dataUrl: string): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
+/** 서버 보관함 업로드용: 긴 변 2,048px JPEG(품질을 낮춰 base64 3.0M자 이하로 맞춘다) */
+export async function toUploadJpeg(dataUrl: string): Promise<{ base64: string; mimeType: "image/jpeg" } | null> {
+  const img = await loadImage(dataUrl);
+  const { width, height } = fitWithin(img.naturalWidth, img.naturalHeight, 2048);
+  const canvas = document.createElement("canvas");
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, width, height);
+  ctx.drawImage(img, 0, 0, width, height);
+  for (const q of [0.9, 0.8, 0.7, 0.6]) {
+    const url = canvas.toDataURL("image/jpeg", q);
+    const base64 = url.slice(url.indexOf(",") + 1);
+    if (base64.length <= 2_900_000) return { base64, mimeType: "image/jpeg" };
+  }
+  return null;
+}
+
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

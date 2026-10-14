@@ -8,7 +8,9 @@ import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
 import { MAX_CANDIDATES, SIZE_PRESETS, sizePresetById, toneFilter } from "@/lib/portrait/post";
-import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, whitenDataUrl } from "@/lib/portrait/canvas";
+
+const MAX_BATCH = 6;
+import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { GuideOverlay } from "./GuideOverlay";
 
@@ -58,12 +60,19 @@ export function Studio({ userId }: { userId: string }) {
   const [resolution, setResolution] = useState<Resolution>("1K");
 
   const [results, setResults] = useState<string[]>([]);
+  const [sources, setSources] = useState<number[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [serverSave, setServerSave] = useState(false);
+  const [progress, setProgress] = useState("");
   const [active, setActive] = useState(0);
   const [count, setCount] = useState(1);
   const [sizeId, setSizeId] = useState(SIZE_PRESETS[0].id);
   const [compare, setCompare] = useState(false);
   const [cmpPos, setCmpPos] = useState(50);
   const result = results[active] ?? null;
+  const sourceIdx = sources[active] ?? 0;
+  const comparePreview = previews[sourceIdx] ?? previewUrl;
   const [cleaned, setCleaned] = useState<{ url: string; ratio: number } | null>(null);
   const [cleaning, setCleaning] = useState(false);
   const [mirrored, setMirrored] = useState(false);
@@ -78,7 +87,14 @@ export function Studio({ userId }: { userId: string }) {
   const [saving, setSaving] = useState("");
   const abortRef = useRef<AbortController | null>(null);
 
-  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
+  useEffect(() => () => { previews.forEach((u) => URL.revokeObjectURL(u)); }, [previews]);
+  useEffect(() => {
+    try { setServerSave(localStorage.getItem("portrait-photo:server-save") === "1"); } catch { /* 무시 */ }
+  }, []);
+  function toggleServerSave(on: boolean) {
+    setServerSave(on);
+    try { localStorage.setItem("portrait-photo:server-save", on ? "1" : "0"); } catch { /* 무시 */ }
+  }
 
   const applyPurpose = useCallback((p: Purpose) => {
     setPurposeId(p.id); setAspect(p.aspect); setPoseId(p.poseId); setLightingId(p.lightingId);
@@ -104,60 +120,113 @@ export function Studio({ userId }: { userId: string }) {
   const filter = useMemo(() => toneFilter(brightness, exposure, contrast), [brightness, exposure, contrast]);
   const toneActive = brightness !== 0 || exposure !== 0 || contrast !== 0;
 
-  function onPick(f: File | null) {
-    if (!f) return;
-    if (!/^image\/(png|jpeg|webp)$/.test(f.type)) { setError("PNG, JPG, WEBP 사진만 올릴 수 있습니다."); return; }
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setFile(f); setPreviewUrl(URL.createObjectURL(f)); setResults([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
+  function onPick(list: FileList | File[] | null) {
+    const picked = Array.from(list ?? []).filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type));
+    if (picked.length === 0) { if (list && Array.from(list).length) setError("PNG, JPG, WEBP 사진만 올릴 수 있습니다."); return; }
+    const chosen = picked.slice(0, MAX_BATCH);
+    previews.forEach((u) => URL.revokeObjectURL(u));
+    const urls = chosen.map((f) => URL.createObjectURL(f));
+    setFiles(chosen); setPreviews(urls);
+    setFile(chosen[0]); setPreviewUrl(urls[0]);
+    setResults([]); setSources([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
+    setNotice(picked.length > MAX_BATCH ? `사진은 한 번에 ${MAX_BATCH}장까지 처리합니다. 앞의 ${MAX_BATCH}장만 사용합니다.` : chosen.length > 1 ? `${chosen.length}장을 한 번에 처리합니다(사진마다 결과 1장).` : "");
   }
 
   async function generate() {
-    if (!file) { setError("인물 사진을 먼저 올려 주세요."); return; }
+    if (files.length === 0 && !file) { setError("인물 사진을 먼저 올려 주세요."); return; }
     if (!confirmOwn) { setError("본인 사진이거나 사용 동의를 받은 사진임을 확인해 주세요."); return; }
-    setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
-    setBrightness(0); setExposure(0); setContrast(0);
+    const batch = files.length > 1;
+    const inputs = batch ? files : [file as File];
+    setBusy(true); setError(""); setNeedKey(false); setNotice(""); setResults([]); setSources([]); setActive(0); setCleaned(null); setMirrored(false); setCompare(false);
+    setBrightness(0); setExposure(0); setContrast(0); setProgress("");
     const ctrl = new AbortController();
     abortRef.current = ctrl;
+    type Out = { url: string; model: string; src: number };
     try {
-      const input = await prepareInput(file, selfie);
-      const body = JSON.stringify({
-        image: { data: input.base64, mimeType: input.mimeType },
-        model, resolution, aspect,
-        options: { lightingId, cameraId, poseId, outfitId, filmId, colorId, backgroundId, skinIds, retouch, truePerspective: selfie, symmetry },
-      });
-      // 후보를 동시에 요청한다(요청 1건 = 이미지 1장 = 본인 키 호출 1회)
-      const settled = await Promise.allSettled(
-        Array.from({ length: count }, async () => {
-          const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctrl.signal, body });
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) { const err = new Error(data.error || "이미지를 만들지 못했습니다.") as Error & { needKey?: boolean }; err.needKey = !!data.needKey; throw err; }
-          return { url: `data:${data.image.mimeType};base64,${data.image.data}`, model: (data.model as string | undefined) ?? model };
-        }),
-      );
-      const ok = settled.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
-      const failed = settled.flatMap((r) => (r.status === "rejected" ? [r.reason as Error & { needKey?: boolean }] : []));
+      const options = { lightingId, cameraId, poseId, outfitId, filmId, colorId, backgroundId, skinIds, retouch, truePerspective: selfie, symmetry };
+      const callOne = async (body: string): Promise<{ url: string; model: string }> => {
+        const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctrl.signal, body });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { const err = new Error(data.error || "이미지를 만들지 못했습니다.") as Error & { needKey?: boolean }; err.needKey = !!data.needKey; throw err; }
+        return { url: `data:${data.image.mimeType};base64,${data.image.data}`, model: (data.model as string | undefined) ?? model };
+      };
+      // 작업 목록: 일괄이면 사진마다 1장, 단일이면 후보 count장
+      const jobs: { src: number; body: Promise<string> }[] = [];
+      for (let i = 0; i < inputs.length; i++) {
+        const bodyP = prepareInput(inputs[i], selfie).then((inp) => JSON.stringify({ image: { data: inp.base64, mimeType: inp.mimeType }, model, resolution, aspect, options }));
+        const n = batch ? 1 : count;
+        for (let k = 0; k < n; k++) jobs.push({ src: i, body: bodyP });
+      }
+      const ok: Out[] = [];
+      const failed: (Error & { needKey?: boolean })[] = [];
+      let done = 0;
+      const limit = batch ? 2 : jobs.length;
+      let next = 0;
+      const worker = async () => {
+        while (next < jobs.length) {
+          const j = jobs[next++];
+          try { const r = await callOne(await j.body); ok.push({ ...r, src: j.src }); }
+          catch (e) { failed.push(e as Error & { needKey?: boolean }); }
+          done++;
+          if (batch) setProgress(`${done}/${jobs.length}장 처리됨`);
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(limit, jobs.length) }, worker));
       if (ok.length === 0) {
         const first = failed[0];
         if (first?.name === "AbortError") throw first;
         setNeedKey(!!first?.needKey);
         throw new Error(first?.message || "이미지를 만들지 못했습니다.");
       }
+      ok.sort((a, b) => a.src - b.src);
       setResults(ok.map((r) => r.url));
-      if (failed.length > 0) setNotice(`${count}장 중 ${ok.length}장을 만들었습니다. 나머지는 실패해 다시 시도해 주세요.`);
+      setSources(ok.map((r) => r.src));
+      if (failed.length > 0) setNotice(`${jobs.length}장 중 ${ok.length}장을 만들었습니다. 나머지는 실패해 다시 시도해 주세요.`);
+      else if (batch) setNotice(`${ok.length}장을 모두 만들었습니다. 아래에서 사진을 눌러 확인하고 [전체 저장]으로 한꺼번에 받을 수 있어요.`);
       else if (ok.length > 1) setNotice(`후보 ${ok.length}장을 만들었습니다. 마음에 드는 사진을 눌러 고르세요.`);
       const purpose = getPurpose(purposeId);
+      let serverFail = 0;
       for (const r of ok) {
         makeThumb(r.url).then((thumb) => addHistory(userId, {
           id: crypto.randomUUID(), createdAt: Date.now(), purposeLabel: purpose?.label ?? "자유", aspect, model: r.model, thumb,
         })).catch(() => undefined);
+      }
+      if (serverSave) {
+        for (const r of ok) {
+          try {
+            const up = await toUploadJpeg(r.url);
+            if (!up) { serverFail++; continue; }
+            const res = await fetch("/api/saved", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ image: { data: up.base64, mimeType: up.mimeType }, purposeLabel: purpose?.label ?? "자유", aspect, model: r.model }),
+            });
+            if (!res.ok) serverFail++;
+          } catch { serverFail++; }
+        }
+        setNotice((n) => `${n ? n + " " : ""}${serverFail === 0 ? "서버 보관함에도 저장했습니다." : `서버 보관함 저장에 ${serverFail}장 실패했습니다.`}`);
       }
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") setError("생성을 취소했습니다.");
       else if (e instanceof Error && e.name === "AbortError") setError("생성을 취소했습니다.");
       else setError(e instanceof Error ? e.message : "이미지를 만들지 못했습니다.");
     } finally {
-      setBusy(false); abortRef.current = null;
+      setBusy(false); setProgress(""); abortRef.current = null;
     }
+  }
+
+  async function saveAll() {
+    if (results.length === 0) return;
+    setSaving("all");
+    try {
+      for (let i = 0; i < results.length; i++) {
+        let src = results[i];
+        if (whiten) { try { src = (await whitenDataUrl(src)).dataUrl; } catch { /* 원본 사용 */ } }
+        const blob = await renderPng(src, { mirrored, filter, applyFilter: toneActive, resolution });
+        downloadBlob(blob, `인물사진-${String(i + 1).padStart(2, "0")}-${aspect.replace(":", "x")}-${resolution}.png`);
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      setNotice(`${results.length}장을 저장했습니다. 브라우저가 여러 파일 다운로드를 물으면 허용해 주세요.`);
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
   async function savePng() {
@@ -196,7 +265,11 @@ export function Studio({ userId }: { userId: string }) {
           <input type="checkbox" checked={confirmOwn} onChange={(e) => setConfirmOwn(e.target.checked)} />
           <span>본인 사진이거나 사진 속 인물의 사용 동의를 받았습니다. 타인·유명인의 사진을 무단으로 쓰지 않겠습니다.</span>
         </label>
-        <small>사진과 결과는 서버에 저장되지 않으며 이 브라우저에만 보관됩니다. AI 생성은 본인 Gemini 키 사용량으로 계산됩니다.</small>
+        <small>기본적으로 사진과 결과는 서버에 저장되지 않으며 이 브라우저에만 보관됩니다. AI 생성은 본인 Gemini 키 사용량으로 계산됩니다.</small>
+        <label className="check st-server">
+          <input type="checkbox" checked={serverSave} onChange={(e) => toggleServerSave(e.target.checked)} />
+          <span><b>생성 결과를 내 서버 보관함에도 저장 (선택, 최대 30장)</b><small>켜면 결과 사진(원본 제외)이 비공개 저장소에 보관되어 다른 기기에서도 볼 수 있어요. 언제든 [내 기록]에서 삭제할 수 있습니다.</small></span>
+        </label>
       </div>
 
       <div className="purposes" role="tablist" aria-label="촬영 목적">
@@ -212,15 +285,15 @@ export function Studio({ userId }: { userId: string }) {
 
       <div className="st-grid">
         <div className="st-col">
-          <Section n={1} title="인물 사진" sub="얼굴이 정면에 가깝고 밝은 사진을 권장합니다. PNG·JPG·WEBP">
-            <label className={previewUrl ? "dropzone has" : "dropzone"} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onPick(e.dataTransfer.files?.[0] ?? null); }}>
+          <Section n={1} title="인물 사진" sub={`얼굴이 정면에 가깝고 밝은 사진을 권장합니다. PNG·JPG·WEBP · 여러 장(최대 ${MAX_BATCH}장)을 한꺼번에 올리면 일괄 처리됩니다.`}>
+            <label className={previewUrl ? "dropzone has" : "dropzone"} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onPick(e.dataTransfer.files); }}>
               {previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={previewUrl} alt="업로드한 참조 사진" style={selfie ? { transform: "scaleX(-1)" } : undefined} />
               ) : (
                 <span className="drop-empty"><Upload size={22} /><b>클릭하거나 사진을 끌어다 놓으세요</b><small>얼굴 위주 사진 권장</small></span>
               )}
-              <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
+              <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden onChange={(e) => onPick(e.target.files)} />
             </label>
             <label className="check st-selfie">
               <input type="checkbox" checked={selfie} onChange={(e) => setSelfie(e.target.checked)} />
@@ -250,7 +323,7 @@ export function Studio({ userId }: { userId: string }) {
             {model === "flash" && <small className="muted">해상도 선택은 Pro 모델에서만 적용됩니다.</small>}
           </Section>
 
-          <Section title="한 번에 만들 장수" sub="여러 장을 만들어 마음에 드는 사진을 고릅니다. 장수만큼 본인 키 사용량이 늘어요.">
+          <Section title="한 번에 만들 장수" sub={files.length > 1 ? "여러 장을 올린 일괄 모드에서는 사진마다 1장씩 만듭니다." : "여러 장을 만들어 마음에 드는 사진을 고릅니다. 장수만큼 본인 키 사용량이 늘어요."}>
             <div className="chips">
               {Array.from({ length: MAX_CANDIDATES }, (_, i) => i + 1).map((n) => <Chip key={n} on={count === n} onClick={() => setCount(n)}>{n}장</Chip>)}
             </div>
@@ -271,7 +344,7 @@ export function Studio({ userId }: { userId: string }) {
               <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}{count > 1 ? ` · ${count}장` : ""}</span>
             </div>
             <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / ") }}>
-              {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>보통 10~40초가 걸립니다.</small>
+              {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>{progress || "보통 10~40초가 걸립니다."}</small>
                 <button type="button" onClick={() => abortRef.current?.abort()}>취소</button></div>}
               {shown ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -279,17 +352,17 @@ export function Studio({ userId }: { userId: string }) {
               ) : (
                 !busy && <div className="st-placeholder"><ImageIcon size={34} /><p>옵션을 고르고 [인물 사진 만들기]를 눌러 주세요.</p></div>
               )}
-              {shown && compare && previewUrl && (
+              {shown && compare && comparePreview && (
                 <div className="cmp" style={{ clipPath: `inset(0 ${100 - cmpPos}% 0 0)` }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={previewUrl} alt="원본 사진" style={{ transform: selfie ? "scaleX(-1)" : undefined }} />
+                  <img src={comparePreview ?? undefined} alt="원본 사진" style={{ transform: selfie ? "scaleX(-1)" : undefined }} />
                   <span className="cmp-tag">원본</span>
                 </div>
               )}
-              {shown && compare && previewUrl && <div className="cmp-handle" style={{ left: `${cmpPos}%` }} aria-hidden="true" />}
+              {shown && compare && comparePreview && <div className="cmp-handle" style={{ left: `${cmpPos}%` }} aria-hidden="true" />}
               {shown && guide && !compare && <GuideOverlay />}
             </div>
-            {shown && compare && previewUrl && (
+            {shown && compare && comparePreview && (
               <label className="slider cmp-slider"><span>원본</span><input type="range" min={0} max={100} value={cmpPos} onChange={(e) => setCmpPos(Number(e.target.value))} aria-label="원본과 결과 비교 슬라이더" /><b>결과</b></label>
             )}
             {results.length > 1 && (
@@ -322,6 +395,7 @@ export function Studio({ userId }: { userId: string }) {
             </button>
             {shown && (
               <div className="actions st-save">
+                {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}전체 저장 ({results.length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
                 <select value={sizeId} onChange={(e) => setSizeId(e.target.value)} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
