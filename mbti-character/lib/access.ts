@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * 캐릭코드(mbti-character)는 AIMaster와 같은 Supabase 프로젝트를 공유한다.
@@ -11,6 +12,8 @@ import { createClient } from "@/lib/supabase/server";
  * 유지해서 사실상 "로그인만 하면 누구나 무료로 이용" 조건이 되게 한다 — 구독/결제는 요구하지
  * 않는다. threads/blog 등 다른 서브프로젝트의 requireProgramAccess() 패턴과 동일한 구조를
  * 따르되, 이 프로그램은 등급 요건 외의 구독 결제 레이어(pricing_plans)를 두지 않는다.
+ *
+ * 2026-10-16: 권한 테이블 조회는 서비스 롤(createAdminClient)로 한다(CLAUDE.md 핵심 원칙 6 — 세션 클라이언트는 RLS로 빈 값이 될 수 있음). 로그인 확인만 세션.
  *
  * AIMaster Database 타입 생성기를 이 프로젝트에 따로 두지 않았으므로(자기완결형 서브프로젝트
  * 원칙), from()의 반환값은 threads/lib/access.ts와 동일하게 느슨한 타입으로 받는다.
@@ -88,8 +91,7 @@ async function decideAccess(supabase: SupabaseLike, userId: string): Promise<Acc
  */
 export async function requireProgramAccess() {
   const user = await requireUser();
-  const supabase = (await createClient()) as unknown as SupabaseLike;
-  const decision = await decideAccess(supabase, user.id);
+  const decision = await decideAccess(createAdminClient() as unknown as SupabaseLike, user.id);
   if (decision.allowed) return user;
   if (decision.reason === "phone_required") redirect(`${MAIN_SITE_URL}/settings?need_phone=1`);
   if (decision.reason === "suspended") redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`);
@@ -109,7 +111,7 @@ export async function checkProgramAccessApi(): Promise<
   } = await rawClient.auth.getUser();
   if (!user) return { allowed: false, error: "로그인이 필요합니다.", status: 401 };
 
-  const decision = await decideAccess(rawClient as unknown as SupabaseLike, user.id);
+  const decision = await decideAccess(createAdminClient() as unknown as SupabaseLike, user.id);
   if (decision.allowed) return { allowed: true, user };
   if (decision.reason === "phone_required") return { allowed: false, error: "핸드폰 번호를 입력 후 사용해주세요!", status: 403 };
   if (decision.reason === "suspended") return { allowed: false, error: "계정이 정지되어 이용할 수 없습니다.", status: 403 };

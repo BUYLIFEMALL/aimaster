@@ -5,7 +5,7 @@
 - **이전 상태(2026-10-15 맥미니): 코드 수정 완료·미검증·미커밋.** 수정한 것: `package.json`(next ^16.4.0, eslint ^9, eslint-config-next ^16.4.0, `lint`→`eslint`), `middleware.ts`→`proxy.ts`(함수명 `proxy`, 내용 동일), `eslint.config.mjs` 신설, `lib/version.ts` v1.09, `lib/auth.ts` 주석 1줄. **`package-lock.json`은 수정하지 않았다**(맥에서 `npm install` 불가) — 아래 2번 절차 1~3부터 윈도우에서 실행한다. 빌드가 통과하기 전에는 커밋·푸시하지 않는다.
 - 맥미니는 `npm install`·빌드를 실행하지 않아 검증하지 못했고, 락 파일이 어긋난 채로 올리면 윈도우 쪽 에이전트가 막히므로 커밋하지 않았다.
 - 현재: Next 15.5.27 / React 19.2.4 / v1.08. 목적: 운영 취약점 2건(Next 15 내장 postcss 8.4.31) 제거. 실사용 위험은 낮다(빌드 때 자체 CSS만 처리).
-- **이 폴더 `AGENTS.md` 규칙: Git push·프로덕션 배포·cron 관련 배포는 주인님 사전 승인 필수.** 배포 직전에 승인을 받는다. `vercel.json` cron(`0 * * * *` → `/api/cron/dispatch`)은 이미 운영 중이며 이번 작업에서 바꾸지 않는다. 실제 메일 발송은 하지 않는다.
+- (2026-10-16 폐지된 옛 규칙) ~~이 폴더 `AGENTS.md` 규칙: Git push·프로덕션 배포·cron 관련 배포는 주인님 사전 승인 필수.~~ 현재는 메인 지침대로 자동 진행. 배포 직전에 승인을 받는다. `vercel.json` cron(`0 * * * *` → `/api/cron/dispatch`)은 이미 운영 중이며 이번 작업에서 바꾸지 않는다. 실제 메일 발송은 하지 않는다.
 
 ## 1. 바뀌는 곳 (분석 결과)
 

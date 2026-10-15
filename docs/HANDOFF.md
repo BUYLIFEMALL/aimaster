@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(보조 계정·윈도우) — 폴더별 「Git push·배포 사전 승인」 폐지 + 캐릭코드 권한 조회 서비스 롤 (mbti-character v1.06)
+
+- 주인님 지시("md파일 수정해주고 지금처럼 규칙 수정해놓고 작업진행해", "초기에 만들어져서 그럴 것"): 초기 템플릿에서 복사된 22개 폴더 `AGENTS.md`의 「Git push·실제 서비스 배포 사전 승인」 항목을 삭제하고 안내 줄 추가 — 커밋·푸시·배포는 메인 지침(원칙 12)대로 자동 진행. 삭제·DB 데이터 삭제·환경변수/키 변경·실제 발송 승인은 유지. `WORK_QUEUE_2026-10-15.md`·`stepmail/docs/NEXT16_MIGRATION_PLAN.md` 문구도 정리.
+- 캐릭코드(`mbti-character`) v1.06: 권한 테이블 조회를 `createAdminClient()`로(원칙 6), Vercel에 서비스 롤 키 등록, 배포. 비로그인 `/test` 307 확인.
+
 ## 2026-10-16 Codex — AI 블로그 콘텐츠 제작 자동화 카탈로그 등록·썸네일·상세 소개 완료
 
 - 최신 `HANDOFF_PROGRAM_DETAIL_PAGE_2026-10-16.md`·`PROGRAM_DESCRIPTION_STANDARD.md`·`PLATFORM_PATTERNS.md` §12·13 확인. 기존 `blog-content-maker` 등록 한 건에 53자 요약·500자/6단락 소개·특징 4개·사용 순서 4단계와 전용 한국인 실사 16:9 썸네일 반영. 같은 분야와 구분되도록 원문·수정 이력, 발행 전 점검, 이미지와 네이버 입력을 설명.
