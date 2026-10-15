@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 설명 단락 간격 정정 (빈 줄 단락 제거 + 공개 상세 페이지 CSS) — **윈도우에서 루트 사이트 배포 필요**
+
+- 주인님 지적("문단 사이를 너무 많이 띄웠다"): DB `programs.description`에서 `<p><br></p>`를 모두 제거(관리자 편집기 간격 정상화). 공개 상세 페이지는 단락 여백이 없어 붙어 보이므로 `app/(main)/programs/[slug]/page.tsx` 설명 영역에 `[&_p]:my-2` 추가. 형식 규칙: [PROGRAM_DESCRIPTIONS_2026-10-15.md](PROGRAM_DESCRIPTIONS_2026-10-15.md).
+- **윈도우에서 할 일**: 루트(AIMaster) `npm run build` → `vercel deploy --prod --yes`(루트 프로젝트 확인) → `https://www.buylife.xyz/programs/ai-web-ui` 등에서 단락 사이가 0.5줄 정도 떨어져 보이는지 확인. **배포 전까지 공개 상세 페이지는 단락이 붙어 보인다.**
+
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — 도톨이 AI 분석 완료 → 웹 재구현 플랜(구현 전, 주인님 결정 대기)
 
 - 맥미니에서 멈춘 설치 파일 해제를 `innounp`(winget)로 해결, 실행 없이 기능 분석. 본체: Python·PySide6 데스크톱 "네이버 블로그 글쓰기 보조"(내 문체 분석 → 키워드 → 상위 글 자료 승인 → 초안 → 검수, 자동 발행 없음). **권리 없음 — 기능만 참고**(코드·작성 지식 미사용). 분석·플랜: [DOTOLI_AI_REFERENCE_ANALYSIS.md](DOTOLI_AI_REFERENCE_ANALYSIS.md). 결정 대기: 이름·slug(제안 `blog-workroom`), 1차 범위, 기본 AI.

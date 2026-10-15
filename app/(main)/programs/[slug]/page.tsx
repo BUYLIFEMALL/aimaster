@@ -256,7 +256,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
         </h2>
         {program.description ? (
           <div
-            className="prose prose-invert prose-gold max-w-none text-subtext leading-relaxed mb-8"
+            className="prose prose-invert prose-gold max-w-none text-subtext leading-relaxed mb-8 [&_p]:my-2"
             dangerouslySetInnerHTML={{ __html: program.description }}
           />
         ) : (

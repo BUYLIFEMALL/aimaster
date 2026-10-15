@@ -6,10 +6,11 @@
 - 결과: 화면에 보이는 글자 수 평균 385자(최소 205, 최대 567). 단순한 프로그램(성격코드·캐릭코드·네이버 블로그 App/Web 등)은 기능이 적어 300자 안팎이다 — 없는 기능을 채워 넣지 않았다.
 
 ## 형식 규칙(앞으로 설명을 고칠 때도 같게)
-- 저장 형식은 에디터가 쓰는 HTML이다. **단락마다 `<p>…</p>`, 단락 사이에는 빈 줄 단락 `<p><br></p>`을 넣는다.**
-- 이유: 메인 사이트 상세 페이지(`app/(main)/programs/[slug]/page.tsx`)는 `prose` 스타일로 그리는데 `<p>` 사이 간격이 없어, 빈 줄 단락이 없으면 줄만 바뀌고 붙어 보인다(2026-10-15 `ai-webtoon-studio`로 확인 후 반영).
+- 저장 형식은 에디터가 쓰는 HTML이다. **단락마다 `<p>…</p>`만 쓰고, 빈 줄 단락 `<p><br></p>`은 넣지 않는다.** (2026-10-15 정정 — 처음엔 빈 줄 단락을 넣었으나 관리자 편집기에서 단락 간격이 두 배로 벌어져 주인님이 "문단 사이를 너무 많이 띄웠다"고 지적 → 80개에서 모두 제거.)
+- 단락 간격은 화면 쪽에서 준다: 관리자 편집기는 `.prose-editor p { margin: 0.5em 0 }`(`app/globals.css`), 공개 상세 페이지는 `app/(main)/programs/[slug]/page.tsx`의 설명 `div`에 `[&_p]:my-2`를 추가했다(이 저장소에는 Tailwind typography 플러그인이 없어 `prose`가 단락 여백을 주지 않기 때문). **이 코드는 루트 사이트 배포 후에 적용**되며, 배포 전에는 공개 페이지에서 단락이 붙어 보인다.
+- 기준 모양: 주인님이 보여 준 편집기 화면(굵은 한 줄 소개 + 이모티콘 단락들이 0.5줄 정도 간격으로 이어짐).
 - 구성: 첫 단락은 굵은 한 줄 소개(`<strong>`), 이어서 기능 단락 2~4개, 마지막에 필요한 키·계정·주의(본인 API 키, 브라우저 처리 여부 등). 단락 앞에 이모티콘 1개.
-- 반영은 Supabase `execute_sql`의 `update programs set description = replace($d$<p>…</p><p>…</p>$d$, '</p><p>', '</p><p><br></p><p>') where slug='…'` 형태로 했다. 관리자 프로그램 편집 화면(`/admin/programs/<id>/edit`)의 "상세 설명" 에디터에서도 같은 모양으로 보인다.
+- 반영은 Supabase `execute_sql`의 `update programs set description = $d$<p>…</p><p>…</p>$d$ where slug='…'` 형태로 한다.
 
 ## 기존 설명이 낡았거나 정책과 달라 보여 고친/확인할 것
 - `tarot-reading`: 설명이 3카드 스프레드뿐이었으나 README는 12종 스프레드·12종 화풍·OpenAI 해석·내 타로 보관함 → README 기준으로 갱신.
@@ -25,13 +26,13 @@
 ## 이어서 작업하는 CLI를 위한 안내
 
 ### 현재 상태 한눈에
-- 반영 완료: 80/80(`select count(*) from programs where description like '%<p><br></p>%'` = 80). 커밋 `7b1d73a1`(이 문서·`HANDOFF.md`·`ERROR_LESSONS.md`). **설명의 원본은 DB**이며 저장소에는 설명 문구 파일이 없다.
+- 반영 완료: 80/80. 빈 줄 단락 제거 후 `select count(*) from programs where description like '%<p><br></p>%'` = 0이 정상. 커밋 `7b1d73a1`(이 문서·`HANDOFF.md`·`ERROR_LESSONS.md`). **설명의 원본은 DB**이며 저장소에는 설명 문구 파일이 없다.
 - 작업 장비: 맥미니(Claude Code 보조 계정, 크롬은 맥미니 크롬). DB는 Supabase MCP `execute_sql`로 수정(프로젝트 `esgxyikcnnvmlhygjkth`). 화면 확인은 `https://www.buylife.xyz/programs/<slug>`.
 
 ### 설명을 고치거나 새로 쓸 때 순서
 1. 현재 값을 먼저 파일로 백업한다: `select slug, description from programs where slug in (...)`.
 2. 프로그램 폴더의 README·AGENTS·`docs/CLI_HANDOFF.md`·`DEVELOPMENT_PLAN.md`로 **실제 기능**을 확인한다(아래 대응표). 문서에 없는 기능은 쓰지 않는다. 필요한 키·계정(본인 API 키 등)과 주의점은 마지막 단락에 쓴다.
-3. 형식: `<p><strong>🎯 한 줄 소개</strong></p><p>🔎 기능 단락</p>…`을 만들고 `replace($d$…$d$, '</p><p>', '</p><p><br></p><p>')`로 단락 사이에 빈 줄 단락을 넣어 저장한다.
+3. 형식: `<p><strong>🎯 한 줄 소개</strong></p><p>🔎 기능 단락</p>…` 형태로 단락만 나눠 저장한다(빈 줄 단락 `<p><br></p>` 금지). 관리자 편집기에서 한 단락씩 엔터로 나누면 같은 모양이 된다.
 4. `https://www.buylife.xyz/programs/<slug>`에서 단락 간격을 확인한다.
 5. DB 값만 바꾼 작업은 프로그램 버전을 올리지 않는다(버전 규칙은 코드·배포를 바꿀 때만).
 
