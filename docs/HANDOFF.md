@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(맥미니·보조 계정) — 맥미니 작업 지침 개정(git 허용·윈도우 실행 요청 표) + B1 Step Mail Next 16 이전 계획서
+
+- **지침 개정**(주인님 지시): [MAC_MINI_WORK_GUIDE.md](MAC_MINI_WORK_GUIDE.md) §2·§4 — 맥미니도 메인 PC와 같은 방식(프로젝트 분담 + 인수인계 문서). 지정받은 프로젝트 파일만 골라 `git` 커밋·푸시 가능, `npm install`·빌드·배포는 윈도우(메인 PC)에 요청(인수인계 문서 끝의 "윈도우에서 실행할 단계" 표). 이유: 맥에서 `npm install`하면 윈도우용 `node_modules`가 덮어써진다.
+- **B1 Step Mail Next 16 이전은 계획서만 작성**(코드·`package.json`·락 파일 미수정): [stepmail/docs/NEXT16_MIGRATION_PLAN.md](../stepmail/docs/NEXT16_MIGRATION_PLAN.md). 요점: `next` ^16.4.0(선례 `kakao_auto_poster`), `eslint` ^9·`eslint-config-next` ^16.4.0, `lint` 스크립트 `next lint`→`eslint` + `eslint.config.mjs` 신설, `middleware.ts`→`proxy.ts`(내용 유지 — 옛 주소 308·`x-pathname` 헤더 확인 필수). 목표 v1.09.
+- **진행**: 메인 세션이 계획서대로 윈도우에서 실행. 푸시·운영 배포 전 주인님 승인 필수(`stepmail/AGENTS.md`), 실제 발송·cron 변경 없음. 끝나면 `stepmail/AGENTS.md`·이 문서에 v1.09 기록.
+- 참고: 작업 폴더의 `docs/HANDOFF.md`에는 다른 CLI의 미커밋 변경(HEAD와 다른 옛 내용)이 있어, 이 항목은 HEAD 내용에 추가하는 방식으로 커밋했다.
+
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — 맥미니 원격 작업 지침 추가
 
 - [MAC_MINI_WORK_GUIDE.md](MAC_MINI_WORK_GUIDE.md): 맥미니가 이 저장소를 SMB(`/Volumes/gt1_mega` = 윈도우 D:)로 열어 작업할 때의 규칙. 맥에서는 파일 편집·문서 작성만 하고 `npm`·`git`·배포는 윈도우에서 한다. 경로 변환표, HANDOFF 제목에 "맥미니" 표기. 윈도우 메인 지침은 바뀌지 않음. 커밋·푸시는 윈도우 보조 계정 세션이 대신 함.
