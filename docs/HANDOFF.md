@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Codex — 새 블로그 제작 도구: 정적 분석·개발 계획, 구현 전
+
+- 주인님 요청: 지정한 6.5.4 설치 프로그램을 분석한 뒤 새 AIMaster 서브프로그램 개발. **개발 전에 계획·프로그램명 추천**, 새 제품에서 원본 이름·제작자 표현·홍보 링크 제거. 라이선스 보유가 확인되지 않아 소스 수준 정적 분석으로 기능을 파악하고 새 코드를 작성하는 범위로 정리.
+- 주인님 확정명 **AI 블로그 콘텐츠 제작 자동화**, 폴더·slug `blog-content-maker`, 목표 `v1.01`(이름 확정·개발안 검토 대기). [개발 계획](../blog-content-maker/docs/DEVELOPMENT_PLAN.md), [정적 분석 근거](../blog-content-maker/docs/REFERENCE_ANALYSIS.md), [재개 지침](../blog-content-maker/AGENTS.md).
+- NSIS→7z→ASAR를 **실행 없이** 해제, 앱 파일 11개 조사·REA PE 자원·JavaScript 분석. REA 전체 의미 그래프는 자원 제한으로 부분 분석. 주요 앱 번들·CJS 직접 검토로 기능 계약 보완. 원본·추출 코드는 `D:/PDS/analysis/naver-blog-seo-6.5.4-20261015/`에만 보관.
+- 핵심: 주제·제목·원문 3흐름, 작성 방식 5종, 원고 점검·출처·SNS 문구, 이미지·제품 합성·장면 쌍, 네이버 입력. 원본 점수는 실제 네이버 점수가 아니며 ‘영상’은 확인 범위에서 장면 이미지 준비. 기존 `naver-blog-seo-studio`·`blog-workroom`은 조사만 했음.
+- **다음**: 개발 범위 검토 및 신규 테이블 6개·비공개 Storage·신규 Vercel 공용 DB 환경변수 등록 승인 확인 후 구현. 이름은 확정되어 다시 묻지 않음. 현재 앱 코드·SQL 적용·키 입력·AI 호출·원본 실행·프로그램 등록·배포 없음. 이번 산출물은 문서만이므로 웹앱 빌드·배포 대상 아님.
+
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 설명 작성 표준 문서화
 
 - 주인님 지시로 [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md) 작성(분량·구성·이모티콘·빈 줄 금지·문장 규칙·사실 확인·SQL 저장법·체크리스트·예시). 루트 `CLAUDE.md` 새 프로그램 체크리스트 (10)·`AGENTS.md` 등록 체크리스트 10번에 연결. 표준 미적용: `blog-workroom"(다른 CLI 등록, h2 사용).
