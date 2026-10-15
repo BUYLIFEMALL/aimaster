@@ -9,7 +9,8 @@ import { NextResponse, type NextRequest } from "next/server";
 const OLD_HOST = "stepmail-kappa.vercel.app";
 const NEW_ORIGIN = "https://stepmail.buylife.xyz";
 
-export function middleware(request: NextRequest) {
+// Next.js 16부터 middleware.ts는 proxy.ts로 이름이 바뀌었다(2026-10-15, v1.09) — 기능은 동일.
+export function proxy(request: NextRequest) {
   if ((request.headers.get("x-forwarded-host") ?? request.headers.get("host")) === OLD_HOST) {
     return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
   }

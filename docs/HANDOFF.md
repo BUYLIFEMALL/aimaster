@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정·윈도우) — B1 Step Mail Next 16 이전 완료 (v1.09)
+
+- 맥미니가 고친 코드(next 16·eslint 9·`middleware.ts`→`proxy.ts`)를 윈도우에서 `npm install`·빌드·로컬 검증 후 주인님 승인으로 커밋·푸시·배포. next **16.4.1**, 운영 취약점 2 → **0**. 로그인 200·보호 화면 307(redirect 경로 유지)·API 401·옛 주소 308 확인, DB `programs.version` v1.09. cron·실제 발송 변경 없음. 상세: [stepmail/AGENTS.md](../stepmail/AGENTS.md) v1.09, [계획서](../stepmail/docs/NEXT16_MIGRATION_PLAN.md). 운영 https://stepmail.buylife.xyz
+- 아래 "맥미니·B1" 항목(미검증 상태)은 이 작업의 앞 단계 기록이다.
+
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — 맥미니 작업 지침 개정(git 허용·윈도우 실행 요청 표) + B1 Step Mail Next 16 이전 계획서
 
 - **지침 개정**(주인님 지시): [MAC_MINI_WORK_GUIDE.md](MAC_MINI_WORK_GUIDE.md) §2·§4 — 맥미니도 메인 PC와 같은 방식(프로젝트 분담 + 인수인계 문서). 지정받은 프로젝트 파일만 골라 `git` 커밋·푸시 가능, `npm install`·빌드·배포는 윈도우(메인 PC)에 요청(인수인계 문서 끝의 "윈도우에서 실행할 단계" 표). 이유: 맥에서 `npm install`하면 윈도우용 `node_modules`가 덮어써진다.
