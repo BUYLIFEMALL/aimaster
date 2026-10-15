@@ -3,7 +3,8 @@ import * as XLSX from "xlsx";
 import { decodeText, type Encoding } from "./text";
 import type { Cell } from "./table";
 
-export interface RawSheet { name: string; aoa: Cell[][] }
+/** rowNums: aoa 각 행의 원본 엑셀 행 번호(0부터), col0: aoa 0번 열의 원본 열 번호(0부터) — 서식 유지 저장에서 원본 셀을 찾는 데 쓴다(v1.04) */
+export interface RawSheet { name: string; aoa: Cell[][]; rowNums: number[]; col0: number }
 
 export const isCsv = (name: string) => /\.(csv|tsv|txt)$/i.test(name);
 export const ACCEPT_SHEETS = ".xlsx,.xls,.xlsm,.csv";
@@ -13,10 +14,15 @@ export function readSheets(bytes: Uint8Array, fileName: string, enc: Encoding = 
   const wb = isCsv(fileName)
     ? XLSX.read(decodeText(bytes, enc).text, { type: "string", cellDates: true, raw: false })
     : XLSX.read(bytes, { type: "array", cellDates: true, dense: true });
-  return wb.SheetNames.map((name) => ({
-    name: isCsv(fileName) ? "" : name,
-    aoa: XLSX.utils.sheet_to_json<Cell[]>(wb.Sheets[name], { header: 1, raw: true, defval: null, blankrows: false }),
-  }));
+  return wb.SheetNames.map((name) => {
+    const ws = wb.Sheets[name];
+    const start = ws["!ref"] ? XLSX.utils.decode_range(ws["!ref"]).s : { r: 0, c: 0 };
+    // 빈 줄까지 읽은 뒤 직접 걸러 원본 행 번호를 남긴다(값이 하나도 없는 행 = 빈 줄, 예전 blankrows:false와 같은 기준)
+    const all = XLSX.utils.sheet_to_json<Cell[]>(ws, { header: 1, raw: true, defval: null, blankrows: true });
+    const aoa: Cell[][] = [], rowNums: number[] = [];
+    all.forEach((r, i) => { if (r.some((v) => v !== null && v !== undefined)) { aoa.push(r); rowNums.push(start.r + i); } });
+    return { name: isCsv(fileName) ? "" : name, aoa, rowNums, col0: start.c };
+  });
 }
 
 /** 표 여러 개 → .xlsx 바이트 */

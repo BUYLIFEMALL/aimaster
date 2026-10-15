@@ -2,10 +2,11 @@
 // 20만 행 기준 화면 멈춤: 읽기 약 4.4초·저장 7.3초 → 거의 없음. 파일은 여전히 이 브라우저 안에서만 처리된다.
 import { handle, type StoreJob } from "./sheetStore";
 
-self.onmessage = (ev: MessageEvent<{ id: number; job: StoreJob }>) => {
+self.onmessage = async (ev: MessageEvent<{ id: number; job: StoreJob }>) => {
   const { id, job } = ev.data;
   try {
-    const result = handle(job) as { bytes?: Uint8Array } | unknown;
+    // 서식 유지 저장(v1.04)은 Promise를 돌려준다
+    const result = (await handle(job)) as { bytes?: Uint8Array } | unknown;
     const bytes = (result as { bytes?: Uint8Array })?.bytes;
     (self as unknown as Worker).postMessage({ id, ok: true, result }, bytes ? [bytes.buffer] : []);
   } catch (e) {

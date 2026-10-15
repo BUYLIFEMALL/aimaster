@@ -117,8 +117,8 @@ test("아주 많은 행(30만 행)에서도 스택이 넘치지 않는다", () =
 test("pickColumns: 고른 열만 원하는 순서로, null이면 그대로", async () => {
   const { pickColumns } = await import("../src/lib/files/table.ts");
   const m = { header: ["이름", "매출", "지역"], rows: [["가", 1, "서울"], ["나", 2, null]] };
-  assert.deepEqual(pickColumns(m, ["지역", "이름"]), { header: ["지역", "이름"], rows: [["서울", "가"], [null, "나"]] });
-  assert.equal(pickColumns(m, null), m);
+  assert.deepEqual(pickColumns(m, ["지역", "이름"]), { header: ["지역", "이름"], rows: [["서울", "가"], [null, "나"]], idx: [2, 0] });
+  assert.equal(pickColumns(m, null).rows, m.rows);
   assert.deepEqual(pickColumns(m, ["없는 열", "매출"]).header, ["매출"]);
 });
 

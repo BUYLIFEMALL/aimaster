@@ -8,6 +8,8 @@ export interface Table {
   sheet: string;
   header: string[];
   rows: Cell[][];
+  /** rows 각 행이 원본 2차원 배열(aoa)의 몇 번째 행인지(v1.04 서식 유지용) */
+  src?: number[];
 }
 
 /** 시트 한 장의 2차원 배열을 머리글 행 기준 표로 바꾼다. headerRow는 1부터, 0이면 머리글 없음(열1·열2…) */
@@ -18,8 +20,15 @@ export function toTable(file: string, sheet: string, aoa: Cell[][], headerRow = 
   const hi = headerRow - 1;
   const raw = headerRow > 0 && aoa[hi] ? aoa[hi] : [];
   const header = uniqueHeaders(Array.from({ length: width }, (_, c) => raw[c]));
-  const body = aoa.slice(headerRow > 0 ? hi + 1 : 0).filter((r) => r.some((v) => v !== null && v !== undefined && String(v).trim() !== ""));
-  return { file, sheet, header, rows: body.map((r) => Array.from({ length: width }, (_, c) => norm(r[c]))) };
+  const from = headerRow > 0 ? hi + 1 : 0;
+  const rows: Cell[][] = [], src: number[] = [];
+  for (let i = from; i < aoa.length; i++) {
+    const r = aoa[i];
+    if (!r.some((v) => v !== null && v !== undefined && String(v).trim() !== "")) continue;
+    rows.push(Array.from({ length: width }, (_, c) => norm(r[c])));
+    src.push(i);
+  }
+  return { file, sheet, header, rows, src };
 }
 
 function norm(v: unknown): Cell {
@@ -49,7 +58,7 @@ export const SOURCE_SHEET = "원본 시트";
  * 머리글 이름 기준으로 이어 붙인다. 열 순서가 달라도 같은 이름의 열에 값이 들어가고, 처음 나온 순서로 열을 만든다.
  * 다른 파일에 없는 열은 빈칸. addSource면 맨 앞에 원본 파일·시트 열을 붙인다.
  */
-export function mergeByHeader(tables: Table[], o: { addSource?: boolean } = {}): { header: string[]; rows: Cell[][] } {
+export function mergeByHeader(tables: Table[], o: { addSource?: boolean } = {}): { header: string[]; rows: Cell[][]; origin: Int32Array } {
   const order: string[] = [];
   const label = new Map<string, string>();
   for (const t of tables) for (const h of t.header) {
@@ -57,16 +66,19 @@ export function mergeByHeader(tables: Table[], o: { addSource?: boolean } = {}):
     if (!label.has(k)) { label.set(k, h); order.push(k); }
   }
   const rows: Cell[][] = [];
-  for (const t of tables) {
+  // origin: 결과 행마다 [표 번호, 그 표의 행 번호]를 이어 붙인 값(서식 유지 저장용, v1.04)
+  const origin = new Int32Array(tables.reduce((n, t) => n + t.rows.length, 0) * 2);
+  for (const [ti, t] of tables.entries()) {
     const pos = t.header.map((h) => order.indexOf(headerKey(h)));
-    for (const r of t.rows) {
+    for (const [ri, r] of t.rows.entries()) {
+      origin[rows.length * 2] = ti; origin[rows.length * 2 + 1] = ri;
       const out: Cell[] = Array.from({ length: order.length }, () => null);
       r.forEach((v, c) => { if (pos[c] >= 0 && out[pos[c]] === null) out[pos[c]] = v; });
       rows.push(o.addSource ? [t.file, t.sheet, ...out] : out);
     }
   }
   const header = order.map((k) => label.get(k) as string);
-  return { header: o.addSource ? [SOURCE_FILE, SOURCE_SHEET, ...header] : header, rows };
+  return { header: o.addSource ? [SOURCE_FILE, SOURCE_SHEET, ...header] : header, rows, origin };
 }
 
 /** 열 값별로 나눈다(나온 순서 유지). 빈 값은 "(빈 값)" 묶음 */
@@ -117,10 +129,10 @@ export function safeFileName(name: string, used?: Set<string>): string {
 export const stem = (name: string) => name.replace(/\.[^./\\]+$/, "");
 
 /** 결과 열 고르기·순서 바꾸기(v1.03). cols는 남길 머리글 이름을 원하는 순서대로. null이면 그대로 */
-export function pickColumns(m: { header: string[]; rows: Cell[][] }, cols: string[] | null): { header: string[]; rows: Cell[][] } {
-  if (!cols) return m;
+export function pickColumns(m: { header: string[]; rows: Cell[][] }, cols: string[] | null): { header: string[]; rows: Cell[][]; idx: number[] } {
+  if (!cols) return { header: m.header, rows: m.rows, idx: m.header.map((_, i) => i) };
   const idx = cols.map((c) => m.header.indexOf(c)).filter((i) => i >= 0);
-  return { header: idx.map((i) => m.header[i]), rows: m.rows.map((r) => idx.map((i) => r[i] ?? null)) };
+  return { header: idx.map((i) => m.header[i]), rows: m.rows.map((r) => idx.map((i) => r[i] ?? null)), idx };
 }
 
 const cellKey = (v: Cell) => (v === null ? "" : v instanceof Date ? v.toISOString() : typeof v === "string" ? v.trim() : String(v));
@@ -129,15 +141,15 @@ const cellKey = (v: Cell) => (v === null ? "" : v instanceof Date ? v.toISOStrin
  * 같은 행 제거(v1.03): 비교할 열(ignore에 든 열 제외)의 값이 모두 같으면 처음 나온 행만 남긴다.
  * 원본 파일·시트 열은 파일마다 달라 비교에서 뺀다. 글자 앞뒤 공백은 무시한다.
  */
-export function dedupeRows(m: { header: string[]; rows: Cell[][] }, ignore: string[] = [SOURCE_FILE, SOURCE_SHEET]): { header: string[]; rows: Cell[][]; removed: number } {
+export function dedupeRows(m: { header: string[]; rows: Cell[][] }, ignore: string[] = [SOURCE_FILE, SOURCE_SHEET]): { header: string[]; rows: Cell[][]; removed: number; keep: number[] } {
   const use = m.header.map((h, i) => (ignore.includes(h) ? -1 : i)).filter((i) => i >= 0);
   const seen = new Set<string>();
-  const rows: Cell[][] = [];
-  for (const r of m.rows) {
-    const k = JSON.stringify(use.map((i) => cellKey(r[i] ?? null)));
-    if (seen.has(k)) continue;
+  const rows: Cell[][] = [], keep: number[] = [];
+  m.rows.forEach((r, i) => {
+    const k = JSON.stringify(use.map((c) => cellKey(r[c] ?? null)));
+    if (seen.has(k)) return;
     seen.add(k);
-    rows.push(r);
-  }
-  return { header: m.header, rows, removed: m.rows.length - rows.length };
+    rows.push(r); keep.push(i);
+  });
+  return { header: m.header, rows, removed: m.rows.length - rows.length, keep };
 }

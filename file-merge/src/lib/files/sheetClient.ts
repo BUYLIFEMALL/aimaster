@@ -32,7 +32,7 @@ function getWorker(): Worker | null {
 
 function run<T>(job: StoreJob, transfer: Transferable[] = []): Promise<T> {
   const w = getWorker();
-  if (!w) return new Promise((resolve, reject) => setTimeout(() => { try { resolve(handle(job) as T); } catch (e) { reject(e); } }, 30));
+  if (!w) return new Promise((resolve, reject) => setTimeout(() => { try { Promise.resolve(handle(job) as T).then(resolve, reject); } catch (e) { reject(e); } }, 30));
   const id = ++seq;
   return new Promise<T>((resolve, reject) => {
     pending.set(id, { resolve: resolve as (v: unknown) => void, reject });
@@ -48,8 +48,9 @@ export async function loadFile(fileId: string, file: File, enc: Encoding): Promi
 export const dropFile = (fileId: string) => run<boolean>({ op: "drop", fileId });
 export const mergePreview = (picks: Pick[], headerRow: number, addSource: boolean, shape: MergeShape, limit = 20) =>
   run<{ allHeader: string[]; header: string[]; rows: Cell[][]; total: number; removed: number; collect: { name: string; rows: number }[] }>({ op: "mergePreview", picks, headerRow, addSource, shape, limit });
-export const mergeWrite = (picks: Pick[], headerRow: number, addSource: boolean, shape: MergeShape, format: "xlsx" | "csv") =>
-  run<{ bytes: Uint8Array; rows: number; cols: number; removed: number }>({ op: "mergeWrite", picks, headerRow, addSource, shape, format });
-export const collectWrite = (picks: Pick[]) => run<{ bytes: Uint8Array }>({ op: "collectWrite", picks });
+/** style: 서식을 가져올 원본 .xlsx 바이트(파일 id별). 넘기면 서식 유지 저장(v1.04) */
+export const mergeWrite = (picks: Pick[], headerRow: number, addSource: boolean, shape: MergeShape, format: "xlsx" | "csv", style?: Record<string, ArrayBuffer>) =>
+  run<{ bytes: Uint8Array; rows: number; cols: number; removed: number }>({ op: "mergeWrite", picks, headerRow, addSource, shape, format, style }, style ? Object.values(style) : []);
+export const collectWrite = (picks: Pick[], style?: Record<string, ArrayBuffer>) => run<{ bytes: Uint8Array }>({ op: "collectWrite", picks, style }, style ? Object.values(style) : []);
 export const splitPlan = (opts: SplitOpts) => run<{ header: string[]; outs: { name: string; rows: number }[] }>({ op: "splitPlan", opts });
 export const splitWrite = (opts: SplitOpts) => run<{ bytes: Uint8Array; count: number }>({ op: "splitWrite", opts });
