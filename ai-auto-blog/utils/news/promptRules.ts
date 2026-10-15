@@ -2,6 +2,12 @@
 //
 // 목표 글자수 단위는 **공백 제외 글자 수**로 통일한다. 화면은 "목표 글자수 2,000자"로 보여 주면서 예전 프롬프트는 이 숫자를
 // "약 2,000단어(공백 제외 약 7,000자 이상)"로 지시해 의도보다 3배 이상 긴 글을 요구했다(네이버 에이전트 비교 보고서 §7).
+
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
 export const MIN_TARGET_CHARS = 800
 export const MAX_TARGET_CHARS = 3500
 export const DEFAULT_TARGET_CHARS = 2000
@@ -31,5 +37,5 @@ export function buildLengthRules(targetChars: number): { option: string; deepDiv
 
 /** 모델이 학습 시점의 과거 연도(2023·2024년 등)를 "올해"처럼 쓰는 것을 막는 지침(루트 CLAUDE.md 핵심 원칙 8번). */
 export function buildYearRule(currentYear: number): string {
-  return `[기준 연도 엄수]: 현재 연도는 ${currentYear}년입니다. 모든 연도 표기·정책·지원금·트렌드·정보·제목은 반드시 ${currentYear}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요. 단, 출시·발표·시행·사건처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 쓰고 올해로 바꾸지 마세요.`
+  return `[기준 연도 엄수]: 현재 연도는 ${currentYear}년입니다. 모든 연도 표기·정책·지원금·트렌드·정보·제목은 반드시 ${currentYear}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요. 단, 출시·발표·시행·사건처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 쓰고 올해로 바꾸지 마세요. ${koreaNowRule()}`
 }

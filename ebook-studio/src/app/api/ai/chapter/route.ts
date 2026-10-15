@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getUser();
@@ -60,6 +66,7 @@ export async function POST(req: NextRequest) {
 
 [현재 기준 연도]
 반드시 현재 연도인 ${currentYear}년을 기준으로 최신 트렌드와 정보를 반영하세요.
+${koreaNowRule()}
 
 [챕터 정보]
 - 챕터명: ${chapterTitle}

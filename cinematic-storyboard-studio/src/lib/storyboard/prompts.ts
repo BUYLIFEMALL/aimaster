@@ -2,9 +2,15 @@
 import { KEYFRAME_COUNT, type Analysis, type DialogueMode, type Lang } from "./types";
 import { formatSeconds, planDurations } from "./plan";
 
+/** Korea-time current month rule (prevents season mistakes, docs/ERROR_LESSONS.md 2026-10-14). */
+function koreaNowRule(now: Date = new Date()): string {
+  const label = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", year: "numeric", month: "long" }).format(now);
+  return `[Current time in Korea: ${label}. Match any season or time-of-year wording (spring, summer, autumn, winter, holidays, year-end) to the current month; never invent a different season.]`;
+}
+
 /** 현재 연도 지침(핵심 원칙 8번) */
 export const yearNotice = (year: number) =>
-  `[Year rule: the current year is ${year}. If any text mentions the present or the current year, use ${year}; never regress to earlier years.]`;
+  `[Year rule: the current year is ${year}. If any text mentions the present or the current year, use ${year}; never regress to earlier years.] ${koreaNowRule()}`;
 
 /** 인물 묘사 기본 지침(핵심 원칙 3번): 레퍼런스에 이미 있는 인물은 그대로 유지하고, 새로 묘사해야 할 때만 한국인 기본 */
 export const PEOPLE_RULE =

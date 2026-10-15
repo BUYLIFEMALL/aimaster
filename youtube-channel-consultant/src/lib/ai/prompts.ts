@@ -1,6 +1,12 @@
 // AI 분석 프롬프트. 화면에서 이미 조회한 데이터만 근거로 쓰게 하고, 없는 정보는 "확인 불가"로 말하게 한다
 // (docs/PLATFORM_PATTERNS.md §30 "가짜 분석 금지"). 연도는 매번 현재 연도를 넣는다(루트 CLAUDE.md 핵심 원칙 8).
 
+
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
 export type AiAnalysisType =
   | "video-summary"
   | "channel-diagnosis"
@@ -72,6 +78,7 @@ function systemPrompt(year: number, role: string): string {
   return [
     `당신은 ${role}입니다.`,
     `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기, 트렌드, 제안은 반드시 ${year}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요.]`,
+    koreaNowRule(),
     "규칙:",
     "- 아래 [제공 데이터]에 있는 숫자와 사실만 근거로 말하세요. 근거가 되는 수치를 문장에 함께 적으세요.",
     "- 제공되지 않은 정보(시청 지속률, 노출수, 클릭률, 수익, 경쟁 채널의 세부 데이터 등)는 추측하지 말고 '확인 불가'라고 쓰세요. 추정이면 '(추정)'을 붙이세요.",

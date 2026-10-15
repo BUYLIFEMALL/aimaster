@@ -1,5 +1,11 @@
 import { ArtStyle, BalloonStyle, WebtoonProject, CutScene } from "./types";
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 export const ART_STYLE_PROMPT_MAP: Record<ArtStyle, { label: string; enTag: string }> = {
   modern_korean_webtoon: {
     label: "현대 한국 웹툰 풍",
@@ -67,7 +73,7 @@ export async function expandSynopsisAI(
   const currentYear = new Date().getFullYear();
   const styleLabel = ART_STYLE_PROMPT_MAP[artStyle].label;
 
-  const prompt = `당신은 ${currentYear}년 기준 대한민국 최고의 네이버·카카오 연재 웹툰 전문 스토리 작가입니다.
+  const prompt = `당신은 ${currentYear}년 기준 대한민국 최고의 네이버·카카오 연재 웹툰 전문 스토리 작가입니다. ${koreaNowRule()}
 사용자가 입력한 초안을 바탕으로 독자의 시선을 단숨에 사로잡을 흥미진진한 [웹툰 핵심 시놉시스]를 3~4문장으로 매력적으로 완성해주세요.
 
 [입력 정보]

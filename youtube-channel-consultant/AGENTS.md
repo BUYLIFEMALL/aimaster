@@ -78,3 +78,6 @@ vercel deploy --prod --yes --scope buylife
 - 실제 라이브 확인(buylifemall@naver.com 본인 키): `AI자동화`(한국·90일·구독자 1만 이하·평균 1만 이상)로 영상 50개 → 채널 43개 중 4개 조건 충족, 카드·정렬·내보내기 버튼 정상.
 - 자동 검사 `npm test` 17개(지표 7 + AI 7 + 공략 채널 3).
 - v1.04 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+
+## v1.05 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
+- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: src/lib/ai/prompts.ts `systemPrompt()`에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.05. 유료 AI 실제 생성 확인은 하지 않음.

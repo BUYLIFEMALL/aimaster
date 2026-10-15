@@ -22,3 +22,6 @@
 
 검수는 이 폴더에서 npm test, npm run lint, npm run build를 실행합니다. 라이브 주소 `https://emotion-writer.buylife.xyz` 및 메인 카탈로그 `https://www.buylife.xyz/programs` 최상단 1위 노출 검증을 마쳤습니다. 확장 프로그램은 사용하지 않습니다.
 - v1.07 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+
+## v1.08 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
+- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: src/lib/studio/services.ts 글귀 생성 지시에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.08. 유료 AI 실제 생성 확인은 하지 않음.

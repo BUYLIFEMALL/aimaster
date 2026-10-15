@@ -5,6 +5,12 @@ import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle,
 
 import { sanitizeYear, sanitizeBodyYear } from "@/lib/yearPolicy";
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 // 연도 정책은 src/lib/yearPolicy.ts (올해 기준, 본문은 과거 사실 보존)
 export { sanitizeYear, sanitizeBodyYear };
 
@@ -85,6 +91,7 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
 
   // 1단계: Research Agent (주제 및 소제목 기획)
   const researchSystemPrompt = `너는 네이버 블로그 전문 기획 에이전트야.
+${koreaNowRule()}
 [기준 연도 절대 엄수]: 현재 연도는 ${currentYear}년이야. 모든 제목, 소제목, 정책, 혜택, 최신 트렌드, 정보는 반드시 ${currentYear}년(당해 연도) 기준으로 기획해야 해.
 사용자가 제공한 주제나 참고 자료에 과거 연도(2023년, 2024년 등)가 최신 정보·정책·혜택·트렌드의 기준으로 쓰였다면 따라 쓰지 말고 ${currentYear}년(당해 연도)으로 바꿔서 기획해. 단, 출시·발표·시행처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 둬.
 네이버 C-Rank 및 D-I-A+ 검색 알고리즘에 최적화되고, 실제 독자의 클릭과 긴 체류시간을 유도하는 ${currentYear}년 최신 트렌드 제목과 ${sectionCountGuide}의 핵심 소제목 목차를 기획해줘.
@@ -150,6 +157,7 @@ ${persona.tonePrompt}
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 포스팅 본문을 작성해줘.
 
 [작성 규칙]
+${koreaNowRule()}
 1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 최신 정보 기준으로 쓰인 과거 연도(2023년, 2024년 등)가 있으면 ${currentYear}년으로 바꿔서 작성해. 단, 출시·발표·시행·사건처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 쓰고 올해로 바꾸지 마.
 2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
 3. 말투: 회원이 선택한 ${preferredTone}와 문체를 페르소나의 어조보다 우선 반영한다. (기계적인 AI 번역투 절대 금지)
@@ -163,6 +171,7 @@ ${persona.tonePrompt}
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 정보성 포스팅 본문을 작성해줘.
 
 [작성 규칙]
+${koreaNowRule()}
 1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 최신 정보 기준으로 쓰인 과거 연도(2023년, 2024년 등)가 있으면 ${currentYear}년으로 바꿔서 작성해. 단, 출시·발표·시행·사건처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 쓰고 올해로 바꾸지 마.
 2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
 3. 말투: 자연스러운 ${preferredTone} (상투적인 기계적 어투 금지)

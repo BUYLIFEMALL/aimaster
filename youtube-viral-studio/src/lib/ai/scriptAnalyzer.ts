@@ -1,5 +1,11 @@
 import "server-only";
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 export interface ScriptAnalysisResult {
   videoId: string;
   videoTitle: string;
@@ -25,6 +31,7 @@ export interface ScriptAnalysisResult {
 
 const SYSTEM_PROMPT = `당신은 대한민국 최고의 유튜브 쇼츠 바이럴 디렉터이자 알고리즘 분석가입니다.
 현재 연도는 ${new Date().getFullYear()}년입니다. 과거 연도(2023, 2024년 등)를 기준으로 답변하지 마십시오.
+${koreaNowRule()}
 
 주어진 쇼츠 영상의 대본(또는 메타데이터)을 분석하여, 시청자의 뇌리에 꽂히는 3단 구조(첫 3초 훅킹, 시청 유지력, 행동유도 CTA)를 날카롭게 해체하고, 크리에이터가 즉시 자신의 영상에 응용할 수 있는 카피캣 템플릿을 JSON 형태로 반환하십시오.
 

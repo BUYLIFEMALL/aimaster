@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — B3: 글·대본 생성 16개 프로그램에 "한국 시간 현재 월" 지시 추가
+
+- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄") 예방. 각 프로그램 주 생성 지시문에 `koreaNowRule()`("[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]", Asia/Seoul) 추가, 버전 +0.01·빌드·프로덕션 배포 READY·DB 버전 반영. 대상(새 버전): threads-content-ops v1.93(루트 사이트 배포), landing-architect v1.05, cardnews-studio v1.08, youtube-channel-consultant v1.05, cinematic-storyboard-studio v1.04, ai-auto-blog v1.62, naver-blog-allinone v1.41, naver-blog-agent v1.83, tistory-auto-blog v1.69, youtube-viral-studio v1.11, detail-page-12p v1.02, ai-influencer-studio v1.07, ai-webtoon-studio v1.08, suno-music-studio v1.08, ebook-studio v1.04, emotion-writer v1.08.
+- 확장 4개(ai-auto-blog·naver-blog-agent·tistory-auto-blog·naver-blog-allinone): 확장 코드 변경 없음, manifest·ZIP·DB `extension_version` 동기화, `check-extension-release.mjs` 4개 OK. naver-blog-allinone은 manifest가 v1.39로 남아 있던 불일치도 v1.41로 맞춤. **회원 안내 불필요**(확장 동작 변화 없음).
+- 발견: tistory-auto-blog 본문 생성에는 연도 규칙 자체가 없었다(핵심 원칙 8번 누락) → 연도+현재 월을 함께 추가.
+- **남은 일(주인님 지시로 보류, 작업 목록 B5)**: 연도 규칙만 있고 현재 월이 없는 나머지 — ai-audio-analyzer, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, allinone-graphic, banana-canvas, fashion-style, ghost-scraper, music-video-studio, persona-style-studio, playlist-channel-studio, prompt-template-studio, reverse-prompt, seo-thumbnail-pro, style-dna-analyzer, thumbnail-master, ui-canvas, tistory-auto-blog·ai-auto-blog의 `shortsAnalysis.ts`(쇼츠 분석), document-translator(Codex 작업 중). 대부분 이미지·오디오 분석/편집 도구라 계절 영향이 작음.
+
 ## 2026-10-15 Claude Code(보조 계정) — AI 포토 리메이크 자동화(`photo-remake-studio`) v1.01 출시(이어받기)
 
 - 다른 CLI가 2026-10-14 미커밋으로 멈춘 구현을 주인님 지시로 이어받아 출시: 테스트 17/17·빌드, 주인님 승인 후 공용 연결 환경변수 3종, DB(programs·요금제 3종·VIP 자동 부여)·새 썸네일·도메인 https://photo-remake-studio.buylife.xyz·배포·활성화. **남은 일: 로그인한 일반 회원의 실제 복원/합성 생성 검수(보조 계정 엣지 미연결로 미실행)** — `photo-remake-studio/docs/RELEASE_CHECKS.md`, 작업 목록 A3.

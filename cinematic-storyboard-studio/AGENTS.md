@@ -60,3 +60,6 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 - **2026-10-13 v1.01** 신규 구축·프로그램 등록·도메인 연결·테이블/버킷 마이그레이션 적용·첫 배포.
 - **2026-10-13 v1.02** 시험 중 확인한 ZIP 파일명 문제 수정 시도(적용 누락) — 버전만 상승.
 - **2026-10-13 v1.03** ZIP·이미지 저장 파일명을 40자로 줄임(로그라인이 그대로 파일명이 되던 문제). 썸네일 생성·등록(관리자 Gemini 키 1회 사용, 임시 파일 삭제).
+
+## v1.04 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
+- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: src/lib/storyboard/prompts.ts `yearNotice()`(영어)에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.04. 유료 AI 실제 생성 확인은 하지 않음.

@@ -5,6 +5,12 @@ import { generateContentJson } from '@/blog/utils/ai/contentJson'
 import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, resolveImageCount, type ContentProvider } from '@/blog/utils/ai/contentModels'
 import { removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 /** 이미지 생성에 실패한 칸은 빈 이미지 태그를 남기지 않는다. */
 function imageLine(alt: string, url: string): string {
   return url ? `![${alt}](${url})` : ''
@@ -132,6 +138,9 @@ ${audienceRule}
 ${wordCountRule}
 ${referenceRule}
 ${customRule}
+
+[기준 연도 엄수: 현재 연도는 ${new Date().getFullYear()}년입니다. 모든 연도 표기, 정책, 정보, 가이드, 제목은 반드시 ${new Date().getFullYear()}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요. 단, 실제로 있었던 과거 사실의 연도는 그대로 둡니다.]
+${koreaNowRule()}
 
 [★ 글쓰기 필수 요구 규칙]:
 1. 제목: 매력적이고 SEO에 적합하며 관련 키워드가 자연스럽게 조합된 제목으로 작성하세요. 제목은 JSON의 "제목" 값에만 넣습니다. "요약글", 모든 "소제목", 모든 "문단"에 같은 제목을 #/##/HTML/일반 텍스트 어떤 형태로도 다시 쓰지 마세요. 본문은 요약 문장 또는 제목과 다른 소제목으로 시작하세요.

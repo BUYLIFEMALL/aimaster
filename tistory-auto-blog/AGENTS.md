@@ -313,3 +313,6 @@
 
 - 실제 티스토리 글쓰기 화면에서 태그 칩은 `업무 태그 수정/삭제` 링크 구조로 렌더링됐는데, 검증기가 예전 직계 `.editor_tag > .txt_tag`만 읽어 첫 태그 뒤 오탐 중단했다. `.txt_tag`/`.tag_link`/태그 링크를 함께 읽고 태그 칩 반영을 최대 4.5초 폴링 검증한다.
 - v1.68 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+
+## v1.69 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
+- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: utils/news/generator.ts 본문 생성 지시문(**연도 규칙 자체가 없었음** → 연도+현재 월 추가)에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.69·`extension_version` v1.69, `node scripts/check-extension-release.mjs tistory-auto-blog` OK(확장 코드 변경 없음, manifest·ZIP 버전만). 유료 AI 실제 생성 확인은 하지 않음.

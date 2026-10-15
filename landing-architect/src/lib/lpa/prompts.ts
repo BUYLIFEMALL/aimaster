@@ -1,10 +1,16 @@
 import type { Inputs, Plan, PlanSection } from "./types";
 import { LAYOUT_LABELS, templateById } from "./templates";
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 const clean = (s: string, max: number) => s.replace(/\s+/g, " ").trim().slice(0, max);
 
 export function yearGuard(year = new Date().getFullYear()): string {
-  return `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기와 정보는 반드시 ${year}년(당해 연도)을 기준으로 작성하고 과거 연도로 퇴행하지 마세요.]`;
+  return `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기와 정보는 반드시 ${year}년(당해 연도)을 기준으로 작성하고 과거 연도로 퇴행하지 마세요.] ${koreaNowRule()}`;
 }
 
 export const SYSTEM_INSTRUCTION = `당신은 한국어 웹 기획 전문가이자 UX 디자이너입니다.

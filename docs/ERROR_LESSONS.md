@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — 서브프로젝트 폴더에 package.json이 없으면 `npm run build`가 루트 사이트를 빌드한다 (threads-content-ops v1.93)
+- 증상: `cd threads-content-ops && npm run build`가 성공했는데, 실제로는 상위 폴더(루트 AIMaster)의 package.json을 찾아 **루트 사이트를 빌드**한 것이었다 → 원인: `threads-content-ops`는 독립 앱이 아니라 루트 `app/(dashboard)/threads-content-ops`에서 쓰는 코드·문서 폴더(배포도 루트 `aimaster` 프로젝트) → 다음부터: 여러 프로그램을 일괄 빌드·배포하기 전에 각 폴더에 `package.json`·`.vercel/project.json`이 있는지 먼저 확인한다. 없는 폴더는 그 프로그램의 AGENTS.md에서 배포 위치를 확인한다(threads-content-ops = 루트 배포).
+- 같은 작업에서 emotion-writer는 `.vercel/` 폴더만 있고 `project.json`이 없었다 → `vercel link --project emotion-writer --scope buylife --yes`로 다시 연결(이때 `.gitignore`에 `.vercel`이 덧붙고 `.env.local`을 Vercel 개발 값으로 덮어씀 — `.gitignore` 변경은 되돌림). 배포 전 `projectName` 확인 규칙 덕분에 엉뚱한 프로젝트로 배포되지 않았다.
+- AI 지시문의 "현재 월"은 `new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit"})`로 만든다(서버 UTC 기준이면 12/31 밤·1/1 새벽에 연·월이 어긋남). 실행 확인: UTC 2026-12-31 16:00 → "2027년 1월".
+
 ## 2026-10-15 — 서브프로젝트 AGENTS.md의 "사전 승인" 규칙을 배포 전에 확인하지 않음 (stepmail·kakao_auto_poster v1.06)
 - 증상: 루트 지침(작업 끝까지 배포)만 보고 stepmail·kakao_auto_poster를 승인 없이 푸시·배포 → 두 폴더 `AGENTS.md`에는 "Git push·실제 서비스 배포(Vercel 프로덕션)·실제 발송·cron 활성화는 사전 승인 필수"가 있었다(실제 메일·카카오 발송 위험 때문) → 원인: 처음 손대는 서브프로젝트의 `AGENTS.md`를 작업 전에 읽지 않음 → 다음부터: **서브프로젝트를 고치기 전에 그 폴더 `AGENTS.md`·`CLAUDE.md`의 승인 규칙을 먼저 확인**하고, 루트보다 엄격하면 그 규칙을 따른다. 점검 명령: `grep -n "사전 승인\|승인 없이 금지" <폴더>/AGENTS.md`. 발송·cron이 있는 프로그램은 `vercel.json` 변경 여부도 함께 보고한다.
 - Next 14 → 15 이전 요점(stepmail): `params`·`searchParams`는 Promise(`{ searchParams: sp }` 후 `const searchParams = await sp`로 본문 변경 최소화), `cookies()`·`headers()`도 await, React 19 필요. 로컬 검수는 공용 DB 값을 실행할 때만 환경변수로 넘겨 `next start` 후 보호 화면 307·API 401을 확인한다(파일로 비밀값을 만들지 않음).

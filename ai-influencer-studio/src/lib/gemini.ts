@@ -11,6 +11,12 @@ import {
 } from "@/data/influencer-options";
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
 
+/** Korea-time current month rule (prevents season mistakes, docs/ERROR_LESSONS.md 2026-10-14). */
+function koreaNowRule(now: Date = new Date()): string {
+  const label = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", year: "numeric", month: "long" }).format(now);
+  return `[Current time in Korea: ${label}. Match any season or time-of-year wording (spring, summer, autumn, winter, holidays, year-end) to the current month; never invent a different season.]`;
+}
+
 /**
  * 1. AI 인플루언서 고화질 이미지 생성 (Gemini 3 Pro Image Preview)
  */
@@ -136,6 +142,7 @@ export async function generateInstagramCaption(
 [AD MODE CONTEXT INTEGRATION]
 - Situation: Promoting "${prodName}". Ad Type: ${adLabel}.
 - Year: ${currentYear}.
+- ${koreaNowRule()} Outfits and scenery should fit this season.
 - CRITICAL: Seamlessly integrate the scene location (${config.location || "trendy spot"}) and story (${config.storyContext || "daily life"}) into the product introduction.
 - Do NOT just sell the product blindly. Describe the organic lifestyle experience of using it in this specific scene.`;
   } else {

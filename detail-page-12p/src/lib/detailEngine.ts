@@ -1,6 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ProductInputData, DetailScene, PlatformType, ModelType } from "@/types/detail";
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 export interface AutoSearchResult {
   productName: string;
   category: string;
@@ -25,6 +31,7 @@ export async function autoSearchProductInfo(
 
   const prompt = `
 당신은 대한민국 이커머스(쿠팡, 네이버 스마트스토어) 최고의 상품 기획 MD이자 마케팅 카피라이터입니다. (기준 연도: ${currentYear}년)
+${koreaNowRule()}
 아래 제품명을 분석하여 소비자의 구매 전환율을 극대화할 수 있는 핵심 스펙, 매력적인 제품 설명, 타겟 고객, 톤앤매너, 이벤트 배너 문구를 작성해주세요.
 
 [분석할 제품명]: "${productName}"
@@ -98,6 +105,7 @@ export async function generateDetailPageScenes(
 
   const prompt = `
 당신은 대한민국 최고의 이커머스 상세페이지 기획자이자 크리에이티브 디렉터입니다. (기준 연도: ${currentYear}년)
+${koreaNowRule()}
 아래 제품 정보를 바탕으로 [${input.platform === "coupang" ? "쿠팡 로켓배송 규격 (12단 시퀀스)" : "네이버 스마트스토어 규격 (9단 시퀀스)"}]에 완벽하게 최적화된 총 ${totalCount}개 장면의 상세페이지 시퀀스를 기획해주세요.
 
 [제품 기본 정보]:

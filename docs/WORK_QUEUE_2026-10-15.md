@@ -19,8 +19,9 @@
 |---|---|---|---|---|
 | B1 | Step Mail Next 16 이전(선택) | 에이전트(승인 필요) | 운영 취약점 남은 2건(Next 15 내장 postcss 8.4.31)은 Next 16으로 올려야 사라진다. 실사용 위험은 낮음(빌드 때 자체 CSS만 처리). middleware→proxy 등 변경이 더 많아 별도 작업. | `stepmail/AGENTS.md` v1.07 |
 | B2 | 개발용 도구 취약점 정리(선택) | 에이전트 | 두 프로그램의 eslint 계열(braces·micromatch·glob 등) — 운영 서버에 들어가지 않음. eslint-config-next 정리 시 함께. | `npm audit` |
-| B3 | 다른 프로그램의 연도 지시문에 "현재 월" 추가 검토 | 에이전트 | 4컷 만화에서 연도만 주면 10월에 "봄"이 나오는 착오 확인 → 한국 시간 현재 월을 함께 넣어 해결. AI 글을 만드는 다른 프로그램도 같은 보완이 필요한지 점검. | `docs/ERROR_LESSONS.md` 2026-10-14 계절 착오 |
+| B3 | ~~글·대본 생성 프로그램 "현재 월" 추가~~ **완료(2026-10-15)** — 16개 프로그램 버전 +0.01·배포·DB, 확장 4개 검증 OK | 완료 | | HANDOFF 2026-10-15 B3 |
 | B4 | `vercel.app` 주소만 쓰는 프로그램의 도메인 연동(SSO) 후보 | 에이전트(정책 확인) | stepmail·kakao는 아직 `*.vercel.app`이라 메인 사이트 로그인이 공유되지 않는다(검수 때 매번 따로 로그인 필요). 원칙 11번 절차(OAuth 콜백 고정 여부 먼저 확인)로 한 프로그램씩. | `docs/DOMAIN_SSO_POLICY.md` |
+| B5 | 나머지 프로그램 "현재 월" 추가(보류) | 에이전트(지시 시) | 연도 규칙만 있고 현재 월이 없는 나머지: ai-audio-analyzer, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, allinone-graphic, banana-canvas, fashion-style, ghost-scraper, music-video-studio, persona-style-studio, playlist-channel-studio, prompt-template-studio, reverse-prompt, seo-thumbnail-pro, style-dna-analyzer, thumbnail-master, ui-canvas, tistory-auto-blog·ai-auto-blog의 `shortsAnalysis.ts`(쇼츠 분석), document-translator(Codex 작업 중). 대부분 이미지·오디오 도구라 우선순위 낮음. 같은 `koreaNowRule()`을 주 지시문에 붙이고 각 버전 +0.01. | HANDOFF 2026-10-15 B3 |
 
 ## C. 휴대폰·화면 검수
 

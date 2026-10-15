@@ -553,3 +553,6 @@ v1.75 운영 확인 완료: 코드4b9a1d4a 푸시·프로덕션READY·DB/확장/
     5) 다중 네이버 계정 및 카테고리/키워드 관리(`nba_accounts`), 발행 대기 큐(`nba_posts`), 크롬 확장 페어링(`nba_extension_tokens`) 구축.
     6) Next.js 16 + Tailwind CSS 흰색 베이스 대시보드 구축 및 Supabase 통합 권한(`requireProgramAccess`) 연동 완료.
 - v1.82 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+
+## v1.83 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
+- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: src/lib/ai/pipeline.ts 기획·본문 작성 지시문 3곳에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.83·`extension_version` v1.83, `node scripts/check-extension-release.mjs naver-blog-agent` OK(확장 코드 변경 없음, manifest·ZIP 버전만). 유료 AI 실제 생성 확인은 하지 않음.

@@ -11,6 +11,12 @@ import { buildWritingStylePrompt, isWritingStyle, isWritingTone, WRITING_STYLES,
 import type { BlogPost, ImageRatio, ImageSlot, ReviewStatus, StepLog } from "./types";
 import { sanitizeBodyYear, sanitizeYear } from "./yearPolicy";
 
+/** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
+function koreaNowRule(now: Date = new Date()): string {
+  const [y, m] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-");
+  return `[기준 시점: 한국 시간으로 지금은 ${y}년 ${Number(m)}월입니다. 계절·시기 표현(봄·여름·가을·겨울, 명절, 연말연시 등)은 현재 월에 맞추고, 근거 없이 다른 계절을 쓰지 마세요.]`;
+}
+
 export interface PipelinePersona {
   name: string;
   badge: string;
@@ -67,7 +73,7 @@ export function photoSlotOrder(count: number, thumbIndex = 0): number[] {
 }
 
 const yearRule = (year: number) =>
-  `[기준 연도 엄수] 현재 연도는 ${year}년이다. 모든 제목·소제목·정책·혜택·트렌드·연도 표기는 ${year}년(당해 연도) 최신 기준으로 쓴다. 최신 정보를 과거 연도(2023년, 2024년 등)로 쓰지 않는다. 단, 출시·발표·시행처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 둔다.`;
+  `[기준 연도 엄수] 현재 연도는 ${year}년이다. 모든 제목·소제목·정책·혜택·트렌드·연도 표기는 ${year}년(당해 연도) 최신 기준으로 쓴다. 최신 정보를 과거 연도(2023년, 2024년 등)로 쓰지 않는다. 단, 출시·발표·시행처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 둔다. ${koreaNowRule()}`;
 
 function sectionGuide(target: number): string {
   return target <= 1000 ? "2~3개" : target <= 2500 ? "3~4개" : "4~5개";
