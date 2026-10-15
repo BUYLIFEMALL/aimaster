@@ -2,7 +2,7 @@
 
 버전: v1.05. 사용자 요청: 상태바 안에 5시간·주간 재설정까지 남은 시간 표시 및 `모델명 effort | 5h 잔여% (시간) | weekly 잔여% (시간) | context 잔여%` 형식 적용. 모델명과 effort 사이에는 공백 한 칸을 넣는다.
 
-2026-10-15 v1.05: 전체 단색 ANSI 출력을 항목별 색상으로 수정. `src/format.mjs`의 `colorFooter()`는 폭 조절이 끝난 텍스트에만 색상을 붙인다. 모델명·effort 베이지, 5h·weekly 분홍, context 살구색, 구분자 회색(Claude 상태바 팔레트와 동일). `src/run.mjs`에서 호출한다. 자동 검사 18개·빌드·본인 계정 조회·설치 연결·표준 버전 명령 통과. 실제 가시적 Orca 새 터미널에서 색상과 시간 표시 확인, 증거 `.local/v105-terminal-screen.png`. AI 요청 없이 검수했고 기존 사용자 세션은 유지했다. 새 Codex 실행부터 적용된다. Vercel·DB 배포 대상 아님.
+2026-10-15 v1.05: 전체 단색 ANSI 출력을 항목별 색상으로 수정. `src/format.mjs`의 `colorFooter()`는 폭 조절이 끝난 텍스트에만 색상을 붙인다. 모델명·effort 베이지, 5h·weekly 분홍, context 살구색, 구분자 회색(Claude 상태바 팔레트와 동일). `src/run.mjs`에서 호출한다. 자동 검사 18개·빌드·본인 계정 조회·설치 연결·표준 버전 명령 통과. 실제 가시적 Orca 새 터미널에서 색상과 시간 표시 확인, 증거 `.local/v105-terminal-screen.png`. macOS 글로벌 npm 런처 경로 지원 추가 및 `~/.zshrc` 가드로 새 터미널 연결 시 자동 유지/점검 장치 완료. AI 요청 없이 검수했고 기존 사용자 세션은 유지했다. 새 Codex 실행부터 적용된다. Vercel·DB 배포 대상 아님.
 
 루트 `AGENTS.md`, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`, `docs/ERROR_LESSONS.md`, `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`를 먼저 읽는다. 상세 실행·복원은 `README.md`에 있다.
 
