@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex — AI 블로그 콘텐츠 제작 자동화 카탈로그 등록·썸네일·상세 소개 완료
+
+- 최신 `HANDOFF_PROGRAM_DETAIL_PAGE_2026-10-16.md`·`PROGRAM_DESCRIPTION_STANDARD.md`·`PLATFORM_PATTERNS.md` §12·13 확인. 기존 `blog-content-maker` 등록 한 건에 53자 요약·500자/6단락 소개·특징 4개·사용 순서 4단계와 전용 한국인 실사 16:9 썸네일 반영. 같은 분야와 구분되도록 원문·수정 이력, 발행 전 점검, 이미지와 네이버 입력을 설명.
+- 본인 키·계정·30일 보관·장면 이미지는 영상 파일이 아님·최종 직접 발행 안내. 기존 블로그 카테고리·등급 권한·NEW 배지·요금제 3개·실행/확장 주소 유지. 공개 이미지 버킷 `program-images/catalog/blog-content-maker-thumbnail.jpg` + 캐시 갱신 쿼리, HTTP 200·바이트 일치 확인. 회원 콘텐츠는 기존 비공개 버킷 유지.
+- 실제 보이는 Chrome의 상세·카탈로그 17개 검사 통과, 데스크톱/400px 모바일·다른 썸네일과 실사 톤 육안 검수, Next.js 빌드 통과. DB·공개 이미지 변경만으로 운영 반영되어 별도 Vercel 재배포와 앱/확장 버전 상승 불필요(표준 §5), v1.02 유지. 확장 재설치 필요 없음.
+- 이전 공개 메타데이터 백업·최종 문안·SQL·이미지·프롬프트와 검수 재현 도구를 프로그램 폴더에 보존. [등록 완료 기록](../blog-content-maker/docs/CATALOG_REGISTRATION.md), [공개 상세](https://www.buylife.xyz/programs/blog-content-maker). 이번 요청 남은 작업 없음. 관리자 편집 화면 수동 저장 경로는 이번 검수 범위에 포함하지 않음.
+
 ## 2026-10-16 Claude Code(보조 계정·윈도우) — FREE 배지 = 가입·로그인 회원 누구나, 성격코드에 로그인·권한 판정 적용 (personality-code v1.03)
 
 - 주인님 지시: FREE 배지는 정기적으로 켜고 끈다 — 켜면 권한 없어도 가입 회원 누구나, 끄면 권한 있는 회원만(로그인 없는 공개 아님, 주인님 선택). 82개 판정 코드 점검(FREE가 구독·등급보다 앞) → 판정이 없던 성격코드(`mbti/`)에 로그인+공통 판정(서비스 롤) 적용, Vercel 공용 DB 연결값 3종 등록, 배포. 비로그인 `/test`·`/result` 307 → `/login`. `CLAUDE.md` 원칙 6·이용 권한 판정 정책, `AGENTS.md` 6에 기록. 상세: [mbti/AGENTS.md](../mbti/AGENTS.md).

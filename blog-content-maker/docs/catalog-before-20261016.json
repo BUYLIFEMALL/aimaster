@@ -1,0 +1,60 @@
+{
+  "id": "5299d74c-ea40-4452-a9cc-0fd96ced44d0",
+  "slug": "blog-content-maker",
+  "name": "AI 블로그 콘텐츠 제작 자동화",
+  "short_desc": "주제나 기존 원고로 블로그 글·이미지를 만들고 발행 전 점검까지 마치는 콘텐츠 제작 도구",
+  "description": "<p>📝 <strong>새 주제든 이미 쓴 원고든, 블로그 글과 이미지를 완성하고 발행 전 점검까지 마친 뒤 네이버로 옮기는 콘텐츠 제작 도구입니다.</strong></p><p>💡 주제와 키워드로 제목 10개를 추천받고 정보 정리형·검색 의도형·질문 답변형 등 5가지 방식으로 원고를 쓰며, 기존 글이나 문서 파일은 의미와 사실을 보존해 새 수정본으로 다듬습니다.</p><p>🔎 제목·문단·반복 단어·FAQ·태그·이미지·출처를 점검하고 AI 검토 의견을 받아, 원문과 수정 이력을 남긴 채 직접 고칩니다.</p><p>🎨 본문 이미지와 제품 합성, 영상용 첫·끝 장면 이미지를 준비하고, ALT 설명과 위치를 조절해 파일로 받거나 전용 크롬 확장으로 빈 네이버 편집기에 입력합니다.</p><p>🔑 회원 본인의 Gemini 또는 OpenAI 키를 쓰고, 이미지는 본인 Gemini 키가 필요합니다. 점검 결과는 네이버 공식 점수가 아니며 최종 발행은 회원이 직접 합니다.</p>",
+  "thumbnail_url": "https://blog-content-maker.buylife.xyz/brand.png",
+  "app_url": "https://blog-content-maker.buylife.xyz",
+  "version": "v1.02",
+  "extension_version": "v1.02",
+  "extension_download_url": "https://blog-content-maker.buylife.xyz/downloads/blog-content-maker-extension-latest.zip",
+  "is_active": true,
+  "badges": [
+    "new"
+  ],
+  "category_id": "8e8be410-3ed4-46f7-80d9-4b408af61cc1",
+  "required_grade_id": "861b7a37-d056-4404-80f5-85edb2e2ebff",
+  "detail_sections": {
+    "steps": [
+      {
+        "desc": "주제로 제목을 고릅니다.",
+        "title": "글감·제목"
+      },
+      {
+        "desc": "새로 쓰거나 기존 글을 다듬습니다.",
+        "title": "원고 만들기"
+      },
+      {
+        "desc": "점검 결과로 고칩니다.",
+        "title": "점검·수정"
+      },
+      {
+        "desc": "이미지를 준비하고 네이버로 옮깁니다.",
+        "title": "이미지·입력"
+      }
+    ],
+    "features": [
+      {
+        "desc": "주제·키워드로 제목 아이디어를 받습니다.",
+        "icon": "💡",
+        "title": "제목 10개 추천"
+      },
+      {
+        "desc": "정보 정리형·검색 의도형·질문 답변형 등으로 씁니다.",
+        "icon": "✍️",
+        "title": "5가지 작성 방식"
+      },
+      {
+        "desc": "문단·반복 단어·FAQ·출처를 점검합니다.",
+        "icon": "🔎",
+        "title": "발행 전 점검"
+      },
+      {
+        "desc": "본문 이미지와 영상용 첫·끝 장면을 만듭니다.",
+        "icon": "🎨",
+        "title": "이미지·장면 준비"
+      }
+    ]
+  }
+}

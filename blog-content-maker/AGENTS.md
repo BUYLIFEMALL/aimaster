@@ -20,6 +20,7 @@
 - 공용 DB `esgxyikcnnvmlhygjkth`, 테이블 접두사 `blog_content_maker_`: settings/projects/revisions/assets/jobs/extension_tokens. 비공개 버킷 `blog-content-maker`. 소유자 RLS, 복합 소유자 외래 키와 서비스 역할 전용 revision RPC.
 - 구조 SQL: `supabase/migrations/20261015150454_blog_content_maker_v101.sql`. 등록: `20261015152556_register_blog_content_maker.sql`. 상세 설명 조정: `supabase/update_program_description.sql`.
 - programs 코드·확장 버전 v1.02, 기본 요금제 3종과 연동 가이드 등록. 등급 접근 등록 트리거가 기간 권한도 만드므로 수동 권한 등록은 ON CONFLICT 처리.
+- 2026-10-16 프로그램 상세 소개 표준과 전용 썸네일 지침 적용 완료. 53자 요약·500자/6단락 소개·특징 4개·순서 4단계·실사 16:9 썸네일을 기존 등록에 반영. `docs/CATALOG_REGISTRATION.md`에 백업·최종 문안·SQL·이미지·프롬프트·운영 Chrome 검수 17개 기록. DB·공개 이미지 변경이므로 앱/확장 v1.02 유지, Vercel 재배포·확장 재설치 불필요.
 - `src/lib/version.ts`가 이름·버전·URL 기준. 확장 Chrome 숫자 버전 1.2.0, version_name v1.02. ZIP 고정 경로 `public/downloads/blog-content-maker-extension-latest.zip`, prebuild 자동 생성.
 
 ## 검수·재개

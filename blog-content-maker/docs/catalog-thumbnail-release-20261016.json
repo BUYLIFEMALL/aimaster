@@ -1,0 +1,11 @@
+{
+  "slug": "blog-content-maker",
+  "thumbnail_url": "https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/blog-content-maker-thumbnail.jpg?v=1792086035048",
+  "storage_bucket": "program-images",
+  "storage_path": "catalog/blog-content-maker-thumbnail.jpg",
+  "width": 1600,
+  "height": 900,
+  "bytes": 200629,
+  "sha256": "b4274776498be52cb71b8f48f68e205e66b6ae4c93cd5ad0bb5f663f72e0ff43",
+  "public_http": 200
+}

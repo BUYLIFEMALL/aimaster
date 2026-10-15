@@ -29,6 +29,7 @@ Gemini 검색을 켜면 근거 조사와 원고 구성을 같은 본인 모델·
 
 ## 문서
 
+- [프로그램 등록·전용 썸네일·상세 소개 완료 기록](docs/CATALOG_REGISTRATION.md) — 2026-10-16 새 지침 적용, 운영 공개 페이지 검수 완료. [상세 소개 보기](https://www.buylife.xyz/programs/blog-content-maker)
 - [개발 계획·승인 범위](docs/DEVELOPMENT_PLAN.md)
 - [정적 분석 근거와 한계](docs/REFERENCE_ANALYSIS.md)
 - [검수·배포 기록](docs/VERIFICATION.md)
