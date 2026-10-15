@@ -15,6 +15,9 @@
 - 재구현에도 최상위 규칙(회원 본인 계정·본인 API 키), 흰색 화면, 버전 관리 등 모든 핵심 원칙이 그대로 적용된다.
 
 ## 3. 설치 현황 (2026-10-15, 이 PC)
+
+> 함께 쓰는 도구(ILSpy·.NET 8 SDK·Detect It Easy·7-Zip 등) 전체 목록·주소·재설치 순서: [`docs/ANALYSIS_TOOLKIT.md`](ANALYSIS_TOOLKIT.md)
+
 | 항목 | 위치/값 |
 |---|---|
 | REA CLI | `rea` 6.4.0 (`npm` 전역, `AppData\Roaming\npm\rea`) |
