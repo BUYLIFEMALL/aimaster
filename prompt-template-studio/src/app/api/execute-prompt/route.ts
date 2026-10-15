@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey } from "@/lib/apiKeys";
 import { GoogleGenAI } from "@google/genai";
+import { koreaNowRule } from "@/lib/koreaNowRule";
 
 export async function POST(req: Request) {
   const auth = await checkProgramAccessApi();
@@ -29,8 +30,8 @@ export async function POST(req: Request) {
 
     const currentYear = new Date().getFullYear();
     const baseInstruction = systemInstruction
-      ? `${systemInstruction}\n(현재 기준 연도: ${currentYear}년)`
-      : `당신은 최고 수준의 AI 어시스턴트입니다. 사용자의 요청에 친절하고 전문적으로 한국어로 답변하세요. (기준 연도: ${currentYear}년)`;
+      ? `${systemInstruction}\n(현재 기준 연도: ${currentYear}년)\n${koreaNowRule()}`
+      : `당신은 최고 수준의 AI 어시스턴트입니다. 사용자의 요청에 친절하고 전문적으로 한국어로 답변하세요. (기준 연도: ${currentYear}년) ${koreaNowRule()}`;
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({

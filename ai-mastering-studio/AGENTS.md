@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | AI 마스터링 스튜디오 / `ai-mastering-studio` |
-| 현재 버전 | **v1.02** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.03** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://ai-mastering-studio.buylife.xyz |
 | Vercel | 팀 `buylife`, 프로젝트 `ai-mastering-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 음악, 최소 등급 일반, 요금제 1·2·3개월 등록, VIP 등급 표에 추가(VIP=모든 프로그램) |
@@ -54,3 +54,8 @@ src/components/studio/    MasteringStudio(흐름·일괄 처리·ZIP) · Rack ·
 ## 8. 작업 기록 (추가만)
 - **2026-10-13 v1.01** 신규 구축·프로그램 등록(FREE+new, 음악)·VIP 등급 표 추가·도메인 연결·첫 배포·카탈로그 썸네일.
 - **2026-10-13 v1.02** ZIP 파일 이름을 내 컴퓨터 날짜(YYYYMMDD)로 변경, 인수인계·매뉴얼 문서 작성.
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.03)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

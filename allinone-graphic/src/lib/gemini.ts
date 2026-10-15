@@ -1,5 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 
+function koreaNowRule(now = new Date()): string {
+  const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-").map(Number);
+  return `[기준 시점: 한국 시간으로 지금은 ${year}년 ${month}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
+}
+
 export interface ApiKeyValidationResult {
   isValid: boolean;
   canGenerateText: boolean;
@@ -236,6 +241,7 @@ export async function parseReferenceToFields(
 
   const prompt = `당신은 대한민국 최고의 AI 그래픽 디자이너이자 기획서 분석가입니다.
 현재 연도는 ${currentYear}년입니다.
+${koreaNowRule()}
 아래에 제공된 [참고 문서/메모 내용]을 면밀히 분석하여, [필요한 필드 목록]의 각 필드에 가장 적합한 값을 한국어 또는 영어(필요시)로 추출하여 JSON 형식으로 작성해주세요.
 
 [필요한 필드 목록]

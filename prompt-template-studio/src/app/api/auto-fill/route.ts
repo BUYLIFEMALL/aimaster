@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey } from "@/lib/apiKeys";
 import { GoogleGenAI, Type } from "@google/genai";
+import { koreaNowRule } from "@/lib/koreaNowRule";
 
 export async function POST(req: Request) {
   const auth = await checkProgramAccessApi();
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
     const currentYear = new Date().getFullYear();
     const prompt = `
 당신은 최고의 프롬프트 엔지니어입니다. (기준 연도: ${currentYear}년)
+${koreaNowRule()}
 아래 프롬프트 정보와 변수 목록을 바탕으로, 실제 테스트나 실행에 바로 사용할 수 있는 가장 현실적이고 창의적이며 구체적인 한국어 예시 입력값을 작성해주세요.
 
 프롬프트 정보:

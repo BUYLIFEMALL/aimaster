@@ -1,6 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { PromptFormData, GeneratedPromptResult } from "@/types/prompt";
 
+function koreaNowRule(now = new Date()): string {
+  const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-").map(Number);
+  return `[기준 시점: 한국 시간으로 지금은 ${year}년 ${month}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
+}
+
 function wrapFeedback(promptText: string, feedback?: string): string {
   if (!feedback || !feedback.trim()) return promptText;
   return `
@@ -190,7 +195,7 @@ export function buildSystemPrompt(data: PromptFormData): string {
     basePrompt += constraints;
   }
 
-  return wrapFeedback(basePrompt, feedback);
+  return wrapFeedback(`${basePrompt}\n${koreaNowRule()}`, feedback);
 }
 
 export async function generateMetaPrompt(
@@ -259,7 +264,7 @@ export async function generateFieldSuggestion(
 
     const res = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: `${prompt}\n${koreaNowRule()}`,
       config: { temperature: 0.6 },
     });
     return res.text?.trim() || "";
@@ -274,7 +279,7 @@ export async function generateFieldSuggestion(
 
     const res = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: `${prompt}\n${koreaNowRule()}`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -298,7 +303,7 @@ export async function generateFieldSuggestion(
 
     const res = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: `${prompt}\n${koreaNowRule()}`,
       config: { temperature: 0.7 },
     });
     return res.text?.trim() || "";
@@ -314,7 +319,7 @@ export async function generateFieldSuggestion(
 
     const res = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: `${prompt}\n${koreaNowRule()}`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -335,7 +340,7 @@ export async function generateFieldSuggestion(
 
     const res = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: `${prompt}\n${koreaNowRule()}`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -349,4 +354,3 @@ export async function generateFieldSuggestion(
 
   return "";
 }
-

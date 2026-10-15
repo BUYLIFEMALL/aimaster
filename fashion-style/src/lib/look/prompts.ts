@@ -11,7 +11,8 @@ export function cleanSituation(input: unknown): string {
 }
 
 function yearGuard(year: number): string {
-  return `[Current year: ${year}. Reflect ${year} fashion and beauty trends; never regress to past years.]`;
+  const [koreaYear, koreaMonth] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
+  return `[Current year: ${year}. Reflect ${year} fashion and beauty trends; never regress to past years.] [기준 시점: 한국 시간으로 지금은 ${koreaYear}년 ${koreaMonth}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
 }
 
 const PEOPLE_RULE = "If a person must be depicted, depict a Korean (East Asian) person unless the request explicitly requires otherwise.";

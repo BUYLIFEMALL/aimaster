@@ -4,7 +4,12 @@ import { LIMITS, METAPHORS, genreName, langName, resolveStructure, thumbStyleByI
 export interface Prompt { system: string; user: string }
 
 const yearRule = (year: number) =>
-  `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기, 트렌드, 제목은 반드시 ${year}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요.]`;
+  `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기, 트렌드, 제목은 반드시 ${year}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요.] ${koreaNowRule()}`;
+
+function koreaNowRule(now = new Date()): string {
+  const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-").map(Number);
+  return `[기준 시점: 한국 시간으로 지금은 ${year}년 ${month}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
+}
 
 const JSON_ONLY = "Respond with a single valid JSON value only. No markdown fences, no commentary.";
 

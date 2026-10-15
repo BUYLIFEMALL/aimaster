@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.05** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.06** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-channel-studio.buylife.xyz (옛 `*.vercel.app` 유지) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -67,3 +67,8 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - **2026-10-13 v1.04** 가사 20곡 시험에서 4곡이 누락되던 문제 수정: 실패하거나 빠진 곡은 한 번 더 시도(최대 2회). 실제 시험(관리자 본인 키): OpenAI GPT-4o mini 제목·GPT-4o 메타데이터 200, gpt-image-1 썸네일 22초·나노바나나 프로 썸네일 20초 성공, 가사 20곡 약 19초.
 - **2026-10-13 v1.03** 장르 확장: 참고 사이트의 Pop·Study/Focus·Workout·Meditation 추가 + 추천 장르 9개(수면/앰비언트·카페 보사노바·드라이브 신스웨이브·클래식 피아노·힙합·록/밴드·트로트·캐럴/시즌·트로피컬/레게), 화면은 기본/추천 구역으로 나눔, 장르별 BEST 곡 구조 지정.
 - **2026-10-13 v1.02** 모델 안내 문구 중복("Gemini·Gemini") 수정, 카탈로그 썸네일 등록, 인수인계·매뉴얼 문서 작성.
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.06)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

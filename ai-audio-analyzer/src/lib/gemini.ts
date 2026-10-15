@@ -1,6 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { SpeechAnalysisResult, MusicAnalysisResult } from "./types";
 
+function koreaNowRule(now = new Date()): string {
+  const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-").map(Number);
+  return `[기준 시점: 한국 시간으로 지금은 ${year}년 ${month}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
+}
+
 export const SPEECH_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -286,6 +291,7 @@ export async function analyzeSpeech(
 사용자 컨텍스트: ${context || "일반 대화 및 음성 녹음"}
 특별 요청: ${specialRequest || "기본 정밀 분석"}
 기준 연도: ${currentYear}년
+${koreaNowRule()}
 
 오디오를 정밀 분석하여 보고서를 작성하십시오.
 **중요 지침:**
@@ -326,6 +332,7 @@ export async function analyzeMusic(
   const prompt = `당신은 음악 분석 마스터, 음향 포렌식 전문가, 그리고 Suno AI v5 프롬프트 엔지니어입니다.
 오디오를 나노 단위로 해체하여 다음 분석을 수행하십시오.
 기준 연도: ${currentYear}년
+${koreaNowRule()}
 
 1. **Suno AI Prompt (v5 God Tier):** 
    - 구조화된 메타 태그([Genre:...], [Mood:...], [Instruments:...], [Tempo:...], [Structure:...])와 서술형 에세이 방식으로 역설계된 프롬프트 작성 (영어).

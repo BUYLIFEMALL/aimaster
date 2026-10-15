@@ -10,7 +10,7 @@
 
 - **프로그램명**: **AI 슬라이드 자동화** (Slide Builder AI)
 - **슬러그 (Slug)**: `ai-slide-builder`
-- **현재 버전**: **`v1.05`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.05'`)
+- **현재 버전**: **`v1.06`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.06'`)
 - **공식 서비스 도메인**: [https://ai-slide-builder.buylife.xyz](https://ai-slide-builder.buylife.xyz)
 - **Vercel 프로젝트**: `ai-slide-builder` (Team: `buylife`)
 - **카테고리**: 유틸리티 / 오피스 자동화
@@ -145,3 +145,8 @@ vercel deploy --prod --yes
 2. [ ] **버전 관리**: 코드 `src/lib/version.ts`의 `APP_VERSION`과 Supabase DB `programs.version`이 항상 일치하는지 확인.
 3. [ ] **PPTX 파일 검증**: 한글 텍스트 깨짐 없음, 16:9 와이드스크린 비율, 발표자 스피커 노트 정상 삽입 확인.
 4. [ ] **화이트 테마 유지**: 다크 모드 강제 적용 금지 (작업 화면은 항상 흰색 베이스).
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.06)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

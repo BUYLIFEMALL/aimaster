@@ -11,7 +11,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | UI Canvas 자동화 / `ui-canvas` |
-| 현재 버전 | **v1.05** (`src/lib/version.ts` = DB `programs.version`) |
+| 현재 버전 | **v1.06** (`src/lib/version.ts` = DB `programs.version`) |
 | 주소 | https://ui-canvas.buylife.xyz (Vercel `buylife/ui-canvas`, 직접 `vercel deploy --prod`) |
 | 카테고리 / 접근 | Tools / 최소 등급 일반, FREE 아님(일반 이상 + 관리자 부여 사용기간), 기본 3요금제 |
 | 참고 원본 | AI Studio "GPT PARK의 UI 캔버스 Pro" (소스는 참고만, 코드 복제 없음) |
@@ -54,3 +54,8 @@
 - 도구 선택 직후 곧바로 드래그하는 자동화는 React 렌더 전에 시작되면 생성되지 않을 수 있다(사람 조작에는 문제 없음). 자동 검수 시 도구 클릭 후 1초 대기.
 - `styles`에 `borderStyle: solid`만 있고 두께가 없으면 브라우저가 3px 검은 테두리를 그린다 → `ComponentView.hasBorder`로 방지.
 - 원본의 운영자 키 클라이언트 번들 주입 패턴은 절대 복제하지 않는다.
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.06)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

@@ -34,6 +34,11 @@ export const DEFAULT_PARAMS: MasteringParams = {
   limiter: { gain: 1.5, ceiling: -1, release: 100 },
 };
 
+function koreaNowRule(now = new Date()): string {
+  const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-").map(Number);
+  return `[기준 시점: 한국 시간으로 지금은 ${year}년 ${month}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
+}
+
 export interface Preset { id: string; name: string; en: string; description: string; params: MasteringParams }
 const P = (eq: [number, number, number, number], sat: [number, number], comp: [number, number, number, number], width: number, lim: [number, number, number]): MasteringParams => ({
   eq: { low: eq[0], mid: eq[1], high: eq[2], q: eq[3] },
@@ -109,6 +114,7 @@ export function aiPresetPrompt(request: string, year: number) {
   return {
     system:
       `You are an expert mastering engineer. [기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기와 트렌드는 ${year}년 기준으로 하세요. 과거 연도로 퇴행하지 마세요.] ` +
+      `${koreaNowRule()} ` +
       `Analyze the user's sonic request and output precise DSP parameters plus a short technical explanation. WRITE THE EXPLANATION IN KOREAN (max 2 sentences). ` +
       `Respond with a single valid JSON value only, no markdown fences.`,
     user:

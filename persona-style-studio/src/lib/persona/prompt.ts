@@ -33,7 +33,8 @@ export function trimField(s: unknown, max: number): string {
 
 /** 현재 연도 지침(핵심 원칙 8번): 모델이 과거 연도를 현재처럼 쓰지 않게 한다 */
 export function yearNotice(year: number): string {
-  return `[Year rule: the current year is ${year}. If the text mentions the present or current year, use ${year}; never regress to earlier years.]`;
+  const [koreaYear, koreaMonth] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
+  return `[Year rule: the current year is ${year}. If the text mentions the present or current year, use ${year}; never regress to earlier years.] [기준 시점: 한국 시간으로 지금은 ${koreaYear}년 ${koreaMonth}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
 }
 
 export interface RewriteInput {

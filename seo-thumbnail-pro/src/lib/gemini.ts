@@ -7,6 +7,8 @@ import {
 } from "@/types/thumbnail";
 
 const CURRENT_YEAR = new Date().getFullYear(); // 2026년 동적 주입
+const [KOREA_YEAR, KOREA_MONTH] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
+const KOREA_NOW_RULE = `[기준 시점: 한국 시간으로 지금은 ${KOREA_YEAR}년 ${KOREA_MONTH}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
 
 /**
  * Gemini API 연결 테스트
@@ -48,6 +50,7 @@ export async function generateStrategies(
   const prompt = `
 당신은 유튜브 SEO 알고리즘 및 썸네일 클릭률(CTR) 극대화 전문 컨설턴트입니다.
 현재 연도는 ${CURRENT_YEAR}년입니다. 과거 연도(2023, 2024년 등)로 후퇴하지 말고 항상 최신 트렌드를 반영하세요.
+${KOREA_NOW_RULE}
 
 아래 유튜브 영상 대본/기획안/아이디어를 분석하여, A/B 테스트를 위한 3가지 차별화된 SEO 전략과 1개의 종합 공통 메타데이터를 작성해주세요.
 

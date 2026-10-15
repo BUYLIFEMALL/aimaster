@@ -1,6 +1,6 @@
 # AI 슬라이드 자동화 (ai-slide-builder)
 
-> **버전**: v1.05  
+> **버전**: v1.06
 > **프로그램명**: AI 슬라이드 자동화  
 > **슬러그**: `ai-slide-builder`  
 > **도메인**: [https://ai-slide-builder.buylife.xyz](https://ai-slide-builder.buylife.xyz)  
@@ -60,3 +60,8 @@ npm run build
 # Vercel 프로덕션 배포
 vercel deploy --prod --yes
 ```
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.06)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

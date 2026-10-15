@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey } from "@/lib/apiKeys";
 import { GoogleGenAI } from "@google/genai";
+import { koreaNowRule } from "@/lib/koreaNowRule";
 
 export async function POST(req: Request) {
   const auth = await checkProgramAccessApi();
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
     const currentYear = new Date().getFullYear();
     const context = `
 현재 작성 중인 프롬프트 정보 (기준 연도: ${currentYear}년):
+${koreaNowRule()}
 - 제목: ${title || "미작성"}
 - 설명: ${description || "미작성"}
 - 내용: ${content || "미작성"}

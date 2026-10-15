@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 페르소나 문체 자동화 / `persona-style-studio` |
-| 현재 버전 | **v1.04** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.05** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://persona-style-studio.buylife.xyz (옛 `persona-style-studio.vercel.app` 유지) |
 | Vercel | 팀 `buylife`, 프로젝트 `persona-style-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, Tools, 최소 등급 일반, 요금제 1·2·3개월(1만/2만/3만원) 등록 |
@@ -65,3 +65,8 @@ tests/persona.test.mjs · access.test.mjs   `npm test` 14개 통과
 - **2026-10-13 v1.02** Gemini thinking 끔(응답 약 20초 → 1~3초), 페르소나 패널 머리글 줄바꿈 수정. 썸네일 생성·등록(관리자 Gemini 키 1회 사용, 임시 파일 삭제).
 - **2026-10-13 v1.03** 일반 회원 화면 시험 결과 반영: 내보내기 파일 날짜를 한국 날짜로, 페르소나 패널을 화면 높이 안으로 제한(수정 패널의 저장 버튼이 화면 밖으로 밀리던 문제).
 - **2026-10-13 v1.04** 페르소나 패널 높이를 `100vh-7rem`으로 더 줄여 스크롤 없이 수정 패널의 저장 버튼이 보이게 함(확인 완료).
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.05)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

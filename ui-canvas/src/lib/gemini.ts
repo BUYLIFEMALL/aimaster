@@ -23,7 +23,8 @@ export function friendlyAiError(error: unknown): { message: string; status: numb
 
 function yearGuard() {
   const year = new Date().getFullYear();
-  return `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 연도를 쓸 때는 반드시 ${year}년(당해 연도)을 기준으로 하고 과거 연도로 퇴행하지 마세요.]`;
+  const [koreaYear, koreaMonth] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
+  return `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 연도를 쓸 때는 반드시 ${year}년(당해 연도)을 기준으로 하고 과거 연도로 퇴행하지 마세요.] [기준 시점: 한국 시간으로 지금은 ${koreaYear}년 ${koreaMonth}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
 }
 
 const specSchema = {

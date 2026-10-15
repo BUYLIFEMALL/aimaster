@@ -55,3 +55,8 @@ npm run lint      # ESLint 검증
 npm run build     # Next.js 프로덕션 빌드 검증
 vercel deploy --prod --yes --scope buylife  # 프로덕션 배포
 ```
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.14)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

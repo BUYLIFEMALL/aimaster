@@ -4,7 +4,8 @@ import { MATERIALS, categoryById } from "./styles";
 /** 모든 AI 프롬프트는 당해 연도 기준(CLAUDE.md 핵심 원칙 8) */
 export function yearGuard(): string {
   const y = new Date().getFullYear();
-  return `[기준 연도 엄수: 현재 연도는 ${y}년입니다. 연도·시기·트렌드를 언급할 때는 ${y}년(당해 연도)을 기준으로 하고, 과거 연도로 퇴행하지 마세요.]`;
+  const [koreaYear, koreaMonth] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
+  return `[기준 연도 엄수: 현재 연도는 ${y}년입니다. 연도·시기·트렌드를 언급할 때는 ${y}년(당해 연도)을 기준으로 하고, 과거 연도로 퇴행하지 마세요.] [기준 시점: 한국 시간으로 지금은 ${koreaYear}년 ${koreaMonth}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
 }
 
 /** 새 인물을 그릴 때의 기본 인물 규칙(핵심 원칙 3). 업로드 사진 변환에는 쓰지 않는다. */

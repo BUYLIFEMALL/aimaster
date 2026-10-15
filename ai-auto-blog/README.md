@@ -40,3 +40,8 @@ npm run dev
   - `ai-auto-blog/app/posts/[id]/page.tsx`에 **Client-side Event Delegation** 적용 (`handleContentClick`).
   - 클릭된 요소가 복사 버튼인 경우 다중 DOM 트래버스(Sibling -> Parent -> Following DOM Node)로 프롬프트 구문(`code`)을 탐색하여 복사 후 `✓ 복사완료!` 피드백 노출.
   - 상세 내용은 루트 `docs/PLATFORM_PATTERNS.md` §26 참조.
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.63)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

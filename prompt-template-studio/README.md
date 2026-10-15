@@ -1,6 +1,6 @@
 # AI 프롬프트 템플릿 자동화 (Prompt Template Studio)
 
-> **버전**: `v1.01`  
+> **버전**: `v1.02`
 > **공식 도메인**: `https://prompt-template.buylife.xyz`  
 > **프로젝트 디렉토리**: `prompt-template-studio`  
 > **플랫폼**: AIMaster 통합 서브프로젝트 (카탈로그 1위)
@@ -42,3 +42,8 @@
 - **AI Engine**: Google GenAI SDK (`@google/genai`, Gemini 2.5 Flash)
 - **Auth & DB**: Supabase (AIMaster 통합 SSO, `.buylife.xyz` 쿠키 도메인 공유)
 - **Deployment**: Vercel (`prompt-template-studio`, Custom Domain: `prompt-template.buylife.xyz`)
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.02)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

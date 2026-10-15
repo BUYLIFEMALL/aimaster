@@ -28,8 +28,13 @@
 - 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [generate|edit|upscale|bgremove|inpaint|comic|idphoto|story|recipe]`(운영자 본인 키 + 실제 Storage, 끝나면 정리). `BASE_FILE=<이미지>`로 원본 지정. 출력은 파이프 대신 파일로 리다이렉트한다.
 - 2026-10-14 실측(flash-image): 생성 9초, 편집 16초, 업스케일 13초, 배경 제거 12초, 부분 삭제 13초, 만화 13초, 증명사진 11초, 스토리 8컷 98초, 레시피 7단계 41초.
 
-## 2026-10-14 v1.03 — 모바일 셸 CSS 추가 (Claude Code)
+## 2026-10-14 v1.04 — 모바일 셸 CSS 추가 (Claude Code)
 
 - 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
-- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.03(코드·package·DB).
+- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.04(코드·package·DB).
 - 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.04)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.

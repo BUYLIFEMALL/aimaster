@@ -1,6 +1,8 @@
 import { AiStructuredItem } from "./types";
 
 const CURRENT_YEAR = new Date().getFullYear(); // 2026년 동적 주입
+const [KOREA_YEAR, KOREA_MONTH] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
+const KOREA_NOW_RULE = `[기준 시점: 한국 시간으로 지금은 ${KOREA_YEAR}년 ${KOREA_MONTH}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
 
 /**
  * Gemini API 연결 테스트
@@ -48,6 +50,7 @@ export async function analyzeHtmlWithGemini(
   const prompt = `
 당신은 웹 데이터 마이닝 및 HTML 파싱 전문가입니다.
 현재 연도는 ${CURRENT_YEAR}년입니다.
+${KOREA_NOW_RULE}
 아래 제공된 웹사이트의 HTML 코드에서 주요 리스트 항목(게시물, 상품, 뉴스, 피드 등 반복되는 핵심 요소)을 찾아 구조화된 JSON 데이터로 추출해주세요.
 
 각 항목은 반드시 다음 속성을 포함해야 합니다:

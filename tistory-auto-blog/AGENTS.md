@@ -316,3 +316,8 @@
 
 ## v1.69 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
 - 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: utils/news/generator.ts 본문 생성 지시문(**연도 규칙 자체가 없었음** → 연도+현재 월 추가)에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.69·`extension_version` v1.69, `node scripts/check-extension-release.mjs tistory-auto-blog` OK(확장 코드 변경 없음, manifest·ZIP 버전만). 유료 AI 실제 생성 확인은 하지 않음.
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.70)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
