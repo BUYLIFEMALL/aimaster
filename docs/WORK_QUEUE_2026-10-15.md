@@ -17,7 +17,7 @@
 
 | # | 작업 | 담당 | 내용 | 근거 |
 |---|---|---|---|---|
-| B1 | Step Mail Next 16 이전(선택) | 에이전트(승인 필요) | 운영 취약점 남은 2건(Next 15 내장 postcss 8.4.31)은 Next 16으로 올려야 사라진다. 실사용 위험은 낮음(빌드 때 자체 CSS만 처리). middleware→proxy 등 변경이 더 많아 별도 작업. | `stepmail/AGENTS.md` v1.07 |
+| B1 | ~~Step Mail Next 16 이전(선택)~~ **완료(2026-10-15, v1.09 `0834c451`)** — next 16.4.1·proxy.ts, 운영 취약점 0, 운영 화면 확인 | 완료 | 운영 취약점 남은 2건(Next 15 내장 postcss 8.4.31)은 Next 16으로 올려야 사라진다. 실사용 위험은 낮음(빌드 때 자체 CSS만 처리). middleware→proxy 등 변경이 더 많아 별도 작업. | `stepmail/AGENTS.md` v1.07 |
 | B2 | 개발용 도구 취약점 정리(선택) | 에이전트 | 두 프로그램의 eslint 계열(braces·micromatch·glob 등) — 운영 서버에 들어가지 않음. eslint-config-next 정리 시 함께. | `npm audit` |
 | B3 | ~~글·대본 생성 프로그램 "현재 월" 추가~~ **완료(2026-10-15)** — 16개 프로그램 버전 +0.01·배포·DB, 확장 4개 검증 OK | 완료 | | HANDOFF 2026-10-15 B3 |
 | B4 | ~~Step Mail·카카오 도메인 연동(SSO)~~ **완료(2026-10-15, 각 v1.08)** — 카카오 콘솔 JavaScript SDK 도메인에 새 주소 추가 → 새 주소에서 공유 버튼 정상 확인(2026-10-15, 주인님 실제 공유) | 완료 | stepmail·kakao는 아직 `*.vercel.app`이라 메인 사이트 로그인이 공유되지 않는다(검수 때 매번 따로 로그인 필요). 원칙 11번 절차(OAuth 콜백 고정 여부 먼저 확인)로 한 프로그램씩. | `docs/DOMAIN_SSO_POLICY.md` |
