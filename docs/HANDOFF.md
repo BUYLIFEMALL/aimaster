@@ -6,7 +6,8 @@
 - 대상은 **메인 AIMaster와 `blog-content-maker`**. 공개 키 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 우선·기존 `NEXT_PUBLIC_SUPABASE_ANON_KEY` 호환, 서버 키 `SUPABASE_SECRET_KEY` 우선·기존 `SUPABASE_SERVICE_ROLE_KEY` 호환. 새 값 없음/공백만 기존 이름 사용, 인증 실패 자동 키 재시도 없음. 서버 키는 server-only, 공개 키와 분리. 다른 독립 프로그램은 별도 적용 필요.
 - Vercel 실제 목록: 메인 Production은 두 이름 모두 이미 등록, 블로그 Production은 기존 이름만 등록. **주인님이 지금 바꾸실 필수 설정 없음**. 이번 작업은 환경변수·키 추가/변경/삭제·DB 스키마 변경 없음.
 - 사전 검수: 회귀 22/22·블로그 기존 단위 10/10·린트 통과. 새 이름만 있는 별도 프로세스에서 메인/블로그 프로덕션 빌드, 보이는 Chrome 일반 회원 로그인·회원 권한·브라우저 프로필·DB 조회·모바일 등 10개 검사 통과. 브라우저 JS의 서버 비밀 키 바이트 0건. 메인 빌드의 기존 타입 검사 생략 설정은 변경하지 않음.
-- 블로그 코드/manifest/ZIP v1.03 동기화. 릴리스 메타데이터 SQL `blog-content-maker/supabase/release_env_compat_v103.sql`. 커밋·푸시 후 양쪽 운영 배포와 기존 이름/양쪽 공존 설정의 운영 검수를 진행하고 결과를 이 항목과 블로그 VERIFICATION.md에 기록.
+- 구현 **`e9322986`** 푸시 후 양쪽 프로덕션 READY. 메인 `dpl_2d2agGCWbyKdjqMJRi9gQLUBHt3d` / https://www.buylife.xyz, 블로그 `dpl_B5qMJGvHv3zu1mWx2fkkpeZG4EjR` / https://blog-content-maker.buylife.xyz. 메인은 커밋의 메인 앱 파일만 모은 배포 복사본으로 다른 CLI의 미커밋 파일 제외, 기존 설치 파일도 보존·HTTP 200 확인.
+- 운영 Chrome 일반 회원 **10/10**: 메인 새·기존 이름 공존 상태의 프로필·권한, 블로그 기존 이름만 있는 상태의 로그인·DB 조회·비로그인 보호·모바일 정상. 블로그 코드/DB/manifest/라이브 ZIP **v1.03**, SQL `blog-content-maker/supabase/release_env_compat_v103.sql` 적용. ZIP 200·소스 7개 일치, 공용 릴리스 검사 실패 0/경고 0. 이번 요청 남은 작업 없음. 확장 최신 설치 시 ZIP 재다운로드→덮어쓰기→새로고침, 설치된 v1.02도 API 호환 유지. 상세는 블로그 VERIFICATION.md.
 
 ## 2026-10-16 Claude Code(보조 계정·윈도우) — 폴더별 「Git push·배포 사전 승인」 폐지 + 캐릭코드 권한 조회 서비스 롤 (mbti-character v1.06)
 

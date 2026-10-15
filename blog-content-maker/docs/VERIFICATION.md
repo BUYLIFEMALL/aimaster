@@ -58,17 +58,19 @@
 - 새 이름만 전달하고 기존 이름은 빈 값인 검수 프로세스에서 **두 프로그램 프로덕션 빌드 통과**. 영구 환경 파일은 수정하지 않았습니다. 메인 빌드는 기존 `ignoreBuildErrors` 설정으로 타입 검사 생략, 블로그는 타입 검사 통과.
 - `scripts/verify-platform-env.mjs`의 `local-new`: 임시 포트 3139/3140에서 보이는 Chrome으로 일반 시험 회원 로그인·메인 브라우저 프로필과 서버 권한·블로그 회원 접근·DB 조회·비로그인 보호·400px 모바일 **10개 통과**. AI 호출·최종 발행 없음. 임시 서버·브라우저 종료.
 - 두 앱의 브라우저 JS에 실제 공개 키가 빌드에 포함되며 서버 비밀 키 바이트 검색 **0건**. 검수 도구도 새·기존 이름 모두 지원합니다. Vercel 환경변수/실제 키/DB 스키마는 변경하지 않았습니다.
-- 운영 릴리스: 코드·manifest·고정 ZIP v1.03, DB는 `supabase/release_env_compat_v103.sql`로 프로그램/확장/주소를 함께 갱신. 커밋·푸시·운영 배포 후 `PLATFORM_ENV_VERIFY_MODE=live node scripts/verify-platform-env.mjs`와 공용 확장 릴리스 검사로 최종 확인합니다.
+- 운영 릴리스: 구현 커밋 **`e9322986`** 푸시, 메인과 블로그 프로덕션 모두 READY. 블로그 `dpl_B5qMJGvHv3zu1mWx2fkkpeZG4EjR` / https://blog-content-maker-is9bds2b3-buylife.vercel.app / https://blog-content-maker.buylife.xyz. 메인 `dpl_2d2agGCWbyKdjqMJRi9gQLUBHt3d` / https://www.buylife.xyz.
+- 코드·manifest·고정 ZIP **v1.03**, DB는 `supabase/release_env_compat_v103.sql`로 프로그램/확장/주소를 함께 갱신 완료. `PLATFORM_ENV_VERIFY_MODE=live node scripts/verify-platform-env.mjs` **운영 10/10 통과**. 메인은 새·기존 변수 이름 공존 상태에서 브라우저 프로필·서버 권한 판정 정상, 블로그는 기존 이름만 등록된 상태에서 실제 일반 회원 로그인·DB 조회 정상. 비로그인 보호·모바일도 통과.
+- 공용 확장 검사 **실패 0/경고 0**, ZIP HTTP 200·manifest v1.03·확장 소스 7개 바이트 일치. ZIP SHA-256 `9ffd1aee3e6b34563b4d13bbb5aa60416c66260db14247402fc2d264ed612933`. 설치된 이전 v1.02 확장의 API 형식·동작 호환 유지. 최신 설치 시 ZIP 재다운로드→덮어쓰기→확장 새로고침.
 - 안정화 전 기존 값 삭제 금지·Vercel 단계별 안내: [공통 지침](../../docs/SUPABASE_API_KEY_COMPATIBILITY.md).
 
 ## 프로그램 카탈로그 정리 (2026-10-16)
 
 새 상세 소개 지침에 맞춰 기존 등록·전용 실사 썸네일·500자/6단락 소개·특징 4개·순서 4단계를 운영에 반영했습니다. 공개 실제 Chrome 검수 17개·400px 모바일·다른 썸네일과 실사 톤 비교·Next.js 빌드 통과. [전체 기록과 재현 방법](CATALOG_REGISTRATION.md). 카탈로그 DB 값과 공개 이미지만 변경되어 v1.02를 유지하며 Vercel 재배포·확장 갱신은 필요 없습니다.
 
-## 운영 배포
+## 이전 운영 배포 (v1.01~v1.02)
 
 - v1.01 구현 커밋 `c768e23b`, v1.02 보완 커밋 **`33213b57`**, `origin/master` 푸시 성공.
-- 운영 https://blog-content-maker.buylife.xyz — Vercel 팀 `buylife`, 프로젝트 `blog-content-maker`, 프로덕션 **READY**. 현재 배포 ID `dpl_DJ53Vym8zJGD3vpWTaDtcn37viFi`, 배포 URL `https://blog-content-maker-fhs28wcra-buylife.vercel.app`, 2026-10-16 01:00:59 KST. 기존 `blog-content-maker-chi.vercel.app`, `blog-content-maker-buylife.vercel.app` 별칭 유지.
+- 운영 https://blog-content-maker.buylife.xyz — Vercel 팀 `buylife`, 프로젝트 `blog-content-maker`, 프로덕션 **READY**. 당시 배포 ID `dpl_DJ53Vym8zJGD3vpWTaDtcn37viFi`, 배포 URL `https://blog-content-maker-fhs28wcra-buylife.vercel.app`, 2026-10-16 01:00:59 KST. 기존 `blog-content-maker-chi.vercel.app`, `blog-content-maker-buylife.vercel.app` 별칭 유지.
 - 로그인 200, 비로그인 대시보드 307→로그인, 비로그인 API 401, 버전 API·ZIP·브랜드 이미지 200. 회원 응답은 private/no-store.
 - **운영 도메인의 실제 일반 회원 Chrome**으로 연결·원고·현재 이미지·토큰 폐기·다른 작업 차단·새 빈 검수 작업 삭제·모바일을 포함한 20개 검사 통과. 운영 검색도 실제 출처 반환과 설정 복원·모바일·비로그인을 포함한 14개 검사 통과. 실제 Chrome 데스크톱·400px 스크린샷을 확인했습니다.
 - 공용 `scripts/check-extension-release.mjs blog-content-maker`: **실패 0, 경고 0**, DB 프로그램/확장/라이브 ZIP 모두 **v1.02**. 루트 환경 파일 대신 해당 프로젝트의 승인된 DB 연결 값을 검사 프로세스에만 전달했으며 영구 설정은 변경하지 않았습니다.

@@ -53,6 +53,11 @@
 - 메인·블로그 모두 **기존 이름을 비운 검수 프로세스에서 새 이름만으로 프로덕션 빌드 통과**. 메인 빌드는 저장소의 기존 설정에 따라 교차 프로젝트 타입 검사를 생략하며 린트·컴파일·페이지 생성은 통과했습니다. 블로그는 타입 검사도 통과했습니다.
 - 새 이름만 전달한 두 앱을 임시 포트로 시작하고 **보이는 실제 Chrome·일반 시험 회원으로 10개 검사 통과**. 두 로그인 화면·비로그인 보호, 메인 브라우저 프로필·서버 권한 판정, 블로그 회원 진입·DB 조회·모바일을 확인했습니다. 종료 후 임시 서버·검수 브라우저를 닫았습니다.
 - 브라우저 빌드 파일의 실제 공개 키 포함을 확인했고 서버 비밀 키 바이트는 두 앱의 브라우저 JS에서 **0건**입니다. 키 값은 출력하지 않았습니다.
-- 운영 배포·검증 결과는 `docs/HANDOFF.md`의 이번 Supabase 호환 항목과 블로그 `docs/VERIFICATION.md` v1.03 기록에 이어서 남깁니다.
+- 구현 커밋 **`e9322986`**, `origin/master` 푸시 후 두 프로그램 **프로덕션 READY**. 메인은 커밋의 메인 앱 파일만 모은 배포 복사본에서 배포해 다른 CLI의 미커밋 파일을 제외했고, 기존 설치 파일도 보존·HTTP 200 확인했습니다.
+- 메인: https://www.buylife.xyz · `dpl_2d2agGCWbyKdjqMJRi9gQLUBHt3d` · https://aimaster-h613y5dab-buylife.vercel.app
+- 블로그 **v1.03**: https://blog-content-maker.buylife.xyz · `dpl_B5qMJGvHv3zu1mWx2fkkpeZG4EjR` · https://blog-content-maker-is9bds2b3-buylife.vercel.app
+- 운영의 **새·기존 이름 공존(메인)**과 **기존 이름만 등록(블로그)** 상태에서 보이는 실제 Chrome 일반 회원 검사 **10/10 통과**. 공개·회원·서버 권한·DB 조회·모바일 검수 결과는 `blog-content-maker/test-artifacts/env-live-result.json`과 화면 캡처(Git 제외)에 보존했습니다. 검수 브라우저는 종료했습니다.
+- 블로그 DB 프로그램/확장/라이브 ZIP 모두 **v1.03**, ZIP HTTP 200·소스 7개 일치·공용 릴리스 검사 **실패 0/경고 0**. 설치된 이전 확장의 API 호환도 유지합니다. 새 ZIP 설치 시 재다운로드→기존 폴더 덮어쓰기→`chrome://extensions` 새로고침을 따릅니다.
+- **이번 요청의 남은 구현·검수 없음**. 기존 값 삭제·다른 독립 프로그램 일괄 전환은 하지 않았습니다. 삭제는 안정화 후 별도 확정합니다.
 
 참고: [Supabase 키 구분](https://supabase.com/docs/guides/getting-started/api-keys), [Next.js 공개 환경변수의 빌드 적용](https://nextjs.org/docs/app/guides/environment-variables).
