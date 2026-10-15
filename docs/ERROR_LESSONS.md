@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — 콜백 주소가 환경변수로 옛 주소에 고정된 OAuth 프로그램을 새 도메인으로 옮길 때 (kakao_auto_poster v1.08)
+- 문제: 회원이 본인 카카오 앱에 `https://kakaoautoposter.vercel.app/api/kakao/callback`을 등록해 두었는데, 로그인 쿠키는 `.buylife.xyz`에만 공유되므로 옛 주소로 돌아온 콜백에는 로그인 정보가 없어 연동이 실패한다 → 해결: 콜백 라우트 맨 앞에서 옛 호스트면 같은 쿼리로 새 주소의 같은 경로에 307 → 새 주소에서 토큰 교환(redirect_uri는 환경변수의 옛 주소 문자열 그대로라 공급자 일치 검사 통과). 화면 경로도 옛 호스트면 새 주소로 308(세션을 한 주소로 모음). 크론·공개 API는 옛 주소에서도 동작하게 matcher에서 제외.
+- 함께 확인: 운영자 키로 도는 **카카오 JavaScript SDK(공유 버튼)**는 카카오 콘솔에 등록된 사이트 도메인에서만 동작 → 새 주소를 콘솔에 추가해야 한다(주인님 작업). 다른 프로그램을 옮길 때도 클라이언트 SDK(카카오·구글 지도 등)의 허용 도메인을 점검한다.
+
 ## 2026-10-15 — `.vercelignore`의 앞에 `/`가 없는 폴더 이름은 하위 폴더까지 뺀다 (threads-content-ops 독립 분리)
 - 증상: 로컬 빌드는 되는데 Vercel 빌드가 `Can't resolve '@/lib/supabase/server'`로 실패 → 원인: `.vercelignore`에 `supabase`(마이그레이션 폴더 제외용)라고 써서 `lib/supabase`까지 업로드에서 빠짐 → 해결: `/supabase`·`/docs`처럼 앞에 `/`를 붙여 프로젝트 루트 폴더만 지정 → 다음부터: `.vercelignore`에는 항상 `/`로 시작하는 경로를 쓰고, 배포 실패 시 `vercel inspect <배포주소> --logs`로 빌드 로그를 본다.
 - 프로그램을 메인 사이트에서 독립 앱으로 옮길 때 점검: ① 회원이 외부에 등록한 주소(OAuth 콜백)·설치된 데스크톱 앱/확장이 부르는 API 주소는 메인 `next.config.mjs` **rewrites(프록시)**로 계속 살린다(리다이렉트는 POST·토큰 교환이 깨질 수 있음) ② 화면 주소와 콜백 주소가 달라지면 state 같은 host 전용 쿠키를 `domain=.buylife.xyz`로 ③ 크론은 새 프로젝트 `vercel.json`으로 옮기고 루트에서 빼기(`vercel crons ls` 확인) ④ 민감 환경변수(Sensitive)는 `vercel env pull`로 값이 나오지 않으므로 새 임의값(CRON_SECRET)으로 만들거나 주인님께 등록 요청 ⑤ 루트가 `typescript.ignoreBuildErrors`로 숨기던 타입 오류가 독립 빌드에서 드러난다.

@@ -10,6 +10,12 @@ export const fetchCache = "force-no-store";
 // 카카오 로그인 OAuth 리다이렉트 콜백. threads/src/app/api/threads/callback/route.ts와 동일한
 // 구조 — Access/Refresh Token은 여기서만 처리되어 DB에 저장되고 브라우저로는 전달되지 않는다.
 export async function GET(request: NextRequest) {
+  // 2026-10-15 도메인 연동(SSO): 회원이 본인 카카오 앱에 등록한 콜백은 옛 주소(kakaoautoposter.vercel.app)다. 로그인 쿠키는
+  // 새 주소(.buylife.xyz)에만 있으므로, 옛 주소로 돌아온 콜백은 같은 쿼리로 새 주소에 넘겨 거기서 토큰을 교환한다.
+  // 토큰 교환의 redirect_uri는 KAKAO_REDIRECT_URI(옛 주소 문자열) 그대로라 카카오의 일치 검사를 통과한다.
+  if ((request.headers.get("x-forwarded-host") ?? request.headers.get("host")) === "kakaoautoposter.vercel.app") {
+    return NextResponse.redirect(`https://kakao-auto-posting.buylife.xyz/api/kakao/callback${request.nextUrl.search}`, 307);
+  }
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const oauthError = request.nextUrl.searchParams.get("error");

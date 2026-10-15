@@ -70,7 +70,7 @@ const nextConfig = {
       { source: "/naver-blog-auto-poster-web", destination: "https://naver-blog-auto-poster-web.buylife.xyz/naver-blog-auto-poster-web", permanent: false },
       {
         source: '/stepmail',
-        destination: 'https://stepmail-kappa.vercel.app',
+        destination: 'https://stepmail.buylife.xyz',
         permanent: false,
       },
       // BLOG(원문)생성 자동화(ai-auto-blog)는 2026-10-01부터 자체 Vercel 프로젝트로 단독 배포된다.

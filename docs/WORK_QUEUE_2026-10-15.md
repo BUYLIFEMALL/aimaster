@@ -9,7 +9,7 @@
 | # | 작업 | 담당 | 내용·확인할 것 | 근거 |
 |---|---|---|---|---|
 | A1 | ~~Step Mail 로그인 상태 화면 확인~~ **완료(2026-10-15)** — 주요 화면·필터·엑셀 양식 정상. 남은 것: 초안 편집기(초안이 있어야 열림) | 완료 | v1.07에서 Next 14→15.5 + React 19로 올렸다. 로그인 후 리드 목록(페이지·상태 필터)·초안 편집(tiptap 편집기)·새 캠페인(초안 선택)·엑셀 양식 내려받기/업로드가 정상인지. 주인님이 엣지에서 `https://stepmail-kappa.vercel.app`에 한 번 로그인해 두면 에이전트가 이어서 확인한다. **실제 발송·캠페인 "지금 실행"은 하지 않는다.** | `stepmail/AGENTS.md` v1.07 |
-| A2 | **카카오톡 뉴스레터 로그인 상태 화면 확인** | 주인님 → 에이전트 | v1.06(xlsx)·v1.07(next 16.4·nodemailer 10). 로그인 후 설정·수신자 엑셀 양식/업로드·발송 내역 화면. **카카오·메일 실제 발송은 하지 않는다.** 엣지에서 `https://kakaoautoposter.vercel.app` 로그인 필요. | `kakao_auto_poster/AGENTS.md` v1.07 |
+| A2 | ~~카카오톡 뉴스레터 로그인 상태 화면 확인~~ **완료(2026-10-15)** — 6화면·수신자 엑셀 양식 정상(발송 없음) | 완료 | v1.06(xlsx)·v1.07(next 16.4·nodemailer 10). 로그인 후 설정·수신자 엑셀 양식/업로드·발송 내역 화면. **카카오·메일 실제 발송은 하지 않는다.** 엣지에서 `https://kakaoautoposter.vercel.app` 로그인 필요. | `kakao_auto_poster/AGENTS.md` v1.07 |
 | A3 | ~~AI 포토 리메이크 자동화 실제 회원 검수~~ **완료(2026-10-15)** — 복원·합성·보관함·400px 정상. 개선 후보: 복원 때 AI가 인물 쪽으로 확대해 원본 구도가 바뀜 | 완료 | v1.01 출시(2026-10-15). 엣지에서 일반 회원으로 사진 복원(2배)·사물 합성(AI 제안 포함)·비교·다운로드·보관함·400px 화면 확인. 본인 Gemini 사용량 발생. 보조 계정 엣지가 Claude in Chrome에 연결돼 있어야 함. | `photo-remake-studio/docs/RELEASE_CHECKS.md` |
 | A4 | ~~포토 리메이크 v1.02 구도 유지 운영 재확인~~ **완료(2026-10-15)** — 같은 사진으로 v1.01은 인물만 꽉 차게 잘렸고, v1.02는 왼쪽 빈 벽·인물 위치 유지(아버지 머리 가로 위치 원본 0.80 → 결과 0.79), 1792×2354 | 완료 | v1.02 배포 완료(복원 지시에 자르기·확대 금지). 같은 조건(인물 오른쪽·왼쪽 빈 벽·긁힘) 사진으로 복원해 구도가 유지되는지 확인. 엣지 탭이 숨으면 절전으로 멈춤. | `photo-remake-studio/AGENTS.md` |
 
@@ -20,7 +20,7 @@
 | B1 | Step Mail Next 16 이전(선택) | 에이전트(승인 필요) | 운영 취약점 남은 2건(Next 15 내장 postcss 8.4.31)은 Next 16으로 올려야 사라진다. 실사용 위험은 낮음(빌드 때 자체 CSS만 처리). middleware→proxy 등 변경이 더 많아 별도 작업. | `stepmail/AGENTS.md` v1.07 |
 | B2 | 개발용 도구 취약점 정리(선택) | 에이전트 | 두 프로그램의 eslint 계열(braces·micromatch·glob 등) — 운영 서버에 들어가지 않음. eslint-config-next 정리 시 함께. | `npm audit` |
 | B3 | ~~글·대본 생성 프로그램 "현재 월" 추가~~ **완료(2026-10-15)** — 16개 프로그램 버전 +0.01·배포·DB, 확장 4개 검증 OK | 완료 | | HANDOFF 2026-10-15 B3 |
-| B4 | `vercel.app` 주소만 쓰는 프로그램의 도메인 연동(SSO) 후보 | 에이전트(정책 확인) | stepmail·kakao는 아직 `*.vercel.app`이라 메인 사이트 로그인이 공유되지 않는다(검수 때 매번 따로 로그인 필요). 원칙 11번 절차(OAuth 콜백 고정 여부 먼저 확인)로 한 프로그램씩. | `docs/DOMAIN_SSO_POLICY.md` |
+| B4 | ~~Step Mail·카카오 도메인 연동(SSO)~~ **완료(2026-10-15, 각 v1.08)** — 남은 것: **주인님이 카카오 개발자 콘솔에 `https://kakao-auto-posting.buylife.xyz` Web 사이트 도메인 추가**(공유 버튼) | 완료 | stepmail·kakao는 아직 `*.vercel.app`이라 메인 사이트 로그인이 공유되지 않는다(검수 때 매번 따로 로그인 필요). 원칙 11번 절차(OAuth 콜백 고정 여부 먼저 확인)로 한 프로그램씩. | `docs/DOMAIN_SSO_POLICY.md` |
 | B5 | 나머지 프로그램 "현재 월" 추가(보류) | 에이전트(지시 시) | 연도 규칙만 있고 현재 월이 없는 나머지: ai-audio-analyzer, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, allinone-graphic, banana-canvas, fashion-style, ghost-scraper, music-video-studio, persona-style-studio, playlist-channel-studio, prompt-template-studio, reverse-prompt, seo-thumbnail-pro, style-dna-analyzer, thumbnail-master, ui-canvas, tistory-auto-blog·ai-auto-blog의 `shortsAnalysis.ts`(쇼츠 분석), document-translator(Codex 작업 중). 대부분 이미지·오디오 도구라 우선순위 낮음. 같은 `koreaNowRule()`을 주 지시문에 붙이고 각 버전 +0.01. | HANDOFF 2026-10-15 B3 |
 | B6 | ~~메인 사이트 안의 프로그램 3개 독립 분리~~ **완료(2026-10-15)** — threads-content-ops v1.94, naver-blog-auto-poster v1.03, naver-blog-auto-poster-web v1.04. 남은 것: ~~쓰레드 `FIXIE_URL` 등록~~(2026-10-15 등록·토스 베스트 목록 정상), 실제 Meta 재연결 1회 확인, 네이버 App·Web 로그인 화면 확인(관리자 계정, 비공개 프로그램), 두 화면 흰색 표준 적용(선택) | 완료 | HANDOFF 2026-10-15 분리 ①②③ |
 

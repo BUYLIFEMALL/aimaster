@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — B4 도메인 연동(SSO) Step Mail·카카오톡 뉴스레터 (각 v1.08, 주인님 승인) + A2 완료
+
+- Step Mail → https://stepmail.buylife.xyz, 카카오톡 뉴스레터 → https://kakao-auto-posting.buylife.xyz. 메인 사이트 로그인이 그대로 이어진다(엣지 시험 계정 확인). 옛 vercel.app 화면은 새 주소로 넘기고 API·크론은 옛 주소도 유지. 카카오 로그인 콜백은 회원 등록값(옛 주소) 그대로 쓰고 새 주소로 넘겨 처리(회원 변경 없음).
+- **A2 완료**: 카카오톡 뉴스레터 로그인 상태 6화면·수신자 엑셀 양식 정상(발송 없음).
+- **주인님 할 일**: 카카오 개발자 콘솔에 `https://kakao-auto-posting.buylife.xyz`를 Web 사이트 도메인으로 추가(리포트 공유 버튼용). 상세: `kakao_auto_poster/AGENTS.md` v1.08.
+
 ## 2026-10-15 Claude Code(보조 계정) — 메인 사이트 안의 프로그램 독립 분리 ②③ 완료: 네이버 블로그 자동화 App(v1.03)·Web(v1.04)
 
 - 두 프로그램의 연동 토큰 화면·API를 각 폴더 `web/` 독립 Next 앱으로 분리: https://naver-blog-auto-poster.buylife.xyz, https://naver-blog-auto-poster-web.buylife.xyz (Vercel 프로젝트 같은 이름, `programs.app_url` 갱신). 메인 사이트는 옛 화면 주소 리다이렉트·옛 API 주소 프록시만 유지(설치된 데스크톱 앱·확장 변경 불필요), `middleware.ts` 보호 경로에서 두 주소 제거, 루트 전용이던 공용 파일 4개(`lib/naverBlogAutoPoster*`, `lib/actions/personalAccessTokens.ts`, `lib/personalAccessTokenAuth.ts`) 삭제, `.vercelignore`에 두 `web/` 추가. Web 확장 v1.04 ZIP·DB 동기화·검증 OK.
