@@ -294,6 +294,11 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - 권리 확인 먼저: 남의 상용 프로그램은 코드를 옮기지 않고 기능·동작만 파악해 새로 만든다(애매하면 주인님께 확인). 출처를 모르는 EXE는 실행하지 않고 정적 분석만 한다.
     - 설치 위치·종류별 첫 도구·점검/복구 명령: [`docs/REA_REVERSE_ENGINEERING.md`](docs/REA_REVERSE_ENGINEERING.md). 분석 도구 전체 목록(REA·Ghidra·Java·ILSpy·.NET SDK·Detect It Easy·7-Zip·MCP·Skill)의 용도·주소·재설치 순서: [`docs/ANALYSIS_TOOLKIT.md`](docs/ANALYSIS_TOOLKIT.md).
 
+22. **프로그램 상세 소개(메인 사이트 설명) 작성 지침 (2026-10-16 주인님 지시, 모든 CLI 공통).**
+    - 새 프로그램을 등록하거나 기능이 바뀌면 메인 사이트 `https://www.buylife.xyz/programs/<slug>`의 "프로그램 상세 소개"(`programs.description`)와 카드 한 줄 요약(`programs.short_desc`)을 **[`docs/PROGRAM_DESCRIPTION_STANDARD.md`](docs/PROGRAM_DESCRIPTION_STANDARD.md) 형식 그대로** 쓴다. 기준 예시는 주인님이 "잘 했다"고 확인한 `blog-workroom`(AI 블로그 작업실 자동화) 설명이다.
+    - 형식 요약: 한 줄 요약 50~60자 / 상세 설명 보이는 글자 400~500자·5~6단락 — ① 굵은 한 줄 소개 ② 사용 흐름 순서의 기능 단락 3~4개 ③ 마지막 단락에 회원 본인 API 키·계정과 주의(자동 발행 여부·보증 불가 등). 단락마다 이모티콘 1개, `<p>`만 사용(빈 줄 단락·제목·목록 금지), 과장·버전 번호·내부 기술명 금지.
+    - 내용은 실제 구현된 기능만(프로그램 `AGENTS.md`·코드·실제 화면으로 확인). 저장 전에 기존 값을 백업하고, 저장 뒤 공개 상세 페이지를 열어 단락 모양을 확인한다. DB 값만 바꾼 작업은 버전을 올리지 않는다.
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.

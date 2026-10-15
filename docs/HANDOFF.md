@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(보조 계정·윈도우) — 프로그램 상세 소개 작성 지침을 핵심 원칙으로 등록
+
+- 주인님 지시: AI 블로그 작업실 자동화 상세 소개(https://www.buylife.xyz/programs/blog-workroom)처럼 다른 프로그램도 잘 설명할 수 있게 핵심 지침으로. → `CLAUDE.md` 핵심 원칙 22 / `AGENTS.md` 21 신설, [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md)에 바로 쓰는 작성 틀(§7-0)과 기준 예시 `blog-workroom`(§7-1, 왜 좋은가 포함) 추가. 새 프로그램 등록·기능 변경 시 이 형식으로 `short_desc`·`description`을 쓴다.
+
 ## 2026-10-16 Claude Code(보조 계정·윈도우) — AI 블로그 작업실 자동화 v1.03: 네이버 키 흐름 실제 검수·수정
 
 - 주인님 지시 "네이버 API는 다른 네이버 프로그램에 등록된 걸 쓰면 된다" → 공용 `user_api_keys`라 다른 프로그램에 등록한 키가 자동으로 쓰임. 키를 다른 계정으로 옮기지 않고(최상위 규칙) **메인 계정 본인 키로 메인 계정 작업**을 서버 단계에서 실행해 키워드→트렌드→벤치마킹→글 작성 준비→초안→검수→최종본까지 통과.
