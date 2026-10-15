@@ -59,10 +59,10 @@ function readManifest(buf) {
 const slugs = process.argv.slice(2).length ? process.argv.slice(2) : EXTENSION_PROGRAMS;
 const base = envValue("NEXT_PUBLIC_SUPABASE_URL");
 // 비공개(숨김) 프로그램까지 보려면 서비스 키가 필요하다. 있으면 읽기 전용 조회에만 쓰고 출력하지 않는다.
-const serviceKey = envValue("SUPABASE_SERVICE_ROLE_KEY");
-const key = serviceKey || envValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+const serviceKey = envValue("SUPABASE_SECRET_KEY") || envValue("SUPABASE_SERVICE_ROLE_KEY");
+const key = serviceKey || envValue("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY") || envValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 if (!base || !key) {
-  console.error("NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY 를 .env.local 또는 환경변수에서 찾지 못했습니다.");
+  console.error("Supabase URL / 공개 키(새 이름 또는 기존 이름)를 .env.local 또는 환경변수에서 찾지 못했습니다.");
   process.exit(2);
 }
 

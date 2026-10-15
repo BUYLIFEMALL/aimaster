@@ -1,3 +1,4 @@
+import { loadPlatformEnv } from './platform-env.mjs';
 // Visible, already signed-in Chrome; real extension/background/editor. No AI or publish calls.
 // Ephemeral bridge is loopback-only and admits only the installed extension origin.
 import fs from 'node:fs/promises';
@@ -8,7 +9,7 @@ import {createClient} from '@supabase/supabase-js';
 import {createServerClient} from '@supabase/ssr';
 const root=process.cwd(),base='https://blog-content-maker.buylife.xyz',extensionId=process.env.BCM_EXTENSION_ID||'konicognhinfmihgblmofjkgnkeopajk',origin='chrome-extension://'+extensionId,port=32719;
 if(!/^[a-p]{32}$/.test(extensionId))throw new Error('Invalid installed extension id');
-const env=Object.fromEntries((await fs.readFile('.env.local','utf8')).split(/\r?\n/).filter(l=>/^[A-Z_]+=/.test(l)).map(l=>{const n=l.indexOf('=');let v=l.slice(n+1).trim();if(v.startsWith('"'))v=JSON.parse(v);return[l.slice(0,n),v];}));
+const env = await loadPlatformEnv();
 const admin=createClient(env.NEXT_PUBLIC_SUPABASE_URL,env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}}),anon=createClient(env.NEXT_PUBLIC_SUPABASE_URL,env.NEXT_PUBLIC_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const {data:link,error:le}=await admin.auth.admin.generateLink({type:'magiclink',email:'buylifemall@naver.com'});if(le)throw new Error('Could not authenticate ordinary test member');
 const {data:auth,error:ae}=await anon.auth.verifyOtp({type:'magiclink',token_hash:link.properties.hashed_token});if(ae||auth.user?.email!=='buylifemall@naver.com')throw new Error('Ordinary member authentication failed');

@@ -1,3 +1,6 @@
+import { getSupabasePublicKey } from "./supabase/env";
+import { getSupabaseSecretKey } from "./supabase/serverEnv";
+
 export function platformConfigured() {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && getSupabasePublicKey() && getSupabaseSecretKey());
 }

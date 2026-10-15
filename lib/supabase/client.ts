@@ -1,5 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { cookieDomainForHost } from "./cookieDomain";
+import { getSupabasePublicKey } from "./env";
 
 // 도메인 공유 로그인(.buylife.xyz) 도입 전에 www 호스트에만 저장된 옛 sb-* 쿠키는, 새 방식(domain=.buylife.xyz)의
 // 삭제 명령으로는 지워지지 않는다. 그 쿠키의 갱신 토큰이 이미 폐기됐으면 브라우저가 갱신 요청을 끝없이 반복해
@@ -22,7 +23,7 @@ export function createClient() {
   clearStaleHostOnlyAuthCookies();
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabasePublicKey(),
     {
       cookieOptions: {
         domain: typeof window === "undefined" ? undefined : cookieDomainForHost(window.location.hostname),

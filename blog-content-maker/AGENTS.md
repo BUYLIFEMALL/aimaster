@@ -1,6 +1,6 @@
 # AI 블로그 콘텐츠 제작 자동화 — 인수인계
 
-2026-10-16, Codex. **v1.02**, slug `blog-content-maker`. 주인님이 이름과 개발 진행을 확정했습니다. 신규 테이블 6개·비공개 Storage·새 Vercel 프로젝트의 공용 DB 환경변수 3개도 승인된 범위입니다. 같은 승인을 다시 요청하지 않습니다.
+2026-10-16, Codex. **v1.03**, slug `blog-content-maker`. 주인님이 이름과 개발 진행을 확정했습니다. 신규 테이블 6개·비공개 Storage·새 Vercel 프로젝트의 공용 DB 환경변수 3개도 승인된 범위입니다. 같은 승인을 다시 요청하지 않습니다.
 
 먼저 루트 AGENTS.md, docs/HANDOFF.md, TOP_RULE_PERSONAL_ACCOUNT_API.md, ERROR_LESSONS.md, AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md, SIDEBAR_LAYOUT_STANDARD.md, EXTENSION_RELEASE_RULES.md와 이 폴더 README·개발 계획·검수 기록을 읽습니다.
 
@@ -16,12 +16,12 @@
 ## 운영 구조
 
 - Vercel 팀 `buylife`, 프로젝트 `blog-content-maker`, ID `prj_Q9Ei24ZuVzCfYX031UGZfqiwEuxR`. .vercel·.env.local은 Git 제외.
-- 환경변수 NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY 세 가지 플랫폼 연결 값만 등록. 기존 프로젝트 환경변수는 수정하지 않음.
+- 플랫폼 DB URL과 공개/서버 키만 등록. v1.03부터 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`·`SUPABASE_SECRET_KEY` 우선, 없거나 공백이면 기존 `NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY` 호환. **안정화 전 기존 환경변수·Supabase 키 삭제 금지**. 이번 작업은 실제 환경변수를 추가·변경·삭제하지 않음. 상세: `../docs/SUPABASE_API_KEY_COMPATIBILITY.md`.
 - 공용 DB `esgxyikcnnvmlhygjkth`, 테이블 접두사 `blog_content_maker_`: settings/projects/revisions/assets/jobs/extension_tokens. 비공개 버킷 `blog-content-maker`. 소유자 RLS, 복합 소유자 외래 키와 서비스 역할 전용 revision RPC.
 - 구조 SQL: `supabase/migrations/20261015150454_blog_content_maker_v101.sql`. 등록: `20261015152556_register_blog_content_maker.sql`. 상세 설명 조정: `supabase/update_program_description.sql`.
-- programs 코드·확장 버전 v1.02, 기본 요금제 3종과 연동 가이드 등록. 등급 접근 등록 트리거가 기간 권한도 만드므로 수동 권한 등록은 ON CONFLICT 처리.
+- programs 코드·확장 버전 v1.03, 기본 요금제 3종과 연동 가이드 등록. 등급 접근 등록 트리거가 기간 권한도 만드므로 수동 권한 등록은 ON CONFLICT 처리.
 - 2026-10-16 프로그램 상세 소개 표준과 전용 썸네일 지침 적용 완료. 53자 요약·500자/6단락 소개·특징 4개·순서 4단계·실사 16:9 썸네일을 기존 등록에 반영. `docs/CATALOG_REGISTRATION.md`에 백업·최종 문안·SQL·이미지·프롬프트·운영 Chrome 검수 17개 기록. DB·공개 이미지 변경이므로 앱/확장 v1.02 유지, Vercel 재배포·확장 재설치 불필요.
-- `src/lib/version.ts`가 이름·버전·URL 기준. 확장 Chrome 숫자 버전 1.2.0, version_name v1.02. ZIP 고정 경로 `public/downloads/blog-content-maker-extension-latest.zip`, prebuild 자동 생성.
+- `src/lib/version.ts`가 이름·버전·URL 기준. 확장 Chrome 숫자 버전 1.3.0, version_name v1.03. ZIP 고정 경로 `public/downloads/blog-content-maker-extension-latest.zip`, prebuild 자동 생성.
 
 ## 검수·재개
 
@@ -34,6 +34,10 @@
 원본은 실행하지 않았습니다. NSIS→7z→ASAR 정적 분석과 REA·직접 번들 검토를 근거로 기능을 새로 구현했습니다. REA 전체 의미 그래프는 자원 한계로 부분 분석입니다. 추출 자료는 `D:/PDS/analysis/naver-blog-seo-6.5.4-20261015/`에만 있으며 원본 코드·아이콘·고유 지시문·인증 체계를 복사하지 않았습니다.
 
 점검은 내부 규칙·AI 의견·회원 확인을 구분합니다. 실제 검색량·네이버 공식 점수·상위 노출 보장으로 표현하지 않습니다. 가상 체험을 본인 후기로 만들지 않으며 장면 이미지를 영상 파일로 부르지 않습니다. 다른 서브프로젝트는 수정하지 않습니다.
+
+## v1.03 (2026-10-16)
+
+메인과 이 프로그램에 새·기존 Supabase 키 환경변수 이름 호환 적용. 브라우저·서버·미들웨어·설정 준비 판정과 운영/검수 도구를 함께 수정. 서버 키 모듈은 server-only로 분리. 공통 회귀 22개, 기존 단위 10개, 린트 통과. 새 이름만 전달한 메인·블로그 프로덕션 빌드와 실제 일반 회원 Chrome 10개 검사 통과, 브라우저 비밀 키 바이트 0건. 운영 배포 뒤 기존 이름 등록 상태의 블로그 및 메인 양쪽 이름 공존 상태를 검수. 결과는 VERIFICATION.md에 기록. 이전 v1.02 설치 확장도 API 호환 유지. 기존 값 삭제는 안정화 후 주인님과 별도 확정.
 
 ## v1.02 (2026-10-16)
 

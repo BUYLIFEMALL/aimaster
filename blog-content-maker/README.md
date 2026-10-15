@@ -1,6 +1,6 @@
 # AI 블로그 콘텐츠 제작 자동화
 
-버전 **v1.02**, AIMaster 서브프로그램 `blog-content-maker`. 운영 주소: https://blog-content-maker.buylife.xyz
+버전 **v1.03**, AIMaster 서브프로그램 `blog-content-maker`. 운영 주소: https://blog-content-maker.buylife.xyz
 
 주제나 기존 원고에서 제목·본문·이미지를 만들고, 사실·표현을 점검한 뒤 회원의 네이버 편집기로 옮기는 제작 도구입니다. 회원 본인의 Gemini/OpenAI 키만 사용하며 AIMaster 통합 로그인·사용 권한·회원별 키 저장소를 재사용합니다.
 
@@ -17,7 +17,7 @@ Gemini 검색을 켜면 근거 조사와 원고 구성을 같은 본인 모델·
 
 ## 개발·검수
 
-이 폴더에서 `npm ci`, `npm run dev`(3065), `npm test`, `npm run lint`, `npm run build`를 실행합니다. `.env.example`의 플랫폼 DB 연결 세 값만 서버에 등록합니다. AI 키는 환경변수에 넣지 않습니다.
+이 폴더에서 `npm ci`, `npm run dev`(3065), `npm test`, `npm run lint`, `npm run build`를 실행합니다. `.env.example`의 플랫폼 DB URL·공개 키·서버 키를 등록합니다. 공개 키는 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, 서버 키는 `SUPABASE_SECRET_KEY`를 우선 읽고, 비었으면 기존 `NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`를 사용합니다. **안정화 전에는 기존 항목과 키를 삭제하지 않습니다.** AI 키는 환경변수에 넣지 않습니다. [운영 지침·Vercel 단계별 안내](../docs/SUPABASE_API_KEY_COMPATIBILITY.md)
 
 `prebuild`가 확장 버전을 검사하고 고정 주소의 ZIP을 만듭니다. 설치된 확장은 **ZIP 재다운로드 → 덮어쓰기 → chrome://extensions 새로고침**으로 갱신합니다.
 

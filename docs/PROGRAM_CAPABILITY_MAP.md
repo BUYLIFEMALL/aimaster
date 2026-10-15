@@ -458,7 +458,8 @@
 - **키·계정·주의**: 회원 본인의 OpenAI 또는 Gemini API 키와 네이버 검색·검색광고 API 키를 사용합니다(이미지는 Gemini 키). 자동 발행은 하지 않으며 검색 순위를 보장하지 않습니다.
 
 #### AI 블로그 콘텐츠 제작 자동화 (`blog-content-maker`)
-- 주소·폴더: https://blog-content-maker.buylife.xyz · `blog-content-maker/` · v1.02
+- 주소·폴더: https://blog-content-maker.buylife.xyz · `blog-content-maker/` · v1.03
+- **연결 호환(2026-10-16)**: 새·기존 Supabase 키 변수 이름을 모두 지원. 새 이름 우선·빈 값이면 기존 이름 사용, 안정화 전 기존 변수·키 유지. [공통 지침](SUPABASE_API_KEY_COMPATIBILITY.md).
 - **카탈로그(2026-10-16)**: 기존 등록 갱신, 전용 실사 16:9 썸네일·53자 요약·500자/6단락 소개·특징 4개·순서 4단계 반영. 운영 Chrome 17개 검사·모바일 400px 검수 완료. [등록·검수 기록](../blog-content-maker/docs/CATALOG_REGISTRATION.md).
 - **실제 검수(2026-10-16)**: `blog-content-maker/extension`을 기본 Chrome에 직접 로드. 운영 API→본인 네이버 편집기의 제목·본문 끝·이모지·태그·이미지 2장·AI 표시·중복 방지와 기존 글 보존 확인, 최종 발행 없음. [검수 기록](../blog-content-maker/docs/VERIFICATION.md).
 - **차별점**: 새 주제든 이미 쓴 원고든, 블로그 글과 이미지를 완성하고 발행 전 점검까지 마친 뒤 네이버로 옮기는 콘텐츠 제작 도구입니다.

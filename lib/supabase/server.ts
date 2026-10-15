@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { cookieDomainForHost } from "./cookieDomain";
+import { getSupabasePublicKey } from "./env";
+import { getSupabaseSecretKey } from "./serverEnv";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -9,7 +11,7 @@ export async function createClient() {
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabasePublicKey(),
     {
       cookies: {
         getAll() {
@@ -34,7 +36,7 @@ export function createServiceClient() {
   const { createClient } = require("@supabase/supabase-js");
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    getSupabaseSecretKey(),
     {
       auth: { persistSession: false },
       // Next.js가 Server Component/Route Handler 안의 fetch 호출을 라우트 설정(dynamic

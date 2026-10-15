@@ -1,3 +1,4 @@
+import { loadPlatformEnv } from './platform-env.mjs';
 // Owner-authorized verification. Uses the ordinary test member, never an admin workspace session.
 // Generates a sign-in link without sending email or changing a password. Tokens stay in memory.
 import fs from 'node:fs/promises';
@@ -9,8 +10,7 @@ import {createHash,randomUUID} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import JSZip from 'jszip';
 const root=process.cwd(),base=process.env.VERIFY_BASE||'http://localhost:3065',mode=process.env.VERIFY_MODE||'flow';
-const raw=await fs.readFile(path.join(root,'.env.local'),'utf8');
-const env=Object.fromEntries(raw.split(/\r?\n/).filter(l=>/^[A-Z_]+=/.test(l)).map(l=>{const n=l.indexOf('=');let value=l.slice(n+1).trim();if(value.startsWith('"'))value=JSON.parse(value);return[l.slice(0,n),value];}));
+const env = await loadPlatformEnv();
 const admin=createClient(env.NEXT_PUBLIC_SUPABASE_URL,env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const {data:link,error:linkError}=await admin.auth.admin.generateLink({type:'magiclink',email:'buylifemall@naver.com'});
 if(linkError||!link?.properties?.hashed_token)throw new Error('Could not prepare ordinary member sign-in.');

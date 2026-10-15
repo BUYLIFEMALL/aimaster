@@ -1,9 +1,10 @@
+import { loadPlatformEnv } from './platform-env.mjs';
 // Catalog artwork is public; member-generated images remain in the private app bucket.
 // Platform DB credentials are loaded locally and never printed or sent to image generation.
 import fs from 'node:fs/promises';
 import { createClient } from '@supabase/supabase-js';
 import { createHash } from 'node:crypto';
-const env = Object.fromEntries((await fs.readFile(new URL('../.env.local', import.meta.url), 'utf8')).split(/\r?\n/).filter(l => /^[A-Z_]+=/.test(l)).map(l => { const n = l.indexOf('='); const v = l.slice(n + 1).trim(); return [l.slice(0, n), v.startsWith('"') ? JSON.parse(v) : v]; }));
+const env = await loadPlatformEnv();
 if (new URL(env.NEXT_PUBLIC_SUPABASE_URL).hostname !== 'esgxyikcnnvmlhygjkth.supabase.co') throw new Error('Unexpected platform database');
 const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 const slug = 'blog-content-maker';

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
+import { getSupabasePublicKey } from "@/lib/supabase/env";
 
 export async function middleware(request: NextRequest) {
   // blog처럼 루트 앱 라우트에 내장되는 서브프로젝트는 자기 페이지에서 로그인이 필요할 때
@@ -15,7 +16,7 @@ export async function middleware(request: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabasePublicKey(),
     {
       cookies: {
         getAll() {

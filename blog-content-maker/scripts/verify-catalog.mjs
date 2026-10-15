@@ -1,3 +1,4 @@
+import { loadPlatformEnv } from './platform-env.mjs';
 // Public live-page verification in visible Chrome. Does not authenticate or call AI.
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -6,8 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 import assert from 'node:assert/strict';
 const expected = JSON.parse(await fs.readFile('docs/catalog-content-20261016.json', 'utf8'));
 const artwork = JSON.parse(await fs.readFile('docs/catalog-thumbnail-release-20261016.json', 'utf8'));
-const raw = await fs.readFile('.env.local', 'utf8');
-const env = Object.fromEntries(raw.split(/\r?\n/).filter(l => /^[A-Z_]+=/.test(l)).map(l => { const n = l.indexOf('='); const v = l.slice(n + 1).trim(); return [l.slice(0, n), v.startsWith('"') ? JSON.parse(v) : v]; }));
+const env = await loadPlatformEnv();
 const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 const { data: row, error } = await client.from('programs').select('id,slug,name,short_desc,description,detail_sections,thumbnail_url,app_url,is_active,version,extension_version,extension_download_url').eq('slug', 'blog-content-maker').single();
 if (error) throw error;
@@ -16,7 +16,8 @@ assert.equal(row.name, 'AI 블로그 콘텐츠 제작 자동화');
 for (const key of ['short_desc', 'description', 'detail_sections']) assert.deepEqual(row[key], expected[key]);
 assert.equal(row.thumbnail_url, artwork.thumbnail_url);
 assert.equal(row.app_url, 'https://blog-content-maker.buylife.xyz');
-assert.equal(row.version, 'v1.02'); assert.equal(row.extension_version, 'v1.02');
+const appVersion = /APP_VERSION\s*=\s*"(v\d+\.\d+)"/.exec(await fs.readFile('src/lib/version.ts', 'utf8'))?.[1];
+assert.equal(row.version, appVersion); assert.equal(row.extension_version, appVersion);
 const visible = row.description.replace(/<[^>]+>/g, '');
 assert.ok([...visible].length >= 400 && [...visible].length <= 500);
 assert.equal((row.description.match(/<p>/g) || []).length, 6);
