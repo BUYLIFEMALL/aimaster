@@ -13,7 +13,7 @@
 - 환경변수(새 프로젝트): 공용 DB 3종 + `CRON_SECRET`(새 임의값) — `scripts/add-threads-content-ops-vercel-env.mjs`. **`FIXIE_URL`(토스쇼핑 연동용 고정 IP 프록시, `lib/toss.ts`)은 민감값이라 읽어 올 수 없어 주인님이 Vercel 대시보드에서 등록 필요**(없으면 토스쇼핑 연동만 "고정 IP 프록시 미설정" 안내로 막힘).
 - 배포: `vercel deploy --cwd D:/Antigravity/AIMaster/threads-content-ops --prod --yes --scope buylife`(`.vercel/project.json` projectName 확인). `.vercelignore`는 루트 기준 경로(`/supabase` 등)로 쓴다 — 앞에 `/`가 없으면 `lib/supabase`까지 빠져 빌드가 깨진다(실제 발생).
 - 검수: 빌드(타입 포함)·테스트 28개 통과, 새 주소 비로그인 → 메인 로그인(돌아올 주소 포함), API 비로그인 401, 엣지 시험 계정으로 7개 탭 200·대시보드 화면 정상, 옛 www 주소 리다이렉트·API 프록시·콜백 전달 확인. **미확인**: 실제 Meta 재연결(콜백 전체 흐름).
-- 2026-10-15 추가: 주인님이 Fixie Proxy URL을 알려 주셔서 `FIXIE_URL`을 새 프로젝트에 민감 값으로 등록·재배포(값은 문서에 남기지 않음). 엣지 시험 계정으로 쇼핑제휴 상품 등록 → 토스쇼핑 → 베스트 상품 30개 4.5초 정상(프록시 경유, 제휴 링크 발급 없음). **주의**: 같은 Fixie 앱(2026-10-15 기준 적용 요금제 Tricycle 월 500요청·100MB — 주인님이 카드 등록·구독 신청만 해 둔 상태로, 상위 유료 요금제는 아직 적용 전)을 쇼핑제휴 프로그램(`threads-affiliate-poster`)과 함께 쓴다 — 회원이 늘면 한도 초과 가능(운영자 비용 → 프리미엄 후보, `docs/GRADE_AND_BILLING_POLICY.md`).
+- 2026-10-15 추가: 주인님이 Fixie Proxy URL을 알려 주셔서 `FIXIE_URL`을 새 프로젝트에 민감 값으로 등록·재배포(값은 문서에 남기지 않음). 엣지 시험 계정으로 쇼핑제휴 상품 등록 → 토스쇼핑 → 베스트 상품 30개 4.5초 정상(프록시 경유, 제휴 링크 발급 없음). **주의**: 같은 Fixie 앱(2026-10-15 기준 적용 요금제 Tricycle 월 500요청·100MB — 월 US$0.00 무료, 카드만 등록 — Fixie 결제 화면 확인. 한도를 넘기면 상위 요금제로 올려야 함)을 쇼핑제휴 프로그램(`threads-affiliate-poster`)과 함께 쓴다 — 회원이 늘면 한도 초과 가능(운영자 비용 → 프리미엄 후보, `docs/GRADE_AND_BILLING_POLICY.md`).
 
 ## v1.92 쿠팡 API 키 없는 직접 상품 등록 (2026-10-10)
 
