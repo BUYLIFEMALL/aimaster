@@ -141,6 +141,14 @@ small{font-size:11px}
 .fm-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end}
 .fm-inline{flex-direction:row!important;align-items:center;gap:8px!important}
 .fm-inline select{width:auto}
+/* 결과 열 고르기·순서(v1.03) */
+.fm-cols{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fafafa;display:flex;flex-direction:column;gap:8px}
+.fm-cols-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0;font-size:13px}
+.fm-col-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;max-height:300px;overflow:auto}
+.fm-col-list li{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 6px 4px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:0}
+.fm-col-list li.off{opacity:.55;background:#f1f5f9}
+.fm-col-list .fm-check{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.fm-col-list .fm-file-btns button{min-width:28px;min-height:28px}
 .fm-summary{display:flex;align-items:center;gap:6px;font-size:13px;margin:0}
 .fm-table-wrap{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:10px}
 .fm-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px}

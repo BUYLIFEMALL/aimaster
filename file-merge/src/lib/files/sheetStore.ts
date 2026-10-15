@@ -1,7 +1,7 @@
 // 엑셀·CSV 원본 데이터 보관소와 작업 처리(v1.02). 백그라운드 작업(Worker) 안에서 돌고, Worker를 못 쓰는 브라우저에서는 화면에서 같은 코드가 돈다.
 // 화면에는 미리보기 몇 행과 행·열 수만 돌려보내 큰 데이터를 주고받는 비용(화면 멈춤)을 없앤다.
 import { readSheets, writeCsv, writeXlsx, writeXlsxAoa, type RawSheet } from "./sheetio";
-import { mergeByHeader, safeFileName, safeSheetName, splitByColumn, splitByRows, stem, toTable, type Cell } from "./table";
+import { dedupeRows, mergeByHeader, pickColumns, safeFileName, safeSheetName, splitByColumn, splitByRows, stem, toTable, type Cell } from "./table";
 import type { Encoding } from "./text";
 import { createZip } from "./zip";
 
@@ -10,16 +10,20 @@ export interface Pick { fileId: string; fileName: string; sheet: number }
 export type SplitMode = "sheets" | "column" | "rows";
 export interface SplitOpts { fileId: string; fileName: string; mode: SplitMode; sheet: number; headerRow: number; col: number; rowsPer: number }
 
+/** 결과 다듬기(v1.03): 남길 열과 순서(null이면 전체), 같은 행 제거 */
+export interface MergeShape { cols: string[] | null; dedupe: boolean }
+
 export type StoreJob =
   | { op: "load"; fileId: string; name: string; bytes: ArrayBuffer; enc: Encoding }
   | { op: "drop"; fileId: string }
-  | { op: "mergePreview"; picks: Pick[]; headerRow: number; addSource: boolean; limit: number }
-  | { op: "mergeWrite"; picks: Pick[]; headerRow: number; addSource: boolean; format: "xlsx" | "csv" }
+  | { op: "mergePreview"; picks: Pick[]; headerRow: number; addSource: boolean; shape: MergeShape; limit: number }
+  | { op: "mergeWrite"; picks: Pick[]; headerRow: number; addSource: boolean; shape: MergeShape; format: "xlsx" | "csv" }
   | { op: "collectWrite"; picks: Pick[] }
   | { op: "splitPlan"; opts: SplitOpts }
   | { op: "splitWrite"; opts: SplitOpts };
 
-const files = new Map<string, { name: string; bytes: Uint8Array; sheets: RawSheet[] }>();
+// 원본 파일 바이트는 읽은 뒤 쓰지 않으므로 보관하지 않는다(v1.03 — 큰 파일 여러 개에서 메모리 절약)
+const files = new Map<string, { name: string; sheets: RawSheet[] }>();
 
 function sheetsOf(p: Pick): RawSheet {
   const f = files.get(p.fileId);
@@ -29,6 +33,14 @@ function sheetsOf(p: Pick): RawSheet {
 
 function merged(picks: Pick[], headerRow: number, addSource: boolean) {
   return mergeByHeader(picks.map((p) => { const s = sheetsOf(p); return toTable(p.fileName, s.name, s.aoa, headerRow); }), { addSource });
+}
+
+/** 합친 뒤 열 고르기 → (선택) 같은 행 제거. 같은 행 판단은 남긴 열 기준 */
+function shaped(picks: Pick[], headerRow: number, addSource: boolean, shape: MergeShape) {
+  const all = merged(picks, headerRow, addSource);
+  const cut = pickColumns(all, shape.cols);
+  const d = shape.dedupe ? dedupeRows(cut) : { ...cut, removed: 0 };
+  return { allHeader: all.header, header: d.header, rows: d.rows, removed: d.removed };
 }
 
 function collectNames(picks: Pick[]) {
@@ -65,17 +77,17 @@ export function handle(job: StoreJob): unknown {
     case "load": {
       const bytes = new Uint8Array(job.bytes);
       const sheets = readSheets(bytes, job.name, job.enc);
-      files.set(job.fileId, { name: job.name, bytes, sheets });
+      files.set(job.fileId, { name: job.name, sheets });
       return sheets.map((s): SheetMeta => ({ name: s.name, rows: s.aoa.length }));
     }
     case "drop": files.delete(job.fileId); return true;
     case "mergePreview": {
-      const m = merged(job.picks, job.headerRow, job.addSource);
-      return { header: m.header, rows: m.rows.slice(0, job.limit), total: m.rows.length, collect: collectNames(job.picks).map((c) => ({ name: c.name, rows: c.aoa.length })) };
+      const m = shaped(job.picks, job.headerRow, job.addSource, job.shape);
+      return { allHeader: m.allHeader, header: m.header, rows: m.rows.slice(0, job.limit), total: m.rows.length, removed: m.removed, collect: collectNames(job.picks).map((c) => ({ name: c.name, rows: c.aoa.length })) };
     }
     case "mergeWrite": {
-      const m = merged(job.picks, job.headerRow, job.addSource);
-      return { bytes: job.format === "csv" ? writeCsv(m.header, m.rows) : writeXlsx([{ name: "합친 결과", header: m.header, rows: m.rows }]), rows: m.rows.length, cols: m.header.length };
+      const m = shaped(job.picks, job.headerRow, job.addSource, job.shape);
+      return { removed: m.removed, bytes: job.format === "csv" ? writeCsv(m.header, m.rows) : writeXlsx([{ name: "합친 결과", header: m.header, rows: m.rows }]), rows: m.rows.length, cols: m.header.length };
     }
     case "collectWrite": return { bytes: writeXlsxAoa(collectNames(job.picks)) };
     case "splitPlan": { const r = splitOuts(job.opts); return { header: r.header, outs: r.outs.map((o) => ({ name: o.name, rows: o.rows })) }; }

@@ -1,5 +1,5 @@
 // 화면에서 엑셀 작업을 백그라운드(Worker)로 보내는 함수. Worker를 만들 수 없는 브라우저에서는 같은 처리(sheetStore)를 화면에서 실행한다.
-import { handle, type Pick, type SheetMeta, type SplitOpts, type StoreJob } from "./sheetStore";
+import { handle, type MergeShape, type Pick, type SheetMeta, type SplitOpts, type StoreJob } from "./sheetStore";
 import type { Cell } from "./table";
 import type { Encoding } from "./text";
 
@@ -46,10 +46,10 @@ export async function loadFile(fileId: string, file: File, enc: Encoding): Promi
   return run<SheetMeta[]>({ op: "load", fileId, name: file.name, bytes, enc }, [bytes]);
 }
 export const dropFile = (fileId: string) => run<boolean>({ op: "drop", fileId });
-export const mergePreview = (picks: Pick[], headerRow: number, addSource: boolean, limit = 20) =>
-  run<{ header: string[]; rows: Cell[][]; total: number; collect: { name: string; rows: number }[] }>({ op: "mergePreview", picks, headerRow, addSource, limit });
-export const mergeWrite = (picks: Pick[], headerRow: number, addSource: boolean, format: "xlsx" | "csv") =>
-  run<{ bytes: Uint8Array; rows: number; cols: number }>({ op: "mergeWrite", picks, headerRow, addSource, format });
+export const mergePreview = (picks: Pick[], headerRow: number, addSource: boolean, shape: MergeShape, limit = 20) =>
+  run<{ allHeader: string[]; header: string[]; rows: Cell[][]; total: number; removed: number; collect: { name: string; rows: number }[] }>({ op: "mergePreview", picks, headerRow, addSource, shape, limit });
+export const mergeWrite = (picks: Pick[], headerRow: number, addSource: boolean, shape: MergeShape, format: "xlsx" | "csv") =>
+  run<{ bytes: Uint8Array; rows: number; cols: number; removed: number }>({ op: "mergeWrite", picks, headerRow, addSource, shape, format });
 export const collectWrite = (picks: Pick[]) => run<{ bytes: Uint8Array }>({ op: "collectWrite", picks });
 export const splitPlan = (opts: SplitOpts) => run<{ header: string[]; outs: { name: string; rows: number }[] }>({ op: "splitPlan", opts });
 export const splitWrite = (opts: SplitOpts) => run<{ bytes: Uint8Array; count: number }>({ op: "splitWrite", opts });

@@ -115,3 +115,29 @@ export function safeFileName(name: string, used?: Set<string>): string {
 
 /** 확장자를 뗀 파일 이름 */
 export const stem = (name: string) => name.replace(/\.[^./\\]+$/, "");
+
+/** 결과 열 고르기·순서 바꾸기(v1.03). cols는 남길 머리글 이름을 원하는 순서대로. null이면 그대로 */
+export function pickColumns(m: { header: string[]; rows: Cell[][] }, cols: string[] | null): { header: string[]; rows: Cell[][] } {
+  if (!cols) return m;
+  const idx = cols.map((c) => m.header.indexOf(c)).filter((i) => i >= 0);
+  return { header: idx.map((i) => m.header[i]), rows: m.rows.map((r) => idx.map((i) => r[i] ?? null)) };
+}
+
+const cellKey = (v: Cell) => (v === null ? "" : v instanceof Date ? v.toISOString() : typeof v === "string" ? v.trim() : String(v));
+
+/**
+ * 같은 행 제거(v1.03): 비교할 열(ignore에 든 열 제외)의 값이 모두 같으면 처음 나온 행만 남긴다.
+ * 원본 파일·시트 열은 파일마다 달라 비교에서 뺀다. 글자 앞뒤 공백은 무시한다.
+ */
+export function dedupeRows(m: { header: string[]; rows: Cell[][] }, ignore: string[] = [SOURCE_FILE, SOURCE_SHEET]): { header: string[]; rows: Cell[][]; removed: number } {
+  const use = m.header.map((h, i) => (ignore.includes(h) ? -1 : i)).filter((i) => i >= 0);
+  const seen = new Set<string>();
+  const rows: Cell[][] = [];
+  for (const r of m.rows) {
+    const k = JSON.stringify(use.map((i) => cellKey(r[i] ?? null)));
+    if (seen.has(k)) continue;
+    seen.add(k);
+    rows.push(r);
+  }
+  return { header: m.header, rows, removed: m.rows.length - rows.length };
+}

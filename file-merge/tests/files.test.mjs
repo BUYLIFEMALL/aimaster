@@ -112,3 +112,27 @@ test("아주 많은 행(30만 행)에서도 스택이 넘치지 않는다", () =
   assert.equal(t.rows.length, 300000); assert.deepEqual(t.header, ["a", "b"]);
   assert.equal(mergeByHeader([t, t]).rows.length, 600000);
 });
+
+// v1.03 결과 다듬기: 열 고르기·순서, 같은 행 제거
+test("pickColumns: 고른 열만 원하는 순서로, null이면 그대로", async () => {
+  const { pickColumns } = await import("../src/lib/files/table.ts");
+  const m = { header: ["이름", "매출", "지역"], rows: [["가", 1, "서울"], ["나", 2, null]] };
+  assert.deepEqual(pickColumns(m, ["지역", "이름"]), { header: ["지역", "이름"], rows: [["서울", "가"], [null, "나"]] });
+  assert.equal(pickColumns(m, null), m);
+  assert.deepEqual(pickColumns(m, ["없는 열", "매출"]).header, ["매출"]);
+});
+
+test("dedupeRows: 원본 파일·시트 열은 빼고 비교, 공백 차이 무시, 처음 행 유지", async () => {
+  const { dedupeRows, SOURCE_FILE, SOURCE_SHEET } = await import("../src/lib/files/table.ts");
+  const d = new Date("2026-10-15T00:00:00Z");
+  const m = { header: [SOURCE_FILE, SOURCE_SHEET, "이름", "날짜", "값"], rows: [
+    ["a.xlsx", "S1", "가", d, 1],
+    ["b.xlsx", "S1", "가 ", new Date(d), 1],
+    ["b.xlsx", "S1", "가", d, 2],
+    ["a.xlsx", "S2", null, null, null],
+    ["b.xlsx", "S2", null, null, null],
+  ] };
+  const r = dedupeRows(m);
+  assert.equal(r.removed, 2);
+  assert.deepEqual(r.rows.map((x) => x[0] + x[4]), ["a.xlsx1", "b.xlsx2", "a.xlsxnull"]);
+});
