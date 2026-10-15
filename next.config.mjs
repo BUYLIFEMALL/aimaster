@@ -58,11 +58,16 @@ const nextConfig = {
   // 이전 북마크)는 지우지 않고 새 앱으로 그대로 전달한다(도메인 정책: 옛 주소는 삭제하지 않음).
   rewrites: async () => [
     { source: "/api/threads-content-ops/:path*", destination: "https://threads-content-ops.buylife.xyz/api/threads-content-ops/:path*" },
+    // 네이버 블로그 자동화 App(데스크톱)·Web(확장)도 같은 날 분리: 설치된 앱·확장이 부르는 옛 API 주소를 새 앱으로 전달한다.
+    { source: "/api/naver-blog-auto-poster/:path*", destination: "https://naver-blog-auto-poster.buylife.xyz/api/naver-blog-auto-poster/:path*" },
+    { source: "/api/naver-blog-auto-poster-web/:path*", destination: "https://naver-blog-auto-poster-web.buylife.xyz/api/naver-blog-auto-poster-web/:path*" },
   ],
   redirects: async () => {
     return [
       { source: "/threads-content-ops", destination: "https://threads-content-ops.buylife.xyz/threads-content-ops", permanent: false },
       { source: "/threads-content-ops/:path*", destination: "https://threads-content-ops.buylife.xyz/threads-content-ops/:path*", permanent: false },
+      { source: "/naver-blog-auto-poster", destination: "https://naver-blog-auto-poster.buylife.xyz/naver-blog-auto-poster", permanent: false },
+      { source: "/naver-blog-auto-poster-web", destination: "https://naver-blog-auto-poster-web.buylife.xyz/naver-blog-auto-poster-web", permanent: false },
       {
         source: '/stepmail',
         destination: 'https://stepmail-kappa.vercel.app',

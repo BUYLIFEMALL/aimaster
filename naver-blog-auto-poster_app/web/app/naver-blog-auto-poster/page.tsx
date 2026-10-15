@@ -8,6 +8,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import TokenManager from "./TokenManager";
 import { GuideLinkButton } from "./GuideLinkButton";
+import { APP_ORIGIN, MAIN_SITE_ORIGIN } from "@/lib/version";
 
 // 공개 판매 시작(programs.is_active=true)에 맞춰 로그인-only 체크를
 // checkProgramAccess()로 교체함(CLAUDE.md 멀티테넌시 원칙 1번, "로그인 ≠ 이용 권한").
@@ -22,7 +23,7 @@ export const metadata = { title: "네이버 블로그 자동화(App) - 기기 �
 // 발전시킨다(사용자 명시적 결정).
 const PROGRAM_SLUG = "naver-blog-auto-poster";
 // 2026-10-09: 설치 파일은 GitHub 릴리스가 아니라 이 사이트(public/downloads)에서 내려받는다(저장소를 비공개로 바꿔도 링크가 유지되게).
-const DESKTOP_DOWNLOAD_URL = "/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe";
+const DESKTOP_DOWNLOAD_URL = "https://www.buylife.xyz/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe";
 
 // buylife.xyz의 공개 매뉴얼 게시판(platform_guides)에 이미 등록된 게시글 id를 재사용한다
 // (CLAUDE.md "API키등록·플랫폼연동 페이지 표준" — 새 매뉴얼을 만들지 않고 기존 것을 재사용).
@@ -36,12 +37,12 @@ export default async function NaverBlogAutoPosterPage() {
   } = await supabase.auth.getUser();
   if (!user) {
     const currentPath = (await headers()).get("x-pathname") ?? "/naver-blog-auto-poster";
-    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
+    redirect(`${MAIN_SITE_ORIGIN}/login?redirect=${encodeURIComponent(APP_ORIGIN + currentPath)}`);
   }
 
   const access = await checkProgramAccess(supabase, user.id, PROGRAM_SLUG);
   if (!access.allowed) {
-    redirect(`/programs/${PROGRAM_SLUG}`);
+    redirect(`${MAIN_SITE_ORIGIN}/programs/${PROGRAM_SLUG}`);
   }
 
   const { data: tokens } = await supabase
@@ -63,7 +64,7 @@ export default async function NaverBlogAutoPosterPage() {
           발급받아 앱의 &quot;AIMaster 계정 연동&quot; 화면에 붙여넣으세요.
           <br />
           별도 설치 없이 브라우저에서 바로 쓰는 버전은{" "}
-          <a href="/naver-blog-auto-poster-web" className="text-gold underline">
+          <a href="https://naver-blog-auto-poster-web.buylife.xyz/naver-blog-auto-poster-web" className="text-gold underline">
             네이버 블로그 자동화(Web)
           </a>{" "}
           페이지에서 별도로 이용하실 수 있습니다.
@@ -99,7 +100,7 @@ export default async function NaverBlogAutoPosterPage() {
               <span className="text-white">본인 API 키 준비</span> — 아래 &quot;📖 연동
               매뉴얼&quot;을 참고해서 OpenAI API 키(필수)를 발급받고, 이미지도 자동으로
               만들고 싶으면 Gemini API 키도 발급받아{" "}
-              <a href="/api-settings" className="text-gold underline">
+              <a href={`${MAIN_SITE_ORIGIN}/api-settings`} className="text-gold underline">
                 API 설정
               </a>{" "}
               페이지에 등록하세요.

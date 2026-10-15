@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — 메인 사이트 안의 프로그램 독립 분리 ②③ 완료: 네이버 블로그 자동화 App(v1.03)·Web(v1.04)
+
+- 두 프로그램의 연동 토큰 화면·API를 각 폴더 `web/` 독립 Next 앱으로 분리: https://naver-blog-auto-poster.buylife.xyz, https://naver-blog-auto-poster-web.buylife.xyz (Vercel 프로젝트 같은 이름, `programs.app_url` 갱신). 메인 사이트는 옛 화면 주소 리다이렉트·옛 API 주소 프록시만 유지(설치된 데스크톱 앱·확장 변경 불필요), `middleware.ts` 보호 경로에서 두 주소 제거, 루트 전용이던 공용 파일 4개(`lib/naverBlogAutoPoster*`, `lib/actions/personalAccessTokens.ts`, `lib/personalAccessTokenAuth.ts`) 삭제, `.vercelignore`에 두 `web/` 추가. Web 확장 v1.04 ZIP·DB 동기화·검증 OK.
+- **이로써 메인 사이트(루트) 안에서 직접 돌던 프로그램은 0개**(메인은 홈페이지·카탈로그·회원·관리자·결제와 옛 주소 전달만). 새 프로그램도 처음부터 `<프로그램>/` 독립 앱으로 만든다.
+- 남은 일: 두 프로그램은 비공개라 로그인 화면 확인은 관리자 계정 필요 / 두 화면을 흰색 표준·사이드바로 바꾸는 작업(선택) / 쓰레드 `FIXIE_URL` 등록(주인님).
+
 ## 2026-10-15 Claude Code(보조 계정) — 메인 사이트 안의 프로그램을 독립 서브프로젝트로 분리 ①: 쓰레드 콘텐츠 운영 (v1.94)
 
 - 주인님 지시: "모든 프로그램은 AIMaster 안에 서브 프로젝트로 돌아가야 하고, AIMaster는 모든 프로그램에 접근하기 위한 홈페이지". 조사 결과 메인 사이트 안에 있던 프로그램 3개 — ① `threads-content-ops`(화면 전체+API 5개+크론 2개) ② `naver-blog-auto-poster`(데스크톱 앱용 토큰 화면+API 2개) ③ `naver-blog-auto-poster-web`(확장용 토큰 화면+API 2개). 주인님 승인("3개 모두, 쓰레드부터") 후 순서대로 분리.

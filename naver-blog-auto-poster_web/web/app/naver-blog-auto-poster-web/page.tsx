@@ -9,6 +9,7 @@ import GoldButton from "@/components/ui/GoldButton";
 import TokenManager from "./TokenManager";
 import { GuideLinkButton } from "./GuideLinkButton";
 import { POSTER_WEB_EXTENSION_DOWNLOAD_URL } from "@/lib/naverBlogAutoPosterWebExtension";
+import { APP_ORIGIN, MAIN_SITE_ORIGIN } from "@/lib/version";
 
 // 2026-09-21: 데스크톱 앱(naver-blog-auto-poster)과 완전히 별도 유료 프로그램으로 분리
 // 등록됨 — 자동화 로직도 서로 다르고(Playwright vs chrome.scripting), 앞으로도 각자
@@ -34,12 +35,12 @@ export default async function NaverBlogAutoPosterWebPage() {
   } = await supabase.auth.getUser();
   if (!user) {
     const currentPath = (await headers()).get("x-pathname") ?? "/naver-blog-auto-poster-web";
-    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
+    redirect(`${MAIN_SITE_ORIGIN}/login?redirect=${encodeURIComponent(APP_ORIGIN + currentPath)}`);
   }
 
   const access = await checkProgramAccess(supabase, user.id, PROGRAM_SLUG);
   if (!access.allowed) {
-    redirect(`/programs/${PROGRAM_SLUG}`);
+    redirect(`${MAIN_SITE_ORIGIN}/programs/${PROGRAM_SLUG}`);
   }
 
   const { data: tokens } = await supabase
@@ -62,7 +63,7 @@ export default async function NaverBlogAutoPosterWebPage() {
           <br />
           별도 설치 없이 브라우저에서 바로 쓰는 버전이 아니라 PC에 설치하는 프로그램을
           원하시면{" "}
-          <a href="/naver-blog-auto-poster" className="text-gold underline">
+          <a href="https://naver-blog-auto-poster.buylife.xyz/naver-blog-auto-poster" className="text-gold underline">
             네이버 블로그 자동화(App)
           </a>{" "}
           페이지에서 별도로 이용하실 수 있습니다.
@@ -100,7 +101,7 @@ export default async function NaverBlogAutoPosterWebPage() {
               <span className="text-white">본인 API 키 준비</span> — 아래 &quot;📖 연동
               매뉴얼&quot;을 참고해서 OpenAI API 키(필수)를 발급받고, 이미지도 자동으로
               만들고 싶으면 Gemini API 키도 발급받아{" "}
-              <a href="/api-settings" className="text-gold underline">
+              <a href={`${MAIN_SITE_ORIGIN}/api-settings`} className="text-gold underline">
                 API 설정
               </a>{" "}
               페이지에 등록하세요.

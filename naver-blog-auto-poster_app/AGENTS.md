@@ -234,3 +234,10 @@ supabase/migrations/0010_*.sql         PC 앱/크롬 확장 완전 별도 유료
 
 ## 2026-10-09 — 설치 파일 다운로드 주소 이전 (프로그램 v1.02)
 - 저장소 비공개 전환에 대비해 설치 파일 다운로드를 GitHub 릴리스에서 루트 사이트로 옮겼다: `app/(dashboard)/naver-blog-auto-poster/page.tsx`의 `DESKTOP_DOWNLOAD_URL` = `/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`. 파일은 루트 `public/downloads/`에 두며 용량(약 69MB) 때문에 git에는 넣지 않는다(`.gitignore`) — 루트를 배포하는 PC에 있어야 한다. 새 설치 파일을 만들면 이 위치에 같은 파일명으로 덮어쓰고 루트를 배포한다(`gh release` 업로드는 더 이상 쓰지 않음).
+
+## v1.03 (2026-10-15) — 웹 화면·API를 메인 사이트에서 독립 서브프로젝트로 분리 (Claude Code 보조 계정)
+- 주인님 지시("모든 프로그램은 AIMaster 안의 서브프로젝트로, AIMaster는 프로그램에 들어가는 홈페이지"): 메인 사이트 `app/(dashboard)/naver-blog-auto-poster`(연동 토큰 화면)·`app/api/naver-blog-auto-poster`(whoami·generate)를 이 폴더 **`web/` 독립 Next 앱**으로 옮김(git mv). Vercel 프로젝트 `naver-blog-auto-poster`, 주소 **https://naver-blog-auto-poster.buylife.xyz**(`/`→`/naver-blog-auto-poster`), `programs.app_url` 갱신, 버전 표시 `web/lib/version.ts`(v1.03).
+- 메인 사이트 공용 파일을 같은 경로로 복사(`lib/supabase/*`, `lib/access/checkProgramAccess.ts`, `lib/actions/personalAccessTokens.ts`, `lib/personalAccessTokenAuth.ts`, `lib/apiKeys.ts`, `lib/naverBlogAutoPoster/*`, `components/ui/*`, globals.css·tailwind) — 규칙을 바꾸면 루트·다른 사본과 함께 고칠 것. 루트에서는 이 프로그램만 쓰던 사본을 삭제. 화면은 메인 사이트 dashboard에서 보이던 어두운 화면 그대로(흰색 표준·사이드바 적용은 후속).
+- **옛 주소 유지**: 메인 `next.config.mjs`가 `www.buylife.xyz/naver-blog-auto-poster` → 새 주소 리다이렉트, `www.buylife.xyz/api/naver-blog-auto-poster/*` → 새 앱 **프록시** — 이미 설치된 데스크톱 앱(`src/main.js`의 www 주소)은 바꾸지 않아도 된다. 다운로드 파일은 계속 메인 사이트 `public/downloads`.
+- 환경변수: 공용 DB 3종(`scripts/add-naver-blog-auto-poster-vercel-env.mjs`). 배포: `vercel deploy --cwd D:/Antigravity/AIMaster/naver-blog-auto-poster_app/web --prod --yes --scope buylife`.
+- 검수: 빌드(타입 포함), 새 주소 비로그인 → 메인 로그인(돌아올 주소 포함), API 비로그인 401, 옛 www 주소 리다이렉트·API 프록시 확인. **미확인**: 로그인 상태 화면 — 이 프로그램은 비공개(`is_active=false`)이고 시험 계정에 권한이 없어 관리자 계정으로만 열림.

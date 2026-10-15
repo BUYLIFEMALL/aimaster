@@ -15,7 +15,7 @@ const require = createRequire(path.join(repoRoot, "naver-blog-agent", "package.j
 const archiver = require("archiver");
 
 const manifest = JSON.parse(fs.readFileSync(path.join(extensionRoot, "manifest.json"), "utf8"));
-const libSource = fs.readFileSync(path.join(repoRoot, "lib", "naverBlogAutoPosterWebExtension.ts"), "utf8");
+const libSource = fs.readFileSync(path.join(repoRoot, "naver-blog-auto-poster_web", "web", "lib", "naverBlogAutoPosterWebExtension.ts"), "utf8");
 const libVersion = libSource.match(/POSTER_WEB_EXTENSION_VERSION\s*=\s*"(v\d+\.\d{2})"/)?.[1];
 if (!manifest.version_name || manifest.version_name !== libVersion) {
   throw new Error(`manifest version_name(${manifest.version_name})과 lib/naverBlogAutoPosterWebExtension.ts(${libVersion})의 버전이 다릅니다. 같게 맞추세요.`);

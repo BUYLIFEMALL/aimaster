@@ -9,7 +9,7 @@
  */
 export function GuideLinkButton({ guideId, label }: { guideId: string; label: string }) {
   const openGuide = () => {
-    window.open(`/guides/${guideId}`, "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
+    window.open(`https://www.buylife.xyz/guides/${guideId}`, "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
   };
 
   return (

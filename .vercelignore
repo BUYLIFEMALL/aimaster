@@ -16,6 +16,9 @@ naver-blog-auto-poster_app/node_modules
 /threads-easy-planner
 # threads-content-ops/(쓰레드 콘텐츠 운영)도 2026-10-15부터 자체 Vercel 프로젝트로 배포한다(루트는 옛 주소 전달만).
 /threads-content-ops
+# 네이버 블로그 자동화 App·Web의 웹 화면도 2026-10-15부터 각 폴더 web/에서 자체 Vercel 프로젝트로 배포한다.
+/naver-blog-auto-poster_app/web
+/naver-blog-auto-poster_web/web
 
 
 # shorts-viral-studio/(쇼츠 떡상 분석·대본 자동화, 2026-10-04 신설)는 자체 Vercel 프로젝트로 따로 배포되고 루트 앱이 import하지 않는다.
