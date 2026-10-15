@@ -3,7 +3,7 @@ import headless from '@xterm/headless';
 import fs from 'node:fs';
 import { StringDecoder } from 'node:string_decoder';
 import { createRatesClient } from './rates.mjs';
-import { formatFooter } from './format.mjs';
+import { colorFooter, formatFooter } from './format.mjs';
 import { findFooter } from './screen.mjs';
 
 const { Terminal } = headless;
@@ -32,7 +32,7 @@ export async function runStatusbar({ binaryPath, args, env, tracePath }) {
         const renderKey = `${row}:${size.cols}:${display}`;
         if (!force && renderKey === lastRenderKey) return;
         // DEC save/restore preserves the input cursor and its original attributes.
-        process.stdout.write(`\x1b7\x1b[${row + 1};1H\x1b[2K\x1b[0;38;5;179m${display}\x1b8`);
+        process.stdout.write(`\x1b7\x1b[${row + 1};1H\x1b[2K\x1b[0m${colorFooter(display)}\x1b8`);
         overlayRow = formatted ? row : -1;
         lastRenderKey = renderKey;
         if (tracePath && formatted !== lastTrace) {

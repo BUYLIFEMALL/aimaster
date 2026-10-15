@@ -1,5 +1,23 @@
-export const APP_VERSION = 'v1.04';
+export const APP_VERSION = 'v1.05';
 export const MAX_AGE_MS = 150_000;
+
+// Match the local Claude statusline palette. Apply after fitting plain text so
+// ANSI escape sequences never consume the terminal's width budget.
+export function colorFooter(text) {
+  const reset = '\x1b[0m';
+  const colors = {
+    model: '\x1b[38;2;222;204;161m',
+    quota: '\x1b[38;2;208;126;142m',
+    context: '\x1b[38;2;216;158;123m',
+    separator: '\x1b[38;2;120;120;120m',
+  };
+  return text.split(/( \| )/).map((part) => {
+    const color = part === ' | ' ? colors.separator
+      : /^(?:5h|weekly)\b/.test(part) ? colors.quota
+      : /^context\b/.test(part) ? colors.context : colors.model;
+    return color + part + reset;
+  }).join('');
+}
 
 export function readWindows(result, now = Date.now()) {
   const bucket = result?.rateLimitsByLimitId?.codex ?? result?.rateLimits;

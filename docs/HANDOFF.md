@@ -4781,3 +4781,10 @@ A안(새 프로그램 대신 기존 `shorts-viral-studio` 완성·출시)을 마
 - 본인 계정의 공식 app-server `account/rateLimits/read`만 사용한다. 60초마다 조회, 1초마다 카운트다운 계산. 비율 `left` 의미는 잔여량으로 유지. API 키·로그인·사용 권한 설정은 변경하지 않았다.
 - 검수: 자동 검사 16개·문법 빌드, 실제 계정 조회, 기본/인라인 실제 TUI의 카운트다운·입력·정상 종료, npm 실행기 복원·재설치, `--version` 보존 확인. 물리 창 크기 변경은 미검수; 자동 ANSI 하네스에서 크기 변경 확인.
 - [실행·복원 문서](../codex-statusbar/README.md), [CLI 인수인계](../codex-statusbar/AGENTS.md). 로컬 도구 설치이므로 Vercel·DB 배포 대상이 아니다. Codex npm 업데이트 시 `npm run install-launcher`를 다시 실행한다.
+
+
+## 2026-10-15 — Codex 상태바 항목별 색상 복구 v1.05
+
+- 원인: `codex-statusbar/src/run.mjs`가 상태바 전체를 ANSI 179 단색으로 덮어씀. `src/format.mjs`의 `colorFooter()`로 모델명·effort 베이지, 5h·weekly 분홍, context 살구색, 구분자 회색 적용(Claude 팔레트와 동일). 폭 조절 후 색상을 붙여 공백·커서·입력 색상 보존.
+- 검수: 자동 검사 18개·빌드·본인 계정 한도 읽기·npm 실행기 연결·`codex.cmd --version` 통과. 실제 가시적 Orca 검수 터미널에서 색상과 카운트다운 확인(`codex-statusbar/.local/v105-terminal-screen.png`, git 제외). AI 요청 없음.
+- 이 PC 로컬 실행기 적용 완료. 새 Codex 실행부터 적용, 기존 사용자 세션 유지. Vercel·DB 배포 대상 아님. 상세: [README](../codex-statusbar/README.md), [시작 지침](CODEX_STATUSBAR_STARTUP.md).
