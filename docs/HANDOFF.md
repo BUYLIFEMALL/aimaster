@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(맥미니·보조 계정) — 맥미니 원격 작업 지침 추가
+
+- [MAC_MINI_WORK_GUIDE.md](MAC_MINI_WORK_GUIDE.md): 맥미니가 이 저장소를 SMB(`/Volumes/gt1_mega` = 윈도우 D:)로 열어 작업할 때의 규칙. 맥에서는 파일 편집·문서 작성만 하고 `npm`·`git`·배포는 윈도우에서 한다. 경로 변환표, HANDOFF 제목에 "맥미니" 표기. 윈도우 메인 지침은 바뀌지 않음. 커밋·푸시는 윈도우 보조 계정 세션이 대신 함.
+
 ## 2026-10-15 Claude Code(보조 계정) — 저녁 세션 인수인계 정리
 
 - 전체 정리: [HANDOFF_CLAUDE_SESSION_2026-10-15_ACCOUNT2_EVENING.md](HANDOFF_CLAUDE_SESSION_2026-10-15_ACCOUNT2_EVENING.md) — REA를 Codex·Antigravity·Gemini에도 연결, ai-task-planner v1.06(C4 개선 3건), file-merge v1.03~v1.05(열 선택·같은 행 제거·원본 서식 유지·메모리 실측), E2 엣지 자동 다운로드, B6 네이버 App v1.04·Web v1.05 흰색 표준(관리자 계정 확인 남음). 남은 일 표 포함.
