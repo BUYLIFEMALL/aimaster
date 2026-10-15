@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니·보조 계정) — 맥미니 → 메인 PC 작업 인계 정리
+
+- 메인 PC에서 이어서 할 일(M1 도톨이 AI 분석 이어가기, M2 새 프로그램 설명 표준화, M4 공개 페이지 간격 확인 — 루트 CSS는 이미 배포됨)·주인님 결정(D1 성격코드 로그인, D2 도톨이 권리, D3 설명 길이·이름 통일)·끝난 일: [HANDOFF_MACMINI_TO_MAIN_2026-10-16.md](HANDOFF_MACMINI_TO_MAIN_2026-10-16.md).
+
 ## 2026-10-16 Codex — AI 블로그 콘텐츠 제작 자동화 v1.02 검색 보완·운영 검수
 
 - 초기 v1.01 구현 커밋 `c768e23b` 푸시·프로덕션 READY, 도메인 https://blog-content-maker.buylife.xyz 연결. 실제 회원 웹앱·비공개 파일·확장 ZIP 운영 응답 확인. 기존 Vercel 별칭은 유지.
@@ -25,7 +29,7 @@
 
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 설명 작성 표준 문서화
 
-- 주인님 지시로 [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md) 작성(분량·구성·이모티콘·빈 줄 금지·문장 규칙·사실 확인·SQL 저장법·체크리스트·예시). 루트 `CLAUDE.md` 새 프로그램 체크리스트 (10)·`AGENTS.md` 등록 체크리스트 10번에 연결. 표준 미적용: `blog-workroom"(다른 CLI 등록, h2 사용).
+- 주인님 지시로 [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md) 작성(분량·구성·이모티콘·빈 줄 금지·문장 규칙·사실 확인·SQL 저장법·체크리스트·예시). 루트 `CLAUDE.md` 새 프로그램 체크리스트 (10)·`AGENTS.md` 등록 체크리스트 10번에 연결. 표준 미적용: `blog-workroom`(다른 CLI 등록, h2 사용).
 
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — 신규 프로그램: AI 블로그 작업실 자동화 (`blog-workroom` v1.01)
 
