@@ -4,6 +4,8 @@
 - **권리: 주인님 확인 결과 "권리 없음 — 기능만 참고"(2026-10-15).** 동봉 안내문도 "도톨이 자체 소스·실행 지식·원본 PDF는 공개 대상이 아니다"라고 밝힌다(배포처 `github.com/daraming92/dotori_ai`). → **코드·프롬프트·`knowledge.json`(작성 지식 1.9MB)·아이콘·이름은 가져오지 않는다.** 화면 흐름·기능 단위만 참고해 새로 설계한다(원칙 21).
 - 분석 방법: EXE 실행 없음. `innounp` 2.70.1(winget `JurgenRathlev.innounp`)로 설치 파일 해제 → 직접 쓴 PyInstaller 해제 스크립트로 모듈 목록·화면 문구·외부 주소만 추출. 추출물은 `D:\PDS\dotoli_extract\`(1.1GB, Git에 넣지 않음).
 
+> **진행(2026-10-15)**: 주인님 결정 — 이름 「AI 블로그 작업실 자동화」(`blog-workroom`), **1차에 전체 기능**, AI는 OpenAI·Gemini 선택. v1.01 출시: https://blog-workroom.buylife.xyz · 인수인계 [`blog-workroom/AGENTS.md`](../blog-workroom/AGENTS.md).
+
 ## 1. 원본 프로그램 정체
 
 | 항목 | 내용 |

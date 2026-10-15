@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정·윈도우) — 신규 프로그램: AI 블로그 작업실 자동화 (`blog-workroom` v1.01)
+
+- 주인님 지시: 도톨이 AI(DotoliAI-1.2-setup.exe) 웹버전 개발 — 이름 「AI 블로그 작업실 자동화」, 1차에 전체 기능, AI는 OpenAI·Gemini 선택. **권리 없음 — 기능만 참고**(원본 코드·지시문·작성 지식 미사용). 분석: [DOTOLI_AI_REFERENCE_ANALYSIS.md](DOTOLI_AI_REFERENCE_ANALYSIS.md).
+- 8단계: 내 블로그 스타일 → 키워드 탐색 → 트렌드 관측 → 블로그 벤치마킹 → 글 작성 준비(근거 확인·승인) → 글 작성(구간별) → 최종 검수(6영역) → 이미지 제작. 회원 본인 AI·네이버 검색·검색광고 키.
+- 운영 변경(주인님 승인 "모두 진행"): 테이블 `blog_workroom_items`(RLS 4정책, Codex Supabase 연결로 DDL), 버킷 `blog-workroom`, programs 등록·요금제 3종·VIP 접근·썸네일, Vercel 프로젝트 + 공용 DB 연결 3종 + 도메인. 운영 https://blog-workroom.buylife.xyz
+- 검수: 단위 8/8, 빌드, 운영 응답, 엣지 시험 계정으로 스타일 분석·승인·이미지 생성·400px. **남은 것: 시험 계정에 네이버 키 등록(주인님) 후 ②~⑦ 실제 흐름 확인.** 상세: [blog-workroom/AGENTS.md](../blog-workroom/AGENTS.md)
+
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 설명 단락 간격 정정 (빈 줄 단락 제거 + 공개 상세 페이지 CSS) — **윈도우에서 루트 사이트 배포 필요**
 
 - 주인님 지적("문단 사이를 너무 많이 띄웠다"): DB `programs.description`에서 `<p><br></p>`를 모두 제거(관리자 편집기 간격 정상화). 공개 상세 페이지는 단락 여백이 없어 붙어 보이므로 `app/(main)/programs/[slug]/page.tsx` 설명 영역에 `[&_p]:my-2` 추가. 형식 규칙: [PROGRAM_DESCRIPTIONS_2026-10-15.md](PROGRAM_DESCRIPTIONS_2026-10-15.md).

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — 새 Vercel 프로젝트를 `vercel project add`로 만들면 Next.js로 인식되지 않아 배포 실패 (blog-workroom v1.01)
+- 증상: `vercel deploy --prod`가 빌드 후 `No Output Directory named "public" found`로 실패, 이어서 도메인 연결도 "최근 배포가 실패해 연결할 수 없음"(400).
+- 원인: `vercel project add`로 만든 프로젝트는 프레임워크가 비어 있음(대시보드·첫 배포 자동 감지와 다름).
+- 해결: 프로그램 폴더에 `vercel.json` `{"framework":"nextjs"}`(file-merge와 같음) 후 재배포 → 도메인 추가 성공.
+- 함께 확인: `vercel link`가 `.gitignore` 끝에 `.env*`를 덧붙여 앞의 `!.env.example` 예외를 다시 막는다 — link 후 `.gitignore` 끝 줄을 확인. 또 `programs.is_active=false`면 권한 판정이 `not_found`라 **관리자도** 들어갈 수 없으므로 운영 화면 검수는 활성화 뒤에 한다.
+- 다음부터: 새 프로그램은 처음부터 `vercel.json`(framework nextjs)을 넣고 배포한다.
+
 ## 2026-10-15 — (정정) 프로그램 설명에 빈 줄 단락 `<p><br></p>`를 넣으면 관리자 편집기에서 간격이 두 배로 벌어진다
 - 증상: 바로 아래 항목의 해결책(단락 사이 `<p><br></p>`)을 80개 설명에 적용했더니, 관리자 프로그램 편집 화면에서 단락 사이가 너무 넓게 벌어짐(주인님 지적).
 - 원인: 편집기(`.prose-editor p { margin: 0.5em 0 }`)는 단락에 이미 여백을 주는데 빈 줄 단락이 한 줄 더 띄움. 공개 상세 페이지만 여백이 없었던 것(Tailwind typography 플러그인이 없어 `prose`가 빈 껍데기).
