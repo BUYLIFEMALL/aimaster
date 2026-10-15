@@ -213,6 +213,7 @@ vercel deploy --prod --yes --scope buylife
   8. API키등록/외부계정 설정 화면은 메뉴명을 **"API키등록·플랫폼연동"**으로 통일하고, 화면
      맨 하단에 "📖 연동 매뉴얼" 박스(`platform_guides` 테이블 연결, 팝업으로 열기)를 추가한다.
   9. 서브프로그램 좌측 사이드바 상단에는 반드시 `← 다른 프로그램 보기` 링크를 배치하고, 대상 URL은 항상 전체 마케팅 자동화 프로그램 목록 페이지인 **`https://www.buylife.xyz/programs`**로 연결한다(`/dashboard`나 상대경로 연결 금지, `docs/SIDEBAR_LAYOUT_STANDARD.md` 및 `docs/PLATFORM_PATTERNS.md` §32 준수).
+  10. `programs.short_desc`·`description`은 [`docs/PROGRAM_DESCRIPTION_STANDARD.md`](docs/PROGRAM_DESCRIPTION_STANDARD.md) 형식(400~500자, 굵은 한 줄 소개 + 이모티콘 단락, 빈 줄 단락 금지, 본인 키 안내)으로 등록한다(2026-10-15 주인님 지시).
 - **기본 요금제(pricing_plans) 3단계**(2026-09-07부터, `components/admin/ProgramForm.tsx`의
   `DEFAULT_PLANS`가 SSOT):
 

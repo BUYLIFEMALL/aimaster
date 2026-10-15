@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 설명 작성 표준 문서화
+
+- 주인님 지시로 [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md) 작성(분량·구성·이모티콘·빈 줄 금지·문장 규칙·사실 확인·SQL 저장법·체크리스트·예시). 루트 `CLAUDE.md` 새 프로그램 체크리스트 (10)·`AGENTS.md` 등록 체크리스트 10번에 연결. 표준 미적용: `blog-workroom"(다른 CLI 등록, h2 사용).
+
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — 신규 프로그램: AI 블로그 작업실 자동화 (`blog-workroom` v1.01)
 
 - 주인님 지시: 도톨이 AI(DotoliAI-1.2-setup.exe) 웹버전 개발 — 이름 「AI 블로그 작업실 자동화」, 1차에 전체 기능, AI는 OpenAI·Gemini 선택. **권리 없음 — 기능만 참고**(원본 코드·지시문·작성 지식 미사용). 분석: [DOTOLI_AI_REFERENCE_ANALYSIS.md](DOTOLI_AI_REFERENCE_ANALYSIS.md).
