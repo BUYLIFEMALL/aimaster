@@ -1,7 +1,7 @@
 import "server-only";
 import { UserError } from "@/lib/errors";
 import { generateJson } from "@/lib/ai";
-import { adsAuth, aiConfig, naverAuth } from "@/lib/route";
+import { adsAuth, aiConfig, naverAuth } from "@/lib/context";
 import { keywordMetrics } from "@/lib/metrics";
 import { naverSearch, naverTrend } from "@/lib/naver";
 import { surge } from "@/lib/logic";
@@ -48,7 +48,7 @@ export const verify: Handler = async ({ userId, body }) => {
   if (!item.data.terms.length) throw new UserError(400, "검증할 용어가 없습니다. 먼저 자료 분석을 진행해 주세요.");
   const [naver, ads] = await Promise.all([naverAuth(userId), adsAuth(userId)]);
   const end = new Date(Date.now() + 9 * 3600_000 - 86_400_000); // 어제(한국 시간)
-  const start = new Date(end.getTime() - 13 * 86_400_000);
+  const start = new Date(end.getTime() - 15 * 86_400_000); // 집계 지연(1~2일)을 감안해 16일 요청
   const ymd = (d: Date) => d.toISOString().slice(0, 10);
   const terms = item.data.terms.map((t) => ({ ...t }));
   for (let i = 0; i < terms.length; i += 5) {
@@ -56,7 +56,7 @@ export const verify: Handler = async ({ userId, body }) => {
     const res = await naverTrend(naver, { startDate: ymd(start), endDate: ymd(end), timeUnit: "date", groups: group.map((t) => ({ groupName: t.term, keywords: [t.term] })) });
     for (const t of group) {
       const g = res.find((x) => x.title === t.term);
-      const series = g ? fillDays(g.data, start, 14) : [];
+      const series = g ? fillDays(g.data, start, 16).slice(-14) : [];
       const r = surge(series);
       t.series = series; t.change = r.change; t.surging = r.surging;
     }
@@ -68,7 +68,15 @@ export const verify: Handler = async ({ userId, body }) => {
   return updateItem(userId, item.id, { data: { ...item.data, terms, step: "verified" } });
 };
 
+/** 날짜별 값(빠진 날은 0). 데이터랩은 최근 1~2일이 아직 집계되지 않아 비어 있으므로, 집계된 마지막 날까지만 쓴다(빈 날을 0으로 채우면 모두 하락으로 보임). */
 function fillDays(data: { period: string; ratio: number }[], start: Date, days: number): number[] {
   const map = new Map(data.map((d) => [d.period, d.ratio]));
-  return Array.from({ length: days }, (_, i) => map.get(new Date(start.getTime() + i * 86_400_000).toISOString().slice(0, 10)) ?? 0);
+  const last = data.reduce((m, d) => (d.period > m ? d.period : m), "");
+  const out: number[] = [];
+  for (let i = 0; i < days; i++) {
+    const day = new Date(start.getTime() + i * 86_400_000).toISOString().slice(0, 10);
+    if (last && day > last) break;
+    out.push(map.get(day) ?? 0);
+  }
+  return out;
 }

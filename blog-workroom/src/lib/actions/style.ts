@@ -3,7 +3,7 @@ import { UserError } from "@/lib/errors";
 import { fetchFeed, fetchPostText, inBatches, parseBlogId } from "@/lib/blog";
 import { createItem, updateItem, listItems } from "@/lib/store";
 import { generateJson } from "@/lib/ai";
-import { aiConfig } from "@/lib/route";
+import { aiConfig } from "@/lib/context";
 import { SYS_JSON, stylePrompt } from "@/lib/prompts";
 import { str, strArr } from "@/lib/util";
 import type { BlogData, StyleProfile } from "@/lib/types";

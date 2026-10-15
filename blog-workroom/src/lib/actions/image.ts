@@ -2,7 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { UserError } from "@/lib/errors";
 import { generateImage, generateJson } from "@/lib/ai";
-import { aiConfig, geminiImageConfig } from "@/lib/route";
+import { aiConfig, geminiImageConfig } from "@/lib/context";
 import { splitParagraphs } from "@/lib/logic";
 import { SYS_JSON, imagePlanPrompt, imagePrompt } from "@/lib/prompts";
 import { createItem, updateItem } from "@/lib/store";

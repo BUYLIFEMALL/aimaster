@@ -1,7 +1,7 @@
 import "server-only";
 import { UserError } from "@/lib/errors";
 import { generateJson } from "@/lib/ai";
-import { aiConfig, naverAuth } from "@/lib/route";
+import { aiConfig, naverAuth } from "@/lib/context";
 import { naverSearch } from "@/lib/naver";
 import { fetchBlogUrlText, inBatches, parsePostRef } from "@/lib/blog";
 import { copiesSource, quoteInText } from "@/lib/logic";

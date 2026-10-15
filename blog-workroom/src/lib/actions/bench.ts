@@ -1,7 +1,7 @@
 import "server-only";
 import { UserError } from "@/lib/errors";
 import { generateJson } from "@/lib/ai";
-import { adsAuth, aiConfig, naverAuth } from "@/lib/route";
+import { adsAuth, aiConfig, naverAuth } from "@/lib/context";
 import { keywordMetrics } from "@/lib/metrics";
 import { naverSearch } from "@/lib/naver";
 import { fetchFeed, fetchPostText, inBatches, parseBlogId, parsePostRef } from "@/lib/blog";

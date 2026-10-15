@@ -42,7 +42,7 @@ export function MetricTable({ rows, selected, onToggle, extra }: { rows: (Keywor
 }
 
 export function GradeHelp() {
-  return <p className="muted" style={{ fontSize: 11 }}>등급은 블로그 문서수 ÷ 월간 검색량으로 정합니다 — 골드: 0.5 미만(검색량 500 이상), 실버: 2 미만, 일반: 10 미만, 경쟁: 10 이상, 검색 적음: 월 100회 미만. 검색 순위나 방문자를 보장하지 않습니다.</p>;
+  return <p className="muted" style={{ fontSize: 11 }}>등급은 블로그 문서수 ÷ 월간 검색량으로 정합니다 — 골드: 10 미만(월 검색량 1,000 이상), 실버: 30 미만, 일반: 150 미만, 경쟁: 150 이상, 검색 적음: 월 100회 미만. 문서수는 네이버 검색 API의 누적 블로그 문서수입니다. 검색 순위나 방문자를 보장하지 않습니다.</p>;
 }
 
 export function Spark({ series }: { series?: number[] }) {

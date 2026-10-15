@@ -1,8 +1,8 @@
 import "server-only";
 import { UserError } from "@/lib/errors";
 import { generateJson } from "@/lib/ai";
-import { adsAuth, aiConfig, naverAuth } from "@/lib/route";
-import { keywordMetrics, sortMetrics } from "@/lib/metrics";
+import { adsAuth, aiConfig, naverAuth } from "@/lib/context";
+import { keywordMetrics, shortRelated, sortMetrics } from "@/lib/metrics";
 import { autocomplete } from "@/lib/naver";
 import { SYS_JSON, seedPrompt } from "@/lib/prompts";
 import { createItem, getItem, listItems } from "@/lib/store";
@@ -23,7 +23,8 @@ export const discover: Handler = async ({ userId, body }) => {
   const r = await generateJson(ai, { system: SYS_JSON("네이버 블로그 키워드 기획자"), prompt: seedPrompt(blog?.data.style ?? null, categories, subtopics, saved), maxTokens: 4000 });
   const seeds = objArr(r.seeds, 12).map((x) => ({ keyword: str(x.keyword, 40), why: str(x.why, 200) })).filter((x) => x.keyword);
   if (!seeds.length) throw new UserError(502, "후보 검색어를 만들지 못했습니다. 다시 시도해 주세요.");
-  const { metrics, related } = await keywordMetrics(ads, naver, seeds.map((x) => x.keyword), { withRelated: true });
+  const { metrics, related: rel1 } = await keywordMetrics(ads, naver, seeds.map((x) => x.keyword), { withRelated: true });
+  const related = [...rel1, ...(await shortRelated(ads, [...subtopics, ...categories]))];
   // 연관 검색어 중 주제 단어가 들어간 것만 추가 검증(최대 15개)
   const tokens = [...categories, ...subtopics, ...seeds.map((x) => x.keyword)].flatMap((t) => t.split(/\s+/)).filter((t) => t.length >= 2);
   const savedSet = new Set(saved.map(norm));
@@ -66,7 +67,10 @@ export const related: Handler = async ({ userId, body }) => {
   const keyword = s(body.keyword, 40);
   if (!keyword) throw new UserError(400, "검색어를 입력해 주세요.");
   const [ads, naver] = await Promise.all([adsAuth(userId), naverAuth(userId)]);
-  const [auto, rel] = await Promise.all([autocomplete("naver", keyword), keywordMetrics(ads, naver, [keyword], { withRelated: true })]);
-  const relWords = rel.related.sort((a, b) => b.total - a.total).slice(0, 15).map((k) => k.keyword);
+  const words = keyword.split(/\s+/).filter((w) => w.length >= 2);
+  const [auto, rel, short] = await Promise.all([autocomplete("naver", keyword), keywordMetrics(ads, naver, [keyword], { withRelated: true }), shortRelated(ads, [keyword])]);
+  const self = norm(keyword);
+  const pool = [...rel.related, ...short.filter((k) => words.some((w) => k.keyword.includes(w)))];
+  const relWords = [...new Map(pool.filter((k) => norm(k.keyword) !== self).sort((a, b) => b.total - a.total).map((k) => [norm(k.keyword), k.keyword])).values()].slice(0, 15);
   return { keyword, self: rel.metrics[0] ?? null, autocomplete: auto, related: relWords };
 };

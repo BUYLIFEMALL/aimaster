@@ -6,6 +6,9 @@ import { Busy, Message, toMsg, type Msg } from "@/components/ui/parts";
 import { charCount } from "@/lib/logic";
 import type { DraftData, FinalData } from "@/lib/types";
 
+/** 문장을 지운 자리의 겹친 공백·빈 줄 정리 */
+const tidy = (s: string) => s.replace(/[ \t]{2,}/g, " ").replace(/\n{3,}/g, "\n\n");
+
 const AREAS = ["내 블로그 스타일", "작성 원칙", "사실·출처", "경험 표현", "자료 유사 표현", "민감·과장 표현"];
 
 function toHtml(title: string, text: string) {
@@ -38,7 +41,7 @@ export function ReviewView({ draftId }: { draftId: string }) {
   const apply = (quote: string, suggestion: string) => {
     const t = current!.data.text;
     if (!t.includes(quote)) { setMsg({ text: "지적한 문장을 본문에서 그대로 찾지 못했습니다. 본문을 직접 수정하세요." }); return; }
-    const next = { ...current!.data, text: t.replace(quote, suggestion), review: null, status: "written" as const };
+    const next = { ...current!.data, text: tidy(t.replace(quote, suggestion)), review: null, status: "written" as const };
     void act("제안을 반영하는 중…", async () => { setCurrent(await saveItem<DraftData>(current!.id, { data: next })); setMsg({ text: "제안을 반영했습니다. 수정 후에는 다시 검수해야 합니다.", ok: true }); });
   };
   const finalize = () => act("최종본을 저장하는 중…", async () => { await run("write.finalize", { id: current!.id, confirmed }); setConfirmed(false); await load(); setMsg({ text: "최종본을 저장했습니다. 아래 최종본 목록에서 복사하거나 내보내세요. 원래 초안은 유지됩니다.", ok: true }); });
@@ -84,7 +87,7 @@ export function ReviewView({ draftId }: { draftId: string }) {
             {rv.issues.map((x, i) => <div key={i} className="issue">
               <div className="row"><span className={`badge ${x.level}`}>{x.level}</span><strong style={{ fontSize: 12 }}>{x.area}</strong></div>
               <q>{x.quote}</q><p style={{ fontSize: 12 }}>{x.reason}</p>
-              {x.suggestion && <div className="row" style={{ marginTop: 6 }}><small>제안: {x.suggestion}</small><button className="link-button" disabled={!!busy} onClick={() => apply(x.quote, x.suggestion)}>제안 반영</button></div>}
+              <div className="row" style={{ marginTop: 6 }}><small>{x.suggestion ? <>고친 문장: {x.suggestion}</> : "제안: 이 문장 삭제"}</small><button className="link-button" disabled={!!busy} onClick={() => apply(x.quote, x.suggestion)}>{x.suggestion ? "제안 반영" : "이 문장 삭제"}</button></div>
             </div>)}
             {must > 0 ? <div className="notice warning">필수 수정 사항을 해결하고 다시 검수해야 최종본으로 저장할 수 있습니다.</div> : <>
               <label className="row" style={{ fontWeight: 500 }}><input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />글 내용·출처·검수 결과를 직접 확인했습니다.</label>

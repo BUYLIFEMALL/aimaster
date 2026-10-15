@@ -1,14 +1,15 @@
 // 계산 규칙(서버·화면·테스트 공용, 외부 호출 없음)
 
-// ---- 키워드 등급: 블로그 문서수 ÷ 월간 검색량(낮을수록 경쟁이 적음) ----
+// ---- 키워드 등급: 블로그 문서수(검색 API 누적 문서수) ÷ 월간 검색량(낮을수록 경쟁이 적음) ----
+// 기준은 2026-10-16 실측 분포(검색량 300 이상 연관어 30개: 2배~1,600배, 중간값 약 60배)로 정했다. 상위 약 1/4이 골드·실버.
 export type Grade = "골드" | "실버" | "일반" | "경쟁" | "검색 적음";
 export function keywordGrade(total: number, docs: number | null): { ratio: number | null; grade: Grade } {
   if (!total || total < 100) return { ratio: docs != null && total ? docs / total : null, grade: "검색 적음" };
   if (docs == null) return { ratio: null, grade: "일반" };
   const ratio = docs / total;
-  if (ratio < 0.5 && total >= 500) return { ratio, grade: "골드" };
-  if (ratio < 2) return { ratio, grade: "실버" };
-  if (ratio < 10) return { ratio, grade: "일반" };
+  if (ratio < 10 && total >= 1000) return { ratio, grade: "골드" };
+  if (ratio < 30) return { ratio, grade: "실버" };
+  if (ratio < 150) return { ratio, grade: "일반" };
   return { ratio, grade: "경쟁" };
 }
 export const GRADE_ORDER: Record<Grade, number> = { 골드: 0, 실버: 1, 일반: 2, 경쟁: 3, "검색 적음": 4 };
@@ -61,4 +62,10 @@ export function splitParagraphs(text: string): string[] {
   const out: string[] = [];
   for (const p of raw) { if (out.length && p.length < 40) out[out.length - 1] += "\n" + p; else out.push(p); }
   return out;
+}
+
+/** 제안이 「…삭제하세요」 같은 지시문이면 본문에 넣지 않고 삭제 제안(빈 문자열)으로 바꾼다 */
+export function asReplacement(s: string): string {
+  // 본문 문장("불필요한 지방을 제거합니다.")은 남기고, 문장·단락을 지우라는 편집 지시만 걸러낸다
+  return /(문장|단락|문단|부분|표현|내용)/.test(s) && /(삭제|지우|지워|제거|빼)/.test(s) && /(세요|합니다|하십시오|바랍니다)\.?$/.test(s) ? "" : s;
 }

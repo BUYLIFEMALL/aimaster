@@ -1,8 +1,8 @@
 import "server-only";
 import { UserError } from "@/lib/errors";
 import { generateJson } from "@/lib/ai";
-import { aiConfig } from "@/lib/route";
-import { joinSections, quoteInText } from "@/lib/logic";
+import { aiConfig } from "@/lib/context";
+import { asReplacement, joinSections, quoteInText } from "@/lib/logic";
 import { SYS_JSON, outlinePrompt, reviewPrompt, sectionPrompt } from "@/lib/prompts";
 import { createItem, getItem, updateItem } from "@/lib/store";
 import { objArr, str, strArr } from "@/lib/util";
@@ -62,7 +62,7 @@ export const review: Handler = async ({ userId, body }) => {
   const r = await generateJson(ai, { system: SYS_JSON("블로그 글 검수 편집자"), prompt: reviewPrompt(draft.data.title, draft.data.text, await styleOf(userId, draft.data.blogItemId), research?.data.points.filter((p) => p.kept).map((p) => p.text) ?? []), maxTokens: 8000 });
   const latest = await need<DraftData>(userId, draft.id, "draft");
   if (latest.data.text !== draft.data.text) throw new UserError(409, "검수 도중 글이 바뀌어 결과를 적용하지 않았습니다. 다시 검수해 주세요.");
-  const issues: ReviewIssue[] = objArr(r.issues, 40).map((x) => ({ area: str(x.area, 30), level: (x.level === "필수" ? "필수" : "권장") as ReviewIssue["level"], quote: str(x.quote, 200), reason: str(x.reason, 400), suggestion: str(x.suggestion, 600) }))
+  const issues: ReviewIssue[] = objArr(r.issues, 40).map((x) => ({ area: str(x.area, 30), level: (x.level === "필수" ? "필수" : "권장") as ReviewIssue["level"], quote: str(x.quote, 200), reason: str(x.reason, 400), suggestion: asReplacement(str(x.suggestion, 600)) }))
     .filter((x) => x.quote && quoteInText(x.quote, latest.data.text));
   return updateItem(userId, draft.id, { data: { ...latest.data, review: { issues, summary: str(r.summary, 800), at: new Date().toISOString(), textHash: hash(latest.data.text) }, status: "reviewed" } });
 };

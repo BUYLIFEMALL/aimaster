@@ -38,3 +38,11 @@ export async function keywordMetrics(ads: AdsAuth, naver: NaverAuth, keywords: s
 export function sortMetrics(m: KeywordMetric[]): KeywordMetric[] {
   return [...m].sort((a, b) => GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade] || b.total - a.total);
 }
+
+/** 검색광고 연관어는 긴 검색어로 물으면 자기 자신만 돌려준다 — 짧은 단어(최대 5개)로 다시 물어 연관어를 받는다 */
+export async function shortRelated(ads: AdsAuth, phrases: string[]): Promise<AdsKeyword[]> {
+  const words = [...new Set(phrases.flatMap((p) => [p.replace(/\s+/g, ""), ...p.split(/\s+/)]).filter((w) => w.length >= 2 && w.length <= 15))].slice(0, 5);
+  if (!words.length) return [];
+  try { return await adsKeywords(ads, words.join(",")); }
+  catch (e) { if (e instanceof NaverError && e.code === "auth") throw e; return []; }
+}

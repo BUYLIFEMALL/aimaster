@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseBlogId, parsePostRef, decodeEntities } from "../src/lib/blogParse.ts";
-import { keywordGrade, surge, quoteInText, copiesSource, joinSections, splitParagraphs, charCount } from "../src/lib/logic.ts";
+import { keywordGrade, surge, quoteInText, copiesSource, joinSections, splitParagraphs, charCount, asReplacement } from "../src/lib/logic.ts";
 import { nowRule, sectionPrompt, reviewPrompt, imagePrompt } from "../src/lib/prompts.ts";
 import { isTextModel, isImageModel, TEXT_MODELS, DEFAULT_MODEL } from "../src/lib/models.ts";
 
@@ -24,12 +24,12 @@ test("블로그 글 주소 해석", () => {
   assert.equal(decodeEntities("A&amp;B &lt;b&gt; &#39;x&#39; &#xAC00;"), "A&B <b> 'x' 가");
 });
 
-test("키워드 등급: 문서수 ÷ 월간 검색량", () => {
-  assert.equal(keywordGrade(5000, 1000).grade, "골드");
-  assert.equal(keywordGrade(300, 100).grade, "실버", "검색량 500 미만은 골드가 아님");
-  assert.equal(keywordGrade(5000, 9000).grade, "실버");
-  assert.equal(keywordGrade(5000, 40000).grade, "일반");
-  assert.equal(keywordGrade(5000, 60000).grade, "경쟁");
+test("키워드 등급: 문서수 ÷ 월간 검색량(실측 분포 기준)", () => {
+  assert.equal(keywordGrade(40000, 95000).grade, "골드");
+  assert.equal(keywordGrade(800, 4000).grade, "실버", "검색량 1,000 미만은 골드가 아님");
+  assert.equal(keywordGrade(5000, 100000).grade, "실버");
+  assert.equal(keywordGrade(5000, 500000).grade, "일반");
+  assert.equal(keywordGrade(5000, 900000).grade, "경쟁");
   assert.equal(keywordGrade(50, 10).grade, "검색 적음");
   assert.equal(keywordGrade(5000, null).ratio, null);
 });
@@ -80,4 +80,12 @@ test("모델 목록 검증", () => {
   assert.equal(isTextModel("openai", "gemini-3.5-flash"), false, "공급사와 모델이 맞아야 함");
   assert.equal(isImageModel("gemini-3.1-flash-image"), true);
   assert.ok(TEXT_MODELS.every((m) => m.provider === "openai" || m.provider === "gemini"));
+});
+
+test("검수 제안: 편집 지시문은 삭제 제안으로, 본문 문장은 그대로", () => {
+  assert.equal(asReplacement("해당 문장을 삭제합니다."), "");
+  assert.equal(asReplacement("이 단락은 지워 주세요"), "");
+  assert.equal(asReplacement("중복된 표현을 제거하세요."), "");
+  assert.equal(asReplacement("불필요한 지방을 제거합니다."), "불필요한 지방을 제거합니다.");
+  assert.equal(asReplacement("단풍은 10월 말에 절정입니다."), "단풍은 10월 말에 절정입니다.");
 });
