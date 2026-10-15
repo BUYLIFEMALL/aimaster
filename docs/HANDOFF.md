@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(보조 계정·윈도우) — 메인 사이트 프로그램 설명 81개 전체 재작성 (DB)
+
+- 주인님 지시: 각 프로그램을 분석해 blog-workroom과 같은 형식으로 싹 바꾸고, 비슷한 프로그램은 차별점을 강조. 프로그램별 코드(메뉴·키 사용처)·README·AGENTS·기존 설명을 모은 분석 자료로 `short_desc`(43~57자)·`description`(311~478자, 굵은 한 줄 소개+기능 단락+본인 키·주의 단락)을 다시 써 81개 반영. 빈 줄 단락·제목 태그 0, 공개 상세·카탈로그 화면 확인.
+- 규칙 추가: [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md) §2-1 차별점 규칙(그룹별 구분 예), `CLAUDE.md` 원칙 22·`AGENTS.md` 21에 한 줄. 이전 원문 백업: [program-descriptions/backup-before-2026-10-16.json](program-descriptions/backup-before-2026-10-16.json).
+- 확인 필요(주인님): `personality-code`는 코드상 로그인 없이 열리는 구조(원칙 0·6과 다름) — 설명에서는 로그인 관련 문구를 뺐다.
+
 ## 2026-10-16 Claude Code(보조 계정·윈도우) — 프로그램 상세 소개 작성 지침을 핵심 원칙으로 등록
 
 - 주인님 지시: AI 블로그 작업실 자동화 상세 소개(https://www.buylife.xyz/programs/blog-workroom)처럼 다른 프로그램도 잘 설명할 수 있게 핵심 지침으로. → `CLAUDE.md` 핵심 원칙 22 / `AGENTS.md` 21 신설, [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md)에 바로 쓰는 작성 틀(§7-0)과 기준 예시 `blog-workroom`(§7-1, 왜 좋은가 포함) 추가. 새 프로그램 등록·기능 변경 시 이 형식으로 `short_desc`·`description`을 쓴다.

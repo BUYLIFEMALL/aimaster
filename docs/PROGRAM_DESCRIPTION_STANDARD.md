@@ -20,6 +20,15 @@
 - **문단 사이 간격**: 단락마다 `<p>…</p>`만 쓴다. **빈 줄 단락(`<p><br></p>`)·빈 `<p></p>`를 넣지 않는다.** 간격은 화면 CSS가 준다(관리자 에디터 `.prose-editor p`, 공개 페이지 `[&_p]:my-2`). 빈 줄을 넣으면 에디터에서 간격이 두 배로 벌어진다(2026-10-15 주인님 지적).
 - **쓰지 않는 서식**: 제목 태그(`<h2>`·`<h3>`), 목록(`<ul>`/`<ol>`), 표, 마크다운 기호(`##`, `- `), 링크·이미지. 굵게(`<strong>`)는 첫 단락에만.
 
+## 2-1. 비슷한 프로그램은 차별점을 앞세운다 (2026-10-16 주인님 지시)
+- 같은 분야 프로그램이 여럿이면(블로그 글쓰기·쓰레드·이미지·유튜브·음악·상세페이지·성격 검사·프롬프트 등), **첫 단락의 굵은 한 줄 소개에 "이 프로그램만 하는 일"**을 넣는다. 다른 프로그램 이름을 직접 비교하지 않고, 이 프로그램의 고유한 입력·방식·결과로 구분되게 쓴다.
+- 쓰기 전에 같은 카테고리의 다른 프로그램 설명을 먼저 읽고 겹치는 표현을 피한다. 예(2026-10-16 전체 재작성 기준):
+  - 블로그: `blog-workroom` 내 문체 분석→근거 승인→검수 / `naver-blog-agent` 5단계 에이전트+최종원고 확인 / `naver-blog-seo-studio` 검색 전략·페르소나+기존 글 SEO 재작성 / `naver-blog-allinone` 사진을 AI가 보고 쓰는 맛집·여행 글 / `ai-auto-blog` 실시간 이슈 원문 / `blog-content-maker` 기존 원고 다듬기·발행 전 점검 / `tistory-auto-blog` 티스토리 서식 입력.
+  - 쓰레드: `auto-threads-posting` 기본형 수집·초안·예약 / `threads-content-ops` 여러 계정 운영 / `threads-affiliate-poster` 쇼핑 제휴 링크 / `threads-easy-planner` 초보자용 기획 / `threads-comment-reply` 댓글 답글.
+  - 상세페이지: `detail-page-12p` 상품명만으로 12단·9단 통이미지 / `shop-detail-page` 상품 사진 분석 15섹션 / `auto-detail-page` HTML 상세페이지.
+  - 썸네일·유튜브: `thumbnail-master` 타겟별 A/B 썸네일 2종 / `seo-thumbnail-pro` 제목·설명·태그·고정 댓글 전략+썸네일 / `youtube-viral-studio` 떡상 영상 발굴 / `youtube-channel-consultant` 채널 진단 / `shorts-viral-studio` 떡상 공식 분석→대본.
+- 2026-10-16 전체 81개를 이 규칙으로 다시 썼다(보이는 글자 311~478자, 평균 399자, 한 줄 요약 43~57자). 바꾸기 전 원문 백업: [`program-descriptions/backup-before-2026-10-16.json`](program-descriptions/backup-before-2026-10-16.json).
+
 ## 3. 문장 규칙
 - 쉬운 한글, 존댓말(-합니다/-해 줍니다). 회원이 읽고 "무엇을 할 수 있는지" 바로 알게 쓴다.
 - 기술 용어는 필요한 만큼만(예: PPTX, Gemini API 키, 16:9). 내부 구현명(Supabase, Next.js, RLS, 함수명), 모델 버전 나열, 프로그램 버전 번호는 쓰지 않는다.
