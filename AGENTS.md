@@ -104,6 +104,11 @@
     - 본문의 여러 열 배치는 좁은 화면에서 1~2열로 줄이고, 손가락으로 누르는 조절 점은 24px 이상으로 한다.
     - **배포 후 좁은 화면 검수는 필수다**: 브라우저 창 폭을 줄여 확인하고(창이 최대화면 주인님께 해제 요청), 창이 숨김이면 400px iframe 안의 스타일 값으로 확인하되 보고에서 구분한다.
     - 상세 CSS·검수 방법·점검 명령: [`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md) "모바일 레이아웃".
+19. **Claude Code 하단 상태바 고정 표시 지침 (2026-10-15 주인님 지시, 모든 Claude Code 세션 공통).**
+    - 두 계정(메인·보조) 모두 하단 상태바는 **항상 `[모델]·[effort] | 5h [남은%] ([남은 시간]) | weekly [남은%] ([남은 시간]) | context [남은%]` 형식으로 고정 표시**한다. 상태바의 %는 **남은 양**이다(Orca의 `XX% 사용`은 사용량 — 원칙 9번과 구분).
+    - 고정 장치: 표시 스크립트 `~/.claude/statusline-extra.js`(백업 `.good`) + 보호 스크립트 `~/.claude/statusline-guard.js`를 두 계정 `settings.json`의 SessionStart·UserPromptSubmit 훅으로 매번 실행해, Orca 등이 설정을 덮어쓰거나 스크립트가 지워져도 자동 복구한다. 이 장치를 지우거나 우회하지 않는다.
+    - Orca 재설치·설정 변경·새 계정 폴더 추가 뒤에는 점검 명령을 실행하고, "상태바가 이상하다"는 말을 들으면 추측하지 말고 `%TEMP%/last-agy-statusline.json`(실제 입력값)과 출력부터 대조해 보고한다.
+    - 형식·파일·점검/복구 명령: [`docs/CLAUDE_STATUSBAR.md`](docs/CLAUDE_STATUSBAR.md).
 
 ## 2. 작업 자율성 규칙 (사용자가 명시적으로 확정한 워크플로우)
 
