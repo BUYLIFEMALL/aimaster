@@ -6,7 +6,7 @@
 ## 1. 메인 PC에서 할 일 (우선순위 순)
 | # | 작업 | 할 일 | 근거 문서 | 상태 |
 |---|---|---|---|---|
-| M1 | **도톨이 AI(DotoliAI-1.2-setup.exe) 분석 이어가기** | ① 주인님께 권리·용도 확인 ② `innounp` 최신판(Inno Setup 6.7 지원)으로 **실행 없이** `D:\PDS\dotoli_extract\`에 해제 ③ 본체 종류 판별(DIE) → REA·ILSpy·Ghidra 분석 ④ 분석 문서·웹 재구현 플랜 작성 → 주인님 보고 | [`HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md`](HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md) | 대기 |
+| M1 | **참고 원본 설치 파일 분석 이어가기** | ① 주인님께 권리·용도 확인 ② `innounp` 최신판(Inno Setup 6.7 지원)으로 **실행 없이** `D:\PDS\blog_workroom_reference\`에 해제 ③ 본체 종류 판별(DIE) → REA·ILSpy·Ghidra 분석 ④ 분석 문서·웹 재구현 플랜 작성 → 주인님 보고 | [`HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md`](HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md) | 대기 |
 | M2 | 새로 등록된 프로그램 설명을 표준 형식으로 | `blog-workroom`(`<h2>` 사용)과 2026-10-16 등록된 `blog-content-maker` 등 새 프로그램의 `programs.description`·`short_desc`를 표준에 맞게 다시 쓰기(DB만 변경, 맥미니에서도 가능) | [`PROGRAM_DESCRIPTION_STANDARD.md`](PROGRAM_DESCRIPTION_STANDARD.md) | 대기 |
 | M3 | 앞으로 등록하는 프로그램 설명 | 새 프로그램 등록 때 `CLAUDE.md` 체크리스트 (10)·`AGENTS.md` 10번대로 표준 형식 적용 | 같은 문서 | 상시 |
 | M4 | 공개 상세 페이지 단락 간격 눈으로 확인 | 루트 사이트에 `[&_p]:my-2`가 **이미 배포됨**(2026-10-16 맥미니에서 CSS `margin .5rem` 확인). 몇 개 프로그램 `/programs/<slug>`에서 0.5줄 간격으로 보이는지만 확인 | [`PROGRAM_DESCRIPTIONS_2026-10-15.md`](PROGRAM_DESCRIPTIONS_2026-10-15.md) | 확인만 남음 |
@@ -15,7 +15,7 @@
 | # | 내용 | 근거 |
 |---|---|---|
 | D1 | **성격코드(`personality-code`, 폴더 `mbti/`)가 로그인 없이 열림** — 핵심 원칙 0·6번(비로그인 사용 불가, FREE는 가입 회원 대상)과 충돌. 코드를 로그인·FREE 판정 구조로 바꿀지, 예외로 둘지 | `PROGRAM_DESCRIPTIONS_2026-10-15.md` |
-| D2 | 도톨이 AI의 권리 관계(남의 상용 프로그램인지)·용도 | `HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md` |
+| D2 | 참고 원본 프로그램의 권리 관계(남의 상용 프로그램인지)·용도 | `HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md` |
 | D3 | 기능이 단순한 프로그램 설명(300자 안팎)을 더 늘릴지 / 프로그램 이름 표기 통일(`Website Scraper`·`eBook Studio`·`YOUTUBE VIRAL FINDER`·`상세페이지 자동생성기 v1` 등) | `PROGRAM_DESCRIPTIONS_2026-10-15.md` |
 
 ## 3. 이번 맥미니 세션에서 끝난 것(참고)

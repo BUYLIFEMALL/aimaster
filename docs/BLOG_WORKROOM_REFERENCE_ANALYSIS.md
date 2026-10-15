@@ -1,8 +1,8 @@
-# 레퍼런스 분석 — 도톨이 AI v1.2 (DotoliAI-1.2-setup.exe) → 웹 재구현 플랜
+# 레퍼런스 분석 — AI 블로그 작업실 자동화: 참고 원본(설치형 v1.2) → 웹 재구현 플랜
 
-- 작성: 2026-10-15, 윈도우 보조 계정 세션(맥미니 분석 [`HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md`](HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md) 이어서).
-- **권리: 주인님 확인 결과 "권리 없음 — 기능만 참고"(2026-10-15).** 동봉 안내문도 "도톨이 자체 소스·실행 지식·원본 PDF는 공개 대상이 아니다"라고 밝힌다(배포처 `github.com/daraming92/dotori_ai`). → **코드·프롬프트·`knowledge.json`(작성 지식 1.9MB)·아이콘·이름은 가져오지 않는다.** 화면 흐름·기능 단위만 참고해 새로 설계한다(원칙 21).
-- 분석 방법: EXE 실행 없음. `innounp` 2.70.1(winget `JurgenRathlev.innounp`)로 설치 파일 해제 → 직접 쓴 PyInstaller 해제 스크립트로 모듈 목록·화면 문구·외부 주소만 추출. 추출물은 `D:\PDS\dotoli_extract\`(1.1GB, Git에 넣지 않음).
+- 작성: 2026-10-15, 윈도우 보조 계정 세션(맥미니 분석 [`HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md`](HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md) 이어서).
+- **권리: 주인님 확인 결과 "권리 없음 — 기능만 참고"(2026-10-15).** 동봉 안내문도 원본 자체 소스·실행 지식·원본 PDF는 공개 대상이 아니라고 밝힌다. → **코드·프롬프트·`knowledge.json`(작성 지식 1.9MB)·아이콘·이름은 가져오지 않는다.** 화면 흐름·기능 단위만 참고해 새로 설계한다(원칙 21).
+- 분석 방법: EXE 실행 없음. `innounp` 2.70.1(winget `JurgenRathlev.innounp`)로 설치 파일 해제 → 직접 쓴 PyInstaller 해제 스크립트로 모듈 목록·화면 문구·외부 주소만 추출. 추출물은 `D:\PDS\blog_workroom_reference\`(1.1GB, Git에 넣지 않음).
 
 > **진행(2026-10-15)**: 주인님 결정 — 이름 「AI 블로그 작업실 자동화」(`blog-workroom`), **1차에 전체 기능**, AI는 OpenAI·Gemini 선택. v1.01 출시: https://blog-workroom.buylife.xyz · 인수인계 [`blog-workroom/AGENTS.md`](../blog-workroom/AGENTS.md).
 
@@ -69,6 +69,6 @@
 - 기존 프로그램과 겹침: `blog-keyword`(키워드 수치), `naver-blog-agent`·`naver-blog-seo-studio`·`naver-blog-allinone`(글 작성). 이 프로그램의 차별점은 **"내 블로그 문체 분석 → 근거 자료 승인 → 내 문체 초안 → 검수"를 한 흐름으로 묶은 것**.
 
 ## 5. 주인님 결정이 필요한 것
-1. 프로그램 이름·주소(slug) — 원본 이름 "도톨이"는 쓰지 않음. 제안: 「AI 블로그 작업실 자동화」 / `blog-workroom` → `https://blog-workroom.buylife.xyz`.
+1. 프로그램 이름·주소(slug) — 원본 이름은 쓰지 않음. 제안: 「AI 블로그 작업실 자동화」 / `blog-workroom` → `https://blog-workroom.buylife.xyz`.
 2. 1차 범위를 위 MVP로 할지.
 3. 기본 AI: OpenAI·Gemini 둘 다 선택 가능(제안) / 하나만.

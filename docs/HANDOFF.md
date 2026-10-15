@@ -2,7 +2,7 @@
 
 ## 2026-10-16 Claude Code(맥미니·보조 계정) — 맥미니 → 메인 PC 작업 인계 정리
 
-- 메인 PC에서 이어서 할 일(M1 도톨이 AI 분석 이어가기, M2 새 프로그램 설명 표준화, M4 공개 페이지 간격 확인 — 루트 CSS는 이미 배포됨)·주인님 결정(D1 성격코드 로그인, D2 도톨이 권리, D3 설명 길이·이름 통일)·끝난 일: [HANDOFF_MACMINI_TO_MAIN_2026-10-16.md](HANDOFF_MACMINI_TO_MAIN_2026-10-16.md).
+- 메인 PC에서 이어서 할 일(M1 참고 원본 프로그램 분석 이어가기, M2 새 프로그램 설명 표준화, M4 공개 페이지 간격 확인 — 루트 CSS는 이미 배포됨)·주인님 결정(D1 성격코드 로그인, D2 원본 권리, D3 설명 길이·이름 통일)·끝난 일: [HANDOFF_MACMINI_TO_MAIN_2026-10-16.md](HANDOFF_MACMINI_TO_MAIN_2026-10-16.md).
 
 ## 2026-10-16 Codex — AI 블로그 콘텐츠 제작 자동화 v1.02 검색 보완·운영 검수
 
@@ -33,7 +33,7 @@
 
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — 신규 프로그램: AI 블로그 작업실 자동화 (`blog-workroom` v1.01)
 
-- 주인님 지시: 도톨이 AI(DotoliAI-1.2-setup.exe) 웹버전 개발 — 이름 「AI 블로그 작업실 자동화」, 1차에 전체 기능, AI는 OpenAI·Gemini 선택. **권리 없음 — 기능만 참고**(원본 코드·지시문·작성 지식 미사용). 분석: [DOTOLI_AI_REFERENCE_ANALYSIS.md](DOTOLI_AI_REFERENCE_ANALYSIS.md).
+- 주인님 지시: 참고 원본 설치 파일 웹버전 개발 — 이름 「AI 블로그 작업실 자동화」, 1차에 전체 기능, AI는 OpenAI·Gemini 선택. **권리 없음 — 기능만 참고**(원본 코드·지시문·작성 지식 미사용). 분석: [BLOG_WORKROOM_REFERENCE_ANALYSIS.md](BLOG_WORKROOM_REFERENCE_ANALYSIS.md).
 - 8단계: 내 블로그 스타일 → 키워드 탐색 → 트렌드 관측 → 블로그 벤치마킹 → 글 작성 준비(근거 확인·승인) → 글 작성(구간별) → 최종 검수(6영역) → 이미지 제작. 회원 본인 AI·네이버 검색·검색광고 키.
 - 운영 변경(주인님 승인 "모두 진행"): 테이블 `blog_workroom_items`(RLS 4정책, Codex Supabase 연결로 DDL), 버킷 `blog-workroom`, programs 등록·요금제 3종·VIP 접근·썸네일, Vercel 프로젝트 + 공용 DB 연결 3종 + 도메인. 운영 https://blog-workroom.buylife.xyz
 - 검수: 단위 8/8, 빌드, 운영 응답, 엣지 시험 계정으로 스타일 분석·승인·이미지 생성·400px. **남은 것: 시험 계정에 네이버 키 등록(주인님) 후 ②~⑦ 실제 흐름 확인.** 상세: [blog-workroom/AGENTS.md](../blog-workroom/AGENTS.md)
@@ -43,13 +43,13 @@
 - 주인님 지적("문단 사이를 너무 많이 띄웠다"): DB `programs.description`에서 `<p><br></p>`를 모두 제거(관리자 편집기 간격 정상화). 공개 상세 페이지는 단락 여백이 없어 붙어 보이므로 `app/(main)/programs/[slug]/page.tsx` 설명 영역에 `[&_p]:my-2` 추가. 형식 규칙: [PROGRAM_DESCRIPTIONS_2026-10-15.md](PROGRAM_DESCRIPTIONS_2026-10-15.md).
 - **윈도우에서 할 일**: 루트(AIMaster) `npm run build` → `vercel deploy --prod --yes`(루트 프로젝트 확인) → `https://www.buylife.xyz/programs/ai-web-ui` 등에서 단락 사이가 0.5줄 정도 떨어져 보이는지 확인. **배포 전까지 공개 상세 페이지는 단락이 붙어 보인다.**
 
-## 2026-10-15 Claude Code(보조 계정·윈도우) — 도톨이 AI 분석 완료 → 웹 재구현 플랜(구현 전, 주인님 결정 대기)
+## 2026-10-15 Claude Code(보조 계정·윈도우) — 참고 원본 프로그램 분석 완료 → 웹 재구현 플랜(구현 전, 주인님 결정 대기)
 
-- 맥미니에서 멈춘 설치 파일 해제를 `innounp`(winget)로 해결, 실행 없이 기능 분석. 본체: Python·PySide6 데스크톱 "네이버 블로그 글쓰기 보조"(내 문체 분석 → 키워드 → 상위 글 자료 승인 → 초안 → 검수, 자동 발행 없음). **권리 없음 — 기능만 참고**(코드·작성 지식 미사용). 분석·플랜: [DOTOLI_AI_REFERENCE_ANALYSIS.md](DOTOLI_AI_REFERENCE_ANALYSIS.md). 결정 대기: 이름·slug(제안 `blog-workroom`), 1차 범위, 기본 AI.
+- 맥미니에서 멈춘 설치 파일 해제를 `innounp`(winget)로 해결, 실행 없이 기능 분석. 본체: Python·PySide6 데스크톱 "네이버 블로그 글쓰기 보조"(내 문체 분석 → 키워드 → 상위 글 자료 승인 → 초안 → 검수, 자동 발행 없음). **권리 없음 — 기능만 참고**(코드·작성 지식 미사용). 분석·플랜: [BLOG_WORKROOM_REFERENCE_ANALYSIS.md](BLOG_WORKROOM_REFERENCE_ANALYSIS.md). 결정 대기: 이름·slug(제안 `blog-workroom`), 1차 범위, 기본 AI.
 
-## 2026-10-15 Claude Code(맥미니·보조 계정) — "도톨이 AI"(DotoliAI-1.2-setup.exe) 분석 시작: 설치 파일 해제 단계에서 윈도우로 인계
+## 2026-10-15 Claude Code(맥미니·보조 계정) — 참고 원본 설치 파일 분석 시작: 설치 파일 해제 단계에서 윈도우로 인계
 
-- 주인님 지시로 웹 자동화 재구현을 위해 정적 분석 시작(EXE 실행 없음). Inno Setup **6.7.0** 설치 파일, 제품명 "도톨이 AI" v1.2, 공개 정보 없음. REA·`innoextract`(6.4까지 지원)로는 내용물 해제 불가 → **윈도우에서 `innounp` 최신판으로 해제 후 이어서 분석**. 권리 확인(남의 상용 프로그램인지)도 필요. 상세·이어갈 순서: [HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md](HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md).
+- 주인님 지시로 웹 자동화 재구현을 위해 정적 분석 시작(EXE 실행 없음). Inno Setup **6.7.0** 설치 파일, 제품 버전 v1.2, 공개 정보 없음. REA·`innoextract`(6.4까지 지원)로는 내용물 해제 불가 → **윈도우에서 `innounp` 최신판으로 해제 후 이어서 분석**. 권리 확인(남의 상용 프로그램인지)도 필요. 상세·이어갈 순서: [HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md](HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md).
 
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 상세 설명 80개 전부 재작성 (공용 DB `programs.description`)
 
