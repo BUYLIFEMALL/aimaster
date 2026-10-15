@@ -43,4 +43,13 @@
 
 ## 운영 배포
 
-커밋·푸시·Vercel READY·도메인·운영 회원 흐름·운영 ZIP 검증 후 아래에 실제 결과를 추가합니다. 이 문서의 로컬 통과만으로 운영 완료를 뜻하지 않습니다.
+- v1.01 구현 커밋 `c768e23b`, v1.02 보완 커밋 **`33213b57`**, `origin/master` 푸시 성공.
+- 운영 https://blog-content-maker.buylife.xyz — Vercel 팀 `buylife`, 프로젝트 `blog-content-maker`, 프로덕션 **READY**. 현재 배포 ID `dpl_DJ53Vym8zJGD3vpWTaDtcn37viFi`, 배포 URL `https://blog-content-maker-fhs28wcra-buylife.vercel.app`, 2026-10-16 01:00:59 KST. 기존 `blog-content-maker-chi.vercel.app`, `blog-content-maker-buylife.vercel.app` 별칭 유지.
+- 로그인 200, 비로그인 대시보드 307→로그인, 비로그인 API 401, 버전 API·ZIP·브랜드 이미지 200. 회원 응답은 private/no-store.
+- **운영 도메인의 실제 일반 회원 Chrome**으로 연결·원고·현재 이미지·토큰 폐기·다른 작업 차단·새 빈 검수 작업 삭제·모바일을 포함한 20개 검사 통과. 운영 검색도 실제 출처 반환과 설정 복원·모바일·비로그인을 포함한 14개 검사 통과. 실제 Chrome 데스크톱·400px 스크린샷을 확인했습니다.
+- 공용 `scripts/check-extension-release.mjs blog-content-maker`: **실패 0, 경고 0**, DB 프로그램/확장/라이브 ZIP 모두 **v1.02**. 루트 환경 파일 대신 해당 프로젝트의 승인된 DB 연결 값을 검사 프로세스에만 전달했으며 영구 설정은 변경하지 않았습니다.
+- 라이브 ZIP HTTP 200, 내부 소스 7개가 로컬 확장 파일과 바이트 단위로 일치. 라이브 ZIP SHA-256: `b2f00a83a409293e71fa683b7b0532371ecf6bc2886c9958df5659d61928b043`.
+- AIMaster 실제 프로그램 상세 페이지 `https://www.buylife.xyz/programs/blog-content-maker` 200, 새 이름·실행 링크·v1.02 표시 확인.
+- **남은 검수**: 기본 Chrome에 전용 확장을 설치해 실제 네이버 제목·본문 끝·이미지·중복을 대조하는 검사. 현재 폴더 선택/키보드 초점·캡처 제한이 원인입니다. 연결 서버 검사·단위 검사·다른 브라우저의 자동 로드 시도만으로 이 검사를 통과 처리하지 않았습니다. 최종 발행·외부 SNS 게시·결제는 수행하지 않았습니다.
+
+확장 설치·갱신: **ZIP 재다운로드 → 기존 폴더 덮어쓰기 → chrome://extensions 새로고침**. 새 설치는 압축해제된 확장 프로그램 로드를 선택합니다.
