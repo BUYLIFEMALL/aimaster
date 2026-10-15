@@ -1,0 +1,9 @@
+node_modules
+.next
+.env*
+.local
+test-artifacts
+docs
+tests
+supabase/.temp
+scripts/verify-browser.mjs

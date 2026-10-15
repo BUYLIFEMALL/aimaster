@@ -1,42 +1,35 @@
-# AI 블로그 콘텐츠 제작 자동화 — 개발 인수인계
+# AI 블로그 콘텐츠 제작 자동화 — 인수인계
 
-작성: 2026-10-15, Codex. 단계: **이름 확정·분석·계획 완료, 구현 전**.
+2026-10-16, Codex. **v1.01**, slug `blog-content-maker`. 주인님이 이름과 개발 진행을 확정했습니다. 신규 테이블 6개·비공개 Storage·새 Vercel 프로젝트의 공용 DB 환경변수 3개도 승인된 범위입니다. 같은 승인을 다시 요청하지 않습니다.
 
-## 먼저 읽을 것
+먼저 루트 AGENTS.md, docs/HANDOFF.md, TOP_RULE_PERSONAL_ACCOUNT_API.md, ERROR_LESSONS.md, AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md, SIDEBAR_LAYOUT_STANDARD.md, EXTENSION_RELEASE_RULES.md와 이 폴더 README·개발 계획·검수 기록을 읽습니다.
 
-루트 `AGENTS.md`, `docs/HANDOFF.md`, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`, `docs/ERROR_LESSONS.md`, `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`, `docs/REA_REVERSE_ENGINEERING.md`, `docs/ANALYSIS_TOOLKIT.md`를 읽습니다. 이 폴더의 [개발 계획](docs/DEVELOPMENT_PLAN.md)과 [정적 분석](docs/REFERENCE_ANALYSIS.md)을 이어서 읽습니다.
+## 구현 상태
 
-## 사용자 지시
+- Next.js·TypeScript 웹앱, 통합 로그인·권한·SSO·본인 키 재사용. 대시보드, 글감, 작성, 점검, 이미지, 내보내기, 보관함, 설정, 안내 9개 화면.
+- 주제/원문/파일 입력, 작성 방식 5종, 원문·수정본 분리, DB RPC의 원자적 수정본 저장과 충돌 차단.
+- Gemini/OpenAI 텍스트, Gemini 이미지. 제공사 직접 REST API. 다른 회원·운영자 키나 환경변수 AI 키로 대체하지 않음. 현재 날짜·연도 동적 주입.
+- 개별 이미지 생성·업로드·제품 참고 사진·장면 계획, 비공개 저장. 새 원고의 계획 ID는 고유하며 현재 계획에 속하는 최신 파일만 내보내기·확장에 포함. 이전 파일은 보존.
+- 연결 토큰 7일, SHA-256 해시만 DB 저장. 만료·폐기·사용 권한·소유자를 조회마다 확인. 확장에 AI 키를 전달하지 않음.
+- 확장 editor.js/writer.js는 자사 naver-blog-agent 입력기 재사용. 허용 명령은 inspect/snapshot/title/paragraph/quote/image. 최종 발행·임의 클릭·설정 조작 없음. 기존 원고·불확실한 이미지 입력을 덮어쓰거나 자동 재시도하지 않음.
 
-- 설치 프로그램을 분석한 뒤 AIMaster의 새 서브프로그램으로 개발합니다.
-- **코드 작성 전에 개발 계획과 프로그램명 후보를 먼저 제시합니다.**
-- 새 제품에서는 분석 대상의 프로그램명·제작자 표현·로고·홍보 링크를 삭제하거나 확정된 새 이름으로 바꿉니다.
-- 사용자는 대상의 라이선스를 보유하지 않았다고 답했습니다. 소스코드 수준의 정적 분석은 요청했으나 코드·아이콘·원문 지시문을 새 제품으로 복사하는 권리는 확인되지 않았습니다. 기능을 근거로 새로 구현하고 인증 우회는 하지 않습니다.
+## 운영 구조
 
-## 현재 상태
+- Vercel 팀 `buylife`, 프로젝트 `blog-content-maker`, ID `prj_Q9Ei24ZuVzCfYX031UGZfqiwEuxR`. .vercel·.env.local은 Git 제외.
+- 환경변수 NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY 세 가지 플랫폼 연결 값만 등록. 기존 프로젝트 환경변수는 수정하지 않음.
+- 공용 DB `esgxyikcnnvmlhygjkth`, 테이블 접두사 `blog_content_maker_`: settings/projects/revisions/assets/jobs/extension_tokens. 비공개 버킷 `blog-content-maker`. 소유자 RLS, 복합 소유자 외래 키와 서비스 역할 전용 revision RPC.
+- 구조 SQL: `supabase/migrations/20261015150454_blog_content_maker_v101.sql`. 등록: `20261015152556_register_blog_content_maker.sql`. 상세 설명 조정: `supabase/update_program_description.sql`.
+- programs 코드·확장 버전 v1.01, 기본 요금제 3종과 연동 가이드 등록. 등급 접근 등록 트리거가 기간 권한도 만드므로 수동 권한 등록은 ON CONFLICT 처리.
+- `src/lib/version.ts`가 이름·버전·URL 기준. 확장 Chrome 숫자 버전 1.1.0, version_name v1.01. ZIP 고정 경로 `public/downloads/blog-content-maker-extension-latest.zip`, prebuild 자동 생성.
 
-- 주인님이 `AI 블로그 콘텐츠 제작 자동화`로 이름을 확정했습니다. slug·폴더는 `blog-content-maker`, 초기 목표 버전은 `v1.01`입니다. 이름 선택을 다시 묻지 않습니다.
-- 원본은 Electron·React 앱입니다. 설치 없이 NSIS→7z→ASAR 순서로 해제했습니다.
-- REA PE 자원 분석은 해당 범위 전체를 확인했습니다. REA JavaScript 분석은 의존성 포함 그래프의 자원 제한으로 **부분 분석**입니다. 자체 앱의 주요 번들·메인·프리로드·가이드를 직접 문법 분석해 보완했습니다.
-- 실행 파일·분석 원문은 `D:/PDS/analysis/naver-blog-seo-6.5.4-20261015/`에 있습니다. 저장소에 복사하지 않습니다.
-- 기능·화면·서버 코드, package.json, SQL, 환경변수, 프로그램 등록, Vercel 프로젝트는 아직 만들지 않았습니다.
-- 기존 `naver-blog-seo-studio`·`blog-workroom`은 조사만 했으며 수정하지 않았습니다.
+## 검수·재개
 
-## 중요한 구현 경계
+[VERIFICATION.md](docs/VERIFICATION.md)에 자동 검사·실제 회원 Chrome·DB/RLS·네이버 입력·운영 배포를 구분해 기록합니다. 외부 입력 미검수를 자동 검사로 대신 보고하지 않습니다.
 
-- 회원 본인 AI 키만 사용합니다. AIMaster 공통 로그인·권한·키 저장을 재사용합니다.
-- 작성 방식 5종은 **정보 정리형·검색 의도형·질문 답변형·경험 이야기형·문제 해결형**으로 새로 이름 붙입니다. 원본의 독자적인 전략명과 홍보 설명은 복사하지 않습니다.
-- 결과의 점검 충족률은 네이버가 제공하는 점수·실제 검색 순위가 아닙니다.
-- 원본의 영상 관련 기능은 확인 범위에서 **첫 장면·끝 장면 이미지 준비**입니다. 이를 실제 영상 생성으로 소개하지 않습니다.
-- 후기·경험은 회원이 확인한 사실만 반영합니다. 가상의 체험을 실제 후기처럼 쓰지 않습니다.
-- 키 등록에 따른 숨은 유료 진단 호출은 하지 않습니다. 확인되지 않은 무료·유료 등급을 단정하지 않습니다.
-- 네이버 입력은 로그인된 회원의 Chrome 확장으로 설계하고 최종 발행은 회원이 직접 합니다.
-- 새 제품의 표시 이름·앱 설명·메타데이터·확장 manifest·ZIP·DB·도메인은 확정 이름으로 함께 통일합니다. 법적으로 필요한 오픈소스 고지는 보존합니다.
+이 폴더에서 `vercel deploy --prod --yes --scope buylife`. 최초 배포 READY 뒤 도메인 추가. 루트에서 `node scripts/check-extension-release.mjs blog-content-maker`로 운영 ZIP과 DB 버전 검증. 운영 확인 후 인수인계·커밋·푸시 결과를 함께 보고합니다.
 
-## 재개 순서
+## 분석·구현 경계
 
-1. 확정된 이름으로 개발 계획을 보고하고 기능 범위·운영 변경에 대한 사용자 답변을 확인합니다. 이름은 다시 선택받지 않습니다.
-2. [개발 계획](docs/DEVELOPMENT_PLAN.md)의 DB·Storage·신규 프로젝트 환경변수 변경 범위를 명시적으로 승인받았는지 확인합니다. 같은 범위는 반복해서 묻지 않습니다.
-3. 폴더·slug는 `blog-content-maker`, 운영 URL 제안은 `https://blog-content-maker.buylife.xyz`입니다. 코드 작성 시 새 브랜드 상수를 만들고 단계 상태를 갱신합니다.
-4. 기존 공통 권한·키·SSO·흰색 화면·모바일 메뉴와 네이버 편집기 입력 패턴을 확인하고 단계별로 구현합니다. 기존 프로그램 데이터·권한은 공유하거나 변경하지 않습니다.
-5. 자동 검사·실제 일반 회원 Chrome 검수·커밋·푸시·프로덕션 배포·라이브 ZIP 검증까지 진행합니다. 완료한 검사와 미검수를 구분해 기록합니다.
+원본은 실행하지 않았습니다. NSIS→7z→ASAR 정적 분석과 REA·직접 번들 검토를 근거로 기능을 새로 구현했습니다. REA 전체 의미 그래프는 자원 한계로 부분 분석입니다. 추출 자료는 `D:/PDS/analysis/naver-blog-seo-6.5.4-20261015/`에만 있으며 원본 코드·아이콘·고유 지시문·인증 체계를 복사하지 않았습니다.
+
+점검은 내부 규칙·AI 의견·회원 확인을 구분합니다. 실제 검색량·네이버 공식 점수·상위 노출 보장으로 표현하지 않습니다. 가상 체험을 본인 후기로 만들지 않으며 장면 이미지를 영상 파일로 부르지 않습니다. 다른 서브프로젝트는 수정하지 않습니다.

@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex — AI 블로그 콘텐츠 제작 자동화 v1.01 구현·운영 준비
+
+- 주인님이 개발 진행·신규 테이블 6개·비공개 Storage·새 Vercel 플랫폼 DB 연결 값 3개 등록을 승인. `blog-content-maker`에 웹앱·입력 전용 Chrome 확장·고정 ZIP 구현. 이름·slug·UI·DB·manifest 모두 새 제품 기준. 원본은 실행하지 않고 정적 분석 기능만 참고, 자사 공통 권한·네이버 입력기 재사용.
+- 글감/주제/기존 글·파일, 작성 방식 5종, 원문·수정본 보존·충돌 차단, 내부 점검·AI 검토·출처·SNS, 개별 이미지·제품 참고·장면 계획, MD/HTML/이미지 ZIP, 9개 흰색 화면·모바일 메뉴. 모든 AI는 회원 본인 키만 사용, 최종 발행 명령 없음.
+- 운영 DB: `blog_content_maker_*` 6개와 소유자 RLS·복합 FK·저장 RPC, private 버킷. programs v1.01·요금제 3종·연동 가이드 등록. Vercel `buylife/blog-content-maker` 생성·연결 값 등록. 주소 https://blog-content-maker.buylife.xyz
+- 검수: 단위 10/10·린트·빌드, 일반 회원 실제 Chrome 전체 흐름 25개, 추가 AI(본인 Gemini·OpenAI)·연결 검사 20개, DB authenticated allow/deny와 rollback·advisor 확인. 새 원고의 계획 고유 ID와 현재 계획의 최신 이미지만 출력하도록 교정.
+- **운영 배포·운영 검수는 진행 중**. 기본 Chrome 네이버 로그인·빈 편집기는 확인했지만 현재 Windows 폴더 선택/키보드 초점/화면 캡처 제한으로 실제 확장 설치·네이버 전체 입력은 미검수. 제품 합성·장면 쌍·웹 검색의 유료 호출도 미실행. [검수 기록](../blog-content-maker/docs/VERIFICATION.md), [인수인계](../blog-content-maker/AGENTS.md).
+
 ## 2026-10-15 Codex — 새 블로그 제작 도구: 정적 분석·개발 계획, 구현 전
 
 - 주인님 요청: 지정한 6.5.4 설치 프로그램을 분석한 뒤 새 AIMaster 서브프로그램 개발. **개발 전에 계획·프로그램명 추천**, 새 제품에서 원본 이름·제작자 표현·홍보 링크 제거. 라이선스 보유가 확인되지 않아 소스 수준 정적 분석으로 기능을 파악하고 새 코드를 작성하는 범위로 정리.

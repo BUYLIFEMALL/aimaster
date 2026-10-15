@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — 신규 프로그램 권한 트리거·원고별 이미지 연결 확인 (blog-content-maker v1.01)
+
+- 증상: 새 프로그램 등록 SQL에서 시험 회원 사용기간 insert가 중복 키로 실패. 원인: `grade_program_access_sync` 트리거가 등급 접근 관계 등록 시 이미 사용기간을 만듦. 해결: 실패한 묶음이 rollback되어 프로그램이 없는지 확인하고 수동 기간 insert를 `ON CONFLICT(user_id,program_id) DO NOTHING`으로 수정 후 재실행(`blog-content-maker/supabase/migrations/20261015152556_register_blog_content_maker.sql`). 다음부터 확인: 등급 관계를 추가하기 전에 트리거 동작을 읽고 기존 회원 권한을 덮어쓰지 않음.
+- 증상: 원고를 새로 생성하거나 이미지 제외를 선택하면 이전 이미지가 같은 계획 ID에 붙거나 내보내기에 남을 가능성 발견. 원인: 매번 `media-1`부터 다시 시작하고 프로젝트 전체 이미지에서 최신 자산만 골랐음. 해결: 새 생성본의 계획 ID를 고유하게 발급하고 현재 원고 계획에 속하는 최신 파일만 웹·ZIP·확장으로 출력(`src/lib/ai.ts`, `content.ts`, export/extension API). 다음부터 확인: 이미지 재생성뿐 아니라 새 원고·이미지 제외·이전 파일 보존까지 테스트하며 파일 수만으로 현재 원고의 이미지 준비를 판단하지 않음.
+
 ## 2026-10-15 — REA ASAR 요약에도 의존성 분석 한계와 대량 부가 정보가 포함됨 (새 블로그 도구 분석)
 
 - 증상: 37MB ASAR를 `detail: summary`로 분석했으나 의존성 포함 AST 약 208만 노드·자원 예산 제한으로 의미 그래프가 부분 분석으로 반환되고, 요약 결과를 통째로 출력하면 limitations·unknowns와 중복된 MCP 표현 때문에 화면 출력이 잘림.
