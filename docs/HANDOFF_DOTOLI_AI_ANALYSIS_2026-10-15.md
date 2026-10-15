@@ -3,6 +3,8 @@
 > 주인님 지시: "DotoliAI-1.2-setup.exe 이 프로그램을 한번 분석해서 웹용 자동화 프로그램으로 구현해 보자." 맥미니에서 정적 분석을 시작했고, **설치 파일 압축 해제 단계에서 막혀 윈도우에서 이어간다**(주인님 지시).
 > 먼저 읽을 것: 루트 `CLAUDE.md` 핵심 원칙 14(레퍼런스 전수 분석 후 플랜 보고)·21(REA 분석, 권리 확인), `docs/REA_REVERSE_ENGINEERING.md`, `docs/ANALYSIS_TOOLKIT.md`.
 
+> **2026-10-15 윈도우에서 이어서 완료**: `innounp` 2.70.1로 해제(`D:PDSdotoli_extract`) → 본체는 Python 3.12·PySide6·PyInstaller 데스크톱 앱(네이버 블로그 글쓰기 보조, ChatGPT 구독을 Codex 로그인으로 사용). 권리: 주인님 "권리 없음 — 기능만 참고". 기능 분석·웹 재구현 플랜: [DOTOLI_AI_REFERENCE_ANALYSIS.md](DOTOLI_AI_REFERENCE_ANALYSIS.md). 다음: 주인님이 이름·1차 범위 결정 → 구현.
+
 ## 1. 한 일 (맥미니, 정적 분석만 — EXE 실행 없음)
 | 항목 | 결과 |
 |---|---|

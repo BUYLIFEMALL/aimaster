@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정·윈도우) — 도톨이 AI 분석 완료 → 웹 재구현 플랜(구현 전, 주인님 결정 대기)
+
+- 맥미니에서 멈춘 설치 파일 해제를 `innounp`(winget)로 해결, 실행 없이 기능 분석. 본체: Python·PySide6 데스크톱 "네이버 블로그 글쓰기 보조"(내 문체 분석 → 키워드 → 상위 글 자료 승인 → 초안 → 검수, 자동 발행 없음). **권리 없음 — 기능만 참고**(코드·작성 지식 미사용). 분석·플랜: [DOTOLI_AI_REFERENCE_ANALYSIS.md](DOTOLI_AI_REFERENCE_ANALYSIS.md). 결정 대기: 이름·slug(제안 `blog-workroom`), 1차 범위, 기본 AI.
+
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — "도톨이 AI"(DotoliAI-1.2-setup.exe) 분석 시작: 설치 파일 해제 단계에서 윈도우로 인계
 
 - 주인님 지시로 웹 자동화 재구현을 위해 정적 분석 시작(EXE 실행 없음). Inno Setup **6.7.0** 설치 파일, 제품명 "도톨이 AI" v1.2, 공개 정보 없음. REA·`innoextract`(6.4까지 지원)로는 내용물 해제 불가 → **윈도우에서 `innounp` 최신판으로 해제 후 이어서 분석**. 권리 확인(남의 상용 프로그램인지)도 필요. 상세·이어갈 순서: [HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md](HANDOFF_DOTOLI_AI_ANALYSIS_2026-10-15.md).
