@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/client";
 import GoldButton from "@/components/ui/GoldButton";
 import RichTextEditor from "@/components/ui/RichTextEditor";
 import type { Program, Category, MemberGrade } from "@/types/database.types";
+import DetailSectionsEditor, { toEditable } from "@/components/admin/DetailSectionsEditor";
+import { toDetailSectionsValue } from "@/lib/programs/detailSections";
 
 interface PricingPlanInput {
   id?: string;
@@ -138,6 +140,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [requiredGradeId, setRequiredGradeId] = useState(program?.required_grade_id ?? "");
   const [shortDesc, setShortDesc] = useState(program?.short_desc ?? "");
   const [description, setDescription] = useState(program?.description ?? "");
+  const [detailSections, setDetailSections] = useState(toEditable(program?.detail_sections));
   const [thumbnailUrl, setThumbnailUrl] = useState(program?.thumbnail_url ?? "");
   const [badges, setBadges] = useState<Set<Program["badges"][number]>>(new Set(program?.badges ?? []));
   const [videoUrl, setVideoUrl] = useState(program?.video_url ?? "");
@@ -276,6 +279,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
         required_grade_id: requiredGradeId || null,
         short_desc: shortDesc || null,
         description: description || null,
+        detail_sections: toDetailSectionsValue(detailSections),
         thumbnail_url: thumbnailUrl || null,
         badges: [...badges],
         video_url: videoUrl || null,
@@ -581,6 +585,9 @@ export default function ProgramForm({ program }: ProgramFormProps) {
                 onChange={setDescription}
                 placeholder="프로그램 상세 설명을 입력하세요"
               />
+            </FieldRow>
+            <FieldRow label="핵심 특징 · 사용 순서">
+              <DetailSectionsEditor value={detailSections} onChange={setDetailSections} />
             </FieldRow>
           </div>
         </div>

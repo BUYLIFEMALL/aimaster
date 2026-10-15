@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Play, Lock, Zap, ShieldCheck, Clock, TrendingUp, CheckCircle2, HelpCircle, ArrowRight, BookOpen, Users, Sparkles } from "lucide-react";
+import { ArrowLeft, Play, Lock, CheckCircle2, HelpCircle, ArrowRight, BookOpen, Users, Sparkles } from "lucide-react";
 import Link from "next/link";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import PaymentController from "@/components/payment/PaymentController";
@@ -10,6 +10,7 @@ import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { PHONE_REQUIRED_MESSAGE } from "@/lib/utils/phone";
 import { PREMIUM_NOTICE_TITLE, PREMIUM_NOTICE_BODY } from "@/lib/programs/premium";
 import type { MemberGrade } from "@/types/database.types";
+import { parseDetailSections } from "@/lib/programs/detailSections";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -51,6 +52,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
     .single();
 
   if (!program) notFound();
+  const sections = parseDetailSections(program.detail_sections);
 
   // 필요 등급 정보 (계층적)
   const requiredGrade: MemberGrade | null = program.required_grade
@@ -265,91 +267,38 @@ export default async function ProgramDetailPage({ params }: PageProps) {
           </p>
         )}
 
-        {/* 4대 핵심 특장점 (Key Features Grid) */}
-        <div className="grid sm:grid-cols-2 gap-6 mt-8">
-          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
-              <Zap size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">실시간 AI 알고리즘 엔진</h3>
-            <p className="text-subtext text-sm leading-relaxed">
-              최신 인공지능 모델과 연동하여 고품질 콘텐츠 생성, 데이터 분석, 키워드 발굴을 사람의 개입 없이 원클릭으로 처리합니다.
-            </p>
+        {/* 핵심 특징 — 프로그램별 값(programs.detail_sections.features). 없으면 표시하지 않는다(2026-10-16, 공통 고정 문구 제거) */}
+        {sections.features.length > 0 && (
+          <div className="grid sm:grid-cols-2 gap-6 mt-8">
+            {sections.features.map((f, i) => (
+              <div key={i} className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-2xl mb-4" aria-hidden>{f.icon || "✨"}</div>
+                <h3 className="text-lg font-bold text-white mb-2">{f.title}</h3>
+                <p className="text-subtext text-sm leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
           </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
-              <ShieldCheck size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">본인 계정 · API 직접 연동</h3>
-            <p className="text-subtext text-sm leading-relaxed">
-              공용 키를 공유하지 않고 회원 본인의 인증 세션과 독립 API 키를 사용하므로, 플랫폼 정책을 준수하며 계정 정지 위험 없이 안전합니다.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
-              <Clock size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">운영 시간 90% 이상 절감</h3>
-            <p className="text-subtext text-sm leading-relaxed">
-              매일 수 시간씩 소요되던 자료 조사, 대본 작성, 태그 추출 및 업로드 프로세스를 수 초 단위로 단축하여 핵심 비즈니스에 집중할 수 있습니다.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
-              <TrendingUp size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">성과 기반 바이럴 최적화</h3>
-            <p className="text-subtext text-sm leading-relaxed">
-              단순 복사 생성이 아닌 플랫폼별 떡상 지표(VPH, 조회수 배수, 검색 알고리즘 노출도)를 실시간 반영하여 도달률을 극대화합니다.
-            </p>
-          </div>
-        </div>
+        )}
       </section>
 
-      {/* 사용 순서 및 워크플로우 가이드 (How it Works) */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold text-white mb-2">
-          실제 <GoldGradientText>사용 순서</GoldGradientText>
-        </h2>
-        <p className="text-subtext mb-8">누구나 4단계로 간편하게 자동화를 시작할 수 있습니다</p>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
-            <div className="text-gold font-black text-2xl mb-3">01</div>
-            <h3 className="text-base font-bold text-white mb-2">계정 및 API 연동</h3>
-            <p className="text-subtext text-xs leading-relaxed">
-              프로그램 설정 화면에서 사용할 플랫폼 계정 또는 AI API 키를 직접 등록합니다. (가이드 제공)
-            </p>
+      {/* 사용 순서 — 프로그램별 값(programs.detail_sections.steps). 없으면 섹션을 숨긴다 */}
+      {sections.steps.length > 0 && (
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            실제 <GoldGradientText>사용 순서</GoldGradientText>
+          </h2>
+          <p className="text-subtext mb-8">{sections.steps.length}단계로 이렇게 사용합니다</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {sections.steps.map((s, i) => (
+              <div key={i} className="glass-card rounded-2xl p-6 border border-white/10 relative">
+                <div className="text-gold font-black text-2xl mb-3">{String(i + 1).padStart(2, "0")}</div>
+                <h3 className="text-base font-bold text-white mb-2">{s.title}</h3>
+                <p className="text-subtext text-xs leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
           </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
-            <div className="text-gold font-black text-2xl mb-3">02</div>
-            <h3 className="text-base font-bold text-white mb-2">키워드 · 조건 설정</h3>
-            <p className="text-subtext text-xs leading-relaxed">
-              타겟팅할 키워드, 카테고리, 문체 톤앤매너, 주기 및 필터 조건을 원하는 대로 설정합니다.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
-            <div className="text-gold font-black text-2xl mb-3">03</div>
-            <h3 className="text-base font-bold text-white mb-2">원클릭 AI 실행 · 검수</h3>
-            <p className="text-subtext text-xs leading-relaxed">
-              실행 버튼 클릭 시 인공지능 엔진이 분석 및 생성을 진행하며, 완성된 결과물을 미리보기로 확인합니다.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
-            <div className="text-gold font-black text-2xl mb-3">04</div>
-            <h3 className="text-base font-bold text-white mb-2">자동 발행 및 성과 추적</h3>
-            <p className="text-subtext text-xs leading-relaxed">
-              즉시 발행 또는 원하는 시간에 맞춰 예약 배포하며, 누적된 성과와 반응을 실시간으로 확인합니다.
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 추천 대상 및 활용 시나리오 (Use Cases) */}
       <section className="mb-16">
