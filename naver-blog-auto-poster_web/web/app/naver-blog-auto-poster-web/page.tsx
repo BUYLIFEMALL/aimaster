@@ -8,6 +8,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import TokenManager from "./TokenManager";
 import { GuideLinkButton } from "./GuideLinkButton";
+import { Sidebar } from "@/components/Sidebar";
 import { POSTER_WEB_EXTENSION_DOWNLOAD_URL } from "@/lib/naverBlogAutoPosterWebExtension";
 import { APP_ORIGIN, MAIN_SITE_ORIGIN } from "@/lib/version";
 
@@ -52,18 +53,20 @@ export default async function NaverBlogAutoPosterWebPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div>
+    <div className="md:flex">
+      <Sidebar userEmail={user.email ?? ""} />
+      <main className="min-w-0 flex-1 px-4 pb-12 pt-6 md:px-10 md:pt-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl font-bold text-slate-900">
           <GoldGradientText>네이버 블로그 자동화(Web) - 기기 연동</GoldGradientText>
         </h1>
-        <p className="text-subtext mt-1">
+        <p className="text-slate-500 mt-1">
           크롬 브라우저 사이드패널에서 이 계정으로 로그인된 것처럼 동작하게 하려면, 여기서
           토큰을 발급받아 확장의 &quot;AIMaster 계정 연동&quot; 화면에 붙여넣으세요.
           <br />
           별도 설치 없이 브라우저에서 바로 쓰는 버전이 아니라 PC에 설치하는 프로그램을
           원하시면{" "}
-          <a href="https://naver-blog-auto-poster.buylife.xyz/naver-blog-auto-poster" className="text-gold underline">
+          <a href="https://naver-blog-auto-poster.buylife.xyz/naver-blog-auto-poster" className="text-emerald-700 underline">
             네이버 블로그 자동화(App)
           </a>{" "}
           페이지에서 별도로 이용하실 수 있습니다.
@@ -71,105 +74,105 @@ export default async function NaverBlogAutoPosterWebPage() {
       </div>
 
       <div className="max-w-2xl space-y-6">
-        <GlassCard>
+        <GlassCard id="download" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-              <Chrome size={18} className="text-emerald-400" />
+              <Chrome size={18} className="text-emerald-600" />
             </div>
-            <h2 className="text-lg font-bold text-white">크롬 확장 다운로드</h2>
+            <h2 className="text-lg font-bold text-slate-900">크롬 확장 다운로드</h2>
           </div>
-          <p className="text-xs text-subtext mb-4">
+          <p className="text-xs text-slate-500 mb-4">
             별도 프로그램 설치 없이 크롬 브라우저 사이드패널에서 바로 쓸 수 있는 버전입니다.
             아직 Chrome 웹스토어에 정식 등록 전이라, zip 파일을 내려받아 크롬의
             &quot;개발자 모드&quot;로 직접 설치해야 합니다 — 압축 파일 안에{" "}
-            <code className="text-white/80">설치방법.txt</code>로 단계별 안내를 동봉했습니다.
+            <code className="text-slate-700">설치방법.txt</code>로 단계별 안내를 동봉했습니다.
           </p>
           <a href={EXTENSION_DOWNLOAD_URL}>
             <GoldButton type="button">크롬 확장 다운로드 (.zip)</GoldButton>
           </a>
         </GlassCard>
 
-        <GlassCard>
+        <GlassCard id="howto" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-              <ListChecks size={18} className="text-purple-400" />
+              <ListChecks size={18} className="text-purple-600" />
             </div>
-            <h2 className="text-lg font-bold text-white">사용 방법</h2>
+            <h2 className="text-lg font-bold text-slate-900">사용 방법</h2>
           </div>
-          <ol className="space-y-3 text-sm text-subtext list-decimal list-inside">
+          <ol className="space-y-3 text-sm text-slate-500 list-decimal list-inside">
             <li>
-              <span className="text-white">본인 API 키 준비</span> — 아래 &quot;📖 연동
+              <span className="text-slate-900">본인 API 키 준비</span> — 아래 &quot;📖 연동
               매뉴얼&quot;을 참고해서 OpenAI API 키(필수)를 발급받고, 이미지도 자동으로
               만들고 싶으면 Gemini API 키도 발급받아{" "}
-              <a href={`${MAIN_SITE_ORIGIN}/api-settings`} className="text-gold underline">
+              <a href={`${MAIN_SITE_ORIGIN}/api-settings`} className="text-emerald-700 underline">
                 API 설정
               </a>{" "}
               페이지에 등록하세요.
             </li>
             <li>
-              <span className="text-white">위에서 크롬 확장 다운로드</span> — zip 파일을
+              <span className="text-slate-900">위에서 크롬 확장 다운로드</span> — zip 파일을
               받습니다.
             </li>
             <li>
-              <span className="text-white">설치</span> — zip 압축을 푼 뒤 동봉된
+              <span className="text-slate-900">설치</span> — zip 압축을 푼 뒤 동봉된
               설치방법.txt를 따라 크롬에 &quot;압축해제된 확장 프로그램&quot;으로 로드하세요.
             </li>
             <li>
-              <span className="text-white">계정 연동</span> — 아래 &quot;기기 연동 토큰&quot;에서
+              <span className="text-slate-900">계정 연동</span> — 아래 &quot;기기 연동 토큰&quot;에서
               토큰을 발급받아, 확장 사이드패널의 &quot;AIMaster 계정 연동&quot; 화면에
               붙여넣으세요.
             </li>
             <li>
-              <span className="text-white">네이버 로그인</span> — 이미 로그인돼 있는 크롬
+              <span className="text-slate-900">네이버 로그인</span> — 이미 로그인돼 있는 크롬
               프로필을 그대로 씁니다. 로그인이 안 돼 있다면 네이버 블로그에 먼저 직접
               로그인하세요.
             </li>
             <li>
-              <span className="text-white">네이버 블로그 글쓰기 화면 열기</span> — 내 블로그 →
+              <span className="text-slate-900">네이버 블로그 글쓰기 화면 열기</span> — 내 블로그 →
               글쓰기로 들어간 뒤, 확장 아이콘을 눌러 사이드패널을 엽니다.
             </li>
             <li>
-              <span className="text-white">AI로 초안 생성</span> — 주제를 입력하고 버튼을
+              <span className="text-slate-900">AI로 초안 생성</span> — 주제를 입력하고 버튼을
               누르면 제목/본문(선택 시 이미지까지)이 자동으로 만들어집니다. 이미지를
               생성했다면 클립보드에 자동으로 복사되니, 본문을 클릭한 뒤 Ctrl+V로
               붙여넣으세요.
             </li>
             <li>
-              <span className="text-white">1단계 — 자동 입력</span> — 버튼을 누르면 제목/본문이
+              <span className="text-slate-900">1단계 — 자동 입력</span> — 버튼을 누르면 제목/본문이
               사람처럼 화면에 채워집니다.
             </li>
             <li>
-              <span className="text-white">발행 버튼 직접 클릭</span> — 브라우저의 &quot;발행&quot;
+              <span className="text-slate-900">발행 버튼 직접 클릭</span> — 브라우저의 &quot;발행&quot;
               버튼은 항상 본인이 직접 눌러서 설정창을 엽니다(자동으로 눌리지 않습니다).
             </li>
             <li>
-              <span className="text-white">2단계 — 태그/카테고리 입력</span> — 설정창이 열린
+              <span className="text-slate-900">2단계 — 태그/카테고리 입력</span> — 설정창이 열린
               상태에서 버튼을 누르면 태그와 카테고리가 자동으로 채워집니다.
             </li>
             <li>
-              <span className="text-white">최종 확인 후 발행</span> — 내용을 마지막으로 확인하고
+              <span className="text-slate-900">최종 확인 후 발행</span> — 내용을 마지막으로 확인하고
               설정창 안의 실제 발행 버튼을 본인이 직접 클릭하세요.
             </li>
           </ol>
         </GlassCard>
 
-        <GlassCard>
+        <GlassCard id="tokens" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
-              <KeyRound size={18} className="text-gold" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <KeyRound size={18} className="text-emerald-700" />
             </div>
-            <h2 className="text-lg font-bold text-white">기기 연동 토큰</h2>
+            <h2 className="text-lg font-bold text-slate-900">기기 연동 토큰</h2>
           </div>
-          <p className="text-xs text-subtext mb-4">
+          <p className="text-xs text-slate-500 mb-4">
             토큰은 발급 시 딱 한 번만 화면에 표시됩니다 — 다시 볼 수 없으니 그 자리에서
             바로 복사해서 확장에 붙여넣으세요.
           </p>
           <TokenManager programSlug={PROGRAM_SLUG} initialTokens={tokens ?? []} />
         </GlassCard>
 
-        <GlassCard>
-          <h2 className="text-sm font-bold text-white mb-1">📖 연동 매뉴얼</h2>
-          <p className="text-xs text-subtext mb-4">
+        <GlassCard id="guides" className="scroll-mt-20">
+          <h2 className="text-sm font-bold text-slate-900 mb-1">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-slate-500 mb-4">
             이 프로그램이 실제로 쓰는 API 발급 방법입니다. 클릭하면 작은 팝업창으로 열려서
             설정 화면 옆에 두고 그대로 따라 할 수 있습니다.
           </p>
@@ -179,6 +182,7 @@ export default async function NaverBlogAutoPosterWebPage() {
           </div>
         </GlassCard>
       </div>
+      </main>
     </div>
   );
 }

@@ -72,17 +72,17 @@ export default function TokenManager({
   return (
     <div>
       {issuedToken && (
-        <div className="mb-4 rounded-xl border border-gold/30 bg-gold/5 p-4">
-          <p className="text-xs text-gold mb-2">
+        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-xs text-emerald-700 mb-2">
             이 토큰은 지금만 볼 수 있습니다 — 앱에 붙여넣기 전에 창을 닫으면 다시 확인할 수 없습니다.
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 break-all rounded-lg bg-black/30 px-3 py-2 text-xs text-white">
+            <code className="flex-1 break-all rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-900">
               {issuedToken}
             </code>
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1 rounded-lg bg-gold/20 px-3 py-2 text-xs text-gold hover:bg-gold/30"
+              className="flex items-center gap-1 rounded-lg bg-emerald-100 px-3 py-2 text-xs text-emerald-700 hover:bg-emerald-200"
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
               {copied ? "복사됨" : "복사"}
@@ -103,26 +103,26 @@ export default function TokenManager({
           {creating ? "발급 중..." : "새 토큰 발급"}
         </GoldButton>
       </div>
-      {error && <p className="mb-4 text-xs text-red-400">{error}</p>}
+      {error && <p className="mb-4 text-xs text-red-600">{error}</p>}
 
       {tokens.length === 0 ? (
-        <p className="text-sm text-subtext">아직 발급한 토큰이 없습니다.</p>
+        <p className="text-sm text-slate-500">아직 발급한 토큰이 없습니다.</p>
       ) : (
         <ul className="space-y-2">
           {tokens.map((t) => (
             <li
               key={t.id}
-              className="flex items-center justify-between rounded-xl border border-white/10 p-3"
+              className="flex items-center justify-between rounded-xl border border-slate-200 p-3"
             >
               <div>
-                <p className="text-sm text-white">{t.label || "(이름 없음)"}</p>
-                <p className="text-xs text-subtext">
+                <p className="text-sm text-slate-900">{t.label || "(이름 없음)"}</p>
+                <p className="text-xs text-slate-500">
                   발급: {formatDateTime(t.created_at)} · 마지막 사용: {formatDateTime(t.last_used_at)}
                 </p>
               </div>
               <button
                 onClick={() => handleRevoke(t.id)}
-                className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300"
+                className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700"
               >
                 <Trash2 size={12} />
                 폐기

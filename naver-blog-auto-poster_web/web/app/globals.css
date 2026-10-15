@@ -336,3 +336,19 @@ select.ai-form-input {
   color: #0369a1 !important;
 }
 
+
+/* v1.05 흰색 표준 화면(2026-10-15, 핵심 원칙 "웹 작업 화면은 흰색 베이스") — 위의 다크 규칙을 덮어쓴다 */
+@layer base {
+  body { background-color: #f8fafc; color: #0f172a; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+}
+@layer components {
+  .glass-card { backdrop-filter: none; -webkit-backdrop-filter: none; background: #ffffff; border-color: #e2e8f0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
+  .gold-text { background: none; -webkit-text-fill-color: currentColor; color: #0f172a; }
+  .btn-gold { background: #059669; color: #ffffff; box-shadow: none; }
+  .btn-gold:hover { background: #047857; transform: none; box-shadow: none; }
+  .input-dark { color: #0f172a; background: #ffffff; border: 1px solid #cbd5e1; }
+  .input-dark:focus { border-color: #059669; box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15); }
+  .input-dark::placeholder { color: #94a3b8; }
+}

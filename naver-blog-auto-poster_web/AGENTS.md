@@ -303,3 +303,10 @@ GitHub Releases + zip 방식을 따른다.
 - 환경변수: 공용 DB 3종(`scripts/add-naver-blog-auto-poster-vercel-env.mjs`). 배포: `vercel deploy --cwd D:/Antigravity/AIMaster/naver-blog-auto-poster_web/web --prod --yes --scope buylife`.
 - 검수: 빌드(타입 포함), 새 주소 비로그인 → 메인 로그인(돌아올 주소 포함), API 비로그인 401, 옛 www 주소 리다이렉트·API 프록시 확인. **미확인**: 로그인 상태 화면 — 이 프로그램은 비공개(`is_active=false`)이고 시험 계정에 권한이 없어 관리자 계정으로만 열림.
 - 확장 규칙: 프로그램 v1.04에 맞춰 `extension/manifest.json` 1.4.0/v1.04, 버전 기준 파일을 `web/lib/naverBlogAutoPosterWebExtension.ts`로 옮기고 `scripts/build-extension-archive.mjs`가 그 파일을 읽게 수정, ZIP(`public/downloads/naver-blog-auto-poster-web-extension-latest.zip`) 재생성, DB `extension_version` v1.04, `check-extension-release.mjs` OK. 확장 코드 변경 없음 — 회원에게 새 버전 안내가 뜨면 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침.
+
+## v1.05 (2026-10-15) — 연동 화면을 흰색 표준 + 좌측 메뉴로 (B6, Claude Code 보조 계정)
+- 메인 사이트에서 옮겨 온 어두운 화면을 흰색 표준으로: `app/globals.css` 끝에 흰색 덮어쓰기(카드·버튼·입력), 화면 글자색을 밝은 화면용으로 바꿈(`page.tsx`·`TokenManager.tsx`·`GuideLinkButton.tsx`). 브랜드색은 초록(emerald).
+- 좌측 메뉴 `web/components/Sidebar.tsx`(docs/SIDEBAR_LAYOUT_STANDARD.md): 프로그램명·버전 → 다른 프로그램 보기 → 작업 흐름 1 다운로드·2 사용 방법·3 기기 연동 토큰(같은 페이지 구역 #download·#howto·#tokens) → API키등록·플랫폼연동(메인 /api-settings)·연동 매뉴얼(#guides) → 계정·로그아웃(마지막 메뉴 바로 아래). 767px 이하 위쪽 ☰ 메뉴. 레이아웃의 어두운 위쪽 줄은 메뉴로 옮겨 제거.
+- 로그아웃: `web/app/api/auth/logout/route.ts`(four-cut-comics와 같은 방식, 같은 출처만) → 메인 로그인으로 이동.
+- 확장 규칙(원칙 10): 확장 코드 변경 없음, 버전만 맞춤 — `extension/manifest.json` 1.5.0/v1.05, `web/lib/naverBlogAutoPosterWebExtension.ts` v1.05, ZIP 재생성(`public/downloads/naver-blog-auto-poster-web-extension-latest.zip`, 메인 사이트 재배포), DB `version`·`extension_version` v1.05, `check-extension-release.mjs` OK. 회원 화면에 새 버전 안내가 뜨면 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침.
+- 검수: tsc·빌드, 배포 후 비로그인 307(메인 로그인), 로그아웃 API 다른 출처 403, 옛 www API 주소 401(전달 유지). **화면**: 비공개 프로그램이라 시험 계정으로는 열 수 없어, 로컬 개발 서버에 로그인 확인만 뺀 임시 미리보기(커밋 안 함, 확인 후 삭제)로 엣지에서 확인 — 흰 배경·흰 카드·좌측 메뉴·계정 위치, 메뉴 클릭 시 구역 이동, 400px에서 좌측 메뉴 숨김·☰ 메뉴 같은 순서·본문 전체 폭·가로 넘침 0. **운영 로그인 화면은 관리자 계정(메인 크롬)으로 주인님 확인 필요.**
