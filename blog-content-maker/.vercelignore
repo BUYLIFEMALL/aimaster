@@ -7,3 +7,5 @@ docs
 tests
 supabase/.temp
 scripts/verify-browser.mjs
+extension/verify-session
+scripts/verify-native-extension.mjs

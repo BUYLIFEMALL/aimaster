@@ -21,7 +21,11 @@ Gemini 검색을 켜면 근거 조사와 원고 구성을 같은 본인 모델·
 
 `prebuild`가 확장 버전을 검사하고 고정 주소의 ZIP을 만듭니다. 설치된 확장은 **ZIP 재다운로드 → 덮어쓰기 → chrome://extensions 새로고침**으로 갱신합니다.
 
+개발 PC에서 직접 불러올 전용 확장 소스는 **`D:\Antigravity\AIMaster\blog-content-maker\extension`**입니다. 다른 프로그램 폴더나 별도 확장 복사본을 사용하지 않습니다.
+
 실제 Chrome 검수는 `scripts/verify-browser.mjs`를 사용합니다. `VERIFY_MODE=flow`는 시험 회원 본인 키로 원고·이미지를 실제 생성하므로 반복하지 않습니다. `live`는 저장된 결과·화면·권한을 유료 호출 없이 검사합니다. `features`는 추가 AI 기능을 소량 호출하고, `extension`은 연결 코드·현재 원고 조회·폐기와 임시 검수 작업 삭제를 검사합니다. 키·토큰은 출력하지 않습니다.
+
+로그인된 기본 Chrome의 실제 네이버 입력은 `node scripts/verify-native-extension.mjs`로 검사합니다. 설치된 확장 ID는 `BCM_EXTENSION_ID`로 지정할 수 있습니다. 일반 시험 회원 원고와 이미지를 별도 검수 작업으로 복사하며 AI 호출·최종 발행은 하지 않습니다. 준비된 검수 페이지에서 입력/기존 글 보호를 확인한 뒤 **검수 연결 해제·종료**로 마칩니다. 임시 검수 페이지는 `extension/verify-session/` 아래에만 만들며 Git·Vercel·다운로드 ZIP에서 제외하고 종료 시 삭제합니다.
 
 ## 문서
 
