@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — 프로그램 상세 설명에 `<p>`만 나누면 사이트에서 줄이 붙어 보인다 (programs.description 전체 재작성)
+- 증상: 설명을 단락으로 나눠 `<p>..</p><p>..</p>`로 저장했는데 메인 상세 페이지에서 단락 사이 빈 줄이 없이 붙어 나옴(관리자 에디터에서는 간격이 있어 보임).
+- 원인: 상세 페이지(`app/(main)/programs/[slug]/page.tsx`)의 `prose` 영역이 `<p>` 사이 여백을 주지 않음.
+- 해결: 단락 사이에 빈 줄 단락 `<p><br></p>`를 넣는다(`replace(desc,'</p><p>','</p><p><br></p><p>')`). `ai-webtoon-studio`로 확인 후 80개 모두 적용.
+- 다음부터: 설명을 DB에서 바꾼 뒤에는 실제 상세 페이지(`/programs/<slug>`)에서 단락 간격을 한 번 확인한다. 대량 수정 전에는 기존 `description`을 파일로 백업한다(이번에는 백업 없이 덮어씀).
+
 ## 2026-10-15 — Mac(Orca) Claude Code 상태바: Orca 기본 스크립트를 그냥 바꾸면 Orca 연동이 끊기고, 새 계정은 자동 적용되지 않음 (로컬 PC 설정)
 - 증상: Mac에 Windows용 상태바 스크립트가 없어 하단 상태바가 안 나옴. Orca 기본 `statusLine`(`~/.orca/agent-hooks/claude-statusline.sh`)은 화면 출력 없이 Orca 앱으로 입력값만 전송함 → 원인: `statusLine`은 하나만 지정 가능해서 표시 스크립트로 바꾸면 Orca 전송이 빠지고, guard가 고정된 계정 폴더만 점검하면 Orca에 새로 연동한 계정은 빠짐 → 해결: `~/.claude/statusline-extra.js`가 입력을 Orca 스크립트에도 넘기고(전송 기록 `$TMPDIR/orca-claude-statusline-last-*` 갱신 확인), `~/.claude/statusline-guard.js`가 `orca/claude-profiles/*/home`을 자동 탐색 → 다음부터 확인: 상태바 스크립트를 바꾼 뒤 Orca 전송 기록 갱신과 `docs/CLAUDE_STATUSBAR.md` 5절 점검 명령(guard=2 extra=1) 확인.
 

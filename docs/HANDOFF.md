@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 상세 설명 80개 전부 재작성 (공용 DB `programs.description`)
+
+- 주인님 요청("설명이 한 줄로 길게 이어져 가독성이 떨어진다")으로 프로그램마다 README·AGENTS·인수인계 문서와 기존 설명을 분석해 500자 내외·단락 나눔·이모티콘 형식으로 다시 써서 **DB에 직접 반영**(코드·배포·버전 변경 없음). 화면에 보이는 글자 수 평균 385자(205~567), 단순한 프로그램은 300자 안팎. 형식 규칙·낡은 설명 갱신 내역·확인 필요 항목: [PROGRAM_DESCRIPTIONS_2026-10-15.md](PROGRAM_DESCRIPTIONS_2026-10-15.md).
+- **형식 규칙**: 단락마다 `<p>`, 단락 사이에 빈 줄 단락 `<p><br></p>` — 사이트 상세 페이지는 `<p>` 사이 간격이 없어 이게 없으면 줄이 붙는다.
+- **주인님 확인 필요**: `personality-code`(성격코드)는 코드에 로그인 확인이 없고 설명도 "로그인 없이 누구나"라서 핵심 원칙 0·6번과 어긋난다(설명은 구현 그대로 둠). 이전 설명은 백업 없이 덮어썼다.
+
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — B1 Step Mail Next 16 이전 완료 (v1.09)
 
 - 맥미니가 고친 코드(next 16·eslint 9·`middleware.ts`→`proxy.ts`)를 윈도우에서 `npm install`·빌드·로컬 검증 후 주인님 승인으로 커밋·푸시·배포. next **16.4.1**, 운영 취약점 2 → **0**. 로그인 200·보호 화면 307(redirect 경로 유지)·API 401·옛 주소 308 확인, DB `programs.version` v1.09. cron·실제 발송 변경 없음. 상세: [stepmail/AGENTS.md](../stepmail/AGENTS.md) v1.09, [계획서](../stepmail/docs/NEXT16_MIGRATION_PLAN.md). 운영 https://stepmail.buylife.xyz
