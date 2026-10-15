@@ -288,6 +288,11 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - Orca 재설치·설정 변경·새 계정 폴더 추가 뒤에는 점검 명령을 실행하고, "상태바가 이상하다"는 말을 들으면 추측하지 말고 `%TEMP%/last-agy-statusline.json`(실제 입력값)과 출력부터 대조해 보고한다.
     - 형식·파일·점검/복구 명령: [`docs/CLAUDE_STATUSBAR.md`](docs/CLAUDE_STATUSBAR.md).
 
+21. **프로그램 분석에 REA(리버스 엔지니어링 도구) 활용 지침 (2026-10-15 주인님 지시, 모든 CLI 공통).**
+    - EXE·설치 파일·크롬 확장·Electron 앱·.NET·APK·웹 번들처럼 **소스가 없는 완성품을 분석해야 하면 REA(`rea` CLI / MCP `rea`, Ghidra 12.1.4 연결)를 사용**해 화면·기능·서버 통신·설정값을 근거와 함께 파악한 뒤, 우리 플랫폼 방식(웹 / 웹+크롬 확장 / 웹+데스크톱 앱)으로 새로 설계해 재구현한다. 소스가 있는 이 저장소 코드 분석에는 쓰지 않는다.
+    - 권리 확인 먼저: 남의 상용 프로그램은 코드를 옮기지 않고 기능·동작만 파악해 새로 만든다(애매하면 주인님께 확인). 출처를 모르는 EXE는 실행하지 않고 정적 분석만 한다.
+    - 설치 위치·종류별 첫 도구·점검/복구 명령: [`docs/REA_REVERSE_ENGINEERING.md`](docs/REA_REVERSE_ENGINEERING.md).
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.

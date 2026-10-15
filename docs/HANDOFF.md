@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — REA(리버스 엔지니어링) 환경 구축 + 메인 지침 등록
+
+- 주인님 지시로 Java 21(Temurin)·Ghidra 12.1.4(`C:\Tools`, SHA-256 검증) 설치, 사용자 환경변수 `GHIDRA_INSTALL_DIR`·`JAVA_HOME`, `rea setup`으로 Claude Code 두 계정(메인·보조)에 MCP `rea` 연결과 REA 지침(skill) 설치. Codex·Antigravity는 이미 연결돼 있음. `whoami.exe` 사본 Ghidra 분석 성공(함수 341).
+- 메인 지침: CLAUDE.md 핵심 원칙 21 / AGENTS.md 핵심 원칙 20 "프로그램 분석에 REA 활용". 상세 `docs/REA_REVERSE_ENGINEERING.md`.
+- 남은 일: 새로 시작한 Claude Code 세션에서 `rea` 도구가 보이는지 확인. 분석할 EXE는 주인님이 `D:\PDS`에 넣어 주시면 진행.
+
 ## 2026-10-15 Claude Code(보조 계정) — B4 도메인 연동(SSO) Step Mail·카카오톡 뉴스레터 (각 v1.08, 주인님 승인) + A2 완료
 
 - Step Mail → https://stepmail.buylife.xyz, 카카오톡 뉴스레터 → https://kakao-auto-posting.buylife.xyz. 메인 사이트 로그인이 그대로 이어진다(엣지 시험 계정 확인). 옛 vercel.app 화면은 새 주소로 넘기고 API·크론은 옛 주소도 유지. 카카오 로그인 콜백은 회원 등록값(옛 주소) 그대로 쓰고 새 주소로 넘겨 처리(회원 변경 없음).
@@ -257,14 +263,6 @@
 - 등록: `programs`(배지 new+free)·요금제 3종·VIP 접근·썸네일, 주소 https://personality-suite.buylife.xyz. 검수: 단위 13/13, 빌드, 운영 로그인 화면에서 검사→결과→AI 분석→삭제 확인.
 - 남은 일(v1.02): 기질·성향 점검, 스트레스·마음 상태 자기점검(위기 안내 고정 문구), 종합 프로필 고도화. 상세: [personality-suite/docs/CLI_HANDOFF.md](../personality-suite/docs/CLI_HANDOFF.md)
 
-## 2026-10-13 Codex — AI 할 일·성과 관리 v1.04 후속 작업 재개
-
-- 주인님의 “남은 작업 이어가줘”로 W01~W05 재개. 미측정/차트/타이머정산 이름, 본인 Gemini 키 상태·모델·실제 발급 매뉴얼, 서버 AI 분석, JSON 가져오기 미리보기·원자적 추가 병합·충돌 보존·선택 설정복원, 범위 일치/실제초/수식보호 CSV 구현.
-- 본인 user_id 키만 서버 조회. 회원이 기존 공통 화면에서 직접 키 등록. 운영자/타인키·모델 폴백 없음. 기존 JSONB/RPC 사용, 스키마·환경변수·회원키·기존 운영기록 변경 없음.
-- 검수: 빌드·단위/SQL/API/공급사 모의22·보이는 격리 Chrome30·실제 Next 차단15 통과. 코드 v1.04/package1.4.0. 커밋/푸시/운영배포/익명 API·DB 확인 결과는 [출시 기록](../ai-task-planner/docs/CONTINUATION_RELEASE.md)에 이어 기록합니다.
-- 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
-- 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
-
 ## 2026-10-14 Claude Code — AI 글쓰기 에디터 자동화 v1.04~v1.05: 표·이미지·글자 색·정렬·여러 문단 제안
 
 - 주인님 요청: 마크다운 한계(표·이미지·글자 색·밑줄, 여러 문단 제안) 확장 가능성 검토 후 구현. 검토: 표·이미지·밑줄·형광펜은 마크다운 직렬화 가능, 글자 색·정렬은 불가 → 저장 형식을 `content_type`(markdown|html)으로 확장(이전 문서 호환).
@@ -331,19 +329,13 @@
 - 검수: 단위 15/15, 보이는 Chrome 16/16, 빌드, 실제 Gemini 이미지 12초·오디오 14초·영상 18초, 운영 화면(관리자 로그인)에서 업로드→분석→기록→임시파일 삭제 확인. 운영 https://reverse-prompt.buylife.xyz
 - 남은 일·인수인계: [reverse-prompt/docs/CLI_HANDOFF.md](../reverse-prompt/docs/CLI_HANDOFF.md)
 
-## 2026-10-13 Claude Code — 신규 프로그램: AI 랜딩페이지 기획 자동화 (`landing-architect` v1.01)
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.04 후속 작업 재개
 
-- 주인님 요청: AI Studio "AI Landing Page Architect Enhance"를 분석해 개발(분석·플랜 9b88bfba → 구현·배포).
-- 구현: 주제·타겟·목표 → AI 기획안(6섹션, 편집·섹션 재생성) → 무상태 HTML 프로토타입 → 이미지 치환(LoremFlickr/본인 키 Unsplash·Pexels·Pixabay) → 미리보기·HTML/JSON 내보내기·프로젝트 저장. 회원 본인 Gemini 키, 서버 경유.
-- DB: `landing_architect_projects`(RLS), `user_api_keys` provider 제약에 unsplash/pexels/pixabay 추가, `programs` 등록+요금제 3종+VIP 접근, §13 실사 썸네일.
-- 검수: 단위 11/11, 보이는 Chrome 14/14, 빌드, 실제 Gemini 1회(기획안 20초·HTML 71초). 운영 https://landing-architect.buylife.xyz
-- 남은 일·인수인계: [landing-architect/docs/CLI_HANDOFF.md](../landing-architect/docs/CLI_HANDOFF.md)
-
-## 2026-10-13 Claude Code — 주소 통일: 폴더·slug·Vercel·도메인을 모두 **`fashion-style`**로 (AI 패션스타일 자동화 v1.03)
-
-- 주인님 요청: 헷갈리지 않게 `look-studio` 주소를 `fashion-style`로 바꾸고 Vercel과 일치시킴. 이름은 "AI 패션스타일 자동화" 유지.
-- 변경: 폴더 `ai-fashion-style/` → `fashion-style/`, slug `fashion-style`, Vercel 프로젝트 `fashion-style`, 공식 주소 **https://fashion-style.buylife.xyz**, DB `programs.slug/app_url/version(v1.03)`. 이 프로그램의 옛 도메인 `look-studio.buylife.xyz`·`ai-fashion-style.buylife.xyz`와 옛 자동 별칭 `look-studio-ashen.vercel.app`은 프로젝트에서 제거(OAuth 콜백을 쓰지 않는 신규 프로그램이라 예외 적용, 이제 404). `fashion-style.vercel.app`은 이미 다른 곳이 사용 중이라 못 씀(배포 URL은 `fashion-style-<해시>-buylife.vercel.app`).
-- 검수: tsc·테스트 12/12·빌드, 새 주소 접속 확인.
+- 주인님의 “남은 작업 이어가줘”로 W01~W05 재개. 미측정/차트/타이머정산 이름, 본인 Gemini 키 상태·모델·실제 발급 매뉴얼, 서버 AI 분석, JSON 가져오기 미리보기·원자적 추가 병합·충돌 보존·선택 설정복원, 범위 일치/실제초/수식보호 CSV 구현.
+- 본인 user_id 키만 서버 조회. 회원이 기존 공통 화면에서 직접 키 등록. 운영자/타인키·모델 폴백 없음. 기존 JSONB/RPC 사용, 스키마·환경변수·회원키·기존 운영기록 변경 없음.
+- 검수: 빌드·단위/SQL/API/공급사 모의22·보이는 격리 Chrome30·실제 Next 차단15 통과. 코드 v1.04/package1.4.0. 커밋/푸시/운영배포/익명 API·DB 확인 결과는 [출시 기록](../ai-task-planner/docs/CONTINUATION_RELEASE.md)에 이어 기록합니다.
+- 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
+- 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
 ## 2026-10-13 Codex — AI 할 일·성과 관리 작업대기 · 다른 CLI 인수인계
 
@@ -356,7 +348,7 @@
 ## 2026-10-13 Claude Code — 프로그램명 변경: AI 룩스튜디오 자동화 → **AI 패션스타일 자동화** (`ai-fashion-style` v1.02)
 
 - 주인님 요청: 프로그램명을 "AI 패션스타일 자동화"로, Vercel 이름·주소도 일치, 프로그램 내 용어 수정.
-- 변경: 폴더 `look-studio/` → `ai-fashion-style/`(git mv), slug·`APP_NAME`·화면 제목(KO "AI 패션스타일", EN "AI Fashion Style")·문서·테스트·IndexedDB 이름(`ai-fashion-style-<userId>`)·다운로드 파일명 정리. DB `programs` slug/name/short_desc/app_url/version(v1.02) 갱신. Vercel 프로젝트 `look-studio` → `ai-fashion-style` 이름 변경, 새 도메인 https://fashion-style.buylife.xyz 연결(옛 `look-studio.buylife.xyz`는 삭제하지 않고 유지 — 도메인 정책). 썸네일 파일 경로는 그대로(DB URL 유지).
+- 변경: 폴더 `look-studio/` → `ai-fashion-style/`(git mv), slug·`APP_NAME`·화면 제목(KO "AI 패션스타일", EN "AI Fashion Style")·문서·테스트·IndexedDB 이름(`ai-fashion-style-<userId>`)·다운로드 파일명 정리. DB `programs` slug/name/short_desc/app_url/version(v1.02) 갱신. Vercel 프로젝트 `look-studio` → `ai-fashion-style` 이름 변경, 새 도메인 https://ai-fashion-style.buylife.xyz 연결(옛 `look-studio.buylife.xyz`는 삭제하지 않고 유지 — 도메인 정책). 썸네일 파일 경로는 그대로(DB URL 유지).
 - 검수: tsc·테스트 12/12·보이는 Chrome 15/15 통과, 새 주소 로그인 리다이렉트 확인. 옛 내용(look-studio)이 남은 곳은 과거 기록이므로 참고만.
 
 ## 2026-10-13 Antigravity — AI 할 일·성과 관리 v1.03 UI/UX 가독성 및 디자인 개선 배포
