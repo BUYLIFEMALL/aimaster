@@ -1,8 +1,18 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.92`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.94`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.94 독립 서브프로젝트로 분리 (2026-10-15, Claude Code 보조 계정)
+
+- 주인님 지시("모든 프로그램은 AIMaster 안의 서브프로젝트로, AIMaster는 프로그램에 들어가는 홈페이지"): 메인 사이트 `app/(dashboard)/threads-content-ops`·`app/api/threads-content-ops`에 있던 화면·API를 **이 폴더의 독립 Next 앱**(`app/threads-content-ops`, `app/api/threads-content-ops`, git mv로 이력 유지)으로 옮겼다. Vercel 프로젝트 `threads-content-ops`, 주소 **https://threads-content-ops.buylife.xyz** (`/`는 `/threads-content-ops`로), `programs.app_url` 갱신.
+- 메인 사이트에서 쓰던 공용 파일 12개를 같은 상대 경로로 복사(`lib/supabase/*`, `lib/access/checkProgramAccess.ts`, `lib/apiKeys.ts`, `lib/personalAccessTokenAuth.ts`, `lib/utils/cn·phone.ts`, `components/ui/Glass·Gold*`, `app/globals.css`, tailwind·postcss 설정) — **판정 규칙 등을 바꾸면 루트 원본과 함께 고칠 것.** tsconfig 경로 `@/threads-content-ops/*`·`@/*`가 모두 이 폴더를 가리켜 기존 import를 그대로 쓴다. 프레임워크는 루트와 같은 Next 14.2.35·React 18(동작 동일 유지, Next 업그레이드는 별도 과제).
+- **옛 주소 유지(도메인 정책)**: 메인 사이트 `next.config.mjs`가 `www.buylife.xyz/threads-content-ops*` → 새 주소로 리다이렉트, `www.buylife.xyz/api/threads-content-ops/*` → 새 앱으로 **프록시(rewrites)**. 그래서 회원이 Meta 앱에 등록한 콜백 `https://www.buylife.xyz/api/threads-content-ops/callback`과 설치된 데스크톱 앱(`desktop/src/main/aimaster/runner.ts`의 www 주소)은 바꾸지 않아도 된다. OAuth state 쿠키는 화면(새 주소)과 콜백(www)이 달라 `domain=.buylife.xyz`로 설정(`web-actions.ts` `startThreadsOAuth`, 콜백에서 같은 도메인으로 삭제).
+- **크론 이전**: 예약 발행(매분)·미디어 정리(매일 03:00 KST)를 이 폴더 `vercel.json`으로 옮기고 루트 `vercel.json`에서 뺐다(`vercel crons ls`로 확인). 예약 발행은 조건부 update로 가져가 겹쳐 실행돼도 중복 발행되지 않는다.
+- 환경변수(새 프로젝트): 공용 DB 3종 + `CRON_SECRET`(새 임의값) — `scripts/add-threads-content-ops-vercel-env.mjs`. **`FIXIE_URL`(토스쇼핑 연동용 고정 IP 프록시, `lib/toss.ts`)은 민감값이라 읽어 올 수 없어 주인님이 Vercel 대시보드에서 등록 필요**(없으면 토스쇼핑 연동만 "고정 IP 프록시 미설정" 안내로 막힘).
+- 배포: `vercel deploy --cwd D:/Antigravity/AIMaster/threads-content-ops --prod --yes --scope buylife`(`.vercel/project.json` projectName 확인). `.vercelignore`는 루트 기준 경로(`/supabase` 등)로 쓴다 — 앞에 `/`가 없으면 `lib/supabase`까지 빠져 빌드가 깨진다(실제 발생).
+- 검수: 빌드(타입 포함)·테스트 28개 통과, 새 주소 비로그인 → 메인 로그인(돌아올 주소 포함), API 비로그인 401, 엣지 시험 계정으로 7개 탭 200·대시보드 화면 정상, 옛 www 주소 리다이렉트·API 프록시·콜백 전달 확인. **미확인**: 실제 Meta 재연결(콜백 전체 흐름)·토스쇼핑(FIXIE 등록 후).
 
 ## v1.92 쿠팡 API 키 없는 직접 상품 등록 (2026-10-10)
 

@@ -8,7 +8,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { cleanupUserContent } from "@/threads-content-ops/lib/contentCleanup";
 import { cleanupUserMedia } from "@/threads-content-ops/lib/mediaCleanup";
 import { APP_VERSION } from "@/threads-content-ops/lib/version";
-import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
+import { MAIN_SITE_ORIGIN, THREADS_CONTENT_OPS_CALLBACK_URI, THREADS_CONTENT_OPS_ORIGIN } from "@/threads-content-ops/lib/oauth";
 import AttentionComposer from "./AttentionComposer";
 import DraftComposer from "./DraftComposer";
 import ContentOpsSidebar from "./ContentOpsSidebar";
@@ -32,9 +32,9 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     const currentPath = (await headers()).get("x-pathname") ?? "/threads-content-ops";
-    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
+    redirect(`${MAIN_SITE_ORIGIN}/login?redirect=${encodeURIComponent(THREADS_CONTENT_OPS_ORIGIN + currentPath)}`);
   }
-  if (!(await checkProgramAccess(supabase, user.id, PROGRAM_SLUG)).allowed) redirect(`/programs/${PROGRAM_SLUG}`);
+  if (!(await checkProgramAccess(supabase, user.id, PROGRAM_SLUG)).allowed) redirect(`${MAIN_SITE_ORIGIN}/programs/${PROGRAM_SLUG}`);
 
   // 30일 지난 내 미디어 파일은 콘텐츠 생성·초안 화면을 열 때 함께 정리한다(하루 1회 크론과 별개로 동작). 실패해도 화면에는 영향 없음.
   if (searchParams.tab === "create" || searchParams.tab === "manage") {

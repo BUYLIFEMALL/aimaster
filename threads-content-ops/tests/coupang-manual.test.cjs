@@ -90,7 +90,7 @@ function fixture(options = {}) {
     remove: async paths => { state.removed.push(...paths); return {}; },
   };
   const db = { auth: { getUser: async () => ({ data: { user: options.loggedOut ? null : { id: userId } } }) }, from: t => new Query(t), storage: { from: () => storage } };
-  const actions = load('app/(dashboard)/threads-content-ops/web-actions.ts', new Proxy({
+  const actions = load('threads-content-ops/app/threads-content-ops/web-actions.ts', new Proxy({
     'next/cache': { revalidatePath: () => state.revalidated++ },
     '@/lib/supabase/server': { createClient: async () => db },
     '@/lib/access/checkProgramAccess': { checkProgramAccess: async () => ({ allowed: !options.noAccess }) },

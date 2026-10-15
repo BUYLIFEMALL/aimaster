@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { createClient } from "@/lib/supabase/server";
+import { SHARED_COOKIE_DOMAIN } from "@/lib/supabase/cookieDomain";
 import {
   THREADS_CONTENT_OPS_CALLBACK_URI,
   THREADS_CONTENT_OPS_ORIGIN,
@@ -11,7 +12,9 @@ export const fetchCache = "force-no-store";
 
 function redirectToSetup(query: string, clearState = false) {
   const response = NextResponse.redirect(`${THREADS_CONTENT_OPS_ORIGIN}/threads-content-ops?${query}`);
-  if (clearState) response.cookies.delete("tco_threads_oauth_state");
+  if (clearState) {
+    response.cookies.set("tco_threads_oauth_state", "", { path: "/api/threads-content-ops/callback", domain: SHARED_COOKIE_DOMAIN, maxAge: 0 });
+  }
   return response;
 }
 

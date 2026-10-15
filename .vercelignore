@@ -14,6 +14,8 @@ naver-blog-auto-poster_app/node_modules
 
 # threads-easy-planner/(Threads AI 기획기)도 자체 Vercel 프로젝트로 따로 배포되며 루트 앱이 import하지 않는다.
 /threads-easy-planner
+# threads-content-ops/(쓰레드 콘텐츠 운영)도 2026-10-15부터 자체 Vercel 프로젝트로 배포한다(루트는 옛 주소 전달만).
+/threads-content-ops
 
 
 # shorts-viral-studio/(쇼츠 떡상 분석·대본 자동화, 2026-10-04 신설)는 자체 Vercel 프로젝트로 따로 배포되고 루트 앱이 import하지 않는다.

@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, "../..");
 const draftId = "11111111-1111-4111-8111-111111111111";
 const userId = "22222222-2222-4222-8222-222222222222";
 const accountId = "33333333-3333-4333-8333-333333333333";
-const source = fs.readFileSync(path.join(root, "app/(dashboard)/threads-content-ops/web-actions.ts"), "utf8");
+const source = fs.readFileSync(path.join(root, "threads-content-ops/app/threads-content-ops/web-actions.ts"), "utf8");
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
 
 function fixture(options = {}) {

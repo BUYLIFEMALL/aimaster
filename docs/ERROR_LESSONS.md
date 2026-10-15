@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — `.vercelignore`의 앞에 `/`가 없는 폴더 이름은 하위 폴더까지 뺀다 (threads-content-ops 독립 분리)
+- 증상: 로컬 빌드는 되는데 Vercel 빌드가 `Can't resolve '@/lib/supabase/server'`로 실패 → 원인: `.vercelignore`에 `supabase`(마이그레이션 폴더 제외용)라고 써서 `lib/supabase`까지 업로드에서 빠짐 → 해결: `/supabase`·`/docs`처럼 앞에 `/`를 붙여 프로젝트 루트 폴더만 지정 → 다음부터: `.vercelignore`에는 항상 `/`로 시작하는 경로를 쓰고, 배포 실패 시 `vercel inspect <배포주소> --logs`로 빌드 로그를 본다.
+- 프로그램을 메인 사이트에서 독립 앱으로 옮길 때 점검: ① 회원이 외부에 등록한 주소(OAuth 콜백)·설치된 데스크톱 앱/확장이 부르는 API 주소는 메인 `next.config.mjs` **rewrites(프록시)**로 계속 살린다(리다이렉트는 POST·토큰 교환이 깨질 수 있음) ② 화면 주소와 콜백 주소가 달라지면 state 같은 host 전용 쿠키를 `domain=.buylife.xyz`로 ③ 크론은 새 프로젝트 `vercel.json`으로 옮기고 루트에서 빼기(`vercel crons ls` 확인) ④ 민감 환경변수(Sensitive)는 `vercel env pull`로 값이 나오지 않으므로 새 임의값(CRON_SECRET)으로 만들거나 주인님께 등록 요청 ⑤ 루트가 `typescript.ignoreBuildErrors`로 숨기던 타입 오류가 독립 빌드에서 드러난다.
+
 ## 2026-10-15 — 서브프로젝트 폴더에 package.json이 없으면 `npm run build`가 루트 사이트를 빌드한다 (threads-content-ops v1.93)
 - 증상: `cd threads-content-ops && npm run build`가 성공했는데, 실제로는 상위 폴더(루트 AIMaster)의 package.json을 찾아 **루트 사이트를 빌드**한 것이었다 → 원인: `threads-content-ops`는 독립 앱이 아니라 루트 `app/(dashboard)/threads-content-ops`에서 쓰는 코드·문서 폴더(배포도 루트 `aimaster` 프로젝트) → 다음부터: 여러 프로그램을 일괄 빌드·배포하기 전에 각 폴더에 `package.json`·`.vercel/project.json`이 있는지 먼저 확인한다. 없는 폴더는 그 프로그램의 AGENTS.md에서 배포 위치를 확인한다(threads-content-ops = 루트 배포).
 - 같은 작업에서 emotion-writer는 `.vercel/` 폴더만 있고 `project.json`이 없었다 → `vercel link --project emotion-writer --scope buylife --yes`로 다시 연결(이때 `.gitignore`에 `.vercel`이 덧붙고 `.env.local`을 Vercel 개발 값으로 덮어씀 — `.gitignore` 변경은 되돌림). 배포 전 `projectName` 확인 규칙 덕분에 엉뚱한 프로젝트로 배포되지 않았다.

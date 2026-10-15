@@ -53,8 +53,16 @@ const nextConfig = {
   // 클라이언트(curl 등)에서 정상적인 Location 헤더 없이 __next_error__ 셸만 내려주는 문제가
   // 실제로 발생함(2026-08-18 확인). Next.js의 redirects() 설정은 Vercel 엣지 라우팅 계층에서
   // 바로 처리돼 훨씬 안정적이다.
+  // 2026-10-15: 쓰레드 콘텐츠 운영(threads-content-ops)을 독립 서브프로젝트로 분리했다(https://threads-content-ops.buylife.xyz).
+  // 옛 화면 주소는 새 주소로 보내고, 옛 API 주소(회원이 Meta 앱에 등록한 OAuth 콜백, 설치된 데스크톱 앱이 부르는 whoami·generate,
+  // 이전 북마크)는 지우지 않고 새 앱으로 그대로 전달한다(도메인 정책: 옛 주소는 삭제하지 않음).
+  rewrites: async () => [
+    { source: "/api/threads-content-ops/:path*", destination: "https://threads-content-ops.buylife.xyz/api/threads-content-ops/:path*" },
+  ],
   redirects: async () => {
     return [
+      { source: "/threads-content-ops", destination: "https://threads-content-ops.buylife.xyz/threads-content-ops", permanent: false },
+      { source: "/threads-content-ops/:path*", destination: "https://threads-content-ops.buylife.xyz/threads-content-ops/:path*", permanent: false },
       {
         source: '/stepmail',
         destination: 'https://stepmail-kappa.vercel.app',

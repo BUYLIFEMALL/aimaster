@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — 메인 사이트 안의 프로그램을 독립 서브프로젝트로 분리 ①: 쓰레드 콘텐츠 운영 (v1.94)
+
+- 주인님 지시: "모든 프로그램은 AIMaster 안에 서브 프로젝트로 돌아가야 하고, AIMaster는 모든 프로그램에 접근하기 위한 홈페이지". 조사 결과 메인 사이트 안에 있던 프로그램 3개 — ① `threads-content-ops`(화면 전체+API 5개+크론 2개) ② `naver-blog-auto-poster`(데스크톱 앱용 토큰 화면+API 2개) ③ `naver-blog-auto-poster-web`(확장용 토큰 화면+API 2개). 주인님 승인("3개 모두, 쓰레드부터") 후 순서대로 분리.
+- **① 완료**: `threads-content-ops/`가 독립 Next 앱(Vercel `threads-content-ops`, https://threads-content-ops.buylife.xyz, `programs.app_url` 갱신). 메인 사이트는 옛 화면 주소 리다이렉트 + 옛 API 주소 프록시만 남김(회원 Meta 콜백·데스크톱 앱 변경 불필요). 크론 2개를 새 프로젝트로 이전(루트 `vercel.json`에서 제거), 루트 `.vercelignore`에 `/threads-content-ops`, 루트 dashboard 레이아웃·globals.css의 쓰레드 전용 코드 제거. 상세: `threads-content-ops/AGENTS.md` v1.94.
+- **남은 일**: 주인님이 새 Vercel 프로젝트에 `FIXIE_URL`(토스쇼핑 고정 IP 프록시) 등록 / 실제 Meta 재연결 1회로 콜백 전체 흐름 확인 / ② ③ 분리(진행 예정).
+
 ## 2026-10-15 Claude Code(보조 계정) — A1 Step Mail 로그인 화면 확인·C2 본문 모바일 점검 (코드 변경 없음)
 
 - **A1 Step Mail v1.07(Next 15·React 19)**: 엣지, 시험 계정 로그인 상태. 리드 목록·상태 필터·페이지 크기(주소 값 반영 50)·이메일 초안 목록·새 초안 화면·예약 발송 목록·새 캠페인·메일계정·API키 화면 모두 정상(서버 오류 없음), 없는 초안 주소 404, 리드 엑셀 양식(`/api/leads/template`) 정상 xlsx(16KB). **미확인**: 초안 편집기(tiptap) — 시험 계정에 초안이 없고 만들려면 AI 유료 호출이 필요. 발송·캠페인 실행 없음.

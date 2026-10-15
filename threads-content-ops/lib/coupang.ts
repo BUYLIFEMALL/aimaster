@@ -132,7 +132,8 @@ export async function createCoupangDeeplink(
     if (isCoupangShortUrl(item.shortenUrl)) {
       results.push(item.shortenUrl.trim());
     } else if (item.shortenUrl) {
-      results.push(item.shortenUrl.trim());
+      // isCoupangShortUrl이 타입 가드라 이 분기의 타입이 never로 좁혀진다(동작은 그대로 문자열).
+      results.push(String(item.shortenUrl).trim());
     }
   }
 

@@ -1,10 +1,11 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
+import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 import {
   extractArticleLinks,
@@ -228,6 +229,8 @@ export async function startThreadsOAuth() {
     secure: process.env.NODE_ENV === "production",
     path: "/api/threads-content-ops/callback",
     maxAge: 60 * 10,
+    // 화면(threads-content-ops.buylife.xyz)과 Meta 콜백(www.buylife.xyz, 메인 사이트가 이 앱으로 전달)의 주소가 달라 .buylife.xyz로 공유한다.
+    domain: cookieDomainForHost(headers().get("x-forwarded-host") ?? headers().get("host")),
   });
 
   const params = new URLSearchParams({
