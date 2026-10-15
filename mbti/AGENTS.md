@@ -5,6 +5,13 @@
 
 ---
 
+## ★ 2026-10-16 v1.03 — 로그인 + 공통 이용 권한 판정 적용 (구조 변경, 이 문서의 옛 "로그인 없는 공개 사이트" 설명보다 우선)
+- 주인님 지시: "FREE 뱃지를 끄면 다른 프로그램과 동일하게 사용 권한이 있는 사람만". → `lib/access.ts`(`requireProgramAccess`/`checkProgramAccessApi`, 판정 순서 정지 → 관리자 → 핸드폰 → **FREE 배지** → 구독 → 등급+사용기간, 권한 테이블은 서비스 롤 `lib/supabase/admin.ts`), `middleware.ts`(`/test`·`/result`는 로그인 필요, `/`·`/api/og`는 공개), 로그인·가입 안내 화면 `app/(auth)/`(mbti-character와 같은 구조), `/test`·`/test/full`·`/result/[type]`에 권한 확인. 결과 화면은 정적 생성 대신 매 요청 판정.
+- FREE 배지는 관리자 프로그램 편집 화면에서 켜고 끄면 코드 수정 없이 바로 반영(켜면 가입·로그인 회원 누구나, 끄면 권한 있는 회원만).
+- Vercel 프로젝트 `mbti`에 공용 DB 연결값 3종 등록(`scripts/configure-platform.mjs`). 주소는 그대로 https://mbti-rho-two.vercel.app (자체 로그인, 메인 SSO 아님).
+- 운영 확인: 비로그인 `/test`·`/test/full`·`/result/INFP` → 307 `/login?redirect=…`, `/`·`/login`·`/api/og` 200. 배포 직후 옛 정적 페이지가 엣지 캐시에 남아 잠깐 200/404로 보였음(캐시 무효화 후 정상 — ERROR_LESSONS 2026-10-16).
+- 정정: 이 폴더 규칙(푸시·배포·환경변수 사전 승인)을 작업 시작 때 확인하지 못하고 진행함(주인님 직접 지시 작업). 보고에 명시.
+
 ## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
 
 ### 1. 자율 진행 허용 작업

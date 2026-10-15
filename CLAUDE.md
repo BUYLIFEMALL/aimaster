@@ -186,6 +186,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
    - 적용 위치: 루트 `lib/access/checkProgramAccess.ts`(`evaluateProgramAccess`), 각 서브프로젝트 `lib/access.ts`
      (`requireProgramAccess`/`checkProgramAccessApi`). **새 프로그램도 이 순서 그대로 만든다.** 상세는 아래 "이용 권한 판정 정책".
    - 프로그램을 무료로 풀거나 다시 유료로 바꿀 때는 코드를 고치지 말고 **관리자 프로그램 편집 화면에서 FREE 배지를 켜고 끄면 된다.**
+   - **FREE 배지는 "로그인 없는 공개"가 아니라 "가입·로그인한 회원 누구나"다(2026-10-16 주인님 재확인).** 권한이 필요한 프로그램이라도 FREE를 켜면 가입 회원 누구나, 끄면 권한 있는 회원만 쓴다. 모든 프로그램(성격코드 포함)이 이 판정을 따라야 하며, 로그인 없이 열리는 프로그램을 새로 만들지 않는다.
 
 7. **작업 중 찾은 에러·해결 방법·중요 점검 사항은 즉시 `docs/ERROR_LESSONS.md`(작업 중요 지침)에 기록하고, 모든 CLI는 작업 시작 전에 이 문서를 먼저 읽는다 (2026-10-01 주인님 지시).**
    - **읽기**: Claude Code·Codex·Gemini 등 어떤 도구든 작업을 시작할 때 `docs/HANDOFF.md`와 함께 `docs/ERROR_LESSONS.md`를 먼저 읽고,
@@ -527,6 +528,7 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
 - 사용기간은 관리자 회원 관리 화면의 "만료기간 설정"으로 넣는다(`app/api/admin/user-access`, service role로 기록).
 - 새 서브프로젝트의 `lib/access.ts`도 이 순서로 만든다. `tarot`(타로)·`mbti-character`(캐릭코드)는 2026-09-30 주인님 결정으로
   FREE 배지를 달고 같은 규칙의 판정 코드로 바꿨다(가입만 하면 사용 — 동작은 예전과 같음). 미적용: `naver-blog-seo-studio`(Codex 작업 중).
+- **2026-10-16 주인님 재확인: FREE 배지 = "AIMaster에 가입·로그인한 회원 누구나"(로그인 없는 공개가 아님).** 주인님이 관리자 화면에서 FREE 배지를 정기적으로 켜고 끄며, 켜면 권한이 없던 회원도 가입만 하면 사용하고, 끄면 구독·등급+사용기간이 있는 회원만 사용한다. 82개 프로그램 판정 코드를 점검해 FREE 확인이 구독·등급보다 앞에 있음을 확인했고, 유일하게 판정이 없던 성격코드(`personality-code`, `mbti/`)에 로그인+공통 판정을 넣었다(v1.03). 새 프로그램도 반드시 이 판정을 넣어 배지 하나로 동작이 바뀌게 한다.
 
 ### Route Groups
 - `app/(main)/` — Public pages (Header + Footer layout), `dynamic = "force-dynamic"` required for Supabase calls

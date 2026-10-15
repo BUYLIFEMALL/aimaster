@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PERSONALITY_TYPES, ALL_TYPE_CODES } from "@/lib/types";
 import { ShareButtons } from "@/components/ShareButtons";
+import { requireProgramAccess } from "@/lib/access";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-rho-two.vercel.app";
 
@@ -18,9 +19,9 @@ function getType(typeParam: string) {
   return ALL_TYPE_CODES.includes(code) ? PERSONALITY_TYPES[code] : null;
 }
 
-export function generateStaticParams() {
-  return ALL_TYPE_CODES.map((type) => ({ type }));
-}
+// 2026-10-16: 결과 화면도 로그인 + 이용 권한 확인(정적 생성 대신 매 요청 판정)
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export async function generateMetadata({
   params,
@@ -50,6 +51,7 @@ export default async function ResultPage({
   params: Promise<{ type: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  await requireProgramAccess();
   const { type: typeParam } = await params;
   const type = getType(typeParam);
   if (!type) notFound();
