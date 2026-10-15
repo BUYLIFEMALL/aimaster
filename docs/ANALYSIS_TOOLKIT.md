@@ -15,7 +15,7 @@
 | .NET 필수 | **.NET 8 SDK** | `ilspycmd` 설치·실행에 필요 | 8.0.426 |
 | 판별 | **Detect It Easy** (DIE) | EXE가 무엇으로 만들어졌는지(C++/.NET/Electron/Python/압축 포장) 판별 — 분석 방법을 고르는 첫 단계 | 3.21 |
 | 압축 | **7-Zip** | 설치 파일(setup.exe·MSI·NSIS)·압축 파일 내용물 꺼내기 | 설치 |
-| Claude 연결 | **MCP `rea`** | Claude Code 안에서 REA 도구 직접 호출 | 메인·보조 계정 연결 |
+| AI CLI 연결 | **MCP `rea`** | Claude Code·Codex·Antigravity·Gemini CLI 안에서 REA 도구 직접 호출 | 네 도구 모두 연결(Claude는 메인·보조) |
 | Claude 지침 | **Skill `reverse-engineer-anything`** | REA를 언제·어떤 순서로 쓰는지 Claude에게 알려 주는 지침 | v37, 두 계정 |
 | 화면 | **Claude in Chrome 확장** (MCP `claude-in-chrome`) | 웹사이트·웹 프로그램 실제 화면 분석·검수(번들·네트워크·콘솔) | 메인=크롬, 보조=엣지 |
 | 기존 | Node.js 24 · Python 3.14 · Docker · WSL · Git · gh · Vercel CLI | 스크립트 실행·재구현 개발·배포 | 설치 |
@@ -33,7 +33,13 @@
   ```
   - 등록 위치: 메인 `C:\Users\Administrator\.claude.json`, 보조 `C:\Users\Administrator\.claude-account2\.claude.json` (`mcpServers.rea`, 백업 `.rea.backup`). 등록에 `GHIDRA_INSTALL_DIR`·`JAVA_HOME`이 함께 들어간다 — **Ghidra/Java를 먼저 설치하고 setup**한다.
   - 지침(skill) 위치: `~/.claude/skills/reverse-engineer-anything`, `~/.claude-account2/skills/reverse-engineer-anything`.
-  - Codex(`%APPDATA%\orca\codex-accounts\...\config.toml`)·Antigravity(`~/.gemini/config/mcp_config.json`)는 이미 연결돼 있음. 필요하면 `--client codex` 등으로 같은 방법.
+  - **Codex·Antigravity·Gemini CLI도 연결(2026-10-15)**: 
+    ```bash
+    rea setup --client codex --client antigravity --client gemini_cli --skill-client codex --skill-client antigravity --skill-client gemini_cli --yes
+    ```
+    - 등록 위치: Codex `%APPDATA%\orca\codex-accounts\<계정ID>\home\config.toml`(Orca가 계정별 CODEX_HOME 사용 — 계정을 추가하면 그 계정 폴더에도 다시 실행), Antigravity `~/.gemini/config/mcp_config.json`, Gemini CLI `~/.gemini/settings.json`. 각 `.rea.backup` 백업, 세 곳 모두 `GHIDRA_INSTALL_DIR`·`JAVA_HOME` 포함.
+    - 지침(skill): 세 도구는 공용 폴더 `~/.agents/skills/reverse-engineer-anything`(v37)을 읽는다.
+    - 확인: `rea doctor --client codex|antigravity|gemini_cli` healthy, `codex mcp list`(CODEX_HOME 지정) → `rea enabled`, `gemini mcp list` → `rea Connected`. 각 도구는 **새로 실행한 세션부터** 적용.
 - 연결 후 **Claude Code를 새로 시작**해야 `rea` 도구가 보인다. 확인: `claude mcp list` → `rea ... ✔ Connected`.
 - 점검: `rea doctor --client claude_code` (healthy: true). 업데이트 후에는 setup을 다시 실행해 지침을 갱신.
 

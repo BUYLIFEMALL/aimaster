@@ -25,7 +25,7 @@
 | Java | Temurin JDK 21.0.12 (winget `EclipseAdoptium.Temurin.21.JDK`) · 사용자 환경변수 `JAVA_HOME` |
 | Claude Code 연결(MCP `rea`) | 메인 `~/.claude.json`, 보조 `~/.claude-account2/.claude.json` (각 `.rea.backup` 백업) |
 | REA 지침(skill) | 메인 `~/.claude/skills/reverse-engineer-anything`, 보조 `~/.claude-account2/skills/reverse-engineer-anything` (v37) |
-| Codex·Antigravity | 이미 연결됨(`rea doctor`에서 aligned) |
+| Codex·Antigravity·Gemini CLI | MCP `rea` 연결(Ghidra·Java 경로 포함) + 공용 지침 `~/.agents/skills/reverse-engineer-anything` — 상세 `docs/ANALYSIS_TOOLKIT.md` 2-1 |
 | 없음 | IDA·Hopper(유료/선택) — 필요 없음 |
 
 - 연결 후 **Claude Code를 새로 시작해야** `rea` 도구가 보인다. 그 전에는 CLI(`rea analyze <경로> --provider ghidra --format json > out.json`)로 쓴다.
