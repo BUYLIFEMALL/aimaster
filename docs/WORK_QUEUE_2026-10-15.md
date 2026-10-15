@@ -21,7 +21,7 @@
 | B2 | 개발용 도구 취약점 정리(선택) | 에이전트 | 두 프로그램의 eslint 계열(braces·micromatch·glob 등) — 운영 서버에 들어가지 않음. eslint-config-next 정리 시 함께. | `npm audit` |
 | B3 | ~~글·대본 생성 프로그램 "현재 월" 추가~~ **완료(2026-10-15)** — 16개 프로그램 버전 +0.01·배포·DB, 확장 4개 검증 OK | 완료 | | HANDOFF 2026-10-15 B3 |
 | B4 | ~~Step Mail·카카오 도메인 연동(SSO)~~ **완료(2026-10-15, 각 v1.08)** — 남은 것: **주인님이 카카오 개발자 콘솔에 `https://kakao-auto-posting.buylife.xyz` Web 사이트 도메인 추가**(공유 버튼) | 완료 | stepmail·kakao는 아직 `*.vercel.app`이라 메인 사이트 로그인이 공유되지 않는다(검수 때 매번 따로 로그인 필요). 원칙 11번 절차(OAuth 콜백 고정 여부 먼저 확인)로 한 프로그램씩. | `docs/DOMAIN_SSO_POLICY.md` |
-| B5 | 나머지 프로그램 "현재 월" 추가(보류) | 에이전트(지시 시) | 연도 규칙만 있고 현재 월이 없는 나머지: ai-audio-analyzer, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, allinone-graphic, banana-canvas, fashion-style, ghost-scraper, music-video-studio, persona-style-studio, playlist-channel-studio, prompt-template-studio, reverse-prompt, seo-thumbnail-pro, style-dna-analyzer, thumbnail-master, ui-canvas, tistory-auto-blog·ai-auto-blog의 `shortsAnalysis.ts`(쇼츠 분석), document-translator(Codex 작업 중). 대부분 이미지·오디오 도구라 우선순위 낮음. 같은 `koreaNowRule()`을 주 지시문에 붙이고 각 버전 +0.01. | HANDOFF 2026-10-15 B3 |
+| B5 | ~~나머지 프로그램 "현재 월" 추가~~ **완료(2026-10-15)** — 19개 반영·빌드·배포·DB 버전 동기화, 라이브 200, 확장 2개 검증 OK. 커밋 `fc507531` | 완료 | document-translator는 다른 CLI 작업 중이라 제외. 상세·프로그램별 버전·검수 결과: `docs/HANDOFF_B5_CURRENT_MONTH_2026-10-15.md` | HANDOFF B5 2026-10-15 |
 | B6 | ~~메인 사이트 안의 프로그램 3개 독립 분리~~ **완료(2026-10-15)** — threads-content-ops v1.94, naver-blog-auto-poster v1.03, naver-blog-auto-poster-web v1.04. 남은 것: ~~쓰레드 `FIXIE_URL` 등록~~(2026-10-15 등록·토스 베스트 목록 정상), 실제 Meta 재연결 1회 확인, 네이버 App·Web 로그인 화면 확인(관리자 계정, 비공개 프로그램), 두 화면 흰색 표준 적용(선택) | 완료 | HANDOFF 2026-10-15 분리 ①②③ |
 
 ## C. 휴대폰·화면 검수
