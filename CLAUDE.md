@@ -384,6 +384,7 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
 ### Platform-hub 구조 (서브프로젝트 원칙)
 - threads, blog 등 각 자동화 프로그램은 별개의 독립 프로젝트가 아니라, **AIMaster 저장소 하나 안의 서브폴더(서브프로젝트)**로 개발·관리한다.
 - **앞으로 새로 추가하는 프로그램도 동일하게 AIMaster 안의 서브폴더(예: `AIMaster/<프로그램명>/`)로 만든다.** 별도 git 저장소를 새로 만들지 않는다.
+- **메인 사이트(루트 `app/`)에는 프로그램 화면·API를 만들지 않는다 (2026-10-15 주인님 지시).** AIMaster는 모든 프로그램에 들어가기 위한 홈페이지(소개·카탈로그·회원·결제·관리자)이고, 프로그램은 각자 `<프로그램>/`(또는 `<프로그램>/web/`) 독립 Next 앱 + 자체 Vercel 프로젝트 + `<이름>.buylife.xyz`로 돈다. 예전에 루트 안에 있던 `threads-content-ops`·`naver-blog-auto-poster`·`naver-blog-auto-poster-web`은 2026-10-15 분리했고, 루트에는 옛 주소 전달(`next.config.mjs`의 redirects·rewrites)만 남겼다 — 회원이 외부에 등록한 OAuth 콜백·설치된 앱/확장이 부르는 API 주소는 지우지 말고 rewrites로 새 앱에 전달한다. 분리 절차·점검: `docs/ERROR_LESSONS.md` 2026-10-15, `threads-content-ops/AGENTS.md` v1.94.
 - 각 서브프로젝트는 자체 `package.json`/`node_modules`/`tsconfig.json`과 자체 Vercel 배포(별도 프로젝트로 build & deploy)를 가진다.
 - 단, Supabase DB(회원/인증/등급/결제 등 공용 테이블)는 AIMaster 전체가 하나만 공유한다. 새 프로그램용 테이블이 필요하면 이 공용 DB에 추가한다 — 별도 Supabase 프로젝트를 새로 만들지 않는다.
 - 루트 AIMaster 앱의 `app/(main)/<프로그램>/` 라우트가 해당 서브프로젝트의 컴포넌트를 직접 import해서 렌더링하는 경우, `tailwind.config.ts`의 `content`에 그 서브프로젝트 경로를 추가해야 하고, `next.config.mjs`의 `typescript.ignoreBuildErrors`로 서브프로젝트 간 타입 교차오염을 우회하고 있다 (각 서브프로젝트는 자체 `npm run build`로 별도 타입 검증됨).
