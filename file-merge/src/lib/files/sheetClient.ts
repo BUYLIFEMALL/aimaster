@@ -53,4 +53,5 @@ export const mergeWrite = (picks: Pick[], headerRow: number, addSource: boolean,
   run<{ bytes: Uint8Array; rows: number; cols: number; removed: number }>({ op: "mergeWrite", picks, headerRow, addSource, shape, format, style }, style ? Object.values(style) : []);
 export const collectWrite = (picks: Pick[], style?: Record<string, ArrayBuffer>) => run<{ bytes: Uint8Array }>({ op: "collectWrite", picks, style }, style ? Object.values(style) : []);
 export const splitPlan = (opts: SplitOpts) => run<{ header: string[]; outs: { name: string; rows: number }[] }>({ op: "splitPlan", opts });
-export const splitWrite = (opts: SplitOpts) => run<{ bytes: Uint8Array; count: number }>({ op: "splitWrite", opts });
+/** style: 원본 .xlsx 바이트를 넘기면 서식 유지 저장(v1.05) */
+export const splitWrite = (opts: SplitOpts, style?: ArrayBuffer) => run<{ bytes: Uint8Array; count: number }>({ op: "splitWrite", opts, style }, style ? [style] : []);

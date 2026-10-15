@@ -7,6 +7,7 @@ import { MAX_SPLIT_FILES, type SheetMeta, type SplitMode } from "@/lib/files/she
 import { safeFileName, stem } from "@/lib/files/table";
 import { downloadBytes } from "@/lib/files/download";
 import { FileDrop, Messages, newId } from "./Common";
+import { canStyle } from "@/lib/files/styled";
 
 /** 엑셀 나누기: 시트별 / 특정 열 값별 / N행씩 → 파일 여러 개를 ZIP 하나로. 처리는 백그라운드(Worker)에서(v1.02) */
 export function ExcelSplit() {
@@ -21,6 +22,9 @@ export function ExcelSplit() {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  // 원본 서식 유지(v1.05) — .xlsx·.xlsm만. 켰을 때만 원본 바이트를 다시 읽어 보낸다
+  const [keepStyle, setKeepStyle] = useState(false);
+  const stylable = !!file && canStyle(file.file.name);
 
   async function pick(files: File[]) {
     setError(""); setNotice("");
@@ -51,9 +55,10 @@ export function ExcelSplit() {
   async function save() {
     setError(""); setNotice("");
     if (!opts || !plan?.outs.length) { setError("나눌 파일을 먼저 골라 주세요."); return; }
-    setBusy(`파일 ${plan.outs.length}개를 만드는 중... 큰 파일은 수 초 걸릴 수 있습니다.`);
+    const styled = keepStyle && stylable;
+    setBusy(`파일 ${plan.outs.length}개를 ${styled ? "서식을 유지해 " : ""}만드는 중... 큰 파일은 ${styled ? "시간이 더 걸립니다" : "수 초 걸릴 수 있습니다"}.`);
     try {
-      const r = await splitWrite(opts);
+      const r = await splitWrite(opts, styled && file ? await file.file.arrayBuffer() : undefined);
       downloadBytes(r.bytes, `${safeFileName(stem(opts.fileName))}_나누기.zip`, "application/zip");
       setNotice(`${r.count}개 파일로 나눠 ZIP으로 저장했습니다.`);
     } catch (e) { setError(`저장하지 못했습니다: ${e instanceof Error ? e.message : "알 수 없는 오류"}`); }
@@ -77,7 +82,8 @@ export function ExcelSplit() {
           <button type="button" className={`chip${mode === "column" ? " on" : ""}`} aria-pressed={mode === "column"} onClick={() => setMode("column")}>열 값별</button>
           <button type="button" className={`chip${mode === "rows" ? " on" : ""}`} aria-pressed={mode === "rows"} onClick={() => setMode("rows")}>N행씩</button>
         </div>
-        <small className="muted">{mode === "sheets" ? "시트마다 파일 하나로 나눕니다(서식 없이 값만)." : mode === "column" ? "고른 열의 값(예: 지역)이 같은 행끼리 파일 하나로 나눕니다. 머리글은 파일마다 다시 넣습니다." : "정한 행 수씩 잘라 파일로 나눕니다. 머리글은 파일마다 다시 넣습니다."}</small>
+        <small className="muted">{mode === "sheets" ? `시트마다 파일 하나로 나눕니다${keepStyle && stylable ? "(원본 서식 그대로)" : "(서식 없이 값만)"}.` : mode === "column" ? "고른 열의 값(예: 지역)이 같은 행끼리 파일 하나로 나눕니다. 머리글은 파일마다 다시 넣습니다." : "정한 행 수씩 잘라 파일로 나눕니다. 머리글은 파일마다 다시 넣습니다."}</small>
+        {stylable && <label className="fm-check"><input type="checkbox" checked={keepStyle} onChange={(e) => setKeepStyle(e.target.checked)} />원본 서식 유지(글꼴·색·테두리·표시 형식·열 너비 — 저장이 더 오래 걸림)</label>}
         {mode === "sheets" && sheets.length === 1 && <small className="muted">시트가 1개라 결과도 1개입니다. 열 값별·N행씩 나누기를 써 보세요.</small>}
         {mode !== "sheets" && sheets.length > 0 && (
           <div className="fm-opts">

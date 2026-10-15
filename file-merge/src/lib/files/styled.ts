@@ -5,7 +5,7 @@ import type ExcelJSType from "exceljs";
 import type { Cell } from "./table";
 
 type Wb = ExcelJSType.Workbook;
-type Ws = ExcelJSType.Worksheet;
+export type Ws = ExcelJSType.Worksheet;
 
 let lib: typeof ExcelJSType | null = null;
 async function excel(): Promise<typeof ExcelJSType> {

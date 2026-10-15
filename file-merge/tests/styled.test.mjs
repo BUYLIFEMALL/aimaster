@@ -62,3 +62,36 @@ test("서식 유지 한도: 100만 칸을 넘으면 안내 오류", async () => 
   handle({ op: "load", fileId: "big", name: "big.xlsx", bytes: ab(bytes), enc: "auto" });
   assert.throws(() => handle({ op: "collectWrite", picks: [{ fileId: "big", fileName: "big.xlsx", sheet: 0 }], style: { big: ab(small) } }), /원본 서식 유지/);
 });
+
+// v1.05 엑셀 나누기 서식 유지
+async function unzipBooks(zipBytes) {
+  const JSZip = (await import("jszip")).default;
+  const z = await JSZip.loadAsync(zipBytes);
+  const out = {};
+  for (const name of Object.keys(z.files).sort()) { const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await z.files[name].async("uint8array")); out[name] = wb.worksheets[0]; }
+  return out;
+}
+
+test("나누기 서식 유지: 열 값별·N행씩·시트별 모두 원본 셀 서식·열 너비", async () => {
+  const src = await book((wb) => {
+    const ws = wb.addWorksheet("고객");
+    ws.addRow(["지역", "이름", "금액"]); ws.addRow(["서울", "가", 1000]); ws.addRow([]); ws.addRow(["부산", "나", 2000]); ws.addRow(["서울", "다", 3000]);
+    ws.getRow(1).font = { bold: true }; ws.getCell("A1").fill = fill(BLUE); ws.getColumn(3).width = 22; ws.getColumn(3).numFmt = "#,##0원";
+    ws.getCell("B4").fill = fill(RED); ws.getCell("B5").font = { italic: true };
+    wb.addWorksheet("요약").getCell("A1").value = "합계";
+    wb.getWorksheet("요약").getCell("A1").fill = fill(RED);
+  });
+  handle({ op: "load", fileId: "sp", name: "고객.xlsx", bytes: ab(src), enc: "auto" });
+  const base = { fileId: "sp", fileName: "고객.xlsx", sheet: 0, headerRow: 1, col: 0, rowsPer: 2 };
+  const byCol = await unzipBooks((await handle({ op: "splitWrite", opts: { ...base, mode: "column" }, style: ab(src) })).bytes);
+  const seoul = byCol["고객_서울.xlsx"], busan = byCol["고객_부산.xlsx"];
+  assert.equal(seoul.getCell("A1").fill?.fgColor?.argb, BLUE); assert.equal(seoul.getCell("A1").font?.bold, true); assert.equal(seoul.getColumn(3).width, 22);
+  assert.deepEqual([seoul.getCell("B2").value, seoul.getCell("B3").value], ["가", "다"]);
+  assert.equal(seoul.getCell("B3").font?.italic, true, "빈 줄 뒤 행도 제 원본 서식"); assert.equal(seoul.getCell("C2").numFmt, "#,##0원");
+  assert.equal(busan.getCell("B2").fill?.fgColor?.argb, RED);
+  const byRows = await unzipBooks((await handle({ op: "splitWrite", opts: { ...base, mode: "rows" }, style: ab(src) })).bytes);
+  assert.equal(byRows["고객_02.xlsx"].getCell("B2").font?.italic, true);
+  const bySheet = await unzipBooks((await handle({ op: "splitWrite", opts: { ...base, mode: "sheets" }, style: ab(src) })).bytes);
+  assert.equal(bySheet["고객_요약.xlsx"].getCell("A1").fill?.fgColor?.argb, RED);
+  assert.equal(bySheet["고객_고객.xlsx"].getColumn(3).width, 22);
+});

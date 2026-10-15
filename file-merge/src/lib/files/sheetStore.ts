@@ -4,7 +4,7 @@ import { readSheets, writeCsv, writeXlsx, writeXlsxAoa, type RawSheet } from "./
 import { dedupeRows, headerKey, mergeByHeader, pickColumns, safeFileName, safeSheetName, splitByColumn, splitByRows, stem, toTable, type Cell } from "./table";
 import type { Encoding } from "./text";
 import { createZip } from "./zip";
-import { loadStyleBooks, writeStyledSheets, writeStyledTable, type CellRef } from "./styled";
+import { loadStyleBooks, writeStyledSheets, writeStyledTable, type CellRef, type Ws } from "./styled";
 
 export interface SheetMeta { name: string; rows: number }
 export interface Pick { fileId: string; fileName: string; sheet: number }
@@ -21,7 +21,7 @@ export type StoreJob =
   | { op: "mergeWrite"; picks: Pick[]; headerRow: number; addSource: boolean; shape: MergeShape; format: "xlsx" | "csv"; style?: Record<string, ArrayBuffer> }
   | { op: "collectWrite"; picks: Pick[]; style?: Record<string, ArrayBuffer> }
   | { op: "splitPlan"; opts: SplitOpts }
-  | { op: "splitWrite"; opts: SplitOpts };
+  | { op: "splitWrite"; opts: SplitOpts; style?: ArrayBuffer };
 
 // 원본 파일 바이트는 읽은 뒤 쓰지 않으므로 보관하지 않는다(v1.03 — 큰 파일 여러 개에서 메모리 절약)
 const files = new Map<string, { name: string; sheets: RawSheet[] }>();
@@ -82,24 +82,39 @@ function collectNames(picks: Pick[]) {
 }
 
 /** 나누기 결과 목록(이름·행 수)과 각 결과를 만드는 함수 */
-function splitOuts(o: SplitOpts): { header: string[]; outs: { name: string; rows: number; make: () => Uint8Array }[] } {
+/** styled: 서식 유지 저장(v1.05) — 원본 시트(ExcelJS)를 받아 이 결과 파일을 만든다 */
+type SplitOut = { name: string; rows: number; cells: number; sheetIndex?: number; make: () => Uint8Array; styled: (ws: Ws | null) => Promise<Uint8Array> };
+function splitOuts(o: SplitOpts): { header: string[]; sheet: RawSheet | null; outs: SplitOut[] } {
   const f = files.get(o.fileId);
   if (!f) throw new Error("파일을 다시 올려 주세요(작업 데이터가 없습니다).");
   const base = stem(o.fileName);
   const used = new Set<string>();
   const fname = (k: string) => `${safeFileName(`${base}_${k}`, used)}.xlsx`;
   if (o.mode === "sheets") {
-    return { header: [], outs: f.sheets.map((s) => ({ name: fname(s.name || "시트"), rows: s.aoa.length, make: () => writeXlsxAoa([{ name: safeSheetName(s.name || "Sheet1", new Set()), aoa: s.aoa }]) })) };
+    return { header: [], sheet: null, outs: f.sheets.map((s, si) => {
+      const name = safeSheetName(s.name || "Sheet1", new Set());
+      return { name: fname(s.name || "시트"), rows: s.aoa.length, cells: s.aoa.reduce((n, r) => n + r.length, 0), sheetIndex: si,
+        make: () => writeXlsxAoa([{ name, aoa: s.aoa }]), styled: (ws: Ws | null) => writeStyledSheets([{ name, src: ws, aoa: s.aoa }]) };
+    }) };
   }
   const s = f.sheets[o.sheet];
   if (!s) throw new Error("시트를 찾을 수 없습니다.");
   const t = toTable(o.fileName, s.name, s.aoa, o.headerRow);
   const sheetName = safeSheetName(s.name || "Sheet1", new Set());
-  const one = (rows: Cell[][]) => () => writeXlsx([{ name: sheetName, header: t.header, rows }]);
-  if (o.mode === "column") return { header: t.header, outs: splitByColumn(t, o.col).map((g) => ({ name: fname(g.key), rows: g.rows.length, make: one(g.rows) })) };
+  // 결과 행 → 원본 셀 위치(서식 유지용): t.rows 번호 → aoa 번호(t.src) → 원본 행(rowNums)
+  const rowNo = new Map(t.rows.map((r, i) => [r, i]));
+  const ref = (ws: Ws | null, aoaRow: number, c: number): CellRef | null => (ws && aoaRow >= 0 && aoaRow < s.rowNums.length ? { ws, row: s.rowNums[aoaRow] + 1, col: s.col0 + c + 1 } : null);
+  const out = (name: string, rows: Cell[][]): SplitOut => ({
+    name, rows: rows.length, cells: (rows.length + 1) * t.header.length,
+    make: () => writeXlsx([{ name: sheetName, header: t.header, rows }]),
+    styled: (ws) => writeStyledTable({ sheetName, header: t.header, rows,
+      headerFrom: (c) => (o.headerRow > 0 ? ref(ws, o.headerRow - 1, c) : null),
+      cellFrom: (r, c) => ref(ws, t.src?.[rowNo.get(rows[r]) ?? -1] ?? -1, c) }),
+  });
+  if (o.mode === "column") return { header: t.header, sheet: s, outs: splitByColumn(t, o.col).map((g) => out(fname(g.key), g.rows)) };
   const chunks = splitByRows(t.rows, o.rowsPer);
   const w = Math.max(2, String(chunks.length).length);
-  return { header: t.header, outs: chunks.map((rows, i) => ({ name: fname(String(i + 1).padStart(w, "0")), rows: rows.length, make: one(rows) })) };
+  return { header: t.header, sheet: s, outs: chunks.map((rows, i) => out(fname(String(i + 1).padStart(w, "0")), rows)) };
 }
 
 export const MAX_SPLIT_FILES = 500;
@@ -143,7 +158,20 @@ export function handle(job: StoreJob): unknown {
     case "splitWrite": {
       const r = splitOuts(job.opts);
       if (r.outs.length > MAX_SPLIT_FILES) throw new Error(`결과 파일이 ${r.outs.length}개로 너무 많습니다(최대 ${MAX_SPLIT_FILES}개). 기준을 바꿔 주세요.`);
-      return { bytes: createZip(r.outs.map((o) => ({ name: o.name, data: o.make() }))), count: r.outs.length };
+      if (!job.style) return { bytes: createZip(r.outs.map((o) => ({ name: o.name, data: o.make() }))), count: r.outs.length };
+      styleLimit(r.outs.reduce((n, o) => n + o.cells, 0));
+      const style = job.style, f = files.get(job.opts.fileId);
+      // 원본 통합문서를 한 번만 읽고, 결과 파일을 차례로 만든다(동시에 만들면 메모리가 커짐)
+      return loadStyleBooks({ x: style }).then(async (books) => {
+        const wb = books.get("x") ?? null;
+        const wsOf = (name: string, i: number) => (wb ? (name ? wb.getWorksheet(name) : wb.worksheets[i]) ?? null : null);
+        const entries: { name: string; data: Uint8Array }[] = [];
+        for (const [i, o] of r.outs.entries()) {
+          const ws = r.sheet ? wsOf(r.sheet.name, job.opts.sheet) : wsOf(f?.sheets[o.sheetIndex ?? i]?.name ?? "", i);
+          entries.push({ name: o.name, data: await o.styled(ws) });
+        }
+        return { bytes: createZip(entries), count: r.outs.length };
+      });
     }
   }
 }
