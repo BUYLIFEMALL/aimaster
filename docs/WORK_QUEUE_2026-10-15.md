@@ -31,7 +31,7 @@
 | C1 | 실제 휴대폰으로 모바일 화면 확인 | 주인님(또는 기기 모드) | 위쪽 메뉴(☰)로 바꾼 12개 프로그램(four-cut-comics, file-merge, ai-writing-editor, banana-canvas, blog-keyword, fashion-style, landing-architect, music-player, personality-suite, portrait-photo, reverse-prompt, thumbnail-master). 지금까지는 엣지 492px·400px iframe으로만 확인. | 원칙 19번, `docs/SIDEBAR_LAYOUT_STANDARD.md` |
 | C2 | ~~각 프로그램 본문 안의 모바일 배치 점검~~ **완료(2026-10-15)** — 12개 23화면 400px 가로 넘침 0, 수정 필요 없음. 남은 것: ai-writing-editor 편집 화면(문서가 있어야 열림) | 완료 | 메뉴 셸만 고쳤다. 표·편집기·좌우 분할·버튼이 좁은 화면에서 쓸 만한지 프로그램별로 확인·수정(각 버전 +0.01). | 원칙 19번 |
 | C3 | 4컷 만화 휴대폰 터치(말풍선 끌기)·[내 작품] | 주인님(또는 기기 모드) | | `four-cut-comics/docs/CLI_HANDOFF.md` §6 |
-| C4 | ~~AI 할 일·성과 관리 일반 회원 실제 검수~~ **완료(2026-10-15)** — W01~W05 통과(본인 Gemini 분석 1회 포함), W06 두 기기만 남음(주인님 두 번째 기기). 개선 후보 3건은 `ai-task-planner/docs/WORK_QUEUE.md` | 완료 | 예전부터 남은 항목(일반 회원 로그인·본인 Gemini 호출·두 기기). | `ai-task-planner/docs/WORK_QUEUE.md` |
+| C4 | ~~AI 할 일·성과 관리 일반 회원 실제 검수~~ **완료(2026-10-15)** — W01~W05 통과(본인 Gemini 분석 1회 포함), W06 두 기기만 남음(주인님 두 번째 기기). 개선 후보 3건은 v1.06에서 완료(2026-10-15) | 완료 | 예전부터 남은 항목(일반 회원 로그인·본인 Gemini 호출·두 기기). | `ai-task-planner/docs/WORK_QUEUE.md` |
 
 ## D. 프로그램 후속 개발(지시 시)
 

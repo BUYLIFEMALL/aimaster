@@ -4,7 +4,7 @@ import { emptyWorkspace, localDate } from "../src/lib/planner/model.ts";
 import { applyCommand } from "../src/lib/planner/engine.ts";
 import { validateBackup, parseBackup, mergeBackup, MAX_BACKUP_BYTES } from "../src/lib/planner/backup.ts";
 import { tasksCsv } from "../src/lib/planner/csv.ts";
-import { analysisData, analysisPrompt, analysisSchema } from "../src/lib/planner/ai.ts";
+import { analysisData, analysisPrompt, analysisSchema, promptView } from "../src/lib/planner/ai.ts";
 import { APP_VERSION } from "../src/lib/version.ts";
 const now = Date.now(), day = localDate(now);
 const add = (w, title = "기록") => applyCommand(w, { type: "task.add", input: { title, categoryId: w.settings.defaultCategoryId, priority: "high", estimatedMinutes: 10, plannedDate: day } }, now - 120_000);
@@ -69,6 +69,6 @@ test("AI input follows displayed scope, preserves unmeasured values, excludes no
   let w = add(emptyWorkspace(), "범위 안"); w = add(w, "범위 밖"); w = applyCommand(w, { type: "task.complete", id: w.tasks[0].id }, now - 1000); w.notes[day] = "외부로 보내지 않을 노트";
   const data = analysisData(w, { date: day, categoryId: "", query: "안", revision: 0 }, now);
   assert.equal(data.tasks.length, 1); assert.equal(data.completedCount, 1); assert.equal(data.predictionAccuracy, null); assert.equal(data.tasks[0].measured, false);
-  assert.equal(JSON.stringify(data).includes(w.notes[day]), false); assert.match(analysisPrompt(data), new RegExp(String(new Date().getFullYear())));
+  assert.equal(JSON.stringify(data).includes(w.notes[day]), false); assert.match(analysisPrompt(data), new RegExp(String(new Date().getFullYear()))); assert.match(analysisPrompt(data), /그날 집중 시간/); assert.doesNotMatch(JSON.stringify(promptView(data)), /focusSecondsOnDate|totalFocusSeconds|"done"|null|true|false|Tdd:dd/);
   assert.throws(() => analysisSchema.parse({ summary: "정상 JSON이지만 제안이 누락됨", strengths: ["실행"] }));
 });
