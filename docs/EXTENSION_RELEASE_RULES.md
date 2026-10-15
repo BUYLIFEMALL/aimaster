@@ -35,6 +35,7 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
 | slug | 확장 폴더 | 배포 방식 | 다운로드 주소 | 버전 동기화 |
 |---|---|---|---|---|
 | `naver-blog-agent` | `naver-blog-agent/extension` | 사이트 포함형(빌드 스크립트) | `https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip` (항상 최신 고정 주소) | `scripts/build-extension-archive.mjs`가 `version.ts`→`manifest.json` 자동 동기화 + ZIP 생성 |
+| `blog-content-maker` | `blog-content-maker/extension` | 사이트 포함형(빌드 스크립트) | `https://blog-content-maker.buylife.xyz/downloads/blog-content-maker-extension-latest.zip` | `scripts/build-extension.mjs`가 코드·manifest version_name 일치 확인 후 ZIP 생성. 초기 v1.01, 읽기 전용 연결·네이버 입력만 수행하며 최종 발행 없음. |
 | `ai-auto-blog` | `ai-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://ai-auto-blog-one.vercel.app/downloads/ai-auto-blog-extension-latest.zip` (고정 주소 `-latest.zip`, 2026-10-09 통일. 빌드가 버전별 ZIP과 함께 사본을 만든다) | `scripts/build-extension-archive.mjs` |
 | `naver-blog-seo-studio` | `naver-blog-seo-studio/extension` | 사이트 포함형(빌드 스크립트) | `https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-latest.zip` (**메인 도메인 buylife.xyz 아래가 아니라 자체 Vercel 주소**. 고정 주소 `-latest.zip`) | `scripts/build-extension-archive.mjs` |
 | `tistory-auto-blog` | `tistory-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-latest.zip` (고정 주소 `-latest.zip`) | `scripts/build-extension-archive.mjs` |

@@ -7,6 +7,7 @@ import {createClient} from '@supabase/supabase-js';
 import {createServerClient} from '@supabase/ssr';
 import {createHash,randomUUID} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
+import JSZip from 'jszip';
 const root=process.cwd(),base=process.env.VERIFY_BASE||'http://localhost:3065',mode=process.env.VERIFY_MODE||'flow';
 const raw=await fs.readFile(path.join(root,'.env.local'),'utf8');
 const env=Object.fromEntries(raw.split(/\r?\n/).filter(l=>/^[A-Z_]+=/.test(l)).map(l=>{const n=l.indexOf('=');let value=l.slice(n+1).trim();if(value.startsWith('"'))value=JSON.parse(value);return[l.slice(0,n),value];}));
@@ -57,6 +58,19 @@ try{
  }else{
   const {data:projects}=await admin.from('blog_content_maker_projects').select('id').eq('user_id',auth.user.id).order('created_at',{ascending:false}).limit(1);if(projects?.[0]){result.projectId=projects[0].id;await page.goto(base+'/review?project='+result.projectId);await page.getByLabel('본문 (마크다운)').waitFor();check('deployed stored draft accessible',true);}
  }
+ if(mode==='search'){
+  const s=await state();try{await action('settings',{settings:{...s.settings,search:true}});const searched=await action('titles',{topic:'구글 공식 문서에 근거한 검색 색인과 robots.txt의 차이',category:'디지털·도구'});if(searched.status!==200)throw new Error('Search verification: '+searched.data.error);check('actual search citations returned',searched.data.sources.length>0&&searched.data.sources.every(s=>s.url.startsWith('https://')));}finally{await action('settings',{settings:s.settings});}
+ }
+ if(mode==='media'){
+  const before=await state(),created=await action('create',{brief:{...before.project.brief,topic:'하얀 머그잔을 정리하는 안전한 주방 수납',imageCount:0,sceneCount:1,includeFaq:false,targetLength:800,experience:''}});check('scene fixture project created',created.status===200);result.projectId=created.data.project.id;
+  const generated=await action('generate',{projectId:result.projectId,expectedRevision:null});if(generated.status!==200)throw new Error('Scene draft: '+generated.data.error);check('scene fixture article generated',!!generated.data.revisionId);
+  await page.goto(base+'/images?project='+result.projectId);await page.getByText('영상 첫 장면 이미지',{exact:true}).waitFor();let s=await state();check('one pair produces distinct start and end plans',s.revisions[0].data.media.length===2&&s.revisions[0].data.media[0].kind==='scene-start'&&s.revisions[0].data.media[1].kind==='scene-end'&&new Set(s.revisions[0].data.media.map(m=>m.id)).size===2);
+  const sharp=(await import('sharp')).default;const fixture=await sharp(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480"><rect width="640" height="480" fill="#eee"/><path d="M240 140h160v160q-80 60-160 0z" fill="white" stroke="#bbb" stroke-width="4"/><path d="M400 170q90-15 65 80q-15 35-65 5" fill="none" stroke="white" stroke-width="22"/></svg>')).jpeg().toBuffer();
+  const uploaded=await action('upload',{projectId:s.project.id,reference:true,base64:fixture.toString('base64'),alt:'검수용 직접 그린 머그잔 참고 이미지'});check('own reference image uploaded privately',uploaded.status===200&&!!uploaded.data.assetId);
+  for(const [i,m] of s.revisions[0].data.media.entries()) {const image=await action('image',{projectId:s.project.id,expectedRevision:s.project.current_revision_id,planId:m.id,kind:m.kind,alt:m.alt,placement:m.placement,prompt:'흰색 머그잔을 밝은 주방 선반에 자연스럽게 놓은 장면, 글자와 로고 없음',aspect:'16:9',...(i===0?{referenceId:uploaded.data.assetId}:{})});if(image.status!==200)throw new Error('Scene image: '+image.data.error);check(i===0?'reference composition image generated':'end scene image generated',!!image.data.assetId);}
+  s=await state();check('reference preserved beside two separate scene files',s.assets.filter(a=>a.kind==='reference').length===1&&s.assets.filter(a=>a.kind!=='reference').length===2&&s.assets.every(a=>a.url.includes('/object/sign/')));
+  const exported=await page.request.get(base+'/api/export?project='+s.project.id+'&format=zip'),zip=await JSZip.loadAsync(await exported.body());check('scene ZIP contains exactly two current images',Object.keys(zip.files).filter(n=>n.startsWith('images/')&&!zip.files[n].dir).length===2);await page.reload();await page.getByText('영상 첫 장면 이미지',{exact:true}).waitFor();await page.screenshot({path:path.join(output,'media-composition.png'),fullPage:true});
+ }
  if(mode==='duplicate'){
   const before=await state(),copy=await action('duplicate',{projectId:before.project.id});check('project and private images duplicated',copy.status===200&&!!copy.data.project?.id);
   const copied=await page.evaluate(async id=>(await fetch('/api/workspace?project='+id)).json(),copy.data.project.id);check('copy preserves complete current text and image count',copied.revisions[0].data.body===before.revisions[0].data.body&&copied.assets.length===before.assets.length&&copied.assets.every(a=>a.path.includes('/'+copy.data.project.id+'/')));
@@ -77,7 +91,7 @@ try{
   const s=await state();
   const tokenResponse=await page.request.post(base+'/api/extension',{data:{action:'issue'},headers:{origin:base}});const issued=await tokenResponse.json();check('member extension token issued',tokenResponse.status()===200&&issued.token?.length===43);
   const authorization='Bearer '+issued.token;
-  const ext=await page.request.get(base+'/api/extension?project='+s.project.id,{headers:{authorization}});const payload=await ext.json();check('extension current revision and real images',ext.status()===200&&payload.revisionId===s.project.current_revision_id&&payload.images.length===1);
+  const ext=await page.request.get(base+'/api/extension?project='+s.project.id,{headers:{authorization}});const payload=await ext.json();const plans=new Set(s.revisions[0].data.media.map(m=>m.id)),imageCount=new Set(s.assets.filter(a=>a.kind!=='reference'&&plans.has(a.plan_id)).map(a=>a.plan_id)).size;check('extension current revision and real images',ext.status()===200&&payload.revisionId===s.project.current_revision_id&&payload.images.length===imageCount);
   check('extension foreign project blocked',(await page.request.get(base+'/api/extension?project=00000000-0000-0000-0000-000000000001',{headers:{authorization}})).status()===404);
   const tokenHash=createHash('sha256').update(issued.token).digest('hex');const {data:storedToken}=await admin.from('blog_content_maker_extension_tokens').select('token_hash').eq('user_id',auth.user.id).eq('token_hash',tokenHash).single();check('extension token stored only as hash',storedToken?.token_hash===tokenHash);
   await admin.from('blog_content_maker_extension_tokens').update({revoked_at:new Date().toISOString()}).eq('user_id',auth.user.id).eq('token_hash',tokenHash);check('revoked extension token rejected',(await page.request.get(base+'/api/extension',{headers:{authorization}})).status()===401);

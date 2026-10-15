@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — Gemini JSON·검색 동시 요청의 출처 누락 (blog-content-maker v1.02)
+
+- 증상: 검색 옵션을 켠 실제 호출에서 원고 JSON은 반환됐지만 grounding 출처가 없어 앱이 422로 차단함. 원인: 구조화 출력과 검색 결합 시 출처 메타데이터가 누락되는 응답을 실제 확인. 모델이 쓴 URL을 실제 검색 근거로 믿으면 안 됨.
+- 해결: 같은 회원·모델·키로 자연어 검색 조사 → JSON 구성으로 분리하고 실제 groundingChunks·검색 추천만 보존(`blog-content-maker/src/lib/ai.ts`). 근거 없으면 중단, 화면에 두 번 호출 안내. 수정 후 실제 회원 Chrome의 검색 출처 반환과 설정 복원 확인.
+- 다음부터 확인: JSON 파싱 성공과 실제 검색 근거 반환은 별도 검사. 검색+구조화 기능은 제공사 메타데이터를 검증하고, 두 단계 호출은 전체 함수 시간과 본인 비용을 명시. 원고 속 생성 URL을 검색 도구의 출처로 대신 넣거나 실패를 숨기며 검색을 끄지 않음.
+
 ## 2026-10-16 — 신규 프로그램 권한 트리거·원고별 이미지 연결 확인 (blog-content-maker v1.01)
 
 - 증상: 새 프로그램 등록 SQL에서 시험 회원 사용기간 insert가 중복 키로 실패. 원인: `grade_program_access_sync` 트리거가 등급 접근 관계 등록 시 이미 사용기간을 만듦. 해결: 실패한 묶음이 rollback되어 프로그램이 없는지 확인하고 수동 기간 insert를 `ON CONFLICT(user_id,program_id) DO NOTHING`으로 수정 후 재실행(`blog-content-maker/supabase/migrations/20261015152556_register_blog_content_maker.sql`). 다음부터 확인: 등급 관계를 추가하기 전에 트리거 동작을 읽고 기존 회원 권한을 덮어쓰지 않음.

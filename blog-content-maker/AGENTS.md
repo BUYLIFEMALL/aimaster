@@ -1,6 +1,6 @@
 # AI 블로그 콘텐츠 제작 자동화 — 인수인계
 
-2026-10-16, Codex. **v1.01**, slug `blog-content-maker`. 주인님이 이름과 개발 진행을 확정했습니다. 신규 테이블 6개·비공개 Storage·새 Vercel 프로젝트의 공용 DB 환경변수 3개도 승인된 범위입니다. 같은 승인을 다시 요청하지 않습니다.
+2026-10-16, Codex. **v1.02**, slug `blog-content-maker`. 주인님이 이름과 개발 진행을 확정했습니다. 신규 테이블 6개·비공개 Storage·새 Vercel 프로젝트의 공용 DB 환경변수 3개도 승인된 범위입니다. 같은 승인을 다시 요청하지 않습니다.
 
 먼저 루트 AGENTS.md, docs/HANDOFF.md, TOP_RULE_PERSONAL_ACCOUNT_API.md, ERROR_LESSONS.md, AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md, SIDEBAR_LAYOUT_STANDARD.md, EXTENSION_RELEASE_RULES.md와 이 폴더 README·개발 계획·검수 기록을 읽습니다.
 
@@ -19,8 +19,8 @@
 - 환경변수 NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY 세 가지 플랫폼 연결 값만 등록. 기존 프로젝트 환경변수는 수정하지 않음.
 - 공용 DB `esgxyikcnnvmlhygjkth`, 테이블 접두사 `blog_content_maker_`: settings/projects/revisions/assets/jobs/extension_tokens. 비공개 버킷 `blog-content-maker`. 소유자 RLS, 복합 소유자 외래 키와 서비스 역할 전용 revision RPC.
 - 구조 SQL: `supabase/migrations/20261015150454_blog_content_maker_v101.sql`. 등록: `20261015152556_register_blog_content_maker.sql`. 상세 설명 조정: `supabase/update_program_description.sql`.
-- programs 코드·확장 버전 v1.01, 기본 요금제 3종과 연동 가이드 등록. 등급 접근 등록 트리거가 기간 권한도 만드므로 수동 권한 등록은 ON CONFLICT 처리.
-- `src/lib/version.ts`가 이름·버전·URL 기준. 확장 Chrome 숫자 버전 1.1.0, version_name v1.01. ZIP 고정 경로 `public/downloads/blog-content-maker-extension-latest.zip`, prebuild 자동 생성.
+- programs 코드·확장 버전 v1.02, 기본 요금제 3종과 연동 가이드 등록. 등급 접근 등록 트리거가 기간 권한도 만드므로 수동 권한 등록은 ON CONFLICT 처리.
+- `src/lib/version.ts`가 이름·버전·URL 기준. 확장 Chrome 숫자 버전 1.2.0, version_name v1.02. ZIP 고정 경로 `public/downloads/blog-content-maker-extension-latest.zip`, prebuild 자동 생성.
 
 ## 검수·재개
 
@@ -33,3 +33,7 @@
 원본은 실행하지 않았습니다. NSIS→7z→ASAR 정적 분석과 REA·직접 번들 검토를 근거로 기능을 새로 구현했습니다. REA 전체 의미 그래프는 자원 한계로 부분 분석입니다. 추출 자료는 `D:/PDS/analysis/naver-blog-seo-6.5.4-20261015/`에만 있으며 원본 코드·아이콘·고유 지시문·인증 체계를 복사하지 않았습니다.
 
 점검은 내부 규칙·AI 의견·회원 확인을 구분합니다. 실제 검색량·네이버 공식 점수·상위 노출 보장으로 표현하지 않습니다. 가상 체험을 본인 후기로 만들지 않으며 장면 이미지를 영상 파일로 부르지 않습니다. 다른 서브프로젝트는 수정하지 않습니다.
+
+## v1.02 (2026-10-16)
+
+Gemini 검색은 같은 본인 모델·키로 자연어 근거 조사 후 JSON 구성을 나누어 호출합니다. 출처 누락 시 중단하며 두 번 호출을 설정 화면에 안내합니다. 실제 검색 출처 반환 검수 통과. 버전 SQL은 `supabase/migrations/20261015155731_release_v102.sql`. 제품 참고 JPEG 합성·첫/끝 장면 두 이미지·ZIP 검수도 통과했습니다. 운영 배포 상세는 검수 기록에 남깁니다.
