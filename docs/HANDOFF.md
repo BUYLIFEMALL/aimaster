@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-15 Claude Code(보조 계정) — A1 Step Mail 로그인 화면 확인·C2 본문 모바일 점검 (코드 변경 없음)
+
+- **A1 Step Mail v1.07(Next 15·React 19)**: 엣지, 시험 계정 로그인 상태. 리드 목록·상태 필터·페이지 크기(주소 값 반영 50)·이메일 초안 목록·새 초안 화면·예약 발송 목록·새 캠페인·메일계정·API키 화면 모두 정상(서버 오류 없음), 없는 초안 주소 404, 리드 엑셀 양식(`/api/leads/template`) 정상 xlsx(16KB). **미확인**: 초안 편집기(tiptap) — 시험 계정에 초안이 없고 만들려면 AI 유료 호출이 필요. 발송·캠페인 실행 없음.
+- **A2 카카오톡 뉴스레터**: 엣지가 `kakaoautoposter.vercel.app`에 로그인되어 있지 않아 대기(주인님 로그인 필요).
+- **C2 본문 모바일 배치**: 12개 프로그램 23개 화면을 400px 폭(같은 사이트 iframe)에서 측정 — 가로 넘침 0, 화면 밖으로 나가는 요소 0. 4컷 만화 스튜디오·AI 글쓰기 에디터 대시보드는 화면 캡처로도 1열 정상 확인. **미확인**: ai-writing-editor `/editor/[id]`(시험 계정 문서 없음). 실제 휴대폰 확인(C1)은 별도.
+
 ## 2026-10-15 Claude Code(보조 계정) — B3: 글·대본 생성 16개 프로그램에 "한국 시간 현재 월" 지시 추가
 
 - 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄") 예방. 각 프로그램 주 생성 지시문에 `koreaNowRule()`("[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]", Asia/Seoul) 추가, 버전 +0.01·빌드·프로덕션 배포 READY·DB 버전 반영. 대상(새 버전): threads-content-ops v1.93(루트 사이트 배포), landing-architect v1.05, cardnews-studio v1.08, youtube-channel-consultant v1.05, cinematic-storyboard-studio v1.04, ai-auto-blog v1.62, naver-blog-allinone v1.41, naver-blog-agent v1.83, tistory-auto-blog v1.69, youtube-viral-studio v1.11, detail-page-12p v1.02, ai-influencer-studio v1.07, ai-webtoon-studio v1.08, suno-music-studio v1.08, ebook-studio v1.04, emotion-writer v1.08.
