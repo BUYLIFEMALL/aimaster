@@ -286,6 +286,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - 두 계정(메인·보조) 모두 하단 상태바는 **항상 `[모델]·[effort] | 5h [남은%] ([남은 시간]) | weekly [남은%] ([남은 시간]) | context [남은%]` 형식으로 고정 표시**한다. 상태바의 %는 **남은 양**이다(Orca의 `XX% 사용`은 사용량 — 원칙 9번과 구분).
     - 고정 장치: 표시 스크립트 `~/.claude/statusline-extra.js`(백업 `.good`) + 보호 스크립트 `~/.claude/statusline-guard.js`를 두 계정 `settings.json`의 SessionStart·UserPromptSubmit 훅으로 매번 실행해, Orca 등이 설정을 덮어쓰거나 스크립트가 지워져도 자동 복구한다. 이 장치를 지우거나 우회하지 않는다.
     - Orca 재설치·설정 변경·새 계정 폴더 추가 뒤에는 점검 명령을 실행하고, "상태바가 이상하다"는 말을 들으면 추측하지 말고 `%TEMP%/last-agy-statusline.json`(실제 입력값)과 출력부터 대조해 보고한다.
+    - **Orca에서 Claude Code를 연동하면(새 계정 포함) 이 상태바가 자동으로 적용되어야 한다.** Mac(Orca)에서는 guard가 `~/Library/Application Support/orca/claude-profiles/*/home`을 전부 자동으로 찾아 연결하고, 표시 스크립트는 Orca 기본 상태바(`~/.orca/agent-hooks/claude-statusline.sh`)에도 같은 입력을 넘겨 Orca 연동을 유지한다. 새 Orca 계정의 첫 세션에서 상태바가 비면 `node ~/.claude/statusline-guard.js` 한 번 실행 또는 아무 질문 한 번 입력. 스크립트가 없는 새 PC면 `docs/CLAUDE_STATUSBAR.md` 5절 기준으로 다시 만든다.
     - 형식·파일·점검/복구 명령: [`docs/CLAUDE_STATUSBAR.md`](docs/CLAUDE_STATUSBAR.md).
 
 21. **프로그램 분석에 REA(리버스 엔지니어링 도구) 활용 지침 (2026-10-15 주인님 지시, 모든 CLI 공통).**

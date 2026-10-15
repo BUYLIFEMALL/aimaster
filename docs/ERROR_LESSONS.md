@@ -1,5 +1,8 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-15 — Mac(Orca) Claude Code 상태바: Orca 기본 스크립트를 그냥 바꾸면 Orca 연동이 끊기고, 새 계정은 자동 적용되지 않음 (로컬 PC 설정)
+- 증상: Mac에 Windows용 상태바 스크립트가 없어 하단 상태바가 안 나옴. Orca 기본 `statusLine`(`~/.orca/agent-hooks/claude-statusline.sh`)은 화면 출력 없이 Orca 앱으로 입력값만 전송함 → 원인: `statusLine`은 하나만 지정 가능해서 표시 스크립트로 바꾸면 Orca 전송이 빠지고, guard가 고정된 계정 폴더만 점검하면 Orca에 새로 연동한 계정은 빠짐 → 해결: `~/.claude/statusline-extra.js`가 입력을 Orca 스크립트에도 넘기고(전송 기록 `$TMPDIR/orca-claude-statusline-last-*` 갱신 확인), `~/.claude/statusline-guard.js`가 `orca/claude-profiles/*/home`을 자동 탐색 → 다음부터 확인: 상태바 스크립트를 바꾼 뒤 Orca 전송 기록 갱신과 `docs/CLAUDE_STATUSBAR.md` 5절 점검 명령(guard=2 extra=1) 확인.
+
 ## 2026-10-15 — 스크립트로 소스를 고칠 때 "\u0000" 같은 이스케이프가 실제 NUL 문자로 들어가 파일이 바이너리 취급됨 (file-merge v1.03→v1.04)
 - 증상: `ExcelMerge.tsx`가 `grep`·`git diff`에서 "Binary file"로 나오고 변경 줄 수가 `-`로 표시됨(빌드·동작은 정상).
 - 원인: heredoc 안 node 스크립트의 템플릿 문자열에서 `join("\u0000")`를 쓰려다 이스케이프가 한 번 더 풀려 **실제 NUL(0x00) 바이트**가 소스에 기록됨(v1.03 커밋에 포함).

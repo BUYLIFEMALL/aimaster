@@ -37,3 +37,22 @@ cmp /c/Users/Administrator/.claude/statusline-extra.js /c/Users/Administrator/.c
 ```
 
 복구: `node C:/Users/Administrator/.claude/statusline-guard.js` 실행 후 Claude Code에서 아무 질문이나 한 번 입력. 그래도 안 나오면 `docs/ERROR_LESSONS.md` 2026-10-14 "하단 상태바가 재실행 후 빠짐" 항목.
+
+## 5. Mac(Orca) 구성 — Orca에서 Claude Code를 연동하면 자동 적용 (2026-10-15)
+
+Mac에서는 Claude Code가 Orca 앱 안에서 계정(프로필)별 설정 폴더로 실행된다(`CLAUDE_CONFIG_DIR` = `~/Library/Application Support/orca/claude-profiles/<계정ID>/home`). Orca 기본 상태바 스크립트(`~/.orca/agent-hooks/claude-statusline.sh`)는 화면에 아무것도 출력하지 않고 입력값을 Orca 앱으로만 보낸다.
+
+| 파일 | 역할 |
+|---|---|
+| `~/.claude/statusline-extra.js` (+ `.good`) | 1절 형식 출력. 입력 JSON을 Orca 기본 스크립트에도 그대로 넘겨 **Orca 연동 유지**. effort는 입력의 `effort.level`(없으면 `CLAUDE_EFFORT`). 마지막 입력은 `$TMPDIR/claude-statusline-last-input.json` |
+| `~/.claude/statusline-guard.js` | `orca/claude-profiles/*/home`을 **전부 자동 탐색**(+`CLAUDE_CONFIG_DIR`)해서 `statusLine`이 `node "~/.claude/statusline-extra.js"`가 아니면 다시 연결하고, SessionStart·UserPromptSubmit 훅에 자기 자신을 추가한다. 다른 훅(Orca·herdr)은 그대로 둔다. 바꾸기 전 `settings.json.statusline-guard.bak` 백업. stdout 출력 없음 |
+
+- **새 Orca 계정 연동 시**: 기존 계정의 세션에서 질문을 한 번 하거나 `node ~/.claude/statusline-guard.js`를 실행하면 새 계정 폴더에도 연결된다. 그 뒤 새 계정은 자기 훅으로 스스로 유지된다.
+- 데이터 매핑: 모델 `model.display_name` / 5h·weekly 잔여 = `100 - rate_limits.five_hour|seven_day.used_percentage`, 남은 시간 = `resets_at`(epoch 초) − 현재 / context = `context_window.remaining_percentage`. 값이 없으면 그 칸은 생략(지어내지 않음).
+- 색상(24bit ANSI): 모델·effort `#DECCA1`, 5h·weekly `#D07E8E`, context `#D89E7B`, 구분자 ` | ` `#787878`.
+- 점검:
+```bash
+for d in "$HOME/Library/Application Support/orca/claude-profiles/"*/home; do echo "$d guard=$(grep -c statusline-guard "$d/settings.json") extra=$(grep -c statusline-extra.js "$d/settings.json")"; done   # guard=2 extra=1
+node ~/.claude/statusline-extra.js < "${TMPDIR}claude-statusline-last-input.json"; echo
+cmp ~/.claude/statusline-extra.js ~/.claude/statusline-extra.js.good && echo same
+```
