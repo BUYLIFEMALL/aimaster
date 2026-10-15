@@ -1,10 +1,10 @@
 # AI 블로그 작업실 자동화 (`blog-workroom`) — 인수인계
 
-- 주소: https://blog-workroom.buylife.xyz (Vercel 프로젝트 `blog-workroom`, `prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY`) · slug `blog-workroom` · 카테고리 블로그 · 버전 **v1.01**
+- 주소: https://blog-workroom.buylife.xyz (Vercel 프로젝트 `blog-workroom`, `prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY`) · slug `blog-workroom` · 카테고리 블로그 · 버전 **v1.02**
 - 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 먼저 읽는다. 최상위 규칙: **AI·네이버 키는 회원 본인 것만**(운영자 키 폴백 없음).
 
 ## 1. 무엇인가 / 왜 이렇게 만들었나
-- 2026-10-15 주인님 지시 "DotoliAI-1.2-setup.exe(도톨이 AI, Python 데스크톱 앱) 웹버전으로 개발". 분석: [`docs/DOTOLI_AI_REFERENCE_ANALYSIS.md`](../docs/DOTOLI_AI_REFERENCE_ANALYSIS.md).
+- 2026-10-15 주인님 지시로 설치형 블로그 글쓰기 보조 프로그램(Python 데스크톱 앱)의 기능을 참고해 「AI 블로그 작업실 자동화」 웹 버전으로 새로 개발. 분석 기록은 `docs/HANDOFF.md` 2026-10-15 항목 참고.
 - **권리 없음 — 기능만 참고**(주인님 확인). 원본 코드·지시문·작성 지식(`knowledge.json`)·이름·아이콘은 쓰지 않았다. 작성 원칙(`src/lib/prompts.ts` `WRITING_PRINCIPLES`)은 네이버 서치어드바이저 공개 가이드를 우리 말로 새로 쓴 것.
 - 원본과 다른 점: ChatGPT 구독(Codex 로그인) 대신 **회원 본인 OpenAI 또는 Gemini 키**(설정에서 선택), 로컬 SQLite 대신 공용 Supabase, 내장 브라우저 상위 5개 대신 **네이버 검색 API 정확도순**(화면에 "실제 순위와 다를 수 있음" 고지), Kiwi 형태소 분석 없음(AI + 단순 규칙), 자동 업데이트·백업 화면 없음.
 
@@ -38,3 +38,6 @@
 - 프리미엄 후보 아님(운영자 실비 없음 — 원칙 16). 서버 수집량이 커지면 재판단.
 - 원본 대비 미구현: 이미지 "유사 이미지 찾기", 참고 사이트 주소 읽기, 노드별 개별 참고 이미지, 캔버스 끌기 화면, 사용량 통계 화면.
 - 버전 올릴 때: `src/lib/version.ts` + `package.json` + DB `programs.version` + 이 문서.
+
+## 6. 작업 기록
+- v1.02 (2026-10-16): 주인님 지시로 프로그램 폴더 안의 참고 원본 프로그램 이름 표현을 모두 지우고 이 프로그램 이름으로 바꿈(인수인계 문서 1곳, 코드 주석 1곳). 화면·DB 설명·저장 데이터에는 원래 없었음(확인). 동작 변경 없음.

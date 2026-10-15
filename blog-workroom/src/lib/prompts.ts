@@ -1,7 +1,7 @@
 import { todayKst } from "@/lib/util";
 import type { BlogData, BriefSource, ResearchData, StyleProfile, Section } from "@/lib/types";
 
-// AI 지시문. 원본 프로그램(도톨이 AI)의 지시문·작성 지식은 쓰지 않았다(권리 없음 — 기능만 참고).
+// AI 블로그 작업실 자동화의 AI 지시문. 참고한 원본 프로그램의 지시문·작성 지식은 쓰지 않았다(권리 없음 — 기능만 참고).
 // 작성 원칙은 네이버 서치어드바이저의 공개 가이드(콘텐츠 기본·어뷰징 안내)를 우리 말로 요약해 새로 만든 것이다.
 
 /** 기준 시점(핵심 원칙 8): 모든 지시문 맨 앞에 붙인다 */
