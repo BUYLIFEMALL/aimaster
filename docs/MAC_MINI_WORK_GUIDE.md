@@ -7,7 +7,10 @@
 ## 1. 이 세션이 누구인가
 - 장비: 맥미니(macOS). 작업 폴더 `/Volumes/gt1_mega/Antigravity/AIMaster` = 윈도우 PC의 `D:\Antigravity\AIMaster`.
 - Claude 계정: 보조 계정 `buylifemall1@gmail.com`(설정 폴더 `~/.claude-account2`). 메인 계정 `buylifemall@gmail.com`은 윈도우 쪽이다(원칙 18번).
-- 브라우저: 보조 계정은 엣지만 사용(원칙 18번).
+- 브라우저(2026-10-15 주인님 지시): **맥미니에서 실행되는 이 세션의 크롬 작업은 항상 이 맥미니에 있는 크롬으로 한다.** 메인 `CLAUDE.md` 원칙 18번의 "보조 계정은 엣지"는 윈도우 PC 기준이며 맥미니 세션에는 적용하지 않는다.
+  - `list_connected_browsers`에서 `osPlatform`이 macOS이고 `isLocal: true`인 항목이 맥미니 크롬이다(2026-10-15 실측: "Browser 1", deviceId `6d2d44cb-e050-43a5-9c78-eb3dd1d06bb0`). deviceId는 바뀔 수 있으니 매번 이 조건으로 확인한다.
+  - Windows로 표시되는 브라우저(다른 PC의 크롬·엣지)는 선택하지 않는다. 선택 질문이 필요한 경우에도 macOS·isLocal 항목을 권장으로 안내한다.
+  - 사이트 로그인은 이 크롬에서 주인님이 직접 해 둔 상태를 쓴다. 비밀번호·키 입력과 최종 발행·결제는 하지 않는다(원칙 13번).
 
 ## 2. 하는 일 / 안 하는 일
 - **한다**: 파일 읽기·편집·분석, 문서 작성.
