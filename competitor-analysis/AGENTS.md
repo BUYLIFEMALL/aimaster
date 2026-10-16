@@ -3,7 +3,7 @@
 이 문서는 **경쟁사 키워드 분석 자동화(competitor-analysis)** 프로젝트에서 AI Agent(Claude
 Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 
-> **Windows 인수 주의(2026-10-16):** 루트 최상위 개인 API·공용 데이터 쓰기 지침이 초기 전역 캐시 예외 설명보다 우선합니다. 기존 캐시의 일반 회원 쓰기는 개선 #12의 미해결 항목이며 신규 예외 승인으로 간주하지 않습니다.
+> **최상위 정정(2026-10-16):** 생성 데이터는 회원 본인 소유이며 30일 후 자동삭제 대상입니다. 초기 전역 회사 캐시 설계는 폐기됐습니다. v1.08 수정안은 검수됐으나 운영 적용은 승인 대기입니다. 아래 최신 인수인계를 먼저 읽습니다.
 
 ---
 
@@ -71,18 +71,13 @@ competitor-analysis는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
   그대로 쓴다. 이 프로그램은 `serpapi`(구글 검색결과)/`perplexity`(경쟁사 리서치)/
   `openai`(분석 리포트)/`anthropic`(HTML 리포트 변환, 선택) 4개 provider를 쓴다.
-- 사용자 소유 데이터 테이블(`competitor_keywords`, `competitor_serp_jobs`,
-  `competitor_serp_results`, `user_tracked_competitors`, `competitor_analyses`)은 `user_id` +
-  RLS owner-only 정책으로 격리한다. **단, `competitor_profiles`(도메인→회사정보)는 예외적으로
-  전역 공유 캐시다** — 회사 정보 자체는 사용자와 무관한 객관적 사실이라, 여러 회원이 같은
-  도메인을 조회해도 Perplexity/GPT 리서치를 한 번만 하도록 의도적으로 공유 설계했다(비용 절감).
-  이 테이블만 select/insert/update를 "로그인한 사용자면 누구나"로 열어둔다.
+- 모든 회원 데이터는 `user_id` + RLS owner-only 정책으로 격리합니다. 회사 조사 정보도 예외가 아니며 다른 회원이 만든 자료를 사용하지 않습니다. 생성 자료는 건별 생성일 기준 30일 후 자동 삭제합니다. 운영 v1.07의 옛 전역 저장소는 알려진 위반이며 v1.08 적용 전까지 해결됐다고 보고하지 않습니다.
 
 ## 📦 Phase 진행 상태
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
-| 1 | 키워드 CRUD, SerpApi 검색(organic/ad/PAA 분류), 경쟁사 리서치(전역 캐시 dedup), GPT 분석, 선택적 Claude HTML 리포트 | ✅ 구현 완료 |
+| 1 | 키워드 CRUD, SerpApi 검색(organic/ad/PAA 분류), 경쟁사 리서치(본인 조사만 재사용; 전역 캐시 폐기 전환 중), GPT 분석, 선택적 Claude HTML 리포트 | ✅ 구현 완료 |
 | 1 | 구글 외 네이버 검색엔진 지원 — 키워드마다 구글/네이버 선택(`competitor_keywords.engine`), `lib/serp/client.ts`의 `searchNaver()`(응답 필드가 구글과 달라 별도 파서: `web_results`→organic, `ads_results`→ad). 네이버는 PAA/지역결과에 대응하는 필드가 명확하지 않아 organic/ad만 채움 | ✅ 구현 완료 (2026-08-23) |
 | 2 | Vercel Cron 정기 모니터링 + 이전 회차 대비 순위 변동 표시 | ⏳ 예정 |
 | 2 | 여러 키워드를 가로지르는 "도메인별 노출 빈도(share of voice)" 대시보드 | ⏳ 예정 |
@@ -118,3 +113,13 @@ competitor-analysis는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 ## Windows 최종 완료 — v1.07 (2026-10-16)
 
 production dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY, 소스 c80a44af 푸시·DB v1.07. 타입/빌드 통과, 합성 15개·실제 일반 회원 Edge 로컬/운영 각 12개 통과. 유료 호출·실제 회원 데이터 쓰기 0회. DESIGN_HANDOFF 7절과 IMPROVEMENT_HANDOFF의 Windows 최종 절이 최신입니다. 기존 보안 #11/#12는 미해결이며 신규 캐시 예외를 허용하지 않습니다.
+
+## 2026-10-16 회원 생성 데이터 격리·30일 자동삭제 — v1.08 적용 준비
+
+**정책 확정, 수정안 검수 완료, 운영 DB 변경·만료 자료 삭제 승인 대기입니다. 운영은 v1.07입니다. 후보 코드를 먼저 배포하지 않습니다.**
+
+주인님 재확정: 본인 계정·본인 API로 만든 자료는 본인만 사용하며 다른 회원과 공유·복사·재사용하지 않습니다. 공개 회사자료/비용 절감도 예외가 아닙니다. 공통 Supabase 기반 시설은 유지하고 회원별 `user_id`·RLS로 나눕니다.
+
+후보 v1.08은 `competitor_company_profiles`에 회원별 조사를 새로 저장합니다. 소유자 없는 옛 `competitor_profiles`는 회원 읽기·쓰기를 차단하며 누구에게도 복사하지 않습니다. 생성 자료는 30일 시점부터 접근 차단하고 매시 07분(UTC) 정리합니다. 키워드 정의·추적 선택·계정·키·권한·결제·설정은 삭제 대상이 아닙니다. 분석 회차의 검색결과·리포트는 그 회차 생성일을 기준으로 함께 만료합니다.
+
+재개 순서·검수 증거·승인 범위: [회원별 보관 정책 인수인계](docs/MEMBER_RETENTION_HANDOFF_20261016.md). 개발 플랜: [PLAN](docs/PLAN_20261016_MEMBER_DATA_RETENTION.md). 유료 외부 호출 0회입니다.

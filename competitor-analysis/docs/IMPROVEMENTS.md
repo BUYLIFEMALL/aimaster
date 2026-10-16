@@ -19,8 +19,9 @@
 ## 2026-10-16 Codex(Windows) — 인수 검수 중 발견
 
 - **#11 기존 의존성 보안 점검 (높음·미구현)**: npm audit가 15건(critical 1/high 12/moderate 2)을 보고했습니다. 직접 의존성 Next 14.2.35 및 eslint-config-next·Tailwind 전이 의존성을 별도 업그레이드 플랜에서 확인해야 합니다. critical 범위는 Windows 서버 및 AVIF 이미지 최적화 RCE 공지입니다. 이번 서비스는 Vercel이며 이미지 업로드/next/image 기능은 없지만 영향 범위를 축소 단정하지 않습니다. 로컬 검수 서버는 127.0.0.1에만 바인딩합니다. 이번 인수 마무리에서 major 자동 업그레이드나 audit fix --force를 하지 않습니다. 다음 첫 단계: 공식 보안 공지·배포 런타임·지원 버전 확인 후 async API/라우트 호환 플랜과 전체 회귀 검사.
-- **#12 공유 회사 캐시 정책 대조 필요 (높음·조사 필요)**: 기존 competitor_profiles는 사용자 구분 없는 전역 캐시이며 분석 액션이 일반 회원 클라이언트로 upsert합니다. 프로그램 AGENTS에는 의도된 예외로 설명하지만 최상위 개인 계정/API 지침은 공용 데이터의 일반 회원 쓰기를 금지합니다. 이번 작업은 유료 분석/캐시 쓰기를 실행하거나 수정하지 않습니다. 실제 pg_policies 조회에서도 authenticated INSERT/UPDATE가 확인됐습니다(쓰기 실험은 하지 않음). 다음 첫 단계: 승인 이력·데이터 변경 가능성을 대조해 관리자 승인 캐시 또는 회원 소유 캐시 전환 플랜을 제시하고 DB 정책 변경 승인을 받습니다.
+- **#12 회원 생성 데이터 공유 금지·30일 보관 (높음·수정안 검수 완료/운영 승인 대기)**: 주인님이 전역 회사정보 캐시 자체를 금지했습니다. 관리자 승인 공용 캐시도 대안이 아닙니다. 회원 소유 조사 저장소·소유자/기한 조회·RLS·30일 Cron SQL과 롤백 검사를 준비했습니다. 실제 운영은 v1.07·옛 정책이므로 해결 완료로 표시하지 않습니다. 다음 첫 단계는 MEMBER_RETENTION_HANDOFF_20261016.md의 승인 상태 확인 후 DB→배포→라이브 검수입니다.
 
   - #11 공식 근거: [Windows RCE](https://github.com/vercel/next.js/security/advisories/GHSA-p293-qw3h-jr36), [AVIF 이미지 최적화 RCE](https://github.com/vercel/next.js/security/advisories/GHSA-2xp9-vwfh-vxw4). 현재 설치 버전은 영향 범위에 포함됩니다. 실제 악용 검사는 하지 않았습니다.
 
 - **#13 매뉴얼 SPA 전환 검수의 오판 가능성 (중간·검사 보완)**: 실제 /guide 클릭 후 일반적인 첫 heading만 기다리면 직전 /settings 제목이 조건을 만족해 설정 화면을 매뉴얼 캡처로 저장할 수 있었습니다. 제품 라우트 버그가 아니라 검사 대기 조건 문제입니다. tests/runtime.mjs에서 /guide URL·고유 제목을 확인하고 FAQ 열기/닫기도 검사하도록 보완했습니다. 로컬·운영 재검수 통과, 캡처 교체 완료(evidence/guide-captures.json). 다음 CLI도 메뉴 클릭 후 목표 경로/제목을 함께 기다립니다.
+- **#14 375px 긴 제목 글자 일부 잘림(낮음·화면 개선 제안)**: 후보 검수 캡처 retention-v108-local-dashboard-mobile.png에서 PageHero 제목의 줄바꿈 경계 글자가 일부 잘려 보입니다. 문서 전체 가로 넘침 검사는 통과하지만 overflow-hidden 안쪽 글자까지 보장하지 않습니다. 다음 UI 작업에서 h1 줄바꿈·글자 폭과 실제 캡처를 함께 확인합니다. 이번 데이터 격리 작업의 범위에는 포함하지 않았습니다.

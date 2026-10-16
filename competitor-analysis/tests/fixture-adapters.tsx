@@ -24,18 +24,19 @@ const data: Record<string, any[]> = {
   ],
   competitor_analyses: [{ id: 'analysis-one', job_id: 'job-one', summary_text: '합성 경쟁사 분석 리포트 — 비용 없는 검수', html_report: '<h1>격리된 합성 리포트</h1><script>parent.fixture.compromised=true;</script>' }],
   user_tracked_competitors: [{ domain: 'example.org', note: '', created_at: '2026-10-15T23:30:00Z' }],
-  competitor_profiles: [{ domain: 'example.org', company_name: '합성 회사', summary: '합성 회사 소개' }],
+  competitor_company_profiles: [{ domain: 'example.org', company_name: '합성 회사', summary: '합성 회사 소개' }],
 };
 export async function createClient() {
   return { from: (table: string) => {
     let single = false; const filters: any[] = []; const q: any = {};
     q.select = () => q; q.order = () => q; q.limit = () => q;
     q.eq = (column: string, value: any) => { filters.push(['eq', column, value]); return q; };
+    q.gt = (column: string, value: any) => { filters.push(['gt', column, value]); return q; };
     q.in = (column: string, value: any[]) => { filters.push(['in', column, value]); return q; };
     q.maybeSingle = () => { single = true; return q; };
     q.then = (ok: any, reject: any) => {
       window.fixture.queries.push({ table, filters, empty: window.fixture.empty });
-      const rows = (window.fixture.empty ? [] : data[table] || []).filter(row => filters.every(([op, key, value]) => key === 'user_id' || (op === 'eq' ? row[key] === value : value.includes(row[key]))));
+      const rows = (window.fixture.empty ? [] : data[table] || []).map(row => ({ user_id: 'fixture-member', created_at: new Date().toISOString(), ...row })).filter(row => filters.every(([op, key, value]) => op === 'eq' ? row[key] === value : op === 'gt' ? row[key] > value : value.includes(row[key])));
       return Promise.resolve({ data: single ? rows[0] ?? null : rows, error: null }).then(ok, reject);
     }; return q;
   } };

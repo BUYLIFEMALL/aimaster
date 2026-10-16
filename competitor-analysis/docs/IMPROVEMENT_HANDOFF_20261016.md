@@ -47,3 +47,7 @@
 마지막 푸시 뒤 메인 자동 배포에서 Git 제외 설치 파일이 빠져 다운로드가 404였습니다. 이전 검증 배포와 현재 메인 사이에 다른 CLI의 SEO Studio 새 주소 전달 변경이 있어 기존 guard가 올바르게 과거 배포 재지정을 막았습니다. 최신 소스 325710c4를 고정하고 기존 72,796,208바이트 installer를 포함해 메인을 재배포했습니다. 새 배포 **dpl_5ptzk1yEsWQSfdt9LgLkaYU8ZGHR** READY, https://aimaster-lp7mxzpqb-buylife.vercel.app. 홈·설치 EXE·확장 ZIP 200, 보이는 Edge에서 기존 SEO 경로가 naver-blog-seo-studio.buylife.xyz로 이동하는 것까지 확인했습니다. 프로그램 DB/권한 변경 없음. 루트 빌드는 성공했으나 기존 설정에 따라 TypeScript 검증은 생략됐습니다. [HTTP/배포 증거](evidence/main-artifacts.json), [Edge 이동 증거](evidence/main-redirect-edge.json).
 
 복구 기준은 docs/supabase-compat-rollout-20261016/deployments.json의 루트 행(소스 325710c4·위 새 ID)으로 갱신했습니다. 이전 3RZ/3Yjt 배포는 이번 메인 변경보다 과거 이력이므로 최신 메인 복구 대상으로 사용하지 않습니다. 이후 최종 문서 푸시가 끝난 다음 guard로 새 기준을 재확인합니다.
+
+## 최신 우선 — 생성 데이터 공유 금지·30일 자동삭제 정정
+
+주인님은 회사 조사 정보까지 회원별 격리를 확정했습니다. 과거 기록에 남은 「관리자 승인 공용 캐시」 선택지는 폐기됐습니다. [최신 회원 보관 인수인계](MEMBER_RETENTION_HANDOFF_20261016.md)를 먼저 읽습니다. v1.08 후보 준비·검수 완료, 운영 DB/삭제 승인 대기이며 운영 v1.07은 그대로입니다. 전 프로그램 자동삭제를 실측 완료한 상태로 오해하지 않습니다.

@@ -155,31 +155,30 @@ export interface Database {
         };
         Relationships: [];
       };
-      // 도메인 -> 회사정보 전역 공유 캐시(user_id 없음). 여러 회원이 같은 도메인을 조회해도
-      // Perplexity/GPT 리서치를 한 번만 하도록 공유한다.
-      competitor_profiles: {
+      // Member-owned, append-only research; expires 30 days after creation.
+      competitor_company_profiles: {
         Row: {
           id: string;
+          user_id: string;
           domain: string;
           company_name: string | null;
           summary: string | null;
-          researched_at: string;
           created_at: string;
         };
         Insert: {
           id?: string;
+          user_id: string;
           domain: string;
           company_name?: string | null;
           summary?: string | null;
-          researched_at?: string;
           created_at?: string;
         };
         Update: {
           id?: string;
+          user_id?: string;
           domain?: string;
           company_name?: string | null;
           summary?: string | null;
-          researched_at?: string;
           created_at?: string;
         };
         Relationships: [];

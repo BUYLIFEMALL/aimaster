@@ -1,3 +1,4 @@
+import { latestProfiles, retentionCutoff } from "@/lib/retention";
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -21,19 +22,19 @@ export default async function CompetitorsPage() {
   const domains = (tracked ?? []).map((t) => t.domain);
   const profiles =
     domains.length > 0
-      ? (await supabase.from("competitor_profiles").select("domain, company_name, summary").in("domain", domains)).data
+      ? (await supabase.from("competitor_company_profiles").select("domain, company_name, summary").eq("user_id", user.id).gt("created_at", retentionCutoff()).order("created_at", { ascending: false }).in("domain", domains)).data
       : [];
 
   // 이 도메인이 등장했던 내 키워드 목록을 단순 쿼리로 구한다(중첩 조인은 Database 타입에
   // Relationships를 안 채워둬서 타입이 정확히 안 잡히므로).
   const myResults =
     domains.length > 0
-      ? (await supabase.from("competitor_serp_results").select("domain, job_id").eq("user_id", user.id).in("domain", domains)).data
+      ? (await supabase.from("competitor_serp_results").select("domain, job_id").eq("user_id", user.id).gt("created_at", retentionCutoff()).in("domain", domains)).data
       : [];
   const jobIds = Array.from(new Set((myResults ?? []).map((r) => r.job_id)));
   const jobs =
     jobIds.length > 0
-      ? (await supabase.from("competitor_serp_jobs").select("id, keyword_id").eq("user_id", user.id).in("id", jobIds)).data
+      ? (await supabase.from("competitor_serp_jobs").select("id, keyword_id").eq("user_id", user.id).gt("created_at", retentionCutoff()).in("id", jobIds)).data
       : [];
   const keywordIdByJobId = new Map((jobs ?? []).map((j) => [j.id, j.keyword_id]));
   const keywordIds = Array.from(new Set(Array.from(keywordIdByJobId.values())));
@@ -43,11 +44,11 @@ export default async function CompetitorsPage() {
       : [];
   const keywordTextById = new Map((keywordRows ?? []).map((k) => [k.id, k.keyword]));
 
-  const profileByDomain = new Map((profiles ?? []).map((p) => [p.domain, p]));
+  const profileByDomain = new Map(latestProfiles(profiles ?? []).map((p) => [p.domain, p]));
   const keywordsByDomain = new Map<string, Set<string>>();
   const appearancesByDomain = new Map<string, number>();
   for (const r of myResults ?? []) {
-    if (!r.domain) continue;
+    if (!r.domain || !keywordIdByJobId.has(r.job_id)) continue;
     appearancesByDomain.set(r.domain, (appearancesByDomain.get(r.domain) ?? 0) + 1);
     const keywordId = keywordIdByJobId.get(r.job_id);
     const kw = keywordId ? keywordTextById.get(keywordId) : null;

@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(Windows) — 회원 생성 데이터 격리·30일 자동삭제 재확정 / 경쟁사 v1.08 승인 대기
+
+- 주인님은 본인 계정/API뿐 아니라 생성·수집·회사 조사 데이터도 본인만 사용하며 건별 생성일 기준 30일 후 자동삭제한다고 재확정했습니다. 공개 정보·비용 절감·관리자 승인형 공유 캐시 예외는 없습니다. 공통 Supabase는 유지하고 user_id/RLS/회원별 저장 경로로 구분합니다. 계정·키·권한·결제·설정은 생성물 TTL과 구분합니다.
+- 루트 AGENTS/CLAUDE/GEMINI·TOP_RULE_PERSONAL_ACCOUNT_API §0·DATABASE_CONNECTION_POLICY에 반영했습니다. 다른 프로그램에도 적용할 최상위 기준이며 운영 전수 적용 완료를 뜻하지 않습니다.
+- competitor-analysis 후보 v1.08: 회원별 회사 조사 저장소, 소유자·기한 조회, 옛 공유 접근 폐쇄, 생성 자료 30일 만료·시간별 삭제 SQL. 빌드·Edge 합성 15개·실제 일반 회원 로컬 12개·액션 모의 7개·실제 SQL BEGIN/ROLLBACK 검사 통과, 유료 호출 0회.
+- **운영 DB/만료 자료 영구삭제 승인 대기, 프로그램 배포 미실시. 운영 v1.07 그대로입니다.** 삭제 실측 범위: 회사정보 2·회차 2·검색결과 38·리포트 2 = 생성 자료 총44행. 키워드 7·추적 설정 2 유지. 승인 응답을 확인한 뒤 DB 적용→고정 소스 배포→만료 정리→DB 버전 v1.08→라이브 Edge 검수를 이어갑니다. 승인 전 후보 앱 배포 금지.
+- 다음 CLI 필독: [회원 보관 인수인계](../competitor-analysis/docs/MEMBER_RETENTION_HANDOFF_20261016.md), [개발 플랜](../competitor-analysis/docs/PLAN_20261016_MEMBER_DATA_RETENTION.md). 서비스: https://competitor-analysis.buylife.xyz . 기존 #11 보안 의존성 업그레이드는 별도 미완료입니다.
+
 ## 2026-10-16 Antigravity(Windows) — 페르소나 문체 자동화 v1.07: 포커스 스튜디오 디자인 리뉴얼 & 전 화면 단일 배경색(#f8fafc) 일체화 및 비주얼 가이드북 전면 고도화 완료
 
 - **대상 프로그램**: `persona-style-studio/` (slug: `persona-style-studio`, 공식 라이브: `https://persona-style-studio.buylife.xyz/`, 배포 버전: `v1.07`)

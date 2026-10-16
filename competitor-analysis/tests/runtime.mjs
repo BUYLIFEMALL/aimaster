@@ -62,9 +62,9 @@ try {
   assert.equal(response.status(), 200);
   assert.equal(new URL(page.url()).pathname, '/dashboard');
   await page.getByRole('heading', { name: '키워드 하나로 경쟁사와 콘텐츠 전략까지' }).waitFor();
-  assert.match(await page.locator('aside').innerText(), /v1\.07/);
+  assert.match(await page.locator('aside').innerText(), /v1\.08/);
   assert.match(await page.locator('aside').innerText(), /buylifemall@naver\.com/);
-  ok('일반 회원·루트 대시보드 이동·v1.07 표시');
+  ok('일반 회원·루트 대시보드 이동·v1.08 표시');
   assert.equal(await page.locator('.mx-kpi').count(), 4);
   const keyRows = page.locator('main ul li');
   assert.ok(await keyRows.filter({ hasText: 'SerpApi' }).count());
@@ -72,7 +72,7 @@ try {
   assert.equal(await page.locator('.mx-card').first().evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(23, 26, 33)');
   assert.equal(await page.locator('main ul li').count(), 4);
   ok('회원별 지표·키 4종 등록 상태·실제 다크 토큰');
-  await page.screenshot({ path: `docs/evidence/${mode}-dashboard-desktop.png` });
+  await page.screenshot({ path: `docs/evidence/retention-v108-${mode}-dashboard-desktop.png` });
   await page.locator('aside a[href="/keywords"]').click();
   await page.getByRole('heading', { name: '키워드 등록 & 분석' }).waitFor();
   if (!before[0]) await page.getByText('아직 등록한 키워드가 없습니다.', { exact: false }).waitFor();
@@ -101,7 +101,7 @@ try {
   assert.equal(await faq.evaluate(el => el.open), false);
   ok('사용 매뉴얼·연동 안내');
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: `docs/evidence/${mode}-guide-desktop.png`, fullPage: true });
+  await page.screenshot({ path: `docs/evidence/retention-v108-${mode}-guide-desktop.png`, fullPage: true });
   for (const route of ['/dashboard', '/keywords', '/analyses', '/competitors', '/guide', '/settings']) {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto(base + route, { waitUntil: 'networkidle' });
@@ -113,7 +113,7 @@ try {
     assert.match(await mobile.innerText(), /buylifemall@naver\.com/);
     await page.getByRole('button', { name: '메뉴 닫기', exact: true }).click();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), route + ' overflow');
-    if (route === '/dashboard' || route === '/guide') await page.screenshot({ path: `docs/evidence/${mode}-${route.slice(1)}-mobile.png`, fullPage: route === '/guide' });
+    if (route === '/dashboard' || route === '/guide') await page.screenshot({ path: `docs/evidence/retention-v108-${mode}-${route.slice(1)}-mobile.png`, fullPage: route === '/guide' });
   }
   ok('375px 6개 화면·메뉴 열기/닫기·회원 표시·가로 넘침 없음');
   await page.goto(base + '/dashboard', { waitUntil: 'networkidle' });
@@ -135,7 +135,7 @@ try {
   console.error('FAIL', checks.at(-1).error);
   process.exitCode = 1;
 } finally {
-  await fs.writeFile(`docs/evidence/runtime-${mode}.json`, JSON.stringify({ base, browser: 'Microsoft Edge (visible)', member: email, member_is_admin: false, checked_at: new Date().toISOString(), counts_before: before, counts_after: after, blocked_posts: posts, paid_calls: 0, errors, checks }, null, 2));
+  await fs.writeFile(`docs/evidence/retention-v108-runtime-${mode}.json`, JSON.stringify({ base, browser: 'Microsoft Edge (visible)', member: email, member_is_admin: false, checked_at: new Date().toISOString(), counts_before: before, counts_after: after, blocked_posts: posts, paid_calls: 0, errors, checks }, null, 2));
   await context?.close();
   await browser.close();
 }

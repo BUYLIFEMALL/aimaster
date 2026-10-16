@@ -2114,3 +2114,11 @@
 - **2026-10-16 threads-affiliate-poster v1.54 (Claude Code 윈도우)**: 도메인 통일 때 넣은 "옛 *.vercel.app → <slug>.buylife.xyz" 이동(미들웨어/proxy 308·콜백 307)이 **독립 배포본(clone-kit, `NEXT_PUBLIC_STANDALONE_MODE=true`)에도 걸려** 남의 서버에서 돌던 복제본이 우리 사이트로 넘어가는 문제 → 이동 조건에 독립 배포 여부 추가. **다음부터 확인**: 독립 배포 모드가 있는 프로그램(`deployment.ts`/`IS_STANDALONE`)은 호스트 기반 이동·고정 주소를 넣기 전에 독립 배포 분기를 먼저 확인. 같은 작업에서 `vercel env pull`로 받은 민감 변수(CRON_SECRET)는 실제 값이 아니어서 401 → 일회성 운영 작업은 관리자 로그인 인증 경로로 실행(`/api/telegram/migrate-webhooks`).
 
 - **2026-10-16 insta_auto_poster v1.12 (Claude Code 윈도우)**: 임시 인덱스로 "내 변경만" 커밋할 때 변경 목록을 `git diff --name-only`(작업 폴더 대 **공유 인덱스**)로 뽑았더니, 다른 CLI가 공유 인덱스에 내 파일을 먼저 올려 둔 순간 목록에서 빠져 **화면·버전 파일 없이 커밋**됨(같은 시점 배포도 이전 화면으로 보임 → 재배포로 해결). **다음부터 확인**: 변경 목록은 `git diff --name-only origin/master -- <폴더>`(원격 기준)로 뽑고, 커밋 뒤 `git show --stat HEAD`로 기대한 파일이 다 들어갔는지 확인, 배포 후 화면의 버전 표시로 실제 반영을 확인.
+
+## 2026-10-16 생성 회사정보를 공용 캐시 예외로 간주한 설계 오류 (competitor-analysis)
+
+- **증상**: 본인 키로 만든 회사 조사 데이터가 user_id 없는 전역 테이블에서 다른 회원에게 노출되고, 회원 누구나 수정 가능했습니다. 인수 검수 후 관리자 공용 캐시로 정비한다는 제안도 주인님 원칙과 달랐습니다.
+- **원인**: 공개 회사정보·비용 절감을 생성 데이터 소유권의 예외로 해석하고, 30일 만료 작업이 없는 것을 놓쳤습니다.
+- **해결 위치**: 최상위 AGENTS/CLAUDE/GEMINI·TOP_RULE_PERSONAL_ACCOUNT_API §0·DATABASE_CONNECTION_POLICY 정정. competitor-analysis의 후보 v1.08은 회원별 새 저장소·RLS·기한 검사·정리 SQL을 준비했고 SQL 실검사는 전부 롤백했습니다. 운영 변경은 승인 대기이므로 해결 완료로 보고하지 않습니다. 구체 상태는 프로그램 MEMBER_RETENTION_HANDOFF_20261016.md.
+- **다음부터 확인**: 회원 A의 API로 생성한 자료를 B에게 제공하지 않는지, 캐시 키/행/파일 경로에 소유자가 있는지, 건별 생성일 30일 만료와 실제 자동 정리 실행이 있는지 함께 검사합니다. 소유자 불명 자료를 모든 회원에게 복제하지 않습니다. 키·계정·권한·설정은 생성물 정리와 분리합니다.
+- **검사 보완**: await 뒤 PostgREST 응답에 필터를 붙이면 `response.gt is not a function`/타입 오류가 납니다. 필터는 await 전 쿼리 빌더에 붙이고 대량 정규식 편집 뒤 반드시 빌드합니다. 이번 후보는 이를 수정한 뒤 타입/빌드·Edge 검사를 통과했습니다.

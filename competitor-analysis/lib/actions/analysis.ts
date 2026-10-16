@@ -8,6 +8,7 @@ import { searchSerp, extractDomain } from "@/lib/serp/client";
 import { researchCompanyByDomain, extractCompanyName } from "@/lib/ai/research";
 import { analyzeKeywordCompetitors } from "@/lib/ai/analysis";
 import { generateHtmlReport } from "@/lib/ai/report";
+import { latestProfiles, retentionCutoff } from "@/lib/retention";
 
 export interface RunAnalysisState {
   error?: string;
@@ -17,7 +18,7 @@ export interface RunAnalysisState {
 
 /**
  * 원본 Make.com 시나리오의 2~5단계 전체(SerpApi 호출 → organic/ad/PAA 분류 저장 →
- * 신규 도메인만 Perplexity+GPT로 회사정보 리서치(전역 캐시 dedup) → GPT-4o 키워드
+ * 본인의 30일 이내 조사에 없는 도메인만 Perplexity+GPT로 회사정보 리서치 → GPT-4o 키워드
  * 분석)를 서버 액션 하나로 처리한다. Google Docs 중간 저장은 쓰지 않고 DB에서 바로
  * 조회한 데이터를 GPT에 전달한다.
  */
@@ -89,14 +90,17 @@ export async function runKeywordAnalysisAction(keywordId: string): Promise<RunAn
       if (resultsError) return { error: resultsError.message };
     }
 
-    // 이번 검색에 등장한 고유 도메인 중, 아직 전역 캐시에 없는 것만 리서치한다.
+    // 다른 회원의 자료는 조회하지 않는다. 본인의 유효한 조사만 재사용한다.
     const uniqueDomains = Array.from(new Set(itemsWithDomain.map((i) => i.domain).filter((d): d is string => !!d)));
 
     if (uniqueDomains.length > 0) {
-      const { data: existingProfiles } = await supabase
-        .from("competitor_profiles")
+      const { data: existingProfiles, error: profilesError } = await supabase
+        .from("competitor_company_profiles")
         .select("domain")
+        .eq("user_id", user.id)
+        .gt("created_at", retentionCutoff())
         .in("domain", uniqueDomains);
+      if (profilesError) throw new Error("본인의 회사 조사 정보를 조회하지 못했습니다. 잠시 후 다시 시도해 주세요.");
       const existingDomains = new Set((existingProfiles ?? []).map((p) => p.domain));
       const newDomains = uniqueDomains.filter((d) => !existingDomains.has(d));
 
@@ -108,10 +112,10 @@ export async function runKeywordAnalysisAction(keywordId: string): Promise<RunAn
           try {
             const researchText = await researchCompanyByDomain(domain, perplexityKey);
             const companyName = await extractCompanyName(researchText, openaiKey);
-            await supabase.from("competitor_profiles").upsert(
-              { domain, company_name: companyName, summary: researchText, researched_at: new Date().toISOString() },
-              { onConflict: "domain" },
+            const { error } = await supabase.from("competitor_company_profiles").insert(
+              { user_id: user.id, domain, company_name: companyName, summary: researchText },
             );
+            if (error) throw error;
           } catch (err) {
             console.error(`경쟁사 리서치 실패 (${domain}):`, err);
           }
@@ -119,11 +123,15 @@ export async function runKeywordAnalysisAction(keywordId: string): Promise<RunAn
       );
     }
 
-    const { data: profiles } = await supabase
-      .from("competitor_profiles")
+    const { data: profiles, error: namesError } = await supabase
+      .from("competitor_company_profiles")
       .select("domain, company_name")
+      .eq("user_id", user.id)
+      .gt("created_at", retentionCutoff())
+      .order("created_at", { ascending: false })
       .in("domain", uniqueDomains.length > 0 ? uniqueDomains : [""]);
-    const competitorNames = new Map((profiles ?? []).map((p) => [p.domain, p.company_name]));
+    if (namesError) throw new Error("본인의 회사 조사 정보를 조회하지 못했습니다.");
+    const competitorNames = new Map(latestProfiles(profiles ?? []).map((p) => [p.domain, p.company_name]));
 
     const summaryText = await analyzeKeywordCompetitors(
       { keyword: keyword.keyword, items: itemsWithDomain, competitorNames },
@@ -167,6 +175,7 @@ export async function generateReportAction(analysisId: string): Promise<Generate
     .select("id, summary_text, keyword_id")
     .eq("id", analysisId)
     .eq("user_id", user.id)
+    .gt("created_at", retentionCutoff())
     .maybeSingle();
   if (!analysis || !analysis.summary_text) return { error: "분석 결과를 찾을 수 없습니다." };
 
@@ -175,8 +184,10 @@ export async function generateReportAction(analysisId: string): Promise<Generate
 
   try {
     const html = await generateHtmlReport(analysis.summary_text, anthropicKey);
-    const { error } = await supabase.from("competitor_analyses").update({ html_report: html }).eq("id", analysisId);
+    const { data: saved, error } = await supabase.from("competitor_analyses").update({ html_report: html })
+      .eq("id", analysisId).eq("user_id", user.id).gt("created_at", retentionCutoff()).select("id").maybeSingle();
     if (error) return { error: error.message };
+    if (!saved) return { error: "분석 결과의 30일 보관기간이 지났거나 삭제되었습니다." };
 
     await logProgramUsage({ userId: user.id, action: "generate_html_report", metadata: { analysisId } });
 

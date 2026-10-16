@@ -1,3 +1,4 @@
+import { retentionCutoff } from "@/lib/retention";
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -30,7 +31,7 @@ export default async function DashboardPage() {
     supabase.from("competitor_keywords").select("id, keyword").eq("user_id", user.id),
     supabase
       .from("competitor_serp_jobs")
-      .select("id, keyword_id, executed_at, total_results")
+      .select("id, keyword_id, executed_at, total_results").gt("created_at", retentionCutoff())
       .eq("user_id", user.id)
       .order("executed_at", { ascending: false }),
     supabase.from("user_tracked_competitors").select("domain").eq("user_id", user.id),
