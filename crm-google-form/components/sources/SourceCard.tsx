@@ -174,6 +174,11 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
               <CopyButton text={webhookUrl} />
             </div>
             <code className="block break-all rounded-lg bg-white border border-gray-200 px-3 py-2 font-mono">{webhookUrl}</code>
+            {/* 2026-10-16 옛 vercel.app 삭제 대비: 예전 주소로 Apps Script를 만든 회원에게 교체 안내 */}
+            <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              예전에 <code>crm-google-form.vercel.app</code> 주소로 Apps Script를 만드셨다면, 스크립트 안의 주소를 위 새 주소로
+              바꿔주세요(아래 코드를 다시 복사해 붙여넣으면 됩니다). 지금 바꿔도 바로 정상 동작하며, 기존 주소는 곧 정리될 예정입니다.
+            </p>
           </div>
           <div>
             <div className="mb-1 flex items-center justify-between">
