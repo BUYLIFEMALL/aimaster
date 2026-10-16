@@ -78,3 +78,5 @@
    - JSX 텍스트 내에서 `<userId>` 형태의 꺾쇠괄호를 작성하면 Turbopack에서 HTML 태그로 오인하여 빌드 에러가 발생합니다. 반드시 엔티티(`&lt;` 등)나 `<code>` 블록을 사용하십시오.
 3. **버전 관리 규칙**:
    - 코드 `src/lib/version.ts`의 `APP_VERSION`과 Supabase DB `programs.version`은 항상 동일하게 유지되어야 합니다.
+4. **국내 구형 MP3 ID3v2 태그 한글 깨짐 (EUC-KR 모지바케)**:
+   - 10cm 음원 등 국내 구형 MP3는 `enc === 0`임에도 EUC-KR 바이트가 들어있어 깨지는 버그가 발견되었습니다. 해결 로직 및 스니펫이 `docs/IMPROVEMENTS.md`의 [BUG #1]에 상세히 인수인계되어 있으니 참고하여 반영하십시오.

@@ -5,6 +5,57 @@
 
 ---
 
+## 0. 긴급 버그 수정 과제 (Bug Fix)
+
+### 🚨 [BUG #1] 구형 국내 MP3 음원의 곡명/아티스트 한글 깨짐 (EUC-KR / CP949 모지바케 현상)
+- **증상**: 10cm의 곡을 추가했을 때 제목이 `³»´«¿ì„ º¸¿©` 처럼 깨져서 표시됨.
+- **근본 원인**:
+  - `src/lib/player/id3.ts`의 `decode(bytes, enc)` 함수에서 `enc === 0`일 때 무조건 `new TextDecoder("iso-8859-1")`로 디코딩함.
+  - 과거 멜론, 벅스, 소리바다, 알송 등 국내 음원 유통사/인코더에서 생성된 구형 MP3 파일들은 ID3v2 인코딩 플래그 `enc`를 `0`(ISO-8859-1)으로 기재해 두고, 실제 바이트 데이터는 **EUC-KR(CP949) 한글 2바이트**로 기록함.
+  - 예: `0xB3 0xBB` ("내") ➔ Latin-1으로 각각 읽혀 `³` (0xB3) + `»` (0xBB)가 됨. `³»´«¿ì„ º¸¿©` = **10cm의 "내 눈에 보여" (도깨비 OST)** 원문 바이트임!
+- **해결 방안 (즉시 적용 코드)**:
+  `src/lib/player/id3.ts`의 `decode` 함수를 다음과 같이 개선하면 브라우저 내장 `TextDecoder("euc-kr")`를 통해 100% 정상 한글로 디코딩됨:
+  ```ts
+  function decode(bytes: Uint8Array, enc: number): string {
+    try {
+      let label = "iso-8859-1";
+      let data = bytes;
+      if (enc === 1) {
+        if (data[0] === 0xff && data[1] === 0xfe) { label = "utf-16le"; data = data.subarray(2); }
+        else if (data[0] === 0xfe && data[1] === 0xff) { label = "utf-16be"; data = data.subarray(2); }
+        else label = "utf-16le";
+      } else if (enc === 2) {
+        label = "utf-16be";
+      } else if (enc === 3) {
+        label = "utf-8";
+      } else {
+        // enc === 0: ISO-8859-1 지정이지만 국내 음원은 EUC-KR(CP949) 바이트가 대다수
+        const hasHighByte = data.some((b) => b >= 0x80);
+        if (hasHighByte) {
+          try {
+            // 1. UTF-8 시도 (fatal: true로 깨짐 감지)
+            const utf8 = new TextDecoder("utf-8", { fatal: true }).decode(data);
+            return utf8.replace(/\0+$/g, "").replace(/\0/g, " ").trim();
+          } catch {
+            // 2. UTF-8 실패 시 EUC-KR(CP949)로 복원
+            try {
+              const euckr = new TextDecoder("euc-kr").decode(data);
+              return euckr.replace(/\0+$/g, "").replace(/\0/g, " ").trim();
+            } catch {
+              label = "iso-8859-1";
+            }
+          }
+        }
+      }
+      return new TextDecoder(label).decode(data).replace(/\0+$/g, "").replace(/\0/g, " ").trim();
+    } catch {
+      return "";
+    }
+  }
+  ```
+
+---
+
 ## 1. 우선순위 높은 핵심 기능 개선 과제
 
 ### ① 드래그 앤 드롭 재생목록 순서 변경 (Track Reorder / Drag-to-sort)
