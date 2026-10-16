@@ -2,7 +2,7 @@
 
 ## 2026-10-16 Claude Code(메인 계정·윈도우) — 프로그램 테스트는 항상 크롬으로 (규정 명시) + 옛 헤드리스 Chrome 정리
 
-- 주인님 지시: 메인 계정 Claude Code는 크롬 브라우저로 프로그램 테스트를 하고 이를 메인 지침에 명시. `CLAUDE.md` 원칙 18·`AGENTS.md` 같은 항목·`AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2에 "엣지·헤드리스·Playwright로 대체 금지"를 추가(기존 계정별 브라우저 규칙은 그대로).
+- 주인님 지시: 메인 계정 Claude Code는 크롬 브라우저로 프로그램 테스트를 하고 이를 메인 지침에 명시. `CLAUDE.md` 원칙 18·`AGENTS.md` 같은 항목·`AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2에 "엣지·헤드리스·Playwright로 대체 금지"를 추가(기존 계정별 브라우저 규칙은 그대로). 같은 PC의 Antigravity·Codex는 엣지를 쓰도록 분리(주인님 지시) — 크롬은 메인 Claude 전용. 보조 Claude도 기존 규칙상 엣지라서, 엣지를 쓰는 CLI끼리는 같은 탭을 동시에 조작하지 않도록 주의.
 - 환경 정리: 9/27~10/2에 남은 `agent-browser` 헤드리스 Chrome 99개 프로세스 종료(Chrome 123→24개, 보이는 창 1개). 메인 Chrome·오늘 시작된 Playwright 프로세스는 유지. 기록: `ERROR_LESSONS.md` 2026-10-16.
 - 남은 확인: 연결 브라우저 목록의 Browser 2(Windows, 엣지 미실행)가 옛 연결 흔적인지 — 확장 재설치 후 deviceId 표 갱신 필요 시 8-1-2 수정.
 
