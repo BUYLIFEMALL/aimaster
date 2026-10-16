@@ -133,3 +133,8 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 ## 2026-10-17 v1.11 — 등록 주소 한눈에 보기·복사 버튼 (Claude Code 윈도우)
 - 주인님 요청(INSTA 포스팅 v1.14·쓰레드 3개와 같은 형식): 설정 화면에 `components/settings/InstagramMetaAddressSummary.tsx` 카드(앱 도메인 `buylife.xyz`+옛 호스트 / Instagram 로그인이 포함된 API 설정 › 4. Instagram 비즈니스 로그인 설정 › OAuth 리디렉션 URI 새·옛 / Instagram 앱 ID 위치(Facebook 앱 ID 넣으면 Invalid platform app) / 인스타 테스터 추가·초대 수락). 기존 콜백 주소 표시는 `CopyAddress`(복사 버튼)로 교체.
 - 검수: 빌드·배포·DB v1.11, 크롬에서 카드 제목·복사 버튼 확인.
+
+## 2026-10-17 v1.12 — 안내 상자 가독성 (Claude Code 윈도우)
+- 주인님 요청: 노란 "Instagram 앱 ID" 안내 상자를 text-sm·leading-relaxed·문장별 단락으로(INSTA 포스팅 v1.14와 같게).
+- 같은 날 시험 계정 Instagram 앱 ID 오류 원인 확인: 다시 저장하면서 맨 끝 1자리가 빠진 15자리 값 → Instagram "Invalid platform app". 주인님이 16자리로 재입력 후 시험 계정 DM [새 주소로 다시 연결] 성공(`dm_accounts` 갱신). 개선 제안: 앱 ID 저장 시 자릿수 검사.
+- 검수: 빌드·배포·DB v1.12, 크롬에서 상자 모양 확인.
