@@ -45,7 +45,7 @@
 | 24 | ✅ instagram-comment-reply | `instagram-comment-reply` | 환경변수 고정 `META_INSTAGRAM_REDIRECT_URI` |
 | 25 | ✅ instagram-dm-reply | `instagram-dm-reply` | 환경변수 고정 `META_INSTAGRAM_REDIRECT_URI` |
 | 26 | ✅ youtube-auto-reply | `youtube-auto-reply` | 환경변수 고정 `GOOGLE_YOUTUBE_REDIRECT_URI` |
-| 27 | naver-cafe-poster | `naver-cafe-poster` | 환경변수 고정 `NAVER_REDIRECT_URI` |
+| 27 | ✅ naver-cafe-poster | `naver-cafe-poster` | 환경변수 고정 `NAVER_REDIRECT_URI` |
 
 - 8개 모두 콜백이 **옛 주소로 고정**돼 있어, 회원이 본인 Meta·Google·네이버 앱에 등록한 콜백 주소를 **바꾸지 않아도 된다**.
 - 단, 연결 시작은 새 주소(로그인 쿠키 있음)에서 하고 콜백은 옛 주소(쿠키 없음)로 돌아오므로, `kakao-auto-posting`에서 검증한 방식을 쓴다: **옛 주소로 들어온 콜백은 같은 쿼리 그대로 새 주소 콜백으로 넘기고**, 새 주소에서 세션 확인 후 토큰 교환(교환 때 `redirect_uri`는 옛 주소 그대로 = 등록값과 일치). 환경변수·회원 앱 설정 변경 없음.
@@ -84,4 +84,4 @@
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
 | A그룹 | 19/19 | 0 |
-| B그룹 | 7/8 | 1 |
+| B그룹 | 8/8 | 0 |
