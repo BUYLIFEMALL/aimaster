@@ -140,7 +140,7 @@
 | 47 | INSTA 댓글자동화 | `instagram-comment-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `instagram-comment-reply/AGENTS.md` |
 | 48 | 유튜브 댓글자동화 | `youtube-auto-reply` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `youtube-auto-reply/AGENTS.md` |
 | 49 | 롱테일 키워드분석 자동화 | `longtail-keyword-expander` | **스마트 매트릭스 스타일** (기준 구현) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 완료 (`v1.06`) | [`longtail-keyword-expander/docs/DESIGN_HANDOFF.md`](longtail-keyword-expander/docs/DESIGN_HANDOFF.md) |
-| 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `competitor-analysis/AGENTS.md` |
+| 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | 🔵 작업 중 (Claude Code(맥미니), 2026-10-16) | `competitor-analysis/AGENTS.md` |
 | 51 | 예약(취소)방지 리마인드 | `booking-reminder` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `booking-reminder/AGENTS.md` |
 | 52 | 구글폼 CRM 자동화 | `crm-google-form` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `crm-google-form/AGENTS.md` |
 | 53 | 대량 메일발송 자동화 | `stepmail` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `stepmail/AGENTS.md` |
