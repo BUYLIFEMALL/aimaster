@@ -1,0 +1,21 @@
+[
+  {
+    "slug": "ebook-studio",
+    "version": "v1.05",
+    "base": "https://ebook-studio.buylife.xyz",
+    "mode": "live",
+    "browser": "Microsoft Edge",
+    "checks": {
+      "anonymous_no_server_error": true,
+      "anonymous_gated_or_public_entry": true
+    },
+    "deployment_id": "dpl_39PLgM2gtBBgWikfV7mUxRovMxdY",
+    "session_cookie_count": 2,
+    "raw_status": 200,
+    "raw_location": null,
+    "ok": false,
+    "error": "page.goto: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://ebook-studio.buylife.xyz/\", waiting until \"networkidle\"\u001b[22m\n",
+    "seconds": 50,
+    "checked_at": "2026-10-16T02:50:55.197Z"
+  }
+]

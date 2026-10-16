@@ -13,7 +13,7 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_wwRtFkMQi969JwLqqgph4vW6mh18",
+    "deployment_id": "dpl_3YjtVTKpe2Hjmvkr6633P5rHRGDs",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
@@ -22,7 +22,8 @@
     "version_note": null,
     "ok": true,
     "anonymous_path": "/programs/blog-content-maker",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:44:07.811Z"
   },
   {
     "slug": "ai-audio-analyzer",
@@ -38,15 +39,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_9JamJTEPGsGHaCoDzWqBnRS4UFpP",
+    "deployment_id": "dpl_H6taZWLiU8x94x8HBGkcpWN5YFcJ",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://audio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 7
+    "seconds": 6,
+    "checked_at": "2026-10-16T02:44:14.203Z"
   },
   {
     "slug": "ai-auto-blog",
@@ -62,15 +65,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_6sxcfViTL3phP5qQroQHZm7m4TU5",
+    "deployment_id": "dpl_F7FKFoFRNm4CkMmamfQm1ME5k8Wf",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://ai-auto-blog-one.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/auth",
-    "seconds": 9
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:44:22.593Z"
   },
   {
     "slug": "ai-image-studio",
@@ -86,15 +91,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_6SVnmFjAJChwYMoJ5W988VWp8y1h",
+    "deployment_id": "dpl_5V6U3NoPXV7fQ3D6jZagJnow9Zgh",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://ai-image-studio.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 11
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:44:32.710Z"
   },
   {
     "slug": "ai-influencer-studio",
@@ -110,15 +117,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_Dng1poD46kG7TRdWCc59gFKUiFbp",
+    "deployment_id": "dpl_GXixsHvQW5ApvLxaJ3LxwfCL26zq",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://ai-influencer.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:44:43.042Z"
   },
   {
     "slug": "ai-mastering-studio",
@@ -134,15 +143,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_7oakL4gL7ppy2aXtTNY2YHeN8XFd",
+    "deployment_id": "dpl_6TJAv93gPYkYATdbSdF9zNvL76jh",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://ai-mastering-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:44:51.066Z"
   },
   {
     "slug": "ai-prompt-studio",
@@ -158,15 +169,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_wMNTnQkCp4TGUduQumpWAWZPDewQ",
+    "deployment_id": "dpl_5YjYAZYHRky7n1138mDcEPtgP621",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://ai-prompt.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:45:00.668Z"
   },
   {
     "slug": "ai-slide-builder",
@@ -182,15 +195,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_CJBFHNQ6eYimxNQGdmbgw14uJoEo",
+    "deployment_id": "dpl_CbBHgNHAutX2EzJG1MjG3k7NS16t",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://ai-slide-builder.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:45:08.918Z"
   },
   {
     "slug": "ai-task-planner",
@@ -206,15 +221,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_CtZnnWXt6iKabgTRjmPSQnhEQc13",
+    "deployment_id": "dpl_BK4GuQzyn6Hsn7B6WJUmBvwfs8pw",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://ai-task-planner.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:45:18.839Z"
   },
   {
     "slug": "ai-webtoon-studio",
@@ -230,15 +247,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_AbHUoCQMcZJCjjd79adQS9Mq1Fqg",
+    "deployment_id": "dpl_De81hrWYLULNNSvVBqfCEySbqzq1",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://ai-webtoon-automation.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:45:27.902Z"
   },
   {
     "slug": "ai-writing-editor",
@@ -254,15 +273,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_BYGpHimpcsnYmvtYuaxsDmZ229EL",
+    "deployment_id": "dpl_G8LyYm8MG6TA5epPTBkzr2XdYi9p",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://ai-writing-editor.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 11,
+    "checked_at": "2026-10-16T02:45:38.788Z"
   },
   {
     "slug": "allinone-graphic",
@@ -278,15 +299,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_2sSJ167G7iiYAT1rx15XGnsyh7j1",
+    "deployment_id": "dpl_DJYGKaSv1rPFYJEfhe3Wtws1YKtr",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://graphic.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:45:47.294Z"
   },
   {
     "slug": "auto-detail-page",
@@ -302,15 +325,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_Hp7psFmvKPddXTxa23LPE1tU7xaQ",
+    "deployment_id": "dpl_Gr5cxzBSm7tJiU8QUW3Le2vjuFqL",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://shop-page-seven.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:45:57.473Z"
   },
   {
     "slug": "banana-canvas",
@@ -326,15 +351,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_Gsd4vwB3QzE4mhxUonifR7t9QzGP",
+    "deployment_id": "dpl_DzeVNH2icWschpYu3zdWAWwWNpQR",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://banana-canvas.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 7
+    "seconds": 7,
+    "checked_at": "2026-10-16T02:46:04.941Z"
   },
   {
     "slug": "blog-content-maker",
@@ -350,15 +377,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_7ngFd1aLNnQkQLeKoL4gQbj41UFg",
+    "deployment_id": "dpl_9nefsz9jCAgK4rMBBu6WRwm5q4G8",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://blog-content-maker.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:46:14.632Z"
   },
   {
     "slug": "blog-keyword",
@@ -374,15 +403,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_Bz3jzqTmZ8M812uhDEgC2WjfCnWg",
+    "deployment_id": "dpl_3v2xw3tMNvqxPnxoUzCueyqmX5BR",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://blog-keyword.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:46:24.292Z"
   },
   {
     "slug": "blog-workroom",
@@ -398,15 +429,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_528vMT8YrH8YPZY4uzXQFa4srP8R",
+    "deployment_id": "dpl_AqntynT1XBQg3VSTAmaHWCY48YJB",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/write",
+    "final_origin": "https://blog-workroom.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:46:34.379Z"
   },
   {
     "slug": "booking-reminder",
@@ -422,15 +455,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_39TyyMhBE4nqLAc8YRejYyhtv4QW",
+    "deployment_id": "dpl_5EAKHeBAqZmJW4b6hP8BwxCWxhvB",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/reservations",
+    "final_origin": "https://booking-reminder.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:46:44.200Z"
   },
   {
     "slug": "cardnews-studio",
@@ -446,15 +481,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_9eZ1Ltk2QAXY2r8jgw5cKqt7imCZ",
+    "deployment_id": "dpl_8TZAGHnuXnk4kkmrKZxVWz8LVK9t",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://cardnews-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 11
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:46:54.417Z"
   },
   {
     "slug": "cinematic-storyboard-studio",
@@ -470,15 +507,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_Hayi92CtKH43VX2AcjsmPb5iKyhC",
+    "deployment_id": "dpl_ATR1ctpZYHvjNoDY99vqyNNTvd6K",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://cinematic-storyboard-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 7,
+    "checked_at": "2026-10-16T02:49:53.685Z"
   },
   {
     "slug": "competitor-analysis",
@@ -494,15 +533,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_DgLF7Sis4W1X7rCmNSophdYHZcm4",
+    "deployment_id": "dpl_3xVT9cxLVwqeJtsTbRPGmkwg3Mc5",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/competitors",
+    "final_origin": "https://competitor-analysis-flax.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:49:55.801Z"
   },
   {
     "slug": "crm-google-form",
@@ -518,15 +559,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_2cfCZsXBVHjia3mN9VHc4D493mEB",
+    "deployment_id": "dpl_46e64AcaBv4Yrp2eS4cW8MrRD5p5",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/submissions",
+    "final_origin": "https://crm-google-form.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:50:02.842Z"
   },
   {
     "slug": "detail-page-12p",
@@ -542,15 +585,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_5jpGa3PwBsBU9bCLYffT4M49ZXBh",
+    "deployment_id": "dpl_D54fe8t8GPrjFD1mYC5aWdorCmBA",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://detail-12p.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:50:04.716Z"
   },
   {
     "slug": "document-translator",
@@ -566,15 +611,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_745SC3f2LSGZEJufTVbcfsrtSef4",
+    "deployment_id": "dpl_7jc3wEz78a4kbvbeJs9J72gHw5RN",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://document-translator.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 7,
+    "checked_at": "2026-10-16T02:50:09.931Z"
   },
   {
     "slug": "ebook-studio",
@@ -590,15 +637,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_4d3L3nKo1YtweKPhHhWyBvX3ymBq",
+    "deployment_id": "dpl_39PLgM2gtBBgWikfV7mUxRovMxdY",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://ebook-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 7,
+    "checked_at": "2026-10-16T02:55:40.258Z"
   },
   {
     "slug": "emotion-writer",
@@ -614,15 +663,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_7DyAE57xronscm3b7G4NfQpuEN6B",
+    "deployment_id": "dpl_CBDArivMg5zZ1LUvqosboX3CgdQJ",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://emotion-writer.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:50:20.021Z"
   },
   {
     "slug": "fashion-style",
@@ -638,15 +689,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_2g1AvMHKfX9kbn4U7TvsGM6kZNZ1",
+    "deployment_id": "dpl_Foasz3APLEEWsARMx9afyCyP5ynT",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://fashion-style.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:50:28.558Z"
   },
   {
     "slug": "file-merge",
@@ -662,15 +715,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_BUnsiz1Ythotkvjwfc5726hRhdg4",
+    "deployment_id": "dpl_JD6VigrcDmAhgxVshWSZ4H8qXyUE",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/excel-merge",
+    "final_origin": "https://file-merge.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:50:36.177Z"
   },
   {
     "slug": "four-cut-comics",
@@ -686,15 +741,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_9AmKXiL5oCgMx3K1qLFcTadEqNFM",
+    "deployment_id": "dpl_AhTNAfBQ1rCmQSm3uwxXzPXchvnM",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://four-cut-comics.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:50:43.838Z"
   },
   {
     "slug": "website-scraper",
@@ -710,15 +767,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_7cx8ETun5cpJe33vuGDiPxrW52yR",
+    "deployment_id": "dpl_2ESHzcghxsQYBBGXjgWfWT6foYcL",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://website-scraper.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:50:51.626Z"
   },
   {
     "slug": "image-convert-studio",
@@ -734,15 +793,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_4VUo1epWSPfot796Nxw4sTxt5rjE",
+    "deployment_id": "dpl_Gcq5sVpkASEMFaNU88wB21LoezA9",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/convert",
+    "final_origin": "https://image-convert-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:51:00.741Z"
   },
   {
     "slug": "infinite-loop-video",
@@ -758,15 +819,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_8WvuGHL2ugo2PVo8qip7tdRD3xkA",
+    "deployment_id": "dpl_3PYb1y3uGruDxPkUZgofEcMerxoF",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://infinite-loop-video.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:51:04.506Z"
   },
   {
     "slug": "auto-instagram-posting",
@@ -782,15 +845,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_6fabNRf3FeP9sVfG4CrU1Z7LG7e3",
+    "deployment_id": "dpl_spWKjqMzrjkouL61hhXuZyEGy9x9",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://insta-auto-poster-red.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:51:08.752Z"
   },
   {
     "slug": "instagram-comment-reply",
@@ -806,15 +871,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_AbN1KCMAVTwmJmHLHRghiDcwoQRS",
+    "deployment_id": "dpl_5g6AiwzXvWnRtzHPhSDBvu8VeXCH",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/comments",
+    "final_origin": "https://instagram-comment-reply.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:51:14.653Z"
   },
   {
     "slug": "instagram-dm-reply",
@@ -830,15 +897,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_4tRD1vs9Nu8rdPoo5AGu4c8YLcER",
+    "deployment_id": "dpl_H2WxLSDzr5hcEPdrADpMawW9MMkH",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/conversations",
+    "final_origin": "https://instagram-dm-reply.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:51:18.894Z"
   },
   {
     "slug": "kakao-auto-posting",
@@ -854,7 +923,7 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_A16xwQQbU4EFvgzVLQTjayAUqiPR",
+    "deployment_id": "dpl_BqHnDRmtvkqM2SXeTawmceYkj7Uv",
     "session_cookie_count": 2,
     "raw_status": 308,
     "raw_location": "https://kakao-auto-posting.buylife.xyz/dashboard",
@@ -863,7 +932,8 @@
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 7
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:51:23.326Z"
   },
   {
     "slug": "landing-architect",
@@ -879,15 +949,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_7Nf7a8i9DFdwwChGhcG37Viu8xiv",
+    "deployment_id": "dpl_DAoq3oZzHg2PcEHyNjiRGTF6Hqaw",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://landing-architect.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:51:28.879Z"
   },
   {
     "slug": "longtail-keyword-expander",
@@ -903,19 +975,21 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_EY8YGAYd7nQcFQsRDqn56TA3nVrG",
+    "deployment_id": "dpl_J9Zt5x8ho22n6nr6uVe3AM4zndod",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/seeds",
+    "final_origin": "https://longtail-keyword-expander.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 11,
+    "checked_at": "2026-10-16T02:51:33.888Z"
   },
   {
     "slug": "markdown-studio",
-    "version": "v1.08",
+    "version": "v1.10",
     "base": "https://markdown-studio.buylife.xyz",
     "mode": "live",
     "browser": "Microsoft Edge",
@@ -927,15 +1001,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_3ow7NKHR5RLBubBpprGKhC2kg3pN",
+    "deployment_id": "dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://markdown-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 12
+    "seconds": 9,
+    "checked_at": "2026-10-16T03:04:41.266Z"
   },
   {
     "slug": "personality-code",
@@ -951,15 +1027,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_FKj17wSu1EuWNJBxvBDocjWq3YYp",
+    "deployment_id": "dpl_9PzMN2xV5QVa2ggR3MxZFVbEpRq8",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/test",
+    "final_origin": "https://mbti-rho-two.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:51:41.951Z"
   },
   {
     "slug": "mbti-character",
@@ -975,15 +1053,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_4NRy1pnJwbpZwwuFLP5gLxoLfkub",
+    "deployment_id": "dpl_2MRs6r2xVFgxNdpg4vKncjxMhCmZ",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/test",
+    "final_origin": "https://mbti-character.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 7
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:51:46.946Z"
   },
   {
     "slug": "music-automation",
@@ -999,15 +1079,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_9Aih1pe7X3qg7WD6ti5YZj8akscD",
+    "deployment_id": "dpl_jW1mmqB49jnUshikpVSPVJVCWUKR",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/plannings",
+    "final_origin": "https://music-rho-virid-22.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:51:51.660Z"
   },
   {
     "slug": "music-player",
@@ -1023,15 +1105,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_FgL2sS5opXfSswq5RJkBFpGUuVYH",
+    "deployment_id": "dpl_8Ehq1Bv4h3JPxs3s9ZeEw5sG8ya1",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/player",
+    "final_origin": "https://music-player.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:51:54.623Z"
   },
   {
     "slug": "music-video-studio",
@@ -1047,15 +1131,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_9CrvVVTVAMehP6SEgszYRutaxXEh",
+    "deployment_id": "dpl_DBPYTrmFAyGsdSCe5NTZSEBvtPyJ",
     "session_cookie_count": 2,
     "raw_status": 307,
     "raw_location": "/music",
     "final_path": "/music",
+    "final_origin": "https://music-video-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:52:00.152Z"
   },
   {
     "slug": "naver-blog-agent",
@@ -1071,15 +1157,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_ByP8EV5TSAYMD3cntqLAn3mcYZ51",
+    "deployment_id": "dpl_Ba2Y2Zvhx89xo9kmXkbknSUk6tC1",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://naver-blog-agent.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:52:03.925Z"
   },
   {
     "slug": "naver-blog-allinone",
@@ -1095,15 +1183,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_6RMYYC1FPhthVjiKb9PtMhUv7Jur",
+    "deployment_id": "dpl_4cN5BRncj1ytcqRnUGfibk7fyqh2",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://naver-blog-allinone.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/",
-    "seconds": 6
+    "seconds": 6,
+    "checked_at": "2026-10-16T02:52:06.190Z"
   },
   {
     "slug": "naver-blog-auto-poster",
@@ -1119,15 +1209,17 @@
       "version_visible": false,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_FxkicsKChDSFyBHftWFhj8qPdoqt",
+    "deployment_id": "dpl_FmFJxC7UjkTG5N8h2b6gMqaCFjt2",
     "session_cookie_count": 2,
     "raw_status": 307,
     "raw_location": "/naver-blog-auto-poster",
     "final_path": "/programs/naver-blog-auto-poster",
+    "final_origin": "https://www.buylife.xyz",
     "version_note": "Current UI does not display this version on the selected entry",
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:52:12.542Z"
   },
   {
     "slug": "naver-blog-auto-poster-web",
@@ -1143,15 +1235,17 @@
       "version_visible": false,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_CGv3XMRUb2FoyZKay4MCY2NnoTFe",
+    "deployment_id": "dpl_DMz4ztvEBXvGmYVtDfnZnrCwo1Ve",
     "session_cookie_count": 2,
     "raw_status": 307,
     "raw_location": "/naver-blog-auto-poster-web",
     "final_path": "/programs/naver-blog-auto-poster-web",
+    "final_origin": "https://www.buylife.xyz",
     "version_note": "Current UI does not display this version on the selected entry",
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 6
+    "seconds": 17,
+    "checked_at": "2026-10-16T02:52:23.192Z"
   },
   {
     "slug": "naver-blog-seo-studio",
@@ -1167,15 +1261,17 @@
       "version_visible": true,
       "mobile_no_overflow": false
     },
-    "deployment_id": "dpl_CkmSgHQdUzsgcjdRKFWoc624dgdL",
+    "deployment_id": "dpl_iZJjbyuDrWyYha4RhwEFz4pszSUn",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://naver-blog-seo-studio.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 11
+    "seconds": 11,
+    "checked_at": "2026-10-16T02:52:23.687Z"
   },
   {
     "slug": "naver-cafe-poster",
@@ -1191,15 +1287,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_FapzQT6uEoi9UhwExRnxgugLAjBF",
+    "deployment_id": "dpl_7f8vht2jvodvExqAdeAurUVKwag4",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://naver-cafe-poster.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 11,
+    "checked_at": "2026-10-16T02:52:34.619Z"
   },
   {
     "slug": "persona-style-studio",
@@ -1215,15 +1313,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_Gdg11mB8PzTsMTb5WdX6bDNrNRux",
+    "deployment_id": "dpl_FQ3AL1zfx8HcFnSAKssZCHkVve4q",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://persona-style-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 11
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:52:33.975Z"
   },
   {
     "slug": "personality-suite",
@@ -1239,15 +1339,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_E7r19Ui29Uqcja5xyzVXY1MrU4P2",
+    "deployment_id": "dpl_3vwzkJgmkvy1rLNDzL7T8RP9TnDT",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://personality-suite.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 41
+    "seconds": 7,
+    "checked_at": "2026-10-16T02:52:41.257Z"
   },
   {
     "slug": "photo-remake-studio",
@@ -1263,15 +1365,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_EGjkPKBmovRgrcPEQLU78UD2xtzR",
+    "deployment_id": "dpl_HXX8akVFGakudRHBQagXJhvbTCcv",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://photo-remake-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 7,
+    "checked_at": "2026-10-16T02:52:41.883Z"
   },
   {
     "slug": "playlist-channel-studio",
@@ -1287,15 +1391,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_4fQ6sL8TB4eELzFQfLyN3BmeVUX3",
+    "deployment_id": "dpl_2ha9noXsGyU4qgFT8cXtHWJgWfuZ",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://playlist-channel-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:52:50.425Z"
   },
   {
     "slug": "portrait-photo",
@@ -1311,15 +1417,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_EbqDxqYUQzRFrFpCBFGSJPEK4fzg",
+    "deployment_id": "dpl_6Kc3PPzegwXqP8npWjvUsvjvXMib",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/studio",
+    "final_origin": "https://portrait-photo.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:52:49.968Z"
   },
   {
     "slug": "prompt-template-studio",
@@ -1335,15 +1443,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_8HYTqq2Ju8qcLN5bMD2gNDq5a6Ap",
+    "deployment_id": "dpl_GVJ7H9DxUN9A8si9re2o2A8oG7cm",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://prompt-template.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:52:59.503Z"
   },
   {
     "slug": "ai-web-ui",
@@ -1359,15 +1469,17 @@
       "version_visible": true,
       "mobile_no_overflow": false
     },
-    "deployment_id": "dpl_3wF7oskzBqCYtioRR5SnUCHYcKbx",
+    "deployment_id": "dpl_8anfzjMb6nB47cNdqaieknDPaPdF",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://ai-web-ui.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:52:59.550Z"
   },
   {
     "slug": "real-estate-sales",
@@ -1383,15 +1495,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_NKPFhrMFi2p2FwcJ6aH8LfKTcPVh",
+    "deployment_id": "dpl_9u9oL2Sy2rMrWKSFL3KxSnpoVGin",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://real-estate-sales-delta.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 6
+    "seconds": 6,
+    "checked_at": "2026-10-16T02:53:05.138Z"
   },
   {
     "slug": "reverse-prompt",
@@ -1407,15 +1521,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_ARfKsUuzcGBqEd1mwXHEk5Rnaxpj",
+    "deployment_id": "dpl_8a6FZvs127CuGrqegYvby7mYc1TK",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/analyze",
+    "final_origin": "https://reverse-prompt.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:53:07.443Z"
   },
   {
     "slug": "seo-thumbnail-pro",
@@ -1431,15 +1547,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_FZ7jX3J8WkzPK3EQjpd7dTxAPbaE",
+    "deployment_id": "dpl_FJKq3omwTUa3yQReWSK7pXtZLuzp",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://seo-thumbnail-pro.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:53:13.470Z"
   },
   {
     "slug": "shop-detail-page",
@@ -1455,15 +1573,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_BbAiDmCTDCbCShArnSWWowKXreWf",
+    "deployment_id": "dpl_9HdRn8TG67bjrfVjjLMicJ7rSKhF",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/products",
+    "final_origin": "https://shop-detail-page.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:53:16.291Z"
   },
   {
     "slug": "shorts-viral-studio",
@@ -1479,15 +1599,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_857AfLJLBYqvYruBfGJbEg2ieZWh",
+    "deployment_id": "dpl_BW6AyX1gikgaGErQgbenycW7YrmB",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/analyze",
+    "final_origin": "https://shorts-viral-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:53:23.368Z"
   },
   {
     "slug": "auto-shorts-posting",
@@ -1503,15 +1625,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_5VgDAJcqGmBTqiWbZNwinLvVJiPU",
+    "deployment_id": "dpl_FmdJWLcZQFu3mFKb7Lc4YKz38fYj",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/scripts",
+    "final_origin": "https://shots.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:53:26.277Z"
   },
   {
     "slug": "stepmail",
@@ -1527,15 +1651,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_8Nm3wfs6G3HCtK9itYxwWUyK2W71",
+    "deployment_id": "dpl_3YFom3ty2Mw2A9HL86Twx8oJYSrQ",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/leads",
+    "final_origin": "https://stepmail.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 6
+    "seconds": 6,
+    "checked_at": "2026-10-16T02:53:29.372Z"
   },
   {
     "slug": "style-dna-analyzer",
@@ -1551,15 +1677,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_8JsAYQQY8HMKQ9DXngaQ5DYqYXbD",
+    "deployment_id": "dpl_4kCkPmZRcTs1rmfFRQdCUBZnAFTk",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://style-dna-analyzer.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 11
+    "seconds": 11,
+    "checked_at": "2026-10-16T02:53:37.235Z"
   },
   {
     "slug": "suno-music-studio",
@@ -1575,15 +1703,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_3vXyYJLQCgi4ppqaKYGERnkX3p2G",
+    "deployment_id": "dpl_BwJ1cDjkeYSyPnYgDXGtx3yVF5Zu",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://suno-music-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:53:39.377Z"
   },
   {
     "slug": "tarot-reading",
@@ -1599,15 +1729,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_1jZ82bcuLx9AoPD6NfgSp8fpywFK",
+    "deployment_id": "dpl_9v1U7aVVUviSsJRjAnJHLomLqwTn",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/draw",
+    "final_origin": "https://tarot-eight-jet.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 7
+    "seconds": 7,
+    "checked_at": "2026-10-16T02:53:44.256Z"
   },
   {
     "slug": "auto-threads-posting",
@@ -1623,15 +1755,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_CnPWk2LLB4bozyVLV2vu4ueHdyQW",
+    "deployment_id": "dpl_BWR2caWkLRMXxJP1fcasK96qqgC9",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://threads-nu-dusky.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 8,
+    "checked_at": "2026-10-16T02:53:47.542Z"
   },
   {
     "slug": "threads-affiliate-poster",
@@ -1647,15 +1781,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_D4NpdkU3U2HdLW83DRd5WyaQz9bu",
+    "deployment_id": "dpl_3sycbE1bYEiMhsXZtsyk7HnpsyZY",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://threads-affiliate-poster.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 5
+    "seconds": 5,
+    "checked_at": "2026-10-16T02:53:49.753Z"
   },
   {
     "slug": "threads-comment-reply",
@@ -1671,15 +1807,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_7aQC6AzFtYrFqZc6vgVDVrcd81Ta",
+    "deployment_id": "dpl_D8r7uDFKNfh8axu15kzyc9jv9fq6",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/comments",
+    "final_origin": "https://threads-comment-reply.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 11
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:53:57.387Z"
   },
   {
     "slug": "threads-content-ops",
@@ -1695,15 +1833,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_ApyccpTDKoBWAeXUBxbbFXpSCUqa",
+    "deployment_id": "dpl_DUSDnvtxjYJyM8R6Lo9rLLcgCBMj",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/threads-content-ops",
+    "final_origin": "https://threads-content-ops.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 12
+    "seconds": 11,
+    "checked_at": "2026-10-16T02:54:01.229Z"
   },
   {
     "slug": "threads-easy-planner",
@@ -1719,15 +1859,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_D6WDyw4fAb98BAvDafgoAVrV6kjC",
+    "deployment_id": "dpl_GZvw2azaVnbXXq44nBqpPF2GP22i",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://threads-easy-planner.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 8
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:54:06.123Z"
   },
   {
     "slug": "thumbnail-master",
@@ -1743,15 +1885,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_5MwMd41mC3NWdXLvXZRfXJoRRias",
+    "deployment_id": "dpl_73MRRqDhoNH6kSSFQusySyRRgyVG",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://thumbnail-master.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 11
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:54:10.912Z"
   },
   {
     "slug": "tistory-auto-blog",
@@ -1767,15 +1911,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_5NoZDCRmUkrqk98tUfCTtc19n8i9",
+    "deployment_id": "dpl_CwTFD83vSRgTW9GHU9dMbZXFp4Yp",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://tistory-auto-blog-pearl.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/auth",
-    "seconds": 9
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:54:15.219Z"
   },
   {
     "slug": "trending-product-finder",
@@ -1791,15 +1937,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_DnJhm1EW8cm3dkgCEkhxy9s8kEDx",
+    "deployment_id": "dpl_2eBh9sqoBs44jRiZhoKLD1ETFcw2",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/sourcing",
+    "final_origin": "https://trending-product-finder.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:54:21.139Z"
   },
   {
     "slug": "ui-canvas",
@@ -1815,15 +1963,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_HZek9DionfLQVWJ1zUbxuRE5MJj5",
+    "deployment_id": "dpl_8kS7LFhyPTMavPTQcurRLTLtSoev",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://ui-canvas.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:54:24.298Z"
   },
   {
     "slug": "video-to-gif",
@@ -1839,15 +1989,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_8aW3m7F9jkpcg47vaTzh2whMcNYZ",
+    "deployment_id": "dpl_9CjVHEQ9mrCcw2zs935hpw655sbj",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://video-to-gif-blond.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 7
+    "seconds": 6,
+    "checked_at": "2026-10-16T02:54:27.206Z"
   },
   {
     "slug": "vinyl-lp-studio",
@@ -1863,15 +2015,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_3k6VZi5dvWAgxrvc7rjSuddMGkbF",
+    "deployment_id": "dpl_5Cf4ZxYn3mk2tnb434UdkBTNndsM",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://lp-turntable.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:54:34.335Z"
   },
   {
     "slug": "web-crawler-saas",
@@ -1887,15 +2041,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_EviSNcza2prbN7UVPygERD7PWCjP",
+    "deployment_id": "dpl_AgyEEJEbra4JZEvWUJsay2UNECTR",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://web-crawler-saas.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 10,
+    "checked_at": "2026-10-16T02:54:36.864Z"
   },
   {
     "slug": "youtube-auto-reply",
@@ -1911,15 +2067,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_69Vw2eNf5K5g4Vmr4dSTtH4fbUjB",
+    "deployment_id": "dpl_G1WERNY3oZToNyanyfs2KmN6JGAX",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/comments",
+    "final_origin": "https://youtube-auto-reply.vercel.app",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 11,
+    "checked_at": "2026-10-16T02:54:44.906Z"
   },
   {
     "slug": "youtube-channel-consultant",
@@ -1935,15 +2093,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_2iVFMNWKQQtCFMzyNghi4eabSj7M",
+    "deployment_id": "dpl_EcHBjP4XYnkRecwamNBQFZLynUCW",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/dashboard",
+    "final_origin": "https://youtube-channel-consultant.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:54:45.517Z"
   },
   {
     "slug": "youtube-viral-studio",
@@ -1959,15 +2119,17 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_JA4rYrXp4g7iwBAP34D3gqoczmgQ",
+    "deployment_id": "dpl_8pbXX1kV9h9FzFV3qPJ33G59ncKF",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/source-finder",
+    "final_origin": "https://youtube-viral-studio.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 9
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:54:53.684Z"
   },
   {
     "slug": "yt-playlist-studio",
@@ -1983,14 +2145,16 @@
       "version_visible": true,
       "mobile_no_overflow": true
     },
-    "deployment_id": "dpl_GkeFR2odKmC6TXJZCRXWqstJdu5H",
+    "deployment_id": "dpl_8rYSbZ1PgNr9MtCs7ozaMn7pTFju",
     "session_cookie_count": 2,
     "raw_status": 200,
     "raw_location": null,
     "final_path": "/",
+    "final_origin": "https://youtube-playlist.buylife.xyz",
     "version_note": null,
     "ok": true,
     "anonymous_path": "/login",
-    "seconds": 10
+    "seconds": 9,
+    "checked_at": "2026-10-16T02:54:54.596Z"
   }
 ]

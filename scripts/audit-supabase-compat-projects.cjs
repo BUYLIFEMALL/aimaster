@@ -24,8 +24,17 @@ async function worker() {
       row.ok = true;
     } catch (e) { row.ok = false; row.error = e.message; }
     rows.push(row);
-    fs.writeFileSync(output, JSON.stringify(rows, null, 2) + '\n');
     console.log(`PROJECT ${row.ok ? 'OK' : 'FAIL'} ${r.project}${row.cron_changed ? ' CRON REVIEW' : ''}`);
   }
 }
-Promise.all([worker(), worker(), worker(), worker()]).then(() => console.log('PROJECT AUDIT DONE'));
+Promise.all([worker(), worker(), worker(), worker()]).then(async () => {
+  // Shared Windows/SMB readers may briefly lock the file. Persist one complete audit.
+  for (let attempt = 0; ; attempt++) {
+    try { fs.writeFileSync(output, JSON.stringify(rows, null, 2) + '\n'); break; }
+    catch (error) {
+      if (attempt >= 9 || !['UNKNOWN', 'EBUSY', 'EPERM', 'EACCES'].includes(error.code)) throw error;
+      await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+  }
+  console.log('PROJECT AUDIT DONE');
+}).catch(error => { console.error(error.message); process.exitCode = 1; });

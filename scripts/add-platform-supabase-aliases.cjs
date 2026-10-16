@@ -41,7 +41,7 @@ async function main() {
     for (const item of r.add) {
       if (variables.some(v => v.key === item.key && v.target?.includes('production'))) { console.log(`SKIP existing ${r.project} ${item.key}`); continue; }
       const args = [cli, 'env', 'add', item.key, 'production', '--yes', '--scope', 'buylife'];
-      if (item.type === 'Secret') args.push('--sensitive');
+      args.push(item.type === 'Secret' ? '--sensitive' : '--no-sensitive');
       const added = cp.spawnSync(process.execPath, args, { cwd, input: values[item.key] + '\n', encoding: 'utf8', windowsHide: true, timeout: 90000 });
       const row = { project: r.project, slug: r.slug, key: item.key, target: 'production', ok: added.status === 0 };
       results.push(row);

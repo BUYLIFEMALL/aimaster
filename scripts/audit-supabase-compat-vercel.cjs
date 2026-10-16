@@ -22,7 +22,15 @@ async function worker() {
     } catch (e) { row.ok = false; row.error = e.message; }
     rows.push(row);
     console.log(`${row.ok ? 'AUDIT' : 'FAIL'} ${p.project}: public=${row.production_public || '?'} server=${row.production_server || '?'}`);
-    fs.writeFileSync('docs/supabase-compat-rollout-20261016/vercel-environment-names.json', JSON.stringify(rows, null, 2) + '\n');
   }
 }
-Promise.all([worker(), worker(), worker(), worker()]).then(() => console.log(`AUDIT DONE ${rows.filter(x => x.ok).length}/${plan.length}`));
+Promise.all([worker(), worker(), worker(), worker()]).then(async () => {
+  for (let attempt = 0; ; attempt++) {
+    try { fs.writeFileSync('docs/supabase-compat-rollout-20261016/vercel-environment-names.json', JSON.stringify(rows, null, 2) + '\n'); break; }
+    catch (error) {
+      if (attempt >= 9 || !['UNKNOWN', 'EBUSY', 'EPERM', 'EACCES'].includes(error.code)) throw error;
+      await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+  }
+  console.log(`AUDIT DONE ${rows.filter(x => x.ok).length}/${plan.length}`);
+}).catch(error => { console.error(error.message); process.exitCode = 1; });

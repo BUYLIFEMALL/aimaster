@@ -1,5 +1,130 @@
 [
   {
+    "folder": "ai-audio-analyzer",
+    "slug": "ai-audio-analyzer",
+    "project": "ai-audio-analyzer",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "preview"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "preview"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "preview"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "ai-image-studio",
+    "slug": "ai-image-studio",
+    "project": "ai-image-studio",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "preview"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
     "folder": ".",
     "slug": ".",
     "project": "aimaster",
@@ -91,34 +216,17 @@
     "ok": true
   },
   {
-    "folder": "ai-image-studio",
-    "slug": "ai-image-studio",
-    "project": "ai-image-studio",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "preview"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "missing",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
     "folder": "ai-auto-blog",
     "slug": "ai-auto-blog",
     "project": "ai-auto-blog",
     "variables": [
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
       {
         "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
         "target": [
@@ -163,80 +271,7 @@
       }
     ],
     "production_public": "new",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "ai-audio-analyzer",
-    "slug": "ai-audio-analyzer",
-    "project": "ai-audio-analyzer",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "preview"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "preview"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "preview"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -245,6 +280,20 @@
     "project": "ai-influencer-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -266,8 +315,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -276,6 +325,20 @@
     "project": "ai-mastering-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -297,39 +360,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "ai-prompt-studio",
-    "slug": "ai-prompt-studio",
-    "project": "ai-prompt-studio",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -338,6 +370,20 @@
     "project": "ai-slide-builder",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "preview"
@@ -401,8 +447,53 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "ai-prompt-studio",
+    "slug": "ai-prompt-studio",
+    "project": "ai-prompt-studio",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -411,6 +502,20 @@
     "project": "ai-task-planner",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -432,8 +537,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -442,6 +547,20 @@
     "project": "ai-writing-editor",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -484,8 +603,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -494,6 +613,20 @@
     "project": "ai-webtoon-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -515,8 +648,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -525,6 +658,20 @@
     "project": "allinone-graphic",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -546,8 +693,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -556,37 +703,6 @@
     "project": "auto-detail-page",
     "variables": [
       {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "blog-content-maker",
-    "slug": "blog-content-maker",
-    "project": "blog-content-maker",
-    "variables": [
-      {
         "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
         "target": [
           "production"
@@ -594,6 +710,13 @@
         "type": "encrypted"
       },
       {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -605,70 +728,18 @@
         "target": [
           "production"
         ],
-        "type": "encrypted"
+        "type": "sensitive"
       },
       {
         "key": "NEXT_PUBLIC_SUPABASE_URL",
         "target": [
           "production"
         ],
-        "type": "encrypted"
+        "type": "sensitive"
       }
     ],
     "production_public": "new",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "blog-keyword",
-    "slug": "blog-keyword",
-    "project": "blog-keyword",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -677,6 +748,20 @@
     "project": "banana-canvas",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -719,8 +804,119 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "blog-content-maker",
+    "slug": "blog-content-maker",
+    "project": "blog-content-maker",
+    "variables": [
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "blog-keyword",
+    "slug": "blog-keyword",
+    "project": "blog-keyword",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -729,6 +925,20 @@
     "project": "blog-workroom",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -771,8 +981,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -781,6 +991,20 @@
     "project": "booking-reminder",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -802,8 +1026,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -812,6 +1036,20 @@
     "project": "cardnews-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -833,8 +1071,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -843,6 +1081,20 @@
     "project": "cinematic-storyboard-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -864,8 +1116,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -874,6 +1126,20 @@
     "project": "competitor-analysis",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -895,8 +1161,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -905,6 +1171,20 @@
     "project": "crm-google-form",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -926,39 +1206,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "detail-page-12p",
-    "slug": "detail-page-12p",
-    "project": "detail-page-12p",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -967,6 +1216,20 @@
     "project": "document-translator",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -988,8 +1251,53 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "detail-page-12p",
+    "slug": "detail-page-12p",
+    "project": "detail-page-12p",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -998,6 +1306,20 @@
     "project": "ebook-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1019,39 +1341,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "emotion-writer",
-    "slug": "emotion-writer",
-    "project": "emotion-writer",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1060,6 +1351,20 @@
     "project": "fashion-style",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -1102,8 +1407,53 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "emotion-writer",
+    "slug": "emotion-writer",
+    "project": "emotion-writer",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1112,6 +1462,20 @@
     "project": "file-merge",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1133,8 +1497,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1143,6 +1507,20 @@
     "project": "four-cut-comics",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1164,8 +1542,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1174,6 +1552,20 @@
     "project": "image-convert-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1195,8 +1587,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1205,6 +1597,20 @@
     "project": "website-scraper",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1226,8 +1632,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1236,6 +1642,20 @@
     "project": "infinite-loop-video",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1257,8 +1677,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1267,6 +1687,20 @@
     "project": "insta-auto-poster",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1288,39 +1722,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "instagram-comment-reply",
-    "slug": "instagram-comment-reply",
-    "project": "instagram-comment-reply",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1329,6 +1732,20 @@
     "project": "instagram-dm-reply",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1350,8 +1767,53 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "instagram-comment-reply",
+    "slug": "instagram-comment-reply",
+    "project": "instagram-comment-reply",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1360,6 +1822,20 @@
     "project": "kakao_auto_poster",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1381,8 +1857,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1391,6 +1867,20 @@
     "project": "landing-architect",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -1433,8 +1923,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1443,6 +1933,20 @@
     "project": "longtail-keyword-expander",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1464,60 +1968,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "mbti",
-    "slug": "personality-code",
-    "project": "mbti",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1526,6 +1978,20 @@
     "project": "markdown-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -1568,8 +2034,74 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "mbti",
+    "slug": "personality-code",
+    "project": "mbti",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1578,6 +2110,20 @@
     "project": "mbti-character",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -1606,8 +2152,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1616,6 +2162,20 @@
     "project": "music",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1637,39 +2197,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "music-video-studio",
-    "slug": "music-video-studio",
-    "project": "music-video-studio",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1678,6 +2207,20 @@
     "project": "music-player",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -1720,8 +2263,53 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "music-video-studio",
+    "slug": "music-video-studio",
+    "project": "music-video-studio",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1730,6 +2318,20 @@
     "project": "naver-blog-agent",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1751,8 +2353,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1761,6 +2363,20 @@
     "project": "naver-blog-allinone",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1782,8 +2398,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1792,6 +2408,20 @@
     "project": "naver-blog-auto-poster",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1813,8 +2443,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1823,6 +2453,20 @@
     "project": "naver-blog-auto-poster-web",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1844,8 +2488,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1854,6 +2498,20 @@
     "project": "naver-blog-seo-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1875,8 +2533,8 @@
         "type": "encrypted"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1885,6 +2543,20 @@
     "project": "naver-cafe-poster",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1906,8 +2578,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1916,6 +2588,20 @@
     "project": "persona-style-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1937,8 +2623,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1947,6 +2633,20 @@
     "project": "personality-suite",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -1968,8 +2668,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -1978,6 +2678,20 @@
     "project": "photo-remake-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -2020,70 +2734,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "portrait-photo",
-    "slug": "portrait-photo",
-    "project": "portrait-photo",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "prompt-template-studio",
-    "slug": "prompt-template-studio",
-    "project": "prompt-template-studio",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2092,6 +2744,20 @@
     "project": "playlist-channel-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2113,8 +2779,98 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "portrait-photo",
+    "slug": "portrait-photo",
+    "project": "portrait-photo",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "prompt-template-studio",
+    "slug": "prompt-template-studio",
+    "project": "prompt-template-studio",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2123,6 +2879,20 @@
     "project": "react-ui-showcase",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "preview"
@@ -2165,60 +2935,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "reverse-prompt",
-    "slug": "reverse-prompt",
-    "project": "reverse-prompt",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2227,6 +2945,20 @@
     "project": "real-estate-sales",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2248,8 +2980,74 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "reverse-prompt",
+    "slug": "reverse-prompt",
+    "project": "reverse-prompt",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2258,6 +3056,20 @@
     "project": "seo-thumbnail-pro",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2279,8 +3091,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2289,6 +3101,20 @@
     "project": "shop-detail-page",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2352,39 +3178,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "shorts-viral-studio",
-    "slug": "shorts-viral-studio",
-    "project": "shorts-viral-studio",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2393,6 +3188,20 @@
     "project": "shots",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2414,8 +3223,53 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "shorts-viral-studio",
+    "slug": "shorts-viral-studio",
+    "project": "shorts-viral-studio",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2424,6 +3278,20 @@
     "project": "stepmail",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2445,8 +3313,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2455,6 +3323,20 @@
     "project": "style-dna-analyzer",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2476,8 +3358,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2486,6 +3368,20 @@
     "project": "suno-music-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2507,39 +3403,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "threads",
-    "slug": "auto-threads-posting",
-    "project": "threads",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2548,6 +3413,20 @@
     "project": "tarot",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2569,8 +3448,53 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "threads",
+    "slug": "auto-threads-posting",
+    "project": "threads",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2579,6 +3503,20 @@
     "project": "threads-affiliate-poster",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2600,81 +3538,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "threads-easy-planner",
-    "slug": "threads-easy-planner",
-    "project": "threads-easy-planner",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "preview"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "preview"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "preview"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2683,6 +3548,20 @@
     "project": "threads-comment-reply",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2704,60 +3583,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
-    "ok": true
-  },
-  {
-    "folder": "thumbnail-master",
-    "slug": "thumbnail-master",
-    "project": "thumbnail-master",
-    "variables": [
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "SUPABASE_SERVICE_ROLE_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "development"
-        ],
-        "type": "encrypted"
-      },
-      {
-        "key": "NEXT_PUBLIC_SUPABASE_URL",
-        "target": [
-          "production"
-        ],
-        "type": "sensitive"
-      }
-    ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2766,6 +3593,20 @@
     "project": "threads-content-ops",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2787,8 +3628,161 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "threads-easy-planner",
+    "slug": "threads-easy-planner",
+    "project": "threads-easy-planner",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "preview"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "preview"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "preview"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
+    "ok": true
+  },
+  {
+    "folder": "thumbnail-master",
+    "slug": "thumbnail-master",
+    "project": "thumbnail-master",
+    "variables": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "development"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      }
+    ],
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2796,6 +3790,13 @@
     "slug": "tistory-auto-blog",
     "project": "tistory-auto-blog",
     "variables": [
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
       {
         "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
         "target": [
@@ -2819,7 +3820,7 @@
       }
     ],
     "production_public": "new",
-    "production_server": "legacy",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2828,6 +3829,20 @@
     "project": "trending-product-finder",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2849,8 +3864,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2859,6 +3874,20 @@
     "project": "ui-canvas",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "development"
@@ -2901,8 +3930,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2911,6 +3940,13 @@
     "project": "video-to-gif",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
         "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
         "target": [
           "production"
@@ -2925,7 +3961,7 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
+    "production_public": "new",
     "production_server": "missing",
     "ok": true
   },
@@ -2935,6 +3971,20 @@
     "project": "vinyl-lp-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2956,8 +4006,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2966,6 +4016,20 @@
     "project": "web-crawler-saas",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -2987,8 +4051,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -2997,6 +4061,20 @@
     "project": "youtube-auto-reply",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -3018,8 +4096,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -3028,6 +4106,20 @@
     "project": "youtube-channel-consultant",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -3049,8 +4141,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -3059,6 +4151,20 @@
     "project": "youtube-viral-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -3080,8 +4186,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   },
   {
@@ -3090,6 +4196,20 @@
     "project": "yt-playlist-studio",
     "variables": [
       {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "encrypted"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "target": [
+          "production"
+        ],
+        "type": "sensitive"
+      },
+      {
         "key": "SUPABASE_SERVICE_ROLE_KEY",
         "target": [
           "production"
@@ -3111,8 +4231,8 @@
         "type": "sensitive"
       }
     ],
-    "production_public": "legacy",
-    "production_server": "legacy",
+    "production_public": "new",
+    "production_server": "new",
     "ok": true
   }
 ]

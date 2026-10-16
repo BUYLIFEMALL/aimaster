@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(윈도우) — DB 신규 변수 160개 등록·83곳 운영 검수 완료
+
+- 주인님 승인 **"추가해줘"**에 따라 기존 82개 Vercel 프로젝트 Production에 공개 79·서버 81개, 총 **160개 새 변수 이름**을 등록. 새 API 키 발급이 아님. 공개는 Config, 서버는 Secret이며 기존 변수 이름/적용 환경/유형과 실제 Supabase 키는 유지.
+- 대상은 작업 시작 때의 **메인 + 기존 82개 프로그램(83개 웹 배포)**. 새 설정이 들어간 READY 배포 83곳·동일 배포 ID의 Microsoft Edge 일반 회원 검수 83곳·코드/DB 버전 82곳 일치, 확장 7개 실패/경고 0, Cron 정의/활성 변경 없음, 유료 AI 호출 0. 이후 새 프로젝트는 별도 작업.
+- 관리자 **buylifemall@gmail.com**, 일반 시험 회원 **buylifemall@naver.com**. 실제 DB 관리자 여부 true/false 확인. 관리자 권한으로 일반 회원 검수를 대신하지 않음.
+- **markdown-studio 후속 처리 완료:** Antigravity 디자인 작업 종료 뒤 v1.09를 보존해 검수하고, 추가 가이드 작업 종료 후 **최종 v1.10 / dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ**도 신규 이름 전용 빌드·Edge 회원/모바일 검수 통과. 코드·버전을 되돌리거나 중복 배포하지 않음. 배포 이력은 전용 결과 파일 참조.
+- 최종 유형 검사에서 CLI 기본값으로 Secret 저장된 공개 79개를 발견, **이번에 추가한 공개 별칭만 같은 값으로 Config 재등록**해 바로잡음. 공개 추가 도구에 --no-sensitive 명시. 기존 변수·서버 키·실제 키 값 보존. 전자책 networkidle 시간 초과 1건은 단독 재검수 7초 통과, 첫 실패 기록 보존.
+- 메인 설치 파일 포함 검증 배포 **dpl_3YjtVTKpe2Hjmvkr6633P5rHRGDs** 유지. 문서 푸시도 Git 자동 배포가 설치 파일을 누락시킬 수 있으므로 마지막 푸시 후 `node scripts/finalize-supabase-compat-main.cjs`로 소스 동일성·운영 대상·홈/설치 파일/확장 ZIP 200 확인. 현장 증거는 Git 제외 .vercel/final-main-promotion.json.
+- 필독: [DB 최상위 지침](DATABASE_CONNECTION_POLICY.md), [전용 인수인계](DATABASE_CONNECTION_HANDOFF.md), [최종 감사](supabase-compat-rollout-20261016/environment-addition-audit.json), [83곳 현황표](supabase-compat-rollout-20261016/STATUS.md). 값 없이 이름·유형·대상·배포 ID만 기록.
+- **남은 정책:** 안정화 전 기존 변수/키 삭제 금지. 안정화 후 주인님과 삭제 시점을 확정하고 Vercel의 기존 **이름만** 정리·재배포·검수. 실제 키 폐기는 별도 승인. Preview/Development·별도 Python 작업자는 이번 변경 범위 밖. 다음 CLI는 ACTIVE_WORK·최신 프로그램 인수인계·위 증거부터 대조.
+
+
+
 ## 2026-10-16 Claude Code(윈도우) — 개발 플랜에 「기존 프로그램 기반 개선·업그레이드」와 「비용 표시」 지침 추가
 
 - 주인님 지시: 신규 개발 시 분석 프로그램의 부족한 점은 기존 프로그램 목록을 읽고 더 좋은 기능을 추가·업그레이드하는 플랜을 세우고, 비용이 발생하는 경우 개발 플랜에 함께 보여 줄 것. `CLAUDE.md` 원칙 23·`AGENTS.md` 원칙 22에 두 항목 추가(이름 제안 항목 바로 아래).
@@ -73,12 +86,6 @@
   - 8. 향후 개편 로드맵 및 지속 보완 절차
 - 연계 파일: `AGENTS.md` 원칙 8번, `CLAUDE.md` 디자인 항목에 메인 지침으로 연결.
 
-## 2026-10-16 Codex(윈도우) — DB 새 변수 160개 등록 완료·재배포 검수 중
-
-- 주인님 "추가해줘" 승인: 82개 Vercel 프로젝트 Production 새 공개 79개·서버 81개만 추가. 기존 변수·실제 키 유지, 새 키 발급/폐기 없음.
-- 등록 160/160 완료. 새 공개 변수 83곳·새 서버 변수 82곳, 기존 이름/환경/유형 보존. 같은 코드 재배포·보이는 Edge 회원 재검수 진행 중.
-- **markdown-studio는 Antigravity CLI 디자인 작업 종료 후 처리**(주인님 재지시). 새 변수는 등록 완료이며, 최신 코드·DB 버전·운영 배포를 보존하고 신규 변수 적용 배포의 Edge 검수/필요한 재배포만 수행. 과거 호환 릴리스로 되돌리지 않음. 다른 CLI는 [전용 후속 절차](DATABASE_CONNECTION_HANDOFF.md#markdown-studio--antigravity-작업-종료-후-후속-처리)를 확인.
-- 상세: [DB 전환 인수인계](DATABASE_CONNECTION_HANDOFF.md), [추가 승인 기록](supabase-compat-rollout-20261016/environment-addition-approval.json).
 
 ## 2026-10-16 Claude Code(윈도우) — 맥미니 지침에 세 CLI 공유 폴더 실행 방법 기록
 

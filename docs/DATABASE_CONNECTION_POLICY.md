@@ -39,3 +39,7 @@
 완료 시: 기존 이름만/새 이름만/양쪽 공존/빈 새 값의 호환 검사 → 빌드 → 버전/확장 ZIP 동기화 → 커밋/푸시 → 해당 프로젝트 배포 → 실제 회원 브라우저(Codex: Edge)·서버 조회·모바일·라이브 버전 검사 → 인수인계·결과 보고. 모든 서브프로그램의 적용 여부를 추측하지 말고 프로그램별 증거로 기록합니다.
 
 세부 변수 등록 방법과 초기 검수 기록: [Supabase 키 호환 운영 지침](SUPABASE_API_KEY_COMPATIBILITY.md). 이번 전체 작업 현황: [전환 인수인계](DATABASE_CONNECTION_HANDOFF.md).
+
+## 2026-10-16 승인된 신규 이름 등록 완료
+
+작업 시작 때의 메인+기존 82개 프로그램(웹 배포 83곳)에 대해, 주인님 승인으로 82개 Vercel 프로젝트 Production에 새 이름 160개(공개 79·서버 81)를 추가했습니다. 공개는 Config, 서버는 Secret입니다. 기존 이름·실제 키 유지, 실제 키 신규 발급/폐기 없음. 새 공개 이름 83곳·새 서버 이름 82곳(video-to-gif는 서버 키 불필요), 새 설정 배포·Edge 회원 검수 83곳을 확인했습니다. markdown-studio는 Antigravity 종료 후 최신 v1.10을 보존해 검수했습니다. 이후 신규 프로그램·Preview/Development·별도 Python 작업자는 이번 증거 범위에 포함하지 않습니다. [최종 감사](supabase-compat-rollout-20261016/environment-addition-audit.json)·[인수인계](DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽고, 안정화 전 기존 이름을 삭제하지 않습니다.

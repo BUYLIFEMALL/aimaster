@@ -297,11 +297,12 @@
   },
   {
     "slug": "markdown-studio",
-    "version": "v1.08",
+    "version": "v1.10",
     "ok": true,
     "exit_code": 0,
     "seconds": 17,
-    "logFile": ".vercel/supabase-compat-builds/markdown-studio.log"
+    "logFile": ".vercel/supabase-compat-builds/markdown-studio.log",
+    "followup": "New-only local build after Antigravity v1.10 completion"
   },
   {
     "slug": "longtail-keyword-expander",

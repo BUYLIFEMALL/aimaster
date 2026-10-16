@@ -10,6 +10,8 @@ const { chromium } = ownRequire('playwright');
 const { createClient } = ownRequire('@supabase/supabase-js');
 const { createServerClient } = ownRequire('@supabase/ssr');
 const mode = process.env.PLATFORM_BROWSER_MODE || 'local-new';
+const afterAliases = process.env.PLATFORM_BROWSER_AFTER_ALIASES === '1';
+const aliasesReadyAt = afterAliases ? JSON.parse(fs.readFileSync(path.join(root, 'docs/supabase-compat-rollout-20261016/environment-addition-approval.json'), 'utf8')).registration_completed_at : null;
 const filter = process.env.PLATFORM_BROWSER_SLUGS?.split(',');
 const releases = JSON.parse(fs.readFileSync(path.join(root, 'docs/supabase-compat-rollout-20261016/releases.json'), 'utf8')).filter(r => !filter || filter.includes(r.slug));
 const projects = JSON.parse(fs.readFileSync(path.join(root, 'docs/supabase-compat-rollout-20261016/projects-before.json'), 'utf8'));
@@ -59,7 +61,10 @@ async function main() {
   if (checkUser.error || ssrUser.error) throw new Error('Ordinary member session validation failed');
   console.log('Ordinary member session verified');
   browser = await chromium.launch({ channel: 'msedge', headless: false });
-  for (const r of releases) {
+  let releaseIndex = 0;
+  async function worker() {
+  while (releaseIndex < releases.length) {
+    const r = releases[releaseIndex++];
     if (!process.env.PLATFORM_BROWSER_FORCE && results.some(x => x.slug === r.slug && x.ok && x.version === r.version && x.browser === 'Microsoft Edge')) continue;
     let child, context, fd;
     const slug = r.slug === '.' ? 'aimaster' : r.slug;
@@ -73,8 +78,8 @@ async function main() {
         for (let n = 0; n < 3600; n++) {
           const deployed = fs.existsSync(state) ? JSON.parse(fs.readFileSync(state, 'utf8')) : [];
           const hit = deployed.find(x => x.slug === r.slug && x.version === r.version);
-          if (hit?.ok) { row.deployment_id = hit.deployment_id; ready = true; break; }
-          if (hit && !hit.ok) throw new Error('Production deployment needs repair before live verification');
+          if (hit?.ok && (!afterAliases || hit.started >= aliasesReadyAt)) { row.deployment_id = hit.deployment_id; ready = true; break; }
+          if (hit && !hit.ok && (!afterAliases || hit.started >= aliasesReadyAt)) throw new Error('Production deployment needs repair before live verification');
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
         if (!ready) throw new Error('Production deployment still pending');
@@ -145,10 +150,15 @@ async function main() {
       if (fd !== undefined) fs.closeSync(fd);
     }
     row.seconds = Math.round((Date.now() - started) / 1000);
+    row.checked_at = new Date().toISOString();
     const old = results.findIndex(x => x.slug === r.slug);
     if (old >= 0) results[old] = row; else results.push(row);
     fs.writeFileSync(resultsFile, JSON.stringify(results, null, 2));
     console.log(`BROWSER ${row.ok ? 'PASS' : 'FAIL'} ${slug} ${row.seconds}s ${row.error || row.final_path || ''}`);
   }
+  }
+  // Live reads use isolated contexts with one shared, verified member session.
+  // Local production servers share one port and must remain sequential.
+  await Promise.all(Array.from({ length: mode === 'live' ? 2 : 1 }, () => worker()));
 }
 main().catch(e => { console.error(e.message); process.exitCode = 1; }).finally(async () => { if (browser) await browser.close(); });

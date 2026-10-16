@@ -2,1247 +2,1248 @@
   {
     "slug": "ai-audio-analyzer",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:31:51.230Z",
-    "url": "https://ai-audio-analyzer-2fux2zm26-buylife.vercel.app",
-    "deployment_id": "dpl_9JamJTEPGsGHaCoDzWqBnRS4UFpP",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:34:53.941Z",
+    "url": "https://ai-audio-analyzer-8sze35gbj-buylife.vercel.app",
+    "deployment_id": "dpl_H6taZWLiU8x94x8HBGkcpWN5YFcJ",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:32:16.993Z"
+    "finished": "2026-10-16T02:35:15.258Z"
   },
   {
     "slug": "naver-blog-auto-poster-web",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:31:50.225Z",
-    "url": "https://naver-blog-auto-poster-ge5ydf5kd-buylife.vercel.app",
-    "deployment_id": "dpl_CGv3XMRUb2FoyZKay4MCY2NnoTFe",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:34:53.114Z",
+    "url": "https://naver-blog-auto-poster-jhedo30uc-buylife.vercel.app",
+    "deployment_id": "dpl_DMz4ztvEBXvGmYVtDfnZnrCwo1Ve",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:32:30.381Z"
+    "finished": "2026-10-16T02:35:28.445Z"
   },
   {
     "slug": ".",
     "version": null,
-    "revision": "df016e132c8aba993a2dbeac070415d3fd2f6f49",
-    "started": "2026-10-16T01:45:41.975Z",
-    "url": "https://aimaster-391utuusl-buylife.vercel.app",
-    "deployment_id": "dpl_wwRtFkMQi969JwLqqgph4vW6mh18",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:34:53.388Z",
+    "url": "https://aimaster-f42f78e0x-buylife.vercel.app",
+    "deployment_id": "dpl_3YjtVTKpe2Hjmvkr6633P5rHRGDs",
     "readyState": "READY",
     "catalog": {
       "ok": true,
       "root": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:29.965Z",
-    "reason": "Restore existing installer after automatic Git deployment omitted ignored artifact"
+    "finished": "2026-10-16T02:35:47.161Z"
   },
   {
     "slug": "ai-auto-blog",
     "version": "v1.64",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:32:16.994Z",
-    "url": "https://ai-auto-blog-c918moawi-buylife.vercel.app",
-    "deployment_id": "dpl_6sxcfViTL3phP5qQroQHZm7m4TU5",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:35:15.259Z",
+    "url": "https://ai-auto-blog-7boimt5qk-buylife.vercel.app",
+    "deployment_id": "dpl_F7FKFoFRNm4CkMmamfQm1ME5k8Wf",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.64"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:33:01.457Z"
+    "finished": "2026-10-16T02:35:49.431Z"
   },
   {
     "slug": "ai-image-studio",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:32:30.381Z",
-    "url": "https://ai-image-studio-ezwyz4zrc-buylife.vercel.app",
-    "deployment_id": "dpl_6SVnmFjAJChwYMoJ5W988VWp8y1h",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:35:28.446Z",
+    "url": "https://ai-image-studio-dqnqqcnzp-buylife.vercel.app",
+    "deployment_id": "dpl_5V6U3NoPXV7fQ3D6jZagJnow9Zgh",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:33:11.338Z"
+    "finished": "2026-10-16T02:36:06.847Z"
   },
   {
     "slug": "ai-influencer-studio",
     "version": "v1.08",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:32:53.033Z",
-    "url": "https://ai-influencer-studio-odjociq1i-buylife.vercel.app",
-    "deployment_id": "dpl_Dng1poD46kG7TRdWCc59gFKUiFbp",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:35:47.162Z",
+    "url": "https://ai-influencer-studio-m1qci4m02-buylife.vercel.app",
+    "deployment_id": "dpl_GXixsHvQW5ApvLxaJ3LxwfCL26zq",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.08"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:33:21.214Z"
+    "finished": "2026-10-16T02:36:14.945Z"
   },
   {
     "slug": "ai-mastering-studio",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:33:01.458Z",
-    "url": "https://ai-mastering-studio-qye23rvkn-buylife.vercel.app",
-    "deployment_id": "dpl_7oakL4gL7ppy2aXtTNY2YHeN8XFd",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:35:49.432Z",
+    "url": "https://ai-mastering-studio-dblnu7ob2-buylife.vercel.app",
+    "deployment_id": "dpl_6TJAv93gPYkYATdbSdF9zNvL76jh",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:33:27.292Z"
+    "finished": "2026-10-16T02:36:19.319Z"
   },
   {
     "slug": "ai-prompt-studio",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:33:11.338Z",
-    "url": "https://ai-prompt-studio-f7l9ray1p-buylife.vercel.app",
-    "deployment_id": "dpl_wMNTnQkCp4TGUduQumpWAWZPDewQ",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:36:06.847Z",
+    "url": "https://ai-prompt-studio-bitz4uvzs-buylife.vercel.app",
+    "deployment_id": "dpl_5YjYAZYHRky7n1138mDcEPtgP621",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:33:37.715Z"
+    "finished": "2026-10-16T02:36:27.915Z"
   },
   {
     "slug": "ai-slide-builder",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:33:21.215Z",
-    "url": "https://ai-slide-builder-c6bek8jk8-buylife.vercel.app",
-    "deployment_id": "dpl_CJBFHNQ6eYimxNQGdmbgw14uJoEo",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:36:14.945Z",
+    "url": "https://ai-slide-builder-hagj6lcvf-buylife.vercel.app",
+    "deployment_id": "dpl_CbBHgNHAutX2EzJG1MjG3k7NS16t",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:33:49.999Z"
+    "finished": "2026-10-16T02:36:45.749Z"
   },
   {
     "slug": "ai-task-planner",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:33:27.292Z",
-    "url": "https://ai-task-planner-lqnlvd0al-buylife.vercel.app",
-    "deployment_id": "dpl_CtZnnWXt6iKabgTRjmPSQnhEQc13",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:36:19.320Z",
+    "url": "https://ai-task-planner-k2p3u6brt-buylife.vercel.app",
+    "deployment_id": "dpl_BK4GuQzyn6Hsn7B6WJUmBvwfs8pw",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:33:53.632Z"
+    "finished": "2026-10-16T02:36:46.706Z"
   },
   {
     "slug": "ai-webtoon-studio",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:33:37.716Z",
-    "url": "https://ai-webtoon-studio-kvi8m3wqq-buylife.vercel.app",
-    "deployment_id": "dpl_AbHUoCQMcZJCjjd79adQS9Mq1Fqg",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:36:27.916Z",
+    "url": "https://ai-webtoon-studio-z80dbd3gv-buylife.vercel.app",
+    "deployment_id": "dpl_De81hrWYLULNNSvVBqfCEySbqzq1",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:34:05.709Z"
+    "finished": "2026-10-16T02:36:51.684Z"
   },
   {
     "slug": "ai-writing-editor",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:33:49.999Z",
-    "url": "https://ai-writing-editor-70p4dnlri-buylife.vercel.app",
-    "deployment_id": "dpl_BYGpHimpcsnYmvtYuaxsDmZ229EL",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:36:45.750Z",
+    "url": "https://ai-writing-editor-12x3fb6ar-buylife.vercel.app",
+    "deployment_id": "dpl_G8LyYm8MG6TA5epPTBkzr2XdYi9p",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:34:19.756Z"
+    "finished": "2026-10-16T02:37:07.961Z"
   },
   {
     "slug": "allinone-graphic",
     "version": "v1.03",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:33:53.632Z",
-    "url": "https://allinone-graphic-1045q1whc-buylife.vercel.app",
-    "deployment_id": "dpl_2sSJ167G7iiYAT1rx15XGnsyh7j1",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:36:46.707Z",
+    "url": "https://allinone-graphic-d83szxhmm-buylife.vercel.app",
+    "deployment_id": "dpl_DJYGKaSv1rPFYJEfhe3Wtws1YKtr",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.03"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:34:20.451Z"
+    "finished": "2026-10-16T02:37:07.615Z"
   },
   {
     "slug": "auto-detail-page",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:34:05.710Z",
-    "url": "https://auto-detail-page-mvlducxei-buylife.vercel.app",
-    "deployment_id": "dpl_Hp7psFmvKPddXTxa23LPE1tU7xaQ",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:36:51.685Z",
+    "url": "https://auto-detail-page-li4g3mxsy-buylife.vercel.app",
+    "deployment_id": "dpl_Gr5cxzBSm7tJiU8QUW3Le2vjuFqL",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:34:41.288Z"
+    "finished": "2026-10-16T02:37:22.692Z"
   },
   {
     "slug": "blog-content-maker",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:34:20.451Z",
-    "url": "https://blog-content-maker-89ncaoiu7-buylife.vercel.app",
-    "deployment_id": "dpl_7ngFd1aLNnQkQLeKoL4gQbj41UFg",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:37:07.961Z",
+    "url": "https://blog-content-maker-3mzisok0k-buylife.vercel.app",
+    "deployment_id": "dpl_9nefsz9jCAgK4rMBBu6WRwm5q4G8",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:34:46.698Z"
+    "finished": "2026-10-16T02:37:31.103Z"
   },
   {
     "slug": "banana-canvas",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:34:19.756Z",
-    "url": "https://banana-canvas-70h72laur-buylife.vercel.app",
-    "deployment_id": "dpl_Gsd4vwB3QzE4mhxUonifR7t9QzGP",
+    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "started": "2026-10-16T02:37:07.615Z",
+    "url": "https://banana-canvas-qh1t8cuq3-buylife.vercel.app",
+    "deployment_id": "dpl_DzeVNH2icWschpYu3zdWAWwWNpQR",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:34:52.028Z"
+    "finished": "2026-10-16T02:37:33.146Z"
   },
   {
     "slug": "blog-keyword",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:34:41.289Z",
-    "url": "https://blog-keyword-i25qt4col-buylife.vercel.app",
-    "deployment_id": "dpl_Bz3jzqTmZ8M812uhDEgC2WjfCnWg",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:38:06.411Z",
+    "url": "https://blog-keyword-4k3dthqtt-buylife.vercel.app",
+    "deployment_id": "dpl_3v2xw3tMNvqxPnxoUzCueyqmX5BR",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:35:08.568Z"
+    "finished": "2026-10-16T02:38:26.634Z"
   },
   {
     "slug": "blog-workroom",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:34:46.698Z",
-    "url": "https://blog-workroom-fqb9o65g5-buylife.vercel.app",
-    "deployment_id": "dpl_528vMT8YrH8YPZY4uzXQFa4srP8R",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:38:06.817Z",
+    "url": "https://blog-workroom-lbioxm7zn-buylife.vercel.app",
+    "deployment_id": "dpl_AqntynT1XBQg3VSTAmaHWCY48YJB",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:35:17.797Z"
+    "finished": "2026-10-16T02:38:27.655Z"
   },
   {
     "slug": "booking-reminder",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:34:52.028Z",
-    "url": "https://booking-reminder-paq3utqv8-buylife.vercel.app",
-    "deployment_id": "dpl_39TyyMhBE4nqLAc8YRejYyhtv4QW",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:38:07.311Z",
+    "url": "https://booking-reminder-476010gf7-buylife.vercel.app",
+    "deployment_id": "dpl_5EAKHeBAqZmJW4b6hP8BwxCWxhvB",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:35:34.138Z"
+    "finished": "2026-10-16T02:38:46.394Z"
   },
   {
     "slug": "cardnews-studio",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:35:08.569Z",
-    "url": "https://cardnews-studio-kucnljppv-buylife.vercel.app",
-    "deployment_id": "dpl_9eZ1Ltk2QAXY2r8jgw5cKqt7imCZ",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:38:26.635Z",
+    "url": "https://cardnews-studio-3ervtn4ur-buylife.vercel.app",
+    "deployment_id": "dpl_8TZAGHnuXnk4kkmrKZxVWz8LVK9t",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:35:42.092Z"
+    "finished": "2026-10-16T02:38:59.553Z"
   },
   {
     "slug": "cinematic-storyboard-studio",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:35:17.798Z",
-    "url": "https://cinematic-storyboard-studio-4xfxkge67-buylife.vercel.app",
-    "deployment_id": "dpl_Hayi92CtKH43VX2AcjsmPb5iKyhC",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:38:27.656Z",
+    "url": "https://cinematic-storyboard-studio-lyh8aaqra-buylife.vercel.app",
+    "deployment_id": "dpl_ATR1ctpZYHvjNoDY99vqyNNTvd6K",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:35:49.236Z"
+    "finished": "2026-10-16T02:39:00.790Z"
   },
   {
     "slug": "competitor-analysis",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:35:34.138Z",
-    "url": "https://competitor-analysis-3p19x08xm-buylife.vercel.app",
-    "deployment_id": "dpl_DgLF7Sis4W1X7rCmNSophdYHZcm4",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:38:46.395Z",
+    "url": "https://competitor-analysis-q0fy6hrwe-buylife.vercel.app",
+    "deployment_id": "dpl_3xVT9cxLVwqeJtsTbRPGmkwg3Mc5",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:36:03.474Z"
+    "finished": "2026-10-16T02:39:23.985Z"
   },
   {
     "slug": "detail-page-12p",
     "version": "v1.03",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:35:49.236Z",
-    "url": "https://detail-page-12p-7nsnfhwov-buylife.vercel.app",
-    "deployment_id": "dpl_5jpGa3PwBsBU9bCLYffT4M49ZXBh",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:39:00.790Z",
+    "url": "https://detail-page-12p-r6h5vh8hz-buylife.vercel.app",
+    "deployment_id": "dpl_D54fe8t8GPrjFD1mYC5aWdorCmBA",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.03"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:36:14.803Z"
+    "finished": "2026-10-16T02:39:23.271Z"
   },
   {
     "slug": "crm-google-form",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:35:42.093Z",
-    "url": "https://crm-google-form-6xdlx0bao-buylife.vercel.app",
-    "deployment_id": "dpl_2cfCZsXBVHjia3mN9VHc4D493mEB",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:38:59.554Z",
+    "url": "https://crm-google-form-iymrcvng9-buylife.vercel.app",
+    "deployment_id": "dpl_46e64AcaBv4Yrp2eS4cW8MrRD5p5",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:36:18.282Z"
+    "finished": "2026-10-16T02:39:35.315Z"
   },
   {
     "slug": "document-translator",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:36:03.474Z",
-    "url": "https://document-translator-e5tecmyhm-buylife.vercel.app",
-    "deployment_id": "dpl_745SC3f2LSGZEJufTVbcfsrtSef4",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:39:23.272Z",
+    "url": "https://document-translator-n3ygg8fiq-buylife.vercel.app",
+    "deployment_id": "dpl_7jc3wEz78a4kbvbeJs9J72gHw5RN",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:36:38.670Z"
+    "finished": "2026-10-16T02:39:59.976Z"
   },
   {
     "slug": "ebook-studio",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:36:14.804Z",
-    "url": "https://ebook-studio-a47bfh07g-buylife.vercel.app",
-    "deployment_id": "dpl_4d3L3nKo1YtweKPhHhWyBvX3ymBq",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:39:23.986Z",
+    "url": "https://ebook-studio-6fodxcubv-buylife.vercel.app",
+    "deployment_id": "dpl_39PLgM2gtBBgWikfV7mUxRovMxdY",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:36:46.715Z"
+    "finished": "2026-10-16T02:39:47.268Z"
   },
   {
     "slug": "emotion-writer",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:36:18.283Z",
-    "url": "https://emotion-writer-dfz98q4mw-buylife.vercel.app",
-    "deployment_id": "dpl_7DyAE57xronscm3b7G4NfQpuEN6B",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:39:35.316Z",
+    "url": "https://emotion-writer-mq8zebvbk-buylife.vercel.app",
+    "deployment_id": "dpl_CBDArivMg5zZ1LUvqosboX3CgdQJ",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:36:54.066Z"
+    "finished": "2026-10-16T02:40:03.261Z"
   },
   {
     "slug": "fashion-style",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:36:38.670Z",
-    "url": "https://fashion-style-597yupods-buylife.vercel.app",
-    "deployment_id": "dpl_2g1AvMHKfX9kbn4U7TvsGM6kZNZ1",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:39:47.268Z",
+    "url": "https://fashion-style-8lecpf6lj-buylife.vercel.app",
+    "deployment_id": "dpl_Foasz3APLEEWsARMx9afyCyP5ynT",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:37:08.480Z"
+    "finished": "2026-10-16T02:40:09.198Z"
   },
   {
     "slug": "file-merge",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:36:46.716Z",
-    "url": "https://file-merge-fgej7ek8v-buylife.vercel.app",
-    "deployment_id": "dpl_BUnsiz1Ythotkvjwfc5726hRhdg4",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:39:59.977Z",
+    "url": "https://file-merge-pi1m61ytv-buylife.vercel.app",
+    "deployment_id": "dpl_JD6VigrcDmAhgxVshWSZ4H8qXyUE",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:37:12.286Z"
+    "finished": "2026-10-16T02:40:23.711Z"
   },
   {
     "slug": "four-cut-comics",
     "version": "v1.08",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:36:54.067Z",
-    "url": "https://four-cut-comics-b2l9cg778-buylife.vercel.app",
-    "deployment_id": "dpl_9AmKXiL5oCgMx3K1qLFcTadEqNFM",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:40:03.262Z",
+    "url": "https://four-cut-comics-23kvzmy6s-buylife.vercel.app",
+    "deployment_id": "dpl_AhTNAfBQ1rCmQSm3uwxXzPXchvnM",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.08"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:37:21.203Z"
+    "finished": "2026-10-16T02:40:27.524Z"
   },
   {
     "slug": "image-convert-studio",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:37:12.286Z",
-    "url": "https://image-convert-studio-84ry26cb4-buylife.vercel.app",
-    "deployment_id": "dpl_4VUo1epWSPfot796Nxw4sTxt5rjE",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:40:23.711Z",
+    "url": "https://image-convert-studio-6d1pemavc-buylife.vercel.app",
+    "deployment_id": "dpl_Gcq5sVpkASEMFaNU88wB21LoezA9",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:37:36.010Z"
+    "finished": "2026-10-16T02:40:49.803Z"
   },
   {
     "slug": "website-scraper",
     "version": "v1.11",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:37:08.481Z",
-    "url": "https://website-scraper-bkr8i4x7w-buylife.vercel.app",
-    "deployment_id": "dpl_7cx8ETun5cpJe33vuGDiPxrW52yR",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:40:09.198Z",
+    "url": "https://website-scraper-cpd327hq5-buylife.vercel.app",
+    "deployment_id": "dpl_2ESHzcghxsQYBBGXjgWfWT6foYcL",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.11"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:37:36.912Z"
+    "finished": "2026-10-16T02:40:42.700Z"
   },
   {
     "slug": "infinite-loop-video",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:37:21.204Z",
-    "url": "https://infinite-loop-video-54mvvnx1x-buylife.vercel.app",
-    "deployment_id": "dpl_8WvuGHL2ugo2PVo8qip7tdRD3xkA",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:40:27.524Z",
+    "url": "https://infinite-loop-video-6b6l00aeu-buylife.vercel.app",
+    "deployment_id": "dpl_3PYb1y3uGruDxPkUZgofEcMerxoF",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:37:45.761Z"
+    "finished": "2026-10-16T02:40:55.637Z"
   },
   {
     "slug": "auto-instagram-posting",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:37:36.011Z",
-    "url": "https://insta-auto-poster-3229rhzvy-buylife.vercel.app",
-    "deployment_id": "dpl_6fabNRf3FeP9sVfG4CrU1Z7LG7e3",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:40:42.701Z",
+    "url": "https://insta-auto-poster-6f61csbyz-buylife.vercel.app",
+    "deployment_id": "dpl_spWKjqMzrjkouL61hhXuZyEGy9x9",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:38:01.652Z"
+    "finished": "2026-10-16T02:41:15.868Z"
   },
   {
     "slug": "instagram-comment-reply",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:37:36.913Z",
-    "url": "https://instagram-comment-reply-a4mzsn5rb-buylife.vercel.app",
-    "deployment_id": "dpl_AbN1KCMAVTwmJmHLHRghiDcwoQRS",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:40:49.803Z",
+    "url": "https://instagram-comment-reply-879inmbu1-buylife.vercel.app",
+    "deployment_id": "dpl_5g6AiwzXvWnRtzHPhSDBvu8VeXCH",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:38:11.265Z"
+    "finished": "2026-10-16T02:41:23.500Z"
   },
   {
     "slug": "instagram-dm-reply",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:37:45.761Z",
-    "url": "https://instagram-dm-reply-56wz6cidw-buylife.vercel.app",
-    "deployment_id": "dpl_4tRD1vs9Nu8rdPoo5AGu4c8YLcER",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:40:55.638Z",
+    "url": "https://instagram-dm-reply-74t84tyws-buylife.vercel.app",
+    "deployment_id": "dpl_H2WxLSDzr5hcEPdrADpMawW9MMkH",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:38:15.893Z"
+    "finished": "2026-10-16T02:41:25.744Z"
   },
   {
     "slug": "kakao-auto-posting",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:38:01.652Z",
-    "url": "https://kakaoautoposter-8hc7i8qgv-buylife.vercel.app",
-    "deployment_id": "dpl_A16xwQQbU4EFvgzVLQTjayAUqiPR",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:41:15.869Z",
+    "url": "https://kakaoautoposter-h69ukcrqu-buylife.vercel.app",
+    "deployment_id": "dpl_BqHnDRmtvkqM2SXeTawmceYkj7Uv",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:38:32.162Z"
+    "finished": "2026-10-16T02:41:43.868Z"
   },
   {
     "slug": "landing-architect",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:38:11.266Z",
-    "url": "https://landing-architect-ncm0xlete-buylife.vercel.app",
-    "deployment_id": "dpl_7Nf7a8i9DFdwwChGhcG37Viu8xiv",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:41:23.500Z",
+    "url": "https://landing-architect-7f1a5h7gm-buylife.vercel.app",
+    "deployment_id": "dpl_DAoq3oZzHg2PcEHyNjiRGTF6Hqaw",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:38:37.178Z"
+    "finished": "2026-10-16T02:41:47.666Z"
   },
   {
     "slug": "longtail-keyword-expander",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:38:15.894Z",
-    "url": "https://longtail-keyword-expander-h3kzzi993-buylife.vercel.app",
-    "deployment_id": "dpl_EY8YGAYd7nQcFQsRDqn56TA3nVrG",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:41:25.744Z",
+    "url": "https://longtail-keyword-expander-4onzhb1fk-buylife.vercel.app",
+    "deployment_id": "dpl_J9Zt5x8ho22n6nr6uVe3AM4zndod",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:38:49.235Z"
+    "finished": "2026-10-16T02:41:57.921Z"
   },
   {
     "slug": "markdown-studio",
-    "version": "v1.08",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:38:32.162Z",
-    "url": "https://markdown-studio-7gl74zhkw-buylife.vercel.app",
-    "deployment_id": "dpl_3ow7NKHR5RLBubBpprGKhC2kg3pN",
+    "version": "v1.10",
+    "revision": "1e9f4d8f58ab7c98a34bbfbecbd6b6b1002a90d1",
+    "git_dirty_snapshot": true,
+    "started": "2026-10-16T02:59:24.662Z",
+    "finished": "2026-10-16T03:04:30.947Z",
+    "url": "https://markdown-studio-90eqoly8t-buylife.vercel.app",
+    "deployment_id": "dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.08"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:39:02.330Z"
+    "followup": "Latest Antigravity v1.10 completed; preserve current deployment; verify visible version with Edge"
   },
   {
     "slug": "personality-code",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:38:37.179Z",
-    "url": "https://mbti-qxui3uj5z-buylife.vercel.app",
-    "deployment_id": "dpl_FKj17wSu1EuWNJBxvBDocjWq3YYp",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:41:43.868Z",
+    "url": "https://mbti-cw6nznjsz-buylife.vercel.app",
+    "deployment_id": "dpl_9PzMN2xV5QVa2ggR3MxZFVbEpRq8",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:39:21.375Z"
+    "finished": "2026-10-16T02:42:15.703Z"
   },
   {
     "slug": "mbti-character",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:38:49.236Z",
-    "url": "https://mbti-character-knsbttc4g-buylife.vercel.app",
-    "deployment_id": "dpl_4NRy1pnJwbpZwwuFLP5gLxoLfkub",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:41:47.667Z",
+    "url": "https://mbti-character-big4ymvqm-buylife.vercel.app",
+    "deployment_id": "dpl_2MRs6r2xVFgxNdpg4vKncjxMhCmZ",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:39:30.550Z"
+    "finished": "2026-10-16T02:42:19.509Z"
   },
   {
     "slug": "music-automation",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:39:02.331Z",
-    "url": "https://music-d4ll1b42k-buylife.vercel.app",
-    "deployment_id": "dpl_9Aih1pe7X3qg7WD6ti5YZj8akscD",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:41:57.921Z",
+    "url": "https://music-4k6e398qe-buylife.vercel.app",
+    "deployment_id": "dpl_jW1mmqB49jnUshikpVSPVJVCWUKR",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:39:35.436Z"
+    "finished": "2026-10-16T02:42:36.342Z"
   },
   {
     "slug": "music-player",
     "version": "v1.03",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:39:21.375Z",
-    "url": "https://music-player-1wcuw7i3w-buylife.vercel.app",
-    "deployment_id": "dpl_FgL2sS5opXfSswq5RJkBFpGUuVYH",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:42:15.704Z",
+    "url": "https://music-player-224ik9wex-buylife.vercel.app",
+    "deployment_id": "dpl_8Ehq1Bv4h3JPxs3s9ZeEw5sG8ya1",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.03"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:39:53.129Z"
+    "finished": "2026-10-16T02:42:38.811Z"
   },
   {
     "slug": "music-video-studio",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:39:30.551Z",
-    "url": "https://music-video-studio-3j0subaxz-buylife.vercel.app",
-    "deployment_id": "dpl_9CrvVVTVAMehP6SEgszYRutaxXEh",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:42:19.510Z",
+    "url": "https://music-video-studio-f582xp3tb-buylife.vercel.app",
+    "deployment_id": "dpl_DBPYTrmFAyGsdSCe5NTZSEBvtPyJ",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:39:59.914Z"
+    "finished": "2026-10-16T02:42:52.224Z"
   },
   {
     "slug": "naver-blog-agent",
     "version": "v1.84",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:39:35.436Z",
-    "url": "https://naver-blog-agent-a8uion7ln-buylife.vercel.app",
-    "deployment_id": "dpl_ByP8EV5TSAYMD3cntqLAn3mcYZ51",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:42:36.343Z",
+    "url": "https://naver-blog-agent-ca4xha650-buylife.vercel.app",
+    "deployment_id": "dpl_Ba2Y2Zvhx89xo9kmXkbknSUk6tC1",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.84"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:40:09.148Z"
+    "finished": "2026-10-16T02:43:08.246Z"
   },
   {
     "slug": "naver-blog-allinone",
     "version": "v1.42",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:39:53.129Z",
-    "url": "https://naver-blog-allinone-jgwzpf5qa-buylife.vercel.app",
-    "deployment_id": "dpl_6RMYYC1FPhthVjiKb9PtMhUv7Jur",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:42:38.811Z",
+    "url": "https://naver-blog-allinone-jrr8q7gz2-buylife.vercel.app",
+    "deployment_id": "dpl_4cN5BRncj1ytcqRnUGfibk7fyqh2",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.42"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:40:18.746Z"
+    "finished": "2026-10-16T02:43:12.858Z"
   },
   {
     "slug": "naver-blog-auto-poster",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:39:59.914Z",
-    "url": "https://naver-blog-auto-poster-b5vqfa5q8-buylife.vercel.app",
-    "deployment_id": "dpl_FxkicsKChDSFyBHftWFhj8qPdoqt",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:42:52.224Z",
+    "url": "https://naver-blog-auto-poster-oij9bv8eb-buylife.vercel.app",
+    "deployment_id": "dpl_FmFJxC7UjkTG5N8h2b6gMqaCFjt2",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:40:34.788Z"
+    "finished": "2026-10-16T02:43:27.629Z"
   },
   {
     "slug": "naver-blog-seo-studio",
     "version": "v1.64",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:40:09.149Z",
-    "url": "https://naver-blog-seo-studio-epmrmsvpo-buylife.vercel.app",
-    "deployment_id": "dpl_CkmSgHQdUzsgcjdRKFWoc624dgdL",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:43:08.247Z",
+    "url": "https://naver-blog-seo-studio-pgbuvozpn-buylife.vercel.app",
+    "deployment_id": "dpl_iZJjbyuDrWyYha4RhwEFz4pszSUn",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.64"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:40:38.121Z"
+    "finished": "2026-10-16T02:43:36.927Z"
   },
   {
     "slug": "naver-cafe-poster",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:40:18.747Z",
-    "url": "https://naver-cafe-poster-2s1bh8186-buylife.vercel.app",
-    "deployment_id": "dpl_FapzQT6uEoi9UhwExRnxgugLAjBF",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:43:12.859Z",
+    "url": "https://naver-cafe-poster-b8itnaolr-buylife.vercel.app",
+    "deployment_id": "dpl_7f8vht2jvodvExqAdeAurUVKwag4",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:40:54.313Z"
+    "finished": "2026-10-16T02:43:55.103Z"
   },
   {
     "slug": "persona-style-studio",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:40:34.789Z",
-    "url": "https://persona-style-studio-6cjs81gjb-buylife.vercel.app",
-    "deployment_id": "dpl_Gdg11mB8PzTsMTb5WdX6bDNrNRux",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:43:27.630Z",
+    "url": "https://persona-style-studio-5o7mpi9tg-buylife.vercel.app",
+    "deployment_id": "dpl_FQ3AL1zfx8HcFnSAKssZCHkVve4q",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:41:08.134Z"
+    "finished": "2026-10-16T02:43:57.129Z"
   },
   {
     "slug": "photo-remake-studio",
     "version": "v1.03",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:40:54.313Z",
-    "url": "https://photo-remake-studio-rsmwddvwo-buylife.vercel.app",
-    "deployment_id": "dpl_EGjkPKBmovRgrcPEQLU78UD2xtzR",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:43:55.103Z",
+    "url": "https://photo-remake-studio-f2bztsy25-buylife.vercel.app",
+    "deployment_id": "dpl_HXX8akVFGakudRHBQagXJhvbTCcv",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.03"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:41:18.030Z"
+    "finished": "2026-10-16T02:44:17.991Z"
   },
   {
     "slug": "playlist-channel-studio",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:41:08.134Z",
-    "url": "https://playlist-channel-studio-pdk2rm6gq-buylife.vercel.app",
-    "deployment_id": "dpl_4fQ6sL8TB4eELzFQfLyN3BmeVUX3",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:43:57.130Z",
+    "url": "https://playlist-channel-studio-pgszzg6mh-buylife.vercel.app",
+    "deployment_id": "dpl_2ha9noXsGyU4qgFT8cXtHWJgWfuZ",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:41:33.383Z"
+    "finished": "2026-10-16T02:44:31.647Z"
   },
   {
     "slug": "portrait-photo",
     "version": "v1.19",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:41:18.030Z",
-    "url": "https://portrait-photo-gb93ik4nk-buylife.vercel.app",
-    "deployment_id": "dpl_EbqDxqYUQzRFrFpCBFGSJPEK4fzg",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:43:59.049Z",
+    "url": "https://portrait-photo-eqbrmg1ee-buylife.vercel.app",
+    "deployment_id": "dpl_6Kc3PPzegwXqP8npWjvUsvjvXMib",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.19"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:41:44.598Z"
+    "finished": "2026-10-16T02:44:25.090Z"
   },
   {
     "slug": "prompt-template-studio",
     "version": "v1.03",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:41:33.384Z",
-    "url": "https://prompt-template-studio-ohhs9kkzf-buylife.vercel.app",
-    "deployment_id": "dpl_8HYTqq2Ju8qcLN5bMD2gNDq5a6Ap",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:44:17.991Z",
+    "url": "https://prompt-template-studio-b04hdbm4n-buylife.vercel.app",
+    "deployment_id": "dpl_GVJ7H9DxUN9A8si9re2o2A8oG7cm",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.03"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:42:00.442Z"
+    "finished": "2026-10-16T02:44:43.929Z"
   },
   {
     "slug": "ai-web-ui",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:41:44.599Z",
-    "url": "https://react-ui-showcase-hbp9vnmjb-buylife.vercel.app",
-    "deployment_id": "dpl_3wF7oskzBqCYtioRR5SnUCHYcKbx",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:44:25.091Z",
+    "url": "https://react-ui-showcase-hv20yaev0-buylife.vercel.app",
+    "deployment_id": "dpl_8anfzjMb6nB47cNdqaieknDPaPdF",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:42:09.790Z"
+    "finished": "2026-10-16T02:44:52.338Z"
   },
   {
     "slug": "real-estate-sales",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:42:00.443Z",
-    "url": "https://real-estate-sales-qul22oytk-buylife.vercel.app",
-    "deployment_id": "dpl_NKPFhrMFi2p2FwcJ6aH8LfKTcPVh",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:44:31.648Z",
+    "url": "https://real-estate-sales-9ouw08h9e-buylife.vercel.app",
+    "deployment_id": "dpl_9u9oL2Sy2rMrWKSFL3KxSnpoVGin",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:42:31.726Z"
+    "finished": "2026-10-16T02:45:05.115Z"
   },
   {
     "slug": "personality-suite",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:40:38.121Z",
-    "url": "https://personality-suite-4ikhrfxaj-buylife.vercel.app",
-    "deployment_id": "dpl_E7r19Ui29Uqcja5xyzVXY1MrU4P2",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:43:36.928Z",
+    "url": "https://personality-suite-973vw0zl9-buylife.vercel.app",
+    "deployment_id": "dpl_3vwzkJgmkvy1rLNDzL7T8RP9TnDT",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:42:32.320Z"
+    "finished": "2026-10-16T02:43:59.049Z"
   },
   {
     "slug": "reverse-prompt",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:42:09.791Z",
-    "url": "https://reverse-prompt-lr996g204-buylife.vercel.app",
-    "deployment_id": "dpl_ARfKsUuzcGBqEd1mwXHEk5Rnaxpj",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:44:43.930Z",
+    "url": "https://reverse-prompt-d6k8ovs1h-buylife.vercel.app",
+    "deployment_id": "dpl_8a6FZvs127CuGrqegYvby7mYc1TK",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:42:33.685Z"
+    "finished": "2026-10-16T02:45:05.584Z"
   },
   {
     "slug": "seo-thumbnail-pro",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:42:31.726Z",
-    "url": "https://seo-thumbnail-1vlx32ax1-buylife.vercel.app",
-    "deployment_id": "dpl_FZ7jX3J8WkzPK3EQjpd7dTxAPbaE",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:44:52.339Z",
+    "url": "https://seo-thumbnail-gi0mwjhy7-buylife.vercel.app",
+    "deployment_id": "dpl_FJKq3omwTUa3yQReWSK7pXtZLuzp",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:42:57.303Z"
+    "finished": "2026-10-16T02:45:12.112Z"
   },
   {
     "slug": "shop-detail-page",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:42:32.320Z",
-    "url": "https://shop-detail-page-lihgk83fd-buylife.vercel.app",
-    "deployment_id": "dpl_BbAiDmCTDCbCShArnSWWowKXreWf",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:45:05.115Z",
+    "url": "https://shop-detail-page-q8ucvp5m0-buylife.vercel.app",
+    "deployment_id": "dpl_9HdRn8TG67bjrfVjjLMicJ7rSKhF",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:43:03.514Z"
+    "finished": "2026-10-16T02:45:50.140Z"
   },
   {
     "slug": "shorts-viral-studio",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:42:33.686Z",
-    "url": "https://shorts-viral-studio-atzc86hbr-buylife.vercel.app",
-    "deployment_id": "dpl_857AfLJLBYqvYruBfGJbEg2ieZWh",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:45:05.585Z",
+    "url": "https://shorts-viral-studio-dnoktszz5-buylife.vercel.app",
+    "deployment_id": "dpl_BW6AyX1gikgaGErQgbenycW7YrmB",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:43:04.899Z"
+    "finished": "2026-10-16T02:45:32.981Z"
   },
   {
     "slug": "stepmail",
     "version": "v1.10",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:43:03.514Z",
-    "url": "https://stepmail-mt4o92gch-buylife.vercel.app",
-    "deployment_id": "dpl_8Nm3wfs6G3HCtK9itYxwWUyK2W71",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:45:32.982Z",
+    "url": "https://stepmail-lk04wyj6q-buylife.vercel.app",
+    "deployment_id": "dpl_3YFom3ty2Mw2A9HL86Twx8oJYSrQ",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.10"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:43:31.392Z"
+    "finished": "2026-10-16T02:45:57.207Z"
   },
   {
     "slug": "auto-shorts-posting",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:42:57.303Z",
-    "url": "https://shots-ovtkqeny0-buylife.vercel.app",
-    "deployment_id": "dpl_5VgDAJcqGmBTqiWbZNwinLvVJiPU",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:45:12.112Z",
+    "url": "https://shots-4riwspgqb-buylife.vercel.app",
+    "deployment_id": "dpl_FmdJWLcZQFu3mFKb7Lc4YKz38fYj",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:43:32.054Z"
+    "finished": "2026-10-16T02:45:43.442Z"
   },
   {
     "slug": "style-dna-analyzer",
     "version": "v1.15",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:43:04.900Z",
-    "url": "https://style-dna-analyzer-80iiqz56j-buylife.vercel.app",
-    "deployment_id": "dpl_8JsAYQQY8HMKQ9DXngaQ5DYqYXbD",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:45:43.443Z",
+    "url": "https://style-dna-analyzer-a907l4brb-buylife.vercel.app",
+    "deployment_id": "dpl_4kCkPmZRcTs1rmfFRQdCUBZnAFTk",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.15"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:43:38.012Z"
+    "finished": "2026-10-16T02:46:13.402Z"
   },
   {
     "slug": "suno-music-studio",
     "version": "v1.09",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:43:31.392Z",
-    "url": "https://suno-music-studio-oqqga9o6q-buylife.vercel.app",
-    "deployment_id": "dpl_3vXyYJLQCgi4ppqaKYGERnkX3p2G",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:45:50.141Z",
+    "url": "https://suno-music-studio-o2uooo3r6-buylife.vercel.app",
+    "deployment_id": "dpl_BwJ1cDjkeYSyPnYgDXGtx3yVF5Zu",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.09"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:43:59.788Z"
+    "finished": "2026-10-16T02:46:12.961Z"
   },
   {
     "slug": "tarot-reading",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:43:32.055Z",
-    "url": "https://tarot-8sojncs4l-buylife.vercel.app",
-    "deployment_id": "dpl_1jZ82bcuLx9AoPD6NfgSp8fpywFK",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:45:57.207Z",
+    "url": "https://tarot-o0kfb12du-buylife.vercel.app",
+    "deployment_id": "dpl_9v1U7aVVUviSsJRjAnJHLomLqwTn",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:44:06.832Z"
+    "finished": "2026-10-16T02:46:38.291Z"
   },
   {
     "slug": "auto-threads-posting",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:43:38.013Z",
-    "url": "https://threads-1cif99gaq-buylife.vercel.app",
-    "deployment_id": "dpl_CnPWk2LLB4bozyVLV2vu4ueHdyQW",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:46:12.961Z",
+    "url": "https://threads-kpky5buy1-buylife.vercel.app",
+    "deployment_id": "dpl_BWR2caWkLRMXxJP1fcasK96qqgC9",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:44:08.978Z"
+    "finished": "2026-10-16T02:46:43.208Z"
   },
   {
     "slug": "threads-affiliate-poster",
     "version": "v1.52",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:43:59.788Z",
-    "url": "https://threads-affiliate-poster-gdln8fd8n-buylife.vercel.app",
-    "deployment_id": "dpl_D4NpdkU3U2HdLW83DRd5WyaQz9bu",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:46:13.403Z",
+    "url": "https://threads-affiliate-poster-2d0a2m6z4-buylife.vercel.app",
+    "deployment_id": "dpl_3sycbE1bYEiMhsXZtsyk7HnpsyZY",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.52"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:44:36.156Z"
+    "finished": "2026-10-16T02:46:47.921Z"
   },
   {
     "slug": "threads-comment-reply",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:44:06.833Z",
-    "url": "https://threads-comment-reply-hkqowgfei-buylife.vercel.app",
-    "deployment_id": "dpl_7aQC6AzFtYrFqZc6vgVDVrcd81Ta",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:46:38.292Z",
+    "url": "https://threads-comment-reply-3kg97u090-buylife.vercel.app",
+    "deployment_id": "dpl_D8r7uDFKNfh8axu15kzyc9jv9fq6",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:44:44.416Z"
+    "finished": "2026-10-16T02:47:11.101Z"
   },
   {
     "slug": "threads-content-ops",
     "version": "v1.95",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:44:08.979Z",
-    "url": "https://threads-content-403m4a4xo-buylife.vercel.app",
-    "deployment_id": "dpl_ApyccpTDKoBWAeXUBxbbFXpSCUqa",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:46:43.208Z",
+    "url": "https://threads-content-m8zagy2me-buylife.vercel.app",
+    "deployment_id": "dpl_DUSDnvtxjYJyM8R6Lo9rLLcgCBMj",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.95"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:44:59.103Z"
+    "finished": "2026-10-16T02:47:23.356Z"
   },
   {
     "slug": "threads-easy-planner",
     "version": "v1.43",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:44:36.157Z",
-    "url": "https://threads-easy-planner-2okwgxfa7-buylife.vercel.app",
-    "deployment_id": "dpl_D6WDyw4fAb98BAvDafgoAVrV6kjC",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:46:47.921Z",
+    "url": "https://threads-easy-planner-43or1kxyb-buylife.vercel.app",
+    "deployment_id": "dpl_GZvw2azaVnbXXq44nBqpPF2GP22i",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.43"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:45:03.016Z"
+    "finished": "2026-10-16T02:47:14.526Z"
   },
   {
     "slug": "thumbnail-master",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:44:44.416Z",
-    "url": "https://thumbnail-master-4a12x5qzn-buylife.vercel.app",
-    "deployment_id": "dpl_5MwMd41mC3NWdXLvXZRfXJoRRias",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:47:11.101Z",
+    "url": "https://thumbnail-master-1dpn677ed-buylife.vercel.app",
+    "deployment_id": "dpl_73MRRqDhoNH6kSSFQusySyRRgyVG",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:45:13.440Z"
+    "finished": "2026-10-16T02:47:40.965Z"
   },
   {
     "slug": "tistory-auto-blog",
     "version": "v1.71",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:44:59.104Z",
-    "url": "https://tistory-auto-blog-pziw8v04c-buylife.vercel.app",
-    "deployment_id": "dpl_5NoZDCRmUkrqk98tUfCTtc19n8i9",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:47:14.527Z",
+    "url": "https://tistory-auto-blog-lgbbqzm6g-buylife.vercel.app",
+    "deployment_id": "dpl_CwTFD83vSRgTW9GHU9dMbZXFp4Yp",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.71"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:45:35.021Z"
+    "finished": "2026-10-16T02:47:51.604Z"
   },
   {
     "slug": "ui-canvas",
     "version": "v1.07",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:45:13.440Z",
-    "url": "https://ui-canvas-rk3yll2bh-buylife.vercel.app",
-    "deployment_id": "dpl_HZek9DionfLQVWJ1zUbxuRE5MJj5",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:47:40.965Z",
+    "url": "https://ui-canvas-ljitu5mb7-buylife.vercel.app",
+    "deployment_id": "dpl_8kS7LFhyPTMavPTQcurRLTLtSoev",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.07"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:45:38.395Z"
+    "finished": "2026-10-16T02:48:06.271Z"
   },
   {
     "slug": "trending-product-finder",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:45:03.017Z",
-    "url": "https://trending-product-finder-qw81zefbd-buylife.vercel.app",
-    "deployment_id": "dpl_DnJhm1EW8cm3dkgCEkhxy9s8kEDx",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:47:23.357Z",
+    "url": "https://trending-product-finder-hysyfvhg0-buylife.vercel.app",
+    "deployment_id": "dpl_2eBh9sqoBs44jRiZhoKLD1ETFcw2",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:45:44.603Z"
+    "finished": "2026-10-16T02:48:03.890Z"
   },
   {
     "slug": "vinyl-lp-studio",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:45:38.395Z",
-    "url": "https://vinyl-lp-studio-j9tu47gyl-buylife.vercel.app",
-    "deployment_id": "dpl_3k6VZi5dvWAgxrvc7rjSuddMGkbF",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:48:03.890Z",
+    "url": "https://vinyl-lp-studio-3cd8n7770-buylife.vercel.app",
+    "deployment_id": "dpl_5Cf4ZxYn3mk2tnb434UdkBTNndsM",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:00.476Z"
+    "finished": "2026-10-16T02:48:29.724Z"
   },
   {
     "slug": "video-to-gif",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:45:35.021Z",
-    "url": "https://video-to-f3jlduaoo-buylife.vercel.app",
-    "deployment_id": "dpl_8aW3m7F9jkpcg47vaTzh2whMcNYZ",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:47:51.604Z",
+    "url": "https://video-to-b5qdi1zjw-buylife.vercel.app",
+    "deployment_id": "dpl_9CjVHEQ9mrCcw2zs935hpw655sbj",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:06.155Z"
+    "finished": "2026-10-16T02:48:26.478Z"
   },
   {
     "slug": "web-crawler-saas",
     "version": "v1.05",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:45:44.604Z",
-    "url": "https://web-crawler-saas-1bmizob71-buylife.vercel.app",
-    "deployment_id": "dpl_EviSNcza2prbN7UVPygERD7PWCjP",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:48:06.272Z",
+    "url": "https://web-crawler-saas-cfrat5pet-buylife.vercel.app",
+    "deployment_id": "dpl_AgyEEJEbra4JZEvWUJsay2UNECTR",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.05"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:13.068Z"
+    "finished": "2026-10-16T02:48:38.914Z"
   },
   {
     "slug": "youtube-auto-reply",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:46:00.476Z",
-    "url": "https://youtube-auto-reply-k8isha340-buylife.vercel.app",
-    "deployment_id": "dpl_69Vw2eNf5K5g4Vmr4dSTtH4fbUjB",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:48:26.479Z",
+    "url": "https://youtube-auto-reply-i1fljj9v6-buylife.vercel.app",
+    "deployment_id": "dpl_G1WERNY3oZToNyanyfs2KmN6JGAX",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:32.209Z"
+    "finished": "2026-10-16T02:49:03.429Z"
   },
   {
     "slug": "youtube-channel-consultant",
     "version": "v1.06",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:46:06.156Z",
-    "url": "https://youtube-channel-consultant-prxmaeeri-buylife.vercel.app",
-    "deployment_id": "dpl_2iVFMNWKQQtCFMzyNghi4eabSj7M",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:48:29.725Z",
+    "url": "https://youtube-channel-consultant-dddyfnmk9-buylife.vercel.app",
+    "deployment_id": "dpl_EcHBjP4XYnkRecwamNBQFZLynUCW",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.06"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:39.500Z"
+    "finished": "2026-10-16T02:48:59.915Z"
   },
   {
     "slug": "youtube-viral-studio",
     "version": "v1.12",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:46:13.069Z",
-    "url": "https://youtube-viral-studio-ovrcb1lue-buylife.vercel.app",
-    "deployment_id": "dpl_JA4rYrXp4g7iwBAP34D3gqoczmgQ",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:48:38.914Z",
+    "url": "https://youtube-viral-studio-fobyjci1x-buylife.vercel.app",
+    "deployment_id": "dpl_8pbXX1kV9h9FzFV3qPJ33G59ncKF",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.12"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:39.957Z"
+    "finished": "2026-10-16T02:49:09.432Z"
   },
   {
     "slug": "yt-playlist-studio",
     "version": "v1.04",
-    "revision": "fa57714d112e1661554dfbbc3597c2901f737385",
-    "started": "2026-10-16T01:46:32.209Z",
-    "url": "https://yt-playlist-studio-6i5tkfuae-buylife.vercel.app",
-    "deployment_id": "dpl_GkeFR2odKmC6TXJZCRXWqstJdu5H",
+    "revision": "437d833c33771aae49b2be1285fd7d7c965c579d",
+    "started": "2026-10-16T02:48:59.916Z",
+    "url": "https://yt-playlist-studio-61hfiad3s-buylife.vercel.app",
+    "deployment_id": "dpl_8rYSbZ1PgNr9MtCs7ozaMn7pTFju",
     "readyState": "READY",
     "catalog": {
       "ok": true,
-      "version": "v1.04"
+      "already_current": true
     },
     "ok": true,
-    "finished": "2026-10-16T01:46:54.077Z"
+    "finished": "2026-10-16T02:49:22.696Z"
   }
 ]

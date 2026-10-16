@@ -5,15 +5,14 @@
     "project": "aimaster",
     "projectId": "prj_rWXFsqDOx7Cd9HDTE649DubpWDlj",
     "production": {
-      "id": "dpl_GfQJZSXgGDLeL6QXUNXVg8Yw1RpU",
-      "url": "aimaster-8s172kmjv-buylife.vercel.app",
+      "id": "dpl_3YjtVTKpe2Hjmvkr6633P5rHRGDs",
+      "url": "aimaster-f42f78e0x-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "www.buylife.xyz",
         "aimaster-five.vercel.app",
         "buylife.xyz",
-        "aimaster-buylife.vercel.app",
-        "aimaster-git-master-buylife.vercel.app"
+        "aimaster-buylife.vercel.app"
       ]
     },
     "crons": {
@@ -26,50 +25,8 @@
       ]
     },
     "cron_changed": false,
-    "ok": true
-  },
-  {
-    "slug": "ai-image-studio",
-    "folder": "ai-image-studio",
-    "project": "ai-image-studio",
-    "projectId": "prj_19eZzb9XOfUd1I21R3RN2FJ16u4i",
-    "production": {
-      "id": "dpl_6SVnmFjAJChwYMoJ5W988VWp8y1h",
-      "url": "ai-image-studio-ezwyz4zrc-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "ai-image-studio-swart.vercel.app",
-        "ai-image-studio-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
-    "slug": "ai-audio-analyzer",
-    "folder": "ai-audio-analyzer",
-    "project": "ai-audio-analyzer",
-    "projectId": "prj_J78EZfEp2dMu8RUucr4Lkc5JGVY5",
-    "production": {
-      "id": "dpl_9JamJTEPGsGHaCoDzWqBnRS4UFpP",
-      "url": "ai-audio-analyzer-2fux2zm26-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "audio.buylife.xyz",
-        "ai-audio-analyzer-eta.vercel.app",
-        "ai-audio-analyzer-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
+    "ok": true,
+    "checked_at": "2026-10-16T03:10:30.039Z"
   },
   {
     "slug": "ai-auto-blog",
@@ -77,8 +34,8 @@
     "project": "ai-auto-blog",
     "projectId": "prj_Yyxngm6K3IFhdsY1u7rusgBiaM6l",
     "production": {
-      "id": "dpl_6sxcfViTL3phP5qQroQHZm7m4TU5",
-      "url": "ai-auto-blog-c918moawi-buylife.vercel.app",
+      "id": "dpl_F7FKFoFRNm4CkMmamfQm1ME5k8Wf",
+      "url": "ai-auto-blog-7boimt5qk-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ai-auto-blog-one.vercel.app",
@@ -98,18 +55,17 @@
     "ok": true
   },
   {
-    "slug": "ai-mastering-studio",
-    "folder": "ai-mastering-studio",
-    "project": "ai-mastering-studio",
-    "projectId": "prj_tR2yZVSMAXQmc9qBPUnzjiJUjdrF",
+    "slug": "ai-image-studio",
+    "folder": "ai-image-studio",
+    "project": "ai-image-studio",
+    "projectId": "prj_19eZzb9XOfUd1I21R3RN2FJ16u4i",
     "production": {
-      "id": "dpl_7oakL4gL7ppy2aXtTNY2YHeN8XFd",
-      "url": "ai-mastering-studio-qye23rvkn-buylife.vercel.app",
+      "id": "dpl_5V6U3NoPXV7fQ3D6jZagJnow9Zgh",
+      "url": "ai-image-studio-dqnqqcnzp-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
-        "ai-mastering-studio.buylife.xyz",
-        "ai-mastering-studio-tau.vercel.app",
-        "ai-mastering-studio-buylife.vercel.app"
+        "ai-image-studio-swart.vercel.app",
+        "ai-image-studio-buylife.vercel.app"
       ]
     },
     "crons": {
@@ -120,18 +76,18 @@
     "ok": true
   },
   {
-    "slug": "ai-prompt-studio",
-    "folder": "ai-prompt-studio",
-    "project": "ai-prompt-studio",
-    "projectId": "prj_FVY1Edaev6fMUCR9b2CQmeCeNiqV",
+    "slug": "ai-audio-analyzer",
+    "folder": "ai-audio-analyzer",
+    "project": "ai-audio-analyzer",
+    "projectId": "prj_J78EZfEp2dMu8RUucr4Lkc5JGVY5",
     "production": {
-      "id": "dpl_wMNTnQkCp4TGUduQumpWAWZPDewQ",
-      "url": "ai-prompt-studio-f7l9ray1p-buylife.vercel.app",
+      "id": "dpl_H6taZWLiU8x94x8HBGkcpWN5YFcJ",
+      "url": "ai-audio-analyzer-8sze35gbj-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
-        "ai-prompt.buylife.xyz",
-        "ai-prompt-studio-ten.vercel.app",
-        "ai-prompt-studio-buylife.vercel.app"
+        "audio.buylife.xyz",
+        "ai-audio-analyzer-eta.vercel.app",
+        "ai-audio-analyzer-buylife.vercel.app"
       ]
     },
     "crons": {
@@ -147,8 +103,8 @@
     "project": "ai-influencer-studio",
     "projectId": "prj_QhwjNogPLM6cNsO4OuGtqwowbv3x",
     "production": {
-      "id": "dpl_Dng1poD46kG7TRdWCc59gFKUiFbp",
-      "url": "ai-influencer-studio-odjociq1i-buylife.vercel.app",
+      "id": "dpl_GXixsHvQW5ApvLxaJ3LxwfCL26zq",
+      "url": "ai-influencer-studio-m1qci4m02-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ai-influencer.buylife.xyz",
@@ -164,13 +120,35 @@
     "ok": true
   },
   {
+    "slug": "ai-mastering-studio",
+    "folder": "ai-mastering-studio",
+    "project": "ai-mastering-studio",
+    "projectId": "prj_tR2yZVSMAXQmc9qBPUnzjiJUjdrF",
+    "production": {
+      "id": "dpl_6TJAv93gPYkYATdbSdF9zNvL76jh",
+      "url": "ai-mastering-studio-dblnu7ob2-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "ai-mastering-studio.buylife.xyz",
+        "ai-mastering-studio-tau.vercel.app",
+        "ai-mastering-studio-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "ai-slide-builder",
     "folder": "ai-slide-builder",
     "project": "ai-slide-builder",
     "projectId": "prj_6Ht4oFhx9iK9ZEGhP6YL2Ns0Ay7R",
     "production": {
-      "id": "dpl_CJBFHNQ6eYimxNQGdmbgw14uJoEo",
-      "url": "ai-slide-builder-c6bek8jk8-buylife.vercel.app",
+      "id": "dpl_CbBHgNHAutX2EzJG1MjG3k7NS16t",
+      "url": "ai-slide-builder-hagj6lcvf-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ai-slide-builder.buylife.xyz",
@@ -186,13 +164,35 @@
     "ok": true
   },
   {
+    "slug": "ai-prompt-studio",
+    "folder": "ai-prompt-studio",
+    "project": "ai-prompt-studio",
+    "projectId": "prj_FVY1Edaev6fMUCR9b2CQmeCeNiqV",
+    "production": {
+      "id": "dpl_5YjYAZYHRky7n1138mDcEPtgP621",
+      "url": "ai-prompt-studio-bitz4uvzs-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "ai-prompt.buylife.xyz",
+        "ai-prompt-studio-ten.vercel.app",
+        "ai-prompt-studio-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "ai-task-planner",
     "folder": "ai-task-planner",
     "project": "ai-task-planner",
     "projectId": "prj_63n8QA2nI24d6lzntGOgna8krucy",
     "production": {
-      "id": "dpl_CtZnnWXt6iKabgTRjmPSQnhEQc13",
-      "url": "ai-task-planner-lqnlvd0al-buylife.vercel.app",
+      "id": "dpl_BK4GuQzyn6Hsn7B6WJUmBvwfs8pw",
+      "url": "ai-task-planner-k2p3u6brt-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ai-task-planner.buylife.xyz",
@@ -213,8 +213,8 @@
     "project": "ai-webtoon-studio",
     "projectId": "prj_RbmM4Au1rFRZPHFMZFIgwjryQYCh",
     "production": {
-      "id": "dpl_AbHUoCQMcZJCjjd79adQS9Mq1Fqg",
-      "url": "ai-webtoon-studio-kvi8m3wqq-buylife.vercel.app",
+      "id": "dpl_De81hrWYLULNNSvVBqfCEySbqzq1",
+      "url": "ai-webtoon-studio-z80dbd3gv-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ai-webtoon-studio.buylife.xyz",
@@ -236,8 +236,8 @@
     "project": "ai-writing-editor",
     "projectId": "prj_Rw99fwnqnLUQyKNcItpc0aa3q10B",
     "production": {
-      "id": "dpl_BYGpHimpcsnYmvtYuaxsDmZ229EL",
-      "url": "ai-writing-editor-70p4dnlri-buylife.vercel.app",
+      "id": "dpl_G8LyYm8MG6TA5epPTBkzr2XdYi9p",
+      "url": "ai-writing-editor-12x3fb6ar-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ai-writing-editor.vercel.app",
@@ -258,8 +258,8 @@
     "project": "allinone-graphic",
     "projectId": "prj_HoyeM8lSo7G2ZlZCUfBLf0LPCris",
     "production": {
-      "id": "dpl_2sSJ167G7iiYAT1rx15XGnsyh7j1",
-      "url": "allinone-graphic-1045q1whc-buylife.vercel.app",
+      "id": "dpl_DJYGKaSv1rPFYJEfhe3Wtws1YKtr",
+      "url": "allinone-graphic-d83szxhmm-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "graphic.buylife.xyz",
@@ -280,8 +280,8 @@
     "project": "auto-detail-page",
     "projectId": "prj_AiBO4kQUwKVtyslke8sJjzSW57ym",
     "production": {
-      "id": "dpl_Hp7psFmvKPddXTxa23LPE1tU7xaQ",
-      "url": "auto-detail-page-mvlducxei-buylife.vercel.app",
+      "id": "dpl_Gr5cxzBSm7tJiU8QUW3Le2vjuFqL",
+      "url": "auto-detail-page-li4g3mxsy-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "shop-page-seven.vercel.app",
@@ -301,8 +301,8 @@
     "project": "banana-canvas",
     "projectId": "prj_JAiIquUBnFPgVggCwRblgZ17WSXK",
     "production": {
-      "id": "dpl_Gsd4vwB3QzE4mhxUonifR7t9QzGP",
-      "url": "banana-canvas-70h72laur-buylife.vercel.app",
+      "id": "dpl_DzeVNH2icWschpYu3zdWAWwWNpQR",
+      "url": "banana-canvas-qh1t8cuq3-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "banana-canvas.buylife.xyz",
@@ -323,8 +323,8 @@
     "project": "blog-content-maker",
     "projectId": "prj_Q9Ei24ZuVzCfYX031UGZfqiwEuxR",
     "production": {
-      "id": "dpl_7ngFd1aLNnQkQLeKoL4gQbj41UFg",
-      "url": "blog-content-maker-89ncaoiu7-buylife.vercel.app",
+      "id": "dpl_9nefsz9jCAgK4rMBBu6WRwm5q4G8",
+      "url": "blog-content-maker-3mzisok0k-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "blog-content-maker.buylife.xyz",
@@ -345,8 +345,8 @@
     "project": "blog-keyword",
     "projectId": "prj_QiEq4gYfGCILhQFl4lwr3a827z05",
     "production": {
-      "id": "dpl_Bz3jzqTmZ8M812uhDEgC2WjfCnWg",
-      "url": "blog-keyword-i25qt4col-buylife.vercel.app",
+      "id": "dpl_3v2xw3tMNvqxPnxoUzCueyqmX5BR",
+      "url": "blog-keyword-4k3dthqtt-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "blog-keyword.buylife.xyz",
@@ -362,35 +362,13 @@
     "ok": true
   },
   {
-    "slug": "cardnews-studio",
-    "folder": "cardnews-studio",
-    "project": "cardnews-studio",
-    "projectId": "prj_g64vFafe4Etwkc34y75WlCMnGxDs",
-    "production": {
-      "id": "dpl_9eZ1Ltk2QAXY2r8jgw5cKqt7imCZ",
-      "url": "cardnews-studio-kucnljppv-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "cardnews-studio.buylife.xyz",
-        "cardnews-studio-lime.vercel.app",
-        "cardnews-studio-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
     "slug": "blog-workroom",
     "folder": "blog-workroom",
     "project": "blog-workroom",
     "projectId": "prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY",
     "production": {
-      "id": "dpl_528vMT8YrH8YPZY4uzXQFa4srP8R",
-      "url": "blog-workroom-fqb9o65g5-buylife.vercel.app",
+      "id": "dpl_AqntynT1XBQg3VSTAmaHWCY48YJB",
+      "url": "blog-workroom-lbioxm7zn-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "blog-workroom.vercel.app",
@@ -411,8 +389,8 @@
     "project": "booking-reminder",
     "projectId": "prj_PCcF4fU44xbYMTCljqwpxnthkoth",
     "production": {
-      "id": "dpl_39TyyMhBE4nqLAc8YRejYyhtv4QW",
-      "url": "booking-reminder-paq3utqv8-buylife.vercel.app",
+      "id": "dpl_5EAKHeBAqZmJW4b6hP8BwxCWxhvB",
+      "url": "booking-reminder-476010gf7-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "booking-reminder.vercel.app",
@@ -432,13 +410,35 @@
     "ok": true
   },
   {
+    "slug": "cardnews-studio",
+    "folder": "cardnews-studio",
+    "project": "cardnews-studio",
+    "projectId": "prj_g64vFafe4Etwkc34y75WlCMnGxDs",
+    "production": {
+      "id": "dpl_8TZAGHnuXnk4kkmrKZxVWz8LVK9t",
+      "url": "cardnews-studio-3ervtn4ur-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "cardnews-studio.buylife.xyz",
+        "cardnews-studio-lime.vercel.app",
+        "cardnews-studio-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "cinematic-storyboard-studio",
     "folder": "cinematic-storyboard-studio",
     "project": "cinematic-storyboard-studio",
     "projectId": "prj_1ujLS6wF0HodxPnY10NvfEojzF5O",
     "production": {
-      "id": "dpl_Hayi92CtKH43VX2AcjsmPb5iKyhC",
-      "url": "cinematic-storyboard-studio-4xfxkge67-buylife.vercel.app",
+      "id": "dpl_ATR1ctpZYHvjNoDY99vqyNNTvd6K",
+      "url": "cinematic-storyboard-studio-lyh8aaqra-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "cinematic-storyboard-studio.buylife.xyz",
@@ -459,8 +459,8 @@
     "project": "competitor-analysis",
     "projectId": "prj_1It7Em1XLeQoX5J6wFWbmWxCGxg6",
     "production": {
-      "id": "dpl_DgLF7Sis4W1X7rCmNSophdYHZcm4",
-      "url": "competitor-analysis-3p19x08xm-buylife.vercel.app",
+      "id": "dpl_3xVT9cxLVwqeJtsTbRPGmkwg3Mc5",
+      "url": "competitor-analysis-q0fy6hrwe-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "competitor-analysis-flax.vercel.app",
@@ -480,8 +480,8 @@
     "project": "crm-google-form",
     "projectId": "prj_vhsX9ix7k45wDFvoG2I8a79bhXPb",
     "production": {
-      "id": "dpl_2cfCZsXBVHjia3mN9VHc4D493mEB",
-      "url": "crm-google-form-6xdlx0bao-buylife.vercel.app",
+      "id": "dpl_46e64AcaBv4Yrp2eS4cW8MrRD5p5",
+      "url": "crm-google-form-iymrcvng9-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "crm-google-form.vercel.app",
@@ -501,35 +501,13 @@
     "ok": true
   },
   {
-    "slug": "detail-page-12p",
-    "folder": "detail-page-12p",
-    "project": "detail-page-12p",
-    "projectId": "prj_7kIhcmOsc4T1wnnjm9oRv0tPvXQf",
-    "production": {
-      "id": "dpl_5jpGa3PwBsBU9bCLYffT4M49ZXBh",
-      "url": "detail-page-12p-7nsnfhwov-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "detail-12p.buylife.xyz",
-        "detail-page-12p.vercel.app",
-        "detail-page-12p-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
     "slug": "document-translator",
     "folder": "document-translator",
     "project": "document-translator",
     "projectId": "prj_KbBlrCVpC3Hk321t6ytRyZcSqOjd",
     "production": {
-      "id": "dpl_745SC3f2LSGZEJufTVbcfsrtSef4",
-      "url": "document-translator-e5tecmyhm-buylife.vercel.app",
+      "id": "dpl_7jc3wEz78a4kbvbeJs9J72gHw5RN",
+      "url": "document-translator-n3ygg8fiq-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "document-translator.buylife.xyz",
@@ -545,13 +523,35 @@
     "ok": true
   },
   {
+    "slug": "detail-page-12p",
+    "folder": "detail-page-12p",
+    "project": "detail-page-12p",
+    "projectId": "prj_7kIhcmOsc4T1wnnjm9oRv0tPvXQf",
+    "production": {
+      "id": "dpl_D54fe8t8GPrjFD1mYC5aWdorCmBA",
+      "url": "detail-page-12p-r6h5vh8hz-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "detail-12p.buylife.xyz",
+        "detail-page-12p.vercel.app",
+        "detail-page-12p-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "ebook-studio",
     "folder": "ebook-studio",
     "project": "ebook-studio",
     "projectId": "prj_s0ZEsSghR0eiKgFDfID8cfxBOJyU",
     "production": {
-      "id": "dpl_4d3L3nKo1YtweKPhHhWyBvX3ymBq",
-      "url": "ebook-studio-a47bfh07g-buylife.vercel.app",
+      "id": "dpl_39PLgM2gtBBgWikfV7mUxRovMxdY",
+      "url": "ebook-studio-6fodxcubv-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ebook.buylife.xyz",
@@ -573,8 +573,8 @@
     "project": "emotion-writer",
     "projectId": "prj_LVNI2nqD5l28n0ZoXj5c0Znxuom4",
     "production": {
-      "id": "dpl_7DyAE57xronscm3b7G4NfQpuEN6B",
-      "url": "emotion-writer-dfz98q4mw-buylife.vercel.app",
+      "id": "dpl_CBDArivMg5zZ1LUvqosboX3CgdQJ",
+      "url": "emotion-writer-mq8zebvbk-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "emotion-writer.buylife.xyz",
@@ -590,34 +590,13 @@
     "ok": true
   },
   {
-    "slug": "fashion-style",
-    "folder": "fashion-style",
-    "project": "fashion-style",
-    "projectId": "prj_00obA6Ka6YCAZHhoLw7Gpl67tOar",
-    "production": {
-      "id": "dpl_2g1AvMHKfX9kbn4U7TvsGM6kZNZ1",
-      "url": "fashion-style-597yupods-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "fashion-style.buylife.xyz",
-        "fashion-style-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
     "slug": "file-merge",
     "folder": "file-merge",
     "project": "file-merge",
     "projectId": "prj_dfaM5UJc1h7agyWnsZDxOqU4KiyN",
     "production": {
-      "id": "dpl_BUnsiz1Ythotkvjwfc5726hRhdg4",
-      "url": "file-merge-fgej7ek8v-buylife.vercel.app",
+      "id": "dpl_JD6VigrcDmAhgxVshWSZ4H8qXyUE",
+      "url": "file-merge-pi1m61ytv-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "file-merge.buylife.xyz",
@@ -633,13 +612,34 @@
     "ok": true
   },
   {
+    "slug": "fashion-style",
+    "folder": "fashion-style",
+    "project": "fashion-style",
+    "projectId": "prj_00obA6Ka6YCAZHhoLw7Gpl67tOar",
+    "production": {
+      "id": "dpl_Foasz3APLEEWsARMx9afyCyP5ynT",
+      "url": "fashion-style-8lecpf6lj-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "fashion-style.buylife.xyz",
+        "fashion-style-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "four-cut-comics",
     "folder": "four-cut-comics",
     "project": "four-cut-comics",
     "projectId": "prj_OhLyLo6d44jF2zsowf1UHtj1Trm9",
     "production": {
-      "id": "dpl_9AmKXiL5oCgMx3K1qLFcTadEqNFM",
-      "url": "four-cut-comics-b2l9cg778-buylife.vercel.app",
+      "id": "dpl_AhTNAfBQ1rCmQSm3uwxXzPXchvnM",
+      "url": "four-cut-comics-23kvzmy6s-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "four-cut-comics.vercel.app",
@@ -660,8 +660,8 @@
     "project": "website-scraper",
     "projectId": "prj_wmz2GZXutBmMwFH6BfqkecMLa0gV",
     "production": {
-      "id": "dpl_7cx8ETun5cpJe33vuGDiPxrW52yR",
-      "url": "website-scraper-bkr8i4x7w-buylife.vercel.app",
+      "id": "dpl_2ESHzcghxsQYBBGXjgWfWT6foYcL",
+      "url": "website-scraper-cpd327hq5-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ghost-scraper.buylife.xyz",
@@ -684,8 +684,8 @@
     "project": "image-convert-studio",
     "projectId": "prj_oLGmjEm1RcBXCxaY3NuyVm2cJYsy",
     "production": {
-      "id": "dpl_4VUo1epWSPfot796Nxw4sTxt5rjE",
-      "url": "image-convert-studio-84ry26cb4-buylife.vercel.app",
+      "id": "dpl_Gcq5sVpkASEMFaNU88wB21LoezA9",
+      "url": "image-convert-studio-6d1pemavc-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "image-convert-studio.buylife.xyz",
@@ -706,8 +706,8 @@
     "project": "infinite-loop-video",
     "projectId": "prj_LOKuNPZ7HAjNImFpT49xDPHi3K4B",
     "production": {
-      "id": "dpl_8WvuGHL2ugo2PVo8qip7tdRD3xkA",
-      "url": "infinite-loop-video-54mvvnx1x-buylife.vercel.app",
+      "id": "dpl_3PYb1y3uGruDxPkUZgofEcMerxoF",
+      "url": "infinite-loop-video-6b6l00aeu-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "infinite-loop-video.vercel.app",
@@ -728,8 +728,8 @@
     "project": "insta-auto-poster",
     "projectId": "prj_nzxSUns6qCMftSL26BzSiWhRczbc",
     "production": {
-      "id": "dpl_6fabNRf3FeP9sVfG4CrU1Z7LG7e3",
-      "url": "insta-auto-poster-3229rhzvy-buylife.vercel.app",
+      "id": "dpl_spWKjqMzrjkouL61hhXuZyEGy9x9",
+      "url": "insta-auto-poster-6f61csbyz-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "insta-auto-poster-red.vercel.app",
@@ -749,33 +749,12 @@
     "project": "instagram-dm-reply",
     "projectId": "prj_HHjvBGfww9stuQaakANwttuablHc",
     "production": {
-      "id": "dpl_4tRD1vs9Nu8rdPoo5AGu4c8YLcER",
-      "url": "instagram-dm-reply-56wz6cidw-buylife.vercel.app",
+      "id": "dpl_H2WxLSDzr5hcEPdrADpMawW9MMkH",
+      "url": "instagram-dm-reply-74t84tyws-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "instagram-dm-reply.vercel.app",
         "instagram-dm-reply-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
-    "slug": "instagram-comment-reply",
-    "folder": "instagram-comment-reply",
-    "project": "instagram-comment-reply",
-    "projectId": "prj_Hz4yrZ6ttm7Eo9wepfjSYsddsq8a",
-    "production": {
-      "id": "dpl_AbN1KCMAVTwmJmHLHRghiDcwoQRS",
-      "url": "instagram-comment-reply-a4mzsn5rb-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "instagram-comment-reply.vercel.app",
-        "instagram-comment-reply-buylife.vercel.app"
       ]
     },
     "crons": {
@@ -791,8 +770,8 @@
     "project": "kakao_auto_poster",
     "projectId": "prj_PVkHByYNP7Sf6KcLd5Re1yfqORjp",
     "production": {
-      "id": "dpl_A16xwQQbU4EFvgzVLQTjayAUqiPR",
-      "url": "kakaoautoposter-8hc7i8qgv-buylife.vercel.app",
+      "id": "dpl_BqHnDRmtvkqM2SXeTawmceYkj7Uv",
+      "url": "kakaoautoposter-h69ukcrqu-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "kakaoautoposter.vercel.app",
@@ -813,13 +792,34 @@
     "ok": true
   },
   {
+    "slug": "instagram-comment-reply",
+    "folder": "instagram-comment-reply",
+    "project": "instagram-comment-reply",
+    "projectId": "prj_Hz4yrZ6ttm7Eo9wepfjSYsddsq8a",
+    "production": {
+      "id": "dpl_5g6AiwzXvWnRtzHPhSDBvu8VeXCH",
+      "url": "instagram-comment-reply-879inmbu1-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "instagram-comment-reply.vercel.app",
+        "instagram-comment-reply-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "landing-architect",
     "folder": "landing-architect",
     "project": "landing-architect",
     "projectId": "prj_DxXYl9q23cPhNwvBozpiI3UQBepp",
     "production": {
-      "id": "dpl_7Nf7a8i9DFdwwChGhcG37Viu8xiv",
-      "url": "landing-architect-ncm0xlete-buylife.vercel.app",
+      "id": "dpl_DAoq3oZzHg2PcEHyNjiRGTF6Hqaw",
+      "url": "landing-architect-7f1a5h7gm-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "landing-architect.vercel.app",
@@ -840,8 +840,8 @@
     "project": "longtail-keyword-expander",
     "projectId": "prj_eOtyTt6PtTUozXZtyVgcGQve7XFD",
     "production": {
-      "id": "dpl_EY8YGAYd7nQcFQsRDqn56TA3nVrG",
-      "url": "longtail-keyword-expander-h3kzzi993-buylife.vercel.app",
+      "id": "dpl_J9Zt5x8ho22n6nr6uVe3AM4zndod",
+      "url": "longtail-keyword-expander-4onzhb1fk-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "longtail-keyword-expander.vercel.app",
@@ -861,8 +861,8 @@
     "project": "markdown-studio",
     "projectId": "prj_37ryBw2gcK6dMhrpWhlwpsRtkIPc",
     "production": {
-      "id": "dpl_3ow7NKHR5RLBubBpprGKhC2kg3pN",
-      "url": "markdown-studio-7gl74zhkw-buylife.vercel.app",
+      "id": "dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ",
+      "url": "markdown-studio-90eqoly8t-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "markdown-studio.buylife.xyz",
@@ -883,8 +883,8 @@
     "project": "mbti",
     "projectId": "prj_6qDvramU9GzOqKssqtw8yA3u6BHH",
     "production": {
-      "id": "dpl_FKj17wSu1EuWNJBxvBDocjWq3YYp",
-      "url": "mbti-qxui3uj5z-buylife.vercel.app",
+      "id": "dpl_9PzMN2xV5QVa2ggR3MxZFVbEpRq8",
+      "url": "mbti-cw6nznjsz-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "mbti-rho-two.vercel.app",
@@ -904,8 +904,8 @@
     "project": "mbti-character",
     "projectId": "prj_vFKamMadqV6wRDBBK5nJZM7HQasn",
     "production": {
-      "id": "dpl_4NRy1pnJwbpZwwuFLP5gLxoLfkub",
-      "url": "mbti-character-knsbttc4g-buylife.vercel.app",
+      "id": "dpl_2MRs6r2xVFgxNdpg4vKncjxMhCmZ",
+      "url": "mbti-character-big4ymvqm-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "mbti-character.vercel.app",
@@ -925,34 +925,12 @@
     "project": "music",
     "projectId": "prj_yw9HHgyrDQ2Scav1M3JKD9MRRabo",
     "production": {
-      "id": "dpl_9Aih1pe7X3qg7WD6ti5YZj8akscD",
-      "url": "music-d4ll1b42k-buylife.vercel.app",
+      "id": "dpl_jW1mmqB49jnUshikpVSPVJVCWUKR",
+      "url": "music-4k6e398qe-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "music-rho-virid-22.vercel.app",
         "music-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
-    "slug": "music-player",
-    "folder": "music-player",
-    "project": "music-player",
-    "projectId": "prj_uMySme1trJhY9tBOATChPeDRUiNG",
-    "production": {
-      "id": "dpl_FgL2sS5opXfSswq5RJkBFpGUuVYH",
-      "url": "music-player-1wcuw7i3w-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "music-player.buylife.xyz",
-        "music-player-cyan-alpha.vercel.app",
-        "music-player-buylife.vercel.app"
       ]
     },
     "crons": {
@@ -968,8 +946,8 @@
     "project": "music-video-studio",
     "projectId": "prj_azZVx29mMvv2vyfUGQlXKFA35F93",
     "production": {
-      "id": "dpl_9CrvVVTVAMehP6SEgszYRutaxXEh",
-      "url": "music-video-studio-3j0subaxz-buylife.vercel.app",
+      "id": "dpl_DBPYTrmFAyGsdSCe5NTZSEBvtPyJ",
+      "url": "music-video-studio-f582xp3tb-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "music-video-studio.buylife.xyz",
@@ -985,13 +963,35 @@
     "ok": true
   },
   {
+    "slug": "music-player",
+    "folder": "music-player",
+    "project": "music-player",
+    "projectId": "prj_uMySme1trJhY9tBOATChPeDRUiNG",
+    "production": {
+      "id": "dpl_8Ehq1Bv4h3JPxs3s9ZeEw5sG8ya1",
+      "url": "music-player-224ik9wex-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "music-player.buylife.xyz",
+        "music-player-cyan-alpha.vercel.app",
+        "music-player-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "naver-blog-agent",
     "folder": "naver-blog-agent",
     "project": "naver-blog-agent",
     "projectId": "prj_uns69mwxF4wJARy1ViF2Lgj0PzWT",
     "production": {
-      "id": "dpl_ByP8EV5TSAYMD3cntqLAn3mcYZ51",
-      "url": "naver-blog-agent-a8uion7ln-buylife.vercel.app",
+      "id": "dpl_Ba2Y2Zvhx89xo9kmXkbknSUk6tC1",
+      "url": "naver-blog-agent-ca4xha650-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "naver-blog-agent.vercel.app",
@@ -1016,8 +1016,8 @@
     "project": "naver-blog-allinone",
     "projectId": "prj_TTqJjNfMreWtL9deM33SC0JNe8bY",
     "production": {
-      "id": "dpl_6RMYYC1FPhthVjiKb9PtMhUv7Jur",
-      "url": "naver-blog-allinone-jgwzpf5qa-buylife.vercel.app",
+      "id": "dpl_4cN5BRncj1ytcqRnUGfibk7fyqh2",
+      "url": "naver-blog-allinone-jrr8q7gz2-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "naver-blog-allinone.vercel.app",
@@ -1038,8 +1038,8 @@
     "project": "naver-blog-auto-poster",
     "projectId": "prj_Bn2kNb8LiiE9Od59FJ5vL7FHWHvF",
     "production": {
-      "id": "dpl_FxkicsKChDSFyBHftWFhj8qPdoqt",
-      "url": "naver-blog-auto-poster-b5vqfa5q8-buylife.vercel.app",
+      "id": "dpl_FmFJxC7UjkTG5N8h2b6gMqaCFjt2",
+      "url": "naver-blog-auto-poster-oij9bv8eb-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "naver-blog-auto-poster.buylife.xyz",
@@ -1060,8 +1060,8 @@
     "project": "naver-blog-auto-poster-web",
     "projectId": "prj_Ya6VyM6PpAxT0QUqwoobr0AmnW9w",
     "production": {
-      "id": "dpl_CGv3XMRUb2FoyZKay4MCY2NnoTFe",
-      "url": "naver-blog-auto-poster-ge5ydf5kd-buylife.vercel.app",
+      "id": "dpl_DMz4ztvEBXvGmYVtDfnZnrCwo1Ve",
+      "url": "naver-blog-auto-poster-jhedo30uc-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "naver-blog-auto-poster-web.vercel.app",
@@ -1082,8 +1082,8 @@
     "project": "naver-blog-seo-studio",
     "projectId": "prj_FpGHp3MKQtU1wljZMiBA6y4tEu6V",
     "production": {
-      "id": "dpl_CkmSgHQdUzsgcjdRKFWoc624dgdL",
-      "url": "naver-blog-seo-studio-epmrmsvpo-buylife.vercel.app",
+      "id": "dpl_iZJjbyuDrWyYha4RhwEFz4pszSUn",
+      "url": "naver-blog-seo-studio-pgbuvozpn-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "naver-blog-seo-studio.vercel.app",
@@ -1103,13 +1103,57 @@
     "ok": true
   },
   {
+    "slug": "personality-suite",
+    "folder": "personality-suite",
+    "project": "personality-suite",
+    "projectId": "prj_oUxUAAgdvNPtd5eE1228ikwtmbJZ",
+    "production": {
+      "id": "dpl_3vwzkJgmkvy1rLNDzL7T8RP9TnDT",
+      "url": "personality-suite-973vw0zl9-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "personality-suite.vercel.app",
+        "personality-suite.buylife.xyz",
+        "personality-suite-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
+    "slug": "persona-style-studio",
+    "folder": "persona-style-studio",
+    "project": "persona-style-studio",
+    "projectId": "prj_ZHJW07IlNQfbri6Xu5dg7Kpn99fn",
+    "production": {
+      "id": "dpl_FQ3AL1zfx8HcFnSAKssZCHkVve4q",
+      "url": "persona-style-studio-5o7mpi9tg-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "persona-style-studio.vercel.app",
+        "persona-style-studio.buylife.xyz",
+        "persona-style-studio-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "naver-cafe-poster",
     "folder": "naver-cafe-poster",
     "project": "naver-cafe-poster",
     "projectId": "prj_MzprKvFjspw1uvCWcTxj71mmdLMV",
     "production": {
-      "id": "dpl_FapzQT6uEoi9UhwExRnxgugLAjBF",
-      "url": "naver-cafe-poster-2s1bh8186-buylife.vercel.app",
+      "id": "dpl_7f8vht2jvodvExqAdeAurUVKwag4",
+      "url": "naver-cafe-poster-b8itnaolr-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "naver-cafe-poster.vercel.app",
@@ -1129,57 +1173,13 @@
     "ok": true
   },
   {
-    "slug": "persona-style-studio",
-    "folder": "persona-style-studio",
-    "project": "persona-style-studio",
-    "projectId": "prj_ZHJW07IlNQfbri6Xu5dg7Kpn99fn",
-    "production": {
-      "id": "dpl_Gdg11mB8PzTsMTb5WdX6bDNrNRux",
-      "url": "persona-style-studio-6cjs81gjb-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "persona-style-studio.vercel.app",
-        "persona-style-studio.buylife.xyz",
-        "persona-style-studio-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
-    "slug": "personality-suite",
-    "folder": "personality-suite",
-    "project": "personality-suite",
-    "projectId": "prj_oUxUAAgdvNPtd5eE1228ikwtmbJZ",
-    "production": {
-      "id": "dpl_E7r19Ui29Uqcja5xyzVXY1MrU4P2",
-      "url": "personality-suite-4ikhrfxaj-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "personality-suite.vercel.app",
-        "personality-suite.buylife.xyz",
-        "personality-suite-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
     "slug": "photo-remake-studio",
     "folder": "photo-remake-studio",
     "project": "photo-remake-studio",
     "projectId": "prj_IMBywWlSqMCEBjOcvwp3gaMMml4J",
     "production": {
-      "id": "dpl_EGjkPKBmovRgrcPEQLU78UD2xtzR",
-      "url": "photo-remake-studio-rsmwddvwo-buylife.vercel.app",
+      "id": "dpl_HXX8akVFGakudRHBQagXJhvbTCcv",
+      "url": "photo-remake-studio-f2bztsy25-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "photo-remake-studio.vercel.app",
@@ -1200,8 +1200,8 @@
     "project": "playlist-channel-studio",
     "projectId": "prj_uif6WngcZJ6bJEFPenwVDUtDs1vL",
     "production": {
-      "id": "dpl_4fQ6sL8TB4eELzFQfLyN3BmeVUX3",
-      "url": "playlist-channel-studio-pdk2rm6gq-buylife.vercel.app",
+      "id": "dpl_2ha9noXsGyU4qgFT8cXtHWJgWfuZ",
+      "url": "playlist-channel-studio-pgszzg6mh-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "playlist-channel-studio.vercel.app",
@@ -1222,8 +1222,8 @@
     "project": "portrait-photo",
     "projectId": "prj_edNhV9A6kre1MOX3gIIBoVtlrp8f",
     "production": {
-      "id": "dpl_EbqDxqYUQzRFrFpCBFGSJPEK4fzg",
-      "url": "portrait-photo-gb93ik4nk-buylife.vercel.app",
+      "id": "dpl_6Kc3PPzegwXqP8npWjvUsvjvXMib",
+      "url": "portrait-photo-eqbrmg1ee-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "portrait-photo.buylife.xyz",
@@ -1244,8 +1244,8 @@
     "project": "prompt-template-studio",
     "projectId": "prj_oayREWHVqhEJ5alXSQfTkQ9Hw6Dn",
     "production": {
-      "id": "dpl_8HYTqq2Ju8qcLN5bMD2gNDq5a6Ap",
-      "url": "prompt-template-studio-ohhs9kkzf-buylife.vercel.app",
+      "id": "dpl_GVJ7H9DxUN9A8si9re2o2A8oG7cm",
+      "url": "prompt-template-studio-b04hdbm4n-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "prompt-template.buylife.xyz",
@@ -1266,8 +1266,8 @@
     "project": "react-ui-showcase",
     "projectId": "prj_UXft9hlJwCugmGkao13IFicMGS1E",
     "production": {
-      "id": "dpl_3wF7oskzBqCYtioRR5SnUCHYcKbx",
-      "url": "react-ui-showcase-hbp9vnmjb-buylife.vercel.app",
+      "id": "dpl_8anfzjMb6nB47cNdqaieknDPaPdF",
+      "url": "react-ui-showcase-hv20yaev0-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "web-ui.buylife.xyz",
@@ -1290,8 +1290,8 @@
     "project": "real-estate-sales",
     "projectId": "prj_GJBLHYiAq29MpoNjVgMRMzqUbOZg",
     "production": {
-      "id": "dpl_NKPFhrMFi2p2FwcJ6aH8LfKTcPVh",
-      "url": "real-estate-sales-qul22oytk-buylife.vercel.app",
+      "id": "dpl_9u9oL2Sy2rMrWKSFL3KxSnpoVGin",
+      "url": "real-estate-sales-9ouw08h9e-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "real-estate-sales-delta.vercel.app",
@@ -1316,8 +1316,8 @@
     "project": "reverse-prompt",
     "projectId": "prj_zLfo2cUVIpiVnWOuIJJHSFAByEgP",
     "production": {
-      "id": "dpl_ARfKsUuzcGBqEd1mwXHEk5Rnaxpj",
-      "url": "reverse-prompt-lr996g204-buylife.vercel.app",
+      "id": "dpl_8a6FZvs127CuGrqegYvby7mYc1TK",
+      "url": "reverse-prompt-d6k8ovs1h-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "reverse-prompt.buylife.xyz",
@@ -1333,34 +1333,13 @@
     "ok": true
   },
   {
-    "slug": "shop-detail-page",
-    "folder": "shop-detail-page",
-    "project": "shop-detail-page",
-    "projectId": "prj_tCxATcVIdYr3RLR7CjFeCX6CGv3N",
-    "production": {
-      "id": "dpl_BbAiDmCTDCbCShArnSWWowKXreWf",
-      "url": "shop-detail-page-lihgk83fd-buylife.vercel.app",
-      "readyState": "READY",
-      "aliases": [
-        "shop-detail-page.vercel.app",
-        "shop-detail-page-buylife.vercel.app"
-      ]
-    },
-    "crons": {
-      "enabled": true,
-      "definitions": []
-    },
-    "cron_changed": false,
-    "ok": true
-  },
-  {
     "slug": "seo-thumbnail-pro",
     "folder": "seo-thumbnail-pro",
     "project": "seo-thumbnail-pro",
     "projectId": "prj_PCdWezvxuiCJPKb6msyRbKgONxDa",
     "production": {
-      "id": "dpl_FZ7jX3J8WkzPK3EQjpd7dTxAPbaE",
-      "url": "seo-thumbnail-1vlx32ax1-buylife.vercel.app",
+      "id": "dpl_FJKq3omwTUa3yQReWSK7pXtZLuzp",
+      "url": "seo-thumbnail-gi0mwjhy7-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "seo-thumbnail-pro.vercel.app",
@@ -1376,13 +1355,34 @@
     "ok": true
   },
   {
+    "slug": "shop-detail-page",
+    "folder": "shop-detail-page",
+    "project": "shop-detail-page",
+    "projectId": "prj_tCxATcVIdYr3RLR7CjFeCX6CGv3N",
+    "production": {
+      "id": "dpl_9HdRn8TG67bjrfVjjLMicJ7rSKhF",
+      "url": "shop-detail-page-q8ucvp5m0-buylife.vercel.app",
+      "readyState": "READY",
+      "aliases": [
+        "shop-detail-page.vercel.app",
+        "shop-detail-page-buylife.vercel.app"
+      ]
+    },
+    "crons": {
+      "enabled": true,
+      "definitions": []
+    },
+    "cron_changed": false,
+    "ok": true
+  },
+  {
     "slug": "shorts-viral-studio",
     "folder": "shorts-viral-studio",
     "project": "shorts-viral-studio",
     "projectId": "prj_NBUYFxPSi8klN59L0PUIlBpg25Cq",
     "production": {
-      "id": "dpl_857AfLJLBYqvYruBfGJbEg2ieZWh",
-      "url": "shorts-viral-studio-atzc86hbr-buylife.vercel.app",
+      "id": "dpl_BW6AyX1gikgaGErQgbenycW7YrmB",
+      "url": "shorts-viral-studio-dnoktszz5-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "shorts-viral-studio.vercel.app",
@@ -1403,8 +1403,8 @@
     "project": "shots",
     "projectId": "prj_hoRrpjiLUoLGCIPNEc5XoNgKatPf",
     "production": {
-      "id": "dpl_5VgDAJcqGmBTqiWbZNwinLvVJiPU",
-      "url": "shots-ovtkqeny0-buylife.vercel.app",
+      "id": "dpl_FmdJWLcZQFu3mFKb7Lc4YKz38fYj",
+      "url": "shots-4riwspgqb-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "shots.buylife.xyz",
@@ -1425,8 +1425,8 @@
     "project": "stepmail",
     "projectId": "prj_ioEvZSHGKxBKpCeeHkalfXNr1K5M",
     "production": {
-      "id": "dpl_8Nm3wfs6G3HCtK9itYxwWUyK2W71",
-      "url": "stepmail-mt4o92gch-buylife.vercel.app",
+      "id": "dpl_3YFom3ty2Mw2A9HL86Twx8oJYSrQ",
+      "url": "stepmail-lk04wyj6q-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "stepmail.buylife.xyz",
@@ -1452,8 +1452,8 @@
     "project": "style-dna-analyzer",
     "projectId": "prj_gJIIELdstnObcj4eZssf6pHSbBKu",
     "production": {
-      "id": "dpl_8JsAYQQY8HMKQ9DXngaQ5DYqYXbD",
-      "url": "style-dna-analyzer-80iiqz56j-buylife.vercel.app",
+      "id": "dpl_4kCkPmZRcTs1rmfFRQdCUBZnAFTk",
+      "url": "style-dna-analyzer-a907l4brb-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "style-dna-analyzer.vercel.app",
@@ -1474,8 +1474,8 @@
     "project": "suno-music-studio",
     "projectId": "prj_BHh3me01sTyn12CQJrOgihl7Fyvu",
     "production": {
-      "id": "dpl_3vXyYJLQCgi4ppqaKYGERnkX3p2G",
-      "url": "suno-music-studio-oqqga9o6q-buylife.vercel.app",
+      "id": "dpl_BwJ1cDjkeYSyPnYgDXGtx3yVF5Zu",
+      "url": "suno-music-studio-o2uooo3r6-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "suno-music-studio.buylife.xyz",
@@ -1496,8 +1496,8 @@
     "project": "tarot",
     "projectId": "prj_WCLRnSw1c5SdpgPf4VH7dw1ZnTm8",
     "production": {
-      "id": "dpl_1jZ82bcuLx9AoPD6NfgSp8fpywFK",
-      "url": "tarot-8sojncs4l-buylife.vercel.app",
+      "id": "dpl_9v1U7aVVUviSsJRjAnJHLomLqwTn",
+      "url": "tarot-o0kfb12du-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "tarot-eight-jet.vercel.app",
@@ -1517,8 +1517,8 @@
     "project": "threads",
     "projectId": "prj_aOy3s9FqarLxLufrAuIxgu511FwM",
     "production": {
-      "id": "dpl_CnPWk2LLB4bozyVLV2vu4ueHdyQW",
-      "url": "threads-1cif99gaq-buylife.vercel.app",
+      "id": "dpl_BWR2caWkLRMXxJP1fcasK96qqgC9",
+      "url": "threads-kpky5buy1-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "threads-nu-dusky.vercel.app",
@@ -1543,8 +1543,8 @@
     "project": "threads-affiliate-poster",
     "projectId": "prj_CbpAAfOrbTsgzEmyX6CEs0JCmgX8",
     "production": {
-      "id": "dpl_D4NpdkU3U2HdLW83DRd5WyaQz9bu",
-      "url": "threads-affiliate-poster-gdln8fd8n-buylife.vercel.app",
+      "id": "dpl_3sycbE1bYEiMhsXZtsyk7HnpsyZY",
+      "url": "threads-affiliate-poster-2d0a2m6z4-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "threads-affiliate-poster.vercel.app",
@@ -1573,8 +1573,8 @@
     "project": "threads-comment-reply",
     "projectId": "prj_vwjKT3EDuVq7716eaR1mcsnD2ADQ",
     "production": {
-      "id": "dpl_7aQC6AzFtYrFqZc6vgVDVrcd81Ta",
-      "url": "threads-comment-reply-hkqowgfei-buylife.vercel.app",
+      "id": "dpl_D8r7uDFKNfh8axu15kzyc9jv9fq6",
+      "url": "threads-comment-reply-3kg97u090-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "threads-comment-reply.vercel.app",
@@ -1594,8 +1594,8 @@
     "project": "threads-content-ops",
     "projectId": "prj_qcCFSNxjGu5NggFMN28ytyzX0z8A",
     "production": {
-      "id": "dpl_ApyccpTDKoBWAeXUBxbbFXpSCUqa",
-      "url": "threads-content-403m4a4xo-buylife.vercel.app",
+      "id": "dpl_DUSDnvtxjYJyM8R6Lo9rLLcgCBMj",
+      "url": "threads-content-m8zagy2me-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "threads-content-ops.vercel.app",
@@ -1625,8 +1625,8 @@
     "project": "threads-easy-planner",
     "projectId": "prj_l32j4uY0hMw1gFrug0WAACARrS1B",
     "production": {
-      "id": "dpl_D6WDyw4fAb98BAvDafgoAVrV6kjC",
-      "url": "threads-easy-planner-2okwgxfa7-buylife.vercel.app",
+      "id": "dpl_GZvw2azaVnbXXq44nBqpPF2GP22i",
+      "url": "threads-easy-planner-43or1kxyb-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "threads-easy-planner.vercel.app",
@@ -1646,8 +1646,8 @@
     "project": "thumbnail-master",
     "projectId": "prj_bHZIgJGNZotRyQMNgiPn7UPRjDkd",
     "production": {
-      "id": "dpl_5MwMd41mC3NWdXLvXZRfXJoRRias",
-      "url": "thumbnail-master-4a12x5qzn-buylife.vercel.app",
+      "id": "dpl_73MRRqDhoNH6kSSFQusySyRRgyVG",
+      "url": "thumbnail-master-1dpn677ed-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "thumbnail-master.buylife.xyz",
@@ -1668,8 +1668,8 @@
     "project": "tistory-auto-blog",
     "projectId": "prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm",
     "production": {
-      "id": "dpl_5NoZDCRmUkrqk98tUfCTtc19n8i9",
-      "url": "tistory-auto-blog-pziw8v04c-buylife.vercel.app",
+      "id": "dpl_CwTFD83vSRgTW9GHU9dMbZXFp4Yp",
+      "url": "tistory-auto-blog-lgbbqzm6g-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "tistory-auto-blog-pearl.vercel.app",
@@ -1694,8 +1694,8 @@
     "project": "trending-product-finder",
     "projectId": "prj_IFLvGo33Rj45fTrnLy8A19M5PEUh",
     "production": {
-      "id": "dpl_DnJhm1EW8cm3dkgCEkhxy9s8kEDx",
-      "url": "trending-product-finder-qw81zefbd-buylife.vercel.app",
+      "id": "dpl_2eBh9sqoBs44jRiZhoKLD1ETFcw2",
+      "url": "trending-product-finder-hysyfvhg0-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "trending-product-finder.vercel.app",
@@ -1728,8 +1728,8 @@
     "project": "ui-canvas",
     "projectId": "prj_RyaZYKLdH71H51qP7ZInCaB8kfrf",
     "production": {
-      "id": "dpl_HZek9DionfLQVWJ1zUbxuRE5MJj5",
-      "url": "ui-canvas-rk3yll2bh-buylife.vercel.app",
+      "id": "dpl_8kS7LFhyPTMavPTQcurRLTLtSoev",
+      "url": "ui-canvas-ljitu5mb7-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "ui-canvas.buylife.xyz",
@@ -1750,8 +1750,8 @@
     "project": "video-to-gif",
     "projectId": "prj_uyaVCtMOO4U7yqnuYqRNi1s0GlID",
     "production": {
-      "id": "dpl_8aW3m7F9jkpcg47vaTzh2whMcNYZ",
-      "url": "video-to-f3jlduaoo-buylife.vercel.app",
+      "id": "dpl_9CjVHEQ9mrCcw2zs935hpw655sbj",
+      "url": "video-to-b5qdi1zjw-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "video-to-gif-blond.vercel.app",
@@ -1771,8 +1771,8 @@
     "project": "vinyl-lp-studio",
     "projectId": "prj_UqvnhsAeohJCELpcZwF7S9HlZC3x",
     "production": {
-      "id": "dpl_3k6VZi5dvWAgxrvc7rjSuddMGkbF",
-      "url": "vinyl-lp-studio-j9tu47gyl-buylife.vercel.app",
+      "id": "dpl_5Cf4ZxYn3mk2tnb434UdkBTNndsM",
+      "url": "vinyl-lp-studio-3cd8n7770-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "vinyl-lp.buylife.xyz",
@@ -1795,8 +1795,8 @@
     "project": "web-crawler-saas",
     "projectId": "prj_vbFOc4iVBpvHJUZdpDdiOr2vZDch",
     "production": {
-      "id": "dpl_EviSNcza2prbN7UVPygERD7PWCjP",
-      "url": "web-crawler-saas-1bmizob71-buylife.vercel.app",
+      "id": "dpl_AgyEEJEbra4JZEvWUJsay2UNECTR",
+      "url": "web-crawler-saas-cfrat5pet-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "web-crawler-saas.vercel.app",
@@ -1816,8 +1816,8 @@
     "project": "youtube-auto-reply",
     "projectId": "prj_roE5C3Oo20z0yvImNygBnnYXL70k",
     "production": {
-      "id": "dpl_69Vw2eNf5K5g4Vmr4dSTtH4fbUjB",
-      "url": "youtube-auto-reply-k8isha340-buylife.vercel.app",
+      "id": "dpl_G1WERNY3oZToNyanyfs2KmN6JGAX",
+      "url": "youtube-auto-reply-i1fljj9v6-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "youtube-auto-reply.vercel.app",
@@ -1846,8 +1846,8 @@
     "project": "youtube-channel-consultant",
     "projectId": "prj_eVY72OfgTnAhVtVDsHNt4ScRAkXo",
     "production": {
-      "id": "dpl_2iVFMNWKQQtCFMzyNghi4eabSj7M",
-      "url": "youtube-channel-consultant-prxmaeeri-buylife.vercel.app",
+      "id": "dpl_EcHBjP4XYnkRecwamNBQFZLynUCW",
+      "url": "youtube-channel-consultant-dddyfnmk9-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "youtube-channel-consultant.vercel.app",
@@ -1868,8 +1868,8 @@
     "project": "youtube-viral-studio",
     "projectId": "prj_wQJuT1yUtTpZG4HagTwWrPl6Ydb4",
     "production": {
-      "id": "dpl_JA4rYrXp4g7iwBAP34D3gqoczmgQ",
-      "url": "youtube-viral-studio-ovrcb1lue-buylife.vercel.app",
+      "id": "dpl_8pbXX1kV9h9FzFV3qPJ33G59ncKF",
+      "url": "youtube-viral-studio-fobyjci1x-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "youtube-viral-studio.vercel.app",
@@ -1890,8 +1890,8 @@
     "project": "yt-playlist-studio",
     "projectId": "prj_DicBg4lTEF8irkE7rT9nSqUcfr5U",
     "production": {
-      "id": "dpl_GkeFR2odKmC6TXJZCRXWqstJdu5H",
-      "url": "yt-playlist-studio-6i5tkfuae-buylife.vercel.app",
+      "id": "dpl_8rYSbZ1PgNr9MtCs7ozaMn7pTFju",
+      "url": "yt-playlist-studio-61hfiad3s-buylife.vercel.app",
       "readyState": "READY",
       "aliases": [
         "yt-playlist.buylife.xyz",

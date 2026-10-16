@@ -8,6 +8,7 @@ const before = read('vercel-environment-names-before-addition');
 const after = read('vercel-environment-names');
 const additions = read('environment-addition-results');
 const plan = read('environment-addition-plan');
+const approval = read('environment-addition-approval');
 const deployments = read('deployments');
 const browser = read('browser-live-results');
 const projectsBefore = read('projects-before');
@@ -33,8 +34,10 @@ for (const p of plan) {
 }
 for (const d of deployments) {
   check(d.ok && d.readyState === 'READY', `${d.slug}: deployment not READY`);
+  check(d.started >= approval.registration_completed_at, `${d.slug}: deployment predates alias registration`);
   const live = browser.find(x => x.slug === d.slug);
   check(live?.ok && live.browser === 'Microsoft Edge' && live.deployment_id === d.deployment_id, `${d.slug}: fresh deployment Edge verification missing`);
+  check(live?.checked_at >= d.started, `${d.slug}: browser check predates current deployment`);
   const previous = projectsBefore.find(x => x.slug === d.slug);
   const current = projectsAfter.find(x => x.slug === d.slug);
   check(current?.ok && current.production?.id === d.deployment_id, `${d.slug}: current Production target differs`);
@@ -55,6 +58,7 @@ const proof = {
   legacy_removed: false,
   keys_issued_or_revoked: false,
   paid_ai_calls: 0,
+  preserved_markdown_studio_version: deployments.find(x => x.slug === 'markdown-studio')?.version,
   errors,
 };
 fs.writeFileSync(`${dir}/environment-addition-audit.json`, JSON.stringify(proof, null, 2) + '\n');

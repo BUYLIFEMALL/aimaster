@@ -70,6 +70,8 @@
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
 
 
-## 2026-10-16 신규 DB 변수 등록 후속 검수 — v1.09 유지
+## 2026-10-16 신규 DB 변수 등록 후속 검수 — 최종 v1.10 유지
 
 주인님 승인으로 Production에 새 공개/서버 변수 이름을 추가했고 기존 변수는 유지했습니다. Antigravity 디자인 작업 종료 및 v1.09 배포 완료를 확인한 뒤, 새 변수 등록 이후 생성된 최신 배포 `dpl_AhURmG83LJQ8kkvVLYLLGAFjG9Zx`를 보존했습니다. 과거 v1.08을 다시 배포하지 않았습니다. 신규 이름만 사용한 로컬 빌드와 Microsoft Edge 일반 회원 접근·v1.09 표시·모바일 검수를 통과했습니다. 코드·DB 버전·디자인을 바꾸지 않았고 유료 AI 호출은 0회입니다. 전체 결과는 [DB 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)와 [후속 배포 증거](../docs/supabase-compat-rollout-20261016/markdown-studio-followup.json)를 확인합니다. 기존 변수 삭제는 안정화 후 주인님과 시점을 확정한 다음 별도로 처리합니다.
+
+- 최종 확인: Antigravity의 가이드 개편 v1.10 완료 뒤 **v1.10 / dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ**로 신규 이름 전용 빌드·Edge 일반 회원 검수를 추가 통과했습니다. v1.09→v1.10 후속 배포를 보존했고 프로그램 코드·버전을 변경하지 않았습니다.

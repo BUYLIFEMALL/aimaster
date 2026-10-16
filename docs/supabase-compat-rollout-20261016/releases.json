@@ -602,7 +602,7 @@
     "slug": "markdown-studio",
     "project": "markdown-studio",
     "oldVersion": "v1.07",
-    "version": "v1.08",
+    "version": "v1.10",
     "app_url": "https://markdown-studio.buylife.xyz",
     "extension": false,
     "extension_download_url": null,
@@ -612,7 +612,9 @@
       "markdown-studio/src/lib/supabase/client.ts",
       "markdown-studio/src/lib/supabase/server.ts",
       "markdown-studio/src/proxy.ts"
-    ]
+    ],
+    "compatibility_release_version": "v1.08",
+    "superseded_by": "Antigravity v1.10 guide release; preserve latest deployed UI"
   },
   {
     "folder": "mbti",
