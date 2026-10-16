@@ -46,11 +46,13 @@
     - 앞으로 어떤 프로그램이든 다음 작업 대상을 제안하거나 결과 보고를 할 때는, 사용자가 클릭했을 때 즉각 브라우저에서 열릴 수 있도록 **Supabase 공유 DB(`programs.app_url`) 및 Vercel에 정식 연결된 실제 공식 도메인 URL을 반드시 사전 확인한 후 링크를 제공**합니다.
     - 표(Table) 내부에서 `<br>` 태그로 텍스트와 링크를 함께 넣어 주소와 설명이 한 줄로 찌그러지거나 링크가 깨지는 현상을 엄격히 금지하며, **단독 줄의 명확한 마크다운 하이퍼링크(`[URL](URL)`) 또는 독립 카드형 불릿 레이아웃**으로 작성하여 클릭 한 번으로 새 창에서 안정적으로 접속할 수 있도록 합니다.
     - 새로운 도메인이 지정되거나 도메인 변경 요청이 있을 경우, Vercel Alias 및 SSL 인증서를 즉시 발급·연결하고 DB `programs.app_url`과 인수인계 문서를 동시에 갱신합니다.
+12. **작업 종료 즉시 상태를 「✅ 1차 작업완료」로 변경 의무 (2026-10-16 주인님 지시)**:
+    - 프로그램의 디자인 리뉴얼, 빌드, Vercel 배포, 브라우저 실세션 검수, 인수인계 문서 작성이 완료되면 **작업 종료 즉시 `DESIGN.md` 2절 전체 프로그램 디자인 현황판의 상태를 「✅ 1차 작업완료 (`vX.YY`, 템플릿명)」로 반드시 변경**합니다.
+    - 동시에 `docs/ACTIVE_WORK.md`에서 작업 중 행을 삭제하여 다른 CLI(Antigravity, Codex, Claude Code)가 작업 완료 사실을 한눈에 확인하고 대기 없이 다음 프로그램 작업에 즉시 착수할 수 있도록 완벽히 동기화합니다.
 
 ---
 
 ## 1. 공식 디자인 템플릿 시스템 (Design Template System) — 현재 7종
-
 > **카탈로그 단일 기준 (2026-10-16 정리)**: 템플릿 목록과 프로그램별 적용 현황은 **이 문서(`DESIGN.md`)에만** 적는다. `docs/PROGRAM_DESIGN_STANDARD.md`·`CLAUDE.md`·`AGENTS.md`의 "4대/5대 템플릿" 표현은 이 표를 가리키는 것으로 읽는다.
 > **기준 예시 유무**: `DESIGN_HANDOFF.md`(색상값·부품 구성)가 있는 템플릿만 다른 프로그램에 바로 옮겨 적용할 수 있다. 현재 기준 예시가 있는 것은 1·2·6·7번과 4번(v1.06 운영 검수 완료)이고, 3·5번은 대표 프로그램 1개를 먼저 완성해 `DESIGN_HANDOFF.md`를 만든 뒤 확대 적용한다.
 > **새 템플릿을 만드는 기준**: 기존 템플릿의 색상 토큰이나 화면 골격을 조정해 쓸 수 있으면 새 이름을 만들지 않고 기존 템플릿의 「변형」으로 기록한다(예: `사이버 네온 다크 콘솔 스타일 — 수노 오렌지 변형`). 화면 골격(레이아웃)과 색상 토큰이 둘 다 기존 템플릿과 크게 다를 때만 새 이름을 붙인다.
@@ -66,33 +68,32 @@
 | **7. 이커머스 셀러 스튜디오 스타일<br>(E-commerce Seller Studio Style)** | **AI 상세페이지 자동화** (`shop-detail-page` `v1.06`) | 퓨어 화이트 (`#ffffff`) & 슬레이트 (`#f8fafc`)<br>포인트: 스마트스토어 로열 블루 (`#2563eb`) & 셀러 오렌지 (`#f97316`) | 네이버 스마트스토어/쿠팡 셀러센터 감성, 4단계 파이프라인 가이드북 & 15개 섹션 블록 맵, 점선 드래그앤드롭 업로더, 15단 섹션 넘버링 뷰어 & 롱 이미지 원클릭 병합 바 | 이커머스 상세페이지 생성기, 쇼핑몰 상품 등록기, 오픈마켓 소싱 자동화 |
 | **8. 스레드 바이럴 스튜디오 스타일<br>(Threads Viral Studio Style)** | **Threads 콘텐츠 운영 자동화** (`threads-content-ops` `v1.96`) | 클린 화이트 (`#ffffff`) & 슬레이트 (`#f8fafc`)<br>포인트: 바이럴 파이어 앰버 (`#f59e0b`) & 일렉트릭 바이올렛 (`#8b5cf6`) & Threads 블랙 (`#171717`) | Meta Threads 공식 감성, 5단계 파이프라인 가이드북 & Meta 연동 가이드, 모바일 전용 햄버거 헤더, 6종 페르소나 카드 갤러리, 500자 제약 컨트롤 | Threads 운영 자동화, SNS 바이럴 콘텐츠 제작기, 제휴 마케팅 자동 포스팅 |
 
-
 ---
 
 ## 2. 전체 프로그램 디자인 작업 현황판 (Master Design Registry) — 중복 작업 방지
 
-> **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
+> **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
 > **상태 구분** (2026-10-16 기준: ✅ 10개 · ⚪ 71개 · ⏸ 2개):
-> - ✅ **1차 완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
+> - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
 > - 🟠 **메인(윈도우) CLI 마무리 작업요망**: 맥미니 CLI가 코드·문서·커밋을 마쳤고, 윈도우 CLI가 빌드·배포·화면 검수만 하면 됨 — 새 리뉴얼 착수 금지, 윈도우 CLI만 이어받음
 > - ⚪ **작업 예정**: 아직 디자인 리뉴얼 전. 템플릿 칸의 「(권장)」은 추천일 뿐 확정 아님
 > - ⏸ **보류**: 비활성 프로그램 등 당장 대상 아님
 >
-> **상태 바꾸는 법**: 착수할 때 ⚪→🔵 「🔵 작업 중 (CLI(장비), 날짜)」로 고치고 `docs/ACTIVE_WORK.md`에 줄 추가 → 배포·검수 후 「✅ 1차 완료 (`vX.YY`)」 + 인수인계 문서 링크로 고치고 ACTIVE_WORK 줄 삭제. 상태 칸 외의 다른 줄은 건드리지 않는다.
+> **상태 바꾸는 법**: 착수할 때 ⚪→🔵 「🔵 작업 중 (CLI(장비), 날짜)」로 고치고 `docs/ACTIVE_WORK.md`에 줄 추가 → 배포·검수 후 「✅ 1차 작업완료 (`vX.YY`, 템플릿명)」 + 인수인계 문서 링크로 고치고 ACTIVE_WORK 줄 삭제. 상태 칸 외의 다른 줄은 건드리지 않는다.
 >
-> **★ 상태 표시 규칙 (2026-10-16 주인님 지시)** — ① **시작할 때 먼저** 「🔵 작업 중 (CLI(장비), 날짜)」로 바꿔 저장하고 `docs/ACTIVE_WORK.md`에 줄 추가(이미 🔵·🟠·✅이면 착수하지 말고 주인님께 알린다). ② **맥미니 CLI가 작업을 마치면**(맥미니는 빌드·배포 금지) 같은 커밋에서 「🟠 메인(윈도우) CLI 마무리 작업요망 (`vX.YY`, CLI(맥미니) 날짜)」로 바꾸고 ACTIVE_WORK 자기 줄 삭제, 남은 일은 `docs/HANDOFF.md` 대기 항목에 적는다. ③ **윈도우 CLI가 빌드·배포·검수까지 끝내면**(또는 윈도우에서 처음부터 끝까지 한 작업) 「✅ 1차 작업완료 (`vX.YY`, CLI(윈도우) 날짜)」로 바꾼다. 다른 CLI가 같은 프로그램을 중복 작업하지 않게 하는 것이 목적이다.
+> **★ 상태 표시 규칙 (2026-10-16 주인님 지시)** — ① **시작할 때 먼저** 「🔵 작업 중 (CLI(장비), 날짜)」로 바꿔 저장하고 `docs/ACTIVE_WORK.md`에 줄 추가(이미 🔵·🟠·✅이면 착수하지 말고 주인님께 알린다). ② **맥미니 CLI가 작업을 마치면**(맥미니는 빌드·배포 금지) 같은 커밋에서 「🟠 메인(윈도우) CLI 마무리 작업요망 (`vX.YY`, CLI(맥미니) 날짜)」로 바꾸고 ACTIVE_WORK 자기 줄 삭제, 남은 일은 `docs/HANDOFF.md` 대기 항목에 적는다. ③ **윈도우 CLI가 빌드·배포·검수까지 끝내면**(또는 윈도우에서 처음부터 끝까지 한 작업) **반드시 상태를 「✅ 1차 작업완료 (`vX.YY`, CLI(윈도우) 날짜)」로 바꾼다**. 다른 CLI가 같은 프로그램을 중복 작업하지 않게 하는 것이 목적이다.
 
 | No | 서브프로그램명 | slug | 적용 디자인 템플릿 스타일 | 배경 테마 | 디자인 상태 | 인수인계 문서 |
 |:---:|---|---|---|:---:|:---:|:---:|
-| 1 | 마크다운 문서 자동화 | `markdown-studio` | **포커스 스튜디오 스타일** | 라이트(크림) | ✅ 1차 완료 | [`markdown-studio/docs/DESIGN_HANDOFF.md`](markdown-studio/docs/DESIGN_HANDOFF.md) |
-| 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 완료 | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
-| 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 완료 (`v1.12`) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
-| 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 완료 (`v1.05`) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
-| 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
-| 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 완료 (`v1.08`) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
+| 1 | 마크다운 문서 자동화 | `markdown-studio` | **포커스 스튜디오 스타일** | 라이트(크림) | ✅ 1차 작업완료 | [`markdown-studio/docs/DESIGN_HANDOFF.md`](markdown-studio/docs/DESIGN_HANDOFF.md) |
+| 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
+| 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 작업완료 (`v1.12`) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
+| 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.05`) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
+| 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
+| 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 (`v1.08`) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
 | 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `cinematic-storyboard-studio/AGENTS.md` |
 | 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `detail-page-12p/AGENTS.md` |
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `prompt-template-studio/AGENTS.md` |
