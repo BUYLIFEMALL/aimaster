@@ -45,3 +45,13 @@
 - 2026-10-15: `stepmail`(v1.08, stepmail.buylife.xyz)·`kakao-auto-posting`(v1.08, kakao-auto-posting.buylife.xyz) 연결. 옛 vercel.app 화면은 새 주소로 308, API는 옛 주소 유지. **콜백이 환경변수로 옛 주소에 고정된 OAuth 프로그램**은 콜백 라우트가 옛 호스트로 들어오면 같은 쿼리로 새 주소에 넘겨 토큰을 교환하게 했다(kakao). 운영자 카카오 JavaScript 키(공유 버튼)는 새 주소를 카카오 콘솔에 추가 등록해야 한다.
 - 2026-10-16: 남은 27개 일괄 이전 시작(플랜 `DOMAIN_SSO_MIGRATION_PLAN_20261016.md`). `tarot-reading`(v1.07, tarot-reading.buylife.xyz) 완료 — 옛 `*.vercel.app` 화면 308은 호스트 접미사로 판정(배포 미리보기 주소 포함), API 제외.
 - 2026-10-16: **남은 27개 전부 완료**(A그룹 19·B그룹 8). 활성 프로그램 `app_url` 중 `vercel.app` 0개. OAuth 프로그램은 콜백 라우트가 옛 호스트로 들어오면 새 주소로 307(카카오 방식, `callback/byok` 같은 하위 경로 포함). 설정 화면의 "앱에 등록할 콜백 주소" 안내는 바꾸지 않는다(교환 주소=옛 주소 환경변수). 확장 프로그램은 다리 코드·출처 확인을 옛·새 주소 모두 허용하고 ZIP·DB 갱신. 상세: `DOMAIN_SSO_MIGRATION_PLAN_20261016.md` 10절.
+
+## 9. 옛 *.vercel.app 주소 정리 계획 (2026-10-16 주인님 지시)
+- 주소를 `<이름>.buylife.xyz`로 바꾼 목적은 **한 번 로그인으로 모든 프로그램 사용**이다(옛 주소는 프로그램마다 로그인 필요). 2026-10-16 시험 계정으로 auto-instagram-posting·auto-threads-posting·threads-comment-reply를 연달아 열어 재로그인 없이 열림을 확인했다.
+- **당분간 두 주소를 모두 유지**한다. 프로그램들이 안정되고 두 주소 모두로 로그인이 되는 것을 확인한 뒤 **옛 주소 체계는 삭제한다**(주인님 결정, 시점은 주인님이 정함).
+- 현재 OAuth 8개 프로그램(콜백 9곳: insta_auto_poster 2·instagram-comment-reply·instagram-dm-reply·naver-cafe-poster·threads·threads-affiliate-poster·threads-comment-reply·youtube-auto-reply)은 회원 앱에 등록된 **옛 콜백 주소 → 새 주소 307**로 동작한다(2026-10-16 9곳 모두 307 확인). 메타·구글·네이버 앱의 콜백은 지금 고칠 필요 없다.
+- **옛 주소를 삭제하기 전에 반드시 먼저 할 일(순서 지킴)**:
+  1. 회원 공지 — 각자 본인 앱(메타/구글/네이버)에 새 콜백 주소 `https://<새 주소>/api/.../callback`을 **추가** 등록(옛 주소는 그대로 둠).
+  2. 설정 화면 콜백 안내를 새 주소로 바꾸고, 서버 콜백 환경변수(`META_INSTAGRAM_REDIRECT_URI`·`META_INSTAGRAM_BYOK_REDIRECT_URI`·`THREADS_REDIRECT_URI`·`META_THREADS_REDIRECT_URI`·`NAVER_REDIRECT_URI`·`GOOGLE_YOUTUBE_REDIRECT_URI`)를 새 주소로 변경(환경변수 변경 = 사전 승인).
+  3. 실제 계정 연결 1회씩 시험 후 옛 주소의 콜백 307 코드 제거, 그다음 Vercel의 옛 vercel.app 별칭 정리.
+  - 1~2 없이 옛 주소를 지우면 회원 앱의 콜백이 없는 주소를 가리켜 **계정 연결이 전부 실패**한다. 확장 프로그램·데스크톱 앱이 옛 API 주소를 부르는지(예: naver-blog-agent `extension_download_url`)도 함께 점검한다.
