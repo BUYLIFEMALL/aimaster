@@ -12,7 +12,7 @@ export async function requireUser() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const currentPath = (await headers()).get("x-pathname") ?? "/topic";
+    const currentPath = (await headers()).get("x-pathname") ?? "/dashboard";
     redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
   }
 

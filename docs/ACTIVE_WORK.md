@@ -20,4 +20,3 @@
 
 
 
-| shorts-onestop-studio (AI 쇼츠 원스톱 제작 자동화) | Claude Code(Windows) | 2026-10-16 | P2: 디자인 지침대로 화면 틀 개편 + AI 주제·대본 |

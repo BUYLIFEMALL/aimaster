@@ -1,4 +1,5 @@
 import { SettingsView } from "@/components/views/SettingsView";
+import { Hero } from "@/components/ui/Hero";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-export default function Page() { return <><div className="page-heading"><p className="eyebrow">PERSONAL CONNECTION</p><h1>API키등록·플랫폼연동</h1><p>본인 텍스트 AI(Gemini·OpenAI·Claude 중 하나 이상) 키를 등록합니다.</p></div><SettingsView /></>; }
+export default function Page() { return <><Hero eyebrow="PERSONAL CONNECTION" title="🔑 API키등록·플랫폼연동" desc="본인 텍스트 AI(Gemini·OpenAI·Claude 중 하나 이상) 키를 등록하고, 주제·대본에 쓸 AI와 모델을 고릅니다." emoji="🔐" meta={["🛡️ 본인 키만 사용", "✅ 연결 확인은 요금 없음"]} /><SettingsView /></>; }

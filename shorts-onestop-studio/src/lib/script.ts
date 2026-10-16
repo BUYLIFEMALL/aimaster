@@ -1,0 +1,106 @@
+// 쇼츠 대본 데이터 구조·선택지(서버·화면 공용). 원본 프로그램 코드가 아니라 우리 구조로 새로 정의한다.
+export const CATEGORIES = [
+  "건강·운동", "자기계발·생산성", "돈·재테크", "요리·레시피", "여행", "심리·인간관계", "IT·AI",
+  "뷰티·패션", "생활 꿀팁", "동기부여", "상식·잡학", "운세·꿈풀이", "미스터리", "반전 상식",
+] as const;
+export type Category = (typeof CATEGORIES)[number];
+
+export const TONES = {
+  friendly: { label: "친근하게", guide: "친구에게 말하듯 따뜻하고 부드러운 존댓말" },
+  expert: { label: "전문가처럼", guide: "근거를 짚어 주는 신뢰감 있는 정보 전달, 군더더기 없이" },
+  emotional: { label: "감성적으로", guide: "공감과 여운을 주는 감성적인 표현" },
+  funny: { label: "유쾌하게", guide: "가볍고 위트 있는 표현, 부담 없는 웃음 포인트" },
+  energetic: { label: "힘차게", guide: "행동을 끌어내는 힘 있고 짧은 문장" },
+} as const;
+export type Tone = keyof typeof TONES;
+
+export const FORMATS = {
+  list: { label: "TOP N 리스트", guide: "번호를 붙인 핵심 항목 나열. 카드 한 장 = 항목 하나" },
+  howto: { label: "단계별 방법", guide: "따라 하기 쉬운 순서. 카드 한 장 = 한 단계" },
+  tips: { label: "꿀팁 모음", guide: "몰랐던 실용 팁 위주. 카드마다 바로 써먹을 팁 하나" },
+  compare: { label: "비교·대결", guide: "두 선택지나 전후를 대비. 카드마다 비교 기준 하나" },
+  story: { label: "스토리", guide: "발단→전개→반전→결말로 이어지는 한 편의 이야기. 카드가 순서대로 이어져야 함" },
+} as const;
+export type Format = keyof typeof FORMATS;
+
+export const MIN_CARDS = 3, MAX_CARDS = 8;
+
+export interface Scene { title: string; desc: string; narration: string; tag?: string }
+export interface ShortsScript {
+  topic: string;
+  category: string;
+  tone: Tone;
+  format: Format;
+  intro: { eyebrow: string; title: string; narration: string };
+  cards: Scene[];
+  outro: { title: string; subtitle: string; cta: string[]; narration: string };
+  hashtags: string[];
+  source: "ai" | "manual";
+  model?: string;
+}
+
+export function isTone(v: unknown): v is Tone { return typeof v === "string" && v in TONES; }
+export function isFormat(v: unknown): v is Format { return typeof v === "string" && v in FORMATS; }
+export function clampCards(n: unknown): number {
+  const v = Math.round(Number(n)); return Number.isFinite(v) ? Math.min(MAX_CARDS, Math.max(MIN_CARDS, v)) : 5;
+}
+
+/** 주제 문구에서 형식·카드 수를 추측한다(회원이 직접 바꾸면 그 값을 유지) */
+export function guessFromTopic(topic: string): { format?: Format; cards?: number; tone?: Tone } {
+  const t = topic.replace(/\s+/g, " ");
+  const n = t.match(/(\d+)\s*(가지|개|곳|단계|선|위|TOP)/i) ?? t.match(/TOP\s*(\d+)/i);
+  const out: { format?: Format; cards?: number; tone?: Tone } = {};
+  if (n) out.cards = clampCards(n[1]);
+  if (/썰|사연|실화|이야기|반전|복수|미스터리/.test(t)) { out.format = "story"; out.tone = "emotional"; }
+  else if (/비교|vs|VS|차이|어느 쪽|뭐가 나을/.test(t)) out.format = "compare";
+  else if (/하는\s?법|방법|단계|순서|따라/.test(t)) out.format = "howto";
+  else if (/꿀팁|비법|노하우|팁/.test(t)) out.format = "tips";
+  else if (n) out.format = "list";
+  return out;
+}
+
+const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+
+/** AI JSON을 우리 구조로 정리한다. 필수 값이 없으면 null */
+export function normalizeScript(raw: Record<string, unknown>, base: { topic: string; category: string; tone: Tone; format: Format; cards: number; model: string }): ShortsScript | null {
+  const intro = (raw.intro ?? {}) as Record<string, unknown>;
+  const outro = (raw.outro ?? {}) as Record<string, unknown>;
+  const cards = (Array.isArray(raw.cards) ? raw.cards : [])
+    .map((c) => (c && typeof c === "object" ? (c as Record<string, unknown>) : {}))
+    .map((c) => ({ tag: str(c.tag, 20), title: str(c.title, 40), desc: str(c.desc, 60), narration: str(c.narration, 400) }))
+    .filter((c) => c.title && c.narration)
+    .slice(0, MAX_CARDS);
+  const introTitle = str(intro.title, 50);
+  if (!introTitle || cards.length < MIN_CARDS) return null;
+  const tags = (Array.isArray(raw.hashtags) ? raw.hashtags : []).map((h) => str(h, 30).replace(/^#?/, "#").replace(/\s+/g, "")).filter((h) => h.length > 1).slice(0, 10);
+  return {
+    topic: base.topic, category: base.category, tone: base.tone, format: base.format,
+    intro: { eyebrow: str(intro.eyebrow, 30), title: introTitle, narration: str(intro.narration, 400) || introTitle },
+    cards,
+    outro: {
+      title: str(outro.title, 50) || "끝까지 봐 주셔서 감사합니다",
+      subtitle: str(outro.subtitle, 80),
+      cta: (Array.isArray(outro.cta) ? outro.cta : []).map((c) => str(c, 30)).filter(Boolean).slice(0, 3),
+      narration: str(outro.narration, 400) || str(outro.title, 50) || "도움이 됐다면 구독과 좋아요 부탁드립니다.",
+    },
+    hashtags: tags,
+    source: "ai",
+    model: base.model,
+  };
+}
+
+/** 내 대본(한 줄 = 한 장면)을 장면 구조로 바꾼다 — AI를 쓰지 않는다 */
+export function scriptFromLines(text: string, o: { topic: string; firstAsIntro: boolean; lastAsOutro: boolean }): ShortsScript | null {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(0, MAX_CARDS + 2);
+  const head = o.firstAsIntro ? lines.shift() : undefined;
+  const tail = o.lastAsOutro && lines.length > MIN_CARDS ? lines.pop() : undefined;
+  if (lines.length < MIN_CARDS) return null;
+  const short = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+  return {
+    topic: o.topic || short(head ?? lines[0], 40), category: "", tone: "friendly", format: "story",
+    intro: { eyebrow: "", title: short(head ?? o.topic ?? lines[0], 40), narration: head ?? short(o.topic || lines[0], 80) },
+    cards: lines.slice(0, MAX_CARDS).map((l) => ({ title: short(l, 24), desc: "", narration: l })),
+    outro: { title: short(tail ?? "끝까지 봐 주셔서 감사합니다", 40), subtitle: "", cta: [], narration: tail ?? "끝까지 봐 주셔서 감사합니다." },
+    hashtags: [], source: "manual",
+  };
+}

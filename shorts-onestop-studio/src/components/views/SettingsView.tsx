@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { KeyRound, PlugZap, ShieldCheck, Trash2 } from "lucide-react";
 import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
 import { GUIDES } from "@/lib/guides";
+import { DEFAULT_MODEL, PROVIDER_LABEL, TEXT_MODELS, modelName, type AiProvider } from "@/lib/models";
 
 type Msg = { text: string; ok?: boolean } | null;
 type KeyState = Record<string, { hasKey: boolean; maskedKey: string | null }>;
@@ -31,6 +32,17 @@ export function SettingsView() {
     } catch (e) { setMsg({ text: e instanceof Error ? e.message : "상태를 불러오지 못했습니다." }); }
   }, []);
   useEffect(() => { void load(); }, [load]);
+  const [settings, setSettings] = useState<{ provider: AiProvider; model: string } | null>(null);
+  useEffect(() => { fetch("/api/settings", { cache: "no-store" }).then((r) => r.json()).then((d) => d.settings && setSettings(d.settings)).catch(() => undefined); }, []);
+  async function saveSettings(next: { provider: AiProvider; model: string }) {
+    setSettings(next); setBusy(true); setMsg(null);
+    try {
+      const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(next) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error ?? "저장하지 못했습니다.");
+      setSettings(d.settings); setMsg({ text: `사용할 AI를 ${PROVIDER_LABEL[next.provider]} · ${modelName(next.model)}(으)로 저장했습니다.`, ok: true });
+    } catch (e) { setMsg({ text: e instanceof Error ? e.message : "저장하지 못했습니다." }); } finally { setBusy(false); }
+  }
 
   async function saveKey(p: string) {
     setBusy(true); setMsg(null);
@@ -59,6 +71,14 @@ export function SettingsView() {
     <div className="stack">
       <div className="notice"><strong><ShieldCheck size={14} style={{ verticalAlign: "-2px" }} /> 본인 키로만 동작합니다</strong><p>대본·주제·이미지·음성은 회원 본인의 API 키로 호출됩니다. 운영자나 다른 회원의 키로 대신 처리하지 않으며, 키는 서버에서만 쓰고 화면에는 일부만 표시합니다. 각 공급사의 이용 조건과 요금이 본인 계정에 적용됩니다. 텍스트 AI 키는 하나만 있어도 됩니다.</p></div>
       <Message msg={msg} />
+      <section className="card stack">
+        <h2>🤖 사용할 AI {settings && <small>· 주제·대본 모델: {modelName(settings.model)}</small>}</h2>
+        {!settings ? <p className="muted">불러오는 중…</p> : <div className="field-grid">
+          <label>AI 공급사<select value={settings.provider} disabled={busy} onChange={(e) => { const p = e.target.value as AiProvider; void saveSettings({ provider: p, model: DEFAULT_MODEL[p] }); }}>{(Object.keys(PROVIDER_LABEL) as AiProvider[]).map((p) => <option key={p} value={p}>{PROVIDER_LABEL[p]}{keys?.[p]?.hasKey ? "" : " (키 미등록)"}</option>)}</select></label>
+          <label>모델<select value={settings.model} disabled={busy} onChange={(e) => void saveSettings({ provider: settings.provider, model: e.target.value })}>{TEXT_MODELS.filter((m) => m.provider === settings.provider).map((m) => <option key={m.id} value={m.id}>{m.name} — {m.purpose}</option>)}</select></label>
+        </div>}
+        <small className="muted">공급사를 바꾸면 그 공급사의 가장 가벼운 모델(기본값)로 맞춰집니다. 모델 이름은 공급사 목록 기준이며 계정에 따라 쓸 수 없는 모델이 있을 수 있습니다.</small>
+      </section>
       {GROUPS.map((g) => {
         const st = keys?.[g.p];
         return (
