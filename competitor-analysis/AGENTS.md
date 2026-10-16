@@ -25,6 +25,12 @@ Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입
 
 ---
 
+## 🎨 적용 디자인 템플릿
+
+**스마트 매트릭스 스타일**(v1.07, 기준 구현 `longtail-keyword-expander`와 같은 뼈대) — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · 플랜 [docs/PLAN_20261016_DESIGN_RENEWAL.md](docs/PLAN_20261016_DESIGN_RENEWAL.md) · 개선 원장 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계 [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md)
+
+---
+
 ## 🎯 프로젝트 목적
 
 키워드를 입력하면 구글 검색결과(SerpApi)를 분석해서 상위 노출 도메인을 경쟁사로 식별하고,
@@ -92,3 +98,8 @@ competitor-analysis는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 새 주소 `https://competitor-analysis.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 옛 주소 / → /keywords → 새 주소 308, 새 주소에서 재로그인 없이 열림(시험 계정 표시)
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 스마트 매트릭스 디자인 리뉴얼 — v1.07 (Claude Code 맥미니)
+- 롱테일 기반 파일 이식(다크 차콜 토큰·히어로·KPI·Asia/Seoul 시각·복사 버튼), 사이드바 🏠·내 경쟁사·📖 + 휴대폰 ☰(원칙 19 — 기존에 없었음), `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 키워드·결과 목록 검색·필터·표/카드, 결과 상세 KPI·유형별 표·리포트 복사, 내 경쟁사 노출 횟수 표.
+- 롱테일 v1.06에서 Codex가 찾은 같은 오류 수정: 등록 후 폼 초기화, 삭제 확인, 빈 목록 `"__none__"` UUID 조회(3곳), 시각 UTC. 검색결과 링크는 http(s)만.
+- **빌드·배포·화면 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md).

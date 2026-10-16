@@ -24,10 +24,10 @@ export function CompetitorToggle({ domain, tracked }: { domain: string; tracked:
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap disabled:opacity-60 ${
+      className={`min-h-[36px] whitespace-nowrap rounded-full px-3 text-xs font-semibold disabled:opacity-60 ${
         isTracked
-          ? "bg-blue-600 text-white"
-          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+          ? "bg-mx-primary text-white"
+          : "border border-mx-border bg-mx-raised text-mx-muted hover:text-mx-text"
       }`}
     >
       {isTracked ? "✓ 내 경쟁사" : "+ 경쟁사로 표시"}

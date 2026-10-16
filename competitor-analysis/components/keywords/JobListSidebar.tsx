@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { runKeywordAnalysisAction } from "@/lib/actions/analysis";
 import { deleteJobAction } from "@/lib/actions/keywords";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { formatDate, formatTime } from "@/lib/format";
 
 export interface JobListItem {
   id: string;
@@ -41,6 +42,7 @@ export function JobListSidebar({ keywordId, jobs }: { keywordId: string; jobs: J
   }
 
   async function handleDelete(jobId: string) {
+    if (!window.confirm("이 분석 결과를 삭제할까요?")) return;
     setDeletingId(jobId);
     try {
       await deleteJobAction(keywordId, jobId);
@@ -57,49 +59,46 @@ export function JobListSidebar({ keywordId, jobs }: { keywordId: string; jobs: J
 
   return (
     <>
-      <div className="w-full md:w-72 shrink-0 md:border-r border-gray-100 md:pr-4">
+      <div className="mx-card w-full shrink-0 p-4 lg:w-72 lg:self-start">
         <button
           type="button"
           onClick={handleAnalyze}
           disabled={isAnalyzing}
-          className="w-full mb-4 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
+          className="mx-btn-primary mb-4 w-full"
         >
-          {isAnalyzing ? "분석 중..." : "🔄 지금 다시 분석하기"}
+          {isAnalyzing ? "⏳ 분석 중..." : "⚡ 지금 분석하기"}
         </button>
-        {error && <p className="mb-3 text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+        {error && <p className="mb-3 rounded-lg border border-mx-danger px-3 py-2 text-xs text-mx-danger">{error}</p>}
 
-        <p className="text-xs font-semibold text-gray-400 mb-2">분석 이력 ({jobs.length}회)</p>
+        <p className="mb-2 text-xs font-semibold text-mx-muted">🕒 분석 이력 ({jobs.length}회)</p>
 
         {jobs.length === 0 ? (
-          <p className="text-sm text-gray-400 py-6 text-center">아직 분석한 기록이 없습니다.</p>
+          <p className="py-6 text-center text-sm text-mx-muted">아직 분석한 기록이 없습니다.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="max-h-[60vh] space-y-2 overflow-y-auto">
             {jobs.map((job) => {
               const isActive = pathname?.includes(`/jobs/${job.id}`);
-              const dt = new Date(job.executed_at);
               return (
                 <div
                   key={job.id}
                   className={`flex items-center gap-2 rounded-xl border p-3 ${
-                    isActive ? "border-blue-300 bg-blue-50/60" : "border-gray-100 bg-white hover:border-gray-200"
+                    isActive ? "border-mx-primary bg-mx-raised" : "border-mx-border hover:border-mx-muted"
                   }`}
                 >
                   <Link href={`/keywords/${keywordId}/jobs/${job.id}`} className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
-                      {dt.toLocaleDateString("ko-KR")}
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                    <p className="flex items-center gap-1.5 text-sm font-semibold text-mx-text">
+                      {formatDate(job.executed_at)}
+                      <span className={job.engine === "naver" ? "mx-chip-green px-1.5 py-0 text-[10px]" : "mx-chip-blue px-1.5 py-0 text-[10px]"}>
                         {ENGINE_LABEL[job.engine]}
                       </span>
                     </p>
-                    <p className="text-xs text-gray-400">
-                      {dt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
+                    <p className="text-xs text-mx-muted">{formatTime(job.executed_at)}</p>
                   </Link>
                   <button
                     type="button"
                     onClick={() => handleDelete(job.id)}
                     disabled={deletingId === job.id}
-                    className="shrink-0 text-xs font-semibold text-red-500 hover:text-red-700 disabled:opacity-60 px-2 py-1"
+                    className="min-h-[44px] shrink-0 px-2 text-xs font-semibold text-mx-danger hover:underline disabled:opacity-60"
                     title="이 분석 결과 삭제"
                   >
                     {deletingId === job.id ? "삭제 중..." : "삭제"}

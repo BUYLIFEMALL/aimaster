@@ -36,11 +36,11 @@ export function ReportButton({ analysisId, hasReport }: { analysisId: string; ha
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-60"
+        className="mx-btn-ghost"
       >
         {isPending ? "리포트 만드는 중..." : "🎨 보기 좋은 HTML 리포트로 만들기"}
       </button>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-mx-danger">{error}</p>}
       {missingProvider && (
         <ApiKeyRequiredModal provider={missingProvider} onClose={() => setMissingProvider(null)} />
       )}

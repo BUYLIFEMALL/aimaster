@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니) — 경쟁사 키워드분석 v1.07: 스마트 매트릭스 디자인 + 롱테일과 같은 오류 4건 수정 (🟠 윈도우 마무리 요청)
+
+- **대상**: `competitor-analysis/` (https://competitor-analysis.buylife.xyz). 디자인 현황판 남은 목록 2번. 롱테일과 같은 뼈대라 기반 파일을 그대로 이식.
+- **한 일**: 다크 토큰·히어로·KPI·Asia/Seoul 시각·복사 버튼, 사이드바 🏠·내 경쟁사·📖 + **휴대폰 ☰(원칙 19, 기존 누락)**, `/dashboard`·`/guide` 신설, 키워드·결과 목록 검색·필터·표/카드, 결과 상세 KPI·유형별 표·리포트 복사, 내 경쟁사 노출 횟수 표. 롱테일 v1.06과 같은 오류 수정(폼 초기화·삭제 확인·빈 목록 UUID 조회 3곳·UTC). 서버 액션·DB 변경 없음. v1.07.
+- **문서**: [`competitor-analysis/docs/`](../competitor-analysis/docs/) PLAN·IMPROVEMENTS(10건, 6건 구현)·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, `AGENTS.md`, 루트 `DESIGN.md` 50번 🟠, 역량 지도 카드(주소·버전도 최신화), `ERROR_LESSONS.md`(공유 인덱스의 오래된 스테이징 사고).
+- **⚠️ 윈도우 CLI 요청**: [`competitor-analysis/docs/IMPROVEMENT_HANDOFF_20261016.md`](../competitor-analysis/docs/IMPROVEMENT_HANDOFF_20261016.md) — 빌드 → 배포 → DB v1.07 → 1440px·375px 검수(유료 분석 실행 금지) → `DESIGN.md` 50번 ✅.
+- **사고·복구 기록**: 착수 표시 커밋 `4e1ea389`에 다른 CLI의 오래된 스테이징이 섞여 `crm-google-form/AGENTS.md` v1.08 기록 4줄이 지워짐 → `ceea5345`로 복구 완료(내용 사고 이전과 동일). 이후 `docs/HANDOFF.md`의 같은 종류 오래된 스테이징도 발견해 스테이징만 해제(작업 파일 그대로).
+- **비용**: 없음.
+
 ## 2026-10-16 Claude Code(윈도우) — 옛 vercel.app 삭제 대비 두 주소 지원 완료(14개 프로그램) + 회원 공지·매뉴얼
 
 - OAuth 9개(콜백 두 주소·[새 주소로 연결]·via=old), 확장 3개 서버 주소 새 주소(+ZIP·DB·검증 OK), 구글폼·Suno·DM 웹훅 새 주소, 텔레그램 웹훅 새 주소+일괄 이전 경로. 공지(상단 고정)·매뉴얼 https://www.buylife.xyz/guides/cffe0d83-1e7f-494c-947d-75dcfcaee01e 게시.

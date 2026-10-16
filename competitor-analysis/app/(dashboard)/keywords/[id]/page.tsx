@@ -28,9 +28,9 @@ export default async function KeywordIndexPage({ params }: PageProps) {
   }
 
   return (
-    <div className="text-center py-20 text-gray-400">
-      <div className="text-5xl mb-4">📊</div>
-      <p>아직 분석 이력이 없습니다. 왼쪽의 "지금 다시 분석하기"를 눌러주세요.</p>
+    <div className="mx-card py-16 text-center">
+      <p className="text-5xl">📊</p>
+      <p className="mt-4 text-sm text-mx-muted">아직 분석 이력이 없습니다. 「⚡ 지금 분석하기」를 눌러 첫 결과를 만들어 보세요.</p>
     </div>
   );
 }

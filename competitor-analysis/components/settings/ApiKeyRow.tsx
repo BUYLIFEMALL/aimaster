@@ -51,21 +51,21 @@ export function ApiKeyRow({
   const showForm = !maskedValue || isEditing;
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+    <div className="rounded-xl border border-mx-border bg-mx-raised p-4">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-gray-800">{label}</p>
+        <p className="text-sm font-semibold text-mx-text">{label}</p>
         {maskedValue && !isEditing && (
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-xs text-green-600 hover:text-green-800"
+              className="min-h-[36px] text-xs font-semibold text-mx-success hover:underline"
             >
               수정
             </button>
             <form action={deleteApiKeyAction}>
               <input type="hidden" name="provider" value={provider} />
-              <button type="submit" className="text-xs text-red-500 hover:text-red-700">
+              <button type="submit" className="min-h-[36px] text-xs font-semibold text-mx-danger hover:underline">
                 삭제
               </button>
             </form>
@@ -81,12 +81,12 @@ export function ApiKeyRow({
             type="password"
             placeholder={maskedValue ? `새 키 입력 (현재: ${maskedValue})` : "API 키 입력"}
             autoComplete="new-password"
-            className="input-sm flex-1 min-w-[200px]"
+            className="input-sm min-h-[44px] min-w-[200px] flex-1"
           />
           <button
             type="submit"
             disabled={isPending}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 disabled:opacity-60 transition-colors"
+            className="mx-btn-primary"
           >
             {isPending ? "저장 중..." : "저장"}
           </button>
@@ -98,28 +98,28 @@ export function ApiKeyRow({
                 setError(null);
                 setSuccess(false);
               }}
-              className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+              className="mx-btn-ghost"
             >
               취소
             </button>
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-gray-500">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-sm text-mx-muted">{maskedValue} · <span className="text-mx-success">등록됨</span></p>
       )}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-      {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {error && <p className="mt-1 text-xs text-mx-danger">{error}</p>}
+      {success && <p className="mt-1 text-xs text-mx-success">저장되었습니다.</p>}
       {helpUrl && (
         <div className="mt-2">
-          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">
+          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-[#93c5fd] hover:underline">
             {helpLabel ?? "API 키 발급받기"}
           </a>
           {helpHighlight && (
-            <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-bold text-emerald-700">
+            <p className="mx-chip-green mt-1.5">
               🎁 {helpHighlight}
             </p>
           )}
-          {helpDescription && <p className="mt-1 text-xs text-gray-400">{helpDescription}</p>}
+          {helpDescription && <p className="mt-1 text-xs text-mx-muted">{helpDescription}</p>}
         </div>
       )}
     </div>

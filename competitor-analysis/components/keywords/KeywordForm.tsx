@@ -13,14 +13,16 @@ export function KeywordForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // React 이벤트의 currentTarget은 await 이후에는 유지되지 않는다.
+    const form = e.currentTarget;
     setError(null);
     setIsPending(true);
     try {
-      const result = await createKeywordAction(new FormData(e.currentTarget));
+      const result = await createKeywordAction(new FormData(form));
       if (result.error) {
         setError(result.error);
       } else {
-        (e.currentTarget as HTMLFormElement).reset();
+        form.reset();
         router.refresh();
       }
     } finally {
@@ -29,7 +31,8 @@ export function KeywordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3">
+    <form onSubmit={handleSubmit} className="mx-card space-y-3">
+      <p className="text-sm font-bold text-mx-text">🔍 새 키워드</p>
       <div className="flex flex-wrap gap-2">
         <input
           name="keyword"
@@ -41,7 +44,7 @@ export function KeywordForm() {
           name="engine"
           value={engine}
           onChange={(e) => setEngine(e.target.value as "google" | "naver")}
-          className="input-sm w-28"
+          className="input-sm min-h-[48px] w-28"
         >
           <option value="google">구글</option>
           <option value="naver">네이버</option>
@@ -49,7 +52,7 @@ export function KeywordForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
+          className="mx-btn-primary min-h-[48px] px-5"
         >
           {isPending ? "추가 중..." : "+ 키워드 추가"}
         </button>
@@ -59,30 +62,30 @@ export function KeywordForm() {
         <button
           type="button"
           onClick={() => setShowAdvanced((v) => !v)}
-          className="text-xs font-semibold text-blue-600 hover:underline"
+          className="min-h-[36px] text-xs font-semibold text-[#93c5fd] hover:underline"
         >
           {showAdvanced ? "▲ 세부 옵션 닫기" : "▼ 세부 옵션 (지역/언어, 선택)"}
         </button>
       )}
 
       {engine === "google" && showAdvanced && (
-        <div className="flex flex-wrap gap-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+        <div className="flex flex-wrap gap-3 rounded-xl border border-mx-border bg-mx-raised p-3">
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">지역</label>
+            <label className="mb-1 block text-xs font-semibold text-mx-muted">지역</label>
             <input name="location" defaultValue="South Korea" className="input-sm w-40" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">구글 도메인</label>
+            <label className="mb-1 block text-xs font-semibold text-mx-muted">구글 도메인</label>
             <input name="googleDomain" defaultValue="google.com" className="input-sm w-40" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">언어</label>
+            <label className="mb-1 block text-xs font-semibold text-mx-muted">언어</label>
             <input name="lang" defaultValue="ko" className="input-sm w-24" />
           </div>
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="rounded-lg border border-mx-danger px-3 py-2 text-sm text-mx-danger">{error}</p>}
     </form>
   );
 }

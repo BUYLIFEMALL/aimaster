@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { CompetitorToggle } from "@/components/keywords/CompetitorToggle";
 import { ReportButton } from "@/components/keywords/ReportButton";
 import type { ResultType } from "@/types/database.types";
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { CopyButton } from "@/components/ui/CopyButton";
+import { formatDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120; // ReportButton의 Claude 리포트 생성 액션이 오래 걸릴 수 있음
@@ -70,20 +73,32 @@ export default async function JobDetailPage({ params }: PageProps) {
     grouped.set(r.result_type, list);
   }
 
+  const trackedHere = domains.filter((d) => trackedDomains.has(d)).length;
+
   return (
     <div className="space-y-6">
-      <p className="text-xs text-gray-400">
-        🕒 {new Date(job.executed_at).toLocaleString("ko-KR")} · 총 검색결과 {job.total_results?.toLocaleString() ?? "-"}건
+      <p className="text-xs text-mx-muted">
+        🕒 {formatDateTime(job.executed_at)} 분석 · 총 검색결과 {job.total_results?.toLocaleString() ?? "-"}건
       </p>
 
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <KpiCard icon="🔵" label="자연 검색결과" value={grouped.get("organic")?.length ?? 0} />
+        <KpiCard icon="🟡" label="광고" value={grouped.get("ad")?.length ?? 0} tone="amber" />
+        <KpiCard icon="🏢" label="등장 도메인" value={domains.length} tone="muted" />
+        <KpiCard icon="⭐" label="내 경쟁사로 표시" value={trackedHere} tone="green" />
+      </div>
+
       {analysis?.summary_text && (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3">
-          <h2 className="font-bold text-gray-900">🤖 AI 분석 리포트</h2>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{analysis.summary_text}</p>
+        <div className="mx-card space-y-3 border-l-4 border-l-mx-accent">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="mx-section-title mb-0">🤖 AI 분석 리포트</h2>
+            <CopyButton text={analysis.summary_text} label="리포트 복사" />
+          </div>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-mx-text">{analysis.summary_text}</p>
           <ReportButton analysisId={analysis.id} hasReport={!!analysis.html_report} />
           {analysis.html_report && (
-            <div className="rounded-xl border border-gray-200 overflow-hidden">
-              <iframe srcDoc={analysis.html_report} className="w-full h-[600px]" sandbox="" title="HTML 리포트" />
+            <div className="overflow-hidden rounded-xl border border-mx-border bg-white">
+              <iframe srcDoc={analysis.html_report} className="h-[600px] w-full" sandbox="" title="HTML 리포트" />
             </div>
           )}
         </div>
@@ -93,31 +108,53 @@ export default async function JobDetailPage({ params }: PageProps) {
         const items = grouped.get(type);
         if (!items || items.length === 0) return null;
         return (
-          <div key={type} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-900 mb-3">{TYPE_LABEL[type]}</h2>
-            <div className="space-y-3">
-              {items.map((item) => (
-                <div key={item.id} className="border-b border-gray-50 last:border-0 pb-3 last:pb-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
-                        {item.position ? `${item.position}. ` : ""}
-                        {item.title ?? "(제목 없음)"}
-                      </p>
-                      {item.domain && (
-                        <p className="text-xs text-blue-600 mt-0.5">
-                          {item.domain}
-                          {companyNameByDomain.get(item.domain) && ` · ${companyNameByDomain.get(item.domain)}`}
-                        </p>
-                      )}
-                      {item.snippet && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.snippet}</p>}
-                    </div>
-                    {item.domain && (
-                      <CompetitorToggle domain={item.domain} tracked={trackedDomains.has(item.domain)} />
-                    )}
-                  </div>
-                </div>
-              ))}
+          <div key={type} className="mx-card">
+            <h2 className="mx-section-title">
+              {TYPE_LABEL[type]} <span className="mx-chip px-2 py-0 text-[11px]">{items.length}</span>
+            </h2>
+            <div className="-mx-5 overflow-x-auto px-5">
+              <table className="mx-table min-w-[620px]">
+                <thead>
+                  <tr>
+                    <th className="w-12 text-center">순위</th>
+                    <th>제목 · 요약</th>
+                    <th className="w-[30%]">도메인 · 회사</th>
+                    <th className="w-36 text-right">경쟁사</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => (
+                    <tr key={item.id}>
+                      <td className="text-center font-mono font-bold text-mx-muted">{item.position ?? "—"}</td>
+                      <td>
+                        {item.link && /^https?:\/\//i.test(item.link) ? (
+                          <a href={item.link} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-[#93c5fd]">
+                            {item.title ?? "(제목 없음)"}
+                          </a>
+                        ) : (
+                          <span className="font-semibold">{item.title ?? "(제목 없음)"}</span>
+                        )}
+                        {item.snippet && <p className="mt-1 line-clamp-2 text-xs text-mx-muted">{item.snippet}</p>}
+                      </td>
+                      <td>
+                        {item.domain ? (
+                          <>
+                            <p className="font-mono text-xs text-[#93c5fd]">{item.domain}</p>
+                            {companyNameByDomain.get(item.domain) && (
+                              <p className="text-xs text-mx-muted">{companyNameByDomain.get(item.domain)}</p>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-xs text-mx-muted">—</span>
+                        )}
+                      </td>
+                      <td className="text-right">
+                        {item.domain && <CompetitorToggle domain={item.domain} tracked={trackedDomains.has(item.domain)} />}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         );

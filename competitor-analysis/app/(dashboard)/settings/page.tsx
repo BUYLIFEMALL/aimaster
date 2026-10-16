@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { PageHero } from "@/components/layout/PageHero";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
@@ -60,21 +61,25 @@ export default async function SettingsPage() {
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="mb-2 text-2xl font-black text-gray-900">API 키 설정</h1>
-      <p className="mb-6 text-sm text-gray-500">
+    <div className="mx-auto max-w-3xl">
+      <PageHero
+        badge="🔑 API키등록·플랫폼연동"
+        title="API 키 설정"
+        description="SerpApi·Perplexity·OpenAI는 분석에 필요하고, Anthropic은 보기 좋은 HTML 리포트를 만들 때만 씁니다. 모두 회원님 본인 키로 동작합니다."
+      />
+      <p className="mb-6 text-sm leading-relaxed text-mx-muted">
         경쟁사 키워드 분석에는 본인의 SerpApi(구글/네이버 검색결과 조회) 키가 필요합니다.{" "}
-        <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
+        <span className="font-semibold text-mx-text">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
         등록하지 않은 상태로 분석을 시도하면 등록 안내가 뜨고 막힙니다. Perplexity/OpenAI는 경쟁사
         리서치와 분석 리포트 작성에 쓰이고, Anthropic은 리포트를 보기 좋은 HTML로 변환하는
         선택 기능에만 쓰입니다(등록 안 해도 분석 자체는 정상 동작).
       </p>
       <div className="space-y-5">
         {SECTIONS.map((section) => (
-          <div key={section.title} className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+          <div key={section.title} className="mx-card p-4">
             <div className="mb-3">
-              <h2 className="text-sm font-bold text-gray-900">{section.title}</h2>
-              <p className="text-xs text-gray-500">{section.description}</p>
+              <h2 className="text-sm font-bold text-mx-text">{section.title}</h2>
+              <p className="text-xs text-mx-muted">{section.description}</p>
             </div>
             <div className="space-y-3">
               {section.providers.map((provider) => (
@@ -94,10 +99,10 @@ export default async function SettingsPage() {
         ))}
       </div>
 
-      <div className="mt-5 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mx-card mt-5 p-4">
         <div className="mb-3">
-          <h2 className="text-sm font-bold text-gray-900">📖 연동 매뉴얼</h2>
-          <p className="text-xs text-gray-500">
+          <h2 className="text-sm font-bold text-mx-text">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-mx-muted">
             이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할 수
             있습니다.
           </p>

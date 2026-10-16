@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { deleteJobAction } from "@/lib/actions/keywords";
+import { formatDateTime } from "@/lib/format";
 
-interface AnalysisListItemProps {
+export interface AnalysisListItemProps {
   keywordId: string;
   jobId: string;
   keywordText: string;
@@ -14,19 +15,12 @@ interface AnalysisListItemProps {
   summaryPreview: string | null;
 }
 
-export function AnalysisListItem({
-  keywordId,
-  jobId,
-  keywordText,
-  executedAt,
-  totalResults,
-  summaryPreview,
-}: AnalysisListItemProps) {
+export function JobDeleteButton({ keywordId, jobId }: { keywordId: string; jobId: string }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
-  const dt = new Date(executedAt);
 
   async function handleDelete() {
+    if (!window.confirm("이 분석 결과를 삭제할까요?")) return;
     setIsDeleting(true);
     try {
       await deleteJobAction(keywordId, jobId);
@@ -37,25 +31,28 @@ export function AnalysisListItem({
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-start justify-between gap-3">
+    <button type="button" onClick={handleDelete} disabled={isDeleting} className="mx-btn-danger">
+      {isDeleting ? "삭제 중..." : "삭제"}
+    </button>
+  );
+}
+
+// 카드 보기용 분석 결과 카드
+export function AnalysisListItem({ keywordId, jobId, keywordText, executedAt, totalResults, summaryPreview }: AnalysisListItemProps) {
+  return (
+    <div className="mx-card flex flex-col gap-3 p-4">
       <Link href={`/keywords/${keywordId}/jobs/${jobId}`} className="min-w-0 flex-1">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-bold text-gray-900">{keywordText}</p>
-          <span className="text-xs text-gray-400">
-            🕒 {dt.toLocaleDateString("ko-KR")} {dt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
-          </span>
+        <p className="font-bold text-mx-text hover:text-[#93c5fd]">{keywordText}</p>
+        <p className="mt-0.5 text-xs text-mx-muted">🕒 {formatDateTime(executedAt)}</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <span className="mx-chip-blue">🔎 검색결과 {totalResults?.toLocaleString() ?? "-"}건</span>
+          {summaryPreview ? <span className="mx-chip-green">🤖 리포트 있음</span> : <span className="mx-chip">리포트 없음</span>}
         </div>
-        <p className="text-xs text-gray-400 mt-0.5">총 검색결과 {totalResults?.toLocaleString() ?? "-"}건</p>
-        {summaryPreview && <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">{summaryPreview}</p>}
+        {summaryPreview && <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-mx-muted">{summaryPreview}</p>}
       </Link>
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={isDeleting}
-        className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-500 border border-red-100 bg-red-50 hover:bg-red-100 disabled:opacity-60"
-      >
-        {isDeleting ? "삭제 중..." : "삭제"}
-      </button>
+      <div className="flex justify-end">
+        <JobDeleteButton keywordId={keywordId} jobId={jobId} />
+      </div>
     </div>
   );
 }
