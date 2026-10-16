@@ -1,5 +1,42 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — 음악(SUNO)자동화 v1.08: 가이드북(/guide) 전면 신설 및 사이드바 연동 완료
+
+- **대상 프로그램**: `music/` (slug: `music-automation`, `https://music-rho-virid-22.vercel.app/guide`)
+- **주인님 지시**:
+  - "https://music-rho-virid-22.vercel.app/ 좌츠게 사용방법 메뉴얼 메뉴와 매뉴얼페이지 작업이 안되어 있어"
+- **완료 내용**:
+  1. **사이드바 유틸리티 메뉴 보강 및 계정 밀착 배치 (`Sidebar.tsx`)**:
+     - `UTILITY_ITEMS`에 `📚 연동 & 사용 안내` (`/guide`) 메뉴 신설 및 오렌지 틴트 액센트 적용.
+     - 접속 계정 정보 및 로그아웃 버튼을 유틸리티 메뉴 바로 아래(`border-t border-[#23232f] pt-3 px-1`)에 바짝 밀착 배치 (최신 사이드바 표준 반영).
+  2. **가이드북 라우트 신설 (`app/(dashboard)/guide/page.tsx`)**:
+     - `requireProgramAccess()` 보안 권한 체크 적용 (일반 회원 및 구독/이용권한 검증).
+     - 상단 헤더 배너: "🎵 Suno AI 음악 자동화 사용 가이드북" 및 "Cyber Suno Studio Guide" 배지 구축.
+  3. **3대 인터랙티브 탭 컴포넌트 신설 (`MusicUsageGuide.tsx`)**:
+     - `📋 4단계 실전 마스터 가이드`: STEP 00 (API키 등록) ➔ STEP 01 (새 음악 기획) ➔ STEP 02 (Suno AI 2트랙 동시 생성 & 실시간 스트리밍 재생) ➔ STEP 03 (프로 후가공: 곡 연장 Extend, MR/보컬 분리, 방송용 24-bit 무손실 WAV 추출) ➔ STEP 04 (음악 Remix 스튜디오: 새로운 장르 리메이크).
+     - `🎛️ Suno 스타일 & 메타 태그 비법`: 4대 인기 스타일 프리셋 코드 블록 및 6대 가사 메타 태그(`[Intro]`, `[Verse]`, `[Pre-Chorus]`, `[Chorus]`, `[Bridge]`, `[Outro]`) 아코디언 탑재.
+     - `💡 사운드 꿀팁 & FAQ`: 4대 프로 사운드 꿀팁(한글 발음 최적화, 곡 연장 이음매 맞추기 등) 및 5대 트러블슈팅 FAQ 아코디언 탑재.
+  4. **버전 및 DB 동기화**:
+     - `music/lib/version.ts`: `APP_VERSION = "v1.08"`
+     - Supabase 공유 DB: `programs.version = 'v1.08'` (slug: `music-automation`) 업데이트 완료.
+  5. **빌드 및 Vercel 프로덕션 배포**:
+     - `npm run build`: 11개 라우트 정상 컴파일 완료.
+     - Vercel 프로덕션 배포 완료: Deployment `dpl_BX2dEv8K8btS5SEcTbXSDEu6N84E` (`https://music-rho-virid-22.vercel.app`, HTTP 200).
+  6. **Microsoft Edge (엣지) 전용 실세션 검수 완료 (4장 아티팩트)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 주입 후 검수:
+       - 데스크톱 매뉴얼 탭 1 (4단계 실전 가이드 & 사이드바 메뉴/계정 밀착): `edge_music_guide_steps_v108.png` (1440 × 900)
+       - 데스크톱 매뉴얼 탭 2 (스타일 & 메타 태그 비법): `edge_music_guide_styles_v108.png` (1440 × 900)
+       - 데스크톱 매뉴얼 탭 3 (사운드 꿀팁 & FAQ): `edge_music_guide_faq_v108.png` (1440 × 900)
+       - 모바일 375px 반응형 뷰: `edge_music_guide_mobile_v108.png` (375 × 812)
+- **산출물 문서**:
+  - [`music/docs/DESIGN_HANDOFF.md`](../music/docs/DESIGN_HANDOFF.md)
+  - [`music/docs/IMPROVEMENTS.md`](../music/docs/IMPROVEMENTS.md)
+  - [`music/docs/PLAN_20261016_GUIDE_PAGE.md`](../music/docs/PLAN_20261016_GUIDE_PAGE.md)
+  - [`music/AGENTS.md`](../music/AGENTS.md)
+  - 루트 [`DESIGN.md`](../DESIGN.md) (54번 v1.08 갱신)
+- **비용**: 0원 (유료 API 호출 미사용).
+- **남은 작업**: 없음.
+
 ## 2026-10-16 Antigravity(Windows) — AI 상세페이지 자동화 v1.08: 가이드북(/guide) 전면 고도화 및 5단계 실전 매뉴얼 구축 완료
 
 - **대상 프로그램**: `shop-detail-page/` (slug: `shop-detail-page`, `https://shop-detail-page.vercel.app/guide`)

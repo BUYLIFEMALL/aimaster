@@ -114,7 +114,7 @@
 | 51 | 예약(취소)방지 리마인드 | `booking-reminder` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `booking-reminder/AGENTS.md` |
 | 52 | 구글폼 CRM 자동화 | `crm-google-form` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `crm-google-form/AGENTS.md` |
 | 53 | 대량 메일발송 자동화 | `stepmail` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `stepmail/AGENTS.md` |
-| 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | 🟢 완료 (`v1.07`) | `music/docs/DESIGN_HANDOFF.md` |
+| 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | 🟢 완료 (`v1.08`) | [`music/docs/DESIGN_HANDOFF.md`](music/docs/DESIGN_HANDOFF.md) |
 | 55 | 상세페이지 자동화(15p) | `shop-detail-page` | **이커머스 셀러 스튜디오 스타일** | 퓨어 화이트 (`#ffffff` + 블루 `#2563eb`·오렌지 `#f97316`) | 🟢 완료 (`v1.08`) | [`shop-detail-page/docs/DESIGN_HANDOFF.md`](shop-detail-page/docs/DESIGN_HANDOFF.md) |
 | 56 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `insta-auto-poster/AGENTS.md` |
 | 57 | 부동산 실거래 투자분석 | `real-estate-sales` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 예정 | `real-estate-sales/AGENTS.md` |

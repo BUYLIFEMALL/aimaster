@@ -33,6 +33,7 @@ const FLOW_STEPS = [
 
 const UTILITY_ITEMS = [
   { href: "/settings", icon: "🔑", label: "API 키 등록 · 플랫폼 연동" },
+  { href: "/guide", icon: "📚", label: "연동 & 사용 안내" },
 ];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
@@ -136,23 +137,44 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         {/* 유틸리티 설정 메뉴 */}
         <div className="mt-6 border-t border-[#23232f] pt-4">
           <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 px-1">PREFERENCES</p>
-          {UTILITY_ITEMS.map((item) => {
-            const isActive = pathname?.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all border ${
-                  isActive
-                    ? "bg-orange-500/10 border-orange-500/30 text-orange-400"
-                    : "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-[#181822] hover:border-[#272732]"
-                }`}
-              >
-                <span className="text-sm">{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          <div className="space-y-1">
+            {UTILITY_ITEMS.map((item) => {
+              const isActive = pathname?.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all border ${
+                    isActive
+                      ? "bg-orange-500/10 border-orange-500/30 text-orange-400"
+                      : "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-[#181822] hover:border-[#272732]"
+                  }`}
+                >
+                  <span className="text-sm">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 접속 계정 정보 및 로그아웃 — 유틸리티 메뉴 밑 밀착 배치 (2026-10-16 주인님 지시) */}
+        <div className="mt-4 border-t border-[#23232f] pt-3 px-1">
+          <div className="flex items-center justify-between mb-2">
+            <div className="min-w-0 pr-2">
+              <p className="text-[10px] text-zinc-400">접속 계정</p>
+              <p className="truncate text-xs font-semibold text-zinc-300">{userEmail}</p>
+            </div>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20 shrink-0" title="연결됨" />
+          </div>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="w-full rounded-xl py-2 px-3 text-center text-xs font-bold text-zinc-400 border border-[#272732] bg-[#16161f] hover:bg-[#1e1e2b] hover:text-rose-400 hover:border-rose-500/30 transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>로그아웃</span>
+            </button>
+          </form>
         </div>
 
         {/* Suno Creator 바로가기 배너 카드 */}
@@ -165,25 +187,6 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             고품질 보컬/악기 분리, 고음질 WAV 추출 및 멀티스타일 리믹스를 완벽 지원합니다.
           </p>
         </div>
-      </div>
-
-      {/* 하단 로그인 계정 정보 및 로그아웃 */}
-      <div className="mt-auto shrink-0 border-t border-[#23232f] pt-4 px-1">
-        <div className="flex items-center justify-between mb-2">
-          <div className="min-w-0 pr-2">
-            <p className="text-[10px] text-zinc-400">접속 계정</p>
-            <p className="truncate text-xs font-semibold text-zinc-300">{userEmail}</p>
-          </div>
-          <div className="w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20 shrink-0" title="연결됨" />
-        </div>
-        <form action={signOutAction}>
-          <button
-            type="submit"
-            className="w-full rounded-xl py-2 px-3 text-center text-xs font-bold text-zinc-400 border border-[#272732] bg-[#16161f] hover:bg-[#1e1e2b] hover:text-rose-400 hover:border-rose-500/30 transition-all"
-          >
-            로그아웃
-          </button>
-        </form>
       </div>
     </aside>
   );

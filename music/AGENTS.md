@@ -161,4 +161,32 @@ POST 콜백을 보낸다. 이 라우트는:
   - 개선사항 목록: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
   - **Suno v6 모델 연동 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) (v6 파라미터 연동 및 UI 선택 기능 미구현 분석 및 구현 가이드 포함)
 
+## 2026-10-16 가이드북(/guide) 전면 신설 및 사이드바 연동 — v1.08 (music-automation)
+
+- **주인님 지시**:
+  - "https://music-rho-virid-22.vercel.app/ 좌츠게 사용방법 메뉴얼 메뉴와 매뉴얼페이지 작업이 안되어 있어"
+- **주요 작업 내용**:
+  1. **사이드바 유틸리티 메뉴 보강 및 계정 밀착 배치 (`components/layout/Sidebar.tsx`)**:
+     - `UTILITY_ITEMS`에 `📚 연동 & 사용 안내` (`/guide`) 메뉴 신설 및 오렌지 틴트 액센트 적용.
+     - 접속 계정 정보 및 로그아웃 버튼을 유틸리티 메뉴 바로 아래(`border-t border-[#23232f] pt-3 px-1`)에 바짝 밀착 배치 (최신 사이드바 표준 완벽 준수).
+  2. **가이드북 라우트 신설 (`app/(dashboard)/guide/page.tsx`)**:
+     - `requireProgramAccess()` 탑재로 회원 세션 및 등급/이용권한 철저 검증.
+     - 상단 헤더 배너: "🎵 Suno AI 음악 자동화 사용 가이드북" 및 "Cyber Suno Studio Guide" 배지 탑재.
+  3. **3대 인터랙티브 탭 컴포넌트 신설 (`components/guide/MusicUsageGuide.tsx`)**:
+     - `📋 4단계 실전 마스터 가이드`: STEP 00 (API키등록) ➔ STEP 01 (새 음악 기획) ➔ STEP 02 (Suno AI 생성·2트랙 동시생성) ➔ STEP 03 (프로 후가공: 곡 연장 Extend, MR/보컬 분리, 방송용 무손실 WAV 추출) ➔ STEP 04 (음악 Remix 스튜디오).
+     - `🎛️ Suno 스타일 & 메타 태그 비법`: 4대 인기 스타일 프리셋 코드 블록 및 6대 가사 메타 태그(`[Intro]`, `[Verse]`, `[Pre-Chorus]`, `[Chorus]`, `[Bridge]`, `[Outro]`) 아코디언 탑재.
+     - `💡 사운드 꿀팁 & FAQ`: 프로 사운드 4대 꿀팁(한글 발음 최적화, 곡 연장 이음매 맞추기 등) 및 5대 트러블슈팅 FAQ 아코디언 탑재.
+  4. **버전 및 DB 동기화**:
+     - 코드 `lib/version.ts`: `APP_VERSION = "v1.08"`
+     - Supabase 공유 DB: `programs.version = 'v1.08'` (slug: `music-automation`) 업데이트 완료.
+- **배포 및 검수**:
+  - Vercel 프로덕션 배포 완료 (`dpl_BX2dEv8K8btS5SEcTbXSDEu6N84E`, `https://music-rho-virid-22.vercel.app`).
+  - Microsoft Edge (`msedge.exe`) 전용 실세션(`buylifemall@naver.com`) 검수 완료:
+    - `edge_music_guide_steps_v108.png` (4단계 가이드 & 사이드바 메뉴/계정 밀착)
+    - `edge_music_guide_styles_v108.png` (스타일 & 메타 태그 비법)
+    - `edge_music_guide_faq_v108.png` (사운드 꿀팁 & FAQ)
+    - `edge_music_guide_mobile_v108.png` (모바일 375px)
+- **라이브 URL**: `https://music-rho-virid-22.vercel.app/guide`
+
+
 
