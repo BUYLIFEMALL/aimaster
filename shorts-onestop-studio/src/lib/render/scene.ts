@@ -1,7 +1,8 @@
 // 세로 쇼츠 장면 렌더러(1080×1920, 30fps 기준). 미리보기(P3)와 MP4 출력(P6)이 같은 함수를 쓴다.
 // 순수 캔버스 그리기 — 참고 원본의 영상 합성 라이브러리(Remotion)를 쓰지 않고 새로 만들었다.
 // 둥근 사각형 그리기는 yt-playlist-studio/src/lib/render/color-utils.ts의 drawRoundRect 패턴을 따랐다.
-import { normalizeBackdrop, type Bg, type ShortsScript } from "@/lib/script";
+import { normalizeBackdrop, sceneVoices, type Bg, type ShortsScript } from "@/lib/script";
+import { captionChunks, normalizeAudio } from "@/lib/voice";
 
 export const W = 1080, H = 1920, FPS = 30;
 
@@ -54,16 +55,39 @@ export function normalizeDesign(d: Partial<Design> | undefined): Design {
   };
 }
 
-// ── 타임라인: 음성이 붙기 전(P5)에는 내레이션 글자 수로 길이를 어림한다(한국어 약 7자/초) ──
-export interface Segment { kind: "intro" | "card" | "outro"; index: number; start: number; dur: number }
+// ── 타임라인: 장면 음성이 있으면 그 길이 + 0.5초, 없으면 내레이션 글자 수로 어림(한국어 약 7자/초) ──
+export interface Segment { kind: "intro" | "card" | "outro"; index: number; start: number; dur: number; voiceDur?: number }
 const est = (text: string, min: number) => Math.max(min, Math.round((text.replace(/\s/g, "").length / 7 + 0.8) * 10) / 10);
+export const LEAD = 0.25; // 장면이 시작되고 목소리가 나오기까지(초)
 export function timeline(s: ShortsScript): { segs: Segment[]; total: number } {
-  const segs: Segment[] = []; let t = 0;
-  const push = (kind: Segment["kind"], index: number, dur: number) => { segs.push({ kind, index, start: t, dur }); t += dur; };
-  push("intro", 0, est(s.intro.narration || s.intro.title, 3));
-  s.cards.forEach((c, i) => push("card", i, est(c.narration || c.title, 3)));
-  push("outro", 0, est(s.outro.narration || s.outro.title, 4));
-  return { segs, total: Math.round(t * 10) / 10 };
+  const segs: Segment[] = []; let t = 0; const vs = sceneVoices(s);
+  const push = (kind: Segment["kind"], index: number, fallback: string, min: number, v?: { dur: number }) => {
+    const dur = v ? Math.max(min - 0.5, Math.round((LEAD + v.dur + 0.5) * 100) / 100) : est(fallback, min);
+    segs.push({ kind, index, start: t, dur, voiceDur: v?.dur }); t += dur;
+  };
+  push("intro", 0, s.intro.narration || s.intro.title, 3, vs[0].voice);
+  s.cards.forEach((c, i) => push("card", i, c.narration || c.title, 3, vs[i + 1].voice));
+  push("outro", 0, s.outro.narration || s.outro.title, 4, vs[vs.length - 1].voice);
+  return { segs, total: Math.round(t * 100) / 100 };
+}
+
+/** 자막: 내레이션 조각을 글자 수 비율로 목소리 길이에 나눠 배치(정확한 단어 시각이 없는 TTS용 근사) */
+function drawCaption(ctx: CanvasRenderingContext2D, s: ShortsScript, seg: Segment, u: number, accent: string) {
+  const a = normalizeAudio(s.audio); if (!a.captions.on) return;
+  const text = seg.kind === "intro" ? s.intro.narration : seg.kind === "outro" ? s.outro.narration : s.cards[seg.index]?.narration;
+  if (!text) return;
+  const chunks = captionChunks(text); const span = seg.voiceDur ?? Math.max(0.5, seg.dur - 0.6); const t0 = seg.voiceDur ? LEAD : 0.3;
+  const total = chunks.reduce((n, c) => n + c.length, 0) || 1; let acc = 0; let cur = "";
+  for (const c of chunks) { const st = t0 + (acc / total) * span; acc += c.length; const en = t0 + (acc / total) * span; if (u >= st && u < en) { cur = c; break; } }
+  if (!cur) return;
+  const px = Math.round(58 * a.captions.size), y = H - a.captions.y;
+  ctx.save(); ctx.font = `800 ${px}px "Noto Sans KR", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  const w = Math.min(W - 80, ctx.measureText(cur).width + 70), h = px * 1.55;
+  if (a.captions.style === "band") { ctx.fillStyle = "rgba(0,0,0,0.62)"; roundRect(ctx, (W - w) / 2, y - h / 2, w, h, 18); ctx.fill(); ctx.fillStyle = "#ffffff"; ctx.fillText(cur, W / 2, y + 2); }
+  else if (a.captions.style === "yellow") { ctx.lineWidth = 10; ctx.lineJoin = "round"; ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.strokeText(cur, W / 2, y); ctx.fillStyle = "#fde047"; ctx.fillText(cur, W / 2, y); }
+  else if (a.captions.style === "outline") { ctx.lineWidth = 12; ctx.lineJoin = "round"; ctx.strokeStyle = "#000000"; ctx.strokeText(cur, W / 2, y); ctx.fillStyle = "#ffffff"; ctx.fillText(cur, W / 2, y); }
+  else { ctx.fillStyle = accent; roundRect(ctx, (W - w) / 2, y - h / 2, w, h, h / 2); ctx.fill(); ctx.fillStyle = "#111827"; ctx.fillText(cur, W / 2, y + 2); }
+  ctx.restore();
 }
 export function segmentAt(segs: Segment[], t: number): Segment {
   return segs.find((g) => t >= g.start && t < g.start + g.dur) ?? segs[segs.length - 1];
@@ -212,6 +236,7 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
     }
   }
   ctx.restore();
+  ctx.save(); ctx.globalAlpha = out; drawCaption(ctx, s, seg, u, th.accent); ctx.restore();
   if (opts.safe) drawSafeArea(ctx);
 }
 
@@ -227,11 +252,12 @@ export function drawSafeArea(ctx: CanvasRenderingContext2D) {
 /** 웹 글꼴은 글자 묶음(unicode-range)별로 나뉘어 받아진다 — 그리기 전에 대본에 실제로 쓰인 글자로 미리 불러온다(미리보기·MP4 공통) */
 export async function loadFontsFor(s: ShortsScript, d: Design): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
-  const text = Array.from(new Set([s.intro.eyebrow, s.intro.title, ...s.cards.flatMap((c) => [c.tag ?? "", c.title, c.desc]), s.outro.title, s.outro.subtitle, ...s.outro.cta, "끝까지 보면 확실히 알게 됩니다 ↓ 구독 좋아요 0123456789", "유튜브 화면 가림 영역"].join(""))).join("");
+  const text = Array.from(new Set([s.intro.eyebrow, s.intro.title, ...s.cards.flatMap((c) => [c.tag ?? "", c.title, c.desc]), s.outro.title, s.outro.subtitle, ...s.outro.cta, s.intro.narration, ...s.cards.map((c) => c.narration), s.outro.narration, "끝까지 보면 확실히 알게 됩니다 ↓ 구독 좋아요 0123456789", "유튜브 화면 가림 영역"].join(""))).join("");
   const f = FONTS[d.font];
   await Promise.all([
     document.fonts.load(`${f.weight} 64px "${f.family}"`, text),
     document.fonts.load(`700 40px "Noto Sans KR"`, text),
     document.fonts.load(`900 64px "Noto Sans KR"`, text),
+    document.fonts.load(`800 58px "Noto Sans KR"`, text),
   ].map((p) => p.catch(() => [])));
 }

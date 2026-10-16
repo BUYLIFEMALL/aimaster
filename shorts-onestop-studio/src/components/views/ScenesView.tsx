@@ -5,6 +5,7 @@ import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
 import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
 import { useMedia } from "@/components/ui/useMedia";
+import { useAudio } from "@/components/ui/useAudio";
 import type { ShortsScript } from "@/lib/script";
 import { EFFECTS, FONTS, FONT_CSS, H, LAYOUTS, THEMES, W, loadFontsFor, normalizeDesign, renderFrame, segmentAt, timeline, type Design } from "@/lib/render/scene";
 
@@ -29,6 +30,7 @@ export function ScenesView() {
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [dirty, setDirty] = useState(false);
   const canvas = useRef<HTMLCanvasElement>(null);
   const media = useMedia(item?.data);
+  const audio = useAudio(item?.data);
   const tRef = useRef(0);
 
   const onFonts = useCallback(() => setFontTick((n) => n + 1), []);
@@ -62,17 +64,17 @@ export function ScenesView() {
   useEffect(() => { draw(tRef.current); }, [draw, fontTick, media.tick]);
 
   useEffect(() => {
-    if (!playing || !tl) return;
+    if (!playing || !tl) { audio.stopAll(); return; }
     let raf = 0, last = performance.now();
     const loop = (now: number) => {
       tRef.current += (now - last) / 1000; last = now;
       if (tRef.current >= tl.total) tRef.current = 0;
-      draw(tRef.current); setT(tRef.current);
+      draw(tRef.current); setT(tRef.current); audio.sync(tRef.current, true);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [playing, tl, draw]);
+    return () => { cancelAnimationFrame(raf); audio.stopAll(); };
+  }, [playing, tl, draw, audio]);
 
   function seek(v: number) { tRef.current = v; setT(v); draw(v); }
   function change(patch: Partial<Design>) { setDesign((d) => ({ ...d, ...patch })); setDirty(true); }
@@ -117,7 +119,7 @@ export function ScenesView() {
                 {tl.segs.map((g) => <button key={`${g.kind}${g.index}`} type="button" className={`chip ${cur === g ? "on" : ""}`} onClick={() => seek(g.start + 0.6)}>{segLabel(g.kind, g.index)}</button>)}
                 <button type="button" className={`chip ${safe ? "on" : ""}`} onClick={() => setSafe((v) => !v)}><ScanLine size={13} />세이프에어리어</button>
               </div>
-              <small className="muted">장면 길이는 지금은 내레이션 글자 수로 어림합니다(약 7자/초). 음성 단계가 열리면 실제 목소리 길이에 맞춰집니다.</small>
+              <small className="muted">음성을 만든 장면은 실제 목소리 길이로, 아직 없는 장면은 내레이션 글자 수로 어림합니다(🎙️ 음성·자막·영상에서 만들기).</small>
             </section>
             <aside className="card stack panel">
               <div className="row" style={{ justifyContent: "space-between" }}><h2>🎨 장면 디자인</h2>{dirty && <span className="badge brand">저장 안 됨</span>}</div>

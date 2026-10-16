@@ -9,7 +9,7 @@ const FLOW = [
   { emoji: "💡", title: "주제·대본", desc: "분야 → 주제 추천 → AI 대본", state: "사용 가능" },
   { emoji: "🎨", title: "배경", desc: "스톡 영상·사진 · AI 이미지", state: "사용 가능" },
   { emoji: "🎬", title: "장면 편집", desc: "테마 · 카드 레이아웃 · 글꼴 · 미리보기 재생", state: "사용 가능" },
-  { emoji: "🎙️", title: "음성·자막·MP4", desc: "내레이션 · 자막 · 세로 영상 만들기", state: "준비 중" },
+  { emoji: "🎙️", title: "음성·자막·음악", desc: "본인 키 내레이션 · 자막 · 배경음악 (MP4는 다음 단계)", state: "사용 가능" },
 ];
 const KEY_STEPS = [
   { emoji: "🌐", title: "콘솔 접속", desc: "Google AI Studio · OpenAI · Anthropic 콘솔에 본인 계정으로 로그인" },
@@ -45,6 +45,7 @@ export default function GuidePage() {
             <li><strong>다듬고 저장</strong> — 화면 제목은 짧게, 자세한 내용은 내레이션에. [보관함에 저장]으로 보관합니다.</li>
           </ol>
           <p className="muted" style={{ fontSize: 12 }}>🎨 <strong>배경</strong>: [🎨 디자인·배경]에서 배경 방식(테마만/전체 1장/장면마다)을 고르고 [AI로 장면 설명 만들기]를 누르면 장면마다 스톡 검색어와 AI 이미지 설명이 채워집니다. [검색]으로 Pexels·Pixabay 무료 영상·사진을 고르거나 [AI 이미지]로 만들고 [배경 저장]을 누르세요. 스톡 키는 무료로 발급됩니다(🔑 API키등록·플랫폼연동의 발급 매뉴얼).</p>
+          <p className="muted" style={{ fontSize: 12 }}>🎙️ <strong>음성·자막·음악</strong>: [🎙️ 음성·자막·영상]에서 음성 모델·목소리·빠르기를 고르고 [음성 없는 장면 모두 만들기]를 누르면 장면마다 내레이션이 만들어지고 장면 길이가 목소리에 맞춰집니다. 자막 스타일·위치·크기를 고르고, 내 음악 파일을 올리면 목소리가 나올 때 자동으로 작게 깔립니다. [소리와 재생]으로 확인하고 [저장]하세요.</p>
           <p className="muted" style={{ fontSize: 12 }}>🎬 <strong>장면 편집</strong>: 저장한 대본을 [🎬 장면 편집]에서 고르면 실제 쇼츠 화면으로 재생됩니다. 테마 8가지·카드 레이아웃 6가지·제목 글꼴 5가지·제목 효과를 고르고 [디자인 저장]을 누르세요. [세이프에어리어]를 켜면 유튜브 버튼·제목에 가려지는 곳이 빨갛게 표시됩니다.</p>
           <p className="muted" style={{ fontSize: 12 }}>✍️ <strong>내 지침</strong>: 분야마다 말투·금지어·구성 규칙을 저장해 두고 「내 지침 사용」을 켜면 기본 규칙보다 우선 적용됩니다. 📜 <strong>내 대본으로 만들기</strong>: 이미 쓴 대본을 한 줄 = 한 장면으로 바꿉니다(AI 사용 안 함).</p>
         </section>

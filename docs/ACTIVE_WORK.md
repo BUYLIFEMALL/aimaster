@@ -22,4 +22,3 @@
 
 
 
-| shorts-onestop-studio (AI 쇼츠 원스톱 제작 자동화) | Claude Code(Windows) | 2026-10-16 | P5 음성(TTS)·자막·배경음악 + 상세 페이지 갱신 |

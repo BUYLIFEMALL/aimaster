@@ -29,15 +29,17 @@ export const MIN_CARDS = 3, MAX_CARDS = 8;
 /** stockId: 스톡 원본 번호. Pixabay 사진 주소(pixabay.com/get/…)는 24시간 임시라, 열 때마다 이 번호로 새 주소를 받는다(/api/stock/resolve) */
 export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "ai"; src: string; thumb?: string; path?: string; credit?: string; pageUrl?: string; prompt?: string; stockId?: string }
 export interface Backdrop { mode: "theme" | "global" | "scene"; global?: Bg; dim: number; style: string; character: string; provider?: "pexels" | "pixabay"; media?: "image" | "video"; hints?: { query: string; prompt: string }[] }
-export interface Scene { title: string; desc: string; narration: string; tag?: string; bg?: Bg }
+/** 장면 내레이션 음성(P5): 저장소 경로·재생 길이(초)·만들 때의 내레이션(바뀌면 다시 만들어야 함) */
+export interface Voice { path: string; dur: number; text: string }
+export interface Scene { title: string; desc: string; narration: string; tag?: string; bg?: Bg; voice?: Voice }
 export interface ShortsScript {
   topic: string;
   category: string;
   tone: Tone;
   format: Format;
-  intro: { eyebrow: string; title: string; narration: string; bg?: Bg };
+  intro: { eyebrow: string; title: string; narration: string; bg?: Bg; voice?: Voice };
   cards: Scene[];
-  outro: { title: string; subtitle: string; cta: string[]; narration: string; bg?: Bg };
+  outro: { title: string; subtitle: string; cta: string[]; narration: string; bg?: Bg; voice?: Voice };
   hashtags: string[];
   source: "ai" | "manual";
   model?: string;
@@ -45,6 +47,8 @@ export interface ShortsScript {
   design?: { theme?: string; layout?: string; font?: string; effect?: string; badges?: boolean };
   /** 배경 설정(P4) */
   backdrop?: Backdrop;
+  /** 음성·자막·배경음악 설정(P5) — src/lib/voice.ts normalizeAudio()로 읽는다 */
+  audio?: Partial<import("@/lib/voice").AudioSettings>;
 }
 
 export function isTone(v: unknown): v is Tone { return typeof v === "string" && v in TONES; }
@@ -137,3 +141,9 @@ export function normalizeBackdrop(b: Partial<Backdrop> | undefined): Backdrop {
 }
 /** 장면 순서대로(인트로·카드…·아웃트로) 배경을 꺼낸다 */
 export function sceneBgs(s: ShortsScript): (Bg | undefined)[] { return [s.intro.bg, ...s.cards.map((c) => c.bg), s.outro.bg]; }
+
+/** 장면 순서대로 [내레이션, 음성] — 음성이 지금 내레이션과 같을 때만 유효 */
+export function sceneVoices(s: ShortsScript): { text: string; voice?: Voice }[] {
+  const all = [{ text: s.intro.narration, voice: s.intro.voice }, ...s.cards.map((c) => ({ text: c.narration, voice: c.voice })), { text: s.outro.narration, voice: s.outro.voice }];
+  return all.map((x) => ({ text: x.text, voice: x.voice && x.voice.text === x.text && x.voice.dur > 0 ? x.voice : undefined }));
+}
