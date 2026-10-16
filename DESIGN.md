@@ -106,7 +106,7 @@
 | 1 | 마크다운 문서 자동화 | `markdown-studio` | **포커스 스튜디오 스타일** | 라이트(크림) | ✅ 1차 작업완료 (`v1.11`, 포커스 스튜디오 스타일) | [`markdown-studio/docs/DESIGN_HANDOFF.md`](markdown-studio/docs/DESIGN_HANDOFF.md) |
 | 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 (`v1.07`, 사이버 네온 다크 콘솔 스타일) | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
 | 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 작업완료 (`v1.13`, 플로우 위저드 스타일) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
-| 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.05`) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
+| 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
 | 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
 | 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | ✅ 1차 작업완료 (`v1.09`, 사이버 네온 다크 콘솔 스타일) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
 | 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | **크리에이티브 아틀리에 스타일** (시네마틱 아틀리에) | 다크(시네마틱 차콜 `#0b0f17`) | ✅ 1차 작업완료 (`v1.06`, 크리에이티브 아틀리에 스타일) | [`cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`](cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md) |
@@ -145,7 +145,7 @@
 | 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-cafe-poster/AGENTS.md` |
 | 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao-auto-posting/AGENTS.md` |
 | 42 | 웹 크롤링 자동화 | `web-crawler-saas` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `web-crawler-saas/AGENTS.md` |
-| 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.08`, Claude Code 맥미니 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
+| 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🔵 Codex(Windows) 빌드·배포·검수 진행 중 (`v1.08`, Claude Code 맥미니 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
 | 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-affiliate-poster/AGENTS.md` |
 | 45 | INSTA DM답변 자동화 | `instagram-dm-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `instagram-dm-reply/AGENTS.md` |
 | 46 | Threads 댓글자동화 | `threads-comment-reply` | 스마트 매트릭스 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-comment-reply/AGENTS.md` |

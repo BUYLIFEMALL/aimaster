@@ -5,18 +5,40 @@
 - 커밋 `eef5b254`, 배포·DB v1.10. **#7** 답글 이력 검색(댓글·답글·작성자)·20건 페이지 나눔, **#13** 조회 실패 안내(`LoadErrorNotice`, 이력·댓글 검토), **#16** 30일 보관 cron `/api/cron/cleanup-comments`(매일 03:40 KST) — 행 삭제 대신 내용 비움(중복 초안·중복 공개 게시 방지), 30일 지난 검토 대기는 만료(skipped). 첫 실행 대상 11건(1명). **#8** 텔레그램 이전은 10-16 완료 확인.
 - 검수: 빌드·배포, 정리 라우트 비인증 401, 시험 계정 이력 화면 검색(특수문자 섞인 검색어 정상 처리·빈 결과 안내). 남은 범위: #6 일괄 승인(공개 게시), #11 의존성 경고, #12 토큰 갱신. 링크: https://youtube-auto-reply.buylife.xyz/history
 
+## 2026-10-17 Antigravity(Windows) — AI 블로그 작업실 자동화 v1.06: 로그인·회원가입 표준 2탭 레이아웃(포커스 스튜디오 테마) 전면 리뉴얼 완료
+
+- **대상 프로그램**: `blog-workroom/` (slug: `blog-workroom`, 프로그램 번호 4번)
+- **공식 라이브 URL**: https://blog-workroom.buylife.xyz/login
+- **배포 버전**: `v1.06` (로컬 패키지 `1.0.6`, `APP_VERSION = "v1.06"`, Supabase DB `programs.version = 'v1.06'` 동기화 완료)
+- **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style — Blog Editorial Indigo Edition · 소프트 크림 `#faf8f5` 24px 모눈 격자, 카드 화이트 `#ffffff`, 딥 인디고 `#4f46e5` 알약 탭 & 버튼)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`blog-workroom/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../blog-workroom/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`blog-workroom/docs/IMPROVEMENT_HANDOFF_20261017.md`](../blog-workroom/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`blog-workroom/docs/DESIGN_HANDOFF.md`](../blog-workroom/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`blog-workroom/AGENTS.md`](../blog-workroom/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (최상단 지침 14번 준수)**:
+     - `src/app/login/page.tsx` & `src/components/auth/LoginForm.tsx`: 소프트 크림 배경 + 24px 모눈 격자, 상단 블로그 펜 심볼 알약 뱃지 및 "AIMaster 통합 계정" 알약 뱃지 신설.
+     - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 탑재 (딥 인디고 `#4f46e5` 활성 알약 탭).
+     - **로그인 모드**: 이메일 주소(좌측 메일 아이콘 + 42px 패딩), 비밀번호(좌측 자물쇠 아이콘 + 우측 "비밀번호 찾기?" 인디고 링크), 풀 위드 딥 인디고 액션 버튼 탑재.
+     - **회원가입 모드**: AIMaster 통합 계정 안내 틴트 박스 및 풀 위드 `AIMaster에서 무료 회원가입하기 ➔` 버튼 탑재.
+     - **하단 푸터**: 라이트 테마 이용약관 및 개인정보처리방침 안내 링크 탑재.
+     - 전역 스타일 오버라이드 방지를 위해 정밀 인라인 스타일링 적용.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_BzhHX6jEHr9RLDtuMxevMuSEwpiq`, 라이브: `https://blog-workroom.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_blog_login_desktop_v106.png`: 데스크톱 1440px 로그인 탭 화면 (소프트 크림 격자 배경, 딥 인디고 알약 탭, 인풋/버튼/약관 푸터 완벽 렌더링).
+       - `edge_blog_signup_desktop_v106.png`: 데스크톱 1440px 회원가입 탭 화면 (구독 안내 문구 + AIMaster 가입 링크 버튼 정상 토글).
+       - `edge_blog_login_mobile_v106.png`: 모바일 390px 반응형 뷰 (넘침/스크롤 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 4번 `blog-workroom` 상태 `✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `blog-workroom` 작업 행 삭제 완료.
+
 ## 2026-10-17 Claude Code(윈도우) — "폼 액션 + 제어 체크박스" 저장값 반전 일괄 점검 결과: 추가 수정 대상 없음
 
 - 저장소 전체 `.tsx`에서 폼 값으로 전송되는(name 있는) 제어 체크박스·라디오(`checked={…}`) 20곳을 찾아 확인. 저장 후 React가 자동 초기화하는 `<form action={…}>` 안에 있는 것은 0곳(이미 고친 real_estate_sales v1.15 제외). `insta_auto_poster`·`threads`의 `PostForm`은 `onSubmit`+`startTransition` 방식이라 자동 초기화 없음, `threads-affiliate-poster/.../ProductPostForm.backup-v1.34.tsx`는 미사용 백업, 나머지(ai-slide-builder·markdown-studio·music·infinite-loop-video·관리자 SetExpiryModal 등)는 폼 액션 없음.
 - 점검 스크립트 기준: `<input type=checkbox|radio name=… checked={…}>` + 같은 파일의 `useActionState`/`action={`. 새 폼 만들 때 ERROR_LESSONS 2026-10-17 항목(비제어 `defaultChecked`) 따르기.
-
-## 2026-10-17 Claude Code(맥미니) — 상품소싱 자동화 v1.08: 스마트 매트릭스(다크) 디자인 (🟠 윈도우 마무리 요청)
-
-- **대상**: `trending-product-finder/` (https://trending-product-finder.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
-- **한 일**: 롱테일 v3 토큰·부품 이식(투명도 표기 위해 색상값 직접), 사이드바 ☰·📖(원칙 19·⑦ — 기존 누락), `/dashboard`(기회 키워드 TOP 5)·`/guide` 신설, 리포트를 키워드 매트릭스 표로(옛 「경쟁 수 Phase 2 예정」 문구 정정, 🌏 소싱 링크 추가), 로그인 다크(원칙 13). 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
-- **문서**: [`trending-product-finder/docs/`](../trending-product-finder/docs/) PLAN·IMPROVEMENTS·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, AGENTS·README, `DESIGN.md` 43번 🟠, 역량 지도 v1.08.
-- **⚠️ 윈도우 CLI 요청**: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.08 → 검수(리포트 생성·후보 찾기·검색 금지) → 43번 ✅.
-- **비용**: 없음.
 
 ## 2026-10-17 Claude Code(윈도우) — 부동산 실거래 v1.14·v1.15: 예약 조회 알림의 AI 분석 켜기/끄기
 

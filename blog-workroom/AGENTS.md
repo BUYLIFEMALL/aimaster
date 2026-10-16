@@ -1,6 +1,6 @@
 # AI 블로그 작업실 자동화 (`blog-workroom`) — 인수인계
 
-- 주소: https://blog-workroom.buylife.xyz (Vercel 프로젝트 `blog-workroom`, `prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY`) · slug `blog-workroom` · 카테고리 블로그 · 버전 **v1.05**
+- 주소: https://blog-workroom.buylife.xyz (Vercel 프로젝트 `blog-workroom`, `prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY`) · slug `blog-workroom` · 카테고리 블로그 · 버전 **v1.06**
 - **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) | **디자인 플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md)
 - **개선사항 대장**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) | **개선 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md)
 - 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 먼저 읽는다. 최상위 규칙: **AI·네이버 키는 회원 본인 것만**(운영자 키 폴백 없음).

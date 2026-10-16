@@ -1,11 +1,27 @@
 # AI 블로그 작업실 자동화 (`blog-workroom`) — 디자인 개발완료 및 인수인계 보고서
 
-> **작성 일자**: 2026-10-16  
+> **작성 일자**: 2026-10-17  
 > **작성자**: Antigravity (Windows, `agy`)  
 > **대상 프로그램**: AI 블로그 작업실 자동화 (`blog-workroom`)  
-> **현재 버전**: `v1.05`  
+> **현재 버전**: `v1.06` (로그인/회원가입 표준 2탭 레이아웃 개편 및 DB 동기화 완료)  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 — 블로그 에디토리얼 인디고 에디션 (Focus Studio Style — Blog Editorial Indigo Edition)** ([PROGRAM_DESIGN_STANDARD.md §3](../../docs/PROGRAM_DESIGN_STANDARD.md))  
-> **라이브 서비스 링크**: https://blog-workroom.buylife.xyz  
+> **라이브 서비스 링크**: https://blog-workroom.buylife.xyz/login  
+
+---
+
+## 0. v1.06 로그인/회원가입 표준 2탭 레이아웃 리뉴얼 (2026-10-17)
+- **표준 레이아웃(`DESIGN.md §14`) 전면 적용**:
+  - 소프트 크림 (`#faf8f5`) + 24px 모눈 격자 (`rgba(15, 23, 42, 0.035)`) 배경.
+  - 상단 블로그 펜/에디터 심볼 알약 뱃지 및 "AIMaster 통합 계정" 알약형 뱃지 탑재.
+  - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 (딥 인디고 `#4f46e5` 활성 알약 탭).
+  - 이메일 (메일 아이콘 + 42px 패딩), 비밀번호 (자물쇠 아이콘 + 42px 패딩 + 우측 "비밀번호 찾기?" 인디고 링크).
+  - 풀 위드 딥 인디고 액션 버튼 (`#4f46e5` ➔ `#3730a3`).
+  - 회원가입 탭 선택 시 AIMaster 통합 계정 안내 박스 및 `AIMaster에서 무료 회원가입하기 ➔` 버튼 제공.
+  - 하단 이용약관 및 개인정보처리방침 라이트 모드 링크 배치.
+- **Edge 검수 증거**:
+  - `edge_blog_login_desktop_v106.png`: 데스크톱 1440px 로그인 탭 렌더링 확인.
+  - `edge_blog_signup_desktop_v106.png`: 데스크톱 1440px 회원가입 탭 및 토글 정상 작동 확인.
+  - `edge_blog_login_mobile_v106.png`: 모바일 390px 뷰포트 반응형 정렬 및 가로 넘침 없음 확인.  
 
 ---
 
