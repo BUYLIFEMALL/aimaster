@@ -147,7 +147,7 @@
 | 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`music/docs/DESIGN_HANDOFF.md`](music/docs/DESIGN_HANDOFF.md) |
 | 55 | 상세페이지 자동화(15p) | `shop-detail-page` | **이커머스 셀러 스튜디오 스타일** | 퓨어 화이트 (`#ffffff` + 블루 `#2563eb`·오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`shop-detail-page/docs/DESIGN_HANDOFF.md`](shop-detail-page/docs/DESIGN_HANDOFF.md) |
 | 56 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `insta-auto-poster/AGENTS.md` |
-| 57 | 부동산 실거래 투자분석 | `real-estate-sales` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 작업 예정 | `real-estate-sales/AGENTS.md` |
+| 57 | 부동산 실거래 투자분석 | `real-estate-sales` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | 🔵 작업 중 (Claude Code(맥미니), 2026-10-17 — 플랜 승인 대기) | `real-estate-sales/AGENTS.md` |
 | 58 | YOUTUBE Shots 자동화 | `auto-shorts-posting` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shots/AGENTS.md` |
 | 59 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `ai-auto-blog/AGENTS.md` |
 | 60 | Threads 포스팅 자동화 | `auto-threads-posting` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads/AGENTS.md` |
