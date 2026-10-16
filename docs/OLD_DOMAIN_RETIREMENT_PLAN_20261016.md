@@ -15,6 +15,7 @@
 | E | 확장 ZIP 다운로드 주소(DB) | naver-blog-agent·naver-blog-seo-studio | 옛 주소 | 다운로드 실패 |
 | F | 회원이 외부에 붙여 둔 웹훅 주소 | crm-google-form(구글폼 Apps Script → `/api/webhooks/form-submit`) | 회원 스크립트에 저장된 주소 | 폼 접수 중단 |
 | H | 회원 Meta 앱 Webhooks 콜백(앱당 1개) | instagram-dm-reply(`/api/instagram/dm-webhook/<userId>`) | 옛 주소로 등록한 회원 있음 | DM 수신 중단 — v1.07부터 설정 화면에 새 주소 안내, 회원이 직접 교체(공지 대상) |
+| I | 이미 보낸 메시지·이메일·공유 카드 안의 링크 | kakao_auto_poster(리포트 공유·나에게 보내기·브로드캐스트·이메일, `NEXT_PUBLIC_SITE_URL`=옛 주소) | 옛 주소 → 308로 새 주소 | 링크 깨짐 — 새로 보내는 링크 전환은 회원 카카오 앱 "웹 도메인"에 새 도메인 추가 공지 후, 옛 주소 화면 이동은 장기간 유지 권장 |
 | G | 외부 서비스 콜백(요청마다 주소 전달) | music(Suno 콜백) | 요청 시 SITE_URL로 생성 | 기준 주소만 새 주소면 문제 없음(확인 필요) |
 
 ## 2. 해결 방식 (프로그램 코드만으로, 환경변수 변경 없이)
