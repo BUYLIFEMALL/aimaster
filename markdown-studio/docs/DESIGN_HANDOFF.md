@@ -4,7 +4,7 @@
 > **작성자**: Antigravity (Windows)  
 > **대상 프로그램**: 마크다운 문서 자동화 (`markdown-studio`)  
 > **현재 버전**: `v1.10`  
-> **적용 디자인 템플릿**: **포커스 스튜디오 (Focus Studio)** 템플릿  
+> **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style)** ([PROGRAM_DESIGN_STANDARD.md §3](../../docs/PROGRAM_DESIGN_STANDARD.md))  
 > **라이브 서비스 링크**: https://markdown-studio.buylife.xyz  
 
 ---

@@ -3,6 +3,7 @@
 > **작업 일시**: 2026-10-16  
 > **담당 에이전트**: Antigravity (Windows)  
 > **버전**: **v1.04** (`src/lib/version.ts` 및 DB `programs.version` 동기화 완료)  
+> **적용 디자인 템플릿**: **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style)** ([PROGRAM_DESIGN_STANDARD.md §3](../../docs/PROGRAM_DESIGN_STANDARD.md))  
 > **검수 브라우저**: **Microsoft Edge(엣지) 전용** (`msedge`)  
 > **검수 계정**: 일반 회원 테스트 계정 `buylifemall@naver.com` (실제 로그인 세션 쿠키 검증)
 

@@ -11,6 +11,7 @@
   - Next.js 16.4.0 Turbopack 로컬 빌드 검증 및 Supabase DB programs.version 1.10 갱신 완료.
   - Microsoft Edge(엣지) 전용 브라우저로 일반 회원 테스트 계정(buylifemall@naver.com) 데스크톱(1440px) 및 모바일(375px) 화면 검수 완료.
   - Vercel 프로덕션 배포 완료 (https://markdown-studio.buylife.xyz).
+  - **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style)** ([PROGRAM_DESIGN_STANDARD.md §3](../docs/PROGRAM_DESIGN_STANDARD.md))
   - **디자인 개발완료 및 주요 유의사항 인수인계 보고서**: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) 참고.
   - **프로그램 검토 중 발굴된 로직·기능·편의성 개선 과제**: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) 참고.
 
