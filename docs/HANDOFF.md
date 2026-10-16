@@ -1,5 +1,37 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity(Windows) — 플레이리스트 채널 제작 자동화 v1.10: 로그인·회원가입 표준 2탭 레이아웃(사이버 네온 다크 콘솔 테마) 전면 리뉴얼 완료
+
+- **대상 프로그램**: `playlist-channel-studio/` (slug: `playlist-channel-studio`, 프로그램 번호 6번)
+- **공식 라이브 URL**: https://playlist-maker.buylife.xyz/login
+- **배포 버전**: `v1.10` (로컬 패키지 `1.10.0`, `APP_VERSION = "v1.10"`, Supabase DB `programs.version = 'v1.10'` 동기화 완료)
+- **적용 디자인 템플릿**: **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style · 딥블랙 `#060911` 24px 사이안 모눈 격자, 카드 다크 글래스모피즘, 네온 사이안-인디고 `#06b6d4` ➔ `#6366f1` 그라디언트 탭 & 버튼)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`playlist-channel-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../playlist-channel-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`playlist-channel-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../playlist-channel-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](../playlist-channel-studio/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`playlist-channel-studio/AGENTS.md`](../playlist-channel-studio/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (DESIGN.md 14번 규격 준수)**:
+     - `src/app/(auth)/login/page.tsx`: 구형 화이트 박스로 인한 테마 불일치를 해소하고, 딥블랙 배경(`rgba(6, 9, 17, 1)`) + 24px 사이안 모눈 격자, 상단 네온 사이안 `ListMusic` 로고 및 "AIMaster 통합 계정" 알약 뱃지 탑재.
+     - 헤더 안내의 타 프로그램 복사 문구를 정정하고, 오래된 회원가입 URL을 `https://aimaster.buylife.xyz/signup`으로 최신화.
+     - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 탑재 (네온 사이안-인디고 `#06b6d4` ➔ `#6366f1` 그라디언트 활성 탭).
+     - **로그인 모드**: 이메일 주소(좌측 Mail 아이콘 + 42px 패딩), 비밀번호(좌측 Lock 아이콘 + 우측 "비밀번호를 잊으셨나요?" 사이안 링크), 풀 위드 사이안-인디고 그라디언트 액션 버튼 (`로그인하고 채널 스튜디오 시작 ➔`) 탑재.
+     - **회원가입 모드**: 단일 계정(SSO) 안내 박스, 플레이리스트 기획/선곡 혜택 3종 체크리스트, 풀 위드 `AIMaster에서 무료 회원가입하기` 링크 버튼 탑재.
+     - **하단 푸터**: 다크 테마 이용약관 · 개인정보처리방침 · 고객지원 안내 링크 탑재.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_4LZVWwSijXqkr1DqigzE6vqKiWoq`, 라이브: `https://playlist-maker.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_playlist_login_desktop_v110.png`: 데스크톱 1280x900 로그인 탭 화면 (딥블랙 격자 배경, 사이안-인디고 그라디언트 탭, 인풋/버튼/약관 완벽 렌더링).
+       - `edge_playlist_signup_desktop_v110.png`: 데스크톱 1280x900 회원가입 탭 화면 (통합 계정 안내 박스 + 혜택 체크리스트 + 가입 링크 버튼 정상 토글).
+       - `edge_playlist_login_mobile_v110.png`: 모바일 390x844 반응형 뷰 (넘침/스크롤 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 6번 `playlist-channel-studio` 상태 `✅ 1차 작업완료 (`v1.10`, 사이버 네온 다크 콘솔 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `playlist-channel-studio` 작업 행 삭제 완료.
+
+[프로그램 열기](https://playlist-maker.buylife.xyz/login)
+
 ## 2026-10-17 Claude Code(윈도우) — music-player v1.08: MP-07 저장 공간 안내·큰 파일 정리
 
 - 커밋 `c73a05f9`, 배포·DB v1.08. `src/lib/player/space.ts`(사용 비율·80% 경고·큰 곡 5개) + 단위 테스트(21개 통과). 목록 아래 비율 막대·경고·"이번 접속에만 유지" 곡 수 안내·[큰 파일 정리](선택 → 기존 확인 창으로만 삭제). 서버·DB 변경 없음.

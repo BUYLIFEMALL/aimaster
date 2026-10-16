@@ -1,71 +1,49 @@
-# 플레이리스트 채널 제작 자동화 (`playlist-channel-studio`) — 디자인 완료 인수인계서 (DESIGN_HANDOFF.md)
+# 플레이리스트 채널 제작 자동화 (playlist-channel-studio) — 디자인 & 로그인 2탭 개편 인수인계서
 
-> **문서 버전**: v1.09  
-> **작성 일자**: 2026-10-16  
-> **작성 에이전트**: Antigravity CLI (`agy`)  
-> **서비스 공식 URL**: `https://playlist-maker.buylife.xyz/`  
-> **상태**: ✅ v1.09 프로덕션 배포 및 Microsoft Edge 전용 전 화면 일관성 실세션 검수 완료
-
----
-
-## 1. 디자인 시스템 & 템플릿 개요
-
-- **공식 템플릿 명칭**: `✨ 사이버 네온 다크 콘솔 스타일` (Cyber Neon Dark Console Style)
-- **콘셉트**:
-  - 전문 유튜브 음악 레이블의 랙마운트 오디오 콘솔 데크를 모티브로 한 미래지향적 하이테크 비주얼.
-  - 가이드북(`/guide`)뿐만 아니라 **스튜디오(`/studio`), 프로젝트(`/projects`), 설정(`/settings`) 및 사이드바 전체가 동일한 딥 다크 콘솔 배경(`bg-[#060911]`)과 테마 스타일로 일관되게 구축**됨.
-- **주요 색상 토큰 (Color Tokens)**:
-  - **Background**: `#060911` (Deep Space Dark) - 전 화면 일관 적용
-  - **Sidebar Surface**: `#0a0f1d` (Console Rack Aside)
-  - **Card / Panel Surface**: `#0d1322` (High-contrast Dark Card)
-  - **Input / Form Background**: `#131b2e` (Dark Slate Input)
-  - **Primary Neon Accent**: `bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold shadow-[0_0_15px_rgba(6,182,212,0.35)]`
-  - **Borders**: `#1e293b` (border-slate-800) / Neon Glow Border: `border-cyan-500/50`
-  - **Text**: `#ffffff` (Headings), `#f1f5f9` (text-slate-100 body), `#94a3b8` (text-slate-400 muted)
+> **작업 일시**: 2026-10-17
+> **담당 CLI**: Antigravity (`agy`)
+> **버전**: `v1.09` ➔ **`v1.10`**
+> **적용 디자인 템플릿**: **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style)**
+> **공식 서비스 URL**: `https://playlist-maker.buylife.xyz`
+> **로그인 URL**: `https://playlist-maker.buylife.xyz/login`
 
 ---
 
-## 2. 주요 구현 및 개선 내역
-
-### ① 프로그램 내 전체 페이지 단일 배경색 및 일관된 테마 스타일 전면 통일 (`v1.09`)
-- **배경**: 매뉴얼(`/guide`)만 다크 테마이고 스튜디오 및 프로젝트 목록이 화이트/그레이로 분리되어 있던 화면 불일치를 해결하고 최상단 디자인 지침 11번(단일 배경색 준수 의무)을 완벽 이행함.
-- **적용 화면**:
-  1. `src/app/(dashboard)/layout.tsx`: `bg-gray-50/60` ➔ `bg-[#060911] text-slate-100`으로 루트 래퍼 변경.
-  2. `src/components/layout/Sidebar.tsx`: `bg-[#0a0f1d] border-slate-800`, 번호 배지 네온 그라디언트, 사이언 하이라이트 활성 링크, 다크 모바일 바 전면 적용.
-  3. `src/components/studio/common.tsx`: `ModelBar`(`bg-[#0d1322]`), `CopyButton`(`bg-slate-800`), `PrimaryButton`(네온 사이언 그라디언트), `ErrorBox` 다크 콘솔화.
-  4. `src/components/studio/StudioWorkspace.tsx`: 장르 카드 23종 다크 호버 글로우, 제목 후보 카드 사이언 셀렉션, 탭 헤더 다크화.
-  5. `src/components/studio/ContentTabs.tsx`: Suno 프롬프트 박스(`bg-[#060911] text-cyan-300`), 가사 옵션 및 곡 목록 다크 카드화, 메타데이터 블록 다크 콘솔화.
-  6. `src/components/studio/ThumbnailTab.tsx`: 썸네일 설정 패널(`bg-[#0d1322]`), 캔버스 뷰(`bg-[#060911]`), 다운로드 버튼 다크화.
-  7. `src/components/studio/ProjectsList.tsx`: 프로젝트 카드 및 빈 상태 뷰 다크 콘솔화.
-  8. `src/components/settings/ApiKeySettings.tsx`: API 키 공급사 카드 3종 및 연동 매뉴얼 섹션 다크화.
-
-### ② 비주얼 가이드북(`/guide`) 전면 신설 (`v1.08`)
-- 5단계 제작 파이프라인 인포그래픽, Google AI Studio 무료 API 키 연동 안내, 23종 장르 맵 & Suno 5.0 작곡 치트시트, 유튜브 알고리즘 떡상 노하우 3원칙, FAQ 아코디언 4종 구축 완료.
-
-### ③ 도메인 매핑 및 버전 동기화
-- 공식 프로덕션 도메인: `https://playlist-maker.buylife.xyz/`
-- `src/lib/version.ts`: `v1.09`
-- `package.json`: `1.0.9`
-- Supabase 공유 DB `programs.version = 'v1.09'` 동기화 완료.
+## 1. 개요 및 목적
+주인님의 전체 서브프로그램 로그인/회원가입 표준 2탭 레이아웃(`threads-comment-reply` 표준 규격) 통일 지침에 따라, `playlist-channel-studio`의 로그인 라우트를 2탭 세그먼트 표준 레이아웃으로 전면 개편하고 기존 구형 라이트 박스로 인한 테마 불일치를 완벽히 해소했습니다.
 
 ---
 
-## 3. 검수 결과 (Microsoft Edge 브라우저 전용)
-
-- **검수 환경**: Microsoft Edge (`msedge.exe`) / 일반 회원 테스트 계정(`buylifemall@naver.com`) 실세션 쿠키 주입
-- **스크린샷 증적**:
-  1. `edge_playlist_studio_desktop_v109.png`: 스튜디오 데스크톱 전면 다크 콘솔 렌더링 (사이드바 + ModelBar + 장르 카드 23종)
-  2. `edge_playlist_projects_desktop_v109.png`: 내 프로젝트 목록 데스크톱 다크 렌더링
-  3. `edge_playlist_settings_desktop_v109.png`: API키 등록 및 연동 매뉴얼 데스크톱 다크 렌더링
-  4. `edge_playlist_guide_desktop_v109.png`: 가이드북 데스크톱 렌더링 (전 화면과 완벽 일치하는 `bg-[#060911]` 배경 대조 확인)
-  5. `edge_playlist_studio_mobile_v109.png`: 모바일 390px 반응형 다크 콘솔 뷰 가독성 점검 완료
+## 2. 디자인 명세 및 컬러 토큰
+- **배경 테마**: `#060911` (딥블랙) + 24px 간격 사이안 모눈 격자 (`radial-gradient(rgba(6, 182, 212, 0.12) 1px, transparent 1px)`)
+- **카드 서피스**: `#0b1120`/90 다크 글래스모피즘, `border-cyan-500/20`, `shadow-2xl shadow-black/80`
+- **시그니처 포인트**:
+  - 상단 사이안-인디고 네온 `ListMusic` 심볼 (`from-cyan-500 to-indigo-500`, `ring-1 ring-cyan-400/30`)
+  - `AIMaster 통합 계정` 알약 뱃지 (`bg-cyan-500/10 border-cyan-500/30 text-cyan-300`)
+  - 2탭 세그먼트 컨트롤: `bg-[#0b101b]/80`, 활성 탭 `from-cyan-500 to-indigo-500` 그라디언트
+  - 인풋 필드: 좌측 아이콘(Mail, Lock), `pl-[42px]` 인셋 패딩, 포커스 시 `border-cyan-500` 및 `ring-cyan-500/20`
+  - 액션 버튼: `from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600` 풀위드
+  - 회원가입 탭: 단일 계정(SSO) 안내 박스, 플레이리스트 기획/선곡 혜택 체크리스트 3종, `AIMaster에서 무료 회원가입하기` 링크 버튼
+  - 푸터: 이용약관 · 개인정보처리방침 · 고객지원 통합 링크
 
 ---
 
-## 4. 인수인계 및 다음 작업자 참고사항
+## 3. 변경 파일 목록
+- `playlist-channel-studio/src/lib/version.ts`: `v1.10` 갱신 및 `MAIN_SITE` export
+- `playlist-channel-studio/package.json`: version `1.10.0`
+- `playlist-channel-studio/src/app/(auth)/login/page.tsx`: 표준 2탭 세그먼트 레이아웃 전면 구현
+- `playlist-channel-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`: 작업 기획 플랜 문서
+- `playlist-channel-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`: 개선사항 및 인수인계 문서
+- `playlist-channel-studio/docs/DESIGN_HANDOFF.md`: 본 디자인 완료 인수인계서
+- `scripts/verify_edge_playlist_login_v110.cjs`: Microsoft Edge 실세션 검수 스크립트
 
-- **가이드 페이지 라우트**: `src/app/(dashboard)/guide/page.tsx`
-- **스튜디오 컴포넌트**: `src/components/studio/`
-- **사이드바 컴포넌트**: `src/components/layout/Sidebar.tsx`
-- **개선사항 관리**: `playlist-channel-studio/docs/IMPROVEMENTS.md`
-- **개발 플랜**: `playlist-channel-studio/docs/PLAN_20261016_DESIGN_RENEWAL.md`
+---
+
+## 4. 빌드 및 배포 검증
+- **로컬 빌드**: `npm run build` (Turbopack) 성공 (`Compiled successfully in 6.2s`, `Finished TypeScript in 3.6s`)
+- **Vercel 프로덕션 배포**: `dpl_4LZVWwSijXqkr1DqigzE6vqKiWoq` 성공 (`READY`, `Aliased https://playlist-maker.buylife.xyz`)
+- **DB 버전 동기화**: `programs.version = 'v1.10'`, `app_url = 'https://playlist-maker.buylife.xyz'` 확인 완료
+- **Microsoft Edge 실세션 검수 캡처 확인**:
+  1. `edge_playlist_login_desktop_v110.png` (데스크톱 1280x900 로그인 탭)
+  2. `edge_playlist_signup_desktop_v110.png` (데스크톱 1280x900 회원가입 탭)
+  3. `edge_playlist_login_mobile_v110.png` (모바일 390x844 로그인 탭)

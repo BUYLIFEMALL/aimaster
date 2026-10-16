@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.09** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.10** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -95,4 +95,14 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - **개선 내용**: 매뉴얼(`/guide`)만 다크 테마이고 스튜디오 및 프로젝트가 라이트/그레이로 불일치하던 현상을 해소하고, 전체 화면(`layout`, `Sidebar`, `/studio`, `/projects`, `/settings`, `common`)을 **사이버 네온 다크 콘솔 스타일(`bg-[#060911]`, `bg-[#0d1322]`, 네온 사이언 액센트)**로 전면 일치.
 - **버전 동기화**: `src/lib/version.ts`, `package.json`, Supabase DB `programs.version = 'v1.09'` 동기화.
 - **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 실세션 전 화면 캡처 대조 검수 완료 (`edge_playlist_studio_desktop_v109.png`, `edge_playlist_projects_desktop_v109.png`, `edge_playlist_settings_desktop_v109.png`, `edge_playlist_guide_desktop_v109.png`, `edge_playlist_studio_mobile_v109.png`).
+
+## 2026-10-17 로그인/회원가입 표준 2탭 레이아웃 개편 — v1.10 (playlist-channel-studio)
+- **개선 내용**:
+  - 기존 구형 화이트 박스 로그인 화면으로 인한 테마 불일치를 해소하고 사이버 네온 다크 콘솔 스타일(`bg-[#060911]` 딥블랙 + 24px 사이안 모눈 격자, 카드 다크 글래스모피즘 `#0b1120`/90)로 전면 통일.
+  - `threads-comment-reply` 표준 규격에 맞춘 `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 컨트롤(네온 사이안-인디고 그라디언트 활성 탭) 탑재.
+  - 헤더 안내의 잘못된 타 프로그램 복사 문구를 정정하고, 오래된 회원가입 URL을 `https://aimaster.buylife.xyz/signup`으로 최신화.
+  - 메일/자물쇠 아이콘(42px 패딩), 우측 비밀번호 찾기 링크, 회원가입 모드 전환 시 단일 계정 안내 박스 및 혜택 3종 체크리스트, CTA 링크 버튼 배치.
+- **버전 동기화**: `src/lib/version.ts`, `package.json`, Supabase DB `programs.version = 'v1.10'` 동기화 완료.
+- **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 실세션 캡처 3종 검수 완료 (`edge_playlist_login_desktop_v110.png`, `edge_playlist_signup_desktop_v110.png`, `edge_playlist_login_mobile_v110.png`).
+
 
