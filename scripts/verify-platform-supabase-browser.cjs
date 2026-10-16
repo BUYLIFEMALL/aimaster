@@ -1,4 +1,4 @@
-// Visible Chrome, ordinary member, navigation and read-only checks only.
+// Visible Microsoft Edge, ordinary member, navigation and read-only checks only.
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
@@ -58,15 +58,27 @@ async function main() {
   const ssrUser = await createServerClient(url, publicKey, { cookies: { getAll: () => cookies, setAll: () => {} } }).auth.getUser();
   if (checkUser.error || ssrUser.error) throw new Error('Ordinary member session validation failed');
   console.log('Ordinary member session verified');
-  browser = await chromium.launch({ channel: 'chrome', headless: false });
+  browser = await chromium.launch({ channel: 'msedge', headless: false });
   for (const r of releases) {
-    if (results.some(x => x.slug === r.slug && x.ok && x.version === r.version)) continue;
+    if (!process.env.PLATFORM_BROWSER_FORCE && results.some(x => x.slug === r.slug && x.ok && x.version === r.version && x.browser === 'Microsoft Edge')) continue;
     let child, context, fd;
     const slug = r.slug === '.' ? 'aimaster' : r.slug;
     const base = mode === 'live' ? liveBase(r) : 'http://localhost:3150';
-    const row = { slug: r.slug, version: r.version, base, mode, checks: {} };
+    const row = { slug: r.slug, version: r.version, base, mode, browser: 'Microsoft Edge', checks: {} };
     const started = Date.now();
     try {
+      if (mode === 'live') {
+        const state = path.join(root, 'docs/supabase-compat-rollout-20261016/deployments.json');
+        let ready = false;
+        for (let n = 0; n < 3600; n++) {
+          const deployed = fs.existsSync(state) ? JSON.parse(fs.readFileSync(state, 'utf8')) : [];
+          const hit = deployed.find(x => x.slug === r.slug && x.version === r.version);
+          if (hit?.ok) { row.deployment_id = hit.deployment_id; ready = true; break; }
+          if (hit && !hit.ok) throw new Error('Production deployment needs repair before live verification');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        if (!ready) throw new Error('Production deployment still pending');
+      }
       if (mode !== 'live') {
         const ownEnvFile = path.join(root, r.folder, '.env.local');
         const ownEnvText = fs.existsSync(ownEnvFile) ? fs.readFileSync(ownEnvFile, 'utf8') : '';
@@ -99,6 +111,8 @@ async function main() {
       context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
       await context.route('**/api/**', route => ['GET', 'HEAD', 'OPTIONS'].includes(route.request().method()) ? route.continue() : route.fulfill({ status: 405, body: 'Read-only verification' }));
       await context.addCookies(cookies.map(c => ({ name: c.name, value: c.value, domain: host.endsWith('.buylife.xyz') ? '.buylife.xyz' : host, path: '/', secure: mode === 'live', httpOnly: false, sameSite: 'Lax' })));
+      // Old vercel.app entry URLs may redirect to the program's shared-SSO domain.
+      if (mode === 'live' && !host.endsWith('.buylife.xyz')) await context.addCookies(cookies.map(c => ({ name: c.name, value: c.value, domain: '.buylife.xyz', path: '/', secure: true, httpOnly: false, sameSite: 'Lax' })));
       row.session_cookie_count = (await context.cookies(base)).length;
       page = await context.newPage();
       const rawResponse = await context.request.get(base + target, { maxRedirects: 0 }); row.raw_status = rawResponse.status(); row.raw_location = rawResponse.headers()['location'] || null;
@@ -106,6 +120,7 @@ async function main() {
       await page.waitForTimeout(300);
       const body = await page.locator('body').innerText();
       row.final_path = new URL(page.url()).pathname;
+      row.final_origin = new URL(page.url()).origin;
       row.checks.member_no_server_error = response.status() < 500 && !/Application error:|서버 연결 설정이 준비되지|회원 저장 설정이 준비되지/.test(body);
       const inactive = ['naver-blog-auto-poster', 'naver-blog-auto-poster-web'].includes(r.slug);
       row.checks.member_access = inactive
@@ -121,7 +136,7 @@ async function main() {
       row.checks.mobile_no_overflow = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
       await page.screenshot({ path: path.join(output, `${slug}-mobile.png`), fullPage: false });
       // Version/mobile observations are recorded separately from credential compatibility.
-      row.ok = row.checks.anonymous_no_server_error && row.checks.member_no_server_error && row.checks.member_access;
+      row.ok = row.checks.anonymous_no_server_error && row.checks.member_no_server_error && row.checks.member_access && (inactive || row.checks.version_visible);
       row.anonymous_path = anonPath;
     } catch (e) { row.ok = false; row.error = e.message.replace(/sb_(?:secret|publishable)_[\w-]+/g, '[redacted]'); }
     finally {

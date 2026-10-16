@@ -1,4 +1,4 @@
-// Visible Chrome + ordinary member; read-only verification, no AI calls or publication.
+// Visible Microsoft Edge + ordinary member; read-only verification, no AI calls or publication.
 // local-new: temporarily starts the two already-built apps with only NEW names in child envs.
 // live: verifies their current production deployments without changing any environment settings.
 import fs from 'node:fs/promises';
@@ -36,7 +36,7 @@ let context;
 const checks = [], check = (name, value) => { assert.ok(value, name); checks.push({ name, passed: true }); console.log('PASS', name); };
 try {
   if (mode === 'local-new') { await start(root, 3139); await start(own, 3140); }
-  context = await chromium.launchPersistentContext(path.resolve('.local/env-' + mode), { channel: 'chrome', headless: false, viewport: { width: 1280, height: 900 } });
+  context = await chromium.launchPersistentContext(path.resolve('.local/env-' + mode), { channel: 'msedge', headless: false, viewport: { width: 1280, height: 900 } });
   await context.clearCookies();
   const page = context.pages()[0] || await context.newPage();
   for (const [label, base] of [['main', main], ['blog', blog]]) {

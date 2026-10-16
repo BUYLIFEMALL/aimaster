@@ -5,9 +5,13 @@ const path = require('node:path');
 const cp = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 process.chdir(root);
-const releases = JSON.parse(fs.readFileSync('docs/supabase-compat-rollout-20261016/releases.json', 'utf8'));
+const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
+const redeploy = process.argv.includes('--redeploy');
+const releases = JSON.parse(fs.readFileSync('docs/supabase-compat-rollout-20261016/releases.json', 'utf8')).filter(r => !only || r.slug === only);
+// The web poster's ZIP is hosted by the main app: deploy both at the start of the same batch.
+releases.sort((a, b) => (a.slug === 'naver-blog-auto-poster-web' ? 0 : a.slug === '.' ? 1 : 2) - (b.slug === 'naver-blog-auto-poster-web' ? 0 : b.slug === '.' ? 1 : 2));
 const before = JSON.parse(fs.readFileSync('docs/supabase-compat-rollout-20261016/projects-before.json', 'utf8'));
-const stateFile = 'docs/supabase-compat-rollout-20261016/deployments.json';
+const stateFile = process.env.PLATFORM_DEPLOY_STATE || 'docs/supabase-compat-rollout-20261016/deployments.json';
 const results = fs.existsSync(stateFile) ? JSON.parse(fs.readFileSync(stateFile, 'utf8')) : [];
 const revision = cp.execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const platform = {};
@@ -66,7 +70,7 @@ let index = 0;
 async function worker() {
   while (index < releases.length) {
     const r = releases[index++];
-    if (results.some(x => x.slug === r.slug && x.ok && x.version === r.version)) continue;
+    if (!redeploy && results.some(x => x.slug === r.slug && x.ok && x.version === r.version)) continue;
     const slug = r.slug === '.' ? 'aimaster' : r.slug;
     const row = { slug: r.slug, version: r.version, revision, started: new Date().toISOString() };
     try {

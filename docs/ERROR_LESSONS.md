@@ -1,5 +1,26 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 전체 DB 호환 전환 — 메인 Git 자동 배포와 설치 파일 보존
+
+- 증상: 메인 설치 파일의 HTTP 상태가 수동 배포 뒤에는 200이었다가, 문서만 푸시한 Git 자동 배포 뒤 404가 됐습니다.
+- 원인: `public/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`는 기존 규칙에 따라 Git 제외 파일입니다. 로컬 수동 배포에는 포함되지만 Git 원본만 받는 자동 배포에는 없습니다. 앱 코드가 같아도 다운로드 자산이 달라집니다.
+- 해결: 최신 커밋의 메인 소스만 모은 배포 복사본에 기존 설치 파일을 함께 넣어 다시 프로덕션 배포했습니다. `scripts/deploy-supabase-compat-rollout.cjs --only . --redeploy`는 이 파일을 보존하며, 별도 보고 경로로 기존 일괄 배포 기록을 덮어쓰지 않을 수 있습니다. 최종 문서 푸시 뒤에도 다시 확인/복구합니다.
+- 다음부터 확인: 메인을 건드리는 다른 CLI도 문서 푸시의 자동 배포가 최신 운영 별칭을 바꿀 수 있음을 확인합니다. 최종 Git 푸시·자동 빌드가 끝난 다음 기존 설치 파일을 포함해 메인을 수동 배포하고 해당 다운로드 HTTP 200을 확인합니다. 설치 파일을 임의로 Git에 넣거나 삭제하지 않습니다.
+
+## 2026-10-16 DB 호환 운영 검수 — 옛 Vercel 주소의 SSO 이동과 시험 쿠키
+
+- 증상: 카카오 자동화의 로컬 회원 검수는 통과하지만 운영 검사에서 `/login`으로 이동했습니다.
+- 원인: 검수기가 옛 `kakaoautoposter.vercel.app`에만 시험 쿠키를 넣었습니다. 실제 서버는 정책대로 `kakao-auto-posting.buylife.xyz`로 308 이동하므로 공유 도메인에 시험 세션이 없었습니다. DB 키 오류가 아니었습니다.
+- 해결: `scripts/verify-platform-supabase-browser.cjs`의 운영 검수에서 옛 Vercel 호스트와 `.buylife.xyz` 공유 쿠키를 함께 제공하고 최종 출처도 기록합니다. 실제 별칭은 Vercel API에서 새 배포를 가리키는 것을 확인했습니다.
+- 다음부터 확인: 실패 응답의 상태·Location·최종 도메인을 먼저 확인합니다. 시험 환경 문제를 해결하려고 운영 키나 권한 정책을 바꾸지 않습니다.
+
+## 2026-10-16 전체 DB 변수 호환 검수 — 서브프로그램 Turbopack 루트 고정
+
+- 증상: 새 이름만 사용한 개별 프로그램 빌드에서 자기 폴더에 없는 루트 `middleware.ts`를 읽고 `@/lib/supabase/env`를 찾지 못했습니다.
+- 원인: 다중 lockfile 저장소에서 Next.js 16의 Turbopack이 AIMaster 루트를 작업 경계로 추론했습니다. 공통 미들웨어를 복사하거나 없는 모듈을 만드는 것으로 해결하면 앱 경계가 계속 섞입니다.
+- 해결: `ai-audio-analyzer`, `ai-slide-builder`, `allinone-graphic`, `insta_auto_poster`, `kakao_auto_poster`, `react-ui-showcase`, `stepmail`의 기존 Next 설정에 `turbopack: { root: process.cwd() }`를 추가했습니다. 빌드는 해당 프로그램 폴더에서 실행합니다.
+- 다음부터 확인: 서브프로그램 빌드 로그의 workspace root 경고와 실제 오류 경로를 확인하고, 독립 Vercel 프로젝트·자기 폴더 경계를 유지합니다.
+
 ## 2026-10-16 — 이전 자동화 도구가 남긴 헤드리스 Chrome이 쌓여 "Chrome이 여러 개"로 보임 (플랫폼 환경)
 
 - 증상: Chrome 프로세스 123개인데 보이는 창은 1개, 연결 브라우저 목록에 Windows 브라우저 2개(Edge는 꺼져 있음).
