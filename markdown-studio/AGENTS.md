@@ -4,6 +4,16 @@
 
 ## 현재 상태
 
+- **2026-10-17 v1.11 (로그인·회원가입 표준 2탭 레이아웃 전면 리뉴얼, Antigravity)**:
+  - 2026-10-17 주인님 지시 표준 레이아웃 적용: 은은한 24px 모눈 격자 배경(`linear-gradient(...)` 24px x 24px), 상단 브랜드 헤더, 둥근 모서리 카드, 상단 2버튼 알약 탭 토글 바(`[로그인]` / `[회원가입]`) 전면 구현 (`src/app/login/page.tsx`).
+  - **로그인 탭**: 이메일 주소(메일 아이콘), 비밀번호(자물쇠 아이콘 + "비밀번호 찾기?"), 풀 위드 딥 인디고 `로그인 ->` 액션 버튼.
+  - **회원가입 탭**: "이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다..." 안내 문구 및 풀 위드 `AIMaster 회원가입 하러가기` 버튼 탑재.
+  - **하단 푸터**: 이용약관 및 개인정보 처리방침 링크 탑재.
+  - Next.js 16.4.0 Turbopack 로컬 빌드 검증 성공 및 Supabase DB `programs.version = 'v1.11'` 갱신 완료.
+  - Microsoft Edge(엣지) 전용 브라우저로 데스크톱(1440px) 및 모바일(390px) 로그인/회원가입 실세션 화면 검수 완료.
+  - Vercel 프로덕션 배포 완료 (`https://markdown-studio.buylife.xyz`, Deployment ID: `dpl_GwJxYpdd1uMdRiSqwZaTicehNmci`).
+  - **관련 문서**: [docs/PLAN_20261017_LOGIN_RENEWAL.md](docs/PLAN_20261017_LOGIN_RENEWAL.md), [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md), [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md).
+
 - **2026-10-16 v1.10 (포커스 스튜디오 템플릿 적용, 연동/사용 매뉴얼 비주얼화, Antigravity)**:
   - 포커스 스튜디오(Focus Studio) 템플릿 스타일 시스템 구축 (`src/app/globals.css`).
   - 대시보드 히어로 배너, 현대적 통계 카드 3종, 본문 발췌 최근 문서 카드 그리드, 빈 상태 일러스트 카드 구현 (`WorkspacePage.tsx`).

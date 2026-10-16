@@ -3,7 +3,7 @@
 > **작성 일자**: 2026-10-16  
 > **작성자**: Antigravity (Windows)  
 > **대상 프로그램**: 마크다운 문서 자동화 (`markdown-studio`)  
-> **현재 버전**: `v1.10`  
+> **현재 버전**: `v1.11` (이전: `v1.10`)  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style)** ([PROGRAM_DESIGN_STANDARD.md §3](../../docs/PROGRAM_DESIGN_STANDARD.md))  
 > **라이브 서비스 링크**: https://markdown-studio.buylife.xyz  
 
@@ -76,12 +76,22 @@
   - `brain/.../edge_focus_studio_mobile.png`
   - `brain/.../edge_focus_studio_guide.png`
   - `brain/.../edge_focus_studio_guide_mobile.png`
+  - `brain/.../edge_md_login_desktop_v111.png` (v1.11 데스크톱 로그인 탭)
+  - `brain/.../edge_md_signup_desktop_v111.png` (v1.11 데스크톱 회원가입 탭)
+  - `brain/.../edge_md_login_mobile_v111.png` (v1.11 모바일 390px 로그인 탭)
 
 ---
 
 ## 5. 배포 및 이력
 
-- **Git 커밋**: `3b7f8bcf` (v1.10)
-- **Supabase DB `programs`**: `slug='markdown-studio'`, `version='v1.10'`
-- **Vercel Deployment**: `dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ` (READY)
-- **라이브 도메인**: https://markdown-studio.buylife.xyz
+- **v1.11 (2026-10-17)**:
+  - **작업 내용**: 로그인·회원가입 표준 2탭 레이아웃(`(auth)/login/page.tsx`) 전면 리뉴얼. 은은한 24px 모눈 격자 배경, 딥 인디고 `#4f46e5` 알약형 탭 바, 이메일/비밀번호/비밀번호 찾기 링크, 회원가입 모드("이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다...") 및 이용약관/개인정보 처리방침 푸터 일체화.
+  - **Git 커밋**: `v1.11`
+  - **Supabase DB `programs`**: `slug='markdown-studio'`, `version='v1.11'`
+  - **Vercel Deployment**: `dpl_GwJxYpdd1uMdRiSqwZaTicehNmci` (READY)
+  - **라이브 도메인**: https://markdown-studio.buylife.xyz
+- **v1.10 (2026-10-16)**:
+  - **Git 커밋**: `3b7f8bcf` (v1.10)
+  - **Supabase DB `programs`**: `slug='markdown-studio'`, `version='v1.10'`
+  - **Vercel Deployment**: `dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ` (READY)
+  - **라이브 도메인**: https://markdown-studio.buylife.xyz

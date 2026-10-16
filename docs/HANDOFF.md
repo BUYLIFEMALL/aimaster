@@ -1,5 +1,35 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity(Windows) — 마크다운 문서 자동화 v1.11: 로그인·회원가입 표준 2탭 레이아웃(포커스 스튜디오 테마) 전면 리뉴얼 완료
+
+- **대상 프로그램**: `markdown-studio/` (slug: `markdown-studio`, 프로그램 번호 1번)
+- **공식 라이브 URL**: https://markdown-studio.buylife.xyz
+- **배포 버전**: `v1.11` (로컬 패키지 `1.11.0`, `APP_VERSION = "v1.11"`, Supabase DB `programs.version = 'v1.11'` 동기화 완료)
+- **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 소프트 크림 `#faf8f5` 24px 격자 모눈 배경, 카드 `#ffffff`, 포인트 딥 인디고 `#4f46e5`)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`markdown-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../markdown-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`markdown-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../markdown-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`markdown-studio/docs/DESIGN_HANDOFF.md`](../markdown-studio/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`markdown-studio/AGENTS.md`](../markdown-studio/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (최상단 지침 14번 준수)**:
+     - `src/app/login/page.tsx`: 은은한 24px 모눈 격자 배경 및 상단 헤더 컨테이너 신설.
+     - 상단 알약형 탭 토글 바 (`[로그인]` / `[회원가입]` 전환 탭) 탑재 (포커스 스튜디오 인디고 `#4f46e5` 활성 테마).
+     - **로그인 모드**: 이메일 주소(좌측 메일 아이콘 + 42px 패딩), 비밀번호(좌측 자물쇠 아이콘 + 우측 "비밀번호 찾기?" 링크), 풀 위드 `로그인 ->` 액션 버튼 탑재.
+     - **회원가입 모드**: "이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다..." 안내 문구 및 풀 위드 `AIMaster 회원가입 하러가기` 버튼 탑재.
+     - **하단 푸터**: 이용약관 및 개인정보 처리방침 안내 링크 탑재.
+     - 전역 CSS 선택자 오버라이드 방지를 위해 인라인 스타일링 적용으로 디자인 무결성 확보.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_GwJxYpdd1uMdRiSqwZaTicehNmci`, 라이브: `https://markdown-studio.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_md_login_desktop_v111.png`: 데스크톱 1440px 로그인 탭 화면 (격자 배경, 딥 인디고 알약 탭, 인풋/버튼/약관 푸터 완벽 일치).
+       - `edge_md_signup_desktop_v111.png`: 데스크톱 1440px 회원가입 탭 화면 (구독 안내 문구 + AIMaster 가입 링크 버튼 정상 토글).
+       - `edge_md_login_mobile_v111.png`: 모바일 390px 반응형 뷰 (넘침 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 1번 `markdown-studio` 상태 `✅ 1차 작업완료 (`v1.11`, 포커스 스튜디오 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `markdown-studio` 작업 행 삭제 완료.
+
 ## 2026-10-17 Claude Code(윈도우) — INSTA 3개 앱 ID 형식 검사·시험 계정 연결 성공
 
 - 시험 계정 "Invalid platform app" 원인: Instagram 앱 ID를 다시 저장하며 끝자리 1 누락(15자리) → 주인님 재입력 후 시험 계정 INSTA DM·댓글 새 주소 연결 성공(DB 갱신 확인).
