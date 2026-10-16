@@ -8,6 +8,8 @@
 - **특이사항**: /guide 전환 때 이전 heading을 만족해 설정 화면을 찍을 수 있는 검수 대기를 URL+고유 제목으로 수정, 로컬/운영 재검수·캡처 교체. 공유 index의 타 CLI 파일을 포함하지 않도록 별도 index·허용 경로 gate로 커밋하고 원래 index 보존.
 - **후속 위험/다음 단계**: #11 기존 Next14 포함 audit 15건(critical 1), #12 전역 캐시의 일반 authenticated INSERT/UPDATE가 최상위 공용 데이터 쓰기 지침과 충돌해 정비 필요. 미해결·미구현으로 기록했으며 DB 정책/유료 호출은 승인 없이 바꾸지 않음. 기존 순위 변동·전체 노출 빈도·CSV·Cron도 후속 제안. 디자인/검수 인수 완료 범위와 보안 미해결을 구분.
 - **진입 문서/증거**: [최종 인수인계](../competitor-analysis/docs/IMPROVEMENT_HANDOFF_20261016.md), [디자인·검수 7절](../competitor-analysis/docs/DESIGN_HANDOFF.md), [개선 원장](../competitor-analysis/docs/IMPROVEMENTS.md), [운영 증거](../competitor-analysis/docs/evidence/runtime-live.json). DESIGN 50번 1차 작업완료, ACTIVE_WORK 내 줄 제거. 다음 CLI는 루트→작업 중 표→이 최종 문서→#11/#12 플랜부터 확인.
+- **마지막 메인 복구**: 문서 Git 자동배포의 installer 404 확인 → 새 SEO 주소 변경을 포함한 소스 325710c4 + 기존 installer로 **dpl_5ptzk1yEsWQSfdt9LgLkaYU8ZGHR** READY 재배포. 홈·EXE·ZIP 200, 실제 Edge 새 SEO 주소 이동 확인. [메인 증거](../competitor-analysis/docs/evidence/main-artifacts.json). 루트 복구 registry도 이 새 배포로 갱신했으며 과거 3RZ/3Yjt를 재지정하지 않습니다.
+
 
 ## 2026-10-16 Claude Code(윈도우) — naver-blog-seo-studio 새 주소 이전(v1.65) · 텔레그램 웹훅 5개 이전 확인 · Instagram 앱 ID 안내
 

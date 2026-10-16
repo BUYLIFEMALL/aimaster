@@ -56,3 +56,8 @@
 | 검수 | 합성 15개, 로컬/운영 회원 각 12개, 모두 통과 |
 
 [배포 증거](evidence/deployment-v107.json), [버전 DML](../supabase/releases/20261016_v107.sql), [Windows 최종 인수인계](IMPROVEMENT_HANDOFF_20261016.md). 신규 운영 코드 변경은 없으며 최종 문서·검사 대기 보완은 이후 문서 커밋 이력에서 확인합니다.
+
+
+### 메인 다운로드 보존 검사
+
+최신 메인 소스 325710c4 + 기존 installer로 dpl_5ptzk1yEsWQSfdt9LgLkaYU8ZGHR READY 배포. 홈·설치 EXE·확장 ZIP 200, 다른 CLI의 SEO Studio 새 주소 전달 유지(실제 Edge 확인). [증거](evidence/main-artifacts.json). 최종 Git 문서 푸시 후 복구 guard 기준도 이 새 메인 배포입니다. 메인 배포 소스 325710c4와 경쟁사 앱 배포 소스 c80a44af를 구분합니다.

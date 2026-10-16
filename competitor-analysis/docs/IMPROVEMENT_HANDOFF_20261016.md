@@ -39,4 +39,11 @@
 - **남은 위험/제안**: #11 기존 의존성 15건(critical 1 포함), #12 전역 캐시 authenticated INSERT/UPDATE는 미해결입니다. 정비 플랜·DB 정책 변경 승인 전 분석/캐시 쓰기 검사를 하지 않습니다. 기존 #7~10 순위 변동·노출 빈도 전체 표·CSV·Cron도 미구현/부분 구현입니다. 이번 완료는 디자인 인수·무료 검수 범위이며 보안 전체 해결·유료 분석 품질 검증 완료를 뜻하지 않습니다.
 - **다음 첫 단계**: 루트 지침 → ACTIVE_WORK 단독 점유 확인 → 이 최종 절 → IMPROVEMENTS #11/#12 → 공식 보안 공지·RLS/승인 이력 대조 → 새 개발 플랜 제시. 유료 분석·회원 키 변경·DB 스키마/정책 변경은 별도 승인 범위입니다.
 - **재현**: npm run build:verify; npm run test:browser; node tests/local.mjs start(127.0.0.1:3035) 후 npm run test:runtime. 운영은 CA_TEST_BASE=https://competitor-analysis.buylife.xyz. tests/의 합성 어댑터를 앱 경로에 연결하지 않습니다. 검사 키·세션·비밀번호는 기록하지 않습니다.
-- **현황판/메인 보호**: DESIGN 50번 ✅ 1차 작업완료(v1.07, 스마트 매트릭스 스타일), ACTIVE_WORK 내 줄 제거. 마지막 푸시의 메인 자동배포 이후 scripts/finalize-supabase-compat-main.cjs로 현재 검증 배포 dpl_3RZnj5z1KY5SMeVrUQmoAKr11oRR 및 홈·EXE·ZIP 200을 확인합니다. 오래된 메인 배포로 회귀하지 않습니다.
+- **현황판/메인 보호**: DESIGN 50번 ✅ 1차 작업완료(v1.07, 스마트 매트릭스 스타일), ACTIVE_WORK 내 줄 제거. 마지막 푸시의 메인 자동배포 이후 scripts/finalize-supabase-compat-main.cjs로 최신 검증 배포 dpl_5ptzk1yEsWQSfdt9LgLkaYU8ZGHR 및 홈·EXE·ZIP 200을 확인합니다. 오래된 메인 배포로 회귀하지 않습니다.
+
+
+## 최종 공통 운영 복구 — 메인 설치 파일 (2026-10-16)
+
+마지막 푸시 뒤 메인 자동 배포에서 Git 제외 설치 파일이 빠져 다운로드가 404였습니다. 이전 검증 배포와 현재 메인 사이에 다른 CLI의 SEO Studio 새 주소 전달 변경이 있어 기존 guard가 올바르게 과거 배포 재지정을 막았습니다. 최신 소스 325710c4를 고정하고 기존 72,796,208바이트 installer를 포함해 메인을 재배포했습니다. 새 배포 **dpl_5ptzk1yEsWQSfdt9LgLkaYU8ZGHR** READY, https://aimaster-lp7mxzpqb-buylife.vercel.app. 홈·설치 EXE·확장 ZIP 200, 보이는 Edge에서 기존 SEO 경로가 naver-blog-seo-studio.buylife.xyz로 이동하는 것까지 확인했습니다. 프로그램 DB/권한 변경 없음. 루트 빌드는 성공했으나 기존 설정에 따라 TypeScript 검증은 생략됐습니다. [HTTP/배포 증거](evidence/main-artifacts.json), [Edge 이동 증거](evidence/main-redirect-edge.json).
+
+복구 기준은 docs/supabase-compat-rollout-20261016/deployments.json의 루트 행(소스 325710c4·위 새 ID)으로 갱신했습니다. 이전 3RZ/3Yjt 배포는 이번 메인 변경보다 과거 이력이므로 최신 메인 복구 대상으로 사용하지 않습니다. 이후 최종 문서 푸시가 끝난 다음 guard로 새 기준을 재확인합니다.

@@ -4,6 +4,8 @@
 
 > 먼저 [최상위 DB 지침](DATABASE_CONNECTION_POLICY.md)과 [최신 인수인계](HANDOFF.md)를 읽습니다. 앞으로 Codex 개발·회원 검수는 **보이는 Microsoft Edge**를 사용합니다. 로컬 Chrome 83/83은 브라우저 지정 전 이력입니다.
 
+> **2026-10-16 최신 메인 복구 기준:** 경쟁사 v1.07 최종 푸시 후 installer 404를 복구하면서 다른 CLI의 최신 SEO Studio 새 주소 전달도 보존했습니다. 메인 소스 `325710c4`, 배포 **`dpl_5ptzk1yEsWQSfdt9LgLkaYU8ZGHR`**, https://aimaster-lp7mxzpqb-buylife.vercel.app, 홈·EXE·ZIP 200. 실제 기준은 `supabase-compat-rollout-20261016/deployments.json` 루트 행과 `scripts/finalize-supabase-compat-main.cjs`이며 아래 과거 3Yjt/3RZ 기록은 당시 이력입니다. [복구 증거](../competitor-analysis/docs/evidence/main-artifacts.json).
+
 ## 완료 증거
 
 | 항목 | 결과 |
