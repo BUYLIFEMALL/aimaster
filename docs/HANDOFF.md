@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(Windows) — 모든 작업 결과·프로그램 링크·특이사항 인수인계 의무 재확인
+
+- **요청/결과**: 모든 작업 종료마다 결과와 프로그램 링크를 남기고, 발견한 특이사항·개선사항을 다음 CLI가 참고하도록 기록하는 공통 규칙을 보완했습니다.
+- **변경 위치**: 루트 AGENTS.md·CLAUDE.md·GEMINI.md 최상단 동일 문구, [공통 기록 지침·양식](IMPROVEMENT_HANDOFF_POLICY.md), [공통 개발 방식 15절](AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md#15-작업-완료-판단과-사용자-보고).
+- **필수 기록**: 결과·검수/미검수·버전·커밋/푸시·배포·확인한 서비스 URL·남은 일. 특이사항은 근거·원인/가설·영향·처리 상태·주의사항·다음 첫 단계·검수 방법까지 프로그램 docs에 저장하고 진입 문서에서 연결합니다. 미배포/미구현 상태는 구분하고, 새 발견이 없으면 없음으로 적습니다.
+- **검수/범위**: 세 최상단 규칙 일치, 로컬 문서 링크·양식·변경 범위 확인. 문서만 변경, 프로그램 버전·런타임·키·DB 불변, 유료 AI 0회. Git 자동 메인 배포 후 기존 검증 배포·다운로드 보존 검사를 수행합니다. 커밋/푸시는 이 항목 Git 이력에서 확인합니다.
+- **다음 CLI**: 작업 전 루트 지침 → ACTIVE_WORK → 최신 HANDOFF → 프로그램 AGENTS/README → 날짜별 인수인계·개선 원장을 읽습니다. 제안은 구현 승인으로 간주하지 않습니다. 이번 문서 작업의 서비스: https://www.buylife.xyz. 최근 프로그램 결과 예시: [Website Scraper](https://website-scraper.buylife.xyz), [인수인계](../ghost-scraper/docs/IMPROVEMENT_HANDOFF_20261016.md).
+
 ## 2026-10-16 Codex(Windows) — Website Scraper v1.12 운영 배포·보안·Edge 검수 완료
 
 - **대상/라이브**: ghost-scraper / website-scraper, https://website-scraper.buylife.xyz. 스마트 매트릭스 Tailwind v4 이식 마무리.
