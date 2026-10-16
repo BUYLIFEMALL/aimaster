@@ -6,6 +6,7 @@ import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { Button } from "@/components/ui/Button";
 import { connectInstagramAccountAction, disconnectInstagramAccountAction } from "@/lib/actions/accounts";
 import type { ApiKeyProvider } from "@/types/database.types";
+import { FACEBOOK_REDIRECT_NEW, FACEBOOK_REDIRECT_OLD, INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD } from "@/lib/oauthRedirect";
 
 const AUTH_METHOD_LABELS: Record<string, string> = {
   facebook_login: "Facebook 계정 연동",
@@ -125,9 +126,13 @@ export default async function SettingsPage({
               등록해주셔야 합니다. 또한 그 앱의 &quot;역할&quot; 메뉴에서 본인 인스타그램 계정을
               테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
             </p>
-            <code className="block break-all rounded bg-neutral-100 px-2 py-1.5 text-neutral-800">
-              {process.env.NEXT_PUBLIC_SITE_URL ?? "https://insta-auto-poster.vercel.app"}/api/instagram/callback/byok
-            </code>
+            {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && (
+              <p className="font-semibold text-neutral-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+            )}
+            <code className="block break-all rounded bg-neutral-100 px-2 py-1.5 text-neutral-800">{INSTAGRAM_REDIRECT_OLD()}</code>
+            {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && (
+              <code className="block break-all rounded bg-neutral-100 px-2 py-1.5 text-neutral-800">{INSTAGRAM_REDIRECT_NEW}</code>
+            )}
             <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
           </div>
 
@@ -173,6 +178,23 @@ export default async function SettingsPage({
                     연결 해제
                   </Button>
                 </form>
+                <div className="mt-3">
+                  {FACEBOOK_REDIRECT_OLD() !== FACEBOOK_REDIRECT_NEW && (
+                    <div className="flex flex-wrap gap-2">
+                      <form action={connectInstagramAccountAction}>
+                        <input type="hidden" name="method" value="facebook_login" />
+                        <input type="hidden" name="callback" value="new" />
+                        <Button type="submit" variant="secondary">Facebook 방식 새 주소로 다시 연결</Button>
+                      </form>
+                      <form action={connectInstagramAccountAction}>
+                        <input type="hidden" name="method" value="instagram_login" />
+                        <input type="hidden" name="callback" value="new" />
+                        <Button type="submit" variant="secondary">Instagram 방식 새 주소로 다시 연결</Button>
+                      </form>
+                      <p className="w-full text-xs text-neutral-500">Meta 앱에 새 콜백 주소를 등록한 경우에 사용하세요.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <div>
@@ -188,9 +210,13 @@ export default async function SettingsPage({
                     </form>
                     <p className="text-xs text-neutral-500">
                       Facebook 로그인 방식은 내 Meta 앱의 유효한 OAuth 리디렉션 URI에{" "}
-                      <code className="break-all rounded bg-neutral-100 px-1 py-0.5 text-neutral-800">
-                        {process.env.NEXT_PUBLIC_SITE_URL ?? "https://insta-auto-poster.vercel.app"}/api/instagram/callback
-                      </code>
+                      <code className="break-all rounded bg-neutral-100 px-1 py-0.5 text-neutral-800">{FACEBOOK_REDIRECT_OLD()}</code>
+                      {FACEBOOK_REDIRECT_OLD() !== FACEBOOK_REDIRECT_NEW && (
+                        <>
+                          {" 와 새 주소 "}
+                          <code className="break-all rounded bg-neutral-100 px-1 py-0.5 text-neutral-800">{FACEBOOK_REDIRECT_NEW}</code>
+                        </>
+                      )}
                       도 추가해야 합니다.
                     </p>
                     <form action={connectInstagramAccountAction}>
@@ -199,6 +225,21 @@ export default async function SettingsPage({
                         Instagram 로그인 방식으로 연결하기
                       </Button>
                     </form>
+                    {FACEBOOK_REDIRECT_OLD() !== FACEBOOK_REDIRECT_NEW && (
+                      <div className="flex flex-wrap gap-2">
+                        <form action={connectInstagramAccountAction}>
+                          <input type="hidden" name="method" value="facebook_login" />
+                          <input type="hidden" name="callback" value="new" />
+                          <Button type="submit" variant="secondary">Facebook 방식 새 주소로 연결</Button>
+                        </form>
+                        <form action={connectInstagramAccountAction}>
+                          <input type="hidden" name="method" value="instagram_login" />
+                          <input type="hidden" name="callback" value="new" />
+                          <Button type="submit" variant="secondary">Instagram 방식 새 주소로 연결</Button>
+                        </form>
+                        <p className="w-full text-xs text-neutral-500">Meta 앱에 새 콜백 주소를 등록한 경우에 사용하세요.</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <p className="text-xs text-neutral-500">Meta 앱 ID/Secret을 등록하면 연결 버튼이 나타납니다.</p>

@@ -16,12 +16,6 @@ import type { InstagramAuthMethod } from "@/types/database.types";
 //    대체(fallback) 방법으로 제공한다.
 export type { InstagramAuthMethod };
 
-function getEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`환경변수 ${name}가 설정되지 않았습니다.`);
-  return value;
-}
-
 /** 연동 방식에 맞는 Graph API host를 반환한다. 게시(퍼블리시) 로직에서 공통으로 쓴다. */
 export function graphBaseFor(method: InstagramAuthMethod): string {
   return method === "facebook_login" ? FACEBOOK_GRAPH_BASE : INSTAGRAM_GRAPH_BASE;
@@ -54,10 +48,10 @@ const FACEBOOK_INSTAGRAM_SCOPES = [
   "business_management",
 ].join(",");
 
-export function getFacebookAuthorizeUrl(state: string, appId: string): string {
+export function getFacebookAuthorizeUrl(state: string, appId: string, redirectUri: string): string {
   const params = new URLSearchParams({
     client_id: appId,
-    redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     scope: FACEBOOK_INSTAGRAM_SCOPES,
     response_type: "code",
     state,
@@ -65,11 +59,11 @@ export function getFacebookAuthorizeUrl(state: string, appId: string): string {
   return `${FACEBOOK_AUTHORIZE_BASE}?${params.toString()}`;
 }
 
-export async function exchangeFacebookCode(code: string, appId: string, appSecret: string): Promise<string> {
+export async function exchangeFacebookCode(code: string, appId: string, appSecret: string, redirectUri: string): Promise<string> {
   const params = new URLSearchParams({
     client_id: appId,
     client_secret: appSecret,
-    redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     code,
   });
   const response = await fetch(`${FACEBOOK_GRAPH_BASE}/oauth/access_token?${params.toString()}`);
@@ -144,10 +138,10 @@ const INSTAGRAM_GRAPH_BASE = "https://graph.instagram.com/v25.0";
 // 컨테이너 생성 + 게시(피드/카드뉴스 게시에 필요).
 const INSTAGRAM_LOGIN_SCOPES = "instagram_business_basic,instagram_business_content_publish";
 
-export function getInstagramAuthorizeUrl(state: string, appId: string): string {
+export function getInstagramAuthorizeUrl(state: string, appId: string, redirectUri: string): string {
   const params = new URLSearchParams({
     client_id: appId,
-    redirect_uri: getEnv("META_INSTAGRAM_BYOK_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: INSTAGRAM_LOGIN_SCOPES,
     state,
@@ -170,12 +164,13 @@ export async function exchangeInstagramCode(
   code: string,
   appId: string,
   appSecret: string,
+  redirectUri: string,
 ): Promise<ShortLivedTokenResponse> {
   const body = new URLSearchParams({
     client_id: appId,
     client_secret: appSecret,
     grant_type: "authorization_code",
-    redirect_uri: getEnv("META_INSTAGRAM_BYOK_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     code,
   });
 

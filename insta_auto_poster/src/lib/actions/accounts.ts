@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { resolveApiKey, PROVIDER_LABELS } from "@/lib/apiKeys";
 import { getFacebookAuthorizeUrl, getInstagramAuthorizeUrl } from "@/lib/instagram/client";
+import { FACEBOOK_REDIRECT_FOR, INSTAGRAM_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
 import { PENDING_INSTAGRAM_CONNECTION_COOKIE, type PendingInstagramConnection } from "@/lib/instagram/pendingConnection";
 import type { InstagramAuthMethod } from "@/types/database.types";
 
@@ -31,8 +32,10 @@ export async function connectInstagramAccountAction(formData: FormData) {
   }
 
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-  if (method === "instagram_login") redirect(getInstagramAuthorizeUrl(user.id, appId));
-  redirect(getFacebookAuthorizeUrl(user.id, appId));
+  // 기본은 회원 앱에 예전부터 등록된 옛 콜백, [새 주소로 연결](callback=new)은 새 콜백으로 인증한다(두 주소 동시 지원)
+  const callbackMode: CallbackMode = formData.get("callback") === "new" ? "new" : "old";
+  if (method === "instagram_login") redirect(getInstagramAuthorizeUrl(user.id, appId, INSTAGRAM_REDIRECT_FOR(callbackMode)));
+  redirect(getFacebookAuthorizeUrl(user.id, appId, FACEBOOK_REDIRECT_FOR(callbackMode)));
 }
 
 /** accounts/select 화면에서 사용자가 페이지를 확정 선택했을 때만 실제로 DB에 저장한다(facebook_login 전용). */
