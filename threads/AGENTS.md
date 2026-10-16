@@ -41,3 +41,8 @@ threads는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 
 - 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`(SITE_ORIGIN=auto-threads-posting.buylife.xyz·`THREADS_REDIRECT_OLD()`=환경변수 `THREADS_REDIRECT_URI`(옛 `threads-nu-dusky.vercel.app`)·`THREADS_REDIRECT_FOR(mode)`).
 - 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectThreadsAccountNewCallbackAction`)은 새 콜백. 옛 주소 307에 via=old, 교환은 via로 선택, 연결 후 이동 SITE_ORIGIN. 설정 화면 두 콜백 주소 표시. `getThreadsAuthorizeUrl(state, appId, redirectUri)`·`exchangeCodeForToken(..., redirectUri)`, 미사용 `getEnv` 제거.
 - 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, 시험 계정 [새 주소로 다시 연결] → Meta "리디렉션 URI 화이트리스트에 없음"(새 콜백 전송 확인).
+
+## 2026-10-17 v1.09 — 등록 주소 한눈에 보기·복사 버튼 (Claude Code 윈도우)
+- 주인님 요청(INSTA 포스팅 v1.14와 같은 형식): 설정 화면 맨 위 `ThreadsMetaAddressSummary`(① 앱 도메인 `buylife.xyz`+옛 호스트 ② 이용 사례 › Threads API 액세스 › 설정 › 리디렉션 콜백 URL 새·옛 ③ Threads 앱 ID 위치 ④ Threads 테스터 추가·초대 수락). `src/components/settings/CopyAddress.tsx`(복사 버튼)로 콜백 주소 표시 교체.
+- 같은 날 주인님이 Meta 앱에 새 콜백 등록 → 관리자 계정 [새 주소로 다시 연결] 성공(만료됐던 토큰 재발급, 만료 2026-12-15).
+- 검수: 빌드·배포·DB v1.09, 크롬에서 카드·복사 버튼 표시 확인.

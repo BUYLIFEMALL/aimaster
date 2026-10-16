@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { connectThreadsAccountAction, connectThreadsAccountNewCallbackAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
 import { THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { CopyAddress } from "@/components/settings/CopyAddress";
+import { ThreadsMetaAddressSummary } from "@/components/settings/ThreadsMetaAddressSummary";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "perplexity"];
@@ -65,6 +67,8 @@ export default async function SettingsPage({
         </div>
       )}
 
+      <ThreadsMetaAddressSummary />
+
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-3">
           <h2 className="text-sm font-bold text-neutral-900">🤖 콘텐츠 생성 AI 키</h2>
@@ -99,10 +103,10 @@ export default async function SettingsPage({
           {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
             <p className="font-semibold text-neutral-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
           )}
-          <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{THREADS_REDIRECT_OLD()}</code>
+          <CopyAddress value={THREADS_REDIRECT_OLD()} />
           {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
             <>
-              <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{THREADS_REDIRECT_NEW}</code>
+              <CopyAddress value={THREADS_REDIRECT_NEW} />
               <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
             </>
           )}
