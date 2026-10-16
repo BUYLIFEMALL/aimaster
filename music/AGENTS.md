@@ -148,3 +148,14 @@ POST 콜백을 보낸다. 이 라우트는:
 - **검수**: Microsoft Edge (`msedge`) 브라우저 전용 실세션 검수 완료 (데스크톱 1440px / 모바일 375px 스크린샷 5장 캡처).
 - **상세 문서**: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md), [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)
 
+## 2026-10-16 Suno v6 최신 엔진 반영 — v1.07 (music-automation)
+
+- **작업 내용**: 사용자 지시(Suno v6 출시 대응)에 따른 Suno 엔진 버전 표기 최신화.
+- **개편 범위**:
+  - `components/layout/Sidebar.tsx`: 좌측 사이드바 하단 배너 "Suno v3.5 & v4 엔진 탑재" ➔ "Suno v4 ~ v6 최신 엔진 탑재"로 갱신.
+  - `app/(dashboard)/plannings/page.tsx`: 곡 기획·트랙 관리 헤더 배지 "Suno v3.5 & v4" ➔ "Suno v4 ~ v6 Engine"으로 갱신.
+  - `lib/version.ts`: `APP_VERSION = "v1.07"` 판올림.
+- **DB 동기화**: `programs.version = 'v1.07'` 반영 완료 (`scratch/update_db_version.js` 실행).
+- **검수**: Microsoft Edge (`msedge`) 브라우저 전용 실세션 검수 완료 (`edge_suno_plannings_v107.png`).
+
+

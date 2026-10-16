@@ -42,7 +42,7 @@ export default async function PlanningsPage() {
             <span className="text-xl">🎵</span>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">내 곡 기획 · 트랙 관리</h1>
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
-              Suno v3.5 & v4
+              Suno v4 ~ v6 Engine
             </span>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400">

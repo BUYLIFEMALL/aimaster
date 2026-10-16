@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — 음악(SUNO)자동화 v1.07: Suno v6 최신 엔진 반영 및 엣지 검수 완료
+
+- **주인님 지시**: "현재 suno는 v6까지 나왔어 관련 내용 수정해줘" (사이드바 및 헤더 배지 수정 지적).
+- **대상 프로그램**: `music/` (slug: `music-automation`, `https://music-rho-virid-22.vercel.app`)
+- **완료 내용**:
+  1. **Suno 최신 엔진 버전 문구 및 배지 반영**:
+     - `components/layout/Sidebar.tsx`: 사이드바 하단 배너 "Suno v3.5 & v4 엔진 탑재" ➔ `✨ Suno v4 ~ v6 최신 엔진 탑재`로 최신화.
+     - `app/(dashboard)/plannings/page.tsx`: 곡 기획·트랙 관리 헤더 배지 "Suno v3.5 & v4" ➔ `Suno v4 ~ v6 Engine`으로 최신화.
+  2. **버전 및 DB 동기화**:
+     - `music/lib/version.ts`: `APP_VERSION = "v1.07"` 판올림.
+     - Supabase 공유 DB `programs.version = 'v1.07'` 동기화 완료.
+  3. **빌드 및 Vercel 배포**:
+     - Next.js 프로덕션 빌드(`npm run build`) 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_7SPYx2nZBhSz1Ann5ANg8AvXF6wJ` ➔ `https://music-rho-virid-22.vercel.app`).
+  4. **Microsoft Edge(엣지) 전용 실세션 검수 완료**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 주입 후 `edge_suno_plannings_v107.png` 캡처 완료 (사이드바 `v1.07`, 배너 `Suno v4 ~ v6 최신 엔진 탑재`, 헤더 배지 `Suno v4 ~ v6 Engine` 정상 확인).
+  5. **인수인계 문서화**:
+     - `music/AGENTS.md`, `music/docs/IMPROVEMENTS.md`, `music/docs/DESIGN_HANDOFF.md`, 루트 `DESIGN.md` 갱신.
+- **비용**: UI 텍스트 및 배지 최신화 작업으로 외부 유료 API 호출 0원.
+
 ## 2026-10-16 Antigravity(Windows) — 음악(SUNO)자동화 v1.06: Suno 본사이트 다크 스튜디오 스타일 리뉴얼 및 엣지 검수 완료
 
 - **주인님 지시**: "https://music-rho-virid-22.vercel.app/ suno 본싸이트 스타일,느낌을 살려줘 https://suno.com/discover", 스크린샷 5장 스타일 반영, "검정색 배경으로 작업".

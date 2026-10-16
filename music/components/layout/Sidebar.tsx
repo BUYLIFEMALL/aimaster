@@ -159,7 +159,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         <div className="mt-5 p-3 rounded-xl bg-gradient-to-br from-[#1c1a24] to-[#14141c] border border-orange-500/20 text-xs">
           <div className="flex items-center gap-1.5 font-bold text-orange-400 mb-1">
             <span>✨</span>
-            <span>Suno v3.5 & v4 엔진 탑재</span>
+            <span>Suno v4 ~ v6 최신 엔진 탑재</span>
           </div>
           <p className="text-[11px] text-zinc-400 leading-relaxed">
             고품질 보컬/악기 분리, 고음질 WAV 추출 및 멀티스타일 리믹스를 완벽 지원합니다.

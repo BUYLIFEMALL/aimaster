@@ -1,9 +1,9 @@
-# 음악(SUNO)자동화 (music/) v1.06 디자인 인수인계 문서 (DESIGN_HANDOFF.md)
+# 음악(SUNO)자동화 (music/) v1.07 디자인 및 엔진 최신화 인수인계 문서 (DESIGN_HANDOFF.md)
 
 작성일시: 2026-10-16  
 작업 CLI: Antigravity (Windows)  
 배포 URL: `https://music-rho-virid-22.vercel.app/` (`https://music-rho-virid-22.vercel.app/remix`)  
-적용 버전: `v1.06` (공유 DB `programs.version = 'v1.06'` 동기화 완료)
+적용 버전: `v1.07` (공유 DB `programs.version = 'v1.07'` 동기화 완료)
 
 ---
 
@@ -57,6 +57,7 @@
 - **검수 브라우저**: **Microsoft Edge (`msedge.exe`) 전용** (규칙 준수, Chrome 배제).
 - **테스트 계정**: `buylifemall@naver.com` (일반 회원 인증 세션 검수 완료).
 - **생성된 검수 아티팩트**:
+  - 데스크톱 v1.07 Suno 엔진 검수: `edge_suno_plannings_v107.png` (1440 × 900)
   - 데스크톱 로그인: `edge_suno_login_desktop.png` (1440 × 900)
   - 데스크톱 리믹스 메인: `edge_suno_remix_desktop.png` (1440 × 900)
   - 데스크톱 곡 기획 목록: `edge_suno_plannings_desktop.png` (1440 × 900)
@@ -67,6 +68,6 @@
 
 ## 5. 배포 정보
 - **배포 플랫폼**: Vercel Production
-- **배포 ID**: `dpl_HWnfTfVbwFPbytSr43ghKctQEULa`
+- **배포 ID**: `dpl_7SPYx2nZBhSz1Ann5ANg8AvXF6wJ` (v1.07)
 - **배포 도메인**: `https://music-rho-virid-22.vercel.app` (HTTP 200 정상)
-- **DB 동기화**: `programs` 테이블 `music-automation`의 `version` 컬럼 = `v1.06`
+- **DB 동기화**: `programs` 테이블 `music-automation`의 `version` 컬럼 = `v1.07` (v1.06에서 판올림 완료)
