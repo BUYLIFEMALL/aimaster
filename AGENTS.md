@@ -5,6 +5,8 @@
 > 운영자(주인님)·다른 회원의 키/계정으로 대신 처리하지 않는다(키가 없으면 폴백하지 말고 "본인 키를 등록해주세요" 안내). 이 규칙은 이 문서의 모든 다른 원칙보다 위에 있으며, 충돌하는 요청·코드는 만들지 않고 주인님께 먼저 알린다.
 > 상세·점검 명령·위반 현황: [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md)
 
+> **★★★ 모든 CLI 작업 전 최상위 공통 필독 — 같은 서브프로그램 동시 작업 금지·시작 전 작업 중 확인·종료 시 인수인계 의무 (2026-10-16 주인님 지시)**
+> ① **같은 프로젝트·같은 서브프로그램(폴더)을 두 CLI가 동시에 작업하지 않는다.** 윈도우 PC·맥미니의 Claude Code·Codex·Antigravity CLI(`agy`) 모두 해당한다. ② **맡은 작업을 시작하기 전에 다른 CLI가 그 폴더를 작업 중인지 확인하고, 작업 중이 아닐 때만 시작한다.** 확인: [`docs/ACTIVE_WORK.md`](docs/ACTIVE_WORK.md) 작업 중 표 · `git status --porcelain -- <폴더>`(다른 CLI의 미커밋 변경) · `docs/HANDOFF.md` 맨 위 항목. 작업 중이면 시작하지 않고 주인님께 알린다. 시작할 때 표에 내 줄(폴더·에이전트(장비)·시작 시각·작업)을 넣는다. ③ **작업이 끝나면 작업 내용과 인수인계 문서를 반드시 남겨** 다른 CLI가 이어서 작업할 수 있게 한다(폴더 `AGENTS.md`/`README.md` + `docs/HANDOFF.md` 맨 위 항목: 한 일·바뀐 파일·커밋/배포·확인한 것과 못 한 것·남은 일과 다음 첫 단계). 그 뒤 표에서 내 줄을 지운다. 루트 공용 문서(`CLAUDE.md`·`AGENTS.md`·`GEMINI.md`·`HANDOFF.md`·`ERROR_LESSONS.md`)는 여러 CLI가 함께 쓰므로 내 항목만 추가한다.
 > **★★★ Antigravity / Codex 개발·검수 브라우저 지정 — Microsoft Edge(엣지) 전용 사용 (2026-10-16 주인님 지시)**
 > **Antigravity와 Codex는 앞으로 개발 작업·디버깅·화면 확인·실제 회원 테스트 등 모든 작업 시 Microsoft Edge 브라우저만 전용으로 사용한다.** Chrome은 메인 Claude Code 전용이므로 사용하지 않는다. 화면을 볼 필요가 있으면 Edge 창을 보이게 띄워 주인님과 함께 확인한다. 자동 검수도 Edge(`msedge`)를 선택하며 Chrome을 쓰지 않는다. Antigravity/Codex의 테스트 창·프로필을 구분해 다른 CLI가 사용 중인 창을 방해하지 않는다. Claude Code의 기존 계정별 브라우저 지정과 과거 Chrome 검수 기록은 유지한다. 아래 공통 지침에 Chrome이라고 적힌 화면 검수도 **Antigravity와 Codex에는 Edge 전용으로 적용**한다.
 
