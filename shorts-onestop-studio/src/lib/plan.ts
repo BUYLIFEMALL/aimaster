@@ -22,7 +22,7 @@ export const UPLOAD_TIMES: Record<string, string[]> = {
 };
 export const MAX_PLAN_TOPICS = 30;
 
-export interface PlanEntry { date: string; time: string; category: string; title: string; hook: string; format: Format | null; projectId?: string; error?: string }
+export interface PlanEntry { date: string; time: string; category: string; title: string; hook: string; format: Format | null; projectId?: string; error?: string; done?: { bg?: boolean; voice?: boolean; mp4?: boolean } }
 export interface PlanData {
   stage: Stage; perDay: number; days: number; start: string; categories: string[]; seed: string;
   strategy: { summary: string; focus: string[]; tips: string[] };
@@ -34,16 +34,41 @@ export function addDays(ymd: string, n: number): string {
   const d = new Date(`${ymd}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10);
 }
 
-/** AI가 준 주제를 날짜·분야·시각에 순서대로 배치한다(분야는 돌아가며) */
-export function buildSchedule(topics: { title: string; hook: string; format: Format | null; category?: string }[], o: { start: string; days: number; perDay: number; categories: string[] }): PlanEntry[] {
+/** 한국 시간 지금 { 날짜, "HH:MM" } */
+export function nowKst(ms = Date.now()): { date: string; time: string } {
+  const iso = new Date(ms + 9 * 3600_000).toISOString(); return { date: iso.slice(0, 10), time: iso.slice(11, 16) };
+}
+const toMin = (hm: string) => Number(hm.slice(0, 2)) * 60 + Number(hm.slice(3, 5));
+const toHm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+export const sortEntries = (e: PlanEntry[]) => [...e].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+/** AI가 준 주제를 날짜·분야·시각에 순서대로 배치한다(분야는 돌아가며).
+ *  오늘 일정 중 이미 지났거나 30분 안에 닥치는 시각은 그 분야의 다음 추천 시각 → 없으면 지금+1시간(30분 단위) → 그래도 23:30을 넘으면 계획 전체를 하루 뒤로 미룬다 */
+export function buildSchedule(topics: { title: string; hook: string; format: Format | null; category?: string }[], o: { start: string; days: number; perDay: number; categories: string[] }, now = nowKst()): PlanEntry[] {
   const out: PlanEntry[] = []; let k = 0;
-  for (let d = 0; d < o.days; d++) for (let p = 0; p < o.perDay; p++) {
-    const t = topics[k]; if (!t) return out;
-    const cat = t.category && o.categories.includes(t.category) ? t.category : o.categories[k % o.categories.length];
-    out.push({ date: addDays(o.start, d), time: (UPLOAD_TIMES[cat] ?? ["19:00", "12:30", "21:00"])[p] ?? "19:00", category: cat, title: t.title, hook: t.hook, format: t.format });
-    k++;
+  for (let d = 0; d < o.days; d++) {
+    const date = addDays(o.start, d); const used = new Set<string>();
+    for (let p = 0; p < o.perDay; p++) {
+      const t = topics[k]; if (!t) return sortEntries(out);
+      const cat = t.category && o.categories.includes(t.category) ? t.category : o.categories[k % o.categories.length];
+      const times = UPLOAD_TIMES[cat] ?? ["19:00", "12:30", "21:00"];
+      let time = times[p] ?? "19:00";
+      if (date === now.date) {
+        const limit = toMin(now.time) + 30;
+        if (toMin(time) < limit || used.has(time)) {
+          const later = [...times].sort().find((x) => toMin(x) >= limit && !used.has(x));
+          let m = later ? toMin(later) : Math.ceil((toMin(now.time) + 60) / 30) * 30;
+          while (!later && used.has(toHm(m)) && m <= 23 * 60 + 30) m += 30;
+          if (m > 23 * 60 + 30) return buildSchedule(topics, { ...o, start: addDays(o.start, 1) }, now);
+          time = toHm(m);
+        }
+      }
+      used.add(time);
+      out.push({ date, time, category: cat, title: t.title, hook: t.hook, format: t.format });
+      k++;
+    }
   }
-  return out;
+  return sortEntries(out);
 }
 
 export function cleanTopics(raw: unknown): { title: string; hook: string; format: Format | null; category?: string }[] {

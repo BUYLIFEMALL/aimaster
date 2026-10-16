@@ -1,11 +1,18 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CalendarDays, Square, Trash2, Wand2, Layers } from "lucide-react";
+import { CalendarDays, Check, Download, Pencil, Square, Trash2, Wand2, Layers, X } from "lucide-react";
 import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
 import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
 import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, type ShortsScript, type Tone } from "@/lib/script";
-import { MAX_PLAN_TOPICS, STAGES, UPLOAD_TIMES, type PlanData, type Stage } from "@/lib/plan";
+import { MAX_PLAN_TOPICS, STAGES, UPLOAD_TIMES, sortEntries, type PlanData, type PlanEntry, type Stage } from "@/lib/plan";
+import { fillBackgrounds, makeVoices, prepareMedia } from "@/lib/pipeline";
+import { exportMp4 } from "@/lib/render/export";
+
+type Steps = { bg: boolean; voice: boolean; mp4: boolean };
+/** 이 항목에 아직 남은 단계가 있는가 */
+const remains = (e: PlanEntry, st: Steps) => !e.projectId || (st.bg && !e.done?.bg) || (st.voice && !e.done?.voice) || (st.mp4 && !e.done?.mp4);
+const fileName = (t: string) => `${t.replace(/[\\/:*?"<>|]/g, "").slice(0, 40).trim() || "shorts"}.mp4`;
 
 const today = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 const DAY = ["일", "월", "화", "수", "목", "금", "토"];
@@ -18,7 +25,10 @@ export function PlanView() {
   const [perDay, setPerDay] = useState(1), [days, setDays] = useState(7), [start, setStart] = useState(today()), [seed, setSeed] = useState("");
   const [sel, setSel] = useState<Set<number>>(new Set()), [tone, setTone] = useState<Tone>("friendly"), [cards, setCards] = useState(5), [useGuide, setUseGuide] = useState(true);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [prog, setProg] = useState<{ done: number; total: number; ok: number } | null>(null);
-  const stopRef = useRef(false);
+  const [steps, setSteps] = useState<Steps>({ bg: true, voice: false, mp4: false });
+  const [edit, setEdit] = useState<{ i: number; title: string; date: string; time: string } | null>(null);
+  const [files, setFiles] = useState<{ name: string; url: string; mb: number }[]>([]);
+  const stopRef = useRef(false); const abortRef = useRef<AbortController | null>(null);
   const count = perDay * days;
 
   const load = useCallback(async (pick?: string) => {
@@ -58,30 +68,67 @@ export function PlanView() {
 
   async function bulk() {
     if (!item) return;
-    const idx = [...sel].sort((a, b) => a - b).filter((i) => !item.data.entries[i]?.projectId);
-    if (!idx.length) { setMsg({ text: "대본이 아직 없는 주제를 골라 주세요." }); return; }
+    const idx = [...sel].sort((a, b) => a - b).filter((i) => item.data.entries[i] && remains(item.data.entries[i], steps));
+    if (!idx.length) { setMsg({ text: "남은 단계가 있는 주제를 골라 주세요." }); return; }
     stopRef.current = false; setMsg(null); setProg({ done: 0, total: idx.length, ok: 0 });
-    let data = structuredClone(item.data); let ok = 0; const guides = new Map<string, string>();
-    for (let k = 0; k < idx.length; k++) {
-      if (stopRef.current) break;
-      const e = data.entries[idx[k]];
-      setBusy(`대본 만드는 중… (${k + 1}/${idx.length}) ${e.title}`);
+    let data = structuredClone(item.data); let ok = 0; let halted = false; const guides = new Map<string, string>();
+    const persist = async () => { data = structuredClone(data); await savePlan(data).catch(() => undefined); }; // 단계마다 저장(탭을 닫아도 끝난 단계는 남음)
+    for (let k = 0; k < idx.length && !stopRef.current; k++) {
+      let e = data.entries[idx[k]]; const tag = `(${k + 1}/${idx.length}) ${e.title}`;
+      const set = (patch: Partial<PlanEntry>) => { e = { ...e, ...patch }; data.entries[idx[k]] = e; };
       try {
-        if (!guides.has(e.category)) guides.set(e.category, await guidelineFor(e.category));
-        const g = guessFromTopic(e.title);
-        const { script } = await api<{ script: ShortsScript }>("/api/ai/script", { body: { topic: e.title, category: e.category, tone, format: e.format ?? g.format ?? "list", cards: g.cards ?? cards, guideline: guides.get(e.category) } });
-        const { item: proj } = await api<{ item: Item<ShortsScript> }>("/api/items", { body: { kind: "project", title: e.title, data: script } });
-        data.entries[idx[k]] = { ...e, projectId: proj.id, error: undefined }; ok++;
+        let script: ShortsScript | null = null;
+        if (!e.projectId) {
+          setBusy(`대본 만드는 중… ${tag}`);
+          if (!guides.has(e.category)) guides.set(e.category, await guidelineFor(e.category));
+          const g = guessFromTopic(e.title);
+          script = (await api<{ script: ShortsScript }>("/api/ai/script", { body: { topic: e.title, category: e.category, tone, format: e.format ?? g.format ?? "list", cards: g.cards ?? cards, guideline: guides.get(e.category) } })).script;
+          const { item: proj } = await api<{ item: Item<ShortsScript> }>("/api/items", { body: { kind: "project", title: e.title, data: script } });
+          set({ projectId: proj.id, error: undefined }); await persist();
+        }
+        const pid = e.projectId!;
+        const load = async (): Promise<ShortsScript> => script ?? (script = (await api<{ item: Item<ShortsScript> }>(`/api/items?id=${pid}`)).item.data);
+        const store = async (s2: ShortsScript) => { script = s2; await api("/api/items", { method: "PATCH", body: { id: pid, data: s2 } }); };
+        if (steps.bg && !e.done?.bg && !stopRef.current) {
+          setBusy(`배경 채우는 중… ${tag}`); await store(await fillBackgrounds(await load()));
+          set({ done: { ...e.done, bg: true } }); await persist();
+        }
+        if (steps.voice && !e.done?.voice && !stopRef.current) {
+          await store(await makeVoices(await load(), (n, t) => setBusy(`음성 만드는 중(${n}/${t})… ${tag}`)));
+          set({ done: { ...e.done, voice: true } }); await persist();
+        }
+        if (steps.mp4 && !e.done?.mp4 && !stopRef.current) {
+          setBusy(`MP4 준비 중… ${tag}`);
+          const s2 = await load(); const m = await prepareMedia(s2);
+          const ac = new AbortController(); abortRef.current = ac;
+          const blob = await exportMp4({ script: s2, media: m.media, audioUrls: m.audioUrls, signal: ac.signal, onProgress: (pr) => setBusy(`MP4 ${pr.pct}% … ${tag}`) });
+          setFiles((fs) => [...fs, { name: fileName(e.title), url: URL.createObjectURL(blob), mb: Math.round((blob.size / 1048576) * 10) / 10 }]);
+          set({ done: { ...e.done, mp4: true } }); await persist();
+        }
+        set({ error: undefined }); ok++;
       } catch (err) {
-        data.entries[idx[k]] = { ...e, error: toMsg(err)?.text ?? "실패" };
-        if ((err as { needKey?: boolean }).needKey) { setMsg(toMsg(err)); data = structuredClone(data); await savePlan(data).catch(() => undefined); break; }
-      }
-      data = structuredClone(data);
-      await savePlan(data).catch(() => undefined); // 한 편마다 저장(중간에 탭을 닫아도 만든 것은 남음)
+        const aborted = err instanceof DOMException && err.name === "AbortError";
+        set({ error: aborted ? "멈춤" : err instanceof Error ? err.message : "실패" });
+        if ((err as { needKey?: boolean }).needKey) { setMsg(toMsg(err)); halted = true; }
+      } finally { abortRef.current = null; }
+      await persist();
       setProg({ done: k + 1, total: idx.length, ok });
+      if (halted) break;
     }
     setBusy(""); setSel(new Set());
-    setMsg((m) => m ?? { text: `${ok}편의 대본을 만들어 보관함에 저장했습니다${stopRef.current ? "(중간에 멈춤)" : ""}. 각 주제의 [열기]로 배경·음성·MP4를 이어서 만드세요.`, ok: ok > 0 });
+    if (!halted) setMsg({ text: `${ok}편을 처리해 보관함에 저장했습니다${stopRef.current ? "(중간에 멈춤)" : ""}.${steps.mp4 ? " 아래 [MP4 내려받기]로 저장하세요(이 화면을 벗어나면 사라집니다)." : " 각 주제의 [열기]로 이어서 다듬으세요."}`, ok: ok > 0 });
+  }
+
+  async function saveEdit() {
+    if (!item || !edit) return;
+    if (edit.title.trim().length < 4 || !/^\d{4}-\d{2}-\d{2}$/.test(edit.date) || !/^\d{2}:\d{2}$/.test(edit.time)) { setMsg({ text: "주제는 4자 이상, 날짜·시각을 모두 넣어 주세요." }); return; }
+    const entries = [...item.data.entries]; entries[edit.i] = { ...entries[edit.i], title: edit.title.trim().slice(0, 60), date: edit.date, time: edit.time };
+    try { await savePlan({ ...item.data, entries: sortEntries(entries) }); setEdit(null); setSel(new Set()); setMsg({ text: "일정을 고쳤습니다.", ok: true }); } catch (e) { setMsg(toMsg(e)); }
+  }
+  async function removeEntry(i: number) {
+    if (!item) return;
+    const gone = item.data.entries[i];
+    try { await savePlan({ ...item.data, entries: item.data.entries.filter((_, j) => j !== i) }); setSel(new Set()); setMsg({ text: `「${gone.title}」을 일정에서 뺐습니다${gone.projectId ? "(만든 대본은 보관함에 그대로 있습니다)" : ""}.`, ok: true }); } catch (e) { setMsg(toMsg(e)); }
   }
 
   async function remove() {
@@ -90,12 +137,14 @@ export function PlanView() {
   }
 
   const p = item?.data; const entries = p?.entries ?? [];
-  const pending = entries.map((e, i) => (!e.projectId ? i : -1)).filter((i) => i >= 0);
+  const pending = entries.map((e, i) => (remains(e, steps) ? i : -1)).filter((i) => i >= 0);
+  const selE = [...sel].map((i) => entries[i]).filter(Boolean);
+  const est = { text: selE.filter((e) => !e.projectId).length + (steps.bg ? selE.filter((e) => !e.done?.bg).length : 0), tts: steps.voice ? selE.filter((e) => !e.done?.voice).length * (cards + 2) : 0, mp4: steps.mp4 ? selE.filter((e) => !e.done?.mp4).length : 0 };
   const toggle = (i: number) => setSel((s) => { const n = new Set(s); if (n.has(i)) n.delete(i); else n.add(i); return n; });
 
   return (
     <>
-      <Hero eyebrow="STEP 5 · 발행 계획" title="📅 업로드 일정을 짜고 여러 편을 한꺼번에" desc="채널 단계와 분야를 고르면 AI가 운영 전략과 날짜별 주제를 짜고, 분야별 추천 시간대에 배치합니다. 일정에서 주제를 골라 대본을 순서대로 한꺼번에 만들어 보관함에 저장하세요." emoji="📅" meta={["🧭 채널 단계 6가지", "⏰ 분야별 추천 시간대", "🗂️ 대본 일괄 제작"]} />
+      <Hero eyebrow="STEP 5 · 발행 계획" title="📅 업로드 일정을 짜고 여러 편을 한꺼번에" desc="채널 단계와 분야를 고르면 AI가 운영 전략과 날짜별 주제를 짜고, 분야별 추천 시간대에 배치합니다. 일정을 고치고, 고른 주제를 대본·배경·음성·MP4까지 순서대로 한꺼번에 만드세요." emoji="📅" meta={["🧭 채널 단계 6가지", "⏰ 분야별 추천 시간대", "🗂️ 대본~MP4 일괄 제작"]} />
       <div className="stack">
         <Message msg={msg} />
         <section className="card stack">
@@ -139,14 +188,24 @@ export function PlanView() {
             <div className="row" style={{ justifyContent: "space-between" }}>
               <h2><CalendarDays size={16} /> ② 업로드 일정 <small>{entries.filter((e) => e.projectId).length}/{entries.length} 대본 완료</small></h2>
               <div className="actions">
-                <button type="button" className="link-button" onClick={() => setSel(new Set(pending))}>대본 없는 주제 모두 고르기</button>
+                <button type="button" className="link-button" disabled={!!busy} onClick={() => setSel(new Set(pending))}>남은 단계가 있는 주제 모두 고르기</button>
                 {sel.size > 0 && <button type="button" className="link-button" onClick={() => setSel(new Set())}>선택 해제</button>}
               </div>
             </div>
-            <div className="list">{entries.map((e, i) => (
-              <div key={i} className="list-item">
+            <div className="list">{entries.map((e, i) => edit?.i === i ? (
+              <div key={i} className="list-item stack" style={{ alignItems: "stretch" }}>
+                <input value={edit.title} maxLength={60} onChange={(ev) => setEdit({ ...edit, title: ev.target.value })} aria-label="주제" />
+                <div className="row">
+                  <input type="date" value={edit.date} onChange={(ev) => setEdit({ ...edit, date: ev.target.value })} aria-label="날짜" style={{ flex: 1, minWidth: 140 }} />
+                  <input type="time" value={edit.time} onChange={(ev) => setEdit({ ...edit, time: ev.target.value })} aria-label="시각" style={{ flex: 1, minWidth: 110 }} />
+                  <button type="button" className="primary" onClick={() => void saveEdit()}><Check size={13} />저장</button>
+                  <button type="button" onClick={() => setEdit(null)}><X size={13} />취소</button>
+                </div>
+              </div>
+            ) : (
+              <div key={i} className="list-item plan-row">
                 <label className="row" style={{ gap: 10, minWidth: 0, flex: 1, fontWeight: 500, alignItems: "flex-start" }}>
-                  <input type="checkbox" disabled={!!e.projectId || !!busy} checked={sel.has(i)} onChange={() => toggle(i)} style={{ marginTop: 4 }} />
+                  <input type="checkbox" disabled={!remains(e, steps) || !!busy} checked={sel.has(i)} onChange={() => toggle(i)} style={{ marginTop: 4 }} />
                   <div style={{ minWidth: 0 }}>
                     <small className="muted">{e.date.slice(5)}({dow(e.date)}) {e.time} · {e.category}{e.format ? ` · ${FORMATS[e.format].label}` : ""}</small>
                     <strong style={{ display: "block" }}>{e.title}</strong>
@@ -154,8 +213,10 @@ export function PlanView() {
                     {e.error && <small style={{ color: "var(--err)", display: "block" }}>⚠️ {e.error}</small>}
                   </div>
                 </label>
-                <div className="actions" style={{ flexShrink: 0 }}>
-                  {e.projectId ? <><span className="badge brand">✅ 대본</span><a className="button" href={`/topic?id=${e.projectId}`}>열기</a><a className="button" href={`/render?id=${e.projectId}`}>🎙️</a></> : <span className="badge">대본 전</span>}
+                <div className="actions plan-actions">
+                  {e.projectId ? <><span className="badge brand">✅ 대본</span>{e.done?.bg && <span className="badge brand" title="배경">🎨</span>}{e.done?.voice && <span className="badge brand" title="음성">🎙️</span>}{e.done?.mp4 && <span className="badge brand" title="MP4">🎬</span>}<a className="button" href={`/topic?id=${e.projectId}`}>열기</a><a className="button" href={`/render?id=${e.projectId}`} aria-label="음성·자막·영상">🎙️</a></> : <span className="badge">대본 전</span>}
+                  <button type="button" aria-label="고치기" disabled={!!busy} onClick={() => setEdit({ i, title: e.title, date: e.date, time: e.time })}><Pencil size={13} /></button>
+                  <button type="button" aria-label="일정에서 빼기" className="danger" disabled={!!busy} onClick={() => void removeEntry(i)}><Trash2 size={13} /></button>
                 </div>
               </div>))}</div>
           </section>
@@ -163,7 +224,13 @@ export function PlanView() {
 
         {p && (
           <section className="card stack">
-            <h2><Layers size={16} /> ③ 고른 주제 대본 한꺼번에 만들기 <small>{sel.size}개 선택</small></h2>
+            <h2><Layers size={16} /> ③ 고른 주제 한꺼번에 만들기 <small>{sel.size}개 선택</small></h2>
+            <div className="chips">
+              <span className="chip on">📝 대본(항상)</span>
+              <button type="button" className={`chip ${steps.bg ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, bg: !x.bg }))}>🎨 배경(스톡 자동)</button>
+              <button type="button" className={`chip ${steps.voice ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, voice: !x.voice }))}>🎙️ 음성</button>
+              <button type="button" className={`chip ${steps.mp4 ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, mp4: !x.mp4 }))}>🎬 MP4</button>
+            </div>
             <div className="field-grid">
               <label>말투<select value={tone} onChange={(e) => setTone(e.target.value as Tone)}>{Object.entries(TONES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
               <label>카드 수(주제에 숫자가 있으면 그 수)<select value={cards} onChange={(e) => setCards(Number(e.target.value))}>{Array.from({ length: MAX_CARDS - MIN_CARDS + 1 }, (_, i) => MIN_CARDS + i).map((n) => <option key={n} value={n}>{n}장</option>)}</select></label>
@@ -171,11 +238,13 @@ export function PlanView() {
             </div>
             {prog && <div className="stack" style={{ gap: 6 }}><div style={{ height: 10, borderRadius: 6, background: "var(--line)", overflow: "hidden" }}><div style={{ width: `${Math.round((prog.done / prog.total) * 100)}%`, height: "100%", background: "var(--brand)", transition: "width .3s" }} /></div><small className="muted">{prog.done}/{prog.total} 처리 · 성공 {prog.ok}편</small></div>}
             <div className="actions">
-              {busy.startsWith("대본") ? <button type="button" className="danger" onClick={() => { stopRef.current = true; }}><Square size={13} />이번 편까지만 하고 멈추기</button>
-                : <button className="primary" disabled={!!busy || sel.size === 0} onClick={() => void bulk()}><Layers size={14} />{sel.size}편 대본 만들기</button>}
-              <Busy on={busy.startsWith("대본")} label={busy} />
+              {busy && !busy.startsWith("AI") ? <button type="button" className="danger" onClick={() => { stopRef.current = true; abortRef.current?.abort(); }}><Square size={13} />멈추기</button>
+                : <button className="primary" disabled={!!busy || sel.size === 0} onClick={() => void bulk()}><Layers size={14} />{sel.size}편 만들기</button>}
+              <Busy on={!!busy && !busy.startsWith("AI")} label={busy} />
             </div>
-            <small className="muted">주제마다 본인 AI 키로 1회씩 순서대로 요청하고, 한 편이 끝날 때마다 보관함과 계획에 저장합니다. 실패한 주제는 표시하고 다음 주제로 넘어갑니다. 만드는 동안 이 탭을 열어 두세요.</small>
+            {sel.size > 0 && <small className="muted">💸 예상(본인 키): 텍스트 약 {est.text}회{est.tts ? ` · 음성 약 ${est.tts}회` : ""} · 스톡 검색 무료{est.mp4 ? ` · MP4 ${est.mp4}편(편당 영상 길이의 약 2~3배 시간, 서버 비용 없음)` : ""}</small>}
+            <small className="muted">주제마다 순서대로 처리하고 단계가 끝날 때마다 보관함과 계획에 저장합니다(이미 끝난 단계는 건너뜀). 실패한 주제는 표시하고 다음으로 넘어가며, 키가 없으면 멈춥니다. 음성은 각 대본의 음성 설정(처음엔 기본값 OpenAI GPT-4o mini TTS)으로 만듭니다. 만드는 동안 이 탭을 열어 두세요.</small>
+            {files.length > 0 && <div className="list">{files.map((x) => <div key={x.url} className="list-item"><span>🎬 {x.name}</span><a className="button primary" href={x.url} download={x.name}><Download size={13} />MP4 내려받기 ({x.mb}MB)</a></div>)}</div>}
           </section>
         )}
       </div>

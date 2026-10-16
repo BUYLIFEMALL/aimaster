@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
         strategy: { summary: String(st.summary ?? "").trim().slice(0, 400), focus: list(st.focus), tips: list(st.tips) },
         entries: buildSchedule(topics, { start, days, perDay, categories }), model: cfg.model,
       };
+      plan.start = plan.entries[0]?.date ?? start; // 오늘 남은 시간이 없으면 하루 뒤부터 시작
       return json({ plan });
     }
     throw new UserError(502, "AI가 계획을 완성하지 못했습니다. 기간을 줄이거나 다른 모델로 다시 시도해 주세요.");

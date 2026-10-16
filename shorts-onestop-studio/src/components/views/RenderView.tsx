@@ -11,19 +11,13 @@ import { sceneVoices, type ShortsScript, type Voice } from "@/lib/script";
 import { CAPTION_STYLES, TTS_MODELS, TTS_VOICES, normalizeAudio, type AudioSettings } from "@/lib/voice";
 import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } from "@/lib/render/scene";
 import { exportMp4, type ExportProgress } from "@/lib/render/export";
+import { measureAudio as measure } from "@/lib/pipeline";
 
 const label = (s: ShortsScript, i: number) => (i === 0 ? "인트로" : i === s.cards.length + 1 ? "아웃트로" : `카드 ${i}`);
 function setVoice(s: ShortsScript, i: number, v: Voice | undefined): ShortsScript {
   const c = structuredClone(s); const n = c.cards.length;
   if (i === 0) c.intro.voice = v; else if (i === n + 1) c.outro.voice = v; else c.cards[i - 1].voice = v;
   return c;
-}
-function measure(src: string): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const a = new Audio(); a.preload = "metadata"; a.crossOrigin = "anonymous";
-    a.onloadedmetadata = () => (Number.isFinite(a.duration) && a.duration > 0 ? resolve(Math.round(a.duration * 100) / 100) : reject(new Error("길이")));
-    a.onerror = () => reject(new Error("재생")); a.src = src;
-  });
 }
 
 export function RenderView() {

@@ -127,3 +127,7 @@ h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.35;font-weight:750;letter-sp
 .diagram.five{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1100px){.diagram.five{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:767px){.diagram.five{grid-template-columns:1fr}}
+
+/* ── 발행 계획 일정 줄(v1.08): 좁은 화면에서는 버튼을 아래 줄로 ── */
+.plan-actions{flex-shrink:0}
+@media(max-width:767px){.plan-row{flex-wrap:wrap}.plan-row>label{flex:1 1 100%!important}.plan-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}}
