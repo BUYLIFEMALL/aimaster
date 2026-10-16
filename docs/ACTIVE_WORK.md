@@ -16,7 +16,6 @@
 
 ## 작업 중
 
-| tarot (도메인 통일 SSO — 이후 DOMAIN_SSO_MIGRATION_PLAN 순서대로 한 프로그램씩) | Claude Code(Windows) | 2026-10-16 | tarot-reading.buylife.xyz 연결 |
 | ghost-scraper (Website Scraper, slug `website-scraper`) | Claude Code(맥미니) | 2026-10-16 | 스마트 매트릭스 스타일 디자인 리뉴얼 — 분석·플랜 → 구현(빌드·배포는 윈도우 요청) |
 
 

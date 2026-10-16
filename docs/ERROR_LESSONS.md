@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — 도메인 통일(SSO) 27개 일괄 이전에서 찾은 점검 사항 (Claude Code 윈도우)
+
+- ① 설정 화면의 "앱에 등록할 콜백 주소" 안내가 `NEXT_PUBLIC_SITE_URL ?? "<옛 주소>"` 기본값을 쓴다 → 기본값을 새 주소로 바꾸면 회원이 새 주소를 등록하는데 실제 교환은 옛 주소(환경변수 `*_REDIRECT_URI`)라 연결이 거부된다. **콜백 안내 줄은 바꾸지 않는다**(threads·threads-affiliate-poster에서 실제로 바뀌었다가 되돌림).
+- ② OAuth 콜백은 `callback/route.ts`만이 아니라 `callback/byok/route.ts` 같은 하위 경로도 있다(insta_auto_poster) → 콜백 넘기기 코드를 모든 하위 콜백에 넣었는지 옛 주소로 시험 요청(`curl -I <옛주소>/api/.../callback?code=t&state=x` → 새 주소 307)해 확인.
+- ③ 크롬 확장의 다리 코드(`web-bridge.js`)·백그라운드 출처 확인·매니페스트 `content_scripts.matches`가 옛 주소만 허용 → 화면을 새 주소로 옮기면 설치된 확장 연동이 끊긴다. 옛·새 주소 모두 허용하고 ZIP·DB까지 같은 작업에서(원칙 10). naver-blog-agent는 새 버전 알림이 다운로드 주소가 옛 주소로 시작할 때만 보여 `extension_download_url`은 옛 주소 유지.
+- ④ `src/` 구조에서 `@/` 별칭은 `src/`를 가리킨다 → 가져오기 경로를 `@/src/lib/...`로 쓰면 빌드 실패(threads).
+- ⑤ 이전 직후 확인: `curl -I <옛주소>/<화면>` 308, `curl <옛주소>/api/...` 이동 없음(크론·웹훅·확장 API 유지), 새 주소 로그인 필요 화면이 크롬에서 재로그인 없이 열림.
+
 ## 2026-10-16 — `node -e`·`sed`로 코드를 넣으면 정규식의 `\`가 사라짐 (shorts-onestop-studio v1.04~v1.07 → v1.10 수정)
 
 - 증상: Pixabay 사진 주소 갱신이 한 번도 실행되지 않음(24시간 뒤 배경 깨짐 가능), 업로드 문구 해시태그·검색 태그 칸이 영문 "s"에서 잘림.

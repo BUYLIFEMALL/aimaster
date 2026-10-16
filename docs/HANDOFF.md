@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — 도메인 통일(SSO) 27개 완료: 로그인 한 번으로 모든 프로그램 (`<slug>.buylife.xyz`)
+
+- 남은 27개 프로그램을 `<slug>.buylife.xyz`로 옮기고 로그인 쿠키를 `.buylife.xyz`로 공유(프로그램별 +0.01 배포·DB·마이그레이션). 활성 프로그램 중 `vercel.app` 주소 0개. 프로그램마다 시험 계정 크롬에서 재로그인 없이 열림 확인. 플랜·결과: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`, 정책 8절.
+- OAuth 8개는 옛 주소 콜백을 새 주소로 넘김(회원 앱 설정 변경 불필요). 확장 3개(ai-auto-blog·tistory-auto-blog·naver-blog-agent)는 확장도 갱신 → **회원 ZIP 재설치 안내 필요**.
+- **확인 필요(주인님)**: VIP 회원 19명(10/13~14 승급)이 승급 전 개별 사용기간(551건, 만료 2026-10-16 00:00 UTC)이 남아 있어 VIP 자동 부여가 덮지 못함 → 이 회원들이 해당 프로그램들을 못 쓰는 상태(유효 VIP 119/138). 회원 권한 데이터라 수정하지 않음.
+- 함께: `longtail-keyword-expander` v1.07 CSV 내려받기(실화면은 유료 검색 1회 필요로 미확인), `docs/PROGRAM_WORK_LIST.md`(맥미니 세션 작업리스트 이어받음).
+
 ## 2026-10-16 Antigravity(Windows) — AI 쇼츠 원스톱 제작 자동화 v1.12: 가이드북(/guide) 텍스트 크기 확대 및 줄넘김·카드화 가독성 개편 완료
 
 - **대상 프로그램**: `shorts-onestop-studio/` (slug: `shorts-onestop-studio`, `https://shorts-onestop-studio.buylife.xyz/guide`, 배포 버전: `v1.12`)
