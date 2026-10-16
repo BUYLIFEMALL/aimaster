@@ -11,6 +11,7 @@ import { SORT_LABEL, filterSort, nextOf, nextSort, prevOf, type QueueState } fro
 import {
   clearAll, deleteTracks, estimateUsage, getBlob, getCover, listTracks, loadSettings, openStore, putTrack, saveSettings, updateTrackText, type PlayerStore,
 } from "@/lib/player/storage";
+import { isStorageNearlyFull, largestTracks, usagePercent } from "@/lib/player/space";
 import { DEFAULT_SETTINGS, type PlayerSettings, type RepeatMode, type TrackMeta, type VisualizerMode } from "@/lib/player/types";
 import { Visualizer } from "./Visualizer";
 import { Equalizer } from "./Equalizer";
@@ -82,6 +83,8 @@ export function Player({ userId }: { userId: string }) {
   const [confirm, setConfirm] = useState<{ title: string; message: string; onOk: () => void } | null>(null);
   const [usage, setUsage] = useState<{ usage: number; quota: number } | null>(null);
   const [unsaved, setUnsaved] = useState<Set<string>>(new Set());
+  const [showBig, setShowBig] = useState(false);
+  const [bigPick, setBigPick] = useState<Set<string>>(new Set());
   const [helpKeys, setHelpKeys] = useState(false);
   const [legacyEncoding, setLegacyEncoding] = useState<LegacyTagEncoding>("auto");
   const editBusy = useRef(false);
@@ -722,10 +725,47 @@ export function Player({ userId }: { userId: string }) {
             );
           })}
         </div>
+        {/* MP-07(2026-10-17): 저장 공간 비율·80% 경고·임시 유지 곡 안내·큰 파일 정리 */}
+        <div className="mp-space">
+          {usagePercent(usage) !== null && (
+            <div className="mp-space-bar" role="meter" aria-label="브라우저 저장 공간 사용률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={usagePercent(usage) ?? 0}>
+              <span className={isStorageNearlyFull(usage) ? "warn" : ""} style={{ width: `${usagePercent(usage)}%` }} />
+            </div>
+          )}
+          {isStorageNearlyFull(usage) && (
+            <p className="mp-space-warn">저장 공간이 거의 찼어요({usagePercent(usage)}%). 큰 파일을 정리하면 새 곡을 계속 저장할 수 있어요.</p>
+          )}
+          {unsaved.size > 0 && (
+            <p className="mp-space-warn">{unsaved.size}곡은 저장 공간이 부족해 이번 접속에만 유지됩니다. 새로고침하면 목록에서 사라져요.</p>
+          )}
+          {showBig && (
+            <div className="mp-space-big">
+              <p>용량이 큰 곡 (삭제할 곡을 고르세요 · 원본 파일은 지워지지 않아요)</p>
+              {largestTracks(tracks).map((t) => (
+                <label key={t.id}>
+                  <input
+                    type="checkbox"
+                    checked={bigPick.has(t.id)}
+                    onChange={() => setBigPick((s) => { const n = new Set(s); if (n.has(t.id)) n.delete(t.id); else n.add(t.id); return n; })}
+                  />
+                  <span>{t.name}</span>
+                  <small>{formatBytes(t.size)}</small>
+                </label>
+              ))}
+              <div className="mp-space-actions">
+                <button type="button" className="danger" disabled={bigPick.size === 0 || !!busy} onClick={() => { askRemove([...bigPick], "큰 파일 정리"); setBigPick(new Set()); setShowBig(false); }}>
+                  선택한 {bigPick.size}곡 삭제
+                </button>
+                <button type="button" onClick={() => { setShowBig(false); setBigPick(new Set()); }}>닫기</button>
+              </div>
+            </div>
+          )}
+        </div>
         <div className="mp-list-foot">
           <small>
-            {usage ? `브라우저 저장 ${formatBytes(usage.usage)} / ${formatBytes(usage.quota)}` : "오디오 파일은 이 기기에만 저장됩니다"}
+            {usage ? `브라우저 저장 ${formatBytes(usage.usage)} / ${formatBytes(usage.quota)}${usagePercent(usage) !== null ? ` (${usagePercent(usage)}%)` : ""}` : "오디오 파일은 이 기기에만 저장됩니다"}
           </small>
+          {tracks.length > 0 && !showBig && <button type="button" disabled={!!busy} onClick={() => setShowBig(true)}>큰 파일 정리</button>}
           {tracks.length > 0 && <button type="button" className="danger" disabled={!!busy} onClick={clearEverything}>전체 삭제</button>}
         </div>
       </aside>

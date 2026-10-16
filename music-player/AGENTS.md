@@ -87,3 +87,8 @@
 - `docs/PROGRAM_WORK_LIST.md` 3번 / 백로그 MP-02. `src/components/player/Player.tsx`에 Media Session 연결: 곡 정보(제목·아티스트·앨범·커버 blob URL), playbackState(playing/paused/none), setPositionState(길이·속도·위치), 동작 play(멈춰 있을 때만 재생)·pause(멈춤만)·previoustrack·nexttrack·seekto·seekbackward/forward(기본 10초). 언마운트 시 핸들러 null로 정리. 미지원 브라우저는 그대로(에러 무시).
 - 검수: 빌드·tsc·npm test 통과, 프로덕션 배포(music-player-b3jazq9be → music-player.buylife.xyz), DB `programs.version` v1.06(`supabase/migrations/20261016_media_session_v106.sql`), VIP 138/138. 시험 계정 크롬에서 페이지 안에서 만든 8초 WAV(시험곡)를 추가해 재생 → mediaSession 제목·아티스트·playing 확인, 새로고침 후 paused·곡 정보 복원 확인.
 - **미검수**: 실제 키보드 미디어 키·크롬 툴바 미디어 컨트롤 클릭·휴대폰 잠금화면·이어폰 버튼(자동화 키 입력은 OS 미디어 라우팅에 전달되지 않음 — 주인님 직접 확인 필요). 시험 계정 브라우저 저장소에 시험곡 1개가 남아 있음(그 브라우저에만 있는 사본, 목록에서 삭제 가능).
+
+## 2026-10-17 v1.08 — MP-07 저장 공간 안내·큰 파일 정리 (Claude Code 윈도우)
+- 작업리스트 4번(`docs/PROGRAM_WORK_LIST.md`). `src/lib/player/space.ts`(`usagePercent`·`isStorageNearlyFull`(80%)·`largestTracks`(크기 큰 순 5개, 크기 0 제외)) + 단위 테스트(`tests/player.test.mjs`, 21개 통과).
+- `Player.tsx` 목록 아래: 사용 비율 막대(80% 이상 주황·빨강), 80% 경고 문구, 저장 공간 부족으로 "이번 접속에만 유지"되는 곡 수 안내, 하단 "브라우저 저장 X / Y (Z%)" + [큰 파일 정리] → 큰 곡 5개 선택 → 기존 확인 창(`askRemove`)으로만 삭제(원본 파일은 안 지움). `navigator.storage.estimate` 미지원 브라우저는 기존 문구 그대로.
+- 서버·DB 변경 없음(음악은 계속 회원 브라우저 IndexedDB에만).

@@ -141,3 +141,19 @@ test("ID3 없음·깨진 데이터는 빈 값", () => {
   const trunc = id3v23([["TIT2", utf8Text("abc")]]).slice(0, 15);
   assert.equal(parseId3(trunc).title, "");
 });
+
+test("MP-07 저장 공간 비율·경고·큰 파일", async () => {
+  const { usagePercent, isStorageNearlyFull, largestTracks } = await import("../src/lib/player/space.ts");
+  assert.equal(usagePercent(null), null);
+  assert.equal(usagePercent({ usage: 10, quota: 0 }), null);
+  assert.equal(usagePercent({ usage: 50, quota: 200 }), 25);
+  assert.equal(usagePercent({ usage: 300, quota: 200 }), 100);
+  assert.equal(isStorageNearlyFull({ usage: 79, quota: 100 }), false);
+  assert.equal(isStorageNearlyFull({ usage: 80, quota: 100 }), true);
+  assert.equal(isStorageNearlyFull(null), false);
+  const sz = (id, size, addedAt = 0) => ({ ...mk(id, id), size, addedAt });
+  const list = [sz("a", 5), sz("b", 50), sz("c", 0), sz("d", 50, -1), sz("e", 20), sz("f", 1), sz("g", 30)];
+  assert.deepEqual(largestTracks(list).map((t) => t.id), ["d", "b", "g", "e", "a"]);
+  assert.deepEqual(largestTracks(list, 2).map((t) => t.id), ["d", "b"]);
+  assert.equal(largestTracks([sz("x", 0)]).length, 0);
+});

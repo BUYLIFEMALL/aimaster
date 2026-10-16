@@ -1532,3 +1532,17 @@ button.danger:hover {
   .workspace-content { padding: 20px 14px; }
   .card { padding: 18px; }
 }
+
+/* MP-07(2026-10-17): 저장 공간 안내 */
+.mp-space { padding: 0 18px; display: flex; flex-direction: column; gap: 6px; }
+.mp-space:empty { display: none; }
+.mp-space-bar { height: 6px; border-radius: 999px; background: rgba(30, 41, 59, 0.9); overflow: hidden; margin-top: 8px; }
+.mp-space-bar span { display: block; height: 100%; background: linear-gradient(90deg, #06b6d4, #8b5cf6); }
+.mp-space-bar span.warn { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+.mp-space-warn { margin: 0; font-size: 12px; line-height: 1.5; color: #fbbf24; }
+.mp-space-big { margin-top: 6px; padding: 10px 12px; border: 1px solid rgba(30, 41, 59, 0.9); border-radius: 12px; background: rgba(7, 11, 20, 0.6); display: flex; flex-direction: column; gap: 6px; }
+.mp-space-big > p { margin: 0; font-size: 12px; color: #94a3b8; }
+.mp-space-big label { display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; color: #e2e8f0; cursor: pointer; }
+.mp-space-big label span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mp-space-big label small { color: #64748b; font-size: 11px; flex-shrink: 0; }
+.mp-space-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
