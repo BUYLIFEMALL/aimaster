@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 유튜브 댓글자동화 v1.10: v1.09 후속 마무리
+
+- 커밋 `eef5b254`, 배포·DB v1.10. **#7** 답글 이력 검색(댓글·답글·작성자)·20건 페이지 나눔, **#13** 조회 실패 안내(`LoadErrorNotice`, 이력·댓글 검토), **#16** 30일 보관 cron `/api/cron/cleanup-comments`(매일 03:40 KST) — 행 삭제 대신 내용 비움(중복 초안·중복 공개 게시 방지), 30일 지난 검토 대기는 만료(skipped). 첫 실행 대상 11건(1명). **#8** 텔레그램 이전은 10-16 완료 확인.
+- 검수: 빌드·배포, 정리 라우트 비인증 401, 시험 계정 이력 화면 검색(특수문자 섞인 검색어 정상 처리·빈 결과 안내). 남은 범위: #6 일괄 승인(공개 게시), #11 의존성 경고, #12 토큰 갱신. 링크: https://youtube-auto-reply.buylife.xyz/history
+
 ## 2026-10-17 Claude Code(윈도우) — "폼 액션 + 제어 체크박스" 저장값 반전 일괄 점검 결과: 추가 수정 대상 없음
 
 - 저장소 전체 `.tsx`에서 폼 값으로 전송되는(name 있는) 제어 체크박스·라디오(`checked={…}`) 20곳을 찾아 확인. 저장 후 React가 자동 초기화하는 `<form action={…}>` 안에 있는 것은 0곳(이미 고친 real_estate_sales v1.15 제외). `insta_auto_poster`·`threads`의 `PostForm`은 `onSubmit`+`startTransition` 방식이라 자동 초기화 없음, `threads-affiliate-poster/.../ProductPostForm.backup-v1.34.tsx`는 미사용 백업, 나머지(ai-slide-builder·markdown-studio·music·infinite-loop-video·관리자 SetExpiryModal 등)는 폼 액션 없음.
