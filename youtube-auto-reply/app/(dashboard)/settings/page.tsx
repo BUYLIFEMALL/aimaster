@@ -18,6 +18,7 @@ import {
   getReplyModelProvider,
 } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
+import { YOUTUBE_REDIRECT_NEW, YOUTUBE_REDIRECT_OLD } from "@/lib/oauthRedirect";
 
 export const dynamic = "force-dynamic";
 
@@ -91,9 +92,16 @@ export default async function SettingsPage() {
 
         <div className="space-y-2 text-sm text-gray-500">
           <p>Google Cloud Console에서 만든 OAuth 클라이언트의 승인된 리디렉션 URI에 아래 주소를 추가로 등록해주셔야 합니다.</p>
-          <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">
-            {process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.vercel.app"}/api/youtube/callback
-          </code>
+          <p className="font-semibold text-gray-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+          <p>① 기존 주소</p>
+          <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">{YOUTUBE_REDIRECT_OLD()}</code>
+          {YOUTUBE_REDIRECT_OLD() !== YOUTUBE_REDIRECT_NEW && (
+            <>
+              <p>② 새 주소</p>
+              <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">{YOUTUBE_REDIRECT_NEW}</code>
+              <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
+            </>
+          )}
           <p>
             다른 AIMaster 프로그램(유튜브 쇼츠 자동생성 등)에서 이미 Client ID/Secret을 등록하셨다면 값은
             재사용하되, 리디렉션 URI만 위 주소로 추가하시면 됩니다.
@@ -115,6 +123,7 @@ export default async function SettingsPage() {
 
         <div className="space-y-3 border-t border-gray-100 pt-4">
           <YoutubeConnectSection
+            showNewCallback={YOUTUBE_REDIRECT_OLD() !== YOUTUBE_REDIRECT_NEW}
             connected={connectionStatus.connected}
             channelTitle={connectionStatus.channelTitle}
             needsReconnect={connectionStatus.needsReconnect}

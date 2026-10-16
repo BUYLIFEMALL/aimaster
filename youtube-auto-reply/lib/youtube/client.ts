@@ -21,10 +21,10 @@ function getEnv(name: string): string {
   return value;
 }
 
-export function getYoutubeAuthorizeUrl(state: string, clientId: string): string {
+export function getYoutubeAuthorizeUrl(state: string, clientId: string, redirectUri: string): string {
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: getEnv("GOOGLE_YOUTUBE_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: YOUTUBE_SCOPES,
     access_type: "offline",
@@ -46,12 +46,13 @@ export async function exchangeYoutubeCode(
   code: string,
   clientId: string,
   clientSecret: string,
+  redirectUri: string,
 ): Promise<GoogleTokenResponse> {
   const body = new URLSearchParams({
     code,
     client_id: clientId,
     client_secret: clientSecret,
-    redirect_uri: getEnv("GOOGLE_YOUTUBE_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     grant_type: "authorization_code",
   });
 
