@@ -30,3 +30,15 @@
 - 유료 AI 호출 0회. 회원 키 저장 POST는 모의 응답으로 처리해 실제 키를 바꾸지 않았습니다. AI 결과 품질·실제 키 신규 저장·이미지 ZIP 일괄 다운로드는 이번 검사 범위에서 제외했습니다.
 - 배포 전 상태: 코드 APP_VERSION v1.12, DB v1.11, production은 기존 버전입니다. 다음 첫 단계: 이 코드 커밋을 고정 배포 → DB 버전 v1.12 → 운영 Edge 검사 → 이 문서 마지막 완료 기록과 DESIGN 현황판 갱신.
 - 주의: 실제 DB 배지는 `["new"]`이며 기존 문서/사이드바의 FREE 고정 표시는 DB와 다릅니다. 권한이나 배지를 임의로 변경하지 않았습니다. 개선 원장 #16에서 후속 처리합니다.
+
+
+## 2026-10-16 Codex(Windows) — 최종 운영 완료 기록 (위 배포 대기를 대체)
+
+- **결과**: v1.12 ✅ 1차 작업완료. 소스 bd9a2388 원격 푸시, production dpl_HjwYj14feCUNkyUUgszi7NVpTwga READY. 실제 sourceCommit과 production target을 Vercel API로 대조했습니다. DB v1.12, 주소/배지 불변. VIP 138/138 유효·가입일 불일치 0.
+- **라이브**: https://website-scraper.buylife.xyz
+- **검수**: 타입·빌드 성공, 보안 격리 26/26, 보이는 Edge 실제 일반 회원 로컬/운영 각 15개 묶음 성공. 비로그인 4개 401·회원 내부 주소 12개 400, 실제 공개 페이지 수집·이미지 프록시·7탭·KPI·검색·모바일·/guide 확인. 상세 실제/합성 범위·캡처·미검수는 [DESIGN_HANDOFF.md 7절](DESIGN_HANDOFF.md#7-배포검수-기록--2026-10-16-codexwindows).
+- **보안 보완 #14 완료**: mapped IPv6/link-local /10/userinfo 거부, 검사 DNS를 연결에 고정, 리디렉트/응답 정리, 최종 URL로 상대 경로 처리, 이미지 SVG 공통 CSP. allow-same-origin을 추가하지 않습니다.
+- **남은 제안**: #7 구형 Gemini 모델 확인·이전, #15 npm audit 8건의 실제 영향·호환성 조사, #16 고정 FREE 표시와 DB(new) 일치. #8~13 기존 제안도 미구현 상태입니다. 권한/배지를 바꿔 UI에 맞추지 않습니다.
+- **다음 첫 단계**: 루트 지침 → ACTIVE_WORK 단독 점유 확인 → 이 문서 최종 절 → IMPROVEMENTS 우선순위 확인 → 새 개발 플랜 제시. 이번 승인 범위는 완료됐으며 신규 제안을 승인된 구현으로 간주하지 않습니다.
+- **재현**: npm test; 로컬 npm run build:verify → node tests/local.mjs start → npm run test:runtime. 운영은 WS_TEST_BASE를 서비스 주소로 설정해 같은 런타임 검사를 실행합니다. 실제 회원으로 인증하고 내부 주소는 차단 API만 호출하며 유료 AI는 차단합니다.
+- **운영 주의**: 루트 Git 자동배포는 기존 installer를 누락할 수 있습니다. 마지막 푸시 후 scripts/finalize-supabase-compat-main.cjs로 최신 메인 검증 배포 dpl_3RZnj5z1KY5SMeVrUQmoAKr11oRR를 유지하고 홈·EXE·ZIP 200을 확인합니다. 과거 dpl_3Yjt로 되돌리지 않습니다.

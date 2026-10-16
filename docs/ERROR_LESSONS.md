@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — SSRF IPv6 정규화·DNS 연결 재조회·검수 대상 외부 문구 변경 (website-scraper v1.12)
+
+- 증상 → URL 검사에서 mapped IPv6와 fe90::1이 통과. 원인 → WHATWG URL의 16진 정규화 및 link-local /10 범위를 덜 검사했고 fetch에서 DNS를 다시 조회. 해결 → ghost-scraper/src/lib/safeFetch.ts의 표준화·주소 검사와 undici 연결 lookup 고정, 리디렉트 재검사·본문 취소·연결 정리. 다음 → npm test 26개와 실제 회원 API 내부 URL 400을 함께 확인. Agent.close는 본문 소비를 기다리므로 응답을 돌려주기 전에 await하면 멈춘다.
+- 증상 → 실제 iframe 문서가 200인데 예전 Example Domain 본문 문구를 기다려 시간 초과. 원인 → 외부 공개 사이트 내용 변경. 해결 → 실제 프록시 응답 title과 iframe title 대조, 선택 스크립트는 DOM만 합성. 다음 → 검수 실패를 곧바로 sandbox 결함으로 해석하거나 allow-same-origin을 추가하지 않는다.
+- 증상 → DB 적용 보완 SQL이 실행 기록에만 있고 원본 파일에는 누락. 해결 → supabase_migrations.schema_migrations의 실제 20261016100226 본문을 0036 파일에 기록(상태 주석만 적용 완료로 변경), DB 재실행 없음. 다음 → 적용 전후 파일과 DB 이력 SQL의 일치도 마지막에 확인.
+
 ## 2026-10-16 — VIP 전환 인수인계 수치는 다른 CLI 작업 뒤 다시 실측
 
 - 증상: 과거 인수인계 수동 1,041·등급 10,185건, 실제는 수동 528·등급 10,698건. 원인: 다른 CLI가 일부 권한을 먼저 정리. 해결: 0036 적용 전에 현재 행/지문을 다시 조회해 백업·480건 전환, 과거 숫자로 덮어쓰지 않음. 다음부터: 승인 범위와 현재 DB를 함께 비교하고 백업·전환 대상 밖 행·비VIP 지문·원래 ID·만료일을 단일 트랜잭션에서 검증. 새 계산 함수의 PUBLIC/anon/authenticated 실행 권한은 명시 차단하고 기존 서비스 전용 ACL은 유지. 결과는 `docs/VIP_SIGNUP_EXPIRY_HANDOFF_20261016.md`.

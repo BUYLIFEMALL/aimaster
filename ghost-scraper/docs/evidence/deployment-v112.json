@@ -1,0 +1,17 @@
+{
+  "project": "website-scraper",
+  "project_id": "prj_wmz2GZXutBmMwFH6BfqkecMLa0gV",
+  "deployment_id": "dpl_HjwYj14feCUNkyUUgszi7NVpTwga",
+  "url": "https://website-scraper-ji69sc4oa-buylife.vercel.app",
+  "app_url": "https://website-scraper.buylife.xyz",
+  "target": "production",
+  "state": "READY",
+  "source_commit": "bd9a2388c0880da065590ad84d790b01482b2543",
+  "version": "v1.12",
+  "db_version": "v1.12",
+  "db_badges": [
+    "new"
+  ],
+  "built_from": "isolated git archive; no local environment file",
+  "checked_at": "2026-10-16T10:31:20.501Z"
+}

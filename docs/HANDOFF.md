@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(Windows) — Website Scraper v1.12 운영 배포·보안·Edge 검수 완료
+
+- **대상/라이브**: ghost-scraper / website-scraper, https://website-scraper.buylife.xyz. 스마트 매트릭스 Tailwind v4 이식 마무리.
+- **변경/소스**: 맥미니 184f282c를 인수, Windows bd9a2388 푸시. SSRF mapped IPv6·link-local·DNS rebinding 보완, 최종 URL 상대 경로, 이미지 격리 CSP.
+- **배포/DB**: dpl_HjwYj14feCUNkyUUgszi7NVpTwga READY, sourceCommit·production target 일치, DB v1.12. 기존 배지(new)·주소·회원 키 불변. VIP 138/138 유효·가입일 불일치 0.
+- **검수**: Windows 타입/빌드, 보안 격리 26/26, 실제 일반 회원·보이는 Edge 로컬/운영 각 15개 묶음 통과. 비로그인 4개 API 401·내부 주소 12개 요청 400, 1440px·375px·수집·KPI·7탭·검색·/guide 확인. CSV·선택 DOM·다음 페이지 응답·키 저장 일부는 합성/모의이며 유료 AI 0회.
+- **인수인계/미검수**: [최종 작업 기록](../ghost-scraper/docs/IMPROVEMENT_HANDOFF_20261016.md), [디자인·증거·범위](../ghost-scraper/docs/DESIGN_HANDOFF.md), [개선 원장](../ghost-scraper/docs/IMPROVEMENTS.md), [README](../ghost-scraper/README.md). Gemini 실제 응답·실제 키 변경·대량 ZIP은 미검수. 다음 제안: 구형 모델 #7·의존성 #15·FREE 표시 #16. 신규 제안은 미승인 구현. DESIGN 21번 1차 작업완료, ACTIVE_WORK 내 줄 제거.
+- **함께 받은 VIP/메인 작업**: 이미 078f1040·d4f1798e로 전환·최신 안내 배포 완료. [VIP 인수인계](VIP_SIGNUP_EXPIRY_HANDOFF_20261016.md). 마지막 대조에서 0036 저장소 SQL에 실행 당시 추가한 보존 검증·ACL 본문 누락을 발견해 DB 이력 20261016100226의 실제 적용 SQL로 맞췄습니다(상태 주석 제외). DB는 올바른 invoker·서비스 ACL 상태이며 재적용하지 않았습니다. 메인 최종 확인은 최신 dpl_3RZnj5z1KY5SMeVrUQmoAKr11oRR 기준; 과거 배포로 회귀 금지.
+
 ## 2026-10-16 Antigravity(Windows) — 플레이리스트 채널 제작 자동화 v1.09: 전 화면 단일 배경색(블랙) 및 일관된 사이버 네온 다크 콘솔 테마 전면 통일 완료
 
 - **대상 프로그램**: `playlist-channel-studio/` (slug: `playlist-channel-studio`, 공식 라이브: `https://playlist-maker.buylife.xyz/`, 배포 버전: `v1.09`)

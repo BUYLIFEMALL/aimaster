@@ -2,7 +2,7 @@
 
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일 (Smart Matrix Style)** — 루트 `DESIGN.md` 템플릿 4번. 기준 구현 [`longtail-keyword-expander/docs/DESIGN_HANDOFF.md`](../../longtail-keyword-expander/docs/DESIGN_HANDOFF.md)의 토큰·부품을 **Tailwind v4로 옮긴 두 번째 적용 사례**
 - **작업**: Claude Code(맥미니), 2026-10-16 · 플랜: [PLAN_20261016_DESIGN_RENEWAL.md](PLAN_20261016_DESIGN_RENEWAL.md)
-- **상태**: 코드 완료 · **윈도우 빌드·배포·화면 검수 대기** (7절)
+- **상태**: ✅ 1차 작업완료 (`v1.12`, 스마트 매트릭스 스타일). Windows 빌드·프로덕션·일반 회원 Edge 검수 완료(7절).
 
 ## 1. Tailwind v4로 옮길 때의 차이 (다른 v4 프로그램에 이식할 때 참고)
 
@@ -52,15 +52,28 @@
 - 767px 이하에서 좌측 메뉴는 서랍으로만. 표는 카드 안 가로 스크롤.
 - 회원 화면에 「주인님」 호칭 금지.
 
-## 6. 남은 검수 (윈도우 CLI)
+## 6. 윈도우 인수 완료
 
-[IMPROVEMENT_HANDOFF_20261016.md](IMPROVEMENT_HANDOFF_20261016.md) 「다음 첫 단계」 참고 — 빌드, 배포, DB v1.12, 보안 `curl` 검수, 1440px·375px 화면 검수.
+2026-10-16 Codex(Windows)가 인수 순서를 완료했습니다. 아래 실제/합성 검사 범위와 미검수 항목을 다음 CLI도 구분합니다.
 
-## 7. 배포·검수 기록
+## 7. 배포·검수 기록 — 2026-10-16 Codex(Windows)
 
 | 항목 | 값 |
 |---|---|
-| 코드 커밋 | (이 문서와 같은 커밋) |
-| 빌드·배포 | 대기 |
-| DB `programs.version` | v1.11 (배포 때 v1.12) |
-| 화면·보안 검수 | 대기 |
+| 맥미니 원본 / Windows 보완 커밋 | 184f282c / bd9a2388c0880da065590ad84d790b01482b2543 (원격 푸시 완료) |
+| 로컬 빌드 | npm run build 및 보안 보완 후 npm run build:verify 성공, Next.js 16.2.11 TypeScript 포함 |
+| 프로덕션 | dpl_HjwYj14feCUNkyUUgszi7NVpTwga READY, 고정 git archive 소스 배포 |
+| 서비스 | https://website-scraper.buylife.xyz |
+| DB | programs.version v1.12, app_url 유지, badges=[new] 유지 |
+| VIP 사용권한 | 138/138 유효, 가입일+365일 불일치 0 (기존 권한 조회만 수행) |
+| 격리 보안 | 26/26, 내부 주소 연결 없이 URL·DNS pinning·리디렉트 경계 재현 |
+| 실제 일반 회원 Edge | 로컬/운영 각 15개 묶음 검사 통과, buylifemall@naver.com (관리자 아님) |
+| 운영 API | 비로그인 crawl/proxy/proxy-image/key 4개 401, 회원 내부 URL 12개 400, HTML 이미지 응답 415 |
+| Tailwind v4 | body rgb(15,17,21), card rgb(23,26,33) 실제 계산 색상 일치 |
+| 화면 | 1440px·375px, 실제 공개 페이지 크롤링/KPI/7탭/검색, 모바일 메뉴·섹터 모달·/guide 가로 넘침 없음 |
+| 비용·회원 데이터 | 유료 AI 호출 0, 회원 키·환경변수·등급·권한 변경 없음 |
+
+- [배포 증거](evidence/deployment-v112.json), [운영 결과](evidence/runtime-live.json), [로컬 결과](evidence/runtime-local.json), [보안 결과](evidence/security.json). 운영 캡처: [1440px](evidence/live-desktop.png), [375px](evidence/live-mobile.png), [매뉴얼](evidence/live-guide-mobile.png).
+- 실제 섹터 프록시 응답·CSP·iframe 격리·저장소 접근 차단·부모 위조 메시지 무시를 검증했습니다. 선택 스크립트의 클릭/Shift/Ctrl는 iframe 안 DOM만 합성했고 Ctrl 이동의 다음 페이지 프록시/크롤링 응답은 모의 처리했습니다.
+- 글목록 검색·표 CSV는 합성 크롤링 응답으로 실제 UI·다운로드 내용을 확인했습니다. 설정 저장은 키 POST를 모의 처리했습니다. 실제 이미지 다운로드 및 공통 CSP 헤더를 확인했으며, 악성 SVG 자체 실행 실험은 하지 않았습니다.
+- **미검수**: Gemini 실제 응답/비용·모델 품질, 회원 키 실제 신규 저장, 이미지 ZIP 대량 다운로드, 모든 외부 사이트 호환. 기존 AI 모델·FREE 표시·의존성 이슈는 [개선 원장](IMPROVEMENTS.md) #7/#15/#16으로 남깁니다.

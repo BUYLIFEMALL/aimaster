@@ -27,3 +27,7 @@
 서버 API는 checkProgramAccessApi, 화면은 requireProgramAccess를 거칩니다. safeFetch의 공개 주소 검사·DNS 연결 고정·리디렉트 재검사를 재사용합니다. 외부 미리보기는 CSP sandbox allow-scripts와 iframe sandbox로 격리하며 allow-same-origin을 추가하지 않습니다. 이미지 프록시는 SVG 활성 콘텐츠도 격리합니다. 운영자 AI 키나 타 회원 계정으로 폴백하지 않습니다.
 
 실제 DB 배지는 new이며 고정 FREE 표시는 개선 #16으로 남아 있습니다. 등급·이용기간은 DB의 실제 판정을 따릅니다.
+
+## 최신 운영 결과
+
+v1.12 production READY·DB 버전 일치. 소스 bd9a2388, 보안 26개 및 로컬/운영 실제 회원 Edge 각 15개 묶음 통과. [배포 증거](docs/evidence/deployment-v112.json)와 [검수·남은 일](docs/DESIGN_HANDOFF.md)을 다음 CLI가 먼저 확인합니다.

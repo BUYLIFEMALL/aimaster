@@ -65,7 +65,7 @@
 | **1. 포커스 스튜디오 스타일<br>(Focus Studio Style)** | **Markdown Studio** (`v1.10`) | 소프트 크림 / 퓨어 화이트<br>포인트: 딥 인디고 & 바이올렛 | 좌우 분할 스플릿 뷰(원문 vs 실시간 렌더링), 상단 툴바, 접이식 탐색기, 종이 질감 캔버스 | AI 글쓰기 에디터, 문서 변환기, 상세페이지 기획, 텍스트 프롬프트 스튜디오 |
 | **2. 사이버 네온 다크 콘솔 스타일<br>(Cyber Neon Dark Console Style)** | **뮤직 플레이어** (`v1.05`) | 퓨어 딥 블랙 (`#060911`)<br>포인트: 네온 사이언 & 퍼플 글로우 | 앰프 랙마운트 콘솔 데크, 센터 네온 발광 플레이 버튼, 8밴드 수직 슬라이더 EQ, 글래스모피즘 플레이리스트 | 음악/오디오 플레이어, 비디오 에디터, 캔버스 그래픽 툴, 하이테크 미디어 스튜디오 |
 | **3. 플로우 위저드 스타일<br>(Flow Wizard Style)** | **AI 쇼츠 원스톱** (`shorts-onestop-studio`) | 다크/라이트 듀얼 테마<br>포인트: 일렉트릭 블루 & 에메랄드 | 1단계 입력 → 2단계 AI 생성 → 3단계 검수 → 4단계 발행 단계별 프로그레스 바, 선택형 템플릿 카드 | 원스톱 숏폼/영상 자동화, SNS 자동 포스팅, 단계별 랜딩페이지 기획 |
-| **4. 스마트 매트릭스 스타일<br>(Smart Matrix Style)** | **롱테일 키워드분석** (`longtail-keyword-expander` `v1.06`, 기준 구현 — 운영 검수 완료) | 슬레이트 그레이 / 다크 차콜<br>포인트: 모던 블루 & 앰버 | 상단 핵심 지표(KPI) 통계 카드 3~4종, 검색/필터 바, 표/그리드 전환 뷰, 실시간 상태 칩 | 키워드 발굴기, 데이터 스크래핑 대시보드, 성과 분석·통계 프로그램 |
+| **4. 스마트 매트릭스 스타일<br>(Smart Matrix Style)** | **롱테일 키워드분석** (`longtail-keyword-expander` `v1.06`, 기준 구현 — 운영 검수 완료)<br>Website Scraper (`website-scraper` `v1.12`, Tailwind v4 이식·운영 검수 완료) | 슬레이트 그레이 / 다크 차콜<br>포인트: 모던 블루 & 앰버 | 상단 핵심 지표(KPI) 통계 카드 3~4종, 검색/필터 바, 표/그리드 전환 뷰, 실시간 상태 칩 | 키워드 발굴기, 데이터 스크래핑 대시보드, 성과 분석·통계 프로그램 |
 | **5. 크리에이티브 아틀리에 스타일<br>(Creative Atelier Style)** | 썸네일 마스터, 4컷 만화, LP 턴테이블 | 딥 미드나잇 블랙<br>포인트: 비비드 골드 & 네온 핑크 | 대형 캔버스 뷰포트 중심, 좌우 옵션 패널, 프리셋 갤러리 썸네일 그리드, 고화질 뷰어 | AI 이미지 생성기, 웹툰/만화 제작기, 썸네일 마스터, 패션 스타일링 |
 | **6. 사이버 수노 다크 스튜디오 스타일<br>(Cyber Suno Dark Studio Style)** | **Suno 음악기획** (`suno-music-studio` `v1.10`) | 퓨어 옵시디언 블랙 (`#09090b`)<br>포인트: Suno 앰버 오렌지 & 일렉트릭 바이올렛 | Suno Create 오리지널 감성, 알약형(Pill) 탭/버튼, 4단계 음악기획 파이프라인 가이드북, 공식 사이트 링크 하이라이트 | 음악 기획/작사 생성기, Suno/Udio 사운드 프롬프트 스튜디오, 앨범 기획기 |
 | **7. 이커머스 셀러 스튜디오 스타일<br>(E-commerce Seller Studio Style)** | **AI 상세페이지 자동화** (`shop-detail-page` `v1.06`) | 퓨어 화이트 (`#ffffff`) & 슬레이트 (`#f8fafc`)<br>포인트: 스마트스토어 로열 블루 (`#2563eb`) & 셀러 오렌지 (`#f97316`) | 네이버 스마트스토어/쿠팡 셀러센터 감성, 4단계 파이프라인 가이드북 & 15개 섹션 블록 맵, 점선 드래그앤드롭 업로더, 15단 섹션 넘버링 뷰어 & 롱 이미지 원클릭 병합 바 | 이커머스 상세페이지 생성기, 쇼핑몰 상품 등록기, 오픈마켓 소싱 자동화 |
@@ -111,7 +111,7 @@
 | 18 | Suno 음악기획 자동화 | `suno-music-studio` | **사이버 수노 다크 스튜디오 스타일** | 다크(옵시디언 블랙) | ✅ 1차 완료 | [`suno-music-studio/docs/DESIGN_HANDOFF.md`](suno-music-studio/docs/DESIGN_HANDOFF.md) |
 | 19 | 감성 글귀 이미지 | `emotion-writer` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `emotion-writer/AGENTS.md` |
 | 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ebook-studio/AGENTS.md` |
-| 21 | Website Scraper | `website-scraper` | **스마트 매트릭스 스타일** (Tailwind v4 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.12`, Claude Code 맥미니 2026-10-16) | [`ghost-scraper/docs/DESIGN_HANDOFF.md`](ghost-scraper/docs/DESIGN_HANDOFF.md) |
+| 21 | Website Scraper | `website-scraper` | **스마트 매트릭스 스타일** (Tailwind v4 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.12`, 스마트 매트릭스 스타일) | [`ghost-scraper/docs/DESIGN_HANDOFF.md`](ghost-scraper/docs/DESIGN_HANDOFF.md) |
 | 22 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `seo-thumbnail-pro/AGENTS.md` |
 | 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `style-dna-analyzer/AGENTS.md` |
 | 24 | INSTA Cardnews 자동화 | `cardnews-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 작업 예정 | `cardnews-studio/AGENTS.md` |

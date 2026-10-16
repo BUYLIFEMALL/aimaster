@@ -93,9 +93,14 @@
 - 🚨 보안: `/api/crawl`·`/api/proxy`·`/api/proxy-image`에 권한 확인이 없던 것(누구나 대리 접속 통로로 사용 가능) 수정, `/api/user/key`도 프로그램 권한 확인으로. 내부·사설 주소 차단(`safeFetch`). 미리보기가 남의 사이트 스크립트를 우리 도메인 권한으로 실행하던 것을 sandbox로 격리 + 메시지 출처 확인.
 - 디자인: 스마트 매트릭스(다크 차콜 + 블루·앰버, Tailwind v4 `@theme`), 히어로·KPI 4종, 다크 7탭·표, 글목록/링크/AI 결과 검색, 사이드바 계정 밀착 + 📖 매뉴얼, `/guide` 신설(`HelpModal` 제거), 섹터 모달 모바일 세로 배치.
 - 작은 수정: 내보내기 버전 `APP_VERSION`, ZIP 이름 `website_scraper_images_*`, ZIP 결과 화면 안내(`alert` 제거).
-- **빌드·배포·화면/보안 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md) 「다음 첫 단계」.
+- **맥미니 작성 당시 대기 기록이며 현재 Windows 운영 완료** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md) 「다음 첫 단계」.
 
 
 ## Windows 인수 보안 검수 (2026-10-16, v1.12)
 
 [README.md](README.md), [검수 플랜](docs/VERIFICATION_PLAN_20261016.md), [동일 날짜 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md)의 Windows 절을 먼저 읽습니다. `safeFetch`는 검사한 DNS를 undici 연결에 고정합니다. CSP·iframe sandbox에 allow-same-origin을 추가하지 않습니다. `npm test`는 외부 연결 없는 보안 검사, `npm run test:runtime`은 실제 시험 회원과 보이는 Edge를 쓰며 유료 AI를 호출하지 않습니다. 운영 결과는 디자인 인수인계 7절에 기록합니다.
+
+
+## 2026-10-16 Windows 완료 — v1.12
+
+소스 `bd9a2388`, production `dpl_HjwYj14feCUNkyUUgszi7NVpTwga` READY, DB v1.12. 보안 26개·실제 일반 회원 Edge 로컬/운영 각 15개 묶음 통과, 1440px/375px 확인. 상세·증거·검사 한계·다음 첫 단계는 [디자인 인수인계 7절](docs/DESIGN_HANDOFF.md)과 [개선 인수인계 최종 운영 완료 절](docs/IMPROVEMENT_HANDOFF_20261016.md)을 기준으로 합니다. 유료 AI 0회. #7/#15/#16 및 기존 #8~13 제안은 미구현입니다.
