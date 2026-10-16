@@ -32,7 +32,13 @@ export async function GET(request: NextRequest) {
   const siteUrl = SITE_ORIGIN;
 
   if (oauthError || !code || !stateParam) {
-    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
+    // 원인 진단용(2026-10-16): 코드·state 값은 남기지 않고 어떤 항목이 왔는지와 Instagram 오류 사유만 기록하고 화면에도 사유를 보여준다.
+    const sp = request.nextUrl.searchParams;
+    const why = oauthError
+      ? `Instagram 오류: ${sp.get("error_reason") ?? oauthError}${sp.get("error_description") ? ` (${sp.get("error_description")})` : ""}`
+      : `응답 값 누락(code ${code ? "있음" : "없음"}, state ${stateParam ? "있음" : "없음"})`;
+    console.error("[instagram/callback/byok] 연결 시작 실패:", why, "keys=", [...sp.keys()].join(","));
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed&reason=${encodeURIComponent(why)}`);
   }
 
   const supabase = await createClient();

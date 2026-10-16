@@ -1,7 +1,7 @@
 import { type ButtonHTMLAttributes } from "react";
 import { clsx } from "@/lib/clsx";
 
-type Variant = "primary" | "secondary" | "danger" | "ghost";
+type Variant = "primary" | "secondary" | "danger" | "ghost" | "facebook" | "instagram";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
@@ -12,6 +12,9 @@ const variantClasses: Record<Variant, string> = {
   secondary: "bg-white text-neutral-900 border border-neutral-300 hover:bg-neutral-50",
   danger: "bg-red-600 text-white hover:bg-red-500 disabled:bg-red-300",
   ghost: "bg-transparent text-neutral-600 hover:bg-neutral-100",
+  // 계정 연결 방식 구분용: Facebook 로그인 = 파란색, Instagram 로그인 = 초록색
+  facebook: "bg-blue-600 text-white hover:bg-blue-500 disabled:bg-blue-300",
+  instagram: "bg-green-600 text-white hover:bg-green-500 disabled:bg-green-300",
 };
 
 export function Button({ variant = "primary", className, ...props }: ButtonProps) {

@@ -82,3 +82,8 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 
 ## 2026-10-16 v1.12 — Instagram 앱 ID 안내 메뉴 이름 정정 (Claude Code 윈도우)
 - 주인님이 보내준 실제 Meta 화면 기준으로 안내 경로를 "이용 사례 › 맞춤 설정 › (Instagram API) › Instagram 로그인이 포함된 API 설정"(화면 맨 위 Instagram 앱 이름·앱 ID·앱 시크릿 코드)으로 정정, 새 콜백은 같은 화면 "4. Instagram 비즈니스 로그인 설정"에 추가한다고 안내. 회원 매뉴얼(platform_guides cffe0d83…)도 같은 표현으로 정정.
+
+## 2026-10-17 v1.13 — 연결 버튼 색 구분·콜백 실패 사유 표시 (Claude Code 윈도우)
+- 주인님 요청: Facebook 로그인 버튼 = 파란색, Instagram 방식 버튼 = 초록색. `src/components/ui/Button.tsx`에 `facebook`·`instagram` 변형 추가, 설정 화면 연결 버튼 6개(기본 연결·새 주소 연결·새 주소 다시 연결) 적용.
+- `/api/instagram/callback/byok` 첫 분기(error 또는 code/state 누락)에서 사유를 서버 로그에 남기고 화면에 `reason`으로 표시(코드·state 값은 기록 안 함). 예전엔 사유 없이 `connect_failed`만 보여 원인 파악 불가.
+- 연결 시험(관리자 계정): Facebook 방식 [새 주소로 다시 연결] **성공**(@buylife.co.kr, DB `insta_accounts` facebook_login 갱신). 앞선 "차단된 URL" 원인 = Meta 앱 「비즈니스용 Facebook 로그인 › 설정 › 유효한 OAuth 리디렉션 URI」에 새 주소가 저장되지 않았음(주인님 추가 후 URI 검사기 "유효" → 성공). Instagram 방식은 동의 화면(Instagram 앱 ID·새 콜백 인식)까지 확인, [허용] 이후 결과는 미확인(Instagram 화면은 에이전트 조작 불가).

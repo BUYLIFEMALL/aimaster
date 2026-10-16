@@ -220,12 +220,12 @@ export default async function SettingsPage({
                       <form action={connectInstagramAccountAction}>
                         <input type="hidden" name="method" value="facebook_login" />
                         <input type="hidden" name="callback" value="new" />
-                        <Button type="submit" variant="secondary">Facebook 방식 새 주소로 다시 연결</Button>
+                        <Button type="submit" variant="facebook">Facebook 방식 새 주소로 다시 연결</Button>
                       </form>
                       <form action={connectInstagramAccountAction}>
                         <input type="hidden" name="method" value="instagram_login" />
                         <input type="hidden" name="callback" value="new" />
-                        <Button type="submit" variant="secondary">Instagram 방식 새 주소로 다시 연결</Button>
+                        <Button type="submit" variant="instagram">Instagram 방식 새 주소로 다시 연결</Button>
                       </form>
                       <p className="w-full text-xs text-neutral-500">Meta 앱에 새 콜백 주소를 등록한 경우에 사용하세요.</p>
                     </div>
@@ -242,7 +242,7 @@ export default async function SettingsPage({
                   <div className="space-y-3">
                     <form action={connectInstagramAccountAction}>
                       <input type="hidden" name="method" value="facebook_login" />
-                      <Button type="submit">Facebook 페이지로 연결하기</Button>
+                      <Button type="submit" variant="facebook">Facebook 페이지로 연결하기</Button>
                     </form>
                     <p className="text-xs text-neutral-500">
                       Facebook 로그인 방식은 내 Meta 앱의 유효한 OAuth 리디렉션 URI에{" "}
@@ -257,7 +257,7 @@ export default async function SettingsPage({
                     </p>
                     <form action={connectInstagramAccountAction}>
                       <input type="hidden" name="method" value="instagram_login" />
-                      <Button type="submit" variant="secondary">
+                      <Button type="submit" variant="instagram">
                         Instagram 로그인 방식으로 연결하기
                       </Button>
                     </form>
@@ -266,12 +266,12 @@ export default async function SettingsPage({
                         <form action={connectInstagramAccountAction}>
                           <input type="hidden" name="method" value="facebook_login" />
                           <input type="hidden" name="callback" value="new" />
-                          <Button type="submit" variant="secondary">Facebook 방식 새 주소로 연결</Button>
+                          <Button type="submit" variant="facebook">Facebook 방식 새 주소로 연결</Button>
                         </form>
                         <form action={connectInstagramAccountAction}>
                           <input type="hidden" name="method" value="instagram_login" />
                           <input type="hidden" name="callback" value="new" />
-                          <Button type="submit" variant="secondary">Instagram 방식 새 주소로 연결</Button>
+                          <Button type="submit" variant="instagram">Instagram 방식 새 주소로 연결</Button>
                         </form>
                         <p className="w-full text-xs text-neutral-500">Meta 앱에 새 콜백 주소를 등록한 경우에 사용하세요.</p>
                       </div>
