@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — 사이버 다크 테마 전면 개편 및 매뉴얼 비주얼화 (music-player v1.04)
+
+- **주인님 지시**: "이 프로그램을 검정색 바탕의 주목도 있게 디자인 작업을 진행해줘", "이건 플레이어니까 화려하게 디자인되어도 되", "연동/사용 매뉴얼도 이미지, 사진, 캐릭터, 이모티콘, 다이어그램 등을 사용해서 작업", "디자인 완료 및 유의사항 문서(docs/DESIGN_HANDOFF.md) 및 기능 개선과제(docs/IMPROVEMENTS.md) 작성".
+- **완료 내용**:
+  1. **Cyber Dark Studio 디자인 전면 개편**: 딥 블랙(`--background: #060911`) & 미드나잇 오로라 그래디언트 배경 구축, 센터 플레이 버튼(`0 0 25px` 네온 글로우), 8밴드 이퀄라이저 슬라이더 랙마운트 콘솔 스타일링, 글래스모피즘 재생목록 하이라이트.
+  2. **연동 & 사용 매뉴얼 (`/guide`) 비주얼 전면 개편**: 4단계 시각적 워크플로우 파이프라인, Web Audio 신호 흐름 아키텍처 다이어그램, 8밴드 주파수 대역별 사운드 특성 카드, 포맷 칩, 네온 키캡 단축키 치트시트, 100% 로컬 보안 안내 적용.
+  3. **인수인계 문서화**: `music-player/docs/DESIGN_HANDOFF.md`(디자인 개발완료 보고서) 및 `music-player/docs/IMPROVEMENTS.md`(향후 로직/기능 개선과제 - Claude Code/Codex 연계용) 신설.
+  4. **버전 동기화**: `src/lib/version.ts` 및 DB `programs.version` 모두 `v1.04`로 동기화 완료.
+  5. **Microsoft Edge 검수 통과**: 일반 테스트 계정(`buylifemall@naver.com`) 실세션 쿠키 적용, 데스크톱(1440px) 및 모바일(375px) 화면 캡처 대조 검수 완료.
+  6. **Vercel 프로덕션 배포 완료**: 배포 ID `dpl_AhGc2sbd6JZKUuR955dDXz1USp4Q`, 도메인 https://music-player.buylife.xyz (Player / Guide 라이브 HTTP 200 확인).
+- **남은 일 / 후속 과제**: Claude Code 및 Codex에서 `music-player/docs/IMPROVEMENTS.md`에 정리된 8가지 기능(드래그 정렬, MediaSession API, 다중 플레이리스트, 파형 시크바, 가사 동기화 등) 고도화 진행 가능.
+
 ## 2026-10-16 Codex(윈도우) — DB 신규 변수 160개 등록·83곳 운영 검수 완료
 
 - 주인님 승인 **"추가해줘"**에 따라 기존 82개 Vercel 프로젝트 Production에 공개 79·서버 81개, 총 **160개 새 변수 이름**을 등록. 새 API 키 발급이 아님. 공개는 Config, 서버는 Secret이며 기존 변수 이름/적용 환경/유형과 실제 Supabase 키는 유지.
@@ -10,7 +22,6 @@
 - 메인 설치 파일 포함 검증 배포 **dpl_3YjtVTKpe2Hjmvkr6633P5rHRGDs** 유지. 문서 푸시도 Git 자동 배포가 설치 파일을 누락시킬 수 있으므로 마지막 푸시 후 `node scripts/finalize-supabase-compat-main.cjs`로 소스 동일성·운영 대상·홈/설치 파일/확장 ZIP 200 확인. 현장 증거는 Git 제외 .vercel/final-main-promotion.json.
 - 필독: [DB 최상위 지침](DATABASE_CONNECTION_POLICY.md), [전용 인수인계](DATABASE_CONNECTION_HANDOFF.md), [최종 감사](supabase-compat-rollout-20261016/environment-addition-audit.json), [83곳 현황표](supabase-compat-rollout-20261016/STATUS.md). 값 없이 이름·유형·대상·배포 ID만 기록.
 - **남은 정책:** 안정화 전 기존 변수/키 삭제 금지. 안정화 후 주인님과 삭제 시점을 확정하고 Vercel의 기존 **이름만** 정리·재배포·검수. 실제 키 폐기는 별도 승인. Preview/Development·별도 Python 작업자는 이번 변경 범위 밖. 다음 CLI는 ACTIVE_WORK·최신 프로그램 인수인계·위 증거부터 대조.
-
 
 
 ## 2026-10-16 Claude Code(윈도우) — 개발 플랜에 「기존 프로그램 기반 개선·업그레이드」와 「비용 표시」 지침 추가

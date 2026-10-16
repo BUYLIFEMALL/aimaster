@@ -11,7 +11,8 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 뮤직 플레이어 자동화 / `music-player` |
-| 버전 | **v1.01** (`src/lib/version.ts` = DB `programs.version`) |
+| 버전 | **v1.04** (`src/lib/version.ts` = DB `programs.version`) |
+| 디자인 인수인계 | [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) (디자인 개발완료) / [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) (기능 개선과제) |
 | 주소 | https://music-player.buylife.xyz (Vercel `buylife/music-player`, CLI 직접 배포) |
 | 카테고리 / 접근 | 멀티미디어 / **FREE+new 배지**(가입 회원 누구나), 최소 등급 일반, 기본 3요금제 등록 |
 | 참고 원본 | AI Studio "GPT PARK MUSIC PLAYER" — 기능·로직만 참고, 코드 복제 없음. 분석·계획: [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md) |
@@ -59,3 +60,15 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.03 (music-player)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-16 v1.04 — 사이버 다크 테마 전면 개편 및 매뉴얼 비주얼화 (Antigravity)
+
+- **배경**: 주인님 지시("검정색 바탕의 주목도 높은 디자인", "플레이어니까 화려하게 디자인", "연동/사용 매뉴얼 비주얼화").
+- **수정 내용**:
+  1. `src/app/globals.css`: 딥 블랙(`--background: #060911`) & 미드나잇 오로라 그래디언트 배경 구축, 센터 플레이 버튼(`0 0 25px` 네온 글로우), 8밴드 이퀄라이저 슬라이더 랙마운트 콘솔 스타일링, 글래스모피즘 재생목록 하이라이트.
+  2. `src/app/(workspace)/guide/page.tsx`: 4단계 시각적 워크플로우 파이프라인, Web Audio 신호 흐름 아키텍처 다이어그램, 8밴드 주파수 대역별 사운드 특성 카드, 포맷 칩, 네온 키캡 단축키 치트시트, 100% 로컬 보안 안내 적용.
+  3. `docs/DESIGN_HANDOFF.md`: 디자인 개발완료 및 유의사항 보고서 신설.
+  4. `docs/IMPROVEMENTS.md`: 향후 로직/기능 개선과제(드래그 정렬, MediaSession API, 다중 플레이리스트, 파형 시크바 등) 신설 (Claude Code/Codex 인수인계용).
+  5. 버전 `v1.04` 동기화 (`src/lib/version.ts`, DB `programs.version`).
+- **검수**: Microsoft Edge 전용 브라우저(`msedge`), 테스트 계정 `buylifemall@naver.com` 실세션 검수 통과 (데스크톱 1440px / 모바일 375px 스크린샷 대조 확인).
