@@ -1,14 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { saveAutoAnalyzeAction, type PreferencesActionState } from "@/lib/actions/preferences";
 
 const initialState: PreferencesActionState = {};
 
 // 2026-10-17 v1.14: "예약 조회" 새 실거래 알림에 AI 분석을 포함할지(본인 키 유료 호출) 회원이 고른다.
+// 체크박스는 비제어(defaultChecked) — React 폼 액션이 저장 후 폼을 초기화할 때 제어 상태와 화면이 어긋나 반대 값이 저장되던 문제(v1.15)
 export function AutoAnalyzeForm({ enabled }: { enabled: boolean }) {
-  const [checked, setChecked] = useState(enabled);
   const [state, formAction, isPending] = useActionState(saveAutoAnalyzeAction, initialState);
 
   return (
@@ -17,8 +17,7 @@ export function AutoAnalyzeForm({ enabled }: { enabled: boolean }) {
         <input
           type="checkbox"
           name="autoAnalyze"
-          checked={checked}
-          onChange={(e) => setChecked(e.target.checked)}
+          defaultChecked={enabled}
           className="mt-0.5 h-5 w-5 shrink-0"
         />
         <span className="text-sm text-mx-text">

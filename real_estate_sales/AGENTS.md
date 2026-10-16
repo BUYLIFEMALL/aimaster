@@ -30,3 +30,5 @@
 - `collect.ts notifyUserForListings`: 설정이 꺼져 있으면 `ensureListingAnalysis` 호출 안 함(유료 호출 없음), 이미 있는 분석 결과만 알림에 붙임. 설정 행이 없으면 켜짐으로 간주.
 - 설정 화면: "예약 조회 알림의 AI 분석" 체크박스(`components/settings/AutoAnalyzeForm.tsx`, `saveAutoAnalyzeAction`) + AI 모델 안내 문구를 v1.13 이후 동작(상세는 버튼으로만)에 맞게 정정.
 - 검수: DB 칸 적용 확인 후 빌드·배포(v1.14).
+## 2026-10-17 v1.15 — 알림 AI 분석 체크박스 저장값 반전 수정 (Claude Code 윈도우)
+- v1.14 화면 검수 중 발견: 끄고 저장(정상) 후 다시 켜고 저장하면 꺼짐으로 저장됨. 원인 = React 19 폼 액션이 저장 뒤 폼을 초기화하면서 제어(`checked`+`useState`) 체크박스의 화면과 상태가 어긋남. `AutoAnalyzeForm`을 비제어(`defaultChecked={enabled}`)로 변경. 다른 폼에도 같은 패턴(제어 체크박스 + `useActionState`)이 있으면 같은 문제 가능.
