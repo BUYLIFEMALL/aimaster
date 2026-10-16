@@ -6,7 +6,7 @@
 > 상세·점검 명령·위반 현황: [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md)
 
 > **★★★ 개발작업 최상단 공통 지침 — CLI별 역할 분담 (2026-10-16 주인님 지시)**
-> **Antigravity CLI(agy)·Codex·Claude Code는 AIMaster 메인 사이트와 모든 서브 자동화 프로그램의 개발·유지보수에 협업한다. Codex의 주력 역할은 개발 기획·시스템 설계·코드 오류 수정·디버깅·테스트이며, 주인님 요청 시 신규 프로그램 개발도 수행할 수 있다.** Antigravity CLI와 Claude Code의 세부 주력 역할은 주인님이 별도로 지정하기 전까지 각 요청의 작업 배정에 따른다(임의로 전담 영역을 정하지 않는다). 역할은 주력 업무 구분이며 공통 지침·검수·인수인계·배포 책임을 면제하지 않는다. 같은 서브프로그램 동시 작업 금지와 시작 전 ACTIVE_WORK 확인을 지키고, 변경·발견한 개선사항은 프로그램별 문서에 남겨 다음 CLI가 이어서 작업할 수 있게 한다. 상세: [공통 개발 방식의 CLI 역할 분담](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md).
+> **Antigravity CLI(agy)·Codex·Claude Code는 AIMaster 메인 사이트와 모든 서브 자동화 프로그램의 개발·유지보수에 협업한다. Codex의 주력 역할은 개발 기획·시스템 설계·코드 오류 수정·디버깅·테스트이며, 주인님 요청 시 신규 프로그램 개발도 수행할 수 있다.** **Claude Code의 주력 역할은 복잡한 코드 구현·기능 추가·리팩터링이다.** Antigravity CLI의 세부 주력 역할은 주인님이 별도로 지정하기 전까지 각 요청의 작업 배정에 따른다(임의로 전담 영역을 정하지 않는다). 역할은 주력 업무 구분이며 공통 지침·검수·인수인계·배포 책임을 면제하지 않는다. 같은 서브프로그램 동시 작업 금지와 시작 전 ACTIVE_WORK 확인을 지키고, 변경·발견한 개선사항은 프로그램별 문서에 남겨 다음 CLI가 이어서 작업할 수 있게 한다. 상세: [공통 개발 방식의 CLI 역할 분담](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md).
 
 > **★★★ 개발작업 최상단 공통 지침 — 발견한 개선사항 상시 인수인계 의무 (2026-10-16 주인님 지시)**
 > **모든 CLI는 작업 중 발견한 오류·기능·성능·편의성·디자인 개선사항을 해당 프로그램 서브폴더의 `docs/IMPROVEMENTS.md`에 즉시 기록한다.** 작업 종료·중단·이관 시 같은 폴더에 `docs/IMPROVEMENT_HANDOFF_YYYYMMDD.md`를 남기고 `AGENTS.md`/`README.md`에서 연결한다(같은 날짜면 기존 문서에 추가하거나 작업별 접미사 사용). 발견 근거·영향·우선순위·처리 상태·관련 파일·남은 작업·다음 첫 단계·검수 방법을 적어 다른 CLI가 이어서 작업할 수 있게 한다. **미구현 제안을 완료로 표시하거나 기록만으로 구현 승인을 받은 것으로 간주하지 않는다.** 루트 `docs/HANDOFF.md`에는 프로그램별 문서 링크와 요약을 남긴다. 상세·기록 양식: [`docs/IMPROVEMENT_HANDOFF_POLICY.md`](docs/IMPROVEMENT_HANDOFF_POLICY.md). 메인 앱 개선사항은 루트 `docs/`에 기록한다.

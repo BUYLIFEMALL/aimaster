@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(윈도우) — Claude Code 주력 역할 확정
+
+- 주인님 지정: **Claude Code는 복잡한 코드 구현·기능 추가·리팩터링을 주로 담당**합니다. 메인 AIMaster와 모든 서브 자동화 프로그램에 공통 적용합니다.
+- `AGENTS.md`·`CLAUDE.md`·`GEMINI.md` 최상단 역할 지침과 `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 역할표를 함께 갱신했습니다. Codex의 기존 역할과 공통 검수·인수인계·배포 책임은 유지합니다. Antigravity CLI의 세부 주력 역할은 별도 지정 전까지 주인님 배정에 따릅니다.
+- 문서만 변경, 역할 문구 일치·차이 검토. 프로그램 코드·버전·DB·환경변수 변경 및 유료 API 호출 없음. 커밋/푸시 결과는 이 항목의 최신 Git 이력에서 확인합니다.
+
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.04: P4 배경(스톡·AI 이미지) 배포, 실화면 검수 대기 (`shorts-onestop-studio`)
 
 - 디자인·배경 화면(배경 방식·어둡게·AI 장면 설명·스톡 검색/모두 채우기·AI 이미지·화풍·같은 인물), 렌더러 배경 그리기, 장면 편집에도 배경 반영. 키: `pexels`·`pixabay` 추가(연결 확인=검색 1회 무료). AI 이미지는 비공개 버킷 `shorts-onestop-studio`(SQL `0007`) 회원 폴더, 1시간 서명 주소. 스톡 CDN CORS(`*`) 확인 → 서버 중계 없음.
@@ -44,7 +50,7 @@
 - 주인님 지시: 개발 중 발견한 개선사항을 항상 프로그램 서브폴더에 기록. `AGENTS.md`·`CLAUDE.md`·`GEMINI.md` 최상단과 공통 개발 방식 문서에 반영.
 - [기록 지침·양식](IMPROVEMENT_HANDOFF_POLICY.md): 프로그램별 원장과 날짜별 인수인계, 근거·우선순위·처리 상태·파일·다음 첫 단계·검수 기준·증거 기록. 제안은 구현 승인이 아님.
 - [music-player 후속 인수인계](../music-player/docs/IMPROVEMENT_HANDOFF_20261016_BACKLOG.md)에 미구현 8건의 재개 기준 정리, 해당 AGENTS/README·원장에서 연결. 기존 v1.05 운영 완료 결과 보존.
-- CLI 역할: **Codex는 개발 기획·시스템 설계·코드 오류 수정·디버깅·테스트 중심, 주인님 요청 시 신규 프로그램 개발 가능.** Antigravity CLI와 Claude Code도 메인/서브프로그램 개발·유지보수에 협업하며, 세부 주력 역할은 아직 지정되지 않아 주인님의 작업 배정에 따름. [공통 개발 방식](AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 참고.
+- CLI 역할: **Codex는 개발 기획·시스템 설계·코드 오류 수정·디버깅·테스트 중심, 주인님 요청 시 신규 프로그램 개발 가능. Claude Code는 복잡한 코드 구현·기능 추가·리팩터링 중심.** Antigravity CLI도 메인/서브프로그램 개발·유지보수에 협업하며, 세부 주력 역할은 주인님의 작업 배정에 따름. [공통 개발 방식](AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 참고.
 - 문서만 변경. 버전·런타임·DB·환경변수 변경 없음, 유료 API 0회. 규칙 일치·링크·차이를 검토하며 기능 빌드/브라우저 검수는 이번 범위에 포함하지 않음. 커밋·푸시는 이 항목의 최신 Git 이력 확인. 메인 설치 파일 포함 운영 보호 확인은 Git 제외 `.vercel/final-main-promotion.json` 기록 참조.
 
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.03 시험 계정(일반 회원) 화면 검수 완료
