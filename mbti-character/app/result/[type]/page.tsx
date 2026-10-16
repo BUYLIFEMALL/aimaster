@@ -10,7 +10,7 @@ import { ResultInteractive } from "@/components/ResultInteractive";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.buylife.xyz";
 
 // 공유 링크(?img=)로 넘어온 이미지 URL이 실제로 우리 Supabase Storage 버킷 것인지 검증한다 —
 // 검증 없이 그대로 og:image에 반영하면, 조작된 img 파라미터로 임의 이미지를 우리 페이지의

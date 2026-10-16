@@ -8,7 +8,7 @@ import "./globals.css";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.buylife.xyz";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
 export const metadata: Metadata = {
