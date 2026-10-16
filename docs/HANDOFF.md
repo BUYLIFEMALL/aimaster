@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 쓰레드 3개 새 주소 연결 실제 성공 (Meta 앱 콜백 등록)
+
+- 주인님이 Meta 앱 www.buylife.xyz › 이용 사례 › Threads API 액세스 › 설정의 **리디렉션 콜백 URL**에 새 주소 3개(`auto-threads-posting`·`threads-affiliate-poster`·`threads-comment-reply` `.buylife.xyz/api/threads/callback`) 추가, **제거/삭제 콜백**을 `threads-affiliate-poster.buylife.xyz/api/threads/uninstall`·`/delete`로 교체(새 주소 응답 확인: 형식 요청 시 400 invalid signed_request = 옛 주소와 동일).
+- 관리자 계정으로 세 프로그램 [새 주소로 다시 연결] 시험: 자동 포스팅(`threads_accounts` 갱신, 만료됐던 토큰 재발급)·쇼핑제휴(`tap_accounts` 갱신, 이미 허용된 권한이라 동의 화면 생략)·댓글 자동화(`th_accounts` 확인, 댓글 권한 동의 후 연결) 모두 성공. 등록 전에는 "차단된 URL" 오류였음.
+- 코드 변경 없음(버전 유지). 남은 일: 쓰레드 3개 설정 화면에도 INSTA v1.14 "등록할 주소 한눈에 보기 + 복사 버튼" 적용 제안.
+
 ## 2026-10-17 Codex(Windows) — file-merge v1.07 Windows 인수·운영 파일 검수 완료
 
 - **서비스** https://file-merge.buylife.xyz · 맥미니 c8ee93a7의 스마트 매트릭스 라이트 변형 인수. Windows 검수 소스 **7e6c1ced** 푸시 → **dpl_ChZf914SSBYsuAa6TZRjQB58dbB4 READY**, 실제 production target/sourceCommit 확인·DB v1.07. 기존 주소/new 배지 유지, FREE·권한·키·환경변수·스키마·파일 처리 코드 변경 없음.
