@@ -68,3 +68,12 @@ NEXT_PUBLIC_MAIN_SITE_URL=
 ## 2026-10-16 DB 연동 변수 호환 — v1.05 (competitor-analysis)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## v1.07 스마트 매트릭스 Windows 인수
+
+서비스: https://competitor-analysis.buylife.xyz
+
+작업 전 루트 지침·ACTIVE_WORK·최신 HANDOFF와 이 폴더 AGENTS.md, [디자인 인수인계](docs/DESIGN_HANDOFF.md), [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md), [개선 원장](docs/IMPROVEMENTS.md)을 읽습니다. 초기 설계의 전역 캐시 예외보다 최상위 개인 API/공용 데이터 쓰기 정책이 우선합니다. 캐시 정책은 개선 #12로 정비가 필요합니다.
+
+검수: npm run build:verify(기존 루트 DB 변수를 빌드 프로세스에만 주입), npm run test:browser(합성 데이터/액션), node tests/local.mjs start 후 npm run test:runtime(실제 일반 회원·Edge). 운영은 CA_TEST_BASE=https://competitor-analysis.buylife.xyz로 런타임 검사를 실행합니다. 유료 SerpApi/AI 호출과 실제 회원 데이터 쓰기는 하지 않습니다. 운영 결과·배포 ID·미검수·남은 작업은 인수인계 문서에 기록합니다.

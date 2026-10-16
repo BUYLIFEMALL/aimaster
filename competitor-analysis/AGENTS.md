@@ -103,3 +103,10 @@ competitor-analysis는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 롱테일 기반 파일 이식(다크 차콜 토큰·히어로·KPI·Asia/Seoul 시각·복사 버튼), 사이드바 🏠·내 경쟁사·📖 + 휴대폰 ☰(원칙 19 — 기존에 없었음), `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 키워드·결과 목록 검색·필터·표/카드, 결과 상세 KPI·유형별 표·리포트 복사, 내 경쟁사 노출 횟수 표.
 - 롱테일 v1.06에서 Codex가 찾은 같은 오류 수정: 등록 후 폼 초기화, 삭제 확인, 빈 목록 `"__none__"` UUID 조회(3곳), 시각 UTC. 검색결과 링크는 http(s)만.
 - **빌드·배포·화면 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md).
+
+
+## Windows 인수 검수 (2026-10-16, v1.07)
+
+플랜 [VERIFICATION_PLAN_20261016_WINDOWS.md](docs/VERIFICATION_PLAN_20261016_WINDOWS.md). 실제 일반 회원·보이는 Edge 1440px/375px 검수는 npm run test:runtime, 실제 컴포넌트/상세 페이지 합성 검수는 npm run test:browser입니다. 합성 어댑터는 tests/에서만 사용하며 프로덕션 인증/서버 동작을 바꾸지 않습니다. 테스트 서버는 node tests/local.mjs start(127.0.0.1:3035), 기존 루트 DB 연결은 자식 프로세스에만 사용합니다. 유료 분석·키 변경·실제 데이터 쓰기/삭제는 하지 않습니다.
+
+기존 Next 14 보안 의존성(#11)과 전역 회사 캐시의 일반 회원 쓰기 정책(#12)은 미해결입니다. 최상위 공통 지침이 우선하며, 위의 초기 「캐시 예외」 설명을 신규 예외 승인으로 간주하지 않습니다. 새 구조/정책 변경 전 최신 근거·개발 플랜 및 DB 변경 승인을 확인합니다. 운영 결과는 DESIGN_HANDOFF와 같은 날짜 개선 인수인계의 Windows 최종 절을 읽습니다.
