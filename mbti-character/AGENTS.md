@@ -7,7 +7,7 @@
 
 ## 2026-10-16 v1.06 — 권한 판정 테이블 조회를 서비스 롤로 (원칙 6)
 - `lib/access.ts`의 `decideAccess()` 호출을 세션 클라이언트에서 `createAdminClient()`(`lib/supabase/admin.ts`)로 변경. 로그인 확인만 세션. Vercel `mbti-character`에 `SUPABASE_SERVICE_ROLE_KEY` 등록(`scripts/add-service-role-env.mjs`). FREE 배지 = 가입·로그인 회원 누구나(원칙 6 재확인).
-- 운영 확인: `/`·`/login` 200, 비로그인 `/test`·`/result/INFP` 307 → `/login`. 로그인 후 화면은 자체 로그인(비밀번호 입력)이라 주인님 확인 필요.
+- 운영 확인: `/`·`/login` 200, 비로그인 `/test`·`/result/INFP` 307 → `/login`. 로그인 후 확인(2026-10-16, 엣지·시험 계정): `/test` 1번 문항, `/result/INFP`(리아) 정상.
 
 ## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
 

@@ -11,6 +11,7 @@
 - Vercel 프로젝트 `mbti`에 공용 DB 연결값 3종 등록(`scripts/configure-platform.mjs`). 주소는 그대로 https://mbti-rho-two.vercel.app (자체 로그인, 메인 SSO 아님).
 - 운영 확인: 비로그인 `/test`·`/test/full`·`/result/INFP` → 307 `/login?redirect=…`, `/`·`/login`·`/api/og` 200. 배포 직후 옛 정적 페이지가 엣지 캐시에 남아 잠깐 200/404로 보였음(캐시 무효화 후 정상 — ERROR_LESSONS 2026-10-16).
 - 정정: 이 폴더 규칙(푸시·배포·환경변수 사전 승인)을 작업 시작 때 확인하지 못하고 진행함(주인님 직접 지시 작업). 보고에 명시.
+- 로그인 후 확인(2026-10-16, 엣지·시험 계정 buylifemall@naver.com, FREE 꺼짐·VIP 사용기간 있음): `/test` 1번 문항, `/result/INFP` 결과 카드 정상.
 
 ## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
 
