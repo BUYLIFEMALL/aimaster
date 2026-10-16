@@ -32,7 +32,7 @@
 | TypeScript + Next.js 빌드 | 통과(v1.05) |
 | 실제 Player/저장소/오디오 Edge 검사 | 21/21 |
 | 로컬 실제 Next.js + 일반 회원 인증/화면 | 11/11 |
-| 운영 배포·코드/DB 버전·실제 회원 검사 | 배포 후 아래에 추가 |
+| 운영 배포·코드/DB 버전·실제 회원 검사 | READY · 코드/DB v1.05 · 11/11 |
 
 [회귀 재현](evidence/id3-regression.json), [로컬 Player 검사](evidence/browser-player.json), [실제 회원 로컬 검사](evidence/runtime-local.json), [검수 요약](evidence/verification.json).
 
@@ -63,4 +63,8 @@ node tests/runtime.mjs
 
 ## 릴리스 상태
 
-사전 검수·인수인계 작성 완료. 소스 커밋/푸시 → 해당 프로그램 프로덕션 배포 → DB `programs.version` v1.05 → 운영 Edge 검사 후 실제 커밋·배포 ID·결과를 아래에 추가합니다. 기존 환경변수와 실제 키를 삭제하지 않습니다.
+소스 커밋 **4d4cb3de** 푸시·프로덕션 배포 완료. 배포 **dpl_FyVWQtyWAhHCEP9VNqKpesisYjBD** READY, [운영 플레이어](https://music-player.buylife.xyz/player)와 코드/DB 버전 **v1.05** 확인. 일반 회원 운영 Edge **11/11**, 페이지 오류·파일 전송 요청 0. 기존 환경변수와 실제 키는 유지했습니다.
+
+[운영 배포 증거](evidence/deployment.json) · [운영 회원 검사](evidence/runtime-live.json) · [데스크톱 화면](evidence/live-desktop.png) · [375px 화면](evidence/live-mobile.png). 초기 앱 구현 4d4cb3de 뒤 문서/검수 증거만 추가한 최종 커밋은 Git 이력에서 이 문서의 최신 변경을 확인합니다.
+
+이번 승인 범위인 오류 수정·기존 기능 안정성 검수의 남은 작업은 없습니다. 기능 제안 8건은 별도 후속 계획이며 먼저 개발 플랜을 제시한 뒤 진행합니다. 메인 문서 푸시 후에는 저장소의 기존 설치 파일 포함 운영 배포를 확인하는 `scripts/finalize-supabase-compat-main.cjs`로 홈·설치 파일·확장 ZIP 200을 확인합니다. 확인 현장 기록은 Git 제외 `.vercel/final-main-promotion.json`입니다.

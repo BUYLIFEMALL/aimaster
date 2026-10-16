@@ -1,12 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-16 Codex(윈도우) — music-player v1.05 한글 태그 복구 사전 검수 완료
+## 2026-10-16 Codex(윈도우) — music-player v1.05 한글 태그 복구 운영 완료
 
 - Antigravity v1.04 디자인 완료 후 IMPROVEMENTS BUG #1 인수. 사전 개발 플랜 제시 후 주인님 진행 지시로 구형 CP949/EUC-KR 감지·수동 인코딩 선택·저장된 곡 정보 복구 구현.
 - 자동 20/20, 타입/빌드 통과, 보이는 Edge Player 21/21, 실제 일반 회원 로컬 11/11. 음원·커버 해시/ID/순서/재생 상태 보존과 저장 실패 안내 확인. 유료 API 호출 0.
-- 현재 소스 커밋/푸시·운영 배포·DB 버전 v1.05·운영 회원 검사 진행 예정. 완료 전 운영 반영됐다고 해석하지 않음.
+- 소스 **4d4cb3de** 커밋/푸시, 배포 **dpl_FyVWQtyWAhHCEP9VNqKpesisYjBD** READY, 코드/DB **v1.05**. https://music-player.buylife.xyz/player 실제 일반 회원 운영 Edge **11/11**, 오류·파일 전송 0. 이번 범위 남은 작업 없음.
+- 사용: 새로고침 → 깨진 곡 선택 → [곡 정보 인코딩: 한국어(CP949)] → [선택 곡 정보 복구]. 이미 저장된 원본/커버/순서/재생 설정 유지. 애매한 서유럽 태그는 Latin-1로 재선택.
+- 다음 CLI는 위 전용 인수인계와 docs/evidence의 배포·운영 검사·화면부터 확인. 8가지 신규 제안은 후속 범위이며, 코드 변경 전 개발 플랜 제시 의무가 메인 AGENTS/CLAUDE 최상단에 반영돼 있음.
 - 상세: [개선 플랜](../music-player/docs/IMPROVEMENT_PLAN_20261016.md), [작업 인수인계](../music-player/docs/IMPROVEMENT_HANDOFF_20261016.md). 나머지 기능 제안 8건은 별도 후속 작업.
-
 
 
 ## 2026-10-16 Antigravity(Windows) — 최상위 디자인 메인지침(`DESIGN.md`) 신설 및 83개 프로그램 마스터 템플릿 레지스트리 구축 (모든 CLI 공통 필독 연동)

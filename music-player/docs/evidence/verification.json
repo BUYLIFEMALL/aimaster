@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-16T03:45:29.530496+00:00",
+  "recorded_at": "2026-10-16T03:49:27.288891+00:00",
   "version": "v1.05",
   "unit": {
     "passed": 20,
@@ -15,5 +15,11 @@
     "failed": 0
   },
   "paid_api_calls": 0,
-  "production": "pending"
+  "production": "READY",
+  "edge_actual_member_live": {
+    "passed": 11,
+    "failed": 0
+  },
+  "database_version": "v1.05",
+  "deployment_id": "dpl_FyVWQtyWAhHCEP9VNqKpesisYjBD"
 }
