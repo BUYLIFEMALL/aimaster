@@ -178,3 +178,10 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 ## 2026-10-16 DB 연동 변수 호환 — v1.09 (kakao-auto-posting)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 v1.10 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`(SITE_ORIGIN·OLD_HOST·`KAKAO_REDIRECT_OLD()`=env `KAKAO_REDIRECT_URI`·`KAKAO_REDIRECT_FOR(mode)`).
+- 카카오 콜백: 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectKakaoAccountNewCallbackAction`)은 새 콜백. 옛 주소 307에 via=old, 교환은 via로 선택(`exchangeCodeForToken(code, restApiKey, redirectUri, clientSecret?)`), 연결 후 이동 SITE_ORIGIN. 설정 화면 Redirect URI 두 주소 표시. 미사용 `getEnv` 제거.
+- 텔레그램 웹훅 등록 기준 SITE_ORIGIN + `/api/telegram/migrate-webhooks`(관리자 로그인/CRON_SECRET). 연동 1건(주인님 관리자 봇) 이전 미실행.
+- **바꾸지 않은 것(의도)**: 리포트 공유·카카오 "나에게 보내기"·이메일·브로드캐스트 메시지 안의 링크 기준(`NEXT_PUBLIC_SITE_URL`, 옛 주소). 카카오 메시지 링크는 회원 본인 카카오 앱 "웹 도메인"(+ 운영자 앱 JavaScript SDK 도메인)에 등록된 도메인만 허용되므로, 회원 공지(새 도메인 추가) 후에 전환해야 함. 이미 보낸 메시지 속 옛 링크도 있으므로 옛 주소의 화면 이동(308)은 오래 유지해야 함 — 플랜 항목 I.
+- 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, migrate 비인증 401, 시험 계정 설정 화면 두 주소·[새 주소로 연결] 표시. 시험 계정 카카오 앱 키 미등록이라 `?error=kakao_app_missing`(카카오 인증 화면 확인 못 함).
