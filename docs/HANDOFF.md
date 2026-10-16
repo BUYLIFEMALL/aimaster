@@ -16,8 +16,10 @@
      - Vercel 프로덕션 배포 완료 (`dpl_7SPYx2nZBhSz1Ann5ANg8AvXF6wJ` ➔ `https://music-rho-virid-22.vercel.app`).
   4. **Microsoft Edge(엣지) 전용 실세션 검수 완료**:
      - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 주입 후 `edge_suno_plannings_v107.png` 캡처 완료 (사이드바 `v1.07`, 배너 `Suno v4 ~ v6 최신 엔진 탑재`, 헤더 배지 `Suno v4 ~ v6 Engine` 정상 확인).
-  5. **인수인계 문서화**:
-     - `music/AGENTS.md`, `music/docs/IMPROVEMENTS.md`, `music/docs/DESIGN_HANDOFF.md`, 루트 `DESIGN.md` 갱신.
+  5. **인수인계 문서화 및 Suno v6 모델 연동 분석**:
+     - `music/AGENTS.md`, `music/README.md`, `music/docs/IMPROVEMENTS.md`, `music/docs/DESIGN_HANDOFF.md`, 루트 `DESIGN.md` 갱신.
+     - **Suno v6 모델 연동 인수인계서 신설**: [`music/docs/IMPROVEMENT_HANDOFF_20261016.md`](music/docs/IMPROVEMENT_HANDOFF_20261016.md).
+       - 코드 전수 점검 결과 현재 백엔드 로직(`music/lib/ai/suno.ts`, `tracks.ts`, `remix.ts`)에 `DEFAULT_SUNO_MODEL = "V5_5"`로 고정 호출되고 있으며, UI에 모델 선택(v4/v5.5/v6) 옵션이 미구현 상태임을 확인하고 다음 CLI(Codex/Claude Code)를 위한 상세 구현 가이드 및 파일 경로를 문서화함.
 - **비용**: UI 텍스트 및 배지 최신화 작업으로 외부 유료 API 호출 0원.
 
 ## 2026-10-16 Antigravity(Windows) — 음악(SUNO)자동화 v1.06: Suno 본사이트 다크 스튜디오 스타일 리뉴얼 및 엣지 검수 완료

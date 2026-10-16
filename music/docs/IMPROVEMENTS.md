@@ -29,6 +29,25 @@
 ---
 
 ## 3. 향후 제안 및 기능 개선사항 (다음 CLI 이관용 백로그)
+
+### 🚨 [최우선] Suno v6 모델 선택 및 API 호출 연동 로직 구현
+- **발견 배경**: 화면 배너/배지에는 "Suno v4 ~ v6 최신 엔진 탑재"로 표시되어 있으나, 실제 백엔드 API 연동 로직을 점검한 결과 **v6 모델 선택 및 호출 로직이 미구현** 상태임.
+- **현재 구현 분석**:
+  1. `music/lib/ai/suno.ts`: `export const DEFAULT_SUNO_MODEL = "V5_5";` 로 하드코딩되어 있음.
+  2. `music/lib/actions/tracks.ts` 및 `music/lib/actions/remix.ts`: 곡 생성·리믹스 시 사용자가 모델을 선택할 수 없고 무조건 `DEFAULT_SUNO_MODEL` ("V5_5")로 DB 저장 및 API 전송됨.
+  3. UI (`GenerateTracksPanel.tsx`, `RemixForm.tsx`): 엔진 모델(v4, v5.5, v6) 선택 UI(라디오 버튼/드롭다운)가 없음.
+- **구현 과제 (다음 CLI 작업 가이드)**:
+  1. **API 파라미터 확인**: 서드파티 Suno API(`api.sunoapi.org`) 명세에서 Suno v6 모델의 식별자 값(예: `V6`, `V6_0` 등) 확인 및 허용 모델 상수 정의 (`SUNO_ENGINE_MODELS = [{ id: "V6", label: "Suno v6 (최신 플래그십)" }, { id: "V5_5", label: "Suno v5.5" }, { id: "V4", label: "Suno v4" }]`).
+  2. **UI 모델 셀렉터 추가**:
+     - `components/plannings/GenerateTracksPanel.tsx`: 곡 생성 옵션에 "엔진 버전 선택 (Suno v6 / v5.5 / v4)" 라디오/알약 칩 추가.
+     - `components/remix/RemixForm.tsx`: 리믹스 생성 옵션에도 엔진 모델 선택 제공.
+  3. **Server Actions 및 DB 연동**:
+     - `generateTracksAction`, `createRemixAction` 파라미터에 `sunoModel` 추가.
+     - `music_tracks.suno_model`, `music_track_remixes.suno_model`에 사용자 선택 모델 반영 및 `requestSunoGeneration`, `requestSunoRemix`에 전달.
+
+---
+
+### 일반 제안 과제
 1. **오디오 웨이브폼 비주얼라이저 (파형 시각화)**:
    - 현재는 브라우저 기본 `<audio controls />` 태그를 사용 중임.
    - `wavesurfer.js` 등을 도입하여 Suno 본사이트처럼 세련된 오렌지 파형 재생 바로 업그레이드하면 시각적 몰입감이 배가됨.

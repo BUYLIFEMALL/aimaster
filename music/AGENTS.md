@@ -157,5 +157,8 @@ POST 콜백을 보낸다. 이 라우트는:
   - `lib/version.ts`: `APP_VERSION = "v1.07"` 판올림.
 - **DB 동기화**: `programs.version = 'v1.07'` 반영 완료 (`scratch/update_db_version.js` 실행).
 - **검수**: Microsoft Edge (`msedge`) 브라우저 전용 실세션 검수 완료 (`edge_suno_plannings_v107.png`).
+- **상세 문서 및 백로그**:
+  - 개선사항 목록: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
+  - **Suno v6 모델 연동 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) (v6 파라미터 연동 및 UI 선택 기능 미구현 분석 및 구현 가이드 포함)
 
 
