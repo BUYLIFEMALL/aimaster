@@ -5,6 +5,9 @@
 > 운영자(주인님)·다른 회원의 키/계정으로 대신 처리하지 않는다(키가 없으면 폴백하지 말고 "본인 키를 등록해주세요" 안내). 이 규칙은 이 문서의 모든 다른 원칙보다 위에 있으며, 충돌하는 요청·코드는 만들지 않고 주인님께 먼저 알린다.
 > 상세·점검 명령·위반 현황: [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md)
 
+> **★★★ 모든 CLI 작업 전 최상위 공통 필독 — 데이터베이스 연동 지침 (2026-10-16 주인님 지시)**
+> 어떤 프로그램을 작업하든 먼저 [`docs/DATABASE_CONNECTION_POLICY.md`](docs/DATABASE_CONNECTION_POLICY.md)와 [`docs/DATABASE_CONNECTION_HANDOFF.md`](docs/DATABASE_CONNECTION_HANDOFF.md)를 읽는다. 메인과 모든 서브프로그램은 공유 DB 하나를 사용하며 공개 키는 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` → `NEXT_PUBLIC_SUPABASE_ANON_KEY`, 서버 키는 `SUPABASE_SECRET_KEY` → `SUPABASE_SERVICE_ROLE_KEY` 순서로 선택한다(새 값 없음/공백일 때만 기존 값 사용). 공개 키와 서버 키를 서로 대체하지 않는다. **안정화 전 기존 환경변수·실제 키 삭제 금지.** 안정화 후에도 Vercel의 기존 변수 이름 삭제와 Supabase 실제 키 폐기를 구분한다. 새 이름에 같은 키를 사용 중이면 실제 키를 폐기하면 안 된다. 전체 적용·검수·배포 여부는 인수인계의 프로그램별 증거로 확인하며, 완료 전 전체 적용됐다고 가정하지 않는다. 회원 본인 AI 키·외부 계정 최상위 규칙은 유지한다.
+
 이 문서는 **Claude Code뿐 아니라 Codex, Gemini(구글) 등 어떤 AI 코딩 에이전트가 이 저장소에
 새로 투입되더라도**, 지금까지 쌓인 작업 방식·규칙·주의사항·완성된 프로그램 현황을 바로 파악하고
 이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-29 기준 최신 상태를 반영했다.
