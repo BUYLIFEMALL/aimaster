@@ -39,7 +39,7 @@
 | 순 | slug | 폴더 | 콜백 주소 방식(코드 확인) |
 |---|---|---|---|
 | 20 | ✅ auto-threads-posting | `threads` | 환경변수 고정 `THREADS_REDIRECT_URI` |
-| 21 | threads-affiliate-poster | `threads-affiliate-poster` | 환경변수 고정 `THREADS_REDIRECT_URI` |
+| 21 | ✅ threads-affiliate-poster | `threads-affiliate-poster` | 환경변수 고정 `THREADS_REDIRECT_URI` |
 | 22 | threads-comment-reply | `threads-comment-reply` | 환경변수 고정 `META_THREADS_REDIRECT_URI` |
 | 23 | auto-instagram-posting | `insta_auto_poster` | 환경변수 고정(`META_INSTAGRAM_REDIRECT_URI`, `..._BYOK_...`) |
 | 24 | instagram-comment-reply | `instagram-comment-reply` | 환경변수 고정 `META_INSTAGRAM_REDIRECT_URI` |
@@ -84,4 +84,4 @@
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
 | A그룹 | 19/19 | 0 |
-| B그룹 | 1/8 | 7 |
+| B그룹 | 2/8 | 6 |
