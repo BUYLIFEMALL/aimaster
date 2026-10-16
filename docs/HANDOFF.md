@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니) — 전체 프로그램 디자인 작업 현황판 (중복 작업 방지)
+
+- **주인님 지시**: 개발된 프로그램 목록을 보고 디자인 작업한 것은 「1차 완료」, 안 한 것은 「작업 예정」으로 표시해 중복 작업을 막고 인수인계에도 남길 것.
+- **바뀐 파일**: 루트 `DESIGN.md` §2를 「전체 프로그램 디자인 작업 현황판」으로 바꿈 — `docs/PROGRAM_CAPABILITY_MAP.md` 기준 **83개 전부** 등록(기존 61개 + 빠져 있던 22개 추가, 22개는 권장 템플릿 배정).
+- **현황 (2026-10-16)**: ✅ 1차 완료 7 — `markdown-studio`·`music-player`·`music`(music-automation)·`suno-music-studio`·`longtail-keyword-expander`·`shop-detail-page`·`shorts-onestop-studio`(DESIGN_HANDOFF 미작성) / 🔵 작업 중 1 — `threads-content-ops`(Antigravity) / ⏸ 보류 2 — 비활성 네이버 블로그 App·Web / ⚪ 작업 예정 73.
+- **판정 근거**: 폴더의 `docs/DESIGN_HANDOFF.md` 유무 + 2026-10-15 이후 디자인 커밋 + 기존 현황표 상태 + `docs/ACTIVE_WORK.md`.
+- **모든 CLI 규칙**: 디자인 착수 전 `DESIGN.md` §2 상태와 `ACTIVE_WORK.md`를 확인 → 착수 시 ⚪→🔵(CLI·장비·날짜) + ACTIVE_WORK 줄 추가 → 배포·검수 후 ✅ 1차 완료(`vX.YY`) + 인수인계 링크 → ACTIVE_WORK 줄 삭제. ✅·🔵 프로그램은 새로 리뉴얼하지 않는다.
+- **커밋 방식**: Antigravity가 `DESIGN.md` 상단 원칙 8번을 수정 중(미커밋)이라, 제 §2·§3 변경만 골라 커밋하고 그 4줄은 작업 파일에 그대로 남김.
+- **남은 일**: `shorts-onestop-studio`의 `docs/DESIGN_HANDOFF.md` 작성(작성자: 그 프로그램을 맡은 CLI).
+
 ## 2026-10-16 Claude Code(맥미니) — 롱테일 v1.06/v1.07 처리 결과 확인·기록 정리
 
 - 확인: 커밋 `54eaee73`·`db259571`(Codex v1.06 운영 검수 34건), `d1b15099`(v1.07 CSV). DB `programs.version`=v1.07, 운영 `/`→`/dashboard` 307, `/dashboard`·`/guide` 비로그인 시 로그인 이동(캐시 MISS). `ACTIVE_WORK`의 맥미니 줄 제거 확인.
