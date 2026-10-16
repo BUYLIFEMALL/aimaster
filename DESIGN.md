@@ -73,12 +73,13 @@
 > - ✅ **1차 완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
+> - 🟠 **메인(윈도우) CLI 마무리 작업요망**: 맥미니 CLI가 코드·문서·커밋을 마쳤고, 윈도우 CLI가 빌드·배포·화면 검수만 하면 됨 — 새 리뉴얼 착수 금지, 윈도우 CLI만 이어받음
 > - ⚪ **작업 예정**: 아직 디자인 리뉴얼 전. 템플릿 칸의 「(권장)」은 추천일 뿐 확정 아님
 > - ⏸ **보류**: 비활성 프로그램 등 당장 대상 아님
 >
 > **상태 바꾸는 법**: 착수할 때 ⚪→🔵 「🔵 작업 중 (CLI(장비), 날짜)」로 고치고 `docs/ACTIVE_WORK.md`에 줄 추가 → 배포·검수 후 「✅ 1차 완료 (`vX.YY`)」 + 인수인계 문서 링크로 고치고 ACTIVE_WORK 줄 삭제. 상태 칸 외의 다른 줄은 건드리지 않는다.
 >
-> **★ 작업을 시작할 때는 먼저 「🔵 작업 중」으로, 작업이 끝나면 즉시 「✅ 1차 완료」로 바꾼다 (2026-10-16 주인님 지시)** — 착수하는 CLI는 코드를 고치기 전에 이 표의 상태를 「🔵 작업 중 (CLI(장비), 날짜)」로 바꿔 저장하고 `docs/ACTIVE_WORK.md`에 줄을 추가한다(이미 🔵·✅이면 착수하지 않고 주인님께 알린다). 다른 CLI가 같은 프로그램을 다시 작업하지 않도록, 디자인 작업을 마친 CLI는 같은 커밋에서 이 표의 상태를 「✅ 1차 완료 (`vX.YY`, CLI(장비) 날짜)」로 바꾸고 `docs/ACTIVE_WORK.md`의 자기 줄을 지운다. 빌드·배포·검수가 남았으면(예: 맥미니 작업) 상태 칸에 「— 빌드·배포·검수는 윈도우 대기」를 덧붙이고, 그 남은 일은 `docs/HANDOFF.md` 대기 항목으로만 처리한다(새 리뉴얼 착수 금지).
+> **★ 상태 표시 규칙 (2026-10-16 주인님 지시)** — ① **시작할 때 먼저** 「🔵 작업 중 (CLI(장비), 날짜)」로 바꿔 저장하고 `docs/ACTIVE_WORK.md`에 줄 추가(이미 🔵·🟠·✅이면 착수하지 말고 주인님께 알린다). ② **맥미니 CLI가 작업을 마치면**(맥미니는 빌드·배포 금지) 같은 커밋에서 「🟠 메인(윈도우) CLI 마무리 작업요망 (`vX.YY`, CLI(맥미니) 날짜)」로 바꾸고 ACTIVE_WORK 자기 줄 삭제, 남은 일은 `docs/HANDOFF.md` 대기 항목에 적는다. ③ **윈도우 CLI가 빌드·배포·검수까지 끝내면**(또는 윈도우에서 처음부터 끝까지 한 작업) 「✅ 1차 작업완료 (`vX.YY`, CLI(윈도우) 날짜)」로 바꾼다. 다른 CLI가 같은 프로그램을 중복 작업하지 않게 하는 것이 목적이다.
 
 | No | 서브프로그램명 | slug | 적용 디자인 템플릿 스타일 | 배경 테마 | 디자인 상태 | 인수인계 문서 |
 |:---:|---|---|---|:---:|:---:|:---:|
@@ -102,7 +103,7 @@
 | 18 | Suno 음악기획 자동화 | `suno-music-studio` | **사이버 수노 다크 스튜디오 스타일** | 다크(옵시디언 블랙) | ✅ 1차 완료 | [`suno-music-studio/docs/DESIGN_HANDOFF.md`](suno-music-studio/docs/DESIGN_HANDOFF.md) |
 | 19 | 감성 글귀 이미지 | `emotion-writer` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `emotion-writer/AGENTS.md` |
 | 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ebook-studio/AGENTS.md` |
-| 21 | Website Scraper | `website-scraper` | **스마트 매트릭스 스타일** (Tailwind v4 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 완료 (`v1.12`, Claude Code 맥미니 2026-10-16 — 빌드·배포·검수는 윈도우 대기) | [`ghost-scraper/docs/DESIGN_HANDOFF.md`](ghost-scraper/docs/DESIGN_HANDOFF.md) |
+| 21 | Website Scraper | `website-scraper` | **스마트 매트릭스 스타일** (Tailwind v4 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.12`, Claude Code 맥미니 2026-10-16) | [`ghost-scraper/docs/DESIGN_HANDOFF.md`](ghost-scraper/docs/DESIGN_HANDOFF.md) |
 | 22 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `seo-thumbnail-pro/AGENTS.md` |
 | 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `style-dna-analyzer/AGENTS.md` |
 | 24 | INSTA Cardnews 자동화 | `cardnews-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 작업 예정 | `cardnews-studio/AGENTS.md` |
