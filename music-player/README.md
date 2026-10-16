@@ -1,5 +1,7 @@
 # 뮤직 플레이어 자동화 (music-player)
 
+작업 전 [개선 원장](docs/IMPROVEMENTS.md)과 [후속 8건 인수인계](docs/IMPROVEMENT_HANDOFF_20261016_BACKLOG.md)를 읽습니다. 작업 중 발견한 개선은 프로그램 폴더에 계속 기록합니다. 8건은 제안(미구현)이며 v1.05 완료 결과와 구분합니다.
+
 내 컴퓨터의 음악 파일을 끌어다 놓아 재생하고, 시각화·8밴드 이퀄라이저로 즐기는 AIMaster 브라우저 뮤직 플레이어입니다. 파일은 서버로 올라가지 않고 회원별 브라우저 저장소에 보관됩니다.
 
 - 운영: https://music-player.buylife.xyz · v1.05 · 인수인계 [AGENTS.md](AGENTS.md) · 계획 [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md)

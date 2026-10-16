@@ -1,5 +1,7 @@
 # 뮤직 플레이어 자동화 (music-player) — 인수인계
 
+> **개선사항 인수인계 필독:** [개선 원장](docs/IMPROVEMENTS.md) · [후속 8건 재개 문서](docs/IMPROVEMENT_HANDOFF_20261016_BACKLOG.md) · [공통 기록 지침](../docs/IMPROVEMENT_HANDOFF_POLICY.md). 발견한 개선은 즉시 기록하고 종료·중단·이관 시 프로그램 폴더에 상태·남은 일·다음 첫 단계·검수 방법을 남깁니다. v1.05 오류 수정은 완료, 후속 8건은 제안(미구현)입니다.
+
 > ★ 최상위 규칙: 이 프로그램은 AI·외부 계정을 쓰지 않는 브라우저 기능이다. 나중에 AI(예: 곡 분석)를 붙이면 **회원 본인 Gemini 키**만 사용하고 운영자 키로 폴백하지 않는다. ([TOP_RULE](../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md))
 
 **이어받는 CLI는 [docs/CLI_HANDOFF.md](docs/CLI_HANDOFF.md)(완료 커밋·코드 지도·절차·남은 일·함정)부터 읽으세요.**
