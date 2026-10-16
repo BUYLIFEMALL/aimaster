@@ -101,5 +101,25 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
   - 디자인 상세 인수인계: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
   - 개선사항 목록: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
 - **검수 브라우저**: Microsoft Edge 전용 (`msedge.exe`) — 데스크톱 (1440x900) 및 모바일 (375x812) 반응형 정상 검수 완료.
+## 2026-10-16 사이드바 밀착 배치 및 직관적 아이콘 표준화 — v1.07 (shop-detail-page)
+
+- **주인님 지시**:
+  - "좌측메뉴의 접속계정,로그아웃 부분을 메뉴 밑으로 바로 붙여줘"
+  - "이모티콘을 해당메뉴를 직관적으로 이해할수 있는 이모티콘으로 사용해줘"
+  - "이모티콘 색상은 해당 프로그램 스타일에 맞게 수정해도되, 디자인 지침에 관련 내용추가해줘, 인수인계 문서에도 남겨두고"
+- **주요 작업 내용**:
+  1. **접속 계정/로그아웃 밀착 배치**: 기존 `mt-auto` 하단 고정을 제거하고, 유틸리티 메뉴 바로 아래 `border-t border-slate-200 pt-3` 위치에 바짝 밀착.
+  2. **직관적인 Lucide 아이콘 표준화 & 프로그램 스타일 맞춤 색상화**:
+     - 1단계: `ScanSearch` 상품 및 상세페이지 분석 (`text-blue-600` 스마트스토어 블루)
+     - 2단계: `LayoutGrid` 상세페이지 생성·관리 (`text-indigo-600` 상세 섹션 인디고)
+     - 유틸리티: `KeyRound` API키등록·플랫폼연동 (`text-amber-500` 골드 키)
+     - 유틸리티: `BookOpen` 사용 안내 (`text-blue-600` 가이드북 블루)
+     - 계정/로그아웃: `LogOut` (`text-slate-400` -> hover 시 `text-rose-500`)
+     - 브랜드: `ShoppingBag` (`bg-blue-600 text-white`)
+  3. **전용 가이드 페이지 신설**: `app/(dashboard)/guide/page.tsx` 라우트 신설로 메뉴에서 `사용 안내` 클릭 시 바로 가이드북 열람 가능.
+  4. **디자인 메인 지침 개정**: 루트 `DESIGN.md` 원칙 7번 및 `docs/PROGRAM_DESIGN_STANDARD.md` 목표 5번에 "이모티콘 및 아이콘의 프로그램 스타일 맞춤 색상화" 공식 지침 추가.
+- **배포 및 검수**:
+  - Vercel 프로덕션 배포 완료 (`dpl_4qSahV4g5yfHH9mZbECzhUKMPotv`).
+  - Microsoft Edge 전용 실세션(`buylifemall@naver.com`) 데스크톱/모바일 검수 완료 (`edge_shop_detail_sidebar_v107.png`, `edge_shop_detail_mobile_v107.png`).
 - **라이브 URL**: `https://shop-detail-page.vercel.app`
 

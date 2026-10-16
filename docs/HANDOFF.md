@@ -1,5 +1,47 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — AI 상세페이지 자동화 v1.07: 사이드바 밀착 배치 및 프로그램 스타일 아이콘 색상화 완료
+
+- **대상 프로그램**: `shop-detail-page/` (slug: `shop-detail-page`, `https://shop-detail-page.vercel.app`)
+- **주인님 지시**:
+  - "좌측메뉴의 접속계정,로그아웃 부분을 메뉴 밑으로 바로 붙여줘"
+  - "이모티콘을 해당메뉴를 직관적으로 이해할수 있는 이모티콘으로 사용해줘"
+  - "이모티콘 색상은 해당 프로그램 스타일에 맞게 수정해도되, 디자인 지침에 관련 내용추가해줘, 인수인계 문서에도 남겨두고"
+- **완료 내용**:
+  1. **접속 계정/로그아웃 메뉴 바로 아래 밀착 배치**:
+     - 기존 `mt-auto` 하단 고정을 제거하고, 유틸리티 메뉴 바로 아래 `border-t border-slate-200 pt-3` 위치에 바짝 밀착 배치.
+  2. **직관적인 Lucide 아이콘 표준화 & 프로그램 스타일 맞춤 색상화**:
+     - 1단계: `ScanSearch` 상품 및 상세페이지 분석 (`text-blue-600` 스마트스토어 블루)
+     - 2단계: `LayoutGrid` 상세페이지 생성·관리 (`text-indigo-600` 상세 섹션 인디고)
+     - 유틸리티: `KeyRound` API키등록·플랫폼연동 (`text-amber-500` 골드 키)
+     - 유틸리티: `BookOpen` 사용 안내 (`text-blue-600` 가이드북 블루)
+     - 계정/로그아웃: `LogOut` (`text-slate-400` -> hover 시 `text-rose-500`)
+     - 브랜드 엠블럼: `ShoppingBag` (`bg-blue-600 text-white`)
+  3. **전용 가이드 페이지 신설**:
+     - `app/(dashboard)/guide/page.tsx` 신설 및 `CommerceUsageGuide` 탑재, 사이드바 `사용 안내` 메뉴 연동.
+  4. **디자인 메인 지침 개정**:
+     - 루트 `DESIGN.md` 원칙 7번 및 `docs/PROGRAM_DESIGN_STANDARD.md` 목표 5번에 "이모티콘 및 아이콘의 프로그램 스타일 맞춤 색상화" 공식 지침 추가.
+  5. **버전 및 DB 동기화**:
+     - `shop-detail-page/lib/version.ts`: `APP_VERSION = "v1.07"`
+     - Supabase 공유 DB: `programs.version = 'v1.07'` (slug: `shop-detail-page`) 업데이트 완료.
+  6. **빌드 및 Vercel 프로덕션 배포**:
+     - `npm run build`: 9개 라우트 정상 컴파일 완료.
+     - Vercel 프로덕션 배포 완료: Deployment `dpl_4qSahV4g5yfHH9mZbECzhUKMPotv` (`https://shop-detail-page.vercel.app`, HTTP 200).
+  7. **Microsoft Edge (엣지) 전용 실세션 검수 완료**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 주입 후 검수:
+       - 데스크톱 대시보드 및 사이드바 (`edge_shop_detail_sidebar_v107.png`, 1440 × 900 — 계정/로그아웃 밀착 확인)
+       - 데스크톱 API 설정 (`edge_shop_detail_settings_v107.png`, 1440 × 900)
+       - 데스크톱 사용 안내 (`edge_shop_detail_guide_v107.png`, 1440 × 900 — 신설 가이드북 확인)
+       - 모바일 375px 반응형 (`edge_shop_detail_mobile_v107.png`, 375 × 812 — 햄버거 메뉴 토글 및 밀착 확인)
+- **산출물 문서**:
+  - [`shop-detail-page/docs/DESIGN_HANDOFF.md`](../shop-detail-page/docs/DESIGN_HANDOFF.md)
+  - [`shop-detail-page/docs/IMPROVEMENTS.md`](../shop-detail-page/docs/IMPROVEMENTS.md)
+  - [`shop-detail-page/AGENTS.md`](../shop-detail-page/AGENTS.md)
+  - 루트 [`DESIGN.md`](../DESIGN.md)
+  - [`docs/PROGRAM_DESIGN_STANDARD.md`](PROGRAM_DESIGN_STANDARD.md)
+- **비용**: 0원 (유료 API 호출 미사용).
+- **남은 작업**: 없음.
+
 ## 2026-10-16 Antigravity(Windows) — AI 상세페이지 자동화 v1.06: 이커머스 셀러 스튜디오 스타일 리뉴얼 및 엣지 검수 완료
 
 - **대상 프로그램**: `shop-detail-page/` (slug: `shop-detail-page`, `https://shop-detail-page.vercel.app`)

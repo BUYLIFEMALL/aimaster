@@ -6,7 +6,18 @@
 
 ---
 
-## 1. 완료된 개선 내역 (v1.06)
+## 1. 완료된 개선 내역
+
+### v1.07 (2026-10-16)
+1. **사이드바 접속 계정/로그아웃 밀착 배치 (주인님 지시)**:
+   - `mt-auto` 하단 고정 제거, 유틸리티 메뉴 바로 아래 `border-t border-slate-200 pt-3` 바짝 밀착 배치.
+2. **직관적인 Lucide 아이콘 표준화 & 프로그램 스타일 맞춤 색상화 (주인님 지시)**:
+   - `ScanSearch`(블루), `LayoutGrid`(인디고), `KeyRound`(골드), `BookOpen`(블루), `LogOut`(슬레이트/로즈), `ShoppingBag`(블루).
+   - 루트 `DESIGN.md` 원칙 7번 및 `docs/PROGRAM_DESIGN_STANDARD.md` 목표 5번에 관련 지침 공식 추가.
+3. **전용 가이드 페이지 신설**:
+   - `app/(dashboard)/guide/page.tsx` 신설로 사이드바 `사용 안내` 클릭 시 바로 접근 가능.
+
+### v1.06 (2026-10-16)
 1. **이커머스 셀러 스튜디오 스타일 UI/UX 전면 리뉴얼**:
    - `이커머스 셀러 스튜디오 스타일` 전면 구축 (`globals.css`, `Sidebar.tsx`, `products/page.tsx`, `products/new/page.tsx`, `SectionImageGrid.tsx`).
    - 단조로운 보라색/회색 템플릿에서 **클린 퓨어 화이트 (`#ffffff`) & 소프트 슬레이트 (`#f8fafc`)** 기반의 신뢰감 있는 이커머스 관리자 환경으로 탈바꿈.
@@ -14,7 +25,7 @@
    - `components/guide/CommerceUsageGuide.tsx` 컴포넌트 신설 및 대시보드 연동.
    - 4단계 파이프라인(등록 ➔ 분석 ➔ 생성 ➔ 병합) 다이어그램 및 15개 섹션 블록 맵 시각화.
 3. **사이드바 표준화 및 모바일 햄버거 메뉴 지원**:
-   - `docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 준수: 상단 `SHOP DETAIL STUDIO` 엠블럼, `v1.06` 배지, 2단계 스텝퍼, 하단 Gemini 15단 엔진 배너, 계정 정보.
+   - `docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 준수: 상단 `ShoppingBag` 엠블럼, `v1.07` 배지, 2단계 스텝퍼, 하단 Gemini 15단 엔진 배너, 계정 정보.
    - 모바일(375px) 접이식 햄버거 메뉴(`☰`) 탑재.
 4. **15단 섹션 관리 그리드 시각화 및 다운로드 바 강화**:
    - 15개 섹션별 넘버링 배지(`01~15`), 썸네일 히스토리 바, 개별 재생성 버튼.

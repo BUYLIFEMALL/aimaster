@@ -1,9 +1,9 @@
-# 상세페이지 자동화(15p) (shop-detail-page) v1.06 디자인 인수인계 문서 (DESIGN_HANDOFF.md)
+# 상세페이지 자동화(15p) (shop-detail-page) v1.07 디자인 인수인계 문서 (DESIGN_HANDOFF.md)
 
 작성일시: 2026-10-16  
 작업 CLI: Antigravity (Windows)  
 배포 URL: `https://shop-detail-page.vercel.app/` (`https://shop-detail-page.vercel.app/products`)  
-적용 버전: `v1.06` (공유 DB `programs.version = 'v1.06'` 동기화 완료)
+적용 버전: `v1.07` (공유 DB `programs.version = 'v1.07'` 동기화 완료)
 
 ---
 
@@ -37,13 +37,18 @@
 ## 3. 주요 컴포넌트 및 레이아웃 구조
 
 1. **사이드바 (`components/layout/Sidebar.tsx`)**:
-   - `SHOP DETAIL STUDIO` 브랜드 엠블럼 + `v1.06` 오렌지 틴트 배지.
+   - `ShoppingBag` 브랜드 엠블럼 + `v1.07` 오렌지 틴트 배지.
    - 번호형 2단계 워크플로우 네비게이션:
-     - 1단계: 🔍 상품 및 상세페이지 분석 (`/products/new`)
-     - 2단계: 🖼️ 상세페이지 생성·관리 (`/products`)
+     - 1단계: `ScanSearch` 상품 및 상세페이지 분석 (`/products/new`, `text-blue-600`)
+     - 2단계: `LayoutGrid` 상세페이지 생성·관리 (`/products`, `text-indigo-600`)
+   - 유틸리티 메뉴 (직관적 아이콘 & 프로그램 컬러 토큰):
+     - `KeyRound` API키등록·플랫폼연동 (`/settings`, `text-amber-500` 골드 키)
+     - `BookOpen` 사용 안내 (`/guide`, `text-blue-600` 가이드북 블루)
+   - **접속 계정 정보 및 로그아웃 밀착 배치 (2026-10-16 주인님 지시)**:
+     - 기존 `mt-auto` 하단 고정을 제거하고, 유틸리티 메뉴 바로 아래(`border-t border-slate-200 pt-3`)에 바짝 밀착.
+     - 실시간 접속 표시 녹색 점, 이메일 표시, `LogOut` 아이콘(`text-slate-400` -> hover 시 `text-rose-500`) 탑재.
    - 하단 "✨ Gemini 15단 생성 엔진 탑재" 인포 배너 카드.
-   - 접속 계정 정보, 실시간 접속 표시 점, 정돈된 로그아웃 버튼 밀착 배치.
-   - 모바일 접이식 햄버거 메뉴(`☰`) 탑재.
+   - 모바일 접이식 햄버거 메뉴(`☰` / `✕`) 탑재.
 2. **비주얼 가이드북 (`components/guide/CommerceUsageGuide.tsx`)**:
    - **4단계 전자동 상세페이지 파이프라인**: STEP 01(등록) ➔ STEP 02(분석) ➔ STEP 03(15단 생성) ➔ STEP 04(롱 이미지 병합).
    - **15대 필수 섹션 블록 맵**: 01. 인트로 헤더부터 15. 구매전환 CTA까지 15개 섹션 아이콘 칩 배치.
@@ -66,15 +71,17 @@
 
 - **검수 브라우저**: **Microsoft Edge (`msedge.exe`) 전용** (규칙 준수, Chrome 배제).
 - **테스트 계정**: `buylifemall@naver.com` (일반 회원 실세션 검수 완료).
-- **생성된 검수 아티팩트**:
-  - 데스크톱 메인 목록: `edge_shop_detail_desktop_v106.png` (1440 × 900)
-  - 데스크톱 새 상품 폼: `edge_shop_detail_new_desktop_v106.png` (1440 × 900)
-  - 모바일 메인 반응형: `edge_shop_detail_mobile_v106.png` (375 × 812)
+- **생성된 검수 아티팩트 (v1.07)**:
+  - 데스크톱 메인 목록 & 사이드바: `edge_shop_detail_sidebar_v107.png` (1440 × 900 — 계정/로그아웃 밀착 확인)
+  - 데스크톱 API 키 설정: `edge_shop_detail_settings_v107.png` (1440 × 900)
+  - 데스크톱 사용 안내: `edge_shop_detail_guide_v107.png` (1440 × 900 — 신설 `/guide` 가이드북 확인)
+  - 모바일 반응형: `edge_shop_detail_mobile_v107.png` (375 × 812 — 모바일 메뉴 펼침 및 밀착 확인)
 
 ---
 
 ## 5. 배포 정보
 - **배포 플랫폼**: Vercel Production
-- **배포 ID**: `dpl_FtwzTAdhuNr7aUnGtCZCwpM9ddRp`
+- **배포 ID**: `dpl_4qSahV4g5yfHH9mZbECzhUKMPotv`
 - **배포 도메인**: `https://shop-detail-page.vercel.app` (HTTP 200 정상)
-- **DB 동기화**: `programs` 테이블 `shop-detail-page`의 `version` 컬럼 = `v1.06`
+- **DB 동기화**: `programs` 테이블 `shop-detail-page`의 `version` 컬럼 = `v1.07`
+
