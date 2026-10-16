@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 상품소싱 자동화 v1.08: 스마트 매트릭스(다크) 디자인 (🟠 윈도우 마무리 요청)
+
+- **대상**: `trending-product-finder/` (https://trending-product-finder.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
+- **한 일**: 롱테일 v3 토큰·부품 이식(투명도 표기 위해 색상값 직접), 사이드바 ☰·📖(원칙 19·⑦ — 기존 누락), `/dashboard`(기회 키워드 TOP 5)·`/guide` 신설, 리포트를 키워드 매트릭스 표로(옛 「경쟁 수 Phase 2 예정」 문구 정정, 🌏 소싱 링크 추가), 로그인 다크(원칙 13). 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+- **문서**: [`trending-product-finder/docs/`](../trending-product-finder/docs/) PLAN·IMPROVEMENTS·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, AGENTS·README, `DESIGN.md` 43번 🟠, 역량 지도 v1.08.
+- **⚠️ 윈도우 CLI 요청**: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.08 → 검수(리포트 생성·후보 찾기·검색 금지) → 43번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(윈도우) — 부동산 실거래 v1.14·v1.15: 예약 조회 알림의 AI 분석 켜기/끄기
 
 - `real_estate_user_preferences.auto_analyze_on_notify`(기본 켜짐 = 기존 동작 유지, 운영 적용). 꺼 두면 텔레그램/알림톡 알림 전에 AI 분석을 새로 돌리지 않음(유료 호출 없음, 있는 결과만 첨부). 설정 화면 체크박스 + AI 모델 안내 문구 v1.13 동작에 맞게 정정. 커밋 `d46818a3`(v1.14)·`5ffd68b5`(v1.15 체크박스 저장값 반전 수정).

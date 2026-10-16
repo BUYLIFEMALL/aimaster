@@ -40,13 +40,13 @@ export function WatchlistWorkspace({ initialEntries }: WatchlistWorkspaceProps) 
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-gray-900">직접 키워드 등록</h2>
+        <h2 className="mb-3 text-lg font-bold text-mx-text">직접 키워드 등록</h2>
         <WatchlistForm onCreated={upsertEntry} />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-bold text-gray-900">등록된 관심 목록</h2>
-        {!entries.length && <p className="text-sm text-gray-400">아직 등록된 관심 목록이 없습니다.</p>}
+        <h2 className="text-lg font-bold text-mx-text">등록된 관심 목록</h2>
+        {!entries.length && <p className="text-sm text-mx-muted">아직 등록된 관심 목록이 없습니다.</p>}
         {entries.map((entry) => (
           <WatchlistRow key={entry.id} entry={entry} onUpdated={upsertEntry} onDeleted={removeEntry} />
         ))}

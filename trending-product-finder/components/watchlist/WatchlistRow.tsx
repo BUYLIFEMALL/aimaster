@@ -130,16 +130,16 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-2">
+    <div className="bg-mx-surface border border-mx-border rounded-2xl p-4 space-y-2">
       <div className="flex items-center justify-between">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-gray-900">{categoryName}</p>
+          <p className="text-sm font-bold text-mx-text">{categoryName}</p>
           {!isEditingKeywords && (
             <div className="mt-1 flex flex-wrap items-center gap-1">
-              <p className="text-xs text-gray-500">{keywords.join(", ")}</p>
+              <p className="text-xs text-mx-muted">{keywords.join(", ")}</p>
               <button
                 onClick={startEditingKeywords}
-                className="shrink-0 text-[11px] text-sky-600 hover:text-sky-800"
+                className="shrink-0 text-[11px] text-mx-link hover:text-mx-text"
               >
                 ✏️ 키워드 수정
               </button>
@@ -151,7 +151,7 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
             onClick={handleToggle}
             disabled={isToggling}
             className={`rounded-full px-3 py-1 text-xs font-bold text-white transition-colors disabled:opacity-50 ${
-              isActive ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
+              isActive ? "bg-mx-primary hover:bg-[#1d4ed8]" : "bg-mx-danger hover:bg-[#e11d48]"
             }`}
           >
             {isActive ? "ON" : "OFF"}
@@ -159,7 +159,7 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
+            className="text-xs text-mx-danger hover:text-mx-danger disabled:opacity-50"
           >
             삭제
           </button>
@@ -167,25 +167,25 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
       </div>
 
       {isEditingKeywords && (
-        <div className="rounded-xl border-2 border-sky-200 bg-sky-50/50 p-3">
+        <div className="rounded-xl border-2 border-mx-primary/40 bg-mx-primary/10 p-3">
           <div className="flex flex-wrap gap-1.5">
             {editKeywords.map((k) => (
               <span
                 key={k}
-                className="flex items-center gap-1 rounded-full border border-sky-300 bg-white px-2.5 py-1 text-xs font-semibold text-sky-700"
+                className="flex items-center gap-1 rounded-full border border-mx-primary/40 bg-mx-surface px-2.5 py-1 text-xs font-semibold text-mx-link"
               >
                 {k}
                 <button
                   type="button"
                   onClick={() => removeEditKeyword(k)}
-                  className="text-sky-400 hover:text-red-500"
+                  className="text-mx-link hover:text-mx-danger"
                   aria-label={`${k} 삭제`}
                 >
                   ×
                 </button>
               </span>
             ))}
-            {editKeywords.length === 0 && <p className="text-[11px] text-gray-400">키워드가 없습니다. 추가해주세요.</p>}
+            {editKeywords.length === 0 && <p className="text-[11px] text-mx-muted">키워드가 없습니다. 추가해주세요.</p>}
           </div>
           <div className="mt-2 flex gap-1.5">
             <input
@@ -205,19 +205,19 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
               type="button"
               onClick={addEditKeyword}
               disabled={editKeywords.length >= 10}
-              className="shrink-0 rounded-lg border border-sky-300 bg-white px-2.5 py-1 text-xs font-bold text-sky-700 hover:bg-sky-100 disabled:opacity-50"
+              className="shrink-0 rounded-lg border border-mx-primary/40 bg-mx-surface px-2.5 py-1 text-xs font-bold text-mx-link hover:bg-mx-primary/20 disabled:opacity-50"
             >
               추가
             </button>
           </div>
-          {editKeywords.length >= 10 && <p className="mt-1 text-[11px] text-amber-600">최대 10개까지 등록할 수 있어요.</p>}
-          {keywordsError && <p className="mt-1 text-[11px] text-red-600">{keywordsError}</p>}
+          {editKeywords.length >= 10 && <p className="mt-1 text-[11px] text-mx-accent">최대 10개까지 등록할 수 있어요.</p>}
+          {keywordsError && <p className="mt-1 text-[11px] text-mx-danger">{keywordsError}</p>}
           <div className="mt-2 flex gap-1.5">
             <button
               type="button"
               onClick={saveEditKeywords}
               disabled={isSavingKeywords}
-              className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-sky-700 disabled:opacity-60"
+              className="rounded-lg bg-mx-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
             >
               {isSavingKeywords ? "저장 중..." : "저장"}
             </button>
@@ -225,7 +225,7 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
               type="button"
               onClick={() => setIsEditingKeywords(false)}
               disabled={isSavingKeywords}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-60"
+              className="rounded-lg border border-mx-border bg-mx-surface px-3 py-1.5 text-xs font-bold text-mx-muted hover:bg-[#262c3a] disabled:opacity-60"
             >
               취소
             </button>
@@ -236,14 +236,14 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
         <button
           onClick={handleGenerate}
           disabled={isGenerating}
-          className="rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 disabled:opacity-60"
+          className="rounded-lg bg-mx-success/10 px-3 py-1.5 text-xs font-bold text-mx-success hover:bg-mx-success/20 disabled:opacity-60"
         >
           {isGenerating ? "리포트 생성 중..." : "지금 리포트 생성"}
         </button>
-        {genSuccess && <span className="text-xs text-emerald-600">완료! 리포트 페이지에서 확인하세요.</span>}
+        {genSuccess && <span className="text-xs text-mx-success">완료! 리포트 페이지에서 확인하세요.</span>}
       </div>
-      {genError && <p className="text-xs text-red-600">{genError}</p>}
-      {rowError && <p className="text-xs text-red-600">{rowError}</p>}
+      {genError && <p className="text-xs text-mx-danger">{genError}</p>}
+      {rowError && <p className="text-xs text-mx-danger">{rowError}</p>}
 
       <SourcingAlertControls entry={entry} onUpdated={onUpdated} />
     </div>

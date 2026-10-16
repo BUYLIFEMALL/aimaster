@@ -43,21 +43,21 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
   const showForm = !maskedValue || isEditing;
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+    <div className="bg-mx-raised border border-mx-border rounded-xl p-4">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-gray-800">{label}</p>
+        <p className="text-sm font-semibold text-mx-text">{label}</p>
         {maskedValue && !isEditing && (
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-xs text-green-600 hover:text-green-800"
+              className="text-xs text-mx-success hover:text-mx-success"
             >
               수정
             </button>
             <form action={deleteApiKeyAction}>
               <input type="hidden" name="provider" value={provider} />
-              <button type="submit" className="text-xs text-red-500 hover:text-red-700">
+              <button type="submit" className="text-xs text-mx-danger hover:text-mx-danger">
                 삭제
               </button>
             </form>
@@ -78,7 +78,7 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
           <button
             type="submit"
             disabled={isPending}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 disabled:opacity-60 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-mx-raised hover:bg-[#262c3a] disabled:opacity-60 transition-colors"
           >
             {isPending ? "저장 중..." : "저장"}
           </button>
@@ -90,29 +90,29 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
                 setError(null);
                 setSuccess(false);
               }}
-              className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-semibold border border-mx-border text-mx-muted hover:bg-[#262c3a] transition-colors"
             >
               취소
             </button>
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-gray-500">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-sm text-mx-muted">{maskedValue} · 등록됨</p>
       )}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-      {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {error && <p className="mt-1 text-xs text-mx-danger">{error}</p>}
+      {success && <p className="mt-1 text-xs text-mx-success">저장되었습니다.</p>}
       {helpWarning && (
-        <div className="mt-2 space-y-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-relaxed text-red-800">
+        <div className="mt-2 space-y-1 rounded-lg border border-mx-danger/30 bg-mx-danger/10 px-3 py-2 text-xs leading-relaxed text-[#fecdd3]">
           <p className="font-bold">⚠️ 주의</p>
           {helpWarning}
         </div>
       )}
       {helpUrl && (
         <div className="mt-2">
-          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">
+          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-mx-link hover:underline">
             {helpLabel ?? "API 키 발급받기"}
           </a>
-          {helpDescription && <p className="mt-1 text-xs text-gray-400">{helpDescription}</p>}
+          {helpDescription && <p className="mt-1 text-xs text-mx-muted">{helpDescription}</p>}
         </div>
       )}
     </div>

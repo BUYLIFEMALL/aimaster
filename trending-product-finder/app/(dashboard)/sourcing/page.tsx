@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
@@ -65,15 +66,13 @@ export default async function SourcingPage({
   }));
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <section>
-        <h1 className="mb-2 text-2xl font-black text-gray-900">상품소싱 마진계산기</h1>
-        <p className="text-sm text-gray-500">
-          키워드로 알리익스프레스(해외)·도매매(국내) 소싱 후보를 검색하고, 관세·부가세·운송비·
-          플랫폼 수수료까지 반영한 예상 마진을 바로 계산해볼 수 있습니다. 트렌드 리포트에서
-          발굴한 키워드를 이 페이지로 가져와서 바로 원가를 확인해보세요.
-        </p>
-      </section>
+    <div className="mx-auto max-w-5xl space-y-6">
+      <PageHero
+        badge="🌏 STEP 3 · 소싱·마진계산"
+        title="상품소싱 마진계산기"
+        description="키워드로 알리익스프레스(해외)·도매매·11번가(국내) 소싱 후보를 검색하고, 관세·부가세·운송비·플랫폼 수수료까지 반영한 예상 마진을 바로 계산합니다. 트렌드 리포트의 「🌏 소싱」을 누르면 키워드가 자동으로 들어와요."
+        tip="마음에 드는 상품은 ⭐ 관심상품으로 저장하면 가격 변동·품절을 알려 드려요."
+      />
 
       <SourcingCalculator initialKeyword={keyword} registeredPlatforms={registeredPlatforms} />
 

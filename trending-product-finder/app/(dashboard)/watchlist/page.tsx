@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { WatchlistWorkspace } from "@/components/watchlist/WatchlistWorkspace";
@@ -33,15 +34,13 @@ export default async function WatchlistPage() {
   }));
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      <section>
-        <h1 className="mb-2 text-2xl font-black text-gray-900">관심 키워드 등록</h1>
-        <p className="mb-6 text-sm text-gray-500">
-          카테고리와 추적하고 싶은 키워드를 등록해두면, 네이버클라우드 API HUB 쇼핑인사이트(관심도
-          추이)를 기반으로 기회 점수를 계산해드립니다. 어떤 키워드를 등록할지 모르겠다면 아래
-          &quot;카테고리로 후보 상품군 추천받기&quot;를 먼저 써보세요.
-        </p>
-      </section>
+    <div className="mx-auto max-w-5xl space-y-6">
+      <PageHero
+        badge="🔍 STEP 1 · 키워드 발굴"
+        title="관심 키워드 등록"
+        description="카테고리와 추적할 키워드를 등록하면 네이버 쇼핑인사이트 관심도를 바탕으로 기회점수를 계산합니다. 무엇을 등록할지 모르겠다면 아래 「카테고리로 후보 상품군 추천받기」를 먼저 써 보세요."
+        tip="키워드마다 「예약 소싱 알림」을 켜 두면 정한 주기마다 소싱 후보를 알림으로 받아요."
+      />
 
       <WatchlistWorkspace initialEntries={initialEntries} />
     </div>

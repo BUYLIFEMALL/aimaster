@@ -360,26 +360,26 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               onClick={() => togglePlatform(p.value)}
               aria-pressed={checked}
               className={`flex items-start gap-2 rounded-2xl border p-3 text-left transition-colors ${
-                checked ? "border-sky-400 bg-sky-50" : "border-gray-200 bg-white hover:border-sky-200"
+                checked ? "border-mx-primary/40 bg-mx-primary/10" : "border-mx-border bg-mx-surface hover:border-mx-primary"
               }`}
             >
               <span
                 className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
-                  checked ? "border-sky-600 bg-sky-600 text-white" : "border-gray-300 bg-white"
+                  checked ? "border-mx-primary/40 bg-mx-primary text-white" : "border-mx-border bg-mx-surface"
                 }`}
               >
                 {checked && "✓"}
               </span>
               <span>
-                <p className={`text-sm font-bold ${checked ? "text-sky-700" : "text-gray-800"}`}>{p.label}</p>
-                <p className="mt-0.5 text-xs text-gray-500">{p.description}</p>
+                <p className={`text-sm font-bold ${checked ? "text-mx-link" : "text-mx-text"}`}>{p.label}</p>
+                <p className="mt-0.5 text-xs text-mx-muted">{p.description}</p>
               </span>
             </button>
           );
         })}
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-2 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+      <form onSubmit={handleSearch} className="flex gap-2 bg-mx-surface border border-mx-border rounded-2xl p-4">
         <input
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
@@ -389,24 +389,24 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         <button
           type="submit"
           disabled={isSearching}
-          className="rounded-lg bg-sky-600 px-5 py-2 text-sm font-bold text-white hover:bg-sky-700 disabled:opacity-60"
+          className="rounded-lg bg-mx-primary px-5 py-2 text-sm font-bold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
         >
           {isSearching ? "검색 중..." : "검색"}
         </button>
       </form>
 
       {resultMarginRows.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-2xl border-2 border-emerald-200 bg-emerald-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-2xl border-2 border-mx-success/30 bg-mx-success/10 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-bold text-emerald-900">📊 &quot;{keyword}&quot; 검색결과 {resultMarginRows.length}건 마진 계산 완료</p>
-            <p className="mt-0.5 text-xs text-emerald-700">
+            <p className="text-sm font-bold text-[#a7f3d0]">📊 &quot;{keyword}&quot; 검색결과 {resultMarginRows.length}건 마진 계산 완료</p>
+            <p className="mt-0.5 text-xs text-mx-success">
               지금 검색된 상품 전체를 마진율 순으로 정리했습니다(추천판매가는 원가×2.5 기준 추정치). 엑셀에서 비교해보세요.
             </p>
           </div>
           <button
             type="button"
             onClick={handleDownloadResultsCsv}
-            className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"
+            className="shrink-0 rounded-lg bg-[#047857] px-4 py-2 text-sm font-bold text-white hover:bg-[#059669]"
           >
             📥 검색결과 전체 CSV 다운로드
           </button>
@@ -414,11 +414,11 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
       )}
 
       {resultMarginRows.length > 0 && (
-        <div className="rounded-2xl border-2 border-rose-200 bg-rose-50/60 p-4">
+        <div className="rounded-2xl border-2 border-mx-danger/30 bg-mx-danger/10 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <p className="text-sm font-bold text-rose-900">🎯 프로모션 상품만 골라보기</p>
-              <p className="mt-0.5 text-xs text-rose-700">
+              <p className="text-sm font-bold text-[#fecdd3]">🎯 프로모션 상품만 골라보기</p>
+              <p className="mt-0.5 text-xs text-mx-danger">
                 상품명에 공동구매/할인/이벤트 등 문구가 있으면서, 설정 마진율 조건을 넘는 상품만 걸러줍니다.
               </p>
             </div>
@@ -426,7 +426,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               type="button"
               onClick={() => setPromoFilterEnabled((v) => !v)}
               className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold text-white transition-colors ${
-                promoFilterEnabled ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
+                promoFilterEnabled ? "bg-mx-primary hover:bg-[#1d4ed8]" : "bg-mx-danger hover:bg-[#e11d48]"
               }`}
             >
               {promoFilterEnabled ? "ON" : "OFF"}
@@ -434,15 +434,15 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
           </div>
           {promoFilterEnabled && (
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] text-rose-700">최소 마진율</span>
+              <span className="text-[11px] text-mx-danger">최소 마진율</span>
               <input
                 type="number"
                 value={minMarginPct}
                 onChange={(e) => setMinMarginPct(e.target.value)}
                 className="input-sm w-20 text-xs"
               />
-              <span className="text-[11px] text-rose-700">% 이상</span>
-              <span className="ml-2 rounded-full bg-rose-100 px-2.5 py-1 text-[11px] font-bold text-rose-700">
+              <span className="text-[11px] text-mx-danger">% 이상</span>
+              <span className="ml-2 rounded-full bg-mx-danger/10 px-2.5 py-1 text-[11px] font-bold text-mx-danger">
                 조건 만족 {promoMatchCount}건
               </span>
             </div>
@@ -454,24 +454,24 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
       {PLATFORMS.filter((p) => selectedPlatforms.has(p.value) && results[p.value]).map((p) => {
         const result = results[p.value]!;
         return (
-          <div key={p.value} className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-base font-extrabold text-gray-900">{p.label} 검색결과</p>
+          <div key={p.value} className="space-y-3 rounded-2xl border-2 border-mx-border bg-mx-surface p-4">
+            <p className="text-base font-extrabold text-mx-text">{p.label} 검색결과</p>
             {result.translatedKeyword && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-mx-muted">
                 알리익스프레스는 한글 검색어를 잘 인식하지 못해, 실제 검색어를{" "}
-                <span className="font-semibold text-gray-600">&quot;{result.translatedKeyword}&quot;</span>(영어)로
+                <span className="font-semibold text-mx-muted">&quot;{result.translatedKeyword}&quot;</span>(영어)로
                 자동 번역해서 검색했습니다.
               </p>
             )}
             {result.warning && (
-              <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">⚠️ {result.warning}</p>
+              <p className="text-xs text-mx-accent bg-mx-accent/10 rounded-lg px-3 py-2">⚠️ {result.warning}</p>
             )}
-            {result.error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{result.error}</p>}
+            {result.error && <p className="text-sm text-mx-danger bg-mx-danger/10 rounded-lg px-3 py-2">{result.error}</p>}
             {!result.error && result.products.length === 0 && (
-              <p className="text-sm text-gray-400">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
+              <p className="text-sm text-mx-muted">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
             )}
             {promoFilterEnabled && result.products.length > 0 && !result.products.some((prod) => promoFilteredKeys.has(`${prod.platform}:${prod.key}`)) && (
-              <p className="text-sm text-gray-400">조건(프로모션 문구 + 마진율 {minMarginPct}% 이상)을 만족하는 상품이 없습니다.</p>
+              <p className="text-sm text-mx-muted">조건(프로모션 문구 + 마진율 {minMarginPct}% 이상)을 만족하는 상품이 없습니다.</p>
             )}
             {result.products
               .filter((prod) => !promoFilterEnabled || promoFilteredKeys.has(`${prod.platform}:${prod.key}`))
@@ -482,21 +482,21 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                 <div
                   key={prod.key}
                   className={`flex w-full items-center gap-3 rounded-xl border p-3 ${
-                    isSelected ? "border-sky-400 bg-sky-50" : "border-gray-200 bg-gray-50"
+                    isSelected ? "border-mx-primary/40 bg-mx-primary/10" : "border-mx-border bg-mx-raised"
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {prod.imageUrl && <img src={prod.imageUrl} alt={prod.title} className="h-14 w-14 rounded object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-gray-900">
+                    <p className="truncate text-sm text-mx-text">
                       {promoKeyword && (
-                        <span className="mr-1 shrink-0 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                        <span className="mr-1 shrink-0 rounded-full bg-mx-danger/10 px-2 py-0.5 text-[10px] font-bold text-mx-danger">
                           🎯 {promoKeyword}
                         </span>
                       )}
                       {prod.title}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-mx-muted">
                       {prod.priceKrw ? `${prod.priceKrw.toLocaleString()}원` : "가격 정보 없음"}
                       {prod.metaText && ` · ${prod.metaText}`}
                     </p>
@@ -506,7 +506,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                       href={prod.detailUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
+                      className="shrink-0 rounded-lg bg-[#047857] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#059669]"
                     >
                       🔗 상품 링크
                     </a>
@@ -522,7 +522,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                         disabled={isSaved || isSaving}
                         title="가격/품절 변화가 있을 때만 알림을 받습니다"
                         className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold disabled:opacity-70 ${
-                          isSaved ? "bg-amber-100 text-amber-700" : "bg-white text-amber-600 border border-amber-300 hover:bg-amber-50"
+                          isSaved ? "bg-mx-accent/10 text-mx-accent" : "bg-mx-surface text-mx-accent border border-mx-accent/30 hover:bg-mx-accent/20"
                         }`}
                       >
                         {isSaving ? "저장 중..." : isSaved ? "⭐ 저장됨" : "⭐ 관심상품 저장"}
@@ -533,7 +533,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                     type="button"
                     onClick={() => handleSelect(prod)}
                     className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${
-                      isSelected ? "bg-emerald-100 text-emerald-700" : "bg-sky-600 text-white hover:bg-sky-700"
+                      isSelected ? "bg-mx-success/10 text-mx-success" : "bg-mx-primary text-white hover:bg-[#1d4ed8]"
                     }`}
                   >
                     {isSelected ? "✅ 선택됨" : "상품 선택"}
@@ -545,13 +545,13 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         );
       })}
 
-      <div className="space-y-3 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+      <div className="space-y-3 bg-mx-surface border border-mx-border rounded-2xl p-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-bold text-gray-900">💰 마진 계산기</p>
+          <p className="text-sm font-bold text-mx-text">💰 마진 계산기</p>
           {selectedTitle && (
             <button
               onClick={handleReset}
-              className="rounded-lg border border-sky-300 bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 hover:bg-sky-100"
+              className="rounded-lg border border-mx-primary/40 bg-mx-primary/10 px-3 py-1.5 text-xs font-bold text-mx-link hover:bg-mx-primary/20"
             >
               직접입력
             </button>
@@ -559,25 +559,25 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         </div>
 
         {selectedTitle && (
-          <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+          <div className="flex items-center gap-3 rounded-lg bg-mx-raised p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {selectedImage && <img src={selectedImage} alt={selectedTitle} className="h-10 w-10 rounded object-cover" />}
             <div className="min-w-0">
-              <p className="truncate text-xs text-gray-700">{selectedTitle}</p>
-              <p className="text-[11px] text-gray-400">
+              <p className="truncate text-xs text-mx-text">{selectedTitle}</p>
+              <p className="text-[11px] text-mx-muted">
                 {PLATFORMS.find((p) => p.value === selectedPlatform)?.label}
               </p>
             </div>
           </div>
         )}
 
-        <p className="text-xs text-gray-500">
-          상품 선택시 <span className="font-semibold text-gray-700">원가/추천판매가만 자동으로
+        <p className="text-xs text-mx-muted">
+          상품 선택시 <span className="font-semibold text-mx-text">원가/추천판매가만 자동으로
           채워지고</span>, 다른 값은 수정시 즉시 다시 계산됩니다.
           {isDomestic && (
             <>
               <br />
-              <span className="font-semibold text-emerald-700">
+              <span className="font-semibold text-mx-success">
                 국내 소싱(도매매/11번가) 상품이라 관세·부가세·해외운송비·국내 입고/검수비는
                 계산에서 제외됩니다(입력창도 숨김 처리됩니다).
               </span>
@@ -587,27 +587,27 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           <label className="space-y-1">
-            <span className="text-xs font-semibold text-gray-800">원가(원) *</span>
+            <span className="text-xs font-semibold text-mx-text">원가(원) *</span>
             <input
               type="number"
               value={sourcePrice}
               onChange={(e) => setSourcePrice(e.target.value)}
-              className="input-sm w-full border-sky-300"
+              className="input-sm w-full border-mx-primary/40"
             />
           </label>
           <label className="space-y-1">
-            <span className="text-xs font-semibold text-gray-800">추천판매가(원) *</span>
+            <span className="text-xs font-semibold text-mx-text">추천판매가(원) *</span>
             <input
               type="number"
               value={sellingPrice}
               onChange={(e) => setSellingPrice(e.target.value)}
-              className="input-sm w-full border-sky-300"
+              className="input-sm w-full border-mx-primary/40"
             />
           </label>
           {!isDomestic && (
             <>
               <label className="space-y-1">
-                <span className="text-xs text-gray-600">관세율(%) — 기본 {activeDefaults.customsDutyRate}%</span>
+                <span className="text-xs text-mx-muted">관세율(%) — 기본 {activeDefaults.customsDutyRate}%</span>
                 <input
                   type="number"
                   value={customsDutyRate}
@@ -616,7 +616,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-xs text-gray-600">부가세율(%) — 기본 {activeDefaults.vatRate}%</span>
+                <span className="text-xs text-mx-muted">부가세율(%) — 기본 {activeDefaults.vatRate}%</span>
                 <input
                   type="number"
                   value={vatRate}
@@ -625,7 +625,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-mx-muted">
                   개당 해외 운송비(원) — 기본 {activeDefaults.shippingPerUnitKrw.toLocaleString()}원
                 </span>
                 <input
@@ -636,7 +636,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-mx-muted">
                   국내 입고/검수비(원) — 기본 {activeDefaults.domesticFeePerUnitKrw.toLocaleString()}원
                 </span>
                 <input
@@ -649,7 +649,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
             </>
           )}
           <label className="space-y-1">
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-mx-muted">
               판매 플랫폼 수수료율(%) — 기본 {MARGIN_DEFAULTS.platformFeeRate}%
             </span>
             <input
@@ -658,15 +658,15 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               onChange={(e) => setPlatformFeeRate(e.target.value)}
               className="input-sm w-full"
             />
-            <p className="text-[11px] leading-snug text-gray-400">
+            <p className="text-[11px] leading-snug text-mx-muted">
               실제 판매하실 플랫폼·카테고리 기준으로 직접 수정후 사용해주세요.{" "}
-              <a href="/fees" className="font-semibold text-sky-600 underline">
+              <a href="/fees" className="font-semibold text-mx-link underline">
                 플랫폼별 수수료 보기
               </a>
             </p>
           </label>
           <label className="space-y-1">
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-mx-muted">
               택배비(원) — 기본 {MARGIN_DEFAULTS.deliveryFeeKrw.toLocaleString()}원
             </span>
             <input
@@ -675,13 +675,13 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               onChange={(e) => setDeliveryFee(e.target.value)}
               className="input-sm w-full"
             />
-            <p className="text-[11px] leading-snug text-gray-400">
+            <p className="text-[11px] leading-snug text-mx-muted">
               상품의 무게·부피·배송 지역에 따라 실제 택배비가 달라질 수 있습니다. 본인 상황에
               맞게 직접 수정해서 사용해주세요.
             </p>
           </label>
           <label className="col-span-2 space-y-1">
-            <span className="text-xs text-gray-600">개당 마케팅비(원, 선택)</span>
+            <span className="text-xs text-mx-muted">개당 마케팅비(원, 선택)</span>
             <input
               type="number"
               value={marketingFee}
@@ -697,10 +697,10 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
           );
           const tone =
             marginResult.marginRatePct >= 20
-              ? { badge: "bg-emerald-600", box: "border-emerald-200 bg-emerald-50", text: "text-emerald-900" }
+              ? { badge: "bg-[#047857]", box: "border-mx-success/30 bg-mx-success/10", text: "text-[#a7f3d0]" }
               : marginResult.marginRatePct >= 0
-                ? { badge: "bg-amber-500", box: "border-amber-200 bg-amber-50", text: "text-amber-900" }
-                : { badge: "bg-red-600", box: "border-red-200 bg-red-50", text: "text-red-900" };
+                ? { badge: "bg-mx-accent", box: "border-mx-accent/30 bg-mx-accent/10", text: "text-[#fde68a]" }
+                : { badge: "bg-mx-danger", box: "border-mx-danger/30 bg-mx-danger/10", text: "text-[#fecdd3]" };
 
           return (
             <div className={`rounded-xl border ${tone.box} overflow-hidden`}>
@@ -720,16 +720,16 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               </div>
 
               {/* 계산 과정 상세 — 영수증 형태로 항목별 표시 */}
-              <div className="border-t border-black/5 bg-white/60 px-4 py-3 text-sm">
+              <div className="border-t border-black/5 bg-mx-surface/60 px-4 py-3 text-sm">
                 {isDomestic ? (
-                  <p className="mb-1.5 text-xs text-gray-500">
+                  <p className="mb-1.5 text-xs text-mx-muted">
                     국내 소싱이라 관세·부가세·해외운송비·국내 입고/검수비는 계산에서 제외됩니다 —
                     원가 그대로가 최종 원가입니다.
                   </p>
                 ) : (
                   <>
-                    <p className="mb-1.5 text-xs font-bold text-gray-500">최종 수입 단가 계산</p>
-                    <div className="space-y-1 text-gray-700">
+                    <p className="mb-1.5 text-xs font-bold text-mx-muted">최종 수입 단가 계산</p>
+                    <div className="space-y-1 text-mx-text">
                       <div className="flex justify-between">
                         <span>원가</span>
                         <span className="tabular-nums">{(Number(sourcePrice) || 0).toLocaleString()}원</span>
@@ -746,7 +746,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                         <span>+ 국내 입고/검수비</span>
                         <span className="tabular-nums">{(Number(domesticFee) || 0).toLocaleString()}원</span>
                       </div>
-                      <div className="flex justify-between border-t border-dashed border-gray-300 pt-1 font-bold text-gray-900">
+                      <div className="flex justify-between border-t border-dashed border-mx-border pt-1 font-bold text-mx-text">
                         <span>= 최종 수입 단가</span>
                         <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
                       </div>
@@ -754,8 +754,8 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                   </>
                 )}
 
-                <p className="mb-1.5 mt-3 text-xs font-bold text-gray-500">판매 비용 + 최종 결과</p>
-                <div className="space-y-1 text-gray-700">
+                <p className="mb-1.5 mt-3 text-xs font-bold text-mx-muted">판매 비용 + 최종 결과</p>
+                <div className="space-y-1 text-mx-text">
                   <div className="flex justify-between">
                     <span>{isDomestic ? "최종 원가" : "최종 수입 단가"}</span>
                     <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
@@ -772,15 +772,15 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                     <span>+ 마케팅비</span>
                     <span className="tabular-nums">{(Number(marketingFee) || 0).toLocaleString()}원</span>
                   </div>
-                  <div className="flex justify-between border-t border-dashed border-gray-300 pt-1 font-bold text-gray-900">
+                  <div className="flex justify-between border-t border-dashed border-mx-border pt-1 font-bold text-mx-text">
                     <span>= 총 비용</span>
                     <span className="tabular-nums">{marginResult.totalCostKrw.toLocaleString()}원</span>
                   </div>
-                  <div className="flex justify-between text-gray-700">
+                  <div className="flex justify-between text-mx-text">
                     <span>추천판매가</span>
                     <span className="tabular-nums">{(Number(sellingPrice) || 0).toLocaleString()}원</span>
                   </div>
-                  <div className={`flex justify-between border-t border-gray-300 pt-1 text-base font-extrabold ${tone.text}`}>
+                  <div className={`flex justify-between border-t border-mx-border pt-1 text-base font-extrabold ${tone.text}`}>
                     <span>= 마진</span>
                     <span className="tabular-nums">{marginResult.contributionProfitKrw.toLocaleString()}원</span>
                   </div>
@@ -790,7 +790,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
           );
         })()}
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-mx-muted">
           ※ 관세/부가세율은 품목·통관 방식에 따라 달라지는 추정치입니다. 실제 세율은 관세청 또는
           세무사를 통해 확인해주세요.
         </p>

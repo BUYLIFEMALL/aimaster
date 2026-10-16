@@ -31,12 +31,12 @@ export function TelegramConnectForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <input name="botToken" placeholder="봇 토큰 (예: 123456:AAF...)" required autoComplete="off" className="input" />
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-emerald-600">{success}</p>}
+      {error && <p className="rounded-lg bg-mx-danger/10 px-3 py-2 text-sm text-mx-danger">{error}</p>}
+      {success && <p className="text-sm text-mx-success">{success}</p>}
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 disabled:opacity-60"
+        className="w-full rounded-lg bg-mx-primary px-4 py-2 text-sm font-bold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
       >
         {isPending ? "확인 중..." : "연동 확인하기"}
       </button>

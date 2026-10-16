@@ -35,9 +35,9 @@ export function WatchlistForm({ onCreated }: WatchlistFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+    <form onSubmit={handleSubmit} className="space-y-4 bg-mx-surface border border-mx-border rounded-2xl p-6">
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">카테고리</label>
+        <label className="block text-sm font-semibold text-mx-text mb-1">카테고리</label>
         <select name="naverCategoryCode" required className="input">
           <option value="">카테고리를 선택하세요</option>
           {NAVER_TOP_CATEGORIES.map((c) => (
@@ -48,7 +48,7 @@ export function WatchlistForm({ onCreated }: WatchlistFormProps) {
         </select>
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">추적할 키워드 (쉼표로 구분, 최대 10개)</label>
+        <label className="block text-sm font-semibold text-mx-text mb-1">추적할 키워드 (쉼표로 구분, 최대 10개)</label>
         <input
           name="keywords"
           type="text"
@@ -56,15 +56,15 @@ export function WatchlistForm({ onCreated }: WatchlistFormProps) {
           required
           className="input"
         />
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-mx-muted">
           API 호출량 보호를 위해 한 번에 등록 가능한 키워드 수를 제한합니다.
         </p>
       </div>
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="text-sm text-mx-danger bg-mx-danger/10 rounded-lg px-3 py-2">{error}</p>}
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 text-white font-bold py-3 px-4 rounded-xl transition-all"
+        className="w-full bg-mx-primary hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-bold py-3 px-4 rounded-xl transition-all"
       >
         {isPending ? "등록 중..." : "관심 목록에 추가"}
       </button>

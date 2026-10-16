@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
@@ -48,10 +49,10 @@ const OPENMARKET_FEES: FeeRow[] = [
 
 function FeeTable({ headers, rows }: { headers: string[]; rows: FeeRow[] }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200">
+    <div className="overflow-x-auto rounded-xl border border-mx-border">
       <table className="w-full min-w-[420px] text-sm">
         <thead>
-          <tr className="bg-gray-50 text-left text-xs text-gray-500">
+          <tr className="bg-mx-raised text-left text-xs text-mx-muted">
             {headers.map((h) => (
               <th key={h} className="px-3 py-2 font-semibold">
                 {h}
@@ -61,10 +62,10 @@ function FeeTable({ headers, rows }: { headers: string[]; rows: FeeRow[] }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.category} className="border-t border-gray-100">
-              <td className="px-3 py-2 text-gray-800">{row.category}</td>
+            <tr key={row.category} className="border-t border-mx-border">
+              <td className="px-3 py-2 text-mx-text">{row.category}</td>
               {row.values.map((v, i) => (
-                <td key={i} className="px-3 py-2 tabular-nums text-gray-700">
+                <td key={i} className="px-3 py-2 tabular-nums text-mx-text">
                   {v}
                 </td>
               ))}
@@ -80,32 +81,27 @@ export default async function FeesPage() {
   await requireProgramAccess();
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <section>
-        <h1 className="mb-2 text-2xl font-black text-gray-900">플랫폼·카테고리별 판매수수료</h1>
-        <p className="text-sm text-gray-500">
-          상품소싱 마진계산기의 &quot;판매 플랫폼 수수료율&quot; 값을 실제 판매하실 플랫폼·
-          카테고리에 맞게 조정할 때 참고하는 표입니다. 아래 수치는 2026년 9월 기준으로 조사한
-          참고용 자료라, <span className="font-semibold text-gray-700">플랫폼 정책 변경으로 실제
-          수수료율과 다를 수 있습니다</span> — 실제 판매 전에는 반드시 각 플랫폼의 판매자
-          센터(쿠팡윙/스마트스토어센터/11번가 셀러오피스 등)에서 최신 수수료를 다시 확인해주세요.
-        </p>
-      </section>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHero
+        badge="🧾 참고표"
+        title="플랫폼·카테고리별 판매수수료"
+        description="마진계산기의 「판매 플랫폼 수수료율」을 실제 판매 플랫폼·카테고리에 맞게 조정할 때 참고하는 표입니다. 2026년 9월 기준 조사 자료라 실제 수수료와 다를 수 있으니, 판매 전 각 플랫폼 판매자 센터에서 최신 값을 꼭 확인해 주세요."
+      />
 
-      <section className="space-y-2 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+      <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
         <div>
-          <h2 className="text-base font-extrabold text-gray-900">🛒 쿠팡</h2>
-          <p className="text-xs text-gray-500">
+          <h2 className="text-base font-extrabold text-mx-text">🛒 쿠팡</h2>
+          <p className="text-xs text-mx-muted">
             카테고리 판매수수료(아래 표) + 월 매출 100만원 이상이면 서비스 이용료(월 5.5만원 별도)
           </p>
         </div>
         <FeeTable headers={["카테고리", "수수료율"]} rows={COUPANG_FEES} />
       </section>
 
-      <section className="space-y-2 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+      <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
         <div>
-          <h2 className="text-base font-extrabold text-gray-900">🏪 11번가 · 옥션 · G마켓</h2>
-          <p className="text-xs text-gray-500">
+          <h2 className="text-base font-extrabold text-mx-text">🏪 11번가 · 옥션 · G마켓</h2>
+          <p className="text-xs text-mx-muted">
             결제수수료(신용카드 기준 3.74%, 실시간 이체 시 2.0%)는 별도이며, 아래는 카테고리
             판매수수료입니다. 옥션·G마켓은 ESM 통합 판매관리라 수수료가 동일합니다.
           </p>
@@ -113,23 +109,23 @@ export default async function FeesPage() {
         <FeeTable headers={OPENMARKET_HEADERS} rows={OPENMARKET_FEES} />
       </section>
 
-      <section className="space-y-2 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-extrabold text-gray-900">🛍️ 네이버 스마트스토어</h2>
-        <p className="text-xs leading-relaxed text-gray-600">
+      <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
+        <h2 className="text-base font-extrabold text-mx-text">🛍️ 네이버 스마트스토어</h2>
+        <p className="text-xs leading-relaxed text-mx-muted">
           다른 오픈마켓과 달리 카테고리별로 수수료가 나뉘어 있지 않고, <span className="font-semibold">결제수단·유입경로</span> 기준으로 정해집니다.
           <br />
           <span className="font-semibold">결제수수료 + 판매수수료</span>가 각각 별도로 붙습니다(둘 다 부가세 포함 표기).
         </p>
 
         <div>
-          <p className="mb-1 text-xs font-semibold text-gray-700">
+          <p className="mb-1 text-xs font-semibold text-mx-text">
             ① 결제수수료 — 직전연도 매출 등급에 따라 5단계로 다릅니다
           </p>
           <FeeTable headers={["매출 등급", "결제수수료"]} rows={NAVERPAY_FEES} />
         </div>
 
         <div>
-          <p className="mb-1 mt-2 text-xs font-semibold text-gray-700">② 판매수수료 — 유입경로 기준(매출 등급 무관, 정액)</p>
+          <p className="mb-1 mt-2 text-xs font-semibold text-mx-text">② 판매수수료 — 유입경로 기준(매출 등급 무관, 정액)</p>
           <FeeTable
             headers={["유입경로", "판매수수료"]}
             rows={[
@@ -138,7 +134,7 @@ export default async function FeesPage() {
             ]}
           />
         </div>
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 text-xs leading-relaxed text-emerald-900">
+        <div className="rounded-lg border border-mx-success/30 bg-mx-success/10 p-3 text-xs leading-relaxed text-[#a7f3d0]">
           <p className="font-bold">💡 마케팅 링크를 쓰면 수수료가 더 낮아집니다</p>
           <p className="mt-1">
             판매자센터에서 스토어홈·카테고리·상품상세·쇼핑스토리 페이지별로 &quot;마케팅
@@ -152,10 +148,10 @@ export default async function FeesPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 text-xs leading-relaxed text-amber-900">
+      <section className="rounded-2xl border border-mx-accent/30 bg-mx-accent/10 p-4 text-xs leading-relaxed text-[#fde68a]">
         <p className="mb-1 font-bold">💡 마진계산기에 반영하는 방법</p>
         <p>
-          <a href="/sourcing" className="font-semibold text-sky-700 underline">
+          <a href="/sourcing" className="font-semibold text-mx-link underline">
             상품소싱 마진계산기
           </a>
           의 &quot;판매 플랫폼 수수료율&quot; 입력창에, 위 표를 참고하여 판매하실 플랫폼/카테고리에

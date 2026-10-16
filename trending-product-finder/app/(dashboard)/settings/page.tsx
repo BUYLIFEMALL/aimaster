@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
@@ -188,24 +189,20 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
+    <div className="mx-auto max-w-3xl space-y-8">
+      <PageHero
+        badge="🔑 API키등록·플랫폼연동"
+        title="API 키·알림 연결"
+        description="필수: 네이버클라우드 API HUB(쇼핑인사이트) + OpenAI 또는 Gemini 1개. 선택: 네이버 검색광고(후보 추천), 알리익스프레스·도매매·11번가(소싱 채널), YouTube(영상 신호). 모두 회원님 본인 키만 쓰며, 운영자 공용 키로 대신 동작하지 않습니다."
+      />
+
       <section>
-        <h1 className="mb-2 text-2xl font-black text-gray-900">API 키 설정</h1>
-        <p className="mb-6 text-sm text-gray-500">
-          상품소싱 자동화에는 본인의 네이버클라우드 API HUB Client ID/Secret(관심도 추이 조회)과,
-          OpenAI 또는 Gemini 중 1개(추천 사유 생성) 키가 필요합니다. 네이버 검색광고 키 3종은
-          &quot;카테고리로 후보 상품군 추천받기&quot; 기능에만, 알리익스프레스 키 3종과 도매매·
-          11번가 키는 각각 &quot;상품소싱 마진계산기&quot;의 해외/국내 소싱 채널에만, YouTube
-          Data API 키는 기회 점수에 영상 트렌드 신호를 더하는 데만 필요한 선택 항목입니다.{" "}
-          <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
-          등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다.
-        </p>
         <div className="space-y-5">
           {SECTIONS.map((section) => (
-            <div key={section.title} className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+            <div key={section.title} className="rounded-2xl border border-mx-border bg-mx-surface p-4 ">
               <div className="mb-3">
-                <h2 className="text-sm font-bold text-gray-900">{section.title}</h2>
-                <p className="text-xs text-gray-500">{section.description}</p>
+                <h2 className="text-sm font-bold text-mx-text">{section.title}</h2>
+                <p className="text-xs text-mx-muted">{section.description}</p>
               </div>
               <div className="space-y-3">
                 {section.providers.map((provider) => (
@@ -228,8 +225,8 @@ export default async function SettingsPage() {
 
       <section className="space-y-5">
         <div>
-          <h2 className="mb-1 text-lg font-black text-gray-900">📣 리포트 자동 알림 (선택)</h2>
-          <p className="text-xs text-gray-500">
+          <h2 className="mb-1 text-lg font-black text-mx-text">📣 리포트 자동 알림 (선택)</h2>
+          <p className="text-xs text-mx-muted">
             매일 자동 생성되는 트렌드 리포트를 로그인 없이도 이메일·카카오톡·텔레그램으로 요약
             받아볼 수 있습니다. 아래 중 등록해둔 채널로 자동 생성 시마다 발송됩니다. 다른
             AIMaster 프로그램(STEP Mail 등)에서 이미 등록하셨다면 이메일·카카오톡 계정은 공용
@@ -237,10 +234,10 @@ export default async function SettingsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-4">
           <div className="mb-3">
-            <h2 className="text-sm font-bold text-gray-900">📧 이메일 (SMTP)</h2>
-            <p className="text-xs text-gray-500">
+            <h2 className="text-sm font-bold text-mx-text">📧 이메일 (SMTP)</h2>
+            <p className="text-xs text-mx-muted">
               본인 이메일 계정을 등록해두면 등록해둔 계정 중 &quot;사용 중&quot;인 것으로 발송됩니다.
             </p>
           </div>
@@ -251,35 +248,35 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+        <div className="space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-4">
           <SolapiAccountSection account={solapiAccount ?? null} />
           <KakaoTemplateSection templates={kakaoTemplates ?? null} />
         </div>
 
-        <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-4">
           <div className="mb-3">
-            <h2 className="text-sm font-bold text-gray-900">📨 텔레그램 알림</h2>
-            <p className="text-xs text-gray-500">봇을 연동해두면 리포트 요약을 텔레그램으로도 받을 수 있어요.</p>
+            <h2 className="text-sm font-bold text-mx-text">📨 텔레그램 알림</h2>
+            <p className="text-xs text-mx-muted">봇을 연동해두면 리포트 요약을 텔레그램으로도 받을 수 있어요.</p>
           </div>
 
           {telegramLink ? (
             <div className="space-y-3">
-              <p className="text-sm text-emerald-600">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
+              <p className="text-sm text-mx-success">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
               <form action={disconnectTelegramAction}>
-                <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
+                <button type="submit" className="rounded-lg bg-mx-danger/10 px-4 py-2 text-xs font-bold text-mx-danger hover:bg-mx-danger/20">
                   연동 해제
                 </button>
               </form>
             </div>
           ) : (
             <div className="space-y-4">
-              <ol className="list-inside list-decimal space-y-2 text-xs text-gray-600">
+              <ol className="list-inside list-decimal space-y-2 text-xs text-mx-muted">
                 <li>
-                  텔레그램에서 <span className="font-semibold text-gray-900">@BotFather</span>를 검색해서 대화를 시작하세요.
+                  텔레그램에서 <span className="font-semibold text-mx-text">@BotFather</span>를 검색해서 대화를 시작하세요.
                 </li>
                 <li>
-                  <code className="rounded bg-gray-100 px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요
-                  (마지막엔 반드시 <code className="rounded bg-gray-100 px-1 py-0.5">bot</code>으로 끝나야 해요).
+                  <code className="rounded bg-mx-raised px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요
+                  (마지막엔 반드시 <code className="rounded bg-mx-raised px-1 py-0.5">bot</code>으로 끝나야 해요).
                 </li>
                 <li>완료되면 BotFather가 토큰을 알려줘요. 그 값을 복사하세요.</li>
                 <li>방금 만든 내 봇을 텔레그램에서 열고, 아무 메시지나 1개 보내세요.</li>
@@ -291,10 +288,10 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border-2 border-gray-200 bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-mx-border bg-mx-surface p-5">
         <div className="mb-4">
-          <h2 className="text-sm font-bold text-gray-900">📖 연동 매뉴얼</h2>
-          <p className="text-xs text-gray-500">
+          <h2 className="text-sm font-bold text-mx-text">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-mx-muted">
             이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
             따라 할 수 있습니다.
           </p>

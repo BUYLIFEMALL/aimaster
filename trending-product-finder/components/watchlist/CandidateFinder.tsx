@@ -6,9 +6,9 @@ import { NAVER_TOP_CATEGORIES } from "@/lib/naver/categories";
 import type { WatchlistEntry } from "@/lib/actions/watchlist";
 
 function scoreColor(score: number) {
-  if (score >= 60) return "bg-emerald-50 text-emerald-700 border-emerald-200";
-  if (score >= 35) return "bg-amber-50 text-amber-700 border-amber-200";
-  return "bg-gray-50 text-gray-500 border-gray-200";
+  if (score >= 60) return "bg-mx-success/10 text-mx-success border-mx-success/30";
+  if (score >= 35) return "bg-mx-accent/10 text-mx-accent border-mx-accent/30";
+  return "bg-mx-raised text-mx-muted border-mx-border";
 }
 
 interface CandidateFinderProps {
@@ -87,18 +87,18 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
   }
 
   return (
-    <div className="space-y-4 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+    <div className="space-y-4 bg-mx-surface border border-mx-border rounded-2xl p-6">
       <div>
-        <h2 className="text-lg font-bold text-gray-900">카테고리로 후보 상품군 추천받기</h2>
-        <p className="mt-1 text-xs text-gray-500">
+        <h2 className="text-lg font-bold text-mx-text">카테고리로 후보 상품군 추천받기</h2>
+        <p className="mt-1 text-xs text-mx-muted">
           카테고리를 고르고, 그 카테고리를 대표하는 키워드를 1개 입력하면(예: &quot;청소기&quot;,
           &quot;캠핑용품&quot;) 네이버 검색광고 데이터로 연관 상품군을 자동으로 찾아드립니다. 검색량이
           많은데 경쟁이 낮은 후보를 우선 보여줍니다.
         </p>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs leading-relaxed text-gray-600">
-        <p className="font-bold text-gray-800">💡 기준 키워드가 뭔가요?</p>
+      <div className="rounded-lg border border-mx-border bg-mx-raised px-3 py-2 text-xs leading-relaxed text-mx-muted">
+        <p className="font-bold text-mx-text">💡 기준 키워드가 뭔가요?</p>
         <p className="mt-0.5">검색의 출발점이 되는 대표 단어 1개를 말합니다.</p>
         <p className="mt-0.5">
           예를 들어 <span className="font-semibold">&quot;청소기&quot;</span>를 기준 키워드로 넣으면,
@@ -130,14 +130,14 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="rounded-lg bg-[#047857] px-4 py-2 text-sm font-bold text-white hover:bg-[#059669] disabled:opacity-60"
           >
             {isPending ? "찾는 중..." : "후보 찾기"}
           </button>
         </div>
       </form>
 
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs leading-relaxed text-emerald-900">
+      <div className="rounded-lg border border-mx-success/30 bg-mx-success/10 px-3 py-2 text-xs leading-relaxed text-[#a7f3d0]">
         <p className="font-bold">📊 후보점수(0~100)는 이렇게 계산됩니다</p>
         <p className="mt-0.5">
           <span className="font-bold">① 검색량 (최대 60점)</span> — 월간 검색수(PC+모바일 합계)가
@@ -154,13 +154,13 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
         </p>
         <p className="mt-0.5">이 세 가지를 더한 값이 후보점수이며, AI가 아니라 정해진 계산식으로 산출됩니다.</p>
         <div className="mt-1 flex flex-wrap gap-1.5">
-          <span className="rounded-full border border-emerald-200 bg-white px-1.5 py-0.5 font-semibold text-emerald-700">60점 이상: 눈여겨볼 만함</span>
-          <span className="rounded-full border border-amber-200 bg-white px-1.5 py-0.5 font-semibold text-amber-700">35~59점: 보통</span>
-          <span className="rounded-full border border-gray-200 bg-white px-1.5 py-0.5 font-semibold text-gray-500">35점 미만: 신호 약함</span>
+          <span className="rounded-full border border-mx-success/30 bg-mx-surface px-1.5 py-0.5 font-semibold text-mx-success">60점 이상: 눈여겨볼 만함</span>
+          <span className="rounded-full border border-mx-accent/30 bg-mx-surface px-1.5 py-0.5 font-semibold text-mx-accent">35~59점: 보통</span>
+          <span className="rounded-full border border-mx-border bg-mx-surface px-1.5 py-0.5 font-semibold text-mx-muted">35점 미만: 신호 약함</span>
         </div>
       </div>
 
-      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
+      <div className="rounded-lg border border-mx-accent/30 bg-mx-accent/10 px-3 py-2 text-xs leading-relaxed text-[#fde68a]">
         <p className="font-bold">⚠️ 기준 키워드 입력 시 주의사항</p>
 
         <div className="mt-2">
@@ -193,23 +193,23 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="text-sm text-mx-danger bg-mx-danger/10 rounded-lg px-3 py-2">{error}</p>}
       {searchedSeed && candidates && candidates.length > 0 && (
-        <p className="text-xs text-gray-400">
-          실제 검색어: <span className="font-mono font-semibold text-gray-600">{searchedSeed}</span>
+        <p className="text-xs text-mx-muted">
+          실제 검색어: <span className="font-mono font-semibold text-mx-muted">{searchedSeed}</span>
         </p>
       )}
 
       {candidates && candidates.length === 0 && (
-        <p className="text-sm text-gray-400">연관 키워드를 찾지 못했습니다. 다른 기준 키워드로 시도해보세요.</p>
+        <p className="text-sm text-mx-muted">연관 키워드를 찾지 못했습니다. 다른 기준 키워드로 시도해보세요.</p>
       )}
 
       {candidates && candidates.length > 0 && (
         <div className="space-y-2">
           {candidates.map((c) => (
-            <div key={c.keyword} className="border border-gray-100 rounded-xl p-3">
+            <div key={c.keyword} className="border border-mx-border rounded-xl p-3">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-sm font-semibold text-gray-900">{c.keyword}</p>
+                <p className="text-sm font-semibold text-mx-text">{c.keyword}</p>
                 <div className="flex items-center gap-2">
                   <span className={`text-xs font-bold rounded-full border px-2 py-0.5 ${scoreColor(c.candidateScore)}`}>
                     후보점수 {c.candidateScore}
@@ -217,7 +217,7 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
                   <button
                     onClick={() => handleAdd(c.keyword)}
                     disabled={addedKeywords.has(c.keyword) || addingKeyword === c.keyword}
-                    className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                    className="rounded-lg bg-mx-raised px-2.5 py-1 text-xs font-bold text-mx-text hover:bg-[#262c3a] disabled:opacity-50"
                   >
                     {addedKeywords.has(c.keyword)
                       ? "✅ 추가됨"
@@ -227,15 +227,15 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
                   </button>
                 </div>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-mx-muted">
                 월간검색수 {c.totalMonthlySearches.toLocaleString()}건(PC {c.monthlyPcSearches.toLocaleString()}+모바일{" "}
                 {c.monthlyMobileSearches.toLocaleString()})
                 {c.competitionLevel && ` · 경쟁정도 ${c.competitionLevel}`}
                 {c.trendChangePct != null && ` · 관심도 변화율 ${c.trendChangePct > 0 ? "+" : ""}${c.trendChangePct.toFixed(1)}%`}
               </p>
-              {c.reason && <p className="mt-1 text-xs text-gray-700">{c.reason}</p>}
+              {c.reason && <p className="mt-1 text-xs text-mx-text">{c.reason}</p>}
               {addErrors[c.keyword] && (
-                <p className="mt-1 text-xs font-semibold text-red-600 bg-red-50 rounded px-2 py-1">
+                <p className="mt-1 text-xs font-semibold text-mx-danger bg-mx-danger/10 rounded px-2 py-1">
                   ⚠️ {addErrors[c.keyword]}
                 </p>
               )}

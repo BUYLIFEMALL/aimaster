@@ -80,28 +80,28 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
   }
 
   return (
-    <div className="rounded-xl border-2 border-sky-200 bg-sky-50/50 p-3">
+    <div className="rounded-xl border-2 border-mx-primary/40 bg-mx-primary/10 p-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-bold text-sky-900">🔔 예약 소싱 알림</p>
+        <p className="text-sm font-bold text-mx-link">🔔 예약 소싱 알림</p>
         <button
           type="button"
           onClick={() => save({ enabled: !entry.sourcingAlertEnabled })}
           disabled={isSaving}
           className={`rounded-full px-3 py-1 text-xs font-bold text-white transition-colors disabled:opacity-50 ${
-            entry.sourcingAlertEnabled ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
+            entry.sourcingAlertEnabled ? "bg-mx-primary hover:bg-[#1d4ed8]" : "bg-mx-danger hover:bg-[#e11d48]"
           }`}
         >
           {entry.sourcingAlertEnabled ? "ON" : "OFF"}
         </button>
       </div>
-      <p className="mt-1 text-[11px] leading-snug text-sky-700/80">
+      <p className="mt-1 text-[11px] leading-snug text-mx-link/80">
         정해둔 주기마다 이 키워드로 소싱 후보 상품을 검색해서 등록된 채널로 요약을 보내드려요.
       </p>
 
       {entry.sourcingAlertEnabled && (
         <div className="mt-2 space-y-2">
           <div className="flex items-center gap-2">
-            <span className="w-16 shrink-0 text-[11px] text-gray-500">주기</span>
+            <span className="w-16 shrink-0 text-[11px] text-mx-muted">주기</span>
             <select
               value={entry.sourcingAlertIntervalMinutes ?? DEFAULT_INTERVAL}
               onChange={(e) => save({ intervalMinutes: Number(e.target.value) })}
@@ -117,7 +117,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-16 shrink-0 text-[11px] text-gray-500">동작 시간대</span>
+            <span className="w-16 shrink-0 text-[11px] text-mx-muted">동작 시간대</span>
             <button
               type="button"
               disabled={isSaving}
@@ -127,7 +127,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
                 save({ hoursRestricted: next });
               }}
               className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
-                hoursRestricted ? "border-sky-400 bg-sky-100 text-sky-700" : "border-gray-300 bg-white text-gray-500"
+                hoursRestricted ? "border-mx-primary/40 bg-mx-primary/10 text-mx-link" : "border-mx-border bg-mx-surface text-mx-muted"
               }`}
             >
               {hoursRestricted ? "특정 시간대만" : "종일"}
@@ -151,7 +151,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
                     </option>
                   ))}
                 </select>
-                <span className="text-gray-400">~</span>
+                <span className="text-mx-muted">~</span>
                 <select
                   value={endHour}
                   disabled={isSaving}
@@ -173,14 +173,14 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-16 shrink-0 text-[11px] text-gray-500">발송 방식</span>
-            <div className="flex overflow-hidden rounded-lg border border-gray-300">
+            <span className="w-16 shrink-0 text-[11px] text-mx-muted">발송 방식</span>
+            <div className="flex overflow-hidden rounded-lg border border-mx-border">
               <button
                 type="button"
                 disabled={isSaving}
                 onClick={() => save({ notifyMode: "always" })}
                 className={`px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
-                  entry.sourcingAlertNotifyMode === "always" ? "bg-sky-600 text-white" : "bg-white text-gray-500 hover:bg-gray-50"
+                  entry.sourcingAlertNotifyMode === "always" ? "bg-mx-primary text-white" : "bg-mx-surface text-mx-muted hover:bg-[#262c3a]"
                 }`}
               >
                 매번 전체 발송
@@ -189,8 +189,8 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
                 type="button"
                 disabled={isSaving}
                 onClick={() => save({ notifyMode: "changes_only" })}
-                className={`border-l border-gray-300 px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
-                  entry.sourcingAlertNotifyMode === "changes_only" ? "bg-sky-600 text-white" : "bg-white text-gray-500 hover:bg-gray-50"
+                className={`border-l border-mx-border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
+                  entry.sourcingAlertNotifyMode === "changes_only" ? "bg-mx-primary text-white" : "bg-mx-surface text-mx-muted hover:bg-[#262c3a]"
                 }`}
               >
                 변경사항만 발송
@@ -198,7 +198,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
             </div>
           </div>
           {entry.sourcingAlertNotifyMode === "changes_only" && (
-            <p className="text-[11px] leading-snug text-sky-700">
+            <p className="text-[11px] leading-snug text-mx-link">
               직전 확인 대비 새 상품이 나타나거나, 가격이 5% 이상 바뀌거나, 검색결과에서 사라진(품절 추정) 경우에만 알려드려요. 변화가 없으면 조용히 넘어갑니다.
             </p>
           )}
@@ -213,7 +213,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
                   onClick={() => toggleChannel(c.value)}
                   disabled={isSaving}
                   className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
-                    checked ? "border-sky-500 bg-sky-500 text-white" : "border-gray-300 bg-white text-gray-500"
+                    checked ? "border-mx-primary/40 bg-mx-primary text-white" : "border-mx-border bg-mx-surface text-mx-muted"
                   }`}
                 >
                   {c.label}
@@ -221,16 +221,16 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
               );
             })}
           </div>
-          {channels.length === 0 && <p className="text-[11px] text-amber-600">채널을 최소 1개 선택해야 알림이 발송됩니다.</p>}
-          <p className="text-[11px] leading-snug text-gray-400">
+          {channels.length === 0 && <p className="text-[11px] text-mx-accent">채널을 최소 1개 선택해야 알림이 발송됩니다.</p>}
+          <p className="text-[11px] leading-snug text-mx-muted">
             설정 페이지에 등록해둔 채널(이메일/카카오톡/텔레그램/문자) 중 선택한 것으로, 이 키워드로
             검색한 소싱 후보 상품 리스트를 정해진 주기마다 보내드립니다.
           </p>
-          {saved && <p className="text-[11px] text-emerald-600">저장됐어요.</p>}
+          {saved && <p className="text-[11px] text-mx-success">저장됐어요.</p>}
         </div>
       )}
 
-      {error && <p className="mt-2 text-[11px] text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-[11px] text-mx-danger">{error}</p>}
     </div>
   );
 }

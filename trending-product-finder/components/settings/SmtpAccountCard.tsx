@@ -83,67 +83,67 @@ export function SmtpAccountCard({ account }: { account: SmtpAccountData }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+    <div className="rounded-xl border border-mx-border bg-mx-raised p-3">
       <div className="mb-1 flex items-center justify-between gap-2">
-        <p className="text-sm font-bold text-gray-900">{account.label}</p>
+        <p className="text-sm font-bold text-mx-text">{account.label}</p>
         <span
           className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-            account.is_active ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
+            account.is_active ? "bg-mx-success/10 text-mx-success" : "bg-mx-raised text-mx-muted"
           }`}
         >
           {account.is_active ? "사용 중" : "사용 안 함"}
         </span>
       </div>
-      <p className="font-mono text-xs text-gray-500">
+      <p className="font-mono text-xs text-mx-muted">
         {account.smtp_user} · {account.smtp_host}:{account.smtp_port}
       </p>
-      {account.from_name && <p className="mt-0.5 text-xs text-gray-400">발신자 표시: {account.from_name}</p>}
+      {account.from_name && <p className="mt-0.5 text-xs text-mx-muted">발신자 표시: {account.from_name}</p>}
 
-      {testResult && <p className={`mt-2 text-xs ${testResult.ok ? "text-emerald-600" : "text-red-600"}`}>{testResult.message}</p>}
+      {testResult && <p className={`mt-2 text-xs ${testResult.ok ? "text-mx-success" : "text-mx-danger"}`}>{testResult.message}</p>}
 
       <div className="mt-3 flex flex-wrap gap-3">
-        <button type="button" onClick={handleTest} disabled={isTesting} className="text-xs font-semibold text-sky-600 hover:underline disabled:opacity-60">
+        <button type="button" onClick={handleTest} disabled={isTesting} className="text-xs font-semibold text-mx-link hover:underline disabled:opacity-60">
           {isTesting ? "테스트 발송 중..." : "✉️ 테스트 발송"}
         </button>
-        <button type="button" onClick={() => setIsEditing((v) => !v)} className="text-xs font-semibold text-gray-600 hover:underline">
+        <button type="button" onClick={() => setIsEditing((v) => !v)} className="text-xs font-semibold text-mx-muted hover:underline">
           {isEditing ? "수정 취소" : "✏️ 수정"}
         </button>
-        <button type="button" onClick={handleToggle} disabled={isToggling} className="text-xs font-semibold text-gray-600 hover:underline disabled:opacity-60">
+        <button type="button" onClick={handleToggle} disabled={isToggling} className="text-xs font-semibold text-mx-muted hover:underline disabled:opacity-60">
           {account.is_active ? "사용 중지" : "다시 사용"}
         </button>
-        <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-60">
+        <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-xs font-semibold text-mx-danger hover:underline disabled:opacity-60">
           {isDeleting ? "삭제 중..." : "삭제"}
         </button>
       </div>
 
       {isEditing && (
-        <form onSubmit={handleSaveEdit} className="mt-4 space-y-3 border-t border-gray-200 pt-4">
+        <form onSubmit={handleSaveEdit} className="mt-4 space-y-3 border-t border-mx-border pt-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-700">계정 별칭</label>
+              <label className="mb-1 block text-xs font-semibold text-mx-text">계정 별칭</label>
               <input name="label" required defaultValue={account.label} className="input-sm w-full" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-700">발신자 표시 이름 (선택)</label>
+              <label className="mb-1 block text-xs font-semibold text-mx-text">발신자 표시 이름 (선택)</label>
               <input name="fromName" defaultValue={account.from_name ?? ""} className="input-sm w-full" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-700">SMTP 호스트</label>
+              <label className="mb-1 block text-xs font-semibold text-mx-text">SMTP 호스트</label>
               <input name="smtpHost" required defaultValue={account.smtp_host} className="input-sm w-full" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-700">포트</label>
+              <label className="mb-1 block text-xs font-semibold text-mx-text">포트</label>
               <input name="smtpPort" type="number" required defaultValue={account.smtp_port} className="input-sm w-full" />
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-700">로그인 계정 (이메일)</label>
+            <label className="mb-1 block text-xs font-semibold text-mx-text">로그인 계정 (이메일)</label>
             <input name="smtpUser" type="email" required defaultValue={account.smtp_user} className="input-sm w-full" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-700">비밀번호 (앱 비밀번호)</label>
+            <label className="mb-1 block text-xs font-semibold text-mx-text">비밀번호 (앱 비밀번호)</label>
             <input
               name="smtpPassword"
               type="password"
@@ -153,17 +153,17 @@ export function SmtpAccountCard({ account }: { account: SmtpAccountData }) {
             />
           </div>
 
-          {editError && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{editError}</p>}
+          {editError && <p className="rounded-lg bg-mx-danger/10 px-3 py-2 text-xs text-mx-danger">{editError}</p>}
 
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-lg bg-sky-600 px-4 py-2 text-xs font-bold text-white hover:bg-sky-700 disabled:opacity-60"
+              className="rounded-lg bg-mx-primary px-4 py-2 text-xs font-bold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
             >
               {isSaving ? "저장 중..." : "저장"}
             </button>
-            <button type="button" onClick={() => setIsEditing(false)} disabled={isSaving} className="text-xs font-semibold text-gray-500 hover:underline">
+            <button type="button" onClick={() => setIsEditing(false)} disabled={isSaving} className="text-xs font-semibold text-mx-muted hover:underline">
               취소
             </button>
           </div>

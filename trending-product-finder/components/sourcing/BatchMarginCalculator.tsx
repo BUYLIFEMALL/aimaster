@@ -144,11 +144,11 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+    <div className="space-y-4 rounded-2xl border-2 border-mx-border bg-mx-surface p-4">
       <div>
-        <p className="text-base font-extrabold text-gray-900">📋 관심 키워드 일괄 마진계산</p>
-        <p className="mt-1 text-xs text-gray-500">
-          선택한 키워드마다 채널별로 검색해 <span className="font-semibold text-gray-700">최저가 상품을 대표값</span>
+        <p className="text-base font-extrabold text-mx-text">📋 관심 키워드 일괄 마진계산</p>
+        <p className="mt-1 text-xs text-mx-muted">
+          선택한 키워드마다 채널별로 검색해 <span className="font-semibold text-mx-text">최저가 상품을 대표값</span>
           으로 마진을 한 번에 계산합니다(추천판매가는 원가×2.5 기준 추정치). 정확한 최종 결정은
           아래 상세 계산기에서 상품을 직접 골라 다시 확인해주세요.
         </p>
@@ -156,7 +156,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
 
       {/* 키워드 선택 */}
       {watchlistGroups.length === 0 ? (
-        <p className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">
+        <p className="rounded-lg bg-mx-raised px-3 py-2 text-xs text-mx-muted">
           등록된 관심 키워드가 없습니다. 아래 직접 입력란에 키워드를 추가해서 계산할 수 있습니다.
         </p>
       ) : (
@@ -164,18 +164,18 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
           {watchlistGroups.map((group) => {
             const allSelected = group.keywords.length > 0 && group.keywords.every((k) => selectedKeywords.has(k));
             return (
-              <div key={group.categoryName} className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+              <div key={group.categoryName} className="rounded-xl border border-mx-border bg-mx-raised p-3">
                 <div className="mb-2 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => toggleCategory(group.keywords)}
                     className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold transition-colors ${
-                      allSelected ? "border-sky-500 bg-sky-500 text-white" : "border-gray-300 bg-white text-gray-500 hover:border-sky-300"
+                      allSelected ? "border-mx-primary/40 bg-mx-primary text-white" : "border-mx-border bg-mx-surface text-mx-muted hover:border-mx-primary"
                     }`}
                   >
                     {allSelected ? "전체 해제" : "전체 선택"}
                   </button>
-                  <p className="text-xs font-bold text-gray-700">{group.categoryName}</p>
+                  <p className="text-xs font-bold text-mx-text">{group.categoryName}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {group.keywords.map((keyword) => {
@@ -186,7 +186,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
                         type="button"
                         onClick={() => toggleKeyword(keyword)}
                         className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                          checked ? "border-sky-500 bg-sky-500 text-white" : "border-gray-300 bg-white text-gray-600 hover:border-sky-300"
+                          checked ? "border-mx-primary/40 bg-mx-primary text-white" : "border-mx-border bg-mx-surface text-mx-muted hover:border-mx-primary"
                         }`}
                       >
                         {keyword}
@@ -201,7 +201,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
       )}
 
       <label className="block space-y-1">
-        <span className="text-xs font-semibold text-gray-700">직접 키워드 추가 (쉼표 또는 줄바꿈으로 구분, 선택)</span>
+        <span className="text-xs font-semibold text-mx-text">직접 키워드 추가 (쉼표 또는 줄바꿈으로 구분, 선택)</span>
         <textarea
           value={manualInput}
           onChange={(e) => setManualInput(e.target.value)}
@@ -221,7 +221,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
               type="button"
               onClick={() => togglePlatform(p.value)}
               className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
-                checked ? "border-sky-500 bg-sky-50 text-sky-700" : "border-gray-300 bg-white text-gray-500 hover:border-sky-200"
+                checked ? "border-mx-primary/40 bg-mx-primary/10 text-mx-link" : "border-mx-border bg-mx-surface text-mx-muted hover:border-mx-primary"
               }`}
             >
               {checked ? "✓ " : ""}
@@ -233,9 +233,9 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
 
       {/* 실행 직전 미리보기 — "선택했던 걸 깜빡 잊고 새 키워드만 검색한 줄 알았는데 다 같이 돌아갔다"는
           혼선을 막기 위해, 체크박스 선택 + 직접입력이 합쳐진 최종 실행 대상을 항상 눈에 보이게 한다. */}
-      <div className="rounded-xl border border-sky-200 bg-sky-50/60 p-3">
+      <div className="rounded-xl border border-mx-primary/40 bg-mx-primary/10 p-3">
         <div className="mb-1.5 flex items-center justify-between">
-          <p className="text-xs font-bold text-sky-800">🎯 이번에 계산할 키워드 ({totalSelected}개)</p>
+          <p className="text-xs font-bold text-mx-link">🎯 이번에 계산할 키워드 ({totalSelected}개)</p>
           {totalSelected > 0 && (
             <button
               type="button"
@@ -243,23 +243,23 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
                 setSelectedKeywords(new Set());
                 setManualInput("");
               }}
-              className="text-[11px] font-semibold text-sky-600 hover:text-sky-800 hover:underline"
+              className="text-[11px] font-semibold text-mx-link hover:text-mx-text hover:underline"
             >
               전체 해제
             </button>
           )}
         </div>
         {totalSelected === 0 ? (
-          <p className="text-xs text-gray-400">관심 키워드를 선택하거나 직접 입력하면 여기에 표시됩니다.</p>
+          <p className="text-xs text-mx-muted">관심 키워드를 선택하거나 직접 입력하면 여기에 표시됩니다.</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {Array.from(selectedKeywords).map((k) => (
               <span
                 key={`w-${k}`}
-                className="inline-flex items-center gap-1 rounded-full bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white"
+                className="inline-flex items-center gap-1 rounded-full bg-mx-primary px-2.5 py-1 text-[11px] font-bold text-white"
               >
                 {k}
-                <button type="button" onClick={() => toggleKeyword(k)} className="hover:text-sky-200" aria-label={`${k} 선택 해제`}>
+                <button type="button" onClick={() => toggleKeyword(k)} className="hover:text-mx-text" aria-label={`${k} 선택 해제`}>
                   ✕
                 </button>
               </span>
@@ -267,7 +267,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
             {manualKeywords.map((k) => (
               <span
                 key={`m-${k}`}
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white"
+                className="inline-flex items-center gap-1 rounded-full bg-[#047857] px-2.5 py-1 text-[11px] font-bold text-white"
                 title="직접 입력한 키워드"
               >
                 {k}
@@ -282,7 +282,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
           type="button"
           onClick={handleRun}
           disabled={isRunning}
-          className="rounded-lg bg-sky-600 px-5 py-2 text-sm font-bold text-white hover:bg-sky-700 disabled:opacity-60"
+          className="rounded-lg bg-mx-primary px-5 py-2 text-sm font-bold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
         >
           {isRunning ? "계산 중..." : `일괄 계산 실행 (${totalSelected}개 키워드)`}
         </button>
@@ -290,17 +290,17 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
           <button
             type="button"
             onClick={handleDownloadCsv}
-            className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-100"
+            className="rounded-lg border border-mx-success/30 bg-mx-success/10 px-4 py-2 text-sm font-bold text-mx-success hover:bg-mx-success/20"
           >
             📥 CSV 다운로드
           </button>
         )}
       </div>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="rounded-lg bg-mx-danger/10 px-3 py-2 text-sm text-mx-danger">{error}</p>}
 
       {skipped.length > 0 && (
-        <details className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <details className="rounded-lg bg-mx-accent/10 px-3 py-2 text-xs text-[#fde68a]">
           <summary className="cursor-pointer font-semibold">건너뛴 항목 {skipped.length}건 (펼쳐서 보기)</summary>
           <ul className="mt-1.5 space-y-0.5">
             {skipped.map((s, i) => (
@@ -313,10 +313,10 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
       )}
 
       {rows && rows.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <div className="overflow-x-auto rounded-xl border border-mx-border">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
-              <tr className="bg-gray-50 text-left text-xs text-gray-500">
+              <tr className="bg-mx-raised text-left text-xs text-mx-muted">
                 <th className="whitespace-nowrap px-3 py-2 font-semibold">키워드</th>
                 <th className="whitespace-nowrap px-3 py-2 font-semibold">채널</th>
                 <th className="px-3 py-2 font-semibold">상품명(최저가)</th>
@@ -329,29 +329,29 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={`${r.keyword}-${r.platform}-${i}`} className="border-t border-gray-100">
-                  <td className="whitespace-nowrap px-3 py-2 font-medium text-gray-900">{r.keyword}</td>
-                  <td className="whitespace-nowrap px-3 py-2 text-gray-600">{PLATFORMS.find((p) => p.value === r.platform)?.label}</td>
-                  <td className="max-w-[220px] truncate px-3 py-2 text-gray-700" title={r.title}>
+                <tr key={`${r.keyword}-${r.platform}-${i}`} className="border-t border-mx-border">
+                  <td className="whitespace-nowrap px-3 py-2 font-medium text-mx-text">{r.keyword}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-mx-muted">{PLATFORMS.find((p) => p.value === r.platform)?.label}</td>
+                  <td className="max-w-[220px] truncate px-3 py-2 text-mx-text" title={r.title}>
                     {r.title}
                   </td>
-                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.sourcePriceKrw.toLocaleString()}</td>
-                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.sellingPriceKrw.toLocaleString()}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-mx-text">{r.sourcePriceKrw.toLocaleString()}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-mx-text">{r.sellingPriceKrw.toLocaleString()}</td>
                   <td
                     className={`whitespace-nowrap px-3 py-2 text-right tabular-nums font-bold ${
-                      r.marginRatePct >= 20 ? "text-emerald-600" : r.marginRatePct >= 0 ? "text-amber-600" : "text-red-600"
+                      r.marginRatePct >= 20 ? "text-mx-success" : r.marginRatePct >= 0 ? "text-mx-accent" : "text-mx-danger"
                     }`}
                   >
                     {r.marginRatePct}%
                   </td>
-                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.contributionProfitKrw.toLocaleString()}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-mx-text">{r.contributionProfitKrw.toLocaleString()}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-right">
                     {r.detailUrl && (
                       <a
                         href={r.detailUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-emerald-700"
+                        className="rounded-lg bg-[#047857] px-2.5 py-1 text-[11px] font-bold text-white hover:bg-[#059669]"
                       >
                         🔗 링크
                       </a>
@@ -365,7 +365,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
       )}
 
       {rows && rows.length === 0 && !error && (
-        <p className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">계산된 결과가 없습니다. 위 건너뛴 항목을 확인해주세요.</p>
+        <p className="rounded-lg bg-mx-raised px-3 py-2 text-xs text-mx-muted">계산된 결과가 없습니다. 위 건너뛴 항목을 확인해주세요.</p>
       )}
     </div>
   );

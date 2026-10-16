@@ -88,17 +88,17 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+    <div className="rounded-xl border border-mx-border bg-mx-raised p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-gray-900">{product.title}</p>
-          <p className="text-xs text-gray-500">
+          <p className="truncate text-sm font-semibold text-mx-text">{product.title}</p>
+          <p className="text-xs text-mx-muted">
             {PLATFORM_LABEL[product.platform]} · &quot;{product.keyword}&quot;
           </p>
         </div>
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${
-            product.lastStatus === "in_stock" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"
+            product.lastStatus === "in_stock" ? "bg-mx-success/10 text-mx-success" : "bg-mx-danger/10 text-mx-danger"
           }`}
         >
           {product.lastStatus === "in_stock" ? "판매중" : "품절 추정"}
@@ -106,17 +106,17 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
       </div>
 
       <div className="mt-1.5 flex items-center justify-between">
-        <p className="text-sm font-bold tabular-nums text-gray-900">
+        <p className="text-sm font-bold tabular-nums text-mx-text">
           {product.lastPriceKrw != null ? `${product.lastPriceKrw.toLocaleString()}원` : "가격정보없음"}
         </p>
-        <a href={product.detailUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-sky-600 hover:underline">
+        <a href={product.detailUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-mx-link hover:underline">
           🔗 상품 보기
         </a>
       </div>
 
       {/* 예약(모니터링) ON/OFF — 삭제하지 않고도 추적만 켜고 끌 수 있다 */}
-      <div className="mt-3 flex items-center justify-between border-t border-gray-200 pt-2.5">
-        <span className="text-xs font-semibold text-gray-700">가격/품절 추적</span>
+      <div className="mt-3 flex items-center justify-between border-t border-mx-border pt-2.5">
+        <span className="text-xs font-semibold text-mx-text">가격/품절 추적</span>
         <button
           type="button"
           disabled={isSaving}
@@ -126,7 +126,7 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
             save({ enabled: next });
           }}
           className={`rounded-full px-3 py-1 text-[11px] font-bold text-white transition-colors disabled:opacity-50 ${
-            enabled ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
+            enabled ? "bg-mx-primary hover:bg-[#1d4ed8]" : "bg-mx-danger hover:bg-[#e11d48]"
           }`}
         >
           {enabled ? "ON" : "OFF"}
@@ -136,7 +136,7 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
       {enabled && (
         <div className="mt-2 space-y-2">
           <div className="flex items-center gap-2">
-            <span className="w-16 shrink-0 text-[11px] text-gray-500">확인 주기</span>
+            <span className="w-16 shrink-0 text-[11px] text-mx-muted">확인 주기</span>
             <select
               value={interval}
               disabled={isSaving}
@@ -156,7 +156,7 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-16 shrink-0 text-[11px] text-gray-500">동작 시간대</span>
+            <span className="w-16 shrink-0 text-[11px] text-mx-muted">동작 시간대</span>
             <button
               type="button"
               disabled={isSaving}
@@ -166,7 +166,7 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
                 save({ hoursRestricted: next });
               }}
               className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
-                hoursRestricted ? "border-amber-400 bg-amber-50 text-amber-700" : "border-gray-300 bg-white text-gray-500"
+                hoursRestricted ? "border-mx-accent/30 bg-mx-accent/10 text-mx-accent" : "border-mx-border bg-mx-surface text-mx-muted"
               }`}
             >
               {hoursRestricted ? "특정 시간대만" : "종일"}
@@ -190,7 +190,7 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
                     </option>
                   ))}
                 </select>
-                <span className="text-gray-400">~</span>
+                <span className="text-mx-muted">~</span>
                 <select
                   value={endHour}
                   disabled={isSaving}
@@ -221,7 +221,7 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
                   onClick={() => toggleChannel(c.value)}
                   disabled={isSaving}
                   className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
-                    checked ? "border-amber-500 bg-amber-500 text-white" : "border-gray-300 bg-white text-gray-500"
+                    checked ? "border-mx-accent/30 bg-mx-accent text-white" : "border-mx-border bg-mx-surface text-mx-muted"
                   }`}
                 >
                   {c.label}
@@ -229,17 +229,17 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
               );
             })}
           </div>
-          {saved && <p className="text-[11px] text-emerald-600">저장됐어요.</p>}
+          {saved && <p className="text-[11px] text-mx-success">저장됐어요.</p>}
         </div>
       )}
 
-      <div className="mt-2.5 flex items-center justify-between border-t border-gray-200 pt-2">
+      <div className="mt-2.5 flex items-center justify-between border-t border-mx-border pt-2">
         {product.lastCheckedAt ? (
-          <p className="text-[11px] text-gray-400">마지막 확인: {new Date(product.lastCheckedAt).toLocaleString("ko-KR")}</p>
+          <p className="text-[11px] text-mx-muted">마지막 확인: {new Date(product.lastCheckedAt).toLocaleString("ko-KR")}</p>
         ) : (
           <span />
         )}
-        <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-[11px] font-semibold text-red-500 hover:underline disabled:opacity-50">
+        <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-[11px] font-semibold text-mx-danger hover:underline disabled:opacity-50">
           {isDeleting ? "삭제 중..." : "삭제"}
         </button>
       </div>
@@ -253,16 +253,16 @@ export function SavedProductsPanel({ products }: SavedProductsPanelProps) {
   // "예약 기능이 안 보인다"고 보고해서 발견, 2026-09-03). 이제는 비어 있어도 항상 표시하고
   // 사용법을 안내한다.
   return (
-    <div className="space-y-3 rounded-2xl border-2 border-amber-200 bg-white p-4 shadow-sm">
+    <div className="space-y-3 rounded-2xl border-2 border-mx-accent/30 bg-mx-surface p-4">
       <div>
-        <p className="text-base font-extrabold text-gray-900">⭐ 관심 상품 예약 알림 {products.length > 0 && `(${products.length})`}</p>
-        <p className="mt-1 text-xs text-gray-500">
-          찜해둔 상품마다 정한 주기로 가격·품절 여부를 다시 확인해, <span className="font-semibold text-gray-700">실제로 바뀐 경우에만</span> 선택한 채널로 알려드립니다. 추적을 잠시 멈추고
+        <p className="text-base font-extrabold text-mx-text">⭐ 관심 상품 예약 알림 {products.length > 0 && `(${products.length})`}</p>
+        <p className="mt-1 text-xs text-mx-muted">
+          찜해둔 상품마다 정한 주기로 가격·품절 여부를 다시 확인해, <span className="font-semibold text-mx-text">실제로 바뀐 경우에만</span> 선택한 채널로 알려드립니다. 추적을 잠시 멈추고
           싶으면 삭제하지 않고 &quot;OFF&quot;로 꺼둘 수 있어요.
         </p>
       </div>
       {products.length === 0 ? (
-        <p className="rounded-lg bg-amber-50 px-3 py-3 text-xs text-amber-800">
+        <p className="rounded-lg bg-mx-accent/10 px-3 py-3 text-xs text-[#fde68a]">
           아직 찜해둔 상품이 없습니다. 위 검색 결과에서 <span className="font-semibold">&quot;⭐ 관심상품 저장&quot;</span> 버튼을 누르면
           여기에 나타납니다.
         </p>
