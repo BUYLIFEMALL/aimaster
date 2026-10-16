@@ -147,3 +147,7 @@ threads-comment-reply에서 "봇이 방금 단 답글을 새 댓글로 착각해
 
 ## 2026-10-16 v1.09 — Instagram 앱 ID 안내 메뉴 이름 정정 (Claude Code 윈도우)
 - 주인님이 보내준 실제 Meta 화면 기준으로 안내 경로를 "이용 사례 › 맞춤 설정 › (Instagram API) › Instagram 로그인이 포함된 API 설정"(화면 맨 위 Instagram 앱 이름·앱 ID·앱 시크릿 코드)으로 정정, 새 콜백은 같은 화면 "4. Instagram 비즈니스 로그인 설정"에 추가한다고 안내. 회원 매뉴얼(platform_guides cffe0d83…)도 같은 표현으로 정정.
+
+## 2026-10-17 v1.10 — 등록 주소 한눈에 보기·복사 버튼 (Claude Code 윈도우)
+- 주인님 요청(INSTA 포스팅 v1.14·쓰레드 3개와 같은 형식): 설정 화면에 `components/settings/InstagramMetaAddressSummary.tsx` 카드(앱 도메인 `buylife.xyz`+옛 호스트 / Instagram 로그인이 포함된 API 설정 › 4. Instagram 비즈니스 로그인 설정 › OAuth 리디렉션 URI 새·옛 / Instagram 앱 ID 위치(Facebook 앱 ID 넣으면 Invalid platform app) / 인스타 테스터 추가·초대 수락). DM은 웹훅 콜백 URL(③, 앱당 1개)도 카드에 넣고 확인 토큰은 아래 "🔌 DM 웹훅 설정"을 가리킴. 기존 콜백 주소 표시는 `CopyAddress`(복사 버튼)로 교체.
+- 검수: 빌드·배포·DB v1.10, 크롬에서 카드 제목·복사 버튼 확인.
