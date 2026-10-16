@@ -22,10 +22,10 @@ function getEnv(name: string): string {
   return value;
 }
 
-export function getInstagramAuthorizeUrl(state: string, appId: string): string {
+export function getInstagramAuthorizeUrl(state: string, appId: string, redirectUri: string): string {
   const params = new URLSearchParams({
     client_id: appId,
-    redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: INSTAGRAM_SCOPES,
     state,
@@ -49,12 +49,13 @@ export async function exchangeInstagramCode(
   code: string,
   appId: string,
   appSecret: string,
+  redirectUri: string,
 ): Promise<ShortLivedTokenResponse> {
   const body = new URLSearchParams({
     client_id: appId,
     client_secret: appSecret,
     grant_type: "authorization_code",
-    redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     code,
   });
 
