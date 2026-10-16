@@ -235,7 +235,7 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   vm.runInContext(fs.readFileSync(path.join(root, 'extension/background.js'), 'utf8'), sandbox);
   const api = sandbox.api;
   const conn = { token: 'tok9', blogId: 'myblog' };
-  const base = 'https://naver-blog-agent.vercel.app';
+  const base = 'https://naver-blog-agent.buylife.xyz';
 
   const paired = await api('/pair', { code: 'ABCD1234', blogId: 'myblog' });
   assert.equal(`${paired.token}/${paired.blogId}`, 'tok9/myblog');
@@ -365,14 +365,14 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   for (const [latest, current, expected] of [['v1.50', 'v1.49', true], ['v1.49', 'v1.49', false], ['v1.48', 'v1.49', false], ['v2.01', 'v1.99', true], ['v1.10', 'v1.9', true], ['garbage', 'v1.49', false], [undefined, 'v1.49', false]]) {
     assert.equal(isNewer(latest, current), expected, `${latest} vs ${current}`);
   }
-  const setVersionReply = (reply) => { sandbox.fetch = async (url) => { assert.equal(url, 'https://naver-blog-agent.vercel.app/api/extension/version'); return reply; }; };
+  const setVersionReply = (reply) => { sandbox.fetch = async (url) => { assert.equal(url, 'https://naver-blog-agent.buylife.xyz/api/extension/version'); return reply; }; };
   stored.length = 0; badges.length = 0;
-  setVersionReply({ ok: true, json: async () => ({ latest: 'v1.50', downloadUrl: 'https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip' }) });
+  setVersionReply({ ok: true, json: async () => ({ latest: 'v1.50', downloadUrl: 'https://naver-blog-agent.buylife.xyz/downloads/naver-blog-agent-extension-latest.zip' }) });
   await sandbox.checkUpdate();
   assert.equal(stored.at(-1).update.outdated, true);
   assert.equal(stored.at(-1).update.current, 'v1.49');
   assert.equal(badges.at(-1), 'NEW');
-  setVersionReply({ ok: true, json: async () => ({ latest: 'v1.49', downloadUrl: 'https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip' }) });
+  setVersionReply({ ok: true, json: async () => ({ latest: 'v1.49', downloadUrl: 'https://naver-blog-agent.buylife.xyz/downloads/naver-blog-agent-extension-latest.zip' }) });
   await sandbox.checkUpdate();
   assert.equal(stored.at(-1).update.outdated, false);
   assert.equal(badges.at(-1), '', '최신이면 NEW 표시를 지움');

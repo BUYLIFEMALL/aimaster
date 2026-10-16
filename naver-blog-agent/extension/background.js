@@ -1,5 +1,5 @@
 importScripts('editor.js','article-plan.js','writer.js');
-const API = 'https://naver-blog-agent.vercel.app';
+const API = 'https://naver-blog-agent.buylife.xyz'; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let busy = false;
 let refreshSession = false;
