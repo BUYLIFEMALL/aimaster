@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 시네마틱 스토리보드 자동화 / `cinematic-storyboard-studio` |
-| 현재 버전 | **v1.03** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.06** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://cinematic-storyboard-studio.buylife.xyz (옛 `*.vercel.app` 유지) |
 | Vercel | 팀 `buylife`, 프로젝트 `cinematic-storyboard-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 멀티미디어, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -68,3 +68,13 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 ## 2026-10-16 DB 연동 변수 호환 — v1.05 (cinematic-storyboard-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 크리에이티브 아틀리에 디자인 리뉴얼 & 비주얼 가이드 신설 — v1.06 (완료)
+- **적용 템플릿**: **크리에이티브 아틀리에 스타일 (Creative Atelier Style, 시네마틱 아틀리에)**
+- **단일 배경색 준수**: 전체 페이지(`/studio`, `/projects`, `/settings`, `/guide`) 동일한 딥 차콜 `#0b0f17` 배경색 일체화.
+- **개발 플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md)
+- **개선사항 목록**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
+- **개선사항 인수인계**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md)
+- **디자인 완료 인수인계**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
+- **검수**: Microsoft Edge 전용 (`msedge.exe`) 실세션 테스트 계정(`buylifemall@naver.com`) 검증 완료 (데스크톱 및 모바일 8종 캡처 확인).
+

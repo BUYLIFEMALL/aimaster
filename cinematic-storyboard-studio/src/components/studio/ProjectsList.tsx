@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clapperboard, Loader2, Trash2 } from "lucide-react";
+import { Clapperboard, Loader2, Trash2, ArrowRight } from "lucide-react";
 
 interface Item {
   id: string;
@@ -12,7 +12,12 @@ interface Item {
   createdAt: string;
   thumb: string | null;
 }
-const STATUS: Record<Item["status"], string> = { created: "이미지만 저장됨", analyzed: "분석 완료", rendered: "9컷 시트 완성", prompts: "영상 프롬프트 완성" };
+const STATUS: Record<Item["status"], { label: string; color: string }> = {
+  created: { label: "이미지만 저장됨", color: "text-slate-400" },
+  analyzed: { label: "분석 완료", color: "text-sky-400" },
+  rendered: { label: "9컷 시트 완성", color: "text-amber-400" },
+  prompts: { label: "영상 프롬프트 완성", color: "text-emerald-400" },
+};
 
 export function ProjectsList() {
   const [items, setItems] = useState<Item[] | null>(null);
@@ -41,45 +46,106 @@ export function ProjectsList() {
     else setError("삭제하지 못했습니다.");
   }
 
-  if (error) return <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>;
-  if (items === null) return <Loader2 className="animate-spin text-neutral-400" />;
+  if (error)
+    return (
+      <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-300">
+        {error}
+      </div>
+    );
+  if (items === null) return <Loader2 className="animate-spin text-amber-400" />;
 
   return (
     <div>
-      <p className="mb-4 text-xs text-neutral-500">
-        {items.length} / {limit}개
-      </p>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-xs text-slate-400">
+          보관 용량: <span className="font-bold text-slate-200">{items.length}</span> / {limit}개
+        </p>
+        <Link
+          href="/studio"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition"
+        >
+          <span>새 프로젝트 만들기</span>
+          <ArrowRight size={13} />
+        </Link>
+      </div>
+
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-10 text-center">
-          <Clapperboard className="mx-auto mb-2 text-neutral-400" />
-          <p className="mb-3 text-sm text-neutral-500">아직 만든 스토리보드가 없습니다.</p>
-          <Link href="/studio" className="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700">새 스토리보드 만들기</Link>
+        <div className="rounded-3xl border border-dashed border-slate-700 bg-[#131926] p-12 text-center shadow-xl">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0e131f] text-amber-400">
+            <Clapperboard size={24} />
+          </div>
+          <h3 className="mb-1 text-base font-bold text-slate-200">아직 생성된 스토리보드가 없습니다</h3>
+          <p className="mb-6 text-xs text-slate-400">
+            레퍼런스 이미지 1장을 업로드하여 9컷 마스터 시트와 영상 프롬프트를 만들어보세요.
+          </p>
+          <Link
+            href="/studio"
+            className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-xs font-bold text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.25)] transition hover:from-amber-400 hover:to-amber-500"
+          >
+            <Clapperboard size={15} />
+            <span>새 스토리보드 만들기</span>
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((p) => (
-            <div key={p.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-              <Link href={`/studio?p=${p.id}`} className="block">
-                <div className="aspect-[3/2] bg-neutral-100">
-                  {p.thumb && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.thumb} alt="" className="h-full w-full object-cover" />
-                  )}
+          {items.map((p) => {
+            const statusInfo = STATUS[p.status] || { label: p.status, color: "text-slate-400" };
+            return (
+              <div
+                key={p.id}
+                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-800 bg-[#131926] transition hover:border-slate-700 hover:shadow-2xl"
+              >
+                <Link href={`/studio?p=${p.id}`} className="block">
+                  <div className="relative aspect-[3/2] overflow-hidden bg-[#0e131f]">
+                    {p.thumb ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.thumb}
+                        alt=""
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-slate-600">
+                        <Clapperboard size={32} />
+                      </div>
+                    )}
+                    <span className="absolute bottom-2 left-2 rounded-lg bg-black/70 px-2 py-0.5 text-[10px] font-bold backdrop-blur text-white">
+                      3:2 마스터
+                    </span>
+                  </div>
+                  <div className="p-4">
+                    <p className="line-clamp-2 text-sm font-bold text-slate-100 group-hover:text-amber-400 transition">
+                      {p.title || "제목 없는 프로젝트"}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between text-[11px]">
+                      <span className={`font-semibold ${statusInfo.color}`}>{statusInfo.label}</span>
+                      <span className="text-slate-500">
+                        {new Date(p.createdAt).toLocaleDateString("ko-KR")}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+                <div className="flex items-center justify-between border-t border-slate-800 bg-[#0e131f]/60 px-4 py-2.5">
+                  <Link
+                    href={`/studio?p=${p.id}`}
+                    className="text-xs font-bold text-slate-400 hover:text-amber-400 transition flex items-center gap-1"
+                  >
+                    <span>열기</span>
+                    <ArrowRight size={12} />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => remove(p.id)}
+                    disabled={busyId === p.id}
+                    aria-label="삭제"
+                    className="rounded-lg p-1.5 text-slate-500 transition hover:bg-rose-500/10 hover:text-rose-400 disabled:opacity-50"
+                  >
+                    {busyId === p.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  </button>
                 </div>
-                <div className="p-3">
-                  <p className="line-clamp-2 text-sm font-bold text-neutral-900">{p.title}</p>
-                  <p className="mt-1 text-[11px] text-neutral-400">
-                    {STATUS[p.status]} · {new Date(p.createdAt).toLocaleDateString("ko-KR")}
-                  </p>
-                </div>
-              </Link>
-              <div className="flex justify-end border-t border-neutral-100 px-3 py-2">
-                <button type="button" onClick={() => remove(p.id)} disabled={busyId === p.id} aria-label="삭제" className="rounded-md p-1 text-neutral-400 hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50">
-                  {busyId === p.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

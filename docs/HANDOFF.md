@@ -1,5 +1,45 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — 시네마틱 스토리보드 자동화 v1.06: 크리에이티브 아틀리에 디자인 리뉴얼 & 전 화면 단일 배경색(차콜) 통일 및 비주얼 가이드북 전면 신설 완료
+
+- **대상 프로그램**: `cinematic-storyboard-studio/` (slug: `cinematic-storyboard-studio`, 공식 라이브: `https://cinematic-storyboard-studio.buylife.xyz/`, 배포 버전: `v1.06`)
+- **적용 디자인 템플릿**: **크리에이티브 아틀리에 스타일 (시네마틱 아틀리에, 딥 차콜 `#0b0f17`, 앰버 골드 `#f59e0b`, 클래퍼보드 레드 `#ef4444`)**
+- **인수인계 문서**:
+  - 개발 플랜: [`cinematic-storyboard-studio/docs/PLAN_20261016_DESIGN_RENEWAL.md`](../cinematic-storyboard-studio/docs/PLAN_20261016_DESIGN_RENEWAL.md)
+  - 개선사항 목록: [`cinematic-storyboard-studio/docs/IMPROVEMENTS.md`](../cinematic-storyboard-studio/docs/IMPROVEMENTS.md)
+  - 개선사항 인수인계: [`cinematic-storyboard-studio/docs/IMPROVEMENT_HANDOFF_20261016.md`](../cinematic-storyboard-studio/docs/IMPROVEMENT_HANDOFF_20261016.md)
+  - 디자인 완료 인수인계: [`cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`](../cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md)
+- **주요 작업 내용**:
+  1. **전체 화면 단일 시네마틱 딥 차콜 배경(`bg-[#0b0f17]`) 및 통일된 테마 구축**:
+     - `src/app/globals.css`: 다크 테마 변수(`--background: #0b0f17; --foreground: #f1f5f9;`) 적용.
+     - `src/app/(dashboard)/layout.tsx`: `bg-[#0b0f17] font-sans text-slate-100`으로 래퍼 교체.
+     - `src/components/layout/Sidebar.tsx`: 사이드바 `bg-[#0e131f] border-slate-800`, 앰버 골드 번호 배지, 활성 링크 골드 하이라이트, 계정 정보 12px 간격 정렬, 유틸리티 최상단 `📖 연동 & 사용 매뉴얼` 메뉴 탑재.
+     - `src/components/studio/StudioWorkspace.tsx`: 드래그앤드롭 박스(`bg-[#0e131f] border-slate-700 hover:border-amber-500/60`), 토픽 입력 필드, 엔진 선택 카드(표준 Flash / Pro 2K 앰버 골드), 앰버 그라디언트 CTA 버튼, 3:2 마스터 콘택트 시트 뷰, 영상 프롬프트 씬 테이블 및 JSON 다크 콘솔화.
+     - `src/components/studio/SplitEditor.tsx`: 3×3 슬라이더 크롭 에디터를 다크 아틀리에(`bg-[#0b0f17]`, 패널 `bg-[#0e131f]`, 캔버스 `bg-[#070a0f]`, 앰버 골드 슬라이더/가이드라인)로 전면 일치.
+     - `src/app/(dashboard)/projects/page.tsx` & `src/components/studio/ProjectsList.tsx`: 프로젝트 아카이브 카드 및 빈 상태 뷰 다크 아틀리에화.
+     - `src/app/(dashboard)/settings/page.tsx` & `src/components/settings/ApiKeySettings.tsx`: Gemini API 키 등록 카드 및 연동 가이드 다크 아틀리에화.
+  2. **📖 연동 & 사용 매뉴얼 (`/guide`) 비주얼 가이드북 전면 신설**:
+     - 5단계 시네마틱 파이프라인 (Step-by-Step, 본인 키 연동 → 이미지/로그라인 → 감정선/9컷분석 → 마스터시트/정밀분할 → 영상프롬프트).
+     - Runway Gen-3 Alpha, Kling AI 1.5, Luma Dream Machine 연동 팁 카드 3종.
+     - 전문 촬영/앵글/무빙 용어 치트시트 (샷 크기 8, 앵글 6, 무빙 5) 필터 탭 제공.
+     - 자주 묻는 질문(FAQ) 4종 아코디언 컴포넌트 탑재.
+  3. **버전 동기화 & 배포**:
+     - `src/lib/version.ts`: `v1.06`, `package.json`: `1.06.0`, Supabase DB `programs.version = 'v1.06'` 동기화.
+     - Next.js Turbopack 로컬 빌드 성공 (`npm run build`).
+     - Vercel 프로덕션 배포 완료 (`https://cinematic-storyboard-studio.buylife.xyz`).
+  4. **Microsoft Edge 전용 실세션 검수 완료**:
+     - `edge_storyboard_guide_desktop_v106.png`: 가이드북 데스크톱 히어로 & 5단계 파이프라인 인포그래픽 확인.
+     - `edge_storyboard_guide_pipeline_v106.png`: 비디오 AI 연계 노하우 & 촬영 용어 치트시트 확인.
+     - `edge_storyboard_guide_faq_v106.png`: FAQ 아코디언 & 하단 안전 안내 CTA 확인.
+     - `edge_storyboard_studio_desktop_v106.png`: 스튜디오 데스크톱 다크 아틀리에 일체감 확인 (동일한 `#0b0f17` 배경).
+     - `edge_storyboard_projects_desktop_v106.png`: 프로젝트 아카이브 데스크톱 다크 렌더링 확인.
+     - `edge_storyboard_settings_desktop_v106.png`: API 키 등록 및 매뉴얼 팝업 데스크톱 다크 렌더링 확인.
+     - `edge_storyboard_studio_mobile_v106.png`: 모바일 390px 스튜디오 반응형 가독성 점검 완료.
+     - `edge_storyboard_guide_mobile_v106.png`: 모바일 390px 가이드북 반응형 가독성 점검 완료.
+  5. **현황판 상태 및 인수인계 완료**:
+     - `DESIGN.md` 7번 프로그램 상태: `✅ 1차 작업완료 (v1.06, 크리에이티브 아틀리에 스타일)`로 갱신.
+     - `docs/ACTIVE_WORK.md`: 작업 중 행 삭제 완료.
+
 ## 2026-10-16 Claude Code(맥미니) — 경쟁사 키워드분석 v1.07: 스마트 매트릭스 디자인 + 롱테일과 같은 오류 4건 수정 (🟠 윈도우 마무리 요청)
 
 - **대상**: `competitor-analysis/` (https://competitor-analysis.buylife.xyz). 디자인 현황판 남은 목록 2번. 롱테일과 같은 뼈대라 기반 파일을 그대로 이식.

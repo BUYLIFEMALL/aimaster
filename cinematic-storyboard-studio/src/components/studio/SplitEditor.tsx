@@ -51,13 +51,13 @@ export function SplitEditor({ imageUrl, title, lang, onClose }: { imageUrl: stri
     const ctx = c.getContext("2d")!;
     ctx.drawImage(img, 0, 0);
     // 잘려 나가는 영역을 어둡게
-    ctx.fillStyle = "rgba(0,0,0,0.6)";
+    ctx.fillStyle = "rgba(0,0,0,0.65)";
     ctx.beginPath();
     ctx.rect(0, 0, size.w, size.h);
     for (const r of rects) ctx.rect(r.x, r.y, r.w, r.h);
     ctx.fill("evenodd");
     ctx.lineWidth = Math.max(3, size.w / 700);
-    ctx.strokeStyle = "#22d3ee";
+    ctx.strokeStyle = "#f59e0b"; // 앰버 골드 가이드 라인
     for (const r of rects) ctx.strokeRect(r.x, r.y, r.w, r.h);
   }, [img, size, rects]);
 
@@ -100,33 +100,48 @@ export function SplitEditor({ imageUrl, title, lang, onClose }: { imageUrl: stri
   }
 
   const slider = (label: string, value: number, max: number, onChange: (v: number) => void) => (
-    <label className="block text-xs font-bold text-slate-600">
+    <label className="block text-xs font-bold text-slate-300">
       <span className="flex justify-between">
         <span>{label}</span>
-        <span className="font-mono text-indigo-600">{value}px</span>
+        <span className="font-mono text-amber-400">{value}px</span>
       </span>
-      <input type="range" min={0} max={Math.max(1, max)} value={value} onChange={(e) => onChange(parseInt(e.target.value, 10))} className="mt-1 w-full accent-indigo-600" />
+      <input
+        type="range"
+        min={0}
+        max={Math.max(1, max)}
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value, 10))}
+        className="mt-1.5 w-full accent-amber-500 cursor-pointer"
+      />
     </label>
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white md:flex-row">
-      <div className="flex max-h-[45vh] w-full shrink-0 flex-col border-b border-slate-200 md:max-h-none md:w-80 md:border-b-0 md:border-r">
-        <div className="flex items-center justify-between border-b border-slate-100 p-4">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0f17] md:flex-row">
+      <div className="flex max-h-[45vh] w-full shrink-0 flex-col border-b border-slate-800 bg-[#0e131f] md:max-h-none md:w-80 md:border-b-0 md:border-r">
+        <div className="flex items-center justify-between border-b border-slate-800 p-4">
           <div>
-            <h2 className="text-base font-bold text-slate-900">{t.splitTitle}</h2>
-            <p className="text-xs text-slate-500">{t.splitDesc}</p>
+            <h2 className="text-sm font-black text-slate-100">{t.splitTitle}</h2>
+            <p className="text-[11px] text-slate-400">{t.splitDesc}</p>
           </div>
-          <button type="button" onClick={onClose} aria-label={t.close} className="rounded-full p-2 text-slate-400 hover:bg-slate-100">
-            <X size={20} />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.close}
+            className="rounded-xl border border-slate-700 bg-[#182030] p-1.5 text-slate-400 hover:text-slate-200 hover:bg-[#202b40]"
+          >
+            <X size={18} />
           </button>
         </div>
-        <div className="flex-1 space-y-5 overflow-y-auto p-4">
-          {slider(t.cropLeft, crop.left, Math.floor(size.w / 2), (v) => setCrop((c) => clampCrop({ ...c, left: v }, size.w)))}
-          {slider(t.cropRight, crop.right, Math.floor(size.w / 2), (v) => setCrop((c) => clampCrop({ ...c, right: v }, size.w)))}
+        <div className="flex-1 space-y-4 overflow-y-auto p-4">
+          <div className="space-y-3 rounded-2xl border border-slate-800 bg-[#131926] p-3.5">
+            <p className="text-xs font-black uppercase tracking-wider text-slate-400">좌우 여백 (Width Crop)</p>
+            {slider(t.cropLeft, crop.left, Math.floor(size.w / 2), (v) => setCrop((c) => clampCrop({ ...c, left: v }, size.w)))}
+            {slider(t.cropRight, crop.right, Math.floor(size.w / 2), (v) => setCrop((c) => clampCrop({ ...c, right: v }, size.w)))}
+          </div>
           {bands.map((b, i) => (
-            <div key={i} className="space-y-3 rounded-xl border border-slate-200 p-3">
-              <p className="text-xs font-black uppercase tracking-wider text-slate-500">
+            <div key={i} className="space-y-3 rounded-2xl border border-slate-800 bg-[#131926] p-3.5">
+              <p className="text-xs font-black uppercase tracking-wider text-amber-400">
                 {t.row} {i + 1}
               </p>
               {slider(t.top, b.top, size.h, (v) => setBand(i, "top", v))}
@@ -134,21 +149,25 @@ export function SplitEditor({ imageUrl, title, lang, onClose }: { imageUrl: stri
             </div>
           ))}
         </div>
-        <div className="border-t border-slate-100 p-4">
-          {error && <p className="mb-2 text-xs text-rose-600">{error}</p>}
+        <div className="border-t border-slate-800 p-4 bg-[#0e131f]">
+          {error && <p className="mb-2 text-xs text-rose-400">{error}</p>}
           <button
             type="button"
             onClick={download}
             disabled={busy || !img}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 py-3 text-xs font-bold text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.25)] transition hover:from-amber-400 hover:to-amber-500 disabled:bg-slate-800 disabled:text-slate-400 disabled:shadow-none"
           >
-            {busy ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            {busy ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
             {busy ? t.processing : t.downloadZip}
           </button>
         </div>
       </div>
-      <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-slate-100 p-4">
-        {img ? <canvas ref={canvasRef} className="max-h-full max-w-full rounded-lg border border-slate-200 bg-white shadow-lg" /> : <Loader2 className="animate-spin text-slate-400" />}
+      <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#070a0f] p-4">
+        {img ? (
+          <canvas ref={canvasRef} className="max-h-full max-w-full rounded-xl border border-slate-800 shadow-2xl" />
+        ) : (
+          <Loader2 className="animate-spin text-amber-400" />
+        )}
       </div>
     </div>
   );

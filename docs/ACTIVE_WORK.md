@@ -16,5 +16,10 @@
 
 ## 작업 중
 
+| 서브프로그램(폴더) | 에이전트(장비) | 시작 시각 | 작업 내용 |
+|---|---|---|---|
 
-| instagram-dm-reply (이후 OAuth·웹훅 순서대로, 3개 완료) | Claude Code(Windows) | 2026-10-16 | 옛 vercel.app 삭제 대비 두 주소 지원 (docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md) |
+
+
+
+

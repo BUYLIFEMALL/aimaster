@@ -97,7 +97,7 @@
 | 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.05`) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
 | 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
 | 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | ✅ 1차 작업완료 (`v1.09`, 사이버 네온 다크 콘솔 스타일) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
-| 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `cinematic-storyboard-studio/AGENTS.md` |
+| 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | **크리에이티브 아틀리에 스타일** (시네마틱 아틀리에) | 다크(시네마틱 차콜 `#0b0f17`) | ✅ 1차 작업완료 (`v1.06`, 크리에이티브 아틀리에 스타일) | [`cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`](cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md) |
 | 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `detail-page-12p/AGENTS.md` |
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `prompt-template-studio/AGENTS.md` |
 | 10 | 페르소나 문체 자동화 | `persona-style-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `persona-style-studio/AGENTS.md` |
