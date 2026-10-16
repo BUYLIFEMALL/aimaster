@@ -147,7 +147,7 @@ export default async function SettingsPage({
 
             <p className="font-semibold">⚠️ &quot;Instagram 앱 ID&quot;는 앱 화면 맨 위의 &quot;앱 ID&quot;(Facebook 앱 ID)와 다른 값입니다.</p>
 
-            <p>Meta 앱 대시보드 › <b>Instagram</b> › <b>API 설정(Instagram 로그인)</b> 화면의 <b>Instagram 앱 ID</b>와 <b>Instagram 앱 시크릿 코드</b>를 넣어주세요. 맨 위 앱 ID를 넣으면 연결할 때 Instagram 화면에 &quot;Invalid platform app&quot; 오류가 납니다.</p>
+            <p>Meta 앱 대시보드 › <b>이용 사례</b> › <b>맞춤 설정</b> › (Instagram API) › <b>Instagram 로그인이 포함된 API 설정</b> 화면 맨 위의 <b>Instagram 앱 ID</b>와 <b>Instagram 앱 시크릿 코드</b>(표시 버튼)를 넣어주세요. 새 콜백 주소는 같은 화면의 &quot;4. Instagram 비즈니스 로그인 설정&quot;에 추가합니다. 맨 위 앱 ID를 넣으면 연결할 때 Instagram 화면에 &quot;Invalid platform app&quot; 오류가 납니다.</p>
 
             <p>이 칸은 <b>Instagram 로그인 방식</b> 전용입니다. <b>Facebook 페이지로 연결하기</b> 방식은 아래 &quot;Facebook 앱 ID / 시크릿&quot; 칸(맨 위 앱 ID·앱 시크릿 코드)을 따로 등록해 쓰세요.</p>
 
