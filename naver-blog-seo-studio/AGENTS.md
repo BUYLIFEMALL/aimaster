@@ -62,3 +62,10 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.64 (naver-blog-seo-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 v1.65 — 새 주소 이전(도메인 통일·옛 vercel.app 삭제 대비) (Claude Code 윈도우)
+- 새 주소 `https://naver-blog-seo-studio.buylife.xyz`(`vercel domains add`), `programs.app_url` 새 주소(예전엔 메인 경로 `www.buylife.xyz/naver-blog-seo-studio`). 로그인 쿠키 `.buylife.xyz` 공유(`lib/supabase/cookieDomain.ts` + client·server·`proxy.ts`). `proxy.ts`: 옛 `*.vercel.app` 화면 → 새 주소 308(API·`/downloads` 제외), matcher를 `/dashboard`만 → 전체 화면으로 넓힘.
+- 확장 v1.65: `sidepanel.js` BASE·`sidepanel.html` 링크 새 주소, manifest host_permissions·content_scripts·`web-bridge.js`·background 카테고리 요청 검사에 새 주소 추가(옛 주소 유지). ZIP 재생성, DB version/extension_version v1.65·extension_download_url 새 주소, `check-extension-release` OK. 테스트 update-banner 3·categories 2 통과.
+- 메인 사이트 `app/(main)/naver-blog-seo-studio/page.tsx` 전달 대상을 새 주소로(메인 배포, `137098a0`).
+- 검수: 새 주소 / → /dashboard, 옛 주소 / /login /settings /dashboard 모두 308, API(whoami) 옛·새 주소 401(동작), 크롬에서 재로그인 없이 대시보드 열림(공유 세션이 관리자 계정이라 관리자로 표시). 
+- **회원 안내 필요**: 설치된 옛 확장의 web-bridge는 옛 주소에서만 동작 → 화면이 새 주소로 옮겨진 지금은 확장 설치 확인·카테고리 읽기가 새 확장(v1.65)에서만 동작. ZIP 다시 받기 → 덮어쓰기 → 새로고침.
