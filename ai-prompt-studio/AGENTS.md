@@ -1,9 +1,11 @@
 # AI Prompt 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI Prompt 자동화 (`ai-prompt-studio`)  
-> **현재 버전**: `v1.01` (2026-10-13 런칭)  
+> **현재 버전**: `v1.05` (2026-10-17 포커스 스튜디오 디자인 리뉴얼)  
 > **공식 도메인**: `https://ai-prompt.buylife.xyz` (또는 `ai-prompt-studio.buylife.xyz`)  
 > **카탈로그 슬러그**: `ai-prompt-studio`  
+> **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 엔지니어링 스튜디오)**  
+> **인수인계 문서**: [개발 플랜](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) · [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md)  
 > **배지**: `['free', 'new']` (가입 회원 누구나 이용 가능)
 
 ---
@@ -88,3 +90,13 @@ ai-prompt-studio/
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (ai-prompt-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-17 Antigravity(Windows) — 포커스 스튜디오 디자인 리뉴얼 & 전 화면 단일 배경색(#f8fafc) 일체화 및 비주얼 가이드북 전면 신설 (v1.05)
+
+- **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 엔지니어링 스튜디오)**
+- **단일 배경색 일체화**: 라이트 클린 슬레이트 `#f8fafc`, 퓨어 화이트 카드, 바이올렛/인디고 포인트 (`PromptStudioApp.tsx`, 전 화면 통일).
+- **비주얼 사용 매뉴얼 (`/guide` & `currentTab = 'guide'`) 전면 신설**: 5단계 파이프라인 인포그래픽, 5대 프롬프트 프레임워크 매트릭스 치트시트, 모범 팁 카드, FAQ 4종 아코디언, 본인 키 연동 보안 원칙 배너 탑재.
+- **사이드바 메뉴 표준화**: 유틸리티 영역을 표준 `📖 연동 & 사용 매뉴얼` 및 `🔑 API키등록·플랫폼연동`으로 정돈.
+- **독립 라우트 지원**: `/guide` 직접 접속 라우트 지원 (`src/app/guide/page.tsx`).
+- **배포 및 검수**: Vercel 프로덕션 배포 (`https://ai-prompt.buylife.xyz/`), Microsoft Edge 실세션 데스크톱/모바일 검수 완료.

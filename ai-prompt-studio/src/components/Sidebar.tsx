@@ -17,8 +17,8 @@ import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { PromptMode } from "@/types/prompt";
 
 interface SidebarProps {
-  currentTab: "mode" | "build" | "result";
-  setTab: (tab: "mode" | "build" | "result") => void;
+  currentTab: "mode" | "build" | "result" | "guide";
+  setTab: (tab: "mode" | "build" | "result" | "guide") => void;
   selectedMode: PromptMode;
   hasResult: boolean;
   onOpenApiKey: () => void;
@@ -62,7 +62,7 @@ export function Sidebar({
 }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleStepClick = (tabId: "mode" | "build" | "result") => {
+  const handleStepClick = (tabId: "mode" | "build" | "result" | "guide") => {
     setTab(tabId);
     setMobileOpen(false);
   };
@@ -171,6 +171,20 @@ export function Sidebar({
 
         {/* 4. 구분선 아래: 연동 및 유틸리티 */}
         <div className="border-t border-neutral-200 pt-2.5 space-y-1">
+          {/* 📖 연동 & 사용 매뉴얼 (표준 지침 7번 준수) */}
+          <button
+            type="button"
+            onClick={() => handleStepClick("guide")}
+            className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all text-left cursor-pointer ${
+              currentTab === "guide"
+                ? "bg-violet-600 text-white shadow-xs"
+                : "text-neutral-700 hover:bg-neutral-100"
+            }`}
+          >
+            <BookOpen size={14} className={currentTab === "guide" ? "text-white" : "text-violet-600"} />
+            <span>📖 연동 & 사용 매뉴얼</span>
+          </button>
+
           {/* API키등록·플랫폼연동 (정확한 표준 명칭 준수) */}
           <button
             type="button"
@@ -178,23 +192,23 @@ export function Sidebar({
               setMobileOpen(false);
               onOpenApiKey();
             }}
-            className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-all text-left"
+            className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-all text-left cursor-pointer"
           >
             <KeyRound size={14} className="text-emerald-600" />
             <span className="font-bold">🔑 API키등록·플랫폼연동</span>
           </button>
 
-          {/* 사용 안내 */}
+          {/* 퀵 도움말 팝업 */}
           <button
             type="button"
             onClick={() => {
               setMobileOpen(false);
               onOpenHelp();
             }}
-            className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all text-left"
+            className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition-all text-left cursor-pointer"
           >
-            <BookOpen size={14} className="text-violet-600" />
-            <span>💡 사용 가이드</span>
+            <Sparkles size={14} className="text-amber-500" />
+            <span>💡 퀵 도움말 모달</span>
           </button>
         </div>
 

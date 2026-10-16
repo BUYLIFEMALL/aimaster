@@ -7,12 +7,14 @@ import { StepBuilder } from "./StepBuilder";
 import { ResultSection } from "./ResultSection";
 import { ApiKeyModal } from "./ApiKeyModal";
 import { HelpModal } from "./HelpModal";
+import { PromptGuideView } from "./PromptGuideView";
 import { PromptFormData, PromptMode, GeneratedPromptResult, MagicStrategyType } from "@/types/prompt";
 import { PromptPreset } from "@/data/presets";
 import { SuggestType } from "@/lib/prompt-engine";
 
 interface PromptStudioAppProps {
   userEmail?: string | null;
+  initialTab?: "mode" | "build" | "result" | "guide";
 }
 
 const DEFAULT_FORM_STATE: PromptFormData = {
@@ -26,8 +28,8 @@ const DEFAULT_FORM_STATE: PromptFormData = {
   feedback: "",
 };
 
-export function PromptStudioApp({ userEmail }: PromptStudioAppProps) {
-  const [currentTab, setCurrentTab] = useState<"mode" | "build" | "result">("mode");
+export function PromptStudioApp({ userEmail, initialTab = "mode" }: PromptStudioAppProps) {
+  const [currentTab, setCurrentTab] = useState<"mode" | "build" | "result" | "guide">(initialTab);
   const [formData, setFormData] = useState<PromptFormData>(DEFAULT_FORM_STATE);
   const [result, setResult] = useState<GeneratedPromptResult | null>(null);
 
@@ -40,8 +42,16 @@ export function PromptStudioApp({ userEmail }: PromptStudioAppProps) {
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [maskedKey, setMaskedKey] = useState<string | null>(null);
 
-  // 초기 API 키 확인
+  // 초기 API 키 확인 및 URL 쿼리 파라미터 확인
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      if (tabParam === "guide" || tabParam === "mode" || tabParam === "build" || tabParam === "result") {
+        setCurrentTab(tabParam as any);
+      }
+    }
+
     fetch("/api/user-key")
       .then((res) => res.json())
       .then((data) => {
@@ -205,7 +215,7 @@ export function PromptStudioApp({ userEmail }: PromptStudioAppProps) {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col md:flex-row antialiased text-neutral-900 font-sans">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col md:flex-row antialiased text-slate-900 font-sans">
       {/* 플랫폼 표준 좌측 사이드바 */}
       <Sidebar
         currentTab={currentTab}
@@ -217,9 +227,16 @@ export function PromptStudioApp({ userEmail }: PromptStudioAppProps) {
         userEmail={userEmail}
       />
 
-      {/* 메인 작업 영역 (화이트 베이스 클린 테마) */}
-      <main className="flex-1 min-h-screen overflow-y-auto p-4 md:p-8">
+      {/* 메인 작업 영역 (포커스 스튜디오 단일 테마) */}
+      <main className="flex-1 min-h-screen overflow-y-auto p-4 md:p-8 bg-[#f8fafc]">
         <div className="max-w-5xl mx-auto">
+          {currentTab === "guide" && (
+            <PromptGuideView
+              onGoToStudio={() => setCurrentTab("mode")}
+              onOpenApiKey={() => setApiKeyModalOpen(true)}
+            />
+          )}
+
           {currentTab === "mode" && (
             <IntroSection
               currentMode={formData.mode}

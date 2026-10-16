@@ -77,7 +77,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-16 기준: ✅ 13개 · ⚪ 68개 · ⏸ 2개):
+> **상태 구분** (2026-10-16 기준: ✅ 14개 · ⚪ 67개 · ⏸ 2개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -101,7 +101,7 @@
 | 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | **포커스 스튜디오 스타일** (이커머스 상세페이지) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.04`, 포커스 스튜디오 스타일) | [`detail-page-12p/docs/DESIGN_HANDOFF.md`](detail-page-12p/docs/DESIGN_HANDOFF.md) |
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | **포커스 스튜디오 스타일** (프롬프트 템플릿 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.04`, 포커스 스튜디오 스타일) | [`prompt-template-studio/docs/DESIGN_HANDOFF.md`](prompt-template-studio/docs/DESIGN_HANDOFF.md) |
 | 10 | 페르소나 문체 자동화 | `persona-style-studio` | **포커스 스튜디오 스타일** (문체 변환 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.07`, 포커스 스튜디오 스타일) | [`persona-style-studio/docs/DESIGN_HANDOFF.md`](persona-style-studio/docs/DESIGN_HANDOFF.md) |
-| 11 | AI Prompt 자동화 | `ai-prompt-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ai-prompt-studio/AGENTS.md` |
+| 11 | AI Prompt 자동화 | `ai-prompt-studio` | **포커스 스튜디오 스타일** (프롬프트 엔지니어링 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.05`, 포커스 스튜디오 스타일) | [`ai-prompt-studio/docs/DESIGN_HANDOFF.md`](ai-prompt-studio/docs/DESIGN_HANDOFF.md) |
 | 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `yt-playlist-studio/AGENTS.md` |
 | 13 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `vinyl-lp-studio/AGENTS.md` |
 | 14 | 무한루프 영상자동화 | `infinite-loop-video` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `infinite-loop-video/AGENTS.md` |
