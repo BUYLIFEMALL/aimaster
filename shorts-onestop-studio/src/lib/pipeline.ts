@@ -16,7 +16,8 @@ export function stockScore(item: StockItem, query: string): number {
   const hay = ` ${(item.tags ?? "").toLowerCase()} `;
   const hit = words.filter((w) => hay.includes(w) || hay.includes(w.replace(/(ing|s)$/, ""))).length;
   const vertical = item.width && item.height ? (item.height >= item.width ? 0.3 : 0) : 0;
-  return hit + vertical;
+  const korean = /\b(korean|asian|korea)\b/.test(hay) ? 0.5 : 0; // 인물은 한국인 기본(원칙 3)
+  return hit + vertical + korean;
 }
 /** 점수가 가장 높은 결과(이미 쓴 것 제외). 결과가 없으면 null */
 export function pickStock(items: StockItem[], query: string, used: Set<string>): StockItem | null {

@@ -25,7 +25,15 @@ export function topicPrompt(o: { category: string; seed?: string; reference?: st
   return { system, prompt };
 }
 
-export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string }) {
+/** 목표 길이(초) → 장면당 내레이션 글자 수. 장면마다 앞뒤 여백 약 0.75초를 빼고 한국어 TTS 약 6.0자/초로 계산,
+ *  AI가 글자 수를 15% 안팎 넘겨 쓰는 경향이 있어 0.88배로 잡는다(2026-10-16 실측: 30초 목표 199자 → 음성 32.2초, 6.2자/초) */
+export function narrationBudget(seconds: number, cards: number): { perScene: number; total: number } {
+  const scenes = cards + 2; const total = Math.round((seconds - scenes * 0.75) * 6.0 * 0.88);
+  return { perScene: Math.max(18, Math.round(total / scenes)), total };
+}
+
+export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string; seconds?: number }) {
+  const budget = o.seconds ? narrationBudget(o.seconds, o.cards) : null;
   const system = [
     "당신은 한국어 유튜브 쇼츠 대본 작가입니다. 화면에는 짧은 글자만, 자세한 내용은 내레이션으로 전달하는 세로 카드형 쇼츠 대본을 씁니다.",
     yearRule(), SAFETY,
@@ -41,7 +49,7 @@ export function scriptPrompt(o: { topic: string; category: string; tone: Tone; f
 - 인트로 1장 + 카드 정확히 ${o.cards}장 + 아웃트로 1장.
 - 인트로 title은 첫 1초에 멈추게 하는 18자 이내 질문·숫자·반전형 문장, eyebrow는 8자 이내 꼬리표.
 - 카드 title은 화면에 크게 들어갈 16자 이내 핵심어, desc는 24자 이내 한 줄 보조 설명, tag는 6자 이내(예: "1위", "STEP 2", "꿀팁").
-- 각 narration은 소리 내어 읽기 좋은 자연스러운 1~3문장(카드당 40~110자). 화면 글자를 그대로 반복하지 말고 이유·예시를 더합니다.
+- 각 narration은 소리 내어 읽기 좋은 자연스러운 1~3문장(${budget ? `인트로·카드·아웃트로 모두 각 ${budget.perScene - 6}~${budget.perScene + 6}자(공백 포함)` : "카드당 40~110자"}). 화면 글자를 그대로 반복하지 말고 이유·예시를 더합니다.${budget ? `\n- [길이 엄수] 완성 영상 목표는 약 ${o.seconds}초입니다. 모든 narration을 합쳐 약 ${budget.total}자를 넘기지 마세요. 길면 예시를 줄이고 핵심만 남깁니다.` : ""}
 - 아웃트로는 요약 한 줄(title), 부제(subtitle), 행동 유도 문구 cta 1~2개(예: "저장해 두세요"), narration.
 - 해시태그 hashtags 5~8개(한국어 위주, # 포함).`,
     `JSON 형식: {"intro":{"eyebrow":"","title":"","narration":""},"cards":[{"tag":"","title":"","desc":"","narration":""}],"outro":{"title":"","subtitle":"","cta":[""],"narration":""},"hashtags":["#"]}`,

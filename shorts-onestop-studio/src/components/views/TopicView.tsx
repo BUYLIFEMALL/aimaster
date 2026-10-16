@@ -11,6 +11,9 @@ type Topic = { title: string; hook: string; format: Format | null };
 type Guide = Item<{ text: string }>;
 const CAT_EMOJI: Record<string, string> = { "건강·운동": "💪", "자기계발·생산성": "📈", "돈·재테크": "💰", "요리·레시피": "🍳", "여행": "✈️", "심리·인간관계": "🧠", "IT·AI": "🤖", "뷰티·패션": "💄", "생활 꿀팁": "🏠", "동기부여": "🔥", "상식·잡학": "📚", "운세·꿈풀이": "🔮", "미스터리": "🕵️", "반전 상식": "😲" };
 
+/** 목표 길이별 기본 카드 수(주제에 숫자가 있거나 직접 고르면 그 값 유지) */
+const LENGTH_CARDS: Record<number, number> = { 30: 3, 45: 4, 60: 5 };
+
 export function TopicView() {
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [category, setCategory] = useState<string>("");
@@ -18,6 +21,7 @@ export function TopicView() {
   const [topics, setTopics] = useState<Topic[]>([]), [topic, setTopic] = useState("");
   const [tone, setTone] = useState<Tone>("friendly"), [format, setFormat] = useState<Format>("list"), [cards, setCards] = useState(5);
   const [touched, setTouched] = useState({ tone: false, format: false, cards: false });
+  const [seconds, setSeconds] = useState(0); // 목표 길이(0 = 제한 없음)
   const [guides, setGuides] = useState<Guide[]>([]), [useGuide, setUseGuide] = useState(false), [guideText, setGuideText] = useState(""), [guideOpen, setGuideOpen] = useState(false);
   const [manual, setManual] = useState(""), [firstIntro, setFirstIntro] = useState(true), [lastOutro, setLastOutro] = useState(true);
   const [script, setScript] = useState<ShortsScript | null>(null), [itemId, setItemId] = useState<string | null>(null);
@@ -58,7 +62,7 @@ export function TopicView() {
   async function makeScript() {
     setBusy("대본을 쓰는 중… (보통 10~40초)"); setMsg(null);
     try {
-      const r = await api<{ script: ShortsScript }>("/api/ai/script", { body: { topic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "" } });
+      const r = await api<{ script: ShortsScript }>("/api/ai/script", { body: { topic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined } });
       setScript(r.script); setItemId(null); setMsg({ text: "대본이 완성됐습니다. 아래에서 고친 뒤 보관함에 저장하세요.", ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
@@ -136,6 +140,7 @@ export function TopicView() {
               <div className="field-grid">
                 <label>말투<select value={tone} onChange={(e) => { setTone(e.target.value as Tone); setTouched((t) => ({ ...t, tone: true })); }}>{Object.entries(TONES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
                 <label>구성<select value={format} onChange={(e) => { setFormat(e.target.value as Format); setTouched((t) => ({ ...t, format: true })); }}>{Object.entries(FORMATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
+                <label>목표 길이<select value={seconds} onChange={(e) => { const v = Number(e.target.value); setSeconds(v); if (v && !touched.cards) setCards(LENGTH_CARDS[v]); }}><option value={0}>제한 없음</option>{[30, 45, 60].map((v) => <option key={v} value={v}>약 {v}초</option>)}</select></label>
                 <label>카드 수<select value={cards} onChange={(e) => { setCards(Number(e.target.value)); setTouched((t) => ({ ...t, cards: true })); }}>{Array.from({ length: MAX_CARDS - MIN_CARDS + 1 }, (_, i) => MIN_CARDS + i).map((n) => <option key={n} value={n}>{n}장</option>)}</select></label>
               </div>
               <div className="actions"><button className="primary" disabled={topic.trim().length < 4 || !!busy} onClick={() => void makeScript()}><Sparkles size={14} />대본 만들기</button><Busy on={busy.startsWith("대본")} label={busy} /></div>

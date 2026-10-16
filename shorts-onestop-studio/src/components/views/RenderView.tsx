@@ -114,7 +114,7 @@ export function RenderView() {
     const ac = new AbortController(); abort.current = ac; const started = performance.now();
     try {
       const blob = await exportMp4({ script, media: media.resolve, audioUrls: audio.urls, signal: ac.signal, onProgress: setExp });
-      const name = `${(item?.title || script.intro.title || "shorts").replace(/[\/:*?"<>|]/g, "").slice(0, 40).trim() || "shorts"}.mp4`;
+      const name = `${(item?.title || script.intro.title || "shorts").replace(/[\\/:*?"<>|]/g, "").slice(0, 40).trim() || "shorts"}.mp4`;
       setFile({ url: URL.createObjectURL(blob), name, mb: Math.round((blob.size / 1048576) * 10) / 10 });
       setMsg({ text: `MP4를 만들었습니다(${Math.round((performance.now() - started) / 1000)}초 걸림). [MP4 내려받기]를 눌러 저장하세요.`, ok: true });
     } catch (e) {
@@ -214,8 +214,9 @@ export function RenderView() {
                 {!script.seo ? <p className="muted">대본을 바탕으로 쇼츠 제목 후보 5개·설명란·해시태그·검색 태그를 만듭니다(본인 AI 키 1회). 유튜브에 올릴 때 복사해 붙여 넣으세요.</p> : <>
                   <div><small className="muted">제목 후보(누르면 복사)</small><div className="list" style={{ marginTop: 6 }}>{script.seo.titles.map((t, i) => <button key={i} type="button" className="list-item" style={{ textAlign: "left", width: "100%" }} onClick={() => void copy(t, "제목")}><span>{t}</span><Copy size={13} /></button>)}</div></div>
                   <label>설명란<textarea rows={5} value={script.seo.description} maxLength={1500} onChange={(e) => setSeo({ description: e.target.value })} /></label>
-                  <label>해시태그<input value={script.seo.hashtags.join(" ")} onChange={(e) => setSeo({ hashtags: e.target.value.split(/s+/).filter(Boolean).slice(0, 10) })} /></label>
-                  <label>검색 태그(쉼표로 구분)<input value={script.seo.tags.join(", ")} onChange={(e) => setSeo({ tags: e.target.value.split(/s*,s*/).filter(Boolean).slice(0, 20) })} /></label>
+                  {/* 입력 중 띄어쓰기·쉼표가 지워지지 않게, 칸을 벗어날 때 나눠서 저장한다 */}
+                  <label>해시태그(띄어쓰기로 구분)<input key={`h-${script.seo.hashtags.join(" ")}`} defaultValue={script.seo.hashtags.join(" ")} onBlur={(e) => setSeo({ hashtags: e.target.value.split(/\s+/).filter(Boolean).map((h) => (h.startsWith("#") ? h : `#${h}`)).slice(0, 10) })} /></label>
+                  <label>검색 태그(쉼표로 구분)<input key={`t-${script.seo.tags.join(",")}`} defaultValue={script.seo.tags.join(", ")} onBlur={(e) => setSeo({ tags: e.target.value.split(/\s*,\s*/).filter(Boolean).slice(0, 20) })} /></label>
                   <div className="actions">
                     <button type="button" onClick={() => void copy(`${script.seo!.description}
 

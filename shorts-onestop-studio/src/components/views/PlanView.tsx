@@ -23,9 +23,11 @@ export function PlanView() {
   const [item, setItem] = useState<Item<PlanData> | null>(null);
   const [stage, setStage] = useState<Stage>("start"), [cats, setCats] = useState<string[]>([]);
   const [perDay, setPerDay] = useState(1), [days, setDays] = useState(7), [start, setStart] = useState(today()), [seed, setSeed] = useState("");
-  const [sel, setSel] = useState<Set<number>>(new Set()), [tone, setTone] = useState<Tone>("friendly"), [cards, setCards] = useState(5), [useGuide, setUseGuide] = useState(true);
+  const [sel, setSel] = useState<Set<number>>(new Set()), [tone, setTone] = useState<Tone>("friendly"), [cards, setCards] = useState(4), [useGuide, setUseGuide] = useState(true);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [prog, setProg] = useState<{ done: number; total: number; ok: number } | null>(null);
   const [steps, setSteps] = useState<Steps>({ bg: true, voice: false, mp4: false });
+  const [seconds, setSeconds] = useState(45); // 일괄 대본 목표 길이(0 = 제한 없음)
+  const [adding, setAdding] = useState<{ title: string; date: string; time: string; category: string; format: string } | null>(null);
   const [edit, setEdit] = useState<{ i: number; title: string; date: string; time: string } | null>(null);
   const [files, setFiles] = useState<{ name: string; url: string; mb: number }[]>([]);
   const stopRef = useRef(false); const abortRef = useRef<AbortController | null>(null);
@@ -82,7 +84,7 @@ export function PlanView() {
           setBusy(`대본 만드는 중… ${tag}`);
           if (!guides.has(e.category)) guides.set(e.category, await guidelineFor(e.category));
           const g = guessFromTopic(e.title);
-          script = (await api<{ script: ShortsScript }>("/api/ai/script", { body: { topic: e.title, category: e.category, tone, format: e.format ?? g.format ?? "list", cards: g.cards ?? cards, guideline: guides.get(e.category) } })).script;
+          script = (await api<{ script: ShortsScript }>("/api/ai/script", { body: { topic: e.title, category: e.category, tone, format: e.format ?? g.format ?? "list", cards: g.cards ?? cards, guideline: guides.get(e.category), seconds: seconds || undefined } })).script;
           const { item: proj } = await api<{ item: Item<ShortsScript> }>("/api/items", { body: { kind: "project", title: e.title, data: script } });
           set({ projectId: proj.id, error: undefined }); await persist();
         }
@@ -124,6 +126,18 @@ export function PlanView() {
     if (edit.title.trim().length < 4 || !/^\d{4}-\d{2}-\d{2}$/.test(edit.date) || !/^\d{2}:\d{2}$/.test(edit.time)) { setMsg({ text: "주제는 4자 이상, 날짜·시각을 모두 넣어 주세요." }); return; }
     const entries = [...item.data.entries]; entries[edit.i] = { ...entries[edit.i], title: edit.title.trim().slice(0, 60), date: edit.date, time: edit.time };
     try { await savePlan({ ...item.data, entries: sortEntries(entries) }); setEdit(null); setSel(new Set()); setMsg({ text: "일정을 고쳤습니다.", ok: true }); } catch (e) { setMsg(toMsg(e)); }
+  }
+  function startAdd() {
+    if (!item) return;
+    const last = item.data.entries[item.data.entries.length - 1];
+    setEdit(null); setAdding({ title: "", date: last?.date ?? today(), time: "19:00", category: item.data.categories[0] ?? CATEGORIES[0], format: "" });
+  }
+  async function addEntry() {
+    if (!item || !adding) return;
+    if (adding.title.trim().length < 4 || !/^\d{4}-\d{2}-\d{2}$/.test(adding.date) || !/^\d{2}:\d{2}$/.test(adding.time)) { setMsg({ text: "주제는 4자 이상, 날짜·시각을 모두 넣어 주세요." }); return; }
+    const g = guessFromTopic(adding.title);
+    const entry: PlanEntry = { date: adding.date, time: adding.time, category: adding.category, title: adding.title.trim().slice(0, 60), hook: "", format: (adding.format || g.format || null) as PlanEntry["format"] };
+    try { await savePlan({ ...item.data, entries: sortEntries([...item.data.entries, entry]) }); setAdding(null); setSel(new Set()); setMsg({ text: `「${entry.title}」을 일정에 추가했습니다.`, ok: true }); } catch (e) { setMsg(toMsg(e)); }
   }
   async function removeEntry(i: number) {
     if (!item) return;
@@ -188,10 +202,26 @@ export function PlanView() {
             <div className="row" style={{ justifyContent: "space-between" }}>
               <h2><CalendarDays size={16} /> ② 업로드 일정 <small>{entries.filter((e) => e.projectId).length}/{entries.length} 대본 완료</small></h2>
               <div className="actions">
+                <button type="button" className="link-button" disabled={!!busy || entries.length >= MAX_PLAN_TOPICS * 2} onClick={startAdd}>+ 주제 추가</button>
                 <button type="button" className="link-button" disabled={!!busy} onClick={() => setSel(new Set(pending))}>남은 단계가 있는 주제 모두 고르기</button>
                 {sel.size > 0 && <button type="button" className="link-button" onClick={() => setSel(new Set())}>선택 해제</button>}
               </div>
             </div>
+            {adding && (
+              <div className="list-item stack" style={{ alignItems: "stretch", borderColor: "var(--brand-line)" }}>
+                <strong>➕ 새 주제</strong>
+                <input value={adding.title} maxLength={60} autoFocus onChange={(ev) => setAdding({ ...adding, title: ev.target.value })} placeholder="예: 아침 공복에 하면 좋은 스트레칭 3가지" aria-label="새 주제" />
+                <div className="row">
+                  <input type="date" value={adding.date} onChange={(ev) => setAdding({ ...adding, date: ev.target.value })} aria-label="새 주제 날짜" style={{ flex: 1, minWidth: 140 }} />
+                  <input type="time" value={adding.time} onChange={(ev) => setAdding({ ...adding, time: ev.target.value })} aria-label="새 주제 시각" style={{ flex: 1, minWidth: 110 }} />
+                </div>
+                <div className="row">
+                  <select value={adding.category} onChange={(ev) => setAdding({ ...adding, category: ev.target.value })} aria-label="새 주제 분야" style={{ flex: 1, minWidth: 140 }}>{CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
+                  <select value={adding.format} onChange={(ev) => setAdding({ ...adding, format: ev.target.value })} aria-label="새 주제 구성" style={{ flex: 1, minWidth: 140 }}><option value="">구성 자동</option>{Object.entries(FORMATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select>
+                </div>
+                <div className="actions"><button type="button" className="primary" onClick={() => void addEntry()}><Check size={13} />추가</button><button type="button" onClick={() => setAdding(null)}><X size={13} />취소</button></div>
+              </div>
+            )}
             <div className="list">{entries.map((e, i) => edit?.i === i ? (
               <div key={i} className="list-item stack" style={{ alignItems: "stretch" }}>
                 <input value={edit.title} maxLength={60} onChange={(ev) => setEdit({ ...edit, title: ev.target.value })} aria-label="주제" />
@@ -233,6 +263,7 @@ export function PlanView() {
             </div>
             <div className="field-grid">
               <label>말투<select value={tone} onChange={(e) => setTone(e.target.value as Tone)}>{Object.entries(TONES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
+              <label>목표 길이<select value={seconds} onChange={(e) => { const v = Number(e.target.value); setSeconds(v); if (v) setCards(({ 30: 3, 45: 4, 60: 5 } as Record<number, number>)[v]); }}><option value={0}>제한 없음</option>{[30, 45, 60].map((v) => <option key={v} value={v}>약 {v}초</option>)}</select></label>
               <label>카드 수(주제에 숫자가 있으면 그 수)<select value={cards} onChange={(e) => setCards(Number(e.target.value))}>{Array.from({ length: MAX_CARDS - MIN_CARDS + 1 }, (_, i) => MIN_CARDS + i).map((n) => <option key={n} value={n}>{n}장</option>)}</select></label>
               <label className="row" style={{ gap: 8, fontWeight: 500, alignSelf: "end" }}><input type="checkbox" checked={useGuide} onChange={(e) => setUseGuide(e.target.checked)} />분야별 내 지침 적용</label>
             </div>

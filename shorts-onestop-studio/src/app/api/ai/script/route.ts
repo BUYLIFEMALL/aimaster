@@ -22,9 +22,10 @@ export async function POST(request: NextRequest) {
     const category = String(g.body.category ?? "").slice(0, 30);
     const reference = String(g.body.reference ?? "").trim().slice(0, 12000);
     const guideline = String(g.body.guideline ?? "").trim().slice(0, 3000);
+    const seconds = [30, 45, 60].includes(Number(g.body.seconds)) ? Number(g.body.seconds) : undefined; // 목표 길이(선택)
     const cfg = await aiConfig(g.userId);
     for (let attempt = 0; attempt < 2; attempt++) {
-      const raw = await generateJson(cfg, { ...scriptPrompt({ topic, category, tone, format, cards, reference, guideline }), maxTokens: 5000 });
+      const raw = await generateJson(cfg, { ...scriptPrompt({ topic, category, tone, format, cards, reference, guideline, seconds }), maxTokens: 5000 });
       const script = normalizeScript(raw, { topic, category, tone, format, cards, model: cfg.model });
       if (script) return json({ script });
     }
