@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { Button } from "@/components/ui/Button";
-import { connectThreadsAccountAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
+import { connectThreadsAccountAction, connectThreadsAccountNewCallbackAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
+import { THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
@@ -95,9 +96,16 @@ export default async function SettingsPage({
             아래 콜백 주소를 추가하고, &quot;역할&quot; 메뉴에서 본인 쓰레드 계정을 테스터로
             추가해주셔야 연결할 수 있습니다.
           </p>
-          <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">
-            {process.env.NEXT_PUBLIC_SITE_URL ?? "https://threads.vercel.app"}/api/threads/callback
-          </code>
+          {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+            <p className="font-semibold text-neutral-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+          )}
+          <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{THREADS_REDIRECT_OLD()}</code>
+          {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+            <>
+              <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{THREADS_REDIRECT_NEW}</code>
+              <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
+            </>
+          )}
         </div>
 
         <div className="mb-4 space-y-3">
@@ -128,6 +136,13 @@ export default async function SettingsPage({
                   연결 해제
                 </Button>
               </form>
+              {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+                <form action={connectThreadsAccountNewCallbackAction} className="mt-2">
+                  <Button type="submit" variant="secondary">
+                    새 주소로 다시 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)
+                  </Button>
+                </form>
+              )}
             </div>
           ) : (
             <div>
@@ -137,6 +152,13 @@ export default async function SettingsPage({
               <form action={connectThreadsAccountAction}>
                 <Button type="submit">Threads 계정 연결하기</Button>
               </form>
+              {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+                <form action={connectThreadsAccountNewCallbackAction} className="mt-2">
+                  <Button type="submit" variant="secondary">
+                    새 주소로 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)
+                  </Button>
+                </form>
+              )}
             </div>
           )}
         </div>

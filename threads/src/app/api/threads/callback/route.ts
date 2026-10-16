@@ -7,6 +7,7 @@ import {
   exchangeForLongLivedToken,
   getThreadsUserProfile,
 } from "@/lib/threads/client";
+import { SITE_ORIGIN, THREADS_REDIRECT_FOR } from "@/lib/oauthRedirect";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -16,14 +17,20 @@ export const fetchCache = "force-no-store";
 export async function GET(request: NextRequest) {
   // 2026-10-16 도메인 통일(SSO) 콜백: 회원 앱에 등록된 콜백(환경변수, 옛 *.vercel.app 주소)으로 돌아오면 로그인 쿠키가 없으므로
   // 같은 경로·쿼리 그대로 새 주소(https://auto-threads-posting.buylife.xyz)로 넘겨 거기서 토큰을 교환한다. 교환 시 redirect_uri는 옛 주소 문자열 그대로라 일치 검사 통과.
+  // 넘길 때 via=old를 붙여, 새 주소에서 토큰 교환 시 인증 요청에 썼던 옛 콜백 주소를 그대로 쓰게 한다(두 주소 동시 지원).
   if ((request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "").endsWith(".vercel.app")) {
-    return NextResponse.redirect(`https://auto-threads-posting.buylife.xyz${request.nextUrl.pathname}${request.nextUrl.search}`, 307);
+    const next = new URL(`${SITE_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`);
+    next.searchParams.set("via", "old");
+    return NextResponse.redirect(next.toString(), 307);
   }
+  // 새 콜백으로 바로 돌아오면 via가 없다 → 새 주소로 교환
+  const redirectUri = THREADS_REDIRECT_FOR(request.nextUrl.searchParams.get("via") === "old" ? "old" : "new");
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const oauthError = request.nextUrl.searchParams.get("error");
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
+  // 연결 후 돌아갈 주소는 옛 주소 환경변수가 아닌 새 주소 기준(옛 주소 삭제 후에도 동작)
+  const siteUrl = SITE_ORIGIN;
 
   if (oauthError || !code || !state) {
     return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
@@ -54,7 +61,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${siteUrl}/settings?error=meta_app_missing`);
     }
 
-    const shortLived = await exchangeCodeForToken(code, appId, appSecret);
+    const shortLived = await exchangeCodeForToken(code, appId, appSecret, redirectUri);
     const longLived = await exchangeForLongLivedToken(shortLived.access_token, appSecret);
     const profile = await getThreadsUserProfile(longLived.access_token);
 

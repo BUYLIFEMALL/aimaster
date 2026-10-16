@@ -6,8 +6,18 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getThreadsAuthorizeUrl } from "@/lib/threads/client";
+import { THREADS_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
 
 export async function connectThreadsAccountAction() {
+  await startThreadsOAuth("old");
+}
+
+// 회원 Meta 앱에 새 콜백 주소를 등록한 경우 — 새 주소로 인증(옛 vercel.app 삭제 대비 두 주소 동시 지원)
+export async function connectThreadsAccountNewCallbackAction() {
+  await startThreadsOAuth("new");
+}
+
+async function startThreadsOAuth(callbackMode: CallbackMode) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
@@ -20,7 +30,7 @@ export async function connectThreadsAccountAction() {
   }
 
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-  const authorizeUrl = getThreadsAuthorizeUrl(user.id, appId);
+  const authorizeUrl = getThreadsAuthorizeUrl(user.id, appId, THREADS_REDIRECT_FOR(callbackMode));
   redirect(authorizeUrl);
 }
 
