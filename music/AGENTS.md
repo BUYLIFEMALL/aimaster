@@ -192,3 +192,7 @@ POST 콜백을 보낸다. 이 라우트는:
 - 새 주소 `https://music-automation.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 / → /plannings 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 → 새 주소
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.10 — 옛 vercel.app 삭제 대비: Suno 콜백 주소 새 주소 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 G. `lib/ai/suno.ts`의 Suno `callBackUrl` 기준을 `NEXT_PUBLIC_SITE_URL`(옛 주소) 대신 `SUNO_CALLBACK_ORIGIN = https://music-automation.buylife.xyz`로 고정(요청마다 주소를 넘기므로 이후 생성분부터 새 주소로 결과 수신). 환경변수 없음 오류 분기(5곳)는 불필요해져 정리.
+- 검수: 빌드·배포, 새 주소 `/api/webhooks/suno` POST 200(경로 동작). 실제 Suno 생성은 유료라 미시험.
