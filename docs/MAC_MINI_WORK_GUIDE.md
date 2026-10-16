@@ -6,6 +6,7 @@
 
 ## 1. 이 세션이 누구인가
 - 장비: 맥미니(macOS). 작업 폴더 `/Volumes/gt1_mega/Antigravity/AIMaster` = 윈도우 PC의 `D:\Antigravity\AIMaster`.
+  - **(2026-10-16 주인님 지시) 맥미니의 작업 폴더는 반드시 이 SMB 공유 폴더다. 맥 로컬 복제본(`~/…/AIMaster` 등 별도 clone)에서 작업·커밋·푸시하지 않는다.** 복제본에서 작업하면 작업 중 표·미커밋 변경이 윈도우와 실시간으로 공유되지 않아 동시 작업 금지 규칙이 깨진다(2026-10-16 맥미니 커밋 `c5b835d3`·`50c7b7e6`이 공유 폴더가 아닌 다른 복제본에서 만들어진 것을 윈도우 reflog·객체 시각으로 확인). 맥에 복제본이 있으면 지우지 말고 쓰지 않으며, 정리는 주인님께 확인한다.
 - Claude 계정(2026-10-16 개정): **`buylifemall@gmail.com` 하나만 쓴다.** 보조 계정 `buylifemall1@gmail.com`(`~/.claude-account2`)은 사용 중단(원칙 18번).
 - 에이전트 구성(2026-10-16 주인님 지시): 맥미니에는 필요할 때 **Antigravity CLI(`agy`)·Codex·Claude Code** 계정을 등록해 두고, 일이 많을 때 윈도우 PC와 **분담해서 작업**한다. 분담 폴더는 주인님이 지정하며, 에이전트마다 맡은 폴더만 건드리고 끝나면 인수인계 문서를 남기는 아래 규칙을 모든 에이전트가 똑같이 따른다(Claude만 해당하던 표현은 에이전트 전체로 읽는다).
 - 브라우저(2026-10-15 주인님 지시): **맥미니에서 실행되는 이 세션의 크롬 작업은 항상 이 맥미니에 있는 크롬으로 한다.** (2026-10-16 개정) 에이전트별 브라우저는 윈도우와 같은 규칙이다 — **Claude Code=맥미니 크롬, Antigravity·Codex=맥미니 엣지**(§1-1).
@@ -76,5 +77,7 @@ REA·상태바 스크립트 같은 도구는 윈도우 설치본과 맥 설치�
 
 ## 5. 오류 방지 점검
 1. 작업 시작 시 `/Volumes/gt1_mega`가 마운트돼 있는지 확인(`ls /Volumes`). 없으면 작업하지 말고 알린다.
+   - 이어서 **현재 위치가 공유 폴더인지 확인**: `git rev-parse --show-toplevel`이 `/Volumes/gt1_mega/Antigravity/AIMaster`여야 한다. 다르면(로컬 복제본) 작업하지 말고 `cd /Volumes/gt1_mega/Antigravity/AIMaster`로 옮긴 뒤 시작한다. 이 위치에서는 `git pull`이 필요 없다(윈도우와 같은 파일).
+   - 윈도우 쪽에서 확인하는 방법: PowerShell `Get-SmbSession`에 맥미니(Tailscale `macmini-macmini`, 100.65.7.96 / LAN 192.168.0.8)가 보이고, 맥에서 작업 중이면 `Get-SmbOpenFile | ? Path -like '*Antigravity\AIMaster*'`에 열린 파일이 나온다.
 2. 경로가 `C:\`나 `%…%`면 맥에서 열 수 없는 경로로 취급한다.
 3. 공유 폴더에는 임시 파일을 만들지 않는다. 임시 파일은 세션 스크래치 폴더(`/private/tmp/…`)에 둔다.
