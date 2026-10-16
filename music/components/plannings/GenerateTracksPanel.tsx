@@ -34,7 +34,6 @@ export function GenerateTracksPanel({
   planningLang: string;
 }) {
   const router = useRouter();
-  // 기본값으로 미리 체크해두지 않는다 — 사용자가 매번 원하는 버전을 직접 선택하게 한다.
   const [vocal, setVocal] = useState(false);
   const [instrumental, setInstrumental] = useState(false);
   const [vocalGender, setVocalGender] = useState<VocalGender | "">(planningVocalGender ?? "");
@@ -104,38 +103,78 @@ export function GenerateTracksPanel({
   const selectedTagCount =
     genreTags.length + moodTags.length + instrumentTags.length + vocalToneTags.length + tempoTags.length;
   const hasTagOverride = selectedTagCount > 0;
-  const willUseAi = vocalGender !== (planningVocalGender ?? "") || lang !== planningLang || hasTagOverride;
-  // 성별/언어는 가사가 있는 보컬버전에만 의미가 있다 — 인스트루멘탈만 선택했을 때는 숨긴다.
   const showVocalOptions = vocal;
 
   return (
     <>
-      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-        <p className="text-sm font-semibold text-gray-800 mb-3">생성하기</p>
-        <div className="flex flex-wrap items-center gap-4 mb-4">
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" checked={vocal} onChange={(e) => setVocal(e.target.checked)} />
-            보컬버전 (가사 포함)
+      <div className="rounded-2xl border border-[#272732] bg-[#14141b] p-5 sm:p-6 shadow-xl shadow-black/40">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">⚡</span>
+            <p className="text-base font-black text-white">Suno AI 음악 생성 콘솔</p>
+          </div>
+          <span className="text-[11px] font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
+            ENGINE READY
+          </span>
+        </div>
+
+        {/* 생성 모드 선택 (보컬 / BGM) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <label
+            className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
+              vocal
+                ? "bg-orange-500/15 border-orange-500/50 text-white shadow-sm"
+                : "bg-[#181824] border-[#272738] text-zinc-300 hover:border-[#383848]"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-lg">🎤</span>
+              <div>
+                <p className="text-xs font-bold">보컬 버전</p>
+                <p className="text-[10px] text-zinc-400">가사와 AI 보컬이 포함된 완곡</p>
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              checked={vocal}
+              onChange={(e) => setVocal(e.target.checked)}
+              className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500/50 border-[#383848] bg-[#121218]"
+            />
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+
+          <label
+            className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
+              instrumental
+                ? "bg-amber-500/15 border-amber-500/50 text-white shadow-sm"
+                : "bg-[#181824] border-[#272738] text-zinc-300 hover:border-[#383848]"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-lg">🎹</span>
+              <div>
+                <p className="text-xs font-bold">인스트루멘탈 (BGM)</p>
+                <p className="text-[10px] text-zinc-400">보컬 없는 고품질 악기 연주 음원</p>
+              </div>
+            </div>
             <input
               type="checkbox"
               checked={instrumental}
               onChange={(e) => setInstrumental(e.target.checked)}
+              className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500/50 border-[#383848] bg-[#121218]"
             />
-            BGM(배경음악)
           </label>
         </div>
 
-        <div className="flex flex-wrap gap-3 mb-2">
+        {/* 보컬 및 수량 옵션 */}
+        <div className="flex flex-wrap items-center gap-4 mb-4 rounded-xl border border-[#272738] bg-[#181824] p-3.5">
           {showVocalOptions && (
             <>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">성별</label>
+                <label className="block text-[11px] font-bold text-zinc-400 mb-1">보컬 성별</label>
                 <select
                   value={vocalGender}
                   onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
-                  className="input w-32"
+                  className="input text-xs w-28 py-1.5"
                 >
                   <option value="">미지정</option>
                   {VOCAL_GENDER_OPTIONS.map((g) => (
@@ -146,8 +185,12 @@ export function GenerateTracksPanel({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">언어</label>
-                <select value={lang} onChange={(e) => setLang(e.target.value)} className="input w-28">
+                <label className="block text-[11px] font-bold text-zinc-400 mb-1">가사 언어</label>
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value)}
+                  className="input text-xs w-28 py-1.5"
+                >
                   {LANG_OPTIONS.map((l) => (
                     <option key={l} value={l}>
                       {l}
@@ -158,45 +201,52 @@ export function GenerateTracksPanel({
             </>
           )}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">생성 개수(대량생성)</label>
+            <label className="block text-[11px] font-bold text-zinc-400 mb-1">생성 수량 (대량생성)</label>
             <select
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="input w-24"
+              className="input text-xs w-24 py-1.5 text-center font-bold"
             >
               {COUNT_OPTIONS.map((n) => (
                 <option key={n} value={n}>
-                  {n}곡
+                  {n}곡 세트
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowTagOptions((v) => !v)}
-          className="mb-2 text-xs font-semibold text-blue-600 hover:underline"
-        >
-          {showTagOptions ? "▲ 장르/무드/악기/보컬톤/템포 추가 옵션 닫기" : "▼ 장르/무드/악기/보컬톤/템포 추가 옵션 (선택)"}
-          {hasTagOverride && !showTagOptions && ` — ${selectedTagCount}개 선택됨`}
-        </button>
+        {/* 세부 스타일 칩 토글 버튼 */}
+        <div className="mb-3">
+          <button
+            type="button"
+            onClick={() => setShowTagOptions((v) => !v)}
+            className="text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1.5"
+          >
+            <span>{showTagOptions ? "▲ 세부 장르/무드/악기 칩 닫기" : "▼ 세부 장르/무드/악기 칩 선택 (선택 사항)"}</span>
+            {hasTagOverride && !showTagOptions && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                {selectedTagCount}개 활성
+              </span>
+            )}
+          </button>
+        </div>
 
         {showTagOptions && (
-          <div className="mb-3 space-y-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+          <div className="mb-4 space-y-4 rounded-xl border border-[#272738] bg-[#12121a] p-4 animate-in fade-in duration-200">
             <div>
-              <p className="mb-1.5 text-xs font-semibold text-gray-500">
+              <p className="mb-2 text-xs font-bold text-zinc-300">
                 장르 (최대 {GENRE_MAX_SELECT}개)
               </p>
               <TagChips options={GENRE_OPTIONS} selected={genreTags} max={GENRE_MAX_SELECT} onToggle={toggleGenre} />
             </div>
             <div>
-              <p className="mb-1.5 text-xs font-semibold text-gray-500">무드 (최대 {MOOD_MAX_SELECT}개)</p>
+              <p className="mb-2 text-xs font-bold text-zinc-300">무드 (최대 {MOOD_MAX_SELECT}개)</p>
               <TagChips options={MOOD_OPTIONS} selected={moodTags} max={MOOD_MAX_SELECT} onToggle={toggleMood} />
             </div>
             <div>
-              <p className="mb-1.5 text-xs font-semibold text-gray-500">
-                악기 (최대 {INSTRUMENT_MAX_SELECT}개)
+              <p className="mb-2 text-xs font-bold text-zinc-300">
+                악기 사운드 (최대 {INSTRUMENT_MAX_SELECT}개)
               </p>
               <TagChips
                 options={INSTRUMENT_OPTIONS}
@@ -207,8 +257,8 @@ export function GenerateTracksPanel({
             </div>
             {showVocalOptions && (
               <div>
-                <p className="mb-1.5 text-xs font-semibold text-gray-500">
-                  보컬톤 (최대 {VOCAL_TONE_MAX_SELECT}개, 보컬버전에만 적용)
+                <p className="mb-2 text-xs font-bold text-zinc-300">
+                  보컬 톤 (최대 {VOCAL_TONE_MAX_SELECT}개)
                 </p>
                 <TagChips
                   options={VOCAL_TONE_OPTIONS}
@@ -219,37 +269,30 @@ export function GenerateTracksPanel({
               </div>
             )}
             <div>
-              <p className="mb-1.5 text-xs font-semibold text-gray-500">템포 (최대 {TEMPO_MAX_SELECT}개)</p>
+              <p className="mb-2 text-xs font-bold text-zinc-300">템포/비트 (최대 {TEMPO_MAX_SELECT}개)</p>
               <TagChips options={TEMPO_OPTIONS} selected={tempoTags} max={TEMPO_MAX_SELECT} onToggle={toggleTempo} />
             </div>
-            <p className="text-xs text-gray-400">
-              기획된 스타일 위에 이 태그들을 반드시 반영해서 새 스타일을 만듭니다(보컬톤 제외 나머지는
-              보컬/인스트루멘탈 둘 다 적용). 기획 자체는 바뀌지 않고, 이번 생성에만 적용됩니다.
-            </p>
           </div>
         )}
 
-        <p className="mb-4 text-xs text-gray-400">
-          {showVocalOptions &&
-            (willUseAi
-              ? "성별/언어/태그를 기획과 다르게 선택했습니다 — 기획 내용은 그대로 두고, 이번 생성만 선택한 값으로 만듭니다. "
-              : "기획에서 정한 성별/언어 그대로 생성합니다. ")}
-          {instrumental && "BGM(배경음악)은 가사/보컬 없이 반주만 생성됩니다(성별·언어와 무관). "}
-          2곡 이상 선택하면 첫 곡은 기획된 스타일 그대로(성별을 바꿨거나 인스트루멘탈이거나 태그를
-          추가했으면 새 스타일부터), 나머지는 AI가 겹치지 않는 새 스타일 변주를 만들어 각각 다른
-          느낌으로 생성합니다. 선택한 버전별로 매번 OpenAI/Suno API가 호출되니 개수만큼 비용이
-          늘어납니다
-          {totalTracks > 0 && ` (이번에 총 ${totalTracks}곡 생성)`}.
-        </p>
+        <div className="mb-4 rounded-xl border border-[#242434] bg-[#111118] p-3 text-[11px] text-zinc-400 leading-relaxed">
+          💡 한 번 생성 시 Suno 공식 엔진에서 <strong>2개의 변주곡(Variant)</strong>이 세트로 만들어집니다.
+          {totalTracks > 0 && ` 이번 요청 시 총 ${totalTracks}개의 음악 세트가 생성됩니다.`}
+        </div>
 
-        {error && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+        {error && (
+          <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs text-rose-300">
+            ⚠️ {error}
+          </div>
+        )}
+
         <button
           type="button"
           onClick={handleGenerate}
           disabled={isPending}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 text-white font-bold py-2.5 px-4 rounded-xl transition-all"
+          className="w-full rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-60 text-white font-black py-3.5 px-6 shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-sm tracking-wide"
         >
-          {isPending ? "생성 요청 중... (개수가 많으면 시간이 걸릴 수 있어요)" : "생성하기"}
+          {isPending ? "⚡ Suno AI 음악 생성 요청 중..." : "🚀 지금 음악 생성하기"}
         </button>
       </div>
 

@@ -64,9 +64,9 @@ export interface TrackCardData {
 }
 
 const STATUS_LABEL: Record<TrackStatus, { label: string; className: string }> = {
-  generating: { label: "생성 중...", className: "bg-amber-100 text-amber-700" },
-  completed: { label: "완료", className: "bg-green-100 text-green-700" },
-  failed: { label: "실패", className: "bg-red-100 text-red-700" },
+  generating: { label: "생성 중...", className: "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse" },
+  completed: { label: "완료", className: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" },
+  failed: { label: "실패", className: "bg-rose-500/15 text-rose-400 border border-rose-500/30" },
 };
 
 const VOCAL_GENDER_LABEL: Record<VocalGender, string> = {
@@ -249,8 +249,6 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const selectedTagCount =
     genreTags.length + moodTags.length + instrumentTags.length + vocalToneTags.length + tempoTags.length;
   const hasTagOverride = selectedTagCount > 0;
-  const willUseAi =
-    vocalGender !== (track.vocal_gender ?? "") || lang !== planningLang || count > 1 || hasTagOverride;
 
   async function handleRegenerate() {
     setError(null);
@@ -283,73 +281,87 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
 
   return (
     <>
-      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-3 gap-2">
-          <p className="font-bold text-gray-900">{trackTitleLabel(track)}</p>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${badge.className}`}>{badge.label}</span>
+      <div className="rounded-2xl border border-[#272732] bg-[#14141b] p-5 sm:p-6 shadow-xl shadow-black/40 hover:border-[#383848] transition-colors">
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <p className="font-bold text-base text-white flex items-center gap-2">
+            <span>🎵</span>
+            <span>{trackTitleLabel(track)}</span>
+          </p>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${badge.className}`}>{badge.label}</span>
         </div>
 
         {track.status === "failed" && track.error_message && (
-          <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{track.error_message}</p>
+          <p className="mb-4 text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-4 py-2.5">
+            ⚠️ {track.error_message}
+          </p>
         )}
 
         {track.status === "generating" && (
-          <div className="mb-3">
+          <div className="mb-4">
             <button
               type="button"
               onClick={handleSyncStatus}
               disabled={isSyncing}
-              className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+              className="text-xs font-bold text-orange-400 hover:text-orange-300 disabled:opacity-60 transition-colors flex items-center gap-1.5"
             >
-              {isSyncing ? "확인 중..." : "지금 상태 확인 (Suno에 직접 조회)"}
+              <span>{isSyncing ? "⚡ Suno 상태 조회 중..." : "🔄 지금 상태 새로고침 (Suno 직접 조회)"}</span>
             </button>
-            {syncError && <p className="mt-1 text-xs text-red-600">{syncError}</p>}
+            {syncError && <p className="mt-1.5 text-xs text-rose-400">{syncError}</p>}
           </div>
         )}
 
         {track.music_track_variants.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 mb-4">
+          <div className="grid gap-4 sm:grid-cols-2 mb-5">
             {track.music_track_variants.map((variant, index) => {
               const latestMr =
                 variant.music_track_mr.length > 0 ? variant.music_track_mr[variant.music_track_mr.length - 1] : null;
               const latestWav =
                 variant.music_track_wav.length > 0 ? variant.music_track_wav[variant.music_track_wav.length - 1] : null;
               return (
-                <div key={variant.id} className="space-y-2">
+                <div key={variant.id} className="rounded-xl border border-[#272738] bg-[#1a1926] p-3.5 space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-orange-400">변주곡 #{index + 1}</span>
+                    {variant.duration_seconds && (
+                      <span className="text-[11px] text-zinc-400 font-mono">{variant.duration_seconds}초</span>
+                    )}
+                  </div>
                   {variant.image_url && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={variant.image_url}
                       alt={`${track.title} 커버 ${index + 1}`}
-                      className="w-full rounded-xl aspect-square object-cover cursor-zoom-in"
+                      className="w-full rounded-xl aspect-square object-cover cursor-zoom-in ring-1 ring-[#343448] hover:ring-orange-500/40 transition-all"
                       onClick={() => setLightboxUrl(variant.image_url)}
                     />
                   )}
-                  <audio controls src={variant.audio_url} className="w-full" />
+                  <audio controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
                   {variant.suno_audio_id && (
-                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                    <div className="flex flex-wrap gap-2 pt-1">
                       <button
                         type="button"
                         onClick={() => handleExtend(variant.id)}
                         disabled={extendingVariantId !== null}
-                        className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                        className="px-3 py-1.5 rounded-full text-xs font-bold border border-[#2d2d3e] bg-[#20202e] text-zinc-300 hover:text-white hover:border-orange-500/40 hover:bg-[#28283a] disabled:opacity-50 transition-all flex items-center gap-1"
                       >
-                        {extendingVariantId === variant.id ? "연장 요청 중..." : "🔁 이 곡 이어서 연장하기"}
+                        <span>🔁</span>
+                        <span>{extendingVariantId === variant.id ? "연장 중..." : "곡 연장하기"}</span>
                       </button>
                       <Link
                         href={`/remix/new?fromVariantId=${variant.id}`}
-                        className="text-xs font-semibold text-blue-600 hover:underline"
+                        className="px-3 py-1.5 rounded-full text-xs font-bold border border-[#2d2d3e] bg-[#20202e] text-zinc-300 hover:text-white hover:border-orange-500/40 hover:bg-[#28283a] transition-all flex items-center gap-1"
                       >
-                        🎛️ 이 곡으로 리믹스
+                        <span>🎛️</span>
+                        <span>리믹스하기</span>
                       </Link>
                       {!latestMr && (
                         <button
                           type="button"
                           onClick={() => handleCreateMr(variant.id)}
                           disabled={mrPendingVariantId !== null}
-                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                          className="px-3 py-1.5 rounded-full text-xs font-bold border border-[#2d2d3e] bg-[#20202e] text-zinc-300 hover:text-white hover:border-orange-500/40 hover:bg-[#28283a] disabled:opacity-50 transition-all flex items-center gap-1"
                         >
-                          {mrPendingVariantId === variant.id ? "MR 요청 중..." : "🎧 MR(보컬제거) 만들기"}
+                          <span>🎧</span>
+                          <span>{mrPendingVariantId === variant.id ? "MR 분리 중..." : "MR(보컬제거)"}</span>
                         </button>
                       )}
                       {latestMr?.status === "failed" && (
@@ -357,9 +369,10 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                           type="button"
                           onClick={() => handleCreateMr(variant.id)}
                           disabled={mrPendingVariantId !== null}
-                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                          className="px-3 py-1.5 rounded-full text-xs font-bold border border-rose-500/30 bg-rose-950/40 text-rose-300 hover:bg-rose-900/40 disabled:opacity-50 transition-all flex items-center gap-1"
                         >
-                          {mrPendingVariantId === variant.id ? "MR 요청 중..." : "🎧 MR 다시 시도"}
+                          <span>🎧</span>
+                          <span>MR 다시 시도</span>
                         </button>
                       )}
                       {!latestWav && (
@@ -367,9 +380,10 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                           type="button"
                           onClick={() => handleCreateWav(variant.id)}
                           disabled={wavPendingVariantId !== null}
-                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                          className="px-3 py-1.5 rounded-full text-xs font-bold border border-[#2d2d3e] bg-[#20202e] text-zinc-300 hover:text-white hover:border-orange-500/40 hover:bg-[#28283a] disabled:opacity-50 transition-all flex items-center gap-1"
                         >
-                          {wavPendingVariantId === variant.id ? "WAV 요청 중..." : "🎼 WAV로 변환"}
+                          <span>🎼</span>
+                          <span>{wavPendingVariantId === variant.id ? "변환 요청 중..." : "WAV 고음질"}</span>
                         </button>
                       )}
                       {latestWav?.status === "failed" && (
@@ -377,51 +391,56 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                           type="button"
                           onClick={() => handleCreateWav(variant.id)}
                           disabled={wavPendingVariantId !== null}
-                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                          className="px-3 py-1.5 rounded-full text-xs font-bold border border-rose-500/30 bg-rose-950/40 text-rose-300 hover:bg-rose-900/40 disabled:opacity-50 transition-all flex items-center gap-1"
                         >
-                          {wavPendingVariantId === variant.id ? "WAV 요청 중..." : "🎼 WAV 다시 시도"}
+                          <span>🎼</span>
+                          <span>WAV 다시 시도</span>
                         </button>
                       )}
                     </div>
                   )}
                   {latestMr?.status === "generating" && (
-                    <p className="text-xs text-amber-600">
-                      MR 생성 중... (완료되면 웹훅으로 자동 반영됩니다, 잠시 후 새로고침해주세요)
+                    <p className="text-[11px] text-amber-400 bg-amber-950/30 border border-amber-500/20 rounded-lg p-2">
+                      🎧 MR 추출 진행 중... (완료 시 자동 반영됩니다)
                     </p>
                   )}
                   {latestMr?.status === "failed" && (
-                    <p className="text-xs text-red-600">{latestMr.error_message ?? "MR 생성에 실패했습니다."}</p>
+                    <p className="text-[11px] text-rose-400 bg-rose-950/30 border border-rose-500/20 rounded-lg p-2">
+                      ⚠️ {latestMr.error_message ?? "MR 생성에 실패했습니다."}
+                    </p>
                   )}
                   {latestMr?.status === "completed" && latestMr.instrumental_url && (
-                    <div className="space-y-1">
-                      <p className="text-xs font-semibold text-gray-500">🎧 MR(보컬 제거)</p>
+                    <div className="space-y-1.5 pt-1 border-t border-[#2a2a3c]">
+                      <p className="text-[11px] font-bold text-zinc-300">🎧 분리된 MR (보컬 제거 반주)</p>
                       <audio controls src={latestMr.instrumental_url} className="w-full" />
                     </div>
                   )}
                   {latestWav?.status === "generating" && (
-                    <div>
+                    <div className="pt-1">
                       <button
                         type="button"
                         onClick={() => handleSyncWav(latestWav.id)}
                         disabled={wavSyncingId !== null}
-                        className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                        className="text-xs font-bold text-orange-400 hover:text-orange-300 disabled:opacity-60 flex items-center gap-1"
                       >
-                        {wavSyncingId === latestWav.id ? "확인 중..." : "🎼 WAV 변환 상태 확인"}
+                        <span>{wavSyncingId === latestWav.id ? "확인 중..." : "🎼 WAV 변환 상태 조회"}</span>
                       </button>
                     </div>
                   )}
                   {latestWav?.status === "failed" && (
-                    <p className="text-xs text-red-600">{latestWav.error_message ?? "WAV 변환에 실패했습니다."}</p>
+                    <p className="text-[11px] text-rose-400 bg-rose-950/30 border border-rose-500/20 rounded-lg p-2">
+                      ⚠️ {latestWav.error_message ?? "WAV 변환에 실패했습니다."}
+                    </p>
                   )}
                   {latestWav?.status === "completed" && latestWav.wav_url && (
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-semibold text-gray-500">🎼 WAV(고음질)</p>
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#2a2a3c]">
+                      <p className="text-[11px] font-bold text-zinc-300">🎼 24bit 무손실 WAV</p>
                       <a
                         href={latestWav.wav_url}
                         download
-                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors"
+                        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm transition-colors"
                       >
-                        ⬇ WAV 파일받기
+                        ⬇ WAV 다운로드
                       </a>
                     </div>
                   )}
@@ -430,45 +449,65 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
             })}
           </div>
         )}
-        {extendError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{extendError}</p>}
-        {mrError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{mrError}</p>}
-        {wavError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{wavError}</p>}
+        {extendError && (
+          <p className="mb-3 text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+            {extendError}
+          </p>
+        )}
+        {mrError && (
+          <p className="mb-3 text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+            {mrError}
+          </p>
+        )}
+        {wavError && (
+          <p className="mb-3 text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+            {wavError}
+          </p>
+        )}
 
-        {/* 인스트루멘탈판은 "음악 재생성" 섹션이 없어서 삭제 버튼을 여기 단독으로 둔다.
-            보컬판은 아래 "음악 재생성" 버튼 옆에 나란히 둔다. */}
+        {/* 인스트루멘탈판 삭제 버튼 */}
         {track.mode === "instrumental" && track.status !== "generating" && (
-          <div className="mt-2 space-y-2">
-            {deleteError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{deleteError}</p>}
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
-            >
-              {isDeleting ? "삭제 중..." : "삭제"}
-            </button>
+          <div className="mt-2 space-y-2 border-t border-[#252535] pt-3">
+            {deleteError && (
+              <p className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+                {deleteError}
+              </p>
+            )}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-1.5 rounded-full text-xs font-semibold text-rose-400 border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 disabled:opacity-60 transition-colors"
+              >
+                {isDeleting ? "삭제 중..." : "이 트랙 삭제"}
+              </button>
+            </div>
           </div>
         )}
 
         {track.mode === "vocal" && (
-          <div className="mt-2 space-y-3">
+          <div className="mt-4 space-y-4 border-t border-[#252535] pt-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">가사</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-zinc-300">트랙 가사 편집</label>
+                <span className="text-[11px] text-zinc-400">가사를 수정한 후 재생성할 수 있습니다</span>
+              </div>
               <textarea
                 value={lyrics}
                 onChange={(e) => setLyrics(e.target.value)}
-                rows={10}
-                className="input w-full font-mono text-sm whitespace-pre-wrap"
+                rows={8}
+                className="input text-xs font-mono whitespace-pre-wrap leading-relaxed"
               />
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">성별</label>
+                <label className="block text-[11px] font-bold text-zinc-400 mb-1">성별</label>
                 <select
                   value={vocalGender}
                   onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
-                  className="input w-32"
+                  className="input text-xs w-28 py-1.5"
                 >
                   <option value="">미지정</option>
                   {VOCAL_GENDER_OPTIONS.map((g) => (
@@ -479,8 +518,12 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">언어</label>
-                <select value={lang} onChange={(e) => setLang(e.target.value)} className="input w-28">
+                <label className="block text-[11px] font-bold text-zinc-400 mb-1">언어</label>
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value)}
+                  className="input text-xs w-28 py-1.5"
+                >
                   {LANG_OPTIONS.map((l) => (
                     <option key={l} value={l}>
                       {l}
@@ -489,11 +532,11 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">곡수</label>
+                <label className="block text-[11px] font-bold text-zinc-400 mb-1">곡수</label>
                 <select
                   value={count}
                   onChange={(e) => setCount(Number(e.target.value))}
-                  className="input w-24"
+                  className="input text-xs w-24 py-1.5 text-center font-bold"
                 >
                   {COUNT_OPTIONS.map((n) => (
                     <option key={n} value={n}>
@@ -504,33 +547,33 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setShowTagOptions((v) => !v)}
-              className="text-xs font-semibold text-blue-600 hover:underline"
-            >
-              {showTagOptions
-                ? "▲ 장르/무드/악기/보컬톤/템포 추가 옵션 닫기"
-                : "▼ 장르/무드/악기/보컬톤/템포 추가 옵션 (선택)"}
-              {hasTagOverride && !showTagOptions && ` — ${selectedTagCount}개 선택됨`}
-            </button>
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowTagOptions((v) => !v)}
+                className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition-colors"
+              >
+                <span>{showTagOptions ? "▲ 세부 스타일 칩 닫기" : "▼ 세부 스타일 칩 변경 (선택 사항)"}</span>
+                {hasTagOverride && !showTagOptions && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-orange-500/20 text-orange-300">
+                    {selectedTagCount}개 선택됨
+                  </span>
+                )}
+              </button>
+            </div>
 
             {showTagOptions && (
-              <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+              <div className="space-y-3.5 rounded-xl border border-[#272738] bg-[#12121a] p-4 animate-in fade-in duration-200">
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold text-gray-500">
-                    장르 (최대 {GENRE_MAX_SELECT}개)
-                  </p>
+                  <p className="mb-1.5 text-xs font-bold text-zinc-300">장르 (최대 {GENRE_MAX_SELECT}개)</p>
                   <TagChips options={GENRE_OPTIONS} selected={genreTags} max={GENRE_MAX_SELECT} onToggle={toggleGenre} />
                 </div>
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold text-gray-500">무드 (최대 {MOOD_MAX_SELECT}개)</p>
+                  <p className="mb-1.5 text-xs font-bold text-zinc-300">무드 (최대 {MOOD_MAX_SELECT}개)</p>
                   <TagChips options={MOOD_OPTIONS} selected={moodTags} max={MOOD_MAX_SELECT} onToggle={toggleMood} />
                 </div>
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold text-gray-500">
-                    악기 (최대 {INSTRUMENT_MAX_SELECT}개)
-                  </p>
+                  <p className="mb-1.5 text-xs font-bold text-zinc-300">악기 (최대 {INSTRUMENT_MAX_SELECT}개)</p>
                   <TagChips
                     options={INSTRUMENT_OPTIONS}
                     selected={instrumentTags}
@@ -539,9 +582,7 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                   />
                 </div>
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold text-gray-500">
-                    보컬톤 (최대 {VOCAL_TONE_MAX_SELECT}개)
-                  </p>
+                  <p className="mb-1.5 text-xs font-bold text-zinc-300">보컬톤 (최대 {VOCAL_TONE_MAX_SELECT}개)</p>
                   <TagChips
                     options={VOCAL_TONE_OPTIONS}
                     selected={vocalToneTags}
@@ -550,38 +591,40 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                   />
                 </div>
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold text-gray-500">템포 (최대 {TEMPO_MAX_SELECT}개)</p>
+                  <p className="mb-1.5 text-xs font-bold text-zinc-300">템포 (최대 {TEMPO_MAX_SELECT}개)</p>
                   <TagChips options={TEMPO_OPTIONS} selected={tempoTags} max={TEMPO_MAX_SELECT} onToggle={toggleTempo} />
                 </div>
               </div>
             )}
 
-            <p className="text-xs text-gray-400">
-              {willUseAi
-                ? "성별/언어/곡수를 원래와 다르게 고르거나 태그를 추가하면, 위 가사 대신 AI가 새로 작사·작곡해서 생성합니다."
-                : "성별/언어/곡수를 그대로 두고 태그도 추가하지 않으면 위에서 수정한 가사를 그대로 살려서 재생성합니다."}
-            </p>
+            {error && (
+              <p className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+                {error}
+              </p>
+            )}
+            {deleteError && (
+              <p className="text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+                {deleteError}
+              </p>
+            )}
 
-            {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-            {deleteError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{deleteError}</p>}
-
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
               <button
                 type="button"
                 onClick={handleRegenerate}
                 disabled={isPending}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 transition-colors"
+                className="px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md shadow-orange-500/20 disabled:opacity-60 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
-                {isPending ? "재생성 요청 중..." : "음악 재생성"}
+                {isPending ? "⚡ Suno 재생성 요청 중..." : "🎼 이 가사로 음악 재생성"}
               </button>
               {track.status !== "generating" && (
                 <button
                   type="button"
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
+                  className="px-4 py-2 rounded-full text-xs font-semibold text-rose-400 border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 disabled:opacity-60 transition-colors"
                 >
-                  {isDeleting ? "삭제 중..." : "삭제"}
+                  {isDeleting ? "삭제 중..." : "이 트랙 삭제"}
                 </button>
               )}
             </div>

@@ -27,13 +27,6 @@ export interface RemixCardData {
   music_track_remix_variants: RemixVariant[];
 }
 
-/**
- * 원곡 길이만큼 자동 연장(remixSync.ts의 maybeAutoExtendRemix)될 때마다 같은 remix row에
- * variant가 계속 쌓인다 — 화면에는 가장 최근 연장분(가장 긴 결과)만 보여주고 짧았던 이전
- * 시도들은 숨긴다(DB/Storage에는 그대로 남아있음). 한 번에 저장된 variant들은 같은 INSERT
- * 문으로 들어가서 created_at이 사실상 동일하므로, 가장 최신 created_at과 가까운(2초 이내)
- * variant들만 "최신 배치"로 간주한다.
- */
 function latestBatch(variants: RemixVariant[]): RemixVariant[] {
   if (variants.length === 0) return [];
   const maxTime = Math.max(...variants.map((v) => new Date(v.created_at).getTime()));
@@ -41,9 +34,18 @@ function latestBatch(variants: RemixVariant[]): RemixVariant[] {
 }
 
 const STATUS_LABEL: Record<RemixStatus, { label: string; className: string }> = {
-  generating: { label: "생성 중...", className: "bg-amber-100 text-amber-700" },
-  completed: { label: "완료", className: "bg-green-100 text-green-700" },
-  failed: { label: "실패", className: "bg-red-100 text-red-700" },
+  generating: {
+    label: "생성 중...",
+    className: "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse",
+  },
+  completed: {
+    label: "완료",
+    className: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+  },
+  failed: {
+    label: "실패",
+    className: "bg-rose-500/15 text-rose-400 border border-rose-500/30",
+  },
 };
 
 export function RemixCard({ remix }: { remix: RemixCardData }) {
@@ -95,70 +97,105 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
 
   return (
     <>
-      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-2 gap-2">
-          <p className="font-bold text-gray-900">
-            🎛️ {remix.source_title ? `"${remix.source_title}" 리믹스` : "리믹스"}
+      <div className="rounded-2xl border border-[#272732] bg-[#14141b] p-5 shadow-lg shadow-black/40 hover:border-[#383848] transition-colors relative">
+        <div className="flex items-center justify-between mb-3 gap-2">
+          <p className="font-bold text-white text-base flex items-center gap-2 truncate">
+            <span>🎛️</span>
+            <span className="truncate">{remix.source_title ? `"${remix.source_title}" 리믹스` : "리믹스"}</span>
           </p>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${badge.className}`}>{badge.label}</span>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${badge.className}`}>
+            {badge.label}
+          </span>
         </div>
 
-        <p className="text-sm text-gray-500 mb-1">💭 {remix.desired_feel}</p>
-        {remix.style_description && <p className="text-xs text-gray-400 mb-1">🎨 {remix.style_description}</p>}
-        {target != null && (currentDuration > 0 || isExtending) && (
-          <p className="text-xs text-gray-400 mb-3">
-            ⏱️ 현재 약 {currentDuration}초 / 목표 {target}초
-            {isExtending && ` — 원곡 길이까지 자동으로 이어붙이는 중 (${remix.extend_hop_count}번째 연장)`}
+        <div className="rounded-xl bg-[#1c1c28] border border-[#2a2a3c] p-3 mb-3 text-xs space-y-1">
+          <p className="text-zinc-300 font-medium flex items-center gap-1.5">
+            <span className="text-orange-400">💭 무드/컨셉:</span>
+            <span>{remix.desired_feel}</span>
           </p>
-        )}
+          {remix.style_description && (
+            <p className="text-zinc-400 flex items-center gap-1.5">
+              <span className="text-amber-400">🎨 프롬프트 스타일:</span>
+              <span>{remix.style_description}</span>
+            </p>
+          )}
+          {target != null && (currentDuration > 0 || isExtending) && (
+            <p className="text-zinc-400 flex items-center gap-1.5 pt-0.5">
+              <span>⏱️ 현재 약 {currentDuration}초 / 목표 {target}초</span>
+              {isExtending && (
+                <span className="text-amber-400 font-semibold">
+                  (자동 연장 {remix.extend_hop_count}회차 진행 중)
+                </span>
+              )}
+            </p>
+          )}
+        </div>
 
         {remix.status === "failed" && remix.error_message && (
-          <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{remix.error_message}</p>
+          <p className="mb-3 text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+            ⚠️ {remix.error_message}
+          </p>
         )}
 
         {remix.status === "generating" && (
-          <div className="mb-3">
+          <div className="mb-4">
             <button
               type="button"
               onClick={handleSyncStatus}
               disabled={isSyncing}
-              className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+              className="text-xs font-bold text-orange-400 hover:text-orange-300 disabled:opacity-50 flex items-center gap-1.5 transition-colors"
             >
-              {isSyncing ? "확인 중..." : "지금 상태 확인 (Suno에 직접 조회)"}
+              <span>{isSyncing ? "⚡ Suno 상태 조회 중..." : "🔄 지금 상태 새로고침 (Suno 직접 조회)"}</span>
             </button>
-            {syncError && <p className="mt-1 text-xs text-red-600">{syncError}</p>}
+            {syncError && <p className="mt-1.5 text-xs text-rose-400">{syncError}</p>}
           </div>
         )}
 
         {visibleVariants.length > 0 && (
           <div className="grid gap-4 sm:grid-cols-2 mb-4">
             {visibleVariants.map((variant, index) => (
-              <div key={variant.id} className="space-y-2">
+              <div
+                key={variant.id}
+                className="rounded-xl border border-[#272738] bg-[#1a1926] p-3 space-y-2.5 shadow-sm"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-orange-400">변주곡 #{index + 1}</span>
+                  {variant.duration_seconds && (
+                    <span className="text-[11px] text-zinc-400">{variant.duration_seconds}초</span>
+                  )}
+                </div>
                 {variant.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={variant.image_url}
                     alt={`리믹스 커버 ${index + 1}`}
-                    className="w-full rounded-xl aspect-square object-cover cursor-zoom-in"
+                    className="w-full rounded-xl aspect-square object-cover cursor-zoom-in ring-1 ring-[#343448] hover:ring-orange-500/40 transition-all"
                     onClick={() => setLightboxUrl(variant.image_url)}
                   />
                 )}
-                <audio controls src={variant.audio_url} className="w-full" />
+                <audio controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
               </div>
             ))}
           </div>
         )}
 
-        {deleteError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{deleteError}</p>}
+        {deleteError && (
+          <p className="mb-3 text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
+            {deleteError}
+          </p>
+        )}
+
         {remix.status !== "generating" && (
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
-          >
-            {isDeleting ? "삭제 중..." : "삭제"}
-          </button>
+          <div className="flex justify-end pt-1">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-rose-400 border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 disabled:opacity-60 transition-colors"
+            >
+              {isDeleting ? "삭제 중..." : "리믹스 삭제"}
+            </button>
+          </div>
         )}
       </div>
 

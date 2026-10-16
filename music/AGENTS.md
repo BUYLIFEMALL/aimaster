@@ -138,3 +138,13 @@ POST 콜백을 보낸다. 이 라우트는:
 ## 2026-10-16 DB 연동 변수 호환 — v1.05 (music-automation)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 디자인 리뉴얼 — v1.06 (music-automation)
+
+- **스타일 템플릿**: `사이버 수노 다크 스튜디오 스타일 (Cyber Suno Dark Studio Style)`
+- **작업 내용**: Suno 본사이트(`suno.com`)의 딥 다크 블랙(`#09090b`) & 앰버 오렌지(`#f97316`) 네온 테마 전면 적용.
+- **개편 범위**: 사이드바(`Sidebar.tsx`), 레이아웃(`layout.tsx`), 로그인/회원가입(`app/(auth)/`), 리믹스 허브(`app/(dashboard)/remix/`), 트랙 기획/관리(`app/(dashboard)/plannings/`), 알약형 태그칩(`TagChips.tsx`), 비주얼 사용 매뉴얼(`SunoUsageGuide.tsx`) 신설.
+- **DB 동기화**: `programs.version = 'v1.06'` 반영 완료.
+- **검수**: Microsoft Edge (`msedge`) 브라우저 전용 실세션 검수 완료 (데스크톱 1440px / 모바일 375px 스크린샷 5장 캡처).
+- **상세 문서**: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md), [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)
+

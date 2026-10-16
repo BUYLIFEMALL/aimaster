@@ -17,8 +17,6 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  // 이미 등록돼 있어도 "수정"을 누르면 값을 바로 바꿀 수 있게 한다(2026-09-16 사용자 피드백:
-  // 그전엔 값을 바꾸려면 삭제 후 재등록해야만 했다).
   const [isEditing, setIsEditing] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -42,21 +40,24 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
   const showForm = !maskedValue || isEditing;
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-gray-800">{label}</p>
+    <div className="rounded-xl border border-[#272738] bg-[#1a1926] p-4 shadow-sm">
+      <div className="mb-2.5 flex items-center justify-between">
+        <p className="text-xs sm:text-sm font-bold text-zinc-100">{label}</p>
         {maskedValue && !isEditing && (
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-xs text-green-600 hover:text-green-800"
+              className="text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
             >
               수정
             </button>
             <form action={deleteApiKeyAction}>
               <input type="hidden" name="provider" value={provider} />
-              <button type="submit" className="text-xs text-red-500 hover:text-red-700">
+              <button
+                type="submit"
+                className="text-xs font-semibold text-rose-400 hover:text-rose-300 transition-colors"
+              >
                 삭제
               </button>
             </form>
@@ -77,7 +78,7 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
           <button
             type="submit"
             disabled={isPending}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 disabled:opacity-60 transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-60 shadow-sm transition-all"
           >
             {isPending ? "저장 중..." : "저장"}
           </button>
@@ -89,33 +90,40 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
                 setError(null);
                 setSuccess(false);
               }}
-              className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+              className="px-3 py-2 rounded-lg text-xs font-semibold border border-[#2e2e42] text-zinc-400 hover:bg-[#222130] hover:text-zinc-200 transition-colors"
             >
               취소
             </button>
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-gray-500">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-xs text-zinc-400 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span>{maskedValue}</span>
+          <span className="text-[11px] text-zinc-400">· 연동 완료</span>
+        </p>
       )}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-      {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {error && <p className="mt-2 text-xs text-rose-400">⚠️ {error}</p>}
+      {success && <p className="mt-2 text-xs text-emerald-400">✨ 성공적으로 저장되었습니다.</p>}
+
       {helpUrl && (
-        <div className="mt-3 rounded-xl bg-blue-50 border border-blue-100 px-3.5 py-3">
+        <div className="mt-3 rounded-xl bg-orange-500/10 border border-orange-500/20 px-3.5 py-3">
           <a
             href={helpUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-sm font-bold text-blue-700 hover:underline inline-flex items-center gap-1"
+            className="text-xs font-bold text-orange-400 hover:text-orange-300 inline-flex items-center gap-1.5 transition-colors"
           >
-            🔑 {helpLabel ?? "API 키 발급받기"}
+            <span>🔑</span>
+            <span>{helpLabel ?? "API 키 발급받기"}</span>
+            <span className="text-[10px]">↗</span>
           </a>
           {helpDescription && (
-            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-medium text-blue-600/90">
+            <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-medium text-zinc-400">
               {helpDescription.split("|").map((part, i, arr) => (
                 <span key={i} className="inline-flex items-center gap-2">
                   {part.trim()}
-                  {i < arr.length - 1 && <span className="text-blue-300">|</span>}
+                  {i < arr.length - 1 && <span className="text-zinc-600">|</span>}
                 </span>
               ))}
             </p>

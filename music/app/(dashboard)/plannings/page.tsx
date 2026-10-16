@@ -2,16 +2,17 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
+import { SunoUsageGuide } from "@/components/guide/SunoUsageGuide";
 import type { PlanningStatus } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
 const STATUS_BADGE: Record<PlanningStatus, { label: string; className: string }> = {
-  draft: { label: "초안", className: "bg-gray-100 text-gray-600" },
-  planned: { label: "기획 완료", className: "bg-blue-100 text-blue-700" },
-  generating: { label: "생성 중", className: "bg-amber-100 text-amber-700" },
-  completed: { label: "완료", className: "bg-green-100 text-green-700" },
-  error: { label: "오류", className: "bg-red-100 text-red-700" },
+  draft: { label: "초안", className: "bg-[#20202e] text-zinc-400 border border-[#2b2b3d]" },
+  planned: { label: "기획 완료", className: "bg-blue-500/15 text-blue-400 border border-blue-500/30" },
+  generating: { label: "생성 중...", className: "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse" },
+  completed: { label: "완료", className: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" },
+  error: { label: "오류", className: "bg-rose-500/15 text-rose-400 border border-rose-500/30" },
 };
 
 export default async function PlanningsPage() {
@@ -23,13 +24,9 @@ export default async function PlanningsPage() {
       .from("music_plannings")
       .select("id, title, song_description, status, created_at")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: true }),
-    // 이 프로젝트는 별도 "대시보드" 화면이 없어 이 페이지가 사실상 첫 화면이다 — 요청대로
-    // 첫 화면 제목 바로 아래에 메인 페이지 프로그램 소개(programs.short_desc — 이 프로그램은
-    // description이 비어있어 short_desc로 대체)를 박스로 보여준다(2026-09-13).
-    // AIMaster Database 타입에는 없는 테이블이라(access.ts와 동일한 이유) 제네릭 타입 충돌을
-    // 피하기 위해 from()을 느슨한 타입으로 캐스팅한다.
-    (supabase as unknown as { from: (table: string) => any }) // eslint-disable-line @typescript-eslint/no-explicit-any
+      .order("created_at", { ascending: false }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as unknown as { from: (table: string) => any })
       .from("programs")
       .select("description, short_desc")
       .eq("slug", "music-automation")
@@ -37,31 +34,61 @@ export default async function PlanningsPage() {
   ]);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black text-gray-900">내 곡 기획</h1>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
+      {/* 상단 헤더 & Suno Create 버튼 */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">🎵</span>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">내 곡 기획 · 트랙 관리</h1>
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+              Suno v3.5 & v4
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-zinc-400">
+            주제와 감성을 입력해 맞춤형 음악을 기획하고, Suno 고음질 생성과 MR 분리 및 음원 변환을 진행합니다.
+          </p>
+        </div>
+
         <Link
           href="/plannings/new"
-          className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
-          + 새 기획
+          <span className="text-base leading-none">+</span>
+          <span>새 곡 기획하기</span>
         </Link>
       </div>
 
+      {/* 프로그램 안내 카드 (다크 글래스모피즘) */}
       {(program?.description || program?.short_desc) && (
-        <div className="mb-6 rounded-2xl border-2 border-gray-200 bg-gray-100 p-5 shadow-sm">
+        <div className="mb-6 rounded-2xl border border-[#272732] bg-[#14141b]/90 p-5 shadow-lg shadow-black/30 backdrop-blur-md">
           {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
-            <p key={i} className="mb-2 text-sm leading-relaxed text-gray-700 last:mb-0">
+            <p key={i} className="mb-2 text-xs sm:text-sm leading-relaxed text-zinc-300 last:mb-0">
               {sentence}
             </p>
           ))}
         </div>
       )}
 
+      {/* 시각화 가이드 컴포넌트 */}
+      <SunoUsageGuide />
+
+      {/* 기획안 리스트 */}
       {!plannings || plannings.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4">🎵</div>
-          <p>아직 기획한 곡이 없습니다. 첫 곡을 기획해보세요!</p>
+        <div className="rounded-2xl border border-[#272732] bg-[#14141b]/80 p-12 text-center text-zinc-400 backdrop-blur-md">
+          <div className="flex h-16 w-16 mx-auto mb-4 items-center justify-center rounded-2xl bg-[#1c1c28] border border-[#2d2d3d] text-3xl">
+            🎵
+          </div>
+          <h3 className="text-base font-bold text-zinc-200 mb-1">아직 기획한 곡이 없습니다</h3>
+          <p className="text-xs text-zinc-400 max-w-md mx-auto mb-6">
+            주제, 장르, 무드를 정하고 단 몇 초 만에 완성도 높은 가사와 스타일 프롬프트를 완성해보세요!
+          </p>
+          <Link
+            href="/plannings/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md shadow-orange-500/20"
+          >
+            첫 곡 기획 시작하기
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">
@@ -71,16 +98,27 @@ export default async function PlanningsPage() {
               <Link
                 key={planning.id}
                 href={`/plannings/${planning.id}`}
-                className="block bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
+                className="group relative block rounded-2xl border border-[#272732] bg-[#14141b] p-4 sm:p-5 shadow-lg shadow-black/30 hover:border-orange-500/50 hover:bg-[#181824] transition-all duration-200 overflow-hidden"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-900 truncate">{planning.title ?? "(제목 생성 전)"}</p>
-                    <p className="text-sm text-gray-500 truncate">{planning.song_description}</p>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-bold text-sm sm:text-base text-zinc-100 group-hover:text-orange-400 transition-colors truncate">
+                        {planning.title ?? "(제목 생성 전)"}
+                      </p>
+                    </div>
+                    <p className="text-xs text-zinc-400 truncate leading-relaxed">
+                      {planning.song_description}
+                    </p>
                   </div>
-                  <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>
-                    {badge.label}
-                  </span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
+                      {badge.label}
+                    </span>
+                    <span className="text-zinc-600 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all text-xs font-bold">
+                      →
+                    </span>
+                  </div>
                 </div>
               </Link>
             );

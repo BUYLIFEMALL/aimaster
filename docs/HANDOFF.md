@@ -1,22 +1,43 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.04 배경 실화면 검수 완료 + 상세 페이지 갱신
+## 2026-10-16 Antigravity(Windows) — 음악(SUNO)자동화 v1.06: Suno 본사이트 다크 스튜디오 스타일 리뉴얼 및 엣지 검수 완료
 
-- 주인님이 관리자·시험 계정에 Pixabay 키를 직접 등록(에이전트는 키를 대신 입력하지 않음). 시험 계정으로 Pixabay 연결 확인 → AI 장면 설명 → 스톡으로 모두 채우기(세로 영상) → AI 이미지 1장 → 저장 → 장면 편집에서 AI 이미지·영상 배경 재생, DB 일치.
-- 발견·수정 3건(`ERROR_LESSONS.md` 2026-10-16): 주석이 `media` 기본값을 삼킨 버그, Pixabay 사진 임시 주소 → `stockId`로 새 주소, 장면 설명 배열 JSON 처리. 모두 채우기가 AI 이미지 장면을 덮어쓰지 않게 개선.
-- 상세 페이지 갱신(한 줄 요약·상세 500자·특징 3 「장면별 배경 자동 매칭」·사용 순서 4). 역량 지도 v1.04. 다음: P5 음성·자막·음악.
+- **주인님 지시**: "https://music-rho-virid-22.vercel.app/ suno 본싸이트 스타일,느낌을 살려줘 https://suno.com/discover", 스크린샷 5장 스타일 반영, "검정색 배경으로 작업".
+- **대상 프로그램**: `music/` (slug: `music-automation`, `https://music-rho-virid-22.vercel.app`)
+- **적용 템플릿**: **`사이버 수노 다크 스튜디오 스타일 (Cyber Suno Dark Studio Style)`**
+- **완료 내용**:
+  1. **다크 스튜디오 디자인 시스템 구축 (`globals.css`, `tailwind.config.ts`)**:
+     - 퓨어 딥 블랙(`#09090b`), 다크 옵시디언 서페이스(`#14141b`), 보더(`#272732`), Suno 시그니처 앰버 오렌지(`#f97316`) 네온 토큰 구축.
+     - 커스텀 다크 스크롤바 및 오렌지 틴트 포커스링 적용.
+  2. **사이드바 & 대시보드 셸 개편 (`Sidebar.tsx`, `layout.tsx`)**:
+     - `SUNO` 브랜드 워드마크, `v1.06` 오렌지 틴트 배지, 3단계 스텝(기획 ➔ 생성/관리 ➔ 리믹스) 활성 인디케이터, Suno Discover 링크.
+  3. **비주얼 프로세스 가이드 신설 (`SunoUsageGuide.tsx`)**:
+     - STEP 1(컨셉&가사) ➔ STEP 2(고음질 생성) ➔ STEP 3(Remix) 3단계 프로세스 다이어그램 시각화, 프롬프트 팁 아코디언 내장.
+  4. **리믹스 & 트랙 생성 콘솔 다크 테마 개편**:
+     - `remix/page.tsx`, `remix/new/page.tsx`, `remix/[sourceId]/page.tsx`, `RemixCard.tsx`, `RemixForm.tsx`.
+     - `plannings/page.tsx`, `plannings/new/page.tsx`, `plannings/[id]/page.tsx`, `TrackCard.tsx`, `PlanningHeaderCard.tsx`, `GenerateTracksPanel.tsx`.
+     - 알약형(Pill) 태그 칩(`TagChips.tsx`) 및 트랙별 알약 액션 바(곡 연장, 리믹스, MR 분리, WAV 다운로드).
+  5. **로그인/회원가입 셸 다크 스튜디오화 (`app/(auth)/`)**:
+     - 비로그인 사용자가 `/remix` 진입 시 리다이렉트되는 `/login` 화면까지 딥 블랙 & 오렌지 네온 앰버 카드로 일관화.
+  6. **Next.js 빌드 및 DB 버전 동기화**:
+     - Next.js 프로덕션 빌드(`npm run build`) 10개 라우트 정상 생성 완료.
+     - `music/lib/version.ts` 및 Supabase 공유 DB `programs.version = 'v1.06'` 동기화 완료.
+  7. **Vercel 프로덕션 배포**:
+     - `dpl_HWnfTfVbwFPbytSr43ghKctQEULa` ➔ `https://music-rho-virid-22.vercel.app` (HTTP 200 정상).
+  8. **Microsoft Edge(엣지) 전용 실세션 검수 완료**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 주입.
+     - 데스크톱 로그인, 데스크톱 리믹스 메인, 데스크톱 곡 기획, 데스크톱 새 리믹스, 모바일 리믹스 5개 뷰포트 캡처 완료 (가로 스크롤 없음, 딥 블랙 대비율 양호).
+  9. **인수인계 문서화**:
+     - `music/docs/DESIGN_HANDOFF.md`, `music/docs/IMPROVEMENTS.md` 작성.
+     - `music/AGENTS.md` 릴리스 기록 갱신.
+     - 루트 `DESIGN.md` 레지스트리 54번(`music-automation`) 🟢 완료(`v1.06`) 반영.
+- **비용**: UI/UX 디자인 리뉴얼 작업으로 외부 유료 API 호출 0원.
 
 ## 2026-10-16 Codex(윈도우) — Claude Code 주력 역할 확정
 
 - 주인님 지정: **Claude Code는 복잡한 코드 구현·기능 추가·리팩터링을 주로 담당**합니다. 메인 AIMaster와 모든 서브 자동화 프로그램에 공통 적용합니다.
 - `AGENTS.md`·`CLAUDE.md`·`GEMINI.md` 최상단 역할 지침과 `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 역할표를 함께 갱신했습니다. Codex의 기존 역할과 공통 검수·인수인계·배포 책임은 유지합니다. Antigravity CLI의 세부 주력 역할은 별도 지정 전까지 주인님 배정에 따릅니다.
 - 문서만 변경, 역할 문구 일치·차이 검토. 프로그램 코드·버전·DB·환경변수 변경 및 유료 API 호출 없음. 커밋/푸시 결과는 이 항목의 최신 Git 이력에서 확인합니다.
-
-## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.04: P4 배경(스톡·AI 이미지) 배포, 실화면 검수 대기 (`shorts-onestop-studio`)
-
-- 디자인·배경 화면(배경 방식·어둡게·AI 장면 설명·스톡 검색/모두 채우기·AI 이미지·화풍·같은 인물), 렌더러 배경 그리기, 장면 편집에도 배경 반영. 키: `pexels`·`pixabay` 추가(연결 확인=검색 1회 무료). AI 이미지는 비공개 버킷 `shorts-onestop-studio`(SQL `0007`) 회원 폴더, 1시간 서명 주소. 스톡 CDN CORS(`*`) 확인 → 서버 중계 없음.
-- 매뉴얼: platform_guides 「Pexels(펙셀스) API 키 발급받기」·「Pixabay(픽사베이) API 키 발급받기」 신설(SQL `0006`). **Pexels가 새 API 키 발급을 일시 중단**(2026-10-16 주인님 화면 확인) → 매뉴얼 맨 위 안내, 프로그램 기본 스톡 Pixabay(`0008`).
-- 버전 v1.04(코드·DB). **검수 대기**: 관리자·시험 계정 모두 Pixabay 키 미등록 — 에이전트는 API 키를 대신 입력·저장하지 않음(안전 규칙). 주인님이 설정 화면에 등록하면 시험 계정으로 실화면 검수 → 상세 페이지 갱신.
 
 ## 2026-10-16 Antigravity(Windows) — Suno 음악기획 자동화 v1.10: Suno 오리지널 다크 스튜디오 리뉴얼 및 비주얼 가이드북 완성
 
@@ -58,6 +79,19 @@
 - [music-player 후속 인수인계](../music-player/docs/IMPROVEMENT_HANDOFF_20261016_BACKLOG.md)에 미구현 8건의 재개 기준 정리, 해당 AGENTS/README·원장에서 연결. 기존 v1.05 운영 완료 결과 보존.
 - CLI 역할: **Codex는 개발 기획·시스템 설계·코드 오류 수정·디버깅·테스트 중심, 주인님 요청 시 신규 프로그램 개발 가능. Claude Code는 복잡한 코드 구현·기능 추가·리팩터링 중심.** Antigravity CLI도 메인/서브프로그램 개발·유지보수에 협업하며, 세부 주력 역할은 주인님의 작업 배정에 따름. [공통 개발 방식](AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 참고.
 - 문서만 변경. 버전·런타임·DB·환경변수 변경 없음, 유료 API 0회. 규칙 일치·링크·차이를 검토하며 기능 빌드/브라우저 검수는 이번 범위에 포함하지 않음. 커밋·푸시는 이 항목의 최신 Git 이력 확인. 메인 설치 파일 포함 운영 보호 확인은 Git 제외 `.vercel/final-main-promotion.json` 기록 참조.
+
+
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.04 배경 실화면 검수 완료 + 상세 페이지 갱신
+
+- 주인님이 관리자·시험 계정에 Pixabay 키를 직접 등록(에이전트는 키를 대신 입력하지 않음). 시험 계정으로 Pixabay 연결 확인 → AI 장면 설명 → 스톡으로 모두 채우기(세로 영상) → AI 이미지 1장 → 저장 → 장면 편집에서 AI 이미지·영상 배경 재생, DB 일치.
+- 발견·수정 3건(`ERROR_LESSONS.md` 2026-10-16): 주석이 `media` 기본값을 삼킨 버그, Pixabay 사진 임시 주소 → `stockId`로 새 주소, 장면 설명 배열 JSON 처리. 모두 채우기가 AI 이미지 장면을 덮어쓰지 않게 개선.
+- 상세 페이지 갱신(한 줄 요약·상세 500자·특징 3 「장면별 배경 자동 매칭」·사용 순서 4). 역량 지도 v1.04. 다음: P5 음성·자막·음악.
+
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.04: P4 배경(스톡·AI 이미지) 배포, 실화면 검수 대기 (`shorts-onestop-studio`)
+
+- 디자인·배경 화면(배경 방식·어둡게·AI 장면 설명·스톡 검색/모두 채우기·AI 이미지·화풍·같은 인물), 렌더러 배경 그리기, 장면 편집에도 배경 반영. 키: `pexels`·`pixabay` 추가(연결 확인=검색 1회 무료). AI 이미지는 비공개 버킷 `shorts-onestop-studio`(SQL `0007`) 회원 폴더, 1시간 서명 주소. 스톡 CDN CORS(`*`) 확인 → 서버 중계 없음.
+- 매뉴얼: platform_guides 「Pexels(펙셀스) API 키 발급받기」·「Pixabay(픽사베이) API 키 발급받기」 신설(SQL `0006`). **Pexels가 새 API 키 발급을 일시 중단**(2026-10-16 주인님 화면 확인) → 매뉴얼 맨 위 안내, 프로그램 기본 스톡 Pixabay(`0008`).
+- 버전 v1.04(코드·DB). **검수 대기**: 관리자·시험 계정 모두 Pixabay 키 미등록 — 에이전트는 API 키를 대신 입력·저장하지 않음(안전 규칙). 주인님이 설정 화면에 등록하면 시험 계정으로 실화면 검수 → 상세 페이지 갱신.
 
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.03 시험 계정(일반 회원) 화면 검수 완료
 

@@ -1,7 +1,6 @@
 "use client";
 
-/** 장르/무드 칩 선택 UI — 최대 개수를 넘기면 더 이상 선택되지 않는다(눌러서 해제는 항상 가능).
- * GenerateTracksPanel(생성하기)과 TrackCard(음악 재생성)에서 동일하게 재사용한다. */
+/** Suno 다크 스튜디오 스타일 알약형(Pill) 태그 칩 */
 export function TagChips({
   options,
   selected,
@@ -24,12 +23,12 @@ export function TagChips({
             type="button"
             disabled={disabled}
             onClick={() => onToggle(opt.value)}
-            className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+            className={`rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-150 ${
               isSelected
-                ? "border-blue-600 bg-blue-600 text-white"
+                ? "border-orange-500 bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 scale-[1.02]"
                 : disabled
-                  ? "border-gray-100 text-gray-300"
-                  : "border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600"
+                  ? "border-[#20202c] bg-[#121218] text-zinc-600 cursor-not-allowed"
+                  : "border-[#2d2d3e] bg-[#171722] text-zinc-300 hover:border-orange-500/40 hover:text-orange-400 hover:bg-[#1e1e2d]"
             }`}
           >
             {opt.label}

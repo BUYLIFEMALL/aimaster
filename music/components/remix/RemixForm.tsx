@@ -57,11 +57,17 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-5 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-2xl border border-[#272732] bg-[#14141b] p-6 sm:p-8 shadow-xl shadow-black/40 backdrop-blur-md"
+      >
         {source ? (
-          <div className="rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3">
-            <p className="text-xs font-semibold text-blue-700 mb-0.5">🎵 원곡</p>
-            <p className="text-sm font-bold text-gray-900">{source.title}</p>
+          <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-3.5">
+            <p className="text-xs font-bold text-orange-400 mb-0.5 flex items-center gap-1.5">
+              <span>🎵</span>
+              <span>선택된 원곡 소스</span>
+            </p>
+            <p className="text-sm font-bold text-white">{source.title}</p>
             {source.sourceId ? (
               <input type="hidden" name="sourceId" value={source.sourceId} />
             ) : (
@@ -70,56 +76,82 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
             <input type="hidden" name="sourceTitle" value={source.title} />
           </div>
         ) : (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">원곡 오디오 파일</label>
-            <input
-              type="file"
-              name="sourceFile"
-              accept="audio/*"
-              required
-              className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700"
-            />
-            <p className="mt-1 text-xs text-gray-400">mp3/wav 등 오디오 파일 (최대 50MB)</p>
-            <label className="mt-3 block text-sm font-semibold text-gray-700 mb-1">원곡 제목 (선택)</label>
-            <input type="text" name="sourceTitle" placeholder="예: 여름밤" className="input w-full" />
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1.5">원곡 오디오 파일 (.mp3, .wav 등)</label>
+              <input
+                type="file"
+                name="sourceFile"
+                accept="audio/*"
+                required
+                className="block w-full text-xs text-zinc-300 rounded-xl border border-[#272738] bg-[#1a1926] p-2 file:mr-3 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-orange-500 file:to-amber-500 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white hover:file:from-orange-600 hover:file:to-amber-600 cursor-pointer"
+              />
+              <p className="mt-1 text-[11px] text-zinc-400">최대 50MB 고음질 오디오 파일 지원</p>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1.5">원곡 제목 (선택)</label>
+              <input
+                type="text"
+                name="sourceTitle"
+                placeholder="예: 비 내리는 오후의 커피"
+                className="input text-sm"
+              />
+            </div>
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">원하는 느낌/분위기</label>
+          <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+            원하는 리믹스 스타일 & 분위기 <span className="text-orange-400">*</span>
+          </label>
           <textarea
             name="desiredFeel"
             required
             rows={3}
-            placeholder="예: 원곡을 신나는 EDM 페스티벌 버전으로, 더 빠른 템포와 강한 베이스로"
-            className="input w-full"
+            placeholder="예: 원곡 멜로디를 경쾌한 시티팝 스타일로, 레트로 신디사이저와 그루브한 베이스라인 추가"
+            className="input text-sm leading-relaxed"
           />
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            name="instrumental"
-            checked={instrumental}
-            onChange={(e) => setInstrumental(e.target.checked)}
-          />
-          인스트루멘탈(BGM곡)으로 만들기 | (가사/보컬 없이 반주)
-        </label>
+        {/* 인스트루멘탈 BGM 토글 */}
+        <div className="rounded-xl border border-[#272738] bg-[#1a1926] p-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-zinc-200">인스트루멘탈(BGM)으로 만들기</p>
+            <p className="text-[11px] text-zinc-400">보컬 없이 세련된 악기 연주곡으로 리믹스합니다.</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              name="instrumental"
+              checked={instrumental}
+              onChange={(e) => setInstrumental(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-[#2b2b3b] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-orange-500 peer-checked:to-amber-500"></div>
+          </label>
+        </div>
 
         {!instrumental && (
-          <div className="space-y-3">
+          <div className="space-y-4 rounded-xl border border-[#272738] bg-[#1a1926] p-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">가사 (선택 — 비워두면 원곡 가사를 그대로 반영)</label>
-              <textarea name="lyrics" rows={6} className="input w-full font-mono text-sm whitespace-pre-wrap" />
+              <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+                가사 (선택 — 비워두면 원곡 가사를 자연스럽게 계승)
+              </label>
+              <textarea
+                name="lyrics"
+                rows={5}
+                placeholder="가사를 새로 작성하거나 비워두세요."
+                className="input text-xs font-mono whitespace-pre-wrap leading-relaxed"
+              />
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">보컬 성별 (선택)</label>
+                <label className="block text-[11px] font-bold text-zinc-400 mb-1.5">보컬 성별</label>
                 <select
                   name="vocalGender"
                   value={vocalGender}
                   onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
-                  className="input w-32"
+                  className="input text-xs w-32"
                 >
                   <option value="">미지정</option>
                   {VOCAL_GENDER_OPTIONS.map((g) => (
@@ -130,8 +162,13 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">언어</label>
-                <select name="lang" value={lang} onChange={(e) => setLang(e.target.value)} className="input w-28">
+                <label className="block text-[11px] font-bold text-zinc-400 mb-1.5">가사 언어</label>
+                <select
+                  name="lang"
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value)}
+                  className="input text-xs w-32"
+                >
                   {LANG_OPTIONS.map((l) => (
                     <option key={l} value={l}>
                       {l}
@@ -140,77 +177,77 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
                 </select>
               </div>
             </div>
-            <p className="text-[11px] text-gray-400">
-              가사를 직접 안 넣으면 이 언어로 불러달라고 AI에게 지시합니다. 직접 가사를 입력했다면
-              그 가사의 언어가 우선됩니다.
-            </p>
           </div>
         )}
 
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">리믹스 개수(대량생성)</label>
+        <div className="flex items-center justify-between rounded-xl border border-[#272738] bg-[#1a1926] p-3 px-4">
+          <div>
+            <label className="block text-xs font-bold text-zinc-300">리믹스 생성 개수 (대량생성)</label>
+            <p className="text-[11px] text-zinc-400">선택한 개수만큼 독립적인 변주곡이 함께 생성됩니다.</p>
+          </div>
           <select
             name="count"
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
-            className="input w-24"
+            className="input text-xs w-24 text-center font-bold"
           >
             {COUNT_OPTIONS.map((n) => (
               <option key={n} value={n}>
-                {n}개
+                {n}개 세트
               </option>
             ))}
           </select>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowAdvanced((v) => !v)}
-          className="text-xs font-semibold text-blue-600 hover:underline"
-        >
-          {showAdvanced ? "▲ 세부 옵션 닫기" : "▼ 세부 옵션 (원곡 반영 강도 등, 선택)"}
-        </button>
+        {/* 고급 설정 토글 버튼 */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition-colors"
+          >
+            <span>{showAdvanced ? "▲ 세부 파라미터 닫기" : "▼ 세부 파라미터 조절 (스타일 강도 / 원곡 유지율)"}</span>
+          </button>
+        </div>
 
         {showAdvanced && (
-          <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+          <div className="space-y-4 rounded-xl border border-[#2a2a3c] bg-[#12121a] p-4 animate-in fade-in duration-200">
             <SliderField
-              label="스타일 강도 (styleWeight)"
+              label="새 스타일 반영 강도 (styleWeight)"
               name="styleWeight"
               value={styleWeight}
               onChange={setStyleWeight}
-              hint="높을수록 지정한 새 스타일이 강하게 반영됩니다"
+              hint="높을수록 입력한 새로운 장르/무드 특성이 강하게 드러납니다."
             />
             <SliderField
-              label="변형 정도 (weirdnessConstraint)"
+              label="실험적 변형 정도 (weirdnessConstraint)"
               name="weirdnessConstraint"
               value={weirdnessConstraint}
               onChange={setWeirdnessConstraint}
-              hint="높을수록 더 실험적이고 예측하기 어려운 결과가 나옵니다"
+              hint="높을수록 파격적이고 독창적인 사운드 텍스처가 연출됩니다."
             />
             <SliderField
-              label="원곡 반영도 (audioWeight)"
+              label="원곡 멜로디 유지율 (audioWeight)"
               name="audioWeight"
               value={audioWeight}
               onChange={setAudioWeight}
-              hint="높을수록 업로드한 원곡의 멜로디/구조가 더 많이 유지됩니다"
+              hint="높을수록 원곡의 핵심 선율과 악기 구성이 충실히 보존됩니다."
             />
           </div>
         )}
 
-        <p className="text-xs text-gray-400">
-          선택한 개수만큼 매번 OpenAI(스타일 기획)/Suno(리믹스 생성) API가 호출되니 개수만큼 비용이
-          늘어납니다{count > 1 && ` (이번에 총 ${count}개 생성)`}. 2개 이상이면 매번 겹치지 않는 새
-          스타일로 만들어집니다.
-        </p>
-
-        {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+        {error && (
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs text-rose-300">
+            ⚠️ {error}
+          </div>
+        )}
 
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 text-white font-bold py-3 px-4 rounded-xl transition-all"
+          className="w-full rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-60 text-white font-black py-4 px-6 shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-sm tracking-wide"
         >
-          {isPending ? "리믹스 요청 중..." : "리믹스 생성하기"}
+          {isPending ? "⚡ Suno AI 리믹스 엔진 가동 중..." : "🎛️ Suno AI 리믹스 생성 시작"}
         </button>
       </form>
 
@@ -238,10 +275,10 @@ function SliderField({
   hint: string;
 }) {
   return (
-    <div>
-      <div className="flex justify-between items-center text-xs font-bold text-gray-700">
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-center text-xs font-bold text-zinc-300">
         <span>{label}</span>
-        <span className="text-blue-600">{value.toFixed(2)}</span>
+        <span className="text-orange-400 font-mono">{value.toFixed(2)}</span>
       </div>
       <input
         type="range"
@@ -251,9 +288,9 @@ function SliderField({
         step={0.05}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+        className="w-full h-1.5 bg-[#272738] rounded-lg appearance-none cursor-pointer accent-orange-500"
       />
-      <p className="text-[11px] text-gray-400">{hint}</p>
+      <p className="text-[11px] text-zinc-400">{hint}</p>
     </div>
   );
 }

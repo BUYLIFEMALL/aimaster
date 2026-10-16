@@ -11,6 +11,16 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        suno: {
+          dark: "#09090b",
+          card: "#14141b",
+          border: "#272732",
+          orange: "#f97316",
+          orangeHover: "#ea580c",
+          neon: "#fb923c",
+          muted: "#71717a",
+          subtext: "#a1a1aa",
+        },
       },
     },
   },

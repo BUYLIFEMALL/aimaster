@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { RemixForm } from "@/components/remix/RemixForm";
@@ -45,14 +46,23 @@ export default async function NewRemixPage({
   }
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-10">
-      <div className="text-center mb-8">
-        <div className="text-5xl mb-4">🎛️</div>
-        <h1 className="text-3xl font-black text-gray-900 mb-2">음악 Remix</h1>
-        <p className="text-gray-500 text-base">
-          원곡을 업로드하고 원하는 느낌을 설명하면 AI가 새로운 스타일로 리메이크해드려요
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+      <div className="mb-6">
+        <Link
+          href="/remix"
+          className="text-xs font-semibold text-zinc-400 hover:text-orange-400 transition-colors inline-flex items-center gap-1 mb-4"
+        >
+          <span>← 리믹스 목록으로 돌아가기</span>
+        </Link>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-2xl">🎛️</span>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">새 리믹스 생성</h1>
+        </div>
+        <p className="text-xs sm:text-sm text-zinc-400">
+          원곡을 기반으로 원하는 분위기, 장르, 보컬 스타일을 입력해 Suno AI 엔진으로 새롭게 재해석합니다.
         </p>
       </div>
+
       <RemixForm source={source} />
     </div>
   );

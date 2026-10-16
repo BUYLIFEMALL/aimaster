@@ -34,32 +34,39 @@ export default async function RemixSourceDetailPage({ params }: PageProps) {
   const hasGenerating = remixList.some((r) => r.status === "generating");
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
       <AutoRefresh enabled={hasGenerating} />
 
-      <Link href="/remix" className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4">
-        ← 리믹스 원본 목록으로
+      <Link
+        href="/remix"
+        className="text-xs font-semibold text-zinc-400 hover:text-orange-400 transition-colors inline-flex items-center gap-1.5 mb-6"
+      >
+        <span>← 리믹스 목록으로 돌아가기</span>
       </Link>
 
-      <div className="flex items-center justify-between mb-6 gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 rounded-2xl border border-[#272732] bg-[#14141b] p-6 shadow-xl shadow-black/30">
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-gray-400 mb-1">
-            {source.kind === "track" ? "🎵 기존 곡에서 시작" : "📤 업로드한 원곡"}
-          </p>
-          <h1 className="text-2xl font-black text-gray-900 truncate">{source.title}</h1>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">
+              {source.kind === "track" ? "🎵 기존 트랙 기반" : "📤 업로드 원곡"}
+            </span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white truncate">{source.title}</h1>
         </div>
+
         <Link
           href={`/remix/new?sourceId=${source.id}`}
-          className="shrink-0 px-4 py-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
-          + 이 원본으로 리믹스 추가
+          <span>+ 이 원본으로 새 리믹스 추가</span>
         </Link>
       </div>
 
       {remixList.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4">🎛️</div>
-          <p>이 원본으로 만든 리믹스가 아직 없습니다.</p>
+        <div className="rounded-2xl border border-[#272732] bg-[#14141b]/80 p-12 text-center text-zinc-400">
+          <div className="text-4xl mb-3">🎛️</div>
+          <p className="text-sm font-bold text-zinc-200 mb-1">이 원본으로 만든 리믹스가 아직 없습니다.</p>
+          <p className="text-xs text-zinc-400 mb-4">새로운 무드와 스타일을 적용해 첫 리믹스를 시작해보세요.</p>
         </div>
       ) : (
         <div className="space-y-4">

@@ -20,11 +20,11 @@ export interface PlanningHeaderData {
 }
 
 const STATUS_BADGE: Record<PlanningStatus, { label: string; className: string }> = {
-  draft: { label: "초안", className: "bg-gray-100 text-gray-600" },
-  planned: { label: "기획 완료", className: "bg-blue-100 text-blue-700" },
-  generating: { label: "생성 중", className: "bg-amber-100 text-amber-700" },
-  completed: { label: "완료", className: "bg-green-100 text-green-700" },
-  error: { label: "오류", className: "bg-red-100 text-red-700" },
+  draft: { label: "초안", className: "bg-[#20202e] text-zinc-400 border border-[#2b2b3d]" },
+  planned: { label: "기획 완료", className: "bg-blue-500/15 text-blue-400 border border-blue-500/30" },
+  generating: { label: "생성 중...", className: "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse" },
+  completed: { label: "완료", className: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" },
+  error: { label: "오류", className: "bg-rose-500/15 text-rose-400 border border-rose-500/30" },
 };
 
 export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData }) {
@@ -88,188 +88,209 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
   if (editing) {
     return (
       <>
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">제목</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} className="input w-full" />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">설명</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className="input w-full"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">곡 설명</label>
-          <textarea
-            value={songDescription}
-            onChange={(e) => setSongDescription(e.target.value)}
-            rows={3}
-            className="input w-full"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">스타일</label>
-          <textarea
-            value={styleDescription}
-            onChange={(e) => setStyleDescription(e.target.value)}
-            rows={3}
-            className="input w-full"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">제외 스타일</label>
-          <textarea
-            value={excludeStyles}
-            onChange={(e) => setExcludeStyles(e.target.value)}
-            rows={2}
-            className="input w-full"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-2xl border border-[#272732] bg-[#14141b] p-6 shadow-xl shadow-black/40 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">보컬 성별</label>
-            <select
-              value={vocalGender}
-              onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
-              className="input w-full"
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">곡 제목</label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} className="input text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">곡 요약 설명</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              className="input text-xs"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">상세 분위기 설명</label>
+            <textarea
+              value={songDescription}
+              onChange={(e) => setSongDescription(e.target.value)}
+              rows={3}
+              className="input text-xs leading-relaxed"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">Suno 음악 스타일 프롬프트</label>
+            <textarea
+              value={styleDescription}
+              onChange={(e) => setStyleDescription(e.target.value)}
+              rows={3}
+              className="input text-xs font-mono"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">제외할 스타일 (Negative Prompt)</label>
+            <textarea
+              value={excludeStyles}
+              onChange={(e) => setExcludeStyles(e.target.value)}
+              rows={2}
+              className="input text-xs font-mono"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1.5">보컬 성별</label>
+              <select
+                value={vocalGender}
+                onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
+                className="input text-xs"
+              >
+                <option value="">미지정</option>
+                {VOCAL_GENDER_OPTIONS.map((g) => (
+                  <option key={g} value={g}>
+                    {g === "혼성" ? "혼성(듀엣)" : g}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1.5">가사 언어</label>
+              <select value={lang} onChange={(e) => setLang(e.target.value)} className="input text-xs">
+                {LANG_OPTIONS.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs text-rose-300">
+              ⚠️ {error}
+            </div>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isPending}
+              className="px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-60 shadow-md shadow-orange-500/20"
             >
-              <option value="">미지정</option>
-              {VOCAL_GENDER_OPTIONS.map((g) => (
-                <option key={g} value={g}>
-                  {g === "혼성" ? "혼성(듀엣)" : g}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-xs text-gray-400">
-              성별을 바꾸면 저장 시 곡 설명에 남아있는 성별 언급(예: &ldquo;남성보컬&rdquo;)을 새
-              성별로 고치고 스타일 설명도 자동으로 다시 만듭니다(위에서 직접 고쳤어도 새로 덮어씁니다)
-              — 텍스트에 예전 성별이 그대로 남아있으면 실제 곡 생성에 섞여 나올 수 있기
-              때문입니다.
-            </p>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">언어</label>
-            <select value={lang} onChange={(e) => setLang(e.target.value)} className="input w-full">
-              {LANG_OPTIONS.map((l) => (
-                <option key={l} value={l}>
-                  {l}
-                </option>
-              ))}
-            </select>
+              {isPending ? "저장 중..." : "수정 내용 저장"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                resetFields();
+                setError(null);
+                setEditing(false);
+              }}
+              className="px-4 py-2 rounded-full text-xs font-semibold text-zinc-400 hover:text-white border border-[#272738] bg-[#1a1926] hover:bg-[#222130]"
+            >
+              취소
+            </button>
           </div>
         </div>
-
-        {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isPending}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
-          >
-            {isPending ? "저장 중..." : "저장"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              resetFields();
-              setError(null);
-              setEditing(false);
-            }}
-            className="px-4 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-700"
-          >
-            취소
-          </button>
-        </div>
-      </div>
-      {needsApiKey && (
-        <ApiKeyRequiredModal missingLabels={["OpenAI"]} onClose={() => setNeedsApiKey(false)} />
-      )}
+        {needsApiKey && (
+          <ApiKeyRequiredModal missingLabels={["OpenAI"]} onClose={() => setNeedsApiKey(false)} />
+        )}
       </>
     );
   }
 
   return (
     <>
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-      {restyledNotice && (
-        <p className="mb-3 text-sm text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
-          보컬 성별이 바뀌어서 곡 설명의 성별 언급과 스타일 설명을 자동으로 다시 만들었습니다.
-        </p>
-      )}
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <h1 className="text-2xl font-black text-gray-900">{planning.title ?? "(제목 생성 전)"}</h1>
-        <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>
-          {badge.label}
-        </span>
-      </div>
-      <p className="text-sm text-gray-600 mb-4">{planning.description}</p>
-
-      <dl className="space-y-2 text-sm">
-        <div>
-          <dt className="font-semibold text-gray-500">곡 설명</dt>
-          <dd className="text-gray-700 whitespace-pre-wrap">{planning.song_description}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold text-gray-500">스타일</dt>
-          <dd className="text-gray-700">{planning.style_description}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold text-gray-500">제외 스타일</dt>
-          <dd className="text-gray-700">{planning.exclude_styles}</dd>
-        </div>
-        <div className="flex gap-6">
-          <div>
-            <dt className="font-semibold text-gray-500">보컬 성별</dt>
-            <dd className="text-gray-700">{planning.vocal_gender ?? "미지정"}</dd>
+      <div className="rounded-2xl border border-[#272732] bg-[#14141b] p-6 sm:p-7 shadow-xl shadow-black/40">
+        {restyledNotice && (
+          <p className="mb-4 text-xs text-orange-300 bg-orange-950/40 border border-orange-500/30 rounded-xl px-4 py-2.5">
+            ✨ 보컬 성별 변경에 맞춰 곡 설명과 스타일 프롬프트를 자동으로 업데이트했습니다.
+          </p>
+        )}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl">🎼</span>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              {planning.title ?? "(제목 생성 전)"}
+            </h1>
           </div>
-          <div>
-            <dt className="font-semibold text-gray-500">언어</dt>
-            <dd className="text-gray-700">{planning.lang}</dd>
-          </div>
+          <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
+            {badge.label}
+          </span>
         </div>
-      </dl>
 
-      <div className="mt-5 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            // planning prop이 저장 후 router.refresh()로 갱신돼도 이 컴포넌트는 리마운트되지
-            // 않아 로컬 상태가 그대로 남는다 — 수정 모드를 열 때마다 최신 값으로 다시 채운다
-            // (성별 변경으로 자동 재생성된 스타일/곡 설명이 다음 수정 때 예전 값으로 보이는 것 방지).
-            resetFields();
-            setEditing(true);
-          }}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
-        >
-          수정
-        </button>
-        <form
-          action={deletePlanningAction}
-          onSubmit={(e) => {
-            if (!confirm("이 기획과 생성된 모든 곡을 삭제합니다. 되돌릴 수 없습니다. 삭제할까요?")) {
-              e.preventDefault();
-            }
-          }}
-        >
-          <input type="hidden" name="planningId" value={planning.id} />
+        {planning.description && (
+          <p className="text-xs sm:text-sm text-zinc-300 mb-5 leading-relaxed bg-[#1a1926] p-3 rounded-xl border border-[#272738]">
+            {planning.description}
+          </p>
+        )}
+
+        <dl className="space-y-3 text-xs">
+          <div className="rounded-xl border border-[#222230] bg-[#101016] p-3.5">
+            <dt className="font-bold text-orange-400 mb-1 flex items-center gap-1.5">
+              <span>📝</span>
+              <span>곡 컨셉 & 상세 설명</span>
+            </dt>
+            <dd className="text-zinc-300 whitespace-pre-wrap leading-relaxed">{planning.song_description}</dd>
+          </div>
+
+          <div className="rounded-xl border border-[#222230] bg-[#101016] p-3.5">
+            <dt className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+              <span>🎨</span>
+              <span>Suno AI 스타일 프롬프트</span>
+            </dt>
+            <dd className="text-zinc-300 font-mono text-[11px] leading-relaxed break-all">
+              {planning.style_description}
+            </dd>
+          </div>
+
+          {planning.exclude_styles && (
+            <div className="rounded-xl border border-[#222230] bg-[#101016] p-3.5">
+              <dt className="font-bold text-zinc-400 mb-1 flex items-center gap-1.5">
+                <span>🚫</span>
+                <span>제외 스타일 (Negative)</span>
+              </dt>
+              <dd className="text-zinc-400 font-mono text-[11px]">{planning.exclude_styles}</dd>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="rounded-xl border border-[#222230] bg-[#101016] p-3">
+              <dt className="font-bold text-zinc-400 text-[11px] mb-0.5">보컬 성별</dt>
+              <dd className="text-zinc-200 font-semibold">{planning.vocal_gender ?? "미지정"}</dd>
+            </div>
+            <div className="rounded-xl border border-[#222230] bg-[#101016] p-3">
+              <dt className="font-bold text-zinc-400 text-[11px] mb-0.5">언어</dt>
+              <dd className="text-zinc-200 font-semibold">{planning.lang}</dd>
+            </div>
+          </div>
+        </dl>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#232332] pt-4">
           <button
-            type="submit"
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition-colors"
+            type="button"
+            onClick={() => {
+              resetFields();
+              setEditing(true);
+            }}
+            className="px-4 py-2 rounded-full text-xs font-bold text-zinc-300 border border-[#2d2d3e] bg-[#1a1926] hover:bg-[#242335] hover:text-white transition-colors"
           >
-            이 기획 삭제
+            ✏️ 기획 내용 수정
           </button>
-        </form>
+          <form
+            action={deletePlanningAction}
+            onSubmit={(e) => {
+              if (!confirm("이 기획과 생성된 모든 곡을 삭제합니다. 되돌릴 수 없습니다. 삭제할까요?")) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <input type="hidden" name="planningId" value={planning.id} />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-full text-xs font-semibold text-rose-400 border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 transition-colors"
+            >
+              이 기획 삭제
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-    {needsApiKey && (
-      <ApiKeyRequiredModal missingLabels={["OpenAI"]} onClose={() => setNeedsApiKey(false)} />
-    )}
+      {needsApiKey && (
+        <ApiKeyRequiredModal missingLabels={["OpenAI"]} onClose={() => setNeedsApiKey(false)} />
+      )}
     </>
   );
 }

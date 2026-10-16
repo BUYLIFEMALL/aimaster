@@ -32,26 +32,31 @@ export function PlanningForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-5 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-2xl border border-[#272732] bg-[#14141b] p-6 sm:p-8 shadow-xl shadow-black/40 backdrop-blur-md"
+      >
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">곡 설명</label>
+          <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+            곡 컨셉 & 분위기 설명 <span className="text-orange-400">*</span>
+          </label>
           <textarea
             name="songDescription"
             required
             rows={4}
-            placeholder="예: 주말 화창한날에 드라이브하며 듣기 좋은 80년대 레트로 일본 시티팝"
-            className="input w-full"
+            placeholder="예: 늦은 밤 비 내리는 서울 도로를 달리며 듣는 감성적인 R&B 발라드. 그루브한 베이스와 애절한 피아노 선율, 남녀 듀엣 보컬"
+            className="input text-sm leading-relaxed"
           />
-          <p className="mt-1 text-xs text-gray-400">
-            분위기, 상황, 장르 힌트 등을 자유롭게 적어주세요. AI가 스타일/제목/설명을 기획해드립니다.
+          <p className="mt-1.5 text-[11px] text-zinc-400">
+            주제, 장르, 계절, 감정 상태 등을 편안하게 적어주시면 AI가 최적의 Suno 프롬프트를 설계합니다.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">보컬 성별 (선택)</label>
-            <select name="vocalGender" className="input w-full" defaultValue="">
-              <option value="">미지정</option>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-xl border border-[#272738] bg-[#1a1926] p-4">
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">보컬 성별 (선택)</label>
+            <select name="vocalGender" className="input text-xs" defaultValue="">
+              <option value="">미지정 (AI 추천)</option>
               {VOCAL_GENDER_OPTIONS.map((g) => (
                 <option key={g} value={g}>
                   {g === "혼성" ? "혼성(듀엣)" : g}
@@ -59,9 +64,9 @@ export function PlanningForm() {
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">언어</label>
-            <select name="lang" className="input w-full" defaultValue="한국어">
+          <div className="rounded-xl border border-[#272738] bg-[#1a1926] p-4">
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">가사 언어</label>
+            <select name="lang" className="input text-xs" defaultValue="한국어">
               {LANG_OPTIONS.map((lang) => (
                 <option key={lang} value={lang}>
                   {lang}
@@ -71,14 +76,18 @@ export function PlanningForm() {
           </div>
         </div>
 
-        {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+        {error && (
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs text-rose-300">
+            ⚠️ {error}
+          </div>
+        )}
 
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 text-white font-bold py-3 px-4 rounded-xl transition-all"
+          className="w-full rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-60 text-white font-black py-4 px-6 shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-sm tracking-wide"
         >
-          {isPending ? "기획 중... (스타일/제목/설명 생성)" : "곡 기획하기"}
+          {isPending ? "⚡ AI가 곡 기획 및 프롬프트 설계 중..." : "🎼 곡 기획 시작하기"}
         </button>
       </form>
 

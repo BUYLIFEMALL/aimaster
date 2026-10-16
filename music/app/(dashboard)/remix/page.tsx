@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
+import { SunoUsageGuide } from "@/components/guide/SunoUsageGuide";
 import type { RemixStatus } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
@@ -41,8 +42,7 @@ export default async function RemixSourcesPage() {
   const sourceList = (sources ?? []) as SourceRow[];
   const remixList = (remixes ?? []) as unknown as RemixSummaryRow[];
 
-  // 소스별로 리믹스 개수/최신 상태/대표 이미지를 집계한다. 리믹스가 최신순으로 이미 정렬되어
-  // 있으므로 각 소스에서 처음 만나는 항목이 곧 최신 리믹스다.
+  // 소스별로 리믹스 개수/최신 상태/대표 이미지를 집계한다.
   const summaryBySource = new Map<
     string,
     { count: number; latestStatus: RemixStatus; thumbnail: string | null; hasGenerating: boolean }
@@ -68,23 +68,52 @@ export default async function RemixSourcesPage() {
   const hasGenerating = remixList.some((r) => r.status === "generating");
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
       <AutoRefresh enabled={hasGenerating} />
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black text-gray-900">음악 Remix</h1>
+      {/* 상단 타이틀 & Suno Create 버튼 */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">🎛️</span>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">음악 Remix 스튜디오</h1>
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+              Suno Engine
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-zinc-400">
+            기존에 생성된 트랙이나 오디오 음원을 다양한 장르와 무드로 새롭게 리메이크합니다.
+          </p>
+        </div>
+
         <Link
           href="/remix/new"
-          className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
-          + 새 리믹스
+          <span className="text-base leading-none">+</span>
+          <span>새 리믹스 시작</span>
         </Link>
       </div>
 
+      {/* 시각화 가이드 컴포넌트 */}
+      <SunoUsageGuide />
+
+      {/* 리믹스 소스 카드 목록 */}
       {sourceList.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4">🎛️</div>
-          <p>아직 만든 리믹스가 없습니다. 원곡을 업로드해서 새 스타일로 리메이크해보세요!</p>
+        <div className="rounded-2xl border border-[#272732] bg-[#14141b]/80 p-12 text-center text-zinc-400 backdrop-blur-md">
+          <div className="flex h-16 w-16 mx-auto mb-4 items-center justify-center rounded-2xl bg-[#1c1c28] border border-[#2d2d3d] text-3xl">
+            🎛️
+          </div>
+          <h3 className="text-base font-bold text-zinc-200 mb-1">아직 생성된 리믹스가 없습니다</h3>
+          <p className="text-xs text-zinc-400 max-w-md mx-auto mb-6">
+            기존 곡을 선택하거나 원곡 음원을 업로드하여 재즈, 록, EDM, 어쿠스틱 등 새로운 스타일로 리믹스해보세요!
+          </p>
+          <Link
+            href="/remix/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md shadow-orange-500/20"
+          >
+            첫 리믹스 만들기
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -94,22 +123,44 @@ export default async function RemixSourcesPage() {
               <Link
                 key={source.id}
                 href={`/remix/${source.id}`}
-                className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:border-blue-200 transition-colors flex gap-3 items-center"
+                className="group relative rounded-2xl border border-[#272732] bg-[#14141b] p-4 shadow-lg shadow-black/30 hover:border-orange-500/50 hover:bg-[#181824] transition-all duration-200 flex gap-4 items-center overflow-hidden"
               >
+                {/* Subtle hover neon bar */}
+                <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
                 {summary?.thumbnail ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={summary.thumbnail} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                  <img
+                    src={summary.thumbnail}
+                    alt=""
+                    className="w-16 h-16 rounded-xl object-cover shrink-0 ring-1 ring-[#2b2b3b] group-hover:ring-orange-500/30 transition-all"
+                  />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center text-2xl shrink-0">
+                  <div className="w-16 h-16 rounded-xl bg-[#1c1c28] border border-[#2b2b3b] flex items-center justify-center text-2xl shrink-0 group-hover:border-orange-500/30 transition-colors">
                     {source.kind === "track" ? "🎵" : "📤"}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-gray-900 truncate">{source.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {source.kind === "track" ? "기존 곡에서 시작" : "업로드한 원곡"} · 리믹스 {summary?.count ?? 0}개
-                    {summary?.hasGenerating && " · 생성 중"}
+                  <p className="font-bold text-zinc-100 truncate group-hover:text-orange-400 transition-colors text-sm">
+                    {source.title}
                   </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#20202e] text-zinc-400 border border-[#2a2a3c]">
+                      {source.kind === "track" ? "기존 곡" : "업로드 음원"}
+                    </span>
+                    <span className="text-[11px] text-zinc-400">
+                      리믹스 {summary?.count ?? 0}개
+                    </span>
+                  </div>
+                  {summary?.hasGenerating && (
+                    <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-amber-400">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                      <span>새 리믹스 생성 중...</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-zinc-600 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all text-xs font-bold">
+                  →
                 </div>
               </Link>
             );
