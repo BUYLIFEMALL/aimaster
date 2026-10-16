@@ -5,14 +5,43 @@
 - `real_estate_user_preferences.auto_analyze_on_notify`(기본 켜짐 = 기존 동작 유지, 운영 적용). 꺼 두면 텔레그램/알림톡 알림 전에 AI 분석을 새로 돌리지 않음(유료 호출 없음, 있는 결과만 첨부). 설정 화면 체크박스 + AI 모델 안내 문구 v1.13 동작에 맞게 정정. 커밋 `d46818a3`(v1.14)·`5ffd68b5`(v1.15 체크박스 저장값 반전 수정).
 - 검수: 시험 계정 켜기/끄기/켜기 저장 3회 DB 일치, 원상 복구. 링크: https://real-estate-sales.buylife.xyz/settings
 
-## 2026-10-17 Codex(Windows) — youtube-auto-reply v1.09 Windows 인수·운영 화면 검수 완료
+## 2026-10-17 Antigravity(Windows) — AI 쇼츠 원스톱 제작 자동화 v1.13: 로그인·회원가입 표준 2탭 레이아웃(플로우 위저드 테마) 전면 리뉴얼 완료
 
-- ✅ 유튜브 다크v1.09 완료. 소스 a7d5dc62 푸시, dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W READY, DBv1.09·iad1·기존Cron 유지. 배포 metadata b11fdd05는 검수 소스와 프로그램 런타임 차이0.
-- 빌드/타입/ESLint, 실제 일반 회원 Edge1440/375 로컬8·운영8, 합성9, 권한/본인키/한국시간14, Supabase키호환1, 무인증API401 네 경로 통과. 유료/게시/영상동기화0, 회원4표 행 수 전후0 유지.
-- 빈 UUID/소유자 조회·권한 관리자 조회·한국시간·모바일 긴URL/영상 및 Next15.5.27/React19 보안·호환 보완. audit critical0, 내장PostCSS 운영2/개발9 경고는 후속. 관리자 텔레그램1건 이전·일괄승인/이력검색/페이지·30일 자동삭제 적용 확인도 미완료 범위를 구분.
-- [작업 결과·증거·다음 첫 단계](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md). 현황판48✅·본인 ACTIVE_WORK줄 해제. 최종 문서 커밋은 이 항목 포함 커밋.
+- **대상 프로그램**: `shorts-onestop-studio/` (slug: `shorts-onestop-studio`, 프로그램 번호 3번)
+- **공식 라이브 URL**: https://shorts-onestop-studio.buylife.xyz/login
+- **배포 버전**: `v1.13` (로컬 패키지 `1.13.0`, `APP_VERSION = "v1.13"`, Supabase DB `programs.version = 'v1.13'` 동기화 완료)
+- **적용 디자인 템플릿**: **플로우 위저드 스타일 (Flow Wizard Style · 딥 슬레이트 블랙/미드나잇 바이올렛 `#0b1020` 24px 퍼플 모눈 격자, 카드 다크 글래스모피즘 `rgba(20, 27, 45, 0.88)`, 로즈-퍼플 `#fb7185` ➔ `#e11d48` 발광 탭 & 버튼)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`shorts-onestop-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../shorts-onestop-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](../shorts-onestop-studio/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`shorts-onestop-studio/AGENTS.md`](../shorts-onestop-studio/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (최상단 지침 14번 준수)**:
+     - `src/app/login/page.tsx` & `src/components/auth/LoginForm.tsx`: 미드나잇 바이올렛 배경 + 24px 퍼플 모눈 격자, 상단 쇼츠 비디오 필름 릴 네온 심볼 뱃지 및 "AIMaster 통합 계정" 알약 뱃지 신설.
+     - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 탑재 (로즈-퍼플 `#fb7185` ➔ `#e11d48` 발광 활성 탭).
+     - **로그인 모드**: 이메일 주소(좌측 메일 아이콘 + 42px 패딩), 비밀번호(좌측 자물쇠 아이콘 + 우측 "비밀번호 찾기?" 로즈 링크), 풀 위드 로즈-퍼플-바이올렛 그라디언트 액션 버튼 탑재.
+     - **회원가입 모드**: AIMaster 통합 계정 안내 틴트 박스 및 풀 위드 `AIMaster에서 무료 회원가입하기 ➔` 버튼 탑재.
+     - **하단 푸터**: 다크 테마 이용약관 및 개인정보처리방침 안내 링크 탑재.
+     - 전역 스타일 오버라이드 방지를 위해 정밀 인라인 스타일링 적용.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_4u4QCx4qtWjJABwqPUUnfiWxNB68`, 라이브: `https://shorts-onestop-studio.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_shorts_login_desktop_v113.png`: 데스크톱 1440px 로그인 탭 화면 (퍼플 격자 배경, 로즈 발광 탭, 인풋/버튼/약관 푸터 완벽 렌더링).
+       - `edge_shorts_signup_desktop_v113.png`: 데스크톱 1440px 회원가입 탭 화면 (구독 안내 문구 + AIMaster 가입 링크 버튼 정상 토글).
+       - `edge_shorts_login_mobile_v113.png`: 모바일 390px 반응형 뷰 (넘침/스크롤 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 3번 `shorts-onestop-studio` 상태 `✅ 1차 작업완료 (`v1.13`, 플로우 위저드 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `shorts-onestop-studio` 작업 행 삭제 완료.
 
-[프로그램 열기](https://youtube-auto-reply.buylife.xyz)
+## 2026-10-17 Claude Code(맥미니) — 상품소싱 자동화 v1.08: 스마트 매트릭스(다크) 디자인 (🟠 윈도우 마무리 요청)
+
+- **대상**: `trending-product-finder/` (https://trending-product-finder.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
+- **한 일**: 롱테일 v3 토큰·부품 이식(투명도 표기 위해 색상값 직접), 사이드바 ☰·📖(원칙 19·⑦ — 기존 누락), `/dashboard`(기회 키워드 TOP 5)·`/guide` 신설, 리포트를 키워드 매트릭스 표로(옛 「경쟁 수 Phase 2 예정」 문구 정정, 🌏 소싱 링크 추가), 로그인 다크(원칙 13). 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+- **문서**: [`trending-product-finder/docs/`](../trending-product-finder/docs/) PLAN·IMPROVEMENTS·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, AGENTS·README, `DESIGN.md` 43번 🟠, 역량 지도 v1.08.
+- **⚠️ 윈도우 CLI 요청**: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.08 → 검수(리포트 생성·후보 찾기·검색 금지) → 43번 ✅.
+- **비용**: 없음.
 
 ## 2026-10-17 Claude Code(윈도우) — 부동산 실거래(real_estate_sales) #10 회원별 분리(v1.12)·#12 버튼 실행(v1.13)
 
@@ -21,12 +50,14 @@
 - **사고**: 다른 CLI의 `git stash`가 내 v1.13 코드를 가져가 첫 커밋에서 빠짐 → stash에서 내 파일만 복구(ERROR_LESSONS 2026-10-17). stash@{0}은 그 CLI 소유라 남겨 둠.
 - 링크: https://real-estate-sales.buylife.xyz
 
-## 2026-10-17 Codex(Windows) — youtube-auto-reply v1.09 Windows 사전 검수 완료·운영 배포 진행
+## 2026-10-17 Codex(Windows) — youtube-auto-reply v1.09 Windows 인수·운영 화면 검수 완료
 
-- 맥미니 d355e67e/af435725 유튜브 다크 인수. 빈 댓글/이력 UUID·제목 소유자 조건·권한 관리자 조회·한국시간·긴 댓글/영상375px 보완, Next15.5.27/React19 보안·호환 적용. 기존 Cron·키/환경·DB 구조 유지.
-- 실제 Edge 일반 회원 로컬8·합성9·권한/본인키/시간14·Supabase 키 호환1 통과. 유료/게시/영상동기화0. 실제 채워진 데이터/OAuth/게시 검수는 제외. audit critical0, Next내장PostCSS 운영2·개발9 경고 후속.
-- 다음: 소스 고정 배포→DBv1.09→운영 무료 Edge검수→현황판48완료. [인수인계·개선·증거](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://youtube-auto-reply.buylife.xyz). 관리자 텔레그램1건 이전 및30일보관 적용 확인 등은 후속으로 구분.
+- ✅ 유튜브 다크v1.09 완료. 소스 a7d5dc62 푸시, dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W READY, DBv1.09·iad1·기존Cron 유지. 배포 metadata b11fdd05는 검수 소스와 프로그램 런타임 차이0.
+- 빌드/타입/ESLint, 실제 일반 회원 Edge1440/375 로컬8·운영8, 합성9, 권한/본인키/한국시간14, Supabase키호환1, 무인증API401 네 경로 통과. 유료/게시/영상동기화0, 회원4표 행 수 전후0 유지.
+- 빈 UUID/소유자 조회·권한 관리자 조회·한국시간·모바일 긴URL/영상 및 Next15.5.27/React19 보안·호환 보완. audit critical0, 내장PostCSS 운영2/개발9 경고는 후속. 관리자 텔레그램1건 이전·일괄승인/이력검색/페이지·30일 자동삭제 적용 확인도 미완료 범위를 구분.
+- [작업 결과·증거·다음 첫 단계](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md). 현황판48✅·본인 ACTIVE_WORK줄 해제. 최종 문서 커밋은 이 항목 포함 커밋.
 
+[프로그램 열기](https://youtube-auto-reply.buylife.xyz)
 
 ## 2026-10-17 Antigravity(Windows) — 뮤직 플레이어 자동화 v1.07: 로그인·회원가입 표준 2탭 레이아웃(사이버 네온 다크 콘솔 테마) 전면 리뉴얼 완료
 

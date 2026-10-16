@@ -1,12 +1,28 @@
 # AI 쇼츠 원스톱 제작 자동화 — UI/UX 디자인 개발완료 보고서 (DESIGN_HANDOFF.md)
 
 > **문서 상태**: 디자인 1차 완료 보고서 (Production Ready)  
-> **작성 일자**: 2026-10-16  
+> **작성 일자**: 2026-10-17  
 > **작성 에이전트**: Antigravity CLI (`agy`, Windows)  
 > **프로그램**: `shorts-onestop-studio` (AI 쇼츠 원스톱 제작 자동화)  
-> **버전**: `v1.12` (가이드북 텍스트 크기 확대 및 줄넘김·카드화 가독성 개편 완료)  
-> **프로덕션 URL**: [https://shorts-onestop-studio.buylife.xyz](https://shorts-onestop-studio.buylife.xyz) (가이드북: [https://shorts-onestop-studio.buylife.xyz/guide](https://shorts-onestop-studio.buylife.xyz/guide))  
+> **버전**: `v1.13` (로그인/회원가입 표준 2탭 레이아웃 개편 및 DB 동기화 완료)  
+> **프로덕션 URL**: [https://shorts-onestop-studio.buylife.xyz/login](https://shorts-onestop-studio.buylife.xyz/login) (가이드북: [https://shorts-onestop-studio.buylife.xyz/guide](https://shorts-onestop-studio.buylife.xyz/guide))  
 > **적용 표준**: [`DESIGN.md`](../../DESIGN.md), [`docs/PROGRAM_DESIGN_STANDARD.md`](../../docs/PROGRAM_DESIGN_STANDARD.md), [`docs/SIDEBAR_LAYOUT_STANDARD.md`](../../docs/SIDEBAR_LAYOUT_STANDARD.md)
+
+---
+
+## 0. v1.13 로그인/회원가입 표준 2탭 레이아웃 리뉴얼 (2026-10-17)
+- **표준 레이아웃(`DESIGN.md §14`) 전면 적용**:
+  - 딥 슬레이트 블랙/미드나잇 바이올렛 (`#0b1020`) + 24px 퍼플 모눈 격자 (`rgba(251, 113, 133, 0.035)`) 배경.
+  - 상단 쇼츠 비디오 필름 릴 네온 심볼 뱃지 및 "AIMaster 통합 계정" 알약형 뱃지 탑재.
+  - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 (로즈-퍼플 `#fb7185` ➔ `#e11d48` 발광 활성 탭).
+  - 이메일 (메일 아이콘 + 42px 패딩), 비밀번호 (자물쇠 아이콘 + 42px 패딩 + 우측 "비밀번호 찾기?" 로즈 링크).
+  - 풀 위드 로즈-퍼플 그라디언트 액션 버튼 (`#fb7185` ➔ `#e11d48` ➔ `#9333ea`).
+  - 회원가입 탭 선택 시 AIMaster 통합 계정 안내 박스 및 `AIMaster에서 무료 회원가입하기 ➔` 버튼 제공.
+  - 하단 이용약관 및 개인정보처리방침 다크 모드 링크 배치.
+- **Edge 검수 증거**:
+  - `edge_shorts_login_desktop_v113.png`: 데스크톱 1440px 로그인 탭 렌더링 확인.
+  - `edge_shorts_signup_desktop_v113.png`: 데스크톱 1440px 회원가입 탭 및 토글 정상 작동 확인.
+  - `edge_shorts_login_mobile_v113.png`: 모바일 390px 뷰포트 반응형 정렬 및 가로 넘침 없음 확인.
 
 ---
 
