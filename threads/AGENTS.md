@@ -46,3 +46,6 @@ threads는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 
 - 주인님 요청(INSTA 포스팅 v1.14와 같은 형식): 설정 화면 맨 위 `ThreadsMetaAddressSummary`(① 앱 도메인 `buylife.xyz`+옛 호스트 ② 이용 사례 › Threads API 액세스 › 설정 › 리디렉션 콜백 URL 새·옛 ③ Threads 앱 ID 위치 ④ Threads 테스터 추가·초대 수락). `src/components/settings/CopyAddress.tsx`(복사 버튼)로 콜백 주소 표시 교체.
 - 같은 날 주인님이 Meta 앱에 새 콜백 등록 → 관리자 계정 [새 주소로 다시 연결] 성공(만료됐던 토큰 재발급, 만료 2026-12-15).
 - 검수: 빌드·배포·DB v1.09, 크롬에서 카드·복사 버튼 표시 확인.
+## 2026-10-17 v1.10 — 주소 카드에 제거·삭제 콜백 안내 (Claude Code 윈도우)
+- 쇼핑제휴 `/api/threads/uninstall`·`/delete` 처리기(`threads-affiliate-poster/src/lib/threads/signedRequest.ts`)가 이 프로그램의 `threads_accounts`도 정리하는 것을 확인 → 카드 ③에 그 주소를 안내. 카드 컴포넌트는 쇼핑제휴판과 동일하게 맞춤(앱 도메인은 실제 주소에서 계산).
+- 검수: 빌드·배포·DB v1.10, 크롬에서 제거 콜백 주소·사이드바 v1.10 확인.

@@ -6,6 +6,8 @@ import { THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect"
 export function ThreadsMetaAddressSummary({ uninstallUrl, deleteUrl }: { uninstallUrl?: string; deleteUrl?: string } = {}) {
   const oldRedirect = THREADS_REDIRECT_OLD();
   const oldHost = new URL(oldRedirect).host;
+  // 독립 배포본(자기 주소 운영)은 그 주소가 앱 도메인이다
+  const newHost = new URL(THREADS_REDIRECT_NEW).host;
   return (
     <section className="rounded-2xl border-2 border-blue-200 bg-blue-50/40 p-5 shadow-sm">
       <h2 className="text-sm font-bold text-neutral-900">🧭 내 Meta 앱에 등록할 주소 한눈에 보기</h2>
@@ -17,8 +19,8 @@ export function ThreadsMetaAddressSummary({ uninstallUrl, deleteUrl }: { uninsta
       <ol className="space-y-4 text-xs text-neutral-700">
         <li className="space-y-1.5">
           <p className="font-semibold">① 앱 설정 › 기본 설정 › 앱 도메인</p>
-          <CopyAddress value="buylife.xyz" />
-          {!oldHost.endsWith("buylife.xyz") && <CopyAddress value={oldHost} />}
+          <CopyAddress value={newHost.endsWith("buylife.xyz") ? "buylife.xyz" : newHost} />
+          {oldHost !== newHost && !oldHost.endsWith("buylife.xyz") && <CopyAddress value={oldHost} />}
         </li>
         <li className="space-y-1.5">
           <p className="font-semibold">② 이용 사례 › Threads API 액세스 › 맞춤 설정 › 설정 › 리디렉션 콜백 URL</p>

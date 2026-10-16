@@ -67,7 +67,11 @@ export default async function SettingsPage({
         </div>
       )}
 
-      <ThreadsMetaAddressSummary />
+      {/* 제거·삭제 콜백은 threads-affiliate-poster가 이 프로그램 데이터(threads_accounts)까지 처리한다 */}
+      <ThreadsMetaAddressSummary
+        uninstallUrl="https://threads-affiliate-poster.buylife.xyz/api/threads/uninstall"
+        deleteUrl="https://threads-affiliate-poster.buylife.xyz/api/threads/delete"
+      />
 
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-3">
