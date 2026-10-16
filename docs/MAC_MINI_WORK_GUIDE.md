@@ -81,3 +81,55 @@ REA·상태바 스크립트 같은 도구는 윈도우 설치본과 맥 설치�
    - 윈도우 쪽에서 확인하는 방법: PowerShell `Get-SmbSession`에 맥미니(Tailscale `macmini-macmini`, 100.65.7.96 / LAN 192.168.0.8)가 보이고, 맥에서 작업 중이면 `Get-SmbOpenFile | ? Path -like '*Antigravity\AIMaster*'`에 열린 파일이 나온다.
 2. 경로가 `C:\`나 `%…%`면 맥에서 열 수 없는 경로로 취급한다.
 3. 공유 폴더에는 임시 파일을 만들지 않는다. 임시 파일은 세션 스크래치 폴더(`/private/tmp/…`)에 둔다.
+
+## 6. 세 CLI를 공유 폴더 작업 공간으로 실행하는 방법 (2026-10-16 주인님 지시)
+모든 명령은 **맥미니 터미널**에서 실행한다. 세 CLI 모두 작업 폴더는 이 PC의 SMB 공유 폴더 `/Volumes/gt1_mega/Antigravity/AIMaster` 하나다(§1, 로컬 복제본 금지).
+
+### 6-1. 공유 폴더 연결 확인 (매번 시작 전)
+```bash
+ls /Volumes/gt1_mega/Antigravity/AIMaster >/dev/null && echo "연결됨" || echo "연결 안 됨"
+```
+- 연결이 안 돼 있으면 Finder에서 `⌘K`(서버에 연결) → 집 안 같은 공유기: `smb://administrator@192.168.0.7/D` / 밖에서(Tailscale): `smb://administrator@100.124.125.70/D`. 윈도우 계정 비밀번호는 주인님이 직접 입력하고 "키체인에 저장"을 체크한다(에이전트는 입력하지 않는다).
+- **연결 후 `ls /Volumes`로 마운트 이름을 확인한다.** 이 문서는 `/Volumes/gt1_mega`(기존 마운트, SMB `//administrator@gt1_mega/D`) 기준이다. Finder로 다시 연결해 `/Volumes/D` 등 다른 이름이 되면 이 문서의 경로를 실제 이름으로 고친다.
+- 자동 연결: 시스템 설정 → 일반 → 로그인 항목에 연결된 공유 폴더를 추가한다.
+
+### 6-2. 위치 확인
+```bash
+cd /Volumes/gt1_mega/Antigravity/AIMaster
+git rev-parse --show-toplevel    # /Volumes/gt1_mega/Antigravity/AIMaster 여야 정상
+```
+- 이 위치는 윈도우와 같은 파일이라 `git pull`이 필요 없다. 결과가 `~/…` 등이면 로컬 복제본이므로 쓰지 않는다.
+
+### 6-3. CLI별 실행
+| CLI | 실행 명령 | 처음 실행할 때 확인 |
+|---|---|---|
+| Claude Code | `cd /Volumes/gt1_mega/Antigravity/AIMaster && claude` | 폴더 신뢰 질문 "예", `/status`로 `buylifemall@gmail.com` 로그인 확인 |
+| Codex | `codex -C /Volumes/gt1_mega/Antigravity/AIMaster` (윈도우와 같은 옵션이면 `--sandbox danger-full-access --ask-for-approval never` 추가) | `/status`의 작업 폴더 경로 확인 |
+| Antigravity CLI | `cd /Volumes/gt1_mega/Antigravity/AIMaster && agy` | 폴더 신뢰 질문 "예", 시작 시 루트 `GEMINI.md`를 읽는지 확인 |
+
+- Orca에서 실행할 때: Orca에 작업 폴더로 `/Volumes/gt1_mega/Antigravity/AIMaster`를 추가하고 그 폴더에서 에이전트 터미널을 연다. 복제본 경로로 등록된 항목이 있으면 공유 폴더 경로로 바꾼다.
+
+### 6-4. 단축 명령 (선택, `~/.zshrc` 맨 아래)
+```bash
+export AIM=/Volumes/gt1_mega/Antigravity/AIMaster
+aim-check() {
+  [ -d "$AIM" ] || { echo "❌ 공유 폴더 미연결 — Finder ⌘K로 연결"; return 1; }
+  cd "$AIM" || return 1
+  [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$AIM" ] || { echo "❌ 공유 폴더 저장소가 아님"; return 1; }
+  echo "✅ 공유 폴더: $AIM"
+}
+alias aclaude='aim-check && claude'
+alias acodex='aim-check && codex -C "$AIM"'
+alias aagy='aim-check && agy'
+```
+- 저장 후 `source ~/.zshrc`. 이후 `aclaude`·`acodex`·`aagy` 한 단어로 연결 확인 → 위치 확인 → 실행. Codex 상태바 실행기(`docs/CODEX_STATUSBAR_STARTUP.md` macOS 항목)가 `~/.zshrc`에 있으면 그 아래에 둔다.
+
+### 6-5. 실행 후 지킬 것 (요약)
+- 시작 전 `docs/ACTIVE_WORK.md` · `git status --porcelain -- <폴더>` · `docs/HANDOFF.md` 맨 위로 다른 CLI의 작업 중 여부 확인(최상단 동시 작업 금지 규칙).
+- `npm`·빌드·배포는 하지 않고 윈도우에 요청(§2). 브라우저: Claude Code=맥미니 크롬, Antigravity·Codex=맥미니 엣지(§1-1).
+- 네트워크 드라이브라 `git status` 등이 윈도우보다 느릴 수 있다(정상).
+
+### 6-6. 아직 실측하지 않은 것 (확인되면 이 줄을 고친다)
+- `agy`의 작업 폴더 지정 옵션: 미확인이라 `cd` 후 실행으로 적었다(`agy --help`에 옵션이 있으면 써도 된다).
+- 맥미니 Finder 재연결 시 마운트 이름이 `gt1_mega`로 유지되는지.
+- 세 CLI를 이 방법으로 실행한 실제 결과(2026-10-16 작성 시점에는 윈도우에서 정리만 함). 실측 후 결과를 이 절에 적는다.
