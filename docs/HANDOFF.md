@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(메인 계정·윈도우) — Claude 계정은 `buylifemall@gmail.com` 하나만 사용 (지침 정리)
+
+- 주인님 지시: Claude 계정 2개를 쓰던 것을 메인 `buylifemall@gmail.com` 하나로. 보조 계정 사용 중단은 맥미니 커밋 `c5b835d3`·`50c7b7e6`에서 먼저 반영됐고, 이번에 남아 있던 문구를 정리.
+- 변경: `CLAUDE.md` 원칙 18·`AGENTS.md` 원칙 17 제목을 「Claude 계정은 메인 하나만」으로, 브라우저 항목을 「Claude Code=크롬, Antigravity·Codex=엣지」로. `AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2 표에서 보조 Claude 줄 사용 중단 표시. `MAC_MINI_WORK_GUIDE.md` 예시 제목 정리.
+- 그대로 둔 것: 예전 인수인계 문서·HANDOFF 과거 항목의 보조 계정 언급(기록), `CLAUDE_STATUSBAR.md`의 `.claude-account2` 점검 명령(폴더가 남아 있어도 무해). 윈도우 `C:\Users\Administrator\.claude-account2` 폴더와 Orca 연동 삭제는 주인님 확인 후.
+
 ## 2026-10-16 Claude Code(메인 계정·윈도우) — 역량 지도에 개발 목록 요약 표·활용 용도 추가, 버전 DB 기준 갱신
 
 - `docs/PROGRAM_CAPABILITY_MAP.md`: 맨 앞 「개발 목록 요약 표」(82개: 이름·slug·분야·버전·상태·한 줄 용도) 신설, 82개 카드에 「활용 용도」(DB `detail_sections.audiences`) 추가, 카드 버전 74개를 DB 현재 값으로 갱신(Codex DB 변수 호환 배포 반영). 원칙 23 「완료 시 목록 확인·반영」의 기준 표.
