@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니) — 보조 Claude 계정 한시 사용 지침 추가
+
+- **주인님 지시**: "일단 이 계정으로 한시적으로 사용할 수 있도록 지침 추가를 해줘" (보조 계정 `buylifemall1@gmail.com`).
+- **바뀐 파일**: 루트 `CLAUDE.md`·`AGENTS.md` — 상단 「계정 고정」 필독 문구에 한 줄, 핵심 원칙 18번에 「★ 한시 예외」 항목 추가.
+- **내용**: Claude Code 로그인 계정만 `buylifemall1@gmail.com` 한시 허용(맥미니 Orca 프로필 `cd449caa-…`). 커밋 작성자·GitHub·Vercel·Supabase·사이트 관리자는 계속 `buylifemall@gmail.com`.
+- **남은 일**: 주인님이 종료를 지시하면 원칙 18번의 예외 줄을 「종료됨(날짜)」으로 바꾼다. 코드·배포·버전 변경 없음.
+
 ## 2026-10-16 Antigravity(Windows) — 음악(SUNO)자동화 v1.07: Suno v6 최신 엔진 반영 및 엣지 검수 완료
 
 - **주인님 지시**: "현재 suno는 v6까지 나왔어 관련 내용 수정해줘" (사이드바 및 헤더 배지 수정 지적).
