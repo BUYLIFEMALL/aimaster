@@ -1,6 +1,6 @@
 # Claude Code 하단 상태바 표시 지침 (2026-10-15 주인님 지시)
 
-> 목적: Claude Code(메인 `buylifemall@gmail.com`·보조 `buylifemall1@gmail.com` 두 계정 모두)의 하단 상태바가 **터미널을 다시 열어도, Orca 등이 설정을 덮어써도 항상 같은 형식으로 고정 표시**되게 한다. 이 PC 로컬 설정이므로 코드 배포와 무관하다. Codex 상태바는 [CODEX_STATUSBAR_STARTUP.md](CODEX_STATUSBAR_STARTUP.md).
+> 목적: Claude Code(메인 `buylifemall@gmail.com`. 보조 `buylifemall1@gmail.com`은 2026-10-16부터 사용 안 함)의 하단 상태바가 **터미널을 다시 열어도, Orca 등이 설정을 덮어써도 항상 같은 형식으로 고정 표시**되게 한다. 이 PC 로컬 설정이므로 코드 배포와 무관하다. Codex 상태바는 [CODEX_STATUSBAR_STARTUP.md](CODEX_STATUSBAR_STARTUP.md).
 
 ## 1. 고정 표시 형식
 

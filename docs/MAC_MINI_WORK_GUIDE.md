@@ -6,7 +6,8 @@
 
 ## 1. 이 세션이 누구인가
 - 장비: 맥미니(macOS). 작업 폴더 `/Volumes/gt1_mega/Antigravity/AIMaster` = 윈도우 PC의 `D:\Antigravity\AIMaster`.
-- Claude 계정: 보조 계정 `buylifemall1@gmail.com`(설정 폴더 `~/.claude-account2`). 메인 계정 `buylifemall@gmail.com`은 윈도우 쪽이다(원칙 18번).
+- Claude 계정(2026-10-16 개정): **`buylifemall@gmail.com` 하나만 쓴다.** 보조 계정 `buylifemall1@gmail.com`(`~/.claude-account2`)은 사용 중단(원칙 18번).
+- 에이전트 구성(2026-10-16 주인님 지시): 맥미니에는 필요할 때 **Antigravity CLI(`agy`)·Codex·Claude Code** 계정을 등록해 두고, 일이 많을 때 윈도우 PC와 **분담해서 작업**한다. 분담 폴더는 주인님이 지정하며, 에이전트마다 맡은 폴더만 건드리고 끝나면 인수인계 문서를 남기는 아래 규칙을 모든 에이전트가 똑같이 따른다(Claude만 해당하던 표현은 에이전트 전체로 읽는다).
 - 브라우저(2026-10-15 주인님 지시): **맥미니에서 실행되는 이 세션의 크롬 작업은 항상 이 맥미니에 있는 크롬으로 한다.** 메인 `CLAUDE.md` 원칙 18번의 "보조 계정은 엣지"는 윈도우 PC 기준이며 맥미니 세션에는 적용하지 않는다.
   - `list_connected_browsers`에서 `osPlatform`이 macOS이고 `isLocal: true`인 항목이 맥미니 크롬이다(2026-10-15 실측: "Browser 1", deviceId `6d2d44cb-e050-43a5-9c78-eb3dd1d06bb0`). deviceId는 바뀔 수 있으니 매번 이 조건으로 확인한다.
   - Windows로 표시되는 브라우저(다른 PC의 크롬·엣지)는 선택하지 않는다. 선택 질문이 필요한 경우에도 macOS·isLocal 항목을 권장으로 안내한다.
