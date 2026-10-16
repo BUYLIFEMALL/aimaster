@@ -332,6 +332,11 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - **안정화 전에는 기존 환경변수와 Supabase 키를 삭제·폐기하지 않는다.** 기존 설정 유지로 정상 운영하며 새 이름 추가는 선택이다. 안정화 확인과 주인님의 삭제 시점 확정 후 별도 작업으로 정리한다. 공개 변수 추가·변경은 코드 호환 확인 후 재배포한다.
     - 적용 범위는 메인 AIMaster와 카탈로그 82개 전체 프로그램이다. 각 폴더 지침 확인·검수·배포를 진행하며, 실제 완료 여부는 `docs/DATABASE_CONNECTION_HANDOFF.md`의 프로그램별 증거로 확인한다. 코드 호환 적용과 Vercel 새 변수 등록을 혼동하지 않는다. 상세 정책·Vercel 단계별 안내·검수 방법: [`docs/SUPABASE_API_KEY_COMPATIBILITY.md`](docs/SUPABASE_API_KEY_COMPATIBILITY.md). 루트 AGENTS.md 원칙 23과 같은 내용이다.
 
+25. **프로그램 레이아웃·디자인 업그레이드 및 연동/사용 매뉴얼 비주얼화 지침 (2026-10-16 주인님 지시, 모든 CLI 공통).**
+    - **디자인 업그레이드 방향**: 기존의 밋밋하고 딱딱한 기능 중심 인터페이스에서 벗어나, 직관적이고 고급스러운 UI/UX를 구축한다. 프로그램 성격별 4대 템플릿(포커스 스튜디오, 플로우 위저드, 스마트 매트릭스, 크리에이티브 아틀리에)을 적용한다. 배경색은 기본 흰색(Light)과 검정색(Dark)을 메인으로 사용하되, 필요 시 다른 색상(차콜, 딥 네이비, 크림 등)도 유연하게 적용한다.
+    - **연동/사용 매뉴얼(/guide) 비주얼화 필수 지침**: 단순히 텍스트 줄글(`<ol>`/`<ul>`)로만 채우지 않고, **이미지, 사진, 친근한 캐릭터/아바타, 풍부한 이모티콘, 단계별 프로세스 다이어그램**을 적극 활용하여 사용자가 프로그램을 쉽고 직관적으로 이해할 수 있도록 디자인한다.
+    - **역할 분담 및 검수**: Antigravity는 UI/UX 디자인 업그레이드 및 매뉴얼 시각화, 그리고 검토 중 발견된 로직/기능/편의성 개선점 문서화(`docs/IMPROVEMENTS.md`)에 집중한다. Claude Code와 Codex는 이를 이어받아 프로그램 기능 및 백엔드 로직 개선작업을 진행한다. 화면 검수는 Antigravity/Codex는 **Microsoft Edge(엣지) 전용**, Claude Code는 메인 크롬으로 수행한다. 상세: [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md).
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.

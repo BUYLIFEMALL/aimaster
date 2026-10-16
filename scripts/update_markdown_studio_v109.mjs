@@ -21,12 +21,12 @@ const supabase = createClient(
 
 async function main() {
   const slug = "markdown-studio";
-  console.log(`Updating program ${slug} version to v1.09 in Supabase...`);
+  console.log(`Updating program ${slug} version to v1.10 in Supabase...`);
 
   const { data, error } = await supabase
     .from("programs")
     .update({
-      version: "v1.09",
+      version: "v1.10",
     })
     .eq("slug", slug)
     .select("slug, name, version")

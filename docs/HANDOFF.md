@@ -26,41 +26,35 @@
 - 주인님 결정 대기: §7 D1~D5(이름·형태·비공식 무료 음성·자극형 카테고리·공개 범위). 승인 전 코드 작업 없음. 시험 비용: 정적 분석만, 유료 호출 0회.
 - 함께 처리: `docs/REA_REVERSE_ENGINEERING.md` 작업 사본이 11:12에 다른 내용(맥미니 실행 안내 대화문)으로 덮여 있어 커밋본으로 되돌림(덮인 내용 백업은 Claude 스크래치 폴더, 같은 내용은 `MAC_MINI_WORK_GUIDE.md` §6에 이미 있음).
 
-## 2026-10-16 Antigravity(Windows) — 포커스 스튜디오(Focus Studio) 템플릿 기준 모델 적용 (markdown-studio v1.09)
+## 2026-10-16 Antigravity(Windows) — 포커스 스튜디오 템플릿 적용 및 연동/사용 매뉴얼 비주얼화 (markdown-studio v1.10)
 
-- 주인님 지시: 프로그램 레이아웃 및 디자인 메인 지침에 맞춰 기준 모델인 `markdown-studio`부터 단계별 디자인 업그레이드 진행, 프로그램적으로 더 나은 로직/기능/개선방안/사용자 편의성 요소 정리 및 제안.
+- 주인님 지시: 디자인 작업 시 연동/사용 매뉴얼도 프로그램 사용을 쉽고 직관적으로 이해할 수 있도록 이미지, 사진, 캐릭터, 이모티콘, 다이어그램 등을 사용하여 작업하도록 지침화하고, `https://markdown-studio.buylife.xyz/guide` 페이지를 새 버전으로 작업.
 - 한 일:
-  1. **포커스 스튜디오 CSS 토큰 시스템 구축 (`markdown-studio/src/app/globals.css`)**:
-     - `.studio-hero`, `.studio-hero-content`, `.studio-hero-badge`, `.studio-hero-actions`, `.hero-btn-primary`, `.hero-btn-secondary`
-     - `.studio-stat-grid`, `.stat-card-modern`, `.stat-icon-wrapper` (인디고/에메랄드/앰버)
-     - `.recent-docs-grid`, `.doc-card-modern`, `.doc-card-top`, `.doc-card-badge`, `.doc-card-preview`, `.doc-card-footer`
-     - `.empty-state-card`, `.empty-state-icon` (빈 상태 친화적 안내)
-     - 모바일 반응형 767px 미디어 쿼리 완비.
-  2. **대시보드 및 준비 화면 개편 (`markdown-studio/src/components/workspace/WorkspacePage.tsx`)**:
-     - 대시보드 상단에 시각적 몰입감을 주는 인디고 그라데이션 히어로 배너 및 3대 퀵 액션 버튼 배치.
-     - 3개 핵심 지표 카드(보관된 문서, 생성된 폴더, 자동 버전 복원)를 세련된 아이콘 박스와 통계로 개편.
-     - 최근 작업 문서 목록을 단순 줄글에서 마크다운 본문 발췌 미리보기가 포함된 카드 그리드로 업그레이드.
-     - 작성된 문서가 없을 때의 부드러운 일러스트형 빈 상태(Empty State) 카드 적용.
+  1. **연동 & 사용 매뉴얼(/guide) 비주얼 가이드북 전면 개편 (`v1.10`)**:
+     - 기존의 밋밋한 번호 매김 줄글(`<ol>`)을 제거하고 고급스러운 비주얼 가이드북으로 전면 교체 (`src/app/(workspace)/guide/page.tsx`).
+     - **시각적 프로세스 다이어그램 (Workflow Diagram)**: 4단계 스텝 박스(`1. 문서 준비 📄` ➔ `2. 편집 & 미리보기 ✍️` ➔ `3. 변환 & 내보내기 📦` ➔ `4. 보관 & 드라이브 🗄️`) 최상단 배치.
+     - **단계별 비주얼 라운드 카드**: 각 단계별 대표 아바타 아이콘, 서식 뱃지, 필수 단축키 칩 6종(`Ctrl+B`, `Ctrl+S` 등).
+     - **4대 포맷 쇼케이스 카드**: PDF(레드), Word(블루), HTML(오렌지), ZIP(그린) 미니어처 카드 그리드.
+     - **💡 팁 & 🔒 보안 주의 박스**: 이름 중복 자동 방지 안내, 모바일 탭 전환 최적화, 회원 본인 1:1 OAuth 토큰 메모리 보호 원칙 인포박스.
+  2. **지침 공식 명문화**:
+     - `CLAUDE.md` 원칙 25번 & `AGENTS.md` 원칙 24번에 「프로그램 레이아웃·디자인 업그레이드 및 연동/사용 매뉴얼 비주얼화 지침」 신설.
+     - `docs/PROGRAM_DESIGN_STANDARD.md` §5.6에 「연동 & 사용 매뉴얼 디자인 표준」 수립.
   3. **버전 및 DB 갱신**:
-     - `markdown-studio/src/lib/version.ts`: `v1.08` ➔ `v1.09`
-     - Supabase DB `programs` 테이블: `markdown-studio`의 `version`을 `v1.09`로 동기화 완료 (`scripts/update_markdown_studio_v109.mjs`).
-  4. **Microsoft Edge 전용 화면 검수 완료**:
-     - 테스트 계정(`buylifemall@naver.com`) 세션을 주입한 상태로 Microsoft Edge 브라우저를 통해 데스크톱(1440x900) 및 모바일(375x812) 화면 렌더링 검수 완료.
-     - 상단 `Focus Studio 템플릿` 뱃지 및 사이드바 `v1.09` 정상 노출 확인 (`scripts/inspect_edge_focus_studio.cjs`).
-  5. **더 나은 로직/기능/편의성 개선 방안 제안서 및 디자인 지침 반영**:
-     - 에디터 단축키 치트시트 모달, 예상 읽기 시간(Reading Time) 지표 위젯, 실시간 TOC 미니맵 내비게이터, 클립보드 복사 토스트 피드백, 다크 모드 토글 스위치, 템플릿 비주얼 프리뷰 등 상세 제안 준비.
-     - `docs/PROGRAM_DESIGN_STANDARD.md`에 §8 '작업 중 로직·기능·개선방안·사용자 편의성 요소 발굴 및 지속 제안 지침' 및 Microsoft Edge 전용 검수 표준 공식 신설.
-  6. **Vercel 프로덕션 배포 완료**:
-     - `vercel --prod` 배포 완료 (`https://markdown-studio-9xkqyg49p-buylife.vercel.app`)
-     - 프로덕션 도메인 연결: `https://markdown-studio.buylife.xyz` (HTTP 307 정상 응답 검증)
+     - `lib/version.ts`: `v1.09` ➔ `v1.10`
+     - Supabase 공용 DB `programs.version`: `v1.10` 동기화 완료 (`scripts/update_markdown_studio_v109.mjs`).
+  4. **Microsoft Edge 브라우저 화면 검수**:
+     - 실제 테스트 계정(`buylifemall@naver.com`)으로 Microsoft Edge 브라우저 데스크톱(1440px) 및 모바일(375px) 화면 캡처 및 대조 검수 통과.
+     - 실제 보이는 엣지 창으로 라이브 주소(`https://markdown-studio.buylife.xyz/guide`) 호출 확인.
+  5. **Vercel 프로덕션 배포 완료**:
+     - `vercel --prod` 배포 완료 (`https://markdown-studio-90eqoly8t-buylife.vercel.app`)
+     - 운영 도메인 정상 반영: `https://markdown-studio.buylife.xyz/guide`
 - 확인한 것:
   - Next.js 16.4.0 Turbopack 로컬 빌드 성공 (오류 0건)
-  - Supabase DB `programs` 테이블 `v1.09` 갱신 확인
-  - Microsoft Edge 데스크톱/모바일 화면 정상 렌더링 확인 (스크린샷 대조 완료)
-  - Vercel 프로덕션 배포 성공 및 라이브 도메인 응답 확인 (`markdown-studio.buylife.xyz`)
+  - Supabase DB `programs.version` `v1.10` 갱신 확인
+  - Microsoft Edge 데스크톱/모바일 가이드 화면 정상 렌더링 확인
+  - Vercel 프로덕션 배포 완료 및 라이브 도메인 정상 확인
 - 다음 단계:
-  - 주인님 제안서 컨펌 후 에디터 생산성 위젯(TOC/치트시트/읽기시간) 단계별 추가 구현.
-  - 다른 서브프로그램(플로우 위저드, 스마트 매트릭스 등)으로 템플릿 스타일 확장 적용.
+  - 다음 서브프로그램(예: 플로우 위저드형의 블로그 생성기 등)의 인터페이스 및 매뉴얼 디자인 업그레이드 착수.
 
 
 - 주인님 지시: 기존 서브프로그램의 밋밋하고 딱딱한 기능 중심 디자인을 직관적이고 고급스럽게 업그레이드하기 위한 레이아웃 및 디자인 메인 지침 신설. 유형별 버전(스튜디오형, 위저드형, 대시보드형, 크리에이티브형)을 마련하고 실사 배경·인물 사진, 다이어그램, 캐릭터/아바타, 감성 아이콘을 적극 활용. 앞으로 지속 수정·보완.
