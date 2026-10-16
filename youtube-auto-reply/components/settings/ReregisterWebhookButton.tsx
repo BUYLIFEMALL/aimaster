@@ -25,11 +25,11 @@ export function ReregisterWebhookButton() {
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 disabled:opacity-60"
+        className="rounded-lg border border-yt-border bg-yt-raised px-4 py-2 text-xs font-semibold text-yt-muted hover:bg-yt-hover disabled:opacity-60"
       >
         {isPending ? "재등록 중..." : "🔄 승인 버튼이 안 눌러지면: 웹훅 재등록"}
       </button>
-      {message && <p className="text-xs text-gray-500">{message}</p>}
+      {message && <p className="text-xs text-yt-muted">{message}</p>}
     </div>
   );
 }

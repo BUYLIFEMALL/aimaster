@@ -39,7 +39,7 @@ export function VideosList({ videos }: { videos: VideoRowData[] }) {
 
   return (
     <div className="space-y-3">
-      <label className="flex items-center gap-2 text-xs font-semibold text-gray-500">
+      <label className="flex items-center gap-2 text-xs font-semibold text-yt-muted">
         <input
           type="checkbox"
           checked={allSelected}
@@ -53,14 +53,14 @@ export function VideosList({ videos }: { videos: VideoRowData[] }) {
       </label>
 
       {selectedIds.size > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-2">
-          <p className="text-xs font-bold text-blue-700">{selectedIds.size}개 선택됨</p>
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-yt-link/30 bg-yt-link/10 px-4 py-2">
+          <p className="text-xs font-bold text-yt-link">{selectedIds.size}개 선택됨</p>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => handleBulk((ids) => bulkSetMonitorAction(ids, true))}
               disabled={isPending}
-              className="text-xs font-bold text-green-700 hover:underline disabled:opacity-60"
+              className="text-xs font-bold text-yt-success hover:underline disabled:opacity-60"
             >
               일괄 모니터링 시작
             </button>
@@ -68,7 +68,7 @@ export function VideosList({ videos }: { videos: VideoRowData[] }) {
               type="button"
               onClick={() => handleBulk((ids) => bulkSetMonitorAction(ids, false))}
               disabled={isPending}
-              className="text-xs font-bold text-gray-600 hover:underline disabled:opacity-60"
+              className="text-xs font-bold text-yt-muted hover:underline disabled:opacity-60"
             >
               일괄 모니터링 중지
             </button>
@@ -76,7 +76,7 @@ export function VideosList({ videos }: { videos: VideoRowData[] }) {
               type="button"
               onClick={() => handleBulk(bulkHideAction)}
               disabled={isPending}
-              className="text-xs font-bold text-red-600 hover:underline disabled:opacity-60"
+              className="text-xs font-bold text-yt-danger hover:underline disabled:opacity-60"
             >
               일괄 숨기기
             </button>

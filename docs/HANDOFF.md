@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 유튜브 댓글자동화 v1.09: 유튜브 다크 콘솔 — 스튜디오 댓글 콘솔 변형 (🟠 윈도우 마무리 요청)
+
+- **대상**: `youtube-auto-reply/` (https://youtube-auto-reply.buylife.xyz). 플랜 → 주인님 「다크로 진행해줘 유튜브 느낌을 잘 살려봐」 승인 후 구현.
+- **한 일**: `#0f0f0f` + 유튜브 레드 토큰(`yt-*`), ▶ 로고, 사이드바 빨간 막대·대기 배지·휴대폰 ☰(원칙 19 — 기존 누락), `/dashboard`·`/guide` 신설(원칙 ⑦), 댓글을 유튜브 댓글 모양으로, 로그인까지 다크(원칙 13). 서버 로직 변경 없음. 맥미니 `tsc --noEmit` 오류 0.
+- **문서**: [`youtube-auto-reply/docs/`](../youtube-auto-reply/docs/) PLAN·IMPROVEMENTS·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, AGENTS·README 연결, `DESIGN.md` 48번 🟠 + 9번 템플릿에 변형 등록, 역량 지도 v1.09.
+- **⚠️ 윈도우 CLI 요청**: [`youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.09 → 검수(답변승인·새 댓글 확인·동기화 버튼 금지) → 48번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Antigravity(Windows) — AI 할 일·성과 관리 v1.07: 스마트 매트릭스 다크 스타일 리뉴얼, 레퍼런스 3열 콘솔 일치 및 비주얼 가이드북 전면 신설 완료
 
 - **대상 프로그램**: `ai-task-planner/` (slug: `ai-task-planner`, 프로그램 번호 62번)

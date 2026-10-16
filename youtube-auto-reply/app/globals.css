@@ -4,20 +4,40 @@
 
 @layer components {
   .input {
-    @apply w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+    @apply w-full rounded-xl border border-yt-border bg-yt-bg px-4 py-3 text-yt-text placeholder:text-yt-muted focus:border-transparent focus:outline-none focus:ring-2 focus:ring-yt-link;
   }
   .input-sm {
-    @apply w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+    @apply w-full rounded-lg border border-yt-border bg-yt-bg px-3 py-2 text-sm text-yt-text placeholder:text-yt-muted focus:border-transparent focus:outline-none focus:ring-2 focus:ring-yt-link;
+  }
+  /* 유튜브식 알약(Pill) 버튼·칩 */
+  .yt-btn-red {
+    @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-yt-red px-5 text-sm font-bold text-white transition-colors hover:bg-yt-red-hover disabled:opacity-50;
+  }
+  .yt-btn {
+    @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-yt-raised px-5 text-sm font-semibold text-yt-text transition-colors hover:bg-yt-hover disabled:opacity-50;
+  }
+  .yt-btn-outline {
+    @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full border border-yt-border px-5 text-sm font-semibold text-yt-link transition-colors hover:bg-yt-link/10 disabled:opacity-50;
+  }
+  .yt-card {
+    @apply rounded-xl border border-yt-border bg-yt-surface p-5;
+  }
+  .yt-section-title {
+    @apply mb-3 text-base font-bold text-yt-text;
+  }
+  .yt-chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-yt-raised px-3 py-1 text-xs font-semibold text-yt-text;
   }
 }
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #0f0f0f;
+  --foreground: #f1f1f1;
+  color-scheme: dark;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 }

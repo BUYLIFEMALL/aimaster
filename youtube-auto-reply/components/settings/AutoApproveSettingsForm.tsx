@@ -22,8 +22,8 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
   if (enabled) {
     return (
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-green-600">✅ 자동 게시 켜짐 — 새 댓글은 검토 없이 바로 게시됩니다.</p>
-        <p className="text-xs text-gray-400">
+        <p className="text-sm font-semibold text-yt-success">✅ 자동 게시 켜짐 — 새 댓글은 검토 없이 바로 게시됩니다.</p>
+        <p className="text-xs text-yt-muted">
           텔레그램을 연동해두면 자동 게시될 때마다 결과를 알려드려요. 문제가 생기면 언제든 꺼서
           다시 검토 후 게시 방식으로 되돌릴 수 있습니다.
         </p>
@@ -31,7 +31,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
           type="button"
           onClick={() => handleToggle(false)}
           disabled={isPending}
-          className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100 disabled:opacity-60"
+          className="rounded-lg bg-yt-danger/10 px-4 py-2 text-xs font-bold text-yt-danger hover:bg-yt-danger/20 disabled:opacity-60"
         >
           {isPending ? "끄는 중..." : "⏸ 자동 게시 끄기"}
         </button>
@@ -41,7 +41,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+      <div className="rounded-lg border border-yt-warn/40 bg-yt-warn/10 p-3 text-xs text-yt-warn">
         <p className="font-semibold">⚠️ 켜기 전에 확인해주세요</p>
         <ul className="mt-1 list-inside list-disc space-y-0.5">
           <li>AI가 맥락을 잘못 읽고 부적절한 답을 사람 확인 없이 그대로 공개 게시할 수 있어요.</li>
@@ -49,7 +49,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
           <li>먼저 며칠간 "댓글 검토/게시" 화면(또는 텔레그램 승인 버튼)으로 AI 답글 품질을 확인한 뒤 켜는 것을 권장해요.</li>
         </ul>
       </div>
-      <label className="flex items-start gap-2 text-xs text-gray-600">
+      <label className="flex items-start gap-2 text-xs text-yt-muted">
         <input
           type="checkbox"
           checked={confirmed}
@@ -62,7 +62,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
         type="button"
         onClick={() => handleToggle(true)}
         disabled={isPending || !confirmed}
-        className="rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 text-xs font-bold text-white hover:from-blue-700 hover:to-purple-700 disabled:opacity-40"
+        className="rounded-full bg-yt-red px-4 py-2 text-xs font-bold text-white hover:bg-yt-red-hover disabled:opacity-40"
       >
         {isPending ? "켜는 중..." : "⚡ 자동 게시 켜기"}
       </button>

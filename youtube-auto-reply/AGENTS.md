@@ -117,5 +117,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 기준 구현(threads-comment-reply v1.08)과 동일: `lib/oauthRedirect.ts`, 콜백 기본 옛 주소·[새 주소로 연결](callback=new), 옛 주소 307에 via=old, 교환 redirect_uri 선택, 연결 후 이동 SITE_ORIGIN, 설정 화면 두 주소 표시, 텔레그램 웹훅 새 주소 + `/api/telegram/migrate-webhooks`(관리자 로그인/CRON_SECRET). 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`.
 - 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, migrate 비인증 401, 시험 계정 설정 화면 두 주소·[새 주소로 연결] 표시. 시험 계정에 Google Client ID 미등록이라 구글 인증 화면 확인은 못 함. 텔레그램 연동 1건(주인님 관리자 봇) 이전 미실행.
 
-## 2026-10-17 디자인 리뉴얼 (Claude Code 맥미니, ⏳ 승인 대기)
+## 2026-10-17 v1.09 — 디자인 리뉴얼: 유튜브 다크 콘솔 스타일 — 스튜디오 댓글 콘솔 변형 (Claude Code 맥미니)
+- `#0f0f0f` + 유튜브 레드, 사이드바 빨간 막대·대기 배지·휴대폰 ☰, `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 댓글을 유튜브 댓글 모양(아바타·들여쓴 답글 초안)으로, 로그인까지 다크. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
+- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)

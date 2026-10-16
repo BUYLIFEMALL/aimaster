@@ -1,3 +1,4 @@
+import { StudioHeader } from "@/components/ui/StudioHeader";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
@@ -71,34 +72,31 @@ export default async function SettingsPage() {
   const activeProvider = getReplyModelProvider(activeModel);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
-      <section>
-        <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
-        <p className="mb-6 text-sm text-gray-500">
-          유튜브 댓글자동화에는 본인의 Google OAuth Client ID/Secret과, 답글 초안을 만드는
-          OpenAI/Anthropic Claude/Google Gemini 중 고른 모델의 provider 키 하나가 필요합니다.{" "}
-          <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</span>
-        </p>
-      </section>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <StudioHeader
+        icon="🔑"
+        title="API키등록·플랫폼연동"
+        description="본인의 Google OAuth Client ID/Secret과, 답글 초안을 만드는 OpenAI·Anthropic Claude·Google Gemini 중 고른 모델의 키 하나가 필요합니다. 앱(관리자) 공용 키로 대신 동작하지 않습니다."
+      />
 
       {/* 그룹 1: 유튜브 채널 연결 */}
-      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+      <section className="space-y-4 rounded-xl border border-yt-border bg-yt-surface p-6">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">📺 유튜브 채널 연결</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-yt-text">📺 유튜브 채널 연결</h2>
+          <p className="text-sm text-yt-muted">
             Google OAuth Client ID/Secret을 등록하고 채널을 연결해야 댓글을 읽고 답글을 달 수 있어요.
           </p>
         </div>
 
-        <div className="space-y-2 text-sm text-gray-500">
+        <div className="space-y-2 text-sm text-yt-muted">
           <p>Google Cloud Console에서 만든 OAuth 클라이언트의 승인된 리디렉션 URI에 아래 주소를 추가로 등록해주셔야 합니다.</p>
-          <p className="font-semibold text-gray-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+          <p className="font-semibold text-yt-text">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
           <p>① 기존 주소</p>
-          <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">{YOUTUBE_REDIRECT_OLD()}</code>
+          <code className="block break-all rounded bg-yt-raised px-2 py-1.5 text-xs text-yt-text">{YOUTUBE_REDIRECT_OLD()}</code>
           {YOUTUBE_REDIRECT_OLD() !== YOUTUBE_REDIRECT_NEW && (
             <>
               <p>② 새 주소</p>
-              <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">{YOUTUBE_REDIRECT_NEW}</code>
+              <code className="block break-all rounded bg-yt-raised px-2 py-1.5 text-xs text-yt-text">{YOUTUBE_REDIRECT_NEW}</code>
               <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
             </>
           )}
@@ -121,7 +119,7 @@ export default async function SettingsPage() {
           ))}
         </div>
 
-        <div className="space-y-3 border-t border-gray-100 pt-4">
+        <div className="space-y-3 border-t border-yt-border pt-4">
           <YoutubeConnectSection
             showNewCallback={YOUTUBE_REDIRECT_OLD() !== YOUTUBE_REDIRECT_NEW}
             connected={connectionStatus.connected}
@@ -132,16 +130,16 @@ export default async function SettingsPage() {
       </section>
 
       {/* 그룹 2: AI 답글 생성 키 */}
-      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+      <section className="space-y-4 rounded-xl border border-yt-border bg-yt-surface p-6">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">🤖 AI 답글 생성 키</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-yt-text">🤖 AI 답글 생성 키</h2>
+          <p className="text-sm text-yt-muted">
             아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 고른 모델에 해당하는 provider의 키
             하나만 등록되어 있으면 됩니다(세 개 다 등록할 필요 없음).
           </p>
         </div>
 
-        <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+        <div className="space-y-1 rounded-xl border border-yt-link/30 bg-yt-link/10 px-4 py-3 text-sm text-yt-link">
           <p>
             🎯 현재 답글 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
           </p>
@@ -166,13 +164,13 @@ export default async function SettingsPage() {
       </section>
 
       {/* 그룹 3: 텔레그램 알림 연동 */}
-      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+      <section className="space-y-4 rounded-xl border border-yt-border bg-yt-surface p-6">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">📱 텔레그램 알림 연동</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-yt-text">📱 텔레그램 알림 연동</h2>
+          <p className="text-sm text-yt-muted">
             유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
             알려드려요. 또한 새 댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께
-            보내드리고, 텔레그램에서 바로 <strong className="text-gray-700">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
+            보내드리고, 텔레그램에서 바로 <strong className="text-yt-text">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
             선택할 수 있어요(선택 기능). "보류"를 누르면 웹의 "댓글 검토/게시" 화면에 남아있어 나중에
             수정 후 게시할 수 있습니다. 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
             연동해야 합니다.
@@ -181,10 +179,10 @@ export default async function SettingsPage() {
 
         {telegramLink ? (
           <div className="space-y-3">
-            <p className="text-sm text-green-600">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
+            <p className="text-sm text-yt-success">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
             <div className="flex flex-wrap items-center gap-2">
               <form action={disconnectTelegramAction}>
-                <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
+                <button type="submit" className="rounded-lg bg-yt-danger/10 px-4 py-2 text-xs font-bold text-yt-danger hover:bg-yt-danger/20">
                   연동 해제
                 </button>
               </form>
@@ -193,13 +191,13 @@ export default async function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <ol className="list-inside list-decimal space-y-2 text-sm text-gray-600">
+            <ol className="list-inside list-decimal space-y-2 text-sm text-yt-muted">
               <li>
-                텔레그램에서 <span className="font-semibold text-gray-900">@BotFather</span>를 검색해서 대화를 시작하세요.
+                텔레그램에서 <span className="font-semibold text-yt-text">@BotFather</span>를 검색해서 대화를 시작하세요.
               </li>
               <li>
-                <code className="rounded bg-gray-100 px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요 (마지막엔
-                반드시 <code className="rounded bg-gray-100 px-1 py-0.5">bot</code>으로 끝나야 해요).
+                <code className="rounded bg-yt-raised px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요 (마지막엔
+                반드시 <code className="rounded bg-yt-raised px-1 py-0.5">bot</code>으로 끝나야 해요).
               </li>
               <li>
                 완료되면 BotFather가 <strong>토큰</strong>을 알려줘요. 그 값을 복사하세요.
@@ -214,8 +212,8 @@ export default async function SettingsPage() {
         )}
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">🔗 답글 기본 설정</h2>
+      <section className="glass-card space-y-3 rounded-xl border border-yt-border bg-yt-surface p-6">
+        <h2 className="text-lg font-bold text-yt-text">🔗 답글 기본 설정</h2>
         <ReplySettingsForm
           defaultLink={settings?.default_link ?? null}
           aiInstructions={settings?.ai_instructions ?? null}
@@ -224,8 +222,8 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">⏱ 예약 모니터링</h2>
+      <section className="glass-card space-y-3 rounded-xl border border-yt-border bg-yt-surface p-6">
+        <h2 className="text-lg font-bold text-yt-text">⏱ 예약 모니터링</h2>
         <MonitoringSettingsForm
           enabled={settings?.monitoring_enabled ?? false}
           intervalMinutes={settings?.monitoring_interval_minutes ?? 60}
@@ -234,19 +232,19 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">⚡ 자동 게시 (선택, 고급)</h2>
-        <p className="text-sm text-gray-500">
+      <section className="glass-card space-y-3 rounded-xl border border-yt-border bg-yt-surface p-6">
+        <h2 className="text-lg font-bold text-yt-text">⚡ 자동 게시 (선택, 고급)</h2>
+        <p className="text-sm text-yt-muted">
           기본적으로는 새 댓글마다 AI 초안만 만들고, 실제 게시는 웹 화면이나 텔레그램 버튼에서
           직접 승인해야 합니다. 이 설정을 켜면 검토 없이 AI 초안이 바로 게시됩니다.
         </p>
         <AutoApproveSettingsForm enabled={settings?.auto_approve ?? false} />
       </section>
 
-      <section className="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-yt-border bg-yt-surface p-6">
         <div className="mb-4">
-          <h2 className="text-lg font-bold text-gray-900">📖 연동 매뉴얼</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-yt-text">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-yt-muted">
             이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
             따라 할 수 있습니다.
           </p>

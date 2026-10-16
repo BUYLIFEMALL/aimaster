@@ -32,12 +32,12 @@ export function SyncVideosButton() {
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
+        className="yt-btn-red"
       >
         {isPending ? "동기화 중..." : "🔄 채널 영상 동기화"}
       </button>
-      {result && <p className="mt-2 text-xs text-green-600">{result}</p>}
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {result && <p className="mt-2 text-xs text-yt-success">{result}</p>}
+      {error && <p className="mt-2 text-xs text-yt-danger">{error}</p>}
     </div>
   );
 }
