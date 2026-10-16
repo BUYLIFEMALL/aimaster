@@ -8,7 +8,7 @@ export const STEPS = [
   { href: "/topic", emoji: "💡", name: "주제·대본", detail: "주제 추천 · AI 대본" },
   { href: "/design", emoji: "🎨", name: "디자인·배경", detail: "테마 · 스톡 · AI 이미지" },
   { href: "/scenes", emoji: "🎬", name: "장면 편집", detail: "카드 편집 · 미리보기" },
-  { href: "/render", emoji: "🎙️", name: "음성·자막·영상", detail: "내레이션 · 자막 · 배경음악" },
+  { href: "/render", emoji: "🎙️", name: "음성·자막·영상", detail: "내레이션 · 자막 · MP4" },
   { href: "/plan", emoji: "📅", name: "발행 계획", detail: "업로드 일정 · 일괄 제작" },
   { href: "/library", emoji: "🗂️", name: "내 보관함", detail: "프로젝트 · 프리셋 · 지침" },
 ];

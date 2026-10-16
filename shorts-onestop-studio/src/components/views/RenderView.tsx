@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Mic, Music, Pause, Play, RotateCcw, Save, Trash2, Upload } from "lucide-react";
+import { Download, Film, Mic, Music, Pause, Play, RotateCcw, Save, Square, Trash2, Upload } from "lucide-react";
 import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
 import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { sceneVoices, type ShortsScript, type Voice } from "@/lib/script";
 import { CAPTION_STYLES, TTS_MODELS, TTS_VOICES, normalizeAudio, type AudioSettings } from "@/lib/voice";
 import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } from "@/lib/render/scene";
+import { exportMp4, type ExportProgress } from "@/lib/render/export";
 
 const label = (s: ShortsScript, i: number) => (i === 0 ? "인트로" : i === s.cards.length + 1 ? "아웃트로" : `카드 ${i}`);
 function setVoice(s: ShortsScript, i: number, v: Voice | undefined): ShortsScript {
@@ -32,6 +33,8 @@ export function RenderView() {
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [dirty, setDirty] = useState(false);
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0.9);
   const canvas = useRef<HTMLCanvasElement>(null); const tRef = useRef(0.9);
+  const [exp, setExp] = useState<ExportProgress | null>(null), [file, setFile] = useState<{ url: string; name: string; mb: number } | null>(null);
+  const abort = useRef<AbortController | null>(null);
   const media = useMedia(script); const audio = useAudio(script);
   const a = useMemo(() => normalizeAudio(script?.audio), [script]);
   const tl = useMemo(() => (script ? timeline(script) : null), [script]);
@@ -39,6 +42,7 @@ export function RenderView() {
   const open = useCallback(async (id: string) => {
     try {
       const { item } = await api<{ item: Item<ShortsScript> }>(`/api/items?id=${id}`);
+      setFile((f) => { if (f) URL.revokeObjectURL(f.url); return null; });
       setItem(item); setScript(item.data); setDirty(false); setPlaying(false); tRef.current = 0.9; setT(0.9);
       window.history.replaceState(null, "", `/render?id=${id}`);
     } catch (e) { setMsg(toMsg(e)); }
@@ -110,6 +114,20 @@ export function RenderView() {
     } catch (e) { setMsg(e instanceof Error && !(e as { needKey?: boolean }).needKey ? { text: e.message } : toMsg(e)); } finally { setBusy(""); }
   }
 
+  async function makeMp4() {
+    if (!script || exp) return;
+    setPlaying(false); setMsg(null); setFile((f) => { if (f) URL.revokeObjectURL(f.url); return null; });
+    const ac = new AbortController(); abort.current = ac; const started = performance.now();
+    try {
+      const blob = await exportMp4({ script, media: media.resolve, audioUrls: audio.urls, signal: ac.signal, onProgress: setExp });
+      const name = `${(item?.title || script.intro.title || "shorts").replace(/[\/:*?"<>|]/g, "").slice(0, 40).trim() || "shorts"}.mp4`;
+      setFile({ url: URL.createObjectURL(blob), name, mb: Math.round((blob.size / 1048576) * 10) / 10 });
+      setMsg({ text: `MP4를 만들었습니다(${Math.round((performance.now() - started) / 1000)}초 걸림). [MP4 내려받기]를 눌러 저장하세요.`, ok: true });
+    } catch (e) {
+      setMsg(e instanceof DOMException && e.name === "AbortError" ? { text: "MP4 만들기를 멈췄습니다." } : { text: e instanceof Error ? e.message : "MP4를 만들지 못했습니다. 다시 시도해 주세요." });
+    } finally { setExp(null); abort.current = null; }
+  }
+
   async function save() {
     if (!item || !script) return; setBusy("저장하는 중…");
     try { const r = await api<{ item: Item<ShortsScript> }>("/api/items", { method: "PATCH", body: { id: item.id, data: script } }); setItem(r.item); setDirty(false); setMsg({ text: "음성·자막·배경음악 설정을 저장했습니다.", ok: true }); }
@@ -177,7 +195,15 @@ export function RenderView() {
               </section>
               <section className="card stack">
                 <h2>🎬 ④ MP4 만들기</h2>
-                <div className="avatar-tip"><span className="avatar">🤖</span><div><strong>곧 열립니다!</strong><p className="muted">다음 단계에서 이 화면 그대로 브라우저 안에서 1080×1920 MP4(목소리·자막·배경음악 포함)를 만들어 내려받을 수 있게 됩니다. 지금 저장해 두시면 바로 이어집니다.</p></div></div>
+                <p className="muted">지금 미리보기 그대로 1080×1920 세로 MP4(30fps, 목소리·자막·배경음악 포함)를 이 브라우저 안에서 만듭니다. 서버 요금은 없고, 만드는 동안 이 탭을 열어 두세요(영상 길이의 1~3배 정도 걸립니다).</p>
+                {ready < vs.length && <small className="muted">⚠️ 음성이 없는 장면 {vs.length - ready}개는 소리 없이 글자 수 길이로 들어갑니다.</small>}
+                {exp && <div className="stack" style={{ gap: 6 }}><div style={{ height: 10, borderRadius: 6, background: "var(--line)", overflow: "hidden" }}><div style={{ width: `${exp.pct}%`, height: "100%", background: "var(--brand)", transition: "width .3s" }} /></div><small className="muted">{exp.pct}% · {exp.status}</small></div>}
+                <div className="actions">
+                  {exp ? <button type="button" className="danger" onClick={() => abort.current?.abort()}><Square size={14} />멈추기</button>
+                    : <button type="button" className="primary" disabled={!!busy} onClick={() => void makeMp4()}><Film size={14} />MP4 만들기</button>}
+                  {file && <a className="button primary" href={file.url} download={file.name}><Download size={14} />MP4 내려받기 ({file.mb}MB)</a>}
+                </div>
+                {file && <video src={file.url} controls playsInline style={{ width: "100%", maxWidth: 240, borderRadius: 12, alignSelf: "center" }} />}
               </section>
             </div>
             <aside className="card stack panel">

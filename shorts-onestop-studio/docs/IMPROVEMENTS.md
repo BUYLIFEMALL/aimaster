@@ -1,0 +1,11 @@
+# 개선사항 기록 (shorts-onestop-studio)
+
+양식: 발견 근거 · 영향 · 우선순위 · 상태 · 관련 파일 · 다음 첫 단계 · 검수 방법. 미구현 제안을 완료로 표시하지 않는다.
+
+| # | 날짜 | 내용 | 근거·영향 | 우선순위 | 상태 | 관련 파일 | 다음 첫 단계 / 검수 |
+|---|---|---|---|---|---|---|---|
+| 1 | 2026-10-16 | 좁은 화면(≤1100px)에서 작업 화면 가로 넘침 | 400px 검수에서 음성 카드가 966px로 늘어남 — 1열 `1fr`이 말줄임 글자의 최소 폭에 밀림 | 높음 | **완료(v1.06)** — `minmax(0,1fr)` | `src/app/globals.css` | 400px 틀에서 6개 화면 가로 넘침 0 확인 |
+| 2 | 2026-10-16 | MP4 만들기 속도 개선 | 54.5초 영상에 138초(약 2.5배). 배경 영상을 프레임마다 되감기(seek)하는 구간이 느림, 렌더 중 탭이 바빠 다른 조작이 둔함 | 중간 | 제안 | `src/lib/render/export.ts` | 배경 영상을 `requestVideoFrameCallback`/WebCodecs `VideoDecoder`로 순차 디코딩하거나 15fps 갱신, 작업을 Worker+OffscreenCanvas로 이동 / 같은 대본으로 시간 비교 |
+| 3 | 2026-10-16 | 완성 MP4를 보관함(저장소)에 남기기 | 지금은 내려받기만 — P7 발행 계획과 연결하려면 저장 위치 필요 | 중간 | 제안(P7에서 검토) | `RenderView.tsx`, 버킷 `shorts-onestop-studio` | 크기 제한(50MB 내외)·일회용 업로드 주소 재사용 검토 |
+| 4 | 2026-10-16 | 음성 없는 장면의 자막 | 음성이 없어도 글자 수 어림 시간으로 자막이 나옴(소리 없는 자막) — 의도인지 회원 선택으로 둘지 | 낮음 | 제안 | `src/lib/render/scene.ts` `drawCaption` | 자막 옵션에 "음성 있는 장면만" 추가 검토 |
+| 5 | 2026-10-16 | 참고한 yt-playlist-studio 내보내기는 소리가 빠짐 | `video-exporter.ts`가 AudioEncoder를 만들고 데이터를 넣지 않음 → 그 프로그램 MP4는 무음일 가능성 | 높음(그 프로그램) | 제안 — 해당 폴더 담당 CLI에 전달 | `yt-playlist-studio/src/lib/render/video-exporter.ts` | 그 프로그램에서 MP4를 만들어 소리 트랙 확인 후 `shorts-onestop-studio/src/lib/render/export.ts`의 `mixAudio`·AudioData 인코딩 방식 이식 |

@@ -167,6 +167,13 @@ function drawMedia(ctx: CanvasRenderingContext2D, el: CanvasImageSource, progres
   return true;
 }
 
+/** 장면에 실제로 그려질 배경(테마 방식이면 없음) — 미리보기·MP4 공용 */
+export function bgFor(s: ShortsScript, seg: Segment): Bg | undefined {
+  const bd = normalizeBackdrop(s.backdrop); if (bd.mode === "theme") return undefined;
+  const sceneBg = seg.kind === "intro" ? s.intro.bg : seg.kind === "outro" ? s.outro.bg : s.cards[seg.index]?.bg;
+  return bd.mode === "scene" ? sceneBg ?? bd.global : bd.global;
+}
+
 /** 시각 t(초)의 한 프레임을 그린다. opts.safe=true면 유튜브 UI 가림 영역을 표시(미리보기 전용).
  *  opts.media: 배경(Bg)에 해당하는 불러온 이미지·영상 요소를 돌려주는 함수(없거나 아직 로딩 중이면 테마 배경) */
 export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: Design, t: number, opts: { safe?: boolean; media?: (bg: Bg) => CanvasImageSource | null } = {}) {
@@ -178,9 +185,8 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
   ctx.save(); ctx.clearRect(0, 0, W, H);
   background(ctx, th, t);
   const bd = normalizeBackdrop(s.backdrop);
-  if (bd.mode !== "theme" && opts.media) {
-    const sceneBg = seg.kind === "intro" ? s.intro.bg : seg.kind === "outro" ? s.outro.bg : s.cards[seg.index]?.bg;
-    const bg = bd.mode === "scene" ? sceneBg ?? bd.global : bd.global;
+  if (opts.media) {
+    const bg = bgFor(s, seg);
     const el = bg ? opts.media(bg) : null;
     if (el) drawMedia(ctx, el, u / seg.dur, bd.dim);
   }

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — 좁은 화면에서 작업 화면이 가로로 넘침 + 참고 MP4 내보내기의 소리 누락 (shorts-onestop-studio v1.06)
+
+- 증상 ①: 400px 폭에서 음성 카드가 966px로 늘어나 입력칸이 잘리고 가로 스크롤이 생김.
+- 원인 ①: 좁은 화면용 1열 `grid-template-columns:1fr`은 최소 폭이 내용(말줄임 `nowrap` 글자)만큼이라 열이 밀려 늘어남.
+- 해결 ①: `minmax(0,1fr)`로 변경(`shorts-onestop-studio/src/app/globals.css` `.atelier`). 다음부터 확인: 그리드 1열 전환에도 `minmax(0,1fr)`을 쓰고, 배포 후 400px 틀에서 `scrollWidth === clientWidth`를 화면마다 확인.
+- 증상 ②(참고 코드): `yt-playlist-studio/src/lib/render/video-exporter.ts`는 AudioEncoder를 설정만 하고 AudioData를 넣지 않음 → 그 MP4는 무음일 가능성. 다음부터 확인: 브라우저 MP4는 결과 파일을 `decodeAudioData`로 열어 소리 트랙 길이·RMS까지 확인. 올바른 방식: `shorts-onestop-studio/src/lib/render/export.ts`(OfflineAudioContext 믹스 → 0.1초 단위 AudioData 인코딩).
+
 ## 2026-10-16 — 스톡·AI 배경 실화면 검수에서 찾은 3가지 (shorts-onestop-studio v1.04)
 
 - 증상 ①: 스톡 종류를 '세로 영상'으로 둬도 사진이 검색되고 저장값에 종류가 없음. 원인: 스크립트로 한 줄에 주석(`// …`)을 붙이면서 같은 줄 뒤의 `media: …` 설정까지 주석이 됨. 해결: 주석을 따로 줄로(`src/lib/script.ts` normalizeBackdrop). 다음부터: 스크립트로 코드 줄에 주석을 끼울 때는 앞줄에 따로 넣고, 바꾼 줄을 grep으로 다시 읽어 확인.

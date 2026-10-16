@@ -103,6 +103,12 @@
 - 문서만 변경. 버전·런타임·DB·환경변수 변경 없음, 유료 API 0회. 규칙 일치·링크·차이를 검토하며 기능 빌드/브라우저 검수는 이번 범위에 포함하지 않음. 커밋·푸시는 이 항목의 최신 Git 이력 확인. 메인 설치 파일 포함 운영 보호 확인은 Git 제외 `.vercel/final-main-promotion.json` 기록 참조.
 
 
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.06: P6 브라우저 MP4 (`shorts-onestop-studio`)
+
+- 음성·자막·영상 화면 ④ [MP4 만들기]: 브라우저 안에서 1080×1920·30fps MP4(목소리·자막·배경음악) 생성·멈추기·내려받기(`src/lib/render/export.ts`, WebCodecs+`mp4-muxer`). 서버·AI 비용 없음.
+- 시험 계정 크롬 검수: 54.5초 MP4 138초에 생성, 소리 트랙·화면 확인. 400px 폭 검수에서 작업 화면 가로 넘침 발견·수정(`globals.css` `minmax(0,1fr)`). 상세 페이지 갱신(`0015`). 다운로드 버튼 클릭은 하지 않음(허락 필요).
+- 개선사항 [`shorts-onestop-studio/docs/IMPROVEMENTS.md`](../shorts-onestop-studio/docs/IMPROVEMENTS.md)(속도 개선·보관함 저장·yt-playlist-studio MP4 무음 의심), 인수인계 [`IMPROVEMENT_HANDOFF_20261016.md`](../shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261016.md), 플랜 [`PLAN_P6_P8.md`](../shorts-onestop-studio/docs/PLAN_P6_P8.md). 다음: P7 세부 플랜 보고.
+
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.05: P5 음성·자막·배경음악 (`shorts-onestop-studio`)
 
 - 🎙️ 음성·자막·영상 화면: 본인 키 TTS(OpenAI gpt-4o-mini-tts 기본·tts-1·Gemini TTS Preview), 장면별 음성 만들기/다시, 장면 길이를 실제 목소리 길이로, 자막 4스타일·위치·크기, 배경음악 업로드(일회용 주소로 브라우저 직접 업로드)·목소리 나올 때 자동 볼륨, 소리 있는 미리보기(장면 편집 재생에도 소리). MP4는 P6.
