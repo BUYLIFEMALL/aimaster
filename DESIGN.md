@@ -155,7 +155,7 @@
 | 62 | AI 할 일·성과 관리 | `ai-task-planner` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `ai-task-planner/AGENTS.md` |
 | 63 | AI 종합 성격 진단 자동화 | `personality-suite` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `personality-suite/AGENTS.md` |
 | 64 | AI 문서번역 자동화 | `document-translator` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `document-translator/AGENTS.md` |
-| 65 | AI 엑셀·텍스트 합치기 자동화 | `file-merge` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `file-merge/AGENTS.md` |
+| 65 | AI 엑셀·텍스트 합치기 자동화 | `file-merge` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | 🔵 작업 중 (Claude Code(맥미니), 2026-10-17) | `file-merge/AGENTS.md` |
 | 66 | 네이버 블로그 자동화(App) | `naver-blog-auto-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⏸ 보류 (비활성 프로그램) | `naver-blog-auto-poster_app/AGENTS.md` |
 | 67 | 네이버 블로그 자동화(Web) | `naver-blog-auto-poster-web` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⏸ 보류 (비활성 프로그램) | `naver-blog-auto-poster_web/AGENTS.md` |
 | 68 | AI 글쓰기 에디터 자동화 | `ai-writing-editor` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `ai-writing-editor/AGENTS.md` |
