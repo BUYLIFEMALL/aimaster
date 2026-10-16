@@ -1,0 +1,22 @@
+{
+  "checked_at": "2026-10-16T10:11:24.433Z",
+  "source_commit": "ca8beca20b7c006a83f9bbc70a237e114f2887c2",
+  "deployment_id": "dpl_3RZnj5z1KY5SMeVrUQmoAKr11oRR",
+  "state": "READY",
+  "url": "https://aimaster-m47yexucc-buylife.vercel.app",
+  "live_url": "https://www.buylife.xyz",
+  "installer_bytes": 72796208,
+  "premium_notice_in_source_and_compiled_server": true,
+  "premium_live_banner": "Not rendered: currently no premium-badged program; no badge changed for testing",
+  "member": "buylifemall@naver.com",
+  "member_is_admin": false,
+  "member_grade_expiry_matches_signup": true,
+  "member_program_detail_access": true,
+  "member_screen_evidence": ".vercel/vip-main-member.png (local only)",
+  "main_dashboard": "Not tested: valid platform session_token required; no bypass created",
+  "http": {
+    "homepage": 200,
+    "installer": 200,
+    "extension_zip": 200
+  }
+}

@@ -32,17 +32,18 @@
   {
     "slug": ".",
     "version": null,
-    "revision": "ec1bcb5e1108a71d367a39ffd6891ea936603134",
+    "revision": "ca8beca20b7c006a83f9bbc70a237e114f2887c2",
     "started": "2026-10-16T02:34:53.388Z",
-    "url": "https://aimaster-f42f78e0x-buylife.vercel.app",
-    "deployment_id": "dpl_3YjtVTKpe2Hjmvkr6633P5rHRGDs",
+    "url": "https://aimaster-m47yexucc-buylife.vercel.app",
+    "deployment_id": "dpl_3RZnj5z1KY5SMeVrUQmoAKr11oRR",
     "readyState": "READY",
     "catalog": {
       "ok": true,
       "root": true
     },
     "ok": true,
-    "finished": "2026-10-16T02:35:47.161Z"
+    "finished": "2026-10-16T02:35:47.161Z",
+    "premium_notice_release": "docs/vip-main-deployment-20261016.json"
   },
   {
     "slug": "ai-auto-blog",
