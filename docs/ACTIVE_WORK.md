@@ -16,7 +16,7 @@
 
 ## 작업 중
 
-| 폴더(서브프로그램) | 에이전트(장비) | 시작 | 작업 내용 |
+| vinyl-lp-studio (LP 턴테이블 자동화) | Claude Code(Windows) | 2026-10-16 | MP4 소리 트랙 추가(v1.05) → 이어서 shorts-onestop-studio 개선 3건 |
 
 
 

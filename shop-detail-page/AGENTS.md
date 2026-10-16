@@ -123,3 +123,23 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
   - Microsoft Edge 전용 실세션(`buylifemall@naver.com`) 데스크톱/모바일 검수 완료 (`edge_shop_detail_sidebar_v107.png`, `edge_shop_detail_mobile_v107.png`).
 - **라이브 URL**: `https://shop-detail-page.vercel.app`
 
+## 2026-10-16 가이드북(/guide) 전면 고도화 및 5단계 실전 매뉴얼 구축 — v1.08 (shop-detail-page)
+
+- **주인님 지시**:
+  - "프로그램 사용방법을 더 자세하고 디테일하게 각 스텝마다 해야 하는것을 프로그램 로직 파악 후 매뉴얼 작업페이지를 보강해줘"
+- **주요 작업 내용**:
+  1. **실제 소스코드 기반 3대 인터랙티브 탭 구축 (`CommerceUsageGuide.tsx`)**:
+     - `📋 5단계 완벽 실전 가이드`: STEP 00 (API키 등록) ~ STEP 04 (세로 롱 이미지 병합) 스텝별 필수/선택 입력값, 주의사항, 권장 이미지 사양(정방형 누끼) 반영.
+     - `🧱 15대 필수 섹션 상세 가이드`: 01. 인트로 헤더부터 15. 구매전환 CTA까지 15개 섹션별 추천 구성 및 기획 의도 아코디언 탑재.
+     - `💡 셀러 성공 꿀팁 & FAQ`: 고화질 정방형 누끼 촬영 팁, 섹션별 개별 재생성 & 히스토리 롤백, 사용자 직접 이미지 교체, 과대광고 심의 안내를 포함한 4대 실전 꿀팁 및 5대 트러블슈팅 FAQ 아코디언 탑재.
+  2. **모바일 반응형 최적화**: 375px 모바일 뷰에서도 탭 버튼과 단계별 카드, 15개 섹션 아코디언이 가로 잘림 없이 1열 카드 구조로 매끄럽게 반응하도록 설계.
+  3. **버전 및 DB 동기화**: 코드 `lib/version.ts` `APP_VERSION = "v1.08"` 및 Supabase DB `programs.version = 'v1.08'` 동기화 완료.
+- **배포 및 검수**:
+  - Vercel 프로덕션 배포 완료 (`dpl_35BMWwMcKgnYyQ27Bn6fTMAdaMFx`).
+  - Microsoft Edge 전용 실세션(`buylifemall@naver.com`) 검수 완료:
+    - `edge_shop_detail_guide_steps_v108.png` (5단계 가이드)
+    - `edge_shop_detail_guide_sections_v108.png` (15대 섹션 가이드)
+    - `edge_shop_detail_guide_faq_v108.png` (셀러 꿀팁 & FAQ)
+    - `edge_shop_detail_guide_mobile_v108.png` (모바일 375px)
+- **라이브 URL**: `https://shop-detail-page.vercel.app/guide`
+

@@ -1,5 +1,38 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — AI 상세페이지 자동화 v1.08: 가이드북(/guide) 전면 고도화 및 5단계 실전 매뉴얼 구축 완료
+
+- **대상 프로그램**: `shop-detail-page/` (slug: `shop-detail-page`, `https://shop-detail-page.vercel.app/guide`)
+- **주인님 지시**:
+  - "https://shop-detail-page.vercel.app/guide 프로그램 사용방법을 더 자세하고 디테일하게 각 스텝마다 해야 하는것을 프로그램 로직 파악 후 매뉴얼 작업페이지를 보강해줘"
+- **완료 내용**:
+  1. **실제 소스코드 분석 기반 3대 인터랙티브 탭 구축 (`CommerceUsageGuide.tsx`)**:
+     - `📋 5단계 완벽 실전 가이드`: STEP 00 (API키 등록) ~ STEP 04 (세로 롱 이미지 병합) 스텝별 필수/선택 입력 데이터, 주의사항, 권장 이미지 사양(정방형 누끼) 상세 명시.
+     - `🧱 15대 필수 섹션 상세 가이드`: 01. 인트로 헤더부터 15. 구매전환 CTA까지 15개 섹션별 추천 구성 및 기획 의도 아코디언 탑재.
+     - `💡 셀러 성공 꿀팁 & FAQ`: 정방형 누끼 촬영 팁, 개별 재생성 & 히스토리 롤백, 사용자 직접 이미지 교체, 심의 주의사항을 아우르는 4대 실전 꿀팁 및 5대 트러블슈팅 FAQ 아코디언 탑재.
+  2. **모바일 반응형 최적화**:
+     - 375px 모바일 뷰에서도 탭 버튼과 단계별 카드, 15개 섹션 아코디언이 가로 스크롤 잘림 없이 1열 카드 구조로 매끄럽게 동작하도록 최적화.
+  3. **버전 및 DB 동기화**:
+     - `shop-detail-page/lib/version.ts`: `APP_VERSION = "v1.08"`
+     - Supabase 공유 DB: `programs.version = 'v1.08'` (slug: `shop-detail-page`) 업데이트 완료.
+  4. **빌드 및 Vercel 프로덕션 배포**:
+     - `npm run build`: 9개 라우트 정상 컴파일 완료.
+     - Vercel 프로덕션 배포 완료: Deployment `dpl_35BMWwMcKgnYyQ27Bn6fTMAdaMFx` (`https://shop-detail-page.vercel.app`, HTTP 200).
+  5. **Microsoft Edge (엣지) 전용 실세션 검수 완료 (4장 아티팩트)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 주입 후 검수:
+       - 데스크톱 매뉴얼 탭 1 (5단계 실전 가이드): `edge_shop_detail_guide_steps_v108.png` (1440 × 900)
+       - 데스크톱 매뉴얼 탭 2 (15대 섹션 가이드): `edge_shop_detail_guide_sections_v108.png` (1440 × 900)
+       - 데스크톱 매뉴얼 탭 3 (셀러 꿀팁 & FAQ): `edge_shop_detail_guide_faq_v108.png` (1440 × 900)
+       - 모바일 375px 반응형: `edge_shop_detail_guide_mobile_v108.png` (375 × 812)
+- **산출물 문서**:
+  - [`shop-detail-page/docs/DESIGN_HANDOFF.md`](../shop-detail-page/docs/DESIGN_HANDOFF.md)
+  - [`shop-detail-page/docs/IMPROVEMENTS.md`](../shop-detail-page/docs/IMPROVEMENTS.md)
+  - [`shop-detail-page/docs/PLAN_20261016_GUIDE_ENHANCEMENT.md`](../shop-detail-page/docs/PLAN_20261016_GUIDE_ENHANCEMENT.md)
+  - [`shop-detail-page/AGENTS.md`](../shop-detail-page/AGENTS.md)
+  - 루트 [`DESIGN.md`](../DESIGN.md) (55번 v1.08 갱신)
+- **비용**: 0원 (유료 API 호출 미사용).
+- **남은 작업**: 없음.
+
 ## 2026-10-16 Antigravity(Windows) — AI 상세페이지 자동화 v1.07: 사이드바 밀착 배치 및 프로그램 스타일 아이콘 색상화 완료
 
 - **대상 프로그램**: `shop-detail-page/` (slug: `shop-detail-page`, `https://shop-detail-page.vercel.app`)
