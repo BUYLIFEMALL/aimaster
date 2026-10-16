@@ -15,6 +15,8 @@
 > **★★★ 디자인 작업 메인지침 및 템플릿화 의무 (2026-10-16 주인님 지시)**: 모든 웹 서브프로그램의 UI/UX 디자인 작업 시 루트 최상단 [`DESIGN.md`](DESIGN.md)와 [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md)를 필독하고 준수한다. 작업 내용을 템플릿화하여 "○○○ 스타일 템플릿"으로 고유 명명하고 `DESIGN.md` 카탈로그에 등록하며, 각 프로그램 폴더에 `docs/DESIGN_HANDOFF.md` 및 `docs/IMPROVEMENTS.md`를 필수로 작성해 남긴다. 검수는 Edge 전용.
 > **★★★ 개발작업 최상단 공통 지침 — 단일 작업 순차 진행 원칙 (2026-10-16 주인님 지시)**: 주인님께서 작업을 보이는 대로 연속해서 올리시더라도, 여러 작업을 섞지 않고 반드시 하나씩 순서대로 [플랜 → 구현 → 빌드/검증 → 배포 → 실세션 엣지 검수 → 인수인계/커밋/푸시] 완료 후 다음 작업으로 넘어간다.
 
+> **★ 호칭 및 수시 작업 확인(2026-10-16 주인님 지시)**: Antigravity CLI는 앞으로 **`agy`**라고 부른다(문서·대화·인수인계에서 같은 뜻). 프로그램별 디자인 리뉴얼 등은 계획표 없이 필요할 때마다 시키므로, **agy는 새 작업을 시작할 때마다** `git pull --rebase` 후 [`docs/ACTIVE_WORK.md`](docs/ACTIVE_WORK.md)·`docs/HANDOFF.md` 맨 위·대상 폴더 `git status`를 직접 확인하고, 다른 CLI가 작업 중이면 시작하지 않고 주인님께 알린다.
+
 Gemini CLI(Antigravity)가 이 저장소(AIMaster)에서 작업할 때 읽는 안내 파일이다. 규칙은 다른 CLI와 똑같다 — 새로 만들지 않고 아래 문서를 그대로 따른다.
 
 1. 루트 [`CLAUDE.md`](CLAUDE.md) — 저장소 불변의 핵심 원칙들과 작업 규칙의 원문(Claude 전용이 아니라 모든 CLI 공통 메인 지침).
