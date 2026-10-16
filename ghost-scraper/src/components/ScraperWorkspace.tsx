@@ -7,7 +7,6 @@ import { UrlInputSection } from "@/components/scraper/UrlInputSection";
 import { ScraperTabs, TabId } from "@/components/scraper/ScraperTabs";
 import { SectorModal } from "@/components/modals/SectorModal";
 import { SettingsModal } from "@/components/modals/SettingsModal";
-import { HelpModal } from "@/components/modals/HelpModal";
 import {
   CrawlResult,
   AiStructuredItem,
@@ -23,7 +22,10 @@ import {
   exportDataAsJson,
 } from "@/lib/storage";
 import { analyzeHtmlWithGemini } from "@/lib/gemini";
-import { AlertCircle, Sparkles, Database } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
+import { PageHero } from "@/components/ui/PageHero";
+import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
+import { AlertCircle, Database } from "lucide-react";
 
 interface ScraperWorkspaceProps {
   userEmail: string;
@@ -43,13 +45,16 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
 
   const [isSectorModalOpen, setIsSectorModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
 
   // 1. 초기 로컬스토리지 및 서버 키 로드
   useEffect(() => {
+    // 매뉴얼(/guide) 등 다른 화면에서 「API키등록」을 눌러 들어오면 설정 창을 바로 연다.
+    if (new URLSearchParams(window.location.search).get("settings") === "1") {
+      setIsSettingsModalOpen(true);
+    }
     const local = getStoredSettings();
     setSettings(local);
 
@@ -153,13 +158,13 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
       crawlResult,
       aiItems,
       exportedAt: new Date().toISOString(),
-      generator: "Website Scraper v1.08",
+      generator: `Website Scraper ${APP_VERSION}`,
     };
     exportDataAsJson(exportData, `website_scraper_${new URL(crawlResult.metadata.url).hostname}`);
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-mx-bg">
       {/* 좌측 표준 사이드바 */}
       <Sidebar
         currentStep={currentStep}
@@ -177,24 +182,30 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
       <div className="flex flex-1 flex-col min-w-0">
         <Header
           settings={settings}
-          onOpenHelp={() => setIsHelpModalOpen(true)}
           onOpenSettings={() => setIsSettingsModalOpen(true)}
           onOpenMobileNav={() => setIsMobileNavOpen(true)}
         />
 
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          <PageHero
+            badge="🕸️ 웹 데이터 수집 · 스마트 매트릭스"
+            title="웹사이트 주소 하나로 데이터 표까지"
+            description="URL을 넣으면 본문 구조·글목록·표·링크·이미지를 자동으로 분류하고, 회원님 본인 Gemini 키로 반복 목록을 깔끔한 표(순번·제목·링크·썸네일)로 정리해 드립니다."
+            tip="공개된 페이지만 수집합니다. 로그인이 필요한 페이지나 화면을 그린 뒤 내용을 불러오는 사이트는 일부만 보일 수 있어요."
+          />
+
           {/* 오류 메시지 배너 */}
           {errorMessage && (
-            <div className="flex items-start gap-3 p-4 rounded-2xl border border-rose-200 bg-rose-50 text-rose-800 text-xs">
-              <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-2xl border border-mx-danger bg-[#4c0519]/40 p-4 text-sm text-[#fecdd3]">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-mx-danger" />
               <div className="flex-1">
                 <p className="font-bold">안내 및 오류</p>
-                <p className="mt-0.5 text-rose-700 leading-relaxed">{errorMessage}</p>
+                <p className="mt-0.5 leading-relaxed">{errorMessage}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setErrorMessage(null)}
-                className="text-rose-400 hover:text-rose-600 text-[11px] font-bold"
+                className="min-h-[36px] px-2 text-xs font-bold text-[#fda4af] hover:text-white"
               >
                 닫기
               </button>
@@ -210,6 +221,22 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
             isLoading={isLoading}
           />
 
+          {/* 수집 결과 핵심 지표 */}
+          {crawlResult && (
+            <KpiGrid>
+              <KpiCard icon="📝" label="감지된 글목록" value={crawlResult.stats.listItemsCount} hint="반복 목록 후보" />
+              <KpiCard icon="🔗" label="링크" value={crawlResult.stats.linksCount} tone="green" />
+              <KpiCard icon="🖼️" label="이미지" value={crawlResult.stats.imagesCount} tone="amber" />
+              <KpiCard
+                icon="🤖"
+                label="AI 정리 항목"
+                value={aiItems ? aiItems.length : "—"}
+                hint={aiItems ? "Gemini 분석 완료" : `표 ${crawlResult.stats.tablesCount}개 · ${crawlResult.stats.payloadSizeKb} KB`}
+                tone="muted"
+              />
+            </KpiGrid>
+          )}
+
           {/* 2. 크롤링 결과 7대 탭 뷰어 */}
           {crawlResult ? (
             <ScraperTabs
@@ -221,12 +248,12 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
               isAiLoading={isAiLoading}
             />
           ) : (
-            <div className="py-20 text-center rounded-2xl border border-dashed border-slate-200 bg-white p-8 space-y-3">
-              <Database className="h-10 w-10 text-slate-300 mx-auto" />
-              <h3 className="text-sm font-bold text-slate-700">
+            <div className="space-y-3 rounded-2xl border border-dashed border-mx-border bg-mx-surface p-8 py-16 text-center">
+              <Database className="mx-auto h-10 w-10 text-mx-muted" />
+              <h3 className="text-sm font-bold text-mx-text">
                 크롤링된 데이터가 없습니다
               </h3>
-              <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+              <p className="mx-auto max-w-md text-sm leading-relaxed text-mx-muted">
                 상단 입력창에 수집할 웹사이트 URL을 입력하고 <strong>'크롤링 시작'</strong> 버튼을
                 누르거나, <strong>'시각적 섹터 선택'</strong>을 클릭하여 웹 화면에서 직접 데이터를
                 캡처하세요.
@@ -236,7 +263,7 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
         </main>
 
         {/* 푸터 */}
-        <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+        <footer className="mt-auto border-t border-mx-border bg-mx-surface py-6 text-center text-xs text-mx-muted">
           <p>© 2026 AIMaster · Website Scraper · 사용자 개인 API 키 격리 보관 원칙 준수</p>
         </footer>
       </div>
@@ -258,11 +285,6 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
         onClose={() => setIsSettingsModalOpen(false)}
         settings={settings}
         onSaveSettings={setSettings}
-      />
-
-      <HelpModal
-        isOpen={isHelpModalOpen}
-        onClose={() => setIsHelpModalOpen(false)}
       />
     </div>
   );

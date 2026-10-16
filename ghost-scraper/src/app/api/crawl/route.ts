@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as cheerio from "cheerio";
 import { CrawlResult, HeadingItem, LinkItem, ImageItem, TableItem, FeedListItem } from "@/lib/types";
+import { checkProgramAccessApi } from "@/lib/access";
+import { safeFetch, BlockedUrlError } from "@/lib/safeFetch";
 
 export const maxDuration = 60; // Vercel 서버리스 타임아웃 여유 확보
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export async function POST(req: NextRequest) {
+  // 로그인 + 프로그램 이용 권한 확인 (CLAUDE.md 멀티테넌시 원칙 1)
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.json({ error: access.error }, { status: access.status });
+  }
+
   try {
     const { url } = await req.json();
     if (!url || typeof url !== "string") {
@@ -24,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. 대상 사이트 fetch (User-Agent 포함)
-    const response = await fetch(targetUrl, {
+    const { response } = await safeFetch(targetUrl, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 WebsiteScraper/1.0",
@@ -248,6 +258,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(crawlResult);
   } catch (err: any) {
+    if (err instanceof BlockedUrlError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     console.error("Crawl error:", err);
     return NextResponse.json(
       { error: err.message || "웹사이트 크롤링 중 오류가 발생했습니다." },

@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니) — Website Scraper v1.12: 스마트 매트릭스 디자인 + 🚨 보안 보강 (⚠️ 윈도우 빌드·배포 요청)
+
+- **대상**: `ghost-scraper/` (slug `website-scraper`, https://website-scraper.buylife.xyz) — 주인님 지정 다음 디자인 리뉴얼.
+- **🚨 보안(디자인 전에 처리)**: `/api/crawl`·`/api/proxy`·`/api/proxy-image`에 권한 확인이 없어 **누구나 서버를 대리 접속 통로로 쓸 수 있었고** 내부 주소 차단도 없었음 → `checkProgramAccessApi()` + `safeFetch`(사설·내부 주소 차단). 섹터 선택 미리보기가 **남의 사이트 스크립트를 우리 도메인 권한으로 실행**(회원 Gemini 키 노출 위험) → CSP sandbox + iframe sandbox + 메시지 출처 확인. `/api/user/key`도 프로그램 권한 확인.
+- **디자인**: 스마트 매트릭스(롱테일 토큰을 Tailwind v4 `@theme`로 이식), 히어로·KPI, 다크 7탭·검색, 사이드바 계정 밀착·📖 매뉴얼, `/guide` 신설, 섹터 모달 모바일 세로 배치. 버전 v1.12.
+- **문서**: [`ghost-scraper/docs/`](../ghost-scraper/docs/) PLAN·IMPROVEMENTS(13건, 6건 구현)·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, `AGENTS.md`, 루트 `DESIGN.md` 21번(🔵 코드 완료), 역량 지도 카드, `ERROR_LESSONS.md`.
+- **⚠️ 윈도우 CLI 요청 (다음 첫 단계)**: [`ghost-scraper/docs/IMPROVEMENT_HANDOFF_20261016.md`](../ghost-scraper/docs/IMPROVEMENT_HANDOFF_20261016.md) 「다음 첫 단계」 — `npm run build` → `vercel deploy --prod` → DB v1.12 → 비로그인 `curl` 401·내부 주소 400 확인 → 1440px·375px 화면 검수 → `DESIGN.md` 21번 ✅, `ACTIVE_WORK` 맥미니 줄 삭제.
+- **비용**: 없음.
+
 ## 2026-10-16 Antigravity(Windows) — AI 올인원 그래픽 자동화 v1.04: 크리에이티브 아틀리에 스타일 디자인 리뉴얼 및 비주얼 가이드북(/guide) 전면 신설 완료
 
 - **대상 프로그램**: `allinone-graphic/` (slug: `allinone-graphic`, `https://graphic.buylife.xyz`, 배포 버전: `v1.04`)

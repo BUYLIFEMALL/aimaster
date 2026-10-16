@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ key: null }, { status: 401 });
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ key: null, error: access.error }, { status: access.status });
+  const user = access.user;
 
   const adminSupabase = createAdminClient();
   const { data } = await adminSupabase
@@ -18,8 +22,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+  const user = access.user;
 
   const { apiKey } = await req.json();
   if (!apiKey || typeof apiKey !== "string") {

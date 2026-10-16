@@ -68,25 +68,26 @@ export function SettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-2xs animate-in fade-in duration-150">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-mx-border bg-mx-surface shadow-xl">
         {/* 모달 헤더 */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+        <div className="flex items-center justify-between border-b border-mx-border px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#78350f]/60 text-[#fde68a]">
               <KeyRound className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-slate-900">API 키 & 환경설정</h3>
-              <p className="text-[11px] text-slate-500">
-                사용자 개인 API 키 격리 보관 원칙 준수
+              <h3 className="text-sm font-black text-mx-text">🔑 API키등록·플랫폼연동</h3>
+              <p className="text-xs text-mx-muted">
+                회원님 본인 Gemini 키로만 동작합니다 (운영자 키 대신 사용 없음)
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-mx-muted hover:bg-mx-raised hover:text-mx-text"
+            aria-label="닫기"
           >
             <X className="w-5 h-5" />
           </button>
@@ -97,14 +98,14 @@ export function SettingsModal({
           {/* 1. API 키 입력 */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-800">
+              <label className="text-sm font-bold text-mx-text">
                 Google Gemini API 키
               </label>
               <a
                 href="https://aistudio.google.com/app/apikey"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[11px] text-indigo-600 hover:underline flex items-center gap-1 font-medium"
+                className="flex items-center gap-1 text-xs font-medium text-mx-link hover:underline"
               >
                 <span>무료 키 발급받기</span>
                 <ExternalLink className="w-3 h-3" />
@@ -115,22 +116,22 @@ export function SettingsModal({
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="AIzaSy..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-mono text-slate-800 focus:border-indigo-500 focus:bg-white focus:outline-hidden focus:ring-3 focus:ring-indigo-500/10 transition-all"
+              className="mx-input font-mono text-sm"
             />
-            <p className="text-[11px] text-slate-400">
-              * 입력하신 API 키는 브라우저 로컬스토리지에 격리 보관되며 안전하게 보호됩니다.
+            <p className="text-xs text-mx-muted">
+              * 입력하신 키는 이 브라우저와 회원님 계정(본인만 조회)에 저장됩니다.
             </p>
           </div>
 
           {/* 2. AI 모델 선택 */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-800">
+            <label className="text-sm font-bold text-mx-text">
               AI 분석 모델
             </label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-800 focus:border-indigo-500 focus:bg-white focus:outline-hidden focus:ring-3 focus:ring-indigo-500/10 transition-all"
+              className="mx-input text-sm"
             >
               <option value="gemini-2.5-flash">Gemini 2.5 Flash (권장, 초고속 구조화 추출)</option>
               <option value="gemini-1.5-flash">Gemini 1.5 Flash (안정적 표준 모델)</option>
@@ -138,35 +139,35 @@ export function SettingsModal({
           </div>
 
           {/* 3. 연결 테스트 버튼 & 상태 */}
-          <div className="pt-2 border-t border-slate-100 space-y-2">
+          <div className="space-y-2 border-t border-mx-border pt-2">
             <button
               type="button"
               onClick={handleTestKey}
               disabled={testStatus === "testing" || !apiKey.trim()}
-              className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer"
+              className="mx-btn-ghost w-full"
             >
               {testStatus === "testing" ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-mx-link" />
                   <span>연결 테스트 중...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <Sparkles className="h-3.5 w-3.5 text-mx-accent" />
                   <span>API 키 연결 테스트</span>
                 </>
               )}
             </button>
 
             {testStatus === "success" && (
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="flex items-center gap-2 rounded-xl bg-[#064e3b]/60 p-2.5 text-sm font-medium text-[#a7f3d0]">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-mx-success" />
                 <span>{testMessage}</span>
               </div>
             )}
             {testStatus === "error" && (
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs font-medium">
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <div className="flex items-center gap-2 rounded-xl bg-[#4c0519]/50 p-2.5 text-sm font-medium text-[#fecdd3]">
+                <AlertCircle className="h-4 w-4 shrink-0 text-mx-danger" />
                 <span>{testMessage}</span>
               </div>
             )}
@@ -174,18 +175,18 @@ export function SettingsModal({
         </div>
 
         {/* 모달 푸터 */}
-        <div className="flex items-center justify-end gap-2 px-6 py-4 bg-slate-50 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-2 border-t border-mx-border px-6 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
+            className="mx-btn-ghost"
           >
             취소
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="px-5 py-2 text-xs font-bold text-white bg-slate-900 rounded-xl hover:bg-slate-800 shadow-sm transition-all cursor-pointer"
+            className="mx-btn-primary"
           >
             설정 저장
           </button>

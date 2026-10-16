@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — 외부 페이지를 대신 가져오는 API가 권한 확인 없이 열려 있고, 미리보기가 남의 스크립트를 우리 도메인에서 실행 (website-scraper v1.12)
+
+- **증상**: `ghost-scraper`의 `/api/crawl`·`/api/proxy`·`/api/proxy-image`가 로그인 없이 호출됨(누구나 대리 접속 통로로 사용), `127.0.0.1` 같은 내부 주소도 요청 가능. 섹터 선택 iframe이 프록시한 남의 HTML·스크립트를 sandbox 없이 같은 도메인에서 실행.
+- **원인**: 페이지만 `requireProgramAccess()`로 막고 API route는 빠짐(원칙 1 반복 실수). 프록시는 "같은 도메인이라 iframe 스크립트 주입이 편하다"는 이유로 격리 없이 만듦 — 그 결과 대상 사이트 스크립트가 `localStorage`의 회원 Gemini 키와 세션 쿠키 API(`/api/user/key`)에 접근 가능.
+- **해결**: 모든 API에 `checkProgramAccessApi()` + `dynamic`/`fetchCache`, 외부 fetch는 `ghost-scraper/src/lib/safeFetch.ts`(사설·내부 IP 차단, 리디렉트마다 재검사), 프록시 응답 `Content-Security-Policy: sandbox allow-scripts` + iframe `sandbox="allow-scripts"` + `postMessage`의 `e.source` 확인, 이미지 프록시는 `image/*`만.
+- **다음부터 확인**: 외부 URL을 서버가 대신 가져오는 기능(크롤러·미리보기·이미지 프록시)은 ① API 권한 확인 ② 내부 주소 차단 ③ 남의 HTML을 우리 도메인에서 띄우면 반드시 sandbox(`allow-same-origin` 금지) — 세 가지를 같이 넣는다. 점검: `grep -rL checkProgramAccessApi <프로그램>/src/app/api/**/route.ts`.
+
 ## 2026-10-16 — 도메인 통일(SSO) 27개 일괄 이전에서 찾은 점검 사항 (Claude Code 윈도우)
 
 - ① 설정 화면의 "앱에 등록할 콜백 주소" 안내가 `NEXT_PUBLIC_SITE_URL ?? "<옛 주소>"` 기본값을 쓴다 → 기본값을 새 주소로 바꾸면 회원이 새 주소를 등록하는데 실제 교환은 옛 주소(환경변수 `*_REDIRECT_URI`)라 연결이 거부된다. **콜백 안내 줄은 바꾸지 않는다**(threads·threads-affiliate-poster에서 실제로 바뀌었다가 되돌림).

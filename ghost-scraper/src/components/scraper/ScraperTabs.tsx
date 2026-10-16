@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   FileText,
   Bot,
@@ -10,9 +10,6 @@ import {
   Link2,
   Image as ImageIcon,
   Download,
-  ExternalLink,
-  Copy,
-  Check,
   Sparkles,
   Loader2,
   FolderArchive,
@@ -33,6 +30,58 @@ interface ScraperTabsProps {
   isAiLoading: boolean;
 }
 
+// 공통: 섹션 머리(제목 + 오른쪽 버튼)
+function TabHeader({ title, sub, children }: { title: React.ReactNode; sub?: string; children?: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3 border-b border-mx-border pb-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <h3 className="flex items-center gap-2 text-sm font-black text-mx-text">{title}</h3>
+        {sub && <p className="mt-0.5 text-xs text-mx-muted">{sub}</p>}
+      </div>
+      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
+    </div>
+  );
+}
+
+function CsvButton({ onClick, label = "CSV 다운로드" }: { onClick: () => void; label?: string }) {
+  return (
+    <button type="button" onClick={onClick} className="mx-btn-ghost min-h-[36px] px-3 text-xs">
+      <Download className="h-3.5 w-3.5 text-mx-success" />
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function SearchBox({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      aria-label={placeholder}
+      className="mx-input min-h-[40px] py-2 text-sm sm:max-w-xs"
+    />
+  );
+}
+
+function OpenLink({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-mx-muted hover:bg-mx-raised hover:text-mx-link"
+      title="새 창에서 열기"
+      aria-label="새 창에서 열기"
+    >
+      <ArrowUpRight className="h-4 w-4" />
+    </a>
+  );
+}
+
+const includes = (q: string, ...fields: (string | undefined)[]) =>
+  !q || fields.some((f) => (f ?? "").toLowerCase().includes(q));
+
 export function ScraperTabs({
   activeTab,
   onChangeTab,
@@ -41,68 +90,87 @@ export function ScraperTabs({
   onRunAiAnalysis,
   isAiLoading,
 }: ScraperTabsProps) {
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
+  const [zipMessage, setZipMessage] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
 
-  const copyToClipboard = (text: string, key: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
+  const filteredAi = useMemo(() => (aiItems ?? []).filter((i) => includes(q, i.title, i.url)), [aiItems, q]);
+  const filteredList = useMemo(
+    () => crawlResult.listItems.filter((i) => includes(q, i.title, i.text, i.link)),
+    [crawlResult.listItems, q],
+  );
+  const filteredLinks = useMemo(
+    () => crawlResult.links.filter((l) => includes(q, l.text, l.href)),
+    [crawlResult.links, q],
+  );
 
   // 이미지 일괄 ZIP 다운로드
   const handleDownloadImagesZip = async () => {
     if (!crawlResult.images || crawlResult.images.length === 0 || isZipping) return;
     setIsZipping(true);
+    setZipMessage(null);
     try {
       const zip = new JSZip();
       const folder = zip.folder("images");
+      let saved = 0;
 
-      const promises = crawlResult.images.map(async (img, idx) => {
-        try {
-          const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(img.src)}`;
-          const res = await fetch(proxyUrl);
-          if (!res.ok) return null;
-          const blob = await res.blob();
-          const ext = img.src.split(".").pop()?.split("?")[0]?.slice(0, 4) || "jpg";
-          const filename = `image_${String(idx + 1).padStart(3, "0")}.${ext}`;
-          folder?.file(filename, blob);
-        } catch {
-          // ignore individual error
-        }
-      });
+      await Promise.all(
+        crawlResult.images.map(async (img, idx) => {
+          try {
+            const res = await fetch(`/api/proxy-image?url=${encodeURIComponent(img.src)}`);
+            if (!res.ok) return;
+            const blob = await res.blob();
+            const ext = img.src.split(".").pop()?.split("?")[0]?.slice(0, 4) || "jpg";
+            folder?.file(`image_${String(idx + 1).padStart(3, "0")}.${ext}`, blob);
+            saved += 1;
+          } catch {
+            // 개별 이미지 실패는 건너뛴다
+          }
+        }),
+      );
 
-      await Promise.all(promises);
+      if (saved === 0) {
+        setZipMessage("내려받을 수 있는 이미지가 없습니다(사이트가 이미지 다운로드를 막았을 수 있어요).");
+        return;
+      }
       const content = await zip.generateAsync({ type: "blob" });
       const downloadUrl = URL.createObjectURL(content);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = `ghost_images_${new Date().toISOString().slice(0, 10)}.zip`;
+      a.download = `website_scraper_images_${new Date().toISOString().slice(0, 10)}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(downloadUrl);
-    } catch (err) {
-      alert("이미지 ZIP 생성 중 오류가 발생했습니다.");
+      const failed = crawlResult.images.length - saved;
+      setZipMessage(`✅ ${saved}개 저장${failed > 0 ? ` · ${failed}개는 사이트에서 받을 수 없어 제외` : ""}`);
+    } catch {
+      setZipMessage("이미지 ZIP 생성 중 오류가 발생했습니다.");
     } finally {
       setIsZipping(false);
     }
   };
 
-  const tabs: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  const tabs: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }>; count?: number }[] = [
     { id: "overview", label: "개요", icon: FileText },
-    { id: "aiResult", label: "AI 분석", icon: Bot },
+    { id: "aiResult", label: "AI 분석", icon: Bot, count: aiItems?.length },
     { id: "structure", label: "구조", icon: Layers },
-    { id: "listItems", label: "글목록", icon: List },
-    { id: "tables", label: "표", icon: TableIcon },
-    { id: "links", label: "링크", icon: Link2 },
-    { id: "images", label: "이미지", icon: ImageIcon },
+    { id: "listItems", label: "글목록", icon: List, count: crawlResult.listItems.length },
+    { id: "tables", label: "표", icon: TableIcon, count: crawlResult.tables.length },
+    { id: "links", label: "링크", icon: Link2, count: crawlResult.links.length },
+    { id: "images", label: "이미지", icon: ImageIcon, count: crawlResult.images.length },
   ];
 
+  const changeTab = (id: TabId) => {
+    setQuery("");
+    onChangeTab(id);
+  };
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-      {/* 탭 네비게이션 헤더 */}
-      <div className="flex border-b border-slate-200 bg-slate-50/70 overflow-x-auto">
+    <div className="overflow-hidden rounded-2xl border border-mx-border bg-mx-surface">
+      {/* 탭 네비게이션 */}
+      <div className="flex gap-1 overflow-x-auto border-b border-mx-border p-2" role="tablist">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
@@ -110,18 +178,16 @@ export function ScraperTabs({
             <button
               key={tab.id}
               type="button"
-              onClick={() => onChangeTab(tab.id)}
-              className={`flex-1 min-w-[90px] flex items-center justify-center gap-1.5 py-3.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer ${
-                isActive
-                  ? "border-indigo-600 bg-white text-indigo-700 shadow-2xs"
-                  : "border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
-              }`}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => changeTab(tab.id)}
+              className={`mx-toggle ${isActive ? "mx-toggle-active" : ""}`}
             >
-              <Icon className={`h-3.5 w-3.5 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
+              <Icon className={`h-4 w-4 ${isActive ? "text-mx-link" : ""}`} />
               <span>{tab.label}</span>
-              {tab.id === "aiResult" && aiItems && (
-                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[9px] bg-emerald-100 text-emerald-700 font-extrabold">
-                  {aiItems.length}
+              {tab.count !== undefined && (
+                <span className={tab.id === "aiResult" ? "mx-chip-green px-1.5 py-0 text-[10px]" : "mx-chip px-1.5 py-0 text-[10px]"}>
+                  {tab.count}
                 </span>
               )}
             </button>
@@ -129,30 +195,12 @@ export function ScraperTabs({
         })}
       </div>
 
-      {/* 탭 콘텐츠 영역 */}
-      <div className="p-5 sm:p-6">
-        {/* 1. 개요 탭 */}
+      <div className="space-y-4 p-4 sm:p-6">
+        {/* 1. 개요 */}
         {activeTab === "overview" && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-              <div>
-                <p className="text-[10px] uppercase font-mono font-bold text-slate-400">
-                  페이지 제목
-                </p>
-                <h3 className="text-lg font-black text-slate-900 mt-0.5">
-                  {crawlResult.metadata.title || "제목 없음"}
-                </h3>
-                <p className="text-xs text-slate-500 mt-1 font-mono break-all">
-                  {crawlResult.metadata.url}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={onRunAiAnalysis}
-                disabled={isAiLoading}
-                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:from-emerald-500 hover:to-teal-500 transition-all active:scale-98 disabled:opacity-50 cursor-pointer shrink-0"
-              >
+          <>
+            <TabHeader title={crawlResult.metadata.title || "제목 없음"} sub={crawlResult.metadata.url}>
+              <button type="button" onClick={onRunAiAnalysis} disabled={isAiLoading} className="mx-btn-primary">
                 {isAiLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,188 +208,133 @@ export function ScraperTabs({
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4 text-emerald-200" />
-                    <span>AI 구조 분석 시작</span>
+                    <Sparkles className="h-4 w-4" />
+                    <span>🤖 AI 구조 분석 시작</span>
                   </>
                 )}
               </button>
-            </div>
+            </TabHeader>
 
-            {/* 메타 설명 */}
             <div>
-              <p className="text-[10px] uppercase font-mono font-bold text-slate-400 mb-1">
-                메타 설명 (Description)
-              </p>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-700 leading-relaxed">
+              <p className="mb-1 text-xs font-bold text-mx-muted">메타 설명 (Description)</p>
+              <div className="rounded-xl border border-mx-border bg-mx-raised p-3 text-sm leading-relaxed text-mx-text">
                 {crawlResult.metadata.description || "메타 설명 정보가 없습니다."}
               </div>
             </div>
 
-            {/* 세부 통계 그리드 */}
             <div>
-              <p className="text-[10px] uppercase font-mono font-bold text-slate-400 mb-2">
-                기술 세부 정보
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="p-3 rounded-xl border border-slate-100 bg-slate-50">
-                  <span className="text-[10px] text-slate-400 font-bold">상태 코드</span>
-                  <p className="font-mono font-black text-emerald-600 mt-1">
-                    HTTP {crawlResult.metadata.statusCode ?? 200}
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl border border-slate-100 bg-slate-50">
-                  <span className="text-[10px] text-slate-400 font-bold">인코딩</span>
-                  <p className="font-mono font-black text-slate-800 mt-1">
-                    {crawlResult.metadata.charset}
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl border border-slate-100 bg-slate-50">
-                  <span className="text-[10px] text-slate-400 font-bold">페이로드 크기</span>
-                  <p className="font-mono font-black text-slate-800 mt-1">
-                    {crawlResult.stats.payloadSizeKb} KB
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl border border-slate-100 bg-slate-50">
-                  <span className="text-[10px] text-slate-400 font-bold">콘텐츠 타입</span>
-                  <p className="font-mono font-bold text-slate-800 mt-1 truncate">
-                    {crawlResult.metadata.contentType || "text/html"}
-                  </p>
-                </div>
+              <p className="mb-2 text-xs font-bold text-mx-muted">기술 세부 정보</p>
+              <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                {[
+                  { label: "상태 코드", value: `HTTP ${crawlResult.metadata.statusCode ?? 200}`, tone: "text-mx-success" },
+                  { label: "인코딩", value: crawlResult.metadata.charset, tone: "text-mx-text" },
+                  { label: "페이로드 크기", value: `${crawlResult.stats.payloadSizeKb} KB`, tone: "text-mx-text" },
+                  { label: "콘텐츠 타입", value: crawlResult.metadata.contentType || "text/html", tone: "text-mx-text" },
+                ].map((d) => (
+                  <div key={d.label} className="rounded-xl border border-mx-border bg-mx-raised p-3">
+                    <span className="text-xs font-bold text-mx-muted">{d.label}</span>
+                    <p className={`mt-1 truncate font-mono font-black ${d.tone}`}>{d.value}</p>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          </>
         )}
 
-        {/* 2. AI 분석 탭 */}
+        {/* 2. AI 분석 */}
         {activeTab === "aiResult" && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
-              <div>
-                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-emerald-600" />
-                  <span>AI 스마트 리스트 추출 결과</span>
-                </h3>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-                  Gemini 2.5 Flash 모델이 분석한 정형화 데이터
-                </p>
-              </div>
-
+          <>
+            <TabHeader
+              title={
+                <>
+                  <Sparkles className="h-4 w-4 text-mx-success" />
+                  AI 스마트 리스트 추출 결과
+                </>
+              }
+              sub="회원님 본인 Gemini 키로 분석한 정형화 데이터 (순번·제목·링크·썸네일)"
+            >
               {aiItems && aiItems.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    downloadCsv(
-                      [
-                        ["No", "Title", "URL", "Image URL"],
-                        ...aiItems.map((item) => [
-                          item.no.toString(),
-                          item.title,
-                          item.url,
-                          item.imgUrl,
-                        ]),
-                      ],
-                      "AI_스마트리스트"
-                    )
-                  }
-                  className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 transition-colors cursor-pointer self-start sm:self-auto"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  <span>CSV 다운로드</span>
-                </button>
+                <>
+                  <SearchBox value={query} onChange={setQuery} placeholder="🔎 제목·링크 검색" />
+                  <CsvButton
+                    onClick={() =>
+                      downloadCsv(
+                        [["No", "Title", "URL", "Image URL"], ...filteredAi.map((i) => [i.no.toString(), i.title, i.url, i.imgUrl])],
+                        "AI_스마트리스트",
+                      )
+                    }
+                  />
+                </>
               )}
-            </div>
+            </TabHeader>
 
             {aiItems && aiItems.length > 0 ? (
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-900 text-slate-200 uppercase font-mono text-[10px]">
+              <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                <table className="mx-table min-w-[560px]">
+                  <thead>
                     <tr>
-                      <th className="py-2.5 px-3 w-12 text-center">NO</th>
-                      <th className="py-2.5 px-3 w-20 text-center">이미지</th>
-                      <th className="py-2.5 px-4">리스트 항목 (제목)</th>
-                      <th className="py-2.5 px-4 hidden md:table-cell">URL</th>
-                      <th className="py-2.5 px-3 w-16 text-center">액션</th>
+                      <th className="w-12 text-center">No</th>
+                      <th className="w-20 text-center">이미지</th>
+                      <th>리스트 항목 (제목)</th>
+                      <th className="hidden md:table-cell">URL</th>
+                      <th className="w-14 text-center">열기</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {aiItems.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                        <td className="py-3 px-3 text-center font-mono font-bold text-slate-500">
-                          {item.no}
-                        </td>
-                        <td className="py-3 px-3 text-center">
+                  <tbody>
+                    {filteredAi.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="text-center font-mono font-bold text-mx-muted">{item.no}</td>
+                        <td className="text-center">
                           {item.imgUrl ? (
                             <img
                               src={item.imgUrl}
                               alt={item.title}
-                              className="h-10 w-14 object-cover rounded-md border border-slate-200 mx-auto"
+                              className="mx-auto h-10 w-14 rounded-md border border-mx-border object-cover"
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display = "none";
                               }}
                             />
                           ) : (
-                            <div className="h-10 w-14 bg-slate-100 rounded-md border border-slate-200 flex items-center justify-center text-[9px] text-slate-400 mx-auto">
-                              No Img
+                            <div className="mx-auto flex h-10 w-14 items-center justify-center rounded-md border border-mx-border bg-mx-raised text-[10px] text-mx-muted">
+                              없음
                             </div>
                           )}
                         </td>
-                        <td className="py-3 px-4 font-bold text-slate-800 leading-snug">
-                          {item.title}
-                        </td>
-                        <td className="py-3 px-4 text-slate-400 font-mono text-[11px] truncate max-w-xs hidden md:table-cell">
-                          {item.url}
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center h-7 w-7 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                            title="링크 열기"
-                          >
-                            <ArrowUpRight className="h-4 w-4" />
-                          </a>
+                        <td className="font-bold leading-snug">{item.title}</td>
+                        <td className="hidden max-w-xs truncate font-mono text-xs text-mx-muted md:table-cell">{item.url}</td>
+                        <td className="text-center">
+                          <OpenLink href={item.url} />
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                {filteredAi.length === 0 && <p className="py-8 text-center text-sm text-mx-muted">검색 결과가 없습니다.</p>}
               </div>
             ) : isAiLoading ? (
-              <div className="py-16 text-center space-y-3">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto" />
-                <p className="text-xs font-bold text-slate-700">
-                  Gemini AI가 HTML 데이터를 정밀 분석하여 스마트 리스트를 생성하고 있습니다...
-                </p>
+              <div className="space-y-3 py-16 text-center">
+                <Loader2 className="mx-auto h-8 w-8 animate-spin text-mx-success" />
+                <p className="text-sm font-bold text-mx-text">Gemini AI가 HTML을 분석해 스마트 리스트를 만들고 있습니다...</p>
+                <p className="text-xs text-mx-muted">보통 10~30초 걸립니다.</p>
               </div>
             ) : (
-              <div className="py-16 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 space-y-3">
-                <Bot className="h-8 w-8 text-slate-400 mx-auto" />
-                <p className="text-xs text-slate-600 font-medium">
-                  아직 AI 분석이 실행되지 않았습니다.
-                </p>
-                <button
-                  type="button"
-                  onClick={onRunAiAnalysis}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 shadow-sm transition-all cursor-pointer"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
+              <div className="space-y-3 rounded-xl border border-dashed border-mx-border py-16 text-center">
+                <Bot className="mx-auto h-8 w-8 text-mx-muted" />
+                <p className="text-sm text-mx-muted">아직 AI 분석이 실행되지 않았습니다.</p>
+                <button type="button" onClick={onRunAiAnalysis} className="mx-btn-primary">
+                  <Sparkles className="h-4 w-4" />
                   <span>AI 분석 시작하기</span>
                 </button>
               </div>
             )}
-          </div>
+          </>
         )}
 
-        {/* 3. 구조 탭 */}
+        {/* 3. 구조 */}
         {activeTab === "structure" && (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <p className="text-xs font-bold text-slate-600 uppercase font-mono">
-                HTML 시맨틱 헤딩 계층
-              </p>
-              <button
-                type="button"
+          <>
+            <TabHeader title="HTML 시맨틱 헤딩 계층" sub="페이지의 제목(H1)과 소제목(H2) 구조">
+              <CsvButton
                 onClick={() =>
                   downloadCsv(
                     [
@@ -350,198 +343,123 @@ export function ScraperTabs({
                       ...crawlResult.structure.h2.map((h) => ["H2", h.text, h.link || ""]),
                       ...(crawlResult.structure.h3 || []).map((h) => ["H3", h.text, h.link || ""]),
                     ],
-                    "페이지_구조"
+                    "페이지_구조",
                   )
                 }
-                className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span>CSV 다운로드</span>
-              </button>
-            </div>
+              />
+            </TabHeader>
 
-            {/* H1 */}
             <div>
-              <p className="text-[11px] font-mono font-bold text-slate-400 uppercase mb-2">
-                헤딩 계층 (H1) · {crawlResult.structure.h1.length}개
-              </p>
+              <p className="mb-2 font-mono text-xs font-bold text-mx-muted">H1 · {crawlResult.structure.h1.length}개</p>
               <div className="space-y-1.5">
                 {crawlResult.structure.h1.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center justify-between gap-3 text-xs"
-                  >
-                    <span className="font-bold text-slate-900">{item.text}</span>
-                    {item.link && (
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-600 hover:underline shrink-0"
-                      >
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
-                    )}
+                  <div key={idx} className="flex items-center justify-between gap-3 rounded-xl border border-mx-border bg-mx-raised p-3 text-sm">
+                    <span className="font-bold text-mx-text">
+                      <span className="mx-chip-blue mr-2 px-1.5 py-0 text-[10px]">H1</span>
+                      {item.text}
+                    </span>
+                    {item.link && <OpenLink href={item.link} />}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* H2 */}
             <div>
-              <p className="text-[11px] font-mono font-bold text-slate-400 uppercase mb-2">
-                하위 헤딩 (H2) · {crawlResult.structure.h2.length}개
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <p className="mb-2 font-mono text-xs font-bold text-mx-muted">H2 · {crawlResult.structure.h2.length}개</p>
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                 {crawlResult.structure.h2.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2.5 rounded-lg border border-slate-100 bg-white text-xs flex items-center justify-between gap-2 shadow-2xs"
-                  >
-                    <span className="font-medium text-slate-700 truncate">{item.text}</span>
-                    {item.link && (
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-500 hover:text-indigo-700 shrink-0"
-                      >
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
-                    )}
+                  <div key={idx} className="flex items-center justify-between gap-2 rounded-lg border border-mx-border p-2.5 text-sm">
+                    <span className="truncate text-mx-text">
+                      <span className="mx-chip mr-2 px-1.5 py-0 text-[10px]">H2</span>
+                      {item.text}
+                    </span>
+                    {item.link && <OpenLink href={item.link} />}
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+          </>
         )}
 
-        {/* 4. 글목록 탭 */}
+        {/* 4. 글목록 */}
         {activeTab === "listItems" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <p className="text-xs font-bold text-slate-600 uppercase font-mono">
-                감지된 글/아이템 목록 (상위 {crawlResult.listItems.length}개)
-              </p>
+          <>
+            <TabHeader title="감지된 글·아이템 목록" sub={`상위 ${crawlResult.listItems.length}개 — 반복되는 목록을 자동으로 찾았어요`}>
               {crawlResult.listItems.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    downloadCsv(
-                      [
-                        ["Title", "Text", "Link"],
-                        ...crawlResult.listItems.map((item) => [
-                          item.title,
-                          item.text,
-                          item.link || "",
-                        ]),
-                      ],
-                      "글목록"
-                    )
-                  }
-                  className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  <span>CSV 다운로드</span>
-                </button>
+                <>
+                  <SearchBox value={query} onChange={setQuery} placeholder="🔎 글목록 검색" />
+                  <CsvButton
+                    onClick={() =>
+                      downloadCsv(
+                        [["Title", "Text", "Link"], ...filteredList.map((i) => [i.title, i.text, i.link || ""])],
+                        "글목록",
+                      )
+                    }
+                  />
+                </>
               )}
-            </div>
+            </TabHeader>
 
-            <div className="space-y-2.5">
-              {crawlResult.listItems.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 transition-all shadow-2xs space-y-1.5"
-                >
+            <div className="grid gap-2.5 md:grid-cols-2">
+              {filteredList.map((item, idx) => (
+                <div key={idx} className="space-y-1.5 rounded-xl border border-mx-border bg-mx-raised p-4 hover:border-mx-primary">
                   <div className="flex items-start justify-between gap-3">
-                    <h4 className="text-xs font-black text-slate-900 leading-snug">
-                      {item.title}
-                    </h4>
-                    {item.link && (
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-indigo-600 shrink-0"
-                      >
-                        <ArrowUpRight className="h-4 w-4" />
-                      </a>
-                    )}
+                    <h4 className="text-sm font-black leading-snug text-mx-text">{item.title}</h4>
+                    {item.link && <OpenLink href={item.link} />}
                   </div>
-                  <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
-                    {item.text}
-                  </p>
-                  {item.link && (
-                    <p className="text-[10px] text-indigo-500 font-mono truncate">{item.link}</p>
-                  )}
+                  <p className="line-clamp-2 text-xs leading-relaxed text-mx-muted">{item.text}</p>
+                  {item.link && <p className="truncate font-mono text-[11px] text-mx-link">{item.link}</p>}
                 </div>
               ))}
             </div>
-          </div>
+            {filteredList.length === 0 && (
+              <p className="py-8 text-center text-sm text-mx-muted">{q ? "검색 결과가 없습니다." : "감지된 글목록이 없습니다."}</p>
+            )}
+          </>
         )}
 
-        {/* 5. 표 탭 */}
+        {/* 5. 표 */}
         {activeTab === "tables" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <p className="text-xs font-bold text-slate-600 uppercase font-mono">
-                추출된 데이터 표 (총 {crawlResult.tables.length}개)
-              </p>
-            </div>
+          <>
+            <TabHeader title={`추출된 데이터 표 (총 ${crawlResult.tables.length}개)`} sub="페이지 안의 <table>을 그대로 옮겼습니다" />
 
             {crawlResult.tables.length > 0 ? (
               crawlResult.tables.map((table, tIdx) => (
-                <div key={tIdx} className="space-y-2 rounded-xl border border-slate-200 p-4 bg-slate-50/50">
+                <div key={tIdx} className="space-y-2 rounded-xl border border-mx-border bg-mx-raised p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-slate-500">
-                      TABLE #{tIdx + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const csvRows = [
-                          table.headers,
-                          ...table.rows.map((row) =>
-                            row.map((cell) => (typeof cell === "string" ? cell : cell.text))
-                          ),
-                        ];
-                        downloadCsv(csvRows, `표_데이터_${tIdx + 1}`);
-                      }}
-                      className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <Download className="h-3 w-3" />
-                      <span>CSV 받기</span>
-                    </button>
+                    <span className="mx-chip-amber px-2 py-0.5 font-mono text-[11px]">TABLE #{tIdx + 1}</span>
+                    <CsvButton
+                      label="CSV 받기"
+                      onClick={() =>
+                        downloadCsv(
+                          [table.headers, ...table.rows.map((row) => row.map((cell) => (typeof cell === "string" ? cell : cell.text)))],
+                          `표_데이터_${tIdx + 1}`,
+                        )
+                      }
+                    />
                   </div>
 
-                  <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-                    <table className="w-full text-left text-xs divide-y divide-slate-100">
+                  <div className="overflow-x-auto rounded-lg border border-mx-border bg-mx-surface">
+                    <table className="mx-table">
                       {table.headers.length > 0 && (
-                        <thead className="bg-slate-100 font-mono text-[10px] text-slate-700">
+                        <thead>
                           <tr>
                             {table.headers.map((h, hIdx) => (
-                              <th key={hIdx} className="py-2 px-3 font-bold">
-                                {h}
-                              </th>
+                              <th key={hIdx}>{h}</th>
                             ))}
                           </tr>
                         </thead>
                       )}
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody>
                         {table.rows.map((row, rIdx) => (
-                          <tr key={rIdx} className="hover:bg-slate-50">
+                          <tr key={rIdx}>
                             {row.map((cell, cIdx) => {
                               const text = typeof cell === "string" ? cell : cell.text;
                               const url = typeof cell === "string" ? undefined : cell.url;
                               return (
-                                <td key={cIdx} className="py-2 px-3 text-slate-700">
+                                <td key={cIdx}>
                                   {url ? (
-                                    <a
-                                      href={url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-indigo-600 hover:underline"
-                                    >
+                                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-mx-link hover:underline">
                                       {text}
                                     </a>
                                   ) : (
@@ -558,138 +476,97 @@ export function ScraperTabs({
                 </div>
               ))
             ) : (
-              <div className="py-12 text-center text-xs text-slate-500">
-                페이지 내에서 추출된 \`&lt;table&gt;\` 요소가 없습니다.
-              </div>
+              <p className="py-12 text-center text-sm text-mx-muted">페이지 안에서 추출된 표(&lt;table&gt;)가 없습니다.</p>
             )}
-          </div>
+          </>
         )}
 
-        {/* 6. 링크 탭 */}
+        {/* 6. 링크 */}
         {activeTab === "links" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <p className="text-xs font-bold text-slate-600 uppercase font-mono">
-                추출된 하이퍼링크 ({crawlResult.links.length}개)
-              </p>
-              <button
-                type="button"
-                onClick={() =>
-                  downloadCsv(
-                    [["Text", "URL"], ...crawlResult.links.map((l) => [l.text, l.href])],
-                    "링크_목록"
-                  )
-                }
-                className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span>CSV 다운로드</span>
-              </button>
-            </div>
+          <>
+            <TabHeader title={`추출된 하이퍼링크 (${crawlResult.links.length}개)`}>
+              <SearchBox value={query} onChange={setQuery} placeholder="🔎 링크 텍스트·주소 검색" />
+              <CsvButton
+                onClick={() => downloadCsv([["Text", "URL"], ...filteredLinks.map((l) => [l.text, l.href])], "링크_목록")}
+              />
+            </TabHeader>
 
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-900 text-slate-200 font-mono text-[10px]">
+            <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+              <table className="mx-table min-w-[560px]">
+                <thead>
                   <tr>
-                    <th className="py-2 px-3 w-10 text-center">#</th>
-                    <th className="py-2 px-3">앵커 텍스트</th>
-                    <th className="py-2 px-3">대상 URL</th>
-                    <th className="py-2 px-3 w-12 text-center">열기</th>
+                    <th className="w-10 text-center">#</th>
+                    <th>앵커 텍스트</th>
+                    <th>대상 URL</th>
+                    <th className="w-14 text-center">열기</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {crawlResult.links.map((link, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-2.5 px-3 text-center font-mono text-slate-400">
-                        {idx + 1}
-                      </td>
-                      <td className="py-2.5 px-3 font-medium text-slate-800">
+                <tbody>
+                  {filteredLinks.map((link, idx) => (
+                    <tr key={idx}>
+                      <td className="text-center font-mono text-mx-muted">{idx + 1}</td>
+                      <td className="font-medium">
                         {link.text || "(텍스트 없음)"}
+                        {link.isExternal && <span className="mx-chip ml-2 px-1.5 py-0 text-[10px]">외부</span>}
                       </td>
-                      <td className="py-2.5 px-3 font-mono text-slate-500 text-[11px] truncate max-w-sm">
-                        {link.href}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <a
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-indigo-600"
-                        >
-                          <ArrowUpRight className="h-3.5 w-3.5 mx-auto" />
-                        </a>
+                      <td className="max-w-sm truncate font-mono text-xs text-mx-muted">{link.href}</td>
+                      <td className="text-center">
+                        <OpenLink href={link.href} />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {filteredLinks.length === 0 && <p className="py-8 text-center text-sm text-mx-muted">검색 결과가 없습니다.</p>}
             </div>
-          </div>
+          </>
         )}
 
-        {/* 7. 이미지 탭 */}
+        {/* 7. 이미지 */}
         {activeTab === "images" && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-              <p className="text-xs font-bold text-slate-600 uppercase font-mono">
-                발견된 이미지 ({crawlResult.images.length}개)
-              </p>
+          <>
+            <TabHeader title={`발견된 이미지 (${crawlResult.images.length}개)`}>
+              <button
+                type="button"
+                onClick={handleDownloadImagesZip}
+                disabled={isZipping || crawlResult.images.length === 0}
+                className="mx-btn-primary min-h-[36px] px-3 text-xs"
+              >
+                {isZipping ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>ZIP 압축 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <FolderArchive className="h-3.5 w-3.5" />
+                    <span>ZIP으로 일괄 다운로드</span>
+                  </>
+                )}
+              </button>
+              <CsvButton
+                label="CSV"
+                onClick={() => downloadCsv([["Alt Text", "Source URL"], ...crawlResult.images.map((img) => [img.alt, img.src])], "이미지_목록")}
+              />
+            </TabHeader>
+            {zipMessage && <p className="text-sm text-mx-muted">{zipMessage}</p>}
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleDownloadImagesZip}
-                  disabled={isZipping || crawlResult.images.length === 0}
-                  className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-500 transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {isZipping ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      <span>ZIP 압축 중...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FolderArchive className="h-3.5 w-3.5" />
-                      <span>ZIP으로 일괄 다운로드</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    downloadCsv(
-                      [["Alt Text", "Source URL"], ...crawlResult.images.map((img) => [img.alt, img.src])],
-                      "이미지_목록"
-                    )
-                  }
-                  className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-indigo-600 border border-slate-200 px-3 py-1.5 rounded-lg bg-white cursor-pointer"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  <span>CSV</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
               {crawlResult.images.map((img, idx) => (
-                <div
-                  key={idx}
-                  className="group relative rounded-xl border border-slate-200 bg-white p-2 shadow-2xs hover:border-indigo-400 transition-all flex flex-col justify-between"
-                >
-                  <div className="h-32 w-full overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
+                <div key={idx} className="group flex flex-col justify-between rounded-xl border border-mx-border bg-mx-raised p-2 hover:border-mx-primary">
+                  <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-lg bg-mx-surface">
                     <img
                       src={img.src}
                       alt={img.alt || `이미지 ${idx + 1}`}
-                      className="h-full w-full object-contain group-hover:scale-105 transition-transform"
+                      className="h-full w-full object-contain transition-transform group-hover:scale-105"
                       loading="lazy"
                     />
                   </div>
                   <div className="mt-2 space-y-1">
-                    <p className="text-[11px] font-bold text-slate-800 truncate" title={img.alt}>
+                    <p className="truncate text-xs font-bold text-mx-text" title={img.alt}>
                       {img.alt || `image_${idx + 1}`}
                     </p>
-                    <p className="text-[10px] text-slate-400 font-mono truncate" title={img.src}>
+                    <p className="truncate font-mono text-[10px] text-mx-muted" title={img.src}>
                       {img.src}
                     </p>
                   </div>
@@ -697,14 +574,14 @@ export function ScraperTabs({
                     href={img.src}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 block w-full text-center py-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                    className="mt-2 flex min-h-[36px] w-full items-center justify-center rounded-lg bg-mx-surface text-xs font-bold text-mx-link hover:bg-mx-border"
                   >
                     원본 열기
                   </a>
                 </div>
               ))}
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>

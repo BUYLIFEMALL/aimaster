@@ -3,7 +3,8 @@
 ## 1. 프로그램 개요
 - **프로그램명**: Website Scraper (웹 데이터 크롤러 & AI 추출기)
 - **Slug**: `website-scraper`
-- **버전**: `v1.08`
+- **버전**: `v1.12` (2026-10-16 스마트 매트릭스 디자인 리뉴얼 + 보안 보강)
+- **적용 디자인 템플릿**: **스마트 매트릭스 스타일** — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · 플랜 [docs/PLAN_20261016_DESIGN_RENEWAL.md](docs/PLAN_20261016_DESIGN_RENEWAL.md) · 개선 원장 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계 [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md)
 - **배지**: `["new", "free"]` (가입 회원 누구나 무료 사용)
 - **라이브 도메인**: `https://website-scraper.buylife.xyz` (기존 `https://ghost-scraper.buylife.xyz` 유지)
 - **Vercel 프로젝트 & 주소**: 프로젝트명 `website-scraper` / 공식 주소 `https://website-scraper.buylife.xyz` / Vercel 기본 `https://website-scraper-ai.vercel.app`, `https://website-scraper-buylife.vercel.app`
@@ -13,17 +14,18 @@
 1. **사용자 본인 API 키 원칙 (최상위 규칙)**: Google Gemini API 키는 사용자의 브라우저 `localStorage`에 격리 보관되며, 플랫폼 공용 DB `user_api_keys` 테이블과 `/api/user/key`로 동기화된다. 운영자 공용 키 폴백 없음.
 2. **AIMaster 통합 이용 권한 게이트**: `src/lib/access.ts`의 `requireProgramAccess()` 적용으로 비로그인 접근 시 메인 SSO(`https://buylife.xyz/login`)로 307 리다이렉트. `free` 배지로 로그인 회원은 즉시 무료 사용.
 3. **좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
-   - 상단 프로그램명 + 버전 `v1.08` + FREE 배지
+   - 상단 프로그램명 + 버전 + FREE 배지
    - `← 다른 프로그램 보기`
    - 대시보드 메인
    - 번호형 작업 흐름 (1: URL 입력 & 탐색 → 2: 데이터 검토 & 분류 → 3: 시각적 섹터 선택 → 4: AI 지능형 분석)
    - 세션 통계 요약 카드 & `데이터 내보내기 (JSON)`
-   - `🔑 API키등록·플랫폼연동`
-   - 하단 고정: 로그인 계정 이메일 & 로그아웃 버튼
+   - `🔑 API키등록·플랫폼연동` · `📖 연동 & 사용 매뉴얼`(`/guide`, v1.12)
+   - 계정 이메일 & 로그아웃: **마지막 메뉴 바로 아래**(v1.12부터 맨 아래 고정 아님)
 4. **당해 연도(현재 2026년) 원칙**: 모든 AI 프롬프트와 분석 결과에 당해 연도(2026년) 기준을 동적으로 적용 (`new Date().getFullYear()`).
 
 ## 3. 핵심 아키텍처 및 기능
 - **POST `/api/crawl`**: Cheerio를 활용하여 HTML 파싱, 메타데이터, 시맨틱 헤딩(H1~H3), 하이퍼링크, 이미지, 데이터 표, 글목록 및 AI 분석용 `cleanedHtml` 추출.
+- **보안(v1.12)**: 모든 API는 `checkProgramAccessApi()`, 외부 fetch는 `src/lib/safeFetch.ts`(내부·사설 주소 차단, 리디렉트 재검사). 미리보기는 `CSP: sandbox allow-scripts` + iframe `sandbox` — **`allow-same-origin`을 추가하지 말 것**(남의 스크립트가 회원 키를 읽게 됨).
 - **GET `/api/proxy`**: 시각적 섹터 선택기용 HTML 프록시. 라이브 웹페이지에 마우스오버 하이라이트 스타일 및 인터셉트 스크립트(`AIS_SECTOR_SELECTED`, `AIS_NAVIGATE_REQUEST`) 주입.
 - **GET `/api/proxy-image`**: 이미지 다운로드 CORS 우회 스트리밍 (`JSZip` 일괄 다운로드 지원).
 - **GET/POST `/api/user/key`**: Gemini API 키 DB 저장 및 조회.
@@ -84,3 +86,11 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.11 (website-scraper)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-16 스마트 매트릭스 디자인 리뉴얼 + 보안 보강 — v1.12 (Claude Code 맥미니)
+
+- 🚨 보안: `/api/crawl`·`/api/proxy`·`/api/proxy-image`에 권한 확인이 없던 것(누구나 대리 접속 통로로 사용 가능) 수정, `/api/user/key`도 프로그램 권한 확인으로. 내부·사설 주소 차단(`safeFetch`). 미리보기가 남의 사이트 스크립트를 우리 도메인 권한으로 실행하던 것을 sandbox로 격리 + 메시지 출처 확인.
+- 디자인: 스마트 매트릭스(다크 차콜 + 블루·앰버, Tailwind v4 `@theme`), 히어로·KPI 4종, 다크 7탭·표, 글목록/링크/AI 결과 검색, 사이드바 계정 밀착 + 📖 매뉴얼, `/guide` 신설(`HelpModal` 제거), 섹터 모달 모바일 세로 배치.
+- 작은 수정: 내보내기 버전 `APP_VERSION`, ZIP 이름 `website_scraper_images_*`, ZIP 결과 화면 안내(`alert` 제거).
+- **빌드·배포·화면/보안 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md) 「다음 첫 단계」.

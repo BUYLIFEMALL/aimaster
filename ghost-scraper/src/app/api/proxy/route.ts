@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkProgramAccessApi } from "@/lib/access";
+import { safeFetch, BlockedUrlError } from "@/lib/safeFetch";
 
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export async function GET(req: NextRequest) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return new NextResponse(access.error, { status: access.status });
+  }
+
   const urlParam = req.nextUrl.searchParams.get("url");
   if (!urlParam) {
     return new NextResponse("URL 파라미터가 누락되었습니다.", { status: 400 });
@@ -15,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const originUrl = new URL(targetUrl);
-    const response = await fetch(targetUrl, {
+    const { response } = await safeFetch(targetUrl, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 WebsiteScraper/1.0",
@@ -144,10 +153,17 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "text/html; charset=utf-8",
-        "X-Frame-Options": "ALLOWALL",
+        // 남의 사이트 HTML·스크립트를 우리 도메인 권한과 분리한다(쿠키·localStorage·API 접근 차단).
+        // 주입한 선택 스크립트와 postMessage는 sandbox 안에서도 동작한다.
+        "Content-Security-Policy": "sandbox allow-scripts",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Cache-Control": "no-store",
       },
     });
   } catch (err: any) {
+    if (err instanceof BlockedUrlError) {
+      return new NextResponse(err.message, { status: 400 });
+    }
     console.error("Proxy error:", err);
     return new NextResponse(`프록시 요청 실패: ${err.message}`, { status: 500 });
   }
