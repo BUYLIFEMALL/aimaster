@@ -64,3 +64,8 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - 새 주소 `https://auto-instagram-posting.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 /settings 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308. 콜백 2곳(/api/instagram/callback, /api/instagram/callback/byok) 옛 주소 → 새 주소 307(시험 요청). 설정 화면 콜백 안내 옛 주소 그대로. 실제 계정 연결은 미시험
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.09 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`: SITE_ORIGIN(auto-instagram-posting.buylife.xyz), Facebook 방식 `FACEBOOK_REDIRECT_*`(env `META_INSTAGRAM_REDIRECT_URI`, /api/instagram/callback), Instagram 방식 `INSTAGRAM_REDIRECT_*`(env `META_INSTAGRAM_BYOK_REDIRECT_URI`, /callback/byok).
+- 기본 연결은 옛 콜백, 설정 화면 [Facebook/Instagram 방식 새 주소로 (다시) 연결](hidden `callback=new`)은 새 콜백. 두 콜백 모두 옛 주소 307에 via=old·교환 시 via로 선택·연결 후 이동 SITE_ORIGIN. 설정 화면에 두 방식 콜백 모두 옛·새 주소 표시. 미사용 `getEnv` 제거.
+- 검수: 빌드·배포, 옛 콜백 2곳 → via=old 307, 새 콜백 → /login. 시험 계정 [Facebook 방식 새 주소로 다시 연결] → Facebook 인증 URL에 `redirect_uri=https://auto-instagram-posting.buylife.xyz/api/instagram/callback` 확인(화이트리스트 미등록 오류 = 새 콜백 전송 확인). Instagram 방식은 기존부터 시험 계정 앱 "Invalid platform app" 오류(instagram-comment-reply `docs/IMPROVEMENTS.md`와 같은 원인 추정).
