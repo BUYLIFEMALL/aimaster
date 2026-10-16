@@ -138,3 +138,7 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - 주인님 요청: 노란 "Instagram 앱 ID" 안내 상자를 text-sm·leading-relaxed·문장별 단락으로(INSTA 포스팅 v1.14와 같게).
 - 같은 날 시험 계정 Instagram 앱 ID 오류 원인 확인: 다시 저장하면서 맨 끝 1자리가 빠진 15자리 값 → Instagram "Invalid platform app". 주인님이 16자리로 재입력 후 시험 계정 DM [새 주소로 다시 연결] 성공(`dm_accounts` 갱신). 개선 제안: 앱 ID 저장 시 자릿수 검사.
 - 검수: 빌드·배포·DB v1.12, 크롬에서 상자 모양 확인.
+
+## 2026-10-17 v1.13 — 앱 ID·시크릿 저장 형식 검사 (Claude Code 윈도우)
+- 주인님 승인 제안: 시험 계정 Instagram 앱 ID가 끝자리 빠진 15자리로 저장돼 "Invalid platform app"이 난 사례 → `saveApiKeyAction`에서 `*_app_id`는 숫자 15~16자리, `*_app_secret`은 영문·숫자 32자가 아니면 저장하지 않고 입력 글자 수와 함께 안내(기존 저장값은 영향 없음).
+- 검수: 빌드·배포·DB v1.13. DM 화면(시험 계정)에서 "12345" 저장 시도 → 빨간 오류 표시·저장 안 됨·기존 값 유지 확인. 댓글·포스팅은 같은 코드.
