@@ -44,7 +44,7 @@ export function TaskEditor({
   return (
     <section className="card task-editor-card">
       <div className="section-header">
-        <h2>{editing ? "할 일 수정" : "새 할 일"}</h2>
+        <h2>{editing ? "할 일 수정" : "할 일 추가"}</h2>
       </div>
       <form onSubmit={submit} className="task-editor-form">
         <label className="form-field">

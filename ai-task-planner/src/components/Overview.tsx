@@ -398,15 +398,15 @@ export function Overview({
           </div>
         </section>
 
-        {/* 중앙 열: 할 일 추가 + 오늘의 성과 + 시간대별 차트 */}
+        {/* 중앙 열: 할 일 추가 + 오늘의 성과 */}
         <div className="overview-planning stack">
           {editor}
           <SummaryPanel summary={summary} scope={scope} compact />
-          <ChartPanel bins={summary.bins} />
         </div>
 
-        {/* 우측 열: AI 생산성 분석 + 성과 노트(세로로 길게) */}
+        {/* 우측 열: 시간대별 차트 + AI 생산성 분석 + 성과 노트 */}
         <div className="overview-insights stack">
+          <ChartPanel bins={summary.bins} />
           <AnalysisPanel key={`${date}-${categoryId}-${query}-${revision}`} date={date!} categoryId={categoryId} query={query} revision={revision} completedCount={completed.length} scope={scope} busy={busy}/>
           <NotePanel note={note} savedNote={savedNote} busy={busy} change={changeNote} save={saveNote} />
         </div>

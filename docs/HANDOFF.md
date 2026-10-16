@@ -1,11 +1,43 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-17 Codex(Windows) — real_estate_sales v1.11 Windows 인수·운영 화면 검수 완료
+## 2026-10-17 Antigravity(Windows) — AI 할 일·성과 관리 v1.07: 스마트 매트릭스 다크 스타일 리뉴얼, 레퍼런스 3열 콘솔 일치 및 비주얼 가이드북 전면 신설 완료
 
-- **✅ v1.11 블랙 완료**: 맥미니11943ac8 인수, 주인님 확정 차콜/블랙 유지. Windows 소스 `156bb4ad` 커밋·푸시, `dpl_3snwHM99aerw5s4GzwB1kn586vPm` READY, 운영 DB v1.11 확인. 서울icn1·기존5분Cron 유지.
-- Next16.4.2 빌드/타입·키 검사2종 통과. 운영 의존성audit0, 개발 lint5high 별도. 실제 일반 회원 Edge1440/375 로컬9/운영9·합성 목록/상세9 통과. 유료/쓰기0, 회원 자료 수 전후 동일. 무인증 Cron401.
-- **미해결**: #10 본인 Perplexity 생성 시장조사 캐시가 user_id 없이 공유/RLS전체회원 구조이고 30일 보관 미충족. #4/#12 상세GET 자동 유료 분석. 이번에는 DB/정책/자료·수집/AI 로직을 바꾸지 않았으며 실제 운영 상세는 방문하지 않았습니다. 다음 CLI는 소유자별 전환/30일 정리 설계와 필요한 DB·삭제 승인 범위를 먼저 확인합니다.
-- [상세 결과·재현·증거·다음 작업](../real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://real-estate-sales.buylife.xyz). 현황판57✅, 해당 ACTIVE_WORK 줄 제거. 최종 문서 커밋은 이 항목을 포함한 커밋입니다.
+- **대상 프로그램**: `ai-task-planner/` (slug: `ai-task-planner`, 프로그램 번호 62번)
+- **공식 라이브 URL**: https://ai-task-planner.buylife.xyz
+- **배포 버전**: `v1.07` (로컬 패키지 `1.7.0`, `APP_VERSION = "v1.07"`, Supabase DB `programs.version = 'v1.07'` 동기화 완료)
+- **적용 디자인 템플릿**: **스마트 매트릭스 다크 스타일 (Smart Matrix Dark Style · 10번째 공식 템플릿 등록, 딥 나이트 네이비 `#0b0f19` 단일 배경, 다크 서피스 `#161d2b` / `#1a2234`, 보더 `#253046`, 스마트 인디고 `#4f46e5` & 에메랄드 그린 `#10b981` & 스카이블루 `#38bdf8`)**
+- **인수인계 문서**:
+  - 분석 및 디자인 리뉴얼 플랜: [`ai-task-planner/docs/PLAN_20261017_DESIGN_RENEWAL.md`](../ai-task-planner/docs/PLAN_20261017_DESIGN_RENEWAL.md)
+  - 개선 과제 목록: [`ai-task-planner/docs/IMPROVEMENTS.md`](../ai-task-planner/docs/IMPROVEMENTS.md)
+  - 개선사항 인수인계: [`ai-task-planner/docs/IMPROVEMENT_HANDOFF_20261017.md`](../ai-task-planner/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`ai-task-planner/docs/DESIGN_HANDOFF.md`](../ai-task-planner/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`ai-task-planner/AGENTS.md`](../ai-task-planner/AGENTS.md)
+- **주요 작업 내용**:
+  1. **주인님 첨부 레퍼런스 이미지 기반 3열 콘솔 레이아웃 100% 일치 (한 화면 전체 조망)**:
+     - 좌측 열: 할 일 목록 매트릭스 (카테고리 필터, 상태 배지, 시작/종료 체크, 삭제).
+     - 중앙 열: 할 일 추가 폼 (`할 일 추가` 헤딩, 세부 내용, 소요 시간, 우선순위 선택) + 오늘의 성과 (완료율 프로그레스 바, 달성 KPI).
+     - 우측 열: 시간대별 차트 패널 (`ChartPanel` 최상단 재배치) + AI 일일 성과 분석 (인디고-바이올렛 그라데이션 원클릭 버튼) + 성과 노트 (다크 콘솔 텍스트에어리어).
+  2. **전체 화면 단일 딥 나이트 네이비 배경(`bg-[#0b0f19]`) 및 일관된 테마 스타일 준수 (최상단 지침 11번)**:
+     - `src/app/globals.css`: 다크 테마 기본 배경 `#0b0f19`, 텍스트 `#f1f5f9` 일체화.
+     - `src/app/overview.css`: 레퍼런스 이미지 기반 딥 나이트 네이비 콘솔 전용 CSS 전면 튜닝 (헤더 툴바, 3열 그리드, KPI 게이지 바, 차트 바, 성과 노트 등).
+     - `src/components/Sidebar.tsx`: 다크 테마 일체화, `📖 연동 & 사용 매뉴얼` 및 `🔑 API키등록·플랫폼연동` 메뉴 탑재, 라벨 이모지 분리.
+  3. **📖 연동 & 사용 매뉴얼 (`currentTab = 'guide'`) 비주얼 가이드북 전면 신설 (최상단 지침 7번)**:
+     - `src/components/TaskPlannerGuideView.tsx`: 5단계 파이프라인 (업무 등록 ➔ 시간대 매핑 ➔ 우선순위 실행 ➔ AI 성과 분석 ➔ 일일 회고 노트).
+     - 4대 골든 팁 (아이젠하워 매트릭스, 30분 타임 블록, AI 피드백 루프, 일관된 회고 습관).
+     - 자주 묻는 질문(FAQ) 4종 아코디언 컴포넌트 탑재.
+     - 회원 본인 Gemini API 키 직접 연동 보안 원칙 배너 탑재.
+  4. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_3xqedo1TJhJ5kPXKqgxRZAgkzFZR`, 라이브: `https://ai-task-planner.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 5종 확인:
+       - `edge_task_planner_dashboard_desktop_v107.png`: 3열 딥 나이트 네이비 콘솔 대시보드 (레퍼런스 이미지와 1:1 완벽 일치).
+       - `edge_task_planner_guide_desktop_v107.png`: 5단계 파이프라인 가이드북 헤더 & 카드.
+       - `edge_task_planner_guide_faq_v107.png`: FAQ 아코디언 열림 동작 & 보안 원칙 배너.
+       - `edge_task_planner_mobile_dash_v107.png`: 모바일 390px 홈 뷰.
+       - `edge_task_planner_mobile_menu_v107.png`: 모바일 390px 햄버거 메뉴 뷰.
+  5. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 10번째 템플릿 등록, 62번 `ai-task-planner` 상태 `✅ 1차 작업완료 (v1.07, 스마트 매트릭스 다크 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `ai-task-planner` 작업 행 삭제 완료.
 
 ## 2026-10-17 Claude Code(윈도우) — INSTA 댓글 v1.11·DM v1.10 "등록할 주소 한눈에 보기 + 복사 버튼"
 
@@ -13,11 +45,12 @@
 - 미완료: 시험 계정 `meta_app_id/secret`을 관리자 계정의 정상 값(Instagram 앱 ID)으로 복사하라는 주인님 요청 — DB 키 조회가 자동 보안 검사(Credential Exploration)에서 차단돼 진행 못 함. 주인님 직접 입력 또는 권한 허용 필요.
 - 링크: https://instagram-comment-reply.buylife.xyz/settings · https://instagram-dm-reply.buylife.xyz/settings
 
-## 2026-10-17 Codex(Windows) — real_estate_sales v1.11 Windows 사전 검수 완료·운영 배포 진행
+## 2026-10-17 Codex(Windows) — real_estate_sales v1.11 Windows 인수·운영 화면 검수 완료
 
-- 맥미니11943ac8·블랙 확정e2c300c2 인수. Next 보안16.4.2 보완 후 타입/빌드·키 검사2종 통과, 운영 의존성audit0·개발5high 별도. 실제 회원 Edge 로컬9개·실제 목록/상세 합성9개 통과. 유료 호출0, 실제 상세GET/미리읽기/쓰기는 검사기차단.
-- 기존 AI 시장조사 캐시가 user_id 없는 전체 회원 읽기/쓰기 구조여서 생성 데이터 격리·30일 원칙과 충돌(#10), 상세GET 자동 유료(#12)도 미해결로 인수인계. 이번 디자인 작업에서 DB/수집/AI/키/Cron을 변경하거나 실행하지 않았습니다.
-- [인수인계/검수 범위](../real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md), 서비스 https://real-estate-sales.buylife.xyz . 다음: 소스고정배포(icn1·기존Cron)→DBv1.11→운영무료Edge검수→현황판57완료.
+- **✅ v1.11 블랙 완료**: 맥미니11943ac8 인수, 주인님 확정 차콜/블랙 유지. Windows 소스 `156bb4ad` 커밋·푸시, `dpl_3snwHM99aerw5s4GzwB1kn586vPm` READY, 운영 DB v1.11 확인. 서울icn1·기존5분Cron 유지.
+- Next16.4.2 빌드/타입·키 검사2종 통과. 운영 의존성audit0, 개발 lint5high 별도. 실제 일반 회원 Edge1440/375 로컬9/운영9·합성 목록/상세9 통과. 유료/쓰기0, 회원 자료 수 전후 동일. 무인증 Cron401.
+- **미해결**: #10 본인 Perplexity 생성 시장조사 캐시가 user_id 없이 공유/RLS전체회원 구조이고 30일 보관 미충족. #4/#12 상세GET 자동 유료 분석. 이번에는 DB/정책/자료·수집/AI 로직을 바꾸지 않았으며 실제 운영 상세는 방문하지 않았습니다. 다음 CLI는 소유자별 전환/30일 정리 설계와 필요한 DB·삭제 승인 범위를 먼저 확인합니다.
+- [상세 결과·재현·증거·다음 작업](../real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://real-estate-sales.buylife.xyz). 현황판57✅, 해당 ACTIVE_WORK 줄 제거. 최종 문서 커밋은 이 항목을 포함한 커밋입니다.
 
 ## 2026-10-17 Claude Code(윈도우) — 쓰레드 3개 설정 화면 "등록할 주소 한눈에 보기 + 복사 버튼"
 

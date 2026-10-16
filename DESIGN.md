@@ -55,9 +55,9 @@
 
 ---
 
-## 1. 공식 디자인 템플릿 시스템 (Design Template System) — 현재 9종
+## 1. 공식 디자인 템플릿 시스템 (Design Template System) — 현재 10종
 > **카탈로그 단일 기준 (2026-10-16 정리)**: 템플릿 목록과 프로그램별 적용 현황은 **이 문서(`DESIGN.md`)에만** 적는다. `docs/PROGRAM_DESIGN_STANDARD.md`·`CLAUDE.md`·`AGENTS.md`의 "4대/5대 템플릿" 표현은 이 표를 가리키는 것으로 읽는다.
-> **기준 예시 유무**: `DESIGN_HANDOFF.md`(색상값·부품 구성)가 있는 템플릿만 다른 프로그램에 바로 옮겨 적용할 수 있다. 현재 기준 예시가 있는 것은 1·2·6·7·8번과 4번(v1.06 운영 검수 완료), 그리고 9번(v1.06 유튜브 다크 콘솔 스타일)이고, 3·5번은 대표 프로그램 1개를 먼저 완성해 `DESIGN_HANDOFF.md`를 만든 뒤 확대 적용한다.
+> **기준 예시 유무**: `DESIGN_HANDOFF.md`(색상값·부품 구성)가 있는 템플릿만 다른 프로그램에 바로 옮겨 적용할 수 있다. 현재 기준 예시가 있는 것은 1·2·6·7·8번과 4번(v1.06 운영 검수 완료), 그리고 9번(v1.06 유튜브 다크 콘솔 스타일), 10번(v1.07 스마트 매트릭스 다크 스타일)이고, 3·5번은 대표 프로그램 1개를 먼저 완성해 `DESIGN_HANDOFF.md`를 만든 뒤 확대 적용한다.
 > **새 템플릿을 만드는 기준**: 기존 템플릿의 색상 토큰이나 화면 골격을 조정해 쓸 수 있으면 새 이름을 만들지 않고 기존 템플릿의 「변형」으로 기록한다(예: `사이버 네온 다크 콘솔 스타일 — 수노 오렌지 변형`). 화면 골격(레이아웃)과 색상 토큰이 둘 다 기존 템플릿과 크게 다를 때만 새 이름을 붙인다.
 
 | 공식 템플릿 스타일 명칭 | 대표 적용 프로그램 | 배경 및 메인 컬러 | 핵심 레이아웃 & 시그니처 특징 | 추천 대상 프로그램 분야 |
@@ -71,6 +71,7 @@
 | **7. 이커머스 셀러 스튜디오 스타일<br>(E-commerce Seller Studio Style)** | **AI 상세페이지 자동화** (`shop-detail-page` `v1.06`) | 퓨어 화이트 (`#ffffff`) & 슬레이트 (`#f8fafc`)<br>포인트: 스마트스토어 로열 블루 (`#2563eb`) & 셀러 오렌지 (`#f97316`) | 네이버 스마트스토어/쿠팡 셀러센터 감성, 4단계 파이프라인 가이드북 & 15개 섹션 블록 맵, 점선 드래그앤드롭 업로더, 15단 섹션 넘버링 뷰어 & 롱 이미지 원클릭 병합 바 | 이커머스 상세페이지 생성기, 쇼핑몰 상품 등록기, 오픈마켓 소싱 자동화 |
 | **8. 스레드 바이럴 스튜디오 스타일<br>(Threads Viral Studio Style)** | **Threads 콘텐츠 운영 자동화** (`threads-content-ops` `v1.96`) | 클린 화이트 (`#ffffff`) & 슬레이트 (`#f8fafc`)<br>포인트: 바이럴 파이어 앰버 (`#f59e0b`) & 일렉트릭 바이올렛 (`#8b5cf6`) & Threads 블랙 (`#171717`) | Meta Threads 공식 감성, 5단계 파이프라인 가이드북 & Meta 연동 가이드, 모바일 전용 햄버거 헤더, 6종 페르소나 카드 갤러리, 500자 제약 컨트롤 | Threads 운영 자동화, SNS 바이럴 콘텐츠 제작기, 제휴 마케팅 자동 포스팅 |
 | **9. 유튜브 다크 콘솔 스타일<br>(YouTube Dark Console Style)** | **Youtube Playlist 자동화** (`yt-playlist-studio` `v1.06`) | 퓨어 옵시디언 블랙 (`#0f0f0f`) & 다크 서피스 (`#181818`)<br>포인트: 유튜브 공식 레드 (`#ff0000`) | 유튜브 공식 다크 감성, 유튜브 레드 플레이 로고(▶), 알약형(Pill) 칩 버튼, 5단계 파이프라인 가이드북, 16:9 영화관 캔버스 & 오디오 스펙트럼 10종, WebCodecs GPU 가속 1080p MP4 고속 렌더링 콘솔 | 유튜브 영상 제작기, 플레이리스트 자동화, 오디오 비주얼라이저, 비디오 에디터 |
+| **10. 스마트 매트릭스 다크 스타일<br>(Smart Matrix Dark Style)** | **AI 할 일·성과 관리** (`ai-task-planner` `v1.07`) | 딥 나이트 네이비 (`#0b0f19`) & 다크 서피스 (`#161d2b` / `#1a2234`)<br>포인트: 스마트 인디고 (`#4f46e5`) & 에메랄드 그린 (`#10b981`) & 스카이블루 (`#38bdf8`) | 딥 나이트 네이비 생산성 콘솔 감성, 3열 매트릭스 레이아웃(좌측 할 일 목록 + 중앙 할 일 추가/오늘의 성과 + 우측 시간대별 차트/AI 성과 분석/성과 노트), 한 화면 전체 조망, KPI 요약 바, 5단계 파이프라인 가이드북 | 개인/팀 생산성 매트릭스, 주간/월간 업무 플래너, 성과/KPI 대시보드 |
 
 ---
 
@@ -78,7 +79,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-17 기준: ✅ 15개 · ⚪ 66개 · ⏸ 2개):
+> **상태 구분** (2026-10-17 기준: ✅ 22개 · ⚪ 56개 · 🟠 2개 · 🔵 1개 · ⏸ 2개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -139,7 +140,7 @@
 | 45 | INSTA DM답변 자동화 | `instagram-dm-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `instagram-dm-reply/AGENTS.md` |
 | 46 | Threads 댓글자동화 | `threads-comment-reply` | 스마트 매트릭스 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-comment-reply/AGENTS.md` |
 | 47 | INSTA 댓글자동화 | `instagram-comment-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `instagram-comment-reply/AGENTS.md` |
-| 48 | 유튜브 댓글자동화 | `youtube-auto-reply` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `youtube-auto-reply/AGENTS.md` |
+| 48 | 유튜브 댓글자동화 | `youtube-auto-reply` | **유튜브 스튜디오 댓글 콘솔 스타일** (유튜브 다크 콘솔 + 스마트 매트릭스) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | 🔵 작업 중 (Claude Code 맥미니 2026-10-17, 플랜 승인 대기) | [`youtube-auto-reply/docs/PLAN_20261017_DESIGN_RENEWAL.md`](youtube-auto-reply/docs/PLAN_20261017_DESIGN_RENEWAL.md) |
 | 49 | 롱테일 키워드분석 자동화 | `longtail-keyword-expander` | **스마트 매트릭스 스타일** (기준 구현) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 완료 (`v1.06`) | [`longtail-keyword-expander/docs/DESIGN_HANDOFF.md`](longtail-keyword-expander/docs/DESIGN_HANDOFF.md) |
 | 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | **스마트 매트릭스 스타일** (기준 구현과 같은 뼈대) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 스타일) | [`competitor-analysis/docs/DESIGN_HANDOFF.md`](competitor-analysis/docs/DESIGN_HANDOFF.md) |
 | 51 | 예약(취소)방지 리마인드 | `booking-reminder` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `booking-reminder/AGENTS.md` |
@@ -153,7 +154,7 @@
 | 59 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `ai-auto-blog/AGENTS.md` |
 | 60 | Threads 포스팅 자동화 | `auto-threads-posting` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads/AGENTS.md` |
 | 61 | 상세페이지 자동생성기 v1 | `auto-detail-page` | 포커스 스튜디오 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `auto-detail-page/AGENTS.md` |
-| 62 | AI 할 일·성과 관리 | `ai-task-planner` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `ai-task-planner/AGENTS.md` |
+| 62 | AI 할 일·성과 관리 | `ai-task-planner` | **스마트 매트릭스 다크 스타일** | 다크(딥 나이트 네이비 `#0b0f19`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 다크 스타일) | [`ai-task-planner/docs/DESIGN_HANDOFF.md`](ai-task-planner/docs/DESIGN_HANDOFF.md) |
 | 63 | AI 종합 성격 진단 자동화 | `personality-suite` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `personality-suite/AGENTS.md` |
 | 64 | AI 문서번역 자동화 | `document-translator` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `document-translator/AGENTS.md` |
 | 65 | AI 엑셀·텍스트 합치기 자동화 | `file-merge` | **스마트 매트릭스 스타일 — 라이트 변형** (라이트 토큰 기준값) | 라이트(`#f6f7f9`/`#ffffff` + 블루 `#2563eb`·앰버 `#b45309`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 라이트 변형) | [`file-merge/docs/DESIGN_HANDOFF.md`](file-merge/docs/DESIGN_HANDOFF.md) |
