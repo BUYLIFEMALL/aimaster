@@ -43,3 +43,4 @@
 - 완료: 루트(`www`), `shots`(`https://shots.buylife.xyz`, v1.06~) 파일럿 배포, `programs.app_url` 갱신, Cloudflare 와일드카드 A 레코드.
 - 대기: 파일럿 로그인 공유 시험(주인님) → 통과하면 나머지 프로그램을 **하나씩** 위 4번 절차로 진행(OAuth 프로그램은 6번 확인 먼저).
 - 2026-10-15: `stepmail`(v1.08, stepmail.buylife.xyz)·`kakao-auto-posting`(v1.08, kakao-auto-posting.buylife.xyz) 연결. 옛 vercel.app 화면은 새 주소로 308, API는 옛 주소 유지. **콜백이 환경변수로 옛 주소에 고정된 OAuth 프로그램**은 콜백 라우트가 옛 호스트로 들어오면 같은 쿼리로 새 주소에 넘겨 토큰을 교환하게 했다(kakao). 운영자 카카오 JavaScript 키(공유 버튼)는 새 주소를 카카오 콘솔에 추가 등록해야 한다.
+- 2026-10-16: 남은 27개 일괄 이전 시작(플랜 `DOMAIN_SSO_MIGRATION_PLAN_20261016.md`). `tarot-reading`(v1.07, tarot-reading.buylife.xyz) 완료 — 옛 `*.vercel.app` 화면 308은 호스트 접미사로 판정(배포 미리보기 주소 포함), API 제외.

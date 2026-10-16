@@ -1,11 +1,21 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 
 // 랜딩 페이지(/)와 공유된 타로 결과 페이지(/result)는 비로그인 방문자도 볼 수 있도록 하고,
 // 실제 새로운 카드 뽑기(/draw)와 설정(/settings) 이용에만 로그인을 요구한다.
 const AUTH_REQUIRED_PATHS = ["/draw", "/settings"];
 
+// 2026-10-16 도메인 통일(SSO): 옛 *.vercel.app 주소로 들어온 화면 요청은 새 주소로 보낸다(로그인 쿠키는 .buylife.xyz에서만 공유).
+// API는 옮기지 않는다(옛 주소의 크론·외부 호출·확장이 그대로 동작, 옛 주소는 지우지 않음).
+const NEW_ORIGIN = "https://tarot-reading.buylife.xyz";
+
 export async function middleware(request: NextRequest) {
+  const reqHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
+  if (reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
+    return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
+  }
+  const cookieDomain = cookieDomainForHost(reqHost);
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -20,7 +30,7 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
+            supabaseResponse.cookies.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options),
           );
         },
       },
