@@ -1,5 +1,34 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — 플레이리스트 채널 제작 자동화 v1.09: 전 화면 단일 배경색(블랙) 및 일관된 사이버 네온 다크 콘솔 테마 전면 통일 완료
+
+- **대상 프로그램**: `playlist-channel-studio/` (slug: `playlist-channel-studio`, 공식 라이브: `https://playlist-maker.buylife.xyz/`, 배포 버전: `v1.09`)
+- **작업 배경**: 매뉴얼(`/guide`)만 다크 테마이고 스튜디오 및 프로젝트가 라이트/그레이로 불일치하던 현상을 해소하고, "프로그램 내 전체 페이지 단일 배경색 및 일관된 테마 스타일 준수 의무"를 완벽 이행.
+- **작업 내용**:
+  1. **전체 화면 단일 다크 콘솔 배경(`bg-[#060911]`) 및 통일된 테마 구축**:
+     - `src/app/(dashboard)/layout.tsx`: 루트 래퍼를 `bg-[#060911] font-sans text-slate-100`으로 전면 변경.
+     - `src/components/layout/Sidebar.tsx`: 사이드바 `bg-[#0a0f1d] border-slate-800`, 번호 배지 네온 그라디언트, 사이언 하이라이트 활성 링크, 다크 모바일 바 전면 적용.
+     - `src/components/studio/common.tsx`: `ModelBar`(`bg-[#0d1322] border-slate-800`), `CopyButton`(`bg-slate-800`), `PrimaryButton`(네온 사이언 그라디언트 `shadow-[0_0_15px_rgba(6,182,212,0.35)]`), `ErrorBox` 다크 콘솔화.
+     - `src/components/studio/StudioWorkspace.tsx`: 장르 카드 23종 다크 호버 글로우(`bg-[#0d1322] hover:border-cyan-500/50`), 제목 후보 카드 사이언 셀렉션(`border-cyan-500 bg-cyan-950/30`), 탭 헤더 다크화.
+     - `src/components/studio/ContentTabs.tsx`: Suno 프롬프트 박스(`bg-[#060911] text-cyan-300`), 가사 옵션 및 곡 목록 다크 카드화, 메타데이터 블록 다크 콘솔화.
+     - `src/components/studio/ThumbnailTab.tsx`: 썸네일 설정 패널(`bg-[#0d1322]`), 캔버스 뷰(`bg-[#060911]`), 다운로드 버튼 다크화.
+     - `src/components/studio/ProjectsList.tsx`: 프로젝트 카드 및 빈 상태 뷰 다크 콘솔화.
+     - `src/components/settings/ApiKeySettings.tsx`: API 키 공급사 카드 3종 및 연동 매뉴얼 섹션 다크화.
+  2. **버전 동기화 & 배포**:
+     - `src/lib/version.ts`: `v1.09`, `package.json`: `1.0.9`, Supabase DB `programs.version = 'v1.09'` 동기화.
+     - Next.js Turbopack 로컬 빌드 성공 (`next build` 통과).
+     - Vercel 프로덕션 배포 완료 (`dpl_58sbRAFRfRUE4bgKkjhotXK3YZa6`, `https://playlist-maker.buylife.xyz`).
+  3. **Microsoft Edge 브라우저 실세션 검수 완료**:
+     - `edge_playlist_studio_desktop_v109.png`: 스튜디오 데스크톱 전면 다크 콘솔 렌더링 확인 (사이드바, ModelBar, 23종 장르 카드).
+     - `edge_playlist_projects_desktop_v109.png`: 내 프로젝트 목록 데스크톱 다크 렌더링 확인.
+     - `edge_playlist_settings_desktop_v109.png`: API 키 등록 및 연동 매뉴얼 데스크톱 다크 렌더링 확인.
+     - `edge_playlist_guide_desktop_v109.png`: 가이드북 데스크톱 렌더링 (전 화면과 완벽 일치하는 `bg-[#060911]` 배경 대조 확인).
+     - `edge_playlist_studio_mobile_v109.png`: 모바일 390px 반응형 다크 콘솔 뷰 가독성 점검 완료.
+  4. **문서 및 상태 갱신**:
+     - `DESIGN.md` 6번 프로그램 상태: `✅ 1차 작업완료 (v1.09, 사이버 네온 다크 콘솔 스타일)`로 갱신.
+     - `docs/ACTIVE_WORK.md`: 작업 중 행 삭제 완료.
+     - `playlist-channel-studio/docs/DESIGN_HANDOFF.md`, `playlist-channel-studio/AGENTS.md` v1.09 갱신.
+
 ## 2026-10-16 Claude Code(맥미니) — AI 블로그 키워드 v1.05: 스마트 매트릭스 디자인 리뉴얼 (🟠 윈도우 마무리 요청)
 
 - **대상**: `blog-keyword/` (https://blog-keyword.buylife.xyz). 디자인 현황판 남은 목록 1번.

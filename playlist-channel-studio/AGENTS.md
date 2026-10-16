@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.08** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.09** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -90,3 +90,9 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
   - 초보자 맞춤 FAQ 4종 (상업적 이용, 저작권, 음원 길이, 에러 대처)
 - **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 데스크톱(1440px) 및 모바일(380px) 전면 검수 완료.
 - **인수인계 문서**: `docs/PLAN_20261016_DESIGN_RENEWAL.md`, `docs/DESIGN_HANDOFF.md`, `docs/IMPROVEMENTS.md`, `docs/IMPROVEMENT_HANDOFF_20261016.md` 작성.
+
+## 2026-10-16 전체 페이지 단일 배경색 및 일관된 테마 스타일 전면 통일 — v1.09 (playlist-channel-studio)
+- **개선 내용**: 매뉴얼(`/guide`)만 다크 테마이고 스튜디오 및 프로젝트가 라이트/그레이로 불일치하던 현상을 해소하고, 전체 화면(`layout`, `Sidebar`, `/studio`, `/projects`, `/settings`, `common`)을 **사이버 네온 다크 콘솔 스타일(`bg-[#060911]`, `bg-[#0d1322]`, 네온 사이언 액센트)**로 전면 일치.
+- **버전 동기화**: `src/lib/version.ts`, `package.json`, Supabase DB `programs.version = 'v1.09'` 동기화.
+- **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 실세션 전 화면 캡처 대조 검수 완료 (`edge_playlist_studio_desktop_v109.png`, `edge_playlist_projects_desktop_v109.png`, `edge_playlist_settings_desktop_v109.png`, `edge_playlist_guide_desktop_v109.png`, `edge_playlist_studio_mobile_v109.png`).
+

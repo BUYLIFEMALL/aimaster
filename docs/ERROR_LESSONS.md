@@ -2093,5 +2093,3 @@
 - 원인: `public/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`는 기존 규칙에 따라 Git 제외 파일입니다. 로컬 수동 배포에는 포함되지만 Git 원본만 받는 자동 배포에는 없습니다. 앱 코드가 같아도 다운로드 자산이 달라집니다.
 - 해결: 최신 커밋의 메인 소스만 모은 배포 복사본에 기존 설치 파일을 함께 넣어 다시 프로덕션 배포했습니다. `scripts/deploy-supabase-compat-rollout.cjs --only . --redeploy`는 이 파일을 보존하며, 별도 보고 경로로 기존 일괄 배포 기록을 덮어쓰지 않을 수 있습니다. 최종 문서 푸시 뒤에도 다시 확인/복구합니다.
 - 다음부터 확인: 메인을 건드리는 다른 CLI도 문서 푸시의 자동 배포가 최신 운영 별칭을 바꿀 수 있음을 확인합니다. 최종 Git 푸시·자동 빌드가 끝난 다음 기존 설치 파일을 포함해 메인을 수동 배포하고 해당 다운로드 HTTP 200을 확인합니다. 설치 파일을 임의로 Git에 넣거나 삭제하지 않습니다.
-
-- **2026-10-16 threads-affiliate-poster v1.54 (Claude Code 윈도우)**: 도메인 통일 때 넣은 "옛 *.vercel.app → <slug>.buylife.xyz" 이동(미들웨어/proxy 308·콜백 307)이 **독립 배포본(clone-kit, `NEXT_PUBLIC_STANDALONE_MODE=true`)에도 걸려** 남의 서버에서 돌던 복제본이 우리 사이트로 넘어가는 문제 → 이동 조건에 독립 배포 여부 추가. **다음부터 확인**: 독립 배포 모드가 있는 프로그램(`deployment.ts`/`IS_STANDALONE`)은 호스트 기반 이동·고정 주소를 넣기 전에 독립 배포 분기를 먼저 확인. 같은 작업에서 `vercel env pull`로 받은 민감 변수(CRON_SECRET)는 실제 값이 아니어서 401 → 일회성 운영 작업은 관리자 로그인 인증 경로로 실행(`/api/telegram/migrate-webhooks`).

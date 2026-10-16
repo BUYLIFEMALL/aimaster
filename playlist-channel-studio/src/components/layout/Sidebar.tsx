@@ -23,15 +23,17 @@ const UTILITY_ITEMS = [
 
 function Brand({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <div className="border-b border-neutral-200 p-5">
+    <div className="border-b border-slate-800/80 p-5">
       <Link href="/studio" onClick={onNavigate} className="flex items-center gap-3 group">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white transition-transform group-hover:scale-105"><ListMusic size={18} /></div>
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 font-bold shadow-[0_0_15px_rgba(6,182,212,0.35)] transition-transform group-hover:scale-105">
+          <ListMusic size={18} />
+        </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-neutral-900 leading-snug line-clamp-2">{APP_NAME}</p>
-          <p className="mt-0.5 text-xs text-neutral-400 font-mono">{APP_VERSION}</p>
+          <p className="text-sm font-bold text-white leading-snug line-clamp-2">{APP_NAME}</p>
+          <p className="mt-0.5 text-xs text-cyan-400/80 font-mono">{APP_VERSION}</p>
         </div>
       </Link>
-      <a className="mt-2.5 block text-xs text-neutral-500 hover:text-neutral-900 transition-colors" href="https://www.buylife.xyz/programs">
+      <a className="mt-2.5 block text-xs text-slate-400 hover:text-cyan-400 transition-colors" href="https://www.buylife.xyz/programs">
         ← 다른 프로그램 보기
       </a>
     </div>
@@ -53,19 +55,27 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
               <div className="flex flex-col items-center">
                 <span
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all ${
-                    active ? "bg-indigo-600 text-white shadow-xs" : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                    active
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+                      : "bg-slate-800/80 text-slate-400 border border-slate-700/60 group-hover:bg-slate-800 group-hover:text-slate-200"
                   }`}
                 >
                   {step}
                 </span>
-                {index < FLOW_STEPS.length - 1 && <span className="mt-1 h-6 w-px bg-neutral-200" />}
+                {index < FLOW_STEPS.length - 1 && <span className="mt-1 h-6 w-px bg-slate-800" />}
               </div>
-              <div className={`flex-1 rounded-lg px-2 py-1.5 transition-all ${active ? "bg-indigo-50" : "group-hover:bg-neutral-50"}`}>
-                <p className={`flex items-center gap-2 text-sm font-bold ${active ? "text-indigo-900" : "text-neutral-800"}`}>
-                  <Icon size={15} />
+              <div
+                className={`flex-1 rounded-lg px-2.5 py-1.5 transition-all ${
+                  active
+                    ? "bg-cyan-950/30 border border-cyan-500/30"
+                    : "hover:bg-slate-800/50"
+                }`}
+              >
+                <p className={`flex items-center gap-2 text-sm font-bold ${active ? "text-cyan-300" : "text-slate-300 group-hover:text-white"}`}>
+                  <Icon size={15} className={active ? "text-cyan-400" : "text-slate-400"} />
                   <span>{label}</span>
                 </p>
-                <p className="mt-0.5 text-[11px] leading-snug text-neutral-500">{description}</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-slate-400">{description}</p>
               </div>
             </Link>
           );
@@ -73,37 +83,41 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
       </div>
 
       {/* 구분선 아래: 연동/유틸리티 */}
-      <div className="mt-2 border-t border-neutral-200 pt-3 space-y-1">
-        {UTILITY_ITEMS.map(({ href, label, icon: Icon }, idx) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
-              isActive(href)
-                ? idx === 0
-                  ? "bg-cyan-50 text-cyan-800 font-bold border border-cyan-200/80 shadow-xs"
-                  : "bg-indigo-50 text-indigo-700 font-bold"
-                : idx === 0
-                ? "text-cyan-900 bg-cyan-50/50 hover:bg-cyan-100/70 border border-cyan-100 font-semibold"
-                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-            }`}
-          >
-            <Icon size={16} className={idx === 0 ? "text-cyan-600" : ""} />
-            <span>{label}</span>
-          </Link>
-        ))}
+      <div className="mt-2 border-t border-slate-800/80 pt-3 space-y-1">
+        {UTILITY_ITEMS.map(({ href, label, icon: Icon }, idx) => {
+          const active = isActive(href);
+          const isGuide = idx === 0;
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavigate}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-all ${
+                active
+                  ? isGuide
+                    ? "bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.25)]"
+                    : "bg-slate-800 text-cyan-300 font-bold border border-slate-700"
+                  : isGuide
+                  ? "bg-cyan-950/25 text-cyan-400 hover:bg-cyan-950/45 border border-cyan-800/40 font-semibold"
+                  : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              }`}
+            >
+              <Icon size={16} className={isGuide ? "text-cyan-400" : active ? "text-cyan-400" : "text-slate-400"} />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
       </div>
 
       {/* 하단: 사용자 이메일과 로그아웃 */}
-      <div className="mt-3 border-t border-neutral-200 pt-3 space-y-1">
-        <p className="truncate px-3 py-1.5 text-xs text-neutral-500" title={userEmail}>
+      <div className="mt-3 border-t border-slate-800/80 pt-3 space-y-1">
+        <p className="truncate px-3 py-1.5 text-xs text-slate-400 font-mono" title={userEmail}>
           {userEmail || "로그인 계정"}
         </p>
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800/60 hover:text-rose-400 transition-colors"
           >
             <LogOut size={16} />
             <span>로그아웃</span>
@@ -120,28 +134,28 @@ export function Sidebar({ userEmail }: SidebarProps) {
   return (
     <>
       {/* 데스크톱: 고정 좌측 바 */}
-      <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-neutral-200 bg-white md:sticky md:top-0 md:flex select-none">
+      <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-slate-800/80 bg-[#0a0f1d] md:sticky md:top-0 md:flex select-none">
         <Brand />
         <NavBody userEmail={userEmail} />
       </aside>
 
       {/* 모바일: 상단 바 + 펼침 메뉴 (같은 항목·순서) */}
-      <div className="md:hidden sticky top-0 z-40 border-b border-neutral-200 bg-white">
+      <div className="md:hidden sticky top-0 z-40 border-b border-slate-800/80 bg-[#0a0f1d]">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link href="/studio" className="text-sm font-bold text-neutral-900">
-            {APP_NAME} <span className="ml-1 text-xs font-mono font-normal text-neutral-400">{APP_VERSION}</span>
+          <Link href="/studio" className="text-sm font-bold text-white">
+            {APP_NAME} <span className="ml-1 text-xs font-mono font-normal text-cyan-400/80">{APP_VERSION}</span>
           </Link>
           <button
             type="button"
             aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
             onClick={() => setOpen((v) => !v)}
-            className="rounded-lg p-2 text-neutral-700 hover:bg-neutral-100"
+            className="rounded-lg p-2 text-slate-300 hover:bg-slate-800/60"
           >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
         {open && (
-          <div className="max-h-[80vh] overflow-y-auto border-t border-neutral-200">
+          <div className="max-h-[80vh] overflow-y-auto border-t border-slate-800/80 bg-[#0a0f1d]">
             <Brand onNavigate={() => setOpen(false)} />
             <NavBody userEmail={userEmail} onNavigate={() => setOpen(false)} />
           </div>

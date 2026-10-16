@@ -148,90 +148,145 @@ export function ThumbnailTab({ projectId, title, data, onData }: { projectId: st
 
   return (
     <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
-      <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
+      <div className="space-y-4 rounded-2xl border border-slate-800/80 bg-[#0d1322] p-5 shadow-sm">
         <div>
-          <p className="mb-1 text-xs font-medium text-neutral-500">스타일</p>
+          <p className="mb-1.5 text-xs font-medium text-slate-400">스타일</p>
           <div className="grid grid-cols-2 gap-2">
-            {THUMB_STYLES.map((s) => (
-              <button key={s.id} type="button" onClick={() => set("style", s.id)} className={`rounded-lg border px-2 py-2 text-xs ${settings.style === s.id ? "border-indigo-600 bg-indigo-50 font-bold text-indigo-800" : "border-neutral-300 text-neutral-600 hover:bg-neutral-50"}`}>{s.label}</button>
-            ))}
+            {THUMB_STYLES.map((s) => {
+              const active = settings.style === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => set("style", s.id)}
+                  className={`rounded-lg border px-2 py-2 text-xs transition-all ${
+                    active
+                      ? "border-cyan-500 bg-cyan-950/40 font-bold text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                      : "border-slate-700/80 bg-slate-800/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
           </div>
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium text-neutral-500">인물 참고 이미지 (선택)</p>
+          <p className="mb-1.5 text-xs font-medium text-slate-400">인물 참고 이미지 (선택)</p>
           {persona ? (
             <div className="relative inline-block">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={persona} alt="참고 이미지" className="h-24 rounded-lg border border-neutral-200 object-cover" />
-              <button type="button" onClick={() => setPersona(null)} aria-label="참고 이미지 제거" className="absolute -right-2 -top-2 rounded-full bg-neutral-800 p-1 text-white"><X size={12} /></button>
+              <img src={persona} alt="참고 이미지" className="h-24 rounded-lg border border-slate-700 object-cover" />
+              <button type="button" onClick={() => setPersona(null)} aria-label="참고 이미지 제거" className="absolute -right-2 -top-2 rounded-full bg-slate-900 border border-slate-700 p-1 text-slate-300 hover:text-rose-400"><X size={12} /></button>
             </div>
           ) : (
-            <button type="button" onClick={() => fileRef.current?.click()} className="flex items-center gap-2 rounded-lg border border-dashed border-neutral-300 px-3 py-2 text-xs text-neutral-500 hover:bg-neutral-50"><ImagePlus size={14} />이미지 올리기</button>
+            <button type="button" onClick={() => fileRef.current?.click()} className="flex items-center gap-2 rounded-lg border border-dashed border-slate-700 bg-[#131b2e] px-3 py-2 text-xs text-slate-400 hover:border-cyan-500 hover:text-cyan-300 transition-colors"><ImagePlus size={14} />이미지 올리기</button>
           )}
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { void pickPersona(e.target.files?.[0]); e.target.value = ""; }} />
-          <p className="mt-1 text-[11px] text-neutral-400">같은 인물이 썸네일에 나오도록 합니다. 저장되지 않고 이번 생성에만 쓰입니다.</p>
+          <p className="mt-1 text-[11px] text-slate-500">같은 인물이 썸네일에 나오도록 합니다. 저장되지 않고 이번 생성에만 쓰입니다.</p>
         </div>
         <PrimaryButton busy={busy} onClick={() => run(false)} className="w-full">
           {data.thumbUrl ? <><RefreshCw size={15} />배경 새로 만들기</> : <><Sparkles size={15} />썸네일 배경 만들기</>}
         </PrimaryButton>
-        {busy && <p className="text-xs text-neutral-500">이미지 생성은 30초~1분 정도 걸립니다.</p>}
+        {busy && <p className="text-xs text-cyan-400 animate-pulse">이미지 생성은 30초~1분 정도 걸립니다.</p>}
         <ErrorBox message={error} />
 
-        <hr className="border-neutral-200" />
-        <p className="text-xs font-bold text-neutral-700">제목 글자</p>
-        <label className="block text-xs font-medium text-neutral-500">
+        <hr className="border-slate-800" />
+        <p className="text-xs font-bold text-slate-200">제목 글자</p>
+        <label className="block text-xs font-medium text-slate-400">
           글자 내용
-          <textarea value={settings.text} onChange={(e) => set("text", e.target.value.slice(0, 120))} rows={3} className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900" />
+          <textarea value={settings.text} onChange={(e) => set("text", e.target.value.slice(0, 120))} rows={3} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131b2e] px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-cyan-500 focus:outline-none" />
         </label>
-        <label className="block text-xs font-medium text-neutral-500">
+        <label className="block text-xs font-medium text-slate-400">
           글꼴
-          <select value={settings.font} onChange={(e) => set("font", e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-300 px-2.5 py-2 text-sm text-neutral-900">
-            {THUMB_FONTS.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
+          <select value={settings.font} onChange={(e) => set("font", e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131b2e] px-2.5 py-2 text-sm text-slate-100 focus:border-cyan-500 focus:outline-none">
+            {THUMB_FONTS.map((f) => <option key={f.id} value={f.id} className="bg-[#131b2e] text-slate-100">{f.label}</option>)}
           </select>
         </label>
         <div className="grid grid-cols-2 gap-3">
-          <label className="block text-xs font-medium text-neutral-500">
-            크기 {Math.round(settings.size * 100)}
-            <input type="range" min={0.05} max={0.15} step={0.01} value={settings.size} onChange={(e) => set("size", Number(e.target.value))} className="mt-1 w-full accent-indigo-600" />
+          <label className="block text-xs font-medium text-slate-400">
+            크기 <span className="text-cyan-400 font-bold">{Math.round(settings.size * 100)}</span>
+            <input type="range" min={0.05} max={0.15} step={0.01} value={settings.size} onChange={(e) => set("size", Number(e.target.value))} className="mt-1 w-full accent-cyan-400" />
           </label>
           <div className="flex items-end gap-2">
-            <label className="text-xs font-medium text-neutral-500">
+            <label className="text-xs font-medium text-slate-400">
               색
-              <input type="color" value={settings.color} onChange={(e) => set("color", e.target.value)} className="mt-1 block h-9 w-14 cursor-pointer rounded border border-neutral-300" />
+              <input type="color" value={settings.color} onChange={(e) => set("color", e.target.value)} className="mt-1 block h-9 w-14 cursor-pointer rounded border border-slate-700 bg-[#131b2e]" />
             </label>
-            <button type="button" onClick={() => set("bold", !settings.bold)} aria-pressed={settings.bold} className={`h-9 w-9 rounded-lg border text-sm font-black ${settings.bold ? "border-indigo-600 bg-indigo-50 text-indigo-800" : "border-neutral-300 text-neutral-500"}`}>B</button>
+            <button
+              type="button"
+              onClick={() => set("bold", !settings.bold)}
+              aria-pressed={settings.bold}
+              className={`h-9 w-9 rounded-lg border text-sm font-black transition-all ${
+                settings.bold
+                  ? "border-cyan-500 bg-cyan-950/40 text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                  : "border-slate-700 bg-slate-800/60 text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              B
+            </button>
           </div>
         </div>
         <div className="flex gap-2">
-          {(["top", "center", "bottom"] as const).map((pos) => (
-            <button key={pos} type="button" onClick={() => set("position", pos)} className={`flex-1 rounded-lg border px-2 py-1.5 text-xs ${settings.position === pos ? "border-indigo-600 bg-indigo-50 font-bold text-indigo-800" : "border-neutral-300 text-neutral-600 hover:bg-neutral-50"}`}>
-              {pos === "top" ? "위" : pos === "center" ? "가운데" : "아래"}
-            </button>
-          ))}
+          {(["top", "center", "bottom"] as const).map((pos) => {
+            const active = settings.position === pos;
+            return (
+              <button
+                key={pos}
+                type="button"
+                onClick={() => set("position", pos)}
+                className={`flex-1 rounded-lg border px-2 py-1.5 text-xs transition-all ${
+                  active
+                    ? "border-cyan-500 bg-cyan-950/40 font-bold text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                    : "border-slate-700/80 bg-slate-800/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                }`}
+              >
+                {pos === "top" ? "위" : pos === "center" ? "가운데" : "아래"}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div className="space-y-4">
         {data.thumbUrl ? (
           <>
-            <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100">
+            <div className="overflow-hidden rounded-2xl border border-slate-800 bg-[#060911] shadow-lg">
               <canvas ref={canvasRef} className="block aspect-video w-full" aria-label="썸네일 미리보기" />
             </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => download("png")} className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"><Download size={15} />PNG 저장</button>
-              <button type="button" onClick={() => download("jpg")} className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"><Download size={15} />JPG 저장</button>
-              {data.thumbPrompt && <CopyButton text={data.thumbPrompt} label="이미지 프롬프트 복사" className="!px-3 !py-2 !text-sm" />}
+              <button
+                type="button"
+                onClick={() => download("png")}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-700 hover:border-cyan-500 hover:text-white transition-colors"
+              >
+                <Download size={15} className="text-cyan-400" />PNG 저장
+              </button>
+              <button
+                type="button"
+                onClick={() => download("jpg")}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-700 hover:border-cyan-500 hover:text-white transition-colors"
+              >
+                <Download size={15} className="text-cyan-400" />JPG 저장
+              </button>
+              {data.thumbPrompt && <CopyButton text={data.thumbPrompt} label="이미지 프롬프트 복사" className="!px-3.5 !py-2 !text-sm" />}
             </div>
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-              <p className="mb-2 text-sm font-bold text-neutral-900">수정 요청</p>
+            <div className="rounded-2xl border border-slate-800/80 bg-[#0d1322] p-5 shadow-sm">
+              <p className="mb-2 text-sm font-bold text-white">수정 요청</p>
               <div className="flex flex-col gap-2 sm:flex-row">
-                <input value={feedback} onChange={(e) => setFeedback(e.target.value)} onKeyDown={(e) => e.key === "Enter" && feedback.trim() && !busy && run(true)} placeholder="예: 더 어둡게, 창밖에 비가 오게, 인물을 오른쪽으로" className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900" />
+                <input
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && feedback.trim() && !busy && run(true)}
+                  placeholder="예: 더 어둡게, 창밖에 비가 오게, 인물을 오른쪽으로"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-[#131b2e] px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+                />
                 <PrimaryButton busy={busy} disabled={!feedback.trim()} onClick={() => run(true)}>반영해서 다시 만들기</PrimaryButton>
               </div>
             </div>
           </>
         ) : (
-          <div className="flex aspect-video items-center justify-center rounded-2xl border border-dashed border-neutral-300 bg-white text-sm text-neutral-400">
+          <div className="flex aspect-video items-center justify-center rounded-2xl border border-dashed border-slate-800 bg-[#0d1322] text-sm text-slate-400">
             스타일을 고르고 &apos;썸네일 배경 만들기&apos;를 누르세요.
           </div>
         )}

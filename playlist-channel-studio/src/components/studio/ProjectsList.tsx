@@ -42,39 +42,49 @@ export function ProjectsList() {
     else setError("삭제하지 못했습니다.");
   }
 
-  if (error) return <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>;
-  if (items === null) return <Loader2 className="animate-spin text-neutral-400" />;
+  if (error) return <p className="rounded-xl border border-rose-900/60 bg-rose-950/40 px-4 py-3 text-sm text-rose-300">{error}</p>;
+  if (items === null) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-cyan-400" /></div>;
 
   return (
     <div>
-      <p className="mb-4 text-xs text-neutral-500">{items.length} / {limit}개</p>
+      <p className="mb-4 text-xs font-mono text-slate-400">{items.length} / {limit}개 프로젝트</p>
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-10 text-center">
-          <ListMusic className="mx-auto mb-2 text-neutral-400" />
-          <p className="mb-3 text-sm text-neutral-500">아직 만든 플레이리스트가 없습니다.</p>
-          <Link href="/studio" className="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700">새 플레이리스트 만들기</Link>
+        <div className="rounded-2xl border border-dashed border-slate-800 bg-[#0d1322] p-12 text-center shadow-sm">
+          <ListMusic className="mx-auto mb-3 text-cyan-400" size={32} />
+          <p className="mb-4 text-sm text-slate-400">아직 만든 플레이리스트가 없습니다.</p>
+          <Link href="/studio" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.35)] hover:shadow-[0_0_22px_rgba(6,182,212,0.5)] transition-all">
+            새 플레이리스트 만들기
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((p) => (
-            <div key={p.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+            <div key={p.id} className="group overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0d1322] transition-all hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] flex flex-col justify-between">
               <Link href={`/studio?p=${p.id}`} className="block">
-                <div className="aspect-video bg-neutral-100">
-                  {p.thumb && (
+                <div className="aspect-video bg-[#060911] border-b border-slate-800 flex items-center justify-center overflow-hidden">
+                  {p.thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.thumb} alt="" className="h-full w-full object-cover" />
+                    <img src={p.thumb} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <span className="text-xs font-mono text-slate-400">썸네일 없음</span>
                   )}
                 </div>
-                <div className="p-3">
-                  <p className="line-clamp-2 text-sm font-bold text-neutral-900">{p.title ?? `${genreLabel(p.genre)} (제목 미선택)`}</p>
-                  <p className="mt-1 text-[11px] text-neutral-400">
+                <div className="p-4">
+                  <p className="line-clamp-2 text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">{p.title ?? `${genreLabel(p.genre)} (제목 미선택)`}</p>
+                  <p className="mt-1 text-[11px] text-slate-400 font-mono">
                     {genreLabel(p.genre)} · {STATUS[p.status]} · {new Date(p.createdAt).toLocaleDateString("ko-KR")}
                   </p>
                 </div>
               </Link>
-              <div className="flex justify-end border-t border-neutral-100 px-3 py-2">
-                <button type="button" onClick={() => remove(p.id)} disabled={busyId === p.id} aria-label="삭제" className="rounded-md p-1 text-neutral-400 hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50">
-                  {busyId === p.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+              <div className="flex justify-end border-t border-slate-800/60 bg-[#0a0f1d] px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => remove(p.id)}
+                  disabled={busyId === p.id}
+                  aria-label="삭제"
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-950/40 hover:text-rose-400 disabled:opacity-50 transition-colors"
+                >
+                  {busyId === p.id ? <Loader2 size={15} className="animate-spin text-rose-400" /> : <Trash2 size={15} />}
                 </button>
               </div>
             </div>

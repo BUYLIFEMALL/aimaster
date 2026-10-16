@@ -49,6 +49,9 @@
 12. **작업 종료 즉시 상태를 「✅ 1차 작업완료」로 변경 의무 (2026-10-16 주인님 지시)**:
     - 프로그램의 디자인 리뉴얼, 빌드, Vercel 배포, 브라우저 실세션 검수, 인수인계 문서 작성이 완료되면 **작업 종료 즉시 `DESIGN.md` 2절 전체 프로그램 디자인 현황판의 상태를 「✅ 1차 작업완료 (`vX.YY`, 템플릿명)」로 반드시 변경**합니다.
     - 동시에 `docs/ACTIVE_WORK.md`에서 작업 중 행을 삭제하여 다른 CLI(Antigravity, Codex, Claude Code)가 작업 완료 사실을 한눈에 확인하고 대기 없이 다음 프로그램 작업에 즉시 착수할 수 있도록 완벽히 동기화합니다.
+13. **프로그램 내 전체 페이지 단일 배경색 및 일관된 테마 스타일 준수 의무 (2026-10-16 주인님 지시)**:
+    - **하나의 자동화 프로그램 안의 모든 페이지(대시보드, 작업 스튜디오, 프로젝트/보관함 목록, 가이드/매뉴얼(`/guide`), 설정 등)는 반드시 동일한 배경색상과 통일된 디자인 템플릿 테마 스타일로 일관되게 구축**해야 합니다.
+    - 특정 페이지만 다크/라이트 테마가 다르거나(예: 매뉴얼만 블랙이고 스튜디오/프로젝트는 화이트인 경우 등) 배경색이 어긋나는 화면 불일치를 엄격히 금지하며, 사용자가 프로그램 내 어떤 메뉴를 이동하더라도 완벽한 시각적 일체감을 유지하도록 전 화면의 배경색, 카드 서피스, 텍스트 대비, 테두리 스타일을 통일합니다.
 
 ---
 
@@ -93,7 +96,7 @@
 | 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 작업완료 (`v1.12`) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
 | 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.05`) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
 | 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
-| 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 (`v1.08`) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
+| 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | ✅ 1차 작업완료 (`v1.09`, 사이버 네온 다크 콘솔 스타일) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
 | 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `cinematic-storyboard-studio/AGENTS.md` |
 | 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `detail-page-12p/AGENTS.md` |
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `prompt-template-studio/AGENTS.md` |
