@@ -4,6 +4,14 @@
 
 ## 현재 상태
 
+- **2026-10-16 v1.09 (포커스 스튜디오 템플릿 적용 및 UI/UX 고급화, Antigravity)**:
+  - 포커스 스튜디오(Focus Studio) 템플릿 스타일 시스템 적용 완료 (`src/app/globals.css`).
+  - 대시보드 히어로 배너, 현대적 통계 카드 3종, 최근 문서 카드 그리드, 빈 상태 일러스트 카드 구현 (`WorkspacePage.tsx`).
+  - Next.js 16.4.0 Turbopack 로컬 빌드 검증 및 Supabase DB programs.version 1.09 갱신 완료.
+  - Microsoft Edge(엣지) 전용 브라우저로 일반 회원 테스트 계정(buylifemall@naver.com) 데스크톱(1440px) 및 모바일(375px) 화면 검수 완료.
+  - Vercel 프로덕션 배포 완료 (https://markdown-studio.buylife.xyz).
+  - **프로그램 검토 중 발굴된 로직·기능·편의성 개선 과제**: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) 참고.
+
 - 2026-10-13: 참고 사이트 공개 소스 조사, 독립 Chrome 기능 실험, 개발 계획 작성 완료.
 - 같은 날 사용자 진행 지시로 **1단계 공통 틀·문서 모델 및 기본 작업 화면 구현**. 버전은 `src/lib/version.ts`의 **v1.01 출시 후보**, 운영 버전은 아직 없습니다.
 - Next 16.4.0/React 19.3.0, Supabase 공통 로그인·권한, 회원별 IndexedDB, 문서/폴더 관리, 자동 저장·충돌 방지·30개 이력·휴지통, 정제 GFM 미리보기·모바일·원문 다운로드까지 구현했습니다.
