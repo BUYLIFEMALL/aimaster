@@ -1,76 +1,49 @@
-# AI 올인원 그래픽 자동화 (`allinone-graphic`) — 디자인 완료 인수인계서 (DESIGN_HANDOFF.md)
+# AI 올인원 그래픽 자동화 (allinone-graphic) — 디자인 & 로그인 2탭 개편 인수인계서
 
-> **문서 버전**: v1.04  
-> **작성 일자**: 2026-10-16  
-> **작성 에이전트**: Antigravity CLI (`agy`)  
-> **서비스 배포 URL**: `https://graphic.buylife.xyz`  
-> **상태**: ✅ v1.04 프로덕션 배포 및 Microsoft Edge 전용 실세션 검수 완료
-
----
-
-## 1. 디자인 시스템 & 템플릿 개요
-
-- **공식 템플릿 명칭**: `✨ 크리에이티브 아틀리에 스타일` (Creative Atelier Style)
-- **콘셉트**:
-  - 장인의 작업실(Atelier)을 연상시키는 딥 미드나잇 다크 배경 위에 찬란한 앰버 골드(Amber Gold) 빛으로 영감과 창의성을 극대화한 비주얼 디자인.
-  - 19개 직군 123종 프리셋의 방대한 템플릿을 직관적인 인포그래픽과 탭 카탈로그로 구현하여 초보자도 막힘없이 상업용 그래픽을 완성하도록 지원.
-- **주요 색상 토큰 (Color Tokens)**:
-  - **Primary Gold**: `#f59e0b` (Amber-500)
-  - **Accent Amber/Yellow**: `#fbbf24` (Amber-400), `#fef3c7` (Amber-100)
-  - **Background**: `#0a0d14` (Deep Midnight Dark), `#0f1422` (Secondary Surface)
-  - **Card/Surface**: `#121726` (Card Background), `#1e2538` (Subtle Border)
-  - **Text**: `#f8fafc` (Title White), `#94a3b8` (Muted Slate-400)
+> **작업 일시**: 2026-10-17
+> **담당 CLI**: Antigravity (`agy`)
+> **버전**: `v1.04` ➔ **`v1.05`**
+> **적용 디자인 템플릿**: **크리에이티브 아틀리에 스타일 (Creative Atelier Style)**
+> **공식 서비스 URL**: `https://graphic.buylife.xyz`
+> **로그인 URL**: `https://graphic.buylife.xyz/login`
 
 ---
 
-## 2. 주요 구현 및 개선 내역
-
-### ① 정식 `/guide` 사용 매뉴얼 라우트 전면 신설 (메인 지침 제7항 이행)
-- **접근 경로**: `https://graphic.buylife.xyz/guide`
-- **구성 요소**:
-  1. **상단 글로벌 네비게이션**: 스튜디오 복귀 버튼, AIMaster 메인 링크, 상단 CTA
-  2. **크리에이티브 아틀리에 히어로**: 앰버 골드 그라데이션 타이틀, 핵심 3대 보장 배지
-  3. **5단계 파이프라인 인포그래픽**:
-     - STEP 01: 직군 & 템플릿 탐색 (123종 프리셋)
-     - STEP 02: AI 자동 입력 도우미 (원클릭 프롬프트 생성)
-     - STEP 03: 스타일 & 화각 정밀 조정 (화각, 스타일, 종횡비)
-     - STEP 04: 초고화질 AI 그래픽 렌더링 (Gemini Imagen 엔진)
-     - STEP 05: 스마트 매직 에디터 (브러시 마스킹 Inpainting)
-  4. **Google AI Studio 무료 API 키 연동 안내 카드**:
-     - 최상위 절대 규칙 준수 안내, 1분 발급 3단계 파이프라인, 바로가기 버튼
-  5. **19개 직군 123종 프리셋 맵 치트시트**:
-     - 5대 그룹(IT/기술, 창작/예술, 비즈니스/마케팅, 커머스/자영업, 전문 서비스/라이프) 인터랙티브 탭
-  6. **스마트 매직 에디터 실전 노하우 3원칙**:
-     - 브러시 크기 미세 조절, 명확한 변경 키워드, 무제한 되돌리기
-  7. **자주 묻는 질문(FAQ) 아코디언 4종**:
-     - 비용, 상업적 이용권, 부분수정 방법, 모바일 지원 여부
-
-### ② 사이드바 UI 표준화
-- `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴를 앰버 골드 하이라이트로 최상단 유틸리티에 배치.
-- 계정 블록(`buylifemall@naver.com`) 및 로그아웃 버튼을 12px 간격으로 깔끔하게 밀착 정렬.
-
-### ③ 버전 및 데이터베이스 동기화
-- `src/lib/version.ts`: `v1.04`
-- `package.json`: `1.0.4`
-- Supabase 공유 DB `programs.version`: `v1.04` 동기화 갱신 완료.
+## 1. 개요 및 목적
+주인님의 전체 서브프로그램 로그인/회원가입 표준 2탭 레이아웃(`threads-comment-reply` 표준 규격) 통일 지침에 따라, `allinone-graphic`의 로그인 라우트를 2탭 세그먼트 표준 레이아웃으로 전면 개편했습니다.
 
 ---
 
-## 3. 검수 결과 (Microsoft Edge 브라우저 전용)
-
-- **검수 환경**: Microsoft Edge (`msedge.exe`) / 일반 회원 테스트 계정(`buylifemall@naver.com`) 실세션 쿠키 주입
-- **스크린샷 증적**:
-  1. `edge_allinone_guide_desktop_v104.png`: 데스크톱 상단 히어로 및 5단계 파이프라인 1440px
-  2. `edge_allinone_guide_pipeline_v104.png`: 5단계 카드 및 API 키 연동 섹션 1440px
-  3. `edge_allinone_guide_presets_v104.png`: 123종 프리셋 맵 & FAQ 아코디언 1440px
-  4. `edge_allinone_studio_desktop_v104.png`: 메인 스튜디오 사이드바 `v1.04` 및 `📖 연동 & 사용 매뉴얼` 노출 확인
-  5. `edge_allinone_guide_mobile_v104.png`: 모바일 380px 반응형 뷰 가독성 점검 완료
+## 2. 디자인 명세 및 컬러 토큰
+- **배경 테마**: `#090d16` (딥 미드나잇) + 24px 간격 앰버 모눈 격자 (`radial-gradient(rgba(245, 158, 11, 0.12) 1px, transparent 1px)`)
+- **카드 서피스**: `#0d1424`/90 다크 글래스모피즘, `border-amber-500/20`, `shadow-2xl shadow-black/60`
+- **시그니처 포인트**:
+  - 상단 앰버 스파클 아이콘 뱃지 (`from-amber-500 to-orange-500`, `ring-1 ring-amber-400/30`)
+  - `AIMaster 통합 계정` 알약 뱃지 (`bg-amber-500/10 border-amber-500/30 text-amber-300`)
+  - 2탭 세그먼트 컨트롤: `bg-[#0f172a]/80`, 활성 탭 `from-amber-500 to-orange-500` 그라디언트
+  - 인풋 필드: 좌측 아이콘(Mail, Lock), `pl-[42px]` 인셋 패딩, 포커스 시 `border-amber-500` 및 `ring-amber-500/20`
+  - 액션 버튼: `from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600` 풀위드
+  - 회원가입 탭: 단일 계정(SSO) 안내 박스, 혜택 체크리스트 3종, `AIMaster에서 무료 회원가입하기` 링크 버튼
+  - 푸터: 이용약관 · 개인정보처리방침 · 고객지원 통합 링크
 
 ---
 
-## 4. 인수인계 및 다음 작업자 참고사항
+## 3. 변경 파일 목록
+- `allinone-graphic/src/lib/version.ts`: `v1.05` 갱신 및 `MAIN_SITE` export
+- `allinone-graphic/package.json`: version `1.0.5`
+- `allinone-graphic/src/app/(auth)/login/page.tsx`: 표준 2탭 세그먼트 레이아웃 전면 구현
+- `allinone-graphic/docs/PLAN_20261017_LOGIN_RENEWAL.md`: 작업 기획 플랜 문서
+- `allinone-graphic/docs/IMPROVEMENT_HANDOFF_20261017.md`: 개선사항 및 인수인계 문서
+- `allinone-graphic/docs/DESIGN_HANDOFF.md`: 본 디자인 완료 인수인계서
+- `scripts/verify_edge_allinone_login_v105.cjs`: Microsoft Edge 실세션 검수 스크립트
 
-- **가이드 페이지 라우트**: `src/app/guide/page.tsx`
-- **사이드바 컴포넌트**: `src/components/layout/Sidebar.tsx`
-- **개선사항 관리**: `allinone-graphic/docs/IMPROVEMENTS.md`
-- **개발 플랜**: `allinone-graphic/docs/PLAN_20261016_DESIGN_RENEWAL.md`
+---
+
+## 4. 빌드 및 배포 검증
+- **로컬 빌드**: `npm run build` (Turbopack) 성공 (`Compiled successfully in 5.7s`, `Finished TypeScript in 3.8s`)
+- **Vercel 프로덕션 배포**: `dpl_8N833bv8PBxcbu1NnBP7q6Cok4rY` 성공 (`READY`, `Aliased https://graphic.buylife.xyz`)
+- **DB 버전 동기화**: `programs.version = 'v1.05'` 완료
+- **Microsoft Edge 실세션 검수 캡처 확인**:
+  1. `edge_allinone_login_desktop_v105.png` (데스크톱 1280x900 로그인 탭)
+  2. `edge_allinone_signup_desktop_v105.png` (데스크톱 1280x900 회원가입 탭)
+  3. `edge_allinone_login_mobile_v105.png` (모바일 390x844 로그인 탭)

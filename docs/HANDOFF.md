@@ -5,6 +5,37 @@
 - 커밋 `c73a05f9`, 배포·DB v1.08. `src/lib/player/space.ts`(사용 비율·80% 경고·큰 곡 5개) + 단위 테스트(21개 통과). 목록 아래 비율 막대·경고·"이번 접속에만 유지" 곡 수 안내·[큰 파일 정리](선택 → 기존 확인 창으로만 삭제). 서버·DB 변경 없음.
 - 검수: 시험 계정 크롬에서 "브라우저 저장 1.4 MB / 10.0 GB (0%)", 큰 파일 목록(1곡·용량 표시)·선택 시 버튼 활성·확인 창 표시 → 취소(삭제 안 함, 1곡 유지). 80% 경고는 실제 용량을 채울 수 없어 단위 테스트로만 확인. 다음 작업리스트: 5번 markdown-studio. 링크: https://music-player.buylife.xyz
 
+## 2026-10-17 Antigravity(Windows) — AI 올인원 그래픽 자동화 v1.05: 로그인·회원가입 표준 2탭 레이아웃(크리에이티브 아틀리에 테마) 전면 리뉴얼 완료
+
+- **대상 프로그램**: `allinone-graphic/` (slug: `allinone-graphic`, 프로그램 번호 5번)
+- **공식 라이브 URL**: https://graphic.buylife.xyz/login
+- **배포 버전**: `v1.05` (로컬 패키지 `1.0.5`, `APP_VERSION = "v1.05"`, Supabase DB `programs.version = 'v1.05'` 동기화 완료)
+- **적용 디자인 템플릿**: **크리에이티브 아틀리에 스타일 (Creative Atelier Style · 딥 미드나잇 `#090d16` 24px 앰버 모눈 격자, 카드 다크 글래스모피즘, 앰버-오렌지 `#f59e0b` ➔ `#ea580c` 그라디언트 탭 & 버튼)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`allinone-graphic/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../allinone-graphic/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`allinone-graphic/docs/IMPROVEMENT_HANDOFF_20261017.md`](../allinone-graphic/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`allinone-graphic/docs/DESIGN_HANDOFF.md`](../allinone-graphic/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`allinone-graphic/AGENTS.md`](../allinone-graphic/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (DESIGN.md 14번 규격 준수)**:
+     - `src/app/(auth)/login/page.tsx`: 딥 미드나잇 배경(`rgba(9, 13, 22, 1)`) + 24px 앰버 모눈 격자, 상단 앰버 스파클 로고 및 "AIMaster 통합 계정" 알약 뱃지 탑재.
+     - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 탑재 (앰버-오렌지 `#f59e0b` ➔ `#ea580c` 그라디언트 활성 탭).
+     - **로그인 모드**: 이메일 주소(좌측 Mail 아이콘 + 42px 패딩), 비밀번호(좌측 Lock 아이콘 + 우측 "비밀번호를 잊으셨나요?" 앰버 링크), 풀 위드 앰버-오렌지 그라디언트 액션 버튼 (`로그인하고 스튜디오 시작 ➔`) 탑재.
+     - **회원가입 모드**: 단일 계정(SSO) 안내 박스, 123종 비주얼 혜택 3종 체크리스트, 풀 위드 `AIMaster에서 무료 회원가입하기` 링크 버튼 탑재.
+     - **하단 푸터**: 다크 테마 이용약관 · 개인정보처리방침 · 고객지원 안내 링크 탑재.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_8N833bv8PBxcbu1NnBP7q6Cok4rY`, 라이브: `https://graphic.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_allinone_login_desktop_v105.png`: 데스크톱 1280x900 로그인 탭 화면 (딥 미드나잇 격자 배경, 앰버-오렌지 그라디언트 탭, 인풋/버튼/약관 완벽 렌더링).
+       - `edge_allinone_signup_desktop_v105.png`: 데스크톱 1280x900 회원가입 탭 화면 (통합 계정 안내 박스 + 혜택 체크리스트 + 가입 링크 버튼 정상 토글).
+       - `edge_allinone_login_mobile_v105.png`: 모바일 390x844 반응형 뷰 (넘침/스크롤 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 5번 `allinone-graphic` 상태 `✅ 1차 작업완료 (`v1.05`, 크리에이티브 아틀리에 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `allinone-graphic` 작업 행 삭제 완료.
+
+[프로그램 열기](https://graphic.buylife.xyz/login)
+
 ## 2026-10-17 Codex(Windows) — trending-product-finder v1.08 Windows 인수·운영 화면 검수 완료
 
 - ✅ 스마트 매트릭스 블랙v1.08 완료. 소스6587e370 푸시·배포dpl_4BibTaHy3XuYCRj6qADsgzyneQ3T READY·DBv1.08,iad1·기존3Cron 유지. 배포metadata6587e370와 검수 프로그램 런타임 차이0.
@@ -13,13 +44,6 @@
 - 공유stash d49e6303에서 본 폴더만 복구해 재검사. 남은stash 전체복원 금지. [결과·증거·다음 첫 단계](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md). 현황판43✅·본인ACTIVE_WORK줄 해제. 최종 문서 커밋은 이 항목 포함 커밋.
 
 [프로그램 열기](https://trending-product-finder.buylife.xyz)
-
-## 2026-10-17 Codex(Windows) — trending-product-finder v1.08 Windows 사전 검수 완료·운영 배포 진행
-
-- 맥미니4011b733 블랙 인수. Next15.5.27/React19·Nodemailer10.1.2 보완, 권한 관리자 조회·카테고리 소유자 조건·TOP5 모바일 넘침 수정. 빌드/타입/ESLint, 실제 Edge 로컬9·합성9·권한/키/메일/마진15·DB키호환1 통과.
-- 설정7그룹13키·알림3채널·가이드6팝업 보존, 유료/생성/검색/발송0. audit critical0, 운영PostCSS2/개발9 경고 후속. 전체stash사고는 본 폴더 파일만 복구해 재검사 완료, 타 CLI 파일/스테이징 보존.
-- 다음: 소스 배포→DBv1.08→운영 Edge 무료검수→현황판43완료. [결과·개선·재개](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://trending-product-finder.buylife.xyz).
-
 
 ## 2026-10-17 Claude Code(윈도우) — 유튜브 댓글자동화 v1.10: v1.09 후속 마무리
 

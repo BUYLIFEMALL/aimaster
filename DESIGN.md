@@ -107,7 +107,7 @@
 | 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 (`v1.07`, 사이버 네온 다크 콘솔 스타일) | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
 | 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 작업완료 (`v1.13`, 플로우 위저드 스타일) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
 | 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
-| 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
+| 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.05`, 크리에이티브 아틀리에 스타일) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
 | 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | ✅ 1차 작업완료 (`v1.09`, 사이버 네온 다크 콘솔 스타일) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
 | 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | **크리에이티브 아틀리에 스타일** (시네마틱 아틀리에) | 다크(시네마틱 차콜 `#0b0f17`) | ✅ 1차 작업완료 (`v1.06`, 크리에이티브 아틀리에 스타일) | [`cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`](cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md) |
 | 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | **포커스 스튜디오 스타일** (이커머스 상세페이지) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.04`, 포커스 스튜디오 스타일) | [`detail-page-12p/docs/DESIGN_HANDOFF.md`](detail-page-12p/docs/DESIGN_HANDOFF.md) |
