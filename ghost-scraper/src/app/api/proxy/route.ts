@@ -23,8 +23,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const originUrl = new URL(targetUrl);
-    const { response } = await safeFetch(targetUrl, {
+    const { response, finalUrl } = await safeFetch(targetUrl, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 WebsiteScraper/1.0",
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest) {
     let html = await response.text();
 
     // 1. Base 태그 주입 (상대 경로 리소스 자동 해결)
-    const baseTag = `<base href="${originUrl.origin}/">`;
+    const baseTag = `<base href="${finalUrl.href}">`;
     if (html.includes("<head>")) {
       html = html.replace("<head>", `<head>${baseTag}`);
     } else if (html.includes("<html>")) {

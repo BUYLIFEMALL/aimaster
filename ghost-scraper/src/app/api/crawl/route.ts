@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. 대상 사이트 fetch (User-Agent 포함)
-    const { response } = await safeFetch(targetUrl, {
+    const { response, finalUrl } = await safeFetch(targetUrl, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 WebsiteScraper/1.0",
@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
       next: { revalidate: 0 },
     });
 
+    parsedUrl = finalUrl;
     if (!response.ok) {
       return NextResponse.json(
         { error: `대상 사이트 응답 오류 (HTTP ${response.status}: ${response.statusText})` },

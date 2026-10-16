@@ -5,14 +5,14 @@
 - **Slug**: `website-scraper`
 - **버전**: `v1.12` (2026-10-16 스마트 매트릭스 디자인 리뉴얼 + 보안 보강)
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일** — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · 플랜 [docs/PLAN_20261016_DESIGN_RENEWAL.md](docs/PLAN_20261016_DESIGN_RENEWAL.md) · 개선 원장 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계 [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md)
-- **배지**: `["new", "free"]` (가입 회원 누구나 무료 사용)
+- **DB 배지(2026-10-16 실측)**: `["new"]`. FREE가 아닙니다. 기존 사이드바 FREE 고정 표시는 후속 개선 #16이며 DB 권한 판정은 그대로 유지합니다.
 - **라이브 도메인**: `https://website-scraper.buylife.xyz` (기존 `https://ghost-scraper.buylife.xyz` 유지)
 - **Vercel 프로젝트 & 주소**: 프로젝트명 `website-scraper` / 공식 주소 `https://website-scraper.buylife.xyz` / Vercel 기본 `https://website-scraper-ai.vercel.app`, `https://website-scraper-buylife.vercel.app`
 - **목적**: 웹사이트 URL을 입력하여 메타데이터, 헤딩 구조, 글목록, 표, 링크, 이미지를 실시간 스크래핑하고, Gemini AI로 비정형 웹 리스트를 구조화된 데이터(순번, 제목, 링크, 썸네일)로 자동 추출하는 지능형 웹 데이터 수집 솔루션.
 
 ## 2. 핵심 불변 원칙 준수
 1. **사용자 본인 API 키 원칙 (최상위 규칙)**: Google Gemini API 키는 사용자의 브라우저 `localStorage`에 격리 보관되며, 플랫폼 공용 DB `user_api_keys` 테이블과 `/api/user/key`로 동기화된다. 운영자 공용 키 폴백 없음.
-2. **AIMaster 통합 이용 권한 게이트**: `src/lib/access.ts`의 `requireProgramAccess()` 적용으로 비로그인 접근 시 메인 SSO(`https://buylife.xyz/login`)로 307 리다이렉트. `free` 배지로 로그인 회원은 즉시 무료 사용.
+2. **AIMaster 통합 이용 권한 게이트**: `src/lib/access.ts`의 `requireProgramAccess()` 적용으로 비로그인 접근 시 메인 SSO(`https://buylife.xyz/login`)로 307 리다이렉트. 실제 DB 배지·등급·이용기간·구독에 따라 공용 권한을 판정합니다(FREE 배지일 때만 가입 회원 무료).
 3. **좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
    - 상단 프로그램명 + 버전 + FREE 배지
    - `← 다른 프로그램 보기`
@@ -94,3 +94,8 @@
 - 디자인: 스마트 매트릭스(다크 차콜 + 블루·앰버, Tailwind v4 `@theme`), 히어로·KPI 4종, 다크 7탭·표, 글목록/링크/AI 결과 검색, 사이드바 계정 밀착 + 📖 매뉴얼, `/guide` 신설(`HelpModal` 제거), 섹터 모달 모바일 세로 배치.
 - 작은 수정: 내보내기 버전 `APP_VERSION`, ZIP 이름 `website_scraper_images_*`, ZIP 결과 화면 안내(`alert` 제거).
 - **빌드·배포·화면/보안 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md) 「다음 첫 단계」.
+
+
+## Windows 인수 보안 검수 (2026-10-16, v1.12)
+
+[README.md](README.md), [검수 플랜](docs/VERIFICATION_PLAN_20261016.md), [동일 날짜 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md)의 Windows 절을 먼저 읽습니다. `safeFetch`는 검사한 DNS를 undici 연결에 고정합니다. CSP·iframe sandbox에 allow-same-origin을 추가하지 않습니다. `npm test`는 외부 연결 없는 보안 검사, `npm run test:runtime`은 실제 시험 회원과 보이는 Edge를 쓰며 유료 AI를 호출하지 않습니다. 운영 결과는 디자인 인수인계 7절에 기록합니다.

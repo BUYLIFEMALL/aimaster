@@ -43,6 +43,8 @@ export async function GET(req: NextRequest) {
         "Content-Type": contentType,
         "Cache-Control": "private, max-age=3600",
         "X-Content-Type-Options": "nosniff",
+        // SVG를 직접 열더라도 외부 이미지의 스크립트를 우리 도메인 권한으로 실행하지 않는다.
+        "Content-Security-Policy": "default-src 'none'; sandbox",
       },
     });
   } catch (err: any) {

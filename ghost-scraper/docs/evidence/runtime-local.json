@@ -1,0 +1,71 @@
+{
+  "base": "http://localhost:3034",
+  "browser": "Microsoft Edge (visible)",
+  "member": "buylifemall@naver.com",
+  "member_is_admin": false,
+  "checked_at": "2026-10-16T10:28:56.718Z",
+  "checks": [
+    {
+      "name": "비로그인 crawl/proxy/proxy-image/key 4개 API 401",
+      "passed": true
+    },
+    {
+      "name": "일반 회원 내부/IPv6 변형/metadata 주소 12개 요청 400",
+      "passed": true
+    },
+    {
+      "name": "일반 회원·v1.12·Tailwind v4 @theme 실제 색상",
+      "passed": true
+    },
+    {
+      "name": "실제 공개 AIMaster 페이지 크롤링·헤딩/링크·KPI 4개",
+      "passed": true
+    },
+    {
+      "name": "실제 이미지 프록시·SVG 포함 격리 헤더·HTML 응답 415",
+      "passed": true
+    },
+    {
+      "name": "7개 탭 실제 전환·AI 미실행",
+      "passed": true
+    },
+    {
+      "name": "실제 링크 검색·초기화",
+      "passed": true
+    },
+    {
+      "name": "실제 proxy CSP·iframe 격리·저장소 접근 차단·부모 위조 메시지 무시",
+      "passed": true
+    },
+    {
+      "name": "실제 선택 스크립트 클릭/Shift 부모/Ctrl 이동(iframe DOM만 합성, 이동 응답 모의)",
+      "passed": true
+    },
+    {
+      "name": "375px 본문 가로 넘침 없음·모바일 서랍 열기/닫기",
+      "passed": true
+    },
+    {
+      "name": "375px 섹터 모달 세로 배치·가로 넘침 없음",
+      "passed": true
+    },
+    {
+      "name": "실제 /guide·375px 매뉴얼",
+      "passed": true
+    },
+    {
+      "name": "합성 데이터 글목록 검색·표 CSV 실제 다운로드",
+      "passed": true
+    },
+    {
+      "name": "설정 저장·로컬 반영(키 POST 모의, 실제 키 변경 없음)",
+      "passed": true
+    },
+    {
+      "name": "유료 AI 요청·메인 페이지 오류 없음",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "paid_ai_calls": 0
+}
