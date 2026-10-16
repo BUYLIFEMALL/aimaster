@@ -28,7 +28,7 @@
 
 **지금 필수로 하실 작업은 없습니다. 기존 항목을 그대로 두시면 됩니다.** 새 이름도 등록해 두고 싶으실 때만 다음 순서로 진행합니다.
 
-2026-10-16 실제 Vercel 목록 확인: **메인 `aimaster` Production에는 새·기존 공개 키 이름과 새·기존 서버 키 이름이 이미 함께 등록**되어 있습니다. 메인은 중복 추가할 필요가 없습니다. `blog-content-maker` Production은 기존 이름으로 등록되어 있으며 그대로 운영할 수 있습니다. 아래는 새 이름이 없는 프로젝트에 적용할 안내입니다. Vercel Secret 항목의 로컬 다운로드 대체 문자열은 실제 키가 아니므로 그것을 인증 검사에 사용하지 않습니다.
+2026-10-16 실제 Vercel 목록 확인: **메인 `aimaster` Production에는 새·기존 공개 키 이름과 새·기존 서버 키 이름이 이미 함께 등록**되어 있습니다. 메인은 중복 추가할 필요가 없습니다. 이후 주인님이 `blog-content-maker` Production에도 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 추가했고, 기존 공개 키와 같은 값임을 확인했습니다. 블로그는 공개 키의 새·기존 이름 공존, 서버 키는 기존 `SUPABASE_SERVICE_ROLE_KEY` 유지 상태입니다. 아래는 새 이름이 없는 프로젝트에 적용할 안내입니다. Vercel Secret 항목의 로컬 다운로드 대체 문자열은 실제 키가 아니므로 그것을 인증 검사에 사용하지 않습니다.
 
 1. Vercel에서 **`aimaster` 프로젝트 → Environment Variables**를 엽니다.
 2. 기존 `NEXT_PUBLIC_SUPABASE_ANON_KEY`의 값을 복사합니다. 기존 항목은 수정·삭제하지 않습니다.
@@ -59,5 +59,9 @@
 - 운영의 **새·기존 이름 공존(메인)**과 **기존 이름만 등록(블로그)** 상태에서 보이는 실제 Chrome 일반 회원 검사 **10/10 통과**. 공개·회원·서버 권한·DB 조회·모바일 검수 결과는 `blog-content-maker/test-artifacts/env-live-result.json`과 화면 캡처(Git 제외)에 보존했습니다. 검수 브라우저는 종료했습니다.
 - 블로그 DB 프로그램/확장/라이브 ZIP 모두 **v1.03**, ZIP HTTP 200·소스 7개 일치·공용 릴리스 검사 **실패 0/경고 0**. 설치된 이전 확장의 API 호환도 유지합니다. 새 ZIP 설치 시 재다운로드→기존 폴더 덮어쓰기→`chrome://extensions` 새로고침을 따릅니다.
 - **이번 요청의 남은 구현·검수 없음**. 기존 값 삭제·다른 독립 프로그램 일괄 전환은 하지 않았습니다. 삭제는 안정화 후 별도 확정합니다.
+
+### 주인님의 블로그 공개 키 추가 후 재배포 (2026-10-16)
+
+주인님이 Vercel에서 공개 키의 새 이름을 Production에 추가했습니다. 새 값은 실제 공개 DB 조회 정상이며 기존 공개 키와 같은 값입니다. 기존 환경변수·서버 키를 유지한 채 재배포 완료: `dpl_J5cGCQjKvRgxLyMonwhkzPSSQZgy` / https://blog-content-maker-bwm3go3l2-buylife.vercel.app / https://blog-content-maker.buylife.xyz, READY. 소스 변경 없이 환경변수 반영만 수행해 **v1.03 유지**. 실제 Chrome 일반 회원·DB 조회·비로그인 보호·모바일 등 **운영 10/10**, 확장 릴리스 실패 0/경고 0·ZIP v1.03·소스 7개 일치 재확인. 추가 사용자 설정은 필요 없습니다. 기존 키 삭제는 안정화 후 별도 확정합니다.
 
 참고: [Supabase 키 구분](https://supabase.com/docs/guides/getting-started/api-keys), [Next.js 공개 환경변수의 빌드 적용](https://nextjs.org/docs/app/guides/environment-variables).

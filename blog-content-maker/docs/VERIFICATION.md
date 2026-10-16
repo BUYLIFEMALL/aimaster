@@ -54,6 +54,8 @@
 
 ## v1.03 Supabase 새·기존 변수 호환 (2026-10-16)
 
+2026-10-16 주인님이 Production에 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 추가 후 **동일 소스 재배포** 완료. 새 값은 기존 공개 키와 일치하고 실제 공개 DB 조회 정상. 기존 공개 키·서버 키 항목 유지. 배포 `dpl_J5cGCQjKvRgxLyMonwhkzPSSQZgy` / https://blog-content-maker-bwm3go3l2-buylife.vercel.app / https://blog-content-maker.buylife.xyz, **READY**. 실제 Chrome 운영 검수 **10/10 재통과**, 공용 릴리스 **실패 0/경고 0**, ZIP HTTP 200·v1.03·소스 7개 일치. 최신 ZIP SHA-256 `7bce52739fadca925e74ca5190f979ef0aded6f6f573eff08e1cfdd1fbbfd8cc`. 환경변수 반영만 수행해 v1.03 유지, 기존 항목 삭제 없음. 아래 최초 배포 기록은 당시 증거입니다.
+
 - 메인·블로그 공통 설정 회귀 **22/22**, 기존 단위 **10/10**, 블로그 린트 통과.
 - 새 이름만 전달하고 기존 이름은 빈 값인 검수 프로세스에서 **두 프로그램 프로덕션 빌드 통과**. 영구 환경 파일은 수정하지 않았습니다. 메인 빌드는 기존 `ignoreBuildErrors` 설정으로 타입 검사 생략, 블로그는 타입 검사 통과.
 - `scripts/verify-platform-env.mjs`의 `local-new`: 임시 포트 3139/3140에서 보이는 Chrome으로 일반 시험 회원 로그인·메인 브라우저 프로필과 서버 권한·블로그 회원 접근·DB 조회·비로그인 보호·400px 모바일 **10개 통과**. AI 호출·최종 발행 없음. 임시 서버·브라우저 종료.

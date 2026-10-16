@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex — 블로그 새 공개 키 등록 후 재배포·회원 검수 완료 (v1.03 유지)
+
+- 주인님이 Vercel `blog-content-maker` Production에 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 직접 추가. 기존 공개 키와 값 일치·실제 공개 DB 조회 정상 확인. 기존 환경변수·서버 키 유지, 추가 삭제/키 변경 없음.
+- 같은 앱 소스로 재배포해 새 환경변수 반영: `dpl_J5cGCQjKvRgxLyMonwhkzPSSQZgy` / https://blog-content-maker-bwm3go3l2-buylife.vercel.app / https://blog-content-maker.buylife.xyz, 프로덕션 READY. 환경변수 반영만 수행해 **v1.03 유지**.
+- 보이는 실제 Chrome 일반 회원 로그인·권한·프로필·DB 조회·비로그인 보호·400px 모바일 등 **운영 10/10 통과**. 공용 확장 릴리스 검사 실패 0/경고 0, ZIP HTTP 200·v1.03·소스 7개 일치. 검수 브라우저 종료. 주인님이 추가로 누르실 Redeploy·필수 설정 없음. 기존 키/환경변수 삭제는 안정화 후 별도 확정. 상세: [블로그 검수 기록](../blog-content-maker/docs/VERIFICATION.md), [공통 키 운영 지침](SUPABASE_API_KEY_COMPATIBILITY.md).
+
 ## 2026-10-16 Claude Code(보조 계정·윈도우) — 상세 페이지 「추천 활용 대상」 3카드를 프로그램별 내용으로 (메인 사이트)
 
 - 주인님 지시 "프로그램마다 다른 기능과 차별점을 강조한 형태로": 공통 고정 문구(1인 창업가·이커머스 셀러·마케팅 대행사) 제거 → `programs.detail_sections.audiences`(대상·이유·효과 2줄 ×3, 같은 칸이라 스키마 변경 없음) 82개 입력, 상세 페이지는 값이 없으면 숨김, 관리자 편집 화면에 입력칸 추가. 메인 사이트 배포, 라이브에서 비슷한 프로그램(인스타·쓰레드·유튜브 댓글 등)이 서로 다른 대상 문구로 나오는 것 확인. 규칙: `docs/PROGRAM_DESCRIPTION_STANDARD.md` §2-2 ④, `CLAUDE.md` 22·`AGENTS.md` 21.
