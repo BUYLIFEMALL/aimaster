@@ -69,3 +69,8 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`: SITE_ORIGIN(auto-instagram-posting.buylife.xyz), Facebook 방식 `FACEBOOK_REDIRECT_*`(env `META_INSTAGRAM_REDIRECT_URI`, /api/instagram/callback), Instagram 방식 `INSTAGRAM_REDIRECT_*`(env `META_INSTAGRAM_BYOK_REDIRECT_URI`, /callback/byok).
 - 기본 연결은 옛 콜백, 설정 화면 [Facebook/Instagram 방식 새 주소로 (다시) 연결](hidden `callback=new`)은 새 콜백. 두 콜백 모두 옛 주소 307에 via=old·교환 시 via로 선택·연결 후 이동 SITE_ORIGIN. 설정 화면에 두 방식 콜백 모두 옛·새 주소 표시. 미사용 `getEnv` 제거.
 - 검수: 빌드·배포, 옛 콜백 2곳 → via=old 307, 새 콜백 → /login. 시험 계정 [Facebook 방식 새 주소로 다시 연결] → Facebook 인증 URL에 `redirect_uri=https://auto-instagram-posting.buylife.xyz/api/instagram/callback` 확인(화이트리스트 미등록 오류 = 새 콜백 전송 확인). Instagram 방식은 기존부터 시험 계정 앱 "Invalid platform app" 오류(instagram-comment-reply `docs/IMPROVEMENTS.md`와 같은 원인 추정).
+
+## 2026-10-16 v1.10 — Instagram 앱 ID 위치 안내 (Claude Code 윈도우)
+- 원인 확인: 시험 계정(buylifemall@naver.com)의 `meta_app_id`에 Facebook(메타) 앱 ID가 들어 있음(같은 값으로 Facebook 인증 화면은 앱을 인식) → Instagram 로그인(`instagram.com/oauth/authorize`)이 "Invalid platform app"으로 거절. 코드 버그가 아니라 값 위치 혼동.
+- 조치: 설정 화면 키 입력칸 위에 안내 상자(앱 대시보드 › Instagram › API 설정(Instagram 로그인)의 "Instagram 앱 ID/시크릿", 맨 위 "앱 ID"와 다름, 잘못 넣으면 Invalid platform app). 이 프로그램은 Facebook 방식(Facebook 앱 ID 필요)과 Instagram 방식(Instagram 앱 ID 필요)이 같은 칸을 함께 써서 한 번에 한 방식만 가능 — 안내에 명시, 칸 분리는 `docs/IMPROVEMENTS.md` 제안(공용 provider 추가 = DB 스키마 변경, 사전 승인 필요).
+- 검수: 빌드·배포·DB 버전, 크롬에서 안내 상자 표시 확인. 시험 계정 값 교체는 주인님 직접(키 입력은 에이전트가 하지 않음).
