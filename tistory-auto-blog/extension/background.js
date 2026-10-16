@@ -256,12 +256,12 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     if (message.type === "cancel") { if (currentTask === null) return { ok: true, idle: true }; cancelRequested = true; return { ok: true }; }
     // 카테고리 목록은 티스토리 입력기 사이트 화면(web-bridge.js)에서 온 요청만 받는다. 사이드패널·다른 사이트 요청은 거절.
     if (message.type === "categories") {
-      if (!String(sender?.url || "").startsWith(`${BASE}/`)) throw new Error("허용되지 않은 요청입니다.");
+      if (![`${BASE}/`, "https://tistory-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
       return await readCategories(sender);
     }
     // 홈주제 목록은 브라우저 작업 없이 저장해 둔 것만 돌려준다(같은 출처 제한).
     if (message.type === "topics") {
-      if (!String(sender?.url || "").startsWith(`${BASE}/`)) throw new Error("허용되지 않은 요청입니다.");
+      if (![`${BASE}/`, "https://tistory-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
       const stored = (await get(KEY.topics))[KEY.topics];
       return { topics: Array.isArray(stored?.names) ? stored.names : [], at: stored?.at || 0 };
     }

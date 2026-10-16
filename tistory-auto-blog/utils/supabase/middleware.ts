@@ -1,9 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { cookieDomainForHost } from './cookieDomain'
 
 export async function updateSession(request: NextRequest) {
   // utils/access.ts가 비로그인 사용자를 /auth?redirect=<현재 경로>로 보낼 때 쓴다.
   request.headers.set('x-pathname', request.nextUrl.pathname + request.nextUrl.search)
+
+  // 2026-10-16 도메인 통일(SSO): *.buylife.xyz에서는 로그인 쿠키를 .buylife.xyz로 공유
+  const cookieDomain = cookieDomainForHost(request.headers.get('x-forwarded-host') ?? request.headers.get('host'))
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -27,7 +31,7 @@ export async function updateSession(request: NextRequest) {
           })
 
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options)
           )
         },
       },

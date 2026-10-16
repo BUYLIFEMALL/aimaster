@@ -4,7 +4,7 @@
 //  - categories: 회원의 티스토리 카테고리 이름 목록을 읽어 돌려준다(background.js가 새 탭에서 카테고리 목록만 읽고 닫는다).
 //  - topics: 발행 설정창에서 확인해 둔 실제 홈주제 목록(저장된 값만, 브라우저 작업 없음).
 (() => {
-  if (location.origin !== "https://tistory-auto-blog-pearl.vercel.app") return;
+  if (location.origin !== "https://tistory-auto-blog-pearl.vercel.app" && location.origin !== "https://tistory-auto-blog.buylife.xyz") return; // 2026-10-16 새 주소(https://tistory-auto-blog.buylife.xyz)도 허용
   window.addEventListener("message", async (event) => {
     if (event.source !== window || event.origin !== location.origin) return;
     const message = event.data;
