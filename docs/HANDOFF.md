@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 메인 사이트 상세 페이지 작성 (DB만, v1.02 유지)
+
+- `PROGRAM_DESCRIPTION_STANDARD.md` 형식으로 한 줄 요약(46자)·상세 소개(481자·5단락)·핵심 특징 4·사용 순서 4·추천 활용 대상 3을 **구현된 기능(주제·대본 단계)만**으로 작성, 첫 단락에 「주제·대본 단계 먼저 공개, 배경·음성·자막·MP4 순차 공개」 명시. `shorts-viral-studio`(떡상 분석→대본)와 겹치지 않게 카드형 대본·구성 자동 맞춤·화면/내레이션 분리·분야별 지침을 앞세움.
+- SQL `shorts-onestop-studio/supabase/migrations/0004_detail_page.sql`(이전 값: 0001의 임시 2단락). 공개 상세 https://www.buylife.xyz/programs/shorts-onestop-studio 크롬에서 4개 구역 표시 확인. 역량 지도 목록 표 한 줄 용도·카드 활용 용도 갱신.
+- 다음 단계가 공개될 때마다 상세 소개·특징·사용 순서를 실제 기능에 맞춰 함께 고친다(원칙 22).
+
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 카탈로그 썸네일 등록 + 「썸네일은 상위 모델 사용 가능」 지침
 
 - 썸네일: 표준 실사 템플릿 + `scripts/generate-program-thumbnail.mjs`(관리자 계정 본인 Gemini 키, 상위 모델 gemini-3-pro-image-preview) → `program-images/catalog/shorts-onestop-studio-thumbnail.jpg`, `programs.thumbnail_url` 갱신. 첫 결과는 휴대폰 화면에 깨진 한글이 있어 화면을 도형만으로 지정해 1회 재생성. 카탈로그 유튜브 묶음에서 주변 썸네일과 실사 톤 일치 확인.
