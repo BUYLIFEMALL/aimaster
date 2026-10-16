@@ -22,7 +22,7 @@
 | 실제 일반 회원 로컬 Next 앱 | 11/11 · 접근·대시보드 이동·5개 화면·메뉴·계정·375px·소유하지 않은 상세 차단 |
 | 유료 API·텔레그램 발송 | 0회 |
 | 실제 회원 데이터 변경 | 0회 · 4개 테이블 수 유지, POST 요청 없음 |
-| 운영 배포·회원 화면 | 소스 커밋 후 진행, 완료 결과는 아래 릴리스 기록에 추가 |
+| 운영 배포·회원 화면 | READY · 코드/DB v1.06 · 일반 회원 Edge 11/11 |
 
 [등록 오류 재현](evidence/browser-fixtures-before.json) · [수정 후 UI 검사](evidence/browser-fixtures.json) · [회원 로컬 검사](evidence/runtime-local.json). 실제 회원의 씨드·실행 결과는 모두 0건입니다. 데이터가 필요한 검색·복사·확인창은 합성 데이터 검사이고, 실제 검색·OpenAI 분석·텔레그램 전송 검수로 주장하지 않습니다. 키·세션·회원 입력 원문은 결과에 남기지 않습니다.
 
@@ -33,6 +33,7 @@
 ## 릴리스 기록·다음 CLI
 
 - 코드 `APP_VERSION`은 **v1.06**, 배포 때 `supabase/release_design_v106_20261016.sql`의 버전 메타데이터 DML만 적용합니다. DB 스키마 변경은 없습니다. 전용 확장 프로그램이 없어 ZIP 갱신 대상도 없습니다.
-- 소스 커밋·배포 ID·운영 검사 결과는 완료 뒤 이 절과 `DESIGN_HANDOFF.md` 7절에 추가합니다. 배포 전 이 문서의 로컬 통과를 운영 통과로 간주하지 않습니다.
-- [개선 원장](IMPROVEMENTS.md)의 #1~4는 운영 검증 후 완료로 갱신하고, #5 부분 구현·#6~9 후속 제안은 남깁니다. #10~14는 이번 수정/검수 보완입니다. npm audit 취약점 알림 #15는 별도 호환성 조사·업데이트 플랜으로 이어갑니다.
+- **완료**: 소스 `54eaee73` 커밋·푸시, 대상 Vercel `longtail-keyword-expander` 배포 **dpl_GqzpS51EDAxU6UYGCHHt8xkqEhr7** READY. 작업 중인 다른 CLI 파일이 섞이지 않도록 해당 커밋의 프로그램 폴더만 Git archive로 분리해 배포했습니다. [운영 대시보드](https://longtail-keyword-expander.vercel.app/dashboard), 코드/DB **v1.06**, 일반 회원 운영 Edge **11/11**. [배포 증거](evidence/deployment.json) · [운영 검사](evidence/runtime-live.json) · [데스크톱](evidence/live-dashboard-desktop.png) · [375px](evidence/live-dashboard-mobile.png).
+- 최종 검수는 **합성 UI 12 + 회원 로컬 11 + 회원 운영 11 = 34개 통과**, 페이지 오류·회원 데이터 쓰기·유료 API·텔레그램 발송 0회입니다. 기존 키·환경변수·이용 권한·다른 프로그램 소스는 유지했습니다. 메인 설치 파일 보호 검증은 최종 푸시 후 `scripts/finalize-supabase-compat-main.cjs`의 Git 제외 `.vercel/final-main-promotion.json`에 기록합니다.
+- [개선 원장](IMPROVEMENTS.md)의 #1~4·#10~14는 검수 완료로 갱신했습니다. #5 부분 구현·#6~9 후속 제안은 남깁니다. npm audit 취약점 알림 #15는 별도 호환성 조사·업데이트 플랜으로 이어갑니다. 이번 요청 범위의 남은 작업은 없습니다.
 - 다음 CLI는 루트 AGENTS/ACTIVE_WORK/HANDOFF → 이 문서 → 디자인 인수인계·개선 원장을 확인합니다. 새 기능 구현 전 개발 플랜을 제시하고 기존 회원 데이터·본인 키·이용 권한을 보존합니다.

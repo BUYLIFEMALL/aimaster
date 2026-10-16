@@ -1,10 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-16 Codex(윈도우) — 롱테일 v1.06 맥미니 디자인 인수·오류 수정·운영 배포 진행
+## 2026-10-16 Codex(윈도우) — 롱테일 v1.06 맥미니 디자인 인수·오류 수정·운영 완료
 
 - 맥미니 `770f7351`의 윈도우 빌드/배포 요청 인수. [사전 플랜](../longtail-keyword-expander/docs/VERIFICATION_PLAN_20261016.md), [검수 인수인계](../longtail-keyword-expander/docs/IMPROVEMENT_HANDOFF_20261016.md).
 - 빌드 통과, 실제 UI 합성 Edge 12/12·일반 회원 로컬 Next 11/11. 등록 후 폼 초기화 오류, 상세 이력 삭제 확인 누락, 복사 실패 무안내, 빈 목록 UUID 조회 보완. 실제 회원 데이터 변경·유료 API·텔레그램 발송 0회.
-- 다음: 소스 커밋/푸시 → 대상 Vercel 배포 → 코드/DB v1.06 일치 → 실제 회원 운영 검수 → 디자인 상태·최종 인수인계 갱신. 미구현 5개 제안은 이번 범위에 포함하지 않음.
+- **운영 완료**: 소스 `54eaee73` 커밋·푸시, 배포 **dpl_GqzpS51EDAxU6UYGCHHt8xkqEhr7** READY·sourceCommit 일치, 코드/DB **v1.06**. [운영 대시보드](https://longtail-keyword-expander.vercel.app/dashboard) 실제 일반 회원 Edge **11/11**. 합성 12+로컬 11+운영 11=34개 통과. 유료 확장·발송·실제 데이터 삭제 없음.
+- 디자인 인수인계 7절·개선 원장·AGENTS/README·DESIGN 기준 예시/49번을 완료 상태로 갱신, ACTIVE_WORK 내 인수 줄 제거. [배포/검수 증거](../longtail-keyword-expander/docs/evidence/verification.json). 이번 범위 남은 작업 없음. #5 부분 구현·#6~9 신규 제안·#15 의존성 조사 등 후속은 원장에 유지. 최종 문서 커밋은 이 항목의 Git 이력, 메인 다운로드 보호 결과는 Git 제외 `.vercel/final-main-promotion.json` 확인.
 
 ## 2026-10-16 Claude Code(맥미니) — 롱테일 키워드분석 v1.06: 스마트 매트릭스 스타일 기준 구현 (⚠️ 윈도우 빌드·배포 요청)
 

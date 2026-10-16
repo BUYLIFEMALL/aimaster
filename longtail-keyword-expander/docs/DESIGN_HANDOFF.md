@@ -2,7 +2,7 @@
 
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일 (Smart Matrix Style)** — 루트 `DESIGN.md` 템플릿 4번의 **첫 기준 구현**
 - **작업**: Claude Code(맥미니), 2026-10-16
-- **상태**: 코드 완료 · **윈도우 빌드·배포·화면 검수 대기** (맥미니는 빌드·배포 금지, 원칙 18-④) — 아래 「남은 검수」 참고
+- **상태**: **v1.06 운영 배포·윈도우 검수 완료** — Codex(Windows)가 맥미니 요청을 인수해 빌드·오류 수정·일반 회원 Edge 검수 완료. [결과·재개 문서](IMPROVEMENT_HANDOFF_20261016.md).
 
 ## 1. 개발 플랜 (주인님 승인 2026-10-16)
 
@@ -60,7 +60,7 @@
 - 모든 호출은 회원 본인 키 — 매뉴얼·대시보드 문구도 이 원칙에 맞춰 썼다.
 - 로그인 화면(`(auth)`)은 플랫폼 공통 밝은 디자인을 유지했다(2026-10-01 공통 틀).
 
-## 6. 남은 검수 (윈도우 CLI 요청)
+## 6. 인수 시 요청된 검수 (2026-10-16 완료, 절차 이력)
 
 1. `cd longtail-keyword-expander && npm run build` — 맥미니에서는 빌드하지 못해 **타입·컴파일 검사가 아직 안 됐다.** 오류가 나면 이 문서의 부품 목록을 기준으로 고친다.
 2. `vercel deploy --prod --yes` 후 DB: `update programs set version='v1.06', updated_at=now() where slug='longtail-keyword-expander';`
@@ -71,7 +71,13 @@
 
 | 항목 | 값 |
 |---|---|
-| 코드 커밋 | (이 문서와 같은 커밋) |
-| 빌드·배포 | 대기 |
-| DB `programs.version` | v1.05 (배포 때 v1.06) |
-| 화면 검수 | 대기 |
+| 디자인 코드 커밋 | `770f7351` (Claude Code 맥미니) |
+| 오류 수정·검수 소스 커밋 | `54eaee73` (Codex Windows, 원격 푸시 완료) |
+| 빌드·배포 | 로컬/원격 타입·린트·Next 빌드 통과 · `dpl_GqzpS51EDAxU6UYGCHHt8xkqEhr7` READY |
+| 코드 / DB `programs.version` | **v1.06 / v1.06** · 메타데이터 DML만 적용 |
+| 실제 일반 회원 화면 | 보이는 Edge 로컬 11/11 + 운영 11/11 · 1440px/375px · 메뉴/이동/빈 상태/소유하지 않은 상세 차단 |
+| 데이터 있는 화면 | 보이는 Edge 실제 UI·상세 컴포넌트 합성 검사 12/12 · 검색·필터·표/카드·삭제 취소·복사·한국 시각·등록 후 초기화 |
+| 운영 URL | https://longtail-keyword-expander.vercel.app/dashboard |
+| 증거 | [배포](evidence/deployment.json) · [운영 회원](evidence/runtime-live.json) · [합성 UI](evidence/browser-fixtures.json) |
+
+실제 일반 회원의 씨드/실행 데이터는 0건입니다. 데이터가 있는 화면은 합성 검사와 구분했으며 유료 확장 실행·텔레그램 발송·실제 회원 데이터 삭제는 하지 않았습니다. 등록 초기화·상세 이력 확인창·복사 실패 안내·빈 UUID 조회 보완은 [검수 인수인계](IMPROVEMENT_HANDOFF_20261016.md)에 기록했습니다. 디자인의 다크 차콜 토큰과 레이아웃은 유지했습니다.

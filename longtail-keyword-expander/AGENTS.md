@@ -1,6 +1,6 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-> **2026-10-16 윈도우 인수:** [v1.06 검수·오류 수정 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md)와 [개선 원장](docs/IMPROVEMENTS.md)을 먼저 확인합니다. 로컬 빌드·Edge 합성 화면 12개·일반 회원 로컬 11개 통과, 운영 결과는 인수인계의 최신 릴리스 기록에서 확인합니다.
+> **2026-10-16 윈도우 인수 완료:** [v1.06 검수·오류 수정 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md)와 [개선 원장](docs/IMPROVEMENTS.md)을 먼저 확인합니다. 빌드·Edge 합성 12개·일반 회원 로컬 11개·운영 11개 통과. 소스 `54eaee73`, 운영/DB v1.06, 배포 `dpl_GqzpS51EDAxU6UYGCHHt8xkqEhr7` READY.
 
 이 문서는 **롱테일 키워드분석 자동화(longtail-keyword-expander)** 프로젝트에서 AI
 Agent(Claude Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
@@ -108,4 +108,4 @@ longtail-keyword-expander는 AIMaster 저장소 안의 서브프로젝트다. �
 
 - 다크 차콜 + 모던 블루·앰버 토큰(`mx-*`), 대시보드(`/dashboard`, `/` 접속 시 이동)·사용 매뉴얼(`/guide`) 신설, 씨드·결과 목록에 검색·필터·표/카드 전환, 결과 상세에 KPI·관련도 막대·복사 버튼, 휴대폰 ☰ 메뉴(원칙 19), 시각 `Asia/Seoul` 고정, 삭제 확인창.
 - 서버 액션·DB·권한 판정은 바꾸지 않았다. 로그인 화면은 공통 밝은 디자인 유지.
-- **빌드·배포·화면 검수는 윈도우 CLI 대기**(맥미니 빌드 금지). 절차: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) 6절. 개선 제안: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+- **윈도우 빌드·오류 수정·운영 배포·화면 검수 완료**(Codex, 소스 `54eaee73`). 결과: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) 7절. 개선 제안: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).

@@ -1,6 +1,6 @@
 # 🧩 Longtail Keyword Expander — 롱테일 키워드분석 자동화
 
-스마트 매트릭스 디자인 **v1.06**. 이어받을 때 [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [검수·오류 수정 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md) · [개선 원장](docs/IMPROVEMENTS.md)을 읽습니다. 운영 완료 여부·배포 ID는 인수인계의 최신 릴리스 기록을 확인합니다.
+스마트 매트릭스 디자인 **v1.06 운영 완료**. [운영 대시보드](https://longtail-keyword-expander.vercel.app/dashboard). 이어받을 때 [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [검수·오류 수정 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md) · [개선 원장](docs/IMPROVEMENTS.md)을 읽습니다. 빌드·Edge 합성 12/12·일반 회원 로컬 11/11·운영 11/11 통과, 소스 `54eaee73`. 후속 기능 제안과 이번 완료 범위는 인수인계에서 구분합니다.
 
 키워드를 입력하면 네이버(또는 구글) 검색결과를 분석해서 연관 키워드 → 롱테일 키워드까지
 계층적으로 확장하고, 블로그 담당자에게 "이번 주 뭘 써야 하는지" 작업 지시 메시지를 만들어주는
