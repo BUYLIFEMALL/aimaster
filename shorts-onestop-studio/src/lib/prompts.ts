@@ -48,3 +48,20 @@ export function scriptPrompt(o: { topic: string; category: string; tone: Tone; f
   ].filter(Boolean).join("\n\n");
   return { system, prompt };
 }
+
+/** 장면별 배경 찾기: 스톡 검색어(영어)와 AI 이미지 묘사(영어)를 한 번에 만든다. 인물은 한국인 기본(원칙 3) */
+export function visualsPrompt(o: { topic: string; scenes: string[]; style: string; character: string }) {
+  const system = [
+    "You are a visual director for Korean vertical short-form videos (9:16). For each scene, write (1) a short English stock-footage search query (2-4 plain keywords that exist in stock libraries like Pexels/Pixabay) and (2) an English image-generation prompt describing a background scene that matches the narration.",
+    "If people appear, depict them as Korean (East Asian) by default unless the scene clearly needs a specific foreign person or place.",
+    "Backgrounds must leave clear space for large on-screen text: avoid busy centers, no text, letters, logos, or watermarks in images.",
+    o.character ? `Keep this same character consistent in every image prompt: ${o.character}` : "",
+    `Image style for all prompts: ${o.style}`,
+  ].filter(Boolean).join("\n");
+  const prompt = [
+    `Video topic (Korean): ${o.topic}`,
+    `Scenes in order (Korean narration):\n${o.scenes.map((s, i) => `${i + 1}. ${s}`).join("\n")}`,
+    `Return JSON exactly: {"scenes":[{"query":"english keywords","prompt":"english image prompt, vertical 9:16 composition"}]} with ${o.scenes.length} items in the same order.`,
+  ].join("\n\n");
+  return { system, prompt };
+}

@@ -25,20 +25,25 @@ export type Format = keyof typeof FORMATS;
 
 export const MIN_CARDS = 3, MAX_CARDS = 8;
 
-export interface Scene { title: string; desc: string; narration: string; tag?: string }
+/** 장면 배경(P4). 스톡은 원본 주소(브라우저가 바로 불러옴, CORS 허용 확인), AI 이미지는 저장소 경로(path) + 임시 서명 주소(src) */
+export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "ai"; src: string; thumb?: string; path?: string; credit?: string; pageUrl?: string; prompt?: string }
+export interface Backdrop { mode: "theme" | "global" | "scene"; global?: Bg; dim: number; style: string; character: string; provider?: "pexels" | "pixabay"; media?: "image" | "video"; hints?: { query: string; prompt: string }[] }
+export interface Scene { title: string; desc: string; narration: string; tag?: string; bg?: Bg }
 export interface ShortsScript {
   topic: string;
   category: string;
   tone: Tone;
   format: Format;
-  intro: { eyebrow: string; title: string; narration: string };
+  intro: { eyebrow: string; title: string; narration: string; bg?: Bg };
   cards: Scene[];
-  outro: { title: string; subtitle: string; cta: string[]; narration: string };
+  outro: { title: string; subtitle: string; cta: string[]; narration: string; bg?: Bg };
   hashtags: string[];
   source: "ai" | "manual";
   model?: string;
   /** 장면 디자인(P3) — src/lib/render/scene.ts normalizeDesign()으로 읽는다 */
   design?: { theme?: string; layout?: string; font?: string; effect?: string; badges?: boolean };
+  /** 배경 설정(P4) */
+  backdrop?: Backdrop;
 }
 
 export function isTone(v: unknown): v is Tone { return typeof v === "string" && v in TONES; }
@@ -106,3 +111,27 @@ export function scriptFromLines(text: string, o: { topic: string; firstAsIntro: 
     hashtags: [], source: "manual",
   };
 }
+
+// ── 배경(P4) ──
+export const IMAGE_STYLES = {
+  photo: { label: "실사 사진", prompt: "photorealistic photograph, natural light, shallow depth of field, high detail" },
+  cinematic: { label: "시네마틱", prompt: "cinematic film still, dramatic lighting, rich color grading, 35mm" },
+  webtoon: { label: "웹툰", prompt: "Korean webtoon illustration style, clean line art, soft cel shading" },
+  anime3d: { label: "3D 애니메이션", prompt: "3D animated movie style, soft global illumination, cute stylized characters" },
+  anime2d: { label: "2D 애니메이션", prompt: "2D anime style, vibrant colors, detailed background art" },
+  watercolor: { label: "수채화", prompt: "soft watercolor painting, gentle textures, pastel tones" },
+  flat: { label: "미니멀 일러스트", prompt: "minimal flat vector illustration, simple shapes, bold colors" },
+} as const;
+export type ImageStyle = keyof typeof IMAGE_STYLES;
+export const DEFAULT_BACKDROP: Backdrop = { mode: "theme", dim: 0.45, style: "photo", character: "" };
+export function normalizeBackdrop(b: Partial<Backdrop> | undefined): Backdrop {
+  return {
+    mode: b?.mode === "global" || b?.mode === "scene" ? b.mode : "theme",
+    global: b?.global, dim: typeof b?.dim === "number" ? Math.min(0.85, Math.max(0, b.dim)) : DEFAULT_BACKDROP.dim,
+    style: b?.style && b.style in IMAGE_STYLES ? b.style : "photo", character: typeof b?.character === "string" ? b.character.slice(0, 300) : "",
+    provider: b?.provider === "pexels" ? "pexels" : "pixabay", // 2026-10-16 Pexels 새 키 발급 일시 중단 → 기본은 Pixabay media: b?.media === "image" ? "image" : "video",
+    hints: Array.isArray(b?.hints) ? b.hints.slice(0, 12).map((h) => ({ query: String(h?.query ?? "").slice(0, 80), prompt: String(h?.prompt ?? "").slice(0, 900) })) : [],
+  };
+}
+/** 장면 순서대로(인트로·카드…·아웃트로) 배경을 꺼낸다 */
+export function sceneBgs(s: ShortsScript): (Bg | undefined)[] { return [s.intro.bg, ...s.cards.map((c) => c.bg), s.outro.bg]; }

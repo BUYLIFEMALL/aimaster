@@ -112,3 +112,13 @@ h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.35;font-weight:750;letter-sp
 .swatch.on{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
 @media(max-width:1100px){.atelier{grid-template-columns:1fr}}
 @media(max-width:767px){.stage-frame{max-width:300px}.swatches{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* ── 배경(P4) ── */
+.bg-row{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);cursor:pointer}
+.bg-row.on{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.bg-thumb{position:relative;width:84px;aspect-ratio:9/16;border-radius:10px;overflow:hidden;background:var(--input);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.bg-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.bg-thumb span{position:absolute;left:4px;bottom:4px;font-size:10px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff}
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.stock-item{position:relative;padding:0;aspect-ratio:9/16;border-radius:10px;overflow:hidden;border:2px solid transparent}.stock-item:hover{border-color:var(--brand)}
+.stock-item img{width:100%;height:100%;object-fit:cover;display:block}.stock-item span{position:absolute;right:4px;top:4px;font-size:12px}
+@media(max-width:767px){.bg-row{grid-template-columns:64px minmax(0,1fr)}.bg-thumb{width:64px}}

@@ -1,7 +1,7 @@
 // 세로 쇼츠 장면 렌더러(1080×1920, 30fps 기준). 미리보기(P3)와 MP4 출력(P6)이 같은 함수를 쓴다.
 // 순수 캔버스 그리기 — 참고 원본의 영상 합성 라이브러리(Remotion)를 쓰지 않고 새로 만들었다.
 // 둥근 사각형 그리기는 yt-playlist-studio/src/lib/render/color-utils.ts의 drawRoundRect 패턴을 따랐다.
-import type { ShortsScript } from "@/lib/script";
+import { normalizeBackdrop, type Bg, type ShortsScript } from "@/lib/script";
 
 export const W = 1080, H = 1920, FPS = 30;
 
@@ -130,8 +130,22 @@ function progress(ctx: CanvasRenderingContext2D, th: (typeof THEMES)[ThemeKey], 
   for (let i = 0; i < count; i++) { roundRect(ctx, (W - total) / 2 + i * (w + gap), 120, w, 10, 5); ctx.fillStyle = i <= active ? th.accent : "rgba(255,255,255,0.25)"; ctx.fill(); }
 }
 
-/** 시각 t(초)의 한 프레임을 그린다. opts.safe=true면 유튜브 UI 가림 영역을 표시(미리보기 전용) */
-export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: Design, t: number, opts: { safe?: boolean } = {}) {
+/** 배경 미디어(사진·영상 프레임)를 화면을 꽉 채우게(cover) 그리고 천천히 확대한다(켄 번즈) */
+function drawMedia(ctx: CanvasRenderingContext2D, el: CanvasImageSource, progress: number, dim: number) {
+  const iw = (el as HTMLVideoElement).videoWidth || (el as HTMLImageElement).naturalWidth || W;
+  const ih = (el as HTMLVideoElement).videoHeight || (el as HTMLImageElement).naturalHeight || H;
+  if (!iw || !ih) return false;
+  const zoom = 1 + 0.08 * Math.min(1, Math.max(0, progress));
+  const scale = Math.max(W / iw, H / ih) * zoom, dw = iw * scale, dh = ih * scale;
+  ctx.drawImage(el, (W - dw) / 2, (H - dh) / 2, dw, dh);
+  ctx.fillStyle = `rgba(0,0,0,${dim})`; ctx.fillRect(0, 0, W, H);
+  const g = ctx.createLinearGradient(0, H * 0.55, 0, H); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,0.45)"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  return true;
+}
+
+/** 시각 t(초)의 한 프레임을 그린다. opts.safe=true면 유튜브 UI 가림 영역을 표시(미리보기 전용).
+ *  opts.media: 배경(Bg)에 해당하는 불러온 이미지·영상 요소를 돌려주는 함수(없거나 아직 로딩 중이면 테마 배경) */
+export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: Design, t: number, opts: { safe?: boolean; media?: (bg: Bg) => CanvasImageSource | null } = {}) {
   const th = THEMES[d.theme], f = FONTS[d.font];
   const titleFont = (px: number) => `${f.weight} ${px}px "${f.family}", "Noto Sans KR", sans-serif`;
   const bodyFont = (px: number) => `700 ${px}px "Noto Sans KR", sans-serif`;
@@ -139,6 +153,13 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
   const inA = ease(u / 0.55), inB = ease((u - 0.18) / 0.55), out = 1 - ease((u - (seg.dur - 0.3)) / 0.3);
   ctx.save(); ctx.clearRect(0, 0, W, H);
   background(ctx, th, t);
+  const bd = normalizeBackdrop(s.backdrop);
+  if (bd.mode !== "theme" && opts.media) {
+    const sceneBg = seg.kind === "intro" ? s.intro.bg : seg.kind === "outro" ? s.outro.bg : s.cards[seg.index]?.bg;
+    const bg = bd.mode === "scene" ? sceneBg ?? bd.global : bd.global;
+    const el = bg ? opts.media(bg) : null;
+    if (el) drawMedia(ctx, el, u / seg.dur, bd.dim);
+  }
   ctx.globalAlpha = out;
 
   if (seg.kind === "intro") {

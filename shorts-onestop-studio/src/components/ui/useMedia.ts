@@ -1,0 +1,60 @@
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Bg, ShortsScript } from "@/lib/script";
+
+// 장면 배경 미디어를 브라우저에 불러와 캔버스에 그릴 수 있게 둔다(미리보기·MP4 공용).
+// 스톡 CDN은 CORS를 허용하므로 crossOrigin="anonymous"로 불러와 캔버스가 오염되지 않게 한다(MP4 출력 대비).
+// AI 이미지는 저장소 경로(path)를 서버에서 1시간 서명 주소로 바꿔 쓴다.
+type El = HTMLImageElement | HTMLVideoElement;
+
+export function allBgs(s: ShortsScript | null | undefined): Bg[] {
+  if (!s) return [];
+  return [s.backdrop?.global, s.intro.bg, ...s.cards.map((c) => c.bg), s.outro.bg].filter((b): b is Bg => !!b);
+}
+
+export function useMedia(script: ShortsScript | null | undefined) {
+  const cache = useRef(new Map<string, El>());
+  const [signed, setSigned] = useState<Record<string, string>>({});
+  const [tick, setTick] = useState(0);
+  const asked = useRef(new Set<string>()); // 같은 경로를 반복 요청하지 않는다(실패해도 무한 재요청 방지)
+
+  // AI 이미지 경로 → 서명 주소
+  const pathKey = allBgs(script).filter((b) => b.path).map((b) => b.path).sort().join("|");
+  useEffect(() => {
+    const paths = pathKey ? pathKey.split("|") : [];
+    const need = paths.filter((p) => !signed[p] && !asked.current.has(p));
+    if (!need.length) return;
+    need.forEach((p) => asked.current.add(p));
+    fetch("/api/media/sign", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths: need }) })
+      .then((r) => r.json()).then((d) => { if (d.urls && Object.keys(d.urls).length) setSigned((s) => ({ ...s, ...d.urls })); }).catch(() => undefined);
+  }, [pathKey, signed]);
+
+  const srcOf = useCallback((b: Bg) => (b.path ? signed[b.path] ?? "" : b.src), [signed]);
+
+  // 필요한 요소 불러오기
+  useEffect(() => {
+    for (const b of allBgs(script)) {
+      const src = srcOf(b); const key = b.path ?? b.src;
+      if (!src || cache.current.has(key)) continue;
+      if (b.type === "video") {
+        const v = document.createElement("video");
+        v.crossOrigin = "anonymous"; v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto";
+        v.onloadeddata = () => { setTick((n) => n + 1); void v.play().catch(() => undefined); };
+        v.src = src; cache.current.set(key, v);
+      } else {
+        const img = new Image(); img.crossOrigin = "anonymous"; img.decoding = "async";
+        img.onload = () => setTick((n) => n + 1); img.src = src; cache.current.set(key, img);
+      }
+    }
+  }, [script, srcOf]);
+
+  // 다 그릴 수 있는 상태만 돌려준다(아직 로딩 중이면 null → 테마 배경)
+  const resolve = useCallback((b: Bg): CanvasImageSource | null => {
+    const el = cache.current.get(b.path ?? b.src);
+    if (!el) return null;
+    if (el instanceof HTMLVideoElement) return el.readyState >= 2 ? el : null;
+    return el.complete && el.naturalWidth > 0 ? el : null;
+  }, []);
+
+  return { resolve, srcOf, tick };
+}

@@ -4,6 +4,7 @@ import { Pause, Play, RotateCcw, Save, ScanLine } from "lucide-react";
 import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
 import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
+import { useMedia } from "@/components/ui/useMedia";
 import type { ShortsScript } from "@/lib/script";
 import { EFFECTS, FONTS, FONT_CSS, H, LAYOUTS, THEMES, W, loadFontsFor, normalizeDesign, renderFrame, segmentAt, timeline, type Design } from "@/lib/render/scene";
 
@@ -27,6 +28,7 @@ export function ScenesView() {
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0), [safe, setSafe] = useState(false), [fontTick, setFontTick] = useState(0);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [dirty, setDirty] = useState(false);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const media = useMedia(item?.data);
   const tRef = useRef(0);
 
   const onFonts = useCallback(() => setFontTick((n) => n + 1), []);
@@ -52,12 +54,12 @@ export function ScenesView() {
 
   const draw = useCallback((time: number) => {
     const ctx = canvas.current?.getContext("2d"); if (!ctx || !item) return;
-    renderFrame(ctx, item.data, design, time, { safe });
-  }, [item, design, safe]);
+    renderFrame(ctx, item.data, design, time, { safe, media: media.resolve });
+  }, [item, design, safe, media.resolve]);
 
   // 대본·글꼴이 바뀌면 그 글자들로 웹 글꼴을 먼저 받아 두고 다시 그린다
   useEffect(() => { if (item) void loadFontsFor(item.data, design).then(() => setFontTick((n) => n + 1)); }, [item, design]);
-  useEffect(() => { draw(tRef.current); }, [draw, fontTick]);
+  useEffect(() => { draw(tRef.current); }, [draw, fontTick, media.tick]);
 
   useEffect(() => {
     if (!playing || !tl) return;

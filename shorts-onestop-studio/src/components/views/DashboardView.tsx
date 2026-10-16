@@ -20,7 +20,7 @@ export function DashboardView() {
     ]).then(([p, k, s]) => { setProjects(p.items); setKeys(k.keys); setSettings(s.settings); })
       .catch((e) => setErr(e instanceof Error ? e.message : "불러오지 못했습니다."));
   }, []);
-  const keyCount = keys ? Object.values(keys).filter((k) => k.hasKey).length : null;
+  const keyCount = keys ? (["gemini", "openai", "anthropic"] as const).filter((p) => keys[p]?.hasKey).length : null;
   const ready = settings && keys?.[settings.provider]?.hasKey;
 
   return (

@@ -7,9 +7,9 @@ export const fetchCache = "force-no-store";
 // 연동 & 사용 매뉴얼 — 표준 §5.6(다이어그램·캐릭터·이모티콘·인포그래픽·팁 박스)
 const FLOW = [
   { emoji: "💡", title: "주제·대본", desc: "분야 → 주제 추천 → AI 대본", state: "사용 가능" },
+  { emoji: "🎨", title: "배경", desc: "스톡 영상·사진 · AI 이미지", state: "사용 가능" },
   { emoji: "🎬", title: "장면 편집", desc: "테마 · 카드 레이아웃 · 글꼴 · 미리보기 재생", state: "사용 가능" },
-  { emoji: "🎙️", title: "배경·음성·자막", desc: "스톡·AI 배경 · 내레이션 · 자막", state: "준비 중" },
-  { emoji: "🎬", title: "MP4 완성", desc: "브라우저에서 세로 영상 만들기", state: "준비 중" },
+  { emoji: "🎙️", title: "음성·자막·MP4", desc: "내레이션 · 자막 · 세로 영상 만들기", state: "준비 중" },
 ];
 const KEY_STEPS = [
   { emoji: "🌐", title: "콘솔 접속", desc: "Google AI Studio · OpenAI · Anthropic 콘솔에 본인 계정으로 로그인" },
@@ -33,7 +33,7 @@ export default function GuidePage() {
           <div className="diagram" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>{KEY_STEPS.map((k, i) => (
             <div key={k.title} className="node"><div className="emoji">{k.emoji}</div><strong>{i + 1}. {k.title}</strong><p className="muted" style={{ fontSize: 12 }}>{k.desc}</p></div>
           ))}</div>
-          <div className="actions"><GuideLinkButton url={GUIDES.gemini} label="Gemini 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.openai} label="OpenAI 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.anthropic} label="Claude 키 발급 매뉴얼" /><a className="button primary" href="/settings">🔑 키 등록하러 가기</a></div>
+          <div className="actions"><GuideLinkButton url={GUIDES.gemini} label="Gemini 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.openai} label="OpenAI 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.anthropic} label="Claude 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.pexels} label="Pexels 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.pixabay} label="Pixabay 키 발급 매뉴얼" /><a className="button primary" href="/settings">🔑 키 등록하러 가기</a></div>
         </section>
         <section className="card stack">
           <h2>💡 주제·대본 사용법</h2>
@@ -44,6 +44,7 @@ export default function GuidePage() {
             <li><strong>대본 만들기</strong> — 말투·구성·카드 수(3~8장)를 확인하고 누르면 인트로·카드·아웃트로 대본과 해시태그가 나옵니다.</li>
             <li><strong>다듬고 저장</strong> — 화면 제목은 짧게, 자세한 내용은 내레이션에. [보관함에 저장]으로 보관합니다.</li>
           </ol>
+          <p className="muted" style={{ fontSize: 12 }}>🎨 <strong>배경</strong>: [🎨 디자인·배경]에서 배경 방식(테마만/전체 1장/장면마다)을 고르고 [AI로 장면 설명 만들기]를 누르면 장면마다 스톡 검색어와 AI 이미지 설명이 채워집니다. [검색]으로 Pexels·Pixabay 무료 영상·사진을 고르거나 [AI 이미지]로 만들고 [배경 저장]을 누르세요. 스톡 키는 무료로 발급됩니다(🔑 API키등록·플랫폼연동의 발급 매뉴얼).</p>
           <p className="muted" style={{ fontSize: 12 }}>🎬 <strong>장면 편집</strong>: 저장한 대본을 [🎬 장면 편집]에서 고르면 실제 쇼츠 화면으로 재생됩니다. 테마 8가지·카드 레이아웃 6가지·제목 글꼴 5가지·제목 효과를 고르고 [디자인 저장]을 누르세요. [세이프에어리어]를 켜면 유튜브 버튼·제목에 가려지는 곳이 빨갛게 표시됩니다.</p>
           <p className="muted" style={{ fontSize: 12 }}>✍️ <strong>내 지침</strong>: 분야마다 말투·금지어·구성 규칙을 저장해 두고 「내 지침 사용」을 켜면 기본 규칙보다 우선 적용됩니다. 📜 <strong>내 대본으로 만들기</strong>: 이미 쓴 대본을 한 줄 = 한 장면으로 바꿉니다(AI 사용 안 함).</p>
         </section>

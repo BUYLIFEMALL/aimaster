@@ -7,10 +7,12 @@ import { DEFAULT_MODEL, PROVIDER_LABEL, TEXT_MODELS, modelName, type AiProvider 
 
 type Msg = { text: string; ok?: boolean } | null;
 type KeyState = Record<string, { hasKey: boolean; maskedKey: string | null }>;
-const GROUPS: { p: "gemini" | "openai" | "anthropic"; title: string; desc: string; ph: string; guide: string; guideLabel: string }[] = [
+const GROUPS: { p: "gemini" | "openai" | "anthropic" | "pexels" | "pixabay"; title: string; desc: string; ph: string; guide: string; guideLabel: string }[] = [
   { p: "gemini", title: "Google Gemini API 키", desc: "대본·주제 추천에 쓰고, 이후 단계에서 AI 이미지·음성(TTS)에도 쓸 수 있습니다. 무료 한도가 있는 저렴한 모델(Flash-Lite)로 시작할 수 있습니다.", ph: "AIza…", guide: GUIDES.gemini, guideLabel: "Gemini API 키 발급 매뉴얼" },
   { p: "openai", title: "OpenAI API 키", desc: "대본·주제 추천을 OpenAI로 만들 때 필요합니다(유료).", ph: "sk-…", guide: GUIDES.openai, guideLabel: "OpenAI API 키 발급 매뉴얼" },
   { p: "anthropic", title: "Anthropic Claude API 키", desc: "대본·주제 추천을 Claude로 만들 때 필요합니다(유료).", ph: "sk-ant-…", guide: GUIDES.anthropic, guideLabel: "Claude API 키 발급 매뉴얼" },
+  { p: "pixabay", title: "🖼️ Pixabay API 키 (스톡 사진·영상)", desc: "✅ 추천 — 장면 배경으로 쓸 무료 사진·일러스트·영상을 검색합니다. 키 발급·사용 무료(사용량 한도 있음). 이 키 하나만 있어도 스톡 검색을 쓸 수 있습니다.", ph: "12345678-…", guide: GUIDES.pixabay, guideLabel: "Pixabay API 키 발급 매뉴얼" },
+  { p: "pexels", title: "🎬 Pexels API 키 (스톡 영상·사진)", desc: "⚠️ 2026-10-16 현재 Pexels가 새 API 키 발급을 일시 중단했습니다. 이미 키가 있는 분만 등록하고, 새로 시작하면 아래 Pixabay 키를 쓰세요.", ph: "Pexels API Key", guide: GUIDES.pexels, guideLabel: "Pexels API 키 발급 매뉴얼" },
 ];
 
 function Message({ msg }: { msg: Msg }) {
@@ -100,7 +102,7 @@ export function SettingsView() {
       })}
       <section className="card">
         <h2>📖 연동 매뉴얼</h2>
-        <p>각 키 발급 방법을 그림과 함께 단계별로 따라 할 수 있습니다. 스톡 영상·이미지(Pexels·Pixabay)와 음성 키는 해당 단계가 열릴 때 이곳에 추가됩니다.</p>
+        <p>각 키 발급 방법을 단계별로 따라 할 수 있습니다. 음성 키는 음성 단계가 열릴 때 이곳에 추가됩니다.</p>
         <div className="actions" style={{ marginTop: 12 }}>{GROUPS.map((g) => <GuideLinkButton key={g.p} url={g.guide} label={g.guideLabel} />)}</div>
       </section>
     </div>
