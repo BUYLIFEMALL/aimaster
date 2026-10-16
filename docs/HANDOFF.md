@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — music-player v1.08: MP-07 저장 공간 안내·큰 파일 정리
+
+- 커밋 `c73a05f9`, 배포·DB v1.08. `src/lib/player/space.ts`(사용 비율·80% 경고·큰 곡 5개) + 단위 테스트(21개 통과). 목록 아래 비율 막대·경고·"이번 접속에만 유지" 곡 수 안내·[큰 파일 정리](선택 → 기존 확인 창으로만 삭제). 서버·DB 변경 없음.
+- 검수: 시험 계정 크롬에서 "브라우저 저장 1.4 MB / 10.0 GB (0%)", 큰 파일 목록(1곡·용량 표시)·선택 시 버튼 활성·확인 창 표시 → 취소(삭제 안 함, 1곡 유지). 80% 경고는 실제 용량을 채울 수 없어 단위 테스트로만 확인. 다음 작업리스트: 5번 markdown-studio. 링크: https://music-player.buylife.xyz
+
 ## 2026-10-17 Codex(Windows) — trending-product-finder v1.08 Windows 인수·운영 화면 검수 완료
 
 - ✅ 스마트 매트릭스 블랙v1.08 완료. 소스6587e370 푸시·배포dpl_4BibTaHy3XuYCRj6qADsgzyneQ3T READY·DBv1.08,iad1·기존3Cron 유지. 배포metadata6587e370와 검수 프로그램 런타임 차이0.
