@@ -207,6 +207,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
      그대로 두고(숫자 앞자리 0 불가 등), 회원에게 보이는 버전만 이 규칙을 따른다.
 
 6. **사이트·프로그램 이용 권한 기본규칙 (2026-09-30 주인님 확정, 2026-10-06 권한 보장 지침 강화)**
+   - **★★★ 최우선 (2026-10-16 주인님 확정)**: ① VIP 사용기간은 VIP 전원 동일이 아니라 **회원 각자 가입 시점 + 1년**(현재 모든 프로그램 사용권한) ② **프리미엄 뱃지를 단 프로그램은 등급·개별 부여·FREE와 관계없이 모든 사용자가 유료 결제 후 사용**(관리자 제외) ③ **FREE 뱃지는 주인님이 비정기적으로 등록하며, 달려 있는 동안 등급과 상관없이 일반 회원이면 바로 사용**. 상세·현재 DB 차이: [`docs/ADMIN_POLICY_GUIDELINES.md`](docs/ADMIN_POLICY_GUIDELINES.md) 맨 위.
    - **FREE 배지(`programs.badges`에 `free`)가 달린 프로그램은 AIMaster에 가입만 하면 누구나 사용할 수 있다 — 등급과 무관하다.**
      주인님이 등급을 바꿔주거나 사용기간을 넣어주지 않아도 가입 즉시 쓸 수 있어야 한다(등급이 비어 있는 신규 가입자 포함).
      회원가입 유도용 무료 프로그램(예: 타로 `tarot-reading`, 캐릭코드 `mbti-character`, 성격코드 `personality-code`)은 이 배지로 운영한다.
