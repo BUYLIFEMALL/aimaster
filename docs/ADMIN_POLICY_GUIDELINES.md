@@ -136,3 +136,8 @@ select email, phone from profiles where phone is not null and phone<>'' and phon
 - **프로그램이 완성(정식 공개)되거나 업데이트되면 VIP(드림AI팀) 등급에는 자동으로 사용권한을 부여한다.** 방법: `/admin/access-matrix`의 VIP 열을 체크(= `grade_program_access`에 VIP·프로그램 `can_access=true`)하면 트리거 `grade_program_access_sync`가 VIP 회원 전원에게 `user_program_access`(`grant_source='grade'`, 만료 = 부여 시점 + 365일)를 만든다. CLI로 처리할 때는 `insert into grade_program_access (grade_id, program_id, can_access) select g.id, p.id, true from member_grades g, programs p where g.name='VIP(드림AI팀)' and p.slug='<slug>' on conflict (grade_id, program_id) do update set can_access=true;` 후 VIP 회원 수와 유효 부여 수가 같은지 확인한다.
 - **나머지 등급(일반·실버·골드)은 주인님이 나중에 직접 수정·부여한다** — 에이전트가 임의로 체크하지 않는다.
 - 적용 사례: `shorts-onestop-studio` v1.09 공개(VIP 138명 전원 부여 확인).
+
+## 2026-10-16 추가 — VIP 승급 전 개별 사용기간이 만료돼 VIP 자동 부여가 막힌 문제 정리 (주인님 승인)
+- 증상: 10/13~14 VIP로 승급한 회원 19명이 승급 전 받은 개별 부여(`grant_source` 비어 있음, 만료 2026-10-16 00:00 UTC)가 남아 있어, 등급 자동 부여 트리거(`ON CONFLICT DO NOTHING`)가 덮지 못해 오늘부터 27개 프로그램을 쓸 수 없었다(유효 VIP 119/138).
+- 조치: VIP 등급 표에 체크된 프로그램의 만료된 개별 부여 513건을 등급 부여로 전환 — `grant_source='grade'`, `granted_grade_id=VIP`, `expires_at = grade_assigned_at + 365일`(다른 VIP와 같은 기준, 2027-10-13~14). VIP 표에 없는 프로그램의 만료 개별 부여(38건)는 그대로 둠. 결과: VIP 표의 모든 운영 프로그램에서 138/138.
+- 다음부터 확인: 회원을 VIP로 올릴 때 기존 개별 부여가 있으면 자동 부여가 덮지 않는다 → 승급 직후 `user_program_access`에서 그 회원의 개별 부여 만료일을 확인하고, 필요하면 같은 방식으로 등급 부여로 전환한다. 점검 쿼리: VIP 회원 수 vs 프로그램별 유효 부여 수.
