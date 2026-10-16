@@ -89,3 +89,7 @@ README.md의 Phase 표와 동기화해서 관리할 것.
 - 새 주소 `https://crm-google-form.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 / → /submissions 재로그인 없이 열림(시험 계정 표시), 구글폼 수신 API는 옛 주소 그대로
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.08 — 옛 vercel.app 삭제 대비: 구글폼 웹훅 주소 교체 안내 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 F. 웹훅 주소는 화면 주소(`window.location.origin`) 기준이라 SSO 이후 새 주소로 표시됨. 예전에 `crm-google-form.vercel.app`로 Apps Script를 만든 회원용 교체 안내 문구를 `components/sources/SourceCard.tsx` 웹훅 주소 아래 추가. 옛 주소 수신 API는 삭제 전까지 계속 동작.
+- 검수: 빌드·배포, 새 주소 웹훅(없는 토큰) 404 = 경로 동작. 실제 구글폼 접수는 미시험(외부 발송 포함이라 사전 확인 대상).
