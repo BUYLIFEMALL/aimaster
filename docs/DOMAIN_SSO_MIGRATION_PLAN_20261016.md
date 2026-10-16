@@ -33,7 +33,7 @@
 | 16 | ✅ web-crawler-saas | `web-crawler/webapp` | web-crawler-saas | |
 | 17 | ✅ ai-auto-blog | `ai-auto-blog` | ai-auto-blog | **크롬 확장** |
 | 18 | ✅ tistory-auto-blog | `tistory-auto-blog` | tistory-auto-blog | **크롬 확장** |
-| 19 | naver-blog-agent | `naver-blog-agent` | naver-blog-agent | **크롬 확장** |
+| 19 | ✅ naver-blog-agent | `naver-blog-agent` | naver-blog-agent | **크롬 확장** |
 
 ### B그룹 — 외부 계정 연결(OAuth) 8개
 | 순 | slug | 폴더 | 콜백 주소 방식(코드 확인) |
@@ -83,5 +83,5 @@
 | 그룹 | 완료 | 남음 |
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
-| A그룹 | 18/19 | 1 |
+| A그룹 | 19/19 | 0 |
 | B그룹 | 0/8 | 8 |

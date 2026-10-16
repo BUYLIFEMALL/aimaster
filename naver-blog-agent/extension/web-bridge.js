@@ -1,7 +1,7 @@
 // Only the first-party app can request its connected member's category names.
 // Never expose connection tokens or provide authoring/publishing commands here.
 (() => {
-  if (location.origin !== 'https://naver-blog-agent.vercel.app') return;
+  if (location.origin !== 'https://naver-blog-agent.vercel.app' && location.origin !== 'https://naver-blog-agent.buylife.xyz') return; // 2026-10-16 새 주소도 허용
   window.addEventListener('message', async event => {
     if (event.source !== window || event.origin !== location.origin) return;
     const m = event.data;

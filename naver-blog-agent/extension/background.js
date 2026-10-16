@@ -526,7 +526,7 @@ chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
         const tabId=await editorTab(true);
         const result=await command(tabId,'categories');
         // Returning focus is optional: a closed requester must not turn a successful read into failure.
-        if(_sender.tab?.id && _sender.url?.startsWith('https://naver-blog-agent.vercel.app/')){
+        if(_sender.tab?.id && ['https://naver-blog-agent.vercel.app/','https://naver-blog-agent.buylife.xyz/'].some(o=>_sender.url?.startsWith(o))){
           try{await chrome.tabs.update(_sender.tab.id,{active:true});}catch(error){if(!missingTab(error))throw error;}
         }
         return {blogId:state.connection.blogId,categories:result.categories};
