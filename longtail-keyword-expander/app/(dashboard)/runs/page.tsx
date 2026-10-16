@@ -19,10 +19,14 @@ export default async function RunsPage() {
     .order("executed_at", { ascending: false });
 
   const seedIds = Array.from(new Set((runs ?? []).map((r) => r.seed_id)));
-  const { data: seeds } = await supabase
-    .from("longtail_seed_keywords")
-    .select("id, keyword")
-    .in("id", seedIds.length > 0 ? seedIds : ["__none__"]);
+  // 빈 결과는 UUID 컬럼에 임의 문자열을 조회하지 않는다.
+  const seeds = seedIds.length > 0
+    ? (await supabase
+        .from("longtail_seed_keywords")
+        .select("id, keyword")
+        .eq("user_id", user.id)
+        .in("id", seedIds)).data
+    : [];
   const keywordBySeedId = new Map((seeds ?? []).map((s) => [s.id, s.keyword]));
 
   const list = (runs ?? []).map((run) => ({

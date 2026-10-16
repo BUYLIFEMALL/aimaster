@@ -41,6 +41,7 @@ export function RunListSidebar({ seedId, runs }: { seedId: string; runs: RunList
   }
 
   async function handleDelete(runId: string) {
+    if (!window.confirm("이 실행 결과를 삭제할까요?")) return;
     setDeletingId(runId);
     try {
       await deleteRunAction(seedId, runId);
@@ -93,7 +94,7 @@ export function RunListSidebar({ seedId, runs }: { seedId: string; runs: RunList
                     type="button"
                     onClick={() => handleDelete(run.id)}
                     disabled={deletingId === run.id}
-                    className="min-h-[36px] shrink-0 px-2 text-xs font-semibold text-mx-danger hover:underline disabled:opacity-60"
+                    className="min-h-[44px] shrink-0 px-2 text-xs font-semibold text-mx-danger hover:underline disabled:opacity-60"
                     title="이 실행 결과 삭제"
                   >
                     {deletingId === run.id ? "삭제 중..." : "삭제"}

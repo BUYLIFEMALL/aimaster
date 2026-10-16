@@ -11,14 +11,16 @@ export function SeedForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // React 이벤트의 currentTarget은 await 이후에는 유지되지 않는다.
+    const form = e.currentTarget;
     setError(null);
     setIsPending(true);
     try {
-      const result = await createSeedAction(new FormData(e.currentTarget));
+      const result = await createSeedAction(new FormData(form));
       if (result.error) {
         setError(result.error);
       } else {
-        (e.currentTarget as HTMLFormElement).reset();
+        form.reset();
         router.refresh();
       }
     } finally {
