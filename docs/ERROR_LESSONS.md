@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — React 19 폼 액션 + 제어 체크박스: 저장 후 반대 값이 저장됨 (real_estate_sales v1.14 → v1.15)
+- **증상**: 체크 끄고 저장(정상) → 다시 켜고 저장하면 DB엔 꺼짐. 화면은 체크돼 보임.
+- **원인**: `useActionState` 폼 액션은 저장 뒤 폼을 자동 초기화(form reset) → `checked={state}` 제어 체크박스의 화면(DOM)이 기본값으로 돌아가 React 상태와 어긋나고, 다음 클릭에서 반대 값이 들어감.
+- **해결**: 체크박스를 비제어 `defaultChecked={서버값}`으로(저장 후 revalidate로 새 기본값). 파일 `real_estate_sales/src/components/settings/AutoAnalyzeForm.tsx`.
+- **다음부터**: 폼 액션 안의 체크박스·라디오는 비제어로 만들고, 화면 검수 때 "켜기→저장→끄기→저장→켜기→저장"을 매번 DB와 대조.
+
 ## 2026-10-17 — 다른 CLI의 `git stash`가 내 미커밋 코드를 가져가 커밋에서 빠짐 (real_estate_sales v1.13, Claude Code 윈도우)
 - **증상**: 빌드·배포까지 한 v1.13 코드가 커밋 직전 작업 폴더에서 원래대로 돌아가, 커밋엔 문서만 들어감(`f1e90512`).
 - **원인**: 같은 폴더를 쓰는 다른 CLI가 `git stash`(stash@{0} "WIP on master: b11fdd05 … music-player")를 실행 — 남의 폴더 변경(내 real_estate_sales 4개 파일·HANDOFF·ACTIVE_WORK)까지 통째로 보관됨.

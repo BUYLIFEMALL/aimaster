@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 부동산 실거래 v1.14·v1.15: 예약 조회 알림의 AI 분석 켜기/끄기
+
+- `real_estate_user_preferences.auto_analyze_on_notify`(기본 켜짐 = 기존 동작 유지, 운영 적용). 꺼 두면 텔레그램/알림톡 알림 전에 AI 분석을 새로 돌리지 않음(유료 호출 없음, 있는 결과만 첨부). 설정 화면 체크박스 + AI 모델 안내 문구 v1.13 동작에 맞게 정정. 커밋 `d46818a3`(v1.14)·`5ffd68b5`(v1.15 체크박스 저장값 반전 수정).
+- 검수: 시험 계정 켜기/끄기/켜기 저장 3회 DB 일치, 원상 복구. 링크: https://real-estate-sales.buylife.xyz/settings
+
 ## 2026-10-17 Codex(Windows) — youtube-auto-reply v1.09 Windows 인수·운영 화면 검수 완료
 
 - ✅ 유튜브 다크v1.09 완료. 소스 a7d5dc62 푸시, dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W READY, DBv1.09·iad1·기존Cron 유지. 배포 metadata b11fdd05는 검수 소스와 프로그램 런타임 차이0.
