@@ -1,6 +1,9 @@
 import "server-only";
 import type { VocalGender } from "@/types/database.types";
 
+// 2026-10-16 옛 vercel.app 삭제 대비: Suno 콜백은 요청마다 주소를 넘기므로 옛 주소 환경변수 대신 새 주소(같은 서버)로 고정한다.
+const SUNO_CALLBACK_ORIGIN = "https://music-automation.buylife.xyz";
+
 const SUNO_BASE = "https://api.sunoapi.org";
 export const DEFAULT_SUNO_MODEL = "V5_5";
 
@@ -53,10 +56,7 @@ export async function requestSunoGeneration(input: RequestSunoGenerationInput, a
   // 콜백은 이 앱(music) 자기 자신의 /api/webhooks/suno로 와야 한다 — NEXT_PUBLIC_MAIN_SITE_URL
   // (buylife.xyz, AIMaster 루트 사이트)이 아니라 NEXT_PUBLIC_SITE_URL(이 서브프로젝트의 배포
   // 주소)을 써야 한다. threads/insta_auto_poster의 OAuth 콜백과 동일한 구분 원칙.
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
-    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
-  }
+  const siteUrl = SUNO_CALLBACK_ORIGIN;
 
   const response = await fetch(`${SUNO_BASE}/api/v1/generate`, {
     method: "POST",
@@ -126,10 +126,7 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
   if (!apiKey) {
     throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
   }
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
-    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
-  }
+  const siteUrl = SUNO_CALLBACK_ORIGIN;
 
   const response = await fetch(`${SUNO_BASE}/api/v1/generate/extend`, {
     method: "POST",
@@ -190,10 +187,7 @@ export async function requestSunoRemix(input: RequestSunoRemixInput, apiKey: str
   if (!apiKey) {
     throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
   }
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
-    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
-  }
+  const siteUrl = SUNO_CALLBACK_ORIGIN;
 
   const response = await fetch(`${SUNO_BASE}/api/v1/generate/upload-cover`, {
     method: "POST",
@@ -242,10 +236,7 @@ export async function requestSunoVocalRemoval(input: RequestSunoVocalRemovalInpu
   if (!apiKey) {
     throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
   }
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
-    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
-  }
+  const siteUrl = SUNO_CALLBACK_ORIGIN;
 
   const response = await fetch(`${SUNO_BASE}/api/v1/vocal-removal/generate`, {
     method: "POST",
@@ -300,10 +291,7 @@ export async function requestSunoWavConversion(input: RequestSunoWavConversionIn
   if (!apiKey) {
     throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
   }
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
-    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
-  }
+  const siteUrl = SUNO_CALLBACK_ORIGIN;
 
   const response = await fetch(`${SUNO_BASE}/api/v1/wav/generate`, {
     method: "POST",
