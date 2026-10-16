@@ -32,15 +32,21 @@
   4. **Microsoft Edge 전용 화면 검수 완료**:
      - 테스트 계정(`buylifemall@naver.com`) 세션을 주입한 상태로 Microsoft Edge 브라우저를 통해 데스크톱(1440x900) 및 모바일(375x812) 화면 렌더링 검수 완료.
      - 상단 `Focus Studio 템플릿` 뱃지 및 사이드바 `v1.09` 정상 노출 확인 (`scripts/inspect_edge_focus_studio.cjs`).
-  5. **더 나은 로직/기능/편의성 개선 방안 제안서 도출**:
+  5. **더 나은 로직/기능/편의성 개선 방안 제안서 및 디자인 지침 반영**:
      - 에디터 단축키 치트시트 모달, 예상 읽기 시간(Reading Time) 지표 위젯, 실시간 TOC 미니맵 내비게이터, 클립보드 복사 토스트 피드백, 다크 모드 토글 스위치, 템플릿 비주얼 프리뷰 등 상세 제안 준비.
+     - `docs/PROGRAM_DESIGN_STANDARD.md`에 §8 '작업 중 로직·기능·개선방안·사용자 편의성 요소 발굴 및 지속 제안 지침' 및 Microsoft Edge 전용 검수 표준 공식 신설.
+  6. **Vercel 프로덕션 배포 완료**:
+     - `vercel --prod` 배포 완료 (`https://markdown-studio-9xkqyg49p-buylife.vercel.app`)
+     - 프로덕션 도메인 연결: `https://markdown-studio.buylife.xyz` (HTTP 307 정상 응답 검증)
 - 확인한 것:
   - Next.js 16.4.0 Turbopack 로컬 빌드 성공 (오류 0건)
   - Supabase DB `programs` 테이블 `v1.09` 갱신 확인
   - Microsoft Edge 데스크톱/모바일 화면 정상 렌더링 확인 (스크린샷 대조 완료)
+  - Vercel 프로덕션 배포 성공 및 라이브 도메인 응답 확인 (`markdown-studio.buylife.xyz`)
 - 다음 단계:
-  - Vercel 프로덕션 배포 및 라이브 확인 (`https://markdown-studio.buylife.xyz`)
+  - 주인님 제안서 컨펌 후 에디터 생산성 위젯(TOC/치트시트/읽기시간) 단계별 추가 구현.
   - 다른 서브프로그램(플로우 위저드, 스마트 매트릭스 등)으로 템플릿 스타일 확장 적용.
+
 
 - 주인님 지시: 기존 서브프로그램의 밋밋하고 딱딱한 기능 중심 디자인을 직관적이고 고급스럽게 업그레이드하기 위한 레이아웃 및 디자인 메인 지침 신설. 유형별 버전(스튜디오형, 위저드형, 대시보드형, 크리에이티브형)을 마련하고 실사 배경·인물 사진, 다이어그램, 캐릭터/아바타, 감성 아이콘을 적극 활용. 앞으로 지속 수정·보완.
 - 신설 파일: [`docs/PROGRAM_DESIGN_STANDARD.md`](PROGRAM_DESIGN_STANDARD.md)
@@ -54,10 +60,11 @@
   - 8. 향후 개편 로드맵 및 지속 보완 절차
 - 연계 파일: `AGENTS.md` 원칙 8번, `CLAUDE.md` 디자인 항목에 메인 지침으로 연결.
 
-## 2026-10-16 Codex(윈도우) — 승인된 DB 새 변수 160개 추가 진행 중
+## 2026-10-16 Codex(윈도우) — DB 새 변수 160개 등록 완료·재배포 검수 중
 
 - 주인님 "추가해줘" 승인: 82개 Vercel 프로젝트 Production 새 공개 79개·서버 81개만 추가. 기존 변수·실제 키 유지, 새 키 발급/폐기 없음.
-- 등록 후 같은 코드 재배포·보이는 Edge 회원 재검수·환경 목록 갱신 진행. 다른 CLI는 완료까지 플랫폼 배포/환경변수 작업을 중복 수행하지 않음.
+- 등록 160/160 완료. 새 공개 변수 83곳·새 서버 변수 82곳, 기존 이름/환경/유형 보존. 같은 코드 재배포·보이는 Edge 회원 재검수 진행 중.
+- **markdown-studio는 Antigravity CLI 디자인 작업 종료 후 처리**(주인님 재지시). 새 변수는 등록 완료이며, 최신 코드·DB 버전·운영 배포를 보존하고 신규 변수 적용 배포의 Edge 검수/필요한 재배포만 수행. 과거 호환 릴리스로 되돌리지 않음. 다른 CLI는 [전용 후속 절차](DATABASE_CONNECTION_HANDOFF.md#markdown-studio--antigravity-작업-종료-후-후속-처리)를 확인.
 - 상세: [DB 전환 인수인계](DATABASE_CONNECTION_HANDOFF.md), [추가 승인 기록](supabase-compat-rollout-20261016/environment-addition-approval.json).
 
 ## 2026-10-16 Claude Code(윈도우) — 맥미니 지침에 세 CLI 공유 폴더 실행 방법 기록
