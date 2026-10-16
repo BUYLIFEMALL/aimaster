@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { CopyButton } from "@/components/runs/CopyButton";
+import { formatDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -49,27 +52,41 @@ export default async function RunDetailPage({ params }: PageProps) {
     expansionsByRelatedId.set(key, list);
   }
   const seedDirectExpansions = expansionsByRelatedId.get(null) ?? [];
+  const relatedList = related ?? [];
+  const scored = relatedList.filter((r) => r.relevance_score !== null);
+  const avgRelevance =
+    scored.length > 0 ? Math.round((scored.reduce((sum, r) => sum + (r.relevance_score ?? 0), 0) / scored.length) * 100) : null;
+  const allLongtail = (expansions ?? []).map((e) => e.keyword).join("\n");
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-gray-400">
-        🕒 {new Date(run.executed_at).toLocaleString("ko-KR")} · 연관 키워드 {run.related_count}개 · 롱테일 키워드{" "}
-        {run.expansion_count}개
+      <p className="text-xs text-mx-muted">
+        🕒 {formatDateTime(run.executed_at)} 실행 · 이 회차에서 연관 {run.related_count}개 · 롱테일 {run.expansion_count}개 발견
       </p>
 
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <KpiCard icon="🔗" label="연관 키워드(누적)" value={relatedList.length} tone="green" />
+        <KpiCard icon="🎯" label="롱테일 키워드(누적)" value={(expansions ?? []).length} tone="amber" />
+        <KpiCard icon="🌱" label="씨드 직속 롱테일" value={seedDirectExpansions.length} />
+        <KpiCard icon="📈" label="평균 관련도" value={avgRelevance !== null ? `${avgRelevance}%` : "—"} tone="muted" />
+      </div>
+
       {run.summary_text && (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3">
-          <h2 className="font-bold text-gray-900">📝 블로그 작업 지시</h2>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{run.summary_text}</p>
+        <div className="mx-card border-l-4 border-l-mx-accent">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="mx-section-title mb-0">📝 블로그 작업 지시</h2>
+            <CopyButton text={run.summary_text} label="지시문 복사" />
+          </div>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-mx-text">{run.summary_text}</p>
         </div>
       )}
 
       {seedDirectExpansions.length > 0 && (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-900 mb-3">🎯 "{seed.keyword}" 직속 롱테일 키워드</h2>
+        <div className="mx-card">
+          <h2 className="mx-section-title">🎯 &quot;{seed.keyword}&quot; 직속 롱테일 키워드</h2>
           <div className="flex flex-wrap gap-2">
             {seedDirectExpansions.map((exp) => (
-              <span key={exp.id} className="text-xs px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-semibold">
+              <span key={exp.id} className="mx-chip-amber">
                 {exp.keyword}
               </span>
             ))}
@@ -77,29 +94,58 @@ export default async function RunDetailPage({ params }: PageProps) {
         </div>
       )}
 
-      {(related ?? []).length > 0 && (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-900 mb-3">🔗 연관 키워드</h2>
-          <div className="space-y-4">
-            {(related ?? []).map((r) => (
-              <div key={r.id} className="border-b border-gray-50 last:border-0 pb-3 last:pb-0">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <p className="text-sm font-semibold text-gray-900">{r.keyword}</p>
-                  {r.relevance_score !== null && (
-                    <span className="text-xs text-gray-400">관련도 {Math.round(r.relevance_score * 100)}%</span>
-                  )}
-                </div>
-                {(expansionsByRelatedId.get(r.id) ?? []).length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {(expansionsByRelatedId.get(r.id) ?? []).map((exp) => (
-                      <span key={exp.id} className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
-                        {exp.keyword}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+      {relatedList.length > 0 && (
+        <div className="mx-card">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="mx-section-title mb-0">🔗 연관 키워드 매트릭스</h2>
+            {allLongtail && <CopyButton text={allLongtail} label="롱테일 전체 복사" />}
+          </div>
+          <div className="-mx-5 overflow-x-auto px-5">
+            <table className="mx-table min-w-[560px]">
+              <thead>
+                <tr>
+                  <th className="w-[30%]">연관 키워드</th>
+                  <th className="w-[22%]">관련도</th>
+                  <th>롱테일 키워드</th>
+                </tr>
+              </thead>
+              <tbody>
+                {relatedList.map((r) => {
+                  const pct = r.relevance_score !== null ? Math.round(r.relevance_score * 100) : null;
+                  const children = expansionsByRelatedId.get(r.id) ?? [];
+                  return (
+                    <tr key={r.id}>
+                      <td className="font-semibold">{r.keyword}</td>
+                      <td>
+                        {pct !== null ? (
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-mx-raised">
+                              <div className="h-full rounded-full bg-mx-primary" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="w-9 text-right text-xs tabular-nums text-mx-muted">{pct}%</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-mx-muted">—</span>
+                        )}
+                      </td>
+                      <td>
+                        {children.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {children.map((exp) => (
+                              <span key={exp.id} className="mx-chip-blue">
+                                {exp.keyword}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-mx-muted">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

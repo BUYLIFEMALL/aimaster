@@ -27,7 +27,8 @@ export function SeedForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3">
+    <form onSubmit={handleSubmit} className="mx-card space-y-3">
+      <p className="text-sm font-bold text-mx-text">🌱 새 씨드 키워드</p>
       <div className="flex flex-wrap gap-2">
         <input
           name="keyword"
@@ -35,19 +36,19 @@ export function SeedForm() {
           required
           className="input flex-1 min-w-[200px]"
         />
-        <select name="engine" defaultValue="naver" className="input-sm w-28">
+        <select name="engine" defaultValue="naver" className="input-sm min-h-[48px] w-28">
           <option value="naver">네이버</option>
           <option value="google">구글</option>
         </select>
         <button
           type="submit"
           disabled={isPending}
-          className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
+          className="mx-btn-primary min-h-[48px] px-5"
         >
           {isPending ? "추가 중..." : "+ 키워드 추가"}
         </button>
       </div>
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="rounded-lg border border-mx-danger px-3 py-2 text-sm text-mx-danger">{error}</p>}
     </form>
   );
 }

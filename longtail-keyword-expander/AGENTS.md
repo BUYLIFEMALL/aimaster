@@ -27,6 +27,16 @@ Agent(Claude Code 등)가 협업할 때 준수해야 할 필수 가이드라인 
 
 ---
 
+## 🎨 적용 디자인 템플릿
+
+| 항목 | 값 |
+|---|---|
+| 적용 디자인 템플릿 | **스마트 매트릭스 스타일** (루트 `DESIGN.md` 템플릿 4번의 기준 구현, v1.06) |
+| 디자인 인수인계 | [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) |
+| 개선사항 | [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) |
+
+---
+
 ## 🎯 프로젝트 목적
 
 키워드를 입력하면 네이버(또는 구글) 검색결과(SerpApi)를 분석해서 연관 키워드와 롱테일
@@ -90,3 +100,10 @@ longtail-keyword-expander는 AIMaster 저장소 안의 서브프로젝트다. �
 ## 2026-10-16 DB 연동 변수 호환 — v1.05 (longtail-keyword-expander)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-16 스마트 매트릭스 스타일 디자인 개편 — v1.06 (Claude Code 맥미니)
+
+- 다크 차콜 + 모던 블루·앰버 토큰(`mx-*`), 대시보드(`/dashboard`, `/` 접속 시 이동)·사용 매뉴얼(`/guide`) 신설, 씨드·결과 목록에 검색·필터·표/카드 전환, 결과 상세에 KPI·관련도 막대·복사 버튼, 휴대폰 ☰ 메뉴(원칙 19), 시각 `Asia/Seoul` 고정, 삭제 확인창.
+- 서버 액션·DB·권한 판정은 바꾸지 않았다. 로그인 화면은 공통 밝은 디자인 유지.
+- **빌드·배포·화면 검수는 윈도우 CLI 대기**(맥미니 빌드 금지). 절차: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) 6절. 개선 제안: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).

@@ -1,8 +1,10 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SeedForm } from "@/components/seeds/SeedForm";
-import { SeedRow, type SeedRowData } from "@/components/seeds/SeedRow";
-import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
+import { SeedMatrix } from "@/components/seeds/SeedMatrix";
+import type { SeedRowData } from "@/components/seeds/SeedRow";
+import { PageHero } from "@/components/layout/PageHero";
+import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
 
 export const dynamic = "force-dynamic";
 // SerpApi + GPT 3단계(연관 키워드 → 롱테일 확장 → 작업 지시 메시지)를 한 번에 처리하는
@@ -13,28 +15,25 @@ export default async function SeedsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: seeds }, { data: runs }, { data: program }] = await Promise.all([
+  // 프로그램 소개 박스는 v1.06부터 대시보드(/dashboard)로 옮겼다.
+  const [{ data: seeds }, { data: runs }] = await Promise.all([
     supabase
       .from("longtail_seed_keywords")
       .select("id, keyword, engine, is_active")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase.from("longtail_runs").select("seed_id").eq("user_id", user.id),
-    // 이 프로젝트는 별도 "대시보드" 화면이 없어 이 페이지가 사실상 첫 화면이다 — 요청대로
-    // 첫 화면 제목 바로 아래에 메인 페이지 프로그램 소개(programs.short_desc — 이 프로그램은
-    // description이 비어있어 short_desc로 대체)를 박스로 보여준다(2026-09-13).
-    // AIMaster Database 타입에는 없는 테이블이라(access.ts와 동일한 이유) 제네릭 타입 충돌을
-    // 피하기 위해 from()을 느슨한 타입으로 캐스팅한다.
-    (supabase as unknown as { from: (table: string) => any }) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .from("programs")
-      .select("description, short_desc")
-      .eq("slug", "longtail-keyword-expander")
-      .maybeSingle() as Promise<{ data: { description: string | null; short_desc: string | null } | null }>,
+    supabase
+      .from("longtail_runs")
+      .select("seed_id, executed_at")
+      .eq("user_id", user.id)
+      .order("executed_at", { ascending: false }),
   ]);
 
   const countBySeed = new Map<string, number>();
+  const lastRunBySeed = new Map<string, string>();
   for (const r of runs ?? []) {
     countBySeed.set(r.seed_id, (countBySeed.get(r.seed_id) ?? 0) + 1);
+    if (!lastRunBySeed.has(r.seed_id)) lastRunBySeed.set(r.seed_id, r.executed_at);
   }
 
   const seedList: SeedRowData[] = (seeds ?? []).map((s) => ({
@@ -43,43 +42,37 @@ export default async function SeedsPage() {
     engine: s.engine,
     is_active: s.is_active,
     runCount: countBySeed.get(s.id) ?? 0,
+    lastRunAt: lastRunBySeed.get(s.id) ?? null,
   }));
+  const naverCount = seedList.filter((s) => s.engine === "naver").length;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">롱테일 키워드 확장</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          키워드를 등록하고 "지금 확장하기"를 누르면 네이버(또는 구글) 검색결과를 기반으로
-          연관·롱테일 키워드와 블로그 작업 지시를 만들어드립니다.
-        </p>
-      </div>
+    <div className="mx-auto max-w-6xl">
+      <PageHero
+        badge="STEP 1 · 롱테일 키워드 확장"
+        title="씨드 키워드 등록 & 확장"
+        description="키워드를 등록하고 「지금 확장하기」를 누르면 네이버(또는 구글) 검색결과를 바탕으로 연관·롱테일 키워드와 블로그 작업 지시를 만들어 드립니다."
+        tip="한 번 확장에 30초~1분 정도 걸리고, 결과는 같은 키워드에 계속 쌓입니다(중복은 자동 제거)."
+      />
 
-      {(program?.description || program?.short_desc) && (
-        <div className="mb-6 rounded-2xl border-2 border-gray-200 bg-gray-100 p-5 shadow-sm">
-          {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
-            <p key={i} className="mb-2 text-sm leading-relaxed text-gray-700 last:mb-0">
-              {sentence}
-            </p>
-          ))}
-        </div>
-      )}
+      <KpiGrid>
+        <KpiCard icon="🌱" label="씨드 키워드" value={seedList.length} />
+        <KpiCard icon="🟢" label="네이버" value={naverCount} tone="green" />
+        <KpiCard icon="🔵" label="구글" value={seedList.length - naverCount} tone="muted" />
+        <KpiCard icon="⚡" label="총 확장 실행" value={(runs ?? []).length} tone="amber" />
+      </KpiGrid>
 
       <div className="mb-6">
         <SeedForm />
       </div>
 
       {seedList.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4">🧩</div>
-          <p>아직 등록한 키워드가 없습니다. 위에서 키워드를 추가해보세요!</p>
+        <div className="mx-card py-16 text-center">
+          <p className="text-5xl">🧩</p>
+          <p className="mt-4 text-sm text-mx-muted">아직 등록한 키워드가 없습니다. 위에서 첫 키워드를 추가해 보세요!</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {seedList.map((s) => (
-            <SeedRow key={s.id} seed={s} />
-          ))}
-        </div>
+        <SeedMatrix seeds={seedList} />
       )}
     </div>
   );

@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니) — 롱테일 키워드분석 v1.06: 스마트 매트릭스 스타일 기준 구현 (⚠️ 윈도우 빌드·배포 요청)
+
+- **대상**: `longtail-keyword-expander/` (slug `longtail-keyword-expander`) — 루트 `DESIGN.md` 템플릿 4번 「스마트 매트릭스 스타일」의 첫 기준 구현.
+- **한 일**: 다크 차콜 토큰(`mx-*`) + 공통 부품(`PageHero`·`KpiCard`·`SeedMatrix`/`RunMatrix`·`CopyButton`), `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 목록 검색·필터·표/카드 전환, 결과 상세 관련도 막대·복사, 휴대폰 ☰ 메뉴(원칙 19 — 기존에 빠져 있었음), 시각 `Asia/Seoul` 고정, 삭제 확인창, 버튼 44px·대비 WCAG 계산 확인. 서버 액션·DB·권한 판정은 그대로. `lib/version.ts` v1.06.
+- **문서**: [`longtail-keyword-expander/docs/DESIGN_HANDOFF.md`](../longtail-keyword-expander/docs/DESIGN_HANDOFF.md)(토큰·부품·화면·주의·검수 절차), [`docs/IMPROVEMENTS.md`](../longtail-keyword-expander/docs/IMPROVEMENTS.md)(9건, 4건 구현), 프로그램 `AGENTS.md`, 루트 `DESIGN.md` 카탈로그(🟡), `docs/PROGRAM_CAPABILITY_MAP.md` 카드.
+- **확인한 것**: 코드 정적 검토(타입·클래스·import), 실제 코드 대조로 매뉴얼 문구 검증, 색 대비 계산. **못 한 것**: `npm run build`·배포·화면 검수(맥미니 빌드 금지, 원칙 18-④).
+- **⚠️ 윈도우 CLI 요청 (다음 첫 단계)**:
+  1. `cd longtail-keyword-expander && npm run build` — 오류 시 수정(맥미니에서 컴파일 검사 못 함).
+  2. `vercel deploy --prod --yes` → DB `update programs set version='v1.06', updated_at=now() where slug='longtail-keyword-expander';`
+  3. `buylifemall@naver.com`으로 데스크톱 1440px·375px 검수(☰ 메뉴, 표/카드 전환, 검색, 복사, 삭제 확인창, `/`→`/dashboard`).
+  4. 결과를 `DESIGN_HANDOFF.md` 7절에 기록, 루트 `DESIGN.md` 49번을 🟢로, `docs/ACTIVE_WORK.md`에서 Claude Code(맥미니) 줄 삭제.
+- **비용**: 없음(유료 API·이미지 생성 미사용).
+
 ## 2026-10-16 Claude Code(맥미니) — 디자인 지침 불일치 정리 (0단계, 문서만)
 
 - **주인님 지시**: Claude Code도 2026-10-21까지 디자인 개선 작업에 참여. 플랜 승인: ① 지침 정리 → ② 스마트 매트릭스 스타일 기준 예시(`longtail-keyword-expander`). 빌드·배포는 윈도우 CLI에 요청(맥미니 원칙 18-④).

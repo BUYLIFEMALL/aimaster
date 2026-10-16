@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { deleteRunAction } from "@/lib/actions/seeds";
+import { formatDateTime } from "@/lib/format";
 
-interface RunListItemProps {
+export interface RunListItemProps {
   seedId: string;
   runId: string;
   keyword: string;
@@ -15,20 +16,12 @@ interface RunListItemProps {
   summaryPreview: string | null;
 }
 
-export function RunListItem({
-  seedId,
-  runId,
-  keyword,
-  executedAt,
-  relatedCount,
-  expansionCount,
-  summaryPreview,
-}: RunListItemProps) {
+export function RunDeleteButton({ seedId, runId }: { seedId: string; runId: string }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
-  const dt = new Date(executedAt);
 
   async function handleDelete() {
+    if (!window.confirm("이 실행 결과를 삭제할까요?")) return;
     setIsDeleting(true);
     try {
       await deleteRunAction(seedId, runId);
@@ -39,27 +32,36 @@ export function RunListItem({
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-start justify-between gap-3">
+    <button type="button" onClick={handleDelete} disabled={isDeleting} className="mx-btn-danger">
+      {isDeleting ? "삭제 중..." : "삭제"}
+    </button>
+  );
+}
+
+// 카드 보기용 실행 결과 카드
+export function RunListItem({
+  seedId,
+  runId,
+  keyword,
+  executedAt,
+  relatedCount,
+  expansionCount,
+  summaryPreview,
+}: RunListItemProps) {
+  return (
+    <div className="mx-card flex flex-col gap-3 p-4">
       <Link href={`/seeds/${seedId}/runs/${runId}`} className="min-w-0 flex-1">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-bold text-gray-900">{keyword}</p>
-          <span className="text-xs text-gray-400">
-            🕒 {dt.toLocaleDateString("ko-KR")} {dt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
-          </span>
+        <p className="font-bold text-mx-text hover:text-[#93c5fd]">{keyword}</p>
+        <p className="mt-0.5 text-xs text-mx-muted">🕒 {formatDateTime(executedAt)}</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <span className="mx-chip-green">🔗 연관 {relatedCount}</span>
+          <span className="mx-chip-amber">🎯 롱테일 {expansionCount}</span>
         </div>
-        <p className="text-xs text-gray-400 mt-0.5">
-          연관 키워드 {relatedCount}개 · 롱테일 키워드 {expansionCount}개
-        </p>
-        {summaryPreview && <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">{summaryPreview}</p>}
+        {summaryPreview && <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-mx-muted">{summaryPreview}</p>}
       </Link>
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={isDeleting}
-        className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-500 border border-red-100 bg-red-50 hover:bg-red-100 disabled:opacity-60"
-      >
-        {isDeleting ? "삭제 중..." : "삭제"}
-      </button>
+      <div className="flex justify-end">
+        <RunDeleteButton seedId={seedId} runId={runId} />
+      </div>
     </div>
   );
 }
