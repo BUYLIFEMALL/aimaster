@@ -14,7 +14,7 @@ function loadEnv(path) {
 }
 
 const env = loadEnv('D:/Antigravity/AIMaster/.env.local');
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 async function run() {
   const src = 'C:/Users/Administrator/.gemini/antigravity-cli/brain/4f5c1467-5b51-43c6-9a0c-101992cfa96d/audio_analyzer_thumbnail_1791833273933.jpg';

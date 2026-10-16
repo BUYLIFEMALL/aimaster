@@ -16,7 +16,7 @@ for (const line of envContent.split("\n")) {
 }
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+const serviceKey = (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim());
 
 const supabase = createClient(supabaseUrl, serviceKey);
 

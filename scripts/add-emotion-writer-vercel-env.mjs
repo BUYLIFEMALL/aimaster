@@ -18,8 +18,8 @@ const env = loadEnv("D:/Antigravity/AIMaster/.env.local");
 
 const targets = [
   { key: "NEXT_PUBLIC_SUPABASE_URL", val: env.NEXT_PUBLIC_SUPABASE_URL },
-  { key: "NEXT_PUBLIC_SUPABASE_ANON_KEY", val: env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
-  { key: "SUPABASE_SERVICE_ROLE_KEY", val: env.SUPABASE_SERVICE_ROLE_KEY },
+  { key: "NEXT_PUBLIC_SUPABASE_ANON_KEY", val: (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()) },
+  { key: "SUPABASE_SERVICE_ROLE_KEY", val: (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()) },
   { key: "NEXT_PUBLIC_MAIN_SITE_URL", val: "https://buylife.xyz" },
 ];
 

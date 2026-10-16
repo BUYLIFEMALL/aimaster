@@ -14,7 +14,7 @@ function loadEnv(path) {
 }
 
 const env = loadEnv('D:/Antigravity/AIMaster/.env.local');
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 const formattedDescription = `
 <h3>🚀 쿠팡 12단 & 스마트스토어 9단 상세페이지 원클릭 완성</h3>

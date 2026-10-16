@@ -15,8 +15,8 @@ for (const line of envContent.split("\n")) {
   }
 }
 
-const adminClient = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
-const anonClient = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+const adminClient = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
+const anonClient = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()));
 
 async function testFull() {
   const { data: linkData } = await adminClient.auth.admin.generateLink({
@@ -33,7 +33,7 @@ async function testFull() {
   console.log("Logged in session user:", session.user.email);
 
   let cookieJar = {};
-  const ssr = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+  const ssr = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()), {
     cookies: {
       getAll() {
         return Object.entries(cookieJar).map(([name, value]) => ({ name, value }));

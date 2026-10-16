@@ -12,7 +12,7 @@ for (const line of envContent.split("\n")) {
     env[match[1]] = value.trim();
   }
 }
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 const newShortDesc = "이미지 한 장으로 카메라·조명·색상 팔레트·화풍을 정밀 분석하여, 원본 스타일을 그대로 복제하거나 원하는 대로 변형할 수 있는 마스터 프롬프트 추출기";
 

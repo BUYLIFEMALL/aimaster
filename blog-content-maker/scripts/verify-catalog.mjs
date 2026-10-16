@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 const expected = JSON.parse(await fs.readFile('docs/catalog-content-20261016.json', 'utf8'));
 const artwork = JSON.parse(await fs.readFile('docs/catalog-thumbnail-release-20261016.json', 'utf8'));
 const env = await loadPlatformEnv();
-const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()), { auth: { persistSession: false, autoRefreshToken: false } });
 const { data: row, error } = await client.from('programs').select('id,slug,name,short_desc,description,detail_sections,thumbnail_url,app_url,is_active,version,extension_version,extension_download_url').eq('slug', 'blog-content-maker').single();
 if (error) throw error;
 assert.equal(row.is_active, true);

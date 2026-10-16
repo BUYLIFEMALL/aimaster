@@ -1,0 +1,18 @@
+{
+  "checked_projects": 83,
+  "public_new": [
+    "aimaster",
+    "ai-auto-blog",
+    "blog-content-maker",
+    "tistory-auto-blog"
+  ],
+  "server_new": [
+    "aimaster"
+  ],
+  "public_missing": [
+    "ai-image-studio"
+  ],
+  "server_missing": [
+    "video-to-gif"
+  ]
+}

@@ -12,6 +12,9 @@ def get_service_client() -> Client:
         return _client
 
     url = os.environ["SUPABASE_URL"]
-    key = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+    key = (os.environ.get("SUPABASE_SECRET_KEY", "").strip()
+           or os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip())
+    if not key:
+        raise RuntimeError("Supabase server credential is not configured")
     _client = create_client(url, key)
     return _client

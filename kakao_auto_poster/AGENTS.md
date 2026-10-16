@@ -173,3 +173,8 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 
 - **v1.08 (2026-10-15, 주인님 승인 후 배포)** — 도메인 연동(SSO): 새 주소 **https://kakao-auto-posting.buylife.xyz**(`programs.app_url` 갱신). 쿠키 `.buylife.xyz` 공유(`src/lib/supabase/cookieDomain.ts`, client·server), `src/proxy.ts`가 옛 `kakaoautoposter.vercel.app` 화면 요청을 새 주소로 308. **카카오 로그인 콜백**: 회원 카카오 앱에 등록된 콜백은 옛 주소(`KAKAO_REDIRECT_URI`)라 그대로 두고, `/api/kakao/callback`이 옛 주소로 들어오면 같은 쿼리로 새 주소에 307로 넘겨 거기서(로그인 쿠키 있는 곳) 토큰 교환 — 회원 설정 변경 불필요. 공유 링크·이미지 기준 `NEXT_PUBLIC_SITE_URL`은 옛 주소 그대로(화면은 새 주소로 넘어감, 크론·`/api/og`는 옛 주소에서도 동작). **주인님 할 일**: 리포트 "카카오톡 공유" 버튼은 운영자 카카오 앱(JavaScript 키)을 쓰므로 카카오 개발자 콘솔 → 내 애플리케이션 → 플랫폼 → Web 사이트 도메인에 `https://kakao-auto-posting.buylife.xyz` 추가 필요(추가 전 새 주소에서 공유 버튼만 동작 안 함). 검수: 엣지 시험 계정 재로그인 없이 대시보드·주제·리포트·수신자·발송 내역·설정 6화면 200, 수신자 엑셀 양식 정상 xlsx, 옛 주소 화면 308·콜백 307·크론 401(살아 있음). 발송 없음. 마이그레이션 `supabase/migrations/20261015130000_kakao_v1_08_sso_domain.sql`.
 - **v1.08 후속 확인 (2026-10-15)**: 주인님이 카카오 개발자 콘솔 → 앱 → 플랫폼 키 → JavaScript 키 수정 → **JavaScript SDK 도메인**에 `https://kakao-auto-posting.buylife.xyz` 추가(기존 4개 유지; 새 콘솔에서는 예전 "플랫폼 → Web → 사이트 도메인"이 이 칸). 새 주소에서 SDK 초기화 → 공유 창(친구 선택) 열림 → 주인님이 실제 공유까지 정상 확인. 코드 변경 없음.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.09 (kakao-auto-posting)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

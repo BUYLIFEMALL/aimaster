@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 function getServiceRoleKey(): string {
-  const direct = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (direct && direct.length > 20) return direct;
+  const direct = (process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());
+  if (direct) return direct;
   const b64 = process.env.SUPABASE_SERVICE_ROLE_KEY_BASE64;
   if (b64) {
     try {

@@ -167,3 +167,8 @@ program_slug는 별도). 코드는 이 폴더(`naver-blog-auto-poster_web/`, Man
         `설치방법.txt`의 안내 URL도 `www.buylife.xyz/naver-blog-auto-poster-web`로 갱신.
 - [ ] Chrome 웹스토어 정식 제출 — 아이콘, 스토어 설명 문구, 개인정보처리방침 등 준비
       필요. 버전 안정화 후 진행(위 항목 참고).
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.06 (naver-blog-auto-poster-web)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

@@ -14,7 +14,7 @@ function loadEnv(path) {
 }
 
 const env = loadEnv("D:/Antigravity/AIMaster/.env.local");
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 const sourcePath = "C:/Users/Administrator/.gemini/antigravity-cli/brain/4f5c1467-5b51-43c6-9a0c-101992cfa96d/allinone_graphic_thumbnail_1791830303974.jpg";
 const destPublic = "D:/Antigravity/AIMaster/allinone-graphic/public/allinone-graphic-thumbnail.jpg";

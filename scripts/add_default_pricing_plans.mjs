@@ -15,7 +15,7 @@ function loadEnv(path) {
 }
 
 const env = loadEnv("D:/Antigravity/AIMaster/.env.local");
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 const DEFAULT_PLANS = [
   { name: "1개월", billing_type: "monthly", price: 10000, original_price: 10000, is_active: true, sort_order: 0 },

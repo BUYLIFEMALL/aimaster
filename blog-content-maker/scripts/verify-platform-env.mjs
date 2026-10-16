@@ -18,8 +18,8 @@ const output = path.resolve('test-artifacts'); await fs.mkdir(output, { recursiv
 const children = [];
 async function start(folder, port) {
   const childEnv = { ...process.env, NEXT_PUBLIC_SUPABASE_URL: env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    SUPABASE_SECRET_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()),
+    SUPABASE_SECRET_KEY: (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: '', SUPABASE_SERVICE_ROLE_KEY: '' };
   const child = spawn(process.execPath, [path.join(folder, 'node_modules/next/dist/bin/next'), 'start', '-p', String(port)], { cwd: folder, env: childEnv, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
   children.push(child); let errors = '';
@@ -45,14 +45,14 @@ try {
     await page.goto(base + '/dashboard', { waitUntil: 'networkidle' });
     check(label + ' anonymous protected route remains gated', new URL(page.url()).pathname === '/login');
   }
-  const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-  const publicClient = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()), { auth: { persistSession: false, autoRefreshToken: false } });
+  const publicClient = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()), { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: link, error: linkError } = await admin.auth.admin.generateLink({ type: 'magiclink', email: 'buylifemall@naver.com' });
   if (linkError) throw new Error('Could not prepare ordinary test member sign-in');
   const { data: auth, error: authError } = await publicClient.auth.verifyOtp({ type: 'magiclink', token_hash: link.properties.hashed_token });
   if (authError || auth.user?.email !== 'buylifemall@naver.com') throw new Error('Ordinary test member authentication failed');
   const cookies = [];
-  await createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, { cookies: { getAll: () => [], setAll: values => cookies.push(...values) } }).auth.setSession(auth.session);
+  await createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()), { cookies: { getAll: () => [], setAll: values => cookies.push(...values) } }).auth.setSession(auth.session);
   const domain = mode === 'live' ? '.buylife.xyz' : 'localhost';
   await context.addCookies(cookies.map(c => ({ name: c.name, value: c.value, domain, path: '/', secure: mode === 'live', httpOnly: false, sameSite: 'Lax' })));
   await page.goto(main + '/programs/blog-content-maker', { waitUntil: 'networkidle' });
@@ -71,7 +71,7 @@ try {
   const workspace = await page.request.get(blog + '/api/workspace');
   const data = await workspace.json();
   check('blog server authenticated workspace DB read', workspace.status() === 200 && Array.isArray(data.projects));
-  check('workspace does not expose platform secrets', !JSON.stringify(data).includes(env.SUPABASE_SERVICE_ROLE_KEY));
+  check('workspace does not expose platform secrets', !JSON.stringify(data).includes((env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim())));
   await page.screenshot({ path: path.join(output, 'env-' + mode + '-blog.png'), fullPage: true });
   await page.setViewportSize({ width: 400, height: 860 });
   check('blog mobile no horizontal overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));

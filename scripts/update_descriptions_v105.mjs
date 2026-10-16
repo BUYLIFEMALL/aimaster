@@ -15,7 +15,7 @@ function loadEnv(path) {
 }
 
 const env = loadEnv("D:/Antigravity/AIMaster/.env.local");
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 const SHORT_DESC = "웹사이트 URL 입력 한 번으로 실시간 HTML 파싱, 7대 핵심 데이터 자동 분류, 시각적 섹터 선택 및 Gemini AI 스마트 리스트 구조화 추출까지 지원하는 지능형 웹 데이터 스크래핑 솔루션";
 

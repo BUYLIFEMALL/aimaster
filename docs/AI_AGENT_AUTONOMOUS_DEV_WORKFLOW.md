@@ -213,6 +213,7 @@ Claude Code도 Codex(Orca)와 같은 방식으로, 주인님이 로그인해 둔
   - 엣지는 이 PC에 Claude Code 연결(native messaging host `com.anthropic.claude_code_browser_extension`)이 등록돼 있어 쓸 수 있다. 네이버 웨일·Aside는 등록이 없어 쓰지 않는다. 엣지 확장은 크롬 웹스토어의 같은 확장(`fcoeoabgfenejglbffodgkkbkcdhcgfn`)을 설치한다.
 - 실측(2026-10-14): 크롬 새 프로필에 확장을 설치하고 **다른 Claude 계정으로 로그인한 뒤 다시 연결해도**, 보조 계정 세션의 `list_connected_browsers`에 두 프로필이 모두 보였다. 즉 **확장의 Claude 계정과 상관없이 이 PC의 Claude Code는 연결된 브라우저를 모두 볼 수 있다**(처음에 "확장은 한 계정에만 연결된다"고 적었던 설명은 틀려서 정정함).
 - 규칙: **각 세션은 위 표에서 자기 계정에 정해진 브라우저만 조작한다.** 두 세션이 같은 브라우저를 동시에 조작하면 탭·입력이 서로 꼬인다. 작업 시작 때 `list_connected_browsers`로 `inUse`가 자기 브라우저인지 확인하고, 아니면 `select_browser`로 표의 deviceId를 고른다. 표에 없는 브라우저만 보이면 임의로 고르지 않고 주인님께 묻는다.
+- **확정(2026-10-16 주인님 재확인)**: 메인 계정 세션의 프로그램 테스트·화면 검수는 항상 위 표의 **크롬**으로 한다. 엣지·헤드리스 Chrome(`agent-browser`)·Playwright 자동화 브라우저로 대체하지 않는다. 남은 헤드리스·임시 Chrome은 검수에 쓰지 않고 `.agent-browser` 경로의 것만 종료한다.
 - 사이트 로그인: 브라우저마다 쿠키가 따로이므로, 엣지에서는 buylife.xyz·네이버 등 검수에 필요한 사이트에 **주인님이 직접 한 번씩 로그인**해 둔다(에이전트는 비밀번호를 입력하지 않는다). 시험용 일반 회원은 `buylifemall@naver.com`, 관리자는 `buylifemall@gmail.com`이다.
 - 작업할 브라우저 창은 켜 두어야 한다(창을 닫으면 그 브라우저의 확장 연결도 끊긴다). 화면에 로그인된 사이트 계정이 이번 검수에 맞는지(일반 회원/관리자)도 먼저 본다.
 

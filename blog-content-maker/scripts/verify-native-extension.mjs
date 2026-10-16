@@ -10,10 +10,10 @@ import {createServerClient} from '@supabase/ssr';
 const root=process.cwd(),base='https://blog-content-maker.buylife.xyz',extensionId=process.env.BCM_EXTENSION_ID||'konicognhinfmihgblmofjkgnkeopajk',origin='chrome-extension://'+extensionId,port=32719;
 if(!/^[a-p]{32}$/.test(extensionId))throw new Error('Invalid installed extension id');
 const env = await loadPlatformEnv();
-const admin=createClient(env.NEXT_PUBLIC_SUPABASE_URL,env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}}),anon=createClient(env.NEXT_PUBLIC_SUPABASE_URL,env.NEXT_PUBLIC_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const admin=createClient(env.NEXT_PUBLIC_SUPABASE_URL,(env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()),{auth:{persistSession:false,autoRefreshToken:false}}),anon=createClient(env.NEXT_PUBLIC_SUPABASE_URL,(env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()),{auth:{persistSession:false,autoRefreshToken:false}});
 const {data:link,error:le}=await admin.auth.admin.generateLink({type:'magiclink',email:'buylifemall@naver.com'});if(le)throw new Error('Could not authenticate ordinary test member');
 const {data:auth,error:ae}=await anon.auth.verifyOtp({type:'magiclink',token_hash:link.properties.hashed_token});if(ae||auth.user?.email!=='buylifemall@naver.com')throw new Error('Ordinary member authentication failed');
-const cookies=[];await createServerClient(env.NEXT_PUBLIC_SUPABASE_URL,env.NEXT_PUBLIC_SUPABASE_ANON_KEY,{cookies:{getAll:()=>[],setAll:v=>cookies.push(...v)}}).auth.setSession(auth.session);
+const cookies=[];await createServerClient(env.NEXT_PUBLIC_SUPABASE_URL,(env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()),{cookies:{getAll:()=>[],setAll:v=>cookies.push(...v)}}).auth.setSession(auth.session);
 const cookie=cookies.map(c=>c.name+'='+c.value).join('; ');
 async function api(endpoint,data){const r=await fetch(base+endpoint,{headers:{Cookie:cookie,Origin:base,'Content-Type':'application/json'},...(data?{method:'POST',body:JSON.stringify(data)}:{})});const v=await r.json();if(!r.ok)throw new Error('Member API: '+v.error);return v;}
 const sourceId='63423cf5-b1a1-4cf6-a163-dd5177c5f5e7';

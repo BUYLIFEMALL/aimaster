@@ -136,3 +136,8 @@ API 키/Client Secret을 설정 페이지에 등록하고 `resolveKakaoAppCreden
 전수 점검 결과, Phase 5 이메일 실제 도착 여부·Phase 3 텔레그램 버튼 조작·Phase 4
 refresh_token 장기 만료·Phase 6 알림톡 비친구 도달·Phase 7만 남아 있다). `programs` 테이블
 `kakao-auto-posting` slug는 등록·활성화까지 확인 완료.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.09 (kakao-auto-posting)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

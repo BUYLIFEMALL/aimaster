@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createHash } from 'node:crypto';
 const env = await loadPlatformEnv();
 if (new URL(env.NEXT_PUBLIC_SUPABASE_URL).hostname !== 'esgxyikcnnvmlhygjkth.supabase.co') throw new Error('Unexpected platform database');
-const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()), { auth: { persistSession: false, autoRefreshToken: false } });
 const slug = 'blog-content-maker';
 const { data: program, error: lookupError } = await client.from('programs').select('id,slug').eq('slug', slug).single();
 if (lookupError || program?.id !== '5299d74c-ea40-4452-a9cc-0fd96ced44d0') throw new Error('Expected existing catalog registration missing');

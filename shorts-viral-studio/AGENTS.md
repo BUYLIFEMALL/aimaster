@@ -96,3 +96,8 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 - **v1.02 (2026-10-05):** 최초 기본 AI 엔진을 **OpenAI GPT-4.1**로 변경(주인님 지시, `StudioProvider.tsx`의 초기값). 회원이 모델을 바꾸면 `localStorage`(`svs_model_v2`)에 기억한다. 이전 키(`svs_model_v1`)는 쓰지 않으므로 기존 선택값은 한 번 초기화됨. 영상 직접 분석은 Gemini를 골라야 하므로 분석 화면의 안내 문구는 유지(GPT 기본값에서는 "지표·댓글 기반 추정"으로 표시됨).
 - **v1.01 (2026-10-04):** 신설.
 - v1.08 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.09 (shorts-viral-studio)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

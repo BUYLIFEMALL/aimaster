@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — 이전 자동화 도구가 남긴 헤드리스 Chrome이 쌓여 "Chrome이 여러 개"로 보임 (플랫폼 환경)
+
+- 증상: Chrome 프로세스 123개인데 보이는 창은 1개, 연결 브라우저 목록에 Windows 브라우저 2개(Edge는 꺼져 있음).
+- 원인: 9/27~10/2에 시작된 `agent-browser` 헤드리스 Chrome(`--headless=new`, 임시 `agent-browser-chrome-*` 프로필)이 종료되지 않고 99개 프로세스로 남아 있었음. 오늘 시작된 Playwright 자동화 Chrome은 별개.
+- 해결: 실행 경로가 `.agent-browser\browsers\`인 chrome.exe만 골라 종료(메인 Chrome `Program Files`·Playwright 유지) → 123→24개, 창 1개 유지.
+- 다음부터 확인: "Chrome이 여러 개"는 보이는 창(`EnumWindows` `Chrome_WidgetWin_1`)과 프로세스의 실행 경로·`--headless` 여부로 구분한다. 메인 Chrome(`Program Files`, `--no-startup-window`)과 지금 쓰는 Playwright 프로세스는 종료하지 않는다. 연결 목록의 옛 항목은 확장 재설치로 deviceId가 바뀐 흔적일 수 있다. 프로그램 테스트는 메인 계정 세션이면 항상 크롬(`CLAUDE.md` 원칙 18).
+
 ## 2026-10-16 — Vercel Secret 환경변수 다운로드 값은 실제 키가 아닐 수 있음 (Supabase 호환 전환)
 
 - 증상: `vercel env pull --environment=production`으로 받은 서버 키로 인증 검사를 하면 401이지만 공개 키는 정상. 원인: Secret/Sensitive 값은 다운로드에서 실제 값 대신 대체 문자열로 반환될 수 있음. 이것을 운영 키 오류로 단정하면 안 됨.

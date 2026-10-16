@@ -39,3 +39,36 @@
 5. 완료 후 이 문서·프로그램별 지침·역량 지도·최상위 지침의 적용 범위를 실제 결과로 갱신합니다.
 
 **다른 CLI는 이 작업 도중 같은 프로그램의 연결 코드·버전·확장을 동시에 바꾸기 전에 최신 상태를 확인해야 합니다.** 다른 CLI의 미커밋 파일을 스테이징하거나 배포에 섞지 않습니다.
+
+
+## 코드 적용·검수 중간 기록 (2026-10-16)
+
+- 필독 지침 등록·원격 푸시: `c8356e27`. AGENTS.md/CLAUDE.md 최상단과 HANDOFF.md에서 이 문서로 연결합니다.
+- 메인과 82개 프로그램에 연결 변수 호환 코드 및 운영 도구 호환 반영 중. 각 프로그램의 다음 마이너 버전과 릴리스 DML은 [release 목록](supabase-compat-rollout-20261016/releases.json), 자기 폴더 `supabase/release_env_compat_20261016.sql`에 보관합니다. 아직 DB 버전 갱신/전체 배포 완료가 아닙니다.
+- 각 프로그램의 실제 공개/서버/관리자 연결 함수를 가짜 표식 값으로 검사: `node --test scripts/test-platform-supabase-compat.cjs` **86/86 통과**. 운영 자격 증명은 출력하지 않습니다. 실제 이름만 바꿔 연결하는 새 이름 전용 빌드를 전체 프로그램에서 진행 중입니다.
+- Vercel 83개 Production 환경변수 이름 조회 완료: 새 공개 이름은 `aimaster`, `ai-auto-blog`, `blog-content-maker`, `tistory-auto-blog` 4개, 새 서버 이름은 `aimaster` 1개. 실제 변수 추가·변경·삭제는 수행하지 않았습니다. [값 없는 이름/환경 목록](supabase-compat-rollout-20261016/vercel-environment-names.json), [요약](supabase-compat-rollout-20261016/environment-summary.json).
+- `ai-image-studio`는 공개 키 환경변수가 없고 기존 코드 기본 공개 키로 운영합니다. `video-to-gif`는 서버 작업자가 없는 브라우저 변환기여서 서버 전용 키를 사용하지 않습니다. 필요 없는 서버 키를 무조건 추가하지 않습니다.
+- 빌드에서 상위 루트 미들웨어를 섞어 읽던 7개 Next.js 16 프로그램에 `turbopack.root`를 자기 작업 폴더로 고정했습니다. 구체 증상과 해결은 ERROR_LESSONS.md의 2026-10-16 항목에 기록합니다.
+
+
+## 새 변수 일괄 추가 제안 (아직 미실행)
+
+- [구체 추가 목록](supabase-compat-rollout-20261016/environment-addition-plan.json): 82개 프로젝트·160개 Production 항목(공개 79·서버 81). 기존 항목 변경/삭제와 새 Supabase 키 발급은 포함하지 않습니다. `video-to-gif`에는 사용하지 않는 서버 키를 추가하지 않습니다.
+- `node scripts/add-platform-supabase-aliases.cjs`는 기본값이 목록만 출력하는 미리보기입니다. 실제 환경변수 변경 승인을 받은 뒤에만 `--approved`를 붙입니다. 새 이름이 이미 존재하면 덮어쓰지 않고 건너뜁니다. 키를 명령줄·로그·문서에 넣지 않습니다.
+- 과거 `configure-platform`/`add-*-vercel-env`/`rotate-supabase-service-key` 도구는 기존 변수 이름을 직접 쓰는 일회성 운영 도구가 남아 있습니다. 새 연결/이전 변수 정리에는 위 최신 도구와 공통 지침을 사용합니다. 실제 키 교체는 이름 추가와 별개이며, 과거 회전 도구를 그대로 실행하면 새 이름의 키가 함께 갱신된다고 가정할 수 없습니다. 다른 CLI의 미커밋 `scripts/verify_slide_builder.mjs`는 수정하지 않았습니다.
+- 앱이 새 이름을 지원하는 것과 Vercel에 새 이름이 등록된 것은 별개입니다. 새 변수 등록 후에는 다시 빌드/배포하고 운영 회원 흐름을 확인합니다. Preview/Development 등록·삭제는 대상 환경을 별도로 확인합니다.
+
+## 프로그램별 실제 증거
+
+[현황표](supabase-compat-rollout-20261016/STATUS.md)를 먼저 확인합니다. 빌드·새 이름 전용 로컬 Chrome·Vercel 새 이름 등록·운영 배포·운영 Chrome 상태를 각각 표시합니다. 완료되지 않은 칸을 추정으로 완료 처리하지 않습니다. 생성 명령: `node scripts/report-supabase-compat-rollout.cjs`.
+
+
+## 배포 직전 상태
+
+- 공통 연결 검사 **108/108**, 메인·82개 앱 코드 빌드 **83/83** 통과. 기존 메인 앱의 타입 검사 생략 설정은 변경하지 않았습니다. 나머지 앱은 빌드의 타입 검사를 통과했습니다.
+- 로컬 `.env.local`에 OIDC 토큰만 있는 앱은 검수 자식 프로세스에 공통 DB 값 세 항목만 공급하고 기존 변수 이름은 빈 값으로 둡니다. 실제 파일과 Vercel 환경변수는 바꾸지 않습니다. 이 설정으로 공개 값이 포함된 빌드를 다시 만들고 실제 Chrome을 확인합니다. 운영자 AI 키 폴백이 아니라 플랫폼 공용 DB 연결만 대상으로 합니다.
+- 운영 전 Cron 설정 83개 조회: 로컬과 운영 정의 차이 0개. 켜거나 끄지 않습니다.
+- 브라우저 자바스크립트 1,545개 검사에서 서버 비밀 키·service_role JWT 리터럴 0건. 최종 빌드 뒤 같은 검사를 갱신합니다.
+- 새 이름 전용 로컬 Chrome 검수는 현황표에서 계속 갱신합니다. 시험 회원 `buylifemall@naver.com`으로 이동·조회만 하며 생성·발행·발송 POST는 차단합니다. 비활성 네이버 두 앱은 기존 접근 제한 유지가 정상입니다. 메인은 별도 접속 확인 쿠키를 요구하는 대시보드 대신 프로그램 상세에서 회원 이용 권한과 프로필을 확인하며, 앞선 전용 검사 10개도 통과했습니다.
+- `web-crawler/service/supabase_client.py`도 새 서버 변수 이름을 지원하도록 수정했습니다. 별도 Python 작업자 서버의 배포/환경 변경은 이번 83개 웹 배포에 포함하지 않았습니다. 실제 키 폐기 전 별도 사용처를 확인해야 합니다.
+- 화면 관찰: `react-ui-showcase`(ai-web-ui)의 400px 가로 넘침이 관찰됐습니다. DB 연결 수정과 별개이며 화면을 전체 정상으로 보고하지 않습니다. 앱별 버전 표기/모바일 관찰은 Chrome 결과 JSON에 남습니다.

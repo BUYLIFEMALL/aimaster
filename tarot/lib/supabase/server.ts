@@ -9,7 +9,7 @@ export async function createClient() {
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim())!,
     {
       cookies: {
         getAll() {
@@ -33,6 +33,7 @@ export async function createClient() {
 // Service Role Key를 사용해 RLS를 우회하는 어드민/공개 복원용 서버 클라이언트
 export function createAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const serviceRoleKey = (process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());
+  if (!serviceRoleKey) throw new Error("Supabase 서버 연결 키가 설정되지 않았습니다.");
   return createSupabaseClient(supabaseUrl, serviceRoleKey);
 }

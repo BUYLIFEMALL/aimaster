@@ -1,0 +1,1307 @@
+[
+  {
+    "folder": ".",
+    "slug": ".",
+    "project": "aimaster",
+    "oldVersion": null,
+    "version": null,
+    "app_url": "https://www.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "lib/supabase/env.ts",
+      "lib/supabase/serverEnv.ts",
+      "utils/supabase/admin.ts",
+      "utils/supabase/client.ts",
+      "utils/supabase/middleware.ts",
+      "utils/supabase/server.ts",
+      "web-crawler/service/supabase_client.py"
+    ]
+  },
+  {
+    "folder": "ai-audio-analyzer",
+    "slug": "ai-audio-analyzer",
+    "project": "ai-audio-analyzer",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://audio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-audio-analyzer/src/lib/supabase/admin.ts",
+      "ai-audio-analyzer/src/lib/supabase/client.ts",
+      "ai-audio-analyzer/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ai-auto-blog",
+    "slug": "ai-auto-blog",
+    "project": "ai-auto-blog",
+    "oldVersion": "v1.63",
+    "version": "v1.64",
+    "app_url": "https://ai-auto-blog-one.vercel.app",
+    "extension": true,
+    "extension_download_url": "https://ai-auto-blog-one.vercel.app/downloads/ai-auto-blog-extension-latest.zip",
+    "runtime_files": [
+      "ai-auto-blog/utils/supabase/admin.ts",
+      "ai-auto-blog/utils/supabase/client.ts",
+      "ai-auto-blog/utils/supabase/middleware.ts",
+      "ai-auto-blog/utils/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ai-image-studio",
+    "slug": "ai-image-studio",
+    "project": "ai-image-studio",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://ai-image-studio.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-image-studio/inspect_flux2_max.mjs",
+      "ai-image-studio/lib/supabase/client.ts",
+      "ai-image-studio/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ai-influencer-studio",
+    "slug": "ai-influencer-studio",
+    "project": "ai-influencer-studio",
+    "oldVersion": "v1.07",
+    "version": "v1.08",
+    "app_url": "https://ai-influencer.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-influencer-studio/src/lib/supabase/admin.ts",
+      "ai-influencer-studio/src/lib/supabase/client.ts",
+      "ai-influencer-studio/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ai-mastering-studio",
+    "slug": "ai-mastering-studio",
+    "project": "ai-mastering-studio",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://ai-mastering-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-mastering-studio/src/lib/supabase/admin.ts",
+      "ai-mastering-studio/src/lib/supabase/client.ts",
+      "ai-mastering-studio/src/lib/supabase/server.ts",
+      "ai-mastering-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "ai-prompt-studio",
+    "slug": "ai-prompt-studio",
+    "project": "ai-prompt-studio",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://ai-prompt.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-prompt-studio/src/lib/supabase/admin.ts",
+      "ai-prompt-studio/src/lib/supabase/client.ts",
+      "ai-prompt-studio/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ai-slide-builder",
+    "slug": "ai-slide-builder",
+    "project": "ai-slide-builder",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://ai-slide-builder.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-slide-builder/src/lib/supabase/admin.ts",
+      "ai-slide-builder/src/lib/supabase/client.ts",
+      "ai-slide-builder/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ai-task-planner",
+    "slug": "ai-task-planner",
+    "project": "ai-task-planner",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://ai-task-planner.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-task-planner/src/lib/config.ts",
+      "ai-task-planner/src/lib/supabase/admin.ts",
+      "ai-task-planner/src/lib/supabase/client.ts",
+      "ai-task-planner/src/lib/supabase/server.ts",
+      "ai-task-planner/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "ai-webtoon-studio",
+    "slug": "ai-webtoon-studio",
+    "project": "ai-webtoon-studio",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://ai-webtoon-automation.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-webtoon-studio/src/lib/supabase/admin.ts",
+      "ai-webtoon-studio/src/lib/supabase/client.ts",
+      "ai-webtoon-studio/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ai-writing-editor",
+    "slug": "ai-writing-editor",
+    "project": "ai-writing-editor",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://ai-writing-editor.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ai-writing-editor/src/lib/config.ts",
+      "ai-writing-editor/src/lib/supabase/admin.ts",
+      "ai-writing-editor/src/lib/supabase/client.ts",
+      "ai-writing-editor/src/lib/supabase/server.ts",
+      "ai-writing-editor/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "allinone-graphic",
+    "slug": "allinone-graphic",
+    "project": "allinone-graphic",
+    "oldVersion": "v1.02",
+    "version": "v1.03",
+    "app_url": "https://graphic.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "allinone-graphic/src/lib/supabase/admin.ts",
+      "allinone-graphic/src/lib/supabase/client.ts",
+      "allinone-graphic/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "auto-detail-page",
+    "slug": "auto-detail-page",
+    "project": "auto-detail-page",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://shop-page-seven.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "auto-detail-page/lib/supabase/admin.ts",
+      "auto-detail-page/lib/supabase/client.ts",
+      "auto-detail-page/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "banana-canvas",
+    "slug": "banana-canvas",
+    "project": "banana-canvas",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://banana-canvas.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "banana-canvas/src/lib/config.ts",
+      "banana-canvas/src/lib/supabase/admin.ts",
+      "banana-canvas/src/lib/supabase/client.ts",
+      "banana-canvas/src/lib/supabase/server.ts",
+      "banana-canvas/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "blog-content-maker",
+    "slug": "blog-content-maker",
+    "project": "blog-content-maker",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://blog-content-maker.buylife.xyz",
+    "extension": true,
+    "extension_download_url": "https://blog-content-maker.buylife.xyz/downloads/blog-content-maker-extension-latest.zip",
+    "runtime_files": [
+      "blog-content-maker/src/lib/supabase/env.ts",
+      "blog-content-maker/src/lib/supabase/serverEnv.ts"
+    ]
+  },
+  {
+    "folder": "blog-keyword",
+    "slug": "blog-keyword",
+    "project": "blog-keyword",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://blog-keyword.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "blog-keyword/src/lib/config.ts",
+      "blog-keyword/src/lib/supabase/admin.ts",
+      "blog-keyword/src/lib/supabase/client.ts",
+      "blog-keyword/src/lib/supabase/server.ts",
+      "blog-keyword/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "blog-workroom",
+    "slug": "blog-workroom",
+    "project": "blog-workroom",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://blog-workroom.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "blog-workroom/src/lib/config.ts",
+      "blog-workroom/src/lib/supabase/admin.ts",
+      "blog-workroom/src/lib/supabase/client.ts",
+      "blog-workroom/src/lib/supabase/server.ts",
+      "blog-workroom/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "booking-reminder",
+    "slug": "booking-reminder",
+    "project": "booking-reminder",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://booking-reminder.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "booking-reminder/lib/supabase/admin.ts",
+      "booking-reminder/lib/supabase/client.ts",
+      "booking-reminder/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "cardnews-studio",
+    "slug": "cardnews-studio",
+    "project": "cardnews-studio",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://cardnews-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "cardnews-studio/src/lib/supabase/admin.ts",
+      "cardnews-studio/src/lib/supabase/client.ts",
+      "cardnews-studio/src/lib/supabase/server.ts",
+      "cardnews-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "cinematic-storyboard-studio",
+    "slug": "cinematic-storyboard-studio",
+    "project": "cinematic-storyboard-studio",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://cinematic-storyboard-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "cinematic-storyboard-studio/src/lib/supabase/admin.ts",
+      "cinematic-storyboard-studio/src/lib/supabase/client.ts",
+      "cinematic-storyboard-studio/src/lib/supabase/server.ts",
+      "cinematic-storyboard-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "competitor-analysis",
+    "slug": "competitor-analysis",
+    "project": "competitor-analysis",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://competitor-analysis-flax.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "competitor-analysis/lib/supabase/admin.ts",
+      "competitor-analysis/lib/supabase/client.ts",
+      "competitor-analysis/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "crm-google-form",
+    "slug": "crm-google-form",
+    "project": "crm-google-form",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://crm-google-form.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "crm-google-form/lib/supabase/admin.ts",
+      "crm-google-form/lib/supabase/client.ts",
+      "crm-google-form/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "detail-page-12p",
+    "slug": "detail-page-12p",
+    "project": "detail-page-12p",
+    "oldVersion": "v1.02",
+    "version": "v1.03",
+    "app_url": "https://detail-12p.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "detail-page-12p/src/lib/supabase/admin.ts",
+      "detail-page-12p/src/lib/supabase/client.ts",
+      "detail-page-12p/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "document-translator",
+    "slug": "document-translator",
+    "project": "document-translator",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://document-translator.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "document-translator/src/lib/config.ts",
+      "document-translator/src/lib/supabase/admin.ts",
+      "document-translator/src/lib/supabase/client.ts",
+      "document-translator/src/lib/supabase/server.ts",
+      "document-translator/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "ebook-studio",
+    "slug": "ebook-studio",
+    "project": "ebook-studio",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://ebook-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ebook-studio/src/lib/supabase/admin.ts",
+      "ebook-studio/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "emotion-writer",
+    "slug": "emotion-writer",
+    "project": "emotion-writer",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://emotion-writer.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "emotion-writer/src/lib/supabase/admin.ts",
+      "emotion-writer/src/lib/supabase/client.ts",
+      "emotion-writer/src/lib/supabase/server.ts",
+      "emotion-writer/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "fashion-style",
+    "slug": "fashion-style",
+    "project": "fashion-style",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://fashion-style.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "fashion-style/src/lib/config.ts",
+      "fashion-style/src/lib/supabase/admin.ts",
+      "fashion-style/src/lib/supabase/client.ts",
+      "fashion-style/src/lib/supabase/server.ts",
+      "fashion-style/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "file-merge",
+    "slug": "file-merge",
+    "project": "file-merge",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://file-merge.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "file-merge/src/lib/config.ts",
+      "file-merge/src/lib/supabase/admin.ts",
+      "file-merge/src/lib/supabase/client.ts",
+      "file-merge/src/lib/supabase/server.ts",
+      "file-merge/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "four-cut-comics",
+    "slug": "four-cut-comics",
+    "project": "four-cut-comics",
+    "oldVersion": "v1.07",
+    "version": "v1.08",
+    "app_url": "https://four-cut-comics.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "four-cut-comics/src/lib/config.ts",
+      "four-cut-comics/src/lib/supabase/admin.ts",
+      "four-cut-comics/src/lib/supabase/client.ts",
+      "four-cut-comics/src/lib/supabase/server.ts",
+      "four-cut-comics/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "ghost-scraper",
+    "slug": "website-scraper",
+    "project": "website-scraper",
+    "oldVersion": "v1.10",
+    "version": "v1.11",
+    "app_url": "https://website-scraper.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ghost-scraper/src/lib/supabase/admin.ts",
+      "ghost-scraper/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "image-convert-studio",
+    "slug": "image-convert-studio",
+    "project": "image-convert-studio",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://image-convert-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "image-convert-studio/src/lib/supabase/admin.ts",
+      "image-convert-studio/src/lib/supabase/client.ts",
+      "image-convert-studio/src/lib/supabase/server.ts",
+      "image-convert-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "infinite-loop-video",
+    "slug": "infinite-loop-video",
+    "project": "infinite-loop-video",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://infinite-loop-video.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "infinite-loop-video/src/lib/supabase/admin.ts",
+      "infinite-loop-video/src/lib/supabase/client.ts",
+      "infinite-loop-video/src/lib/supabase/server.ts",
+      "infinite-loop-video/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "insta_auto_poster",
+    "slug": "auto-instagram-posting",
+    "project": "insta-auto-poster",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://insta-auto-poster-red.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "insta_auto_poster/src/lib/supabase/admin.ts",
+      "insta_auto_poster/src/lib/supabase/client.ts",
+      "insta_auto_poster/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "instagram-comment-reply",
+    "slug": "instagram-comment-reply",
+    "project": "instagram-comment-reply",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://instagram-comment-reply.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "instagram-comment-reply/lib/supabase/admin.ts",
+      "instagram-comment-reply/lib/supabase/client.ts",
+      "instagram-comment-reply/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "instagram-dm-reply",
+    "slug": "instagram-dm-reply",
+    "project": "instagram-dm-reply",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://instagram-dm-reply.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "instagram-dm-reply/lib/supabase/admin.ts",
+      "instagram-dm-reply/lib/supabase/client.ts",
+      "instagram-dm-reply/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "kakao_auto_poster",
+    "slug": "kakao-auto-posting",
+    "project": "kakao_auto_poster",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://kakao-auto-posting.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "kakao_auto_poster/src/lib/supabase/admin.ts",
+      "kakao_auto_poster/src/lib/supabase/client.ts",
+      "kakao_auto_poster/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "landing-architect",
+    "slug": "landing-architect",
+    "project": "landing-architect",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://landing-architect.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "landing-architect/src/lib/config.ts",
+      "landing-architect/src/lib/supabase/admin.ts",
+      "landing-architect/src/lib/supabase/client.ts",
+      "landing-architect/src/lib/supabase/server.ts",
+      "landing-architect/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "longtail-keyword-expander",
+    "slug": "longtail-keyword-expander",
+    "project": "longtail-keyword-expander",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://longtail-keyword-expander.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "longtail-keyword-expander/lib/supabase/admin.ts",
+      "longtail-keyword-expander/lib/supabase/client.ts",
+      "longtail-keyword-expander/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "markdown-studio",
+    "slug": "markdown-studio",
+    "project": "markdown-studio",
+    "oldVersion": "v1.07",
+    "version": "v1.08",
+    "app_url": "https://markdown-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "markdown-studio/src/lib/config.ts",
+      "markdown-studio/src/lib/supabase/admin.ts",
+      "markdown-studio/src/lib/supabase/client.ts",
+      "markdown-studio/src/lib/supabase/server.ts",
+      "markdown-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "mbti",
+    "slug": "personality-code",
+    "project": "mbti",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://mbti-rho-two.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "mbti/lib/supabase/admin.ts",
+      "mbti/lib/supabase/client.ts",
+      "mbti/lib/supabase/server.ts",
+      "mbti/middleware.ts"
+    ]
+  },
+  {
+    "folder": "mbti-character",
+    "slug": "mbti-character",
+    "project": "mbti-character",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://mbti-character.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "mbti-character/lib/supabase/admin.ts",
+      "mbti-character/lib/supabase/client.ts",
+      "mbti-character/lib/supabase/server.ts",
+      "mbti-character/middleware.ts"
+    ]
+  },
+  {
+    "folder": "music",
+    "slug": "music-automation",
+    "project": "music",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://music-rho-virid-22.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "music/lib/supabase/admin.ts",
+      "music/lib/supabase/client.ts",
+      "music/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "music-player",
+    "slug": "music-player",
+    "project": "music-player",
+    "oldVersion": "v1.02",
+    "version": "v1.03",
+    "app_url": "https://music-player.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "music-player/src/lib/config.ts",
+      "music-player/src/lib/supabase/admin.ts",
+      "music-player/src/lib/supabase/client.ts",
+      "music-player/src/lib/supabase/server.ts",
+      "music-player/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "music-video-studio",
+    "slug": "music-video-studio",
+    "project": "music-video-studio",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://music-video-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "music-video-studio/src/lib/supabase/admin.ts",
+      "music-video-studio/src/lib/supabase/client.ts",
+      "music-video-studio/src/lib/supabase/server.ts",
+      "music-video-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "naver-blog-agent",
+    "slug": "naver-blog-agent",
+    "project": "naver-blog-agent",
+    "oldVersion": "v1.83",
+    "version": "v1.84",
+    "app_url": "https://naver-blog-agent.vercel.app",
+    "extension": true,
+    "extension_download_url": "https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip",
+    "runtime_files": [
+      "naver-blog-agent/src/lib/supabase/admin.ts",
+      "naver-blog-agent/src/lib/supabase/client.ts",
+      "naver-blog-agent/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "naver-blog-allinone",
+    "slug": "naver-blog-allinone",
+    "project": "naver-blog-allinone",
+    "oldVersion": "v1.41",
+    "version": "v1.42",
+    "app_url": "https://naver-blog-allinone.buylife.xyz",
+    "extension": true,
+    "extension_download_url": "https://naver-blog-allinone.buylife.xyz/downloads/naver-blog-allinone-latest.zip",
+    "runtime_files": [
+      "naver-blog-allinone/src/lib/supabase/admin.ts",
+      "naver-blog-allinone/src/lib/supabase/client.ts",
+      "naver-blog-allinone/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "naver-blog-auto-poster_app/web",
+    "slug": "naver-blog-auto-poster",
+    "project": "naver-blog-auto-poster",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://naver-blog-auto-poster.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "naver-blog-auto-poster_app/web/lib/supabase/client.ts",
+      "naver-blog-auto-poster_app/web/lib/supabase/server.ts",
+      "naver-blog-auto-poster_app/web/lib/supabase/service.ts",
+      "naver-blog-auto-poster_app/web/middleware.ts"
+    ]
+  },
+  {
+    "folder": "naver-blog-auto-poster_web/web",
+    "slug": "naver-blog-auto-poster-web",
+    "project": "naver-blog-auto-poster-web",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://naver-blog-auto-poster-web.buylife.xyz",
+    "extension": true,
+    "extension_download_url": "https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip",
+    "runtime_files": [
+      "naver-blog-auto-poster_web/web/lib/supabase/client.ts",
+      "naver-blog-auto-poster_web/web/lib/supabase/server.ts",
+      "naver-blog-auto-poster_web/web/lib/supabase/service.ts",
+      "naver-blog-auto-poster_web/web/middleware.ts"
+    ]
+  },
+  {
+    "folder": "naver-blog-seo-studio",
+    "slug": "naver-blog-seo-studio",
+    "project": "naver-blog-seo-studio",
+    "oldVersion": "v1.63",
+    "version": "v1.64",
+    "app_url": "https://www.buylife.xyz/naver-blog-seo-studio",
+    "extension": true,
+    "extension_download_url": "https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-latest.zip",
+    "runtime_files": [
+      "naver-blog-seo-studio/lib/supabase/client.ts",
+      "naver-blog-seo-studio/lib/supabase/server.ts",
+      "naver-blog-seo-studio/lib/supabase/service.ts",
+      "naver-blog-seo-studio/proxy.ts"
+    ]
+  },
+  {
+    "folder": "naver-cafe-poster",
+    "slug": "naver-cafe-poster",
+    "project": "naver-cafe-poster",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://naver-cafe-poster.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "naver-cafe-poster/src/lib/supabase/admin.ts",
+      "naver-cafe-poster/src/lib/supabase/client.ts",
+      "naver-cafe-poster/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "persona-style-studio",
+    "slug": "persona-style-studio",
+    "project": "persona-style-studio",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://persona-style-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "persona-style-studio/src/lib/supabase/admin.ts",
+      "persona-style-studio/src/lib/supabase/client.ts",
+      "persona-style-studio/src/lib/supabase/server.ts",
+      "persona-style-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "personality-suite",
+    "slug": "personality-suite",
+    "project": "personality-suite",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://personality-suite.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "personality-suite/src/lib/config.ts",
+      "personality-suite/src/lib/supabase/admin.ts",
+      "personality-suite/src/lib/supabase/client.ts",
+      "personality-suite/src/lib/supabase/server.ts",
+      "personality-suite/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "photo-remake-studio",
+    "slug": "photo-remake-studio",
+    "project": "photo-remake-studio",
+    "oldVersion": "v1.02",
+    "version": "v1.03",
+    "app_url": "https://photo-remake-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "photo-remake-studio/src/lib/config.ts",
+      "photo-remake-studio/src/lib/supabase/admin.ts",
+      "photo-remake-studio/src/lib/supabase/client.ts",
+      "photo-remake-studio/src/lib/supabase/server.ts",
+      "photo-remake-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "playlist-channel-studio",
+    "slug": "playlist-channel-studio",
+    "project": "playlist-channel-studio",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://playlist-channel-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "playlist-channel-studio/src/lib/supabase/admin.ts",
+      "playlist-channel-studio/src/lib/supabase/client.ts",
+      "playlist-channel-studio/src/lib/supabase/server.ts",
+      "playlist-channel-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "portrait-photo",
+    "slug": "portrait-photo",
+    "project": "portrait-photo",
+    "oldVersion": "v1.18",
+    "version": "v1.19",
+    "app_url": "https://portrait-photo.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "portrait-photo/src/lib/config.ts",
+      "portrait-photo/src/lib/supabase/admin.ts",
+      "portrait-photo/src/lib/supabase/client.ts",
+      "portrait-photo/src/lib/supabase/server.ts",
+      "portrait-photo/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "prompt-template-studio",
+    "slug": "prompt-template-studio",
+    "project": "prompt-template-studio",
+    "oldVersion": "v1.02",
+    "version": "v1.03",
+    "app_url": "https://prompt-template.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "prompt-template-studio/src/lib/supabase/admin.ts",
+      "prompt-template-studio/src/lib/supabase/client.ts",
+      "prompt-template-studio/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "react-ui-showcase",
+    "slug": "ai-web-ui",
+    "project": "react-ui-showcase",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://ai-web-ui.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "react-ui-showcase/src/lib/supabase/admin.ts",
+      "react-ui-showcase/src/lib/supabase/client.ts",
+      "react-ui-showcase/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "real_estate_sales",
+    "slug": "real-estate-sales",
+    "project": "real-estate-sales",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://real-estate-sales-delta.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "real_estate_sales/src/lib/supabase/admin.ts",
+      "real_estate_sales/src/lib/supabase/client.ts",
+      "real_estate_sales/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "reverse-prompt",
+    "slug": "reverse-prompt",
+    "project": "reverse-prompt",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://reverse-prompt.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "reverse-prompt/src/lib/config.ts",
+      "reverse-prompt/src/lib/supabase/admin.ts",
+      "reverse-prompt/src/lib/supabase/client.ts",
+      "reverse-prompt/src/lib/supabase/server.ts",
+      "reverse-prompt/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "seo-thumbnail-pro",
+    "slug": "seo-thumbnail-pro",
+    "project": "seo-thumbnail-pro",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://seo-thumbnail-pro.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "seo-thumbnail-pro/src/lib/supabase/admin.ts",
+      "seo-thumbnail-pro/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "shop-detail-page",
+    "slug": "shop-detail-page",
+    "project": "shop-detail-page",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://shop-detail-page.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "shop-detail-page/lib/supabase/admin.ts",
+      "shop-detail-page/lib/supabase/client.ts",
+      "shop-detail-page/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "shorts-viral-studio",
+    "slug": "shorts-viral-studio",
+    "project": "shorts-viral-studio",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://shorts-viral-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "shorts-viral-studio/src/lib/supabase/admin.ts",
+      "shorts-viral-studio/src/lib/supabase/client.ts",
+      "shorts-viral-studio/src/lib/supabase/server.ts",
+      "shorts-viral-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "shots",
+    "slug": "auto-shorts-posting",
+    "project": "shots",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://shots.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "shots/src/lib/supabase/admin.ts",
+      "shots/src/lib/supabase/client.ts",
+      "shots/src/lib/supabase/server.ts",
+      "shots/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "stepmail",
+    "slug": "stepmail",
+    "project": "stepmail",
+    "oldVersion": "v1.09",
+    "version": "v1.10",
+    "app_url": "https://stepmail.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "stepmail/lib/supabase/admin.ts",
+      "stepmail/lib/supabase/client.ts",
+      "stepmail/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "style-dna-analyzer",
+    "slug": "style-dna-analyzer",
+    "project": "style-dna-analyzer",
+    "oldVersion": "v1.14",
+    "version": "v1.15",
+    "app_url": "https://style-dna-analyzer.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "style-dna-analyzer/src/lib/supabase/admin.ts",
+      "style-dna-analyzer/src/lib/supabase/client.ts",
+      "style-dna-analyzer/src/lib/supabase/server.ts",
+      "style-dna-analyzer/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "suno-music-studio",
+    "slug": "suno-music-studio",
+    "project": "suno-music-studio",
+    "oldVersion": "v1.08",
+    "version": "v1.09",
+    "app_url": "https://suno-music-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "suno-music-studio/src/lib/supabase/admin.ts",
+      "suno-music-studio/src/lib/supabase/client.ts",
+      "suno-music-studio/src/lib/supabase/server.ts",
+      "suno-music-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "tarot",
+    "slug": "tarot-reading",
+    "project": "tarot",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://tarot-eight-jet.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "tarot/lib/supabase/client.ts",
+      "tarot/lib/supabase/server.ts",
+      "tarot/middleware.ts"
+    ]
+  },
+  {
+    "folder": "threads",
+    "slug": "auto-threads-posting",
+    "project": "threads",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://threads-nu-dusky.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "threads/src/lib/supabase/admin.ts",
+      "threads/src/lib/supabase/client.ts",
+      "threads/src/lib/supabase/server.ts",
+      "threads/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "threads-affiliate-poster",
+    "slug": "threads-affiliate-poster",
+    "project": "threads-affiliate-poster",
+    "oldVersion": "v1.51",
+    "version": "v1.52",
+    "app_url": "https://threads-affiliate-poster.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "threads-affiliate-poster/src/lib/supabase/admin.ts",
+      "threads-affiliate-poster/src/lib/supabase/client.ts",
+      "threads-affiliate-poster/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "threads-comment-reply",
+    "slug": "threads-comment-reply",
+    "project": "threads-comment-reply",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://threads-comment-reply.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "threads-comment-reply/lib/supabase/admin.ts",
+      "threads-comment-reply/lib/supabase/client.ts",
+      "threads-comment-reply/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "threads-content-ops",
+    "slug": "threads-content-ops",
+    "project": "threads-content-ops",
+    "oldVersion": "v1.94",
+    "version": "v1.95",
+    "app_url": "https://threads-content-ops.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "threads-content-ops/lib/supabase/client.ts",
+      "threads-content-ops/lib/supabase/server.ts",
+      "threads-content-ops/lib/supabase/service.ts",
+      "threads-content-ops/middleware.ts"
+    ]
+  },
+  {
+    "folder": "threads-easy-planner",
+    "slug": "threads-easy-planner",
+    "project": "threads-easy-planner",
+    "oldVersion": "v1.42",
+    "version": "v1.43",
+    "app_url": "https://threads-easy-planner.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "threads-easy-planner/src/lib/supabase/admin.ts",
+      "threads-easy-planner/src/lib/supabase/client.ts",
+      "threads-easy-planner/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "thumbnail-master",
+    "slug": "thumbnail-master",
+    "project": "thumbnail-master",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://thumbnail-master.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "thumbnail-master/src/lib/config.ts",
+      "thumbnail-master/src/lib/supabase/admin.ts",
+      "thumbnail-master/src/lib/supabase/client.ts",
+      "thumbnail-master/src/lib/supabase/server.ts",
+      "thumbnail-master/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "tistory-auto-blog",
+    "slug": "tistory-auto-blog",
+    "project": "tistory-auto-blog",
+    "oldVersion": "v1.70",
+    "version": "v1.71",
+    "app_url": "https://tistory-auto-blog-pearl.vercel.app",
+    "extension": true,
+    "extension_download_url": "https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-latest.zip",
+    "runtime_files": [
+      "tistory-auto-blog/app/_components/BlogShell.tsx",
+      "tistory-auto-blog/proxy.ts",
+      "tistory-auto-blog/utils/supabase/admin.ts",
+      "tistory-auto-blog/utils/supabase/client.ts",
+      "tistory-auto-blog/utils/supabase/middleware.ts",
+      "tistory-auto-blog/utils/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "trending-product-finder",
+    "slug": "trending-product-finder",
+    "project": "trending-product-finder",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://trending-product-finder.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "trending-product-finder/lib/supabase/admin.ts",
+      "trending-product-finder/lib/supabase/client.ts",
+      "trending-product-finder/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "ui-canvas",
+    "slug": "ui-canvas",
+    "project": "ui-canvas",
+    "oldVersion": "v1.06",
+    "version": "v1.07",
+    "app_url": "https://ui-canvas.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "ui-canvas/src/lib/config.ts",
+      "ui-canvas/src/lib/supabase/admin.ts",
+      "ui-canvas/src/lib/supabase/client.ts",
+      "ui-canvas/src/lib/supabase/server.ts",
+      "ui-canvas/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "video-to-gif",
+    "slug": "video-to-gif",
+    "project": "video-to-gif",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://video-to-gif-buylife.vercel.app/dashboard",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "video-to-gif/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "vinyl-lp-studio",
+    "slug": "vinyl-lp-studio",
+    "project": "vinyl-lp-studio",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://lp-turntable.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "vinyl-lp-studio/src/lib/supabase/admin.ts",
+      "vinyl-lp-studio/src/lib/supabase/client.ts",
+      "vinyl-lp-studio/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "web-crawler/webapp",
+    "slug": "web-crawler-saas",
+    "project": "web-crawler-saas",
+    "oldVersion": "v1.04",
+    "version": "v1.05",
+    "app_url": "https://web-crawler-saas.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "web-crawler/webapp/src/lib/supabase/admin.ts",
+      "web-crawler/webapp/src/lib/supabase/client.ts",
+      "web-crawler/webapp/src/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "youtube-auto-reply",
+    "slug": "youtube-auto-reply",
+    "project": "youtube-auto-reply",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://youtube-auto-reply.vercel.app",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "youtube-auto-reply/lib/supabase/admin.ts",
+      "youtube-auto-reply/lib/supabase/client.ts",
+      "youtube-auto-reply/lib/supabase/server.ts"
+    ]
+  },
+  {
+    "folder": "youtube-channel-consultant",
+    "slug": "youtube-channel-consultant",
+    "project": "youtube-channel-consultant",
+    "oldVersion": "v1.05",
+    "version": "v1.06",
+    "app_url": "https://youtube-channel-consultant.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "youtube-channel-consultant/src/lib/supabase/admin.ts",
+      "youtube-channel-consultant/src/lib/supabase/client.ts",
+      "youtube-channel-consultant/src/lib/supabase/server.ts",
+      "youtube-channel-consultant/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "youtube-viral-studio",
+    "slug": "youtube-viral-studio",
+    "project": "youtube-viral-studio",
+    "oldVersion": "v1.11",
+    "version": "v1.12",
+    "app_url": "https://youtube-viral-studio.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "youtube-viral-studio/src/lib/supabase/admin.ts",
+      "youtube-viral-studio/src/lib/supabase/client.ts",
+      "youtube-viral-studio/src/lib/supabase/server.ts",
+      "youtube-viral-studio/src/proxy.ts"
+    ]
+  },
+  {
+    "folder": "yt-playlist-studio",
+    "slug": "yt-playlist-studio",
+    "project": "yt-playlist-studio",
+    "oldVersion": "v1.03",
+    "version": "v1.04",
+    "app_url": "https://youtube-playlist.buylife.xyz",
+    "extension": false,
+    "extension_download_url": null,
+    "runtime_files": [
+      "yt-playlist-studio/src/lib/supabase/admin.ts",
+      "yt-playlist-studio/src/lib/supabase/client.ts",
+      "yt-playlist-studio/src/lib/supabase/server.ts"
+    ]
+  }
+]

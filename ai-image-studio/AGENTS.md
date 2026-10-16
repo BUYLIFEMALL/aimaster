@@ -65,3 +65,8 @@
 - `lib/supabase/server.ts`의 `createAdminClient()`가 `SUPABASE_SERVICE_ROLE_KEY` 환경변수만 쓴다(없으면 시작 실패). 예전의 base64 내장 키(`DEFAULT_SERVICE_ROLE_KEY`)와 `NEXT_PUBLIC_…SERVICE_ROLE_KEY` 폴백을 삭제했고, `scripts/test-flux-pipeline.mjs`·`inspect_flux2_max.mjs`의 내장 키도 제거했다. Vercel `ai-image-studio`에는 새 키를 환경변수로 등록했다(production·preview).
 - 이 키는 공개 저장소에 올라가 있던 공용 키라 교체했다(전체 경위·절차: 루트 `docs/ERROR_LESSONS.md` "서비스 키가 공개 저장소에 올라가 있었다"). **배포 후 운영 주소를 새 배포로 옮겨야 한다**(위 "배포 주의" 참고).
 - v1.08 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.09 (ai-image-studio)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

@@ -14,8 +14,8 @@ const link = JSON.parse(fs.readFileSync(`${cwd}/.vercel/project.json`, "utf8"));
 if (link.projectName !== "threads-content-ops") throw new Error("연결된 프로젝트가 threads-content-ops가 아닙니다.");
 const targets = [
   ["NEXT_PUBLIC_SUPABASE_URL", env.NEXT_PUBLIC_SUPABASE_URL, false],
-  ["NEXT_PUBLIC_SUPABASE_ANON_KEY", env.NEXT_PUBLIC_SUPABASE_ANON_KEY, false],
-  ["SUPABASE_SERVICE_ROLE_KEY", env.SUPABASE_SERVICE_ROLE_KEY, true],
+  ["NEXT_PUBLIC_SUPABASE_ANON_KEY", (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()), false],
+  ["SUPABASE_SERVICE_ROLE_KEY", (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()), true],
   ["CRON_SECRET", crypto.randomBytes(24).toString("hex"), true],
 ];
 for (const [key, val, sensitive] of targets) {

@@ -41,3 +41,8 @@ npm run test:runtime
 Vercel `buylife/markdown-studio` 프로젝트 생성·연결까지 했습니다. **환경변수 등록·프로덕션 배포·카탈로그 등록·도메인 연결은 아직 하지 않았습니다.** [운영 설정안](docs/PROVISIONING_PLAN.md)의 AIMaster 인증 환경변수 3개는 루트 규칙에 따른 사전 승인이 필요합니다. DB 스키마는 1단계에서 변경하지 않습니다.
 
 다음 순서는 2단계 편집 도구 20종·목록 3종·기호 32종·CodeMirror, 3단계 가져오기/백업/HTML·PDF·DOCX·ZIP, 4단계 본인 Drive, 5단계 일반 회원 운영 검수·등록·썸네일입니다. Suno의 보류된 검수는 별도 작업으로 유지합니다.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.08 (markdown-studio)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

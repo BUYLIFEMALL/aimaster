@@ -6,7 +6,7 @@ export async function proxy(request: NextRequest) {
   // 이 경로는 정적 시안 전용이며, 실제 기능·데이터·인증에는 접근하지 않는다.
   const hasSupabaseConfig = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+      (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim())
   )
 
   if (!hasSupabaseConfig && request.nextUrl.pathname.startsWith('/preview')) {

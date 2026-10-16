@@ -310,3 +310,8 @@ GitHub Releases + zip 방식을 따른다.
 - 로그아웃: `web/app/api/auth/logout/route.ts`(four-cut-comics와 같은 방식, 같은 출처만) → 메인 로그인으로 이동.
 - 확장 규칙(원칙 10): 확장 코드 변경 없음, 버전만 맞춤 — `extension/manifest.json` 1.5.0/v1.05, `web/lib/naverBlogAutoPosterWebExtension.ts` v1.05, ZIP 재생성(`public/downloads/naver-blog-auto-poster-web-extension-latest.zip`, 메인 사이트 재배포), DB `version`·`extension_version` v1.05, `check-extension-release.mjs` OK. 회원 화면에 새 버전 안내가 뜨면 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침.
 - 검수: tsc·빌드, 배포 후 비로그인 307(메인 로그인), 로그아웃 API 다른 출처 403, 옛 www API 주소 401(전달 유지). **화면**: 비공개 프로그램이라 시험 계정으로는 열 수 없어, 로컬 개발 서버에 로그인 확인만 뺀 임시 미리보기(커밋 안 함, 확인 후 삭제)로 엣지에서 확인 — 흰 배경·흰 카드·좌측 메뉴·계정 위치, 메뉴 클릭 시 구역 이동, 400px에서 좌측 메뉴 숨김·☰ 메뉴 같은 순서·본문 전체 폭·가로 넘침 0. **운영 로그인 화면은 관리자 계정(메인 크롬)으로 주인님 확인 필요.**
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.06 (naver-blog-auto-poster-web)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

@@ -1,0 +1,1380 @@
+[
+  {
+    "slug": "ai-image-studio",
+    "project": "ai-image-studio",
+    "folder": "ai-image-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-auto-blog",
+    "project": "ai-auto-blog",
+    "folder": "ai-auto-blog",
+    "add": [
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-audio-analyzer",
+    "project": "ai-audio-analyzer",
+    "folder": "ai-audio-analyzer",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-influencer-studio",
+    "project": "ai-influencer-studio",
+    "folder": "ai-influencer-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-mastering-studio",
+    "project": "ai-mastering-studio",
+    "folder": "ai-mastering-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-prompt-studio",
+    "project": "ai-prompt-studio",
+    "folder": "ai-prompt-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-slide-builder",
+    "project": "ai-slide-builder",
+    "folder": "ai-slide-builder",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-task-planner",
+    "project": "ai-task-planner",
+    "folder": "ai-task-planner",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-writing-editor",
+    "project": "ai-writing-editor",
+    "folder": "ai-writing-editor",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-webtoon-studio",
+    "project": "ai-webtoon-studio",
+    "folder": "ai-webtoon-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "allinone-graphic",
+    "project": "allinone-graphic",
+    "folder": "allinone-graphic",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "auto-detail-page",
+    "project": "auto-detail-page",
+    "folder": "auto-detail-page",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "blog-content-maker",
+    "project": "blog-content-maker",
+    "folder": "blog-content-maker",
+    "add": [
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "blog-keyword",
+    "project": "blog-keyword",
+    "folder": "blog-keyword",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "banana-canvas",
+    "project": "banana-canvas",
+    "folder": "banana-canvas",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "blog-workroom",
+    "project": "blog-workroom",
+    "folder": "blog-workroom",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "booking-reminder",
+    "project": "booking-reminder",
+    "folder": "booking-reminder",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "cardnews-studio",
+    "project": "cardnews-studio",
+    "folder": "cardnews-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "cinematic-storyboard-studio",
+    "project": "cinematic-storyboard-studio",
+    "folder": "cinematic-storyboard-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "competitor-analysis",
+    "project": "competitor-analysis",
+    "folder": "competitor-analysis",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "crm-google-form",
+    "project": "crm-google-form",
+    "folder": "crm-google-form",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "detail-page-12p",
+    "project": "detail-page-12p",
+    "folder": "detail-page-12p",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "document-translator",
+    "project": "document-translator",
+    "folder": "document-translator",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ebook-studio",
+    "project": "ebook-studio",
+    "folder": "ebook-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "emotion-writer",
+    "project": "emotion-writer",
+    "folder": "emotion-writer",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "fashion-style",
+    "project": "fashion-style",
+    "folder": "fashion-style",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "file-merge",
+    "project": "file-merge",
+    "folder": "file-merge",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "four-cut-comics",
+    "project": "four-cut-comics",
+    "folder": "four-cut-comics",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "image-convert-studio",
+    "project": "image-convert-studio",
+    "folder": "image-convert-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "website-scraper",
+    "project": "website-scraper",
+    "folder": "ghost-scraper",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "infinite-loop-video",
+    "project": "infinite-loop-video",
+    "folder": "infinite-loop-video",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "auto-instagram-posting",
+    "project": "insta-auto-poster",
+    "folder": "insta_auto_poster",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "instagram-comment-reply",
+    "project": "instagram-comment-reply",
+    "folder": "instagram-comment-reply",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "instagram-dm-reply",
+    "project": "instagram-dm-reply",
+    "folder": "instagram-dm-reply",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "kakao-auto-posting",
+    "project": "kakao_auto_poster",
+    "folder": "kakao_auto_poster",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "landing-architect",
+    "project": "landing-architect",
+    "folder": "landing-architect",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "longtail-keyword-expander",
+    "project": "longtail-keyword-expander",
+    "folder": "longtail-keyword-expander",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "personality-code",
+    "project": "mbti",
+    "folder": "mbti",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "markdown-studio",
+    "project": "markdown-studio",
+    "folder": "markdown-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "mbti-character",
+    "project": "mbti-character",
+    "folder": "mbti-character",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "music-automation",
+    "project": "music",
+    "folder": "music",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "music-video-studio",
+    "project": "music-video-studio",
+    "folder": "music-video-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "music-player",
+    "project": "music-player",
+    "folder": "music-player",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "naver-blog-agent",
+    "project": "naver-blog-agent",
+    "folder": "naver-blog-agent",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "naver-blog-allinone",
+    "project": "naver-blog-allinone",
+    "folder": "naver-blog-allinone",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "naver-blog-auto-poster",
+    "project": "naver-blog-auto-poster",
+    "folder": "naver-blog-auto-poster_app/web",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "naver-blog-auto-poster-web",
+    "project": "naver-blog-auto-poster-web",
+    "folder": "naver-blog-auto-poster_web/web",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "naver-blog-seo-studio",
+    "project": "naver-blog-seo-studio",
+    "folder": "naver-blog-seo-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "naver-cafe-poster",
+    "project": "naver-cafe-poster",
+    "folder": "naver-cafe-poster",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "persona-style-studio",
+    "project": "persona-style-studio",
+    "folder": "persona-style-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "personality-suite",
+    "project": "personality-suite",
+    "folder": "personality-suite",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "photo-remake-studio",
+    "project": "photo-remake-studio",
+    "folder": "photo-remake-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "portrait-photo",
+    "project": "portrait-photo",
+    "folder": "portrait-photo",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "prompt-template-studio",
+    "project": "prompt-template-studio",
+    "folder": "prompt-template-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "playlist-channel-studio",
+    "project": "playlist-channel-studio",
+    "folder": "playlist-channel-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ai-web-ui",
+    "project": "react-ui-showcase",
+    "folder": "react-ui-showcase",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "reverse-prompt",
+    "project": "reverse-prompt",
+    "folder": "reverse-prompt",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "real-estate-sales",
+    "project": "real-estate-sales",
+    "folder": "real_estate_sales",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "seo-thumbnail-pro",
+    "project": "seo-thumbnail-pro",
+    "folder": "seo-thumbnail-pro",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "shop-detail-page",
+    "project": "shop-detail-page",
+    "folder": "shop-detail-page",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "shorts-viral-studio",
+    "project": "shorts-viral-studio",
+    "folder": "shorts-viral-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "auto-shorts-posting",
+    "project": "shots",
+    "folder": "shots",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "stepmail",
+    "project": "stepmail",
+    "folder": "stepmail",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "style-dna-analyzer",
+    "project": "style-dna-analyzer",
+    "folder": "style-dna-analyzer",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "suno-music-studio",
+    "project": "suno-music-studio",
+    "folder": "suno-music-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "auto-threads-posting",
+    "project": "threads",
+    "folder": "threads",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "tarot-reading",
+    "project": "tarot",
+    "folder": "tarot",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "threads-affiliate-poster",
+    "project": "threads-affiliate-poster",
+    "folder": "threads-affiliate-poster",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "threads-easy-planner",
+    "project": "threads-easy-planner",
+    "folder": "threads-easy-planner",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "threads-comment-reply",
+    "project": "threads-comment-reply",
+    "folder": "threads-comment-reply",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "thumbnail-master",
+    "project": "thumbnail-master",
+    "folder": "thumbnail-master",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "threads-content-ops",
+    "project": "threads-content-ops",
+    "folder": "threads-content-ops",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "tistory-auto-blog",
+    "project": "tistory-auto-blog",
+    "folder": "tistory-auto-blog",
+    "add": [
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "trending-product-finder",
+    "project": "trending-product-finder",
+    "folder": "trending-product-finder",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "ui-canvas",
+    "project": "ui-canvas",
+    "folder": "ui-canvas",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "video-to-gif",
+    "project": "video-to-gif",
+    "folder": "video-to-gif",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "vinyl-lp-studio",
+    "project": "vinyl-lp-studio",
+    "folder": "vinyl-lp-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "web-crawler-saas",
+    "project": "web-crawler-saas",
+    "folder": "web-crawler/webapp",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "youtube-auto-reply",
+    "project": "youtube-auto-reply",
+    "folder": "youtube-auto-reply",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "youtube-channel-consultant",
+    "project": "youtube-channel-consultant",
+    "folder": "youtube-channel-consultant",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "youtube-viral-studio",
+    "project": "youtube-viral-studio",
+    "folder": "youtube-viral-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  },
+  {
+    "slug": "yt-playlist-studio",
+    "project": "yt-playlist-studio",
+    "folder": "yt-playlist-studio",
+    "add": [
+      {
+        "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "type": "Config"
+      },
+      {
+        "key": "SUPABASE_SECRET_KEY",
+        "type": "Secret"
+      }
+    ],
+    "target": "Production",
+    "status": "not applied; approval required; preserve all existing variables"
+  }
+]

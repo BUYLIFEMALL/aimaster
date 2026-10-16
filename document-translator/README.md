@@ -29,3 +29,8 @@ TXT·텍스트 PDF·Word 가져오기,10개 언어 번역, 문단별 수정·수
 자동 검사10개·기존 Chrome 모의 화면14개·실제 Next 설정 실패 시 접근 차단8개 경계 검사를 통과했습니다. 실제 번역 품질·운영 회원 검수와 구분합니다. [구현 기록](docs/IMPLEMENTATION_STATUS.md), [운영 변경과 승인 범위](docs/OPERATING_CHANGES.md)를 확인해주세요.
 
 운영 주소: `https://document-translator.buylife.xyz`. 운영 등록 및 출시 SQL은 supabase/에 보관했습니다. FREE 배지를 넣지 않고 기존 일반 이상+사용기간/결제 구독·VIP 자동 부여 정책을 따릅니다. 스캔 PDF·HWP·PPTX·XLSX·완전한 원본 배치 재현은 후속 범위입니다.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.04 (document-translator)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

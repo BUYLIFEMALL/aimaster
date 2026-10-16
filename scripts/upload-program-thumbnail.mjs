@@ -26,7 +26,7 @@ if (!slug || !imagePath) {
 }
 
 const env = readEnvFile(new URL("../.env.local", import.meta.url));
-if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+if (!env.NEXT_PUBLIC_SUPABASE_URL || !(env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim())) {
   console.error("NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in .env.local");
   process.exit(1);
 }
@@ -39,7 +39,7 @@ if (!contentType) {
   process.exit(1);
 }
 
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()), {
   auth: { persistSession: false },
 });
 const file = readFileSync(imagePath);

@@ -14,7 +14,7 @@ function loadEnv(path) {
 }
 
 const env = loadEnv('D:/Antigravity/AIMaster/.env.local');
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 const formattedDescription = `
 <h3>🎙️ 음성 인텔리전스 · 회의록 자동화 & 음악 Suno v5 역설계 스튜디오</h3>

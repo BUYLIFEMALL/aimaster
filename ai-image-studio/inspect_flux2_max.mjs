@@ -12,7 +12,7 @@ envText.split('\n').forEach(line => {
 });
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || 'https://esgxyikcnnvmlhygjkth.supabase.co';
-const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY; // 환경변수로만 받는다(코드에 기본값을 두지 않는다)
+const serviceRoleKey = (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()); // 환경변수로만 받는다(코드에 기본값을 두지 않는다)
 if (!serviceRoleKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY 환경변수가 필요합니다.');
 
 async function run() {

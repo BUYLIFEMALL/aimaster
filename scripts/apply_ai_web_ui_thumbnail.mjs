@@ -14,7 +14,7 @@ function loadEnv(path) {
 }
 
 const env = loadEnv('D:/Antigravity/AIMaster/.env.local');
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 async function run() {
   console.log('--- AI 웹 UI 제작 자동화 썸네일 업로드 및 DB 등록 시작 ---');

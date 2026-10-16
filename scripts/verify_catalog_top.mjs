@@ -15,7 +15,7 @@ function loadEnv(envPath) {
 }
 
 const env = loadEnv("D:/Antigravity/AIMaster/.env.local");
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()));
 
 const { data } = await supabase
   .from("programs")

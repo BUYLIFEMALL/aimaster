@@ -90,3 +90,8 @@ stepmail은 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수
   - 검수: `npm audit --omit=dev` **0건**(이전 2건 = Next 15 내장 postcss). 전체(개발 도구 포함)는 9건(tailwind 3·eslint 계열 braces 등, 운영 미포함 — B2). `npm run build` 통과, 로컬 `next start`(공용 DB 값은 실행 때만 전달): 로그인·가입 200, `/` 307→`/leads`, 보호 화면 307→`/login?redirect=<원래 경로+쿼리>`(proxy 헤더 동작), API 401, 옛 호스트 `stepmail-kappa.vercel.app`(Host·x-forwarded-host 둘 다) 화면 308→`https://stepmail.buylife.xyz/…`(쿼리 유지), 옛 호스트 API는 리다이렉트 없이 401. 엣지에서 로그인 화면 렌더링 확인. `eslint .` 오류 0·경고 2(기존 코드, 이번 범위 밖). 로컬 빌드 경고: 저장소 루트에도 락 파일이 있어 작업 루트 추론 경고(로컬 한정, Vercel에는 stepmail만 올라감).
   - `vercel.json` cron 변경 없음, 실제 발송 없음. 마이그레이션 `supabase/migrations/20261015220000_stepmail_v1_09_next16.sql`. 되돌리기: Vercel에서 직전 배포(v1.08)로 롤백.
   - 운영(2026-10-15, 커밋 `0834c451`, 배포 `stepmail-6ankww44c`): 로그인 200, `/` 307, 보호 화면 307(redirect 경로·쿼리 유지), API 401, 옛 주소 화면 308·옛 주소 크론 401, `X-Vercel-Cache: MISS`. 엣지 시험 계정(메인 로그인 공유)으로 리드 목록·이메일 초안·예약 발송 목록·새 캠페인 화면 정상, 메뉴 v1.09 표시. 실제 발송·"지금 실행" 없음.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.10 (stepmail)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

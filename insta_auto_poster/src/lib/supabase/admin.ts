@@ -7,7 +7,7 @@ import type { Database } from "@/types/database.types";
 // "server-only" import로 클라이언트 번들에 포함될 경우 빌드 타임에 에러가 발생합니다.
 export function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceRoleKey = (process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());
 
   if (!url || !serviceRoleKey) {
     throw new Error("Supabase service role 환경변수가 설정되지 않았습니다.");

@@ -11,7 +11,7 @@ const version = fs.readFileSync(path.join(projectRoot, "lib/version.ts"), "utf8"
   .match(/APP_VERSION\s*=\s*"(v\d+\.\d{2})"/)?.[1];
 if (!version) throw new Error("APP_VERSION(vX.YY)을 찾지 못했습니다.");
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const key = (process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());
 if (!url || !key) throw new Error("Supabase 환경변수가 필요합니다.");
 if (new URL(url).hostname !== "esgxyikcnnvmlhygjkth.supabase.co") throw new Error("공유 DB 주소를 확인해 주세요.");
 

@@ -17,7 +17,7 @@ const versionSource = fs.readFileSync(path.join(projectRoot, 'utils', 'version.t
 const version = versionSource.match(/APP_VERSION\s*=\s*["'](v\d+\.\d{2})["']/)?.[1]
 if (!version) throw new Error('utils/version.ts에서 APP_VERSION(vX.YY)을 찾지 못했습니다.')
 
-const client = createClient(environment.NEXT_PUBLIC_SUPABASE_URL, environment.SUPABASE_SERVICE_ROLE_KEY, {
+const client = createClient(environment.NEXT_PUBLIC_SUPABASE_URL, (environment.SUPABASE_SECRET_KEY?.trim() || environment.SUPABASE_SERVICE_ROLE_KEY?.trim()), {
   auth: { persistSession: false },
 })
 const { data, error } = await client

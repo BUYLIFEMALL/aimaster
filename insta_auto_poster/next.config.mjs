@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Keep standalone builds inside this program in the shared repository.
+  turbopack: { root: process.cwd() },
   experimental: {
     // Server Action 요청 본문 기본 제한(1MB)이 슬라이드 이미지 직접 업로드(최대 10MB 허용,
     // src/lib/actions/slides.ts·upload.ts)보다 작아서, 실제 사진 파일을 올리면 우리 코드의
