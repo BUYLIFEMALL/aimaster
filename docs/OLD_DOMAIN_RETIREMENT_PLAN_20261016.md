@@ -73,3 +73,5 @@
 2. **naver-blog-seo-studio**: 새 서브도메인 자체가 없음(앱은 `naver-blog-seo-studio.vercel.app`, 확장 BASE도 옛 주소). 옛 주소 삭제 전 별도 작업으로 도메인 통일(SSO) + 확장 BASE 전환 필요.
 3. 삭제 직전(주인님 시점 결정): 기본 연결을 새 콜백으로 바꾸고 [새 주소로 연결]·via=old·307 코드 정리 → 카카오 메시지 링크 전환(회원 웹 도메인 추가 공지 후) → Vercel 옛 별칭 정리. 이미 보낸 메시지 속 옛 링크(I) 때문에 화면 308 이동은 가능한 한 오래 유지 권장.
 4. 시험 계정 앱 설정 문제(기존부터): Instagram "Invalid platform app"(instagram-comment-reply `docs/IMPROVEMENTS.md`), 네이버 카페 `naver_app_missing` 안내 미표시(naver-cafe-poster `docs/IMPROVEMENTS.md`).
+
+- **2026-10-16 텔레그램 웹훅 이전 완료**: 주인님이 관리자 로그인으로 5개 migrate 주소 실행 → getWebhookInfo 확인 결과 5개 봇 모두 새 주소(`https://<slug>.buylife.xyz/api/telegram/webhook/<회원ID>`), 대기 0·최근 오류 없음. 남은 일 1번 완료.
