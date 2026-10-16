@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(윈도우) — VIP 가입일+365일 전환 적용·검증 완료
+
+- 주인님 승인 0036 적용. 적용 전 실측: VIP 138명·등급 10,698·수동 528(과거 오늘 만료 20명은 현재 0명). 백업 후 수동 480건을 같은 행으로 전환, 최종 등급 11,178·대상 밖 수동 48·가입일 불일치/만료 0. 비VIP 3,566건과 대상 밖 수동 내용 지문 일치, 원래 행 ID 보존.
+- 신규 계산 함수 일반/익명 실행 차단·기존 서비스 ACL 유지·프리미엄 가드 유지. [적용 인수인계](VIP_SIGNUP_EXPIRY_HANDOFF_20261016.md), [전후 증거](vip-signup-expiry-20261016.json), [SQL](../supabase/migrations/0036_vip_signup_based_expiry.sql). 이전 맥미니 「적용 대기」 항목은 과거 이력입니다.
+- 메인 프리미엄 문구는 최신 메인 배포로 이어서 확인. Website Scraper v1.12는 첫 빌드 통과, 보안/Edge 검수 진행 중.
+
 ## 2026-10-16 Antigravity(Windows) — 플레이리스트 채널 제작 자동화 v1.08: 사이버 네온 다크 콘솔 스타일 디자인 리뉴얼 및 비주얼 가이드북(/guide) 전면 신설 완료
 
 - **대상 프로그램**: `playlist-channel-studio/` (slug: `playlist-channel-studio`, 공식 라이브: `https://playlist-maker.buylife.xyz/`, 배포 버전: `v1.08`)

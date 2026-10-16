@@ -1,0 +1,51 @@
+{
+  "before": {
+    "manual": 528,
+    "vip_grants": 11226,
+    "vip_members": 138,
+    "nonvip_count": 3566,
+    "nonvip_digest": "aba4bfc7c2e2d9f8111ccd8d55537671",
+    "missing_signup": 0,
+    "manual_in_matrix": 480,
+    "premium_suspended": 0,
+    "expired_manual_rows": 0,
+    "grade_expiry_mismatch": 10698,
+    "manual_outside_matrix": 48,
+    "outside_manual_digest": "68dc034da599430e6529100b7f69ebed",
+    "expired_manual_members": 0
+  },
+  "after": {
+    "basis": [
+      {
+        "days": 180,
+        "name": "골드(드림팀)",
+        "basis": "grant"
+      },
+      {
+        "days": 365,
+        "name": "VIP(드림AI팀)",
+        "basis": "signup"
+      }
+    ],
+    "manual": 48,
+    "vip_grants": 11226,
+    "vip_members": 138,
+    "backup_grade": 10698,
+    "grade_grants": 11178,
+    "nonvip_count": 3566,
+    "backup_manual": 528,
+    "grade_expired": 0,
+    "nonvip_digest": "aba4bfc7c2e2d9f8111ccd8d55537671",
+    "manual_in_matrix": 0,
+    "premium_suspended": 0,
+    "helper_anon_execute": false,
+    "apply_member_execute": false,
+    "grade_expiry_mismatch": 0,
+    "helper_member_execute": false,
+    "outside_manual_digest": "68dc034da599430e6529100b7f69ebed"
+  },
+  "checked_at": "2026-10-16T10:02:58.318Z",
+  "migration": "0036_vip_signup_based_expiry",
+  "result": "applied and verified",
+  "all_original_grants_preserved": true
+}

@@ -1,4 +1,4 @@
--- ⚠️ 상태: 2026-10-16 Claude Code(맥미니) 작성, **DB 미적용 — 윈도우 CLI 적용 대기**(주인님 승인됨, 절차: docs/HANDOFF.md 같은 날짜 항목). 적용 후 이 줄을 「적용됨(날짜·CLI)」으로 바꾼다.
+-- 적용됨: 2026-10-16 Codex(Windows), 주인님 승인된 전환. VIP 등급 11,178건·수동 48건·불일치/만료 0, 비VIP 내용 보존. docs/VIP_SIGNUP_EXPIRY_HANDOFF_20261016.md 참조.
 -- 0036: VIP 사용기간 = 회원 각자 가입 시점 + 1년 (2026-10-16 주인님 확정)
 -- 정책: docs/ADMIN_POLICY_GUIDELINES.md 맨 위 「프로그램 사용권한 최우선 정책」
 -- 1) 등급마다 만료 기준(access_start_basis)을 둔다: 'grant' = 부여한 날 + 기본 기간(골드 등 기존 방식), 'signup' = 가입일 + 기본 기간(VIP)
