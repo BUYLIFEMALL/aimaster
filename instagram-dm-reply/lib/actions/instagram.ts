@@ -1,5 +1,7 @@
 "use server";
 
+import { INSTAGRAM_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
+
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
@@ -25,7 +27,9 @@ export async function connectInstagramAction(
     return { error: "설정 페이지에서 Meta App ID를 먼저 등록해주세요." };
   }
   const returnTo = String(formData.get("returnTo") ?? "");
-  redirect(getInstagramAuthorizeUrl(buildOAuthState(user.id, returnTo), appId));
+  // 기본은 회원 앱에 예전부터 등록된 옛 콜백, [새 주소로 연결]을 누르면 새 콜백으로 인증한다(두 주소 동시 지원)
+  const callbackMode: CallbackMode = formData.get("callback") === "new" ? "new" : "old";
+  redirect(getInstagramAuthorizeUrl(buildOAuthState(user.id, returnTo), appId, INSTAGRAM_REDIRECT_FOR(callbackMode)));
 }
 
 export async function disconnectInstagramAction() {

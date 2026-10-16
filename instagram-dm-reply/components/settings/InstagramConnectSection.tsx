@@ -8,11 +8,13 @@ export function InstagramConnectSection({
   connected,
   username,
   needsReconnect,
+  showNewCallback = false,
   bare,
 }: {
   connected: boolean;
   username: string | null;
   needsReconnect: boolean;
+  showNewCallback?: boolean;
   /** true면 카드 외곽선/제목 없이 내용만 렌더링한다(다른 섹션 안에 이어붙일 때 사용). */
   bare?: boolean;
 }) {
@@ -27,7 +29,9 @@ export function InstagramConnectSection({
     setError(null);
     setIsPending(true);
     try {
-      const result = await connectInstagramAction({}, new FormData(e.currentTarget));
+      // 누른 버튼(callback=new)도 함께 보낸다
+      const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+      const result = await connectInstagramAction({}, new FormData(e.currentTarget, submitter));
       if (result?.error) setError(result.error);
     } finally {
       setIsPending(false);
@@ -50,6 +54,21 @@ export function InstagramConnectSection({
               연동 해제
             </button>
           </form>
+          {showNewCallback && (
+            <form onSubmit={handleConnect} className="space-y-2">
+              <input type="hidden" name="returnTo" value={pathname} />
+              <button
+                type="submit"
+                name="callback"
+                value="new"
+                disabled={isPending}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-bold text-gray-800 hover:bg-gray-50 disabled:opacity-60"
+              >
+                {isPending ? "연결 중..." : "새 주소로 다시 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)"}
+              </button>
+              {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+            </form>
+          )}
         </div>
       ) : (
         <form onSubmit={handleConnect} className="space-y-3">
@@ -67,6 +86,17 @@ export function InstagramConnectSection({
           >
             {isPending ? "연결 중..." : connected ? "다시 연결하기" : "계정 연결하기"}
           </button>
+          {showNewCallback && (
+            <button
+              type="submit"
+              name="callback"
+              value="new"
+              disabled={isPending}
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-800 hover:bg-gray-50 disabled:opacity-60"
+            >
+              새 주소로 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)
+            </button>
+          )}
           {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
         </form>
       )}

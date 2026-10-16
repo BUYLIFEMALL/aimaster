@@ -41,6 +41,10 @@ export function WebhookSetupInfo({ callbackUrl, verifyToken }: { callbackUrl: st
         구독해주세요.
       </p>
       <CopyRow label="콜백 URL (Callback URL)" value={callbackUrl} />
+      <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        예전에 <code>instagram-dm-reply.vercel.app</code> 주소로 등록하셨다면 위 새 주소로 바꿔주세요. 지금 바꿔도 바로 정상
+        동작하며, 기존 주소는 곧 정리될 예정입니다.
+      </p>
       <CopyRow label="확인 토큰 (Verify Token)" value={verifyToken} />
     </div>
   );

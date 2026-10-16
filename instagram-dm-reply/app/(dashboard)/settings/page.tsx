@@ -20,6 +20,7 @@ import {
   getReplyModelProvider,
 } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
+import { INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD, SITE_ORIGIN } from "@/lib/oauthRedirect";
 
 export const dynamic = "force-dynamic";
 
@@ -69,8 +70,8 @@ export default async function SettingsPage() {
   const activeModelOption = REPLY_MODEL_OPTIONS.find((o) => o.value === activeModel);
   const activeProvider = getReplyModelProvider(activeModel);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instagram-dm-reply.vercel.app";
-  const webhookCallbackUrl = `${siteUrl}/api/instagram/dm-webhook/${user.id}`;
+  // DM 웹훅은 Meta 앱에 주소를 하나만 등록할 수 있어 새 주소로 안내한다(같은 서버라 지금 바꿔도 바로 동작, 옛 주소 삭제 대비)
+  const webhookCallbackUrl = `${SITE_ORIGIN}/api/instagram/dm-webhook/${user.id}`;
   const webhookVerifyToken = computeInstagramVerifyToken(user.id);
 
   return (
@@ -96,9 +97,16 @@ export default async function SettingsPage() {
             등록해주셔야 합니다. 또한 그 앱의 "역할" 메뉴에서 본인 인스타그램 계정을
             테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
           </p>
-          <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">
-            {siteUrl}/api/instagram/callback
-          </code>
+          <p className="font-semibold text-gray-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+          <p>① 기존 주소</p>
+          <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">{INSTAGRAM_REDIRECT_OLD()}</code>
+          {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && (
+            <>
+              <p>② 새 주소</p>
+              <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">{INSTAGRAM_REDIRECT_NEW}</code>
+              <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
+            </>
+          )}
           <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
         </div>
 
@@ -120,6 +128,7 @@ export default async function SettingsPage() {
             connected={connectionStatus.connected}
             username={connectionStatus.username}
             needsReconnect={connectionStatus.needsReconnect}
+            showNewCallback={INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW}
             bare
           />
         </div>
