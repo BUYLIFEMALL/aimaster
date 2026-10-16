@@ -2813,6 +2813,7 @@ export type Database = {
           id: string
           sentiment_date: string
           sgg_nm: string
+          user_id: string | null
         }
         Insert: {
           content: string
@@ -2820,6 +2821,7 @@ export type Database = {
           id?: string
           sentiment_date: string
           sgg_nm: string
+          user_id: string | null
         }
         Update: {
           content?: string
@@ -2827,6 +2829,7 @@ export type Database = {
           id?: string
           sentiment_date?: string
           sgg_nm?: string
+          user_id?: string | null
         }
         Relationships: []
       }

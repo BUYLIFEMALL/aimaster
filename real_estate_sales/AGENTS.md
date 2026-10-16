@@ -12,3 +12,11 @@
 ## Windows 인수 주의 — 실제 상세 방문 전 확인
 
 `/listings/[id]`는 GET 서버 렌더 중 본인 키로 자동 AI 분석할 수 있습니다. 무료 검수는 실제 상세/미리읽기를 차단한 tests/runtime.mjs와 합성 tests/fixtures.mjs를 분리해 실행합니다. 앱 인증·DB·분석을 검수용 모의 코드로 바꾸지 않습니다. 본인 Perplexity 생성 캐시는 운영 user_id 없는 전역 구조(#10)로 최상위 데이터 격리 지침과 충돌합니다. 해결 완료/공유 예외로 보고하지 않고 DB 전환 승인이 필요한 별도 미해결로 남깁니다. Next 보안 보완/개발 의존성 경고는 #11, 상세 GET 위험은 #12를 읽습니다. 블랙 확정은 유지합니다.
+
+## 2026-10-17 v1.12 — AI 시장조사 캐시 회원별 분리·30일 자동 삭제 (Claude Code 윈도우, IMPROVEMENT_HANDOFF #10 해결)
+- 주인님 지시 "각각 사용자 별로 분리해줘". `real_estate_district_sentiment`에 `user_id`(auth.users, on delete cascade) 추가, 고유 조건을 `(user_id, sgg_nm, sentiment_date)`로, RLS를 인증 회원 전체 → 본인 전용(select/insert/update/delete `auth.uid() = user_id`). 마이그레이션 `supabase/migrations/20261017_district_sentiment_per_user_v1_12.sql`(운영 적용).
+- 코드: `src/lib/ai/sentiment.ts` `getDistrictSentiment(supabase, userId, sggNm, key)` — 조회·저장 모두 user_id 기준(서비스 키 경로여도 코드에서 소유자 필터). `analysis.ts` 호출부 수정. 타입에 user_id 추가.
+- 30일 보관: `src/app/api/cron/cleanup-sentiment`(CRON_SECRET Bearer) + `vercel.json` 매일 18:30 UTC(03:30 KST) — `created_at` 30일 지난 행 삭제.
+- 기존 주인 없는 5건(2026-08-10~16, 모두 30일 경과): 임의 소유자 지정·회원별 복사 없이 새 정책에서 아무도 못 보게 됨 → 첫 정리 cron 실행 때 삭제됨.
+- 검수: 빌드·배포·DB v1.12, RLS 시뮬레이션(시험 회원: 기존 공유 0건 조회, 본인 행 저장·조회 1건, 다른 회원 user_id로 저장 차단 — 모두 롤백), 정리 라우트 비인증 401, 크롬 대시보드 v1.12. 실제 AI 분석 실행(유료)은 하지 않음.
+- 주의: 마이그레이션 첫 적용이 MCP 일시 오류로 실패한 상태에서 코드가 먼저 배포돼 몇 분간 새 코드와 옛 스키마가 어긋났음 → 즉시 재적용. 다음엔 DB 적용 성공을 확인한 뒤 배포.

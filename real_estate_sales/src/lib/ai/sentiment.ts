@@ -4,8 +4,10 @@ import type { Database } from "@/types/database.types";
 
 // 기존 Make 시나리오는 매물마다 Perplexity를 호출해서 낭비가 컸다 (같은 자치구면 결과가
 // 거의 같은데도 매번 재호출). 자치구+날짜 단위로 캐싱해서 하루 1회만 호출하도록 개선했다.
+// 2026-10-17 v1.12: 캐시는 회원별(user_id)로만 저장·조회한다 — 다른 회원의 키로 만든 결과를 공유하지 않는다(최상위 규칙). 30일 지나면 /api/cron/cleanup-sentiment가 지운다.
 export async function getDistrictSentiment(
   supabase: SupabaseClient<Database>,
+  userId: string,
   sggNm: string,
   perplexityApiKey: string,
 ): Promise<string> {
@@ -14,6 +16,7 @@ export async function getDistrictSentiment(
   const { data: cached } = await supabase
     .from("real_estate_district_sentiment")
     .select("content")
+    .eq("user_id", userId)
     .eq("sgg_nm", sggNm)
     .eq("sentiment_date", today)
     .maybeSingle();
@@ -25,8 +28,8 @@ export async function getDistrictSentiment(
   await supabase
     .from("real_estate_district_sentiment")
     .upsert(
-      { sgg_nm: sggNm, sentiment_date: today, content },
-      { onConflict: "sgg_nm,sentiment_date" },
+      { user_id: userId, sgg_nm: sggNm, sentiment_date: today, content },
+      { onConflict: "user_id,sgg_nm,sentiment_date" },
     );
 
   return content;

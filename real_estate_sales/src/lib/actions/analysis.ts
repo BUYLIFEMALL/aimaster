@@ -56,7 +56,7 @@ export async function runListingAnalysis(
   try {
     const publicDataKeys = await resolveMemberPublicDataKeys(supabase, userId);
     const [sentiment, landInfo] = await Promise.all([
-      getDistrictSentiment(supabase, listing.sgg_nm, perplexityKey),
+      getDistrictSentiment(supabase, userId, listing.sgg_nm, perplexityKey),
       listing.pnu ? ensureLandInfo(listing.pnu, publicDataKeys) : Promise.resolve(null),
     ]);
 
