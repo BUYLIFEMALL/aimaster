@@ -273,6 +273,8 @@ warm bokeh lights]. 16:9 aspect ratio. No visible text, logos, or watermarks in 
    규칙 위반이니 발견 즉시 교체할 것.**
 6. 결과물을 **반드시 육안으로 다른 프로그램 썸네일과 나란히 비교**해서 실사 톤이 맞는지 확인한
    뒤 커밋한다 — 스타일이 튀면 바로 재생성.
+7. **(2026-10-16 주인님 지시) 썸네일은 상위 이미지 모델을 써도 된다** — 스크립트 기본 후보에 `gemini-3-pro-image-preview`(상위)가 먼저 있다. 비용 최소화 지침의 예외다.
+8. **화면 속 글자 확인(2026-10-16 사례)**: 휴대폰·노트북 화면을 묘사하면 모델이 가짜 한글 문구(깨진 글자)를 그려 넣는 일이 있다. 화면 내용은 "abstract shapes, blank colorful cards, absolutely no letters, no words, no numbers, no characters of any language on the screen"처럼 **도형만** 지정하고, 생성 후 이미지를 열어 글자가 보이면 바로 다시 만든다(`shorts-onestop-studio` 첫 결과에서 발생 → 위 문구로 재생성해 해결).
 
 ---
 

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 카탈로그 썸네일 등록 + 「썸네일은 상위 모델 사용 가능」 지침
+
+- 썸네일: 표준 실사 템플릿 + `scripts/generate-program-thumbnail.mjs`(관리자 계정 본인 Gemini 키, 상위 모델 gemini-3-pro-image-preview) → `program-images/catalog/shorts-onestop-studio-thumbnail.jpg`, `programs.thumbnail_url` 갱신. 첫 결과는 휴대폰 화면에 깨진 한글이 있어 화면을 도형만으로 지정해 1회 재생성. 카탈로그 유튜브 묶음에서 주변 썸네일과 실사 톤 일치 확인.
+- 지침: 주인님 지시 "썸네일 작업할 때는 상위 모델 사용해도 된다" → `CLAUDE.md`·`AGENTS.md` 최상단 비용 블록, `TEST_COST_POLICY.md` §1, `PLATFORM_PATTERNS.md` §13 규칙 7(상위 모델)·8(화면 속 글자 확인)에 반영. 오류 기록 `ERROR_LESSONS.md` 2026-10-16.
+- 비용: 상위 이미지 모델 2회(관리자 본인 키). 남은 일: 상세 소개·핵심 특징·사용 순서·추천 활용 대상(원칙 22)은 기능 완성 후 P8에서 작성.
+
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.02: 디자인 지침 적용 + AI 주제·대본 (`shorts-onestop-studio`)
 
 - 디자인(`PROGRAM_DESIGN_STANDARD.md`): 다크 기본+라이트 전환, 🏠 대시보드(히어로·통계·최근 대본), 번호+연결선 메뉴, 📖 연동 & 사용 매뉴얼(흐름 다이어그램·키 3단계·팁·FAQ), 화면별 히어로·빈 화면.

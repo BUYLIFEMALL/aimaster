@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — 썸네일 휴대폰 화면에 깨진 한글 글자가 그려짐 (shorts-onestop-studio 카탈로그 썸네일)
+
+- 증상: 실사 썸네일의 휴대폰 화면에 의미 없는 한글 문구(깨진 글자)가 들어감. 프롬프트 끝에 "No visible text"가 있었는데도 발생.
+- 원인: "bold colorful title cards and caption bars"처럼 화면에 제목·자막이 있다고 묘사하면 모델이 글자를 그려 넣는다.
+- 해결: 화면 묘사를 "abstract shapes, blank colorful cards, absolutely no letters/words/numbers/characters of any language on the screen"으로 바꿔 재생성(`scripts/generate-program-thumbnail.mjs`, 상위 모델 gemini-3-pro-image-preview).
+- 다음부터 확인: 생성 직후 이미지를 열어 화면·간판·종이 속 글자를 확인하고, 카탈로그에서 주변 썸네일과 나란히 실사 톤을 비교한다(`PLATFORM_PATTERNS.md` §13 규칙 7·8). 썸네일은 상위 모델 사용 가능(주인님 지시).
+
 ## 2026-10-16 — 새 환경변수 재배포 검수는 버전 문자열 외에 배포 ID·시각을 확인
 
 - 증상: 환경변수만 추가하면 APP_VERSION이 같으므로 이전 브라우저 검사 통과를 재사용할 수 있음. 전체 일괄 배포 도중 다른 CLI가 최신 UI를 배포하면 과거 릴리스로 덮어쓸 위험도 있음.
