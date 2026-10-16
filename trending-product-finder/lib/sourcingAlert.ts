@@ -23,7 +23,7 @@ import type { Database } from "@/types/database.types";
 // 저장해두고 이전 스냅샷과 비교하는 방식으로 구현했다.
 
 type Platform = "aliexpress" | "domeggook" | "elevenst";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://trending-product-finder.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://trending-product-finder.buylife.xyz";
 const MAX_PRODUCTS_PER_KEYWORD = 3;
 const PRICE_CHANGE_THRESHOLD_PCT = 5;
 

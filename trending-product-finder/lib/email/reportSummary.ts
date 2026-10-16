@@ -2,7 +2,7 @@ import "server-only";
 
 // Phase 10 — 매일 자동 생성되는 리포트를 로그인 없이도 확인할 수 있게 이메일로 요약 발송.
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://trending-product-finder.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://trending-product-finder.buylife.xyz";
 
 export interface ReportEmailItem {
   keyword: string;
