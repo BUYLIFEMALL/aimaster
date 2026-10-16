@@ -5,6 +5,7 @@ import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
 import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
 import { useMedia } from "@/components/ui/useMedia";
+import { pickStock as bestStock } from "@/lib/pipeline";
 import { IMAGE_STYLES, normalizeBackdrop, type Backdrop, type Bg, type ShortsScript } from "@/lib/script";
 import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } from "@/lib/render/scene";
 
@@ -104,7 +105,7 @@ export function DesignView() {
       for (const i of idx) {
         if (getBg(next, i)?.source === "ai") continue; // 비용을 들여 만든 AI 이미지는 덮어쓰지 않는다
         const items = (await api<{ items: StockItem[] }>("/api/stock/search", { body: { provider: bd.provider, type: bd.media, query: hint(i).query } })).items;
-        const r = items.find((x) => !used.has(x.id)) ?? items[0];
+        const r = bestStock(items, hint(i).query, used); // 검색어와 태그가 가장 많이 겹치는 결과
         if (r) { used.add(r.id); next = setBg(next, i, { type: r.type, source: bd.provider ?? "pixabay", src: r.src, thumb: r.thumb, credit: r.credit, pageUrl: r.pageUrl, stockId: r.id.replace(/^[a-z]+-/, "") }); }
       }
       setScript(next); setDirty(true); setMsg({ text: "스톡으로 배경을 채웠습니다(AI 이미지가 있는 장면은 그대로 둠). 마음에 안 드는 장면만 다시 검색해 바꾸세요.", ok: true });

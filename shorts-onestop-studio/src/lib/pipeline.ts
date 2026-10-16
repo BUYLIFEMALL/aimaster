@@ -7,7 +7,22 @@ import { normalizeAudio } from "@/lib/voice";
 // 화면 없이(훅 없이) 쓰는 제작 단계 — 발행 계획의 일괄 제작에서 대본 다음 단계(배경·음성·MP4)를 순서대로 처리한다.
 // 각 단계는 화면에서 하는 것과 같은 서버 API를 같은 순서로 부른다(DesignView 모두 채우기·RenderView 음성 만들기와 같은 규칙).
 
-type StockItem = { id: string; type: "image" | "video"; src: string; thumb: string; credit: string; pageUrl: string };
+type StockItem = { id: string; type: "image" | "video"; src: string; thumb: string; credit: string; pageUrl: string; tags?: string; width?: number; height?: number };
+
+/** 검색어 낱말이 결과의 태그·주소 이름에 몇 개 들어 있는지(내용 맞춤 점수). 세로 결과에 약간 가산 */
+const STOP = new Set(["a", "an", "the", "of", "in", "on", "and", "with", "for", "to", "at", "by", "from", "person", "people", "close", "up", "view"]);
+export function stockScore(item: StockItem, query: string): number {
+  const words = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
+  const hay = ` ${(item.tags ?? "").toLowerCase()} `;
+  const hit = words.filter((w) => hay.includes(w) || hay.includes(w.replace(/(ing|s)$/, ""))).length;
+  const vertical = item.width && item.height ? (item.height >= item.width ? 0.3 : 0) : 0;
+  return hit + vertical;
+}
+/** 점수가 가장 높은 결과(이미 쓴 것 제외). 결과가 없으면 null */
+export function pickStock(items: StockItem[], query: string, used: Set<string>): StockItem | null {
+  const pool = items.filter((x) => !used.has(x.id)); const list = pool.length ? pool : items;
+  return list.reduce<StockItem | null>((best, x) => (!best || stockScore(x, query) > stockScore(best, query) ? x : best), null);
+}
 const sceneText = (s: ShortsScript) => [s.intro.narration || s.intro.title, ...s.cards.map((c) => `${c.title}. ${c.narration}`), s.outro.narration || s.outro.title];
 function withSceneBg(s: ShortsScript, i: number, bg: Bg): ShortsScript {
   const c = structuredClone(s); const n = c.cards.length;
@@ -39,8 +54,14 @@ export async function fillBackgrounds(s: ShortsScript): Promise<ShortsScript> {
   for (let i = 0; i < s.cards.length + 2; i++) {
     const cur = i === 0 ? next.intro.bg : i === s.cards.length + 1 ? next.outro.bg : next.cards[i - 1].bg;
     if (cur || (hints[i]?.query ?? "").trim().length < 2) continue;
-    const items = (await api<{ items: StockItem[] }>("/api/stock/search", { body: { provider: bd.provider, type: bd.media, query: hints[i].query } })).items;
-    const r = items.find((x) => !used.has(x.id)) ?? items[0];
+    const q = hints[i].query;
+    const search = (type: "image" | "video") => api<{ items: StockItem[] }>("/api/stock/search", { body: { provider: bd.provider, type, query: q } }).then((r) => r.items);
+    let r = pickStock(await search(bd.media ?? "video"), q, used);
+    // 영상 결과가 검색어와 하나도 안 맞으면 사진으로 한 번 더 찾아 더 맞는 쪽을 쓴다(스톡 검색은 무료)
+    if (bd.media !== "image" && (!r || stockScore(r, q) < 1)) {
+      const img = pickStock(await search("image"), q, used);
+      if (img && (!r || stockScore(img, q) > stockScore(r, q))) r = img;
+    }
     if (r) { used.add(r.id); next = withSceneBg(next, i, { type: r.type, source: bd.provider ?? "pixabay", src: r.src, thumb: r.thumb, credit: r.credit, pageUrl: r.pageUrl, stockId: r.id.replace(/^[a-z]+-/, "") }); }
   }
   return next;
