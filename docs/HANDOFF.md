@@ -1,6 +1,35 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-16 Antigravity — 프로그램 레이아웃 및 UI/UX 디자인 메인 지침 신설 (우선 기준: markdown-studio)
+## 2026-10-16 Antigravity(Windows) — 포커스 스튜디오(Focus Studio) 템플릿 기준 모델 적용 (markdown-studio v1.09)
+
+- 주인님 지시: 프로그램 레이아웃 및 디자인 메인 지침에 맞춰 기준 모델인 `markdown-studio`부터 단계별 디자인 업그레이드 진행, 프로그램적으로 더 나은 로직/기능/개선방안/사용자 편의성 요소 정리 및 제안.
+- 한 일:
+  1. **포커스 스튜디오 CSS 토큰 시스템 구축 (`markdown-studio/src/app/globals.css`)**:
+     - `.studio-hero`, `.studio-hero-content`, `.studio-hero-badge`, `.studio-hero-actions`, `.hero-btn-primary`, `.hero-btn-secondary`
+     - `.studio-stat-grid`, `.stat-card-modern`, `.stat-icon-wrapper` (인디고/에메랄드/앰버)
+     - `.recent-docs-grid`, `.doc-card-modern`, `.doc-card-top`, `.doc-card-badge`, `.doc-card-preview`, `.doc-card-footer`
+     - `.empty-state-card`, `.empty-state-icon` (빈 상태 친화적 안내)
+     - 모바일 반응형 767px 미디어 쿼리 완비.
+  2. **대시보드 및 준비 화면 개편 (`markdown-studio/src/components/workspace/WorkspacePage.tsx`)**:
+     - 대시보드 상단에 시각적 몰입감을 주는 인디고 그라데이션 히어로 배너 및 3대 퀵 액션 버튼 배치.
+     - 3개 핵심 지표 카드(보관된 문서, 생성된 폴더, 자동 버전 복원)를 세련된 아이콘 박스와 통계로 개편.
+     - 최근 작업 문서 목록을 단순 줄글에서 마크다운 본문 발췌 미리보기가 포함된 카드 그리드로 업그레이드.
+     - 작성된 문서가 없을 때의 부드러운 일러스트형 빈 상태(Empty State) 카드 적용.
+  3. **버전 및 DB 갱신**:
+     - `markdown-studio/src/lib/version.ts`: `v1.08` ➔ `v1.09`
+     - Supabase DB `programs` 테이블: `markdown-studio`의 `version`을 `v1.09`로 동기화 완료 (`scripts/update_markdown_studio_v109.mjs`).
+  4. **Microsoft Edge 전용 화면 검수 완료**:
+     - 테스트 계정(`buylifemall@naver.com`) 세션을 주입한 상태로 Microsoft Edge 브라우저를 통해 데스크톱(1440x900) 및 모바일(375x812) 화면 렌더링 검수 완료.
+     - 상단 `Focus Studio 템플릿` 뱃지 및 사이드바 `v1.09` 정상 노출 확인 (`scripts/inspect_edge_focus_studio.cjs`).
+  5. **더 나은 로직/기능/편의성 개선 방안 제안서 도출**:
+     - 에디터 단축키 치트시트 모달, 예상 읽기 시간(Reading Time) 지표 위젯, 실시간 TOC 미니맵 내비게이터, 클립보드 복사 토스트 피드백, 다크 모드 토글 스위치, 템플릿 비주얼 프리뷰 등 상세 제안 준비.
+- 확인한 것:
+  - Next.js 16.4.0 Turbopack 로컬 빌드 성공 (오류 0건)
+  - Supabase DB `programs` 테이블 `v1.09` 갱신 확인
+  - Microsoft Edge 데스크톱/모바일 화면 정상 렌더링 확인 (스크린샷 대조 완료)
+- 다음 단계:
+  - Vercel 프로덕션 배포 및 라이브 확인 (`https://markdown-studio.buylife.xyz`)
+  - 다른 서브프로그램(플로우 위저드, 스마트 매트릭스 등)으로 템플릿 스타일 확장 적용.
 
 - 주인님 지시: 기존 서브프로그램의 밋밋하고 딱딱한 기능 중심 디자인을 직관적이고 고급스럽게 업그레이드하기 위한 레이아웃 및 디자인 메인 지침 신설. 유형별 버전(스튜디오형, 위저드형, 대시보드형, 크리에이티브형)을 마련하고 실사 배경·인물 사진, 다이어그램, 캐릭터/아바타, 감성 아이콘을 적극 활용. 앞으로 지속 수정·보완.
 - 신설 파일: [`docs/PROGRAM_DESIGN_STANDARD.md`](PROGRAM_DESIGN_STANDARD.md)

@@ -1,32 +1,15 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
-## 2026-10-16 전체 DB 호환 전환 — 메인 Git 자동 배포와 설치 파일 보존
+## 2026-10-16 — 서브프로그램 로컬 검수 시 .env.local 누락 및 빌드 캐시 버전 미반영 (markdown-studio v1.09)
 
-- 증상: 메인 설치 파일의 HTTP 상태가 수동 배포 뒤에는 200이었다가, 문서만 푸시한 Git 자동 배포 뒤 404가 됐습니다.
-- 원인: `public/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`는 기존 규칙에 따라 Git 제외 파일입니다. 로컬 수동 배포에는 포함되지만 Git 원본만 받는 자동 배포에는 없습니다. 앱 코드가 같아도 다운로드 자산이 달라집니다.
-- 해결: 최신 커밋의 메인 소스만 모은 배포 복사본에 기존 설치 파일을 함께 넣어 다시 프로덕션 배포했습니다. `scripts/deploy-supabase-compat-rollout.cjs --only . --redeploy`는 이 파일을 보존하며, 별도 보고 경로로 기존 일괄 배포 기록을 덮어쓰지 않을 수 있습니다. 최종 문서 푸시 뒤에도 다시 확인/복구합니다.
-- 다음부터 확인: 메인을 건드리는 다른 CLI도 문서 푸시의 자동 배포가 최신 운영 별칭을 바꿀 수 있음을 확인합니다. 최종 Git 푸시·자동 빌드가 끝난 다음 기존 설치 파일을 포함해 메인을 수동 배포하고 해당 다운로드 HTTP 200을 확인합니다. 설치 파일을 임의로 Git에 넣거나 삭제하지 않습니다.
-
-## 2026-10-16 DB 호환 운영 검수 — 옛 Vercel 주소의 SSO 이동과 시험 쿠키
-
-- 증상: 카카오 자동화의 로컬 회원 검수는 통과하지만 운영 검사에서 `/login`으로 이동했습니다.
-- 원인: 검수기가 옛 `kakaoautoposter.vercel.app`에만 시험 쿠키를 넣었습니다. 실제 서버는 정책대로 `kakao-auto-posting.buylife.xyz`로 308 이동하므로 공유 도메인에 시험 세션이 없었습니다. DB 키 오류가 아니었습니다.
-- 해결: `scripts/verify-platform-supabase-browser.cjs`의 운영 검수에서 옛 Vercel 호스트와 `.buylife.xyz` 공유 쿠키를 함께 제공하고 최종 출처도 기록합니다. 실제 별칭은 Vercel API에서 새 배포를 가리키는 것을 확인했습니다.
-- 다음부터 확인: 실패 응답의 상태·Location·최종 도메인을 먼저 확인합니다. 시험 환경 문제를 해결하려고 운영 키나 권한 정책을 바꾸지 않습니다.
-
-## 2026-10-16 전체 DB 변수 호환 검수 — 서브프로그램 Turbopack 루트 고정
-
-- 증상: 새 이름만 사용한 개별 프로그램 빌드에서 자기 폴더에 없는 루트 `middleware.ts`를 읽고 `@/lib/supabase/env`를 찾지 못했습니다.
-- 원인: 다중 lockfile 저장소에서 Next.js 16의 Turbopack이 AIMaster 루트를 작업 경계로 추론했습니다. 공통 미들웨어를 복사하거나 없는 모듈을 만드는 것으로 해결하면 앱 경계가 계속 섞입니다.
-- 해결: `ai-audio-analyzer`, `ai-slide-builder`, `allinone-graphic`, `insta_auto_poster`, `kakao_auto_poster`, `react-ui-showcase`, `stepmail`의 기존 Next 설정에 `turbopack: { root: process.cwd() }`를 추가했습니다. 빌드는 해당 프로그램 폴더에서 실행합니다.
-- 다음부터 확인: 서브프로그램 빌드 로그의 workspace root 경고와 실제 오류 경로를 확인하고, 독립 Vercel 프로젝트·자기 폴더 경계를 유지합니다.
-
-## 2026-10-16 — 이전 자동화 도구가 남긴 헤드리스 Chrome이 쌓여 "Chrome이 여러 개"로 보임 (플랫폼 환경)
-
-- 증상: Chrome 프로세스 123개인데 보이는 창은 1개, 연결 브라우저 목록에 Windows 브라우저 2개(Edge는 꺼져 있음).
-- 원인: 9/27~10/2에 시작된 `agent-browser` 헤드리스 Chrome(`--headless=new`, 임시 `agent-browser-chrome-*` 프로필)이 종료되지 않고 99개 프로세스로 남아 있었음. 오늘 시작된 Playwright 자동화 Chrome은 별개.
-- 해결: 실행 경로가 `.agent-browser\browsers\`인 chrome.exe만 골라 종료(메인 Chrome `Program Files`·Playwright 유지) → 123→24개, 창 1개 유지.
-- 다음부터 확인: "Chrome이 여러 개"는 보이는 창(`EnumWindows` `Chrome_WidgetWin_1`)과 프로세스의 실행 경로·`--headless` 여부로 구분한다. 메인 Chrome(`Program Files`, `--no-startup-window`)과 지금 쓰는 Playwright 프로세스는 종료하지 않는다. 연결 목록의 옛 항목은 확장 재설치로 deviceId가 바뀐 흔적일 수 있다. 프로그램 테스트는 메인 계정 세션이면 항상 크롬(`CLAUDE.md` 원칙 18).
+- 증상 ①: `markdown-studio` 로컬 서버(`next start`) 실행 후 접근 시 `/dashboard`가 열리지 않고 `/setup`("프로그램을 준비하고 있습니다")으로 무한 리다이렉트됨.
+- 원인: 루트에만 `.env.local`이 존재하고 서브폴더(`markdown-studio/`)에는 로컬 설정이 없어 `platformConfigured()`에서 Supabase URL 및 키가 빈 값으로 판정됨.
+- 해결: 루트의 `.env.local`을 `markdown-studio/.env.local`로 복사 후 로컬 서버 재시작 (`src/lib/config.ts`).
+- 다음부터 확인: 서브프로그램 로컬 실행 및 브라우저 검수 전 해당 서브폴더의 `.env.local` 유무와 Supabase 키 로드 상태를 반드시 사전 점검.
+- 증상 ②: `lib/version.ts`를 `v1.09`로 수정한 후 서버를 재시작했으나 화면 좌측 상단에 여전히 이전 버전(`v1.08`)이 노출됨.
+- 원인: 버전 상수 변경 후 `next build`를 재수행하지 않고 서버만 재시작하여 이전 빌드 아티팩트(`.next`)의 번들이 그대로 서빙됨.
+- 해결: `npm run build`를 다시 실행해 정적 청크를 새로 컴파일한 후 서버 재시작 및 Edge 화면 재검수로 `v1.09` 정상 노출 검증.
+- 다음부터 확인: 버전 상향 작업 시 `lib/version.ts` 수정 ➔ DB `programs.version` 갱신 ➔ `npm run build` 재빌드 ➔ 브라우저 검수 순서를 엄수.
 
 ## 2026-10-16 — Vercel Secret 환경변수 다운로드 값은 실제 키가 아닐 수 있음 (Supabase 호환 전환)
 
@@ -35,6 +18,14 @@
 - 다음부터 확인: Vercel 목록은 이름/적용 환경 확인용, Secret의 유효성은 실제 런타임 검사로 판단. 공개 키 새 이름을 지원할 때는 Next.js가 빌드에 넣도록 직접 `process.env.NEXT_PUBLIC_...` 참조, 서버 키 모듈은 server-only로 분리. 기존 변수·키는 안정화 전 삭제하지 않음. 상세: [호환 운영 지침](SUPABASE_API_KEY_COMPATIBILITY.md).
 
 ## 2026-10-16 — 정적 페이지를 동적(로그인 확인)으로 바꿔 배포한 직후, 옛 응답이 엣지 캐시에 남아 보임 (personality-code v1.03)
+
+## 2026-10-16 — 이전 자동화 도구가 남긴 헤드리스 Chrome이 쌓여 "Chrome이 여러 개"로 보임 (플랫폼 환경)
+
+- 증상: Chrome 프로세스 123개인데 보이는 창은 1개, 연결 브라우저 목록에 Windows 브라우저 2개(Edge는 꺼져 있음).
+- 원인: 9/27~10/2에 시작된 `agent-browser` 헤드리스 Chrome(`--headless=new`, 임시 `agent-browser-chrome-*` 프로필)이 종료되지 않고 99개 프로세스로 남아 있었음. 오늘 시작된 Playwright 자동화 Chrome은 별개.
+- 해결: 실행 경로가 `.agent-browser\browsers\`인 chrome.exe만 골라 종료(메인 Chrome `Program Files`·Playwright 유지) → 123→24개, 창 1개 유지.
+- 다음부터 확인: "Chrome이 여러 개"는 보이는 창(`EnumWindows` `Chrome_WidgetWin_1`)과 프로세스의 실행 경로·`--headless` 여부로 구분한다. 메인 Chrome(`Program Files`, `--no-startup-window`)과 지금 쓰는 Playwright 프로세스는 종료하지 않는다. 연결 목록의 옛 항목은 확장 재설치로 deviceId가 바뀐 흔적일 수 있다. 프로그램 테스트는 메인 계정 세션이면 항상 크롬(`CLAUDE.md` 원칙 18).
+
 - 증상: 배포 READY 뒤에도 운영 주소 `/test` 200(로그인 없이), `/login` 404.
 - 원인: 이전 버전의 정적(○) 페이지 응답이 Vercel 엣지 캐시에 남아 있었음. 쿼리를 붙인 요청(`?cb=…`)은 새 배포가 처리해 307·200으로 정상.
 - 해결: 잠시 후 캐시가 갱신되어 쿼리 없이도 정상(307 → `/login?redirect=`). 새 배포 주소(`*-buylife.vercel.app`)는 Vercel 보호로 302가 나와 비교용으로 못 씀.
@@ -77,18 +68,6 @@
 - 해결: 프로그램 폴더에 `vercel.json` `{"framework":"nextjs"}`(file-merge와 같음) 후 재배포 → 도메인 추가 성공.
 - 함께 확인: `vercel link`가 `.gitignore` 끝에 `.env*`를 덧붙여 앞의 `!.env.example` 예외를 다시 막는다 — link 후 `.gitignore` 끝 줄을 확인. 또 `programs.is_active=false`면 권한 판정이 `not_found`라 **관리자도** 들어갈 수 없으므로 운영 화면 검수는 활성화 뒤에 한다.
 - 다음부터: 새 프로그램은 처음부터 `vercel.json`(framework nextjs)을 넣고 배포한다.
-
-## 2026-10-15 — (정정) 프로그램 설명에 빈 줄 단락 `<p><br></p>`를 넣으면 관리자 편집기에서 간격이 두 배로 벌어진다
-- 증상: 바로 아래 항목의 해결책(단락 사이 `<p><br></p>`)을 80개 설명에 적용했더니, 관리자 프로그램 편집 화면에서 단락 사이가 너무 넓게 벌어짐(주인님 지적).
-- 원인: 편집기(`.prose-editor p { margin: 0.5em 0 }`)는 단락에 이미 여백을 주는데 빈 줄 단락이 한 줄 더 띄움. 공개 상세 페이지만 여백이 없었던 것(Tailwind typography 플러그인이 없어 `prose`가 빈 껍데기).
-- 해결: DB에서 `<p><br></p>`를 모두 제거하고, 공개 상세 페이지 설명 `div`에 `[&_p]:my-2` 추가(`app/(main)/programs/[slug]/page.tsx`). 루트 사이트 배포 후 적용.
-- 다음부터: 화면마다 간격이 다르면 내용(HTML)에 빈 줄을 넣지 말고 그 화면의 CSS로 맞춘다. 내용은 `<p>` 단락만 쓴다.
-
-## 2026-10-15 — 프로그램 상세 설명에 `<p>`만 나누면 사이트에서 줄이 붙어 보인다 (programs.description 전체 재작성)
-- 증상: 설명을 단락으로 나눠 `<p>..</p><p>..</p>`로 저장했는데 메인 상세 페이지에서 단락 사이 빈 줄이 없이 붙어 나옴(관리자 에디터에서는 간격이 있어 보임).
-- 원인: 상세 페이지(`app/(main)/programs/[slug]/page.tsx`)의 `prose` 영역이 `<p>` 사이 여백을 주지 않음.
-- 해결: 단락 사이에 빈 줄 단락 `<p><br></p>`를 넣는다(`replace(desc,'</p><p>','</p><p><br></p><p>')`). `ai-webtoon-studio`로 확인 후 80개 모두 적용.
-- 다음부터: 설명을 DB에서 바꾼 뒤에는 실제 상세 페이지(`/programs/<slug>`)에서 단락 간격을 한 번 확인한다. 대량 수정 전에는 기존 `description`을 파일로 백업한다(이번에는 백업 없이 덮어씀).
 
 ## 2026-10-15 — Mac(Orca) Claude Code 상태바: Orca 기본 스크립트를 그냥 바꾸면 Orca 연동이 끊기고, 새 계정은 자동 적용되지 않음 (로컬 PC 설정)
 - 증상: Mac에 Windows용 상태바 스크립트가 없어 하단 상태바가 안 나옴. Orca 기본 `statusLine`(`~/.orca/agent-hooks/claude-statusline.sh`)은 화면 출력 없이 Orca 앱으로 입력값만 전송함 → 원인: `statusLine`은 하나만 지정 가능해서 표시 스크립트로 바꾸면 Orca 전송이 빠지고, guard가 고정된 계정 폴더만 점검하면 Orca에 새로 연동한 계정은 빠짐 → 해결: `~/.claude/statusline-extra.js`가 입력을 Orca 스크립트에도 넘기고(전송 기록 `$TMPDIR/orca-claude-statusline-last-*` 갱신 확인), `~/.claude/statusline-guard.js`가 `orca/claude-profiles/*/home`을 자동 탐색 → 다음부터 확인: 상태바 스크립트를 바꾼 뒤 Orca 전송 기록 갱신과 `docs/CLAUDE_STATUSBAR.md` 5절 점검 명령(guard=2 extra=1) 확인.
@@ -182,6 +161,13 @@
 ## 2026-10-14 — Claude Code 보조 계정에서 하단 상태바가 재실행 후 빠짐 (로컬 PC 설정)
 - 증상: Claude Code 터미널을 다시 켜면 하단 상태바(모델·5h·weekly·context)가 안 나오거나 Orca 기본 표시만 나옴 → 원인: Orca가 `settings.json`의 `statusLine`을 다시 쓰면서 `statusline-extra.js` 호출을 지우는데, 복구 스크립트 `C:/Users/Administrator/.claude/statusline-guard.js`가 기본 폴더(`~/.claude`)만 고치고, 보조 계정이 쓰는 `~/.claude-account2/settings.json`에는 복구 훅도 없었음 → 해결: guard가 `~/.claude`·`~/.claude-account2`·`CLAUDE_CONFIG_DIR`을 모두 점검하도록 수정하고, `~/.claude-account2/settings.json`에 `SessionStart`·`UserPromptSubmit` 훅으로 guard를 등록함(재실행·질문할 때마다 자동 복구) → 다음부터 확인: 새 Claude 계정 폴더를 추가하면 그 `settings.json`에도 같은 guard 훅을 넣고, guard의 점검 폴더 목록에 추가한다. 상태바 표시 내용은 `statusline-extra.js`(원본 백업 `statusline-extra.js.good`)에서만 고친다.
 
+## 2026-10-14 — 문서번역 운영: 모의 스키마 검사는 공급사 수락 검사가 아님
+
+- 증상: 로컬 공급사 모의 검사/빌드가 통과했지만 실제 Gemini 요청은400 INVALID_ARGUMENT → 원인: Zod 전체 JSON Schema를 그대로 보낸 요청을 실제 API가 거부함. 키/모델 조회200, 단순 OpenAPI 응답200으로 자격 오류와 구분 → 해결: `document-translator/src/lib/translation/providerSchema.ts`에서 공급사 OpenAPI 핵심 타입·속성만 직렬화, 응답의 전체 Zod 검증은 유지(v1.02) → 다음 확인: 실제 본인 키로 요청 수락/STOP/문단 검증까지 검사하고 모의를 운영 성공으로 보고하지 않습니다.
+- 증상: 위 요청 형식400을 키 오류로 안내 → 해결: `gemini.ts`에서 API_KEY_INVALID만 키 등록 안내, 일반400은 AI 요청 형식 오류로 구분 → 다음 확인: 회원에게 정상 키를 재등록시키기 전에 실제 공급사 상태를 확인합니다. 원문·키·원시 응답을 로그에 남기지 않습니다. [운영 검수·출처](../document-translator/docs/RELEASE_CHECKS.md).
+- 확인: 기존 공유 Chrome 창의 포커스가 바뀌어 주소 입력/단축키가 의도와 다른 탭에 적용될 수 있음 → 해결: 보이는 Chrome 메뉴에서 별도 일반 창을 만들고 fresh window-id/트리로 검사 → 다음 확인: 값 설정이 확인돼도 실제 이동은 새 문서 URL·회원 표시로 재확인하며 쿠키/비밀번호를 복사하거나 인증을 우회하지 않습니다.
+- 증상: 실제 번역의 이중 이스케이프된 줄바꿈 때문에 URL 뒤의 다음 문장까지 링크에 붙음 → 해결: v1.03 `outputText.ts`에서 원문이 실제 개행을 사용하고 리터럴 이스케이프가 없는 문단만 정규화, 정상 코드/경로 문자열은 보존 → 다음 확인: JSON 파싱 성공 외에 실제 Markdown 링크와 다운로드 문자열도 직접 확인합니다.
+
 ## 2026-10-14 — 문서번역 구현: PDF Worker·Unicode 분할·숫자 부분일치·만료 RLS
 
 - 증상: 보이는 Chrome에서 정상 텍스트 PDF도 가져오기 실패 → 원인: PDF.js6 표시 API의 window/document 접근을 앱 가져오기 Worker 안에서 기본 초기화 → 해결: `document-translator/src/workers/import.worker.ts`에 명시적 nested Worker port·useWorkerFetch·finally 정리 → 다음 확인: 원본 PDF 실제 표본을 읽고 준비된 정적 Worker/글꼴 자산까지 함께 검수합니다.
@@ -217,6 +203,24 @@
 - 해결: 파일은 Write·Edit 도구로 쓰고, 치환 뒤에는 `grep`으로 남아야 할 함수가 있는지 확인. 실패한 긴 명령은 어디까지 적용됐는지 `git status`·`ls`로 먼저 확인.
 - 다음부터 확인: 다른 프로그램 폴더를 복사해 시작하면 `npx tsc --noEmit`을 가장 먼저 돌려 `@/lib/<옛 이름>/*`·옛 css 잔재, `access.ts` slug, `version.ts`를 정리한다.
 
+## 2026-10-14 banana-canvas v1.01 — 모델 마스크 출력·AI Studio 소스 읽기·골격 복사
+
+- 증상: 이미지 모델에 "피사체 흰색·배경 검정 마스크만 출력"을 시켜도 흑백 **사진**을 돌려줌(원본 AI Studio 앱의 배경 제거도 같은 한계) → 해결: "배경을 순수 녹색(#00FF00)으로 바꾸게" 한 뒤 서버 `sharp` 크로마키로 알파 생성(키 색은 가장자리 추정, 가장자리와 연결된 배경만 투명 — `banana-canvas/src/lib/files.ts` `chromaKey`). 자주색 키는 피부색과 가까워 얼굴에 구멍이 생김 → 다음부터: 모델에 이진 마스크를 기대하지 말고 단색 배경 교체 + 크로마키를 쓴다.
+- 증상: 다른 프로그램에서 골격을 복사한 직후 `src/lib/version.ts`의 이름·slug를 안 고쳐 배포 화면 제목이 옛 프로그램 이름으로 나옴 → 해결: 수정 후 재배포 → 다음부터: 복사 직후 `grep -rn "<옛 slug>\|<옛 이름>" src`로 확인.
+- 도구: AI Studio 공유 앱 소스는 "Continue to the app" 후 코드 보기(`<>`)에서 읽을 수 있다. Monaco 모델은 `window.monaco.editor.getModels()`로 접근되지만 `javascript_tool` 출력이 약 1000자로 잘리므로, 파일 내용을 페이지에 `<article><pre>`로 풀어 놓고 `get_page_text`로 읽는다(className 제거로 용량 절감).
+
+## 2026-10-14 thumbnail-master v1.01 — 이미지 응답 한도·병렬 저장
+
+- 증상(예방): Gemini 2K 이미지 응답은 PNG로 4~7MB라 Vercel 함수 응답 한도(4.5MB)를 넘길 수 있고, 수정 요청 때 클라이언트가 큰 이미지를 다시 보내도 요청 한도에 걸린다 → 해결: 서버가 `sharp`로 JPEG(q90) 변환 후 비공개 Storage에 저장하고 서명 URL만 반환, 수정은 서버가 Storage 원본을 읽음(`thumbnail-master/src/lib/images.ts`) → 다음부터: 이미지를 JSON 응답/요청에 base64로 싣지 않는다.
+- 증상(예방): A/B 두 이미지를 병렬 요청으로 만들 때 한 JSON 컬럼을 읽고-쓰기하면 서로 덮어씀 → 해결: 옵션별 컬럼(`images_a`, `images_b`)으로 분리, 자동 저장 PUT은 이미지 컬럼을 건드리지 않음 → 다음부터: 병렬로 갱신하는 값은 컬럼을 나누거나 원자적 갱신을 쓴다.
+- 증상: `bash` 안의 `python - <<'EOF'` 같은 heredoc에 따옴표·한글이 섞이면 "unexpected EOF"로 명령 전체가 실행되지 않음 → 해결: 스크립트를 Write 도구로 파일에 쓴 뒤 실행한다.
+
+## 2026-10-14 reverse-prompt v1.01 — 큰 파일 업로드·MCP SQL·실호출 스크립트
+
+- 증상: Supabase MCP `execute_sql`에 DDL 여러 문장(테이블+정책+버킷)을 한 번에 보내면 "Invalid or expired requestState"로 거부 → 해결: 문장 하나씩 보내면 정상 적용(DELETE 같은 파괴적 문장도 거부될 수 있어 서비스 롤 스크립트로 정리) → 다음부터: DDL은 문장별로 적용하고 마이그레이션 파일에는 전체를 남긴다.
+- 증상: 실호출 스크립트를 `| tail`로 파이프하면 끝날 때까지 출력이 안 보여 멈춘 것처럼 보임(터미널 제한 시 백그라운드로 넘어감) → 해결: 파일로 리다이렉트하고 `timeout`을 건다 → 다음부터: 긴 AI 호출은 파이프 대신 파일 출력.
+- 설계: Vercel 본문 4.5MB 한도 때문에 영상·오디오는 브라우저가 서명 URL로 Storage에 직접 올리고(`createSignedUploadUrl` + `uploadToSignedUrl`), 서버가 읽어 Gemini Files API로 넘긴다. 버킷은 정책 없이 비공개(서버만 접근), 경로 첫 폴더=uid를 `isOwnTempPath`로 검증. `reverse-prompt.vercel.app` 이름은 선점되어 있어 공식 주소는 buylife.xyz 서브도메인만 쓴다.
+
 ## 2026-10-13 — 할 일 앱 후속 UI의 지표·차트와 백업/AI 검수 (v1.04)
 
 - 증상: 정확도 실측이 없는데0%, 고정0~4 눈금에 최댓값 기준 막대 → 원인: null을0으로 표시하고 눈금/높이 척도가 다름 → 해결(위치): `ai-task-planner/src/components/Overview.tsx`의 미측정 구분·4단계 동적 축·0 높이 → 다음부터: 실측 없음과 실제0을 구분하고5건 이상도 같은 척도로 표현할 것.
@@ -225,21 +229,6 @@
 - 점검: 공급사 응답은 JSON 문법만 검사하지 말고 종료 상태와 필수 결과/제안3개를 확인. 키/공급사 오류 원문을 로그·응답에 넣지 않음. 본인 키가 없을 때 다른 회원 키를 읽지 않는지 실제 API 코드로 회원A/B 격리 검수(`tests/authorization.test.mjs`). 모의 성공과 실제 Gemini 성공은 구분.
 - 점검: `window.open`에 noopener를 지정하면 열린 창 참조가null일 수 있음. 이를 실패로 간주해 두 번째 창을 열지 말 것(`AiSettings.tsx` 매뉴얼 팝업).
 
-## 2026-10-13 — 프로그램 이름·주소 변경 후 Vercel 쪽에 옛 이름이 남아 헷갈림 (fashion-style v1.03)
-
-- 증상: 도메인을 `fashion-style.buylife.xyz`로 바꿨는데 Vercel 프로젝트 목록의 Latest Production URL은 옛 `look-studio.buylife.xyz`, 옛 이름의 `*-buylife.vercel.app` 별칭은 옛 배포를 계속 가리킴, `fashion-style.vercel.app`은 "이미 사용 중" → 원인: ① Production URL은 배포 시점의 별칭으로 저장되어 이름 변경만으로는 갱신되지 않음 ② 프로젝트 이름 변경 시 옛 팀 별칭이 지워지지 않음 ③ `.vercel.app` 이름은 전 세계 공유라 다른 사용자가 선점 → 해결: `vercel project rename` → 재배포 → 옛 도메인(`vercel api -X DELETE …`)·별칭(`vercel alias rm`) 제거, `.vercel.app` 이름은 가져올 수 없다고 판단하고 공식 주소를 `.buylife.xyz`로 고정 → 다음부터: 새 프로그램은 **처음부터 이름·폴더·slug·Vercel·도메인을 같은 이름**으로 만들고, 새 이름의 `.vercel.app` 가용성은 `vercel domains add <이름>.vercel.app <프로젝트>`로 미리 확인한다. 이름 변경 순서는 `fashion-style/docs/CLI_HANDOFF.md` §7.
-
-## 2026-10-13 — AI 이미지 응답(PNG 1~2.4MB)을 그대로 다시 보내면 레이어드 누적이 413 (fashion-style, 구 look-studio)
-
-- 증상(실호출로 발견): 입어보기 결과 PNG가 2.4MB(base64 3.2MB)라 이를 기준 이미지로 아이템(1.2MB)과 함께 다시 보내면 요청 본문이 Vercel 한도(4.5MB)를 넘음 → 원인: AI 응답 이미지를 가공 없이 상태에 보관 → 해결: 응답 직후 `shrinkImage`(JPEG ≤1600px)로 줄여 보관(`fashion-style/src/components/look/Studio.tsx`, `lib/look/clientImages.ts`), 서버 `validateImage`는 장당 base64 3.4MB 상한 → 다음부터: 이미지 생성 프로그램은 **응답 크기를 실호출로 먼저 재고**, 되돌려 보내는 구조면 즉시 축소한다. 모의 응답만으로는 이 문제가 드러나지 않는다.
-- `server-only` 모듈을 스크립트로 시험할 때는 `NODE_OPTIONS=--conditions=react-server` + `tsx`.
-
-- 2026-10-13 보강(music-player): MCP 제어 창이 숨김이라 소리 검수가 불가할 때는 **markdown-studio의 `tests/browser.mjs` 패턴**(esbuild로 컴포넌트 번들 + 로컬 http 서버 + Playwright `channel:"chrome", headless:false`)을 쓰면 보이는 Chrome에서 실제 재생·분석기·IndexedDB까지 검수할 수 있다(`music-player/tests/browser.mjs` 참고).
-
-## 2026-10-13 — 숨김 상태 자동화 Chrome에서는 오디오 메타데이터가 로드되지 않음 (music-player v1.01)
-
-- 증상: 드롭으로 추가한 오디오의 길이가 `--:--`, 재생 시 0:00에서 진행 안 됨, 순수 `new Audio()`도 `loadedmetadata`가 오지 않음 → 원인: MCP 제어 Chrome 창이 `document.visibilityState === "hidden"`이라 브라우저가 미디어 로딩을 지연 → 조치: 앱 쪽은 길이를 재생 시점에 보완 반영하도록 방어(`Player.tsx` onMeta), 소리·시각화·EQ는 **보이는 Chrome에서만** 검수 가능 → 다음부터: 미디어/오디오 기능은 창이 보이는지(`visibilityState`) 먼저 확인하고, 숨김이면 "미검수"로 명시한다.
-
 ## 2026-10-13 — 창 초점 복귀의 기록 재조회가 타이머 클릭을 막음
 
 - 증상: 실제 Chrome에서 창을 다시 활성화한 직후 일시정지 버튼을 눌러도 타이머가 계속 실행됨.
@@ -247,17 +236,17 @@
 - 해결(위치): ai-task-planner/src/components/Planner.tsx에서 배경 조회와 초기/명시적 조회를 구분. 배경 조회는 쓰기 lock 없이 실행, 쓰기 중 결과 및 낮은 revision은 버림. tests/browser.mjs에 지연 GET 후 일시정지 POST 검수 추가.
 - 다음부터 확인: 창 복귀 직후 주요 버튼을 실제로 누르고, 조회/쓰기 응답 순서를 뒤집어 최신 저장과 회원 소유권이 보존되는지 확인. 초기 불러오기는 여전히 차단하고 회원 인증 거부는 내용을 제거할 것.
 
-- 2026-10-13 추가: 같은 위반이 markdown-studio·persona-style-studio에서도 발견되어 3종을 재생성함. 썸네일 작업은 **시작 전에 §13을 읽는 것**을 첫 단계로 한다.
-
-## 2026-10-13 — 카탈로그 썸네일을 즉흥 프롬프트로 만들어 실사 규칙 위반 (ui-canvas v1.02)
-
-- 증상: 신규 프로그램 썸네일을 "flat modern illustration" 프롬프트로 직접 생성해 올림 → 원인: 새 프로그램 등록 때 `PLATFORM_PATTERNS.md §13`(실사 템플릿 고정)을 읽지 않고 이전 프로그램의 일회성 스크립트를 복사·수정함 → 해결: `scripts/generate-program-thumbnail.mjs <slug> <관리자 uid> "<§13 템플릿 프롬프트>"`로 실사(한국인·shallow depth of field·natural skin texture·85mm·16:9·텍스트 없음) 재생성, 옛 PNG 삭제 → 다음부터: 썸네일은 **항상 §13 템플릿 + `generate-program-thumbnail.mjs`**만 쓰고, 결과를 육안으로 확인한 뒤 등록한다. 신규 프로그램 체크리스트에 "썸네일 = §13" 포함.
-
 ## 2026-10-13 — 할 일 저장 응답 유실 뒤 재조회·재시도의 중복 생성 방지
 
 - 증상: 서버 저장은 성공했지만 응답이 유실된 뒤 GET으로 새 revision을 읽으면, 같은 입력의 재시도가 새 command ID를 발급해 중복 생성할 수 있음 → 원인: 현재 revision이 바뀌었다는 이유만으로 미확정 요청 ID까지 교체 → 해결: `ai-task-planner/src/components/Planner.tsx`에서 같은 명령의 미확정 ID를 최신 조회 뒤에도 보존, API/RPC에서 중복 ID 성공 재응답·오래된 revision 차단 → 다음부터: 저장실패뿐 아니라 “실제 저장→응답유실→재조회→같은 입력 재시도”를 연결해 검사.
 - 증상: 소켓을 한 번 끊었는데 Chrome 검수 화면은 저장 성공 → 원인: Chrome이 같은 POST 연결을 자동 재시도하여 서버의 저장 성공 응답을 받음 → 해결: 격리 시험 서버에서 명시적 재시도 전까지 응답을 차단해 실제 실패 경로를 검사(`tests/browser.mjs`) → 다음부터: 오류 주입 의도가 아니라 화면의 실패/요청 ID/실제 저장 건수를 확인. 현재 보이는Chrome16개 검사 통과이며 운영회원/DB 검수와는 구분.
 - 증상: 실제 Next 루트 `/` 차단 시험에서 첫307 위치가 `/setup`과 다름 → 원인: 정상 경로가 `/`→`/dashboard`→`/setup` 두 단계 → 해결: `tests/runtime.mjs`에서 첫 이동과 보호된 화면의 설정 차단을 구분 → 다음부터: 리디렉트 체인을 최종 권한 차단과 함께 검사.
+
+
+## 2026-10-13 — 캔버스 에디터: 빠른 드래그 누락·테두리 없는 요소의 검은 선 (ui-canvas v1.01)
+
+- 증상: 자동화(CDP) 드래그로 도형이 안 만들어짐 / 텍스트 컴포넌트에 3px 검은 테두리 → 원인: ① 마우스 이동·놓기 리스너를 상태(`draw`) 의존 effect로 재등록해 mousedown 직후 빠른 mouseup을 놓침 ② `borderStyle: solid`만 있고 두께가 없으면 브라우저 기본 3px 검은 선 → 해결: `ui-canvas/src/components/canvas/Editor.tsx`(리스너 1회 등록 + ref로 최신값, mouseup 좌표를 끝점으로 사용), `ComponentView.tsx`(`hasBorder`) → 다음부터: 드래그/제스처 리스너는 ref 기반으로 한 번만 등록, 인라인 `borderStyle`은 두께가 있을 때만 지정. 화면 검수 때 도구 클릭 후 1초 대기.
+- 증상: 로컬(localhost)에서는 `.buylife.xyz` 쿠키가 없어 로그인 화면 검수 불가 → 조치: 운영 주소(주인님 로그인 세션)에서 검수. 비밀번호 입력 금지 원칙 유지.
 
 ## 2026-10-13 — 참고 할 일 앱에서 재현한 저장·타이머·AI 구조 오류 (신규 구현 전)
 
@@ -267,10 +256,6 @@
 - 증상: 유효 JSON인데 suggestions가 없으면 undefined.map 오류로 root가 비어짐 → 원인: JSON.parse 성공을 출력 구조 검증으로 오인 → 조치: 필수 필드·제안3개·근거 구조 검사와 오류 경계 설계 → 다음 확인: 문법상 정상이나 필드가 누락된 JSON, 2/4개 제안, 공급사 오류를 모의 재현하며 실제 공급사 검증과 구분.
 - 증거: [전수 분석](../ai-task-planner/docs/REFERENCE_ANALYSIS.md), [33개 Chrome 관측](../ai-task-planner/docs/evidence/browser-results.json). 독립 Chrome 원본 소스 재현이며 AI는 모의, Tailwind4 사용입니다. AI Studio 운영 미리보기·실제 유료 응답 성공으로 보고하지 않습니다.
 
-## 2026-10-13 — 캔버스 에디터: 빠른 드래그 누락·테두리 없는 요소의 검은 선 (ui-canvas v1.01)
-
-- 증상: 자동화(CDP) 드래그로 도형이 안 만들어짐 / 텍스트 컴포넌트에 3px 검은 테두리 → 원인: ① 마우스 이동·놓기 리스너를 상태(`draw`) 의존 effect로 재등록해 mousedown 직후 빠른 mouseup을 놓침 ② `borderStyle: solid`만 있고 두께가 없으면 브라우저 기본 3px 검은 선 → 해결: `ui-canvas/src/components/canvas/Editor.tsx`(리스너 1회 등록 + ref로 최신값, mouseup 좌표를 끝점으로 사용), `ComponentView.tsx`(`hasBorder`) → 다음부터: 드래그/제스처 리스너는 ref 기반으로 한 번만 등록, 인라인 `borderStyle`은 두께가 있을 때만 지정. 화면 검수 때 도구 클릭 후 1초 대기.
-- 증상: 로컬(localhost)에서는 `.buylife.xyz` 쿠키가 없어 로그인 화면 검수 불가 → 조치: 운영 주소(주인님 로그인 세션)에서 검수. 비밀번호 입력 금지 원칙 유지.
 
 ## 2026-10-13 — 외부 서비스(Google Drive) 오류가 문서 저장 상태와 자동 저장을 멈춤 (markdown-studio v1.03)
 
@@ -1958,31 +1943,6 @@
 
 - 증상: Suno 운영 API 비로그인 오류 응답은 성공 응답과 달리 Cache-Control이 public,max-age=0 → 원인: `guarded()` 성공 경로에만 no-store 지정 → 해결: `suno-music-studio/src/lib/apiGuard.ts` 모든 응답에 private,no-store 적용(v1.04) → 다음부터 확인: 동적 라우트 선언만 확인하지 말고 성공/401/403/검증 오류의 실제 응답 헤더를 각각 확인.
 
-## 2026-10-14 banana-canvas v1.01 — 모델 마스크 출력·AI Studio 소스 읽기·골격 복사
-
-- 증상: 이미지 모델에 "피사체 흰색·배경 검정 마스크만 출력"을 시켜도 흑백 **사진**을 돌려줌(원본 AI Studio 앱의 배경 제거도 같은 한계) → 해결: "배경을 순수 녹색(#00FF00)으로 바꾸게" 한 뒤 서버 `sharp` 크로마키로 알파 생성(키 색은 가장자리 추정, 가장자리와 연결된 배경만 투명 — `banana-canvas/src/lib/files.ts` `chromaKey`). 자주색 키는 피부색과 가까워 얼굴에 구멍이 생김 → 다음부터: 모델에 이진 마스크를 기대하지 말고 단색 배경 교체 + 크로마키를 쓴다.
-- 증상: 다른 프로그램에서 골격을 복사한 직후 `src/lib/version.ts`의 이름·slug를 안 고쳐 배포 화면 제목이 옛 프로그램 이름으로 나옴 → 해결: 수정 후 재배포 → 다음부터: 복사 직후 `grep -rn "<옛 slug>\|<옛 이름>" src`로 확인.
-- 도구: AI Studio 공유 앱 소스는 "Continue to the app" 후 코드 보기(`<>`)에서 읽을 수 있다. Monaco 모델은 `window.monaco.editor.getModels()`로 접근되지만 `javascript_tool` 출력이 약 1000자로 잘리므로, 파일 내용을 페이지에 `<article><pre>`로 풀어 놓고 `get_page_text`로 읽는다(className 제거로 용량 절감).
-
-## 2026-10-14 thumbnail-master v1.01 — 이미지 응답 한도·병렬 저장
-
-- 증상(예방): Gemini 2K 이미지 응답은 PNG로 4~7MB라 Vercel 함수 응답 한도(4.5MB)를 넘길 수 있고, 수정 요청 때 클라이언트가 큰 이미지를 다시 보내도 요청 한도에 걸린다 → 해결: 서버가 `sharp`로 JPEG(q90) 변환 후 비공개 Storage에 저장하고 서명 URL만 반환, 수정은 서버가 Storage 원본을 읽음(`thumbnail-master/src/lib/images.ts`) → 다음부터: 이미지를 JSON 응답/요청에 base64로 싣지 않는다.
-- 증상(예방): A/B 두 이미지를 병렬 요청으로 만들 때 한 JSON 컬럼을 읽고-쓰기하면 서로 덮어씀 → 해결: 옵션별 컬럼(`images_a`, `images_b`)으로 분리, 자동 저장 PUT은 이미지 컬럼을 건드리지 않음 → 다음부터: 병렬로 갱신하는 값은 컬럼을 나누거나 원자적 갱신을 쓴다.
-- 증상: `bash` 안의 `python - <<'EOF'` 같은 heredoc에 따옴표·한글이 섞이면 "unexpected EOF"로 명령 전체가 실행되지 않음 → 해결: 스크립트를 Write 도구로 파일에 쓴 뒤 실행한다.
-
-## 2026-10-14 reverse-prompt v1.01 — 큰 파일 업로드·MCP SQL·실호출 스크립트
-
-- 증상: Supabase MCP `execute_sql`에 DDL 여러 문장(테이블+정책+버킷)을 한 번에 보내면 "Invalid or expired requestState"로 거부 → 해결: 문장 하나씩 보내면 정상 적용(DELETE 같은 파괴적 문장도 거부될 수 있어 서비스 롤 스크립트로 정리) → 다음부터: DDL은 문장별로 적용하고 마이그레이션 파일에는 전체를 남긴다.
-- 증상: 실호출 스크립트를 `| tail`로 파이프하면 끝날 때까지 출력이 안 보여 멈춘 것처럼 보임(터미널 제한 시 백그라운드로 넘어감) → 해결: 파일로 리다이렉트하고 `timeout`을 건다 → 다음부터: 긴 AI 호출은 파이프 대신 파일 출력.
-- 설계: Vercel 본문 4.5MB 한도 때문에 영상·오디오는 브라우저가 서명 URL로 Storage에 직접 올리고(`createSignedUploadUrl` + `uploadToSignedUrl`), 서버가 읽어 Gemini Files API로 넘긴다. 버킷은 정책 없이 비공개(서버만 접근), 경로 첫 폴더=uid를 `isOwnTempPath`로 검증. `reverse-prompt.vercel.app` 이름은 선점되어 있어 공식 주소는 buylife.xyz 서브도메인만 쓴다.
-
-## 2026-10-13 landing-architect v1.01 — 새 provider 키·배포·테스트 하네스
-
-- 증상: 회원 본인 이미지 제공자 키(unsplash/pexels/pixabay)를 `user_api_keys`에 저장하려면 provider CHECK 제약에 없어서 실패 → 해결: `landing-architect/supabase/migrations/0002_image_provider_keys.sql`로 제약 확장(기존 값 유지, PLATFORM_PATTERNS §14) → 다음부터: 새 provider를 쓰기 전에 `pg_get_constraintdef`로 현재 허용값을 먼저 확인.
-- 증상: `vercel deploy --prod`가 첫 시도에 `Error: Not authorized` → 재시도하면 성공(일시 오류) → 다음부터: 같은 명령을 한 번 더 실행하고 인증은 건드리지 않는다.
-- 증상: `vercel link` 뒤 폴더 `.env.local`에 Supabase 값이 없어 로컬 실호출 스크립트가 `supabaseUrl is required` → 해결: 루트 `.env.local`을 읽는다(스크립트는 프로젝트 안 `test-artifacts/`에서 실행해야 패키지가 해석됨).
-- 증상: Playwright에서 접힌 `<details>` 안 버튼의 `nth(n)`이 대기만 함 → 원인: 닫힌 섹션 버튼은 접근성 트리에서 제외 → 해결: 열린 섹션 기준 `.first()`를 쓴다.
-
 
 ## 2026-10-13 — Codex 재설정 시간 표시와 인라인 상태바 위치
 
@@ -2021,3 +1981,27 @@
 ## 2026-10-15 — Codex 상태바가 항목별 색상 대신 단색으로 표시됨
 
 - 증상: 모델·5h·weekly·context가 모두 같은 색으로 보임 → 원인: `codex-statusbar/src/run.mjs`의 전체 행 ANSI 179 단색 덮어쓰기 → 해결: `src/format.mjs`의 `colorFooter()`로 폭 조절 후 항목별 TrueColor 적용(v1.05) → 다음 확인: ANSI를 폭 계산에 섞지 않고 실제 터미널 색상·입력 커서·입력 색상 복원을 검사한다. 기존 실행 중인 Codex는 모듈을 이미 읽었으므로 다음 실행부터 적용되며 강제 종료하지 않는다.
+
+
+## 2026-10-16 전체 DB 변수 호환 검수 — 서브프로그램 Turbopack 루트 고정
+
+- 증상: 새 이름만 사용한 개별 프로그램 빌드에서 자기 폴더에 없는 루트 `middleware.ts`를 읽고 `@/lib/supabase/env`를 찾지 못했습니다.
+- 원인: 다중 lockfile 저장소에서 Next.js 16의 Turbopack이 AIMaster 루트를 작업 경계로 추론했습니다. 공통 미들웨어를 복사하거나 없는 모듈을 만드는 것으로 해결하면 앱 경계가 계속 섞입니다.
+- 해결: `ai-audio-analyzer`, `ai-slide-builder`, `allinone-graphic`, `insta_auto_poster`, `kakao_auto_poster`, `react-ui-showcase`, `stepmail`의 기존 Next 설정에 `turbopack: { root: process.cwd() }`를 추가했습니다. 빌드는 해당 프로그램 폴더에서 실행합니다.
+- 다음부터 확인: 서브프로그램 빌드 로그의 workspace root 경고와 실제 오류 경로를 확인하고, 독립 Vercel 프로젝트·자기 폴더 경계를 유지합니다.
+
+
+## 2026-10-16 DB 호환 운영 검수 — 옛 Vercel 주소의 SSO 이동과 시험 쿠키
+
+- 증상: 카카오 자동화의 로컬 회원 검수는 통과하지만 운영 검사에서 `/login`으로 이동했습니다.
+- 원인: 검수기가 옛 `kakaoautoposter.vercel.app`에만 시험 쿠키를 넣었습니다. 실제 서버는 정책대로 `kakao-auto-posting.buylife.xyz`로 308 이동하므로 공유 도메인에 시험 세션이 없었습니다. DB 키 오류가 아니었습니다.
+- 해결: `scripts/verify-platform-supabase-browser.cjs`의 운영 검수에서 옛 Vercel 호스트와 `.buylife.xyz` 공유 쿠키를 함께 제공하고 최종 출처도 기록합니다. 실제 별칭은 Vercel API에서 새 배포를 가리키는 것을 확인했습니다.
+- 다음부터 확인: 실패 응답의 상태·Location·최종 도메인을 먼저 확인합니다. 시험 환경 문제를 해결하려고 운영 키나 권한 정책을 바꾸지 않습니다.
+
+
+## 2026-10-16 전체 DB 호환 전환 — 메인 Git 자동 배포와 설치 파일 보존
+
+- 증상: 메인 설치 파일의 HTTP 상태가 수동 배포 뒤에는 200이었다가, 문서만 푸시한 Git 자동 배포 뒤 404가 됐습니다.
+- 원인: `public/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`는 기존 규칙에 따라 Git 제외 파일입니다. 로컬 수동 배포에는 포함되지만 Git 원본만 받는 자동 배포에는 없습니다. 앱 코드가 같아도 다운로드 자산이 달라집니다.
+- 해결: 최신 커밋의 메인 소스만 모은 배포 복사본에 기존 설치 파일을 함께 넣어 다시 프로덕션 배포했습니다. `scripts/deploy-supabase-compat-rollout.cjs --only . --redeploy`는 이 파일을 보존하며, 별도 보고 경로로 기존 일괄 배포 기록을 덮어쓰지 않을 수 있습니다. 최종 문서 푸시 뒤에도 다시 확인/복구합니다.
+- 다음부터 확인: 메인을 건드리는 다른 CLI도 문서 푸시의 자동 배포가 최신 운영 별칭을 바꿀 수 있음을 확인합니다. 최종 Git 푸시·자동 빌드가 끝난 다음 기존 설치 파일을 포함해 메인을 수동 배포하고 해당 다운로드 HTTP 200을 확인합니다. 설치 파일을 임의로 Git에 넣거나 삭제하지 않습니다.
