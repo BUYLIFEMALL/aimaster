@@ -14,7 +14,7 @@
   1. **전체 화면 단일 옵시디언 블랙 배경(`bg-[#0f0f0f]`) 및 일관된 테마 스타일 준수 (최상단 지침 11번)**:
      - `src/app/globals.css`: 다크 테마 기본 배경 `#0f0f0f`, 텍스트 `#f1f1f1`, 유튜브 스타일 스크롤바(`#272727` 트랙 / `#717171` 썸) 고정.
      - `src/components/PlaylistStudioApp.tsx`: 최상위 컨테이너 `min-h-screen bg-[#0f0f0f] text-[#f1f1f1]` 적용 및 모바일 반응형 `flex flex-col md:flex-row` 레이아웃 정비.
-     - `src/components/Sidebar.tsx`: 유튜브 공식 레드 플레이 심볼 로고(▶) 탑재, 배경 `#0f0f0f` 및 호버 서피스 `#212121` 일체화, `📖 연동 & 사용 매뉴얼` 메뉴 탑재.
+     - `src/components/Sidebar.tsx`: 유튜브 공식 레드 플레이 심볼 로고(▶) 탑재, 배경 `#0f0f0f` 및 호버 서피스 `#212121` 일체화, `📖 연동 & 사용 매뉴얼` 메뉴 탑재, 메뉴 직관화(`💡 퀵 도움말 모달` ➔ `💡 퀵 도움말`).
      - `src/components/MediaCenter.tsx`, `EditorStudio.tsx`, `ExportStudio.tsx`, `ApiKeyModal.tsx`, `HelpModal.tsx`: 전 화면 `#0f0f0f` 및 `#181818` 다크 서피스 통일.
   2. **📖 연동 & 사용 매뉴얼 (`/guide` & `currentTab = 'guide'`) 비주얼 가이드북 전면 신설 (최상단 지침 7번)**:
      - `src/components/PlaylistGuideView.tsx`: 유튜브 공식 로고, 5단계 파이프라인(음원 업로드 ➔ 타임라인 트랙 ➔ AI 비주얼 배경 ➔ 오디오 스펙트럼 10종 ➔ 초고화질 MP4 GPU 가속 렌더링).

@@ -198,7 +198,7 @@ export function Sidebar({
             <span className="font-bold">🔑 API키등록·플랫폼연동</span>
           </button>
 
-          {/* 퀵 도움말 모달 */}
+          {/* 퀵 도움말 */}
           <button
             type="button"
             onClick={() => {
@@ -208,7 +208,7 @@ export function Sidebar({
             className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-[#888888] hover:bg-[#1f1f1f] hover:text-white transition-all text-left cursor-pointer"
           >
             <Sparkles size={14} className="text-amber-400" />
-            <span>💡 퀵 도움말 모달</span>
+            <span>💡 퀵 도움말</span>
           </button>
         </div>
 

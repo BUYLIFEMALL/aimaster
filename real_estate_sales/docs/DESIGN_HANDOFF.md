@@ -1,7 +1,7 @@
 # 디자인 개발완료 인수인계 — 부동산 실거래 투자분석 자동화 (v1.11)
 
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일 (다크 슬레이트)** — 토큰·부품은 Tailwind v4 이식본 [`ghost-scraper`](../../ghost-scraper/docs/DESIGN_HANDOFF.md)와 같고, 기준값은 [`longtail-keyword-expander`](../../longtail-keyword-expander/docs/DESIGN_HANDOFF.md).
-- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인 후 구현 · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
+- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인 후 구현 · 배경 **블랙(다크) 버전 주인님 확정**(라이트로 되돌리지 않음) · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
 - **라이브**: https://real-estate-sales.buylife.xyz
 
 ## 1. 이 프로그램만의 처리
