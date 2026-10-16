@@ -14,6 +14,7 @@
 | D | 크롬 확장의 서버 주소(BASE)·허용 주소 | ai-auto-blog·tistory-auto-blog·naver-blog-agent·naver-blog-allinone(+naver-blog-seo-studio는 새 주소 없음) | 옛 주소 API 호출 | 확장 기능 전부 실패 |
 | E | 확장 ZIP 다운로드 주소(DB) | naver-blog-agent·naver-blog-seo-studio | 옛 주소 | 다운로드 실패 |
 | F | 회원이 외부에 붙여 둔 웹훅 주소 | crm-google-form(구글폼 Apps Script → `/api/webhooks/form-submit`) | 회원 스크립트에 저장된 주소 | 폼 접수 중단 |
+| H | 회원 Meta 앱 Webhooks 콜백(앱당 1개) | instagram-dm-reply(`/api/instagram/dm-webhook/<userId>`) | 옛 주소로 등록한 회원 있음 | DM 수신 중단 — v1.07부터 설정 화면에 새 주소 안내, 회원이 직접 교체(공지 대상) |
 | G | 외부 서비스 콜백(요청마다 주소 전달) | music(Suno 콜백) | 요청 시 SITE_URL로 생성 | 기준 주소만 새 주소면 문제 없음(확인 필요) |
 
 ## 2. 해결 방식 (프로그램 코드만으로, 환경변수 변경 없이)
