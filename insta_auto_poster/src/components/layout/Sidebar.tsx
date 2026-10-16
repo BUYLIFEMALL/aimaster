@@ -30,7 +30,10 @@ const FLOW_STEPS = [
 
 // API 키 등록과 인스타그램 계정 연동을 한 페이지(/settings)로 합쳤다(2026-09-14, 플랫폼
 // 표준 "API키등록·플랫폼연동" 메뉴명 규칙에 맞춤 — 다른 서브프로젝트와 동일하게 통일).
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
+const UTILITY_ITEMS = [
+  { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
+  { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼" },
+];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

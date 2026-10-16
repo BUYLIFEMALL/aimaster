@@ -92,3 +92,8 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - 설정 화면 맨 위 "🧭 내 Meta 앱에 등록할 주소 한눈에 보기" 카드: ① 앱 설정›기본 설정›앱 도메인(`buylife.xyz` + 옛 vercel 호스트) ② Facebook 페이지 방식 유효한 OAuth 리디렉션 URI(새·옛, URI 검사기 확인 안내) ③ Instagram 로그인 방식 리디렉션 URI(새·옛) ④ 이 화면에 넣을 앱 ID 위치 ⑤ 앱 역할 등록. 옛 주소는 환경변수 콜백에서 계산(새 주소와 같으면 숨김).
 - `src/components/settings/CopyAddress.tsx`(클라이언트, 클립보드 + 예비 복사, "✓ 복사됨" 표시) — 설정 화면의 모든 콜백 주소에 적용. 노란 상자 text-sm·leading-relaxed·문장별 단락.
 - 검수: 빌드·배포·DB v1.14, 크롬에서 카드 표시·복사 버튼 클릭 시 "✓ 복사됨" 확인, 노란 상자 줄바꿈 확인.
+## 2026-10-17 v1.15 — 📖 연동 & 사용 매뉴얼 추가 (Claude Code 윈도우)
+- 주인님 요청: 매뉴얼이 없음 → 공통 지침(`docs/PROGRAM_DESIGN_STANDARD.md` 7번·5.6절, 사이드바 순서 `🔑 API키등록·플랫폼연동` + `📖 연동 & 사용 매뉴얼`)대로 추가.
+- `src/app/(dashboard)/guide/page.tsx`: 흐름 다이어그램(키·계정 연결 ➔ 주제 수집 ➔ AI 생성 ➔ 게시) → 5단계 카드(AI 키 / Meta 앱+인스타 연결(파란=Facebook·초록=Instagram) / 주제 수집 / AI 생성 / 즉시·예약 게시, 각 화면 바로가기) → 본인 키 안내 → FAQ 6개(차단된 URL·Invalid platform app·Invalid redirect_uri 주소는 복사 버튼). 문구는 실제 메뉴·버튼 이름 기준. 같은 레이아웃(권한 게이트·배경) 사용.
+- `Sidebar.tsx` UTILITY_ITEMS에 `/guide` 추가.
+- 검수: 빌드(/guide ƒ)·배포·DB v1.15, 크롬에서 매뉴얼 표시·좌측 메뉴 활성 확인.
