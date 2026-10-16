@@ -75,3 +75,5 @@
 4. 시험 계정 앱 설정 문제(기존부터): Instagram "Invalid platform app"(instagram-comment-reply `docs/IMPROVEMENTS.md`), 네이버 카페 `naver_app_missing` 안내 미표시(naver-cafe-poster `docs/IMPROVEMENTS.md`).
 
 - **2026-10-16 텔레그램 웹훅 이전 완료**: 주인님이 관리자 로그인으로 5개 migrate 주소 실행 → getWebhookInfo 확인 결과 5개 봇 모두 새 주소(`https://<slug>.buylife.xyz/api/telegram/webhook/<회원ID>`), 대기 0·최근 오류 없음. 남은 일 1번 완료.
+
+- **2026-10-16 남은 일 2번 완료**: naver-blog-seo-studio v1.65 새 주소 이전(SSO·확장·메인 경로). 상세 `naver-blog-seo-studio/AGENTS.md`. 회원 공지 매뉴얼의 확장 재설치 대상에 SEO 스튜디오 추가함.
