@@ -2,6 +2,8 @@
 
 ## 2026-10-16 Claude Code(맥미니) — Website Scraper v1.12: 스마트 매트릭스 디자인 + 🚨 보안 보강 (⚠️ 윈도우 빌드·배포 요청)
 
+- **디자인 현황판 상태**: `DESIGN.md` 21번 = **✅ 1차 완료 (`v1.12`)** — 다른 CLI는 이 프로그램을 새로 리뉴얼하지 않는다. 남은 빌드·배포·검수만 아래 요청대로. `ACTIVE_WORK`의 맥미니 줄은 삭제함(윈도우 CLI가 맡을 때 자기 줄을 추가).
+
 - **대상**: `ghost-scraper/` (slug `website-scraper`, https://website-scraper.buylife.xyz) — 주인님 지정 다음 디자인 리뉴얼.
 - **🚨 보안(디자인 전에 처리)**: `/api/crawl`·`/api/proxy`·`/api/proxy-image`에 권한 확인이 없어 **누구나 서버를 대리 접속 통로로 쓸 수 있었고** 내부 주소 차단도 없었음 → `checkProgramAccessApi()` + `safeFetch`(사설·내부 주소 차단). 섹터 선택 미리보기가 **남의 사이트 스크립트를 우리 도메인 권한으로 실행**(회원 Gemini 키 노출 위험) → CSP sandbox + iframe sandbox + 메시지 출처 확인. `/api/user/key`도 프로그램 권한 확인.
 - **디자인**: 스마트 매트릭스(롱테일 토큰을 Tailwind v4 `@theme`로 이식), 히어로·KPI, 다크 7탭·검색, 사이드바 계정 밀착·📖 매뉴얼, `/guide` 신설, 섹터 모달 모바일 세로 배치. 버전 v1.12.
