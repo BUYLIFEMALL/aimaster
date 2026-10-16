@@ -1,0 +1,133 @@
+# AIMaster UI/UX 디자인 메인 지침 및 템플릿 카탈로그 (DESIGN.md)
+
+> **최초 제정**: 2026-10-16 (주인님 지시)  
+> **상태**: 최상위 불변 디자인 메인 지침 (Living Standard Document)  
+> **적용 대상**: Claude Code, Codex, Antigravity(Gemini) 등 **모든 AI 코딩 에이전트 및 CLI 공통 필독**  
+> **연계 문서**: [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md) (상세 디자인 가이드), [`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md) (좌측 메뉴바 표준)
+
+---
+
+## ★★★ 디자인 최상위 불변 원칙 (2026-10-16 주인님 지시)
+
+1. **디자인 작업의 템플릿화 및 고유 명칭 의무**:
+   - 모든 프로그램의 UI/UX 디자인 작업 시, 작업한 디자인 내용을 템플릿화하여 **"○○○ 스타일 템플릿"으로 고유 명칭(예: `포커스 스튜디오 스타일`, `사이버 네온 다크 콘솔 스타일` 등)을 정해 공식 명시**합니다.
+   - 나중에 주인님께서 **"다른 프로그램에도 그 템플릿 스타일로 변경해달라"**고 요청하실 때, 어떤 CLI든 이 문서의 카탈로그를 보고 즉시 100% 동일한 톤앤매너와 완성도로 이식할 수 있도록 체계적으로 관리합니다.
+2. **각 서브프로그램 폴더별 디자인 인수인계 문서 의무**:
+   - 디자인 작업이 완료되면 반드시 해당 프로그램 폴더에 **[`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)**(디자인 개발완료 보고서: 적용 템플릿, 컬러 토큰, 컴포넌트 구조, 모바일 반응형 대응점, 주의사항)와 **[`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)**(디자인 중 발견된 로직/기능/편의성 개선과제)를 필수로 작성해 남깁니다.
+3. **배경색 및 테마 표준**:
+   - **기본 메인 테마**: **흰색(Light 테마)**과 **검정색(Dark 테마)**을 기본 메인으로 사용합니다.
+   - **유연한 색상 채택**: 프로그램의 성격이나 업무 맥락에 따라 **차콜, 딥 네이비, 미드나잇 블루, 크림/아이보리, 세이지 등 최적의 몰입감을 주는 다른 배경 색상도 유연하게 적용**합니다 (예: 텍스트/문서 ➔ 소프트 화이트/크림, 미디어/캔버스/플레이어 ➔ 퓨어 블랙/다크 네이비).
+4. **비주얼 인핸스먼트 & 사용 매뉴얼(/guide) 전면 시각화**:
+   - 텍스트만 나열된 딱딱한 화면을 배제하고, **한국인 실사 사진, 프로세스 다이어그램, 친근한 캐릭터/아바타, 생동감 있는 이모티콘, 하이테크 키캡 치트시트**를 적극 활용합니다.
+   - `/guide` 페이지는 단순 텍스트 줄글을 금지하며, 최소 4단계 파이프라인 다이어그램, 핵심 콘솔 배치도, 상태 칩을 포함하는 **시각적 비주얼 가이드북**으로 구성합니다.
+5. **검수 브라우저 지정 준수**:
+   - **Antigravity / Codex**: **Microsoft Edge(엣지) 전용** (`msedge`).
+   - **Claude Code**: 메인 전용 Chrome.
+   - 반드시 실제 브라우저를 띄워 데스크톱(1440px) 및 모바일(375px~390px, 햄버거 메뉴 ☰ 및 가로 넘침 없음) 화면을 직접 대조 검수합니다.
+
+---
+
+## 1. 공식 5대 디자인 템플릿 시스템 (Design Template System)
+
+| 공식 템플릿 스타일 명칭 | 대표 적용 프로그램 | 배경 및 메인 컬러 | 핵심 레이아웃 & 시그니처 특징 | 추천 대상 프로그램 분야 |
+|---|---|---|---|---|
+| **1. 포커스 스튜디오 스타일<br>(Focus Studio Style)** | **Markdown Studio** (`v1.10`) | 소프트 크림 / 퓨어 화이트<br>포인트: 딥 인디고 & 바이올렛 | 좌우 분할 스플릿 뷰(원문 vs 실시간 렌더링), 상단 툴바, 접이식 탐색기, 종이 질감 캔버스 | AI 글쓰기 에디터, 문서 변환기, 상세페이지 기획, 텍스트 프롬프트 스튜디오 |
+| **2. 사이버 네온 다크 콘솔 스타일<br>(Cyber Neon Dark Console Style)** | **뮤직 플레이어** (`v1.04`) | 퓨어 딥 블랙 (`#060911`)<br>포인트: 네온 사이언 & 퍼플 글로우 | 앰프 랙마운트 콘솔 데크, 센터 네온 발광 플레이 버튼, 8밴드 수직 슬라이더 EQ, 글래스모피즘 플레이리스트 | 음악/오디오 플레이어, 비디오 에디터, 캔버스 그래픽 툴, 하이테크 미디어 스튜디오 |
+| **3. 플로우 위저드 스타일<br>(Flow Wizard Style)** | **AI 쇼츠 원스톱** (`shorts-onestop-studio`) | 다크/라이트 듀얼 테마<br>포인트: 일렉트릭 블루 & 에메랄드 | 1단계 입력 → 2단계 AI 생성 → 3단계 검수 → 4단계 발행 단계별 프로그레스 바, 선택형 템플릿 카드 | 원스톱 숏폼/영상 자동화, SNS 자동 포스팅, 단계별 랜딩페이지 기획 |
+| **4. 스마트 매트릭스 스타일<br>(Smart Matrix Style)** | 블로그 키워드 발굴, 고스트 웹스크래퍼 | 슬레이트 그레이 / 다크 차콜<br>포인트: 모던 블루 & 앰버 | 상단 핵심 지표(KPI) 통계 카드 3~4종, 검색/필터 바, 표/그리드 전환 뷰, 실시간 상태 칩 | 키워드 발굴기, 데이터 스크래핑 대시보드, 성과 분석·통계 프로그램 |
+| **5. 크리에이티브 아틀리에 스타일<br>(Creative Atelier Style)** | 썸네일 마스터, 4컷 만화, LP 턴테이블 | 딥 미드나잇 블랙<br>포인트: 비비드 골드 & 네온 핑크 | 대형 캔버스 뷰포트 중심, 좌우 옵션 패널, 프리셋 갤러리 썸네일 그리드, 고화질 뷰어 | AI 이미지 생성기, 웹툰/만화 제작기, 썸네일 마스터, 패션 스타일링 |
+
+---
+
+## 2. 전체 프로그램 디자인 템플릿 적용 현황 리스트 (Master Design Registry)
+
+> **상태 구분**:  
+> - 🟢 **완료**: 디자인 템플릿 적용 및 `docs/DESIGN_HANDOFF.md` 작성 완료  
+> - 🟡 **진행 중/부분 적용**: 기본 틀 적용 및 고도화 대기  
+> - ⚪ **예정**: 향후 리디자인 대상 (추천 템플릿 매핑)
+
+| No | 서브프로그램명 | slug | 적용 디자인 템플릿 스타일 | 배경 테마 | 상태 | 인수인계 문서 |
+|:---:|---|---|---|:---:|:---:|:---:|
+| 1 | 마크다운 문서 자동화 | `markdown-studio` | **포커스 스튜디오 스타일** | 라이트(크림) | 🟢 완료 | [`markdown-studio/docs/DESIGN_HANDOFF.md`](markdown-studio/docs/DESIGN_HANDOFF.md) |
+| 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | 🟢 완료 | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
+| 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | 🟡 진행 중 | `shorts-onestop-studio/AGENTS.md` |
+| 4 | AI 블로그 작업실 자동화 | `blog-workroom` | 포커스 스튜디오 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `blog-workroom/AGENTS.md` |
+| 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `allinone-graphic/AGENTS.md` |
+| 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 예정 | `playlist-channel-studio/AGENTS.md` |
+| 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `cinematic-storyboard-studio/AGENTS.md` |
+| 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `detail-page-12p/AGENTS.md` |
+| 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 예정 | `prompt-template-studio/AGENTS.md` |
+| 10 | 페르소나 문체 자동화 | `persona-style-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `persona-style-studio/AGENTS.md` |
+| 11 | AI Prompt 자동화 | `ai-prompt-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `ai-prompt-studio/AGENTS.md` |
+| 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 예정 | `yt-playlist-studio/AGENTS.md` |
+| 13 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `vinyl-lp-studio/AGENTS.md` |
+| 14 | 무한루프 영상자동화 | `infinite-loop-video` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `infinite-loop-video/AGENTS.md` |
+| 15 | AI 인플루언서 자동화 | `ai-influencer-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `ai-influencer-studio/AGENTS.md` |
+| 16 | 뮤직비디오 자동화 | `music-video-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 예정 | `music-video-studio/AGENTS.md` |
+| 17 | 이미지 변환 스튜디오 | `image-convert-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 예정 | `image-convert-studio/AGENTS.md` |
+| 18 | Suno 음악기획 자동화 | `suno-music-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 예정 | `suno-music-studio/AGENTS.md` |
+| 19 | 감성 글귀 이미지 | `emotion-writer` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 예정 | `emotion-writer/AGENTS.md` |
+| 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `ebook-studio/AGENTS.md` |
+| 21 | Website Scraper | `website-scraper` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `website-scraper/AGENTS.md` |
+| 22 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `seo-thumbnail-pro/AGENTS.md` |
+| 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `style-dna-analyzer/AGENTS.md` |
+| 24 | INSTA Cardnews 자동화 | `cardnews-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 예정 | `cardnews-studio/AGENTS.md` |
+| 25 | AI 웹툰 자동화 | `ai-webtoon-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `ai-webtoon-studio/AGENTS.md` |
+| 26 | 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `naver-blog-allinone/AGENTS.md` |
+| 27 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 예정 | `youtube-channel-consultant/AGENTS.md` |
+| 28 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 예정 | `youtube-viral-studio/AGENTS.md` |
+| 29 | 네이버 블로그 에이전트 | `naver-blog-agent` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `naver-blog-agent/AGENTS.md` |
+| 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `threads-content-ops/AGENTS.md` |
+| 31 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `shorts-viral-studio/AGENTS.md` |
+| 32 | Threads AI 기획 자동화 | `threads-easy-planner` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `threads-easy-planner/AGENTS.md` |
+| 33 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `tistory-auto-blog/AGENTS.md` |
+| 34 | AI 이미지 스튜디오 | `ai-image-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `ai-image-studio/AGENTS.md` |
+| 35 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | 스마트 매트릭스 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `naver-blog-seo-studio/AGENTS.md` |
+| 36 | 상세페이지 GIF 자동화 | `video-to-gif` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `video-to-gif/AGENTS.md` |
+| 37 | AIMaster 타로점 | `tarot-reading` | 크리에이티브 아틀리에 스타일 (권장) | 딥 미드나잇 퍼플 | ⚪ 예정 | `tarot/AGENTS.md` |
+| 38 | 캐릭코드(MBTI) 측정기 | `mbti-character` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 예정 | `mbti-character/AGENTS.md` |
+| 39 | 성격코드(MBTI) 측정기 | `personality-code` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 예정 | `mbti/AGENTS.md` |
+| 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `naver-cafe-poster/AGENTS.md` |
+| 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 예정 | `kakao-auto-posting/AGENTS.md` |
+| 42 | 웹 크롤링 자동화 | `web-crawler-saas` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `web-crawler-saas/AGENTS.md` |
+| 43 | 상품소싱 자동화 | `trending-product-finder` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `trending-product-finder/AGENTS.md` |
+| 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `threads-affiliate-poster/AGENTS.md` |
+| 45 | INSTA DM답변 자동화 | `instagram-dm-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `instagram-dm-reply/AGENTS.md` |
+| 46 | Threads 댓글자동화 | `threads-comment-reply` | 스마트 매트릭스 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `threads-comment-reply/AGENTS.md` |
+| 47 | INSTA 댓글자동화 | `instagram-comment-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `instagram-comment-reply/AGENTS.md` |
+| 48 | 유튜브 댓글자동화 | `youtube-auto-reply` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `youtube-auto-reply/AGENTS.md` |
+| 49 | 롱테일 키워드분석 자동화 | `longtail-keyword-expander` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `longtail-keyword-expander/AGENTS.md` |
+| 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `competitor-analysis/AGENTS.md` |
+| 51 | 예약(취소)방지 리마인드 | `booking-reminder` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `booking-reminder/AGENTS.md` |
+| 52 | 구글폼 CRM 자동화 | `crm-google-form` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `crm-google-form/AGENTS.md` |
+| 53 | 대량 메일발송 자동화 | `stepmail` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `stepmail/AGENTS.md` |
+| 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 예정 | `music/AGENTS.md` |
+| 55 | 상세페이지 자동화(15p) | `shop-detail-page` | 포커스 스튜디오 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `shop-detail-page/AGENTS.md` |
+| 56 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `insta-auto-poster/AGENTS.md` |
+| 57 | 부동산 실거래 투자분석 | `real-estate-sales` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 예정 | `real-estate-sales/AGENTS.md` |
+| 58 | YOUTUBE Shots 자동화 | `auto-shorts-posting` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `shots/AGENTS.md` |
+| 59 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `ai-auto-blog/AGENTS.md` |
+| 60 | Threads 포스팅 자동화 | `auto-threads-posting` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `threads/AGENTS.md` |
+| 61 | 상세페이지 자동생성기 v1 | `auto-detail-page` | 포커스 스튜디오 스타일 (권장) | 라이트/화이트 | ⚪ 예정 | `auto-detail-page/AGENTS.md` |
+
+*(※ 카탈로그 전체 83개 프로그램 목록은 작업 진행에 따라 순차적으로 템플릿화 및 완료 상태로 갱신됩니다.)*
+
+---
+
+## 3. 다른 CLI를 위한 작업 및 인수인계 절차
+
+어떤 AI 코딩 에이전트(Claude Code, Codex, Antigravity)가 특정 프로그램의 디자인 작업에 착수하더라도 다음 순서를 반드시 준수합니다:
+
+1. **작업 시작 전 카탈로그 확인**:
+   - 본 문서(`DESIGN.md`)의 카탈로그 표에서 해당 프로그램의 권장/적용 템플릿을 확인합니다.
+   - 기존 완료된 프로그램의 `docs/DESIGN_HANDOFF.md`를 열어 해당 템플릿의 색상 변수, CSS 클래스, 컴포넌트 구조를 참고합니다.
+2. **디자인 구현**:
+   - `globals.css` 토큰 정의, 좌측 사이드바 표준(`docs/SIDEBAR_LAYOUT_STANDARD.md`), 우측 메인 워크스페이스, `/guide` 비주얼 매뉴얼을 구현합니다.
+3. **Microsoft Edge 화면 검수**:
+   - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션으로 데스크톱 및 모바일(375px~390px) 화면을 캡처하여 검증합니다.
+4. **산출물 인수인계 의무 작성**:
+   - `<프로그램>/docs/DESIGN_HANDOFF.md` 신설: 적용 템플릿 명칭 명시, 컬러 토큰, 컴포넌트 구조, 모바일 대응점 기록.
+   - `<프로그램>/docs/IMPROVEMENTS.md` 신설: 작업 중 발견된 로직/기능 개선과제 기록.
+   - `<프로그램>/AGENTS.md` 기본 정보 표에 `적용 디자인 템플릿` 필드 갱신.
+   - 본 문서(`DESIGN.md`) 카탈로그 표의 상태를 🟢 완료로 업데이트.
+5. **빌드, 커밋, 원격 푸시, 프로덕션 배포 완료**.

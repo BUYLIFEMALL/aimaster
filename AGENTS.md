@@ -22,6 +22,14 @@
 > **★★★ 모든 CLI 작업 전 최상위 공통 필독 — 데이터베이스 연동 지침 (2026-10-16 주인님 지시)**
 > 어떤 프로그램을 작업하든 먼저 [`docs/DATABASE_CONNECTION_POLICY.md`](docs/DATABASE_CONNECTION_POLICY.md)와 [`docs/DATABASE_CONNECTION_HANDOFF.md`](docs/DATABASE_CONNECTION_HANDOFF.md)를 읽는다. 메인과 모든 서브프로그램은 공유 DB 하나를 사용하며 공개 키는 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` → `NEXT_PUBLIC_SUPABASE_ANON_KEY`, 서버 키는 `SUPABASE_SECRET_KEY` → `SUPABASE_SERVICE_ROLE_KEY` 순서로 선택한다(새 값 없음/공백일 때만 기존 값 사용). 공개 키와 서버 키를 서로 대체하지 않는다. **안정화 전 기존 환경변수·실제 키 삭제 금지.** 안정화 후에도 Vercel의 기존 변수 이름 삭제와 Supabase 실제 키 폐기를 구분한다. 새 이름에 같은 키를 사용 중이면 실제 키를 폐기하면 안 된다. 전체 적용·검수·배포 여부는 인수인계의 프로그램별 증거로 확인하며, 완료 전 전체 적용됐다고 가정하지 않는다. 회원 본인 AI 키·외부 계정 최상위 규칙은 유지한다.
 
+> **★★★ 모든 CLI 작업 전 최상위 공통 필독 — 디자인 작업 메인지침 및 템플릿화 의무 (2026-10-16 주인님 지시)**
+> **모든 웹 서브프로그램의 UI/UX 디자인 작업 시 루트 최상단 [`DESIGN.md`](DESIGN.md)와 [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md)를 필독하고 준수한다.**
+> ① **디자인 템플릿화 및 고유 명칭 의무**: 작업 내용을 템플릿화하여 "○○○ 스타일 템플릿"(예: `포커스 스튜디오 스타일`, `사이버 네온 다크 콘솔 스타일` 등)으로 공식 명명하고 루트 [`DESIGN.md`](DESIGN.md) 카탈로그에 등록한다. 다른 프로그램으로의 스타일 변경·이식 요청 시 즉시 참고할 수 있게 체계화한다.
+> ② **서브프로그램별 디자인 인수인계 문서 의무**: 디자인 완료 후 해당 프로그램 폴더에 `docs/DESIGN_HANDOFF.md`(디자인 완료 보고: 스타일 템플릿, 컬러 토큰, 컴포넌트 구조, 모바일 대응점, 주의사항) 및 `docs/IMPROVEMENTS.md`(로직/기능/편의성 개선점)를 필수로 작성해 남긴다.
+> ③ **테마 및 배경색**: 기본 흰색(Light)과 검정색(Dark)을 메인으로 사용하되, 프로그램 성격에 맞춰 차콜, 딥 네이비, 크림, 미드나잇 등 유연하게 적용한다.
+> ④ **비주얼 시각화**: 한국인 실사 사진, 프로세스 다이어그램, 친근한 캐릭터, 감성 이모티콘, 사용 매뉴얼(/guide)의 전면 시각화를 준수한다.
+> ⑤ **브라우저 검수 준수**: Antigravity/Codex는 **Microsoft Edge(엣지) 전용**, Claude Code는 메인 Chrome 전용으로 실제 브라우저 창을 띄워 데스크톱 및 모바일(375px~390px) 반응형을 대조 검수한다.
+
 이 문서는 **Claude Code뿐 아니라 Codex, Gemini(구글) 등 어떤 AI 코딩 에이전트가 이 저장소에
 새로 투입되더라도**, 지금까지 쌓인 작업 방식·규칙·주의사항·완성된 프로그램 현황을 바로 파악하고
 이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-29 기준 최신 상태를 반영했다.

@@ -6,6 +6,7 @@
 > **두 PC 멀티 작업(2026-10-16)**: 윈도우 PC와 맥미니 모두 Antigravity·Codex·Claude Code가 등록돼 동시에 작업할 수 있다. 맥미니에서 실행 중이면 [`docs/MAC_MINI_WORK_GUIDE.md`](docs/MAC_MINI_WORK_GUIDE.md)를 먼저 읽고, 브라우저는 그 장비의 엣지만 쓴다(크롬은 Claude Code 전용). 규칙 원문: `CLAUDE.md` 원칙 18.
 > **★★★ 동시 작업 금지(2026-10-16)**: 같은 서브프로그램을 다른 CLI와 동시에 작업하지 않는다. 시작 전 [`docs/ACTIVE_WORK.md`](docs/ACTIVE_WORK.md)·`git status`·`docs/HANDOFF.md`로 다른 CLI의 작업 중 여부를 확인하고 비어 있을 때만 시작, 끝나면 작업 내용·인수인계 문서를 남긴다. 원문: `CLAUDE.md` 최상단.
 > **★★★ 계정 고정(2026-10-16)**: 관리자 계정은 항상 `buylifemall@gmail.com`, 일반 회원 테스트 계정은 항상 `buylifemall@naver.com`. 회원 기능 검수는 테스트 계정으로 실제 로그인해서 한다(비밀번호는 주인님이 직접). 원문: `CLAUDE.md` 최상단.
+> **★★★ 디자인 작업 메인지침 및 템플릿화 의무 (2026-10-16 주인님 지시)**: 모든 웹 서브프로그램의 UI/UX 디자인 작업 시 루트 최상단 [`DESIGN.md`](DESIGN.md)와 [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md)를 필독하고 준수한다. 작업 내용을 템플릿화하여 "○○○ 스타일 템플릿"으로 고유 명명하고 `DESIGN.md` 카탈로그에 등록하며, 각 프로그램 폴더에 `docs/DESIGN_HANDOFF.md` 및 `docs/IMPROVEMENTS.md`를 필수로 작성해 남긴다. 검수는 Edge 전용.
 
 Gemini CLI(Antigravity)가 이 저장소(AIMaster)에서 작업할 때 읽는 안내 파일이다. 규칙은 다른 CLI와 똑같다 — 새로 만들지 않고 아래 문서를 그대로 따른다.
 
