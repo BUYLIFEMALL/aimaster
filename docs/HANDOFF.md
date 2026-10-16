@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 구글폼 CRM v1.09: 스마트 매트릭스 라이트 변형 디자인 (🟠 윈도우 마무리 요청) + 🚨 웹훅 위험 2건 발견
+
+- **대상**: `crm-google-form/` (https://crm-google-form.buylife.xyz). 주인님 지정.
+- **한 일**: 롱테일 부품 + 라이트 토큰(Tailwind v3 첫 라이트 변형), 사이드바 ☰(원칙 19 — 기존 누락)·🏠·📖, `/dashboard`(접수 지표·발송 계정 3종 상태)·`/guide`(채널별 필요한 연결 표) 신설, 접수 내역 검색·필터·원본 펼치기, 기존 화면 색 토큰 치환, 시각 Asia/Seoul. 웹훅·발송·DB 변경 없음. v1.09.
+- **🚨 발견(미조치, 주인님 승인 필요)**: ① 웹훅이 `response_id` 중복을 막지 않아 재전송 시 신청자에게 문자·알림톡 이중 발송·이중 요금 ② 크기·횟수 제한이 없어 웹훅 주소 유출 시 가짜 접수로 회원 SOLAPI 요금 소진 가능. ①은 DB 유니크 인덱스가 필요. 상세 [`crm-google-form/docs/IMPROVEMENTS.md`](../crm-google-form/docs/IMPROVEMENTS.md).
+- **문서**: [`crm-google-form/docs/`](../crm-google-form/docs/) PLAN·IMPROVEMENTS(8건, 4건 구현)·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, `AGENTS.md`, 루트 `DESIGN.md` 52번 🟠, 역량 지도 카드.
+- **⚠️ 윈도우 CLI 요청**: [`crm-google-form/docs/IMPROVEMENT_HANDOFF_20261017.md`](../crm-google-form/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.09 → 1440px·375px 검수(실제 발송 금지) → `DESIGN.md` 52번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(윈도우) — INSTA 포스팅 v1.13~v1.15: 새 주소 연결 성공·버튼 색·등록 주소 정리·매뉴얼
 
 - **대상**: `insta_auto_poster/` (https://auto-instagram-posting.buylife.xyz). 커밋 `731ec0c4`(v1.13)·`691e221e`(v1.14)·`f7e16caf`(v1.15), 매번 배포·DB 버전 반영, VIP 부여 확인.

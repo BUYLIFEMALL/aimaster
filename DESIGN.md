@@ -142,7 +142,7 @@
 | 49 | 롱테일 키워드분석 자동화 | `longtail-keyword-expander` | **스마트 매트릭스 스타일** (기준 구현) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 완료 (`v1.06`) | [`longtail-keyword-expander/docs/DESIGN_HANDOFF.md`](longtail-keyword-expander/docs/DESIGN_HANDOFF.md) |
 | 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | **스마트 매트릭스 스타일** (기준 구현과 같은 뼈대) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 스타일) | [`competitor-analysis/docs/DESIGN_HANDOFF.md`](competitor-analysis/docs/DESIGN_HANDOFF.md) |
 | 51 | 예약(취소)방지 리마인드 | `booking-reminder` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `booking-reminder/AGENTS.md` |
-| 52 | 구글폼 CRM 자동화 | `crm-google-form` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `crm-google-form/AGENTS.md` |
+| 52 | 구글폼 CRM 자동화 | `crm-google-form` | **스마트 매트릭스 스타일 — 라이트 변형** (Tailwind v3 첫 적용) | 라이트(`#f6f7f9`/`#ffffff` + 블루 `#2563eb`·앰버 `#b45309`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.09`, Claude Code 맥미니 2026-10-17) | [`crm-google-form/docs/DESIGN_HANDOFF.md`](crm-google-form/docs/DESIGN_HANDOFF.md) |
 | 53 | 대량 메일발송 자동화 | `stepmail` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `stepmail/AGENTS.md` |
 | 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`music/docs/DESIGN_HANDOFF.md`](music/docs/DESIGN_HANDOFF.md) |
 | 55 | 상세페이지 자동화(15p) | `shop-detail-page` | **이커머스 셀러 스튜디오 스타일** | 퓨어 화이트 (`#ffffff` + 블루 `#2563eb`·오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`shop-detail-page/docs/DESIGN_HANDOFF.md`](shop-detail-page/docs/DESIGN_HANDOFF.md) |

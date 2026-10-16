@@ -1,4 +1,5 @@
 import { requireProgramAccess } from "@/lib/access";
+import { PageHero } from "@/components/layout/PageHero";
 import { createClient } from "@/lib/supabase/server";
 import { ProviderAccountSection } from "@/components/settings/ProviderAccountSection";
 import type { SmtpAccountData } from "@/components/settings/SmtpAccountCard";
@@ -53,19 +54,18 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
-      <section>
-        <h1 className="text-2xl font-black text-gray-900 mb-2">발송 계정 설정</h1>
-        <p className="text-sm text-gray-500">
-          신청자에게 접수 확인 이메일을 보낼 계정과, 운영자 본인에게 신청 내역을 알려줄 텔레그램을
-          등록하세요. 두 계정 모두 본인 계정만 사용하며, 관리자 공용 계정으로 대체되지 않습니다.
-        </p>
-      </section>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <PageHero
+        badge="🔑 API키등록·플랫폼연동"
+        title="발송 계정 설정"
+        description="신청자에게 보낼 이메일(SMTP)·문자·카카오(SOLAPI) 계정과 운영자 알림용 텔레그램을 등록하세요. 모두 회원님 본인 계정만 사용하며, 관리자 공용 계정으로 대체되지 않습니다."
+        tip="이메일·SOLAPI 계정은 다른 AIMaster 프로그램(예: Step Mail)과 함께 쓰이고, 텔레그램은 프로그램마다 따로 연결합니다."
+      />
 
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="glass-card space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-6 shadow-sm">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">📧 이메일(SMTP) 발송 계정</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-mx-text">📧 이메일(SMTP) 발송 계정</h2>
+          <p className="text-sm text-mx-muted">
             신청자에게 접수 확인 이메일을 보낼 계정입니다. 플랫폼별로 여러 개 등록할 수 있어요.
           </p>
         </div>
@@ -82,21 +82,21 @@ export default async function SettingsPage() {
 
       <SolapiAccountSection account={solapiAccount ?? null} />
 
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="glass-card space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-6 shadow-sm">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">📱 텔레그램 연동</h2>
-          <p className="text-sm text-gray-500">운영자 본인 텔레그램으로 신청 내역을 요약해서 받아보세요.</p>
+          <h2 className="text-lg font-bold text-mx-text">📱 텔레그램 연동</h2>
+          <p className="text-sm text-mx-muted">운영자 본인 텔레그램으로 신청 내역을 요약해서 받아보세요.</p>
         </div>
 
         {telegramLink ? (
           <div className="space-y-3">
-            <p className="text-sm text-green-600">
+            <p className="text-sm text-mx-success">
               ✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.
             </p>
             <form action={disconnectTelegramAction}>
               <button
                 type="submit"
-                className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100"
+                className="rounded-lg bg-[#fff1f2] px-4 py-2 text-xs font-bold text-mx-danger hover:bg-red-100"
               >
                 연동 해제
               </button>
@@ -104,16 +104,16 @@ export default async function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <ol className="list-inside list-decimal space-y-2 text-sm text-gray-600">
+            <ol className="list-inside list-decimal space-y-2 text-sm text-mx-muted">
               <li>
-                텔레그램에서 <span className="font-semibold text-gray-900">@BotFather</span>를
+                텔레그램에서 <span className="font-semibold text-mx-text">@BotFather</span>를
                 검색해서 대화를 시작하세요.
               </li>
               <li>
-                <code className="rounded bg-gray-100 px-1 py-0.5">/newbot</code> 명령을 보내고,
+                <code className="rounded bg-mx-raised px-1 py-0.5">/newbot</code> 명령을 보내고,
                 안내에 따라 봇 이름을 정하세요 (마지막엔 반드시{" "}
-                <code className="rounded bg-gray-100 px-1 py-0.5">bot</code>으로 끝나야 해요, 예:{" "}
-                <code className="rounded bg-gray-100 px-1 py-0.5">my_crm_bot</code>).
+                <code className="rounded bg-mx-raised px-1 py-0.5">bot</code>으로 끝나야 해요, 예:{" "}
+                <code className="rounded bg-mx-raised px-1 py-0.5">my_crm_bot</code>).
               </li>
               <li>
                 완료되면 BotFather가 <strong>토큰</strong>(숫자:영문조합 문자열)을 알려줘요. 그
@@ -130,10 +130,10 @@ export default async function SettingsPage() {
         )}
       </section>
 
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="glass-card space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-6 shadow-sm">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">📖 연동 매뉴얼</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-mx-text">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-mx-muted">
             이 프로그램에서 사용하는 발송 계정 연동 방법을 팝업창으로 열어 옆에 두고 그대로 따라
             할 수 있습니다.
           </p>

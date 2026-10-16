@@ -51,7 +51,7 @@ function CopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       }}
-      className="text-xs font-semibold text-blue-600 hover:underline"
+      className="text-xs font-semibold text-mx-link hover:underline"
     >
       {copied ? "복사됨!" : "복사"}
     </button>
@@ -132,21 +132,21 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
     .join("\n");
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4">
+    <div className="bg-mx-surface border border-mx-border rounded-2xl p-5 shadow-sm space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-bold text-gray-900">{source.name}</p>
+        <p className="text-sm font-bold text-mx-text">{source.name}</p>
         <div className="flex items-center gap-3">
           <span
             className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-              source.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+              source.is_active ? "bg-[#ecfdf5] text-mx-success" : "bg-mx-raised text-mx-muted"
             }`}
           >
             {source.is_active ? "연동 중" : "일시중지"}
           </span>
-          <button type="button" onClick={handleToggleActive} disabled={isToggling} className="text-xs font-semibold text-gray-600 hover:underline disabled:opacity-60">
+          <button type="button" onClick={handleToggleActive} disabled={isToggling} className="text-xs font-semibold text-mx-muted hover:underline disabled:opacity-60">
             {source.is_active ? "일시중지" : "다시 켜기"}
           </button>
-          <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-60">
+          <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-xs font-semibold text-mx-danger hover:underline disabled:opacity-60">
             {isDeleting ? "삭제 중..." : "삭제"}
           </button>
         </div>
@@ -155,13 +155,13 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
       <button
         type="button"
         onClick={() => setShowSetup((v) => !v)}
-        className="text-xs font-semibold text-blue-600 hover:underline"
+        className="text-xs font-semibold text-mx-link hover:underline"
       >
         {showSetup ? "연동 방법 접기" : "📎 구글시트에 연결하는 방법 보기"}
       </button>
 
       {showSetup && (
-        <div className="space-y-3 rounded-xl bg-gray-50 p-4 text-xs text-gray-600">
+        <div className="space-y-3 rounded-xl bg-mx-raised p-4 text-xs text-mx-muted">
           <ol className="list-inside list-decimal space-y-1">
             <li>구글폼의 &quot;응답&quot; 탭에서 스프레드시트 아이콘을 눌러 연결된 시트를 만드세요.</li>
             <li>그 시트에서 <b>확장 프로그램 → Apps Script</b>를 열고, 아래 코드를 전체 붙여넣은 뒤 저장하세요.</li>
@@ -170,10 +170,10 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
           </ol>
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <span className="font-semibold text-gray-700">웹훅 URL (참고용)</span>
+              <span className="font-semibold text-mx-text">웹훅 URL (참고용)</span>
               <CopyButton text={webhookUrl} />
             </div>
-            <code className="block break-all rounded-lg bg-white border border-gray-200 px-3 py-2 font-mono">{webhookUrl}</code>
+            <code className="block break-all rounded-lg bg-mx-surface border border-mx-border px-3 py-2 font-mono">{webhookUrl}</code>
             {/* 2026-10-16 옛 vercel.app 삭제 대비: 예전 주소로 Apps Script를 만든 회원에게 교체 안내 */}
             <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
               예전에 <code>crm-google-form.vercel.app</code> 주소로 Apps Script를 만드셨다면, 스크립트 안의 주소를 위 새 주소로
@@ -182,7 +182,7 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
           </div>
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <span className="font-semibold text-gray-700">Apps Script 코드</span>
+              <span className="font-semibold text-mx-text">Apps Script 코드</span>
               <CopyButton text={appsScriptSnippet(webhookUrl)} />
             </div>
             <pre className="overflow-x-auto rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-gray-100">
@@ -192,8 +192,8 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
         </div>
       )}
 
-      <form onSubmit={handleSaveMapping} className="space-y-2 border-t border-gray-100 pt-4">
-        <p className="text-xs font-semibold text-gray-700">
+      <form onSubmit={handleSaveMapping} className="space-y-2 border-t border-mx-border pt-4">
+        <p className="text-xs font-semibold text-mx-text">
           필드값 매핑 — 구글폼 질문 제목을 정확히 입력하세요 (알림 문구에 쓰입니다)
         </p>
         <div className="grid grid-cols-3 gap-2">
@@ -216,17 +216,17 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
             className="input-sm"
           />
         </div>
-        {mappingError && <p className="text-xs text-red-600">{mappingError}</p>}
+        {mappingError && <p className="text-xs text-mx-danger">{mappingError}</p>}
         <button
           type="submit"
           disabled={isSavingMapping}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+          className="rounded-lg bg-mx-primary px-4 py-2 text-xs font-bold text-white hover:bg-[var(--mx-primary-strong)] disabled:opacity-60"
         >
           {isSavingMapping ? "저장 중..." : "필드값 매핑 저장"}
         </button>
       </form>
 
-      <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-4 text-xs sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2 border-t border-mx-border pt-4 text-xs sm:grid-cols-3">
         <label className="flex items-center gap-1.5">
           <input type="checkbox" checked={source.notify_email} onChange={() => handleToggleNotify("notify_email")} />
           신청자 이메일
@@ -248,15 +248,15 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
           운영자 텔레그램
         </label>
       </div>
-      <p className="text-[11px] text-gray-400">
+      <p className="text-[11px] text-mx-muted">
         문자·알림톡·친구톡은 /settings에 SOLAPI 계정을 등록해야 실제로 발송됩니다.
       </p>
 
       {source.notify_alimtalk && (
-        <form onSubmit={handleSaveKakao} className="space-y-2 rounded-xl bg-gray-50 p-4 text-xs">
-          <p className="font-semibold text-gray-700">카카오 알림톡 템플릿 설정</p>
+        <form onSubmit={handleSaveKakao} className="space-y-2 rounded-xl bg-mx-raised p-4 text-xs">
+          <p className="font-semibold text-mx-text">카카오 알림톡 템플릿 설정</p>
           <div>
-            <label className="mb-1 block text-gray-600">템플릿 ID (SOLAPI 콘솔에서 승인받은 알림톡 템플릿)</label>
+            <label className="mb-1 block text-mx-muted">템플릿 ID (SOLAPI 콘솔에서 승인받은 알림톡 템플릿)</label>
             <input
               name="kakaoTemplateId"
               defaultValue={source.kakao_template_id ?? ""}
@@ -265,8 +265,8 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
             />
           </div>
           <div>
-            <label className="mb-1 block text-gray-600">
-              템플릿 변수 매핑 — 한 줄에 하나씩, <code className="rounded bg-white px-1">#{"{변수명}"}=구글폼 질문 제목</code> 형식
+            <label className="mb-1 block text-mx-muted">
+              템플릿 변수 매핑 — 한 줄에 하나씩, <code className="rounded bg-mx-surface px-1">#{"{변수명}"}=구글폼 질문 제목</code> 형식
             </label>
             <textarea
               name="kakaoVariables"
@@ -276,11 +276,11 @@ export function SourceCard({ source, followupRules }: { source: FormSourceData; 
               className="input-sm font-mono"
             />
           </div>
-          {kakaoError && <p className="text-red-600">{kakaoError}</p>}
+          {kakaoError && <p className="text-mx-danger">{kakaoError}</p>}
           <button
             type="submit"
             disabled={isSavingKakao}
-            className="rounded-lg bg-blue-600 px-4 py-2 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+            className="rounded-lg bg-mx-primary px-4 py-2 font-bold text-white hover:bg-[var(--mx-primary-strong)] disabled:opacity-60"
           >
             {isSavingKakao ? "저장 중..." : "알림톡 설정 저장"}
           </button>

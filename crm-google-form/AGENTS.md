@@ -26,6 +26,12 @@
 
 ---
 
+## 🎨 적용 디자인 템플릿
+
+**스마트 매트릭스 스타일 — 라이트 변형**(v1.09) — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · 플랜 [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)(🚨 웹훅 중복·횟수 제한 2건 승인 대기) · 인수인계 [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+---
+
 ## 🎯 프로젝트 목적
 
 구글폼에 새 응답이 들어오면 신청자에게 접수 확인(이메일/SMS/카카오 알림톡/카카오 친구톡)을
@@ -93,3 +99,8 @@ README.md의 Phase 표와 동기화해서 관리할 것.
 ## 2026-10-16 v1.08 — 옛 vercel.app 삭제 대비: 구글폼 웹훅 주소 교체 안내 (Claude Code 윈도우)
 - 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 F. 웹훅 주소는 화면 주소(`window.location.origin`) 기준이라 SSO 이후 새 주소로 표시됨. 예전에 `crm-google-form.vercel.app`로 Apps Script를 만든 회원용 교체 안내 문구를 `components/sources/SourceCard.tsx` 웹훅 주소 아래 추가. 옛 주소 수신 API는 삭제 전까지 계속 동작.
 - 검수: 빌드·배포, 새 주소 웹훅(없는 토큰) 404 = 경로 동작. 실제 구글폼 접수는 미시험(외부 발송 포함이라 사전 확인 대상).
+
+## 2026-10-17 v1.09 — 스마트 매트릭스 라이트 변형 디자인 (Claude Code 맥미니)
+- 롱테일 기반 부품 + `file-merge` 라이트 토큰, 사이드바 🏠·📢·📖 + 휴대폰 ☰(원칙 19 — 기존 누락), `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 접수 내역 검색·상태/폼 필터·원본 펼치기, 기존 화면 색 토큰 일괄 치환, 시각 Asia/Seoul. 웹훅·발송·Cron·DB 변경 없음.
+- 🚨 발견(미조치, 승인 대기): 웹훅 `response_id` 중복 미차단(이중 발송·요금), 크기·횟수 제한 없음 — [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) #1·#2.
+- **빌드·배포·화면 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md).

@@ -17,16 +17,16 @@ export function ProviderAccountSection({
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <section className="bg-gray-50/60 border border-gray-100 rounded-2xl p-5 space-y-4">
+    <section className="bg-mx-raised border border-mx-border rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-black text-gray-900">
+        <h3 className="text-sm font-black text-mx-text">
           {preset.label}
-          <span className="ml-2 text-xs font-semibold text-gray-400">{accounts.length}개 등록됨</span>
+          <span className="ml-2 text-xs font-semibold text-mx-muted">{accounts.length}개 등록됨</span>
         </h3>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className="text-xs font-bold text-blue-600 hover:underline"
+          className="text-xs font-bold text-mx-link hover:underline"
         >
           {showForm ? "닫기" : `+ 계정 추가`}
         </button>
@@ -41,7 +41,7 @@ export function ProviderAccountSection({
       )}
 
       {accounts.length === 0 && !showForm && (
-        <p className="text-xs text-gray-400">등록된 {preset.label} 계정이 없습니다.</p>
+        <p className="text-xs text-mx-muted">등록된 {preset.label} 계정이 없습니다.</p>
       )}
 
       {showForm && <SmtpAccountForm preset={preset} onSuccess={() => setShowForm(false)} />}

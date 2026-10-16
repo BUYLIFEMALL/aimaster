@@ -62,12 +62,12 @@ function RuleForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 rounded-lg bg-white border border-gray-200 p-3">
+    <form onSubmit={handleSubmit} className="space-y-2 rounded-lg bg-mx-surface border border-mx-border p-3">
       <div className="grid grid-cols-2 gap-2">
         <input name="name" required defaultValue={rule?.name ?? ""} placeholder="규칙 이름 (예: 3일 후 안내)" className="input-sm" />
         <div className="flex items-center gap-1">
           <input name="daysAfter" type="number" min={1} required defaultValue={rule?.days_after ?? 3} className="input-sm w-20" />
-          <span className="text-gray-500">일 후 발송</span>
+          <span className="text-mx-muted">일 후 발송</span>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ function RuleForm({
       />
 
       {showAlimtalk && (
-        <div className="space-y-1 rounded bg-gray-50 p-2">
+        <div className="space-y-1 rounded bg-mx-raised p-2">
           <input name="kakaoTemplateId" defaultValue={rule?.kakao_template_id ?? ""} placeholder="알림톡 템플릿 ID" className="input-sm" />
           <textarea
             name="kakaoVariables"
@@ -115,12 +115,12 @@ function RuleForm({
         </div>
       )}
 
-      {error && <p className="text-red-600">{error}</p>}
+      {error && <p className="text-mx-danger">{error}</p>}
       <div className="flex gap-2">
-        <button type="submit" disabled={isPending} className="rounded-lg bg-blue-600 px-3 py-1.5 font-bold text-white hover:bg-blue-700 disabled:opacity-60">
+        <button type="submit" disabled={isPending} className="rounded-lg bg-mx-primary px-3 py-1.5 font-bold text-white hover:bg-[var(--mx-primary-strong)] disabled:opacity-60">
           {isPending ? "저장 중..." : rule ? "수정 저장" : "규칙 추가"}
         </button>
-        <button type="button" onClick={onDone} className="font-semibold text-gray-500 hover:underline">
+        <button type="button" onClick={onDone} className="font-semibold text-mx-muted hover:underline">
           취소
         </button>
       </div>
@@ -167,23 +167,23 @@ function RuleRow({ rule }: { rule: FollowupRuleData }) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded-lg bg-white border border-gray-200 px-3 py-2">
+    <div className="flex items-center justify-between gap-2 rounded-lg bg-mx-surface border border-mx-border px-3 py-2">
       <div>
-        <p className="font-semibold text-gray-800">
-          {rule.name} <span className="font-normal text-gray-400">· {rule.days_after}일 후 · {channels.join("/") || "채널 없음"}</span>
+        <p className="font-semibold text-mx-text">
+          {rule.name} <span className="font-normal text-mx-muted">· {rule.days_after}일 후 · {channels.join("/") || "채널 없음"}</span>
         </p>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <span className={`rounded-full px-2 py-0.5 ${rule.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+        <span className={`rounded-full px-2 py-0.5 ${rule.is_active ? "bg-[#ecfdf5] text-mx-success" : "bg-mx-raised text-mx-muted"}`}>
           {rule.is_active ? "켜짐" : "꺼짐"}
         </span>
-        <button type="button" onClick={handleToggle} disabled={isToggling} className="font-semibold text-gray-600 hover:underline disabled:opacity-60">
+        <button type="button" onClick={handleToggle} disabled={isToggling} className="font-semibold text-mx-muted hover:underline disabled:opacity-60">
           {rule.is_active ? "끄기" : "켜기"}
         </button>
-        <button type="button" onClick={() => setIsEditing(true)} className="font-semibold text-blue-600 hover:underline">
+        <button type="button" onClick={() => setIsEditing(true)} className="font-semibold text-mx-link hover:underline">
           수정
         </button>
-        <button type="button" onClick={handleDelete} disabled={isDeleting} className="font-semibold text-red-500 hover:underline disabled:opacity-60">
+        <button type="button" onClick={handleDelete} disabled={isDeleting} className="font-semibold text-mx-danger hover:underline disabled:opacity-60">
           삭제
         </button>
       </div>
@@ -195,16 +195,16 @@ export function FollowupRulesSection({ formSourceId, rules }: { formSourceId: st
   const [isAdding, setIsAdding] = useState(false);
 
   return (
-    <div className="space-y-2 rounded-xl bg-gray-50 p-4 text-xs text-gray-600">
+    <div className="space-y-2 rounded-xl bg-mx-raised p-4 text-xs text-mx-muted">
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-gray-700">🔁 접수 후 팔로우업 자동화</p>
+        <p className="font-semibold text-mx-text">🔁 접수 후 팔로우업 자동화</p>
         {!isAdding && (
-          <button type="button" onClick={() => setIsAdding(true)} className="font-semibold text-blue-600 hover:underline">
+          <button type="button" onClick={() => setIsAdding(true)} className="font-semibold text-mx-link hover:underline">
             + 규칙 추가
           </button>
         )}
       </div>
-      <p className="text-gray-400">접수된 신청자에게 N일 뒤 안내·만족도 조사 등을 자동으로 다시 보냅니다.</p>
+      <p className="text-mx-muted">접수된 신청자에게 N일 뒤 안내·만족도 조사 등을 자동으로 다시 보냅니다.</p>
 
       <div className="space-y-2">
         {rules.map((rule) => (
