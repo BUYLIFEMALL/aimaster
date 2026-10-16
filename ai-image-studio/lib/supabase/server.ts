@@ -1,12 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { cookieDomainForHost } from "./cookieDomain";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://esgxyikcnnvmlhygjkth.supabase.co";
 const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()) || "sb_publishable_dpa8WnGOUodpmS7_eNy91g_G-smJrml";
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const headerStore = await headers();
+  const cookieDomain = cookieDomainForHost(headerStore.get("x-forwarded-host") ?? headerStore.get("host"));
 
   return createServerClient(
     SUPABASE_URL,
@@ -19,7 +22,7 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options)
             );
           } catch {
             // Ignored when called in Server Components
