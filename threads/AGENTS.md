@@ -36,3 +36,8 @@ threads는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 
 - 새 주소 `https://auto-threads-posting.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 /settings 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308. **OAuth 콜백**: 옛 주소 /api/threads/callback으로 돌아오면 같은 쿼리로 새 주소에 307(시험 요청으로 확인) → 새 주소에서 토큰 교환, redirect_uri는 환경변수(옛 주소) 그대로라 회원 Meta 앱 설정 변경 불필요. 설정 화면의 콜백 주소 안내도 옛 주소 그대로 표시 확인(바꾸면 안 됨). 실제 Threads 계정 연결은 회원 앱이 필요해 미시험
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.08 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`(SITE_ORIGIN=auto-threads-posting.buylife.xyz·`THREADS_REDIRECT_OLD()`=환경변수 `THREADS_REDIRECT_URI`(옛 `threads-nu-dusky.vercel.app`)·`THREADS_REDIRECT_FOR(mode)`).
+- 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectThreadsAccountNewCallbackAction`)은 새 콜백. 옛 주소 307에 via=old, 교환은 via로 선택, 연결 후 이동 SITE_ORIGIN. 설정 화면 두 콜백 주소 표시. `getThreadsAuthorizeUrl(state, appId, redirectUri)`·`exchangeCodeForToken(..., redirectUri)`, 미사용 `getEnv` 제거.
+- 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, 시험 계정 [새 주소로 다시 연결] → Meta "리디렉션 URI 화이트리스트에 없음"(새 콜백 전송 확인).
