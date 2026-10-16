@@ -1,0 +1,2 @@
+-- v1.65 (2026-10-16): 새 주소 naver-blog-seo-studio.buylife.xyz·로그인 쿠키 .buylife.xyz 공유·옛 주소 화면 308·확장 서버 주소 새 주소(옛 vercel.app 삭제 대비)
+update public.programs set version='v1.65', app_url='https://naver-blog-seo-studio.buylife.xyz', extension_version='v1.65', extension_download_url='https://naver-blog-seo-studio.buylife.xyz/downloads/naver-blog-seo-studio-extension-latest.zip', updated_at=now() where slug='naver-blog-seo-studio';

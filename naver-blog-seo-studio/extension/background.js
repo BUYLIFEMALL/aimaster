@@ -61,7 +61,7 @@ async function readNaverCategories(senderTab) {
 // 카테고리 목록은 SEO 스튜디오 사이트 화면(web-bridge.js)에서 온 요청만 받는다.
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (message?.type !== "categories") return false;
-  if (!String(sender?.url || "").startsWith("https://naver-blog-seo-studio.vercel.app/")) { reply({ error: "허용되지 않은 요청입니다." }); return false; }
+  if (!["https://naver-blog-seo-studio.vercel.app/", "https://naver-blog-seo-studio.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) { reply({ error: "허용되지 않은 요청입니다." }); return false; }
   readNaverCategories(sender.tab).then((result) => reply(result), (error) => reply({ error: error?.message || String(error) }));
   return true;
 });

@@ -1,6 +1,6 @@
 "use strict";
 
-const BASE = "https://naver-blog-seo-studio.vercel.app";
+const BASE = "https://naver-blog-seo-studio.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const KEY = "seoStudioToken";
 const PUBLISH_SETTINGS_KEY = "seoStudioPublishSettings";
 const $ = (id) => document.getElementById(id);
