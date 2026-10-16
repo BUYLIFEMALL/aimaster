@@ -55,9 +55,9 @@
 
 ---
 
-## 1. 공식 디자인 템플릿 시스템 (Design Template System) — 현재 7종
+## 1. 공식 디자인 템플릿 시스템 (Design Template System) — 현재 9종
 > **카탈로그 단일 기준 (2026-10-16 정리)**: 템플릿 목록과 프로그램별 적용 현황은 **이 문서(`DESIGN.md`)에만** 적는다. `docs/PROGRAM_DESIGN_STANDARD.md`·`CLAUDE.md`·`AGENTS.md`의 "4대/5대 템플릿" 표현은 이 표를 가리키는 것으로 읽는다.
-> **기준 예시 유무**: `DESIGN_HANDOFF.md`(색상값·부품 구성)가 있는 템플릿만 다른 프로그램에 바로 옮겨 적용할 수 있다. 현재 기준 예시가 있는 것은 1·2·6·7번과 4번(v1.06 운영 검수 완료)이고, 3·5번은 대표 프로그램 1개를 먼저 완성해 `DESIGN_HANDOFF.md`를 만든 뒤 확대 적용한다.
+> **기준 예시 유무**: `DESIGN_HANDOFF.md`(색상값·부품 구성)가 있는 템플릿만 다른 프로그램에 바로 옮겨 적용할 수 있다. 현재 기준 예시가 있는 것은 1·2·6·7·8번과 4번(v1.06 운영 검수 완료), 그리고 9번(v1.06 유튜브 다크 콘솔 스타일)이고, 3·5번은 대표 프로그램 1개를 먼저 완성해 `DESIGN_HANDOFF.md`를 만든 뒤 확대 적용한다.
 > **새 템플릿을 만드는 기준**: 기존 템플릿의 색상 토큰이나 화면 골격을 조정해 쓸 수 있으면 새 이름을 만들지 않고 기존 템플릿의 「변형」으로 기록한다(예: `사이버 네온 다크 콘솔 스타일 — 수노 오렌지 변형`). 화면 골격(레이아웃)과 색상 토큰이 둘 다 기존 템플릿과 크게 다를 때만 새 이름을 붙인다.
 
 | 공식 템플릿 스타일 명칭 | 대표 적용 프로그램 | 배경 및 메인 컬러 | 핵심 레이아웃 & 시그니처 특징 | 추천 대상 프로그램 분야 |
@@ -70,6 +70,7 @@
 | **6. 사이버 수노 다크 스튜디오 스타일<br>(Cyber Suno Dark Studio Style)** | **Suno 음악기획** (`suno-music-studio` `v1.10`) | 퓨어 옵시디언 블랙 (`#09090b`)<br>포인트: Suno 앰버 오렌지 & 일렉트릭 바이올렛 | Suno Create 오리지널 감성, 알약형(Pill) 탭/버튼, 4단계 음악기획 파이프라인 가이드북, 공식 사이트 링크 하이라이트 | 음악 기획/작사 생성기, Suno/Udio 사운드 프롬프트 스튜디오, 앨범 기획기 |
 | **7. 이커머스 셀러 스튜디오 스타일<br>(E-commerce Seller Studio Style)** | **AI 상세페이지 자동화** (`shop-detail-page` `v1.06`) | 퓨어 화이트 (`#ffffff`) & 슬레이트 (`#f8fafc`)<br>포인트: 스마트스토어 로열 블루 (`#2563eb`) & 셀러 오렌지 (`#f97316`) | 네이버 스마트스토어/쿠팡 셀러센터 감성, 4단계 파이프라인 가이드북 & 15개 섹션 블록 맵, 점선 드래그앤드롭 업로더, 15단 섹션 넘버링 뷰어 & 롱 이미지 원클릭 병합 바 | 이커머스 상세페이지 생성기, 쇼핑몰 상품 등록기, 오픈마켓 소싱 자동화 |
 | **8. 스레드 바이럴 스튜디오 스타일<br>(Threads Viral Studio Style)** | **Threads 콘텐츠 운영 자동화** (`threads-content-ops` `v1.96`) | 클린 화이트 (`#ffffff`) & 슬레이트 (`#f8fafc`)<br>포인트: 바이럴 파이어 앰버 (`#f59e0b`) & 일렉트릭 바이올렛 (`#8b5cf6`) & Threads 블랙 (`#171717`) | Meta Threads 공식 감성, 5단계 파이프라인 가이드북 & Meta 연동 가이드, 모바일 전용 햄버거 헤더, 6종 페르소나 카드 갤러리, 500자 제약 컨트롤 | Threads 운영 자동화, SNS 바이럴 콘텐츠 제작기, 제휴 마케팅 자동 포스팅 |
+| **9. 유튜브 다크 콘솔 스타일<br>(YouTube Dark Console Style)** | **Youtube Playlist 자동화** (`yt-playlist-studio` `v1.06`) | 퓨어 옵시디언 블랙 (`#0f0f0f`) & 다크 서피스 (`#181818`)<br>포인트: 유튜브 공식 레드 (`#ff0000`) | 유튜브 공식 다크 감성, 유튜브 레드 플레이 로고(▶), 알약형(Pill) 칩 버튼, 5단계 파이프라인 가이드북, 16:9 영화관 캔버스 & 오디오 스펙트럼 10종, WebCodecs GPU 가속 1080p MP4 고속 렌더링 콘솔 | 유튜브 영상 제작기, 플레이리스트 자동화, 오디오 비주얼라이저, 비디오 에디터 |
 
 ---
 
@@ -77,7 +78,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-16 기준: ✅ 14개 · ⚪ 67개 · ⏸ 2개):
+> **상태 구분** (2026-10-17 기준: ✅ 15개 · ⚪ 66개 · ⏸ 2개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -102,7 +103,7 @@
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | **포커스 스튜디오 스타일** (프롬프트 템플릿 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.04`, 포커스 스튜디오 스타일) | [`prompt-template-studio/docs/DESIGN_HANDOFF.md`](prompt-template-studio/docs/DESIGN_HANDOFF.md) |
 | 10 | 페르소나 문체 자동화 | `persona-style-studio` | **포커스 스튜디오 스타일** (문체 변환 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.07`, 포커스 스튜디오 스타일) | [`persona-style-studio/docs/DESIGN_HANDOFF.md`](persona-style-studio/docs/DESIGN_HANDOFF.md) |
 | 11 | AI Prompt 자동화 | `ai-prompt-studio` | **포커스 스튜디오 스타일** (프롬프트 엔지니어링 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.05`, 포커스 스튜디오 스타일) | [`ai-prompt-studio/docs/DESIGN_HANDOFF.md`](ai-prompt-studio/docs/DESIGN_HANDOFF.md) |
-| 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `yt-playlist-studio/AGENTS.md` |
+| 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | **유튜브 다크 콘솔 스타일** (YouTube Dark Console Style) | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.06`, 유튜브 다크 콘솔 스타일) | [`yt-playlist-studio/docs/DESIGN_HANDOFF.md`](yt-playlist-studio/docs/DESIGN_HANDOFF.md) |
 | 13 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `vinyl-lp-studio/AGENTS.md` |
 | 14 | 무한루프 영상자동화 | `infinite-loop-video` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `infinite-loop-video/AGENTS.md` |
 | 15 | AI 인플루언서 자동화 | `ai-influencer-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `ai-influencer-studio/AGENTS.md` |
@@ -147,7 +148,7 @@
 | 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`music/docs/DESIGN_HANDOFF.md`](music/docs/DESIGN_HANDOFF.md) |
 | 55 | 상세페이지 자동화(15p) | `shop-detail-page` | **이커머스 셀러 스튜디오 스타일** | 퓨어 화이트 (`#ffffff` + 블루 `#2563eb`·오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`shop-detail-page/docs/DESIGN_HANDOFF.md`](shop-detail-page/docs/DESIGN_HANDOFF.md) |
 | 56 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `insta-auto-poster/AGENTS.md` |
-| 57 | 부동산 실거래 투자분석 | `real-estate-sales` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | 🔵 작업 중 (Claude Code(맥미니), 2026-10-17 — 플랜 승인 대기) | `real-estate-sales/AGENTS.md` |
+| 57 | 부동산 실거래 투자분석 | `real-estate-sales` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.11`, Claude Code 맥미니 2026-10-17) | [`real_estate_sales/docs/DESIGN_HANDOFF.md`](real_estate_sales/docs/DESIGN_HANDOFF.md) |
 | 58 | YOUTUBE Shots 자동화 | `auto-shorts-posting` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shots/AGENTS.md` |
 | 59 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `ai-auto-blog/AGENTS.md` |
 | 60 | Threads 포스팅 자동화 | `auto-threads-posting` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads/AGENTS.md` |

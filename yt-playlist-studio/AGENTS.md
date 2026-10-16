@@ -1,8 +1,10 @@
 # Youtube Playlist 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
-> **프로그램 버전**: `v1.03` (2026-10-13 채널 로고·GIF 스티커 1:1 정사각형 박스화 & 배경 미디어 세로 16:10 황금 비율 확장 및 개별 삭제 지원)  
+> **프로그램 버전**: `v1.06` (2026-10-17 유튜브 다크 테마 디자인 리뉴얼 & 비주얼 가이드북 전면 신설)  
 > **공식 커스텀 도메인**: [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) (기존: `https://yt-playlist.buylife.xyz`)  
 > **프로그램 slug**: `yt-playlist-studio`  
+> **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console Style · 유튜브 공식 다크 테마)**  
+> **인수인계 문서**: [개발 플랜](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) · [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md)  
 > **카테고리**: 음악 / 멀티미디어 / 크리에이터  
 > **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)  
 > **DB 카탈로그 순위**: `sort_order = 124` (플랫폼 최상단 1순위 노출)
@@ -122,3 +124,14 @@ yt-playlist-studio/
 - 검수(시험 계정 크롬, `youtube-playlist.buylife.xyz`): 6초 시험음 1곡 → MP4 6.02초·소리 6.02초(크기 시험음과 일치), 반복 2회 → 소리 12.01초·앞뒤 구간 모두 소리 있음. 시험 중 브라우저 저장 창·자동 다운로드는 페이지 안에서만 잠시 막고 파일을 열어 분석(회원 화면 코드는 그대로).
 - 버전: `src/lib/version.ts` v1.05, `package.json` 1.05.0(이전 1.03.0으로 남아 있던 것 정정), DB `programs.version` v1.05(SQL `supabase/migrations/20261016_version_v1_05.sql`). VIP 등급 자동 부여 확인(138/138, 주인님 규칙).
 - 참고: 같은 방식의 `vinyl-lp-studio/src/lib/render/media-exporter.ts`는 소리 트랙 자체가 없음(의도인지 주인님 확인 필요 — 손대지 않음).
+
+
+## 2026-10-17 Antigravity(Windows) — 유튜브 다크 콘솔 디자인 리뉴얼 & 전 화면 검정 베이스(#0f0f0f)·유튜브 레드 로고 적용 및 비주얼 가이드북 신설 (v1.06)
+
+- **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console Style · 유튜브 공식 다크 테마)**
+- **단일 배경색 일체화**: 퓨어 옵시디언 블랙 `#0f0f0f`, 카드 서피스 `#181818` / `#212121`, 보더 `#272727`, 유튜브 레드 `#ff0000` 포인트 전 화면 통일.
+- **유튜브 로고 브랜딩**: 사이드바 상단 및 헤더에 유튜브 공식 레드 플레이 버튼(▶) 심볼 탑재.
+- **비주얼 사용 매뉴얼 (`/guide` & `currentTab = 'guide'`) 전면 신설**: 5단계 파이프라인 인포그래픽, 유튜브 플레이리스트 떡상 4대 팁, FAQ 4종 아코디언, 회원 본인 키 연동 보안 원칙 배너 탑재.
+- **사이드바 메뉴 표준화**: 다크 테마 적용 및 유틸리티 영역에 `📖 연동 & 사용 매뉴얼` 메뉴 탑재.
+- **독립 라우트 지원**: `/guide` 직접 브라우저 URL 접근 라우트 지원 (`src/app/guide/page.tsx`).
+- **배포 및 검수**: Vercel 프로덕션 배포 (`https://youtube-playlist.buylife.xyz/`), Microsoft Edge 실세션 데스크톱/모바일 검수 완료.

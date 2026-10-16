@@ -330,17 +330,17 @@ export function EditorStudio({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-100/70">
+    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0f0f0f] text-[#f1f1f1]">
       {/* 1. 상단 액션 바 */}
-      <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-20">
+      <header className="h-16 bg-[#181818] border-b border-[#272727] px-6 flex items-center justify-between shrink-0 z-20">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black">
+          <div className="w-8 h-8 rounded-lg bg-red-950/60 border border-red-900/40 text-[#ff0000] flex items-center justify-center font-black">
             <Sliders className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="font-extrabold text-slate-900 text-sm md:text-base">편집 스튜디오</h2>
-            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">
-              EDITOR WORKFLOW ACTIVE
+            <h2 className="font-extrabold text-white text-sm md:text-base">편집 스튜디오</h2>
+            <p className="text-[10px] text-[#ff0000] font-bold uppercase tracking-wider font-mono">
+              YOUTUBE STUDIO ENGINE ACTIVE
             </p>
           </div>
         </div>
@@ -348,15 +348,15 @@ export function EditorStudio({
         <button
           onClick={onExportClick}
           disabled={isExporting || tracks.length === 0}
-          className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-xs transition-all ${
+          className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all ${
             isExporting
-              ? "bg-indigo-400 text-white cursor-wait"
-              : "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-indigo-500/20"
+              ? "bg-[#272727] text-[#777777] cursor-wait"
+              : "bg-[#ff0000] hover:bg-[#cc0000] text-white cursor-pointer shadow-md shadow-red-950"
           }`}
         >
           <Video className="w-4 h-4" />
           {isExporting ? (
-            <span>비디오 내보내기 {exportProgress}%</span>
+            <span>비디오 렌더링 {exportProgress}%</span>
           ) : (
             <span>비디오 내보내기</span>
           )}
@@ -366,12 +366,12 @@ export function EditorStudio({
       {/* 2. 3단 메인 작업 영역 */}
       <div className="flex-1 flex overflow-hidden">
         {/* 좌측 패널: 스펙트럼, 필터, 오버레이, 파티클 */}
-        <aside className="w-80 bg-white border-r border-slate-200 overflow-y-auto p-5 space-y-6 shrink-0 custom-scrollbar">
+        <aside className="w-80 bg-[#181818] border-r border-[#272727] overflow-y-auto p-5 space-y-6 shrink-0 custom-scrollbar">
           {/* 오디오 스펙트럼 10종 */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />
+              <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-[#ff0000]" />
                 오디오 스펙트럼
               </h3>
             </div>
@@ -382,11 +382,11 @@ export function EditorStudio({
                   onClick={() => setSettings((prev) => ({ ...prev, visualizerType: opt.type }))}
                   className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold border transition-all text-left ${
                     settings.visualizerType === opt.type
-                      ? "bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs"
-                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                      ? "bg-red-950/60 border-red-800 text-[#ff4e45]"
+                      : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:bg-[#272727] hover:text-white"
                   }`}
                 >
-                  <Disc3 className={`w-3.5 h-3.5 shrink-0 ${settings.visualizerType === opt.type ? 'text-indigo-600' : 'text-slate-400'}`} />
+                  <Disc3 className={`w-3.5 h-3.5 shrink-0 ${settings.visualizerType === opt.type ? 'text-[#ff0000]' : 'text-[#777777]'}`} />
                   <span className="truncate">{opt.label}</span>
                 </button>
               ))}
@@ -394,8 +394,8 @@ export function EditorStudio({
           </div>
 
           {/* 배경 필터 & 비네팅 */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+          <div className="space-y-3 pt-3 border-t border-[#272727]">
+            <h3 className="text-xs font-black text-white uppercase tracking-wider">
               배경 필터 & 비네팅
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -405,8 +405,8 @@ export function EditorStudio({
                   onClick={() => setSettings((prev) => ({ ...prev, filterType: f.type }))}
                   className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all text-center ${
                     settings.filterType === f.type
-                      ? "bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs"
-                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                      ? "bg-red-950/60 border-red-800 text-[#ff4e45]"
+                      : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:bg-[#272727] hover:text-white"
                   }`}
                 >
                   {f.label}
@@ -417,9 +417,9 @@ export function EditorStudio({
             {/* 필터 슬라이더 3종 */}
             <div className="space-y-3 pt-2">
               <div className="space-y-1">
-                <div className="flex justify-between text-[11px] font-bold text-slate-600">
+                <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                   <span>필터 강도</span>
-                  <span>{settings.filterIntensity}%</span>
+                  <span className="font-mono text-white">{settings.filterIntensity}%</span>
                 </div>
                 <input
                   type="range"
@@ -427,14 +427,14 @@ export function EditorStudio({
                   max="100"
                   value={settings.filterIntensity}
                   onChange={(e) => setSettings((prev) => ({ ...prev, filterIntensity: Number(e.target.value) }))}
-                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]"
                 />
               </div>
 
               <div className="space-y-1">
-                <div className="flex justify-between text-[11px] font-bold text-slate-600">
+                <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                   <span>배경 밝기</span>
-                  <span>{settings.brightness}%</span>
+                  <span className="font-mono text-white">{settings.brightness}%</span>
                 </div>
                 <input
                   type="range"
@@ -442,14 +442,14 @@ export function EditorStudio({
                   max="180"
                   value={settings.brightness}
                   onChange={(e) => setSettings((prev) => ({ ...prev, brightness: Number(e.target.value) }))}
-                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]"
                 />
               </div>
 
               <div className="space-y-1">
-                <div className="flex justify-between text-[11px] font-bold text-slate-600">
+                <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                   <span>비네팅 세기</span>
-                  <span>{settings.vignetteIntensity}%</span>
+                  <span className="font-mono text-white">{settings.vignetteIntensity}%</span>
                 </div>
                 <input
                   type="range"
@@ -457,15 +457,15 @@ export function EditorStudio({
                   max="100"
                   value={settings.vignetteIntensity}
                   onChange={(e) => setSettings((prev) => ({ ...prev, vignetteIntensity: Number(e.target.value) }))}
-                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]"
                 />
               </div>
             </div>
           </div>
 
           {/* 트렌디 오버레이 10종 */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+          <div className="space-y-3 pt-3 border-t border-[#272727]">
+            <h3 className="text-xs font-black text-white uppercase tracking-wider">
               트렌디 오버레이
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -477,8 +477,8 @@ export function EditorStudio({
                     onClick={() => setSettings((prev) => ({ ...prev, [ov.id]: !isActive }))}
                     className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all flex items-center justify-center gap-1.5 ${
                       isActive
-                        ? "bg-purple-50 border-purple-500 text-purple-700 shadow-2xs"
-                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                        ? "bg-red-950/60 border-red-800 text-[#ff4e45]"
+                        : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:bg-[#272727] hover:text-white"
                     }`}
                   >
                     <span>{ov.label}</span>
@@ -489,8 +489,8 @@ export function EditorStudio({
           </div>
 
           {/* 파티 모드 (EDM 전용) */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+          <div className="space-y-3 pt-3 border-t border-[#272727]">
+            <h3 className="text-xs font-black text-white uppercase tracking-wider">
               파티 모드 (EDM 전용)
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -502,8 +502,8 @@ export function EditorStudio({
                     onClick={() => setSettings((prev) => ({ ...prev, [pt.id]: !isActive }))}
                     className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all flex items-center justify-center gap-1.5 ${
                       isActive
-                        ? "bg-rose-50 border-rose-500 text-rose-700 shadow-2xs"
-                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                        ? "bg-red-950/60 border-red-800 text-[#ff4e45]"
+                        : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:bg-[#272727] hover:text-white"
                     }`}
                   >
                     <span>{pt.label}</span>
@@ -514,8 +514,8 @@ export function EditorStudio({
           </div>
 
           {/* 스타일 파티클 14종 */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+          <div className="space-y-3 pt-3 border-t border-[#272727]">
+            <h3 className="text-xs font-black text-white uppercase tracking-wider">
               스타일 파티클
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -527,8 +527,8 @@ export function EditorStudio({
                     onClick={() => setSettings((prev) => ({ ...prev, [po.id]: !isActive }))}
                     className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all flex items-center justify-center gap-1.5 ${
                       isActive
-                        ? "bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs"
-                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                        ? "bg-red-950/60 border-red-800 text-[#ff4e45]"
+                        : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:bg-[#272727] hover:text-white"
                     }`}
                   >
                     <span>{po.label}</span>
@@ -539,15 +539,15 @@ export function EditorStudio({
 
             {/* 효과 컬러 (공통) */}
             <div className="space-y-2 pt-2">
-              <span className="text-[11px] font-bold text-slate-600">효과 컬러 (공통)</span>
+              <span className="text-[11px] font-bold text-[#aaaaaa]">효과 컬러 (공통)</span>
               <div className="flex items-center gap-2">
                 {EFFECT_COLOR_PRESETS.map((color) => (
                   <button
                     key={color}
                     onClick={() => setSettings((prev) => ({ ...prev, overlayColor: color }))}
                     style={{ backgroundColor: color }}
-                    className={`w-6 h-6 rounded-full border border-slate-200 transition-transform ${
-                      settings.overlayColor === color ? "scale-125 ring-2 ring-indigo-500 ring-offset-1" : "hover:scale-110"
+                    className={`w-6 h-6 rounded-full border border-[#272727] transition-transform ${
+                      settings.overlayColor === color ? "scale-125 ring-2 ring-[#ff0000] ring-offset-1 ring-offset-[#181818]" : "hover:scale-110"
                     }`}
                   />
                 ))}
@@ -555,7 +555,7 @@ export function EditorStudio({
                   type="text"
                   value={settings.overlayColor}
                   onChange={(e) => setSettings((prev) => ({ ...prev, overlayColor: e.target.value }))}
-                  className="w-20 px-2 py-1 text-[11px] font-mono font-bold border border-slate-200 rounded-lg text-slate-700"
+                  className="w-20 px-2 py-1 text-[11px] font-mono font-bold border border-[#272727] rounded-lg bg-[#121212] text-white"
                 />
               </div>
             </div>
@@ -563,10 +563,10 @@ export function EditorStudio({
         </aside>
 
         {/* 중앙: 16:9 캔버스 및 오디오 플레이어 바 */}
-        <main className="flex-1 flex flex-col items-center justify-between p-6 overflow-hidden">
+        <main className="flex-1 flex flex-col items-center justify-between p-6 overflow-hidden bg-[#0f0f0f]">
           {/* 상단 16:9 대형 캔버스 */}
           <div className="w-full flex-1 flex items-center justify-center min-h-0">
-            <div className="relative w-full max-w-4xl aspect-video bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800 flex items-center justify-center group">
+            <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-[#272727] flex items-center justify-center group">
               <canvas
                 ref={canvasRef}
                 width={1920}
@@ -577,12 +577,12 @@ export function EditorStudio({
               {/* 재생/일시정지 큰 오버레이 버튼 */}
               <button
                 onClick={togglePlay}
-                className="absolute w-16 h-16 rounded-full bg-slate-900/60 hover:bg-slate-900/80 text-white flex items-center justify-center backdrop-blur-xs transition-transform hover:scale-110 shadow-lg cursor-pointer"
+                className="absolute w-16 h-16 rounded-full bg-black/70 hover:bg-[#ff0000] text-white flex items-center justify-center backdrop-blur-xs transition-all hover:scale-110 shadow-xl cursor-pointer"
               >
                 {isPlaying ? (
                   <Pause className="w-7 h-7" />
                 ) : (
-                  <Play className="w-7 h-7 ml-1" />
+                  <Play className="w-7 h-7 ml-1 fill-current" />
                 )}
               </button>
             </div>
@@ -591,18 +591,18 @@ export function EditorStudio({
           {/* 캔버스 하단 트랙 셀렉터 & 하단 플레이어 바 */}
           <div className="w-full max-w-4xl mt-4 space-y-3">
             {/* 트랙 선택 드롭다운 */}
-            <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-2xs">
-              <span className="text-xs font-bold text-slate-500">재생 트랙 선택</span>
+            <div className="flex items-center justify-between bg-[#181818] px-4 py-2.5 rounded-xl border border-[#272727]">
+              <span className="text-xs font-bold text-[#aaaaaa]">재생 트랙 선택</span>
               <select
                 value={currentTrackIndex}
                 onChange={(e) => {
                   setCurrentTrackIndex(Number(e.target.value));
                   setIsPlaying(false);
                 }}
-                className="text-xs font-bold text-slate-800 bg-transparent focus:outline-hidden cursor-pointer"
+                className="text-xs font-bold text-white bg-[#181818] border-none focus:outline-hidden cursor-pointer"
               >
                 {tracks.map((t, idx) => (
-                  <option key={t.id} value={idx}>
+                  <option key={t.id} value={idx} className="bg-[#181818] text-white">
                     {idx + 1}. {t.name} ({formatSec(t.duration)})
                   </option>
                 ))}
@@ -610,18 +610,18 @@ export function EditorStudio({
             </div>
 
             {/* 하단 오디오 플레이어 바 */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center gap-4">
+            <div className="bg-[#181818] p-4 rounded-2xl border border-[#272727] flex items-center gap-4">
               <button
                 onClick={togglePlay}
-                className="w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-xs shrink-0 transition-colors"
+                className="w-10 h-10 rounded-xl bg-[#ff0000] hover:bg-[#cc0000] text-white flex items-center justify-center shadow-md shadow-red-950 shrink-0 transition-colors"
               >
-                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5 fill-current" />}
               </button>
 
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                  <span className="truncate">{currentTrack?.name || "선택된 곡 없음"}</span>
-                  <span className="text-slate-400 font-mono text-[11px]">
+                <div className="flex justify-between text-xs font-bold text-white mb-1">
+                  <span className="truncate">{currentTrack?.name || "선택된 음원 없음"}</span>
+                  <span className="text-[#aaaaaa] font-mono text-[11px]">
                     {formatSec(currentTime)} / {formatSec(duration)}
                   </span>
                 </div>
@@ -637,7 +637,7 @@ export function EditorStudio({
                       setCurrentTime(Number(e.target.value));
                     }
                   }}
-                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]"
                 />
               </div>
             </div>
@@ -645,42 +645,43 @@ export function EditorStudio({
         </main>
 
         {/* 우측 패널: 레이아웃 조정, 채널 로고, GIF 스티커, 메인 컬러, 스펙트럼 세부배치 */}
-        <aside className="w-80 bg-white border-l border-slate-200 overflow-y-auto p-5 space-y-6 shrink-0 custom-scrollbar">
-          <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+        <aside className="w-80 bg-[#181818] border-l border-[#272727] overflow-y-auto p-5 space-y-6 shrink-0 custom-scrollbar">
+          <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+            <Settings2 className="w-3.5 h-3.5 text-[#ff0000]" />
             레이아웃 조정
           </h3>
 
           {/* 채널 로고 배치 */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-slate-700">채널 로고 배치</h4>
-            <div className="grid grid-cols-2 gap-3 text-[11px] font-bold text-slate-600">
+            <h4 className="text-xs font-bold text-[#aaaaaa]">채널 로고 배치</h4>
+            <div className="grid grid-cols-2 gap-3 text-[11px] font-bold text-[#aaaaaa]">
               <div className="space-y-1">
-                <div className="flex justify-between"><span>X 위치</span><span>{settings.logoX}%</span></div>
+                <div className="flex justify-between"><span>X 위치</span><span className="text-white font-mono">{settings.logoX}%</span></div>
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={settings.logoX}
                   onChange={(e) => setSettings((p) => ({ ...p, logoX: Number(e.target.value) }))}
-                  className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
                 />
               </div>
               <div className="space-y-1">
-                <div className="flex justify-between"><span>Y 위치</span><span>{settings.logoY}%</span></div>
+                <div className="flex justify-between"><span>Y 위치</span><span className="text-white font-mono">{settings.logoY}%</span></div>
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={settings.logoY}
                   onChange={(e) => setSettings((p) => ({ ...p, logoY: Number(e.target.value) }))}
-                  className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
                 />
               </div>
             </div>
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>로고 크기</span>
-                <span>{settings.logoSize}PX</span>
+                <span className="text-white font-mono">{settings.logoSize}PX</span>
               </div>
               <input
                 type="range"
@@ -688,62 +689,62 @@ export function EditorStudio({
                 max="250"
                 value={settings.logoSize}
                 onChange={(e) => setSettings((p) => ({ ...p, logoSize: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
-            <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
+            <label className="flex items-center gap-2 text-xs font-bold text-[#aaaaaa] cursor-pointer">
               <input
                 type="checkbox"
                 checked={settings.logoShadowEnabled}
                 onChange={(e) => setSettings((p) => ({ ...p, logoShadowEnabled: e.target.checked }))}
-                className="rounded text-indigo-600"
+                className="rounded accent-[#ff0000]"
               />
               <span>입체 그림자 효과</span>
             </label>
           </div>
 
           {/* GIF 스티커 배치 */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h4 className="text-xs font-bold text-slate-700">GIF 스티커 배치</h4>
-            <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
+          <div className="space-y-3 pt-3 border-t border-[#272727]">
+            <h4 className="text-xs font-bold text-[#aaaaaa]">GIF 스티커 배치</h4>
+            <label className="flex items-center gap-2 text-xs font-bold text-[#aaaaaa] cursor-pointer">
               <input
                 type="checkbox"
                 checked={settings.gifCentered}
                 onChange={(e) => setSettings((p) => ({ ...p, gifCentered: e.target.checked }))}
-                className="rounded text-indigo-600"
+                className="rounded accent-[#ff0000]"
               />
               <span>정중앙 정렬</span>
             </label>
             {!settings.gifCentered && (
-              <div className="grid grid-cols-2 gap-3 text-[11px] font-bold text-slate-600">
+              <div className="grid grid-cols-2 gap-3 text-[11px] font-bold text-[#aaaaaa]">
                 <div className="space-y-1">
-                  <div className="flex justify-between"><span>X 위치</span><span>{settings.gifX}%</span></div>
+                  <div className="flex justify-between"><span>X 위치</span><span className="text-white font-mono">{settings.gifX}%</span></div>
                   <input
                     type="range"
                     min="0"
                     max="100"
                     value={settings.gifX}
                     onChange={(e) => setSettings((p) => ({ ...p, gifX: Number(e.target.value) }))}
-                    className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
                   />
                 </div>
                 <div className="space-y-1">
-                  <div className="flex justify-between"><span>Y 위치</span><span>{settings.gifY}%</span></div>
+                  <div className="flex justify-between"><span>Y 위치</span><span className="text-white font-mono">{settings.gifY}%</span></div>
                   <input
                     type="range"
                     min="0"
                     max="100"
                     value={settings.gifY}
                     onChange={(e) => setSettings((p) => ({ ...p, gifY: Number(e.target.value) }))}
-                    className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
                   />
                 </div>
               </div>
             )}
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>크기</span>
-                <span>{settings.gifSize}PX</span>
+                <span className="text-white font-mono">{settings.gifSize}PX</span>
               </div>
               <input
                 type="range"
@@ -751,13 +752,13 @@ export function EditorStudio({
                 max="350"
                 value={settings.gifSize}
                 onChange={(e) => setSettings((p) => ({ ...p, gifSize: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>투명도</span>
-                <span>{settings.gifOpacity}%</span>
+                <span className="text-white font-mono">{settings.gifOpacity}%</span>
               </div>
               <input
                 type="range"
@@ -765,22 +766,22 @@ export function EditorStudio({
                 max="100"
                 value={settings.gifOpacity}
                 onChange={(e) => setSettings((p) => ({ ...p, gifOpacity: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
           </div>
 
           {/* 메인 컬러 팔레트 (18색) */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h4 className="text-xs font-bold text-slate-700">메인 컬러 팔레트</h4>
+          <div className="space-y-3 pt-3 border-t border-[#272727]">
+            <h4 className="text-xs font-bold text-[#aaaaaa]">메인 컬러 팔레트</h4>
             <div className="grid grid-cols-6 gap-2">
               {PALETTE_PRESETS.map((color) => (
                 <button
                   key={color}
                   onClick={() => setSettings((p) => ({ ...p, primaryColor: color }))}
                   style={{ backgroundColor: color }}
-                  className={`w-7 h-7 rounded-full border border-slate-200 transition-transform ${
-                    settings.primaryColor === color ? "scale-125 ring-2 ring-indigo-500 ring-offset-1" : "hover:scale-110"
+                  className={`w-7 h-7 rounded-full border border-[#272727] transition-transform ${
+                    settings.primaryColor === color ? "scale-125 ring-2 ring-[#ff0000] ring-offset-1 ring-offset-[#181818]" : "hover:scale-110"
                   }`}
                 />
               ))}
@@ -788,24 +789,24 @@ export function EditorStudio({
           </div>
 
           {/* 스펙트럼 배치 및 크기 */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h4 className="text-xs font-bold text-slate-700">스펙트럼 배치 및 크기</h4>
-            <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
+          <div className="space-y-3 pt-3 border-t border-[#272727]">
+            <h4 className="text-xs font-bold text-[#aaaaaa]">스펙트럼 배치 및 크기</h4>
+            <label className="flex items-center gap-2 text-xs font-bold text-[#aaaaaa] cursor-pointer">
               <input
                 type="checkbox"
                 checked={settings.spectrumCentered}
                 onChange={(e) => setSettings((p) => ({ ...p, spectrumCentered: e.target.checked }))}
-                className="rounded text-indigo-600"
+                className="rounded accent-[#ff0000]"
               />
               <span>정중앙 정렬</span>
             </label>
 
             {/* 원형 선택 시 원형 반경 슬라이더 동적 노출! */}
             {settings.visualizerType === 'CIRCLE' && (
-              <div className="space-y-1 p-2.5 rounded-xl bg-indigo-50 border border-indigo-100">
-                <div className="flex justify-between text-[11px] font-bold text-indigo-900">
+              <div className="space-y-1 p-2.5 rounded-xl bg-red-950/40 border border-red-900/40">
+                <div className="flex justify-between text-[11px] font-bold text-[#ff4e45]">
                   <span>원형 반경</span>
-                  <span>{settings.circleRadius}PX</span>
+                  <span className="font-mono text-white">{settings.circleRadius}PX</span>
                 </div>
                 <input
                   type="range"
@@ -813,15 +814,15 @@ export function EditorStudio({
                   max="300"
                   value={settings.circleRadius}
                   onChange={(e) => setSettings((p) => ({ ...p, circleRadius: Number(e.target.value) }))}
-                  className="w-full h-1 bg-indigo-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
                 />
               </div>
             )}
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>전체 폭 (WIDTH)</span>
-                <span>{settings.spectrumWidth}%</span>
+                <span className="text-white font-mono">{settings.spectrumWidth}%</span>
               </div>
               <input
                 type="range"
@@ -829,14 +830,14 @@ export function EditorStudio({
                 max="100"
                 value={settings.spectrumWidth}
                 onChange={(e) => setSettings((p) => ({ ...p, spectrumWidth: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>반응 속도</span>
-                <span>{settings.reactionSpeed}%</span>
+                <span className="text-white font-mono">{settings.reactionSpeed}%</span>
               </div>
               <input
                 type="range"
@@ -844,14 +845,14 @@ export function EditorStudio({
                 max="100"
                 value={settings.reactionSpeed}
                 onChange={(e) => setSettings((p) => ({ ...p, reactionSpeed: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>반응 민감도</span>
-                <span>{settings.sensitivity}</span>
+                <span className="text-white font-mono">{settings.sensitivity}</span>
               </div>
               <input
                 type="range"
@@ -859,14 +860,14 @@ export function EditorStudio({
                 max="150"
                 value={settings.sensitivity}
                 onChange={(e) => setSettings((p) => ({ ...p, sensitivity: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>주파수 대역</span>
-                <span>{settings.barCount}</span>
+                <span className="text-white font-mono">{settings.barCount}</span>
               </div>
               <input
                 type="range"
@@ -875,14 +876,14 @@ export function EditorStudio({
                 step="8"
                 value={settings.barCount}
                 onChange={(e) => setSettings((p) => ({ ...p, barCount: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>최대 높이</span>
-                <span>{settings.spectrumHeight}</span>
+                <span className="text-white font-mono">{settings.spectrumHeight}</span>
               </div>
               <input
                 type="range"
@@ -890,14 +891,14 @@ export function EditorStudio({
                 max="200"
                 value={settings.spectrumHeight}
                 onChange={(e) => setSettings((p) => ({ ...p, spectrumHeight: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>선 두께</span>
-                <span>{settings.barThickness}</span>
+                <span className="text-white font-mono">{settings.barThickness}</span>
               </div>
               <input
                 type="range"
@@ -905,14 +906,14 @@ export function EditorStudio({
                 max="10"
                 value={settings.barThickness}
                 onChange={(e) => setSettings((p) => ({ ...p, barThickness: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-slate-600">
+              <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
                 <span>투명도</span>
-                <span>{settings.visualizerOpacity}%</span>
+                <span className="text-white font-mono">{settings.visualizerOpacity}%</span>
               </div>
               <input
                 type="range"
@@ -920,7 +921,7 @@ export function EditorStudio({
                 max="100"
                 value={settings.visualizerOpacity}
                 onChange={(e) => setSettings((p) => ({ ...p, visualizerOpacity: Number(e.target.value) }))}
-                className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-1 bg-[#272727] rounded appearance-none cursor-pointer accent-[#ff0000]"
               />
             </div>
           </div>

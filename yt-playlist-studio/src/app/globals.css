@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #0f0f0f;
+  --foreground: #f1f1f1;
 }
 
 body {
@@ -12,26 +12,26 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbar for clean UI */
+/* Custom scrollbar for YouTube Dark UI */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: #0f0f0f;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #272727;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #3f3f3f;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: #272727;
   border-radius: 9999px;
 }

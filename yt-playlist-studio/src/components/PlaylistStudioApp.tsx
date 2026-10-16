@@ -9,14 +9,27 @@ import { ApiKeyModal } from "./ApiKeyModal";
 import { HelpModal } from "./HelpModal";
 import { Track, StudioSettings, ExportSettings } from "@/types/playlist";
 import { DEFAULT_SETTINGS, DEFAULT_EXPORT_SETTINGS } from "@/data/presets";
+import { PlaylistGuideView } from "./PlaylistGuideView";
 
 interface PlaylistStudioAppProps {
   userEmail?: string | null;
   userId?: string | null;
+  initialTab?: 'media' | 'editor' | 'export' | 'guide';
 }
 
-export function PlaylistStudioApp({ userEmail, userId }: PlaylistStudioAppProps) {
-  const [currentTab, setCurrentTab] = useState<'media' | 'editor' | 'export'>('media');
+export function PlaylistStudioApp({ userEmail, userId, initialTab = 'media' }: PlaylistStudioAppProps) {
+  const [currentTab, setCurrentTab] = useState<'media' | 'editor' | 'export' | 'guide'>(initialTab);
+
+  // Sync tab from URL query param if present
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'guide' || tabParam === 'media' || tabParam === 'editor' || tabParam === 'export') {
+        setCurrentTab(tabParam);
+      }
+    }
+  }, []);
 
   // Core Studio States
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -67,8 +80,8 @@ export function PlaylistStudioApp({ userEmail, userId }: PlaylistStudioAppProps)
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
-      {/* 1. 좌측 통합 사이드바 */}
+    <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-[#0f0f0f] text-[#f1f1f1]">
+      {/* 1. 좌측 통합 사이드바 (데스크톱 좌측, 모바일 상단 바) */}
       <Sidebar
         currentTab={currentTab}
         setTab={setCurrentTab}
@@ -80,7 +93,14 @@ export function PlaylistStudioApp({ userEmail, userId }: PlaylistStudioAppProps)
       />
 
       {/* 2. 중앙 메인 워크스페이스 */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-[#0f0f0f]">
+        {currentTab === 'guide' && (
+          <PlaylistGuideView
+            onGoToStudio={() => setCurrentTab('media')}
+            onOpenApiKey={() => setIsApiKeyOpen(true)}
+          />
+        )}
+
         {currentTab === 'media' && (
           <MediaCenter
             tracks={tracks}

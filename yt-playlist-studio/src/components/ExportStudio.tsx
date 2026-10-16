@@ -110,19 +110,24 @@ export function ExportStudio({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50/70 p-6 md:p-12 space-y-8 flex flex-col items-center">
-      <div className="w-full max-w-2xl border-b border-slate-200 pb-6 flex items-center justify-between">
+    <div className="flex-1 overflow-y-auto bg-[#0f0f0f] text-[#f1f1f1] p-6 md:p-12 space-y-8 flex flex-col items-center custom-scrollbar">
+      <div className="w-full max-w-2xl border-b border-[#272727] pb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            내보내기 & 렌더링
-          </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-9 items-center justify-center rounded-lg bg-[#ff0000] text-white shadow-md shadow-red-950">
+              <Film className="w-4 h-4 fill-current" />
+            </div>
+            <h2 className="text-2xl font-black text-white tracking-tight">
+              내보내기 & 렌더링
+            </h2>
+          </div>
+          <p className="text-xs text-[#aaaaaa] mt-1.5">
             WebCodecs 브라우저 GPU 가속 1080p 고속 MP4 인코딩
           </p>
         </div>
         <button
           onClick={onBackToEditor}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-white text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-2xs"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-[#181818] text-white border border-[#272727] rounded-xl hover:bg-[#212121] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>스튜디오로 돌아가기</span>
@@ -131,34 +136,35 @@ export function ExportStudio({
 
       <div className="w-full max-w-2xl space-y-6">
         {/* 요약 카드 */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
-          <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">
-            렌더링 정보 요약
+        <div className="bg-[#181818] rounded-2xl border border-[#272727] p-6 space-y-4">
+          <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-1.5 h-3.5 bg-[#ff0000] rounded-full inline-block" />
+            렌더링 파라미터 요약
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <span className="text-[10px] font-bold text-slate-400">총 트랙 수</span>
-              <p className="text-sm font-extrabold text-slate-800 mt-0.5">{tracks.length}곡</p>
+            <div className="p-3 bg-[#212121] rounded-xl border border-[#272727]">
+              <span className="text-[10px] font-bold text-[#aaaaaa]">총 트랙 수</span>
+              <p className="text-sm font-extrabold text-white mt-0.5">{tracks.length}곡</p>
             </div>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <span className="text-[10px] font-bold text-slate-400">반복 횟수</span>
-              <p className="text-sm font-extrabold text-indigo-600 mt-0.5">{exportSettings.repeatCount}회 루프</p>
+            <div className="p-3 bg-[#212121] rounded-xl border border-[#272727]">
+              <span className="text-[10px] font-bold text-[#aaaaaa]">반복 횟수</span>
+              <p className="text-sm font-extrabold text-[#ff4e45] mt-0.5">{exportSettings.repeatCount}회 루프</p>
             </div>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <span className="text-[10px] font-bold text-slate-400">최종 영상 길이</span>
-              <p className="text-sm font-extrabold text-slate-800 mt-0.5">{formatTime(totalDuration)}</p>
+            <div className="p-3 bg-[#212121] rounded-xl border border-[#272727]">
+              <span className="text-[10px] font-bold text-[#aaaaaa]">최종 영상 길이</span>
+              <p className="text-sm font-extrabold text-white mt-0.5">{formatTime(totalDuration)}</p>
             </div>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <span className="text-[10px] font-bold text-slate-400">해상도 / FPS</span>
-              <p className="text-sm font-extrabold text-slate-800 mt-0.5">{exportSettings.resolution} / {exportSettings.fps}fps</p>
+            <div className="p-3 bg-[#212121] rounded-xl border border-[#272727]">
+              <span className="text-[10px] font-bold text-[#aaaaaa]">해상도 / FPS</span>
+              <p className="text-sm font-extrabold text-white mt-0.5 font-mono">{exportSettings.resolution} / {exportSettings.fps}fps</p>
             </div>
           </div>
 
           {/* 옵션 설정 */}
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[#272727]">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-600">프레임레이트</label>
+              <label className="text-xs font-bold text-[#aaaaaa]">프레임레이트</label>
               <div className="grid grid-cols-2 gap-2">
                 {[30, 60].map((f) => (
                   <button
@@ -166,8 +172,8 @@ export function ExportStudio({
                     onClick={() => setExportSettings((p) => ({ ...p, fps: f }))}
                     className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                       exportSettings.fps === f
-                        ? "bg-indigo-600 text-white border-indigo-600"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                        ? "bg-[#ff0000] text-white border-[#ff0000] shadow-md shadow-red-950"
+                        : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:bg-[#272727] hover:text-white"
                     }`}
                   >
                     {f} FPS
@@ -177,7 +183,7 @@ export function ExportStudio({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-600">해상도</label>
+              <label className="text-xs font-bold text-[#aaaaaa]">해상도</label>
               <div className="grid grid-cols-2 gap-2">
                 {(['1080p', '720p'] as const).map((r) => (
                   <button
@@ -185,8 +191,8 @@ export function ExportStudio({
                     onClick={() => setExportSettings((p) => ({ ...p, resolution: r }))}
                     className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                       exportSettings.resolution === r
-                        ? "bg-indigo-600 text-white border-indigo-600"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                        ? "bg-[#ff0000] text-white border-[#ff0000] shadow-md shadow-red-950"
+                        : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:bg-[#272727] hover:text-white"
                     }`}
                   >
                     {r}
@@ -198,42 +204,42 @@ export function ExportStudio({
         </div>
 
         {/* 렌더링 진행 상황 카드 */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
+        <div className="bg-[#181818] rounded-2xl border border-[#272727] p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700">렌더링 상태</span>
-            <span className="text-xs font-extrabold text-indigo-600 font-mono">
+            <span className="text-xs font-bold text-[#aaaaaa]">렌더링 상태</span>
+            <span className="text-xs font-extrabold text-[#ff4e45] font-mono">
               {exportProgress}%
             </span>
           </div>
 
-          <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden p-0.5">
+          <div className="w-full bg-[#272727] rounded-full h-3 overflow-hidden p-0.5">
             <div
-              className="bg-indigo-600 h-full rounded-full transition-all duration-300"
+              className="bg-[#ff0000] h-full rounded-full transition-all duration-300"
               style={{ width: `${exportProgress}%` }}
             />
           </div>
 
-          <p className="text-xs text-slate-500 font-medium text-center">
+          <p className="text-xs text-[#aaaaaa] font-medium text-center">
             {statusText}
           </p>
 
           {errorMessage && (
-            <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-3 bg-rose-950/50 border border-rose-900/50 text-rose-300 text-xs rounded-xl flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {downloadUrl && (
-            <div className="p-4 bg-emerald-50 text-emerald-800 rounded-xl flex items-center justify-between">
+            <div className="p-4 bg-emerald-950/40 border border-emerald-900/40 text-emerald-300 rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                 <span className="text-xs font-bold">비디오 렌더링이 완료되었습니다!</span>
               </div>
               <a
                 href={downloadUrl}
                 download={`youtube_playlist_${Date.now()}.mp4`}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>재다운로드</span>
@@ -246,8 +252,8 @@ export function ExportStudio({
             disabled={isExporting || tracks.length === 0}
             className={`w-full py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-md ${
               isExporting
-                ? "bg-indigo-400 text-white cursor-wait"
-                : "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-indigo-500/20"
+                ? "bg-[#272727] text-[#777777] cursor-wait"
+                : "bg-[#ff0000] hover:bg-[#cc0000] text-white cursor-pointer shadow-red-950"
             }`}
           >
             {isExporting ? (

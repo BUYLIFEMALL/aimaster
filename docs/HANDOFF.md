@@ -1,5 +1,49 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity(Windows) — 유튜브 플레이리스트 메이커 v1.06: 유튜브 다크 콘솔 디자인 리뉴얼 & 전 화면 단일 배경색(#0f0f0f) 일체화 및 비주얼 가이드북 전면 신설 완료
+
+- **대상 프로그램**: `yt-playlist-studio/` (slug: `yt-playlist-studio`, 공식 라이브: `https://youtube-playlist.buylife.xyz/` / `https://yt-playlist.buylife.xyz/`, 배포 버전: `v1.06`)
+- **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console Style · 유튜브 공식 다크 테마, 퓨어 옵시디언 블랙 `#0f0f0f`, 딥 차콜 카드 `#181818`/`#212121`, 유튜브 레드 `#ff0000` 알약형 칩 & 플레이 로고 포인트)**
+- **인수인계 문서**:
+  - 개발 플랜: [`yt-playlist-studio/docs/PLAN_20261017_DESIGN_RENEWAL.md`](../yt-playlist-studio/docs/PLAN_20261017_DESIGN_RENEWAL.md)
+  - 개선사항 목록: [`yt-playlist-studio/docs/IMPROVEMENTS.md`](../yt-playlist-studio/docs/IMPROVEMENTS.md)
+  - 개선사항 인수인계: [`yt-playlist-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../yt-playlist-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`yt-playlist-studio/docs/DESIGN_HANDOFF.md`](../yt-playlist-studio/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`yt-playlist-studio/AGENTS.md`](../yt-playlist-studio/AGENTS.md)
+- **주요 작업 내용**:
+  1. **전체 화면 단일 옵시디언 블랙 배경(`bg-[#0f0f0f]`) 및 일관된 테마 스타일 준수 (최상단 지침 11번)**:
+     - `src/app/globals.css`: 다크 테마 기본 배경 `#0f0f0f`, 텍스트 `#f1f1f1`, 유튜브 스타일 스크롤바(`#272727` 트랙 / `#717171` 썸) 고정.
+     - `src/components/PlaylistStudioApp.tsx`: 최상위 컨테이너 `min-h-screen bg-[#0f0f0f] text-[#f1f1f1]` 적용 및 모바일 반응형 `flex flex-col md:flex-row` 레이아웃 정비.
+     - `src/components/Sidebar.tsx`: 유튜브 공식 레드 플레이 심볼 로고(▶) 탑재, 배경 `#0f0f0f` 및 호버 서피스 `#212121` 일체화, `📖 연동 & 사용 매뉴얼` 메뉴 탑재.
+     - `src/components/MediaCenter.tsx`, `EditorStudio.tsx`, `ExportStudio.tsx`, `ApiKeyModal.tsx`, `HelpModal.tsx`: 전 화면 `#0f0f0f` 및 `#181818` 다크 서피스 통일.
+  2. **📖 연동 & 사용 매뉴얼 (`/guide` & `currentTab = 'guide'`) 비주얼 가이드북 전면 신설 (최상단 지침 7번)**:
+     - `src/components/PlaylistGuideView.tsx`: 유튜브 공식 로고, 5단계 파이프라인(음원 업로드 ➔ 타임라인 트랙 ➔ AI 비주얼 배경 ➔ 오디오 스펙트럼 10종 ➔ 초고화질 MP4 GPU 가속 렌더링).
+     - 조회수 떡상 플레이리스트 제작 4대 골든 팁(음원 음질 최적화, 16:9 비주얼 루프, 플레이어 바 & 트랙리스트, WebCodecs GPU 가속).
+     - 자주 묻는 질문(FAQ) 4종 아코디언 컴포넌트 탑재.
+     - 회원 본인 API 키 직접 연동 보안 원칙 배너 탑재.
+     - `src/app/guide/page.tsx`: `/guide` 독립 브라우저 접속 라우트 신설.
+  3. **버전 동기화 & 프로덕션 배포**:
+     - `src/lib/version.ts`: `v1.06`, `package.json`: `1.06.0`, Supabase DB `programs.version = 'v1.06'` 동기화 완료.
+     - Next.js Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (`https://yt-playlist.buylife.xyz`, Deployment ID: `dpl_9ek2nzRKzafnKUyXexL7c9yVDebT`).
+  4. **Microsoft Edge 전용 실세션 검수 완료 (8종 스크린샷 캡처)**:
+     - `edge_yt_guide_desktop_v106.png`: 데스크톱 가이드북 헤더, 유튜브 로고, 5단계 파이프라인 확인.
+     - `edge_yt_guide_pipeline_v106.png`: 4대 골든 팁 확인.
+     - `edge_yt_guide_faq_v106.png`: FAQ 아코디언 및 보안 배너 확인.
+     - `edge_yt_media_desktop_v106.png`: 미디어 센터 드롭존, 인코딩 프리셋 칩 확인.
+     - `edge_yt_editor_desktop_v106.png`: 16:9 캔버스 영화관 스크린, 10종 스펙트럼, 유튜브 플레이어 콘솔 바 확인.
+     - `edge_yt_export_desktop_v106.png`: 렌더링 요약, FPS/해상도 칩, MP4 버튼 확인.
+     - `edge_yt_media_mobile_v106.png`: 모바일 상단 바 + 390px 홈 뷰 확인.
+     - `edge_yt_guide_mobile_v106.png`: 390px 가이드북 반응형 뷰 확인.
+
+## 2026-10-17 Claude Code(맥미니) — 부동산 실거래 투자분석 v1.11: 스마트 매트릭스(다크 슬레이트) 디자인 (🟠 윈도우 마무리 요청)
+
+- **대상**: `real_estate_sales/` (https://real-estate-sales.buylife.xyz). 플랜 제시 → 주인님 「진행해줘」 승인 후 구현(배경은 답이 없어 현황판 권장 다크 슬레이트).
+- **한 일**: Tailwind v4 `@theme` 다크 토큰(옛 `gold`·`dark-*` 이름은 다크로 재연결), 로그인·회원가입까지 다크(원칙 13), 사이드바 ☰·📖(원칙 19·9 — 기존 누락), 대시보드 지표·연결 상태·최근 실거래 표, 실거래 목록 매트릭스(검색·자치구·정렬·표/카드·상태 칩), 상세 지표 4종(공시가 대비·㎡당)·매력도 막대·이력 표, `/guide` 신설(숫자 읽는 법), `AGENTS.md` 신설. 서버 로직·DB 변경 없음. v1.11.
+- **문서**: [`real_estate_sales/docs/`](../real_estate_sales/docs/) PLAN·IMPROVEMENTS(9건, 4건 구현)·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, `AGENTS.md`·README 연결, 루트 `DESIGN.md` 57번 🟠, 역량 지도 카드.
+- **⚠️ 윈도우 CLI 요청**: [`real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md`](../real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.11 → 1440px·375px 검수(「지금 조회하기」「다시 분석하기」 금지) → `DESIGN.md` 57번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(윈도우) — 쓰레드 3개 새 주소 연결 실제 성공 (Meta 앱 콜백 등록)
 
 - 주인님이 Meta 앱 www.buylife.xyz › 이용 사례 › Threads API 액세스 › 설정의 **리디렉션 콜백 URL**에 새 주소 3개(`auto-threads-posting`·`threads-affiliate-poster`·`threads-comment-reply` `.buylife.xyz/api/threads/callback`) 추가, **제거/삭제 콜백**을 `threads-affiliate-poster.buylife.xyz/api/threads/uninstall`·`/delete`로 교체(새 주소 응답 확인: 형식 요청 시 400 invalid signed_request = 옛 주소와 동일).
