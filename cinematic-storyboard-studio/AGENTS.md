@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 시네마틱 스토리보드 자동화 / `cinematic-storyboard-studio` |
-| 현재 버전 | **v1.06** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.07** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://cinematic-storyboard-studio.buylife.xyz (옛 `*.vercel.app` 유지) |
 | Vercel | 팀 `buylife`, 프로젝트 `cinematic-storyboard-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 멀티미디어, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -77,4 +77,14 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 - **개선사항 인수인계**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md)
 - **디자인 완료 인수인계**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
 - **검수**: Microsoft Edge 전용 (`msedge.exe`) 실세션 테스트 계정(`buylifemall@naver.com`) 검증 완료 (데스크톱 및 모바일 8종 캡처 확인).
+
+## 2026-10-17 로그인/회원가입 표준 2탭 레이아웃 개편 — v1.07 (cinematic-storyboard-studio)
+- **개선 내용**:
+  - 기존 구형 화이트 박스 로그인 화면으로 인한 테마 불일치를 해소하고 시네마틱 아틀리에 스타일(`bg-[#0b0f17]` 딥 차콜 + 24px 앰버 모눈 격자, 카드 다크 글래스모피즘 `#0e1422`/90)로 전면 통일.
+  - `threads-comment-reply` 표준 규격에 맞춘 `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 컨트롤(앰버-오렌지 그라디언트 활성 탭) 탑재.
+  - 헤더 안내의 잘못된 타 프로그램 복사 문구를 정정하고, 오래된 회원가입 URL을 `https://aimaster.buylife.xyz/signup`으로 최신화.
+  - 메일/자물쇠 아이콘(42px 패딩), 우측 비밀번호 찾기 링크, 회원가입 모드 전환 시 단일 계정 안내 박스 및 혜택 3종 체크리스트, CTA 링크 버튼 배치.
+- **버전 동기화**: `src/lib/version.ts`, `package.json`, Supabase DB `programs.version = 'v1.07'` 동기화 완료.
+- **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 실세션 캡처 3종 검수 완료 (`edge_cinematic_login_desktop_v107.png`, `edge_cinematic_signup_desktop_v107.png`, `edge_cinematic_login_mobile_v107.png`).
+
 

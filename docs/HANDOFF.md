@@ -1,5 +1,37 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity(Windows) — 시네마틱 스토리보드 자동화 v1.07: 로그인·회원가입 표준 2탭 레이아웃(시네마틱 아틀리에 테마) 전면 리뉴얼 완료
+
+- **대상 프로그램**: `cinematic-storyboard-studio/` (slug: `cinematic-storyboard-studio`, 프로그램 번호 7번)
+- **공식 라이브 URL**: https://cinematic-storyboard-studio.buylife.xyz/login
+- **배포 버전**: `v1.07` (로컬 패키지 `1.07.0`, `APP_VERSION = "v1.07"`, Supabase DB `programs.version = 'v1.07'` 동기화 완료)
+- **적용 디자인 템플릿**: **크리에이티브 아틀리에 스타일 (Creative Atelier Style · 시네마틱 아틀리에 · 차콜 `#0b0f17` 24px 앰버 모눈 격자, 카드 다크 글래스모피즘, 앰버-오렌지 `#f59e0b` ➔ `#ea580c` 그라디언트 탭 & 버튼)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`cinematic-storyboard-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../cinematic-storyboard-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`cinematic-storyboard-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../cinematic-storyboard-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`](../cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`cinematic-storyboard-studio/AGENTS.md`](../cinematic-storyboard-studio/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (DESIGN.md 14번 규격 준수)**:
+     - `src/app/(auth)/login/page.tsx`: 구형 화이트 박스로 인한 테마 불일치를 해소하고, 딥 차콜 배경(`rgba(11, 15, 23, 1)`) + 24px 앰버 모눈 격자, 상단 시네마틱 앰버 `Clapperboard` 슬레이트 심볼 및 "AIMaster 통합 계정" 알약 뱃지 탑재.
+     - 헤더 서브 문구의 타 프로그램 복사 문구를 정정하고, 오래된 회원가입 URL을 `https://aimaster.buylife.xyz/signup`으로 최신화.
+     - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 탑재 (앰버-오렌지 `#f59e0b` ➔ `#ea580c` 그라디언트 활성 탭).
+     - **로그인 모드**: 이메일 주소(좌측 Mail 아이콘 + 42px 패딩), 비밀번호(좌측 Lock 아이콘 + 우측 "비밀번호를 잊으셨나요?" 앰버 링크), 풀 위드 앰버-오렌지 그라디언트 액션 버튼 (`로그인하고 스토리보드 스튜디오 시작 ➔`) 탑재.
+     - **회원가입 모드**: 단일 계정(SSO) 안내 박스, 시네마틱 스토리보드 혜택 3종 체크리스트, 풀 위드 `AIMaster에서 무료 회원가입하기` 링크 버튼 탑재.
+     - **하단 푸터**: 다크 테마 이용약관 · 개인정보처리방침 · 고객지원 안내 링크 탑재.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_8nu2zeo6scLrYuhk4pgXFeq6PtG9`, 라이브: `https://cinematic-storyboard-studio.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_cinematic_login_desktop_v107.png`: 데스크톱 1280x900 로그인 탭 화면 (딥 차콜 격자 배경, 앰버-오렌지 그라디언트 탭, 인풋/버튼/약관 완벽 렌더링).
+       - `edge_cinematic_signup_desktop_v107.png`: 데스크톱 1280x900 회원가입 탭 화면 (통합 계정 안내 박스 + 혜택 체크리스트 + 가입 링크 버튼 정상 토글).
+       - `edge_cinematic_login_mobile_v107.png`: 모바일 390x844 반응형 뷰 (넘침/스크롤 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 7번 `cinematic-storyboard-studio` 상태 `✅ 1차 작업완료 (`v1.07`, 크리에이티브 아틀리에 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `cinematic-storyboard-studio` 작업 행 삭제 완료.
+
+[프로그램 열기](https://cinematic-storyboard-studio.buylife.xyz/login)
+
 ## 2026-10-17 Claude Code(윈도우) — markdown-studio v1.12~v1.13: 편의 기능 6가지 (작업리스트 5번)
 
 - 커밋 `07c34e5f`(v1.12)·`a9c25d3b`(v1.13 수정). 복사 토스트·예상 읽기 시간(500자/분)·단축키 안내 창(? 키)·목차 미니맵(sticky·현재 제목 강조)·템플릿 미니어처·대시보드 문서 고정/검색. 서버·DB 스키마 변경 없음(고정은 기기 IndexedDB 설정).
