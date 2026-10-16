@@ -13,7 +13,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 뮤직 플레이어 자동화 / `music-player` |
-| 버전 | **v1.05** (`src/lib/version.ts` = DB `programs.version`) |
+| 버전 | **v1.07** (`src/lib/version.ts` = DB `programs.version`) |
 | 적용 디자인 템플릿 | **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style)** ([PROGRAM_DESIGN_STANDARD.md §3](../docs/PROGRAM_DESIGN_STANDARD.md)) |
 | 디자인 인수인계 | [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) (디자인 개발완료) / [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) (기능 개선과제) |
 | 주소 | https://music-player.buylife.xyz (Vercel `buylife/music-player`, CLI 직접 배포) |

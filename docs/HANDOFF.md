@@ -7,6 +7,36 @@
 - 다음: 소스 고정 배포→DBv1.09→운영 무료 Edge검수→현황판48완료. [인수인계·개선·증거](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://youtube-auto-reply.buylife.xyz). 관리자 텔레그램1건 이전 및30일보관 적용 확인 등은 후속으로 구분.
 
 
+## 2026-10-17 Antigravity(Windows) — 뮤직 플레이어 자동화 v1.07: 로그인·회원가입 표준 2탭 레이아웃(사이버 네온 다크 콘솔 테마) 전면 리뉴얼 완료
+
+- **대상 프로그램**: `music-player/` (slug: `music-player`, 프로그램 번호 2번)
+- **공식 라이브 URL**: https://music-player.buylife.xyz/login
+- **배포 버전**: `v1.07` (로컬 패키지 `1.0.7`, `APP_VERSION = "v1.07"`, Supabase DB `programs.version = 'v1.07'` 동기화 완료)
+- **적용 디자인 템플릿**: **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style · 심연 블랙 `#060911` 24px 다크 네온 모눈 격자, 카드 다크 글래스모피즘 `rgba(13, 19, 33, 0.88)`, 네온 사이언 `#00f2fe` 발광 탭 & 버튼)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`music-player/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../music-player/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`music-player/docs/IMPROVEMENT_HANDOFF_20261017.md`](../music-player/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`music-player/docs/DESIGN_HANDOFF.md`](../music-player/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`music-player/AGENTS.md`](../music-player/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (최상단 지침 14번 준수)**:
+     - `src/app/login/page.tsx` & `src/components/auth/LoginForm.tsx`: 심연 블랙 및 다크 네온 모눈 격자 배경, 상단 하이파이 헤드폰 네온 심볼 뱃지 및 "AIMaster 통합 계정" 알약 뱃지 신설.
+     - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 탑재 (네온 사이언 `#00f2fe` 발광 활성 탭).
+     - **로그인 모드**: 이메일 주소(좌측 메일 아이콘 + 42px 패딩), 비밀번호(좌측 자물쇠 아이콘 + 우측 "비밀번호 찾기?" 네온 사이언 링크), 풀 위드 네온 사이언 그라디언트 액션 버튼 탑재.
+     - **회원가입 모드**: AIMaster 통합 계정 안내 틴트 박스 및 풀 위드 `AIMaster에서 무료 회원가입하기 ➔` 버튼 탑재.
+     - **하단 푸터**: 다크 테마 이용약관 및 개인정보처리방침 안내 링크 탑재.
+     - 전역 스타일 오버라이드 방지를 위해 정밀 인라인 스타일링 적용.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_59JHpNZurv4Cs5jfF2KDEVo3covF`, 라이브: `https://music-player.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_music_login_desktop_v107.png`: 데스크톱 1440px 로그인 탭 화면 (다크 격자 배경, 네온 사이언 발광 탭, 인풋/버튼/약관 푸터 완벽 렌더링).
+       - `edge_music_signup_desktop_v107.png`: 데스크톱 1440px 회원가입 탭 화면 (구독 안내 문구 + AIMaster 가입 링크 버튼 정상 토글).
+       - `edge_music_login_mobile_v107.png`: 모바일 390px 반응형 뷰 (넘침/스크롤 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 2번 `music-player` 상태 `✅ 1차 작업완료 (`v1.07`, 사이버 네온 다크 콘솔 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `music-player` 작업 행 삭제 완료.
+
 ## 2026-10-17 Antigravity(Windows) — 마크다운 문서 자동화 v1.11: 로그인·회원가입 표준 2탭 레이아웃(포커스 스튜디오 테마) 전면 리뉴얼 완료
 
 - **대상 프로그램**: `markdown-studio/` (slug: `markdown-studio`, 프로그램 번호 1번)

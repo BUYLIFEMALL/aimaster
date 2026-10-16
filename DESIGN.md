@@ -104,7 +104,7 @@
 | No | 서브프로그램명 | slug | 적용 디자인 템플릿 스타일 | 배경 테마 | 디자인 상태 | 인수인계 문서 |
 |:---:|---|---|---|---|:---:|:---:|:---:|
 | 1 | 마크다운 문서 자동화 | `markdown-studio` | **포커스 스튜디오 스타일** | 라이트(크림) | ✅ 1차 작업완료 (`v1.11`, 포커스 스튜디오 스타일) | [`markdown-studio/docs/DESIGN_HANDOFF.md`](markdown-studio/docs/DESIGN_HANDOFF.md) |
-| 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
+| 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 (`v1.07`, 사이버 네온 다크 콘솔 스타일) | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
 | 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 작업완료 (`v1.12`) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
 | 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.05`) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
 | 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |

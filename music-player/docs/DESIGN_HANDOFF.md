@@ -1,11 +1,27 @@
 # 뮤직 플레이어 자동화 (music-player) — 디자인 개발완료 및 유의사항 (DESIGN_HANDOFF.md)
 
-> **작업 일시**: 2026-10-16  
+> **작업 일시**: 2026-10-17  
 > **담당 에이전트**: Antigravity (Windows)  
-> **버전**: **v1.04** (`src/lib/version.ts` 및 DB `programs.version` 동기화 완료)  
+> **버전**: **v1.07** (`src/lib/version.ts` 및 DB `programs.version` 동기화 완료)  
 > **적용 디자인 템플릿**: **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style)** ([PROGRAM_DESIGN_STANDARD.md §3](../../docs/PROGRAM_DESIGN_STANDARD.md))  
 > **검수 브라우저**: **Microsoft Edge(엣지) 전용** (`msedge`)  
 > **검수 계정**: 일반 회원 테스트 계정 `buylifemall@naver.com` (실제 로그인 세션 쿠키 검증)
+
+---
+
+## 0. v1.07 로그인/회원가입 표준 2탭 레이아웃 리뉴얼 (2026-10-17)
+- **표준 레이아웃(`DESIGN.md §14`) 전면 적용**:
+  - 리치 심연 블랙 (`#060911`) + 은은한 24px 다크 네온 모눈 격자 (`rgba(56, 189, 248, 0.04)`) 배경.
+  - 상단 헤드폰 네온 심볼 뱃지 및 "AIMaster 통합 계정" 알약형 뱃지 탑재.
+  - `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 바 (네온 사이언 `#00f2fe` 발광 활성 탭).
+  - 이메일 (메일 아이콘 + 42px 패딩), 비밀번호 (자물쇠 아이콘 + 42px 패딩 + 우측 "비밀번호 찾기?" 네온 사이언 링크).
+  - 풀 위드 네온 사이언 액션 버튼 (`#00f2fe` ➔ `#38bdf8`).
+  - 회원가입 탭 선택 시 AIMaster 통합 계정 안내 박스 및 바로가기 버튼 제공.
+  - 하단 이용약관 및 개인정보처리방침 다크 모드 링크 배치.
+- **Edge 검수 증거**:
+  - `edge_music_login_desktop_v107.png`: 데스크톱 1440px 로그인 탭 렌더링 확인.
+  - `edge_music_signup_desktop_v107.png`: 데스크톱 1440px 회원가입 탭 및 토글 정상 작동 확인.
+  - `edge_music_login_mobile_v107.png`: 모바일 390px 뷰포트 반응형 정렬 및 가로 넘침 없음 확인.
 
 ---
 
