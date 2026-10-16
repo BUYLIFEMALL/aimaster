@@ -97,3 +97,6 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - `src/app/(dashboard)/guide/page.tsx`: 흐름 다이어그램(키·계정 연결 ➔ 주제 수집 ➔ AI 생성 ➔ 게시) → 5단계 카드(AI 키 / Meta 앱+인스타 연결(파란=Facebook·초록=Instagram) / 주제 수집 / AI 생성 / 즉시·예약 게시, 각 화면 바로가기) → 본인 키 안내 → FAQ 6개(차단된 URL·Invalid platform app·Invalid redirect_uri 주소는 복사 버튼). 문구는 실제 메뉴·버튼 이름 기준. 같은 레이아웃(권한 게이트·배경) 사용.
 - `Sidebar.tsx` UTILITY_ITEMS에 `/guide` 추가.
 - 검수: 빌드(/guide ƒ)·배포·DB v1.15, 크롬에서 매뉴얼 표시·좌측 메뉴 활성 확인.
+## 2026-10-17 v1.16 — 앱 ID·시크릿 저장 형식 검사 (Claude Code 윈도우)
+- 주인님 승인 제안: 시험 계정 Instagram 앱 ID가 끝자리 빠진 15자리로 저장돼 "Invalid platform app"이 난 사례 → `saveApiKeyAction`에서 `*_app_id`는 숫자 15~16자리, `*_app_secret`은 영문·숫자 32자가 아니면 저장하지 않고 입력 글자 수와 함께 안내(기존 저장값은 영향 없음).
+- 검수: 빌드·배포·DB v1.16. DM 화면(시험 계정)에서 "12345" 저장 시도 → 빨간 오류 표시·저장 안 됨·기존 값 유지 확인. 댓글·포스팅은 같은 코드.

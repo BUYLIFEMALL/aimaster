@@ -35,6 +35,13 @@ export async function saveApiKeyAction(
   if (!apiKey) {
     return { error: "API 키를 입력해주세요." };
   }
+  // 2026-10-17: 앱 ID 끝자리가 빠진 채 저장돼 Instagram "Invalid platform app"이 난 사례 — Meta 앱 ID(숫자 15~16자리)·시크릿(영문·숫자 32자) 형식 확인
+  if (/_app_id$/.test(provider) && !/^\d{15,16}$/.test(apiKey)) {
+    return { error: `앱 ID는 숫자 15~16자리입니다(입력 ${apiKey.length}자). 빠진 자리나 공백이 없는지 확인해주세요.` };
+  }
+  if (/_app_secret$/.test(provider) && !/^[0-9a-f]{32}$/i.test(apiKey)) {
+    return { error: `앱 시크릿 코드는 영문·숫자 32자입니다(입력 ${apiKey.length}자). Meta 화면의 [표시]를 눌러 전체를 복사해주세요.` };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase
