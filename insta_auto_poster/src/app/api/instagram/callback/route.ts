@@ -57,10 +57,15 @@ export async function GET(request: NextRequest) {
 
   try {
     // 회원 본인 Meta 앱 키만 사용한다(운영자 공용 앱 없음).
-    const [appId, appSecret] = await Promise.all([
+    // Facebook 페이지 방식: Facebook 앱 전용 칸(2026-10-16) 우선, 둘 다 비어 있으면 같은 회원의 기존 칸 값(기존 연결 유지).
+    // 인증 요청에 쓴 앱 ID와 같은 쌍을 써야 하므로 ID/시크릿을 같은 칸 묶음에서 고른다.
+    const [fbId, fbSecret, metaId, metaSecret] = await Promise.all([
+      resolveApiKey(supabase, user.id, "facebook_app_id"),
+      resolveApiKey(supabase, user.id, "facebook_app_secret"),
       resolveApiKey(supabase, user.id, "meta_app_id"),
       resolveApiKey(supabase, user.id, "meta_app_secret"),
     ]);
+    const [appId, appSecret] = fbId ? [fbId, fbSecret] : [metaId, metaSecret];
     if (!appId || !appSecret) {
       return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
     }

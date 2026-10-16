@@ -17,6 +17,8 @@ const VALID_PROVIDERS: ApiKeyProvider[] = [
   "perplexity",
   "meta_app_id",
   "meta_app_secret",
+  "facebook_app_id",
+  "facebook_app_secret",
 ];
 
 export async function saveApiKeyAction(

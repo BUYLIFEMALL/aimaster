@@ -29,6 +29,8 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 ];
 
 const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
+// Facebook 페이지 방식 전용(2026-10-16, Instagram 로그인 방식과 앱 ID가 달라 칸 분리)
+const FACEBOOK_PROVIDERS: ApiKeyProvider[] = ["facebook_app_id", "facebook_app_secret"];
 
 // 성격별로 묶어서 어떤 키가 어떤 기능에 쓰이는지 한눈에 구분되도록 그룹핑한다.
 const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[] }[] = [
@@ -64,7 +66,10 @@ export default async function SettingsPage({
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
-  const hasMetaKeys = keyMap.has("meta_app_id") && keyMap.has("meta_app_secret");
+  // Facebook 방식은 전용 칸 또는(이전 방식) 기존 칸, Instagram 방식은 기존 칸이 있으면 연결 버튼을 보여준다
+  const hasMetaKeys =
+    (keyMap.has("meta_app_id") && keyMap.has("meta_app_secret")) ||
+    (keyMap.has("facebook_app_id") && keyMap.has("facebook_app_secret"));
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -144,7 +149,7 @@ export default async function SettingsPage({
 
             <p>Meta 앱 대시보드 › <b>Instagram</b> › <b>API 설정(Instagram 로그인)</b> 화면의 <b>Instagram 앱 ID</b>와 <b>Instagram 앱 시크릿 코드</b>를 넣어주세요. 맨 위 앱 ID를 넣으면 연결할 때 Instagram 화면에 &quot;Invalid platform app&quot; 오류가 납니다.</p>
 
-            <p>이 프로그램의 <b>Facebook 페이지로 연결하기</b> 방식은 반대로 맨 위의 <b>앱 ID / 앱 시크릿 코드</b>(Facebook 앱)를 써야 합니다. 두 방식이 이 칸을 함께 쓰므로, 사용할 연결 방식에 맞는 값 하나만 등록해주세요(Instagram 로그인 방식 권장).</p>
+            <p>이 칸은 <b>Instagram 로그인 방식</b> 전용입니다. <b>Facebook 페이지로 연결하기</b> 방식은 아래 &quot;Facebook 앱 ID / 시크릿&quot; 칸(맨 위 앱 ID·앱 시크릿 코드)을 따로 등록해 쓰세요.</p>
 
           </div>
 
@@ -157,6 +162,25 @@ export default async function SettingsPage({
                 maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
                 helpUrl="https://developers.facebook.com/apps"
                 helpLabel="Meta App Dashboard에서 발급받기"
+              />
+            ))}
+          </div>
+
+          <div className="mt-4 space-y-3 border-t border-neutral-200 pt-4">
+            <div>
+              <h3 className="text-xs font-bold text-neutral-800">📘 Facebook 페이지 방식용 (선택)</h3>
+              <p className="text-xs text-neutral-500">
+                &quot;Facebook 페이지로 연결하기&quot;를 쓸 때만 등록합니다. Meta 앱 대시보드 › 앱 설정 › 기본 설정의 <b>앱 ID</b>와 <b>앱 시크릿 코드</b>(화면 맨 위 값)를 넣으세요. 비워 두면 예전처럼 위 칸의 값을 사용합니다.
+              </p>
+            </div>
+            {FACEBOOK_PROVIDERS.map((provider) => (
+              <ApiKeyRow
+                key={provider}
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                helpUrl="https://developers.facebook.com/apps"
+                helpLabel="Meta App Dashboard에서 확인하기"
               />
             ))}
           </div>

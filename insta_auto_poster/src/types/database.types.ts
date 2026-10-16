@@ -1,5 +1,5 @@
 export type PostStatus = "draft" | "scheduled" | "publishing" | "published" | "failed";
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "meta_app_id" | "meta_app_secret";
+export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "meta_app_id" | "meta_app_secret" | "facebook_app_id" | "facebook_app_secret";
 // facebook_login: 운영자 공용 앱 + Facebook 페이지(기본/1차 방식). instagram_login: 회원 본인
 // Meta 앱(BYOK, 대체/fallback 방식). src/lib/instagram/client.ts의 graphBaseFor()가 이 값으로
 // 게시 시 사용할 Graph API host를 결정한다.

@@ -9,4 +9,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   perplexity: "Perplexity (실시간 주제 수집)",
   meta_app_id: "Instagram 앱 ID",
   meta_app_secret: "Instagram 앱 시크릿 코드",
+  facebook_app_id: "Facebook 앱 ID (Facebook 페이지 방식)",
+  facebook_app_secret: "Facebook 앱 시크릿 코드 (Facebook 페이지 방식)",
 };

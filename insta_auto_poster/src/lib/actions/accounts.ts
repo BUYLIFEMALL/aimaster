@@ -22,11 +22,16 @@ export async function connectInstagramAccountAction(formData: FormData) {
   const method = (String(formData.get("method") ?? "facebook_login") as InstagramAuthMethod);
 
   const supabase = await createClient();
-  const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+  // Facebook 페이지 방식은 Facebook 앱 ID(전용 칸, 2026-10-16), 비어 있으면 같은 회원의 기존 칸 값 — 기존 연결 유지.
+  // Instagram 로그인 방식은 Instagram 앱 ID(meta_app_id).
+  const appId =
+    method === "facebook_login"
+      ? (await resolveApiKey(supabase, user.id, "facebook_app_id")) ?? (await resolveApiKey(supabase, user.id, "meta_app_id"))
+      : await resolveApiKey(supabase, user.id, "meta_app_id");
   if (!appId) {
     redirect(
       `/settings?error=connect_failed&reason=${encodeURIComponent(
-        `${PROVIDER_LABELS.meta_app_id}가 없습니다. 설정 페이지에서 본인 Meta 앱을 먼저 등록해주세요.`,
+        `${method === "facebook_login" ? PROVIDER_LABELS.facebook_app_id : PROVIDER_LABELS.meta_app_id}가 없습니다. 설정 페이지에서 본인 Meta 앱 값을 먼저 등록해주세요.`,
       )}`,
     );
   }
