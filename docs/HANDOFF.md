@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니) — 롱테일 v1.06/v1.07 처리 결과 확인·기록 정리
+
+- 확인: 커밋 `54eaee73`·`db259571`(Codex v1.06 운영 검수 34건), `d1b15099`(v1.07 CSV). DB `programs.version`=v1.07, 운영 `/`→`/dashboard` 307, `/dashboard`·`/guide` 비로그인 시 로그인 이동(캐시 MISS). `ACTIVE_WORK`의 맥미니 줄 제거 확인.
+- 정리: `docs/PROGRAM_CAPABILITY_MAP.md` 롱테일 카드 v1.07·CSV 반영(커밋 `3ef0a352` — 메시지의 「7종 표기」는 Antigravity가 이미 반영해 이 커밋에는 없음).
+- 남은 일: v1.07 CSV 실화면 확인(도메인 통일 후), VIP 19명 개별 부여 만료(2026-10-16) 처리 여부는 주인님 결정.
+
 ## 2026-10-16 Antigravity(Windows) — 음악(SUNO)자동화 v1.08: 가이드북(/guide) 전면 신설 및 사이드바 연동 완료
 
 - **대상 프로그램**: `music/` (slug: `music-automation`, `https://music-rho-virid-22.vercel.app/guide`)
