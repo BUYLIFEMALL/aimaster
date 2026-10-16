@@ -5,7 +5,7 @@ import { test } from "node:test";
 import vm from "node:vm";
 
 const source = readFileSync(new URL("../extension/sidepanel.js", import.meta.url), "utf8");
-const BASE = "https://tistory-auto-blog-pearl.vercel.app";
+const BASE = "https://tistory-auto-blog.buylife.xyz";
 const slice = (from, to) => {
   const a = source.indexOf(from), b = source.indexOf(to);
   assert.ok(a >= 0 && b > a, `코드 조각을 찾지 못했습니다: ${from}`);

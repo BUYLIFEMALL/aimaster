@@ -6,7 +6,7 @@
 // 마지막 "저장·발행" 버튼은 누르지 않는다 — 회원이 내용을 확인하고 직접 누른다.
 importScripts("tistory-core.js", "tistory-engine.js", "tistory-adapter.js");
 
-const BASE = "https://tistory-auto-blog-pearl.vercel.app";
+const BASE = "https://tistory-auto-blog.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const KEY = {
   token: "tistoryAutoBlogToken",
   blogName: "tistoryBlogName", // 내 티스토리 블로그 이름(myblog.tistory.com 의 myblog)
@@ -256,12 +256,12 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     if (message.type === "cancel") { if (currentTask === null) return { ok: true, idle: true }; cancelRequested = true; return { ok: true }; }
     // 카테고리 목록은 티스토리 입력기 사이트 화면(web-bridge.js)에서 온 요청만 받는다. 사이드패널·다른 사이트 요청은 거절.
     if (message.type === "categories") {
-      if (![`${BASE}/`, "https://tistory-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
+      if (!["https://tistory-auto-blog-pearl.vercel.app/", "https://tistory-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
       return await readCategories(sender);
     }
     // 홈주제 목록은 브라우저 작업 없이 저장해 둔 것만 돌려준다(같은 출처 제한).
     if (message.type === "topics") {
-      if (![`${BASE}/`, "https://tistory-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
+      if (!["https://tistory-auto-blog-pearl.vercel.app/", "https://tistory-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
       const stored = (await get(KEY.topics))[KEY.topics];
       return { topics: Array.isArray(stored?.names) ? stored.names : [], at: stored?.at || 0 };
     }

@@ -8,7 +8,7 @@ const TOKEN_KEY = "tistoryAutoBlogToken";
 const BLOG_NAME_KEY = "tistoryBlogName";
 const NOTIFY_KEY = "tistoryNotify";
 const TASK_STATE_KEY = "tistoryTaskState";
-const BASE = "https://tistory-auto-blog-pearl.vercel.app";
+const BASE = "https://tistory-auto-blog.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const $ = (id) => document.getElementById(id);
 let snapshots = [];
 const Core = self.TistoryCore;
