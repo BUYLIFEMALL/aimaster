@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — 새 프로젝트: 카드형 쇼츠 영상 자동화 참고 원본 분석·개발 플랜 (승인 대기)
+
+- 주인님 지시: 참고 설치 프로그램(`D:PDS`, 제3자 상용, v1.8.5)을 분석하고 개발 플랜 수립. 실행하지 않고 정적 분석(DIE→7-Zip→asar 추출, 소스맵 복원, 내장 설명서 21장 추출). 분석 자료는 저장소 밖 `D:PDScard_shorts_reference`.
+- 결과·플랜: [CARD_SHORTS_REFERENCE_ANALYSIS.md](CARD_SHORTS_REFERENCE_ANALYSIS.md) — Electron+Remotion 데스크톱 쇼츠 제작기(주제→AI 대본→배경→음성·자막→BGM→MP4). 제안: 웹 + 브라우저 렌더(WebCodecs, 기존 `yt-playlist-studio` 부품), 회원 본인 키, 가칭 `card-shorts-studio` v1.01, P1~P8 단계.
+- 주인님 결정 대기: §7 D1~D5(이름·형태·비공식 무료 음성·자극형 카테고리·공개 범위). 승인 전 코드 작업 없음. 시험 비용: 정적 분석만, 유료 호출 0회.
+- 함께 처리: `docs/REA_REVERSE_ENGINEERING.md` 작업 사본이 11:12에 다른 내용(맥미니 실행 안내 대화문)으로 덮여 있어 커밋본으로 되돌림(덮인 내용 백업은 Claude 스크래치 폴더, 같은 내용은 `MAC_MINI_WORK_GUIDE.md` §6에 이미 있음).
+
 ## 2026-10-16 Antigravity(Windows) — 포커스 스튜디오(Focus Studio) 템플릿 기준 모델 적용 (markdown-studio v1.09)
 
 - 주인님 지시: 프로그램 레이아웃 및 디자인 메인 지침에 맞춰 기준 모델인 `markdown-studio`부터 단계별 디자인 업그레이드 진행, 프로그램적으로 더 나은 로직/기능/개선방안/사용자 편의성 요소 정리 및 제안.
