@@ -179,6 +179,7 @@ export function RenderView() {
               <section className="card stack">
                 <h2>💬 ② 자막</h2>
                 <label className="row" style={{ gap: 8, fontWeight: 500 }}><input type="checkbox" checked={a.captions.on} onChange={(e) => setA({ captions: { ...a.captions, on: e.target.checked } })} />영상에 자막 넣기(목소리 길이에 맞춰 나눔)</label>
+                {a.captions.on && <label className="row" style={{ gap: 8, fontWeight: 500 }}><input type="checkbox" checked={a.captions.voiceOnly} onChange={(e) => setA({ captions: { ...a.captions, voiceOnly: e.target.checked } })} />MP4에는 목소리가 있는 장면에만 자막 넣기<small className="muted">(미리보기는 스타일 확인용으로 항상 표시)</small></label>}
                 {a.captions.on && <>
                   <div className="chips">{(Object.keys(CAPTION_STYLES) as (keyof typeof CAPTION_STYLES)[]).map((k) => <button key={k} type="button" className={`chip ${a.captions.style === k ? "on" : ""}`} onClick={() => setA({ captions: { ...a.captions, style: k } })}>{CAPTION_STYLES[k]}</button>)}</div>
                   <div className="field-grid">

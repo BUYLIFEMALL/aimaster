@@ -15,9 +15,12 @@ export function stockScore(item: StockItem, query: string): number {
   const words = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
   const hay = ` ${(item.tags ?? "").toLowerCase()} `;
   const hit = words.filter((w) => hay.includes(w) || hay.includes(w.replace(/(ing|s)$/, ""))).length;
+  // 두 낱말이 한 뜻인 구절(예: "living room", "yoga mat")이 태그에 그대로 있으면 1점 더
+  const raw = query.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const phrase = raw.slice(1).filter((w, i) => hay.includes(`${raw[i]} ${w}`)).length;
   const vertical = item.width && item.height ? (item.height >= item.width ? 0.3 : 0) : 0;
   const korean = /\b(korean|asian|korea)\b/.test(hay) ? 0.5 : 0; // 인물은 한국인 기본(원칙 3)
-  return hit + vertical + korean;
+  return hit + phrase + vertical + korean;
 }
 /** 점수가 가장 높은 결과(이미 쓴 것 제외). 결과가 없으면 null */
 export function pickStock(items: StockItem[], query: string, used: Set<string>): StockItem | null {

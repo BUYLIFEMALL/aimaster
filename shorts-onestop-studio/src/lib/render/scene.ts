@@ -72,8 +72,9 @@ export function timeline(s: ShortsScript): { segs: Segment[]; total: number } {
 }
 
 /** 자막: 내레이션 조각을 글자 수 비율로 목소리 길이에 나눠 배치(정확한 단어 시각이 없는 TTS용 근사) */
-function drawCaption(ctx: CanvasRenderingContext2D, s: ShortsScript, seg: Segment, u: number, accent: string) {
+function drawCaption(ctx: CanvasRenderingContext2D, s: ShortsScript, seg: Segment, u: number, accent: string, final: boolean) {
   const a = normalizeAudio(s.audio); if (!a.captions.on) return;
+  if (final && a.captions.voiceOnly && !seg.voiceDur) return; // MP4: 소리 없는 장면에 자막만 떠 있지 않게
   const text = seg.kind === "intro" ? s.intro.narration : seg.kind === "outro" ? s.outro.narration : s.cards[seg.index]?.narration;
   if (!text) return;
   const chunks = captionChunks(text); const span = seg.voiceDur ?? Math.max(0.5, seg.dur - 0.6); const t0 = seg.voiceDur ? LEAD : 0.3;
@@ -176,7 +177,7 @@ export function bgFor(s: ShortsScript, seg: Segment): Bg | undefined {
 
 /** 시각 t(초)의 한 프레임을 그린다. opts.safe=true면 유튜브 UI 가림 영역을 표시(미리보기 전용).
  *  opts.media: 배경(Bg)에 해당하는 불러온 이미지·영상 요소를 돌려주는 함수(없거나 아직 로딩 중이면 테마 배경) */
-export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: Design, t: number, opts: { safe?: boolean; media?: (bg: Bg) => CanvasImageSource | null } = {}) {
+export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: Design, t: number, opts: { safe?: boolean; media?: (bg: Bg) => CanvasImageSource | null; /** MP4 출력용 프레임(자막 voiceOnly 적용) */ final?: boolean } = {}) {
   const th = THEMES[d.theme], f = FONTS[d.font];
   const titleFont = (px: number) => `${f.weight} ${px}px "${f.family}", "Noto Sans KR", sans-serif`;
   const bodyFont = (px: number) => `700 ${px}px "Noto Sans KR", sans-serif`;
@@ -242,7 +243,7 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
     }
   }
   ctx.restore();
-  ctx.save(); ctx.globalAlpha = out; drawCaption(ctx, s, seg, u, th.accent); ctx.restore();
+  ctx.save(); ctx.globalAlpha = out; drawCaption(ctx, s, seg, u, th.accent, !!opts.final); ctx.restore();
   if (opts.safe) drawSafeArea(ctx);
 }
 

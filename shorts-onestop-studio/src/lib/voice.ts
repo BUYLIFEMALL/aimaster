@@ -18,10 +18,11 @@ export type CaptionStyle = keyof typeof CAPTION_STYLES;
 
 export interface AudioSettings {
   provider: TtsProvider; model: string; voice: string; speed: number; tone: string;
-  captions: { on: boolean; style: CaptionStyle; y: number; size: number };
+  /** voiceOnly: MP4에는 목소리가 있는 장면에만 자막(미리보기는 스타일 확인용으로 항상 표시) */
+  captions: { on: boolean; style: CaptionStyle; y: number; size: number; voiceOnly: boolean };
   bgm?: { path: string; name: string; volume: number };
 }
-export const DEFAULT_AUDIO: AudioSettings = { ...DEFAULT_TTS, speed: 1.05, tone: "밝고 친근한 한국어 쇼츠 내레이션. 또렷하고 리듬감 있게.", captions: { on: true, style: "band", y: 380, size: 1 } };
+export const DEFAULT_AUDIO: AudioSettings = { ...DEFAULT_TTS, speed: 1.05, tone: "밝고 친근한 한국어 쇼츠 내레이션. 또렷하고 리듬감 있게.", captions: { on: true, style: "band", y: 380, size: 1, voiceOnly: true } };
 
 export function normalizeAudio(a: Partial<AudioSettings> | undefined): AudioSettings {
   const model = TTS_MODELS.find((m) => m.id === a?.model) ?? TTS_MODELS[0];
@@ -31,7 +32,7 @@ export function normalizeAudio(a: Partial<AudioSettings> | undefined): AudioSett
     provider: model.provider, model: model.id, voice: voices.some((v) => v.id === a?.voice) ? a!.voice! : voices[0].id,
     speed: typeof a?.speed === "number" ? Math.min(1.5, Math.max(0.8, a.speed)) : DEFAULT_AUDIO.speed,
     tone: typeof a?.tone === "string" ? a.tone.slice(0, 200) : DEFAULT_AUDIO.tone,
-    captions: { on: c.on !== false, style: c.style && c.style in CAPTION_STYLES ? c.style : "band", y: typeof c.y === "number" ? Math.min(1500, Math.max(160, c.y)) : 380, size: typeof c.size === "number" ? Math.min(1.6, Math.max(0.7, c.size)) : 1 },
+    captions: { on: c.on !== false, style: c.style && c.style in CAPTION_STYLES ? c.style : "band", y: typeof c.y === "number" ? Math.min(1500, Math.max(160, c.y)) : 380, size: typeof c.size === "number" ? Math.min(1.6, Math.max(0.7, c.size)) : 1, voiceOnly: c.voiceOnly !== false },
     bgm: a?.bgm?.path ? { path: a.bgm.path, name: String(a.bgm.name ?? "배경음악").slice(0, 80), volume: typeof a.bgm.volume === "number" ? Math.min(1, Math.max(0, a.bgm.volume)) : 0.35 } : undefined,
   };
 }

@@ -128,7 +128,7 @@ export async function exportMp4(o: {
         if (!touched.has(el)) { touched.forEach((x) => x.pause()); touched.add(el); el.pause(); await seekVideo(el, (t - seg.start) % (el.duration || 1)); } // 장면이 바뀌면 이전 영상은 멈춤
         await syncVideo(el, t - seg.start);
       }
-      renderFrame(ctx, s, d, t, { media });
+      renderFrame(ctx, s, d, t, { media, final: true });
       const vf = new VideoFrame(canvas, { timestamp: Math.round(t * 1e6), duration: Math.round(1e6 / FPS) });
       venc.encode(vf, { keyFrame: f % (FPS * 2) === 0 }); vf.close();
       while (venc.encodeQueueSize > 6) await new Promise((r) => setTimeout(r, 4));
