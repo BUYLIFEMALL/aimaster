@@ -143,3 +143,7 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
     - `edge_shop_detail_guide_mobile_v108.png` (모바일 375px)
 - **라이브 URL**: `https://shop-detail-page.vercel.app/guide`
 
+## 2026-10-16 도메인 통일(SSO) — v1.09 (Claude Code 윈도우)
+- 새 주소 `https://shop-detail-page.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
+- 검수: 옛 주소 → 새 주소 /products 재로그인 없이 열림(시험 계정 표시)
+- 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
