@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — AI 엑셀·텍스트 합치기 v1.07: 스마트 매트릭스 라이트 변형 디자인 (🟠 윈도우 마무리 요청)
+
+- **대상**: `file-merge/` (https://file-merge.buylife.xyz). 디자인 현황판 남은 목록 3번. 현황판 권장 배경이 라이트라 **스마트 매트릭스 — 라이트 변형**으로 진행(골격 동일, 색만 밝게). 라이트 토큰은 대비 계산으로 확인했고 다른 프로그램 라이트 테마의 기준값으로 쓴다.
+- **한 일**: 라이트 토큰 + 밝은 하드코딩 색 교체(클래스 유지), `/dashboard` 신설(특징 지표·도구 카드 4개), 사이드바 대시보드, 도구 4화면 히어로, 매뉴얼 캐릭터·4단계 흐름. 파일 처리 로직·서버 변경 없음(원래 브라우저 안 처리라 보안 양호). v1.07.
+- **문서**: [`file-merge/docs/`](../file-merge/docs/) PLAN·IMPROVEMENTS(6건, 2건 구현)·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, `AGENTS.md`, 루트 `DESIGN.md` 65번 🟠, 역량 지도 카드.
+- **⚠️ 윈도우 CLI 요청**: [`file-merge/docs/IMPROVEMENT_HANDOFF_20261017.md`](../file-merge/docs/IMPROVEMENT_HANDOFF_20261017.md) — `npm test`·`npm run build` → 배포 → DB v1.07 → 1440px·375px 검수 → `DESIGN.md` 65번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Codex(Windows) — 경쟁사 v1.07 Mac 인수 완료 재확인 / v1.08 승인 대기 유지
 
 - 다시 전달된 맥미니 ac41f83c 인수 작업은 2026-10-16 Windows 빌드·배포·DB·화면 검수가 완료됐습니다. 현재 Vercel target dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY·소스 c80a44af·DB v1.07·DESIGN 50번 완료를 대조했습니다.

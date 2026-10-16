@@ -1,4 +1,12 @@
 import { APP_NAME } from "@/lib/version";
+import { PageHero } from "@/components/ui/PageHero";
+
+const PIPELINE = [
+  { ic: "🧭", title: "작업 고르기", desc: "합치기·나누기 × 엑셀·텍스트 4가지 중 하나", time: "5초" },
+  { ic: "📂", title: "파일 올리기", desc: "끌어다 놓기, 순서는 화살표로", time: "10초" },
+  { ic: "⚙️", title: "방식·옵션", desc: "머리글 행, 남길 열, 서식 유지, 나누는 기준", time: "30초" },
+  { ic: "📥", title: "미리보고 저장", desc: "앞 20행 미리보기 → xlsx·csv·txt·zip", time: "바로" },
+];
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -10,11 +18,34 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 export default function GuidePage() {
   return (
     <div className="gd">
-      <div className="page-heading">
-        <p className="eyebrow">사용 매뉴얼</p>
-        <h1>{APP_NAME} 사용법</h1>
-        <p>엑셀·CSV·텍스트 파일을 합치고 나누는 도구입니다. 별도 API 키나 외부 계정 연동이 필요 없습니다.</p>
+      <PageHero
+        badge="📖 사용 매뉴얼"
+        title={`${APP_NAME} 사용법`}
+        description="엑셀·CSV·텍스트 파일을 합치고 나누는 도구입니다. 별도 API 키나 외부 계정 연동이 필요 없습니다."
+      >
+        <a className="button primary" href="/dashboard">🏠 작업 고르러 가기</a>
+      </PageHero>
+
+      <div className="gd-bubble">
+        <span className="gd-avatar" aria-hidden="true">🗂️</span>
+        <div className="card">
+          안녕하세요, 파일 정리 도우미예요! 지점별·월별로 흩어진 엑셀을 <b>한 표로 모으거나</b>, 큰 파일을 <b>담당자별·N행씩 나누는</b> 일을
+          몇 번의 클릭으로 끝내 드려요. 파일은 <b>이 브라우저 밖으로 나가지 않으니</b> 안심하세요.
+        </div>
       </div>
+
+      <section className="card" aria-label="사용 흐름">
+        <ol className="gd-pipeline">
+          {PIPELINE.map((p, i) => (
+            <li key={p.title}>
+              <span className="gd-top"><span className="gd-num">{i + 1}</span><span className="gd-time">⏱ {p.time}</span></span>
+              <span className="gd-ic" aria-hidden="true">{p.ic}</span>
+              <strong>{p.title}</strong>
+              <small className="muted">{p.desc}</small>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <section className="card">
         <h2>① 내 파일은 어디로 가나요?</h2>

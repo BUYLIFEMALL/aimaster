@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, FileSpreadsheet, LogOut, Menu, X } from "lucide-react";
+import { BookOpen, FileSpreadsheet, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
 const TOOLS = [
@@ -28,13 +28,14 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
   const menu = (
     <>
       <div className="sidebar-brand">
-        <a href="/excel-merge" className="brand-row">
+        <a href="/dashboard" className="brand-row">
           <span className="brand-icon"><FileSpreadsheet size={20} /></span>
           <div><strong>{APP_NAME}</strong><small>{APP_VERSION}</small></div>
         </a>
         <a className="other-programs" href={`${MAIN_SITE}/programs`}>← 다른 프로그램 보기</a>
       </div>
       <nav className="sidebar-nav" aria-label="프로그램 메뉴">
+        <a className="nav-item" aria-current={currentPath === "/dashboard" ? "page" : undefined} href="/dashboard"><LayoutDashboard size={17} />대시보드</a>
         <p className="nav-caption">작업 흐름</p>
         {TOOLS.map((t, i) => (
           <a key={t.href} className="flow-item" aria-current={currentPath === t.href ? "page" : undefined} href={t.href}>
