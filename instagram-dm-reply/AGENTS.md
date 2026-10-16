@@ -134,3 +134,8 @@ threads-comment-reply에서 "봇이 방금 단 답글을 새 댓글로 착각해
 - 새 주소 `https://instagram-dm-reply.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 /settings 재로그인 없이 열림(시험 계정 표시), 옛 주소 콜백 → 새 주소 307(시험 요청), 설정 화면 콜백 안내 옛 주소 그대로. 텔레그램 웹훅 기본 주소만 새 주소. 실제 계정 연결은 미시험
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.07 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
+- 기준 구현(threads-comment-reply v1.08)과 동일: `lib/oauthRedirect.ts`, 콜백 기본 옛 주소·[새 주소로 (다시) 연결](callback=new), 옛 주소 307에 via=old, 교환 redirect_uri 선택, 연결 후 이동 SITE_ORIGIN, 설정 화면 두 콜백 주소, 텔레그램 웹훅 새 주소 + `/api/telegram/migrate-webhooks`(관리자 로그인/CRON_SECRET). 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`.
+- **DM 웹훅(회원 Meta 앱 Webhooks의 콜백 URL, 앱당 1개)**: 설정 화면 안내를 새 주소(`SITE_ORIGIN/api/instagram/dm-webhook/<userId>`)로 바꾸고 "예전 vercel.app 주소로 등록했다면 새 주소로 바꿔주세요(지금 바꿔도 동작)" 안내 추가. 옛 주소도 삭제 전까지 계속 수신. 이미 등록한 회원은 본인이 Meta 앱에서 바꿔야 함(공지 대상).
+- 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, migrate 비인증 401, 새 주소 dm-webhook 검증 요청(틀린 토큰) 403 = 경로 동작. 시험 계정 설정 화면에 두 콜백 주소·새 DM 웹훅 주소·[새 주소로 다시 연결] 표시. 실제 연결·DM 수신은 미시험. 텔레그램 연동 1건(주인님 관리자 봇) 이전 미실행.
