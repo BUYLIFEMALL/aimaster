@@ -1,4 +1,5 @@
 "use client";
+import { showToast } from "@/components/ui/Toast";
 import { useRef, useState } from "react";
 import {
   AlignCenter, AlignLeft, AlignRight, Bold, ChevronsRight, ChevronsLeft, Code, Columns3, Copy, Heading1, Heading2, Heading3,
@@ -40,8 +41,8 @@ export function EditorPane({ docKey, value, onChange, onSave }: { docKey: string
   }
   async function copyText() {
     const text = ed.current?.text() ?? "";
-    try { await navigator.clipboard.writeText(text); setMessage("마크다운 원문을 복사했습니다."); }
-    catch { setMessage("브라우저가 복사를 허용하지 않았습니다. 원문을 직접 선택해 복사해 주세요."); }
+    try { await navigator.clipboard.writeText(text); showToast("마크다운 원문을 클립보드에 복사했습니다."); }
+    catch { showToast("브라우저가 복사를 허용하지 않았습니다. 원문을 직접 선택해 복사해 주세요.", "error"); }
   }
 
   return <div className="editor-pane">

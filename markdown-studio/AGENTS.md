@@ -86,3 +86,12 @@
 주인님 승인으로 Production에 새 공개/서버 변수 이름을 추가했고 기존 변수는 유지했습니다. Antigravity 디자인 작업 종료 및 v1.09 배포 완료를 확인한 뒤, 새 변수 등록 이후 생성된 최신 배포 `dpl_AhURmG83LJQ8kkvVLYLLGAFjG9Zx`를 보존했습니다. 과거 v1.08을 다시 배포하지 않았습니다. 신규 이름만 사용한 로컬 빌드와 Microsoft Edge 일반 회원 접근·v1.09 표시·모바일 검수를 통과했습니다. 코드·DB 버전·디자인을 바꾸지 않았고 유료 AI 호출은 0회입니다. 전체 결과는 [DB 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)와 [후속 배포 증거](../docs/supabase-compat-rollout-20261016/markdown-studio-followup.json)를 확인합니다. 기존 변수 삭제는 안정화 후 주인님과 시점을 확정한 다음 별도로 처리합니다.
 
 - 최종 확인: Antigravity의 가이드 개편 v1.10 완료 뒤 **v1.10 / dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ**로 신규 이름 전용 빌드·Edge 일반 회원 검수를 추가 통과했습니다. v1.09→v1.10 후속 배포를 보존했고 프로그램 코드·버전을 변경하지 않았습니다.
+
+## 2026-10-17 v1.12 — 편의 기능 6가지 (Claude Code 윈도우, 작업리스트 5번)
+- **복사 토스트**: `src/components/ui/Toast.tsx`(`showToast()` + `<Toaster/>`를 `(workspace)/layout.tsx`에 장착). 미리보기 [MD 복사]·[HTML 복사], 편집기 원문 복사 결과를 오른쪽 아래 2.4초 알림으로.
+- **예상 읽기 시간**: `src/lib/documents/readingTime.ts`(공백 제외 500자/분, 1분 미만 1분). 미리보기 툴바·편집기 제목 아래 "약 N분 소요 · X자".
+- **단축키 안내 창**: `src/components/editor/HotkeysModal.tsx` — 편집기 상단 [⌨️ 단축키] 버튼, 입력 중이 아닐 때 `?` 키, Esc로 닫기. 실제 편집기 단축키(`MarkdownEditor.tsx` keymap) 기준 목록.
+- **목차 미니맵**: 기존 [목차]를 미리보기 위에 고정(sticky)하고 스크롤 위치에 맞는 제목을 강조, 클릭 시 부드럽게 이동.
+- **템플릿 미리보기**: `src/lib/documents/templatePreview.ts` — 문서 준비 화면 템플릿 카드에 앞부분 6줄을 제목·목록·체크·표·코드·인용 모양의 미니어처로.
+- **문서 고정·검색**: 대시보드 최근 문서에 이름 검색창 + 📌 고정 버튼(고정 문서가 맨 앞). 고정 목록은 기기 IndexedDB 설정 `WorkspacePreferences.pinnedIds`(선택 항목, 옛 설정 호환).
+- 테스트: `tests/conveniences.test.mjs` 포함 단위 58개 통과, 빌드·배포. 서버·DB 스키마 변경 없음.

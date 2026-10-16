@@ -11,10 +11,16 @@ import {
   FileText,
   ChevronRight,
   PenTool,
+  Pin,
+  PinOff,
+  Search,
 } from "lucide-react";
 import { type DocumentRevision, safeFilename } from "@/lib/documents/model";
 import { DOCUMENT_TEMPLATES } from "@/lib/documents/templates";
 import { DocumentExplorer } from "./DocumentExplorer";
+import { HotkeysButton } from "../editor/HotkeysModal";
+import { readingLabel } from "@/lib/documents/readingTime";
+import { templatePreviewLines } from "@/lib/documents/templatePreview";
 import { PreviewPanel } from "./PreviewPanel";
 import { ImportCard } from "./ImportCard";
 import { BackupCard } from "./BackupCard";
@@ -43,6 +49,8 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
   const [history, setHistory] = useState<DocumentRevision[]>([]);
   const [historyFor, setHistoryFor] = useState("");
   const [pending, setPending] = useState(false);
+  const [docQuery, setDocQuery] = useState("");
+  const pinnedIds = store.preferences.pinnedIds ?? [];
 
   const active = store.nodes.find(n => n.id === store.draft?.id && !n.deletedAt);
   const liveDocs = store.nodes.filter(n => n.kind === "document" && !n.deletedAt);
@@ -193,13 +201,30 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
               )}
             </div>
 
+            {/* 2026-10-17 v1.12: 문서 이름 검색 + 📌 고정(고정한 문서를 맨 앞에) */}
+            {liveDocs.length > 0 && (
+              <label className="doc-search">
+                <Search size={14} aria-hidden="true" />
+                <input
+                  type="search"
+                  aria-label="문서 이름 검색"
+                  placeholder="문서 이름으로 찾기"
+                  value={docQuery}
+                  onChange={e => setDocQuery(e.target.value)}
+                />
+              </label>
+            )}
+            {liveDocs.length > 0 && docQuery.trim() && !liveDocs.some(n => n.name.toLowerCase().includes(docQuery.trim().toLowerCase())) && (
+              <p className="muted" style={{ margin: "8px 0" }}>&quot;{docQuery.trim()}&quot;이(가) 들어간 문서가 없습니다.</p>
+            )}
             {liveDocs.length > 0 ? (
               <div className="recent-docs-grid">
                 {liveDocs
-                  .slice()
-                  .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-                  .slice(0, 6)
+                  .filter(n => !docQuery.trim() || n.name.toLowerCase().includes(docQuery.trim().toLowerCase()))
+                  .sort((a, b) => Number(pinnedIds.includes(b.id)) - Number(pinnedIds.includes(a.id)) || b.updatedAt.localeCompare(a.updatedAt))
+                  .slice(0, docQuery.trim() ? 12 : 6)
                   .map(n => {
+                    const pinned = pinnedIds.includes(n.id);
                     const snippet = n.markdown
                       ? n.markdown.replace(/[#*`~>\[\]\(\)\-_\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 75)
                       : "내용이 비어 있는 문서입니다.";
@@ -215,8 +240,22 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                         }
                       >
                         <div className="doc-card-top">
-                          <span className="doc-card-title">{n.name}</span>
+                          <span className="doc-card-title">{pinned && "📌 "}{n.name}</span>
                           <span className="doc-card-badge">수정 {n.revision}회</span>
+                          <button
+                            type="button"
+                            className={`doc-pin ${pinned ? "on" : ""}`}
+                            aria-pressed={pinned}
+                            aria-label={pinned ? `${n.name} 고정 해제` : `${n.name} 맨 앞에 고정`}
+                            title={pinned ? "고정 해제" : "맨 앞에 고정"}
+                            onClick={e => {
+                              e.stopPropagation();
+                              const next = pinned ? pinnedIds.filter(id => id !== n.id) : [...pinnedIds, n.id];
+                              void action(() => store.setPreferences({ pinnedIds: next }));
+                            }}
+                          >
+                            {pinned ? <PinOff size={13} /> : <Pin size={13} />}
+                          </button>
                         </div>
                         <p className="doc-card-preview">{snippet}</p>
                         <div className="doc-card-footer">
@@ -293,6 +332,12 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                       checked={template === t.id}
                       onChange={() => setTemplate(t.id)}
                     />
+                    <span className="template-mini" aria-hidden="true">
+                      {templatePreviewLines(t.markdown).map((l, i) => (
+                        <span key={i} className={`mini-line mini-${l.kind}` + (l.kind === "h" ? ` lv${l.level}` : "")}>{l.text}</span>
+                      ))}
+                      {!t.markdown.trim() && <span className="mini-line mini-text">빈 문서</span>}
+                    </span>
                     <strong>{t.name}</strong>
                     <small>{t.description}</small>
                   </label>
@@ -326,11 +371,12 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                 <h2>{active?.name || "문서를 선택하세요"}</h2>
                 <small className="muted">
                   {active
-                    ? `${store.draft?.markdown.length.toLocaleString() || 0}자 · 수정 ${active.revision}회`
+                    ? `${readingLabel(store.draft?.markdown ?? "")} · ${store.draft?.markdown.length.toLocaleString() || 0}자 · 수정 ${active.revision}회`
                     : "탐색기에서 문서를 열거나 새 문서를 만드세요."}
                 </small>
               </div>
               <div className="actions">
+                <HotkeysButton />
                 <button onClick={() => action(() => store.setPreferences({ explorerOpen: !store.preferences.explorerOpen }))}>
                   탐색기 {store.preferences.explorerOpen ? "접기" : "열기"}
                 </button>
@@ -394,7 +440,7 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                 </div>
                 <p className="muted editor-note">
                   이 기기에 자동 저장합니다. 서식 도구와 단축키(Ctrl+B 굵게, Ctrl+I 기울임, Ctrl+K 링크, Ctrl+S 저장,
-                  Ctrl+Z 실행 취소, Ctrl+F 찾기)를 사용할 수 있습니다.
+                  Ctrl+Z 실행 취소, Ctrl+F 찾기)를 사용할 수 있습니다. 전체 단축키는 [단축키] 버튼이나 ? 키로 볼 수 있습니다.
                 </p>
               </>
             ) : (

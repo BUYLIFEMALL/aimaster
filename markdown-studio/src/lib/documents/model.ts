@@ -24,6 +24,8 @@ export interface WorkspacePreferences {
   activeId: string | null;
   explorerOpen: boolean;
   editorPercent: number;
+  /** 2026-10-17 v1.12: 대시보드 최근 문서에 고정한 문서 id(옛 설정에는 없을 수 있음) */
+  pinnedIds?: string[];
 }
 export const DEFAULT_PREFERENCES: WorkspacePreferences = {
   activeId: null, explorerOpen: true, editorPercent: 50,
