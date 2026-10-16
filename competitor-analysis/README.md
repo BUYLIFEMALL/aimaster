@@ -77,3 +77,5 @@ NEXT_PUBLIC_MAIN_SITE_URL=
 작업 전 루트 지침·ACTIVE_WORK·최신 HANDOFF와 이 폴더 AGENTS.md, [디자인 인수인계](docs/DESIGN_HANDOFF.md), [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md), [개선 원장](docs/IMPROVEMENTS.md)을 읽습니다. 초기 설계의 전역 캐시 예외보다 최상위 개인 API/공용 데이터 쓰기 정책이 우선합니다. 캐시 정책은 개선 #12로 정비가 필요합니다.
 
 검수: npm run build:verify(기존 루트 DB 변수를 빌드 프로세스에만 주입), npm run test:browser(합성 데이터/액션), node tests/local.mjs start 후 npm run test:runtime(실제 일반 회원·Edge). 운영은 CA_TEST_BASE=https://competitor-analysis.buylife.xyz로 런타임 검사를 실행합니다. 유료 SerpApi/AI 호출과 실제 회원 데이터 쓰기는 하지 않습니다. 운영 결과·배포 ID·미검수·남은 작업은 인수인계 문서에 기록합니다.
+
+최신 운영: v1.07, dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY·DB 일치. 검수 소스 c80a44af, 합성 15개 및 실제 일반 회원 Edge 로컬/운영 각 12개 통과. [배포·검사 범위와 남은 일](docs/DESIGN_HANDOFF.md#7-배포db-최종-기록--2026-10-16-codexwindows)을 확인하세요. 기존 의존성/공유 캐시 권한 위험은 #11/#12로 남아 있습니다.

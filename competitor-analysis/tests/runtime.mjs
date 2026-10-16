@@ -90,10 +90,17 @@ try {
   assert.match(await page.locator('main').innerText(), /본인.*키/);
   ok('본인 API 설정 화면·외부 호출 없음');
   await page.locator('aside a[href="/guide"]').click();
-  await page.locator('main').getByRole('heading').first().waitFor();
+  await page.waitForURL(base + '/guide');
+  await page.getByRole('heading', { name: '3분 만에 익히는 경쟁사 키워드분석', exact: true }).waitFor();
   assert.match(await page.locator('main').innerText(), /SerpApi/);
   assert.match(await page.locator('main').innerText(), /OpenAI/);
+  const faq = page.locator('main details').first();
+  await faq.locator('summary').click();
+  assert.equal(await faq.evaluate(el => el.open), true);
+  await faq.locator('summary').click();
+  assert.equal(await faq.evaluate(el => el.open), false);
   ok('사용 매뉴얼·연동 안내');
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: `docs/evidence/${mode}-guide-desktop.png`, fullPage: true });
   for (const route of ['/dashboard', '/keywords', '/analyses', '/competitors', '/guide', '/settings']) {
     await page.setViewportSize({ width: 375, height: 812 });

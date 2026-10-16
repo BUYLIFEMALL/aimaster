@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(Windows) — 경쟁사 키워드분석 v1.07 Windows 인수·운영 검수 완료
+
+- **프로그램/서비스**: competitor-analysis, https://competitor-analysis.buylife.xyz. 스마트 매트릭스 디자인 맥미니 ac41f83c 인수 마무리.
+- **결과/배포**: Windows 검수 소스 c80a44af 푸시, dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY·실제 sourceCommit/target 일치. DB v1.07, 기존 FREE/주소 유지, VIP 138/138 유효(조회). 제품 분석/서버 로직·키·권한 정책 불변.
+- **검수**: Windows 타입/빌드 통과, 합성 실제 UI/상세 15개·실제 시험 회원 Edge 로컬/운영 각 12개 성공. 1440px·375px·6개 화면·메뉴·FAQ·KPI·동일 테마. 실제 회원 5개 테이블 전후 0건, 쓰기·유료 API 0회. 폼 저장/삭제·상세 결과는 합성 검사이며 실제 DB 쓰기·유료 분석 품질은 미검수.
+- **특이사항**: /guide 전환 때 이전 heading을 만족해 설정 화면을 찍을 수 있는 검수 대기를 URL+고유 제목으로 수정, 로컬/운영 재검수·캡처 교체. 공유 index의 타 CLI 파일을 포함하지 않도록 별도 index·허용 경로 gate로 커밋하고 원래 index 보존.
+- **후속 위험/다음 단계**: #11 기존 Next14 포함 audit 15건(critical 1), #12 전역 캐시의 일반 authenticated INSERT/UPDATE가 최상위 공용 데이터 쓰기 지침과 충돌해 정비 필요. 미해결·미구현으로 기록했으며 DB 정책/유료 호출은 승인 없이 바꾸지 않음. 기존 순위 변동·전체 노출 빈도·CSV·Cron도 후속 제안. 디자인/검수 인수 완료 범위와 보안 미해결을 구분.
+- **진입 문서/증거**: [최종 인수인계](../competitor-analysis/docs/IMPROVEMENT_HANDOFF_20261016.md), [디자인·검수 7절](../competitor-analysis/docs/DESIGN_HANDOFF.md), [개선 원장](../competitor-analysis/docs/IMPROVEMENTS.md), [운영 증거](../competitor-analysis/docs/evidence/runtime-live.json). DESIGN 50번 1차 작업완료, ACTIVE_WORK 내 줄 제거. 다음 CLI는 루트→작업 중 표→이 최종 문서→#11/#12 플랜부터 확인.
+
 ## 2026-10-16 Claude Code(윈도우) — naver-blog-seo-studio 새 주소 이전(v1.65) · 텔레그램 웹훅 5개 이전 확인 · Instagram 앱 ID 안내
 
 - seo-studio: naver-blog-seo-studio.buylife.xyz·SSO·옛 주소 308·확장 v1.65(check OK)·메인 경로 전달 새 주소(메인 배포). 텔레그램 5개 봇 새 주소 확인(오류 없음). INSTA 3개 설정 화면에 Instagram 앱 ID 위치 안내(시험 계정은 Facebook 앱 ID가 들어가 있어 주인님 재등록 필요). 네이버 카페 안내 미표시는 오판 정정. 상세 `docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` §8.

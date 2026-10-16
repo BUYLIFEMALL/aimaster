@@ -27,3 +27,16 @@
 - 테스트 도구는 tests/에만 있으며 제품 인증/데이터 경로에 모의 코드를 넣지 않았습니다. npm run test:browser, npm run test:runtime; 로컬 node tests/local.mjs start(127.0.0.1:3035).
 - 기존 의존성 보안 15건(critical 1 포함) 및 전역 회사 캐시의 일반 회원 INSERT/UPDATE RLS를 발견했습니다. [개선 원장](IMPROVEMENTS.md) #11/#12에 근거·영향·다음 단계를 기록했습니다. 공유 캐시 쓰기는 최상위 공용 데이터 쓰기 지침과 충돌하는 기존 구조이며 정비가 필요합니다. 이번 디자인 인수 작업에서는 유료 분석·공유 캐시 쓰기·DB 정책 변경을 하지 않았습니다. 보안 전체 해결을 주장하지 않습니다.
 - DB 버전은 배포 전 v1.06, 앱은 v1.07입니다. 다음 단계: 고정 커밋의 competitor-analysis 프로덕션 배포 → DB v1.07 → 실제 회원 운영 Edge 검수 → 최종 문서/현황판 완료.
+
+
+## 2026-10-16 Codex(Windows) — 최종 운영 완료 (이 절이 위 배포 대기 기록을 대체)
+
+- **결과/주소**: v1.07 디자인 인수 마무리·운영 검수 완료. https://competitor-analysis.buylife.xyz
+- **소스/배포/DB**: 맥미니 ac41f83c → Windows 검수 c80a44af 푸시 → dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY. Vercel API에서 sourceCommit·실제 production target 일치 확인. DB v1.07, 기존 FREE/주소 유지. VIP 138/138 유효. [배포 증거](evidence/deployment-v107.json), [버전 SQL](../supabase/releases/20261016_v107.sql).
+- **변경 파일**: 테스트 도구 tests/, dev 도구 고정 의존성·package 1.7.0, docs/evidence, AGENTS/README·인수 문서. 제품 app/components/lib와 분석 로직·회원 키·DB 스키마/권한은 변경하지 않았습니다.
+- **검수**: 타입/빌드 2회 통과, 합성 실제 컴포넌트 15개, 실제 일반 회원·보이는 Edge 로컬/운영 각 12개 모두 통과. 1440px·375px·동일 테마·6개 화면·메뉴·FAQ 확인. 회원 5개 테이블 전후 0건, 실제 쓰기/유료 검색·AI 0회. 상세 실제/합성 구분·미검수는 [디자인 기록 5~7절](DESIGN_HANDOFF.md).
+- **특이사항/해결**: #13 매뉴얼 SPA 이동 대기 오판은 tests/runtime.mjs를 URL+고유 제목 대기로 수정, 로컬/운영 재검수·캡처 교체 완료. 제품 오류로 오해하거나 라우트를 바꾸지 않았습니다. 공유 스테이징에 다른 프로그램 파일이 있었지만 별도 index에서 이 작업 경로만 허용하는 gate를 통과해 커밋했고 다른 CLI index는 보존했습니다.
+- **남은 위험/제안**: #11 기존 의존성 15건(critical 1 포함), #12 전역 캐시 authenticated INSERT/UPDATE는 미해결입니다. 정비 플랜·DB 정책 변경 승인 전 분석/캐시 쓰기 검사를 하지 않습니다. 기존 #7~10 순위 변동·노출 빈도 전체 표·CSV·Cron도 미구현/부분 구현입니다. 이번 완료는 디자인 인수·무료 검수 범위이며 보안 전체 해결·유료 분석 품질 검증 완료를 뜻하지 않습니다.
+- **다음 첫 단계**: 루트 지침 → ACTIVE_WORK 단독 점유 확인 → 이 최종 절 → IMPROVEMENTS #11/#12 → 공식 보안 공지·RLS/승인 이력 대조 → 새 개발 플랜 제시. 유료 분석·회원 키 변경·DB 스키마/정책 변경은 별도 승인 범위입니다.
+- **재현**: npm run build:verify; npm run test:browser; node tests/local.mjs start(127.0.0.1:3035) 후 npm run test:runtime. 운영은 CA_TEST_BASE=https://competitor-analysis.buylife.xyz. tests/의 합성 어댑터를 앱 경로에 연결하지 않습니다. 검사 키·세션·비밀번호는 기록하지 않습니다.
+- **현황판/메인 보호**: DESIGN 50번 ✅ 1차 작업완료(v1.07, 스마트 매트릭스 스타일), ACTIVE_WORK 내 줄 제거. 마지막 푸시의 메인 자동배포 이후 scripts/finalize-supabase-compat-main.cjs로 현재 검증 배포 dpl_3RZnj5z1KY5SMeVrUQmoAKr11oRR 및 홈·EXE·ZIP 200을 확인합니다. 오래된 메인 배포로 회귀하지 않습니다.

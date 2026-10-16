@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — SPA 메뉴 클릭 후 이전 화면 제목으로 검수가 통과하는 문제 (competitor-analysis v1.07)
+
+- 증상 → /guide 클릭 직후 첫 heading을 기다리니 이전 /settings 제목으로 통과, 설정 화면이 매뉴얼 캡처로 저장됨. 원인 → Next.js 클라이언트 화면 전환보다 일반 heading 대기가 먼저 끝났고 두 화면에 같은 API 용어가 있었음. 해결 → competitor-analysis/tests/runtime.mjs에서 목표 URL+고유 h1 대기·FAQ 실제 열기/닫기·캡처 전 맨 위 이동. 로컬/운영 재검수·캡처 교체 완료, 주소/제목 증거 guide-captures.json. 다음 → 클릭만으로 목표 화면 진입을 확정하지 말고 캡처도 눈으로 대조, sticky 메뉴 fullPage 캡처는 scrollY=0부터. 제품 라우트를 불필요하게 수정하지 않음.
+
 ## 2026-10-16 — SSRF IPv6 정규화·DNS 연결 재조회·검수 대상 외부 문구 변경 (website-scraper v1.12)
 
 - 증상 → URL 검사에서 mapped IPv6와 fe90::1이 통과. 원인 → WHATWG URL의 16진 정규화 및 link-local /10 범위를 덜 검사했고 fetch에서 DNS를 다시 조회. 해결 → ghost-scraper/src/lib/safeFetch.ts의 표준화·주소 검사와 undici 연결 lookup 고정, 리디렉트 재검사·본문 취소·연결 정리. 다음 → npm test 26개와 실제 회원 API 내부 URL 400을 함께 확인. Agent.close는 본문 소비를 기다리므로 응답을 돌려주기 전에 await하면 멈춘다.
