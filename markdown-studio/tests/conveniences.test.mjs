@@ -25,4 +25,7 @@ test("템플릿 미니어처: 줄 종류 구분·코드 안쪽 생략·표 구�
   assert.equal(lines[7].text, "js");
   assert.equal(templatePreviewLines(md).length, 6);
   assert.deepEqual(templatePreviewLines(""), []);
+  // 빈 항목·빈 표 칸·빈 체크도 모양이 보이게
+  const blank = templatePreviewLines("-\n1.\n- [ ]\n| | |");
+  assert.deepEqual(blank.map(l => [l.kind, l.text]), [["list", "항목"], ["list", "항목"], ["check", "할 일"], ["table", "· · ·"]]);
 });

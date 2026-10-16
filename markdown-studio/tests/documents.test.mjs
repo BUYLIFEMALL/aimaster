@@ -83,6 +83,14 @@ test("preferences are scoped and clamped", async () => {
   const repo = new DocumentRepository(user()); await repo.savePreferences({ activeId: "doc", explorerOpen: false, editorPercent: 100 });
   assert.equal((await repo.preferences()).editorPercent, 75); await repo.close();
 });
+test("v1.12 pinned documents are saved and sanitized", async () => {
+  const repo = new DocumentRepository(user());
+  await repo.savePreferences({ activeId: null, explorerOpen: true, editorPercent: 50, pinnedIds: ["a", 3, "b", ...Array.from({ length: 60 }, (_, i) => `x${i}`)] });
+  const saved = (await repo.preferences()).pinnedIds;
+  assert.equal(saved.length, 50); assert.deepEqual(saved.slice(0, 2), ["a", "b"]);
+  await repo.savePreferences({ activeId: null, explorerOpen: true, editorPercent: 50 });
+  assert.deepEqual((await repo.preferences()).pinnedIds, []); await repo.close();
+});
 test("IndexedDB quota failure rolls back changes and preserves original content", async () => {
   const repo = new DocumentRepository(user()); const node = await repo.create("document", "할당량.md", null, "저장된 원고");
   const original = IDBObjectStore.prototype.put;

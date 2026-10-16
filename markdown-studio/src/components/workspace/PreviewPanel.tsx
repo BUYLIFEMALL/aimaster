@@ -34,7 +34,7 @@ export function PreviewPanel({ markdown }: { markdown: string }) {
 
   async function copy(text: string, what: string) {
     // 2026-10-17 v1.12: 결과를 오른쪽 아래 토스트로 확실히 알린다
-    try { await navigator.clipboard.writeText(text); showToast(`${what}을(를) 클립보드에 복사했습니다.`); }
+    try { await navigator.clipboard.writeText(text); showToast(`${what} 복사 완료 — 클립보드에 담았습니다.`); }
     catch { showToast("브라우저가 복사를 허용하지 않았습니다. 직접 선택해 복사해 주세요.", "error"); }
   }
   function jump(index: number) {

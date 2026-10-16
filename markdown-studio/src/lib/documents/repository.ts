@@ -40,7 +40,9 @@ export class DocumentRepository {
     return (await (await this.dbPromise).get("preferences", "workspace")) ?? { ...DEFAULT_PREFERENCES };
   }
   async savePreferences(value: WorkspacePreferences) {
-    const next = { activeId: value.activeId, explorerOpen: !!value.explorerOpen, editorPercent: Math.min(75, Math.max(25, value.editorPercent || 50)) };
+    // v1.12: 대시보드 고정 문서(pinnedIds)도 저장 — 문자열 id만, 최대 50개
+    const pinnedIds = Array.isArray(value.pinnedIds) ? value.pinnedIds.filter((id): id is string => typeof id === "string").slice(0, 50) : [];
+    const next = { activeId: value.activeId, explorerOpen: !!value.explorerOpen, editorPercent: Math.min(75, Math.max(25, value.editorPercent || 50)), pinnedIds };
     await (await this.dbPromise).put("preferences", next, "workspace");
   }
   async create(kind: NodeKind, rawName: string, parentId: string | null = null, markdown = "") {

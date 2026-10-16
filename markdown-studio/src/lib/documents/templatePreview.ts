@@ -15,11 +15,13 @@ export function templatePreviewLines(markdown: string, max = 6): PreviewLine[] {
       const level = line.match(/^#+/)![0].length;
       out.push({ kind: "h", text: line.replace(/^#+\s*/, ""), level });
     } else if (/^[-*+]\s+\[[ xX]\]/.test(line)) {
-      out.push({ kind: "check", text: line.replace(/^[-*+]\s+\[[ xX]\]\s*/, "") });
-    } else if (/^([-*+]|\d+\.)\s/.test(line)) {
-      out.push({ kind: "list", text: line.replace(/^([-*+]|\d+\.)\s+/, "") });
+      out.push({ kind: "check", text: line.replace(/^[-*+]\s+\[[ xX]\]\s*/, "") || "할 일" });
+    } else if (/^([-*+]|\d+\.)(\s|$)/.test(line)) {
+      // 템플릿의 빈 항목("-", "1.")도 목록 모양으로
+      out.push({ kind: "list", text: line.replace(/^([-*+]|\d+\.)\s*/, "") || "항목" });
     } else if (line.startsWith("|")) {
-      out.push({ kind: "table", text: line.split("|").map(c => c.trim()).filter(Boolean).slice(0, 3).join(" · ") });
+      const cells = line.split("|").map(c => c.trim()).filter(Boolean).slice(0, 3);
+      out.push({ kind: "table", text: cells.length ? cells.join(" · ") : "· · ·" });
     } else if (line.startsWith(">")) {
       out.push({ kind: "quote", text: line.replace(/^>\s*/, "") });
     } else {
