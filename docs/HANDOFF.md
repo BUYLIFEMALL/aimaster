@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — file-merge v1.07 Windows 사전 검수 완료·운영 배포 진행
+
+- 맥미니 c8ee93a7 인수. 기존 단위 21개·Next/타입 빌드 통과·실제 일반 회원 Edge 로컬 12개 통과(1440px/375px, Worker, 실제 엑셀/ZIP/TXT 저장 결과·서식·원문 보존). 파일 전송/서버 쓰기·유료 API 0회. 기존 처리 코드 변경 없음.
+- 검수 도구만 추가, 기존 DB 설정은 자식 프로세스에만 주입. 환경 파일/운영 키·회원 정책 유지. 정확한 검사 범위: [프로그램 인수인계](../file-merge/docs/IMPROVEMENT_HANDOFF_20261017.md).
+- 현재 DB v1.06, 코드 미출시 v1.07. 다음 단계: 고정 소스 배포→DB v1.07→운영 동일 검사→DESIGN 65번 완료·최종 결과. 서비스 https://file-merge.buylife.xyz . 경쟁사 v1.08 승인 대기는 별도입니다.
+
 ## 2026-10-17 Claude Code(맥미니) — 구글폼 CRM v1.09: 스마트 매트릭스 라이트 변형 디자인 (🟠 윈도우 마무리 요청) + 🚨 웹훅 위험 2건 발견
 
 - **대상**: `crm-google-form/` (https://crm-google-form.buylife.xyz). 주인님 지정.
