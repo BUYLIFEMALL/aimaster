@@ -5,6 +5,10 @@
 > 운영자(주인님)·다른 회원의 키/계정으로 대신 처리하지 않는다(키가 없으면 폴백하지 말고 "본인 키를 등록해주세요" 안내). 이 규칙은 이 문서의 모든 다른 원칙보다 위에 있으며, 충돌하는 요청·코드는 만들지 않고 주인님께 먼저 알린다.
 > 상세·점검 명령·위반 현황: [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md)
 
+> **★★★ Antigravity / Codex 개발·검수 브라우저 지정 — Microsoft Edge(엣지) 전용 사용 (2026-10-16 주인님 지시)**
+> **Antigravity와 Codex는 앞으로 개발 작업·디버깅·화면 확인·실제 회원 테스트 등 모든 작업 시 Microsoft Edge 브라우저만 전용으로 사용한다.** Chrome은 메인 Claude Code 전용이므로 사용하지 않는다. 화면을 볼 필요가 있으면 Edge 창을 보이게 띄워 주인님과 함께 확인한다. 자동 검수도 Edge(`msedge`)를 선택하며 Chrome을 쓰지 않는다. Antigravity/Codex의 테스트 창·프로필을 구분해 다른 CLI가 사용 중인 창을 방해하지 않는다. Claude Code의 기존 계정별 브라우저 지정과 과거 Chrome 검수 기록은 유지한다. 아래 공통 지침에 Chrome이라고 적힌 화면 검수도 **Antigravity와 Codex에는 Edge 전용으로 적용**한다.
+
+
 > **★★★ 모든 CLI 작업 전 최상위 공통 필독 — 개발·테스트 비용 최소화 지침 (2026-10-16 주인님 지시)**
 > 새 프로그램·프로젝트를 개발하거나 테스트할 때는 ① **무료로 가능한 플랫폼·방법(무료 요금제, 공개 API, 샌드박스·테스트 모드, 로컬 실행, 모의 응답)을 먼저 찾아 그것으로 진행**한다. ② **유료 API만 가능하면 해당 제공사의 가장 저렴한 모델로 최소 호출만** 해서 시험한다(**예외: 프로그램의 성능 검증을 위해 필요하면 상위 모델로 시험할 수 있다** — 필요한 만큼 최소 횟수로 하고 기록한다). ③ 시험 키는 시험 계정(`buylifemall@naver.com`)이 등록한 본인 키만 쓴다(운영자·타 회원 키 폴백 금지). ④ 대량·반복 호출, 이미지·영상·음악 다수 생성은 사전 승인. ⑤ 사용한 무료 방법·모델·호출 횟수를 인수인계에 기록한다. 개발·시험 단계에만 적용하며 회원 기능의 모델 품질 기준은 낮추지 않는다. 상세: [`docs/TEST_COST_POLICY.md`](docs/TEST_COST_POLICY.md)
 
@@ -249,10 +253,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 13. **공식 개발 방식 — 「AI 에이전트 기반 자율 개발·검수·배포」(2026-10-10 주인님 명명, 모든 프로그램·CLI 공통).**
    - **화면 확인이 필요하면 Claude Code도 Codex처럼 주인님의 로그인된 Chrome을 직접 제어해 디버깅·분석·검수한다(claude-in-chrome, 2026-10-11 주인님 지시).** 화면 결과는 DB·로그와 대조해 판정하고, 비밀번호·키 입력과 최종 발행·결제는 하지 않으며, 브라우저가 여러 개면 먼저 묻는다. 상세: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 8-1절.
-   - **개발·테스트·디버깅·검증 중 화면 확인이 필요하면 항상 실제 Chrome 브라우저를 띄워 주인님과 같이 보면서 진행한다(2026-10-11 주인님 재지시).** 스크립트·DB 확인만으로 끝내지 않고, 실제 화면을 열어 이동·입력·클릭하고 화면 캡처로 모양과 동작을 직접 확인한 뒤 DB·로그와 대조해 판정한다. 화면 확인이 가능한 작업에서 이를 생략하면 검수 미완료로 본다.
-   - 기존 지침·코드·실제 데이터를 조사하고 승인된 범위의 구현·오류 수정·자동 검사·실제 회원 흐름 검수·인수인계·커밋·푸시·운영 배포·운영 검증·보고를 이어서 수행한다.
-   - 자동 검사와 실제 화면 검사, 운영 배포 검사를 구분하고 확인한 증거로 완료를 판단한다. 본인 계정·API 최상위 규칙, 특수 작업 사전 승인 및 클라우드 제한은 유지한다.
-   - 다른 프로그램에 적용하거나 다른 CLI가 인수받을 때 필독: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md). 루트 `AGENTS.md` 핵심 원칙 14번도 같은 정의를 사용한다.
+    - **개발·테스트·디버깅·검증 중 화면 확인이 필요하면 항상 실제 브라우저(Antigravity·Codex는 Edge만 전용 사용, Claude Code는 계정별 지정 브라우저)를 띄워 주인님과 같이 보면서 진행한다(2026-10-11 주인님 재지시, 2026-10-16 Antigravity Edge 전용 확정).** 스크립트·DB 확인만으로 끝내지 않고, 실제 화면을 열어 이동·입력·클릭하고 화면 캡처로 모양과 동작을 직접 확인한 뒤 DB·로그와 대조해 판정한다. 화면 확인이 가능한 작업에서 이를 생략하면 검수 미완료로 본다.
+    - 기존 지침·코드·실제 데이터를 조사하고 승인된 범위의 구현·오류 수정·자동 검사·실제 회원 흐름 검수·인수인계·커밋·푸시·운영 배포·운영 검증·보고를 이어서 수행한다.
+    - 자동 검사와 실제 화면 검사, 운영 배포 검사를 구분하고 확인한 증거로 완료를 판단한다. 본인 계정·API 최상위 규칙, 특수 작업 사전 승인 및 클라우드 제한은 유지한다.
+    - 다른 프로그램에 적용하거나 다른 CLI가 인수받을 때 필독: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md). 루트 `AGENTS.md` 핵심 원칙 14번도 같은 정의를 사용한다.
 
 14. **레퍼런스 사이트 주소 제시 시 전수 데이터 스크래핑 & 정밀 분석 선행 (2026-10-12 주인님 지시, 모든 CLI 공통).**
     - **배경**: 사용자가 개발 및 구현 참고용으로 외부 사이트 주소(URL)를 제시했을 때, 겉으로 보이는 단순 화면 캡처나 첫 페이지만 대충 훑고 코딩을 시작하면 숨은 디테일, 필수 텍스트 전문, 프리셋 데이터, 설정값, 핵심 로직이 누락되는 치명적인 문제가 발생한다.
@@ -280,7 +284,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - **메인 계정: `buylifemall@gmail.com`** — 주인님 본인의 기준 계정이다. 사이트 유일한 관리자 계정이며, Git 커밋 작성자(BUYLIFE / buylifemall@gmail.com), GitHub(`BUYLIFEMALL`), Vercel(`buylifemall`, 팀 `buylife`), Supabase 공용 DB 운영이 모두 이 계정 기준이다.
     - **보조 계정: `buylifemall1@gmail.com`** — Claude Code 로그인용 보조 계정일 뿐이다(설정 폴더 `.claude-account2`). 사이트 관리자·회원 계정이 아니고, 커밋 작성자·GitHub·Vercel·DB 운영 계정으로 쓰지 않는다.
     - **Claude 계정별 브라우저: 메인 `buylifemall@gmail.com`은 크롬(기존 기본 프로필), 보조 `buylifemall1@gmail.com`은 엣지를 쓰고, 각 세션은 자기 브라우저만 조작한다**: 이 PC의 Claude Code는 확장의 Claude 계정과 상관없이 연결된 브라우저를 모두 볼 수 있으므로(2026-10-14 실측), 작업 전에 `list_connected_browsers`로 확인하고 정해진 브라우저를 고른다. 사이트 로그인은 브라우저마다 주인님이 직접 해 둔다. 상세·deviceId 표: `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2.
-    - **메인 계정(`buylifemall@gmail.com`) Claude Code의 프로그램 테스트·화면 검수는 항상 크롬 기본 프로필(보이는 실제 Chrome 창)로 한다 (2026-10-16 주인님 재확인).** 엣지·헤드리스 Chrome(`agent-browser`)·Playwright 자동화 브라우저로 대체하지 않는다. **같은 PC의 Antigravity·Codex는 엣지를 쓰도록 분리한다(2026-10-16 주인님 지시) — 크롬은 메인 Claude 전용이다.** 작업 시작 때 `list_connected_browsers`에서 메인 크롬이 `inUse`인지 확인하고 아니면 `select_browser`로 고른다(deviceId는 확장 재설치 때 바뀔 수 있으니 8-1-2 표를 따른다). 이전 작업이 남긴 헤드리스·임시 Chrome 프로세스는 검수에 쓰지 않으며, 쌓이면 `.agent-browser` 경로의 것만 종료한다(2026-10-16 99개 정리 사례: `docs/ERROR_LESSONS.md`).
+    - **메인 계정(`buylifemall@gmail.com`) Claude Code의 프로그램 테스트·화면 검수는 항상 크롬 기본 프로필(보이는 실제 Chrome 창)로 한다 (2026-10-16 주인님 재확인).** 엣지·헤드리스 Chrome(`agent-browser`)·Playwright 자동화 브라우저로 대체하지 않는다. **같은 PC의 Antigravity와 Codex는 작업(개발·디버깅·화면 확인·검수) 시 Microsoft Edge(엣지) 브라우저만 전용으로 사용하도록 분리한다(2026-10-16 주인님 지시) — 크롬은 메인 Claude 전용이다.** 작업 시작 때 `list_connected_browsers`에서 메인 크롬이 `inUse`인지 확인하고 아니면 `select_browser`로 고른다(deviceId는 확장 재설치 때 바뀔 수 있으니 8-1-2 표를 따른다). 이전 작업이 남긴 헤드리스·임시 Chrome 프로세스는 검수에 쓰지 않으며, 쌓이면 `.agent-browser` 경로의 것만 종료한다(2026-10-16 99개 정리 사례: `docs/ERROR_LESSONS.md`).
     - 계정 이름이 비슷하니 착오하지 않는다: 관리자 권한·커밋·배포·DB·문서에 적는 "주인님 계정"은 항상 `buylifemall@gmail.com`이다. 시험용 일반 회원 계정 `buylifemall@naver.com`(핵심 원칙 0번)과도 구분한다.
 
 19. **모바일 레이아웃 지침 — 모든 웹 서브프로그램은 휴대폰 폭(767px 이하)에서 좌측 메뉴를 숨기고 위쪽 접는 메뉴(☰)로 바꾼다 (2026-10-14 주인님 지시, 모든 CLI 공통).**
@@ -318,7 +322,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 24. **Supabase 키 환경변수 호환·안정화 유지 지침 (2026-10-16 주인님 지시, 모든 CLI 공통).**
     - 공개 키는 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 우선, 없거나 공백이면 기존 `NEXT_PUBLIC_SUPABASE_ANON_KEY`. 서버 키는 `SUPABASE_SECRET_KEY` 우선, 없거나 공백이면 기존 `SUPABASE_SERVICE_ROLE_KEY`. 두 이름을 모두 지원하고, 설정된 키의 인증 실패를 다른 키로 자동 재시도하지 않는다. 서버 키를 공개 키의 대체 값으로 쓰지 않는다.
     - **안정화 전에는 기존 환경변수와 Supabase 키를 삭제·폐기하지 않는다.** 기존 설정 유지로 정상 운영하며 새 이름 추가는 선택이다. 안정화 확인과 주인님의 삭제 시점 확정 후 별도 작업으로 정리한다. 공개 변수 추가·변경은 코드 호환 확인 후 재배포한다.
-    - 적용 범위를 구분한다: 현재 메인 AIMaster와 `blog-content-maker` 적용, 나머지 독립 서브프로그램은 각 폴더 지침 확인·검수·배포 후 별도 전환. 상세 정책·Vercel 단계별 안내·검수 방법: [`docs/SUPABASE_API_KEY_COMPATIBILITY.md`](docs/SUPABASE_API_KEY_COMPATIBILITY.md). 루트 AGENTS.md 원칙 23과 같은 내용이다.
+    - 적용 범위는 메인 AIMaster와 카탈로그 82개 전체 프로그램이다. 각 폴더 지침 확인·검수·배포를 진행하며, 실제 완료 여부는 `docs/DATABASE_CONNECTION_HANDOFF.md`의 프로그램별 증거로 확인한다. 코드 호환 적용과 Vercel 새 변수 등록을 혼동하지 않는다. 상세 정책·Vercel 단계별 안내·검수 방법: [`docs/SUPABASE_API_KEY_COMPATIBILITY.md`](docs/SUPABASE_API_KEY_COMPATIBILITY.md). 루트 AGENTS.md 원칙 23과 같은 내용이다.
 
 ## Communication
 

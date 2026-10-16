@@ -1,5 +1,31 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity — 작업 시 Microsoft Edge(엣지) 브라우저 전용 사용 지침 메인 작업 지침에 명시
+
+- 주인님 지시: Antigravity는 작업 시 엣지 브라우저만 사용하는 것으로 메인 작업 지침에 추가.
+- 반영 내용:
+  - `AGENTS.md`: 최상단 배너 및 원칙 14, 17에 Antigravity·Codex의 Microsoft Edge(엣지) 전용 사용 지침 명시 (Chrome은 메인 Claude Code 전용).
+  - `CLAUDE.md`: 최상단 배너 및 원칙 13, 18에 Antigravity의 Microsoft Edge 전용 사용 지침 명시.
+  - `GEMINI.md`: 최상단 배너에 Antigravity(Gemini)의 개발·디버깅·화면 확인·회원 검수 시 Microsoft Edge 전용 사용 지침 신설.
+  - `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`: 8-1-2 에이전트별 브라우저 지정 표 및 확정 지침에 Antigravity의 Edge 전용 사용 반영.
+- 목적: 한 PC에서 여러 AI 세션(Claude, Antigravity, Codex) 동시 작업 시 브라우저 탭 및 마우스/키보드 입력 간섭·충돌 원천 차단.
+
+## 2026-10-16 Codex — 앞으로 개발·테스트는 Edge로 진행
+
+- 주인님 직접 지시: Codex의 개발·디버깅·화면 확인·실제 회원 테스트는 Microsoft Edge를 사용합니다. AGENTS.md/CLAUDE.md 최상단 및 공통 개발 방식 문서에 기록했습니다. Chrome 공통 문구보다 Codex의 Edge 지정이 우선합니다.
+- 현재 DB 호환 작업의 로컬 Chrome 83/83 기록은 이전 검수 이력으로 유지하며, 이어지는 운영 검수는 보이는 Edge(`msedge`)로 진행합니다. Codex 검수 스크립트의 기본 실행 브라우저도 Edge로 변경했습니다. 다른 CLI의 기존 창·프로필은 건드리지 않습니다.
+
+## 2026-10-16 Codex — 메인·전체 서브프로그램 DB 변수 호환 적용 진행 중 (작업 전 필독)
+
+- 주인님 추가 지시로 기존 메인·블로그 두 곳에서 **메인 + 카탈로그 82개 프로그램, 총 83개 배포 단위**로 범위를 확대했습니다. 아직 전체 완료가 아닙니다. 같은 폴더의 DB 연결·버전·확장 작업 전에 최신 현황을 확인합니다.
+- 최상단 공통 필독: [데이터베이스 연동 지침](DATABASE_CONNECTION_POLICY.md). 진행 현황·프로그램별 예외·재개 순서: [전용 인수인계](DATABASE_CONNECTION_HANDOFF.md). 루트 AGENTS.md와 CLAUDE.md 양쪽 최상단에 연결했습니다.
+- 새 공개/서버 변수 우선, 값이 없거나 공백일 때만 각 기존 변수 사용. 기존 환경변수와 실제 Supabase 키는 유지합니다. 나중에 새 이름 등록이 완료돼 있으면 주인님이 값을 다시 수정할 필요 없이 기존 **변수 이름**만 정리·재배포·재검수합니다. 같은 키를 새 이름에서 사용 중이면 Supabase 키 자체를 폐기하면 안 됩니다.
+- 다른 CLI의 미커밋 파일은 포함하지 않습니다. 프로그램별 코드·빌드·배포·회원 검수 증거를 전용 문서에 갱신합니다.
+
+- 코드 적용·검사 108/108·빌드 83/83 통과. 새 이름만 사용하는 실제 Chrome 검수와 개별 프로덕션 배포를 진행 중입니다. [프로그램별 증거](supabase-compat-rollout-20261016/STATUS.md)에서 완료된 단계만 확인합니다. Vercel 새 변수 추가는 미실행이며, 82개 프로젝트·160개 Production 항목의 구체 추가 목록과 기본 미리보기 도구를 준비했습니다.
+
+## 2026-10-16 Claude Code(보조 계정·윈도우) 세션 전체 인수인계
+
 ## 2026-10-16 Claude Code(메인 계정·윈도우) — 프로그램 테스트는 항상 크롬으로 (규정 명시) + 옛 헤드리스 Chrome 정리
 
 - 주인님 지시: 메인 계정 Claude Code는 크롬 브라우저로 프로그램 테스트를 하고 이를 메인 지침에 명시. `CLAUDE.md` 원칙 18·`AGENTS.md` 같은 항목·`AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2에 "엣지·헤드리스·Playwright로 대체 금지"를 추가(기존 계정별 브라우저 규칙은 그대로). 같은 PC의 Antigravity·Codex는 엣지를 쓰도록 분리(주인님 지시) — 크롬은 메인 Claude 전용. 보조 Claude도 기존 규칙상 엣지라서, 엣지를 쓰는 CLI끼리는 같은 탭을 동시에 조작하지 않도록 주의.
@@ -12,15 +38,6 @@
 - 반영: 루트 `CLAUDE.md`·`AGENTS.md` 최상단(최상위 규칙 바로 아래) 요약 블록 + 상세 [TEST_COST_POLICY.md](TEST_COST_POLICY.md). 코드·DB·배포 변경 없음(문서만).
 - 예외(주인님 추가 지시): 프로그램 성능 검증에 필요하면 상위 모델로 시험할 수 있다(최소 횟수, 확인 항목 기록).
 - 적용 범위: 개발·시험 단계. 회원이 쓰는 기능의 모델 선택은 각 프로그램 설계 유지. 본인 키 최상위 규칙·대량 호출 사전 승인 규칙은 그대로.
-
-## 2026-10-16 Codex — 메인·전체 서브프로그램 DB 변수 호환 적용 진행 중 (작업 전 필독)
-
-- 주인님 추가 지시로 기존 메인·블로그 두 곳에서 **메인 + 카탈로그 82개 프로그램, 총 83개 배포 단위**로 범위를 확대했습니다. 아직 전체 완료가 아닙니다. 같은 폴더의 DB 연결·버전·확장 작업 전에 최신 현황을 확인합니다.
-- 최상단 공통 필독: [데이터베이스 연동 지침](DATABASE_CONNECTION_POLICY.md). 진행 현황·프로그램별 예외·재개 순서: [전용 인수인계](DATABASE_CONNECTION_HANDOFF.md). 루트 AGENTS.md와 CLAUDE.md 양쪽 최상단에 연결했습니다.
-- 새 공개/서버 변수 우선, 값이 없거나 공백일 때만 각 기존 변수 사용. 기존 환경변수와 실제 Supabase 키는 유지합니다. 나중에 새 이름 등록이 완료돼 있으면 주인님이 값을 다시 수정할 필요 없이 기존 **변수 이름**만 정리·재배포·재검수합니다. 같은 키를 새 이름에서 사용 중이면 Supabase 키 자체를 폐기하면 안 됩니다.
-- 다른 CLI의 미커밋 파일은 포함하지 않습니다. 프로그램별 코드·빌드·배포·회원 검수 증거를 전용 문서에 갱신합니다.
-
-## 2026-10-16 Claude Code(보조 계정·윈도우) 세션 전체 인수인계
 
 - 2026-10-15 밤 ~ 10-16 작업 12건(Step Mail v1.09, AI 블로그 작업실 자동화 v1.01~v1.03, 설명 81개 재작성, 상세 페이지 특징·순서·추천 활용 대상, 역량 지도, FREE 배지 규칙·성격코드 v1.03·캐릭코드 v1.06, 폴더별 push·배포 승인 폐지)과 새 규칙·운영 변경·남은 일: [HANDOFF_CLAUDE_SESSION_2026-10-16_ACCOUNT2.md](HANDOFF_CLAUDE_SESSION_2026-10-16_ACCOUNT2.md).
 
@@ -89,10 +106,6 @@
 - 주인님 지시 "네이버 API는 다른 네이버 프로그램에 등록된 걸 쓰면 된다" → 공용 `user_api_keys`라 다른 프로그램에 등록한 키가 자동으로 쓰임. 키를 다른 계정으로 옮기지 않고(최상위 규칙) **메인 계정 본인 키로 메인 계정 작업**을 서버 단계에서 실행해 키워드→트렌드→벤치마킹→글 작성 준비→초안→검수→최종본까지 통과.
 - 고친 것: 등급 기준 실측 보정(골드 문서수÷검색량 10 미만), 연관어 짧은 단어 재조회, 데이터랩 미집계일 처리, 검수 제안 지시문이 본문에 들어가던 문제. 작업 문서의 참고 원본 이름 표현도 모두 정리(주인님 지시, 문서 이름 변경). 상세: [blog-workroom/AGENTS.md](../blog-workroom/AGENTS.md) v1.03. 운영 https://blog-workroom.buylife.xyz
 
-## 2026-10-16 Claude Code(맥미니·보조 계정) — 맥미니 → 메인 PC 작업 인계 정리
-
-- 메인 PC에서 이어서 할 일(M1 참고 원본 프로그램 분석 이어가기, M2 새 프로그램 설명 표준화, M4 공개 페이지 간격 확인 — 루트 CSS는 이미 배포됨)·주인님 결정(D1 성격코드 로그인, D2 원본 권리, D3 설명 길이·이름 통일)·끝난 일: [HANDOFF_MACMINI_TO_MAIN_2026-10-16.md](HANDOFF_MACMINI_TO_MAIN_2026-10-16.md).
-
 ## 2026-10-16 Codex — AI 블로그 콘텐츠 제작 자동화 v1.02 검색 보완·운영 검수
 
 - 초기 v1.01 구현 커밋 `c768e23b` 푸시·프로덕션 READY, 도메인 https://blog-content-maker.buylife.xyz 연결. 실제 회원 웹앱·비공개 파일·확장 ZIP 운영 응답 확인. 기존 Vercel 별칭은 유지.
@@ -116,10 +129,6 @@
 - 핵심: 주제·제목·원문 3흐름, 작성 방식 5종, 원고 점검·출처·SNS 문구, 이미지·제품 합성·장면 쌍, 네이버 입력. 원본 점수는 실제 네이버 점수가 아니며 ‘영상’은 확인 범위에서 장면 이미지 준비. 기존 `naver-blog-seo-studio`·`blog-workroom`은 조사만 했음.
 - **다음**: 개발 범위 검토 및 신규 테이블 6개·비공개 Storage·신규 Vercel 공용 DB 환경변수 등록 승인 확인 후 구현. 이름은 확정되어 다시 묻지 않음. 현재 앱 코드·SQL 적용·키 입력·AI 호출·원본 실행·프로그램 등록·배포 없음. 이번 산출물은 문서만이므로 웹앱 빌드·배포 대상 아님.
 
-## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 설명 작성 표준 문서화
-
-- 주인님 지시로 [PROGRAM_DESCRIPTION_STANDARD.md](PROGRAM_DESCRIPTION_STANDARD.md) 작성(분량·구성·이모티콘·빈 줄 금지·문장 규칙·사실 확인·SQL 저장법·체크리스트·예시). 루트 `CLAUDE.md` 새 프로그램 체크리스트 (10)·`AGENTS.md` 등록 체크리스트 10번에 연결. 표준 미적용: `blog-workroom`(다른 CLI 등록, h2 사용).
-
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — 신규 프로그램: AI 블로그 작업실 자동화 (`blog-workroom` v1.01)
 
 - 주인님 지시: 참고 원본 설치 파일 웹버전 개발 — 이름 「AI 블로그 작업실 자동화」, 1차에 전체 기능, AI는 OpenAI·Gemini 선택. **권리 없음 — 기능만 참고**(원본 코드·지시문·작성 지식 미사용). 분석: [BLOG_WORKROOM_REFERENCE_ANALYSIS.md](BLOG_WORKROOM_REFERENCE_ANALYSIS.md).
@@ -127,36 +136,25 @@
 - 운영 변경(주인님 승인 "모두 진행"): 테이블 `blog_workroom_items`(RLS 4정책, Codex Supabase 연결로 DDL), 버킷 `blog-workroom`, programs 등록·요금제 3종·VIP 접근·썸네일, Vercel 프로젝트 + 공용 DB 연결 3종 + 도메인. 운영 https://blog-workroom.buylife.xyz
 - 검수: 단위 8/8, 빌드, 운영 응답, 엣지 시험 계정으로 스타일 분석·승인·이미지 생성·400px. **남은 것: 시험 계정에 네이버 키 등록(주인님) 후 ②~⑦ 실제 흐름 확인.** 상세: [blog-workroom/AGENTS.md](../blog-workroom/AGENTS.md)
 
-## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 설명 단락 간격 정정 (빈 줄 단락 제거 + 공개 상세 페이지 CSS) — **윈도우에서 루트 사이트 배포 필요**
-
-- 주인님 지적("문단 사이를 너무 많이 띄웠다"): DB `programs.description`에서 `<p><br></p>`를 모두 제거(관리자 편집기 간격 정상화). 공개 상세 페이지는 단락 여백이 없어 붙어 보이므로 `app/(main)/programs/[slug]/page.tsx` 설명 영역에 `[&_p]:my-2` 추가. 형식 규칙: [PROGRAM_DESCRIPTIONS_2026-10-15.md](PROGRAM_DESCRIPTIONS_2026-10-15.md).
-- **윈도우에서 할 일**: 루트(AIMaster) `npm run build` → `vercel deploy --prod --yes`(루트 프로젝트 확인) → `https://www.buylife.xyz/programs/ai-web-ui` 등에서 단락 사이가 0.5줄 정도 떨어져 보이는지 확인. **배포 전까지 공개 상세 페이지는 단락이 붙어 보인다.**
-
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — 참고 원본 프로그램 분석 완료 → 웹 재구현 플랜(구현 전, 주인님 결정 대기)
 
 - 맥미니에서 멈춘 설치 파일 해제를 `innounp`(winget)로 해결, 실행 없이 기능 분석. 본체: Python·PySide6 데스크톱 "네이버 블로그 글쓰기 보조"(내 문체 분석 → 키워드 → 상위 글 자료 승인 → 초안 → 검수, 자동 발행 없음). **권리 없음 — 기능만 참고**(코드·작성 지식 미사용). 분석·플랜: [BLOG_WORKROOM_REFERENCE_ANALYSIS.md](BLOG_WORKROOM_REFERENCE_ANALYSIS.md). 결정 대기: 이름·slug(제안 `blog-workroom`), 1차 범위, 기본 AI.
-
-## 2026-10-15 Claude Code(맥미니·보조 계정) — 참고 원본 설치 파일 분석 시작: 설치 파일 해제 단계에서 윈도우로 인계
-
-- 주인님 지시로 웹 자동화 재구현을 위해 정적 분석 시작(EXE 실행 없음). Inno Setup **6.7.0** 설치 파일, 제품 버전 v1.2, 공개 정보 없음. REA·`innoextract`(6.4까지 지원)로는 내용물 해제 불가 → **윈도우에서 `innounp` 최신판으로 해제 후 이어서 분석**. 권리 확인(남의 상용 프로그램인지)도 필요. 상세·이어갈 순서: [HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md](HANDOFF_BLOG_WORKROOM_REFERENCE_2026-10-15.md).
-
-## 2026-10-15 Claude Code(맥미니·보조 계정) — 프로그램 상세 설명 80개 전부 재작성 (공용 DB `programs.description`)
-
-- 주인님 요청("설명이 한 줄로 길게 이어져 가독성이 떨어진다")으로 프로그램마다 README·AGENTS·인수인계 문서와 기존 설명을 분석해 500자 내외·단락 나눔·이모티콘 형식으로 다시 써서 **DB에 직접 반영**(코드·배포·버전 변경 없음). 화면에 보이는 글자 수 평균 385자(205~567), 단순한 프로그램은 300자 안팎. 형식 규칙·낡은 설명 갱신 내역·확인 필요 항목: [PROGRAM_DESCRIPTIONS_2026-10-15.md](PROGRAM_DESCRIPTIONS_2026-10-15.md).
-- **형식 규칙**: 단락마다 `<p>`, 단락 사이에 빈 줄 단락 `<p><br></p>` — 사이트 상세 페이지는 `<p>` 사이 간격이 없어 이게 없으면 줄이 붙는다.
-- **주인님 확인 필요**: `personality-code`(성격코드)는 코드에 로그인 확인이 없고 설명도 "로그인 없이 누구나"라서 핵심 원칙 0·6번과 어긋난다(설명은 구현 그대로 둠). 이전 설명은 백업 없이 덮어썼다.
 
 ## 2026-10-15 Claude Code(보조 계정·윈도우) — B1 Step Mail Next 16 이전 완료 (v1.09)
 
 - 맥미니가 고친 코드(next 16·eslint 9·`middleware.ts`→`proxy.ts`)를 윈도우에서 `npm install`·빌드·로컬 검증 후 주인님 승인으로 커밋·푸시·배포. next **16.4.1**, 운영 취약점 2 → **0**. 로그인 200·보호 화면 307(redirect 경로 유지)·API 401·옛 주소 308 확인, DB `programs.version` v1.09. cron·실제 발송 변경 없음. 상세: [stepmail/AGENTS.md](../stepmail/AGENTS.md) v1.09, [계획서](../stepmail/docs/NEXT16_MIGRATION_PLAN.md). 운영 https://stepmail.buylife.xyz
 - 아래 "맥미니·B1" 항목(미검증 상태)은 이 작업의 앞 단계 기록이다.
 
-## 2026-10-15 Claude Code(맥미니·보조 계정) — 맥미니 작업 지침 개정(git 허용·윈도우 실행 요청 표) + B1 Step Mail Next 16 이전 계획서
+## 2026-10-15 Claude Code(맥미니·보조 계정) — B1 Step Mail Next 16 이전: 코드 수정 완료·미검증·미커밋 (윈도우에서 install·빌드 필요)
 
-- **지침 개정**(주인님 지시): [MAC_MINI_WORK_GUIDE.md](MAC_MINI_WORK_GUIDE.md) §2·§4 — 맥미니도 메인 PC와 같은 방식(프로젝트 분담 + 인수인계 문서). 지정받은 프로젝트 파일만 골라 `git` 커밋·푸시 가능, `npm install`·빌드·배포는 윈도우(메인 PC)에 요청(인수인계 문서 끝의 "윈도우에서 실행할 단계" 표). 이유: 맥에서 `npm install`하면 윈도우용 `node_modules`가 덮어써진다.
-- **B1 Step Mail Next 16 이전은 계획서만 작성**(코드·`package.json`·락 파일 미수정): [stepmail/docs/NEXT16_MIGRATION_PLAN.md](../stepmail/docs/NEXT16_MIGRATION_PLAN.md). 요점: `next` ^16.4.0(선례 `kakao_auto_poster`), `eslint` ^9·`eslint-config-next` ^16.4.0, `lint` 스크립트 `next lint`→`eslint` + `eslint.config.mjs` 신설, `middleware.ts`→`proxy.ts`(내용 유지 — 옛 주소 308·`x-pathname` 헤더 확인 필수). 목표 v1.09.
-- **진행**: 메인 세션이 계획서대로 윈도우에서 실행. 푸시·운영 배포 전 주인님 승인 필수(`stepmail/AGENTS.md`), 실제 발송·cron 변경 없음. 끝나면 `stepmail/AGENTS.md`·이 문서에 v1.09 기록.
-- 참고: 작업 폴더의 `docs/HANDOFF.md`에는 다른 CLI의 미커밋 변경(HEAD와 다른 옛 내용)이 있어, 이 항목은 HEAD 내용에 추가하는 방식으로 커밋했다.
+- **최신 상태(맥미니, 주인님 "1번 진행")**: `stepmail/`에 `package.json`(next ^16.4.0·eslint ^9·eslint-config-next ^16.4.0·lint→eslint), `middleware.ts`→`proxy.ts`(함수명 `proxy`), `eslint.config.mjs`, `lib/version.ts` v1.09, `lib/auth.ts` 주석 1줄을 고쳤다. **`package-lock.json` 미갱신, 빌드·실행 미검증, 커밋·푸시 안 함.**
+- **윈도우(메인 세션)가 할 일**: [stepmail/docs/NEXT16_MIGRATION_PLAN.md](../stepmail/docs/NEXT16_MIGRATION_PLAN.md) 2번 절차 — `npm install` → `npm audit --omit=dev` → `npm run build` → 로컬 `next start` 확인(로그인 200·보호 화면 307·API 401·옛 주소 308) → DB `programs.version` v1.09 + `stepmail/AGENTS.md` 기록 → **주인님 승인 후** 커밋·푸시·배포. 빌드가 깨지면 이 변경은 되돌린다(`git checkout -- stepmail`로 원복, 새 파일 `proxy.ts`·`eslint.config.mjs`는 삭제).
+- 아래 옛 항목(계획서만 작성)은 같은 작업의 앞 단계 기록이다.
+
+- 맥미니는 빌드·npm·git을 실행하지 않아 **계획서만** 작성했다: [stepmail/docs/NEXT16_MIGRATION_PLAN.md](../stepmail/docs/NEXT16_MIGRATION_PLAN.md). `stepmail/` 코드·`package.json`·락 파일은 수정하지 않았다.
+- 요점: `next` ^16.4.0(선례: `kakao_auto_poster`), `eslint` ^9·`eslint-config-next` ^16.4.0, `lint` 스크립트 `next lint`→`eslint` + `eslint.config.mjs` 신설, `middleware.ts`→`proxy.ts`(함수명 `proxy`, 내용 유지 — 옛 주소 308·`x-pathname` 헤더 확인 필수). 목적: 운영 취약점 2건(Next 15 내장 postcss) 제거. 목표 버전 v1.09.
+- 진행: **메인 세션이 계획서대로 윈도우에서 실행**(주인님 지시). 푸시·운영 배포 전 주인님 승인 필수(`stepmail/AGENTS.md`), 실제 발송·cron 변경 없음. 끝나면 `stepmail/AGENTS.md`·이 문서에 v1.09 기록.
+- 커밋 필요: `stepmail/docs/NEXT16_MIGRATION_PLAN.md`(새 파일), `docs/HANDOFF.md`.
 
 ## 2026-10-15 Claude Code(맥미니·보조 계정) — 맥미니 원격 작업 지침 추가
 
@@ -433,14 +431,6 @@
 - 등록: `programs`(배지 new+free)·요금제 3종·VIP 접근·썸네일, 주소 https://personality-suite.buylife.xyz. 검수: 단위 13/13, 빌드, 운영 로그인 화면에서 검사→결과→AI 분석→삭제 확인.
 - 남은 일(v1.02): 기질·성향 점검, 스트레스·마음 상태 자기점검(위기 안내 고정 문구), 종합 프로필 고도화. 상세: [personality-suite/docs/CLI_HANDOFF.md](../personality-suite/docs/CLI_HANDOFF.md)
 
-## 2026-10-13 Codex — AI 할 일·성과 관리 v1.04 후속 작업 재개
-
-- 주인님의 “남은 작업 이어가줘”로 W01~W05 재개. 미측정/차트/타이머정산 이름, 본인 Gemini 키 상태·모델·실제 발급 매뉴얼, 서버 AI 분석, JSON 가져오기 미리보기·원자적 추가 병합·충돌 보존·선택 설정복원, 범위 일치/실제초/수식보호 CSV 구현.
-- 본인 user_id 키만 서버 조회. 회원이 기존 공통 화면에서 직접 키 등록. 운영자/타인키·모델 폴백 없음. 기존 JSONB/RPC 사용, 스키마·환경변수·회원키·기존 운영기록 변경 없음.
-- 검수: 빌드·단위/SQL/API/공급사 모의22·보이는 격리 Chrome30·실제 Next 차단15 통과. 코드 v1.04/package1.4.0. 커밋/푸시/운영배포/익명 API·DB 확인 결과는 [출시 기록](../ai-task-planner/docs/CONTINUATION_RELEASE.md)에 이어 기록합니다.
-- 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
-- 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
-
 ## 2026-10-14 Claude Code — AI 글쓰기 에디터 자동화 v1.04~v1.05: 표·이미지·글자 색·정렬·여러 문단 제안
 
 - 주인님 요청: 마크다운 한계(표·이미지·글자 색·밑줄, 여러 문단 제안) 확장 가능성 검토 후 구현. 검토: 표·이미지·밑줄·형광펜은 마크다운 직렬화 가능, 글자 색·정렬은 불가 → 저장 형식을 `content_type`(markdown|html)으로 확장(이전 문서 호환).
@@ -507,19 +497,13 @@
 - 검수: 단위 15/15, 보이는 Chrome 16/16, 빌드, 실제 Gemini 이미지 12초·오디오 14초·영상 18초, 운영 화면(관리자 로그인)에서 업로드→분석→기록→임시파일 삭제 확인. 운영 https://reverse-prompt.buylife.xyz
 - 남은 일·인수인계: [reverse-prompt/docs/CLI_HANDOFF.md](../reverse-prompt/docs/CLI_HANDOFF.md)
 
-## 2026-10-13 Claude Code — 신규 프로그램: AI 랜딩페이지 기획 자동화 (`landing-architect` v1.01)
+## 2026-10-13 Codex — AI 할 일·성과 관리 v1.04 후속 작업 재개
 
-- 주인님 요청: AI Studio "AI Landing Page Architect Enhance"를 분석해 개발(분석·플랜 9b88bfba → 구현·배포).
-- 구현: 주제·타겟·목표 → AI 기획안(6섹션, 편집·섹션 재생성) → 무상태 HTML 프로토타입 → 이미지 치환(LoremFlickr/본인 키 Unsplash·Pexels·Pixabay) → 미리보기·HTML/JSON 내보내기·프로젝트 저장. 회원 본인 Gemini 키, 서버 경유.
-- DB: `landing_architect_projects`(RLS), `user_api_keys` provider 제약에 unsplash/pexels/pixabay 추가, `programs` 등록+요금제 3종+VIP 접근, §13 실사 썸네일.
-- 검수: 단위 11/11, 보이는 Chrome 14/14, 빌드, 실제 Gemini 1회(기획안 20초·HTML 71초). 운영 https://landing-architect.buylife.xyz
-- 남은 일·인수인계: [landing-architect/docs/CLI_HANDOFF.md](../landing-architect/docs/CLI_HANDOFF.md)
-
-## 2026-10-13 Claude Code — 주소 통일: 폴더·slug·Vercel·도메인을 모두 **`fashion-style`**로 (AI 패션스타일 자동화 v1.03)
-
-- 주인님 요청: 헷갈리지 않게 `look-studio` 주소를 `fashion-style`로 바꾸고 Vercel과 일치시킴. 이름은 "AI 패션스타일 자동화" 유지.
-- 변경: 폴더 `ai-fashion-style/` → `fashion-style/`, slug `fashion-style`, Vercel 프로젝트 `fashion-style`, 공식 주소 **https://fashion-style.buylife.xyz**, DB `programs.slug/app_url/version(v1.03)`. 이 프로그램의 옛 도메인 `look-studio.buylife.xyz`·`ai-fashion-style.buylife.xyz`와 옛 자동 별칭 `look-studio-ashen.vercel.app`은 프로젝트에서 제거(OAuth 콜백을 쓰지 않는 신규 프로그램이라 예외 적용, 이제 404). `fashion-style.vercel.app`은 이미 다른 곳이 사용 중이라 못 씀(배포 URL은 `fashion-style-<해시>-buylife.vercel.app`).
-- 검수: tsc·테스트 12/12·빌드, 새 주소 접속 확인.
+- 주인님의 “남은 작업 이어가줘”로 W01~W05 재개. 미측정/차트/타이머정산 이름, 본인 Gemini 키 상태·모델·실제 발급 매뉴얼, 서버 AI 분석, JSON 가져오기 미리보기·원자적 추가 병합·충돌 보존·선택 설정복원, 범위 일치/실제초/수식보호 CSV 구현.
+- 본인 user_id 키만 서버 조회. 회원이 기존 공통 화면에서 직접 키 등록. 운영자/타인키·모델 폴백 없음. 기존 JSONB/RPC 사용, 스키마·환경변수·회원키·기존 운영기록 변경 없음.
+- 검수: 빌드·단위/SQL/API/공급사 모의22·보이는 격리 Chrome30·실제 Next 차단15 통과. 코드 v1.04/package1.4.0. 커밋/푸시/운영배포/익명 API·DB 확인 결과는 [출시 기록](../ai-task-planner/docs/CONTINUATION_RELEASE.md)에 이어 기록합니다.
+- 실제 비관리자 로그인·본인 Gemini 호출·두 실제 기기 검수는 미완료. Chrome 초점 복원 실패, Chrome 실행 명령 자동검토 차단(`blocked by policy`), Aside 미실행. 격리 검수를 실제 로그인/공급사 성공으로 보고하지 않습니다. [최신 작업 목록](../ai-task-planner/docs/WORK_QUEUE.md), [재개 인수인계](../ai-task-planner/docs/CLI_HANDOFF.md).
+- 운영 https://ai-task-planner.buylife.xyz/dashboard. 다른 CLI의 미커밋/스테이징은 보존합니다. 아래 작업대기 항목은 재개 전 이력입니다.
 
 ## 2026-10-13 Codex — AI 할 일·성과 관리 작업대기 · 다른 CLI 인수인계
 
@@ -532,7 +516,7 @@
 ## 2026-10-13 Claude Code — 프로그램명 변경: AI 룩스튜디오 자동화 → **AI 패션스타일 자동화** (`ai-fashion-style` v1.02)
 
 - 주인님 요청: 프로그램명을 "AI 패션스타일 자동화"로, Vercel 이름·주소도 일치, 프로그램 내 용어 수정.
-- 변경: 폴더 `look-studio/` → `ai-fashion-style/`(git mv), slug·`APP_NAME`·화면 제목(KO "AI 패션스타일", EN "AI Fashion Style")·문서·테스트·IndexedDB 이름(`ai-fashion-style-<userId>`)·다운로드 파일명 정리. DB `programs` slug/name/short_desc/app_url/version(v1.02) 갱신. Vercel 프로젝트 `look-studio` → `ai-fashion-style` 이름 변경, 새 도메인 https://fashion-style.buylife.xyz 연결(옛 `look-studio.buylife.xyz`는 삭제하지 않고 유지 — 도메인 정책). 썸네일 파일 경로는 그대로(DB URL 유지).
+- 변경: 폴더 `look-studio/` → `ai-fashion-style/`(git mv), slug·`APP_NAME`·화면 제목(KO "AI 패션스타일", EN "AI Fashion Style")·문서·테스트·IndexedDB 이름(`ai-fashion-style-<userId>`)·다운로드 파일명 정리. DB `programs` slug/name/short_desc/app_url/version(v1.02) 갱신. Vercel 프로젝트 `look-studio` → `ai-fashion-style` 이름 변경, 새 도메인 https://ai-fashion-style.buylife.xyz 연결(옛 `look-studio.buylife.xyz`는 삭제하지 않고 유지 — 도메인 정책). 썸네일 파일 경로는 그대로(DB URL 유지).
 - 검수: tsc·테스트 12/12·보이는 Chrome 15/15 통과, 새 주소 로그인 리다이렉트 확인. 옛 내용(look-studio)이 남은 곳은 과거 기록이므로 참고만.
 
 ## 2026-10-13 Antigravity — AI 할 일·성과 관리 v1.03 UI/UX 가독성 및 디자인 개선 배포
@@ -816,9 +800,6 @@
 5. **검수 결과**:
    - TypeScript 컴파일 및 Next.js 16 프로덕션 빌드 100% 성공 (`npm run build`)
    - 버전: `v1.01` (`src/lib/version.ts`)
-
-
-# 작업 인수인계 현황판 (HANDOFF.md)
 
 ## 2026-10-13 Claude Code — Markdown Studio 운영 연결·배포 (v1.01, 마크다운 문서 자동화)
 

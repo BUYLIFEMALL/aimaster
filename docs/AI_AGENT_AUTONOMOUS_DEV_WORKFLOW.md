@@ -9,6 +9,9 @@
 
 **우선순위:** 시스템·실행 환경 제약과 주인님의 명시적 지시를 따릅니다. 저장소의 본인 계정·본인 API 최상위 규칙 및 이미 정해진 승인 범위는 그대로 적용합니다. 이 문서는 권한을 새로 부여하거나 기존 특수 작업·클라우드 제한을 해제하지 않습니다. 관련 원문은 [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md), [본인 계정·API 규칙](TOP_RULE_PERSONAL_ACCOUNT_API.md), [클라우드 세션 규칙](CLOUD_SESSION.md)입니다.
 
+> **Antigravity / Codex 브라우저 지정(2026-10-16 주인님 지시): Antigravity와 Codex의 개발·디버깅·화면/회원 검수는 보이는 Microsoft Edge에서만 진행합니다.** Chrome은 메인 Claude 전용이므로 사용하지 않고, 자동 실행도 `msedge`를 선택하며 Chrome을 쓰지 않습니다. 과거 Chrome 사례는 당시 기록으로 유지하고, 아래 Chrome 공통 지침은 Antigravity와 Codex에는 Edge 전용으로 적용합니다. 다른 CLI의 창·프로필을 건드리지 않습니다.
+
+
 ## 1. 방식의 정의와 적용 범위
 
 에이전트는 코드를 작성하고 설명하는 데서 멈추지 않습니다. 기존 코드·문서·로그·실제 화면을 대조해 원인을 찾고, 필요한 수정과 검사를 실행한 다음 결과물을 운영 환경에 반영하고 확인합니다. 구현 방식·파일 위치·검사 표본·커밋 메시지 등 통상적인 선택은 기존 구조와 안정성을 기준으로 결정합니다.
@@ -202,18 +205,20 @@ Claude Code도 Codex(Orca)와 같은 방식으로, 주인님이 로그인해 둔
 **8-1-2. Claude 계정별로 브라우저를 나눠 쓴다 (2026-10-14 주인님 지시, 같은 날 실측으로 정정·브라우저 확정)**
 
 - 배경: 한 PC에서 Claude 계정 2개를 쓴다 — 메인 `buylifemall@gmail.com`(설정 폴더 `C:UsersAdministrator.claude`)과 보조 `buylifemall1@gmail.com`(설정 폴더 `C:UsersAdministrator.claude-account2`).
-- **계정별 브라우저(주인님 확정)**:
+- **에이전트별 브라우저 지정 (주인님 확정)**:
 
-  | Claude 계정 | 브라우저 | deviceId |
+  | 에이전트 / 세션 | 브라우저 | 비고 |
   |---|---|---|
-  | 메인 `buylifemall@gmail.com` | **크롬** 기존 기본 프로필(이전과 같음) | `3208dd7d-d933-4487-a96f-61fbf8cf69dd` |
-  | 보조 `buylifemall1@gmail.com` | **엣지**(Microsoft Edge) 기본 프로필 | `6455da5d-f53b-4860-b2f4-edb55347a056` (2026-10-14 연결·`Edg/155` 확인) |
+  | 메인 Claude (`buylifemall@gmail.com`) | **크롬**(Chrome) 기본 프로필 | `3208dd7d-d933-4487-a96f-61fbf8cf69dd` (메인 Claude 전용) |
+  | 보조 Claude (`buylifemall1@gmail.com`) | **엣지**(Microsoft Edge) 기본 프로필 | `6455da5d-f53b-4860-b2f4-edb55347a056` (2026-10-14 연결·`Edg/155` 확인) |
+  | **Antigravity (Gemini)** | **엣지**(Microsoft Edge) 전용 | **작업(개발·디버깅·검수) 시 Edge만 사용 (2026-10-16 주인님 지시)** |
+  | **Codex** | **엣지**(Microsoft Edge) 전용 | **작업 시 Edge만 사용 (2026-10-16 주인님 지시)** |
 
   - 확장을 다시 설치하면 deviceId가 바뀔 수 있으니, 바뀌면 이 표를 고친다. 시험용으로 만들었던 크롬 새 프로필(`66bc74e9…`, 구글 `buylifemall1`)은 2026-10-14 삭제했다 — 크롬에는 메인 계정의 기본 프로필 하나만 둔다.
   - 엣지는 이 PC에 Claude Code 연결(native messaging host `com.anthropic.claude_code_browser_extension`)이 등록돼 있어 쓸 수 있다. 네이버 웨일·Aside는 등록이 없어 쓰지 않는다. 엣지 확장은 크롬 웹스토어의 같은 확장(`fcoeoabgfenejglbffodgkkbkcdhcgfn`)을 설치한다.
 - 실측(2026-10-14): 크롬 새 프로필에 확장을 설치하고 **다른 Claude 계정으로 로그인한 뒤 다시 연결해도**, 보조 계정 세션의 `list_connected_browsers`에 두 프로필이 모두 보였다. 즉 **확장의 Claude 계정과 상관없이 이 PC의 Claude Code는 연결된 브라우저를 모두 볼 수 있다**(처음에 "확장은 한 계정에만 연결된다"고 적었던 설명은 틀려서 정정함).
 - 규칙: **각 세션은 위 표에서 자기 계정에 정해진 브라우저만 조작한다.** 두 세션이 같은 브라우저를 동시에 조작하면 탭·입력이 서로 꼬인다. 작업 시작 때 `list_connected_browsers`로 `inUse`가 자기 브라우저인지 확인하고, 아니면 `select_browser`로 표의 deviceId를 고른다. 표에 없는 브라우저만 보이면 임의로 고르지 않고 주인님께 묻는다.
-- **확정(2026-10-16 주인님 재확인)**: 메인 계정 세션의 프로그램 테스트·화면 검수는 항상 위 표의 **크롬**으로 한다. 엣지·헤드리스 Chrome(`agent-browser`)·Playwright 자동화 브라우저로 대체하지 않는다. 같은 PC의 Antigravity·Codex는 엣지를 쓴다(2026-10-16 주인님 지시) — 크롬은 메인 Claude 전용. 남은 헤드리스·임시 Chrome은 검수에 쓰지 않고 `.agent-browser` 경로의 것만 종료한다.
+- **확정(2026-10-16 주인님 재확인 및 지시)**: **Antigravity는 앞으로 프로그램 개발, 디버깅, 화면 확인, 검수 등 모든 작업 시 Microsoft Edge(엣지) 브라우저만 전용으로 사용한다.** Chrome은 메인 Claude 전용이므로 사용하지 않는다. 메인 계정 세션의 프로그램 테스트·화면 검수는 항상 위 표의 **크롬**으로 한다. 엣지·헤드리스 Chrome(`agent-browser`)·Playwright 자동화 브라우저로 대체하지 않는다. 같은 PC의 Antigravity·Codex는 엣지를 쓴다(2026-10-16 주인님 지시) — 크롬은 메인 Claude 전용. 남은 헤드리스·임시 Chrome은 검수에 쓰지 않고 `.agent-browser` 경로의 것만 종료한다.
 - 사이트 로그인: 브라우저마다 쿠키가 따로이므로, 엣지에서는 buylife.xyz·네이버 등 검수에 필요한 사이트에 **주인님이 직접 한 번씩 로그인**해 둔다(에이전트는 비밀번호를 입력하지 않는다). 시험용 일반 회원은 `buylifemall@naver.com`, 관리자는 `buylifemall@gmail.com`이다.
 - 작업할 브라우저 창은 켜 두어야 한다(창을 닫으면 그 브라우저의 확장 연결도 끊긴다). 화면에 로그인된 사이트 계정이 이번 검수에 맞는지(일반 회원/관리자)도 먼저 본다.
 
