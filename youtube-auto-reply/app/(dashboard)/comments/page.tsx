@@ -4,6 +4,7 @@ import { SyncCommentsButton } from "@/components/comments/SyncCommentsButton";
 import { CommentReviewItem } from "@/components/comments/CommentReviewItem";
 import { SettingsSummary } from "@/components/comments/SettingsSummary";
 import { StudioHeader } from "@/components/ui/StudioHeader";
+import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // 신규 댓글마다 AI 초안 생성이 걸려 다소 시간이 걸릴 수 있음
@@ -12,7 +13,7 @@ export default async function CommentsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: comments }, { data: settings }] = await Promise.all([
+  const [{ data: comments, error: commentsError }, { data: settings }] = await Promise.all([
     supabase
       .from("ytreply_comments")
       .select("id, video_id, author_display_name, comment_text, generated_reply, fetched_at")
@@ -69,7 +70,9 @@ export default async function CommentsPage() {
       </div>
 
       <div className="pt-4">
-        {!comments || comments.length === 0 ? (
+        {commentsError ? (
+          <LoadErrorNotice what="검토 대기 댓글" />
+        ) : !comments || comments.length === 0 ? (
           <div className="yt-card py-16 text-center">
             <div className="mb-3 text-5xl">💬</div>
             <p className="text-sm text-yt-muted">검토 대기 중인 댓글이 없습니다. 「지금 새 댓글 확인하기」를 눌러보세요.</p>

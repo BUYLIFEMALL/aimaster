@@ -127,3 +127,11 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 [최신 검수·배포 기록](docs/IMPROVEMENT_HANDOFF_20261017.md)의 마지막 절을 먼저 읽습니다. Next15.5.27/React19 호환·보안, 소유자 제목 조회/빈 UUID, 권한 관리자 조회, 한국시간 및375px 오류를 보완했습니다. 미연결 일반 회원 화면과 합성 페이지를 분리 검사하며 실제 게시/AI/동기화·텔레그램 이전은 이 작업에서 실행하지 않습니다. 기존 Cron 정의 유지.
 
 운영 배포 dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W READY. 관리자 텔레그램 이전·잔여 의존성·30일 보관 적용 확인은 미완료로 인수인계하며 전체 연동 성공으로 확대하지 않습니다.
+
+## 2026-10-17 v1.10 — v1.09 후속 마무리: 이력 검색·페이지·조회 오류 안내·30일 보관 (Claude Code 윈도우)
+- 주인님 지시 "마무리해줘"(IMPROVEMENT_HANDOFF_20261017 후속 항목).
+- **#7** `/history`: 최근 50건 고정 → 검색(댓글·답글·작성자, GET `?q=`, PostgREST or 문법 깨는 문자 제거·50자 제한) + 20건씩 페이지(`?page=`, 이전/다음·n/총 페이지·건수).
+- **#13** `components/ui/LoadErrorNotice.tsx`: `/history`·`/comments` 조회 실패 시 "없음" 대신 "불러오지 못했어요" 안내.
+- **#16** 30일 보관: `/api/cron/cleanup-comments`(CRON_SECRET, `vercel.json` 매일 18:40 UTC=03:40 KST). **행은 지우지 않고 내용만 비움** — sync가 `youtube_comment_id`로 처리 여부를 판단하므로 행 삭제 시 같은 댓글 재초안(유료)·자동 게시 회원 중복 공개 게시 위험. 30일 지난 `pending_review`는 `skipped`(만료), 30일 지난 모든 기록은 `comment_text=''`·작성자·AI 답글 null. 이력 목록은 비워진 기록 제외(개수엔 포함). 운영 첫 실행 대상: 11건(1명, 모두 30일 경과, 대기 2건).
+- **#8** 관리자 텔레그램 웹훅 이전: 2026-10-16 이미 완료(`docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` §8 — getWebhookInfo로 새 주소·오류 없음 확인). 미완 아님.
+- 범위 밖: #6 선택 일괄 승인(실제 공개 게시 기능, 별도 승인), #11 잔여 의존성 경고(Next16·Tailwind4 이전 필요), #12 토큰 갱신.
