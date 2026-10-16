@@ -70,7 +70,7 @@ export async function connectTelegramAction(
   }
 
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.vercel.app";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.buylife.xyz";
     await setTelegramWebhook({
       botToken,
       url: `${siteUrl}/api/telegram/webhook/${user.id}`,
@@ -103,7 +103,7 @@ export async function reregisterTelegramWebhookAction(): Promise<TelegramActionS
   if (!link) return { error: "먼저 텔레그램을 연동해주세요." };
 
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.vercel.app";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.buylife.xyz";
     await setTelegramWebhook({
       botToken: link.bot_token,
       url: `${siteUrl}/api/telegram/webhook/${user.id}`,

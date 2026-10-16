@@ -44,7 +44,7 @@
 | 23 | ✅ auto-instagram-posting | `insta_auto_poster` | 환경변수 고정(`META_INSTAGRAM_REDIRECT_URI`, `..._BYOK_...`) |
 | 24 | ✅ instagram-comment-reply | `instagram-comment-reply` | 환경변수 고정 `META_INSTAGRAM_REDIRECT_URI` |
 | 25 | ✅ instagram-dm-reply | `instagram-dm-reply` | 환경변수 고정 `META_INSTAGRAM_REDIRECT_URI` |
-| 26 | youtube-auto-reply | `youtube-auto-reply` | 환경변수 고정 `GOOGLE_YOUTUBE_REDIRECT_URI` |
+| 26 | ✅ youtube-auto-reply | `youtube-auto-reply` | 환경변수 고정 `GOOGLE_YOUTUBE_REDIRECT_URI` |
 | 27 | naver-cafe-poster | `naver-cafe-poster` | 환경변수 고정 `NAVER_REDIRECT_URI` |
 
 - 8개 모두 콜백이 **옛 주소로 고정**돼 있어, 회원이 본인 Meta·Google·네이버 앱에 등록한 콜백 주소를 **바꾸지 않아도 된다**.
@@ -84,4 +84,4 @@
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
 | A그룹 | 19/19 | 0 |
-| B그룹 | 6/8 | 2 |
+| B그룹 | 7/8 | 1 |
