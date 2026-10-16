@@ -136,8 +136,8 @@ export async function runListingAnalysis(
 
 /**
  * 이미 분석 결과가 있으면 아무것도 안 하고, 없으면 사용자의 선호 모델(설정에서
- * 등록한 값, 없으면 기본값)로 자동 분석해서 저장한다. 매물 상세 페이지에서
- * "누르지 않아도 바로 분석 결과가 보이도록" 최초 조회 시 서버 컴포넌트에서 호출한다.
+ * 등록한 값, 없으면 기본값)로 자동 분석해서 저장한다. 회원이 켠 "예약 조회"(collect)에서만 호출한다 —
+ * 2026-10-17 v1.13부터 매물 상세 화면에서는 호출하지 않는다(열람만으로 유료 분석 금지, [AI 분석 실행] 버튼으로만).
  * 이미 분석된 매물은 다시 API를 호출하지 않으므로 비용이 반복되지 않는다.
  */
 export async function ensureListingAnalysis(
@@ -174,6 +174,20 @@ export async function reanalyzeListingAction(
   const user = await requireProgramAccess();
   const listingId = String(formData.get("listingId"));
   const supabase = await createClient();
+
+  // 2026-10-17 v1.13: 두 번 누르기·여러 탭으로 같은 매물을 겹쳐 분석해 요금이 중복되지 않게, 1분 안에 만든 결과가 있으면 다시 호출하지 않는다.
+  const { data: recent } = await supabase
+    .from("real_estate_analyses")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("listing_id", listingId)
+    .gte("created_at", new Date(Date.now() - 60 * 1000).toISOString())
+    .limit(1)
+    .maybeSingle();
+  if (recent) {
+    revalidatePath(`/listings/${listingId}`);
+    return { success: true };
+  }
 
   const { data: pref } = await supabase
     .from("real_estate_user_preferences")

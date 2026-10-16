@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ensureListingAnalysis } from "@/lib/actions/analysis";
 import { ReanalyzeButton } from "@/components/listings/ReanalyzeButton";
 import Link from "next/link";
 import { KpiCard } from "@/components/ui/KpiCard";
@@ -24,9 +23,8 @@ export default async function ListingDetailPage({
 
   if (!listing) notFound();
 
-  // 아직 분석된 적 없는 실거래면, 설정에서 등록해둔 모델+API 키로 자동 분석해서 저장한다
-  // (이미 분석되어 있으면 다시 호출하지 않아 비용이 반복되지 않는다).
-  await ensureListingAnalysis(supabase, user.id, id);
+  // 2026-10-17 v1.13: 상세 화면을 여는 것만으로는 유료 AI 분석을 실행하지 않는다(회원 본인 키 비용 — IMPROVEMENT_HANDOFF #12).
+  // 분석은 아래 [AI 분석 실행] 버튼을 눌렀을 때만 한다.
 
   const [{ data: analyses }, { data: apiKeys }, { data: landInfo }] = await Promise.all([
     supabase
@@ -124,10 +122,11 @@ export default async function ListingDetailPage({
             에서 OpenAI·Perplexity 본인 키와 선호 모델을 등록해 주세요.
           </p>
         ) : !latest ? (
-          <div className="text-sm text-mx-muted">
-            분석에 실패했어요. 등록한 API 키가 유효한지 확인한 뒤 다시 시도해 주세요.
+          <div className="space-y-1 text-sm text-mx-muted">
+            <p>아직 이 실거래를 AI로 분석하지 않았어요.</p>
+            <p>버튼을 누르면 등록한 본인 OpenAI·Perplexity 키로 분석하며, 그 요금은 각 제공사에 청구됩니다.</p>
             <div className="mt-3">
-              <ReanalyzeButton listingId={listing.id} />
+              <ReanalyzeButton listingId={listing.id} first />
             </div>
           </div>
         ) : (
