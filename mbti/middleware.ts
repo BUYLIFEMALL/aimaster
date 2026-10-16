@@ -1,12 +1,22 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 
 // 2026-10-16 주인님 지시: 성격코드도 다른 프로그램과 같이 로그인 + 이용 권한(FREE 배지면 가입 회원 누구나)을 요구한다 —
 // AIMaster 회원가입 유도 채널로도 쓰기 위해 검사(/test)와 결과(/result) 이용에 로그인을
 // 요구한다. 랜딩 페이지(/)는 비로그인 방문자도 볼 수 있는 마케팅 화면으로 남겨둔다.
 const AUTH_REQUIRED_PATHS = ["/test", "/result"];
 
+// 2026-10-16 도메인 통일(SSO): 옛 *.vercel.app 주소로 들어온 화면 요청은 새 주소로 보낸다(로그인 쿠키는 .buylife.xyz에서만 공유).
+// API는 옮기지 않는다(옛 주소의 크론·외부 호출·확장이 그대로 동작, 옛 주소는 지우지 않음).
+const NEW_ORIGIN = "https://personality-code.buylife.xyz";
+
 export async function middleware(request: NextRequest) {
+  const reqHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
+  if (reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
+    return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
+  }
+  const cookieDomain = cookieDomainForHost(reqHost);
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -21,7 +31,7 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
+            supabaseResponse.cookies.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options),
           );
         },
       },

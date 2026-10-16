@@ -15,9 +15,9 @@
 ### A그룹 — 일반 프로그램 19개 (OAuth 없음, 코드 4곳 + 도메인)
 | 순 | slug(= 새 서브도메인) | 폴더 | Vercel 프로젝트 | 주의 |
 |---|---|---|---|---|
-| 1 | tarot-reading | `tarot` | tarot | FREE 유도 프로그램(가입 유입 많음) |
+| 1 | ✅ tarot-reading | `tarot` | tarot | FREE 유도 프로그램(가입 유입 많음) |
 | 2 | ✅ mbti-character | `mbti-character` | mbti-character | |
-| 3 | personality-code | `mbti` | mbti | |
+| 3 | ✅ personality-code | `mbti` | mbti | |
 | 4 | competitor-analysis | `competitor-analysis` | competitor-analysis | |
 | 5 | longtail-keyword-expander | `longtail-keyword-expander` | longtail-keyword-expander | |
 | 6 | trending-product-finder | `trending-product-finder` | trending-product-finder | |
@@ -83,5 +83,5 @@
 | 그룹 | 완료 | 남음 |
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
-| A그룹 | 1/19 | 18 |
+| A그룹 | 3/19 | 16 |
 | B그룹 | 0/8 | 8 |

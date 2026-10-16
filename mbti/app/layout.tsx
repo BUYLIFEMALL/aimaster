@@ -3,7 +3,7 @@ import { KakaoScript } from "@/components/KakaoScript";
 import { APP_VERSION } from "@/lib/version";
 import "./globals.css";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-rho-two.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://personality-code.buylife.xyz";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
 export const metadata: Metadata = {
