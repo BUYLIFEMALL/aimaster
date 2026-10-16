@@ -49,3 +49,27 @@
 ## 7. 사전 확인이 필요한 항목
 - C의 기존 회원 텔레그램 웹훅 일괄 재등록(회원 봇 대상 외부 작업).
 - 환경변수는 바꾸지 않는 설계(필요해지면 별도 승인).
+
+## 8. 진행 결과 (2026-10-16, Claude Code 윈도우)
+| 항목 | 프로그램 | 버전 | 상태 |
+|---|---|---|---|
+| A·B·C | threads-comment-reply | v1.08 | 완료(기준 구현) |
+| A·B·C | youtube-auto-reply | v1.08 | 완료 |
+| A·B·C | instagram-comment-reply | v1.08 | 완료 |
+| A·B·C·H | instagram-dm-reply | v1.07 | 완료(DM 웹훅 새 주소 안내) |
+| A·B | threads-affiliate-poster | v1.54 | 완료(+독립 배포본 옛 주소 이동 제외) |
+| A·B | threads(auto-threads-posting) | v1.08 | 완료 |
+| A·B | insta_auto_poster(auto-instagram-posting) | v1.09 | 완료(콜백 2곳) |
+| A·B | naver-cafe-poster | v1.09 | 완료 |
+| A·B·C | kakao_auto_poster | v1.10 | 완료(메시지 링크 I는 회원 공지 후 전환) |
+| D·E | ai-auto-blog v1.66 · tistory-auto-blog v1.73 · naver-blog-agent v1.86 | — | 완료(check-extension-release OK) |
+| D | naver-blog-allinone | — | 변경 불필요(이미 새 주소만 사용) |
+| F | crm-google-form | v1.08 | 완료(교체 안내) |
+| G | music(music-automation) | v1.10 | 완료(Suno 콜백 새 주소) |
+| 공지·매뉴얼 | 메인 사이트 | — | 공지 `notices` ad4fd1c7-1085-461c-aae3-c0994746e7c8(상단 고정) · 매뉴얼 `platform_guides` cffe0d83-1e7f-494c-947d-75dcfcaee01e(https://www.buylife.xyz/guides/cffe0d83-1e7f-494c-947d-75dcfcaee01e) |
+
+**남은 일**
+1. 텔레그램 웹훅 일괄 이전 실행: 연동 5건 모두 주인님 관리자 계정 봇. 관리자 로그인 상태로 아래 5개 주소를 한 번씩 열면 이전됨(결과 JSON의 moved/alreadyNew 확인) — threads-comment-reply·youtube-auto-reply·instagram-comment-reply·instagram-dm-reply·kakao-auto-posting 각 `https://<새 주소>/api/telegram/migrate-webhooks`.
+2. **naver-blog-seo-studio**: 새 서브도메인 자체가 없음(앱은 `naver-blog-seo-studio.vercel.app`, 확장 BASE도 옛 주소). 옛 주소 삭제 전 별도 작업으로 도메인 통일(SSO) + 확장 BASE 전환 필요.
+3. 삭제 직전(주인님 시점 결정): 기본 연결을 새 콜백으로 바꾸고 [새 주소로 연결]·via=old·307 코드 정리 → 카카오 메시지 링크 전환(회원 웹 도메인 추가 공지 후) → Vercel 옛 별칭 정리. 이미 보낸 메시지 속 옛 링크(I) 때문에 화면 308 이동은 가능한 한 오래 유지 권장.
+4. 시험 계정 앱 설정 문제(기존부터): Instagram "Invalid platform app"(instagram-comment-reply `docs/IMPROVEMENTS.md`), 네이버 카페 `naver_app_missing` 안내 미표시(naver-cafe-poster `docs/IMPROVEMENTS.md`).
