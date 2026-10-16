@@ -6,8 +6,10 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 페르소나 문체 자동화 / `persona-style-studio` |
-| 현재 버전 | **v1.05** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.07** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://persona-style-studio.buylife.xyz (옛 `persona-style-studio.vercel.app` 유지) |
+| 적용 디자인 템플릿 | **포커스 스튜디오 스타일 (Focus Studio Style · 문체 변환 스튜디오)** |
+| 인수인계 문서 | [개발 플랜](docs/PLAN_20261016_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) · [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md) |
 | Vercel | 팀 `buylife`, 프로젝트 `persona-style-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, Tools, 최소 등급 일반, 요금제 1·2·3개월(1만/2만/3만원) 등록 |
 | 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase · `@google/genai` |
@@ -75,3 +77,12 @@ tests/persona.test.mjs · access.test.mjs   `npm test` 14개 통과
 ## 2026-10-16 DB 연동 변수 호환 — v1.06 (persona-style-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-16 Antigravity(Windows) — 포커스 스튜디오 디자인 리뉴얼 & 전 화면 단일 배경색(#f8fafc) 일체화 및 비주얼 가이드북 전면 고도화 (v1.07)
+
+- **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 문체 변환 스튜디오)**
+- **단일 배경색 일체화**: 라이트 클린 슬레이트 `#f8fafc`, 퓨어 화이트 카드, 바이올렛/퍼플 포인트 (`globals.css`, `DashboardLayout`, 전 화면 통일).
+- **비주얼 사용 매뉴얼 (`/guide`) 전면 고도화**: 5단계 파이프라인 인포그래픽, 5대 슬라이더 매트릭스 치트시트, FAQ 4종 아코디언, 보안 원칙 배너 탑재.
+- **사이드바 메뉴 표준화**: 유틸리티 메뉴를 표준 `📖 연동 & 사용 매뉴얼`로 변경 및 활성 스타일 적용.
+- **배포 및 검수**: Vercel 프로덕션 배포 (`https://persona-style-studio.buylife.xyz/`), Microsoft Edge 실세션 데스크톱/모바일 6종 검수 완료.

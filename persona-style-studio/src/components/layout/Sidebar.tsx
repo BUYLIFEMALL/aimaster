@@ -14,10 +14,10 @@ interface SidebarProps {
 const FLOW_STEPS = [
   { step: 1, href: "/studio", label: "집필 스튜디오", description: "페르소나 선택 · 글 입력 · 문체 조절", icon: PenLine },
 ];
-// 표준 메뉴명: API키등록·플랫폼연동 (docs/PLATFORM_PATTERNS 표준)
+// 표준 메뉴명: 📖 연동 & 사용 매뉴얼 (최상단 지침 7번 준수), 🔑 API키등록·플랫폼연동
 const UTILITY_ITEMS = [
-  { href: "/settings", label: "API키등록·플랫폼연동", icon: KeyRound },
-  { href: "/guide", label: "사용 안내", icon: BookOpen },
+  { href: "/guide", label: "📖 연동 & 사용 매뉴얼", icon: BookOpen },
+  { href: "/settings", label: "🔑 API키등록·플랫폼연동", icon: KeyRound },
 ];
 
 function Brand({ onNavigate }: { onNavigate?: () => void }) {
