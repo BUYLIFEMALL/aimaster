@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SITE_ORIGIN } from "@/lib/oauthRedirect";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { exchangeNaverCode, getNaverProfile } from "@/lib/naver/client";
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
   const state = request.nextUrl.searchParams.get("state");
   const oauthError = request.nextUrl.searchParams.get("error");
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
+  // 연결 후 돌아갈 주소는 옛 주소 환경변수가 아닌 새 주소 기준(옛 주소 삭제 후에도 동작)
+  const siteUrl = SITE_ORIGIN;
 
   if (oauthError || !code || !state) {
     return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);

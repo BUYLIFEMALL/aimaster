@@ -30,19 +30,11 @@ const TOKEN_URL = "https://nid.naver.com/oauth2.0/token";
 const PROFILE_URL = "https://openapi.naver.com/v1/nid/me";
 const CAFE_BASE = "https://openapi.naver.com/v1/cafe";
 
-function getEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`환경변수 ${name}가 설정되지 않았습니다.`);
-  }
-  return value;
-}
-
-export function getNaverAuthorizeUrl(state: string, clientId: string): string {
+export function getNaverAuthorizeUrl(state: string, clientId: string, redirectUri: string): string {
   const params = new URLSearchParams({
     response_type: "code",
     client_id: clientId,
-    redirect_uri: getEnv("NAVER_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     state,
   });
   return `${AUTHORIZE_URL}?${params.toString()}`;

@@ -4,7 +4,8 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { CafeTargetManager } from "@/components/settings/CafeTargetManager";
 import { Button } from "@/components/ui/Button";
-import { connectNaverAccountAction, disconnectNaverAccountAction } from "@/lib/actions/accounts";
+import { connectNaverAccountAction, connectNaverAccountNewCallbackAction, disconnectNaverAccountAction } from "@/lib/actions/accounts";
+import { NAVER_REDIRECT_NEW, NAVER_REDIRECT_OLD } from "@/lib/oauthRedirect";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
@@ -108,10 +109,11 @@ export default async function SettingsPage({
             만들고, 사용 API에 <b>&quot;네이버 로그인&quot;</b>과 <b>&quot;카페&quot;</b>를 함께
             추가해주세요.
           </p>
-          <p>2) &quot;네이버 로그인&quot; 설정의 Callback URL에 아래 주소를 그대로 등록해주세요.</p>
-          <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">
-            {process.env.NEXT_PUBLIC_SITE_URL ?? "https://naver-cafe-poster.vercel.app"}/api/naver/callback
-          </code>
+          <p>2) &quot;네이버 로그인&quot; 설정의 Callback URL에 아래 주소를 그대로 등록해주세요{NAVER_REDIRECT_OLD() !== NAVER_REDIRECT_NEW ? " — 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정)" : ""}.</p>
+          <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{NAVER_REDIRECT_OLD()}</code>
+          {NAVER_REDIRECT_OLD() !== NAVER_REDIRECT_NEW && (
+            <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{NAVER_REDIRECT_NEW}</code>
+          )}
           <p>
             3) 앱이 아직 네이버 검수를 통과하지 않았다면(대부분 처음엔 그렇습니다),
             애플리케이션 정보의 &quot;개발 상태&quot;에서 본인의 네이버 계정을 테스트 계정으로
@@ -151,6 +153,13 @@ export default async function SettingsPage({
                   연결 해제
                 </Button>
               </form>
+              {NAVER_REDIRECT_OLD() !== NAVER_REDIRECT_NEW && (
+                <form action={connectNaverAccountNewCallbackAction} className="mt-2">
+                  <Button type="submit" variant="secondary">
+                    새 주소로 다시 연결 (네이버 앱에 새 콜백 주소를 등록한 경우)
+                  </Button>
+                </form>
+              )}
             </div>
           ) : (
             <div>
@@ -161,6 +170,13 @@ export default async function SettingsPage({
               <form action={connectNaverAccountAction}>
                 <Button type="submit">네이버 계정 연결하기</Button>
               </form>
+              {NAVER_REDIRECT_OLD() !== NAVER_REDIRECT_NEW && (
+                <form action={connectNaverAccountNewCallbackAction} className="mt-2">
+                  <Button type="submit" variant="secondary">
+                    새 주소로 연결 (네이버 앱에 새 콜백 주소를 등록한 경우)
+                  </Button>
+                </form>
+              )}
             </div>
           )}
         </div>

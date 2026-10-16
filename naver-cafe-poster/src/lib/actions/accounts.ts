@@ -5,9 +5,19 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { getNaverAuthorizeUrl } from "@/lib/naver/client";
+import { NAVER_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
 import { resolveNaverAppCredentials } from "@/lib/naver/account";
 
 export async function connectNaverAccountAction() {
+  await startNaverOAuth("old");
+}
+
+// 회원 네이버 앱에 새 콜백 주소를 등록한 경우 — 새 주소로 인증(옛 vercel.app 삭제 대비 두 주소 동시 지원)
+export async function connectNaverAccountNewCallbackAction() {
+  await startNaverOAuth("new");
+}
+
+async function startNaverOAuth(callbackMode: CallbackMode) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
@@ -21,7 +31,7 @@ export async function connectNaverAccountAction() {
   }
 
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-  const authorizeUrl = getNaverAuthorizeUrl(user.id, credentials.clientId);
+  const authorizeUrl = getNaverAuthorizeUrl(user.id, credentials.clientId, NAVER_REDIRECT_FOR(callbackMode));
   redirect(authorizeUrl);
 }
 
