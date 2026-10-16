@@ -148,7 +148,7 @@
 | 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`music/docs/DESIGN_HANDOFF.md`](music/docs/DESIGN_HANDOFF.md) |
 | 55 | 상세페이지 자동화(15p) | `shop-detail-page` | **이커머스 셀러 스튜디오 스타일** | 퓨어 화이트 (`#ffffff` + 블루 `#2563eb`·오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`shop-detail-page/docs/DESIGN_HANDOFF.md`](shop-detail-page/docs/DESIGN_HANDOFF.md) |
 | 56 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `insta-auto-poster/AGENTS.md` |
-| 57 | 부동산 실거래 투자분석 | `real-estate-sales` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.11`, Claude Code 맥미니 2026-10-17) | [`real_estate_sales/docs/DESIGN_HANDOFF.md`](real_estate_sales/docs/DESIGN_HANDOFF.md) |
+| 57 | 부동산 실거래 투자분석 | `real-estate-sales` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.11`, 블랙 확정·Windows 빌드/배포/DB/Edge 1440·375 검수 2026-10-17) | [`real_estate_sales/docs/DESIGN_HANDOFF.md`](real_estate_sales/docs/DESIGN_HANDOFF.md) |
 | 58 | YOUTUBE Shots 자동화 | `auto-shorts-posting` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shots/AGENTS.md` |
 | 59 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `ai-auto-blog/AGENTS.md` |
 | 60 | Threads 포스팅 자동화 | `auto-threads-posting` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads/AGENTS.md` |

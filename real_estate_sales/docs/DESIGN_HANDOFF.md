@@ -1,7 +1,7 @@
 # 디자인 개발완료 인수인계 — 부동산 실거래 투자분석 자동화 (v1.11)
 
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일 (다크 슬레이트)** — 토큰·부품은 Tailwind v4 이식본 [`ghost-scraper`](../../ghost-scraper/docs/DESIGN_HANDOFF.md)와 같고, 기준값은 [`longtail-keyword-expander`](../../longtail-keyword-expander/docs/DESIGN_HANDOFF.md).
-- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인 후 구현 · 배경 **블랙(다크) 버전 주인님 확정**(라이트로 되돌리지 않음) · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
+- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인 후 구현 · 배경 **블랙(다크) 버전 주인님 확정**(라이트로 되돌리지 않음) · 상태: ✅ 1차 작업완료 (v1.11, Windows 운영 검수 완료)
 - **라이브**: https://real-estate-sales.buylife.xyz
 
 ## 1. 이 프로그램만의 처리
@@ -28,7 +28,9 @@
 ## 4. 배포·검수 기록
 | 항목 | 값 |
 |---|---|
-| 코드 커밋 | (이 문서와 같은 커밋) |
-| 빌드·배포 | 대기 |
-| DB `programs.version` | v1.10 (배포 때 v1.11) |
-| 화면 검수 | 대기 |
+| 코드 커밋 | 맥미니 `11943ac8`, Windows `156bb4ad` (푸시 완료) |
+| 빌드·배포 | Next16.4.2 빌드/타입 통과, `dpl_3snwHM99aerw5s4GzwB1kn586vPm` READY, 서울 icn1·Cron 유지 |
+| DB `programs.version` | v1.11 반영 확인 |
+| 화면 검수 | 실제 Edge 일반 회원 로컬9/운영9·합성 목록/상세9 통과, 1440/375px, 유료0 |
+
+실제 운영 상세는 GET만으로 비용이 발생할 수 있어 방문하지 않았습니다. 상세는 합성 경계 검사입니다. 회원 AI 조사 캐시 공유/30일 보관(#10) 및 자동 분석(#12)은 미해결입니다. [완료 증거·다음 작업](IMPROVEMENT_HANDOFF_20261017.md).

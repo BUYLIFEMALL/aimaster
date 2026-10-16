@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — real_estate_sales v1.11 Windows 인수·운영 화면 검수 완료
+
+- **✅ v1.11 블랙 완료**: 맥미니11943ac8 인수, 주인님 확정 차콜/블랙 유지. Windows 소스 `156bb4ad` 커밋·푸시, `dpl_3snwHM99aerw5s4GzwB1kn586vPm` READY, 운영 DB v1.11 확인. 서울icn1·기존5분Cron 유지.
+- Next16.4.2 빌드/타입·키 검사2종 통과. 운영 의존성audit0, 개발 lint5high 별도. 실제 일반 회원 Edge1440/375 로컬9/운영9·합성 목록/상세9 통과. 유료/쓰기0, 회원 자료 수 전후 동일. 무인증 Cron401.
+- **미해결**: #10 본인 Perplexity 생성 시장조사 캐시가 user_id 없이 공유/RLS전체회원 구조이고 30일 보관 미충족. #4/#12 상세GET 자동 유료 분석. 이번에는 DB/정책/자료·수집/AI 로직을 바꾸지 않았으며 실제 운영 상세는 방문하지 않았습니다. 다음 CLI는 소유자별 전환/30일 정리 설계와 필요한 DB·삭제 승인 범위를 먼저 확인합니다.
+- [상세 결과·재현·증거·다음 작업](../real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://real-estate-sales.buylife.xyz). 현황판57✅, 해당 ACTIVE_WORK 줄 제거. 최종 문서 커밋은 이 항목을 포함한 커밋입니다.
+
 ## 2026-10-17 Claude Code(윈도우) — INSTA 댓글 v1.11·DM v1.10 "등록할 주소 한눈에 보기 + 복사 버튼"
 
 - 커밋 `c4dbda00`(instagram-comment-reply v1.11)·`e7bea5c9`(instagram-dm-reply v1.10), 배포·DB 버전·VIP 확인. 공통 카드 `components/settings/InstagramMetaAddressSummary.tsx`(앱 도메인 / Instagram 로그인 API 설정 › 4. 비즈니스 로그인 설정 리디렉션 URI 새·옛 / (DM) 웹훅 콜백 URL / Instagram 앱 ID 위치 / 테스터 추가·초대 수락) + 콜백 주소 `CopyAddress`. 이로써 INSTA 3개·쓰레드 3개 모두 같은 카드.

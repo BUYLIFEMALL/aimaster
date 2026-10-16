@@ -193,3 +193,24 @@ real_estate_sales의 기능 확장**으로 진행됨.
 - **최상위 규칙 적용**(루트 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`): AI 키(OpenAI·Perplexity 등)는 **로그인한 회원 본인이 등록한 키만** 쓴다. 예전에는 본인 키가 없으면 운영자 환경변수 키(`OPENAI_API_KEY`·`PERPLEXITY_API_KEY` 등)로 폴백했고, 폴백 사용자끼리는 같은 매물의 AI 분석 결과를 서로 복사해 갔다(운영자 비용 절감용). 둘 다 삭제했다(`src/lib/apiKeys.ts`, `src/lib/actions/analysis.ts`). 키가 없으면 "설정에서 본인 키를 등록해주세요" 안내가 나온다.
 - 테스트 `npm run test:api-keys`(본인 키만, 환경변수·타인 키 폴백 없음). README·`.env.local.example`의 폴백 안내 삭제.
 - **남은 결정(주인님)**: 이 프로그램의 매물 수집은 운영자 공용 공공데이터 키(`SEOUL_OPENDATA_API_KEY`·`DATA_GO_KR_SERVICE_KEY`·`VWORLD_API_KEY`, 앱 공용)를 쓴다. "회원마다 본인 API" 규칙에 비춰 회원별 키 등록으로 바꿀지 결정이 필요하다. Vercel의 운영자 `OPENAI_API_KEY`·`PERPLEXITY_API_KEY` 환경변수는 이제 쓰이지 않으니 삭제해도 된다(비용·노출 방지).
+
+## 2026-10-17 Codex(Windows) — v1.11 운영 검수 완료
+
+- **상태**: ✅ 블랙 버전 v1.11 Windows 인수·운영 배포 완료. 맥미니 `11943ac8`와 블랙 확정 기록 `e2c300c2`를 대조했습니다. 배경 `#0f1115`, 카드 `#171a21`, 블루·앰버 및 로그인/회원가입 테마를 유지했습니다.
+- **소스**: `156bb4ad5d71bc15a1fb674f5cbb7744568606db` 커밋·origin/master 푸시 완료. 최종 문서 커밋은 이 절이 들어간 커밋입니다(`git log -- real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md`).
+- **운영 배포**: `dpl_3snwHM99aerw5s4GzwB1kn586vPm` READY, 소스 커밋 일치. [프로그램](https://real-estate-sales.buylife.xyz) · [고정 배포](https://real-estate-sales-3mawihksx-buylife.vercel.app). 서울 `icn1` 및 기존 `/api/collect/dispatch` 5분 Cron을 유지했습니다.
+- **버전**: APP/운영 DB `programs.version` 모두 **v1.11**, package `1.11.0`. 등록 주소·배지 유지. 버전 DML만 적용했으며 DB 스키마·회원 자료·키·환경변수는 바꾸지 않았습니다. 재현 SQL: `supabase/releases/20261017_v111.sql`.
+- **자동 검사**: Next16.4.2 `npm run build:verify`/TypeScript 통과, `test:api-keys`·`test:public-keys` 통과. Next/eslint-config-next16.2.11→16.4.2와 허용 범위 전이 의존성 보완 후 운영 의존성 audit **0건**. 개발 lint 도구 **5 high**는 개선 원장 #11에 남겼습니다.
+- **실제 화면**: 보이는 Microsoft Edge, 일반 회원 `buylifemall@naver.com`(관리자 아님), 1440px/375px. 로컬 **9/9**, 운영 **9/9** 통과. 대시보드·관심 지역·목록·설정·매뉴얼, 로그인/가입, FAQ, 모바일 메뉴·계정·이동 후 닫힘, 가로 넘침을 확인했습니다. 무인증 Cron 요청은 **401**, 수집은 실행되지 않았습니다.
+- **채워진 목록·상세**: 실제 `ListingMatrix`와 상세 서버 페이지를 테스트 경계에서 합성 데이터로 렌더한 **9/9** 통과(검색·자치구·4종 정렬·표/카드·상태·금액 단위·공시가 비율·토지·점수·이력·375px). 운영 시험 회원 목록은 비어 있어 **실제 운영 상세·유료 분석 품질은 검수하지 않았습니다**.
+- **비용/자료**: 「지금 조회하기」「다시 분석하기」 및 저장은 누르지 않았습니다. 실제 상세 GET/미리읽기도 검사 브라우저에서 차단했습니다. 유료 호출 **0**, 쓰기 **0**, 브라우저 오류 **0**. 회원별 관심/매칭/분석/설정 행 수는 전후 `[1,0,0,0]` 동일합니다.
+- **증거**: `docs/evidence/deployment-v111.json`, `runtime-live.json`, `runtime-local.json`, `fixtures.json`, `cron-unauthorized.json`, `dependency-audit-after-production.json`, `dependency-audit-after-all.json` 및 live/fixture 1440·375 PNG. 테스트용 모의 경계는 `tests/`에만 있으며 제품 인증·분석·DB 코드에는 넣지 않았습니다.
+
+### 다음 CLI가 먼저 볼 남은 일
+
+1. **#10 높음·미해결: AI 시장조사 캐시 회원 격리·30일 보관**. `real_estate_district_sentiment`는 user_id 없이 자치구+날짜로 본인 Perplexity 생성 결과를 공유하고, 운영 RLS도 인증 회원 전체 읽기/쓰기를 허용합니다. catalog/정책만 조회했고 생성 내용·자료는 읽거나 변경하지 않았습니다. 과거 무료 공공 API 예외는 회원 AI 생성물 공유 승인이 아닙니다. 소유자별 저장·기한/정리·무소유 기존 자료 접근 제한 전환안을 먼저 만들고 DB/삭제 승인 범위를 확인합니다. 임의 소유자 지정·회원별 일괄 복사 금지. 디자인 완료를 데이터 격리 완료로 해석하지 않습니다.
+2. **#4/#12 높음·미해결: 상세 GET 자동 유료 분석**. `ensureListingAnalysis()`가 상세 렌더 중 실행됩니다. 명시적 실행/자동 분석 선택·비용 안내·미리읽기 차단·동시 중복 방지를 함께 설계합니다. POST만 차단한 검수는 안전하지 않습니다.
+3. **#11 개발 도구 보안 5 high**: 공식 수정판/대체 경로를 확인합니다. `npm audit fix --force`가 제안하는 오래된 Next로 내리지 않습니다.
+4. 페이지 나눔(현재 50건), 열람 상태/새 실거래 숫자, 서울 밖 지원은 기존 별도 과제입니다. VWorld의 옛 등록 도메인은 주인님 포털 확인·신규 도메인 추가 후 별도 승인된 환경변수 전환으로 처리하며 지금 지우지 않습니다.
+
+현황판 57번은 ✅ 1차 작업완료(v1.11)로 갱신하고 이 작업의 ACTIVE_WORK 줄만 제거했습니다. 다른 CLI의 작업·스테이징은 보존합니다.

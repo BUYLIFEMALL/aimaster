@@ -1,0 +1,21 @@
+{
+  "project": "real-estate-sales",
+  "project_id": "prj_GJBLHYiAq29MpoNjVgMRMzqUbOZg",
+  "deployment_id": "dpl_3snwHM99aerw5s4GzwB1kn586vPm",
+  "ready_state": "READY",
+  "source_commit": "156bb4ad5d71bc15a1fb674f5cbb7744568606db",
+  "url": "https://real-estate-sales-3mawihksx-buylife.vercel.app",
+  "app_url": "https://real-estate-sales.buylife.xyz",
+  "version": "v1.11",
+  "regions": [
+    "icn1"
+  ],
+  "functions": null,
+  "cron_definition": [
+    {
+      "path": "/api/collect/dispatch",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "checked_at": "2026-10-16T17:48:08.961Z"
+}

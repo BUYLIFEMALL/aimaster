@@ -7,7 +7,7 @@
 ## 디자인 리뉴얼 — v1.11 (2026-10-17, Claude Code 맥미니, 주인님 승인 후 구현)
 - 적용 템플릿: **스마트 매트릭스 스타일(다크 슬레이트)** — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · 플랜 [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계 [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
 - 다크 토큰(옛 `gold`·`dark-*` 이름은 재연결), 사이드바 ☰·📖, 대시보드 지표·연결 상태, 실거래 목록 매트릭스(검색·자치구·정렬·표/카드), 상세 지표·매력도 막대, `/guide` 신설, 로그인까지 다크(원칙 13). 서버 로직 변경 없음.
-- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
+- **Windows 빌드·배포·무료 화면 검수 완료(v1.11, 소스 `156bb4ad`, 2026-10-17).** 운영 DB v1.11, 서울 icn1·Cron 유지. 실제 Edge 로컬9/운영9·합성9 통과, 유료0. 상세 운영 방문은 제외. 증거·남은 일은 위 인수인계의 최신 완료 절을 읽습니다.
 
 ## Windows 인수 주의 — 실제 상세 방문 전 확인
 
