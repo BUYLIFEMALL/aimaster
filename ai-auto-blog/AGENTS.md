@@ -644,3 +644,8 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - 새 주소 `https://ai-auto-blog.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308, 옛 주소 확장 API(/api/extension/whoami) 그대로 응답. **크롬 확장 v1.65**: 다리 코드(web-bridge)·백그라운드 출처 확인·매니페스트가 옛·새 주소 모두 인식, 서버 API 주소는 옛 주소 유지. ZIP 재생성, DB extension_version/extension_download_url 새 주소, check-extension-release OK. 회원은 ZIP 다시 받기→덮어쓰기→chrome://extensions 새로고침 필요
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.66 — 옛 vercel.app 삭제 대비: 확장 서버 주소 새 주소 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 D·E. `extension/background.js`·`sidepanel.js`의 `BASE`와 `sidepanel.html` 안내 링크를 `https://ai-auto-blog.buylife.xyz`로. 허용 목록(manifest host_permissions·content_scripts matches·web-bridge·background sender 검사)은 두 주소 유지. 테스트 `tests/extension-worker.test.cjs` BASE 대체 문자열 갱신.
+- 원칙 10: prebuild가 manifest v1.66·ZIP(버전별+latest) 생성, DB `version`/`extension_version` v1.66·`extension_download_url` 새 주소 latest(이미 새 주소), `check-extension-release ai-auto-blog` OK, 라이브 ZIP 안 BASE 새 주소 확인. `npm run test:extension` 74 통과.
+- **회원 안내 필요**: 설치된 확장은 자동 갱신 안 됨 → ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → chrome://extensions 새로고침. 옛 확장(BASE 옛 주소)은 옛 주소 삭제 전까지 계속 동작.
