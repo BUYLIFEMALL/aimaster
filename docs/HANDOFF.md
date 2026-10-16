@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — music-player v1.06 MP-02 미디어 키·잠금화면 제어
+
+- Media Session 연결(곡 정보·재생 상태·진행 위치, 재생/일시정지 각각·이전/다음·위치 이동). 크롬에서 값 확인, VIP 138/138. 실제 OS 미디어 키·휴대폰 잠금화면·이어폰은 미검수(주인님 직접 확인 필요). 작업리스트 3번 완료 → 다음 4번 MP-07 저장 공간 안내. 상세: `music-player/AGENTS.md` v1.06.
+
 ## 2026-10-16 Antigravity(Windows) — AI 블로그 작업실 자동화 v1.05: 포커스 스튜디오 스타일 디자인 리뉴얼 및 비주얼 가이드북(/guide) 전면 개편 완료
 
 - **대상 프로그램**: `blog-workroom/` (slug: `blog-workroom`, `https://blog-workroom.buylife.xyz`, 배포 버전: `v1.05`)

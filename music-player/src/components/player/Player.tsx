@@ -451,6 +451,62 @@ export function Player({ userId }: { userId: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [togglePlay, patch, goNext, goPrev]);
 
+  // ---- 미디어 키·잠금화면·이어폰 제어 (MP-02, Media Session API) ----
+  const sessionCover = current ? coverUrls[current.id] : undefined;
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+    navigator.mediaSession.metadata = current
+      ? new MediaMetadata({
+          title: current.name,
+          artist: current.artist || "알 수 없는 아티스트",
+          album: current.album,
+          artwork: sessionCover ? [{ src: sessionCover }] : [],
+        })
+      : null;
+  }, [current, sessionCover]);
+
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = current ? (playing ? "playing" : "paused") : "none";
+  }, [current, playing]);
+
+  // 진행 위치(잠금화면 진행 막대): 곡 길이·재생 상태·속도가 바뀔 때 갱신
+  useEffect(() => {
+    const a = engine?.audio;
+    if (!("mediaSession" in navigator) || !a || !(duration > 0)) return;
+    try { navigator.mediaSession.setPositionState({ duration, playbackRate: a.playbackRate || 1, position: Math.min(a.currentTime, duration) }); } catch { /* 지원 안 하는 브라우저 */ }
+  }, [engine, duration, playing, settings.rate]);
+
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+    const ms = navigator.mediaSession;
+    const seekTo = (t: number) => {
+      const a = live.current.engine?.audio;
+      if (!a || !Number.isFinite(a.duration)) return;
+      a.currentTime = Math.max(0, Math.min(a.duration, t));
+      setTime(a.currentTime);
+      try { ms.setPositionState({ duration: a.duration, playbackRate: a.playbackRate || 1, position: a.currentTime }); } catch { /* 무시 */ }
+    };
+    // play/pause는 각각 멱등 처리 — 같은 키가 두 번 와도 상태가 뒤집히지 않게 toggle로 묶지 않는다
+    const handlers: [MediaSessionAction, MediaSessionActionHandler][] = [
+      ["play", () => { if (live.current.engine?.audio.paused !== false) void togglePlay(); }],
+      ["pause", () => { live.current.engine?.audio.pause(); }],
+      ["previoustrack", () => goPrev()],
+      ["nexttrack", () => goNext(true)],
+      ["seekto", (d) => { if (d.seekTime != null) seekTo(d.seekTime); }],
+      ["seekbackward", (d) => seekTo((live.current.engine?.audio.currentTime ?? 0) - (d.seekOffset ?? 10))],
+      ["seekforward", (d) => seekTo((live.current.engine?.audio.currentTime ?? 0) + (d.seekOffset ?? 10))],
+    ];
+    for (const [action, fn] of handlers) {
+      try { ms.setActionHandler(action, fn); } catch { /* 브라우저가 지원하지 않는 동작 */ }
+    }
+    return () => {
+      for (const [action] of handlers) {
+        try { ms.setActionHandler(action, null); } catch { /* 무시 */ }
+      }
+    };
+  }, [togglePlay, goNext, goPrev]);
+
   // ---- 외부/사이드바 액션 연동 ----
   useEffect(() => {
     const handleAction = (action: string) => {

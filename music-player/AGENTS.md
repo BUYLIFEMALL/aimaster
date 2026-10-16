@@ -81,3 +81,9 @@
 사전 개발 플랜 제시 후 구형 CP949/EUC-KR 한글 태그 감지와 기존 저장 곡 정보 복구를 구현했습니다. 자동/한국어/서유럽 선택, 원본·커버·ID·순서·재생 설정 보존, 쓰기 실패 안내를 추가했습니다. 자동 20·실제 Edge Player 21·일반 회원 로컬 11 검사와 타입/빌드를 통과했습니다. 배포 상태·사용법·한계·다음 작업은 **[개선 작업 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md)**를 먼저 읽습니다. 기존 8가지 신규 기능 제안은 별도 후속 작업입니다.
 
 - 운영 완료: 코드/DB **v1.05**, 커밋 **4d4cb3de**, 배포 **dpl_FyVWQtyWAhHCEP9VNqKpesisYjBD** READY. 일반 회원 운영 Edge 11/11 통과. 파일 재등록 없이 [곡 정보 인코딩] → [한국어(CP949)] → [정보 복구]로 기존 목록을 복구합니다. 전체 결과/후속 작업은 위 인수인계 문서 참조.
+
+
+## 2026-10-16 v1.06 — MP-02 미디어 키·잠금화면 제어 (Claude Code 윈도우)
+- `docs/PROGRAM_WORK_LIST.md` 3번 / 백로그 MP-02. `src/components/player/Player.tsx`에 Media Session 연결: 곡 정보(제목·아티스트·앨범·커버 blob URL), playbackState(playing/paused/none), setPositionState(길이·속도·위치), 동작 play(멈춰 있을 때만 재생)·pause(멈춤만)·previoustrack·nexttrack·seekto·seekbackward/forward(기본 10초). 언마운트 시 핸들러 null로 정리. 미지원 브라우저는 그대로(에러 무시).
+- 검수: 빌드·tsc·npm test 통과, 프로덕션 배포(music-player-b3jazq9be → music-player.buylife.xyz), DB `programs.version` v1.06(`supabase/migrations/20261016_media_session_v106.sql`), VIP 138/138. 시험 계정 크롬에서 페이지 안에서 만든 8초 WAV(시험곡)를 추가해 재생 → mediaSession 제목·아티스트·playing 확인, 새로고침 후 paused·곡 정보 복원 확인.
+- **미검수**: 실제 키보드 미디어 키·크롬 툴바 미디어 컨트롤 클릭·휴대폰 잠금화면·이어폰 버튼(자동화 키 입력은 OS 미디어 라우팅에 전달되지 않음 — 주인님 직접 확인 필요). 시험 계정 브라우저 저장소에 시험곡 1개가 남아 있음(그 브라우저에만 있는 사본, 목록에서 삭제 가능).
