@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — INSTA 포스팅 v1.13~v1.15: 새 주소 연결 성공·버튼 색·등록 주소 정리·매뉴얼
+
+- **대상**: `insta_auto_poster/` (https://auto-instagram-posting.buylife.xyz). 커밋 `731ec0c4`(v1.13)·`691e221e`(v1.14)·`f7e16caf`(v1.15), 매번 배포·DB 버전 반영, VIP 부여 확인.
+- **연결 시험**: 관리자 계정 Facebook 방식 [새 주소로 다시 연결] **성공**(DB `insta_accounts` 갱신). "차단된 URL" 원인 = Meta 앱 「비즈니스용 Facebook 로그인 › 설정 › 유효한 OAuth 리디렉션 URI」에 새 주소 미저장 → 주인님 추가·URI 검사기 "유효" 후 성공. Instagram 방식은 동의 화면까지 확인(허용 이후 미확인).
+- **한 일**: v1.13 연결 버튼 색(Facebook 파랑·Instagram 초록) + byok 콜백 실패 사유 표시 / v1.14 설정 맨 위 "🧭 내 Meta 앱에 등록할 주소 한눈에 보기"(앱 도메인·두 방식 콜백·앱 ID 위치·역할) + 모든 주소 복사 버튼 + 노란 안내 상자 가독성 / v1.15 `📖 연동 & 사용 매뉴얼`(/guide, 5단계·FAQ) + 좌측 메뉴.
+- **남은 일**: 시험 계정 Instagram 앱 ID 교체(주인님) 후 Instagram 방식 재검수, 모바일 ☰ 메뉴 미적용(`insta_auto_poster/docs/IMPROVEMENTS.md`). 상세: `insta_auto_poster/AGENTS.md` v1.13~v1.15.
+
 ## 2026-10-17 Claude Code(맥미니) — AI 엑셀·텍스트 합치기 v1.07: 스마트 매트릭스 라이트 변형 디자인 (🟠 윈도우 마무리 요청)
 
 - **대상**: `file-merge/` (https://file-merge.buylife.xyz). 디자인 현황판 남은 목록 3번. 현황판 권장 배경이 라이트라 **스마트 매트릭스 — 라이트 변형**으로 진행(골격 동일, 색만 밝게). 라이트 토큰은 대비 계산으로 확인했고 다른 프로그램 라이트 테마의 기준값으로 쓴다.
