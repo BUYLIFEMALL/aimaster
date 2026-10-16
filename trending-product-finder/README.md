@@ -179,3 +179,7 @@ npm run build
 
 ## 디자인 (v1.08)
 - [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [개선 원장](docs/IMPROVEMENTS.md) · [인수인계 2026-10-17](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## Windows v1.08 인수 (2026-10-17)
+
+[검수·배포 결과 및 재개 절차](docs/IMPROVEMENT_HANDOFF_20261017.md) · [Windows 플랜](docs/VERIFICATION_PLAN_20261017_WINDOWS.md). Next15.5.27/React19·Nodemailer10 보안 보완, 권한/카테고리 소유자 조회·TOP5 모바일 폭 수정. 실제 검색·리포트 생성·발송 없이 화면/합성 검수합니다.

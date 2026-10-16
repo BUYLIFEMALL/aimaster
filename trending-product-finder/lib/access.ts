@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // 이 앱(trending-product-finder)은 AIMaster와 같은 Supabase 프로젝트를 공유한다.
 // 로그인 여부만으로는 부족하고, AIMaster의 programs/subscriptions/user_program_access
@@ -23,7 +24,7 @@ const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[01
 
 export async function requireProgramAccess() {
   const user = await requireUser();
-  const supabase = (await createClient()) as unknown as SupabaseLike;
+  const supabase = createAdminClient() as unknown as SupabaseLike;
 
   const { data: suspendCheck } = await supabase
     .from("profiles")
@@ -119,7 +120,7 @@ export async function checkProgramAccessApi(): Promise<
     return { allowed: false, error: "로그인이 필요합니다.", status: 401 };
   }
 
-  const sb = supabase as unknown as SupabaseLike;
+  const sb = createAdminClient() as unknown as SupabaseLike;
 
   const { data: suspendCheck } = await sb
     .from("profiles")

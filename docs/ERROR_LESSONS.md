@@ -2161,3 +2161,10 @@
 - 증상: npm run lint가 검사 대신 설정 선택창 → 원인: 독립 ESLint 설정 없음 → 해결: next/core-web-vitals·TS 플러그인 및 JSX entity 보완 → 다음부터: 종료코드만이 아니라 실제 lint 완료 메시지를 확인.
 - 증상: 의존성 설치가 대상 대신 루트에서 시작됨 → 원인: 문서 편집과 설치를 한 셀에서 실행하며 작업 경계 확인 누락 → 해결: 즉시 설치 중단·루트 npm ci --ignore-scripts로 잠금 파일 버전 복구, 추적 package/lock 무변경 및 Next14.2.35/React18.3.1 실제 버전 대조. 대상 폴더에서 재설치 → 다음부터: 설치는 별도 셀·명시 workdir·package.name 확인 후 실행.
 - 검수기 환경: OAuth 콜백은 로컬 환경변수가 없으면 새 주소 한 개가 정상. 팝업은 최초 about:blank 대신 waitForURL 이후 판정. 제목의 이모티콘을 포함한 접근성 이름을 사용. 설정GET은 토큰 갱신 가능하므로 채널 미연결 시험 회원 확인 후만 읽기 전용 검수.
+
+## 2026-10-17 trending-product-finder Windows 검수·호환 보완
+
+- 증상:375px 채워진 TOP5가 표 내부 스크롤 대신 페이지 폭을 늘림 → 원인: 그리드 카드의 기본 min-width:auto가 테이블 최소 폭을 유지 → 해결: app/globals.css mx-card min-width:0, 실제 페이지/합성표1440/375 → 다음부터: 빈 실제 회원 검사와 채워진 합성 UI 검사를 분리하고 표 내부 스크롤까지 확인.
+- 증상: 진행 중인 수정/검사 파일이 사라지고 package가0.1.0으로 돌아감 → 원인: 공유 저장소 전체 stash d49e6303 생성 → 해결: stash의 본 폴더 tracked6개·untracked15개만 git show로 복구, stash pop/reset/인덱스/타 프로그램 복원 없음. 최신 전체 검사 재실행 → 다음부터: 다른 CLI가 공유 폴더에서 작업할 때 전체 stash/checkout/reset 금지, 본인 경로만 처리하고 시작표를 먼저 확인.
+- 증상: 초기 audit critical1/high12 → 원인: 구 Next14와 Nodemailer9 등 → 해결: 공식 공지/npm 수정판 대조 후 Next15.5.27/React19.2.4·Nodemailer10.1.2, 운영 PostCSS2/개발9 경고는 후속. SMTP는 합성 계정별 실제 transport 옵션만 검사하고 발송0 → 다음부터: BYOK라도 라이브러리의 전역 DNS/TLS 캐시가 회원별 자격 분리를 해치지 않는지 확인.
+- 실제 설정 검수는7그룹13개 provider 입력을 원본과 대조. 키워드가0개인 회원에게 리포트생성 버튼이 없는 것은 정상 조건부 UI이므로 검사 선택자를 수정했고 제품 동작을 바꾸지 않음.

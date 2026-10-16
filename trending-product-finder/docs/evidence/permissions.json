@@ -1,0 +1,67 @@
+{
+  "checked_at": "2026-10-16T18:54:56.466Z",
+  "mode": "actual permission/key/time functions with synthetic auth/admin/member boundaries",
+  "checks": [
+    {
+      "name": "관리자 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "FREE 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "활성 구독 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "등급+이용기간 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "권한 없음 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "낮은 등급 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "만료 기간 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "만료 구독 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "정지 관리자 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "정지 FREE 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "핸드폰 없는 FREE 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "비로그인 페이지/API 일치",
+      "passed": true
+    },
+    {
+      "name": "본인 AI 키만·타 회원/운영자 키 폴백 없음",
+      "passed": true
+    },
+    {
+      "name": "실제 Nodemailer 회원별 transport·TLS포트·자격 분리, 발송0",
+      "passed": true
+    },
+    {
+      "name": "기존 순수 마진 수식·세금/운송/수수료/택배비 회귀",
+      "passed": true
+    }
+  ],
+  "network_calls": 0
+}

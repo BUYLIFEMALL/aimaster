@@ -39,6 +39,7 @@ body {
 
   /* 카드·패널 */
   .mx-card {
+    min-width: 0;
     @apply rounded-2xl border border-mx-border bg-mx-surface p-5;
   }
   .mx-section-title {

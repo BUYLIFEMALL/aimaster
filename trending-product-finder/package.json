@@ -1,31 +1,37 @@
 {
   "name": "trending-product-finder",
-  "version": "0.1.0",
+  "version": "1.08.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:permissions": "node tests/permissions.cjs",
+    "test:fixtures": "node tests/fixtures.mjs",
+    "test:runtime": "node tests/runtime.mjs",
+    "build:verify": "node tests/local.mjs build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
     "lucide-react": "^0.563.0",
-    "next": "14.2.35",
-    "nodemailer": "^9.1.1",
-    "react": "^18",
-    "react-dom": "^18",
+    "next": "15.5.27",
+    "nodemailer": "10.1.2",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "server-only": "^0.0.1",
     "solapi": "^6.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.1",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "esbuild": "0.25.12",
     "eslint": "^8",
-    "eslint-config-next": "14.2.35",
+    "eslint-config-next": "15.5.27",
+    "playwright": "1.58.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"

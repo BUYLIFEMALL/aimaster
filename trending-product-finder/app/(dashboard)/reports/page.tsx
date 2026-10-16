@@ -45,7 +45,7 @@ export default async function ReportsPage() {
 
   const watchlistIds = Array.from(new Set((reports ?? []).map((r) => r.watchlist_id)));
   const { data: watchlists } = watchlistIds.length
-    ? await supabase.from("trend_watchlist").select("id, category_name").in("id", watchlistIds)
+    ? await supabase.from("trend_watchlist").select("id, category_name").eq("user_id", user.id).in("id", watchlistIds)
     : { data: [] as { id: string; category_name: string }[] };
   const categoryNameById = new Map((watchlists ?? []).map((w) => [w.id, w.category_name]));
 

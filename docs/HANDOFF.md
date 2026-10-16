@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — trending-product-finder v1.08 Windows 사전 검수 완료·운영 배포 진행
+
+- 맥미니4011b733 블랙 인수. Next15.5.27/React19·Nodemailer10.1.2 보완, 권한 관리자 조회·카테고리 소유자 조건·TOP5 모바일 넘침 수정. 빌드/타입/ESLint, 실제 Edge 로컬9·합성9·권한/키/메일/마진15·DB키호환1 통과.
+- 설정7그룹13키·알림3채널·가이드6팝업 보존, 유료/생성/검색/발송0. audit critical0, 운영PostCSS2/개발9 경고 후속. 전체stash사고는 본 폴더 파일만 복구해 재검사 완료, 타 CLI 파일/스테이징 보존.
+- 다음: 소스 배포→DBv1.08→운영 Edge 무료검수→현황판43완료. [결과·개선·재개](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://trending-product-finder.buylife.xyz).
+
+
 ## 2026-10-17 Claude Code(윈도우) — 유튜브 댓글자동화 v1.10: v1.09 후속 마무리
 
 - 커밋 `eef5b254`, 배포·DB v1.10. **#7** 답글 이력 검색(댓글·답글·작성자)·20건 페이지 나눔, **#13** 조회 실패 안내(`LoadErrorNotice`, 이력·댓글 검토), **#16** 30일 보관 cron `/api/cron/cleanup-comments`(매일 03:40 KST) — 행 삭제 대신 내용 비움(중복 초안·중복 공개 게시 방지), 30일 지난 검토 대기는 만료(skipped). 첫 실행 대상 11건(1명). **#8** 텔레그램 이전은 10-16 완료 확인.
