@@ -21,3 +21,5 @@
 
 
 
+
+| shorts-onestop-studio (AI 쇼츠 원스톱 제작 자동화) | Claude Code(Windows) | 2026-10-16 | P4 배경: 스톡(Pexels·Pixabay)·AI 이미지·키 매뉴얼 + 상세 페이지 갱신 |

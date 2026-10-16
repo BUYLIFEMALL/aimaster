@@ -1,5 +1,38 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — Suno 음악기획 자동화 v1.10: Suno 오리지널 다크 스튜디오 리뉴얼 및 비주얼 가이드북 완성
+
+- **주인님 지시**: "suno 싸이트 인데 수노 싸이트 느낌을 살려서 블랙배경으로 작업을 해보자", "연동/사용 매뉴얼도 비주얼화", Suno Discover/Create 화면 캡처 5장 및 https://music-rho-virid-22.vercel.app/ 스타일 반영 요청.
+- **적용 템플릿**: **`사이버 수노 다크 스튜디오 스타일 (Cyber Suno Dark Studio Style)`**
+- **완료 내용**:
+  1. **다크 테마 디자인 시스템 전면 개편 (`globals.css`)**:
+     - 퓨어 딥 블랙(`--bg-deep: #09090b`), 다크 옵시디언 서페이스(`--surface-card: #14141b`), Suno 시그니처 앰버 오렌지(`--brand: #f97316`) 및 일렉트릭 바이올렛 네온 포인트 적용.
+     - Suno 본사이트의 상징인 **완전한 라운드 알약형(Pill-shaped) 버튼 및 칩 태그** 스타일 전면 도입.
+     - 다크 인풋, 텍스트에어리어, 슬라이더 바, 오렌지 네온 포커스 링 구축.
+  2. **사이드바 고도화 (`Sidebar.tsx`)**:
+     - 상단에 선명한 볼드 산세리프 `SUNO` 워드마크 + `음악기획 자동화` 서브타이틀 및 `v1.10` 뱃지 적용.
+     - Suno 본사이트(`https://suno.com/create`)로 바로 연결되는 **앰버 오렌지 네온 바로가기 칩 버튼** 추가.
+     - 하단에 Suno 공식 사이트의 주황색 원형 아바타 이니셜(`B`) 데코 및 로그아웃 버튼 정돈.
+  3. **연동 & 사용 매뉴얼 전면 비주얼화 (`UsageGuide.tsx`)**:
+     - 단순 줄글을 배제하고, **4단계 음악 기획 파이프라인 (Visual Workflow)** 구축 (01 컨셉 ➔ 02 AI 작사 ➔ 03 원클릭 복사 ➔ 04 Suno 생성).
+     - Suno AI 프롬프트 아키텍처 설계도: `Style of Music` (사운드 프롬프트) vs `Lyrics` (메타태그 구조화 가사) 비교 박스.
+     - 3대 핵심 역량 쇼케이스 카드, 키보드 단축키 칩 시트, FAQ 아코디언 카드 탑재.
+  4. **무결성 검증 통과**:
+     - 단위 테스트 53개(`npm test`) 100% 통과.
+     - Next.js 프로덕션 빌드(`npm run build`) 성공.
+  5. **Microsoft Edge(엣지) 전용 실화면 검수 통과**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 적용.
+     - 데스크톱(1440px) 빌더 및 가이드, 모바일(375px) 빌더 및 가이드 총 4장 캡처 검수 통과 (가로 스크롤 0%, 햄버거 메뉴 정상 작동 확인).
+  6. **버전 및 배포**:
+     - `src/lib/version.ts` 및 공용 DB `programs.version` 모두 `v1.10`으로 동기화 완료.
+     - Vercel 프로덕션 배포 완료: `dpl_CyHfNn6vNeRAGZCXwkQWcvD3LQfK` (`https://suno-music-studio.buylife.xyz`, HTTP 200).
+  7. **인수인계 문서화**:
+     - `suno-music-studio/docs/DESIGN_HANDOFF.md` (디자인 개발 완료 보고서)
+     - `suno-music-studio/docs/IMPROVEMENTS.md` (기능/편의성 개선 과제)
+     - `suno-music-studio/AGENTS.md` 릴리스 기록 갱신.
+     - 루트 `DESIGN.md` 카탈로그에 **사이버 수노 다크 스튜디오 스타일** 등재 및 레지스트리 18번 🟢 완료 반영.
+- **비용**: UI/UX 디자인 작업으로 유료 API 호출 0원.
+
 ## 2026-10-16 Codex(윈도우) — 개선사항 상시 인수인계·CLI 역할 분담 최상단 등록
 
 - 주인님 지시: 개발 중 발견한 개선사항을 항상 프로그램 서브폴더에 기록. `AGENTS.md`·`CLAUDE.md`·`GEMINI.md` 최상단과 공통 개발 방식 문서에 반영.

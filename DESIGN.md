@@ -36,6 +36,8 @@
 | **3. 플로우 위저드 스타일<br>(Flow Wizard Style)** | **AI 쇼츠 원스톱** (`shorts-onestop-studio`) | 다크/라이트 듀얼 테마<br>포인트: 일렉트릭 블루 & 에메랄드 | 1단계 입력 → 2단계 AI 생성 → 3단계 검수 → 4단계 발행 단계별 프로그레스 바, 선택형 템플릿 카드 | 원스톱 숏폼/영상 자동화, SNS 자동 포스팅, 단계별 랜딩페이지 기획 |
 | **4. 스마트 매트릭스 스타일<br>(Smart Matrix Style)** | 블로그 키워드 발굴, 고스트 웹스크래퍼 | 슬레이트 그레이 / 다크 차콜<br>포인트: 모던 블루 & 앰버 | 상단 핵심 지표(KPI) 통계 카드 3~4종, 검색/필터 바, 표/그리드 전환 뷰, 실시간 상태 칩 | 키워드 발굴기, 데이터 스크래핑 대시보드, 성과 분석·통계 프로그램 |
 | **5. 크리에이티브 아틀리에 스타일<br>(Creative Atelier Style)** | 썸네일 마스터, 4컷 만화, LP 턴테이블 | 딥 미드나잇 블랙<br>포인트: 비비드 골드 & 네온 핑크 | 대형 캔버스 뷰포트 중심, 좌우 옵션 패널, 프리셋 갤러리 썸네일 그리드, 고화질 뷰어 | AI 이미지 생성기, 웹툰/만화 제작기, 썸네일 마스터, 패션 스타일링 |
+| **6. 사이버 수노 다크 스튜디오 스타일<br>(Cyber Suno Dark Studio Style)** | **Suno 음악기획** (`suno-music-studio` `v1.10`) | 퓨어 옵시디언 블랙 (`#09090b`)<br>포인트: Suno 앰버 오렌지 & 일렉트릭 바이올렛 | Suno Create 오리지널 감성, 알약형(Pill) 탭/버튼, 4단계 음악기획 파이프라인 가이드북, 공식 사이트 링크 하이라이트 | 음악 기획/작사 생성기, Suno/Udio 사운드 프롬프트 스튜디오, 앨범 기획기 |
+
 
 ---
 
@@ -65,7 +67,7 @@
 | 15 | AI 인플루언서 자동화 | `ai-influencer-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 예정 | `ai-influencer-studio/AGENTS.md` |
 | 16 | 뮤직비디오 자동화 | `music-video-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 예정 | `music-video-studio/AGENTS.md` |
 | 17 | 이미지 변환 스튜디오 | `image-convert-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 예정 | `image-convert-studio/AGENTS.md` |
-| 18 | Suno 음악기획 자동화 | `suno-music-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 예정 | `suno-music-studio/AGENTS.md` |
+| 18 | Suno 음악기획 자동화 | `suno-music-studio` | **사이버 수노 다크 스튜디오 스타일** | 다크(옵시디언 블랙) | 🟢 완료 | [`suno-music-studio/docs/DESIGN_HANDOFF.md`](suno-music-studio/docs/DESIGN_HANDOFF.md) |
 | 19 | 감성 글귀 이미지 | `emotion-writer` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 예정 | `emotion-writer/AGENTS.md` |
 | 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 예정 | `ebook-studio/AGENTS.md` |
 | 21 | Website Scraper | `website-scraper` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 예정 | `website-scraper/AGENTS.md` |

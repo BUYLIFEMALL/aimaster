@@ -1,222 +1,322 @@
+"use client";
+
 import Link from "next/link";
+import {
+  Sparkles,
+  Music,
+  Disc3,
+  Sliders,
+  Copy,
+  ExternalLink,
+  ShieldCheck,
+  Zap,
+  Radio,
+  FileMusic,
+  CheckCircle2,
+  Headphones,
+  Mic2,
+  Layers,
+  ArrowRight,
+  HelpCircle,
+  Keyboard,
+  ListMusic,
+  Flame,
+} from "lucide-react";
+
 export function UsageGuide() {
   return (
-    <div className="guide-list">
-      <section className="card">
-        <h2>v1.07 메뉴와 새 사용 방법</h2>
-        <ol>
-          <li>
-            빌더: 왼쪽 제목·Style·가사와 AI 기획, 오른쪽 세부 설정·태그 조합으로
-            작업합니다.
-          </li>
-          <li>
-            앨범: 빌더와 별도로 컨셉·의도를 저장합니다. 다중 무드와 3~12곡을
-            정하고 기획하면 오른쪽에 곡 목록이 표시됩니다. 빌더 설정 가져오기는
-            앨범 이야기를 유지합니다. 분류·시대·스타일 그룹·참고 프리셋을 위에서
-            바로 고를 수 있습니다. AI 모델·보컬·편곡은 아래 ‘세부 설정’을 펼쳐
-            조정하며, 저장된 앨범과 JSON 가져오기는 설정 아래 별도 카드에
-            있습니다.
-          </li>
-          <li>
-            곡 제목 행을 펼쳐 곡별 보컬·랩 가수를 정하고 작사·수정·확인합니다.
-            미완성 작사는 완료곡을 건너뛰며 곡별 보이스를 사용합니다. 선택
-            편곡은 모든 곡 Style에 적용할 수 있습니다.
-          </li>
-          <li>
-            현재 앨범 초기화는 보관함을 지우지 않습니다. 같은 세션에서 되돌릴 수
-            있으며, 앨범 JSON은 별도로 내보내거나 가져올 수 있습니다. 앨범
-            가져오기는 현재 빌더와 댄스 조합을 보존합니다. 원본 SU-Note JSON은
-            호환되지 않으며 AIMaster 백업을 사용하세요.
-          </li>
-          <li>
-            검색: 내장 프리셋 검색은 AI 비용 없이 동작합니다. AI 검색은 6가지 새
-            음악 기획을 제안합니다. 웹 검색 사용을 켜면 본인 공급사 검색 도구와
-            기획 생성이 차례로 호출되며 추가 비용이 발생할 수 있습니다. 결과마다
-            빌더 로드·앨범 참고 Style 적용·내 프리셋 저장·Style 복사를 사용할 수
-            있습니다. 앨범 적용은 기존 트랙과 가사를 보존합니다. 모델의 검색
-            지원과 키 사용 권한이 필요합니다. 출처가 없으면 검색 실패로
-            안내합니다.
-          </li>
-          <li>
-            댄스 머신: 왼쪽 200개 스타일을 시드로 로드하고 오른쪽에서 태그를
-            더합니다. 최종 Style을 복사하거나 빌더로 보냅니다. 조합은 회원별
-            브라우저 초안에 저장하며 마지막 선택한 BPM을 적용합니다.
-          </li>
-          <li>
-            가이드: 왼쪽 93개 목차와 목차 검색, 오른쪽 설명·태그 표를
-            이용합니다. 표는 태그 검색과 페이지 이동을 지원합니다. 태그는 음악
-            생성 요청이며 실제 반영을 보장하지 않습니다.
-          </li>
-          <li>
-            컴팩트 보기: 상단 버튼으로 좁은 작업 화면을 사용할 수 있습니다. 본인
-            Suno를 별도 창에 열고 운영체제의 창 분할과 함께 사용하세요. 보기
-            설정은 회원별로 기억합니다.
-          </li>
-        </ol>
-      </section>
-      <section className="card">
-        <h2>처음 사용한다면</h2>
-        <ol>
-          <li>
-            <Link href="/settings">API키등록·플랫폼연동</Link>에서 사용할 AI의
-            본인 키를 등록합니다. 기존 AIMaster에 등록한 키가 있으면 재등록 없이
-            사용할 수 있습니다.
-          </li>
-          <li>
-            프리셋 메뉴에서 음악 분류 → 시대 → 스타일 그룹 → 유형 순으로 좁혀
-            고릅니다. 프리셋은 461개이며 댄스 머신은 별도 메뉴에서 200개를
-            검색합니다. 미리보기 확인 후 ‘빌더에 로드’를 누릅니다.
-          </li>
-          <li>
-            작사·곡 기획에서 주제와 꼭 반영할 내용을 입력합니다. 한·영 비율,
-            보컬·랩 비율과 구조를 정한 뒤 생성할 항목(제목·Style·가사)을
-            선택합니다. 선택하지 않은 항목은 그대로 유지합니다.
-          </li>
-          <li>
-            제목·Style·가사를 직접 수정하고 ‘최종 가사·스타일 수정 및 확인
-            완료’를 체크합니다.
-          </li>
-          <li>
-            제목·Style·가사를 각각 복사하여 본인 Suno 계정의 Custom 모드에 붙여
-            넣습니다. 파일 저장과 JSON 백업도 가능합니다.
-          </li>
-        </ol>
-      </section>
-      <section className="card">
-        <h2>새로 추가된 세부 설정</h2>
-        <ol>
-          <li>
-            AI 모델의 ‘직접 모델 입력’에서 공급사와 정확한 모델 ID를 지정할 수
-            있습니다. 해당 공급사의 본인 키가 필요하며, 실패해도 다른 모델이나
-            계정으로 바꾸지 않습니다.
-          </li>
-          <li>
-            프리셋을 적용하면 기준 Style을 잠그고 Style 생성 선택을 끕니다. 기존
-            제목·가사는 유지됩니다. AI가 새 스타일을 만들게 하려면 잠금을 풀고
-            Style 생성 항목을 켜세요.
-          </li>
-          <li>
-            아티스트 참고 항목은 기본·발라드·축제 방향을 선택할 수 있습니다.
-            Style은 장르·악기·보컬·시대의 음악 속성으로 구성합니다. 원본
-            사이트의 완성 문장을 그대로 복사한 프리셋은 아닙니다.
-          </li>
-          <li>
-            댄스 그루브는 계열과 BPM 범위로 찾습니다. 범위는 프리셋의 템포
-            힌트를 기준으로 필터링하며, 적용한 BPM은 직접 수정할 수 있습니다.
-          </li>
-          <li>
-            보컬·랩·코러스 세부 설정에서 제목 언어, 솔로·듀엣·그룹·합창, 별도 랩
-            가수, 고음 억제, 편곡 방식을 정합니다. 랩 100%와 연주곡에 필요한
-            제외 스타일은 자동으로 계산합니다.
-          </li>
-          <li>
-            태그 조합에서 장르·분위기·악기·보컬·드럼·베이스·이펙트·구조·템포를
-            검색하고 추가·제거합니다. 태그 추가와 설정 변경은 AI를 호출하지
-            않습니다.
-          </li>
-          <li>
-            ‘현재 속성으로 기준 Style 재구성’은 현재 장르·악기·보컬 설정으로
-            기준 Style을 교체합니다. 직접 편집한 Style을 유지하려면 해당 버튼을
-            누르지 않고 태그만 추가하세요.
-          </li>
-          <li>
-            빈 빌더에서 AI 없이 제목·Style·가사를 바로 작성할 수 있습니다. ‘기본
-            가사 골격’은 가사가 비어 있을 때만 넣으며 초기화는 되돌릴 수
-            있습니다. 가사 구간 버튼은 커서 위치에 [Chorus], [Bridge] 같은
-            구간을 넣습니다.
-          </li>
-          <li>
-            ‘현재 곡의 내용 참고’를 켜면 기존 제목·Style·가사를 생성 참고 자료로
-            보냅니다. 끄면 현재 곡 내용은 보내지 않고 새 곡 설명과 설정을
-            사용합니다.
-          </li>
-        </ol>
-      </section>
-      <section className="card">
-        <h2>앨범을 만드는 순서</h2>
-        <ol>
-          <li>
-            앨범 구성에서 컨셉·상세 의도, 3~12곡, 감정 여정/사계절 같은 앨범
-            흐름을 정합니다.
-          </li>
-          <li>
-            ‘앨범 기획 생성’은 트랙 순서·제목·곡별 Style·훅을 만들고 가사는 아직
-            만들지 않습니다.
-          </li>
-          <li>
-            곡을 펼쳐 체크한 뒤 ‘선택 트랙 작사’를 누르거나 ‘미완성 가사 이어
-            만들기’를 누릅니다. 트랙 위로·아래로 버튼으로 순서를 바꾸고 앨범
-            제목·설명·곡 컨셉·핵심 구절도 수정할 수 있습니다. 완료된 가사가 있는
-            곡은 건너뜁니다.
-          </li>
-          <li>
-            일괄 작사는 곡마다 본인 API 비용이 발생할 수 있습니다. 중지하면
-            완료된 곡은 남고 현재 요청의 취소된 응답은 적용하지 않습니다.
-            서버에서 이미 처리된 요청은 과금될 수 있습니다.
-          </li>
-          <li>
-            개별 곡을 수정하거나 작사를 다시 할 수 있습니다. 실패하면 기존
-            가사는 남으며 자동 재시도는 하지 않습니다.
-          </li>
-        </ol>
-      </section>
-      <section className="card">
-        <h2>저장·복사·전달</h2>
-        <p>
-          초안과 보관함은 이 브라우저에서 회원별로 저장합니다. 다른 PC로
-          옮기거나 사이트 자료를 지우기 전에는 JSON으로 백업하세요. 가져오기는
-          검증 후 보관함과 내 Style 프리셋을 합치며 동일 저장 ID는 중복으로
-          추가하지 않습니다. 가져온 백업의 작업 초안으로 현재 초안이 바뀝니다.
-        </p>
-        <p>
-          현재 기준 Style을 이름 붙여 내 프리셋에 저장하면 곡·앨범에서 다시
-          불러올 수 있습니다. 이전 버전 JSON도 가져올 수 있으며 새 설정의
-          기본값만 추가합니다.
-        </p>
-        <p>
-          검수는 직접 확인했다는 표시입니다. 앱이 음악 파일 품질·권리를
-          판정하거나 Suno 입력란을 자동으로 조작하지 않습니다. Style은 영문 음악
-          속성으로 정리하세요.
-        </p>
-        <p>
-          실제 음악 파일 제작은{" "}
-          <a
-            href="https://music-rho-virid-22.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            음악(SUNO)자동화
-          </a>
-          에서 별도로 진행합니다. ‘제작 요청용 설명 복사’ 후 기존 앱에 붙여 넣을
-          수 있습니다. 기존 앱이 별도로 곡을 기획하므로 이 앱의 가사가 그대로
-          자동 전송되는 기능은 없습니다.
-        </p>
-        <p>
-          AI 스타일 제안은 모델이 만든 기획입니다. 실제 대표곡과 구분합니다.
-          ‘대표곡 참고 · 출처 연결’은 웹 검색이 필수이며 결과마다 출처 링크가
-          연결됩니다. 발표 연도가 불명확하면 미확인으로 표시합니다. Style·BPM·곡
-          구조는 AI 분석값이며 링크의 실제 곡 정보를 직접 확인하세요.
-        </p>
-      </section>
-      <section className="card">
-        <h2>문제가 생겼을 때</h2>
-        <p>
-          키 없음: 선택한 공급사의 본인 키를 등록하세요. 다른 회원 키로 대체하지
-          않습니다.
-        </p>
-        <p>
-          사용 한도/모델 오류: 본인 공급사 계정의 한도와 선택 모델 사용 가능
-          여부를 확인하세요.
-        </p>
-        <p>
-          JSON 형식/곡 수 오류: 기존 결과는 보존됩니다. 곡 수 또는 긴 상세
-          의도를 줄인 뒤 생성 버튼을 다시 누르세요.
-        </p>
-        <p>
-          복사 실패: 브라우저 클립보드 권한을 확인하거나 TXT로 내려받아 직접
-          붙여 넣으세요.
-        </p>
-      </section>
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
+      {/* 1. Hero Spotlight Banner */}
+      <div className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 sm:p-8 shadow-2xl">
+        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-gradient-to-br from-orange-500/15 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-400 text-xs font-bold tracking-wide">
+              <Sparkles size={14} className="animate-pulse" />
+              <span>SUNO AI OFFICIAL STUDIO STANDARD</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Suno 음악기획 자동화 완벽 가이드북 🎵
+            </h1>
+            <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
+              머릿속에 떠오른 감성과 멜로디 아이디어를 <strong className="text-orange-400">전문 프로듀서 수준의 곡·앨범 기획</strong>으로 완성하고, 
+              클릭 한 번으로 <strong className="text-white">Suno 공식 사이트(suno.com/create)</strong>에서 고음질 음원을 즉시 뽑아낼 수 있습니다.
+            </p>
+          </div>
+
+          <div className="flex md:flex-col gap-3 w-full md:w-auto">
+            <a
+              href="https://suno.com/create"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-orange-500/25 transition-all transform hover:-translate-y-0.5"
+            >
+              <span>Suno 공식 Create 열기</span>
+              <ExternalLink size={15} />
+            </a>
+            <Link
+              href="/?section=builder"
+              className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs sm:text-sm border border-zinc-700 transition-all"
+            >
+              <Music size={15} className="text-orange-400" />
+              <span>지금 곡 기획하기</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Visual 4-Step Pipeline Architecture */}
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 backdrop-blur p-6 sm:p-7 shadow-xl space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Radio size={20} className="text-orange-500" />
+              <span>4단계 초고속 음악 제작 파이프라인 (Visual Workflow)</span>
+            </h2>
+            <p className="text-xs text-zinc-400 mt-1">
+              기획부터 Suno 음원 생성까지 단 3분이면 완성되는 워크플로우를 확인하세요.
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-zinc-800 text-zinc-300 text-[11px] font-semibold border border-zinc-700">
+            Flow Wizard v1.10
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Step 1 */}
+          <div className="relative rounded-2xl border border-zinc-800 bg-zinc-950/70 p-5 flex flex-col justify-between hover:border-orange-500/40 transition-colors group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 font-black text-sm flex items-center justify-center border border-orange-500/30">
+                  01
+                </span>
+                <Sliders size={18} className="text-zinc-500 group-hover:text-orange-400 transition-colors" />
+              </div>
+              <h3 className="text-sm font-bold text-white">컨셉 & 스타일 선택</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                461개 장르 프리셋, 243개 스타일 그룹, 200개 댄스 조합 중 마음에 드는 사운드 텍스처를 선택하거나 직접 키워드를 입력합니다.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center gap-1.5 text-[11px] text-orange-400 font-medium">
+              <span>장르 / BPM / 무드 매칭</span>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="relative rounded-2xl border border-zinc-800 bg-zinc-950/70 p-5 flex flex-col justify-between hover:border-purple-500/40 transition-colors group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 font-black text-sm flex items-center justify-center border border-purple-500/30">
+                  02
+                </span>
+                <Mic2 size={18} className="text-zinc-500 group-hover:text-purple-400 transition-colors" />
+              </div>
+              <h3 className="text-sm font-bold text-white">AI 작사 & 트랙 기획</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                본인의 AI 키(Gemini, OpenAI, Claude)로 곡의 스토리·의도와 곡 구성([Intro], [Verse], [Chorus])을 감성적으로 자동 생성합니다.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center gap-1.5 text-[11px] text-purple-400 font-medium">
+              <span>보컬/랩 캐스팅 & 편곡</span>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="relative rounded-2xl border border-zinc-800 bg-zinc-950/70 p-5 flex flex-col justify-between hover:border-pink-500/40 transition-colors group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="w-8 h-8 rounded-full bg-pink-500/20 text-pink-400 font-black text-sm flex items-center justify-center border border-pink-500/30">
+                  03
+                </span>
+                <Copy size={18} className="text-zinc-500 group-hover:text-pink-400 transition-colors" />
+              </div>
+              <h3 className="text-sm font-bold text-white">클립보드 원클릭 복사</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                빌더 화면의 복사 버튼을 눌러 Suno 호환 <strong className="text-zinc-200">Style of Music 프롬프트</strong>와 <strong className="text-zinc-200">Lyrics 전문</strong>을 복사합니다.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center gap-1.5 text-[11px] text-pink-400 font-medium">
+              <span>제목 / 스타일 / 가사 추출</span>
+            </div>
+          </div>
+
+          {/* Step 4 */}
+          <div className="relative rounded-2xl border border-zinc-800 bg-zinc-950/70 p-5 flex flex-col justify-between hover:border-emerald-500/40 transition-colors group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 font-black text-sm flex items-center justify-center border border-emerald-500/30">
+                  04
+                </span>
+                <Headphones size={18} className="text-zinc-500 group-hover:text-emerald-400 transition-colors" />
+              </div>
+              <h3 className="text-sm font-bold text-white">Suno 본사이트 생성</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Suno 사이트(suno.com/create)를 열고 Custom 모드에 붙여넣은 뒤 Create를 누르면 초고음질 완곡이 즉시 탄생합니다!
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
+              <span>Suno v3.5 / v4 / v5 / v6 생성</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Suno Prompt Structure Blueprint */}
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 sm:p-7 shadow-xl space-y-6">
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <FileMusic size={20} className="text-purple-400" />
+            <span>Suno 프롬프트 엔지니어링 구조 설계도 (Prompt Blueprint)</span>
+          </h2>
+          <p className="text-xs text-zinc-400">
+            Suno AI가 최고 수준의 악기 편성 및 보컬 음색을 표현할 수 있도록 설계된 표준 프롬프트 구조입니다.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Style of Music Card */}
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
+                Style of Music (사운드 프롬프트)
+              </span>
+              <span className="text-[11px] px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 font-mono">
+                최대 120자 권장
+              </span>
+            </div>
+            <div className="p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 font-mono text-xs text-zinc-300 leading-relaxed">
+              <span className="text-orange-400 font-semibold">[Genre: K-Pop Ballad]</span>{" "}
+              <span className="text-purple-400 font-semibold">[BPM: 75]</span>{" "}
+              <span className="text-pink-400 font-semibold">[Vocal: Emotional Female Baritone]</span>{" "}
+              <span>Acoustic Grand Piano, Warm Cello, Orchestral Strings, Melodic Chorus, Nostalgic Cinematic build-up</span>
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              💡 <strong>팁:</strong> 아티스트 이름을 직접 넣는 것보다 구체적인 악기(Rhodes, 808 Bass), 감성 무드(Dreamy, Nostalgic), 보컬 특성(Airy Falsetto, Husky)을 넣을 때 압도적인 퀄리티가 나옵니다.
+            </p>
+          </div>
+
+          {/* Lyrics Structure Card */}
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                Lyrics (메타 태그 구조화 가사)
+              </span>
+              <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 font-mono">
+                구조 메타태그
+              </span>
+            </div>
+            <div className="p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 font-mono text-xs text-zinc-300 leading-relaxed space-y-1">
+              <div className="text-purple-400 font-bold">[Intro: Soft Acoustic Piano]</div>
+              <div className="text-zinc-400 pl-2">창가에 번지는 저녁 빛, 흐려진 기억들...</div>
+              <div className="text-purple-400 font-bold mt-1">[Verse 1]</div>
+              <div className="text-zinc-400 pl-2">우리가 함께 걸었던 그 길 위엔...</div>
+              <div className="text-purple-400 font-bold mt-1">[Chorus: Grand Orchestral Climax]</div>
+              <div className="text-zinc-200 pl-2 font-medium">영원히 잊지 못할 너의 목소리...</div>
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              💡 <strong>팁:</strong> 대괄호 <code>[Verse]</code>, <code>[Chorus]</code>, <code>[Guitar Solo]</code>, <code>[Outro]</code> 등의 메타 태그를 넣으면 AI가 곡의 기승전결을 극적으로 연출합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Core Features Showcase */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 space-y-3 hover:border-zinc-700 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center">
+            <Disc3 size={20} />
+          </div>
+          <h3 className="text-base font-bold text-white">3~12곡 앨범 일괄 기획</h3>
+          <p className="text-xs text-zinc-400 leading-relaxed">
+            단일 싱글뿐 아니라 EP, 정규 앨범 전체의 트랙리스트 순서와 유기적인 스토리라인을 한 번에 구성하고 개별 트랙을 작사할 수 있습니다.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 space-y-3 hover:border-zinc-700 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+            <Layers size={20} />
+          </div>
+          <h3 className="text-base font-bold text-white">200종 댄스 머신 조합</h3>
+          <p className="text-xs text-zinc-400 leading-relaxed">
+            클럽, EDM, 하우스, 디스코 등 댄스 장르의 BPM 템포와 시드 스타일을 즉시 믹스 매치하여 트렌디한 댄스 트랙을 설계합니다.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 space-y-3 hover:border-zinc-700 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <ShieldCheck size={20} />
+          </div>
+          <h3 className="text-base font-bold text-white">100% 로컬 프라이버시</h3>
+          <p className="text-xs text-zinc-400 leading-relaxed">
+            내가 기획한 가사와 프로젝트는 본인 브라우저에만 안전하게 암호화 보관되며, 언제든 JSON 백업 파일로 내보내고 가져올 수 있습니다.
+          </p>
+        </div>
+      </div>
+
+      {/* 5. Keycap Shortcut Sheet */}
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 shadow-xl space-y-4">
+        <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <Keyboard size={18} className="text-orange-400" />
+          <span>신속한 작업을 위한 키보드 단축키 & 팁</span>
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+            <span className="text-zinc-400">빌더 이동</span>
+            <kbd className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-200 font-mono text-[11px]">Alt + 1</kbd>
+          </div>
+          <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+            <span className="text-zinc-400">앨범 패널</span>
+            <kbd className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-200 font-mono text-[11px]">Alt + 2</kbd>
+          </div>
+          <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+            <span className="text-zinc-400">스타일 복사</span>
+            <kbd className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-200 font-mono text-[11px]">클릭 1회</kbd>
+          </div>
+          <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+            <span className="text-zinc-400">JSON 백업</span>
+            <kbd className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-200 font-mono text-[11px]">보관함</kbd>
+          </div>
+        </div>
+      </div>
+
+      {/* 6. FAQ Section */}
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 sm:p-7 shadow-xl space-y-4">
+        <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <HelpCircle size={18} className="text-orange-400" />
+          <span>자주 묻는 질문 (FAQ)</span>
+        </h2>
+        <div className="space-y-3 text-xs sm:text-sm">
+          <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1.5">
+            <strong className="text-zinc-200 block font-semibold">
+              Q. 음악을 생성할 때 비용이 발생하나요?
+            </strong>
+            <p className="text-zinc-400 leading-relaxed text-xs">
+              A. 본 프로그램에서 곡을 기획하고 가사를 작성할 때는 회원이 등록한 본인 AI 키(Gemini Flash-Lite 등)의 극소량 텍스트 토큰만 사용되며, 
+              내장 프리셋 탐색은 100% 무료입니다. 이후 복사한 내용을 Suno 공식 사이트에 붙여넣어 생성할 때는 본인의 Suno 계정 크레딧이 사용됩니다.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1.5">
+            <strong className="text-zinc-200 block font-semibold">
+              Q. 한국어 가사 발음과 랩은 어떻게 잘 나오게 하나요?
+            </strong>
+            <p className="text-zinc-400 leading-relaxed text-xs">
+              A. 빌더의 세부 설정에서 [보컬/랩 캐스팅]을 [한국어 남성/여성 래퍼] 또는 [R&B 보컬]로 지정하면, 
+              프롬프트에 <code>[Pronunciation: Clear Korean Diction]</code> 및 <code>[Flow: Fast Syncopated]</code> 메타태그가 자동 주입되어 발음이 훨씬 정확해집니다.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1.5">
+            <strong className="text-zinc-200 block font-semibold">
+              Q. 브라우저 캐시를 지우면 작업했던 곡들이 사라지나요?
+            </strong>
+            <p className="text-zinc-400 leading-relaxed text-xs">
+              A. 네, 로컬 저장소에 저장되므로 브라우저 데이터를 삭제하기 전에 반드시 [저장됨] 또는 [검수·보관함] 메뉴에서 
+              <strong>[JSON 저장]</strong> 버튼을 눌러 프로젝트 백업 파일을 다운로드해 두시는 것을 권장합니다.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
