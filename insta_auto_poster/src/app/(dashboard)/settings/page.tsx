@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { CopyAddress } from "@/components/settings/CopyAddress";
 import { Button } from "@/components/ui/Button";
 import { connectInstagramAccountAction, disconnectInstagramAccountAction } from "@/lib/actions/accounts";
 import type { ApiKeyProvider } from "@/types/database.types";
@@ -70,6 +71,9 @@ export default async function SettingsPage({
   const hasMetaKeys =
     (keyMap.has("meta_app_id") && keyMap.has("meta_app_secret")) ||
     (keyMap.has("facebook_app_id") && keyMap.has("facebook_app_secret"));
+  // 예전부터 연결 중인 회원의 옛 주소(환경변수 콜백의 호스트) — 새 주소와 같으면 표시하지 않음
+  const fbOldHost = new URL(FACEBOOK_REDIRECT_OLD()).host;
+  const oldHost = fbOldHost.endsWith("buylife.xyz") ? null : fbOldHost;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -92,6 +96,47 @@ export default async function SettingsPage({
       )}
 
       <div className="space-y-5">
+        {/* 2026-10-17: 회원이 본인 Meta 앱에 넣어야 할 값을 메뉴 위치별로 한곳에 모아 보여준다(주소마다 복사 버튼) */}
+        <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/40 p-4 shadow-sm">
+          <h2 className="text-sm font-bold text-neutral-900">🧭 내 Meta 앱에 등록할 주소 한눈에 보기</h2>
+          <p className="mb-3 text-xs text-neutral-500">
+            Meta 개발자 센터(developers.facebook.com › 내 앱)에서 아래 위치에 그대로 붙여넣고, 각 화면 맨 아래 [변경 내용 저장]을 꼭 눌러주세요.
+            <br />
+            기존 주소는 지우지 말고 새 주소를 &quot;추가&quot;합니다.
+          </p>
+          <ol className="space-y-4 text-xs text-neutral-700">
+            <li className="space-y-1.5">
+              <p className="font-semibold">① 앱 설정 › 기본 설정 › 앱 도메인</p>
+              <CopyAddress value="buylife.xyz" />
+              {oldHost && <CopyAddress value={oldHost} />}
+            </li>
+            <li className="space-y-1.5">
+              <p className="font-semibold">
+                ② <span className="text-blue-700">Facebook 페이지 방식</span>: 비즈니스용 Facebook 로그인 › 설정 › 유효한 OAuth 리디렉션 URI
+              </p>
+              <CopyAddress value={FACEBOOK_REDIRECT_NEW} />
+              {FACEBOOK_REDIRECT_OLD() !== FACEBOOK_REDIRECT_NEW && <CopyAddress value={FACEBOOK_REDIRECT_OLD()} />}
+              <p className="text-neutral-500">저장 후 같은 화면 맨 위 &quot;URI 리디렉션 유효성 검사기&quot;에 새 주소를 넣고 [URI 확인] → &quot;유효한 리디렉션 URI&quot;가 나오면 됩니다.</p>
+            </li>
+            <li className="space-y-1.5">
+              <p className="font-semibold">
+                ③ <span className="text-green-700">Instagram 로그인 방식</span>: 이용 사례 › 맞춤 설정 › Instagram 로그인이 포함된 API 설정 › 4. Instagram 비즈니스 로그인 설정 › OAuth 리디렉션 URI
+              </p>
+              <CopyAddress value={INSTAGRAM_REDIRECT_NEW} />
+              {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && <CopyAddress value={INSTAGRAM_REDIRECT_OLD()} />}
+            </li>
+            <li className="space-y-1">
+              <p className="font-semibold">④ 이 화면에 넣을 앱 ID</p>
+              <p>· Facebook 페이지 방식: 앱 설정 › 기본 설정 맨 위 <b>앱 ID·앱 시크릿 코드</b> → 아래 &quot;📘 Facebook 페이지 방식용&quot; 칸</p>
+              <p>· Instagram 로그인 방식: ③ 화면 맨 위 <b>Instagram 앱 ID·시크릿 코드</b> → 아래 &quot;Instagram 앱 ID&quot; 칸</p>
+            </li>
+            <li>
+              <p className="font-semibold">⑤ 앱 역할 › 역할(또는 테스터)에 본인 인스타그램·Facebook 계정 추가</p>
+              <p>앱이 개발 모드이면 등록된 계정만 연결할 수 있습니다.</p>
+            </li>
+          </ol>
+        </div>
+
         {SECTIONS.map((section) => (
           <div
             key={section.title}
@@ -134,23 +179,25 @@ export default async function SettingsPage({
             {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && (
               <p className="font-semibold text-neutral-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
             )}
-            <code className="block break-all rounded bg-neutral-100 px-2 py-1.5 text-neutral-800">{INSTAGRAM_REDIRECT_OLD()}</code>
-            {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && (
-              <code className="block break-all rounded bg-neutral-100 px-2 py-1.5 text-neutral-800">{INSTAGRAM_REDIRECT_NEW}</code>
-            )}
+            <CopyAddress value={INSTAGRAM_REDIRECT_OLD()} />
+            {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && <CopyAddress value={INSTAGRAM_REDIRECT_NEW} />}
             <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
           </div>
 
           {/* 2026-10-16: 시험 계정에서 Facebook 앱 ID를 넣어 Instagram 로그인이 "Invalid platform app"로 실패한 사례 — 값 위치 안내 */}
 
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-
+          <div className="mb-3 space-y-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900">
             <p className="font-semibold">⚠️ &quot;Instagram 앱 ID&quot;는 앱 화면 맨 위의 &quot;앱 ID&quot;(Facebook 앱 ID)와 다른 값입니다.</p>
-
-            <p>Meta 앱 대시보드 › <b>이용 사례</b> › <b>맞춤 설정</b> › (Instagram API) › <b>Instagram 로그인이 포함된 API 설정</b> 화면 맨 위의 <b>Instagram 앱 ID</b>와 <b>Instagram 앱 시크릿 코드</b>(표시 버튼)를 넣어주세요. 새 콜백 주소는 같은 화면의 &quot;4. Instagram 비즈니스 로그인 설정&quot;에 추가합니다. 맨 위 앱 ID를 넣으면 연결할 때 Instagram 화면에 &quot;Invalid platform app&quot; 오류가 납니다.</p>
-
-            <p>이 칸은 <b>Instagram 로그인 방식</b> 전용입니다. <b>Facebook 페이지로 연결하기</b> 방식은 아래 &quot;Facebook 앱 ID / 시크릿&quot; 칸(맨 위 앱 ID·앱 시크릿 코드)을 따로 등록해 쓰세요.</p>
-
+            <p>
+              Meta 앱 대시보드 › <b>이용 사례</b> › <b>맞춤 설정</b> › (Instagram API) › <b>Instagram 로그인이 포함된 API 설정</b> 화면 맨 위의 <b>Instagram 앱 ID</b>와 <b>Instagram 앱 시크릿 코드</b>(표시 버튼)를 넣어주세요.
+            </p>
+            <p>새 콜백 주소는 같은 화면의 &quot;4. Instagram 비즈니스 로그인 설정&quot;에 추가합니다.</p>
+            <p>맨 위 앱 ID를 넣으면 연결할 때 Instagram 화면에 &quot;Invalid platform app&quot; 오류가 납니다.</p>
+            <p>
+              이 칸은 <b>Instagram 로그인 방식</b> 전용입니다.
+              <br />
+              <b>Facebook 페이지로 연결하기</b> 방식은 아래 &quot;Facebook 앱 ID / 시크릿&quot; 칸(맨 위 앱 ID·앱 시크릿 코드)을 따로 등록해 쓰세요.
+            </p>
           </div>
 
           <div className="space-y-3">
@@ -244,17 +291,11 @@ export default async function SettingsPage({
                       <input type="hidden" name="method" value="facebook_login" />
                       <Button type="submit" variant="facebook">Facebook 페이지로 연결하기</Button>
                     </form>
-                    <p className="text-xs text-neutral-500">
-                      Facebook 로그인 방식은 내 Meta 앱의 유효한 OAuth 리디렉션 URI에{" "}
-                      <code className="break-all rounded bg-neutral-100 px-1 py-0.5 text-neutral-800">{FACEBOOK_REDIRECT_OLD()}</code>
-                      {FACEBOOK_REDIRECT_OLD() !== FACEBOOK_REDIRECT_NEW && (
-                        <>
-                          {" 와 새 주소 "}
-                          <code className="break-all rounded bg-neutral-100 px-1 py-0.5 text-neutral-800">{FACEBOOK_REDIRECT_NEW}</code>
-                        </>
-                      )}
-                      도 추가해야 합니다.
-                    </p>
+                    <div className="space-y-1.5 text-xs text-neutral-500">
+                      <p>Facebook 로그인 방식은 내 Meta 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가해야 합니다.</p>
+                      <CopyAddress value={FACEBOOK_REDIRECT_OLD()} />
+                      {FACEBOOK_REDIRECT_OLD() !== FACEBOOK_REDIRECT_NEW && <CopyAddress value={FACEBOOK_REDIRECT_NEW} />}
+                    </div>
                     <form action={connectInstagramAccountAction}>
                       <input type="hidden" name="method" value="instagram_login" />
                       <Button type="submit" variant="instagram">

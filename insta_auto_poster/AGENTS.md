@@ -87,3 +87,8 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - 주인님 요청: Facebook 로그인 버튼 = 파란색, Instagram 방식 버튼 = 초록색. `src/components/ui/Button.tsx`에 `facebook`·`instagram` 변형 추가, 설정 화면 연결 버튼 6개(기본 연결·새 주소 연결·새 주소 다시 연결) 적용.
 - `/api/instagram/callback/byok` 첫 분기(error 또는 code/state 누락)에서 사유를 서버 로그에 남기고 화면에 `reason`으로 표시(코드·state 값은 기록 안 함). 예전엔 사유 없이 `connect_failed`만 보여 원인 파악 불가.
 - 연결 시험(관리자 계정): Facebook 방식 [새 주소로 다시 연결] **성공**(@buylife.co.kr, DB `insta_accounts` facebook_login 갱신). 앞선 "차단된 URL" 원인 = Meta 앱 「비즈니스용 Facebook 로그인 › 설정 › 유효한 OAuth 리디렉션 URI」에 새 주소가 저장되지 않았음(주인님 추가 후 URI 검사기 "유효" → 성공). Instagram 방식은 동의 화면(Instagram 앱 ID·새 콜백 인식)까지 확인, [허용] 이후 결과는 미확인(Instagram 화면은 에이전트 조작 불가).
+## 2026-10-17 v1.14 — 등록 주소 한눈에 보기·복사 버튼·안내 가독성 (Claude Code 윈도우)
+- 주인님 요청: 일반 회원이 다시 들어왔을 때 본인 Meta 앱에 등록할 주소를 정리해 표시 / 주소 옆 복사 버튼 / 노란 안내 상자 글자 키우고 문장마다 줄바꿈.
+- 설정 화면 맨 위 "🧭 내 Meta 앱에 등록할 주소 한눈에 보기" 카드: ① 앱 설정›기본 설정›앱 도메인(`buylife.xyz` + 옛 vercel 호스트) ② Facebook 페이지 방식 유효한 OAuth 리디렉션 URI(새·옛, URI 검사기 확인 안내) ③ Instagram 로그인 방식 리디렉션 URI(새·옛) ④ 이 화면에 넣을 앱 ID 위치 ⑤ 앱 역할 등록. 옛 주소는 환경변수 콜백에서 계산(새 주소와 같으면 숨김).
+- `src/components/settings/CopyAddress.tsx`(클라이언트, 클립보드 + 예비 복사, "✓ 복사됨" 표시) — 설정 화면의 모든 콜백 주소에 적용. 노란 상자 text-sm·leading-relaxed·문장별 단락.
+- 검수: 빌드·배포·DB v1.14, 크롬에서 카드 표시·복사 버튼 클릭 시 "✓ 복사됨" 확인, 노란 상자 줄바꿈 확인.
