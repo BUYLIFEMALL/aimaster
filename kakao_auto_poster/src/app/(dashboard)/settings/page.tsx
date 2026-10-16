@@ -8,6 +8,7 @@ import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection
 import { TelegramSection } from "@/components/settings/TelegramSection";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
+import { KAKAO_REDIRECT_NEW, KAKAO_REDIRECT_OLD } from "@/lib/oauthRedirect";
 
 const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
 
@@ -150,9 +151,13 @@ export default async function SettingsPage({
               입력해주세요. Client Secret은 &quot;보안 &gt; Client Secret&quot;을 활성화한
               경우에만 필요합니다(활성화하지 않았다면 비워둬도 됩니다).
             </p>
-            <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">
-              {process.env.NEXT_PUBLIC_SITE_URL ?? "https://kakaoautoposter.vercel.app"}/api/kakao/callback
-            </code>
+            {KAKAO_REDIRECT_OLD() !== KAKAO_REDIRECT_NEW && (
+              <p className="font-semibold text-neutral-700">아래 두 주소를 모두 Redirect URI에 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+            )}
+            <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{KAKAO_REDIRECT_OLD()}</code>
+            {KAKAO_REDIRECT_OLD() !== KAKAO_REDIRECT_NEW && (
+              <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{KAKAO_REDIRECT_NEW}</code>
+            )}
           </div>
 
           <div className="mb-4 space-y-3">
@@ -166,7 +171,7 @@ export default async function SettingsPage({
             ))}
           </div>
 
-          <KakaoAccountSection account={kakaoAccount ?? null} />
+          <KakaoAccountSection account={kakaoAccount ?? null} showNewCallback={KAKAO_REDIRECT_OLD() !== KAKAO_REDIRECT_NEW} />
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">

@@ -37,14 +37,6 @@ export interface KakaoUserProfile {
   properties?: { nickname?: string };
 }
 
-function getEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`환경변수 ${name}가 설정되지 않았습니다.`);
-  }
-  return value;
-}
-
 async function parseKakaoResponse<T>(response: Response): Promise<T> {
   const body = await response.json();
   if (!response.ok) {
@@ -54,10 +46,10 @@ async function parseKakaoResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export function getKakaoAuthorizeUrl(state: string, restApiKey: string): string {
+export function getKakaoAuthorizeUrl(state: string, restApiKey: string, redirectUri: string): string {
   const params = new URLSearchParams({
     client_id: restApiKey,
-    redirect_uri: getEnv("KAKAO_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: KAKAO_SCOPES,
     state,
@@ -68,12 +60,13 @@ export function getKakaoAuthorizeUrl(state: string, restApiKey: string): string 
 export async function exchangeCodeForToken(
   code: string,
   restApiKey: string,
+  redirectUri: string,
   clientSecret?: string | null,
 ): Promise<KakaoTokenResponse> {
   const form: Record<string, string> = {
     grant_type: "authorization_code",
     client_id: restApiKey,
-    redirect_uri: getEnv("KAKAO_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     code,
   };
   // Client Secret은 카카오 개발자 콘솔에서 "활성화" 설정을 켠 경우에만 필요하다 — 안 켰으면

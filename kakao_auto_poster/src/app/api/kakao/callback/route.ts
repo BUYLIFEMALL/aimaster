@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { KAKAO_REDIRECT_FOR, KAKAO_REDIRECT_NEW, OLD_HOST, SITE_ORIGIN } from "@/lib/oauthRedirect";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { exchangeCodeForToken, getKakaoUserProfile } from "@/lib/kakao/client";
@@ -13,14 +14,20 @@ export async function GET(request: NextRequest) {
   // 2026-10-15 도메인 연동(SSO): 회원이 본인 카카오 앱에 등록한 콜백은 옛 주소(kakaoautoposter.vercel.app)다. 로그인 쿠키는
   // 새 주소(.buylife.xyz)에만 있으므로, 옛 주소로 돌아온 콜백은 같은 쿼리로 새 주소에 넘겨 거기서 토큰을 교환한다.
   // 토큰 교환의 redirect_uri는 KAKAO_REDIRECT_URI(옛 주소 문자열) 그대로라 카카오의 일치 검사를 통과한다.
-  if ((request.headers.get("x-forwarded-host") ?? request.headers.get("host")) === "kakaoautoposter.vercel.app") {
-    return NextResponse.redirect(`https://kakao-auto-posting.buylife.xyz/api/kakao/callback${request.nextUrl.search}`, 307);
+  // 넘길 때 via=old를 붙여, 새 주소에서 토큰 교환 시 인증 요청에 썼던 옛 콜백 주소를 그대로 쓰게 한다(2026-10-16 두 주소 동시 지원).
+  if ((request.headers.get("x-forwarded-host") ?? request.headers.get("host")) === OLD_HOST) {
+    const next = new URL(`${KAKAO_REDIRECT_NEW}${request.nextUrl.search}`);
+    next.searchParams.set("via", "old");
+    return NextResponse.redirect(next.toString(), 307);
   }
+  // 새 콜백으로 바로 돌아오면 via가 없다 → 새 주소로 교환
+  const redirectUri = KAKAO_REDIRECT_FOR(request.nextUrl.searchParams.get("via") === "old" ? "old" : "new");
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const oauthError = request.nextUrl.searchParams.get("error");
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
+  // 연결 후 돌아갈 주소는 옛 주소 환경변수가 아닌 새 주소 기준(옛 주소 삭제 후에도 동작)
+  const siteUrl = SITE_ORIGIN;
 
   if (oauthError || !code || !state) {
     return NextResponse.redirect(`${siteUrl}/settings?error=kakao_connect_failed`);
@@ -52,7 +59,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const token = await exchangeCodeForToken(code, credentials.restApiKey, credentials.clientSecret);
+    const token = await exchangeCodeForToken(code, credentials.restApiKey, redirectUri, credentials.clientSecret);
     const profile = await getKakaoUserProfile(token.access_token);
 
     const tokenExpiresAt = new Date(Date.now() + token.expires_in * 1000).toISOString();

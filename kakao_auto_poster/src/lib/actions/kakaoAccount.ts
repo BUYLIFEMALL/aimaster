@@ -5,9 +5,19 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { getKakaoAuthorizeUrl } from "@/lib/kakao/client";
+import { KAKAO_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
 import { resolveKakaoAppCredentials } from "@/lib/kakao/account";
 
 export async function connectKakaoAccountAction() {
+  await startKakaoOAuth("old");
+}
+
+// 회원 카카오 앱에 새 콜백 주소를 등록한 경우 — 새 주소로 인증(옛 vercel.app 삭제 대비 두 주소 동시 지원)
+export async function connectKakaoAccountNewCallbackAction() {
+  await startKakaoOAuth("new");
+}
+
+async function startKakaoOAuth(callbackMode: CallbackMode) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
@@ -22,7 +32,7 @@ export async function connectKakaoAccountAction() {
 
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용) —
   // threads/src/lib/actions/accounts.ts와 동일한 패턴.
-  const authorizeUrl = getKakaoAuthorizeUrl(user.id, credentials.restApiKey);
+  const authorizeUrl = getKakaoAuthorizeUrl(user.id, credentials.restApiKey, KAKAO_REDIRECT_FOR(callbackMode));
   redirect(authorizeUrl);
 }
 

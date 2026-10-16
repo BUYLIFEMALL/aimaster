@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { connectKakaoAccountAction, disconnectKakaoAccountAction } from "@/lib/actions/kakaoAccount";
+import { connectKakaoAccountAction, connectKakaoAccountNewCallbackAction, disconnectKakaoAccountAction } from "@/lib/actions/kakaoAccount";
 
 export interface KakaoAccountData {
   nickname: string | null;
@@ -16,15 +16,16 @@ export interface KakaoAccountData {
  * 발송 시 이 계정이 연동되어 있으면 이쪽을 우선 사용하고, 없으면 기존 SOLAPI 경로로 자동
  * 전환된다(lib/kakaoSend.ts).
  */
-export function KakaoAccountSection({ account }: { account: KakaoAccountData | null }) {
+export function KakaoAccountSection({ account, showNewCallback = false }: { account: KakaoAccountData | null; showNewCallback?: boolean }) {
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 
-  async function handleConnect() {
+  // newCallback: 회원 카카오 앱에 새 콜백 주소를 등록한 경우 새 주소로 인증(옛 vercel.app 삭제 대비)
+  async function handleConnect(newCallback = false) {
     setIsConnecting(true);
     try {
-      await connectKakaoAccountAction();
+      await (newCallback ? connectKakaoAccountNewCallbackAction() : connectKakaoAccountAction());
     } finally {
       setIsConnecting(false);
     }
@@ -56,12 +57,22 @@ export function KakaoAccountSection({ account }: { account: KakaoAccountData | n
           <Button type="button" variant="ghost" className="text-red-600 hover:bg-red-50" onClick={handleDisconnect} disabled={isDisconnecting}>
             {isDisconnecting ? "해제 중..." : "연동 해제"}
           </Button>
+          {showNewCallback && (
+            <Button type="button" variant="secondary" onClick={() => handleConnect(true)} disabled={isConnecting}>
+              새 주소로 다시 연결 (카카오 앱에 새 콜백 주소를 등록한 경우)
+            </Button>
+          )}
         </div>
       ) : (
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <Button type="button" onClick={handleConnect} disabled={isConnecting}>
+          <Button type="button" onClick={() => handleConnect()} disabled={isConnecting}>
             {isConnecting ? "연결 중..." : "💬 카카오 로그인으로 연동하기"}
           </Button>
+          {showNewCallback && (
+            <Button type="button" variant="secondary" onClick={() => handleConnect(true)} disabled={isConnecting}>
+              새 주소로 연결 (카카오 앱에 새 콜백 주소를 등록한 경우)
+            </Button>
+          )}
         </div>
       )}
     </div>
