@@ -16,7 +16,7 @@ import {
   type ViralPostMedia,
   type ThreadsSearchStatus,
 } from "@/lib/actions/viral";
-import { connectThreadsAccountWithKeywordSearchAction } from "@/lib/actions/accounts";
+import { connectThreadsAccountWithKeywordSearchAction, connectThreadsAccountWithKeywordSearchNewCallbackAction } from "@/lib/actions/accounts";
 import type { CoupangProduct } from "@/lib/coupang/client";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
 import { PersonaPicker } from "@/components/personas/PersonaPicker";
@@ -1341,6 +1341,14 @@ function SearchModeGuide({
                 className="rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700"
               >
                 🔑 검색 권한 포함해서 Threads 연결
+              </button>
+            </form>
+            <form action={connectThreadsAccountWithKeywordSearchNewCallbackAction}>
+              <button
+                type="submit"
+                className="rounded-lg border border-emerald-600 bg-white px-3 py-1.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-50"
+              >
+                새 콜백 주소로 연결 (Meta 앱에 새 주소 등록 시)
               </button>
             </form>
             {GUIDE_BASE_URL && (

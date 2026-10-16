@@ -11,7 +11,8 @@ const NEW_ORIGIN = "https://threads-affiliate-poster.buylife.xyz";
 
 export function proxy(request: NextRequest) {
   const reqHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
-  if (reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
+  // 독립 배포본(clone-kit)은 자기 vercel.app 주소에서 돌 수 있으므로 넘기지 않는다(2026-10-16 보완)
+  if (process.env.NEXT_PUBLIC_STANDALONE_MODE !== "true" && reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
     return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
   }
   const requestHeaders = new Headers(request.headers);

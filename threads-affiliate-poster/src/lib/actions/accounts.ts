@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getThreadsAuthorizeUrl } from "@/lib/threads/client";
+import { THREADS_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
 
 export async function connectThreadsAccountAction() {
   await startThreadsOAuth({ includeKeywordSearch: false });
@@ -15,7 +16,16 @@ export async function connectThreadsAccountWithKeywordSearchAction() {
   await startThreadsOAuth({ includeKeywordSearch: true });
 }
 
-async function startThreadsOAuth(options: { includeKeywordSearch: boolean }) {
+// 회원 Meta 앱에 새 콜백 주소를 등록한 경우 — 새 주소로 인증(옛 vercel.app 삭제 대비 두 주소 동시 지원)
+export async function connectThreadsAccountNewCallbackAction() {
+  await startThreadsOAuth({ includeKeywordSearch: false }, "new");
+}
+
+export async function connectThreadsAccountWithKeywordSearchNewCallbackAction() {
+  await startThreadsOAuth({ includeKeywordSearch: true }, "new");
+}
+
+async function startThreadsOAuth(options: { includeKeywordSearch: boolean }, callbackMode: CallbackMode = "old") {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
@@ -28,7 +38,7 @@ async function startThreadsOAuth(options: { includeKeywordSearch: boolean }) {
   }
 
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-  const authorizeUrl = getThreadsAuthorizeUrl(user.id, appId, options);
+  const authorizeUrl = getThreadsAuthorizeUrl(user.id, appId, THREADS_REDIRECT_FOR(callbackMode), options);
   redirect(authorizeUrl);
 }
 

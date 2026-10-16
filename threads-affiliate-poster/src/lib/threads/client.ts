@@ -29,14 +29,6 @@ const THREADS_SCOPES = ["threads_basic", "threads_content_publish"];
 // Opt-in only: requesting a scope the member's Meta app has not added fails the whole OAuth flow.
 const KEYWORD_SEARCH_SCOPE = "threads_keyword_search";
 
-function getEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`환경변수 ${name}가 설정되지 않았습니다.`);
-  }
-  return value;
-}
-
 async function parseThreadsResponse<T>(response: Response): Promise<T> {
   const body = await response.json();
   if (!response.ok) {
@@ -49,6 +41,7 @@ async function parseThreadsResponse<T>(response: Response): Promise<T> {
 export function getThreadsAuthorizeUrl(
   state: string,
   appId: string,
+  redirectUri: string,
   options?: { includeKeywordSearch?: boolean },
 ): string {
   const scopes = options?.includeKeywordSearch
@@ -56,7 +49,7 @@ export function getThreadsAuthorizeUrl(
     : THREADS_SCOPES;
   const params = new URLSearchParams({
     client_id: appId,
-    redirect_uri: getEnv("THREADS_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     scope: scopes.join(","),
     response_type: "code",
     state,
@@ -68,12 +61,13 @@ export async function exchangeCodeForToken(
   code: string,
   appId: string,
   appSecret: string,
+  redirectUri: string,
 ): Promise<ThreadsTokenExchangeResponse> {
   const form = new URLSearchParams({
     client_id: appId,
     client_secret: appSecret,
     grant_type: "authorization_code",
-    redirect_uri: getEnv("THREADS_REDIRECT_URI"),
+    redirect_uri: redirectUri,
     code,
   });
 
