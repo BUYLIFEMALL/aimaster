@@ -140,3 +140,8 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 텔레그램 웹훅 등록 기준을 SITE_ORIGIN으로. 기존 등록분 일괄 이전 `GET|POST /api/telegram/migrate-webhooks`(CRON_SECRET Bearer 또는 관리자 로그인, getWebhookInfo로 이미 새 주소면 건너뜀, 같은 secret_token). **현재 연동 1건(주인님 관리자 계정 봇) — 관리자 로그인 상태로 이 주소를 한 번 열면 이전됨(미실행)**. `vercel env pull`로 받은 CRON_SECRET은 운영 값과 달라 401(민감 변수는 실제 값이 내려오지 않음) → 관리자 로그인 방식 추가.
 - 검수: 빌드·배포(v1.08), 옛 콜백 → `...?via=old` 307, 새 콜백(비로그인) → /login, migrate 비인증 401. 시험 계정 설정 화면에 두 주소·버튼 표시, [새 주소로 다시 연결] → Meta가 "리디렉션 URI 화이트리스트에 없음"(시험 계정 앱에 새 주소 미등록 = 새 콜백 전송 확인). 실제 연결 성공은 앱에 새 주소 등록 후 확인 필요.
 - 남은 일(삭제 직전): 기본 연결을 새 콜백으로 바꾸고 옛 버튼·307 코드 제거.
+
+## 2026-10-17 v1.09 — 등록 주소 한눈에 보기·복사 버튼 (Claude Code 윈도우)
+- 주인님 요청(INSTA 포스팅 v1.14·threads v1.09·쇼핑제휴 v1.55와 같은 형식): 설정 화면 맨 위 `components/settings/ThreadsMetaAddressSummary.tsx`(앱 도메인·리디렉션 콜백 새·옛·제거/삭제 콜백(쇼핑제휴 `threads-affiliate-poster.buylife.xyz/api/threads/uninstall`·`/delete` — 그 처리기가 `th_accounts`까지 정리)·Threads 앱 ID 위치·테스터 추가/초대 수락). 콜백 주소 표시는 `CopyAddress`(복사 버튼)로 교체.
+- 같은 날 주인님이 Meta 앱에 새 콜백 등록 → 관리자 [새 주소로 다시 연결] 성공(댓글 권한 동의 후 `th_accounts` 확인).
+- 검수: 빌드·배포·DB v1.09, 크롬에서 카드 제목·사이드바 v1.09 확인.

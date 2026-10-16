@@ -19,6 +19,8 @@ import {
 } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
 import { NEW_REDIRECT_URI, oldRedirectUri } from "@/lib/oauthRedirect";
+import { CopyAddress } from "@/components/settings/CopyAddress";
+import { ThreadsMetaAddressSummary } from "@/components/settings/ThreadsMetaAddressSummary";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +83,12 @@ export default async function SettingsPage() {
         </p>
 
         <div className="space-y-5">
+          {/* 제거·삭제 콜백은 threads-affiliate-poster가 이 프로그램 데이터(th_accounts/th_posts)까지 처리한다 */}
+          <ThreadsMetaAddressSummary
+            uninstallUrl="https://threads-affiliate-poster.buylife.xyz/api/threads/uninstall"
+            deleteUrl="https://threads-affiliate-poster.buylife.xyz/api/threads/delete"
+          />
+
           {/* 🧵 Threads 계정 연결 그룹 */}
           <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
             <div>
@@ -99,11 +107,11 @@ export default async function SettingsPage() {
               </p>
               <p className="font-semibold text-gray-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
               <p>① 기존 주소</p>
-              <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-gray-800">{oldRedirectUri()}</code>
+              <CopyAddress value={oldRedirectUri()} />
               {oldRedirectUri() !== NEW_REDIRECT_URI && (
                 <>
                   <p>② 새 주소</p>
-                  <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-gray-800">{NEW_REDIRECT_URI}</code>
+                  <CopyAddress value={NEW_REDIRECT_URI} />
                   <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
                 </>
               )}
