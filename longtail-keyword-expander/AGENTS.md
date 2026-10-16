@@ -109,3 +109,8 @@ longtail-keyword-expander는 AIMaster 저장소 안의 서브프로젝트다. �
 - 다크 차콜 + 모던 블루·앰버 토큰(`mx-*`), 대시보드(`/dashboard`, `/` 접속 시 이동)·사용 매뉴얼(`/guide`) 신설, 씨드·결과 목록에 검색·필터·표/카드 전환, 결과 상세에 KPI·관련도 막대·복사 버튼, 휴대폰 ☰ 메뉴(원칙 19), 시각 `Asia/Seoul` 고정, 삭제 확인창.
 - 서버 액션·DB·권한 판정은 바꾸지 않았다. 로그인 화면은 공통 밝은 디자인 유지.
 - **윈도우 빌드·오류 수정·운영 배포·화면 검수 완료**(Codex, 소스 `54eaee73`). 결과: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) 7절. 개선 제안: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+
+## 2026-10-16 결과 CSV 내려받기 — v1.07 (Claude Code 윈도우, 맥미니 작업리스트 1번)
+- 결과 상세의 연관 키워드 매트릭스 옆 [⬇️ CSV 내려받기](`components/runs/CsvButton.tsx`): 열 = 구분(씨드 직속/연관)·연관 키워드·관련도(%)·롱테일 키워드, 롱테일 하나당 한 줄, UTF-8 BOM(엑셀 한글), 서버 호출 없음. 파일명 `<씨드>_롱테일키워드_<실행일>.csv`.
+- 빌드·배포·DB v1.07(SQL `supabase/migrations/0003_version_v1_07.sql`). **실화면 미확인**: 이 프로그램이 아직 `vercel.app` 주소라 메인 로그인이 이어지지 않아 시험 계정 재로그인이 필요(에이전트는 비밀번호 입력 안 함) → 도메인 통일 작업(`docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md` 5번) 후 확인. 시험 계정에 실행 결과도 없어 결과 1건(유료 SerpApi 1회+OpenAI 3회)이 필요할 수 있음.
+- 확인 필요: VIP 회원 19명이 이 프로그램에 개별 부여(만료 2026-10-16)를 가지고 있어 등급 자동 부여가 덮지 못함(유효 VIP 119/138). 회원 권한 데이터라 수정하지 않음.

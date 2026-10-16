@@ -3,6 +3,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { CopyButton } from "@/components/runs/CopyButton";
+import { CsvButton, type CsvRow } from "@/components/runs/CsvButton";
 import { formatDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +58,16 @@ export default async function RunDetailPage({ params }: PageProps) {
   const avgRelevance =
     scored.length > 0 ? Math.round((scored.reduce((sum, r) => sum + (r.relevance_score ?? 0), 0) / scored.length) * 100) : null;
   const allLongtail = (expansions ?? []).map((e) => e.keyword).join("\n");
+  // CSV: 롱테일 하나당 한 줄(연관 키워드·관련도와 함께), 롱테일이 없는 연관 키워드도 한 줄, 씨드 직속 롱테일은 구분 "씨드 직속"
+  const csvRows: CsvRow[] = [
+    ...seedDirectExpansions.map((e) => ({ group: "씨드 직속", related: seed.keyword, relevance: null, longtail: e.keyword })),
+    ...relatedList.flatMap((r) => {
+      const pct = r.relevance_score !== null ? Math.round(r.relevance_score * 100) : null;
+      const children = expansionsByRelatedId.get(r.id) ?? [];
+      return children.length ? children.map((e) => ({ group: "연관", related: r.keyword, relevance: pct, longtail: e.keyword })) : [{ group: "연관", related: r.keyword, relevance: pct, longtail: "" }];
+    }),
+  ];
+  const csvName = `${seed.keyword.replace(/[\\/:*?"<>|]/g, "").trim() || "keywords"}_롱테일키워드_${run.executed_at.slice(0, 10).replace(/-/g, "")}.csv`;
 
   return (
     <div className="space-y-6">
@@ -98,7 +109,10 @@ export default async function RunDetailPage({ params }: PageProps) {
         <div className="mx-card">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h2 className="mx-section-title mb-0">🔗 연관 키워드 매트릭스</h2>
-            {allLongtail && <CopyButton text={allLongtail} label="롱테일 전체 복사" />}
+            <div className="flex flex-wrap items-start justify-end gap-2">
+              <CsvButton rows={csvRows} fileName={csvName} />
+              {allLongtail && <CopyButton text={allLongtail} label="롱테일 전체 복사" />}
+            </div>
           </div>
           <div className="-mx-5 overflow-x-auto px-5">
             <table className="mx-table min-w-[560px]">
