@@ -4,12 +4,14 @@
 
 ## 현재 상태
 
-- **2026-10-16 v1.09 (포커스 스튜디오 템플릿 적용 및 UI/UX 고급화, Antigravity)**:
-  - 포커스 스튜디오(Focus Studio) 템플릿 스타일 시스템 적용 완료 (`src/app/globals.css`).
-  - 대시보드 히어로 배너, 현대적 통계 카드 3종, 최근 문서 카드 그리드, 빈 상태 일러스트 카드 구현 (`WorkspacePage.tsx`).
-  - Next.js 16.4.0 Turbopack 로컬 빌드 검증 및 Supabase DB programs.version 1.09 갱신 완료.
+- **2026-10-16 v1.10 (포커스 스튜디오 템플릿 적용, 연동/사용 매뉴얼 비주얼화, Antigravity)**:
+  - 포커스 스튜디오(Focus Studio) 템플릿 스타일 시스템 구축 (`src/app/globals.css`).
+  - 대시보드 히어로 배너, 현대적 통계 카드 3종, 본문 발췌 최근 문서 카드 그리드, 빈 상태 일러스트 카드 구현 (`WorkspacePage.tsx`).
+  - 연동 & 사용 매뉴얼(/guide)을 프로세스 다이어그램, 4대 포맷 쇼케이스, 단축키 칩, 팁/보안 인포박스가 포함된 비주얼 가이드북으로 전면 개편 (`src/app/(workspace)/guide/page.tsx`).
+  - Next.js 16.4.0 Turbopack 로컬 빌드 검증 및 Supabase DB programs.version 1.10 갱신 완료.
   - Microsoft Edge(엣지) 전용 브라우저로 일반 회원 테스트 계정(buylifemall@naver.com) 데스크톱(1440px) 및 모바일(375px) 화면 검수 완료.
   - Vercel 프로덕션 배포 완료 (https://markdown-studio.buylife.xyz).
+  - **디자인 개발완료 및 주요 유의사항 인수인계 보고서**: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) 참고.
   - **프로그램 검토 중 발굴된 로직·기능·편의성 개선 과제**: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) 참고.
 
 - 2026-10-13: 참고 사이트 공개 소스 조사, 독립 Chrome 기능 실험, 개발 계획 작성 완료.
@@ -66,3 +68,8 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.08 (markdown-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-16 신규 DB 변수 등록 후속 검수 — v1.09 유지
+
+주인님 승인으로 Production에 새 공개/서버 변수 이름을 추가했고 기존 변수는 유지했습니다. Antigravity 디자인 작업 종료 및 v1.09 배포 완료를 확인한 뒤, 새 변수 등록 이후 생성된 최신 배포 `dpl_AhURmG83LJQ8kkvVLYLLGAFjG9Zx`를 보존했습니다. 과거 v1.08을 다시 배포하지 않았습니다. 신규 이름만 사용한 로컬 빌드와 Microsoft Edge 일반 회원 접근·v1.09 표시·모바일 검수를 통과했습니다. 코드·DB 버전·디자인을 바꾸지 않았고 유료 AI 호출은 0회입니다. 전체 결과는 [DB 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)와 [후속 배포 증거](../docs/supabase-compat-rollout-20261016/markdown-studio-followup.json)를 확인합니다. 기존 변수 삭제는 안정화 후 주인님과 시점을 확정한 다음 별도로 처리합니다.
