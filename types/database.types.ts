@@ -65,7 +65,7 @@ export interface Program {
   extension_download_url?: string | null;
   extension_version?: string | null;
   // 상세 페이지 핵심 특징·사용 순서(프로그램별, 2026-10-16). lib/programs/detailSections.ts
-  detail_sections?: { features: { icon: string; title: string; desc: string }[]; steps: { title: string; desc: string }[] } | null;
+  detail_sections?: { features: { icon: string; title: string; desc: string }[]; steps: { title: string; desc: string }[]; audiences?: { icon: string; title: string; desc: string; points: string[] }[] } | null;
   // 관리자가 수동으로 다는 추천 뱃지 (Badge 컴포넌트 variant와 동일한 값). 여러 개(예: FREE +
   // NEW) 동시에 달 수 있어 배열이다. 빈 배열이면 뱃지 없음.
   badges: ("new" | "best" | "sale" | "coming" | "free" | "recommended" | "premium")[];

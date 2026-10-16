@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Play, Lock, CheckCircle2, HelpCircle, ArrowRight, BookOpen, Users, Sparkles } from "lucide-react";
+import { ArrowLeft, Play, Lock, CheckCircle2, HelpCircle, ArrowRight, BookOpen } from "lucide-react";
 import Link from "next/link";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import PaymentController from "@/components/payment/PaymentController";
@@ -300,57 +300,32 @@ export default async function ProgramDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* 추천 대상 및 활용 시나리오 (Use Cases) */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold text-white mb-2">
-          추천 <GoldGradientText>활용 대상</GoldGradientText>
-        </h2>
-        <p className="text-subtext mb-8">이런 분들께 가장 높은 생산성 향상 효과를 제공합니다</p>
+      {/* 추천 활용 대상 — 프로그램별 값(programs.detail_sections.audiences). 없으면 섹션을 숨긴다(2026-10-16, 공통 고정 문구 제거) */}
+      {sections.audiences.length > 0 && (
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            추천 <GoldGradientText>활용 대상</GoldGradientText>
+          </h2>
+          <p className="text-subtext mb-8">이 프로그램이 특히 잘 맞는 분들입니다</p>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="glass-card rounded-2xl p-6 border border-white/10">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gold mb-4">
-              <Users size={20} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">1인 창업가 · 크리에이터</h3>
-            <p className="text-subtext text-sm leading-relaxed mb-4">
-              콘텐츠 기획부터 제작, 업로드까지 혼자 감당하기 벅찬 분들에게 24시간 일하는 AI 전담 팀원 역할을 해드립니다.
-            </p>
-            <ul className="text-xs text-subtext/80 space-y-1.5">
-              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 매일 끊이지 않는 글감 및 숏폼 대본 수급</li>
-              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 톤앤매너를 유지하는 균일한 퀄리티 보장</li>
-            </ul>
+          <div className="grid md:grid-cols-3 gap-6">
+            {sections.audiences.map((a, i) => (
+              <div key={i} className="glass-card rounded-2xl p-6 border border-white/10">
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-xl mb-4">{a.icon || "👥"}</div>
+                <h3 className="text-lg font-bold text-white mb-2">{a.title}</h3>
+                <p className="text-subtext text-sm leading-relaxed mb-4">{a.desc}</p>
+                {a.points.length > 0 && (
+                  <ul className="text-xs text-subtext/80 space-y-1.5">
+                    {a.points.map((p, j) => (
+                      <li key={j} className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold shrink-0" /> {p}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
           </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gold mb-4">
-              <Sparkles size={20} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">이커머스 셀러 · 제휴마케터</h3>
-            <p className="text-subtext text-sm leading-relaxed mb-4">
-              상품 상세페이지 기획, 쿠팡 파트너스·스마트스토어 홍보 채널 확장을 빠르게 대량화하고 싶은 셀러에게 최적입니다.
-            </p>
-            <ul className="text-xs text-subtext/80 space-y-1.5">
-              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 상품 키워드 기반 바이럴 포스팅 자동화</li>
-              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 다중 소셜 채널 분산 유입 파이프라인 구축</li>
-            </ul>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 border border-white/10">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gold mb-4">
-              <BookOpen size={20} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">마케팅 대행사 · 브랜드 실무자</h3>
-            <p className="text-subtext text-sm leading-relaxed mb-4">
-              다수의 브랜드 계정을 효율적으로 관리하고 최신 검색 알고리즘에 맞춘 맞춤형 포스팅 전략을 전개할 수 있습니다.
-            </p>
-            <ul className="text-xs text-subtext/80 space-y-1.5">
-              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 표준화된 운영 프로세스로 업무 인계 간소화</li>
-              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 지속적인 검색 노출 및 잠재 고객 확보</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 자주 묻는 질문 FAQ */}
       <section className="mb-16">
