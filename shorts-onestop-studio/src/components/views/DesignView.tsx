@@ -91,7 +91,7 @@ export function DesignView() {
   }
 
   function pickStock(r: StockItem) {
-    update((s) => setBg(s, active, { type: r.type, source: bd.provider ?? "pixabay", src: r.src, thumb: r.thumb, credit: r.credit, pageUrl: r.pageUrl }));
+    update((s) => setBg(s, active, { type: r.type, source: bd.provider ?? "pixabay", src: r.src, thumb: r.thumb, credit: r.credit, pageUrl: r.pageUrl, stockId: r.id.replace(/^[a-z]+-/, "") }));
   }
 
   async function fillAllStock() {
@@ -102,11 +102,12 @@ export function DesignView() {
     try {
       let next = script; const used = new Set<string>();
       for (const i of idx) {
+        if (getBg(next, i)?.source === "ai") continue; // 비용을 들여 만든 AI 이미지는 덮어쓰지 않는다
         const items = (await api<{ items: StockItem[] }>("/api/stock/search", { body: { provider: bd.provider, type: bd.media, query: hint(i).query } })).items;
         const r = items.find((x) => !used.has(x.id)) ?? items[0];
-        if (r) { used.add(r.id); next = setBg(next, i, { type: r.type, source: bd.provider ?? "pixabay", src: r.src, thumb: r.thumb, credit: r.credit, pageUrl: r.pageUrl }); }
+        if (r) { used.add(r.id); next = setBg(next, i, { type: r.type, source: bd.provider ?? "pixabay", src: r.src, thumb: r.thumb, credit: r.credit, pageUrl: r.pageUrl, stockId: r.id.replace(/^[a-z]+-/, "") }); }
       }
-      setScript(next); setDirty(true); setMsg({ text: "스톡으로 배경을 채웠습니다. 마음에 안 드는 장면만 다시 검색해 바꾸세요.", ok: true });
+      setScript(next); setDirty(true); setMsg({ text: "스톡으로 배경을 채웠습니다(AI 이미지가 있는 장면은 그대로 둠). 마음에 안 드는 장면만 다시 검색해 바꾸세요.", ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
 
@@ -128,7 +129,7 @@ export function DesignView() {
   }
 
   const rows = script ? (bd.mode === "global" ? [-1] : Array.from({ length: script.cards.length + 2 }, (_, i) => i)) : [];
-  const thumbOf = (b?: Bg) => (b ? (b.source === "ai" ? media.srcOf(b) : b.thumb || b.src) : "");
+  const thumbOf = (b?: Bg) => (b ? (b.source === "ai" ? media.srcOf(b) : b.type === "image" ? media.srcOf(b) : b.thumb || b.src) : "");
 
   return (
     <>

@@ -29,12 +29,22 @@ export function useMedia(script: ShortsScript | null | undefined) {
       .then((r) => r.json()).then((d) => { if (d.urls && Object.keys(d.urls).length) setSigned((s) => ({ ...s, ...d.urls })); }).catch(() => undefined);
   }, [pathKey, signed]);
 
-  const srcOf = useCallback((b: Bg) => (b.path ? signed[b.path] ?? "" : b.src), [signed]);
+  // Pixabay 사진·영상: 저장된 번호로 새 주소를 받는다(임시 주소 만료 대응). 받기 전에는 저장된 주소를 그대로 시도
+  const [fresh, setFresh] = useState<Record<string, string>>({});
+  const pbKey = allBgs(script).filter((b) => b.source === "pixabay" && b.stockId).map((b) => `${b.type}:${b.stockId}`).sort().join("|");
+  useEffect(() => {
+    const items = (pbKey ? pbKey.split("|") : []).map((k) => { const [type, id] = k.split(":"); return { type, id }; }).filter((x) => !asked.current.has(`pb:${x.id}`));
+    if (!items.length) return;
+    items.forEach((x) => asked.current.add(`pb:${x.id}`));
+    fetch("/api/stock/resolve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }) })
+      .then((r) => r.json()).then((d) => { if (d.urls && Object.keys(d.urls).length) setFresh((f) => ({ ...f, ...Object.fromEntries(Object.entries(d.urls as Record<string, { src: string }>).map(([k, v]) => [k, v.src])) })); }).catch(() => undefined);
+  }, [pbKey]);
+  const srcOf = useCallback((b: Bg) => (b.path ? signed[b.path] ?? "" : b.source === "pixabay" && b.stockId && fresh[b.stockId] ? fresh[b.stockId] : b.src), [signed, fresh]);
 
   // 필요한 요소 불러오기
   useEffect(() => {
     for (const b of allBgs(script)) {
-      const src = srcOf(b); const key = b.path ?? b.src;
+      const src = srcOf(b); const key = b.path ?? (b.stockId ? `${b.source}:${b.stockId}:${src}` : b.src);
       if (!src || cache.current.has(key)) continue;
       if (b.type === "video") {
         const v = document.createElement("video");
@@ -50,11 +60,11 @@ export function useMedia(script: ShortsScript | null | undefined) {
 
   // 다 그릴 수 있는 상태만 돌려준다(아직 로딩 중이면 null → 테마 배경)
   const resolve = useCallback((b: Bg): CanvasImageSource | null => {
-    const el = cache.current.get(b.path ?? b.src);
+    const el = cache.current.get(b.path ?? (b.stockId ? `${b.source}:${b.stockId}:${srcOf(b)}` : b.src));
     if (!el) return null;
     if (el instanceof HTMLVideoElement) return el.readyState >= 2 ? el : null;
     return el.complete && el.naturalWidth > 0 ? el : null;
-  }, []);
+  }, [srcOf]);
 
   return { resolve, srcOf, tick };
 }

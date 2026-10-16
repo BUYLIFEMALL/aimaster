@@ -26,7 +26,8 @@ export type Format = keyof typeof FORMATS;
 export const MIN_CARDS = 3, MAX_CARDS = 8;
 
 /** 장면 배경(P4). 스톡은 원본 주소(브라우저가 바로 불러옴, CORS 허용 확인), AI 이미지는 저장소 경로(path) + 임시 서명 주소(src) */
-export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "ai"; src: string; thumb?: string; path?: string; credit?: string; pageUrl?: string; prompt?: string }
+/** stockId: 스톡 원본 번호. Pixabay 사진 주소(pixabay.com/get/…)는 24시간 임시라, 열 때마다 이 번호로 새 주소를 받는다(/api/stock/resolve) */
+export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "ai"; src: string; thumb?: string; path?: string; credit?: string; pageUrl?: string; prompt?: string; stockId?: string }
 export interface Backdrop { mode: "theme" | "global" | "scene"; global?: Bg; dim: number; style: string; character: string; provider?: "pexels" | "pixabay"; media?: "image" | "video"; hints?: { query: string; prompt: string }[] }
 export interface Scene { title: string; desc: string; narration: string; tag?: string; bg?: Bg }
 export interface ShortsScript {
@@ -129,7 +130,8 @@ export function normalizeBackdrop(b: Partial<Backdrop> | undefined): Backdrop {
     mode: b?.mode === "global" || b?.mode === "scene" ? b.mode : "theme",
     global: b?.global, dim: typeof b?.dim === "number" ? Math.min(0.85, Math.max(0, b.dim)) : DEFAULT_BACKDROP.dim,
     style: b?.style && b.style in IMAGE_STYLES ? b.style : "photo", character: typeof b?.character === "string" ? b.character.slice(0, 300) : "",
-    provider: b?.provider === "pexels" ? "pexels" : "pixabay", // 2026-10-16 Pexels 새 키 발급 일시 중단 → 기본은 Pixabay media: b?.media === "image" ? "image" : "video",
+    // 2026-10-16 Pexels 새 키 발급 일시 중단 → 기본은 Pixabay
+    provider: b?.provider === "pexels" ? "pexels" : "pixabay", media: b?.media === "image" ? "image" : "video",
     hints: Array.isArray(b?.hints) ? b.hints.slice(0, 12).map((h) => ({ query: String(h?.query ?? "").slice(0, 80), prompt: String(h?.prompt ?? "").slice(0, 900) })) : [],
   };
 }

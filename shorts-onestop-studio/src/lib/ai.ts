@@ -77,15 +77,20 @@ export function parseJsonLoose(text: string): unknown {
   const t = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "");
   try { return JSON.parse(t); } catch { /* 아래 */ }
   const s = t.indexOf("{"), e = t.lastIndexOf("}");
-  if (s >= 0 && e > s) { try { return JSON.parse(t.slice(s, e + 1)); } catch { /* 실패 */ } }
+  if (s >= 0 && e > s) { try { return JSON.parse(t.slice(s, e + 1)); } catch { /* 아래 */ } }
+  const as = t.indexOf("["), ae = t.lastIndexOf("]");
+  if (as >= 0 && ae > as) { try { return JSON.parse(t.slice(as, ae + 1)); } catch { /* 실패 */ } }
   return null;
 }
 
-/** JSON 객체 응답. 형식이 깨지면 한 번만 다시 요청한다 */
+/** JSON 객체 응답. 모델이 객체 대신 배열만 돌려주면 {items:[…]}로 감싼다(2026-10-16 장면 설명에서 발생). 형식이 깨지면 한 번만 다시 요청한다 */
 export async function generateJson(cfg: AiConfig, o: { system: string; prompt: string; maxTokens?: number; timeoutMs?: number }): Promise<Record<string, unknown>> {
   for (let attempt = 0; attempt < 2; attempt++) {
-    const parsed = parseJsonLoose(await generateText(cfg, { ...o, json: true }));
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as Record<string, unknown>;
+    const text = await generateText(cfg, { ...o, json: true });
+    const parsed = parseJsonLoose(text);
+    if (Array.isArray(parsed)) return { items: parsed };
+    if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
+    console.warn("[shorts-onestop-studio] JSON 해석 실패", cfg.provider, cfg.model, "길이", text.length);
   }
   throw new AiError(502, "json", "AI 응답을 해석하지 못했습니다. 다시 시도해 주세요.");
 }

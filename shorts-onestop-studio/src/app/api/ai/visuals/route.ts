@@ -20,8 +20,9 @@ export async function POST(request: NextRequest) {
     const styleKey = (String(g.body.style ?? "photo") in IMAGE_STYLES ? String(g.body.style) : "photo") as ImageStyle;
     const character = String(g.body.character ?? "").slice(0, 300);
     const cfg = await aiConfig(g.userId);
-    const raw = await generateJson(cfg, { ...visualsPrompt({ topic, scenes, style: IMAGE_STYLES[styleKey].prompt, character }), maxTokens: 3000 });
-    const list = (Array.isArray(raw.scenes) ? raw.scenes : []).map((x) => (x && typeof x === "object" ? (x as Record<string, unknown>) : {}))
+    const raw = await generateJson(cfg, { ...visualsPrompt({ topic, scenes, style: IMAGE_STYLES[styleKey].prompt, character }), maxTokens: 5000 });
+    const arr = Array.isArray(raw.scenes) ? raw.scenes : Array.isArray(raw.items) ? raw.items : [];
+    const list = arr.map((x) => (x && typeof x === "object" ? (x as Record<string, unknown>) : {}))
       .map((x) => ({ query: String(x.query ?? "").slice(0, 80), prompt: String(x.prompt ?? "").slice(0, 900) }));
     if (list.length < scenes.length) throw new UserError(502, "장면 설명을 다 만들지 못했습니다. 다시 시도해 주세요.");
     return json({ scenes: list.slice(0, scenes.length) });

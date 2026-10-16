@@ -46,3 +46,19 @@ export async function searchStock(provider: StockProvider, key: string, type: "i
     return pick?.url ? { id: `pbv-${h.id}`, type: "video" as const, src: pick.url, thumb: pick.thumbnail ?? v.tiny?.thumbnail ?? "", width: pick.width, height: pick.height, credit: `${h.user} / Pixabay`, pageUrl: h.pageURL } : null;
   }).filter((x): x is StockItem => !!x).sort((a, b) => (b.height / Math.max(1, b.width)) - (a.height / Math.max(1, a.width)));
 }
+
+/** Pixabay 임시 주소 갱신: 원본 번호로 새 주소를 받는다(사진 /api/?id=, 영상 /api/videos/?id=). 실패한 항목은 빼고 돌려준다 */
+export async function resolvePixabay(key: string, items: { id: string; type: "image" | "video" }[]): Promise<Record<string, { src: string; thumb: string }>> {
+  const out: Record<string, { src: string; thumb: string }> = {};
+  for (const it of items.slice(0, 12)) {
+    if (!/^d+$/.test(it.id)) continue;
+    const url = it.type === "video" ? `https://pixabay.com/api/videos/?key=${encodeURIComponent(key)}&id=${it.id}` : `https://pixabay.com/api/?key=${encodeURIComponent(key)}&id=${it.id}`;
+    const res = await fetch(url, { signal: timeout(), cache: "no-store" }).catch(() => null);
+    if (!res?.ok) continue;
+    const h = ((await res.json()).hits ?? [])[0] as PixabayHit | undefined;
+    if (!h) continue;
+    if (it.type === "video") { const v = h.videos ?? {}; const p = v.large?.url ? v.large : v.medium?.url ? v.medium : v.small; if (p?.url) out[it.id] = { src: p.url, thumb: p.thumbnail ?? "" }; }
+    else if (h.largeImageURL) out[it.id] = { src: h.largeImageURL, thumb: h.webformatURL ?? h.largeImageURL };
+  }
+  return out;
+}
