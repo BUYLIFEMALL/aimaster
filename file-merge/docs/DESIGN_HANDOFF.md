@@ -36,7 +36,9 @@
 ## 5. 배포·검수 기록
 | 항목 | 값 |
 |---|---|
-| 코드 커밋 | (이 문서와 같은 커밋) |
-| 테스트·빌드·배포 | 대기 |
-| DB `programs.version` | v1.06 (배포 때 v1.07) |
-| 화면 검수 | 대기 |
+| 코드 커밋 | 맥미니 c8ee93a7 / Windows 검수 7e6c1ced |
+| 테스트·빌드·배포 | 21/21·Next/타입 빌드 통과·dpl_ChZf914SSBYsuAa6TZRjQB58dbB4 READY |
+| DB `programs.version` | v1.07 (코드 일치, 주소/배지 유지) |
+| 화면 검수 | 일반 회원·Edge 로컬/운영 각12개, 1440px/375px·실제 파일 다운로드 검증 |
+
+최종 결과·한계·프로그램 링크: [Windows 최종 인수인계](IMPROVEMENT_HANDOFF_20261017.md). 실제 배포/검수 증거는 같은 폴더 evidence/를 확인합니다.

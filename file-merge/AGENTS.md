@@ -1,4 +1,4 @@
-# AI 엑셀·텍스트 합치기 자동화 (file-merge) — 작업 지침 (v1.05)
+# AI 엑셀·텍스트 합치기 자동화 (file-merge) — 작업 지침 (v1.07)
 
 - 이어서 작업하는 CLI/계정은 먼저 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md)(현재 상태·남은 일)와 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md)·[`docs/REFERENCE_ANALYSIS.md`](docs/REFERENCE_ANALYSIS.md)를 읽는다. 루트 `CLAUDE.md`·`docs/ERROR_LESSONS.md`도 함께.
 - 프로그램명 "AI 엑셀·텍스트 합치기 자동화"(2026-10-15 주인님 "계속 진행해줘"로 추천안 확정), slug·폴더 `file-merge`, 주소 https://file-merge.buylife.xyz, Vercel 프로젝트 `file-merge`(buylife 팀).
@@ -17,4 +17,8 @@
 
 ## 2026-10-17 v1.07 — 스마트 매트릭스 라이트 변형 디자인 (Claude Code 맥미니)
 - `globals.css`에 라이트 토큰(`--mx-*`, 대비 계산 확인)을 넣고 밝은 하드코딩 색을 토큰으로, 클래스 이름 유지. `/dashboard` 신설(`/` → `/dashboard`, 특징 지표 4종 + 도구 카드 4개), 사이드바 대시보드, 도구 4화면 STEP 히어로, 매뉴얼 캐릭터·4단계 흐름. 파일 처리 로직 변경 없음.
-- **테스트·빌드·배포·화면 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md).
+- **Windows 완료: 테스트21·빌드/타입·배포/DB·Edge 로컬/운영 각12개 통과** — [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md).
+
+## 2026-10-17 Windows 최종 인수 완료 — v1.07
+
+소스 7e6c1ced 푸시, dpl_ChZf914SSBYsuAa6TZRjQB58dbB4 READY, DB/APP v1.07 일치. 테스트21·빌드/타입 통과, 실제 일반 회원 Edge 1440px/375px 로컬/운영 각12개 성공. 실제 다운로드를 다시 읽어 엑셀 정렬·서식·ZIP 분할 및 텍스트 인코딩/원문 보존 검증. 파일 전송·유료 API 0회, 파일 처리/권한 정책 변경 없음. [최종 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md), 서비스 https://file-merge.buylife.xyz . 다음 CLI는 최신 지침·ACTIVE_WORK 확인 후 개선 원장 #3/#4/#6의 요청 항목 플랜부터 시작합니다. 로컬 서버는 tests/local.mjs start(127.0.0.1:3032), 기존 루트 DB 설정을 자식 프로세스에만 사용하며 환경 파일/키를 고치지 않습니다.

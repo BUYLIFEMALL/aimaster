@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — file-merge v1.07 Windows 인수·운영 파일 검수 완료
+
+- **서비스** https://file-merge.buylife.xyz · 맥미니 c8ee93a7의 스마트 매트릭스 라이트 변형 인수. Windows 검수 소스 **7e6c1ced** 푸시 → **dpl_ChZf914SSBYsuAa6TZRjQB58dbB4 READY**, 실제 production target/sourceCommit 확인·DB v1.07. 기존 주소/new 배지 유지, FREE·권한·키·환경변수·스키마·파일 처리 코드 변경 없음.
+- 단위 **21/21**, Next16·타입 빌드 통과, 실제 일반 시험 회원·보이는 Edge **로컬12/운영12 통과**(1440/375px 6개 화면·모바일 메뉴·매뉴얼·라이트 대비8쌍·Worker). 실제 엑셀 두 파일 정렬/서식 다운로드·지역별 ZIP3개·CP949/UTF8 합치기·80자 TXT분할 ZIP/원문 보존 확인. 파일 전송/서버 쓰기·브라우저 오류·유료 API 0회.
+- [최종 결과/한계/재현 명령](../file-merge/docs/IMPROVEMENT_HANDOFF_20261017.md), [디자인 토큰/배포](../file-merge/docs/DESIGN_HANDOFF.md), [운영 증거](../file-merge/docs/evidence/live-browser-v107.json). DESIGN65 ✅, 작업 줄 제거·AGENTS/README/CLI_HANDOFF/개선 원장 갱신. 최종 푸시 후 메인 다운로드 보존 guard 확인.
+- 이번 인수 범위 남은 일 없음. 실제 휴대폰 파일 선택/저장·대용량 재측정·모든 형식 조합은 미검수. 후속 요청은 개선 #3 설정 재사용/#4 검색/#6 품질 요약 플랜부터. #5 다크는 아이디어만. 다른 CLI 스테이징은 별도 index+짧은 공유 잠금으로 보존. 경쟁사 v1.08의 DB/30일 삭제 승인은 별도 대기 유지.
+
 ## 2026-10-17 Codex(Windows) — file-merge v1.07 Windows 사전 검수 완료·운영 배포 진행
 
 - 맥미니 c8ee93a7 인수. 기존 단위 21개·Next/타입 빌드 통과·실제 일반 회원 Edge 로컬 12개 통과(1440px/375px, Worker, 실제 엑셀/ZIP/TXT 저장 결과·서식·원문 보존). 파일 전송/서버 쓰기·유료 API 0회. 기존 처리 코드 변경 없음.

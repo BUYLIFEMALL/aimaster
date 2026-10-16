@@ -1,0 +1,12 @@
+{
+  "slug": "file-merge",
+  "version": "v1.07",
+  "app_url": "https://file-merge.buylife.xyz",
+  "badges": [
+    "new"
+  ],
+  "free_badge_added": false,
+  "schema_changed": false,
+  "member_data_changed": false,
+  "version_release_sql": "supabase/releases/20261017_v107.sql"
+}
