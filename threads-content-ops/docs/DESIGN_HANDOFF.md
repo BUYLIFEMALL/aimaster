@@ -4,7 +4,7 @@
 > **작성 일자**: 2026-10-16  
 > **작성 에이전트**: Antigravity CLI (`agy`, Windows)  
 > **프로그램**: `threads-content-ops` (Threads 콘텐츠 운영 자동화)  
-> **버전**: `v1.96`  
+> **버전**: `v1.97` (사이드바 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 해결 완료)  
 > **프로덕션 URL**: [https://threads-content-ops.buylife.xyz](https://threads-content-ops.buylife.xyz) (가이드북: [https://threads-content-ops.buylife.xyz/?tab=guide](https://threads-content-ops.buylife.xyz/?tab=guide))  
 > **적용 표준**: [`DESIGN.md`](../../DESIGN.md), [`docs/PROGRAM_DESIGN_STANDARD.md`](../../docs/PROGRAM_DESIGN_STANDARD.md), [`docs/SIDEBAR_LAYOUT_STANDARD.md`](../../docs/SIDEBAR_LAYOUT_STANDARD.md)
 

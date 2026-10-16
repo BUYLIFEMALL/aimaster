@@ -4,7 +4,7 @@
 > **작성 에이전트**: Antigravity CLI (`agy`, Windows)  
 > **인수인계 수신자**: Codex, Claude Code 등 다음 작업 투입 AI 코딩 에이전트  
 > **대상 프로그램**: `threads-content-ops` (Threads 콘텐츠 운영 자동화)  
-> **현재 버전**: `v1.96` (코드 `lib/version.ts` 및 공유 DB `programs.version` 동기화 완료)  
+> **현재 버전**: `v1.97` (코드 `lib/version.ts` 및 공유 DB `programs.version` 동기화 완료)  
 > **프로덕션 URL**: [https://threads-content-ops.buylife.xyz](https://threads-content-ops.buylife.xyz)  
 > **가이드북 URL**: [https://threads-content-ops.buylife.xyz/?tab=guide](https://threads-content-ops.buylife.xyz/?tab=guide)  
 > **Vercel 프로젝트**: `threads-content-ops` (Team: `buylife`)  
@@ -15,16 +15,17 @@
 ## 1. 인수인계 개요 및 목적
 주인님의 2026-10-16 지시에 따라, `threads-content-ops`의 기존 코드베이스, 화면 UI, 비즈니스 로직, 외부 연동 구조를 정밀 분석하고, **1) 디자인 리뉴얼 개발플랜 문서([`PLAN_20261016_DESIGN_RENEWAL.md`](PLAN_20261016_DESIGN_RENEWAL.md))**와 **2) 개선사항 백로그 문서([`IMPROVEMENTS.md`](IMPROVEMENTS.md))**를 수립하였습니다.
 
-이어 P0 최우선 과제였던 **좌측 사용 매뉴얼 메뉴 신설, 단계별 가이드북(`UsageGuide.tsx`) 구축, 모바일 반응형 햄버거 헤더(`MobileNav.tsx`) 구현, Microsoft Edge 실세션 검증 및 Vercel 프로덕션 배포(v1.96)**를 성공적으로 완수하였습니다.
+이어 P0 최우선 과제였던 **좌측 사용 매뉴얼 메뉴 신설, 단계별 가이드북(`UsageGuide.tsx`) 구축, 모바일 반응형 햄버거 헤더(`MobileNav.tsx`) 구현, Microsoft Edge 실세션 검증 및 Vercel 프로덕션 배포(v1.96)**를 완수한 데 이어, **사이드바 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 해결(v1.97)**까지 성공적으로 배포 및 검수 완료하였습니다.
 
 이 문서는 다음 작업을 이어받을 AI 코딩 에이전트(Codex, Claude Code 또는 Antigravity)가 프로그램의 맥락과 완료 현황, 남은 P1/P2 개선 과제를 즉시 이해하고 단절 없이 개발에 착수할 수 있도록 핵심 사항을 정리한 인수인계서입니다.
 
 ---
 
-## 2. v1.96 구현 완료 내역 (Done)
+## 2. v1.96 ~ v1.97 구현 완료 내역 (Done)
 
 | 작업 영역 | 파일 위치 | 구현 내용 및 성과 |
 |---|---|---|
+| **사이드바 검은색 버그 해결 (v1.97)** | `app/threads-content-ops/ContentOpsSidebar.tsx` | 대시보드 검은색 직사각형 바(`bg-neutral-900`) 제거 ➔ 라이트 앰버 활성 스타일(`bg-amber-50/90 text-amber-950 border border-amber-300/80`) 적용, 앰버 아이콘 박스 및 선명한 볼드 텍스트 렌더링, 인라인 컬러 명시로 `.text-white` 충돌 원천 해결. |
 | **가이드북 신설** | `app/threads-content-ops/UsageGuide.tsx` | 5대 인터랙티브 탭 구축: 1) 5단계 올인원 파이프라인, 2) Meta & API 연동 매뉴얼, 3) 6대 바이럴 페르소나 비법, 4) 쇼핑제휴 머니타이징, 5) FAQ 아코디언. 콜백 URL 원클릭 복사 UI 및 실사 예시 포함. |
 | **사이드바 메뉴 개편** | `app/threads-content-ops/ContentOpsSidebar.tsx` | `📖 연동 & 사용 매뉴얼` (`?tab=guide`) 메뉴 추가, 계정 정보 및 로그아웃 버튼을 유틸리티 메뉴 바로 아래(8~16px 간격)로 바짝 밀착 배치, 버전 배지 `v1.96` 적용. |
 | **모바일 반응형 구축** | `app/threads-content-ops/MobileNav.tsx` | 모바일(375~390px) 전용 고정 상단 헤더(`@ Threads 운영 v1.96 ☰`) 및 슬라이드 오버레이 네비게이션 드로어 신설. 모바일에서도 8개 전체 탭 즉시 이동 지원. |

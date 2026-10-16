@@ -1,6 +1,32 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## ⏳ 작업 대기 — 2026-10-16 Claude Code(맥미니) → 윈도우 CLI: VIP 가입일 + 1년 기준 전환·34명 권한 정리 (DB 미적용)
+## 2026-10-16 Antigravity(Windows) — Threads 콘텐츠 운영 자동화 v1.97: 사이드바 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 해결 완료
+
+- **대상 프로그램**: `threads-content-ops/` (slug: `threads-content-ops`, `https://threads-content-ops.buylife.xyz`, 배포 버전: `v1.97`)
+- **문제 원인 (주인님 스크린샷 제보)**:
+  - `threads-content-ops/app/globals.css`의 라이트 테마 강제 규칙(`.threads-content-ops-light .text-white { color: #171717; }`)으로 인해, 대시보드 활성 스타일(`bg-neutral-900 text-white`) 적용 시 검정색 배경 위에 검정색 글자가 올라가 '대시보드' 텍스트가 완전히 묻혀 검은색 직사각형 바만 보임.
+  - 사이드바 전체가 흰색인데 상단 대시보드 혼자 무거운 블랙 박스로 채워져 이질적인 덩어리로 인식됨.
+- **해결 내용**:
+  1. **대시보드 메뉴 활성 스타일 개편**:
+     - `bg-neutral-900` 제거 ➔ 라이트 테마에 꼭 맞는 앰버 라이트 활성 카드(`border border-amber-300/80 bg-amber-50/90 text-amber-950 font-extrabold shadow-xs`) 적용.
+     - 전용 앰버 사각 아이콘 박스(`bg-amber-500` + 흰색 아이콘) 및 또렷한 검은색 볼드 텍스트로 가독성 및 세련미 대폭 향상.
+  2. **설정 및 가이드 메뉴 명암비 보장**:
+     - `settings` 활성 시에도 앰버 라이트 스타일 적용.
+     - `guide` 버튼 및 파이프라인 1~5번 활성 배지에 인라인 컬러 명시(`style={{ color: '#ffffff' }}`)로 CSS 충돌 차단.
+  3. **버전 및 DB 동기화**:
+     - `lib/version.ts`: `v1.97`
+     - Supabase DB `programs.version = 'v1.97'` 동기화 완료.
+  4. **빌드, 배포 및 Edge 검수**:
+     - 로컬 빌드 성공 & 테스트 28개 100% 통과.
+     - Vercel 프로덕션 배포 완료 (`https://threads-content-ops.buylife.xyz`).
+     - Microsoft Edge 실세션 검수 완료 (`edge_threads_ops_dashboard_v197.png`).
+- **산출물**:
+  - `threads-content-ops/docs/PLAN_20261016_SIDEBAR_BLACK_FIX.md`
+  - `threads-content-ops/docs/DESIGN_HANDOFF.md` (v1.97)
+  - `threads-content-ops/docs/IMPROVEMENTS.md` (IMP-09 완료)
+  - `DESIGN.md` (30번 프로그램 v1.97 동기화)
+  - `docs/ACTIVE_WORK.md` (작업 행 삭제)
+
 
 - **주인님 승인 완료**: VIP 만료일을 **가입일 + 1년**으로 맞추고, 10-13 정리 뒤 VIP가 된 34명의 수동 권한을 등급 권한으로 정리. 맥미니에서 적용하려다 Claude Code 자동 안전장치가 「대량 변경」으로 차단 → 주인님 지시로 **윈도우 CLI가 적용**. 현재 **DB 변경 0건**.
 - **왜 급한가**: 34명 중 **20명의 수동 권한 553건이 2026-10-16 09:00(KST) 만료** — 자동 부여는 기존 행을 덮지 않아(ON CONFLICT DO NOTHING) 이 20명은 VIP 프로그램(최대 27개)을 못 쓰고 있을 수 있다.

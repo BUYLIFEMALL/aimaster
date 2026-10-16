@@ -1,12 +1,25 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.96`입니다. 이 폴더는 `threads-content-ops` 전용 독립 Next.js 서브프로젝트 작업 공간입니다. (Vercel `threads-content-ops` 독립 배포, 프로덕션 URL: `https://threads-content-ops.buylife.xyz`)
+현재 버전은 `v1.97`입니다. 이 폴더는 `threads-content-ops` 전용 독립 Next.js 서브프로젝트 작업 공간입니다. (Vercel `threads-content-ops` 독립 배포, 프로덕션 URL: `https://threads-content-ops.buylife.xyz`)
 
 > **★★★ 디자인 리뉴얼 및 다음 작업 투입 에이전트 필독 (2026-10-16 주인님 지시)**
-> 1. **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) — `스레드 바이럴 스튜디오 스타일` 토큰 및 컴포넌트 표준 명세
-> 2. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — v1.96 완료 내역 및 차기 P1/P2 개선과제 인수인계
-> 3. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제 8건 상세 명세
-> 4. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 기반 개발플랜
+> 1. **사이드바 검은색 버그 해결 플랜**: [`docs/PLAN_20261016_SIDEBAR_BLACK_FIX.md`](docs/PLAN_20261016_SIDEBAR_BLACK_FIX.md) — 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 원인 분석 및 해결
+> 2. **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) — `스레드 바이럴 스튜디오 스타일` 토큰 및 컴포넌트 표준 명세
+> 3. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — v1.97 완료 내역 및 차기 P1/P2 개선과제 인수인계
+> 4. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제 9건 상세 명세
+> 5. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 기반 개발플랜
+
+## v1.97 사이드바 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 해결 (2026-10-16, Antigravity Windows)
+
+- **문제 원인**:
+  - `globals.css`의 라이트 테마 강제 규칙(`.threads-content-ops-light .text-white { color: #171717; }`)으로 인해 `text-white`가 검정 글자색으로 바뀌어, 대시보드 활성 배경 `bg-neutral-900`(검정) 위에 검정 글자가 얹혀 '대시보드' 텍스트가 완전히 사라지고 검은 사각형 바만 보임.
+- **수정 내용**:
+  - **대시보드 메뉴 활성 스타일 개편**: 라이트 테마에 꼭 맞는 앰버 라이트 활성 스타일(`border border-amber-300/80 bg-amber-50/90 text-amber-950 font-extrabold shadow-xs`) 적용 및 전용 아이콘 박스(`bg-amber-500` + 흰색 아이콘) 구성.
+  - **API 키 등록 메뉴 (`settings`)**: 검은 배경 제거 및 라이트 앰버 활성 스타일 적용.
+  - **가이드 메뉴 (`guide`) 및 파이프라인 배지**: `.text-white` 충돌 방지 인라인 명시적 스타일(`style={{ color: '#ffffff' }}`) 적용으로 명암비 100% 보장.
+- **버전 및 DB 동기화**: `lib/version.ts` `v1.97`, Supabase DB `programs.version = 'v1.97'`.
+- **배포 및 Edge 검수**: Vercel 프로덕션 배포 완료 (`https://threads-content-ops.buylife.xyz`), Microsoft Edge 실세션 검수 완료 (`edge_threads_ops_dashboard_v197.png`).
+
 
 ## v1.96 사용 매뉴얼(/guide) 신설, 모바일 햄버거 메뉴 구축, 사이드바 최적화 (2026-10-16, Antigravity Windows)
 

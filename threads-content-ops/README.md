@@ -1,14 +1,25 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.96`  
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.97`  
 > 프로덕션 배포 주소: [https://threads-content-ops.buylife.xyz](https://threads-content-ops.buylife.xyz)  
 > 사용 매뉴얼(가이드): [https://threads-content-ops.buylife.xyz/?tab=guide](https://threads-content-ops.buylife.xyz/?tab=guide)
 
 > **★★★ 디자인 리뉴얼 및 다음 작업 투입 에이전트 필독 (2026-10-16 주인님 지시)**
-> 1. **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) — `스레드 바이럴 스튜디오 스타일` 토큰 및 컴포넌트 표준 명세
-> 2. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — v1.96 완료 내역 및 차기 P1/P2 개선과제 인수인계
-> 3. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제 8건 상세 명세
-> 4. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 기반 개발플랜
+> 1. **사이드바 검은색 버그 해결 플랜**: [`docs/PLAN_20261016_SIDEBAR_BLACK_FIX.md`](docs/PLAN_20261016_SIDEBAR_BLACK_FIX.md) — 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 원인 분석 및 해결
+> 2. **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) — `스레드 바이럴 스튜디오 스타일` 토큰 및 컴포넌트 표준 명세
+> 3. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — v1.97 완료 내역 및 차기 P1/P2 개선과제 인수인계
+> 4. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제 9건 상세 명세
+> 5. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 기반 개발플랜
+
+## v1.97 사이드바 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 해결
+
+- **사이드바 대시보드 활성 스타일 개편**:
+  - 검은색 직사각형 바(`bg-neutral-900`) 제거 및 라이트 앰버 활성 카드(`border border-amber-300/80 bg-amber-50/90 text-amber-950 font-extrabold`)로 개편.
+  - 전용 앰버 아이콘 박스 및 또렷한 볼드 텍스트로 가독성 및 시각적 일체감 확보.
+- **설정 및 가이드 버튼 명암비 보장**:
+  - `globals.css`의 `.text-white` 변환 충돌을 차단하기 위해 인라인 컬러 토큰 명시.
+- **배포 및 검수**: Vercel 프로덕션 배포 및 Microsoft Edge 검수 완료 (`edge_threads_ops_dashboard_v197.png`).
+
 
 ## v1.96 사용 매뉴얼(/guide) 신설 및 모바일 반응형 햄버거 메뉴 구축
 

@@ -3,7 +3,7 @@
 > **관리 지침**: [`docs/IMPROVEMENT_HANDOFF_POLICY.md`](../../docs/IMPROVEMENT_HANDOFF_POLICY.md) 준수  
 > **최초 작성일**: 2026-10-16  
 > **작성 에이전트**: Antigravity CLI (`agy`)  
-> **프로그램**: `threads-content-ops` (v1.95 ➔ v1.96 리뉴얼 대기)  
+> **프로그램**: `threads-content-ops` (현행 `v1.97`)  
 > **목적**: 작업 중 발견된 오류, UX 불편점, 기능/성능 개선사항을 체계적으로 누적 관리하여 모든 CLI(Antigravity, Codex, Claude Code)가 단절 없이 이어받아 개발할 수 있도록 함.
 
 ---
@@ -15,6 +15,7 @@
 | **IMP-01** | 연동 & 사용 매뉴얼(`/guide`) 메뉴 및 페이지 부재 | UX/기능 | **P0 (긴급)** | ✅ **완료 (v1.96)** | `ContentOpsSidebar.tsx`, `page.tsx`, `UsageGuide.tsx` |
 | **IMP-02** | 모바일(375~390px) 뷰포트에서 사이드바 소멸 및 햄버거 메뉴 부재 | UI/반응형 | **P0 (긴급)** | ✅ **완료 (v1.96)** | `ContentOpsSidebar.tsx`, `page.tsx`, `MobileNav.tsx` |
 | **IMP-03** | 라이트 테마 내 잔여 다크 텍스트(`text-white`) 및 CSS 덮어쓰기 충돌 | UI/버그 | **P0 (긴급)** | ✅ **완료 (v1.96)** | `page.tsx`, `UsageGuide.tsx`, `ContentOpsSidebar.tsx` |
+| **IMP-09** | 사이드바 대시보드 메뉴 검은색 직사각형 바 및 텍스트 묻힘 버그 | UI/버그 | **P0 (긴급)** | ✅ **완료 (v1.97)** | `ContentOpsSidebar.tsx` |
 | **IMP-04** | 5단계 파이프라인(수집➔생성➔보관➔계정➔제휴) 프로세스 맵 위젯 부재 | UX/기능 | **P1 (높음)** | ⚪ 대기 (차기 과제) | `OperationsDashboard.tsx`, `ContentOpsSidebar.tsx` |
 | **IMP-05** | 글 생성 시 실시간 500자 프로그레스 바 및 훅/본문/CTA 가이드 강화 | 기능/편의성 | **P1 (높음)** | ⚪ 대기 (차기 과제) | `AttentionComposer.tsx` |
 | **IMP-06** | 콘텐츠 보관함 내 드래그앤드롭 다중 이미지 업로더 및 카드 미리보기 | 기능/UX | **P1 (높음)** | ⚪ 대기 (차기 과제) | `DraftComposer.tsx`, `lib/media.ts` |

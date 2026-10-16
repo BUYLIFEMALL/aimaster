@@ -81,13 +81,22 @@ export default function ContentOpsSidebar({ email, isMobile = false, onCloseMobi
         <Link
           href={href("dashboard")}
           onClick={handleClickLink}
-          className={`mb-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition ${
+          className={`mb-3 flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold transition ${
             active === "dashboard"
-              ? "bg-neutral-900 text-white shadow-sm"
-              : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+              ? "border border-amber-300/80 bg-amber-50/90 text-amber-950 font-extrabold shadow-xs"
+              : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950"
           }`}
         >
-          <LayoutDashboard size={17} className={active === "dashboard" ? "text-amber-400" : "text-neutral-500"} />
+          <div
+            className={`flex h-7 w-7 items-center justify-center rounded-lg transition ${
+              active === "dashboard"
+                ? "bg-amber-500 shadow-xs"
+                : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+            }`}
+            style={active === "dashboard" ? { color: "#ffffff", backgroundColor: "#f59e0b" } : undefined}
+          >
+            <LayoutDashboard size={15} />
+          </div>
           <span>대시보드</span>
         </Link>
 
@@ -106,23 +115,24 @@ export default function ContentOpsSidebar({ email, isMobile = false, onCloseMobi
                   <span
                     className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-extrabold transition ${
                       isActive
-                        ? "bg-amber-500 text-white shadow-sm"
+                        ? "bg-amber-500 shadow-xs"
                         : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200 group-hover:text-neutral-900"
                     }`}
+                    style={isActive ? { color: "#ffffff", backgroundColor: "#f59e0b" } : undefined}
                   >
                     {index + 1}
                   </span>
                 </div>
                 <div
                   className={`flex flex-1 items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition ${
-                    isActive ? "bg-amber-50/80" : "group-hover:bg-neutral-50"
+                    isActive ? "bg-amber-50/80 border border-amber-200/60" : "group-hover:bg-neutral-50"
                   }`}
                 >
                   <Icon
                     size={15}
                     className={isActive ? "text-amber-600" : "text-neutral-400 group-hover:text-neutral-600"}
                   />
-                  <p className={`text-sm font-bold ${isActive ? "text-amber-950" : "text-neutral-700"}`}>
+                  <p className={`text-sm font-bold ${isActive ? "text-amber-950 font-extrabold" : "text-neutral-700"}`}>
                     {label}
                   </p>
                 </div>
@@ -138,11 +148,11 @@ export default function ContentOpsSidebar({ email, isMobile = false, onCloseMobi
             onClick={handleClickLink}
             className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-bold transition ${
               active === "settings"
-                ? "bg-neutral-900 text-white shadow-sm"
+                ? "border border-amber-300/80 bg-amber-50/90 text-amber-950 font-extrabold shadow-xs"
                 : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
             }`}
           >
-            <KeyRound size={16} className={active === "settings" ? "text-amber-400" : "text-neutral-500"} />
+            <KeyRound size={16} className={active === "settings" ? "text-amber-600" : "text-neutral-500"} />
             <span>API키등록·플랫폼연동</span>
           </Link>
 
@@ -152,15 +162,23 @@ export default function ContentOpsSidebar({ email, isMobile = false, onCloseMobi
             onClick={handleClickLink}
             className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-bold transition ${
               active === "guide"
-                ? "bg-amber-500 text-white shadow-sm"
-                : "text-amber-900 bg-amber-50/50 hover:bg-amber-100/70"
+                ? "shadow-xs font-extrabold"
+                : "text-amber-900 bg-amber-50/60 hover:bg-amber-100/80 border border-amber-200/60"
             }`}
+            style={active === "guide" ? { color: "#ffffff", backgroundColor: "#f59e0b" } : undefined}
           >
-            <BookOpen size={16} className={active === "guide" ? "text-white" : "text-amber-600"} />
+            <BookOpen size={16} style={active === "guide" ? { color: "#ffffff" } : { color: "#d97706" }} />
             <span className="flex-1">연동 & 사용 매뉴얼</span>
-            {active !== "guide" && (
-              <span className="rounded-full bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold text-amber-900">
+            {active !== "guide" ? (
+              <span className="rounded-full bg-amber-200/90 px-1.5 py-0.5 text-[10px] font-bold text-amber-900">
                 가이드
+              </span>
+            ) : (
+              <span
+                className="rounded-full bg-amber-600 px-1.5 py-0.5 text-[10px] font-bold"
+                style={{ color: "#ffffff" }}
+              >
+                열람 중
               </span>
             )}
           </Link>

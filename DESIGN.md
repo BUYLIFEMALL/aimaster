@@ -100,7 +100,7 @@
 | 18 | Suno 음악기획 자동화 | `suno-music-studio` | **사이버 수노 다크 스튜디오 스타일** | 다크(옵시디언 블랙) | ✅ 1차 완료 | [`suno-music-studio/docs/DESIGN_HANDOFF.md`](suno-music-studio/docs/DESIGN_HANDOFF.md) |
 | 19 | 감성 글귀 이미지 | `emotion-writer` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `emotion-writer/AGENTS.md` |
 | 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ebook-studio/AGENTS.md` |
-| 21 | Website Scraper | `website-scraper` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `website-scraper/AGENTS.md` |
+| 21 | Website Scraper | `website-scraper` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | 🔵 작업 중 (Claude Code 맥미니, 2026-10-16) | `website-scraper/AGENTS.md` |
 | 22 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `seo-thumbnail-pro/AGENTS.md` |
 | 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `style-dna-analyzer/AGENTS.md` |
 | 24 | INSTA Cardnews 자동화 | `cardnews-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 작업 예정 | `cardnews-studio/AGENTS.md` |
@@ -109,7 +109,7 @@
 | 27 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 작업 예정 | `youtube-channel-consultant/AGENTS.md` |
 | 28 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 작업 예정 | `youtube-viral-studio/AGENTS.md` |
 | 29 | 네이버 블로그 에이전트 | `naver-blog-agent` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-agent/AGENTS.md` |
-| 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | **스레드 바이럴 스튜디오 스타일** | 라이트(화이트/앰버) | ✅ 1차 완료 (`v1.96`) | [`threads-content-ops/docs/DESIGN_HANDOFF.md`](threads-content-ops/docs/DESIGN_HANDOFF.md) |
+| 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | **스레드 바이럴 스튜디오 스타일** | 라이트(화이트/앰버) | ✅ 1차 완료 (`v1.97`) | [`threads-content-ops/docs/DESIGN_HANDOFF.md`](threads-content-ops/docs/DESIGN_HANDOFF.md) |
 | 31 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shorts-viral-studio/AGENTS.md` |
 | 32 | Threads AI 기획 자동화 | `threads-easy-planner` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-easy-planner/AGENTS.md` |
 | 33 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `tistory-auto-blog/AGENTS.md` |
