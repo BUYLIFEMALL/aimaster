@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Codex(윈도우) — 승인된 DB 새 변수 160개 추가 진행 중
+
+- 주인님 "추가해줘" 승인: 82개 Vercel 프로젝트 Production 새 공개 79개·서버 81개만 추가. 기존 변수·실제 키 유지, 새 키 발급/폐기 없음.
+- 등록 후 같은 코드 재배포·보이는 Edge 회원 재검수·환경 목록 갱신 진행. 다른 CLI는 완료까지 플랫폼 배포/환경변수 작업을 중복 수행하지 않음.
+- 상세: [DB 전환 인수인계](DATABASE_CONNECTION_HANDOFF.md), [추가 승인 기록](supabase-compat-rollout-20261016/environment-addition-approval.json).
+
+
 ## 2026-10-16 Claude Code(윈도우) — 맥미니 지침에 세 CLI 공유 폴더 실행 방법 기록
 
 - 주인님 지시: Antigravity CLI·Codex·Claude Code를 원격 공유 폴더를 작업 공간으로 실행하는 과정·명령어를 맥미니 지침에 기록.

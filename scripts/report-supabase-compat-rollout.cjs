@@ -14,15 +14,16 @@ fs.writeFileSync(`${dir}/build-results.json`, JSON.stringify(builds, null, 2) + 
 for (const [mode, values] of [['local-new', local], ['live', live]]) fs.writeFileSync(`${dir}/browser-${mode}-results.json`, JSON.stringify(values, null, 2) + '\n');
 const counts = { total: releases.length, builds: builds.filter(x => x.ok).length, localChrome: local.filter(x => x.ok).length, deployed: deployed.filter(x => x.ok).length, liveEdge: live.filter(x => x.ok).length };
 let doc = '# 전체 DB 연결 호환 전환 — 프로그램별 검수 현황\n\n';
-doc += '이 표는 코드·빌드·Vercel 변수 등록·배포·회원 Chrome 검수를 구분합니다. 기존 환경변수/실제 키 삭제는 수행하지 않습니다. 값이 없는 이름 조회 결과만 공개합니다.\n\n';
+doc += '이 표는 코드·빌드·Vercel 변수 등록·배포·회원 Edge 검수를 구분합니다. 로컬 Chrome은 Edge 지정 전 검수 이력입니다. 기존 환경변수/실제 키 삭제는 수행하지 않습니다. 값이 없는 이름 조회 결과만 공개합니다.\n\n';
 doc += `총 ${counts.total}곳 / 빌드 통과 ${counts.builds} / 새 이름만 사용한 로컬 Chrome ${counts.localChrome} / 배포 ${counts.deployed} / 운영 Edge ${counts.liveEdge}.\n\n`;
-doc += '| 프로그램 | 이번 코드 버전 | 빌드 | 새 공개/서버 변수 등록 | 로컬 Chrome | 배포 | 운영 Chrome |\n|---|---|---|---|---|---|---|\n';
+doc += '| 프로그램 | 이번 코드 버전 | 빌드 | 새 공개/서버 변수 등록 | 로컬 Chrome(이력) | 배포 | 운영 Edge |\n|---|---|---|---|---|---|---|\n';
 const status = row => !row ? '대기' : row.ok ? '통과' : '재확인';
 for (const r of releases) {
   const e = envs.find(x => x.slug === r.slug);
   const d = deployed.find(x => x.slug === r.slug);
   doc += `| ${r.slug === '.' ? 'AIMaster' : r.slug} | ${r.version || '메인'} | ${status(builds.find(x => x.slug === r.slug))} | ${e?.production_public === 'new' ? '등록' : '미등록'}/${e?.production_server === 'new' ? '등록' : r.slug === 'video-to-gif' ? '불필요' : '미등록'} | ${status(local.find(x => x.slug === r.slug))} | ${d?.ok ? `[READY](${d.url})` : status(d)} | ${status(live.find(x => x.slug === r.slug))} |\n`;
 }
-doc += '\n새 변수 미등록은 기존 변수로 호환 운영 중이라는 뜻입니다. 실제 새 변수 추가는 별도 승인 후 [구체 목록](environment-addition-plan.json)을 적용하고 다시 배포합니다. 이 표에서 배포 대기를 완료로 해석하지 않습니다.\n';
+const additions = read(`${dir}/environment-addition-results.json`);
+doc += `\n2026-10-16 주인님 추가 승인: [대상 목록](environment-addition-plan.json)의 160개 중 등록 성공 ${additions.filter(x => x.ok).length}개. [추가 결과](environment-addition-results.json)와 배포·Edge 검수 결과를 함께 확인합니다. Production만 대상이며 Preview/Development는 별도입니다. 기존 변수는 안정화 후 삭제 시점을 확정할 때까지 유지합니다.\n`;
 fs.writeFileSync(`${dir}/STATUS.md`, doc);
 console.log(JSON.stringify(counts));

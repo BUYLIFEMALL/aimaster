@@ -1,6 +1,6 @@
 # 데이터베이스 연동 — 전체 호환 전환 인수인계
 
-2026-10-16 Codex(윈도우). **메인 + 82개 프로그램(총 83개 웹 배포)의 코드 호환·빌드·운영 배포·회원 검수 완료.** Vercel 새 변수 160개 추가 등록은 승인 대기이며 아직 수행하지 않았습니다. 기존 환경변수·실제 Supabase 키는 유지했습니다.
+2026-10-16 Codex(윈도우). **메인 + 82개 프로그램(총 83개 웹 배포)의 코드 호환·빌드·운영 배포·회원 검수 완료.** 주인님이 "추가해줘"로 새 변수 160개 Production 추가 등록을 승인해 진행 중입니다. 재배포·Edge 재검수 후 완료 수치를 갱신합니다. 기존 환경변수·실제 Supabase 키는 유지했습니다.
 
 > 먼저 [최상위 DB 지침](DATABASE_CONNECTION_POLICY.md)과 [최신 인수인계](HANDOFF.md)를 읽습니다. 앞으로 Codex 개발·회원 검수는 **보이는 Microsoft Edge**를 사용합니다. 로컬 Chrome 83/83은 브라우저 지정 전 이력입니다.
 
@@ -29,9 +29,9 @@
 - 로컬 파일에 DB 값이 없는 앱은 검수 자식 프로세스에만 공용 DB 값을 공급했습니다. 로컬 .env 파일과 Vercel 변수는 바꾸지 않았습니다. 플랫폼 DB 검수이며 운영자 AI 키 폴백이 아닙니다.
 - 여러 검수·버전 도구도 새 이름을 읽습니다. 기존 이름만 쓰는 과거 configure-platform/add-*-vercel-env/rotate-supabase-service-key 일회성 도구가 남아 있으므로 새 연결에는 아래 최신 도구를 사용합니다. 다른 CLI의 미커밋 scripts/verify_slide_builder.mjs는 수정하지 않았습니다.
 
-## 남은 단계 — 새 변수 추가 승인 대기
+## 새 변수 추가 — 승인 후 진행 중
 
-현재 Production 새 공개 이름은 aimaster·ai-auto-blog·blog-content-maker·tistory-auto-blog **4곳**, 새 서버 이름은 aimaster **1곳**입니다. 코드 적용/배포와 변수 등록을 혼동하지 않습니다.
+추가 전 기준 Production 새 공개 이름은 aimaster·ai-auto-blog·blog-content-maker·tistory-auto-blog **4곳**, 새 서버 이름은 aimaster **1곳**입니다. 코드 적용/배포와 변수 등록을 혼동하지 않습니다.
 
 - [실제 변수 이름/환경 목록](supabase-compat-rollout-20261016/vercel-environment-names.json), [구체 추가 제안](supabase-compat-rollout-20261016/environment-addition-plan.json): **82개 프로젝트·160개 Production 항목(공개 79·서버 81)**. 기존 변수는 유지하고 새 이름만 추가하며 Supabase 키를 새로 발급하지 않습니다. video-to-gif에는 사용하지 않는 서버 키를 추가하지 않습니다.
 - `node scripts/add-platform-supabase-aliases.cjs`는 기본값이 목록만 출력하는 미리보기입니다. **주인님이 환경변수 추가를 승인한 뒤에만** --approved로 실행합니다. 이미 등록된 항목은 덮어쓰지 않습니다. 값은 명령줄·문서·로그에 넣지 않습니다.
