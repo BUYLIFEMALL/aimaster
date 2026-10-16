@@ -13,3 +13,9 @@
 | 7 | VWorld 등록 도메인이 옛 `n8n.buylife.xyz` | 포털에서 지우면 공시가격 조회 중단 | 중간 | 기존 과제(주인님 VWorld 로그인 필요) | `VWORLD_REGISTERED_DOMAIN` | 포털에 `real-estate-sales.buylife.xyz` 추가 후 환경변수 변경 |
 | 8 | 공공데이터 키 회원별 전환 여부 | v1.04 남은 결정 | 낮음 | 주인님 결정 대기 | `lib/publicdata/memberKeys.ts` | 결정 후 진행 |
 | 9 | 옛 금색 테마 이름(`gold`·`dark-*`)에 흰색 값 | 이름과 실제 색이 달라 유지보수 혼란 | 낮음 | **구현(v1.11, 배포 대기)** | `src/app/globals.css` | 남은 `gold`/`dark-` 클래스 0건 |
+
+## 2026-10-17 Codex(Windows) — Windows 인수 검사 추가 발견
+
+- **#10 AI 조사 캐시의 회원 격리·30일 보관 (높음·미해결)**: `lib/ai/sentiment.ts`가 본인 Perplexity 키로 생성한 시장 조사 결과를 `real_estate_district_sentiment`의 자치구+날짜만으로 조회/upsert합니다. 운영 catalog에도 user_id가 없고 authenticated 전체 SELECT/INSERT/UPDATE가 확인됐습니다(생성물 내용은 읽지 않음). 주인님 최신 생성 데이터 공유 금지·30일 보관 원칙과 충돌하며 과거 공공 API 키 예외를 AI 생성 캐시 공유 허가로 해석하지 않습니다. 이번 인수에서 연구/AI 경로를 실행하거나 DB 정책·자료를 변경하지 않았습니다. 다음 첫 단계: 소유자별 새 저장소·기한/정리·기존 무소유 자료의 접근 제한 전환안을 작성하고 필요한 DB/삭제 승인을 확인합니다. 임의 소유자 추정·회원에게 일괄 복사·관리자 공용 AI 캐시는 금지입니다. 다른 공공 수집 자료의 과거 예외 적용 여부도 최신 지시와 별도 대조합니다.
+- **#11 기존 의존성 보안 경고 (보완·일부 남음)**: 초기 npm audit 11건(critical1/high10), Next16.2.11. [공식 next/og 공지](https://github.com/vercel/next.js/security/advisories/GHSA-vcvr-r3jv-pc5j)·[Windows 공지](https://github.com/vercel/next.js/security/advisories/GHSA-p293-qw3h-jr36)와 npm 수정 버전을 대조해 같은16계열 Next/eslint-config-next16.4.2 및 허용 범위의 source-map-js/brace-expansion/js-yaml을 갱신했습니다. 보완 후 운영 의존성0건, 전체는 개발 lint 도구 사슬5high(braces/fast-glob/micromatch/eslint-config-next/@next/eslint-plugin-next) 남음. 실제 악용 검사는 안 했고 전체 보안 해결을 주장하지 않습니다. npm audit fix --force가 권하는 구버전 다운그레이드는 하지 않습니다. 다음: lint 사슬의 공식 수정판/대체 경로를 별도 검토하고 회귀 검사. before/after JSON은 docs/evidence/.
+- **#12 상세 GET의 자동 분석과 검수·미리읽기 위험 (높음·미해결)**: 상세가 서버 렌더 중 ensureListingAnalysis를 호출하므로 브라우저 POST만 막아도 비용 발생을 막을 수 없습니다. tests/runtime.mjs는 상세/미리읽기 GET까지 검사 브라우저에서 차단하고 실제 상세는 방문하지 않습니다. #4 자동 분석 선택/명시적 실행·동시 요청 중복 방지·Next Link 미리읽기 정책을 함께 검토합니다. 이번 무료 검수의 상세·유료 분석 품질은 합성 경계 검사이며 운영 유료 검수로 확대하지 않습니다.

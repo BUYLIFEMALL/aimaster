@@ -1,0 +1,50 @@
+{
+  "checked_at": "2026-10-16T17:43:41.095Z",
+  "mode": "all",
+  "counts": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 5,
+    "critical": 0,
+    "total": 5
+  },
+  "items": [
+    {
+      "name": "@next/eslint-plugin-next",
+      "severity": "high",
+      "direct": false,
+      "via": []
+    },
+    {
+      "name": "braces",
+      "severity": "high",
+      "direct": false,
+      "via": [
+        {
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "range": "<=3.0.3"
+        }
+      ]
+    },
+    {
+      "name": "eslint-config-next",
+      "severity": "high",
+      "direct": true,
+      "via": []
+    },
+    {
+      "name": "fast-glob",
+      "severity": "high",
+      "direct": false,
+      "via": []
+    },
+    {
+      "name": "micromatch",
+      "severity": "high",
+      "direct": false,
+      "via": []
+    }
+  ]
+}

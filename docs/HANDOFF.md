@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — real_estate_sales v1.11 Windows 사전 검수 완료·운영 배포 진행
+
+- 맥미니11943ac8·블랙 확정e2c300c2 인수. Next 보안16.4.2 보완 후 타입/빌드·키 검사2종 통과, 운영 의존성audit0·개발5high 별도. 실제 회원 Edge 로컬9개·실제 목록/상세 합성9개 통과. 유료 호출0, 실제 상세GET/미리읽기/쓰기는 검사기차단.
+- 기존 AI 시장조사 캐시가 user_id 없는 전체 회원 읽기/쓰기 구조여서 생성 데이터 격리·30일 원칙과 충돌(#10), 상세GET 자동 유료(#12)도 미해결로 인수인계. 이번 디자인 작업에서 DB/수집/AI/키/Cron을 변경하거나 실행하지 않았습니다.
+- [인수인계/검수 범위](../real_estate_sales/docs/IMPROVEMENT_HANDOFF_20261017.md), 서비스 https://real-estate-sales.buylife.xyz . 다음: 소스고정배포(icn1·기존Cron)→DBv1.11→운영무료Edge검수→현황판57완료.
+
 ## 2026-10-17 Claude Code(윈도우) — 쓰레드 3개 설정 화면 "등록할 주소 한눈에 보기 + 복사 버튼"
 
 - 대상·버전·커밋: `threads` v1.09(`d8f7de95`)→v1.10(`1c1a92e5`), `threads-affiliate-poster` v1.55(`5eeed381`+누락분 `624c8215`), `threads-comment-reply` v1.09(`63f5f849`). 모두 배포·DB 버전·VIP 확인.
