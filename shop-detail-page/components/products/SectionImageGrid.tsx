@@ -189,22 +189,34 @@ export function SectionImageGrid({
         onChange={handleCustomFileChange}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-gray-500">
-          {doneCount} / {templates.length} 섹션 생성 완료
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200/90">
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs font-bold text-slate-700">섹션 생성 진행률</span>
+            <span className="text-xs font-black text-blue-600 bg-blue-100/60 px-2 py-0.5 rounded-full">
+              {doneCount} / {templates.length} 완료 ({Math.round((doneCount / (templates.length || 1)) * 100)}%)
+            </span>
+          </div>
+          <div className="w-48 sm:w-64 h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300"
+              style={{ width: `${Math.round((doneCount / (templates.length || 1)) * 100)}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex rounded-xl border border-slate-200 overflow-hidden text-xs bg-white p-0.5 shadow-2xs">
             {IMAGE_MODEL_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setModel(opt.value)}
                 disabled={isRunning}
-                className={`px-3 py-1.5 font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                   model === opt.value
-                    ? "bg-gray-900 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-50"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 }`}
                 title={opt.hint}
               >
@@ -212,128 +224,174 @@ export function SectionImageGrid({
               </button>
             ))}
           </div>
+
           <button
             onClick={handleGenerateAll}
             disabled={isRunning}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 text-white font-bold py-2 px-5 rounded-xl transition-all text-sm whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold py-2 px-5 rounded-xl shadow-md shadow-blue-500/25 transition-all text-xs sm:text-sm whitespace-nowrap"
           >
-            {isRunning ? "생성 중..." : "🎨 전체 이미지 생성"}
+            {isRunning ? (
+              <>
+                <span className="inline-block animate-spin">⏳</span>
+                <span>전체 섹션 생성 중...</span>
+              </>
+            ) : (
+              <>
+                <span>🎨</span>
+                <span>15개 섹션 전체 자동 생성</span>
+              </>
+            )}
           </button>
         </div>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-600">
-        <p className="font-semibold text-gray-700 mb-1.5">💰 예상 비용 (2K 해상도 · Google 공식 요금 기준)</p>
-        <div className="space-y-1">
+      <div className="rounded-xl border border-blue-100 bg-blue-50/40 px-4 py-3 text-xs text-slate-600">
+        <p className="font-bold text-slate-800 mb-1.5">💰 예상 비용 (2K 해상도 · Google 공식 요금 기준)</p>
+        <div className="space-y-0.5">
           {IMAGE_MODEL_OPTIONS.map((opt) => {
             const total = (IMAGE_MODEL_COST_USD[opt.value] * templates.length).toFixed(2);
             const isSelected = model === opt.value;
             return (
-              <p key={opt.value} className={isSelected ? "font-semibold text-gray-900" : ""}>
+              <p key={opt.value} className={isSelected ? "font-bold text-blue-900" : "text-slate-600"}>
                 {isSelected ? "▶ " : "· "}
                 {opt.label}: 장당 ${IMAGE_MODEL_COST_USD[opt.value].toFixed(3)} · {templates.length}장 전체 생성 시 약 ${total}
               </p>
             );
           })}
         </div>
-        <p className="mt-1.5 text-gray-400">* 실제 청구 금액은 사용량과 환율에 따라 달라질 수 있는 참고용 추정치입니다.</p>
+        <p className="mt-1 text-[11px] text-slate-400">* 실제 청구 금액은 사용량과 환율에 따라 달라질 수 있는 참고용 추정치입니다.</p>
 
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="font-semibold text-gray-700 mb-1.5">💡 비용 절약 팁</p>
-          <ul className="space-y-1 list-disc list-inside">
-            <li>먼저 Nanobanana2(가성비)로 전체 생성해보고, 마음에 드는 섹션만 Pro로 재생성하세요.</li>
-            <li>
-              Nanobanana Pro로 전체 이미지를 생성한 후 수정을 원하는 이미지만 재생성하거나, 해당 이미지를
-              다운로드 받아 수정한 후 재업로드해서 사용해보세요.
-            </li>
-            <li>&quot;전체 이미지 생성&quot; 대신, 마음에 안 드는 섹션만 개별 &quot;재생성&quot; 버튼으로 다시 만들면 비용이 줄어요.</li>
-            <li>이미 보유한 상품 사진이 있다면 각 섹션의 &quot;+&quot; 버튼으로 직접 업로드하세요 — AI 생성 비용이 들지 않아요.</li>
-            <li>&quot;5. 이미지 생성 시 추가로 반영할 내용&quot;에 원하는 스타일을 미리 적어두면 재생성 횟수를 줄일 수 있어요.</li>
+        <div className="mt-2.5 pt-2.5 border-t border-blue-200/60">
+          <p className="font-bold text-slate-800 mb-1">💡 비용 절약 팁</p>
+          <ul className="text-[11px] text-slate-600 space-y-0.5 list-disc list-inside">
+            <li>마음에 안 드는 섹션만 개별 &quot;재생성&quot; 버튼으로 다시 만들면 불필요한 비용을 절약할 수 있습니다.</li>
+            <li>이미 보유한 고화질 상품 사진이 있다면 각 섹션의 &quot;+&quot; 버튼으로 직접 업로드하세요.</li>
           </ul>
         </div>
       </div>
 
-      {/* 실제 병합 결과와 동일하게 세로 한 줄로 나열 */}
-      <div className="flex flex-col gap-3 max-w-md mx-auto">
+      {/* 15개 섹션 세로 한 줄 나열 (실제 상세페이지 레이아웃과 동일) */}
+      <div className="flex flex-col gap-4 max-w-lg mx-auto mt-6">
         {templates.map((t) => {
           const state = states[t.section_key];
           return (
             <div
               key={t.section_key}
-              className="border border-gray-200 rounded-lg overflow-hidden bg-white"
+              className="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all"
             >
-              <div className="aspect-[4/5] bg-gray-50 flex items-center justify-center relative">
+              {/* 섹션 카드 상단 헤더 */}
+              <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50/80 border-b border-slate-100">
+                <div className="flex items-center gap-2 truncate pr-2">
+                  <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60 font-mono">
+                    #{t.section_order.toString().padStart(2, "0")}
+                  </span>
+                  <p className="text-xs font-bold text-slate-800 truncate">
+                    {t.section_name}
+                  </p>
+                </div>
+                {state.status === "done" && (
+                  <button
+                    onClick={() => generateOne(t)}
+                    disabled={isRunning}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0"
+                  >
+                    <span>🔄</span>
+                    <span>재생성</span>
+                  </button>
+                )}
+              </div>
+
+              {/* 섹션 이미지 뷰어 */}
+              <div className="aspect-[4/5] bg-slate-50 flex items-center justify-center relative overflow-hidden group">
                 {state.status === "done" && state.url && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={state.url}
                     alt={t.section_name}
-                    className="w-full h-full object-cover cursor-zoom-in"
+                    className="w-full h-full object-cover cursor-zoom-in group-hover:scale-[1.01] transition-transform"
                     onClick={() => setLightboxUrl(state.url!)}
                   />
                 )}
                 {state.status === "generating" && (
-                  <span className="text-xs text-gray-400 animate-pulse">생성 중...</span>
+                  <div className="flex flex-col items-center gap-2 text-slate-500 animate-pulse">
+                    <span className="text-2xl animate-spin">⏳</span>
+                    <span className="text-xs font-bold">AI 이미지 생성 중...</span>
+                  </div>
                 )}
                 {state.status === "uploading" && (
-                  <span className="text-xs text-gray-400 animate-pulse">업로드 중...</span>
+                  <div className="flex flex-col items-center gap-2 text-slate-500 animate-pulse">
+                    <span className="text-2xl">📤</span>
+                    <span className="text-xs font-bold">이미지 업로드 중...</span>
+                  </div>
                 )}
-                {state.status === "idle" && <span className="text-xs text-gray-300">대기중</span>}
+                {state.status === "idle" && (
+                  <div className="flex flex-col items-center gap-1.5 text-slate-400">
+                    <span className="text-2xl">🖼️</span>
+                    <span className="text-xs font-medium">생성 대기 중</span>
+                  </div>
+                )}
                 {state.status === "error" && (
-                  <span className="text-xs text-red-500 px-2 text-center">{state.error}</span>
-                )}
-              </div>
-              <div className="flex items-center justify-between px-2 py-1">
-                <p className="text-xs text-gray-600 truncate">
-                  {t.section_order}. {t.section_name}
-                </p>
-                {state.status === "done" && (
-                  <button
-                    onClick={() => generateOne(t)}
-                    className="text-[10px] text-blue-600 hover:underline shrink-0"
-                  >
-                    재생성
-                  </button>
+                  <div className="p-4 text-center">
+                    <span className="text-xl mb-1 block">⚠️</span>
+                    <span className="text-xs font-semibold text-rose-600 leading-tight block">{state.error}</span>
+                  </div>
                 )}
               </div>
 
-              {/* 재생성 이력 + 직접 업로드 - 원하는 버전을 골라 최종 이미지로 선택 */}
-              <div className="flex gap-1.5 overflow-x-auto px-2 pb-2">
-                {state.history.map((url, i) => (
+              {/* 재생성 이력 썸네일 바 */}
+              <div className="p-3 bg-white border-t border-slate-100">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  VERSIONS ({state.history.length})
+                </p>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {state.history.map((url, i) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => handleSelect(t.section_key, url)}
+                      className={`relative shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                        state.url === url
+                          ? "border-blue-600 ring-2 ring-blue-500/20 shadow-xs"
+                          : "border-slate-200 hover:border-slate-300 opacity-60 hover:opacity-100"
+                      }`}
+                      title={`버전 ${i + 1}${state.url === url ? " (선택됨)" : ""}`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`버전 ${i + 1}`} className="w-full h-full object-cover" />
+                      {state.url === url && (
+                        <span className="absolute bottom-0 right-0 bg-blue-600 text-white text-[9px] px-1 font-bold rounded-tl">
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  ))}
                   <button
-                    key={url}
                     type="button"
-                    onClick={() => handleSelect(t.section_key, url)}
-                    className={`shrink-0 w-12 h-12 rounded overflow-hidden border-2 ${
-                      state.url === url ? "border-blue-500" : "border-transparent opacity-70"
-                    }`}
-                    title={`버전 ${i + 1}${state.url === url ? " (선택됨)" : ""}`}
+                    onClick={() => triggerCustomUpload(t)}
+                    className="shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50/30 flex flex-col items-center justify-center text-slate-400 hover:text-blue-600 text-xs transition-all"
+                    title="직접 보유한 이미지 업로드"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`버전 ${i + 1}`} className="w-full h-full object-cover" />
+                    <span className="text-base font-bold">+</span>
+                    <span className="text-[9px]">직접등록</span>
                   </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => triggerCustomUpload(t)}
-                  className="shrink-0 w-12 h-12 rounded border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-gray-50 flex items-center justify-center text-gray-400 text-lg transition-colors"
-                  title="직접 보유한 이미지 추가"
-                >
-                  +
-                </button>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
 
+      {/* 최종 병합 다운로드 버튼 (하단 고정형 시각화) */}
       {hasAnyImage && (
-        <a
-          href={`/api/products/${productId}/export`}
-          className="block w-full text-center text-sm font-semibold text-white bg-gray-900 hover:bg-black px-4 py-3 rounded-xl transition-all"
-        >
-          📥 선택한 이미지로 최종 상세페이지 병합 다운로드
-        </a>
+        <div className="sticky bottom-4 z-20 pt-4">
+          <a
+            href={`/api/products/${productId}/export`}
+            className="flex items-center justify-center gap-2 w-full text-center text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 px-6 py-4 rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-[1.01] active:scale-[0.99]"
+          >
+            <span className="text-lg">📥</span>
+            <span>선택한 이미지로 최종 15단 상세페이지 세로 롱 이미지 병합 & 다운로드</span>
+          </a>
+        </div>
       )}
     </div>
   );

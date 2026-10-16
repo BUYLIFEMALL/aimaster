@@ -86,3 +86,20 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 ## 2026-10-16 DB 연동 변수 호환 — v1.05 (shop-detail-page)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 UI/UX 디자인 리뉴얼 — v1.06 (shop-detail-page)
+
+- **스타일 템플릿**: `이커머스 셀러 스튜디오 스타일 (E-commerce Seller Studio Style)`
+- **테마/배경색**: Clean Pure White (`#ffffff` & `#f8fafc`) 기반 네이버 스마트스토어/쿠팡 셀러센터 감성의 화이트 커머스 스튜디오.
+- **주요 작업 내용**:
+  1. **비주얼 가이드북 (`CommerceUsageGuide.tsx`)**: 4단계 자동화 파이프라인(등록 ➔ 분석 ➔ 15단 생성 ➔ 병합) 시각화 및 15개 섹션 블록 맵, 셀러 꿀팁 아코디언 탑재.
+  2. **셀러 사이드바 리뉴얼 (`Sidebar.tsx`)**: 브랜드 헤더, v1.06 배지, 01~03 번호 스텝퍼, 하단 Gemini 15단 엔진 배너, 모바일 햄버거 토글 메뉴 탑재.
+  3. **대시보드 메인 (`products/page.tsx`)**: 비주얼 가이드북 상단 접이식 탑재, 3D 패키지 빈 화면 일러스트, 상품 카드 그리드 리뉴얼.
+  4. **신규 분석/등록 폼 (`products/new/page.tsx`, `ProductAnalyzeForm.tsx`)**: 점선 드래그앤드롭 업로더, 소구점 분석 폼, 알약형 모델 선택기 개선.
+  5. **15단 섹션 뷰어 (`products/[id]/page.tsx`, `SectionImageGrid.tsx`)**: 15개 섹션 넘버링 배지(`01~15`), 썸네일 히스토리 바, 개별 재생성 버튼, 하단 고정 롱 이미지 병합 다운로드 바 구축.
+- **인수인계 문서**:
+  - 디자인 상세 인수인계: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
+  - 개선사항 목록: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
+- **검수 브라우저**: Microsoft Edge 전용 (`msedge.exe`) — 데스크톱 (1440x900) 및 모바일 (375x812) 반응형 정상 검수 완료.
+- **라이브 URL**: `https://shop-detail-page.vercel.app`
+

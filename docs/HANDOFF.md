@@ -1,5 +1,36 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — AI 상세페이지 자동화 v1.06: 이커머스 셀러 스튜디오 스타일 리뉴얼 및 엣지 검수 완료
+
+- **대상 프로그램**: `shop-detail-page/` (slug: `shop-detail-page`, `https://shop-detail-page.vercel.app`)
+- **디자인 스타일 템플릿**: `이커머스 셀러 스튜디오 스타일 (E-commerce Seller Studio Style)` — 루트 `DESIGN.md` 템플릿 7번 신규 공식 등록.
+- **배경 테마**: Clean Pure White (`#ffffff` & `#f8fafc`) 기반 네이버 스마트스토어/쿠팡 셀러센터 감성의 화이트 커머스 스튜디오.
+- **주요 작업 내용**:
+  1. **사전 플랜 승인 의무 준수**: 작업 전 디자인 컨셉(스마트스토어/쿠팡 셀러센터 느낌, 순수 화이트 테마, 4단계 파이프라인 가이드)을 주인님께 먼저 제시하고 수락 획득 후 구현.
+  2. **비주얼 가이드북 (`CommerceUsageGuide.tsx`)**: 4단계 자동화 파이프라인(등록 ➔ 분석 ➔ 15단 생성 ➔ 병합) 시각화 다이어그램, 15개 섹션 블록 맵(헤더부터 Q&A까지), 셀러 전환율 꿀팁 아코디언 탑재.
+  3. **셀러 네비게이션 사이드바 (`Sidebar.tsx`)**: 브랜드 헤더, v1.06 배지, 01~03 번호 스텝퍼, Gemini 15단 엔진 배너, 계정 정보 밀착, 모바일 햄버거 토글 메뉴(`☰`) 탑재.
+  4. **대시보드 메인 (`products/page.tsx`)**: 비주얼 가이드북 상단 배치, 3D 패키지 빈 화면 일러스트, 상품 카드 그리드 리뉴얼.
+  5. **신규 분석/등록 폼 (`products/new/page.tsx`, `ProductAnalyzeForm.tsx`)**: 점선 드래그앤드롭 업로더, 소구점 분석 폼, 알약형 모델 선택기 개선.
+  6. **15단 섹션 뷰어 (`products/[id]/page.tsx`, `SectionImageGrid.tsx`)**: 15개 섹션 넘버링 배지(`01~15`), 썸네일 히스토리 바, 개별 재생성 버튼, 하단 고정 롱 이미지 병합 다운로드 바 구축.
+- **버전 및 DB 동기화**:
+  - `shop-detail-page/lib/version.ts`: `APP_VERSION = "v1.06"`
+  - Supabase 공유 DB: `programs.version = 'v1.06'` (slug: `shop-detail-page`) 업데이트 완료.
+- **빌드 및 프로덕션 배포**:
+  - `npm run build`: ESLint any 규칙 통과 후 8개 라우트 정상 생성 완료.
+  - Vercel 프로덕션 배포 완료: Deployment `dpl_FtwzTAdhuNr7aUnGtCZCwpM9ddRp` (`https://shop-detail-page.vercel.app`, HTTP 200).
+- **Microsoft Edge (엣지) 전용 실세션 검수 완료**:
+  - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 주입 후 검수:
+    - 데스크톱 대시보드 메인 (`edge_shop_detail_desktop_v106.png`, 1440 × 900)
+    - 데스크톱 신규 상품 분석/등록 (`edge_shop_detail_new_desktop_v106.png`, 1440 × 900)
+    - 모바일 375px 반응형 (`edge_shop_detail_mobile_v106.png`, 375 × 812, 햄버거 메뉴 토글 및 가로 넘침 없음)
+- **산출물 인수인계 문서**:
+  - [`shop-detail-page/docs/DESIGN_HANDOFF.md`](../shop-detail-page/docs/DESIGN_HANDOFF.md): 토큰, 컴포넌트 구조, 모바일 대응점, 검수 절차 상세.
+  - [`shop-detail-page/docs/IMPROVEMENTS.md`](../shop-detail-page/docs/IMPROVEMENTS.md): 미구현 개선사항 원장 (4건 기록).
+  - [`shop-detail-page/AGENTS.md`](../shop-detail-page/AGENTS.md): v1.06 릴리스 기록.
+  - 루트 [`DESIGN.md`](../DESIGN.md): 7번 템플릿 신설 및 55번 카탈로그 🟢 완료 갱신.
+- **비용**: 0원 (유료 API 호출 및 이미지 생성 미사용).
+- **남은 작업**: 없음.
+
 ## 2026-10-16 Codex(윈도우) — 롱테일 v1.06 맥미니 디자인 인수·오류 수정·운영 완료
 
 - 맥미니 `770f7351`의 윈도우 빌드/배포 요청 인수. [사전 플랜](../longtail-keyword-expander/docs/VERIFICATION_PLAN_20261016.md), [검수 인수인계](../longtail-keyword-expander/docs/IMPROVEMENT_HANDOFF_20261016.md).
@@ -143,6 +174,11 @@
 - CLI 역할: **Codex는 개발 기획·시스템 설계·코드 오류 수정·디버깅·테스트 중심, 주인님 요청 시 신규 프로그램 개발 가능. Claude Code는 복잡한 코드 구현·기능 추가·리팩터링 중심.** Antigravity CLI도 메인/서브프로그램 개발·유지보수에 협업하며, 세부 주력 역할은 주인님의 작업 배정에 따름. [공통 개발 방식](AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 참고.
 - 문서만 변경. 버전·런타임·DB·환경변수 변경 없음, 유료 API 0회. 규칙 일치·링크·차이를 검토하며 기능 빌드/브라우저 검수는 이번 범위에 포함하지 않음. 커밋·푸시는 이 항목의 최신 Git 이력 확인. 메인 설치 파일 포함 운영 보호 확인은 Git 제외 `.vercel/final-main-promotion.json` 기록 참조.
 
+
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.08: 발행 계획 개선 3건 (`shorts-onestop-studio`)
+
+- 오늘 지난 시각 자동 미루기, 일정 고치기·빼기, 일괄 제작을 배경·음성·MP4까지 확장(`src/lib/pipeline.ts`, 예상 요청 횟수 표시). 좁은 화면 일정 줄 넘침 수정.
+- 시험 계정 크롬: 지난 시각 미루기·고치기·빼기·1편 전체 일괄(89.6초 MP4) DB 일치. 비용 Flash-Lite 3회·TTS 7회. 개선 제안 #9~#11. 다음: P8 공개(VIP 자동 부여).
 
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.07: P7 업로드 문구·발행 계획·일괄 대본 (`shorts-onestop-studio`)
 
