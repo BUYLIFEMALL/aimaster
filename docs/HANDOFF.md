@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## ⏳ 작업 대기 — 2026-10-16 Claude Code(맥미니) → 윈도우 CLI: VIP 가입일 + 1년 기준 전환·34명 권한 정리 (DB 미적용)
+
+- **주인님 승인 완료**: VIP 만료일을 **가입일 + 1년**으로 맞추고, 10-13 정리 뒤 VIP가 된 34명의 수동 권한을 등급 권한으로 정리. 맥미니에서 적용하려다 Claude Code 자동 안전장치가 「대량 변경」으로 차단 → 주인님 지시로 **윈도우 CLI가 적용**. 현재 **DB 변경 0건**.
+- **왜 급한가**: 34명 중 **20명의 수동 권한 553건이 2026-10-16 09:00(KST) 만료** — 자동 부여는 기존 행을 덮지 않아(ON CONFLICT DO NOTHING) 이 20명은 VIP 프로그램(최대 27개)을 못 쓰고 있을 수 있다.
+- **적용할 파일**: [`supabase/migrations/0036_vip_signup_based_expiry.sql`](../supabase/migrations/0036_vip_signup_based_expiry.sql)
+  1. 백업: `backup_vip_manual_grants_20261016`(수동 1,041건), `backup_vip_grade_grants_20261016`(등급 10,185건), RLS 켬.
+  2. `member_grades.access_start_basis`('grant'|'signup') 추가, VIP='signup'. 함수 `grade_access_expires_at()` 신설, `apply_grade_programs`·`grade_program_access_sync`·`profiles_grade_change_sync`가 이 기준 사용(골드는 기존대로 부여일 + 180일).
+  3. VIP 등급 프로그램에 해당하는 수동 권한 993건을 **삭제하지 않고** 등급 권한으로 전환 → 빠진 등급 권한 채움 → VIP 등급 권한 만료일 = 가입일 + 365일. VIP 등급 표에 없는 프로그램의 수동 권한 48건은 유지.
+- **적용 전 확인**: VIP 회원 138명·VIP 등급 프로그램 81개·등급 권한 10,185건·수동 권한 1,041건(34명)이 그대로인지 다시 조회(숫자가 바뀌었으면 파일 조건은 그대로 두고 기대값만 다시 계산).
+- **적용 후 검증 쿼리 기대값**: VIP 등급 권한 **11,178건**(138 × 81), 그중 만료 0건, VIP 수동 권한 48건, 등급 권한 만료일 = `profiles.created_at + 365일`(전원), 골드 등급 권한 만료일은 변화 없음, `member_grades` VIP `access_start_basis='signup'`.
+- **주의**: 1명은 수동 권한 1건의 만료일이 가입일 + 1년보다 늦어 전환 시 기간이 줄어든다(정책상 가입일 + 1년).
+- **적용 후 할 일**: 마이그레이션 파일 첫 줄을 「적용됨」으로, [`docs/ADMIN_POLICY_GUIDELINES.md`](ADMIN_POLICY_GUIDELINES.md) 맨 위 정책 1번의 ⚠️ 2줄을 「조치됨(날짜·결과 숫자)」으로 갱신, 이 항목 제목의 ⏳를 ✅로 바꾸고 결과 기록. 메인 사이트 다음 배포 때 `lib/programs/premium.ts` 문구 변경(커밋 `32dd1b96`)도 함께 반영.
+
 ## 2026-10-16 Antigravity(Windows) — Threads 콘텐츠 운영 자동화 v1.96: 사용 매뉴얼(?tab=guide) 신설, 모바일 햄버거 메뉴 구축, 엣지 실세션 검수 및 배포 완료
 
 - **대상 프로그램**: `threads-content-ops/` (slug: `threads-content-ops`, `https://threads-content-ops.buylife.xyz`, 배포 버전: `v1.96`)
