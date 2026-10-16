@@ -331,3 +331,8 @@
 - 새 주소 `https://tistory-auto-blog.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308, 옛 주소 확장 API 그대로. **크롬 확장 v1.72**: 다리 코드·백그라운드 출처 확인(2곳)·매니페스트가 옛·새 주소 모두 인식, API는 옛 주소. ZIP 재생성, DB 확장 버전·다운로드 주소 갱신, check-extension-release OK. 회원은 ZIP 다시 받기→덮어쓰기→새로고침 필요
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.73 — 옛 vercel.app 삭제 대비: 확장 서버 주소 새 주소 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 D·E. `extension/background.js`·`sidepanel.js` `BASE` → `https://tistory-auto-blog.buylife.xyz`, `sidepanel.html` 안내 링크 새 주소. background의 페이지 허용 검사가 `${BASE}/`를 쓰고 있어 BASE만 바꾸면 옛 주소가 빠지므로 두 주소를 직접 명시. manifest·web-bridge 허용 목록은 두 주소 유지. 테스트(worker BASE 대체·update-banner BASE) 갱신.
+- 원칙 10: prebuild manifest v1.73·ZIP, DB version/extension_version v1.73·download_url 새 주소 latest, `check-extension-release tistory-auto-blog` OK, 라이브 ZIP BASE 새 주소 확인. 테스트 extension 75·update-banner 3·extension-api 36 통과.
+- **회원 안내 필요**: ZIP 다시 받기 → 기존 폴더 덮어쓰기 → chrome://extensions 새로고침.
