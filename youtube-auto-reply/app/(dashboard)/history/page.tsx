@@ -41,10 +41,10 @@ export default async function HistoryPage() {
     ]);
 
   const videoIds = Array.from(new Set((posted ?? []).map((c) => c.video_id)));
-  const { data: videos } = await supabase
-    .from("ytreply_videos")
-    .select("id, title")
-    .in("id", videoIds.length > 0 ? videoIds : ["__none__"]);
+  // No UUID sentinel: an empty feed needs no video lookup. Scope title reads to this member too.
+  const { data: videos } = videoIds.length > 0
+    ? await supabase.from("ytreply_videos").select("id, title").eq("user_id", user.id).in("id", videoIds)
+    : { data: [] };
   const titleByVideoId = new Map((videos ?? []).map((v) => [v.id, v.title]));
 
   return (
@@ -72,7 +72,7 @@ export default async function HistoryPage() {
                   <span className="font-semibold text-yt-text">{c.author_display_name ?? "익명"}</span>
                   <span className="truncate text-yt-muted">· 🎬 {titleByVideoId.get(c.video_id) ?? "(삭제된 영상)"}</span>
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-yt-text">{c.comment_text}</p>
+                <p className="mt-1 whitespace-pre-wrap break-words text-sm text-yt-text">{c.comment_text}</p>
                 <div className="mt-3 flex gap-2.5">
                   <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yt-red text-[10px] text-white">▶</span>
                   <div className="min-w-0 flex-1 rounded-lg bg-yt-raised p-3">
@@ -80,7 +80,7 @@ export default async function HistoryPage() {
                       <span className="font-semibold text-yt-success">✓ 게시됨</span>
                       {c.replied_at && <span className="text-yt-muted">{formatDateTimeKo(c.replied_at)}</span>}
                     </p>
-                    <p className="whitespace-pre-wrap text-sm text-yt-text">{c.generated_reply}</p>
+                    <p className="whitespace-pre-wrap break-words text-sm text-yt-text">{c.generated_reply}</p>
                   </div>
                 </div>
               </div>

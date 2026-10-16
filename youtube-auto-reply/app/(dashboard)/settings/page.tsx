@@ -134,7 +134,7 @@ export default async function SettingsPage() {
         <div>
           <h2 className="text-lg font-bold text-yt-text">🤖 AI 답글 생성 키</h2>
           <p className="text-sm text-yt-muted">
-            아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 고른 모델에 해당하는 provider의 키
+            아래 &quot;🔗 답글 기본 설정 → 답글 생성 AI 모델&quot;에서 고른 모델에 해당하는 provider의 키
             하나만 등록되어 있으면 됩니다(세 개 다 등록할 필요 없음).
           </p>
         </div>
@@ -171,7 +171,7 @@ export default async function SettingsPage() {
             유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
             알려드려요. 또한 새 댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께
             보내드리고, 텔레그램에서 바로 <strong className="text-yt-text">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
-            선택할 수 있어요(선택 기능). "보류"를 누르면 웹의 "댓글 검토/게시" 화면에 남아있어 나중에
+            선택할 수 있어요(선택 기능). &quot;보류&quot;를 누르면 웹의 &quot;댓글 검토/게시&quot; 화면에 남아있어 나중에
             수정 후 게시할 수 있습니다. 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
             연동해야 합니다.
           </p>

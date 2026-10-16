@@ -46,7 +46,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
         <ul className="mt-1 list-inside list-disc space-y-0.5">
           <li>AI가 맥락을 잘못 읽고 부적절한 답을 사람 확인 없이 그대로 공개 게시할 수 있어요.</li>
           <li>같은 링크가 반복 게시되면 유튜브 스팸 탐지에 걸려 댓글이 숨김 처리되거나 채널 댓글 권한이 제한될 수 있어요.</li>
-          <li>먼저 며칠간 "댓글 검토/게시" 화면(또는 텔레그램 승인 버튼)으로 AI 답글 품질을 확인한 뒤 켜는 것을 권장해요.</li>
+          <li>먼저 며칠간 &quot;댓글 검토/게시&quot; 화면(또는 텔레그램 승인 버튼)으로 AI 답글 품질을 확인한 뒤 켜는 것을 권장해요.</li>
         </ul>
       </div>
       <label className="flex items-start gap-2 text-xs text-yt-muted">

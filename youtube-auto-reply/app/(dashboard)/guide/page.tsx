@@ -63,7 +63,7 @@ export default async function GuidePage() {
         <div className="yt-card rounded-tl-none p-4">
           <p className="text-sm leading-relaxed text-yt-text">
             안녕하세요, 댓글 비서예요! 채널에 새 댓글이 달리면 제가 읽고 <b>자연스러운 답글 초안</b>(원하는 링크 포함)을 써 둘게요.
-            사장님은 <b>확인하고 「답변승인」만</b> 누르시면 돼요. 텔레그램을 연결하면 휴대폰에서도 바로 승인할 수 있어요.
+            회원님은 <b>확인하고 「답변승인」만</b> 누르시면 돼요. 텔레그램을 연결하면 휴대폰에서도 바로 승인할 수 있어요.
           </p>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default async function GuidePage() {
                   <div className="rounded-xl border border-yt-border bg-yt-surface p-3 text-sm text-yt-text">
                     봐 주셔서 감사해요 😊 영상 속 제품은 아래 링크에서 확인하실 수 있어요! https://…
                   </div>
-                  <div className="mt-2 flex justify-end gap-2">
+                  <div className="mt-2 flex flex-wrap justify-end gap-2">
                     <span className="yt-btn min-h-[32px] px-4 text-xs">답변제외</span>
                     <span className="yt-btn-red min-h-[32px] px-4 text-xs">답변승인 · 게시</span>
                   </div>

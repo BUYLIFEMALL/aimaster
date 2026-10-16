@@ -1,7 +1,7 @@
 # 💬 YouTube Auto Reply — 유튜브 댓글자동화
 
 내 유튜브 채널에 달린 댓글을 AI가 읽고 사람처럼 자연스러운 답글(원하는 링크 포함)을 초안으로
-만들어주고, 검토 후(또는 텔레그램에서 바로) 게시할 수 있는 프로그램. 라이브: https://youtube-auto-reply.vercel.app
+만들어주고, 검토 후(또는 텔레그램에서 바로) 게시할 수 있는 프로그램. 라이브: https://youtube-auto-reply.buylife.xyz
 
 ## 설계 배경
 
@@ -141,3 +141,7 @@ CRON_SECRET=        # Vercel Cron 인증 + 텔레그램 웹훅 secret_token 시�
 
 ## 디자인 (v1.09)
 - [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [개선 원장](docs/IMPROVEMENTS.md) · [인수인계 2026-10-17](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## Windows v1.09 인수 (2026-10-17)
+
+Next15.5.27·React19 호환/보안 보완, 빈 댓글/이력·회원 권한 조회·한국시간·모바일 긴 댓글/영상 오류 수정. [검수 결과·남은 일](docs/IMPROVEMENT_HANDOFF_20261017.md) · [Windows 플랜](docs/VERIFICATION_PLAN_20261017_WINDOWS.md). 실제 게시·유료 AI·영상 동기화는 실행하지 않습니다.

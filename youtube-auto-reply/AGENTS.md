@@ -12,7 +12,7 @@
 - 파일 생성 및 코드 수정
 - 패키지 설치 (`npm` 등)
 - 로컬 테스트 및 빌드 실행
-- 스키마 추가/마이그레이션
+- 스키마 변경은 루트 최신 지침에 따라 사전 승인 범위를 확인한 뒤 진행(초기 템플릿의 자율 허용 문구 정정)
 
 ### 2. 사전 승인 필수 작업 (🚨 승인 없이 금지)
 > **2026-10-16 주인님 지시로 정리**: Git 커밋·푸시와 프로덕션 배포는 **사전 승인 없이** 메인 지침(`CLAUDE.md` 원칙 12 「작업 완료 절차」: 검수 → 커밋 → 푸시 → 배포 → 배포 후 확인 → 결과·라이브 링크 보고)대로 진행한다. 초기 템플릿에 있던 「Git push·배포 사전 승인」은 폐지. 아래 항목만 여전히 사전 승인이 필요하다.
@@ -121,3 +121,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - `#0f0f0f` + 유튜브 레드, 사이드바 빨간 막대·대기 배지·휴대폰 ☰, `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 댓글을 유튜브 댓글 모양(아바타·들여쓴 답글 초안)으로, 로그인까지 다크. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
 - **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## Windows v1.09 인수 진행 (2026-10-17 Codex)
+
+[최신 검수·배포 기록](docs/IMPROVEMENT_HANDOFF_20261017.md)의 마지막 절을 먼저 읽습니다. Next15.5.27/React19 호환·보안, 소유자 제목 조회/빈 UUID, 권한 관리자 조회, 한국시간 및375px 오류를 보완했습니다. 미연결 일반 회원 화면과 합성 페이지를 분리 검사하며 실제 게시/AI/동기화·텔레그램 이전은 이 작업에서 실행하지 않습니다. 기존 Cron 정의 유지.

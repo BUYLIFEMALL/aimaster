@@ -2140,3 +2140,12 @@
 - 증상: 유료 버튼을 누르지 않아도 상세 방문이 AI 비용을 만들 수 있음 → 원인: GET 서버 컴포넌트가 ensureListingAnalysis를 실행 → 해결: 실제 회원 검수는 상세/미리읽기 GET과 모든 쓰기를 차단하고 상세 UI는 합성 하네스로 검사(tests/runtime.mjs, fixtures.mjs) → 다음부터 확인: POST뿐 아니라 GET·prefetch·페이지 렌더의 외부 호출도 추적합니다. 제품의 자동 실행 문제는 개선 #12로 미해결입니다.
 - 증상: 본인 키 원칙을 지켜도 생성 결과가 다른 회원에게 재사용됨 → 원인: 시장 조사 캐시에 user_id가 없고 인증 사용자 전체 읽기/쓰기 RLS → 해결: 이번에는 읽기 전용 catalog로 확인해 개선 #10과 최상위 지침에 근거를 남김(운영 수정 아님) → 다음부터 확인: API 키 소유자뿐 아니라 생성 행/캐시 키·30일 자동 정리까지 확인합니다.
 - 증상: 기존 Next16.2.11 audit critical1 → 원인: 공지 영향 범위의 구버전 → 해결: 같은16계열16.4.2·관련 패키지 보완, 타입/빌드·무료 Edge/합성 회귀, 운영 의존성0(개발5high 별도) → 다음부터 확인: npm audit fix --force의 과거 메이저 다운그레이드를 따르지 말고 공식 공지·배포/검수 범위로 판단합니다.
+
+## 2026-10-17 youtube-auto-reply Windows 검수·호환 보완
+
+- 증상: 빈 댓글/이력에도 UUID 조회 오류 → 원인: 영상 제목조회에 __none__ 문자열 전달 → 해결: 두 페이지의 빈 조회 생략·user_id 필터 → 다음부터: 실제 빈/채워진 페이지를 합성 검사하고 owner-only RLS와 서버 필터를 함께 확인.
+- 증상: 긴 URL 댓글이375px 화면 밖으로 넘침/영상 제목 공간 부족 → 원인: 줄바꿈 누락·한 줄 고정 버튼 → 해결: CommentReviewItem/이력/대시보드 break-words, VideoRow 모바일 버튼 다음 줄·썸네일/제목 공간 → 다음부터: 실제 컴포넌트에 긴 URL·선택 UI를 넣어 Edge375 검사.
+- 증상: Next15 보완 후 webhook 타입 실패 → 원인: params Promise 변경 → 해결: route의 params를 await. 기존 서명/회원/게시 로직 유지 → 다음부터: tsc만이 아닌 Next 생성 타입 포함 빌드/비인증 차단 확인. formatDateTimeKo는 Asia/Seoul 고정으로 서버 UTC 날짜도 함께 검수.
+- 증상: npm run lint가 검사 대신 설정 선택창 → 원인: 독립 ESLint 설정 없음 → 해결: next/core-web-vitals·TS 플러그인 및 JSX entity 보완 → 다음부터: 종료코드만이 아니라 실제 lint 완료 메시지를 확인.
+- 증상: 의존성 설치가 대상 대신 루트에서 시작됨 → 원인: 문서 편집과 설치를 한 셀에서 실행하며 작업 경계 확인 누락 → 해결: 즉시 설치 중단·루트 npm ci --ignore-scripts로 잠금 파일 버전 복구, 추적 package/lock 무변경 및 Next14.2.35/React18.3.1 실제 버전 대조. 대상 폴더에서 재설치 → 다음부터: 설치는 별도 셀·명시 workdir·package.name 확인 후 실행.
+- 검수기 환경: OAuth 콜백은 로컬 환경변수가 없으면 새 주소 한 개가 정상. 팝업은 최초 about:blank 대신 waitForURL 이후 판정. 제목의 이모티콘을 포함한 접근성 이름을 사용. 설정GET은 토큰 갱신 가능하므로 채널 미연결 시험 회원 확인 후만 읽기 전용 검수.

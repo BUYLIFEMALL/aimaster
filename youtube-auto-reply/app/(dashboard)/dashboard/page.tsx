@@ -157,7 +157,7 @@ export default async function DashboardPage() {
                       <span className="font-semibold text-yt-text">{c.author_display_name ?? "익명"}</span>
                       <span className="ml-2 text-yt-muted">{formatDateTimeKo(c.fetched_at)}</span>
                     </p>
-                    <p className="mt-0.5 line-clamp-2 text-sm text-yt-text">{c.comment_text}</p>
+                    <p className="mt-0.5 line-clamp-2 break-words text-sm text-yt-text">{c.comment_text}</p>
                   </div>
                 </li>
               ))}

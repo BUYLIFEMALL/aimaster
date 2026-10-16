@@ -19,5 +19,5 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `real_estate_sales` | Claude Code(윈도우) | 2026-10-17 | #10 AI 시장조사 회원별 분리·30일 삭제 → #12 상세 자동 유료 분석을 버튼 실행으로 |
-| youtube-auto-reply | Codex(Windows) | 2026-10-17 | 맥미니 d355e67e v1.09 유튜브 다크 인수: 빌드·무료 Edge 검수·배포 |
 | trending-product-finder | Claude Code(맥미니) | 2026-10-17 | 스마트 매트릭스(다크) 디자인 리뉴얼 — 플랜 제시, 주인님 승인 대기 |
+| youtube-auto-reply | Codex(Windows) | 2026-10-17 | 맥미니 d355e67e v1.09 유튜브 다크 인수: 빌드·무료 Edge 검수·배포 |

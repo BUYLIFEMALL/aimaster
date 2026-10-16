@@ -51,7 +51,7 @@ export function CommentReviewItem({ comment }: { comment: CommentReviewData }) {
       <Avatar name={comment.author_display_name} />
       <div className="min-w-0 flex-1">
         <p className="text-[13px] font-semibold text-yt-text">{comment.author_display_name ?? "익명"}</p>
-        <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-yt-text">{comment.comment_text}</p>
+        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-yt-text">{comment.comment_text}</p>
 
         {/* 유튜브 답글처럼 들여쓴 "내 채널 답글" 초안 */}
         <div className="mt-3 flex gap-2.5">

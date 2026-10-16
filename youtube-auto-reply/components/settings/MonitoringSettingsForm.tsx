@@ -71,7 +71,7 @@ export function MonitoringSettingsForm({
           )}
         </dl>
         <p className="text-xs text-yt-muted">
-          자동으로는 답글 초안까지만 만들고, 실제 게시는 "댓글 검토/게시" 화면에서 직접 눌러야 합니다.
+          자동으로는 답글 초안까지만 만들고, 실제 게시는 &quot;댓글 검토/게시&quot; 화면에서 직접 눌러야 합니다.
         </p>
         <button
           type="button"

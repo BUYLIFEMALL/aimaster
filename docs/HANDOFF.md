@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — youtube-auto-reply v1.09 Windows 사전 검수 완료·운영 배포 진행
+
+- 맥미니 d355e67e/af435725 유튜브 다크 인수. 빈 댓글/이력 UUID·제목 소유자 조건·권한 관리자 조회·한국시간·긴 댓글/영상375px 보완, Next15.5.27/React19 보안·호환 적용. 기존 Cron·키/환경·DB 구조 유지.
+- 실제 Edge 일반 회원 로컬8·합성9·권한/본인키/시간14·Supabase 키 호환1 통과. 유료/게시/영상동기화0. 실제 채워진 데이터/OAuth/게시 검수는 제외. audit critical0, Next내장PostCSS 운영2·개발9 경고 후속.
+- 다음: 소스 고정 배포→DBv1.09→운영 무료 Edge검수→현황판48완료. [인수인계·개선·증거](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) · [프로그램](https://youtube-auto-reply.buylife.xyz). 관리자 텔레그램1건 이전 및30일보관 적용 확인 등은 후속으로 구분.
+
+
 ## 2026-10-17 Antigravity(Windows) — 마크다운 문서 자동화 v1.11: 로그인·회원가입 표준 2탭 레이아웃(포커스 스튜디오 테마) 전면 리뉴얼 완료
 
 - **대상 프로그램**: `markdown-studio/` (slug: `markdown-studio`, 프로그램 번호 1번)

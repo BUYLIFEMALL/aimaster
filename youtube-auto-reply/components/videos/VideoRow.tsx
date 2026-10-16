@@ -66,7 +66,7 @@ export function VideoRow({
   }
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-yt-border bg-yt-surface p-3 transition-colors hover:bg-yt-raised">
+    <div className="flex flex-wrap items-start gap-3 rounded-xl border border-yt-border bg-yt-surface p-3 transition-colors hover:bg-yt-raised">
       <input
         type="checkbox"
         checked={selected}
@@ -76,7 +76,7 @@ export function VideoRow({
       />
       {video.thumbnail_url && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={video.thumbnail_url} alt="" className="aspect-video w-32 shrink-0 rounded-lg object-cover sm:w-40" />
+        <img src={video.thumbnail_url} alt="" className="aspect-video w-28 shrink-0 rounded-lg object-cover sm:w-40" />
       )}
       <div className="min-w-0 flex-1">
         <a
@@ -111,7 +111,7 @@ export function VideoRow({
         )}
         {linkError && <p className="mt-1 text-xs text-yt-danger">{linkError}</p>}
       </div>
-      <div className="flex flex-col items-end gap-2 shrink-0">
+      <div className="flex w-full flex-row flex-wrap justify-end gap-2 shrink-0 sm:w-auto sm:flex-col sm:items-end">
         <button
           type="button"
           onClick={handleToggle}

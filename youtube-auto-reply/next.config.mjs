@@ -1,5 +1,9 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
   // 루트("/") 진입은 next/navigation의 redirect()를 쓰는 page.tsx 대신 여기서 처리한다 —
   // 정적으로 프리렌더되는 page.tsx의 redirect()는 일반 HTTP 클라이언트(curl 등)에서
   // Location 헤더 없이 __next_error__ 셸만 내려주는 문제가 있음(stepmail 등에서 먼저

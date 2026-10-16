@@ -14,8 +14,8 @@ const THIS_PROGRAM_SLUG = "youtube-auto-reply";
  * secret_token(computeWebhookSecret)을 X-Telegram-Bot-Api-Secret-Token 헤더로 검증해
  * URL만 알아낸 제3자가 가짜 승인 요청을 보낼 수 없게 막는다.
  */
-export async function POST(request: NextRequest, { params }: { params: { userId: string } }) {
-  const userId = params.userId;
+export async function POST(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params;
 
   let expectedSecret: string;
   try {

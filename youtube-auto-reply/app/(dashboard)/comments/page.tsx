@@ -29,10 +29,10 @@ export default async function CommentsPage() {
   ]);
 
   const videoIds = Array.from(new Set((comments ?? []).map((c) => c.video_id)));
-  const { data: videos } = await supabase
-    .from("ytreply_videos")
-    .select("id, title")
-    .in("id", videoIds.length > 0 ? videoIds : ["__none__"]);
+  // No UUID sentinel: an empty feed needs no video lookup. Scope title reads to this member too.
+  const { data: videos } = videoIds.length > 0
+    ? await supabase.from("ytreply_videos").select("id, title").eq("user_id", user.id).in("id", videoIds)
+    : { data: [] };
   const titleByVideoId = new Map((videos ?? []).map((v) => [v.id, v.title]));
 
   const groupedByVideo = new Map<string, typeof comments>();
