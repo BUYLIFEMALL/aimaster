@@ -19,6 +19,7 @@
 | ghost-scraper (website-scraper) + 승인된 VIP 0036 전환·메인 프리미엄 문구 배포 | Codex(Windows) | 2026-10-16 | 맥미니 인수: VIP 데이터 비교·백업·전환 우선, v1.12 빌드·보안/Edge 검수·배포 |
 
 | youtube-auto-reply (이후 OAuth·웹훅 순서대로, threads-comment-reply 완료) | Claude Code(Windows) | 2026-10-16 | 옛 vercel.app 삭제 대비 두 주소 지원 (docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md) |
+| blog-keyword (AI 블로그 키워드 자동화) | Claude Code(맥미니) | 2026-10-16 | 스마트 매트릭스 스타일 디자인 리뉴얼 — 분석·플랜 → 구현(빌드·배포는 윈도우 요청) |
 
 
 
