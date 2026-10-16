@@ -196,8 +196,16 @@ export default function Sidebar({
         })}
       </div>
 
-      {/* 4. 유틸리티 메뉴 (API 키, 가이드) */}
+      {/* 4. 유틸리티 메뉴 (연동&사용 매뉴얼, API 키, 퀵 가이드 모달) */}
       <div className="p-2 border-t border-slate-200 bg-white flex-shrink-0 space-y-1">
+        <Link
+          href="/guide"
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-semibold text-amber-800 bg-amber-50/90 hover:bg-amber-100 border border-amber-300/70 transition-colors"
+        >
+          <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+          <span>📖 연동 & 사용 매뉴얼</span>
+        </Link>
+
         <button
           onClick={onOpenApiKey}
           className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
@@ -211,7 +219,7 @@ export default function Sidebar({
           className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
         >
           <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-          <span>💡 사용 가이드</span>
+          <span>💡 퀵 팁 팝업</span>
         </button>
       </div>
 

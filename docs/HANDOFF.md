@@ -1,5 +1,40 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — AI 올인원 그래픽 자동화 v1.04: 크리에이티브 아틀리에 스타일 디자인 리뉴얼 및 비주얼 가이드북(/guide) 전면 신설 완료
+
+- **대상 프로그램**: `allinone-graphic/` (slug: `allinone-graphic`, `https://graphic.buylife.xyz`, 배포 버전: `v1.04`)
+- **작업 내용**:
+  1. **크리에이티브 아틀리에 스타일(Creative Atelier Style) 디자인 시스템 적용**:
+     - 딥 미드나잇 다크(`#0a0d14`, `#121726`)와 프라이머리 앰버 골드(`#f59e0b`, `#fbbf24`)를 조합하여 장인의 아틀리에 작업실 무드 구현.
+  2. **사용 매뉴얼(`/guide`) 비주얼 가이드북 전면 신설 (메인 지침 제7항 이행)**:
+     - 상단 크리에이티브 아틀리에 앰버 골드 히어로 배너 및 알약 뱃지.
+     - **5단계 올인원 그래픽 제작 파이프라인 인포그래픽**: 직군 탐색 ➔ AI 자동입력 ➔ 옵션 정밀조정 ➔ Gemini 렌더링 ➔ 매직 인페인팅.
+     - **Google AI Studio 무료 API 키 연동 카드**: 최상위 절대 규칙 준수 안내, 1분 발급 3단계, 바로가기 버튼.
+     - **19개 직군 123종 프리셋 맵 치트시트**: 5대 그룹(IT/기술, 창작/예술, 비즈니스/마케팅, 커머스/자영업, 전문 서비스/라이프) 인터랙티브 탭.
+     - **스마트 매직 에디터 (Inpainting) 실전 노하우 3원칙**: 브러시 크기 미세 조절, 명확한 변경 키워드, 무제한 되돌리기.
+     - **자주 묻는 질문 (FAQ) 아코디언 4종**: 생성 비용(구글 무료 할당량), 상업적 이용권, 부분수정 기법, 모바일 지원.
+  3. **사이드바 레이아웃 표준화 (`src/components/layout/Sidebar.tsx`)**:
+     - 상단 유틸리티 메뉴 최상단에 `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 탑재.
+     - 계정 블록(`buylifemall@naver.com`) 및 로그아웃 버튼 12px 간격 표준 밀착 배치.
+  4. **버전 및 DB 동기화**:
+     - `src/lib/version.ts`: `v1.04`
+     - `package.json`: `1.0.4`
+     - Supabase 공유 DB `programs.version = 'v1.04'` 동기화 갱신 완료.
+  5. **빌드, 배포 및 Edge 검수**:
+     - Turbopack 로컬 빌드 성공 (에러 0건).
+     - Vercel 프로덕션 배포 완료 (`https://graphic.buylife.xyz`).
+     - Microsoft Edge 전용 실세션 브라우저 검수 완료:
+       - 데스크톱(1440px): `edge_allinone_guide_desktop_v104.png`, `edge_allinone_guide_pipeline_v104.png`, `edge_allinone_guide_presets_v104.png`, `edge_allinone_studio_desktop_v104.png`
+       - 모바일(380px): `edge_allinone_guide_mobile_v104.png`
+- **산출물**:
+  - `allinone-graphic/docs/PLAN_20261016_DESIGN_RENEWAL.md`
+  - `allinone-graphic/docs/DESIGN_HANDOFF.md` (공식 크리에이티브 아틀리에 스타일 보고서 신설)
+  - `allinone-graphic/docs/IMPROVEMENTS.md` (개선사항 관리 대장 신설)
+  - `allinone-graphic/docs/IMPROVEMENT_HANDOFF_20261016.md`
+  - `allinone-graphic/AGENTS.md` (v1.04 반영)
+  - `DESIGN.md` (5번 프로그램 v1.04 및 DESIGN_HANDOFF.md 링크 갱신)
+  - `docs/ACTIVE_WORK.md` (작업 행 삭제 완료)
+
 ## 2026-10-16 Claude Code(윈도우) — music-player v1.06 MP-02 미디어 키·잠금화면 제어
 
 - Media Session 연결(곡 정보·재생 상태·진행 위치, 재생/일시정지 각각·이전/다음·위치 이동). 크롬에서 값 확인, VIP 138/138. 실제 OS 미디어 키·휴대폰 잠금화면·이어폰은 미검수(주인님 직접 확인 필요). 작업리스트 3번 완료 → 다음 4번 MP-07 저장 공간 안내. 상세: `music-player/AGENTS.md` v1.06.
