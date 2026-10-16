@@ -22,7 +22,7 @@
 | 5 | ✅ longtail-keyword-expander | `longtail-keyword-expander` | longtail-keyword-expander | |
 | 6 | ✅ trending-product-finder | `trending-product-finder` | trending-product-finder | |
 | 7 | ✅ shop-detail-page | `shop-detail-page` | shop-detail-page | |
-| 8 | auto-detail-page | `auto-detail-page` | auto-detail-page | 개발 중(coming) |
+| 8 | ✅ auto-detail-page | `auto-detail-page` | auto-detail-page | 개발 중(coming) |
 | 9 | video-to-gif | `video-to-gif` | video-to-gif | app_url이 `/dashboard`까지 포함 |
 | 10 | ai-image-studio | `ai-image-studio` | ai-image-studio | |
 | 11 | threads-easy-planner | `threads-easy-planner` | threads-easy-planner | |
@@ -83,5 +83,5 @@
 | 그룹 | 완료 | 남음 |
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
-| A그룹 | 7/19 | 12 |
+| A그룹 | 8/19 | 11 |
 | B그룹 | 0/8 | 8 |
