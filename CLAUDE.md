@@ -39,6 +39,7 @@
 > ③ **테마 및 배경색**: 기본 흰색(Light)과 검정색(Dark)을 메인으로 사용하되, 프로그램 성격에 맞춰 차콜, 딥 네이비, 크림, 미드나잇 등 유연하게 적용한다.
 > ④ **비주얼 시각화**: 한국인 실사 사진, 프로세스 다이어그램, 친근한 캐릭터, 감성 이모티콘, 사용 매뉴얼(/guide)의 전면 시각화를 준수한다.
 > ⑤ **브라우저 검수 준수**: Antigravity/Codex는 **Microsoft Edge(엣지) 전용**, Claude Code는 메인 Chrome 전용으로 실제 브라우저 창을 띄워 데스크톱 및 모바일(375px~390px) 반응형을 대조 검수한다.
+> ⑥ **디자인 리뉴얼 착수 전 프로그램 분석 플랜 및 개선사항 인수인계서 작성 의무 (2026-10-16 주인님 지시)**: 디자인 리뉴얼 작업 전 반드시 대상 프로그램의 기능·로직·라우트·외부연동을 심층 분석하고, 해당 프로그램 폴더에 `docs/PLAN_YYYYMMDD_DESIGN_RENEWAL.md`(디자인 리뉴얼 개발플랜) 및 `docs/IMPROVEMENTS.md` / `docs/IMPROVEMENT_HANDOFF_YYYYMMDD.md`(개선사항 제안 인수인계서)를 필수 작성해 남긴다. Antigravity·Codex·Claude Code 등 어떤 CLI가 이어받더라도 해당 폴더의 문서를 먼저 읽고 작업 흐름 단절 없이 즉시 이어갈 수 있게 한다.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 

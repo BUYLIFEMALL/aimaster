@@ -16,6 +16,7 @@
 
 ## 작업 중
 
+| tarot (도메인 통일 SSO — 이후 DOMAIN_SSO_MIGRATION_PLAN 순서대로 한 프로그램씩) | Claude Code(Windows) | 2026-10-16 | tarot-reading.buylife.xyz 연결 |
 
 
 

@@ -1,8 +1,13 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.92`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.95`  
+> 프로덕션 배포 주소: [https://threads-content-ops.buylife.xyz](https://threads-content-ops.buylife.xyz)
 
-개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+> **★★★ 디자인 리뉴얼 및 다음 작업 투입 에이전트 필독 (2026-10-16 주인님 지시)**
+> 1. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 및 `스레드 바이럴 스튜디오 스타일` 리뉴얼 설계
+> 2. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제(사용 매뉴얼 /guide 신설, 모바일 햄버거 메뉴 등)
+> 3. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — 다음 작업 에이전트의 첫 착수 단계 및 검수 가이드
+> 4. 기존 참고: [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md) (과거 구현 이력 및 멀티테넌시 정책)
 
 ## v1.92 쿠팡 API 키 없이 상품 등록
 

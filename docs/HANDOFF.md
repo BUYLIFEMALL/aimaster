@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — Threads 콘텐츠 운영 자동화: 기능·로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계 수립
+
+- **대상 프로그램**: `threads-content-ops/` (slug: `threads-content-ops`, `https://threads-content-ops.buylife.xyz`, 현행 v1.95)
+- **주인님 지시**:
+  - "다음 작업할 프로그램이야. 프로그램 기능,로직 등 분석해서 디자인 리뉴얼 개발플랜과 프로그램 개선사항 제안 인수인계 문서 만들어줘. 생성되는 문서는 각 프로그램별 폴더에 저장해서 다른 CLI가 작업시 해당 폴더안에 있는 문서를 읽고 작업을 이어나갈수 있도록 해줘. 이 내용은 디자인 리뉴얼작업 메인 지침에 추가해서 다른 CLI들도 흐름이 끊기지 않고 작업을 할수 있도록 해줘"
+- **완료 내용**:
+  1. **디자인 리뉴얼 메인 지침 업데이트**:
+     - `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`에 "디자인 리뉴얼 착수 전 프로그램 분석 기반 플랜 및 개선사항 인수인계서 작성 의무 (2026-10-16 주인님 지시)" 원칙 공식 추가.
+  2. **디자인 리뉴얼 개발플랜 문서 작성 (`threads-content-ops/docs/PLAN_20261016_DESIGN_RENEWAL.md`)**:
+     - 기존 아키텍처 및 화면/로직 정밀 분석(단일 페이지 탭 전환, 5단계 파이프라인 구조).
+     - 스타일 템플릿: **`스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)`** 확정 (클린 화이트 베이스 + Threads 블랙 + 바이럴 파이어 앰버 & 일렉트릭 바이올렛 포인트).
+     - 화면별 리뉴얼 설계(사이드바 표준화, 모바일 햄버거 메뉴 ☰ 신설, 5단계 파이프라인 컨트롤 타워 대시보드, 6종 페르소나 갤러리, 실시간 500자 게이지 프로그레스 바, 연동 & 사용 매뉴얼 /guide 신설).
+  3. **프로그램 개선사항 백로그 문서 작성 (`threads-content-ops/docs/IMPROVEMENTS.md`)**:
+     - P0~P2 개선과제 8건(IMP-01 ~ IMP-08) 체계적 명세 (발견 근거, 영향, 우선순위, 관련 파일, 구현 단계, 검수 방법).
+  4. **개선사항 제안 인수인계서 작성 (`threads-content-ops/docs/IMPROVEMENT_HANDOFF_20261016.md`)**:
+     - 다른 CLI(Codex, Claude Code, Antigravity)가 바로 투입되어 작업을 시작할 수 있도록 1단계 착수 작업(UsageGuide.tsx 신설, 사이드바 /guide 연동, 모바일 햄버거 추가) 및 브라우저 검수 기준(Edge 전용) 상세 정리.
+  5. **프로그램 문서 연결**:
+     - `threads-content-ops/AGENTS.md` 및 `README.md`에 신규 문서 3종 최상단 강조 링크 추가.
+  6. **동시 작업 표 정리**:
+     - `docs/ACTIVE_WORK.md`에서 Antigravity 작업 행 삭제.
+- **다음 첫 착수 단계 (First Step)**:
+  - `threads-content-ops/docs/PLAN_20261016_DESIGN_RENEWAL.md` 및 `IMPROVEMENTS.md`를 바탕으로 `UsageGuide.tsx` 신설 및 `ContentOpsSidebar.tsx` 가이드 메뉴 연동 진행 (`v1.96` 상향 예정).
+
 ## 2026-10-16 Claude Code(맥미니) — 전체 프로그램 디자인 작업 현황판 (중복 작업 방지)
 
 - **주인님 지시**: 개발된 프로그램 목록을 보고 디자인 작업한 것은 「1차 완료」, 안 한 것은 「작업 예정」으로 표시해 중복 작업을 막고 인수인계에도 남길 것.

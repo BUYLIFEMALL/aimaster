@@ -30,6 +30,10 @@
 7. **이모티콘 및 아이콘의 프로그램 스타일 맞춤 색상화 (2026-10-16 주인님 지시)**:
    - 사이드바 메뉴, 헤더, 카드 등에 사용되는 이모티콘 및 아이콘(Lucide Icons 등)의 색상은 무채색(회색/단색)에 머물지 않고, **해당 프로그램의 스타일 템플릿 및 브랜드 컬러(예: 이커머스 로열 블루/오렌지, 수노 앰버/바이올렛, 사이버네온 사이언/퍼플 등)에 맞춰 유연하게 수정·적용**할 수 있습니다.
    - 사용자가 각 기능을 한눈에 직관적으로 이해할 수 있도록 열쇠(API키), 책(사용안내), 스튜디오(핵심기능), 로그아웃 등 상징적인 아이콘을 사용하고, 프로그램 고유의 아이덴티티와 톤앤매너를 살려 시각적 완성도를 극대화합니다.
+8. **디자인 리뉴얼 착수 전 프로그램 분석 기반 플랜 및 개선사항 인수인계서 작성 의무 (2026-10-16 주인님 지시)**:
+   - 디자인 리뉴얼에 착수하기 전, 반드시 대상 프로그램의 **기존 기능, 라우트, 비즈니스 로직, 데이터 흐름, 외부 연동 상태 등을 심층 분석**합니다.
+   - 분석 결과를 바탕으로 **1) 디자인 리뉴얼 개발플랜 문서(`<프로그램>/docs/PLAN_YYYYMMDD_DESIGN_RENEWAL.md`)**와 **2) 프로그램 개선사항 제안 인수인계 문서(`<프로그램>/docs/IMPROVEMENTS.md` 및 `<프로그램>/docs/IMPROVEMENT_HANDOFF_YYYYMMDD.md`)**를 작성하여 **해당 프로그램별 서브폴더 안에 반드시 저장**합니다.
+   - 생성된 문서는 해당 프로그램의 `AGENTS.md` 및 `README.md`에 즉시 연결하여, Antigravity CLI(agy)·Codex·Claude Code 등 **어떤 CLI가 작업하더라도 해당 폴더의 문서를 먼저 읽고 작업 흐름이 끊기지 않고 즉시 이어서 개발할 수 있도록 체계화**합니다.
 
 ---
 
@@ -56,8 +60,9 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-16 기준: ✅ 7개 · 🔵 1개 · ⚪ 73개 · ⏸ 2개):
+> **상태 구분** (2026-10-16 기준: ✅ 7개 · 📋 1개 · ⚪ 73개 · ⏸ 2개):
 > - ✅ **1차 완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
+> - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
 > - ⚪ **작업 예정**: 아직 디자인 리뉴얼 전. 템플릿 칸의 「(권장)」은 추천일 뿐 확정 아님
 > - ⏸ **보류**: 비활성 프로그램 등 당장 대상 아님
@@ -95,7 +100,7 @@
 | 27 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 작업 예정 | `youtube-channel-consultant/AGENTS.md` |
 | 28 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 작업 예정 | `youtube-viral-studio/AGENTS.md` |
 | 29 | 네이버 블로그 에이전트 | `naver-blog-agent` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-agent/AGENTS.md` |
-| 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | 🔵 작업 중 (Antigravity, 2026-10-16) | `threads-content-ops/AGENTS.md` |
+| 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | **스레드 바이럴 스튜디오 스타일** | 라이트(화이트/앰버) | 📋 플랜/인수인계 수립 (구현 대기) | [플랜](threads-content-ops/docs/PLAN_20261016_DESIGN_RENEWAL.md) · [인수인계](threads-content-ops/docs/IMPROVEMENT_HANDOFF_20261016.md) |
 | 31 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shorts-viral-studio/AGENTS.md` |
 | 32 | Threads AI 기획 자동화 | `threads-easy-planner` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-easy-planner/AGENTS.md` |
 | 33 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `tistory-auto-blog/AGENTS.md` |

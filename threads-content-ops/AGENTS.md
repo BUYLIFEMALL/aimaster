@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.94`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.95`입니다. 이 폴더는 `threads-content-ops` 전용 독립 Next.js 서브프로젝트 작업 공간입니다. (Vercel `threads-content-ops` 독립 배포, 프로덕션 URL: `https://threads-content-ops.buylife.xyz`)
 
-> Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+> **★★★ 디자인 리뉴얼 및 다음 작업 투입 에이전트 필독 (2026-10-16 주인님 지시)**
+> 1. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 프로그램 기능/로직 정밀 분석 및 `스레드 바이럴 스튜디오 스타일` UI/UX 리뉴얼 설계
+> 2. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제(사용 매뉴얼 /guide 신설, 모바일 햄버거 메뉴, 명암비 개선 등)
+> 3. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — Codex, Claude Code, Antigravity 등 다음 작업 에이전트의 첫 착수 단계 및 검수 가이드
+> 4. 기존 참고: [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md) (과거 구현 이력 및 멀티테넌시 정책)
 
 ## v1.94 독립 서브프로젝트로 분리 (2026-10-15, Claude Code 보조 계정)
 
