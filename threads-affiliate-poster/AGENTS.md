@@ -449,3 +449,9 @@ vercel deploy --prod --yes
 - 콜백: 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectThreadsAccountNewCallbackAction`)·/trends [새 콜백 주소로 연결](`...WithKeywordSearchNewCallbackAction`)은 새 콜백. 옛 주소 307에 via=old, 교환은 via=old면 옛 주소·없으면 새 주소. 연결 후 이동 SITE_ORIGIN. 설정 화면에 두 콜백 주소 표시. `getThreadsAuthorizeUrl(state, appId, redirectUri, options?)`·`exchangeCodeForToken(code, appId, appSecret, redirectUri)`로 시그니처 변경, 미사용이 된 `getEnv` 제거.
 - **독립 배포본 보완**: SSO(v1.53)에서 넣은 "옛 vercel.app → buylife.xyz" 이동이 clone-kit 독립 배포본(자기 vercel.app에서 운영)까지 걸리던 문제 — `src/proxy.ts`·콜백에서 `NEXT_PUBLIC_STANDALONE_MODE=true`면 이동하지 않게 함.
 - 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, 옛 화면 308. 시험 계정 [새 주소로 다시 연결] → Meta "리디렉션 URI 화이트리스트에 없음"(새 콜백 전송 확인, 시험 계정 앱 미등록). 실제 연결 성공은 새 주소 등록 후 확인 필요.
+
+## 2026-10-17 v1.55 — 등록 주소 한눈에 보기·복사 버튼 (Claude Code 윈도우)
+- 주인님 요청(INSTA 포스팅 v1.14·threads v1.09와 같은 형식): 설정 화면 맨 위 `ThreadsMetaAddressSummary`(① 앱 도메인 ② Threads API 액세스 › 설정 › 리디렉션 콜백 URL 새·옛 ③ 제거·삭제 콜백 URL(`SITE_ORIGIN` 기준 `/api/threads/uninstall`·`/delete`) ④ Threads 앱 ID 위치 ⑤ 테스터 추가·초대 수락). 콜백 주소 표시는 `CopyAddress`(복사 버튼)로 교체.
+- 독립 배포본: 앱 도메인·콜백은 `SITE_ORIGIN`/`THREADS_REDIRECT_NEW`의 호스트에서 계산(자기 주소로 표시, buylife.xyz 고정 아님).
+- 같은 날 주인님이 Meta 앱 리디렉션 콜백에 새 주소 추가·제거/삭제 콜백을 새 주소로 교체 → 관리자 [새 주소로 다시 연결] 성공(`tap_accounts` 갱신).
+- 검수: 빌드·배포·DB v1.55, 크롬 화면 텍스트로 카드·제거/삭제 주소·복사 버튼 확인.

@@ -4,7 +4,9 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { Button } from "@/components/ui/Button";
 import { connectThreadsAccountAction, connectThreadsAccountNewCallbackAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
-import { THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import { SITE_ORIGIN, THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import { CopyAddress } from "@/components/settings/CopyAddress";
+import { ThreadsMetaAddressSummary } from "@/components/settings/ThreadsMetaAddressSummary";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { GUIDE_BASE_URL } from "@/lib/deployment";
 import type { ApiKeyProvider } from "@/types/database.types";
@@ -80,6 +82,11 @@ export default async function SettingsPage({
         </div>
       )}
 
+      <ThreadsMetaAddressSummary
+        uninstallUrl={`${SITE_ORIGIN}/api/threads/uninstall`}
+        deleteUrl={`${SITE_ORIGIN}/api/threads/delete`}
+      />
+
       {/* 플랫폼/계열별로 그룹 박스를 나눠서 어떤 키가 어떤 기능에 쓰이는지 한눈에 구분되도록 한다.
           박스 배경(neutral-100)은 페이지 body(neutral-50)와 뚜렷이 대비되도록 하고, border-2 +
           shadow-sm으로 테두리를 확실히 보이게 한다. */}
@@ -110,10 +117,10 @@ export default async function SettingsPage({
           {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
             <p className="font-semibold text-neutral-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
           )}
-          <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{THREADS_REDIRECT_OLD()}</code>
+          <CopyAddress value={THREADS_REDIRECT_OLD()} />
           {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
             <>
-              <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">{THREADS_REDIRECT_NEW}</code>
+              <CopyAddress value={THREADS_REDIRECT_NEW} />
               <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
             </>
           )}
