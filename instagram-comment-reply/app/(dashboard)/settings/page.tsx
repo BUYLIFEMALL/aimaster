@@ -109,6 +109,16 @@ export default async function SettingsPage() {
               <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
             </div>
 
+            {/* 2026-10-16: 시험 계정에서 Facebook 앱 ID를 넣어 Instagram 로그인이 "Invalid platform app"로 실패한 사례 — 값 위치 안내 */}
+
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+
+              <p className="font-semibold">⚠️ &quot;Instagram 앱 ID&quot;는 앱 화면 맨 위의 &quot;앱 ID&quot;(Facebook 앱 ID)와 다른 값입니다.</p>
+
+              <p>Meta 앱 대시보드 › <b>Instagram</b> › <b>API 설정(Instagram 로그인)</b> 화면의 <b>Instagram 앱 ID</b>와 <b>Instagram 앱 시크릿 코드</b>를 넣어주세요. 맨 위 앱 ID를 넣으면 연결할 때 Instagram 화면에 &quot;Invalid platform app&quot; 오류가 납니다.</p>
+
+            </div>
+
             <div className="space-y-3">
               {META_PROVIDERS.map((provider) => (
                 <ApiKeyRow
