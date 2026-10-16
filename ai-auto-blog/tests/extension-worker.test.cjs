@@ -46,7 +46,7 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
     setInterval: (fn) => { intervals.push(fn); return intervals.length; },
     clearInterval: (id) => { intervals[id - 1] = null; },
     fetch: async (url, init = {}) => {
-      const pathName = String(url).replace('https://ai-auto-blog-one.vercel.app', '');
+      const pathName = String(url).replace('https://ai-auto-blog.buylife.xyz', '');
       requests.push({ path: pathName, method: init.method || 'GET', body: init.body ? JSON.parse(init.body) : null });
       if (/^https:\/\/x\//.test(url)) return { ok: true, status: 200, blob: async () => ({ type: 'image/png', arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer }) };
       const key = Object.keys(routes).find((candidate) => pathName.startsWith(candidate));

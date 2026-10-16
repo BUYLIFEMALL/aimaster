@@ -5,7 +5,7 @@
 // 구조 분석(관리자)만 맡는다. 카테고리·태그는 BLOG에서 정해 글과 함께 보낸다. 패널을 닫아도 작업은 계속된다.
 // 웹에서 "네이버 입력기로 보내기"를 누르면 작업기가 30분 안에 자동으로 가져가 발행 직전까지 입력한다(마지막 발행은 회원이 직접).
 
-const BASE = "https://ai-auto-blog-one.vercel.app";
+const BASE = "https://ai-auto-blog.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const KEY = "aiAutoBlogToken";
 const BLOG_ID_KEY = "aiAutoBlogBlogId";
 const NOTIFY_KEY = "aiAutoBlogNotify";

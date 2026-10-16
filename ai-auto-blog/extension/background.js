@@ -6,7 +6,7 @@
 // 마지막 "발행" 버튼은 누르지 않는다 — 회원이 내용을 확인하고 직접 누른다.
 importScripts("blog-core.js", "naver-page.js", "blog-engine.js", "naver-adapter.js");
 
-const BASE = "https://ai-auto-blog-one.vercel.app";
+const BASE = "https://ai-auto-blog.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const KEY = {
   token: "aiAutoBlogToken",
   blogId: "aiAutoBlogBlogId",
