@@ -18,4 +18,3 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `threads`·`threads-affiliate-poster`·`threads-comment-reply` | Claude Code(윈도우) | 2026-10-17 | 설정 화면 등록 주소 정리·복사 버튼 |

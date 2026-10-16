@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 쓰레드 3개 설정 화면 "등록할 주소 한눈에 보기 + 복사 버튼"
+
+- 대상·버전·커밋: `threads` v1.09(`d8f7de95`)→v1.10(`1c1a92e5`), `threads-affiliate-poster` v1.55(`5eeed381`+누락분 `624c8215`), `threads-comment-reply` v1.09(`63f5f849`). 모두 배포·DB 버전·VIP 확인.
+- 내용: 설정 화면 맨 위 `ThreadsMetaAddressSummary` 카드(앱 도메인 / Threads API 액세스 › 설정 › 리디렉션 콜백 새·옛 / 제거·삭제 콜백(쇼핑제휴 처리기가 3개 프로그램 계정 테이블 모두 정리) / Threads 앱 ID 위치 / 테스터 추가·초대 수락) + 모든 콜백 주소에 `CopyAddress` 복사 버튼. INSTA 포스팅 v1.14와 같은 형식.
+- 교훈: 커밋 도우미가 공유 인덱스 기준 diff로 수정 파일을 또 놓침(쇼핑제휴 1차 커밋) → 임시 인덱스에 `git add -A`로 담아 비교하도록 바꿈(ERROR_LESSONS 2026-10-16 항목과 같은 원인).
+- 링크: https://auto-threads-posting.buylife.xyz/settings · https://threads-affiliate-poster.buylife.xyz/settings · https://threads-comment-reply.buylife.xyz/settings
+
 ## 2026-10-17 Antigravity(Windows) — 유튜브 플레이리스트 메이커 v1.06: 유튜브 다크 콘솔 디자인 리뉴얼 & 전 화면 단일 배경색(#0f0f0f) 일체화 및 비주얼 가이드북 전면 신설 완료
 
 - **대상 프로그램**: `yt-playlist-studio/` (slug: `yt-playlist-studio`, 공식 라이브: `https://youtube-playlist.buylife.xyz/` / `https://yt-playlist.buylife.xyz/`, 배포 버전: `v1.06`)
