@@ -37,6 +37,8 @@ export interface ShortsScript {
   hashtags: string[];
   source: "ai" | "manual";
   model?: string;
+  /** 장면 디자인(P3) — src/lib/render/scene.ts normalizeDesign()으로 읽는다 */
+  design?: { theme?: string; layout?: string; font?: string; effect?: string; badges?: boolean };
 }
 
 export function isTone(v: unknown): v is Tone { return typeof v === "string" && v in TONES; }
