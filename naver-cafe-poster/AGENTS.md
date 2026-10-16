@@ -160,3 +160,8 @@ naver-cafe-poster는 AIMaster 저장소 안의 서브프로젝트다. 루트 `..
 - 새 주소 `https://naver-cafe-poster.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 /settings 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308, 옛 주소 /api/naver/callback → 새 주소 307(시험 요청), 설정 화면 콜백 안내 옛 주소 그대로(회원 네이버 앱 변경 불필요). 실제 계정 연결은 미시험
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.09 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`(SITE_ORIGIN·`NAVER_REDIRECT_OLD()`=env `NAVER_REDIRECT_URI`·`NAVER_REDIRECT_FOR(mode)`). 네이버는 토큰 교환에 redirect_uri를 보내지 않아 via 판정 불필요(옛 주소 307은 기존대로).
+- 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectNaverAccountNewCallbackAction`)은 새 콜백. 연결 후 이동 SITE_ORIGIN. 설정 화면 Callback URL 두 주소 표시. 미사용 `getEnv` 제거.
+- 검수: 빌드·배포, 옛 콜백 → 새 주소 307, 새 콜백 → /login, 시험 계정 설정 화면 두 주소·버튼 표시. 시험 계정에 네이버 앱 미등록이라 `?error=naver_app_missing`으로 돌아와 네이버 인증 화면 확인은 못 함(이 오류 문구가 화면에 안 보이는 기존 문제 → `docs/IMPROVEMENTS.md`).
