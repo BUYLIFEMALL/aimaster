@@ -25,7 +25,7 @@
 | 8 | ✅ auto-detail-page | `auto-detail-page` | auto-detail-page | 개발 중(coming) |
 | 9 | ✅ video-to-gif | `video-to-gif` | video-to-gif | app_url이 `/dashboard`까지 포함 |
 | 10 | ✅ ai-image-studio | `ai-image-studio` | ai-image-studio | |
-| 11 | threads-easy-planner | `threads-easy-planner` | threads-easy-planner | |
+| 11 | ✅ threads-easy-planner | `threads-easy-planner` | threads-easy-planner | |
 | 12 | real-estate-sales | `real_estate_sales` | real-estate-sales | |
 | 13 | music-automation | `music` | music | |
 | 14 | booking-reminder | `booking-reminder` | booking-reminder | 문자 발송 링크 확인 |
@@ -83,5 +83,5 @@
 | 그룹 | 완료 | 남음 |
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
-| A그룹 | 10/19 | 9 |
+| A그룹 | 11/19 | 8 |
 | B그룹 | 0/8 | 8 |

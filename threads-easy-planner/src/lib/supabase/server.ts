@@ -1,9 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { cookieDomainForHost } from "./cookieDomain";
 import type { Database } from "@/types/database.types";
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const headerStore = await headers();
+  const cookieDomain = cookieDomainForHost(headerStore.get("x-forwarded-host") ?? headerStore.get("host"));
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,7 +19,7 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options),
             );
           } catch {
             // Server Component ignore
