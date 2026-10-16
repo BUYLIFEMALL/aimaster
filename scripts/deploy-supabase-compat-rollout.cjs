@@ -7,6 +7,9 @@ const root = path.resolve(__dirname, '..');
 process.chdir(root);
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 const redeploy = process.argv.includes('--redeploy');
+const afterAliases = process.argv.includes('--after-aliases');
+const excluded = new Set((process.env.PLATFORM_DEPLOY_EXCLUDE || '').split(',').filter(Boolean));
+const aliasApproval = afterAliases ? JSON.parse(fs.readFileSync('docs/supabase-compat-rollout-20261016/environment-addition-approval.json', 'utf8')) : null;
 const releases = JSON.parse(fs.readFileSync('docs/supabase-compat-rollout-20261016/releases.json', 'utf8')).filter(r => !only || r.slug === only);
 // The web poster's ZIP is hosted by the main app: deploy both at the start of the same batch.
 releases.sort((a, b) => (a.slug === 'naver-blog-auto-poster-web' ? 0 : a.slug === '.' ? 1 : 2) - (b.slug === 'naver-blog-auto-poster-web' ? 0 : b.slug === '.' ? 1 : 2));
@@ -70,6 +73,8 @@ let index = 0;
 async function worker() {
   while (index < releases.length) {
     const r = releases[index++];
+    if (excluded.has(r.slug)) { console.log(`DEPLOY DEFER ${r.slug}: concurrent owner`); continue; }
+    if (afterAliases && results.some(x => x.slug === r.slug && x.ok && x.version === r.version && x.started >= aliasApproval.registration_completed_at)) continue;
     if (!redeploy && results.some(x => x.slug === r.slug && x.ok && x.version === r.version)) continue;
     const slug = r.slug === '.' ? 'aimaster' : r.slug;
     const row = { slug: r.slug, version: r.version, revision, started: new Date().toISOString() };
@@ -78,6 +83,11 @@ async function worker() {
       if (!build?.ok || build.version !== r.version) throw new Error('Local build not passed');
       const project = before.find(p => p.slug === r.slug);
       if (!project?.ok || project.cron_changed) throw new Error('Unreviewed production/Cron configuration');
+      if (r.folder !== '.') {
+        const changed = cp.execFileSync('git', ['diff', '--name-only', 'b3d5fc92', revision, '--', r.folder], { windowsHide: true, encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean);
+        const runtimeChanges = changed.filter(file => !/^(scripts\/|supabase\/)|\.(md|sql)$/.test(file.slice(r.folder.length + 1)));
+        if (runtimeChanges.length) throw new Error('Program changed after compatibility release; preserve newer work and review separately');
+      }
       const folder = await snapshot(r);
       const log = path.join(folder, '.vercel/compat-deploy.log');
       console.log(`DEPLOY START ${slug} ${r.version || ''}`);

@@ -1,1 +1,8 @@
-{"date":"2026-10-16","approval":"주인님: 추가해줘","scope":"82 projects / Production / 79 publishable aliases + 81 server aliases","preserve_existing":true,"issue_or_revoke_keys":false}
+{
+  "date": "2026-10-16",
+  "approval": "주인님: 추가해줘",
+  "scope": "82 projects / Production / 79 publishable aliases + 81 server aliases",
+  "preserve_existing": true,
+  "issue_or_revoke_keys": false,
+  "registration_completed_at": "2026-10-16T02:34:51.780707Z"
+}
