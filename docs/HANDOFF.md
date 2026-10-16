@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — naver-blog-seo-studio 새 주소 이전(v1.65) · 텔레그램 웹훅 5개 이전 확인 · Instagram 앱 ID 안내
+
+- seo-studio: naver-blog-seo-studio.buylife.xyz·SSO·옛 주소 308·확장 v1.65(check OK)·메인 경로 전달 새 주소(메인 배포). 텔레그램 5개 봇 새 주소 확인(오류 없음). INSTA 3개 설정 화면에 Instagram 앱 ID 위치 안내(시험 계정은 Facebook 앱 ID가 들어가 있어 주인님 재등록 필요). 네이버 카페 안내 미표시는 오판 정정. 상세 `docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` §8.
+
 ## 2026-10-16 Antigravity(Windows) — AI 12단 상세페이지 자동화 v1.04: 포커스 스튜디오 디자인 리뉴얼 & 전 화면 단일 배경색(#f8fafc) 일체화 및 비주얼 가이드북 전면 신설 완료
 
 - **대상 프로그램**: `detail-page-12p/` (slug: `detail-page-12p`, 공식 라이브: `https://detail-12p.buylife.xyz/`, 배포 버전: `v1.04`)
