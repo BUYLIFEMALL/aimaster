@@ -1,6 +1,14 @@
 import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
 import { GEMINI_GUIDE_URL, NAVER_ADS_GUIDE_URL, NAVER_SEARCH_GUIDE_URL } from "@/lib/guides";
 import { FEATURE_INFO } from "@/lib/kw/types";
+import { PageHero } from "@/components/ui/PageHero";
+
+const PIPELINE = [
+  { ic: "🔑", title: "본인 키 등록", desc: "Gemini 필수, 네이버 검색·검색광고는 기능에 따라", time: "약 3분" },
+  { ic: "🧭", title: "분석 종류 고르기", desc: "자동완성 → 경쟁력 순서로 시작하면 쉬워요", time: "10초" },
+  { ic: "⚡", title: "키워드 입력 · 분석", desc: "결과 안 키워드를 눌러 이어서 분석", time: "10~60초" },
+  { ic: "📝", title: "제목·공략법 활용", desc: "제목 복사, Markdown·CSV로 내보내기", time: "바로" },
+];
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,12 +25,33 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 export default function GuidePage() {
   return (
     <>
-      <div className="page-heading">
-        <p className="eyebrow">사용 설명서</p>
-        <h1>연동 & 사용 매뉴얼</h1>
-        <p>키워드 하나로 검색 환경을 분석하고, 바로 쓸 글 제목·썸네일 문구·공략법까지 받는 도구입니다. ①~②만 따라 해도 충분합니다.</p>
-      </div>
+      <PageHero
+        badge="📖 사용 설명서"
+        title="연동 & 사용 매뉴얼"
+        description="키워드 하나로 검색 환경을 분석하고, 바로 쓸 글 제목·썸네일 문구·공략법까지 받는 도구입니다. ①~②만 따라 해도 충분합니다."
+      >
+        <a className="button primary" href="/dashboard">🔍 바로 분석하러 가기</a>
+      </PageHero>
       <div className="gd">
+        <div className="gd-bubble">
+          <span className="gd-avatar" aria-hidden="true">🤖</span>
+          <div className="card">
+            안녕하세요, 키워드 비서예요! 사람들이 <b>실제로 검색하는 말</b>을 찾아 드리고, 그 키워드가 <b>해볼 만한지(경쟁력)</b>, 오늘
+            어떤 이슈가 뜨는지까지 한 화면에서 이어서 보여 드려요. 아래 4단계만 기억하세요.
+          </div>
+        </div>
+        <section className="card" aria-label="사용 흐름">
+          <ol className="gd-pipeline">
+            {PIPELINE.map((p, i) => (
+              <li key={p.title}>
+                <span className="gd-top"><span className="gd-num">{i + 1}</span><span className="gd-time">⏱ {p.time}</span></span>
+                <span className="gd-ic" aria-hidden="true">{p.ic}</span>
+                <strong>{p.title}</strong>
+                <small className="muted">{p.desc}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
         <nav className="gd-toc card" aria-label="목차">
           <strong>바로가기</strong>
           <a href="#key">① 키 등록(최초 1회)</a>

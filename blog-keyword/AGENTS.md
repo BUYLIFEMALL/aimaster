@@ -2,6 +2,9 @@
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
+## 적용 디자인 템플릿
+**스마트 매트릭스 스타일**(v1.05) — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · 플랜 [docs/PLAN_20261016_DESIGN_RENEWAL.md](docs/PLAN_20261016_DESIGN_RENEWAL.md) · 개선 원장 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계 [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md)
+
 ## 한 줄 요약
 키워드 하나로 자동완성·AI 연관검색어·상위 블로그·경쟁력·오늘의 전략 키워드·다각도 주제·뉴스·카테고리 트렌드를 한 화면에서 이어서 분석하고, 제목·썸네일 문구·공략법을 제안한다. 참고 원본은 AI Studio의 "키워드 파이터 for Gemini"(원본·네이버 API 버전, 개발자 AIFACT GPT-PARK) 두 앱이며 코드는 복제하지 않고 기능 구조만 참고해 새로 작성했다.
 
@@ -34,3 +37,10 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (blog-keyword)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-16 v1.05 — 스마트 매트릭스 디자인 리뉴얼 (Claude Code 맥미니)
+
+- 일반 CSS에 `--mx-*` 토큰(롱테일과 같은 다크 차콜 + 블루·앰버)을 넣고 기존 `--brand/--line/--muted`를 연결, `globals.css`·`kw.css`의 밝은 색 전부 교체(클래스 이름 유지 — 브라우저 테스트 선택자 보존).
+- 대시보드 히어로 + 지표 4종(`DashboardStats`), 기록 검색·분석 종류 칩, 기록·설정·매뉴얼 히어로, 매뉴얼 캐릭터 말풍선 + 4단계 흐름. 서버·API·DB 변경 없음. 버전 v1.05(package 1.0.5).
+- **테스트·빌드·배포·화면 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md).

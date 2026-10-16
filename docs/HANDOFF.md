@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(맥미니) — AI 블로그 키워드 v1.05: 스마트 매트릭스 디자인 리뉴얼 (🟠 윈도우 마무리 요청)
+
+- **대상**: `blog-keyword/` (https://blog-keyword.buylife.xyz). 디자인 현황판 남은 목록 1번.
+- **한 일**: 일반 CSS에 `--mx-*` 토큰 도입·밝은 색 전부 교체(클래스 이름 유지), 대시보드 히어로 + 지표 4종, 기록 검색·분석 종류 칩, 기록·설정·매뉴얼 히어로, 매뉴얼 캐릭터·4단계 흐름. 서버·API·DB 변경 없음(보안은 원래 양호). 버전 v1.05.
+- **문서**: [`blog-keyword/docs/`](../blog-keyword/docs/) PLAN·IMPROVEMENTS(9건, 3건 구현)·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, `AGENTS.md`, 루트 `DESIGN.md` 74번 = **🟠 메인(윈도우) CLI 마무리 작업요망**, 역량 지도 카드.
+- **⚠️ 윈도우 CLI 요청**: [`blog-keyword/docs/IMPROVEMENT_HANDOFF_20261016.md`](../blog-keyword/docs/IMPROVEMENT_HANDOFF_20261016.md) — `npm test`·`npm run test:browser`(14건)·`npm run build` → 배포 → DB v1.05 → 1440px·375px 검수 → `DESIGN.md` 74번 ✅ 1차 작업완료.
+- **비용**: 없음.
+
 ## 2026-10-16 Codex(윈도우) — VIP 가입일+365일 전환 적용·검증 완료
 
 - 주인님 승인 0036 적용. 적용 전 실측: VIP 138명·등급 10,698·수동 528(과거 오늘 만료 20명은 현재 0명). 백업 후 수동 480건을 같은 행으로 전환, 최종 등급 11,178·대상 밖 수동 48·가입일 불일치/만료 0. 비VIP 3,566건과 대상 밖 수동 내용 지문 일치, 원래 행 ID 보존.

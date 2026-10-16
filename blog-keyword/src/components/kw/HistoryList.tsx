@@ -1,7 +1,7 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Star, Trash2 } from "lucide-react";
-import { FEATURE_INFO, type ReportSummary } from "@/lib/kw/types";
+import { FEATURE_INFO, type Feature, type ReportSummary } from "@/lib/kw/types";
 
 const title = (id: string) => FEATURE_INFO.find((f) => f.id === id)?.title ?? id;
 
@@ -9,6 +9,8 @@ export function HistoryList() {
   const [list, setList] = useState<ReportSummary[] | null>(null);
   const [error, setError] = useState("");
   const [onlyFav, setOnlyFav] = useState(false);
+  const [query, setQuery] = useState("");
+  const [feature, setFeature] = useState<Feature | "all">("all");
 
   const load = useCallback(async () => {
     try {
@@ -35,17 +37,41 @@ export function HistoryList() {
     else setError("삭제하지 못했습니다.");
   }
 
+  // 기능별 개수(필터 칩에 표시) — 기록에 있는 기능만 칩으로 보여 준다
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of list ?? []) m.set(r.feature, (m.get(r.feature) ?? 0) + 1);
+    return m;
+  }, [list]);
+
   if (error) return <p role="alert" className="error">{error}</p>;
   if (!list) return <p className="muted">불러오는 중…</p>;
-  const shown = onlyFav ? list.filter((r) => r.favorite) : list;
+  const q = query.trim().toLowerCase();
+  const shown = list.filter(
+    (r) => (!onlyFav || r.favorite) && (feature === "all" || r.feature === feature) && (!q || r.keyword.toLowerCase().includes(q)),
+  );
+  const filtered = onlyFav || feature !== "all" || !!q;
   return (
     <div className="stack">
-      <div className="actions">
-        <button type="button" aria-pressed={onlyFav} onClick={() => setOnlyFav((v) => !v)}><Star size={13} />즐겨찾기만 보기</button>
-        <span className="muted">최근 기록 100건까지 보관됩니다(즐겨찾기는 제외).</span>
+      <div className="card stack" style={{ gap: 12, padding: 16 }}>
+        <div className="kw-hist-tools">
+          <input aria-label="키워드로 기록 찾기" placeholder="🔎 키워드로 기록 찾기" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <div className="actions">
+            <button type="button" aria-pressed={onlyFav} onClick={() => setOnlyFav((v) => !v)}><Star size={13} />즐겨찾기만 보기</button>
+            <span className="muted">{shown.length} / {list.length}건 · 최근 100건 보관(즐겨찾기 제외)</span>
+          </div>
+        </div>
+        {counts.size > 1 && (
+          <div className="kw-filter" role="group" aria-label="분석 종류로 거르기">
+            <button type="button" aria-pressed={feature === "all"} onClick={() => setFeature("all")}>전체<b>{list.length}</b></button>
+            {FEATURE_INFO.filter((f) => counts.has(f.id)).map((f) => (
+              <button key={f.id} type="button" aria-pressed={feature === f.id} onClick={() => setFeature(f.id)}>{f.title}<b>{counts.get(f.id)}</b></button>
+            ))}
+          </div>
+        )}
       </div>
       {shown.length === 0 ? (
-        <p className="kw-empty">{onlyFav ? "즐겨찾기한 기록이 없습니다." : "아직 분석 기록이 없습니다. [분석하기]에서 첫 분석을 시작해 보세요."}</p>
+        <p className="kw-empty">{filtered ? "조건에 맞는 기록이 없습니다." : "아직 분석 기록이 없습니다. [분석하기]에서 첫 분석을 시작해 보세요."}</p>
       ) : (
         <ul className="kw-history">
           {shown.map((r) => (
