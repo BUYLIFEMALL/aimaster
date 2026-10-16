@@ -49,6 +49,8 @@ export interface ShortsScript {
   backdrop?: Backdrop;
   /** 음성·자막·배경음악 설정(P5) — src/lib/voice.ts normalizeAudio()로 읽는다 */
   audio?: Partial<import("@/lib/voice").AudioSettings>;
+  /** 업로드 문구(P7) — src/lib/plan.ts Seo */
+  seo?: import("@/lib/plan").Seo;
 }
 
 export function isTone(v: unknown): v is Tone { return typeof v === "string" && v in TONES; }

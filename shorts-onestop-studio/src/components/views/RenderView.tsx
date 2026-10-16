@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, Film, Mic, Music, Pause, Play, RotateCcw, Save, Square, Trash2, Upload } from "lucide-react";
+import { Copy, Download, Film, Search, Mic, Music, Pause, Play, RotateCcw, Save, Square, Trash2, Upload } from "lucide-react";
 import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
 import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
@@ -128,6 +128,16 @@ export function RenderView() {
     } finally { setExp(null); abort.current = null; }
   }
 
+  async function makeSeo() {
+    if (!script) return; setBusy("업로드 문구를 만드는 중…"); setMsg(null);
+    try { const { seo } = await api<{ seo: NonNullable<ShortsScript["seo"]> }>("/api/ai/seo", { body: { script } }); update((x) => ({ ...x, seo })); setMsg({ text: "업로드 문구를 만들었습니다. 고쳐 쓰고 [저장]을 눌러 주세요.", ok: true }); }
+    catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
+  }
+  async function copy(text: string, what: string) {
+    try { await navigator.clipboard.writeText(text); setMsg({ text: `${what}을(를) 복사했습니다.`, ok: true }); } catch { setMsg({ text: "복사하지 못했습니다. 글자를 직접 선택해 복사해 주세요." }); }
+  }
+  const setSeo = (patch: Partial<NonNullable<ShortsScript["seo"]>>) => update((x) => (x.seo ? { ...x, seo: { ...x.seo, ...patch } } : x));
+
   async function save() {
     if (!item || !script) return; setBusy("저장하는 중…");
     try { const r = await api<{ item: Item<ShortsScript> }>("/api/items", { method: "PATCH", body: { id: item.id, data: script } }); setItem(r.item); setDirty(false); setMsg({ text: "음성·자막·배경음악 설정을 저장했습니다.", ok: true }); }
@@ -159,7 +169,7 @@ export function RenderView() {
                 <div className="actions">
                   <button className="primary" disabled={!!busy} onClick={() => void makeAll(true)}><Mic size={14} />음성 없는 장면 모두 만들기</button>
                   <button disabled={!!busy} onClick={() => void makeAll(false)}><RotateCcw size={14} />전부 다시 만들기</button>
-                  <Busy on={!!busy} label={busy} />
+                  <Busy on={!!busy && !busy.startsWith("업로드")} label={busy} />
                 </div>
                 <small className="muted">장면마다 짧은 요청 1회씩(본인 키 요금, 가벼운 모델 기준 소액). 내레이션을 고치면 그 장면은 「다시 만들기」가 필요해요.</small>
                 <div className="list">{vs.map((v, i) => (
@@ -204,6 +214,22 @@ export function RenderView() {
                   {file && <a className="button primary" href={file.url} download={file.name}><Download size={14} />MP4 내려받기 ({file.mb}MB)</a>}
                 </div>
                 {file && <video src={file.url} controls playsInline style={{ width: "100%", maxWidth: 240, borderRadius: 12, alignSelf: "center" }} />}
+              </section>
+              <section className="card stack">
+                <h2>🔎 ⑤ 업로드 문구(SEO)</h2>
+                {!script.seo ? <p className="muted">대본을 바탕으로 쇼츠 제목 후보 5개·설명란·해시태그·검색 태그를 만듭니다(본인 AI 키 1회). 유튜브에 올릴 때 복사해 붙여 넣으세요.</p> : <>
+                  <div><small className="muted">제목 후보(누르면 복사)</small><div className="list" style={{ marginTop: 6 }}>{script.seo.titles.map((t, i) => <button key={i} type="button" className="list-item" style={{ textAlign: "left", width: "100%" }} onClick={() => void copy(t, "제목")}><span>{t}</span><Copy size={13} /></button>)}</div></div>
+                  <label>설명란<textarea rows={5} value={script.seo.description} maxLength={1500} onChange={(e) => setSeo({ description: e.target.value })} /></label>
+                  <label>해시태그<input value={script.seo.hashtags.join(" ")} onChange={(e) => setSeo({ hashtags: e.target.value.split(/s+/).filter(Boolean).slice(0, 10) })} /></label>
+                  <label>검색 태그(쉼표로 구분)<input value={script.seo.tags.join(", ")} onChange={(e) => setSeo({ tags: e.target.value.split(/s*,s*/).filter(Boolean).slice(0, 20) })} /></label>
+                  <div className="actions">
+                    <button type="button" onClick={() => void copy(`${script.seo!.description}
+
+${script.seo!.hashtags.join(" ")}`, "설명란+해시태그")}><Copy size={13} />설명란+해시태그 복사</button>
+                    <button type="button" onClick={() => void copy(script.seo!.tags.join(", "), "검색 태그")}><Copy size={13} />검색 태그 복사</button>
+                  </div>
+                </>}
+                <div className="actions"><button type="button" className={script.seo ? "" : "primary"} disabled={!!busy || !!exp} onClick={() => void makeSeo()}><Search size={14} />{script.seo ? "다시 만들기" : "업로드 문구 만들기"}</button><Busy on={busy.startsWith("업로드")} label={busy} /></div>
               </section>
             </div>
             <aside className="card stack panel">

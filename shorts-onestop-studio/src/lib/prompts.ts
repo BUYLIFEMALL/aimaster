@@ -65,3 +65,42 @@ export function visualsPrompt(o: { topic: string; scenes: string[]; style: strin
   ].join("\n\n");
   return { system, prompt };
 }
+
+/** 발행 계획(P7): 채널 단계 전략 + 날짜에 배치할 주제 목록. 날짜·시각은 서버가 붙인다 */
+export function planPrompt(o: { stageLabel: string; stageGuide: string; categories: string[]; count: number; days: number; perDay: number; seed?: string; guideline?: string }) {
+  const system = [
+    "당신은 한국어 유튜브 쇼츠 채널 운영 전략가입니다. 채널 단계에 맞는 운영 전략과 실제로 만들 쇼츠 주제 목록을 제안합니다.",
+    yearRule(), SAFETY,
+    o.guideline ? `[회원 작성 지침 — 우선 적용]\n${o.guideline}` : "",
+  ].filter(Boolean).join("\n\n");
+  const prompt = [
+    `채널 단계: ${o.stageLabel} — ${o.stageGuide}`,
+    `분야: ${o.categories.join(", ")}`,
+    `기간: ${o.days}일, 하루 ${o.perDay}편`,
+    o.seed ? `회원 키워드·채널 방향: ${o.seed}` : "",
+    `할 일:
+1) strategy: 이 단계·분야에 맞는 운영 전략 요약(summary, 2문장), 집중할 점(focus) 3개, 실행 팁(tips) 3개.
+2) topics: 서로 겹치지 않는 쇼츠 주제 정확히 ${o.count}개를 업로드 순서대로. 각 주제는 20~40자의 구체적인 제목 문장, 첫 장면 후킹(hook, 25자 이내), 구성(format), 분야(category, 위 분야 중 하나를 그대로). 분야는 고르게 섞고, 같은 형식이 3번 넘게 연속되지 않게 합니다. 시리즈로 이어지는 주제는 제목에 순서가 드러나게 합니다.`,
+    `JSON 형식: {"strategy":{"summary":"","focus":[""],"tips":[""]},"topics":[{"title":"","hook":"","format":"list|howto|tips|compare|story 중 하나","category":""}]}`,
+  ].filter(Boolean).join("\n\n");
+  return { system, prompt };
+}
+
+/** 업로드 문구(P7): 대본을 바탕으로 쇼츠 제목 후보·설명·해시태그·검색 태그 */
+export function seoPrompt(o: { topic: string; category: string; outline: string }) {
+  const system = [
+    "당신은 한국어 유튜브 쇼츠 업로드 문구(SEO) 담당자입니다. 검색과 추천에 잘 걸리면서 내용과 정확히 일치하는 문구를 씁니다. 낚시성 과장, 내용에 없는 약속은 쓰지 않습니다.",
+    yearRule(), SAFETY,
+  ].join("\n\n");
+  const prompt = [
+    `주제: ${o.topic}`, o.category ? `분야: ${o.category}` : "",
+    `대본 요약:\n${o.outline}`,
+    `만들 것:
+- titles: 쇼츠 제목 후보 5개(각 40자 이내, 핵심 검색어를 앞쪽에, 서로 다른 각도: 질문형·숫자형·결과형 등). 연도가 필요하면 당해 연도만.
+- description: 설명란 문구(3~5줄, 첫 줄에 핵심 요약과 검색어, 이어서 영상 내용 요약, 마지막에 구독·저장 유도 한 줄). 해시태그는 넣지 말 것.
+- hashtags: 해시태그 6~8개(# 포함, #shorts 1개 포함, 나머지는 한국어 위주).
+- tags: 검색 태그 10~15개(# 없이, 짧은 검색어, 한국어 위주에 필요하면 영어 1~2개).`,
+    `JSON 형식: {"titles":[""],"description":"","hashtags":["#"],"tags":[""]}`,
+  ].filter(Boolean).join("\n\n");
+  return { system, prompt };
+}

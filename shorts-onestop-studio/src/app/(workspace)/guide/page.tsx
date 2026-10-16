@@ -9,7 +9,8 @@ const FLOW = [
   { emoji: "💡", title: "주제·대본", desc: "분야 → 주제 추천 → AI 대본", state: "사용 가능" },
   { emoji: "🎨", title: "배경", desc: "스톡 영상·사진 · AI 이미지", state: "사용 가능" },
   { emoji: "🎬", title: "장면 편집", desc: "테마 · 카드 레이아웃 · 글꼴 · 미리보기 재생", state: "사용 가능" },
-  { emoji: "🎙️", title: "음성·자막·MP4", desc: "본인 키 내레이션 · 자막 · 배경음악 · 브라우저 MP4", state: "사용 가능" },
+  { emoji: "🎙️", title: "음성·자막·MP4", desc: "본인 키 내레이션 · 자막 · 배경음악 · 브라우저 MP4 · 업로드 문구", state: "사용 가능" },
+  { emoji: "📅", title: "발행 계획", desc: "채널 단계 전략 · 날짜별 일정 · 대본 일괄 제작", state: "사용 가능" },
 ];
 const KEY_STEPS = [
   { emoji: "🌐", title: "콘솔 접속", desc: "Google AI Studio · OpenAI · Anthropic 콘솔에 본인 계정으로 로그인" },
@@ -24,7 +25,7 @@ export default function GuidePage() {
       <div className="stack">
         <section className="card stack">
           <h2>🗺️ 전체 흐름</h2>
-          <div className="diagram">{FLOW.map((f) => (
+          <div className="diagram five">{FLOW.map((f) => (
             <div key={f.title} className="node"><div className="emoji">{f.emoji}</div><strong>{f.title}</strong><p className="muted" style={{ fontSize: 12 }}>{f.desc}</p><span className={`badge ${f.state === "사용 가능" ? "brand" : ""}`}>{f.state}</span></div>
           ))}</div>
         </section>
@@ -45,7 +46,8 @@ export default function GuidePage() {
             <li><strong>다듬고 저장</strong> — 화면 제목은 짧게, 자세한 내용은 내레이션에. [보관함에 저장]으로 보관합니다.</li>
           </ol>
           <p className="muted" style={{ fontSize: 12 }}>🎨 <strong>배경</strong>: [🎨 디자인·배경]에서 배경 방식(테마만/전체 1장/장면마다)을 고르고 [AI로 장면 설명 만들기]를 누르면 장면마다 스톡 검색어와 AI 이미지 설명이 채워집니다. [검색]으로 Pexels·Pixabay 무료 영상·사진을 고르거나 [AI 이미지]로 만들고 [배경 저장]을 누르세요. 스톡 키는 무료로 발급됩니다(🔑 API키등록·플랫폼연동의 발급 매뉴얼).</p>
-          <p className="muted" style={{ fontSize: 12 }}>🎙️ <strong>음성·자막·음악</strong>: [🎙️ 음성·자막·영상]에서 음성 모델·목소리·빠르기를 고르고 [음성 없는 장면 모두 만들기]를 누르면 장면마다 내레이션이 만들어지고 장면 길이가 목소리에 맞춰집니다. 자막 스타일·위치·크기를 고르고, 내 음악 파일을 올리면 목소리가 나올 때 자동으로 작게 깔립니다. [소리와 재생]으로 확인하고 [저장]하세요. 마지막으로 [MP4 만들기]를 누르면 이 브라우저 안에서 1080×1920 세로 MP4(목소리·자막·배경음악 포함)가 만들어지고, [MP4 내려받기]로 저장합니다(최신 크롬·엣지, 만드는 동안 탭 유지).</p>
+          <p className="muted" style={{ fontSize: 12 }}>🎙️ <strong>음성·자막·음악</strong>: [🎙️ 음성·자막·영상]에서 음성 모델·목소리·빠르기를 고르고 [음성 없는 장면 모두 만들기]를 누르면 장면마다 내레이션이 만들어지고 장면 길이가 목소리에 맞춰집니다. 자막 스타일·위치·크기를 고르고, 내 음악 파일을 올리면 목소리가 나올 때 자동으로 작게 깔립니다. [소리와 재생]으로 확인하고 [저장]하세요. 마지막으로 [MP4 만들기]를 누르면 이 브라우저 안에서 1080×1920 세로 MP4(목소리·자막·배경음악 포함)가 만들어지고, [MP4 내려받기]로 저장합니다(최신 크롬·엣지, 만드는 동안 탭 유지). [업로드 문구 만들기]를 누르면 제목 후보 5개·설명란·해시태그·검색 태그가 만들어져, 눌러서 복사해 유튜브에 붙여 넣을 수 있습니다.</p>
+          <p className="muted" style={{ fontSize: 12 }}>📅 <strong>발행 계획</strong>: [📅 발행 계획]에서 채널 단계·분야(1~3개)·하루 편수·기간을 고르고 [계획 만들기]를 누르면 AI가 운영 전략과 날짜별 주제를 만들고, 분야별 추천 시간대에 배치해 저장합니다(한 번에 30개까지). 일정에서 주제를 골라 [N편 대본 만들기]를 누르면 순서대로 대본을 만들어 보관함에 저장하고, 각 주제의 [열기]로 배경·음성·MP4를 이어서 만듭니다.</p>
           <p className="muted" style={{ fontSize: 12 }}>🎬 <strong>장면 편집</strong>: 저장한 대본을 [🎬 장면 편집]에서 고르면 실제 쇼츠 화면으로 재생됩니다. 테마 8가지·카드 레이아웃 6가지·제목 글꼴 5가지·제목 효과를 고르고 [디자인 저장]을 누르세요. [세이프에어리어]를 켜면 유튜브 버튼·제목에 가려지는 곳이 빨갛게 표시됩니다.</p>
           <p className="muted" style={{ fontSize: 12 }}>✍️ <strong>내 지침</strong>: 분야마다 말투·금지어·구성 규칙을 저장해 두고 「내 지침 사용」을 켜면 기본 규칙보다 우선 적용됩니다. 📜 <strong>내 대본으로 만들기</strong>: 이미 쓴 대본을 한 줄 = 한 장면으로 바꿉니다(AI 사용 안 함).</p>
         </section>

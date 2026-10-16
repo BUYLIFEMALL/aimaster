@@ -122,3 +122,8 @@ h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.35;font-weight:750;letter-sp
 .stock-item{position:relative;padding:0;aspect-ratio:9/16;border-radius:10px;overflow:hidden;border:2px solid transparent}.stock-item:hover{border-color:var(--brand)}
 .stock-item img{width:100%;height:100%;object-fit:cover;display:block}.stock-item span{position:absolute;right:4px;top:4px;font-size:12px}
 @media(max-width:767px){.bg-row{grid-template-columns:64px minmax(0,1fr)}.bg-thumb{width:64px}}
+
+/* ── 매뉴얼 5단계 흐름(P7) ── */
+.diagram.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1100px){.diagram.five{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:767px){.diagram.five{grid-template-columns:1fr}}
