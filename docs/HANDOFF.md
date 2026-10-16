@@ -14,9 +14,10 @@
   1. **Cyber Dark Studio 디자인 전면 개편**: 딥 블랙(`--background: #060911`) & 미드나잇 오로라 그래디언트 배경 구축, 센터 플레이 버튼(`0 0 25px` 네온 글로우), 8밴드 이퀄라이저 슬라이더 랙마운트 콘솔 스타일링, 글래스모피즘 재생목록 하이라이트.
   2. **연동 & 사용 매뉴얼 (`/guide`) 비주얼 전면 개편**: 4단계 시각적 워크플로우 파이프라인, Web Audio 신호 흐름 아키텍처 다이어그램, 8밴드 주파수 대역별 사운드 특성 카드, 포맷 칩, 네온 키캡 단축키 치트시트, 100% 로컬 보안 안내 적용.
   3. **인수인계 문서화**: `music-player/docs/DESIGN_HANDOFF.md`(디자인 개발완료 보고서) 및 `music-player/docs/IMPROVEMENTS.md`(향후 로직/기능 개선과제 - Claude Code/Codex 연계용) 신설.
-  4. **버전 동기화**: `src/lib/version.ts` 및 DB `programs.version` 모두 `v1.04`로 동기화 완료.
-  5. **Microsoft Edge 검수 통과**: 일반 테스트 계정(`buylifemall@naver.com`) 실세션 쿠키 적용, 데스크톱(1440px) 및 모바일(375px) 화면 캡처 대조 검수 완료.
-  6. **Vercel 프로덕션 배포 완료**: 배포 ID `dpl_AhGc2sbd6JZKUuR955dDXz1USp4Q`, 도메인 https://music-player.buylife.xyz (Player / Guide 라이브 HTTP 200 확인).
+  4. **좌측 흐름 메뉴 클릭 인터랙션 연동**: 1번 '음악 추가'(파일 탐색기 열기), 2번 '재생·이퀄라이저'(이퀄라이저 패널 토글 및 스크롤), 3번 '재생목록 관리'(검색창 포커스)를 `mp-action` 이벤트로 연결하여 클릭 시 즉각 반응하도록 개선.
+  5. **버전 동기화**: `src/lib/version.ts` 및 DB `programs.version` 모두 `v1.04`로 동기화 완료.
+  6. **Microsoft Edge 검수 통과**: 일반 테스트 계정(`buylifemall@naver.com`) 실세션 쿠키 적용, 데스크톱(1440px) 및 모바일(375px) 화면 캡처 및 메뉴 클릭 동작 실시간 검증 완료.
+  7. **Vercel 프로덕션 배포 완료**: 최신 배포 ID `dpl_9RuiL8Ms68hs7XwJ5dqk7kvYzUn5`, 도메인 https://music-player.buylife.xyz (Player / Guide 라이브 HTTP 200 확인).
 - **남은 일 / 후속 과제**: Claude Code 및 Codex에서 `music-player/docs/IMPROVEMENTS.md`에 정리된 8가지 기능(드래그 정렬, MediaSession API, 다중 플레이리스트, 파형 시크바, 가사 동기화 등) 고도화 진행 가능.
 
 ## 2026-10-16 Codex(윈도우) — DB 신규 변수 160개 등록·83곳 운영 검수 완료

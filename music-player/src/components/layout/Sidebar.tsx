@@ -19,6 +19,17 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
   }
 
   const onPlayer = currentPath === "/player";
+
+  function handleFlowClick(ev: React.MouseEvent, action: string) {
+    ev.preventDefault();
+    if (onPlayer) {
+      window.dispatchEvent(new CustomEvent("mp-action", { detail: action }));
+      setOpen(false);
+    } else {
+      window.location.assign(`/player#${action}`);
+    }
+  }
+
   const menu = (
     <>
       <div className="sidebar-brand">
@@ -31,13 +42,13 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
       <nav className="sidebar-nav" aria-label="프로그램 메뉴">
         <a className="nav-item" aria-current={onPlayer ? "page" : undefined} href="/player"><Music size={17} />플레이어</a>
         <p className="nav-caption">작업 흐름</p>
-        <a className="flow-item" href="/player">
+        <a className="flow-item" href="/player#add-file" onClick={(e) => handleFlowClick(e, "add-file")}>
           <span className="step-number">1</span><div><strong><ListMusic size={15} />음악 추가</strong><small>파일·폴더 · 끌어다 놓기</small></div>
         </a>
-        <a className="flow-item" href="/player">
+        <a className="flow-item" href="/player#toggle-eq" onClick={(e) => handleFlowClick(e, "toggle-eq")}>
           <span className="step-number">2</span><div><strong><SlidersHorizontal size={15} />재생·이퀄라이저</strong><small>시각화 · 음색 조절</small></div>
         </a>
-        <a className="flow-item" href="/player">
+        <a className="flow-item" href="/player#focus-search" onClick={(e) => handleFlowClick(e, "focus-search")}>
           <span className="step-number">3</span><div><strong><Music size={15} />재생목록 관리</strong><small>검색 · 정렬 · 삭제</small></div>
         </a>
         <div className="utility-menu">

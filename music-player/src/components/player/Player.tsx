@@ -417,6 +417,44 @@ export function Player({ userId }: { userId: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [togglePlay, patch, goNext, goPrev]);
 
+  // ---- 외부/사이드바 액션 연동 ----
+  useEffect(() => {
+    const handleAction = (action: string) => {
+      if (action === "add-file") {
+        fileInput.current?.click();
+      } else if (action === "toggle-eq") {
+        setEqOpen((prev) => {
+          const next = !prev;
+          if (next) {
+            setTimeout(() => {
+              document.querySelector(".mp-eq")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }, 100);
+          }
+          return next;
+        });
+      } else if (action === "focus-search") {
+        searchInput.current?.focus();
+        document.querySelector(".mp-list")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    };
+
+    const onCustomAction = (ev: Event) => {
+      const detail = (ev as CustomEvent<string>).detail;
+      handleAction(detail);
+    };
+
+    window.addEventListener("mp-action", onCustomAction);
+
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.replace("#", "");
+      if (hash) {
+        setTimeout(() => handleAction(hash), 300);
+      }
+    }
+
+    return () => window.removeEventListener("mp-action", onCustomAction);
+  }, []);
+
   // ---- 끌어다 놓기 ----
   const onDrop = (ev: React.DragEvent) => {
     ev.preventDefault();
