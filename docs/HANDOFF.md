@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — 쇼츠 신규 프로그램 이름 확정: AI 쇼츠 원스톱 제작 자동화 (`shorts-onestop-studio`)
+
+- 주인님 선택(이름 후보 3번). 플랜 문서 [CARD_SHORTS_REFERENCE_ANALYSIS.md](CARD_SHORTS_REFERENCE_ANALYSIS.md) D1·§5-1·§7-1·§8에 반영. 남은 결정 D2~D5(형태·무료 비공식 음성·자극형 카테고리·공개 범위)는 기본값 승인 대기.
+
 ## 2026-10-16 Claude Code(윈도우) — 개발 플랜에 기능 중심 프로그램 이름 후보 제안을 지침화
 
 - 주인님 지시: 개발 플랜 작업 시 항상 기능 중심의 프로그램 이름을 제안. `CLAUDE.md` 원칙 23·`AGENTS.md` 원칙 22에 「이름 제안」(후보 4~5개 표·추천 1개와 이유·카드 한 줄 요약 예시·「AI ○○ 자동화」 형식·slug 중복 확인·확정은 주인님) 추가. 카드형 쇼츠 플랜 문서 §7-1에 후보 5개 기록(추천: AI 주제 한 줄 쇼츠 완성 자동화 / `oneline-shorts-studio`).

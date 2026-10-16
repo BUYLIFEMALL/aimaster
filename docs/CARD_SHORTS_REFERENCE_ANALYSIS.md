@@ -66,7 +66,7 @@
 ## 5. 개발 플랜 (제안)
 
 ### 5-1. 기본 결정 (제가 정한 기본값 — 바꾸실 것만 §7에서 알려 주세요)
-- **이름(가칭)**: 「AI 카드형 쇼츠 영상 자동화」, slug `card-shorts-studio`, 폴더 `AIMaster/card-shorts-studio/`, 주소 `card-shorts-studio.buylife.xyz`, **v1.01**.
+- **이름(2026-10-16 주인님 확정)**: 「**AI 쇼츠 원스톱 제작 자동화**」, slug `shorts-onestop-studio`, 폴더 `AIMaster/shorts-onestop-studio/`, 주소 `shorts-onestop-studio.buylife.xyz`, **v1.01**.
 - **형태**: **웹 프로그램(Next.js, 흰색 작업 화면, 표준 좌측 메뉴·모바일 ☰)** + **영상 렌더는 회원 브라우저에서**(WebCodecs + mp4-muxer, 기존 부품). 서버 렌더·데스크톱 앱·크롬 확장 없음 → 운영자 서버 비용이 거의 없어 **프리미엄 후보 아님**(원칙 16).
 - **키**: 전부 **회원 본인 키**(`user_api_keys`, 폴백 금지 — 최상위 규칙). 텍스트 AI(Gemini·OpenAI·Claude·Groq·Cloudflare·NVIDIA·OpenRouter 중 회원이 등록한 것), 이미지(Cloudflare·NVIDIA·Gemini), 스톡(Pexels·Pixabay — 무료지만 계정당 한도가 있어 본인 키), 음성(아래).
 - **음성(TTS)**: ① 회원 본인 **Gemini TTS / OpenAI TTS** ② 회원 본인 **Azure Speech**(무료 한도 있음, 공식 API, **단어 타임스탬프 제공 → 정확한 자막 싱크**) ③ 음성 없이 자막만. 원본의 비공식 Edge 무료 음성은 **기본 제외**(정책 위험 — §7에서 결정).
@@ -113,7 +113,7 @@
 ## 7. 주인님 결정이 필요한 것
 | # | 내용 | 제 기본값 |
 |---|---|---|
-| D1 | 프로그램 이름·slug | 「AI 카드형 쇼츠 영상 자동화」 / `card-shorts-studio` |
+| D1 | 프로그램 이름·slug | **확정(2026-10-16): 「AI 쇼츠 원스톱 제작 자동화」 / `shorts-onestop-studio`** |
 | D2 | 형태 | 웹 + 브라우저 렌더(서버 비용 없음) |
 | D3 | 비공식 무료 Edge 음성 포함 여부 | 제외(공식 API만). 포함하면 "비공식·중단 가능" 표시 |
 | D4 | 자극형 카테고리(치정·불륜·막장·괴담 등 10종) | 일반 카테고리 + 미스터리·반전 상식 정도만, 치정·불륜·막장은 제외 |
@@ -130,7 +130,7 @@
 
 - 추천 이유: 이름만으로 "주제를 넣으면 쇼츠가 완성된다"가 설명되고, `shorts-viral-studio`(대본까지)·`auto-shorts-posting`(6장면 이미지 스토리)과 겹치지 않으며, 원본 이름과 무관하다.
 - 카드 한 줄 요약 예시: 주제 한 줄로 대본·배경·음성·자막·음악을 자동으로 만들어 세로 쇼츠 MP4로 완성하는 제작 도구
-- 폴더·slug는 이름 확정 후 정한다(이 문서의 `card-shorts-studio` 표기는 가칭).
+- **주인님 선택(2026-10-16): 3번 「AI 쇼츠 원스톱 제작 자동화」 / `shorts-onestop-studio`.** 이 문서의 다른 곳에 남은 `card-shorts-studio`·「카드형 쇼츠」 표기는 가칭이며 확정 이름으로 읽는다.
 
 ## 8. 다음 첫 단계
-주인님 승인(§7) → `docs/ACTIVE_WORK.md`에 `card-shorts-studio` 등록 → P1 뼈대 시작.
+주인님 승인(§7 D2~D5) → `docs/ACTIVE_WORK.md`에 `shorts-onestop-studio` 등록 → P1 뼈대 시작.
