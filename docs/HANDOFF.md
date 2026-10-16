@@ -1,5 +1,47 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — Threads 콘텐츠 운영 자동화 v1.96: 사용 매뉴얼(?tab=guide) 신설, 모바일 햄버거 메뉴 구축, 엣지 실세션 검수 및 배포 완료
+
+- **대상 프로그램**: `threads-content-ops/` (slug: `threads-content-ops`, `https://threads-content-ops.buylife.xyz`, 배포 버전: `v1.96`)
+- **주인님 지시**:
+  - 좌측에 매뉴얼 메뉴가 안 만들어져 있는 프로그램은 작업 중 찾게 되면 기본적으로 매뉴얼 메뉴 추가, 프로그램 사용법을 쉽고 자세하게 단계별 구조로 설명하는 프로그램 사용 매뉴얼을 추가하는 내용을 디자인 리뉴얼 메인 지침에 추가하고 작업 진행.
+  - 작업 완료 시 항상 작업한 내용과 추가 개선 제안 내용을 항목별로 정리하고 작업 프로그램 링크 제공 및 프로그램별 인수인계 문서 작성 원칙을 지침에 반영.
+- **완료 내용**:
+  1. **디자인 작업 메인 지침 갱신**:
+     - `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`에 [미구현 발견 시 매뉴얼 메뉴 및 단계별 가이드 구축 의무] 및 [작업 완료 시 결과·추가개선 정리 및 프로그램별 인수인계 문서 작성 의무] 공식 반영.
+  2. **가이드북 신설 (`app/threads-content-ops/UsageGuide.tsx`)**:
+     - `?tab=guide` 쿼리로 접근하는 인터랙티브 가이드북 전면 구축 (1. 5단계 올인원 파이프라인 인포그래픽, 2. Meta & 공식 API 연동 매뉴얼 및 콜백 URL 원클릭 복사 UI, 3. 6대 바이럴 페르소나 카드 갤러리, 4. 쇼핑제휴 머니타이징 전략, 5. FAQ 아코디언).
+     - 라이트 테마에 최적화된 앰버-슬레이트 카드 및 인라인 다크 텍스트 명암비 보장(`style={{ backgroundColor: '#171717', color: '#ffffff' }}`).
+  3. **사이드바 메뉴 개편 (`app/threads-content-ops/ContentOpsSidebar.tsx`)**:
+     - `📖 연동 & 사용 매뉴얼` (`?tab=guide`) 메뉴 신설.
+     - 최신 사이드바 표준에 맞춰 계정 정보 및 로그아웃 버튼을 유틸리티 메뉴 바로 아래(8~16px 간격)로 바짝 밀착 배치.
+     - 버전 배지 `v1.96` 동기화.
+  4. **모바일 반응형 구축 (`app/threads-content-ops/MobileNav.tsx`)**:
+     - 375~390px 스마트폰 화면 전용 상단 고정 헤더(`@ Threads 운영 v1.96 ☰`) 및 슬라이드 오버레이 네비게이션 드로어 신설.
+     - `page.tsx`에 `pt-20 md:pt-8` 패딩 적용하여 모바일 헤더와 메인 콘텐츠 겹침 현상 원천 해소.
+  5. **버전 및 DB 동기화**:
+     - `lib/version.ts`: `APP_VERSION = "v1.96"`
+     - Supabase DB `programs.version = 'v1.96'` 동기화 완료.
+  6. **로컬 빌드, 단위 테스트 및 Vercel 배포**:
+     - 로컬 빌드 성공 (타입/린트 오류 0건).
+     - 단위 테스트 28개 100% 통과 (`node --test threads-content-ops/tests/coupang-manual.test.cjs threads-content-ops/tests/draft-actions.test.cjs`).
+     - Vercel 프로덕션 배포 완료 (`https://threads-content-ops.buylife.xyz`).
+  7. **Microsoft Edge(`msedge.exe`) 실세션 검수 완료**:
+     - 데스크톱(1440px) 가이드북 메인, Meta 연동 가이드, 페르소나 카드 갤러리 정상 동작 확인.
+     - 모바일(390px) 고정 헤더 가독성 및 햄버거 메뉴 슬라이드 드로어 정상 작동 확인.
+  8. **인수인계 산출물 작성**:
+     - `threads-content-ops/docs/DESIGN_HANDOFF.md` 작성.
+     - `threads-content-ops/docs/IMPROVEMENTS.md` 갱신 (P0 과제 완료 및 P1/P2 차기 과제 명세).
+     - `threads-content-ops/docs/IMPROVEMENT_HANDOFF_20261016.md` 갱신.
+     - `DESIGN.md` 카탈로그에 8번째 템플릿 `스레드 바이럴 스튜디오 스타일` 등록 및 30번 프로그램 `✅ 1차 완료 (v1.96)` 갱신.
+     - `docs/ACTIVE_WORK.md`에서 작업 행 삭제.
+- **차기 개선 과제 (다음 에이전트 작업 가이드)**:
+  - `IMP-04`: 대시보드 상단 5단계 파이프라인 컨트롤 맵 신설 (`OperationsDashboard.tsx`)
+  - `IMP-05`: 500자 실시간 게이지 프로그레스 바 UI 도입 (`AttentionComposer.tsx`, `DraftComposer.tsx`)
+  - `IMP-06`: 6종 페르소나 카드 갤러리 비주얼 업그레이드
+- **첫 착수 단계**:
+  - `threads-content-ops/docs/IMPROVEMENT_HANDOFF_20261016.md` 5절 참고하여 작업 진행.
+
 ## 2026-10-16 Claude Code(맥미니) — 프로그램 사용권한 최우선 정책 등록 (VIP 기간·프리미엄·FREE)
 
 - **주인님 지시**: ① VIP는 VIP 전원 동일 만료가 아니라 **각자 가입 시점 + 1년**(현재 모든 프로그램 사용권한) ② **프리미엄 뱃지 프로그램은 모든 사용자가 유료 결제 후 사용**(문서에 없으면 수정) ③ **FREE 뱃지는 비정기 등록, 등급과 상관없이 일반 회원이면 바로 사용** — 사용권한 지침 맨 위에 등록하고 인수인계로 남길 것.

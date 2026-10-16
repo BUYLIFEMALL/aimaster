@@ -17,6 +17,8 @@ import SourceQueue from "./SourceQueue";
 import ViralCollector from "./ViralCollector";
 import OperationsDashboard from "./OperationsDashboard";
 import WebSetup from "./WebSetup";
+import UsageGuide from "./UsageGuide";
+import MobileNav from "./MobileNav";
 import { PRODUCT_SOURCE_TYPES } from "@/threads-content-ops/lib/productPost";
 import { isTossProxyConfigured } from "@/threads-content-ops/lib/toss";
 import { POST_STATUSES, type PostCounts } from "@/threads-content-ops/lib/postStatus";
@@ -74,19 +76,36 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   }));
   const postCounts = Object.fromEntries(countRows) as Record<keyof PostCounts, number | null>;
   const usableViral = (viralCandidates ?? []).filter((candidate) => candidate.status !== "archived");
-  const tab = ["dashboard", "viral", "create", "manage", "accounts", "sources", "settings"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
+  const tab = ["dashboard", "viral", "create", "manage", "accounts", "sources", "settings", "guide"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
 
   return <div className="threads-content-ops-light flex min-h-screen bg-white text-neutral-900">
+    <MobileNav email={user.email ?? ""} />
     <ContentOpsSidebar email={user.email ?? ""} />
-    <div className="mx-auto min-w-0 max-w-6xl flex-1 space-y-6 bg-white p-4 pt-16 md:p-8">
-    <header className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-1 text-xs font-medium text-gold">{APP_VERSION} · WEB AUTOMATION</p><h1 className="text-2xl font-bold text-white"><GoldGradientText>Threads 콘텐츠 운영 자동화</GoldGradientText></h1></div><p className="text-sm text-subtext">회원별 계정·초안·발행 이력 분리 관리</p></header>
-    {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} postCounts={postCounts} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} sources={(contentSources ?? []).map((source) => ({ source_type: source.source_type, status: source.status }))} />}
-    {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} schedulerReady={Boolean(process.env.CRON_SECRET)} operationAccountIds={(operationProfiles ?? []).filter((profile) => [profile.topic, profile.personality, profile.tone, profile.target_audience, profile.forbidden_topics, profile.forbidden_expressions].some((value) => typeof value === "string" && value.trim())).map((profile) => profile.account_id)} accounts={accounts} products={(contentSources ?? []).filter((source) => (PRODUCT_SOURCE_TYPES as readonly string[]).includes(source.source_type) && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
-    {tab === "manage" && <DraftComposer accounts={accounts ?? []} drafts={drafts} categories={viralCategories ?? []} postCounts={postCounts} />}
-    {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
-    {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} categories={viralCategories ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
-    {tab === "sources" && <SourceQueue tossProxyReady={isTossProxyConfigured()} accounts={accounts ?? []} sources={contentSources ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
-    {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
+    <div className="mx-auto min-w-0 max-w-6xl flex-1 space-y-6 bg-white p-4 pt-20 md:p-8 md:pt-8">
+      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-neutral-200 pb-4">
+        <div>
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-700 border border-amber-200/80">
+              {APP_VERSION}
+            </span>
+            <span className="text-xs font-semibold text-neutral-400">WEB AUTOMATION</span>
+          </div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900 md:text-3xl">
+            Threads 콘텐츠 운영 자동화
+          </h1>
+        </div>
+        <p className="text-xs font-medium text-neutral-500 md:text-sm">
+          회원별 독립 계정 연동 · 6대 페르소나 AI 글생성 · 예약/즉시 발행 · 쇼핑제휴 머니타이징
+        </p>
+      </header>
+      {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} postCounts={postCounts} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} sources={(contentSources ?? []).map((source) => ({ source_type: source.source_type, status: source.status }))} />}
+      {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} schedulerReady={Boolean(process.env.CRON_SECRET)} operationAccountIds={(operationProfiles ?? []).filter((profile) => [profile.topic, profile.personality, profile.tone, profile.target_audience, profile.forbidden_topics, profile.forbidden_expressions].some((value) => typeof value === "string" && value.trim())).map((profile) => profile.account_id)} accounts={accounts} products={(contentSources ?? []).filter((source) => (PRODUCT_SOURCE_TYPES as readonly string[]).includes(source.source_type) && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-center"><h2 className="text-lg font-bold text-neutral-900">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-neutral-600">계정 연결 후 본인 AI API 키로 고몰입 초안을 만들 수 있습니다.</p></div>)}
+      {tab === "manage" && <DraftComposer accounts={accounts ?? []} drafts={drafts} categories={viralCategories ?? []} postCounts={postCounts} />}
+      {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
+      {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} categories={viralCategories ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
+      {tab === "sources" && <SourceQueue tossProxyReady={isTossProxyConfigured()} accounts={accounts ?? []} sources={contentSources ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
+      {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-amber-500" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
+      {tab === "guide" && <UsageGuide />}
     </div>
   </div>;
 }

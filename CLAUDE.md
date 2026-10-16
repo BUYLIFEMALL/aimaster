@@ -40,6 +40,8 @@
 > ④ **비주얼 시각화**: 한국인 실사 사진, 프로세스 다이어그램, 친근한 캐릭터, 감성 이모티콘, 사용 매뉴얼(/guide)의 전면 시각화를 준수한다.
 > ⑤ **브라우저 검수 준수**: Antigravity/Codex는 **Microsoft Edge(엣지) 전용**, Claude Code는 메인 Chrome 전용으로 실제 브라우저 창을 띄워 데스크톱 및 모바일(375px~390px) 반응형을 대조 검수한다.
 > ⑥ **디자인 리뉴얼 착수 전 프로그램 분석 플랜 및 개선사항 인수인계서 작성 의무 (2026-10-16 주인님 지시)**: 디자인 리뉴얼 작업 전 반드시 대상 프로그램의 기능·로직·라우트·외부연동을 심층 분석하고, 해당 프로그램 폴더에 `docs/PLAN_YYYYMMDD_DESIGN_RENEWAL.md`(디자인 리뉴얼 개발플랜) 및 `docs/IMPROVEMENTS.md` / `docs/IMPROVEMENT_HANDOFF_YYYYMMDD.md`(개선사항 제안 인수인계서)를 필수 작성해 남긴다. Antigravity·Codex·Claude Code 등 어떤 CLI가 이어받더라도 해당 폴더의 문서를 먼저 읽고 작업 흐름 단절 없이 즉시 이어갈 수 있게 한다.
+> ⑦ **미구현 프로그램 발견 시 매뉴얼 메뉴 및 단계별 사용 매뉴얼 추가 기본 의무 (2026-10-16 주인님 지시)**: 작업 중 좌측 사이드바에 매뉴얼 메뉴가 없거나 가이드 페이지가 없는 프로그램을 발견하면, 기본적으로 좌측 사이드바에 `📖 연동 & 사용 매뉴얼` 메뉴를 추가하고, 초보자도 쉽게 따라 할 수 있도록 단계별(Step-by-Step, 4~5단계) 파이프라인 구조와 FAQ를 갖춘 사용 매뉴얼 페이지(`/guide` 또는 `?tab=guide`)를 전면 구축한다.
+> ⑧ **작업 완료 시 결과·추가개선 항목별 정리, 프로그램 링크 제공 및 프로그램별 인수인계 문서 작성 의무 (2026-10-16 주인님 지시)**: 작업이 완료되면 결과 보고 시 항상 ① 작업한 내용과 ② 추가 개선 제안 내용을 항목별로 체계적으로 정리하여 보고하고, ③ 작업 프로그램의 실제 서비스 배포 링크(URL)를 필수로 남긴다. 또한 각각의 항목에 대한 상세 내용을 해당 프로그램별 서브폴더 안에 인수인계 문서(`<프로그램>/docs/DESIGN_HANDOFF.md`, `<프로그램>/docs/IMPROVEMENTS.md`, `<프로그램>/docs/IMPROVEMENT_HANDOFF_YYYYMMDD.md`)로 반드시 작성해 남긴다.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 

@@ -1,13 +1,30 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.95`  
-> 프로덕션 배포 주소: [https://threads-content-ops.buylife.xyz](https://threads-content-ops.buylife.xyz)
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.96`  
+> 프로덕션 배포 주소: [https://threads-content-ops.buylife.xyz](https://threads-content-ops.buylife.xyz)  
+> 사용 매뉴얼(가이드): [https://threads-content-ops.buylife.xyz/?tab=guide](https://threads-content-ops.buylife.xyz/?tab=guide)
 
 > **★★★ 디자인 리뉴얼 및 다음 작업 투입 에이전트 필독 (2026-10-16 주인님 지시)**
-> 1. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 및 `스레드 바이럴 스튜디오 스타일` 리뉴얼 설계
-> 2. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제(사용 매뉴얼 /guide 신설, 모바일 햄버거 메뉴 등)
-> 3. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — 다음 작업 에이전트의 첫 착수 단계 및 검수 가이드
-> 4. 기존 참고: [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md) (과거 구현 이력 및 멀티테넌시 정책)
+> 1. **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) — `스레드 바이럴 스튜디오 스타일` 토큰 및 컴포넌트 표준 명세
+> 2. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — v1.96 완료 내역 및 차기 P1/P2 개선과제 인수인계
+> 3. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제 8건 상세 명세
+> 4. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 기반 개발플랜
+
+## v1.96 사용 매뉴얼(/guide) 신설 및 모바일 반응형 햄버거 메뉴 구축
+
+- **사용 매뉴얼 신설 (`?tab=guide`)**:
+  - 좌측 사이드바에 `📖 연동 & 사용 매뉴얼` 메뉴 추가.
+  - 5대 인터랙티브 탭: 5단계 올인원 파이프라인(글감 수집 → AI 초안 → 검토/수정 → 예약/발행 → 성과 분석), Meta Threads 공식 API 연동 매뉴얼(콜백 URL 원클릭 복사 기능 포함), 6대 바이럴 페르소나 작성 노하우 카드 갤러리, 쇼핑제휴 머니타이징 전략, FAQ 아코디언.
+- **모바일 반응형 구축**:
+  - 375~390px 스마트폰 화면 전용 상단 고정 헤더(`@ Threads 운영 v1.96 ☰`) 및 슬라이드 오버레이 네비게이션 드로어 신설.
+  - 모바일 환경에서도 손쉽게 8개 전체 탭 즉시 전환 가능.
+- **사이드바 레이아웃 표준화**:
+  - 접속 계정 정보 및 로그아웃 버튼을 유틸리티 바로 아래 8~16px 간격으로 밀착 배치.
+  - 버전 배지 `v1.96` 갱신.
+- **Vercel 프로덕션 배포 및 Edge 검수**:
+  - `https://threads-content-ops.buylife.xyz` 배포 완료.
+  - Microsoft Edge 데스크톱 1440px 및 모바일 390px 실세션 검수 완료.
+
 
 ## v1.92 쿠팡 API 키 없이 상품 등록
 

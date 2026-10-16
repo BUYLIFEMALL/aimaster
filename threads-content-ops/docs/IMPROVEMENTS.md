@@ -12,14 +12,14 @@
 
 | ID | 과제명 | 구분 | 우선순위 | 상태 | 관련 핵심 파일 |
 |:---:|---|:---:|:---:|:---:|---|
-| **IMP-01** | 연동 & 사용 매뉴얼(`/guide`) 메뉴 및 페이지 부재 | UX/기능 | **P0 (긴급)** | 대기 | `ContentOpsSidebar.tsx`, `page.tsx`, `UsageGuide.tsx` |
-| **IMP-02** | 모바일(375~390px) 뷰포트에서 사이드바 소멸 및 햄버거 메뉴 부재 | UI/반응형 | **P0 (긴급)** | 대기 | `ContentOpsSidebar.tsx`, `page.tsx` |
-| **IMP-03** | 라이트 테마 내 잔여 다크 텍스트(`text-white`) 및 CSS 덮어쓰기 충돌 | UI/버그 | **P0 (긴급)** | 대기 | `page.tsx`, `globals.css`, `WebSetup.tsx` |
-| **IMP-04** | 5단계 파이프라인(수집➔생성➔보관➔계정➔제휴) 프로세스 맵 위젯 부재 | UX/기능 | **P1 (높음)** | 대기 | `OperationsDashboard.tsx`, `ContentOpsSidebar.tsx` |
-| **IMP-05** | 글 생성 시 실시간 500자 프로그레스 바 및 훅/본문/CTA 가이드 강화 | 기능/편의성 | **P1 (높음)** | 대기 | `AttentionComposer.tsx` |
-| **IMP-06** | 콘텐츠 보관함 내 드래그앤드롭 다중 이미지 업로더 및 카드 미리보기 | 기능/UX | **P1 (높음)** | 대기 | `DraftComposer.tsx`, `lib/media.ts` |
-| **IMP-07** | 예약 발행 캘린더 뷰(월간/주간 타임테이블) 기능 신설 | 기능확장 | **P2 (보통)** | 대기 | `DraftComposer.tsx`, `lib/scheduledDispatch.ts` |
-| **IMP-08** | 계정 토큰 만료일 실시간 알림 뱃지 및 원클릭 갱신 가이드 | 편의성/안정성 | **P2 (보통)** | 대기 | `OperationsDashboard.tsx`, `AccountOperations.tsx` |
+| **IMP-01** | 연동 & 사용 매뉴얼(`/guide`) 메뉴 및 페이지 부재 | UX/기능 | **P0 (긴급)** | ✅ **완료 (v1.96)** | `ContentOpsSidebar.tsx`, `page.tsx`, `UsageGuide.tsx` |
+| **IMP-02** | 모바일(375~390px) 뷰포트에서 사이드바 소멸 및 햄버거 메뉴 부재 | UI/반응형 | **P0 (긴급)** | ✅ **완료 (v1.96)** | `ContentOpsSidebar.tsx`, `page.tsx`, `MobileNav.tsx` |
+| **IMP-03** | 라이트 테마 내 잔여 다크 텍스트(`text-white`) 및 CSS 덮어쓰기 충돌 | UI/버그 | **P0 (긴급)** | ✅ **완료 (v1.96)** | `page.tsx`, `UsageGuide.tsx`, `ContentOpsSidebar.tsx` |
+| **IMP-04** | 5단계 파이프라인(수집➔생성➔보관➔계정➔제휴) 프로세스 맵 위젯 부재 | UX/기능 | **P1 (높음)** | ⚪ 대기 (차기 과제) | `OperationsDashboard.tsx`, `ContentOpsSidebar.tsx` |
+| **IMP-05** | 글 생성 시 실시간 500자 프로그레스 바 및 훅/본문/CTA 가이드 강화 | 기능/편의성 | **P1 (높음)** | ⚪ 대기 (차기 과제) | `AttentionComposer.tsx` |
+| **IMP-06** | 콘텐츠 보관함 내 드래그앤드롭 다중 이미지 업로더 및 카드 미리보기 | 기능/UX | **P1 (높음)** | ⚪ 대기 (차기 과제) | `DraftComposer.tsx`, `lib/media.ts` |
+| **IMP-07** | 예약 발행 캘린더 뷰(월간/주간 타임테이블) 기능 신설 | 기능확장 | **P2 (보통)** | ⚪ 대기 (차기 과제) | `DraftComposer.tsx`, `lib/scheduledDispatch.ts` |
+| **IMP-08** | 계정 토큰 만료일 실시간 알림 뱃지 및 원클릭 갱신 가이드 | 편의성/안정성 | **P2 (보통)** | ⚪ 대기 (차기 과제) | `OperationsDashboard.tsx`, `AccountOperations.tsx` |
 
 ---
 
@@ -28,19 +28,19 @@
 ### [IMP-01] 연동 & 사용 매뉴얼(`/guide`) 메뉴 및 페이지 신설
 - **발견 근거**:
   - `DESIGN.md` 및 `docs/PROGRAM_DESIGN_STANDARD.md` 불변 지침상 모든 웹 서브프로그램은 좌측 메뉴바에 `📖 연동 & 사용 매뉴얼`을 필수 배치해야 함.
-  - 현재 사이드바(`ContentOpsSidebar.tsx`)에는 API키 등록 메뉴만 있고 사용 매뉴얼이 전혀 없으며, `page.tsx` 탭 분기에도 `guide`가 없음.
+  - 현재 사이드바(`ContentOpsSidebar.tsx`)에는 API키 등록 메뉴만 있고 사용 매뉴얼이 전혀 없었음.
 - **영향**: 신규 사용자가 Meta Threads API 앱 연동 방법, 콜백 URL 등록, 6종 페르소나 활용 팁을 전혀 알 수 없어 서비스 이탈 유발.
 - **우선순위**: **P0 (즉시 구현)**
-- **처리 상태**: 대기 (플랜 수립 완료)
+- **처리 상태**: ✅ **완료 (v1.96 배포 및 Edge 검수 완료)**
 - **관련 파일**:
   - `threads-content-ops/app/threads-content-ops/ContentOpsSidebar.tsx`
   - `threads-content-ops/app/threads-content-ops/page.tsx`
-  - `threads-content-ops/app/threads-content-ops/UsageGuide.tsx` (신규 생성 필요)
-- **남은 작업**:
-  1. `UsageGuide.tsx` 신설: 5대 탭(파이프라인 흐름, Meta 앱 연동 매뉴얼, 페르소나 공략법, 제휴수익화 팁, FAQ).
+  - `threads-content-ops/app/threads-content-ops/UsageGuide.tsx` (신규 구축)
+- **완료 내용**:
+  1. `UsageGuide.tsx` 신설: 5대 인터랙티브 탭(파이프라인 흐름, Meta 앱 연동 매뉴얼, 페르소나 공략법, 제휴수익화 팁, FAQ).
   2. `page.tsx`에 `searchParams.tab === "guide"` 라우팅 분기 추가.
-  3. `ContentOpsSidebar.tsx`에 `📖 연동 & 사용 매뉴얼` 링크 연결.
-- **검수 방법**: Edge 브라우저로 `https://threads-content-ops.buylife.xyz/?tab=guide` 접속 후 5개 탭 정상 전환 및 레이아웃 검수.
+  3. `ContentOpsSidebar.tsx`에 `📖 연동 & 사용 매뉴얼` 메뉴 추가 및 계정 밀착 배치.
+- **검수 결과**: Edge 브라우저로 `https://threads-content-ops.buylife.xyz/?tab=guide` 접속하여 5개 탭 정상 작동 확인 (`edge_threads_ops_guide_v196.png`).
 
 ---
 

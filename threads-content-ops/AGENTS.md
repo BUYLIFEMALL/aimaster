@@ -1,12 +1,40 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.95`입니다. 이 폴더는 `threads-content-ops` 전용 독립 Next.js 서브프로젝트 작업 공간입니다. (Vercel `threads-content-ops` 독립 배포, 프로덕션 URL: `https://threads-content-ops.buylife.xyz`)
+현재 버전은 `v1.96`입니다. 이 폴더는 `threads-content-ops` 전용 독립 Next.js 서브프로젝트 작업 공간입니다. (Vercel `threads-content-ops` 독립 배포, 프로덕션 URL: `https://threads-content-ops.buylife.xyz`)
 
 > **★★★ 디자인 리뉴얼 및 다음 작업 투입 에이전트 필독 (2026-10-16 주인님 지시)**
-> 1. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 프로그램 기능/로직 정밀 분석 및 `스레드 바이럴 스튜디오 스타일` UI/UX 리뉴얼 설계
-> 2. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제(사용 매뉴얼 /guide 신설, 모바일 햄버거 메뉴, 명암비 개선 등)
-> 3. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — Codex, Claude Code, Antigravity 등 다음 작업 에이전트의 첫 착수 단계 및 검수 가이드
-> 4. 기존 참고: [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md) (과거 구현 이력 및 멀티테넌시 정책)
+> 1. **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) — `스레드 바이럴 스튜디오 스타일` 토큰 및 컴포넌트 표준 명세
+> 2. **개선사항 제안 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md) — v1.96 완료 내역 및 차기 P1/P2 개선과제 인수인계
+> 3. **개선사항 백로그**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) — P0~P2 개선과제 8건 상세 명세
+> 4. **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md) — 기능/로직 분석 기반 개발플랜
+
+## v1.96 사용 매뉴얼(/guide) 신설, 모바일 햄버거 메뉴 구축, 사이드바 최적화 (2026-10-16, Antigravity Windows)
+
+- **주인님 지시**:
+  - 디자인 리뉴얼 작업 전 프로그램 기능/로직 정밀 분석 및 플랜/개선사항 인수인계서 작성
+  - 좌측 사이드바에 매뉴얼 메뉴가 없거나 가이드 페이지가 없는 프로그램 발견 시 기본적으로 매뉴얼 메뉴 추가 및 단계별(Step-by-Step, 4~5단계) 사용 매뉴얼 페이지 전면 구축
+  - 작업 완료 시 작업한 내용과 추가 개선 제안 내용을 항목별로 정리하고 프로그램 링크 및 프로그램별 인수인계 문서 작성
+- **가이드북 신설 (`app/threads-content-ops/UsageGuide.tsx`)**:
+  - `?tab=guide` 쿼리로 진입하는 인터랙티브 가이드북 구축 (5대 탭: 5단계 올인원 파이프라인, Meta & API 연동 매뉴얼, 6대 바이럴 페르소나 비법, 쇼핑제휴 머니타이징, FAQ 아코디언).
+  - 콜백 URL 원클릭 복사 버튼 및 복사 완료 피드백 UI 제공.
+  - 라이트 테마 최적화 앰버-슬레이트 프리미엄 카드 및 인라인 다크 텍스트 명암비 보장(`style={{ backgroundColor: '#171717', color: '#ffffff' }}`).
+- **사이드바 메뉴 개편 (`app/threads-content-ops/ContentOpsSidebar.tsx`)**:
+  - `📖 연동 & 사용 매뉴얼` (`?tab=guide`) 메뉴 신설.
+  - 최신 사이드바 표준에 맞춰 계정 정보 및 로그아웃 버튼을 유틸리티 바로 아래 8~16px 간격으로 밀착 배치.
+  - 버전 배지 `v1.96` 동기화.
+- **모바일 반응형 네비게이션 구축 (`app/threads-content-ops/MobileNav.tsx`)**:
+  - 375~390px 스마트폰 화면 전용 상단 고정 헤더(`@ Threads 운영 v1.96 ☰`) 및 슬라이드 오버레이 메뉴 드로어 신설.
+  - `page.tsx`에 `pt-20 md:pt-8` 패딩 적용하여 모바일 헤더와 메인 콘텐츠 겹침 완벽 방지.
+- **버전 및 DB 동기화**:
+  - `lib/version.ts`: `APP_VERSION = "v1.96"`
+  - Supabase DB `programs.version = 'v1.96'` 동기화 완료.
+- **검수 및 배포**:
+  - 로컬 빌드(`npm run build --prefix threads-content-ops`) 성공 및 테스트 28개 100% 통과.
+  - Vercel 프로덕션 배포 완료 (`https://threads-content-ops.buylife.xyz`).
+  - Microsoft Edge(`msedge.exe`) 실세션 검수 완료 (데스크톱 1440px 가이드북 및 모바일 390px 햄버거 메뉴 정상 작동 확인).
+- **산출물**:
+  - `docs/PLAN_20261016_DESIGN_RENEWAL.md`, `docs/IMPROVEMENTS.md`, `docs/IMPROVEMENT_HANDOFF_20261016.md`, `docs/DESIGN_HANDOFF.md`.
+
 
 ## v1.94 독립 서브프로젝트로 분리 (2026-10-15, Claude Code 보조 계정)
 
