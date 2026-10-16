@@ -13,6 +13,11 @@ export const fetchCache = "force-no-store";
 // 절대 전달되지 않습니다. (instagram-comment-reply/instagram-dm-reply와 동일 패턴 — Instagram
 // Login 방식은 계정이 하나만 나오므로 Facebook 로그인 방식에 있는 "페이지 선택" 화면이 필요 없습니다.)
 export async function GET(request: NextRequest) {
+  // 2026-10-16 도메인 통일(SSO) 콜백: 회원 앱에 등록된 콜백(환경변수, 옛 *.vercel.app 주소)으로 돌아오면 로그인 쿠키가 없으므로
+  // 같은 경로·쿼리 그대로 새 주소(https://auto-instagram-posting.buylife.xyz)로 넘겨 거기서 토큰을 교환한다. 교환 시 redirect_uri는 옛 주소 문자열 그대로라 일치 검사 통과.
+  if ((request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "").endsWith(".vercel.app")) {
+    return NextResponse.redirect(`https://auto-instagram-posting.buylife.xyz${request.nextUrl.pathname}${request.nextUrl.search}`, 307);
+  }
   const code = request.nextUrl.searchParams.get("code");
   const stateParam = request.nextUrl.searchParams.get("state");
   const oauthError = request.nextUrl.searchParams.get("error");
