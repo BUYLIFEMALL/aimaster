@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — suno-music-studio v1.11 플로팅 빠른 복사 바
+
+- 곡 편집 카드 하단 고정 바에서 Title·Style·Lyrics·Exclude 복사 + Suno 열기. 크롬 실화면 복사 안내·390px 폭 확인, VIP 138/138. 작업리스트 2번 완료 → 다음은 3번 music-player 미디어 키(Media Session API). 상세: `suno-music-studio/AGENTS.md` v1.11.
+
 ## 2026-10-16 Claude Code(윈도우) — 도메인 통일(SSO) 27개 완료: 로그인 한 번으로 모든 프로그램 (`<slug>.buylife.xyz`)
 
 - 남은 27개 프로그램을 `<slug>.buylife.xyz`로 옮기고 로그인 쿠키를 `.buylife.xyz`로 공유(프로그램별 +0.01 배포·DB·마이그레이션). 활성 프로그램 중 `vercel.app` 주소 0개. 프로그램마다 시험 계정 크롬에서 재로그인 없이 열림 확인. 플랜·결과: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`, 정책 8절.

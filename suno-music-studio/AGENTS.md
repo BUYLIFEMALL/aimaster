@@ -36,3 +36,7 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.09 (suno-music-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## v1.11 (2026-10-16) — 플로팅 빠른 복사 바 (Claude Code 윈도우)
+- `docs/PROGRAM_WORK_LIST.md` 2번 / `docs/IMPROVEMENTS.md` TASK #1. 곡 편집 카드(`src/components/TrackEditor.tsx`) 하단에 화면 아래 고정 `quick-copy-bar`: Title·Style·Lyrics·Exclude(있을 때만) 복사 + `Suno 열기 ↗`(https://suno.com/create, 새 창). 제목·스타일·가사 중 하나라도 있을 때만 보임. 스타일 `src/app/globals.css`(`.quick-copy-bar`, 좁은 폭은 줄바꿈).
+- 검수: 빌드 통과, 프로덕션 배포, DB `programs.version` v1.11(`supabase/migrations/20261016_quick_copy_bar_v111.sql`). 시험 계정 크롬 실화면에서 바 표시·Title 복사 → "복사했습니다" 안내 확인. 390px 폭 iframe에서 두 줄로 접혀 가로 넘침 없음. VIP 138/138 유효. 유료 AI 호출 없음.

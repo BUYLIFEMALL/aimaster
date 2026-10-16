@@ -310,6 +310,17 @@ export function TrackEditor({
           </button>
         )}
       </div>
+      {(track.title.trim() || track.style.trim() || track.lyrics.trim()) && (
+        // 플로팅 복사 바(v1.11): Suno 창을 옆에 띄워 둔 채 스크롤 없이 차례로 복사·붙여넣기
+        <div className="quick-copy-bar" role="toolbar" aria-label="Suno에 붙여 넣을 항목 빠른 복사">
+          <span className="quick-copy-label">⚡ 빠른 복사</span>
+          <button type="button" disabled={!track.title.trim()} onClick={() => copy(track.title)}><Copy size={13} />Title</button>
+          <button type="button" disabled={!track.style.trim()} onClick={() => copy(track.style)}><Copy size={13} />Style</button>
+          <button type="button" disabled={!track.lyrics.trim()} onClick={() => copy(track.lyrics)}><Copy size={13} />Lyrics</button>
+          {track.exclude.trim() && <button type="button" onClick={() => copy(track.exclude)}><Copy size={13} />Exclude</button>}
+          <a className="quick-copy-open" href="https://suno.com/create" target="_blank" rel="noopener noreferrer">Suno 열기 ↗</a>
+        </div>
+      )}
     </article>
   );
 }

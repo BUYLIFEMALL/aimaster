@@ -12,6 +12,7 @@
 ### [TASK #1] 원클릭 일괄 복사 플로팅 바 (Floating Quick Copy Bar)
 - **개요**: 빌더에서 기획이 완료되었을 때, 하단이나 화면 상단에 플로팅 바를 띄워 `[Title 복사]`, `[Style 복사]`, `[Lyrics 복사]`, `[Suno 바로 열기]`를 한 번에 연속 수행할 수 있는 미니 툴바 추가.
 - **예상 효과**: 사용자가 Suno 사이트와 창을 나란히 띄워놓고 작업할 때 스크롤 이동 없이 초고속으로 복사/붙여넣기 가능.
+- **처리 상태: 완료 (v1.11, 2026-10-16 Claude Code 윈도우)** — 곡 편집 카드 하단에 화면 아래 고정(`position: sticky`) `quick-copy-bar`(Title·Style·Lyrics·Exclude(있을 때만) 복사 + Suno 열기 `https://suno.com/create`). 파일: `src/components/TrackEditor.tsx`, `src/app/globals.css`. 검수: 크롬 실화면 Title 복사 → "복사했습니다" 안내 확인, 390px 폭에서 두 줄로 접혀 가로 넘침 없음(버튼 높이 31~33px).
 
 ### [TASK #2] Suno v3.5 / v4 / v5 / v6 모델별 글자수 실시간 카운터
 - **개요**: Suno 버전별로 Style of Music의 권장 글자수 제한(예: v3는 120자, v4 이상은 1000자 지원 등)이 다름. 현재 입력된 스타일 텍스트의 글자수를 실시간으로 계산하고 권장 한도 초과 시 안내 배지 표시.
