@@ -1485,6 +1485,12 @@ button.danger:hover {
   .pipeline-grid { grid-template-columns: 1fr; }
 }
 
+.mp-tag-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; padding: 12px 14px; border-bottom: 1px solid rgba(56, 189, 248, .15); }
+.mp-tag-tools label { display: grid; gap: 5px; color: #cbd5e1; font-size: 12px; min-width: 0; }
+.mp-tag-tools select { max-width: 100%; min-height: 36px; }
+.mp-tag-tools button { min-height: 36px; }
+.mp-tag-tools small { flex-basis: 100%; color: #94a3b8; line-height: 1.6; overflow-wrap: anywhere; }
+
 /* ---- v1.02 모바일 셸 규칙 (접는 메뉴) ---- */
 @media (max-width: 767px) {
   .app-shell { display: block; }

@@ -1,13 +1,13 @@
 # 뮤직 플레이어 자동화 — 작업 재개 인수인계 (CLI_HANDOFF)
 
-작성: 2026-10-13 (Claude Code). 다른 CLI(Codex·Gemini·Antigravity)나 새 Claude 세션이 이어받을 때 **이 문서 → [AGENTS.md](../AGENTS.md) → [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)** 순서로 읽으세요.
+작성: 2026-10-13 (Claude Code), 최신 후속 갱신 2026-10-16 (Codex). **현재 작업 결과는 [v1.05 개선 인수인계](IMPROVEMENT_HANDOFF_20261016.md)를 먼저 읽습니다.** 다른 CLI(Codex·Gemini·Antigravity)나 새 Claude 세션이 이어받을 때 **이 문서 → [AGENTS.md](../AGENTS.md) → [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)** 순서로 읽으세요.
 
 ## 1. 한눈에 보기
 
 | 항목 | 값 |
 |---|---|
 | 프로그램 | 뮤직 플레이어 자동화 (`slug: music-player`) — 내 음악 파일을 재생·시각화·이퀄라이징하는 브라우저 플레이어 |
-| 현재 버전 | **v1.01** (`src/lib/version.ts` = DB `programs.version`) |
+| 현재 버전 | **v1.05** (`src/lib/version.ts` = DB `programs.version`) |
 | 운영 주소 | https://music-player.buylife.xyz (카탈로그 https://www.buylife.xyz/programs/music-player) |
 | Vercel | 프로젝트 `buylife/music-player`, Git 미연동, 폴더 `music-player/`에서 `vercel deploy --prod --yes --scope buylife` |
 | DB | 공용 Supabase `esgxyikcnnvmlhygjkth` — **전용 테이블 없음**. `programs`(멀티미디어, FREE+new, 최소 등급 일반), `pricing_plans` 3요금제, VIP 등급 접근 등록 완료 |
@@ -37,7 +37,7 @@ music-player/
   src/components/player/ Player.tsx(상태·저장·단축키·드롭·삭제) · Visualizer.tsx(5모드) · Equalizer.tsx
   src/app/(workspace)/   layout(접근 게이트+Shell) · player · guide
   src/lib/access.ts · programAccess.ts   접근 판정(루트 사본, 핸드폰 필수 포함)
-  tests/browser.mjs + browser-entry.tsx  보이는 Chrome 검수
+  tests/browser.mjs + browser-entry.tsx  보이는 Edge 검수
 ```
 
 핵심 규칙:
@@ -52,13 +52,13 @@ music-player/
 cd music-player
 npm install
 npm test                # 순수 로직 10개
-npm run test:browser    # 보이는 Chrome 13개(소리·EQ·저장·ID3·모바일). Playwright + 설치된 Chrome 필요
+npm run test:browser    # 보이는 Edge 13개(소리·EQ·저장·ID3·모바일). Playwright + 설치된 Edge 필요
 npx tsc --noEmit && npx next build
 vercel deploy --prod --yes --scope buylife
 # 수정 때마다 DB 버전 +0.01: update programs set version='v1.0X', updated_at=now() where slug='music-player';
 ```
 
-- **소리 검수는 MCP 제어 Chrome(숨김 창)에서 불가** — 미디어가 로드되지 않는다. 반드시 `npm run test:browser`(보이는 Chrome)를 쓴다.
+- **소리 검수는 MCP 제어 Chrome(숨김 창)에서 불가** — 미디어가 로드되지 않는다. 반드시 `npm run test:browser`(보이는 Edge)를 쓴다.
 - 로컬 `npm run dev`(포트 3021)는 localhost에 로그인 쿠키가 없어 로그인 화면 검수가 안 된다 → 운영 주소에서 주인님 세션으로, 또는 위 하네스로.
 - 커밋은 경로 명시(`git add music-player`). 루트 `docs/HANDOFF.md`·`ERROR_LESSONS.md`는 다른 CLI의 미커밋 변경이 섞여 있으니 전체 add 금지(내 블록만 별도 반영).
 - 썸네일 교체는 **`docs/PLATFORM_PATTERNS.md §13` + `scripts/generate-program-thumbnail.mjs`**만 사용.
@@ -71,7 +71,7 @@ vercel deploy --prod --yes --scope buylife
 
 ## 6. 남은 일
 
-1. **일반(naver) 회원 실계정 흐름** — 비밀번호 입력이 필요해 AI 에이전트는 못 함.
+1. **일반(naver) 회원 실계정 흐름** — 실제 회원 세션으로 수행한 최신 Edge 결과는 v1.05 개선 인수인계 참조(기존 미확인 기록 해소).
 2. **실제 mp3(내장 커버 포함)로 육안 확인** — 시각화 5모드가 실제 음악에서 보기 좋은지, 커버 표시.
 3. **후속 후보**: 다중 재생목록·즐겨찾기, 재생목록 JSON 내보내기·불러오기, 클라우드 설정 동기화(EQ·프리셋만, 오디오 제외), AI 곡 분석(본인 키), 모바일 전용 미니 플레이어, 이전 곡 위치 기억.
 

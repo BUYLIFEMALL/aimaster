@@ -40,6 +40,15 @@ export async function getBlob(db: PlayerStore, id: string): Promise<Blob | null>
   return (await db.get("blobs", id))?.blob ?? null;
 }
 
+/** 곡 정보만 갱신한다. 파일/커버·순서·재생 길이는 그대로 두고 삭제된 곡은 복원하지 않는다. */
+export async function updateTrackText(db: PlayerStore, id: string, text: Pick<TrackMeta, "name" | "artist" | "album">): Promise<boolean> {
+  const tx = db.transaction("tracks", "readwrite");
+  const current = await tx.store.get(id);
+  if (current) await tx.store.put({ ...current, ...text });
+  await tx.done;
+  return !!current;
+}
+
 export async function getCover(db: PlayerStore, id: string): Promise<Blob | null> {
   return (await db.get("blobs", id))?.cover ?? null;
 }

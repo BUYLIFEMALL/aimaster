@@ -5,11 +5,11 @@ import {
   Search, Shuffle, SkipBack, SkipForward, SlidersHorizontal, Trash2, Volume2, VolumeX, X, CircleAlert,
 } from "lucide-react";
 import { AudioEngine } from "@/lib/player/engine";
-import { parseId3 } from "@/lib/player/id3";
+import { parseId3, type LegacyTagEncoding } from "@/lib/player/id3";
 import { formatBytes, formatTime, isAudioFile, parseFileName } from "@/lib/player/format";
 import { SORT_LABEL, filterSort, nextOf, nextSort, prevOf, type QueueState } from "@/lib/player/queue";
 import {
-  clearAll, deleteTracks, estimateUsage, getBlob, getCover, listTracks, loadSettings, openStore, putTrack, saveSettings, type PlayerStore,
+  clearAll, deleteTracks, estimateUsage, getBlob, getCover, listTracks, loadSettings, openStore, putTrack, saveSettings, updateTrackText, type PlayerStore,
 } from "@/lib/player/storage";
 import { DEFAULT_SETTINGS, type PlayerSettings, type RepeatMode, type TrackMeta, type VisualizerMode } from "@/lib/player/types";
 import { Visualizer } from "./Visualizer";
@@ -26,13 +26,13 @@ const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const REPEAT_NEXT: Record<RepeatMode, RepeatMode> = { none: "all", all: "one", one: "none" };
 const REPEAT_LABEL: Record<RepeatMode, string> = { none: "반복 안 함", all: "전체 반복", one: "한 곡 반복" };
 
-async function readId3(file: File) {
+async function readId3(file: Blob, legacyEncoding: LegacyTagEncoding = "auto") {
   try {
     const head = new Uint8Array(await file.slice(0, 10).arrayBuffer());
     if (head[0] !== 0x49 || head[1] !== 0x44 || head[2] !== 0x33) return null;
     const size = ((head[6] & 0x7f) << 21) | ((head[7] & 0x7f) << 14) | ((head[8] & 0x7f) << 7) | (head[9] & 0x7f);
     const len = Math.min(size + 10, 12 * 1024 * 1024);
-    return parseId3(await file.slice(0, len).arrayBuffer());
+    return parseId3(await file.slice(0, len).arrayBuffer(), legacyEncoding);
   } catch {
     return null;
   }
@@ -83,6 +83,8 @@ export function Player({ userId }: { userId: string }) {
   const [usage, setUsage] = useState<{ usage: number; quota: number } | null>(null);
   const [unsaved, setUnsaved] = useState<Set<string>>(new Set());
   const [helpKeys, setHelpKeys] = useState(false);
+  const [legacyEncoding, setLegacyEncoding] = useState<LegacyTagEncoding>("auto");
+  const editBusy = useRef(false);
 
   const blobCache = useRef(new Map<string, Blob>());
   const urlRef = useRef<string | null>(null);
@@ -273,55 +275,87 @@ export function Player({ userId }: { userId: string }) {
 
   // ---- 파일 추가 ----
   const addFiles = useCallback(async (input: File[]) => {
+    if (editBusy.current) { say("현재 작업이 끝난 후 다시 시도해 주세요.", "error"); return; }
     const files = input.filter((f) => isAudioFile(f));
     const skipped = input.length - files.length;
     if (files.length === 0) {
       say(input.length ? "오디오 파일이 아닙니다. mp3·m4a·wav·flac·ogg 파일을 추가해 주세요." : "추가할 파일이 없습니다.", "error");
       return;
     }
-    let added = 0, dup = 0, fail = 0;
-    const metas: TrackMeta[] = [];
-    const existing = new Set(live.current.tracks.map((t) => `${t.name}|${t.artist}|${t.size}`));
-    for (let i = 0; i < files.length; i += 1) {
-      setBusy(`추가 중… ${i + 1}/${files.length}`);
-      const file = files[i];
-      const id3 = await readId3(file);
-      const fromName = parseFileName(file.name);
-      const name = id3?.title || fromName.name;
-      const artist = id3?.artist || fromName.artist;
-      const key = `${name}|${artist}|${file.size}`;
-      if (existing.has(key)) { dup += 1; continue; }
-      existing.add(key);
-      const dur = await probeDuration(file);
-      const cover = id3?.cover ? new Blob([id3.cover.data as BlobPart], { type: id3.cover.mime }) : null;
-      const meta: TrackMeta = {
-        id: newId(), name, artist, album: id3?.album ?? "", duration: dur, size: file.size,
-        mime: file.type || "audio/mpeg", addedAt: Date.now() + i, hasCover: !!cover,
-      };
-      blobCache.current.set(meta.id, file);
-      if (db) {
-        try { await putTrack(db, meta, file, cover); }
-        catch {
-          fail += 1;
-          setUnsaved((s) => new Set(s).add(meta.id));
-        }
-      } else setUnsaved((s) => new Set(s).add(meta.id));
-      if (cover) setCoverUrls((c) => ({ ...c, [meta.id]: URL.createObjectURL(cover) }));
-      metas.push(meta);
-      added += 1;
-    }
-    setBusy(null);
-    if (metas.length) {
-      setTracks((t) => [...t, ...metas]);
-      if (!live.current.settings.currentId) void selectTrack(metas[0].id, false);
-    }
-    const parts = [`${added}곡을 추가했습니다.`];
-    if (dup) parts.push(`${dup}곡은 이미 있어 건너뛰었습니다.`);
-    if (skipped) parts.push(`오디오가 아닌 파일 ${skipped}개는 제외했습니다.`);
-    if (fail) parts.push(`${fail}곡은 저장 공간이 부족해 이번 접속 동안만 유지됩니다.`);
-    say(parts.join(" "), fail ? "error" : "ok");
-    void estimateUsage().then(setUsage);
-  }, [db, say, selectTrack]);
+    editBusy.current = true;
+    try {
+      let added = 0, dup = 0, fail = 0;
+      const metas: TrackMeta[] = [];
+      const existing = new Set(live.current.tracks.map((t) => `${t.name}|${t.artist}|${t.size}`));
+      for (let i = 0; i < files.length; i += 1) {
+        setBusy(`추가 중… ${i + 1}/${files.length}`);
+        const file = files[i];
+        const id3 = await readId3(file, legacyEncoding);
+        const fromName = parseFileName(file.name);
+        const name = id3?.title || fromName.name;
+        const artist = id3?.artist || fromName.artist;
+        const key = `${name}|${artist}|${file.size}`;
+        if (existing.has(key)) { dup += 1; continue; }
+        existing.add(key);
+        const dur = await probeDuration(file);
+        const cover = id3?.cover ? new Blob([id3.cover.data as BlobPart], { type: id3.cover.mime }) : null;
+        const meta: TrackMeta = {
+          id: newId(), name, artist, album: id3?.album ?? "", duration: dur, size: file.size,
+          mime: file.type || "audio/mpeg", addedAt: Date.now() + i, hasCover: !!cover,
+        };
+        blobCache.current.set(meta.id, file);
+        if (db) {
+          try { await putTrack(db, meta, file, cover); }
+          catch {
+            fail += 1;
+            setUnsaved((s) => new Set(s).add(meta.id));
+          }
+        } else setUnsaved((s) => new Set(s).add(meta.id));
+        if (cover) setCoverUrls((c) => ({ ...c, [meta.id]: URL.createObjectURL(cover) }));
+        metas.push(meta);
+        added += 1;
+      }
+      setBusy(null);
+      if (metas.length) {
+        setTracks((t) => [...t, ...metas]);
+        if (!live.current.settings.currentId) void selectTrack(metas[0].id, false);
+      }
+      const parts = [`${added}곡을 추가했습니다.`];
+      if (dup) parts.push(`${dup}곡은 이미 있어 건너뛰었습니다.`);
+      if (skipped) parts.push(`오디오가 아닌 파일 ${skipped}개는 제외했습니다.`);
+      if (fail) parts.push(`${fail}곡은 저장 공간이 부족해 이번 접속 동안만 유지됩니다.`);
+      say(parts.join(" "), fail ? "error" : "ok");
+      void estimateUsage().then(setUsage);
+    } finally { editBusy.current = false; setBusy(null); }
+  }, [db, say, selectTrack, legacyEncoding]);
+
+  const refreshTags = useCallback(async () => {
+    if (editBusy.current) return;
+    editBusy.current = true;
+    const targets = live.current.tracks.filter((t) => selected.size === 0 || selected.has(t.id));
+    const store = live.current.db;
+    const changes = new Map<string, Pick<TrackMeta, "name" | "artist" | "album">>();
+    let failed = 0, unchanged = 0;
+    try {
+      for (let i = 0; i < targets.length; i++) {
+        if (live.current.db !== store) return;
+        setBusy(`곡 정보 복구 중… ${i + 1}/${targets.length}`);
+        const track = targets[i];
+        try {
+          const blob = await blobOf(track.id);
+          if (!blob) { failed++; continue; }
+          const tags = await readId3(blob, legacyEncoding);
+          const text = { name: tags?.title || track.name, artist: tags?.artist || track.artist, album: tags?.album || track.album };
+          if (text.name === track.name && text.artist === track.artist && text.album === track.album) { unchanged++; continue; }
+          if (live.current.db !== store) return;
+          if (store && !unsaved.has(track.id) && !await updateTrackText(store, track.id, text)) { failed++; continue; }
+          changes.set(track.id, text);
+        } catch { failed++; }
+      }
+      setTracks((list) => list.map((t) => changes.has(t.id) ? { ...t, ...changes.get(t.id)! } : t));
+      say(`${changes.size}곡의 정보를 복구했습니다. ${unchanged}곡은 변경할 정보가 없습니다.${failed ? ` ${failed}곡은 읽기·저장에 실패해 기존 정보를 유지했습니다.` : ""}`, failed ? "error" : "ok");
+    } finally { editBusy.current = false; setBusy(null); }
+  }, [blobOf, legacyEncoding, selected, unsaved, say]);
 
   useEffect(() => { void estimateUsage().then(setUsage); }, [ready]);
 
@@ -540,8 +574,8 @@ export function Player({ userId }: { userId: string }) {
 
         <div className="mp-toolbar">
           <div className="mp-ctl-group">
-            <button type="button" onClick={() => fileInput.current?.click()}><FilePlus size={15} />파일 추가</button>
-            <button type="button" onClick={() => folderInput.current?.click()}><FolderPlus size={15} />폴더 추가</button>
+            <button type="button" disabled={!!busy} onClick={() => fileInput.current?.click()}><FilePlus size={15} />파일 추가</button>
+            <button type="button" disabled={!!busy} onClick={() => folderInput.current?.click()}><FolderPlus size={15} />폴더 추가</button>
           </div>
           <div className="mp-ctl-group">
             <button type="button" className={settings.showVisualizer ? "on" : ""} aria-pressed={settings.showVisualizer} title="시각화 / 앨범 커버 전환" onClick={() => patch({ showVisualizer: !settings.showVisualizer })}>
@@ -574,7 +608,7 @@ export function Player({ userId }: { userId: string }) {
           <h2><ListMusic size={16} />재생목록 <small>{tracks.length}곡</small></h2>
           <div className="mp-ctl-group">
             {selected.size > 0 && (
-              <button type="button" className="danger" onClick={() => askRemove(Array.from(selected), "선택한 곡 삭제")}><Trash2 size={14} />{selected.size}곡 삭제</button>
+              <button type="button" className="danger" disabled={!!busy} onClick={() => askRemove(Array.from(selected), "선택한 곡 삭제")}><Trash2 size={14} />{selected.size}곡 삭제</button>
             )}
             <button type="button" title="정렬 바꾸기" onClick={() => { const n = nextSort(settings.sortKey, settings.sortDir); patch({ sortKey: n.key, sortDir: n.dir }); }}>
               <ArrowUpDown size={14} />{SORT_LABEL[settings.sortKey]}{settings.sortKey !== "added" || settings.sortDir === "desc" ? (settings.sortDir === "asc" ? " ↑" : " ↓") : ""}
@@ -585,6 +619,17 @@ export function Player({ userId }: { userId: string }) {
           <Search size={14} />
           <input ref={searchInput} type="text" value={search} placeholder="제목·아티스트 검색 ( / )" aria-label="검색" onChange={(e) => setSearch(e.target.value)} />
           {search && <button type="button" className="mp-x" aria-label="검색어 지우기" onClick={() => setSearch("")}><X size={12} /></button>}
+        </div>
+        <div className="mp-tag-tools">
+          <label>곡 정보 인코딩
+            <select aria-label="곡 정보 인코딩" value={legacyEncoding} disabled={!!busy} onChange={(e) => setLegacyEncoding(e.target.value as LegacyTagEncoding)}>
+              <option value="auto">자동 감지</option>
+              <option value="korean">한국어 (CP949)</option>
+              <option value="latin1">서유럽 (Latin-1)</option>
+            </select>
+          </label>
+          <button type="button" disabled={!ready || !!busy || tracks.length === 0} onClick={() => void refreshTags()}>{selected.size ? `선택 ${selected.size}곡 정보 복구` : "전체 곡 정보 복구"}</button>
+          <small>곡명이 깨졌다면 인코딩을 고른 뒤 복구하세요. 원본 음악은 바뀌지 않습니다.</small>
         </div>
         {visible.length > 0 && (
           <label className="mp-selall">
@@ -625,7 +670,7 @@ export function Player({ userId }: { userId: string }) {
           <small>
             {usage ? `브라우저 저장 ${formatBytes(usage.usage)} / ${formatBytes(usage.quota)}` : "오디오 파일은 이 기기에만 저장됩니다"}
           </small>
-          {tracks.length > 0 && <button type="button" className="danger" onClick={clearEverything}>전체 삭제</button>}
+          {tracks.length > 0 && <button type="button" className="danger" disabled={!!busy} onClick={clearEverything}>전체 삭제</button>}
         </div>
       </aside>
 

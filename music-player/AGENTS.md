@@ -11,7 +11,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 뮤직 플레이어 자동화 / `music-player` |
-| 버전 | **v1.04** (`src/lib/version.ts` = DB `programs.version`) |
+| 버전 | **v1.05** (`src/lib/version.ts` = DB `programs.version`) |
 | 적용 디자인 템플릿 | **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style)** ([PROGRAM_DESIGN_STANDARD.md §3](../docs/PROGRAM_DESIGN_STANDARD.md)) |
 | 디자인 인수인계 | [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) (디자인 개발완료) / [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) (기능 개선과제) |
 | 주소 | https://music-player.buylife.xyz (Vercel `buylife/music-player`, CLI 직접 배포) |
@@ -73,3 +73,7 @@
   4. `docs/IMPROVEMENTS.md`: 향후 로직/기능 개선과제(드래그 정렬, MediaSession API, 다중 플레이리스트, 파형 시크바 등) 신설 (Claude Code/Codex 인수인계용).
   5. 버전 `v1.04` 동기화 (`src/lib/version.ts`, DB `programs.version`).
 - **검수**: Microsoft Edge 전용 브라우저(`msedge`), 테스트 계정 `buylifemall@naver.com` 실세션 검수 통과 (데스크톱 1440px / 모바일 375px 스크린샷 대조 확인).
+
+## 2026-10-16 v1.05 — 구형 MP3 한글 태그 복구
+
+사전 개발 플랜 제시 후 구형 CP949/EUC-KR 한글 태그 감지와 기존 저장 곡 정보 복구를 구현했습니다. 자동/한국어/서유럽 선택, 원본·커버·ID·순서·재생 설정 보존, 쓰기 실패 안내를 추가했습니다. 자동 20·실제 Edge Player 21·일반 회원 로컬 11 검사와 타입/빌드를 통과했습니다. 배포 상태·사용법·한계·다음 작업은 **[개선 작업 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md)**를 먼저 읽습니다. 기존 8가지 신규 기능 제안은 별도 후속 작업입니다.

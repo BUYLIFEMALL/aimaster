@@ -1,5 +1,5 @@
-// 실제 Chrome(보이는 창)에서 Player 컴포넌트의 소리·저장·목록 동작을 검수한다.
-// 실행: npm run test:browser  (Playwright + 설치된 Chrome 필요)
+// 실제 Microsoft Edge(보이는 창)에서 Player 컴포넌트의 소리·저장·목록 동작을 검수한다.
+// 실행: npm run test:browser  (Playwright + 설치된 Edge 필요)
 import { build } from "esbuild";
 import { chromium } from "playwright";
 import { createServer } from "node:http";
@@ -22,10 +22,10 @@ function wav(freq, secs) {
   for (let i = 0; i < n; i += 1) b.writeInt16LE(Math.round(Math.sin((2 * Math.PI * freq * i) / sr) * 9000), 44 + i * 2);
   return b;
 }
-function id3Mp3(title, artist) {
-  const text = (s) => Buffer.concat([Buffer.from([3]), Buffer.from(s, "utf8")]);
+function id3Mp3(title, artist, encoding = 3, cover = null) {
+  const text = (s) => Buffer.concat([Buffer.from([encoding]), Buffer.isBuffer(s) ? s : Buffer.from(s, "utf8")]);
   const frame = (id, body) => { const h = Buffer.alloc(10); h.write(id, 0); h.writeUInt32BE(body.length, 4); return Buffer.concat([h, body]); };
-  const body = Buffer.concat([frame("TIT2", text(title)), frame("TPE1", text(artist))]);
+  const body = Buffer.concat([frame("TIT2", text(title)), frame("TPE1", text(artist)), ...(cover ? [frame("APIC", Buffer.concat([Buffer.from([0]), Buffer.from("image/png"), Buffer.from([0, 3, 0]), cover]))] : [])]);
   const head = Buffer.from([0x49, 0x44, 0x33, 3, 0, 0, (body.length >> 21) & 0x7f, (body.length >> 14) & 0x7f, (body.length >> 7) & 0x7f, body.length & 0x7f]);
   return Buffer.concat([head, body, Buffer.alloc(200, 0xff)]);
 }
@@ -35,12 +35,19 @@ const files = {
   plain: path.join(tmp, "03. Plain Name.wav"),
   txt: path.join(tmp, "readme.txt"),
   tagged: path.join(tmp, "tagged.mp3"),
+  legacy: path.join(tmp, "legacy-korean.mp3"),
+  extended: path.join(tmp, "cp949-extended.mp3"),
 };
 await writeFile(files.low, wav(440, 6));
 await writeFile(files.high, wav(1000, 6));
 await writeFile(files.plain, wav(880, 5));
 await writeFile(files.txt, "not audio");
 await writeFile(files.tagged, id3Mp3("봄날", "아이유"));
+const legacyTitle = Buffer.from([179,187,32,180,171,191,161,32,186,184,191,169]);
+const legacyArtist = Buffer.from([199,209,177,219,32,176,161,188,246]);
+const cover = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=", "base64");
+await writeFile(files.legacy, id3Mp3(legacyTitle, legacyArtist, 0, cover));
+await writeFile(files.extended, id3Mp3(Buffer.from([140,99,185,230,176,162,199,207]), legacyArtist, 0));
 
 const bundle = await build({
   entryPoints: ["tests/browser-entry.tsx"], bundle: true, write: false, format: "iife", platform: "browser",
@@ -59,9 +66,7 @@ const server = createServer((req, res) => {
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const origin = `http://127.0.0.1:${server.address().port}`;
 
-let browser;
-try { browser = await chromium.launch({ channel: "chrome", headless: false, args: ["--autoplay-policy=no-user-gesture-required"] }); }
-catch { browser = await chromium.launch({ headless: false, args: ["--autoplay-policy=no-user-gesture-required"] }); }
+const browser = await chromium.launch({ channel: "msedge", headless: false, args: ["--autoplay-policy=no-user-gesture-required"] });
 const context = await browser.newContext({ viewport: { width: 1500, height: 900 } });
 const page = await context.newPage();
 const errors = [];
@@ -194,6 +199,58 @@ try {
   assert.match(await rows().filter({ hasText: "봄날" }).locator("small").innerText(), /아이유/);
   ok("ID3 태그(제목·아티스트) 읽기");
 
+  // Seed exactly the old Latin-1 metadata, then repair from its already saved Blob.
+  await page.getByLabel("곡 정보 인코딩").selectOption("latin1");
+  await page.locator("input[type=file]").first().setInputFiles([files.legacy]);
+  const broken = new TextDecoder("iso-8859-1").decode(legacyTitle);
+  await rows().filter({ hasText: broken }).waitFor({ timeout: 15000 });
+  const playbackBefore = await page.evaluate(() => { const a=window.__engine.audio; a.pause();a.currentTime=2;a.dispatchEvent(new Event("timeupdate"));return {src:a.src,time:a.currentTime,paused:a.paused}; });
+  const storageSnapshot = () => page.evaluate(async () => {
+    const db = await new Promise((resolve, reject) => { const r = indexedDB.open("music-player-fixture-a"); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
+    try {
+      const records = await new Promise((resolve, reject) => { const r = db.transaction("blobs").objectStore("blobs").getAll(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
+      const tracks = await new Promise((resolve, reject) => { const r = db.transaction("tracks").objectStore("tracks").getAll(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
+      const hash = async b => b ? Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", await b.arrayBuffer()))).map(v => v.toString(16).padStart(2,"0")).join("") : null;
+      return { tracks, blobs: await Promise.all(records.map(async r => ({ id:r.id, audio:await hash(r.blob), cover:await hash(r.cover) }))) };
+    } finally { db.close(); }
+  });
+  const beforeRepair = await storageSnapshot();
+  await rows().filter({ hasText: broken }).locator("input[type=checkbox]").check();
+  await page.getByLabel("곡 정보 인코딩").selectOption("korean");
+  await page.getByRole("button", { name: "선택 1곡 정보 복구", exact: true }).click();
+  await rows().filter({ hasText: "내 눈에 보여" }).waitFor();
+  assert.match(await rows().filter({ hasText: "내 눈에 보여" }).locator("small").innerText(), /한글 가수/);
+  const afterRepair = await storageSnapshot();
+  assert.deepEqual(afterRepair.blobs, beforeRepair.blobs);
+  assert.deepEqual(await page.evaluate(() => {const a=window.__engine.audio;return {src:a.src,time:a.currentTime,paused:a.paused};}), playbackBefore);
+  assert.deepEqual(afterRepair.tracks.map(({name,artist,album,...rest})=>rest), beforeRepair.tracks.map(({name,artist,album,...rest})=>rest));
+  assert.equal(afterRepair.tracks.find(t=>t.name==="봄날").artist, "아이유");
+  ok("저장된 구형 MP3 정보 복구·원본/커버 해시·ID/순서/길이 보존");
+
+  await page.evaluate(() => { window.__originalPut=IDBObjectStore.prototype.put; IDBObjectStore.prototype.put=function(...args){if(this.name==="tracks")throw new DOMException("fixture failure","QuotaExceededError");return window.__originalPut.apply(this,args);}; });
+  await page.getByLabel("곡 정보 인코딩").selectOption("latin1");
+  await page.getByRole("button", { name: "선택 1곡 정보 복구", exact: true }).click();
+  await page.getByRole("status").filter({ hasText: "기존 정보를 유지" }).waitFor();
+  assert.equal(await rows().filter({ hasText: "내 눈에 보여" }).count(), 1);
+  await page.evaluate(() => { IDBObjectStore.prototype.put=window.__originalPut;delete window.__originalPut; });
+  ok("곡 정보 저장 실패 시 기존 정보 유지·실패 안내");
+
+  await page.getByLabel("곡 정보 인코딩").selectOption("auto");
+  await page.locator("input[type=file]").first().setInputFiles([files.extended]);
+  await rows().filter({ hasText: "똠방각하" }).waitFor({ timeout:15000 });
+  ok("Edge 네이티브 CP949 확장 한글 해석");
+  await page.reload();
+  await rows().filter({ hasText: "내 눈에 보여" }).waitFor();
+  assert.equal(await rows().filter({ hasText: "똠방각하" }).count(),1);
+  ok("복구한 정보 새로고침 후 유지");
+  await page.getByRole("button", {name:"전체 곡 정보 복구",exact:true}).click();
+  await page.getByRole("status").filter({hasText:"0곡의 정보를 복구"}).waitFor();
+  assert.equal(await rows().filter({hasText:"Low Tone"}).count(),1);
+  ok("전체 정보 재확인 시 태그 없는 곡·정상 정보 유지");
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("mp-action",{detail:"focus-search"})));
+  assert.equal(await page.getByRole("textbox",{name:"검색"}).evaluate(el=>el===document.activeElement),true);
+  ok("좌측 메뉴 검색 액션 연동");
+
   await page.screenshot({ path: path.join(artifacts, "music-player.png"), fullPage: true });
   // 모바일 폭(390px): 가로 넘침 없이 한 열로 쌓이는지
   await page.setViewportSize({ width: 390, height: 844 });
@@ -202,6 +259,10 @@ try {
   assert.ok(overflow <= 1, `모바일 가로 넘침 ${overflow}px`);
   await page.screenshot({ path: path.join(artifacts, "music-player-mobile.png"), fullPage: true });
   ok("모바일 폭(390px) 가로 넘침 없음", { overflow });
+  await page.goto(`${origin}/?user=fixture-b`);
+  await page.locator(".mp-empty").first().waitFor();
+  assert.equal(await rows().count(),0);
+  ok("다른 회원의 재생목록 분리 유지");
   await page.setViewportSize({ width: 1500, height: 900 });
   assert.deepEqual(errors, []);
   ok("페이지 오류 없음");
