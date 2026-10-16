@@ -443,3 +443,9 @@ vercel deploy --prod --yes
 - 새 주소 `https://threads-affiliate-poster.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 /settings 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308, 옛 주소 콜백 → 새 주소 307(시험 요청). 설정 화면 콜백 주소 안내는 옛 주소 그대로(회원 Meta 앱 변경 불필요). 실제 계정 연결은 회원 앱 필요로 미시험
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.54 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`: SITE_ORIGIN(독립 배포본이면 `NEXT_PUBLIC_SITE_URL`, 아니면 새 주소)·`THREADS_REDIRECT_OLD()`(기존 환경변수 `THREADS_REDIRECT_URI`)·`THREADS_REDIRECT_FOR(mode)`·`isLegacyHost()`.
+- 콜백: 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectThreadsAccountNewCallbackAction`)·/trends [새 콜백 주소로 연결](`...WithKeywordSearchNewCallbackAction`)은 새 콜백. 옛 주소 307에 via=old, 교환은 via=old면 옛 주소·없으면 새 주소. 연결 후 이동 SITE_ORIGIN. 설정 화면에 두 콜백 주소 표시. `getThreadsAuthorizeUrl(state, appId, redirectUri, options?)`·`exchangeCodeForToken(code, appId, appSecret, redirectUri)`로 시그니처 변경, 미사용이 된 `getEnv` 제거.
+- **독립 배포본 보완**: SSO(v1.53)에서 넣은 "옛 vercel.app → buylife.xyz" 이동이 clone-kit 독립 배포본(자기 vercel.app에서 운영)까지 걸리던 문제 — `src/proxy.ts`·콜백에서 `NEXT_PUBLIC_STANDALONE_MODE=true`면 이동하지 않게 함.
+- 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, 옛 화면 308. 시험 계정 [새 주소로 다시 연결] → Meta "리디렉션 URI 화이트리스트에 없음"(새 콜백 전송 확인, 시험 계정 앱 미등록). 실제 연결 성공은 새 주소 등록 후 확인 필요.
