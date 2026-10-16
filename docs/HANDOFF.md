@@ -1,5 +1,35 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — AI 쇼츠 원스톱 제작 자동화 v1.12: 가이드북(/guide) 텍스트 크기 확대 및 줄넘김·카드화 가독성 개편 완료
+
+- **대상 프로그램**: `shorts-onestop-studio/` (slug: `shorts-onestop-studio`, `https://shorts-onestop-studio.buylife.xyz/guide`, 배포 버전: `v1.12`)
+- **문제 원인 (주인님 제보)**:
+  - `/guide` 페이지의 1단계 "주제·대본 사용법" 카드 하단 붉은색 박스 영역(배경 설정, 음성·자막·음악, 발행 계획, 장면 편집, 내 지침)의 텍스트가 인라인 `fontSize: 12`의 흐릿한 회색 톤(`var(--muted)`)으로 하드코딩되어 있고, 문단 구분 없이 빽빽하게 이어져 모바일 및 데스크톱에서 극도로 읽기 어려웠음.
+- **해결 내용**:
+  1. **가이드북 텍스트 크기 및 그리드 구조화 개편**:
+     - 기존 12px 인라인 흐릿한 5개 단락을 14px 표준 글자 크기(`var(--fg)`) 및 고유한 5대 서브 가이드 카드 그리드(`sub-guide-grid`)로 전면 분리.
+     - 5대 핵심 파트 분할:
+       1) 🎨 디자인·배경 설정 (테마, 스톡/AI 이미지)
+       2) 🎙️ 음성·자막·음악 & 브라우저 MP4 렌더링 (TTS, 자막, 무음 구간 필터링, WebCodecs)
+       3) 📅 채널 맞춤 발행 계획 & 원클릭 일괄 제작 (SEO 최적화, 자동 시각 배치)
+       4) 🎬 장면 편집 & 세이프에어리어 (9:16 모바일 안전영역, 켄 번즈 효과)
+       5) ✍️ 전용 내 지침 & 대본 직접 변환 (나만의 문체, 즉시 분할)
+     - 핵심 알약 뱃지(`badge brand`), 단계별 불릿 포인트 줄바꿈, 볼드 키워드, 행간 1.65 적용.
+  2. **버전 및 DB 동기화**:
+     - `src/lib/version.ts`: `v1.12`
+     - Supabase 공유 DB `programs.version = 'v1.12'` 동기화 완료.
+  3. **빌드, 배포 및 Edge 검수**:
+     - Turbopack 로컬 빌드 성공 (에러 0건).
+     - Vercel 프로덕션 배포 완료 (`https://shorts-onestop-studio.buylife.xyz/guide`).
+     - Microsoft Edge 실세션 브라우저 검수 완료 (`edge_shorts_guide_detail_v112.png`, `edge_shorts_guide_v112.png`).
+- **산출물**:
+  - `shorts-onestop-studio/docs/PLAN_20261016_GUIDE_READABILITY_RENEWAL.md`
+  - `shorts-onestop-studio/docs/DESIGN_HANDOFF.md` (공식 플로우 위저드 템플릿 보고서 신설)
+  - `shorts-onestop-studio/docs/IMPROVEMENTS.md` (14번 항목 가이드북 가독성 개선 완료)
+  - `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261016.md` (v1.12 섹션 추가)
+  - `DESIGN.md` (3번 프로그램 v1.12 및 DESIGN_HANDOFF.md 링크 갱신)
+  - `docs/ACTIVE_WORK.md` (작업 행 삭제)
+
 ## 2026-10-16 Antigravity(Windows) — Threads 콘텐츠 운영 자동화 v1.97: 사이드바 대시보드 검은색 덩어리 및 텍스트 묻힘 버그 해결 완료
 
 - **대상 프로그램**: `threads-content-ops/` (slug: `threads-content-ops`, `https://threads-content-ops.buylife.xyz`, 배포 버전: `v1.97`)

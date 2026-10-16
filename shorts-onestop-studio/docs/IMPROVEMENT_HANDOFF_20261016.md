@@ -28,3 +28,14 @@
 
 ## v1.11 개선
 - 스톡 복합어 점수, MP4 자막 목소리 있는 장면만(선택), 목표 길이 초과 시 1회 재요청. 실측 45초→46.6초, 60초→56.1초. 남은 제안: 없음(새로 찾으면 IMPROVEMENTS.md에 추가).
+
+## v1.12 가이드북(/guide) 가독성 및 줄넘김 개편 (2026-10-16 Antigravity Windows)
+- **주인님 지시**: "여긴 텍스트가 너무 작고 줄넘김 처리가 안되어 있으니 보고 수정 조치해줘" (주제·대본 사용법 카드 하단 안내문 5개)
+- **한 일**:
+  - `src/app/(workspace)/guide/page.tsx` 리팩터링: 기존 12px 흐릿한 회색의 빽빽한 단락 5개를 **14px 표준 폰트**와 **독립된 5대 가이드 카드(배경, 음성·자막·MP4, 발행 계획, 장면 편집, 내 지침)**로 전면 구조화.
+  - 알약 뱃지(`badge brand`)와 단계별 불릿 포인트, 볼드 키워드, 여유 있는 행간(`1.65`) 적용.
+  - `src/lib/version.ts` 버전 `v1.12` 상향 및 Supabase 공유 DB `programs.version = 'v1.12'` 동기화.
+  - Vercel 프로덕션 배포 완료 (`https://shorts-onestop-studio.buylife.xyz/guide`).
+- **확인한 것**: Microsoft Edge 브라우저(`msedge.exe`)로 실세션 검수 완료 (`edge_shorts_guide_detail_v112.png`, `edge_shorts_guide_v112.png`). 14px 폰트 확대, 5개 카드 분리, 줄넘김 정돈, 버전 배지 `v1.12` 일치 확인.
+- **산출물**: `docs/DESIGN_HANDOFF.md`, `docs/PLAN_20261016_GUIDE_READABILITY_RENEWAL.md`, `docs/IMPROVEMENTS.md` (14번 항목 추가).
+

@@ -37,19 +37,107 @@ export default function GuidePage() {
           <div className="actions"><GuideLinkButton url={GUIDES.gemini} label="Gemini 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.openai} label="OpenAI 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.anthropic} label="Claude 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.pexels} label="Pexels 키 발급 매뉴얼" /><GuideLinkButton url={GUIDES.pixabay} label="Pixabay 키 발급 매뉴얼" /><a className="button primary" href="/settings">🔑 키 등록하러 가기</a></div>
         </section>
         <section className="card stack">
-          <h2>💡 주제·대본 사용법</h2>
-          <div className="avatar-tip"><span className="avatar">🤖</span><div><strong>꿀팁! 주제 문구에 숫자를 넣어 보세요</strong><p className="muted">「아침 습관 5가지」처럼 숫자가 있으면 구성이 TOP N 리스트·카드 5장으로 자동 맞춰집니다. 「~하는 법」은 단계별 방법, 「썰·실화·반전」은 스토리로 바뀌어요. 직접 바꾸면 그 값이 유지됩니다.</p></div></div>
-          <ol className="stack" style={{ gap: 6, margin: 0, paddingLeft: 18 }}>
-            <li><strong>분야 고르기</strong> — 14개 분야 칩 중 하나를 누릅니다. 키워드나 참고 자료(기사·메모, txt·md 파일)를 넣으면 그 내용을 근거로 씁니다.</li>
-            <li><strong>주제 8개 추천받기</strong> — 마음에 드는 카드를 누르거나 주제를 직접 입력합니다.</li>
-            <li><strong>대본 만들기</strong> — 말투·구성·카드 수(3~8장)와 목표 길이(약 30·45·60초 — 고르면 내레이션 글자 수를 그 길이에 맞춤)를 확인하고 누르면 인트로·카드·아웃트로 대본과 해시태그가 나옵니다.</li>
-            <li><strong>다듬고 저장</strong> — 화면 제목은 짧게, 자세한 내용은 내레이션에. [보관함에 저장]으로 보관합니다.</li>
-          </ol>
-          <p className="muted" style={{ fontSize: 12 }}>🎨 <strong>배경</strong>: [🎨 디자인·배경]에서 배경 방식(테마만/전체 1장/장면마다)을 고르고 [AI로 장면 설명 만들기]를 누르면 장면마다 스톡 검색어와 AI 이미지 설명이 채워집니다. [검색]으로 Pexels·Pixabay 무료 영상·사진을 고르거나 [AI 이미지]로 만들고 [배경 저장]을 누르세요. 스톡 키는 무료로 발급됩니다(🔑 API키등록·플랫폼연동의 발급 매뉴얼).</p>
-          <p className="muted" style={{ fontSize: 12 }}>🎙️ <strong>음성·자막·음악</strong>: [🎙️ 음성·자막·영상]에서 음성 모델·목소리·빠르기를 고르고 [음성 없는 장면 모두 만들기]를 누르면 장면마다 내레이션이 만들어지고 장면 길이가 목소리에 맞춰집니다. 자막 스타일·위치·크기를 고르고, 내 음악 파일을 올리면 목소리가 나올 때 자동으로 작게 깔립니다. [소리와 재생]으로 확인하고 [저장]하세요. 마지막으로 [MP4 만들기]를 누르면 이 브라우저 안에서 1080×1920 세로 MP4(목소리·자막·배경음악 포함)가 만들어지고, [MP4 내려받기]로 저장합니다(최신 크롬·엣지, 만드는 동안 탭 유지). [업로드 문구 만들기]를 누르면 제목 후보 5개·설명란·해시태그·검색 태그가 만들어져, 눌러서 복사해 유튜브에 붙여 넣을 수 있습니다.</p>
-          <p className="muted" style={{ fontSize: 12 }}>📅 <strong>발행 계획</strong>: [📅 발행 계획]에서 채널 단계·분야(1~3개)·하루 편수·기간을 고르고 [계획 만들기]를 누르면 AI가 운영 전략과 날짜별 주제를 만들고, 분야별 추천 시간대에 배치해 저장합니다(한 번에 30개까지). 오늘 이미 지난 시각은 다음 추천 시각으로 자동으로 미룹니다. ✏️로 주제·날짜·시각을 고치고 🗑로 일정에서 빼며, [+ 주제 추가]로 직접 넣을 수 있습니다. 일괄 대본에도 목표 길이를 고를 수 있고, 자동 배경은 검색어와 태그가 가장 많이 맞는 스톡을 고릅니다. 주제를 골라 만들 단계(📝 대본은 항상, 🎨 배경·🎙️ 음성·🎬 MP4는 선택)를 켜고 [N편 만들기]를 누르면 순서대로 처리해 보관함에 저장하고, 예상 요청 횟수를 미리 보여 줍니다. 만든 MP4는 목록의 [MP4 내려받기]로 저장하세요.</p>
-          <p className="muted" style={{ fontSize: 12 }}>🎬 <strong>장면 편집</strong>: 저장한 대본을 [🎬 장면 편집]에서 고르면 실제 쇼츠 화면으로 재생됩니다. 테마 8가지·카드 레이아웃 6가지·제목 글꼴 5가지·제목 효과를 고르고 [디자인 저장]을 누르세요. [세이프에어리어]를 켜면 유튜브 버튼·제목에 가려지는 곳이 빨갛게 표시됩니다.</p>
-          <p className="muted" style={{ fontSize: 12 }}>✍️ <strong>내 지침</strong>: 분야마다 말투·금지어·구성 규칙을 저장해 두고 「내 지침 사용」을 켜면 기본 규칙보다 우선 적용됩니다. 📜 <strong>내 대본으로 만들기</strong>: 이미 쓴 대본을 한 줄 = 한 장면으로 바꿉니다(AI 사용 안 함).</p>
+          <h2>💡 주제·대본 사용법 및 단계별 제작 노하우</h2>
+          <div className="avatar-tip">
+            <span className="avatar">🤖</span>
+            <div>
+              <strong>꿀팁! 주제 문구에 숫자를 넣어 보세요</strong>
+              <p className="muted" style={{ fontSize: 13, marginTop: 4, lineHeight: 1.6 }}>
+                「아침 습관 5가지」처럼 숫자가 있으면 구성이 TOP N 리스트·카드 5장으로 자동 맞춰집니다. 「~하는 법」은 단계별 방법, 「썰·실화·반전」은 스토리로 바뀌어요. 직접 바꾸면 그 값이 유지됩니다.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ padding: "16px 18px", borderRadius: 12, background: "var(--surface-2)", border: "1px solid var(--line)" }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <span>📝</span> 기본 4단계 대본 제작 흐름
+            </h3>
+            <ol className="stack" style={{ gap: 8, margin: 0, paddingLeft: 20, fontSize: 14, lineHeight: 1.65 }}>
+              <li><strong>분야 고르기</strong> — 14개 분야 칩 중 하나를 누릅니다. 키워드나 참고 자료(기사·메모, txt·md 파일)를 넣으면 그 내용을 근거로 씁니다.</li>
+              <li><strong>주제 8개 추천받기</strong> — 마음에 드는 카드를 누르거나 주제를 직접 입력합니다.</li>
+              <li><strong>대본 만들기</strong> — 말투·구성·카드 수(3~8장)와 목표 길이(약 30·45·60초)를 확인하고 누르면 인트로·카드·아웃트로 대본과 해시태그가 나옵니다.</li>
+              <li><strong>다듬고 저장</strong> — 화면 제목은 짧게, 자세한 내용은 내레이션에 입력한 뒤 [보관함에 저장]을 누릅니다.</li>
+            </ol>
+          </div>
+
+          {/* 5대 핵심 제작 파이프라인 가이드 카드 그리드 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 4 }}>
+            {/* 1. 배경 설정 */}
+            <div style={{ padding: "16px 18px", borderRadius: 12, background: "var(--surface-2)", border: "1px solid var(--line)", fontSize: 14, lineHeight: 1.65 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+                <strong style={{ fontSize: 15, color: "var(--fg)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>🎨</span> 1. 디자인·배경 설정 가이드
+                </strong>
+                <span className="badge brand">스톡 무료 검색 & AI 이미지</span>
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6, color: "var(--fg)" }}>
+                <li><strong>배경 방식 선택</strong>: [🎨 디자인·배경]에서 3가지 방식(테마만 / 전체 1장 / 장면마다) 중 원하는 형태를 고릅니다.</li>
+                <li><strong>AI 자동 묘사</strong>: [AI로 장면 설명 만들기]를 누르면 대본을 분석해 장면마다 스톡 검색어와 AI 이미지 설명 프롬프트를 자동으로 채워줍니다.</li>
+                <li><strong>스톡 미디어 & 생성</strong>: [검색]으로 Pexels·Pixabay의 고화질 무료 영상·사진을 고르거나, [AI 이미지] 버튼으로 Gemini 9:16 이미지를 즉시 생성해 [배경 저장]을 누릅니다.</li>
+                <li style={{ color: "var(--muted)", fontSize: 13 }}>💡 스톡 API 키(Pexels, Pixabay)는 무료로 발급됩니다 (🔑 API키등록·플랫폼연동의 발급 매뉴얼 참고).</li>
+              </ul>
+            </div>
+
+            {/* 2. 음성·자막·음악 */}
+            <div style={{ padding: "16px 18px", borderRadius: 12, background: "var(--surface-2)", border: "1px solid var(--line)", fontSize: 14, lineHeight: 1.65 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+                <strong style={{ fontSize: 15, color: "var(--fg)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>🎙️</span> 2. 음성·자막·음악 & 브라우저 MP4 렌더링
+                </strong>
+                <span className="badge brand">BGM 자동 덕킹 & 원클릭 MP4</span>
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6, color: "var(--fg)" }}>
+                <li><strong>AI 내레이션 생성</strong>: [🎙️ 음성·자막·영상]에서 음성 모델·목소리·빠르기를 고르고 [음성 없는 장면 모두 만들기]를 누르면 내레이션이 생성되고 장면 길이가 음성에 맞춰 자동 정렬됩니다.</li>
+                <li><strong>자막 & 배경음악 덕킹</strong>: 자막 스타일·위치·크기를 고르고 내 음악 파일을 업로드하면, 목소리가 나올 때 자동으로 배경음악 볼륨이 35%로 줄어드는 스마트 덕킹이 적용됩니다.</li>
+                <li><strong>브라우저 자체 MP4 완성</strong>: [MP4 만들기]를 누르면 서버 렌더링 비용 없이 브라우저 내에서 1080×1920 세로 MP4(음성+자막+음악 포함)를 직접 렌더링하여 [MP4 내려받기]로 즉시 저장합니다 (제작 중 탭 유지).</li>
+                <li><strong>유튜브 업로드 문구</strong>: [업로드 문구 만들기]를 누르면 최적화된 제목 후보 5개, 영상 설명란, 해시태그, 검색 태그가 생성되어 원클릭으로 복사해 유튜브에 등록할 수 있습니다.</li>
+              </ul>
+            </div>
+
+            {/* 3. 발행 계획 */}
+            <div style={{ padding: "16px 18px", borderRadius: 12, background: "var(--surface-2)", border: "1px solid var(--line)", fontSize: 14, lineHeight: 1.65 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+                <strong style={{ fontSize: 15, color: "var(--fg)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>📅</span> 3. 채널 맞춤 발행 계획 & 원클릭 일괄 제작
+                </strong>
+                <span className="badge brand">최대 30일치 자동 플래닝</span>
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6, color: "var(--fg)" }}>
+                <li><strong>AI 채널 운영 전략</strong>: [📅 발행 계획]에서 채널 단계(1~6단계)·분야(1~3개)·하루 편수·기간을 선택하고 [계획 만들기]를 누르면 날짜별 주제와 추천 업로드 시간대가 자동 배치됩니다 (한 번에 최대 30개).</li>
+                <li><strong>일정 스마트 보정</strong>: 오늘 이미 지난 시각은 다음 추천 시각으로 자동 이월되며, ✏️(수정), 🗑(삭제), [+ 주제 추가]로 일정을 자유롭게 커스텀할 수 있습니다.</li>
+                <li><strong>원클릭 N편 일괄 제작</strong>: 대본(필수), 배경, 음성, MP4 중 원하는 단계를 체크하고 [N편 만들기]를 누르면 전 과정이 전자동 처리되어 보관함에 저장됩니다.</li>
+              </ul>
+            </div>
+
+            {/* 4. 장면 편집 */}
+            <div style={{ padding: "16px 18px", borderRadius: 12, background: "var(--surface-2)", border: "1px solid var(--line)", fontSize: 14, lineHeight: 1.65 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+                <strong style={{ fontSize: 15, color: "var(--fg)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>🎬</span> 4. 장면 편집 & 유튜브 세이프에어리어 가이드
+                </strong>
+                <span className="badge brand">8가지 테마 & 세이프존 확인</span>
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6, color: "var(--fg)" }}>
+                <li><strong>실시간 쇼츠 미리보기</strong>: 저장한 대본을 [🎬 장면 편집]에서 선택하면 9:16 실제 쇼츠 화면으로 실시간 렌더링 재생됩니다.</li>
+                <li><strong>스타일 커스터마이징</strong>: 테마 8종, 카드 레이아웃 6종, 제목 글꼴 5종, 제목 애니메이션 효과를 원하는 스타일로 조합하고 [디자인 저장]을 누릅니다.</li>
+                <li><strong>세이프에어리어(Safe Area) 보호</strong>: [세이프에어리어] 스위치를 켜면 유튜브 우측 버튼(좋아요·댓글)이나 하단 제목에 자막이 가려지는 위험 영역이 빨간선으로 표시되어 배치를 안전하게 조정할 수 있습니다.</li>
+              </ul>
+            </div>
+
+            {/* 5. 내 지침 & 대본 직접 변환 */}
+            <div style={{ padding: "16px 18px", borderRadius: 12, background: "var(--surface-2)", border: "1px solid var(--line)", fontSize: 14, lineHeight: 1.65 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+                <strong style={{ fontSize: 15, color: "var(--fg)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>✍️</span> 5. 전용 내 지침 설정 & 기존 대본 직접 변환
+                </strong>
+                <span className="badge brand">AI 요금 0원 모드 지원</span>
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6, color: "var(--fg)" }}>
+                <li><strong>나만의 지침 우선 적용</strong>: 분야마다 선호하는 말투, 금지어, 구성 규칙을 저장해 두고 「내 지침 사용」을 켜면 AI 기본 프롬프트보다 최우선으로 반영됩니다.</li>
+                <li><strong>내 대본으로 만들기</strong>: 이미 작성해 둔 글이나 대본이 있다면 복사해 넣고 [내 대본으로 만들기]를 누르면 「한 줄 = 한 장면」으로 즉시 쇼츠 카드가 분할 생성됩니다 (AI 호출 0회, 비용 0원).</li>
+              </ul>
+            </div>
+          </div>
         </section>
         <div className="grid2">
           <div className="notice"><strong>🛡️ 본인 키 원칙</strong><p>모든 AI 호출은 회원 본인 키로만 합니다. 운영자나 다른 회원의 키로 대신 처리하지 않으며, 요금과 사용 한도는 본인 공급사 계정에 적용됩니다.</p></div>
