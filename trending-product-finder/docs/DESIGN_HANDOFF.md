@@ -1,7 +1,7 @@
 # 디자인 개발완료 인수인계 — 상품소싱 자동화 (v1.08)
 
 - **적용 템플릿**: **스마트 매트릭스 스타일 (다크 슬레이트)** — 기준 구현 [`longtail-keyword-expander`](../../longtail-keyword-expander/docs/DESIGN_HANDOFF.md)(Tailwind v3)의 토큰·부품을 그대로 이식
-- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「진행해줘」, 배경 블랙 기본안) · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
+- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「진행해줘」, 배경 블랙 기본안) · 상태: ✅ 1차 작업완료 (v1.08, Windows 운영 검수 완료)
 - **라이브**: https://trending-product-finder.buylife.xyz
 
 ## 1. 이 프로그램만의 처리
@@ -29,6 +29,8 @@
 | 항목 | 값 |
 |---|---|
 | 정적 검사 | 맥미니 `tsc --noEmit` 오류 0, 옛 색 클래스 0건 |
-| 빌드·배포 | 대기(윈도우) |
-| DB `programs.version` | v1.07 → 배포 때 v1.08 |
-| 화면 검수 | 대기(1440px·375px) |
+| 빌드·배포 | Next15.5.27 타입/빌드/ESLint 통과·소스6587e370·dpl_4BibTaHy3XuYCRj6qADsgzyneQ3T READY (iad1·3Cron 유지) |
+| DB `programs.version` | v1.08 반영 확인 |
+| 화면 검수 | 보이는 Edge1440/375 로컬9·운영9·합성9·권한/키/SMTP/마진15·무인증Cron3개401 |
+
+Windows 보완: TOP5 모바일 min-width:0·권한/카테고리 소유자 조회·보안/호환 패키지. [완료 증거·남은 일](IMPROVEMENT_HANDOFF_20261017.md). 실제 검색/생성/발송은 제외했습니다.

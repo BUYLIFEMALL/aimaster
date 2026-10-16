@@ -1,0 +1,31 @@
+{
+  "project": "trending-product-finder",
+  "project_id": "prj_IFLvGo33Rj45fTrnLy8A19M5PEUh",
+  "deployment_id": "dpl_4BibTaHy3XuYCRj6qADsgzyneQ3T",
+  "ready_state": "READY",
+  "source_commit": "6587e370fa7f62ca8cbf48628c0dc7801a4636aa",
+  "verified_program_commit": "6587e370fa7f62ca8cbf48628c0dc7801a4636aa",
+  "program_runtime_unchanged_between_commits": true,
+  "url": "https://trending-product-finder-i6awk2frj-buylife.vercel.app",
+  "app_url": "https://trending-product-finder.buylife.xyz",
+  "version": "v1.08",
+  "regions": [
+    "iad1"
+  ],
+  "cron_definition": [
+    {
+      "path": "/api/cron/generate-reports",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/dispatch-sourcing-alerts",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/dispatch-price-alerts",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "production_target": "dpl_4BibTaHy3XuYCRj6qADsgzyneQ3T",
+  "checked_at": "2026-10-16T18:59:07.192Z"
+}

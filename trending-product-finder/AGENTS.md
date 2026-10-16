@@ -198,5 +198,9 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 
 ## 2026-10-17 v1.08 — 디자인 리뉴얼: 스마트 매트릭스(다크 슬레이트) (Claude Code 맥미니)
 - 롱테일 v3 토큰·부품 이식, 사이드바 ☰·📖, `/dashboard`(기회 키워드 TOP 5·연결 상태)·`/guide` 신설(`/`→`/dashboard`), 리포트를 키워드 매트릭스 표로(기회점수 순·🌏 소싱 링크), 로그인까지 다크. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
-- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
+- **Windows 빌드·배포·무료 화면 검수 완료(v1.08, 소스6587e370).** DBv1.08,Edge로컬9/운영9·합성9·권한/본인키/SMTP/마진15 통과. 실제 검색/생성/발송0.
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## Windows v1.08 인수 완료 (2026-10-17 Codex)
+
+[완료 결과·증거·다음 작업](docs/IMPROVEMENT_HANDOFF_20261017.md)의 최신 절을 먼저 읽습니다. Next15.5.27/React19·Nodemailer10.1.2,권한 관리자 조회·카테고리 소유자 조건·TOP5 모바일 최소폭 보완. 기존3Cron/점수/발송 로직 유지. 잔여 보안·조회 오류 안내·30일 보관 적용 확인은 별도 후속입니다. 공유 stash d49e6303 전체 복원 금지(이후 최신 작업 덮임 위험).

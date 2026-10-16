@@ -1,0 +1,21 @@
+{
+  "base": "https://trending-product-finder.buylife.xyz",
+  "checked_at": "2026-10-16T19:00:01.695Z",
+  "mode": "No cookies or Authorization; reject before report/API/notification operations",
+  "checks": [
+    {
+      "path": "/api/cron/generate-reports",
+      "status": 401
+    },
+    {
+      "path": "/api/cron/dispatch-sourcing-alerts",
+      "status": 401
+    },
+    {
+      "path": "/api/cron/dispatch-price-alerts",
+      "status": 401
+    }
+  ],
+  "paid_calls": 0,
+  "sends": 0
+}

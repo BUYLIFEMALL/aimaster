@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — trending-product-finder v1.08 Windows 인수·운영 화면 검수 완료
+
+- ✅ 스마트 매트릭스 블랙v1.08 완료. 소스6587e370 푸시·배포dpl_4BibTaHy3XuYCRj6qADsgzyneQ3T READY·DBv1.08,iad1·기존3Cron 유지. 배포metadata6587e370와 검수 프로그램 런타임 차이0.
+- 빌드/타입/ESLint·실제 일반 회원 Edge1440/375 로컬9/운영9·합성9·권한/키/SMTP/마진15·DB키호환1·무인증Cron401 세 경로 통과. 설정7그룹13키와 알림3채널 보존,검색/생성/유료/발송0.
+- 권한/카테고리 owner조회·TOP5 모바일 폭·문서 정정,Next15.5.27/React19·Nodemailer10.1.2 보완. 운영PostCSS2/개발9 경고·점수 추이/리포트20제한·계산기 분리·조회 오류 안내·30일 보관 적용 확인은 후속.
+- 공유stash d49e6303에서 본 폴더만 복구해 재검사. 남은stash 전체복원 금지. [결과·증거·다음 첫 단계](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md). 현황판43✅·본인ACTIVE_WORK줄 해제. 최종 문서 커밋은 이 항목 포함 커밋.
+
+[프로그램 열기](https://trending-product-finder.buylife.xyz)
+
 ## 2026-10-17 Codex(Windows) — trending-product-finder v1.08 Windows 사전 검수 완료·운영 배포 진행
 
 - 맥미니4011b733 블랙 인수. Next15.5.27/React19·Nodemailer10.1.2 보완, 권한 관리자 조회·카테고리 소유자 조건·TOP5 모바일 넘침 수정. 빌드/타입/ESLint, 실제 Edge 로컬9·합성9·권한/키/메일/마진15·DB키호환1 통과.

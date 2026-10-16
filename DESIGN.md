@@ -145,7 +145,7 @@
 | 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-cafe-poster/AGENTS.md` |
 | 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao-auto-posting/AGENTS.md` |
 | 42 | 웹 크롤링 자동화 | `web-crawler-saas` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `web-crawler-saas/AGENTS.md` |
-| 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🔵 Codex(Windows) 빌드·배포·검수 진행 중 (`v1.08`, Claude Code 맥미니 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
+| 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 스마트 매트릭스 다크, Windows 빌드/배포/DB/Edge1440·375 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
 | 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-affiliate-poster/AGENTS.md` |
 | 45 | INSTA DM답변 자동화 | `instagram-dm-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `instagram-dm-reply/AGENTS.md` |
 | 46 | Threads 댓글자동화 | `threads-comment-reply` | 스마트 매트릭스 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-comment-reply/AGENTS.md` |
