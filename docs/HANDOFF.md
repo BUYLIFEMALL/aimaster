@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — "폼 액션 + 제어 체크박스" 저장값 반전 일괄 점검 결과: 추가 수정 대상 없음
+
+- 저장소 전체 `.tsx`에서 폼 값으로 전송되는(name 있는) 제어 체크박스·라디오(`checked={…}`) 20곳을 찾아 확인. 저장 후 React가 자동 초기화하는 `<form action={…}>` 안에 있는 것은 0곳(이미 고친 real_estate_sales v1.15 제외). `insta_auto_poster`·`threads`의 `PostForm`은 `onSubmit`+`startTransition` 방식이라 자동 초기화 없음, `threads-affiliate-poster/.../ProductPostForm.backup-v1.34.tsx`는 미사용 백업, 나머지(ai-slide-builder·markdown-studio·music·infinite-loop-video·관리자 SetExpiryModal 등)는 폼 액션 없음.
+- 점검 스크립트 기준: `<input type=checkbox|radio name=… checked={…}>` + 같은 파일의 `useActionState`/`action={`. 새 폼 만들 때 ERROR_LESSONS 2026-10-17 항목(비제어 `defaultChecked`) 따르기.
+
 ## 2026-10-17 Claude Code(맥미니) — 상품소싱 자동화 v1.08: 스마트 매트릭스(다크) 디자인 (🟠 윈도우 마무리 요청)
 
 - **대상**: `trending-product-finder/` (https://trending-product-finder.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
