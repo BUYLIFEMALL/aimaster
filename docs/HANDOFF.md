@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — youtube-auto-reply v1.09 Windows 인수·운영 화면 검수 완료
+
+- ✅ 유튜브 다크v1.09 완료. 소스 a7d5dc62 푸시, dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W READY, DBv1.09·iad1·기존Cron 유지. 배포 metadata b11fdd05는 검수 소스와 프로그램 런타임 차이0.
+- 빌드/타입/ESLint, 실제 일반 회원 Edge1440/375 로컬8·운영8, 합성9, 권한/본인키/한국시간14, Supabase키호환1, 무인증API401 네 경로 통과. 유료/게시/영상동기화0, 회원4표 행 수 전후0 유지.
+- 빈 UUID/소유자 조회·권한 관리자 조회·한국시간·모바일 긴URL/영상 및 Next15.5.27/React19 보안·호환 보완. audit critical0, 내장PostCSS 운영2/개발9 경고는 후속. 관리자 텔레그램1건 이전·일괄승인/이력검색/페이지·30일 자동삭제 적용 확인도 미완료 범위를 구분.
+- [작업 결과·증거·다음 첫 단계](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md). 현황판48✅·본인 ACTIVE_WORK줄 해제. 최종 문서 커밋은 이 항목 포함 커밋.
+
+[프로그램 열기](https://youtube-auto-reply.buylife.xyz)
+
 ## 2026-10-17 Claude Code(윈도우) — 부동산 실거래(real_estate_sales) #10 회원별 분리(v1.12)·#12 버튼 실행(v1.13)
 
 - **#10**(`113435f5`): AI 시장조사 캐시에 `user_id`·회원별 고유 조건·본인 전용 RLS(운영 적용) + 30일 정리 cron(`/api/cron/cleanup-sentiment`, 매일 03:30 KST). 기존 주인 없는 5건은 아무도 못 보고 첫 cron 때 삭제. RLS 시뮬레이션(타 회원 0건·본인 저장/조회·타인 명의 저장 차단) 확인.

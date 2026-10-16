@@ -119,9 +119,11 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 
 ## 2026-10-17 v1.09 — 디자인 리뉴얼: 유튜브 다크 콘솔 스타일 — 스튜디오 댓글 콘솔 변형 (Claude Code 맥미니)
 - `#0f0f0f` + 유튜브 레드, 사이드바 빨간 막대·대기 배지·휴대폰 ☰, `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 댓글을 유튜브 댓글 모양(아바타·들여쓴 답글 초안)으로, 로그인까지 다크. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
-- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
+- **Windows 빌드·배포·무료 화면 검수 완료(v1.09, 소스 a7d5dc62).** 운영 DBv1.09, 실제 Edge로컬8/운영8·합성9·권한/키/시간14 통과. 실제 게시/AI/영상동기화0.
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
 
-## Windows v1.09 인수 진행 (2026-10-17 Codex)
+## Windows v1.09 인수 완료 (2026-10-17 Codex)
 
 [최신 검수·배포 기록](docs/IMPROVEMENT_HANDOFF_20261017.md)의 마지막 절을 먼저 읽습니다. Next15.5.27/React19 호환·보안, 소유자 제목 조회/빈 UUID, 권한 관리자 조회, 한국시간 및375px 오류를 보완했습니다. 미연결 일반 회원 화면과 합성 페이지를 분리 검사하며 실제 게시/AI/동기화·텔레그램 이전은 이 작업에서 실행하지 않습니다. 기존 Cron 정의 유지.
+
+운영 배포 dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W READY. 관리자 텔레그램 이전·잔여 의존성·30일 보관 적용 확인은 미완료로 인수인계하며 전체 연동 성공으로 확대하지 않습니다.

@@ -145,3 +145,5 @@ CRON_SECRET=        # Vercel Cron 인증 + 텔레그램 웹훅 secret_token 시�
 ## Windows v1.09 인수 (2026-10-17)
 
 Next15.5.27·React19 호환/보안 보완, 빈 댓글/이력·회원 권한 조회·한국시간·모바일 긴 댓글/영상 오류 수정. [검수 결과·남은 일](docs/IMPROVEMENT_HANDOFF_20261017.md) · [Windows 플랜](docs/VERIFICATION_PLAN_20261017_WINDOWS.md). 실제 게시·유료 AI·영상 동기화는 실행하지 않습니다.
+
+Windows 완료: v1.09 운영 배포·DB 반영, 빌드/타입/ESLint·Edge로컬8/운영8·합성9 통과. [상세 결과·남은 개선](docs/IMPROVEMENT_HANDOFF_20261017.md). 유료/게시/동기화0, 관리자 웹훅 이전은 별도 남은 일입니다.

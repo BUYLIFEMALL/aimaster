@@ -1,7 +1,7 @@
 # 디자인 개발완료 인수인계 — 유튜브 댓글자동화 (v1.09)
 
 - **적용 템플릿**: **유튜브 다크 콘솔 스타일 — 스튜디오 댓글 콘솔 변형** (DESIGN.md 9번 계열, 기준 [`yt-playlist-studio`](../../yt-playlist-studio/docs/DESIGN_HANDOFF.md)) + 스마트 매트릭스의 지표 카드·표 구성
-- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「다크로 진행해줘 유튜브 느낌을 잘 살려봐」) · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
+- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「다크로 진행해줘 유튜브 느낌을 잘 살려봐」) · 상태: ✅ 1차 작업완료 (v1.09, Windows 운영 검수 완료)
 - **라이브**: https://youtube-auto-reply.buylife.xyz
 
 ## 1. 색상 토큰 (`tailwind.config.ts` → `yt-*`)
@@ -41,6 +41,8 @@
 | 항목 | 값 |
 |---|---|
 | 정적 검사 | 맥미니 `tsc --noEmit` 오류 0 |
-| 빌드·배포 | 대기(윈도우) |
-| DB `programs.version` | v1.08 → 배포 때 v1.09 |
-| 화면 검수 | 대기(1440px·375px) |
+| 빌드·배포 | Next15.5.27 빌드/타입/ESLint 통과, 소스 a7d5dc62·배포 dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W READY (iad1·Cron 유지) |
+| DB `programs.version` | v1.09 반영 확인 |
+| 화면 검수 | 실제 Edge1440/375 로컬8·운영8·합성9, 권한/키/시간14·무인증401 네 경로 통과 |
+
+Windows는 빈 조회·권한 조회·한국시간·375px 및 Next/React/ESLint 호환을 추가 보완했습니다. 실제 게시·OAuth·AI 호출·텔레그램 이전은 제외. [완료 증거·남은 일](IMPROVEMENT_HANDOFF_20261017.md).

@@ -47,7 +47,7 @@ try{
     if(route==='/guide'){
       assert.equal(await page.locator('main details').count(),5);const faq=page.locator('main details').first();await faq.locator('summary').click();assert.equal(await faq.evaluate(e=>e.open),true);await faq.locator('summary').click();
       const guideButtons=page.getByRole('button',{name:/^📄/});assert.equal(await guideButtons.count(),5);
-      for(let i=0;i<5;i++){const [popup]=await Promise.all([page.waitForEvent('popup'),guideButtons.nth(i).click()]);await popup.waitForURL(/\/guides\/[a-f0-9-]+/,{waitUntil:'domcontentloaded'});assert.match(popup.url(),/\/guides\/[a-f0-9-]+/);assert.equal(await popup.locator('body').count(),1);await popup.close();}await shot('guide-1440');
+      for(let i=0;i<5;i++){const [popup]=await Promise.all([page.waitForEvent('popup'),guideButtons.nth(i).click()]);await popup.waitForURL(/\/guides\/[a-f0-9-]+/,{waitUntil:'domcontentloaded'});assert.match(popup.url(),/\/guides\/[a-f0-9-]+/);await popup.locator('h1').first().waitFor();assert.ok((await popup.locator('h1').first().innerText()).trim().length>0);assert.ok(!/404/.test(await popup.title()));await popup.close();}await shot('guide-1440');
     }
   }ok('영상·댓글·이력 빈 상태·설정 콜백 안내·매뉴얼 FAQ5/연결 안내5팝업');
   for(const route of ['/dashboard','/videos','/comments','/history','/settings','/guide']){
