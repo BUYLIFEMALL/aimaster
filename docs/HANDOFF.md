@@ -1,5 +1,43 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — AI 블로그 작업실 자동화 v1.05: 포커스 스튜디오 스타일 디자인 리뉴얼 및 비주얼 가이드북(/guide) 전면 개편 완료
+
+- **대상 프로그램**: `blog-workroom/` (slug: `blog-workroom`, `https://blog-workroom.buylife.xyz`, 배포 버전: `v1.05`)
+- **작업 내용**:
+  1. **포커스 스튜디오 스타일(Focus Studio Style) 디자인 시스템 전면 적용**:
+     - 기존 단조로운 틸 톤(`--brand: #0f766e`)에서 소프트 화이트/크림 캔버스(`--bg: #fafbfc`) + 딥 인디고 & 바이올렛(`--brand: #4f46e5`, `--brand-dark: #3730a3`, `--brand-soft: #eef2ff`, `--brand-line: #c7d2fe`) 토큰 시스템으로 전면 개편.
+     - 네이버 상징 그린(`--naver-green: #03c75a`), 골드키워드 앰버(`--amber-gold: #d97706`), 에메랄드 뱃지 및 모던 카드 섀도우(`0 1px 3px 0 rgb(0 0 0 / 0.05)`) 적용.
+  2. **사용 매뉴얼(`/guide`) 비주얼 가이드북 전면 구축**:
+     - 상단 포커스 스튜디오 딥 인디고 그라데이션 히어로 배너 및 알약 뱃지 2종(`✨ Focus Studio`, `네이버 서치어드바이저 최적화`).
+     - **8단계 올인원 블로그 집필 파이프라인 인포그래픽 트랙**: 스타일 분석 ➔ 골드키워드 ➔ 트렌드 ➔ 벤치마크 ➔ 자료준비 ➔ 구간작성 ➔ 6영역검수 ➔ AI이미지 연결 다이어그램.
+     - **네이버 & AI API 연동 가이드 카드**: AI 엔진(OpenAI/Gemini), 네이버 Developers(무료 일 25,000회), 네이버 검색광고(Searchad) 3대 플랫폼 연동 가이드 및 원클릭 바로가기 버튼.
+     - **8대 단계별 심층 비주얼 가이드 카드**: 단계별 원형 넘버링 배지, 분류 태그, 볼드 키워드 불릿 포인트, 실전 꿀팁 박스(`💡`).
+     - **골드키워드 판정 공식 및 4등급 치트시트**: 골드(<10, 1천↑), 실버(<30), 일반(<150), 경쟁(150↑) 기준표.
+     - **자주 묻는 질문(FAQ) 아코디언 4종**: API 무료 여부, 저품질 방지 원리, 자동 포스팅 지양 사유 등.
+  3. **사이드바 레이아웃 표준화 (`src/components/layout/Sidebar.tsx`)**:
+     - 244px 표준 너비 준수, 1~8단계 넘버링 배지 인디고 그라데이션 및 3px 좌측 활성 바.
+     - 유틸리티 메뉴 명칭 `📖 연동 & 사용 매뉴얼` 표준화 및 키/책 아이콘 컬러링.
+     - 계정 정보 블록을 유틸리티 메뉴 바로 아래(12px 간격)로 바짝 밀착 배치 (`margin-top: auto` 제거).
+     - 모바일 메뉴 단일 스크롤 최적화로 하단 메뉴 및 계정 정보가 잘림 없이 매끄럽게 표시.
+  4. **버전 및 DB 동기화**:
+     - `src/lib/version.ts`: `APP_VERSION = "v1.05"`
+     - `package.json`: `"version": "1.0.5"`
+     - Supabase 공유 DB `programs.version = 'v1.05'` 갱신 완료.
+  5. **빌드, 배포 및 Edge 검수**:
+     - Turbopack 로컬 빌드 성공 (에러 0건).
+     - Vercel 프로덕션 배포 완료 (`https://blog-workroom.buylife.xyz`).
+     - Microsoft Edge 실세션 브라우저 검수 완료:
+       - 데스크톱(1440px): `edge_blog_workroom_guide_desktop_v105.png`, `edge_blog_workroom_guide_cards_v105.png`, `edge_blog_workroom_guide_faq_v105.png`, `edge_blog_workroom_style_v105.png`
+       - 모바일(380px): `edge_blog_workroom_mobile_v105.png`, `edge_blog_workroom_mobile_menu_v105.png`
+- **산출물**:
+  - `blog-workroom/docs/PLAN_20261016_DESIGN_RENEWAL.md`
+  - `blog-workroom/docs/DESIGN_HANDOFF.md` (공식 포커스 스튜디오 스타일 보고서 신설)
+  - `blog-workroom/docs/IMPROVEMENTS.md` (IMP-01, IMP-02 완료 반영)
+  - `blog-workroom/docs/IMPROVEMENT_HANDOFF_20261016.md`
+  - `blog-workroom/AGENTS.md` (v1.05 반영)
+  - `DESIGN.md` (4번 프로그램 v1.05 및 DESIGN_HANDOFF.md 링크 갱신)
+  - `docs/ACTIVE_WORK.md` (작업 행 삭제 완료)
+
 ## 2026-10-16 Claude Code(윈도우) — suno-music-studio v1.11 플로팅 빠른 복사 바
 
 - 곡 편집 카드 하단 고정 바에서 Title·Style·Lyrics·Exclude 복사 + Suno 열기. 크롬 실화면 복사 안내·390px 폭 확인, VIP 138/138. 작업리스트 2번 완료 → 다음은 3번 music-player 미디어 키(Media Session API). 상세: `suno-music-studio/AGENTS.md` v1.11.

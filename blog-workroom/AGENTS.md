@@ -1,6 +1,8 @@
 # AI 블로그 작업실 자동화 (`blog-workroom`) — 인수인계
 
-- 주소: https://blog-workroom.buylife.xyz (Vercel 프로젝트 `blog-workroom`, `prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY`) · slug `blog-workroom` · 카테고리 블로그 · 버전 **v1.03**
+- 주소: https://blog-workroom.buylife.xyz (Vercel 프로젝트 `blog-workroom`, `prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY`) · slug `blog-workroom` · 카테고리 블로그 · 버전 **v1.05**
+- **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) | **디자인 플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md)
+- **개선사항 대장**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) | **개선 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md)
 - 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 먼저 읽는다. 최상위 규칙: **AI·네이버 키는 회원 본인 것만**(운영자 키 폴백 없음).
 
 ## 1. 무엇인가 / 왜 이렇게 만들었나
@@ -45,6 +47,7 @@
   - 고친 것: ① **등급 기준 실측 보정** — 검색 API 문서수는 누적이라 실측 분포(검색량 300↑ 연관어 30개: 2~1,600배, 중간값 약 60배)에 맞춰 골드 10 미만(월 1,000↑)·실버 30·일반 150으로(`src/lib/logic.ts`). ② 검색광고 연관어는 긴 검색어로 물으면 자기 자신만 돌려줌 → 짧은 단어로 다시 묻는 `shortRelated()`(`src/lib/metrics.ts`). ③ 데이터랩은 최근 1~2일이 미집계 → 빈 날을 0으로 채워 모든 용어가 하락으로 보이던 문제, 집계된 마지막 날까지만 사용(`trend.ts` `fillDays`). ④ 검수 제안에 「해당 문장을 삭제합니다」 같은 지시문이 와서 [제안 반영]이 지시문을 본문에 넣던 문제 — 지시문 금지·삭제는 빈 문자열(`prompts.ts`), 지시문은 삭제 제안으로 변환(`asReplacement`), 화면은 「이 문장 삭제」 버튼. ⑤ 키·설정 도우미를 `src/lib/context.ts`로 분리(단계 처리를 next 모듈 없이 시험 가능).
   - 단위 9/9.
 - 2026-10-16(DB만, 버전 그대로): 메인 사이트 설명을 `docs/PROGRAM_DESCRIPTION_STANDARD.md` 형식으로 다시 씀 — short_desc 50자, 상세 설명 6단락(굵은 한 줄 소개 + 이모티콘 단락 + 본인 키·주의).
+- 2026-10-16 v1.05 — 포커스 스튜디오 스타일(Focus Studio Style) 디자인 리뉴얼 및 사용 매뉴얼(/guide) 비주얼 가이드북 전면 개편. 딥 인디고 & 바이올렛 토큰 시스템(`globals.css`), 사이드바 레이아웃 표준화(계정 블록 12px 밀착 배치, `Sidebar.tsx`), 8단계 올인원 집필 파이프라인 인포그래픽, 네이버 API 연동 가이드, 골드키워드 판정 공식 및 4등급 치트시트, FAQ 아코디언 구축. Supabase 공유 DB `programs.version='v1.05'` 동기화, Vercel 배포 완료. Microsoft Edge(`msedge.exe`) 데스크톱(1440px) 및 모바일(380px) 실세션 검수 완료. 산출물: `docs/PLAN_20261016_DESIGN_RENEWAL.md`, `docs/DESIGN_HANDOFF.md`, `docs/IMPROVEMENTS.md`, `docs/IMPROVEMENT_HANDOFF_20261016.md`.
 
 
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (blog-workroom)

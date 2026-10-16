@@ -35,8 +35,12 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
           </a>
         ))}
         <div className="utility-menu">
-          <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings"><KeyRound size={15} />API키등록·플랫폼연동</a>
-          <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide"><BookOpen size={15} />사용 매뉴얼</a>
+          <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings" onClick={() => setOpen(false)}>
+            <KeyRound size={15} style={{ color: "#d97706" }} />API키등록·플랫폼연동
+          </a>
+          <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide" onClick={() => setOpen(false)}>
+            <BookOpen size={15} style={{ color: "#4f46e5" }} />📖 연동 & 사용 매뉴얼
+          </a>
         </div>
       </nav>
       <div className="sidebar-account">
