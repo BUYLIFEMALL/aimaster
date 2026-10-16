@@ -19,7 +19,7 @@
 | 2 | ✅ mbti-character | `mbti-character` | mbti-character | |
 | 3 | ✅ personality-code | `mbti` | mbti | |
 | 4 | ✅ competitor-analysis | `competitor-analysis` | competitor-analysis | |
-| 5 | longtail-keyword-expander | `longtail-keyword-expander` | longtail-keyword-expander | |
+| 5 | ✅ longtail-keyword-expander | `longtail-keyword-expander` | longtail-keyword-expander | |
 | 6 | trending-product-finder | `trending-product-finder` | trending-product-finder | |
 | 7 | shop-detail-page | `shop-detail-page` | shop-detail-page | |
 | 8 | auto-detail-page | `auto-detail-page` | auto-detail-page | 개발 중(coming) |
@@ -83,5 +83,5 @@
 | 그룹 | 완료 | 남음 |
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
-| A그룹 | 4/19 | 15 |
+| A그룹 | 5/19 | 14 |
 | B그룹 | 0/8 | 8 |

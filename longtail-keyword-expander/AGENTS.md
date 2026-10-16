@@ -114,3 +114,8 @@ longtail-keyword-expander는 AIMaster 저장소 안의 서브프로젝트다. �
 - 결과 상세의 연관 키워드 매트릭스 옆 [⬇️ CSV 내려받기](`components/runs/CsvButton.tsx`): 열 = 구분(씨드 직속/연관)·연관 키워드·관련도(%)·롱테일 키워드, 롱테일 하나당 한 줄, UTF-8 BOM(엑셀 한글), 서버 호출 없음. 파일명 `<씨드>_롱테일키워드_<실행일>.csv`.
 - 빌드·배포·DB v1.07(SQL `supabase/migrations/0003_version_v1_07.sql`). **실화면 미확인**: 이 프로그램이 아직 `vercel.app` 주소라 메인 로그인이 이어지지 않아 시험 계정 재로그인이 필요(에이전트는 비밀번호 입력 안 함) → 도메인 통일 작업(`docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md` 5번) 후 확인. 시험 계정에 실행 결과도 없어 결과 1건(유료 SerpApi 1회+OpenAI 3회)이 필요할 수 있음.
 - 확인 필요: VIP 회원 19명이 이 프로그램에 개별 부여(만료 2026-10-16)를 가지고 있어 등급 자동 부여가 덮지 못함(유효 VIP 119/138). 회원 권한 데이터라 수정하지 않음.
+
+## 2026-10-16 도메인 통일(SSO) — v1.08 (Claude Code 윈도우)
+- 새 주소 `https://longtail-keyword-expander.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
+- 검수: 옛 주소 /runs → 새 주소 308, 재로그인 없이 열림(시험 계정 표시). CSV 버튼 실화면은 시험 계정 실행 결과가 없어 미확인(유료 검색 승인 필요)
+- 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
