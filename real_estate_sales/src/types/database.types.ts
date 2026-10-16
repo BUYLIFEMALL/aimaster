@@ -2993,16 +2993,19 @@ export type Database = {
       }
       real_estate_user_preferences: {
         Row: {
+          auto_analyze_on_notify: boolean
           preferred_model: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          auto_analyze_on_notify?: boolean
           preferred_model?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          auto_analyze_on_notify?: boolean
           preferred_model?: string | null
           updated_at?: string
           user_id?: string

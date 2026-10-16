@@ -25,3 +25,8 @@
 - 중복 방지: `reanalyzeListingAction`이 같은 회원·매물에 1분 안에 만든 결과가 있으면 다시 호출하지 않음(두 번 클릭·여러 탭). 버튼은 실행 중 비활성.
 - 그대로 둔 것: 회원이 켠 "예약 조회"(collect → 텔레그램 알림) 경로의 `ensureListingAnalysis`는 회원이 직접 켠 자동 기능이라 유지(필요하면 켜기/끄기 선택 추가는 별도 제안).
 - 검수: 빌드·배포·DB v1.13, 시험 계정으로 분석 없는 매물 상세 열람 → 안내·버튼 표시, DB 분석 기록 0건 유지(자동 실행 없음). 버튼 클릭(유료)은 하지 않음.
+## 2026-10-17 v1.14 — 예약 조회 알림의 AI 분석 켜기/끄기 (Claude Code 윈도우)
+- 주인님 승인(추가 개선 제안): `real_estate_user_preferences.auto_analyze_on_notify boolean not null default true`(운영 적용, 기본값 = 기존 동작 유지). 마이그레이션 `20261017_auto_analyze_on_notify_v1_14.sql`.
+- `collect.ts notifyUserForListings`: 설정이 꺼져 있으면 `ensureListingAnalysis` 호출 안 함(유료 호출 없음), 이미 있는 분석 결과만 알림에 붙임. 설정 행이 없으면 켜짐으로 간주.
+- 설정 화면: "예약 조회 알림의 AI 분석" 체크박스(`components/settings/AutoAnalyzeForm.tsx`, `saveAutoAnalyzeAction`) + AI 모델 안내 문구를 v1.13 이후 동작(상세는 버튼으로만)에 맞게 정정.
+- 검수: DB 칸 적용 확인 후 빌드·배포(v1.14).

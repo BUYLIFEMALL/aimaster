@@ -8,6 +8,7 @@ import { KakaoTemplateSection } from "@/components/settings/KakaoTemplateSection
 import { Button } from "@/components/ui/Button";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ModelPreferenceForm } from "@/components/settings/ModelPreferenceForm";
+import { AutoAnalyzeForm } from "@/components/settings/AutoAnalyzeForm";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
@@ -45,7 +46,7 @@ export default async function SettingsPage() {
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase
       .from("real_estate_user_preferences")
-      .select("preferred_model")
+      .select("preferred_model, auto_analyze_on_notify")
       .eq("user_id", user.id)
       .maybeSingle(),
     supabase
@@ -115,10 +116,16 @@ export default async function SettingsPage() {
       <section>
         <h2 className="mb-3 text-lg font-medium text-mx-text">AI 분석 모델</h2>
         <p className="mb-3 text-sm text-mx-muted">
-          여기서 고른 모델로, 새 실거래를 열어볼 때 매번 누르지 않아도 자동으로 투자 분석이
-          되어 바로 보여요.
+          매물 상세 화면의 [AI 분석 실행] 버튼과, 아래에서 켠 경우 예약 조회 알림의 자동 분석에 이 모델을 씁니다.
+          <br />
+          상세 화면은 열기만 해서는 분석하지 않습니다(요금은 버튼을 누를 때만).
         </p>
         <ModelPreferenceForm currentModel={(preference?.preferred_model as AnalysisModel) ?? null} />
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-medium text-mx-text">예약 조회 알림의 AI 분석</h2>
+        <AutoAnalyzeForm enabled={preference?.auto_analyze_on_notify ?? true} />
       </section>
 
       <section>
