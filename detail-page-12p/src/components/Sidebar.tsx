@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 
-export type TabType = "input" | "studio" | "history";
+export type TabType = "input" | "studio" | "history" | "guide";
 
 interface SidebarProps {
   currentTab: TabType;
@@ -192,8 +192,27 @@ export function Sidebar({
           </div>
         )}
 
-        {/* 4. 표준 하단 액션: API키등록·플랫폼연동 & 사용 안내 */}
+        {/* 4. 표준 하단 액션: 연동 & 사용 매뉴얼 + API키등록·플랫폼연동 */}
         <div className="border-t border-neutral-200 pt-2.5 space-y-1">
+          {/* 📖 연동 & 사용 매뉴얼 (최상단 지침 7번 이행) */}
+          <button
+            type="button"
+            onClick={() => handleStepClick("guide")}
+            className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all text-left ${
+              currentTab === "guide"
+                ? "bg-blue-50 text-blue-900 border border-blue-200/80 shadow-2xs"
+                : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 border border-transparent"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <BookOpen size={15} className="text-blue-600 shrink-0" />
+              <span>📖 연동 & 사용 매뉴얼</span>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-blue-100 text-blue-700 font-bold">
+              안내
+            </span>
+          </button>
+
           {/* API키등록·플랫폼연동 (정확한 표준 명칭 준수) */}
           <button
             type="button"
@@ -203,25 +222,12 @@ export function Sidebar({
             }}
             className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-all text-left"
           >
-            <KeyRound size={14} className="text-emerald-600" />
+            <KeyRound size={14} className="text-emerald-600 shrink-0" />
             <span className="font-bold">🔑 API키등록·플랫폼연동</span>
-          </button>
-
-          {/* 사용 안내 */}
-          <button
-            type="button"
-            onClick={() => {
-              setMobileOpen(false);
-              onOpenHelp();
-            }}
-            className="w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-all text-left"
-          >
-            <BookOpen size={14} className="text-blue-600" />
-            <span>💡 사용 가이드</span>
           </button>
         </div>
 
-        {/* 5. 계정 이메일·로그아웃 (마지막 메뉴 바로 아래 8~16px 간격으로 바짝 밀착) */}
+        {/* 5. 계정 이메일·로그아웃 (마지막 메뉴 바로 아래 12px 간격으로 바짝 밀착) */}
         <div className="border-t border-neutral-200 pt-2.5 space-y-1 shrink-0">
           <p
             className="truncate px-2 py-1 text-[11px] text-neutral-500 font-mono"
@@ -250,45 +256,51 @@ export function Sidebar({
         {renderNavContent()}
       </aside>
 
-      {/* 모바일: 상단 바 + 펼침 드로어 메뉴 */}
-      <div className="md:hidden sticky top-0 z-40 border-b border-neutral-200 bg-white px-4 py-2.5 flex items-center justify-between shadow-2xs">
+      {/* 모바일 상단 바 */}
+      <header className="md:hidden flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4 shrink-0 sticky top-0 z-40">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white">
             <LayoutTemplate size={14} />
           </div>
-          <div>
-            <span className="text-xs font-bold text-neutral-900">{APP_NAME}</span>
-            <span className="ml-1 text-[10px] text-blue-600 font-mono font-bold">
-              {APP_VERSION}
-            </span>
-          </div>
+          <span className="text-xs font-black text-neutral-900 truncate">
+            {APP_NAME}
+          </span>
+          <span className="text-[10px] font-bold text-blue-600 font-mono">
+            {APP_VERSION}
+          </span>
         </div>
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-1.5 rounded-lg text-neutral-600 hover:bg-neutral-100"
-          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+          className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100"
+          aria-label="메뉴 열기"
         >
-          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-      </div>
+      </header>
 
-      {/* 모바일 펼침 메뉴 모달 */}
+      {/* 모바일 오버레이 드로어 */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex">
-          <div className="w-72 bg-white h-full shadow-xl flex flex-col">
-            <div className="flex justify-end p-2 border-b border-neutral-100">
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-neutral-900/40 backdrop-blur-xs"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="relative flex w-4/5 max-w-xs flex-1 flex-col bg-white pt-2 shadow-2xl">
+            <div className="flex items-center justify-between px-4 pb-2 border-b border-neutral-200">
+              <span className="text-xs font-bold text-neutral-500">메뉴</span>
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg text-neutral-500 hover:bg-neutral-100"
+                className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100"
               >
                 <X size={18} />
               </button>
             </div>
-            {renderNavContent()}
+            <div className="flex-1 overflow-y-auto">
+              {renderNavContent()}
+            </div>
           </div>
-          <div className="flex-1" onClick={() => setMobileOpen(false)} />
         </div>
       )}
     </>

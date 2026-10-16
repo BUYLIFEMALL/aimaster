@@ -77,7 +77,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-16 기준: ✅ 10개 · ⚪ 71개 · ⏸ 2개):
+> **상태 구분** (2026-10-16 기준: ✅ 11개 · ⚪ 70개 · ⏸ 2개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -98,7 +98,7 @@
 | 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
 | 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | ✅ 1차 작업완료 (`v1.09`, 사이버 네온 다크 콘솔 스타일) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
 | 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | **크리에이티브 아틀리에 스타일** (시네마틱 아틀리에) | 다크(시네마틱 차콜 `#0b0f17`) | ✅ 1차 작업완료 (`v1.06`, 크리에이티브 아틀리에 스타일) | [`cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`](cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md) |
-| 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `detail-page-12p/AGENTS.md` |
+| 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | **포커스 스튜디오 스타일** (이커머스 상세페이지) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.04`, 포커스 스튜디오 스타일) | [`detail-page-12p/docs/DESIGN_HANDOFF.md`](detail-page-12p/docs/DESIGN_HANDOFF.md) |
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `prompt-template-studio/AGENTS.md` |
 | 10 | 페르소나 문체 자동화 | `persona-style-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `persona-style-studio/AGENTS.md` |
 | 11 | AI Prompt 자동화 | `ai-prompt-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ai-prompt-studio/AGENTS.md` |
@@ -140,7 +140,7 @@
 | 47 | INSTA 댓글자동화 | `instagram-comment-reply` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `instagram-comment-reply/AGENTS.md` |
 | 48 | 유튜브 댓글자동화 | `youtube-auto-reply` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `youtube-auto-reply/AGENTS.md` |
 | 49 | 롱테일 키워드분석 자동화 | `longtail-keyword-expander` | **스마트 매트릭스 스타일** (기준 구현) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 완료 (`v1.06`) | [`longtail-keyword-expander/docs/DESIGN_HANDOFF.md`](longtail-keyword-expander/docs/DESIGN_HANDOFF.md) |
-| 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | **스마트 매트릭스 스타일** (기준 구현과 같은 뼈대) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.07`, Claude Code 맥미니 2026-10-16) | [`competitor-analysis/docs/DESIGN_HANDOFF.md`](competitor-analysis/docs/DESIGN_HANDOFF.md) |
+| 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | **스마트 매트릭스 스타일** (기준 구현과 같은 뼈대) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟡 작업 중 (`v1.07`, Codex Windows 빌드·배포·Edge 검수) | [`competitor-analysis/docs/DESIGN_HANDOFF.md`](competitor-analysis/docs/DESIGN_HANDOFF.md) |
 | 51 | 예약(취소)방지 리마인드 | `booking-reminder` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `booking-reminder/AGENTS.md` |
 | 52 | 구글폼 CRM 자동화 | `crm-google-form` | 스마트 매트릭스 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `crm-google-form/AGENTS.md` |
 | 53 | 대량 메일발송 자동화 | `stepmail` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `stepmail/AGENTS.md` |

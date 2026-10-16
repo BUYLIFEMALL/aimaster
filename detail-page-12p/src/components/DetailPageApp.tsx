@@ -6,11 +6,12 @@ import { ProductInputForm } from "./ProductInputForm";
 import { DetailStudioView } from "./DetailStudioView";
 import { DetailHistoryView } from "./DetailHistoryView";
 import { ApiKeyModal } from "./ApiKeyModal";
-import { HelpModal } from "./HelpModal";
+import { DetailGuideView } from "./DetailGuideView";
 import { ProductInputData, DetailPageProject, DetailScene } from "@/types/detail";
 
 interface DetailPageAppProps {
   userEmail?: string | null;
+  initialTab?: TabType;
 }
 
 const STORAGE_KEY = "aimaster_detail_12p_projects_v2";
@@ -279,11 +280,35 @@ const DEFAULT_SAMPLE_PROJECT: DetailPageProject = {
   updatedAt: "2026-10-13T00:00:00.000Z",
 };
 
-export function DetailPageApp({ userEmail }: DetailPageAppProps) {
-  const [currentTab, setCurrentTab] = useState<TabType>("input");
+export function DetailPageApp({ userEmail, initialTab }: DetailPageAppProps) {
+  const [currentTab, setCurrentTab] = useState<TabType>(initialTab || "input");
   const [hasKey, setHasKey] = useState(false);
   const [maskedKey, setMaskedKey] = useState<string | null>(null);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+
+  // URL 쿼리 파라미터(?tab=...) 동기화
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab") as TabType;
+      if (tabParam && ["input", "studio", "history", "guide"].includes(tabParam)) {
+        setCurrentTab(tabParam);
+      }
+    }
+  }, []);
+
+  const handleTabChange = (tab: TabType) => {
+    setCurrentTab(tab);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (tab === "input") {
+        url.searchParams.delete("tab");
+      } else {
+        url.searchParams.set("tab", tab);
+      }
+      window.history.replaceState(null, "", url.toString());
+    }
+  };
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [projects, setProjects] = useState<DetailPageProject[]>([DEFAULT_SAMPLE_PROJECT]);
@@ -428,13 +453,13 @@ export function DetailPageApp({ userEmail }: DetailPageAppProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 flex flex-col md:flex-row text-slate-900">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col md:flex-row text-slate-900 font-sans">
       {/* 표준 좌측 사이드바 */}
       <Sidebar
         currentTab={currentTab}
-        setTab={setCurrentTab}
+        setTab={handleTabChange}
         onOpenApiKey={() => setIsApiKeyModalOpen(true)}
-        onOpenHelp={() => setIsHelpModalOpen(true)}
+        onOpenHelp={() => handleTabChange("guide")}
         userEmail={userEmail}
         hasKey={hasKey}
         activeProjectTitle={activeProject?.title}
@@ -457,18 +482,18 @@ export function DetailPageApp({ userEmail }: DetailPageAppProps) {
           <DetailStudioView
             project={activeProject}
             onUpdateProject={handleUpdateActiveProject}
-            onBackToInput={() => setCurrentTab("input")}
+            onBackToInput={() => handleTabChange("input")}
             onOpenApiKey={() => setIsApiKeyModalOpen(true)}
             hasKey={hasKey}
           />
         )}
 
         {currentTab === "studio" && !activeProject && (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200">
+          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-500 mb-3">현재 선택된 상세페이지 프로젝트가 없습니다.</p>
             <button
-              onClick={() => setCurrentTab("input")}
-              className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl"
+              onClick={() => handleTabChange("input")}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-xl shadow-xs"
             >
               새 제품 등록하기
             </button>
@@ -480,14 +505,21 @@ export function DetailPageApp({ userEmail }: DetailPageAppProps) {
             projects={projects}
             onSelectProject={(proj) => {
               setActiveProject(proj);
-              setCurrentTab("studio");
+              handleTabChange("studio");
             }}
             onDeleteProject={handleDeleteProject}
             onImportProjects={(imported) => saveProjectsToStorage(imported)}
             onNewProject={() => {
               setActiveProject(null);
-              setCurrentTab("input");
+              handleTabChange("input");
             }}
+          />
+        )}
+
+        {currentTab === "guide" && (
+          <DetailGuideView
+            onStartNew={() => handleTabChange("input")}
+            onOpenApiKey={() => setIsApiKeyModalOpen(true)}
           />
         )}
       </main>
@@ -498,12 +530,6 @@ export function DetailPageApp({ userEmail }: DetailPageAppProps) {
         onClose={() => setIsApiKeyModalOpen(false)}
         maskedKey={maskedKey}
         onSaveKey={handleSaveApiKey}
-      />
-
-      {/* 사용 가이드 모달 */}
-      <HelpModal
-        isOpen={isHelpModalOpen}
-        onClose={() => setIsHelpModalOpen(false)}
       />
     </div>
   );

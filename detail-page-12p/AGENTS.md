@@ -1,7 +1,7 @@
 # AI 12단 상세페이지 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI 12단 상세페이지 자동화 (`detail-page-12p`)  
-> **현재 버전**: `v1.01` (2026-10-13 런칭)  
+> **현재 버전**: `v1.04` (2026-10-16 갱신)  
 > **공식 도메인**: `https://detail-12p.buylife.xyz`  
 > **카탈로그 슬러그**: `detail-page-12p`  
 > **배지**: `['free', 'new']` (가입 회원 누구나 이용 가능)
@@ -93,3 +93,12 @@ detail-page-12p/
 ## 2026-10-16 DB 연동 변수 호환 — v1.03 (detail-page-12p)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 포커스 스튜디오 디자인 리뉴얼 & 비주얼 가이드 신설 — v1.04 (완료)
+- **적용 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 이커머스 상세페이지 스튜디오)**
+- **단일 배경색 준수**: 전체 페이지(`tab=input`, `tab=studio`, `tab=history`, `tab=guide`/`/guide`) 동일한 `#f8fafc` 배경색 일체화.
+- **개발 플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md)
+- **개선사항 목록**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
+- **개선사항 인수인계**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md)
+- **디자인 완료 인수인계**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
+- **검수**: Microsoft Edge 전용 (`msedge.exe`) 실세션 테스트 계정(`buylifemall@naver.com`) 검증 완료 (데스크톱 6종 및 모바일 2종 캡처 확인).
