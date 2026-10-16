@@ -130,7 +130,7 @@
 | 25 | AI 웹툰 자동화 | `ai-webtoon-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `ai-webtoon-studio/AGENTS.md` |
 | 26 | 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-allinone/AGENTS.md` |
 | 27 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 작업 예정 | `youtube-channel-consultant/AGENTS.md` |
-| 28 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 스마트 매트릭스 스타일 (권장) | 다크(슬레이트) | ⚪ 작업 예정 | `youtube-viral-studio/AGENTS.md` |
+| 28 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | **유튜브 다크 콘솔 스타일 — 스튜디오 변형** (+ 스마트 매트릭스 구성, 권장안) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | 🔵 작업 중 (Claude Code 맥미니 2026-10-17, 플랜 승인 대기) | [`youtube-viral-studio/docs/PLAN_20261017_DESIGN_RENEWAL.md`](youtube-viral-studio/docs/PLAN_20261017_DESIGN_RENEWAL.md) |
 | 29 | 네이버 블로그 에이전트 | `naver-blog-agent` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-agent/AGENTS.md` |
 | 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | **스레드 바이럴 스튜디오 스타일** | 라이트(화이트/앰버) | ✅ 1차 완료 (`v1.97`) | [`threads-content-ops/docs/DESIGN_HANDOFF.md`](threads-content-ops/docs/DESIGN_HANDOFF.md) |
 | 31 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shorts-viral-studio/AGENTS.md` |
