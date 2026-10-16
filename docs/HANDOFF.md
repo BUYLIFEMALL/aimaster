@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — INSTA 3개 앱 ID 형식 검사·시험 계정 연결 성공
+
+- 시험 계정 "Invalid platform app" 원인: Instagram 앱 ID를 다시 저장하며 끝자리 1 누락(15자리) → 주인님 재입력 후 시험 계정 INSTA DM·댓글 새 주소 연결 성공(DB 갱신 확인).
+- 재발 방지: `instagram-dm-reply` v1.12(`79ebe9eb`)·`instagram-comment-reply` v1.13(`d9011bdb`)·`insta_auto_poster` v1.16(`aa31ad7a`) — 앱 ID 숫자 15~16자리·시크릿 32자 아니면 저장 거부. DM 화면에서 "12345" 저장 시도 → 오류·기존 값 유지 확인. 안내 상자 가독성 DM v1.11·댓글 v1.12. 점검 순서는 ERROR_LESSONS 2026-10-17.
+
 ## 2026-10-17 Claude Code(맥미니) — 유튜브 댓글자동화 v1.09: 유튜브 다크 콘솔 — 스튜디오 댓글 콘솔 변형 (🟠 윈도우 마무리 요청)
 
 - **대상**: `youtube-auto-reply/` (https://youtube-auto-reply.buylife.xyz). 플랜 → 주인님 「다크로 진행해줘 유튜브 느낌을 잘 살려봐」 승인 후 구현.

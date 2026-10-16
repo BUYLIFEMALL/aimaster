@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — Meta OAuth "차단된 URL"·"Invalid platform app" 점검 순서 (INSTA 3개·쓰레드 3개, Claude Code 윈도우)
+- **증상 1**: [새 주소로 연결] → Facebook/Threads "차단된 URL: 리디렉션 URI가 화이트리스트에 없음". **원인**: 회원 Meta 앱의 리디렉션 목록에 새 주소가 저장 안 됨(입력 후 [변경 내용 저장] 누락). **확인**: 비즈니스용 Facebook 로그인 › 설정 맨 위 "URI 리디렉션 유효성 검사기" / Threads API 액세스 › 설정 › 리디렉션 콜백 URL 칩 목록.
+- **증상 2**: Instagram "Invalid platform app". **원인**: `meta_app_id`에 Facebook 앱 ID가 들어갔거나, 다시 저장하며 **끝자리가 빠짐**(16→15자리). 마스킹 표시(앞6·뒤4)만 보고 정상으로 판단하지 말 것 — 값이 바뀌면 뒤 4자리도 바뀐다. **해결**: INSTA 3개 `saveApiKeyAction`에 형식 검사(앱 ID 숫자 15~16자리·시크릿 32자, v1.12/1.13/1.16).
+- **진단 팁**: 서버가 만드는 인증 주소는 페이지에서 `navigation.addEventListener('navigate', e => …e.preventDefault())`로 이동 직전에 잡아 client_id 길이·앞뒤 자리·redirect_uri·scope를 비교. 올바른 값으로 authorize 주소를 직접 열어 동의 화면이 뜨면 코드·Meta 설정은 정상.
+- **주의**: 크롬 공유 로그인 계정이 바뀌어 있을 수 있음(관리자↔시험 계정) — DB 대조 전에 화면 사이드바 이메일부터 확인. 크롬 확장 화면 캡처는 한 박자 늦을 수 있어 `find`/`get_page_text`로 재확인.
+
 ## 2026-10-16 — SPA 메뉴 클릭 후 이전 화면 제목으로 검수가 통과하는 문제 (competitor-analysis v1.07)
 
 - 증상 → /guide 클릭 직후 첫 heading을 기다리니 이전 /settings 제목으로 통과, 설정 화면이 매뉴얼 캡처로 저장됨. 원인 → Next.js 클라이언트 화면 전환보다 일반 heading 대기가 먼저 끝났고 두 화면에 같은 API 용어가 있었음. 해결 → competitor-analysis/tests/runtime.mjs에서 목표 URL+고유 h1 대기·FAQ 실제 열기/닫기·캡처 전 맨 위 이동. 로컬/운영 재검수·캡처 교체 완료, 주소/제목 증거 guide-captures.json. 다음 → 클릭만으로 목표 화면 진입을 확정하지 말고 캡처도 눈으로 대조, sticky 메뉴 fullPage 캡처는 scrollY=0부터. 제품 라우트를 불필요하게 수정하지 않음.
