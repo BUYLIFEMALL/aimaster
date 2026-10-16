@@ -3,6 +3,7 @@
 > **★★★ Antigravity(Gemini) 개발·검수 브라우저 지정 — Microsoft Edge(엣지) 전용 사용 (2026-10-16 주인님 지시)**
 > **Antigravity는 앞으로 프로그램 개발, 디버깅, 화면 확인, 실제 회원 테스트 등 모든 작업 시 Microsoft Edge 브라우저만 전용으로 사용한다.**
 > Chrome은 메인 Claude Code 전용이므로 충돌 방지를 위해 사용하지 않는다. 화면 확인이 필요할 때는 보이는 실제 Edge 창을 띄워 주인님과 함께 확인한다.
+> **두 PC 멀티 작업(2026-10-16)**: 윈도우 PC와 맥미니 모두 Antigravity·Codex·Claude Code가 등록돼 동시에 작업할 수 있다. 맥미니에서 실행 중이면 [`docs/MAC_MINI_WORK_GUIDE.md`](docs/MAC_MINI_WORK_GUIDE.md)를 먼저 읽고, 브라우저는 그 장비의 엣지만 쓴다(크롬은 Claude Code 전용). 규칙 원문: `CLAUDE.md` 원칙 18.
 
 Gemini CLI(Antigravity)가 이 저장소(AIMaster)에서 작업할 때 읽는 안내 파일이다. 규칙은 다른 CLI와 똑같다 — 새로 만들지 않고 아래 문서를 그대로 따른다.
 

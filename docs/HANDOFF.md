@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — 두 PC(윈도우·맥미니) × 3 에이전트 멀티 작업 구성 지침
+
+- 주인님 지시: 맥미니(보조 PC)에도 Antigravity CLI·Codex·Claude Code를 등록해 필요 시 멀티 작업, 윈도우 PC에도 같은 세 에이전트가 등록돼 멀티로 작업.
+- 반영: `CLAUDE.md` 원칙 18·`AGENTS.md` 원칙 17에 「두 PC 멀티 에이전트 구성」(폴더 분담·장비별 브라우저·공유 인덱스·맥미니 실행 금지·HANDOFF 제목에 장비/에이전트), `GEMINI.md` 최상단 한 줄, `MAC_MINI_WORK_GUIDE.md` 적용 대상을 모든 에이전트로 + §1-1 구성표·맥미니 등록 점검표(맥 `git config --global core.autocrlf input` 포함).
+- 남은 확인(주인님): 맥미니에 엣지 설치 여부, 맥미니 세 에이전트 로그인·상태바 점검표 실행.
+
 ## 2026-10-16 Claude Code(메인 계정·윈도우) — Claude 계정은 `buylifemall@gmail.com` 하나만 사용 (지침 정리)
 
 - 주인님 지시: Claude 계정 2개를 쓰던 것을 메인 `buylifemall@gmail.com` 하나로. 보조 계정 사용 중단은 맥미니 커밋 `c5b835d3`·`50c7b7e6`에서 먼저 반영됐고, 이번에 남아 있던 문구를 정리.

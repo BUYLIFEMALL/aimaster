@@ -1,6 +1,6 @@
 # 맥미니 원격 작업 지침 (MAC_MINI_WORK_GUIDE.md)
 
-> **적용 대상: 맥미니에서 이 저장소를 네트워크 공유(SMB)로 열어 작업하는 Claude Code 세션만.**
+> **적용 대상: 맥미니에서 이 저장소를 네트워크 공유(SMB)로 열어 작업하는 모든 에이전트 세션(Antigravity CLI·Codex·Claude Code). (2026-10-16 개정)**
 > 윈도우 PC의 메인 Claude Code·Codex·Gemini 지침(`CLAUDE.md`, `AGENTS.md`)은 이 문서 때문에 바뀌지 않는다. 메인 지침과 충돌하면 메인 지침(`CLAUDE.md`)이 우선하되, 아래 "실행 금지"와 "경로 해석"은 맥미니에서 항상 추가로 지킨다.
 > 만든 날: 2026-10-15 (맥미니에서 `mount`로 실측)
 
@@ -8,10 +8,34 @@
 - 장비: 맥미니(macOS). 작업 폴더 `/Volumes/gt1_mega/Antigravity/AIMaster` = 윈도우 PC의 `D:\Antigravity\AIMaster`.
 - Claude 계정(2026-10-16 개정): **`buylifemall@gmail.com` 하나만 쓴다.** 보조 계정 `buylifemall1@gmail.com`(`~/.claude-account2`)은 사용 중단(원칙 18번).
 - 에이전트 구성(2026-10-16 주인님 지시): 맥미니에는 필요할 때 **Antigravity CLI(`agy`)·Codex·Claude Code** 계정을 등록해 두고, 일이 많을 때 윈도우 PC와 **분담해서 작업**한다. 분담 폴더는 주인님이 지정하며, 에이전트마다 맡은 폴더만 건드리고 끝나면 인수인계 문서를 남기는 아래 규칙을 모든 에이전트가 똑같이 따른다(Claude만 해당하던 표현은 에이전트 전체로 읽는다).
-- 브라우저(2026-10-15 주인님 지시): **맥미니에서 실행되는 이 세션의 크롬 작업은 항상 이 맥미니에 있는 크롬으로 한다.** 메인 `CLAUDE.md` 원칙 18번의 "보조 계정은 엣지"는 윈도우 PC 기준이며 맥미니 세션에는 적용하지 않는다.
+- 브라우저(2026-10-15 주인님 지시): **맥미니에서 실행되는 이 세션의 크롬 작업은 항상 이 맥미니에 있는 크롬으로 한다.** (2026-10-16 개정) 에이전트별 브라우저는 윈도우와 같은 규칙이다 — **Claude Code=맥미니 크롬, Antigravity·Codex=맥미니 엣지**(§1-1).
   - `list_connected_browsers`에서 `osPlatform`이 macOS이고 `isLocal: true`인 항목이 맥미니 크롬이다(2026-10-15 실측: "Browser 1", deviceId `6d2d44cb-e050-43a5-9c78-eb3dd1d06bb0`). deviceId는 바뀔 수 있으니 매번 이 조건으로 확인한다.
   - Windows로 표시되는 브라우저(다른 PC의 크롬·엣지)는 선택하지 않는다. 선택 질문이 필요한 경우에도 macOS·isLocal 항목을 권장으로 안내한다.
   - 사이트 로그인은 이 크롬에서 주인님이 직접 해 둔 상태를 쓴다. 비밀번호·키 입력과 최종 발행·결제는 하지 않는다(원칙 13번).
+
+## 1-1. 두 PC 멀티 에이전트 구성 (2026-10-16 주인님 지시)
+
+윈도우 PC와 맥미니 모두 세 에이전트를 등록해 두고 필요할 때 동시에 쓴다. 최대 6개 세션이 **같은 저장소·같은 Git 인덱스**를 쓴다(원칙 18 「두 PC 멀티 에이전트 구성」).
+
+| 장비 | 에이전트 | 브라우저 | 실행 단계(`npm`·빌드·배포) |
+|---|---|---|---|
+| 윈도우 PC(메인) | Claude Code (`buylifemall@gmail.com`) | 윈도우 **크롬** 기본 프로필 | 한다 |
+| 윈도우 PC(메인) | Antigravity CLI(`agy`) · Codex | 윈도우 **엣지** | 한다 |
+| 맥미니(보조 PC) | Claude Code (`buylifemall@gmail.com`) | 맥미니 **크롬** | 하지 않음 → 윈도우에 요청 |
+| 맥미니(보조 PC) | Antigravity CLI(`agy`) · Codex | 맥미니 **엣지**(없으면 주인님께 설치 요청) | 하지 않음 → 윈도우에 요청 |
+
+- **폴더 분담**: 주인님이 에이전트마다 폴더를 지정한다. 같은 폴더를 두 에이전트(장비가 달라도)가 동시에 맡지 않는다. 시작 전에 `docs/HANDOFF.md` 맨 위 항목과 `git status`로 다른 에이전트의 미커밋 변경을 확인한다.
+- **브라우저 선택**: `list_connected_browsers`에서 `osPlatform`이 자기 장비(macOS/Windows)인 항목 중 자기 에이전트에 정해진 브라우저만 고른다. 다른 장비의 브라우저는 보이더라도 고르지 않는다.
+- **Git**: 인덱스(스테이징)는 두 장비의 모든 에이전트가 공유한다. `git add`는 커밋 직전에 내 파일만 경로를 지정하고 바로 커밋한다. `.git/index.lock`이 있으면 지우지 말고 잠시 뒤 다시 한다. 푸시가 거절되면 원격을 받아 합치되 다른 에이전트의 미커밋 변경은 건드리지 않는다.
+- **사용 한도**: Claude는 두 장비 모두 같은 계정이라 5시간·주간 한도를 함께 쓴다. 무거운 작업을 동시에 몰지 않는다.
+
+### 맥미니 등록 점검표 (처음 한 번, 장비 바뀌면 다시)
+1. `ls /Volumes`로 `gt1_mega` 마운트 확인(§5-1).
+2. Claude Code: `buylifemall@gmail.com`으로 로그인, 하단 상태바 장치 확인(`docs/CLAUDE_STATUSBAR.md` 5절).
+3. Codex: 주인님 계정 로그인, 상태바 실행기 확인(`docs/CODEX_STATUSBAR_STARTUP.md`의 macOS 항목).
+4. Antigravity CLI(`agy`): 주인님 계정 로그인, 시작 시 루트 `GEMINI.md`를 읽는지 확인.
+5. Git 전역 설정: `git config --global user.name BUYLIFE`, `git config --global user.email buylifemall@gmail.com`, **`git config --global core.autocrlf input`**(윈도우는 시스템 설정으로 `true`라 맥에는 자동 적용되지 않는다 — 맥에서 CRLF가 섞여 커밋되는 것 방지). `core.filemode=false`는 저장소 설정이라 이미 공유된다.
+6. 브라우저: 맥미니 크롬(Claude Code용)·엣지(agy·Codex용)를 켜 두고, 검수에 필요한 사이트는 주인님이 직접 로그인해 둔다.
 
 ## 2. 하는 일 / 안 하는 일 (2026-10-15 주인님 지시로 개정)
 작업 방식은 메인 PC와 같다: 에이전트마다 **주인님이 지정한 프로젝트 폴더**를 맡아 작업하고, 끝나면 인수인계 문서를 남기며, 다음 CLI는 그 문서를 먼저 읽고 이어간다.
