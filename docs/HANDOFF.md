@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — INSTA 댓글 v1.11·DM v1.10 "등록할 주소 한눈에 보기 + 복사 버튼"
+
+- 커밋 `c4dbda00`(instagram-comment-reply v1.11)·`e7bea5c9`(instagram-dm-reply v1.10), 배포·DB 버전·VIP 확인. 공통 카드 `components/settings/InstagramMetaAddressSummary.tsx`(앱 도메인 / Instagram 로그인 API 설정 › 4. 비즈니스 로그인 설정 리디렉션 URI 새·옛 / (DM) 웹훅 콜백 URL / Instagram 앱 ID 위치 / 테스터 추가·초대 수락) + 콜백 주소 `CopyAddress`. 이로써 INSTA 3개·쓰레드 3개 모두 같은 카드.
+- 미완료: 시험 계정 `meta_app_id/secret`을 관리자 계정의 정상 값(Instagram 앱 ID)으로 복사하라는 주인님 요청 — DB 키 조회가 자동 보안 검사(Credential Exploration)에서 차단돼 진행 못 함. 주인님 직접 입력 또는 권한 허용 필요.
+- 링크: https://instagram-comment-reply.buylife.xyz/settings · https://instagram-dm-reply.buylife.xyz/settings
+
 ## 2026-10-17 Codex(Windows) — real_estate_sales v1.11 Windows 사전 검수 완료·운영 배포 진행
 
 - 맥미니11943ac8·블랙 확정e2c300c2 인수. Next 보안16.4.2 보완 후 타입/빌드·키 검사2종 통과, 운영 의존성audit0·개발5high 별도. 실제 회원 Edge 로컬9개·실제 목록/상세 합성9개 통과. 유료 호출0, 실제 상세GET/미리읽기/쓰기는 검사기차단.
