@@ -28,7 +28,7 @@
 | 11 | ✅ threads-easy-planner | `threads-easy-planner` | threads-easy-planner | |
 | 12 | ✅ real-estate-sales | `real_estate_sales` | real-estate-sales | |
 | 13 | ✅ music-automation | `music` | music | |
-| 14 | booking-reminder | `booking-reminder` | booking-reminder | 문자 발송 링크 확인 |
+| 14 | ✅ booking-reminder | `booking-reminder` | booking-reminder | 문자 발송 링크 확인 |
 | 15 | crm-google-form | `crm-google-form` | crm-google-form | 구글폼 연동 주소 확인 |
 | 16 | web-crawler-saas | `web-crawler/webapp` | web-crawler-saas | |
 | 17 | ai-auto-blog | `ai-auto-blog` | ai-auto-blog | **크롬 확장** |
@@ -83,5 +83,5 @@
 | 그룹 | 완료 | 남음 |
 |---|---|---|
 | 0단계 점검 | threads-content-ops.buylife.xyz 메인 로그인 유지 확인 | — |
-| A그룹 | 13/19 | 6 |
+| A그룹 | 14/19 | 5 |
 | B그룹 | 0/8 | 8 |
