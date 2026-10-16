@@ -2112,3 +2112,5 @@
 - 다음부터 확인: 메인을 건드리는 다른 CLI도 문서 푸시의 자동 배포가 최신 운영 별칭을 바꿀 수 있음을 확인합니다. 최종 Git 푸시·자동 빌드가 끝난 다음 기존 설치 파일을 포함해 메인을 수동 배포하고 해당 다운로드 HTTP 200을 확인합니다. 설치 파일을 임의로 Git에 넣거나 삭제하지 않습니다.
 
 - **2026-10-16 threads-affiliate-poster v1.54 (Claude Code 윈도우)**: 도메인 통일 때 넣은 "옛 *.vercel.app → <slug>.buylife.xyz" 이동(미들웨어/proxy 308·콜백 307)이 **독립 배포본(clone-kit, `NEXT_PUBLIC_STANDALONE_MODE=true`)에도 걸려** 남의 서버에서 돌던 복제본이 우리 사이트로 넘어가는 문제 → 이동 조건에 독립 배포 여부 추가. **다음부터 확인**: 독립 배포 모드가 있는 프로그램(`deployment.ts`/`IS_STANDALONE`)은 호스트 기반 이동·고정 주소를 넣기 전에 독립 배포 분기를 먼저 확인. 같은 작업에서 `vercel env pull`로 받은 민감 변수(CRON_SECRET)는 실제 값이 아니어서 401 → 일회성 운영 작업은 관리자 로그인 인증 경로로 실행(`/api/telegram/migrate-webhooks`).
+
+- **2026-10-16 insta_auto_poster v1.12 (Claude Code 윈도우)**: 임시 인덱스로 "내 변경만" 커밋할 때 변경 목록을 `git diff --name-only`(작업 폴더 대 **공유 인덱스**)로 뽑았더니, 다른 CLI가 공유 인덱스에 내 파일을 먼저 올려 둔 순간 목록에서 빠져 **화면·버전 파일 없이 커밋**됨(같은 시점 배포도 이전 화면으로 보임 → 재배포로 해결). **다음부터 확인**: 변경 목록은 `git diff --name-only origin/master -- <폴더>`(원격 기준)로 뽑고, 커밋 뒤 `git show --stat HEAD`로 기대한 파일이 다 들어갔는지 확인, 배포 후 화면의 버전 표시로 실제 반영을 확인.
