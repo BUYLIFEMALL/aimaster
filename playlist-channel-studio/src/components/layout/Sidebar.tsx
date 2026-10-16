@@ -15,10 +15,10 @@ const FLOW_STEPS = [
   { step: 1, href: "/studio", label: "새 플레이리스트", description: "장르 → 제목 → Suno·가사·설명·썸네일", icon: ListMusic },
   { step: 2, href: "/projects", label: "내 프로젝트", description: "만든 플레이리스트 다시 보기·삭제", icon: FolderOpen },
 ];
-// 표준 메뉴명: API키등록·플랫폼연동 (docs/PLATFORM_PATTERNS 표준)
+// 표준 메뉴명: 📖 연동 & 사용 매뉴얼 (최상단 메인 지침 표준)
 const UTILITY_ITEMS = [
-  { href: "/settings", label: "API키등록·플랫폼연동", icon: KeyRound },
-  { href: "/guide", label: "사용 안내", icon: BookOpen },
+  { href: "/guide", label: "📖 연동 & 사용 매뉴얼", icon: BookOpen },
+  { href: "/settings", label: "🔑 API키등록·플랫폼연동", icon: KeyRound },
 ];
 
 function Brand({ onNavigate }: { onNavigate?: () => void }) {
@@ -73,17 +73,23 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
       </div>
 
       {/* 구분선 아래: 연동/유틸리티 */}
-      <div className="mt-1 border-t border-neutral-200 pt-3 space-y-1">
-        {UTILITY_ITEMS.map(({ href, label, icon: Icon }) => (
+      <div className="mt-2 border-t border-neutral-200 pt-3 space-y-1">
+        {UTILITY_ITEMS.map(({ href, label, icon: Icon }, idx) => (
           <Link
             key={href}
             href={href}
             onClick={onNavigate}
             className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
-              isActive(href) ? "bg-indigo-50 text-indigo-700 font-bold" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+              isActive(href)
+                ? idx === 0
+                  ? "bg-cyan-50 text-cyan-800 font-bold border border-cyan-200/80 shadow-xs"
+                  : "bg-indigo-50 text-indigo-700 font-bold"
+                : idx === 0
+                ? "text-cyan-900 bg-cyan-50/50 hover:bg-cyan-100/70 border border-cyan-100 font-semibold"
+                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
             }`}
           >
-            <Icon size={16} />
+            <Icon size={16} className={idx === 0 ? "text-cyan-600" : ""} />
             <span>{label}</span>
           </Link>
         ))}

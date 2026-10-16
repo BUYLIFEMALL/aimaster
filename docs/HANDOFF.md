@@ -1,5 +1,40 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Antigravity(Windows) — 플레이리스트 채널 제작 자동화 v1.08: 사이버 네온 다크 콘솔 스타일 디자인 리뉴얼 및 비주얼 가이드북(/guide) 전면 신설 완료
+
+- **대상 프로그램**: `playlist-channel-studio/` (slug: `playlist-channel-studio`, 공식 라이브: `https://playlist-maker.buylife.xyz/`, 배포 버전: `v1.08`)
+- **작업 내용**:
+  1. **사이버 네온 다크 콘솔 스타일(Cyber Neon Dark Console Style) 디자인 시스템 전면 적용**:
+     - 퓨어 딥 블랙(`#060911`, `#0d111a`)과 일렉트릭 네온 사이언(`#06b6d4`, `#22d3ee`), 바이올렛 글로우를 조합한 하이테크 미디어 스튜디오 무드 구축.
+  2. **사용 매뉴얼(`/guide`) 비주얼 가이드북 전면 신설 (메인 지침 제7항 이행)**:
+     - 상단 사이버 네온 다크 콘솔 펄스 뱃지 및 미래지향적 헤더 배너.
+     - **5단계 플레이리스트 제작 파이프라인 인포그래픽**: 컨셉/장르 기획 ➔ 제목·가사 AI 생성 ➔ Suno 프롬프트 연동 ➔ 썸네일 합성 ➔ 유튜브 원클릭 업로드.
+     - **필수 AI API 키 연동 안내 카드**: 최상위 절대 불변 규칙 준수 안내, OpenAI / Google Gemini / Anthropic Claude / Groq 개인 키 발급 링크 및 즉시 등록 모달 연결.
+     - **23종 추천 장르 맵 및 최적 BPM/보컬 스타일 프리셋 인터랙티브 탭**: K-Pop, Lo-Fi, 카페 재즈, 시티팝, 앰비언트 등 6대 카테고리 23종 추천 맵.
+     - **유튜브 알고리즘 떡상 노하우 3대 공식**: 썸네일 시선 강탈(고대비 인물+네온 타이틀), 고정댓글 타임스탬프, SEO 롱테일 키워드 태그.
+     - **초보자 맞춤 FAQ 아코디언 4종**: 상업적 수익 창출, Suno 음원 라이선스, 최적 트랙 길이(1~2시간), 생성 실패 시 대처법.
+  3. **사이드바 레이아웃 표준화 (`src/components/layout/Sidebar.tsx`)**:
+     - 상단 유틸리티 메뉴 최상단에 `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 탑재 (네온 사이언 하이라이트 배지 적용).
+     - 계정 블록(`buylifemall@naver.com`) 및 로그아웃 버튼 12px 간격 표준 밀착 배치.
+  4. **프로덕션 도메인 정식 등록 및 Supabase DB 동기화**:
+     - Vercel 프로덕션 도메인 `playlist-maker.buylife.xyz` 정식 등록 및 SSL/Alias 매핑 완료.
+     - Supabase 공유 DB `programs.app_url = 'https://playlist-maker.buylife.xyz'`, `programs.version = 'v1.08'` 동기화 완료.
+     - `src/lib/version.ts`: `v1.08`, `package.json`: `1.0.8`.
+  5. **빌드, 배포 및 Edge 검수**:
+     - Turbopack 로컬 빌드 성공 (에러 0건).
+     - Vercel 프로덕션 배포 완료 (`dpl_GQR49iNhwE5NBz5Y9GbP5WWhej2j`, `https://playlist-maker.buylife.xyz`).
+     - Microsoft Edge 전용 실세션 브라우저 검수 완료:
+       - 데스크톱(1440px): `edge_playlist_guide_desktop_v108.png`, `edge_playlist_guide_pipeline_v108.png`, `edge_playlist_guide_genres_v108.png`, `edge_playlist_studio_desktop_v108.png`
+       - 모바일(380px): `edge_playlist_guide_mobile_v108.png`
+- **산출물**:
+  - `playlist-channel-studio/docs/PLAN_20261016_DESIGN_RENEWAL.md` (사전 분석 및 리뉴얼 플랜)
+  - `playlist-channel-studio/docs/DESIGN_HANDOFF.md` (공식 사이버 네온 다크 콘솔 스타일 보고서)
+  - `playlist-channel-studio/docs/IMPROVEMENTS.md` (개선사항 관리 대장 신설)
+  - `playlist-channel-studio/docs/IMPROVEMENT_HANDOFF_20261016.md` (인수인계서)
+  - `playlist-channel-studio/AGENTS.md` (v1.08 반영)
+  - `DESIGN.md` (6번 프로그램 v1.08 및 DESIGN_HANDOFF.md 링크 갱신, 완료 10개)
+  - `docs/ACTIVE_WORK.md` (작업 행 삭제 완료)
+
 ## 2026-10-16 Claude Code(윈도우) — 옛 vercel.app 삭제 대비 두 주소 지원: 1/15 threads-comment-reply v1.08
 
 - 플랜 `docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(콜백·연결 후 이동·텔레그램 웹훅·확장·구글폼 전수). 기준 구현 완료: 콜백 두 주소(기본 옛·[새 주소로 연결]), via=old 판정, 텔레그램 웹훅 새 주소 + 일괄 이전 경로(관리자 로그인으로 실행, 미실행). 다음: youtube-auto-reply. 상세: `threads-comment-reply/AGENTS.md` v1.08.

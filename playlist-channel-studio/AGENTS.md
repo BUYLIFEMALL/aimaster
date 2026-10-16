@@ -6,8 +6,8 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.06** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
-| 라이브 | https://playlist-channel-studio.buylife.xyz (옛 `*.vercel.app` 유지) |
+| 현재 버전 | **v1.08** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
 | 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase(DB+Storage) · `@google/genai` · `sharp` |
@@ -77,3 +77,16 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 ## 2026-10-16 DB 연동 변수 호환 — v1.07 (playlist-channel-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 사이버 네온 다크 콘솔 디자인 리뉴얼 & 비주얼 가이드 신설 — v1.08 (playlist-channel-studio)
+- **스타일 템플릿**: 사이버 네온 다크 콘솔 스타일 (`Cyber Neon Dark Console Style`)
+- **라이브 도메인**: `https://playlist-maker.buylife.xyz/` (Vercel 공식 프로덕션 도메인 연결 완료)
+- **사이드바 개선**: 유틸리티 최상단에 `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 탑재 (사이언 네온 하이라이트 배지 적용), 하단 계정 블록 12px 밀착 정렬.
+- **가이드북(`/guide`) 전면 신설**:
+  - 5단계 스튜디오 파이프라인 비주얼 인포그래픽 (장르 기획 → 제목/가사 AI 생성 → Suno 프롬프트 연동 → 썸네일 합성 → 원클릭 유튜브 업로드)
+  - 필수 AI API 키 연동 안내 카드 (OpenAI, Gemini, Claude, Groq 등 본인 키 등록)
+  - 23종 추천 장르 맵 및 최적 BPM/보컬 스타일 프리셋 인터랙티브 탭 (K-Pop, Lo-Fi, 재즈, 시티팝 등)
+  - 유튜브 알고리즘 떡상 노하우 카드 (썸네일/타이틀 A/B 테스팅, 태그 최적화, 챕터 타임스탬프)
+  - 초보자 맞춤 FAQ 4종 (상업적 이용, 저작권, 음원 길이, 에러 대처)
+- **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 데스크톱(1440px) 및 모바일(380px) 전면 검수 완료.
+- **인수인계 문서**: `docs/PLAN_20261016_DESIGN_RENEWAL.md`, `docs/DESIGN_HANDOFF.md`, `docs/IMPROVEMENTS.md`, `docs/IMPROVEMENT_HANDOFF_20261016.md` 작성.

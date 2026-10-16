@@ -42,6 +42,10 @@
 10. **작업 완료 시 결과·추가개선 항목별 정리, 프로그램 링크 제공 및 프로그램별 인수인계 문서 작성 의무 (2026-10-16 주인님 지시)**:
     - 작업이 완료되면 항상 주인님께 결과 보고 시 **① 작업한 내용**과 **② 추가 개선 제안 내용**을 항목별로 체계적으로 정리하여 보고하고, **③ 작업 프로그램의 실제 서비스 배포 링크(URL)**를 반드시 남깁니다.
     - 또한 각각의 항목에 대한 상세 내용을 **해당 프로그램별 서브폴더 안에 인수인계 문서(`<프로그램>/docs/DESIGN_HANDOFF.md`, `<프로그램>/docs/IMPROVEMENTS.md`, `<프로그램>/docs/IMPROVEMENT_HANDOFF_YYYYMMDD.md`)로 반드시 남겨** 다른 CLI가 언제든 이어받을 수 있도록 체계화합니다.
+11. **프로젝트 제안 및 보고 시 클릭 가능한 정확한 링크 제공 의무 (2026-10-16 주인님 지시)**:
+    - 앞으로 어떤 프로그램이든 다음 작업 대상을 제안하거나 결과 보고를 할 때는, 사용자가 클릭했을 때 즉각 브라우저에서 열릴 수 있도록 **Supabase 공유 DB(`programs.app_url`) 및 Vercel에 정식 연결된 실제 공식 도메인 URL을 반드시 사전 확인한 후 링크를 제공**합니다.
+    - 표(Table) 내부에서 `<br>` 태그로 텍스트와 링크를 함께 넣어 주소와 설명이 한 줄로 찌그러지거나 링크가 깨지는 현상을 엄격히 금지하며, **단독 줄의 명확한 마크다운 하이퍼링크(`[URL](URL)`) 또는 독립 카드형 불릿 레이아웃**으로 작성하여 클릭 한 번으로 새 창에서 안정적으로 접속할 수 있도록 합니다.
+    - 새로운 도메인이 지정되거나 도메인 변경 요청이 있을 경우, Vercel Alias 및 SSL 인증서를 즉시 발급·연결하고 DB `programs.app_url`과 인수인계 문서를 동시에 갱신합니다.
 
 ---
 
@@ -69,7 +73,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-16 기준: ✅ 9개 · ⚪ 72개 · ⏸ 2개):
+> **상태 구분** (2026-10-16 기준: ✅ 10개 · ⚪ 71개 · ⏸ 2개):
 > - ✅ **1차 완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -88,7 +92,7 @@
 | 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 완료 (`v1.12`) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
 | 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 완료 (`v1.05`) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
 | 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 완료 (`v1.04`) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
-| 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `playlist-channel-studio/AGENTS.md` |
+| 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 완료 (`v1.08`) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
 | 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `cinematic-storyboard-studio/AGENTS.md` |
 | 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `detail-page-12p/AGENTS.md` |
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `prompt-template-studio/AGENTS.md` |
@@ -156,7 +160,7 @@
 | 71 | AI 슬라이드 자동화 | `ai-slide-builder` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ai-slide-builder/AGENTS.md` |
 | 72 | AI 웹 UI 제작 자동화 | `ai-web-ui` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `react-ui-showcase/AGENTS.md` |
 | 73 | AI 리버스 프롬프트 자동화 | `reverse-prompt` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `reverse-prompt/AGENTS.md` |
-| 74 | AI 블로그 키워드 자동화 | `blog-keyword` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `blog-keyword/AGENTS.md` |
+| 74 | AI 블로그 키워드 자동화 | `blog-keyword` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | 🔵 작업 중 (Claude Code(맥미니), 2026-10-16) | `blog-keyword/AGENTS.md` |
 | 75 | AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `blog-content-maker/AGENTS.md` |
 | 76 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `thumbnail-master/AGENTS.md` |
 | 77 | AI 마스터링 스튜디오 | `ai-mastering-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `ai-mastering-studio/AGENTS.md` |
