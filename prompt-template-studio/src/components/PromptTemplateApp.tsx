@@ -8,18 +8,20 @@ import { PromptExecuteModal } from "./PromptExecuteModal";
 import { BackupModal } from "./BackupModal";
 import { ApiKeyModal } from "./ApiKeyModal";
 import { HelpModal } from "./HelpModal";
+import { PromptGuideView } from "./PromptGuideView";
 import { PromptTemplate } from "@/types/prompt";
 import { DEFAULT_PROMPTS, DEFAULT_CATEGORIES } from "@/data/presets";
 
 interface PromptTemplateAppProps {
   userEmail?: string | null;
+  initialTab?: "library" | "backup" | "guide";
 }
 
 const STORAGE_KEY_PROMPTS = "aimaster_prompt_templates";
 const STORAGE_KEY_CATEGORIES = "aimaster_prompt_categories";
 
-export function PromptTemplateApp({ userEmail }: PromptTemplateAppProps) {
-  const [currentTab, setTab] = useState<"library" | "backup">("library");
+export function PromptTemplateApp({ userEmail, initialTab = "library" }: PromptTemplateAppProps) {
+  const [currentTab, setTab] = useState<"library" | "backup" | "guide">(initialTab);
   const [prompts, setPrompts] = useState<PromptTemplate[]>(DEFAULT_PROMPTS);
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
   const [activeCategory, setActiveCategory] = useState("전체");
@@ -71,6 +73,34 @@ export function PromptTemplateApp({ userEmail }: PromptTemplateAppProps) {
       })
       .catch((err) => console.error("API 키 상태 조회 실패:", err));
   }, []);
+
+  // URL 쿼리 파라미터(?tab=guide 등) 동기화
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      if (tabParam === "guide" || tabParam === "library") {
+        setTab(tabParam as "guide" | "library");
+      }
+    }
+  }, []);
+
+  const handleTabChange = (tab: "library" | "backup" | "guide") => {
+    if (tab === "backup") {
+      setBackupModalOpen(true);
+      return;
+    }
+    setTab(tab);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (tab === "guide") {
+        url.searchParams.set("tab", "guide");
+      } else {
+        url.searchParams.delete("tab");
+      }
+      window.history.pushState({}, "", url.toString());
+    }
+  };
 
   // 변경 시 로컬스토리지 자동 저장
   const savePromptsToStorage = (updated: PromptTemplate[]) => {
@@ -256,17 +286,11 @@ export function PromptTemplateApp({ userEmail }: PromptTemplateAppProps) {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col md:flex-row antialiased text-neutral-900 font-sans">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col md:flex-row antialiased text-slate-900 font-sans">
       {/* 플랫폼 표준 좌측 사이드바 */}
       <Sidebar
         currentTab={currentTab}
-        setTab={(tab) => {
-          if (tab === "backup") {
-            setBackupModalOpen(true);
-          } else {
-            setTab(tab);
-          }
-        }}
+        setTab={handleTabChange}
         onOpenCreate={handleOpenCreate}
         onOpenApiKey={() => setApiKeyModalOpen(true)}
         onOpenHelp={() => setHelpModalOpen(true)}
@@ -274,21 +298,28 @@ export function PromptTemplateApp({ userEmail }: PromptTemplateAppProps) {
         totalCount={prompts.length}
       />
 
-      {/* 메인 콘텐츠 영역 */}
+      {/* 메인 콘텐츠 영역 (단일 배경색 bg-[#f8fafc] 일체화) */}
       <main className="flex-1 min-h-screen overflow-y-auto p-4 md:p-8">
-        <PromptLibrary
-          prompts={prompts}
-          categories={categories}
-          activeCategory={activeCategory}
-          onSelectCategory={setActiveCategory}
-          onAddCategory={handleAddCategory}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onOpenCreate={handleOpenCreate}
-          onEditPrompt={handleOpenEdit}
-          onDeletePrompt={handleDeletePrompt}
-          onExecutePrompt={handleOpenExecute}
-        />
+        {currentTab === "guide" ? (
+          <PromptGuideView
+            onGoToLibrary={() => handleTabChange("library")}
+            onOpenApiKey={() => setApiKeyModalOpen(true)}
+          />
+        ) : (
+          <PromptLibrary
+            prompts={prompts}
+            categories={categories}
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+            onAddCategory={handleAddCategory}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onOpenCreate={handleOpenCreate}
+            onEditPrompt={handleOpenEdit}
+            onDeletePrompt={handleDeletePrompt}
+            onExecutePrompt={handleOpenExecute}
+          />
+        )}
       </main>
 
       {/* 새 프롬프트 / 수정 모달 */}

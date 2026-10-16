@@ -1,0 +1,68 @@
+# AI 프롬프트 템플릿 자동화 — 디자인 리뉴얼 인수인계서 (DESIGN_HANDOFF.md)
+
+> **프로그램 공식 명칭**: AI 프롬프트 템플릿 자동화 (`prompt-template-studio`)  
+> **공식 라이브 도메인**: https://prompt-template.buylife.xyz/  
+> **배포 버전**: `v1.04` (2026-10-16 완료)  
+> **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 템플릿 스튜디오)**  
+> **배경 테마**: 라이트(클린 슬레이트 `#f8fafc`)  
+> **검수 브라우저**: Microsoft Edge 전용 (`msedge.exe`)  
+> **담당 에이전트**: Antigravity(Windows) — `agy`  
+
+---
+
+## 1. 디자인 시스템 & 컬러 토큰
+
+- **단일 배경색 원칙 (최상단 지침 11번 준수)**:
+  - 메인 배경: `#f8fafc` (Clean Slate 50) — `globals.css` 및 `PromptTemplateApp.tsx` 컨테이너 일체화.
+  - 서피스/카드: `#ffffff` (Pure White, `border-slate-200`, `shadow-2xs`).
+  - 텍스트: 본문 `#0f172a` (Slate 900), 설명 `#64748b` (Slate 500).
+- **브랜드 포인트 컬러**:
+  - 프라이머리: `#2563eb` (Blue 600) ~ `#4f46e5` (Indigo 600) 그라디언트.
+  - 상태 강조: 에메랄드 `#10b981` (API 연동/성공), 앰버 `#f59e0b` (팝업 안내/실행).
+
+---
+
+## 2. 화면별 컴포넌트 구조 및 구현
+
+### A. 단계별 비주얼 사용 매뉴얼 (`src/components/PromptGuideView.tsx` & `/guide`)
+- **5단계 파이프라인 인포그래픽**:
+  1. Step 1: `Gemini API 키 1초 연동` (`user_api_keys.provider = 'gemini'`)
+  2. Step 2: `템플릿 탐색 & {{변수}} 선언` (중괄호 2개 동적 변수 선언)
+  3. Step 3: `AI 3단 스마트 어시스턴트` (제목, 설명, 본문 자동 제안)
+  4. Step 4: `변수 자동 채우기 & 원클릭 실행` (Gemini 2.5 Flash 즉시 호출)
+  5. Step 5: `JSON 백업 및 기기간 동기화` (원클릭 파일 다운로드/복원)
+- **{{동적 변수}} 문법 치트시트 & 실전 템플릿 모범 예시**:
+  - 비즈니스 이메일, 시니어 코드 리뷰어, SNS 마케팅 바이럴 카피 3종 원클릭 복사 기능 제공.
+- **프롬프트 엔지니어링 4대 골든 룰**:
+  - 페르소나(Role), 출력 형식(Format), 제약 조건(Constraints), 재사용 변수화(Variable).
+- **자주 묻는 질문(FAQ) 4종 아코디언 컴포넌트**:
+  - 키 무료 발급, 변수 개수 제한, 자동 채우기 원리, 영구 보관 안전성.
+- **보안 원칙 배너**: 회원 본인 API 키 직접 연동 원칙 안내.
+
+### B. 표준 사이드바 정돈 (`src/components/Sidebar.tsx`)
+- 사이드바 유틸리티 영역 최상단에 `📖 연동 & 사용 매뉴얼` 메뉴 신설 (`tab=guide` 및 `/guide` 라우트).
+- 대시보드 홈과 1번 템플릿 라이브러리 간 자연스러운 전환.
+- 계정 이메일 및 로그아웃 버튼 12px 간격 밀착 배치.
+
+### C. 최상위 뷰 및 라우팅 (`PromptTemplateApp.tsx` & `src/app/guide/page.tsx`)
+- URL 쿼리 파라미터 `?tab=`과 React SPA 상태 양방향 동기화.
+- `/guide` 직접 접속 라우트 제공.
+
+---
+
+## 3. Microsoft Edge 실세션 검수 결과 증거
+
+| 화면 구분 | 검수 해상도 | 증거 파일명 | 검수 결과 |
+|---|:---:|---|:---:|
+| 가이드북 헤더 & 5단계 파이프라인 | 1440 × 1200 | `edge_prompt_guide_desktop_v104.png` | 정상 (배지, 인포그래픽 정렬) |
+| 변수 치트시트 & 골든 룰 | 1440 × 1200 | `edge_prompt_guide_pipeline_v104.png` | 정상 (코드 블록, 복사 버튼) |
+| FAQ 아코디언 & 보안 배너 | 1440 × 1200 | `edge_prompt_guide_faq_v104.png` | 정상 (아코디언 토글, CTA 버튼) |
+| 메인 템플릿 라이브러리 | 1440 × 1200 | `edge_prompt_library_desktop_v104.png` | 정상 (단일 배경색 `#f8fafc` 일체감) |
+| 모바일 라이브러리 | 390 × 844 | `edge_prompt_library_mobile_v104.png` | 정상 (카드 스택, 헤더 햄버거 메뉴) |
+| 모바일 가이드북 | 390 × 844 | `edge_prompt_guide_mobile_v104.png` | 정상 (모바일 반응형 파이프라인 가독성) |
+
+---
+
+## 4. 인수인계 주의사항
+- 본 프로그램의 모든 페이지는 라이트 슬레이트 `#f8fafc` 배경색을 단일 유지해야 합니다.
+- 프롬프트 실행 시 호출되는 Gemini 모델은 회원 본인이 연동한 API 키를 통해서만 실행됩니다.

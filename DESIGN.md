@@ -77,7 +77,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-16 기준: ✅ 11개 · ⚪ 70개 · ⏸ 2개):
+> **상태 구분** (2026-10-16 기준: ✅ 12개 · ⚪ 69개 · ⏸ 2개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -90,7 +90,7 @@
 > **★ 상태 표시 규칙 (2026-10-16 주인님 지시)** — ① **시작할 때 먼저** 「🔵 작업 중 (CLI(장비), 날짜)」로 바꿔 저장하고 `docs/ACTIVE_WORK.md`에 줄 추가(이미 🔵·🟠·✅이면 착수하지 말고 주인님께 알린다). ② **맥미니 CLI가 작업을 마치면**(맥미니는 빌드·배포 금지) 같은 커밋에서 「🟠 메인(윈도우) CLI 마무리 작업요망 (`vX.YY`, CLI(맥미니) 날짜)」로 바꾸고 ACTIVE_WORK 자기 줄 삭제, 남은 일은 `docs/HANDOFF.md` 대기 항목에 적는다. ③ **윈도우 CLI가 빌드·배포·검수까지 끝내면**(또는 윈도우에서 처음부터 끝까지 한 작업) **반드시 상태를 「✅ 1차 작업완료 (`vX.YY`, CLI(윈도우) 날짜)」로 바꾼다**. 다른 CLI가 같은 프로그램을 중복 작업하지 않게 하는 것이 목적이다.
 
 | No | 서브프로그램명 | slug | 적용 디자인 템플릿 스타일 | 배경 테마 | 디자인 상태 | 인수인계 문서 |
-|:---:|---|---|---|:---:|:---:|:---:|
+|:---:|---|---|---|---|:---:|:---:|:---:|
 | 1 | 마크다운 문서 자동화 | `markdown-studio` | **포커스 스튜디오 스타일** | 라이트(크림) | ✅ 1차 작업완료 | [`markdown-studio/docs/DESIGN_HANDOFF.md`](markdown-studio/docs/DESIGN_HANDOFF.md) |
 | 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
 | 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 작업완료 (`v1.12`) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
@@ -99,7 +99,7 @@
 | 6 | 플레이리스트 채널 제작 | `playlist-channel-studio` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | ✅ 1차 작업완료 (`v1.09`, 사이버 네온 다크 콘솔 스타일) | [`playlist-channel-studio/docs/DESIGN_HANDOFF.md`](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
 | 7 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | **크리에이티브 아틀리에 스타일** (시네마틱 아틀리에) | 다크(시네마틱 차콜 `#0b0f17`) | ✅ 1차 작업완료 (`v1.06`, 크리에이티브 아틀리에 스타일) | [`cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`](cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md) |
 | 8 | AI 12단 상세페이지 자동화 | `detail-page-12p` | **포커스 스튜디오 스타일** (이커머스 상세페이지) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.04`, 포커스 스튜디오 스타일) | [`detail-page-12p/docs/DESIGN_HANDOFF.md`](detail-page-12p/docs/DESIGN_HANDOFF.md) |
-| 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `prompt-template-studio/AGENTS.md` |
+| 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | **포커스 스튜디오 스타일** (프롬프트 템플릿 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.04`, 포커스 스튜디오 스타일) | [`prompt-template-studio/docs/DESIGN_HANDOFF.md`](prompt-template-studio/docs/DESIGN_HANDOFF.md) |
 | 10 | 페르소나 문체 자동화 | `persona-style-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `persona-style-studio/AGENTS.md` |
 | 11 | AI Prompt 자동화 | `ai-prompt-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ai-prompt-studio/AGENTS.md` |
 | 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `yt-playlist-studio/AGENTS.md` |
