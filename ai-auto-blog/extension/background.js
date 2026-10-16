@@ -260,7 +260,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     if (message.type === "cancel") { if (currentTask === null) return { ok: true, idle: true }; cancelRequested = true; return { ok: true }; }
     // 카테고리 목록은 BLOG 사이트 화면(web-bridge.js)에서 온 요청만 받는다. 사이드패널·다른 사이트 요청은 거절.
     if (message.type === "categories") {
-      if (!String(sender?.url || "").startsWith("https://ai-auto-blog-one.vercel.app/")) throw new Error("허용되지 않은 요청입니다.");
+      if (!["https://ai-auto-blog-one.vercel.app/", "https://ai-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
       return await readCategories(sender);
     }
     if (message.type === "ackBadge") { await setBadge("", "#000000"); return { ok: true }; }

@@ -3,7 +3,7 @@
 //  - ping: 확장이 설치돼 있는지와 확장 버전만 알려준다.
 //  - categories: 회원의 실제 네이버 카테고리 목록(번호·이름)을 읽어 돌려준다(background.js가 새 탭에서 발행 설정창만 읽고 닫는다).
 (() => {
-  if (location.origin !== "https://ai-auto-blog-one.vercel.app") return;
+  if (location.origin !== "https://ai-auto-blog-one.vercel.app" && location.origin !== "https://ai-auto-blog.buylife.xyz") return; // 2026-10-16 새 주소(https://ai-auto-blog.buylife.xyz)도 허용
   window.addEventListener("message", async (event) => {
     if (event.source !== window || event.origin !== location.origin) return;
     const message = event.data;
