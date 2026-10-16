@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — 옛 vercel.app 삭제 대비 두 주소 지원: 1/15 threads-comment-reply v1.08
+
+- 플랜 `docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(콜백·연결 후 이동·텔레그램 웹훅·확장·구글폼 전수). 기준 구현 완료: 콜백 두 주소(기본 옛·[새 주소로 연결]), via=old 판정, 텔레그램 웹훅 새 주소 + 일괄 이전 경로(관리자 로그인으로 실행, 미실행). 다음: youtube-auto-reply. 상세: `threads-comment-reply/AGENTS.md` v1.08.
+
 ## 2026-10-16 Claude Code(맥미니) — Website Scraper v1.12: 스마트 매트릭스 디자인 + 🚨 보안 보강 (⚠️ 윈도우 빌드·배포 요청)
 
 - **디자인 현황판 상태**: `DESIGN.md` 21번 = **🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.12`)** — 다른 CLI는 이 프로그램을 새로 리뉴얼하지 않는다. 윈도우 CLI가 아래 빌드·배포·검수를 마치면 「✅ 1차 작업완료」로 바꾼다. `ACTIVE_WORK`의 맥미니 줄은 삭제함(윈도우 CLI가 맡을 때 자기 줄을 추가).

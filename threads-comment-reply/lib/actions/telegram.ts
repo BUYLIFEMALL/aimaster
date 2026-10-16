@@ -5,6 +5,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { deleteTelegramWebhook, findChatIdFromUpdates, sendTelegramMessage, setTelegramWebhook } from "@/lib/telegram/client";
 import { computeWebhookSecret } from "@/lib/telegram/webhookSecret";
+import { SITE_ORIGIN } from "@/lib/oauthRedirect";
 
 export interface TelegramActionState {
   error?: string;
@@ -70,7 +71,7 @@ export async function connectTelegramAction(
   }
 
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://threads-comment-reply.buylife.xyz";
+    const siteUrl = SITE_ORIGIN; // 옛 주소 환경변수 대신 새 주소(옛 주소 삭제 후에도 웹훅 유지)
     await setTelegramWebhook({
       botToken,
       url: `${siteUrl}/api/telegram/webhook/${user.id}`,
@@ -99,7 +100,7 @@ export async function reregisterTelegramWebhookAction(): Promise<TelegramActionS
   if (!link) return { error: "먼저 텔레그램을 연동해주세요." };
 
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://threads-comment-reply.buylife.xyz";
+    const siteUrl = SITE_ORIGIN; // 옛 주소 환경변수 대신 새 주소(옛 주소 삭제 후에도 웹훅 유지)
     await setTelegramWebhook({
       botToken: link.bot_token,
       url: `${siteUrl}/api/telegram/webhook/${user.id}`,

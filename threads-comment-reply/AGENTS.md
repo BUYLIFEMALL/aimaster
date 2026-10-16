@@ -133,3 +133,10 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 새 주소 `https://threads-comment-reply.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 /settings 재로그인 없이 열림(시험 계정 표시), 옛 주소 콜백 → 새 주소 307(시험 요청), 설정 화면 콜백 안내 옛 주소 그대로. 텔레그램 웹훅 등록 기본 주소만 새 주소(같은 서버 API라 동작 동일). 실제 계정 연결은 미시험
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.08 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(이 프로그램이 기준 구현). `lib/oauthRedirect.ts`(SITE_ORIGIN·NEW_REDIRECT_URI·`oldRedirectUri()`=기존 환경변수·`redirectUriFor(mode)`).
+- 콜백: 기본 연결은 옛 콜백(환경변수), 설정 화면 [새 주소로 연결]/[새 주소로 다시 연결](callback=new)은 새 콜백. 옛 주소로 돌아오면 새 주소로 307 + `via=old`, 토큰 교환은 via=old면 옛 주소·없으면 새 주소(인증·교환 주소 일치). 연결 후 이동은 SITE_ORIGIN 기준. 설정 화면에 두 콜백 주소 모두 표시·"둘 다 등록" 안내.
+- 텔레그램 웹훅 등록 기준을 SITE_ORIGIN으로. 기존 등록분 일괄 이전 `GET|POST /api/telegram/migrate-webhooks`(CRON_SECRET Bearer 또는 관리자 로그인, getWebhookInfo로 이미 새 주소면 건너뜀, 같은 secret_token). **현재 연동 1건(주인님 관리자 계정 봇) — 관리자 로그인 상태로 이 주소를 한 번 열면 이전됨(미실행)**. `vercel env pull`로 받은 CRON_SECRET은 운영 값과 달라 401(민감 변수는 실제 값이 내려오지 않음) → 관리자 로그인 방식 추가.
+- 검수: 빌드·배포(v1.08), 옛 콜백 → `...?via=old` 307, 새 콜백(비로그인) → /login, migrate 비인증 401. 시험 계정 설정 화면에 두 주소·버튼 표시, [새 주소로 다시 연결] → Meta가 "리디렉션 URI 화이트리스트에 없음"(시험 계정 앱에 새 주소 미등록 = 새 콜백 전송 확인). 실제 연결 성공은 앱에 새 주소 등록 후 확인 필요.
+- 남은 일(삭제 직전): 기본 연결을 새 콜백으로 바꾸고 옛 버튼·307 코드 제거.

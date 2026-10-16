@@ -6,6 +6,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { buildOAuthState } from "@/lib/oauthState";
+import { redirectUriFor, type CallbackMode } from "@/lib/oauthRedirect";
 import { getThreadsAuthorizeUrl, refreshThreadsLongLivedToken } from "@/lib/threads/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
@@ -25,7 +26,9 @@ export async function connectThreadsAction(
     return { error: "설정 페이지에서 Meta App ID를 먼저 등록해주세요." };
   }
   const returnTo = String(formData.get("returnTo") ?? "");
-  redirect(getThreadsAuthorizeUrl(buildOAuthState(user.id, returnTo), appId));
+  // 기본은 회원 앱에 예전부터 등록된 옛 콜백, [새 주소로 연결]을 누르면 새 콜백으로 인증한다(두 주소 동시 지원)
+  const mode: CallbackMode = formData.get("callback") === "new" ? "new" : "old";
+  redirect(getThreadsAuthorizeUrl(buildOAuthState(user.id, returnTo), appId, redirectUriFor(mode)));
 }
 
 export async function disconnectThreadsAction() {
