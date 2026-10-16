@@ -566,3 +566,9 @@ v1.75 운영 확인 완료: 코드4b9a1d4a 푸시·프로덕션READY·DB/확장/
 - 새 주소 `https://naver-blog-agent.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308, 옛 주소 /api/extension/version 그대로(downloadUrl 옛 주소 → ZIP 308 후 200). 미들웨어가 없어 src/proxy.ts 신설. **크롬 확장 v1.85**: 다리 코드·백그라운드 출처 확인·새 버전 알림 주소 확인이 옛·새 주소 모두 인식, test-extension-bridge 통과, ZIP 재생성, check-extension-release OK. DB extension_download_url은 옛 주소 유지(설치된 옛 확장의 알림 조건 때문). 회원은 ZIP 다시 받기 필요
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-16 v1.86 — 옛 vercel.app 삭제 대비: 확장 서버 주소 새 주소 (Claude Code 윈도우)
+- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 D·E. `extension/background.js` `API` → `https://naver-blog-agent.buylife.xyz`. 허용 목록(manifest·web-bridge·background sender·connect.js 업데이트 주소 검사)은 두 주소 유지. 테스트 `scripts/test-extension-bridge.cjs` 확장측 기대 주소 갱신.
+- 원칙 10: prebuild manifest v1.86·ZIP, DB version/extension_version v1.86·**extension_download_url을 새 주소 latest로 전환**(SSO 때는 옛 주소 유지했었음), `check-extension-release naver-blog-agent` OK. `/api/extension/version`은 요청 주소 기준으로 downloadUrl을 주므로 옛 확장(옛 주소 호출)도 NEW 배지 → 새 ZIP 안내.
+- 테스트: extension bridge 통과, extension-tabs·results 통과.
+- **회원 안내 필요**: ZIP 다시 받기 → 기존 폴더 덮어쓰기 → chrome://extensions 새로고침.
