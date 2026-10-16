@@ -79,3 +79,6 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - DB: 루트 `supabase/migrations/0037_facebook_app_credentials.sql` — `user_api_keys` provider CHECK에 `facebook_app_id`·`facebook_app_secret` 추가(운영 적용, 기존 데이터 변경 없음).
 - 코드: Facebook 페이지 방식(`connectInstagramAccountAction` facebook_login, `/api/instagram/callback`)은 `facebook_app_*` 우선, 비어 있으면 **같은 회원 본인의** `meta_app_*`(기존 연결 유지, 타인·운영자 키 폴백 아님). 콜백은 ID/시크릿을 같은 칸 묶음에서 고름. Instagram 로그인 방식은 `meta_app_*`(Instagram 앱 ID). 타입·라벨·저장 허용 목록 갱신, 설정 화면에 "📘 Facebook 페이지 방식용(선택)" 칸 묶음 추가, Instagram 칸 안내 문구 수정.
 - 검수: 빌드·배포·DB v1.11, 설정 화면에 새 칸 표시. 관리자 세션 시험: Facebook 방식(새 칸 비어 기존 칸=Instagram 앱 ID 사용) → Facebook "앱 ID 오류" = 새 칸이 필요한 상황 그대로 확인, Instagram 방식 → 앱 인식 후 "Invalid redirect_uri"(관리자 앱에 새 콜백 미등록) = Instagram 앱 ID 정상. 실제 Facebook 앱 ID 등록·연결 성공은 주인님 키 입력 필요.
+
+## 2026-10-16 v1.12 — Instagram 앱 ID 안내 메뉴 이름 정정 (Claude Code 윈도우)
+- 주인님이 보내준 실제 Meta 화면 기준으로 안내 경로를 "이용 사례 › 맞춤 설정 › (Instagram API) › Instagram 로그인이 포함된 API 설정"(화면 맨 위 Instagram 앱 이름·앱 ID·앱 시크릿 코드)으로 정정, 새 콜백은 같은 화면 "4. Instagram 비즈니스 로그인 설정"에 추가한다고 안내. 회원 매뉴얼(platform_guides cffe0d83…)도 같은 표현으로 정정.
