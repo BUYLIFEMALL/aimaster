@@ -175,6 +175,11 @@
 - 문서만 변경. 버전·런타임·DB·환경변수 변경 없음, 유료 API 0회. 규칙 일치·링크·차이를 검토하며 기능 빌드/브라우저 검수는 이번 범위에 포함하지 않음. 커밋·푸시는 이 항목의 최신 Git 이력 확인. 메인 설치 파일 포함 운영 보호 확인은 Git 제외 `.vercel/final-main-promotion.json` 기록 참조.
 
 
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.09: 정식 공개 + VIP 자동 부여 (`shorts-onestop-studio`)
+
+- 배지 `coming`→`new`(카탈로그 NEW 확인), VIP 등급 자동 부여 확인(138/138). 일반·실버·골드는 주인님이 직접 부여(지시). SQL `0020`.
+- 새 규칙(주인님 지시): 프로그램이 완성·업데이트되면 VIP 등급은 자동 부여 → [`docs/ADMIN_POLICY_GUIDELINES.md`](ADMIN_POLICY_GUIDELINES.md) 2026-10-16 추가 항목. 남은 개선 제안은 `shorts-onestop-studio/docs/IMPROVEMENTS.md`.
+
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.08: 발행 계획 개선 3건 (`shorts-onestop-studio`)
 
 - 오늘 지난 시각 자동 미루기, 일정 고치기·빼기, 일괄 제작을 배경·음성·MP4까지 확장(`src/lib/pipeline.ts`, 예상 요청 횟수 표시). 좁은 화면 일정 줄 넘침 수정.

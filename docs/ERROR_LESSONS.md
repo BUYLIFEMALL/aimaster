@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-16 — 다른 CLI가 내 미커밋 공용 문서 항목을 자기 커밋에 먼저 넣어 HANDOFF에 중복이 생김 (shorts-onestop-studio v1.08)
+
+- 증상: "HEAD 내용 + 내 삽입분"으로 `docs/HANDOFF.md`를 커밋했더니 같은 항목이 두 번 들어감.
+- 원인: 내가 작업 폴더에 써 둔 항목을, 그 사이 다른 CLI가 `docs/HANDOFF.md` 전체를 스테이징해 자기 커밋(c27c89a4)에 포함함. 그 뒤 내가 새 HEAD에 같은 항목을 다시 끼움.
+- 해결: 중복만 지우는 커밋(aa513032). 다음부터 확인: 공용 문서를 HEAD 기준으로 만들기 직전에 `git show HEAD:<문서> | grep -c "<내 항목 제목>"`으로 이미 들어가 있는지 보고, 있으면 그 문서는 다시 넣지 않는다.
+
 ## 2026-10-16 — 롱테일 v1.06 디자인 인수 후 비동기 등록·삭제 경로·로컬 환경 검수
 
 - 증상: 등록 액션 성공 뒤 입력이 남고 목록 갱신 전 오류. 원인: React 이벤트 `currentTarget`을 await 뒤 사용하면 null. 해결: `longtail-keyword-expander/components/seeds/SeedForm.tsx`에서 await 전 form 참조 보관. 다음부터: 비동기 모의 성공 뒤 reset·refresh·페이지 오류까지 검수. 기존 오류와 수정 후 결과는 프로그램 docs/evidence에 보관.

@@ -114,3 +114,8 @@ select email, phone from profiles where phone is not null and phone<>'' and phon
 - **체크박스 형태 통일**: 등급 머리글의 `전체 선택/해제`를 아래 개별 칸과 같은 ✓ 버튼으로 바꿨다 — 모두 선택되면 ✓(누르면 전체 해제), 해제하면 비워짐, 일부만 선택된 경우는 점선 테두리(누르면 전체 선택). 옛 `−`(중간 상태) 표시는 쓰지 않는다. 개수(`전체 N/M`)는 버튼 옆에 표시.
 - **카테고리 행 체크**: 카테고리 구역 머리줄에 등급별 ✓ 버튼과 `N/M`이 있어 그 카테고리의 프로그램만 한꺼번에 선택/해제한다(확인 창, 자동 부여 등급은 회원 권한도 함께 처리). 저장은 개별 칸과 같은 `/api/admin/access-matrix`를 프로그램별로 호출하고 실패한 칸만 되돌린다.
 - **안내문 줄바꿈**: 등급별 자동 부여 패널의 설명을 두 줄로 나눴다(자동 부여 설명 / 사용기간 설명). 변경 파일: `components/admin/AccessMatrixManager.tsx`, `app/admin/access-matrix/page.tsx`(categories 조회 추가), `components/admin/GradeAccessPolicy.tsx`. 동작·API 불변.
+
+## 2026-10-16 추가 — 프로그램 완성·업데이트 시 VIP 등급 자동 부여 (주인님 지시)
+- **프로그램이 완성(정식 공개)되거나 업데이트되면 VIP(드림AI팀) 등급에는 자동으로 사용권한을 부여한다.** 방법: `/admin/access-matrix`의 VIP 열을 체크(= `grade_program_access`에 VIP·프로그램 `can_access=true`)하면 트리거 `grade_program_access_sync`가 VIP 회원 전원에게 `user_program_access`(`grant_source='grade'`, 만료 = 부여 시점 + 365일)를 만든다. CLI로 처리할 때는 `insert into grade_program_access (grade_id, program_id, can_access) select g.id, p.id, true from member_grades g, programs p where g.name='VIP(드림AI팀)' and p.slug='<slug>' on conflict (grade_id, program_id) do update set can_access=true;` 후 VIP 회원 수와 유효 부여 수가 같은지 확인한다.
+- **나머지 등급(일반·실버·골드)은 주인님이 나중에 직접 수정·부여한다** — 에이전트가 임의로 체크하지 않는다.
+- 적용 사례: `shorts-onestop-studio` v1.09 공개(VIP 138명 전원 부여 확인).
