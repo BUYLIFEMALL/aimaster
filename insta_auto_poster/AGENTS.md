@@ -74,3 +74,8 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - 원인 확인: 시험 계정(buylifemall@naver.com)의 `meta_app_id`에 Facebook(메타) 앱 ID가 들어 있음(같은 값으로 Facebook 인증 화면은 앱을 인식) → Instagram 로그인(`instagram.com/oauth/authorize`)이 "Invalid platform app"으로 거절. 코드 버그가 아니라 값 위치 혼동.
 - 조치: 설정 화면 키 입력칸 위에 안내 상자(앱 대시보드 › Instagram › API 설정(Instagram 로그인)의 "Instagram 앱 ID/시크릿", 맨 위 "앱 ID"와 다름, 잘못 넣으면 Invalid platform app). 이 프로그램은 Facebook 방식(Facebook 앱 ID 필요)과 Instagram 방식(Instagram 앱 ID 필요)이 같은 칸을 함께 써서 한 번에 한 방식만 가능 — 안내에 명시, 칸 분리는 `docs/IMPROVEMENTS.md` 제안(공용 provider 추가 = DB 스키마 변경, 사전 승인 필요).
 - 검수: 빌드·배포·DB 버전, 크롬에서 안내 상자 표시 확인. 시험 계정 값 교체는 주인님 직접(키 입력은 에이전트가 하지 않음).
+
+## 2026-10-16 v1.11 — Facebook 페이지 방식 전용 앱 ID 칸 분리 (Claude Code 윈도우, 주인님 승인)
+- DB: 루트 `supabase/migrations/0037_facebook_app_credentials.sql` — `user_api_keys` provider CHECK에 `facebook_app_id`·`facebook_app_secret` 추가(운영 적용, 기존 데이터 변경 없음).
+- 코드: Facebook 페이지 방식(`connectInstagramAccountAction` facebook_login, `/api/instagram/callback`)은 `facebook_app_*` 우선, 비어 있으면 **같은 회원 본인의** `meta_app_*`(기존 연결 유지, 타인·운영자 키 폴백 아님). 콜백은 ID/시크릿을 같은 칸 묶음에서 고름. Instagram 로그인 방식은 `meta_app_*`(Instagram 앱 ID). 타입·라벨·저장 허용 목록 갱신, 설정 화면에 "📘 Facebook 페이지 방식용(선택)" 칸 묶음 추가, Instagram 칸 안내 문구 수정.
+- 검수: 빌드·배포·DB v1.11, 설정 화면에 새 칸 표시. 관리자 세션 시험: Facebook 방식(새 칸 비어 기존 칸=Instagram 앱 ID 사용) → Facebook "앱 ID 오류" = 새 칸이 필요한 상황 그대로 확인, Instagram 방식 → 앱 인식 후 "Invalid redirect_uri"(관리자 앱에 새 콜백 미등록) = Instagram 앱 ID 정상. 실제 Facebook 앱 ID 등록·연결 성공은 주인님 키 입력 필요.
