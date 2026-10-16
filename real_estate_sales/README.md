@@ -1,6 +1,6 @@
 # 부동산 실거래 투자분석 자동화
 
-> **작업 지침·디자인 리뉴얼 문서**: [AGENTS.md](AGENTS.md) · [디자인 리뉴얼 플랜(승인 대기)](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [개선 원장](docs/IMPROVEMENTS.md)
+> **작업 지침·디자인 리뉴얼 문서**: [AGENTS.md](AGENTS.md) · [디자인 리뉴얼 v1.11](docs/DESIGN_HANDOFF.md) · [개선 원장](docs/IMPROVEMENTS.md)
 
 관심 지역(서울 자치구)의 **실거래가**(국토부에 신고 완료된 거래 기록)를 자동으로
 수집하고, AI로 투자 매력도를 분석해주는 마케팅 자동화 웹 애플리케이션입니다. 원래

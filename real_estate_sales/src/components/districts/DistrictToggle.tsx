@@ -31,7 +31,7 @@ export function DistrictToggle({
         "rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50",
         isActive
           ? "border-gold bg-gold-gradient text-white"
-          : "border-zinc-200 bg-dark-100 text-zinc-700 hover:border-gold/40",
+          : "border-mx-border bg-dark-100 text-mx-text hover:border-gold/40",
       )}
     >
       {sggNm}

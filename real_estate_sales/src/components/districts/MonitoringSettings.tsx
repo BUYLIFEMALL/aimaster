@@ -63,7 +63,7 @@ export function MonitoringSettings({
   return (
     <div className="glass-card p-4">
       <div className="flex items-center justify-between">
-        <span className="font-medium text-zinc-900">{sggNm}</span>
+        <span className="font-medium text-mx-text">{sggNm}</span>
         <button
           type="button"
           disabled={isPending}
@@ -76,7 +76,7 @@ export function MonitoringSettings({
             "rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50",
             enabled
               ? "bg-gold-gradient text-white"
-              : "border border-zinc-200 bg-dark-100 text-zinc-500",
+              : "border border-mx-border bg-dark-100 text-mx-muted",
           )}
         >
           {enabled ? "모니터링 ON" : "모니터링 OFF"}
@@ -86,7 +86,7 @@ export function MonitoringSettings({
       {enabled && (
         <div className="mt-4 space-y-3 text-sm">
           <div className="flex items-center gap-3">
-            <label className="w-24 shrink-0 text-zinc-500">수집 주기</label>
+            <label className="w-24 shrink-0 text-mx-muted">수집 주기</label>
             <select
               value={interval}
               disabled={isPending}
@@ -95,7 +95,7 @@ export function MonitoringSettings({
                 setInterval_(next);
                 save({ interval: next });
               }}
-              className="rounded-lg border border-zinc-200 bg-dark-100 px-2 py-1.5 text-zinc-900"
+              className="rounded-lg border border-mx-border bg-dark-100 px-2 py-1.5 text-mx-text"
             >
               {COLLECT_INTERVAL_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -106,7 +106,7 @@ export function MonitoringSettings({
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="w-24 shrink-0 text-zinc-500">동작 시간대</label>
+            <label className="w-24 shrink-0 text-mx-muted">동작 시간대</label>
             <button
               type="button"
               disabled={isPending}
@@ -119,7 +119,7 @@ export function MonitoringSettings({
                 "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50",
                 hoursRestricted
                   ? "border-gold/40 bg-dark-100 text-gold-light"
-                  : "border-zinc-200 bg-dark-100 text-zinc-500",
+                  : "border-mx-border bg-dark-100 text-mx-muted",
               )}
             >
               {hoursRestricted ? "특정 시간대만" : "종일"}
@@ -135,7 +135,7 @@ export function MonitoringSettings({
                     setStartHour(next);
                     save({ startHour: next });
                   }}
-                  className="rounded-lg border border-zinc-200 bg-dark-100 px-2 py-1.5 text-zinc-900"
+                  className="rounded-lg border border-mx-border bg-dark-100 px-2 py-1.5 text-mx-text"
                 >
                   {HOUR_OPTIONS.map((h) => (
                     <option key={h} value={h}>
@@ -143,7 +143,7 @@ export function MonitoringSettings({
                     </option>
                   ))}
                 </select>
-                <span className="text-zinc-500">~</span>
+                <span className="text-mx-muted">~</span>
                 <select
                   value={endHour}
                   disabled={isPending}
@@ -152,7 +152,7 @@ export function MonitoringSettings({
                     setEndHour(next);
                     save({ endHour: next });
                   }}
-                  className="rounded-lg border border-zinc-200 bg-dark-100 px-2 py-1.5 text-zinc-900"
+                  className="rounded-lg border border-mx-border bg-dark-100 px-2 py-1.5 text-mx-text"
                 >
                   {HOUR_OPTIONS.map((h) => (
                     <option key={h} value={h}>
@@ -163,7 +163,7 @@ export function MonitoringSettings({
               </div>
             )}
           </div>
-          {saved && <p className="text-xs text-green-400">저장됐어요.</p>}
+          {saved && <p className="text-xs text-mx-success">저장됐어요.</p>}
         </div>
       )}
     </div>

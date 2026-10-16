@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-
-// price_amount는 만원 단위로 저장되고, official_price(VWorld 응답)는 원 단위로 저장된다.
-// 이 함수는 "만원" 단위 입력을 받는다고 가정한다.
-function formatWon(amountManwon: number | null): string {
-  if (!amountManwon) return "-";
-  return `${(amountManwon / 10000).toLocaleString("ko-KR")}억`.replace(".0억", "억");
-}
+import { PageHero } from "@/components/ui/PageHero";
+import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
+import { ListingMatrix, type ListingRow } from "@/components/listings/ListingMatrix";
+import { formatWon } from "@/lib/format";
 
 export default async function ListingsPage() {
   const user = await requireUser();
@@ -20,50 +17,55 @@ export default async function ListingsPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const rows = (matches ?? []).filter((m) => m.listing);
+  const rows: ListingRow[] = (matches ?? []).flatMap((m) => {
+    const l = Array.isArray(m.listing) ? m.listing[0] : m.listing;
+    if (!l) return [];
+    return [
+      {
+        matchId: m.id,
+        status: m.status,
+        id: l.id,
+        name: l.bldg_nm ?? "(이름 없음)",
+        sgg: l.sgg_nm ?? "",
+        dong: l.stdg_nm ?? "",
+        contractDate: l.contract_date,
+        area: l.exclusive_area,
+        floor: l.floor,
+        price: l.price_amount,
+        official: l.official_price,
+      },
+    ];
+  });
+  const prices = rows.map((r) => r.price ?? 0).filter((p) => p > 0);
+  const avg = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : null;
 
   return (
-    <div>
-      <h1 className="gold-text mb-2 text-2xl font-semibold">실거래 내역</h1>
-      <p className="mb-6 text-sm text-zinc-500">
-        관심 지역에서 새로 신고된 실거래예요. 설정한 주기로 자동 수집됩니다.
-      </p>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHero
+        badge="🏢 STEP 2 · 실거래 내역"
+        title="실거래 내역"
+        description="관심 지역에서 새로 신고된 실거래예요. 행을 누르면 공시가 대비 비율·토지 정보·AI 투자 분석을 볼 수 있어요. 최근 50건까지 표시됩니다."
+        tip="상세 화면을 처음 열면 회원님 본인 AI 키로 분석이 1회 실행되고, 이후에는 저장된 결과를 보여 드려요."
+      />
 
-      {rows.length === 0 && (
-        <p className="text-sm text-zinc-500">
-          아직 매칭된 실거래가 없어요. 먼저 &quot;관심 지역 설정&quot;에서 지역을 선택해주세요.
-        </p>
+      <KpiGrid>
+        <KpiCard icon="🏢" label="표시된 실거래" value={rows.length} />
+        <KpiCard icon="📊" label="평균 거래가" value={formatWon(avg)} tone="green" />
+        <KpiCard icon="🏆" label="최고 거래가" value={formatWon(prices.length ? Math.max(...prices) : null)} tone="amber" />
+        <KpiCard icon="🤖" label="AI 분석 완료" value={rows.filter((r) => r.status === "analyzed").length} tone="muted" />
+      </KpiGrid>
+
+      {rows.length === 0 ? (
+        <div className="mx-card py-16 text-center">
+          <p className="text-5xl">🏙️</p>
+          <p className="mt-4 text-sm text-mx-muted">아직 매칭된 실거래가 없어요. 먼저 관심 지역을 골라 주세요.</p>
+          <Link href="/districts" className="mx-btn-primary mt-4">
+            📍 관심 지역 설정하기
+          </Link>
+        </div>
+      ) : (
+        <ListingMatrix rows={rows} />
       )}
-
-      <div className="space-y-3">
-        {rows.map((m) => {
-          const listing = Array.isArray(m.listing) ? m.listing[0] : m.listing;
-          if (!listing) return null;
-          return (
-            <Link key={m.id} href={`/listings/${listing.id}`} className="block">
-              <div className="glass-card p-4 transition-colors hover:border-gold/40">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-zinc-500">
-                    {listing.sgg_nm} {listing.stdg_nm}
-                  </span>
-                  <span className="text-xs text-zinc-500">{listing.contract_date}</span>
-                </div>
-                <h3 className="mt-1 text-lg font-medium text-zinc-900">{listing.bldg_nm}</h3>
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-700">
-                  <span>전용 {listing.exclusive_area ?? "-"}m²</span>
-                  <span>{listing.floor ?? "-"}층</span>
-                  <span className="text-gold-light font-medium">
-                    거래 {formatWon(listing.price_amount)}
-                  </span>
-                  {listing.official_price !== null && (
-                    <span>공시 {formatWon(listing.official_price / 10000)}</span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
     </div>
   );
 }

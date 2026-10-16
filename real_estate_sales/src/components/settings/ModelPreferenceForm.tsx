@@ -24,7 +24,7 @@ export function ModelPreferenceForm({
         name="model"
         value={model}
         onChange={(e) => setModel(e.target.value as AnalysisModel)}
-        className="w-full rounded-lg border border-zinc-200 bg-dark-100 px-3 py-2 text-sm text-zinc-900"
+        className="w-full rounded-lg border border-mx-border bg-dark-100 px-3 py-2 text-sm text-mx-text"
       >
         {ANALYSIS_MODEL_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
@@ -32,8 +32,8 @@ export function ModelPreferenceForm({
           </option>
         ))}
       </select>
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state.success && <p className="text-sm text-green-400">저장됐어요.</p>}
+      {state.error && <p className="text-sm text-mx-danger">{state.error}</p>}
+      {state.success && <p className="text-sm text-mx-success">저장됐어요.</p>}
       <Button type="submit" disabled={isPending}>
         {isPending ? "저장 중..." : "이 모델로 저장하기"}
       </Button>

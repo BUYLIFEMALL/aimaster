@@ -1,42 +1,243 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #18181b;
-}
+/*
+ * 스마트 매트릭스 스타일 (Smart Matrix Style) — 다크 차콜(슬레이트) + 모던 블루 & 앰버.
+ * 루트 DESIGN.md 템플릿 4번. 토큰·부품은 ghost-scraper(Tailwind v4 이식본)와 같다. 설명: docs/DESIGN_HANDOFF.md
+ * 옛 금색 테마 이름(gold·dark-*)은 남은 클래스가 밝게 보이지 않도록 아래에서 같은 다크 토큰으로 다시 연결했다.
+ */
+@theme {
+  --color-mx-bg: #0f1115;
+  --color-mx-surface: #171a21;
+  --color-mx-raised: #1f2430;
+  --color-mx-border: #2a3040;
+  --color-mx-text: #e6e9ef;
+  --color-mx-muted: #8b93a7;
+  --color-mx-primary: #2563eb;
+  --color-mx-primary-strong: #1d4ed8;
+  --color-mx-link: #93c5fd;
+  --color-mx-accent: #f59e0b;
+  --color-mx-success: #10b981;
+  --color-mx-danger: #f43f5e;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* 옛 이름 → 새 토큰 (v1.11) */
+  --color-gold: #2563eb;
+  --color-gold-light: #93c5fd;
+  --color-gold-dark: #1d4ed8;
+  --color-dark: #0f1115;
+  --color-dark-50: #171a21;
+  --color-dark-100: #1f2430;
+  --color-dark-200: #2a3040;
+  --background-image-gold-gradient: linear-gradient(135deg, #2563eb, #1d4ed8);
+  --background-image-dark-gradient: linear-gradient(180deg, #0f1115 0%, #0f1115 100%);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-
-  /* 흰색 베이스 + 파랑(#005acc) 포인트 (2026-10-10, 웹 서브프로그램 작업 화면 흰색 통일 규칙). 기존 gold/dark 이름은 그대로 두고 값만 라이트 톤으로 매핑 */
-  --color-gold: #005acc;
-  --color-gold-light: #005acc;
-  --color-gold-dark: #004bb9;
-  --color-dark: #ffffff;
-  --color-dark-50: #f8fafc;
-  --color-dark-100: #f1f5f9;
-  --color-dark-200: #e2e8f0;
-
-  --background-image-gold-gradient: linear-gradient(135deg, #005acc, #004bb9);
-  --background-image-dark-gradient: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
-  --background-image-hero-gradient: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.15) 0%, transparent 70%), linear-gradient(180deg, #0a0a0f 0%, #0d0d18 100%);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    background-color: var(--color-mx-bg);
+    color: var(--color-mx-text);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
 }
 
+@layer components {
+  .mx-card {
+    border-radius: 1rem;
+    border: 1px solid var(--color-mx-border);
+    background: var(--color-mx-surface);
+    padding: 1.25rem;
+  }
+  .mx-section-title {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-mx-text);
+  }
+  .mx-kpi {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid var(--color-mx-border);
+    background: var(--color-mx-surface);
+    padding: 1rem;
+    transition: transform 0.15s ease;
+  }
+  .mx-kpi:hover {
+    transform: translateY(-2px);
+  }
+
+  /* 버튼 (터치 높이 44px) */
+  .mx-btn-primary,
+  .mx-btn-ghost,
+  .mx-btn-danger {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.75rem;
+    padding: 0 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    cursor: pointer;
+  }
+  .mx-btn-primary {
+    background: var(--color-mx-primary);
+    color: #fff;
+  }
+  .mx-btn-primary:hover {
+    background: var(--color-mx-primary-strong);
+  }
+  .mx-btn-ghost {
+    border: 1px solid var(--color-mx-border);
+    background: var(--color-mx-raised);
+    color: var(--color-mx-text);
+  }
+  .mx-btn-ghost:hover {
+    border-color: var(--color-mx-muted);
+  }
+  .mx-btn-danger {
+    border: 1px solid var(--color-mx-border);
+    color: var(--color-mx-danger);
+  }
+  .mx-btn-danger:hover {
+    border-color: var(--color-mx-danger);
+  }
+  .mx-btn-primary:disabled,
+  .mx-btn-ghost:disabled,
+  .mx-btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* 상태 칩 */
+  .mx-chip,
+  .mx-chip-blue,
+  .mx-chip-amber,
+  .mx-chip-green {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .mx-chip {
+    border: 1px solid var(--color-mx-border);
+    background: var(--color-mx-raised);
+    color: var(--color-mx-muted);
+  }
+  .mx-chip-blue {
+    background: rgb(30 58 138 / 0.6);
+    color: #bfdbfe;
+  }
+  .mx-chip-amber {
+    background: rgb(120 53 15 / 0.6);
+    color: #fde68a;
+  }
+  .mx-chip-green {
+    background: rgb(6 78 59 / 0.6);
+    color: #a7f3d0;
+  }
+
+  /* 입력창 */
+  .mx-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-mx-border);
+    background: var(--color-mx-raised);
+    padding: 0.75rem 1rem;
+    color: var(--color-mx-text);
+  }
+  .mx-input::placeholder {
+    color: var(--color-mx-muted);
+  }
+  .mx-input:focus {
+    outline: 2px solid var(--color-mx-primary);
+    outline-offset: 0;
+    border-color: transparent;
+  }
+
+  /* 표 */
+  .mx-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.8125rem;
+  }
+  .mx-table th {
+    border-bottom: 1px solid var(--color-mx-border);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-mx-muted);
+  }
+  .mx-table td {
+    border-bottom: 1px solid var(--color-mx-border);
+    padding: 0.625rem 0.75rem;
+    vertical-align: middle;
+    color: var(--color-mx-text);
+  }
+  .mx-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .mx-table tbody tr:hover td {
+    background: var(--color-mx-raised);
+  }
+
+  /* 탭·보기 전환 */
+  .mx-toggle {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 0.5rem;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-mx-muted);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .mx-toggle:hover {
+    color: var(--color-mx-text);
+  }
+  .mx-toggle-active {
+    background: var(--color-mx-raised);
+    color: var(--color-mx-text);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-mx-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-mx-border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-mx-muted);
+}
+
+/* 옛 공용 클래스 — 같은 다크 토큰으로 */
 .gold-text {
-  color: #005acc;
+  color: var(--color-mx-link);
 }
-
 .glass-card {
-  background: #ffffff;
-  border: 1px solid #e4e4e7;
+  background: var(--color-mx-surface);
+  border: 1px solid var(--color-mx-border);
   border-radius: 1rem;
 }

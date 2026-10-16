@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/ui/PageHero";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
@@ -62,22 +63,21 @@ export default async function SettingsPage() {
   const keyMap = new Map((apiKeys ?? []).map((k) => [k.provider, k.api_key]));
 
   return (
-    <div className="max-w-xl space-y-8">
-      <div>
-        <h1 className="gold-text mb-2 text-2xl font-semibold">설정</h1>
-        <p className="text-sm text-zinc-500">
-          이 서비스는 각 사용자가 자신의 API 키와 텔레그램 봇을 직접 등록해서 사용해요.
-        </p>
-      </div>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <PageHero
+        badge="🔑 API키등록·플랫폼연동"
+        title="API 키·텔레그램 연결"
+        description="AI 투자 분석에 쓸 OpenAI·Perplexity 키와 새 실거래 알림을 받을 텔레그램 봇을 회원님 본인 것으로 등록합니다. 운영자 키로 대신 동작하지 않아요."
+      />
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-medium text-zinc-900">🤖 AI 분석 키 (OpenAI / Perplexity)</h2>
-          <p className="text-sm text-zinc-500">
+          <h2 className="text-lg font-medium text-mx-text">🤖 AI 분석 키 (OpenAI / Perplexity)</h2>
+          <p className="text-sm text-mx-muted">
             AI 분석(투자 매력도 분석)에 사용돼요. 등록하지 않으면 분석 기능을 쓸 수 없어요.
           </p>
         </div>
-        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-5">
           <div className="space-y-3">
             {PROVIDERS.map((provider) => (
               <ApiKeyRow
@@ -94,11 +94,11 @@ export default async function SettingsPage() {
       <section>
         <div className="mb-3">
           <h2 className="text-lg font-semibold text-gold">공공데이터 키 (선택)</h2>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-mx-muted">
             실거래·건축물대장·공시가격 조회에 쓰입니다. 등록하지 않으면 운영자 공용 키로 조회되고, 본인 키를 등록하면 본인 키로 조회돼요(호출 한도가 걱정되면 등록하세요). 브이월드는 키와 도메인을 함께 등록해야 적용됩니다.
           </p>
         </div>
-        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-5">
           <div className="space-y-3">
             {PUBLIC_DATA_PROVIDERS.map((provider) => (
               <ApiKeyRow
@@ -113,8 +113,8 @@ export default async function SettingsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-medium text-zinc-900">AI 분석 모델</h2>
-        <p className="mb-3 text-sm text-zinc-500">
+        <h2 className="mb-3 text-lg font-medium text-mx-text">AI 분석 모델</h2>
+        <p className="mb-3 text-sm text-mx-muted">
           여기서 고른 모델로, 새 실거래를 열어볼 때 매번 누르지 않아도 자동으로 투자 분석이
           되어 바로 보여요.
         </p>
@@ -122,7 +122,7 @@ export default async function SettingsPage() {
       </section>
 
       <section>
-        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5 space-y-4">
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-5 space-y-4">
           <SolapiAccountSection account={solapiAccount ?? null} />
           <KakaoTemplateSection templateId={kakaoTemplate?.template_id ?? null} />
         </div>
@@ -130,15 +130,15 @@ export default async function SettingsPage() {
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-medium text-zinc-900">📨 텔레그램 봇 연동</h2>
-          <p className="text-sm text-zinc-500">
+          <h2 className="text-lg font-medium text-mx-text">📨 텔레그램 봇 연동</h2>
+          <p className="text-sm text-mx-muted">
             새 매물이 발견되면 본인 텔레그램 봇으로 알림과 AI 분석 결과를 받아요.
           </p>
         </div>
-        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-5">
           {telegramLink ? (
-            <div className="space-y-3 rounded-xl border border-zinc-200 bg-dark-50 p-4">
-              <p className="text-sm text-green-400">
+            <div className="space-y-3 rounded-xl border border-mx-border bg-dark-50 p-4">
+              <p className="text-sm text-mx-success">
                 ✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.
               </p>
               <form action={disconnectTelegramAction}>
@@ -148,8 +148,8 @@ export default async function SettingsPage() {
               </form>
             </div>
           ) : (
-            <div className="space-y-4 rounded-xl border border-zinc-200 bg-dark-50 p-4">
-              <ol className="list-inside list-decimal space-y-2 text-sm text-zinc-700">
+            <div className="space-y-4 rounded-xl border border-mx-border bg-dark-50 p-4">
+              <ol className="list-inside list-decimal space-y-2 text-sm text-mx-text">
                 <li>
                   텔레그램에서 <span className="text-gold-light">@BotFather</span>를 검색해서 대화를
                   시작하세요.
@@ -177,13 +177,13 @@ export default async function SettingsPage() {
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-medium text-zinc-900">📖 연동 매뉴얼</h2>
-          <p className="text-sm text-zinc-500">
+          <h2 className="text-lg font-medium text-mx-text">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-mx-muted">
             이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
             따라 할 수 있어요.
           </p>
         </div>
-        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-5">
           <div className="flex flex-wrap gap-2">
             {GUIDE_LINKS.map((guide) => (
               <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
