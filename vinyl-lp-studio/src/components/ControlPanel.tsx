@@ -38,6 +38,9 @@ interface ControlPanelProps {
   onOpenHistory: () => void;
   historyCount: number;
   hasApiKey: boolean;
+  /** MP4에 넣을 배경 음악(선택) */
+  audioName: string | null;
+  onPickAudio: (file: File | null) => void;
 }
 
 export function ControlPanel({
@@ -57,6 +60,8 @@ export function ControlPanel({
   onOpenHistory,
   historyCount,
   hasApiKey,
+  audioName,
+  onPickAudio,
 }: ControlPanelProps) {
   const [isRolling, setIsRolling] = useState(false);
 
@@ -370,6 +375,21 @@ export function ControlPanel({
             )}
           </button>
 
+          {/* MP4 배경 음악(선택) — 넣으면 영상 길이 = 음악 길이, 소리 포함 MP4 */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-bold text-slate-700">🎵 MP4 배경 음악 (선택)</span>
+              {audioName && (
+                <button type="button" onClick={() => onPickAudio(null)} disabled={isExporting} className="text-[11px] text-rose-500 hover:underline disabled:opacity-50">빼기</button>
+              )}
+            </div>
+            <label className={`flex items-center gap-2 text-[11px] rounded-lg border border-dashed px-2.5 py-2 cursor-pointer ${audioName ? "border-amber-300 bg-amber-50 text-slate-800" : "border-slate-300 bg-white text-slate-500 hover:border-amber-300"}`}>
+              <input type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac" hidden disabled={isExporting} onChange={(e) => { onPickAudio(e.target.files?.[0] ?? null); e.target.value = ""; }} />
+              <span className="truncate">{audioName ?? "음악 파일 선택 (mp3·wav·m4a 등, 최대 10분)"}</span>
+            </label>
+            <p className="text-[10px] leading-snug text-slate-400">넣으면 음악 길이만큼 LP가 도는 소리 포함 MP4(30fps)를, 안 넣으면 10초 반복용 무음 MP4(60fps)를 만듭니다. 음악은 내 브라우저에서만 처리되고 서버에 올라가지 않습니다.</p>
+          </div>
+
           {/* 2. 생성 완료 후 활성화되는 내보내기 버튼 (MP4 / GIF) */}
           <div className="grid grid-cols-2 gap-2 pt-1">
             <button
@@ -390,7 +410,7 @@ export function ControlPanel({
               ) : (
                 <>
                   <Video className="w-3.5 h-3.5" />
-                  <span>60fps MP4 내보내기</span>
+                  <span>{audioName ? "음악 포함 MP4 내보내기" : "60fps MP4 내보내기"}</span>
                 </>
               )}
             </button>

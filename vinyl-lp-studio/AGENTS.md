@@ -97,3 +97,9 @@ vinyl-lp-studio/
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (vinyl-lp-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 MP4 배경 음악(소리 트랙) 추가 — v1.05 (Claude Code 윈도우, 주인님 지시)
+- 배경: MP4 내보내기(`src/lib/render/media-exporter.ts`)에 소리 트랙 자체가 없었고, 프로그램에 음악을 넣는 곳도 없었음(10초 반복용 무음 회전 영상만 생성).
+- 추가: 내보내기 영역에 **🎵 MP4 배경 음악(선택)** 칸(`ControlPanel.tsx` `audioName`·`onPickAudio`). 음악을 넣으면 `VinylStudio.tsx`가 브라우저에서 48kHz로 디코딩(최대 10분, 서버로 보내지 않음) → `renderSpinningAnimation({ audio })`가 영상 길이 = 음악 길이, 30fps, 같은 속도로 계속 회전, AAC(안 되면 Opus) 소리 트랙을 0.5초 단위로 영상보다 1초 앞서 인코딩. 음악이 없으면 예전과 똑같이 정수 회전수 10초 반복 60fps 무음 MP4. GIF는 변화 없음.
+- 검수(시험 계정 크롬, `lp-turntable.buylife.xyz`, AI 대신 시험 이미지 업로드로 비용 0원): 6초 시험음 → MP4 6.02초·720×720·소리 6.02초(크기 일치), 음악 빼기 → 10.65초·소리 없음(기존 동작 유지), 400px 폭 넘침 없음.
+- 버전: `src/lib/version.ts` v1.05, `package.json` 1.05.0(이전 1.03.0으로 남아 있던 것 정정), DB v1.05(SQL `supabase/migrations/20261016_version_v1_05.sql`). VIP 자동 부여 확인(138/138).

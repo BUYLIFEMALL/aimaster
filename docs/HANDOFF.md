@@ -250,6 +250,10 @@
 - 문서만 변경. 버전·런타임·DB·환경변수 변경 없음, 유료 API 0회. 규칙 일치·링크·차이를 검토하며 기능 빌드/브라우저 검수는 이번 범위에 포함하지 않음. 커밋·푸시는 이 항목의 최신 Git 이력 확인. 메인 설치 파일 포함 운영 보호 확인은 Git 제외 `.vercel/final-main-promotion.json` 기록 참조.
 
 
+## 2026-10-16 Claude Code(윈도우) — LP 턴테이블 자동화 v1.05: MP4 배경 음악(소리 트랙) 추가 (`vinyl-lp-studio`)
+
+- 내보내기에 🎵 배경 음악(선택) 칸 추가 — 넣으면 음악 길이만큼 도는 소리 포함 MP4, 안 넣으면 예전 10초 반복 무음 MP4. 음악은 브라우저에서만 처리. 시험 계정 크롬 검수(소리 6.02초 확인·무음 동작 유지). VIP 자동 부여 확인. 상세: `vinyl-lp-studio/AGENTS.md` 맨 아래.
+
 ## 2026-10-16 Claude Code(윈도우) — Youtube Playlist 자동화 v1.05: MP4 무음 버그 수정 (`yt-playlist-studio`)
 
 - 완성 MP4에 소리가 없던 문제 수정(`src/lib/render/video-exporter.ts` — 소리 데이터를 실제로 인코딩). 시험 계정 크롬: 1곡·반복 2회 모두 소리 확인. VIP 자동 부여 확인. 상세: `yt-playlist-studio/AGENTS.md` 맨 아래.

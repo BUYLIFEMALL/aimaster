@@ -9,7 +9,11 @@ interface RenderOptions {
   mediaType: MediaType;
   format: "mp4" | "gif";
   onProgress?: (progress: number) => void;
+  /** 배경 음악(선택, MP4 전용). 넣으면 영상 길이 = 음악 길이, 소리 트랙을 함께 넣는다(브라우저 안에서만 처리) */
+  audio?: AudioBuffer | null;
 }
+
+const AUDIO_RATE = 48000;
 
 /**
  * 브라우저 캔버스를 회전시켜 고화질 MP4 또는 무한 루프 GIF를 생성
@@ -22,6 +26,7 @@ export async function renderSpinningAnimation({
   mediaType,
   format,
   onProgress,
+  audio = null,
 }: RenderOptions): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -35,19 +40,32 @@ export async function renderSpinningAnimation({
       // 해상도 및 FPS 설정
       const width = format === "gif" ? 360 : 720;
       const height = format === "gif" ? 360 : 720;
-      const fps = format === "gif" ? 30 : 60; // GIF는 30fps로 용량 최적화, MP4는 60fps 부드러움
+      const withAudio = format === "mp4" && !!audio;
+      // GIF는 30fps로 용량 최적화, MP4는 60fps 부드러움. 음악을 넣으면 길이가 길어지므로 30fps
+      const fps = format === "gif" || withAudio ? 30 : 60;
 
       // 회전 주기 및 프레임 수 계산 (완벽한 루프가 되도록 정수 회전수 계산)
       const totalRevCalculated = durationSec * 60 * (speedRpm / 60);
       const totalRevolutions = Math.max(1, Math.round(totalRevCalculated));
-      const totalFrames = Math.round((totalRevolutions * 60 * fps) / speedRpm);
-      const exactSpeed = (totalRevolutions * 60 * fps) / totalFrames;
+      // 음악이 있으면 음악 길이만큼 같은 속도로 계속 회전(반복 맞춤 불필요), 없으면 정수 회전수로 끊김 없는 반복 영상
+      const totalFrames = withAudio ? Math.ceil(audio!.duration * fps) : Math.round((totalRevolutions * 60 * fps) / speedRpm);
+      const exactSpeed = withAudio ? speedRpm : (totalRevolutions * 60 * fps) / totalFrames;
 
       console.log(`[MediaExporter] ${format.toUpperCase()}: ${totalFrames} frames, ${totalRevolutions} revs, ${fps}fps, ${width}x${height}`);
 
       let muxer: Muxer<ArrayBufferTarget> | null = null;
       let videoEncoder: VideoEncoder | null = null;
       let gifEncoder: GIFEncoder | null = null;
+      let audioEncoder: AudioEncoder | null = null;
+      let audioCodec: { muxer: "aac" | "opus"; codec: string } | null = null;
+      if (withAudio) {
+        if (typeof AudioEncoder === "undefined") throw new Error("현재 브라우저는 소리 인코딩(WebCodecs AudioEncoder)을 지원하지 않습니다. Chrome/Edge 최신 버전을 권장합니다.");
+        for (const c of [{ muxer: "aac" as const, codec: "mp4a.40.2" }, { muxer: "opus" as const, codec: "opus" }]) {
+          const ok = await AudioEncoder.isConfigSupported({ codec: c.codec, sampleRate: AUDIO_RATE, numberOfChannels: 2, bitrate: 192_000 }).then((r) => r.supported).catch(() => false);
+          if (ok) { audioCodec = c; break; }
+        }
+        if (!audioCodec) throw new Error("이 컴퓨터에서 소리 인코딩을 쓸 수 없습니다. Chrome/Edge 최신 버전에서 다시 시도해 주세요.");
+      }
 
       if (format === "mp4") {
         if (typeof VideoEncoder === "undefined") {
@@ -61,6 +79,7 @@ export async function renderSpinningAnimation({
             width,
             height,
           },
+          ...(audioCodec ? { audio: { codec: audioCodec.muxer, sampleRate: AUDIO_RATE, numberOfChannels: 2 } } : {}),
           fastStart: "in-memory",
         });
 
@@ -76,6 +95,14 @@ export async function renderSpinningAnimation({
           bitrate: 4_500_000,
           framerate: fps,
         });
+
+        if (audioCodec) {
+          audioEncoder = new AudioEncoder({
+            output: (chunk, meta) => muxer?.addAudioChunk(chunk, meta),
+            error: (e) => reject(new Error("Audio Encoding 오류: " + e.message)),
+          });
+          audioEncoder.configure({ codec: audioCodec.codec, sampleRate: AUDIO_RATE, numberOfChannels: 2, bitrate: 192_000 });
+        }
       } else {
         gifEncoder = new GIFEncoder();
       }
@@ -126,8 +153,25 @@ export async function renderSpinningAnimation({
       discCtx.clearRect(0, 0, discSize, discSize);
       discCtx.drawImage(img, 0, 0, discSize, discSize);
 
+      // 소리: 영상 프레임보다 1초 앞서도록 0.5초 단위로 나눠 넣는다(모노는 양쪽 복제). audio는 48kHz로 디코딩된 버퍼
+      let audioPos = 0;
+      const encodeAudioUntil = (untilFrame: number) => {
+        if (!audioEncoder || !audio) return;
+        const L = audio.getChannelData(0), Rch = audio.numberOfChannels > 1 ? audio.getChannelData(1) : L;
+        const limit = Math.min(untilFrame, audio.length);
+        while (audioPos < limit) {
+          const n = Math.min(AUDIO_RATE / 2, limit - audioPos);
+          const data = new Float32Array(n * 2);
+          data.set(L.subarray(audioPos, audioPos + n), 0); data.set(Rch.subarray(audioPos, audioPos + n), n);
+          const ad = new AudioData({ format: "f32-planar", sampleRate: audio.sampleRate, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round((audioPos / audio.sampleRate) * 1_000_000), data });
+          audioEncoder.encode(ad); ad.close();
+          audioPos += n;
+        }
+      };
+
       // 프레임별 회전 렌더링 루프
       for (let i = 0; i < totalFrames; i++) {
+        if (audio) encodeAudioUntil(Math.floor((i / fps + 1) * audio.sampleRate));
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(bgCanvas, 0, 0);
 
@@ -219,7 +263,9 @@ export async function renderSpinningAnimation({
 
       // 최종 파일 생성
       if (format === "mp4" && videoEncoder && muxer) {
+        if (audio) encodeAudioUntil(audio.length); // 남은 소리
         await videoEncoder.flush();
+        if (audioEncoder) { await audioEncoder.flush(); audioEncoder.close(); }
         muxer.finalize();
         const { buffer } = muxer.target;
         const blob = new Blob([buffer], { type: "video/mp4" });

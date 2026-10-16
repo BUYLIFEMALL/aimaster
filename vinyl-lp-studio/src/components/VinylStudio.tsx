@@ -65,6 +65,7 @@ export function VinylStudio({ userEmail }: VinylStudioProps) {
   // 로컬 작업 히스토리
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [exportFormat, setExportFormat] = useState<"mp4" | "gif" | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null); // MP4 배경 음악(선택, 서버로 보내지 않음)
 
   // 마운트 시 키 상태 및 히스토리 로드
   useEffect(() => {
@@ -302,7 +303,19 @@ export function VinylStudio({ userEmail }: VinylStudioProps) {
     }));
 
     try {
+      // 음악이 있으면 48kHz로 디코딩(영상 길이 = 음악 길이, 최대 10분)
+      let audio: AudioBuffer | null = null;
+      if (format === "mp4" && audioFile) {
+        setState((prev) => ({ ...prev, loadingMessage: "음악 파일을 읽는 중..." }));
+        const ctx = new AudioContext({ sampleRate: 48000 });
+        try { audio = await ctx.decodeAudioData(await audioFile.arrayBuffer()); }
+        catch { throw new Error("음악 파일을 읽지 못했습니다. mp3·wav·m4a 파일인지 확인해 주세요."); }
+        finally { void ctx.close(); }
+        if (audio.duration > 600) throw new Error(`음악이 ${Math.round(audio.duration / 60)}분입니다. 10분 이하 음악을 넣어 주세요.`);
+        setState((prev) => ({ ...prev, loadingMessage: `음악 ${Math.round(audio!.duration)}초 길이의 MP4 렌더링 중...` }));
+      }
       const videoUrl = await renderSpinningAnimation({
+        audio,
         imageBase64: state.generatedImageBase64,
         speedRpm: config.speed,
         durationSec: 0.16666666666666666,
@@ -444,6 +457,8 @@ export function VinylStudio({ userEmail }: VinylStudioProps) {
         isLoading={state.isGeneratingImage}
         isSuggesting={state.isSuggestingPrompt}
         isExporting={state.isRenderingVideo}
+        audioName={audioFile?.name ?? null}
+        onPickAudio={setAudioFile}
         exportFormat={exportFormat}
         hasArtwork={Boolean(state.generatedImageBase64)}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
