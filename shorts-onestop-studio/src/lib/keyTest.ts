@@ -1,0 +1,28 @@
+import "server-only";
+import type { KeyProvider } from "@/lib/apiKeys";
+
+// 연결 확인은 공급사의 "모델 목록" 조회만 한다 — 생성 요청이 아니라 토큰 비용이 들지 않는다(개발·테스트 비용 최소화 지침).
+const NAMES: Record<KeyProvider, string> = { gemini: "Google Gemini", openai: "OpenAI", anthropic: "Anthropic Claude" };
+
+export async function testProviderKey(provider: KeyProvider, key: string): Promise<{ ok: boolean; message: string }> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    let res: Response;
+    if (provider === "gemini") {
+      res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1", { headers: { "x-goog-api-key": key }, signal: ctrl.signal, cache: "no-store" });
+    } else if (provider === "openai") {
+      res = await fetch("https://api.openai.com/v1/models", { headers: { Authorization: `Bearer ${key}` }, signal: ctrl.signal, cache: "no-store" });
+    } else {
+      res = await fetch("https://api.anthropic.com/v1/models?limit=1", { headers: { "x-api-key": key, "anthropic-version": "2023-06-01" }, signal: ctrl.signal, cache: "no-store" });
+    }
+    if (res.ok) return { ok: true, message: `본인 ${NAMES[provider]} 키 연결을 확인했습니다(모델 목록 조회 — 사용 요금 없음).` };
+    if (res.status === 401 || res.status === 403 || res.status === 400) return { ok: false, message: `${NAMES[provider]}가 키를 거절했습니다. 발급받은 키를 공백 없이 다시 저장해 주세요.` };
+    if (res.status === 429) return { ok: false, message: `${NAMES[provider]} 사용 한도에 걸렸습니다. 잠시 후 다시 확인해 주세요.` };
+    return { ok: false, message: `${NAMES[provider]} 서버가 응답하지 않습니다(${res.status}). 잠시 후 다시 확인해 주세요.` };
+  } catch {
+    return { ok: false, message: `${NAMES[provider]} 서버에 연결하지 못했습니다. 잠시 후 다시 확인해 주세요.` };
+  } finally {
+    clearTimeout(timer);
+  }
+}

@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.01 P1 뼈대 배포 (`shorts-onestop-studio`)
+
+- 새 폴더 `shorts-onestop-studio/`(blog-workroom 표준 뼈대): 권한 판정·흰색 레이아웃·모바일 ☰·6단계 메뉴(준비 중 안내)·API키등록(Gemini·OpenAI·Claude, 연결 확인=모델 목록 조회로 요금 없음)·로그아웃. 빌드 통과.
+- DB: `programs` 등록(유튜브·일반 등급·badges `coming`·v1.01)·요금제 3종·시험 계정 사용기간(blog-workroom 기간 복사). 등급 자동 부여는 공개 전까지 넣지 않음. SQL `shorts-onestop-studio/supabase/migrations/0001_register_shorts_onestop_studio.sql`.
+- Vercel 프로젝트 생성·공용 DB 연결값(새·기존 이름) 등록·운영 배포 READY, 도메인 https://shorts-onestop-studio.buylife.xyz 연결. 확인: 비로그인 `/topic` 등 307→`/login`, API 401, 로그인 화면 크롬 표시. **남은 확인: 시험 계정 로그인 후 회원 화면(주인님 로그인 필요)**.
+- 다음: P2 대본. 무료 공급자(Groq·Cloudflare 등)를 쓰려면 `user_api_keys` provider 제약 추가(주인님 승인 필요). 시험 비용: 유료 호출 0회.
+
 ## 2026-10-16 Claude Code(윈도우) — 쇼츠 신규 프로그램 이름 확정: AI 쇼츠 원스톱 제작 자동화 (`shorts-onestop-studio`)
 
 - 주인님 선택(이름 후보 3번). 플랜 문서 [CARD_SHORTS_REFERENCE_ANALYSIS.md](CARD_SHORTS_REFERENCE_ANALYSIS.md) D1·§5-1·§7-1·§8에 반영. 남은 결정 D2~D5(형태·무료 비공식 음성·자극형 카테고리·공개 범위)는 기본값 승인 대기.
