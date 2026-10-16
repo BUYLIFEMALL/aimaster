@@ -115,3 +115,10 @@ yt-playlist-studio/
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (yt-playlist-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-16 MP4 내보내기 무음 버그 수정 — v1.05 (Claude Code 윈도우)
+- 증상: 완성 MP4에 소리가 없음(코드상 확인: `src/lib/render/video-exporter.ts`가 `AudioEncoder`를 설정만 하고 `AudioData`를 한 번도 넣지 않았음, flush·close도 없었음).
+- 수정: 디코딩한 트랙을 반복 횟수만큼 순서대로 이어 0.5초 단위 `AudioData`(f32-planar, 48kHz 스테레오, 모노는 양쪽 복제)로 인코딩. 큰 배열로 합치지 않고 트랙 버퍼에서 바로 잘라 넣으며, 영상 프레임보다 1초 앞서도록 나눠 넣어 두 트랙이 섞여 저장되게 함. 끝에 남은 소리·`audioEncoder.flush()`·`close()`.
+- 검수(시험 계정 크롬, `youtube-playlist.buylife.xyz`): 6초 시험음 1곡 → MP4 6.02초·소리 6.02초(크기 시험음과 일치), 반복 2회 → 소리 12.01초·앞뒤 구간 모두 소리 있음. 시험 중 브라우저 저장 창·자동 다운로드는 페이지 안에서만 잠시 막고 파일을 열어 분석(회원 화면 코드는 그대로).
+- 버전: `src/lib/version.ts` v1.05, `package.json` 1.05.0(이전 1.03.0으로 남아 있던 것 정정), DB `programs.version` v1.05(SQL `supabase/migrations/20261016_version_v1_05.sql`). VIP 등급 자동 부여 확인(138/138, 주인님 규칙).
+- 참고: 같은 방식의 `vinyl-lp-studio/src/lib/render/media-exporter.ts`는 소리 트랙 자체가 없음(의도인지 주인님 확인 필요 — 손대지 않음).

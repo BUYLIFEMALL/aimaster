@@ -166,6 +166,30 @@ export async function exportVideoMp4(
   offlineAnalyser.fftSize = 256;
   const freqData = new Uint8Array(offlineAnalyser.frequencyBinCount);
 
+  // 소리: 디코딩한 트랙을 순서대로(반복 횟수만큼) 이어 붙여 0.5초 단위로 인코딩한다.
+  // 2026-10-16 수정 — 예전에는 AudioEncoder를 설정만 하고 데이터를 넣지 않아 완성 MP4가 무음이었다.
+  // 큰 배열로 합치지 않고 트랙 버퍼에서 바로 잘라 넣고, 영상 프레임 시각보다 1초 앞서도록 나눠 넣어 두 트랙이 섞여 저장되게 한다.
+  const passes: AudioBuffer[] = [];
+  for (let r = 0; r < exportSettings.repeatCount; r++) for (const item of decodedTracks) passes.push(item.audioBuffer);
+  const totalAudioFrames = Math.floor(totalDuration * sampleRate);
+  let audioPos = 0; // 지금까지 넣은 샘플 수(전체 기준)
+  let passIdx = 0, passOffset = 0;
+  const encodeAudioUntil = (untilFrame: number) => {
+    const limit = Math.min(untilFrame, totalAudioFrames);
+    while (audioPos < limit && passIdx < passes.length) {
+      const buf = passes[passIdx];
+      const n = Math.min(sampleRate / 2, buf.length - passOffset, limit - audioPos);
+      if (n <= 0) { passIdx++; passOffset = 0; continue; }
+      const L = buf.getChannelData(0), R = buf.numberOfChannels > 1 ? buf.getChannelData(1) : L;
+      const data = new Float32Array(n * 2);
+      data.set(L.subarray(passOffset, passOffset + n), 0); data.set(R.subarray(passOffset, passOffset + n), n);
+      const ad = new AudioData({ format: 'f32-planar', sampleRate, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round((audioPos / sampleRate) * 1_000_000), data });
+      audioEncoder.encode(ad); ad.close();
+      audioPos += n; passOffset += n;
+      if (passOffset >= buf.length) { passIdx++; passOffset = 0; }
+    }
+  };
+
   // Synthesize and encode frames
   onProgress({ progress: 25, currentSecond: 0, totalSeconds: Math.round(totalDuration), status: '비디오 프레임 렌더링 중...' });
 
@@ -175,6 +199,7 @@ export async function exportVideoMp4(
 
     const currentTimeSec = frameIdx / fps;
     const timeMs = currentTimeSec * 1000;
+    encodeAudioUntil(Math.floor((currentTimeSec + 1) * sampleRate)); // 소리를 영상보다 1초 앞서 넣는다
 
     // Simulate frequency oscillation for visualization
     for (let f = 0; f < dummyFreq.length; f++) {
@@ -252,8 +277,12 @@ export async function exportVideoMp4(
 
   // Flush encoders
   onProgress({ progress: 96, currentSecond: Math.round(totalDuration), totalSeconds: Math.round(totalDuration), status: '인코딩 마무리 및 파일 패키징 중...' });
+  encodeAudioUntil(totalAudioFrames); // 남은 소리
   await videoEncoder.flush();
   videoEncoder.close();
+  await audioEncoder.flush();
+  audioEncoder.close();
+  if (encoderError) throw encoderError;
 
   // Finalize Muxer
   muxer.finalize();

@@ -217,6 +217,11 @@
 - 문서만 변경. 버전·런타임·DB·환경변수 변경 없음, 유료 API 0회. 규칙 일치·링크·차이를 검토하며 기능 빌드/브라우저 검수는 이번 범위에 포함하지 않음. 커밋·푸시는 이 항목의 최신 Git 이력 확인. 메인 설치 파일 포함 운영 보호 확인은 Git 제외 `.vercel/final-main-promotion.json` 기록 참조.
 
 
+## 2026-10-16 Claude Code(윈도우) — Youtube Playlist 자동화 v1.05: MP4 무음 버그 수정 (`yt-playlist-studio`)
+
+- 완성 MP4에 소리가 없던 문제 수정(`src/lib/render/video-exporter.ts` — 소리 데이터를 실제로 인코딩). 시험 계정 크롬: 1곡·반복 2회 모두 소리 확인. VIP 자동 부여 확인. 상세: `yt-playlist-studio/AGENTS.md` 맨 아래.
+- 확인 필요: `vinyl-lp-studio` MP4 내보내기는 소리 트랙이 아예 없음(의도 여부 주인님 확인).
+
 ## 2026-10-16 Claude Code(윈도우) — AI 쇼츠 원스톱 제작 자동화 v1.10: 목표 길이·스톡 맞춤·주제 추가·MP4 5배 (`shorts-onestop-studio`)
 
 - 목표 길이 30·45·60초, 스톡 내용 맞춤 선택(태그 점수), 계획 주제 추가, MP4 138초→26초(배경 영상 2배속 재생 방식). 버그 3건: Pixabay 주소 갱신 정규식·태그 칸 잘림·태그 입력 지워짐(셸이 역슬래시를 먹은 사례 — `docs/ERROR_LESSONS.md`).
