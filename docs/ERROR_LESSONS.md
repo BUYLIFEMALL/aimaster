@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — 다른 CLI의 `git stash`가 내 미커밋 코드를 가져가 커밋에서 빠짐 (real_estate_sales v1.13, Claude Code 윈도우)
+- **증상**: 빌드·배포까지 한 v1.13 코드가 커밋 직전 작업 폴더에서 원래대로 돌아가, 커밋엔 문서만 들어감(`f1e90512`).
+- **원인**: 같은 폴더를 쓰는 다른 CLI가 `git stash`(stash@{0} "WIP on master: b11fdd05 … music-player")를 실행 — 남의 폴더 변경(내 real_estate_sales 4개 파일·HANDOFF·ACTIVE_WORK)까지 통째로 보관됨.
+- **복구**: stash 전체를 꺼내지 않고 `git show "stash@{0}:<경로>" > <경로>`로 내 파일만 되살려 빌드 후 커밋(`6c88be2b`). stash는 그 CLI 것이라 지우지 않음.
+- **다음부터**: ① 여러 CLI 공유 폴더에서 `git stash`·`git checkout -- .`·`git reset --hard` 금지(내 파일만 경로 지정) ② 배포 후 커밋 전에 `git diff --stat -- <폴더>`로 변경이 남아 있는지 확인 ③ 커밋 결과 파일 목록에 코드가 있는지 확인.
+
 ## 2026-10-17 — Meta OAuth "차단된 URL"·"Invalid platform app" 점검 순서 (INSTA 3개·쓰레드 3개, Claude Code 윈도우)
 - **증상 1**: [새 주소로 연결] → Facebook/Threads "차단된 URL: 리디렉션 URI가 화이트리스트에 없음". **원인**: 회원 Meta 앱의 리디렉션 목록에 새 주소가 저장 안 됨(입력 후 [변경 내용 저장] 누락). **확인**: 비즈니스용 Facebook 로그인 › 설정 맨 위 "URI 리디렉션 유효성 검사기" / Threads API 액세스 › 설정 › 리디렉션 콜백 URL 칩 목록.
 - **증상 2**: Instagram "Invalid platform app". **원인**: `meta_app_id`에 Facebook 앱 ID가 들어갔거나, 다시 저장하며 **끝자리가 빠짐**(16→15자리). 마스킹 표시(앞6·뒤4)만 보고 정상으로 판단하지 말 것 — 값이 바뀌면 뒤 4자리도 바뀐다. **해결**: INSTA 3개 `saveApiKeyAction`에 형식 검사(앱 ID 숫자 15~16자리·시크릿 32자, v1.12/1.13/1.16).
