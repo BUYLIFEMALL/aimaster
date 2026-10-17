@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -8,8 +10,8 @@ import { UserError } from "@/lib/errors";
 // Cloudinary 대행 생성은 쓰지 않는다(CLAUDE.md, PLATFORM_PATTERNS §12). 모델 ID는 이 저장소 다른 프로그램에서 쓰는 값.
 export const BUCKET = "shorts-onestop-studio";
 export const IMAGE_MODELS = [
-  { id: "gemini-2.5-flash-image", name: "Nano Banana · 가벼운 모델 (기본)" },
-  { id: "gemini-3.1-flash-image", name: "Nano Banana 2 · 균형형" },
+  { id: "gemini-3.1-flash-lite-image", name: "Nano Banana · 가벼운 모델 (기본)" },
+  { id: "gemini-nano-banana-2.1", name: "Nano Banana 2 · 균형형" },
 ] as const;
 export const DEFAULT_IMAGE_MODEL = IMAGE_MODELS[0].id;
 export const isImageModel = (v: unknown): v is string => IMAGE_MODELS.some((m) => m.id === v);

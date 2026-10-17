@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image as ImageIcon, Save, Search, Sparkles, Trash2, Wand2 } from "lucide-react";
@@ -10,7 +12,7 @@ import { IMAGE_STYLES, normalizeBackdrop, type Backdrop, type Bg, type ShortsScr
 import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } from "@/lib/render/scene";
 
 type StockItem = { id: string; type: "image" | "video"; src: string; thumb: string; credit: string; pageUrl: string };
-const IMG_MODELS = [{ id: "gemini-2.5-flash-image", name: "Nano Banana · 가벼운 모델 (기본)" }, { id: "gemini-3.1-flash-image", name: "Nano Banana 2 · 균형형" }];
+const IMG_MODELS = [{ id: "gemini-3.1-flash-lite-image", name: "Nano Banana · 가벼운 모델 (기본)" }, { id: "gemini-nano-banana-2.1", name: "Nano Banana 2 · 균형형" }];
 
 // 장면 순서 번호: 0 = 인트로, 1..n = 카드, n+1 = 아웃트로, -1 = 전체 배경
 function getBg(s: ShortsScript, i: number): Bg | undefined { const n = s.cards.length; return i === -1 ? s.backdrop?.global : i === 0 ? s.intro.bg : i === n + 1 ? s.outro.bg : s.cards[i - 1]?.bg; }
