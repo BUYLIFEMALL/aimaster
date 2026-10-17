@@ -45,32 +45,34 @@ async function requestImageGeneration(
   prompt: string,
   dimensions: { width: number; height: number }
 ): Promise<string> {
-  // 1. Gemini Imagen 3 시도 (사용자 본인 키가 있을 때)
+  // 1. Gemini 이미지 모델 시도 (사용자 본인 키가 있을 때)
+  // [이미지 모델 교체 2026-10-17] 종료된 Imagen 3(predict) → gemini-nano-banana-2.1(generateContent), 기준: ai-image-studio v1.11.
+  // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
   if (apiKey) {
     try {
-      const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
-      const res = await fetch(imagenUrl, {
+      const imageUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent?key=${apiKey}`;
+      const res = await fetch(imageUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          instances: [{ prompt }],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4",
-            outputMimeType: "image/jpeg",
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseModalities: ["IMAGE"],
+            imageConfig: { aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4", imageSize: "1K" },
           },
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        const base64 = data?.predictions?.[0]?.bytesBase64Encoded;
-        if (base64) {
-          return `data:image/jpeg;base64,${base64}`;
+        const parts: Array<{ inlineData?: { data?: string; mimeType?: string } }> = data?.candidates?.[0]?.content?.parts ?? [];
+        const image = parts.find((p) => p.inlineData?.data)?.inlineData;
+        if (image?.data) {
+          return `data:${image.mimeType || "image/png"};base64,${image.data}`;
         }
       }
     } catch (e) {
-      console.warn("Imagen 3 generation failed, falling back to high-res comic generator:", e);
+      console.warn("Gemini image generation failed, falling back to high-res comic generator:", e);
     }
   }
 
