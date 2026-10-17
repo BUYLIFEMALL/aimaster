@@ -23,37 +23,37 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
   const registered = keys[provider]?.registered;
 
   return (
-    <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
+    <div className="space-y-4 rounded-2xl border border-yt-border bg-yt-surface p-6 shadow-xs">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-gray-900">
-            {title} {required && <span className="text-xs font-semibold text-red-600">(필수)</span>}
+          <h2 className="text-base font-bold text-yt-text">
+            {title} {required && <span className="text-xs font-semibold text-yt-danger">(필수)</span>}
           </h2>
-          <p className="mt-0.5 text-xs text-gray-500">{description}</p>
+          <p className="mt-0.5 text-xs text-yt-muted">{description}</p>
         </div>
         {registered ? (
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-yt-success/30 bg-yt-success/10 px-3 py-1 text-xs font-bold text-yt-success">
             <CheckCircle2 className="h-3.5 w-3.5" /> 연동 완료
           </span>
         ) : (
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-yt-warn/40 bg-yt-warn/10 px-3 py-1 text-xs font-bold text-yt-warn">
             <AlertCircle className="h-3.5 w-3.5" /> 미등록
           </span>
         )}
       </div>
 
       {registered && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-yt-border bg-yt-raised p-3">
           <div className="min-w-0">
-            <span className="text-[11px] font-semibold text-gray-500">현재 등록된 키</span>
-            <div className="truncate font-mono text-sm font-bold text-gray-800" title={keys[provider].maskedKey}>
+            <span className="text-[11px] font-semibold text-yt-muted">현재 등록된 키</span>
+            <div className="truncate font-mono text-sm font-bold text-yt-text" title={keys[provider].maskedKey}>
               {keys[provider].maskedKey}
             </div>
           </div>
           <button
             type="button"
             onClick={() => onDelete(provider)}
-            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-yt-red/40 bg-yt-surface px-3 py-1.5 text-xs font-semibold text-yt-danger hover:bg-yt-red/20"
           >
             <Trash2 className="h-3.5 w-3.5" /> 키 삭제
           </button>
@@ -68,7 +68,7 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
           setValue("");
         }}
       >
-        <label className="block text-xs font-bold text-gray-700">{registered ? "새로운 API 키로 변경 등록" : "API 키 입력"}</label>
+        <label className="block text-xs font-bold text-yt-text">{registered ? "새로운 API 키로 변경 등록" : "API 키 입력"}</label>
         <div className="flex gap-2">
           <input
             type="password"
@@ -76,17 +76,17 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder={placeholder}
-            className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-mono text-sm text-gray-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500"
+            className="flex-1 rounded-xl border border-yt-border bg-yt-raised px-3.5 py-2.5 font-mono text-sm text-yt-text focus:bg-yt-surface focus:outline-hidden focus:ring-2 focus:ring-yt-red"
           />
           <button
             type="submit"
             disabled={submitting || !value.trim()}
-            className="shrink-0 whitespace-nowrap rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50"
+            className="shrink-0 whitespace-nowrap rounded-xl bg-yt-red px-5 py-2.5 text-xs font-bold text-white hover:bg-yt-red-hover disabled:opacity-50"
           >
             {submitting ? "저장 중..." : provider === "youtube_api_key" ? "검증 및 저장" : "저장"}
           </button>
         </div>
-        {provider === "youtube_api_key" && <p className="text-[11px] text-gray-500">* 저장하기 전에 YouTube 공식 서버로 키가 유효한지 확인합니다.</p>}
+        {provider === "youtube_api_key" && <p className="text-[11px] text-yt-muted">* 저장하기 전에 YouTube 공식 서버로 키가 유효한지 확인합니다.</p>}
       </form>
     </div>
   );
@@ -161,14 +161,14 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
+      <div className="rounded-2xl border border-yt-border bg-yt-surface p-6 shadow-xs">
         <div className="flex items-center gap-2">
-          <span className="rounded-lg bg-red-100 p-1.5 text-red-600">
+          <span className="rounded-lg bg-yt-red/10 p-1.5 text-yt-danger">
             <Key className="h-5 w-5" />
           </span>
-          <h1 className="text-xl font-bold text-gray-900">API키등록·플랫폼연동</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-yt-text">API키등록·플랫폼연동</h1>
         </div>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-yt-muted">
           이 프로그램은 회원님 본인의 API 키로만 동작합니다. 운영자나 다른 회원의 키는 사용되지 않으며, 키는 본인 계정에만 저장됩니다.
         </p>
       </div>
@@ -176,10 +176,10 @@ export default function SettingsPage() {
       {message && (
         <div
           className={`flex items-center gap-2 rounded-xl p-4 text-sm ${
-            message.type === "success" ? "border border-emerald-200 bg-emerald-50 text-emerald-800" : "border border-red-200 bg-red-50 text-red-800"
+            message.type === "success" ? "border border-yt-success/30 bg-yt-success/10 text-yt-success" : "border border-yt-red/40 bg-yt-red/10 text-yt-danger"
           }`}
         >
-          {message.type === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /> : <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />}
+          {message.type === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0 text-yt-success" /> : <AlertCircle className="h-5 w-5 shrink-0 text-yt-danger" />}
           <span>{message.text}</span>
         </div>
       )}
@@ -193,9 +193,9 @@ export default function SettingsPage() {
         {...common}
       />
 
-      <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
+      <div className="rounded-xl border border-yt-link/30 bg-yt-link/10 p-3 text-xs text-yt-link">
         <p className="flex items-start gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-yt-link" />
           <span>아래 AI 키는 AI 분석(영상 요약·경쟁 전략·성장 과정·채널 진단)에 쓰입니다. 세 가지 중 하나만 등록해도 되며, Gemini는 영상 요약 때 영상을 직접 보고 분석합니다.</span>
         </p>
       </div>
@@ -204,9 +204,9 @@ export default function SettingsPage() {
       <KeyCard provider="openai" title="OpenAI API 키" description="AI 분석 기능용 (선택)" placeholder="sk-... 로 시작하는 OpenAI API 키" {...common} />
       <KeyCard provider="anthropic" title="Anthropic Claude API 키" description="AI 분석 기능용 (선택)" placeholder="sk-ant-... 로 시작하는 Claude API 키" {...common} />
 
-      <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
-        <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
-        <p className="text-xs text-neutral-500">키 발급 방법을 팝업 창으로 보면서 따라 할 수 있습니다.</p>
+      <div className="space-y-3 rounded-2xl border border-yt-border bg-yt-surface p-6 shadow-xs">
+        <h2 className="text-sm font-bold text-yt-text">📖 연동 매뉴얼</h2>
+        <p className="text-xs text-yt-muted">키 발급 방법을 팝업 창으로 보면서 따라 할 수 있습니다.</p>
         <div className="flex flex-wrap gap-2">
           {GUIDES.map((g) => (
             <GuideLinkButton key={g.guideId} guideId={g.guideId} label={g.label} />

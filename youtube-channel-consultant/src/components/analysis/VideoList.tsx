@@ -76,24 +76,24 @@ export function VideoList({ videos, showChannel, onAnalyzeChannel, onSummarize, 
 
   const exportJson_ = () => downloadJson(`${exportName}.json`, exportJson);
 
-  const selectClass = "rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-red-500";
+  const selectClass = "rounded-lg border border-yt-border bg-yt-surface px-2.5 py-1.5 text-xs font-medium text-yt-text focus:outline-hidden focus:ring-2 focus:ring-yt-red";
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-xs">
-        <div className="flex rounded-lg bg-gray-100 p-0.5">
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-yt-border bg-yt-surface p-3 shadow-xs">
+        <div className="flex rounded-lg bg-yt-raised p-0.5">
           {([["all", "전체"], ["long", "일반 영상"], ["short", "쇼츠"]] as const).map(([key, label]) => (
             <button
               key={key}
               type="button"
               onClick={() => setFormat(key)}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold ${format === key ? "bg-red-600 text-white" : "text-gray-600 hover:bg-white"}`}
+              className={`rounded-md px-3 py-1.5 text-xs font-bold ${format === key ? "bg-yt-red text-white" : "text-yt-muted hover:bg-yt-surface"}`}
             >
               {label}
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-1.5 text-xs text-gray-600">
+        <label className="flex items-center gap-1.5 text-xs text-yt-muted">
           정렬
           <select className={selectClass} value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)}>
             {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
@@ -103,7 +103,7 @@ export function VideoList({ videos, showChannel, onAnalyzeChannel, onSummarize, 
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-1.5 text-xs text-gray-600">
+        <label className="flex items-center gap-1.5 text-xs text-yt-muted">
           표시
           <select className={selectClass} value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
             <option value={10}>상위 10개</option>
@@ -112,7 +112,7 @@ export function VideoList({ videos, showChannel, onAnalyzeChannel, onSummarize, 
             <option value={0}>전체</option>
           </select>
         </label>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-yt-muted">
           {shown.length}개 중 {visible.length}개
         </span>
         <div className="ml-auto flex gap-2">
@@ -125,58 +125,58 @@ export function VideoList({ videos, showChannel, onAnalyzeChannel, onSummarize, 
         </div>
       </div>
 
-      <p className="text-[11px] text-gray-500">
+      <p className="text-[11px] text-yt-muted">
         쇼츠 구분은 YouTube가 알려주지 않아 추정합니다(60초 이하, 또는 3분 이하이면서 #shorts 표기). 좋아요·댓글이 비공개이면 &quot;비공개&quot;로 표시합니다.
       </p>
 
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">조건에 맞는 영상이 없습니다.</p>
+        <p className="rounded-2xl border border-yt-border bg-yt-surface py-12 text-center text-sm text-yt-muted">조건에 맞는 영상이 없습니다.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {visible.map((v, i) => (
-            <article key={v.id} className="flex gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-xs">
-              <a href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="relative block h-24 w-40 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+            <article key={v.id} className="flex gap-3 rounded-2xl border border-yt-border bg-yt-surface p-3 shadow-xs">
+              <a href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="relative block h-24 w-40 shrink-0 overflow-hidden rounded-lg bg-yt-raised">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={v.thumbnailUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
                 <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 text-[11px] font-bold text-white">{i + 1}</span>
                 <span className="absolute bottom-1 right-1 rounded bg-black/75 px-1 text-[10px] font-medium text-white">{formatDuration(v.durationSeconds)}</span>
               </a>
               <div className="min-w-0 flex-1">
-                <a href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="line-clamp-2 text-sm font-bold text-gray-900 hover:text-red-700">
+                <a href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer" className="line-clamp-2 text-sm font-bold text-yt-text hover:text-yt-danger">
                   {v.title}
-                  <ExternalLink size={11} className="ml-1 inline text-gray-400" />
+                  <ExternalLink size={11} className="ml-1 inline text-yt-muted" />
                 </a>
-                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] text-gray-500">
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] text-yt-muted">
                   {showChannel && (
-                    <button type="button" className="font-semibold text-gray-700 hover:text-red-700 hover:underline" onClick={() => onAnalyzeChannel?.(v.channelId)} title="이 채널 분석하기">
+                    <button type="button" className="font-semibold text-yt-text hover:text-yt-danger hover:underline" onClick={() => onAnalyzeChannel?.(v.channelId)} title="이 채널 분석하기">
                       {v.channelTitle}
                     </button>
                   )}
                   <span>{formatDate(v.publishedAt)}</span>
-                  {v.isShort && <span className="rounded bg-red-50 px-1 font-bold text-red-600">쇼츠(추정)</span>}
+                  {v.isShort && <span className="rounded bg-yt-red/10 px-1 font-bold text-yt-danger">쇼츠(추정)</span>}
                   {showChannel && v.channelSubscriberCount !== undefined && <span>구독자 {formatNumber(v.channelSubscriberCount)}</span>}
                 </p>
                 {v.tags.length > 0 && (
-                  <p className="mt-1 line-clamp-1 text-[11px] text-sky-700">{v.tags.slice(0, 5).map((t) => `#${t.replace(/\s+/g, "")}`).join(" ")}</p>
+                  <p className="mt-1 line-clamp-1 text-[11px] text-yt-link">{v.tags.slice(0, 5).map((t) => `#${t.replace(/\s+/g, "")}`).join(" ")}</p>
                 )}
-                <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
+                <div className="mt-2 flex items-center gap-3 text-xs text-yt-muted">
                   <span title="조회수">👁 {formatNumber(v.viewCount)}</span>
                   <span title="좋아요">👍 {formatNumber(v.likeCount)}</span>
                   <span title="댓글">💬 {formatNumber(v.commentCount)}</span>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  <span className="text-[11px] font-bold text-gray-700">인기 점수</span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
+                  <span className="text-[11px] font-bold text-yt-text">인기 점수</span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-yt-raised">
                     <div className="h-full rounded-full bg-red-500" style={{ width: `${Math.min(100, v.popularity)}%` }} />
                   </div>
-                  <span className="text-xs font-bold text-gray-900">{v.popularity.toFixed(1)}</span>
+                  <span className="text-xs font-bold text-yt-text">{v.popularity.toFixed(1)}</span>
                 </div>
                 {onSummarize && (
                   <button
                     type="button"
                     disabled={summarizeDisabled}
                     onClick={() => onSummarize(v)}
-                    className="mt-2 w-full rounded-lg border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-bold text-purple-700 hover:bg-purple-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="mt-2 w-full rounded-lg border border-yt-violet/40 bg-yt-violet/15 px-3 py-1.5 text-xs font-bold text-yt-violet hover:bg-yt-violet/20 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     ✨ AI로 영상 요약하기
                   </button>

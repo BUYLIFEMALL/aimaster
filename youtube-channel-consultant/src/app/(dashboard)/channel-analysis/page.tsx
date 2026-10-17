@@ -117,9 +117,9 @@ function ChannelAnalysisInner() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
-        <h1 className="text-xl font-bold text-gray-900">채널 분석</h1>
-        <p className="mt-1 text-sm text-gray-500">채널 이름·@핸들·채널 주소를 입력하면 채널 지표와 최근 영상별 인기 점수를 분석합니다. 내 YouTube API 키로 조회합니다.</p>
+      <div className="rounded-2xl border border-yt-border bg-yt-surface p-6 shadow-xs">
+        <h1 className="text-2xl font-bold tracking-tight text-yt-text">채널 분석</h1>
+        <p className="mt-1 text-sm text-yt-muted">채널 이름·@핸들·채널 주소를 입력하면 채널 지표와 최근 영상별 인기 점수를 분석합니다. 내 YouTube API 키로 조회합니다.</p>
         <form
           className="mt-4 flex flex-col gap-2 sm:flex-row"
           onSubmit={(e) => {
@@ -133,12 +133,12 @@ function ChannelAnalysisInner() {
             <option value={100}>최근 영상 100개</option>
             <option value={200}>최근 영상 200개</option>
           </select>
-          <button type="submit" disabled={loading || !query.trim()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">
+          <button type="submit" disabled={loading || !query.trim()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-yt-red px-6 py-2.5 text-sm font-bold text-white hover:bg-yt-red-hover disabled:opacity-50">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             분석
           </button>
         </form>
-        <p className="mt-2 text-[11px] text-gray-500">
+        <p className="mt-2 text-[11px] text-yt-muted">
           예상 쿼터 약 {estimateQuota(query || "x", videoLimit)}유닛. {NAME_SEARCH_HINT}
         </p>
       </div>
@@ -146,23 +146,23 @@ function ChannelAnalysisInner() {
       {error && <ErrorBanner message={error.message} needApiKey={error.needApiKey} />}
 
       {loading && !result && (
-        <div className="flex items-center justify-center gap-2 py-16 text-sm text-gray-500">
+        <div className="flex items-center justify-center gap-2 py-16 text-sm text-yt-muted">
           <Loader2 className="h-5 w-5 animate-spin" /> 채널을 분석하는 중입니다...
         </div>
       )}
 
       {result && (
         <div className={`space-y-6 ${loading ? "opacity-60" : ""}`}>
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-xs">
+          <section className="rounded-2xl border border-yt-border bg-yt-surface p-5 shadow-xs">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {result.channel.thumbnailUrl && <img src={result.channel.thumbnailUrl} alt="" className="h-16 w-16 rounded-full bg-gray-100 object-cover" />}
+                {result.channel.thumbnailUrl && <img src={result.channel.thumbnailUrl} alt="" className="h-16 w-16 rounded-full bg-yt-raised object-cover" />}
                 <div className="min-w-0">
-                  <a href={`https://www.youtube.com/channel/${result.channel.id}`} target="_blank" rel="noopener noreferrer" className="block truncate text-lg font-bold text-gray-900 hover:text-red-700">
+                  <a href={`https://www.youtube.com/channel/${result.channel.id}`} target="_blank" rel="noopener noreferrer" className="block truncate text-lg font-bold text-yt-text hover:text-yt-danger">
                     {result.channel.title}
                   </a>
-                  <p className="truncate text-xs text-gray-500">{result.channel.handle ?? "채널 분석 결과"}</p>
+                  <p className="truncate text-xs text-yt-muted">{result.channel.handle ?? "채널 분석 결과"}</p>
                 </div>
               </div>
               <div className="flex flex-1 flex-wrap justify-around gap-2 lg:max-w-md">
@@ -170,19 +170,19 @@ function ChannelAnalysisInner() {
                 <StatBox label="총 조회수" value={formatNumber(result.channel.viewCount)} />
                 <StatBox label="총 영상 수" value={result.channel.videoCount.toLocaleString()} />
               </div>
-              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs">
-                <dt className="text-gray-500">채널 개설일</dt>
-                <dd className="font-medium text-gray-900">{result.channel.publishedAt && new Date(result.channel.publishedAt).getFullYear() >= 2005 ? formatDate(result.channel.publishedAt) : "-"}</dd>
-                <dt className="text-gray-500">분석 범위 최초 업로드</dt>
-                <dd className="font-medium text-gray-900">{result.uploadStats.oldestPublishedAt ? formatDate(result.uploadStats.oldestPublishedAt) : "-"}</dd>
-                <dt className="text-gray-500">평균 업로드 주기</dt>
-                <dd className="font-medium text-gray-900">{formatHours(result.uploadStats.averageIntervalHours)}</dd>
-                <dt className="text-gray-500">마지막 업로드 후</dt>
-                <dd className="font-medium text-gray-900">{formatHours(result.uploadStats.sinceLastUploadHours)}</dd>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-xl border border-yt-border bg-yt-raised p-3 text-xs">
+                <dt className="text-yt-muted">채널 개설일</dt>
+                <dd className="font-medium text-yt-text">{result.channel.publishedAt && new Date(result.channel.publishedAt).getFullYear() >= 2005 ? formatDate(result.channel.publishedAt) : "-"}</dd>
+                <dt className="text-yt-muted">분석 범위 최초 업로드</dt>
+                <dd className="font-medium text-yt-text">{result.uploadStats.oldestPublishedAt ? formatDate(result.uploadStats.oldestPublishedAt) : "-"}</dd>
+                <dt className="text-yt-muted">평균 업로드 주기</dt>
+                <dd className="font-medium text-yt-text">{formatHours(result.uploadStats.averageIntervalHours)}</dd>
+                <dt className="text-yt-muted">마지막 업로드 후</dt>
+                <dd className="font-medium text-yt-text">{formatHours(result.uploadStats.sinceLastUploadHours)}</dd>
               </dl>
             </div>
             {result.candidates.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3 text-xs text-gray-500">
+              <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-yt-border pt-3 text-xs text-yt-muted">
                 <span>다른 채널을 찾으셨나요?</span>
                 {result.candidates.map((c) => (
                   <button
@@ -192,7 +192,7 @@ function ChannelAnalysisInner() {
                       setQuery(c.id);
                       run(c.id, videoLimit);
                     }}
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1 font-medium text-gray-700 hover:border-red-300 hover:text-red-700"
+                    className="rounded-full border border-yt-border bg-yt-surface px-3 py-1 font-medium text-yt-text hover:border-yt-red hover:text-yt-danger"
                   >
                     {c.title}
                   </button>
@@ -200,7 +200,7 @@ function ChannelAnalysisInner() {
               </div>
             )}
             <div className="mt-3 space-y-1">
-              <p className="text-[11px] text-gray-500">
+              <p className="text-[11px] text-yt-muted">
                 분석 범위: 최근 업로드 영상 {videos.length}개 기준입니다(채널 전체가 아닙니다). 구독자 수·총 조회수·영상 수는 YouTube 채널 정보 그대로입니다.
               </p>
               <QuotaNote used={result.quotaUsed} fetchedAt={result.fetchedAt} />
@@ -208,7 +208,7 @@ function ChannelAnalysisInner() {
           </section>
 
           {videos.length === 0 ? (
-            <p className="rounded-2xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">공개된 업로드 영상이 없습니다.</p>
+            <p className="rounded-2xl border border-yt-border bg-yt-surface py-12 text-center text-sm text-yt-muted">공개된 업로드 영상이 없습니다.</p>
           ) : (
             <>
               <AiEngineBar
@@ -222,7 +222,7 @@ function ChannelAnalysisInner() {
               <ChartTabs
                 title={(label) => (label === "타임라인" ? "월별 조회수 합계 (게시 월 기준)" : label === "콘텐츠 포맷" ? "콘텐츠 포맷 비율 (쇼츠 추정)" : `${label} 분포 (Top 20)`)}
                 tabs={[
-                  { key: "popularity", label: "인기 점수", render: () => <><MetricTopChart videos={videos} pick={(v) => v.popularity} formatValue={(n) => n.toFixed(1)} /><p className="mt-3 text-[11px] text-gray-500">{POPULARITY_NOTE}</p></> },
+                  { key: "popularity", label: "인기 점수", render: () => <><MetricTopChart videos={videos} pick={(v) => v.popularity} formatValue={(n) => n.toFixed(1)} /><p className="mt-3 text-[11px] text-yt-muted">{POPULARITY_NOTE}</p></> },
                   { key: "views", label: "조회수", render: () => <MetricTopChart videos={videos} pick={(v) => v.viewCount} /> },
                   { key: "likes", label: "좋아요", render: () => <MetricTopChart videos={videos} pick={(v) => v.likeCount} /> },
                   { key: "comments", label: "댓글", render: () => <MetricTopChart videos={videos} pick={(v) => v.commentCount} /> },
@@ -239,7 +239,7 @@ function ChannelAnalysisInner() {
                             { label: "쇼츠(추정)", value: formatStats.shorts.length, color: "#f59e0b" },
                           ]}
                         />
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-yt-muted">
                           평균 조회수 — 일반 영상 {formatStats.longs.length ? formatNumber(formatStats.longsAvg) : "-"} · 쇼츠(추정) {formatStats.shorts.length ? formatNumber(formatStats.shortsAvg) : "-"}
                         </p>
                       </div>

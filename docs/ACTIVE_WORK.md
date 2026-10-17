@@ -18,5 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| youtube-channel-consultant | Claude Code(맥미니) | 2026-10-17 | 유튜브 다크 콘솔 디자인 리뉴얼 — 플랜 제시, 주인님 승인 대기 |
 | youtube-viral-studio | Codex(Windows) | 2026-10-17 | 맥미니eb515765 v1.13 유튜브 다크 인수: 빌드·무료 Edge 검수·배포 |

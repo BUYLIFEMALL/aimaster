@@ -10,7 +10,7 @@ function inline(text: string): ReactNode[] {
     }
     if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
       return (
-        <code key={i} className="rounded bg-gray-100 px-1 text-[0.85em]">
+        <code key={i} className="rounded bg-yt-raised px-1 text-[0.85em]">
           {part.slice(1, -1)}
         </code>
       );
@@ -45,7 +45,7 @@ export function Markdown({ text }: { text: string }) {
     if (heading) {
       flushList();
       blocks.push(
-        <h4 key={`h${blocks.length}`} className="mb-1 mt-5 text-sm font-bold text-gray-900 first:mt-0">
+        <h4 key={`h${blocks.length}`} className="mb-1 mt-5 text-sm font-bold text-yt-text first:mt-0">
           {inline(heading[1])}
         </h4>
       );
@@ -67,5 +67,5 @@ export function Markdown({ text }: { text: string }) {
   }
   flushList();
 
-  return <div className="text-sm leading-relaxed text-gray-800">{blocks}</div>;
+  return <div className="text-sm leading-relaxed text-yt-text">{blocks}</div>;
 }

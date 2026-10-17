@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — YOUTUBE CHANNEL CONSULTANT v1.07: 유튜브 다크 콘솔 — 스튜디오 변형 (🟠 윈도우 마무리 요청)
+
+- **대상**: `youtube-channel-consultant/` (https://youtube-channel-consultant.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
+- **한 일**: `youtube-viral-studio` v1.13과 같은 토큰·사이드바 이식(유튜브 3종 통일), 📖 매뉴얼 메뉴·`/guide` 신설(원칙 ⑦), 대시보드 배너, 로그인 다크(원칙 13). API·지표 변경 없음. `tsc --noEmit` 오류 0.
+- **추가개선(3대 항목)**: 공략 채널 찾기 ↔ viral-studio 황금 채널 중복 통합, 분석 결과 회원별 저장(30일), 키워드 → 블로그 키워드 도구 연계 — [`IMPROVEMENTS.md`](../youtube-channel-consultant/docs/IMPROVEMENTS.md).
+- **⚠️ 윈도우 CLI 요청**: [`youtube-channel-consultant/docs/IMPROVEMENT_HANDOFF_20261017.md`](../youtube-channel-consultant/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.07 → 검수(분석·AI 금지) → 27번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Codex(Windows) — youtube-viral-studio v1.13 Windows 사전 검수 완료·운영 배포 진행
 
 - 맥미니 eb515765 인수. 유튜브 다크 유지, fetchCache 포함 빌드 통과. Next16.4.2 보안 보완, package1.13.0.

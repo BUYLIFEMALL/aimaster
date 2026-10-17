@@ -113,9 +113,9 @@ export default function KeywordAnalysisPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
-        <h1 className="text-xl font-bold text-gray-900">키워드 분석</h1>
-        <p className="mt-1 text-sm text-gray-500">키워드로 검색된 영상의 조회수·좋아요·댓글, 채널 점유율, 영상 연령을 분석합니다. 내 YouTube API 키로 조회합니다.</p>
+      <div className="rounded-2xl border border-yt-border bg-yt-surface p-6 shadow-xs">
+        <h1 className="text-2xl font-bold tracking-tight text-yt-text">키워드 분석</h1>
+        <p className="mt-1 text-sm text-yt-muted">키워드로 검색된 영상의 조회수·좋아요·댓글, 채널 점유율, 영상 연령을 분석합니다. 내 YouTube API 키로 조회합니다.</p>
         <form
           className="mt-4 space-y-3"
           onSubmit={(e) => {
@@ -125,7 +125,7 @@ export default function KeywordAnalysisPage() {
         >
           <div className="flex flex-col gap-2 sm:flex-row">
             <input className={INPUT_CLASS} value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="분석할 키워드 (예: AI자동화)" maxLength={100} />
-            <button type="submit" disabled={loading || !keyword.trim()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">
+            <button type="submit" disabled={loading || !keyword.trim()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-yt-red px-6 py-2.5 text-sm font-bold text-white hover:bg-yt-red-hover disabled:opacity-50">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               분석
             </button>
@@ -154,7 +154,7 @@ export default function KeywordAnalysisPage() {
             </select>
           </div>
         </form>
-        <p className="mt-2 text-[11px] text-gray-500">
+        <p className="mt-2 text-[11px] text-yt-muted">
           예상 쿼터 약 {estimate}유닛(검색 1페이지당 100유닛). 지역·카테고리·검색 기준을 바꾸면 새로 검색하므로 쿼터가 다시 듭니다. 아래 결과의 필터·정렬은 쿼터가 들지 않습니다.
         </p>
       </div>
@@ -162,18 +162,18 @@ export default function KeywordAnalysisPage() {
       {error && <ErrorBanner message={error.message} needApiKey={error.needApiKey} />}
 
       {loading && !result && (
-        <div className="flex items-center justify-center gap-2 py-16 text-sm text-gray-500">
+        <div className="flex items-center justify-center gap-2 py-16 text-sm text-yt-muted">
           <Loader2 className="h-5 w-5 animate-spin" /> 키워드 검색 결과를 분석하는 중입니다...
         </div>
       )}
 
       {result && (
         <div className={`space-y-6 ${loading ? "opacity-60" : ""}`}>
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-xs">
+          <section className="rounded-2xl border border-yt-border bg-yt-surface p-5 shadow-xs">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-lg font-bold text-gray-900">키워드: &quot;{result.keyword}&quot;</p>
-                <p className="text-xs text-gray-500">검색 결과 {videos.length}개 영상 분석</p>
+                <p className="text-lg font-bold text-yt-text">키워드: &quot;{result.keyword}&quot;</p>
+                <p className="text-xs text-yt-muted">검색 결과 {videos.length}개 영상 분석</p>
               </div>
               <div className="flex flex-1 flex-wrap justify-around gap-2 lg:max-w-xl">
                 <StatBox label="총 조회수" value={formatNumber(result.totals.views)} />
@@ -187,14 +187,14 @@ export default function KeywordAnalysisPage() {
           </section>
 
           {videos.length === 0 ? (
-            <p className="rounded-2xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">검색 결과가 없습니다. 키워드나 조건을 바꿔보세요.</p>
+            <p className="rounded-2xl border border-yt-border bg-yt-surface py-12 text-center text-sm text-yt-muted">검색 결과가 없습니다. 키워드나 조건을 바꿔보세요.</p>
           ) : (
             <>
               <AiEngineBar engine={aiEngine} actions={[{ label: "AI 경쟁 전략 분석", onClick: runCompetition }]} />
               <ChartTabs
                 title={(label) => (label === "채널 점유율" ? "채널별 조회수 점유율 (상위 10개 채널)" : label === "영상 연령" ? "영상 게시 시기 분포" : `"${result.keyword}" 검색 결과 ${label} 분포 (Top 20)`)}
                 tabs={[
-                  { key: "popularity", label: "인기 점수", render: () => <><MetricTopChart videos={videos} pick={(v) => v.popularity} formatValue={(n) => n.toFixed(1)} /><p className="mt-3 text-[11px] text-gray-500">{POPULARITY_NOTE}</p></> },
+                  { key: "popularity", label: "인기 점수", render: () => <><MetricTopChart videos={videos} pick={(v) => v.popularity} formatValue={(n) => n.toFixed(1)} /><p className="mt-3 text-[11px] text-yt-muted">{POPULARITY_NOTE}</p></> },
                   { key: "views", label: "조회수", render: () => <MetricTopChart videos={videos} pick={(v) => v.viewCount} /> },
                   { key: "likes", label: "좋아요", render: () => <MetricTopChart videos={videos} pick={(v) => v.likeCount} /> },
                   { key: "comments", label: "댓글", render: () => <MetricTopChart videos={videos} pick={(v) => v.commentCount} /> },

@@ -73,9 +73,9 @@ export default function GoldenChannelsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
-        <h1 className="text-xl font-bold text-gray-900">공략 채널 찾기</h1>
-        <p className="mt-1 text-sm text-gray-500">
+      <div className="rounded-2xl border border-yt-border bg-yt-surface p-6 shadow-xs">
+        <h1 className="text-2xl font-bold tracking-tight text-yt-text">공략 채널 찾기</h1>
+        <p className="mt-1 text-sm text-yt-muted">
           키워드로 최근 인기 영상을 찾은 뒤, 구독자는 적은데 채널 평균 조회수가 높은 &quot;벤치마킹 타깃&quot; 채널을 골라줍니다. 내 YouTube API 키로 조회합니다.
         </p>
         <form
@@ -87,7 +87,7 @@ export default function GoldenChannelsPage() {
         >
           <div className="flex flex-col gap-2 sm:flex-row">
             <input className={INPUT_CLASS} value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="찾고 싶은 분야 키워드 (예: AI자동화)" maxLength={100} />
-            <button type="submit" disabled={loading || !keyword.trim()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">
+            <button type="submit" disabled={loading || !keyword.trim()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-yt-red px-6 py-2.5 text-sm font-bold text-white hover:bg-yt-red-hover disabled:opacity-50">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               찾기
             </button>
@@ -126,27 +126,27 @@ export default function GoldenChannelsPage() {
             </select>
           </div>
         </form>
-        <p className="mt-2 text-[11px] text-gray-500">예상 쿼터 약 {estimate}유닛(검색 1페이지당 100유닛). 조건을 바꿔 다시 찾으면 쿼터가 다시 듭니다. 결과의 정렬은 쿼터가 들지 않습니다.</p>
+        <p className="mt-2 text-[11px] text-yt-muted">예상 쿼터 약 {estimate}유닛(검색 1페이지당 100유닛). 조건을 바꿔 다시 찾으면 쿼터가 다시 듭니다. 결과의 정렬은 쿼터가 들지 않습니다.</p>
       </div>
 
       {error && <ErrorBanner message={error.message} needApiKey={error.needApiKey} />}
 
       {loading && !result && (
-        <div className="flex items-center justify-center gap-2 py-16 text-sm text-gray-500">
+        <div className="flex items-center justify-center gap-2 py-16 text-sm text-yt-muted">
           <Loader2 className="h-5 w-5 animate-spin" /> 공략 채널을 찾는 중입니다...
         </div>
       )}
 
       {result && (
         <div className={`space-y-4 ${loading ? "opacity-60" : ""}`}>
-          <section className="space-y-2 rounded-2xl border border-gray-200 bg-white p-4 shadow-xs">
+          <section className="space-y-2 rounded-2xl border border-yt-border bg-yt-surface p-4 shadow-xs">
             <div className="flex flex-wrap items-center gap-3">
-              <p className="text-sm font-bold text-gray-900">
+              <p className="text-sm font-bold text-yt-text">
                 &quot;{result.keyword}&quot; 검색: 영상 {result.scannedVideos}개 → 채널 {result.scannedChannels}개 중 조건에 맞는 채널 {result.channels.length}개
               </p>
-              <label className="ml-auto flex items-center gap-1.5 text-xs text-gray-600">
+              <label className="ml-auto flex items-center gap-1.5 text-xs text-yt-muted">
                 정렬
-                <select className="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-800" value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)}>
+                <select className="rounded-lg border border-yt-border bg-yt-surface px-2.5 py-1.5 text-xs font-medium text-yt-text" value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)}>
                   {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
                     <option key={k} value={k}>
                       {SORT_LABELS[k]}
@@ -161,7 +161,7 @@ export default function GoldenChannelsPage() {
                 <Download size={13} /> CSV 내보내기
               </button>
             </div>
-            <p className="text-[11px] text-gray-500">
+            <p className="text-[11px] text-yt-muted">
               평균 조회수 = 채널 전체 누적 조회수 ÷ 영상 수이며 최근 영상의 평균이 아닙니다. 파괴력 배수 = 평균 조회수 ÷ 구독자 수입니다. 이번 검색에 잡힌 채널만 대상이라 시장 전체를 뜻하지 않습니다.
               {result.hiddenSubscriberExcluded > 0 && ` 구독자 수를 비공개한 채널 ${result.hiddenSubscriberExcluded}개는 배수를 계산할 수 없어 제외했습니다.`}
             </p>
@@ -169,54 +169,54 @@ export default function GoldenChannelsPage() {
           </section>
 
           {sorted.length === 0 ? (
-            <p className="rounded-2xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">
+            <p className="rounded-2xl border border-yt-border bg-yt-surface py-12 text-center text-sm text-yt-muted">
               조건에 맞는 채널이 없습니다. 구독자 상한을 올리거나 평균 조회수 기준을 낮추고, 기간을 늘려보세요.
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {sorted.map((c, i) => (
-                <article key={c.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-xs">
+                <article key={c.id} className="rounded-2xl border border-yt-border bg-yt-surface p-4 shadow-xs">
                   <div className="flex items-start gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {c.thumbnailUrl ? <img src={c.thumbnailUrl} alt="" className="h-14 w-14 shrink-0 rounded-full bg-gray-100 object-cover" loading="lazy" /> : <div className="h-14 w-14 shrink-0 rounded-full bg-gray-100" />}
+                    {c.thumbnailUrl ? <img src={c.thumbnailUrl} alt="" className="h-14 w-14 shrink-0 rounded-full bg-yt-raised object-cover" loading="lazy" /> : <div className="h-14 w-14 shrink-0 rounded-full bg-yt-raised" />}
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-bold text-gray-400">#{i + 1}</p>
-                      <a href={`https://www.youtube.com/channel/${c.id}`} target="_blank" rel="noopener noreferrer" className="block truncate text-sm font-bold text-gray-900 hover:text-red-700">
+                      <p className="text-[11px] font-bold text-yt-muted">#{i + 1}</p>
+                      <a href={`https://www.youtube.com/channel/${c.id}`} target="_blank" rel="noopener noreferrer" className="block truncate text-sm font-bold text-yt-text hover:text-yt-danger">
                         {c.title}
                       </a>
-                      <p className="truncate text-[11px] text-gray-500">
+                      <p className="truncate text-[11px] text-yt-muted">
                         {c.handle ?? ""} {c.publishedAt && new Date(c.publishedAt).getFullYear() >= 2005 ? `· 개설 ${formatDate(c.publishedAt)}` : ""}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="text-2xl font-extrabold text-red-600">{c.powerRatio.toLocaleString()}배</p>
-                      <p className="text-[10px] text-gray-500">구독자 대비 파괴력</p>
+                      <p className="text-2xl font-extrabold text-yt-danger">{c.powerRatio.toLocaleString()}배</p>
+                      <p className="text-[10px] text-yt-muted">구독자 대비 파괴력</p>
                     </div>
                   </div>
-                  <dl className="mt-3 grid grid-cols-4 gap-2 rounded-xl bg-gray-50 p-2 text-center text-xs">
+                  <dl className="mt-3 grid grid-cols-4 gap-2 rounded-xl bg-yt-raised p-2 text-center text-xs">
                     <div>
-                      <dt className="text-gray-500">구독자</dt>
-                      <dd className="font-bold text-gray-900">{formatNumber(c.subscriberCount)}</dd>
+                      <dt className="text-yt-muted">구독자</dt>
+                      <dd className="font-bold text-yt-text">{formatNumber(c.subscriberCount)}</dd>
                     </div>
                     <div>
-                      <dt className="text-gray-500">평균 조회수</dt>
-                      <dd className="font-bold text-gray-900">{formatNumber(c.averageViews)}</dd>
+                      <dt className="text-yt-muted">평균 조회수</dt>
+                      <dd className="font-bold text-yt-text">{formatNumber(c.averageViews)}</dd>
                     </div>
                     <div>
-                      <dt className="text-gray-500">총 조회수</dt>
-                      <dd className="font-bold text-gray-900">{formatNumber(c.viewCount)}</dd>
+                      <dt className="text-yt-muted">총 조회수</dt>
+                      <dd className="font-bold text-yt-text">{formatNumber(c.viewCount)}</dd>
                     </div>
                     <div>
-                      <dt className="text-gray-500">영상 수</dt>
-                      <dd className="font-bold text-gray-900">{c.videoCount.toLocaleString()}</dd>
+                      <dt className="text-yt-muted">영상 수</dt>
+                      <dd className="font-bold text-yt-text">{c.videoCount.toLocaleString()}</dd>
                     </div>
                   </dl>
-                  <a href={`https://www.youtube.com/watch?v=${c.bestVideo.id}`} target="_blank" rel="noopener noreferrer" className="mt-3 flex gap-2 rounded-xl border border-gray-100 p-2 hover:bg-gray-50">
+                  <a href={`https://www.youtube.com/watch?v=${c.bestVideo.id}`} target="_blank" rel="noopener noreferrer" className="mt-3 flex gap-2 rounded-xl border border-yt-border p-2 hover:bg-yt-hover">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.bestVideo.thumbnailUrl} alt="" className="h-14 w-24 shrink-0 rounded-lg bg-gray-100 object-cover" loading="lazy" />
+                    <img src={c.bestVideo.thumbnailUrl} alt="" className="h-14 w-24 shrink-0 rounded-lg bg-yt-raised object-cover" loading="lazy" />
                     <div className="min-w-0">
-                      <p className="line-clamp-2 text-xs font-bold text-gray-900">{c.bestVideo.title}</p>
-                      <p className="mt-0.5 text-[11px] text-gray-500">
+                      <p className="line-clamp-2 text-xs font-bold text-yt-text">{c.bestVideo.title}</p>
+                      <p className="mt-0.5 text-[11px] text-yt-muted">
                         이번 검색에서 잡힌 대표 영상 · 조회수 {formatNumber(c.bestVideo.viewCount)} · {formatDate(c.bestVideo.publishedAt)}
                         {c.matchedVideos > 1 ? ` · 같은 채널 ${c.matchedVideos}개 영상` : ""}
                       </p>
@@ -225,7 +225,7 @@ export default function GoldenChannelsPage() {
                   <button
                     type="button"
                     onClick={() => router.push(`/channel-analysis?q=${encodeURIComponent(c.id)}`)}
-                    className="mt-3 w-full rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100"
+                    className="mt-3 w-full rounded-lg border border-yt-red/40 bg-yt-red/10 px-3 py-1.5 text-xs font-bold text-yt-danger hover:bg-yt-red/20"
                   >
                     이 채널 분석하기
                   </button>

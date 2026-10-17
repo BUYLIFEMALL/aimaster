@@ -7,23 +7,23 @@ import { formatNumber } from "@/lib/youtube/metrics";
 import { BarChart } from "./Charts";
 
 export const INPUT_CLASS =
-  "w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500";
+  "w-full rounded-xl border border-yt-border bg-yt-raised px-3.5 py-2.5 text-sm text-yt-text focus:bg-yt-surface focus:outline-hidden focus:ring-2 focus:ring-yt-red";
 export const SELECT_CLASS =
-  "rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-red-500";
+  "rounded-xl border border-yt-border bg-yt-surface px-3 py-2.5 text-sm text-yt-text focus:outline-hidden focus:ring-2 focus:ring-yt-red";
 
 export function StatBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-[90px] flex-1 text-center">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="mt-1 text-2xl font-extrabold text-red-600">{value}</p>
+      <p className="text-xs text-yt-muted">{label}</p>
+      <p className="mt-1 text-2xl font-extrabold text-yt-danger">{value}</p>
     </div>
   );
 }
 
 export function ErrorBanner({ message, needApiKey }: { message: string; needApiKey?: boolean }) {
   return (
-    <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+    <div className="flex items-start gap-2 rounded-xl border border-yt-red/40 bg-yt-red/10 p-4 text-sm text-yt-danger">
+      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-yt-danger" />
       <div>
         <p>{message}</p>
         {needApiKey && (
@@ -38,7 +38,7 @@ export function ErrorBanner({ message, needApiKey }: { message: string; needApiK
 
 export function QuotaNote({ used, fetchedAt }: { used: number; fetchedAt: string }) {
   return (
-    <p className="text-[11px] text-gray-500">
+    <p className="text-[11px] text-yt-muted">
       이번 분석에 쓴 YouTube 쿼터: 약 {used.toLocaleString()}유닛 (하루 기본 10,000유닛) · 조회 시각 {new Date(fetchedAt).toLocaleString("ko-KR")}
     </p>
   );
