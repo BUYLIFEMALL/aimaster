@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccessApi, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -37,7 +39,7 @@ async function generateWithNanobanana(
   apiKey: string
 ) {
   const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
     {
       method: "POST",
       headers: {
