@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { deleteSavedPromptAction, listSavedPromptsAction } from "@/lib/actions/savedPrompts";
 import { downloadPromptSetMarkdown, formatPromptSetText } from "@/lib/export";
-import { Card, CopyBox, ErrorBanner, GhostButton, StepHeader } from "@/components/studio/ui";
+import { Card, CopyBox, ErrorBanner, GhostButton } from "@/components/studio/ui";
 import type { SavedPromptSet } from "@/types/svs";
 
 function matches(set: SavedPromptSet, q: string): boolean {
@@ -70,8 +70,8 @@ export function VaultPanel() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">📚 프롬프트 보관함</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h1 className="text-2xl font-bold tracking-tight text-[#f0f6fc]">📚 프롬프트 보관함</h1>
+        <p className="mt-1 text-sm text-[#8b949e]">
           6단계에서 <strong>보관함에 저장</strong>한 최종 이미지·영상·BGM 프롬프트를 모아 봅니다. 프로젝트와 달리 직접 삭제할 때까지 보관됩니다.
         </p>
       </div>
@@ -81,9 +81,9 @@ export function VaultPanel() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="제목·키워드·프롬프트 내용으로 검색"
-          className="min-w-[240px] flex-1 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none"
+          className="min-w-[240px] flex-1 rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] placeholder-[#8b949e] focus:border-rose-500 focus:outline-none"
         />
-        <span className="text-xs text-neutral-500">
+        <span className="text-xs text-[#8b949e]">
           {sets === null ? "" : `${filtered.length}세트${query ? ` / 전체 ${sets.length}세트` : ""}`}
         </span>
       </div>
@@ -92,13 +92,13 @@ export function VaultPanel() {
 
       {sets === null ? (
         <Card>
-          <p className="py-8 text-center text-sm text-neutral-400">불러오는 중…</p>
+          <p className="py-8 text-center text-sm text-[#8b949e]">불러오는 중…</p>
         </Card>
       ) : sets.length === 0 ? (
         <Card>
-          <p className="py-8 text-center text-sm text-neutral-400">
+          <p className="py-8 text-center text-sm text-[#8b949e]">
             아직 저장된 프롬프트가 없습니다.{" "}
-            <Link href="/prompts" className="font-semibold text-rose-600 underline">
+            <Link href="/prompts" className="font-semibold text-rose-400 underline hover:text-rose-300">
               6단계 프롬프트
             </Link>
             에서 프롬프트를 만든 뒤 &lsquo;보관함에 저장&rsquo;을 눌러 보세요.
@@ -106,7 +106,7 @@ export function VaultPanel() {
         </Card>
       ) : filtered.length === 0 ? (
         <Card>
-          <p className="py-8 text-center text-sm text-neutral-400">검색 결과가 없습니다.</p>
+          <p className="py-8 text-center text-sm text-[#8b949e]">검색 결과가 없습니다.</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -116,14 +116,14 @@ export function VaultPanel() {
               <Card key={set.id}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-base font-bold text-neutral-900" title={set.title}>
+                    <div className="truncate text-base font-bold text-[#f0f6fc]" title={set.title}>
                       {set.title}
                     </div>
-                    <div className="mt-1 text-[11px] text-neutral-500">
+                    <div className="mt-1 text-[11px] text-[#8b949e]">
                       {set.keyword ? `키워드 ${set.keyword} · ` : ""}씬 {set.prompts.length}개
                       {set.bgmPrompt ? " · BGM 포함" : ""} · 저장 {new Date(set.createdAt).toLocaleString("ko-KR")}
                     </div>
-                    {set.hook && <div className="mt-1.5 text-xs text-neutral-600">⚡ &ldquo;{set.hook}&rdquo;</div>}
+                    {set.hook && <div className="mt-1.5 text-xs text-[#c9d1d9]">⚡ &ldquo;{set.hook}&rdquo;</div>}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <GhostButton onClick={() => setOpenId(open ? null : set.id)} className="py-1.5 text-xs">
@@ -138,7 +138,7 @@ export function VaultPanel() {
                     <button
                       type="button"
                       onClick={() => remove(set.id)}
-                      className="rounded-xl px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-50"
+                      className="rounded-xl px-3 py-1.5 text-xs font-semibold text-rose-400 hover:bg-rose-950/40 transition-colors"
                     >
                       삭제
                     </button>
@@ -146,23 +146,23 @@ export function VaultPanel() {
                 </div>
 
                 {open && (
-                  <div className="mt-4 space-y-4 border-t border-neutral-100 pt-4">
+                  <div className="mt-4 space-y-4 border-t border-[#30363d] pt-4">
                     {set.bgmPrompt?.sunoPrompt && (
-                      <div className="rounded-xl border border-rose-200 bg-rose-50/30 p-3.5">
-                        <div className="mb-2 text-sm font-bold text-neutral-900">
+                      <div className="rounded-xl border border-rose-500/30 bg-[#0d1117] p-3.5">
+                        <div className="mb-2 text-sm font-bold text-[#f0f6fc]">
                           🎵 {set.bgmPrompt.title}
-                          {set.bgmPrompt.bpm ? <span className="ml-2 text-xs font-normal text-neutral-500">{set.bgmPrompt.bpm}</span> : null}
+                          {set.bgmPrompt.bpm ? <span className="ml-2 text-xs font-normal text-[#8b949e]">{set.bgmPrompt.bpm}</span> : null}
                         </div>
                         <CopyBox label="SUNO / UDIO PROMPT" text={set.bgmPrompt.sunoPrompt} tone="dark" />
                       </div>
                     )}
                     {set.prompts.map((p) => (
-                      <div key={p.sceneNumber} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3.5">
+                      <div key={p.sceneNumber} className="rounded-xl border border-[#30363d] bg-[#0d1117] p-3.5">
                         <div className="mb-2 flex items-center justify-between gap-2">
-                          <span className="rounded bg-rose-50 px-2 py-0.5 font-mono text-xs font-extrabold text-rose-600">
+                          <span className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 font-mono text-xs font-extrabold text-rose-400">
                             SCENE {p.sceneNumber}
                           </span>
-                          <span className="text-xs text-neutral-500">{p.sceneSummary}</span>
+                          <span className="text-xs text-[#8b949e]">{p.sceneSummary}</span>
                         </div>
                         <div className="space-y-3">
                           {p.imagePrompt && <CopyBox label="🖼️ IMAGE PROMPT (9:16)" text={p.imagePrompt} tone="dark" />}

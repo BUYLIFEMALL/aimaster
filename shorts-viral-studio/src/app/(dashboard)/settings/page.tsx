@@ -54,14 +54,14 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 pb-12">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">🔑 API키등록·플랫폼연동</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h1 className="text-2xl font-bold tracking-tight text-[#f0f6fc]">🔑 API키등록·플랫폼연동</h1>
+        <p className="mt-1 text-sm text-[#8b949e]">
           이 프로그램은 회원님 본인의 키로 동작합니다. <strong>YouTube 키는 필수</strong>이고, AI 키는 셋 중{" "}
           <strong>1개 이상</strong> 등록하면 됩니다. 영상 직접 분석을 쓰려면 Gemini 키를 권장합니다.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 text-xs leading-relaxed text-amber-800">
+      <div className="rounded-2xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs leading-relaxed text-amber-300">
         💡 <strong>안내:</strong> AIMaster는 &apos;엔진은 우리가 만들고, 연료(API키)는 회원 본인 것을 쓴다&apos;는 원칙으로 운영됩니다.
         등록한 키는 회원님의 쇼츠 검색·분석·생성에만 사용되며, 다른 회원과 공유되지 않습니다.
       </div>
@@ -72,19 +72,19 @@ export default async function SettingsPage() {
           const isRegistered = Boolean(existingKey);
 
           return (
-            <div key={item.id} className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
-              <div className="flex flex-col justify-between gap-2 border-b border-neutral-100 pb-3 sm:flex-row sm:items-center">
+            <div key={item.id} className="rounded-2xl border border-[#30363d] bg-[#161b22] p-5 shadow-xs">
+              <div className="flex flex-col justify-between gap-2 border-b border-[#30363d] pb-3 sm:flex-row sm:items-center">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-bold text-neutral-900">{item.name}</span>
+                  <span className="text-sm font-bold text-[#f0f6fc]">{item.name}</span>
                   {item.required && (
-                    <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-600">필수</span>
+                    <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-2 py-0.5 text-[11px] font-bold text-rose-400">필수</span>
                   )}
                   {isRegistered ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-400">
                       ✓ 등록됨
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-500">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#30363d] bg-[#0d1117] px-2 py-0.5 text-[11px] font-semibold text-[#8b949e]">
                       미등록
                     </span>
                   )}
@@ -93,21 +93,21 @@ export default async function SettingsPage() {
                   href={item.guideUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs text-neutral-400 underline hover:text-neutral-700"
+                  className="text-xs text-[#8b949e] underline hover:text-[#f0f6fc]"
                 >
                   키 발급 사이트 열기 ↗
                 </a>
               </div>
 
-              <p className="mt-2 text-xs leading-relaxed text-neutral-500">{item.desc}</p>
+              <p className="mt-2 text-xs leading-relaxed text-[#8b949e]">{item.desc}</p>
 
               <div className="mt-4">
                 {isRegistered ? (
-                  <div className="flex items-center justify-between gap-3 rounded-xl bg-neutral-50 p-3">
-                    <span className="font-mono text-xs text-neutral-500">••••••••••••••••{existingKey?.slice(-4)}</span>
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-[#30363d] bg-[#0d1117] p-3">
+                    <span className="font-mono text-xs text-[#8b949e]">••••••••••••••••{existingKey?.slice(-4)}</span>
                     <form action={deleteApiKeyAction}>
                       <input type="hidden" name="provider" value={item.id} />
-                      <button type="submit" className="text-xs font-semibold text-rose-500 hover:text-rose-700">
+                      <button type="submit" className="text-xs font-semibold text-rose-400 hover:text-rose-300">
                         삭제
                       </button>
                     </form>
@@ -121,11 +121,11 @@ export default async function SettingsPage() {
                       placeholder="API 키를 여기에 붙여넣으세요"
                       required
                       maxLength={500}
-                      className="flex-1 rounded-xl border border-neutral-200 px-3.5 py-2 text-xs focus:border-neutral-900 focus:outline-none"
+                      className="flex-1 rounded-xl border border-[#30363d] bg-[#0d1117] px-3.5 py-2 text-xs text-[#f0f6fc] placeholder-[#8b949e] focus:border-rose-500 focus:outline-none"
                     />
                     <button
                       type="submit"
-                      className="rounded-xl bg-neutral-900 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-black"
+                      className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-700"
                     >
                       저장하기
                     </button>
@@ -137,9 +137,9 @@ export default async function SettingsPage() {
         })}
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
-        <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
-        <p className="mt-1 text-xs text-neutral-500">
+      <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-5 shadow-xs">
+        <h2 className="text-sm font-bold text-[#f0f6fc]">📖 연동 매뉴얼</h2>
+        <p className="mt-1 text-xs text-[#8b949e]">
           버튼을 누르면 팝업창으로 열려, 이 화면 옆에 두고 그대로 따라 할 수 있습니다.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">

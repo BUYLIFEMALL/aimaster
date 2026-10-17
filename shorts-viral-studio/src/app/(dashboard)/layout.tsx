@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   const user = await requireProgramAccess();
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-neutral-50/50">
+    <div className="flex min-h-screen flex-col md:flex-row bg-[#0d1117] text-[#f0f6fc]">
       <Sidebar userEmail={user.email ?? ""} />
       <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 p-4 md:p-8">
         <StudioProvider>{children}</StudioProvider>

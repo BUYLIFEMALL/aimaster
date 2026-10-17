@@ -50,7 +50,7 @@ function exportCsv(videos: ShortVideo[]) {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 focus:border-rose-500 focus:outline-none";
+  "w-full rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] placeholder-[#8b949e] focus:border-rose-500 focus:outline-none";
 
 export function SearchStep() {
   const router = useRouter();
@@ -182,54 +182,54 @@ export function SearchStep() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
-          <span className="text-xs font-bold text-neutral-500">프리셋</span>
-          <button type="button" onClick={() => applyPreset("viral")} className="font-semibold text-rose-600 hover:underline">🔥 지금 떡상</button>
-          <span className="text-neutral-300">|</span>
-          <button type="button" onClick={() => applyPreset("small")} className="font-semibold text-rose-600 hover:underline">🚀 작은 채널 대박</button>
-          <span className="text-neutral-300">|</span>
-          <button type="button" onClick={() => applyPreset("trending")} className="font-semibold text-rose-600 hover:underline">⚡ 급상승</button>
-          <span className="text-neutral-300">|</span>
-          <button type="button" onClick={() => applyPreset("reset")} className="text-xs text-neutral-500 underline">초기화</button>
+          <span className="text-xs font-bold text-[#8b949e]">프리셋</span>
+          <button type="button" onClick={() => applyPreset("viral")} className="font-semibold text-rose-400 hover:underline">🔥 지금 떡상</button>
+          <span className="text-[#30363d]">|</span>
+          <button type="button" onClick={() => applyPreset("small")} className="font-semibold text-rose-400 hover:underline">🚀 작은 채널 대박</button>
+          <span className="text-[#30363d]">|</span>
+          <button type="button" onClick={() => applyPreset("trending")} className="font-semibold text-rose-400 hover:underline">⚡ 급상승</button>
+          <span className="text-[#30363d]">|</span>
+          <button type="button" onClick={() => applyPreset("reset")} className="text-xs text-[#8b949e] underline hover:text-[#f0f6fc]">초기화</button>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <label className="text-xs font-semibold text-neutral-500 lg:col-span-2">
+          <label className="text-xs font-semibold text-[#8b949e] lg:col-span-2">
             게시 기간
-            <div className="mt-1 flex items-center gap-1.5">
+            <div className="mt-1 flex items-center gap-1.5 text-[#8b949e]">
               <input type="date" value={search.dateFrom} onChange={(e) => update({ search: { ...search, dateFrom: e.target.value } })} className={inputCls} />
               <span>~</span>
               <input type="date" value={search.dateTo} onChange={(e) => update({ search: { ...search, dateTo: e.target.value } })} className={inputCls} />
             </div>
           </label>
-          <label className="text-xs font-semibold text-neutral-500">
+          <label className="text-xs font-semibold text-[#8b949e]">
             검색 정렬
             <select value={search.order} onChange={(e) => update({ search: { ...search, order: e.target.value as SearchOrder } })} className={`${inputCls} mt-1`}>
-              <option value="viewCount">조회수 높은 순</option>
-              <option value="relevance">관련도 순</option>
-              <option value="date">최신 순</option>
+              <option value="viewCount" className="bg-[#161b22] text-[#f0f6fc]">조회수 높은 순</option>
+              <option value="relevance" className="bg-[#161b22] text-[#f0f6fc]">관련도 순</option>
+              <option value="date" className="bg-[#161b22] text-[#f0f6fc]">최신 순</option>
             </select>
           </label>
-          <label className="text-xs font-semibold text-neutral-500">
+          <label className="text-xs font-semibold text-[#8b949e]">
             영상 길이
             <select value={filters.maxDuration} onChange={(e) => update({ filters: { ...filters, maxDuration: e.target.value } })} className={`${inputCls} mt-1`}>
-              <option value="60">1분 이내</option>
-              <option value="180">3분 이내 (쇼츠 최대)</option>
-              <option value="all">전체</option>
+              <option value="60" className="bg-[#161b22] text-[#f0f6fc]">1분 이내</option>
+              <option value="180" className="bg-[#161b22] text-[#f0f6fc]">3분 이내 (쇼츠 최대)</option>
+              <option value="all" className="bg-[#161b22] text-[#f0f6fc]">전체</option>
             </select>
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="text-xs font-semibold text-neutral-500">
+            <label className="text-xs font-semibold text-[#8b949e]">
               최소 조회수
               <input type="number" min={0} value={filters.minViews} onChange={(e) => update({ filters: { ...filters, minViews: e.target.value } })} placeholder="10000" className={`${inputCls} mt-1`} />
             </label>
-            <label className="text-xs font-semibold text-neutral-500">
+            <label className="text-xs font-semibold text-[#8b949e]">
               최대 구독자
               <input type="number" min={0} value={filters.maxSubs} onChange={(e) => update({ filters: { ...filters, maxSubs: e.target.value } })} placeholder="50000" className={`${inputCls} mt-1`} />
             </label>
           </div>
         </div>
 
-        <p className="mt-3 text-[11px] leading-relaxed text-neutral-400">
+        <p className="mt-3 text-[11px] leading-relaxed text-[#8b949e]">
           💡 검색 1회는 YouTube 할당량 약 100유닛을 사용합니다(기본 하루 1만유닛 ≈ 100회). 필터는 이미 가져온 결과에 바로 적용되며 추가 할당량을 쓰지 않습니다.
         </p>
       </Card>
@@ -238,11 +238,11 @@ export function SearchStep() {
 
       <Card>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-bold text-neutral-900">
-            검색 결과 <span className="text-xs font-normal text-neutral-400">({filtered.length}개 / 전체 {videos.length}개)</span>
+          <h2 className="text-base font-bold text-[#f0f6fc]">
+            검색 결과 <span className="text-xs font-normal text-[#8b949e]">({filtered.length}개 / 전체 {videos.length}개)</span>
           </h2>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-neutral-500">선택 {selectedIds.length}/{MAX_SELECT}</span>
+            <span className="text-xs text-[#8b949e]">선택 {selectedIds.length}/{MAX_SELECT}</span>
             <GhostButton onClick={() => exportCsv(filtered)} disabled={filtered.length === 0} className="py-2 text-xs">📥 CSV 내보내기</GhostButton>
             <PrimaryButton onClick={goAnalyze} disabled={selectedIds.length === 0} className="py-2 text-xs">
               선택 영상 분석하기 ➔
@@ -251,14 +251,14 @@ export function SearchStep() {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="py-10 text-center text-sm text-neutral-400">
+          <p className="py-10 text-center text-sm text-[#8b949e]">
             {videos.length === 0 ? "아직 검색 결과가 없습니다. 키워드를 입력해 검색해 보세요." : "조건에 맞는 영상이 없습니다. 필터를 조정해 보세요."}
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] text-left text-sm">
               <thead>
-                <tr className="border-b border-neutral-200 text-xs text-neutral-500">
+                <tr className="border-b border-[#30363d] text-xs text-[#8b949e]">
                   <th className="w-8 p-2" />
                   <th className="p-2">영상</th>
                   <th className="p-2">조회수</th>
@@ -272,39 +272,39 @@ export function SearchStep() {
               </thead>
               <tbody>
                 {filtered.map((v) => (
-                  <tr key={v.id} className="border-b border-neutral-100 align-middle hover:bg-neutral-50/70">
+                  <tr key={v.id} className="border-b border-[#21262d] align-middle hover:bg-[#21262d]/40 transition-colors">
                     <td className="p-2">
-                      <input type="checkbox" checked={selectedIds.includes(v.id)} onChange={() => toggle(v.id)} className="h-4 w-4 accent-rose-600" />
+                      <input type="checkbox" checked={selectedIds.includes(v.id)} onChange={() => toggle(v.id)} className="h-4 w-4 accent-rose-600 rounded cursor-pointer" />
                     </td>
                     <td className="p-2">
                       <div className="flex items-center gap-3">
-                        <a href={`https://www.youtube.com/shorts/${v.id}`} target="_blank" rel="noreferrer" className="relative block h-[68px] w-[120px] shrink-0">
+                        <a href={`https://www.youtube.com/shorts/${v.id}`} target="_blank" rel="noreferrer" className="relative block h-[68px] w-[120px] shrink-0 overflow-hidden rounded-lg border border-[#30363d]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={v.thumbnail} alt="" className="h-full w-full rounded-lg object-cover" />
-                          <span className="absolute bottom-1 right-1 rounded bg-black/75 px-1 text-[10px] text-white">{formatDuration(v.durationSec)}</span>
+                          <img src={v.thumbnail} alt="" className="h-full w-full object-cover" />
+                          <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1 text-[10px] text-white font-mono">{formatDuration(v.durationSec)}</span>
                         </a>
                         <div className="min-w-0">
-                          <div className="line-clamp-2 max-w-[280px] text-[13px] font-semibold text-neutral-900" title={v.title}>{v.title}</div>
-                          <div className="mt-0.5 text-[11px] text-neutral-500">{v.channelName} · {new Date(v.publishedAt).toLocaleDateString("ko-KR")}</div>
+                          <div className="line-clamp-2 max-w-[280px] text-[13px] font-semibold text-[#f0f6fc]" title={v.title}>{v.title}</div>
+                          <div className="mt-0.5 text-[11px] text-[#8b949e]">{v.channelName} · {new Date(v.publishedAt).toLocaleDateString("ko-KR")}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-2 font-semibold">{formatNumber(v.views)}</td>
-                    <td className="p-2 text-neutral-500">{formatNumber(v.subs)}</td>
-                    <td className="p-2">{v.vsRatio === null ? "-" : `${v.vsRatio.toFixed(1)}배`}</td>
-                    <td className="p-2">{v.outlier.toFixed(1)}배</td>
-                    <td className="p-2">{formatNumber(Math.round(v.viewsPerDay))}/일</td>
+                    <td className="p-2 font-semibold text-[#f0f6fc]">{formatNumber(v.views)}</td>
+                    <td className="p-2 text-[#8b949e]">{formatNumber(v.subs)}</td>
+                    <td className="p-2 text-[#c9d1d9]">{v.vsRatio === null ? "-" : `${v.vsRatio.toFixed(1)}배`}</td>
+                    <td className="p-2 text-[#c9d1d9]">{v.outlier.toFixed(1)}배</td>
+                    <td className="p-2 text-[#c9d1d9]">{formatNumber(Math.round(v.viewsPerDay))}/일</td>
                     <td className="p-2">
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${GRADE_STYLE[v.grade]}`}>{v.grade}</span>
                     </td>
-                    <td className="p-2 text-xs font-bold text-neutral-700">{v.viralScore}</td>
+                    <td className="p-2 text-xs font-bold text-rose-400">{v.viralScore}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-        <p className="mt-3 text-[11px] text-neutral-400">
+        <p className="mt-3 text-[11px] text-[#8b949e]">
           등급 기준(조회수÷구독자): 초대박 10배↑ · 대박 5배↑ · 떡상 3배↑ · 양호 1배↑. 구독자 비공개 채널은 판정불가입니다. 점수는 채널평균 대비·구독자 대비·조회 속도·참여율·최신성을 합산한 참고 지표입니다.
         </p>
       </Card>

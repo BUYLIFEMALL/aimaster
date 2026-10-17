@@ -14,7 +14,7 @@ export function GuideLinkButton({ guideId, label }: { guideId: string; label: st
           "width=720,height=860,scrollbars=yes,resizable=yes",
         )
       }
-      className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+      className="rounded-lg border border-[#30363d] bg-[#21262d] px-3 py-1.5 text-xs font-semibold text-[#c9d1d9] hover:bg-[#30363d] hover:text-[#f0f6fc] transition-colors"
     >
       📄 {label}
     </button>

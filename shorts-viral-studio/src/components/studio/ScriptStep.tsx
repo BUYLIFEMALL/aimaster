@@ -29,7 +29,7 @@ const TONES = [
 ];
 
 const inputCls =
-  "rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 focus:border-rose-500 focus:outline-none";
+  "rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] placeholder-[#8b949e] focus:border-rose-500 focus:outline-none";
 
 export function ScriptStep() {
   const router = useRouter();
@@ -86,9 +86,9 @@ export function ScriptStep() {
       <ModelPicker />
 
       <Card>
-        <div className="mb-3 text-sm font-bold text-neutral-900">대본 옵션 · {idea.title}</div>
+        <div className="mb-3 text-sm font-bold text-[#f0f6fc]">대본 옵션 · {idea.title}</div>
         <div className="flex flex-wrap items-end gap-4">
-          <label className="text-xs font-semibold text-neutral-500">
+          <label className="text-xs font-semibold text-[#8b949e]">
             목표 길이(초)
             <input
               type="number"
@@ -100,7 +100,7 @@ export function ScriptStep() {
               className={`${inputCls} mt-1 block w-24 text-center font-semibold`}
             />
           </label>
-          <label className="min-w-[220px] text-xs font-semibold text-neutral-500">
+          <label className="min-w-[220px] text-xs font-semibold text-[#8b949e]">
             나레이션 톤
             <select
               value={isCustomTone ? "custom" : cfg.tone}
@@ -110,13 +110,13 @@ export function ScriptStep() {
               className={`${inputCls} mt-1 block w-full`}
             >
               {TONES.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t} className="bg-[#161b22] text-[#f0f6fc]">{t}</option>
               ))}
-              <option value="custom">✏️ 직접 입력</option>
+              <option value="custom" className="bg-[#161b22] text-[#f0f6fc]">✏️ 직접 입력</option>
             </select>
           </label>
           {isCustomTone && (
-            <label className="min-w-[200px] flex-1 text-xs font-semibold text-rose-600">
+            <label className="min-w-[200px] flex-1 text-xs font-semibold text-rose-400">
               사용자 지정 톤
               <input
                 value={cfg.tone}
@@ -127,7 +127,7 @@ export function ScriptStep() {
               />
             </label>
           )}
-          <label className="min-w-[200px] flex-1 text-xs font-semibold text-neutral-500">
+          <label className="min-w-[200px] flex-1 text-xs font-semibold text-[#8b949e]">
             타겟 시청자
             <input
               value={cfg.target}
@@ -149,48 +149,48 @@ export function ScriptStep() {
       {!running && data.scenes.length > 0 && (
         <Card>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-base font-bold text-neutral-900">🎬 생성된 대본 ({data.scenes.length}씬)</h2>
+            <h2 className="text-base font-bold text-[#f0f6fc]">🎬 생성된 대본 ({data.scenes.length}씬)</h2>
             <div className="flex items-center gap-3">
               <SaveStatus />
               <GhostButton onClick={() => downloadMarkdown(data)} className="py-2 text-xs">📥 .md 저장</GhostButton>
             </div>
           </div>
-          <p className="mb-3 text-[11px] text-neutral-400">문구를 직접 눌러 고칠 수 있습니다. 고친 내용은 프로젝트 저장 시 함께 저장됩니다.</p>
+          <p className="mb-3 text-[11px] text-[#8b949e]">문구를 직접 눌러 고칠 수 있습니다. 고친 내용은 프로젝트 저장 시 함께 저장됩니다.</p>
 
           <div className="space-y-3">
             {data.scenes.map((s, i) => (
-              <div key={i} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-                <div className="mb-2 flex items-center justify-between border-b border-neutral-200 pb-2">
-                  <span className="rounded bg-rose-50 px-2 py-0.5 font-mono text-xs font-extrabold text-rose-600">SCENE {s.sceneNumber}</span>
-                  <span className="font-mono text-xs text-neutral-500">⏱️ {s.time}</span>
+              <div key={i} className="rounded-xl border border-[#30363d] bg-[#0d1117] p-4">
+                <div className="mb-2 flex items-center justify-between border-b border-[#30363d] pb-2">
+                  <span className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 font-mono text-xs font-extrabold text-rose-400">SCENE {s.sceneNumber}</span>
+                  <span className="font-mono text-xs text-[#8b949e]">⏱️ {s.time}</span>
                 </div>
                 <div className="grid gap-3 md:grid-cols-[1.2fr_1fr]">
-                  <div className="rounded-lg border border-neutral-200 bg-white p-3">
-                    <div className="text-[10px] font-extrabold text-rose-600">🎙️ 나레이션 (한 문장)</div>
+                  <div className="rounded-lg border border-[#30363d] bg-[#161b22] p-3">
+                    <div className="text-[10px] font-extrabold text-rose-400">🎙️ 나레이션 (한 문장)</div>
                     <textarea
                       value={s.narration}
                       onChange={(e) => editScene(i, "narration", e.target.value)}
                       rows={2}
-                      className="mt-1 w-full resize-none rounded-md border border-transparent bg-transparent text-sm font-bold leading-relaxed text-neutral-900 hover:border-neutral-200 focus:border-rose-400 focus:outline-none"
+                      className="mt-1 w-full resize-none rounded-md border border-transparent bg-transparent text-sm font-bold leading-relaxed text-[#f0f6fc] hover:border-[#30363d] focus:border-rose-400 focus:outline-none"
                     />
-                    <div className="mt-1 text-[11px] text-neutral-500">
+                    <div className="mt-1 text-[11px] text-[#8b949e]">
                       📝 자막:
                       <input
                         value={s.caption}
                         onChange={(e) => editScene(i, "caption", e.target.value)}
-                        className="ml-1 w-[70%] rounded border border-transparent bg-transparent font-semibold text-neutral-800 hover:border-neutral-200 focus:border-rose-400 focus:outline-none"
+                        className="ml-1 w-[70%] rounded border border-transparent bg-transparent font-semibold text-[#c9d1d9] hover:border-[#30363d] focus:border-rose-400 focus:outline-none"
                       />
                     </div>
                   </div>
-                  <div className="rounded-lg border border-neutral-200 bg-white p-3">
-                    <div className="text-[10px] font-extrabold text-amber-600">🎬 화면 · 카메라</div>
+                  <div className="rounded-lg border border-[#30363d] bg-[#161b22] p-3">
+                    <div className="text-[10px] font-extrabold text-amber-400">🎬 화면 · 카메라</div>
                     <textarea
                       value={s.visual}
                       onChange={(e) => editScene(i, "visual", e.target.value)}
                       rows={3}
-                      className="mt-1 w-full resize-none rounded-md border border-transparent bg-transparent text-xs leading-relaxed text-neutral-800 hover:border-neutral-200 focus:border-rose-400 focus:outline-none"
+                      className="mt-1 w-full resize-none rounded-md border border-transparent bg-transparent text-xs leading-relaxed text-[#c9d1d9] hover:border-[#30363d] focus:border-rose-400 focus:outline-none"
                     />
-                    <div className="mt-1 text-[11px] font-semibold text-rose-600">
+                    <div className="mt-1 text-[11px] font-semibold text-rose-400">
                       🎵 {s.sfx || "효과음 없음"}
                     </div>
                   </div>
@@ -199,24 +199,24 @@ export function ScriptStep() {
             ))}
           </div>
 
-          <div className="mt-6 border-t border-neutral-200 pt-5">
-            <h3 className="text-sm font-bold text-neutral-900">🔄 수정 요청 후 다시 쓰기</h3>
+          <div className="mt-6 border-t border-[#30363d] pt-5">
+            <h3 className="text-sm font-bold text-[#f0f6fc]">🔄 수정 요청 후 다시 쓰기</h3>
             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
               <textarea
                 value={revision}
                 onChange={(e) => setRevision(e.target.value)}
                 maxLength={1000}
                 placeholder="예: 2번 씬을 더 긴박하게, 마지막에 댓글 참여 유도 멘트 추가"
-                className="h-16 flex-1 rounded-xl border border-neutral-200 p-3 text-sm focus:border-rose-500 focus:outline-none"
+                className="h-16 flex-1 rounded-xl border border-[#30363d] bg-[#0d1117] p-3 text-sm text-[#f0f6fc] placeholder-[#8b949e] focus:border-rose-500 focus:outline-none"
               />
-              <GhostButton onClick={() => generate(revision.trim())} disabled={running || !revision.trim()} className="border-rose-300 text-rose-600">
+              <GhostButton onClick={() => generate(revision.trim())} disabled={running || !revision.trim()} className="border-rose-500/30 text-rose-400 hover:bg-rose-950/30">
                 🔄 대본 재생성
               </GhostButton>
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
-            <Link href="/select" className="text-sm text-neutral-500 underline">← 주제 확정으로</Link>
+            <Link href="/select" className="text-sm text-[#8b949e] underline hover:text-[#f0f6fc]">← 주제 확정으로</Link>
             <PrimaryButton
               onClick={async () => {
                 await saveProject();

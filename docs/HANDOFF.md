@@ -1,5 +1,51 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — 쇼츠 떡상 분석·대본 자동화 v1.11: 플로우 위저드 다크 테마 리뉴얼·375px 모바일 헤더&드로어 구축·비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 46개 완료 달성!)
+
+- **대상**: `shorts-viral-studio/` (https://shorts-viral-studio.buylife.xyz, slug: `shorts-viral-studio`)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **플로우 위저드 스타일 (다크 차콜 변형)** 다크 테마 (`bg-[#0d1117]`, 서피스 카드 `#161b22`, 보더 `#30363d`, 쇼츠 레드 `#ef4444` / `#f43f5e`, 하이라이트 에메랄드/앰버).
+     - **375px 모바일 반응형 내비게이션 완비**: `Sidebar.tsx` 내 모바일 전용 56px 상단 고정 헤더(`sticky top-0 z-40 bg-[#161b22]/95 border-b border-[#30363d]`, 로고 + 이름 + 버전 + 햄버거 토글) 및 슬라이드 오버레이 드로어를 구축하여 모바일에서도 1~6 스텝퍼와 유틸리티를 터치 한 번으로 안전하게 접근 가능.
+     - **사이드바 메뉴 표준화**: `Sidebar.tsx` 유틸리티 섹션에 `📖 연동 & 사용 매뉴얼` 메뉴 신설 및 에메랄드 하이라이트 적용.
+     - **비주얼 연동 & 사용 매뉴얼 (`src/app/(dashboard)/guide/page.tsx`) 신설**:
+       - 공식 가이드북 히어로 배너 (`v1.11`), 6단계 올인원 떡상 파이프라인 (01 검색 → 02 분석 → 03 소재 발굴 → 04 주제 확정 → 05 대본 생성 → 06 멀티모달 프롬프트).
+       - 필수 API 키 연동 안내: YouTube Data API v3 (일 10,000 유닛 무료 할당량) + Google Gemini / OpenAI / Anthropic Claude 키 등록 가이드.
+       - 11대 바이럴 메커니즘 카드 그리드 및 FAQ 5종 아코디언 컴포넌트 탑재.
+  2. **단계별 UI 컴포넌트 다크 차콜 일관성 적용**:
+     - `globals.css` 다크 토큰 설정, `ui.tsx` (`Card`, `PrimaryButton`, `GhostButton`, `LoadingCard`, `ErrorBanner`, `ModelPicker`, `CopyBox` 등) 전면 다크 스타일링.
+     - `HomePanel.tsx`, `SearchStep.tsx`, `AnalyzeStep.tsx`, `IdeaSteps.tsx`, `ScriptStep.tsx`, `PromptsStep.tsx`, `VaultPanel.tsx`, `settings/page.tsx`, `GuideLinkButton.tsx` 전 화면 다크 톤 일치.
+  3. **버전 판올림 및 로컬 무결성 검증**:
+     - `package.json`: `1.11.0`
+     - `src/lib/version.ts`: `v1.11`
+     - Supabase DB `programs` 테이블: `version: v1.11` 업데이트 완료.
+     - 단위 테스트 17종 통과 (`npm test`: 17 pass, 0 fail).
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`).
+  4. **Vercel 프로덕션 배포 완료**:
+     - 배포 ID: `dpl_899YCsdANXknWcSeaQM64Qbpeef1`
+     - 배포 URL: `https://shorts-viral-studio-nfn3leh59-buylife.vercel.app`
+     - 실서비스 도메인: `https://shorts-viral-studio.buylife.xyz` (`readyState: READY`)
+  5. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수 완료.
+     - 데스크톱 (1440px): 플로우 위저드 다크 대시보드 및 고도화된 비주얼 가이드북(`/guide`) 완벽 노출.
+     - 모바일 (375px): 상단 햄버거 메뉴 클릭 시 슬라이드 드로어 메뉴 정상 작동 및 모바일 가이드북 반응형 완벽 대응.
+     - 스크린샷 증빙 아티팩트 5종 보존:
+       - `edge_shorts_viral_studio_desktop_dashboard_v111.png`
+       - `edge_shorts_viral_studio_desktop_guide_v111.png`
+       - `edge_shorts_viral_studio_mobile_dashboard_v111.png`
+       - `edge_shorts_viral_studio_mobile_menu_v111.png`
+       - `edge_shorts_viral_studio_mobile_guide_v111.png`
+  6. **인수인계 규격화 문서 6종 완비**:
+     - `shorts-viral-studio/docs/PLAN_20261018_DESIGN_RENEWAL.md`
+     - `shorts-viral-studio/docs/DESIGN_HANDOFF.md`
+     - `shorts-viral-studio/docs/IMPROVEMENTS.md`
+     - `shorts-viral-studio/docs/IMPROVEMENT_BACKLOG.md`
+     - `shorts-viral-studio/AGENTS.md` (7대 규격 완비)
+     - `shorts-viral-studio/README.md` (7대 규격 완비)
+     - `DESIGN.md` 31번 `✅ 1차 작업완료` 갱신 (**누적 통계: ✅ 46개 완료 / ⚪ 35개 예정 / ⏸ 2개 보류**).
+- **프로그램 링크**:
+  - https://shorts-viral-studio.buylife.xyz
+
 ## 2026-10-18 Claude Code(윈도우) — INSTA 포스팅 자동화 v1.24: 운영 예약 게시 Vercel 자동 실행 연결
 
 - **대상**: `insta_auto_poster/` (slug `auto-instagram-posting`)

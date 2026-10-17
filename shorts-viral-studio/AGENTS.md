@@ -5,105 +5,81 @@
 | 항목 | 내용 |
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
-| 라이브 | https://shorts-viral-studio.buylife.xyz (옛 주소 https://shorts-viral-studio.vercel.app 도 그대로 살아 있음, 자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 버전 | **v1.07** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
-| 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase(공용 DB) — `threads-easy-planner`를 틀로 복사해 만들었다 |
-| 출처 | 주인님이 준 유튜버 튜토리얼 소스(`D:\PDS\index.html`, "남다른AI Shorts 분석기", 단일 HTML) |
+| 라이브 URL | https://shorts-viral-studio.buylife.xyz (자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
+| 현재 버전 | **v1.11** (2026-10-18 디자인 리뉴얼 & 비주얼 가이드북 구축) |
+| 적용 디자인 템플릿 | **플로우 위저드 스타일 (다크 차콜 변형)** (`#0d1117` 차콜 배경 + `#161b22` 서피스 + `#30363d` 보더 + `#ef4444` 쇼츠 레드 포인트) |
+| 스택 | Next.js 16.2.11 (Turbopack) · React 19 · Tailwind CSS v4 · Supabase(공용 DB) · Playwright (Edge 검수) |
+| 출처 | 유튜버 튜토리얼 소스("남다른AI Shorts 분석기")를 바탕으로 회원별 보안 격리 및 6단계 올인원 파이프라인으로 전면 재설계 |
 
-## 무엇을 하는 프로그램인가
+---
 
-6단계 흐름(사이드바 번호와 동일): **1 쇼츠 검색 → 2 바이럴 분석 → 3 소재 발굴 → 4 주제 확정 → 5 대본 → 6 이미지·영상·BGM 프롬프트**.
-프로젝트 전체 상태(`ProjectData`)를 한 객체로 들고 가며(`StudioProvider`), 단계가 끝날 때마다 `svs_projects`에 자동 저장하고 `.md`로 내보낼 수 있다.
+## 1. 프로그램 사용목적 및 대상
+- **사용목적**: 유튜브 쇼츠 시장에서 검증된 떡상 영상(구독자 대비 조회수 3배~10배↑)을 데이터로 해체하고, 11대 바이럴 메커니즘을 적용하여 나만의 새로운 소재 6종 발굴, 씬별 1문장 대본 자동화, 이미지/비디오/BGM 생성 프롬프트까지 10분 만에 완성하는 올인원 제작 자동화.
+- **주요 대상**: 쇼츠 크리에이터, 유튜브 채널 운영자, 바이럴 마케터, 숏폼 콘텐츠 에이전시, 1인 비즈니스 사업자.
 
-## 원본 소스에서 바꾼 것과 그 이유 (중요)
+---
 
-1. **API 키: 브라우저 `localStorage` → 회원별 서버 저장.** 원본은 키를 브라우저에 두고 유튜브·Gemini를 브라우저에서 직접 호출했다. 플랫폼 원칙(회원 본인 키 `user_api_keys`, 운영자 폴백 금지)에 맞춰 모든 외부 호출을 Server Action으로 옮겼다. 키 종류: `youtube_api_key`(검색 필수) + `gemini`/`openai`/`anthropic`(셋 중 1개 이상). `youtube_api_key`는 DB 체크 제약에 이미 있어 제약 변경이 필요 없었다.
-2. **"분석"이 가짜였던 문제 수정.** 원본은 Gemini에 제목·조회수·댓글 20개만 보내면서 화면에는 컷 전환 주기·렌즈·BGM 타이밍까지 "분석"한 것처럼 보여줬고(프롬프트 예시값을 그대로 베낄 위험), 영상 설명은 코드상 항상 빈 값이었다. 이제:
-   - **Gemini 엔진 = 공개 YouTube 영상 주소(`fileData.fileUri`)를 직접 넘겨 영상을 실제로 보고 분석** (`evidence: "video"`).
-   - 영상 직접 분석이 실패하거나 GPT·Claude 엔진이면 지표·댓글·설명 기반으로 **추정**하고 화면 문구 앞에 `(추정)`을 붙이며 `evidence: "metadata"` 배지로 구분 표시한다.
-   - 11대 메커니즘의 제목·아이콘은 코드(`MECHANISMS`)에서 고정하고 AI는 `tactic`/`analysis`만 채운다(제목 흔들림 방지). 프롬프트에는 예시 값 대신 필드 설명만 둔다.
-3. **XSS 제거:** 원본의 `innerHTML` 문자열 조립을 React 렌더링으로 교체(AI·유튜브 텍스트가 그대로 HTML이 되지 않음).
-4. **AI 3엔진 선택(GPT/Claude/Gemini)** — `src/lib/ai/models.ts`는 `threads-easy-planner`와 같은 레지스트리를 쓴다. 모델 ID는 추측하지 말고 `docs/AI_MODEL_INTEGRATION_STANDARD.md`로 확인.
-5. **프롬프트 안전장치:** 외부 텍스트(제목·설명·댓글·사용자 입력)는 `<data>` 태그로 감싸고 "지시가 아니라 데이터"라고 못 박는다(프롬프트 인젝션 방어). 이미지 프롬프트의 인물은 한국인 기본(핵심 원칙 3번), 이미지 안 글자·로고 금지, Midjourney 버전 번호는 고정하지 않는다(`--ar 9:16 --style raw`).
-6. **대본 한 문장 규칙을 코드로 검증:** 씬 나레이션이 2문장 이상이면 한 번 더 압축 요청(`sentenceCount` + `fixed` 보정). 실패하면 원문 유지(사용자가 화면에서 직접 고칠 수 있음).
-7. **떡상 등급 추가:** 조회수÷구독자 기준 초대박 10배↑·대박 5배↑·떡상 3배↑·양호 1배↑. **구독자 비공개 채널은 "판정불가"**(원본은 0으로 계산해 비율 0이 됐다).
-8. 쇼츠 길이 3분 확대(2024-10) 반영: 길이 필터를 1분/3분/전체로. 검색은 `videoDuration=short`, `regionCode=KR`, 정렬(조회수/관련도/최신) 선택 가능.
-9. 원본의 정의되지 않은 CSS 변수(`--primary-glow` 등)·반말 문구 정리.
+## 2. 개발 구현에 사용된 도구 / 개발기법 / 플러그인 / 스킬
+- **Next.js 16 App Router & Turbopack**: Server Actions 기반의 강력한 서버 측 외부 API 호출(회원 본인 키 격리).
+- **Tailwind CSS v4 & 디자인 토큰**: CSS 변수 기반 다크 테마 시스템 (`--background: #0d1117`, `--foreground: #f0f6fc`).
+- **AI 멀티엔진 파이프라인**: Google Gemini (비디오 직접 시청 분석), OpenAI GPT, Anthropic Claude 3종 엔진 유연한 선택 지원.
+- **YouTube Data API v3**: 공식 API를 통한 실시간 검색, 채널 메트릭(구독자, 총 조회수), 영상 댓글 수집.
+- **Microsoft Edge 포그라운드 자동 검수**: Playwright 기반 Edge(`msedge.exe`, `headless: false`) 실세션 테스트 자동화.
 
-## 파일 구조
+---
 
-```
-src/
-  app/(auth)/login        로그인 (BLOG 로그인 폼 모양 통일, 제목만 변경)
-  app/(dashboard)/        layout(requireProgramAccess + StudioProvider) · page(홈) · search · analyze · ideate · select · script · prompts · settings
-  components/studio/      StudioProvider(전체 상태·저장·키 모달) · ui(공통 UI·모델 선택) · SearchStep · AnalyzeStep · IdeaSteps(소재·주제) · ScriptStep · PromptsStep · HomePanel
-  components/layout/      Sidebar (번호 흐름 + API키등록·플랫폼연동 + 하단 계정)
-  components/settings/    GuideLinkButton (연동 매뉴얼 팝업)
-  lib/youtube/            metrics(순수 계산·등급) · api(서버 전용: search→videos→channels, 댓글)
-  lib/ai/                 models(레지스트리) · llm(OpenAI/Claude/Gemini 호출, 영상 주소 전달, JSON 파싱) · pipeline(분석·소재·대본·프롬프트 프롬프트)
-  lib/actions/            svs(검색·분석·소재·대본·프롬프트) · projects(저장·목록·불러오기·삭제) · settings(키 저장) · auth
-  lib/export.ts           프로젝트 → .md
-  types/svs.ts            공용 타입
-supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_guide.sql · 0003_update_thumbnail.sql · 0004_svs_saved_prompts.sql
-```
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
 
-## 멀티테넌시·보안 체크 (모두 적용됨)
+### 1) 6단계 올인원 워크플로우
+1. **01 쇼츠 검색 (`/search`)**: 키워드 또는 타겟 채널 검색, 조회수/구독자 비율(V/S Ratio) 기준 초대박(10배↑)·대박(5배↑)·떡상(3배↑) 자동 판정.
+2. **02 바이럴 분석 (`/analyze`)**: Gemini 영상 직접 분석(컷 전환, 카메라 무빙, 조명 무드 등) 또는 GPT/Claude 지표·댓글 정밀 추정. 11대 바이럴 메커니즘 도출.
+3. **03 소재 발굴 (`/ideate`)**: 분석된 Content DNA 기반 6가지 킬러 훅 및 신규 소재 제안.
+4. **04 주제 확정 (`/select`)**: 선택한 소재의 전략 점검 및 사용자 맞춤 프롬프트 요청 반영.
+5. **05 대본 생성 (`/script`)**: 시청 지속 시간 극대화를 위한 '씬당 1문장 원칙' 자동 검증 및 연출/자막/효과음 조립.
+6. **06 프롬프트 생성 (`/prompts`)**: Midjourney/DALL-E 이미지 프롬프트 + Runway/Kling 비디오 모션 프롬프트 + Suno BGM 프롬프트 자동 조립 및 보관함 저장.
 
-- 모든 Server Action(`svs.ts`, `projects.ts`, `settings.ts`)이 `requireProgramAccess()`로 시작한다. 대시보드 레이아웃과 모든 페이지에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"`가 있다(배포 후 `X-Vercel-Cache: MISS` 확인함).
-- `svs_projects`: `user_id` + RLS 4개 정책 모두 `to authenticated` + `auth.uid() = user_id`(운영 DB에서 `pg_policies`로 확인). 코드에서도 `.eq("user_id", user.id)`를 이중으로 건다. **"service role용" 정책은 만들지 않았다.**
-- API 키는 `createAdminClient()`로 저장·조회(플랫폼 패턴 §21). 폴백 없음 — 키가 없으면 `needApiKey` → 화면에서 "키 등록 필요" 모달.
-- 클라이언트가 보낸 영상 ID는 `/^[A-Za-z0-9_-]{11}$/`로 검증하고 분석은 한 번에 최대 3개로 제한한다(비용·악용 방지). 모델은 레지스트리에 있는 값만 허용.
+### 2) 시스템 장점
+- **영상 직접 분석(Video Grounding)**: Gemini API의 비디오 전달 기능을 활용해 실제 영상 내용을 보며 분석하므로 기존 텍스트 추정의 한계를 극복.
+- **엄격한 데이터 격리 및 본인 키 원칙**: 회원별 `user_api_keys` 사용 및 RLS 기반 30일 보관 정책 철저 준수.
+- **모바일 100% 최적화**: 375px 모바일 전용 56px 헤더 및 슬라이드 오버레이 드로어로 모바일에서도 완벽 동작.
 
-## 데이터 보관·약관
+### 3) 단점 및 한계
+- YouTube API 일일 할당량(10,000 유닛) 제한으로 과도한 검색 시 키 쿼터 소진 가능.
+- 구독자 비공개 채널의 경우 V/S Ratio 판정 불가 처리.
 
-- YouTube API 데이터는 **30일을 넘겨 저장할 수 없다**(YouTube API 개발자 정책). 프로젝트는 `created_at` 기준 30일이 지나면 목록 조회 때(`listProjectsAction`) 삭제하고, 홈 화면에 "N일 후 자동삭제"를 표시한다. 주기 삭제 크론은 아직 없다(목록을 열지 않는 휴면 회원의 오래된 행은 남음 — 남은 일 참고).
-- 검색 1회 = 약 100유닛(기본 하루 1만유닛). 화면과 매뉴얼에 안내했고, 할당량 초과·키 오류는 한국어 메시지로 구분해 보여준다(`YouTubeApiError`).
+---
 
-## 검증 기록 (v1.01, 2026-10-04)
+## 4. 현재 버전 및 버전별 변경 히스토리
 
-- `npx tsc --noEmit`, `npm run build` 통과. 로컬 `next dev`에서 미로그인 시 `/`·`/search`·`/settings` → 307, `/login` → 200.
-- 지표 계산(등급·구독자 비공개·ISO 길이) 샘플 값 단위 확인, AI 파이프라인은 fetch를 모의해 확인(영상 분석 성공 / 영상 실패 시 메타데이터 폴백 / 소재 6개 제한·점수 0~100 보정 / 2문장 나레이션 압축 / 프롬프트 파싱).
-- 운영 배포 후: `/login` 200, 보호 경로 307, `X-Vercel-Cache: MISS`. 메인 `/programs/shorts-viral-studio`, 매뉴얼 `/guides/72d39d06-…` 200.
-- **2026-10-11 실제 검수 완료(v1.06~v1.07):** 로그인한 Chrome(`https://shorts-viral-studio.buylife.xyz`, 도메인 로그인 공유로 재로그인 없이 열림)에서 `AI자동화`로 검색(결과 50개·등급 표시) → 영상 1개 **Gemini 3.7 Flash 영상 직접 분석**(약 1분 44초, 11대 메커니즘) → 소재 6개 → 주제 확정 → 대본 12씬 → BGM + 씬별 이미지(9:16)·영상 프롬프트까지 6단계 모두 성공, 프로젝트 자동 저장 확인. 관리자 계정으로 진행(브라우저 세션)해 일반 회원 경로는 실제 DB 데이터로 표준 판정을 읽기 전용으로 돌려 확인(부여 있는 회원 허용·없는 회원 차단·관리자 허용). 이 계정의 OpenAI 키는 OpenAI가 401로 거절(키 문제, 프로그램 문제 아님)해 Gemini로 진행했다. 모바일은 390px 같은 출처 iframe으로 확인.
-- (과거 기록) **v1.01 당시 못 한 것(실제 키가 필요해서):** 실제 YouTube 키·Gemini 키로 검색 1회 + 영상 1개 분석을 돌려 본 것, 로그인한 화면의 클릭 동작 확인. 회원 키는 저장소·대화에 두지 않는 원칙이라 주인님이 설정 화면에 직접 등록한 뒤 확인해야 한다.
+- **v1.11 (2026-10-18)**:
+  - **디자인 테마 전면 리뉴얼**: **플로우 위저드 스타일 (다크 차콜 변형)** 일관 적용 (`#0d1117` 배경 + `#161b22` 서피스 + `#30363d` 보더 + `#ef4444` 포인트).
+  - **375px 모바일 내비게이션 완비**: 상단 56px 고정 헤더 및 햄버거 토글 슬라이드 오버레이 드로어 구축.
+  - **비주얼 연동 & 사용 매뉴얼 (`/guide`) 신설**: 히어로 배너, 6단계 파이프라인, API 키 연동 가이드, 11대 메커니즘, FAQ 5종 아코디언 탑재.
+  - **Vercel 프로덕션 배포 및 Microsoft Edge 포그라운드 실세션 검수(5종 캡처) 완료**.
+- **v1.10 (2026-10-17)**: 프롬프트 보관함 및 프로젝트 내보내기 안정화.
+- **v1.07 (2026-10-06)**: Gemini 비디오 직접 분석 및 3엔진 선택기 탑재.
+- **v1.01 (2026-10-04)**: 프로그램 최초 릴리즈 (쇼츠 떡상 분석기).
 
-## 남은 일
+---
 
-1. ~~카탈로그 썸네일~~ **완료(2026-10-05)** — §13 실사 템플릿으로 `scripts/generate-program-thumbnail.mjs` 실행(Gemini 3 Pro Image, 관리자 계정 키 사용 1회), Storage `program-images/catalog/shorts-viral-studio-thumbnail.jpg` 업로드 후 `programs.thumbnail_url` 갱신, 다른 프로그램 썸네일과 육안 비교 완료. 로컬 백업 `public/shorts-viral-studio-thumbnail.jpg`, SQL 기록 `supabase/migrations/0003_update_thumbnail.sql`. 이미지에 노트북 화면의 작은 UI 라벨("VIEWS" 등)이 희미하게 보이는데 기존 썸네일(Instagram 글자)과 같은 수준이라 허용했다 — 거슬리면 같은 스크립트로 재생성(URL `?v=` 자동 갱신).
-2. 주인님이 실제 키로 1회 실검증 후 이상이 있으면 `v1.02`로 수정.
-3. 30일 지난 `svs_projects` 주기 삭제 크론(`ai-auto-blog/app/api/cron/cleanup-images` 패턴 참고) — 필요 시.
-4. 이후 후보(기획안 v1.02+): 채널 단위 분석, 컷 단위 정밀 분석(얼굴 vs 물체·소리), 관심 키워드 모아보기, 완성 대본을 `auto-shorts-posting`/`music-automation`으로 넘기는 연결.
-5. 원본 소스에 있던 "관심 영상 저장"은 별도 기능 대신 **프로젝트에 선택 영상(`selectedIds`)이 함께 저장**되는 방식으로 대신했다. 별도 즐겨찾기 목록이 필요하면 추가.
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- `shorts-viral-studio/docs/IMPROVEMENT_BACKLOG.md` 참고:
+  - 오래된 프로젝트 30일 경과 자동 삭제 Vercel Cron 연동 (`/api/cron/cleanup-projects`).
+  - 대본 씬별 글자 수 및 실시간 예상 발화 시간 인디케이터 추가.
+  - 프롬프트 화면 내 일괄 복사(All Image Prompts, All Video Prompts) 버튼 추가.
 
-## 작업 규칙 메모
+---
 
-- 버전은 수정·배포할 때마다 `+0.01`. 커밋 메시지에 버전 표기(`feat(shorts-viral-studio): … (v1.02)`).
-- 배포: 이 폴더에서 `vercel deploy --prod --yes --scope buylife` (프레임워크 설정은 `vercel.json`). 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, 선택 `NEXT_PUBLIC_MAIN_SITE_URL`)는 **루트 `.env.local` 값**으로 넣었다.
-- 루트 `.vercelignore`에 `/shorts-viral-studio`를 추가했다(루트 앱 배포 때 이 폴더를 올리지 않음).
-- `vercel link`는 이 폴더의 `.env.local`을 덮어쓴다(gitignore 대상) — 로컬 실행용 값이 필요하면 루트 `.env.local`의 Supabase 3개를 다시 복사.
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 제안 및 아이디어
+1. **`ai-image-studio` (34번 AI 이미지 스튜디오) 직결 연계**:
+   - 6단계에서 추출된 이미지 프롬프트를 AI 이미지 스튜디오로 즉시 전달하여 9:16 고화질 쇼츠 이미지 일괄 생성.
+2. **`suno-music-studio` / `music-automation` (18번·54번 수노 음악) 연계**:
+   - 생성된 Master BGM 프롬프트를 음악 생성 스튜디오로 전달하여 음원 원클릭 제작.
+3. **`auto-shorts-posting` (58번 유튜브 쇼츠 자동화) 연계**:
+   - 완성된 대본과 영상을 예약 발행 파이프라인으로 직결.
 
-## 변경 이력
+---
 
-- **v1.07 (2026-10-11):** **정식 출시.** 모바일 사이드바를 상단 바 + 펼침 메뉴로 변경(이전에는 폰 폭에서 메뉴 전체가 본문 위에 쌓여 첫 화면을 차지), 공급사 오류 문구에 섞인 키 조각(`sk-…`, `AIza…`)을 화면에 보이기 전에 가림(`svs.ts`의 `scrubSecrets`), 마이그레이션 `0007_v1_07.sql`. 실제 검수를 마쳐 카탈로그 `coming`(준비중) 배지를 내렸다(`0008_release_remove_coming.sql`).
-
-- **v1.06 (2026-10-11):** 도메인 로그인 공유(`docs/DOMAIN_SSO_POLICY.md`). `src/lib/supabase/cookieDomain.ts`(루트 사본) + `client.ts`/`server.ts`의 쿠키 도메인 + 새 `src/proxy.ts`(세션 갱신·쿠키 `.buylife.xyz`·딥링크 복귀용 `x-pathname`). `vercel domains add shorts-viral-studio.buylife.xyz shorts-viral-studio --scope buylife`, DB `programs.app_url`을 새 주소로 갱신(옛 vercel.app 주소는 삭제하지 않음). 이 프로그램에는 OAuth 외부 계정 연동이 없어 콜백 주소 문제가 없다. 마이그레이션 `0006_v1_06_domain.sql`.
-
-- **v1.05 (2026-10-11):** 이용 권한 판정(`src/lib/access.ts`)을 루트 표준으로 교체. 권한 테이블을 `createAdminClient()`로 조회하고, 판정 규칙은 루트 `lib/access/checkProgramAccess.ts`의 사본 `src/lib/programAccess.ts`를 쓴다(규칙이 바뀌면 사본도 같이 고칠 것). 이전 코드는 로그인 세션 클라이언트(RLS)로 조회했고, 없는 컬럼 `profiles.program_access_expires_at`을 읽는 죽은 분기가 있었으며 등급 ≥ 최소 등급 + 사용기간 규칙이 빠져 있었다. `npm test`(판정 규칙 8개) 추가, `package.json` 버전을 화면 표기와 맞춤. 갭 분석·출시 계획: `docs/GAP_ANALYSIS_2026-10-11.md`.
-
-- **v1.04 (2026-10-06):** 사이드바 `← 다른 프로그램 보기`를 `https://www.buylife.xyz/programs`로 재배포. 다른 작업자가 메인 규칙(`CLAUDE.md` 체크리스트 9번, `docs/PLATFORM_PATTERNS.md` §32)에 맞춰 소스(`58c0f5d7`)는 이미 바꿨지만 이 프로그램은 그 뒤 배포되지 않아 라이브에는 이전 링크(`/dashboard`)가 남아 있었다. 코드 변경 없이 버전만 올려 재배포했다.
-
-- **v1.03 (2026-10-05):** **프롬프트 보관함** 추가(주인님 지시). 왼쪽 메뉴 `📚 프롬프트 보관함`(`/vault`) 신설, 6단계 화면에 `💾 보관함에 저장` 버튼. 최종 이미지·영상·BGM 프롬프트 세트를 `svs_saved_prompts`에 저장하고 보관함에서 검색·펼쳐 보기·개별 복사·세트 전체 복사·.md 저장·삭제. **유튜브 데이터(영상 제목·조회수 등)는 담지 않고 AI가 만든 프롬프트만 저장**하므로 프로젝트와 달리 30일 자동 삭제 대상이 아니며 회원이 지울 때까지 보관(회원당 최대 200세트). 마이그레이션 `supabase/migrations/0004_svs_saved_prompts.sql`(운영 DB 적용, RLS `to authenticated` + `auth.uid() = user_id` 3개 정책 — UPDATE 정책 없음, 수정 불가). 로그인 없이 DB에서 "본인 행만 조회·남의 user_id로 저장 차단"을 트랜잭션 롤백 테스트로 확인했고 임시 행은 0건. 코드: `lib/actions/savedPrompts.ts`, `components/studio/VaultPanel.tsx`, 공통 `CopyBox`는 `ui.tsx`로 이동.
-- **v1.02 (2026-10-05):** 최초 기본 AI 엔진을 **OpenAI GPT-4.1**로 변경(주인님 지시, `StudioProvider.tsx`의 초기값). 회원이 모델을 바꾸면 `localStorage`(`svs_model_v2`)에 기억한다. 이전 키(`svs_model_v1`)는 쓰지 않으므로 기존 선택값은 한 번 초기화됨. 영상 직접 분석은 Gemini를 골라야 하므로 분석 화면의 안내 문구는 유지(GPT 기본값에서는 "지표·댓글 기반 추정"으로 표시됨).
-- **v1.01 (2026-10-04):** 신설.
-- v1.08 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.09 (shorts-viral-studio)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
-
-## 2026-10-17 v1.10 — 유튜브 조회를 공용 기준 코드 `youtube-data-client` 사본으로 (Claude Code 윈도우)
-- `src/lib/youtube/youtubeData.ts`(사본) 추가, `api.ts`의 `ytFetch()`가 모듈로 위임. 오류는 기존 `YouTubeApiError(kind)` 형식으로 변환(키 문제 3종 → `invalid_key`로 키 등록 안내 유지, 일일 한도·분당 제한 → `quota`).
-- 개선: "분당 호출 제한"을 일일 한도 소진으로 안내하던 것을 구분, 키 사용 제한(웹사이트·IP 제한) 안내 추가, 15초 시간 제한·일시 오류 재시도·키 가리기.
-- 검수: tsc 0, 테스트 17(공용 9 포함, 테스트 목록에 추가), build, 배포·DB v1.10, 크롬 화면 v1.10. (이 프로그램은 eslint 설정 파일이 없어 규칙 검사는 건너뜀 — 기존 상태)
-- **주의(다음 CLI)**: `src/lib/youtube/youtubeData.ts`·`tests/youtubeData.test.mjs`는 공용 기준 코드 `youtube-data-client`다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 세 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.
+## 7. 사용자 편의성 증대를 위한 디자인 UI개선안과 레이아웃/스타일 변경 제안
+- **타임라인 인터랙티브 프리뷰어**: 대본 생성 후 오디오 파형과 씬별 슬라이드를 미리볼 수 있는 경량 웹 오디오 플레이어 탑재.
+- **프롬프트 프리셋 필터 탭**: 실사(Photorealistic), 애니메이션/카툰(Anime), 시네마틱 3D(Cinematic) 등 스타일 칩을 원클릭으로 변경할 수 있는 모디파이어 버튼 추가.

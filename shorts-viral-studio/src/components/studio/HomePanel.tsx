@@ -69,17 +69,17 @@ export function HomePanel() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">쇼츠 떡상 분석·대본 자동화</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h1 className="text-2xl font-bold tracking-tight text-[#f0f6fc]">쇼츠 떡상 분석·대본 자동화</h1>
+        <p className="mt-1 text-sm text-[#8b949e]">
           떡상 쇼츠 검색 → 바이럴 분석 → 소재 발굴 → 대본 → 이미지·영상·BGM 프롬프트까지 한 흐름으로 만듭니다.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="md:col-span-2">
-          <h2 className="text-base font-bold text-neutral-900">작업 시작하기</h2>
-          <ol className="mt-3 space-y-1.5 text-sm text-neutral-600">
-            <li>① <Link href="/settings" className="font-semibold text-rose-600 underline">API키등록·플랫폼연동</Link>에서 YouTube 키와 AI 키(Gemini 권장)를 등록합니다.</li>
+          <h2 className="text-base font-bold text-[#f0f6fc]">작업 시작하기</h2>
+          <ol className="mt-3 space-y-1.5 text-sm text-[#c9d1d9]">
+            <li>① <Link href="/settings" className="font-semibold text-rose-400 underline hover:text-rose-300">API키등록·플랫폼연동</Link>에서 YouTube 키와 AI 키(Gemini 권장)를 등록합니다.</li>
             <li>② 쇼츠를 검색해 구독자 대비 조회수가 터진 영상을 최대 3개 고릅니다.</li>
             <li>③ 분석 → 소재 6개 → 주제 확정 → 대본 → 프롬프트 순서로 진행합니다.</li>
           </ol>
@@ -99,9 +99,9 @@ export function HomePanel() {
             )}
           </div>
         </Card>
-        <Card className="bg-neutral-50/60">
-          <h2 className="text-sm font-bold text-neutral-900">알아두세요</h2>
-          <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-neutral-600">
+        <Card className="bg-[#161b22]">
+          <h2 className="text-sm font-bold text-[#f0f6fc]">알아두세요</h2>
+          <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-[#8b949e]">
             <li>• 프로젝트는 만든 지 {RETENTION_DAYS}일 뒤 자동 삭제됩니다. (YouTube 데이터 보관 정책)</li>
             <li>• 필요한 결과는 .md 파일로 저장해 두세요.</li>
             <li>• 검색 1회는 YouTube 할당량 약 100유닛을 씁니다.</li>
@@ -110,19 +110,19 @@ export function HomePanel() {
       </div>
 
       <Card>
-        <h2 className="text-base font-bold text-neutral-900">내 프로젝트</h2>
-        {error && <p className="mt-2 text-xs text-rose-600">{error}</p>}
+        <h2 className="text-base font-bold text-[#f0f6fc]">내 프로젝트</h2>
+        {error && <p className="mt-2 text-xs text-rose-400">{error}</p>}
         {projects === null ? (
-          <p className="py-8 text-center text-sm text-neutral-400">불러오는 중…</p>
+          <p className="py-8 text-center text-sm text-[#8b949e]">불러오는 중…</p>
         ) : projects.length === 0 ? (
-          <p className="py-8 text-center text-sm text-neutral-400">저장된 프로젝트가 없습니다. 새 프로젝트를 시작해 보세요.</p>
+          <p className="py-8 text-center text-sm text-[#8b949e]">저장된 프로젝트가 없습니다. 새 프로젝트를 시작해 보세요.</p>
         ) : (
-          <div className="mt-3 divide-y divide-neutral-100">
+          <div className="mt-3 divide-y divide-[#30363d]">
             {projects.map((p) => (
               <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold text-neutral-900">{p.title}</div>
-                  <div className="mt-0.5 text-[11px] text-neutral-400">
+                  <div className="truncate text-sm font-semibold text-[#f0f6fc]">{p.title}</div>
+                  <div className="mt-0.5 text-[11px] text-[#8b949e]">
                     키워드 {p.keyword || "-"} · 수정 {new Date(p.updated_at).toLocaleString("ko-KR")} · {daysLeft(p.created_at)}일 후 자동삭제
                   </div>
                 </div>
@@ -133,7 +133,7 @@ export function HomePanel() {
                   <button
                     type="button"
                     onClick={() => remove(p.id)}
-                    className="rounded-xl px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-50"
+                    className="rounded-xl px-3 py-1.5 text-xs font-semibold text-rose-400 hover:bg-rose-950/40 transition-colors"
                   >
                     삭제
                   </button>

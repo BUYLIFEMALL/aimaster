@@ -114,7 +114,7 @@ export function PromptsStep() {
           <GhostButton
             onClick={saveToVault}
             disabled={vault === "saving" || vault === "saved"}
-            className="border-rose-300 text-rose-600"
+            className="border-rose-500/30 text-rose-400 hover:bg-rose-950/30"
           >
             {vault === "saving" ? "저장 중…" : vault === "saved" ? "✓ 보관함에 저장됨" : "💾 보관함에 저장"}
           </GhostButton>
@@ -122,7 +122,7 @@ export function PromptsStep() {
         <GhostButton onClick={() => downloadMarkdown(data)}>📥 전체 프로젝트 .md 저장</GhostButton>
         <SaveStatus />
         {vault === "saved" && (
-          <Link href="/vault" className="text-xs font-semibold text-rose-600 underline">
+          <Link href="/vault" className="text-xs font-semibold text-rose-400 underline hover:text-rose-300">
             📚 보관함 보기
           </Link>
         )}
@@ -135,25 +135,25 @@ export function PromptsStep() {
       {!running && result && (
         <>
           {result.bgmPrompt && (
-            <Card className="border-rose-200">
+            <Card className="border-rose-500/30">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-base font-bold text-neutral-900">🎵 {result.bgmPrompt.title}</h2>
-                  <p className="mt-0.5 text-xs text-neutral-500">
+                  <h2 className="text-base font-bold text-[#f0f6fc]">🎵 {result.bgmPrompt.title}</h2>
+                  <p className="mt-0.5 text-xs text-[#8b949e]">
                     {result.bgmPrompt.genreAndMood} · {result.bgmPrompt.bpm}
                   </p>
                 </div>
-                <span className="rounded bg-rose-50 px-2 py-0.5 font-mono text-[10px] font-bold text-rose-600">MASTER BGM</span>
+                <span className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 font-mono text-[10px] font-bold text-rose-400">MASTER BGM</span>
               </div>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg bg-neutral-50 p-3 text-xs text-neutral-800"><b className="text-rose-600">🥁 악기</b><br />{result.bgmPrompt.instrumentation}</div>
-                <div className="rounded-lg bg-neutral-50 p-3 text-xs text-neutral-800"><b className="text-amber-600">📈 전개</b><br />{result.bgmPrompt.dynamicStructure}</div>
+                <div className="rounded-lg border border-[#30363d] bg-[#0d1117] p-3 text-xs text-[#c9d1d9]"><b className="text-rose-400">🥁 악기</b><br />{result.bgmPrompt.instrumentation}</div>
+                <div className="rounded-lg border border-[#30363d] bg-[#0d1117] p-3 text-xs text-[#c9d1d9]"><b className="text-amber-400">📈 전개</b><br />{result.bgmPrompt.dynamicStructure}</div>
               </div>
               <div className="mt-3">
                 <CopyBox label="SUNO / UDIO PROMPT" text={result.bgmPrompt.sunoPrompt} tone="dark" />
               </div>
               {result.bgmPrompt.audioMixingNotes && (
-                <p className="mt-3 rounded-lg border-l-4 border-rose-500 bg-neutral-50 p-2.5 text-[11px] text-neutral-600">💡 믹싱 팁: {result.bgmPrompt.audioMixingNotes}</p>
+                <p className="mt-3 rounded-lg border-l-4 border-rose-500 border border-[#30363d] bg-[#0d1117] p-2.5 text-[11px] text-[#c9d1d9]">💡 믹싱 팁: {result.bgmPrompt.audioMixingNotes}</p>
               )}
             </Card>
           )}
@@ -162,8 +162,8 @@ export function PromptsStep() {
             {result.prompts.map((p) => (
               <Card key={p.sceneNumber}>
                 <div className="mb-3 flex items-center justify-between gap-2">
-                  <span className="rounded bg-rose-50 px-2 py-0.5 font-mono text-xs font-extrabold text-rose-600">SCENE {p.sceneNumber}</span>
-                  <span className="text-xs text-neutral-500">{p.sceneSummary}</span>
+                  <span className="rounded border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 font-mono text-xs font-extrabold text-rose-400">SCENE {p.sceneNumber}</span>
+                  <span className="text-xs text-[#8b949e]">{p.sceneSummary}</span>
                 </div>
                 <div className="space-y-3">
                   <CopyBox label="🖼️ IMAGE PROMPT (9:16)" text={p.imagePrompt} tone="dark" />
@@ -172,7 +172,7 @@ export function PromptsStep() {
               </Card>
             ))}
           </div>
-          <p className="pb-6 text-[11px] text-neutral-400">
+          <p className="pb-6 text-[11px] text-[#8b949e]">
             이미지·영상 생성은 Midjourney, Kling, Runway 등 외부 서비스에서 각자 계정으로 진행합니다. 인물은 별도 지시가 없으면 한국인 외모로 작성됩니다.
           </p>
         </>
