@@ -1,16 +1,18 @@
 "use client";
 
+// 로그인 화면 — 유튜브 다크 콘솔 스타일 공식 표준 탭 토글 레이아웃 (2026-10-17 v1.07 agy 리뉴얼)
+// 상단 [로그인] / [회원가입] 2버튼 탭 토글 + 다크 옵시디언 서피스 + 유튜브 레드 포인트.
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signInAction } from "@/lib/actions/auth";
-import { Sparkles, Lock, Mail, ArrowRight } from "lucide-react";
-import { APP_NAME, APP_VERSION } from "@/lib/version";
+import { Lock, Mail, ArrowRight, UserPlus, Sparkles } from "lucide-react";
 
 const MAIN_SITE_URL = "https://www.buylife.xyz";
 
 function LoginCard() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "";
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
@@ -32,61 +34,113 @@ function LoginCard() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* 헤더 로고 */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 text-white shadow-lg shadow-amber-500/20 mb-3">
-          <Sparkles className="w-7 h-7" />
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <h1 className="text-xl font-bold text-slate-900">{APP_NAME}</h1>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
-            {APP_VERSION}
-          </span>
-        </div>
-        <p className="text-xs text-slate-500 mt-1">
-          AIMaster 계정으로 로그인하여 나만의 LP 턴테이블 & CD 회전 영상을 제작하세요
-        </p>
+    <div className="rounded-2xl border border-zinc-800 bg-[#18181b]/95 p-6 sm:p-8 shadow-2xl backdrop-blur-xl ring-1 ring-white/5">
+      {/* 상단 2버튼 탭 토글 바 */}
+      <div className="mb-6 flex rounded-xl bg-[#0f0f0f] p-1 border border-zinc-800/80">
+        <button
+          type="button"
+          onClick={() => {
+            setMode("login");
+            setError(null);
+          }}
+          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all duration-200 ${
+            mode === "login"
+              ? "bg-red-600 text-white shadow-md shadow-red-600/30"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          로그인
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setMode("signup");
+            setError(null);
+          }}
+          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all duration-200 ${
+            mode === "signup"
+              ? "bg-red-600 text-white shadow-md shadow-red-600/30"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          회원가입
+        </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-        {error && (
-          <div className="mb-6 rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-700 font-medium">
-            {error}
-          </div>
-        )}
+      {error && (
+        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-center text-xs font-semibold text-red-400">
+          {error}
+        </div>
+      )}
 
+      {mode === "signup" ? (
+        <div className="space-y-5 text-center py-2">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-red-400">
+            <UserPlus className="h-6 w-6" />
+          </div>
+          <div className="space-y-1.5">
+            <h3 className="text-sm font-bold text-white">AIMaster 계정으로 이용하세요</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              이 프로그램은 AIMaster 통합 계정과 구독 권한을 사용합니다.
+              <br />
+              AIMaster 메인 사이트에서 가입 후 즉시 이용하실 수 있습니다.
+            </p>
+          </div>
+          <a
+            href={`${MAIN_SITE_URL}/register`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-3 text-xs font-bold text-white shadow-lg shadow-red-600/25 transition-all hover:from-red-500 hover:to-rose-500 hover:shadow-red-600/35"
+          >
+            <span>AIMaster 회원가입 하러가기</span>
+            <ArrowRight className="h-4 w-4" />
+          </a>
+          <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-3 text-[11px] text-zinc-500">
+            💡 이미 가입된 계정이 있으신가요? 상단의 <span className="font-semibold text-zinc-300">로그인</span> 탭을 클릭하세요.
+          </div>
+        </div>
+      ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <input type="hidden" name="redirect" value={redirectTo} />
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            <label className="mb-1.5 block text-xs font-semibold text-zinc-300">
               이메일 주소
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+              <Mail className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-zinc-500" />
               <input
                 type="email"
                 name="email"
                 required
                 placeholder="example@naver.com"
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all"
+                className="w-full rounded-xl border border-zinc-800 bg-[#0f0f0f] py-2.5 pl-10 pr-3.5 text-xs text-white placeholder-zinc-600 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              비밀번호
-            </label>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-xs font-semibold text-zinc-300">
+                비밀번호
+              </label>
+              <a
+                href={`${MAIN_SITE_URL}/forgot-password`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors"
+              >
+                비밀번호 찾기?
+              </a>
+            </div>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+              <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-zinc-500" />
               <input
                 type="password"
                 name="password"
                 required
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all"
+                className="w-full rounded-xl border border-zinc-800 bg-[#0f0f0f] py-2.5 pl-10 pr-3.5 text-xs text-white placeholder-zinc-600 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
               />
             </div>
           </div>
@@ -94,35 +148,41 @@ function LoginCard() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-3 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-md shadow-pink-200 disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-3 text-xs font-bold text-white shadow-lg shadow-red-600/25 transition-all hover:from-red-500 hover:to-rose-500 hover:shadow-red-600/35 disabled:opacity-50"
           >
             <span>{isPending ? "로그인 중..." : "로그인"}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="h-4 w-4" />
           </button>
-        </form>
 
-        <div className="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
-          계정이 없으신가요?{" "}
-          <a
-            href={`${MAIN_SITE_URL}/signup`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-pink-600 hover:underline"
-          >
-            AIMaster 회원가입
-          </a>
-        </div>
-      </div>
+          <div className="pt-2 text-center text-xs text-zinc-500">
+            계정이 없으신가요?{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setMode("signup");
+                setError(null);
+              }}
+              className="font-bold text-red-400 hover:text-red-300 hover:underline"
+            >
+              회원가입 안내
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <Suspense fallback={<div className="text-xs text-slate-400">로딩 중...</div>}>
-        <LoginCard />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-12 text-xs text-zinc-500">
+          화면을 불러오는 중...
+        </div>
+      }
+    >
+      <LoginCard />
+    </Suspense>
   );
 }

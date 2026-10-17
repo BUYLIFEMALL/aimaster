@@ -1,4 +1,4 @@
-export const APP_VERSION = 'v1.06';
+export const APP_VERSION = 'v1.07';
 export const APP_NAME = 'Youtube Playlist 자동화';
 export const APP_NAME_EN = 'YouTube Playlist Automation';
 export const APP_SLUG = 'yt-playlist-studio';

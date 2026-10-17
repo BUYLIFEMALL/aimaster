@@ -1,7 +1,7 @@
-# 🎨 YouTube Playlist 자동화 (yt-playlist-studio) — 디자인 리뉴얼 인수인계서 (v1.06)
+# 🎨 YouTube Playlist 자동화 (yt-playlist-studio) — 디자인 리뉴얼 인수인계서 (v1.07)
 
 > **프로그램 공식 배포 URL**: [https://youtube-playlist.buylife.xyz/](https://youtube-playlist.buylife.xyz/) (또는 [https://yt-playlist.buylife.xyz/](https://yt-playlist.buylife.xyz/))  
-> **버전**: `v1.06` (2026-10-17 리뉴얼 완료)  
+> **버전**: `v1.07` (2026-10-17 로그인/회원가입 표준화 완료)  
 > **작업 담당자**: Antigravity (Windows)  
 > **공식 디자인 템플릿 명칭**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console Style · 유튜브 공식 다크 테마)**
 
@@ -91,6 +91,9 @@
 | **데스크톱 미디어 센터** | 1440×950 | 음원 드롭존, 16:9 배경, 인코딩 프리셋 | `edge_yt_media_desktop_v106.png` |
 | **데스크톱 편집 스튜디오** | 1440×950 | 16:9 캔버스, 10종 스펙트럼, 컨트롤 바 | `edge_yt_editor_desktop_v106.png` |
 | **데스크톱 고속 렌더링** | 1440×950 | 렌더링 요약, FPS/해상도 칩, MP4 버튼 | `edge_yt_export_desktop_v106.png` |
+| **데스크톱 로그인 탭 (v1.07)** | 1280×800 | 다크 옵시디언 그리드, 유튜브 레드 버튼, 표준 탭 토글 바 | `edge_yt_playlist_login_desktop_v107.png` |
+| **데스크톱 회원가입 탭 (v1.07)** | 1280×800 | AIMaster 계정 및 구독 권한 안내, 회원가입 링크 버튼 | `edge_yt_playlist_signup_desktop_v107.png` |
+| **모바일 로그인 화면 (v1.07)** | 375×667 | 375px 모바일 반응형 뷰, 터치 최적화 버튼 및 패딩 | `edge_yt_playlist_login_mobile_v107.png` |
 | **모바일 미디어 센터** | 390×844 | 상단 모바일 바 + 390px 반응형 뷰 | `edge_yt_media_mobile_v106.png` |
 | **모바일 가이드북** | 390×844 | 390px 가이드북 반응형 뷰 | `edge_yt_guide_mobile_v106.png` |
 
