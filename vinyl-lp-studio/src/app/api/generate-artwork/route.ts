@@ -65,22 +65,24 @@ CRITICAL INSTRUCTIONS:
 
     const ai = new GoogleGenAI({ apiKey: userApiKey });
 
-    // 1차 시도: gemini-3-pro-image-preview
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3-pro-image-preview",
-        contents: { parts: [{ text: promptText }] },
-        config: {
-          imageConfig: {
-            aspectRatio: "1:1",
-            imageSize: "1K",
+    // [이미지 모델 교체 2026-10-17] 1차 gemini-3-pro-image → gemini-3-pro-image, 2차 종료된 Imagen 3 → gemini-nano-banana-2.1,
+    // 기준: ai-image-studio v1.11. 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
+    let lastError: unknown = null;
+    for (const model of ["gemini-3-pro-image", "gemini-nano-banana-2.1"]) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: { parts: [{ text: promptText }] },
+          config: {
+            responseModalities: ["IMAGE"],
+            imageConfig: {
+              aspectRatio: "1:1",
+              imageSize: "1K",
+            },
           },
-        },
-      });
+        });
 
-      const candidates = response.candidates;
-      if (candidates && candidates[0]?.content?.parts) {
-        for (const part of candidates[0].content.parts) {
+        for (const part of response.candidates?.[0]?.content?.parts ?? []) {
           if (part.inlineData?.data) {
             return NextResponse.json({
               success: true,
@@ -88,32 +90,13 @@ CRITICAL INSTRUCTIONS:
             });
           }
         }
+      } catch (modelErr: any) {
+        lastError = modelErr;
+        console.warn(`${model} 시도 실패:`, modelErr?.message);
       }
-    } catch (proErr: any) {
-      console.warn("gemini-3-pro-image-preview 시도 실패, imagen-3.0으로 폴백:", proErr?.message);
     }
-
-    // 2차 폴백: imagen-3.0-generate-002
-    try {
-      const imagenResponse = await ai.models.generateImages({
-        model: "imagen-3.0-generate-002",
-        prompt: promptText,
-        config: {
-          numberOfImages: 1,
-          aspectRatio: "1:1",
-          outputMimeType: "image/png",
-        },
-      });
-
-      if (imagenResponse.generatedImages && imagenResponse.generatedImages[0]?.image?.imageBytes) {
-        return NextResponse.json({
-          success: true,
-          imageBase64: imagenResponse.generatedImages[0].image.imageBytes,
-        });
-      }
-    } catch (imgErr: any) {
-      console.error("Imagen-3.0 폴백 실패:", imgErr?.message);
-      throw new Error("이미지 생성 실패: " + (imgErr.message || "알 수 없는 오류"));
+    if (lastError) {
+      throw new Error("이미지 생성 실패: " + ((lastError as any)?.message || "알 수 없는 오류"));
     }
 
     throw new Error("이미지 데이터가 생성되지 않았습니다.");
