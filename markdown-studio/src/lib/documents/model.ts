@@ -28,6 +28,8 @@ export interface WorkspacePreferences {
   pinnedIds?: string[];
   /** 2026-10-17 v1.14: 고정한 문서의 색깔 꼬리표(문서 id → 색 이름) */
   pinColors?: Record<string, PinColor>;
+  /** 2026-10-17 v1.16: 꼬리표 색마다 붙이는 이름(예: 빨강 = 급함), 최대 10자 */
+  pinNames?: Partial<Record<PinColor, string>>;
 }
 export const DEFAULT_PREFERENCES: WorkspacePreferences = {
   activeId: null, explorerOpen: true, editorPercent: 50,
@@ -40,6 +42,21 @@ export function nextPinColor(current?: PinColor): PinColor | undefined {
   const i = current ? PIN_COLORS.indexOf(current) : -1;
   return i + 1 < PIN_COLORS.length ? PIN_COLORS[i + 1] : undefined;
 }
+export const PIN_NAME_MAX = 10;
+/** 꼬리표 이름: 정해진 색만, 앞뒤 공백 제거, 10자까지, 빈 이름은 뺀다 */
+export function sanitizePinNames(value: unknown): Partial<Record<PinColor, string>> {
+  const out: Partial<Record<PinColor, string>> = {};
+  if (!value || typeof value !== "object") return out;
+  for (const color of PIN_COLORS) {
+    const raw = (value as Record<string, unknown>)[color];
+    if (typeof raw !== "string") continue;
+    const name = Array.from(raw.replace(/[\u0000-\u001f]/g, "").trim()).slice(0, PIN_NAME_MAX).join("");
+    if (name) out[color] = name;
+  }
+  return out;
+}
+/** 화면에 보일 꼬리표 이름: 붙인 이름이 있으면 그것, 없으면 색 이름 */
+export const pinLabel = (color: PinColor, names?: Partial<Record<PinColor, string>>) => names?.[color] || PIN_COLOR_LABELS[color];
 /** 고정된 문서의 꼬리표만, 정해진 색 이름만 남긴다 */
 export function sanitizePinColors(value: unknown, pinnedIds: string[]): Record<string, PinColor> {
   const out: Record<string, PinColor> = {};

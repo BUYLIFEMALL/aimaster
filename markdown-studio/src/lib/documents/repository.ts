@@ -1,7 +1,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import {
   DEFAULT_PREFERENCES, DocumentError, MAX_MARKDOWN_LENGTH, descendants,
-  normalizeName, sanitizePinColors, validatePlacement, verifyOwner,
+  normalizeName, sanitizePinColors, sanitizePinNames, validatePlacement, verifyOwner,
   type DocumentNode, type DocumentRevision, type DriveMapping, type NodeKind, type WorkspacePreferences,
 } from "./model";
 import { MAX_IMPORT_NODES, orderParentsFirst, uniqueName, validateTree, type ImportItem } from "./backup";
@@ -44,7 +44,7 @@ export class DocumentRepository {
     const pinnedIds = Array.isArray(value.pinnedIds) ? value.pinnedIds.filter((id): id is string => typeof id === "string").slice(0, 50) : [];
     // v1.14: 고정 문서의 색깔 꼬리표 — 고정된 문서·정해진 색만
     const pinColors = sanitizePinColors(value.pinColors, pinnedIds);
-    const next = { activeId: value.activeId, explorerOpen: !!value.explorerOpen, editorPercent: Math.min(75, Math.max(25, value.editorPercent || 50)), pinnedIds, pinColors };
+    const next = { activeId: value.activeId, explorerOpen: !!value.explorerOpen, editorPercent: Math.min(75, Math.max(25, value.editorPercent || 50)), pinnedIds, pinColors, pinNames: sanitizePinNames(value.pinNames) };
     await (await this.dbPromise).put("preferences", next, "workspace");
   }
   async create(kind: NodeKind, rawName: string, parentId: string | null = null, markdown = "") {

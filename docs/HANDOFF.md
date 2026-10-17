@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.16: 최근 문서 더 보기·백업에 고정/꼬리표 포함·꼬리표 이름
+
+- **대상**: `markdown-studio/` v1.15 → **v1.16** (코드·DB 동기화)
+- **한 일**: ① 대시보드 최근 문서 [더 보기](6개씩) ② 전체 백업에 고정·꼬리표·이름 포함, 복원 시 새 문서에 다시 연결(옛 백업 호환) ③ 꼬리표 색마다 이름(10자)
+- **검수**: 단위 67개, 빌드·배포, 크롬 시험 계정 실화면(백업 복원 → 고정·꼬리표 되살림, 더 보기 6→8, 이름 표시·정리, 백업 내용 가로채 확인 — 실제 내려받기 없음). 시험 폴더는 휴지통으로(영구 삭제 기능 없음).
+- **인수인계**: [`markdown-studio/AGENTS.md`](../markdown-studio/AGENTS.md) 「v1.16」 · [`docs/IMPROVEMENTS.md`](../markdown-studio/docs/IMPROVEMENTS.md) · [`docs/IMPROVEMENT_HANDOFF_20261017.md`](../markdown-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **남은 일**: 새 제안 3건(휴지통 비우기 — 승인 필요, 탐색기 색 점, Drive 동기화에 고정 정보) — 미구현
+- **링크**: https://markdown-studio.buylife.xyz
+
 ## 2026-10-17 Antigravity(Windows) — AI Prompt 자동화 v1.06: 로그인·회원가입 표준 2탭 레이아웃(포커스 스튜디오 테마) 전면 리뉴얼 완료
 
 - **대상 프로그램**: `ai-prompt-studio/` (slug: `ai-prompt-studio`, 프로그램 번호 11번)

@@ -1,5 +1,8 @@
 // 가져오기·백업·복원의 순수 로직. 악성/과대/깨진 입력은 저장 전에 차단하고, 모두 새 항목으로 만든다(기존 문서를 덮어쓰지 않음).
-import { DocumentError, MAX_MARKDOWN_LENGTH, normalizeName, safeFilename, type DocumentNode, type NodeKind } from "./model";
+import {
+  DocumentError, MAX_MARKDOWN_LENGTH, normalizeName, safeFilename, sanitizePinColors, sanitizePinNames,
+  type DocumentNode, type NodeKind, type PinColor, type WorkspacePreferences,
+} from "./model";
 
 export const BACKUP_FORMAT = "aimaster-markdown-studio-backup";
 export const BACKUP_VERSION = 1;
@@ -12,17 +15,48 @@ export const TEXT_EXTENSIONS = /\.(md|markdown|txt)$/i;
 export interface ImportItem { key: string; parentKey: string | null; kind: NodeKind; name: string; markdown: string }
 
 // ---- 백업 만들기 ----
-export function buildBackup(nodes: DocumentNode[], now = new Date()): string {
+export function buildBackup(nodes: DocumentNode[], now = new Date(), prefs?: Pick<WorkspacePreferences, "pinnedIds" | "pinColors" | "pinNames">): string {
   const live = nodes.filter(n => !n.deletedAt);
   const liveIds = new Set(live.map(n => n.id));
+  // v1.16: 대시보드 고정 목록·색깔 꼬리표·꼬리표 이름도 함께(살아 있는 문서 것만). 옛 프로그램은 이 칸을 무시하고 문서만 복원한다
+  const docIds = new Set(live.filter(n => n.kind === "document").map(n => n.id));
+  const pinnedIds = (prefs?.pinnedIds ?? []).filter(id => docIds.has(id));
   return JSON.stringify({
     format: BACKUP_FORMAT, version: BACKUP_VERSION, exportedAt: now.toISOString(), app: "markdown-studio",
-    note: "문서와 폴더의 이름·본문·구조만 포함합니다. 수정 이력·휴지통·로그인 정보는 포함하지 않습니다.",
+    note: "문서와 폴더의 이름·본문·구조, 대시보드 고정·색깔 꼬리표를 포함합니다. 수정 이력·휴지통·로그인 정보는 포함하지 않습니다.",
     nodes: live.map(n => ({
       id: n.id, kind: n.kind, parentId: n.parentId && liveIds.has(n.parentId) ? n.parentId : null,
       name: n.name, markdown: n.kind === "document" ? n.markdown : "", updatedAt: n.updatedAt,
     })),
+    pins: { pinnedIds, pinColors: sanitizePinColors(prefs?.pinColors, pinnedIds), pinNames: sanitizePinNames(prefs?.pinNames) },
   });
+}
+
+export interface BackupPins { pinnedIds: string[]; pinColors: Record<string, PinColor>; pinNames: Partial<Record<PinColor, string>> }
+/** v1.16: 백업의 고정·꼬리표 정보(없거나 깨져 있으면 빈 값 — 문서 복원은 그대로 진행). 백업 안 문서를 가리키는 것만 남긴다 */
+export function parseBackupPins(text: string, items: ImportItem[]): BackupPins {
+  const empty: BackupPins = { pinnedIds: [], pinColors: {}, pinNames: {} };
+  let root: unknown;
+  try { root = JSON.parse(text); } catch { return empty; }
+  const pins = root && typeof root === "object" ? (root as Record<string, unknown>).pins : null;
+  if (!pins || typeof pins !== "object") return empty;
+  const p = pins as Record<string, unknown>;
+  const docKeys = new Set(items.filter(i => i.kind === "document").map(i => i.key));
+  const pinnedIds = Array.isArray(p.pinnedIds) ? [...new Set(p.pinnedIds.filter((id): id is string => typeof id === "string" && docKeys.has(id)))].slice(0, 50) : [];
+  return { pinnedIds, pinColors: sanitizePinColors(p.pinColors, pinnedIds), pinNames: sanitizePinNames(p.pinNames) };
+}
+
+/**
+ * v1.16: 복원한 문서의 새 id로 고정·꼬리표를 옮겨 지금 설정에 더한다.
+ * 지금 고정한 것이 먼저(최대 50개), 이미 붙인 꼬리표 이름은 덮어쓰지 않고 비어 있는 색만 채운다.
+ */
+export function mergeRestoredPins(current: Pick<WorkspacePreferences, "pinnedIds" | "pinColors" | "pinNames">, pins: BackupPins, idMap: Record<string, string>) {
+  const restored = pins.pinnedIds.map(id => idMap[id]).filter((id): id is string => !!id);
+  const pinnedIds = [...new Set([...(current.pinnedIds ?? []), ...restored])].slice(0, 50);
+  const pinColors: Record<string, PinColor> = { ...(current.pinColors ?? {}) };
+  for (const [oldId, color] of Object.entries(pins.pinColors)) { const id = idMap[oldId]; if (id && pinnedIds.includes(id)) pinColors[id] = color; }
+  const pinNames = { ...pins.pinNames, ...sanitizePinNames(current.pinNames) };
+  return { pinnedIds, pinColors: sanitizePinColors(pinColors, pinnedIds), pinNames, restoredPins: restored.filter(id => pinnedIds.includes(id)).length };
 }
 
 // ---- 백업 읽기·검증 ----

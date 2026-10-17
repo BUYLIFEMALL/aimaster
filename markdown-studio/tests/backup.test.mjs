@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { DocumentRepository } from "../src/lib/documents/repository.ts";
 import { MAX_MARKDOWN_LENGTH } from "../src/lib/documents/model.ts";
 import {
-  BACKUP_FORMAT, buildBackup, parseBackup, wrapInFolder, decodeText, itemsFromFiles, uniqueName, MAX_FILE_BYTES,
+  BACKUP_FORMAT, buildBackup, parseBackup, parseBackupPins, mergeRestoredPins, wrapInFolder, decodeText, itemsFromFiles, uniqueName, MAX_FILE_BYTES,
 } from "../src/lib/documents/backup.ts";
 import { collectDocuments, zipPaths } from "../src/lib/export/collect.ts";
 
@@ -145,4 +145,34 @@ test("이름 충돌 해결·수집·ZIP 경로", async () => {
   assert.deepEqual(collectDocuments(nodes, { type: "document", id: "없음" }), []);
   assert.deepEqual(zipPaths(["a/b.md", "a/b.md", "A/B.md", "x:y.md"], "pdf"), ["a/b.pdf", "a/b (2).pdf", "A/B (3).pdf", "x_y.pdf"]);
   await repo.close();
+});
+
+test("v1.16 백업에 고정·꼬리표가 담기고, 복원 문서의 새 id로 다시 연결된다", async () => {
+  const a = new DocumentRepository(user()), b = new DocumentRepository(user());
+  const d1 = await a.create("document", "급한 문서.md", null, "1");
+  const d2 = await a.create("document", "보통 문서.md", null, "2");
+  const gone = await a.create("document", "지운 문서.md", null, "3"); await a.trash(gone.id, 1);
+  const json = buildBackup(await a.list(), new Date(), { pinnedIds: [d1.id, gone.id], pinColors: { [d1.id]: "red", [gone.id]: "blue" }, pinNames: { red: "급함" } });
+  const pins0 = JSON.parse(json).pins;
+  assert.deepEqual(pins0.pinnedIds, [d1.id]); assert.deepEqual(pins0.pinColors, { [d1.id]: "red" });
+  const items = parseBackup(json);
+  const pins = parseBackupPins(json, items);
+  const keep = await b.create("document", "원래 고정.md", null, "x");
+  const result = await b.importTree(wrapInFolder(items, "복원"));
+  const merged = mergeRestoredPins({ pinnedIds: [keep.id], pinColors: { [keep.id]: "green" }, pinNames: { green: "참고" , red: "이미 있음" } }, pins, result.ids);
+  const newD1 = result.ids[d1.id];
+  assert.deepEqual(merged.pinnedIds, [keep.id, newD1]);
+  assert.deepEqual(merged.pinColors, { [keep.id]: "green", [newD1]: "red" });
+  assert.deepEqual(merged.pinNames, { red: "이미 있음", green: "참고" });
+  assert.equal(merged.restoredPins, 1);
+  assert.ok(!Object.values(result.ids).includes(d2.id));
+  await a.close(); await b.close();
+});
+test("v1.16 고정 정보가 없거나 깨진 옛 백업도 문서는 그대로 복원", () => {
+  const old = JSON.stringify({ format: BACKUP_FORMAT, version: 1, nodes: [{ id: "a", kind: "document", parentId: null, name: "옛 문서.md", markdown: "본문" }] });
+  const items = parseBackup(old);
+  assert.equal(items.length, 1);
+  assert.deepEqual(parseBackupPins(old, items), { pinnedIds: [], pinColors: {}, pinNames: {} });
+  const broken = JSON.stringify({ ...JSON.parse(old), pins: { pinnedIds: ["a", "없는문서", 5], pinColors: { a: "pink" }, pinNames: { red: 1 } } });
+  assert.deepEqual(parseBackupPins(broken, parseBackup(broken)), { pinnedIds: ["a"], pinColors: {}, pinNames: {} });
 });

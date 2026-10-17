@@ -16,7 +16,7 @@ import {
   Search,
   Tag,
 } from "lucide-react";
-import { type DocumentRevision, type PinColor, PIN_COLORS, PIN_COLOR_LABELS, nextPinColor, safeFilename } from "@/lib/documents/model";
+import { type DocumentRevision, type PinColor, PIN_COLORS, PIN_COLOR_LABELS, PIN_NAME_MAX, nextPinColor, pinLabel, safeFilename, sanitizePinNames } from "@/lib/documents/model";
 import { DOCUMENT_TEMPLATES } from "@/lib/documents/templates";
 import { DocumentExplorer } from "./DocumentExplorer";
 import { HotkeysButton } from "../editor/HotkeysModal";
@@ -63,6 +63,18 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
   const colorOf = (id: string) => (pinnedIds.includes(id) ? pinColors[id] : undefined);
   const usedColors = PIN_COLORS.filter(c => liveDocs.some(n => colorOf(n.id) === c));
   const activeTag = tagFilter && usedColors.includes(tagFilter) ? tagFilter : null;
+  const pinNames = store.preferences.pinNames ?? {};
+  // v1.16: 최근 문서는 6개씩 — [더 보기]를 누를 때마다 6개 더(검색·색 거르기를 바꾸면 다시 6개부터)
+  const PAGE = 6;
+  const [docLimit, setDocLimit] = useState(PAGE);
+  const query = docQuery.trim().toLowerCase();
+  const matchedDocs = liveDocs
+    .filter(n => !query || n.name.toLowerCase().includes(query))
+    .filter(n => !activeTag || colorOf(n.id) === activeTag)
+    .sort((a, b) => Number(pinnedIds.includes(b.id)) - Number(pinnedIds.includes(a.id)) || b.updatedAt.localeCompare(a.updatedAt));
+  // v1.16: 꼬리표 이름 편집(색마다 최대 10자)
+  const [namingOpen, setNamingOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState<Partial<Record<PinColor, string>>>({});
   const trash = store.nodes.filter(
     n => n.deletedAt && !store.nodes.some(p => p.id === n.parentId && p.deletedAt && p.trashBatchId === n.trashBatchId)
   );
@@ -219,31 +231,64 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                   aria-label="문서 이름 검색"
                   placeholder="문서 이름으로 찾기"
                   value={docQuery}
-                  onChange={e => setDocQuery(e.target.value)}
+                  onChange={e => { setDocQuery(e.target.value); setDocLimit(PAGE); }}
                 />
               </label>
             )}
             {usedColors.length > 0 && (
               <div className="tag-filter" role="group" aria-label="꼬리표 색으로 걸러 보기">
-                <button type="button" aria-pressed={!activeTag} onClick={() => setTagFilter(null)}>전체</button>
+                <button type="button" aria-pressed={!activeTag} onClick={() => { setTagFilter(null); setDocLimit(PAGE); }}>전체</button>
                 {usedColors.map(c => (
-                  <button key={c} type="button" aria-pressed={activeTag === c} onClick={() => setTagFilter(activeTag === c ? null : c)}>
+                  <button key={c} type="button" aria-pressed={activeTag === c} onClick={() => { setTagFilter(activeTag === c ? null : c); setDocLimit(PAGE); }}>
                     <span className={`tag-dot tag-${c}`} aria-hidden="true" />
-                    {PIN_COLOR_LABELS[c]} {liveDocs.filter(n => colorOf(n.id) === c).length}
+                    {pinLabel(c, pinNames)} {liveDocs.filter(n => colorOf(n.id) === c).length}
                   </button>
                 ))}
+                <button type="button" className="tag-name-edit" aria-expanded={namingOpen} onClick={() => { setNameDraft({ ...pinNames }); setNamingOpen(!namingOpen); }}>
+                  <PenTool size={12} aria-hidden="true" />
+                  꼬리표 이름
+                </button>
               </div>
+            )}
+            {usedColors.length > 0 && namingOpen && (
+              <form
+                className="tag-names"
+                aria-label="꼬리표 이름 정하기"
+                onSubmit={e => {
+                  e.preventDefault();
+                  void action(async () => { await store.setPreferences({ pinNames: sanitizePinNames(nameDraft) }); setNamingOpen(false); });
+                }}
+              >
+                <p className="muted">색마다 이름을 붙이면 거르기 버튼과 문서 카드에 그 이름이 보입니다(최대 {PIN_NAME_MAX}자, 비우면 색 이름).</p>
+                <div className="tag-names-grid">
+                  {PIN_COLORS.map(c => (
+                    <label key={c}>
+                      <span className={`tag-dot tag-${c}`} aria-hidden="true" />
+                      <span className="tag-names-color">{PIN_COLOR_LABELS[c]}</span>
+                      <input
+                        value={nameDraft[c] ?? ""}
+                        maxLength={PIN_NAME_MAX}
+                        placeholder={c === "red" ? "예: 급함" : PIN_COLOR_LABELS[c]}
+                        aria-label={`${PIN_COLOR_LABELS[c]} 꼬리표 이름`}
+                        onChange={e => setNameDraft({ ...nameDraft, [c]: e.target.value })}
+                      />
+                    </label>
+                  ))}
+                </div>
+                <div className="actions">
+                  <button type="submit" className="primary">이름 저장</button>
+                  <button type="button" onClick={() => setNamingOpen(false)}>닫기</button>
+                </div>
+              </form>
             )}
             {liveDocs.length > 0 && docQuery.trim() && !liveDocs.some(n => n.name.toLowerCase().includes(docQuery.trim().toLowerCase())) && (
               <p className="muted" style={{ margin: "8px 0" }}>&quot;{docQuery.trim()}&quot;이(가) 들어간 문서가 없습니다.</p>
             )}
             {liveDocs.length > 0 ? (
+              <>
               <div className="recent-docs-grid">
-                {liveDocs
-                  .filter(n => !docQuery.trim() || n.name.toLowerCase().includes(docQuery.trim().toLowerCase()))
-                  .filter(n => !activeTag || colorOf(n.id) === activeTag)
-                  .sort((a, b) => Number(pinnedIds.includes(b.id)) - Number(pinnedIds.includes(a.id)) || b.updatedAt.localeCompare(a.updatedAt))
-                  .slice(0, docQuery.trim() || activeTag ? 12 : 6)
+                {matchedDocs
+                  .slice(0, docLimit)
                   .map(n => {
                     const pinned = pinnedIds.includes(n.id);
                     const color = pinned ? pinColors[n.id] : undefined;
@@ -269,8 +314,8 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                             <button
                               type="button"
                               className={`doc-tag${color ? ` tag-${color}` : ""}`}
-                              aria-label={`${n.name} 색깔 꼬리표: ${color ? PIN_COLOR_LABELS[color] : "없음"} (눌러서 바꾸기)`}
-                              title={`색깔 꼬리표: ${color ? PIN_COLOR_LABELS[color] : "없음"} — 누를 때마다 바뀝니다`}
+                              aria-label={`${n.name} 색깔 꼬리표: ${color ? pinLabel(color, pinNames) : "없음"} (눌러서 바꾸기)`}
+                              title={`색깔 꼬리표: ${color ? pinLabel(color, pinNames) : "없음"} — 누를 때마다 바뀝니다`}
                               onClick={e => {
                                 e.stopPropagation();
                                 const nextColor = nextPinColor(color);
@@ -301,6 +346,12 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                         <p className="doc-card-preview">{snippet}</p>
                         <div className="doc-card-footer">
                           <span>
+                            {color && (
+                              <span className="doc-tag-name">
+                                <span className={`tag-dot tag-${color}`} aria-hidden="true" />
+                                {pinLabel(color, pinNames)} ·{" "}
+                              </span>
+                            )}
                             {new Date(n.updatedAt).toLocaleDateString("ko-KR", {
                               month: "short",
                               day: "numeric",
@@ -316,6 +367,14 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                     );
                   })}
               </div>
+              {matchedDocs.length > docLimit && (
+                <div className="doc-more">
+                  <button type="button" onClick={() => setDocLimit(docLimit + PAGE)}>
+                    더 보기 ({docLimit}개 / 전체 {matchedDocs.length}개)
+                  </button>
+                </div>
+              )}
+              </>
             ) : (
               <div className="empty-state-card">
                 <div className="empty-state-icon">

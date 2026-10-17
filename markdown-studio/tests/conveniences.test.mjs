@@ -66,3 +66,11 @@ test("v1.15 테마 스크립트: 라이트·다크·자동(컴퓨터 설정 변�
   auto.store[THEME_KEY] = "light"; auto.fire();
   assert.equal(auto.root.dataset.theme, undefined);
 });
+
+test("v1.16 꼬리표 이름: 정해진 색만·공백 제거·10자·빈 이름 제외, 표시 이름", async () => {
+  const { sanitizePinNames, pinLabel } = await import("../src/lib/documents/model.ts");
+  assert.deepEqual(sanitizePinNames({ red: "  급함 ", blue: "", pink: "x", green: "가나다라마바사아자차카", amber: 3 }), { red: "급함", green: "가나다라마바사아자차" });
+  assert.deepEqual(sanitizePinNames(null), {});
+  assert.equal(pinLabel("red", { red: "급함" }), "급함");
+  assert.equal(pinLabel("blue", { red: "급함" }), "파랑");
+});
