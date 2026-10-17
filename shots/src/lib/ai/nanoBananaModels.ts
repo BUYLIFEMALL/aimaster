@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 클라이언트 컴포넌트(모델 선택 UI)에서도 import해야 해서 "server-only" 의존성이 없는 별도 파일로 분리.
 
 export type NanoBananaModelType = "nanobanana" | "nanobanana-2-2k" | "nanobanana-2-4k" | "nanobanana-pro";
@@ -11,26 +13,26 @@ export interface NanoBananaModelConfig {
 
 export const NANO_BANANA_MODEL_CONFIGS: Record<NanoBananaModelType, NanoBananaModelConfig> = {
   nanobanana: {
-    modelName: "gemini-2.5-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-image:generateContent",
+    modelName: "gemini-nano-banana-2.1",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
     imageSize: "1K",
     temperature: 0.7,
   },
   "nanobanana-2-2k": {
-    modelName: "gemini-3.1-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
+    modelName: "gemini-nano-banana-2.1",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
     imageSize: "2K",
     temperature: 0.7,
   },
   "nanobanana-2-4k": {
-    modelName: "gemini-3.1-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
+    modelName: "gemini-nano-banana-2.1",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
     imageSize: "4K",
     temperature: 0.7,
   },
   "nanobanana-pro": {
-    modelName: "gemini-3.1-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
+    modelName: "gemini-nano-banana-2.1",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
     imageSize: "4K",
     temperature: 0.4,
   },
