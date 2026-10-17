@@ -145,3 +145,6 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 주인님 요청(INSTA 포스팅 v1.14·threads v1.09·쇼핑제휴 v1.55와 같은 형식): 설정 화면 맨 위 `components/settings/ThreadsMetaAddressSummary.tsx`(앱 도메인·리디렉션 콜백 새·옛·제거/삭제 콜백(쇼핑제휴 `threads-affiliate-poster.buylife.xyz/api/threads/uninstall`·`/delete` — 그 처리기가 `th_accounts`까지 정리)·Threads 앱 ID 위치·테스터 추가/초대 수락). 콜백 주소 표시는 `CopyAddress`(복사 버튼)로 교체.
 - 같은 날 주인님이 Meta 앱에 새 콜백 등록 → 관리자 [새 주소로 다시 연결] 성공(댓글 권한 동의 후 `th_accounts` 확인).
 - 검수: 빌드·배포·DB v1.09, 크롬에서 카드 제목·사이드바 v1.09 확인.
+
+## 2026-10-17 디자인 리뉴얼 (Claude Code 맥미니, ⏳ 승인 대기)
+- 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
