@@ -78,7 +78,7 @@ export function Sidebar({ userEmail, pendingCount }: { userEmail: string; pendin
     <div className="flex items-center gap-2.5">
       <IgLogo size={26} />
       <div className="min-w-0">
-        <p className="truncate text-[15px] font-bold leading-tight tracking-tight text-ig-text">댓글자동화</p>
+        <p className="truncate text-[15px] font-bold leading-tight tracking-tight text-ig-text">INSTA 댓글 자동화</p>
         <p className="text-[11px] text-ig-muted">Studio · {APP_VERSION}</p>
       </div>
     </div>

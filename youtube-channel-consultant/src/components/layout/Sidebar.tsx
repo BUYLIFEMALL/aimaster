@@ -50,7 +50,7 @@ function Brand() {
     <Link href="/dashboard" className="flex items-center gap-2.5">
       <YoutubeLogo />
       <div className="min-w-0">
-        <p className="truncate text-sm font-bold leading-tight tracking-tight text-yt-text">{APP_NAME}</p>
+        <p className="line-clamp-2 break-words text-[13px] font-bold leading-snug tracking-tight text-yt-text">{APP_NAME}</p>
         <p className="text-[11px] text-yt-muted">Studio · {APP_VERSION}</p>
       </div>
     </Link>

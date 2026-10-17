@@ -138,3 +138,7 @@
 - 개선: 쇼츠·급상승 조회에서 한도 소진 등 오류를 영어 원문 그대로 보여 주던 것이 한국어 안내로 바뀜. 시간 제한·일시 오류 재시도·키 가리기 적용.
 - 검수: tsc 0, eslint(lib/youtube) 0, 테스트 20(공용 2종 포함), build, 배포·DB v1.18, 크롬 화면 v1.18.
 - **주의(다음 CLI)**: `src/lib/youtube/youtubeData.ts`·`tests/youtubeData.test.mjs`는 공용 기준 코드 `youtube-data-client`다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 세 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.
+
+## 2026-10-17 v1.19 — 좌측 상단 프로그램 이름이 「...」로 잘리던 것 → 두 줄 표시(`line-clamp-2`, 13px) (Claude Code 맥미니)
+- 주인님 승인(시험 계정 크롬 검수 중 발견·제안). 바뀐 파일: `src/components/layout/Sidebar.tsx`, 버전 파일. `tsc --noEmit` 오류 0.
+- **빌드·배포·DB `v1.19`는 윈도우 CLI 대기**: `npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.19', updated_at=now() where slug='youtube-viral-studio';` → 1440·375px 제목 확인.

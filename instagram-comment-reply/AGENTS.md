@@ -147,3 +147,7 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - `threads-comment-reply` v1.10 구성 이식 + 인스타 라이트(`ig-*`, 파랑 알약·그라데이션 포인트), 사이드바 그라데이션 막대·대기 배지·**휴대폰 ☰**, `/dashboard`·`/guide` 신설(`/`→`/dashboard`), 로그인까지 같은 배경. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
 - **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## 2026-10-17 v1.15 — 좌측 상단 제목 「INSTA 댓글 자동화」(유튜브 v1.11과 같은 형식, 플랫폼 구분) (Claude Code 맥미니)
+- 주인님 승인(시험 계정 크롬 검수 중 발견·제안). 바뀐 파일: `components/layout/Sidebar.tsx`, 버전 파일. `tsc --noEmit` 오류 0.
+- **빌드·배포·DB `v1.15`는 윈도우 CLI 대기**: `npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.15', updated_at=now() where slug='instagram-comment-reply';` → 1440·375px 제목 확인.

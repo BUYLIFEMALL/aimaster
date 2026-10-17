@@ -150,3 +150,7 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - `youtube-auto-reply` v1.09 구성 이식 + Threads 흑백(`th-*`, 흰 알약 버튼), 사이드바 흰 막대·대기 배지·**휴대폰 ☰**, `/dashboard`·`/guide` 신설(`/`→`/dashboard`), 댓글을 쓰레드 답글 모양으로, 로그인까지 다크. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
 - **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## 2026-10-17 v1.11 — 좌측 상단 제목 「THREADS 댓글 자동화」(유튜브 v1.11과 같은 형식, 플랫폼 구분) (Claude Code 맥미니)
+- 주인님 승인(시험 계정 크롬 검수 중 발견·제안). 바뀐 파일: `components/layout/Sidebar.tsx`, 버전 파일. `tsc --noEmit` 오류 0.
+- **빌드·배포·DB `v1.11`는 윈도우 CLI 대기**: `npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.11', updated_at=now() where slug='threads-comment-reply';` → 1440·375px 제목 확인.

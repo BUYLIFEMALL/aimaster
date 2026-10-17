@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 사이드바 제목 정리 4개 프로그램 (🟠 윈도우 배포 요청)
+
+- 주인님 승인(크롬 검수 제안): `threads-comment-reply` v1.11 「THREADS 댓글 자동화」 · `instagram-comment-reply` v1.15 「INSTA 댓글 자동화」 · `youtube-viral-studio` v1.19 · `youtube-channel-consultant` v1.10 이름 두 줄 표시(잘림 해결). 유튜브 댓글 v1.11 「YOUTUBE 댓글 자동화」와 같은 형식. 각 `tsc --noEmit` 오류 0.
+- `instagram-dm-reply`는 Antigravity가 작업 중 「DM답변 자동화」로 이미 수정(미커밋) — 맥미니 손대지 않음.
+- **⚠️ 윈도우 CLI 요청**: 위 4개 + `youtube-auto-reply` v1.11 — 각각 빌드 → 배포 → DB `programs.version` → 1440·375px 제목 확인. 절차는 각 폴더 `AGENTS.md` 맨 끝.
+
 ## 2026-10-17 Claude Code(맥미니) — 시험 계정(naver) 크롬 화면 검수 결과 + 🐞 DM 사이드바 제목 오류 (Antigravity 작업 중이라 전달만)
 
 - 맥미니 크롬, `buylifemall@naver.com`으로 8개 프로그램 대시보드 확인: 유튜브 댓글자동화 v1.10 · VIRAL FINDER v1.18 · CHANNEL CONSULTANT v1.09 · Threads 댓글 v1.10 · INSTA 댓글 v1.14 · INSTA DM v1.13 · 부동산 v1.15 · 상품소싱 v1.13 — 디자인·빈 상태·연결 상태 표시 정상. 실제 게시·발송·유료 호출 버튼은 누르지 않음.

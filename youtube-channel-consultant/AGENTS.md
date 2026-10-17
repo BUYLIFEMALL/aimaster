@@ -105,3 +105,7 @@ vercel deploy --prod --yes --scope buylife
 - `client.ts` `call()`이 모듈로 위임(오류는 기존 `YouTubeApiError` 형식 유지, 바깥 함수 이름 그대로). 예전 `handleApiError` 삭제. 테스트 `tests/youtubeData.test.mjs` 9개 추가(테스트 목록 포함, 전체 29개 통과).
 - 검수: tsc 0, 테스트 29, build, 배포·DB v1.09, 크롬 화면 v1.09. 실제 YouTube 호출은 하지 않음.
 - **주의(다음 CLI)**: `src/lib/youtube/youtubeData.ts`·`tests/youtubeData.test.mjs`는 공용 기준 코드 `youtube-data-client`다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 세 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.
+
+## 2026-10-17 v1.10 — 좌측 상단 프로그램 이름이 「...」로 잘리던 것 → 두 줄 표시(`line-clamp-2`, 13px) (Claude Code 맥미니)
+- 주인님 승인(시험 계정 크롬 검수 중 발견·제안). 바뀐 파일: `src/components/layout/Sidebar.tsx`, 버전 파일. `tsc --noEmit` 오류 0.
+- **빌드·배포·DB `v1.10`는 윈도우 CLI 대기**: `npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.10', updated_at=now() where slug='youtube-channel-consultant';` → 1440·375px 제목 확인.
