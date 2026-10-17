@@ -42,6 +42,10 @@
 | D2 | Fluid Provisioned Memory $2.91 — 함수 `maxDuration`을 필요한 만큼만(이미지 생성처럼 오래 걸리는 라우트만 길게) | ⬜ |
 | D3 | 이미지 최적화 $0.6 — 아이콘 등은 `unoptimized`, 큰 이미지는 미리 WebP로 | ⬜ |
 
+### B1 실측 기록
+- `da3ee2b`(vercel.json 변경 포함) 푸시: 빌드 기록에 `Running "bash scripts/vercel-ignore-build.sh"` → `메인 사이트 파일 변경 있음 → 빌드` → 정상 빌드(Ready, 39초).
+- 이 문서만 바꾼 다음 푸시: 건너뛰어져야 함(결과는 아래 이력에 기록).
+
 ## 3. 기대 효과 (대략)
 - A1(Basic)만으로 같은 빌드 횟수 기준 Build CPU 비용이 크게 준다(Elastic은 최대 30 vCPU까지 늘었음).
 - B1로 메인 사이트 빌드가 "하루 수십 번"에서 "메인 사이트를 실제로 고친 날 몇 번"으로 준다.
