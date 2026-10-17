@@ -54,7 +54,7 @@
 ## 3. 검수 — 테스트·빌드
 
 1. **기준 테스트**: `ai-image-studio`에서 `node --test tests/geminiImage.test.mjs`(2026-10-17 기준 12개 통과). 기준을 고치면 테스트도 추가한다.
-2. **사본 일치 검사**: `node scripts/check-shared-modules.mjs` → 전부 `OK`.
+2. **사본 일치 + 시간 검사**: `node scripts/check-shared-modules.mjs` → 전부 `OK`. 2026-10-17부터 이 스크립트가 `generateGeminiImage()` 호출마다 `timeoutMs`·`retries`(숫자 또는 같은 파일 상수)를 읽어 최악 시간 = (retries+1) × timeoutMs + 재시도 대기를 계산하고, 300초를 넘으면 `OVER`(종료 코드 1), 값을 못 읽으면 `CHECK`(직접 확인)로 표시한다. **앞뒤 다른 작업 시간·한 요청 안 여러 번 호출·`maxDuration`이 300초보다 짧은 경우는 계산하지 않으므로 §2-1대로 사람이 확인한다.**
 3. **프로그램 테스트가 본문 모양을 검사할 수 있다(2026-10-17 교훈)**: 기준은 `contents: [{ role: "user", parts }]` 배열로 보낸다. photo-remake 테스트는 `body.contents.parts`를 검사하다 실패해 `body.contents[0].parts`로 고쳤다. style-dna 테스트는 옛 모델 화면 이름을 기대하다 실패했다. **기존 테스트를 지우지 말고 바뀐 사실에 맞게 기대값만 고친다.**
 4. **타입·빌드**: 프로그램마다 `npx tsc --noEmit` + `npm run build`. 이전부터 있던 오류(예: threads-content-ops `lib/coupangLinks.ts`, eslint 설정 없는 폴더)는 내 변경과 구분해 보고한다.
 5. **실제 이미지 생성 시험은 일괄로 하지 않는다**(비용). 오류 신고가 들어오거나 꼭 필요할 때 시험 계정의 본인 키로 최소 횟수만 한다.
@@ -92,4 +92,5 @@
 
 | 날짜 | 내용 | 작성 |
 |---|---|---|
+| 2026-10-17 | 검사 스크립트에 이미지 호출 시간(300초) 자동 검사 추가 — 34곳 OK | Claude Code(윈도우) |
 | 2026-10-17 | 최초 작성 — YouTube·이미지 공용화 작업(사본 30곳) 교훈 정리 | Claude Code(윈도우) |

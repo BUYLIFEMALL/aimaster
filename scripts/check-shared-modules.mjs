@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // 공용 기준 코드(docs/SHARED_MODULES.md) 사본 검사 — 기준 파일과 각 프로그램 사본이 글자 하나까지 같은지 확인한다.
+// 이미지 생성 호출(generateGeminiImage)의 최악 소요 시간이 Vercel 300초 한도 안인지도 함께 검사한다(아래 「시간 검사」).
 // 사용: node scripts/check-shared-modules.mjs          (전체 검사, 다르면 종료 코드 1)
 //       node scripts/check-shared-modules.mjs --sync   (기준 파일 내용으로 사본을 덮어씀 — 기준을 고친 뒤에만)
 import fs from "node:fs";
@@ -149,8 +150,106 @@ for (const m of MODULES) {
   }
 }
 
+// 이미지 생성 호출 시간 검사(2026-10-17, docs/SHARED_MODULE_CHECKPOINTS.md §2-1):
+// generateGeminiImage() 호출마다 최악 소요 시간 = (retries+1) × timeoutMs + 재시도 전 대기(1.5초 × 회차)를 계산해
+// Vercel 함수 한도 300초를 넘으면 실패로 본다. 값을 읽지 못한 호출은 CHECK(직접 확인)로만 표시한다.
+// 앞뒤의 다른 작업 시간과 한 요청 안의 여러 번 호출은 계산하지 않는다 — 그 부분은 사람이 확인한다.
+const LIMIT_SEC = 300;
+const DEFAULT_TIMEOUT_MS = 120_000; // 기준 geminiImage.ts 기본값과 같게 유지
+const DEFAULT_RETRIES = 1;
+const SKIP_DIRS = new Set(["node_modules", ".next", "dist", "out", "public", ".vercel", "tests", "test"]);
+const imageModule = MODULES.find((m) => m.id === "gemini-image-client");
+const programDirs = [...new Set([imageModule.source, ...imageModule.copies].map((p) => p.split("/")[0]))];
+
+function listCode(dir, acc = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.isDirectory()) {
+      if (!SKIP_DIRS.has(e.name) && !e.name.startsWith(".")) listCode(path.join(dir, e.name), acc);
+    } else if (/\.(ts|tsx|js|mjs)$/.test(e.name) && !/^geminiImage\./.test(e.name)) {
+      acc.push(path.join(dir, e.name));
+    }
+  }
+  return acc;
+}
+
+function callArgs(text, start) {
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === "(") depth++;
+    else if (text[i] === ")" && --depth === 0) return text.slice(start + 1, i);
+  }
+  return "";
+}
+
+// 숫자 또는 같은 파일의 숫자 상수만 읽는다(예: 110_000, 4 * 60_000, IMAGE_TIMEOUT_MS). 못 읽으면 null.
+function resolveNumber(expr, text) {
+  const e = expr.trim();
+  if (/^[\d_\s*+()]+$/.test(e)) return Function(`return (${e.replace(/_/g, "")})`)();
+  if (/^[A-Za-z_$][\w$]*$/.test(e)) {
+    const m = text.match(new RegExp(`(?:const|let)\\s+${e}\\s*(?::[^=]+)?=\\s*([\\d_\\s*+()]+)[;\\n]`));
+    if (m) return resolveNumber(m[1], text);
+  }
+  return null;
+}
+
+// 호출 객체의 최상위 내용만 남긴다(parts 배열 안의 ...펼치기 같은 안쪽 값은 지움).
+function topLevel(args) {
+  let depth = 0;
+  let out = "";
+  for (const ch of args) {
+    if ("{[(".includes(ch)) depth++;
+    if (depth <= 1) out += ch;
+    if ("}])".includes(ch)) depth--;
+  }
+  return out;
+}
+
+function option(rawArgs, name, fallback, text) {
+  const args = topLevel(rawArgs);
+  const m = args.match(new RegExp(`\\b${name}\\s*:\\s*([^,}\\n]+)`));
+  if (m) return resolveNumber(m[1], text);
+  if (new RegExp(`\\b${name}\\b`).test(args) || /\.\.\./.test(args)) return null; // 줄임 표기·펼치기는 직접 확인
+  return fallback;
+}
+
+let timeChecked = 0;
+let timeUnknown = 0;
+console.log("");
+for (const dir of programDirs) {
+  const abs = path.join(root, dir);
+  if (!fs.existsSync(abs)) continue;
+  for (const file of listCode(abs)) {
+    const text = fs.readFileSync(file, "utf8");
+    const rel = path.relative(root, file).replace(/\\/g, "/");
+    for (const hit of text.matchAll(/generateGeminiImage\s*\(/g)) {
+      const open = hit.index + hit[0].length - 1;
+      const args = callArgs(text, open);
+      const line = text.slice(0, hit.index).split("\n").length;
+      const timeoutMs = option(args, "timeoutMs", DEFAULT_TIMEOUT_MS, text);
+      const retries = option(args, "retries", DEFAULT_RETRIES, text);
+      timeChecked++;
+      if (timeoutMs == null || retries == null) {
+        timeUnknown++;
+        console.log(`CHECK    시간: ${rel}:${line} (timeoutMs·retries 값을 읽지 못함 — 최악 시간이 ${LIMIT_SEC}초 안인지 직접 확인)`);
+        continue;
+      }
+      let waitMs = 0;
+      for (let a = 1; a <= retries; a++) waitMs += 1500 * a;
+      const worst = ((retries + 1) * timeoutMs + waitMs) / 1000;
+      const detail = `최악 ${worst}초 = ${timeoutMs / 1000}초 × ${retries + 1}회 + 대기 ${waitMs / 1000}초`;
+      if (worst > LIMIT_SEC) {
+        console.log(`OVER     시간: ${rel}:${line} ${detail} > ${LIMIT_SEC}초 — timeoutMs를 줄이거나 retries: 0`);
+        bad++;
+      } else {
+        console.log(`OK       시간: ${rel}:${line} ${detail}`);
+      }
+    }
+  }
+}
+console.log(`이미지 호출 ${timeChecked}곳 시간 검사(직접 확인 ${timeUnknown}곳)`);
+
 if (bad) {
-  console.log(`\n${bad}건 불일치`);
+  console.log(`\n${bad}건 문제(사본 불일치·시간 초과)`);
   process.exit(1);
 }
-console.log("\n모든 사본이 기준과 같습니다.");
+console.log("\n모든 사본이 기준과 같고, 이미지 호출 시간이 300초 안입니다.");
