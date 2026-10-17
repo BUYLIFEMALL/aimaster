@@ -258,7 +258,8 @@ export function Sidebar({
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="p-1.5 rounded-lg text-[#aaaaaa] hover:bg-[#212121] hover:text-white cursor-pointer"
-          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+          aria-label="메뉴 열기"
+          aria-expanded={mobileOpen}
         >
           {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
@@ -272,6 +273,7 @@ export function Sidebar({
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
+                aria-label="메뉴 닫기"
                 className="p-1.5 rounded-lg text-[#aaaaaa] hover:bg-[#212121] hover:text-white cursor-pointer"
               >
                 <X size={18} />

@@ -1,12 +1,12 @@
 # Youtube Playlist 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
-> **프로그램 버전**: `v1.06` (2026-10-17 유튜브 다크 테마 디자인 리뉴얼 & 비주얼 가이드북 전면 신설)  
+> **프로그램 버전**: `v1.08` (2026-10-17 유튜브 다크 테마 디자인 리뉴얼 & 비주얼 가이드북 전면 신설)
 > **공식 커스텀 도메인**: [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) (기존: `https://yt-playlist.buylife.xyz`)  
 > **프로그램 slug**: `yt-playlist-studio`  
 > **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console Style · 유튜브 공식 다크 테마)**  
 > **인수인계 문서**: [개발 플랜](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) · [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md)  
 > **카테고리**: 음악 / 멀티미디어 / 크리에이터  
-> **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)  
+> **배지**: `['new']` (2026-10-17 DB 조회 기준. FREE를 임의 전제로 삼지 않음)
 > **DB 카탈로그 순위**: `sort_order = 124` (플랫폼 최상단 1순위 노출)
 
 ---
@@ -17,9 +17,9 @@
    - 운영자(buylifemall) 또는 시스템 공용 키로 폴백하지 않습니다.
    - 키가 없으면 기능을 임의로 우회하지 않고 `ApiKeyModal`을 열어 등록을 안내합니다. (`user_api_keys.provider = 'gemini'`)
 2. **FREE 배지 가입자 전체 무료 이용 원칙**:
-   - `programs.badges`에 `'free'`가 등록되어 있으므로 가입 회원은 누구나 무료 이용 가능합니다. (비로그인은 자체 `/login` 리다이렉트)
-3. **작업 화면 클린 화이트 베이스 원칙 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
-   - 본문 및 컨트롤 패널은 `bg-white` / `bg-slate-50` 테마를 유지합니다.
+   - 실제 programs.badges에 FREE가 있으면 가입 회원 누구나 이용합니다. 현재 DB는 new만 있으므로 통합 자격 판정 결과를 따릅니다. (비로그인은 자체 `/login` 리다이렉트)
+3. **작업 화면 유튜브 다크 테마 원칙 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
+   - 본문 및 컨트롤 패널은 확정된 #0f0f0f/#181818 유튜브 다크 테마를 유지합니다.
 4. **단일 작업 세트 완결 원칙**:
    - 빌드 검증(`npm run build`) → Git Commit → Git Push → Vercel 프로덕션 배포(`vercel deploy --prod --yes`) → 버전 상향 동기화(`lib/version.ts` + `package.json` + DB `programs.version`) → 결과 보고까지 한 번에 완료합니다.
 
@@ -108,8 +108,8 @@ yt-playlist-studio/
    - 배포 후 `vercel alias set <배포도메인> youtube-playlist.buylife.xyz`로 공식 도메인 연결 보장.
 2. **버전 관리 (Rule 5)**:
    - 코드 수정 시 반드시 `src/lib/version.ts`의 `APP_VERSION`, `package.json`의 `version`, Supabase DB `programs.version` 세 곳을 일치시켜 동시 상향.
-3. **화이트 테마 유지 (Rule 8)**:
-   - 작업 화면은 `bg-white`, `bg-slate-50`, 경계는 `border-slate-200` 베이스로 클린하게 유지.
+3. **유튜브 다크 테마 유지**:
+   - 작업 화면은 #0f0f0f, 카드 #181818, 경계 #303030 다크 스타일을 유지.
 4. **API 키 절대 원칙 (Rule 00 & Rule 4)**:
    - 회원 본인 Gemini API 키 (`user_api_keys.provider = 'gemini'`)만 사용. 공용 키 폴백 금지.
 
@@ -135,3 +135,24 @@ yt-playlist-studio/
 - **사이드바 메뉴 표준화**: 다크 테마 적용 및 유틸리티 영역에 `📖 연동 & 사용 매뉴얼` 메뉴 탑재.
 - **독립 라우트 지원**: `/guide` 직접 브라우저 URL 접근 라우트 지원 (`src/app/guide/page.tsx`).
 - **배포 및 검수**: Vercel 프로덕션 배포 (`https://youtube-playlist.buylife.xyz/`), Microsoft Edge 실세션 데스크톱/모바일 검수 완료.
+
+## 기능·로직·장점·단점 (v1.08 최신 기준)
+
+- **기능:** 본인 파일 음원/배경/로고/GIF 구성, 스펙트럼·필터·파티클 편집, 챕터 복사, 본인 Gemini 키 배경 생성, WebCodecs MP4 출력, 사용 매뉴얼. v1.08은 Viral Finder 참고 메모 수신을 추가합니다.
+- **로직:** AIMaster 로그인/프로그램 자격 후 회원 ID를 스튜디오에 전달합니다. 본인 Gemini 키만 조회/사용합니다. 파일/편집/인코딩은 브라우저에서 처리합니다. 참고 메모는 동일 회원·유튜브 HTTPS URL·발급5분을 검사해 해당 화면 메모리에만 표시하고 메뉴 이동/새로고침/만료 시 제거합니다. DB·localStorage·서버 로그에 메모를 저장하지 않습니다.
+- **장점:** 파일을 서버에 올리지 않는 제작 흐름, 본인 키, GPU 인코딩, 같은 계정의 영상 참고와 실제 제작을 분리한 연결, 다크·모바일 UI.
+- **단점/한계:** WebCodecs/저장 API 브라우저 지원과 PC 자원에 의존합니다. 입력 메모의 회원ID 비교는 수신 확인이며 서명된 인증 토큰이 아닙니다(사람이 입력한 제목/URL을 읽기 전용으로 표시할 뿐 어떤 권한도 부여하지 않음). 실제 미디어 가져오기/프로젝트 자동 적용/지속 메모는 없습니다. 이번에는 실제 음원 렌더/유료 AI 회귀를 실행하지 않았습니다.
+
+## v1.08 변경 히스토리 (2026-10-17 Codex)
+
+- 동일 회원5분 참고 메모 수신/주소 검증·자동 제거, 가이드 안내. 모바일 드로어의 실제 닫기 버튼에 접근성 이름 추가(가려진 바깥 버튼과 구분). Next16.4.2 보안 보완, package1.08.0/APPv1.08. DB 표시는 배포 후 동기화합니다.
+- 사전 검사: 빌드/타입, 파서6, 실제 일반 회원 Edge1440/375 연계10, 비로그인API3개401, npm audit0. 코드 복구 후 전체 재검수했습니다. [최종 인수인계](docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md) · [개선 대기 목록](docs/IMPROVEMENT_BACKLOG.md).
+
+## 목적·개발 도구·후속 제안 (공통 7항목 보완)
+
+- **목적/대상:** 본인 음원·배경 자료로 유튜브 플레이리스트 영상을 만드는 제작자. 브라우저 안에서 편집·출력하고 회원 본인 AI 키를 연결합니다.
+- **도구/기법/스킬:** Next.js16.4.2·React19·TypeScript·Tailwind4, WebAudio·Canvas·WebCodecs, mp4-muxer·GIF 처리, Supabase 통합 인증/본인 키, 회원 Gemini 배경 생성. 이번 작업은 PowerShell/Node, Playwright 실제 Edge, Vercel CLI와 Supabase·Postgres·배포·React 점검 지침을 사용했습니다. 별도 실행 플러그인이나 공용 AI 키를 추가하지 않았습니다.
+- **기능/로직/장단점·버전:** 위 최신 기능/히스토리 및 [v1.08 결과](docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md)를 기준으로 확인합니다. 브라우저 자원·지원 API 의존과 실제 렌더 재검수 미실행 한계를 유지합니다.
+- **작업 대기:** [개선 대기 목록](docs/IMPROVEMENT_BACKLOG.md). 썸네일 캡처, 트랙 번호, 모바일 포커스/Escape, 사용요금 안내는 미구현입니다. 기존 코드/화면부터 비교한 뒤 플랜을 제시합니다.
+- **연계/아이디어:** Viral Finder의 같은 회원 참고 메모 수신은 구현했습니다. Suno 메타데이터/챕터 연계와 프로젝트 자동 적용은 제안이며 실제 음원 다운로드·게시를 자동 실행하지 않습니다.
+- **UI/스타일:** 기존 유튜브 다크 색을 유지했습니다. 후속 제안은 모바일 포커스 복귀·키보드 닫기와 제작 단계/비용 안내 개선입니다. 이번에는 실제 메뉴 닫기 버튼의 접근성 이름만 보완했습니다.

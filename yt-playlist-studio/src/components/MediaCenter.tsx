@@ -1,5 +1,6 @@
 "use client";
 
+import { ReferenceNotePanel } from "./ReferenceNotePanel";
 import { useState, useRef } from "react";
 import {
   Upload,
@@ -20,6 +21,7 @@ import {
 import { Track, ExportSettings } from "@/types/playlist";
 
 interface MediaCenterProps {
+  userId?: string | null;
   tracks: Track[];
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   bgMedia: { type: 'image' | 'video'; url: string; name?: string } | null;
@@ -34,6 +36,7 @@ interface MediaCenterProps {
 }
 
 export function MediaCenter({
+  userId,
   tracks,
   setTracks,
   bgMedia,
@@ -186,6 +189,7 @@ export function MediaCenter({
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#0f0f0f] text-[#f1f1f1] p-6 md:p-10 space-y-8 custom-scrollbar">
+      <ReferenceNotePanel userId={userId} />
       {/* 1. 메인 타이틀 헤더 */}
       <div className="border-b border-[#272727] pb-6 flex items-start justify-between">
         <div>

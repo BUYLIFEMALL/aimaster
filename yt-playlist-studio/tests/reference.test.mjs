@@ -1,0 +1,10 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {parseReferenceNote,REFERENCE_TTL_MS} from '../src/lib/referenceNote.ts';
+const owner='member-a',now=Date.parse('2026-10-17T03:00:00Z'),note={format:'aimaster-youtube-reference',version:1,ownerId:owner,createdAt:new Date(now).toISOString(),title:'합성 참고 영상',url:'https://www.youtube.com/watch?v=synthetic'};
+const parse=value=>parseReferenceNote(JSON.stringify(value),owner,now);
+test('same member note yields title and canonical video URL',()=>{const v=parse(note);assert.equal(v.title,note.title);assert.equal(v.url,note.url);assert.equal(v.expiresAt,now+REFERENCE_TTL_MS);});
+test('different or missing member never receives reference',()=>{assert.throws(()=>parse({...note,ownerId:'other'}));assert.throws(()=>parseReferenceNote(JSON.stringify(note),'',now));});
+test('exact five-minute cutoff and far future notes rejected',()=>{assert.throws(()=>parse({...note,createdAt:new Date(now-REFERENCE_TTL_MS).toISOString()}));assert.ok(parse({...note,createdAt:new Date(now-REFERENCE_TTL_MS+1).toISOString()}));assert.throws(()=>parse({...note,createdAt:new Date(now+60000).toISOString()}));});
+test('malformed/unknown/oversize data rejected',()=>{for(const raw of ['null','[]','{}','{bad','x'.repeat(8193)])assert.throws(()=>parseReferenceNote(raw,owner,now));assert.throws(()=>parse({...note,version:2}));assert.throws(()=>parse({...note,title:'x'.repeat(1001)}));});
+test('untrusted, executable, credentialed and embedded URL lookalikes rejected',()=>{for(const url of ['javascript:alert(1)','https://evil.test/watch?v=synthetic','https://www.youtube.com.evil.test/watch?v=synthetic','https://user:pass@www.youtube.com/watch?v=synthetic','http://www.youtube.com/watch?v=synthetic','https://www.youtube.com:999/watch?v=synthetic','https://www.youtube.com/embed/synthetic'])assert.throws(()=>parse({...note,url}));});
+test('shortened/shorts URLs canonicalize without tracking parameters',()=>{for(const url of ['https://youtu.be/synthetic?tracking=ignore','https://www.youtube.com/shorts/synthetic'])assert.equal(parse({...note,url}).url,note.url);});

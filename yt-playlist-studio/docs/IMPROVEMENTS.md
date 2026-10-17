@@ -35,3 +35,7 @@ YOUTUBE VIRAL FINDER v1.13 마무리 중 읽기 조사만 수행했습니다. �
 - **문서/운영 일치 확인 제안:** 조사 시 README v1.03, AGENTS v1.06, 본 원장 v1.07이며 AGENTS에는 다크/화이트 지침이 혼재합니다. 2026-10-17 조회 DB는 version v1.06, app_url https://youtube-playlist.buylife.xyz, badges [new]였습니다. AGENTS의 FREE 보장 설명과 실제 DB가 다르므로 다음 담당자가 최신 배포·권한을 확인해 정리해야 합니다. 이 조사만으로 배지/권한/DB 값을 변경하지 않았습니다.
 
 원 작업 인수인계: ../..//youtube-viral-studio/docs/WINDOWS_HANDOFF_20261017.md (경로 youtube-viral-studio/docs/WINDOWS_HANDOFF_20261017.md). 운영 데이터를 새 프로그램에 복사하지 않았습니다.
+
+## 2026-10-17 Codex — v1.08 참고 메모 연계
+
+본 프로그램에 실제 수신 칸을 구현해 Viral Finder 운영 화면 복사→같은 회원 Playlist 표시 흐름을 검수했습니다. 다른 회원/만료/외부주소 거부, 화면 이동·새로고침·5분 제거, 외부API/AI/DB저장0. Next16.4.2/audit0, 실제 닫기 버튼 이름 보완. 기존 FREE/화이트/버전 문서 불일치 정정(실제 배지/권한 변경 없음). [개선 대기 목록](IMPROVEMENT_BACKLOG.md) · [새 인수인계](IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md).

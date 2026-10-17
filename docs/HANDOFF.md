@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — yt-playlist-studio v1.08 Windows 사전 검수 완료·운영 배포 진행
+
+- 앞선 Viral Finder v1.14 완료 후 참고 메모 수신 칸 구현. 동일 회원/5분/유튜브 주소 확인, 메뉴 이동/새로고침/만료 제거. DB/키/외부AI/미디어 생성/게시0.
+- 빌드/타입·파서6·실제 Edge 연계10·API3개401·audit0. 모바일 실제 닫기 버튼 이름, 문서 버전/테마/배지 정정. 공유 갱신으로 돌아간 본인 tracked 변경만 복구 후 재검수.
+- 소스 푸시/운영 배포·DBv1.08·운영 검수 진행. [인수인계](../yt-playlist-studio/docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md). https://youtube-playlist.buylife.xyz
+
 ## 2026-10-17 Antigravity(Windows) — 프로그램별 루트 문서(AGENTS/README) 7대 필수 규격화 및 메인 핵심 지침 확장
 
 - **주인님 지시사항**: 모든 프로그램 폴더 루트(`AGENTS.md`, `README.md`)에 저장될 문서 지침에 1) 사용목적/대상, 2) 개발도구/개발기법/플러그인/스킬, 3) 기능/로직/아키텍처/장단점, 4) 현재 버전 및 변경 히스토리, 5) 남아 있는 추가 개발/디자인 대기 내용, 6) 타 프로그램 연계/병합 및 확장 아이디어 제안, 7) UI/레이아웃/스타일 개선안 등 7대 핵심 내용을 필수 기록하도록 규격화하고 메인 핵심 지침에 추가하여 모든 CLI(Antigravity, Codex, Claude Code)가 참고할 수 있게 체계화.

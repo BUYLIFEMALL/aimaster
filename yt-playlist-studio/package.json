@@ -1,6 +1,6 @@
 {
   "name": "yt-playlist-studio",
-  "version": "1.06.0",
+  "version": "1.08.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,7 +15,7 @@
     "gifuct-js": "^2.1.2",
     "lucide-react": "^1.48.0",
     "mp4-muxer": "^5.1.0",
-    "next": "16.2.11",
+    "next": "16.4.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1"
@@ -25,6 +25,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "playwright": "1.58.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

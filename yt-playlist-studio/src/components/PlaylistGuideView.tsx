@@ -135,6 +135,10 @@ export function PlaylistGuideView({ onGoToStudio, onOpenApiKey }: PlaylistGuideV
 
   return (
     <div className="space-y-8 pb-16">
+      <section className="rounded-2xl border border-[#303030] bg-[#181818] p-5 text-[#f1f1f1]">
+        <h2 className="font-bold">🔎 Viral Finder에서 참고 영상 가져오기</h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#aaaaaa]">Viral Finder의 영상 카드에서 「Playlist 참고 메모 복사」를 누른 다음, 이 프로그램의 미디어 센터 참고 메모 칸에 붙여넣고 불러오세요. 같은 계정에서 5분 안에 제목과 주소를 확인할 수 있습니다. 메뉴 이동·새로고침 뒤에는 메모가 사라집니다. 실제 영상·음원을 내려받거나 AI를 자동 실행하지 않습니다.</p>
+      </section>
       {/* 1. 유튜브 공식 다크 히어로 배너 */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1a0505] via-[#140808] to-[#0f0f0f] p-6 md:p-10 text-white border border-[#272727] shadow-2xl">
         <div className="absolute -right-12 -bottom-12 h-64 w-64 rounded-full bg-[#ff0000]/15 blur-3xl pointer-events-none" />

@@ -103,6 +103,7 @@ export function PlaylistStudioApp({ userEmail, userId, initialTab = 'media' }: P
 
         {currentTab === 'media' && (
           <MediaCenter
+            userId={userId}
             tracks={tracks}
             setTracks={setTracks}
             bgMedia={bgMedia}
