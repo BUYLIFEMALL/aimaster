@@ -23,15 +23,15 @@ export function CopyAddress({ value }: { value: string }) {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded bg-neutral-100 px-2 py-1.5">
-      <code className="min-w-0 flex-1 break-all text-neutral-800">{value}</code>
+    <div className="flex items-center gap-2 rounded bg-ig-raised px-2 py-1.5">
+      <code className="min-w-0 flex-1 break-all text-ig-text">{value}</code>
       <button
         type="button"
         onClick={copy}
         className={`shrink-0 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
           copied
-            ? "border-green-300 bg-green-50 text-green-700"
-            : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"
+            ? "border-ig-success/30 bg-ig-success/10 text-ig-success"
+            : "border-ig-border bg-ig-surface text-ig-text hover:bg-ig-hover"
         }`}
       >
         {copied ? "✓ 복사됨" : "복사"}

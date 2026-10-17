@@ -22,8 +22,8 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
   if (enabled) {
     return (
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-green-600">✅ 자동 발송 켜짐 — 새 DM은 검토 없이 바로 답장이 나갑니다.</p>
-        <p className="text-xs text-gray-400">
+        <p className="text-sm font-semibold text-ig-success">✅ 자동 발송 켜짐 — 새 DM은 검토 없이 바로 답장이 나갑니다.</p>
+        <p className="text-xs text-ig-muted">
           텔레그램을 연동해두면 자동 발송될 때마다 결과를 알려드려요. 문제가 생기면 언제든 꺼서
           다시 검토 후 발송 방식으로 되돌릴 수 있습니다.
         </p>
@@ -31,7 +31,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
           type="button"
           onClick={() => handleToggle(false)}
           disabled={isPending}
-          className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100 disabled:opacity-60"
+          className="rounded-lg bg-ig-danger/10 px-4 py-2 text-xs font-bold text-ig-danger hover:bg-ig-danger/15 disabled:opacity-60"
         >
           {isPending ? "끄는 중..." : "⏸ 자동 발송 끄기"}
         </button>
@@ -41,7 +41,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+      <div className="rounded-lg border border-ig-warn/40 bg-ig-warn/10 p-3 text-xs text-ig-warn">
         <p className="font-semibold">⚠️ 켜기 전에 확인해주세요</p>
         <ul className="mt-1 list-inside list-disc space-y-0.5">
           <li>Meta 정책상 DM 자동 응답 자체는 허용되지만(대화 시작 시 고지만 하면 됨), AI가 맥락을 잘못 읽고 부정확한 안내를 사람 확인 없이 그대로 실제 고객에게 보낼 수 있어요.</li>
@@ -49,7 +49,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
           <li>먼저 며칠간 "DM 검토/발송" 화면(또는 텔레그램 승인 버튼)으로 AI 답장 품질을 확인한 뒤 켜는 것을 권장해요.</li>
         </ul>
       </div>
-      <label className="flex items-start gap-2 text-xs text-gray-600">
+      <label className="flex items-start gap-2 text-xs text-ig-muted">
         <input
           type="checkbox"
           checked={confirmed}
@@ -62,7 +62,7 @@ export function AutoApproveSettingsForm({ enabled }: { enabled: boolean }) {
         type="button"
         onClick={() => handleToggle(true)}
         disabled={isPending || !confirmed}
-        className="rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 px-4 py-2 text-xs font-bold text-white hover:opacity-90 disabled:opacity-40"
+        className="rounded-full px-4 py-2 text-xs font-bold text-white disabled:opacity-40 bg-ig-primary hover:bg-ig-primary-hover"
       >
         {isPending ? "켜는 중..." : "⚡ 자동 발송 켜기"}
       </button>

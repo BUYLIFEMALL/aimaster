@@ -1,6 +1,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTimeKo } from "@/lib/formatDate";
+import { StudioHeader, StatCard, Avatar } from "@/components/ui/StudioHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -47,49 +48,49 @@ export default async function HistoryPage() {
   const usernameByConversationId = new Map((conversationList ?? []).map((c) => [c.id, c.customer_username]));
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">📊 발송 이력</h1>
-        <p className="text-sm text-gray-500 mt-1">지금까지 실제로 발송된 DM 답장 이력입니다.</p>
-      </div>
+    <div className="mx-auto max-w-4xl">
+      <StudioHeader icon="📊" title="발송 이력" description="지금까지 실제로 인스타그램 DM으로 발송된 답장입니다." />
 
-      <div className="mb-8 grid grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
-          <p className="text-2xl font-black text-gray-900">{postedTotal ?? 0}</p>
-          <p className="mt-1 text-xs text-gray-400">총 발송된 답장</p>
-        </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
-          <p className="text-2xl font-black text-gray-900">{postedThisWeek ?? 0}</p>
-          <p className="mt-1 text-xs text-gray-400">최근 7일 발송</p>
-        </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
-          <p className="text-2xl font-black text-gray-900">{pendingCount ?? 0}</p>
-          <p className="mt-1 text-xs text-gray-400">검토 대기 중</p>
-        </div>
+      <div className="mb-6 grid grid-cols-3 gap-3">
+        <StatCard label="총 발송한 답장" value={postedTotal ?? 0} />
+        <StatCard label="최근 7일 발송" value={postedThisWeek ?? 0} />
+        <StatCard label="검토 대기 중" value={pendingCount ?? 0} accent={(pendingCount ?? 0) > 0} />
       </div>
 
       {!posted || posted.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4">📭</div>
-          <p>아직 발송된 답장이 없습니다.</p>
+        <div className="ig-card py-16 text-center text-ig-muted">
+          <div className="mb-3 text-5xl">📭</div>
+          <p className="text-sm">아직 발송된 답장이 없습니다.</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {posted.map((m) => (
-            <div key={m.id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-xs font-semibold text-gray-400">👤 {usernameByConversationId.get(m.conversation_id) || "익명 고객"}</p>
-                {m.replied_at && <p className="text-xs text-gray-400">{formatDateTimeKo(m.replied_at)}</p>}
+        <div className="ig-card divide-y divide-ig-border py-2">
+          {posted.map((m) => {
+            const username = usernameByConversationId.get(m.conversation_id);
+            return (
+              <div key={m.id} className="space-y-2 py-4">
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="font-semibold text-ig-text">{username ? `@${username}` : "익명 고객"}</span>
+                  {m.replied_at && <span className="text-ig-muted">{formatDateTimeKo(m.replied_at)}</span>}
+                </div>
+                <div className="flex items-end gap-2">
+                  <Avatar name={username ?? null} size={26} />
+                  <p className="max-w-[80%] whitespace-pre-wrap rounded-3xl rounded-bl-md bg-ig-raised px-4 py-2.5 text-sm text-ig-text">
+                    {m.message_text}
+                  </p>
+                </div>
+                <div className="flex flex-col items-end">
+                  <p className="max-w-[80%] whitespace-pre-wrap rounded-3xl rounded-br-md bg-ig-primary px-4 py-2.5 text-sm text-white">
+                    {m.generated_reply}
+                  </p>
+                  <span className="mt-1 text-[11px] font-semibold text-ig-success">✓ 발송됨</span>
+                </div>
               </div>
-              <p className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{m.message_text}</p>
-              <p className="mt-2 text-xs font-semibold text-gray-400">✅ 발송된 답장</p>
-              <p className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{m.generated_reply}</p>
-            </div>
-          ))}
-          {posted.length === HISTORY_LIMIT && (
-            <p className="pt-2 text-center text-xs text-gray-400">최근 {HISTORY_LIMIT}건만 표시됩니다.</p>
-          )}
+            );
+          })}
         </div>
+      )}
+      {posted && posted.length === HISTORY_LIMIT && (
+        <p className="pt-3 text-center text-xs text-ig-muted">최근 {HISTORY_LIMIT}건만 표시됩니다.</p>
       )}
     </div>
   );

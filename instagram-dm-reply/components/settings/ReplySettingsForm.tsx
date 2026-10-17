@@ -54,7 +54,7 @@ export function ReplySettingsForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1">
+        <label className="block text-xs font-semibold text-ig-muted mb-1">
           🔔 자동 응답 고지 문구 (대화별 최초 1회 발송)
         </label>
         <textarea
@@ -63,13 +63,13 @@ export function ReplySettingsForm({
           rows={2}
           className="input"
         />
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-ig-muted">
           Meta 정책상 자동 응답 DM은 대화 시작 시 "자동 응답임을 고지"해야 합니다. 이 문구는 같은
           상대방과의 대화에서 처음 답장을 보낼 때 딱 한 번만 자동으로 함께 나갑니다.
         </p>
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1">DM 답장에 포함할 기본 링크</label>
+        <label className="block text-xs font-semibold text-ig-muted mb-1">DM 답장에 포함할 기본 링크</label>
         <input
           name="defaultLink"
           type="text"
@@ -77,12 +77,12 @@ export function ReplySettingsForm({
           placeholder="example.com 또는 https://example.com"
           className="input"
         />
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-ig-muted">
           답장 내용에 자연스럽게 녹여서 안내합니다. https:// 는 생략해도 자동으로 붙습니다.
         </p>
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1">답장 생성 AI 모델</label>
+        <label className="block text-xs font-semibold text-ig-muted mb-1">답장 생성 AI 모델</label>
         <select name="replyModel" defaultValue={replyModel ?? DEFAULT_REPLY_MODEL} className="input">
           {PROVIDER_GROUP_ORDER.map((provider) => (
             <optgroup key={provider} label={REPLY_MODEL_PROVIDER_SHORT_LABELS[provider]}>
@@ -94,13 +94,13 @@ export function ReplySettingsForm({
             </optgroup>
           ))}
         </select>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-ig-muted">
           더 똑똑한 모델일수록 답변이 자연스럽지만, 호출 비용도 함께 올라갑니다. 고른 모델에 맞는
           provider의 API 키가 설정 상단에 등록되어 있어야 합니다.
         </p>
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1">답장 톤 설정 (선택)</label>
+        <label className="block text-xs font-semibold text-ig-muted mb-1">답장 톤 설정 (선택)</label>
         <select name="tonePreset" defaultValue={tonePreset ?? ""} className="input">
           <option value="">직접 설정 안 함</option>
           {TONE_PRESETS.map((preset) => (
@@ -111,7 +111,7 @@ export function ReplySettingsForm({
         </select>
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1">
+        <label className="block text-xs font-semibold text-ig-muted mb-1">
           추가하고 싶은 어조/문구/제한사항 (선택)
         </label>
         <textarea
@@ -121,19 +121,19 @@ export function ReplySettingsForm({
           placeholder="예: 가격 문의에는 확답하지 말고 상담 링크로 안내하기 등"
           className="input"
         />
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-ig-muted">
           위 기본 톤에 더해서, 세부적으로 추가하고 싶은 지시사항이 있으면 적어주세요.
         </p>
       </div>
       <button
         type="submit"
         disabled={isPending}
-        className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
+        className="px-4 py-2 rounded-full text-sm font-bold text-white disabled:opacity-60 bg-ig-primary hover:bg-ig-primary-hover"
       >
         {isPending ? "저장 중..." : "저장"}
       </button>
-      {success && <p className="text-sm text-green-600">저장됐습니다.</p>}
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+      {success && <p className="text-sm text-ig-success">저장됐습니다.</p>}
+      {error && <p className="text-sm text-ig-danger bg-ig-danger/10 rounded-lg px-3 py-2">{error}</p>}
     </form>
   );
 }

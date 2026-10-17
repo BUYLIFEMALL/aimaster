@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { ConversationReviewItem } from "@/components/conversations/ConversationReviewItem";
 import { SettingsSummary } from "@/components/conversations/SettingsSummary";
+import { StudioHeader, Avatar } from "@/components/ui/StudioHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,7 @@ export default async function ConversationsPage() {
 
     if (remainingHours <= 0) {
       return (
-        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
+        <span className="rounded-full bg-ig-danger/10 px-2.5 py-0.5 text-xs font-bold text-ig-danger">
           ⚠️ 24시간 윈도우 만료 (메시지 응답 제한)
         </span>
       );
@@ -55,24 +56,21 @@ export default async function ConversationsPage() {
     const mins = Math.floor((remainingHours % 1) * 60);
     const isUrgent = remainingHours < 4;
     return (
-      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${isUrgent ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
+      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${isUrgent ? "bg-ig-warn/10 text-ig-warn" : "bg-ig-success/10 text-ig-success"}`}>
         ⏳ 24시간 윈도우 {hours}시간 {mins}분 남음
       </span>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="sticky top-0 z-10 -mx-4 bg-gray-50 px-4 pb-4 pt-1">
-        <div className="mb-4">
-          <h1 className="text-2xl font-black text-gray-900">DM 검토/발송</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            AI가 만든 답장 초안을 확인하고 수정한 뒤 &quot;답변승인&quot;을 눌러야 실제로 인스타그램 DM으로
-            나갑니다.
-            <br />
-            새 DM은 웹훅으로 실시간 수신되며, Meta 24시간 메시징 윈도우 이내에 답변을 승인해야 합니다.
-          </p>
-        </div>
+    <div className="mx-auto max-w-4xl">
+      {/* 스크롤해도 화면 상단에 계속 보이도록 목록과 분리한 고정 머리말 */}
+      <div className="sticky top-[64px] z-10 -mx-4 bg-ig-bg px-4 pb-4 pt-1 md:top-0 md:-mx-8 md:px-8">
+        <StudioHeader
+          icon="💬"
+          title="DM 검토/발송"
+          description="AI가 만든 답장 초안을 확인하고 수정한 뒤 「답변승인 · 발송」을 눌러야 실제 인스타그램 DM으로 나갑니다. 새 DM은 웹훅으로 실시간 들어오며, 고객의 마지막 메시지로부터 24시간 안에 답해야 해요."
+        />
 
         <SettingsSummary
           data={{
@@ -86,26 +84,27 @@ export default async function ConversationsPage() {
         />
       </div>
 
-      <div className="pt-6">
+      <div className="pt-4">
         {!messages || messages.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
-            <div className="text-5xl mb-4">📩</div>
-            <p>검토 대기 중인 DM이 없습니다.</p>
+          <div className="ig-card py-16 text-center">
+            <div className="mb-3 text-5xl">📩</div>
+            <p className="text-sm text-ig-muted">검토 대기 중인 DM이 없습니다.</p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {Array.from(groupedByConversation.entries()).map(([conversationId, convMessages]) => {
               const conv = conversationMap.get(conversationId);
               const username = conv?.customer_username;
               return (
-                <div key={conversationId}>
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-sm font-bold text-gray-700">
-                      👤 {username || "익명 고객"}
+                <section key={conversationId} className="ig-card py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ig-border pb-3">
+                    <h2 className="flex items-center gap-2 text-sm font-bold text-ig-text">
+                      <Avatar name={username ?? null} size={30} />
+                      {username ? `@${username}` : "익명 고객"}
                     </h2>
                     {getWindowBadge(conv?.last_inbound_at)}
                   </div>
-                  <div className="space-y-3">
+                  <div className="divide-y divide-ig-border">
                     {(convMessages ?? []).map((m) => (
                       <ConversationReviewItem
                         key={m.id}
@@ -118,7 +117,7 @@ export default async function ConversationsPage() {
                       />
                     ))}
                   </div>
-                </div>
+                </section>
               );
             })}
           </div>

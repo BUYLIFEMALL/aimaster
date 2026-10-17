@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — INSTA DM답변 자동화 v1.13: 인스타 라이트 (DM 대화 화면) (🟠 윈도우 마무리 요청)
+
+- **대상**: `instagram-dm-reply/` (https://instagram-dm-reply.buylife.xyz). 플랜 → 주인님 「진행해」 승인 후 구현.
+- **한 일**: `instagram-comment-reply` v1.14 토큰·부품 이식, DM 검토·이력을 인스타 DM 말풍선으로, `/dashboard`(24시간 기한 임박 대화)·`/guide` 신설, **휴대폰 ☰ 신설**, 로그인 같은 배경. 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+- **추가개선(3대 항목)**: 기한 임박 텔레그램 알림, 이전 대화 맥락 표시 — [`IMPROVEMENTS.md`](../instagram-dm-reply/docs/IMPROVEMENTS.md). 타 프로그램 탐색: `naver-blog-seo-studio`는 928줄 단일 컴포넌트·일반 CSS·확장 포함이라 리팩터링 먼저 권장 — [`IMPROVEMENTS.md`](../naver-blog-seo-studio/docs/IMPROVEMENTS.md) 신설.
+- **⚠️ 윈도우 CLI 요청**: [`instagram-dm-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../instagram-dm-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.13 → 검수(답변승인·발송 금지) → 45번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(맥미니) — INSTA 댓글자동화 v1.14: 스튜디오 댓글 콘솔 — 인스타 라이트 변형 (🟠 윈도우 마무리 요청)
 
 - **대상**: `instagram-comment-reply/` (https://instagram-comment-reply.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.

@@ -9,14 +9,14 @@ export function InstagramMetaAddressSummary({ webhookUrl }: { webhookUrl?: strin
   let n = 0;
   const no = () => "①②③④⑤⑥"[n++];
   return (
-    <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/40 p-4 shadow-sm">
-      <h2 className="text-sm font-bold text-gray-900">🧭 내 Meta 앱에 등록할 주소 한눈에 보기</h2>
-      <p className="mb-3 text-xs text-gray-500">
+    <div className="rounded-2xl border-2 border-ig-primary/30 bg-ig-primary/10 p-4">
+      <h2 className="text-sm font-bold text-ig-text">🧭 내 Meta 앱에 등록할 주소 한눈에 보기</h2>
+      <p className="mb-3 text-xs text-ig-muted">
         Meta 개발자 센터(developers.facebook.com › 내 앱)에서 아래 위치에 그대로 붙여넣고, 각 화면의 [저장]을 꼭 눌러주세요.
         <br />
         기존 주소는 지우지 말고 새 주소를 &quot;추가&quot;합니다.
       </p>
-      <ol className="space-y-4 text-xs text-gray-700">
+      <ol className="space-y-4 text-xs text-ig-text">
         <li className="space-y-1.5">
           <p className="font-semibold">{no()} 앱 설정 › 기본 설정 › 앱 도메인</p>
           <CopyAddress value="buylife.xyz" />
@@ -33,7 +33,7 @@ export function InstagramMetaAddressSummary({ webhookUrl }: { webhookUrl?: strin
           <li className="space-y-1.5">
             <p className="font-semibold">{no()} 같은 화면의 웹훅 구성 단계 › 콜백 URL (주소 1개만 등록)</p>
             <CopyAddress value={webhookUrl} />
-            <p className="text-gray-500">확인 토큰과 구독할 항목은 아래 &quot;🔌 DM 웹훅 설정&quot;에 있습니다.</p>
+            <p className="text-ig-muted">확인 토큰과 구독할 항목은 아래 &quot;🔌 DM 웹훅 설정&quot;에 있습니다.</p>
           </li>
         )}
         <li className="space-y-1">
