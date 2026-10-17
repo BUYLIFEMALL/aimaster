@@ -1,9 +1,11 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 섹션 이미지 생성 모델: 나노바나나2(저렴) / 나노바나나 프로(고품질, 기본값).
 // server-only인 gemini.ts와 분리한 이유: 이 상수들은 클라이언트 컴포넌트
 // (ProductAnalyzeForm, SectionImageGrid)에서도 값으로 직접 import해서 써야 하기 때문.
 export const IMAGE_MODELS = {
-  nanobanana2: "gemini-3.1-flash-image-preview",
-  nanobananaPro: "gemini-3-pro-image-preview",
+  nanobanana2: "gemini-nano-banana-2.1",
+  nanobananaPro: "gemini-3-pro-image",
 } as const;
 export type ImageModelKey = keyof typeof IMAGE_MODELS;
 export const DEFAULT_IMAGE_MODEL: ImageModelKey = "nanobananaPro";
