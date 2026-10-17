@@ -1,5 +1,35 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 대화 규칙 최상단 승격: 진행 과정·현재 진행 내용은 반드시 한글로
+
+- **주인님 재지시**: 등록해 둔 규칙인데도 중간 진행 안내가 영어로 나와 보기 힘들다 → 메인 지침 상단으로 올리고 인수인계에도 남길 것.
+- **반영**: 루트 [`CLAUDE.md`](../CLAUDE.md)·[`AGENTS.md`](../AGENTS.md)·[`GEMINI.md`](../GEMINI.md) 맨 위 최상위 규칙 묶음(「CLI별 역할 분담」 바로 앞)에 「★★★ 모든 CLI 최상위 대화 규칙」 추가. 기존 Communication 항목(같은 날 추가분)은 그대로 둠.
+- **내용**: 최종 보고·중간 안내·도구 호출 사이 설명·명령 설명(description)까지 한글 존댓말, 영어는 전문 용어(파일 경로·함수명·API·라이브러리명·프로그램 링크)에만.
+- **원인 기록**: trending-product-finder 남은 마무리 작업 중 중간 안내를 영어로 씀(규칙 위반) — 매 안내 문장 전 한글 확인을 규칙에 명시.
+
+## 2026-10-17 Antigravity(Windows) — LP 턴테이블 자동화 (vinyl-lp-studio) v1.08 디자인 리뉴얼 및 가이드북 신설 완료
+
+- **프로그램**: `vinyl-lp-studio` ([https://vinyl-lp.buylife.xyz](https://vinyl-lp.buylife.xyz))
+- **버전**: `v1.05` → **`v1.08`** (디자인 전면 통일 및 비주얼 가이드북 구축)
+- **적용 템플릿**: **크리에이티브 아틀리에 스타일 — 바이닐 다크 레트로 콘솔 변형**
+- **수행 내역**:
+  1. 단일 배경색 `#0c0d12` (딥 옵시디언 나이트) 및 바이닐 골드/앰버(`#f59e0b`~`#d97706`) 테마 100% 일체화.
+  2. 로그인/회원가입 표준 2버튼 탭 토글 레이아웃 적용 (`(auth)/layout.tsx`, `login/page.tsx`).
+  3. 좌측 사이드바 `📖 연동 & 사용 매뉴얼` 메뉴 탑재 및 뷰 전환 연동.
+  4. 비주얼 사용 매뉴얼 (`VinylGuideView.tsx`, `/guide`) 신설: 5단계 표준 파이프라인, 4대 골든 팁, 4종 FAQ, 개인 API 키 보안 배너, 비로그인 공개 열람 허용.
+  5. 컨트롤 패널, 턴테이블 모니터, 모달 3종(ApiKey, Help, History) 다크 옵시디언 콘솔 스타일로 전면 교체.
+  6. Next.js 빌드 통과, Vercel 프로덕션 배포 완료.
+  7. Microsoft Edge(`msedge.exe`) 실세션 검수 캡처 5종 보존 완료 (로그인 데스크톱/회원가입/모바일, 가이드 데스크톱/모바일).
+  8. `DESIGN.md` 상태를 `✅ 1차 작업완료 (v1.08, 크리에이티브 아틀리에 스타일)`로 갱신하고 `ACTIVE_WORK.md` 내 줄 삭제.
+- **인수인계 산출물**:
+  - 디자인 인수인계: [`vinyl-lp-studio/docs/DESIGN_HANDOFF.md`](../vinyl-lp-studio/docs/DESIGN_HANDOFF.md)
+  - 개선사항 인수인계: [`vinyl-lp-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../vinyl-lp-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 개선 대장: [`vinyl-lp-studio/docs/IMPROVEMENTS.md`](../vinyl-lp-studio/docs/IMPROVEMENTS.md)
+- **추가개선 제안 (3대 항목)**:
+  1) 로직/기능: 오디오 시각화 파형(Waveform) 오버레이 옵션, 앨범 자켓 3D 감성 뷰 모드.
+  2) UI/편의성: 턴테이블 조명 & 네온 앰비언트 효과 스위치, 로열티 프리 로파이 BGM 샘플 프리셋.
+  3) 타 프로그램 연계: `yt-playlist-studio` 플레이리스트 연동 숏폼 비디오 원클릭 생성, `youtube-viral-studio` 인트로/아웃트로 소스 연동.
+
 ## 2026-10-17 Codex(Windows) — youtube-viral-studio v1.13 Windows 인수·운영 화면 검수 완료
 
 - 맥미니 eb515765 인수 완료. 유튜브 다크·대시보드·375px 전체 메뉴 유지. Next16.4.2 빌드(fetchCache 포함), APP/DBv1.13·package1.13.0.
