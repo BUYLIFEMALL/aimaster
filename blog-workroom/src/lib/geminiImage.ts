@@ -9,7 +9,7 @@
  * 범위(주인님 지시): 호출·대기·이미지 받아오기만. 프롬프트·모델 이름·화질·비율·생성 온도는 각 프로그램이 정해 넘긴다
  *   (프로그램마다 생성 스타일이 다르므로 여기서 바꾸지 않는다 — docs/IMAGE_PROMPT_RULES.md §0).
  * 안정성 장치: ① 키를 주소가 아니라 요청 머리글(x-goog-api-key)로 보내 서버 기록에 남지 않게 ② 시간 제한(기본 120초)
- *   ③ 서버 오류·일시적 혼잡(429)·시간 초과·네트워크 끊김에만 1회 재시도(키·한도·요청·안전 차단은 재시도 안 함)
+ *   ③ 서버 오류·일시적 혼잡(429)·네트워크 연결 실패에만 1회 재시도(키·한도·요청·안전 차단은 재시도 안 함). 시간 초과는 이미 생성·과금됐을 수 있어 재시도하지 않음(2026-10-17)
  *   ④ 응답의 모든 조각(parts)에서 이미지를 찾음 ⑤ 안전 필터 차단·이미지 없음·한도 소진·키 오류를 구분한 한국어 안내 ⑥ 키 가리기.
  * 프로그램 고유 코드(server-only, 회원 키 읽기, 저장소 업로드, 화면 문구)는 여기에 넣지 않는다.
  */
@@ -117,7 +117,7 @@ export interface GeminiImageRequest {
   endpoint?: string;
   /** 시간 제한(ms), 기본 120초 */
   timeoutMs?: number;
-  /** 일시 오류 재시도 횟수, 기본 1 */
+  /** 일시 오류(서버 오류·혼잡·연결 실패) 재시도 횟수, 기본 1. 시간 초과는 재시도하지 않음 */
   retries?: number;
   /** 요청이 끊기거나 사용자가 취소할 때의 외부 신호(선택, 예: 요청의 signal). 취소되면 재시도하지 않고 CANCELLED */
   signal?: AbortSignal;
@@ -224,11 +224,12 @@ export async function generateGeminiImage(req: GeminiImageRequest): Promise<Gemi
     } catch (e) {
       if (external?.aborted) throw cancelled();
       const name = (e as { name?: string })?.name;
-      lastError =
-        name === "TimeoutError" || name === "AbortError"
-          ? // 시간 초과여도 구글 쪽에서는 이미지가 만들어져 요금이 나갔을 수 있어, 바로 다시 누르지 않도록 결과 확인을 먼저 안내한다(2026-10-17)
-            new GeminiImageError(`이미지 생성이 ${Math.round(timeoutMs / 1000)}초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.`, "TIMEOUT", 504)
-          : new GeminiImageError("Gemini 서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.", "NETWORK", 502);
+      if (name === "TimeoutError" || name === "AbortError") {
+        // 시간 초과여도 구글 쪽에서는 이미지가 만들어져 요금이 나갔을 수 있다. 그래서 자동으로 다시 보내지 않고(이중 과금 방지),
+        // 바로 다시 누르지 않도록 결과 확인을 먼저 안내한다(2026-10-17). 재시도는 서버 오류·혼잡·연결 실패에만 한다.
+        throw new GeminiImageError(`이미지 생성이 ${Math.round(timeoutMs / 1000)}초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.`, "TIMEOUT", 504);
+      }
+      lastError = new GeminiImageError("Gemini 서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.", "NETWORK", 502);
       continue;
     }
     const data = await res.json().catch(() => null);

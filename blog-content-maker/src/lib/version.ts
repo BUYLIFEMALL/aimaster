@@ -1,5 +1,5 @@
 export const APP_NAME = "AI 블로그 콘텐츠 제작 자동화";
-export const APP_VERSION = "v1.07";
+export const APP_VERSION = "v1.08";
 export const APP_SLUG = "blog-content-maker";
 export const APP_URL = "https://blog-content-maker.buylife.xyz";
 export const MAIN_SITE = "https://www.buylife.xyz";

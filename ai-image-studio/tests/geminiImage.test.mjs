@@ -71,13 +71,19 @@ test("서버 오류·혼잡은 1회 재시도, 키·안전 오류는 재시도 �
   assert.equal(n, 1);
 });
 
-test("시간 초과·네트워크 끊김은 재시도 후 안내, 키 없음은 바로 안내", async () => {
+test("시간 초과는 재시도 없이 안내, 네트워크 끊김은 재시도 후 안내, 키 없음은 바로 안내", async () => {
   let n = 0;
   await assert.rejects(
     generateGeminiImage({ apiKey: "K", modelName: "m", prompt: "p", sleep: noSleep, fetchImpl: async () => { n++; const e = new Error("t"); e.name = "TimeoutError"; throw e; } }),
     (e) => e.code === "TIMEOUT" && e.message.includes("이미 만들어졌을 수 있으니") // 이중 과금 방지 안내(2026-10-17)
   );
-  assert.equal(n, 2);
+  assert.equal(n, 1); // 시간 초과는 이미 생성·과금됐을 수 있어 자동 재시도하지 않음
+  n = 0;
+  await assert.rejects(
+    generateGeminiImage({ apiKey: "K", modelName: "m", prompt: "p", sleep: noSleep, fetchImpl: async () => { n++; throw new TypeError("fetch failed"); } }),
+    (e) => e.code === "NETWORK"
+  );
+  assert.equal(n, 2); // 연결 실패는 1회 재시도
   await assert.rejects(generateGeminiImage({ apiKey: "", modelName: "m", prompt: "p" }), (e) => e.code === "INVALID_KEY");
   assert.equal(maskGeminiKey("x?key=AIzaSyABCDEFGHIJKLMNOPQRSTUVW&y=1"), "x?key=***&y=1");
 });
