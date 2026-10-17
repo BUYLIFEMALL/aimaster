@@ -2,7 +2,7 @@
 
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일** — 루트 `DESIGN.md` 템플릿 4번. 세 번째 적용(기준 `longtail-keyword-expander` Tailwind v3, `ghost-scraper` Tailwind v4, **이 프로그램은 일반 CSS**)
 - **작업**: Claude Code(맥미니), 2026-10-16 · 플랜 [PLAN_20261016_DESIGN_RENEWAL.md](PLAN_20261016_DESIGN_RENEWAL.md)
-- **상태**: 코드 완료 · 🟠 메인(윈도우) CLI 마무리 작업요망 (7절)
+- **상태**: ✅ 1차 작업완료 (`v1.05`, 스마트 매트릭스 스타일, 2026-10-17 Antigravity 검수·배포 완료)
 
 ## 1. 일반 CSS 프로그램에 옮기는 방법 (다른 일반 CSS 프로그램 이식용)
 
@@ -48,14 +48,20 @@
 - 사이드바 폭 256px(`md:w-64` 상당), 767px 이하 위쪽 ☰ 메뉴(v1.03 규칙 유지), 계정 칸은 메뉴 바로 아래.
 - 회원 화면에 「주인님」 금지. "AI 추정"과 "실측" 배지 구분 유지(AGENTS.md).
 
-## 6. 남은 검수
-[IMPROVEMENT_HANDOFF_20261016.md](IMPROVEMENT_HANDOFF_20261016.md) 「다음 첫 단계」.
+## 6. 검수 완료 내역
+- 2026-10-17 Antigravity(윈도우) CLI 검수 완료:
+  - 단위 테스트: `npm test` 13건 전수 통과
+  - 빌드: Next.js 16.4.0 Turbopack 프로덕션 빌드 정상 통과
+  - 배포: Vercel Production 배포 완료 (`https://blog-keyword.buylife.xyz`)
+  - DB 버전: Supabase DB `programs` 테이블 `v1.05` 갱신 완료
+  - Edge 검수: Microsoft Edge 포그라운드(화면 노출 `headless: false`) 실세션 검수 통과 (데스크톱 1440px / 모바일 375px)
 
 ## 7. 배포·검수 기록
 
 | 항목 | 값 |
 |---|---|
-| 코드 커밋 | (이 문서와 같은 커밋) |
-| 테스트·빌드·배포 | 대기 |
-| DB `programs.version` | v1.04 (배포 때 v1.05) |
-| 화면 검수 | 대기 |
+| 코드 커밋 | `6e7fd9c2` (맥미니) / 배포·검수 커밋 (윈도우 Antigravity) |
+| 테스트·빌드·배포 | ✅ 완료 (`npm test` 통과, Next.js 빌드 성공, Vercel Production 배포 완료) |
+| DB `programs.version` | ✅ `v1.05` 갱신 완료 (`https://blog-keyword.buylife.xyz`) |
+| 화면 검수 | ✅ 완료 (Microsoft Edge 포그라운드 실세션 검수, 데스크톱 1440px / 모바일 375px) |
+| 상태 | ✅ 1차 작업완료 (`v1.05`, 스마트 매트릭스 스타일) |

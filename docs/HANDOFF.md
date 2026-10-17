@@ -1,5 +1,37 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — AI 블로그 키워드 자동화 v1.05: 스마트 매트릭스 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `blog-keyword/` (https://blog-keyword.buylife.xyz)
+- **배경**: 
+  - 맥미니 CLI가 2026-10-16에 스마트 매트릭스 다크 테마(`--mx-*` 12개 토큰, 대시보드 히어로, KPI 지표 4종, 4단계 캐릭터 매뉴얼)를 구현하고 `🟠 메인(윈도우) CLI 마무리 작업요망` 상태로 대기시켰던 작업(v1.05)을 이어받아 완수함.
+  - 주인님 지시에 따라 디자인 리뉴얼 현황판 전수 점검 및 74번 마무리 조치.
+- **한 일**:
+  1. 단위 테스트 전수 통과: `npm test` 13건 모두 통과.
+  2. 로컬 Turbopack 프로덕션 빌드 성공 (`npm run build`).
+  3. Vercel 프로덕션 배포 완료 (`dpl_2tszpSaYkGvsZD8QLi2uFoEhociR` → alias `https://blog-keyword.buylife.xyz` 연결).
+  4. Supabase DB `programs` 테이블에서 `slug = 'blog-keyword'`의 `version = 'v1.05'` 갱신 완료.
+  5. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 테스트 계정(`buylifemall@naver.com`) 환경에서 데스크톱(1440px) 및 모바일(375px) 실세션 접속 검수.
+     - 대시보드(히어로, KPI 지표 카드 4종, 8개 분석 모드 그리드, 실시간 트렌드 외부 링크 8종), 기록 보관함(/history), 설정(/settings, 본인 키 상태 칩), 연동 & 사용 매뉴얼(/guide, 캐릭터 말풍선, 4단계 파이프라인, 앵커 탭, FAQ 아코디언), 모바일 햄버거 메뉴(☰) 정상 렌더링 확인.
+     - 검수 캡처 아티팩트 보존 (`edge_blog_keyword_*_v105.png`).
+     - 실제 Microsoft Edge 브라우저 창 띄워 사용자 화면에 유지.
+     - 유료 AI 호출/분석 버튼 일체 미클릭 (비용 0원 준수).
+  6. 현황판 및 문서 동기화:
+     - `DESIGN.md` 74번 상태: `✅ 1차 작업완료 (v1.05, 스마트 매트릭스 스타일)` 갱신.
+     - `DESIGN.md` 상단 상태 요약: `✅ 34개 · ⚪ 46개 · 🔵 1개 · 🟠 0개 · ⏸ 2개 — 총 83개` 최신 전수 집계로 동기화 완료.
+     - `blog-keyword/docs/DESIGN_HANDOFF.md` 및 `blog-keyword/AGENTS.md` 갱신.
+     - `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **현황판 상태 요약 (총 83개)**:
+  - ✅ **1차 작업완료**: **34개**
+  - 🟠 **윈도우 마무리 대기**: **0개** (74번 완료로 잔여 0개)
+  - 🔵 **작업 중**: **1개** (42번 `web-crawler-saas` 웹 크롤링 자동화, 맥미니 플랜 승인 대기)
+  - ⚪ **작업 예정**: **46개**
+  - ⏸ **보류**: **2개** (66번, 67번 네이버 블로그 자동화 App·Web)
+- **링크**:
+  - https://blog-keyword.buylife.xyz
+- **비용**: 0원 (유료 API 호출 없음).
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — 네이버 블로그 SEO 스튜디오 v1.69: 파일 나누기·디자인 리뉴얼 배포 및 포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `naver-blog-seo-studio/` (https://naver-blog-seo-studio.buylife.xyz)

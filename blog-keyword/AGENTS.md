@@ -43,4 +43,5 @@
 
 - 일반 CSS에 `--mx-*` 토큰(롱테일과 같은 다크 차콜 + 블루·앰버)을 넣고 기존 `--brand/--line/--muted`를 연결, `globals.css`·`kw.css`의 밝은 색 전부 교체(클래스 이름 유지 — 브라우저 테스트 선택자 보존).
 - 대시보드 히어로 + 지표 4종(`DashboardStats`), 기록 검색·분석 종류 칩, 기록·설정·매뉴얼 히어로, 매뉴얼 캐릭터 말풍선 + 4단계 흐름. 서버·API·DB 변경 없음. 버전 v1.05(package 1.0.5).
-- **테스트·빌드·배포·화면 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261016.md](docs/IMPROVEMENT_HANDOFF_20261016.md).
+- **테스트·빌드·배포·화면 검수 완료 (2026-10-17 Antigravity 윈도우 CLI)**: 단위 테스트 13건 통과, Next.js 빌드 성공, Vercel 프로덕션 배포 완료(`https://blog-keyword.buylife.xyz`), DB `v1.05` 갱신, Microsoft Edge 포그라운드(실제 창 노출) 데스크톱(1440px) 및 모바일(375px) 실세션 검수 통과 — [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md).
+

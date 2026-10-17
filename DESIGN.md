@@ -113,7 +113,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-17 기준: ✅ 22개 · ⚪ 56개 · 🟠 2개 · 🔵 1개 · ⏸ 2개):
+> **상태 구분** (2026-10-17 기준: ✅ 34개 · ⚪ 46개 · 🔵 1개 · 🟠 0개 · ⏸ 2개 — 총 83개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -168,7 +168,7 @@
 | 39 | 성격코드(MBTI) 측정기 | `personality-code` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti/AGENTS.md` |
 | 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-cafe-poster/AGENTS.md` |
 | 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao-auto-posting/AGENTS.md` |
-| 42 | 웹 크롤링 자동화 | `web-crawler-saas` | 스마트 매트릭스 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `web-crawler-saas/AGENTS.md` |
+| 42 | 웹 크롤링 자동화 | `web-crawler-saas` (폴더 `web-crawler/webapp`) | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4, 권장안) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🔵 작업 중 (Claude Code 맥미니 2026-10-17, 플랜 승인 대기) | [`web-crawler/PLAN_20261017_DESIGN_RENEWAL.md`](web-crawler/PLAN_20261017_DESIGN_RENEWAL.md) |
 | 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 스마트 매트릭스 다크, Windows 빌드/배포/DB/Edge1440·375 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
 | 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-affiliate-poster/AGENTS.md` |
 | 45 | INSTA DM답변 자동화 | `instagram-dm-reply` | **스튜디오 댓글 콘솔 — 인스타 라이트 변형 (DM 대화 화면)** (47번 이식, Tailwind v3) | 라이트(`#fafafa` + 인스타 파랑 `#0095f6`·그라데이션 포인트) | ✅ 1차 작업완료 (`v1.14`, 3대 추가개선 완료 2026-10-17) | [`instagram-dm-reply/docs/DESIGN_HANDOFF.md`](instagram-dm-reply/docs/DESIGN_HANDOFF.md) |
@@ -200,7 +200,7 @@
 | 71 | AI 슬라이드 자동화 | `ai-slide-builder` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ai-slide-builder/AGENTS.md` |
 | 72 | AI 웹 UI 제작 자동화 | `ai-web-ui` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `react-ui-showcase/AGENTS.md` |
 | 73 | AI 리버스 프롬프트 자동화 | `reverse-prompt` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `reverse-prompt/AGENTS.md` |
-| 74 | AI 블로그 키워드 자동화 | `blog-keyword` | **스마트 매트릭스 스타일** (일반 CSS 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.05`, Claude Code 맥미니 2026-10-16) | [`blog-keyword/docs/DESIGN_HANDOFF.md`](blog-keyword/docs/DESIGN_HANDOFF.md) |
+| 74 | AI 블로그 키워드 자동화 | `blog-keyword` | **스마트 매트릭스 스타일** (일반 CSS 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.05`, 스마트 매트릭스 스타일) | [`blog-keyword/docs/DESIGN_HANDOFF.md`](blog-keyword/docs/DESIGN_HANDOFF.md) |
 | 75 | AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `blog-content-maker/AGENTS.md` |
 | 76 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `thumbnail-master/AGENTS.md` |
 | 77 | AI 마스터링 스튜디오 | `ai-mastering-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `ai-mastering-studio/AGENTS.md` |
