@@ -1,7 +1,7 @@
 // 메일 발송 안전장치가 쓰는 기록 표(platform_email_log) 읽기·쓰기. 서비스 키로만 접근한다.
 // 기록 표에 문제가 있어도 메일 발송 자체를 막지 않는다(실패하면 조용히 건너뛰고 경고만 남김).
 import { createServiceClient } from "@/lib/supabase/service";
-import { GUARD_CONFIG, type EmailKind, type GuardFacts, type GuardConfig } from "./guard";
+import { GUARD_CONFIG, duplicateWindowFor, type EmailKind, type GuardFacts, type GuardConfig } from "./guard";
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 
@@ -30,7 +30,7 @@ export async function loadGuardFacts(
         .eq("kind", kind)
         .eq("subject_key", subjectKey)
         .eq("status", "sent")
-        .gte("created_at", minutesAgo(config.duplicateWindowMinutes))
+        .gte("created_at", minutesAgo(duplicateWindowFor(kind, config)))
         .limit(1),
       db
         .from("platform_email_log")

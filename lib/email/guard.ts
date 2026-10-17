@@ -1,18 +1,25 @@
 // 플랫폼(운영자 SMTP) 메일 발송 안전장치의 판단 규칙. 네트워크·DB 없이 값만 보고 결정한다(테스트 가능).
 // 목적: Gmail 한도 오류(429·4.7.0·5.4.5 등)가 났을 때 연달아 재시도하지 않고, 같은 메일을 짧은 시간에 중복 발송하지 않으며,
 // 수신자별·하루 전체 발송 상한을 넘기지 않아 운영자 계정이 제한·정지되는 일을 막는다.
-export type EmailKind = "welcome" | "payment" | "expiry" | "support_admin" | "support_confirm";
+export type EmailKind = "welcome" | "payment" | "expiry" | "support_admin" | "support_confirm" | "scheduled_delay";
 
 export const GUARD_CONFIG = {
   /** 한도·인증 오류가 난 뒤 이 시간 동안은 어떤 메일도 보내지 않는다. */
   cooldownMinutes: 30,
   /** 같은 수신자·같은 종류·같은 제목은 이 시간 안에 다시 보내지 않는다. */
   duplicateWindowMinutes: 10,
+  /** 종류별로 중복 방지 시간을 따로 둘 때(분). 예약 지연 관리자 알림은 10분마다 점검하므로 1시간에 1통만. */
+  duplicateWindowByKind: { scheduled_delay: 60 } as Partial<Record<EmailKind, number>>,
   /** 하루(24시간) 전체 발송 상한. 환경변수 EMAIL_DAILY_LIMIT로 바꿀 수 있다. */
   globalDailyLimit: 300,
   /** 같은 수신자에게 종류별로 하루에 보낼 수 있는 최대 통수. */
-  perRecipientDaily: { welcome: 1, payment: 5, expiry: 5, support_admin: 20, support_confirm: 3 } as Record<EmailKind, number>,
+  perRecipientDaily: { welcome: 1, payment: 5, expiry: 5, support_admin: 20, support_confirm: 3, scheduled_delay: 12 } as Record<EmailKind, number>,
 };
+
+/** 이 종류의 중복 방지 시간(분) */
+export function duplicateWindowFor(kind: EmailKind, config: { duplicateWindowMinutes: number; duplicateWindowByKind?: Partial<Record<EmailKind, number>> } = GUARD_CONFIG): number {
+  return config.duplicateWindowByKind?.[kind] ?? config.duplicateWindowMinutes;
+}
 
 export type GuardConfig = typeof GUARD_CONFIG;
 

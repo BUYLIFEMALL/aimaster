@@ -184,5 +184,54 @@ const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString();
   const fourth = await sender.sendSupportEmails('admin@x.com', { ...inquiry, message: '넷째' });
   assert.equal(fourth.toCustomer, false, '같은 고객에게 접수 확인 메일은 하루 3통까지');
 
+  // 5) 예약 게시 지연 관리자 알림(2026-10-18): 1시간에 1통, 하루 12통
+  assert.equal(guard.duplicateWindowFor('scheduled_delay'), 60);
+  assert.equal(guard.duplicateWindowFor('welcome'), 10, '다른 종류는 기존 10분 그대로');
+  assert.equal(guard.decideSend('scheduled_delay', { ...none, recipientSentLast24h: 12 }).reason, 'recipient_limit');
+  assert.deepEqual(guard.decideSend('scheduled_delay', { ...none, recipientSentLast24h: 11 }), { allow: true });
+  log = [];
+  sendCalls = [];
+  const delayData = { items: [{ program: 'INSTA 포스팅 자동화', count: 2, oldest: ago(30) }], thresholdMinutes: 10, checkedAt: new Date().toISOString() };
+  assert.equal(await sender.sendScheduledDelayEmail('admin@x.com', delayData), true, '첫 지연 알림은 발송');
+  assert.match(sendCalls[0].subject, /예약 게시 지연 감지/);
+  assert.match(sendCalls[0].html, /INSTA 포스팅 자동화/);
+  log = log.map((r) => ({ ...r, created_at: ago(30) }));
+  assert.equal(await sender.sendScheduledDelayEmail('admin@x.com', delayData), false, '30분 뒤 같은 알림은 건너뜀(1시간 창)');
+  log = log.map((r) => ({ ...r, created_at: ago(61) }));
+  assert.equal(await sender.sendScheduledDelayEmail('admin@x.com', delayData), true, '1시간이 지나면 다시 알림');
+  assert.equal(sendCalls.length, 2);
+
+  // 6) 지연 판정(lib/scheduledDelay.ts): 프로그램별 건수·조회 실패 분리·지연 기준 시각
+  const delay = loadTS('lib/scheduledDelay.ts');
+  const now = new Date('2026-10-18T01:00:00.000Z');
+  assert.equal(delay.delayCutoff(now), '2026-10-18T00:50:00.000Z', '10분 전 기준');
+  const seen = [];
+  const fakeDelayDb = {
+    from(t) {
+      const q = { table: t };
+      const chain = {
+        select() { return chain; },
+        eq(c, v) { q.status = v; return chain; },
+        lte(c, v) { q.cutoff = v; return chain; },
+        order() { return chain; },
+        limit() {
+          seen.push(q);
+          if (t === 'tco_posts') return Promise.resolve({ data: null, count: null, error: { message: 'boom' } });
+          if (t === 'insta_posts') return Promise.resolve({ data: [{ scheduled_at: '2026-10-18T00:10:00.000Z' }], count: 3, error: null });
+          return Promise.resolve({ data: [], count: 0, error: null });
+        },
+      };
+      return chain;
+    },
+  };
+  const counts = await delay.countDelays(fakeDelayDb, now);
+  assert.equal(counts.length, 4, '대상 테이블 4개');
+  assert.ok(seen.every((q) => q.status === 'scheduled' && q.cutoff === '2026-10-18T00:50:00.000Z'), "'scheduled' 상태 + 10분 전 기준으로 조회");
+  const summary = delay.summarizeDelays(counts, now);
+  assert.equal(summary.totalDelayed, 3);
+  assert.deepEqual(summary.delayed.map((d) => d.slug), ['auto-instagram-posting']);
+  assert.deepEqual(summary.failed.map((d) => d.slug), ['threads-content-ops'], '조회 실패는 따로 모으고 다른 테이블은 계속');
+  assert.equal(delay.summarizeDelays(counts.map((c) => ({ ...c, count: c.count === null ? null : 0 })), now).totalDelayed, 0, '지연 없으면 0(메일 없음)');
+
   console.log('email guard ok');
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -32,4 +32,5 @@
 
 ## 진행 기록
 - ③ 완료(2026-10-18): `scripts/check-scheduled-dispatch.mjs` — 저장소 9개 주소 통과, `--live` 9개 Vercel 등록 일치, 시험 폴더로 "하루 1번"·"vercel.json 없음" 실패 감지(종료 코드 1) 확인. `docs/PLATFORM_PATTERNS.md` §34 추가.
+- ① 완료(2026-10-18): `lib/scheduledDelay.ts`(4개 테이블 지연 건수, 한 테이블 실패해도 계속) + `app/api/email/cron/scheduled-delay-check`(Bearer/`?secret=` 인증, `?preview=1` 미발송) + 메일 종류 `scheduled_delay`(중복 방지 60분·하루 12통, `duplicateWindowFor`) + 양식 `scheduledDelayEmail`(건수·가장 오래된 예약 시각만) + 루트 `vercel.json` `*/10 * * * *`. 검수: `npm run test:email-guard` 통과(1시간 창·지연 판정·조회 실패 분리), 메인 사이트 빌드·배포, cron 목록 등록, 무인증·잘못된 비밀값 401, 운영 DB 4개 테이블 읽기 전용 조회 정상(지연 0건). **02:50:34 첫 자동 실행 GET 200**.
 - (작업하며 아래에 추가)

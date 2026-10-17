@@ -7,10 +7,12 @@ import {
   expiryReminderEmail,
   supportInquiryEmail,
   supportConfirmEmail,
+  scheduledDelayEmail,
   type WelcomeData,
   type PaymentData,
   type ExpiryReminderData,
   type SupportInquiryData,
+  type ScheduledDelayData,
 } from "./templates";
 
 /**
@@ -92,4 +94,10 @@ export async function sendSupportEmails(adminEmail: string, data: SupportInquiry
   const toCustomer = await send("support_confirm", data.email, confirm.subject, confirm.html);
 
   return { toAdmin, toCustomer };
+}
+
+/** 예약 게시 지연 관리자 알림 (같은 제목은 1시간에 1통, 하루 12통까지 — lib/email/guard.ts) */
+export async function sendScheduledDelayEmail(adminEmail: string, data: ScheduledDelayData) {
+  const { subject, html } = scheduledDelayEmail(data);
+  return send("scheduled_delay", adminEmail, subject, html);
 }

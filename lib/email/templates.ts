@@ -271,3 +271,48 @@ export function supportConfirmEmail(data: SupportInquiryData) {
     html: layout("문의 접수 확인", body),
   };
 }
+
+export interface ScheduledDelayData {
+  /** 지연이 있는 프로그램별 건수와 가장 오래 밀린 예약 시각(ISO) */
+  items: { program: string; count: number; oldest: string | null }[];
+  thresholdMinutes: number;
+  checkedAt: string;
+}
+
+const kst = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", hour12: false }) : "-";
+
+/** 관리자에게 보내는 예약 게시 지연 알림(글 내용·회원 정보 없음). 제목은 고정 — 같은 문제로 1시간에 1통만 나가게 한다. */
+export function scheduledDelayEmail(data: ScheduledDelayData) {
+  const total = data.items.reduce((sum, i) => sum + i.count, 0);
+  const rows = data.items
+    .map((i) => infoRow(i.program, `${i.count}건 · 가장 오래된 예약 ${kst(i.oldest)}`))
+    .join("");
+  const body = `
+    <h1 style="color:#fff;font-size:24px;font-weight:800;margin:0 0 8px;">
+      예약 게시가 ${data.thresholdMinutes}분 넘게 밀려 있습니다
+    </h1>
+    <p style="color:#a0a0b0;font-size:15px;margin:0 0 24px;">
+      예약 시각이 지났는데도 발행되지 않은 글이 모두 ${total}건 있습니다. 예약 실행 설정(vercel.json)과 실행 기록을 확인해 주세요.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      ${rows}
+      ${infoRow("점검 시각", kst(data.checkedAt))}
+    </table>
+
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;">
+      <p style="color:#a0a0b0;font-size:12px;margin:0 0 8px;">확인 방법</p>
+      <p style="color:#fff;font-size:13px;line-height:1.8;margin:0;">
+        1) 저장소에서 node scripts/check-scheduled-dispatch.mjs --live 실행<br/>
+        2) 해당 프로그램 폴더에서 npx vercel logs requests --since 30m --json 으로 dispatch 주소의 응답 확인<br/>
+        3) 같은 문제가 계속되면 이 알림은 1시간마다 다시 옵니다.
+      </p>
+    </div>
+  `;
+
+  return {
+    subject: "[AI Master 관리자] 예약 게시 지연 감지",
+    html: layout("예약 게시 지연 알림", body),
+  };
+}
