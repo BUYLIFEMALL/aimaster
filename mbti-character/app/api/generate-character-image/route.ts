@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import { NextRequest, NextResponse } from "next/server";
 import { CHARACTERS, ALL_TYPE_CODES } from "@/lib/characters";
 import { getImageStyle } from "@/lib/imageStyles";
@@ -33,7 +35,7 @@ export const fetchCache = "force-no-store";
  * 로그인 세션이 실린 서버 클라이언트로 하므로 RLS가 그대로 적용되어 본인 폴더에만 쓸 수
  * 있다(instagram-comment-reply의 ig-media-thumbnails 버킷과 동일 패턴).
  */
-const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image";
+const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || "gemini-nano-banana-2.1";
 
 function buildPrompt(typeCode: string, styleId: string): string | null {
   const character = CHARACTERS[typeCode];
