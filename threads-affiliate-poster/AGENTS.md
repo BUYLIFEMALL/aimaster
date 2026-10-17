@@ -542,3 +542,9 @@ vercel deploy --prod --yes
 ### 7) 디자인 UI 개선안 및 레이아웃/스타일 변경 제안
 - `docs/DESIGN_HANDOFF.md` 및 `docs/IMPROVEMENTS.md` 참조
 
+
+## 2026-10-18 v1.62 — 다중 엔진 이미지 생성기의 Gemini 부분을 공용 기준 코드로 (이미지 공용화 마지막 1곳, Claude Code 윈도우)
+- `src/lib/ai/imageGenerator.ts` `generateWithGemini`: 직접 REST 호출(키를 주소에 넣음, 시간 제한 없음, 첫 이미지만 꺼냄) → 공용 사본 `geminiImage.ts`로 호출, 등급별 모델·화질·온도는 공용 목록 `nanoBananaModels.ts`의 `getNanoBananaConfig()`에서 가져옴. 시간 제한 240초(서버 액션 기본 한도 300초), 재시도 0. 프롬프트·한국인 지시문·비율 1:1은 그대로. OpenAI·Replicate(FLUX·Z-Image) 부분은 그대로.
+- **모델 대응을 같은 프로그램의 `generator.ts`와 일치시킴**: 예전엔 이 파일만 모든 등급을 `gemini-nano-banana-2.1`로 보내, 같은 「NanoBanana Pro」·「2-1K」 선택이 화면에 따라 다른 모델이었다. 이제 1K = `gemini-3.1-flash-lite-image`(더 저렴), 2K·4K = `gemini-nano-banana-2.1`(변화 없음), Pro = `gemini-3-pro-image`(1장 가격 오름, 회원 본인 키).
+- 검수: tsc 0, eslint(바뀐 파일) 0, `test:naver-key` 통과, `check-shared-modules` OK(시간 240초), Vercel 프로덕션 배포 1회·DB v1.62, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+- **주의(다음 CLI)**: `geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본(기준 `ai-image-studio/lib/providers/`) — 직접 고치지 않는다.

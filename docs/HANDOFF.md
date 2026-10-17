@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — threads-affiliate-poster v1.62: 다중 엔진 이미지 생성기 Gemini 부분 공용화 (이미지 공용화 완료)
+
+- **한 일**: `src/lib/ai/imageGenerator.ts`의 Gemini 부분을 공용 사본(호출 `geminiImage.ts` + 등급표 `nanoBananaModels.ts`)으로 — 키 머리글 전송, 240초 시간 제한, 최종 이미지 선택, 원인별 안내, 재시도 0. OpenAI·Replicate 부분은 그대로. 같은 프로그램 `generator.ts`와 모델 대응을 맞춤(1K → flash-lite, Pro → gemini-3-pro-image, 2K·4K 변화 없음).
+- **검수**: tsc·eslint 0, `test:naver-key` 통과, 공용 모듈 검사 OK, 배포 1회·DB v1.62, 크롬 화면 버전. Antigravity의 v1.61 작업 종료(커밋 `5b1847a8`) 확인 후 시작. 실제 이미지 생성 시험 없음.
+- **이미지 공용화 상태**: 대상 전부 완료(`docs/SHARED_MODULE_CHECKPOINTS.md` §6 비움). 새 프로그램은 처음부터 공용 사본을 쓴다.
+- **다음 첫 단계**: 트렌드 수집 결과 비교(10-18 03:50 수집분).
+
 ## 2026-10-18 Claude Code(윈도우) — 이미지 라우트 함수 한도 60→300초 + 대체 그림 원인 안내 (8곳, 배포 각 1회)
 
 - **함수 한도 상향**(Pro 이미지 시간 초과 방지, 이미지 시간 제한 50→240초): four-cut-comics v1.11 · fashion-style v1.09 · ai-influencer-studio v1.12 · detail-page-12p v1.09 · vinyl-lp-studio v1.12 · yt-playlist-studio v1.14. 화면 쪽에서 요청을 끊는 설정은 없음을 확인.

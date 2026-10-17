@@ -4,6 +4,8 @@ import "server-only";
 import OpenAI from "openai";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ImageProvider } from "./imageModels";
+import { generateGeminiImage } from "./geminiImage";
+import { getNanoBananaConfig, type NanoBananaModelType } from "./nanoBananaModels";
 
 const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
   "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
@@ -18,79 +20,30 @@ interface GenerateImageParams {
 }
 
 // 1. Google Gemini (NanoBanana)
-const NANO_BANANA_ENDPOINTS: Record<string, { modelName: string; endpoint: string; imageSize: "1K" | "2K" | "4K"; temperature: number }> = {
-  nanobanana: {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "1K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-2k": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "2K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-4k": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "4K",
-    temperature: 0.7,
-  },
-  "nanobanana-pro": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "4K",
-    temperature: 0.4,
-  },
-};
-
+// 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio),
+// 등급별 모델·화질·온도는 공용 목록 gemini-image-models(./nanoBananaModels)에서 가져온다 — 같은 프로그램의 generator.ts와 같은 대응
+// (예전엔 이 파일만 모든 등급을 gemini-nano-banana-2.1로 보내 1K·Pro가 generator.ts와 달랐음). 키는 주소 대신 머리글로 보낸다.
+// 서버 액션 기본 한도 300초 → 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지). 프롬프트·한국인 지시문·비율(1:1)은 그대로.
 async function generateWithGemini(prompt: string, model: string, apiKey: string): Promise<{ buffer: Buffer; contentType: string; ext: string }> {
-  const config = NANO_BANANA_ENDPOINTS[model] || NANO_BANANA_ENDPOINTS["nanobanana-2-2k"];
-  const targetUrl = `${config.endpoint}?key=${apiKey}`;
-  const composedPrompt = `${prompt}\n\n${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
+  const config = getNanoBananaConfig((model || "nanobanana-2-2k") as NanoBananaModelType);
+  const composedPrompt = `${prompt}
 
-  const requestBody = {
-    contents: [{ parts: [{ text: composedPrompt }] }],
-    generationConfig: {
-      responseModalities: ["Image"],
-      imageConfig: {
-        aspectRatio: "1:1",
-        imageSize: config.imageSize,
-      },
-      temperature: config.temperature,
-    },
-  };
+${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
 
-  const response = await fetch(targetUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestBody),
+  const image = await generateGeminiImage({
+    apiKey,
+    modelName: config.modelName,
+    prompt: composedPrompt,
+    aspectRatio: "1:1",
+    imageSize: config.imageSize,
+    temperature: config.temperature,
+    timeoutMs: 240_000,
+    retries: 0,
   });
 
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`NanoBanana 이미지 생성 실패 (${response.status}): ${errorBody}`);
-  }
-
-  const data = (await response.json()) as {
-    candidates?: {
-      content?: {
-        parts?: { inlineData?: { mimeType?: string; data?: string } }[];
-      };
-    }[];
-  };
-
-  const imagePart = data.candidates?.[0]?.content?.parts?.find((part) => part.inlineData?.data);
-  const base64 = imagePart?.inlineData?.data?.replace(/\s+/g, "");
-  const mimeType = imagePart?.inlineData?.mimeType ?? "image/png";
-
-  if (!base64) {
-    throw new Error(`NanoBanana(${config.modelName})가 이미지를 반환하지 않았습니다.`);
-  }
-
+  const mimeType = image.mimeType || "image/png";
   const ext = mimeType.includes("jpeg") || mimeType.includes("jpg") ? "jpg" : "png";
-  return { buffer: Buffer.from(base64, "base64"), contentType: mimeType, ext };
+  return { buffer: Buffer.from(image.base64, "base64"), contentType: mimeType, ext };
 }
 
 // 2. OpenAI (GPT Image / DALL-E)
