@@ -161,7 +161,7 @@
 | 32 | Threads AI 기획 자동화 | `threads-easy-planner` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-easy-planner/AGENTS.md` |
 | 33 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `tistory-auto-blog/AGENTS.md` |
 | 34 | AI 이미지 스튜디오 | `ai-image-studio` | **크리에이티브 아틀리에 럭셔리 다크 스타일** | 다크(옵시디언 `#09090b` + 골드/앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.12`, 크리에이티브 아틀리에 럭셔리 다크 템플릿) | [`ai-image-studio/docs/DESIGN_HANDOFF.md`](ai-image-studio/docs/DESIGN_HANDOFF.md) |
-| 35 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | 스마트 매트릭스 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-seo-studio/AGENTS.md` |
+| 35 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | **스마트 매트릭스 스타일 — 라이트 변형 · 네이버 그린 포인트** (일반 CSS 이식, 권장안) | 라이트(`#f6f7f9` + 네이버 그린 `#03c75a`) | 🔵 작업 중 (Claude Code 맥미니 2026-10-17, 플랜 승인 대기) | [`naver-blog-seo-studio/docs/PLAN_20261017_DESIGN_RENEWAL.md`](naver-blog-seo-studio/docs/PLAN_20261017_DESIGN_RENEWAL.md) |
 | 36 | 상세페이지 GIF 자동화 | `video-to-gif` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `video-to-gif/AGENTS.md` |
 | 37 | AIMaster 타로점 | `tarot-reading` | 크리에이티브 아틀리에 스타일 (권장) | 딥 미드나잇 퍼플 | ⚪ 작업 예정 | `tarot/AGENTS.md` |
 | 38 | 캐릭코드(MBTI) 측정기 | `mbti-character` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti-character/AGENTS.md` |
