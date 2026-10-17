@@ -27,6 +27,7 @@
 | 항목 | 값 |
 |---|---|
 | 정적 검사 | 맥미니 `tsc --noEmit` 오류 0 |
-| 빌드·배포 | 대기(윈도우) |
-| DB `programs.version` | v1.09 → 배포 때 v1.10 |
-| 화면 검수 | 대기(1440·375px) |
+| 빌드·배포 | ✅ 윈도우 Antigravity (`npm run build` 성공, `vercel deploy --prod --yes` 성공, alias `threads-comment-reply.buylife.xyz` 연결 완료) |
+| DB `programs.version` | ✅ `v1.10` 업데이트 완료 |
+| 화면 검수 | ✅ Microsoft Edge 전용 실세션 검수 완료 (1440px 데스크톱 및 375px 모바일 캡처 보존, ☰ 모바일 메뉴, 대시보드, 가이드, 댓글 검토 확인. 답변승인/새댓글확인/동기화 누르지 않음) |
+
