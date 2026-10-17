@@ -245,3 +245,7 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 개선: 15초 시간 제한, 서버 오류·네트워크만 1회 재시도, 키 가리기, 일일 한도/분당 제한/키 사용 제한/API 미사용 구분 안내(초기화 시각 서머타임 반영).
 - 검수: tsc·eslint(lib/youtube) 0, build, 배포·DB v1.14, 크롬 화면 v1.14. 리포트 엔진은 유튜브 신호 실패를 기록만 하고 계속 진행(기존 동작). 실제 YouTube 호출은 하지 않음.
 - **주의(다음 CLI)**: 모듈 파일 `youtubeData.ts`는 공용 기준 코드 `youtube-data-client`의 사본이다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 8개 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.
+
+## 2026-10-17 23:46(KST) — 30일 정리 Cron 첫 실행 전 기준값 기록 (Claude Code 윈도우, 코드·버전 변경 없음)
+- 첫 실행(2026-10-18 03:50 KST) **전** DB: `recommendation_reports` 59개(30일 지남 31) · `trend_snapshots` 177개(30일 지남 65) · `shopping_competition` 0 · `sourcing_saved_products` 5(지우지 않음) · 알림 비교 캐시 1개 — v1.13 배포 때 예상과 같음.
+- **실행 후 기대값**: 리포트 28 · 스냅샷 112(실행 전까지 새로 쌓인 만큼 더해짐) · 관심 상품 5 그대로 · 캐시는 마지막 실행 30일 지난 경우만 비움. 03:50 이후 같은 쿼리로 대조하고 결과를 여기에 덧붙인다.

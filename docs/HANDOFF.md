@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 23:50(KST) Claude Code(윈도우) — ⚠ 날짜 정정 + 트렌드 정리 Cron 실행 전 기준값
+
+- **날짜 정정**: 이 파일 위쪽과 각 프로그램 `AGENTS.md`·`docs/SHARED_*`·`docs/ERROR_LESSONS.md`·`scripts/check-shared-modules.mjs` 주석에 **「2026-10-18」로 적힌 Claude Code(윈도우) 항목은 실제로 2026-10-17 오후~밤(KST) 작업**이다(이미지 시간 초과 재시도 중단·사용량 안내 정정·gstack·4묶음 B·Vercel 비용 절감·5묶음·함수 한도 상향/대체 그림 안내·threads-affiliate-poster v1.62). 시스템 날짜를 확인하지 않고 적은 착오. 핵심 지침(`CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 「배포 비용 절감 규칙」)과 `docs/VERCEL_COST_REDUCTION_PLAN.md`의 날짜는 2026-10-17로 직접 고쳤다. 단, 「2026-10-18 03:50 KST 첫 실행」 같은 **앞으로의 예정 시각** 표기는 원래 맞다.
+- **트렌드 정리 Cron(trending-product-finder v1.13)**: 아직 첫 실행 전(10-18 03:50 KST 예정). 실행 전 기준값 리포트 59(만료 31)·스냅샷 177(만료 65)·경쟁 0·관심 상품 5·캐시 1 — 예상과 일치. 기록: `trending-product-finder/AGENTS.md`. **다음 첫 단계**: 03:50 이후 같은 쿼리로 대조(리포트 28·스냅샷 112+α·관심 상품 5 기대).
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — INSTA Cardnews 자동화 v1.15: 크리에이티브 아틀리에 다크 스타일 디자인 리뉴얼·가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 41개 완료 달성!)
 
 - **대상**: `cardnews-studio/` (https://cardnews-studio.buylife.xyz, slug: `cardnews-studio`)
