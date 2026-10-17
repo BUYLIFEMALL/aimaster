@@ -54,9 +54,9 @@ export function mergeRestoredPins(current: Pick<WorkspacePreferences, "pinnedIds
   const restored = pins.pinnedIds.map(id => idMap[id]).filter((id): id is string => !!id);
   const pinnedIds = [...new Set([...(current.pinnedIds ?? []), ...restored])].slice(0, 50);
   const pinColors: Record<string, PinColor> = { ...(current.pinColors ?? {}) };
-  for (const [oldId, color] of Object.entries(pins.pinColors)) { const id = idMap[oldId]; if (id && pinnedIds.includes(id)) pinColors[id] = color; }
+  for (const [oldId, color] of Object.entries(pins.pinColors)) { const id = idMap[oldId]; if (id && pinnedIds.includes(id) && !pinColors[id]) pinColors[id] = color; } // 지금 붙인 색이 먼저
   const pinNames = { ...pins.pinNames, ...sanitizePinNames(current.pinNames) };
-  return { pinnedIds, pinColors: sanitizePinColors(pinColors, pinnedIds), pinNames, restoredPins: restored.filter(id => pinnedIds.includes(id)).length };
+  return { pinnedIds, pinColors: sanitizePinColors(pinColors, pinnedIds), pinNames, restoredPins: restored.filter(id => pinnedIds.includes(id) && !(current.pinnedIds ?? []).includes(id)).length };
 }
 
 // ---- 백업 읽기·검증 ----

@@ -15,7 +15,9 @@ import {
   PinOff,
   Search,
   Tag,
+  Trash2,
 } from "lucide-react";
+import { showToast } from "@/components/ui/Toast";
 import { type DocumentRevision, type PinColor, PIN_COLORS, PIN_COLOR_LABELS, PIN_NAME_MAX, nextPinColor, pinLabel, safeFilename, sanitizePinNames } from "@/lib/documents/model";
 import { DOCUMENT_TEMPLATES } from "@/lib/documents/templates";
 import { DocumentExplorer } from "./DocumentExplorer";
@@ -601,7 +603,7 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
             </section>
             <section className="card">
               <h2>휴지통</h2>
-              <p className="muted">영구 삭제하지 않습니다. 폴더 복원 시 함께 옮긴 하위 항목도 복원됩니다.</p>
+              <p className="muted">폴더 복원 시 함께 옮긴 하위 항목도 복원됩니다. [휴지통 비우기]를 누르기 전까지는 영구 삭제하지 않습니다.</p>
               {trash.map(n => (
                 <div className="history-row" key={n.id}>
                   <div>
@@ -622,6 +624,32 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                 </div>
               ))}
               {!trash.length && <p className="empty">휴지통이 비어 있습니다.</p>}
+              {/* v1.17: 휴지통 비우기 — 되돌릴 수 없으므로 확인 창에서 한 번 더 묻는다 */}
+              {trash.length > 0 && (
+                <div className="actions trash-actions">
+                  <button
+                    type="button"
+                    className="danger"
+                    disabled={pending}
+                    onClick={() => {
+                      const count = store.nodes.filter(n => n.deletedAt).length;
+                      if (!window.confirm(`휴지통의 ${count}개 항목(폴더 안 항목 포함)을 영구 삭제할까요?\n삭제하면 수정 이력까지 지워져 되돌릴 수 없습니다. Google Drive의 파일은 그대로 남습니다.`)) return;
+                      void action(async () => {
+                        await store.save();
+                        const result = await store.run(repo => repo.purgeTrash());
+                        // 지운 문서의 고정·꼬리표도 정리
+                        const gone = new Set(result.ids);
+                        const pins = store.preferences.pinnedIds ?? [];
+                        if (pins.some(id => gone.has(id))) await store.setPreferences({ pinnedIds: pins.filter(id => !gone.has(id)) });
+                        showToast(`휴지통의 ${result.purged}개 항목을 영구 삭제했습니다.`);
+                      });
+                    }}
+                  >
+                    <Trash2 size={14} />
+                    휴지통 비우기 ({store.nodes.filter(n => n.deletedAt).length}개)
+                  </button>
+                </div>
+              )}
             </section>
             <BackupCard />
             <DriveCard />

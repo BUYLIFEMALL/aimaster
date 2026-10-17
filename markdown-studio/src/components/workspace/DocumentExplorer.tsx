@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, FileText, Folder, Plus, Search, Trash2, Pencil } from "lucide-react";
-import { type DocumentNode, descendants, searchNodes } from "@/lib/documents/model";
+import { type DocumentNode, descendants, pinLabel, searchNodes } from "@/lib/documents/model";
 import { messageForError, useWorkspace } from "./WorkspaceProvider";
 
 export function DocumentExplorer({ compact = false }: { compact?: boolean }) {
@@ -18,6 +18,9 @@ export function DocumentExplorer({ compact = false }: { compact?: boolean }) {
   const [name, setName] = useState("");
   const [parentId, setParentId] = useState("");
   const live = store.nodes.filter(n => !n.deletedAt);
+  // v1.17: 대시보드에서 고정·꼬리표를 붙인 문서는 탐색기에도 색 점으로 표시
+  const pinnedIds = store.preferences.pinnedIds ?? [];
+  const tagOf = (id: string) => (pinnedIds.includes(id) ? store.preferences.pinColors?.[id] : undefined);
   const matches = new Set(searchNodes(store.nodes, query, searchContent).map(n => n.id));
   const shown = new Set(matches);
   if (query) for (const n of live.filter(n => matches.has(n.id))) {
@@ -57,7 +60,7 @@ export function DocumentExplorer({ compact = false }: { compact?: boolean }) {
     return live.filter(n => n.parentId === parent && shown.has(n.id)).map(node => <div key={node.id}>
       <div className={`tree-row ${store.draft?.id === node.id ? "selected" : ""}`} style={{ paddingLeft: 8 + depth * 15 }} draggable={!pending} onDragStart={e => e.dataTransfer.setData("application/x-markdown-node", node.id)} onDragOver={e => { if (node.kind === "folder") e.preventDefault(); }} onDrop={e => { e.preventDefault(); e.stopPropagation(); const id = e.dataTransfer.getData("application/x-markdown-node"); const source = live.find(n => n.id === id); if (source && node.kind === "folder") void action(async () => { const latest = (await store.run(repo => repo.list())).find(n => n.id === source.id)!; await store.run(repo => repo.update(latest.id, latest.revision, { parentId: node.id })); if (store.draft?.id === latest.id) await store.reloadDraft(); }); }}>
         <button className="tree-open" disabled={pending} aria-label={node.kind === "folder" ? `${node.name} 펼치기 또는 접기` : `${node.name} 열기`} onClick={() => { if (node.kind === "document") void action(() => store.select(node.id)); else setClosed(prev => { const next = new Set(prev); next.has(node.id) ? next.delete(node.id) : next.add(node.id); return next; }); }}>
-          {node.kind === "folder" ? <>{closed.has(node.id) && !query ? <ChevronRight size={12}/> : <ChevronDown size={12}/>}<Folder size={15}/></> : <FileText size={15}/>}<span>{node.name}</span>
+          {node.kind === "folder" ? <>{closed.has(node.id) && !query ? <ChevronRight size={12}/> : <ChevronDown size={12}/>}<Folder size={15}/></> : <FileText size={15}/>}<span>{node.name}</span>{(() => { const c = tagOf(node.id); return c ? <span className={`tag-dot tag-${c}`} role="img" aria-label={`꼬리표: ${pinLabel(c, store.preferences.pinNames)}`} title={`꼬리표: ${pinLabel(c, store.preferences.pinNames)}`}/> : null; })()}
         </button>
         <button className="icon-button" disabled={pending} aria-label={`${node.name} 이름 및 위치 변경`} onClick={() => { setEditing(node); setRename(node.name); setMoveId(node.parentId || ""); setError(""); }}><Pencil size={13}/></button>
         <button className="icon-button" disabled={pending} aria-label={`${node.name} 휴지통으로 이동`} onClick={() => { if (window.confirm(`${node.name}${node.kind === "folder" ? " 및 하위 항목" : ""}을 휴지통으로 옮길까요? 나중에 복원할 수 있습니다.`)) void action(async () => { const latest = (await store.run(repo => repo.list())).find(n => n.id === node.id)!; await store.run(repo => repo.trash(latest.id, latest.revision)); if (store.draft && descendants(live, latest.id).has(store.draft.id)) await store.reloadDraft(); }); }}><Trash2 size={13}/></button>

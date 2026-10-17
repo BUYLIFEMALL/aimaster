@@ -170,6 +170,34 @@ export class DocumentRepository {
       return { created: items.length, renamed, ids: Object.fromEntries(ids) as Record<string, string>, firstDocumentId: items.filter(i => i.kind === "document").map(i => ids.get(i.key)!)[0] ?? null };
     } catch (error) { try { tx.abort(); } catch {} await tx.done.catch(() => {}); throw error; }
   }
+  /**
+   * v1.17 휴지통 비우기: 휴지통의 이 회원 항목을 이 기기에서 영구 삭제한다(되돌릴 수 없음 — 회원이 확인 창에서 직접 누를 때만).
+   * 수정 이력·Drive 연결 기록도 함께 지운다. Google Drive의 파일은 건드리지 않는다.
+   */
+  async purgeTrash() {
+    const db = await this.dbPromise;
+    const tx = db.transaction(["nodes", "revisions", "drive"], "readwrite");
+    try {
+      const nodes = await tx.objectStore("nodes").getAll();
+      nodes.forEach(n => verifyOwner(n, this.userId));
+      const gone = new Set(nodes.filter(n => n.deletedAt).map(n => n.id));
+      for (const id of gone) {
+        await tx.objectStore("nodes").delete(id);
+        for (const key of await tx.objectStore("revisions").index("by-node").getAllKeys(id)) await tx.objectStore("revisions").delete(key);
+      }
+      for (const key of await tx.objectStore("drive").getAllKeys()) {
+        const k = String(key);
+        if (k.startsWith("map:") && gone.has(k.slice(k.lastIndexOf(":") + 1))) await tx.objectStore("drive").delete(key);
+      }
+      // 남은 항목이 지운 폴더를 가리키면 최상위로(복원 규칙과 같음)
+      const updatedAt = new Date().toISOString();
+      for (const n of nodes.filter(n => !n.deletedAt && n.parentId && gone.has(n.parentId))) {
+        await tx.objectStore("nodes").put({ ...n, parentId: null, revision: n.revision + 1, updatedAt });
+      }
+      await tx.done;
+      return { purged: gone.size, ids: [...gone] };
+    } catch (error) { try { tx.abort(); } catch {} await tx.done.catch(() => {}); throw error; }
+  }
   // ---- Google Drive 연결 기록 (설정·계정별 연결 정보). 문서 본문과 토큰은 여기에 저장하지 않는다 ----
   async driveSettings(): Promise<{ clientId: string; lastAccountId?: string }> {
     const v = (await (await this.dbPromise).get("drive", "settings")) as { clientId?: string; lastAccountId?: string } | undefined;

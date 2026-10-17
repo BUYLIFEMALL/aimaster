@@ -6,6 +6,7 @@ import type { DocumentRepository } from "../documents/repository";
 import type { ImportItem } from "../documents/backup";
 import { localDateStamp } from "../export/collect";
 import { DriveError, FOLDER_MIME, ROOT_FOLDER_NAME, driveMessage, type DriveApi, type DriveFile } from "./api";
+import { PINS_FILE } from "./pins";
 
 export interface Session { api: DriveApi; accountId: string }
 
@@ -118,6 +119,7 @@ export async function listRemote(repo: DocumentRepository, session: Session, roo
     const dir = queue.shift()!;
     for (const file of await api.listChildren(dir.id)) {
       if (file.mimeType === FOLDER_MIME) { queue.push({ id: file.id, names: [...dir.names, file.name], ids: [...dir.ids, file.id] }); continue; }
+      if (file.name === PINS_FILE) continue; // v1.17 고정 정보 파일은 문서 목록·건너뜀 수에 넣지 않음
       if (!isMarkdown(file)) { ignored++; continue; }
       const m = byFile.get(file.id);
       const node = m && nodes.find(n => n.id === m.nodeId);

@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.17: 휴지통 비우기·탐색기 꼬리표 색 점·Drive 동기화에 고정 정보
+
+- **대상**: `markdown-studio/` v1.16 → **v1.17** (코드·DB 동기화)
+- **한 일**: ① 보관함 [휴지통 비우기](확인 창 후 이 기기에서 영구 삭제, 수정 이력·Drive 연결 기록 포함, Drive 파일은 유지) ② 편집 화면 탐색기에 꼬리표 색 점 ③ Drive 전용 폴더에 고정 정보 파일(`.markdown-studio-pins.json`)로 고정·꼬리표·이름 주고받기
+- **검수**: 단위 70개(모의 Drive 포함), 빌드·배포, 크롬 시험 계정(탐색기 점, 내가 만든 시험 폴더만 든 휴지통 비우기 8개 → IndexedDB 대조). 원상복구.
+- **못 한 것**: 실제 Google Drive 연결 화면 검수(주인님 Google 동의 필요).
+- **인수인계**: [`markdown-studio/AGENTS.md`](../markdown-studio/AGENTS.md) 「v1.17」 · [`docs/IMPROVEMENTS.md`](../markdown-studio/docs/IMPROVEMENTS.md) · [`docs/IMPROVEMENT_HANDOFF_20261017.md`](../markdown-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **링크**: https://markdown-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.16: 최근 문서 더 보기·백업에 고정/꼬리표 포함·꼬리표 이름
 
 - **대상**: `markdown-studio/` v1.15 → **v1.16** (코드·DB 동기화)

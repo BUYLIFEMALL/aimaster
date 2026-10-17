@@ -251,3 +251,43 @@ test("가져오기 중 401이면 남은 항목을 중단으로 기록하고 아�
   assert.equal((await repo.list()).length, 0);
   await repo.close();
 });
+
+test("v1.17 Drive 고정 정보: 올린 기기의 고정·꼬리표를 다른 기기에서 가져오면 연결된 문서에 반영", async () => {
+  const { mock, repo, session, api } = setup(); const s = await seed(repo);
+  const { saveDrivePins, loadDrivePins, fileToNodeMap, PINS_FILE } = await import("../src/lib/drive/pins.ts");
+  const { mergeRestoredPins } = await import("../src/lib/documents/backup.ts");
+  const rootId = await ensureRootFolder(repo, session);
+  await uploadDocuments(repo, session, rootId, [s.a.id, s.b.id, s.c.id]);
+  const prefs = { pinnedIds: [s.a.id, "연결안된문서"], pinColors: { [s.a.id]: "red" }, pinNames: { red: "급함" } };
+  await saveDrivePins(api, rootId, prefs, await repo.driveMappings(session.accountId));
+  await saveDrivePins(api, rootId, prefs, await repo.driveMappings(session.accountId)); // 두 번 올려도 파일은 하나
+  assert.equal(mock.byName(PINS_FILE).length, 1);
+  // 고정 정보 파일은 Drive 목록·건너뜀 수에 들어가지 않음
+  const listed = await listRemote(repo, session, rootId);
+  assert.ok(!listed.entries.some(e => e.path.includes(PINS_FILE))); assert.equal(listed.ignored, 0);
+  // 다른 기기(새 저장소)에서 가져오기
+  const other = new DocumentRepository(user());
+  const remote = await listRemote(other, session, rootId);
+  await pullEntries(other, session, remote.entries, "copy", rootId);
+  const pins = await loadDrivePins(api, rootId);
+  const merged = mergeRestoredPins({ pinnedIds: [] }, pins, fileToNodeMap(await other.driveMappings(session.accountId)));
+  const local = (await other.list()).find(n => n.name === "개요.md");
+  assert.deepEqual(merged.pinnedIds, [local.id]);
+  assert.deepEqual(merged.pinColors, { [local.id]: "red" });
+  assert.deepEqual(merged.pinNames, { red: "급함" });
+  assert.equal(merged.restoredPins, 1);
+  // 이미 고정·색이 있으면 지금 것이 먼저
+  const again = mergeRestoredPins({ pinnedIds: [local.id], pinColors: { [local.id]: "blue" }, pinNames: { red: "내 이름" } }, pins, fileToNodeMap(await other.driveMappings(session.accountId)));
+  assert.deepEqual(again.pinColors, { [local.id]: "blue" }); assert.equal(again.pinNames.red, "내 이름"); assert.equal(again.restoredPins, 0);
+  await repo.close(); await other.close();
+});
+test("v1.17 Drive 고정 정보 파일이 없거나 깨져 있으면 빈 값", async () => {
+  const { api, repo, session, mock } = setup();
+  const { loadDrivePins, parseDrivePins, PINS_FILE } = await import("../src/lib/drive/pins.ts");
+  const rootId = await ensureRootFolder(repo, session);
+  assert.equal(await loadDrivePins(api, rootId), null);
+  mock.add({ name: PINS_FILE, mimeType: "application/json", parents: [rootId], content: "{깨짐" });
+  assert.deepEqual(await loadDrivePins(api, rootId), { pinnedIds: [], pinColors: {}, pinNames: {} });
+  assert.deepEqual(parseDrivePins(JSON.stringify({ format: "other", pinnedFileIds: ["a"] })), { pinnedIds: [], pinColors: {}, pinNames: {} });
+  await repo.close();
+});

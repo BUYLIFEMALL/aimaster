@@ -112,3 +112,21 @@ test("IndexedDB quota failure rolls back changes and preserves original content"
   assert.equal((await repo.list())[0].markdown,"저장된 원고");
   assert.equal((await repo.history(node.id)).length,1); await repo.close();
 });
+test("v1.17 purgeTrash deletes only trashed items with their history and keeps live ones", async () => {
+  const repo = new DocumentRepository(user());
+  const folder = await repo.create("folder", "지울 폴더");
+  const inside = await repo.create("document", "안쪽.md", folder.id, "x");
+  const keep = await repo.create("document", "남길 문서.md", null, "keep");
+  await repo.update(inside.id, 1, { markdown: "y" });
+  await repo.trash(folder.id, folder.revision);
+  await repo.saveDriveMapping({ nodeId: inside.id, accountId: "acct", kind: "document", fileId: "f1", parentFileId: null, lastSyncedRevision: 1, remoteModifiedTime: "", syncedAt: "" });
+  await repo.saveDriveMapping({ nodeId: keep.id, accountId: "acct", kind: "document", fileId: "f2", parentFileId: null, lastSyncedRevision: 1, remoteModifiedTime: "", syncedAt: "" });
+  const result = await repo.purgeTrash();
+  assert.equal(result.purged, 2); assert.deepEqual(new Set(result.ids), new Set([folder.id, inside.id]));
+  const rows = await repo.list();
+  assert.deepEqual(rows.map(n => n.id), [keep.id]);
+  await assert.rejects(repo.history(inside.id), /찾을 수 없습니다/);
+  assert.equal((await repo.history(keep.id)).length, 1);
+  assert.deepEqual((await repo.driveMappings("acct")).map(m => m.nodeId), [keep.id]);
+  assert.equal((await repo.purgeTrash()).purged, 0); await repo.close();
+});

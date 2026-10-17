@@ -3,6 +3,8 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { createDriveApi, driveMessage } from "@/lib/drive/api";
 import { clearToken, connectGoogle, currentToken, disconnectGoogle, hasToken, isValidClientId } from "@/lib/drive/auth";
 import { ensureRootFolder, listRemote, pullEntries, uploadDocuments, type PullResult, type PullStrategy, type RemoteEntry, type UploadResult } from "@/lib/drive/sync";
+import { loadDrivePins, saveDrivePins, fileToNodeMap } from "@/lib/drive/pins";
+import { mergeRestoredPins } from "@/lib/documents/backup";
 import { useWorkspace } from "./WorkspaceProvider";
 
 export interface DriveAccount { accountId: string; email: string; name: string }
@@ -109,7 +111,14 @@ export function DriveProvider({ children }: { children: React.ReactNode }) {
     setUploadResults(results);
     const ok = results.filter(r => r.status === "created" || r.status === "updated").length;
     const bad = results.filter(r => r.status === "failed" || r.status === "conflict").length;
-    setMessage(`Google Drive 확인 결과: 올림 ${ok}개 · 변경 없음 ${results.filter(r => r.status === "unchanged").length}개${bad ? ` · 실패/충돌 ${bad}개` : ""}.`);
+    // v1.17: 고정·꼬리표 정보도 Drive에 올린다(실패해도 문서 올리기 결과는 그대로 알림)
+    let pinNote = "";
+    try {
+      const mappings = await store.runQuiet(repo => repo.driveMappings(s.accountId));
+      await saveDrivePins(s.api, rootId, store.preferences, mappings);
+      pinNote = " · 고정·꼬리표 정보도 저장";
+    } catch (e) { pinNote = ` · 고정·꼬리표 정보는 저장하지 못했습니다(${driveMessage(e)})`; }
+    setMessage(`Google Drive 확인 결과: 올림 ${ok}개 · 변경 없음 ${results.filter(r => r.status === "unchanged").length}개${bad ? ` · 실패/충돌 ${bad}개` : ""}${pinNote}.`);
   }), [guarded, store]);
 
   const loadRemote = useCallback(() => guarded(async () => {
@@ -128,7 +137,18 @@ export function DriveProvider({ children }: { children: React.ReactNode }) {
     setPullResults(results);
     const ok = results.filter(r => r.status === "imported" || r.status === "copied" || r.status === "replaced").length;
     const bad = results.filter(r => r.status === "failed").length;
-    setMessage(`가져오기 결과: 성공 ${ok}개${bad ? ` · 실패 ${bad}개` : ""}.`);
+    // v1.17: Drive의 고정·꼬리표 정보를 연결된 내 문서에 더한다(지금 고정 먼저·이미 붙인 이름 유지)
+    let pinNote = "";
+    try {
+      const pins = await loadDrivePins(s.api, rootId);
+      if (pins && (pins.pinnedIds.length || Object.keys(pins.pinNames).length)) {
+        const mappings = await store.runQuiet(repo => repo.driveMappings(s.accountId));
+        const merged = mergeRestoredPins(store.preferences, pins, fileToNodeMap(mappings));
+        await store.setPreferences({ pinnedIds: merged.pinnedIds, pinColors: merged.pinColors, pinNames: merged.pinNames });
+        if (merged.restoredPins) pinNote = ` · 고정·꼬리표 ${merged.restoredPins}개 반영`;
+      }
+    } catch (e) { pinNote = ` · 고정·꼬리표 정보는 읽지 못했습니다(${driveMessage(e)})`; }
+    setMessage(`가져오기 결과: 성공 ${ok}개${bad ? ` · 실패 ${bad}개` : ""}${pinNote}.`);
     const refreshed = await store.runQuiet(repo => listRemote(repo, s, rootId));
     setRemote(refreshed.entries);
   }), [guarded, store]);

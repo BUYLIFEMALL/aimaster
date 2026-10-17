@@ -107,14 +107,21 @@ export function createDriveApi(opts: DriveApiOptions) {
       })}`);
       return r.files?.[0] ?? null;
     },
+    /** v1.17: 폴더 안에서 이름이 같은 파일(폴더 아님)을 찾는다 — 고정 정보 파일용 */
+    async findFile(parentId: string, name: string): Promise<DriveFile | null> {
+      const r = await json<{ files?: DriveFile[] }>(`${API}/files?${qs({
+        q: `name='${q(name)}' and mimeType!='${FOLDER_MIME}' and '${q(parentId)}' in parents and trashed=false`, fields: `files(${FIELDS})`, orderBy: "createdTime", pageSize: 10, spaces: "drive",
+      })}`);
+      return r.files?.[0] ?? null;
+    },
     async createFolder(parentId: string | "root", name: string): Promise<DriveFile> {
       return json<DriveFile>(`${API}/files?${qs({ fields: FIELDS })}`, {
         method: "POST", headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify({ name, mimeType: FOLDER_MIME, parents: [parentId] }),
       });
     },
-    async createFile(parentId: string, name: string, content: string): Promise<DriveFile> {
-      const m = multipart({ name, parents: [parentId], mimeType: "text/markdown" }, content);
+    async createFile(parentId: string, name: string, content: string, mimeType = "text/markdown"): Promise<DriveFile> {
+      const m = multipart({ name, parents: [parentId], mimeType }, content);
       return json<DriveFile>(`${UPLOAD}/files?${qs({ uploadType: "multipart", fields: FIELDS })}`, { method: "POST", ...m });
     },
     /** 내용·이름을 갱신하고 필요하면 폴더를 옮긴다 */

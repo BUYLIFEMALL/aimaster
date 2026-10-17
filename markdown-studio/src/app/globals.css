@@ -649,6 +649,10 @@
 .tag-names-grid label input{grid-column:1 / -1}
 .tag-names-grid input:not([type=checkbox]){padding:6px 8px;font-size:12px}
 .doc-tag-name{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--text-2)}
+.tree-open .tag-dot{flex-shrink:0;margin-left:2px}
+.trash-actions{margin-top:12px;justify-content:flex-end}
+.danger{color:#b91c1c;border-color:#fecaca}
+.danger:hover{background:#fef2f2}
 .doc-more{display:flex;justify-content:center;margin-top:14px}
 @media(max-width:767px){.tag-names-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tag-name-edit{margin-left:0}}
 .hotkey-item{display:flex;flex-direction:column;gap:2px;border-radius:8px;padding:4px 6px;margin:0 -6px}
@@ -702,6 +706,8 @@ html[data-theme=dark] :is(.step-number,.doc-card-badge,.guide-tag){background:#1
 html[data-theme=dark] .flow-item[aria-current=page] .step-number{background:var(--brand);color:#fff}
 html[data-theme=dark] .guide-chip kbd{background:#263042}
 html[data-theme=dark] .error{color:#fca5a5}
+html[data-theme=dark] .danger{color:#fca5a5;border-color:#7f1d1d}
+html[data-theme=dark] .danger:hover{background:rgba(239,68,68,.12)}
 /* 테두리·구분선 */
 html[data-theme=dark] :is(.tool-group,.preview-toolbar,.toc,.doc-card-footer,.guide-card-header,.document-list-item,.history-row,.drive-list li,.pane-label,.search-box,.empty-state-card){border-color:var(--line)}
 html[data-theme=dark] .flow-item:not(:nth-of-type(5))::before{background:var(--line)}
