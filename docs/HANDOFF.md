@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 공용 모듈 작업 필수 점검표 작성 + 핵심 지침 요약
+
+- **한 일**: 오늘 YouTube·이미지 공용화(사본 30곳) 작업에서 겪은 실수·해결법을 신규 개발·유지보수 점검표로 정리한 [`docs/SHARED_MODULE_CHECKPOINTS.md`](SHARED_MODULE_CHECKPOINTS.md)를 새로 만들었습니다(한 장 요약 10항목, 작업 전·구현·검수·배포·문서 단계별 점검, 실제 적용 시간 제한값, 확장 프로그램별 절차, 남은 묶음).
+- **지침 요약**: 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`의 「공용 기준 코드 규칙」 바로 다음에 「공용 모듈 작업 필수 점검」 10항목 요약을 같은 문구로 넣었습니다. `docs/SHARED_MODULES.md` §2에 점검표 연결을 추가했습니다.
+- **플러그인 현황**: 윈도우 Codex Superpowers 설치 완료로 아래 표를 고쳤습니다.
+- 문서만 바뀌어 프로그램 버전·배포 변경은 없습니다.
+- **다음 첫 단계**: 이미지 4묶음 B(SDK 사용 9곳) — 점검표 §6.
+
 ## 2026-10-17 Claude Code(윈도우) — karpathy 4원칙을 AGENTS.md·GEMINI.md에 추가 + 에이전트 플러그인 설치 현황
 
 - **한 일**: `CLAUDE.md` 맨 앞의 karpathy 4원칙(Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven Execution)을 루트 `AGENTS.md`(Codex)·`GEMINI.md`(Antigravity) 맨 위 「개발 대화 규칙」 다음에 같은 원문으로 넣음(표시: `KARPATHY_GUIDELINES_20261017`). 원문을 고칠 때는 세 파일을 함께 고친다.
@@ -9,7 +17,7 @@
 |---|---|---|---|
 | 윈도우 | Claude Code | ✅ (주인님 설치) | ✅ 마켓플레이스 `karpathy-skills` = `https://github.com/multica-ai/andrej-karpathy-skills.git` (옛 `forrestchang` 주소는 가져오기 실패) |
 | 윈도우 | Antigravity(agy) | ✅ `agy plugin install https://github.com/obra/superpowers` (스킬 15개) | 지침 파일(`GEMINI.md`)로 적용 |
-| 윈도우 | Codex | 주인님이 `/plugins` → superpowers 검색 → Install Plugin으로 설치 중 | 지침 파일(`AGENTS.md`)로 적용 |
+| 윈도우 | Codex | ✅ 주인님이 `/plugins` → superpowers 검색 → Install Plugin으로 설치(2026-10-17) | 지침 파일(`AGENTS.md`)로 적용 |
 | 맥미니 | 세 CLI 모두 | 미설치(필요하면 같은 방법으로 각각 설치) | 지침 파일로 이미 적용(Claude Code 플러그인은 맥미니에서 따로 설치) |
 
 - **다음 첫 단계**: 없음(맥미니 설치는 필요할 때 주인님 판단).

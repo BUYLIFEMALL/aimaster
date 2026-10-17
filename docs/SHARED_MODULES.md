@@ -22,6 +22,7 @@
 5. 각 프로그램 `AGENTS.md`와 이 문서 §3 표의 「최근 변경」을 갱신한다.
 6. 새 모듈을 추가하면 이 문서 §3 표, `scripts/check-shared-modules.mjs`의 `MODULES` 목록, [`SHARED_FEATURE_MAP.md`](SHARED_FEATURE_MAP.md)(기능별 프로그램 지도)에 함께 넣는다.
 7. **프로그램을 수정하거나 새로 만들 때는 먼저** [`SHARED_FEATURE_MAP.md`](SHARED_FEATURE_MAP.md)에서 그 기능의 기준 코드가 있는지 확인하고, 있으면 사본으로 가져다 쓴다(새로 짜지 않는다).
+8. **놓치기 쉬운 점검 항목**(시간 제한×재시도와 300초 한도, 이중 과금, 오류 감싸기, 테스트 기대값, 확장 버전, 배포 로그 오탐)은 [`SHARED_MODULE_CHECKPOINTS.md`](SHARED_MODULE_CHECKPOINTS.md)(공용 모듈 작업 필수 점검표)를 따른다.
 
 ## 3. 등록된 공용 기준 코드
 
