@@ -1,7 +1,7 @@
 # 디자인 개발완료 인수인계 — INSTA 댓글자동화 (v1.14)
 
 - **적용 템플릿**: **스튜디오 댓글 콘솔 — 인스타 라이트 변형** — `threads-comment-reply` v1.10의 화면·부품(사이드바·대시보드·댓글 검토·이력·매뉴얼)을 이식하고 색만 인스타그램 라이트로. 계열 기준: [`youtube-auto-reply/docs/DESIGN_HANDOFF.md`](../../youtube-auto-reply/docs/DESIGN_HANDOFF.md)
-- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「진행해줘」) · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
+- **작업**: Claude Code(맥미니 구현) + Antigravity(윈도우 빌드·배포·DB·Edge 검수), 2026-10-17 · 상태: ✅ 1차 작업완료 (v1.14)
 - **라이브**: https://instagram-comment-reply.buylife.xyz
 
 ## 1. 토큰 (`tailwind.config.ts` → `ig-*`, Tailwind v3)
@@ -26,7 +26,8 @@
 ## 4. 배포·검수 기록
 | 항목 | 값 |
 |---|---|
-| 정적 검사 | 맥미니 `tsc --noEmit` 오류 0 |
-| 빌드·배포 | 대기(윈도우) |
-| DB `programs.version` | v1.13 → 배포 때 v1.14 |
-| 화면 검수 | 대기(1440·375px) |
+| 정적 검사 | 맥미니 `tsc --noEmit` 오류 0, 윈도우 `npm run build` 성공 |
+| 빌드·배포 | Vercel 프로덕션 배포 완료 (`dpl_AUrj8kZxwsTiYCks5uHR7dNDRDXK` → https://instagram-comment-reply.buylife.xyz) |
+| DB `programs.version` | v1.13 → v1.14 업데이트 완료 (Supabase) |
+| 화면 검수 | Microsoft Edge 실세션 검수 완료 (데스크톱 1440px, 모바일 375px 정상 / 대시보드·댓글검토·매뉴얼·로그인) |
+

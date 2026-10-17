@@ -16,13 +16,17 @@
 - **⚠️ 윈도우 CLI 요청**: [`instagram-dm-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../instagram-dm-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.13 → 검수(답변승인·발송 금지) → 45번 ✅.
 - **비용**: 없음.
 
-## 2026-10-17 Claude Code(맥미니) — INSTA 댓글자동화 v1.14: 스튜디오 댓글 콘솔 — 인스타 라이트 변형 (🟠 윈도우 마무리 요청)
+## 2026-10-17 Claude Code(맥미니) & Antigravity CLI(윈도우) — INSTA 댓글자동화 v1.14: 스튜디오 댓글 콘솔 — 인스타 라이트 변형 (✅ 1차 작업완료)
 
-- **대상**: `instagram-comment-reply/` (https://instagram-comment-reply.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
-- **한 일**: `threads-comment-reply` v1.10 구성 이식 + 인스타 라이트 토큰(`ig-*`, 파랑 알약·그라데이션), **휴대폰 ☰ 신설**, `/dashboard`·`/guide` 신설, 대기 배지, 로그인 같은 배경. 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+- **대상**: `instagram-comment-reply/` (https://instagram-comment-reply.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현 및 배포 검수 완료.
+- **한 일**:
+  - 맥미니: `threads-comment-reply` v1.10 구성 이식 + 인스타 라이트 토큰(`ig-*`, 파랑 알약·그라데이션), **휴대폰 ☰ 신설**, `/dashboard`·`/guide` 신설, 대기 배지, 로그인 같은 배경. 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+  - 윈도우 Antigravity: 로컬 빌드(`npm run build`) 오류 0건 검증, Vercel 프로덕션 배포 완료 (`instagram-comment-reply.buylife.xyz` alias 연결), Supabase DB `programs.version` `v1.14` 업데이트 완료, Microsoft Edge 전용 실세션 검수 완료(1440px 데스크톱 및 375px 모바일 캡처 보존, 외부 Meta API 호출 방지를 위해 「새 댓글 확인」·「답변승인」·「동기화」 클릭하지 않음).
 - **추가개선(3대 항목)**: 이력 검색·페이지, 검토 카드 썸네일, 3종 통합 댓글함 — [`IMPROVEMENTS.md`](../instagram-comment-reply/docs/IMPROVEMENTS.md). 타 프로그램 탐색: `instagram-dm-reply`도 ☰·매뉴얼·대시보드 없음 — [`IMPROVEMENTS.md`](../instagram-dm-reply/docs/IMPROVEMENTS.md) 신설.
-- **⚠️ 윈도우 CLI 요청**: [`instagram-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../instagram-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.14 → 검수 → 47번 ✅.
+- **현황판**: `DESIGN.md` 47번 ✅ 1차 작업완료로 갱신, `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**: https://instagram-comment-reply.buylife.xyz
 - **비용**: 없음.
+
 
 ## 2026-10-17 Claude Code(맥미니) & Antigravity CLI(윈도우) — 구글폼 CRM 자동화 v1.09: 스마트 매트릭스 라이트 변형 (✅ 1차 작업완료)
 
