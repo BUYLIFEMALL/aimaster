@@ -166,7 +166,7 @@ test("buildAnalysisSystem: 확장 옵션(mutationLevel, includeImageTag, targetM
   const mut = buildAnalysisSystem("mutate", 2026, {
     mutationLevel: 85,
     includeImageTag: true,
-    targetModel: "gemini-2.5-flash-image",
+    targetModel: "gemini-3.1-flash-lite-image",
     aspectRatio: "16:9",
   });
   assert.match(mut, /Genomic Chaos/);
@@ -177,7 +177,7 @@ test("buildAnalysisSystem: 확장 옵션(mutationLevel, includeImageTag, targetM
 
   const clone = buildAnalysisSystem("replicate", 2026, {
     includeImageTag: false,
-    targetModel: "gemini-3.1-flash-image-preview",
+    targetModel: "gemini-nano-banana-2.1",
   });
   assert.match(clone, /유전자 복제/);
   assert.match(clone, /Gemini 3.1 Flash Image/);

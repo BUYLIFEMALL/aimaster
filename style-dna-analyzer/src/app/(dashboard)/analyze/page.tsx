@@ -64,7 +64,7 @@ export default function AnalyzePage() {
   const [mode, setMode] = useState<DnaMode>("replicate");
   const [mutationLevel, setMutationLevel] = useState<number>(30);
   const [includeImageTag, setIncludeImageTag] = useState<boolean>(true);
-  const [targetModel, setTargetModel] = useState<TargetImageModel>("gemini-3.1-flash-image-preview");
+  const [targetModel, setTargetModel] = useState<TargetImageModel>("gemini-nano-banana-2.1");
   const [guidance, setGuidance] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);

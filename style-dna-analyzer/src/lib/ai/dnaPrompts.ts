@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] gemini-3.1-flash-image(-preview) → gemini-nano-banana-2.1, gemini-2.5-flash-image → gemini-3.1-flash-lite-image(경량 1K), 기준: ai-image-studio v1.11.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 이미지 분석·프롬프트 보정용 프롬프트와 응답 정리. 순수 함수만 둔다(테스트 가능).
 import {
   SUBJECT_PLACEHOLDER_EN,
@@ -37,7 +39,7 @@ export function buildAnalysisSystem(
 ): string {
   const mutationLevel = typeof options?.mutationLevel === "number" ? Math.min(100, Math.max(0, options.mutationLevel)) : 30;
   const includeImageTag = Boolean(options?.includeImageTag);
-  const targetModel = options?.targetModel || "gemini-3.1-flash-image-preview";
+  const targetModel = options?.targetModel || "gemini-nano-banana-2.1";
   const detectedAr = options?.aspectRatio || "1:1";
 
   const attachedImageBlock = includeImageTag
@@ -53,15 +55,15 @@ DO NOT just append it at the end. Make it the functional reference for the subje
     : "";
 
   let targetModelGuidance = "";
-  if (targetModel === "gemini-2.5-flash-image") {
+  if (targetModel === "gemini-3.1-flash-lite-image") {
     targetModelGuidance = `
-**TARGET: Gemini 2.5 Flash Image (Nano Banana)**
+**TARGET: Gemini 3.1 Flash Lite Image (경량)**
 - Optimization: Use rich, descriptive natural language (English).
 - Format: A single, comprehensive paragraph describing the scene, subject, lighting, and style in detail.
 - Style: Fast generation, high adherence to prompt.`;
   } else {
     targetModelGuidance = `
-**TARGET: Gemini 3.1 Flash Image (Nano Banana 2)**
+**TARGET: Gemini Nano Banana 2.1 (Nano Banana 2)**
 - Optimization: High-quality image generation. Supports complex prompts and fine details.
 - Format: A single, comprehensive paragraph describing the scene, subject, lighting, and style in detail.
 - Style: State-of-the-art visual quality, excellent composition.`;
@@ -154,7 +156,7 @@ export function buildAnalysisUser(
   const g = cleanInput(guidance, 800);
   const mutationLevel = options?.mutationLevel ?? 30;
   const includeTag = options?.includeImageTag ? "YES" : "NO";
-  const targetModel = options?.targetModel || "gemini-3.1-flash-image-preview";
+  const targetModel = options?.targetModel || "gemini-nano-banana-2.1";
   const detectedAr = options?.aspectRatio || "1:1";
 
   const dataBlock = g ? `\n<data>${g}</data>` : "";
@@ -172,7 +174,7 @@ Generate two master prompts (${SUBJECT_PLACEHOLDER_EN} for English, ${SUBJECT_PL
 
 export function buildRefineSystem(year: number, options?: AnalysisPromptOptions): string {
   const includeImageTag = Boolean(options?.includeImageTag);
-  const targetModel = options?.targetModel || "gemini-3.1-flash-image-preview";
+  const targetModel = options?.targetModel || "gemini-nano-banana-2.1";
 
   return `당신은 이미지 생성 프롬프트를 사용자 피드백에 맞춰 미세 조정하고 재시퀀싱하는 프롬프트 엔지니어입니다.
 현재 마스터 프롬프트(영어·한국어)와 스타일 분석 요약, 사용자 피드백을 받아 아래 JSON으로만 답하세요. 설명·마크다운·코드 블록은 쓰지 마세요.

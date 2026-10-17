@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] gemini-3.1-flash-image(-preview) → gemini-nano-banana-2.1, gemini-2.5-flash-image → gemini-3.1-flash-lite-image(경량 1K), 기준: ai-image-studio v1.11.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import type { AiProvider } from "@/lib/ai/models";
 
 export type DnaMode = "replicate" | "mutate";
@@ -7,11 +9,11 @@ export const MODES: { value: DnaMode; label: string; desc: string }[] = [
   { value: "mutate", label: "스타일 변형", desc: "기본 스타일은 유지하되 지침에 따라 장면·소품·분위기를 새롭게 변형" },
 ];
 
-export type TargetImageModel = "gemini-2.5-flash-image" | "gemini-3.1-flash-image-preview";
+export type TargetImageModel = "gemini-3.1-flash-lite-image" | "gemini-nano-banana-2.1";
 
 export const TARGET_IMAGE_MODELS: { value: TargetImageModel; label: string; desc: string }[] = [
-  { value: "gemini-3.1-flash-image-preview", label: "Gemini 3.1 Flash Image (Nano Banana 2)", desc: "최신 플래그십 최고화질 및 디테일 구도 최적화" },
-  { value: "gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image (Nano Banana)", desc: "빠른 생성 속도와 충실한 자연어 프롬프트 준수" },
+  { value: "gemini-nano-banana-2.1", label: "Gemini 3.1 Flash Image (Nano Banana 2)", desc: "최신 플래그십 최고화질 및 디테일 구도 최적화" },
+  { value: "gemini-3.1-flash-lite-image", label: "Gemini 2.5 Flash Image (Nano Banana)", desc: "빠른 생성 속도와 충실한 자연어 프롬프트 준수" },
 ];
 
 /** 소제목이 붙은 설명 한 줄 (예: 앵글/구도: …) */
