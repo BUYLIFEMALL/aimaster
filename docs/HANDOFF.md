@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 네이버 블로그 SEO 스튜디오 v1.69: 파일 나누기 + 라이트·네이버 그린 디자인 (🟠 윈도우 마무리 요청)
+
+- **대상**: `naver-blog-seo-studio/` (https://naver-blog-seo-studio.buylife.xyz). 플랜 → 주인님 승인 후 구현.
+- **한 일**: ① `StudioPage.tsx` 928줄을 `components/studio/`(useStudio 훅·공통·화면 5개)로 나눔(커밋 `c8ab6eb9`, 원본과 글자 단위 동일 검증) ② 라이트·네이버 그린 색, 공용 사이드바(**동작하지 않던 로그아웃 수정**·휴대폰 ☰·📖), `/guide` 신설, 설정 옛 사이드바 제거, 고정 문구 「AIMaster 계정 연동 전」 수정. 확장 화면 변경 없음, manifest 1.69.0/v1.69. `tsc` 오류 0.
+- **⚠️ 윈도우 CLI 요청**: [`naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261017.md) — `npm run extension:archive` → 빌드 → 배포 → DB(version·extension_version) → `check-extension-release` OK → 검수 → 35번 ✅.
+- **타 프로그램 탐색**: `web-crawler`(현황판 표기 `web-crawler-saas`와 실제 폴더 다름) — ☰·매뉴얼 없음 → [`web-crawler/IMPROVEMENTS.md`](../web-crawler/IMPROVEMENTS.md) 신설.
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(윈도우) — 이미지 생성 2단계: SNS 생성기 묶음 7곳 공용 모듈 적용
 
 - **한 일**: insta_auto_poster·threads·threads-affiliate-poster·naver-cafe-poster·naver-blog-agent·naver-blog-allinone·threads-content-ops의 이미지 호출과 모델 목록을 공용 기준 코드(`gemini-image-client`·`gemini-image-models`) 사본으로 바꿨습니다. 프롬프트·한국인 지시문·비율·기본 등급은 그대로입니다.

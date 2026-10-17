@@ -95,5 +95,7 @@
 - 호환: 불러오는 이름(`getNanoBananaConfig`·`NanoBananaModelType`·`NANO_BANANA_MODEL_OPTIONS`)·등급 키·옛 등급 이름(`nanobanana-2` → 기본 2K)은 그대로라 저장된 회원 선택값도 그대로 동작. 타입 검사·기존 테스트·빌드·배포·DB 버전 확인. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
 - **주의(다음 CLI)**: 모델 설정 파일은 공용 기준 코드 `gemini-image-models`의 사본이다(기준: `ai-image-studio/lib/providers/nanoBananaModels.ts`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()` 결과를 호출하는 쪽에서 덮어써 보완한다(주인님 지시). 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
 
-## 2026-10-17 디자인 리뉴얼 (Claude Code 맥미니, ⏳ 승인 대기)
+## 2026-10-17 v1.69 — 파일 나누기 + 디자인 리뉴얼(라이트·네이버 그린) (Claude Code 맥미니)
+- `StudioPage.tsx` 928줄 → `components/studio/`(useStudio 훅·공통·화면 5개, 동작 동일 검증). 공용 사이드바 `StudioSidebar.tsx`(실제 동작하는 로그아웃·휴대폰 ☰·📖), `/guide` 신설, 설정의 옛 사이드바 2개 제거, 「AIMaster 계정 연동 전」 고정 문구 → 로그인 계정. 확장 화면 변경 없음, `manifest` 1.69.0/v1.69. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
+- **확장 ZIP·빌드·배포는 윈도우 CLI 대기.** 화면은 이제 `components/studio/*View.tsx`에서 고친다(옛 `StudioPage.tsx`에 화면 코드 없음).
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
