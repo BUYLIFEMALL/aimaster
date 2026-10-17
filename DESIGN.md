@@ -75,6 +75,11 @@
     - **보고 내용**: 다른 프로그램을 살펴보며 발견한 1) 대상 프로그램명 및 현재 버전/도메인, 2) 구체적인 문제점 및 개선 필요사항, 3) 3대 제안 항목에 입각한 개선 방향 및 기대 효과를 체계적으로 정리하여 브리핑합니다.
     - **인수인계 기록**: 발견된 타 프로그램의 개선 제안사항은 해당 프로그램의 서브폴더 `docs/IMPROVEMENTS.md`에도 선제적으로 기록해 두어, 다음 CLI가 이어받아 작업할 때 대기 없이 즉시 착수할 수 있도록 체계화합니다.
 
+16. **★★★ 모든 프로그램별 기능·로직·장단점 정리 및 버전별 변경 히스토리 기록 의무 (2026-10-17 주인님 지시)**:
+    - **각각의 모든 프로그램 폴더 루트(`AGENTS.md` 및 `README.md`)에는 해당 프로그램에 대한 [기능, 로직, 장점, 단점]을 상세히 정리해서 남겨놓아, 다른 CLI 프로그램(Antigravity, Codex, Claude Code)이 읽고 언제든지 검토 후 추가 개선작업을 즉시 진행할 수 있게 체계화**합니다.
+    - **버전별 변경 히스토리(Changelog) 기록 의무**: 작업 완료 후에는 버전별로 어떤 내용이 추가되거나 수정되었는지 변경 히스토리를 빠짐없이 문서에 기록으로 남깁니다.
+    - **프로그램 개선 대기 목록(백로그) 인수인계서 작성**: 향후 개선 과제는 **프로그램 개선 대기 목록(백로그) 인수인계 문서(`<프로그램>/docs/IMPROVEMENT_BACKLOG.md` 및 `docs/IMPROVEMENTS.md`)**로 해당 프로그램 폴더에 체계적으로 작성해 남겨 다음 CLI가 언제든 우선순위에 따라 바로 착수할 수 있도록 관리합니다.
+
 ---
 
 ## 1. 공식 디자인 템플릿 시스템 (Design Template System) — 현재 10종
@@ -126,7 +131,7 @@
 | 9 | AI 프롬프트 템플릿 자동화 | `prompt-template-studio` | **포커스 스튜디오 스타일** (프롬프트 템플릿 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.05`, 포커스 스튜디오 스타일) | [`prompt-template-studio/docs/DESIGN_HANDOFF.md`](prompt-template-studio/docs/DESIGN_HANDOFF.md) |
 | 10 | 페르소나 문체 자동화 | `persona-style-studio` | **포커스 스튜디오 스타일** (문체 변환 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.08`, 포커스 스튜디오 스타일) | [`persona-style-studio/docs/DESIGN_HANDOFF.md`](persona-style-studio/docs/DESIGN_HANDOFF.md) |
 | 11 | AI Prompt 자동화 | `ai-prompt-studio` | **포커스 스튜디오 스타일** (프롬프트 엔지니어링 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일) | [`ai-prompt-studio/docs/DESIGN_HANDOFF.md`](ai-prompt-studio/docs/DESIGN_HANDOFF.md) |
-| 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | **유튜브 다크 콘솔 스타일** (YouTube Dark Console Style) | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.07`, 유튜브 다크 콘솔 스타일) | [`yt-playlist-studio/docs/DESIGN_HANDOFF.md`](yt-playlist-studio/docs/DESIGN_HANDOFF.md) |
+| 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | **유튜브 다크 콘솔 스타일** (YouTube Dark Console Style) | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | 🔵 Codex v1.08 참고 메모 수신·검수 진행 | [`yt-playlist-studio/docs/DESIGN_HANDOFF.md`](yt-playlist-studio/docs/DESIGN_HANDOFF.md) |
 | 13 | LP 턴테이블 자동화 | `vinyl-lp-studio` | **크리에이티브 아틀리에 스타일** (바이닐 다크 레트로 콘솔 변형) | 다크(옵시디언 `#0c0d12` + 바이닐 골드/앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 크리에이티브 아틀리에 스타일) | [`vinyl-lp-studio/docs/DESIGN_HANDOFF.md`](vinyl-lp-studio/docs/DESIGN_HANDOFF.md) |
 | 14 | 무한루프 영상자동화 | `infinite-loop-video` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `infinite-loop-video/AGENTS.md` |
 | 15 | AI 인플루언서 자동화 | `ai-influencer-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `ai-influencer-studio/AGENTS.md` |
