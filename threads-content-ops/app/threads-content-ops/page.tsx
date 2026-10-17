@@ -9,6 +9,7 @@ import { cleanupUserContent } from "@/threads-content-ops/lib/contentCleanup";
 import { cleanupUserMedia } from "@/threads-content-ops/lib/mediaCleanup";
 import { APP_VERSION } from "@/threads-content-ops/lib/version";
 import { MAIN_SITE_ORIGIN, THREADS_CONTENT_OPS_CALLBACK_URI, THREADS_CONTENT_OPS_ORIGIN } from "@/threads-content-ops/lib/oauth";
+import { IS_STANDALONE, brandTitle } from "@/threads-content-ops/lib/deployment";
 import AttentionComposer from "./AttentionComposer";
 import DraftComposer from "./DraftComposer";
 import ContentOpsSidebar from "./ContentOpsSidebar";
@@ -27,14 +28,15 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 const PROGRAM_SLUG = "threads-content-ops";
-export const metadata = { title: "Threads 콘텐츠 운영 자동화 | AIMaster" };
+export const metadata = { title: brandTitle("Threads 콘텐츠 운영 자동화") };
 
 export default async function ThreadsContentOpsPage({ searchParams }: { searchParams: { tab?: string; viral?: string } }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     const currentPath = (await headers()).get("x-pathname") ?? "/threads-content-ops";
-    redirect(`${MAIN_SITE_ORIGIN}/login?redirect=${encodeURIComponent(THREADS_CONTENT_OPS_ORIGIN + currentPath)}`);
+    // 독립 운영 모드는 이 앱의 /login, AIMaster는 메인 사이트 로그인(2026-10-18)
+    redirect(IS_STANDALONE ? `/login?redirect=${encodeURIComponent(currentPath)}` : `${MAIN_SITE_ORIGIN}/login?redirect=${encodeURIComponent(THREADS_CONTENT_OPS_ORIGIN + currentPath)}`);
   }
   if (!(await checkProgramAccess(supabase, user.id, PROGRAM_SLUG)).allowed) redirect(`${MAIN_SITE_ORIGIN}/programs/${PROGRAM_SLUG}`);
 

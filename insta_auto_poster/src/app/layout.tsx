@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { brandTitle } from "@/lib/deployment";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "INSTA 포스팅 자동화",
+  title: brandTitle("INSTA 포스팅 자동화"),
   description: "인스타그램 피드 게시글 주제 수집, AI 캡션/이미지 생성, 즉시·예약 게시를 관리하는 마케팅 자동화 웹",
 };
 

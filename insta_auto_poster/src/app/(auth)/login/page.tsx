@@ -5,7 +5,8 @@
 // 회원가입은 AIMaster에서만 받는다 — 탭에서 AIMaster 회원가입 페이지로 안내.
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { signInAction } from "@/lib/actions/auth";
+import { signInAction, signUpAction } from "@/lib/actions/auth";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const MAIN_SITE_URL = "https://www.buylife.xyz";
 
@@ -14,6 +15,7 @@ function LoginCard() {
   const redirectTo = searchParams.get("redirect") ?? "";
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -23,8 +25,15 @@ function LoginCard() {
     const formData = new FormData(event.currentTarget);
     try {
       // 성공하면 서버 함수가 redirect()로 이동시키고, 실패하면 { error }를 돌려준다.
-      const result = await signInAction({}, formData);
-      if (result?.error) setError(result.error);
+      // 독립 운영 모드(2026-10-18)의 회원가입 탭은 signUpAction, 그 밖에는 로그인
+      if (mode === "signup" && IS_STANDALONE) {
+        const result = await signUpAction({}, formData);
+        if (result?.error) setError(result.error);
+        if (result?.notice) { setNotice(result.notice); setMode("login"); }
+      } else {
+        const result = await signInAction({}, formData);
+        if (result?.error) setError(result.error);
+      }
     } finally {
       setIsPending(false);
     }
@@ -59,7 +68,11 @@ function LoginCard() {
         <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-3 text-center text-xs font-medium text-red-600">{error}</div>
       )}
 
-      {mode === "signup" ? (
+      {notice && (
+        <div className="mb-4 rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-center text-xs font-medium text-emerald-700">{notice}</div>
+      )}
+
+      {mode === "signup" && !IS_STANDALONE ? (
         <div className="space-y-4 text-center">
           <p className="text-sm text-zinc-600">
             이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다.
@@ -135,7 +148,7 @@ function LoginCard() {
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <>
-                로그인
+                {mode === "signup" ? "가입하기" : "로그인"}
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
               </>
             )}
@@ -143,7 +156,7 @@ function LoginCard() {
         </form>
       )}
 
-      <p className="mt-8 text-center text-[10.5px] leading-5 tracking-wide text-zinc-400">
+      {!IS_STANDALONE && <p className="mt-8 text-center text-[10.5px] leading-5 tracking-wide text-zinc-400">
         계속 진행함으로써 귀하는 당사의{" "}
         <a href={`${MAIN_SITE_URL}/terms`} target="_blank" rel="noreferrer" className="font-medium text-zinc-600 hover:text-zinc-800 hover:underline">
           이용약관
@@ -153,7 +166,7 @@ function LoginCard() {
           개인정보 처리방침
         </a>
         에 동의하게 됩니다.
-      </p>
+      </p>}
     </div>
   );
 }

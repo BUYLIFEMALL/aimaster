@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 // 딥링크(예: /candidates/123)로 바로 들어왔다가 로그인이 필요해서 /login으로 튕겨나갈 때,
 // 로그인 후 원래 보려던 그 페이지로 바로 돌아올 수 있게 하기 위한 것이다. 서버
@@ -11,7 +12,8 @@ const NEW_ORIGIN = "https://auto-instagram-posting.buylife.xyz";
 
 export function proxy(request: NextRequest) {
   const reqHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
-  if (reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
+  // 독립 운영 복사본(수강생 *.vercel.app)에서는 buylife.xyz로 보내지 않는다(2026-10-18)
+  if (!IS_STANDALONE && reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
     return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
   }
   const requestHeaders = new Headers(request.headers);

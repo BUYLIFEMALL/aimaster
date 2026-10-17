@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 // 이 앱(insta_auto_poster)은 AIMaster와 같은 Supabase 프로젝트를 공유한다.
 // 로그인 여부만으로는 부족하고, AIMaster의 programs/subscriptions/user_program_access
@@ -31,6 +32,8 @@ const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[01
 
 export async function requireProgramAccess() {
   const user = await requireUser();
+  // 독립 운영 모드(강의용 설치 키트, 2026-10-18): 수강생 본인 사이트라 로그인한 본인은 바로 사용한다(등급·구독·핸드폰 판정 없음).
+  if (IS_STANDALONE) return user;
   const supabase = (await createClient()) as unknown as SupabaseLike;
 
   // 정지된 계정은 구독/개별부여/등급과 무관하게 모든 프로그램 접근을 막는다.
@@ -80,7 +83,8 @@ export async function requireProgramAccess() {
     .select("expires_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
-    .maybeSingle();
+    .maybeSingle();
+
 
   // 3. 등급 제한이 없는 프로그램이면 로그인 사용자 전체 허용
   if (!program.required_grade_id) return user;
@@ -168,6 +172,8 @@ export async function checkProgramAccessApi(): Promise<
   if (!user) {
     return { allowed: false, error: "로그인이 필요합니다.", status: 401 };
   }
+  // 독립 운영 모드(강의용 설치 키트, 2026-10-18): 로그인만 확인한다.
+  if (IS_STANDALONE) return { allowed: true, user };
 
   const sb = supabase as unknown as SupabaseLike;
 
@@ -215,7 +221,8 @@ export async function checkProgramAccessApi(): Promise<
     .select("expires_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
-    .maybeSingle();
+    .maybeSingle();
+
 
   if (!program.required_grade_id) return { allowed: true, user };
 

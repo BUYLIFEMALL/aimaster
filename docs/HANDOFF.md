@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 강의용 독립 설치 키트: Threads 콘텐츠 운영 자동화 + INSTA 포스팅 자동화 (버전·배포 없음)
+
+- **대상**: `threads-content-ops/`, `insta_auto_poster/`, 루트 `scripts/make_lecture_kit.py`
+- **결과물**: `D:\PDS\AIMaster_lecture_kit_20261018.zip`(179개 파일, 약 3.9MB) — 수강생이 압축을 풀어 본인 Supabase·Vercel·Meta 계정으로 설치. 윈도우(`KIT\setup.ps1`)·맥(`bash KIT/setup.sh`) 공통.
+- **한 일**: 독립 운영 모드(`NEXT_PUBLIC_STANDALONE_MODE=true`일 때만: 로그인만으로 사용, 자체 회원가입, 콜백 주소 `NEXT_PUBLIC_SITE_URL` 기준, AIMaster 링크·리디렉션 숨김, 화면 이름 `NEXT_PUBLIC_BRAND_NAME`) · 각 `KIT/`(설치 안내·플랫폼별 키 발급·새 DB 구조 `schema.sql`·설치 스크립트·환경변수 예시) · 묶음 스크립트.
+- **검수**: 두 프로그램 `tsc` 통과, 쓰레드 `npm test` 28/28, 인스타 `test:own-meta` 통과, `schema.sql` PGlite 2회 실행 통과, 압축을 새 폴더에 풀어 `npm install`·`npm run build` 통과(인스타는 윈도우 긴 경로에서 실패 → 짧은 경로 통과, 안내 추가). **실제 Meta 연결·게시 시험은 못 함**(수강생 계정 없음).
+- **쇼핑제휴 미연동 확인**: 쿠팡·알리·네이버·토스 연동 없이도 Threads 글 생성·게시 동작(코드 경로 확인).
+- **배포 안 한 이유**: 운영 사이트는 독립 모드 변수가 없어 동작 변화 없음 → 비용 규칙대로 다음 배포 때 함께 나감. **다음 배포자: 두 프로그램 버전 +0.01**(현재 threads v2.04, insta v1.23).
+- **발견**: 인스타 운영 사이트는 예약 게시 실행 장치(Vercel cron·DB cron)가 없음 — 예약 글이 안 나감(현재 밀린 글 0건). `insta_auto_poster/docs/IMPROVEMENTS.md` 2026-10-18, 주인님 확인 필요.
+- **상세**: 각 폴더 `AGENTS.md` 2026-10-18 「강의용 독립 설치 키트」 항목, 키트 안내 `KIT/README.md`.
+- **프로그램 링크**:
+  - https://threads-content-ops.buylife.xyz
+  - https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — 네이버 블로그 올인원 자동화 v1.49: 플로우 위저드 라이트 스타일 리뉴얼·비주얼 가이드북 신설·크롬확장 일괄동기화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 44개 완료 달성!)
 
 - **대상**: `naver-blog-allinone/` (https://naver-blog-allinone.buylife.xyz, slug: `naver-blog-allinone`)

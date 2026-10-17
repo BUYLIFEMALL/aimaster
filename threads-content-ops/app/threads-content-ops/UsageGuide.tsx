@@ -1,4 +1,5 @@
 "use client";
+import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 
 import React, { useState } from "react";
 import {
@@ -32,7 +33,7 @@ export default function UsageGuide() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [copiedUrl, setCopiedUrl] = useState(false);
 
-  const callbackUrl = "https://www.buylife.xyz/api/threads-content-ops/callback";
+  const callbackUrl = THREADS_CONTENT_OPS_CALLBACK_URI; // 독립 운영 모드면 설치한 사이트 주소(2026-10-18)
 
   const handleCopy = () => {
     navigator.clipboard.writeText(callbackUrl);

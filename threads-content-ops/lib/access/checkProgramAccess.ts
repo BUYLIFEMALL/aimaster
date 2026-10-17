@@ -37,6 +37,7 @@ export interface ProgramAccessResult {
 }
 
 import { hasRegisteredPhone } from "@/lib/utils/phone";
+import { IS_STANDALONE } from "@/threads-content-ops/lib/deployment";
 
 export function isNotExpired(expiresAt: string | null): boolean {
   return !expiresAt || new Date(expiresAt) > new Date();
@@ -87,6 +88,8 @@ export async function checkProgramAccess(
   userId: string,
   programSlug: string
 ): Promise<ProgramAccessResult> {
+  // 독립 운영 모드(강의용 설치 키트, 2026-10-18): 수강생 본인 사이트라 로그인한 본인은 바로 사용한다(등급·구독·핸드폰 판정 없음).
+  if (IS_STANDALONE) return { allowed: true, reason: "no_restriction", programId: null };
   const { data: profile } = await supabase
     .from("profiles")
     .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")

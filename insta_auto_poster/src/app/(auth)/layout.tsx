@@ -1,3 +1,4 @@
+import { BRAND_NAME, IS_STANDALONE } from "@/lib/deployment";
 // 로그인·회원가입 화면 공통 틀 — 모든 프로그램 같은 레이아웃(2026-10-01 주인님 지시, 기준: ai-auto-blog/app/auth).
 // 격자 배경 + 파란 프로그램 이름 + 안내 문구. 카드(로그인 폼)는 각 페이지가 그린다.
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -11,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-[440px]">
         <div className="mb-8 flex flex-col items-center text-center">
           <h1 className="mb-1 text-3xl font-extrabold tracking-tight text-[#005acc]">INSTA 포스팅 자동화</h1>
-          <p className="text-sm font-medium text-zinc-500">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
+          <p className="text-sm font-medium text-zinc-500">{IS_STANDALONE ? `${BRAND_NAME ? `${BRAND_NAME} · ` : ""}이메일·비밀번호로 로그인하세요.` : "AIMaster 계정(이메일·비밀번호)으로 로그인하세요."}</p>
         </div>
         {children}
       </div>

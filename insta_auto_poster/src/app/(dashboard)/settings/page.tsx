@@ -7,7 +7,8 @@ import { CopyAddress } from "@/components/settings/CopyAddress";
 import { Button } from "@/components/ui/Button";
 import { connectInstagramAccountAction, disconnectInstagramAccountAction } from "@/lib/actions/accounts";
 import type { ApiKeyProvider } from "@/types/database.types";
-import { FACEBOOK_REDIRECT_NEW, FACEBOOK_REDIRECT_OLD, INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import { FACEBOOK_REDIRECT_NEW, FACEBOOK_REDIRECT_OLD, INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD, SITE_ORIGIN } from "@/lib/oauthRedirect";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const AUTH_METHOD_LABELS: Record<string, string> = {
   facebook_login: "Facebook 계정 연동",
@@ -118,7 +119,7 @@ export default async function SettingsPage({
           <ol className="space-y-3.5 text-xs text-slate-200">
             <li className="space-y-1.5 bg-[#0d0f17]/70 p-3 rounded-xl border border-[#262c3d]">
               <p className="font-semibold text-slate-200">① 앱 설정 › 기본 설정 › 앱 도메인</p>
-              <CopyAddress value="buylife.xyz" />
+              <CopyAddress value={IS_STANDALONE ? new URL(SITE_ORIGIN).host : "buylife.xyz"} />
               {oldHost && <CopyAddress value={oldHost} />}
             </li>
             <li className="space-y-1.5 bg-[#0d0f17]/70 p-3 rounded-xl border border-[#262c3d]">
@@ -338,11 +339,15 @@ export default async function SettingsPage({
               이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할 수 있습니다.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {GUIDE_LINKS.map((guide) => (
-              <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
-            ))}
-          </div>
+          {IS_STANDALONE ? (
+            <p className="text-xs text-slate-300">설치 키트의 <code>KIT/PLATFORMS.md</code>에 플랫폼별 가입·키 발급 방법이 있습니다.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {GUIDE_LINKS.map((guide) => (
+                <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

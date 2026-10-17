@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-18 — 윈도우에서 폴더 경로가 길면 Next 16 Turbopack 빌드가 `file is too long, and could not be normalized`로 실패 (insta_auto_poster 강의 키트, Claude Code 윈도우)
+- **증상**: 키트를 임시 폴더 깊은 곳(`...\Temp\claude\...\scratchpad\kit_test\...`)에 풀어 `npm run build` → `TurbopackInternalError`, "지정된 경로를 찾을 수 없습니다(os error 3)". 같은 위치의 threads-content-ops(Next 14)는 통과.
+- **원인**: 윈도우 경로 길이 한도 + `ADMINI~1` 같은 짧은 이름 경로. 소스 문제 아님.
+- **해결**: `D:\kt\insta`처럼 짧은 경로로 옮기면 그대로 통과. 수강생 안내(KIT/README 1단계·문제 해결 표, `00_START_HERE.md`)에 "짧은 경로" 안내 추가.
+- **다음부터**: Next 16 프로그램을 윈도우에서 빌드 시험할 때 깊은 임시 폴더를 쓰지 말고 짧은 경로에서 한다. 이 오류를 보면 경로부터 의심한다.
+
 ## 2026-10-18 — 설정은 맞는데 tsc가 같은 오류를 계속 냄 → 오래된 `tsconfig.tsbuildinfo` 캐시 (threads-content-ops, Claude Code 윈도우)
 - **증상**: target es2022인데 TS2802(downlevelIteration) 오류. `npm run build`는 성공.
 - **원인**: 폴더를 옮기거나 프로젝트를 분리하면서 남은 증분 검사 캐시가 옛 설정의 오류 결과를 계속 돌려줌.

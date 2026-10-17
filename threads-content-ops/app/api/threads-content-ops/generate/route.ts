@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { verifyPersonalAccessTokenWithProgramAccess } from "@/lib/personalAccessTokenAuth";
 import { createServiceClient } from "@/lib/supabase/service";
+import { BRAND_NAME } from "@/threads-content-ops/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
   const serviceClient = createServiceClient();
   const apiKey = await resolveApiKey(serviceClient, authorization.token.userId, "openai");
   if (!apiKey) {
-    return NextResponse.json({ error: "OPENAI_API_KEY_REQUIRED", message: "AIMaster API키등록·플랫폼연동에서 본인의 OpenAI API 키를 먼저 등록해 주세요." }, { status: 400 });
+    return NextResponse.json({ error: "OPENAI_API_KEY_REQUIRED", message: `${BRAND_NAME ? `${BRAND_NAME} ` : ""}API키등록·플랫폼연동에서 본인의 OpenAI API 키를 먼저 등록해 주세요.` }, { status: 400 });
   }
 
   let upstream: Response;

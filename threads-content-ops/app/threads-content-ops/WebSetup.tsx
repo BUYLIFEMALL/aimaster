@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2, ExternalLink } from "lucide-react";
+import { IS_STANDALONE } from "@/lib/deployment";
 import {
   deleteMemberCredential,
   disconnectThreadsAccount,
@@ -217,7 +218,7 @@ export default function WebSetup({
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
       <h2 className="mb-1 text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
       <p className="mb-4 text-xs text-neutral-500">API 키와 플랫폼 연동 방법을 새 창에서 확인할 수 있습니다.</p>
-      <div className="flex flex-wrap gap-2">{GUIDES.map(([id, label]) => <button key={id} onClick={() => window.open(`/guides/${id}`, "_blank", "noopener,noreferrer")} className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-700 hover:bg-neutral-50">{label}<ExternalLink size={13} /></button>)}</div>
+      {IS_STANDALONE ? <p className="text-xs text-neutral-600">설치 키트의 <code>KIT/PLATFORMS.md</code>에 플랫폼별 가입·키 발급 방법이 있습니다.</p> : <div className="flex flex-wrap gap-2">{GUIDES.map(([id, label]) => <button key={id} onClick={() => window.open(`/guides/${id}`, "_blank", "noopener,noreferrer")} className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-700 hover:bg-neutral-50">{label}<ExternalLink size={13} /></button>)}</div>}
     </section>
 
     {message && <p className="text-sm text-neutral-700" role="status">{message}</p>}

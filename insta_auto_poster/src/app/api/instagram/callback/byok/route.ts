@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { exchangeInstagramCode, exchangeForLongLivedToken, getInstagramAccountInfo } from "@/lib/instagram/client";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,7 +18,8 @@ export async function GET(request: NextRequest) {
   // 2026-10-16 도메인 통일(SSO) 콜백: 회원 앱에 등록된 콜백(환경변수, 옛 *.vercel.app 주소)으로 돌아오면 로그인 쿠키가 없으므로
   // 같은 경로·쿼리 그대로 새 주소(https://auto-instagram-posting.buylife.xyz)로 넘겨 거기서 토큰을 교환한다. 교환 시 redirect_uri는 옛 주소 문자열 그대로라 일치 검사 통과.
   // 넘길 때 via=old를 붙여, 새 주소에서 토큰 교환 시 인증 요청에 썼던 옛 콜백 주소를 그대로 쓰게 한다(두 주소 동시 지원).
-  if ((request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "").endsWith(".vercel.app")) {
+  // 독립 운영 복사본(수강생 *.vercel.app)은 자기 주소에서 그대로 교환한다(2026-10-18)
+  if (!IS_STANDALONE && (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "").endsWith(".vercel.app")) {
     const next = new URL(`${SITE_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`);
     next.searchParams.set("via", "old");
     return NextResponse.redirect(next.toString(), 307);

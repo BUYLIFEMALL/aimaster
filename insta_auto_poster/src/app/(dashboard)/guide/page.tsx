@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CopyAddress } from "@/components/settings/CopyAddress";
 import { FACEBOOK_REDIRECT_NEW, INSTAGRAM_REDIRECT_NEW } from "@/lib/oauthRedirect";
 import { APP_VERSION } from "@/lib/version";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -292,7 +293,11 @@ export default function GuidePage() {
           <div className="p-4 rounded-lg bg-[#0d0f17] border border-[#262c3d] space-y-2">
             <h4 className="font-bold text-pink-300 text-xs">Q. 예약 포스팅이 지정한 시간에 자동으로 안 올라가요.</h4>
             <p className="text-xs text-slate-400 leading-relaxed">
-              AIMaster 공통 정책에 따라 <strong>핸드폰 번호가 등록된 회원</strong>에 한해 예약 Cron이 정상 실행됩니다. 메인 사이트 프로필 설정에서 휴대폰 번호를 확인해 주세요.
+              {IS_STANDALONE ? (
+                <>설치한 사이트의 <strong>예약 실행 연결(cron-job.org 등 5분마다 호출)</strong>이 되어 있어야 예약 시간에 올라갑니다. 설치 안내서의 &apos;예약 게시 연결&apos;을 확인해 주세요.</>
+              ) : (
+                <>AIMaster 공통 정책에 따라 <strong>핸드폰 번호가 등록된 회원</strong>에 한해 예약 Cron이 정상 실행됩니다. 메인 사이트 프로필 설정에서 휴대폰 번호를 확인해 주세요.</>
+              )}
             </p>
           </div>
 

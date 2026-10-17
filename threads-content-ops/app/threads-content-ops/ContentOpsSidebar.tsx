@@ -1,4 +1,5 @@
 "use client";
+import { BRAND_NAME, IS_STANDALONE } from "@/threads-content-ops/lib/deployment";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -67,12 +68,16 @@ export default function ContentOpsSidebar({ email, isMobile = false, onCloseMobi
             {APP_VERSION}
           </span>
         </div>
-        <Link
-          className="mt-2.5 inline-block text-xs font-medium text-neutral-500 transition hover:text-neutral-900"
-          href="https://www.buylife.xyz/programs"
-        >
-          ← 다른 프로그램 보기
-        </Link>
+        {/* 독립 운영 모드(강의용 설치 키트)에서는 AIMaster 카탈로그 링크 대신 수강생 브랜드 이름을 보여 준다 */}
+        {IS_STANDALONE && BRAND_NAME && <p className="mt-2.5 text-xs font-medium text-neutral-500">{BRAND_NAME}</p>}
+        {!IS_STANDALONE && (
+          <Link
+            className="mt-2.5 inline-block text-xs font-medium text-neutral-500 transition hover:text-neutral-900"
+            href="https://www.buylife.xyz/programs"
+          >
+            ← 다른 프로그램 보기
+          </Link>
+        )}
       </div>
 
       {/* 2. 네비게이션 메뉴 (스크롤 대응) */}

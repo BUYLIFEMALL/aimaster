@@ -3,7 +3,8 @@
 // 설정은 루트 next.config.mjs의 동작(라우터 캐시 끔, 공용 Storage 이미지, no-store 헤더)을 그대로 따른다.
 const nextConfig = {
   experimental: { staleTimes: { dynamic: 0 } },
-  images: { remotePatterns: [{ protocol: "https", hostname: "esgxyikcnnvmlhygjkth.supabase.co" }] },
+  // 독립 운영 복사본은 수강생 본인 Supabase 주소를 쓰므로 *.supabase.co 전체 허용(2026-10-18)
+  images: { remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }] },
   headers: async () => [
     { source: "/:path*", headers: [{ key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" }] },
   ],

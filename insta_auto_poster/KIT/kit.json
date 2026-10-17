@@ -1,0 +1,5 @@
+{
+  "title": "INSTA 포스팅 자동화",
+  "shortName": "insta",
+  "callbackPath": "/api/instagram/callback/byok"
+}

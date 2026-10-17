@@ -1,4 +1,5 @@
 "use client";
+import { BRAND_NAME, IS_STANDALONE } from "@/lib/deployment";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -53,12 +54,16 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             {APP_VERSION}
           </span>
         </div>
-        <a
-          href="https://www.buylife.xyz/programs"
-          className="mt-2 block text-xs text-slate-400 hover:text-slate-200 transition-colors"
-        >
-          ← 다른 프로그램 보기
-        </a>
+        {/* 독립 운영 모드(강의용 설치 키트)에서는 AIMaster 카탈로그 링크 대신 수강생 브랜드 이름을 보여 준다 */}
+        {IS_STANDALONE && BRAND_NAME && <p className="mt-2 text-xs text-slate-400">{BRAND_NAME}</p>}
+        {!IS_STANDALONE && (
+          <a
+            href="https://www.buylife.xyz/programs"
+            className="mt-2 block text-xs text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            ← 다른 프로그램 보기
+          </a>
+        )}
       </div>
 
       <Link

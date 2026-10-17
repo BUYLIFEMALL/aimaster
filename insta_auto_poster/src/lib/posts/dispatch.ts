@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publishPost } from "@/lib/posts/publish-core";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 /** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
 async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
@@ -45,7 +46,8 @@ async function dispatchDuePosts(
   const results: DispatchResult[] = [];
 
   // 핸드폰 번호 필수 정책(2026-10-12): 외부 스케줄러가 전체 회원 대상으로 호출할 때는 번호가 없는 회원의 예약글을 올리지 않는다.
-  const phoneOkUsers = userId ? null : await phoneRegisteredUserIds(supabase, (duePosts ?? []).map((p) => p.user_id));
+  // 독립 운영 모드(강의용 설치 키트, 2026-10-18)는 핸드폰 입력 화면이 없으므로 이 조건을 적용하지 않는다.
+  const phoneOkUsers = userId || IS_STANDALONE ? null : await phoneRegisteredUserIds(supabase, (duePosts ?? []).map((p) => p.user_id));
   for (const post of (duePosts ?? []).filter((p) => !phoneOkUsers || phoneOkUsers.has(p.user_id))) {
     const { data: account } = await supabase
       .from("insta_accounts")

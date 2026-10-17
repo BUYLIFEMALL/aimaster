@@ -103,3 +103,17 @@
 - 증상: `npm run test:own-meta`가 `getFacebookAuthorizeUrl(state: string, appId: string)` 글자 그대로 찾다 실패.
 - 원인: 2026-10-16 옛 vercel.app 주소 정리 대비(두 콜백 주소 지원)로 `getFacebookAuthorizeUrl`·`exchangeFacebookCode`에 `redirectUri` 인자가 추가됐는데 시험은 옛 모양을 검사. 실제 코드는 정상(회원 본인 앱 ID·시크릿 사용 그대로).
 - 해결: `scripts/test-own-meta-app.cjs`가 본인 앱 ID·시크릿 인자는 그대로 확인하고 그 뒤 추가 인자는 허용 → `own meta app ok`. Antigravity의 v1.23 작업 종료(커밋 `f5fdf6da`) 확인 후 진행.
+
+## 2026-10-18 — 강의용 독립 설치 키트(독립 운영 모드·KIT/·설치 스크립트) (Claude Code 윈도우, 버전·배포 없음)
+
+- **배경**: 주인님 강의(2026-10-18)에서 수강생이 이 프로그램을 **본인 계정(Supabase·Vercel·Meta)에 독립 설치**해 실제 포스팅까지 쓰도록 하기 위한 설치 키트. AIMaster와 연결 없음, 화면 이름은 수강생 이름/브랜드.
+- **독립 운영 모드**: 환경변수 `NEXT_PUBLIC_STANDALONE_MODE=true`일 때만 동작(패턴 출처 threads-affiliate-poster `deployment.ts`). 운영 사이트(AIMaster)는 이 변수가 없어 **동작 변화 없음** — 그래서 이번에는 배포·버전 변경 없이 커밋만 하고, 다음 배포 때 함께 나간다(2026-10-17 비용 절감 규칙). **다음 배포자는 버전 +0.01 하고 이 항목을 버전 기록에 넣을 것.**
+  - `src/lib/deployment.ts`(새 파일): `IS_STANDALONE`·`SITE_URL`·`BRAND_NAME`·`brandTitle()`
+  - 독립 모드에서: 권한 판정은 로그인만 확인(구독·등급·핸드폰 없음), 자체 로그인·회원가입 화면, OAuth 콜백 주소는 `NEXT_PUBLIC_SITE_URL` 기준, buylife.xyz로 보내는 리디렉션·"다른 프로그램 보기" 링크·AIMaster 매뉴얼 버튼·약관 링크 숨김, 화면 제목·좌측 메뉴에 `NEXT_PUBLIC_BRAND_NAME` 표시.
+- **키트 파일(`KIT/`)**: `README.md`(설치 안내 0~9단계) · `PLATFORMS.md`(플랫폼별 가입·키 발급) · `schema.sql`(운영 DB 카탈로그에서 구조만 뽑아 만든 새 DB용 전체 구조 — PGlite로 두 번 실행해 재실행 안전 확인, 테이블 12·정책 32·`insta-post-images` 버킷) · `setup.ps1`/`setup.sh`(윈도우/맥 대화형 설치: npm install → `.env.local` 생성(CRON_SECRET 자동) → 빌드 → Vercel 로그인·연결·환경변수 등록·배포) · `env.example` · `kit.json`
+- **묶음 만들기**: 루트 `python scripts/make_lecture_kit.py` → `D:\PDS\AIMaster_lecture_kit_YYYYMMDD.zip`(두 프로그램 + `00_START_HERE.md`, `.env*`·`node_modules`·`.next`·`.vercel`·내부 문서·`supabase/`·`scripts/` 제외). 소스·KIT를 고치면 이 스크립트를 다시 돌린다.
+- **예약 게시**: Vercel 무료 플랜은 하루 1번 cron만 허용 → 수강생은 cron-job.org로 `/api/posts/dispatch-scheduled`(5분)를 `Authorization: Bearer CRON_SECRET` 헤더와 함께 호출.
+- **검수**: `tsc` 통과, 기존 시험 `test:own-meta` 통과, 압축을 새 폴더에 풀어 독립 모드 가짜 설정으로 `npm install`·`npm run build` 통과(단, 윈도우에서 폴더 경로가 아주 길면 Turbopack `file is too long`으로 빌드 실패 — 짧은 경로 `D:\kt`에서는 통과, KIT/README 문제 해결 표에 안내 추가). **실제 Meta 계정 연결·게시는 시험하지 않음**(수강생 계정 없음) — 강의 때 첫 수강생 설치에서 확인 필요.
+
+- **바뀐 파일**: `src/lib/deployment.ts`(새) · `src/lib/oauthRedirect.ts` · `src/proxy.ts`·두 Instagram 콜백(독립 모드에서 buylife 리디렉션 안 함) · `src/lib/access.ts` · `src/lib/actions/auth.ts`(`signUpAction`) · `(auth)/login`·`signup`·`layout` · `settings/page.tsx`·`guide/page.tsx` · `Sidebar.tsx` · `app/layout.tsx` · `src/lib/posts/dispatch.ts`(독립 모드는 핸드폰 조건 건너뜀 — 없으면 수강생 사이트 예약 글이 영원히 안 나감)
+- **발견(미처리)**: 운영 사이트에는 `dispatch-scheduled`를 부르는 Vercel cron이 없음 → DB `cron.job`에도 없음 → 운영 예약 게시가 실행되지 않음(밀린 글 0건, `docs/IMPROVEMENTS.md` 2026-10-18 항목, 주인님 확인 필요).
