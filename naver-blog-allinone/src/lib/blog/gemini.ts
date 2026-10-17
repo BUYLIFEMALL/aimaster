@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-nano-banana-2.1·gemini-nano-banana-2.1·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 회원 본인의 Gemini 키로 브라우저에서 직접 호출한다(이 프로그램의 기존 방식: 키는 이 브라우저에만 보관된다).
 // 키는 요청 헤더로만 보내고 오류 문구에는 넣지 않는다.
 import { finalizePrompt } from "./imagePlan";
@@ -40,10 +42,10 @@ export interface GeneratedImage {
 
 // 나노바나나 모델 설정(naver-blog-agent 의 imageGenerator 와 같은 값)
 export const NANO_BANANA: Record<string, { model: string; size: "1K" | "2K" | "4K"; temperature: number }> = {
-  nanobanana: { model: "gemini-2.5-flash-image", size: "1K", temperature: 0.7 },
-  "nanobanana-2-2k": { model: "gemini-3.1-flash-image", size: "2K", temperature: 0.7 },
-  "nanobanana-2-4k": { model: "gemini-3.1-flash-image", size: "4K", temperature: 0.7 },
-  "nanobanana-pro": { model: "gemini-3.1-flash-image", size: "4K", temperature: 0.4 },
+  nanobanana: { model: "gemini-3.1-flash-lite-image", size: "1K", temperature: 0.7 },
+  "nanobanana-2-2k": { model: "gemini-nano-banana-2.1", size: "2K", temperature: 0.7 },
+  "nanobanana-2-4k": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.7 },
+  "nanobanana-pro": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.4 },
 };
 
 /** 나노바나나(Gemini 이미지)로 이미지 1장을 만든다. */
