@@ -1,6 +1,7 @@
 # 맥미니 Claude Code 세션 재시작 인수인계 (2026-10-17)
 
 > **목적**: 맥미니(원격지)에서 Claude Code가 하던 「디자인 리뉴얼 순차 작업」을, 다음에 **다른 계정·다른 CLI(Codex·Antigravity·윈도우 Claude 포함)** 가 이어받아도 그대로 재개할 수 있게 작업 환경·작업 방식·이력·남은 일을 한곳에 정리한다.
+> **세 CLI 공통 작업 지침은 [`MAC_MINI_AGENT_PLAYBOOK.md`](MAC_MINI_AGENT_PLAYBOOK.md)** — 이 문서는 그 지침으로 실제 진행한 기록·남은 일이다.
 > 작성: Claude Code(맥미니), 2026-10-17 · 장비 기본 설정은 [`MAC_MINI_WORK_GUIDE.md`](MAC_MINI_WORK_GUIDE.md)가 기준이고, 이 문서는 **실제로 어떻게 작업했는지**를 덧붙인다.
 
 ---

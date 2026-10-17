@@ -1,5 +1,6 @@
 # 맥미니 원격 작업 지침 (MAC_MINI_WORK_GUIDE.md)
 
+> **▶ 맥미니 작업 플레이북(2026-10-17, 세 CLI 공통)**: 하는 일/윈도우에 요청할 일/여쭐 일·표준 작업 루프·커밋 방법·CLI별 브라우저는 [`MAC_MINI_AGENT_PLAYBOOK.md`](MAC_MINI_AGENT_PLAYBOOK.md).
 > **▶ 맥미니에서 다시 시작할 때(2026-10-17 추가)**: 직전 Claude Code 맥미니 세션의 실제 작업 방식·환경 값·이력·남은 일은 [`MAC_MINI_CLAUDE_RESUME_20261017.md`](MAC_MINI_CLAUDE_RESUME_20261017.md), 커밋은 [`scripts/mac-mini/commit-gate.sh`](../scripts/mac-mini/commit-gate.sh)(내 파일만·공용 문서는 HEAD+내 변경만).
 
 > **적용 대상: 맥미니에서 이 저장소를 네트워크 공유(SMB)로 열어 작업하는 모든 에이전트 세션(Antigravity CLI·Codex·Claude Code). (2026-10-16 개정)**
@@ -134,4 +135,5 @@ alias aagy='aim-check && agy'
 ### 6-6. 아직 실측하지 않은 것 (확인되면 이 줄을 고친다)
 - `agy`의 작업 폴더 지정 옵션: 미확인이라 `cd` 후 실행으로 적었다(`agy --help`에 옵션이 있으면 써도 된다).
 - 맥미니 Finder 재연결 시 마운트 이름이 `gt1_mega`로 유지되는지.
+- (2026-10-17 실측) `claude`·`codex`·`agy` 모두 설치됨, Claude Code는 이 방식으로 디자인 리뉴얼 15건 완료. **Microsoft Edge 미설치** → Codex·Antigravity 화면 검수 전 설치 필요.
 - 세 CLI를 이 방법으로 실행한 실제 결과(2026-10-16 작성 시점에는 윈도우에서 정리만 함). 실측 후 결과를 이 절에 적는다.

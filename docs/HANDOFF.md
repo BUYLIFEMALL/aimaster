@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 맥미니 에이전트 작업 플레이북(세 CLI 공통)
+
+- **새 문서**: [`docs/MAC_MINI_AGENT_PLAYBOOK.md`](MAC_MINI_AGENT_PLAYBOOK.md) — 원격 작업 공간 요약, 맥미니에서 하는 일/윈도우에 요청할 일/주인님께 여쭐 일, CLI별 브라우저, 커밋 스크립트 사용법, 표준 작업 루프, 보고 규칙, 막혔을 때.
+- **연결**: `CLAUDE.md`·`AGENTS.md`(원칙 18 두 PC 항목 아래 한 줄), `GEMINI.md`(두 PC 멀티 작업 줄), `docs/MAC_MINI_WORK_GUIDE.md` 맨 위·§6-6, 재시작 문서.
+- **실측(2026-10-17)**: 맥미니에 `claude`·`codex`·`agy` 설치됨, **Microsoft Edge 미설치** → Codex·Antigravity 화면 검수 전에 주인님께 설치 요청 필요.
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — AI 인플루언서 자동화 v1.10: 크리에이티브 아틀리에(핑크 화보 스튜디오) 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `ai-influencer-studio/` (https://ai-influencer.buylife.xyz)
