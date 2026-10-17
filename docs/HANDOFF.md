@@ -1,5 +1,42 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — AI 인플루언서 자동화 v1.10: 크리에이티브 아틀리에(핑크 화보 스튜디오) 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `ai-influencer-studio/` (https://ai-influencer.buylife.xyz)
+- **배경**: 
+  - 맥미니 CLI가 크리에이티브 아틀리에 「핑크 화보 스튜디오」 다크 테마(`if-*` 토큰, 5단계 스텝퍼, 우측 미리보기 한글 캔버스·5단계 칩, 화면 안 인라인 매뉴얼 `GuideView.tsx` 신규, 팝업 매뉴얼 정리)를 구현하고 커밋 `74994caf`로 푸시 후 윈도우 마무리 작업을 요청함.
+- **한 일**:
+  1. 로컬 Turbopack 프로덕션 빌드 성공 (`npm run build`).
+  2. Vercel 프로덕션 배포 완료: `dpl_HuUxfnhtPzEhFCc6ATcBxRPnYGSg` → alias `ai-influencer.buylife.xyz` 최신 연결 확인.
+  3. Supabase DB `programs` 테이블에서 `slug = 'ai-influencer-studio'`의 `version = 'v1.10'` 갱신 완료.
+  4. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 테스트 계정(`buylifemall@naver.com`) 환경에서 데스크톱(1440px) 및 모바일(390px) 실세션 검수 통과.
+     - 메인 작업대: 미드나잇 다크(`#090a10`) 캔버스, 5단계 스텝퍼(외형·일과·표정·광고·화보), 우측 한글 미리보기 캔버스(카메라 아바타, 5단계 칩) 정상 노출.
+     - 화면 안 매뉴얼(`GuideView.tsx`): 화보 매니저 캐릭터 말풍선, 5단계 사용 순서, 기능 상세(일과 플래닝, 광고/공구 모드 5종 등), 팁, 자주 묻는 질문(FAQ) 아코디언 정상 렌더링. 입력값 유지 확인.
+     - 캡처 보존: `edge_ai_influencer_*_v110.png`.
+     - 실제 Edge 창을 띄워 사용자 화면에 유지 완료.
+     - 주의사항 준수: 「이미지 생성」 버튼 일체 미클릭 (비용 0원).
+  5. 현황판 및 인수인계 문서 갱신:
+     - `DESIGN.md` 15번 상태: `✅ 1차 작업완료 (v1.10, 크리에이티브 아틀리에 스타일)` 갱신.
+     - `DESIGN.md` 상단 상태 요약: `✅ 37개 · ⚪ 44개 · 🟠 0개 · ⏸ 2개 — 총 83개` 최신 전수 집계 동기화.
+     - `ai-influencer-studio/docs/IMPROVEMENT_HANDOFF_20261017.md` 갱신.
+     - `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **현황판 상태 요약 (총 83개)**:
+  - ✅ **1차 작업완료**: **37개**
+  - 🟠 **윈도우 마무리 대기**: **0개**
+  - ⚪ **작업 예정**: **44개**
+  - ⏸ **보류**: **2개**
+- **링크**:
+  - https://ai-influencer.buylife.xyz
+- **비용**: 0원 (유료 API 호출 없음).
+
+## 2026-10-18 Claude Code(윈도우) — 이미지 시간 초과 자동 재시도 중단(이중 과금 방지) · 사본 30곳 재배포
+
+- **한 일**: 공용 기준 `ai-image-studio/lib/providers/geminiImage.ts`가 시간 초과(TIMEOUT)는 자동으로 다시 보내지 않고 바로 안내하도록 변경(서버 오류·혼잡·연결 실패만 1회 재시도). 시간 초과여도 구글 쪽에서 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 자동 재시도가 이중 과금 원인이 될 수 있었음. 테스트: 시간 초과 요청 1회·연결 실패 2회 확인. `--sync`로 사본 30곳 반영.
+- **버전(코드+DB)**: ai-image-studio v1.17 · ai-auto-blog v1.73 · tistory v1.80 · seo-studio v1.72 · poster_app v1.11 · poster-web v1.12 · shots v1.15 · insta v1.21 · threads v1.15 · threads-affiliate v1.60 · cafe v1.14 · threads-content-ops v2.03 · kakao v1.15 · stepmail v1.15 · auto-detail-page v1.12 · tarot v1.12 · mbti v1.13 · music v1.15 · naver-blog-agent v1.92 · allinone v1.47 · cardnews v1.13 · style-dna v1.20 · shop-detail v1.13 · blog-content-maker v1.08 · blog-workroom v1.10 · music-video v1.09 · emotion-writer v1.13 · photo-remake v1.07 · shorts-onestop v1.17 · seo-thumbnail-pro v1.08 (blog_auto_poster는 사본만). 이미 `retries: 0`인 6곳은 동작 변화 없음.
+- **검수**: 기준 테스트 8개 통과, `check-shared-modules` 전부 OK, Vercel 31곳 종료 코드 0, DB 30곳, 확장 7곳 `check-extension-release` 실패 0, 크롬 화면 버전 28곳(poster_app·poster-web은 비공개 404 → `vercel inspect` production·Ready). 실제 이미지 생성 시험 없음.
+- **다음 첫 단계**: 제안 2번 — 시간 초과 안내에 프로그램별 「결과 확인 위치(보관함 등)」 링크 버튼.
+
 ## 2026-10-17 Claude Code(맥미니) — 세션 휴식: 재시작 인수인계 문서 작성
 
 - **재시작 문서**: [`docs/MAC_MINI_CLAUDE_RESUME_20261017.md`](MAC_MINI_CLAUDE_RESUME_20261017.md) — 맥미니 원격 작업 환경(SMB 공유·보조 계정 한시 예외·tsc만·DB 읽기·Vercel 403·맥미니 크롬 시험 계정), 작업 루프(플랜→승인→구현→🟠→윈도우 배포→크롬 확인), 이번 세션 이력 15건, 디자인 토큰 계열, 배운 점, 남은 일.
