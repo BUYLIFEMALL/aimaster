@@ -260,9 +260,13 @@ Visual Quality: Photorealistic, pristine studio lighting, crisp sharpness, profe
 
   try {
     const response = await ai.models.generateContent({
-      model: modelType === "nano-banana2" ? "gemini-3-pro-image-preview" : "gemini-2.5-flash",
+      // [이미지 모델 교체 2026-10-17] 3-pro-image-preview → gemini-3-pro-image, 기본은 텍스트 모델(gemini-2.5-flash)이 잘못 들어가 있어
+      // 최저가 이미지 모델 gemini-3.1-flash-lite-image(1K)로 교체, 기준: ai-image-studio v1.11.
+      // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
+      model: modelType === "nano-banana2" ? "gemini-3-pro-image" : "gemini-3.1-flash-lite-image",
       contents: { parts },
       config: {
+        responseModalities: ["IMAGE"],
         imageConfig: {
           aspectRatio: "3:4",
           imageSize: "1K",
@@ -282,23 +286,24 @@ Visual Quality: Photorealistic, pristine studio lighting, crisp sharpness, profe
     console.warn("Primary image model failed, attempting fallback:", err.message);
   }
 
-  // 폴백: imagen-3.0-generate-002
+  // 폴백: 종료된 imagen-3.0-generate-002 대신 gemini-nano-banana-2.1 (2026-10-17 교체, 실제 생성 시험 없음 — 오류 시 그때 검증)
   try {
-    const imagenRes = await ai.models.generateImages({
-      model: "imagen-3.0-generate-002",
-      prompt: enhancedPrompt,
+    const fallbackRes = await ai.models.generateContent({
+      model: "gemini-nano-banana-2.1",
+      contents: { parts: [{ text: enhancedPrompt }] },
       config: {
-        numberOfImages: 1,
-        aspectRatio: "3:4",
-        outputMimeType: "image/jpeg",
+        responseModalities: ["IMAGE"],
+        imageConfig: { aspectRatio: "3:4", imageSize: "1K" },
       },
     });
 
-    if (imagenRes.generatedImages && imagenRes.generatedImages[0]?.image?.imageBytes) {
-      return `data:image/jpeg;base64,${imagenRes.generatedImages[0].image.imageBytes}`;
+    for (const part of fallbackRes.candidates?.[0]?.content?.parts ?? []) {
+      if (part.inlineData?.data) {
+        return `data:${part.inlineData.mimeType || "image/png"};base64,${part.inlineData.data}`;
+      }
     }
   } catch (err: any) {
-    console.warn("Imagen fallback failed:", err.message);
+    console.warn("Image fallback failed:", err.message);
   }
 
   // 추가 폴백: 에러 발생 시 사용자 친화적인 고해상도 프리미엄 SVG 제품 비주얼 카드 생성
