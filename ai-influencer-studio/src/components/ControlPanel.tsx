@@ -269,18 +269,18 @@ export function ControlPanel({
   const selectedAdType = AD_TYPES.find((a) => a.id === config.adType) || AD_TYPES[0];
 
   return (
-    <aside className="w-full lg:w-[460px] xl:w-[490px] bg-white border-r border-slate-200 flex flex-col h-screen shrink-0 overflow-hidden shadow-sm">
+    <aside className="w-full lg:w-[460px] xl:w-[490px] bg-if-surface border-r border-if-border flex flex-col h-screen shrink-0 overflow-hidden shadow-sm">
       {/* 1. 상단 툴바 (도구 아이콘: 가이드 / 설정 / 주사위 랜덤 믹스 / 히스토리) */}
-      <div className="px-5 py-2.5 border-b border-slate-100 flex items-center justify-end bg-white shrink-0">
+      <div className="px-5 py-2.5 border-b border-if-border flex items-center justify-end bg-if-surface shrink-0">
         {/* 우측 툴바 아이콘 도구 */}
         <div className="flex items-center gap-1.5">
           {/* 1. 가이드 (물음표) */}
           <button
             onClick={onOpenHelpModal}
-            className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            className="p-2 rounded-lg text-if-muted hover:text-if-text hover:bg-if-raised transition-colors"
             title="사용 가이드"
           >
-            <HelpCircle className="w-4 h-4 text-slate-600 hover:text-pink-600" />
+            <HelpCircle className="w-4 h-4 text-if-muted hover:text-pink-400" />
           </button>
 
           {/* 2. API 키 / 환경 설정 (톱니바퀴) */}
@@ -288,8 +288,8 @@ export function ControlPanel({
             onClick={onOpenApiKeyModal}
             className={`p-2 rounded-lg border transition-all ${
               hasApiKey
-                ? "text-slate-700 border-slate-200 bg-slate-50 hover:bg-slate-100"
-                : "text-rose-600 border-rose-300 bg-rose-50 hover:bg-rose-100 animate-pulse"
+                ? "text-if-text border-if-border bg-if-raised hover:bg-if-raised"
+                : "text-rose-400 border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 animate-pulse"
             }`}
             title="Gemini API 키 및 설정"
           >
@@ -301,14 +301,14 @@ export function ControlPanel({
             onClick={handleRandomize}
             className={`p-2 rounded-lg border transition-all ${
               isRandomRolling
-                ? "border-pink-400 bg-pink-100 text-pink-700 scale-105 shadow-sm"
-                : "border-slate-200 bg-white hover:border-pink-300 hover:bg-pink-50/50 text-slate-700 hover:text-pink-600 shadow-xs"
+                ? "border-pink-400 bg-pink-500/10 text-pink-300 scale-105 shadow-sm"
+                : "border-if-border bg-if-surface hover:border-pink-500/40 hover:bg-pink-500/20 text-if-text hover:text-pink-400 shadow-xs"
             }`}
             title="랜덤 설정값 옵션 (클릭 시 전체 설정 랜덤 믹스)"
           >
             <Dices
               className={`w-4 h-4 transition-transform duration-500 ${
-                isRandomRolling ? "rotate-180 scale-110 text-pink-600" : ""
+                isRandomRolling ? "rotate-180 scale-110 text-pink-400" : ""
               }`}
             />
           </button>
@@ -316,7 +316,7 @@ export function ControlPanel({
           {/* 4. 작업 히스토리 */}
           <button
             onClick={onOpenHistory}
-            className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors relative"
+            className="p-2 rounded-lg text-if-muted hover:text-if-text hover:bg-if-raised transition-colors relative"
             title="작업 히스토리"
           >
             <Sliders className="w-4 h-4" />
@@ -328,10 +328,10 @@ export function ControlPanel({
       </div>
 
       {/* 2. 전체 옵션 세로 스크롤 영역 (스크린샷 규격과 동일) */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6 text-xs text-slate-700">
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6 text-xs text-if-text">
         {/* [섹션 1] 기본 외형 설정 (2x2 그리드) */}
         <div id="step-1-appearance" className="space-y-3 scroll-mt-4">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-400">
             <User className="w-3.5 h-3.5" />
             <span>기본 외형 설정</span>
           </div>
@@ -339,13 +339,13 @@ export function ControlPanel({
           <div className="grid grid-cols-2 gap-3">
             {/* 성별 */}
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 성별
               </label>
               <select
                 value={config.gender || ""}
                 onChange={(e) => setConfig({ ...config, gender: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">성별 선택...</option>
                 {GENDERS.map((g) => (
@@ -358,13 +358,13 @@ export function ControlPanel({
 
             {/* 국적 */}
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 국적
               </label>
               <select
                 value={config.ethnicity || ""}
                 onChange={(e) => setConfig({ ...config, ethnicity: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">국적 선택...</option>
                 {ETHNICITIES.map((eth) => (
@@ -377,13 +377,13 @@ export function ControlPanel({
 
             {/* 나이 (드롭다운) */}
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 나이
               </label>
               <select
                 value={config.age || ""}
                 onChange={(e) => setConfig({ ...config, age: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">나이 선택...</option>
                 {AGES.map((a) => (
@@ -396,13 +396,13 @@ export function ControlPanel({
 
             {/* 헤어스타일 */}
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 헤어스타일
               </label>
               <select
                 value={config.hairStyle || ""}
                 onChange={(e) => setConfig({ ...config, hairStyle: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
               >
                 <option value="">헤어스타일 선택...</option>
                 {HAIR_STYLES.map((h) => (
@@ -418,7 +418,7 @@ export function ControlPanel({
         {/* [섹션 2] 인플루언서의 하루 (AI 플래닝) */}
         <div id="step-2-routine" className="space-y-2 scroll-mt-4">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1">
+            <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>인플루언서의 하루 (AI 플래닝)</span>
             </span>
@@ -426,7 +426,7 @@ export function ControlPanel({
               type="button"
               onClick={handleRandomRoutine}
               disabled={isPlanningRoutine}
-              className="text-[10px] bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 px-2.5 py-1 rounded-md text-slate-600 border border-slate-200 transition-colors flex items-center gap-1 font-semibold"
+              className="text-[10px] bg-if-raised hover:bg-indigo-500/20 hover:text-indigo-400 px-2.5 py-1 rounded-md text-if-muted border border-if-border transition-colors flex items-center gap-1 font-semibold"
             >
               <Dices className={`w-3 h-3 ${isPlanningRoutine ? "animate-spin" : ""}`} />
               <span>랜덤 일과</span>
@@ -440,7 +440,7 @@ export function ControlPanel({
               value={routineInput}
               onChange={(e) => setRoutineInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handlePlanDay()}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-10 text-xs text-slate-900 focus:border-indigo-500 focus:bg-white outline-hidden transition-all placeholder:text-slate-400"
+              className="w-full bg-if-raised border border-if-border rounded-xl p-2.5 pr-10 text-xs text-if-text focus:border-indigo-500 focus:bg-if-raised outline-hidden transition-all placeholder:text-if-muted"
             />
             <button
               onClick={() => handlePlanDay()}
@@ -459,7 +459,7 @@ export function ControlPanel({
           {/* 기획된 5대 시나리오 칩 */}
           {timelineScenarios.length > 0 && (
             <div className="pt-2 space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-500 block">
+              <span className="text-[10px] font-bold text-if-muted block">
                 기획된 5대 장면 (클릭 시 옵션 자동 세팅)
               </span>
               <div className="grid grid-cols-1 gap-1.5">
@@ -472,15 +472,15 @@ export function ControlPanel({
                       onClick={() => applyScenario(sc)}
                       className={`w-full text-left p-2 rounded-lg border text-[11px] transition-all flex items-center gap-2 ${
                         isSelected
-                          ? "bg-indigo-50 border-indigo-400 text-indigo-900 font-bold"
-                          : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
+                          ? "bg-indigo-500/10 border-indigo-400 text-indigo-300 font-bold"
+                          : "bg-if-surface border-if-border hover:bg-if-raised text-if-text"
                       }`}
                     >
                       <span className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] flex items-center justify-center font-bold shrink-0">
                         {sc.timeOrder}
                       </span>
                       <span className="truncate flex-1">{sc.labelKo}</span>
-                      <span className="text-[10px] text-slate-400 shrink-0">{sc.labelEn}</span>
+                      <span className="text-[10px] text-if-muted shrink-0">{sc.labelEn}</span>
                     </button>
                   );
                 })}
@@ -491,7 +491,7 @@ export function ControlPanel({
 
         {/* [섹션 3] 단일 이벤트 변형 (EVENT VARIATIONS) */}
         <div className="space-y-2">
-          <span className="text-[11px] font-bold text-pink-600 uppercase tracking-wider block">
+          <span className="text-[11px] font-bold text-pink-400 uppercase tracking-wider block">
             단일 이벤트 변형 (EVENT VARIATIONS)
           </span>
           <div className="relative flex items-center">
@@ -501,7 +501,7 @@ export function ControlPanel({
               value={eventInput}
               onChange={(e) => setEventInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handlePlanEvent()}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-10 text-xs text-slate-900 focus:border-pink-500 focus:bg-white outline-hidden transition-all placeholder:text-slate-400"
+              className="w-full bg-if-raised border border-if-border rounded-xl p-2.5 pr-10 text-xs text-if-text focus:border-pink-500 focus:bg-if-raised outline-hidden transition-all placeholder:text-if-muted"
             />
             <button
               onClick={() => handlePlanEvent()}
@@ -523,7 +523,7 @@ export function ControlPanel({
           <div className="flex items-center justify-between">
             <span
               className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-                config.isAdMode ? "text-amber-600" : "text-slate-500"
+                config.isAdMode ? "text-amber-400" : "text-if-muted"
               }`}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
@@ -537,7 +537,7 @@ export function ControlPanel({
               className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
                 config.isAdMode
                   ? "bg-amber-500 border-amber-500 text-white shadow-2xs"
-                  : "border-slate-300 bg-white"
+                  : "border-if-border bg-if-surface"
               }`}
             >
               {config.isAdMode && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -545,10 +545,10 @@ export function ControlPanel({
           </div>
 
           {config.isAdMode && (
-            <div className="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 space-y-3 animate-in fade-in duration-200">
+            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/40 space-y-3 animate-in fade-in duration-200">
               {/* 광고 유형 5개 세로 목록 버튼 */}
               <div className="space-y-1.5">
-                <label className="text-[10px] text-slate-500 font-bold uppercase block">
+                <label className="text-[10px] text-if-muted font-bold uppercase block">
                   광고 유형 (AD TYPE)
                 </label>
                 <div className="space-y-1">
@@ -561,8 +561,8 @@ export function ControlPanel({
                         onClick={() => setConfig({ ...config, adType: ad.id })}
                         className={`w-full text-left px-3 py-2 rounded-lg border text-xs font-semibold transition-all flex items-center justify-between ${
                           isSelected
-                            ? "bg-white border-amber-400 text-amber-900 shadow-2xs ring-1 ring-amber-400"
-                            : "bg-white/80 border-slate-200 text-slate-700 hover:bg-white"
+                            ? "bg-if-surface border-amber-400 text-amber-300 shadow-2xs ring-1 ring-amber-400"
+                            : "bg-if-raised/80 border-if-border text-if-text hover:bg-if-raised"
                         }`}
                       >
                         <span>{ad.labelKo}</span>
@@ -577,15 +577,15 @@ export function ControlPanel({
 
               {/* 선택된 광고 유형 설명 카드 */}
               {selectedAdType && (
-                <div className="p-2.5 rounded-lg bg-amber-100/60 border border-amber-200/80 text-[11px] text-amber-900/90 leading-relaxed flex items-start gap-1.5">
-                  <span className="text-amber-600 font-bold shrink-0 mt-0.5">💡</span>
+                <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/40 text-[11px] text-amber-300 leading-relaxed flex items-start gap-1.5">
+                  <span className="text-amber-400 font-bold shrink-0 mt-0.5">💡</span>
                   <span>{selectedAdType.description}</span>
                 </div>
               )}
 
               {/* 상품명 */}
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-500 font-bold uppercase block">
+                <label className="text-[10px] text-if-muted font-bold uppercase block">
                   상품명 (PRODUCT NAME)
                 </label>
                 <input
@@ -593,15 +593,15 @@ export function ControlPanel({
                   placeholder="예: 루미너스 앰플, 다이어트 쉐이크..."
                   value={config.productName || ""}
                   onChange={(e) => setConfig({ ...config, productName: e.target.value })}
-                  className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full bg-if-surface border border-if-border rounded-lg p-2 text-xs text-if-text focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                 />
               </div>
 
               {/* 상품 사진 (최대 3장) */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-slate-500 font-bold uppercase">상품 사진 (최대 3장)</span>
-                  <span className="text-amber-700 font-semibold">
+                  <span className="text-if-muted font-bold uppercase">상품 사진 (최대 3장)</span>
+                  <span className="text-amber-300 font-semibold">
                     {config.productImages?.length || 0} / 3장
                   </span>
                 </div>
@@ -610,7 +610,7 @@ export function ControlPanel({
                   {config.productImages?.map((img, idx) => (
                     <div
                       key={idx}
-                      className="w-16 h-16 rounded-lg border border-slate-200 bg-white overflow-hidden relative group"
+                      className="w-16 h-16 rounded-lg border border-if-border bg-if-surface overflow-hidden relative group"
                     >
                       <img src={img} alt="제품" className="w-full h-full object-cover" />
                       <button
@@ -628,7 +628,7 @@ export function ControlPanel({
                   ))}
 
                   {(config.productImages?.length || 0) < 3 && (
-                    <label className="w-16 h-16 rounded-lg border-2 border-dashed border-amber-300 bg-white hover:bg-amber-50 flex flex-col items-center justify-center cursor-pointer transition-colors text-amber-600">
+                    <label className="w-16 h-16 rounded-lg border-2 border-dashed border-amber-500/40 bg-if-surface hover:bg-amber-500/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-amber-400">
                       <Upload className="w-4 h-4 mb-0.5" />
                       <span className="text-[10px] font-bold">+ 추가</span>
                       <input
@@ -648,7 +648,7 @@ export function ControlPanel({
 
         {/* [섹션 5] 일관성 유지 (레퍼런스 이미지) */}
         <div className="space-y-3">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-400">
             <Camera className="w-3.5 h-3.5" />
             <span>일관성 유지 (레퍼런스 이미지)</span>
           </div>
@@ -656,11 +656,11 @@ export function ControlPanel({
           <div className="grid grid-cols-2 gap-3">
             {/* 인물 고정 */}
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <span className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 인물 고정
               </span>
               {config.personImage ? (
-                <div className="w-full aspect-square rounded-xl border border-slate-200 overflow-hidden relative group">
+                <div className="w-full aspect-square rounded-xl border border-if-border overflow-hidden relative group">
                   <img
                     src={config.personImage}
                     alt="인물 고정"
@@ -674,9 +674,9 @@ export function ControlPanel({
                   </button>
                 </div>
               ) : (
-                <label className="w-full aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-pink-300 bg-slate-50 hover:bg-pink-50/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-slate-400">
-                  <User className="w-6 h-6 mb-1 text-slate-400" />
-                  <span className="text-[11px] font-semibold text-slate-600">사진 업로드</span>
+                <label className="w-full aspect-square rounded-xl border-2 border-dashed border-if-border hover:border-pink-500/40 bg-if-raised hover:bg-pink-500/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-if-muted">
+                  <User className="w-6 h-6 mb-1 text-if-muted" />
+                  <span className="text-[11px] font-semibold text-if-muted">사진 업로드</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -689,11 +689,11 @@ export function ControlPanel({
 
             {/* 장소 고정 */}
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <span className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 장소 고정
               </span>
               {config.placeImage ? (
-                <div className="w-full aspect-square rounded-xl border border-slate-200 overflow-hidden relative group">
+                <div className="w-full aspect-square rounded-xl border border-if-border overflow-hidden relative group">
                   <img
                     src={config.placeImage}
                     alt="장소 고정"
@@ -707,9 +707,9 @@ export function ControlPanel({
                   </button>
                 </div>
               ) : (
-                <label className="w-full aspect-square rounded-xl border-2 border-dashed border-slate-200 hover:border-pink-300 bg-slate-50 hover:bg-pink-50/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-slate-400">
-                  <Camera className="w-6 h-6 mb-1 text-slate-400" />
-                  <span className="text-[11px] font-semibold text-slate-600">장소 업로드</span>
+                <label className="w-full aspect-square rounded-xl border-2 border-dashed border-if-border hover:border-pink-500/40 bg-if-raised hover:bg-pink-500/20 flex flex-col items-center justify-center cursor-pointer transition-colors text-if-muted">
+                  <Camera className="w-6 h-6 mb-1 text-if-muted" />
+                  <span className="text-[11px] font-semibold text-if-muted">장소 업로드</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -724,7 +724,7 @@ export function ControlPanel({
 
         {/* [섹션 6] 표정 및 포즈 (셀카 특화) */}
         <div id="step-3-styling" className="space-y-2.5 scroll-mt-4">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-400">
             <Smile className="w-3.5 h-3.5" />
             <span>표정 및 포즈 (셀카 특화)</span>
           </div>
@@ -732,7 +732,7 @@ export function ControlPanel({
           {/* 1행: 드롭다운 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 표정
               </label>
               <select
@@ -743,7 +743,7 @@ export function ControlPanel({
                   const opt = EXPRESSIONS.find((item) => item.id === e.target.value);
                   setConfig({ ...config, expression: opt ? opt.detail : "" });
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium"
               >
                 <option value="">표정 선택...</option>
                 {EXPRESSIONS.map((ex) => (
@@ -755,7 +755,7 @@ export function ControlPanel({
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 포즈
               </label>
               <select
@@ -766,7 +766,7 @@ export function ControlPanel({
                   const opt = POSES.find((item) => item.id === e.target.value);
                   setConfig({ ...config, pose: opt ? opt.detail : "" });
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium"
               >
                 <option value="">포즈 선택...</option>
                 {POSES.map((p) => (
@@ -785,21 +785,21 @@ export function ControlPanel({
               placeholder="표정 직접 입력 (영문) 또는 위에서 선택"
               value={config.expression || ""}
               onChange={(e) => setConfig({ ...config, expression: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
+              className="w-full bg-if-raised border border-purple-500/40 rounded-lg p-2 text-[11px] text-purple-300 font-mono focus:bg-if-raised focus:ring-1 focus:ring-purple-500 placeholder:text-if-muted truncate"
             />
             <input
               type="text"
               placeholder="포즈 직접 입력 (영문) 또는 위에서 선택"
               value={config.pose || ""}
               onChange={(e) => setConfig({ ...config, pose: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
+              className="w-full bg-if-raised border border-purple-500/40 rounded-lg p-2 text-[11px] text-purple-300 font-mono focus:bg-if-raised focus:ring-1 focus:ring-purple-500 placeholder:text-if-muted truncate"
             />
           </div>
         </div>
 
         {/* [섹션 7] 의상 및 장소 */}
         <div className="space-y-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-400">
             <Shirt className="w-3.5 h-3.5" />
             <span>의상 및 장소</span>
           </div>
@@ -816,7 +816,7 @@ export function ControlPanel({
                   const opt = allOpts.find((o) => o.id === e.target.value);
                   setConfig({ ...config, outfit: opt ? opt.detail : "" });
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium"
               >
                 <option value="">의상 선택...</option>
                 {OUTFIT_CATEGORIES.map((cat) => (
@@ -841,7 +841,7 @@ export function ControlPanel({
                   const opt = allOpts.find((o) => o.id === e.target.value);
                   setConfig({ ...config, location: opt ? opt.detail : "" });
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium"
               >
                 <option value="">장소 선택...</option>
                 {LOCATION_CATEGORIES.map((cat) => (
@@ -864,21 +864,21 @@ export function ControlPanel({
               placeholder="의상 직접 입력 (영문) 또는 위에서 선택"
               value={config.outfit || ""}
               onChange={(e) => setConfig({ ...config, outfit: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
+              className="w-full bg-if-raised border border-purple-500/40 rounded-lg p-2 text-[11px] text-purple-300 font-mono focus:bg-if-raised focus:ring-1 focus:ring-purple-500 placeholder:text-if-muted truncate"
             />
             <input
               type="text"
               placeholder="장소 직접 입력 (영문) 또는 위에서 선택"
               value={config.location || ""}
               onChange={(e) => setConfig({ ...config, location: e.target.value })}
-              className="w-full bg-slate-50 border border-purple-300 rounded-lg p-2 text-[11px] text-purple-900 font-mono focus:bg-white focus:ring-1 focus:ring-purple-500 placeholder:text-slate-400 truncate"
+              className="w-full bg-if-raised border border-purple-500/40 rounded-lg p-2 text-[11px] text-purple-300 font-mono focus:bg-if-raised focus:ring-1 focus:ring-purple-500 placeholder:text-if-muted truncate"
             />
           </div>
         </div>
 
         {/* [섹션 8] 조명 및 카메라 촬영 */}
         <div className="space-y-3">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-400">
             <Sun className="w-3.5 h-3.5" />
             <span>조명 및 카메라 촬영</span>
           </div>
@@ -886,13 +886,13 @@ export function ControlPanel({
           {/* 1행: 조명 & 촬영 기기 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 조명
               </label>
               <select
                 value={config.lighting || ""}
                 onChange={(e) => setConfig({ ...config, lighting: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium"
               >
                 <option value="">조명 선택...</option>
                 {LIGHTINGS.map((l) => (
@@ -904,13 +904,13 @@ export function ControlPanel({
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+              <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
                 촬영 기기 (SELFIE 특화)
               </label>
               <select
                 value={config.camera || ""}
                 onChange={(e) => setConfig({ ...config, camera: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+                className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium"
               >
                 <option value="">촬영 기기 선택...</option>
                 {CAMERA_MODES.map((group) => (
@@ -928,13 +928,13 @@ export function ControlPanel({
 
           {/* 2행: 필름 스톡 (전체 너비) */}
           <div>
-            <label className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">
+            <label className="text-[10px] text-if-muted font-bold uppercase mb-1 block">
               필름 스톡
             </label>
             <select
               value={config.filmStock || ""}
               onChange={(e) => setConfig({ ...config, filmStock: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 font-medium"
+              className="w-full bg-if-raised border border-if-border rounded-lg p-2 text-xs text-if-text font-medium"
             >
               <option value="">필름 스톡 선택...</option>
               {FILM_STOCKS.map((f) => (
@@ -948,7 +948,7 @@ export function ControlPanel({
 
         {/* [섹션 9] 피부 텍스처 디테일 (2열 체크박스 그리드) */}
         <div className="space-y-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-pink-400">
             <Palette className="w-3.5 h-3.5" />
             <span>피부 텍스처 디테일</span>
           </div>
@@ -963,15 +963,15 @@ export function ControlPanel({
                   onClick={() => toggleSkinTexture(st.id)}
                   className={`flex items-center gap-2 p-2 rounded-lg border text-[11px] font-medium transition-all text-left ${
                     isChecked
-                      ? "bg-pink-50 border-pink-400 text-pink-900 font-bold"
-                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100/60"
+                      ? "bg-pink-500/10 border-pink-400 text-pink-300 font-bold"
+                      : "bg-if-raised border-if-border text-if-muted hover:bg-if-raised"
                   }`}
                 >
                   <div
                     className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center shrink-0 transition-colors ${
                       isChecked
                         ? "bg-pink-500 border-pink-500 text-white"
-                        : "border-slate-300 bg-white"
+                        : "border-if-border bg-if-surface"
                     }`}
                   >
                     {isChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
@@ -985,7 +985,7 @@ export function ControlPanel({
 
         {/* [섹션 10] 출력 설정 */}
         <div id="step-5-generate" className="space-y-3 scroll-mt-4">
-          <span className="text-[11px] font-bold text-pink-600 uppercase tracking-wider block">
+          <span className="text-[11px] font-bold text-pink-400 uppercase tracking-wider block">
             출력 설정
           </span>
 
@@ -1001,7 +1001,7 @@ export function ControlPanel({
                   className={`py-2 rounded-lg text-xs font-bold border transition-all ${
                     isSelected
                       ? "bg-pink-500 border-pink-500 text-white shadow-xs"
-                      : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800"
+                      : "bg-if-raised border-if-border text-if-muted hover:text-if-text"
                   }`}
                 >
                   {ar.id}
@@ -1022,7 +1022,7 @@ export function ControlPanel({
                   className={`py-2 rounded-lg text-xs font-bold border transition-all ${
                     isSelected
                       ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
-                      : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800"
+                      : "bg-if-raised border-if-border text-if-muted hover:text-if-text"
                   }`}
                 >
                   {q.id}
@@ -1034,11 +1034,11 @@ export function ControlPanel({
       </div>
 
       {/* 3. 하단 대형 생성 버튼 & 푸터 */}
-      <div className="p-4 border-t border-slate-200 bg-white shrink-0 space-y-2.5">
+      <div className="p-4 border-t border-if-border bg-if-surface shrink-0 space-y-2.5">
         <button
           onClick={onGenerate}
           disabled={isLoading}
-          className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 hover:from-purple-700 hover:to-rose-600 shadow-md shadow-pink-200 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+          className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 hover:from-purple-700 hover:to-rose-600 shadow-md shadow-pink-500/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <>
@@ -1064,7 +1064,7 @@ export function ControlPanel({
         </button>
 
         {/* 푸터 (스크린샷 규격 1:1) */}
-        <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+        <div className="flex items-center justify-between text-[10px] text-if-muted pt-1">
           <span>개발자 : GPT PARK</span>
           <a
             href="https://pure-glow-pro-99gg.vercel.app"

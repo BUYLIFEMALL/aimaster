@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — AI 인플루언서 자동화 v1.10 디자인 리뉴얼(크리에이티브 아틀리에 · 핑크 화보 스튜디오) · 윈도우 배포 대기
+
+- **한 일**: `if-*` 다크 토큰(미드나잇 + 핑크→로즈), 화면 9개 파일 색 일괄 치환, 미리보기 캔버스·빈 화면 한글화, 팝업 매뉴얼 → 화면 안 매뉴얼(`components/GuideView.tsx` 신규, `HelpModal.tsx` 삭제), 사이드바 「📖 연동 & 사용 매뉴얼」. 생성·키·권한 로직 변경 없음.
+- **검수**: 맥미니 tsc 0. 빌드·배포·화면 검수 미실행(맥미니 규칙).
+- **윈도우 다음 첫 단계**: `ai-influencer-studio/docs/IMPROVEMENT_HANDOFF_20261017.md` (빌드 → 배포 → `programs.version='v1.10'` → 크롬 검수 → DESIGN.md 15번 ✅). 「이미지 생성」은 누르지 않음.
+- **둘러본 다른 프로그램(기록만)**: 뮤직비디오 자동화(16번 ⚪) — 다른 CLI의 미커밋 변경(이미지 공용 모듈)이 있어 폴더에는 쓰지 않음. 발견: 기본 흰 화면, 📖 매뉴얼 메뉴·`/guide` 없음(설정뿐), 3단계 화면(음악·가사 → 스토리보드 → 장면 제작) 구조라 플로우 위저드/사이버 네온 계열 적합. 리뉴얼 착수 때 그 폴더 `docs/IMPROVEMENTS.md`로 옮길 것.
+- 링크: https://ai-influencer.buylife.xyz
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — 무한루프 영상자동화 v1.05: 크리에이티브 아틀리에 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `infinite-loop-video/` (https://infinite-loop-video.buylife.xyz)

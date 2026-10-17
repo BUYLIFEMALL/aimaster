@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased flex flex-col">
+      <body className="min-h-screen bg-if-bg text-if-text antialiased flex flex-col">
         {children}
       </body>
     </html>

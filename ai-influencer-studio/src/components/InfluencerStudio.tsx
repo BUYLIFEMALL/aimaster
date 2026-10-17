@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { ControlPanel } from "@/components/ControlPanel";
 import { ImageDisplay } from "@/components/ImageDisplay";
 import { ApiKeyModal } from "@/components/ApiKeyModal";
-import { HelpModal } from "@/components/HelpModal";
+import { GuideView } from "@/components/GuideView";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/influencer";
 
@@ -48,7 +48,8 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
 
   // 모달 및 드로어 상태
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  // 📖 매뉴얼은 팝업 대신 화면 안에서 보여 준다(2026-10-17 디자인 리뉴얼). 입력 패널은 숨기기만 해서 입력값이 유지된다.
+  const [showGuide, setShowGuide] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [maskedKey, setMaskedKey] = useState<string | null>(null);
@@ -292,37 +293,45 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 overflow-hidden font-sans">
+    <div className="min-h-screen flex flex-col md:flex-row bg-if-bg overflow-hidden font-sans">
       {/* 1. AIMaster 표준 좌측 사이드바 (지침 준수) */}
       <Sidebar
         userEmail={userEmail}
         activeStep={activeStep}
-        onSelectStep={setActiveStep}
+        onSelectStep={(step) => {
+          setShowGuide(false);
+          setActiveStep(step);
+        }}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
-        onOpenHelpModal={() => setIsHelpModalOpen(true)}
+        onOpenHelpModal={() => setShowGuide(true)}
         onOpenHistory={() => setIsHistoryOpen(true)}
+        guideActive={showGuide}
       />
 
-      {/* 2. 중앙 옵션 컨트롤 패널 (스크린샷 규격과 동일) */}
-      <ControlPanel
-        config={config}
-        setConfig={setConfig}
-        onGenerate={() => handleGenerate()}
-        isLoading={result.loading}
-        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
-        onOpenHelpModal={() => setIsHelpModalOpen(true)}
-        onOpenHistory={() => setIsHistoryOpen(true)}
-        historyCount={historyItems.length}
-        hasApiKey={hasApiKey}
-      />
+      {showGuide && <GuideView onStart={() => setShowGuide(false)} />}
 
-      {/* 3. 우측 뷰어 & 캡션 스튜디오 */}
-      <ImageDisplay
-        result={result}
-        onRefineImage={(feedback) => handleGenerate(feedback)}
-        onRegenerateCaption={handleRegenerateCaption}
-        isGeneratingCaption={isGeneratingCaption}
-      />
+      {/* 2. 중앙 옵션 컨트롤 패널 (매뉴얼을 볼 때는 숨기기만 한다) */}
+      <div className={showGuide ? "hidden" : "contents"}>
+        <ControlPanel
+          config={config}
+          setConfig={setConfig}
+          onGenerate={() => handleGenerate()}
+          isLoading={result.loading}
+          onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+          onOpenHelpModal={() => setShowGuide(true)}
+          onOpenHistory={() => setIsHistoryOpen(true)}
+          historyCount={historyItems.length}
+          hasApiKey={hasApiKey}
+        />
+
+        {/* 3. 우측 뷰어 & 캡션 스튜디오 */}
+        <ImageDisplay
+          result={result}
+          onRefineImage={(feedback) => handleGenerate(feedback)}
+          onRegenerateCaption={handleRegenerateCaption}
+          isGeneratingCaption={isGeneratingCaption}
+        />
+      </div>
 
       {/* 모달 컴포넌트들 */}
       <ApiKeyModal
@@ -331,7 +340,6 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
         maskedKey={maskedKey}
         onSaveKey={handleSaveApiKey}
       />
-      <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />
       <HistoryDrawer
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}

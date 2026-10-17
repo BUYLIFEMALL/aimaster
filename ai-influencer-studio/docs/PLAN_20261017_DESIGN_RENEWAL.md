@@ -1,6 +1,6 @@
 # 디자인 리뉴얼 플랜 — AI 인플루언서 자동화 (ai-influencer-studio) · 2026-10-17 · Claude Code(맥미니)
 
-> 상태: ⏳ 주인님 승인 대기 (승인 전 코드 수정 없음 — DESIGN.md 원칙 6)
+> 상태: ✅ 2026-10-17 주인님 승인 → 구현 완료(v1.10, 맥미니 tsc 0). 빌드·배포·화면 검수는 윈도우 CLI 대기
 > 서비스 주소(DB `app_url`): https://ai-influencer.buylife.xyz · 현재 v1.09
 
 ## 1. 템플릿 (권장안)

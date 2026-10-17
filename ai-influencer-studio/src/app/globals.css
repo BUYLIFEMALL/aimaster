@@ -1,29 +1,88 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+/*
+ * 크리에이티브 아틀리에 스타일 — 「핑크 화보 스튜디오」 변형 (2026-10-17 디자인 리뉴얼, v1.10).
+ * 다크 미드나잇 + 브랜드 핑크 → 로즈 그라데이션. 화보 미리보기는 한 단계 더 어두운 캔버스.
+ * 토큰·부품 설명: ai-influencer-studio/docs/DESIGN_HANDOFF.md
+ */
+@theme {
+  --color-if-bg: #0d0b12;
+  --color-if-canvas: #08070b;
+  --color-if-surface: #15121c;
+  --color-if-raised: #1e1a28;
+  --color-if-border: #2c2638;
+  --color-if-text: #f5f3f7;
+  --color-if-muted: #a19bb0;
+  --color-if-pink: #ec4899;
+  --color-if-rose: #f43f5e;
+  --color-if-purple: #a855f7;
+  --color-if-success: #10b981;
+  --color-if-warn: #f59e0b;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-if-bg);
+  color: var(--color-if-text);
   font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbar for clean UI */
+/* 다크 스크롤바 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: var(--color-if-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-if-border);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #4a4258;
+}
+
+select option {
+  background-color: var(--color-if-raised);
+  color: var(--color-if-text);
+}
+
+@layer components {
+  .if-card {
+    border-radius: 1rem;
+    border: 1px solid var(--color-if-border);
+    background-color: var(--color-if-surface);
+    padding: 1.25rem;
+  }
+  .if-gradient {
+    background-image: linear-gradient(135deg, var(--color-if-pink), var(--color-if-rose));
+  }
+  .if-gradient-text {
+    background-image: linear-gradient(90deg, var(--color-if-pink), var(--color-if-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .if-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-if-border);
+    background-color: var(--color-if-raised);
+    padding: 0.2rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-if-muted);
+  }
+  .if-section-title {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-if-text);
+  }
 }

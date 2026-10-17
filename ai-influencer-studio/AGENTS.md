@@ -175,3 +175,9 @@ ai-influencer-studio/
 ## v1.09 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `src/lib/gemini.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-17 v1.10 — 디자인 리뉴얼: 크리에이티브 아틀리에 「핑크 화보 스튜디오」 (Claude Code 맥미니)
+- `if-*` 다크 토큰, 화면 안 매뉴얼(`components/GuideView.tsx`, 팝업 `HelpModal.tsx` 삭제), 사이드바 「📖 연동 & 사용 매뉴얼」, 미리보기 빈 화면 한글화. 생성·키·권한 로직 변경 없음.
+- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
+- 문서: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
