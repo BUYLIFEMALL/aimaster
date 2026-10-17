@@ -13,11 +13,12 @@ import {
   X,
   ExternalLink,
   Archive,
+  BookOpen,
 } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
-export type MainTabType = "ideas" | "places" | "keyword-finder" | "keyword-fighter" | "library";
+export type MainTabType = "ideas" | "places" | "keyword-finder" | "keyword-fighter" | "library" | "guide";
 
 interface SidebarProps {
   activeTab: MainTabType;
@@ -226,6 +227,24 @@ export function Sidebar({
               유틸리티 & 연동
             </span>
           </div>
+
+          {/* 📖 연동 & 사용 매뉴얼 링크 */}
+          <Link
+            href="/?tab=guide"
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab("guide");
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+              activeTab === "guide"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs"
+                : "text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            <BookOpen className={`h-4 w-4 ${activeTab === "guide" ? "text-emerald-600" : "text-emerald-500"}`} />
+            <span>📖 연동 & 사용 매뉴얼</span>
+          </Link>
 
           {/* 🔑 API키등록·플랫폼연동 링크 */}
           <Link

@@ -1,5 +1,47 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — 네이버 블로그 올인원 자동화 v1.49: 플로우 위저드 라이트 스타일 리뉴얼·비주얼 가이드북 신설·크롬확장 일괄동기화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 44개 완료 달성!)
+
+- **대상**: `naver-blog-allinone/` (https://naver-blog-allinone.buylife.xyz, slug: `naver-blog-allinone`)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **플로우 위저드 스타일 (네이버 그린 라이트 변형)** 라이트 테마 (`bg-[#f8fafc]`, 서피스 `#ffffff`, 보더 `#e2e8f0`, 네이버 시그니처 그린 `#03c75a` / `#00c73c`, 에메랄드, 포인트 인디고).
+     - **모바일(375px) 반응형 완비**: 햄버거 토글 버튼, 상단 마케팅 슬로건 배너, 슬라이드 드로어 오버레이 메뉴 완벽 호환.
+     - **사이드바 메뉴 표준화**: `Sidebar.tsx` 내 `📖 연동 & 사용 매뉴얼` 신설 메뉴 배치, 에메랄드 하이라이트 활성화.
+     - **비주얼 연동 & 사용 매뉴얼 (`GuideSection.tsx`) 완전 신설**: 공식 가이드북 히어로 배너, 4단계 올인원 제작 파이프라인(주제 발굴 → 멀티모달 비전 분석 → 7대 엔진 키워드 발굴 → 본문 생성 & 보관함), 스마트에디터 ONE 크롬 확장 프로그램 1초 설치 및 자동 주입 가이드, 네이버 C-Rank & D.I.A.+ 검색엔진 알고리즘 상위 노출 4대 실전 체크포인트, FAQ 5종 아코디언.
+  2. **크롬 확장 프로그램 & 버전 일괄 동기화**:
+     - `extension/manifest.json`: `1.49.0` / `v1.49`
+     - `package.json`: `1.49.0`
+     - `src/lib/version.ts`: `v1.49`
+     - `public/downloads/naver-blog-allinone-latest.zip`: 재패키징 완료
+     - Supabase DB `programs` 테이블: `version: v1.49`, `extension_version: v1.49` 일괄 갱신 완료 (`scripts/update_naver_blog_allinone_version_v149.cjs`).
+     - 확장 프로그램 릴리즈 일치 검증 통과 (`check-extension-release.mjs naver-blog-allinone`: PASS).
+  3. **로컬 빌드 및 Vercel 프로덕션 배포**:
+     - 31개 단위 테스트 100% 통과 (`npm test`).
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`).
+     - Vercel 프로덕션 배포 완료: `https://naver-blog-allinone-qo87ea7we-buylife.vercel.app` → alias `naver-blog-allinone.buylife.xyz` 최신 연결 확인 (`readyState: READY`).
+  4. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 플로우 위저드 라이트 대시보드(STEP 1~4 스텝퍼, 포스트 생성 영역) 및 신설된 비주얼 가이드북(`GuideSection`) 완벽 노출.
+     - 모바일 (375px): 상단 햄버거 메뉴 클릭 시 슬라이드 드로어 메뉴 정상 작동 및 모바일 가이드북 반응형 완벽 대응.
+     - 스크린샷 증빙 아티팩트 5종 보존:
+       - `edge_naver_blog_allinone_desktop_dashboard_v149.png`
+       - `edge_naver_blog_allinone_desktop_guide_v149.png`
+       - `edge_naver_blog_allinone_mobile_dashboard_v149.png`
+       - `edge_naver_blog_allinone_mobile_menu_v149.png`
+       - `edge_naver_blog_allinone_mobile_guide_v149.png`
+  5. **인수인계 규격화 문서 6종 완비**:
+     - `naver-blog-allinone/docs/PLAN_20261018_DESIGN_RENEWAL.md`
+     - `naver-blog-allinone/docs/DESIGN_HANDOFF.md`
+     - `naver-blog-allinone/docs/IMPROVEMENTS.md` (3대 핵심 항목 및 타 프로그램 연계 분석)
+     - `naver-blog-allinone/docs/IMPROVEMENT_BACKLOG.md` (우선순위별 작업 백로그)
+     - `naver-blog-allinone/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `naver-blog-allinone/README.md` (7대 핵심 항목 동기화)
+  6. **현황판 동기화**:
+     - `DESIGN.md` 26번 상태 「✅ 1차 작업완료 (`v1.49`, 플로우 위저드 라이트 테마 & 가이드북 신설)」 갱신 완료 (**✅ 44개 완료 / ⚪ 37개 예정 / ⏸ 2개 보류**).
+     - `docs/ACTIVE_WORK.md` 작업 중 줄 삭제 완료.
+- **다음 첫 단계**: 27번, 28번은 이미 완료되어 있으므로, 29번 네이버 블로그 에이전트 (`naver-blog-agent`, 플로우 위저드 라이트 권장) 분석 및 디자인 리뉴얼 플랜 수립.
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 웹툰 자동화 v1.14: 크리에이티브 아틀리에 다크 스타일 리뉴얼·비주얼 가이드북 완전 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 43개 완료 달성!)
 
 - **대상**: `ai-webtoon-studio/` (https://ai-webtoon-automation.buylife.xyz, slug: `ai-webtoon-studio`)

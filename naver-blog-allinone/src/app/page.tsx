@@ -10,6 +10,7 @@ import { PlacesVisionSection } from "@/components/PlacesVisionSection";
 import { KeywordFighterSection } from "@/components/KeywordFighterSection";
 import { PostCreationSection } from "@/components/PostCreationSection";
 import { LibrarySection } from "@/components/blog/LibrarySection";
+import { GuideSection } from "@/components/GuideSection";
 import { getPost } from "@/lib/blog/postsApi";
 import type { SavedPost } from "@/lib/blog/types";
 import { AppSettings, DEFAULT_SETTINGS, getStoredSettings } from "@/lib/storage";
@@ -49,7 +50,7 @@ export default function HomePage() {
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
       const tabParam = sp.get("tab");
-      if (tabParam === "ideas" || tabParam === "places" || tabParam === "library") {
+      if (tabParam === "ideas" || tabParam === "places" || tabParam === "library" || tabParam === "guide") {
         setActiveMainTab(tabParam);
       } else if (tabParam === "keyword-finder" || tabParam === "keyword-fighter") {
         setActiveMainTab("keyword-finder");
@@ -147,8 +148,8 @@ export default function HomePage() {
             </>
           )}
 
-          {/* 글 작성·결과 영역은 한 곳에 고정한다(탭을 바꿔도 작업 중인 글·이미지가 사라지지 않게). 맛집 탭·보관함 탭에서는 숨긴다. */}
-          <div id="post-creation-area" className={activeMainTab === "places" || activeMainTab === "library" ? "hidden" : ""}>
+          {/* 글 작성·결과 영역은 한 곳에 고정한다(탭을 바꿔도 작업 중인 글·이미지가 사라지지 않게). 맛집 탭·보관함 탭·가이드 탭에서는 숨긴다. */}
+          <div id="post-creation-area" className={activeMainTab === "places" || activeMainTab === "library" || activeMainTab === "guide" ? "hidden" : ""}>
             <PostCreationSection
               topic={selectedTopic}
               setTopic={setSelectedTopic}
@@ -165,6 +166,17 @@ export default function HomePage() {
           {/* Tab 4: 내 보관함 (저장한 글·이미지) */}
           {activeMainTab === "library" && (
             <LibrarySection onOpen={openFromLibrary} onGoCreate={() => setActiveMainTab("ideas")} />
+          )}
+
+          {/* Tab 5: 📖 연동 & 사용 매뉴얼 가이드북 */}
+          {activeMainTab === "guide" && (
+            <GuideSection
+              onGoTab={(tab) => {
+                setActiveMainTab(tab);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+            />
           )}
         </main>
 
