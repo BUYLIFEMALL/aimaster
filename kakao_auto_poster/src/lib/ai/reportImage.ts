@@ -1,8 +1,10 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 
 // docs/PLATFORM_PATTERNS.md §12 — Cloudinary의 대행 생성(generate-image) 대신 Gemini(나노바나나)를
 // 직접 호출해서 이미지를 만든다. 회원 본인의 gemini API 키만 사용한다(BYOK, 폴백 없음).
-const ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-image:generateContent";
+const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent";
 
 /**
  * 리포트 본문에 넣을 이미지 1장을 생성한다. 결과는 base64 data URI로 반환하고, 호출부에서

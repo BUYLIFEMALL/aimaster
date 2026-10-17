@@ -185,3 +185,7 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 - 텔레그램 웹훅 등록 기준 SITE_ORIGIN + `/api/telegram/migrate-webhooks`(관리자 로그인/CRON_SECRET). 연동 1건(주인님 관리자 봇) 이전 미실행.
 - **바꾸지 않은 것(의도)**: 리포트 공유·카카오 "나에게 보내기"·이메일·브로드캐스트 메시지 안의 링크 기준(`NEXT_PUBLIC_SITE_URL`, 옛 주소). 카카오 메시지 링크는 회원 본인 카카오 앱 "웹 도메인"(+ 운영자 앱 JavaScript SDK 도메인)에 등록된 도메인만 허용되므로, 회원 공지(새 도메인 추가) 후에 전환해야 함. 이미 보낸 메시지 속 옛 링크도 있으므로 옛 주소의 화면 이동(308)은 오래 유지해야 함 — 플랜 항목 I.
 - 검수: 빌드·배포, 옛 콜백 → via=old 307, 새 콜백 → /login, migrate 비인증 401, 시험 계정 설정 화면 두 주소·[새 주소로 연결] 표시. 시험 계정 카카오 앱 키 미등록이라 `?error=kakao_app_missing`(카카오 인증 화면 확인 못 함).
+
+## v1.11 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/ai/reportImage.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
