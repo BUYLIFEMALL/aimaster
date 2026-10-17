@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import test from "node:test";
 import assert from "node:assert/strict";
 import sharp from "sharp";
@@ -8,7 +10,7 @@ import { downloadName } from "../src/lib/remake/types.ts";
 import { generateRemake, generateSuggestion, toUserError } from "../src/lib/gemini.ts";
 const jpeg = await sharp({ create: { width: 120, height: 80, channels: 3, background: "#e4cccc" } }).jpeg().toBuffer();
 const image = () => ({ data: jpeg.toString("base64"), mimeType: "image/jpeg", name: "시험사진.jpg", instruction: "오른손에 들기" });
-const request = (more = {}) => ({ mode: "restore", model: "gemini-3.1-flash-image", base: image(), objects: [], options: { repair: true, colorize: true, upscale: 2 }, aspect: "original", background: "keep", prompt: "얼굴은 유지", consent: true, ...more });
+const request = (more = {}) => ({ mode: "restore", model: "gemini-nano-banana-2.1", base: image(), objects: [], options: { repair: true, colorize: true, upscale: 2 }, aspect: "original", background: "keep", prompt: "얼굴은 유지", consent: true, ...more });
 test("본인/동의 사진 확인을 서버에서도 강제", () => assert.throws(() => validateRequest(request({ consent: false })), /동의/));
 test("사물 없는 합성 및 복원에 사물 전달 차단", () => { assert.throws(() => validateRequest(request({ mode: "compose" })), /사물/); assert.throws(() => validateRequest(request({ objects: [image()] })), /한 장/); });
 test("합성은 최대5장, 장수 초과를 잘라 처리하지 않음", () => { assert.equal(validateRequest(request({ mode: "compose", objects: Array.from({ length: 5 }, image) })).objects.length, 5); assert.throws(() => validateRequest(request({ mode: "compose", objects: Array.from({ length: 6 }, image) })), /최대/); });
@@ -25,7 +27,7 @@ test("배경변경/비율 선택을 지시에 반영, 악성 태그 격리", () 
 const originalFetch = globalThis.fetch;
 test("공급사 호출: 본인키 헤더·다중입력·단일모델·번역호출없음", async () => {
   const calls = []; globalThis.fetch = async (url, init) => { calls.push({ url, init }); return new Response(JSON.stringify({ candidates: [{ finishReason: "STOP", content: { parts: [{ inlineData: { data: jpeg.toString("base64"), mimeType: "image/jpeg" } }] } }] })); };
-  try { await generateRemake("mock-member-own-key", validateRequest(request({ mode: "compose", objects: [image(), image()] }))); assert.equal(calls.length, 1); assert.equal(calls[0].init.headers["x-goog-api-key"], "mock-member-own-key"); const body = JSON.parse(calls[0].init.body); assert.equal(body.contents.parts.filter(p => p.inlineData).length, 3); assert.ok(calls[0].url.includes("gemini-3.1-flash-image")); } finally { globalThis.fetch = originalFetch; }
+  try { await generateRemake("mock-member-own-key", validateRequest(request({ mode: "compose", objects: [image(), image()] }))); assert.equal(calls.length, 1); assert.equal(calls[0].init.headers["x-goog-api-key"], "mock-member-own-key"); const body = JSON.parse(calls[0].init.body); assert.equal(body.contents.parts.filter(p => p.inlineData).length, 3); assert.ok(calls[0].url.includes("gemini-nano-banana-2.1")); } finally { globalThis.fetch = originalFetch; }
 });
 test("안전 차단/이미지 없는 응답은 생성 성공으로 처리하지 않음", async () => { try { for (const reply of [{ promptFeedback: { blockReason: "SAFETY" } }, { candidates: [{ content: { parts: [{ text: "no image" }] } }] }]) { globalThis.fetch = async () => new Response(JSON.stringify(reply)); await assert.rejects(generateRemake("mock", validateRequest(request()))); } } finally { globalThis.fetch = originalFetch; } });
 test("404 모델 오류는 폴백호출 없이 안내, 원시 오류·키 노출 없음", async () => { let calls = 0; globalThis.fetch = async () => { calls++; return new Response("sensitive-provider-payload", { status: 404 }); }; try { await assert.rejects(generateRemake("mock", validateRequest(request())), /직접 선택/); assert.equal(calls, 1); assert.ok(!JSON.stringify(toUserError(new Error("sensitive-key"))).includes("sensitive-key")); } finally { globalThis.fetch = originalFetch; } });

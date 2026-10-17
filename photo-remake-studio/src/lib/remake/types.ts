@@ -1,5 +1,7 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 export const IMAGE_MODELS = [
-  { id: "gemini-3.1-flash-image", name: "Nano Banana 2 · 균형형" },
+  { id: "gemini-nano-banana-2.1", name: "Nano Banana 2 · 균형형" },
   { id: "gemini-3-pro-image", name: "Nano Banana Pro · 정밀형" },
 ] as const;
 export const TEXT_MODEL = "gemini-2.5-flash";
