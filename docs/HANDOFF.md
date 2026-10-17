@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — Vercel 비용 절감: 작업 방식 변경(빌드 건너뛰기·재배포 등급제·배포 규칙)
+
+- **배경**: 결제 주기 23일 남기고 추가 요금 $20.87, 최대 항목 Build CPU Minutes $31.92. 원인 ① 빌드 머신이 가장 비싼 Elastic(4~30 vCPU) ② 메인 사이트(`aimaster`)가 모든 CLI의 `master` 푸시마다 자동 빌드(10-17 오후 약 9.5시간에 최근 100건 중 87건) ③ 공용 모듈 변경 때마다 사본 30곳 즉시 재배포(10-17~18 130회 이상, Claude Code).
+- **적용**: ① 빌드 머신 팀 전체 Basic(주인님 직접) ② 루트 `vercel.json` `ignoreCommand` → `scripts/vercel-ignore-build.sh`: 메인 사이트 파일(`app`·`components`·`lib`·`types`·`public`·설정)이 직전 배포 이후 안 바뀌었거나 `master` 외 브랜치면 빌드 건너뜀, CLI 업로드 배포·판단 불가 시는 빌드(로컬 5가지 경우 시험 통과) ③ `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`에 「배포 비용 절감 규칙」 블록 + 「공용 기준 코드 규칙」 재배포 등급제(급한 수정만 즉시 전체 배포, 나머지는 다음 배포 때) ④ `docs/SHARED_MODULES.md` 「미배포 사본」 표, 점검표 §0-3 갱신.
+- **메모리 부족 대응(A3)**: Basic·Standard는 메모리 같은 8GB → 먼저 빌드 명령 Node 메모리 한도 6GB, 그래도 안 되면 주인님이 그 프로젝트만 상위 등급으로.
+- **상세**: [`docs/VERCEL_COST_REDUCTION_PLAN.md`](VERCEL_COST_REDUCTION_PLAN.md).
+- **다음 첫 단계**: 이 커밋의 메인 사이트 빌드는 `vercel.json`이 바뀌어 정상 빌드돼야 하고, 다음 문서만 바뀐 푸시는 건너뛰어야 함 — Vercel 배포 기록(취소/Ignored 표시)으로 확인. 남은 동시 빌드 설정(A2)·Observability(D1)는 주인님 확인.
+
 ## 2026-10-18 Claude Code(윈도우) — 이미지 4묶음 B: SDK 사용 9곳의 이미지 호출을 공용 모듈로
 
 - **한 일**: `@google/genai` SDK로 이미지를 만들던 9곳의 이미지 호출만 공용 사본(`gemini-image-client`)으로 바꿈(글 생성은 SDK 그대로, 프롬프트·모델·비율·화질·화면 그대로). 고친 문제: ① 시간 제한 없음(30~60초 함수 한도에서 원인 모를 끊김) ② 응답 첫 이미지만 꺼내 Pro 모델의 중간 초안을 쓸 위험 ③ 영어 오류 문장 추측 분류 ④ four-cut의 504 자동 재시도·모델 폴백 재시도의 이중 과금 위험.
