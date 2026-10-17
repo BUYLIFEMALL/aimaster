@@ -14,7 +14,7 @@
 
 ---
 
-## 1. 유튜브 데이터 조회 — 공용 모듈 `youtube-data-client` (2026-10-17 1단계 완료)
+## 1. 유튜브 데이터 조회 — 공용 모듈 `youtube-data-client` (2026-10-17 1·2단계 완료, 사본 7곳)
 
 회원 본인 YouTube API 키로 정보를 읽는 호출(검색·영상·채널·재생목록·댓글 읽기). 시간 제한·일시 오류 재시도·키 가리기·한도/분당 제한 구분 안내·할당량 계산을 공용 모듈이 맡는다.
 
@@ -23,11 +23,11 @@
 | youtube-channel-consultant | `src/lib/youtube/youtubeData.ts` (+ `tests/youtubeData.test.mjs`) | 🟢 기준 | `client.ts` `call()`이 위임 (v1.09) |
 | youtube-viral-studio | `src/lib/youtube/youtubeData.ts` | 🔵 사본 | `client.ts`·`trendingVideos.ts`·`viralShorts.ts`·`sourceFinder.ts`가 위임, 캐시 재사용 시간 유지 (v1.18) |
 | shorts-viral-studio | `src/lib/youtube/youtubeData.ts` | 🔵 사본 | `api.ts` `ytFetch()`가 위임, 오류 종류(kind) 변환 (v1.10) |
-| ai-auto-blog | `utils/ai/youtubeShorts.ts` | ⚪ 각자 구현 | 2단계 대상. 확장 있음(ZIP 재생성 필요) |
-| tistory-auto-blog | `utils/ai/youtubeShorts.ts` (ai-auto-blog와 같은 내용) | ⚪ 각자 구현 | 2단계 대상. 확장 있음 |
-| threads-content-ops | `lib/youtubeShorts.ts` | ⚪ 각자 구현 | 2단계 대상 |
-| naver-blog-agent | `src/lib/collector.ts` (쇼츠 검색 부분) | ⚪ 각자 구현 | 2단계 대상. 확장 있음 |
-| trending-product-finder | `lib/youtube/client.ts` | ⚪ 각자 구현 | 2단계 대상. 오류 안내 없음(원문 노출) |
+| ai-auto-blog | `utils/ai/youtubeData.ts` | 🔵 사본 | `utils/ai/youtubeShorts.ts`가 위임 (v1.68, 2026-10-17 2단계) |
+| tistory-auto-blog | `utils/ai/youtubeData.ts` | 🔵 사본 | `utils/ai/youtubeShorts.ts` (ai-auto-blog와 같은 내용)가 위임 (v1.75, 2026-10-17 2단계) |
+| threads-content-ops | `lib/youtubeData.ts` | 🔵 사본 | `lib/youtubeShorts.ts`가 위임 (v1.99, 2026-10-17 2단계) |
+| naver-blog-agent | `src/lib/youtubeData.ts` | 🔵 사본 | `src/lib/collector.ts` (쇼츠 검색 부분)가 위임 (v1.88, 2026-10-17 2단계) |
+| trending-product-finder | `lib/youtube/youtubeData.ts` | 🔵 사본 | `lib/youtube/client.ts`가 위임 (v1.14, 2026-10-17 2단계) |
 | shots | `src/lib/youtube/client.ts` | ⛔ 대상 아님 | 로그인 연동(OAuth) 업로드 |
 | youtube-auto-reply | `lib/youtube/client.ts` | ⛔ 대상 아님 | 로그인 연동(OAuth) 댓글 쓰기 |
 | threads-content-ops | `app/threads-content-ops/web-actions.ts`, `desktop/src/main/providers/youtube.ts` | ⛔ 대상 아님 | OAuth 업로드 / 데스크톱 앱(Electron) |
@@ -86,4 +86,5 @@
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-17 | 유튜브 조회 2단계 — ai-auto-blog·tistory-auto-blog·naver-blog-agent·threads-content-ops·trending-product-finder 사본 적용 | Claude Code(윈도우) |
 | 2026-10-17 | 문서 신설. 유튜브 조회(1단계 3개 적용)·황금 채널 엔진 등록, 이미지·수집·프롬프트 규칙 후보 조사 | Claude Code(윈도우) |

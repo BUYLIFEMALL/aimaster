@@ -18,6 +18,7 @@ export interface BlogCandidateDraft {
 import { sanitizeYear } from "@/lib/yearPolicy";
 import { DEFAULT_MODELS } from "@/lib/ai/models";
 import { runWithProviderFallback, type FallbackProvider, type ProviderCaller } from "@/lib/ai/providerFallback";
+import { youtubeRequest } from "./youtubeData";
 export { sanitizeYear };
 
 // ---------------------------------------------------------------------------
@@ -307,26 +308,10 @@ export async function searchPerplexityTrending(topic: string, apiKey: string): P
 // ---------------------------------------------------------------------------
 // YouTube Data API 쇼츠 검색 & 분석
 // ---------------------------------------------------------------------------
-const YT_BASE = "https://www.googleapis.com/youtube/v3";
-
+// 2026-10-17: YouTube 읽기 호출은 공용 기준 코드 youtube-data-client(./youtubeData — 기준은 youtube-channel-consultant)로 위임한다.
+// 15초 시간 제한·일시 오류 1회 재시도·키 가리기·한도/분당 제한·키 사용 제한 구분 안내. 오류(YouTubeDataError)는 Error라 기존 호출부와 호환된다.
 async function ytFetch<T>(path: string, params: Record<string, string>, apiKey: string): Promise<T> {
-  const url = new URL(`${YT_BASE}/${path}`);
-  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
-  url.searchParams.set("key", apiKey);
-  const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
-  if (response.ok) return (await response.json()) as T;
-
-  const body = (await response.json().catch(() => ({}))) as {
-    error?: { message?: string; errors?: { reason?: string }[] };
-  };
-  const reason = body.error?.errors?.[0]?.reason ?? "";
-  if (["quotaExceeded", "rateLimitExceeded", "dailyLimitExceeded"].includes(reason)) {
-    throw new Error("YouTube API 일일 할당량을 모두 소진했습니다. 내일 다시 시도해 주세요.");
-  }
-  if (reason === "accessNotConfigured" || reason === "forbidden") {
-    throw new Error("YouTube Data API v3가 활성화되어 있지 않습니다. 구글 클라우드 콘솔에서 사용 설정해 주세요.");
-  }
-  throw new Error(`YouTube API 호출 실패: ${body.error?.message || response.status}`);
+  return (await youtubeRequest(path, params, apiKey)) as T;
 }
 
 function parseDuration(value: string | undefined): number {

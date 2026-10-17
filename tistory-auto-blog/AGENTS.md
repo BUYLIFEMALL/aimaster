@@ -340,3 +340,9 @@
 ## v1.74 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `utils/news/nanoBananaConfig.ts` `utils/ai/editorImage.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-17 v1.75 — 유튜브 조회를 공용 기준 코드 `youtube-data-client` 사본으로 (2단계, Claude Code 윈도우)
+- `utils/ai/youtubeData.ts`(사본) 추가, `utils/ai/youtubeShorts.ts`의 `ytFetch()`가 모듈로 위임(ai-auto-blog와 같은 방식, 오류 형식 유지).
+- 개선: 15초 시간 제한, 서버 오류·네트워크만 1회 재시도, 키 가리기, 일일 한도/분당 제한/키 사용 제한/API 미사용 구분 안내(초기화 시각 서머타임 반영).
+- 검수: `tests/shorts-collection.test.cjs` 연결·기대 문구 수정(18 통과), test:extension-api 36·home-topics 2·update-banner 3 통과. build(prebuild 확장 ZIP v1.75), 배포·DB v1.75, `check-extension-release` OK, 크롬 화면 v1.75. 회원 확장 ZIP 다시 받기 안내 필요. 실제 YouTube 호출은 하지 않음.
+- **주의(다음 CLI)**: 모듈 파일 `youtubeData.ts`는 공용 기준 코드 `youtube-data-client`의 사본이다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 8개 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.

@@ -1,11 +1,10 @@
 import "server-only";
+import { youtubeRequest } from "./youtubeData";
 
 // YouTube Data API v3 클라이언트("server-only" 가드) — 키워드 관련 영상의 최근 업로드량과
 // 조회수를 기회 점수의 세 번째 신호로 쓴다. 개인 Google Cloud Console 계정으로 무료·즉시
 // 발급 가능한 API Key(OAuth 아님, 단순 API Key)를 쓴다.
 
-const SEARCH_URL = "https://www.googleapis.com/youtube/v3/search";
-const VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos";
 const RECENT_DAYS = 30;
 
 export interface YoutubeSignal {
@@ -21,34 +20,35 @@ interface SearchItem {
 /** 키워드로 최근 업로드된 관련 유튜브 영상의 업로드량/조회수를 조회한다. */
 export async function getYoutubeSignal(keyword: string, apiKey: string): Promise<YoutubeSignal> {
   const publishedAfter = new Date(Date.now() - RECENT_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const searchParams = new URLSearchParams({
-    part: "snippet",
-    q: keyword,
-    type: "video",
-    order: "date",
-    publishedAfter,
-    maxResults: "25",
-    regionCode: "KR",
-    relevanceLanguage: "ko",
-    key: apiKey,
-  });
-
-  const searchRes = await fetch(`${SEARCH_URL}?${searchParams.toString()}`);
-  if (!searchRes.ok) {
-    const text = await searchRes.text();
-    throw new Error(`YouTube API 요청이 실패했습니다. (${searchRes.status}) ${text.slice(0, 300)}`);
-  }
-  const searchData = (await searchRes.json()) as { items?: SearchItem[] };
+  // v1.14(2026-10-17): YouTube 읽기 호출은 공용 기준 코드 youtube-data-client(./youtubeData — 기준은 youtube-channel-consultant)로 위임.
+  // 15초 시간 제한·일시 오류 1회 재시도·키 가리기·한국어 오류 안내(예전엔 YouTube 오류 원문을 그대로 보여 줌).
+  const searchData = (await youtubeRequest(
+    "search",
+    {
+      part: "snippet",
+      q: keyword,
+      type: "video",
+      order: "date",
+      publishedAfter,
+      maxResults: "25",
+      regionCode: "KR",
+      relevanceLanguage: "ko",
+    },
+    apiKey
+  )) as { items?: SearchItem[] };
   const items = searchData.items ?? [];
   const videoIds = items.map((it) => it.id?.videoId).filter((id): id is string => Boolean(id));
 
+  // 조회수 합계는 보조 신호라 실패해도 예전처럼 0으로 둔다.
   let totalViews = 0;
   if (videoIds.length > 0) {
-    const statsParams = new URLSearchParams({ part: "statistics", id: videoIds.join(","), key: apiKey });
-    const statsRes = await fetch(`${VIDEOS_URL}?${statsParams.toString()}`);
-    if (statsRes.ok) {
-      const statsData = (await statsRes.json()) as { items?: { statistics?: { viewCount?: string } }[] };
+    try {
+      const statsData = (await youtubeRequest("videos", { part: "statistics", id: videoIds.join(",") }, apiKey)) as {
+        items?: { statistics?: { viewCount?: string } }[];
+      };
       totalViews = (statsData.items ?? []).reduce((sum, v) => sum + Number(v.statistics?.viewCount ?? 0), 0);
+    } catch {
+      totalViews = 0;
     }
   }
 

@@ -18,10 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| ai-auto-blog | Claude Code(윈도우) | 2026-10-17 17:00 | 유튜브 조회 공용 모듈 youtube-data-client 2단계 적용 |
-| tistory-auto-blog | Claude Code(윈도우) | 2026-10-17 17:00 | 유튜브 조회 공용 모듈 youtube-data-client 2단계 적용 |
-| naver-blog-agent | Claude Code(윈도우) | 2026-10-17 17:00 | 유튜브 조회 공용 모듈 youtube-data-client 2단계 적용 |
-| threads-content-ops | Claude Code(윈도우) | 2026-10-17 17:00 | 유튜브 조회 공용 모듈 youtube-data-client 2단계 적용 |
-| trending-product-finder | Claude Code(윈도우) | 2026-10-17 17:00 | 유튜브 조회 공용 모듈 youtube-data-client 2단계 적용 |
 
 

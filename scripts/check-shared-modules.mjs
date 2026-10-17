@@ -18,7 +18,16 @@ const MODULES = [
   {
     id: "youtube-data-client",
     source: "youtube-channel-consultant/src/lib/youtube/youtubeData.ts",
-    copies: ["youtube-viral-studio/src/lib/youtube/youtubeData.ts", "shorts-viral-studio/src/lib/youtube/youtubeData.ts"],
+    copies: [
+      "youtube-viral-studio/src/lib/youtube/youtubeData.ts",
+      "shorts-viral-studio/src/lib/youtube/youtubeData.ts",
+      // 2단계(2026-10-17): 폴더 구조가 달라 공용 테스트 파일은 넣지 않고 각 프로그램 기존 테스트로 확인
+      "ai-auto-blog/utils/ai/youtubeData.ts",
+      "tistory-auto-blog/utils/ai/youtubeData.ts",
+      "threads-content-ops/lib/youtubeData.ts",
+      "naver-blog-agent/src/lib/youtubeData.ts",
+      "trending-product-finder/lib/youtube/youtubeData.ts",
+    ],
   },
   {
     id: "youtube-data-client-test",

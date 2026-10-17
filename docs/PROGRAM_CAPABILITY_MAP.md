@@ -46,9 +46,9 @@
 | 33 | 무한루프 영상자동화 | `infinite-loop-video` | 멀티미디어 | v1.04 | 운영 | 영상에서 가장 자연스럽게 이어지는 구간을 찾아 끝없이 반복되는 MP4·WebM·GIF로 만드는 도구 |
 | 34 | 부동산 실거래 투자분석 자동화 | `real-estate-sales` | 부동산 | v1.11 | 운영 | 서울 관심 지역의 새 실거래가를 알려 주고 AI가 투자 매력도를 분석하는 부동산 도구 |
 | 35 | AI 블로그 키워드 자동화 | `blog-keyword` | 블로그 | v1.05 | 운영 | 키워드 하나로 자동완성·상위 블로그·경쟁력·오늘의 이슈·글감까지 한 화면에서 분석하는 도구 |
-| 36 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 블로그 | v1.71 | 운영 | AI로 티스토리 원문·이미지를 만들고 크롬 확장이 서식까지 글쓰기 화면에 입력하는 도구 |
-| 37 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 블로그 | v1.64 | 운영 | 실시간 이슈로 블로그 글·이미지를 AI로 만들고 크롬 확장으로 네이버에 입력하는 도구 |
-| 38 | 네이버 블로그 에이전트 | `naver-blog-agent` | 블로그 | v1.84 | 운영 | 5단계 AI 에이전트가 네이버 블로그 글·이미지를 만들고 크롬 확장이 스마트에디터에 입력 |
+| 36 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 블로그 | v1.75 | 운영 | AI로 티스토리 원문·이미지를 만들고 크롬 확장이 서식까지 글쓰기 화면에 입력하는 도구 |
+| 37 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 블로그 | v1.68 | 운영 | 실시간 이슈로 블로그 글·이미지를 AI로 만들고 크롬 확장으로 네이버에 입력하는 도구 |
+| 38 | 네이버 블로그 에이전트 | `naver-blog-agent` | 블로그 | v1.88 | 운영 | 5단계 AI 에이전트가 네이버 블로그 글·이미지를 만들고 크롬 확장이 스마트에디터에 입력 |
 | 39 | 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | 블로그 | v1.42 | 운영 | 사진을 AI가 보고 쓰는 맛집·여행 글부터 주제·키워드 조사, 서식 원고까지 하는 블로그 올인원 |
 | 40 | AI 블로그 작업실 자동화 | `blog-workroom` | 블로그 | v1.04 | 운영 | 내 블로그 문체 분석부터 키워드·근거 자료·초안·검수·이미지까지 돕는 네이버 블로그 작업실 |
 | 41 | AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | 블로그 | v1.04 | 운영 | 주제·기존 원고로 글과 이미지를 만들고 수정 이력·발행 전 점검·네이버 입력까지 돕는 제작 도구 |
@@ -56,7 +56,7 @@
 | 43 | Threads 포스팅 자동화 | `auto-threads-posting` | 쓰레드 | v1.06 | 운영 | 글감 수집부터 AI 초안, 이미지 첨부, 즉시·예약 게시까지 하는 기본형 Threads 포스팅 도구 |
 | 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.10 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.52 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
-| 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v1.95 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
+| 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v1.99 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 유튜브 | v1.18 | 운영 | 조회수가 터진 쇼츠·소형 황금 채널·급상승 영상을 찾아 벤치마킹하는 유튜브 도구 |
 | 48 | 플레이리스트 채널 제작 자동화 | `playlist-channel-studio` | 유튜브 | v1.07 | 운영 | 장르만 고르면 플레이리스트 채널용 제목·Suno 프롬프트·가사·설명·썸네일을 만드는 도구 |
 | 49 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 유튜브 | v1.04 | 운영 | 영상 주제와 시청 타겟으로 A/B 전략과 문구가 들어간 유튜브 썸네일 2종을 만드는 도구 |
@@ -82,7 +82,7 @@
 | 69 | 감성 글귀 이미지 | `emotion-writer` | 이미지 | v1.09 | 운영 | AI 감성 글귀와 배경 사진을 합성해 카톡·SNS 공유용 카드 이미지를 만드는 스튜디오 |
 | 70 | AI 올인원 그래픽 자동화 | `allinone-graphic` | 이미지 | v1.03 | 운영 | 19개 직군 123종 템플릿으로 상업용 이미지를 만들고 브러시로 부분 수정·확장하는 그래픽 도구 |
 | 71 | AI 포토 리메이크 자동화 | `photo-remake-studio` | 이미지 | v1.03 | 운영 | 오래된 사진을 복원·컬러화·확대하고 사물을 자연스럽게 합성하는 포토 리메이크 스튜디오 |
-| 72 | 상품소싱 자동화 | `trending-product-finder` | 이커머스 | v1.08 | 운영 | 네이버 쇼핑·검색 데이터로 관심은 오르고 경쟁은 적은 소싱 상품을 찾아 주는 도구 |
+| 72 | 상품소싱 자동화 | `trending-product-finder` | 이커머스 | v1.14 | 운영 | 네이버 쇼핑·검색 데이터로 관심은 오르고 경쟁은 적은 소싱 상품을 찾아 주는 도구 |
 | 73 | 상세페이지 GIF 자동화 | `video-to-gif` | 이커머스 | v1.05 | 운영 | 상세페이지용 동영상을 8MB 이하 고품질 GIF로 일괄 변환하는 브라우저 도구 |
 | 74 | 상세페이지 자동화(15p) | `shop-detail-page` | 이커머스 | v1.05 | 운영 | 상품 사진과 정보로 상세페이지 섹션 이미지 15장을 만들어 한 장으로 합치는 도구 |
 | 75 | 상세페이지 자동생성기 v1 | `auto-detail-page` | 이커머스 | v1.06 | 운영 | 제품 이미지와 정보로 쿠팡·스마트스토어용 HTML 상세페이지를 AI가 완성하는 도구 |
@@ -149,7 +149,7 @@
 | 비공개 임시 업로드(1시간 삭제) | `reverse-prompt`, `banana-canvas` | |
 | 서버 보관함(회원별 JSON 저장) | `blog-workroom/src/lib/store.ts`(범용 kind 테이블) | 새 프로그램은 이 구조가 가장 간단 |
 | 유튜브 지표(VPH·구독자 대비 배수) | `youtube-viral-studio`, `shorts-viral-studio` | |
-| YouTube 읽기 호출·오류 안내·할당량(공용 기준 코드 `youtube-data-client`) | 기준 `youtube-channel-consultant/src/lib/youtube/youtubeData.ts` → 사본 `youtube-viral-studio`, `shorts-viral-studio` | 새 유튜브 기능은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_FEATURE_MAP.md` §1) |
+| YouTube 읽기 호출·오류 안내·할당량(공용 기준 코드 `youtube-data-client`) | 기준 `youtube-channel-consultant/src/lib/youtube/youtubeData.ts` → 사본 `youtube-viral-studio`, `shorts-viral-studio`, `ai-auto-blog`, `tistory-auto-blog`, `naver-blog-agent`, `threads-content-ops`, `trending-product-finder` | 새 유튜브 기능은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_FEATURE_MAP.md` §1) |
 | 황금·공략 채널 찾기 엔진(공용 기준 코드 `youtube-golden-engine`) | 기준 `youtube-channel-consultant/src/lib/youtube/goldenEngine.ts` → 사본 `youtube-viral-studio` | 새 유튜브 프로그램은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_MODULES.md`) |
 | SerpApi 구글 결과 분석 | `competitor-analysis`, `longtail-keyword-expander` | |
 

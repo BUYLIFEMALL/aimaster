@@ -14,8 +14,10 @@ function loadTs(file, mockRequire) {
   return module.exports;
 }
 
+const youtubeData = loadTs('utils/ai/youtubeData.ts', () => ({})); // 공용 기준 코드 youtube-data-client 사본(2026-10-17)
 const baseRequire = (name) => {
   if (name === 'server-only') return {};
+  if (name.endsWith('/youtubeData')) return youtubeData;
   if (name.endsWith('/ai/collector')) return {};
   if (name.endsWith('/ai/youtubeShorts')) return youtube;
   throw Error(`Unexpected import: ${name}`);
@@ -78,10 +80,10 @@ test('search calls search → videos → channels once each with the member\'s k
 
 test('YouTube errors become clear Korean messages (quota, API not enabled, invalid key) and never echo the key', async () => {
   const cases = [
-    [fail(403, { error: { message: 'quota', errors: [{ reason: 'quotaExceeded' }] } }), /일일 할당량/, false],
-    [fail(403, { error: { message: 'x', errors: [{ reason: 'accessNotConfigured' }] } }), /활성화되어 있지 않습니다/, true],
-    [fail(400, { error: { message: 'API key not valid. Please pass a valid API key.', errors: [{ reason: 'badRequest' }] } }), /키가 올바르지 않습니다/, true],
-    [fail(500, { error: { message: 'boom SECRET_KEY_ECHO' } }), /검색에 실패했습니다\. \(500\)/, false],
+    [fail(403, { error: { message: 'quota', errors: [{ reason: 'quotaExceeded' }] } }), /일일 사용 한도/, false],
+    [fail(403, { error: { message: 'x', errors: [{ reason: 'accessNotConfigured' }] } }), /사용 설정되지 않았습니다/, true],
+    [fail(400, { error: { message: 'API key not valid. Please pass a valid API key.', errors: [{ reason: 'badRequest' }] } }), /유효하지 않은 YouTube API 키/, true],
+    [fail(500, { error: { message: 'boom SECRET_KEY_ECHO' } }), /일시적으로 응답하지 않습니다/, false], // 500은 1회 재시도 후 안내
   ];
   for (const [response, pattern, invalidKey] of cases) {
     fakeFetch(() => response);
@@ -202,7 +204,7 @@ test('search: YouTube errors reach the member as clear messages; invalid keys as
   fakeFetch(() => fail(403, { error: { message: 'x', errors: [{ reason: 'accessNotConfigured' }] } }));
   const response = await h.handlers.POST(post({ action: 'search', query: 'q' }));
   const body = await response.json();
-  assert.equal(response.status, 400); assert.match(body.error, /활성화되어 있지 않습니다/); assert.equal(body.needKey, true);
+  assert.equal(response.status, 400); assert.match(body.error, /사용 설정되지 않았습니다/); assert.equal(body.needKey, true);
 });
 
 test('analyze: saves 1-3 topic candidates as source_type http + the shorts URL, with the analysis line, keywords and the chosen category — and only for the member', async () => {

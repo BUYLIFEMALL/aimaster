@@ -576,3 +576,9 @@ v1.75 운영 확인 완료: 코드4b9a1d4a 푸시·프로덕션READY·DB/확장/
 ## v1.87 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `src/lib/ai/imageGenerator.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-17 v1.88 — 유튜브 조회를 공용 기준 코드 `youtube-data-client` 사본으로 (2단계, Claude Code 윈도우)
+- `src/lib/youtubeData.ts`(사본) 추가, `src/lib/collector.ts`의 쇼츠 검색 `ytFetch()`가 모듈로 위임(오류가 `Error`를 이어받아 기존 호출부 그대로).
+- 개선: 15초 시간 제한, 서버 오류·네트워크만 1회 재시도, 키 가리기, 일일 한도/분당 제한/키 사용 제한/API 미사용 구분 안내(초기화 시각 서머타임 반영).
+- 검수: tsc·eslint(바뀐 파일) 0, build(prebuild로 확장 manifest·ZIP v1.88), 배포·DB v1.88, `check-extension-release` OK, 크롬 `/collector` v1.88. 회원 확장 ZIP 다시 받기 안내 필요. 실제 YouTube 호출은 하지 않음.
+- **주의(다음 CLI)**: 모듈 파일 `youtubeData.ts`는 공용 기준 코드 `youtube-data-client`의 사본이다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 8개 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.

@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 유튜브 조회 공용 모듈 2단계(5개 프로그램) 완료
+
+- **한 일**: 공용 기준 코드 `youtube-data-client` 사본을 유튜브가 일부 기능인 5개 프로그램에 적용했습니다. 각 프로그램의 기존 호출 함수가 모듈로 위임하고, 오류 형식은 프로그램별로 유지했습니다. 사본은 이제 총 7곳입니다(`node scripts/check-shared-modules.mjs` 모두 OK).
+- **프로그램별 결과**: ai-auto-blog v1.68(쇼츠 테스트 18·보안 39·확장 API 38·생성 7, 확장 ZIP OK) · tistory-auto-blog v1.75(쇼츠 18·확장 API 36 등, 확장 ZIP OK) · naver-blog-agent v1.88(tsc·eslint 0, 확장 ZIP OK) · threads-content-ops v1.99(테스트 28) · trending-product-finder v1.14(tsc·eslint 0). 5개 모두 빌드·배포·DB 버전·크롬 화면 버전을 확인했고, 실제 YouTube 호출은 하지 않았습니다.
+- **회원 안내 필요**: 확장 3개(ai-auto-blog·tistory-auto-blog·naver-blog-agent)는 ZIP을 다시 받아 덮어쓰고 `chrome://extensions`에서 새로고침해야 합니다(확장 코드 변경은 없고 버전만 맞춤).
+- **문서**: `docs/SHARED_FEATURE_MAP.md` §1 상태를 사본으로 갱신했습니다. `SHARED_MODULES.md` §3·역량 지도 버전, 프로그램별 `AGENTS.md`도 갱신했습니다.
+- **다음 첫 단계**: 이미지 생성 호출 모듈입니다(지도 §3, 나노바나나 설정 파일 7곳 복사본부터). 대상 비교 → ① 안정성 ② 유지보수로 기준 선정 → 플랜 먼저 진행합니다.
+- **링크**: https://ai-auto-blog.buylife.xyz · https://tistory-auto-blog.buylife.xyz · https://naver-blog-agent.buylife.xyz · https://threads-content-ops.buylife.xyz · https://trending-product-finder.buylife.xyz
+
 ## 2026-10-17 Claude Code(맥미니) — 유튜브 댓글자동화 v1.11: 좌측 상단 제목 「YOUTUBE 댓글 자동화」 (🟠 윈도우 배포 요청)
 
 - 주인님 지시로 사이드바 로고 옆 제목 변경(`youtube-auto-reply/components/layout/Sidebar.tsx`), 버전 v1.11. `tsc --noEmit` 오류 0.

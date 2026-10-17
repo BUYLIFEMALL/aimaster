@@ -239,3 +239,9 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 첫 실행 예상(배포 전 재조회): 리포트 31/59·스냅샷 65/177·경쟁 0·알림 캐시 1 삭제, 관심 상품 5개 유지. 관리자 리포트 23개(2026-08-31~09-11)는 전부 만료라 지금도 화면에 보이지 않음.
 - 검수: 단위 11개(기준 시각 2개 추가)·권한 15·build·lint, 배포·DB v1.13, 무인증·잘못된 인증 정리 호출 401, `vercel crons ls` 4개 확인, 크롬 리포트·대시보드 정상·콘솔 오류 0.
 - **남은 확인**: 2026-10-18 03:50 KST 첫 실행 뒤 표별 행 수가 위 예상만큼 줄었는지 DB 대조(Claude Code는 CRON_SECRET을 모르므로 인증 호출을 직접 하지 않았음). 날짜 칸 인덱스는 표가 작아(수십~수백 행) 이번엔 추가하지 않음 — 자료가 많아지면 검토(스키마 변경 승인 필요).
+
+## 2026-10-17 v1.14 — 유튜브 조회를 공용 기준 코드 `youtube-data-client` 사본으로 (2단계, Claude Code 윈도우)
+- `lib/youtube/youtubeData.ts`(사본) 추가, `lib/youtube/client.ts` `getYoutubeSignal()`의 검색·조회수 조회가 모듈로 위임. 예전엔 검색 실패 때 YouTube 오류 원문(최대 300자)을 그대로 던졌는데 한국어 안내로 바뀜. 조회수 합계는 보조 신호라 실패해도 예전처럼 0.
+- 개선: 15초 시간 제한, 서버 오류·네트워크만 1회 재시도, 키 가리기, 일일 한도/분당 제한/키 사용 제한/API 미사용 구분 안내(초기화 시각 서머타임 반영).
+- 검수: tsc·eslint(lib/youtube) 0, build, 배포·DB v1.14, 크롬 화면 v1.14. 리포트 엔진은 유튜브 신호 실패를 기록만 하고 계속 진행(기존 동작). 실제 YouTube 호출은 하지 않음.
+- **주의(다음 CLI)**: 모듈 파일 `youtubeData.ts`는 공용 기준 코드 `youtube-data-client`의 사본이다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 8개 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.

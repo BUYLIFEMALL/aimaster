@@ -1,9 +1,8 @@
 import "server-only";
+import { YouTubeDataError, youtubeRequest } from "./youtubeData";
 
 // 떡상 콘텐츠 수집의 "유튜브 쇼츠 검색" (v1.37). `shorts-viral-studio`의 검색·지표 계산을 옮겼다.
 // 회원 본인의 YouTube Data API 키만 쓴다. 검색 1회 = 약 102유닛(search 100 + videos 1 + channels 1).
-
-const BASE = "https://www.googleapis.com/youtube/v3";
 
 export type ShortsOrder = "relevance" | "viewCount" | "date";
 export type ShortsGrade = "초대박" | "대박" | "떡상" | "양호" | "보통" | "판정불가";
@@ -33,26 +32,15 @@ export class YouTubeSearchError extends Error {
   }
 }
 
+// v1.99(2026-10-17): YouTube 읽기 호출은 공용 기준 코드 youtube-data-client(./youtubeData — 기준은 youtube-channel-consultant)로 위임한다.
+// 15초 시간 제한·일시 오류 1회 재시도·키 가리기·한도/분당 제한·키 사용 제한 구분 안내. 오류는 이 프로그램 형식(YouTubeSearchError)으로 바꿔 던진다.
 async function ytFetch<T>(path: string, params: Record<string, string>, apiKey: string): Promise<T> {
-  const url = new URL(`${BASE}/${path}`);
-  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
-  url.searchParams.set("key", apiKey);
-  const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
-  if (response.ok) return (await response.json()) as T;
-
-  const body = (await response.json().catch(() => ({}))) as { error?: { message?: string; errors?: { reason?: string }[] } };
-  const reason = body.error?.errors?.[0]?.reason ?? "";
-  const message = body.error?.message ?? "";
-  if (["quotaExceeded", "rateLimitExceeded", "dailyLimitExceeded"].includes(reason)) {
-    throw new YouTubeSearchError("YouTube API 일일 할당량을 모두 사용했습니다. 검색은 1회에 약 100유닛(하루 기본 1만유닛)을 쓰므로 내일 다시 시도해 주세요.");
+  try {
+    return (await youtubeRequest(path, params, apiKey)) as T;
+  } catch (error) {
+    if (error instanceof YouTubeDataError) throw new YouTubeSearchError(error.message, error.keyProblem);
+    throw error;
   }
-  if (reason === "accessNotConfigured" || reason === "forbidden") {
-    throw new YouTubeSearchError("이 키에서 YouTube Data API v3가 활성화되어 있지 않습니다. 구글 클라우드 콘솔에서 'YouTube Data API v3'를 사용 설정해 주세요.", true);
-  }
-  if ((response.status === 400 || response.status === 403) && (reason === "keyInvalid" || reason === "API_KEY_INVALID" || message.toLowerCase().includes("api key"))) {
-    throw new YouTubeSearchError("YouTube API 키가 올바르지 않습니다. API키등록·플랫폼연동에서 키를 다시 확인해 주세요.", true);
-  }
-  throw new YouTubeSearchError(`YouTube 검색에 실패했습니다. (${response.status})`);
 }
 
 function parseDuration(value: string | undefined): number {
