@@ -51,7 +51,7 @@
 | 남은 것 | threads-affiliate-poster `imageGenerator.ts`(다중 플랫폼 생성기) | ⚪ |
 | 단일 주소 상수형 (3묶음 적용) | kakao_auto_poster `reportImage.ts` v1.12 · stepmail `emailImage.ts` v1.12 · auto-detail-page `api/generate-image` v1.09 · tarot `api/generate-card-image` v1.09 · mbti-character `api/generate-character-image` v1.10 · music `nanobanana.ts` v1.12 (+ ai-auto-blog·tistory `editorImage.ts`는 1단계) — 각 폴더 `geminiImage.ts`·`nanoBananaModels.ts` | 🔵 사본 |
 | 직접 호출형 (4묶음 A 적용) | cardnews-studio v1.11 · style-dna-analyzer v1.18 · shop-detail-page v1.11 · blog-content-maker v1.06 · blog-workroom v1.08 · music-video-studio v1.07 · emotion-writer v1.11 · photo-remake-studio v1.05 · shorts-onestop-studio v1.15 · seo-thumbnail-pro v1.06 — 각 폴더 `geminiImage.ts`·`nanoBananaModels.ts`(모델 목록은 등급표에서 값만 가져오고 화면 이름·순서는 프로그램이 정함). 시간 제한이 150초 이상이거나 중복 과금 방지 설계인 곳(shop-detail·photo-remake·shorts-onestop·blog-content-maker·blog-workroom)은 `retries: 0` | 🔵 사본 |
-| 등급 목록형 SDK 사용(4묶음 B 예정) | playlist-channel-studio · four-cut-comics · thumbnail-master · portrait-photo · banana-canvas · fashion-style · allinone-graphic · cinematic-storyboard-studio · ai-influencer-studio | ⚪ |
+| SDK 사용형 (4묶음 B 적용, 2026-10-18) | playlist-channel-studio v1.14(Gemini 부분) · four-cut-comics v1.10 · thumbnail-master v1.06 · portrait-photo v1.21 · banana-canvas v1.07 · fashion-style v1.08 · allinone-graphic v1.07 · cinematic-storyboard-studio v1.09 · ai-influencer-studio v1.11 — 각 `src/lib/geminiImage.ts`·`nanoBananaModels.ts`(글 생성은 SDK 그대로) | 🔵 사본 |
 | 옛 Imagen에서 바꾼 곳 | yt-playlist-studio · ai-webtoon-studio · ebook-studio · detail-page-12p · vinyl-lp-studio | ⚪ |
 
 ## 4. 외부 데이터 수집(스크래핑·RSS·검색) — 공용화 후보
@@ -88,6 +88,7 @@
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-18 | 이미지 4묶음 B SDK 사용형 9곳 사본 적용(시간 제한·최종 이미지 선택·오류 구분) | Claude Code(윈도우) |
 | 2026-10-18 | 이미지 시간 초과 안내를 Google 사용량 확인으로 정정 — 기준 + 사본 30곳 재배포 | Claude Code(윈도우) |
 | 2026-10-18 | 이미지 시간 초과 자동 재시도 중단 — 기준 + 사본 30곳 재배포 | Claude Code(윈도우) |
 | 2026-10-17 | 이미지 시간 초과 안내 문구 통일 — 기준 + 사본 30곳 재배포 | Claude Code(윈도우) |

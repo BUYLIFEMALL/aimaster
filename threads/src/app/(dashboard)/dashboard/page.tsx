@@ -47,9 +47,12 @@ export default async function DashboardPage() {
     .slice(0, 5);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-neutral-900">대시보드</h1>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">대시보드</h1>
+          <p className="text-xs text-neutral-400 mt-0.5">Threads 자동 포스팅 현황 및 예약 스케줄 관리</p>
+        </div>
         <div className="flex gap-2">
           <Link href="/posts/new">
             <Button>새 게시글 작성</Button>
@@ -63,9 +66,9 @@ export default async function DashboardPage() {
       </div>
 
       {(program?.description || program?.short_desc) && (
-        <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="rounded-2xl border border-neutral-800 bg-[#1f1f1f] p-5 shadow-sm">
           {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
-            <p key={i} className="mb-2 text-sm leading-relaxed text-neutral-700 last:mb-0">
+            <p key={i} className="mb-2 text-xs leading-relaxed text-neutral-300 last:mb-0">
               {sentence}
             </p>
           ))}
@@ -73,49 +76,101 @@ export default async function DashboardPage() {
       )}
 
       {/* 프로세스 분석 기반 사용방법 가이드 */}
-      <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-bold text-neutral-900">사용방법</h2>
-        <ol className="list-inside list-decimal space-y-3 text-sm text-neutral-700">
-          <li>
-            <Link href="/settings" className="font-semibold text-neutral-900 underline hover:text-black">
-              API 키 및 계정 설정
-            </Link>
-            에서 본인의 Threads 앱 ID / Threads 앱 시크릿 코드 및 OpenAI API 키를 입력하고, <strong>[Threads 계정 연결]</strong> 버튼을 눌러 쓰레드 계정을 연동합니다.
-          </li>
-          <li>
-            <Link href="/candidates" className="font-semibold text-neutral-900 underline hover:text-black">
-              후보 및 주제 관리
-            </Link>
-            에서 포스팅할 텍스트 아이디어, 주제 키워드, 소구점 분석을 등록하고 AI를 활용해 바이럴 홍보 캡션을 자동 생성합니다.
-          </li>
-          <li>
-            <Link href="/posts" className="font-semibold text-neutral-900 underline hover:text-black">
-              게시글 관리 및 예약
-            </Link>
-            에서 생성된 게시글에 이미지/동영상을 첨부하고 원하는 게시 시각을 지정하여 예약 등록하거나 즉시 게시합니다.
-          </li>
-          <li>
-            <Link href="/dashboard" className="font-semibold text-neutral-900 underline hover:text-black">
-              대시보드 모니터링
-            </Link>
-            에서 게시 상태(임시저장/예약중/게시됨/실패)를 모니터링하고 상단의 <strong>[예약 게시 실행]</strong> 버튼을 눌러 일정을 자동으로 처리합니다.
-          </li>
-        </ol>
+      <div className="space-y-4 rounded-2xl border border-neutral-800 bg-[#1f1f1f] p-5 shadow-sm">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+          <h2 className="text-sm font-bold text-white flex items-center gap-2">
+            <span>🚀 Threads 포스팅 자동화 4단계 사용 가이드</span>
+          </h2>
+          <Link href="/guide" className="text-xs text-amber-400 hover:underline font-medium">
+            전체 매뉴얼 보기 →
+          </Link>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 space-y-2 hover:border-amber-500/40 transition-colors">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold px-2 py-0.5 text-[10px]">
+                1단계
+              </span>
+              <span className="text-base">🔑</span>
+            </div>
+            <h3 className="font-bold text-xs text-white">
+              <Link href="/settings" className="hover:text-amber-400 transition-colors">
+                API키 &amp; 계정 연동
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-400 leading-relaxed">
+              Threads 앱 ID/시크릿 및 OpenAI/Gemini 키 등록 후 쓰레드 계정을 연결합니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 space-y-2 hover:border-blue-500/40 transition-colors">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold px-2 py-0.5 text-[10px]">
+                2단계
+              </span>
+              <span className="text-base">🔍</span>
+            </div>
+            <h3 className="font-bold text-xs text-white">
+              <Link href="/candidates" className="hover:text-blue-400 transition-colors">
+                게시글 주제 수집
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-400 leading-relaxed">
+              아이디어 키워드, 뉴스 RSS를 등록하고 AI로 바이럴 캡션을 자동 생성합니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 space-y-2 hover:border-purple-500/40 transition-colors">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold px-2 py-0.5 text-[10px]">
+                3단계
+              </span>
+              <span className="text-base">📝</span>
+            </div>
+            <h3 className="font-bold text-xs text-white">
+              <Link href="/posts/new" className="hover:text-purple-400 transition-colors">
+                AI 글+이미지 조립
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-400 leading-relaxed">
+              500자 맞춤형 후킹 본문과 나노바나나 고화질 AI 이미지를 결합합니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 space-y-2 hover:border-emerald-500/40 transition-colors">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-2 py-0.5 text-[10px]">
+                4단계
+              </span>
+              <span className="text-base">⚡</span>
+            </div>
+            <h3 className="font-bold text-xs text-white">
+              <Link href="/posts" className="hover:text-emerald-400 transition-colors">
+                즉시 / 예약 발행
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-400 leading-relaxed">
+              피크 시간에 맞춰 예약 발행하거나 즉시 Meta Threads로 전송합니다.
+            </p>
+          </div>
+        </div>
       </div>
 
       {!account && (
-        <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
-          Threads 계정이 연결되어 있지 않습니다.{" "}
-          <Link href="/settings" className="font-medium underline">
-            계정 연결하러 가기
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs text-amber-300">
+          ⚠️ Threads 계정이 연결되어 있지 않습니다.{" "}
+          <Link href="/settings" className="font-bold underline hover:text-white">
+            계정 연결하러 가기 →
           </Link>
         </div>
       )}
 
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
+      {/* 상태 통계 5개 카드 */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {(Object.keys(counts) as PostStatus[]).map((status) => (
-          <div key={status} className="rounded-lg border border-neutral-200 bg-white p-4">
-            <div className="text-2xl font-semibold text-neutral-900">{counts[status]}</div>
+          <div key={status} className="rounded-xl border border-neutral-800 bg-[#1f1f1f] p-4">
+            <div className="text-2xl font-bold text-white tracking-tight">{counts[status]}</div>
             <div className="mt-1">
               <StatusBadge status={status} />
             </div>
@@ -123,21 +178,22 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <div className="rounded-lg border border-neutral-200 bg-white">
-        <div className="border-b border-neutral-200 p-4">
-          <h2 className="text-sm font-semibold text-neutral-900">다가오는 예약 게시</h2>
+      {/* 다가오는 예약 게시 목록 */}
+      <div className="rounded-2xl border border-neutral-800 bg-[#1f1f1f] overflow-hidden">
+        <div className="border-b border-neutral-800 p-4">
+          <h2 className="text-xs font-bold text-white">다가오는 예약 게시</h2>
         </div>
         {upcoming.length === 0 ? (
-          <p className="p-4 text-sm text-neutral-500">예약된 게시글이 없습니다.</p>
+          <p className="p-4 text-xs text-neutral-500">예약된 게시글이 없습니다.</p>
         ) : (
-          <ul className="divide-y divide-neutral-100">
+          <ul className="divide-y divide-neutral-800/80">
             {upcoming.map((post) => (
-              <li key={post.id} className="flex items-center justify-between p-4">
-                <div className="min-w-0">
-                  <Link href={`/posts/${post.id}`} className="block truncate text-sm text-neutral-900 hover:underline">
+              <li key={post.id} className="flex items-center justify-between p-4 hover:bg-neutral-800/30 transition-colors">
+                <div className="min-w-0 pr-4">
+                  <Link href={`/posts/${post.id}`} className="block truncate text-xs text-neutral-200 hover:text-white font-medium">
                     {post.content}
                   </Link>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-[11px] text-neutral-500">
                     {post.scheduled_at ? new Date(post.scheduled_at).toLocaleString("ko-KR") : "-"}
                   </p>
                 </div>

@@ -41,6 +41,8 @@ function parseJson<T>(text: string): T | null {
 export async function runTask(apiKey: string, userId: string, p: RunParams): Promise<RunResult> {
   const miss = missingInput(p);
   if (miss) throw new InputError(miss);
+  // 이미지 호출 마감 시각: /api/run 함수 한도 300초 − 저장·후처리 여유 20초(2026-10-18, 공용 이미지 모듈 적용)
+  const deadline = Date.now() + 280_000;
 
   const base = p.base ? await load(userId, p.base, "원본 이미지") : null;
   const sources = [];
@@ -71,7 +73,7 @@ export async function runTask(apiKey: string, userId: string, p: RunParams): Pro
         const parts: Part[] = [];
         if (prev) parts.push({ image: { mime: prev.mime, data: prev.bytes } });
         parts.push({ text: storyCutPrompt(character, scenes[i], i + 1, scenes.length) });
-        const r = await imageModel(apiKey, parts, { model: p.model, aspect: "16:9", modalities: "image" });
+        const r = await imageModel(apiKey, parts, { model: p.model, aspect: "16:9", modalities: "image", deadline });
         model = r.model;
         const item = await save(userId, r.images[0].bytes, r.images[0].mime, scenes[i]);
         outputs.push(item);
@@ -98,7 +100,7 @@ export async function runTask(apiKey: string, userId: string, p: RunParams): Pro
         const i = next++;
         const s = steps[i];
         try {
-          const r = await imageModel(apiKey, [{ text: recipeImagePrompt(task.prompt, String(s.imagePrompt ?? s.text)) }], { model: p.model, aspect: "4:3", modalities: "image" });
+          const r = await imageModel(apiKey, [{ text: recipeImagePrompt(task.prompt, String(s.imagePrompt ?? s.text)) }], { model: p.model, aspect: "4:3", modalities: "image", deadline });
           model = r.model;
           outputs[i] = await save(userId, r.images[0].bytes, r.images[0].mime, String(s.text));
         } catch (e) {
@@ -119,7 +121,7 @@ export async function runTask(apiKey: string, userId: string, p: RunParams): Pro
   for (const s of sources) parts.push({ image: { mime: mimeOf(s.path), data: s.bytes } });
   if (mask) parts.push({ image: { mime: mimeOf(mask.path), data: mask.bytes } });
   parts.push({ text: task.prompt });
-  const r = await imageModel(apiKey, parts, { model: p.model, aspect: task.aspect, modalities: task.modalities });
+  const r = await imageModel(apiKey, parts, { model: p.model, aspect: task.aspect, modalities: task.modalities, deadline });
   let img = r.images[r.images.length - 1];
   let bytes = img.bytes, mime = img.mime, warning: string | undefined;
 

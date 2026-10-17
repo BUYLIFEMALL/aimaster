@@ -2,6 +2,7 @@
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { GoogleGenAI, Type } from "@google/genai";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import type { AISuggestion, AspectRatio, BackgroundMode, BeautyAdvice, BeautyType, ImageState, Lang, ModelLevel, SuggestionKind } from "@/lib/look/types";
 import { beautyAdvicePrompt, beautyApplyPrompt, itemImagePrompt, itemNamePrompt, recommendPrompt, tryOnPrompt } from "@/lib/look/prompts";
 import { parseBeauty, parseSuggestions } from "@/lib/look/validate";
@@ -17,10 +18,9 @@ export class AiError extends Error {
   constructor(public code: AiErrorCode, message: string) { super(message); }
 }
 
-const SAFETY_REASONS = new Set(["SAFETY", "IMAGE_SAFETY", "IMAGE_OTHER", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"]);
-
 /** 어떤 예외든 사용자에게 보여줄 한국어 메시지와 HTTP 상태로 바꾼다(키·이미지 값은 포함하지 않는다) */
 export function toUserError(e: unknown): { code: AiErrorCode; message: string; status: number } {
+  if (e instanceof GeminiImageError) return toUserError(fromImageError(e));
   if (e instanceof AiError) {
     const map: Record<AiErrorCode, { message: string; status: number }> = {
       key: { message: "등록한 Gemini API 키가 올바르지 않거나 이 기능을 쓸 권한이 없습니다. [API키등록·플랫폼연동]에서 키를 확인해 주세요.", status: 400 },
@@ -31,7 +31,8 @@ export function toUserError(e: unknown): { code: AiErrorCode; message: string; s
       parse: { message: "AI 응답을 이해하지 못했습니다. 다시 시도해 주세요.", status: 502 },
       unknown: { message: "AI 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", status: 500 },
     };
-    return { code: e.code, ...map[e.code] };
+    // 메시지를 넣어 던진 AiError(공용 이미지 모듈의 시간 초과 표준 안내 등)는 그 메시지를 보여 준다
+    return { code: e.code, ...map[e.code], ...(e.message ? { message: e.message } : {}) };
   }
   const raw = (e instanceof Error ? e.message : String(e ?? "")).toLowerCase();
   if (/api key|api_key|permission|unauthenticated|\b401\b|\b403\b|invalid argument.*key/.test(raw)) return toUserError(new AiError("key", ""));
@@ -50,7 +51,8 @@ async function withModelFallback<T>(level: ModelLevel, run: (m: { text: string; 
   try {
     return await run(MODELS[level]);
   } catch (e) {
-    if (level === "pro" && isModelUnavailable(e)) return run(MODELS.standard);
+    const unavailable = e instanceof GeminiImageError ? e.code === "MODEL_NOT_FOUND" : isModelUnavailable(e);
+    if (level === "pro" && unavailable) return run(MODELS.standard);
     throw e;
   }
 }
@@ -61,19 +63,36 @@ function clientFor(apiKey: string) {
 
 type Part = { text: string } | { inlineData: { data: string; mimeType: string } };
 
-async function generateImage(apiKey: string, model: string, parts: Part[], aspectRatio: AspectRatio): Promise<ImageState> {
-  const res = await clientFor(apiKey).models.generateContent({
-    model,
-    contents: { parts },
-    config: { imageConfig: { aspectRatio } },
+/** 공용 이미지 모듈 오류 → 이 프로그램의 AiError(시간 초과·연결 오류는 공용 안내 문구 사용) */
+function fromImageError(e: GeminiImageError): AiError {
+  switch (e.code) {
+    case "INVALID_KEY": case "PERMISSION_DENIED": case "API_NOT_ENABLED": return new AiError("key", "");
+    case "QUOTA_EXCEEDED": case "RATE_LIMITED": return new AiError("quota", "");
+    case "SAFETY_BLOCKED": return new AiError("safety", "");
+    case "NO_IMAGE": case "MODEL_NOT_FOUND": return new AiError("noimage", "");
+    case "TIMEOUT": case "NETWORK": case "SERVER_ERROR": return new AiError("timeout", e.message);
+    default: return new AiError("unknown", "");
+  }
+}
+
+/** 이미지 라우트 함수 한도 60초 − 여유: 한 요청(폴백 포함)에서 이미지 호출에 쓸 수 있는 시간 */
+const IMAGE_BUDGET_MS = 50_000;
+
+/**
+ * 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+ * 마감 시각까지 남은 시간만 쓰고, 유료 생성이라 재시도 없음(이중 과금 방지). 오류는 GeminiImageError로 던지고 toUserError가 문구로 바꾼다.
+ * 모델·비율·프롬프트는 그대로.
+ */
+async function generateImage(apiKey: string, model: string, parts: Part[], aspectRatio: AspectRatio, deadline: number): Promise<ImageState> {
+  const image = await generateGeminiImage({
+    apiKey,
+    modelName: model,
+    parts,
+    aspectRatio,
+    timeoutMs: Math.max(10_000, deadline - Date.now()),
+    retries: 0,
   });
-  const cand = res.candidates?.[0];
-  const img = cand?.content?.parts?.find((p) => p.inlineData?.data);
-  if (img?.inlineData?.data) return { data: img.inlineData.data, mimeType: img.inlineData.mimeType || "image/png" };
-  const reason = String(cand?.finishReason ?? "");
-  const blocked = String(res.promptFeedback?.blockReason ?? "");
-  if (SAFETY_REASONS.has(reason) || blocked) throw new AiError("safety", "");
-  throw new AiError("noimage", "");
+  return { data: image.base64, mimeType: image.mimeType || "image/png" };
 }
 
 const piecesSchema = {
@@ -115,7 +134,7 @@ export async function recommend(apiKey: string, image: ImageState, situation: st
 
 /** 아이템(옷·액세서리) 이미지는 비용을 아끼려고 항상 standard 이미지 모델을 쓴다 */
 export async function itemImage(apiKey: string, prompt: string): Promise<ImageState> {
-  return generateImage(apiKey, MODELS.standard.image, [{ text: itemImagePrompt(prompt) }], "1:1");
+  return generateImage(apiKey, MODELS.standard.image, [{ text: itemImagePrompt(prompt) }], "1:1", Date.now() + IMAGE_BUDGET_MS);
 }
 
 export async function itemName(apiKey: string, image: ImageState): Promise<string> {
@@ -129,8 +148,9 @@ export async function itemName(apiKey: string, image: ImageState): Promise<strin
 export async function tryOn(
   apiKey: string, base: ImageState, item: ImageState, aspect: AspectRatio, background: BackgroundMode, situation: string | undefined, level: ModelLevel,
 ): Promise<ImageState> {
+  const deadline = Date.now() + IMAGE_BUDGET_MS;
   return withModelFallback(level, (m) =>
-    generateImage(apiKey, m.image, [{ inlineData: base }, { inlineData: item }, { text: tryOnPrompt(background, situation) }], aspect),
+    generateImage(apiKey, m.image, [{ inlineData: base }, { inlineData: item }, { text: tryOnPrompt(background, situation) }], aspect, deadline),
   );
 }
 
@@ -156,7 +176,8 @@ export async function beautyAdvice(apiKey: string, image: ImageState, lang: Lang
 }
 
 export async function beautyApply(apiKey: string, image: ImageState, type: BeautyType, description: string, aspect: AspectRatio, level: ModelLevel): Promise<ImageState> {
+  const deadline = Date.now() + IMAGE_BUDGET_MS;
   return withModelFallback(level, (m) =>
-    generateImage(apiKey, m.image, [{ inlineData: image }, { text: beautyApplyPrompt(type, description) }], aspect),
+    generateImage(apiKey, m.image, [{ inlineData: image }, { text: beautyApplyPrompt(type, description) }], aspect, deadline),
   );
 }

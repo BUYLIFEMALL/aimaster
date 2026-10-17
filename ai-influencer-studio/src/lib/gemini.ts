@@ -2,6 +2,7 @@
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import { GoogleGenAI, Type } from "@google/genai";
 import { buildInfluencerPrompt } from "./influencer-engine";
+import { generateGeminiImage } from "./geminiImage";
 import {
   LIGHTINGS,
   CAMERA_MODES,
@@ -30,7 +31,6 @@ export async function generateInfluencerImage(
     throw new Error("Gemini API 키가 등록되지 않았습니다. 설정에서 본인 키를 등록해주세요.");
   }
 
-  const ai = new GoogleGenAI({ apiKey });
   const finalPrompt = buildInfluencerPrompt(config);
 
   const parts: any[] = [];
@@ -90,31 +90,23 @@ export async function generateInfluencerImage(
   // 프롬프트 텍스트 파트
   parts.push({ text: finalPrompt });
 
+  // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+  // 생성 라우트 함수 한도 60초 → 시간 제한 50초, 유료 생성이라 재시도 없음(이중 과금 방지). 실패하면 한국어 안내(키 가림)를
+  // 담은 오류를 던지고 라우트가 그 문구를 보여 준다. 모델·비율·화질·프롬프트는 그대로.
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-pro-image",
-      contents: { parts },
-      config: {
-        imageConfig: {
-          aspectRatio: config.aspectRatio || "9:16",
-          imageSize: config.quality || "1K",
-        },
-      },
+    const image = await generateGeminiImage({
+      apiKey,
+      modelName: "gemini-3-pro-image",
+      parts,
+      aspectRatio: config.aspectRatio || "9:16",
+      imageSize: config.quality || "1K",
+      timeoutMs: 50_000,
+      retries: 0,
     });
-
-    const candidates = response.candidates;
-    if (candidates && candidates[0]?.content?.parts) {
-      for (const part of candidates[0].content.parts) {
-        if (part.inlineData?.data) {
-          return `data:image/png;base64,${part.inlineData.data}`;
-        }
-      }
-    }
-
-    throw new Error("이미지 생성 결과가 비어있습니다.");
+    return `data:${image.mimeType || "image/png"};base64,${image.base64}`;
   } catch (err: any) {
-    console.error("Gemini Image Generation Error:", err);
-    throw new Error(err.message || "이미지 생성 실패");
+    console.error("Gemini Image Generation Error:", err?.code ?? "", err?.message ?? "");
+    throw err instanceof Error ? err : new Error("이미지 생성 실패");
   }
 }
 

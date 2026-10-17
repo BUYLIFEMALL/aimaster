@@ -44,8 +44,8 @@ export default async function SettingsPage({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="mb-2 text-2xl font-semibold text-neutral-900">API키등록·플랫폼연동</h1>
-        <p className="text-sm text-neutral-600">
+        <h1 className="mb-2 text-2xl font-bold text-white tracking-tight">API키등록·플랫폼연동</h1>
+        <p className="text-sm text-neutral-400">
           게시글/이미지 생성요청 전 본인의 API키를 등록하고, 게시글을 올릴 Threads 계정을
           연결해주세요.
         </p>

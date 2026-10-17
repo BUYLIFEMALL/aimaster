@@ -73,6 +73,16 @@ const MODULES = [
       "photo-remake-studio/src/lib/geminiImage.ts",
       "shorts-onestop-studio/src/lib/geminiImage.ts",
       "seo-thumbnail-pro/src/lib/geminiImage.ts",
+      // 4묶음 B SDK 사용형(2026-10-18)
+      "playlist-channel-studio/src/lib/geminiImage.ts",
+      "four-cut-comics/src/lib/geminiImage.ts",
+      "thumbnail-master/src/lib/geminiImage.ts",
+      "portrait-photo/src/lib/geminiImage.ts",
+      "banana-canvas/src/lib/geminiImage.ts",
+      "fashion-style/src/lib/geminiImage.ts",
+      "allinone-graphic/src/lib/geminiImage.ts",
+      "cinematic-storyboard-studio/src/lib/geminiImage.ts",
+      "ai-influencer-studio/src/lib/geminiImage.ts",
     ],
   },
   {
@@ -113,6 +123,16 @@ const MODULES = [
       "photo-remake-studio/src/lib/nanoBananaModels.ts",
       "shorts-onestop-studio/src/lib/nanoBananaModels.ts",
       "seo-thumbnail-pro/src/lib/nanoBananaModels.ts",
+      // 4묶음 B SDK 사용형(2026-10-18)
+      "playlist-channel-studio/src/lib/nanoBananaModels.ts",
+      "four-cut-comics/src/lib/nanoBananaModels.ts",
+      "thumbnail-master/src/lib/nanoBananaModels.ts",
+      "portrait-photo/src/lib/nanoBananaModels.ts",
+      "banana-canvas/src/lib/nanoBananaModels.ts",
+      "fashion-style/src/lib/nanoBananaModels.ts",
+      "allinone-graphic/src/lib/nanoBananaModels.ts",
+      "cinematic-storyboard-studio/src/lib/nanoBananaModels.ts",
+      "ai-influencer-studio/src/lib/nanoBananaModels.ts",
     ],
   },
   {

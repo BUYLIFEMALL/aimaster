@@ -1,5 +1,6 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 
 // 모델명은 자주 바뀌므로 한곳에서 관리한다(이미지 모델 후보는 lib/comic/options.ts).
 export const TEXT_MODEL = "gemini-flash-lite-latest";
@@ -20,11 +21,10 @@ const TABLE: Record<AiErrorCode, { message: string; status: number }> = {
   unknown: { message: "AI 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", status: 500 },
 };
 
-const SAFETY_REASONS = new Set(["SAFETY", "IMAGE_SAFETY", "IMAGE_OTHER", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"]);
-
 /** 어떤 예외든 사용자에게 보여줄 한국어 메시지와 HTTP 상태로 바꾼다(키·이미지 값은 절대 포함하지 않는다) */
 export function toUserError(e: unknown): { code: AiErrorCode; message: string; status: number } {
-  if (e instanceof AiError) return { code: e.code, ...TABLE[e.code] };
+  // 메시지를 넣어 던진 AiError(공용 이미지 모듈의 시간 초과 표준 안내 등)는 그 메시지를 보여 준다
+  if (e instanceof AiError) return { code: e.code, ...TABLE[e.code], ...(e.message ? { message: e.message } : {}) };
   const raw = (e instanceof Error ? e.message : String(e ?? "")).toLowerCase();
   if (/not found|\b404\b|is not supported|unsupported model|does not exist/.test(raw)) return { code: "model", ...TABLE.model };
   if (/api key|api_key|permission|unauthenticated|\b401\b|\b403\b/.test(raw)) return { code: "key", ...TABLE.key };
@@ -80,28 +80,41 @@ export async function generateVisionJson(o: { apiKey: string; prompt: string; im
 
 export interface GeneratedImage { data: string; mimeType: string }
 
-/** 이미지 1장 생성(기본 정사각형, 컷은 회원이 고른 비율). parts에는 참고 이미지(inlineData)와 지시문(text)을 순서대로 넣는다 */
+/** 공용 이미지 모듈 오류 → 이 프로그램의 AiError(코드·문구 표는 그대로, 시간 초과·연결 오류는 공용 안내 문구 사용) */
+function fromImageError(e: GeminiImageError): AiError {
+  switch (e.code) {
+    case "INVALID_KEY": case "PERMISSION_DENIED": case "API_NOT_ENABLED": return new AiError("key");
+    case "QUOTA_EXCEEDED": case "RATE_LIMITED": return new AiError("quota");
+    case "MODEL_NOT_FOUND": return new AiError("model");
+    case "SAFETY_BLOCKED": return new AiError("safety");
+    case "NO_IMAGE": return new AiError("noimage");
+    case "TIMEOUT": case "NETWORK": case "SERVER_ERROR": return new AiError("timeout", e.message);
+    default: return new AiError("unknown");
+  }
+}
+
+/**
+ * 이미지 1장 생성(기본 정사각형, 컷은 회원이 고른 비율). 참고 이미지(inlineData) 다음에 지시문(text)을 넣는다.
+ * 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+ * 라우트 함수 한도가 60초라 시간 제한 50초, 유료 생성이라 재시도 없음(이중 과금 방지). 모델·비율·프롬프트는 그대로.
+ */
 export async function generateImage(o: {
   apiKey: string; model: string; prompt: string; refs?: { data: string; mimeType: string }[]; aspectRatio?: string;
 }): Promise<GeneratedImage> {
-  const ai = new GoogleGenAI({ apiKey: o.apiKey });
-  const parts = [
-    ...(o.refs ?? []).map((r) => ({ inlineData: { data: r.data, mimeType: r.mimeType } })),
-    { text: o.prompt },
-  ];
-  const res = await withRetry(() => ai.models.generateContent({
-    model: o.model,
-    contents: { parts },
-    config: { imageConfig: { aspectRatio: o.aspectRatio ?? "1:1" } },
-  }));
-  const cand = res.candidates?.[0];
-  const list = [...(cand?.content?.parts ?? [])].reverse();
-  const img = list.find((p) => p.inlineData?.data && !p.thought);
-  if (img?.inlineData?.data) return { data: img.inlineData.data, mimeType: img.inlineData.mimeType || "image/png" };
-  const reason = String(cand?.finishReason ?? "");
-  const blocked = String(res.promptFeedback?.blockReason ?? "");
-  if (SAFETY_REASONS.has(reason) || blocked) throw new AiError("safety");
-  throw new AiError("noimage");
+  try {
+    const image = await generateGeminiImage({
+      apiKey: o.apiKey,
+      modelName: o.model,
+      parts: [...(o.refs ?? []).map((r) => ({ inlineData: { data: r.data, mimeType: r.mimeType } })), { text: o.prompt }],
+      aspectRatio: o.aspectRatio ?? "1:1",
+      timeoutMs: 50_000,
+      retries: 0,
+    });
+    return { data: image.base64, mimeType: image.mimeType || "image/png" };
+  } catch (e) {
+    if (e instanceof GeminiImageError) throw fromImageError(e);
+    throw e;
+  }
 }
 
 /** 키 확인용 아주 작은 텍스트 호출(본인 키 사용량 1회) */

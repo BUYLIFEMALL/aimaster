@@ -51,6 +51,7 @@
 7. **응답 처리**: gemini-3-pro-image는 중간 초안(`thought: true`) 이미지를 함께 보낸다. 기준의 `extractGeminiImage`가 마지막 최종 이미지를 고르므로 프로그램에서 첫 조각만 보는 코드를 새로 짜지 않는다.
 8. **고아 코드 정리**: 연결을 바꾸면서 쓰이지 않게 된 import·상수·옛 모델 목록은 지운다. 원래부터 쓰이지 않던 코드는 그대로 두고 보고만 한다.
 9. **시간 초과 안내 표준(2026-10-17, 10-18 정정)**: 시간 초과·응답 끊김은 「결과를 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인」 뜻으로 안내한다(기준 문구가 이렇게 되어 있으니 `e.message`를 그대로 쓰면 된다). **「보관함·결과에서 확인」이라고 쓰지 않는다** — 우리 서버가 요청을 끊으므로 이미지는 프로그램에 저장되지 않는다(2026-10-18 정정 사례). "잠시 후 다시 시도"만 쓰면 회원이 바로 다시 눌러 이중 과금될 수 있다.
+10. **SDK(`@google/genai`)를 쓰던 프로그램 전환 요령(2026-10-18, 4묶음 B)**: 이미지 호출만 공용 모듈로 바꾸고 글 생성은 SDK 그대로 둔다. 라우트 `maxDuration`이 짧은 곳(30~60초)이 많으니 시간 제한 = 한도 − 여유. 모델 폴백(없는 모델·이미지 없음일 때만)이 있는 곳은 **마감 시각을 정해 남은 시간만 다음 호출에 준다**(thumbnail-master·portrait-photo·fashion-style, 여러 장은 banana-canvas `runTask`의 `deadline`). 이 방식은 시간 검사에 `CHECK`로 나오니 문서에 직접 확인한 최대값을 적는다. `toUserError`류는 `AiError`에 메시지가 있으면 그 메시지를 보여 주게 고쳐 시간 초과 표준 안내가 나오게 한다.
 
 ## 3. 검수 — 테스트·빌드
 
@@ -81,18 +82,18 @@
 4. 커밋은 내 파일만 경로를 지정해 스테이징한다. 공유 문서에 다른 CLI의 미커밋 변경이 있으면 내 줄만 올린다(hash-object/update-index). `.git/index.lock`이 있으면 지우지 말고 기다린다.
 5. 완료 보고에는 사본을 쓰는 **모든 프로그램의 표**(프로그램 · 바꾼 연결 파일 · 테스트/빌드 · 배포 · 버전 · 화면 확인)를 넣는다. 하나라도 실패하면 완료가 아니다.
 
-## 6. 남은 공용화 작업 (2026-10-17 기준)
+## 6. 남은 공용화 작업 (2026-10-18 기준)
 
 | 순서 | 묶음 | 대상 | 주의 |
 |---|---|---|---|
-| 1 | 4묶음 B — 등급 목록형 SDK 사용 9곳 | playlist-channel-studio, four-cut-comics, thumbnail-master, portrait-photo, banana-canvas, fashion-style, allinone-graphic, cinematic-storyboard-studio, ai-influencer-studio | `@google/genai` SDK를 쓰므로 호출부를 REST 공용 모듈로 바꿀 때 응답 형식 차이 확인 |
-| 2 | 5묶음 — Imagen 교체분 5곳 | yt-playlist-studio, ai-webtoon-studio, ebook-studio, detail-page-12p, vinyl-lp-studio | 다른 CLI 작업 폴더인지 ACTIVE_WORK 먼저 확인 |
-| 3 | 개별 | threads-affiliate-poster `imageGenerator.ts`(여러 플랫폼 생성기) | Gemini 외 공급자와 섞여 있음 |
+| 1 | 5묶음 — Imagen 교체분 5곳 | yt-playlist-studio, ai-webtoon-studio, ebook-studio, detail-page-12p, vinyl-lp-studio | 다른 CLI 작업 폴더인지 ACTIVE_WORK 먼저 확인 |
+| 2 | 개별 | threads-affiliate-poster `imageGenerator.ts`(여러 플랫폼 생성기) | Gemini 외 공급자와 섞여 있음 |
 
 ## 7. 이력
 
 | 날짜 | 내용 | 작성 |
 |---|---|---|
+| 2026-10-18 | 4묶음 B 완료 반영(§6), SDK 전환 요령(§2-10) 추가 | Claude Code(윈도우) |
 | 2026-10-18 | 시간 초과 안내를 Google 사용량 확인으로 정정(§2-9) — 결과는 저장되지 않으므로 「결과 확인」 금지 | Claude Code(윈도우) |
 | 2026-10-18 | 기준이 시간 초과를 자동 재시도하지 않도록 변경 반영(§0-6, §2-2) | Claude Code(윈도우) |
 | 2026-10-17 | 시간 초과 안내 표준 문구(§2-9) 추가 — 기준·사본 30곳 반영 | Claude Code(윈도우) |

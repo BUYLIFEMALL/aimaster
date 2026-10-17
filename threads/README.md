@@ -1,101 +1,85 @@
-# Threads 포스팅 자동화 관리 웹
+# Threads 포스팅 자동화 (auto-threads-posting)
 
-Threads 게시글을 작성하고, 즉시 게시하거나 날짜/시간을 지정해 예약 게시할 수 있는
-마케팅 자동화 웹 애플리케이션입니다.
+> **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
+> **현재 버전**: `v1.17`  
+> **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**
 
-## 기술 스택
+---
 
-- **Next.js 16** (App Router, Turbopack)
-- **TypeScript**
-- **Tailwind CSS 4**
-- **Supabase** (PostgreSQL + Auth + RLS)
-- **Meta Threads 공식 API** (Graph API)
-- **Vercel** 배포
+## 1. 프로그램의 사용목적 및 대상
+- **사용 목적**: Meta Threads 공식 Graph API와 인공지능(OpenAI, Gemini, Perplexity)을 융합하여, 트렌드 주제 발굴 ➔ 500자 최적화 AI 바이럴 원고 작성 ➔ 나노바나나 고화질 이미지 조립 ➔ 즉시 및 피크 시간대 예약 발행까지 원스톱으로 처리하는 소셜 자동화 플랫폼입니다.
+- **주요 대상**:
+  - 스레드 계정을 빠르게 육성하고 매일 양질의 포스트를 꾸준히 발행하려는 크리에이터.
+  - 마케팅 인력 없이도 브랜드 계정을 24시간 자동화하여 운영하고 싶은 1인 기업 및 소상공인.
+  - 예약 발행 스케줄링을 통해 트래픽 유입과 전환율을 극대화하려는 마케터.
 
-## 핵심 기능
+---
 
-- 이메일 회원가입 / 로그인 (Supabase Auth)
-- 대시보드: 상태별 게시글 통계, 다가오는 예약 게시 목록
-- Threads 계정 OAuth 연결 / 해제
-- 텍스트 게시글 작성 + 이미지 첨부 (파일 업로드 → Supabase Storage, 또는 이미지 URL 직접 입력)
-- 즉시 게시 / 예약 게시 / 임시저장
-- 게시 상태 관리: `draft → scheduled → publishing → published / failed`
-- 게시 성공 시 Threads 게시물 ID·permalink 저장, 실패 시 오류 메시지 저장
-- 게시글 목록/상세/수정/삭제
-- AI 게시글 생성 기능을 위한 확장 자리 (`src/lib/ai/generator.ts`)
-- 모바일/PC 반응형 UI
+## 2. 개발 구현에 사용된 도구 / 개발기법 / 플러그인 / 스킬
+- **프론트엔드**: Next.js 16.2.11 (App Router, Turbopack 번들러), React 19, TypeScript.
+- **스타일링**: Tailwind CSS v4, Lucide React (스튜디오 다크 콘솔 테마).
+- **백엔드 & DB**: Supabase (PostgreSQL, Row Level Security 회원 격리), Next.js Server Actions.
+- **AI 엔진**:
+  - 텍스트 모델: OpenAI GPT-4o, Claude 3.5 Sonnet, Perplexity Sonar.
+  - 이미지 모델: Google Gemini 최신 정식 규격 (`gemini-nano-banana-2.1`, `gemini-3-pro-image`, `gemini-3.1-flash-lite-image`).
+- **외부 API 연동**: Meta Threads Official Graph API OAuth 2.0 (회원 개인 BYOK 방식).
+- **테스트 & 검증**: Microsoft Edge 포그라운드 (`headless: false`) 실세션 자동화 스크립트.
 
-## 보안 설계
+---
 
-- Threads Access Token은 `threads_accounts` 테이블에만 저장되며, 브라우저로 전달되지 않습니다.
-  모든 Threads API 호출은 `src/lib/threads/client.ts`(서버 전용, `server-only` 가드)에서만 실행됩니다.
-- Supabase **service role key**는 `src/lib/supabase/admin.ts`에서만 사용하며,
-  예약 게시 일괄 처리(`/api/posts/dispatch-scheduled`)처럼 RLS를 우회해야 하는 서버 로직에 한정합니다.
-- 사용자 데이터는 Supabase RLS(`auth.uid() = user_id`)로 분리됩니다. (`supabase/migrations/0001_init.sql`)
-- 비밀값은 `.env.local`(gitignore 처리됨)에서만 관리하며, 저장소에 커밋되지 않습니다.
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
 
-## 예약 게시 실행 방식 (자동화: cron-job.org + Vercel Cron 백업)
+### 1) 핵심 기능
+- **트렌드 글감 수집 (`/candidates`)**: 뉴스 RSS 및 실시간 키워드를 자동 수집하여 요약.
+- **AI 원고 및 이미지 제작 (`/posts`)**: 500자 최적화 후킹 카피 및 고화질 일러스트 원클릭 결합.
+- **즉시 및 예약 스케줄러 (`/api/posts/dispatch-scheduled`)**: 지정된 시간에 백그라운드 크론을 통해 자동 포스팅.
+- **인터랙티브 사용 매뉴얼 (`/guide`)**: Meta 앱 생성부터 OAuth 콜백 등록, 테스터 승인, 바이럴 알고리즘 공략법까지 단계별 안내.
 
-Vercel **Hobby(무료) 플랜은 Cron이 하루 1회로 제한**되므로, 메인 자동화는
-무료 외부 스케줄러(cron-job.org)가 1~5분 간격으로
-`/api/posts/dispatch-scheduled`를 호출하는 방식으로 구성했습니다.
-`vercel.json`에는 하루 1회 실행되는 Vercel Cron이 안전망(백업)으로 등록되어 있어,
-외부 스케줄러가 멈춰도 하루 한 번은 밀린 예약글이 게시됩니다.
-대시보드의 "예약 게시 실행" 버튼은 즉시 확인용 수동 트리거로 별도 유지됩니다.
+### 2) 장점
+- **완전한 BYOK 정책**: 모든 AI 키와 Meta 앱 계정은 회원 본인 소유로 안전하게 격리 보관.
+- **다크 스튜디오 최적화**: `#171717` 캔버스와 `#1f1f1f` 카드 테마로 높은 시인성과 작업 몰입도 제공.
+- **모바일 반응형 완비**: 375px 모바일 화면에서도 상단 고정 헤더와 햄버거 슬라이드 드로어로 완벽 조작.
 
-동일한 처리 로직이 `/api/posts/dispatch-scheduled` (GET/POST, `Authorization: Bearer <CRON_SECRET>` 필요)
-엔드포인트로 노출되어 있습니다. Vercel **Pro 플랜**으로 업그레이드하면 `vercel.json`만으로
-분 단위 자동화가 가능합니다. 자세한 내용은 `SETUP_GUIDE.md`를 참고하세요.
+### 3) 단점 및 한계점
+- 단일 이미지 중심 발행 구조(현재 10장 캐러셀 및 비디오 업로드 파이프라인 미구현).
+- 500자 초과 시 자동으로 첫 댓글(타래)로 나누어 발행하는 스레드 체인 미탑재.
 
-## 폴더 구조
+---
 
-```
-src/
-├── app/
-│   ├── (auth)/            # 로그인 / 회원가입
-│   ├── (dashboard)/       # 인증 가드가 걸린 대시보드/게시글/계정 화면
-│   └── api/
-│       ├── threads/callback/          # Threads OAuth 콜백
-│       └── posts/dispatch-scheduled/  # 예약 게시 일괄 실행 (CRON_SECRET)
-├── components/
-│   ├── ui/                # 공용 UI 컴포넌트
-│   ├── posts/             # PostForm, StatusBadge
-│   └── layout/             # Sidebar
-├── lib/
-│   ├── supabase/          # client / server / admin 클라이언트
-│   ├── threads/           # Threads Graph API 래퍼 (서버 전용)
-│   ├── posts/              # 게시 실행 공용 로직 (publish-core, dispatch)
-│   ├── actions/            # Server Actions (posts, accounts, auth)
-│   ├── ai/                 # AI 게시글 생성 확장 자리 (stub)
-│   ├── auth.ts, date.ts, validation.ts, clsx.ts
-├── types/                  # Database / Post 타입
-└── proxy.ts                 # 인증 가드 (Next.js 16 "proxy" 컨벤션, 구 middleware)
+## 4. 현재 버전 및 버전별 변경 히스토리
 
-supabase/migrations/
-├── 0001_init.sql                    # 테이블 + RLS 정의
-└── 0002_post_images_storage.sql     # 이미지 업로드용 Storage 버킷 + RLS
-```
+### `v1.17` (2026-10-17) - Antigravity (`agy`)
+- **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)** 다크 테마 전면 리뉴얼.
+- **모바일 상단 고정 헤더 및 햄버거 슬라이드 드로어 메뉴** 구축 (375px 완벽 지원).
+- **비주얼 연동 및 사용 매뉴얼 (`/guide/page.tsx`) 완전 신설** (마스코트 배너, 4단계 파이프라인, Meta OAuth 가이드, 500자 공략 팁, FAQ).
+- **대시보드 다크 카드 및 카운터 정돈**, Supabase DB `v1.17` 갱신 및 Vercel 프로덕션 배포.
+- Microsoft Edge 포그라운드 실세션 검수(데스크톱/모바일 5종 캡처) 완료.
 
-## 시작하기
+### `v1.16` ~ `v1.11` (2026-10-17 ~ 2026-10-18)
+- 공용 이미지 클라이언트 기준 코드(`ai-image-studio`) 사본 동기화: 시간 초과 이중 과금 방지, Google 사용량 주소 안내, 나노바나나 2.1 정식 모델 적용.
 
-```bash
-npm install
-cp .env.local.example .env.local   # 값 채우기
-npm run dev
-```
+### `v1.10` ~ `v1.06` (2026-10-16 ~ 2026-10-17)
+- SSO 도메인 통일(`auto-threads-posting.buylife.xyz`), 설정 화면 콜백 주소 카드 및 원클릭 복사 기능, DB 연동 변수 정돈.
 
-환경변수 값 채우는 방법과 Supabase/Threads 앱 설정은 **`SETUP_GUIDE.md`**를 참고하세요.
+---
 
-## 스크립트
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 내용은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)를 참조하세요:
+  1. 슬라이드 캐러셀(최대 10장) 및 비디오 포스팅 기능 추가.
+  2. 500자 초과 원고 자동 분할 타래(First Reply / Thread Chain) 작성 엔진.
+  3. 실시간 모바일 피드 미리보기(WYSIWYG 목업) 화면 탑재.
+  4. 주간/월간 캘린더 드래그앤드롭 예약 스케줄러 뷰 구현.
 
-```bash
-npm run dev     # 개발 서버
-npm run build   # 프로덕션 빌드 + 타입체크
-npm run start   # 프로덕션 서버 실행
-npm run lint    # ESLint
-```
+---
 
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 제안 및 기능 보완 아이디어
+- **`threads-creator` (기획 자동화)**: 기획 도구에서 완성된 고효율 포스트를 본 프로그램으로 원클릭 전송하여 바로 스케줄링.
+- **`threads-affiliate-poster` (제휴 자동화)**: 정보성 글과 수익성 제휴 글을 8:2 비율로 혼합하여 스케줄러가 번갈아 발행하도록 자동 연계.
+- **`threads-analytics` (성과 분석)**: 발행 완료된 포스트의 ID를 전달하여 실시간 반응을 분석하고 최적의 발행 피크 타임을 본 프로그램 스케줄러에 환류.
 
-## 2026-10-16 DB 연동 변수 호환 — v1.06 (auto-threads-posting)
+---
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 7. 사용자 편의성 증대를 위한 디자인 UI 개선안과 레이아웃/테마 변경 제안
+- **원형 글자 수 인라인 프로그레스 카운터**: 500자 제한 임박 시 동적 경고 표시.
+- **캘린더 드래그앤드롭 스케줄 뷰**: 예약 포스트의 날짜와 시간을 마우스 드래그로 손쉽게 재배치.
+- **인앱 이미지 에디터**: 1:1, 4:5 최적 비율 크롭 및 필터 프리셋 지원.

@@ -1,6 +1,7 @@
 // [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import { GoogleGenAI } from "@google/genai";
+import { generateGeminiImage } from "./geminiImage";
 
 function koreaNowRule(now = new Date()): string {
   const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-").map(Number);
@@ -77,6 +78,28 @@ export async function validateGeminiApiKey(apiKey: string): Promise<ApiKeyValida
   return result;
 }
 
+// 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+// 라우트에 maxDuration이 없어 기본 300초 → 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지).
+// 실패하면 GeminiImageError(한국어 안내, 키 가림)를 던지고 라우트가 그 문구를 그대로 보여 준다. 모델·비율·화질·프롬프트는 그대로.
+async function callImage(
+  apiKey: string,
+  modelName: string,
+  parts: Array<Record<string, unknown>>,
+  options: GenerateOptions,
+  modelTier: "standard" | "pro"
+): Promise<string> {
+  const image = await generateGeminiImage({
+    apiKey,
+    modelName,
+    parts: parts as never,
+    aspectRatio: options.aspectRatio || "1:1",
+    imageSize: modelTier === "pro" && options.resolution ? options.resolution : undefined,
+    timeoutMs: 240_000,
+    retries: 0,
+  });
+  return `data:${image.mimeType || "image/png"};base64,${image.base64}`;
+}
+
 // 2. 신규 이미지 생성 엔진
 export async function generateGraphicImage(
   apiKey: string,
@@ -85,7 +108,6 @@ export async function generateGraphicImage(
   referenceImages: ImageReference[] = [],
   modelTier: "standard" | "pro" = "standard"
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey });
   const modelName = modelTier === "pro" ? "gemini-nano-banana-2.1" : "gemini-3.1-flash-lite-image";
 
   const parts: Array<Record<string, unknown>> = [];
@@ -115,30 +137,7 @@ export async function generateGraphicImage(
   // 메인 프롬프트
   parts.push({ text: prompt });
 
-  const imageConfig: Record<string, unknown> = {
-    aspectRatio: options.aspectRatio || "1:1",
-  };
-
-  if (modelTier === "pro" && options.resolution) {
-    imageConfig.imageSize = options.resolution;
-  }
-
-  const response = await ai.models.generateContent({
-    model: modelName,
-    contents: { parts } as unknown as Record<string, unknown>,
-    config: { imageConfig } as unknown as Record<string, unknown>,
-  });
-
-  const candidates = response.candidates;
-  if (candidates && candidates[0]?.content?.parts) {
-    for (const part of candidates[0].content.parts) {
-      if (part.inlineData?.data) {
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
-    }
-  }
-
-  throw new Error("이미지 데이터가 생성되지 않았습니다.");
+  return callImage(apiKey, modelName, parts, options, modelTier);
 }
 
 // 3. 인페인팅 및 아웃페인팅 편집 엔진
@@ -151,7 +150,6 @@ export async function editGraphicImage(
   modelTier: "standard" | "pro" = "pro",
   referenceImages: ImageReference[] = []
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey });
   const modelName = modelTier === "pro" ? "gemini-nano-banana-2.1" : "gemini-3.1-flash-lite-image";
 
   const cleanBase = baseImageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
@@ -202,30 +200,7 @@ User Prompt: ${prompt}`,
     parts.push({ text: prompt });
   }
 
-  const imageConfig: Record<string, unknown> = {
-    aspectRatio: options.aspectRatio || "1:1",
-  };
-
-  if (modelTier === "pro" && options.resolution) {
-    imageConfig.imageSize = options.resolution;
-  }
-
-  const response = await ai.models.generateContent({
-    model: modelName,
-    contents: { parts } as unknown as Record<string, unknown>,
-    config: { imageConfig } as unknown as Record<string, unknown>,
-  });
-
-  const candidates = response.candidates;
-  if (candidates && candidates[0]?.content?.parts) {
-    for (const part of candidates[0].content.parts) {
-      if (part.inlineData?.data) {
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
-    }
-  }
-
-  throw new Error("편집된 이미지 데이터가 반환되지 않았습니다.");
+  return callImage(apiKey, modelName, parts, options, modelTier);
 }
 
 // 4. 기획서/레퍼런스 분석 기반 AI 자동 입력 (AI 입력 도우미)

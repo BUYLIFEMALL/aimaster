@@ -1,16 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
-
-// 대시보드는 순서 개념 없는 개요라 번호 없이 최상단에 두고, "주제 수집 → 게시글 관리"는
-// 순차 흐름이라 스텝퍼로 보여준다. 플랫폼연동/API키등록은 흐름의 일부가 아닌 별도 유틸리티라
-// threads-affiliate-poster와 동일하게 한 메뉴("API키등록·플랫폼연동")로 합쳐 /settings 한
-// 화면에서 같이 관리한다(2026-09-12, 예전엔 /accounts·/settings로 나뉘어 있었음).
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
 const FLOW_STEPS = [
@@ -19,114 +14,319 @@ const FLOW_STEPS = [
     href: "/candidates",
     icon: "🔍",
     label: "게시글 주제 수집",
+    description: "RSS·트렌드 키워드 수집 및 AI 요약",
   },
   {
     step: 2,
     href: "/posts",
     icon: "📝",
     label: "게시글 관리",
+    description: "AI 캡션 작성, 이미지 조립, 즉시/예약 발행",
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
+const UTILITY_ITEMS = [
+  { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼" },
+  { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
+];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const closeMobile = () => setMobileOpen(false);
 
   return (
-    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:w-60 md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0">
-      {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
-      <div className="md:min-h-0 md:overflow-y-auto">
-        <div className="mb-4 md:mb-6">
-          <div className="px-2 text-lg font-semibold text-neutral-900">
-            Threads 포스팅 자동화
+    <>
+      {/* 📱 모바일 상단 고정 헤더 (화면 폭 < 768px) */}
+      <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-neutral-800 bg-[#171717]/95 px-4 backdrop-blur-md md:hidden">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-sm font-black text-white shadow-xs">
+            @
+          </span>
+          <div className="min-w-0">
+            <span className="truncate text-sm font-bold text-white block">
+              Threads 포스팅 자동화
+            </span>
           </div>
-          <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
-          <a
-            href="https://www.buylife.xyz/programs"
-            className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"
-          >
-            ← 다른 프로그램 보기
-          </a>
+          <span className="shrink-0 rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
+            {APP_VERSION}
+          </span>
         </div>
 
-        <nav className="flex flex-col">
-          <Link
-            href={OVERVIEW_ITEM.href}
-            className={`mb-2 block rounded-lg px-3 py-2 text-sm font-medium ${
-              pathname?.startsWith(OVERVIEW_ITEM.href)
-                ? "bg-sky-50 text-sky-700"
-                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-            }`}
-          >
-            {OVERVIEW_ITEM.icon} {OVERVIEW_ITEM.label}
-          </Link>
+        <button
+          type="button"
+          onClick={() => setMobileOpen((prev) => !prev)}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-700 bg-neutral-800 text-neutral-200 hover:bg-neutral-700 active:scale-95 transition-transform"
+          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+        >
+          {mobileOpen ? (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
+      </header>
 
-          <div className="relative flex flex-col">
-            {FLOW_STEPS.map((item, idx) => {
-              const isActive = pathname?.startsWith(item.href);
-              const isLast = idx === FLOW_STEPS.length - 1;
-              return (
-                <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-1">
-                  {/* 스텝 번호 + 연결선 */}
-                  <div className="flex flex-col items-center">
+      {/* 📱 모바일 오버레이 메뉴 */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          {/* 백드롭 */}
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+            onClick={closeMobile}
+          />
+
+          {/* 슬라이드 드로어 */}
+          <div className="relative flex w-full max-w-xs flex-1 flex-col border-r border-neutral-800 bg-[#171717] p-5 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between border-b border-neutral-800 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-sm font-black text-white">
+                  @
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-white">Threads 포스팅</p>
+                  <p className="text-[10px] text-amber-400 font-medium">{APP_VERSION}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeMobile}
+                className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <nav className="flex-1 space-y-1.5 overflow-y-auto">
+              <Link
+                href={OVERVIEW_ITEM.href}
+                onClick={closeMobile}
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  pathname?.startsWith(OVERVIEW_ITEM.href)
+                    ? "bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30"
+                    : "text-neutral-300 hover:bg-neutral-800/80 hover:text-white"
+                }`}
+              >
+                <span>{OVERVIEW_ITEM.icon}</span>
+                <span>{OVERVIEW_ITEM.label}</span>
+              </Link>
+
+              <div className="pt-2 pb-1">
+                <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                  작업 파이프라인
+                </p>
+              </div>
+
+              {FLOW_STEPS.map((item) => {
+                const isActive = pathname?.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMobile}
+                    className={`flex items-start gap-2.5 rounded-lg px-3 py-2 transition-colors ${
+                      isActive
+                        ? "bg-amber-500/20 text-white font-bold border border-amber-500/40"
+                        : "text-neutral-300 hover:bg-neutral-800/70 hover:text-white"
+                    }`}
+                  >
                     <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                        isActive
-                          ? "bg-sky-600 text-white"
-                          : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                        isActive ? "bg-amber-500 text-white" : "bg-neutral-800 text-neutral-400"
                       }`}
                     >
                       {item.step}
                     </span>
-                    {!isLast && <span className="mt-1 w-px flex-1 bg-neutral-200" />}
-                  </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">
+                        {item.icon} {item.label}
+                      </p>
+                      <p className="text-[11px] text-neutral-400 truncate">{item.description}</p>
+                    </div>
+                  </Link>
+                );
+              })}
 
-                  {/* 라벨 */}
-                  <div
-                    className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${
-                      isActive ? "bg-sky-50" : "group-hover:bg-neutral-50"
+              <div className="pt-3 pb-1 border-t border-neutral-800/80 mt-2">
+                <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                  도움말 & 설정
+                </p>
+              </div>
+
+              {UTILITY_ITEMS.map((item) => {
+                const isActive = pathname?.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMobile}
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-sky-500/20 text-sky-300 font-bold border border-sky-500/30"
+                        : "text-neutral-300 hover:bg-neutral-800/80 hover:text-white"
                     }`}
                   >
-                    <p className={`text-sm font-bold ${isActive ? "text-sky-700" : "text-neutral-800"}`}>
-                      {item.icon} {item.label}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-4 border-t border-neutral-800 pt-3">
+              <p className="mb-2 truncate text-xs text-neutral-400">{userEmail}</p>
+              <form action={signOutAction}>
+                <button
+                  type="submit"
+                  className="w-full rounded-lg bg-neutral-800/80 px-3 py-2 text-center text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white"
+                >
+                  로그아웃
+                </button>
+              </form>
+            </div>
           </div>
-        </nav>
-
-        <div className="mt-6 border-t border-neutral-200 pt-3">
-          {UTILITY_ITEMS.map((item) => {
-            const isActive = pathname?.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`block rounded-lg px-3 py-2 text-sm font-medium ${
-                  isActive ? "bg-sky-50 text-sky-700" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-                }`}
-              >
-                {item.icon} {item.label}
-              </Link>
-            );
-          })}
         </div>
-      </div>
+      )}
 
-      <div className="mt-4 shrink-0 border-t border-neutral-200 pt-4">
-        <p className="mb-2 truncate px-2 text-xs text-neutral-500">{userEmail}</p>
-        <form action={signOutAction}>
-          <button
-            type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-100"
-          >
-            로그아웃
-          </button>
-        </form>
-      </div>
-    </aside>
+      {/* 💻 데스크톱 사이드바 (화면 폭 >= 768px) */}
+      <aside className="hidden md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col md:border-r border-neutral-800 bg-[#171717] p-4 text-neutral-200">
+        <div className="flex flex-1 flex-col overflow-y-auto min-h-0">
+          {/* 브랜드 헤더 */}
+          <div className="mb-5 px-2">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-sm font-black text-white shadow-xs">
+                @
+              </span>
+              <div className="min-w-0">
+                <span className="text-base font-bold text-white tracking-tight block">
+                  Threads 포스팅
+                </span>
+              </div>
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
+                {APP_VERSION}
+              </span>
+            </div>
+            <p className="text-[11px] text-neutral-400 font-medium">Meta Threads Auto Posting</p>
+            <a
+              href="https://www.buylife.xyz/programs"
+              className="mt-2 inline-block text-[11px] text-neutral-400 hover:text-neutral-200 transition-colors"
+            >
+              ← 다른 프로그램 보기
+            </a>
+          </div>
+
+          {/* 메인 네비게이션 */}
+          <nav className="flex flex-col space-y-1">
+            <Link
+              href={OVERVIEW_ITEM.href}
+              className={`mb-2 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                pathname?.startsWith(OVERVIEW_ITEM.href)
+                  ? "bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 shadow-xs"
+                  : "text-neutral-300 hover:bg-neutral-800/80 hover:text-white"
+              }`}
+            >
+              <span>{OVERVIEW_ITEM.icon}</span>
+              <span>{OVERVIEW_ITEM.label}</span>
+            </Link>
+
+            <div className="pt-2 pb-1">
+              <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                작업 파이프라인
+              </p>
+            </div>
+
+            <div className="relative flex flex-col space-y-1">
+              {FLOW_STEPS.map((item, idx) => {
+                const isActive = pathname?.startsWith(item.href);
+                const isLast = idx === FLOW_STEPS.length - 1;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`group relative flex gap-2.5 rounded-lg p-2 transition-colors ${
+                      isActive
+                        ? "bg-neutral-800/90 text-white border border-amber-500/40 shadow-xs"
+                        : "hover:bg-neutral-800/50 text-neutral-300"
+                    }`}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                          isActive
+                            ? "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs"
+                            : "bg-neutral-800 text-neutral-400 group-hover:bg-neutral-700 group-hover:text-neutral-200"
+                        }`}
+                      >
+                        {item.step}
+                      </span>
+                      {!isLast && <span className="mt-1 w-px flex-1 bg-neutral-800 group-hover:bg-neutral-700" />}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-xs font-bold ${isActive ? "text-amber-300" : "text-neutral-200"}`}>
+                        {item.icon} {item.label}
+                      </p>
+                      <p className="text-[11px] text-neutral-400 truncate leading-tight mt-0.5">
+                        {item.description}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+
+          {/* 유틸리티 메뉴 */}
+          <div className="mt-6 border-t border-neutral-800/80 pt-3">
+            <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+              도움말 &amp; 설정
+            </p>
+            <div className="space-y-1">
+              {UTILITY_ITEMS.map((item) => {
+                const isActive = pathname?.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                      isActive
+                        ? "bg-sky-500/20 text-sky-300 font-bold border border-sky-500/30"
+                        : "text-neutral-300 hover:bg-neutral-800/80 hover:text-white"
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* 하단 계정 정보 및 로그아웃 */}
+        <div className="mt-4 shrink-0 border-t border-neutral-800 pt-3">
+          <div className="mb-2 px-2 flex items-center justify-between">
+            <span className="truncate text-xs text-neutral-400" title={userEmail}>
+              {userEmail}
+            </span>
+          </div>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-center text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+            >
+              로그아웃
+            </button>
+          </form>
+        </div>
+      </aside>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import type { Inputs, Strategy } from "@/lib/tmb/types";
 import { strategySystem, strategyUser } from "@/lib/tmb/prompts";
 import { normalizeStrategy, parseJsonLoose, responseSchema } from "@/lib/tmb/strategy";
@@ -26,7 +27,8 @@ export function toUserError(e: unknown): { code: AiErrorCode; message: string; s
     noimage: { message: "이미지가 만들어지지 않았습니다. 같은 버튼을 한 번 더 눌러 주세요. 계속되면 문구를 줄이거나 \"문구 없이 배경만\" 옵션을 써 보세요.", status: 502 },
     unknown: { message: "AI 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", status: 500 },
   };
-  if (e instanceof AiError) return { code: e.code, ...table[e.code] };
+  // 메시지를 넣어 던진 AiError(공용 이미지 모듈의 시간 초과 표준 안내 등)는 그 메시지를 보여 준다
+  if (e instanceof AiError) return { code: e.code, ...table[e.code], ...(e.message ? { message: e.message } : {}) };
   const raw = (e instanceof Error ? e.message : String(e ?? "")).toLowerCase();
   if (/api key|api_key|permission|unauthenticated|\b401\b|\b403\b/.test(raw)) return { code: "key", ...table.key };
   if (/quota|resource_exhausted|\b429\b|rate/.test(raw)) return { code: "quota", ...table.quota };
@@ -71,27 +73,49 @@ export async function makeStrategy(apiKey: string, inputs: Inputs, docText: stri
 
 export interface ImagePart { text?: string; image?: { mime: string; data: Buffer } }
 
-/** 이미지 1장 생성/수정. 앞 모델을 쓸 수 없으면 다음 모델로 폴백한다. */
+/** 공용 이미지 모듈 오류 → 이 프로그램의 AiError(시간 초과·연결 오류는 공용 안내 문구 사용) */
+function fromImageError(e: GeminiImageError): AiError {
+  switch (e.code) {
+    case "INVALID_KEY": case "PERMISSION_DENIED": case "API_NOT_ENABLED": return new AiError("key");
+    case "QUOTA_EXCEEDED": case "RATE_LIMITED": return new AiError("quota");
+    case "SAFETY_BLOCKED": return new AiError("safety");
+    case "NO_IMAGE": case "MODEL_NOT_FOUND": return new AiError("noimage");
+    case "TIMEOUT": case "NETWORK": case "SERVER_ERROR": return new AiError("timeout", e.message);
+    default: return new AiError("unknown");
+  }
+}
+
+/** 이미지 생성에 쓸 수 있는 전체 시간(라우트 함수 한도 120초 − 저장·DB 여유) */
+const IMAGE_BUDGET_MS = 100_000;
+
+/**
+ * 이미지 1장 생성/수정. 앞 모델을 쓸 수 없거나(없는 모델) 이미지가 안 나오면 다음 모델로 폴백한다.
+ * 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+ * 두 모델을 합쳐 100초 안에서 남은 시간만 다음 모델에 준다. 시간 초과·한도·키 오류는 폴백하지 않는다(이중 과금 방지). 모델·비율·화질은 그대로.
+ */
 export async function makeImage(apiKey: string, parts: ImagePart[], size: "1K" | "2K"): Promise<{ bytes: Buffer; model: string }> {
-  const ai = new GoogleGenAI({ apiKey });
   const apiParts = parts.map((p) => (p.image ? { inlineData: { mimeType: p.image.mime, data: p.image.data.toString("base64") } } : { text: p.text ?? "" }));
-  let last: unknown;
+  const deadline = Date.now() + IMAGE_BUDGET_MS;
+  let last: AiError | null = null;
   for (const model of IMAGE_MODELS) {
+    const remaining = deadline - Date.now();
+    if (remaining < 15_000) break;
     try {
-      const imageConfig = model === IMAGE_MODELS[0] ? { aspectRatio: "16:9", imageSize: size } : { aspectRatio: "16:9" };
-      const res = await ai.models.generateContent({ model, contents: [{ role: "user", parts: apiParts }], config: { imageConfig } as never });
-      if (res.promptFeedback?.blockReason) throw new AiError("safety");
-      for (const p of res.candidates?.[0]?.content?.parts ?? []) {
-        if (p.inlineData?.data) return { bytes: Buffer.from(p.inlineData.data, "base64"), model };
-      }
-      const reason = res.candidates?.[0]?.finishReason;
-      if (reason === "SAFETY" || reason === "PROHIBITED_CONTENT" || reason === "IMAGE_SAFETY") throw new AiError("safety");
-      last = new AiError("noimage");
+      const image = await generateGeminiImage({
+        apiKey,
+        modelName: model,
+        parts: apiParts,
+        aspectRatio: "16:9",
+        imageSize: model === IMAGE_MODELS[0] ? size : undefined,
+        timeoutMs: remaining,
+        retries: 0,
+      });
+      return { bytes: Buffer.from(image.base64, "base64"), model };
     } catch (e) {
-      last = e;
-      if (e instanceof AiError && e.code === "safety") throw e;
-      if (isModelUnavailable(e)) continue;
-      throw e;
+      if (!(e instanceof GeminiImageError)) throw e;
+      last = fromImageError(e);
+      if (e.code === "MODEL_NOT_FOUND" || e.code === "NO_IMAGE") continue;
+      throw last;
     }
   }
   throw last ?? new AiError("noimage");

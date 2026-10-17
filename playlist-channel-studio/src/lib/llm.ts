@@ -1,5 +1,6 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import {
   IMAGE_MODELS, PROVIDER_LABELS, TEXT_MODELS, imageModelById, textModelById,
   type Provider, type UsageInfo,
@@ -108,18 +109,21 @@ export async function generateImage(modelId: string, apiKey: string, prompt: str
   const usage = (): UsageInfo => ({ model: model.id, inputTokens: 0, outputTokens: 0, ms: Date.now() - started, images: 1 });
   try {
     if (model.provider === "gemini") {
-      const ai = new GoogleGenAI({ apiKey });
+      // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+      // 생성 라우트 함수 한도 300초 → 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지). 모델·비율·프롬프트는 그대로.
       const parts: ({ text: string } | { inlineData: { mimeType: string; data: string } })[] = [{ text: prompt }];
       if (ref) parts.push({ inlineData: { mimeType: ref.mime, data: ref.buffer.toString("base64") } });
-      const res = await ai.models.generateContent({
-        model: model.id,
-        contents: { parts },
-        config: { imageConfig: { aspectRatio: "16:9" } as never },
-      });
-      for (const p of res.candidates?.[0]?.content?.parts ?? []) {
-        if (p.inlineData?.data) return { ok: true, data: { buffer: Buffer.from(p.inlineData.data, "base64"), mime: p.inlineData.mimeType ?? "image/png" }, usage: usage() };
+      try {
+        const image = await generateGeminiImage({ apiKey, modelName: model.id, parts, aspectRatio: "16:9", timeoutMs: 240_000, retries: 0 });
+        return { ok: true, data: { buffer: Buffer.from(image.base64, "base64"), mime: image.mimeType || "image/png" }, usage: usage() };
+      } catch (e) {
+        if (!(e instanceof GeminiImageError)) throw e;
+        if (e.code === "NO_IMAGE") return { ok: false, status: 502, error: "이미지가 생성되지 않았습니다. 스타일이나 수정 요청을 바꿔 다시 시도해 주세요." };
+        if (e.code === "TIMEOUT" || e.code === "NETWORK" || e.code === "SERVER_ERROR") return { ok: false, status: e.status, error: e.message };
+        // 나머지(키·권한·한도·안전·모델 없음)는 기존 explainError 문구로
+        const tag: Record<string, string> = { INVALID_KEY: "API_KEY", PERMISSION_DENIED: "PERMISSION_DENIED", API_NOT_ENABLED: "PERMISSION_DENIED", QUOTA_EXCEEDED: "RESOURCE_EXHAUSTED", RATE_LIMITED: "RESOURCE_EXHAUSTED", SAFETY_BLOCKED: "SAFETY", MODEL_NOT_FOUND: "not found" };
+        return explainError(new Error(tag[e.code] ?? e.message), model.provider, model.id);
       }
-      return { ok: false, status: 502, error: "이미지가 생성되지 않았습니다. 스타일이나 수정 요청을 바꿔 다시 시도해 주세요." };
     }
     // OpenAI gpt-image-1: 참조 이미지가 있으면 edits, 없으면 generations (가로형 1536x1024 → 화면에서 16:9로 맞춤)
     let r: Response;

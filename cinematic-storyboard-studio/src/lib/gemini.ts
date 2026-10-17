@@ -1,5 +1,6 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import { ENGINES, TEXT_MODEL, type EngineId } from "@/lib/storyboard/types";
 
 export interface Ok<T> { ok: true; data: T; ms: number }
@@ -64,22 +65,40 @@ export async function generateText(apiKey: string, parts: Part[]): Promise<Ok<st
   }
 }
 
-/** 마스터 콘택트 시트 이미지를 만든다(3:2). Pro는 2K. */
+/** 공용 이미지 모듈 오류 → 기존 explainError 문구(Pro 권한 안내 포함). 시간 초과·연결 오류는 공용 안내 문구 사용 */
+function imageFail(e: GeminiImageError, engine: EngineId): Fail {
+  switch (e.code) {
+    case "PERMISSION_DENIED": case "API_NOT_ENABLED": return explainError(new Error("PERMISSION_DENIED"), engine);
+    case "INVALID_KEY": return explainError(new Error("API_KEY"), engine);
+    case "QUOTA_EXCEEDED": case "RATE_LIMITED": return explainError(new Error("RESOURCE_EXHAUSTED"), engine);
+    case "SAFETY_BLOCKED": return explainError(new Error("SAFETY"), engine);
+    case "NO_IMAGE": return { ok: false, status: 502, error: "이미지가 생성되지 않았습니다. 다른 이미지나 주제로 다시 시도해 주세요." };
+    case "TIMEOUT": case "NETWORK": case "SERVER_ERROR": return { ok: false, status: e.status, error: e.message };
+    default: return explainError(e, engine);
+  }
+}
+
+/**
+ * 마스터 콘택트 시트 이미지를 만든다(3:2). Pro는 2K.
+ * 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+ * 렌더 라우트 함수 한도 300초 → 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지). 모델·비율·화질·프롬프트는 그대로.
+ */
 export async function generateImage(apiKey: string, engine: EngineId, parts: Part[]): Promise<Ok<{ buffer: Buffer; mime: string }> | Fail> {
   const started = Date.now();
   const cfg = ENGINES[engine];
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const res = await ai.models.generateContent({
-      model: cfg.model,
-      contents: { parts },
-      config: { imageConfig: { aspectRatio: "3:2", ...(cfg.imageSize ? { imageSize: cfg.imageSize } : {}) } as never },
+    const image = await generateGeminiImage({
+      apiKey,
+      modelName: cfg.model,
+      parts,
+      aspectRatio: "3:2",
+      imageSize: cfg.imageSize || undefined,
+      timeoutMs: 240_000,
+      retries: 0,
     });
-    for (const p of res.candidates?.[0]?.content?.parts ?? []) {
-      if (p.inlineData?.data) return { ok: true, data: { buffer: Buffer.from(p.inlineData.data, "base64"), mime: p.inlineData.mimeType ?? "image/png" }, ms: Date.now() - started };
-    }
-    return { ok: false, status: 502, error: "이미지가 생성되지 않았습니다. 다른 이미지나 주제로 다시 시도해 주세요." };
+    return { ok: true, data: { buffer: Buffer.from(image.base64, "base64"), mime: image.mimeType || "image/png" }, ms: Date.now() - started };
   } catch (e) {
+    if (e instanceof GeminiImageError) return imageFail(e, engine);
     return explainError(e, engine);
   }
 }

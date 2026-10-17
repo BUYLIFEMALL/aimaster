@@ -1,5 +1,47 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 이미지 4묶음 B: SDK 사용 9곳의 이미지 호출을 공용 모듈로
+
+- **한 일**: `@google/genai` SDK로 이미지를 만들던 9곳의 이미지 호출만 공용 사본(`gemini-image-client`)으로 바꿈(글 생성은 SDK 그대로, 프롬프트·모델·비율·화질·화면 그대로). 고친 문제: ① 시간 제한 없음(30~60초 함수 한도에서 원인 모를 끊김) ② 응답 첫 이미지만 꺼내 Pro 모델의 중간 초안을 쓸 위험 ③ 영어 오류 문장 추측 분류 ④ four-cut의 504 자동 재시도·모델 폴백 재시도의 이중 과금 위험.
+- **시간 제한(재시도 0)**: playlist 240초 · four-cut 50초 · thumbnail 두 모델 합쳐 100초 · portrait 105초 · banana-canvas 1회 120초+실행기 마감 280초(여러 장 모드 포함) · fashion 50초 · allinone-graphic 240초 · cinematic 240초 · ai-influencer 50초. 마감 시각 방식 4곳은 `check-shared-modules` 시간 검사에서 `CHECK`(직접 확인값은 각 AGENTS.md).
+- **버전(코드+DB)**: playlist-channel-studio v1.14 · four-cut-comics v1.10 · thumbnail-master v1.06 · portrait-photo v1.21 · banana-canvas v1.07 · fashion-style v1.08 · allinone-graphic v1.07 · cinematic-storyboard-studio v1.09 · ai-influencer-studio v1.11.
+- **검수**: 9곳 tsc 0, 테스트 7곳 통과(playlist 20·four-cut 26·thumbnail 11·portrait 20·banana 7·fashion 12·cinematic 15, allinone·influencer는 테스트 없음), 공용 모듈 검사 OK, Vercel 9곳(작업 중 표를 폴더마다 다시 보는 안전 배포), DB 9곳, 크롬 화면 버전 9곳. eslint는 9곳 모두 설정 파일이 없어(이전부터) 실행 안 됨. 실제 이미지 생성 시험 없음.
+- **추가 정리**: 역량 지도의 cinematic 버전이 v1.05로 남아 있던 것을 v1.09로(분야 칸의 `|` 때문에 자동 갱신이 빠졌던 것).
+- **다음 첫 단계**: 이미지 5묶음(Imagen 교체분 5곳: yt-playlist-studio·ai-webtoon-studio·ebook-studio·detail-page-12p·vinyl-lp-studio) — 작업 중 표 먼저 확인.
+
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — Threads 포스팅 자동화 v1.17: 스레드 바이럴 스튜디오 다크 스타일 디자인 리뉴얼·가이드북 신설·Vercel 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료 — 누적 40개 완료 달성!)
+
+- **대상**: `threads/` (https://auto-threads-posting.buylife.xyz, slug: `auto-threads-posting`)
+- **한 일**:
+  1. **디자인 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)** (Meta Threads 모노 블랙 `#171717` 캔버스 + 카드 서피스 `#1f1f1f` + 파이어 앰버 `#f59e0b` & 일렉트릭 바이올렛 `#8b5cf6`).
+     - **모바일(375px) 반응형 완비**: 상단 고정 헤더(`h-14`, 앱 타이틀 + `v1.17` 앰버 칩 + 햄버거 토글 버튼) 및 슬라이드 오버레이 드로어 메뉴 구축 완료.
+     - **사이드바 메뉴 표준화**: `📖 연동 & 사용 매뉴얼` 메뉴 신설 및 다크 콘솔 최적화.
+     - **사용 매뉴얼(`/guide`) 완전 신설**: 🤖 마스코트 말풍선, 4단계 파이프라인 다이어그램, Meta Threads 공식 계정 연동 가이드(콜백 URL 및 테스터 승인 3단계), 500자 제약 및 바이럴 알고리즘 공략 팁, FAQ 4종.
+     - **대시보드(`/dashboard`) 다크 테마 정돈**: 4단계 가이드 다크 카드(가이드 링크 연동), 5종 상태 카운터(`임시저장`, `예약됨`, `게시 중`, `게시 완료`, `게시 실패`), 다가오는 예약 목록 시인성 극대화.
+  2. **로컬 빌드 및 배포**:
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`, 컴파일 오류 0건).
+     - Supabase DB `programs` 테이블에서 `slug = 'auto-threads-posting'`의 `version = 'v1.17'` 갱신 완료.
+     - Vercel 프로덕션 배포 완료: `https://threads-g1bqp1ibi-buylife.vercel.app` → alias `auto-threads-posting.buylife.xyz` 최신 연결 확인.
+  3. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 대시보드(통계 카드, 4단계 가이드, 소개 박스) 및 신설된 연동 & 사용 매뉴얼(콜백 주소, 500자 팁, FAQ) 완벽 노출.
+     - 모바일 (375px): 상단 고정 헤더(`Threads 포스팅 자동화 v1.17` + 햄버거 버튼), 햄버거 클릭 시 슬라이드 드로어 메뉴 정상 작동 및 매뉴얼 반응형 완벽 대응.
+     - 스크린샷 아티팩트 보존: `edge_threads_posting_desktop_dashboard_v117.png`, `desktop_guide`, `mobile_dashboard`, `mobile_menu`, `mobile_guide`.
+     - 유료 API 호출 미수행 (비용 0원).
+  4. **인수인계 문서 및 규격화**:
+     - `threads/docs/PLAN_20261017_DESIGN_RENEWAL.md` 작성.
+     - `threads/docs/DESIGN_HANDOFF.md` 작성.
+     - `threads/docs/IMPROVEMENTS.md` 작성 (3대 개선 제안 및 threads-analytics, viral-post-maker 타 프로그램 탐색 제안 포함).
+     - `threads/docs/IMPROVEMENT_BACKLOG.md` 작성.
+     - `threads/AGENTS.md` 및 `README.md` 7대 핵심 항목 규격화.
+     - `DESIGN.md` 60번 상태: `✅ 1차 작업완료 (v1.17, 스레드 바이럴 스튜디오 스타일)` 갱신 (전체 현황: **✅ 40개 완료 / ⚪ 41개 예정 / ⏸ 2개 보류**).
+     - `docs/ACTIVE_WORK.md` 내 작업 행 삭제 완료.
+- **링크**:
+  - https://auto-threads-posting.buylife.xyz
+- **비용**: 0원 (유료 API 호출 없음).
+
+
 ## 2026-10-18 Claude Code(윈도우) — 이미지 시간 초과 안내를 「Google AI Studio 사용량 확인」으로 정정 · 사본 30곳 재배포
 
 - **한 일**: 시간 초과는 우리 서버가 구글 요청을 끊는 것이라 이미지가 프로그램(보관함)에 저장되지 않는다는 것을 확인 → 이전 문구 「잠시 뒤 결과를 확인」과 「보관함 링크」 제안은 틀린 안내였음. 공용 기준 문구를 「…결과를 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인」으로 정정(주인님 선택), 문구를 덮어쓰던 4곳(blog-workroom·photo-remake·shorts-onestop·blog-content-maker 이미지 부분)도 같게.
