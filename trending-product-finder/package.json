@@ -1,6 +1,6 @@
 {
   "name": "trending-product-finder",
-  "version": "1.08.0",
+  "version": "1.09.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test:permissions": "node tests/permissions.cjs",
     "test:fixtures": "node tests/fixtures.mjs",
+    "test:trend": "node --test tests/reportTrend.test.mjs",
     "test:runtime": "node tests/runtime.mjs",
     "build:verify": "node tests/local.mjs build"
   },

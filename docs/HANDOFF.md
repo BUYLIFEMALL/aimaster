@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.09: 리포트 페이지 나눔·키워드별 기회점수 추이 (남은 마무리 1/5)
+
+- **대상**: `trending-product-finder/` v1.08 → **v1.09** (코드·package·DB 동기화)
+- **한 일**: 리포트 20개씩 페이지 나눔(예전엔 최근 20개만), 최근 90일 키워드별 기회점수 추이 그래프(저장된 자료만, 새 API 호출 없음).
+- **검수**: 단위 3개·권한 검사·build·lint 통과, 배포, 크롬 시험 계정 빈 화면 정상. 관리자 실데이터 화면 대조는 로그인 필요(기대값 SQL 계산 완료).
+- **다음**: #8 계산기 파일 분리 → #15 → #14 → #16(승인 필요). 인수인계: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **링크**: https://trending-product-finder.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.20: Drive 칸 재연결 안내 문구
 
 - **한 일**: 보관함 Google Drive 칸에 "메뉴 이동·새로고침 시 다시 연결해야 함(보안상 연결 정보 저장 안 함)" 안내 한 줄.

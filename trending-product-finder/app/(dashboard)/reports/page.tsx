@@ -3,6 +3,13 @@ import { requireProgramAccess } from "@/lib/access";
 import { PageHero } from "@/components/ui/PageHero";
 import { formatDateTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { Sparkline } from "@/components/ui/Sparkline";
+import { TREND_DAYS, buildKeywordTrends, clampPage } from "@/lib/reportTrend";
+
+/** v1.09: 한 페이지에 보여 줄 리포트 수(예전엔 최근 20개만 보이고 그 이전은 볼 수 없었음) */
+const PAGE_SIZE = 20;
+/** 추이 카드에 처음 보이는 키워드 수(나머지는 펼쳐서) */
+const TREND_TOP = 8;
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -32,18 +39,39 @@ function scoreColor(score: number) {
   return "bg-mx-raised text-mx-muted border-mx-border";
 }
 
-export default async function ReportsPage() {
+export default async function ReportsPage({ searchParams }: { searchParams?: Promise<{ page?: string }> }) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
+  const params = (await searchParams) ?? {};
+
+  // v1.09: 전체 개수를 먼저 세고, 요청한 페이지만 가져온다(20개씩)
+  const { count: totalCount } = await supabase
+    .from("recommendation_reports")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+  const totalPages = Math.max(1, Math.ceil((totalCount ?? 0) / PAGE_SIZE));
+  const page = clampPage(params.page, totalPages);
+  const from = (page - 1) * PAGE_SIZE;
 
   const { data: reports } = await supabase
     .from("recommendation_reports")
     .select("id, watchlist_id, generated_at, ai_summary, items")
     .eq("user_id", user.id)
     .order("generated_at", { ascending: false })
-    .limit(20);
+    .range(from, from + PAGE_SIZE - 1);
 
-  const watchlistIds = Array.from(new Set((reports ?? []).map((r) => r.watchlist_id)));
+  // v1.09: 키워드별 기회점수 추이 — 최근 90일 리포트만(이미 저장된 자료, 새 API 호출 없음)
+  const since = new Date(Date.now() - TREND_DAYS * 86_400_000).toISOString();
+  const { data: trendRows } = await supabase
+    .from("recommendation_reports")
+    .select("generated_at, watchlist_id, items")
+    .eq("user_id", user.id)
+    .gte("generated_at", since)
+    .order("generated_at", { ascending: false })
+    .limit(400);
+  const trends = buildKeywordTrends(trendRows ?? []).filter((t) => t.points.length >= 2);
+
+  const watchlistIds = Array.from(new Set([...(reports ?? []), ...(trendRows ?? [])].map((r) => r.watchlist_id)));
   const { data: watchlists } = watchlistIds.length
     ? await supabase.from("trend_watchlist").select("id, category_name").eq("user_id", user.id).in("id", watchlistIds)
     : { data: [] as { id: string; category_name: string }[] };
@@ -112,6 +140,27 @@ export default async function ReportsPage() {
           </div>
         </div>
       </details>
+
+      {trends.length > 0 && (
+        <section className="mx-card mb-6" aria-labelledby="trend-heading">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="trend-heading" className="text-sm font-bold text-mx-text">📈 키워드별 기회점수 추이</h2>
+            <p className="text-xs text-mx-muted">최근 {TREND_DAYS}일 리포트 기준 · 하루 마지막 값 · 점선은 60점</p>
+          </div>
+          <TrendList trends={trends.slice(0, TREND_TOP)} categoryNameById={categoryNameById} />
+          {trends.length > TREND_TOP && (
+            <details className="group mt-3">
+              <summary className="cursor-pointer list-none text-xs font-semibold text-mx-link">
+                <span className="group-open:hidden">▼ 나머지 {trends.length - TREND_TOP}개 키워드 보기</span>
+                <span className="hidden group-open:inline">▲ 접기</span>
+              </summary>
+              <div className="mt-3">
+                <TrendList trends={trends.slice(TREND_TOP)} categoryNameById={categoryNameById} />
+              </div>
+            </details>
+          )}
+        </section>
+      )}
 
       {!reports?.length && (
         <div className="mx-card py-16 text-center">
@@ -216,6 +265,48 @@ export default async function ReportsPage() {
           );
         })}
       </div>
+
+      {totalPages > 1 && (
+        <nav className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm" aria-label="리포트 페이지">
+          {page > 1 ? (
+            <Link href={`/reports?page=${page - 1}`} className="mx-btn-ghost">← 최근 리포트</Link>
+          ) : (
+            <span className="mx-btn-ghost pointer-events-none opacity-40" aria-disabled="true">← 최근 리포트</span>
+          )}
+          <span className="px-2 text-mx-muted tabular-nums">
+            {page} / {totalPages} 페이지 · 전체 {(totalCount ?? 0).toLocaleString("ko-KR")}개
+          </span>
+          {page < totalPages ? (
+            <Link href={`/reports?page=${page + 1}`} className="mx-btn-ghost">이전 리포트 →</Link>
+          ) : (
+            <span className="mx-btn-ghost pointer-events-none opacity-40" aria-disabled="true">이전 리포트 →</span>
+          )}
+        </nav>
+      )}
     </div>
+  );
+}
+
+function TrendList({ trends, categoryNameById }: { trends: ReturnType<typeof buildKeywordTrends>; categoryNameById: Map<string, string> }) {
+  return (
+    <ul className="grid gap-2 sm:grid-cols-2">
+      {trends.map((t) => (
+        <li key={t.key} className="flex min-w-0 items-center gap-3 rounded-lg border border-mx-border bg-mx-raised/40 px-3 py-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-mx-text" title={t.keyword}>{t.keyword}</p>
+            <p className="truncate text-xs text-mx-muted">
+              {categoryNameById.get(t.watchlistId) ?? "카테고리"} · {t.points.length}회
+            </p>
+          </div>
+          <Sparkline points={t.points} label={`${t.keyword} 기회점수 ${t.first}점에서 ${t.latest}점`} />
+          <div className="w-14 shrink-0 text-right">
+            <p className={`rounded-full border px-2 py-0.5 text-center text-xs font-bold tabular-nums ${scoreColor(t.latest)}`}>{t.latest}</p>
+            <p className={`mt-0.5 text-xs tabular-nums ${t.delta > 0 ? "text-mx-success" : t.delta < 0 ? "text-mx-danger" : "text-mx-muted"}`}>
+              {t.delta > 0 ? `▲${t.delta}` : t.delta < 0 ? `▼${Math.abs(t.delta)}` : "변화 없음"}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
