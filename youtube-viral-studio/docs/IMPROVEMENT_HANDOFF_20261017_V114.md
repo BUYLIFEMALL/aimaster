@@ -21,7 +21,7 @@
 
 ## 운영 배포
 
-코드 사전 검수 완료, 소스 커밋/푸시·v1.14 배포·DB 표시버전·운영 회원 재검수 진행 중. 완료 후 이 절에 실제 커밋/배포ID/증거를 추가합니다.
+완료. 소스 68b2b0109cd5533441d5f7cfaf84b894a19fcab6 (기능 db209560 포함), origin/master 푸시. 프로덕션 dpl_6E59ACNhP719UAtzc2UA8Tktw8Rx READY/소스 일치, https://youtube-viral-studio-mg5s0mj0r-buylife.vercel.app. DB programs.version v1.14 별도 조회 확인. 운영 Edge 화면9·실제 보관기능10·비로그인API11개401 통과, 오류로그0(조회 구간). DESIGN28 v1.14 완료, 본인 ACTIVE_WORK 줄 제거. 결과 문서 최종 커밋은 후속 git log 및 최종 보고 참고.
 
 ## 다음 CLI
 
@@ -32,3 +32,7 @@
 ## 최신 한도 안내 추가 보완
 
 2026-10-17 [공식 문서](https://developers.google.com/youtube/data/determine_quota_cost)(2026-10-15 갱신)를 확인해 search.list 하루100회 별도 한도와 기타 API10,000units를 대시보드/설정/가이드/오류 안내에 맞췄습니다. 수천 회 가능·새 키를 만들면 한도 회복 등의 문구를 제거했습니다. 실제 한도는 본인 Cloud 프로젝트 콘솔 기준입니다.
+
+### 후속 작업 분리
+
+본 프로그램 v1.14 완료 뒤 yt-playlist-studio 수신 칸을 별도 작업으로 구현·검수·배포합니다. 현재 소스 측 참고 메모 복사까지 구현/검수됐으며 수신 완료 여부는 상대 프로그램의 최신 인수인계를 확인합니다. 메모는 동일 회원 확인·5분 기한·명시적 붙여넣기만 허용하고 미디어 다운로드/AI 호출/자동게시를 하지 않습니다.

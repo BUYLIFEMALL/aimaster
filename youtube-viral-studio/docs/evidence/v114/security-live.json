@@ -1,0 +1,63 @@
+{
+  "base": "https://youtube-viral-studio.buylife.xyz",
+  "checked_at": "2026-10-17T03:07:10.896Z",
+  "checks": [
+    {
+      "method": "POST",
+      "route": "/api/youtube/search-shorts",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "route": "/api/youtube/golden-channels",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "route": "/api/youtube/trending",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "route": "/api/youtube/source-finder",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "route": "/api/youtube/analyze-script",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "route": "/api/settings/api-keys",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "route": "/api/favorites",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "route": "/api/settings/api-keys",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "route": "/api/favorites",
+      "status": 401
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/settings/api-keys",
+      "status": 401
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/favorites",
+      "status": 401
+    }
+  ],
+  "authenticated_calls": 0,
+  "external_api_calls": 0
+}

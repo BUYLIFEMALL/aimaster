@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.14` (개선 사전 검수·DB 적용 완료, 운영 배포 진행) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.14` (운영 배포·회원 보관 검수 완료) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -90,3 +90,7 @@
 ## v1.14 (2026-10-17) — 즐겨찾기·회원 격리·30일 보관 개선
 
 저장/해제 콜백 복구, 본인 전용 DB/RLS·30일 경계/자동 정리(Cron 실제 실행 확인), 자동검색 제거, 가이드/누락 지수/CSV 보완. DB 변경은 주인님 별도 승인 후 적용했습니다. [새 인수인계](docs/IMPROVEMENT_HANDOFF_20261017_V114.md). 운영 배포 결과는 이 문서의 최신 기록을 따릅니다.
+
+### v1.14 운영 완료
+
+소스 68b2b0109cd5533441d5f7cfaf84b894a19fcab6 푸시, dpl_6E59ACNhP719UAtzc2UA8Tktw8Rx READY, DBv1.14. 실제 일반 회원 Edge1440/375·보관10검사·API11개401·로그오류0. 자동검색0·실제 YouTube/AI 호출0. 회원별 저장/RLS·30일 만료/정리 적용 및 실제 Cron 실행 확인. [최종 인수인계](docs/IMPROVEMENT_HANDOFF_20261017_V114.md).

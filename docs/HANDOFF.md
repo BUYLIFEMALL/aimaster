@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — youtube-viral-studio v1.14 Windows 인수·운영 화면 검수 완료
+
+- 주인님 별도 DB/30일 정리 승인 후 전용 yvs_favorites·owner-only RLS·중복 생성일 유지·30일 즉시 조회 차단/분당 정리 적용. 실제 Cron 성공 실행과 SQL 회원격리/물리정리(검사 롤백) 확인. 기존 무소유 브라우저 자료 조회/이전/임의삭제 없음.
+- 실제 저장/해제·새로고침·기한·CSV, 자동검색 제거·누락85점/가이드/최신 search.list100회 한도 설명 보완. 선택 영상 Playlist 참고 메모 복사 추가(수신은 후속 별도 작업).
+- 소스 **68b2b0109cd5533441d5f7cfaf84b894a19fcab6**, 기능 db209560 포함, origin/master 푸시. **dpl_6E59ACNhP719UAtzc2UA8Tktw8Rx READY**, DBv1.14. Edge 운영화면9/보관10·단위8·SQL9·합성7·비로그인11개401, 로그오류0. 검색 응답만 합성, 실제 YouTube/AI0. lint 오류0/기존 경고74, 개발의존성high5 잔여.
+- DESIGN28 v1.14 완료, 본인 작업표 제거. [최종 인수인계·증거](../youtube-viral-studio/docs/IMPROVEMENT_HANDOFF_20261017_V114.md). https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 남은 마무리 5/5: #16 30일 자동삭제 조사·설계(승인 대기)
 
 - **결과**: 생성 자료 3개 표(리포트·관심도 스냅샷·11번가 경쟁) + 알림 비교 캐시가 30일 보관 미적용. 첫 실행 시 리포트 31·스냅샷 65·캐시 1 삭제 예상(관리자 리포트 23개 전부 포함).
