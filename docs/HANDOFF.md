@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 플레이리스트 스튜디오 v1.10: AI 배경 생성 복구(Imagen 종료 → gemini-nano-banana-2.1)
+
+- **한 일(주인님 승인)**: 종료된 Imagen 대신 최신 정식 `gemini-nano-banana-2.1`(16:9, 기본 2K)로 교체. 호출 방식은 이미지 레퍼런스 ai-image-studio와 동일(REST generateContent + imageConfig). `gemini-2.5-flash-image`는 가격표상 2026-10-02 종료 예정 구형이라 제외.
+- **검수**: build, 배포·DB v1.10, 비로그인 401, 시험 계정 본인 키로 **1K 1장 생성 성공**(1376×768, 약 $0.034, 유료 호출 1회).
+- **다음**: ai-image-studio 점검(기본 모델이 구형 gemini-2.5-flash-image).
+- **링크**: https://youtube-playlist.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 테스트 비용 규칙 보강: 진행 가능한 가장 저렴한 모델 + 품질·기능 구현 시 상위 모델 허용
 
 - **주인님 지시**: 테스트할 때는 진행 가능한 제일 저렴한 모델을 사용. 퀄리티 테스트나 특정 기능 구현에 필요하면 상위 모델 사용 가능 — 이를 지킬 것.

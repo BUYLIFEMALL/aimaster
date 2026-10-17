@@ -168,3 +168,8 @@ https://youtube-playlist.buylife.xyz
 - 요금 안내: `PlaylistGuideView.tsx`(1단계 설명·배지 "무료 연동"→"본인 키 연동"·FAQ), `ApiKeyModal.tsx`에 "키 발급은 무료, 이미지 생성은 Google 요금이 본인 계정에 부과될 수 있음 + 공식 가격표 링크". 예전 "무료 티어로 추가 비용 없이 생성"은 사실과 달라 삭제.
 - 검수: tsc 통과(ESLint 설정 없음), build, 배포·DB v1.09, 크롬 500px 실제 키 입력 — 메뉴 대화상자·[메뉴 닫기] 포커스·Tab 25회/Shift+Tab 3회 메뉴 안 유지·Esc 닫힘·☰ 포커스 복귀·2단계 Enter 선택(aria-current 확인)·매뉴얼/키 등록 창 문구·콘솔 오류 0.
 - **🔴 발견(승인 대기)**: `src/app/api/generate-bg/route.ts`가 쓰는 `imagen-3.0-generate-002`는 Google에서 종료(2025-11-10, 공식 문서 "Imagen models are shut down and no longer available in the Gemini API") → AI 배경 생성이 지금 실패. 대체 `gemini-2.5-flash-image`/Nano Banana 2(`generateContent`). 교체 검수에 회원 본인 키 실제 생성 1회 이상 필요(유료 가능) → 승인 후 진행. 대기 목록 2-1.
+
+## 2026-10-17 v1.10 — AI 배경 생성 모델 교체: Imagen 종료 → gemini-nano-banana-2.1 (Claude Code 윈도우, 주인님 승인)
+- 원인: `imagen-3.0-generate-002` Google 종료(2025-11-10). 처음 승인안 `gemini-2.5-flash-image`는 공식 가격표에 2026-10-02 종료 예정 구형으로 표시돼 제외 → 최신 정식 `gemini-nano-banana-2.1`(2026-10-06 GA)로 결정.
+- `src/app/api/generate-bg/route.ts`: `@google/genai` `generateImages` → REST `generateContent`(`responseModalities: ["IMAGE"]`, `imageConfig: { aspectRatio: "16:9", imageSize }`) — **이미지 레퍼런스 프로그램 ai-image-studio의 `lib/providers/adapters/gemini.ts` 방식과 동일**. 화질은 본문 `imageSize` "1K"/"2K"만 허용, 기본 2K(장당 약 $0.050), 1K 약 $0.034. 한국인 기본 인물 지시문 추가(핵심 원칙 3). 실패 시 키 값이 담긴 주소를 남기지 않고 원인·힌트(429 한도, 400/403 키·결제)만 안내. 응답에 `model`·`imageSize`.
+- 검수: tsc·build, 배포·DB v1.10, 비로그인 401, **유료 시험 1회**(시험 계정 본인 Gemini 키, 1K, 비용 약 $0.034): 200·1376×768(16:9)·JPEG 862KB·약 19초, 눈으로 확인(비 오는 밤 카페, 인물 한국인). `@google/genai` 패키지는 다른 곳에서 안 쓰지만 이번엔 제거하지 않음.
