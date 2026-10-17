@@ -33,8 +33,8 @@ export const DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-lite-image";
 export const textModelById = (id: string) => TEXT_MODELS.find((m) => m.id === id);
 // 2026-10-17 이전에 저장된 구형 모델 값은 새 모델로 바꿔 찾는다(구형 모델 지원 종료 대비).
 const LEGACY_IMAGE_MODEL: Record<string, string> = {
-  "gemini-nano-banana-2.1": "gemini-3.1-flash-lite-image",
-  "gemini-3-pro-image": "gemini-3-pro-image",
+  "gemini-2.5-flash-image": "gemini-3.1-flash-lite-image",
+  "gemini-3-pro-image-preview": "gemini-3-pro-image",
 };
 export const imageModelById = (id: string) => IMAGE_MODELS.find((m) => m.id === (LEGACY_IMAGE_MODEL[id] ?? id));
 
