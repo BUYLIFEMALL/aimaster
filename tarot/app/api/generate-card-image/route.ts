@@ -6,6 +6,8 @@ import { CARD_STYLES, type CardStyle } from "@/lib/deck";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
+import { GeminiImageError, generateGeminiImage } from "@/lib/ai/geminiImage";
+import { getNanoBananaConfig } from "@/lib/ai/nanoBananaModels";
 
 const STORAGE_BUCKET = "tarot-card-images";
 
@@ -16,34 +18,7 @@ export const fetchCache = "force-no-store";
  * "나노바나나"로 불리는 Gemini 이미지 생성 모델을 호출해 뽑힌 카드 1장의 일러스트를 만든다.
  * naver-cafe-poster/src/lib/ai/imageGenerator.ts 와 동일한 모델 매핑 표준 패턴을 적용한다.
  */
-interface NanoBananaModelConfig {
-  modelName: string;
-  imageSize: "1K" | "2K" | "4K";
-  temperature: number;
-}
-
-const NANO_BANANA_MODEL_CONFIGS: Record<string, NanoBananaModelConfig> = {
-  nanobanana: {
-    modelName: "gemini-nano-banana-2.1",
-    imageSize: "1K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-2k": {
-    modelName: "gemini-nano-banana-2.1",
-    imageSize: "2K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-4k": {
-    modelName: "gemini-nano-banana-2.1",
-    imageSize: "4K",
-    temperature: 0.7,
-  },
-  "nanobanana-pro": {
-    modelName: "gemini-nano-banana-2.1",
-    imageSize: "4K",
-    temperature: 0.4,
-  },
-};
+// 2026-10-17: 등급별 모델·화질·온도는 공용 기준 코드 gemini-image-models(@/lib/ai/nanoBananaModels — 기준은 ai-image-studio)로 통합(주인님 지시).
 
 const KOREAN_PERSON_RULE =
   "If the illustration depicts any human figure, portray them with Korean (East Asian) " +
@@ -104,8 +79,7 @@ export async function POST(request: NextRequest) {
 
   const { cardId, orientation, style = "watercolor", model } = body;
   const modelKey = model && model.trim() ? model.trim() : "nanobanana-2-2k";
-  const config = NANO_BANANA_MODEL_CONFIGS[modelKey] ?? NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"];
-  const targetModelName = config.modelName;
+  const config = getNanoBananaConfig(modelKey);
 
   if (!cardId || !getCard(cardId)) {
     return NextResponse.json({ error: "알 수 없는 카드입니다." }, { status: 400 });
@@ -119,55 +93,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "프롬프트를 만들 수 없습니다." }, { status: 400 });
   }
 
-  let googleRes: Response;
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client, 모델 이름은 gemini-image-models(기준은 ai-image-studio).
+  // 키는 머리글로, 시간 제한·서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내. 프롬프트·비율·화질은 그대로.
+  let image: { base64: string; mimeType: string };
   try {
-    googleRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/${targetModelName}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-            imageConfig: {
-              aspectRatio: "2:3",
-              imageSize: config.imageSize,
-            },
-            temperature: config.temperature,
-          },
-        }),
-        signal: AbortSignal.timeout(60000),
-      },
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "이미지 생성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요." },
-      { status: 502 },
-    );
+    image = await generateGeminiImage({
+      apiKey,
+      modelName: config.modelName,
+      prompt,
+      aspectRatio: "2:3",
+      imageSize: config.imageSize,
+      temperature: config.temperature,
+      responseModalities: ["IMAGE"],
+      timeoutMs: 60000,
+    });
+  } catch (e) {
+    if (e instanceof GeminiImageError) return NextResponse.json({ error: e.message }, { status: e.status >= 400 && e.status < 600 ? e.status : 502 });
+    return NextResponse.json({ error: "이미지 생성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요." }, { status: 502 });
   }
 
-  if (!googleRes.ok) {
-    let message = "이미지 생성에 실패했습니다. /settings에서 등록한 API 키가 유효한지 확인해주세요.";
-    try {
-      const parsed = await googleRes.json();
-      if (parsed?.error?.message) message = parsed.error.message;
-    } catch {}
-    return NextResponse.json({ error: message }, { status: googleRes.status });
-  }
-
-  const data = await googleRes.json();
-  const parts = data?.candidates?.[0]?.content?.parts ?? [];
-  const imagePart = parts.find((p: { inlineData?: { data?: string } }) => p.inlineData?.data);
-
-  if (!imagePart) {
-    return NextResponse.json(
-      { error: "이미지가 생성되지 않았습니다. 잠시 후 다시 시도해주세요." },
-      { status: 502 },
-    );
-  }
-
-  const { mimeType, data: base64 } = imagePart.inlineData;
+  const { mimeType, base64 } = image;
   const buffer = Buffer.from(base64, "base64");
   const ext = mimeType?.includes("png") ? "png" : mimeType?.includes("webp") ? "webp" : "jpg";
   const objectPath = `${access.user.id}/${cardId}-${orientation}-${style}-${Date.now()}.${ext}`;

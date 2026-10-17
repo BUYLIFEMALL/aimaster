@@ -2,6 +2,8 @@
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { callOpenAiText } from "./openai";
+import { generateGeminiImage } from "./geminiImage";
+import { DEFAULT_NANO_BANANA_MODEL, getNanoBananaConfig } from "./nanoBananaModels";
 
 // blog(utils/news/imageGenerator.ts)의 generateArticleBasedImagePrompts + NanoBanana(Gemini
 // 이미지 모델) 패턴을 참고했다. blog는 기사 3단락마다 이미지를 만들지만, 이메일은 1통짜리라
@@ -43,7 +45,6 @@ export async function generateEmailImagePrompt(input: GenerateEmailImagePromptIn
   return prompt.trim();
 }
 
-const GEMINI_IMAGE_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent";
 
 export interface GeneratedImage {
   base64: string;
@@ -56,30 +57,16 @@ export async function generateEmailImage(prompt: string, geminiApiKey: string): 
     throw new Error("Gemini API 키가 없습니다. 설정에서 본인 키를 등록해주세요.");
   }
 
-  const response = await fetch(`${GEMINI_IMAGE_ENDPOINT}?key=${geminiApiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseModalities: ["Image"],
-        imageConfig: { aspectRatio: "16:9", imageSize: "1K" },
-        temperature: 0.7,
-      },
-    }),
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client, 모델 이름은 gemini-image-models(기준은 ai-image-studio).
+  // 키는 머리글로, 시간 제한·서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내. 프롬프트·비율·화질은 그대로.
+  const image = await generateGeminiImage({
+    apiKey: geminiApiKey,
+    modelName: getNanoBananaConfig(DEFAULT_NANO_BANANA_MODEL).modelName,
+    prompt,
+    aspectRatio: "16:9",
+    imageSize: "1K",
+    temperature: 0.7,
+    responseModalities: ["Image"],
   });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Gemini 이미지 생성이 실패했습니다. (${response.status}) ${errorBody}`);
-  }
-
-  const data = (await response.json()) as {
-    candidates?: { content?: { parts?: { inlineData?: { data?: string; mimeType?: string } }[] } }[];
-  };
-  const part = data.candidates?.[0]?.content?.parts?.[0];
-  const rawBase64 = part?.inlineData?.data;
-  if (!rawBase64) throw new Error("Gemini가 이미지를 반환하지 않았습니다.");
-
-  return { base64: rawBase64.replace(/\s+/g, ""), mimeType: part?.inlineData?.mimeType ?? "image/png" };
+  return { base64: image.base64, mimeType: image.mimeType };
 }

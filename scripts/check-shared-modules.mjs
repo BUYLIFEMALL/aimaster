@@ -52,6 +52,13 @@ const MODULES = [
       "threads-affiliate-poster/src/lib/ai/geminiImage.ts",
       "naver-cafe-poster/src/lib/ai/geminiImage.ts",
       "threads-content-ops/lib/geminiImage.ts",
+      // 3묶음 단일 주소형(2026-10-17)
+      "kakao_auto_poster/src/lib/ai/geminiImage.ts",
+      "stepmail/lib/ai/geminiImage.ts",
+      "auto-detail-page/lib/ai/geminiImage.ts",
+      "tarot/lib/ai/geminiImage.ts",
+      "mbti-character/lib/ai/geminiImage.ts",
+      "music/lib/ai/geminiImage.ts",
       "naver-blog-agent/src/lib/ai/geminiImage.ts",
       "naver-blog-allinone/src/lib/blog/geminiImage.ts",
     ],
@@ -74,6 +81,13 @@ const MODULES = [
       "threads-affiliate-poster/src/lib/ai/nanoBananaModels.ts",
       "naver-cafe-poster/src/lib/ai/nanoBananaModels.ts",
       "threads-content-ops/lib/nanoBananaModels.ts",
+      // 3묶음 단일 주소형(2026-10-17)
+      "kakao_auto_poster/src/lib/ai/nanoBananaModels.ts",
+      "stepmail/lib/ai/nanoBananaModels.ts",
+      "auto-detail-page/lib/ai/nanoBananaModels.ts",
+      "tarot/lib/ai/nanoBananaModels.ts",
+      "mbti-character/lib/ai/nanoBananaModels.ts",
+      "music/lib/ai/nanoBananaModels.ts",
       "naver-blog-agent/src/lib/ai/nanoBananaModels.ts",
       "naver-blog-allinone/src/lib/blog/nanoBananaModels.ts",
     ],
@@ -103,6 +117,7 @@ for (const m of MODULES) {
     if (same) {
       console.log(`OK       ${m.id}: ${c}`);
     } else if (sync) {
+      fs.mkdirSync(path.dirname(dst), { recursive: true });
       fs.copyFileSync(src, dst);
       console.log(`SYNCED   ${m.id}: ${c} ← ${m.source}`);
     } else {

@@ -49,7 +49,7 @@
 | 나노바나나 설정 파일 계열 (1단계 적용) | ai-auto-blog(장면·편집기 이미지) v1.69 · tistory-auto-blog v1.76 · naver-blog-seo-studio v1.67 · naver-blog-auto-poster_app v1.07 · naver-blog-auto-poster_web v1.08 · shots v1.11 · blog_auto_poster — 각 폴더 `geminiImage.ts` | 🔵 사본 — 호출(`geminiImage.ts`)과 모델 목록(`nanoBananaConfig.ts`/`nanoBananaModels.ts` → 공용 `gemini-image-models`, 2026-10-17 주인님 지시로 통합) 모두 |
 | SNS 생성기 내장형 (2단계 적용) | insta_auto_poster v1.18 · threads v1.12 · threads-affiliate-poster `generator.ts` v1.57 · naver-cafe-poster v1.11 · naver-blog-agent `withGemini` v1.89 · naver-blog-allinone `blog/gemini.ts` v1.44 · threads-content-ops `lib/postImage.ts` v2.00 — 각 폴더 `geminiImage.ts`·`nanoBananaModels.ts` | 🔵 사본(호출+모델 목록) |
 | 남은 것 | threads-affiliate-poster `imageGenerator.ts`(다중 플랫폼 생성기) | ⚪ |
-| 단일 주소 상수형 | (ai-auto-blog·tistory-auto-blog `editorImage.ts`는 1단계에서 🔵) · kakao_auto_poster `reportImage.ts` · stepmail `emailImage.ts` · auto-detail-page `api/generate-image` · tarot · mbti-character · music `nanobanana.ts` | ⚪ |
+| 단일 주소 상수형 (3묶음 적용) | kakao_auto_poster `reportImage.ts` v1.12 · stepmail `emailImage.ts` v1.12 · auto-detail-page `api/generate-image` v1.09 · tarot `api/generate-card-image` v1.09 · mbti-character `api/generate-character-image` v1.10 · music `nanobanana.ts` v1.12 (+ ai-auto-blog·tistory `editorImage.ts`는 1단계) — 각 폴더 `geminiImage.ts`·`nanoBananaModels.ts` | 🔵 사본 |
 | 등급 목록형(경량/기본/고급) | cardnews-studio · style-dna-analyzer · playlist-channel-studio · shop-detail-page · blog-content-maker · blog-workroom · four-cut-comics · music-video-studio · emotion-writer · photo-remake-studio · shorts-onestop-studio · thumbnail-master · seo-thumbnail-pro · portrait-photo · banana-canvas · fashion-style · allinone-graphic · cinematic-storyboard-studio · ai-influencer-studio | ⚪ |
 | 옛 Imagen에서 바꾼 곳 | yt-playlist-studio · ai-webtoon-studio · ebook-studio · detail-page-12p · vinyl-lp-studio | ⚪ |
 
@@ -87,6 +87,7 @@
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-17 | 이미지 3묶음 단일 주소형 6곳 사본 적용 | Claude Code(윈도우) |
 | 2026-10-17 | 이미지 2단계 SNS 생성기 묶음 7곳 사본 적용 | Claude Code(윈도우) |
 | 2026-10-17 | 이미지 모델 목록 통합 — gemini-image-models 기준(ai-image-studio)·사본 7곳 | Claude Code(윈도우) |
 | 2026-10-17 | 이미지 생성 호출 1단계 — gemini-image-client 기준(ai-image-studio)·사본 7곳 | Claude Code(윈도우) |

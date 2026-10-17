@@ -1,11 +1,13 @@
 // [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
+import { generateGeminiImage } from "./geminiImage";
+import { getNanoBananaConfig } from "./nanoBananaModels";
 
 // insta_auto_poster의 "nanobanana-pro" 등급(gemini-nano-banana-2.1, 4K, temperature 낮게)과
 // 동일한 조합을 써서 고퀄리티 정사각형 앨범 커버를 생성한다.
-const MODEL_NAME = "gemini-nano-banana-2.1";
-const ENDPOINT = `https://generativelanguage.googleapis.com/v1/models/${MODEL_NAME}:generateContent`;
+// 2026-10-17: 모델·화질·온도는 공용 모델 목록의 Pro 등급(gemini-image-models — 기준은 ai-image-studio, 주인님 지시로 통합)
+const ALBUM_COVER_TIER = "nanobanana-pro";
 
 export interface AlbumCoverResult {
   base64: string;
@@ -26,33 +28,17 @@ export async function generateAlbumCoverImage(prompt: string, apiKey: string): P
     throw new Error("Gemini API 키가 없습니다. 설정 > API 키 설정에서 본인의 Gemini API 키를 등록해주세요.");
   }
 
-  const response = await fetch(`${ENDPOINT}?key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt + NO_TEXT_SUFFIX }] }],
-      generationConfig: {
-        responseModalities: ["Image"],
-        imageConfig: { aspectRatio: "1:1", imageSize: "4K" },
-        temperature: 0.4,
-      },
-    }),
+  const config = getNanoBananaConfig(ALBUM_COVER_TIER);
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client, 모델 이름은 gemini-image-models(기준은 ai-image-studio).
+  // 키는 머리글로, 시간 제한·서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내. 프롬프트·비율·화질은 그대로.
+  const { base64, mimeType } = await generateGeminiImage({
+    apiKey,
+    modelName: config.modelName,
+    prompt: prompt + NO_TEXT_SUFFIX,
+    aspectRatio: "1:1",
+    imageSize: config.imageSize,
+    temperature: config.temperature,
+    responseModalities: ["Image"],
   });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`나노바나나 앨범 커버 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
-  }
-
-  const data = (await response.json()) as {
-    candidates?: { content?: { parts?: { inlineData?: { mimeType?: string; data?: string } }[] } }[];
-  };
-  const imagePart = data.candidates?.[0]?.content?.parts?.find((part) => part.inlineData?.data);
-  const base64 = imagePart?.inlineData?.data?.replace(/\s+/g, "");
-  const mimeType = imagePart?.inlineData?.mimeType ?? "image/png";
-
-  if (!base64) {
-    throw new Error("나노바나나가 이미지를 반환하지 않았습니다.");
-  }
   return { base64, mimeType };
 }

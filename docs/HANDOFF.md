@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 이미지 생성 3묶음: 단일 주소형 6곳 공용 모듈 적용
+
+- **한 일**: kakao_auto_poster·stepmail·auto-detail-page·tarot·mbti-character·music의 이미지 호출을 공용 사본(`gemini-image-client`)으로, 모델 이름을 공용 목록(`gemini-image-models`)에서 가져오게 바꿨습니다. 프롬프트·비율·화질은 그대로입니다.
+- **결과물 변화**: kakao·stepmail·auto-detail-page·mbti는 같은 모델(`nano-banana-2.1`)이라 변화가 없습니다. tarot은 1K→flash-lite·Pro→3-pro-image(등급 선택 시)입니다. music 앨범 커버는 주석의 의도대로 Pro 등급이 돼 `gemini-3-pro-image`로 바뀌었습니다(가격 오름, 회원 본인 키).
+- **버그 수정**: kakao·stepmail·auto-detail-page가 응답 첫 조각만 봐서 이미지를 놓칠 수 있던 문제를 고쳤습니다.
+- **도구 보완**: `scripts/check-shared-modules.mjs --sync`가 사본 폴더가 없으면 만듭니다.
+- **버전**: kakao v1.12 · stepmail v1.12 · auto-detail-page v1.09 · tarot v1.09 · mbti-character v1.10 · music v1.12. tsc·eslint 0, 빌드·배포·DB, 크롬 화면 확인. 실제 이미지 생성 시험은 하지 않았습니다.
+- **다음 첫 단계**: 이미지 4묶음(등급 목록형 19곳) → 5묶음(Imagen 교체분) → threads-affiliate-poster 다중 플랫폼 생성기.
+
 ## 2026-10-17 Claude Code(맥미니) — 네이버 블로그 SEO 스튜디오 v1.69: 파일 나누기 + 라이트·네이버 그린 디자인 (🟠 윈도우 마무리 요청)
 
 - **대상**: `naver-blog-seo-studio/` (https://naver-blog-seo-studio.buylife.xyz). 플랜 → 주인님 승인 후 구현.

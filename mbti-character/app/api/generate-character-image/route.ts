@@ -6,6 +6,8 @@ import { getImageStyle } from "@/lib/imageStyles";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
+import { GeminiImageError, generateGeminiImage } from "@/lib/ai/geminiImage";
+import { DEFAULT_NANO_BANANA_MODEL, getNanoBananaConfig } from "@/lib/ai/nanoBananaModels";
 
 const STORAGE_BUCKET = "mbti-character-images";
 
@@ -35,7 +37,8 @@ export const fetchCache = "force-no-store";
  * 로그인 세션이 실린 서버 클라이언트로 하므로 RLS가 그대로 적용되어 본인 폴더에만 쓸 수
  * 있다(instagram-comment-reply의 ig-media-thumbnails 버킷과 동일 패턴).
  */
-const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || "gemini-nano-banana-2.1";
+// 환경변수 GEMINI_IMAGE_MODEL(실제 모델 이름)이 있으면 그 값, 없으면 공용 모델 목록 기본 등급(2026-10-17: Vercel에 미등록 확인)
+const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || getNanoBananaConfig(DEFAULT_NANO_BANANA_MODEL).modelName;
 
 function buildPrompt(typeCode: string, styleId: string): string | null {
   const character = CHARACTERS[typeCode];
@@ -84,48 +87,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "프롬프트를 만들 수 없습니다." }, { status: 400 });
   }
 
-  let googleRes: Response;
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client, 모델 이름은 gemini-image-models(기준은 ai-image-studio).
+  // 키는 머리글로, 시간 제한·서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내. 프롬프트·비율·화질은 그대로.
+  let image: { base64: string; mimeType: string };
   try {
-    googleRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ["IMAGE"] },
-        }),
-        signal: AbortSignal.timeout(30000),
-      },
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "이미지 생성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요." },
-      { status: 502 },
-    );
+    image = await generateGeminiImage({ apiKey, modelName: MODEL_ID, prompt, responseModalities: ["IMAGE"], timeoutMs: 30000 });
+  } catch (e) {
+    if (e instanceof GeminiImageError) return NextResponse.json({ error: e.message }, { status: e.status >= 400 && e.status < 600 ? e.status : 502 });
+    return NextResponse.json({ error: "이미지 생성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요." }, { status: 502 });
   }
 
-  if (!googleRes.ok) {
-    let message = "이미지 생성에 실패했습니다. /settings에서 등록한 API 키가 유효한지 확인해주세요.";
-    try {
-      const parsed = await googleRes.json();
-      if (parsed?.error?.message) message = parsed.error.message;
-    } catch {}
-    return NextResponse.json({ error: message }, { status: googleRes.status });
-  }
-
-  const data = await googleRes.json();
-  const parts = data?.candidates?.[0]?.content?.parts ?? [];
-  const imagePart = parts.find((p: { inlineData?: { data?: string } }) => p.inlineData?.data);
-
-  if (!imagePart) {
-    return NextResponse.json(
-      { error: "이미지가 생성되지 않았습니다. 잠시 후 다시 시도해주세요." },
-      { status: 502 },
-    );
-  }
-
-  const { mimeType, data: base64 } = imagePart.inlineData;
+  const { mimeType, base64 } = image;
   const buffer = Buffer.from(base64, "base64");
   const ext = mimeType?.includes("png") ? "png" : mimeType?.includes("webp") ? "webp" : "jpg";
   const objectPath = `${access.user.id}/${typeCode.toUpperCase()}-${styleId}-${Date.now()}.${ext}`;

@@ -5,6 +5,8 @@ import { checkProgramAccessApi, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
+import { generateGeminiImage } from "@/lib/ai/geminiImage";
+import { DEFAULT_NANO_BANANA_MODEL, getNanoBananaConfig } from "@/lib/ai/nanoBananaModels";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
@@ -32,47 +34,23 @@ const PLATFORM_PROVIDER: Record<Platform, ApiKeyProvider> = {
 const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
   "\n\nIf this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
 
-/* ── 나노바나나 (Gemini 2.5 Flash Image) ── */
+/* ── 나노바나나 (Gemini 이미지 — 공용 모델 목록 기본 등급) ── */
 async function generateWithNanobanana(
   prompt: string,
   aspectRatio: string,
   apiKey: string
 ) {
-  const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.8,
-          imageConfig: { aspectRatio },
-          responseModalities: ["Image"],
-        },
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Gemini API 오류: ${err}`);
-  }
-
-  const data = await res.json();
-  const part = data.candidates?.[0]?.content?.parts?.[0];
-
-  if (!part?.inlineData) {
-    throw new Error("Gemini로부터 이미지 데이터를 받지 못했습니다.");
-  }
-
-  return {
-    base64: part.inlineData.data as string,
-    mediaType: (part.inlineData.mimeType || "image/png") as string,
-  };
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client, 모델 이름은 gemini-image-models(기준은 ai-image-studio).
+  // 키는 머리글로, 시간 제한·서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내. 프롬프트·비율·화질은 그대로.
+  const image = await generateGeminiImage({
+    apiKey,
+    modelName: getNanoBananaConfig(DEFAULT_NANO_BANANA_MODEL).modelName,
+    prompt,
+    aspectRatio,
+    temperature: 0.8,
+    responseModalities: ["Image"],
+  });
+  return { base64: image.base64, mediaType: image.mimeType };
 }
 
 /* ── Replicate (FLUX 2 Dev) ── */
