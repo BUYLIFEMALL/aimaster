@@ -113,7 +113,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-17 기준: ✅ 35개 · ⚪ 46개 · 🟠 0개 · ⏸ 2개 — 총 83개):
+> **상태 구분** (2026-10-17 기준: ✅ 36개 · ⚪ 45개 · 🟠 0개 · ⏸ 2개 — 총 83개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -140,7 +140,7 @@
 | 11 | AI Prompt 자동화 | `ai-prompt-studio` | **포커스 스튜디오 스타일** (프롬프트 엔지니어링 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일) | [`ai-prompt-studio/docs/DESIGN_HANDOFF.md`](ai-prompt-studio/docs/DESIGN_HANDOFF.md) |
 | 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | **유튜브 다크 콘솔 스타일** (YouTube Dark Console Style) | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (v1.08, 유튜브 다크 콘솔·참고 메모) | [`yt-playlist-studio/docs/DESIGN_HANDOFF.md`](yt-playlist-studio/docs/DESIGN_HANDOFF.md) |
 | 13 | LP 턴테이블 자동화 | `vinyl-lp-studio` | **크리에이티브 아틀리에 스타일** (바이닐 다크 레트로 콘솔 변형) | 다크(옵시디언 `#0c0d12` + 바이닐 골드/앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 크리에이티브 아틀리에 스타일) | [`vinyl-lp-studio/docs/DESIGN_HANDOFF.md`](vinyl-lp-studio/docs/DESIGN_HANDOFF.md) |
-| 14 | 무한루프 영상자동화 | `infinite-loop-video` | **크리에이티브 아틀리에 스타일** (네온 루프 시네마 변형) | 다크(차콜 `#0b0d12` + 네온 핑크 `#ec4899`→시안 `#22d3ee`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.05`, 크리에이티브 아틀리에 · 네온 루프 시네마, Claude Code 맥미니 2026-10-17) | [`infinite-loop-video/docs/DESIGN_HANDOFF.md`](infinite-loop-video/docs/DESIGN_HANDOFF.md) |
+| 14 | 무한루프 영상자동화 | `infinite-loop-video` | **크리에이티브 아틀리에 스타일** (네온 루프 시네마 변형) | 다크(차콜 `#0b0d12` + 네온 핑크 `#ec4899`→시안 `#22d3ee`) | ✅ 1차 작업완료 (`v1.05`, 크리에이티브 아틀리에 스타일) | [`infinite-loop-video/docs/IMPROVEMENT_HANDOFF_20261017.md`](infinite-loop-video/docs/IMPROVEMENT_HANDOFF_20261017.md) · [`infinite-loop-video/docs/DESIGN_HANDOFF.md`](infinite-loop-video/docs/DESIGN_HANDOFF.md) |
 | 15 | AI 인플루언서 자동화 | `ai-influencer-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `ai-influencer-studio/AGENTS.md` |
 | 16 | 뮤직비디오 자동화 | `music-video-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `music-video-studio/AGENTS.md` |
 | 17 | 이미지 변환 스튜디오 | `image-convert-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 작업 예정 | `image-convert-studio/AGENTS.md` |

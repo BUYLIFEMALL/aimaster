@@ -1,5 +1,36 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — 무한루프 영상자동화 v1.05: 크리에이티브 아틀리에 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `infinite-loop-video/` (https://infinite-loop-video.buylife.xyz)
+- **배경**: 
+  - 맥미니 CLI가 크리에이티브 아틀리에 「네온 루프 시네마」 다크 테마(`lv-*` 토큰, `/studio` 히어로 + 루프 방식 도식 카드, `/guide` 시각화 매뉴얼, 메뉴 명칭 표준화)를 구현하고 커밋 `af88fc2c`로 푸시 후 윈도우 마무리 작업을 요청함.
+- **한 일**:
+  1. 단위 테스트 전수 통과: `npm test` 15건 통과 (정지 계정 차단, 구독 권한, 프레임 유사도, 주기 루프 탐색, 품질 등급, 파라미터 보정, 필터 구성 등).
+  2. 로컬 Turbopack 프로덕션 빌드 성공 (`npm run build`).
+  3. Vercel 프로덕션 배포 완료: `dpl_7SnDoZiKz1JVa41YfUCdJRCVxXTk` → alias `infinite-loop-video.buylife.xyz` 최신 연결 확인.
+  4. Supabase DB `programs` 테이블에서 `slug = 'infinite-loop-video'`의 `version = 'v1.05'` 갱신 완료.
+  5. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 테스트 계정(`buylifemall@naver.com`) 환경에서 데스크톱(1440px) 및 모바일(390px) 실세션 검수 통과.
+     - 스튜디오(`/studio`): 시네마 차콜(`#0b0d12`) 다크 캔버스, 네온 루프 시네마 히어로(STEP 1), 루프 방식 3가지 카드 다이어그램(스마트 루프·강제 오버랩·바운스), 비디오 업로드 드래그 앤 드롭 영역 및 3단계 안내 카드 정상 노출.
+     - 연동 & 사용 매뉴얼(`/guide`): 루프 비서 캐릭터 말풍선, 4단계 사용 순서, 방식 비교 카드, 자연스럽게 이어지는 영상 vs 점수 낮은 영상 비교 팁 박스, FAQ 아코디언 정상 렌더링.
+     - 캡처 보존: `edge_infinite_loop_*_v105.png`.
+     - 실제 Edge 창을 띄워 사용자 화면에 유지 완료.
+     - 주의사항 준수: 영상 변환 및 인코딩 버튼 일체 미클릭 (비용 0원).
+  6. 현황판 및 인수인계 문서 갱신:
+     - `DESIGN.md` 14번 상태: `✅ 1차 작업완료 (`v1.05`, 크리에이티브 아틀리에 스타일)` 갱신.
+     - `DESIGN.md` 상단 상태 요약: `✅ 36개 · ⚪ 45개 · 🟠 0개 · ⏸ 2개 — 총 83개` 최신 전수 집계 동기화.
+     - `infinite-loop-video/docs/IMPROVEMENT_HANDOFF_20261017.md` 갱신.
+     - `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **현황판 상태 요약 (총 83개)**:
+  - ✅ **1차 작업완료**: **36개**
+  - 🟠 **윈도우 마무리 대기**: **0개**
+  - ⚪ **작업 예정**: **45개**
+  - ⏸ **보류**: **2개**
+- **링크**:
+  - https://infinite-loop-video.buylife.xyz
+- **비용**: 0원 (유료 API 호출 없음).
+
 ## 2026-10-17 Claude Code(맥미니) — 웹 크롤링 자동화 v1.08 생성 데이터 30일 자동 삭제(주인님 승인) · 윈도우 배포·CRON_SECRET 대기
 
 - **한 일**: `web-crawler/webapp/src/app/api/cron/purge-expired/route.ts` + `vercel.json` 매일 03:17(KST) — 30일 지난 작업의 결과 엑셀(Storage)과 기록 삭제. 매뉴얼 FAQ에 30일 안내. 맥미니 tsc 0.
