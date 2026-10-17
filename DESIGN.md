@@ -167,7 +167,7 @@
 | 38 | 캐릭코드(MBTI) 측정기 | `mbti-character` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti-character/AGENTS.md` |
 | 39 | 성격코드(MBTI) 측정기 | `personality-code` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti/AGENTS.md` |
 | 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-cafe-poster/AGENTS.md` |
-| 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao-auto-posting/AGENTS.md` |
+| 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` (폴더 `kakao_auto_poster`) | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao_auto_poster/AGENTS.md` |
 | 42 | 웹 크롤링 자동화 | `web-crawler-saas` (폴더 `web-crawler/webapp`) | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 스타일) | [`web-crawler/IMPROVEMENT_HANDOFF_20261017.md`](web-crawler/IMPROVEMENT_HANDOFF_20261017.md) · [`web-crawler/DESIGN_HANDOFF.md`](web-crawler/DESIGN_HANDOFF.md) |
 | 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 스마트 매트릭스 다크, Windows 빌드/배포/DB/Edge1440·375 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
 | 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-affiliate-poster/AGENTS.md` |
@@ -182,7 +182,7 @@
 | 53 | 대량 메일발송 자동화 | `stepmail` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `stepmail/AGENTS.md` |
 | 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`music/docs/DESIGN_HANDOFF.md`](music/docs/DESIGN_HANDOFF.md) |
 | 55 | 상세페이지 자동화(15p) | `shop-detail-page` | **이커머스 셀러 스튜디오 스타일** | 퓨어 화이트 (`#ffffff` + 블루 `#2563eb`·오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`shop-detail-page/docs/DESIGN_HANDOFF.md`](shop-detail-page/docs/DESIGN_HANDOFF.md) |
-| 56 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `insta-auto-poster/AGENTS.md` |
+| 56 | INSTA 포스팅 자동화 | `auto-instagram-posting` (폴더 `insta_auto_poster`) | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `insta_auto_poster/AGENTS.md` |
 | 57 | 부동산 실거래 투자분석 | `real-estate-sales` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.11`, 블랙 확정·Windows 빌드/배포/DB/Edge 1440·375 검수 2026-10-17) | [`real_estate_sales/docs/DESIGN_HANDOFF.md`](real_estate_sales/docs/DESIGN_HANDOFF.md) |
 | 58 | YOUTUBE Shots 자동화 | `auto-shorts-posting` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shots/AGENTS.md` |
 | 59 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `ai-auto-blog/AGENTS.md` |
