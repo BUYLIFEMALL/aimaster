@@ -46,6 +46,14 @@ const MODULES = [
       "naver-blog-auto-poster_web/web/lib/naverBlogAutoPoster/geminiImage.ts",
       "shots/src/lib/ai/geminiImage.ts",
       "blog_auto_poster/src/geminiImage.ts",
+      // 2단계 SNS 생성기 묶음(2026-10-17)
+      "insta_auto_poster/src/lib/ai/geminiImage.ts",
+      "threads/src/lib/ai/geminiImage.ts",
+      "threads-affiliate-poster/src/lib/ai/geminiImage.ts",
+      "naver-cafe-poster/src/lib/ai/geminiImage.ts",
+      "threads-content-ops/lib/geminiImage.ts",
+      "naver-blog-agent/src/lib/ai/geminiImage.ts",
+      "naver-blog-allinone/src/lib/blog/geminiImage.ts",
     ],
   },
   {
@@ -60,6 +68,14 @@ const MODULES = [
       "naver-blog-auto-poster_web/web/lib/naverBlogAutoPoster/nanoBananaConfig.ts",
       "shots/src/lib/ai/nanoBananaModels.ts",
       "blog_auto_poster/src/nanoBananaConfig.ts",
+      // 2단계 SNS 생성기 묶음(2026-10-17)
+      "insta_auto_poster/src/lib/ai/nanoBananaModels.ts",
+      "threads/src/lib/ai/nanoBananaModels.ts",
+      "threads-affiliate-poster/src/lib/ai/nanoBananaModels.ts",
+      "naver-cafe-poster/src/lib/ai/nanoBananaModels.ts",
+      "threads-content-ops/lib/nanoBananaModels.ts",
+      "naver-blog-agent/src/lib/ai/nanoBananaModels.ts",
+      "naver-blog-allinone/src/lib/blog/nanoBananaModels.ts",
     ],
   },
   {

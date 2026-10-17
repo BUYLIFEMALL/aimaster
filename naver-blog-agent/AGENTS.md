@@ -582,3 +582,10 @@ v1.75 운영 확인 완료: 코드4b9a1d4a 푸시·프로덕션READY·DB/확장/
 - 개선: 15초 시간 제한, 서버 오류·네트워크만 1회 재시도, 키 가리기, 일일 한도/분당 제한/키 사용 제한/API 미사용 구분 안내(초기화 시각 서머타임 반영).
 - 검수: tsc·eslint(바뀐 파일) 0, build(prebuild로 확장 manifest·ZIP v1.88), 배포·DB v1.88, `check-extension-release` OK, 크롬 `/collector` v1.88. 회원 확장 ZIP 다시 받기 안내 필요. 실제 YouTube 호출은 하지 않음.
 - **주의(다음 CLI)**: 모듈 파일 `youtubeData.ts`는 공용 기준 코드 `youtube-data-client`의 사본이다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 8개 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.
+
+## 2026-10-17 v1.89 — 이미지 생성 호출·모델 목록을 공용 기준 코드로 (2단계 SNS 생성기 묶음, Claude Code 윈도우)
+- `src/lib/ai/imageGenerator.ts` `withGemini()`의 모델 목록·호출을 공용 사본으로 교체(기존 110초 시간 제한 유지, 주소 v1 → v1beta).
+- 통합 값: 1K=`gemini-3.1-flash-lite-image`, 2K·4K=`gemini-nano-banana-2.1`, Pro=`gemini-3-pro-image`(온도 0.4). 개선: 키 머리글 전송, 시간 제한, 서버 오류·혼잡 1회 재시도, 모든 조각 탐색, 안전 차단·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·한국인 지시문·비율·기본 등급(`GEMINI_IMAGE_MODEL` 환경변수 포함)은 그대로.
+- 이 프로그램에서 바뀐 값: Pro 모델 `nano-banana-2.1` → `3-pro-image`(1K는 이미 flash-lite).
+- 검수: tsc 0, build(prebuild로 확장 ZIP v1.89), 배포·DB v1.89, `check-extension-release` OK. 회원 확장 ZIP 다시 받기 안내 필요. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
+- **주의(다음 CLI)**: `geminiImage.ts`(호출)·`nanoBananaModels.ts`(등급별 모델)는 공용 기준 코드 `gemini-image-client`·`gemini-image-models`의 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()` 결과를 호출하는 쪽에서 덮어써 보완한다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.

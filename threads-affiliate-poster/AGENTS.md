@@ -458,3 +458,10 @@ vercel deploy --prod --yes
 ## v1.56 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `src/lib/ai/generator.ts` `src/lib/ai/imageGenerator.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-17 v1.57 — 이미지 생성 호출·모델 목록을 공용 기준 코드로 (2단계 SNS 생성기 묶음, Claude Code 윈도우)
+- `src/lib/ai/generator.ts`의 모델 목록·호출 코드를 공용 사본으로 교체. (`imageGenerator.ts`의 다중 플랫폼 생성기는 OpenAI·Replicate 등과 함께 쓰는 별도 구조라 이번 묶음에서 그대로 둠 — 다음 묶음)
+- 통합 값: 1K=`gemini-3.1-flash-lite-image`, 2K·4K=`gemini-nano-banana-2.1`, Pro=`gemini-3-pro-image`(온도 0.4). 개선: 키 머리글 전송, 시간 제한, 서버 오류·혼잡 1회 재시도, 모든 조각 탐색, 안전 차단·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·한국인 지시문·비율·기본 등급(`GEMINI_IMAGE_MODEL` 환경변수 포함)은 그대로.
+- 이 프로그램에서 바뀐 값: 1K → flash-lite, Pro 모델 → `3-pro-image`.
+- 검수: tsc·eslint 0, test:naver-key 통과, build, 배포·DB v1.57. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
+- **주의(다음 CLI)**: `geminiImage.ts`(호출)·`nanoBananaModels.ts`(등급별 모델)는 공용 기준 코드 `gemini-image-client`·`gemini-image-models`의 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()` 결과를 호출하는 쪽에서 덮어써 보완한다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.

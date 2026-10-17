@@ -4,6 +4,8 @@
 // 키는 요청 헤더로만 보내고 오류 문구에는 넣지 않는다.
 import { finalizePrompt } from "./imagePlan";
 import type { ImageRatio } from "./types";
+import { getNanoBananaConfig } from "./nanoBananaModels";
+import { generateGeminiImage as generateGeminiImageCore } from "./geminiImage";
 
 const BASE = "https://generativelanguage.googleapis.com";
 
@@ -40,42 +42,22 @@ export interface GeneratedImage {
   mime: string;
 }
 
-// 나노바나나 모델 설정(naver-blog-agent 의 imageGenerator 와 같은 값)
-export const NANO_BANANA: Record<string, { model: string; size: "1K" | "2K" | "4K"; temperature: number }> = {
-  nanobanana: { model: "gemini-3.1-flash-lite-image", size: "1K", temperature: 0.7 },
-  "nanobanana-2-2k": { model: "gemini-nano-banana-2.1", size: "2K", temperature: 0.7 },
-  "nanobanana-2-4k": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.7 },
-  "nanobanana-pro": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.4 },
-};
+// 2026-10-17: 등급별 모델·화질·온도는 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)로 통합(주인님 지시).
 
 /** 나노바나나(Gemini 이미지)로 이미지 1장을 만든다. */
-export async function generateGeminiImage(apiKey: string, modelId: string, prompt: string, ratio: ImageRatio, signal?: AbortSignal): Promise<GeneratedImage> {
-  const cfg = NANO_BANANA[modelId] ?? NANO_BANANA["nanobanana-2-2k"];
-  let res: Response;
-  try {
-    res = await fetch(`${BASE}/v1/models/${cfg.model}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: finalizePrompt(prompt) }] }],
-        generationConfig: {
-          responseModalities: ["Image"],
-          imageConfig: { aspectRatio: ratio, imageSize: cfg.size },
-          temperature: cfg.temperature,
-        },
-      }),
-      signal,
-    });
-  } catch {
-    throw new Error("이미지 서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해주세요.");
-  }
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    if (/safety|blocked|policy/i.test(detail)) throw new Error("안전 정책에 걸려 이미지를 만들지 못했습니다. 프롬프트를 바꿔 다시 시도해주세요.");
-    throw new Error(httpMessage(res.status, (() => { try { return JSON.parse(detail)?.error?.message ?? ""; } catch { return ""; } })(), apiKey));
-  }
-  const data = (await res.json()) as { candidates?: { content?: { parts?: { inlineData?: { data?: string; mimeType?: string } }[] } }[] };
-  const part = data.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data);
-  if (!part?.inlineData?.data) throw new Error("응답에 이미지가 없습니다. 안전 정책에 걸렸을 수 있으니 프롬프트를 바꿔 다시 시도해주세요.");
-  return { base64: part.inlineData.data.replace(/\s+/g, ""), mime: part.inlineData.mimeType || "image/png" };
+// 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio)로.
+// 키는 머리글로(브라우저에서 직접 호출하는 기존 방식 그대로), 시간 제한·서버 오류·혼잡 1회 재시도, 안전 차단·한도·키 오류 한국어 안내(키 가림).
+// 마지막 인자(취소 신호)는 호출하는 곳에서 넘기지 않아 쓰이지 않던 자리라 이름만 남겨 둔다.
+export async function generateGeminiImage(apiKey: string, modelId: string, prompt: string, ratio: ImageRatio, _signal?: AbortSignal): Promise<GeneratedImage> {
+  const cfg = getNanoBananaConfig(modelId);
+  const image = await generateGeminiImageCore({
+    apiKey,
+    modelName: cfg.modelName,
+    prompt: finalizePrompt(prompt),
+    aspectRatio: ratio,
+    imageSize: cfg.imageSize,
+    temperature: cfg.temperature,
+    responseModalities: ["Image"],
+  });
+  return { base64: image.base64, mime: image.mimeType };
 }

@@ -9,3 +9,4 @@
 - [미처리·중] 모바일(767px 이하) 좌측 메뉴: `Sidebar.tsx`가 휴대폰에서 위로 쌓이는 전체 폭 블록이며 ☰ 접는 메뉴가 아님(루트 CLAUDE.md 원칙 19). 다음 첫 단계: `markdown-studio`의 위쪽 접는 메뉴 + 767px 전환 CSS 이식 후 390px 검수.
 - [미처리·하] Instagram 로그인 방식 실제 연결 성공은 미확인(관리자 계정 동의 화면까지 확인). 시험 계정 Instagram 앱 ID 교체 후 재검수 필요.
 - [처리됨 v1.13~v1.15] 연결 버튼 색 구분, 등록 주소 한눈에 보기·복사 버튼, 매뉴얼 페이지.
+| 2026-10-17 | ① 로직 | `scripts/test-own-meta-app.cjs` 8행이 `getFacebookAuthorizeUrl(state: string, appId: string)` 옛 모양을 찾아 실패 — 도메인 이전(v1.13~) 때 redirectUri 매개변수가 늘었음. 테스트 기대값 갱신 필요(운영 코드 문제 아님) | `scripts/test-own-meta-app.cjs` | 낮음 | 제안(미구현) — Claude Code 윈도우 발견 |

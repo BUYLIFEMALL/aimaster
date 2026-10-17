@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 이미지 생성 2단계: SNS 생성기 묶음 7곳 공용 모듈 적용
+
+- **한 일**: insta_auto_poster·threads·threads-affiliate-poster·naver-cafe-poster·naver-blog-agent·naver-blog-allinone·threads-content-ops의 이미지 호출과 모델 목록을 공용 기준 코드(`gemini-image-client`·`gemini-image-models`) 사본으로 바꿨습니다. 프롬프트·한국인 지시문·비율·기본 등급은 그대로입니다.
+- **결과물이 달라질 수 있는 점**: 7곳 모두 Pro 등급 모델이 `nano-banana-2.1` → `gemini-3-pro-image`로 바뀌어(통합 값) 4K 1장 가격이 오릅니다(회원 본인 키). 1K는 flash-lite입니다.
+- **버전 규칙 추가(주인님 지시)**: 마이너가 99에 이르면 `v1.99 → v2.00 → v2.01 …`로 넘어갑니다(메인 지침 CLAUDE.md·AGENTS.md 핵심 원칙 5번). threads-content-ops는 이 규칙으로 v2.00이 됐습니다. 기준 모듈에 잠시 추가했던 "취소 신호"는 올인원에서 실제로 쓰이지 않는 자리라 되돌렸습니다(1단계 7곳 재배포 불필요).
+- **검수**: 7곳 tsc 0, 4곳 eslint 0, 기존 테스트(threads-affiliate naver-key, allinone 31) 통과. insta `test:own-meta`는 원래부터 실패(도메인 이전 때 함수 매개변수 변경, `insta_auto_poster/docs/IMPROVEMENTS.md`). 빌드·배포·DB 버전, 확장 2개(agent·allinone) 실물 검증.
+- **회원 안내 필요**: 확장 2개(naver-blog-agent·naver-blog-allinone) ZIP 다시 받기 → 덮어쓰기 → 새로고침.
+- **다음 첫 단계**: 이미지 3묶음(단일 주소형: kakao_auto_poster·stepmail·auto-detail-page·tarot·mbti-character·music) 진행.
+
 ## 2026-10-17 Claude Code(맥미니) — 사이드바 제목 5개 배포 후 크롬 확인 ✅
 
 - 주인님 「배포완료」 후 맥미니 크롬(시험 계정 naver)에서 확인: 유튜브 댓글 v1.11 「YOUTUBE 댓글 자동화」 · THREADS 댓글 v1.11 · INSTA 댓글 v1.15 · VIRAL FINDER v1.19(한 줄 전체 표시) · CHANNEL CONSULTANT v1.10(데스크톱 두 줄, 390px 위쪽 바 한 줄·☰와 겹침 없음). 모두 잘림 없음.

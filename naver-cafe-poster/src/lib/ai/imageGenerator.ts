@@ -2,6 +2,8 @@
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { fetchWithTimeout } from "./fetchWithTimeout";
+import { getNanoBananaConfig, type NanoBananaModelType } from "./nanoBananaModels";
+import { generateGeminiImage } from "./geminiImage";
 
 // Gemini 호출이 응답 없이 멈추는 것을 막는다(fetchWithTimeout.ts 주석 참고) — 이미지 프롬프트
 // 생성은 텍스트만 다루므로 짧게, 실제 이미지 생성은 4K 등 무거운 요청도 있어 여유 있게 잡는다.
@@ -107,45 +109,8 @@ export interface GeneratePostImageResult {
   mimeType: string;
 }
 
-export type NanoBananaModelType = "nanobanana" | "nanobanana-2-2k" | "nanobanana-2-4k" | "nanobanana-pro";
-
-interface NanoBananaModelConfig {
-  modelName: string;
-  endpoint: string;
-  imageSize: "1K" | "2K" | "4K";
-  temperature: number;
-}
-
-const NANO_BANANA_MODEL_CONFIGS: Record<NanoBananaModelType, NanoBananaModelConfig> = {
-  nanobanana: {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "1K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-2k": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "2K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-4k": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "4K",
-    temperature: 0.7,
-  },
-  "nanobanana-pro": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "4K",
-    temperature: 0.4,
-  },
-};
-
-function getNanoBananaConfig(modelType?: string): NanoBananaModelConfig {
-  return NANO_BANANA_MODEL_CONFIGS[modelType as NanoBananaModelType] ?? NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"];
-}
+// 2026-10-17: 나노바나나 등급별 모델·화질·온도는 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)로 통합(주인님 지시).
+export type { NanoBananaModelType } from "./nanoBananaModels";
 
 const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
   "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
@@ -160,49 +125,17 @@ export async function generatePostImage(input: GeneratePostImageInput, apiKey: s
   const targetUrl = `${baseEndpoint}?key=${apiKey}`;
   const composedPrompt = `${input.prompt}\n\n${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
 
-  const requestBody = {
-    contents: [{ parts: [{ text: composedPrompt }] }],
-    generationConfig: {
-      responseModalities: ["Image"],
-      imageConfig: {
-        aspectRatio: "1:1",
-        imageSize: modelConfig.imageSize,
-      },
-      temperature: modelConfig.temperature,
-    },
-  };
-
-  const response = await fetchWithTimeout(
-    targetUrl,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
-    },
-    GEMINI_IMAGE_TIMEOUT_MS,
-    "이미지 생성 요청이 90초 넘게 응답이 없어 중단했습니다. 잠시 후 다시 시도해주세요.",
-  );
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`이미지 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
-  }
-
-  const data = (await response.json()) as {
-    candidates?: {
-      content?: {
-        parts?: { inlineData?: { mimeType?: string; data?: string } }[];
-      };
-    }[];
-  };
-
-  const imagePart = data.candidates?.[0]?.content?.parts?.find((part) => part.inlineData?.data);
-  const base64 = imagePart?.inlineData?.data?.replace(/\s+/g, "");
-  const mimeType = imagePart?.inlineData?.mimeType ?? "image/png";
-
-  if (!base64) {
-    throw new Error(`나노바나나(${modelConfig.modelName})가 이미지를 반환하지 않았습니다.`);
-  }
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio)로.
+  // 키는 머리글로, 120초 시간 제한, 서버 오류·혼잡 1회 재시도, 안전 차단·한도·키 오류 한국어 안내(키 가림). 프롬프트·비율은 그대로.
+  const { base64, mimeType } = await generateGeminiImage({
+    apiKey,
+    modelName: modelConfig.modelName,
+    prompt: composedPrompt,
+    aspectRatio: "1:1",
+    imageSize: modelConfig.imageSize,
+    temperature: modelConfig.temperature,
+    responseModalities: ["Image"],
+  });
 
   return { base64, mimeType };
 }

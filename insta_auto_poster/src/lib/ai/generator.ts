@@ -3,6 +3,8 @@
 import "server-only";
 import { ensureParagraphBreaks } from "./formatContent";
 import { expandCaptionIfShort } from "./collector";
+import { getNanoBananaConfig, type NanoBananaModelType } from "./nanoBananaModels";
+import { generateGeminiImage } from "./geminiImage";
 
 // blog(AutoBlog)/threads AI 글쓰기 폼과 동일한 5가지 톤 옵션
 export type InstaTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는";
@@ -461,54 +463,8 @@ export interface GeneratePostImageResult {
   mimeType: string;
 }
 
-// 나노바나나(NanoBanana)/제미나이(Gemini) 공식 REST 엔드포인트 및 스키마 설정.
-// threads/src/lib/ai/generator.ts, blog(AutoBlog)와 동일한 4종 모델을 그대로 참고한다.
-export type NanoBananaModelType =
-  | "nanobanana"
-  | "nanobanana-2-2k"
-  | "nanobanana-2-4k"
-  | "nanobanana-pro";
-
-interface NanoBananaModelConfig {
-  modelName: string;
-  endpoint: string;
-  imageSize: "1K" | "2K" | "4K";
-  temperature: number;
-}
-
-const NANO_BANANA_MODEL_CONFIGS: Record<NanoBananaModelType, NanoBananaModelConfig> = {
-  nanobanana: {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "1K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-2k": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "2K",
-    temperature: 0.7,
-  },
-  "nanobanana-2-4k": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "4K",
-    temperature: 0.7,
-  },
-  "nanobanana-pro": {
-    modelName: "gemini-nano-banana-2.1",
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-    imageSize: "4K",
-    temperature: 0.4,
-  },
-};
-
-function getNanoBananaConfig(modelType?: string): NanoBananaModelConfig {
-  return (
-    NANO_BANANA_MODEL_CONFIGS[modelType as NanoBananaModelType] ??
-    NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"]
-  );
-}
+// 2026-10-17: 나노바나나 등급별 모델·화질·온도는 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)로 통합(주인님 지시).
+export type { NanoBananaModelType } from "./nanoBananaModels";
 
 // 기본 모델은 .env.local의 GEMINI_IMAGE_MODEL로 코드 수정 없이 교체 가능
 const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana-2-2k") as NanoBananaModelType;
@@ -527,49 +483,19 @@ export async function generatePostImage(
   }
 
   const modelConfig = getNanoBananaConfig(input.model ?? DEFAULT_IMAGE_MODEL);
-  const targetUrl = `${modelConfig.endpoint}?key=${apiKey}`;
   const composedPrompt = `${input.prompt}\n\n${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
 
-  const requestBody = {
-    contents: [{ parts: [{ text: composedPrompt }] }],
-    generationConfig: {
-      responseModalities: ["Image"],
-      imageConfig: {
-        aspectRatio: input.aspectRatio ?? "9:16",
-        imageSize: modelConfig.imageSize,
-      },
-      temperature: modelConfig.temperature,
-    },
-  };
-
-  const response = await fetch(targetUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestBody),
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio)로.
+  // 키는 머리글로, 120초 시간 제한, 서버 오류·혼잡 1회 재시도, 안전 차단·한도·키 오류 한국어 안내(키 가림). 프롬프트·비율은 그대로.
+  const { base64, mimeType } = await generateGeminiImage({
+    apiKey,
+    modelName: modelConfig.modelName,
+    prompt: composedPrompt,
+    aspectRatio: input.aspectRatio ?? "9:16",
+    imageSize: modelConfig.imageSize,
+    temperature: modelConfig.temperature,
+    responseModalities: ["Image"],
   });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`이미지 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
-  }
-
-  const data = (await response.json()) as {
-    candidates?: {
-      content?: {
-        parts?: { inlineData?: { mimeType?: string; data?: string } }[];
-      };
-    }[];
-  };
-
-  const imagePart = data.candidates?.[0]?.content?.parts?.find(
-    (part) => part.inlineData?.data,
-  );
-  const base64 = imagePart?.inlineData?.data?.replace(/\s+/g, "");
-  const mimeType = imagePart?.inlineData?.mimeType ?? "image/png";
-
-  if (!base64) {
-    throw new Error(`나노바나나(${modelConfig.modelName})가 이미지를 반환하지 않았습니다.`);
-  }
 
   return { base64, mimeType };
 }

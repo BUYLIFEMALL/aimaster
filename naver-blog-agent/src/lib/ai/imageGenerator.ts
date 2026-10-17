@@ -3,6 +3,8 @@
 import "server-only";
 
 import { findImageModel, type ImagePlatform, type ImageRatio } from "./contentModels";
+import { getNanoBananaConfig } from "./nanoBananaModels";
+import { generateGeminiImage } from "./geminiImage";
 
 const KOREAN_PEOPLE_RULE = "If the scene includes any people, depict them as Korean/East Asian people by default.";
 const NO_TEXT_RULE = [
@@ -26,39 +28,22 @@ function imageErrorMessage(status: number, name: string, detail: string): string
 export type ImageBytes = { bytes: Buffer; mime: string };
 
 // ---- 1. NanoBanana (Google Gemini) ----
-const NANO_BANANA: Record<string, { model: string; size: "1K" | "2K" | "4K"; temperature: number }> = {
-  nanobanana: { model: "gemini-3.1-flash-lite-image", size: "1K", temperature: 0.7 },
-  "nanobanana-2-2k": { model: "gemini-nano-banana-2.1", size: "2K", temperature: 0.7 },
-  "nanobanana-2-4k": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.7 },
-  "nanobanana-pro": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.4 },
-};
-
+// 2026-10-17: 등급별 모델·화질·온도는 공용 기준 코드 gemini-image-models(nanoBananaModels — 기준은 ai-image-studio)로 통합(주인님 지시).
 async function withGemini(model: string, ratio: ImageRatio, prompt: string, apiKey: string): Promise<ImageBytes> {
-  const config = NANO_BANANA[model] ?? NANO_BANANA["nanobanana-2-2k"];
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${config.model}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseModalities: ["Image"],
-        imageConfig: { aspectRatio: ratio, imageSize: config.size },
-        temperature: config.temperature,
-      },
-    }),
-    cache: "no-store",
-    signal: AbortSignal.timeout(110_000),
+  const config = getNanoBananaConfig(model);
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(geminiImage — 기준은 ai-image-studio)로.
+  // 기존 110초 시간 제한 유지, 서버 오류·혼잡 1회 재시도, 안전 차단·한도·키 오류 한국어 안내(키 가림). 프롬프트·비율은 그대로.
+  const image = await generateGeminiImage({
+    apiKey,
+    modelName: config.modelName,
+    prompt,
+    aspectRatio: ratio,
+    imageSize: config.imageSize,
+    temperature: config.temperature,
+    responseModalities: ["Image"],
+    timeoutMs: 110_000,
   });
-  if (!response.ok) throw new Error(imageErrorMessage(response.status, "Gemini", await response.text().catch(() => "")));
-  const data = (await response.json()) as {
-    candidates?: { content?: { parts?: { inlineData?: { data?: string; mimeType?: string } }[] } }[];
-  };
-  const part = data.candidates?.[0]?.content?.parts?.find((item) => item.inlineData?.data);
-  if (!part?.inlineData?.data) throw new Error("NanoBanana 응답에 이미지가 없습니다. 안전 정책에 걸렸을 수 있으니 다시 시도해 주세요.");
-  return {
-    bytes: Buffer.from(part.inlineData.data.replace(/\s+/g, ""), "base64"),
-    mime: part.inlineData.mimeType || "image/png",
-  };
+  return { bytes: Buffer.from(image.base64, "base64"), mime: image.mimeType };
 }
 
 // ---- 2. GPT Image (OpenAI) ----
