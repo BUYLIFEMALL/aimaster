@@ -27,7 +27,8 @@
 ## 4. 배포·검수 기록
 | 항목 | 값 |
 |---|---|
-| 코드 커밋 | (이 문서와 같은 커밋) |
-| 빌드·배포 | 대기 |
-| DB `programs.version` | v1.08 (배포 때 v1.09) |
-| 화면 검수 | 대기 |
+| 코드 커밋 | 맥미니 구현 커밋 반영 |
+| 빌드·배포 | ✅ 윈도우 Antigravity (`npm run build` 성공, `vercel deploy --prod --yes` 성공, alias `crm-google-form.buylife.xyz` 연결 완료) |
+| DB `programs.version` | ✅ `v1.09` 업데이트 완료 |
+| 화면 검수 | ✅ Microsoft Edge 전용 실세션 검수 완료 (1440px 데스크톱 및 375px 모바일 캡처 보존, ☰ 모바일 메뉴, 대시보드, 가이드, 소스 화면 확인. 발송 버튼 누르지 않음) |
+

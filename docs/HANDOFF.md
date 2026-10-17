@@ -8,6 +8,16 @@
 - **⚠️ 윈도우 CLI 요청**: [`instagram-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../instagram-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.14 → 검수 → 47번 ✅.
 - **비용**: 없음.
 
+## 2026-10-17 Claude Code(맥미니) & Antigravity CLI(윈도우) — 구글폼 CRM 자동화 v1.09: 스마트 매트릭스 라이트 변형 (✅ 1차 작업완료)
+
+- **대상**: `crm-google-form/` (https://crm-google-form.buylife.xyz).
+- **한 일**:
+  - 맥미니: 스마트 매트릭스 라이트 변형 디자인 구현 (신규 대시보드 KPI 4종, 발송 계정 3종 상태, 작업 흐름 4단계, 접수 내역 SubmissionMatrix, 신규 /guide 비주얼 매뉴얼, ☰ 모바일 메뉴).
+  - 윈도우 Antigravity: 로컬 빌드(`npm run build`) 오류 0건 검증, Vercel 프로덕션 배포 완료 (`crm-google-form.buylife.xyz` alias 연결), Supabase DB `programs.version` `v1.09` 업데이트 완료, Microsoft Edge 전용 실세션 검수 완료(1440px 데스크톱 및 375px 모바일 캡처 보존, 발송 버튼 누르지 않음).
+- **현황판**: `DESIGN.md` 52번 ✅ 1차 작업완료로 갱신, `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**: https://crm-google-form.buylife.xyz
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(윈도우) — 황금·공략 채널 계산 통합(공용 기준 코드 1호) + 공용 기준 코드 규칙 신설
 
 - **한 일(주인님 승인 ①안)**: CHANNEL CONSULTANT 「공략 채널 찾기」와 VIRAL FINDER 「황금 채널 발굴」의 계산을 공용 기준 코드 `youtube-golden-engine` 하나로 맞췄습니다. 기준은 consultant `src/lib/youtube/goldenEngine.ts`, 사본은 viral-studio입니다. 두 프로그램은 서로 호출하지 않고, 메뉴와 화면은 그대로입니다. VIRAL FINDER에는 조건 4개(기간·길이·국가·검색 깊이)를 추가했습니다(기본값은 예전과 같음).
