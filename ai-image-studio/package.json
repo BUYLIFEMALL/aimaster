@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:access": "node scripts/test-access.cjs"
+    "test:access": "node scripts/test-access.cjs",
+    "test:gemini-image": "node --test tests/geminiImage.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

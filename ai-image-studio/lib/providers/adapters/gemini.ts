@@ -1,4 +1,5 @@
 import { ImageGenerateParams, ImageGenerateResult, ImageProviderAdapter } from "../types";
+import { generateGeminiImage } from "../geminiImage";
 
 const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
   "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
@@ -45,7 +46,6 @@ export class GeminiAdapter implements ImageProviderAdapter {
 
     // Lookup NanoBanana / Gemini verified model config
     const config = NANO_BANANA_CONFIGS[rawModel] || NANO_BANANA_CONFIGS["nanobanana-2-2k"];
-    const url = `${config.endpoint}?key=${params.apiKey}`;
 
     const stylePreset = params.options.style_preset;
     const styleText = stylePreset && STYLE_PROMPTS[stylePreset] ? ` (${STYLE_PROMPTS[stylePreset]})` : "";
@@ -56,40 +56,17 @@ export class GeminiAdapter implements ImageProviderAdapter {
     // 모델이 받지 않는 화질(예: Lite에 2K)은 기본 화질로 — 요청 실패 대신 가능한 값으로 만든다
     const finalImageSize: ImageSizeOption = selectedSize && selectedSize !== "auto" && config.sizes.includes(selectedSize) ? selectedSize : config.defaultSize;
 
-    const requestBody = {
-      contents: [{ parts: [{ text: composedPrompt }] }],
-      generationConfig: {
-        responseModalities: ["IMAGE"],
-        imageConfig: {
-          aspectRatio,
-          imageSize: finalImageSize,
-        },
-        temperature: config.temperature,
-      },
-    };
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
+    // v1.13(2026-10-17): 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(../geminiImage)로 —
+    // 키는 머리글로, 120초 시간 제한, 서버 오류·혼잡 1회 재시도, 안전 차단·키 오류 한국어 안내. 프롬프트·모델·화질·온도는 이 어댑터 값 그대로.
+    const { base64, mimeType } = await generateGeminiImage({
+      apiKey: params.apiKey,
+      modelName: config.modelName,
+      prompt: composedPrompt,
+      aspectRatio,
+      imageSize: finalImageSize,
+      temperature: config.temperature,
+      responseModalities: ["IMAGE"],
     });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Google Gemini (Nanobanana) API error (${res.status}): ${errText}`);
-    }
-
-    const data = await res.json();
-    const imagePart = data.candidates?.[0]?.content?.parts?.find(
-      (part: any) => part.inlineData?.data
-    );
-
-    if (!imagePart?.inlineData?.data) {
-      throw new Error(`나노바나나(${config.modelName}) 응답에 이미지 데이터가 포함되어 있지 않습니다.`);
-    }
-
-    const base64 = imagePart.inlineData.data.replace(/\s+/g, "");
-    const mimeType = imagePart.inlineData.mimeType || "image/png";
     const dataUrl = `data:${mimeType};base64,${base64}`;
 
     return {

@@ -3,6 +3,7 @@
  */
 
 import { getNanoBananaConfig } from './nanoBananaConfig'
+import { GeminiImageError, generateGeminiImage } from './geminiImage'
 
 export interface GeneratedImagesResult {
   headerImage: string
@@ -221,38 +222,26 @@ async function fetchNanoBananaSingleImage(
   console.log(schemaText)
   console.log(`==================================================================================\n`)
 
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio)로.
+  // 키는 머리글로, 120초 시간 제한, 서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 이미지 탐색(예전엔 첫 조각만), 안전 차단 안내.
+  // 실패하면 예전처럼 아래 대체 이미지로 넘어간다. 프롬프트·모델·화질·온도는 그대로.
   if (activeKey) {
     try {
-      const response = await fetch(targetUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
+      const image = await generateGeminiImage({
+        apiKey: activeKey,
+        modelName: modelConfig.modelName,
+        endpoint: customEndpoint || undefined,
+        prompt: promptText,
+        aspectRatio: '16:9',
+        imageSize: modelConfig.imageSize,
+        temperature: modelConfig.temperature || 0.7,
+        responseModalities: ['Image'],
       })
-
-      if (response.ok) {
-        const data = await response.json()
-        const part = data.candidates?.[0]?.content?.parts?.[0]
-        const inlineBase64Raw = part?.inlineData?.data
-        const mimeType = part?.inlineData?.mimeType || 'image/png'
-        const imageUrl = part?.fileData?.fileUri || data.url || data.image_url
-
-        if (inlineBase64Raw) {
-          const cleanBase64 = inlineBase64Raw.replace(/\s+/g, '')
-          const finalUrl = `data:${mimeType};base64,${cleanBase64}`
-          console.log(`[Gemini Image Generated Successfully (${modelConfig.modelName} ${modelConfig.imageSize} / ${sceneType})]: Size = ${finalUrl.length} bytes`)
-          return { imageUrl: finalUrl, schemaText }
-        }
-
-        if (imageUrl) {
-          const verifiedUrl = await verifyImageReady(imageUrl, promptText, sceneType, width, height, seed)
-          return { imageUrl: verifiedUrl, schemaText }
-        }
-      } else {
-        const errText = await response.text()
-        console.error(`[Gemini Image API Status ${response.status} (${sceneType})]:`, errText.slice(0, 300))
-      }
+      const finalUrl = `data:${image.mimeType};base64,${image.base64}`
+      console.log(`[Gemini Image Generated Successfully (${modelConfig.modelName} ${modelConfig.imageSize} / ${sceneType})]: Size = ${finalUrl.length} bytes`)
+      return { imageUrl: finalUrl, schemaText }
     } catch (error) {
-      console.error(`[Gemini Image API Call Error (${sceneType})]:`, error)
+      console.error(`[Gemini Image Failed (${sceneType})]:`, error instanceof GeminiImageError ? `${error.code} ${error.message}` : error)
     }
   }
 

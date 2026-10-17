@@ -35,6 +35,20 @@ const MODULES = [
     copies: ["youtube-viral-studio/tests/youtubeData.test.mjs", "shorts-viral-studio/tests/youtubeData.test.mjs"],
   },
   {
+    // 이미지 생성 호출(엔드포인트·대기·이미지 받아오기). 프롬프트·모델·화질·온도는 각 프로그램 값 그대로(2026-10-17)
+    id: "gemini-image-client",
+    source: "ai-image-studio/lib/providers/geminiImage.ts",
+    copies: [
+      "ai-auto-blog/utils/ai/geminiImage.ts",
+      "tistory-auto-blog/utils/ai/geminiImage.ts",
+      "naver-blog-seo-studio/lib/ai/geminiImage.ts",
+      "naver-blog-auto-poster_app/web/lib/naverBlogAutoPoster/geminiImage.ts",
+      "naver-blog-auto-poster_web/web/lib/naverBlogAutoPoster/geminiImage.ts",
+      "shots/src/lib/ai/geminiImage.ts",
+      "blog_auto_poster/src/geminiImage.ts",
+    ],
+  },
+  {
     id: "youtube-golden-engine-test",
     source: "youtube-channel-consultant/tests/goldenEngine.test.mjs",
     copies: ["youtube-viral-studio/tests/goldenEngine.test.mjs"],

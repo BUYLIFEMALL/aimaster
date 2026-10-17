@@ -22,9 +22,9 @@
 | 9 | AIMaster 타로점 | `tarot-reading` | Tools | v1.06 | 운영 | 질문을 떠올리고 카드를 뽑으면 AI가 카드 그림을 그리고 해석해 주는 AI 타로 리딩 |
 | 10 | eBook Studio | `ebook-studio` | Tools | v1.05 | 운영 | 흩어진 문서·웹페이지·자막을 AI로 정리해 HTML·EPUB·PDF 전자책으로 만드는 출판 스튜디오 |
 | 11 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 네이버 | v1.07 | 운영 | 내 네이버 계정으로 활동 중인 카페에 AI가 쓴 글을 예약·자동 등록하는 카페 포스팅 도구 |
-| 12 | 네이버 블로그 자동화(App) | `naver-blog-auto-poster` | 네이버 | v1.05 | 비활성 | 내 PC에서 AI가 쓴 블로그 글을 내 네이버 계정 글쓰기 화면에 채워 넣는 데스크톱 앱 |
-| 13 | 네이버 블로그 자동화(Web) | `naver-blog-auto-poster-web` | 네이버 | v1.06 | 비활성 | 설치 없이 크롬 사이드패널에서 AI 블로그 글을 네이버 글쓰기 화면에 채우는 확장 |
-| 14 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | 네이버 | v1.64 | 운영 | 검색 전략과 페르소나로 네이버 블로그 초안을 만들고 기존 글·URL을 SEO로 다시 쓰는 스튜디오 |
+| 12 | 네이버 블로그 자동화(App) | `naver-blog-auto-poster` | 네이버 | v1.07 | 비활성 | 내 PC에서 AI가 쓴 블로그 글을 내 네이버 계정 글쓰기 화면에 채워 넣는 데스크톱 앱 |
+| 13 | 네이버 블로그 자동화(Web) | `naver-blog-auto-poster-web` | 네이버 | v1.08 | 비활성 | 설치 없이 크롬 사이드패널에서 AI 블로그 글을 네이버 글쓰기 화면에 채우는 확장 |
+| 14 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | 네이버 | v1.67 | 운영 | 검색 전략과 페르소나로 네이버 블로그 초안을 만들고 기존 글·URL을 SEO로 다시 쓰는 스튜디오 |
 | 15 | 마크다운 문서 자동화 | `markdown-studio` | 데이터수집|기획 | v1.20 | 운영 | 마크다운 문서를 폴더로 관리하며 편집·미리보기·변환하고 내 Google Drive와 동기화하는 작업실 |
 | 16 | AI 글쓰기 에디터 자동화 | `ai-writing-editor` | 데이터수집|기획 | v1.07 | 운영 | 주제만 적으면 AI가 초안을 쓰고 문장을 드래그해 바로 고치는 범용 서식 글쓰기 에디터 |
 | 17 | Website Scraper | `website-scraper` | 데이터수집|기획 | v1.12 | 운영 | 웹사이트 주소로 본문·표·이미지를 모으고 AI로 반복 목록을 표로 정리하는 스크래퍼 |
@@ -46,8 +46,8 @@
 | 33 | 무한루프 영상자동화 | `infinite-loop-video` | 멀티미디어 | v1.04 | 운영 | 영상에서 가장 자연스럽게 이어지는 구간을 찾아 끝없이 반복되는 MP4·WebM·GIF로 만드는 도구 |
 | 34 | 부동산 실거래 투자분석 자동화 | `real-estate-sales` | 부동산 | v1.11 | 운영 | 서울 관심 지역의 새 실거래가를 알려 주고 AI가 투자 매력도를 분석하는 부동산 도구 |
 | 35 | AI 블로그 키워드 자동화 | `blog-keyword` | 블로그 | v1.05 | 운영 | 키워드 하나로 자동완성·상위 블로그·경쟁력·오늘의 이슈·글감까지 한 화면에서 분석하는 도구 |
-| 36 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 블로그 | v1.75 | 운영 | AI로 티스토리 원문·이미지를 만들고 크롬 확장이 서식까지 글쓰기 화면에 입력하는 도구 |
-| 37 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 블로그 | v1.68 | 운영 | 실시간 이슈로 블로그 글·이미지를 AI로 만들고 크롬 확장으로 네이버에 입력하는 도구 |
+| 36 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 블로그 | v1.76 | 운영 | AI로 티스토리 원문·이미지를 만들고 크롬 확장이 서식까지 글쓰기 화면에 입력하는 도구 |
+| 37 | BLOG(원문)생성 자동화 | `ai-auto-blog` | 블로그 | v1.69 | 운영 | 실시간 이슈로 블로그 글·이미지를 AI로 만들고 크롬 확장으로 네이버에 입력하는 도구 |
 | 38 | 네이버 블로그 에이전트 | `naver-blog-agent` | 블로그 | v1.88 | 운영 | 5단계 AI 에이전트가 네이버 블로그 글·이미지를 만들고 크롬 확장이 스마트에디터에 입력 |
 | 39 | 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | 블로그 | v1.42 | 운영 | 사진을 AI가 보고 쓰는 맛집·여행 글부터 주제·키워드 조사, 서식 원고까지 하는 블로그 올인원 |
 | 40 | AI 블로그 작업실 자동화 | `blog-workroom` | 블로그 | v1.04 | 운영 | 내 블로그 문체 분석부터 키워드·근거 자료·초안·검수·이미지까지 돕는 네이버 블로그 작업실 |
@@ -62,7 +62,7 @@
 | 49 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 유튜브 | v1.04 | 운영 | 영상 주제와 시청 타겟으로 A/B 전략과 문구가 들어간 유튜브 썸네일 2종을 만드는 도구 |
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.09 | 운영 | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.10 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
-| 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.09 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
+| 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.11 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
 | 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.09 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 54 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 유튜브 | v1.04 | 운영 | 대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구 |
 | 55 | Suno 음악기획 자동화 | `suno-music-studio` | 음악 | v1.09 | 운영 | 음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구 |
@@ -72,7 +72,7 @@
 | 59 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 음악 | v1.05 | 운영 | 나만의 LP·CD 앨범 아트를 만들고 돌아가는 턴테이블 MP4·GIF 영상으로 완성하는 도구 |
 | 60 | Youtube Playlist 자동화 | `yt-playlist-studio` | 음악 | v1.05 | 운영 | 음악에 반응하는 스펙트럼·파티클·AI 배경으로 1080p 유튜브 플레이리스트 영상을 만드는 도구 |
 | 61 | AI Audio분석 자동화 | `ai-audio-analyzer` | 음악 | v1.04 | 운영 | 음성·음악 파일로 회의록·화자 분석, Suno 역설계 프롬프트, 음향 진단을 만드는 오디오 분석실 |
-| 62 | AI 이미지 스튜디오 | `ai-image-studio` | 이미지 | v1.09 | 운영 | 한국어 아이디어를 프롬프트로 다듬어 여러 AI 엔진으로 이미지를 1~10장 만드는 스튜디오 |
+| 62 | AI 이미지 스튜디오 | `ai-image-studio` | 이미지 | v1.13 | 운영 | 한국어 아이디어를 프롬프트로 다듬어 여러 AI 엔진으로 이미지를 1~10장 만드는 스튜디오 |
 | 63 | AI 인물사진 자동화 | `portrait-photo` | 이미지 | v1.19 | 운영 | 사진 한 장으로 증명사진·프로필·SNS·화보 인물 사진을 만드는 AI 인물사진 스튜디오 |
 | 64 | AI 바나나 캔버스 자동화 | `banana-canvas` | 이미지 | v1.05 | 운영 | 사진 한 장을 Nano Banana로 복원·스타일 변환·합성·배경 제거하는 이미지 도구함 |
 | 65 | 이미지 스타일 분석기 | `style-dna-analyzer` | 이미지 | v1.15 | 운영 | 이미지 한 장의 카메라·조명·색감·화풍을 분석해 같은 느낌의 마스터 프롬프트로 바꾸는 도구 |
@@ -149,6 +149,7 @@
 | 비공개 임시 업로드(1시간 삭제) | `reverse-prompt`, `banana-canvas` | |
 | 서버 보관함(회원별 JSON 저장) | `blog-workroom/src/lib/store.ts`(범용 kind 테이블) | 새 프로그램은 이 구조가 가장 간단 |
 | 유튜브 지표(VPH·구독자 대비 배수) | `youtube-viral-studio`, `shorts-viral-studio` | |
+| Gemini 이미지 생성 호출(공용 기준 코드 `gemini-image-client`) | 기준 `ai-image-studio/lib/providers/geminiImage.ts` → 사본 7곳(`docs/SHARED_FEATURE_MAP.md` §3) | 새 이미지 기능은 이 기준 파일을 사본으로 가져다 쓰고, 프롬프트·모델·화질·온도만 프로그램에서 정한다 |
 | YouTube 읽기 호출·오류 안내·할당량(공용 기준 코드 `youtube-data-client`) | 기준 `youtube-channel-consultant/src/lib/youtube/youtubeData.ts` → 사본 `youtube-viral-studio`, `shorts-viral-studio`, `ai-auto-blog`, `tistory-auto-blog`, `naver-blog-agent`, `threads-content-ops`, `trending-product-finder` | 새 유튜브 기능은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_FEATURE_MAP.md` §1) |
 | 황금·공략 채널 찾기 엔진(공용 기준 코드 `youtube-golden-engine`) | 기준 `youtube-channel-consultant/src/lib/youtube/goldenEngine.ts` → 사본 `youtube-viral-studio` | 새 유튜브 프로그램은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_MODULES.md`) |
 | SerpApi 구글 결과 분석 | `competitor-analysis`, `longtail-keyword-expander` | |

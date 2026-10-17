@@ -105,3 +105,9 @@
    - 텍스트 드롭다운 형태의 비율 선택 대신 `[ 1:1 정방형 ]`, `[ 16:9 와이드 ]`, `[ 9:16 쇼츠 ]` 형태의 직관적인 미니 사각형 그래픽 카드 셀렉터 도입.
 2. **실시간 토큰 비용 및 예상 소요시간 계산기 위젯**:
    - 모델 및 화질(1K/2K/4K), 매수 선택에 따른 실시간 소요 예상 비용(예: `$0.034`)을 생성 버튼 옆에 툴팁 형태로 안내하여 사용자 편의성 극대화.
+
+## 2026-10-17 v1.13 — 이미지 생성 호출을 공용 기준 코드 `gemini-image-client`로 (1단계, Claude Code 윈도우)
+- **기준 파일 신설** `lib/providers/geminiImage.ts`(+ 테스트 `tests/geminiImage.test.mjs` 6개, `npm run test:gemini-image`). 레퍼런스 어댑터도 시간 제한·재시도·안전 차단 안내가 없어, 장점을 모아 새로 썼다. `lib/providers/adapters/gemini.ts`의 호출부가 모듈로 위임(스타일·한국인 지시문·모델·화질 결정은 그대로).
+- 개선: 키를 주소 대신 요청 머리글(`x-goog-api-key`)로, 120초 시간 제한, 서버 오류·일시 혼잡·시간 초과만 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 필터 차단·이미지 없음·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·모델·화질·비율·생성 온도는 그대로.
+- 검수: tsc 0, test:gemini-image 6 통과, build, 배포·DB v1.13, 크롬 화면 v1.13. 참고: `test:access`는 핸드폰 필수 정책(2026-10-12) 이후 가짜 회원에 핸드폰이 없어 원래부터 실패 — 이번 변경과 무관, `docs/IMPROVEMENTS.md`에 기록. 실제 이미지 생성 시험은 하지 않음 — 이미지 생성 오류가 나면 그때 테스트 검증(주인님 지시).
+- **주의(다음 CLI)**: `geminiImage.ts`는 공용 기준 코드 `gemini-image-client`의 사본이다(기준: `ai-image-studio/lib/providers/geminiImage.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 프로그램 모두 테스트·빌드·배포·버전 +0.01. 프롬프트·모델·화질·온도는 각 프로그램 값을 넘기는 구조라 모듈에서 바꾸지 않는다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.

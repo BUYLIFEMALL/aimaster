@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 이미지 생성 호출 공용 모듈 `gemini-image-client` 1단계 (8곳)
+
+- **한 일**: 기준 `ai-image-studio/lib/providers/geminiImage.ts`를 신설했습니다(테스트 6). 1단계로 나노바나나 설정 파일 계열 7곳에 사본을 적용했습니다. 각 프로그램은 호출·대기·이미지 받아오기만 모듈에 맡기고, **프롬프트·모델·화질·비율·온도는 그대로 넘깁니다**(생성 스타일 유지).
+- **안정성 개선**: 키를 주소 대신 머리글로 보냅니다. 120초 시간 제한, 일시 오류 1회 재시도, 모든 조각에서 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내를 넣었습니다. 버그 수정: 네이버 자동포스팅 앱·웹·blog_auto_poster는 응답 첫 조각만 봐서 이미지를 놓칠 수 있었습니다.
+- **프로그램별 결과**: ai-image-studio v1.13 · ai-auto-blog v1.69 · tistory-auto-blog v1.76 · naver-blog-seo-studio v1.67 · shots v1.11(DB slug auto-shorts-posting) — 빌드·배포·DB·크롬 화면 확인. naver-blog-auto-poster(앱) v1.07 · -web v1.08 — 빌드·배포·DB 확인(관리자 전용 비공개라 시험 계정 화면 확인 불가). blog_auto_poster — tsc·dist(배포 없음). 확장 4개(ai-auto-blog·tistory·seo-studio·poster-web) `check-extension-release` OK. 사본 검사 OK. 실제 이미지 생성 시험은 하지 않았습니다(오류 시 그때 검증).
+- **발견(미구현 기록)**: ai-image-studio `test:access`가 핸드폰 필수 정책 이전 기준이라 원래부터 실패합니다(운영 코드 문제 아님) → `ai-image-studio/docs/IMPROVEMENTS.md`.
+- **회원 안내 필요**: 확장 4개는 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침.
+- **다음 첫 단계**: 이미지 생성 호출 2단계(지도 §3 SNS 생성기 내장형·단일 주소형·등급 목록형·Imagen 교체분)를 묶음별로 진행합니다. 프로그램별 모델 설정 파일 통합은 생성 온도가 달라 주인님 확인 후 진행합니다.
+- **링크**: https://ai-image-studio.buylife.xyz · https://ai-auto-blog.buylife.xyz · https://tistory-auto-blog.buylife.xyz · https://naver-blog-seo-studio.buylife.xyz · https://shots.buylife.xyz
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — YOUTUBE 댓글 자동화 v1.11: 사이드바 제목 정리 및 포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `youtube-auto-reply/` (https://youtube-auto-reply.buylife.xyz)

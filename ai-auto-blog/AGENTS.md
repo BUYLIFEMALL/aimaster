@@ -659,3 +659,9 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - 개선: 15초 시간 제한, 서버 오류·네트워크만 1회 재시도, 키 가리기, 일일 한도/분당 제한/키 사용 제한/API 미사용 구분 안내(초기화 시각 서머타임 반영).
 - 검수: 테스트 `tests/shorts-collection.test.cjs`가 모듈을 불러오게 연결하고 기대 문구를 새 안내로 수정(18 통과). test:security 39·test:extension-api 38·test:generation 7 통과. build(prebuild로 확장 manifest·ZIP v1.68), 배포·DB `version`/`extension_version` v1.68, `check-extension-release` OK, 크롬 화면 v1.68. 확장 코드는 바뀌지 않았지만 원칙 10에 따라 ZIP을 다시 만들었다 — 회원은 ZIP 다시 받기→덮어쓰기→`chrome://extensions` 새로고침. 실제 YouTube 호출은 하지 않음.
 - **주의(다음 CLI)**: 모듈 파일 `youtubeData.ts`는 공용 기준 코드 `youtube-data-client`의 사본이다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 8개 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.
+
+## 2026-10-17 v1.69 — 이미지 생성 호출을 공용 기준 코드 `gemini-image-client`로 (1단계, Claude Code 윈도우)
+- `utils/ai/geminiImage.ts`(사본) 추가. 본문 장면 이미지(`utils/news/imageGenerator.ts` `generateSceneImage`)와 편집기 즉석 이미지(`utils/ai/editorImage.ts`)가 모듈로 위임. 장면 이미지는 실패하면 예전처럼 그 칸만 비우고 글 생성 계속.
+- 개선: 키를 주소 대신 요청 머리글(`x-goog-api-key`)로, 120초 시간 제한, 서버 오류·일시 혼잡·시간 초과만 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 필터 차단·이미지 없음·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·모델·화질·비율·생성 온도는 그대로.
+- 검수: tsc·eslint 0, test:shorts 18·security 39·generation 7·extension-api 38 통과, build(확장 ZIP v1.69), 배포·DB v1.69, `check-extension-release` OK, 크롬 화면 v1.69. 회원 확장 ZIP 다시 받기 안내 필요. 실제 이미지 생성 시험은 하지 않음 — 이미지 생성 오류가 나면 그때 테스트 검증(주인님 지시).
+- **주의(다음 CLI)**: `geminiImage.ts`는 공용 기준 코드 `gemini-image-client`의 사본이다(기준: `ai-image-studio/lib/providers/geminiImage.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 프로그램 모두 테스트·빌드·배포·버전 +0.01. 프롬프트·모델·화질·온도는 각 프로그램 값을 넘기는 구조라 모듈에서 바꾸지 않는다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.

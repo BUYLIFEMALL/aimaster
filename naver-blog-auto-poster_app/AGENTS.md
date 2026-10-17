@@ -256,3 +256,9 @@ supabase/migrations/0010_*.sql         PC 앱/크롬 확장 완전 별도 유료
 ## v1.06 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `web/lib/naverBlogAutoPoster/nanoBananaConfig.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-17 v1.07 — 이미지 생성 호출을 공용 기준 코드 `gemini-image-client`로 (1단계, Claude Code 윈도우)
+- `web/lib/naverBlogAutoPoster/geminiImage.ts`(사본) 추가, `generateImage.ts` `generateBlogImage()`가 모듈로 위임. **버그 수정**: 예전엔 응답의 첫 조각(parts[0])만 봐서 설명 글이 먼저 오면 이미지를 놓쳤다.
+- 개선: 키를 주소 대신 요청 머리글(`x-goog-api-key`)로, 120초 시간 제한, 서버 오류·일시 혼잡·시간 초과만 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 필터 차단·이미지 없음·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·모델·화질·비율·생성 온도는 그대로.
+- 검수: tsc·eslint 0, build, 배포·DB v1.07. 관리자 전용 비공개 프로그램이라 시험 계정(일반 회원)으로는 화면에 들어갈 수 없어 화면 버전은 확인하지 못함(접근 거부 시 소개 페이지로 이동하는 기존 동작). 실제 이미지 생성 시험은 하지 않음 — 이미지 생성 오류가 나면 그때 테스트 검증(주인님 지시).
+- **주의(다음 CLI)**: `geminiImage.ts`는 공용 기준 코드 `gemini-image-client`의 사본이다(기준: `ai-image-studio/lib/providers/geminiImage.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 프로그램 모두 테스트·빌드·배포·버전 +0.01. 프롬프트·모델·화질·온도는 각 프로그램 값을 넘기는 구조라 모듈에서 바꾸지 않는다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.

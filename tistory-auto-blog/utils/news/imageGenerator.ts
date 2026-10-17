@@ -12,6 +12,7 @@
  */
 
 import { getNanoBananaConfig } from './nanoBananaConfig'
+import { GeminiImageError, generateGeminiImage } from '../ai/geminiImage'
 import { uploadBase64Image } from '../imageStorage'
 
 /** 이미지 1장 결과 — 생성·저장에 실패하면 url은 빈 문자열(그 칸은 비움) */
@@ -152,30 +153,25 @@ async function generateSceneImage(
   // SEO 스튜디오 generateNanoBananaImage()와 같은 감싸는 문장.
   const prompt = `Create this exact editorial scene: ${sceneDescription} Depict realistic Korean/East Asian people by default unless the topic explicitly requires another setting. Use one unified scene, not a collage or split screen. Natural lighting, documentary-quality composition, 16:9 landscape, no visible text, no logo, no watermark. ${NO_LEGIBLE_TEXT_RULE}`
 
+  // v1.76(2026-10-17): 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(../ai/geminiImage — 기준은 ai-image-studio)로.
+  // 키는 머리글로, 120초 시간 제한, 서버 오류·혼잡 1회 재시도, 안전 차단·키 오류 구분. 프롬프트·모델·화질·비율·온도는 이 프로그램 값 그대로.
   try {
-    const response = await fetch(`${customEndpoint || config.endpoint}?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseModalities: ['Image'],
-          imageConfig: { aspectRatio: '16:9', imageSize: config.imageSize },
-          temperature: config.temperature,
-        },
-      }),
-    })
-    if (!response.ok) {
-      const errText = await response.text().catch(() => '')
-      console.error(`[Gemini Image API ${response.status} (${sceneType})]:`, errText.replace(/AIza[\w-]{20,}/g, '[API 키 숨김]').slice(0, 300))
-      return ''
-    }
-    const data = await response.json()
-    const imagePart = data.candidates?.[0]?.content?.parts?.find(
-      (part: { inlineData?: { data?: string } }) => part.inlineData?.data,
-    )?.inlineData
-    if (!imagePart?.data) {
-      console.error(`[Gemini Image (${sceneType})]: 이미지 결과 없음`)
+    let imagePart: { data: string; mimeType: string }
+    try {
+      const image = await generateGeminiImage({
+        apiKey,
+        modelName: config.modelName,
+        endpoint: customEndpoint || undefined,
+        prompt,
+        aspectRatio: '16:9',
+        imageSize: config.imageSize,
+        temperature: config.temperature,
+        responseModalities: ['Image'],
+      })
+      imagePart = { data: image.base64, mimeType: image.mimeType }
+    } catch (genErr) {
+      // 예전처럼 그 칸만 비우고 글 생성은 계속한다(오류 문구는 키가 가려진 한국어 안내)
+      console.error(`[Gemini Image Failed (${sceneType})]:`, genErr instanceof GeminiImageError ? `${genErr.code} ${genErr.message}` : genErr)
       return ''
     }
     console.log(`[Gemini Image OK (${config.modelName} ${config.imageSize} / ${sceneType})]: ${imagePart.data.length} chars`)

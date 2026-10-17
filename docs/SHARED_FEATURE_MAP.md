@@ -39,16 +39,16 @@
 | youtube-channel-consultant | `src/lib/youtube/goldenEngine.ts` (+ `tests/goldenEngine.test.mjs`) | 🟢 기준 | 「공략 채널 찾기」 (v1.08~) |
 | youtube-viral-studio | `src/lib/youtube/goldenEngine.ts` | 🔵 사본 | 「황금 채널 발굴」 (v1.17~) |
 
-## 3. AI 이미지 생성 호출 — 공용화 후보 (모델 기준은 ai-image-studio)
+## 3. AI 이미지 생성 호출 — 공용 모듈 `gemini-image-client` (2026-10-17 1단계 완료, 모델 기준은 ai-image-studio)
 
 모델·엔드포인트·호출 방식·이미지 받아오기의 기준은 **ai-image-studio `lib/providers/adapters/`**(루트 `CLAUDE.md` 「이미지 생성 레퍼런스 규칙」). 각 프로그램의 호출 코드는 아직 각자 구현이며, 2026-10-17에 44곳의 모델 값만 일괄 교체했다(`IMAGE_MODEL_AUDIT_20261017.md`). **프롬프트 내용·스타일은 공용화하지 않는다**(`IMAGE_PROMPT_RULES.md`).
 
 | 묶음 | 프로그램 · 파일 | 상태 |
 |---|---|---|
-| 기준 | ai-image-studio · `lib/providers/adapters/{gemini,openai,replicate,fal}.ts`, `lib/providers/registry.ts` | 🟢 모델 기준(아직 사본 없음) |
-| 나노바나나 설정 파일 복사본 계열 | blog_auto_poster `src/nanoBananaConfig.ts` · ai-auto-blog `utils/news/nanoBananaConfig.ts` · tistory-auto-blog `utils/news/nanoBananaConfig.ts` · naver-blog-seo-studio `lib/ai/nanoBananaConfig.ts` · naver-blog-auto-poster_app/_web `web/lib/naverBlogAutoPoster/nanoBananaConfig.ts` · shots `src/lib/ai/nanoBananaModels.ts` | ⚪ 거의 같은 파일이 7곳에 복사됨 → 공용화 1순위 |
+| 기준 | ai-image-studio · 호출 모듈 `lib/providers/geminiImage.ts`(+ `tests/geminiImage.test.mjs`) · 어댑터 `lib/providers/adapters/{gemini,openai,replicate,fal}.ts`·`registry.ts` | 🟢 기준(v1.13) — 호출·대기·이미지 받아오기 |
+| 나노바나나 설정 파일 계열 (1단계 적용) | ai-auto-blog(장면·편집기 이미지) v1.69 · tistory-auto-blog v1.76 · naver-blog-seo-studio v1.67 · naver-blog-auto-poster_app v1.07 · naver-blog-auto-poster_web v1.08 · shots v1.11 · blog_auto_poster — 각 폴더 `geminiImage.ts` | 🔵 사본(호출 부분). 모델 설정 파일(`nanoBananaConfig.ts` 등)은 프로그램별 생성 온도가 달라 그대로 둠(통합은 주인님 확인 후) |
 | SNS 생성기 내장형 | insta_auto_poster · threads · threads-affiliate-poster(`generator.ts`·`imageGenerator.ts`) · naver-cafe-poster `imageGenerator.ts` · threads-content-ops `lib/postImage.ts` · naver-blog-agent `imageGenerator.ts` · naver-blog-allinone `blog/gemini.ts`·`imageGen.ts` | ⚪ |
-| 단일 주소 상수형 | ai-auto-blog·tistory-auto-blog `utils/ai/editorImage.ts` · kakao_auto_poster `reportImage.ts` · stepmail `emailImage.ts` · auto-detail-page `api/generate-image` · tarot · mbti-character · music `nanobanana.ts` | ⚪ |
+| 단일 주소 상수형 | (ai-auto-blog·tistory-auto-blog `editorImage.ts`는 1단계에서 🔵) · kakao_auto_poster `reportImage.ts` · stepmail `emailImage.ts` · auto-detail-page `api/generate-image` · tarot · mbti-character · music `nanobanana.ts` | ⚪ |
 | 등급 목록형(경량/기본/고급) | cardnews-studio · style-dna-analyzer · playlist-channel-studio · shop-detail-page · blog-content-maker · blog-workroom · four-cut-comics · music-video-studio · emotion-writer · photo-remake-studio · shorts-onestop-studio · thumbnail-master · seo-thumbnail-pro · portrait-photo · banana-canvas · fashion-style · allinone-graphic · cinematic-storyboard-studio · ai-influencer-studio | ⚪ |
 | 옛 Imagen에서 바꾼 곳 | yt-playlist-studio · ai-webtoon-studio · ebook-studio · detail-page-12p · vinyl-lp-studio | ⚪ |
 
@@ -86,5 +86,6 @@
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-17 | 이미지 생성 호출 1단계 — gemini-image-client 기준(ai-image-studio)·사본 7곳 | Claude Code(윈도우) |
 | 2026-10-17 | 유튜브 조회 2단계 — ai-auto-blog·tistory-auto-blog·naver-blog-agent·threads-content-ops·trending-product-finder 사본 적용 | Claude Code(윈도우) |
 | 2026-10-17 | 문서 신설. 유튜브 조회(1단계 3개 적용)·황금 채널 엔진 등록, 이미지·수집·프롬프트 규칙 후보 조사 | Claude Code(윈도우) |

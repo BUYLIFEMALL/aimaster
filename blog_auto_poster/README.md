@@ -30,3 +30,9 @@ npm run start
 ## 2026-10-17 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `src/nanoBananaConfig.ts`: gemini-2.5-flash-image·gemini-3.1-flash-image → `gemini-nano-banana-2.1`, 주소 v1 → v1beta (기준: ai-image-studio v1.11).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시). 운영자 전용 도구라 배포·버전 없음, `tsc --noEmit` 통과.
+
+## 2026-10-17 2026-10-17 — 이미지 생성 호출을 공용 기준 코드 `gemini-image-client`로 (1단계, Claude Code 윈도우)
+- `src/geminiImage.ts`(사본) 추가, `src/imageGenerator.ts` `fetchNanoBananaSingleImage()`가 모듈로 위임(첫 조각만 보던 문제 수정). 실패하면 예전처럼 대체 이미지로 넘어감.
+- 개선: 키를 주소 대신 요청 머리글(`x-goog-api-key`)로, 120초 시간 제한, 서버 오류·일시 혼잡·시간 초과만 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 필터 차단·이미지 없음·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·모델·화질·비율·생성 온도는 그대로.
+- 검수: 운영자 전용 도구라 배포·버전 없음. `tsc` 통과, 실행 파일(dist) 다시 만듦. 실제 이미지 생성 시험은 하지 않음 — 이미지 생성 오류가 나면 그때 테스트 검증(주인님 지시).
+- **주의(다음 CLI)**: `geminiImage.ts`는 공용 기준 코드 `gemini-image-client`의 사본이다(기준: `ai-image-studio/lib/providers/geminiImage.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 프로그램 모두 테스트·빌드·배포·버전 +0.01. 프롬프트·모델·화질·온도는 각 프로그램 값을 넘기는 구조라 모듈에서 바꾸지 않는다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
