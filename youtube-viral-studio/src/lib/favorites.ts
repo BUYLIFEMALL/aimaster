@@ -1,6 +1,8 @@
 import type { YouTubeVideoItem, YouTubeChannelItem } from './youtube/types';
 
 export const FAVORITE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+/** v1.16: 보관함 한 번에 불러오는 최대 개수(api/favorites와 화면 안내가 같은 값을 쓴다) */
+export const FAVORITES_LOAD_LIMIT = 1000;
 export type FavoriteKind = 'video' | 'channel';
 export type FavoriteRecord = { item_type: FavoriteKind; item_id: string; payload: YouTubeVideoItem | YouTubeChannelItem; created_at: string };
 export function validKind(value: unknown): value is FavoriteKind { return value === 'video' || value === 'channel'; }

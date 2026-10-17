@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkProgramAccessApi } from '@/lib/access';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { FAVORITE_TTL_MS, sanitizeFavorite, validId, validKind } from '@/lib/favorites';
+import { FAVORITE_TTL_MS, FAVORITES_LOAD_LIMIT, sanitizeFavorite, validId, validKind } from '@/lib/favorites';
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -11,12 +11,12 @@ export async function GET() {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return json({ error: access.error }, access.status);
   const db = createAdminClient();
-  const { data, error } = await db.from('yvs_favorites').select('item_type,item_id,payload,created_at').eq('user_id', access.user.id).gt('created_at', new Date(Date.now() - FAVORITE_TTL_MS).toISOString()).order('created_at', { ascending: false }).limit(1000);
+  const { data, error } = await db.from('yvs_favorites').select('item_type,item_id,payload,created_at').eq('user_id', access.user.id).gt('created_at', new Date(Date.now() - FAVORITE_TTL_MS).toISOString()).order('created_at', { ascending: false }).limit(FAVORITES_LOAD_LIMIT);
   if (error) return json({ error: '보관함을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.' }, 503);
   const favorites = (data ?? []).flatMap(row => {
     try { if (!validKind(row.item_type) || row.payload?.id !== row.item_id) return []; return [{ ...row, payload: sanitizeFavorite(row.item_type, row.payload) }]; } catch { return []; }
   });
-  return json({ favorites, limit: 1000, serverNow: new Date().toISOString() });
+  return json({ favorites, limit: FAVORITES_LOAD_LIMIT, serverNow: new Date().toISOString() });
 }
 
 async function mutate(request: Request, deleting: boolean) {

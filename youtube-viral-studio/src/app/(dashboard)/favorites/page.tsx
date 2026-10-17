@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bookmark, Users, Download } from "lucide-react";
 import { useFavorites } from "@/components/favorites/FavoritesProvider";
+import { FAVORITES_LOAD_LIMIT } from "@/lib/favorites";
 import { FAVORITE_TTL_MS, csvCell } from "@/lib/favorites";
 import type { YouTubeVideoItem, YouTubeChannelItem } from "@/lib/youtube/types";
 import { VideoCard } from "@/components/common/VideoCard";
@@ -82,6 +83,12 @@ export default function FavoritesPage() {
 
       <p className="text-sm text-yt-muted">본인 계정에 저장한 자료만 표시합니다. 저장일 기준 30일 후 자동 삭제됩니다. 개별 북마크 버튼으로 해제할 수 있습니다.</p>
       {store?.loading && <p role="status">보관함을 불러오는 중입니다.</p>}
+      {/* v1.16(A안): 보관함은 최신 1,000개까지만 불러온다(api/favorites limit) — 닿으면 안내 */}
+      {!store?.loading && rows.length >= FAVORITES_LOAD_LIMIT && (
+        <p role="status" className="rounded-lg border border-yt-warn/40 bg-yt-warn/10 px-3 py-2 text-xs text-yt-warn">
+          ⚠️ 최신 {FAVORITES_LOAD_LIMIT.toLocaleString()}개만 표시됩니다. 오래된 항목은 저장일 기준 30일이 지나면 자동 삭제되니, 필요 없는 항목을 해제하거나 CSV로 내려받아 보관해 주세요.
+        </p>
+      )}
       {!store?.loading && !store?.error && rows.length === 0 && <p className="text-xs text-yt-muted">이전 브라우저 보관함은 소유자를 확인할 수 없어 자동으로 불러오지 않습니다.</p>}
       {/* 탭 네비게이션 */}
       <div className="flex items-center gap-2 p-1.5 bg-yt-raised rounded-xl w-fit">
