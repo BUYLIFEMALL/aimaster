@@ -106,3 +106,11 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 실세션 캡처 3종 검수 완료 (`edge_playlist_login_desktop_v110.png`, `edge_playlist_signup_desktop_v110.png`, `edge_playlist_login_mobile_v110.png`).
 
 
+
+## v1.11 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/playlist/types.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## v1.12 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/playlist/types.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).

@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-nano-banana-2.1·gemini-nano-banana-2.1·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 플레이리스트 채널 제작 자동화 — 공용 타입·상수 (서버·브라우저 공용)
 
 export type Provider = "gemini" | "openai" | "anthropic";
@@ -22,14 +24,19 @@ export const DEFAULT_TEXT_MODEL = "gemini-2.5-flash";
 export interface ImageModel { id: string; provider: "gemini" | "openai"; label: string; perImage: number }
 // Claude는 이미지를 만들지 못하므로 이미지 모델은 Gemini·OpenAI만 제공한다.
 export const IMAGE_MODELS: ImageModel[] = [
-  { id: "gemini-2.5-flash-image", provider: "gemini", label: "나노 바나나 (Gemini Flash Image · 빠름)", perImage: 0.039 },
-  { id: "gemini-3-pro-image-preview", provider: "gemini", label: "나노 바나나 프로 (고화질 · 본인 Google 결제 연결 필요)", perImage: 0.134 },
+  { id: "gemini-3.1-flash-lite-image", provider: "gemini", label: "나노 바나나 (Gemini Flash Image · 빠름)", perImage: 0.039 },
+  { id: "gemini-3-pro-image", provider: "gemini", label: "나노 바나나 프로 (고화질 · 본인 Google 결제 연결 필요)", perImage: 0.134 },
   { id: "gpt-image-1", provider: "openai", label: "OpenAI gpt-image-1 (본인 OpenAI 키)", perImage: 0.04 },
 ];
-export const DEFAULT_IMAGE_MODEL = "gemini-2.5-flash-image";
+export const DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-lite-image";
 
 export const textModelById = (id: string) => TEXT_MODELS.find((m) => m.id === id);
-export const imageModelById = (id: string) => IMAGE_MODELS.find((m) => m.id === id);
+// 2026-10-17 이전에 저장된 구형 모델 값은 새 모델로 바꿔 찾는다(구형 모델 지원 종료 대비).
+const LEGACY_IMAGE_MODEL: Record<string, string> = {
+  "gemini-nano-banana-2.1": "gemini-3.1-flash-lite-image",
+  "gemini-3-pro-image": "gemini-3-pro-image",
+};
+export const imageModelById = (id: string) => IMAGE_MODELS.find((m) => m.id === (LEGACY_IMAGE_MODEL[id] ?? id));
 
 export interface LlmChoice { textModel: string; imageModel: string }
 
