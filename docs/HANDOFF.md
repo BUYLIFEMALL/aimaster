@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — YOUTUBE CHANNEL CONSULTANT v1.07 마무리(맥미니 디자인 리뉴얼의 빌드·배포·검수)
+
+- **한 일**: 맥미니 Claude Code가 구현·커밋한 v1.07(유튜브 다크 콘솔 스타일, 📖 매뉴얼 신설)을 윈도우에서 빌드·프로덕션 배포하고 DB `programs.version`을 v1.07로 올렸습니다. 코드 변경은 없습니다.
+- **검수**: 크롬, 시험 계정. 1440px 6화면 다크 일관. ☰ 메뉴는 500px에서 확인했고, 375px는 iframe으로 6화면 모두 가로 넘침이 없음을 확인했습니다. 분석·AI 버튼은 누르지 않았습니다. 로그인 화면은 로그인 상태라 직접 보지 못하고 소스 토큰으로 확인했습니다.
+- **현황판**: `DESIGN.md` 27번을 ✅ 1차 작업완료로 바꿨습니다. 상세 기록은 [`youtube-channel-consultant/docs/DESIGN_HANDOFF.md`](../youtube-channel-consultant/docs/DESIGN_HANDOFF.md) 「배포·검수 기록」에 있습니다.
+- **남은 일(승인 필요·미구현)**: 추가개선 제안은 [`youtube-channel-consultant/docs/IMPROVEMENTS.md`](../youtube-channel-consultant/docs/IMPROVEMENTS.md)에 있습니다. 분석 결과 회원별 저장(DB 추가), 최근 입력 재사용, VIRAL FINDER 「황금 채널 발굴」과의 통합 등입니다.
+- **링크**: https://youtube-channel-consultant.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 구형 이미지 모델 44곳 최신 모델로 교체(연동 부분만) + 이미지 생성 프롬프트 규칙 문서
 
 - **한 일**: 구형·종료 이미지 모델을 쓰던 프로그램 44곳의 모델 값·호출 주소·이미지 받아오는 코드만 최신 모델로 교체하고, 프로그램마다 빌드·배포·버전(코드+DB)·커밋을 마쳤습니다. 프롬프트·생성 스타일은 그대로입니다. 목록과 버전은 [`docs/IMAGE_MODEL_AUDIT_20261017.md`](IMAGE_MODEL_AUDIT_20261017.md) §5에 있습니다.

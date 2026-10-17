@@ -153,7 +153,7 @@
 | 24 | INSTA Cardnews 자동화 | `cardnews-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 작업 예정 | `cardnews-studio/AGENTS.md` |
 | 25 | AI 웹툰 자동화 | `ai-webtoon-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `ai-webtoon-studio/AGENTS.md` |
 | 26 | 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-allinone/AGENTS.md` |
-| 27 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | **유튜브 다크 콘솔 스타일 — 스튜디오 변형** (viral-studio와 동일, Tailwind v4) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.07`, Claude Code 맥미니 2026-10-17) | [`youtube-channel-consultant/docs/DESIGN_HANDOFF.md`](youtube-channel-consultant/docs/DESIGN_HANDOFF.md) |
+| 27 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | **유튜브 다크 콘솔 스타일 — 스튜디오 변형** (viral-studio와 동일, Tailwind v4) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.07`, 유튜브 다크 콘솔 스타일 — 스튜디오 변형 · 맥미니 구현, 윈도우 빌드·배포·검수 2026-10-17) | [`youtube-channel-consultant/docs/DESIGN_HANDOFF.md`](youtube-channel-consultant/docs/DESIGN_HANDOFF.md) |
 | 28 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | **유튜브 다크 콘솔 스타일 — 스튜디오 변형** (+ 스마트 매트릭스 구성, Tailwind v4) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.14`, 유튜브 다크·회원별 즐겨찾기/30일 보관, Codex 2026-10-17) | [`youtube-viral-studio/docs/DESIGN_HANDOFF.md`](youtube-viral-studio/docs/DESIGN_HANDOFF.md) |
 | 29 | 네이버 블로그 에이전트 | `naver-blog-agent` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-agent/AGENTS.md` |
 | 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | **스레드 바이럴 스튜디오 스타일** | 라이트(화이트/앰버) | ✅ 1차 완료 (`v1.97`) | [`threads-content-ops/docs/DESIGN_HANDOFF.md`](threads-content-ops/docs/DESIGN_HANDOFF.md) |
