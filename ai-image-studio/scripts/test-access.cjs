@@ -10,9 +10,11 @@ const root = path.resolve(__dirname, '..');
 const db = {
   profiles: [
     { id: 'admin-1', is_admin: true, is_suspended: false, grade: { sort_order: 9 } },
-    { id: 'member-free', is_admin: false, is_suspended: false, grade: null },
-    { id: 'member-bad', is_admin: false, is_suspended: true, grade: null },
-    { id: 'member-none', is_admin: false, is_suspended: false, grade: { sort_order: 1 } },
+    // 핸드폰 번호 필수 정책(2026-10-12) 이후: 일반 회원은 번호가 있어야 판정이 이어진다(2026-10-18 시험 데이터 보완)
+    { id: 'member-free', is_admin: false, is_suspended: false, phone: '010-1234-5678', grade: null },
+    { id: 'member-bad', is_admin: false, is_suspended: true, phone: '010-2345-6789', grade: null },
+    { id: 'member-none', is_admin: false, is_suspended: false, phone: '010-3456-7890', grade: { sort_order: 1 } },
+    { id: 'member-nophone', is_admin: false, is_suspended: false, phone: null, grade: null },
   ],
   programs: [{ id: 'prog-1', slug: 'ai-image-studio', is_active: true, badges: ['free'], required_grade_id: null, required_grade: null }],
   subscriptions: [],
@@ -75,6 +77,12 @@ function loadTS(rel) {
   r = await access.checkProgramAccessApi();
   assert.equal(r.errorResponse, null);
   assert.equal(r.user.id, 'member-free');
+
+  // 2-1) 핸드폰 번호가 없으면 FREE 프로그램이어도 403(관리자 제외) — 핸드폰 필수 정책
+  sessionUser = { id: 'member-nophone' };
+  r = await access.checkProgramAccessApi();
+  assert.equal(r.errorResponse.status, 403);
+  assert.match((await body(r.errorResponse)).error, /핸드폰/);
 
   // 3) 정지 계정은 403
   sessionUser = { id: 'member-bad' };
