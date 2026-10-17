@@ -49,3 +49,6 @@ threads는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 
 ## 2026-10-17 v1.10 — 주소 카드에 제거·삭제 콜백 안내 (Claude Code 윈도우)
 - 쇼핑제휴 `/api/threads/uninstall`·`/delete` 처리기(`threads-affiliate-poster/src/lib/threads/signedRequest.ts`)가 이 프로그램의 `threads_accounts`도 정리하는 것을 확인 → 카드 ③에 그 주소를 안내. 카드 컴포넌트는 쇼핑제휴판과 동일하게 맞춤(앱 도메인은 실제 주소에서 계산).
 - 검수: 빌드·배포·DB v1.10, 크롬에서 제거 콜백 주소·사이드바 v1.10 확인.
+## v1.11 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/ai/generator.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
