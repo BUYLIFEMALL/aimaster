@@ -18,6 +18,12 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| ai-image-studio | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |
+| ai-auto-blog | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |
+| tistory-auto-blog | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |
+| naver-blog-seo-studio | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |
+| naver-blog-auto-poster_app | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |
 
-
-
+| naver-blog-auto-poster_web | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |
+| shots | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |
+| blog_auto_poster | Claude Code(윈도우) | 2026-10-17 18:00 | 이미지 생성 호출 공용 모듈 gemini-image-client 1단계 |

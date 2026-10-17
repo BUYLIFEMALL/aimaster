@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — Threads 댓글자동화 v1.11: 사이드바 제목 정리 및 배포·검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `threads-comment-reply/` (https://threads-comment-reply.buylife.xyz)
+- **한 일**:
+  1. 맥미니 CLI가 사이드바 상단 로고 옆 텍스트를 「THREADS 댓글 자동화」로 정돈한 작업(v1.11)을 이어받아 윈도우에서 `npm run build` 성공.
+  2. Vercel 프로덕션 배포 완료 (`dpl_C3UcCkQUypN8evobJp1M3xbd2ALa` → alias `threads-comment-reply.buylife.xyz` 연결).
+  3. Supabase DB `programs.version` `v1.11` 갱신 완료.
+  4. Microsoft Edge 실세션 검수 완료:
+     - 데스크톱 1440px 및 모바일 375px에서 사이드바 상단 로고 옆 「THREADS 댓글 자동화」 정상 표출 및 잘림 없음 확인 (`edge_threads_reply_dashboard_desktop_v111.png` 보존).
+     - Edge 실제 창 사용자 화면 노출 완료.
+     - 주의사항 준수: 답변승인/새댓글확인/동기화 버튼 일체 미클릭.
+- **현황판**: `DESIGN.md` 46번 ✅ 1차 작업완료 (`v1.11`) 갱신, `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**: https://threads-comment-reply.buylife.xyz
+- **비용**: 없음 (유료 AI 호출 없음).
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — INSTA DM답변 자동화 v1.14: 3대 추가개선 완결 (✅ 1차 작업완료)
 
 - **대상**: `instagram-dm-reply/` (https://instagram-dm-reply.buylife.xyz)
