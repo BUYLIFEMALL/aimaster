@@ -1,8 +1,10 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 
-// insta_auto_poster의 "nanobanana-pro" 등급(gemini-3.1-flash-image, 4K, temperature 낮게)과
+// insta_auto_poster의 "nanobanana-pro" 등급(gemini-nano-banana-2.1, 4K, temperature 낮게)과
 // 동일한 조합을 써서 고퀄리티 정사각형 앨범 커버를 생성한다.
-const MODEL_NAME = "gemini-3.1-flash-image";
+const MODEL_NAME = "gemini-nano-banana-2.1";
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1/models/${MODEL_NAME}:generateContent`;
 
 export interface AlbumCoverResult {

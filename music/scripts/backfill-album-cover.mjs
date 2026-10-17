@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 검증/백필용 스크립트: 이미 완료된 트랙에 나노바나나 고퀄리티 커버를 새로 만들어
 // 기존 variant들의 image_url을 교체한다. lib/ai/musicPrompts.ts의 ALBUM_COVER_SYSTEM_PROMPT,
 // lib/ai/nanobanana.ts의 generateAlbumCoverImage()와 동일한 로직을 그대로 씀.
@@ -92,7 +94,7 @@ const NO_TEXT_SUFFIX =
 
 console.log("\n=== 앨범 커버 생성 중 (나노바나나, 4K) ===");
 const imgRes = await fetch(
-  "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent?key=" + geminiKey,
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent?key=" + geminiKey,
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },

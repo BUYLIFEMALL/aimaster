@@ -196,3 +196,7 @@ POST 콜백을 보낸다. 이 라우트는:
 ## 2026-10-16 v1.10 — 옛 vercel.app 삭제 대비: Suno 콜백 주소 새 주소 (Claude Code 윈도우)
 - 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 G. `lib/ai/suno.ts`의 Suno `callBackUrl` 기준을 `NEXT_PUBLIC_SITE_URL`(옛 주소) 대신 `SUNO_CALLBACK_ORIGIN = https://music-automation.buylife.xyz`로 고정(요청마다 주소를 넘기므로 이후 생성분부터 새 주소로 결과 수신). 환경변수 없음 오류 분기(5곳)는 불필요해져 정리.
 - 검수: 빌드·배포, 새 주소 `/api/webhooks/suno` POST 200(경로 동작). 실제 Suno 생성은 유료라 미시험.
+
+## v1.11 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `lib/ai/nanobanana.ts` `scripts/backfill-album-cover.mjs` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
