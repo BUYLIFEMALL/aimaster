@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — YOUTUBE CHANNEL CONSULTANT v1.10: 사이드바 긴 이름 두 줄 표시 및 포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `youtube-channel-consultant/` (https://youtube-channel-consultant.buylife.xyz)
+- **한 일**:
+  1. 맥미니 CLI가 사이드바 상단 로고 옆의 긴 프로그램명(YOUTUBE CHANNEL CONSULTANT)이 말줄임표(...)로 잘리지 않고 `line-clamp-2 break-words`로 2줄 표시되도록 수정한 작업(v1.10)을 이어받아 윈도우에서 `npm run build` 성공.
+  2. Vercel 프로덕션 배포 완료 (`dpl_6G8exTR7tieFjaP79Y8KnyuVeCEi` → alias `youtube-channel-consultant.buylife.xyz` 연결).
+  3. Supabase DB `programs.version` `v1.10` 갱신 완료.
+  4. Microsoft Edge 실세션 검수 완료:
+     - **주인님 지시 반영**: Edge 브라우저를 포그라운드(화면에 실제 창이 열리는 모드 `headless: false`)로 실행하여 검수 과정 화면 노출.
+     - 데스크톱 1440px 및 모바일 375px에서 사이드바 상단 로고 옆 「YOUTUBE CHANNEL CONSULTANT」가 잘림 없이 2줄로 정상 표출되는 것을 확인 (`edge_yt_consultant_dashboard_desktop_v110.png` 보존).
+     - Edge 실제 창 사용자 화면 띄우기 완료.
+     - 주의사항 준수: 채널/키워드 분석 및 AI 분석 유료 API 버튼 일체 미클릭.
+- **현황판**: `DESIGN.md` 9번 템플릿 표 v1.10 갱신, `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**: https://youtube-channel-consultant.buylife.xyz
+- **비용**: 없음 (유료 AI 호출 없음).
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — YOUTUBE VIRAL FINDER v1.19: 사이드바 긴 이름 두 줄 표시 및 포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `youtube-viral-studio/` (https://youtube-viral-studio.buylife.xyz)
