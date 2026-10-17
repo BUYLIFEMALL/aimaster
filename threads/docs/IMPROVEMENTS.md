@@ -34,7 +34,7 @@
 ### 2) `viral-post-maker` (SNS 바이럴 제작) 프롬프트 템플릿 공유
 - `viral-post-maker`에서 검증된 최신 SNS 후킹 및 호기심 유발 카피라이팅 템플릿을 `auto-threads-posting`의 RSS 및 트렌드 키워드 요약 엔진에 사본 모듈로 탑재하여 본문 퀄리티 향상.
 
-## 2026-10-18 — 예약 게시 자동 실행이 하루 1번뿐 (Claude Code 윈도우 발견, 처리 상태: 미처리·주인님 확인 필요)
+## 2026-10-18 — 예약 게시 자동 실행이 하루 1번뿐 (Claude Code 윈도우 발견, 처리 상태: ✅ v1.18에서 처리 — 5분 간격)
 - **근거**: `threads/vercel.json`의 `/api/posts/dispatch-scheduled` 실행 주기가 `0 0 * * *`(하루 1번, 한국시간 오전 9시). 같은 계열 `threads-affiliate-poster`는 1분, `threads-content-ops`는 1분.
 - **영향**: 회원이 예약한 시각이 지나도 다음 날 오전 9시에야 발행됨(최대 약 24시간 지연).
 - **우선순위**: 높음(예약 기능 신뢰도). 단 Pro 요금제라 짧은 주기 가능, 실행 횟수만큼 함수 호출 비용 증가는 작음.

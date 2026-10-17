@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — Threads 포스팅 자동화 v1.18: 예약 게시 자동 실행 5분 간격
+
+- **대상**: `threads/` (slug `auto-threads-posting`)
+- **문제**: `vercel.json` 예약 실행이 하루 1번(`0 0 * * *`, 한국시간 오전 9시) → 예약 시각이 지나도 다음 날 오전까지 발행이 밀림.
+- **한 일**: 실행 주기를 `*/5 * * * *`로 변경, 버전 v1.18(코드·DB). `CRON_SECRET` 기존 등록값(환경변수 변경 없음). 변경 전 밀린·예정 예약 글 0건 확인(한꺼번에 발행될 글 없음). 예약 글 미발행 지연 버그라 비용 규칙의 급한 수정으로 즉시 배포.
+- **검수**: 로컬 빌드 통과 → 운영 배포 Ready, `auto-threads-posting.buylife.xyz` 새 배포 연결, Vercel cron 목록 `*/5 * * * *` 등록, 비밀값 없는 호출 401, **01:45:38 첫 자동 실행 GET 200 확인**(`vercel logs requests`).
+- **프로그램 링크**:
+  - https://auto-threads-posting.buylife.xyz
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — 쇼츠 떡상 분석·대본 자동화 v1.11: 플로우 위저드 다크 테마 리뉴얼·375px 모바일 헤더&드로어 구축·비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 46개 완료 달성!)
 
 - **대상**: `shorts-viral-studio/` (https://shorts-viral-studio.buylife.xyz, slug: `shorts-viral-studio`)

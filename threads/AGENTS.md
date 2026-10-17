@@ -2,7 +2,7 @@
 
 > **프로그램명**: Threads 포스팅 자동화 (`auto-threads-posting`)  
 > **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
-> **현재 버전**: `v1.17`  
+> **현재 버전**: `v1.18`  
 > **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**  
 > **관리자 계정**: `buylifemall@gmail.com`  
 > **일반 테스트 계정**: `buylifemall@naver.com`
@@ -50,6 +50,10 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+
+### `v1.18` (2026-10-18) - Claude Code (윈도우)
+- 예약 게시 자동 실행 주기를 하루 1번(`0 0 * * *`, 한국시간 오전 9시) → **5분마다**(`*/5 * * * *`)로 변경(`vercel.json`). 예약 시각이 지나도 다음 날 오전 9시까지 밀리던 문제 수정. `CRON_SECRET` 기존 등록값 사용(환경변수 변경 없음). 변경 전 밀린·예정 예약 글 0건 확인(한꺼번에 발행될 글 없음).
+- 검수: Vercel cron 목록 `*/5 * * * *` 등록, 비밀값 없는 호출 401, 01:45:38 첫 자동 실행 GET 200. DB `programs.version` v1.18.
 
 ### `v1.17` (2026-10-17) - Antigravity (`agy`)
 - **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)** 전면 리뉴얼:
