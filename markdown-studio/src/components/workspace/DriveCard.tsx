@@ -69,6 +69,8 @@ export function DriveCard() {
       <ul>{drive.pullResults.map(r => <li key={r.path}>{r.path} — <strong>{PULL_LABEL[r.status]}</strong>{r.message ? `: ${r.message}` : ""}</li>)}</ul>
       {drive.pullResults.some(r => r.status === "failed") ? <button type="button" disabled={drive.busy || !drive.account} onClick={() => { const failed = new Set(drive.pullResults.filter(r => r.status === "failed").map(r => r.path)); void drive.pull((drive.remote ?? []).filter((e: RemoteEntry) => failed.has(e.path)), strategy); }}>실패한 항목 다시 시도</button> : null}
     </div> : null}
+    {/* v1.20: 연결은 이 화면 메모리에만 있어 메뉴 이동·새로고침 때 풀린다는 안내 */}
+    <p className="drive-reconnect-note" role="note">🔐 다른 메뉴로 이동하거나 새로고침하면 다시 [Google에 연결]을 눌러야 합니다. 보안을 위해 Google 연결 정보를 이 기기에 저장하지 않습니다.</p>
     <p className="muted" style={{ marginTop: 12 }}><small>Drive 파일은 삭제하지 않습니다. 로컬 휴지통과 Drive는 별개입니다. 폴더 이름 변경·이동은 Drive 폴더에 반영되지 않고, 문서의 이름·이동은 반영됩니다.</small></p>
   </section>;
 }

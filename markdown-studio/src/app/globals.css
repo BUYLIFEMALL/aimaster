@@ -654,6 +654,7 @@
 .trash-actions{margin-top:12px;justify-content:flex-end}
 .danger{color:#b91c1c;border-color:#fecaca}
 .danger:hover{background:#fef2f2}
+.drive-reconnect-note{margin-top:12px;padding:8px 12px;border-radius:8px;background:var(--soft);border:1px solid var(--soft-line);font-size:12px;color:var(--text-2)}
 .doc-more{display:flex;justify-content:center;margin-top:14px}
 @media(max-width:767px){.tag-names-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tag-name-edit{margin-left:0}}
 .hotkey-item{display:flex;flex-direction:column;gap:2px;border-radius:8px;padding:4px 6px;margin:0 -6px}
