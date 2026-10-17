@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity(Windows) — 프로그램별 루트 문서(AGENTS/README) 7대 필수 규격화 및 메인 핵심 지침 확장
+
+- **주인님 지시사항**: 모든 프로그램 폴더 루트(`AGENTS.md`, `README.md`)에 저장될 문서 지침에 1) 사용목적/대상, 2) 개발도구/개발기법/플러그인/스킬, 3) 기능/로직/아키텍처/장단점, 4) 현재 버전 및 변경 히스토리, 5) 남아 있는 추가 개발/디자인 대기 내용, 6) 타 프로그램 연계/병합 및 확장 아이디어 제안, 7) UI/레이아웃/스타일 개선안 등 7대 핵심 내용을 필수 기록하도록 규격화하고 메인 핵심 지침에 추가하여 모든 CLI(Antigravity, Codex, Claude Code)가 참고할 수 있게 체계화.
+- **반영된 공통 개발 지침 문서**:
+  1. [`CLAUDE.md`](../CLAUDE.md) 최상단 ⑬번 항목 확장
+  2. [`AGENTS.md`](../AGENTS.md) 최상단 ⑬번 항목 확장
+  3. [`GEMINI.md`](../GEMINI.md) 최상단 공통 지침 및 본문 7번 항목 확장
+  4. [`DESIGN.md`](../DESIGN.md) 디자인 표준 16번 항목 확장
+  5. [`docs/PROGRAM_DESIGN_STANDARD.md`](PROGRAM_DESIGN_STANDARD.md) 14번 항목 확장
+  6. [`docs/IMPROVEMENT_HANDOFF_POLICY.md`](IMPROVEMENT_HANDOFF_POLICY.md) 7대 필수 규격 상세 명세 수록
+- **모범 표준 적용 표본 (Reference Standard)**:
+  - [`vinyl-lp-studio/AGENTS.md`](../vinyl-lp-studio/AGENTS.md) 및 [`vinyl-lp-studio/README.md`](../vinyl-lp-studio/README.md)에 7대 필수 항목을 완벽하게 작성하여 다른 CLI가 작업 시 즉시 복사/참고할 수 있는 모범 표본 구축 완료.
+  - 개선 대기 목록(백로그): [`vinyl-lp-studio/docs/IMPROVEMENT_BACKLOG.md`](../vinyl-lp-studio/docs/IMPROVEMENT_BACKLOG.md).
+- **실제 서비스 링크**: https://vinyl-lp.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.13: 생성 자료 30일 자동 삭제 (남은 마무리 5/5 완료)
 
 - **한 일(주인님 승인)**: 정리 Cron `cleanup-generated`(매일 03:50 KST) — 리포트·관심도 스냅샷·11번가 경쟁 30일 지난 행 삭제, 알림 비교 캐시 비움. ⭐ 관심 상품은 제외(A안). 화면은 30일 이내 자료만, 점수 추이 30일.
