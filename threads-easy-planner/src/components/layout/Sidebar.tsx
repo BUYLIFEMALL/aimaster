@@ -25,7 +25,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               @
             </span>
             <div className="text-lg font-bold text-neutral-900 tracking-tight">
-              Threads AI 기획기
+              Threads AI 기획 자동화
             </div>
           </div>
           <div className="flex items-center gap-2 px-2 mt-1">

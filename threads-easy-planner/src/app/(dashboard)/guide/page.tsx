@@ -4,8 +4,8 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export const metadata = {
-  title: "사용 매뉴얼 | Threads AI 기획기",
-  description: "Threads AI 기획기를 100% 활용하는 단계별 순서 가이드입니다.",
+  title: "사용 매뉴얼 | Threads AI 기획 자동화",
+  description: "Threads AI 기획 자동화를 100% 활용하는 단계별 순서 가이드입니다.",
 };
 
 export default function GuidePage() {
@@ -16,7 +16,7 @@ export default function GuidePage() {
         <div className="inline-flex items-center gap-2 mb-2">
           <span className="text-2xl">📖</span>
           <h1 className="text-2xl md:text-3xl font-black text-neutral-900 tracking-tight">
-            Threads AI 기획기 사용 매뉴얼
+            Threads AI 기획 자동화 사용 매뉴얼
           </h1>
           <span className="rounded-full bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-0.5 ml-1">
             실전 순서 가이드

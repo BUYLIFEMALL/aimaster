@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-[440px]">
         <div className="mb-8 flex flex-col items-center text-center">
           <h1 className="mb-1 text-3xl font-extrabold tracking-tight text-[#005acc]">
-            Threads AI 기획기
+            Threads AI 기획 자동화
           </h1>
           <p className="text-sm font-medium text-zinc-500">
             AIMaster 계정(이메일·비밀번호)으로 로그인하세요.

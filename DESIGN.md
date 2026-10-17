@@ -118,7 +118,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-17 기준: ✅ 37개 · ⚪ 44개 · 🟠 0개 · ⏸ 2개 — 총 83개):
+> **상태 구분** (2026-10-17 기준: ✅ 38개 · ⚪ 43개 · 🟠 0개 · ⏸ 2개 — 총 83개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -163,7 +163,7 @@
 | 29 | 네이버 블로그 에이전트 | `naver-blog-agent` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-agent/AGENTS.md` |
 | 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | **스레드 바이럴 스튜디오 스타일** | 라이트(화이트/앰버) | ✅ 1차 완료 (`v1.97`) | [`threads-content-ops/docs/DESIGN_HANDOFF.md`](threads-content-ops/docs/DESIGN_HANDOFF.md) |
 | 31 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 플로우 위저드 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `shorts-viral-studio/AGENTS.md` |
-| 32 | Threads AI 기획 자동화 | `threads-easy-planner` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-easy-planner/AGENTS.md` |
+| 32 | Threads AI 기획 자동화 | `threads-easy-planner` | **스레드 바이럴 스튜디오 스타일 — 기획기 변형** | 라이트(화이트/블랙/앰버) | ✅ 1차 작업완료 (`v1.45`, 스레드 바이럴 스튜디오 스타일) | [`threads-easy-planner/docs/DESIGN_HANDOFF.md`](threads-easy-planner/docs/DESIGN_HANDOFF.md) |
 | 33 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `tistory-auto-blog/AGENTS.md` |
 | 34 | AI 이미지 스튜디오 | `ai-image-studio` | **크리에이티브 아틀리에 럭셔리 다크 스타일** | 다크(옵시디언 `#09090b` + 골드/앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.12`, 크리에이티브 아틀리에 럭셔리 다크 템플릿) | [`ai-image-studio/docs/DESIGN_HANDOFF.md`](ai-image-studio/docs/DESIGN_HANDOFF.md) |
 | 35 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | **스마트 매트릭스 스타일 — 라이트 변형 · 네이버 그린 포인트** (일반 CSS 변수) | 라이트(`#f6f7f9` + 네이버 그린 `#009b4d`/`#03c75a`) | ✅ 1차 작업완료 (`v1.69`, 파일나누기+네이버그린 리뉴얼, 윈도우 배포·확장검증·Edge포그라운드검수 2026-10-17) | [`naver-blog-seo-studio/docs/DESIGN_HANDOFF.md`](naver-blog-seo-studio/docs/DESIGN_HANDOFF.md) |

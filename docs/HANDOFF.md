@@ -1,5 +1,36 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — Threads AI 기획 자동화 v1.45: 스레드 바이럴 스튜디오 스타일 디자인 리뉴얼·Vercel 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `threads-easy-planner/` (https://threads-easy-planner.buylife.xyz)
+- **한 일**:
+  1. **디자인 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **스레드 바이럴 스튜디오 스타일 — 기획기 변형** (Meta Threads 모노 블랙 `#171717` + 바이럴 파이어 앰버 `#f59e0b` & 일렉트릭 바이올렛 `#8b5cf6`).
+     - 사이드바(`Sidebar.tsx`), 모바일 헤더(`MobileNavigation.tsx`), 로그인 레이아웃(`(auth)/layout.tsx`), 사용 매뉴얼(`guide/page.tsx`)의 프로그램 공식 명칭을 `Threads AI 기획 자동화`로 통일.
+     - 버전 표기: `v1.45` 갱신.
+     - 사용 매뉴얼(`/guide`) 4단계 파이프라인 다이어그램, BYOK API 키 가이드, FAQ 아코디언 정돈.
+  2. **로컬 빌드 및 배포**:
+     - Next.js 16.2.11 프로덕션 빌드 성공 (`npm run build`, TypeScript 오류 0건).
+     - Supabase DB `programs` 테이블에서 `slug = 'threads-easy-planner'`의 `version = 'v1.45'` 갱신 완료.
+     - Vercel 프로덕션 배포 완료: `dpl_Ceb1uGdjK3iFABpkt5m7tXgqLDM9` → alias `threads-easy-planner.buylife.xyz` 최신 연결 확인.
+  3. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 메인 스튜디오(소재 입력, 럭키픽, 6대 페르소나 카드, 미디어 시각 분석) 및 사용 매뉴얼, 보관함 정상 노출.
+     - 모바일 (375px): 좌측 사이드바 자동 숨김, 상단 고정 헤더(`Threads AI 기획 자동화 v1.45` + `사용 매뉴얼`) 및 하단 3탭 바(`기획하기`, `보관함`, `설정`), 가로 스크롤 넘침 없음 확인.
+     - 스크린샷 아티팩트 보존: `edge_threads_planner_desktop_main_v145.png`, `guide`, `saved`, `mobile_main`, `mobile_guide`.
+     - 유료 API 호출 버튼 미클릭 (비용 0원).
+  4. **인수인계 문서 및 규격화**:
+     - `threads-easy-planner/docs/PLAN_20261017_DESIGN_RENEWAL.md` 작성.
+     - `threads-easy-planner/docs/DESIGN_HANDOFF.md` 작성.
+     - `threads-easy-planner/docs/IMPROVEMENTS.md` 작성 (3대 개선 제안 및 31번, 44번 타 프로그램 탐색 제안 포함).
+     - `threads-easy-planner/docs/IMPROVEMENT_BACKLOG.md` 작성 (P1: 500자 타래 분할기, 글자수 카운터 등).
+     - `threads-easy-planner/AGENTS.md` 및 `README.md` 7대 핵심 항목 규격화.
+     - `DESIGN.md` 32번 상태: `✅ 1차 작업완료 (v1.45, 스레드 바이럴 스튜디오 스타일)` 갱신 (전체 현황: ✅ 38개 · ⚪ 43개 · ⏸ 2개).
+     - `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**:
+  - https://threads-easy-planner.buylife.xyz
+- **비용**: 0원 (유료 API 호출 없음).
+
 ## 2026-10-18 Claude Code(윈도우) — gstack 스킬 묶음 설치·동작 확인, CLAUDE.md에 사용 지침
 
 - **한 일**: `~/.claude/skills/gstack`에 gstack 1.91.121.0 설치(내려받기는 Claude Code, `./setup --host claude`는 자동 승인 기능이 막아 주인님이 직접 실행). 하위 스킬 50여 개 등록, `setup --status` current, `gstack-doctor` 정상 13·경고 2·미설정 1·실패 0, `browse.exe` 실행 확인.

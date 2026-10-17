@@ -1,4 +1,4 @@
-# ✏️ Threads AI 기획기 (threads-easy-planner)
+# ✏️ Threads AI 기획 자동화 (threads-easy-planner)
 
 초보자도 버튼 하나로 완성하는 **스레드(Threads) AI 글 기획 및 바이럴 포스팅 자동화 프로그램**.  
 복잡한 프롬프트 작성이나 설정 없이, 주제/소재를 입력하고 **가전 주부형·독신형·워킹맘형 등 원하는 상황별 페르소나 버튼을 누르면**  
@@ -6,12 +6,24 @@
 
 ---
 
-## Mobile and desktop support (v1.19)
+## 📌 프로그램 개요 및 버전 정보
+- **프로그램명**: `Threads AI 기획 자동화`
+- **폴더명 (slug)**: `threads-easy-planner`
+- **현재 버전**: `v1.45`
+- **배포 주소**: https://threads-easy-planner.buylife.xyz
+- **디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 — 기획기 변형** (Meta Threads 모노톤 + 파이어 앰버/바이올렛)
 
-- The service uses a single responsive interface: the desktop sidebar becomes a compact mobile header and fixed bottom tabs below the `md` breakpoint.
-- Topic input, persona generation, saved plans, access checks, and AI-key handling stay on the same routes and server actions for every device.
-- On mobile, a fixed bottom action runs the same planner generation flow; the extra bottom spacing prevents it from covering content.
-- Provider and model controls are kept in the collapsible advanced-AI settings section to prioritize the fast mobile creation flow.
+---
+
+## 📋 7대 핵심 규격 및 인수인계 요약
+1. **사용목적 및 대상**: 스레드 첫 줄 훅과 본문 작성이 막막한 초보자, 크리에이터, 1인 셀러의 3초 글 완성 도구
+2. **기술 스택**: Next.js 16 (Turbopack), React 19, Tailwind CSS v4, Supabase SSR, WebCodecs 동영상 5컷 분석
+3. **핵심 기능**: 5대 훅(자책·부정명령·썰·논쟁·반전), 6대 페르소나, 사진/영상 시각 분석, 7종 다시 쓰기, 보관함
+4. **버전 이력**: `v1.45` (2026-10-17 디자인 리뉴얼, 템플릿화, Edge 실세션 검수 완료)
+5. **백로그 대기 과제**: 500자 타래 분할기, 실시간 글자 수 카운터 (`docs/IMPROVEMENT_BACKLOG.md`)
+6. **타 프로그램 연계**: 27번 `threads-content-ops` 스케줄러 내보내기, 46번 `threads-comment-reply` CTA 자동 댓글 연계
+7. **디자인/UI 개선안**: 인앱 퓨어 다크 테마(옵시디언 블랙) 전환 토글 추가 권장
+
 
 ## 🎯 핵심 기능 및 워크플로우
 

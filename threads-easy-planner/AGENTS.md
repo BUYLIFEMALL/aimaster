@@ -1,26 +1,67 @@
-# 🤖 Threads AI 기획기 — 에이전트 인수인계 문서 (AGENTS.md)
+# 🤖 Threads AI 기획 자동화 — 에이전트 인수인계 문서 (AGENTS.md)
 
-이 문서는 **Threads AI 기획기(threads-easy-planner)** 서브프로젝트의 인수인계 문서입니다.
-루트 `CLAUDE.md`(핵심 원칙 7가지) 및 `AGENTS.md`를 기반으로 동작합니다.
-
-> 다음 CLI는 작업 전 [`docs/CONTINUATION.md`](docs/CONTINUATION.md)를 읽습니다. 최신 완료 기능, 파일 위치, 안전 규칙, 다음 작업 기준, 커밋·배포 절차를 v1.41 기준으로 정리했습니다.
+이 문서는 **Threads AI 기획 자동화(threads-easy-planner)** 서브프로젝트의 인수인계 문서입니다.
+루트 `CLAUDE.md`, `AGENTS.md`, `DESIGN.md`를 기반으로 동작하며, 다른 CLI(Antigravity, Codex, Claude Code)가 언제든 이어받아 작업할 수 있도록 7대 핵심 규격에 맞추어 정리되었습니다.
 
 ---
 
-## Mobile and desktop shared interface (v1.19, 2026-10-05)
+## 📋 7대 핵심 규격 명세서 (2026-10-17 주인님 지시)
 
-- PC and mobile share one URL, authorization flow, AI generation actions, and saved-plan data. Do not create a separate mobile API or data model.
-- Keep the Sidebar from the `md` breakpoint upward. Below `md`, use `MobileNavigation` with a compact header and bottom tabs for Planner, Saved, and Settings.
-- The mobile fixed generate button must call `PlannerApp.handleGenerate()` so generation, entitlement, and API-key guidance remain identical on every screen size. Preserve bottom space with `pb-28`.
-- Keep provider and model selection in the collapsible advanced-AI settings area, leaving the mobile primary flow as topic input, persona choice, then generation.
+### 1) 프로그램 사용목적 및 대상 (Target & Purpose)
+- **대상**: Threads(스레드)를 처음 시작하거나, 첫 줄 훅이 약해 반응이 저조한 크리에이터, 매일 무슨 글을 쓸지 고민하는 1인 셀러, 직장인, 주부, 자취생.
+- **목적**: 복잡한 프롬프트 입력 없이 원클릭으로 5대 첫 문장 훅(자책·부정명령·썰·논쟁·반전), 4단계 공감 본문, 자댓글 참여 CTA, 후속 아이디어 5선까지 글 한 편 세트를 3초 만에 완성.
+
+### 2) 개발 구현에 사용된 도구 및 기술 스택 (Tech Stack & Skills)
+- **Framework**: Next.js 16.2.11 (Turbopack, App Router) & React 19
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`, `tailwindcss: ^4`)
+- **AI SDK**: OpenAI SDK (`openai`), Google Gen AI (`@google/generative-ai`), Anthropic SDK (`@anthropic-ai/sdk`)
+- **인증 & DB**: Supabase SSR (`@supabase/ssr`, `@supabase/supabase-js`), BYOK 회원 본인 API 키 (`user_api_keys`)
+- **멀티미디어**: WebCodecs & Canvas 기반 동영상 핵심 5컷 정밀 프레임 추출 (`mediaProcessor.ts`)
+
+### 3) 핵심 기능 및 시스템 아키텍처/로직 (Features, Architecture, Pros & Cons)
+- **주제 발굴**: 직접 키워드 입력 + 업종별 10선 추천 + 요일/시간대 기반 럭키 픽 자동 추천.
+- **상황별 페르소나**: 고부갈등, 살림주부, 독신자취, 워킹맘, 쇼핑에디터, IT리뷰어 등 6종 원클릭 생성.
+- **미디어 시각 분석**: 고화질 사진(최대 5장) 비교 썰 + 동영상 5컷(도입·전개·절정·반전·엔딩) 시각 분석 글 생성.
+- **결과 최적화**: 5대 훅 원클릭 치환, 7종 다시 쓰기(더 자극적으로, 더 자연스럽게 등), 인라인 직접 편집.
+- **보관함**: `localStorage` & `sessionStorage` 기반 영구 저장 및 불러오기 (`/saved`).
+- **장점**: 직관적인 모바일/데스크톱 반응형, 빠른 생성 속도, 스레드 특유의 솔직한 1인칭 구어체 특화.
+- **한계점**: 500자 초과 시 자동 타래(스레드 슬라이스) 분할 기능 미구현 (P1 백로그 대기).
+
+### 4) 현재 버전 및 버전별 변경 히스토리 (Changelog)
+- **현재 버전**: **`v1.45`** (`src/lib/version.ts` 및 DB `programs.version`)
+- **`v1.45` (2026-10-17)**:
+  - 디자인 리뉴얼 공식 템플릿화: **스레드 바이럴 스튜디오 스타일 — 기획기 변형** 확정
+  - 사이드바 및 모바일 헤더, 로그인, 가이드 공식 명칭을 `Threads AI 기획 자동화`로 통일
+  - 비주얼 사용 매뉴얼(`/guide`) 4단계 파이프라인 및 BYOK 가이드 정돈
+  - Next.js 16 로컬 빌드 성공, Vercel 배포 완료, Microsoft Edge 포그라운드 실세션 검수 완료
+  - `DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `IMPROVEMENT_BACKLOG.md` 작성 및 `DESIGN.md` 32번 ✅ 완료 갱신
+- **`v1.44`**: 동영상 5컷 시각 분석 파이프라인 및 럭키 픽 추가
+- **`v1.19`**: 모바일 헤더 및 하단 네비게이션 3탭 바 통합
+
+### 5) 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- `threads-easy-planner/docs/IMPROVEMENT_BACKLOG.md` 참조
+  - P1: 스레드 500자 타래 자동 분할기 (Thread Splitter)
+  - P1: 에디터 실시간 글자 수 카운터 및 가독성 칩
+  - P2: 27번 `threads-content-ops`로 원클릭 내보내기 연계
+  - P2: 야간 크리에이터를 위한 인앱 퓨어 다크 테마 토글
+
+### 6) 타 프로그램 연계 및 기능 확장 아이디어
+- **27번 Threads 콘텐츠 운영자동화 (`threads-content-ops`)**: 기획기에서 완성한 글을 27번 주간 스케줄러로 원클릭 내보내기.
+- **46번 Threads 댓글자동화 (`threads-comment-reply`)**: 기획기에서 생성된 [자댓글 CTA 질문]에 달리는 팔로워 댓글을 46번 봇이 자동 감지하여 친근하게 답글 작성.
+
+### 7) 디자인 UI 개선안과 스타일 제안
+- 현재 테마는 클린 화이트/슬레이트 배경에 Threads 모노 블랙과 파이어 앰버/바이올렛 액센트를 채택하여 가독성이 매우 뛰어남.
+- 향후 다크 모드 토글을 추가하여 Meta Threads 고유의 다크 앱 감성(옵시디언 블랙 `#101010`)도 선택 가능하도록 고도화 추천.
+
+---
 
 ## 📌 기본 정보
-
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
-- **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.41` (`src/lib/version.ts` 및 DB `programs.version`)
-- **라이브 URL**: `https://threads-easy-planner.vercel.app`
+- **프로그램명**: `Threads AI 기획 자동화`
+- **현재 버전**: `v1.45` (`src/lib/version.ts` 및 DB `programs.version`)
+- **라이브 URL**: `https://threads-easy-planner.buylife.xyz`
+
 
 ---
 
