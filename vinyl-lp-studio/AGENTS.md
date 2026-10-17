@@ -192,10 +192,6 @@ vinyl-lp-studio/
 - **금일 작업 인수인계서**: [`docs/IMPROVEMENT_HANDOFF_20261017.md`](docs/IMPROVEMENT_HANDOFF_20261017.md)
 - **디자인 리뉴얼 개발플랜**: [`docs/PLAN_20261017_DESIGN_RENEWAL.md`](docs/PLAN_20261017_DESIGN_RENEWAL.md)
 
-## v1.09 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/app/api/generate-artwork/route.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
-
 ## v1.10 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `src/app/api/generate-artwork/route.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
