@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Loader2, Plus, Trash2, Sparkles, BookOpen, Layers, Lightbulb, PenLine, Palette, ImageIcon, Download } from "lucide-react";
 import type { ProjectSummary } from "@/lib/cardnews/types";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote } from "@/components/studio/ui";
-import { APP_NAME } from "@/lib/version";
+import { APP_NAME, APP_VERSION } from "@/lib/version";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -65,76 +66,162 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">{APP_NAME}</h1>
-            <p className="mt-1 text-sm text-gray-500">주제만 넣으면 AI가 페이지별 문구와 배경을 만들고, 글자가 얹힌 카드뉴스를 PNG로 완성합니다. 모든 AI 호출은 회원님 본인의 키로 이루어집니다.</p>
+      {/* 1. 상단 환영 & 액션 카드 */}
+      <Card className="relative overflow-hidden border-purple-500/30">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-100">{APP_NAME}</h1>
+              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-pink-500/10 text-pink-400 border border-pink-500/30">
+                {APP_VERSION}
+              </span>
+            </div>
+            <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
+              주제만 입력하면 AI가 페이지별 문구와 고화질 배경을 만들고, 글자가 얹힌 완성형 카드뉴스와 인스타그램 피드 캡션을 제작합니다. 모든 AI 호출은 회원 본인 소유의 키로 안전하게 격리 처리됩니다.
+            </p>
           </div>
 
           <button type="button" onClick={start} className={BTN_PRIMARY}>
             <Plus size={16} /> 새 카드뉴스 만들기
           </button>
         </div>
+
         {imageKeyMissing && (
-          <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-            배경 이미지를 만들려면 Gemini API 키가 필요합니다. 왼쪽 메뉴의 API키등록·플랫폼연동에서 본인 키를 등록해주세요.
-          </p>
+          <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-950/20 p-3 text-xs text-amber-300 flex items-center justify-between">
+            <span>⚠️ 배경 이미지를 생성하려면 Gemini API 키가 필요합니다. 본인 키를 등록해주세요.</span>
+            <Link href="/settings" className="font-bold underline text-amber-400 hover:text-amber-300 ml-2">
+              API 키 등록하기 →
+            </Link>
+          </div>
         )}
-        <ol className="mt-4 grid gap-2 text-xs text-gray-600 sm:grid-cols-5">
-          {["① 기획: 분야·주제·어조", "② 문구: AI가 쓴 글 다듬기", "③ 디자인: 화풍·글자·배치", "④ 배경 생성: 페이지별 이미지", "⑤ 내보내기: PNG 저장"].map((t) => (
-            <li key={t} className="rounded-lg bg-gray-50 px-3 py-2">
-              {t}
-            </li>
-          ))}
-        </ol>
+      </Card>
+
+      {/* 2. 5단계 카드뉴스 제작 가이드 바 */}
+      <Card className="border-[#262c3d]">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-pink-400" />
+            <h2 className="text-sm font-bold text-slate-200">5단계 카드뉴스 제작 가이드</h2>
+          </div>
+          <Link href="/guide" className="text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1">
+            <span>전체 매뉴얼 보기</span>
+            <span>→</span>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
+          {[
+            { step: "1단계", title: "기획", desc: "분야·주제·어조·매수", icon: Lightbulb, color: "text-amber-400" },
+            { step: "2단계", title: "문구", desc: "AI 장별 문구 다듬기", icon: PenLine, color: "text-pink-400" },
+            { step: "3단계", title: "디자인", desc: "화풍·글자·배치·효과", icon: Palette, color: "text-blue-400" },
+            { step: "4단계", title: "배경 생성", desc: "나노바나나 고화질 이미지", icon: ImageIcon, color: "text-emerald-400" },
+            { step: "5단계", title: "내보내기", desc: "완성 PNG & 캡션 복사", icon: Download, color: "text-purple-400" }
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.step} className="rounded-xl bg-[#0d0f17] p-3 border border-[#1f2433] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">{item.step}</span>
+                  <Icon className={`w-3.5 h-3.5 ${item.color}`} />
+                </div>
+                <p className="text-xs font-bold text-slate-200">{item.title}</p>
+                <p className="text-[11px] text-slate-400 truncate">{item.desc}</p>
+              </div>
+            );
+          })}
+        </div>
       </Card>
 
       {error && <ErrorNote message={error} />}
 
-      <Card>
-        <h2 className="text-base font-bold text-gray-900">내 프로젝트</h2>
+      {/* 3. 내 프로젝트 목록 */}
+      <Card className="border-[#262c3d]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-purple-400" />
+            <h2 className="text-base font-bold text-slate-100">내 프로젝트 보관함</h2>
+          </div>
+          {projects && projects.length > 0 && (
+            <span className="text-xs text-slate-400 font-mono">총 {projects.length}개</span>
+          )}
+        </div>
+
         {projects === null ? (
-          <p className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-            <Loader2 className="h-4 w-4 animate-spin" /> 불러오는 중…
-          </p>
+          <div className="py-12 text-center">
+            <p className="flex items-center justify-center gap-2 text-sm text-slate-400">
+              <Loader2 className="h-4 w-4 animate-spin text-purple-400" /> 프로젝트 목록 불러오는 중…
+            </p>
+          </div>
         ) : projects.length === 0 ? (
-          <p className="mt-4 text-sm text-gray-500">아직 저장된 프로젝트가 없습니다. 새 카드뉴스를 만들어 보세요.</p>
+          <div className="py-12 text-center rounded-xl bg-[#0d0f17] border border-[#1f2433] space-y-3">
+            <div className="flex h-12 w-12 mx-auto items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <Layers size={24} />
+            </div>
+            <p className="text-sm font-medium text-slate-300">아직 저장된 카드뉴스 프로젝트가 없습니다.</p>
+            <p className="text-xs text-slate-500">지금 바로 첫 번째 카드뉴스를 만들어보세요!</p>
+            <button type="button" onClick={start} className={`${BTN_PRIMARY} mt-2`}>
+              <Plus size={15} /> 첫 카드뉴스 만들기
+            </button>
+          </div>
         ) : (
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((p) => (
-              <li key={p.id} className="flex gap-3 rounded-xl border border-gray-200 p-3">
-                <div className="h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+              <li key={p.id} className="flex gap-3 rounded-xl border border-[#262c3d] bg-[#0d0f17] p-3.5 hover:border-purple-500/40 transition-colors">
+                <div className="h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-[#161922] border border-[#1f2433]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {p.thumbnailUrl && <img src={p.thumbnailUrl} alt="" className="h-full w-full object-cover" loading="lazy" />}
+                  {p.thumbnailUrl ? (
+                    <img src={p.thumbnailUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-slate-600">
+                      <Layers size={18} />
+                    </div>
+                  )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold text-gray-900" title={p.title}>
-                    {p.title}
-                  </p>
-                  <p className="truncate text-[11px] text-gray-500">
-                    {p.category}
-                    {p.topic ? ` · ${p.topic}` : ""}
-                  </p>
-                  <p className="text-[11px] text-gray-400">
-                    {p.pageCount}장 · {new Date(p.updatedAt).toLocaleString("ko-KR")}
-                  </p>
-                  <div className="mt-2 flex items-center gap-2">
+                <div className="min-w-0 flex-1 flex flex-col justify-between">
+                  <div>
+                    <p className="truncate text-sm font-bold text-slate-200" title={p.title}>
+                      {p.title}
+                    </p>
+                    <p className="truncate text-[11px] text-slate-400 mt-0.5">
+                      {p.category}
+                      {p.topic ? ` · ${p.topic}` : ""}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5 font-mono">
+                      {p.pageCount}장 · {new Date(p.updatedAt).toLocaleDateString("ko-KR")}
+                    </p>
+                  </div>
+
+                  <div className="mt-2.5 flex items-center gap-2">
                     {confirmId === p.id ? (
                       <>
-                        <button type="button" disabled={busyId === p.id} onClick={() => void remove(p.id)} className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50">
+                        <button 
+                          type="button" 
+                          disabled={busyId === p.id} 
+                          onClick={() => void remove(p.id)} 
+                          className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-500 disabled:opacity-50 transition-colors"
+                        >
                           {busyId === p.id ? "삭제 중…" : "삭제 확인"}
                         </button>
-                        <button type="button" onClick={() => setConfirmId(null)} className="text-xs text-gray-500 underline">
+                        <button type="button" onClick={() => setConfirmId(null)} className="text-xs text-slate-400 hover:text-slate-200 underline">
                           취소
                         </button>
                       </>
                     ) : (
                       <>
-                        <button type="button" disabled={busyId === p.id} onClick={() => void open(p.id)} className={`${BTN_GHOST} px-3 py-1 text-xs`}>
-                          {busyId === p.id ? "여는 중…" : "열기"}
+                        <button 
+                          type="button" 
+                          disabled={busyId === p.id} 
+                          onClick={() => void open(p.id)} 
+                          className={`${BTN_GHOST} px-3 py-1 text-xs`}
+                        >
+                          {busyId === p.id ? "여는 중…" : "편집하기"}
                         </button>
-                        <button type="button" aria-label="삭제" onClick={() => setConfirmId(p.id)} className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600">
+                        <button 
+                          type="button" 
+                          aria-label="삭제" 
+                          onClick={() => setConfirmId(p.id)} 
+                          className="rounded-lg p-1.5 text-slate-500 hover:bg-red-950/30 hover:text-red-400 transition-colors"
+                        >
                           <Trash2 size={14} />
                         </button>
                       </>
@@ -145,7 +232,9 @@ export default function DashboardPage() {
             ))}
           </ul>
         )}
-        <p className="mt-3 text-[11px] text-gray-500">프로젝트를 삭제하면 그 프로젝트의 배경 이미지도 함께 삭제됩니다.</p>
+        <p className="mt-4 text-[11px] text-slate-500">
+          💡 프로젝트를 삭제하면 해당 프로젝트에 사용된 배경 이미지 파일도 스토리지에서 함께 정리됩니다.
+        </p>
       </Card>
     </div>
   );

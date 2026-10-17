@@ -6,21 +6,21 @@ import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { AI_ENGINES, defaultModel, type AiProvider } from "@/lib/ai/models";
 import { useStudio, type SaveStatus } from "./ProjectProvider";
 
-export const INPUT = "w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-violet-500";
-export const SELECT = "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-violet-500";
-export const BTN_PRIMARY = "inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50";
-export const BTN_GHOST = "inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50";
+export const INPUT = "w-full rounded-xl border border-[#262c3d] bg-[#0d0f17] px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-purple-500 focus:outline-hidden focus:ring-1 focus:ring-purple-500";
+export const SELECT = "w-full rounded-xl border border-[#262c3d] bg-[#0d0f17] px-3 py-2.5 text-sm text-slate-100 focus:border-purple-500 focus:outline-hidden focus:ring-1 focus:ring-purple-500";
+export const BTN_PRIMARY = "inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-amber-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-pink-500/20 hover:opacity-95 transition-opacity disabled:cursor-not-allowed disabled:opacity-50";
+export const BTN_GHOST = "inline-flex items-center justify-center gap-2 rounded-xl border border-[#262c3d] bg-[#161922] px-4 py-2.5 text-sm font-bold text-slate-300 hover:bg-[#1e2230] hover:text-slate-100 transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-2xl border border-gray-200 bg-white p-5 shadow-xs ${className}`}>{children}</section>;
+  return <section className={`rounded-2xl border border-[#262c3d] bg-[#161922] p-5 shadow-lg shadow-black/20 text-slate-200 ${className}`}>{children}</section>;
 }
 
 export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-bold text-gray-700">{label}</span>
+      <span className="mb-1.5 block text-xs font-bold text-slate-300">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-[11px] text-gray-500">{hint}</span>}
+      {hint && <span className="mt-1 block text-[11px] text-slate-400">{hint}</span>}
     </label>
   );
 }
@@ -37,13 +37,13 @@ export function SaveBadge() {
   const { status, saveError, saveNow } = useStudio();
   if (status === "idle") return null;
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs ${status === "error" ? "text-red-600" : "text-gray-500"}`} title={saveError ?? undefined}>
-      {status === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-      {status === "saved" && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />}
+    <span className={`inline-flex items-center gap-1.5 text-xs ${status === "error" ? "text-red-400" : "text-slate-400"}`} title={saveError ?? undefined}>
+      {status === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-400" />}
+      {status === "saved" && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
       {status === "error" && <AlertCircle className="h-3.5 w-3.5" />}
       {STATUS_TEXT[status]}
       {status === "error" && (
-        <button type="button" onClick={() => void saveNow()} className="font-bold underline">
+        <button type="button" onClick={() => void saveNow()} className="font-bold underline text-red-400 ml-1">
           다시 시도
         </button>
       )}
@@ -56,10 +56,10 @@ export function StepHeader({ step, title, desc }: { step: number; title: string;
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">{step}</span>
-          <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-sm font-bold text-white shadow-md shadow-pink-500/20">{step}</span>
+          <h1 className="text-xl font-bold text-slate-100">{title}</h1>
         </div>
-        <p className="mt-1 text-sm text-gray-500">{desc}</p>
+        <p className="mt-1 text-sm text-slate-400">{desc}</p>
       </div>
       <SaveBadge />
     </div>
@@ -68,12 +68,12 @@ export function StepHeader({ step, title, desc }: { step: number; title: string;
 
 export function ErrorNote({ message, needKey }: { message: string; needKey?: boolean }) {
   return (
-    <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+    <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-950/20 p-3 text-sm text-red-300">
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
       <div>
         <p>{message}</p>
         {needKey && (
-          <Link href="/settings" className="mt-1 inline-block font-bold underline">
+          <Link href="/settings" className="mt-1 inline-block font-bold underline text-red-400 hover:text-red-300">
             API키등록·플랫폼연동으로 이동
           </Link>
         )}
@@ -98,7 +98,7 @@ export function EnginePicker() {
         <Field label="글쓰기 AI">
           <select className={SELECT} value={engine.provider} onChange={(e) => setProvider(e.target.value as AiProvider)}>
             {AI_ENGINES.map((e) => (
-              <option key={e.provider} value={e.provider} disabled={registered ? !registered[e.provider] : false}>
+              <option key={e.provider} value={e.provider} disabled={registered ? !registered[e.provider] : false} className="bg-[#161922] text-slate-100">
                 {e.label}
                 {registered && !registered[e.provider] ? " (키 미등록)" : ""}
               </option>
@@ -108,7 +108,7 @@ export function EnginePicker() {
         <Field label="모델">
           <select className={SELECT} value={project.engine.model} onChange={(e) => setModel(e.target.value)}>
             {engine.models.map((m) => (
-              <option key={m.value} value={m.value}>
+              <option key={m.value} value={m.value} className="bg-[#161922] text-slate-100">
                 {m.label}
               </option>
             ))}
@@ -116,15 +116,15 @@ export function EnginePicker() {
         </Field>
       </div>
       {registered && !selectedReady && (
-        <p className="text-xs text-amber-800">
+        <p className="text-xs text-amber-300">
           선택한 AI의 API 키가 없습니다.{" "}
-          <Link href="/settings" className="font-bold underline">
+          <Link href="/settings" className="font-bold underline text-amber-400">
             API키등록·플랫폼연동
           </Link>
           에서 본인 키를 등록하거나 키가 있는 AI를 선택해주세요.
         </p>
       )}
-      <p className="text-[11px] text-gray-500">회원님 본인의 AI 키로 호출되며 요금은 해당 AI 계정에 청구됩니다.</p>
+      <p className="text-[11px] text-slate-400">회원님 본인의 AI 키로 호출되며 요금은 해당 AI 계정에 청구됩니다.</p>
     </div>
   );
 }
@@ -133,7 +133,7 @@ export function EnginePicker() {
 export function NeedPlan({ children }: { children: ReactNode }) {
   return (
     <Card>
-      <p className="text-sm text-gray-600">{children}</p>
+      <p className="text-sm text-slate-300">{children}</p>
       <Link href="/plan" className={`${BTN_PRIMARY} mt-3`}>
         1단계 기획으로 이동
       </Link>

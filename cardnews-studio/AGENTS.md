@@ -1,115 +1,97 @@
-# INSTA Cardnews 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
+# INSTA Cardnews 자동화 (`cardnews-studio`) AI 에이전트 인수인계 문서 (AGENTS.md)
 
 > # ★★★ 최상위 절대 불변 규칙 (2026-10-09 주인님 지시)
 > **모든 사용자는 본인의 계정과 본인 API 키(Gemini·OpenAI·Claude)를 각각 직접 등록·연동해서 사용한다.**
 > 운영자(주인님)나 타인의 키로 대신 처리하지 않으며, 키가 없으면 "본인 키를 등록해주세요"로 안내한다. 상세: 루트 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`.
+> **생성 데이터도 회원 본인 소유로 격리하며 다른 회원과 공유·복사·재사용하지 않는다.**
 
-작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`, `docs/AI_MODEL_INTEGRATION_STANDARD.md`를 먼저 읽는다.
+---
 
-## 1. 개요와 현황
-- 프로그램명: **INSTA Cardnews 자동화** (영문 `INSTA Cardnews Auto` / `CARDNEWS STUDIO`) / slug `cardnews-studio` / 현재 버전 **v1.06** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
-- 주소: https://cardnews-studio.buylife.xyz (Vercel 프로젝트 `buylife/cardnews-studio`, 별칭 `cardnews-studio-lime.vercel.app`)
-- 기술: Next.js 16 + React 19 + Tailwind 4 + Supabase SSR(공유 DB `esgxyikcnnvmlhygjkth`). 글자 얹기는 브라우저 캔버스. 기반 코드는 `youtube-channel-consultant`(로그인·권한·키 저장·사이드바).
-- 기획 배경: 주인님이 Google Flow의 "Carousel Pro" 도구(Flow "도구 빌더"로 만든 카드뉴스 생성 도구, `b2391618-385d-4d96-84aa-a23959efa0ee`) 화면과 기능을 레퍼런스로 요청하심. 카드뉴스 제작뿐 아니라 인스타그램 피드 캡션(후킹 카피, 본문 요약, CTA, 타겟 해시태그 20~25개) 원클릭 생성·복사 패키지 기능 탑재.
-- 기존 프로그램과의 관계: `auto-instagram-posting`(INSTA 포스팅)은 글자 없는 사진 슬라이드 + 게시 자동화, `ai-image-studio`는 이미지 생성만이라 **글자가 얹힌 카드뉴스 디자인 + 인스타 피드 캡션 생성**을 한 번에 완성하는 솔루션임.
+## 1. 프로그램의 사용목적 및 대상
+- **프로그램명**: INSTA Cardnews 자동화 (영문 `INSTA Cardnews Auto` / `CARDNEWS STUDIO`)
+- **서비스 URL**: https://cardnews-studio.buylife.xyz
+- **사용 목적**: 복잡한 그래픽 툴(포토샵, 피그마, 미리캔버스) 없이도, 주제 하나만 입력하면 AI가 기획·카피라이팅·고화질 배경 생성·글자 얹기·인스타그램 피드 캡션 및 25개 해시태그 패키징까지 한 번에 자동 완성하는 원스톱 인스타 카드뉴스 제작 솔루션.
+- **주요 대상**:
+  - 인스타그램 카드뉴스 계정을 운영하는 1인 크리에이터 및 마케터
+  - 지식 정보형 콘텐츠를 정기적으로 발행해야 하는 인플루언서
+  - 블로그/유튜브 콘텐츠를 인스타 캐러셀로 재가공(One Source Multi Use)하려는 브랜드 운영자
 
+---
 
-## 2. 흐름 (사이드바 번호 = 사용 순서)
-대시보드(내 프로젝트·보관함) → ① 기획 `/plan` → ② 문구 `/copy` → ③ 디자인 `/design` → ④ 배경 생성 `/background` → ⑤ 내보내기 `/export`, 그리고 `API키등록·플랫폼연동 /settings`.
-- ① 분야(자기계발·경제/재테크·맛집/카페·뷰티/패션 + 직접 입력), 핵심 주제(✨ **주제 추천**: 분야로 AI가 주제 5개 제안), 어조(일반·진지·국뽕·유머·넉살), 페이지 수 4/6/8/10, 비율 4:5(1080×1350)/1:1, 글쓰기 AI 선택.
-- ② 페이지별 `headline`(18자 권장)·`sub`(70자 권장)를 AI가 JSON으로 작성 → 직접 수정. 1장은 표지, 마지막은 저장·공유 유도.
-- ③ 디자인 무드(정보형/감성형/임팩트형/미니멀형 — 고르면 배치·막 진하기·효과 추천값이 같이 바뀜), 화풍(실사·디지털 아트·3D 렌더링·수채화), 구성(백그라운드·인포그래픽·캐릭터·텍스트강조), 테마 컬러(Auto·Warm/Beige·Cool/Blue·Minimal B&W), 텍스트 배치(중앙/상단/하단/좌측), 표시 스타일(기본·그림자·외곽선·형광펜), 배경 불투명도(글자 뒤 막), 폰트, 헤드라인·서브 크기/굵기/좌우/상하/색.
-- ④ 이미지 모델(Nano Banana 2 2K 기본 / Pro 4K / 1K)로 페이지별 배경 생성. 전체 생성은 확인 안내(호출 횟수 표시) 후 2장씩 동시에, 실패한 장은 개별 재시도, 만든 이미지는 장당 최대 6개 이력 중 선택.
-- ⑤ 미리보기와 같은 함수로 그려 PNG 저장(장별 / 전체 연속 다운로드).
+## 2. 개발 구현에 사용된 도구 / 개발기법 / 플러그인 / 스킬
+- **프레임워크 & 런타임**: Next.js 16.2.11 (App Router, Turbopack), React 19, TypeScript
+- **스타일링**: Tailwind CSS v4, Lucide React 아이콘
+- **디자인 템플릿**: **크리에이티브 아틀리에 스타일 (인스타 카드뉴스 변형)** 다크 테마 (`bg-[#0d0f17]`, 서피스 `#161922`, 보더 `#262c3d`)
+- **반응형 아키텍처**: 데스크톱(1440px) 260px 좌측 사이드바 + 모바일(375px) 상단 56px 고정 헤더 & 슬라이드 오버레이 드로어
+- **백엔드 & 데이터베이스**: Supabase SSR (공유 DB `esgxyikcnnvmlhygjkth`), PostgreSQL RLS (회원별 데이터 엄격 격리)
+- **스토리지**: Supabase Storage (`cardnews-images` 공개 버킷, 유저별 경로 격리 `<user_id>/<uuid>.<ext>`)
+- **캔버스 렌더링 엔진**: 순수 HTML5 Canvas API를 이용한 브라우저 클라이언트 렌더링 (`src/lib/cardnews/render.ts`, `renderClient.ts`)
+- **AI 모델 연동**: Google Gemini (`gemini-nano-banana-2.1`, `gemini-3-pro-image`, `gemini-3.7-flash`), OpenAI GPT-4o, Anthropic Claude 3.7 Sonnet
 
-## 3. 파일 구조
-- `src/lib/cardnews/` — `presets.ts`(모든 옵션 목록, 참고 도구 선택지 + 정한 프리셋), `types.ts`, `defaults.ts`, `layout.ts`(줄바꿈·배치 계산, **순수 함수 — 자동 검사 대상**), `render.ts`(캔버스 그리기), `renderClient.ts`(이미지·글꼴 로딩, PNG 만들기), `fonts.ts`(글꼴 CSS), `sanitize.ts`(저장 전 검증), `apiGuard.ts`(권한·본인 키·AI 검증)
-- `src/lib/ai/` — `models.ts`(글쓰기 모델 레지스트리), `llm.ts`(공급사 REST 호출, `json` 옵션), `copyPrompts.ts`(문구·주제 프롬프트와 JSON 파싱), `imagePrompts.ts`(배경 프롬프트), `imageModels.ts`, `image.ts`(Gemini 이미지 호출)
-- `src/app/api/cardnews/{topics,copy,image}`, `src/app/api/projects[/id]`, `src/app/api/settings/api-keys`
-- `src/components/studio/` — `ProjectProvider`(프로젝트 상태·1.5초 자동 저장·새로고침 복원), `CardCanvas`, `ui`
-- `src/lib/access.ts` ← `src/lib/programAccess.ts`(루트 `lib/access/checkProgramAccess.ts`의 **사본**, 규칙이 바뀌면 같이 고칠 것)
+---
 
-## 4. DB·저장소 (2026-10-11 적용, `supabase/migrations/0001`, `0002`)
-- 테이블 `cns_projects`(id, user_id→auth.users, title, data jsonb, created_at, updated_at) + **RLS owner-only 4개 정책**. 앱은 세션 클라이언트 + `.eq("user_id", …)`로 이중 한정.
-- 공개 버킷 `cardnews-images`(이미지 형식만, 15MB 제한). **업로드·삭제는 서버(서비스 키)만**, 경로는 항상 `<user_id>/<uuid>.<확장자>`. 저장 전 `sanitize.ts`가 이미지 주소를 "내 폴더 주소"만 허용해 다른 회원 이미지·외부 주소 저장을 막는다.
-- 프로젝트 삭제 시 그 프로젝트의 내 이미지 파일도 함께 삭제(실패해도 삭제는 완료).
-- `programs` 등록: 카테고리 **인스타**, 최소 등급 `일반`, FREE 배지 없음(유료/승인제), 표준 요금제 1만/2만/3만 원, `app_url` 새 주소.
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
+### 핵심 기능 (5단계 파이프라인)
+1. **1단계 기획 (`/plan`)**: 분야(자기계발/경제/맛집 등), 핵심 주제(AI 주제 5종 추천), 어조(5종), 페이지 수(4/6/8/10장), 해상도 비율(4:5 세로형 / 1:1 정방형) 설정.
+2. **2단계 문구 (`/copy`)**: 장별 헤드라인 및 서브 카피를 AI가 구조화된 JSON으로 생성, 맞춤형 카드 선 아이콘(24종) 자동 매핑.
+3. **3단계 디자인 (`/design`)**: 4대 디자인 무드(정보형/감성형/볼드형/미니멀형), 화풍 4종, 비주얼 구성 4종, 폰트 및 텍스트 배치 실시간 캔버스 프리뷰.
+4. **4단계 배경 생성 (`/background`)**: Gemini 나노바나나 2.1 고화질 이미지 모델로 장별 맞춤형 배경 생성 (장당 최대 6개 이력 보관).
+5. **5단계 내보내기 (`/export`)**: 고해상도 PNG 개별/ZIP 일괄 다운로드, AI 인스타 캡션(후킹 카피, 본문 요약, CTA, 해시태그 20~25개) 원클릭 복사.
 
-## 5. 규칙·주의
-- 모든 API route·레이아웃에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"`, 모든 쓰기 API는 `checkProgramAccessApi()` + 본인 키(`resolve`가 아니라 `getUserApiKey(user.id, …)`)만. 폴백 없음.
-- 배경 이미지 프롬프트: **글자·로고를 그리지 않게 하고(우리가 얹는다)**, 인물은 기본 한국인, 사용자 입력은 `<data>`로 감싸고 꺾쇠 제거. 문구 프롬프트: 현재 연도 자동 주입, 지어낸 수치·출처 금지, **국뽕 어조는 사실이 아닌 수치·주장과 타국 비하 금지**.
-- 폰트는 프로그램에 함께 들어 있는 무료 공개 글꼴(OFL): Pretendard, 블랙한산스, 나눔명조, 나눔손글씨 펜. 참고 도구의 `GmarketSans`는 npm 패키지가 없어 **블랙한산스로 대체**했다(주인님 확인 없이 정한 선택 — 필요하면 파일을 받아 넣는다). 외부 주소에서 받지 않으므로 PNG 저장 때 글꼴이 빠지지 않는다.
-- 모델 ID는 운영 중 `naver-blog-agent` 레지스트리와 같은 값(글쓰기: Gemini 3.7 Flash 기본 등, 이미지: `gemini-3.1-flash-image`). 2026-10-11 라이브에서 실제 호출한 것은 Gemini 3.7 Flash(주제·문구)와 Nano Banana 2 2K(이미지)뿐이다.
+### 장점 및 단점
+- **장점**:
+  - 외부 이미지 생성 툴 없이도 글자 없는 배경 생성 ➔ 폰트 레이아웃 합성이 원스톱으로 이루어져 글자 깨짐이나 오염 없음.
+  - 4:5 세로형(1080×1350) 완벽 지원으로 모바일 인스타 피드 스크롤 점유율 극대화.
+  - `ProjectProvider`의 1.5초 주기 자동 저장으로 새로고침이나 브라우저 종료 시에도 안전 복구.
+- **단점**:
+  - 초기 브라우저 로딩 시 상업용 웹폰트 리소스 로딩 지연이 수 초 발생할 수 있음.
+  - 현재 인스타그램 공식 Graph API 직접 발행은 미지원(로컬 다운로드 후 직접 업로드 필요).
 
-## 6. 검수 기록
-- 자동: `npm test` 19개(줄바꿈·배치·밝기, 저장 데이터 검증, 프롬프트·JSON 파싱, 이미지 프롬프트 규칙, `callLlm` json 옵션, 권한 판정 8개, 인스타 캡션&해시태그 생성기 및 파싱), `npm run build`, `tsc` 통과. 로그인 없이 API 호출 시 401은 `youtube-channel-consultant`와 같은 `checkProgramAccessApi` 사용.
-- 실제 로그인 Chrome(관리자 `buylifemall@gmail.com` 세션, 본인 키): ✨주제 추천(5개) → 주제 선택·4장 → 문구 기획(4장, 표지·마무리 구조) → 디자인(폰트·외곽선·하단 배치가 미리보기에 즉시 반영) → 배경 1장 생성(실사, 한국인 여성 인물, 글자 없음) 후 글자 얹힌 카드 확인 → 캔버스 PNG 변환 성공(1080×1350, 약 2.2MB, 오염 없음) → 대시보드에 프로젝트·썸네일 표시.
-- 일반 회원 경로는 `youtube-channel-consultant`와 같은 권한 판정 사본을 쓰며 `buylifemall@naver.com`에 사용기간(30일)을 부여해 두었다(직접 화면 검수는 하지 않음).
+---
 
-## 7. 버전 이력 및 알려진 한계
-- **v1.06 완료(2026-10-12, 주인님 지시 — Google Flow "Carousel Pro" 옵션 1:1 대조):**
-  - 대조 결과 빠져 있던 **카드 아이콘** 추가: 장마다 헤드라인 위에 선 아이콘(lucide 24종, `src/lib/cardnews/iconData.ts` — `scripts/gen-icons.mjs`로 생성, ISC 라이선스). AI가 문구 생성 때 장 내용에 맞는 아이콘 id를 고르고(`copyPrompts.ts`, 허용 목록 밖은 버림), 2단계에서 장별로 바꿀 수 있고, 3단계 "아이콘 설정"에서 표시 여부·크기(기본 130px)·좌우·상하를 조절한다. 색은 제목 글자색, 그림자 효과는 같이 적용.
-  - 디자인 무드 이름을 Flow와 같게 "임팩트형"→"볼드형"으로 변경(저장값 `impact`는 그대로).
-  - 대조해서 이미 같음을 확인한 항목: 분야 4종, 어조 5종, 생성 모델(Nano Banana 2/Pro), 비주얼 스타일 4종, 비주얼 구성 4종, 테마 컬러 4종, 텍스트 배치(우리는 좌측형 추가), 표시 스타일(우리는 형광펜 추가), 배경 불투명도, 페이지 4/6/8/10, 폰트·헤드라인·서브 크기/굵기/위치, 인스타 캡션(수정·복사), ZIP 저장.
-  - 이전 버전 프로젝트·템플릿은 아이콘 설정이 없어도 기본값으로 열린다(`sanitizeStyle`). 마이그레이션 `0009_v1_06_card_icons.sql`(버전만).
-- **v1.05 완료(2026-10-12, 주인님 지시):**
-  - 공식 프로그램명을 **"INSTA Cardnews 자동화"** (`INSTA Cardnews Auto`)로 리브랜딩 (`APP_NAME`, 대시보드 헤더 H1, 레이아웃 메타데이터, DB `programs.name`).
-  - 버전 `v1.05` 판올림 및 배포 완료. 마이그레이션 `0008_v1_05_rebrand_insta_cardnews.sql`.
-- **v1.04 완료(2026-10-12):**
-  - Google Flow 방식의 인스타그램 피드 캡션 & 해시태그 패키징 기능 탑재:
-    - `src/lib/ai/copyPrompts.ts`: `buildCaptionPrompt`, `parseCaption` (후킹 헤드라인, 3~5단락 본문 요약, 참여 유도 CTA, 타겟 해시태그 20~25개 배열 및 전체 캡션 포맷팅).
-    - `src/app/api/cardnews/caption/route.ts`: 회원 본인 키 전용 AI 캡션 생성 API 신규 구축 (`apiGuard` 연동).
-    - `src/app/(dashboard)/export/page.tsx`: 5단계 내보내기 화면에 인스타그램 캡션/해시태그 원클릭 AI 생성 및 복사 UI, 인스타그램 웹 바로가기 통합.
-    - `src/lib/cardnews/sanitize.ts` 및 `types.ts`: `ProjectData.caption` 데이터 모델 확장 및 정제 로직 반영.
-    - 단위 테스트 19개 전체 PASS, 프로덕션 빌드 검증 완료. 마이그레이션 `0006_v1_04_rebrand_and_captions.sql`.
+## 4. 현재 버전 및 버전별 변경 히스토리
+- **현재 버전**: `v1.15` (2026-10-17)
+- **v1.15 (2026-10-17, Antigravity CLI)**:
+  - **크리에이티브 아틀리에 스타일 (인스타 카드뉴스 변형)** 다크 테마 전면 적용 (`globals.css`, `layout.tsx`, `dashboard`, `settings`, `ui.tsx`).
+  - 375px 모바일 전용 고정 헤더(`h-14`) 및 슬라이드 오버레이 드로어 메뉴 구축.
+  - **비주얼 연동 & 사용 매뉴얼 (`/guide`) 완전 신설** (마스코트 배너, 5단계 파이프라인, 4:5 vs 1:1 황금비율, 저장&공유 알고리즘 팁, BYOK 보안 가이드, FAQ 4종).
+  - Microsoft Edge 포그라운드 실세션 검수 완료 (데스크톱/모바일 5종 캡처 보존).
+- **v1.11 (2026-10-17)**: 이미지 모델 호출을 공용 기준 코드(`geminiImage.ts`)로 위임.
+- **v1.10 (2026-10-17)**: 이미지 모델 최신 정식 규격 교체 (`gemini-nano-banana-2.1`, `gemini-3-pro-image`).
+- **v1.09 (2026-10-16)**: DB 연동 변수(PUBLISHABLE/SECRET) 표준화 호환.
+- **v1.08 (2026-10-15)**: AI 프롬프트에 한국 시간(Asia/Seoul) 현재 월 자동 주입.
+- **v1.06 (2026-10-12)**: Google Flow Carousel Pro 1:1 대조 카드 선 아이콘 24종 탑재, 무드 명칭 동기화.
+- **v1.05 (2026-10-12)**: 공식 명칭 "INSTA Cardnews 자동화" 리브랜딩.
+- **v1.04 (2026-10-12)**: 인스타그램 피드 캡션 및 해시태그 25개 원클릭 생성기 탑재.
 
-- **v1.03(2026-10-11) 긴급 수정:** v1.02에서 넣은 sharp(WebP 축소)가 운영 Vercel 함수에서 libvips 누락으로 로드되지 않아 `/api/cardnews/image`(배경 생성)가 500이었던 현상 해결.
-- **v1.02 완료(2026-10-11):** 5단계 "전체 ZIP 한 번에 받기", 3단계 "내 템플릿", WebP 최적화.
-- **카탈로그 전용 실사 썸네일 및 최상단 등록 (2026-10-12, 주인님 요청):**
-  - 전문 크리에이터 스튜디오에서 한국인 마케터가 4:5 인스타그램 캐러셀 카드뉴스를 편집하는 실사 16:9 썸네일 제작 및 Supabase Storage `program-images/catalog/cardnews-studio-thumbnail.jpg` 업로드 완료.
-  - 메인 카탈로그 `sort_order = 121`로 갱신하여 전체 프로그램 최상단 1위 배치 및 `badges = ["new", "best"]` 등록 완료. 마이그레이션 `0007_thumbnail_and_sort_order.sql`.
+---
 
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 내역은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) 참조.
+  1. `CARD-01`: 상업용 한글 웹폰트 5종 탑재 (프리텐다드, 지마켓산스 등)
+  2. `CARD-02`: 캔버스 세로형 4:5 안전영역(Safe Zone) 점선 가이드 오버레이 토글
+  3. `CARD-03`: 기획/문구 단계 슬라이드 순서 드래그 앤 드롭 정렬 UI
+  4. `CARD-04`: 모바일 카드 슬라이더 스와이프 제스처 시뮬레이터 뷰
+  5. `CARD-07`: Instagram Graph API 직접 캐러셀 자동 발행
 
-- 모바일: 같은 출처 iframe(390px)로 기획·디자인·배경 생성 화면을 확인했다(상단 바 + 한 줄 레이아웃, 프로젝트 상태 공유). 실제 폰 기기는 아직 확인하지 않았다. `npm run lint`는 ESLint 설정 파일이 없어 동작하지 않는다(복사 원본과 동일).
-- 이미지 생성은 한 장씩 유료 호출이므로(2K 기본) 사용 요금은 회원의 Gemini 계정에 청구된다. "전체 배경 생성" 전에 호출 횟수를 안내한다.
-- 첫 렌더 때 글꼴 조각을 받는 동안 캔버스가 잠시 비어 보일 수 있다(수 초).
+---
 
-## 8. 배포
-```bash
-cd cardnews-studio
-npm test && npm run build
-vercel deploy --prod --yes --scope buylife
-```
-버전을 올릴 때: `src/lib/version.ts` + `package.json`(+lock) + DB `update programs set version='v1.0X' where slug='cardnews-studio';` + `supabase/migrations/`에 새 SQL. **올린 뒤 `grep APP_VERSION src/lib/version.ts`와 라이브 사이드바 표기까지 확인**(`docs/ERROR_LESSONS.md` 2026-10-11 버전 표기 어긋남 기록).
-첫 배포 메모: `vercel.json {"framework":"nextjs"}` 필요, 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL`)는 production에만 등록, 도메인은 `vercel domains add cardnews-studio.buylife.xyz cardnews-studio --scope buylife`.
-- v1.07 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 제안
+1. **`threads-posting` (Threads 포스팅 자동화) 연계**:
+   - 카드뉴스 5단계 내보내기 화면에서 인스타 캡션뿐만 아니라 Threads 타래글(스레드 체인)로 즉시 분할 변환해 주는 원클릭 내보내기 버튼 연동.
+2. **`ai-image-studio` (AI 이미지 스튜디오) 연계**:
+   - `ai-image-studio`의 최신 이미지 생성 엔진 어댑터를 공유하여 고품질 3D 일러스트, 미니멀 사진 배경 프리셋을 동기화.
 
-## v1.08 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
-- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: src/lib/ai/copyPrompts.ts `baseSystem()`에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.08. 유료 AI 실제 생성 확인은 하지 않음.
+---
 
+## 7. 사용자 편의성 증대를 위한 디자인 UI개선안과 레이아웃 제안
+1. **캔버스 줌인/줌아웃 컨트롤러 바**: 데스크톱 작업 시 캔버스를 50%~150%로 확대/축소하여 텍스트 정렬 디테일을 검수할 수 있는 플로팅 툴바 제공.
+2. **모바일 카드뉴스 숏폼 카드 뷰**: 모바일 환경에서 위아래 스크롤이 길어지는 현상을 줄이고, 탭 전환 방식의 콤팩트 카드 에디터 도입.
 
-## 2026-10-16 DB 연동 변수 호환 — v1.09 (cardnews-studio)
+---
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
-
-## v1.10 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/lib/ai/imageModels.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
-
-## 2026-10-17 v1.11 — 이미지 생성 호출·모델 목록을 공용 기준 코드로 (4묶음 A 직접 호출형, Claude Code 윈도우)
-- `src/lib/ai/image.ts` 배경 생성이 공용 사본(`src/lib/ai/geminiImage.ts`)으로 위임, `imageModels.ts`는 등급·화면 이름·순서만 정하고 모델·화질·온도는 공용 등급표(`nanoBananaModels.ts`)에서 가져옴. **바뀐 값**: 「Nano Banana Pro · 4K」 등급의 모델이 `nano-banana-2.1` → 공용 Pro 등급 `gemini-3-pro-image`(이름대로, 가격 오름·회원 본인 키). 110초 제한·비율·키/한도 오류 문구 그대로. 주소 v1 → v1beta.
-- 공용 사본이 주는 것: 키 머리글 전송, 시간 제한, 응답의 모든 조각에서 **최종** 이미지 선택(gemini-3-pro-image의 중간 초안 `thought` 조각 제외), 안전 차단·한도·키 오류 구분, 키 가리기. 프롬프트·비율·화질은 그대로.
-- 검수: tsc 0·기존 테스트 통과, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전 확인. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
-- **주의(다음 CLI)**: `geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()`/`NANO_BANANA_MODEL_CONFIGS` 결과를 호출하는 쪽에서 덮어써 보완한다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
-
-## 2026-10-17 v1.12 — 이미지 생성 시간 초과 안내 문구 통일 (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)의 시간 초과 안내를 「이미지 생성이 N초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.」로 바꿔 사본을 `--sync`로 다시 받음. 시간 초과여도 구글 쪽에서는 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 바로 다시 눌러 이중 과금되는 일을 줄이려는 목적이다. 프롬프트·모델·화질·시간 제한 값은 그대로.
-- 검수: 기준 테스트 8개 통과(문구 확인 추가), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
-
-## 2026-10-18 v1.13 — 이미지 시간 초과 자동 재시도 중단(이중 과금 방지) (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)이 **시간 초과(TIMEOUT)는 자동으로 다시 보내지 않도록** 바뀌어 사본을 `--sync`로 다시 받음. 시간 초과여도 구글 쪽에서는 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 자동 재시도가 이중 과금의 원인이 될 수 있었다. 서버 오류·혼잡(429)·연결 실패는 그대로 1회 재시도. 프롬프트·모델·화질·시간 제한 값·안내 문구는 그대로이고, 시간 초과 안내가 재시도 대기 없이 더 빨리 뜬다.
-- 검수: 기준 테스트 8개 통과(시간 초과 1회 요청·연결 실패 2회 요청 확인), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
-
-## 2026-10-18 v1.14 — 이미지 시간 초과 안내를 「Google 사용량 확인」으로 정정 (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)의 시간 초과 안내를 정정해 사본을 `--sync`로 다시 받음: 「…결과를 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인해 주세요.」 이전 문구 「잠시 뒤 결과를 확인」은 틀린 안내였다 — 시간 초과는 우리 서버가 요청을 끊는 것이라 이미지가 프로그램(보관함 등)에 저장되지 않고, 회원이 확인할 수 있는 것은 본인 Google 사용량(요금)뿐이다.
-- 검수: 기준 테스트 8개 통과(사용량 주소 포함 확인), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+## 8. 관련 문서 링크
+- [디자인 개발 플랜](docs/PLAN_20261017_DESIGN_RENEWAL.md)
+- [디자인 핸드오프](docs/DESIGN_HANDOFF.md)
+- [개선 및 특이사항](docs/IMPROVEMENTS.md)
+- [개선 백로그](docs/IMPROVEMENT_BACKLOG.md)

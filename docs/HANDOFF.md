@@ -1,5 +1,41 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — INSTA Cardnews 자동화 v1.15: 크리에이티브 아틀리에 다크 스타일 디자인 리뉴얼·가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 41개 완료 달성!)
+
+- **대상**: `cardnews-studio/` (https://cardnews-studio.buylife.xyz, slug: `cardnews-studio`)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 (인스타 카드뉴스 변형)** 다크 테마 (`bg-[#0d0f17]`, 서피스 `#161922`, 보더 `#262c3d`, 인스타 로즈/핑크 그라디언트 & 앰버/에메랄드 악센트).
+     - **모바일(375px) 반응형 완비**: 상단 고정 헤더(`h-14`, 앱 타이틀 + `v1.15` 핑크 칩 + 햄버거 토글 버튼 `aria-label="메뉴 열기"`) 및 슬라이드 오버레이 드로어 메뉴 구축 완료.
+     - **사이드바 메뉴 표준화**: `📖 연동 & 사용 매뉴얼` 메뉴 신설 및 다크 아틀리에 스타일 최적화.
+     - **비주얼 연동 & 사용 매뉴얼(`/guide`) 완전 신설**: 🤖 마스코트 환영 배너, 5단계 원스톱 카드뉴스 제작 파이프라인(기획·주제 → 문구 카피 → 템플릿 디자인 → 나노바나나 2.1 배경 생성 → 내보내기 & 캡션 복사), 4:5(1080×1350) 세로형 vs 1:1 정방형 해상도 & 안전영역(Safe Zone) 가이드, 인스타 저장&공유 바이럴 알고리즘 공략 팁, BYOK API 키 가이드, FAQ 4종, 하단 CTA 배너.
+     - **대시보드(`/dashboard`) & 설정(`/settings`) 다크 테마 정돈**: 크리에이티브 아틀리에 감성 환영 카드, 5단계 가이드 카드(링크 연동), 내 프로젝트 보관함 카드 그리드 및 API 키 등록 폼 다크 서피스 통일.
+  2. **로컬 빌드 및 Vercel 프로덕션 배포**:
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`, 컴파일 및 TypeScript 무결성 통과).
+     - Supabase DB `programs` 테이블에서 `slug = 'cardnews-studio'`의 `version = 'v1.15'` 갱신 완료.
+     - Vercel 프로덕션 배포 완료: `https://cardnews-studio-3un5ag230-buylife.vercel.app` → alias `cardnews-studio.buylife.xyz` 최신 연결 확인 (`readyState: READY`).
+  3. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 다크 아틀리에 대시보드(통계, 5단계 가이드, 보관함) 및 신설된 연동 & 사용 매뉴얼(`/guide`) 완벽 노출.
+     - 모바일 (375px): 상단 고정 헤더(`INSTA Cardnews 자동화 v1.15` + 햄버거 버튼), 햄버거 클릭 시 슬라이드 드로어 메뉴 정상 작동 및 매뉴얼 반응형 완벽 대응.
+     - 스크린샷 증빙 아티팩트 5종 보존:
+       - `edge_cardnews_studio_desktop_dashboard_v115.png`
+       - `edge_cardnews_studio_desktop_guide_v115.png`
+       - `edge_cardnews_studio_mobile_dashboard_v115.png`
+       - `edge_cardnews_studio_mobile_menu_v115.png`
+       - `edge_cardnews_studio_mobile_guide_v115.png`
+  4. **인수인계 규격화 문서 6종 완비**:
+     - `cardnews-studio/docs/PLAN_20261017_DESIGN_RENEWAL.md`
+     - `cardnews-studio/docs/DESIGN_HANDOFF.md`
+     - `cardnews-studio/docs/IMPROVEMENTS.md` (3대 핵심 항목 및 타 프로그램 연계 분석)
+     - `cardnews-studio/docs/IMPROVEMENT_BACKLOG.md` (우선순위별 작업 백로그)
+     - `cardnews-studio/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `cardnews-studio/README.md` (7대 핵심 항목 동기화)
+  5. **현황판 동기화**:
+     - `DESIGN.md` 24번 상태 「✅ 1차 작업완료 (`v1.15`, 크리에이티브 아틀리에 스타일)」 갱신 완료 (**✅ 41개 완료 / ⚪ 40개 예정 / ⏸ 2개 보류**).
+     - `docs/ACTIVE_WORK.md` 작업 중 줄 삭제 완료.
+- **다음 첫 단계**: 56번 INSTA 포스팅 자동화 (`auto-instagram-posting`, 폴더 `insta_auto_poster/`) 분석 및 디자인 리뉴얼 플랜 수립.
+
 ## 2026-10-18 Claude Code(윈도우) — threads-affiliate-poster v1.62: 다중 엔진 이미지 생성기 Gemini 부분 공용화 (이미지 공용화 완료)
 
 - **한 일**: `src/lib/ai/imageGenerator.ts`의 Gemini 부분을 공용 사본(호출 `geminiImage.ts` + 등급표 `nanoBananaModels.ts`)으로 — 키 머리글 전송, 240초 시간 제한, 최종 이미지 선택, 원인별 안내, 재시도 0. OpenAI·Replicate 부분은 그대로. 같은 프로그램 `generator.ts`와 모델 대응을 맞춤(1K → flash-lite, Pro → gemini-3-pro-image, 2K·4K 변화 없음).

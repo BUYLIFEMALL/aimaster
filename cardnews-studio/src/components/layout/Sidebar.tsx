@@ -4,7 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION, APP_NAME } from "@/lib/version";
-import { LayoutDashboard, Lightbulb, PenLine, Palette, ImageIcon, Download, Layers, KeyRound, LogOut, Menu, X } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Lightbulb, 
+  PenLine, 
+  Palette, 
+  ImageIcon, 
+  Download, 
+  Layers, 
+  KeyRound, 
+  LogOut, 
+  Menu, 
+  X,
+  BookOpen
+} from "lucide-react";
 
 interface SidebarProps {
   userEmail?: string;
@@ -19,19 +32,28 @@ const FLOW_STEPS = [
   { step: 4, href: "/background", label: "배경 생성", description: "페이지별 배경 이미지", icon: ImageIcon },
   { step: 5, href: "/export", label: "내보내기", description: "완성 카드 PNG & 인스타 캡션", icon: Download },
 ];
-const UTILITY_ITEMS = [{ href: "/settings", label: "API키등록·플랫폼연동", icon: KeyRound }];
+const UTILITY_ITEMS = [
+  { href: "/guide", label: "📖 연동 & 사용 매뉴얼", icon: BookOpen },
+  { href: "/settings", label: "API키등록·플랫폼연동", icon: KeyRound }
+];
 
 function Brand({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <div className="border-b border-neutral-200 p-5">
+    <div className="border-b border-[#1f2433] p-5">
       <Link href="/dashboard" onClick={onNavigate} className="flex items-center gap-3 group">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white transition-transform group-hover:scale-105"><Layers size={18} /></div>
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-pink-500 via-purple-500 to-amber-500 text-white shadow-md shadow-pink-500/20 transition-transform group-hover:scale-105">
+          <Layers size={18} />
+        </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-neutral-900 leading-snug line-clamp-2">{APP_NAME}</p>
-          <p className="mt-0.5 text-xs text-neutral-400 font-mono">{APP_VERSION}</p>
+          <p className="text-sm font-bold text-slate-100 leading-snug line-clamp-2">{APP_NAME}</p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-mono font-medium rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
+              {APP_VERSION}
+            </span>
+          </div>
         </div>
       </Link>
-      <a className="mt-2.5 block text-xs text-neutral-500 hover:text-neutral-900 transition-colors" href="https://www.buylife.xyz/programs">
+      <a className="mt-2.5 block text-xs text-slate-400 hover:text-slate-200 transition-colors" href="https://www.buylife.xyz/programs">
         ← 다른 프로그램 보기
       </a>
     </div>
@@ -44,72 +66,85 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav className="flex-1 overflow-y-auto p-3">
-      <Link
-        href={OVERVIEW_ITEM.href}
-        onClick={onNavigate}
-        className={`mb-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-          isActive(OVERVIEW_ITEM.href) ? "bg-violet-50 text-violet-700 font-bold" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-        }`}
-      >
-        <OverviewIcon size={16} />
-        <span>{OVERVIEW_ITEM.label}</span>
-      </Link>
+    <nav className="flex-1 overflow-y-auto p-3 flex flex-col justify-between">
+      <div>
+        <Link
+          href={OVERVIEW_ITEM.href}
+          onClick={onNavigate}
+          className={`mb-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+            isActive(OVERVIEW_ITEM.href) 
+              ? "bg-purple-500/15 text-purple-300 font-bold border border-purple-500/30 shadow-xs" 
+              : "text-slate-400 hover:bg-[#161922] hover:text-slate-200"
+          }`}
+        >
+          <OverviewIcon size={16} className={isActive(OVERVIEW_ITEM.href) ? "text-purple-400" : "text-slate-400"} />
+          <span>{OVERVIEW_ITEM.label}</span>
+        </Link>
 
-      {/* 핵심 작업 흐름: 원형 번호 배지와 세로 연결선 */}
-      <div className="relative">
-        {FLOW_STEPS.map(({ step, href, label, description, icon: Icon }, index) => {
-          const active = isActive(href);
-          return (
-            <Link key={href} href={href} onClick={onNavigate} className="group relative flex gap-3 pb-2 transition-all">
-              <div className="flex flex-col items-center">
-                <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all ${
-                    active ? "bg-violet-600 text-white shadow-xs" : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
-                  }`}
-                >
-                  {step}
-                </span>
-                {index < FLOW_STEPS.length - 1 && <span className="mt-1 h-6 w-px bg-neutral-200" />}
-              </div>
-              <div className={`flex-1 rounded-lg px-2 py-1.5 transition-all ${active ? "bg-violet-50" : "group-hover:bg-neutral-50"}`}>
-                <p className={`flex items-center gap-2 text-sm font-bold ${active ? "text-violet-900" : "text-neutral-800"}`}>
-                  <Icon size={15} />
-                  <span>{label}</span>
-                </p>
-                <p className="mt-0.5 text-[11px] leading-snug text-neutral-500">{description}</p>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+        {/* 핵심 작업 흐름: 원형 번호 배지와 세로 연결선 */}
+        <div className="relative pt-1">
+          <p className="px-2 mb-2 text-[11px] font-medium text-slate-500 tracking-wider">제작 파이프라인</p>
+          {FLOW_STEPS.map(({ step, href, label, description, icon: Icon }, index) => {
+            const active = isActive(href);
+            return (
+              <Link key={href} href={href} onClick={onNavigate} className="group relative flex gap-3 pb-2 transition-all">
+                <div className="flex flex-col items-center">
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all ${
+                      active 
+                        ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/20" 
+                        : "bg-[#161922] text-slate-400 border border-[#262c3d] group-hover:border-purple-500/40 group-hover:text-slate-200"
+                    }`}
+                  >
+                    {step}
+                  </span>
+                  {index < FLOW_STEPS.length - 1 && <span className="mt-1 h-6 w-px bg-[#262c3d]" />}
+                </div>
+                <div className={`flex-1 rounded-lg px-2.5 py-1.5 transition-all ${active ? "bg-[#161922] border border-purple-500/30" : "group-hover:bg-[#161922]/60"}`}>
+                  <p className={`flex items-center gap-2 text-sm font-bold ${active ? "text-purple-300" : "text-slate-300"}`}>
+                    <Icon size={14} className={active ? "text-pink-400" : "text-slate-400"} />
+                    <span>{label}</span>
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-snug text-slate-400">{description}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
 
-      {/* 구분선 아래: 연동/유틸리티 */}
-      <div className="mt-1 border-t border-neutral-200 pt-3 space-y-1">
-        {UTILITY_ITEMS.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
-              isActive(href) ? "bg-violet-50 text-violet-700 font-bold" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-            }`}
-          >
-            <Icon size={16} />
-            <span>{label}</span>
-          </Link>
-        ))}
+        {/* 구분선 아래: 연동/유틸리티 */}
+        <div className="mt-2 border-t border-[#1f2433] pt-3 space-y-1">
+          <p className="px-2 mb-1.5 text-[11px] font-medium text-slate-500 tracking-wider">도움말 & 설정</p>
+          {UTILITY_ITEMS.map(({ href, label, icon: Icon }) => {
+            const active = isActive(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={onNavigate}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+                  active 
+                    ? "bg-purple-500/15 text-purple-300 font-bold border border-purple-500/30" 
+                    : "text-slate-400 hover:bg-[#161922] hover:text-slate-200"
+                }`}
+              >
+                <Icon size={16} className={active ? "text-pink-400" : "text-slate-400"} />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {/* 하단: 사용자 이메일과 로그아웃 */}
-      <div className="mt-3 border-t border-neutral-200 pt-3 space-y-1">
-        <p className="truncate px-3 py-1.5 text-xs text-neutral-500" title={userEmail}>
+      <div className="mt-4 border-t border-[#1f2433] pt-3 space-y-1">
+        <p className="truncate px-3 py-1.5 text-xs text-slate-500" title={userEmail}>
           {userEmail || "로그인 계정"}
         </p>
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-400 hover:bg-[#161922] hover:text-slate-200 transition-colors"
           >
             <LogOut size={16} />
             <span>로그아웃</span>
@@ -126,33 +161,66 @@ export function Sidebar({ userEmail }: SidebarProps) {
   return (
     <>
       {/* 데스크톱: 고정 좌측 바 */}
-      <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-neutral-200 bg-white md:sticky md:top-0 md:flex select-none">
+      <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-[#1f2433] bg-[#090b10] md:sticky md:top-0 md:flex select-none">
         <Brand />
         <NavBody userEmail={userEmail} />
       </aside>
 
-      {/* 모바일: 상단 바 + 펼침 메뉴 (같은 항목·순서) */}
-      <div className="md:hidden sticky top-0 z-40 border-b border-neutral-200 bg-white">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Link href="/dashboard" className="text-sm font-bold text-neutral-900">
-            {APP_NAME} <span className="ml-1 text-xs font-mono font-normal text-neutral-400">{APP_VERSION}</span>
-          </Link>
-          <button
-            type="button"
-            aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
-            onClick={() => setOpen((v) => !v)}
-            className="rounded-lg p-2 text-neutral-700 hover:bg-neutral-100"
-          >
-            {open ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-        {open && (
-          <div className="max-h-[80vh] overflow-y-auto border-t border-neutral-200">
-            <Brand onNavigate={() => setOpen(false)} />
+      {/* 모바일: 상단 고정 헤더 (h-14) */}
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 border-b border-[#1f2433] bg-[#090b10]/95 backdrop-blur-md px-4 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-pink-500 to-purple-600 text-white">
+            <Layers size={15} />
+          </div>
+          <span className="text-sm font-bold text-slate-100">{APP_NAME}</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
+            {APP_VERSION}
+          </span>
+        </Link>
+        <button
+          type="button"
+          aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+          onClick={() => setOpen((v) => !v)}
+          className="rounded-lg p-2 text-slate-300 hover:bg-[#161922] transition-colors"
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* 모바일: 슬라이드 오버레이 드로어 메뉴 */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          {/* 어두운 백드롭 */}
+          <div 
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity" 
+            onClick={() => setOpen(false)} 
+          />
+          {/* 슬라이드 드로어 본체 */}
+          <div className="relative w-72 max-w-[80vw] h-full bg-[#090b10] border-r border-[#1f2433] flex flex-col z-10 shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-[#1f2433]">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-pink-500 to-purple-600 text-white">
+                  <Layers size={15} />
+                </div>
+                <span className="text-sm font-bold text-slate-100">{APP_NAME}</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                  {APP_VERSION}
+                </span>
+              </div>
+              <button 
+                onClick={() => setOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-[#161922]"
+              >
+                <X size={18} />
+              </button>
+            </div>
             <NavBody userEmail={userEmail} onNavigate={() => setOpen(false)} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* 모바일 상단 바 여백 보정용 더미 (컨텐츠 가림 방지) */}
+      <div className="md:hidden h-14 w-full shrink-0" />
     </>
   );
 }

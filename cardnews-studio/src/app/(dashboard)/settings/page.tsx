@@ -23,37 +23,37 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
   const registered = keys[provider]?.registered;
 
   return (
-    <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
+    <div className="space-y-4 rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-gray-900">
-            {title} {required && <span className="text-xs font-semibold text-red-600">(필수)</span>}
+          <h2 className="text-base font-bold text-slate-100">
+            {title} {required && <span className="text-xs font-semibold text-rose-400">(필수)</span>}
           </h2>
-          <p className="mt-0.5 text-xs text-gray-500">{description}</p>
+          <p className="mt-0.5 text-xs text-slate-400">{description}</p>
         </div>
         {registered ? (
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400">
             <CheckCircle2 className="h-3.5 w-3.5" /> 연동 완료
           </span>
         ) : (
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-400">
             <AlertCircle className="h-3.5 w-3.5" /> 미등록
           </span>
         )}
       </div>
 
       {registered && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#262c3d] bg-[#0d0f17] p-3">
           <div className="min-w-0">
-            <span className="text-[11px] font-semibold text-gray-500">현재 등록된 키</span>
-            <div className="truncate font-mono text-sm font-bold text-gray-800" title={keys[provider].maskedKey}>
+            <span className="text-[11px] font-semibold text-slate-400">현재 등록된 키</span>
+            <div className="truncate font-mono text-sm font-bold text-slate-200" title={keys[provider].maskedKey}>
               {keys[provider].maskedKey}
             </div>
           </div>
           <button
             type="button"
             onClick={() => onDelete(provider)}
-            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/20"
           >
             <Trash2 className="h-3.5 w-3.5" /> 키 삭제
           </button>
@@ -68,7 +68,7 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
           setValue("");
         }}
       >
-        <label className="block text-xs font-bold text-gray-700">{registered ? "새로운 API 키로 변경 등록" : "API 키 입력"}</label>
+        <label className="block text-xs font-bold text-slate-300">{registered ? "새로운 API 키로 변경 등록" : "API 키 입력"}</label>
         <div className="flex gap-2">
           <input
             type="password"
@@ -76,12 +76,12 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder={placeholder}
-            className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-mono text-sm text-gray-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500"
+            className="flex-1 rounded-xl border border-[#262c3d] bg-[#0d0f17] px-3.5 py-2.5 font-mono text-sm text-slate-100 placeholder-slate-500 focus:border-rose-500/50 focus:outline-hidden focus:ring-2 focus:ring-rose-500/20"
           />
           <button
             type="submit"
             disabled={submitting || !value.trim()}
-            className="shrink-0 whitespace-nowrap rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50"
+            className="shrink-0 whitespace-nowrap rounded-xl bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:opacity-90 disabled:opacity-50"
           >
             {submitting ? "저장 중..." : "저장"}
           </button>
@@ -159,25 +159,27 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
-        <div className="flex items-center gap-2">
-          <span className="rounded-lg bg-red-100 p-1.5 text-red-600">
+      <div className="rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-2 text-rose-400">
             <Key className="h-5 w-5" />
           </span>
-          <h1 className="text-xl font-bold text-gray-900">API키등록·플랫폼연동</h1>
+          <div>
+            <h1 className="text-xl font-bold text-slate-100">API키등록·플랫폼연동</h1>
+            <p className="mt-1 text-xs text-slate-400">
+              이 프로그램은 회원님 본인의 API 키로만 동작합니다. 운영자나 다른 회원의 키는 사용되지 않으며, 키는 본인 계정에만 암호화 저장됩니다.
+            </p>
+          </div>
         </div>
-        <p className="mt-1 text-sm text-gray-500">
-          이 프로그램은 회원님 본인의 API 키로만 동작합니다. 운영자나 다른 회원의 키는 사용되지 않으며, 키는 본인 계정에만 저장됩니다.
-        </p>
       </div>
 
       {message && (
         <div
           className={`flex items-center gap-2 rounded-xl p-4 text-sm ${
-            message.type === "success" ? "border border-emerald-200 bg-emerald-50 text-emerald-800" : "border border-red-200 bg-red-50 text-red-800"
+            message.type === "success" ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border border-rose-500/30 bg-rose-500/10 text-rose-300"
           }`}
         >
-          {message.type === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /> : <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />}
+          {message.type === "success" ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" /> : <AlertCircle className="h-5 w-5 shrink-0 text-rose-400" />}
           <span>{message.text}</span>
         </div>
       )}
@@ -186,24 +188,24 @@ export default function SettingsPage() {
         provider="gemini"
         title="Google Gemini API 키"
         required
-        description="배경 이미지(나노바나나) 생성에 필수이고, 문구 기획에도 쓸 수 있습니다."
+        description="배경 이미지(나노바나나) 생성에 필수이며, 문구 기획에도 사용할 수 있습니다."
         placeholder="AIzaSy... 로 시작하는 Gemini API 키"
         {...common}
       />
 
-      <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
+      <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-3.5 text-xs text-indigo-300">
         <p className="flex items-start gap-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
-          <span>문구 기획(카드 글 쓰기)은 Gemini·OpenAI·Claude 중 등록된 AI 어느 것으로든 할 수 있습니다. 배경 이미지는 Gemini 키가 필요합니다.</span>
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-indigo-400" />
+          <span>문구 기획(카드 글 쓰기)은 Gemini·OpenAI·Claude 중 등록된 AI 어느 것으로든 가능합니다. 배경 이미지는 Gemini 키가 필요합니다.</span>
         </p>
       </div>
 
       <KeyCard provider="openai" title="OpenAI API 키" description="문구 기획용 (선택)" placeholder="sk-... 로 시작하는 OpenAI API 키" {...common} />
       <KeyCard provider="anthropic" title="Anthropic Claude API 키" description="문구 기획용 (선택)" placeholder="sk-ant-... 로 시작하는 Claude API 키" {...common} />
 
-      <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-xs">
-        <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
-        <p className="text-xs text-neutral-500">키 발급 방법을 팝업 창으로 보면서 따라 할 수 있습니다.</p>
+      <div className="space-y-3 rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">
+        <h2 className="text-sm font-bold text-slate-200">📖 연동 매뉴얼</h2>
+        <p className="text-xs text-slate-400">키 발급 방법을 팝업 창으로 보면서 차례대로 따라 할 수 있습니다.</p>
         <div className="flex flex-wrap gap-2">
           {GUIDES.map((g) => (
             <GuideLinkButton key={g.guideId} guideId={g.guideId} label={g.label} />
