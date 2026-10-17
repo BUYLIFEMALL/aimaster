@@ -1,0 +1,23 @@
+{
+  "base": "https://youtube-playlist.buylife.xyz",
+  "checked_at": "2026-10-17T03:21:07.809Z",
+  "checks": [
+    {
+      "route": "/api/user-key",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "route": "/api/user-key",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "route": "/api/generate-bg",
+      "method": "POST",
+      "status": 401
+    }
+  ],
+  "ai_calls": 0,
+  "key_writes": 0
+}

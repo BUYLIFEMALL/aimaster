@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — yt-playlist-studio v1.08 Windows 인수·운영 화면 검수 완료
+
+- 완료: 같은 회원/5분 유효 참고 메모 수신·가이드·모바일 닫기·Next16.4.2. 소스 ea42c5b8db7bb4510c3f1f941bfb8c9869fe863c 푸시, dpl_HLTavGo2Qn2nqX7A5rDqUuWt8qJy READY, DB/APPv1.08, 배지new/주소 유지.
+- 빌드/타입·파서6·운영 Edge1440/375 연계10·API3개401. 유료AI/실제 외부검색/미디어출력/게시0. 실제 MP4 렌더는 미검수. 검사 도구의 소스 도메인 쿠키 누락은 수정 후 재검수.
+- 미구현: 썸네일 캡처·트랙번호·포커스/Escape·요금 안내·Suno 연계. [완료/미완료/다음 순서](../yt-playlist-studio/docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md). DESIGN12 완료/본인 ACTIVE 제거.
+- https://youtube-playlist.buylife.xyz
+
 ## 2026-10-17 Codex(Windows) — yt-playlist-studio v1.08 Windows 사전 검수 완료·운영 배포 진행
 
 - 앞선 Viral Finder v1.14 완료 후 참고 메모 수신 칸 구현. 동일 회원/5분/유튜브 주소 확인, 메뉴 이동/새로고침/만료 제거. DB/키/외부AI/미디어 생성/게시0.

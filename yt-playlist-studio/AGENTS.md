@@ -156,3 +156,9 @@ yt-playlist-studio/
 - **작업 대기:** [개선 대기 목록](docs/IMPROVEMENT_BACKLOG.md). 썸네일 캡처, 트랙 번호, 모바일 포커스/Escape, 사용요금 안내는 미구현입니다. 기존 코드/화면부터 비교한 뒤 플랜을 제시합니다.
 - **연계/아이디어:** Viral Finder의 같은 회원 참고 메모 수신은 구현했습니다. Suno 메타데이터/챕터 연계와 프로젝트 자동 적용은 제안이며 실제 음원 다운로드·게시를 자동 실행하지 않습니다.
 - **UI/스타일:** 기존 유튜브 다크 색을 유지했습니다. 후속 제안은 모바일 포커스 복귀·키보드 닫기와 제작 단계/비용 안내 개선입니다. 이번에는 실제 메뉴 닫기 버튼의 접근성 이름만 보완했습니다.
+
+## v1.08 운영 완료·미완료 구분 (2026-10-17 종료)
+
+참고 메모 수신·본인/5분 검증·가이드·모바일 닫기·Next16.4.2 운영 반영. 소스 ea42c5b8db7bb4510c3f1f941bfb8c9869fe863c 푸시, dpl_HLTavGo2Qn2nqX7A5rDqUuWt8qJy READY, APP/DBv1.08. 빌드/타입·파서6·운영 Edge10·API3개401 통과. 실제 미디어 인코딩·유료 AI는 미검수. 썸네일/트랙번호/포커스·Escape/요금 안내/Suno 연계는 미구현. [완료·미완료/재개 순서](docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md) · [대기 목록](docs/IMPROVEMENT_BACKLOG.md).
+
+https://youtube-playlist.buylife.xyz
