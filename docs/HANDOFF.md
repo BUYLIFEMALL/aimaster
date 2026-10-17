@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화: 실제 Google Drive 화면 검수 완료 (v1.19, 코드 변경 없음)
+
+- 올리기("고정·꼬리표 정보도 저장")·다른 기기 흉내 가져오기("고정·꼬리표 1개 반영", 가져온 문서에 📌·● 급함) 확인, IndexedDB 대조.
+- 시험 데이터 정리(기기 쪽). Drive 쪽 시험 파일은 Drive 파일 삭제 금지 원칙대로 남김.
+- 상세: [`markdown-studio/AGENTS.md`](../markdown-studio/AGENTS.md) 「실제 Google Drive 화면 검수」
+- **링크**: https://markdown-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.19: Google 연결 400 오류(권한 동시 요청) 수정
 
 - **증상·원인**: 같은 Google Client ID로 유튜브 자동화에서 허용한 `youtube.force-ssl`이 `include_granted_scopes` 기본값 때문에 Drive 요청에 합쳐져 Google이 차단.

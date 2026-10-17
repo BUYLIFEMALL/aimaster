@@ -141,3 +141,9 @@
 - 원인: 우리 코드는 `drive.file`만 요청하지만 Google Identity Services 토큰 클라이언트의 `include_granted_scopes` 기본값(true)이 **같은 Client ID로 예전에 허용한 권한**(유튜브 자동화의 `youtube.force-ssl`)을 합쳐 요청 → Google이 두 권한 동시 요청을 거절.
 - 해결: `src/lib/drive/auth.ts` `initTokenClient`에 `include_granted_scopes: false`. 라이브 번들에서 `include_granted_scopes:!1` 확인. 단위 72개 통과.
 - 남은 것: 주인님이 다시 [Google에 연결] → 실제 Drive 고정 정보 올리기·가져오기 화면 검수.
+## 2026-10-17 실제 Google Drive 화면 검수 — v1.17 고정 정보 동기화 확인 완료 (Claude Code 윈도우, 코드 변경 없음)
+- 시험 계정(buylifemall@naver.com) 크롬, Google 계정 buylifemall@gmail.com 연결(주인님 동의), v1.19.
+- 올리기: 고정+빨강+이름 "급함" 문서를 만든 뒤 [전체 문서 올리기 (2)] → "올림 2개 · 고정·꼬리표 정보도 저장". [Drive 목록 불러오기]에 마크다운 3개만 보이고 고정 정보 파일은 목록에 없음.
+- 다른 기기 흉내: 이 기기의 Drive 연결 기록(map:* 3개)과 고정·꼬리표·이름을 지우고 새로고침 → 재연결 → 목록이 모두 "새 파일" → `Drive 고정 시험.md`만 가져오기 → "성공 1개 · 고정·꼬리표 1개 반영". IndexedDB 대조: Drive와 연결된 **가져온 문서**(`Drive에서 가져옴 20261017/…`)에 고정·red·이름 급함, 원래 로컬 문서는 고정 없음. 대시보드에 📌·● 급함 표시.
+- 주의(검수에서 확인): Drive 연결 토큰은 페이지 메모리에만 있어 **다른 메뉴로 이동(새로고침)하면 다시 연결**해야 한다(설계상 의도 — 토큰 저장 안 함). 회원 안내 문구 보강 후보.
+- 정리: 고정 해제·이름 비움, 시험 폴더 2개 휴지통 → 항목별 영구 삭제, 기기 저장소에는 원래 문서 1개. Drive 쪽 시험 파일(`복원 20261017 1122/Drive 고정 시험.md`, `.markdown-studio-pins.json`)은 Drive 파일 삭제 금지 원칙에 따라 남겨 둠. 이 기기의 `회원 검수(Drive 시험).md` Drive 연결 기록도 지웠으므로 다음에 올리면 Drive에 새 파일로 올라감.
