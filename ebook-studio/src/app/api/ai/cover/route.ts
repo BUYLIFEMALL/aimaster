@@ -38,34 +38,36 @@ export async function POST(req: NextRequest) {
     const prompt = `A professional, aesthetic, high-quality modern book cover illustration for a digital book titled "${title}".
 Theme: ${genre}, contemporary typography and minimal graphic design, elegant aesthetic, 3:4 aspect ratio, publishing quality, clean composition, artistic, no distorted text.`;
 
-    const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${finalApiKey}`;
+    // [이미지 모델 교체 2026-10-17] 종료된 Imagen 3(predict) → gemini-nano-banana-2.1(generateContent), 기준: ai-image-studio v1.11.
+    // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
+    const imageUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent?key=${finalApiKey}`;
 
     try {
-      const imgRes = await fetch(imagenUrl, {
+      const imgRes = await fetch(imageUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          instances: [{ prompt }],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: "3:4",
-            outputMimeType: "image/jpeg",
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseModalities: ["IMAGE"],
+            imageConfig: { aspectRatio: "3:4", imageSize: "1K" },
           },
         }),
       });
 
       if (imgRes.ok) {
         const imgData = await imgRes.json();
-        const base64Bytes = imgData.predictions?.[0]?.bytesBase64Encoded;
-        if (base64Bytes) {
+        const parts: Array<{ inlineData?: { data?: string; mimeType?: string } }> = imgData?.candidates?.[0]?.content?.parts ?? [];
+        const image = parts.find((p) => p.inlineData?.data)?.inlineData;
+        if (image?.data) {
           return NextResponse.json({
             success: true,
-            imageUrl: `data:image/jpeg;base64,${base64Bytes}`,
+            imageUrl: `data:${image.mimeType || "image/png"};base64,${image.data}`,
           });
         }
       }
     } catch {
-      // Imagen 호출 실패 시 SVG 모티프 표지 폴백 제공
+      // 이미지 모델 호출 실패 시 SVG 모티프 표지 폴백 제공
     }
 
     // SVG 모던 북커버 동적 생성 (항상 안전하고 실패 없는 아름다운 표지)
