@@ -223,7 +223,7 @@
 | 78 | AI Audio분석 자동화 | `ai-audio-analyzer` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `ai-audio-analyzer/AGENTS.md` |
 | 79 | AI 인물사진 자동화 | `portrait-photo` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `portrait-photo/AGENTS.md` |
 | 80 | AI 바나나 캔버스 자동화 | `banana-canvas` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `banana-canvas/AGENTS.md` |
-| 81 | AI 4컷 만화 자동화 | `four-cut-comics` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `four-cut-comics/AGENTS.md` |
+| 81 | AI 4컷 만화 자동화 | `four-cut-comics` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | 🔵 작업 중 (Claude Code(윈도우), 2026-10-18) | `four-cut-comics/AGENTS.md` |
 | 82 | AI 패션스타일 자동화 | `fashion-style` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `fashion-style/AGENTS.md` |
 | 83 | AI 포토 리메이크 자동화 | `photo-remake-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `photo-remake-studio/AGENTS.md` |
 

@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-18 — 공용 문서(`docs/ACTIVE_WORK.md`)가 통째로 한글 깨짐 + BOM으로 다시 저장됨 (발견·복구: Claude Code 윈도우)
+- **증상**: 작업 중 표 파일의 모든 한글이 `?묒뾽 以??` 같은 글자로 바뀌고 맨 앞에 BOM(`EF BB BF`)이 붙음. 표 머리글 문자열이 달라져 다른 CLI의 줄 추가·삭제 스크립트가 실패.
+- **원인(추정)**: 어떤 도구가 UTF-8 파일을 시스템 기본 코드페이지(cp949)로 읽고 UTF-8(BOM)로 다시 저장 — Windows PowerShell 5.1 `Get-Content`/`Set-Content` 기본값으로 흔히 생김. 커밋 전 작업 폴더에서만 생겼고 HEAD는 정상.
+- **해결**: 깨진 파일 안에 다른 CLI의 새 작업 줄이 없는 것을 확인한 뒤 `git show HEAD:docs/ACTIVE_WORK.md` 내용으로 되돌리고 내 줄만 추가.
+- **다음부터**: 공용 문서를 PowerShell로 고칠 때는 `Get-Content -Encoding UTF8`·`Set-Content -Encoding utf8`(또는 `[IO.File]::WriteAllText(..., [Text.UTF8Encoding]::new($false))`)을 쓴다. 공용 문서가 이상하면 `git diff`로 깨진 범위를 먼저 보고, 다른 CLI의 내용이 섞여 있으면 그 줄을 살린다.
+
 ## 2026-10-18 — 윈도우에서 폴더 경로가 길면 Next 16 Turbopack 빌드가 `file is too long, and could not be normalized`로 실패 (insta_auto_poster 강의 키트, Claude Code 윈도우)
 - **증상**: 키트를 임시 폴더 깊은 곳(`...\Temp\claude\...\scratchpad\kit_test\...`)에 풀어 `npm run build` → `TurbopackInternalError`, "지정된 경로를 찾을 수 없습니다(os error 3)". 같은 위치의 threads-content-ops(Next 14)는 통과.
 - **원인**: 윈도우 경로 길이 한도 + `ADMINI~1` 같은 짧은 이름 경로. 소스 문제 아님.
