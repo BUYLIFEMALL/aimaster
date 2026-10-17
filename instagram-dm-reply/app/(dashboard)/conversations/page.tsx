@@ -26,11 +26,33 @@ export default async function ConversationsPage() {
   ]);
 
   const conversationIds = Array.from(new Set((messages ?? []).map((m) => m.conversation_id)));
-  const { data: conversationList } = await supabase
-    .from("dm_conversations")
-    .select("id, customer_username, last_inbound_at")
-    .in("id", conversationIds.length > 0 ? conversationIds : ["__none__"]);
+  const [{ data: conversationList }, { data: rawHistory }] = await Promise.all([
+    supabase
+      .from("dm_conversations")
+      .select("id, customer_username, last_inbound_at")
+      .in("id", conversationIds.length > 0 ? conversationIds : ["__none__"]),
+    conversationIds.length > 0
+      ? supabase
+          .from("dm_messages")
+          .select("id, conversation_id, direction, message_text, created_at")
+          .eq("user_id", user.id)
+          .in("conversation_id", conversationIds)
+          .neq("status", "pending_review")
+          .order("created_at", { ascending: false })
+          .limit(30)
+      : Promise.resolve({ data: [] }),
+  ]);
   const conversationMap = new Map((conversationList ?? []).map((c) => [c.id, c]));
+
+  // 대화별 직전 대화 맥락 (최근 3건, 시간 오름차순 정렬)
+  const historyByConversation = new Map<string, Array<{ id: string; direction: "in" | "out"; message_text: string; created_at: string }>>();
+  for (const h of rawHistory ?? []) {
+    const list = historyByConversation.get(h.conversation_id) ?? [];
+    if (list.length < 3) {
+      list.unshift(h as { id: string; direction: "in" | "out"; message_text: string; created_at: string });
+      historyByConversation.set(h.conversation_id, list);
+    }
+  }
 
   const groupedByConversation = new Map<string, typeof messages>();
   for (const m of messages ?? []) {
@@ -38,6 +60,7 @@ export default async function ConversationsPage() {
     list.push(m);
     groupedByConversation.set(m.conversation_id, list);
   }
+
 
   function getWindowBadge(lastInboundAt?: string | null) {
     if (!lastInboundAt) return null;
@@ -113,6 +136,7 @@ export default async function ConversationsPage() {
                           sender_username: username ?? null,
                           message_text: m.message_text,
                           generated_reply: m.generated_reply,
+                          history: historyByConversation.get(conversationId),
                         }}
                       />
                     ))}

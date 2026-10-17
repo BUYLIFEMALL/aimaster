@@ -1,5 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — INSTA DM답변 자동화 v1.14: 3대 추가개선 완결 (✅ 1차 작업완료)
+
+- **대상**: `instagram-dm-reply/` (https://instagram-dm-reply.buylife.xyz)
+- **한 일 (주인님 승인 3대 추가개선 완료)**:
+  1. **24시간 응답 기한 임박(4시간 이내) 텔레그램 긴급 알림 및 대시보드 긴급 배너**:
+     - `api/cron/check-connection/route.ts`에 4시간 이내 미응답 DM 감지 시 텔레그램으로 긴급 알림 발송하는 로직 통합(`urgentNotified`).
+     - 대시보드 상단에 4시간 임박 DM 존재 시 붉은색 긴급 안내 배너(`urgent.length > 0`) 표출.
+  2. **DM 검토 카드에 고객과의 직전 대화 2~3건 스레드 맥락 표시**:
+     - `conversations/page.tsx`에서 대화별 직전 메시지 히스토리를 함께 조회하여 `ConversationReviewItem`에 전달.
+     - `ConversationReviewItem.tsx` 상단에 [💬 이전 대화 맥락 (접기/펼치기)] 아코디언 및 인스타 DM 말풍선 스레드(수신 회색/발신 하늘색, 타임스탬프) 구현.
+  3. **INSTA 댓글자동화(`instagram-comment-reply`) 옴니채널 교차 연계**:
+     - 사이드바 로고 제목을 `DM답변 자동화`로 바로잡고, 하단에 `🔗 연계 자동화: 💬 INSTA 댓글자동화 ↗` 바로가기 탑재.
+     - 대시보드 하단에 `💬 INSTA 댓글자동화 옴니채널 연계 시너지 안내` 카드 및 바로가기 탑재.
+     - 매뉴얼 FAQ에 댓글자동화 연계 안내 및 하단 추천 연계 박스 탑재.
+- **검수**: `npm run build` 성공, Vercel 프로덕션 배포 완료 (`dpl_8BzZNCPCoDJrsimJkEhoH1ybJK4v` → alias `instagram-dm-reply.buylife.xyz`), Supabase DB `programs.version` `v1.14` 갱신 완료, Microsoft Edge 실세션 검수 완료 (데스크톱 1440px & 모바일 375px 정상, 발송 버튼 미클릭).
+- **현황판**: `DESIGN.md` 45번 ✅ 1차 작업완료 (`v1.14`) 갱신, `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**: https://instagram-dm-reply.buylife.xyz
+- **비용**: 없음 (유료 AI 호출 없음).
+
 ## 2026-10-17 Claude Code(맥미니) — 사이드바 제목 정리 4개 프로그램 (🟠 윈도우 배포 요청)
 
 - 주인님 승인(크롬 검수 제안): `threads-comment-reply` v1.11 「THREADS 댓글 자동화」 · `instagram-comment-reply` v1.15 「INSTA 댓글 자동화」 · `youtube-viral-studio` v1.19 · `youtube-channel-consultant` v1.10 이름 두 줄 표시(잘림 해결). 유튜브 댓글 v1.11 「YOUTUBE 댓글 자동화」와 같은 형식. 각 `tsc --noEmit` 오류 0.

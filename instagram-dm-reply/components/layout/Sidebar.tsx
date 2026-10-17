@@ -58,6 +58,24 @@ export function Sidebar({ userEmail, pendingCount }: { userEmail: string; pendin
     <>
       <nav className="flex flex-col gap-0.5">{MAIN_ITEMS.map(renderItem)}</nav>
       <div className="mt-3 flex flex-col gap-0.5 border-t border-ig-border pt-3">{UTILITY_ITEMS.map(renderItem)}</div>
+
+      {/* 연계 자동화 바로가기 */}
+      <div className="mt-3 border-t border-ig-border pt-3">
+        <p className="mb-1 px-3 text-[10px] font-bold tracking-wider text-ig-muted">연계 자동화</p>
+        <a
+          href="https://instagram-comment-reply.buylife.xyz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-[40px] items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-ig-text transition-colors hover:bg-ig-hover"
+        >
+          <span className="flex items-center gap-2">
+            <span>💬</span>
+            <span>INSTA 댓글자동화</span>
+          </span>
+          <span className="text-[10px] text-ig-muted">↗</span>
+        </a>
+      </div>
+
       {/* 계정은 메뉴 바로 아래에 붙인다(SIDEBAR_LAYOUT_STANDARD). */}
       <div className="mt-3 shrink-0 border-t border-ig-border pt-3">
         <p className="mb-1 truncate px-3 text-xs text-ig-muted">{userEmail}</p>
@@ -77,7 +95,7 @@ export function Sidebar({ userEmail, pendingCount }: { userEmail: string; pendin
     <div className="flex items-center gap-2.5">
       <IgLogo size={26} />
       <div className="min-w-0">
-        <p className="truncate text-[15px] font-bold leading-tight tracking-tight text-ig-text">댓글자동화</p>
+        <p className="truncate text-[15px] font-bold leading-tight tracking-tight text-ig-text">DM답변 자동화</p>
         <p className="text-[11px] text-ig-muted">Studio · {APP_VERSION}</p>
       </div>
     </div>

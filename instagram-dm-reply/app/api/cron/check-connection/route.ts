@@ -72,12 +72,81 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      await admin
-        .from("dm_accounts")
-        .update({ reconnect_notified_at: new Date().toISOString() })
-        .eq("user_id", account.user_id);
+        await admin
+          .from("dm_accounts")
+          .update({ reconnect_notified_at: new Date().toISOString() })
+          .eq("user_id", account.user_id);
+      }
+    }
+
+  // 2. 24시간 응답 기한 임박(4시간 이내) 미응답 DM 점검 및 텔레그램 긴급 알림
+  let urgentNotified = 0;
+  const { data: pendingMessages } = await admin
+    .from("dm_messages")
+    .select("id, user_id, conversation_id, message_text, created_at")
+    .eq("direction", "in")
+    .eq("status", "pending_review");
+
+  if (pendingMessages && pendingMessages.length > 0) {
+    const convIds = Array.from(new Set(pendingMessages.map((m) => m.conversation_id)));
+    const { data: convs } = await admin
+      .from("dm_conversations")
+      .select("id, user_id, customer_username, last_inbound_at")
+      .in("id", convIds);
+
+    const convMap = new Map((convs ?? []).map((c) => [c.id, c]));
+    const urgentByUser = new Map<string, Array<{ username: string; remainingMins: number }>>();
+
+    const now = Date.now();
+    for (const msg of pendingMessages) {
+      const conv = convMap.get(msg.conversation_id);
+      if (!conv?.last_inbound_at) continue;
+
+      const inboundTime = new Date(conv.last_inbound_at).getTime();
+      const elapsedHours = (now - inboundTime) / (1000 * 60 * 60);
+      const remainingHours = 24 - elapsedHours;
+
+      // 4시간 이내로 남았고 만료되지 않은 대화
+      if (remainingHours > 0 && remainingHours <= 4) {
+        const remainingMins = Math.max(1, Math.floor(remainingHours * 60));
+        const userList = urgentByUser.get(conv.user_id) ?? [];
+        userList.push({
+          username: conv.customer_username || "고객",
+          remainingMins,
+        });
+        urgentByUser.set(conv.user_id, userList);
+      }
+    }
+
+    for (const [userId, urgentItems] of Array.from(urgentByUser.entries())) {
+      const { data: telegramLink } = await admin
+        .from("user_telegram_links")
+        .select("bot_token, chat_id")
+        .eq("user_id", userId)
+        .eq("program_slug", THIS_PROGRAM_SLUG)
+        .maybeSingle();
+
+      if (telegramLink && urgentItems.length > 0) {
+        try {
+          const detailLines = urgentItems
+            .slice(0, 3)
+            .map((item) => `• @${item.username}: 약 ${Math.floor(item.remainingMins / 60)}시간 ${item.remainingMins % 60}분 남음`)
+            .join("\n");
+          const extraCount = urgentItems.length > 3 ? ` 외 ${urgentItems.length - 3}건` : "";
+
+          await sendTelegramMessage({
+            botToken: telegramLink.bot_token,
+            chatId: telegramLink.chat_id,
+            text: `⚠️ [DM 기한 임박 알림]\n24시간 응답 기한이 4시간 이내로 남은 미답변 DM이 ${urgentItems.length}건 있어요!\n\n${detailLines}${extraCount}\n\n기한이 만료되면 메타 정책상 답변이 불가능하니 지금 바로 승인해 주세요.\n👉 https://instagram-dm-reply.buylife.xyz/conversations`,
+          });
+          urgentNotified += 1;
+        } catch (tgErr) {
+          console.error(`텔레그램 기한 임박 알림 발송 실패 (user ${userId}):`, tgErr);
+        }
+      }
     }
   }
 
-  return NextResponse.json({ checked, newlyBroken, notified });
+  return NextResponse.json({ checked, newlyBroken, notified, urgentNotified });
 }
+

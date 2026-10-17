@@ -31,6 +31,10 @@ const FAQ = [
     q: "계정 연결이 「Invalid platform app」으로 실패해요.",
     a: "Instagram 앱 ID 칸에 Facebook 앱 ID를 넣었거나 자릿수가 빠진 경우예요. Meta 앱의 「Instagram 로그인이 포함된 API 설정」 맨 위의 Instagram 앱 ID(15~16자리)를 넣어 주세요.",
   },
+  {
+    q: "INSTA 댓글자동화와 어떻게 함께 쓰나요?",
+    a: "두 프로그램은 동일한 Meta 개발자 앱(Instagram 앱 ID)을 공유할 수 있습니다. 피드/릴스에 달린 댓글 문의는 'INSTA 댓글자동화'로 즉시 대응하고, 댓글에서 'DM 확인해 주세요'라고 유입된 고객은 'INSTA DM답변 자동화'로 자연스럽게 구매/상담 링크를 안내해 드리는 옴니채널 연계가 가능합니다.",
+  },
 ];
 
 const GUIDE_LINKS = [
@@ -153,6 +157,28 @@ export default async function GuidePage() {
               <p className="mt-2 text-xs leading-relaxed text-ig-muted">{f.a}</p>
             </details>
           ))}
+        </div>
+      </section>
+
+      {/* INSTA 댓글자동화 연계 안내 */}
+      <section className="ig-card border-l-4 border-l-ig-primary">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="flex items-center gap-1.5 text-sm font-bold text-ig-text">
+              <span>💬</span> INSTA 댓글자동화와 함께 사용하기
+            </h3>
+            <p className="mt-1 text-xs text-ig-muted">
+              피드 댓글과 다이렉트 메시지를 함께 자동화하여 인스타그램 유입 고객을 놓치지 않고 전환하세요.
+            </p>
+          </div>
+          <a
+            href="https://instagram-comment-reply.buylife.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ig-btn-primary shrink-0 px-4 py-2 text-xs"
+          >
+            INSTA 댓글자동화 바로가기 ↗
+          </a>
         </div>
       </section>
     </div>

@@ -133,12 +133,38 @@ export default async function DashboardPage() {
         )}
       </div>
 
+      {/* 4시간 이내 기한 임박 긴급 배너 */}
+      {urgent.length > 0 && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ig-danger/30 bg-gradient-to-r from-red-50 to-amber-50 p-4 text-ig-text shadow-xs">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ig-danger/15 text-xl text-ig-danger">
+              ⚠️
+            </span>
+            <div>
+              <p className="text-sm font-bold text-ig-danger">
+                24시간 응답 기한이 4시간 이내로 남은 DM이 {urgent.length}건 있습니다!
+              </p>
+              <p className="text-xs text-ig-muted">
+                Meta 정책상 24시간이 경과하면 AI 초안 및 수동 답변 발송이 제한됩니다. 지금 즉시 승인해 주세요.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/conversations"
+            className="rounded-full bg-ig-danger px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-ig-danger/90"
+          >
+            기한 임박 DM 검토하기 →
+          </Link>
+        </div>
+      )}
+
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="검토 대기 DM" value={pendingRows.length} hint="승인해야 발송돼요" accent={pendingRows.length > 0} />
         <StatCard label="⏳ 4시간 안에 기한 끝남" value={urgent.length} hint={expired > 0 ? `이미 지난 대화 ${expired}개` : "24시간 답장 규칙"} accent={urgent.length > 0} />
         <StatCard label="최근 7일 발송" value={weekRes.count ?? 0} />
         <StatCard label="총 발송한 답장" value={totalRes.count ?? 0} />
       </div>
+
 
       <div className="mb-6 grid gap-6 lg:grid-cols-5">
         <div className="ig-card lg:col-span-3">
@@ -218,6 +244,38 @@ export default async function DashboardPage() {
           ))}
         </ol>
       </div>
+
+      {/* INSTA 댓글자동화 연계 시너지 카드 */}
+      <div className="mt-6 rounded-2xl border border-ig-border bg-gradient-to-br from-ig-surface via-ig-surface to-blue-50/40 p-5 shadow-xs">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3.5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-ig-primary/10 text-2xl">
+              💬
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-ig-text">INSTA 댓글자동화와 함께 쓰면 더욱 효과적이에요</h3>
+                <span className="rounded-full bg-ig-primary/10 px-2 py-0.5 text-[10px] font-bold text-ig-primary">
+                  옴니채널 연계
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-ig-muted">
+                댓글에서 &ldquo;DM 확인해 주세요!&rdquo; 요청이 오면 DM답변 자동화로 즉각 연결되어 고객 전환율을 극대화합니다.
+                동일한 Meta 개발자 앱(Instagram 앱 ID)을 공유하여 간편하게 연동할 수 있습니다.
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://instagram-comment-reply.buylife.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ig-btn shrink-0 text-xs font-semibold text-ig-primary hover:border-ig-primary"
+          >
+            INSTA 댓글자동화 바로가기 ↗
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
+
