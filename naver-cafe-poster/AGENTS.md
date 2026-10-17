@@ -165,3 +165,7 @@ naver-cafe-poster는 AIMaster 저장소 안의 서브프로젝트다. 루트 `..
 - 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`(SITE_ORIGIN·`NAVER_REDIRECT_OLD()`=env `NAVER_REDIRECT_URI`·`NAVER_REDIRECT_FOR(mode)`). 네이버는 토큰 교환에 redirect_uri를 보내지 않아 via 판정 불필요(옛 주소 307은 기존대로).
 - 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectNaverAccountNewCallbackAction`)은 새 콜백. 연결 후 이동 SITE_ORIGIN. 설정 화면 Callback URL 두 주소 표시. 미사용 `getEnv` 제거.
 - 검수: 빌드·배포, 옛 콜백 → 새 주소 307, 새 콜백 → /login, 시험 계정 설정 화면 두 주소·버튼 표시. 시험 계정에 네이버 앱 미등록이라 `?error=naver_app_missing`으로 돌아와 네이버 인증 화면 확인은 못 함(이 오류 문구가 화면에 안 보이는 기존 문제 → `docs/IMPROVEMENTS.md`).
+
+## v1.10 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/ai/imageGenerator.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
