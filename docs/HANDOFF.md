@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 시험 계정(naver) 크롬 화면 검수 결과 + 🐞 DM 사이드바 제목 오류 (Antigravity 작업 중이라 전달만)
+
+- 맥미니 크롬, `buylifemall@naver.com`으로 8개 프로그램 대시보드 확인: 유튜브 댓글자동화 v1.10 · VIRAL FINDER v1.18 · CHANNEL CONSULTANT v1.09 · Threads 댓글 v1.10 · INSTA 댓글 v1.14 · INSTA DM v1.13 · 부동산 v1.15 · 상품소싱 v1.13 — 디자인·빈 상태·연결 상태 표시 정상. 실제 게시·발송·유료 호출 버튼은 누르지 않음.
+- 🐞 **`instagram-dm-reply` 좌측 상단 제목이 「댓글자동화」로 잘못 표시**(맥미니 v1.13에서 댓글자동화 사이드바를 이식하며 제목을 안 바꾼 실수). 위치: `instagram-dm-reply/components/layout/Sidebar.tsx` 80행 `댓글자동화` → **`INSTA DM 자동화`(또는 프로그램명 `INSTA DM답변 자동화`)**. **현재 Antigravity(Windows)가 이 폴더 작업 중(v1.14)이라 맥미니는 수정하지 않음 — Antigravity가 v1.14에 함께 반영 요청.**
+- 같은 계열 제목 정리 제안(주인님 확인 대기): 유튜브는 주인님 지시로 「YOUTUBE 댓글 자동화」(v1.11, 배포 대기). Threads·INSTA 댓글도 「댓글자동화」만 보여 플랫폼 구분이 안 됨 → 「THREADS 댓글 자동화」「INSTA 댓글 자동화」 제안. VIRAL FINDER·CHANNEL CONSULTANT는 이름이 길어 사이드바에서 「...」로 잘림 → 두 줄 표시 또는 글자 크기 축소 제안.
+
 ## 2026-10-17 Claude Code(윈도우) — 유튜브 조회 공용 모듈 2단계(5개 프로그램) 완료
 
 - **한 일**: 공용 기준 코드 `youtube-data-client` 사본을 유튜브가 일부 기능인 5개 프로그램에 적용했습니다. 각 프로그램의 기존 호출 함수가 모듈로 위임하고, 오류 형식은 프로그램별로 유지했습니다. 사본은 이제 총 7곳입니다(`node scripts/check-shared-modules.mjs` 모두 OK).
