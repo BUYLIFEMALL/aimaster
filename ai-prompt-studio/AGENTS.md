@@ -1,11 +1,11 @@
 # AI Prompt 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI Prompt 자동화 (`ai-prompt-studio`)  
-> **현재 버전**: `v1.05` (2026-10-17 포커스 스튜디오 디자인 리뉴얼)  
+> **현재 버전**: `v1.06` (2026-10-17 로그인·회원가입 표준 2탭 레이아웃 리뉴얼 완료)  
 > **공식 도메인**: `https://ai-prompt.buylife.xyz` (또는 `ai-prompt-studio.buylife.xyz`)  
 > **카탈로그 슬러그**: `ai-prompt-studio`  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 엔지니어링 스튜디오)**  
-> **인수인계 문서**: [개발 플랜](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) · [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md)  
+> **인수인계 문서**: [로그인 플랜](docs/PLAN_20261017_LOGIN_RENEWAL.md) · [로그인 인수인계](docs/IMPROVEMENT_HANDOFF_20261017_LOGIN.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [가이드 플랜](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md)  
 > **배지**: `['free', 'new']` (가입 회원 누구나 이용 가능)
 
 ---
