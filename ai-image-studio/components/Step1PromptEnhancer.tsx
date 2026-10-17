@@ -310,21 +310,49 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Wand2 className="h-5 w-5 text-amber-400" />
-              AI 프롬프트 최적화 생성기 (UI/UX 고도화)
+              AI 프롬프트 최적화 생성기 (크리에이티브 아틀리에)
             </h2>
             <p className="text-sm text-zinc-300 mt-0.5">
-              원하는 아이디어를 자유롭게 입력하거나 추천 태그를 클릭해보세요. AI가 최적의 영문 프롬프트를 만듭니다.
+              원하는 아이디어를 자유롭게 입력하거나 추천 태그를 클릭해보세요. AI가 최적의 영문 마스터 프롬프트를 만듭니다.
             </p>
           </div>
         </div>
 
-        <Link
-          href="/prompts"
-          className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 transition-colors shrink-0 shadow-sm shadow-amber-500/10"
-        >
-          <FileText className="h-4 w-4 text-amber-400" />
-          <span>📝 프롬프트 게시판 관리 (추가·수정·삭제)</span>
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold text-amber-300">
+            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+            <span>IMAGE_PROMPT_RULES 공식 표준 준수</span>
+          </div>
+          <Link
+            href="/prompts"
+            className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 transition-colors shrink-0 shadow-sm shadow-amber-500/10"
+          >
+            <FileText className="h-4 w-4 text-amber-400" />
+            <span>📝 프롬프트 게시판 관리 (추가·수정·삭제)</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Golden Prompt Engineering Reference Banner */}
+      <div className="rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-zinc-950 to-amber-500/5 p-3.5 text-xs text-zinc-300 space-y-1.5">
+        <div className="flex items-center gap-2 font-bold text-amber-300">
+          <Sparkles className="h-4 w-4 text-amber-400 shrink-0" />
+          <span>🎨 AI 마스터 프롬프트 생성 5대 핵심 레퍼런스 원칙</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-1 font-mono text-[11px]">
+          <div className="bg-zinc-950/80 px-2.5 py-1.5 rounded-lg border border-zinc-800/80 text-zinc-300">
+            <strong className="text-amber-400">1. 카메라/광학:</strong> Sony A7R IV 50mm, f/2.0
+          </div>
+          <div className="bg-zinc-950/80 px-2.5 py-1.5 rounded-lg border border-zinc-800/80 text-zinc-300">
+            <strong className="text-amber-400">2. 라이팅:</strong> 45° 골든아워 자연광, 부드러운 음영
+          </div>
+          <div className="bg-zinc-950/80 px-2.5 py-1.5 rounded-lg border border-zinc-800/80 text-zinc-300">
+            <strong className="text-amber-400">3. 인물/배경:</strong> 사실적 한국인 디테일 & 3단 심도
+          </div>
+          <div className="bg-zinc-950/80 px-2.5 py-1.5 rounded-lg border border-zinc-800/80 text-zinc-300">
+            <strong className="text-amber-400">4. 네거티브:</strong> 일러스트, 3D CGI, 플라스틱 피부 배제
+          </div>
+        </div>
       </div>
 
       {/* Preset Style Selector */}

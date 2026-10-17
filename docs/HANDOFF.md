@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — AI 이미지 스튜디오 v1.12: 크리에이티브 아틀리에 럭셔리 다크 리뉴얼 & 공식 표준 로그인/비주얼 가이드 완결
+
+- **대상**: `ai-image-studio/` (https://ai-image-studio.buylife.xyz) — 플랫폼 이미지 자동화 레퍼런스(기준) 프로그램.
+- **한 일**:
+  1. **공식 표준 로그인 완비**: `threads-comment-reply/app/(auth)` 기준 `app/login/layout.tsx` (24px 앰버 모눈 격자, 44px 🎨 로고, 타이틀) 및 `app/login/page.tsx` (알약형 `[로그인] / [회원가입]` 2버튼 탭 토글 바, SVG 아이콘 필드, 비밀번호 찾기, 법적 고지 푸터) 신설.
+  2. **비주얼 사용 매뉴얼 (`/guide`) 구축**: `ImageGuideView.tsx` 및 `app/guide/page.tsx` 신설 (5단계 파이프라인, 4대 골든 팁, 4종 FAQ, 개인 키 보안 배너, 비로그인 공개 열람 지원).
+  3. **사이드바 일체화**: 상단에 `📖 연동 & 사용 매뉴얼` 배너 버튼 탑재 및 다크 룩 개편.
+  4. **크리에이티브 아틀리에 럭셔리 다크 템플릿 적용**: `globals.css` 및 전 화면 배경 `#09090b` 일체화, 5대 마스터 프롬프트 생성 원칙 배너, 33종 모델 셀렉터 및 💡 최저가 테스트 모델($0.0336) 권장 뱃지 탑재.
+  5. **문서 7대 규격화 및 백로그 신설**: `AGENTS.md`, `README.md`, `docs/IMPROVEMENT_BACKLOG.md`, `docs/IMPROVEMENTS.md`, `docs/DESIGN_HANDOFF.md`, `docs/IMPROVEMENT_HANDOFF_20261017.md` 완비.
+  6. **버전 및 DB 동기화**: `lib/version.ts` v1.12, `package.json` 0.1.3, Supabase DB `programs.version` `v1.12` 갱신.
+- **검수**:
+  - `npm run build` 성공.
+  - Vercel 프로덕션 배포 완료 (`ai-image-studio.buylife.xyz` & `ai-image-studio.vercel.app` alias 동기화).
+  - **Microsoft Edge 전용 실세션 검수 완료** (일반 회원 테스트 계정 `buylifemall@naver.com` 세션 연동):
+    - 데스크톱(1440px): `edge_image_studio_login_desktop_v112.png`, `edge_image_studio_guide_desktop_v112.png`, `edge_image_studio_dashboard_desktop_v112.png`
+    - 모바일(375px): `edge_image_studio_login_mobile_v112.png`, `edge_image_studio_guide_mobile_v112.png`, `edge_image_studio_dashboard_mobile_v112.png`
+- **현황판**: `DESIGN.md` 34번 `ai-image-studio`를 `✅ 1차 작업완료 (v1.12, 크리에이티브 아틀리에 럭셔리 다크 템플릿)`로 갱신, `docs/ACTIVE_WORK.md` 내 작업 삭제.
+- **추가개선 제안 (3대 항목)**:
+  1) **로직/기능 개선**: 인터랙티브 인페인팅/아웃페인팅 캔버스 모듈, Img2Img 스타일 트랜스퍼, 생성물 30일 격리 파기 Cron 연동.
+  2) **UI/UX 편의성 개선**: 종횡비 비주얼 카드 셀렉터, 실시간 예상 토큰 비용/시간 계산기 위젯, 갤러리 다중 선택 일괄 다운로드(ZIP).
+  3) **타 프로그램 연계**: `detail-page-maker-12p`(상세페이지 원료/연출컷 자동 생성), `music-album-cover`(35mm 필름/수묵화 어댑터 SDK 공급), `youtube-playlist-maker`(타이포그래피 특화 16:9 썸네일 자동 생성).
+- **링크**: https://ai-image-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(맥미니) — Threads 댓글자동화 v1.10: 스튜디오 댓글 콘솔 — 쓰레드 모노 변형 (🟠 윈도우 마무리 요청)
 
 - **대상**: `threads-comment-reply/` (https://threads-comment-reply.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.

@@ -18,3 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| youtube-channel-consultant | Claude Code(윈도우) | 2026-10-17 15:40 | 황금 채널 계산 공용 파일 통합(v1.08) |
+| youtube-viral-studio | Claude Code(윈도우) | 2026-10-17 15:40 | 황금 채널 계산 공용 파일 통합(v1.17) |

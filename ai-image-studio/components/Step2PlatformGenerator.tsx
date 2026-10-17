@@ -214,7 +214,18 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-zinc-200">생성 모델 선택</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-bold text-zinc-200">생성 모델 선택</label>
+                {selectedModelId.includes("flash-lite") ? (
+                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+                    💡 최저가 테스트 권장 ($0.0336)
+                  </span>
+                ) : selectedModelId.includes("4k") || selectedModelId.includes("pro") ? (
+                  <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">
+                    👑 하이엔드 고화질 모델
+                  </span>
+                ) : null}
+              </div>
               <select
                 value={selectedModelId}
                 onChange={(e) => setSelectedModelId(e.target.value)}
@@ -226,6 +237,9 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
                   </option>
                 ))}
               </select>
+              <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
+                <span className="text-amber-400">선택 모델 특성:</span> {currentModel.description}
+              </div>
             </div>
 
             <div className="space-y-2">
