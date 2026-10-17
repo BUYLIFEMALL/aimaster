@@ -71,7 +71,7 @@ function safeParseJson(str: string): any {
     return JSON.parse(cleaned);
   } catch (err) {
     // LLM이 중첩 객체의 닫는 괄호(})나 대괄호(])를 누락했을 때 자동 복구
-    let openBraces = (cleaned.match(/\{/g) || []).length;
+    const openBraces = (cleaned.match(/\{/g) || []).length;
     let closeBraces = (cleaned.match(/\}/g) || []).length;
     let repaired = cleaned;
     while (closeBraces < openBraces) {

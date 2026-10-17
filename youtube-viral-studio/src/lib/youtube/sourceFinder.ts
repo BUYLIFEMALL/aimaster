@@ -116,7 +116,7 @@ export async function findShortsOriginalSource(
 
   // 2. 설명란에 직접 링크된 유튜브 영상 ID들 추출
   const linkedVideoIds = extractYoutubeLinks(description).filter((id) => id !== videoId);
-  let directLinkedVideos: YouTubeVideoItem[] = [];
+  const directLinkedVideos: YouTubeVideoItem[] = [];
 
   if (linkedVideoIds.length > 0) {
     const linkedDetails = await fetchVideosDetails(linkedVideoIds, apiKey);

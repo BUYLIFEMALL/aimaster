@@ -1,5 +1,6 @@
 "use client";
 
+import { useFavorites } from "@/components/favorites/FavoritesProvider";
 import { formatNumber, formatRelativeTime } from "@/lib/youtube/metrics";
 import type { YouTubeChannelItem } from "@/lib/youtube/types";
 import {
@@ -21,9 +22,13 @@ interface ChannelCardProps {
 }
 
 export function ChannelCard({ channel, onBookmark, isBookmarked: initialBookmarked = false }: ChannelCardProps) {
-  const [bookmarked, setBookmarked] = useState(initialBookmarked);
+  const favorites = useFavorites();
+  const [localBookmarked, setBookmarked] = useState(initialBookmarked);
 
+  const bookmarked = favorites ? favorites.has("channel", channel.id) : localBookmarked;
+  const bookmarkBusy = !!favorites && (favorites.loading || !!favorites.error || favorites.pending.has("channel:" + channel.id));
   const handleBookmarkToggle = () => {
+    if (favorites) { void favorites.toggle("channel", channel); return; }
     const nextState = !bookmarked;
     setBookmarked(nextState);
     if (onBookmark) onBookmark(channel);
@@ -63,7 +68,7 @@ export function ChannelCard({ channel, onBookmark, isBookmarked: initialBookmark
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-yt-warn/10 text-yt-warn border border-yt-warn/40">
                 <Sparkles className="w-3 h-3 fill-amber-500" />
-                <span>떡상지수 {channel.viralIndex ?? 85}점</span>
+                <span>떡상지수 {channel.viralIndex == null ? "계산값 없음" : `${channel.viralIndex}점`}</span>
               </span>
             </div>
           </div>
@@ -75,7 +80,9 @@ export function ChannelCard({ channel, onBookmark, isBookmarked: initialBookmark
                 ? "bg-yt-warn/10 text-yt-warn border-yt-warn/40"
                 : "text-yt-muted hover:text-yt-warn hover:bg-yt-warn/20 border-yt-border"
             }`}
-            title="채널 즐겨찾기"
+            disabled={bookmarkBusy}
+            aria-pressed={bookmarked}
+            title={bookmarked ? "채널 즐겨찾기 해제" : "채널 즐겨찾기"}
           >
             <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-amber-500" : ""}`} />
           </button>

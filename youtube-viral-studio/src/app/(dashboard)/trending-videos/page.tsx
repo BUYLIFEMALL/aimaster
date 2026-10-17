@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { VideoCard } from "@/components/common/VideoCard";
 import type { YouTubeVideoItem } from "@/lib/youtube/types";
 import { Flame, RefreshCw, AlertCircle, Key } from "lucide-react";
@@ -48,12 +48,10 @@ export default function TrendingVideosPage() {
     }
   };
 
-  useEffect(() => {
-    fetchTrending(activeTab);
-  }, [activeTab]);
 
   return (
     <div className="space-y-6">
+      <p className="rounded-xl border border-yt-border bg-yt-surface p-3 text-sm text-yt-muted">조건을 정한 뒤 검색·조회 버튼을 눌러 실행해주세요. 회원님 본인의 YouTube API 할당량을 사용하며, 대본 분석은 별도로 AI 사용료가 발생할 수 있습니다.</p>
       {/* 상단 타이틀 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-yt-surface p-6 rounded-2xl border border-yt-border shadow-xs">
         <div>
@@ -66,7 +64,7 @@ export default function TrendingVideosPage() {
             </h1>
           </div>
           <p className="text-sm text-yt-muted mt-1">
-            지금 이 순간 유튜브 알고리즘을 타고 시간당 조회수(VPH)가 폭발적으로 치솟는 실시간 급상승 영상 랭킹입니다.
+            현재 조회한 누적 조회수와 업로드 후 경과 시간으로 계산한 평균 VPH 랭킹입니다. 최근 1시간 증가량이나 추천 유입을 직접 측정한 값은 아닙니다.
           </p>
         </div>
 
@@ -76,7 +74,7 @@ export default function TrendingVideosPage() {
           className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-yt-surface hover:bg-yt-hover text-yt-text border border-yt-border rounded-lg transition-colors shadow-xs"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>새로고침</span>
+          <span>영상 조회</span>
         </button>
       </div>
 
@@ -109,7 +107,7 @@ export default function TrendingVideosPage() {
       {/* 탭 네비게이션 */}
       <div className="flex items-center gap-2 p-1.5 bg-yt-raised rounded-xl w-fit">
         <button
-          onClick={() => setActiveTab("shorts")}
+          disabled={loading} onClick={() => { setActiveTab("shorts"); setVideos([]); setError(null); }}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
             activeTab === "shorts"
               ? "bg-yt-surface text-yt-danger shadow-xs"
@@ -119,7 +117,7 @@ export default function TrendingVideosPage() {
           ⚡ 실시간 쇼츠 급상승
         </button>
         <button
-          onClick={() => setActiveTab("long")}
+          disabled={loading} onClick={() => { setActiveTab("long"); setVideos([]); setError(null); }}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
             activeTab === "long"
               ? "bg-yt-surface text-yt-text shadow-xs"
@@ -129,7 +127,7 @@ export default function TrendingVideosPage() {
           📺 일반 롱폼 급상승
         </button>
         <button
-          onClick={() => setActiveTab("all")}
+          disabled={loading} onClick={() => { setActiveTab("all"); setVideos([]); setError(null); }}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
             activeTab === "all"
               ? "bg-yt-surface text-yt-text shadow-xs"

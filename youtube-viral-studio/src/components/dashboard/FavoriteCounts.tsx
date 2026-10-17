@@ -1,27 +1,8 @@
 "use client";
-
-import { useEffect, useState } from "react";
-
-// 즐겨찾기는 이 브라우저(localStorage)에만 저장되므로 개수도 브라우저에서 읽는다.
+import { useFavorites } from '@/components/favorites/FavoritesProvider';
 export function FavoriteCounts() {
-  const [counts, setCounts] = useState<{ videos: number; channels: number } | null>(null);
-
-  useEffect(() => {
-    const read = (key: string) => {
-      try {
-        const raw = localStorage.getItem(key);
-        const arr = raw ? JSON.parse(raw) : [];
-        return Array.isArray(arr) ? arr.length : 0;
-      } catch {
-        return 0;
-      }
-    };
-    setCounts({ videos: read("yvs_fav_videos"), channels: read("yvs_fav_channels") });
-  }, []);
-
-  return (
-    <span className="tabular-nums">
-      {counts ? `영상 ${counts.videos} · 채널 ${counts.channels}` : "…"}
-    </span>
-  );
+  const store = useFavorites();
+  if (!store || store.loading) return <span>불러오는 중…</span>;
+  if (store.error) return <span>조회 실패</span>;
+  return <span className="tabular-nums">영상 {store.records.filter(r=>r.item_type==='video').length} · 채널 {store.records.filter(r=>r.item_type==='channel').length}</span>;
 }

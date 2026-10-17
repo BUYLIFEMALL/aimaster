@@ -16,12 +16,12 @@ export default function GuidePage() {
   const guides = [
     {
       title: "1. VPH(시간당 조회수 속도)란 무엇인가요?",
-      desc: "Views Per Hour의 약자로, 영상이 업로드된 후 시간당 얼마나 빠른 속도로 조회수가 증가하고 있는지를 나타내는 실시간 바이럴 속도 지표입니다. 예를 들어 '+7.5만/h'는 1시간에 75,000회씩 조회수가 폭증하고 있다는 의미이며, 현재 유튜브 알고리즘의 강력한 추천을 받고 있음을 뜻합니다.",
+      desc: "Views Per Hour의 약자로, 영상이 업로드된 후 시간당 얼마나 빠른 속도로 조회수가 증가하고 있는지를 나타내는 업로드 이후 평균 조회수 지표입니다. 예를 들어 '+7.5만/h'는 누적 조회수를 업로드 후 경과 시간으로 나눈 값이 75,000회라는 의미입니다. 최근 1시간 증가량이나 추천 유입을 직접 측정한 값은 아닙니다.",
       badge: "핵심 지표",
     },
     {
       title: "2. vsRatio(구독자 대비 배수)가 왜 중요한가요?",
-      desc: "대형 채널(구독자 100만)이 50만 뷰를 기록한 것은 알고리즘 떡상이 아니라 기존 팬덤의 시청일 수 있습니다. 반면 구독자 2,000명인 소형 채널이 30만 뷰(150배)를 기록했다면, 이는 100% 알고리즘의 간택을 받은 순수 기여도(Viral) 콘텐츠입니다. vsRatio가 높을수록 벤치마킹 가치가 극대화됩니다.",
+      desc: "대형 채널(구독자 100만)이 50만 뷰를 기록한 것은 알고리즘 떡상이 아니라 기존 팬덤의 시청일 수 있습니다. 반면 구독자 2,000명인 소형 채널이 30만 뷰(150배)를 기록했다면, 구독자 대비 조회수가 높은 영상입니다. 추천·검색·외부 공유 등 유입 경로는 이 수치만으로 확정할 수 없으며 다른 지표와 함께 참고해주세요.",
       badge: "소형 채널 발굴",
     },
     {
@@ -31,7 +31,7 @@ export default function GuidePage() {
     },
     {
       title: "4. YouTube API 일일 한도가 소진되면 어떻게 되나요?",
-      desc: "Google은 각 프로젝트마다 매일 10,000 units의 무료 쿼리를 제공합니다. 일반적인 쇼츠 탐색 기준 수백 회 이상 넉넉히 사용 가능하며, 태평양 표준시(PST) 자정(한국 시간 오후 4시)에 매일 자동으로 10,000 units가 다시 충전됩니다. 추가 비용은 일절 발생하지 않습니다.",
+      desc: "YouTube Data API의 기본 일일 할당량은 프로젝트별 10,000 units입니다. 사용 가능한 횟수는 API 종류와 추가 조회 수에 따라 달라집니다. 미국 태평양 시간 자정에 초기화되어 한국에서는 서머타임 기간 오후4시, 겨울철 오후5시입니다. 페이지에 들어가거나 탭만 바꿀 때는 검색하지 않으며 버튼을 눌러 실행합니다. 대본 분석은 본인 AI 키의 별도 사용료가 발생할 수 있습니다.",
       badge: "무료 한도",
     },
   ];
@@ -64,6 +64,7 @@ export default function GuidePage() {
         </div>
       </div>
 
+      <div className="yt-card text-sm text-yt-muted">즐겨찾기는 본인 계정으로 저장·해제하며 다른 기기에서도 이어집니다. 저장일 기준30일 후 자동 삭제됩니다. 같은 항목을 다시 눌러도 기존 저장일은 연장되지 않습니다.</div>
       {/* 4단계 마스터 워크플로우 */}
       <div className="bg-yt-surface p-6 rounded-2xl border border-yt-border shadow-xs space-y-4">
         <h2 className="text-base font-bold text-yt-text">
@@ -90,7 +91,7 @@ export default function GuidePage() {
               소형 채널 떡상 쇼츠 검색
             </h3>
             <p className="text-xs text-yt-muted leading-relaxed">
-              구독자 1만~5만 이하 필터로 소형 채널에서 터진 순수 알고리즘 영상을 발굴합니다.
+              구독자 1만~5만 이하 필터로 소형 채널에서 터진 구독자 대비 조회수가 높은 영상을 발굴합니다.
             </p>
           </div>
 
@@ -130,7 +131,7 @@ export default function GuidePage() {
           </div>
           <div className="rounded-xl bg-yt-raised p-4">
             <span className="yt-chip bg-yt-warn text-black">✖ vsRatio</span>
-            <p className="mt-2 text-xs leading-relaxed text-yt-muted">조회수 ÷ 구독자. 구독자 2천 명 채널이 30만 뷰면 150배 — 팬덤이 아니라 알고리즘이 밀어준 영상이에요.</p>
+            <p className="mt-2 text-xs leading-relaxed text-yt-muted">조회수 ÷ 구독자. 구독자 2천 명 채널이 30만 뷰면 150배 — 구독자 대비 조회수가 높다는 뜻이며 유입 경로는 별도 확인해야 해요.</p>
           </div>
           <div className="rounded-xl bg-yt-raised p-4">
             <span className="yt-chip">💯 바이럴 점수</span>

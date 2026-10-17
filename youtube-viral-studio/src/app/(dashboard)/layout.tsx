@@ -1,4 +1,5 @@
 import { requireProgramAccess } from "@/lib/access";
+import { FavoritesNotice, FavoritesProvider } from "@/components/favorites/FavoritesProvider";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +15,12 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col bg-yt-bg font-sans text-yt-text antialiased md:flex-row">
       <Sidebar userEmail={user.email} />
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <FavoritesProvider key={user.id} userId={user.id}><main className="flex-1 min-w-0 overflow-y-auto">
         <div className="mx-auto max-w-7xl p-4 md:p-8">
+          <FavoritesNotice />
           {children}
         </div>
-      </main>
+      </main></FavoritesProvider>
     </div>
   );
 }

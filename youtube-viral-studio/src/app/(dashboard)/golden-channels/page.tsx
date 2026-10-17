@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChannelCard } from "@/components/common/ChannelCard";
 import type { YouTubeChannelItem, GoldenChannelsParams } from "@/lib/youtube/types";
 import {
@@ -69,12 +69,10 @@ export default function GoldenChannelsPage() {
     }
   };
 
-  useEffect(() => {
-    handleSearch("이슈 쇼츠");
-  }, []);
 
   return (
     <div className="space-y-6">
+      <p className="rounded-xl border border-yt-border bg-yt-surface p-3 text-sm text-yt-muted">조건을 정한 뒤 검색·조회 버튼을 눌러 실행해주세요. 회원님 본인의 YouTube API 할당량을 사용하며, 대본 분석은 별도로 AI 사용료가 발생할 수 있습니다.</p>
       {/* 상단 타이틀 */}
       <div className="bg-yt-surface p-6 rounded-2xl border border-yt-border shadow-xs">
         <div className="flex items-center gap-2">

@@ -1,39 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Bookmark, Video, Users, Trash2, ExternalLink, Download } from "lucide-react";
+import { useState } from "react";
+import { Bookmark, Users, Download } from "lucide-react";
+import { useFavorites } from "@/components/favorites/FavoritesProvider";
+import { FAVORITE_TTL_MS, csvCell } from "@/lib/favorites";
 import type { YouTubeVideoItem, YouTubeChannelItem } from "@/lib/youtube/types";
 import { VideoCard } from "@/components/common/VideoCard";
 import { ChannelCard } from "@/components/common/ChannelCard";
 
 export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState<"videos" | "channels">("videos");
-  const [savedVideos, setSavedVideos] = useState<YouTubeVideoItem[]>([]);
-  const [savedChannels, setSavedChannels] = useState<YouTubeChannelItem[]>([]);
-
-  useEffect(() => {
-    // 로컬 스토리지에서 북마크 불러오기
-    try {
-      const v = localStorage.getItem("yvs_fav_videos");
-      if (v) setSavedVideos(JSON.parse(v));
-      const c = localStorage.getItem("yvs_fav_channels");
-      if (c) setSavedChannels(JSON.parse(c));
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
-
-  const handleClear = (type: "videos" | "channels") => {
-    if (!confirm("해당 보관함의 모든 항목을 삭제하시겠습니까?")) return;
-    if (type === "videos") {
-      setSavedVideos([]);
-      localStorage.removeItem("yvs_fav_videos");
-    } else {
-      setSavedChannels([]);
-      localStorage.removeItem("yvs_fav_channels");
-    }
-  };
-
+  const store = useFavorites();
+  const rows = store?.records ?? [];
+  const savedVideos = rows.filter(r=>r.item_type==='video').map(r=>r.payload as YouTubeVideoItem);
+  const savedChannels = rows.filter(r=>r.item_type==='channel').map(r=>r.payload as YouTubeChannelItem);
   const handleExportCSV = () => {
     if (activeTab === "videos") {
       if (savedVideos.length === 0) return alert("내보낼 영상이 없습니다.");
@@ -41,7 +21,7 @@ export default function FavoritesPage() {
       const rows = savedVideos
         .map(
           (v) =>
-            `"${v.id}","${v.title.replace(/"/g, '""')}","${v.channelTitle}",${v.viewCount},${v.vph},${v.vsRatio},"https://www.youtube.com/watch?v=${v.id}"`
+            [v.id,v.title,v.channelTitle,v.viewCount,v.vph,v.vsRatio,`https://www.youtube.com/watch?v=${v.id}`].map(csvCell).join(",")
         )
         .join("\n");
       const blob = new Blob(["\uFEFF" + headers + rows], { type: "text/csv;charset=utf-8;" });
@@ -50,13 +30,14 @@ export default function FavoritesPage() {
       a.href = url;
       a.download = `youtube-viral-videos-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
     } else {
       if (savedChannels.length === 0) return alert("내보낼 채널이 없습니다.");
       const headers = "ID,채널명,구독자수,평균조회수,동영상수,URL\n";
       const rows = savedChannels
         .map(
           (c) =>
-            `"${c.id}","${c.title.replace(/"/g, '""')}",${c.subscriberCount},${c.averageViews},${c.videoCount},"https://www.youtube.com/channel/${c.id}"`
+            [c.id,c.title,c.subscriberCount,c.averageViews,c.videoCount,`https://www.youtube.com/channel/${c.id}`].map(csvCell).join(",")
         )
         .join("\n");
       const blob = new Blob(["\uFEFF" + headers + rows], { type: "text/csv;charset=utf-8;" });
@@ -65,6 +46,7 @@ export default function FavoritesPage() {
       a.href = url;
       a.download = `youtube-golden-channels-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
     }
   };
 
@@ -94,16 +76,13 @@ export default function FavoritesPage() {
             <Download className="w-3.5 h-3.5" />
             <span>CSV 다운로드</span>
           </button>
-          <button
-            onClick={() => handleClear(activeTab)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-yt-danger hover:bg-yt-red/20 border border-yt-red/40 rounded-lg transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>비우기</span>
-          </button>
+
         </div>
       </div>
 
+      <p className="text-sm text-yt-muted">본인 계정에 저장한 자료만 표시합니다. 저장일 기준 30일 후 자동 삭제됩니다. 개별 북마크 버튼으로 해제할 수 있습니다.</p>
+      {store?.loading && <p role="status">보관함을 불러오는 중입니다.</p>}
+      {!store?.loading && !store?.error && rows.length === 0 && <p className="text-xs text-yt-muted">이전 브라우저 보관함은 소유자를 확인할 수 없어 자동으로 불러오지 않습니다.</p>}
       {/* 탭 네비게이션 */}
       <div className="flex items-center gap-2 p-1.5 bg-yt-raised rounded-xl w-fit">
         <button
@@ -129,12 +108,12 @@ export default function FavoritesPage() {
       </div>
 
       {/* 영상 목록 */}
-      {activeTab === "videos" && (
+      {!store?.loading && !store?.error && activeTab === "videos" && (
         <>
           {savedVideos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {savedVideos.map((v) => (
-                <VideoCard key={v.id} video={v} isBookmarked={true} />
+                <div key={v.id}><VideoCard video={v} isBookmarked={true} /><p className="mt-2 text-xs text-yt-muted">보관 기한: {new Date(Date.parse(rows.find(r=>r.item_type==='video'&&r.item_id===v.id)!.created_at)+FAVORITE_TTL_MS).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국 시간)</p></div>
               ))}
             </div>
           ) : (
@@ -152,12 +131,12 @@ export default function FavoritesPage() {
       )}
 
       {/* 채널 목록 */}
-      {activeTab === "channels" && (
+      {!store?.loading && !store?.error && activeTab === "channels" && (
         <>
           {savedChannels.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {savedChannels.map((c) => (
-                <ChannelCard key={c.id} channel={c} isBookmarked={true} />
+                <div key={c.id}><ChannelCard channel={c} isBookmarked={true} /><p className="mt-2 text-xs text-yt-muted">보관 기한: {new Date(Date.parse(rows.find(r=>r.item_type==='channel'&&r.item_id===c.id)!.created_at)+FAVORITE_TTL_MS).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국 시간)</p></div>
               ))}
             </div>
           ) : (

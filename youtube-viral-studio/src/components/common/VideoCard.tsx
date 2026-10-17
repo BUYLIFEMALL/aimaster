@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import { useFavorites } from "@/components/favorites/FavoritesProvider";
+import { PlaylistReference } from './PlaylistReference';
 import Link from "next/link";
 import {
   formatNumber,
@@ -30,7 +31,10 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked = false }: VideoCardProps) {
-  const [bookmarked, setBookmarked] = useState(initialBookmarked);
+  const favorites = useFavorites();
+  const [localBookmarked, setBookmarked] = useState(initialBookmarked);
+  const bookmarked = favorites ? favorites.has("video", video.id) : localBookmarked;
+  const bookmarkBusy = !!favorites && (favorites.loading || !!favorites.error || favorites.pending.has("video:" + video.id));
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<ScriptAnalysisResult | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -96,6 +100,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
   };
 
   const handleBookmarkToggle = () => {
+    if (favorites) { void favorites.toggle("video", video); return; }
     const nextState = !bookmarked;
     setBookmarked(nextState);
     if (onBookmark) onBookmark(video);
@@ -202,7 +207,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
           <div>
             <div className="text-[10px] text-yt-muted mb-0.5 flex items-center justify-center gap-0.5">
               <Flame className="w-3 h-3 text-yt-muted" />
-              <span>속도/h</span>
+              <span>평균/h</span>
             </div>
             <div className="text-xs font-bold text-yt-text">
               {video.vph > 0 ? formatNumber(video.vph) : "-"}
@@ -257,7 +262,9 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
                   ? "bg-yt-warn/10 text-yt-warn border-yt-warn/40"
                   : "text-yt-muted hover:text-yt-warn hover:bg-yt-warn/20 border-yt-border"
               }`}
-              title="즐겨찾기 보관"
+              disabled={bookmarkBusy}
+              aria-pressed={bookmarked}
+              title={bookmarked ? "즐겨찾기 해제" : "즐겨찾기 보관"}
             >
               <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-amber-500" : ""}`} />
             </button>
@@ -266,6 +273,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
       </div>
 
       {/* AI 대본 분석 모달 */}
+      <div className="px-4 pb-3"><PlaylistReference id={video.id} title={video.title} /></div>
       <ScriptAnalysisModal
         analysis={analysisResult}
         isOpen={modalOpen}

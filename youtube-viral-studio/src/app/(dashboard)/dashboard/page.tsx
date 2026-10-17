@@ -33,7 +33,7 @@ const FEATURES = [
     icon: TrendingUp,
     tone: "text-yt-success",
     title: "실시간 터진 영상",
-    desc: "지금 시간당 조회수가 가장 빠르게 오르는 영상 랭킹입니다.",
+    desc: "업로드 이후 평균 시간당 조회수가 높은 영상 랭킹입니다.",
     metric: "시간당 조회수(VPH)",
   },
   {
@@ -139,7 +139,7 @@ export default async function DashboardPage() {
           <p className="text-2xl font-bold text-yt-text">
             <FavoriteCounts />
           </p>
-          <p className="mt-1 text-xs text-yt-muted">이 브라우저에만 저장돼요. 다른 기기에서는 보이지 않으니 CSV로 내려받아 두세요.</p>
+          <p className="mt-1 text-xs text-yt-muted">회원님 전용 보관함입니다. 저장한 날부터 30일 후 자동 삭제되며, 다른 기기에서도 같은 계정으로 확인할 수 있습니다.</p>
           <Link href="/favorites" className="yt-btn mt-3 w-full">
             <Bookmark size={15} /> 보관함 열기
           </Link>

@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.13` (Windows 운영 배포·화면 검수 완료) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.14` (개선 사전 검수·DB 적용 완료, 운영 배포 진행) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -86,3 +86,7 @@
 ## 2026-10-17 Codex(Windows) — v1.13 최종 인수
 
 유튜브 다크·신규 대시보드·375px 메뉴 운영 검수 완료. Next16.4.2 보안 보완, APP/DB v1.13·package1.13.0. 소스 b50bfaff929137c33538c3b8bb0a09c47aca48f8 푸시, 프로덕션 dpl_4r4FxwdNB38SzofnmBQFYakRmdMt READY. 실제 일반 회원 Edge1440/375 8화면·메뉴, 합성 카드7검사, 비로그인 API8개401. 자동 검색 요청은 브라우저 모의 응답으로만 처리(실제 검색/AI0). 운영 의존성 보안 경고0, 개발high5·lint 설정 부재 남음. **즐겨찾기 회원분리·30일 자동삭제는 미해결**이며 디자인 완료와 구분. [최종 인수인계](docs/WINDOWS_HANDOFF_20261017.md), [개선 원장](docs/IMPROVEMENTS.md). https://youtube-viral-studio.buylife.xyz
+
+## v1.14 (2026-10-17) — 즐겨찾기·회원 격리·30일 보관 개선
+
+저장/해제 콜백 복구, 본인 전용 DB/RLS·30일 경계/자동 정리(Cron 실제 실행 확인), 자동검색 제거, 가이드/누락 지수/CSV 보완. DB 변경은 주인님 별도 승인 후 적용했습니다. [새 인수인계](docs/IMPROVEMENT_HANDOFF_20261017_V114.md). 운영 배포 결과는 이 문서의 최신 기록을 따릅니다.
