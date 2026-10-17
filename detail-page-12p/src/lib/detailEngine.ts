@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ProductInputData, DetailScene, PlatformType, ModelType } from "@/types/detail";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -233,8 +234,6 @@ export async function generateSceneImage(
   modelType: ModelType,
   referenceImages?: string[]
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey });
-
   const parts: any[] = [];
 
   // 레퍼런스 제품 사진이 있는 경우 멀티모달 주입
@@ -258,52 +257,37 @@ Visual Quality: Photorealistic, pristine studio lighting, crisp sharpness, profe
 
   parts.push({ text: enhancedPrompt });
 
-  try {
-    const response = await ai.models.generateContent({
-      // [이미지 모델 교체 2026-10-17] 3-pro-image-preview → gemini-3-pro-image, 기본은 텍스트 모델(gemini-2.5-flash)이 잘못 들어가 있어
-      // 최저가 이미지 모델 gemini-3.1-flash-lite-image(1K)로 교체, 기준: ai-image-studio v1.11.
-      // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
-      model: modelType === "nano-banana2" ? "gemini-3-pro-image" : "gemini-3.1-flash-lite-image",
-      contents: { parts },
-      config: {
-        responseModalities: ["IMAGE"],
-        imageConfig: {
-          aspectRatio: "3:4",
-          imageSize: "1K",
-        },
-      },
+  // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+  // 생성 라우트 함수 한도 60초 → 두 번 호출해도 합쳐서 50초 안(마감 시각 방식), 유료 생성이라 재시도 없음.
+  // 예전에는 어떤 오류든 다른 모델로 다시 요청했으나(시간 초과 뒤 재요청 → 이중 과금 위험), 이제 "모델 없음·이미지 안 나옴"일 때만
+  // 폴백 모델로 넘어가고 그 밖의 오류는 바로 아래 SVG 대체 그림으로 간다. 모델·비율·화질·프롬프트는 그대로.
+  const deadline = Date.now() + 50_000;
+  const tryModel = async (modelName: string, modelParts: any[]) => {
+    const image = await generateGeminiImage({
+      apiKey,
+      modelName,
+      parts: modelParts,
+      aspectRatio: "3:4",
+      imageSize: "1K",
+      timeoutMs: Math.max(10_000, deadline - Date.now()),
+      retries: 0,
     });
+    return `data:${image.mimeType || "image/png"};base64,${image.base64}`;
+  };
 
-    const candidates = response.candidates;
-    if (candidates && candidates[0]?.content?.parts) {
-      for (const part of candidates[0].content.parts) {
-        if (part.inlineData?.data) {
-          return `data:image/png;base64,${part.inlineData.data}`;
-        }
+  try {
+    return await tryModel(modelType === "nano-banana2" ? "gemini-3-pro-image" : "gemini-3.1-flash-lite-image", parts);
+  } catch (err: any) {
+    console.warn("Primary image model failed:", err?.code ?? "", err?.message ?? "");
+    const retryable = err instanceof GeminiImageError && (err.code === "MODEL_NOT_FOUND" || err.code === "NO_IMAGE");
+    if (retryable && deadline - Date.now() > 15_000) {
+      try {
+        // 폴백: 종료된 imagen-3.0-generate-002 대신 gemini-nano-banana-2.1(2026-10-17 교체) — 예전처럼 글 지시문만
+        return await tryModel("gemini-nano-banana-2.1", [{ text: enhancedPrompt }]);
+      } catch (err2: any) {
+        console.warn("Image fallback failed:", err2?.code ?? "", err2?.message ?? "");
       }
     }
-  } catch (err: any) {
-    console.warn("Primary image model failed, attempting fallback:", err.message);
-  }
-
-  // 폴백: 종료된 imagen-3.0-generate-002 대신 gemini-nano-banana-2.1 (2026-10-17 교체, 실제 생성 시험 없음 — 오류 시 그때 검증)
-  try {
-    const fallbackRes = await ai.models.generateContent({
-      model: "gemini-nano-banana-2.1",
-      contents: { parts: [{ text: enhancedPrompt }] },
-      config: {
-        responseModalities: ["IMAGE"],
-        imageConfig: { aspectRatio: "3:4", imageSize: "1K" },
-      },
-    });
-
-    for (const part of fallbackRes.candidates?.[0]?.content?.parts ?? []) {
-      if (part.inlineData?.data) {
-        return `data:${part.inlineData.mimeType || "image/png"};base64,${part.inlineData.data}`;
-      }
-    }
-  } catch (err: any) {
-    console.warn("Image fallback failed:", err.message);
   }
 
   // 추가 폴백: 에러 발생 시 사용자 친화적인 고해상도 프리미엄 SVG 제품 비주얼 카드 생성

@@ -1,5 +1,6 @@
 import { ArtStyle, CharacterInfo, CutScene, WebtoonProject } from "./types";
 import { ART_STYLE_PROMPT_MAP } from "./gemini";
+import { generateGeminiImage } from "./geminiImage";
 
 // 1. 캐릭터 시트 이미지 생성 (턴어라운드 모델 시트)
 export async function generateCharacterSheetImage(
@@ -48,31 +49,23 @@ async function requestImageGeneration(
   // 1. Gemini 이미지 모델 시도 (사용자 본인 키가 있을 때)
   // [이미지 모델 교체 2026-10-17] 종료된 Imagen 3(predict) → gemini-nano-banana-2.1(generateContent), 기준: ai-image-studio v1.11.
   // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
+  // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+  // 키는 주소가 아니라 머리글로 보낸다. 브라우저 실행이라 함수 한도와 무관 → 시간 제한 120초, 유료 생성이라 재시도 없음(이중 과금 방지).
+  // 실패하면(키·한도·시간 초과 등) 기존처럼 아래 무료 렌더러로 넘어간다. 모델·비율·화질·프롬프트는 그대로.
   if (apiKey) {
     try {
-      const imageUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent?key=${apiKey}`;
-      const res = await fetch(imageUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-            imageConfig: { aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4", imageSize: "1K" },
-          },
-        }),
+      const image = await generateGeminiImage({
+        apiKey,
+        modelName: "gemini-nano-banana-2.1",
+        prompt,
+        aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4",
+        imageSize: "1K",
+        timeoutMs: 120_000,
+        retries: 0,
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        const parts: Array<{ inlineData?: { data?: string; mimeType?: string } }> = data?.candidates?.[0]?.content?.parts ?? [];
-        const image = parts.find((p) => p.inlineData?.data)?.inlineData;
-        if (image?.data) {
-          return `data:${image.mimeType || "image/png"};base64,${image.data}`;
-        }
-      }
+      return `data:${image.mimeType || "image/png"};base64,${image.base64}`;
     } catch (e) {
-      console.warn("Gemini image generation failed, falling back to high-res comic generator:", e);
+      console.warn("Gemini image generation failed, falling back to high-res comic generator:", e instanceof Error ? e.message : e);
     }
   }
 

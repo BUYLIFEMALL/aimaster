@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 이미지 5묶음: Imagen 교체분 5곳의 이미지 호출을 공용 모듈로
+
+- **한 일**: yt-playlist-studio(`api/generate-bg`, 50초) · ai-webtoon-studio(`imageGen.ts`, 브라우저 120초, 실패 시 무료 렌더러 유지) · ebook-studio(`api/ai/cover`, 120초, 실패 시 SVG 표지 유지) · detail-page-12p(`detailEngine.ts`, 두 모델 합쳐 50초) · vinyl-lp-studio(`api/generate-artwork`, 두 모델 합쳐 50초)의 이미지 호출을 공용 사본으로. 키를 주소 대신 머리글로, 시간 제한·최종 이미지 선택·원인별 안내, 재시도 0. **detail-page-12p·vinyl은 예전에 어떤 오류든 다른 모델로 재요청(시간 초과 뒤 이중 과금 위험) → 이제 「모델 없음·이미지 안 나옴」일 때만.**
+- **버전(코드+DB)**: yt-playlist-studio v1.13 · ai-webtoon-studio v1.12 · ebook-studio v1.08 · detail-page-12p v1.08 · vinyl-lp-studio v1.11. 배포는 비용 절감 규칙대로 프로그램당 1회(안전 배포 스크립트).
+- **검수**: tsc 0(5곳), eslint 바뀐 파일 0(yt·detail·vinyl, 웹툰·ebook은 설정 없음), 공용 모듈 검사 OK, Vercel 5곳 성공, DB 5곳, 크롬 화면 버전 5곳. 테스트 스크립트 없음. 실제 이미지 생성 시험 없음.
+- **발견(미구현 제안)**: 웹툰·ebook·상세페이지 12p는 이미지 실패 시 원인을 알리지 않고 대체 결과를 보여 줌 → 각 `docs/IMPROVEMENTS.md`.
+- **이미지 공용화 남은 것**: threads-affiliate-poster `imageGenerator.ts`(여러 엔진 섞인 생성기)만.
+
 ## 2026-10-18 Claude Code(윈도우) — Vercel 비용 절감: 작업 방식 변경(빌드 건너뛰기·재배포 등급제·배포 규칙)
 
 - **배경**: 결제 주기 23일 남기고 추가 요금 $20.87, 최대 항목 Build CPU Minutes $31.92. 원인 ① 빌드 머신이 가장 비싼 Elastic(4~30 vCPU) ② 메인 사이트(`aimaster`)가 모든 CLI의 `master` 푸시마다 자동 빌드(10-17 오후 약 9.5시간에 최근 100건 중 87건) ③ 공용 모듈 변경 때마다 사본 30곳 즉시 재배포(10-17~18 130회 이상, Claude Code).

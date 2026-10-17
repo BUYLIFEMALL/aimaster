@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey } from "@/lib/apiKeys";
-import { GoogleGenAI } from "@google/genai";
+import { GeminiImageError, generateGeminiImage } from "@/lib/geminiImage";
 import { MediaType } from "@/types/vinyl";
 
 export const dynamic = "force-dynamic";
@@ -63,40 +63,35 @@ CRITICAL INSTRUCTIONS:
    - Ensure text is crisp, legible, and positioned away from the center hole.
 `;
 
-    const ai = new GoogleGenAI({ apiKey: userApiKey });
-
-    // [이미지 모델 교체 2026-10-17] 1차 gemini-3-pro-image → gemini-3-pro-image, 2차 종료된 Imagen 3 → gemini-nano-banana-2.1,
-    // 기준: ai-image-studio v1.11. 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
-    let lastError: unknown = null;
+    // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(@/lib/geminiImage — 기준은 ai-image-studio).
+    // 함수 한도 60초 → 두 모델 합쳐 50초 안(마감 시각 방식), 유료 생성이라 재시도 없음.
+    // 예전에는 어떤 오류든 다음 모델로 다시 요청했으나(시간 초과 뒤 재요청 → 이중 과금 위험), 이제 "모델 없음·이미지 안 나옴"일 때만
+    // 다음 모델로 넘어간다. 그 밖의 오류는 원인별 한국어 안내(키 가림)를 그대로 보여 준다. 모델·비율·화질·프롬프트는 그대로.
+    const deadline = Date.now() + 50_000;
+    let lastError: GeminiImageError | null = null;
     for (const model of ["gemini-3-pro-image", "gemini-nano-banana-2.1"]) {
+      const remaining = deadline - Date.now();
+      if (remaining < 10_000) break;
       try {
-        const response = await ai.models.generateContent({
-          model,
-          contents: { parts: [{ text: promptText }] },
-          config: {
-            responseModalities: ["IMAGE"],
-            imageConfig: {
-              aspectRatio: "1:1",
-              imageSize: "1K",
-            },
-          },
+        const image = await generateGeminiImage({
+          apiKey: userApiKey,
+          modelName: model,
+          prompt: promptText,
+          aspectRatio: "1:1",
+          imageSize: "1K",
+          timeoutMs: remaining,
+          retries: 0,
         });
-
-        for (const part of response.candidates?.[0]?.content?.parts ?? []) {
-          if (part.inlineData?.data) {
-            return NextResponse.json({
-              success: true,
-              imageBase64: part.inlineData.data,
-            });
-          }
-        }
+        return NextResponse.json({ success: true, imageBase64: image.base64 });
       } catch (modelErr: any) {
+        if (!(modelErr instanceof GeminiImageError)) throw modelErr;
         lastError = modelErr;
-        console.warn(`${model} 시도 실패:`, modelErr?.message);
+        console.warn(`${model} 시도 실패:`, modelErr.code, modelErr.message);
+        if (modelErr.code !== "MODEL_NOT_FOUND" && modelErr.code !== "NO_IMAGE") break;
       }
     }
     if (lastError) {
-      throw new Error("이미지 생성 실패: " + ((lastError as any)?.message || "알 수 없는 오류"));
+      return NextResponse.json({ error: lastError.message }, { status: lastError.status });
     }
 
     throw new Error("이미지 데이터가 생성되지 않았습니다.");

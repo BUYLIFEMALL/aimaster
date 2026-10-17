@@ -61,3 +61,9 @@
 ## v1.07 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `src/app/api/ai/cover/route.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-18 v1.08 — 이미지 생성 호출을 공용 기준 코드로 (이미지 5묶음 · Imagen 교체분, Claude Code 윈도우)
+- **한 일**: `src/app/api/ai/cover/route.ts`: 직접 REST 호출 → 공용 호출, 시간 제한 120초. 실패하면 기존처럼 SVG 표지로 대체(이제 실패 원인을 서버 로그에 남김).
+- **바뀐 점(공통)**: 키를 요청 주소가 아니라 머리글로 보냄, 시간 제한, 응답에서 최종 이미지 선택(Pro 모델 중간 초안 제외), 원인별 한국어 안내·키 가림, 유료 생성이라 재시도 0. 프롬프트·모델·비율·화질·화면은 그대로.
+- **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포(프로그램당 1회, 비용 절감 규칙)·DB 버전, 크롬 화면 버전. eslint는 설정 파일이 없어 실행 안 됨(이전부터). 테스트 스크립트 없음. 실제 이미지 생성 시험은 하지 않음(비용).
+- **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.

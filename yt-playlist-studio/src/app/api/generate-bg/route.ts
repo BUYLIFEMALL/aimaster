@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey } from "@/lib/apiKeys";
+import { GeminiImageError, generateGeminiImage } from "@/lib/geminiImage";
 
 // v1.10: Google Imagen(imagen-3.0-generate-002)이 2025-11-10 종료되어 Nano Banana 2.1(gemini-nano-banana-2.1, 2026-10-06 정식)로 교체.
 // gemini-2.5-flash-image는 공식 가격표에 2026-10-02 종료 예정 구형으로 표시돼 쓰지 않는다(2026-10-17 주인님 결정).
@@ -11,9 +12,6 @@ const IMAGE_MODEL = "gemini-nano-banana-2.1";
 /** 화질 — 기본 2K(영상 배경용, 장당 약 $0.050). 1K(약 $0.034)는 더 싸게 쓰거나 시험할 때만 */
 const ALLOWED_SIZES = ["1K", "2K"] as const;
 type ImageSize = (typeof ALLOWED_SIZES)[number];
-const IMAGE_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:generateContent`;
-
-interface GeminiImagePart { inlineData?: { data?: string; mimeType?: string } }
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -56,37 +54,20 @@ Visual Style: Cinematic lighting, professional photography, soft ambient glow, c
 NO typography, NO letters, NO text, NO watermarks, edge-to-edge wallpaper background.
 `.trim();
 
-    const res = await fetch(`${IMAGE_ENDPOINT}?key=${encodeURIComponent(userApiKey)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: promptText }] }],
-        generationConfig: {
-          responseModalities: ["IMAGE"],
-          imageConfig: { aspectRatio: "16:9", imageSize },
-        },
-      }),
+    // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(@/lib/geminiImage — 기준은 ai-image-studio).
+    // 키는 주소가 아니라 머리글로 보낸다. 함수 한도 60초 → 시간 제한 50초, 유료 생성이라 재시도 없음(이중 과금 방지).
+    // 실패하면 원인별 한국어 안내(키 가림)를 그대로 보여 준다. 모델·비율·화질·프롬프트는 그대로.
+    const image = await generateGeminiImage({
+      apiKey: userApiKey,
+      modelName: IMAGE_MODEL,
+      prompt: promptText,
+      aspectRatio: "16:9",
+      imageSize,
+      timeoutMs: 50_000,
+      retries: 0,
     });
-
-    if (!res.ok) {
-      // 회원에게는 원인만 짧게 — 키 값이 들어갈 수 있는 요청 주소는 남기지 않는다
-      const errBody = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
-      const reason = errBody?.error?.message || `HTTP ${res.status}`;
-      const hint =
-        res.status === 429 ? " (본인 Google 계정의 이미지 생성 한도에 걸렸습니다. 잠시 후 다시 시도하거나 결제 설정을 확인해 주세요.)"
-        : res.status === 400 || res.status === 403 ? " (본인 Gemini API 키와 결제 설정을 확인해 주세요.)"
-        : "";
-      throw new Error(`AI 배경 생성 실패: ${reason}${hint}`);
-    }
-
-    const data = (await res.json()) as { candidates?: { content?: { parts?: GeminiImagePart[] } }[] };
-    const imagePart = data.candidates?.[0]?.content?.parts?.find((part) => part.inlineData?.data);
-    if (!imagePart?.inlineData?.data) {
-      throw new Error("이미지 생성 응답에 이미지 데이터가 없습니다. 다른 분위기 문구로 다시 시도해 주세요.");
-    }
-
-    const base64Data = imagePart.inlineData.data.replace(/\s+/g, "");
-    const mimeType = imagePart.inlineData.mimeType || "image/png";
+    const base64Data = image.base64;
+    const mimeType = image.mimeType || "image/png";
     const dataUrl = `data:${mimeType};base64,${base64Data}`;
 
     return NextResponse.json({
@@ -100,7 +81,7 @@ NO typography, NO letters, NO text, NO watermarks, edge-to-edge wallpaper backgr
     console.error("AI Background Generation Error:", err instanceof Error ? err.message : err);
     return NextResponse.json(
       { error: (err instanceof Error && err.message) || "AI 배경 생성 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: err instanceof GeminiImageError ? err.status : 500 }
     );
   }
 }

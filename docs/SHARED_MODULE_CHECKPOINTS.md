@@ -86,13 +86,13 @@
 
 | 순서 | 묶음 | 대상 | 주의 |
 |---|---|---|---|
-| 1 | 5묶음 — Imagen 교체분 5곳 | yt-playlist-studio, ai-webtoon-studio, ebook-studio, detail-page-12p, vinyl-lp-studio | 다른 CLI 작업 폴더인지 ACTIVE_WORK 먼저 확인 |
-| 2 | 개별 | threads-affiliate-poster `imageGenerator.ts`(여러 플랫폼 생성기) | Gemini 외 공급자와 섞여 있음 |
+| 1 | 개별 | threads-affiliate-poster `imageGenerator.ts`(여러 플랫폼 생성기) | Gemini 외 공급자와 섞여 있음 |
 
 ## 7. 이력
 
 | 날짜 | 내용 | 작성 |
 |---|---|---|
+| 2026-10-18 | 5묶음 완료 반영(§6) | Claude Code(윈도우) |
 | 2026-10-18 | 4묶음 B 완료 반영(§6), SDK 전환 요령(§2-10) 추가 | Claude Code(윈도우) |
 | 2026-10-18 | 시간 초과 안내를 Google 사용량 확인으로 정정(§2-9) — 결과는 저장되지 않으므로 「결과 확인」 금지 | Claude Code(윈도우) |
 | 2026-10-18 | 기준이 시간 초과를 자동 재시도하지 않도록 변경 반영(§0-6, §2-2) | Claude Code(윈도우) |

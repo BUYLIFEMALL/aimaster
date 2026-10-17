@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { generateGeminiImage } from "@/lib/geminiImage";
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,34 +41,25 @@ Theme: ${genre}, contemporary typography and minimal graphic design, elegant aes
 
     // [이미지 모델 교체 2026-10-17] 종료된 Imagen 3(predict) → gemini-nano-banana-2.1(generateContent), 기준: ai-image-studio v1.11.
     // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
-    const imageUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent?key=${finalApiKey}`;
-
+    // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(@/lib/geminiImage — 기준은 ai-image-studio).
+    // 키는 주소가 아니라 머리글로 보낸다. 시간 제한 120초, 유료 생성이라 재시도 없음(이중 과금 방지). 실패하면 기존처럼 SVG 표지로 대체.
     try {
-      const imgRes = await fetch(imageUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-            imageConfig: { aspectRatio: "3:4", imageSize: "1K" },
-          },
-        }),
+      const image = await generateGeminiImage({
+        apiKey: finalApiKey,
+        modelName: "gemini-nano-banana-2.1",
+        prompt,
+        aspectRatio: "3:4",
+        imageSize: "1K",
+        timeoutMs: 120_000,
+        retries: 0,
       });
-
-      if (imgRes.ok) {
-        const imgData = await imgRes.json();
-        const parts: Array<{ inlineData?: { data?: string; mimeType?: string } }> = imgData?.candidates?.[0]?.content?.parts ?? [];
-        const image = parts.find((p) => p.inlineData?.data)?.inlineData;
-        if (image?.data) {
-          return NextResponse.json({
-            success: true,
-            imageUrl: `data:${image.mimeType || "image/png"};base64,${image.data}`,
-          });
-        }
-      }
-    } catch {
+      return NextResponse.json({
+        success: true,
+        imageUrl: `data:${image.mimeType || "image/png"};base64,${image.base64}`,
+      });
+    } catch (e) {
       // 이미지 모델 호출 실패 시 SVG 모티프 표지 폴백 제공
+      console.warn("표지 이미지 생성 실패, SVG 표지로 대체:", e instanceof Error ? e.message : e);
     }
 
     // SVG 모던 북커버 동적 생성 (항상 안전하고 실패 없는 아름다운 표지)

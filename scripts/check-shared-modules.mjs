@@ -83,6 +83,12 @@ const MODULES = [
       "allinone-graphic/src/lib/geminiImage.ts",
       "cinematic-storyboard-studio/src/lib/geminiImage.ts",
       "ai-influencer-studio/src/lib/geminiImage.ts",
+      // 5묶음 Imagen 교체분(2026-10-18)
+      "yt-playlist-studio/src/lib/geminiImage.ts",
+      "ai-webtoon-studio/src/lib/geminiImage.ts",
+      "ebook-studio/src/lib/geminiImage.ts",
+      "detail-page-12p/src/lib/geminiImage.ts",
+      "vinyl-lp-studio/src/lib/geminiImage.ts",
     ],
   },
   {
@@ -133,6 +139,12 @@ const MODULES = [
       "allinone-graphic/src/lib/nanoBananaModels.ts",
       "cinematic-storyboard-studio/src/lib/nanoBananaModels.ts",
       "ai-influencer-studio/src/lib/nanoBananaModels.ts",
+      // 5묶음 Imagen 교체분(2026-10-18)
+      "yt-playlist-studio/src/lib/nanoBananaModels.ts",
+      "ai-webtoon-studio/src/lib/nanoBananaModels.ts",
+      "ebook-studio/src/lib/nanoBananaModels.ts",
+      "detail-page-12p/src/lib/nanoBananaModels.ts",
+      "vinyl-lp-studio/src/lib/nanoBananaModels.ts",
     ],
   },
   {
