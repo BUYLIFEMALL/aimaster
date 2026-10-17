@@ -1,7 +1,7 @@
 # AI 12단 상세페이지 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI 12단 상세페이지 자동화 (`detail-page-12p`)  
-> **현재 버전**: `v1.04` (2026-10-16 갱신)  
+> **현재 버전**: `v1.05` (2026-10-17 갱신)  
 > **공식 도메인**: `https://detail-12p.buylife.xyz`  
 > **카탈로그 슬러그**: `detail-page-12p`  
 > **배지**: `['free', 'new']` (가입 회원 누구나 이용 가능)
@@ -102,3 +102,13 @@ detail-page-12p/
 - **개선사항 인수인계**: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](docs/IMPROVEMENT_HANDOFF_20261016.md)
 - **디자인 완료 인수인계**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
 - **검수**: Microsoft Edge 전용 (`msedge.exe`) 실세션 테스트 계정(`buylifemall@naver.com`) 검증 완료 (데스크톱 6종 및 모바일 2종 캡처 확인).
+
+## 2026-10-17 로그인/회원가입 표준 2탭 레이아웃 개편 — v1.05 (detail-page-12p)
+- **개선 내용**:
+  - 단일 로그인 폼을 `threads-comment-reply` 표준 규격에 맞춘 `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 컨트롤(포커스 스튜디오 화이트 알약 탭)로 전면 개편.
+  - `#f8fafc` 클린 슬레이트 배경 + 24px 모눈 격자, 카드 화이트 서피스(`bg-white/95 border-slate-200`)로 테마 통일 완성.
+  - 구형 회원가입 URL을 최신 `https://aimaster.buylife.xyz/signup` 및 `forgot-password`로 표준화.
+  - 메일/자물쇠 아이콘(42px 인셋 패딩), 우측 비밀번호 찾기 링크, 회원가입 모드 전환 시 단일 계정 안내 틴트 박스 및 혜택 3종 체크리스트, CTA 링크 버튼 배치.
+- **버전 동기화**: `src/lib/version.ts`, `package.json`, Supabase DB `programs.version = 'v1.05'` 동기화 완료.
+- **실세션 검수**: Microsoft Edge (`msedge.exe`) 전용 실세션 캡처 3종 검수 완료 (`edge_detail12p_login_desktop_v105.png`, `edge_detail12p_signup_desktop_v105.png`, `edge_detail12p_login_mobile_v105.png`).
+
