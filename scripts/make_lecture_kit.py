@@ -24,7 +24,8 @@ PROGRAMS = [
      {"desktop", "supabase", "docs", "scripts", "tests", "AGENTS.md", "CLAUDE.md", "README.md", ".env.example", ".vercelignore"},
      {"vercel.json": "KIT/vercel.json", ".env.example": "KIT/env.example"}),
     ("insta_auto_poster", "insta_auto_poster",
-     {"supabase", "docs", "scripts", "AGENTS.md", "CLAUDE.md", "README.md"},
+     # vercel.json: 운영용 5분 cron(v1.24)은 Vercel 무료 요금제에서 배포 실패 → 수강생은 cron-job.org 사용
+     {"supabase", "docs", "scripts", "AGENTS.md", "CLAUDE.md", "README.md", "vercel.json"},
      {".env.example": "KIT/env.example"}),
 ]
 ALWAYS_SKIP_DIRS = {"node_modules", ".next", ".vercel", ".git", ".turbo", "out", "coverage"}
