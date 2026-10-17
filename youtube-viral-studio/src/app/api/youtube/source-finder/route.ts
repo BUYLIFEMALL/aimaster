@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { findShortsOriginalSource } from "@/lib/youtube/sourceFinder";
+import { errorMessage } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -33,10 +34,10 @@ export async function POST(request: Request) {
 
     const result = await findShortsOriginalSource(targetUrl, apiKey);
     return NextResponse.json(result);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("source-finder error:", err);
     return NextResponse.json(
-      { error: err.message || "쇼츠 원본 추적 중 오류가 발생했습니다." },
+      { error: errorMessage(err) || "쇼츠 원본 추적 중 오류가 발생했습니다." },
       { status: 500 }
     );
   }

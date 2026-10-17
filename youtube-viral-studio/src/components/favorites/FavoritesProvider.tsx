@@ -22,6 +22,7 @@ export function FavoritesProvider({ userId, children }: { userId: string; childr
     } catch(e) { if(active.current && ticket === serial.current) setError(e instanceof Error ? e.message : '보관함 조회 실패'); }
     finally { if(active.current && ticket === serial.current) setLoading(false); }
   },[]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- v1.14(Codex) 즐겨찾기 불러오기: 화면 진입·탭 복귀 때 다시 조회하고, 정리 단계에서 serial을 올려 늦게 온 옛 응답을 버리는 의도된 구조(로직 보존)
   useEffect(() => { active.current = true; void reload(); const refresh = () => { if(document.visibilityState === 'visible') void reload(); }; document.addEventListener('visibilitychange',refresh); return () => { active.current = false; ++serial.current; document.removeEventListener('visibilitychange',refresh); }; },[userId,reload]);
   useEffect(() => {
     if (!records.length) return;

@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { getRegisteredApiKeys, type ApiKeyProvider, ALL_PROVIDERS } from "@/lib/apiKeys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyYouTubeApiKey } from "@/lib/youtube/client";
+import { errorMessage } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,8 +18,8 @@ export async function GET() {
 
     const keys = await getRegisteredApiKeys(user.id);
     return NextResponse.json({ keys });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: errorMessage(err) }, { status: 500 });
   }
 }
 
@@ -46,9 +47,9 @@ export async function POST(request: Request) {
     if (provider === "youtube_api_key") {
       try {
         await verifyYouTubeApiKey(trimmedKey);
-      } catch (err: any) {
+      } catch (err: unknown) {
         return NextResponse.json(
-          { error: `API 키 검증 실패: ${err.message}` },
+          { error: `API 키 검증 실패: ${errorMessage(err)}` },
           { status: 400 }
         );
       }
@@ -70,8 +71,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, message: "API 키가 성공적으로 등록되었습니다." });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: errorMessage(err) }, { status: 500 });
   }
 }
 
@@ -102,7 +103,7 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ success: true, message: "API 키가 삭제되었습니다." });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: errorMessage(err) }, { status: 500 });
   }
 }

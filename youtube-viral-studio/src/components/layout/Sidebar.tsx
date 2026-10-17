@@ -132,6 +132,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
 
   // 휴대폰에서 메뉴를 누르고 다른 화면으로 이동하면 펼친 메뉴를 닫는다.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 휴대폰에서 다른 화면으로 이동하면 펼친 메뉴를 닫는 의도된 동작
     setOpen(false);
   }, [pathname]);
 

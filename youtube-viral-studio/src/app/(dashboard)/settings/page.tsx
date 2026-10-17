@@ -9,12 +9,11 @@ import {
   Trash2,
   ShieldCheck,
   HelpCircle,
-  Sparkles,
   Bot,
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 export default function SettingsPage() {
-  const [loading, setLoading] = useState(true);
   const [keys, setKeys] = useState<Record<string, { registered: boolean; maskedKey?: string }>>({});
   const [youtubeKeyInput, setYoutubeKeyInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -29,12 +28,11 @@ export default function SettingsPage() {
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 화면을 열 때 저장된 키 목록을 한 번 불러오는 정상 패턴(상태 변경은 응답을 받은 뒤 비동기로 일어남)
     fetchKeys();
   }, []);
 
@@ -61,8 +59,8 @@ export default function SettingsPage() {
       setMessage({ type: "success", text: "API 키가 정상 검증되어 안전하게 저장되었습니다!" });
       if (provider === "youtube_api_key") setYoutubeKeyInput("");
       fetchKeys();
-    } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "오류가 발생했습니다." });
+    } catch (err: unknown) {
+      setMessage({ type: "error", text: errorMessage(err) || "오류가 발생했습니다." });
     } finally {
       setSubmitting(false);
     }

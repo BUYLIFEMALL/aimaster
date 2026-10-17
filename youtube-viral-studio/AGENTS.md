@@ -110,3 +110,10 @@
 - 고칠 수 없음: `braces` 최신이 3.0.3(2024-09 이후 새 버전 없음), `@next/eslint-plugin-next` 최신 16.4.2·16.5.0-canary.16도 같은 `fast-glob@3.3.1`. npm 제안(eslint-config-next 14.2.35로 내리기)은 Next 16과 맞지 않아 제외. 검사 도구를 빼면 Next 전용 규칙을 잃어 제외.
 - 영향 없음: 개발 PC의 `npm run lint`에서만 실행, Next 16 `next build`는 lint를 돌리지 않음, 패턴은 설정 파일 고정이라 외부 입력이 닿지 않음. 운영 의존성 `npm audit --omit=dev` 0건.
 - 다음: Next 검사 플러그인이 `fast-glob`을 바꾸거나 `braces` 수정판이 나오면 `npm audit`로 재확인 후 갱신. 증거 `docs/evidence/dependency-audit-dev-20261017.json`·`dependency-audit-prod-20261017.json`.
+
+## 2026-10-17 v1.15 — 코드 규칙 경고 74건 → 0건 (Claude Code 윈도우, 동작 동일)
+- **쓰지 않는 import·변수 28건 제거**(매뉴얼·쇼츠·원본 추적·황금 채널 화면, 카드, 클라이언트). 설정 화면 `loading` 상태는 화면에서 쓰지 않아 제거.
+- **`any` 35건 → 타입**: `src/lib/errors.ts`(`errorMessage`·`errorCode`·`errorStatus` — 예전처럼 값이 없으면 `undefined` → 기본 문구), `types.ts`에 `RawVideoResource`·`RawChannelResource`(videos/channels.list 원본 중 실제 쓰는 칸, 영상 `snippet.channelId` 필수), `YouTubeSearchItem`, `CaptionTrack`/`CaptionsData`, `scriptAnalyzer`의 `ParsedAnalysis`(AI JSON, 모든 칸 선택 — 기본값 채움 로직 그대로), 쇼츠 선택 상자는 상태 타입으로.
+- **의도된 예외 10곳(이유 주석)**: 외부 유튜브 썸네일 `<img>` 6(next/image는 최적화 비용·원격 주소 설정 필요), 설정 키 목록 불러오기·휴대폰 메뉴 닫기·**즐겨찾기 불러오기(v1.14 Codex 로직 보존, 주석만)**.
+- **이동 방식 1곳**: 대본 분석 AI 키 없음 → 설정 이동을 `window.location.href`에서 `router.push("/settings")`로(도착 화면 동일).
+- 검수: `tsc` 0·`eslint` 0, `tests/favorites.test.mjs` 8개 통과, build, 배포·DB v1.15, 비로그인 `/api/favorites` 401, 크롬 시험 계정 매뉴얼·설정(저장된 키 3개 가린 값 표시)·쇼츠 선택 상자 변경 정상·콘솔 오류 0. 검색·AI 분석은 실행하지 않음(회원 키 사용).

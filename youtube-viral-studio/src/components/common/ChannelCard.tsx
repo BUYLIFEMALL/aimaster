@@ -1,7 +1,7 @@
 "use client";
 
 import { useFavorites } from "@/components/favorites/FavoritesProvider";
-import { formatNumber, formatRelativeTime } from "@/lib/youtube/metrics";
+import { formatNumber } from "@/lib/youtube/metrics";
 import type { YouTubeChannelItem } from "@/lib/youtube/types";
 import {
   ExternalLink,
@@ -43,6 +43,7 @@ export function ChannelCard({ channel, onBookmark, isBookmarked: initialBookmark
       <div>
         {/* 상단 프로필 및 지표 */}
         <div className="flex items-start gap-3.5 mb-4">
+          {/* eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지 */}
           <img
             src={channel.thumbnailUrl || "/default-avatar.png"}
             alt={channel.title}

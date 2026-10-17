@@ -8,6 +8,7 @@ import {
   parseDuration,
 } from "./metrics";
 import type { TrendingParams, YouTubeVideoItem } from "./types";
+import type { YouTubeSearchItem } from "./types";
 
 const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
@@ -45,7 +46,7 @@ export async function getTrendingVideos(
       );
     }
 
-    const videoIds = (sData.items || []).map((i: any) => i.id?.videoId).filter(Boolean);
+    const videoIds = (sData.items || []).map((i: YouTubeSearchItem) => i.id?.videoId).filter(Boolean);
     if (videoIds.length === 0) return [];
 
     const videosMap = await fetchVideosDetails(videoIds, apiKey);
@@ -142,7 +143,7 @@ export async function getTrendingVideos(
 
   // 채널 정보 일괄 조회
   const channelIds = items
-    .map((item: any) => item.snippet?.channelId)
+    .map((item: YouTubeSearchItem) => item.snippet?.channelId)
     .filter(Boolean);
   const channelsMap = await fetchChannelsDetails(channelIds, apiKey);
 

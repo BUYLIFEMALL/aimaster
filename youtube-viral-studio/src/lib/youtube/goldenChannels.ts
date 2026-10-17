@@ -1,6 +1,7 @@
 import "server-only";
-import { fetchChannelsDetails, fetchVideosDetails, YouTubeApiError } from "./client";
+import { fetchChannelsDetails, YouTubeApiError } from "./client";
 import type { GoldenChannelsParams, YouTubeChannelItem } from "./types";
+import type { YouTubeSearchItem } from "./types";
 
 const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
@@ -42,7 +43,7 @@ export async function findGoldenChannels(
   const channelIds = Array.from(
     new Set<string>(
       (searchData.items || [])
-        .map((item: any) => item.snippet?.channelId)
+        .map((item: YouTubeSearchItem) => item.snippet?.channelId)
         .filter(Boolean)
     )
   );

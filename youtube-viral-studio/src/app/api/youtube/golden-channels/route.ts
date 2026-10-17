@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { findGoldenChannels } from "@/lib/youtube/goldenChannels";
 import type { GoldenChannelsParams } from "@/lib/youtube/types";
+import { errorCode, errorMessage, errorStatus } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,11 +30,11 @@ export async function POST(request: Request) {
     const body: GoldenChannelsParams = await request.json();
     const channels = await findGoldenChannels(body, apiKey);
     return NextResponse.json({ items: channels });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("golden-channels error:", err);
     return NextResponse.json(
-      { error: err.message || "황금 채널 발굴 중 오류가 발생했습니다.", code: err.code },
-      { status: err.status || 500 }
+      { error: errorMessage(err) || "황금 채널 발굴 중 오류가 발생했습니다.", code: errorCode(err) },
+      { status: errorStatus(err) || 500 }
     );
   }
 }

@@ -6,16 +6,15 @@ import { VideoCard } from "@/components/common/VideoCard";
 import type { ShortsSearchParams, YouTubeVideoItem } from "@/lib/youtube/types";
 import {
   Search,
-  Filter,
   Flame,
   Sparkles,
-  TrendingUp,
   AlertCircle,
   Key,
   RotateCcw,
   SlidersHorizontal,
 } from "lucide-react";
 import Link from "next/link";
+import { errorMessage } from "@/lib/errors";
 
 const POPULAR_KEYWORDS = [
   "주식",
@@ -81,8 +80,8 @@ export default function ViralShortsPage() {
 
       setItems(data.items || []);
       setFallbackNotice(data.fallbackNotice || null);
-    } catch (err: any) {
-      setError(err.message || "네트워크 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      setError(errorMessage(err) || "네트워크 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -216,7 +215,7 @@ export default function ViralShortsPage() {
               </label>
               <select
                 value={uploadPeriod}
-                onChange={(e) => setUploadPeriod(e.target.value as any)}
+                onChange={(e) => setUploadPeriod(e.target.value as typeof uploadPeriod)}
                 className="w-full p-2.5 bg-yt-raised border border-yt-border rounded-lg text-yt-text font-medium focus:bg-yt-surface focus:outline-hidden focus:ring-1 focus:ring-yt-red"
               >
                 <option value="7d">최근 7일 이내 (초급상승)</option>
@@ -273,7 +272,7 @@ export default function ViralShortsPage() {
               </label>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="w-full p-2.5 bg-yt-raised border border-yt-border rounded-lg text-yt-text font-medium focus:bg-yt-surface focus:outline-hidden focus:ring-1 focus:ring-yt-red"
               >
                 <option value="viralScore">🚀 떡상 점수순 (기여도 최고)</option>

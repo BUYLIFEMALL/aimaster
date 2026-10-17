@@ -1,4 +1,5 @@
 import "server-only";
+import type { CaptionsData, CaptionTrack } from "./types";
 
 export interface TranscriptItem {
   text: string;
@@ -41,7 +42,7 @@ export async function fetchVideoTranscript(videoId: string): Promise<VideoTransc
     }
 
     const captionsJsonStr = splitted[1].split(',"videoDetails"')[0];
-    let captionsData: any;
+    let captionsData: CaptionsData | undefined;
     try {
       captionsData = JSON.parse(captionsJsonStr);
     } catch {
@@ -61,7 +62,7 @@ export async function fetchVideoTranscript(videoId: string): Promise<VideoTransc
 
     // 한국어 트랙 우선, 없으면 첫 번째 트랙 선택
     const koTrack =
-      captionTracks.find((t: any) => t.languageCode === "ko" || t.vssId?.includes("ko")) ||
+      captionTracks.find((t: CaptionTrack) => t.languageCode === "ko" || t.vssId?.includes("ko")) ||
       captionTracks[0];
 
     if (!koTrack?.baseUrl) {

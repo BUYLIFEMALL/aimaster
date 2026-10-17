@@ -1,7 +1,8 @@
 import "server-only";
-import { fetchVideosDetails, YouTubeApiError } from "./client";
+import { fetchVideosDetails } from "./client";
 import { parseDuration } from "./metrics";
 import type { YouTubeVideoItem } from "./types";
+import type { YouTubeSearchItem } from "./types";
 
 const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
@@ -153,7 +154,7 @@ export async function findShortsOriginalSource(
   const channelSearchData = await res.json();
 
   const candidateVideoIds = (channelSearchData.items || [])
-    .map((item: any) => item.id?.videoId)
+    .map((item: YouTubeSearchItem) => item.id?.videoId)
     .filter((id: string) => id && id !== videoId && !linkedVideoIds.includes(id));
 
   const candidateDetailsMap = await fetchVideosDetails(candidateVideoIds, apiKey);

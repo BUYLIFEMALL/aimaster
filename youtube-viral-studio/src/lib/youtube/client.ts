@@ -1,12 +1,6 @@
 import "server-only";
-import {
-  calculateViralScore,
-  calculateVPH,
-  calculateVsRatio,
-  isShortsVideo,
-  parseDuration,
-} from "./metrics";
-import type { YouTubeVideoItem, YouTubeChannelItem } from "./types";
+
+import type { RawChannelResource, RawVideoResource } from "./types";
 
 const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
@@ -24,8 +18,11 @@ export class YouTubeApiError extends Error {
 /**
  * YouTube Data API 에러 응답 파싱
  */
-function handleApiError(data: any, status: number): never {
-  const errorObj = data?.error;
+/** v1.15: 오류 응답에서 쓰는 칸만 */
+interface ApiErrorBody { error?: { message?: string; errors?: { reason?: string }[] } }
+
+function handleApiError(data: unknown, status: number): never {
+  const errorObj = (data as ApiErrorBody | null)?.error;
   const reason = errorObj?.errors?.[0]?.reason || "";
   const message = errorObj?.message || "YouTube API 요청 중 오류가 발생했습니다.";
 
@@ -60,11 +57,11 @@ function handleApiError(data: any, status: number): never {
 export async function fetchVideosDetails(
   videoIds: string[],
   apiKey: string
-): Promise<Map<string, any>> {
+): Promise<Map<string, RawVideoResource>> {
   if (videoIds.length === 0) return new Map();
 
   const chunkSize = 50;
-  const resultMap = new Map<string, any>();
+  const resultMap = new Map<string, RawVideoResource>();
 
   for (let i = 0; i < videoIds.length; i += chunkSize) {
     const chunk = videoIds.slice(i, i + chunkSize);
@@ -94,12 +91,12 @@ export async function fetchVideosDetails(
 export async function fetchChannelsDetails(
   channelIds: string[],
   apiKey: string
-): Promise<Map<string, any>> {
+): Promise<Map<string, RawChannelResource>> {
   if (channelIds.length === 0) return new Map();
 
   const uniqueIds = Array.from(new Set(channelIds));
   const chunkSize = 50;
-  const resultMap = new Map<string, any>();
+  const resultMap = new Map<string, RawChannelResource>();
 
   for (let i = 0; i < uniqueIds.length; i += chunkSize) {
     const chunk = uniqueIds.slice(i, i + chunkSize);

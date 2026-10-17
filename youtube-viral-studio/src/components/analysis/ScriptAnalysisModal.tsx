@@ -12,7 +12,6 @@ import {
   Check,
   Flame,
   FileText,
-  HelpCircle,
 } from "lucide-react";
 
 interface ScriptAnalysisModalProps {

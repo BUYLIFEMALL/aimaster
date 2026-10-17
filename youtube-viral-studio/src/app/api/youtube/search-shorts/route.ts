@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { searchViralShorts } from "@/lib/youtube/viralShorts";
 import type { ShortsSearchParams } from "@/lib/youtube/types";
+import { errorCode, errorMessage, errorStatus } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -33,11 +34,11 @@ export async function POST(request: Request) {
 
     const result = await searchViralShorts(body, apiKey);
     return NextResponse.json(result);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("search-shorts error:", err);
     return NextResponse.json(
-      { error: err.message || "영상 검색 중 오류가 발생했습니다.", code: err.code },
-      { status: err.status || 500 }
+      { error: errorMessage(err) || "영상 검색 중 오류가 발생했습니다.", code: errorCode(err) },
+      { status: errorStatus(err) || 500 }
     );
   }
 }

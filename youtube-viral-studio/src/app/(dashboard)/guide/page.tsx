@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  HelpCircle,
-  Flame,
-  Search,
-  Sparkles,
-  Link2,
-  TrendingUp,
-  Key,
-  ShieldCheck,
-} from "lucide-react";
-import Link from "next/link";
+import { HelpCircle } from "lucide-react";
 
 export default function GuidePage() {
   const guides = [

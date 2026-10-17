@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 유튜브 바이럴 파인더 v1.15: 코드 규칙 경고 74건 → 0건
+
+- **한 일**: 쓰지 않는 import·변수 28 제거, `any` 35 → 실제 타입(공통 오류 함수·원본 응답/검색/자막/AI 결과 타입), 의도된 예외 10곳 이유 주석(외부 썸네일 `<img>`, React 패턴 — v1.14 Codex 즐겨찾기 로직은 주석만), 설정 이동 `router.push`.
+- **검수**: tsc·eslint 0, 즐겨찾기 단위 8, build, 배포·DB v1.15, 비로그인 API 401, 크롬 매뉴얼·설정·쇼츠 정상.
+- **다음**: 즐겨찾기 1,000건 페이지 나눔. 인수인계: [`youtube-viral-studio/AGENTS.md`](../youtube-viral-studio/AGENTS.md)
+- **링크**: https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 「개발 대화 규칙」 메인 지침 맨 위 고정
 
 - **주인님 지시**: 진행 과정을 또 영어로 표시함 → 개발 핵심 지침 제일 상단에 고정, 최상단 메인 지침에도 「개발 대화 규칙」으로 추가.

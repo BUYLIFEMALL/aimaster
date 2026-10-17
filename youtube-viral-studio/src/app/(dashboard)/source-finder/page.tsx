@@ -11,11 +11,10 @@ import {
   AlertCircle,
   Key,
   CheckCircle2,
-  ArrowRight,
-  Eye,
 } from "lucide-react";
 import { formatNumber, formatRelativeTime } from "@/lib/youtube/metrics";
 import Link from "next/link";
+import { errorMessage } from "@/lib/errors";
 
 export default function SourceFinderPage() {
   const searchParams = useSearchParams();
@@ -53,8 +52,8 @@ export default function SourceFinderPage() {
       }
 
       setResult(data);
-    } catch (err: any) {
-      setError(err.message || "네트워크 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      setError(errorMessage(err) || "네트워크 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -161,6 +160,7 @@ export default function SourceFinderPage() {
               <span>🎯 분석 대상 쇼츠</span>
             </h2>
             <div className="flex flex-col sm:flex-row gap-5 items-start">
+              {/* eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지 */}
               <img
                 src={result.shortsVideo.thumbnailUrl}
                 alt={result.shortsVideo.title}
@@ -201,6 +201,7 @@ export default function SourceFinderPage() {
                     key={v.id}
                     className="p-4 rounded-xl border border-yt-border bg-yt-raised flex gap-4 items-center"
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지 */}
                     <img
                       src={v.thumbnailUrl}
                       alt={v.title}
@@ -248,6 +249,7 @@ export default function SourceFinderPage() {
                     className="p-4 rounded-xl border border-yt-border hover:border-yt-violet bg-yt-surface transition-all flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
                   >
                     <div className="flex gap-4 items-center flex-1 min-w-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지 */}
                       <img
                         src={video.thumbnailUrl}
                         alt={video.title}

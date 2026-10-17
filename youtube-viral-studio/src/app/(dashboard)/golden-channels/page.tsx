@@ -6,12 +6,12 @@ import type { YouTubeChannelItem, GoldenChannelsParams } from "@/lib/youtube/typ
 import {
   Sparkles,
   Search,
-  Filter,
   Users,
   AlertCircle,
   Key,
 } from "lucide-react";
 import Link from "next/link";
+import { errorMessage } from "@/lib/errors";
 
 const CATEGORY_CHIPS = [
   "이슈 쇼츠",
@@ -62,8 +62,8 @@ export default function GoldenChannelsPage() {
       }
 
       setChannels(data.items || []);
-    } catch (err: any) {
-      setError(err.message || "네트워크 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      setError(errorMessage(err) || "네트워크 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }

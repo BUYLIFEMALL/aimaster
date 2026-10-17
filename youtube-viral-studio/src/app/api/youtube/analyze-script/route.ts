@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { fetchVideoTranscript } from "@/lib/youtube/transcript";
 import { analyzeShortsScript } from "@/lib/ai/scriptAnalyzer";
+import { errorMessage } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -53,10 +54,10 @@ export async function POST(request: Request) {
       analysis,
       hasSubtitles: transcriptResult.hasSubtitles,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("analyze-script error:", err);
     return NextResponse.json(
-      { error: err.message || "쇼츠 대본 분석 중 오류가 발생했습니다." },
+      { error: errorMessage(err) || "쇼츠 대본 분석 중 오류가 발생했습니다." },
       { status: 500 }
     );
   }

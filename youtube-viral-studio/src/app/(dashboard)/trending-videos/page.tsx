@@ -5,6 +5,7 @@ import { VideoCard } from "@/components/common/VideoCard";
 import type { YouTubeVideoItem } from "@/lib/youtube/types";
 import { Flame, RefreshCw, AlertCircle, Key } from "lucide-react";
 import Link from "next/link";
+import { errorMessage } from "@/lib/errors";
 
 export default function TrendingVideosPage() {
   const [activeTab, setActiveTab] = useState<"shorts" | "long" | "all">("shorts");
@@ -41,8 +42,8 @@ export default function TrendingVideosPage() {
       }
 
       setVideos(data.items || []);
-    } catch (err: any) {
-      setError(err.message || "네트워크 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      setError(errorMessage(err) || "네트워크 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }

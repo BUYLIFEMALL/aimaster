@@ -67,3 +67,34 @@ export interface TrendingParams {
   regionCode?: string; // 기본 KR
   maxResults?: number;
 }
+
+/** v1.15: search.list 결과 항목 — 코드에서 실제로 쓰는 칸만(any 대신) */
+export interface YouTubeSearchItem {
+  id?: { videoId?: string };
+  snippet?: { channelId?: string };
+}
+
+/** v1.15: 영상 페이지 안 자막 트랙 정보(쓰는 칸만) */
+export interface CaptionTrack {
+  languageCode?: string;
+  vssId?: string;
+  baseUrl?: string;
+}
+export interface CaptionsData {
+  playerCaptionsTracklistRenderer?: { captionTracks?: CaptionTrack[] };
+}
+
+/** v1.15: videos.list / channels.list 원본 응답(코드에서 실제로 쓰는 칸만, any 대신). 숫자 통계는 API가 문자열로 준다 */
+interface RawThumb { url?: string }
+interface RawThumbnails { default?: RawThumb; medium?: RawThumb; high?: RawThumb; maxres?: RawThumb }
+export interface RawVideoResource {
+  id: string;
+  snippet: { title?: string; description?: string; channelId: string; channelTitle?: string; publishedAt?: string; thumbnails?: RawThumbnails };
+  contentDetails?: { duration?: string };
+  statistics: { viewCount?: string; likeCount?: string; commentCount?: string };
+}
+export interface RawChannelResource {
+  id: string;
+  snippet: { title?: string; description?: string; customUrl?: string; publishedAt?: string; thumbnails?: RawThumbnails };
+  statistics: { viewCount?: string; subscriberCount?: string; videoCount?: string };
+}

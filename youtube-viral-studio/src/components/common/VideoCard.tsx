@@ -13,7 +13,6 @@ import {
   ExternalLink,
   Flame,
   TrendingUp,
-  Clock,
   Eye,
   Users,
   Bookmark,
@@ -21,8 +20,10 @@ import {
   Link2,
 } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ScriptAnalysisModal } from "@/components/analysis/ScriptAnalysisModal";
 import type { ScriptAnalysisResult } from "@/lib/ai/scriptAnalyzer";
+import { errorMessage } from "@/lib/errors";
 
 interface VideoCardProps {
   video: YouTubeVideoItem;
@@ -32,6 +33,7 @@ interface VideoCardProps {
 
 export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked = false }: VideoCardProps) {
   const favorites = useFavorites();
+  const router = useRouter();
   const [localBookmarked, setBookmarked] = useState(initialBookmarked);
   const bookmarked = favorites ? favorites.has("video", video.id) : localBookmarked;
   const bookmarkBusy = !!favorites && (favorites.loading || !!favorites.error || favorites.pending.has("video:" + video.id));
@@ -56,7 +58,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
       if (!res.ok) {
         if (data.needAiKey) {
           if (confirm(`${data.error}\n\n지금 설정 페이지로 이동하여 API 키를 등록하시겠습니까?`)) {
-            window.location.href = "/settings";
+            router.push("/settings"); // v1.15: Next 방식 이동(도착 화면 동일)
           }
         } else {
           alert(data.error || "대본 분석 중 오류가 발생했습니다.");
@@ -66,8 +68,8 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
 
       setAnalysisResult(data.analysis);
       setModalOpen(true);
-    } catch (err: any) {
-      alert(err.message || "네트워크 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      alert(errorMessage(err) || "네트워크 오류가 발생했습니다.");
     } finally {
       setAnalyzing(false);
     }
@@ -113,6 +115,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
       {/* 썸네일 영역 */}
       <div className="relative aspect-video bg-yt-raised overflow-hidden">
         {video.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지
           <img
             src={video.thumbnailUrl}
             alt={video.title}
@@ -158,6 +161,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
         {/* 채널 정보 */}
         <div className="flex items-center gap-2 mb-2">
           {video.channelThumbnailUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지
             <img
               src={video.channelThumbnailUrl}
               alt={video.channelTitle}

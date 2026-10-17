@@ -1,4 +1,5 @@
 import "server-only";
+import { errorMessage } from "@/lib/errors";
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -59,7 +60,10 @@ ${koreaNowRule()}
   }
 }`;
 
-function safeParseJson(str: string): any {
+/** v1.15: AI가 돌려준 JSON(모든 칸이 빠질 수 있음 — 아래에서 기본값으로 채움) */
+type ParsedAnalysis = Partial<Omit<ScriptAnalysisResult, "videoId" | "videoTitle" | "hasOriginalScript" | "providerUsed">>;
+
+function safeParseJson(str: string): ParsedAnalysis {
   let cleaned = (str || "").trim();
   if (cleaned.startsWith("```json")) {
     cleaned = cleaned.replace(/^```json\s*/, "").replace(/```$/, "").trim();
@@ -69,7 +73,7 @@ function safeParseJson(str: string): any {
 
   try {
     return JSON.parse(cleaned);
-  } catch (err) {
+  } catch {
     // LLM이 중첩 객체의 닫는 괄호(})나 대괄호(])를 누락했을 때 자동 복구
     const openBraces = (cleaned.match(/\{/g) || []).length;
     let closeBraces = (cleaned.match(/\}/g) || []).length;
@@ -88,7 +92,7 @@ function safeParseJson(str: string): any {
 async function analyzeWithGemini(
   content: string,
   apiKey: string
-): Promise<any> {
+): Promise<ParsedAnalysis> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   const res = await fetch(url, {
@@ -123,7 +127,7 @@ async function analyzeWithGemini(
 async function analyzeWithOpenAI(
   content: string,
   apiKey: string
-): Promise<any> {
+): Promise<ParsedAnalysis> {
   const url = "https://api.openai.com/v1/chat/completions";
 
   const res = await fetch(url, {
@@ -176,16 +180,16 @@ export async function analyzeShortsScript(params: {
 ${transcript || "자막 없음 (제목 및 설명 기반 분석 모드)"}
 `.trim();
 
-  let parsed: any;
+  let parsed: ParsedAnalysis = {};
   let providerUsed = "";
 
   if (geminiKey) {
     try {
       parsed = await analyzeWithGemini(inputContent, geminiKey);
       providerUsed = "Google Gemini 2.5 Flash";
-    } catch (geminiErr: any) {
+    } catch (geminiErr: unknown) {
       if (openaiKey) {
-        console.warn("Gemini 분석 실패, OpenAI로 자동 폴백:", geminiErr.message);
+        console.warn("Gemini 분석 실패, OpenAI로 자동 폴백:", errorMessage(geminiErr));
         parsed = await analyzeWithOpenAI(inputContent, openaiKey);
         providerUsed = "OpenAI GPT-4o-mini";
       } else {
