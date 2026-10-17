@@ -1,11 +1,13 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import type { AspectRatio, ModelLevel, Resolution } from "@/lib/portrait/options";
 
 // 모델명은 자주 바뀌므로 한곳에서 관리한다. pro를 쓸 수 없으면 flash로 한 번 더 시도한다.
 export const IMAGE_MODELS: Record<ModelLevel, string> = {
-  flash: "gemini-2.5-flash-image",
-  pro: "gemini-3-pro-image-preview",
+  flash: "gemini-3.1-flash-lite-image",
+  pro: "gemini-3-pro-image",
 };
 export const TEXT_MODEL = "gemini-2.5-flash";
 
