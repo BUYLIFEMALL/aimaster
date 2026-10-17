@@ -127,7 +127,7 @@
 | 10 | 페르소나 문체 자동화 | `persona-style-studio` | **포커스 스튜디오 스타일** (문체 변환 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.08`, 포커스 스튜디오 스타일) | [`persona-style-studio/docs/DESIGN_HANDOFF.md`](persona-style-studio/docs/DESIGN_HANDOFF.md) |
 | 11 | AI Prompt 자동화 | `ai-prompt-studio` | **포커스 스튜디오 스타일** (프롬프트 엔지니어링 스튜디오) | 라이트(클린 슬레이트 `#f8fafc`) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일) | [`ai-prompt-studio/docs/DESIGN_HANDOFF.md`](ai-prompt-studio/docs/DESIGN_HANDOFF.md) |
 | 12 | Youtube Playlist 자동화 | `yt-playlist-studio` | **유튜브 다크 콘솔 스타일** (YouTube Dark Console Style) | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.07`, 유튜브 다크 콘솔 스타일) | [`yt-playlist-studio/docs/DESIGN_HANDOFF.md`](yt-playlist-studio/docs/DESIGN_HANDOFF.md) |
-| 13 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `vinyl-lp-studio/AGENTS.md` |
+| 13 | LP 턴테이블 자동화 | `vinyl-lp-studio` | **크리에이티브 아틀리에 스타일** (바이닐 다크 레트로 콘솔 변형) | 다크(옵시디언 `#0c0d12` + 바이닐 골드/앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 크리에이티브 아틀리에 스타일) | [`vinyl-lp-studio/docs/DESIGN_HANDOFF.md`](vinyl-lp-studio/docs/DESIGN_HANDOFF.md) |
 | 14 | 무한루프 영상자동화 | `infinite-loop-video` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `infinite-loop-video/AGENTS.md` |
 | 15 | AI 인플루언서 자동화 | `ai-influencer-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `ai-influencer-studio/AGENTS.md` |
 | 16 | 뮤직비디오 자동화 | `music-video-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `music-video-studio/AGENTS.md` |

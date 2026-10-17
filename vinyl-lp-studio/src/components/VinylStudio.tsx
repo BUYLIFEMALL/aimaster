@@ -9,6 +9,7 @@ import { HelpModal } from "@/components/HelpModal";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { processDiscTexture } from "@/lib/render/canvas-texture";
 import { renderSpinningAnimation } from "@/lib/render/media-exporter";
+import { VinylGuideView } from "@/components/VinylGuideView";
 import type { VinylConfig, VinylState, HistoryItem } from "@/types/vinyl";
 
 interface VinylStudioProps {
@@ -18,6 +19,9 @@ interface VinylStudioProps {
 const LOCAL_STORAGE_KEY = "vinyl_lp_studio_history_v1";
 
 export function VinylStudio({ userEmail }: VinylStudioProps) {
+  // 메인 뷰 전환 상태: "studio" | "guide"
+  const [activeView, setActiveView] = useState<"studio" | "guide">("studio");
+
   // 메인 설정 및 렌더링 상태
   const [config, setConfig] = useState<VinylConfig>({
     title: "",
@@ -435,41 +439,58 @@ export function VinylStudio({ userEmail }: VinylStudioProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 overflow-hidden font-sans">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#0c0d12] overflow-hidden font-sans">
       {/* 1. AIMaster 표준 좌측 사이드바 */}
       <Sidebar
         userEmail={userEmail}
         activeStep={activeStep}
-        onSelectStep={setActiveStep}
+        activeView={activeView}
+        onSelectStep={(step) => {
+          setActiveView("studio");
+          setActiveStep(step);
+        }}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        onOpenGuide={() => setActiveView("guide")}
         onOpenHelpModal={() => setIsHelpModalOpen(true)}
         onOpenHistory={() => setIsHistoryOpen(true)}
       />
 
-      {/* 2. 중앙 옵션 컨트롤 패널 */}
-      <ControlPanel
-        config={config}
-        setConfig={setConfig}
-        onGenerateArtwork={handleGenerateArtwork}
-        onSuggestPrompt={handleSuggestPrompt}
-        onFileUpload={handleFileUpload}
-        onRenderExport={handleRenderExport}
-        isLoading={state.isGeneratingImage}
-        isSuggesting={state.isSuggestingPrompt}
-        isExporting={state.isRenderingVideo}
-        audioName={audioFile?.name ?? null}
-        onPickAudio={setAudioFile}
-        exportFormat={exportFormat}
-        hasArtwork={Boolean(state.generatedImageBase64)}
-        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
-        onOpenHelpModal={() => setIsHelpModalOpen(true)}
-        onOpenHistory={() => setIsHistoryOpen(true)}
-        historyCount={historyItems.length}
-        hasApiKey={hasApiKey}
-      />
+      {/* 2. 메인 컨텐츠 영역: guide 뷰 또는 studio 뷰 */}
+      {activeView === "guide" ? (
+        <div className="flex-1 h-screen overflow-y-auto bg-[#0c0d12]">
+          <VinylGuideView
+            onBackToStudio={() => setActiveView("studio")}
+            onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+          />
+        </div>
+      ) : (
+        <>
+          {/* 중앙 옵션 컨트롤 패널 */}
+          <ControlPanel
+            config={config}
+            setConfig={setConfig}
+            onGenerateArtwork={handleGenerateArtwork}
+            onSuggestPrompt={handleSuggestPrompt}
+            onFileUpload={handleFileUpload}
+            onRenderExport={handleRenderExport}
+            isLoading={state.isGeneratingImage}
+            isSuggesting={state.isSuggestingPrompt}
+            isExporting={state.isRenderingVideo}
+            audioName={audioFile?.name ?? null}
+            onPickAudio={setAudioFile}
+            exportFormat={exportFormat}
+            hasArtwork={Boolean(state.generatedImageBase64)}
+            onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+            onOpenHelpModal={() => setIsHelpModalOpen(true)}
+            onOpenHistory={() => setIsHistoryOpen(true)}
+            historyCount={historyItems.length}
+            hasApiKey={hasApiKey}
+          />
 
-      {/* 3. 우측 턴테이블 뷰어 및 내보내기 디스플레이 */}
-      <TurntableDisplay state={state} onReset={handleReset} />
+          {/* 우측 턴테이블 뷰어 및 내보내기 디스플레이 */}
+          <TurntableDisplay state={state} onReset={handleReset} />
+        </>
+      )}
 
       {/* 모달 컴포넌트들 */}
       <ApiKeyModal

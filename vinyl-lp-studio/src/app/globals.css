@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #0c0d12;
+  --foreground: #f8fafc;
 }
 
 body {
@@ -12,20 +12,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbar for clean UI */
+/* Custom scrollbar for dark retro console UI */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: #0c0d12;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #272b3f;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #d97706;
 }
 
 @keyframes spin-linear {
@@ -38,9 +38,5 @@ body {
 }
 
 .animate-spin-disc {
-  animation: spin-linear var(--spin-duration, 1.8s) linear infinite;
-}
-
-.animate-spin-disc-paused {
-  animation-play-state: paused;
+  animation: spin-linear var(--spin-duration, 1.333s) linear infinite;
 }
