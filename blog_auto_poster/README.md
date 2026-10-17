@@ -26,3 +26,7 @@ npm run start
 - `src/generator.ts`: 구글/네이버 SEO 최적화 마크다운 & FAQ 포스트 생성기
 - `src/db.ts`: Supabase 통합 DB (`AIMaster_dev`) `blog_` 테이블 연동 저정기
 - `src/index.ts`: 메인 CLI 실행기
+
+## 2026-10-17 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/nanoBananaConfig.ts`: gemini-2.5-flash-image·gemini-3.1-flash-image → `gemini-nano-banana-2.1`, 주소 v1 → v1beta (기준: ai-image-studio v1.11).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시). 운영자 전용 도구라 배포·버전 없음, `tsc --noEmit` 통과.
