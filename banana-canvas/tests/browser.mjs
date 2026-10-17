@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 실제 Chrome(보이는 창)에서 Studio·HistoryList 흐름을 검수한다. 서버 API와 Storage는 시험용 모의 응답으로 대체한다.
 import { build } from "esbuild";
 import { chromium } from "playwright";
@@ -63,7 +65,7 @@ await page.route("**/api/**", async (route) => {
     if (needKey) return j({ error: "Gemini API 키가 등록되지 않았습니다.", needKey: true }, 400);
     const k = body.params.kind;
     const outputs = k === "story" ? [outItem("장면 1"), outItem("장면 2"), outItem("장면 3")] : k === "recipe" ? [outItem("1단계: 재료 준비"), { path: "", url: null, w: 0, h: 0, mime: "", text: "2단계: 볶기" }] : [outItem()];
-    return j({ id: `h${seq}`, kind: k, title: "시험 결과", model: "gemini-2.5-flash-image", warning: k === "recipe" ? "1단계는 이미지를 만들지 못해 설명만 표시합니다." : null, outputs, texts: [] });
+    return j({ id: `h${seq}`, kind: k, title: "시험 결과", model: "gemini-3.1-flash-lite-image", warning: k === "recipe" ? "1단계는 이미지를 만들지 못해 설명만 표시합니다." : null, outputs, texts: [] });
   }
   if (url.pathname === "/api/history" && method === "GET") return j({ items: [
     { id: "r1", kind: "edit", title: "유화", prompt: "", model: "m", favorite: false, created_at: "2026-10-14T01:00:00Z", count: 1, cover: `${origin}/img/c1.jpg` },
