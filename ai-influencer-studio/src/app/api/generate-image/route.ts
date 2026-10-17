@@ -4,7 +4,7 @@ import { getUserGeminiApiKey } from "@/lib/apiKeys";
 import { generateInfluencerImage } from "@/lib/gemini";
 import type { InfluencerConfig } from "@/types/influencer";
 
-export const maxDuration = 60; // 60초 타임아웃
+export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
 
 export async function POST(req: Request) {
   const auth = await checkProgramAccessApi();

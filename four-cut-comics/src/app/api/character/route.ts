@@ -6,7 +6,7 @@ import { parseCharacterRequest } from "@/lib/comic/validate";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-export const maxDuration = 60;
+export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
 
 /** 등장인물 한 명의 전신 캐릭터 시트 1장. 회원 본인 Gemini 키 1회 호출, 결과는 서버에 저장하지 않는다. */
 export async function POST(request: NextRequest) {

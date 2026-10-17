@@ -132,6 +132,10 @@ export function StyleDesignPanel({
       if (data.imageUrl) {
         onUpdateProject({ coverImage: data.imageUrl });
       }
+      // AI 표지가 실패해 기본(SVG) 표지로 대체된 경우 원인을 알린다(2026-10-18)
+      if (data.fallbackReason) {
+        setCoverError(`AI 표지 생성에 실패해 기본 표지를 넣었습니다. 원인: ${data.fallbackReason}`);
+      }
     } catch (err: unknown) {
       setCoverError(err instanceof Error ? err.message : "표지 생성 중 오류가 발생했습니다.");
     } finally {

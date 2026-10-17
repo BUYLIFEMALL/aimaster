@@ -6,7 +6,7 @@ import { MAX_SHEET_B64, MAX_SHEETS, parsePanelRequest } from "@/lib/comic/valida
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-export const maxDuration = 60;
+export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
 
 /** 컷 그림 1장. 캐릭터 시트를 참고 이미지로 첨부해 같은 인물이 나오게 한다. 본인 Gemini 키 1회 호출. */
 export async function POST(request: NextRequest) {

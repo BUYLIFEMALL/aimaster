@@ -15,7 +15,7 @@ type ImageSize = (typeof ALLOWED_SIZES)[number];
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-export const maxDuration = 60;
+export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,7 +55,7 @@ NO typography, NO letters, NO text, NO watermarks, edge-to-edge wallpaper backgr
 `.trim();
 
     // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(@/lib/geminiImage — 기준은 ai-image-studio).
-    // 키는 주소가 아니라 머리글로 보낸다. 함수 한도 60초 → 시간 제한 50초, 유료 생성이라 재시도 없음(이중 과금 방지).
+    // 키는 주소가 아니라 머리글로 보낸다. 함수 한도 300초(2026-10-18 60초에서 상향) → 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지).
     // 실패하면 원인별 한국어 안내(키 가림)를 그대로 보여 준다. 모델·비율·화질·프롬프트는 그대로.
     const image = await generateGeminiImage({
       apiKey: userApiKey,
@@ -63,7 +63,7 @@ NO typography, NO letters, NO text, NO watermarks, edge-to-edge wallpaper backgr
       prompt: promptText,
       aspectRatio: "16:9",
       imageSize,
-      timeoutMs: 50_000,
+      timeoutMs: 240_000,
       retries: 0,
     });
     const base64Data = image.base64;

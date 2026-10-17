@@ -41,8 +41,10 @@ export function WebtoonCanvasSection({
   const handleGenerateCover = async () => {
     setIsCoverGenerating(true);
     try {
-      const coverUrl = await generateCoverImage(apiKey, project);
+      let fallbackReason = "";
+      const coverUrl = await generateCoverImage(apiKey, project, (reason) => { fallbackReason = reason; });
       onChangeProject({ coverImageUrl: coverUrl });
+      if (fallbackReason) alert(`AI(Gemini) 그림 생성에 실패해 무료 대체 그림을 넣었습니다. 원인: ${fallbackReason}`);
     } catch (e: any) {
       alert(e.message || "메인 표지 생성에 실패했습니다.");
     } finally {
@@ -54,10 +56,12 @@ export function WebtoonCanvasSection({
   const handleGenerateSingleCut = async (cut: CutScene, index: number) => {
     setGeneratingCutIndices((prev) => [...prev, cut.cutIndex]);
     try {
-      const imgUrl = await generateCutImage(apiKey, cut, project);
+      let fallbackReason = "";
+      const imgUrl = await generateCutImage(apiKey, cut, project, (reason) => { fallbackReason = reason; });
       const updatedCuts = [...(project.cuts || [])];
       updatedCuts[index] = { ...cut, imageUrl: imgUrl, isGenerating: false };
       onChangeProject({ cuts: updatedCuts });
+      if (fallbackReason) alert(`AI(Gemini) 그림 생성에 실패해 무료 대체 그림을 넣었습니다. 원인: ${fallbackReason}`);
     } catch (e: any) {
       alert(e.message || `CUT #${cut.cutIndex} 생성 실패`);
     } finally {
@@ -73,12 +77,15 @@ export function WebtoonCanvasSection({
     }
 
     setIsBatchGenerating(true);
+    let fallbackCount = 0;
+    let firstFallbackReason = "";
+    const onFallback = (reason: string) => { fallbackCount++; firstFallbackReason ||= reason; };
 
     // 표지 포함 설정 시 표지 먼저 생성
     if (project.includeCover && !project.coverImageUrl) {
       try {
         setIsCoverGenerating(true);
-        const cover = await generateCoverImage(apiKey, project);
+        const cover = await generateCoverImage(apiKey, project, onFallback);
         onChangeProject({ coverImageUrl: cover });
       } catch (err) {
         console.warn("Cover generation error in batch:", err);
@@ -94,7 +101,7 @@ export function WebtoonCanvasSection({
       setGeneratingCutIndices((prev) => [...prev, cut.cutIndex]);
 
       try {
-        const imgUrl = await generateCutImage(apiKey, cut, project);
+        const imgUrl = await generateCutImage(apiKey, cut, project, onFallback);
         currentCuts[i] = { ...cut, imageUrl: imgUrl };
         onChangeProject({ cuts: [...currentCuts] });
       } catch (err) {
@@ -105,6 +112,9 @@ export function WebtoonCanvasSection({
     }
 
     setIsBatchGenerating(false);
+    if (fallbackCount > 0) {
+      alert(`${fallbackCount}장은 AI(Gemini) 그림 생성에 실패해 무료 대체 그림을 넣었습니다. 원인: ${firstFallbackReason}`);
+    }
   };
 
   // 4. 전체 이어붙여 저장 (JPG)

@@ -184,3 +184,8 @@ https://youtube-playlist.buylife.xyz
 - **바뀐 점(공통)**: 키를 요청 주소가 아니라 머리글로 보냄, 시간 제한, 응답에서 최종 이미지 선택(Pro 모델 중간 초안 제외), 원인별 한국어 안내·키 가림, 유료 생성이라 재시도 0. 프롬프트·모델·비율·화질·화면은 그대로.
 - **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포(프로그램당 1회, 비용 절감 규칙)·DB 버전, 크롬 화면 버전. eslint(바뀐 파일) 0. 테스트 스크립트 없음. 실제 이미지 생성 시험은 하지 않음(비용).
 - **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+
+## 2026-10-18 v1.14 — 이미지 함수 한도 상향 (Claude Code 윈도우)
+- **함수 한도 상향**: 이미지 라우트 `maxDuration` 60초 → 300초, 이미지 호출 시간 제한 50초 → 240초(Pro 이미지 모델 시간 초과 방지). 오래 걸리는 요청만 그만큼 함수 시간이 늘고, 예전엔 60초에서 잘려도 구글 요금은 이미 나갔다.
+  대상: `/api/generate-bg` 240초.
+- **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).

@@ -233,7 +233,7 @@ export async function generateSceneImage(
   prompt: string,
   modelType: ModelType,
   referenceImages?: string[]
-): Promise<string> {
+): Promise<{ imageUrl: string; fallbackReason?: string }> {
   const parts: any[] = [];
 
   // 레퍼런스 제품 사진이 있는 경우 멀티모달 주입
@@ -258,10 +258,10 @@ Visual Quality: Photorealistic, pristine studio lighting, crisp sharpness, profe
   parts.push({ text: enhancedPrompt });
 
   // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
-  // 생성 라우트 함수 한도 60초 → 두 번 호출해도 합쳐서 50초 안(마감 시각 방식), 유료 생성이라 재시도 없음.
+  // 생성 라우트 함수 한도 300초(2026-10-18 60초에서 상향) → 두 번 호출해도 합쳐서 240초 안(마감 시각 방식), 유료 생성이라 재시도 없음.
   // 예전에는 어떤 오류든 다른 모델로 다시 요청했으나(시간 초과 뒤 재요청 → 이중 과금 위험), 이제 "모델 없음·이미지 안 나옴"일 때만
   // 폴백 모델로 넘어가고 그 밖의 오류는 바로 아래 SVG 대체 그림으로 간다. 모델·비율·화질·프롬프트는 그대로.
-  const deadline = Date.now() + 50_000;
+  const deadline = Date.now() + 240_000;
   const tryModel = async (modelName: string, modelParts: any[]) => {
     const image = await generateGeminiImage({
       apiKey,
@@ -275,23 +275,27 @@ Visual Quality: Photorealistic, pristine studio lighting, crisp sharpness, profe
     return `data:${image.mimeType || "image/png"};base64,${image.base64}`;
   };
 
+  // 2026-10-18: 대체 그림을 쓸 때 실패 원인(키 가린 한국어 안내)을 함께 돌려 화면에 알린다.
+  let fallbackReason = "";
   try {
-    return await tryModel(modelType === "nano-banana2" ? "gemini-3-pro-image" : "gemini-3.1-flash-lite-image", parts);
+    return { imageUrl: await tryModel(modelType === "nano-banana2" ? "gemini-3-pro-image" : "gemini-3.1-flash-lite-image", parts) };
   } catch (err: any) {
+    fallbackReason = err?.message || "알 수 없는 오류";
     console.warn("Primary image model failed:", err?.code ?? "", err?.message ?? "");
     const retryable = err instanceof GeminiImageError && (err.code === "MODEL_NOT_FOUND" || err.code === "NO_IMAGE");
     if (retryable && deadline - Date.now() > 15_000) {
       try {
         // 폴백: 종료된 imagen-3.0-generate-002 대신 gemini-nano-banana-2.1(2026-10-17 교체) — 예전처럼 글 지시문만
-        return await tryModel("gemini-nano-banana-2.1", [{ text: enhancedPrompt }]);
+        return { imageUrl: await tryModel("gemini-nano-banana-2.1", [{ text: enhancedPrompt }]) };
       } catch (err2: any) {
+        fallbackReason = err2?.message || fallbackReason;
         console.warn("Image fallback failed:", err2?.code ?? "", err2?.message ?? "");
       }
     }
   }
 
   // 추가 폴백: 에러 발생 시 사용자 친화적인 고해상도 프리미엄 SVG 제품 비주얼 카드 생성
-  return generatePlaceholderVisual(prompt);
+  return { imageUrl: generatePlaceholderVisual(prompt), fallbackReason };
 }
 
 function generatePlaceholderVisual(prompt: string): string {

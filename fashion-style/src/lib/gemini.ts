@@ -75,8 +75,8 @@ function fromImageError(e: GeminiImageError): AiError {
   }
 }
 
-/** 이미지 라우트 함수 한도 60초 − 여유: 한 요청(폴백 포함)에서 이미지 호출에 쓸 수 있는 시간 */
-const IMAGE_BUDGET_MS = 50_000;
+/** 이미지 라우트 함수 한도 300초(2026-10-18 60초에서 상향) − 여유: 한 요청(폴백 포함)에서 이미지 호출에 쓸 수 있는 시간 */
+const IMAGE_BUDGET_MS = 240_000;
 
 /**
  * 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).

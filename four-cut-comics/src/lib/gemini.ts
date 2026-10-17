@@ -96,7 +96,7 @@ function fromImageError(e: GeminiImageError): AiError {
 /**
  * 이미지 1장 생성(기본 정사각형, 컷은 회원이 고른 비율). 참고 이미지(inlineData) 다음에 지시문(text)을 넣는다.
  * 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
- * 라우트 함수 한도가 60초라 시간 제한 50초, 유료 생성이라 재시도 없음(이중 과금 방지). 모델·비율·프롬프트는 그대로.
+ * 라우트 함수 한도 300초(2026-10-18 60초에서 상향)라 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지). 모델·비율·프롬프트는 그대로.
  */
 export async function generateImage(o: {
   apiKey: string; model: string; prompt: string; refs?: { data: string; mimeType: string }[]; aspectRatio?: string;
@@ -107,7 +107,7 @@ export async function generateImage(o: {
       modelName: o.model,
       parts: [...(o.refs ?? []).map((r) => ({ inlineData: { data: r.data, mimeType: r.mimeType } })), { text: o.prompt }],
       aspectRatio: o.aspectRatio ?? "1:1",
-      timeoutMs: 50_000,
+      timeoutMs: 240_000,
       retries: 0,
     });
     return { data: image.base64, mimeType: image.mimeType || "image/png" };

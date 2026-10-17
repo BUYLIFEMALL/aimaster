@@ -43,6 +43,8 @@ Theme: ${genre}, contemporary typography and minimal graphic design, elegant aes
     // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
     // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(@/lib/geminiImage — 기준은 ai-image-studio).
     // 키는 주소가 아니라 머리글로 보낸다. 시간 제한 120초, 유료 생성이라 재시도 없음(이중 과금 방지). 실패하면 기존처럼 SVG 표지로 대체.
+    // 2026-10-18: 대체할 때 실패 원인(키 가린 한국어 안내)을 fallbackReason으로 함께 보내 화면에 알린다.
+    let fallbackReason = "";
     try {
       const image = await generateGeminiImage({
         apiKey: finalApiKey,
@@ -59,7 +61,8 @@ Theme: ${genre}, contemporary typography and minimal graphic design, elegant aes
       });
     } catch (e) {
       // 이미지 모델 호출 실패 시 SVG 모티프 표지 폴백 제공
-      console.warn("표지 이미지 생성 실패, SVG 표지로 대체:", e instanceof Error ? e.message : e);
+      fallbackReason = e instanceof Error ? e.message : "알 수 없는 오류";
+      console.warn("표지 이미지 생성 실패, SVG 표지로 대체:", fallbackReason);
     }
 
     // SVG 모던 북커버 동적 생성 (항상 안전하고 실패 없는 아름다운 표지)
@@ -84,6 +87,7 @@ Theme: ${genre}, contemporary typography and minimal graphic design, elegant aes
     return NextResponse.json({
       success: true,
       imageUrl: svgCover,
+      ...(fallbackReason ? { fallbackReason } : {}),
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "표지 생성 중 오류가 발생했습니다." }, { status: 500 });

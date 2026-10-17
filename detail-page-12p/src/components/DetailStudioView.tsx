@@ -80,6 +80,10 @@ export function DetailStudioView({
         imageUrl: data.imageUrl,
         status: "completed",
       });
+      // AI 이미지가 실패해 대체 그림이 들어간 경우 원인을 알린다(2026-10-18)
+      if (data.fallbackReason) {
+        alert(`AI 이미지 생성에 실패해 대체 그림을 넣었습니다. 원인: ${data.fallbackReason}`);
+      }
     } catch (err: any) {
       alert(`이미지 생성 중 오류: ${err.message}`);
     } finally {
@@ -106,6 +110,8 @@ export function DetailStudioView({
     setBatchProgress({ current: 0, total: scenesToProcess.length });
 
     let currentScenes = [...project.scenes];
+    let fallbackCount = 0;
+    let firstFallbackReason = "";
 
     for (let i = 0; i < scenesToProcess.length; i++) {
       const sc = scenesToProcess[i];
@@ -125,6 +131,10 @@ export function DetailStudioView({
 
         const data = await res.json();
         if (data.success && data.imageUrl) {
+          if (data.fallbackReason) {
+            fallbackCount++;
+            firstFallbackReason ||= data.fallbackReason;
+          }
           currentScenes = currentScenes.map((s) =>
             s.id === sc.id ? { ...s, imageUrl: data.imageUrl, status: "completed" as const } : s
           );
@@ -141,6 +151,9 @@ export function DetailStudioView({
 
     setIsBatchGenerating(false);
     setGeneratingSceneId(null);
+    if (fallbackCount > 0) {
+      alert(`${fallbackCount}개 장면은 AI 이미지 생성에 실패해 대체 그림을 넣었습니다. 원인: ${firstFallbackReason}`);
+    }
   };
 
   // 통이미지 자동 합성 (HTML5 Canvas 860px 쿠팡 표준 세로 통상세페이지)

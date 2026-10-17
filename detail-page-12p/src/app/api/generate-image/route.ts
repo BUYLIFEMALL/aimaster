@@ -4,7 +4,7 @@ import { getUserGeminiApiKey } from "@/lib/apiKeys";
 import { generateSceneImage } from "@/lib/detailEngine";
 import { ModelType } from "@/types/detail";
 
-export const maxDuration = 60; // 60초 타임아웃
+export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
 
 export async function POST(req: Request) {
   const auth = await checkProgramAccessApi();
@@ -31,14 +31,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "이미지 프롬프트가 누락되었습니다." }, { status: 400 });
     }
 
-    const imageUrl = await generateSceneImage(
+    const { imageUrl, fallbackReason } = await generateSceneImage(
       userApiKey,
       prompt,
       (modelType || "nano-banana") as ModelType,
       referenceImages
     );
 
-    return NextResponse.json({ success: true, imageUrl });
+    return NextResponse.json({ success: true, imageUrl, ...(fallbackReason ? { fallbackReason } : {}) });
   } catch (err: any) {
     console.error("[generate-image] Error:", err);
     return NextResponse.json(

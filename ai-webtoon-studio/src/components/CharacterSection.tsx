@@ -102,12 +102,15 @@ export function CharacterSection({
   const handleGenerateSheet = async () => {
     setIsGeneratingSheet(true);
     try {
+      let fallbackReason = "";
       const sheetUrl = await generateCharacterSheetImage(
         apiKey,
         activeChar,
-        project.artStyle
+        project.artStyle,
+        (reason) => { fallbackReason = reason; }
       );
       handleUpdateActiveChar({ characterSheetUrl: sheetUrl });
+      if (fallbackReason) alert(`AI(Gemini) 그림 생성에 실패해 무료 대체 그림을 넣었습니다. 원인: ${fallbackReason}`);
     } catch (e: any) {
       alert(e.message || "캐릭터 시트 생성에 실패했습니다.");
     } finally {

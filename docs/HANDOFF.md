@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 이미지 라우트 함수 한도 60→300초 + 대체 그림 원인 안내 (8곳, 배포 각 1회)
+
+- **함수 한도 상향**(Pro 이미지 시간 초과 방지, 이미지 시간 제한 50→240초): four-cut-comics v1.11 · fashion-style v1.09 · ai-influencer-studio v1.12 · detail-page-12p v1.09 · vinyl-lp-studio v1.12 · yt-playlist-studio v1.14. 화면 쪽에서 요청을 끊는 설정은 없음을 확인.
+- **대체 그림 원인 안내**(조용히 대체하던 3곳): ai-webtoon-studio v1.13(무료 렌더러) · ebook-studio v1.09(SVG 표지) · detail-page-12p(SVG 장면, 위와 같은 배포). 단일 생성은 바로, 일괄 생성은 끝난 뒤 한 번 알림. 각 `docs/IMPROVEMENTS.md` 해당 항목 ✅ 구현 완료로 변경.
+- **검수**: 8곳 tsc 0, four-cut 테스트 26·fashion 12 통과, detail eslint 0, 공용 모듈·시간 검사 OK, Vercel 8곳 각 1회 성공(비용 절감 규칙), DB 8곳, 크롬 화면 버전 8곳. 실제 이미지 생성·실패 화면 시험은 하지 않음(유료 호출) — 오류가 나면 그때 확인.
+- **다음 첫 단계**: threads-affiliate-poster `imageGenerator.ts`(이미지 공용화 마지막 1곳) — Antigravity 작업 종료 여부 먼저 확인.
+
 ## 2026-10-18 Claude Code(윈도우) — 이미지 5묶음: Imagen 교체분 5곳의 이미지 호출을 공용 모듈로
 
 - **한 일**: yt-playlist-studio(`api/generate-bg`, 50초) · ai-webtoon-studio(`imageGen.ts`, 브라우저 120초, 실패 시 무료 렌더러 유지) · ebook-studio(`api/ai/cover`, 120초, 실패 시 SVG 표지 유지) · detail-page-12p(`detailEngine.ts`, 두 모델 합쳐 50초) · vinyl-lp-studio(`api/generate-artwork`, 두 모델 합쳐 50초)의 이미지 호출을 공용 사본으로. 키를 주소 대신 머리글로, 시간 제한·최종 이미지 선택·원인별 안내, 재시도 0. **detail-page-12p·vinyl은 예전에 어떤 오류든 다른 모델로 재요청(시간 초과 뒤 이중 과금 위험) → 이제 「모델 없음·이미지 안 나옴」일 때만.**

@@ -66,3 +66,7 @@
 - **바뀐 점(공통)**: 키를 요청 주소가 아니라 머리글로 보냄, 시간 제한, 응답에서 최종 이미지 선택(Pro 모델 중간 초안 제외), 원인별 한국어 안내·키 가림, 유료 생성이라 재시도 0. 프롬프트·모델·비율·화질·화면은 그대로.
 - **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포(프로그램당 1회, 비용 절감 규칙)·DB 버전, 크롬 화면 버전. eslint는 설정 파일이 없어 실행 안 됨(이전부터). 테스트 스크립트 없음. 실제 이미지 생성 시험은 하지 않음(비용).
 - **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+
+## 2026-10-18 v1.13 — 대체 그림 원인 안내 (Claude Code 윈도우)
+- **대체 그림 원인 안내**: Gemini가 실패해 대체 그림을 쓸 때 원인(키 가린 한국어 안내)을 화면에 알림. `imageGen.ts` 세 함수에 선택 인자 `onFallback(reason)` 추가(키가 없어 무료 렌더러로 간 경우 포함), `CharacterSection`·`WebtoonCanvasSection` 단일 생성은 바로·일괄 생성은 끝난 뒤 알림.
+- **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).

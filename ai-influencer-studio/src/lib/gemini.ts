@@ -91,7 +91,7 @@ export async function generateInfluencerImage(
   parts.push({ text: finalPrompt });
 
   // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
-  // 생성 라우트 함수 한도 60초 → 시간 제한 50초, 유료 생성이라 재시도 없음(이중 과금 방지). 실패하면 한국어 안내(키 가림)를
+  // 생성 라우트 함수 한도 300초(2026-10-18 60초에서 상향) → 시간 제한 240초, 유료 생성이라 재시도 없음(이중 과금 방지). 실패하면 한국어 안내(키 가림)를
   // 담은 오류를 던지고 라우트가 그 문구를 보여 준다. 모델·비율·화질·프롬프트는 그대로.
   try {
     const image = await generateGeminiImage({
@@ -100,7 +100,7 @@ export async function generateInfluencerImage(
       parts,
       aspectRatio: config.aspectRatio || "9:16",
       imageSize: config.quality || "1K",
-      timeoutMs: 50_000,
+      timeoutMs: 240_000,
       retries: 0,
     });
     return `data:${image.mimeType || "image/png"};base64,${image.base64}`;

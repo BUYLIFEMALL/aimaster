@@ -6,7 +6,7 @@ import { MediaType } from "@/types/vinyl";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-export const maxDuration = 60;
+export const maxDuration = 300; // 2026-10-18: Pro 이미지 모델 시간 초과 방지(60 → 300초)
 
 export async function POST(req: NextRequest) {
   try {
@@ -64,10 +64,10 @@ CRITICAL INSTRUCTIONS:
 `;
 
     // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(@/lib/geminiImage — 기준은 ai-image-studio).
-    // 함수 한도 60초 → 두 모델 합쳐 50초 안(마감 시각 방식), 유료 생성이라 재시도 없음.
+    // 함수 한도 300초(2026-10-18 60초에서 상향) → 두 모델 합쳐 240초 안(마감 시각 방식), 유료 생성이라 재시도 없음.
     // 예전에는 어떤 오류든 다음 모델로 다시 요청했으나(시간 초과 뒤 재요청 → 이중 과금 위험), 이제 "모델 없음·이미지 안 나옴"일 때만
     // 다음 모델로 넘어간다. 그 밖의 오류는 원인별 한국어 안내(키 가림)를 그대로 보여 준다. 모델·비율·화질·프롬프트는 그대로.
-    const deadline = Date.now() + 50_000;
+    const deadline = Date.now() + 240_000;
     let lastError: GeminiImageError | null = null;
     for (const model of ["gemini-3-pro-image", "gemini-nano-banana-2.1"]) {
       const remaining = deadline - Date.now();
