@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 유튜브 조회 공용 모듈 1단계 + 기능별 프로그램 지도 + 공용 코드 규칙 보강
+
+- **한 일**: 공용 기준 코드 `youtube-data-client`를 신설했습니다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 기준 선정은 ① 안정성 ② 유지보수 순서이고, 혼자 다 갖춘 후보가 없어 각 후보의 장점을 모아 새로 썼습니다. 1단계로 유튜브 전용 3개에 적용했습니다: consultant v1.09, viral-studio v1.18, shorts-viral-studio v1.10. 세 프로그램 모두 테스트·빌드·배포·DB 버전·크롬 화면 확인을 마쳤고, 실제 YouTube 호출은 하지 않았습니다.
+- **새 문서**: [`docs/SHARED_FEATURE_MAP.md`](SHARED_FEATURE_MAP.md)는 기능별 프로그램 지도입니다(유튜브 조회·황금 채널·이미지 생성·외부 수집·프롬프트 공통 규칙·공통 기반의 기준/사본/각자 구현 현황). 다른 CLI가 개발·리뉴얼 전에 먼저 봅니다.
+- **규칙 보강**: 메인 지침 3곳의 「공용 기준 코드 규칙」에 다음을 넣었습니다. ① 안정성 ② 유지보수 순 기준 선정, 수정·신규 개발 전 지도 확인, 공유하는 다른 프로그램도 함께 고쳐 정상 동작시키기, 완료 보고서에 프로그램별 과정·결과 남기기. `docs/SHARED_MODULES.md` §1·§2·§3도 갱신했습니다.
+- **남은 일(다음 첫 단계)**: `youtube-data-client` 2단계(ai-auto-blog·tistory-auto-blog·naver-blog-agent는 확장 ZIP 재생성 포함, threads-content-ops, trending-product-finder) → 지도 §1 표 순서대로 진행합니다. 그 뒤 이미지 생성 호출 모듈(지도 §3)로 넘어갑니다.
+- **링크**: https://youtube-channel-consultant.buylife.xyz · https://youtube-viral-studio.buylife.xyz · https://shorts-viral-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(맥미니) — INSTA DM답변 자동화 v1.13: 인스타 라이트 (DM 대화 화면) (🟠 윈도우 마무리 요청)
 
 - **대상**: `instagram-dm-reply/` (https://instagram-dm-reply.buylife.xyz). 플랜 → 주인님 「진행해」 승인 후 구현.

@@ -131,3 +131,10 @@
 - 검수: tsc 0, eslint(바뀐 파일) 0, build, 배포·DB v1.17, 크롬 화면(조건 6칸·기본값·v1.17·가로 넘침 없음).
 - 사본·기준 확인: `node scripts/check-shared-modules.mjs` → 모두 OK. 공용 파일 테스트 3개(가짜 YouTube 응답) 통과. 실제 검색(할당량 사용)은 하지 않았고, 빈 키워드 요청이 서버에서 400으로 막히는 것까지 크롬으로 확인.
 - **주의(다음 CLI)**: `src/lib/youtube/goldenEngine.ts`·`tests/goldenEngine.test.mjs`는 공용 기준 코드다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `--sync` → 두 프로그램 모두 빌드·배포·버전 +0.01. 목록·절차: 루트 `docs/SHARED_MODULES.md`.
+
+## 2026-10-17 v1.18 — 유튜브 조회를 공용 기준 코드 `youtube-data-client` 사본으로 (Claude Code 윈도우)
+- `src/lib/youtube/youtubeData.ts`(사본) 추가. `client.ts`를 모듈 위임으로 다시 썼다(`youtubeGet`·`youtubeCall`·`fetchVideosDetails`·`fetchChannelsDetails`·`verifyYouTubeApiKey`, 이름·반환 형식 그대로). `trendingVideos.ts`·`viralShorts.ts`·`sourceFinder.ts`의 직접 호출 4곳도 위임.
+- 동작 유지: 같은 요청 재사용 시간(검색 2분·영상 5분·채널 10분·원본 찾기 5분) 그대로, 원본 찾기의 보조 검색은 실패해도 예전처럼 빈 결과.
+- 개선: 쇼츠·급상승 조회에서 한도 소진 등 오류를 영어 원문 그대로 보여 주던 것이 한국어 안내로 바뀜. 시간 제한·일시 오류 재시도·키 가리기 적용.
+- 검수: tsc 0, eslint(lib/youtube) 0, 테스트 20(공용 2종 포함), build, 배포·DB v1.18, 크롬 화면 v1.18.
+- **주의(다음 CLI)**: `src/lib/youtube/youtubeData.ts`·`tests/youtubeData.test.mjs`는 공용 기준 코드 `youtube-data-client`다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 세 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.

@@ -2,7 +2,7 @@ import "server-only";
 import {
   fetchChannelsDetails,
   fetchVideosDetails,
-  YouTubeApiError,
+  youtubeGet,
 } from "./client";
 import {
   calculateViralScore,
@@ -14,7 +14,6 @@ import {
 import type { ShortsSearchParams, YouTubeVideoItem } from "./types";
 import type { YouTubeSearchItem } from "./types";
 
-const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
 export async function searchViralShorts(
   params: ShortsSearchParams,
@@ -55,39 +54,22 @@ export async function searchViralShorts(
     ? trimmedKw
     : `${trimmedKw} #shorts`;
 
-  const searchUrl = new URL(`${YOUTUBE_API_BASE}/search`);
-  searchUrl.searchParams.set("part", "snippet");
-  searchUrl.searchParams.set("q", searchQuery);
-  searchUrl.searchParams.set("type", "video");
-  searchUrl.searchParams.set("videoDuration", "short"); // 4분 미만 영상
-  searchUrl.searchParams.set("regionCode", "KR"); // 대한민국 지역 우선
-  searchUrl.searchParams.set("relevanceLanguage", "ko"); // 한국어 관련성 우선
-  searchUrl.searchParams.set("maxResults", "50"); // 넉넉히 수집 후 필터링
-  searchUrl.searchParams.set("key", apiKey);
+  // v1.18: 공용 기준 코드(youtubeData.ts)로 호출 — 한도·키 오류를 한국어로 안내, 2분 재사용
+  const searchQuery_: Record<string, string> = {
+    part: "snippet",
+    q: searchQuery,
+    type: "video",
+    videoDuration: "short", // 4분 미만 영상
+    regionCode: "KR", // 대한민국 지역 우선
+    relevanceLanguage: "ko", // 한국어 관련성 우선
+    maxResults: "50", // 넉넉히 수집 후 필터링
+    order: sortBy === "date" ? "date" : "viewCount",
+  };
+  if (publishedAfter) searchQuery_.publishedAfter = publishedAfter;
+  if (pageToken) searchQuery_.pageToken = pageToken;
 
-  if (publishedAfter) {
-    searchUrl.searchParams.set("publishedAfter", publishedAfter);
-  }
-  if (pageToken) {
-    searchUrl.searchParams.set("pageToken", pageToken);
-  }
-
-  if (sortBy === "date") {
-    searchUrl.searchParams.set("order", "date");
-  } else {
-    searchUrl.searchParams.set("order", "viewCount");
-  }
-
-  const res = await fetch(searchUrl.toString(), { next: { revalidate: 120 } });
-  const searchData = await res.json();
-
-  if (!res.ok) {
-    throw new YouTubeApiError(
-      searchData?.error?.message || "YouTube 영상 검색에 실패했습니다.",
-      searchData?.error?.errors?.[0]?.reason || "SEARCH_ERROR",
-      res.status
-    );
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube 응답 원본
+  const searchData: any = await youtubeGet("search", searchQuery_, apiKey, { revalidateSeconds: 120 });
 
   const videoIds = (searchData.items || [])
     .map((item: YouTubeSearchItem) => item.id?.videoId)

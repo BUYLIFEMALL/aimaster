@@ -99,3 +99,9 @@ vercel deploy --prod --yes --scope buylife
 - 검수: tsc 0, 테스트 20개 통과, build, 배포·DB v1.08, 크롬 화면(조건 6칸·v1.08·가로 넘침 없음).
 - 사본·기준 확인: `node scripts/check-shared-modules.mjs` → 모두 OK. 공용 파일 테스트 3개(가짜 YouTube 응답) 통과. 실제 검색(할당량 사용)은 하지 않았고, 빈 키워드 요청이 서버에서 400으로 막히는 것까지 크롬으로 확인.
 - **주의(다음 CLI)**: `src/lib/youtube/goldenEngine.ts`·`tests/goldenEngine.test.mjs`는 공용 기준 코드다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `--sync` → 두 프로그램 모두 빌드·배포·버전 +0.01. 목록·절차: 루트 `docs/SHARED_MODULES.md`.
+
+## 2026-10-17 v1.09 — 유튜브 조회 공용 기준 코드 `youtube-data-client` 신설(이 프로그램이 기준) (Claude Code 윈도우)
+- 기준 선정(① 안정성 ② 유지보수): 혼자 다 갖춘 후보가 없어 `src/lib/youtube/youtubeData.ts`를 새로 작성했다. 15초 시간 제한, 서버 오류·네트워크·시간 초과만 1회 재시도(키·한도 오류는 재시도 안 함), 오류 문구 키 가리기, 일일 한도/분당 제한/키 사용 제한/API 미사용 구분 안내(초기화 시각 서머타임 반영), 할당량 계산(`QuotaMeter`), 선택형 재사용 시간(`revalidateSeconds`).
+- `client.ts` `call()`이 모듈로 위임(오류는 기존 `YouTubeApiError` 형식 유지, 바깥 함수 이름 그대로). 예전 `handleApiError` 삭제. 테스트 `tests/youtubeData.test.mjs` 9개 추가(테스트 목록 포함, 전체 29개 통과).
+- 검수: tsc 0, 테스트 29, build, 배포·DB v1.09, 크롬 화면 v1.09. 실제 YouTube 호출은 하지 않음.
+- **주의(다음 CLI)**: `src/lib/youtube/youtubeData.ts`·`tests/youtubeData.test.mjs`는 공용 기준 코드 `youtube-data-client`다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 세 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.

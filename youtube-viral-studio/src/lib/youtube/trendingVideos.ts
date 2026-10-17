@@ -1,5 +1,5 @@
 import "server-only";
-import { fetchChannelsDetails, fetchVideosDetails, YouTubeApiError } from "./client";
+import { fetchChannelsDetails, fetchVideosDetails, youtubeGet } from "./client";
 import {
   calculateViralScore,
   calculateVPH,
@@ -10,7 +10,6 @@ import {
 import type { TrendingParams, YouTubeVideoItem } from "./types";
 import type { YouTubeSearchItem } from "./types";
 
-const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
 export async function getTrendingVideos(
   params: TrendingParams,
@@ -20,31 +19,24 @@ export async function getTrendingVideos(
 
   // 1. 쇼츠 탭의 경우: 대한민국 실시간 떡상 쇼츠 검색 (최근 48시간 내 VPH 급상승)
   if (type === "shorts") {
-    const searchUrl = new URL(`${YOUTUBE_API_BASE}/search`);
-    searchUrl.searchParams.set("part", "snippet");
-    searchUrl.searchParams.set("q", "#shorts");
-    searchUrl.searchParams.set("type", "video");
-    searchUrl.searchParams.set("videoDuration", "short");
-    searchUrl.searchParams.set("regionCode", regionCode);
-    searchUrl.searchParams.set("relevanceLanguage", "ko");
-    searchUrl.searchParams.set("order", "viewCount");
-    searchUrl.searchParams.set(
-      "publishedAfter",
-      new Date(Date.now() - 48 * 3600 * 1000).toISOString()
+    // v1.18: 공용 기준 코드(youtubeData.ts)로 호출 — 한도·키 오류를 한국어로 안내, 2분 재사용
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube 응답 원본
+    const sData: any = await youtubeGet(
+      "search",
+      {
+        part: "snippet",
+        q: "#shorts",
+        type: "video",
+        videoDuration: "short",
+        regionCode,
+        relevanceLanguage: "ko",
+        order: "viewCount",
+        publishedAfter: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+        maxResults: "50",
+      },
+      apiKey,
+      { revalidateSeconds: 120 }
     );
-    searchUrl.searchParams.set("maxResults", "50");
-    searchUrl.searchParams.set("key", apiKey);
-
-    const sRes = await fetch(searchUrl.toString(), { next: { revalidate: 120 } });
-    const sData = await sRes.json();
-
-    if (!sRes.ok) {
-      throw new YouTubeApiError(
-        sData?.error?.message || "실시간 떡상 쇼츠 조회에 실패했습니다.",
-        sData?.error?.errors?.[0]?.reason || "SEARCH_ERROR",
-        sRes.status
-      );
-    }
 
     const videoIds = (sData.items || []).map((i: YouTubeSearchItem) => i.id?.videoId).filter(Boolean);
     if (videoIds.length === 0) return [];
@@ -120,23 +112,13 @@ export async function getTrendingVideos(
   }
 
   // 2. 롱폼 또는 전체 동영상: mostPopular 차트 기반 조회
-  const url = new URL(`${YOUTUBE_API_BASE}/videos`);
-  url.searchParams.set("part", "snippet,contentDetails,statistics");
-  url.searchParams.set("chart", "mostPopular");
-  url.searchParams.set("regionCode", regionCode);
-  url.searchParams.set("maxResults", "50");
-  url.searchParams.set("key", apiKey);
-
-  const res = await fetch(url.toString(), { next: { revalidate: 120 } });
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new YouTubeApiError(
-      data?.error?.message || "급상승 동영상 조회에 실패했습니다.",
-      data?.error?.errors?.[0]?.reason || "POPULAR_ERROR",
-      res.status
-    );
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube 응답 원본
+  const data: any = await youtubeGet(
+    "videos",
+    { part: "snippet,contentDetails,statistics", chart: "mostPopular", regionCode, maxResults: "50" },
+    apiKey,
+    { revalidateSeconds: 120 }
+  );
 
   const items = data.items || [];
   if (items.length === 0) return [];

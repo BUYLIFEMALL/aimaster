@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/access.test.mjs"
+    "test": "node --test tests/access.test.mjs tests/youtubeData.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

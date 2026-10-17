@@ -16,6 +16,16 @@ const MODULES = [
     copies: ["youtube-viral-studio/src/lib/youtube/goldenEngine.ts"],
   },
   {
+    id: "youtube-data-client",
+    source: "youtube-channel-consultant/src/lib/youtube/youtubeData.ts",
+    copies: ["youtube-viral-studio/src/lib/youtube/youtubeData.ts", "shorts-viral-studio/src/lib/youtube/youtubeData.ts"],
+  },
+  {
+    id: "youtube-data-client-test",
+    source: "youtube-channel-consultant/tests/youtubeData.test.mjs",
+    copies: ["youtube-viral-studio/tests/youtubeData.test.mjs", "shorts-viral-studio/tests/youtubeData.test.mjs"],
+  },
+  {
     id: "youtube-golden-engine-test",
     source: "youtube-channel-consultant/tests/goldenEngine.test.mjs",
     copies: ["youtube-viral-studio/tests/goldenEngine.test.mjs"],

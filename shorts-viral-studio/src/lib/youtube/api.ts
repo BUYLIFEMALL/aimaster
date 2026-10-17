@@ -1,8 +1,7 @@
 import "server-only";
 import { buildShortVideo } from "@/lib/youtube/metrics";
 import type { SearchParams, ShortVideo } from "@/types/svs";
-
-const BASE = "https://www.googleapis.com/youtube/v3";
+import { YouTubeDataError, youtubeRequest } from "@/lib/youtube/youtubeData";
 
 export class YouTubeApiError extends Error {
   constructor(
@@ -13,41 +12,20 @@ export class YouTubeApiError extends Error {
   }
 }
 
+/**
+ * 2026-10-17 v1.10: YouTube 읽기 호출은 공용 기준 코드 youtube-data-client(youtubeData.ts — 기준은 youtube-channel-consultant)로 위임한다.
+ * 15초 시간 제한·일시 오류 1회 재시도·키 가리기·한도/분당 제한·키 사용 제한 구분 안내. 오류는 이 프로그램 형식(kind)으로 바꿔 던진다.
+ */
 async function ytFetch<T>(path: string, params: Record<string, string>, apiKey: string): Promise<T> {
-  const url = new URL(`${BASE}/${path}`);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  url.searchParams.set("key", apiKey);
-
-  const res = await fetch(url, { cache: "no-store" });
-  if (res.ok) return (await res.json()) as T;
-
-  const body = (await res.json().catch(() => ({}))) as {
-    error?: { message?: string; errors?: { reason?: string }[] };
-  };
-  const reason = body.error?.errors?.[0]?.reason ?? "";
-  const message = body.error?.message ?? `YouTube API 오류 (${res.status})`;
-
-  if (reason === "quotaExceeded" || reason === "rateLimitExceeded" || reason === "dailyLimitExceeded") {
-    throw new YouTubeApiError(
-      "YouTube API 일일 할당량을 모두 사용했습니다. 검색은 1회에 100유닛(하루 기본 1만유닛)을 쓰므로, 내일 다시 시도하시거나 구글 클라우드에서 할당량을 확인해 주세요.",
-      "quota",
-    );
-  }
-  if (res.status === 400 || res.status === 403) {
-    if (reason === "keyInvalid" || reason === "API_KEY_INVALID" || message.toLowerCase().includes("api key")) {
-      throw new YouTubeApiError(
-        "YouTube API 키가 올바르지 않습니다. 설정 화면에서 키를 다시 확인해 주세요.",
-        "invalid_key",
-      );
+  try {
+    return (await youtubeRequest(path, params, apiKey)) as T;
+  } catch (e) {
+    if (e instanceof YouTubeDataError) {
+      const kind = e.keyProblem ? "invalid_key" : e.code === "QUOTA_EXCEEDED" || e.code === "RATE_LIMITED" ? "quota" : "other";
+      throw new YouTubeApiError(e.message, kind);
     }
-    if (reason === "accessNotConfigured" || reason === "forbidden") {
-      throw new YouTubeApiError(
-        "이 키에서 YouTube Data API v3가 활성화되어 있지 않습니다. 구글 클라우드 콘솔에서 'YouTube Data API v3'를 사용 설정해 주세요.",
-        "invalid_key",
-      );
-    }
+    throw e;
   }
-  throw new YouTubeApiError(message, "other");
 }
 
 interface SearchResponse {

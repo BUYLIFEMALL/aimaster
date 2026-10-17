@@ -57,11 +57,11 @@
 | 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.10 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.52 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v1.95 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
-| 47 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 유튜브 | v1.17 | 운영 | 조회수가 터진 쇼츠·소형 황금 채널·급상승 영상을 찾아 벤치마킹하는 유튜브 도구 |
+| 47 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 유튜브 | v1.18 | 운영 | 조회수가 터진 쇼츠·소형 황금 채널·급상승 영상을 찾아 벤치마킹하는 유튜브 도구 |
 | 48 | 플레이리스트 채널 제작 자동화 | `playlist-channel-studio` | 유튜브 | v1.07 | 운영 | 장르만 고르면 플레이리스트 채널용 제목·Suno 프롬프트·가사·설명·썸네일을 만드는 도구 |
 | 49 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 유튜브 | v1.04 | 운영 | 영상 주제와 시청 타겟으로 A/B 전략과 문구가 들어간 유튜브 썸네일 2종을 만드는 도구 |
-| 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.08 | 운영 | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
-| 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.09 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
+| 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.09 | 운영 | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
+| 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.10 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
 | 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.09 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
 | 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.09 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 54 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 유튜브 | v1.04 | 운영 | 대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구 |
@@ -149,6 +149,7 @@
 | 비공개 임시 업로드(1시간 삭제) | `reverse-prompt`, `banana-canvas` | |
 | 서버 보관함(회원별 JSON 저장) | `blog-workroom/src/lib/store.ts`(범용 kind 테이블) | 새 프로그램은 이 구조가 가장 간단 |
 | 유튜브 지표(VPH·구독자 대비 배수) | `youtube-viral-studio`, `shorts-viral-studio` | |
+| YouTube 읽기 호출·오류 안내·할당량(공용 기준 코드 `youtube-data-client`) | 기준 `youtube-channel-consultant/src/lib/youtube/youtubeData.ts` → 사본 `youtube-viral-studio`, `shorts-viral-studio` | 새 유튜브 기능은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_FEATURE_MAP.md` §1) |
 | 황금·공략 채널 찾기 엔진(공용 기준 코드 `youtube-golden-engine`) | 기준 `youtube-channel-consultant/src/lib/youtube/goldenEngine.ts` → 사본 `youtube-viral-studio` | 새 유튜브 프로그램은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_MODULES.md`) |
 | SerpApi 구글 결과 분석 | `competitor-analysis`, `longtail-keyword-expander` | |
 

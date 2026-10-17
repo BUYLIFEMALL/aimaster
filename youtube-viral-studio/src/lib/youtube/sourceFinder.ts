@@ -1,10 +1,9 @@
 import "server-only";
-import { fetchVideosDetails } from "./client";
+import { fetchVideosDetails, youtubeGet } from "./client";
 import { parseDuration } from "./metrics";
 import type { YouTubeVideoItem } from "./types";
 import type { YouTubeSearchItem } from "./types";
 
-const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
 
 export interface SourceFinderResult {
   shortsVideo: YouTubeVideoItem;
@@ -141,17 +140,19 @@ export async function findShortsOriginalSource(
   }
 
   // 3. 동일 채널의 롱폼 영상 중 제목/내용 유사도 분석
-  const channelSearchUrl = new URL(`${YOUTUBE_API_BASE}/search`);
-  channelSearchUrl.searchParams.set("part", "snippet");
-  channelSearchUrl.searchParams.set("channelId", channelId);
-  channelSearchUrl.searchParams.set("type", "video");
-  channelSearchUrl.searchParams.set("videoDuration", "medium"); // 4분 ~ 20분
-  channelSearchUrl.searchParams.set("order", "date");
-  channelSearchUrl.searchParams.set("maxResults", "20");
-  channelSearchUrl.searchParams.set("key", apiKey);
-
-  const res = await fetch(channelSearchUrl.toString(), { next: { revalidate: 300 } });
-  const channelSearchData = await res.json();
+  // v1.18: 공용 기준 코드(youtubeData.ts)로 호출, 5분 재사용. 보조 검색이라 실패해도 예전처럼 빈 결과로 넘어간다.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube 응답 원본
+  let channelSearchData: any = { items: [] };
+  try {
+    channelSearchData = await youtubeGet(
+      "search",
+      { part: "snippet", channelId, type: "video", videoDuration: "medium", order: "date", maxResults: "20" },
+      apiKey,
+      { revalidateSeconds: 300 }
+    );
+  } catch {
+    channelSearchData = { items: [] };
+  }
 
   const candidateVideoIds = (channelSearchData.items || [])
     .map((item: YouTubeSearchItem) => item.id?.videoId)

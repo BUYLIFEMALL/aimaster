@@ -101,3 +101,9 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 ## 2026-10-16 DB 연동 변수 호환 — v1.09 (shorts-viral-studio)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-17 v1.10 — 유튜브 조회를 공용 기준 코드 `youtube-data-client` 사본으로 (Claude Code 윈도우)
+- `src/lib/youtube/youtubeData.ts`(사본) 추가, `api.ts`의 `ytFetch()`가 모듈로 위임. 오류는 기존 `YouTubeApiError(kind)` 형식으로 변환(키 문제 3종 → `invalid_key`로 키 등록 안내 유지, 일일 한도·분당 제한 → `quota`).
+- 개선: "분당 호출 제한"을 일일 한도 소진으로 안내하던 것을 구분, 키 사용 제한(웹사이트·IP 제한) 안내 추가, 15초 시간 제한·일시 오류 재시도·키 가리기.
+- 검수: tsc 0, 테스트 17(공용 9 포함, 테스트 목록에 추가), build, 배포·DB v1.10, 크롬 화면 v1.10. (이 프로그램은 eslint 설정 파일이 없어 규칙 검사는 건너뜀 — 기존 상태)
+- **주의(다음 CLI)**: `src/lib/youtube/youtubeData.ts`·`tests/youtubeData.test.mjs`는 공용 기준 코드 `youtube-data-client`다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 세 프로그램 모두 테스트·빌드·배포·버전 +0.01. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §1.
