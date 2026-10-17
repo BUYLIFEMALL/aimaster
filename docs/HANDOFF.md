@@ -1,12 +1,5 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-18 Claude Code(윈도우) — 이미지 시간 초과 자동 재시도 중단(이중 과금 방지) · 사본 30곳 재배포
-
-- **한 일**: 공용 기준 `ai-image-studio/lib/providers/geminiImage.ts`가 시간 초과(TIMEOUT)는 자동으로 다시 보내지 않고 바로 안내하도록 변경(서버 오류·혼잡·연결 실패만 1회 재시도). 시간 초과여도 구글 쪽에서 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 자동 재시도가 이중 과금 원인이 될 수 있었음. 테스트: 시간 초과 요청 1회·연결 실패 2회 확인. `--sync`로 사본 30곳 반영.
-- **버전(코드+DB)**: ai-image-studio v1.17 · ai-auto-blog v1.73 · tistory v1.80 · seo-studio v1.72 · poster_app v1.11 · poster-web v1.12 · shots v1.15 · insta v1.21 · threads v1.15 · threads-affiliate v1.60 · cafe v1.14 · threads-content-ops v2.03 · kakao v1.15 · stepmail v1.15 · auto-detail-page v1.12 · tarot v1.12 · mbti v1.13 · music v1.15 · naver-blog-agent v1.92 · allinone v1.47 · cardnews v1.13 · style-dna v1.20 · shop-detail v1.13 · blog-content-maker v1.08 · blog-workroom v1.10 · music-video v1.09 · emotion-writer v1.13 · photo-remake v1.07 · shorts-onestop v1.17 · seo-thumbnail-pro v1.08 (blog_auto_poster는 사본만). 이미 `retries: 0`인 6곳은 동작 변화 없음.
-- **검수**: 기준 테스트 8개 통과, `check-shared-modules` 전부 OK, Vercel 31곳 종료 코드 0, DB 30곳, 확장 7곳 `check-extension-release` 실패 0, 크롬 화면 버전 28곳(poster_app·poster-web은 비공개 404 → `vercel inspect` production·Ready). 실제 이미지 생성 시험 없음.
-- **다음 첫 단계**: 제안 2번 — 시간 초과 안내에 프로그램별 「결과 확인 위치(보관함 등)」 링크 버튼.
-
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — AI 인플루언서 자동화 v1.10: 크리에이티브 아틀리에(핑크 화보 스튜디오) 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `ai-influencer-studio/` (https://ai-influencer.buylife.xyz)
