@@ -98,3 +98,8 @@
 - [디자인 핸드오프](docs/DESIGN_HANDOFF.md)
 - [개선 및 특이사항](docs/IMPROVEMENTS.md)
 - [개선 백로그](docs/IMPROVEMENT_BACKLOG.md)
+
+## 2026-10-18 — `test:own-meta` 실패 해결: 함수 모양 검사를 추가 인자 허용으로 (Claude Code 윈도우, 시험 파일만 변경·버전·배포 없음)
+- 증상: `npm run test:own-meta`가 `getFacebookAuthorizeUrl(state: string, appId: string)` 글자 그대로 찾다 실패.
+- 원인: 2026-10-16 옛 vercel.app 주소 정리 대비(두 콜백 주소 지원)로 `getFacebookAuthorizeUrl`·`exchangeFacebookCode`에 `redirectUri` 인자가 추가됐는데 시험은 옛 모양을 검사. 실제 코드는 정상(회원 본인 앱 ID·시크릿 사용 그대로).
+- 해결: `scripts/test-own-meta-app.cjs`가 본인 앱 ID·시크릿 인자는 그대로 확인하고 그 뒤 추가 인자는 허용 → `own meta app ok`. Antigravity의 v1.23 작업 종료(커밋 `f5fdf6da`) 확인 후 진행.
