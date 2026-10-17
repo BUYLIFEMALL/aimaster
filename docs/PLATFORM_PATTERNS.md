@@ -205,7 +205,7 @@ bugang530@gmail.com 사용자가 blog(`ai-auto-blog`)에서 "접근 권한 없�
 
 ## 12. AI 이미지 생성 — Cloudinary 생성 API 대신 Gemini(나노바나나) 직접 호출 + Supabase Storage 업로드
 
-> **2026-10-17 갱신(주인님 지시): 이미지 모델·엔드포인트·프롬프트·호출 방식의 기준 구현은 AI 이미지 자동화 `ai-image-studio/lib/providers/adapters/`다.** 아래 예시의 모델 이름은 과거 기록일 수 있으니, 새로 만들거나 고칠 때는 ai-image-studio의 현재 어댑터를 먼저 확인한다. Imagen 3(`imagen-3.0-generate-002`)은 2025-11-10 종료, `gemini-2.5-flash-image`는 공식 가격표에 2026-10-02 종료 예정 구형으로 표시 — 2026-10-17 기준 최신 정식은 `gemini-nano-banana-2.1`(1K 약 $0.034·2K 약 $0.050)·`gemini-3.1-flash-lite-image`(1K 약 $0.034).
+> **2026-10-17 갱신(주인님 지시): 이미지 모델·엔드포인트·호출 방식·이미지 받아오는 부분의 기준 구현은(프롬프트는 프로그램별 고유 — 공유 금지, 작성 규칙은 `docs/IMAGE_PROMPT_RULES.md`, 2026-10-17 정정) AI 이미지 자동화 `ai-image-studio/lib/providers/adapters/`다.** 아래 예시의 모델 이름은 과거 기록일 수 있으니, 새로 만들거나 고칠 때는 ai-image-studio의 현재 어댑터를 먼저 확인한다. Imagen 3(`imagen-3.0-generate-002`)은 2025-11-10 종료, `gemini-2.5-flash-image`는 공식 가격표에 2026-10-02 종료 예정 구형으로 표시 — 2026-10-17 기준 최신 정식은 `gemini-nano-banana-2.1`(1K 약 $0.034·2K 약 $0.050)·`gemini-3.1-flash-lite-image`(1K 약 $0.034).
 
 **배경**: Cloudinary MCP의 `generate-image` 도구는 자체 AI 모델이 없다. 나노바나나/Flux/GPT-Image/Recraft/Ideogram 같은 외부 모델을 대신 호출해서 결과를 자기 CDN에 자동 업로드해주는 "대행" 기능일 뿐이다. 편리하지만 이 대행 기능 자체에 **무료 플랜 월 50회**라는 별도 부가기능(add-on) 한도가 걸려 있고, 일반 저장공간/전송량 크레딧과는 완전히 별개다. 2026-08-19에 이 한도를 다 써서 프로그램 카탈로그 썸네일 생성이 막힌 적이 있다 — `get-usage-details`의 `image_generation: {usage, limit}` 필드로 확인 가능하며, 이때 스토리지 사용량이나 이미지 업로드 개수는 여유가 충분했다(무관한 한도).
 
