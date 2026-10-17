@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.14: 다크 모드·닫을 때 즉시 저장·단축키 창 서식 넣기·고정 색깔 꼬리표
+
+- **대상**: `markdown-studio/` (slug `markdown-studio`), v1.13 → **v1.14** (코드 `APP_VERSION`·DB `programs.version` 동기화)
+- **한 일**: ① 상단 배너 [다크 모드] 버튼(작업실 전 화면, 기기별 기억) ② 창을 닫거나 다른 탭으로 갈 때 즉시 저장(로그인 확인 생략, 회원 전용 IndexedDB) ③ 단축키 안내 창 항목 9개를 눌러 편집기에 바로 적용 ④ 고정 문서 색깔 꼬리표 5색
+- **검수**: 단위 62개 통과, 빌드·프로덕션 배포, 크롬 시험 계정 실화면(7화면 다크·400px·꼬리표 순환/새로고침 유지·단축키 클릭 적용·창 닫힘 21ms 저장 + IndexedDB 대조). 시험 데이터 원상복구.
+- **바뀐 파일**: `markdown-studio/src/components/ui/ThemeToggle.tsx`(신규)·`src/lib/theme.ts`(신규)·`src/app/(workspace)/layout.tsx`·`src/app/layout.tsx`·`src/app/globals.css`·`src/components/layout/StudioShell.tsx`·`src/components/editor/{HotkeysModal,EditorPane,MarkdownEditor}.tsx`·`src/components/workspace/{WorkspaceProvider,WorkspacePage}.tsx`·`src/app/(workspace)/guide/page.tsx`·`src/lib/documents/{model,repository}.ts`·`tests/*`·`package.json`(`@lezer/highlight` 직접 의존성)
+- **인수인계 문서**: [`markdown-studio/AGENTS.md`](../markdown-studio/AGENTS.md) 「v1.14」 · [`docs/IMPROVEMENTS.md`](../markdown-studio/docs/IMPROVEMENTS.md) · [`docs/IMPROVEMENT_HANDOFF_20261017.md`](../markdown-studio/docs/IMPROVEMENT_HANDOFF_20261017.md) · [`docs/DESIGN_HANDOFF.md`](../markdown-studio/docs/DESIGN_HANDOFF.md)
+- **남은 일**: 새 제안 4건(시스템 다크 모드 따라가기·설정 저장 지연 단축·꼬리표로 걸러 보기·로그인 화면 다크) — 승인 전 미구현
+- **링크**: https://markdown-studio.buylife.xyz
+
 ## 2026-10-17 Antigravity(Windows) — AI 프롬프트 템플릿 자동화 v1.05: 로그인·회원가입 표준 2탭 레이아웃(포커스 스튜디오 테마) 전면 리뉴얼 완료
 
 - **대상 프로그램**: `prompt-template-studio/` (slug: `prompt-template-studio`, 프로그램 번호 9번)

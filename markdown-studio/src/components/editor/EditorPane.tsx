@@ -1,12 +1,13 @@
 "use client";
 import { showToast } from "@/components/ui/Toast";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlignCenter, AlignLeft, AlignRight, Bold, ChevronsRight, ChevronsLeft, Code, Columns3, Copy, Heading1, Heading2, Heading3,
   Image as ImageIcon, Italic, Link2, List, ListChecks, ListOrdered, Minus, Quote, Redo2, Rows3, Search, Smile, Strikethrough, Table, Undo2,
 } from "lucide-react";
 import * as C from "@/lib/editor/commands";
 import { MarkdownEditor, type EditorHandle } from "./MarkdownEditor";
+import { HOTKEY_EVENT, type HotkeyAction } from "./HotkeysModal";
 
 type Panel = "" | "link" | "image" | "code" | "table" | "symbols";
 const MOD = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl+";
@@ -39,6 +40,28 @@ export function EditorPane({ docKey, value, onChange, onSave }: { docKey: string
     if (!ok) { setMessage("주소를 확인해 주세요. http(s)://, mailto:, 상대 경로만 사용할 수 있습니다."); return; }
     setPanel(""); setUrl(""); setMessage("");
   }
+  // 2026-10-17 v1.14: 단축키 안내 창에서 누른 항목을 편집기에 바로 적용
+  const onSaveRef = useRef(onSave);
+  useEffect(() => { onSaveRef.current = onSave; });
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const action = (e as CustomEvent<HotkeyAction>).detail;
+      const e2 = ed.current;
+      if (!e2) return;
+      e.preventDefault();
+      if (action === "bold") e2.run((t, s) => C.toggleWrap(t, s, "**"));
+      else if (action === "italic") e2.run((t, s) => C.toggleWrap(t, s, "*"));
+      else if (action === "indent") e2.run(C.indentLines);
+      else if (action === "outdent") e2.run(C.outdentLines);
+      else if (action === "undo") e2.undo();
+      else if (action === "redo") e2.redo();
+      else if (action === "find") e2.find();
+      else if (action === "link") { setPanel("link"); setMessage(""); setUrl(""); }
+      else if (action === "save") { e2.focus(); onSaveRef.current(); }
+    };
+    window.addEventListener(HOTKEY_EVENT, handler);
+    return () => window.removeEventListener(HOTKEY_EVENT, handler);
+  }, []);
   async function copyText() {
     const text = ed.current?.text() ?? "";
     try { await navigator.clipboard.writeText(text); showToast("마크다운 원문을 클립보드에 복사했습니다."); }

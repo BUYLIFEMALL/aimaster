@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — 다크 모드 작업에서 찾은 3가지 (markdown-studio v1.14, Claude Code 윈도우)
+- **CodeMirror 강조를 두 개 겹치면 기본 강조가 사라짐**: 증상 — `syntaxHighlighting(classHighlighter)`를 추가하자 밝은 화면에서 제목 굵기·밑줄과 `##` 회색이 없어짐. 원인 — `defaultHighlightStyle`에 `{ fallback: true }`가 있으면 다른 강조가 하나라도 있을 때 적용되지 않음. 해결 — `fallback` 옵션 제거(`markdown-studio/src/components/editor/MarkdownEditor.tsx`). 다음부터 — 강조를 추가하면 기존 화면 글자 굵기·색을 JS `getComputedStyle`로 전후 비교.
+- **`"use client"` 파일의 상수를 서버 레이아웃에서 import하면 문자열이 아니라 클라이언트 참조가 됨**: 깜빡임 방지 스크립트 문자열은 일반 모듈(`src/lib/theme.ts`)에 둔다.
+- **`:is()` 묶음 선택자의 우선순위는 가장 센 항목을 따른다**: 다크 모드 면 색 묶음에 `.warning .actions button` 같은 복합 선택자를 넣으면 묶음 전체가 세져 `.primary`·꼬리표 색까지 덮어씀. 기본 버튼은 `:where()`로 약하게, 복합 선택자는 따로 규칙을 둔다.
+
 ## 2026-10-17 — React 19 폼 액션 + 제어 체크박스: 저장 후 반대 값이 저장됨 (real_estate_sales v1.14 → v1.15)
 - **증상**: 체크 끄고 저장(정상) → 다시 켜고 저장하면 DB엔 꺼짐. 화면은 체크돼 보임.
 - **원인**: `useActionState` 폼 액션은 저장 뒤 폼을 자동 초기화(form reset) → `checked={state}` 제어 체크박스의 화면(DOM)이 기본값으로 돌아가 React 상태와 어긋나고, 다음 클릭에서 반대 값이 들어감.

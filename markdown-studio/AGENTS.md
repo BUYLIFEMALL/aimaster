@@ -101,3 +101,13 @@
 - 복사 알림 문구 "원문을(를)" → "마크다운 원문 복사 완료 — 클립보드에 담았습니다.".
 - v1.12 실화면 확인: 읽기 시간("약 1분 소요 · 23자"), ? 키 단축키 창(11개)·Esc 닫기, 목차 미니맵 sticky·현재 제목 강조, MD 복사 토스트, 대시보드 검색창·고정 버튼.
 - v1.13 실화면 재검수: 고정 → 새로고침 후 📌 유지·해제(원상복구), 검색(없는 이름 안내·있는 이름 1건), 템플릿 미니어처 빈 항목 "항목"·빈 표 "· · ·" 표시 확인.
+## 2026-10-17 v1.14 — 다크 모드·닫을 때 바로 저장·단축키 창 서식 넣기·고정 색 꼬리표 (Claude Code 윈도우)
+- **다크 모드**: 상단 배너 오른쪽 [🌙 다크 모드 / ☀ 라이트 모드] 버튼(`src/components/ui/ThemeToggle.tsx`). 선택은 기기 localStorage `md-studio-theme`, `<html data-theme="dark">`로 적용. 깜빡임 방지 스크립트 `src/lib/theme.ts`의 `THEME_INIT_SCRIPT`를 `(workspace)/layout.tsx`에서 넣음(로그인 화면은 그대로 밝은 화면). 색은 `globals.css` 끝 「v1.14 다크 모드」 블록(딥 차콜 네이비 `#0b0f17`·카드 `#111827`). 루트 layout `<html suppressHydrationWarning>`.
+  - 주의: 버튼 기본색은 `:where(button,.button)`로 약하게 두어 `.primary`·`.download`·투명 버튼이 이기게 했다. 새 화면을 만들면 하드코딩 색 대신 `:root` 변수(`--text-1`·`--text-2`·`--brand-text`·`--soft`·`--soft-line`·`--soft-accent`…)를 쓰면 다크 모드가 자동 적용된다.
+  - 편집기: `classHighlighter`(`@lezer/highlight` 1.2.5 직접 의존성으로 고정)로 `tok-*` 고정 클래스를 붙여 다크에서 `##`·`1.` 표식 색을 바꿈. `defaultHighlightStyle`의 `fallback: true`는 제거해야 두 강조가 함께 적용된다(밝은 화면 모양 동일 확인).
+- **닫을 때 바로 저장**: `WorkspaceProvider`의 `flushDraft(quick)` — 창을 닫거나(pagehide·beforeunload) 다른 탭·앱으로 넘어갈 때(visibilitychange hidden) 0.75초 자동 저장을 기다리지 않고 로그인 확인(네트워크)을 건너뛰어 이 회원 IndexedDB에 바로 쓴다. 브라우저 "나가시겠습니까?" 확인 창은 안전을 위해 유지. 일반 저장(`save`)은 기존대로 로그인 확인 후 저장.
+- **단축키 창에서 눌러 적용**: `HotkeysModal.tsx` 항목 9개(굵게·기울임·링크·들여쓰기·내어쓰기·실행 취소·다시 실행·찾기·저장)를 누르면(또는 Enter·Space) `md-studio:hotkey` 이벤트 → `EditorPane`이 받아 커서 위치에 적용. 문서가 열려 있지 않으면 "먼저 문서를 열어 주세요" 알림. Enter·Esc→Tab·? 항목은 안내만.
+- **고정 문서 색깔 꼬리표**: 고정한 카드에만 🏷 버튼, 누를 때마다 없음→빨강→노랑→초록→파랑→보라→없음, 카드 왼쪽에 색 띠. `WorkspacePreferences.pinColors`(문서 id→색), `model.ts`의 `PIN_COLORS`·`nextPinColor`·`sanitizePinColors`, `repository.savePreferences`가 고정된 문서·정해진 색만 저장. 저장(로그인 확인 약 1.7초)을 기다리지 않게 화면은 즉시 반영(`colorDraft`).
+- 테스트: 단위 62개 통과(꼬리표 순환·정리·저장 3개 추가). 빌드·배포·DB `programs.version='v1.14'`. 서버·DB 스키마 변경 없음, 유료 API 호출 없음.
+- 실화면(크롬, 시험 계정 `buylifemall@naver.com`): 고정→꼬리표 빨강·노랑·초록 순환·새로고침 후 유지, 빠른 연속 클릭 한 칸씩; 다크 모드 대시보드·준비·편집·내보내기·보관함·설정·매뉴얼 7화면과 400px 폭; 단축키 창에서 굵게(`****` 삽입)·실행 취소(원래대로)·찾기 창·링크 입력칸; 글자 입력 직후 창 닫힘 신호 21ms 만에 "이 기기에 저장됨" + IndexedDB 본문 일치. 시험 뒤 원상복구(본문 원래대로·고정 해제·라이트 모드, 문서 수정 횟수만 늘어남).
+- 남은 제안: `docs/IMPROVEMENTS.md` 「v1.14 처리 현황」.

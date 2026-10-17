@@ -14,8 +14,9 @@ import {
   Pin,
   PinOff,
   Search,
+  Tag,
 } from "lucide-react";
-import { type DocumentRevision, safeFilename } from "@/lib/documents/model";
+import { type DocumentRevision, type PinColor, PIN_COLOR_LABELS, nextPinColor, safeFilename } from "@/lib/documents/model";
 import { DOCUMENT_TEMPLATES } from "@/lib/documents/templates";
 import { DocumentExplorer } from "./DocumentExplorer";
 import { HotkeysButton } from "../editor/HotkeysModal";
@@ -51,6 +52,9 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
   const [pending, setPending] = useState(false);
   const [docQuery, setDocQuery] = useState("");
   const pinnedIds = store.preferences.pinnedIds ?? [];
+  // 꼬리표는 저장(로그인 확인 포함 약 1~2초)을 기다리지 않고 화면에 바로 반영 — 빠르게 여러 번 눌러도 한 칸씩 바뀐다
+  const [colorDraft, setColorDraft] = useState<Record<string, PinColor> | null>(null);
+  const pinColors = colorDraft ?? store.preferences.pinColors ?? {};
 
   const active = store.nodes.find(n => n.id === store.draft?.id && !n.deletedAt);
   const liveDocs = store.nodes.filter(n => n.kind === "document" && !n.deletedAt);
@@ -178,8 +182,8 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
           <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 750, color: "#1e293b" }}>최근 작업한 문서</h2>
-                <p style={{ margin: "3px 0 0", fontSize: "12px", color: "#64748b" }}>
+                <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 750, color: "var(--text-1)" }}>최근 작업한 문서</h2>
+                <p style={{ margin: "3px 0 0", fontSize: "12px", color: "var(--muted)" }}>
                   클릭하면 듀얼 분할 에디터로 즉시 열려 편집을 이어갈 수 있습니다.
                 </p>
               </div>
@@ -188,7 +192,7 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                   href="/library"
                   style={{
                     fontSize: "12px",
-                    color: "#4f46e5",
+                    color: "var(--brand-text)",
                     fontWeight: 600,
                     display: "inline-flex",
                     alignItems: "center",
@@ -225,12 +229,13 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                   .slice(0, docQuery.trim() ? 12 : 6)
                   .map(n => {
                     const pinned = pinnedIds.includes(n.id);
+                    const color = pinned ? pinColors[n.id] : undefined;
                     const snippet = n.markdown
                       ? n.markdown.replace(/[#*`~>\[\]\(\)\-_\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 75)
                       : "내용이 비어 있는 문서입니다.";
                     return (
                       <div
-                        className="doc-card-modern"
+                        className={`doc-card-modern${color ? ` pin-${color}` : ""}`}
                         key={n.id}
                         onClick={() =>
                           action(async () => {
@@ -242,6 +247,25 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                         <div className="doc-card-top">
                           <span className="doc-card-title">{pinned && "📌 "}{n.name}</span>
                           <span className="doc-card-badge">수정 {n.revision}회</span>
+                          {/* 2026-10-17 v1.14: 고정한 문서에만 색깔 꼬리표 — 누를 때마다 다음 색, 보라 다음은 없음 */}
+                          {pinned && (
+                            <button
+                              type="button"
+                              className={`doc-tag${color ? ` tag-${color}` : ""}`}
+                              aria-label={`${n.name} 색깔 꼬리표: ${color ? PIN_COLOR_LABELS[color] : "없음"} (눌러서 바꾸기)`}
+                              title={`색깔 꼬리표: ${color ? PIN_COLOR_LABELS[color] : "없음"} — 누를 때마다 바뀝니다`}
+                              onClick={e => {
+                                e.stopPropagation();
+                                const nextColor = nextPinColor(color);
+                                const next = { ...pinColors };
+                                if (nextColor) next[n.id] = nextColor; else delete next[n.id];
+                                setColorDraft(next);
+                                void action(() => store.setPreferences({ pinColors: next }).catch(err => { setColorDraft(null); throw err; }));
+                              }}
+                            >
+                              <Tag size={13} />
+                            </button>
+                          )}
                           <button
                             type="button"
                             className={`doc-pin ${pinned ? "on" : ""}`}
@@ -267,7 +291,7 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                               minute: "2-digit",
                             })}
                           </span>
-                          <span style={{ color: "#4f46e5", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                          <span style={{ color: "var(--brand-text)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "2px" }}>
                             편집하기 <ArrowRight size={12} />
                           </span>
                         </div>

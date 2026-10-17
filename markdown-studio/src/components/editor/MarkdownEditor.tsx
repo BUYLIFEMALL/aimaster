@@ -7,6 +7,7 @@ import { defaultKeymap, history, historyKeymap, redo, undo } from "@codemirror/c
 import { markdown } from "@codemirror/lang-markdown";
 import { defaultHighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { openSearchPanel, search, searchKeymap } from "@codemirror/search";
+import { classHighlighter } from "@lezer/highlight";
 import * as C from "@/lib/editor/commands";
 
 export interface EditorHandle {
@@ -62,7 +63,9 @@ export const MarkdownEditor = forwardRef<EditorHandle, Props>(function MarkdownE
       doc,
       extensions: [
         history(), drawSelection(), EditorView.lineWrapping,
-        markdown({ addKeymap: false }), syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+        markdown({ addKeymap: false }), syntaxHighlighting(defaultHighlightStyle),
+        // v1.14: 기본 색(fallback 아님)과 함께 고정 클래스 이름(tok-*)도 붙여 다크 모드 CSS가 표식(##, 1.) 색을 바꿀 수 있게 한다
+        syntaxHighlighting(classHighlighter),
         search({ top: true }), EditorState.phrases.of(PHRASES),
         EditorView.contentAttributes.of({ "aria-label": "마크다운 원문", spellcheck: "false", autocorrect: "off", autocapitalize: "off" }),
         keymap.of([

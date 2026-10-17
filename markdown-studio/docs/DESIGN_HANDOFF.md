@@ -95,3 +95,9 @@
   - **Supabase DB `programs`**: `slug='markdown-studio'`, `version='v1.10'`
   - **Vercel Deployment**: `dpl_FBiuRpYxQT1BJDHH4Rc6LSNcSvpJ` (READY)
   - **라이브 도메인**: https://markdown-studio.buylife.xyz
+
+## v1.14 (2026-10-17, Claude Code 윈도우) — 다크 모드 추가
+- 템플릿: 포커스 스튜디오 스타일 유지 + **다크 변형(딥 차콜 네이비)**: 배경 `#0b0f17`, 카드·메뉴 `#111827`, 연한 면 `#161e2e`, 테두리 `#263042`, 글자 `#e5e7eb`/`#cbd5e1`, 보조 `#94a3b8`, 강조 `rgba(129,140,248,.16)` + `#c7d2fe`, 브랜드 `#6366f1`.
+- 적용: `<html data-theme="dark">`, 배너 오른쪽 토글. 작업실 전 화면이 같은 배경으로 함께 바뀐다(원칙 ⑪). 로그인 화면은 밝은 화면 유지.
+- 모바일 400px에서 배너의 저장 상태 + 토글 한 줄 확인.
+- 고정 색깔 꼬리표: 카드 왼쪽 4px 색 띠(빨강 `#ef4444`·노랑 `#f59e0b`·초록 `#10b981`·파랑 `#3b82f6`·보라 `#8b5cf6`).

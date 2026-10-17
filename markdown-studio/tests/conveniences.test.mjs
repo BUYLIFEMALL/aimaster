@@ -3,6 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readingMinutes, readingLabel } from "../src/lib/documents/readingTime.ts";
 import { templatePreviewLines } from "../src/lib/documents/templatePreview.ts";
+import { nextPinColor, sanitizePinColors, PIN_COLORS } from "../src/lib/documents/model.ts";
 
 test("예상 읽기 시간: 공백 제외 500자/분, 1분 미만은 1분", () => {
   assert.equal(readingMinutes(""), 0);
@@ -28,4 +29,17 @@ test("템플릿 미니어처: 줄 종류 구분·코드 안쪽 생략·표 구�
   // 빈 항목·빈 표 칸·빈 체크도 모양이 보이게
   const blank = templatePreviewLines("-\n1.\n- [ ]\n| | |");
   assert.deepEqual(blank.map(l => [l.kind, l.text]), [["list", "항목"], ["list", "항목"], ["check", "할 일"], ["table", "· · ·"]]);
+});
+
+test("v1.14 색깔 꼬리표: 없음→빨강→노랑→초록→파랑→보라→없음 순환", () => {
+  const seen = [];
+  let c;
+  for (let i = 0; i < 6; i++) { c = nextPinColor(c); seen.push(c); }
+  assert.deepEqual(seen, [...PIN_COLORS, undefined]);
+});
+
+test("v1.14 색깔 꼬리표 정리: 고정된 문서·정해진 색만 남김", () => {
+  assert.deepEqual(sanitizePinColors({ a: "red", b: "blue", c: "pink", d: 3 }, ["a", "c", "d"]), { a: "red" });
+  assert.deepEqual(sanitizePinColors(null, ["a"]), {});
+  assert.deepEqual(sanitizePinColors("red", ["a"]), {});
 });

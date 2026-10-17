@@ -26,10 +26,29 @@ export interface WorkspacePreferences {
   editorPercent: number;
   /** 2026-10-17 v1.12: 대시보드 최근 문서에 고정한 문서 id(옛 설정에는 없을 수 있음) */
   pinnedIds?: string[];
+  /** 2026-10-17 v1.14: 고정한 문서의 색깔 꼬리표(문서 id → 색 이름) */
+  pinColors?: Record<string, PinColor>;
 }
 export const DEFAULT_PREFERENCES: WorkspacePreferences = {
   activeId: null, explorerOpen: true, editorPercent: 50,
 };
+export const PIN_COLORS = ["red", "amber", "green", "blue", "purple"] as const;
+export type PinColor = typeof PIN_COLORS[number];
+export const PIN_COLOR_LABELS: Record<PinColor, string> = { red: "빨강", amber: "노랑", green: "초록", blue: "파랑", purple: "보라" };
+/** 꼬리표 버튼을 누를 때마다: 없음 → 빨강 → 노랑 → 초록 → 파랑 → 보라 → 없음 */
+export function nextPinColor(current?: PinColor): PinColor | undefined {
+  const i = current ? PIN_COLORS.indexOf(current) : -1;
+  return i + 1 < PIN_COLORS.length ? PIN_COLORS[i + 1] : undefined;
+}
+/** 고정된 문서의 꼬리표만, 정해진 색 이름만 남긴다 */
+export function sanitizePinColors(value: unknown, pinnedIds: string[]): Record<string, PinColor> {
+  const out: Record<string, PinColor> = {};
+  if (!value || typeof value !== "object") return out;
+  for (const [id, color] of Object.entries(value as Record<string, unknown>)) {
+    if (pinnedIds.includes(id) && (PIN_COLORS as readonly unknown[]).includes(color)) out[id] = color as PinColor;
+  }
+  return out;
+}
 /** Google Drive와 연결된 문서·폴더의 기록(이 기기 IndexedDB에만 저장). Drive 계정별로 구분한다 */
 export interface DriveMapping {
   nodeId: string;

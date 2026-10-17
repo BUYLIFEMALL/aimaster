@@ -1,7 +1,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import {
   DEFAULT_PREFERENCES, DocumentError, MAX_MARKDOWN_LENGTH, descendants,
-  normalizeName, validatePlacement, verifyOwner,
+  normalizeName, sanitizePinColors, validatePlacement, verifyOwner,
   type DocumentNode, type DocumentRevision, type DriveMapping, type NodeKind, type WorkspacePreferences,
 } from "./model";
 import { MAX_IMPORT_NODES, orderParentsFirst, uniqueName, validateTree, type ImportItem } from "./backup";
@@ -42,7 +42,9 @@ export class DocumentRepository {
   async savePreferences(value: WorkspacePreferences) {
     // v1.12: 대시보드 고정 문서(pinnedIds)도 저장 — 문자열 id만, 최대 50개
     const pinnedIds = Array.isArray(value.pinnedIds) ? value.pinnedIds.filter((id): id is string => typeof id === "string").slice(0, 50) : [];
-    const next = { activeId: value.activeId, explorerOpen: !!value.explorerOpen, editorPercent: Math.min(75, Math.max(25, value.editorPercent || 50)), pinnedIds };
+    // v1.14: 고정 문서의 색깔 꼬리표 — 고정된 문서·정해진 색만
+    const pinColors = sanitizePinColors(value.pinColors, pinnedIds);
+    const next = { activeId: value.activeId, explorerOpen: !!value.explorerOpen, editorPercent: Math.min(75, Math.max(25, value.editorPercent || 50)), pinnedIds, pinColors };
     await (await this.dbPromise).put("preferences", next, "workspace");
   }
   async create(kind: NodeKind, rawName: string, parentId: string | null = null, markdown = "") {

@@ -74,7 +74,7 @@ export default function GuidePage() {
             <span className="guide-tag accent">Step 01</span>
           </div>
 
-          <div style={{ fontSize: "13px", color: "#334155", lineHeight: 1.7 }}>
+          <div style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.7 }}>
             <p>
               <strong>• 새 문서 생성:</strong> [문서 준비] 화면에서 회의록, 기술 문서, 기획서 등 미리 준비된 템플릿을 선택하거나 빈 문서로 즉시 시작할 수 있습니다.
             </p>
@@ -106,7 +106,7 @@ export default function GuidePage() {
             <span className="guide-tag accent">Step 02</span>
           </div>
 
-          <div style={{ fontSize: "13px", color: "#334155", lineHeight: 1.7 }}>
+          <div style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.7 }}>
             <p>
               <strong>• 실시간 듀얼 분할 뷰:</strong> 타이핑과 동시에 정밀한 GFM(GitHub Flavored Markdown) 서식이 우측 패널에 렌더링됩니다. 분할 바를 조절해 원하는 너비로 에디터를 구성할 수 있습니다.
             </p>
@@ -190,7 +190,7 @@ export default function GuidePage() {
             <span className="guide-tag accent">Step 04</span>
           </div>
 
-          <div style={{ fontSize: "13px", color: "#334155", lineHeight: 1.7 }}>
+          <div style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.7 }}>
             <p>
               <strong>• 자동 리비전 타임라인:</strong> 문서 저장 시마다 최대 30개의 이전 버전 이력이 안전하게 보관됩니다. 이력 목록에서 작성 시간과 글자 수를 확인하고 언제든 [이 본문 복원] 버튼으로 되살릴 수 있습니다.
             </p>
@@ -218,22 +218,22 @@ export default function GuidePage() {
             <span className="guide-tag">선택 연동</span>
           </div>
 
-          <div style={{ fontSize: "13px", color: "#334155", lineHeight: 1.7 }}>
+          <div style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.7 }}>
             <p>
               AIMaster의 절대 불변 철학에 따라, <strong>운영자의 공용 앱이나 타인의 키를 공유하지 않고 회원 본인의 Google Cloud 프로젝트와 1:1로만 연결</strong>됩니다.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", margin: "14px 0" }}>
-              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
-                <strong style={{ display: "block", fontSize: "12px", color: "#4f46e5", marginBottom: "4px" }}>1단계</strong>
-                <span style={{ fontSize: "11px", color: "#334155" }}>Google Cloud 콘솔에서 OAuth 웹 클라이언트 ID 발급</span>
+              <div style={{ background: "var(--soft)", border: "1px solid var(--soft-line)", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
+                <strong style={{ display: "block", fontSize: "12px", color: "var(--brand-text)", marginBottom: "4px" }}>1단계</strong>
+                <span style={{ fontSize: "11px", color: "var(--text-2)" }}>Google Cloud 콘솔에서 OAuth 웹 클라이언트 ID 발급</span>
               </div>
-              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
-                <strong style={{ display: "block", fontSize: "12px", color: "#4f46e5", marginBottom: "4px" }}>2단계</strong>
-                <span style={{ fontSize: "11px", color: "#334155" }}>[API키등록·플랫폼연동] 메뉴에 내 Client ID 등록</span>
+              <div style={{ background: "var(--soft)", border: "1px solid var(--soft-line)", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
+                <strong style={{ display: "block", fontSize: "12px", color: "var(--brand-text)", marginBottom: "4px" }}>2단계</strong>
+                <span style={{ fontSize: "11px", color: "var(--text-2)" }}>[API키등록·플랫폼연동] 메뉴에 내 Client ID 등록</span>
               </div>
-              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
-                <strong style={{ display: "block", fontSize: "12px", color: "#4f46e5", marginBottom: "4px" }}>3단계</strong>
-                <span style={{ fontSize: "11px", color: "#334155" }}>[보관함]에서 내 Google Drive 폴더로 자동 업로드/가져오기</span>
+              <div style={{ background: "var(--soft)", border: "1px solid var(--soft-line)", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
+                <strong style={{ display: "block", fontSize: "12px", color: "var(--brand-text)", marginBottom: "4px" }}>3단계</strong>
+                <span style={{ fontSize: "11px", color: "var(--text-2)" }}>[보관함]에서 내 Google Drive 폴더로 자동 업로드/가져오기</span>
               </div>
             </div>
           </div>
@@ -247,12 +247,12 @@ export default function GuidePage() {
         </section>
 
         {/* DATA STORAGE & SECURITY NOTICE */}
-        <section className="card" style={{ background: "#f8faff", borderColor: "#c7d2fe" }}>
-          <h2 style={{ fontSize: "15px", fontWeight: 750, color: "#1e1b4b", marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+        <section className="card" style={{ background: "var(--soft-accent)", borderColor: "var(--soft-accent-line)" }}>
+          <h2 style={{ fontSize: "15px", fontWeight: 750, color: "var(--deep)", marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
             <ShieldCheck size={20} color="#4f46e5" />
             데이터 보관 안내 및 백업 권장 사항
           </h2>
-          <div style={{ fontSize: "12px", color: "#334155", lineHeight: 1.8 }}>
+          <div style={{ fontSize: "12px", color: "var(--text-2)", lineHeight: 1.8 }}>
             <p>
               • <strong>로컬 브라우저 영구 보관:</strong> 작성하신 모든 문서는 로그인한 계정별로 이 브라우저의 안전한 로컬 데이터베이스(IndexedDB)에 보관됩니다.
             </p>

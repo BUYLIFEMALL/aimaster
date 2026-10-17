@@ -91,6 +91,13 @@ test("v1.12 pinned documents are saved and sanitized", async () => {
   await repo.savePreferences({ activeId: null, explorerOpen: true, editorPercent: 50 });
   assert.deepEqual((await repo.preferences()).pinnedIds, []); await repo.close();
 });
+test("v1.14 pin color tags are saved only for pinned documents", async () => {
+  const repo = new DocumentRepository(user());
+  await repo.savePreferences({ activeId: null, explorerOpen: true, editorPercent: 50, pinnedIds: ["a", "b"], pinColors: { a: "green", b: "nope", z: "red" } });
+  assert.deepEqual((await repo.preferences()).pinColors, { a: "green" });
+  await repo.savePreferences({ activeId: null, explorerOpen: true, editorPercent: 50, pinnedIds: ["b"], pinColors: { a: "green" } });
+  assert.deepEqual((await repo.preferences()).pinColors, {}); await repo.close();
+});
 test("IndexedDB quota failure rolls back changes and preserves original content", async () => {
   const repo = new DocumentRepository(user()); const node = await repo.create("document", "할당량.md", null, "저장된 원고");
   const original = IDBObjectStore.prototype.put;
