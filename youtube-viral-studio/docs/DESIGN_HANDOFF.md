@@ -1,7 +1,7 @@
 # 디자인 개발완료 인수인계 — YOUTUBE VIRAL FINDER (v1.13)
 
 - **적용 템플릿**: **유튜브 다크 콘솔 스타일 — 스튜디오 변형** (DESIGN.md 9번 계열) + 스마트 매트릭스 구성. `youtube-auto-reply` v1.09와 **같은 `yt-*` 값**을 Tailwind v4 `@theme`로 이식 → [기준 문서](../../youtube-auto-reply/docs/DESIGN_HANDOFF.md)
-- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「진행해줘」, 유튜브 다크 권장안) · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
+- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「진행해줘」, 유튜브 다크 권장안) · 상태: ✅ 1차 작업완료 (v1.13, Codex Windows 운영 검수)
 - **라이브**: https://youtube-viral-studio.buylife.xyz
 
 ## 1. 토큰·부품 (`src/app/globals.css`)
@@ -23,12 +23,14 @@
 ## 3. 주의
 - 검색·분석 API·점수 계산·키 저장 변경 없음.
 - 검수 때 검색·「대본 분석」 버튼은 회원 YouTube 할당량·AI 비용이 들어 누르지 않는다.
-- `package.json` `version`(1.10.0)은 기술 버전이라 그대로(원칙 5).
+- Windows 인수에서 package1.13.0·APP/DB v1.13으로 동기화.
 
 ## 4. 배포·검수 기록
 | 항목 | 값 |
 |---|---|
 | 정적 검사 | 맥미니 `tsc --noEmit` 오류 0 |
-| 빌드·배포 | 대기(윈도우) |
-| DB `programs.version` | v1.12 → 배포 때 v1.13 |
-| 화면 검수 | 대기(1440px·375px, 휴대폰 ☰로 모든 메뉴 이동) |
+| 빌드·배포 | Windows Next16.4.2 통과 · dpl_4r4FxwdNB38SzofnmBQFYakRmdMt READY · 소스 b50bfaff929137c33538c3b8bb0a09c47aca48f8 |
+| DB `programs.version` | v1.13 갱신 후 별도 SELECT 재확인, 주소·배지 유지 |
+| 화면 검수 | 실제 일반 회원 Edge1440/375, 8화면·모든 메뉴·로그인/가입 탭·설정 키3종 확인. 자동 검색은 브라우저200합성 응답(실제 검색/AI0) |
+
+세부 제한·잔여 과제·검수 명령·증거: [Windows 최종 인수인계](WINDOWS_HANDOFF_20261017.md). 회원별 즐겨찾기/30일 삭제는 미해결입니다.

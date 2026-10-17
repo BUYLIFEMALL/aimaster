@@ -41,3 +41,7 @@
 
 ## 디자인 (v1.13)
 - [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [개선 원장](docs/IMPROVEMENTS.md) · [인수인계 2026-10-17](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## Windows 인수 완료 — v1.13 (2026-10-17)
+
+유튜브 다크 디자인·대시보드·휴대폰 전체 메뉴를 운영 배포했습니다. Next16.4.2 빌드와 일반 회원 Edge1440/375 검수, 비로그인 API401 확인. 검색·AI는 실행하지 않았습니다. 회원별 즐겨찾기 분리·30일 삭제, lint 설정/개발 도구 경고는 후속 과제입니다. [최종 인수인계](docs/WINDOWS_HANDOFF_20261017.md) · [검수 증거](docs/evidence/) · https://youtube-viral-studio.buylife.xyz

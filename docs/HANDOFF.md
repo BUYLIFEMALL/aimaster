@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — youtube-viral-studio v1.13 Windows 인수·운영 화면 검수 완료
+
+- 맥미니 eb515765 인수 완료. 유튜브 다크·대시보드·375px 전체 메뉴 유지. Next16.4.2 빌드(fetchCache 포함), APP/DBv1.13·package1.13.0.
+- 소스 **b50bfaff929137c33538c3b8bb0a09c47aca48f8** 푸시, 프로덕션 **dpl_4r4FxwdNB38SzofnmBQFYakRmdMt** READY/소스 일치. DB 별도 읽기 확인. [프로그램](https://youtube-viral-studio.buylife.xyz).
+- 실제 일반 회원 Edge 로컬9/운영9 검사(8화면1440/375), 합성 실제 카드7, 비로그인API8개401 로컬/운영, 운영 오류로그0. 검색·AI·키저장0. 자동 검색3경로는 브라우저200합성 응답이므로 실제 검색결과/할당량 검증은 아님.
+- DESIGN28 **✅ 1차 작업완료(v1.13)**, 본인 ACTIVE_WORK 줄 제거. **미해결:** 전역 즐겨찾기 회원분리·30일 삭제/저장 콜백 부재, lint 설정 없음·개발high5(운영 의존성0). 데이터 정책 준수 전체 완료를 주장하지 않음.
+- [최종 인수인계·검수 증거·추가개선3항목](../youtube-viral-studio/docs/WINDOWS_HANDOFF_20261017.md). 타 프로그램 yt-playlist-studio 조사와 참고 메모 연계/문서 불일치는 상대 개선 원장에 제안만 남김.
+
 ## 2026-10-17 Claude Code(맥미니) — YOUTUBE CHANNEL CONSULTANT v1.07: 유튜브 다크 콘솔 — 스튜디오 변형 (🟠 윈도우 마무리 요청)
 
 - **대상**: `youtube-channel-consultant/` (https://youtube-channel-consultant.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.

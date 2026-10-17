@@ -17,3 +17,7 @@
 2. `vercel deploy --prod --yes` → `update programs set version='v1.13', updated_at=now() where slug='youtube-viral-studio';`
 3. `buylifemall@naver.com` 1440px·375px: 로그인(다크), `/`→`/dashboard`, **375px에서 ☰로 모든 메뉴 이동**, 발굴 4화면(검색 전 화면), 즐겨찾기, 설정, 매뉴얼. **검색·대본 분석 버튼 금지.**
 4. `DESIGN.md` 28번 ✅, `DESIGN_HANDOFF.md` §4 기록, ACTIVE_WORK 줄 삭제.
+
+## Windows 마무리 완료 (2026-10-17 Codex)
+
+위 다음 첫 단계1~4를 수행했습니다. fetchCache 빌드·운영 배포·DBv1.13·실제 Edge1440/375·현황판28번 완료. 자동검색을 가로채 유튜브/AI 호출0. [최종 결과·남은 과제·증거](WINDOWS_HANDOFF_20261017.md)를 먼저 읽습니다. 즐겨찾기 회원분리·30일 자동삭제는 아직 구현하지 않았습니다.

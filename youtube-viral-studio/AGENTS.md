@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.13` (Windows 배포 검수 진행 중) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.13` (Windows 운영 배포·화면 검수 완료) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -47,7 +47,7 @@
 ### 권한 및 설정 (`src/lib/`)
 - `auth.ts`: `requireUser()` 세션 검증
 - `access.ts`: `requireProgramAccess()` (FREE 배지 및 관리자 프리패스, 구독/기간 권한 검증 시 RLS 차단 방지를 위해 `createAdminClient()` 사용)
-- `apiKeys.ts`: 회원별 본인 API 키(`youtube_api_key`, `gemini_api_key`, `openai_api_key`) 조회 및 마스킹
+- `apiKeys.ts`: 회원별 본인 API 키(`youtube_api_key`, `gemini`, `openai`) 조회 및 마스킹
 
 ---
 
@@ -82,3 +82,7 @@
 - `youtube-auto-reply`와 같은 `yt-*` 토큰(Tailwind v4 `@theme`), 사이드바 빨간 막대·**휴대폰 ☰(원래 휴대폰 메뉴 없음)**, `/dashboard` 신설(`/`→`/dashboard`, 유튜브 API 호출 없음), 매뉴얼에 숫자 읽는 법·등급 기준표, 로그인 다크, `(dashboard)/layout.tsx` fetchCache 추가. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
 - **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## 2026-10-17 Codex(Windows) — v1.13 최종 인수
+
+유튜브 다크·신규 대시보드·375px 메뉴 운영 검수 완료. Next16.4.2 보안 보완, APP/DB v1.13·package1.13.0. 소스 b50bfaff929137c33538c3b8bb0a09c47aca48f8 푸시, 프로덕션 dpl_4r4FxwdNB38SzofnmBQFYakRmdMt READY. 실제 일반 회원 Edge1440/375 8화면·메뉴, 합성 카드7검사, 비로그인 API8개401. 자동 검색 요청은 브라우저 모의 응답으로만 처리(실제 검색/AI0). 운영 의존성 보안 경고0, 개발high5·lint 설정 부재 남음. **즐겨찾기 회원분리·30일 자동삭제는 미해결**이며 디자인 완료와 구분. [최종 인수인계](docs/WINDOWS_HANDOFF_20261017.md), [개선 원장](docs/IMPROVEMENTS.md). https://youtube-viral-studio.buylife.xyz

@@ -4,7 +4,7 @@
 
 ## 현재 단계
 
-사전 빌드·실제 일반 회원 Edge 검수 통과, 운영 배포 진행 중. 배포 ID·최종 커밋·운영 검수는 완료 후 이 문서에 추가합니다.
+v1.13 디자인 마무리 완료. 로컬/운영 일반 회원 검수·배포·DB 버전 확인을 완료했습니다. 회원 데이터 격리/30일 보완 등 아래 후속 과제는 별개로 남아 있습니다.
 
 ## 확인한 내용
 
@@ -30,3 +30,18 @@
 프로그램 폴더에서 `npm run build:verify`, `node tests/local.mjs start`(127.0.0.1:3028), `npm run test:runtime`, `npm run test:fixtures`, `node tests/security-http.mjs`. 운영은 `YVS_TEST_BASE=https://youtube-viral-studio.buylife.xyz`로 runtime/security 실행. 자격증명은 기존 루트 환경에서 프로세스 내부로만 읽고 로그·증거에 기록하지 않습니다. fixture 저장소는 새 임시 브라우저의 합성 자료입니다.
 
 증거: [evidence](evidence/), [플랜](VERIFICATION_PLAN_20261017_WINDOWS.md), [개선 원장](IMPROVEMENTS.md). 최종 결과는 아래 운영 기록을 참고합니다.
+
+## 운영 배포·최종 검수 기록
+
+- 소스 커밋 **b50bfaff929137c33538c3b8bb0a09c47aca48f8**, origin/master 푸시 완료. 최종 결과 문서 커밋은 이 제목의 후속 git log로 확인합니다(자기 커밋 해시를 같은 파일에 넣을 수 없으므로 결과 보고에도 명시).
+- 프로덕션 **dpl_4r4FxwdNB38SzofnmBQFYakRmdMt**, READY, 소스 메타데이터 일치. 배포 URL https://youtube-viral-studio-84vph1egl-buylife.vercel.app, 공식 도메인 https://youtube-viral-studio.buylife.xyz 연결. Node24.x, iad1 유지, Cron 없음.
+- DB programs.slug=youtube-viral-studio version **v1.13** 갱신 후 별도 SELECT 확인. app_url/배지(new,best,recommended) 유지. DB 스키마·키·환경변수·회원 자료 변경 없음.
+- 운영 실제 일반 회원 Edge1440/375 **9검사 통과**, 로컬9·합성 실제 카드7·비로그인API8개401(로컬/운영 각각). 운영 설정 GET200·페이지 오류0. 운영 배포 오류 로그0(조회 시점 기준). 실제 검색/AI/키 저장/삭제/실제 보관함 쓰기0. 검색 자동 POST는200 합성 결과로 브라우저에서만 처리했습니다.
+- DESIGN.md28번 **✅ 1차 작업완료 (v1.13)**, ACTIVE_WORK의 본인 줄만 제거. 최종 문서 푸시 뒤 메인 런타임 동일성/설치파일·확장ZIP200 보호 확인까지 수행합니다.
+- 추가 코드 근거: 발굴 페이지에 onBookmark 저장 콜백이 없고 localStorage.setItem도 없습니다. 현재 버튼 클릭만으로 보관 저장/해제가 지속된다고 보장하지 않습니다. 회원별 보관·30일 설계 때 이 기능도 함께 연결하고 검수합니다.
+
+### 추가개선 제안(미구현)
+
+1. 로직·기능: 즐겨찾기 회원 분리/생성일 기준30일 만료·정리와 실제 저장/해제, 자동 검색 선택 실행, 지수 없음→85점 표시 개선.
+2. UI·편의: 가이드의 한도 충전16/17시 통일·추정 지표 설명, 보관 기한/범위 안내.
+3. 타 프로그램 연계: 조사한 Youtube Playlist 자동화에 선택 영상 URL·제목 참고 메모 전달. 기존 기능이 아니며 별도 설계 필요. 양쪽 회원 인증·본인 키·데이터 분리를 유지합니다. 상대 개선 원장에 제안을 남겼으며 타 프로그램 기능/DB/배포는 건드리지 않았습니다.
