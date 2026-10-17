@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.13: 생성 자료 30일 자동 삭제 (남은 마무리 5/5 완료)
+
+- **한 일(주인님 승인)**: 정리 Cron `cleanup-generated`(매일 03:50 KST) — 리포트·관심도 스냅샷·11번가 경쟁 30일 지난 행 삭제, 알림 비교 캐시 비움. ⭐ 관심 상품은 제외(A안). 화면은 30일 이내 자료만, 점수 추이 30일.
+- **검수**: 단위 11·권한 15·build·lint, 배포·DB v1.13, 무인증 401, Cron 4개 등록, 크롬 정상. 첫 실행 예상 삭제: 리포트 31·스냅샷 65·캐시 1(관심 상품 5개 유지).
+- **남은 확인**: 2026-10-18 03:50 KST 첫 실행 후 DB 대조. 루트 [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](TOP_RULE_PERSONAL_ACCOUNT_API.md) 현황표에 기록.
+- **남은 마무리 5가지 모두 처리**(v1.09~v1.13). 인수인계: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **링크**: https://trending-product-finder.buylife.xyz
+
 ## 2026-10-17 Codex(Windows) — youtube-viral-studio v1.14 Windows 인수·운영 화면 검수 완료
 
 - 주인님 별도 DB/30일 정리 승인 후 전용 yvs_favorites·owner-only RLS·중복 생성일 유지·30일 즉시 조회 차단/분당 정리 적용. 실제 Cron 성공 실행과 SQL 회원격리/물리정리(검사 롤백) 확인. 기존 무소유 브라우저 자료 조회/이전/임의삭제 없음.

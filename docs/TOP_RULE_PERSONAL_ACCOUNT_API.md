@@ -88,6 +88,7 @@ git grep -n -E "process\.env\.(OPENAI|GEMINI|ANTHROPIC|PERPLEXITY|REPLICATE|FAL)
 | (2026-10-09 전체 환경변수 점검) | 33개 Vercel 프로젝트 점검 결과: 운영자 키를 코드가 실제로 읽는 곳은 위 표의 `shots`(수정 완료)·`threads-affiliate-poster`·`insta_auto_poster`·`real_estate_sales`(공공데이터)·`blog_auto_poster`뿐. `threads`의 `OPENAI/GEMINI_API_KEY`·`THREADS_APP_*`, `kakao_auto_poster`·`naver-cafe-poster`의 앱 키는 환경변수만 남고 코드는 읽지 않음(정리 대상) | 해당 없음 |
 | `blog_auto_poster` | 환경변수 Gemini 키 사용(운영자용 예전 CLI 도구로 보이며 회원 서비스가 아님) | **처리 완료 2026-10-09** — 운영자 전용 도구로 분리 표기(§8 예외). README에 명시 |
 | `real_estate_sales` AI 시장조사 캐시 | 본인 Perplexity 생성물 `real_estate_district_sentiment`에 user_id 없음, 자치구+날짜 공유·인증 회원 전체 읽기/쓰기·회원별 30일 보관 미충족(2026-10-17 운영 catalog/정책 확인) | **미해결** — v1.11 디자인 배포와 별개. 소유자별 전환·기한/정리·무소유 자료 접근 제한 설계 후 DB/삭제 승인 범위 확인. [근거·다음 단계](../real_estate_sales/docs/IMPROVEMENTS.md). 무료 공공 API 예외를 AI 생성물 공유 허가로 해석하지 않음 |
+| `trending-product-finder` 생성 자료 | AI 리포트·쇼핑인사이트 스냅샷·11번가 경쟁 수집·알림 비교 캐시 30일 보관 미적용(소유자 RLS는 있음) | **수정 완료(v1.13, 2026-10-17 주인님 승인)** — 매일 03:50 KST 정리 Cron(`cleanup-generated`)·화면 만료 자료 숨김. ⭐ 관심 상품(회원이 고른 찜 목록)은 설정으로 보고 제외(A안). 첫 실행 대조 남음. [근거](../trending-product-finder/docs/PLAN_20261017_30DAY_RETENTION.md) |
 | `youtube-viral-studio` 즐겨찾기 | 전역 localStorage 소유자/기한 없음, 저장 콜백 부재 | **수정 완료(v1.14, 2026-10-17 운영 검수)** — 승인된 본인 전용DB/RLS·생성일30일 조회차단/분당삭제 실제 실행·저장/해제/회원격리 검수. 기존 무소유 브라우저 자료는 표시/자동이전 차단(원본 임의삭제 없음). [근거](../youtube-viral-studio/docs/IMPROVEMENT_HANDOFF_20261017_V114.md) |
 
 새 위반을 찾으면 이 표에 추가하고, 고치면 상태를 갱신한다.

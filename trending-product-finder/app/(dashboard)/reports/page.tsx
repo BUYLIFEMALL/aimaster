@@ -7,6 +7,7 @@ import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
 import { logLoadErrors } from "@/lib/loadErrors";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { TREND_DAYS, buildKeywordTrends, clampPage } from "@/lib/reportTrend";
+import { RETENTION_DAYS, retentionCutoff } from "@/lib/retention";
 
 /** v1.09: 한 페이지에 보여 줄 리포트 수(예전엔 최근 20개만 보이고 그 이전은 볼 수 없었음) */
 const PAGE_SIZE = 20;
@@ -46,11 +47,14 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
   const supabase = await createClient();
   const params = (await searchParams) ?? {};
 
+  // v1.13: 30일 지난 리포트는 만료 — 정리 작업이 지우기 전이라도 보여 주지 않는다
+  const cutoff = retentionCutoff();
   // v1.09: 전체 개수를 먼저 세고, 요청한 페이지만 가져온다(20개씩)
   const { count: totalCount, error: countError } = await supabase
     .from("recommendation_reports")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .gte("generated_at", cutoff);
   const totalPages = Math.max(1, Math.ceil((totalCount ?? 0) / PAGE_SIZE));
   const page = clampPage(params.page, totalPages);
   const from = (page - 1) * PAGE_SIZE;
@@ -59,11 +63,12 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
     .from("recommendation_reports")
     .select("id, watchlist_id, generated_at, ai_summary, items")
     .eq("user_id", user.id)
+    .gte("generated_at", cutoff)
     .order("generated_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
 
-  // v1.09: 키워드별 기회점수 추이 — 최근 90일 리포트만(이미 저장된 자료, 새 API 호출 없음)
-  const since = new Date(Date.now() - TREND_DAYS * 86_400_000).toISOString();
+  // v1.09: 키워드별 기회점수 추이 — 최근 리포트만(이미 저장된 자료, 새 API 호출 없음). v1.13: 30일
+  const since = retentionCutoff(new Date(), TREND_DAYS);
   const { data: trendRows, error: trendError } = await supabase
     .from("recommendation_reports")
     .select("generated_at, watchlist_id, items")
@@ -88,7 +93,7 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
         badge="📊 STEP 2 · 트렌드 분석"
         title="트렌드 리포트"
         description="「키워드 발굴」에서 「지금 리포트 생성」을 누르거나 매일 오전 9시 자동 생성되면 여기에 쌓입니다. 기회점수 순으로 정렬해 보여 드려요."
-        tip="11번가 키를 등록하면 경쟁 상품 수·가격대가, 유튜브 키를 등록하면 관련 영상 반응이 점수에 함께 반영됩니다."
+        tip={`11번가 키를 등록하면 경쟁 상품 수·가격대가, 유튜브 키를 등록하면 관련 영상 반응이 점수에 함께 반영됩니다. 리포트는 만든 날부터 ${RETENTION_DAYS}일 동안 보관된 뒤 자동으로 삭제됩니다.`}
       >
         <Link href="/watchlist" className="mx-btn-ghost">
           🔍 키워드 발굴로

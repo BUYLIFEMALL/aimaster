@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { retentionCutoff } from "@/lib/retention";
 import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
 import { logLoadErrors } from "@/lib/loadErrors";
 import { PageHero } from "@/components/ui/PageHero";
@@ -33,6 +34,7 @@ export default async function DashboardPage() {
       .from("recommendation_reports")
       .select("generated_at, items")
       .eq("user_id", user.id)
+      .gte("generated_at", retentionCutoff()) // v1.13: 30일 지난 리포트는 TOP5에 쓰지 않음
       .order("generated_at", { ascending: false })
       .limit(20),
     supabase.from("sourcing_saved_products").select("id", { count: "exact", head: true }).eq("user_id", user.id),

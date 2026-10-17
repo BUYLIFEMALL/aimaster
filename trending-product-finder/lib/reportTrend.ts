@@ -20,8 +20,8 @@ export interface KeywordTrend {
 
 /** 추이에 쓰는 최대 점 개수(키워드마다 최근 것부터) */
 export const TREND_MAX_POINTS = 30;
-/** 추이 계산에 쓰는 기간(일) */
-export const TREND_DAYS = 90;
+/** 추이 계산에 쓰는 기간(일) — v1.13: 생성 자료 30일 보관에 맞춰 90 → 30 */
+export const TREND_DAYS = 30;
 
 function itemsOf(raw: unknown): { keyword: string; opportunityScore: number }[] {
   if (!Array.isArray(raw)) return [];

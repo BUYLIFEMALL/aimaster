@@ -231,3 +231,11 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 조치: `package.json` `overrides: { next: { postcss: "^8.5.26" } }` + 설치 기록의 옛 항목 제거 후 재설치 → `npm audit --omit=dev` **0건**, 전체 11 → 9건. 빌드 CSS 파일이 이전과 완전히 동일(같은 해시·27,800바이트) → 화면 영향 없음.
 - **남은 9건(개발 도구, 수용)**: tailwind 3이 쓰는 `braces` 3.0.3(최신이 3.0.3이라 고친 버전 없음)·`micromatch`·`chokidar`·`fast-glob`·`postcss-selector-parser` 6(tailwind 3은 7과 호환 안 됨)·`eslint-config-next`. 빌드할 때 우리 소스 파일에만 쓰이고 외부 입력이 닿지 않음. 해결하려면 tailwind 4 메이저 업그레이드(디자인 설정 전면 변경)가 필요해 별도 승인 작업으로 남김.
 - 증거: `docs/evidence/dependency-audit-v112.json`, `dependency-audit-prod-v112.json`. 테스트 9개·권한 15개·build·lint 통과, 크롬 대시보드 디자인 동일(배경 #0f1115·카드 #171a21)·콘솔 오류 0.
+
+## 2026-10-17 v1.13 — 생성 자료 30일 자동 삭제 (Claude Code 윈도우, 개선 원장 #16, 주인님 승인)
+- **정리 Cron** `app/api/cron/cleanup-generated/route.ts`(CRON_SECRET Bearer, `vercel.json` 4번째 `50 18 * * *` = 한국 03:50): `recommendation_reports`(generated_at)·`trend_snapshots`·`shopping_competition`(fetched_at) 30일 지난 행 삭제, `trend_watchlist.sourcing_alert_last_snapshot`은 마지막 실행이 30일 넘으면 값만 비움(행·설정 유지 — "바뀐 것만" 알림은 다음 1회 전체 발송 후 다시 비교). 응답·로그엔 표별 개수만. 기준 시각 `lib/retention.ts`(`RETENTION_DAYS=30`, `retentionCutoff`).
+- **지우지 않음(A안, 주인님 결정)**: ⭐ 관심 상품 `sourcing_saved_products`(회원이 고른 찜 목록·가격 추적 설정), 관심 키워드·알림 설정, 계정·키·연동.
+- **만료 자료 재사용 금지**: 리포트 화면·대시보드 TOP5 조회에 `generated_at >= 30일 전` 조건, 점수 추이 90 → 30일(`TREND_DAYS`), 리포트 화면 안내에 "만든 날부터 30일 보관 후 자동 삭제".
+- 첫 실행 예상(배포 전 재조회): 리포트 31/59·스냅샷 65/177·경쟁 0·알림 캐시 1 삭제, 관심 상품 5개 유지. 관리자 리포트 23개(2026-08-31~09-11)는 전부 만료라 지금도 화면에 보이지 않음.
+- 검수: 단위 11개(기준 시각 2개 추가)·권한 15·build·lint, 배포·DB v1.13, 무인증·잘못된 인증 정리 호출 401, `vercel crons ls` 4개 확인, 크롬 리포트·대시보드 정상·콘솔 오류 0.
+- **남은 확인**: 2026-10-18 03:50 KST 첫 실행 뒤 표별 행 수가 위 예상만큼 줄었는지 DB 대조(Claude Code는 CRON_SECRET을 모르므로 인증 호출을 직접 하지 않았음). 날짜 칸 인덱스는 표가 작아(수십~수백 행) 이번엔 추가하지 않음 — 자료가 많아지면 검토(스키마 변경 승인 필요).
