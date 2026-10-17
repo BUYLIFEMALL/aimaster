@@ -75,7 +75,7 @@ test("시간 초과·네트워크 끊김은 재시도 후 안내, 키 없음은 
   let n = 0;
   await assert.rejects(
     generateGeminiImage({ apiKey: "K", modelName: "m", prompt: "p", sleep: noSleep, fetchImpl: async () => { n++; const e = new Error("t"); e.name = "TimeoutError"; throw e; } }),
-    (e) => e.code === "TIMEOUT"
+    (e) => e.code === "TIMEOUT" && e.message.includes("이미 만들어졌을 수 있으니") // 이중 과금 방지 안내(2026-10-17)
   );
   assert.equal(n, 2);
   await assert.rejects(generateGeminiImage({ apiKey: "", modelName: "m", prompt: "p" }), (e) => e.code === "INVALID_KEY");

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AI 블로그 콘텐츠 제작 자동화",
-  "version": "1.6.0",
-  "version_name": "v1.06",
+  "version": "1.7.0",
+  "version_name": "v1.07",
   "description": "AIMaster에서 완성한 본인 원고와 이미지를 네이버 편집기에 입력합니다. 최종 발행은 직접 진행합니다.",
   "permissions": [
     "storage",

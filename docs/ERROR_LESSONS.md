@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — 연속 배포 성공·실패는 출력 글자가 아니라 종료 코드로 판정 (공용 모듈 재배포, Claude Code 윈도우)
+- **증상**: 여러 프로그램을 연달아 `vercel deploy` 하는 스크립트가 출력에 `Error`가 있으면 실패로 봤더니, 정상 배포(stepmail)를 빌드 로그의 `_global-error` 글자 때문에 실패로 잘못 판정.
+- **해결**: `out=$(vercel deploy --prod --yes 2>&1); rc=$?` 처럼 **종료 코드**로 판정. 2026-10-17 31곳 재배포에서 오탐 0. 그래도 의심되면 `vercel inspect <주소>`로 production·Ready 확인.
+- **다음부터**: 연속 배포 스크립트는 종료 코드 판정을 기본으로 한다(`docs/SHARED_MODULE_CHECKPOINTS.md` §4-1).
+
 ## 2026-10-17 — 공용 호출 모듈로 바꿀 때 「시간 제한 × (재시도+1)」이 Vercel 함수 한도(300초)를 넘을 수 있음 + 중복 과금 방지 설계를 지울 위험 (이미지 4묶음 A, Claude Code 윈도우)
 - **증상(코드 검토로 발견)**: 공용 `gemini-image-client`는 기본으로 시간 초과·서버 오류에 1회 재시도한다. photo-remake(180초)·shop-detail(240초)·shorts-onestop(150초)에 그대로 쓰면 최대 360~480초가 되어 함수가 강제 종료되고 회원은 원인 모를 실패를 본다. blog-content-maker·blog-workroom은 연결이 끊기면 "완료 여부 확인"을 안내하고 일부러 재시도하지 않는 설계(유료 이미지 중복 과금 방지)였다.
 - **해결**: 해당 5곳은 `retries: 0`으로 원래 동작 유지, 각 프로그램의 오류 클래스·문구(UserError/AiError/AppError)로 다시 감쌈. 기준 모듈에 외부 취소 신호(`signal`)를 추가해 emotion-writer의 요청 취소 연결도 유지.

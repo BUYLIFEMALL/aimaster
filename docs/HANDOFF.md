@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 이미지 생성 시간 초과 안내 문구 통일(이중 과금 방지) · 사본 30곳 재배포
+
+- **한 일**: 공용 기준 `ai-image-studio/lib/providers/geminiImage.ts`의 시간 초과 안내를 「이미지 생성이 N초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.」로 바꾸고(테스트에 문구 확인 추가) `--sync`로 사본 30곳 반영. 시간 초과여도 구글 쪽에서 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 바로 다시 눌러 이중 과금되는 일을 줄이려는 목적.
+- **프로그램이 덮어쓰던 문구**: blog-workroom `src/lib/ai.ts`, photo-remake-studio `src/lib/gemini.ts`, shorts-onestop-studio `src/lib/media.ts`(이미지 부분만)를 같은 뜻으로 고침. blog-content-maker는 이미 「완료 여부 확인 후 새 요청」이라 그대로. 나머지는 공용 문구를 그대로 보여 줌.
+- **버전(코드+DB)**: ai-image-studio v1.16 · ai-auto-blog v1.72 · tistory v1.79 · seo-studio v1.71 · poster_app v1.10 · poster-web v1.11 · shots v1.14 · insta v1.20 · threads v1.14 · threads-affiliate v1.59 · cafe v1.13 · threads-content-ops v2.02 · kakao v1.14 · stepmail v1.14 · auto-detail-page v1.11 · tarot v1.11 · mbti v1.12 · music v1.14 · naver-blog-agent v1.91 · allinone v1.46 · cardnews v1.12 · style-dna v1.19 · shop-detail v1.12 · blog-content-maker v1.07 · blog-workroom v1.09 · music-video v1.08 · emotion-writer v1.12 · photo-remake v1.06 · shorts-onestop v1.16 · seo-thumbnail-pro v1.07 (blog_auto_poster는 사본만).
+- **확장 7곳**: ai-auto-blog·tistory·naver-blog-agent(빌드 스크립트), seo-studio(manifest → 스크립트), blog-content-maker·allinone(manifest 수동 + ZIP), poster-web(상수·manifest → 루트 ZIP·루트 앱 배포). `check-extension-release` 7곳 실패 0. 회원은 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침.
+- **검수**: 기준 테스트 8개 통과, `check-shared-modules` 전부 OK(시간 검사 34곳 OK), Vercel 31곳(루트 포함) 종료 코드 0, DB 30곳 갱신, 크롬 화면 버전 28곳 확인(poster_app·poster-web은 비공개라 404 — `vercel inspect` production·Ready로 대신). 실제 이미지 생성 시험은 하지 않음.
+- **그대로 둔 것**: seo-studio의 옛 v1.68 ZIP 삭제(다른 CLI 변경, 커밋 제외).
+- **다음 첫 단계**: 제안 3번 — 이미지 4묶음 B(SDK 사용 9곳)에 점검표(`docs/SHARED_MODULE_CHECKPOINTS.md`)를 처음부터 적용.
+
 ## 2026-10-17 Claude Code(맥미니) — 무한루프 영상자동화 v1.05 디자인 리뉴얼(크리에이티브 아틀리에 · 네온 루프 시네마) · 윈도우 배포 대기
 
 - **한 일**: `lv-*` 다크 토큰(차콜 + 네온 핑크→시안), 화면 색 일괄 치환(로그인 빨강 버튼 통일), `/studio` 히어로 + 루프 방식 도식(`components/ui/LoopModeDiagram.tsx` 신규), `/guide` 시각화(말풍선·4단계·방식 비교·영상 예시·FAQ), 매뉴얼 메뉴 이름 표준화. 영상 처리 로직·권한 변경 없음.

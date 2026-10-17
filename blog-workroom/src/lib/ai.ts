@@ -90,7 +90,7 @@ export async function generateImage(apiKey: string, model: string, prompt: strin
     });
   } catch (e) {
     if (!(e instanceof GeminiImageError)) throw e;
-    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "AI 응답이 늦거나 연결이 끊겼습니다. 저장된 단계부터 다시 진행해 주세요.");
+    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "이미지 생성 응답을 받지 못했습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 저장된 단계부터 다시 진행해 주세요.");
     if (e.code === "SAFETY_BLOCKED") throw new AiError(422, "safety", "AI가 이 이미지 요청을 처리하지 않았습니다. 요청이나 참고 이미지를 바꿔 주세요.");
     if (e.code === "NO_IMAGE") throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
     throw providerError("gemini", e.status);
