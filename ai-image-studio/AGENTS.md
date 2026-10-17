@@ -75,3 +75,12 @@
 - 새 주소 `https://ai-image-studio.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 / → /dashboard 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 → 새 주소
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-17 v1.11 — 구글 이미지 모델 최신 정식 교체 + 이미지 레퍼런스 프로그램 지정 (Claude Code 윈도우, 주인님 승인)
+- **이 프로그램은 이미지 자동화의 레퍼런스(기준) 프로그램이다**(주인님 지시, 루트 `CLAUDE.md` 「이미지 생성 레퍼런스 규칙」). 최신 모델은 여기 먼저 구현·유지하고 다른 프로그램은 `lib/providers/adapters/*.ts`의 로직·프롬프트·모델·엔드포인트를 참고한다.
+- 발견: 구글 모델 4개가 종료·구형 모델을 쓰고 있었음 — 2-2K·Standard → `gemini-2.5-flash-image`(공식 가격표 2026-10-02 종료 예정 구형, 화면 설명은 "Gemini 3.1 Flash"로 실제와 다름), Pro·2-4K → `gemini-3-pro-image-preview`(2026-06-25 종료 예정 미리보기판).
+- 교체(`lib/providers/adapters/gemini.ts`): 2-2K(추천) → `gemini-nano-banana-2.1` 기본 2K, 2-4K → `gemini-nano-banana-2.1` 4K, Pro → `gemini-3-pro-image`(정식) 기본 4K(기존 동작 유지), Standard → `gemini-3.1-flash-lite-image` 1K 고정. 모델별 허용 화질(`sizes`) 밖의 값은 기본 화질로. 화면 설명(`registry.ts`)을 실제 모델명으로.
+- 가격(1장, 2026-10-17 공식 가격표): nano-banana-2.1 1K $0.0336·2K $0.0504·4K $0.113 / 3-pro-image 1K·2K $0.134·4K $0.24 / 3.1-flash-lite-image 1K $0.0336. 모든 이미지 모델 무료 등급 없음.
+- 검수: tsc·build, 배포·DB v1.11. **유료 시험 3회**(시험 계정 본인 Gemini 키, 전부 1K·16:9·1장, 합계 약 $0.20): nano-banana-2.1 200·1376×768·18초 / 3.1-flash-lite-image 200·1376×768·7초 / 3-pro-image 200·1376×768·22초(상위 모델 — 모델 이름·요청 형식 확인 목적 1회), 모두 저장소 저장 정상, 눈으로 확인(한국 포장마차, 인물 한국인). 시험 이미지 3장은 시험 계정 갤러리에 남음.
+- 다른 제공사(OpenAI·Replicate FLUX 2·Stability) 모델 이름 유효성은 이번에 확인하지 않음(다음 점검).
+- 플랫폼 전체: 구형 이미지 모델 이름을 쓰는 프로그램 44곳 — 목록·순서는 루트 [`docs/IMAGE_MODEL_AUDIT_20261017.md`](../docs/IMAGE_MODEL_AUDIT_20261017.md).

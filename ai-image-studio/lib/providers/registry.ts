@@ -497,31 +497,31 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "gemini",
     name: "Google Gemini (Nanobanana)",
     apiKeyProvider: "gemini",
-    description: "Google Gemini 3.1 Flash 기반 2K/4K 고화질 스튜디오",
+    description: "Google Nano Banana 2.1 · Nano Banana Pro · 2 Lite (2026-10 최신 정식 모델)",
     iconName: "Image",
     models: [
       {
         id: "nanobanana-2-2k",
         name: "NanoBanana 2-2K",
-        description: "Gemini 2K 시네마틱 (추천)",
+        description: "Nano Banana 2.1 · 2K 시네마틱 (추천)",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-pro",
         name: "NanoBanana Pro",
-        description: "Gemini 정밀 비주얼 & 인포",
+        description: "Nano Banana Pro(Gemini 3 Pro Image) · 정밀 비주얼 & 인포",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-2-4k",
         name: "NanoBanana 2-4K",
-        description: "Gemini 4K 초고해상도",
+        description: "Nano Banana 2.1 · 4K 초고해상도",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana",
         name: "NanoBanana Standard",
-        description: "Gemini 표준 경량 고속",
+        description: "Nano Banana 2 Lite(3.1 Flash Lite) · 1K 고정 경량 고속·최저가",
         options: GEMINI_NANOBANANA_OPTIONS
       }
     ]

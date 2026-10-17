@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — AI 이미지 자동화 v1.11: 구글 이미지 모델 최신 정식 교체(레퍼런스 프로그램) + 구형 모델 사용 44곳 발견
+
+- **한 일(주인님 승인)**: 구글 모델 4개를 종료·구형(`gemini-2.5-flash-image`, `gemini-3-pro-image-preview`)에서 `gemini-nano-banana-2.1`(2K·4K)·`gemini-3-pro-image`·`gemini-3.1-flash-lite-image`(1K)로 교체, 화면 설명을 실제 모델로.
+- **검수**: build, 배포·DB v1.11, 시험 계정 본인 키로 **1K 3장 생성 성공**(합계 약 $0.20, 유료 3회), 눈으로 확인.
+- **발견**: 구형 이미지 모델 이름을 쓰는 프로그램 44곳 → [`docs/IMAGE_MODEL_AUDIT_20261017.md`](IMAGE_MODEL_AUDIT_20261017.md)에 목록·대체 모델·순서(아직 미수정, 한 곳씩 진행 예정).
+- **인수인계**: [`ai-image-studio/AGENTS.md`](../ai-image-studio/AGENTS.md) 「v1.11」
+- **링크**: https://ai-image-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 이미지 생성 레퍼런스 규칙: AI 이미지 자동화(ai-image-studio) 기준
 
 - **주인님 지시**: ai-image-studio를 이미지 자동화의 레퍼런스 프로그램으로 운영. 최신 모델·다양한 모델은 여기에 구현·유지하고, 다른 프로그램 개발·업그레이드 시 여기 구현된 로직·프롬프트·모델·엔드포인트를 참고.
