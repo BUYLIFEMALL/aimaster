@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — INSTA 포스팅 자동화 v1.24: 운영 예약 게시 Vercel 자동 실행 연결
+
+- **대상**: `insta_auto_poster/` (slug `auto-instagram-posting`)
+- **문제**: 예약 게시 주소(`/api/posts/dispatch-scheduled`)는 있었지만 `vercel.json`이 없고 DB 자동 실행에도 없어 아무도 호출하지 않음 → 예약 글이 나가지 않음(확인 시점 밀린 글 0건).
+- **한 일**: `insta_auto_poster/vercel.json` 새로 만듦(5분마다 실행, 주인님 선택: 운영은 Vercel 방식). `CRON_SECRET`은 기존 등록값 사용(환경변수 변경 없음). 버전 v1.24(코드·DB). 오늘 두 번째 배포지만 예약 글 미발행 버그라 비용 규칙의 급한 수정으로 처리. 같은 배포에 강의용 독립 운영 모드 코드(커밋 `956d1156`, 운영 영향 없음)도 반영.
+- **검수**: 로컬 빌드 통과 → 운영 배포 Ready, `auto-instagram-posting.buylife.xyz`가 새 배포를 가리킴, Vercel 프로젝트 cron 목록에 `/api/posts/dispatch-scheduled */5 * * * *` 등록 확인, 비밀값 없는 호출은 401, **01:30:12 첫 자동 실행 GET 200 확인**(`vercel logs requests`).
+- **발견(미처리)**: `threads`(쓰레드 포스팅) 예약 실행이 하루 1번(`0 0 * * *`) → 최대 하루 지연. `threads/docs/IMPROVEMENTS.md` 2026-10-18, 주인님 확인 필요.
+- **프로그램 링크**:
+  - https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — 네이버 블로그 에이전트 v1.94: 플로우 위저드 라이트 테마 리뉴얼·모바일 헤더&드로어 신설·비주얼 가이드북 고도화·확장 일괄동기화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 45개 완료 달성!)
 
 - **대상**: `naver-blog-agent/` (https://naver-blog-agent.buylife.xyz, slug: `naver-blog-agent`)
