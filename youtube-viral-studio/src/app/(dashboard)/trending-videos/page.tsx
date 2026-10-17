@@ -55,17 +55,17 @@ export default function TrendingVideosPage() {
   return (
     <div className="space-y-6">
       {/* 상단 타이틀 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-yt-surface p-6 rounded-2xl border border-yt-border shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-red-100 text-red-600 rounded-lg">
+            <span className="p-1.5 bg-yt-red/10 text-yt-danger rounded-lg">
               <Flame className="w-5 h-5 fill-red-600" />
             </span>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold tracking-tight text-yt-text">
               실시간 터진 영상 (VPH 랭킹)
             </h1>
           </div>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-yt-muted mt-1">
             지금 이 순간 유튜브 알고리즘을 타고 시간당 조회수(VPH)가 폭발적으로 치솟는 실시간 급상승 영상 랭킹입니다.
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function TrendingVideosPage() {
         <button
           onClick={() => fetchTrending()}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg transition-colors shadow-xs"
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-yt-surface hover:bg-yt-hover text-yt-text border border-yt-border rounded-lg transition-colors shadow-xs"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
           <span>새로고침</span>
@@ -82,16 +82,16 @@ export default function TrendingVideosPage() {
 
       {/* API 키 미등록 경고 배너 */}
       {needApiKey && (
-        <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-5 rounded-2xl bg-yt-warn/10 border border-yt-warn/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-amber-100 text-amber-700 rounded-xl shrink-0">
+            <div className="p-2 bg-yt-warn/10 text-yt-warn rounded-xl shrink-0">
               <Key className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-amber-900">
+              <h3 className="text-sm font-bold text-yt-warn">
                 본인의 YouTube Data API v3 키를 먼저 등록해주세요
               </h3>
-              <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+              <p className="text-xs text-yt-warn mt-0.5 leading-relaxed">
                 AIMaster의 최상위 불변 원칙에 따라 모든 회원은 본인의 Google Cloud 콘솔에서 무료 발급받은 API 키를 직접 연동하여 사용합니다.
               </p>
             </div>
@@ -107,13 +107,13 @@ export default function TrendingVideosPage() {
       )}
 
       {/* 탭 네비게이션 */}
-      <div className="flex items-center gap-2 p-1.5 bg-gray-100 rounded-xl w-fit">
+      <div className="flex items-center gap-2 p-1.5 bg-yt-raised rounded-xl w-fit">
         <button
           onClick={() => setActiveTab("shorts")}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
             activeTab === "shorts"
-              ? "bg-white text-red-600 shadow-xs"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-yt-surface text-yt-danger shadow-xs"
+              : "text-yt-muted hover:text-yt-text"
           }`}
         >
           ⚡ 실시간 쇼츠 급상승
@@ -122,8 +122,8 @@ export default function TrendingVideosPage() {
           onClick={() => setActiveTab("long")}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
             activeTab === "long"
-              ? "bg-white text-gray-900 shadow-xs"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-yt-surface text-yt-text shadow-xs"
+              : "text-yt-muted hover:text-yt-text"
           }`}
         >
           📺 일반 롱폼 급상승
@@ -132,8 +132,8 @@ export default function TrendingVideosPage() {
           onClick={() => setActiveTab("all")}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
             activeTab === "all"
-              ? "bg-white text-gray-900 shadow-xs"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-yt-surface text-yt-text shadow-xs"
+              : "text-yt-muted hover:text-yt-text"
           }`}
         >
           전체 급상승
@@ -142,7 +142,7 @@ export default function TrendingVideosPage() {
 
       {/* 에러 메시지 */}
       {error && !needApiKey && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-yt-red/10 border border-yt-red/40 text-yt-danger text-sm flex items-center gap-2">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -154,13 +154,13 @@ export default function TrendingVideosPage() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-xs animate-pulse"
+              className="bg-yt-surface rounded-xl border border-yt-border overflow-hidden shadow-xs animate-pulse"
             >
-              <div className="aspect-video bg-gray-200" />
+              <div className="aspect-video bg-yt-raised" />
               <div className="p-4 space-y-3">
-                <div className="h-4 bg-gray-200 rounded w-3/4" />
-                <div className="h-3 bg-gray-100 rounded w-1/2" />
-                <div className="h-10 bg-gray-50 rounded-lg" />
+                <div className="h-4 bg-yt-raised rounded w-3/4" />
+                <div className="h-3 bg-yt-raised rounded w-1/2" />
+                <div className="h-10 bg-yt-raised rounded-lg" />
               </div>
             </div>
           ))}
@@ -178,8 +178,8 @@ export default function TrendingVideosPage() {
 
       {/* 빈 결과 */}
       {!loading && videos.length === 0 && !error && (
-        <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-12 text-center">
-          <p className="text-sm font-semibold text-gray-600">
+        <div className="bg-yt-surface rounded-2xl border border-dashed border-yt-border p-12 text-center">
+          <p className="text-sm font-semibold text-yt-muted">
             조회된 실시간 급상승 영상이 없습니다.
           </p>
         </div>

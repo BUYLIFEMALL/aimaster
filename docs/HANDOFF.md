@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — YOUTUBE VIRAL FINDER v1.13: 유튜브 다크 콘솔 — 스튜디오 변형 (🟠 윈도우 마무리 요청)
+
+- **대상**: `youtube-viral-studio/` (https://youtube-viral-studio.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
+- **한 일**: `youtube-auto-reply`와 같은 `yt-*` 토큰을 Tailwind v4로 이식, **휴대폰 ☰ 메뉴 신설(원래 휴대폰에서 메뉴 자체가 없었음 — 원칙 19)**, `/dashboard` 신설(유튜브 API 호출 없음), 매뉴얼 숫자 읽는 법·등급 기준표, 로그인 다크, `(dashboard)/layout.tsx` `fetchCache` 누락 보완. `tsc --noEmit` 오류 0.
+- **문서**: [`youtube-viral-studio/docs/`](../youtube-viral-studio/docs/) PLAN·IMPROVEMENTS·IMPROVEMENT_HANDOFF·DESIGN_HANDOFF, AGENTS·README, `DESIGN.md` 28번 🟠 + 9번 템플릿에 변형 등록, 역량 지도 v1.13.
+- **⚠️ 윈도우 CLI 요청**: [`youtube-viral-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../youtube-viral-studio/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드(Next 16) → 배포 → DB v1.13 → 375px ☰ 검수(검색·대본 분석 금지) → 28번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Antigravity(Windows) — 시네마틱 스토리보드 자동화 v1.07: 로그인·회원가입 표준 2탭 레이아웃(시네마틱 아틀리에 테마) 전면 리뉴얼 완료
 
 - **대상 프로그램**: `cinematic-storyboard-studio/` (slug: `cinematic-storyboard-studio`, 프로그램 번호 7번)
