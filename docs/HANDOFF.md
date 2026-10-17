@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 남은 문제 정리: 가짜 타입 오류·낡은 시험 2건 해결, eslint 방침, 옛 ZIP 정리
+
+- **threads-content-ops 타입 오류**: 코드 문제가 아니라 분리 때 남은 로컬 캐시 `tsconfig.tsbuildinfo` 문제 → 주인님 승인 후 캐시 삭제, tsc 0건(커밋 `4668fcbd`, ERROR_LESSONS).
+- **ai-image-studio `test:access`**: 시험 데이터에 핸드폰 번호가 없어 핸드폰 필수 정책(10-12)에 막힘 → 시험 데이터 보완 + 정책 검사 추가, 통과(`8002c680`).
+- **insta_auto_poster `test:own-meta`**: 콜백 주소 인자 추가(10-16) 후 옛 함수 모양을 검사 → 추가 인자 허용, 통과(`91c52b80`, Antigravity v1.23 종료 확인 후).
+- **eslint 설정 없음(약 80곳) — 방침**: 일괄 추가하지 않는다. Next 14·15 프로그램은 설정 파일이 생기면 배포 빌드에서 eslint가 돌아 기존 경고로 배포가 실패할 수 있고, 일괄 처리는 비용 절감 규칙(배포 묶기)과 맞지 않는다. **그 프로그램을 다음에 고칠 때 함께** 설정을 넣고 바뀐 파일부터 검사한다(Next 16은 빌드 때 검사하지 않아 안전).
+- **naver-blog-seo-studio 옛 v1.68 확장 ZIP**: 다른 CLI가 지운 채 미커밋이던 것을 주인님 결정으로 삭제 커밋(현재 v1.73, `latest.zip` 영향 없음, 배포 불필요).
+- **naver-blog-auto-poster 앱·웹 비공개 404**: 주인님 결정으로 그대로(배포 검수는 `vercel inspect`로 대신).
+- 모두 시험·문서·로컬 캐시 변경이라 버전·배포 없음(비용 0).
+- **다음 첫 단계**: 트렌드 정리 Cron 결과 대조(10-18 03:50 이후, 기준값은 trending-product-finder/AGENTS.md).
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — INSTA 포스팅 자동화 v1.23: 플로우 위저드 스타일 다크 테마 리뉴얼·가이드북 전면 고도화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 42개 완료 달성!)
 
 - **대상**: `insta_auto_poster/` (https://auto-instagram-posting.buylife.xyz, slug: `auto-instagram-posting`)
