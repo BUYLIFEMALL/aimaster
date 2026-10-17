@@ -36,3 +36,7 @@
 ### 후속 작업 분리
 
 본 프로그램 v1.14 완료 뒤 yt-playlist-studio 수신 칸을 별도 작업으로 구현·검수·배포합니다. 현재 소스 측 참고 메모 복사까지 구현/검수됐으며 수신 완료 여부는 상대 프로그램의 최신 인수인계를 확인합니다. 메모는 동일 회원 확인·5분 기한·명시적 붙여넣기만 허용하고 미디어 다운로드/AI 호출/자동게시를 하지 않습니다.
+
+## 2026-10-17 종료 추가 기록 — 수신 연계도 완료
+
+yt-playlist-studio v1.08 소스ea42c5b8·결과a504b96d 푸시, dpl_HLTavGo2Qn2nqX7A5rDqUuWt8qJy READY/DBv1.08. 운영 Viral Finder→Playlist 실제 일반 회원 Edge 복사/붙여넣기·타회원ID 거부·5분·375px 포함10검사 통과. 위 수신 칸 대기는 해소됐습니다. [상대 최신 결과](../../yt-playlist-studio/docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md). 남은 개발 경고/페이지 나눔/추가연계와 미검수는 [개선 대기 목록](IMPROVEMENT_BACKLOG.md) 및 [이번 전체 종료 인수인계](../../docs/HANDOFF_20261017_CODEX_YOUTUBE_FINAL.md)에서 확인합니다. 현재 기능 범위 추가 작업 없음.

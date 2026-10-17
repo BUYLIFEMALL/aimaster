@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex — 작업 종료·완료/미완료 및 CLI 공동작업 규칙
+
+- 이번 기능 범위 종료. Viral Finder v1.14 본인 즐겨찾기DB/RLS·30일 정리 운영 완료, Playlist v1.08 참고 메모 수신/운영 Edge 연계10 완료. 소스68b2b010 / ea42c5b8, Playlist 결과a504b96d master 푸시. DB/APP 일치·DESIGN28/12 완료·본인 ACTIVE 제거.
+- 미완료/미검수: 개발high5/lint74, 보관함 페이지 나눔/회원별 검색 캐시, 썸네일/트랙번호/포커스/Escape/요금 안내、추가연계、실제 유료AI/미디어출력. 완료와 구분한 [전체 종료 인수인계](HANDOFF_20261017_CODEX_YOUTUBE_FINAL.md) 및 프로그램별 대기 목록에 재개 순서/증거/제약 기록.
+- 주인님 새 공동작업 지시를 AGENTS/CLAUDE/GEMINI 최상단과 공통 개발 방식/인수인계 정책에 반영. 차이는 근거 비교→호환되는 최선 선택, 기존 작업 대체/판단 어려움은 원본 보존 후 주인님 확인. [상세 규칙](CLI_COLLABORATION_RULES.md).
+- https://youtube-viral-studio.buylife.xyz
+- https://youtube-playlist.buylife.xyz
+
 ## 2026-10-17 Codex(Windows) — yt-playlist-studio v1.08 Windows 인수·운영 화면 검수 완료
 
 - 완료: 같은 회원/5분 유효 참고 메모 수신·가이드·모바일 닫기·Next16.4.2. 소스 ea42c5b8db7bb4510c3f1f941bfb8c9869fe863c 푸시, dpl_HLTavGo2Qn2nqX7A5rDqUuWt8qJy READY, DB/APPv1.08, 배지new/주소 유지.
