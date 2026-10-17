@@ -249,3 +249,8 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 ## 2026-10-17 23:46(KST) — 30일 정리 Cron 첫 실행 전 기준값 기록 (Claude Code 윈도우, 코드·버전 변경 없음)
 - 첫 실행(2026-10-18 03:50 KST) **전** DB: `recommendation_reports` 59개(30일 지남 31) · `trend_snapshots` 177개(30일 지남 65) · `shopping_competition` 0 · `sourcing_saved_products` 5(지우지 않음) · 알림 비교 캐시 1개 — v1.13 배포 때 예상과 같음.
 - **실행 후 기대값**: 리포트 28 · 스냅샷 112(실행 전까지 새로 쌓인 만큼 더해짐) · 관심 상품 5 그대로 · 캐시는 마지막 실행 30일 지난 경우만 비움. 03:50 이후 같은 쿼리로 대조하고 결과를 여기에 덧붙인다.
+
+## 2026-10-18 — 30일 정리 Cron 첫 실행 결과 확인 (Claude Code 윈도우, 코드·버전·배포 변경 없음)
+- `/api/cron/cleanup-generated` 첫 실행: **2026-10-18 03:50:17 KST GET 200**(`vercel logs requests`).
+- 실행 후 DB(같은 기준 `generated_at`·`fetched_at` 30일): `recommendation_reports` 59 → **28**(30일 지난 행 0) · `trend_snapshots` 177 → **112**(0) · `shopping_competition` 0(0) · `trend_watchlist.sourcing_alert_last_snapshot` 값 있는 행 1 → **0**(행·알림 설정은 유지). 첫 실행 전 기준값 기록의 예상치와 정확히 일치.
+- 남은 일 없음. 이후에도 매일 03:50 실행.
