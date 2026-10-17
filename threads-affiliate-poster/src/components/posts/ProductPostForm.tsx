@@ -1548,7 +1548,7 @@ export function ProductPostForm({
                 </Button>
               </div>
               <p className="text-[11px] text-neutral-500">
-                지정한 날짜와 시각이 되면 서버에서 자동으로 Threads에 포스팅합니다.
+                지정한 날짜와 시각이 되면 서버에서 자동으로 Threads에 포스팅합니다(예약 시각 후 1분 안에 발행).
               </p>
             </div>
           </details>

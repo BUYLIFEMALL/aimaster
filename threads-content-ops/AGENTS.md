@@ -611,3 +611,7 @@
 
 - **바뀐 파일**: `lib/deployment.ts`(새) · `lib/oauth.ts` · `lib/access/checkProgramAccess.ts` · `app/login/page.tsx`·`LoginForm.tsx`(새, 독립 모드 아닐 때는 메인 사이트 로그인으로 보냄 — 운영 사이트 로그아웃 후 `/login` 404도 함께 해결) · `app/threads-content-ops/page.tsx`·`ContentOpsSidebar.tsx`·`UsageGuide.tsx`·`WebSetup.tsx` · `app/layout.tsx` · `app/api/threads-content-ops/generate/route.ts` · `next.config.mjs`(이미지 주소 `*.supabase.co`)
 - **쇼핑제휴 미연동 확인(코드 경로)**: 쿠팡·알리·네이버 브랜드커넥트·토스를 연동하지 않아도 글 생성(AI 키만)·게시(Threads 계정·본문만)는 그대로 동작 — 상품을 고르지 않으면 `loadLinkedProduct`가 null로 끝남.
+
+## 2026-10-18 — 예약 화면 안내 문구 「예약 시각 후 1분 안에 자동으로 발행됩니다」 (Claude Code 윈도우, **미배포 — 다음 배포 때 함께**)
+- `app/threads-content-ops/DraftComposer.tsx`(보관함 초안 예약란. `AttentionComposer.tsx`에는 이미 "1분 간격으로 확인" 안내가 있음) 예약 시각 입력란에 안내 추가. 정확히 그 분에 안 올라가도 회원이 헷갈리지 않게(예약 게시 누락 방지 ②, 플랜 `docs/PLAN_20261018_SCHEDULED_DISPATCH_MONITOR.md`).
+- 급하지 않은 화면 문구라 비용 규칙에 따라 커밋만 함. **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 넣을 것.** 검수: tsc 0.

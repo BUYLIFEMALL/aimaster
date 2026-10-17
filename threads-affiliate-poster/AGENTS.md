@@ -548,3 +548,7 @@ vercel deploy --prod --yes
 - **모델 대응을 같은 프로그램의 `generator.ts`와 일치시킴**: 예전엔 이 파일만 모든 등급을 `gemini-nano-banana-2.1`로 보내, 같은 「NanoBanana Pro」·「2-1K」 선택이 화면에 따라 다른 모델이었다. 이제 1K = `gemini-3.1-flash-lite-image`(더 저렴), 2K·4K = `gemini-nano-banana-2.1`(변화 없음), Pro = `gemini-3-pro-image`(1장 가격 오름, 회원 본인 키).
 - 검수: tsc 0, eslint(바뀐 파일) 0, `test:naver-key` 통과, `check-shared-modules` OK(시간 240초), Vercel 프로덕션 배포 1회·DB v1.62, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
 - **주의(다음 CLI)**: `geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본(기준 `ai-image-studio/lib/providers/`) — 직접 고치지 않는다.
+
+## 2026-10-18 — 예약 화면 안내 문구 「예약 시각 후 1분 안에 자동으로 발행됩니다」 (Claude Code 윈도우, **미배포 — 다음 배포 때 함께**)
+- `src/components/posts/ProductPostForm.tsx`(기존 안내에 덧붙임) 예약 시각 입력란에 안내 추가. 정확히 그 분에 안 올라가도 회원이 헷갈리지 않게(예약 게시 누락 방지 ②, 플랜 `docs/PLAN_20261018_SCHEDULED_DISPATCH_MONITOR.md`).
+- 급하지 않은 화면 문구라 비용 규칙에 따라 커밋만 함. **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 넣을 것.** 검수: tsc 0.

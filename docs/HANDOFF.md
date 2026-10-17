@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 예약 게시 누락 방지 3종: 점검 스크립트·지연 관리자 알림·화면 안내
+
+- **플랜**: `docs/PLAN_20261018_SCHEDULED_DISPATCH_MONITOR.md`(주인님 승인, ③→①→② 순서)
+- **③ 점검 스크립트**: `node scripts/check-scheduled-dispatch.mjs [--live]` — dispatch 계열 API를 찾아 `vercel.json` 등록·주기(예약 게시 5분 이하)와 Vercel 실제 등록을 대조. 현재 9개 주소 모두 통과. 새 프로그램 규칙 `docs/PLATFORM_PATTERNS.md` §34. 커밋 `8d036ac3`.
+- **① 지연 관리자 알림(메인 사이트, 배포됨)**: `app/api/email/cron/scheduled-delay-check` 10분마다 — `posts`·`insta_posts`·`tco_posts`·`tap_posts`에서 예약 시각이 10분 넘게 지난 `scheduled` 글 건수를 세어 `SUPPORT_ADMIN_EMAIL`로 메일(건수·가장 오래된 예약 시각만). 메일 종류 `scheduled_delay`는 1시간에 1통·하루 12통. 검수: `npm run test:email-guard` 통과, 빌드·배포, cron 등록, 무인증 401, 운영 DB 조회 정상(지연 0건), 02:50 첫 실행 200. 커밋 `4a676f25`. 지연 글로 실제 메일 발송 시험은 하지 않음(회원 데이터를 일부러 밀리게 할 수 없음).
+- **② 화면 안내(미배포)**: threads·INSTA(5분), 쇼핑제휴·콘텐츠 운영(1분) 예약 입력란에 「예약 시각 후 N분 안에 자동으로 발행됩니다」. 비용 규칙대로 커밋만 — **각 프로그램 다음 배포 때 버전 +0.01과 함께 나감**(각 폴더 `AGENTS.md` 2026-10-18 항목). tsc 4개 0건.
+- **프로그램 링크**:
+  - https://www.buylife.xyz
+  - https://auto-threads-posting.buylife.xyz
+  - https://auto-instagram-posting.buylife.xyz
+  - https://threads-affiliate-poster.buylife.xyz
+  - https://threads-content-ops.buylife.xyz
+
 ## 2026-10-18 Claude Code(윈도우) — Threads 포스팅 자동화 v1.18: 예약 게시 자동 실행 5분 간격
 
 - **대상**: `threads/` (slug `auto-threads-posting`)
