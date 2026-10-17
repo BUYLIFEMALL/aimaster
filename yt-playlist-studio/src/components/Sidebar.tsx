@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   Music,
@@ -61,6 +61,29 @@ export function Sidebar({
   hasBackground,
 }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  // v1.09 휴대폰 메뉴 키보드 접근성: Esc로 닫기, 열면 메뉴 안으로·닫으면 ☰ 버튼으로 포커스, Tab은 메뉴 안에서만 돈다
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (mobileOpen) {
+      wasOpen.current = true;
+      closeRef.current?.focus();
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape") { e.preventDefault(); setMobileOpen(false); return; }
+        if (e.key !== "Tab" || !panelRef.current) return;
+        const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>('button, a[href], [role="button"], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter((el) => !el.hasAttribute("disabled"));
+        if (!items.length) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      };
+      document.addEventListener("keydown", onKey);
+      return () => document.removeEventListener("keydown", onKey);
+    }
+    if (wasOpen.current) { wasOpen.current = false; toggleRef.current?.focus(); }
+  }, [mobileOpen]);
 
   const handleStepClick = (tabId: 'media' | 'editor' | 'export' | 'guide') => {
     setTab(tabId);
@@ -123,8 +146,13 @@ export function Sidebar({
             return (
               <div
                 key={id}
+                role="button"
+                tabIndex={0}
+                aria-current={active ? "page" : undefined}
+                aria-label={`${step}단계 ${label}`}
                 onClick={() => handleStepClick(id)}
-                className="group relative flex gap-2.5 pb-2 cursor-pointer transition-all"
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleStepClick(id); } }}
+                className="group relative flex gap-2.5 pb-2 cursor-pointer transition-all rounded-xl focus-visible:outline-2 focus-visible:outline-[#ff0000]"
               >
                 <div className="flex flex-col items-center">
                   <span
@@ -255,11 +283,13 @@ export function Sidebar({
           </div>
         </div>
         <button
+          ref={toggleRef}
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="p-1.5 rounded-lg text-[#aaaaaa] hover:bg-[#212121] hover:text-white cursor-pointer"
-          aria-label="메뉴 열기"
+          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
           aria-expanded={mobileOpen}
+          aria-controls="mobile-menu-panel"
         >
           {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
@@ -268,9 +298,17 @@ export function Sidebar({
       {/* 모바일 펼침 메뉴 모달 */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex">
-          <div className="w-72 bg-[#0f0f0f] h-full shadow-2xl flex flex-col border-r border-[#272727]">
+          <div
+            ref={panelRef}
+            id="mobile-menu-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="프로그램 메뉴"
+            className="w-72 bg-[#0f0f0f] h-full shadow-2xl flex flex-col border-r border-[#272727]"
+          >
             <div className="flex justify-end p-2 border-b border-[#272727]">
               <button
+                ref={closeRef}
                 type="button"
                 onClick={() => setMobileOpen(false)}
                 aria-label="메뉴 닫기"
@@ -281,7 +319,7 @@ export function Sidebar({
             </div>
             {renderNavContent()}
           </div>
-          <div className="flex-1" onClick={() => setMobileOpen(false)} />
+          <div className="flex-1" aria-hidden="true" onClick={() => setMobileOpen(false)} />
         </div>
       )}
     </>

@@ -145,6 +145,10 @@ export function ApiKeyModal({
             <p className="text-[#aaaaaa]">
               등록된 키는 회원 본인 브라우저와 격리 DB에 안전하게 암호화되어 보관되며, AI 배경 생성 시에만 직접 호출됩니다.
             </p>
+            <p className="text-[#aaaaaa]">
+              💳 키 발급은 무료지만, 배경 이미지를 생성할 때마다 Google 이미지 모델 요금이 본인 Google 계정에 부과될 수 있습니다.{" "}
+              <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noreferrer" className="text-[#ff4e45] font-bold hover:underline">공식 가격표</a>에서 확인해 주세요.
+            </p>
             <a
               href="https://aistudio.google.com/app/apikey"
               target="_blank"

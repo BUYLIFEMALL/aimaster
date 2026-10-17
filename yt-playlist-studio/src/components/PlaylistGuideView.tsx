@@ -32,10 +32,10 @@ const PIPELINE_STEPS = [
     step: "01",
     title: "Gemini API 키 1초 연동",
     subtitle: "AI 감성 배경 인프라",
-    desc: "Google AI Studio에서 무료 발급받은 Gemini API 키를 연동합니다. 16:9 유튜브 감성 배경 이미지를 즉시 생성할 수 있습니다.",
+    desc: "Google AI Studio에서 본인 Gemini API 키를 발급(발급 자체는 무료)받아 연동합니다. 16:9 유튜브 감성 배경 이미지 생성에 쓰이며, 이미지 생성 요금은 Google 요금 정책에 따라 본인 Google 계정에 부과될 수 있습니다.",
     icon: KeyRound,
     color: "from-red-600 to-rose-700",
-    badge: "무료 연동",
+    badge: "본인 키 연동",
     tip: "운영자 키 폴백 없는 회원 독립 연동 원칙",
   },
   {
@@ -118,7 +118,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "16:9 감성 배경을 AI로 생성할 때 비용이 드나요?",
-    a: "Google AI Studio에서 발급받은 본인의 Gemini API 키를 연동하시면, 무료 티어 한도 내에서 감성 배경 이미지를 추가 비용 없이 생성하실 수 있습니다. 본인 키로 직접 서버와 통신하므로 플랫폼 공용 키 폴백이나 숨겨진 과금이 없습니다.",
+    a: "API 키 발급은 무료지만, 이미지 생성은 Google의 이미지 모델 요금이 본인 Google 계정에 부과될 수 있습니다(무료 제공 여부와 장당 단가는 모델별로 다르며 Google 공식 가격표 ai.google.dev/gemini-api/docs/pricing 에서 확인해 주세요). 본인 키로만 호출하므로 플랫폼 공용 키 폴백이나 운영자 쪽 과금은 없습니다.",
   },
   {
     q: "인코딩 속도가 다른 웹 툴보다 훨씬 빠른 이유는 무엇인가요?",

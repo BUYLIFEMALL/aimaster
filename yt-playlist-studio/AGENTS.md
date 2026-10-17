@@ -162,3 +162,9 @@ yt-playlist-studio/
 참고 메모 수신·본인/5분 검증·가이드·모바일 닫기·Next16.4.2 운영 반영. 소스 ea42c5b8db7bb4510c3f1f941bfb8c9869fe863c 푸시, dpl_HLTavGo2Qn2nqX7A5rDqUuWt8qJy READY, APP/DBv1.08. 빌드/타입·파서6·운영 Edge10·API3개401 통과. 실제 미디어 인코딩·유료 AI는 미검수. 썸네일/트랙번호/포커스·Escape/요금 안내/Suno 연계는 미구현. [완료·미완료/재개 순서](docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md) · [대기 목록](docs/IMPROVEMENT_BACKLOG.md).
 
 https://youtube-playlist.buylife.xyz
+
+## 2026-10-17 v1.09 — 휴대폰 메뉴 키보드 접근성·요금 안내 정정 (Claude Code 윈도우)
+- `src/components/Sidebar.tsx`: 휴대폰 펼침 메뉴를 `role="dialog" aria-modal`로, 열면 [메뉴 닫기]로 포커스·Tab/Shift+Tab은 메뉴 안에서만 순환·Esc로 닫기·닫으면 ☰ 버튼으로 포커스 복귀, ☰ 버튼 `aria-label`(열기/닫기)·`aria-controls`, 작업 흐름 3단계에 `role="button" tabIndex=0`·Enter/Space 선택·`aria-current`. 데스크톱 화면은 그대로.
+- 요금 안내: `PlaylistGuideView.tsx`(1단계 설명·배지 "무료 연동"→"본인 키 연동"·FAQ), `ApiKeyModal.tsx`에 "키 발급은 무료, 이미지 생성은 Google 요금이 본인 계정에 부과될 수 있음 + 공식 가격표 링크". 예전 "무료 티어로 추가 비용 없이 생성"은 사실과 달라 삭제.
+- 검수: tsc 통과(ESLint 설정 없음), build, 배포·DB v1.09, 크롬 500px 실제 키 입력 — 메뉴 대화상자·[메뉴 닫기] 포커스·Tab 25회/Shift+Tab 3회 메뉴 안 유지·Esc 닫힘·☰ 포커스 복귀·2단계 Enter 선택(aria-current 확인)·매뉴얼/키 등록 창 문구·콘솔 오류 0.
+- **🔴 발견(승인 대기)**: `src/app/api/generate-bg/route.ts`가 쓰는 `imagen-3.0-generate-002`는 Google에서 종료(2025-11-10, 공식 문서 "Imagen models are shut down and no longer available in the Gemini API") → AI 배경 생성이 지금 실패. 대체 `gemini-2.5-flash-image`/Nano Banana 2(`generateContent`). 교체 검수에 회원 본인 키 실제 생성 1회 이상 필요(유료 가능) → 승인 후 진행. 대기 목록 2-1.
