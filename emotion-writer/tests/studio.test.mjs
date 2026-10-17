@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -80,7 +82,7 @@ test("input validation rejects unsupported or injected models and oversize topic
       topic: "봄",
       quote: "꽃",
       ratio: "2:1",
-      model: "gemini-3.1-flash-image",
+      model: "gemini-nano-banana-2.1",
     }),
   );
 });
