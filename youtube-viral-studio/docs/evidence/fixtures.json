@@ -1,0 +1,38 @@
+{
+  "checked_at": "2026-10-17T02:39:26.323Z",
+  "browser": "Microsoft Edge visible",
+  "mode": "actual components with synthetic data; next/link test adapter only",
+  "checks": [
+    {
+      "name": "실제 영상 카드4등급·배지 색",
+      "passed": true
+    },
+    {
+      "name": "영상 VPH/배수·채널지수·합성 썸네일",
+      "passed": true
+    },
+    {
+      "name": "실제 카드 북마크 콜백·DB/실제 저장소 쓰기 없음",
+      "passed": true
+    },
+    {
+      "name": "합성 영상/채널 카드375px 가로 넘침 없음",
+      "passed": true
+    },
+    {
+      "name": "실제 FavoriteCounts 합성 영상2/채널1",
+      "passed": true
+    },
+    {
+      "name": "FavoriteCounts 손상 JSON/배열 아닌 값 안전 처리",
+      "passed": true
+    },
+    {
+      "name": "유튜브/AI/DB 호출·페이지 오류0",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "external_api_calls": 0,
+  "paid_calls": 0
+}

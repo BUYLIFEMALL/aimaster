@@ -2185,3 +2185,10 @@
 - 증상: 진행 중인 수정/검사 파일이 사라지고 package가0.1.0으로 돌아감 → 원인: 공유 저장소 전체 stash d49e6303 생성 → 해결: stash의 본 폴더 tracked6개·untracked15개만 git show로 복구, stash pop/reset/인덱스/타 프로그램 복원 없음. 최신 전체 검사 재실행 → 다음부터: 다른 CLI가 공유 폴더에서 작업할 때 전체 stash/checkout/reset 금지, 본인 경로만 처리하고 시작표를 먼저 확인.
 - 증상: 초기 audit critical1/high12 → 원인: 구 Next14와 Nodemailer9 등 → 해결: 공식 공지/npm 수정판 대조 후 Next15.5.27/React19.2.4·Nodemailer10.1.2, 운영 PostCSS2/개발9 경고는 후속. SMTP는 합성 계정별 실제 transport 옵션만 검사하고 발송0 → 다음부터: BYOK라도 라이브러리의 전역 DNS/TLS 캐시가 회원별 자격 분리를 해치지 않는지 확인.
 - 실제 설정 검수는7그룹13개 provider 입력을 원본과 대조. 키워드가0개인 회원에게 리포트생성 버튼이 없는 것은 정상 조건부 UI이므로 검사 선택자를 수정했고 제품 동작을 바꾸지 않음.
+
+## 2026-10-17 youtube-viral-studio Windows 검수·호환 보완
+
+- **증상:** 검색 버튼을 누르지 않았는데 회원 할당량이 사용될 수 있음 → **원인:** viral-shorts/golden-channels/trending-videos의 mount effect 자동 POST, source-finder는 url 쿼리 있을 때 자동 POST → **해결:** tests/runtime.mjs에서 방문 전3경로만 브라우저200 합성 응답, 나머지 쓰기/외부 API 차단, source-finder 쿼리 없이 검수 → **다음:** 단순 페이지 진입도 API 호출이 없는지 effect를 먼저 읽을 것. 검색 자체는 검증 완료로 보고하지 않음.
+- **증상:** Mac의 타입 검사는 통과했으나 실제 Windows 빌드/디자인 미검수 → **원인:** 플랫폼 역할 분담 → **해결:** Next16.2.11/16.4.2에서 fetchCache·동적 페이지 빌드 통과, 실제 Edge1440/375 8화면·메뉴, 합성 실제 카드 검수 → **다음:** 빌드/회원 화면/합성 결과/운영 검수를 구분.
+- **증상:** 보안 audit critical1/high7 → **원인:** 이전 Next 의존성 등 → **해결:** 같은16계열16.4.2와 ESLint동기화, 운영 의존성0/개발high5 → **다음:** audit fix --force의 Next14 다운그레이드를 실행하지 말고 잔여 ESLint→braces 수정판 추적. 기존 eslint.config 부재로 lint는 실행 실패임을 명시.
+- **증상:** 동일 브라우저 회원 간 즐겨찾기 노출/무기한 보관 가능 → **원인:** 회원별 이름공간·생성일 없는 yvs_fav_videos/channels → **해결 범위:** 이번 디자인 완료와 분리해 알려진 위반표/프로그램 개선 원장에 미해결 기록 → **다음:** 기존 무소유 자료를 임의 귀속시키지 말고 회원별 분리·30일 만료/정리/DB승인 범위를 함께 설계.

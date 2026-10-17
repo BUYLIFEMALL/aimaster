@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Codex(Windows) — youtube-viral-studio v1.13 Windows 사전 검수 완료·운영 배포 진행
+
+- 맥미니 eb515765 인수. 유튜브 다크 유지, fetchCache 포함 빌드 통과. Next16.4.2 보안 보완, package1.13.0.
+- 실제 일반 회원 Edge1440/375 8화면·모바일8메뉴, 실제 합성 카드/지표7검사, 비로그인 API8개401 통과. 자동 검색은 브라우저200합성 응답으로 가로채어 검색·AI·키저장0. 실제 검색 결과/할당량 흐름은 미검증.
+- 운영 배포·DBv1.13·운영 화면/로그 확인 진행 중. 완료 항목은 후속 최종 기록 참고.
+- **미해결:** 즐겨찾기 전역 localStorage 회원분리/30일 자동삭제 없음(최상위 알려진 위반표 기록), lint 설정 없음, 개발 의존성 high5(운영0). 타 프로그램 연계/문서 불일치는 yt-playlist-studio 개선 원장에 제안만 추가.
+- 상세: [프로그램 인수인계](../youtube-viral-studio/docs/WINDOWS_HANDOFF_20261017.md). 라이브 https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.09: 리포트 페이지 나눔·키워드별 기회점수 추이 (남은 마무리 1/5)
 
 - **대상**: `trending-product-finder/` v1.08 → **v1.09** (코드·package·DB 동기화)

@@ -25,3 +25,13 @@
 - (v1.05) MP4 고속 내보내기 시 소리가 인코딩되지 않던 무음 버그 해결 (`AudioEncoder` + `AudioData` 0.5초 청크 인코딩 완료).
 - (v1.06) 1번, 2번, 3번, 4번 과제: 유튜브 다크 테마(검정 베이스), 유튜브 레드 로고, 비주얼 가이드북 신설, 사이드바 메뉴 표준화 적용 완료.
 - (v1.07) 7번 과제: 로그인/회원가입 화면 공식 표준 탭 토글 레이아웃(`(auth)/layout.tsx` & `login/page.tsx`) 전면 리뉴얼. 옵시디언 다크 테마 일치화, 타 프로그램 복사 잔재 오기 교정, Microsoft Edge 실세션 데스크톱 & 모바일 반응형 검수 완료.
+
+## 2026-10-17 Codex(Windows) — YOUTUBE VIRAL FINDER 연계·문서 점검 제안
+
+YOUTUBE VIRAL FINDER v1.13 마무리 중 읽기 조사만 수행했습니다. 이 프로그램의 기능·버전·배포·DB는 변경하지 않았습니다.
+
+- **조사 근거:** README/AGENTS/본 원장과 src/components/PlaylistStudioApp.tsx. 현재 media/editor/export/guide 탭, 회원별 키 조회, 브라우저 음원·영상 제작이며 외부 참고 URL 메모 수신 기능은 확인되지 않았습니다.
+- **연계 제안(미구현):** Viral Finder에서 고른 영상의 URL·제목을 회원이 확인한 벤치마킹 참고 메모로 전달하는 별도 입력 흐름. 참고 자료만 전달하며 원본 영상/음원 다운로드·타인 계정/키/생성물 공유·자동 게시를 하지 않습니다. 송수신 양쪽 회원 인증, 본인 키, 소유자 분리, 생성일 기준30일 보관을 포함한 플랜부터 수립합니다.
+- **문서/운영 일치 확인 제안:** 조사 시 README v1.03, AGENTS v1.06, 본 원장 v1.07이며 AGENTS에는 다크/화이트 지침이 혼재합니다. 2026-10-17 조회 DB는 version v1.06, app_url https://youtube-playlist.buylife.xyz, badges [new]였습니다. AGENTS의 FREE 보장 설명과 실제 DB가 다르므로 다음 담당자가 최신 배포·권한을 확인해 정리해야 합니다. 이 조사만으로 배지/권한/DB 값을 변경하지 않았습니다.
+
+원 작업 인수인계: ../..//youtube-viral-studio/docs/WINDOWS_HANDOFF_20261017.md (경로 youtube-viral-studio/docs/WINDOWS_HANDOFF_20261017.md). 운영 데이터를 새 프로그램에 복사하지 않았습니다.

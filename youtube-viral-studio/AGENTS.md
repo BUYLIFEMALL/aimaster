@@ -9,10 +9,10 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.09` (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.13` (Windows 배포 검수 진행 중) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
-- 기반 환경: Next.js 16.2.11 + React 19 + Tailwind CSS v4 + Supabase SSR
+- 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
 - 공유 Supabase DB: `esgxyikcnnvmlhygjkth`
 
 ---
@@ -52,8 +52,9 @@
 ---
 
 ## 4. UI 화면 구성 (`src/app/(dashboard)/`)
-- 화이트 베이스 표준 레이아웃 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 준수)
-- `/viral-shorts`: 조회수 폭발 쇼츠 찾기 (메인) + **[✨ AI 떡상 대본 분석] 원클릭 모달 연동**
+- 유튜브 다크 표준 레이아웃(v1.13, #0f0f0f) (`docs/SIDEBAR_LAYOUT_STANDARD.md` 준수)
+- `/dashboard`: 첫 화면(외부 YouTube API 없음)
+- `/viral-shorts`: 조회수 폭발 쇼츠 찾기 + **[✨ AI 떡상 대본 분석] 원클릭 모달 연동**
 - `/golden-channels`: 황금 채널 발굴기
 - `/trending-videos`: 실시간 터진 영상 (VPH 뱃지, 쇼츠/롱폼 탭)
 - `/source-finder`: 쇼츠 원본 찾기
