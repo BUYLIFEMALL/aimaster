@@ -1,6 +1,41 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-18 Claude Code(윈도우) — 남은 문제 정리: 가짜 타입 오류·낡은 시험 2건 해결, eslint 방침, 옛 ZIP 정리
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 웹툰 자동화 v1.14: 크리에이티브 아틀리에 다크 스타일 리뉴얼·비주얼 가이드북 완전 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 43개 완료 달성!)
+
+- **대상**: `ai-webtoon-studio/` (https://ai-webtoon-automation.buylife.xyz, slug: `ai-webtoon-studio`)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 (웹툰 스튜디오 다크 변형)** 다크 테마 (`bg-[#0a0d14]`, 서피스 `#121620`, 카드 `#181d2a`, 보더 `#232b3e`, 인디고 `#6366f1` / 바이올렛 `#8b5cf6`, 앰버 `#f59e0b`).
+     - **모바일(375px) 반응형 완비**: 상단 고정 헤더(`h-14`, 앱 타이틀 + `v1.14 PRO` 배지 + 햄버거 토글 버튼) 및 슬라이드 오버레이 드로어 메뉴 구축 완료.
+     - **사이드바 메뉴 표준화**: `📖 연동 & 사용 매뉴얼` 신설 메뉴 배치, 1~4 스텝퍼 다크 배지 및 연결선 최적화.
+     - **비주얼 연동 & 사용 매뉴얼 (`GuideSection.tsx`) 완전 신설**: 🤖 마스코트 환영 배너, 4단계 원스톱 웹툰 제작 워크플로우 카드(기획/시놉시스 → 캐릭터 일관성 시트 → 시나리오 콘티 → 컷 렌더링 & 롱스크롤 JPG), 5대 아트 스타일 비교 카드(로판/순정, 액션/실사, 소년만화, 3D 애니, 사이버펑크), 모바일 690px 세로 롱스크롤 규격 및 캔버스 안전영역 가이드, BYOK 보안 수칙 및 FAQ 5종.
+     - **전체 작업 화면 다크 서피스 토큰 일체화**: 상단 헤더(`Header.tsx`), STEP 1 기획 & 컨셉 설정(`ProjectSection.tsx`), STEP 2 캐릭터 설정 & 일관성 시트(`CharacterSection.tsx`), STEP 3 시나리오 콘티 생성기(`ScriptEditorSection.tsx`), STEP 4 웹툰 제작 & 세로 롱스크롤 뷰어(`WebtoonCanvasSection.tsx`), API 키 등록 모달(`SettingsModal.tsx`) 다크 토큰 일체화.
+  2. **로컬 빌드 및 Vercel 프로덕션 배포**:
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`, 컴파일 5.8s, TypeScript 및 정적 페이지 생성 무결성 통과).
+     - `package.json` 버전 `1.14.0` 동기화.
+     - Supabase DB `programs` 테이블에서 `slug = 'ai-webtoon-studio'`의 `version = 'v1.14'` 갱신 완료 (`scripts/update_webtoon_version_v114.cjs`).
+     - Vercel 프로덕션 배포 완료: `https://ai-webtoon-studio-ixsbms69g-buylife.vercel.app` → alias `ai-webtoon-automation.buylife.xyz` 최신 연결 확인 (`readyState: READY`).
+  3. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 다크 아틀리에 대시보드(STEP 1~4 스텝퍼, 프로젝트 설정) 및 신설된 비주얼 가이드북(`GuideSection`) 완벽 노출.
+     - 모바일 (375px): 상단 고정 헤더, 햄버거 클릭 시 슬라이드 드로어 메뉴 정상 작동 및 모바일 가이드북 반응형 완벽 대응.
+     - 스크린샷 증빙 아티팩트 5종 보존:
+       - `edge_webtoon_studio_desktop_dashboard_v114.png`
+       - `edge_webtoon_studio_desktop_guide_v114.png`
+       - `edge_webtoon_studio_mobile_dashboard_v114.png`
+       - `edge_webtoon_studio_mobile_menu_v114.png`
+       - `edge_webtoon_studio_mobile_guide_v114.png`
+  4. **인수인계 규격화 문서 6종 완비**:
+     - `ai-webtoon-studio/docs/PLAN_20261018_DESIGN_RENEWAL.md`
+     - `ai-webtoon-studio/docs/DESIGN_HANDOFF.md`
+     - `ai-webtoon-studio/docs/IMPROVEMENTS.md` (3대 핵심 항목 및 타 프로그램 연계 분석)
+     - `ai-webtoon-studio/docs/IMPROVEMENT_BACKLOG.md` (우선순위별 작업 백로그)
+     - `ai-webtoon-studio/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `ai-webtoon-studio/README.md` (7대 핵심 항목 동기화)
+  5. **현황판 동기화**:
+     - `DESIGN.md` 25번 상태 「✅ 1차 작업완료 (`v1.14`, 크리에이티브 아틀리에 스타일)」 갱신 완료 (**✅ 43개 완료 / ⚪ 38개 예정 / ⏸ 2개 보류**).
+     - `docs/ACTIVE_WORK.md` 작업 중 줄 삭제 완료.
+- **다음 첫 단계**: 26번 네이버 블로그 올인원 자동화 (`naver-blog-allinone`, 플로우 위저드 라이트 권장) 분석 및 디자인 리뉴얼 플랜 수립.
 
 - **threads-content-ops 타입 오류**: 코드 문제가 아니라 분리 때 남은 로컬 캐시 `tsconfig.tsbuildinfo` 문제 → 주인님 승인 후 캐시 삭제, tsc 0건(커밋 `4668fcbd`, ERROR_LESSONS).
 - **ai-image-studio `test:access`**: 시험 데이터에 핸드폰 번호가 없어 핸드폰 필수 정책(10-12)에 막힘 → 시험 데이터 보완 + 정책 검사 추가, 통과(`8002c680`).

@@ -129,7 +129,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-18 기준: ✅ 42개 · ⚪ 39개 · 🟠 0개 · ⏸ 2개 — 총 83개):
+> **상태 구분** (2026-10-18 기준: ✅ 43개 · ⚪ 38개 · 🟠 0개 · ⏸ 2개 — 총 83개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -167,7 +167,7 @@
 | 22 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `seo-thumbnail-pro/AGENTS.md` |
 | 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `style-dna-analyzer/AGENTS.md` |
 | 24 | INSTA Cardnews 자동화 | `cardnews-studio` | **크리에이티브 아틀리에 스타일** (인스타 카드뉴스 변형) | 다크(인스타 선셋 그라디언트 & 미드나잇 `#0d0f17`) | ✅ 1차 작업완료 (`v1.15`, 크리에이티브 아틀리에 스타일) | [`cardnews-studio/docs/DESIGN_HANDOFF.md`](cardnews-studio/docs/DESIGN_HANDOFF.md) · [`cardnews-studio/docs/IMPROVEMENTS.md`](cardnews-studio/docs/IMPROVEMENTS.md) |
-| 25 | AI 웹툰 자동화 | `ai-webtoon-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `ai-webtoon-studio/AGENTS.md` |
+| 25 | AI 웹툰 자동화 | `ai-webtoon-studio` | **크리에이티브 아틀리에 스타일** (웹툰 스튜디오 다크 변형) | 다크(딥블랙 나이트 `#0a0d14` + 인디고 `#6366f1`·바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.14`, 크리에이티브 아틀리에 스타일) | [`ai-webtoon-studio/docs/DESIGN_HANDOFF.md`](ai-webtoon-studio/docs/DESIGN_HANDOFF.md) |
 | 26 | 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-blog-allinone/AGENTS.md` |
 | 27 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | **유튜브 다크 콘솔 스타일 — 스튜디오 변형** (viral-studio와 동일, Tailwind v4) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.07`, 유튜브 다크 콘솔 스타일 — 스튜디오 변형 · 맥미니 구현, 윈도우 빌드·배포·검수 2026-10-17) | [`youtube-channel-consultant/docs/DESIGN_HANDOFF.md`](youtube-channel-consultant/docs/DESIGN_HANDOFF.md) |
 | 28 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | **유튜브 다크 콘솔 스타일 — 스튜디오 변형** (+ 스마트 매트릭스 구성, Tailwind v4) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.14`, 유튜브 다크·회원별 즐겨찾기/30일 보관, Codex 2026-10-17) | [`youtube-viral-studio/docs/DESIGN_HANDOFF.md`](youtube-viral-studio/docs/DESIGN_HANDOFF.md) |

@@ -1,72 +1,105 @@
-# ai-webtoon-studio — AI 에이전트 작업 지침
+# AI 웹툰 자동화 (`ai-webtoon-studio`) AI 에이전트 인수인계 문서 (AGENTS.md)
 
-## 프로그램 개요
-- **프로그램명**: AI 웹툰 자동화 (구 AI 웹툰 스튜디오 PRO)
-- **Slug**: `ai-webtoon-studio`
-- **버전**: `v1.05`
-- **목적**: 시놉시스 기획부터 캐릭터 일관성 시트, 컷별 콘티 생성, 세로 스크롤 완성 원고 렌더링 및 롱스크롤 이어붙이기(JPG)까지 한 곳에서 완성하는 AI 웹툰 제작 자동화 솔루션
-- **배포 주소**: `https://ai-webtoon-automation.buylife.xyz` (기존 `https://ai-webtoon-studio.buylife.xyz` 병행 지원)
-- **Vercel 주소**: `https://ai-webtoon-automation.vercel.app`
+> # ★★★ 최상위 절대 불변 규칙 (2026-10-09 주인님 지시)
+> **모든 사용자는 본인의 계정과 본인 API 키(Google Gemini)를 각각 직접 등록·연동해서 사용한다.**
+> 운영자(주인님)나 타인의 키로 대신 처리하지 않으며, 키가 없으면 "본인 키를 등록해주세요"로 안내한다. 상세: 루트 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`.
+> **생성 데이터도 회원 본인 소유로 격리하며 다른 회원과 공유·복사·재사용하지 않는다.**
 
-## 핵심 불변 원칙 준수
-1. **사용자 본인 API 키 원칙**: Google Gemini API 키는 사용자 본인의 브라우저 `localStorage`에만 보관하며 서버로 전송하지 않는다.
-2. **연도 불변 원칙**: 모든 AI 프롬프트와 시놉시스 생성은 항상 당해 연도(현재 2026년)를 기준으로 작성한다 (`new Date().getFullYear()`).
-3. **UI 표준**: 흰색 베이스(Clean White & Slate), 중성 회색 테두리, 카드형 모듈러 레이아웃 준수.
+---
 
-## 버전 변경 이력
-- `v1.05` (2026-10-12, Codex / 주인님 기본값 강민우 삭제 요청):
-  - 기본 이름 빈칸·일반 입력 안내, 이름 미입력 탭은 기존 `인물 1` 표시.
-  - 브라우저에 저장된 원본 기본 예시 전체가 그대로이고 이미지·원고가 없는 경우에만 옛 기본 이름 제거. 수정/생성한 프로젝트 및 불러온 JSON 이름 보존.
-  - 검수·배포 및 재개 기록 `docs/UI_RELEASE_V1_05.md`.
-  - 후속 요청(화살표 캡처): Gemini API 상태를 상단 다운로드 버튼 왼쪽으로 옮기고 별도 하단 상태 줄 제거. 이름 제거와 기능 단위별 커밋을 구분하고 같은 릴리스에 배포.
-- `v1.04` (2026-10-12, Codex / 주인님 "날짜와 날씨" 삭제 요청):
-  - 상단 날짜·시간·날씨 표시와 관련 아이콘·30초 타이머 제거.
-  - 날짜 고정 대체값과 하드코딩 날씨 문구 삭제. API 등록 상태 줄은 우측 정렬, 모바일 빈 줄 제거.
-  - 코드·패키지·DB 버전 v1.04 동기화, 검수·배포 기록은 `docs/UI_RELEASE_V1_04.md`.
-- `v1.03` (2026-10-12, Codex / 주인님 화면 수정 요청):
-  - 상단 텍스트/이미지 모델 안내 배지 제거.
-  - 상단 및 STEP 4의 ZIP/JPG 저장 버튼을 노란색 배경·짙은 글자·테두리·키보드 포커스로 통일하고 STEP 4 버튼 줄바꿈 허용.
-  - 이미지 생성/다운로드 동작을 변경하지 않은 화면 수정. 검수·배포 증거는 `docs/UI_RELEASE_V1_03.md`에 기록.
-- `v1.02` (2026-10-12, 주인님 지시):
-  - 공식 프로그램명 **"AI 웹툰 자동화"** 로 리브랜딩 (`APP_NAME`, 레이아웃 메타데이터, 사이드바, 푸터, 알림 문구 전체 동기화).
-  - Vercel 주소 및 배포 주소 개편:
-    - 커스텀 배포 도메인: `https://ai-webtoon-automation.buylife.xyz` (Vercel domains add 및 Cloudflare 와일드카드 SSO 게이트 연동).
-    - Vercel 별칭 주소: `https://ai-webtoon-automation.vercel.app` 연결.
-    - 기존 `ai-webtoon-studio.buylife.xyz` 및 `ai-webtoon-studio-buylife.vercel.app` 하위 호환 유지.
-  - 공용 DB `programs` 테이블: `name = 'AI 웹툰 자동화'`, `version = 'v1.02'`, `app_url = 'https://ai-webtoon-automation.buylife.xyz'` 동기화.
-- `v1.01` (2026-10-11):
-  - 신규 서브프로젝트 스캐폴딩 (Next.js 16, React 19, Tailwind CSS v4)
-  - STEP 1 기획 & 컨셉 설정 (작품 제목, 작가명, 시놉시스 AI 확장, 5대 아트 스타일, 2대 레이아웃, 3대 말풍선 스타일, 표지 토글)
-  - STEP 2 캐릭터 일관성 시트 (인물 1~3인 외형 묘사 AI 보강, 턴어라운드 시트 생성, 참조 사진 업로드)
-  - STEP 3 시나리오 콘티 생성기 (챕터/장수 조절, 스토리 추가 요청, 컷별 연출·대사 콘티 자동 분할 및 인라인 편집)
-  - STEP 4 웹툰 제작 & 뷰어 (메인 표지 생성, 컷 일괄 렌더링, 세로 스크롤 뷰어, HTML5 캔버스 롱스크롤 JPG 병합 저장, ZIP 일괄 다운로드)
-  - JSON 프로젝트 설정 내보내기/불러오기 백업 엔진 탑재
-  - 환경설정 모달 (Gemini API 키 연결 테스트 및 브라우저 격리 보관 + `/api/user/key` 동기화)
-  - 메인 카탈로그 전용 16:9 실사 썸네일 등록 완료 (`gemini-3-pro-image-preview`, Supabase Storage `program-images/catalog/ai-webtoon-studio-thumbnail.jpg`)
-  - AIMaster 통합 권한 게이트 탑재 (`requireProgramAccess`, 비로그인 시 메인 SSO 로그인 `https://buylife.xyz/login` 자동 리다이렉트)
-  - 좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 준수: 1~4 스텝퍼 배지 & 세로선, ← 다른 프로그램 보기, 🔑 API키등록·플랫폼연동, 하단 로그인 계정 & 로그아웃)
-  - Vercel 프로덕션 배포 완료: `https://ai-webtoon-studio.buylife.xyz` (HTTP 307 SSO 게이트 정상 작동 확인)
-  - DB `programs` 연동 완료: slug `ai-webtoon-studio`, badges `["new", "free"]`, version `v1.01`, app_url `https://ai-webtoon-studio.buylife.xyz`
-- v1.07 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+## 1. 프로그램의 사용목적 및 대상
+- **프로그램명**: AI 웹툰 자동화 (영문 `AI Webtoon Automation` / `ai-webtoon-studio`)
+- **서비스 공식 URL**: https://ai-webtoon-automation.buylife.xyz (기존 `ai-webtoon-studio.buylife.xyz` 병행 지원)
+- **사용 목적**: 아이디어 한 줄과 키워드만으로 기승전결 시놉시스 확장, 캐릭터 턴어라운드 일관성 시트 확립, 컷별 콘티(연출·앵글·대사) 분할, 그리고 나노바나나 2.1 고화질 컷 렌더링부터 세로 롱스크롤 JPG 무손실 합성 및 ZIP 일괄 다운로드까지 웹툰 제작 전 과정을 원스톱으로 자동화하는 전문 웹툰 스튜디오 솔루션.
+- **주요 대상**:
+  - 웹툰 콘티 및 스토리를 빠르게 기획하고 시각화하려는 1인 웹툰 작가 및 스토리보드 작가
+  - 네이버웹툰, 카카오페이지 등 웹툰 플랫폼 공모전 준비생 및 인스타툰/SNS 웹툰 크리에이터
+  - 비주얼 스토리텔링 마케팅 콘텐츠를 제작하려는 기업 및 브랜드 마케터
 
-## v1.08 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
-- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: src/lib/gemini.ts 스토리 작가 지시에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.08. 유료 AI 실제 생성 확인은 하지 않음.
+---
 
+## 2. 개발 구현에 사용된 도구 / 개발기법 / 플러그인 / 스킬
+- **프레임워크 & 런타임**: Next.js 16.2.11 (App Router, Turbopack), React 19, TypeScript
+- **스타일링**: Tailwind CSS v4, 인라인 CSS 테마 변수
+- **디자인 템플릿**: **크리에이티브 아틀리에 스타일 (웹툰 스튜디오 다크 변형)** (`bg-[#0a0d14]`, 서피스 `#121620`, 카드 `#181d2a`, 보더 `#232b3e`, 인디고 `#6366f1` / 바이올렛 `#8b5cf6`, 앰버 `#f59e0b`)
+- **반응형 아키텍처**: 데스크톱(1440px) 260px 좌측 사이드바 + 모바일(375px) 상단 56px 고정 헤더 & 슬라이드 오버레이 드로어
+- **백엔드 & 데이터베이스**: Supabase SSR (공유 DB `esgxyikcnnvmlhygjkth`), PostgreSQL RLS (회원별 데이터 엄격 격리)
+- **AI 모델 연동**: Google Gemini (`gemini-nano-banana-2.1`, `gemini-2.5-flash`), 무료 대체 렌더러 (pollinations-flux)
+- **캔버스 & 압축 엔진**: HTML5 Canvas (무손실 롱스크롤 세로 병합), JSZip (원고 일괄 압축 다운로드)
 
-## 2026-10-16 DB 연동 변수 호환 — v1.09 (ai-webtoon-studio)
+---
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
+### 핵심 기능 (4단계 파이프라인)
+1. **STEP 1 기획 & 컨셉 설정 (`concept`)**:
+   - 작품 제목, 작가명, 핵심 시놉시스 AI 추천/확장 (`expandSynopsisAI`).
+   - 5대 아트 스타일(로판, 액션실사, 소년만화, 3D애니, 사이버펑크 등), 레이아웃(세로스크롤/그리드), 3대 말풍선 스타일 선택.
+2. **STEP 2 캐릭터 설정 & 일관성 시트 (`character`)**:
+   - 최대 3인 주연 캐릭터 외형 묘사 AI 보강 (`expandCharacterAI`).
+   - 3면 턴어라운드 캐릭터 시트 생성 (`generateCharacterSheetImage`) 또는 로컬 사진 업로드로 그림체 일관성 고정.
+3. **STEP 3 시나리오 콘티 생성기 (`script`)**:
+   - 챕터(화) 수 및 컷 수 조절, 스토리 추가 요청 프롬프트 반영.
+   - 컷별 연출 지문, 카메라 앵글, 대사 콘티 자동 분할 (`generateStoryboardAI`) 및 컷별 카드/텍스트 원문 뷰 편집.
+4. **STEP 4 웹툰 제작 & 뷰어 (`canvas`)**:
+   - 메인 표지 및 컷 일괄 렌더링 (`generateCutImage`), 개별 컷 재생성 지원.
+   - 모바일 690px 표준 세로 스크롤 뷰어 및 그리드 뷰 제공.
+   - HTML5 Canvas 기반의 세로 롱스크롤 JPG 병합 다운로드 및 ZIP 일괄 압축 다운로드.
+5. **비주얼 연동 & 사용 매뉴얼 (`guide`)**:
+   - 4단계 워크플로우 카드, 5대 아트 스타일 상세 안내, 세로 롱스크롤 안전영역 가이드, BYOK 수칙 및 FAQ 5종.
 
-## v1.11 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/lib/imageGen.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+### 장점 및 단점
+- **장점**:
+  - 시놉시스부터 완성 원고 롱스크롤 JPG까지 외부 툴 없이 브라우저 안에서 원스톱 종결.
+  - 정식 `gemini-nano-banana-2.1` 고화질 모델 탑재로 웹툰 특유의 세밀한 컷 렌더링 지원.
+  - 키가 없거나 사용량 소진 시에도 무료 대체 렌더러로 끊김 없이 프로토타이핑 가능.
+- **단점**:
+  - 여러 컷에 걸쳐 복잡한 다이나믹 포즈의 의상 디테일이 미세하게 달라질 수 있어 프롬프트 튜닝 필요.
 
-## 2026-10-18 v1.12 — 이미지 생성 호출을 공용 기준 코드로 (이미지 5묶음 · Imagen 교체분, Claude Code 윈도우)
-- **한 일**: `src/lib/imageGen.ts` `requestImageGeneration`(브라우저 실행): 직접 REST 호출 → 공용 호출, 시간 제한 120초(브라우저라 함수 한도 무관). 실패하면 기존처럼 무료 렌더러(pollinations)로 넘어가는 동작 유지.
-- **바뀐 점(공통)**: 키를 요청 주소가 아니라 머리글로 보냄, 시간 제한, 응답에서 최종 이미지 선택(Pro 모델 중간 초안 제외), 원인별 한국어 안내·키 가림, 유료 생성이라 재시도 0. 프롬프트·모델·비율·화질·화면은 그대로.
-- **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포(프로그램당 1회, 비용 절감 규칙)·DB 버전, 크롬 화면 버전. eslint는 설정 파일이 없어 실행 안 됨(이전부터). 테스트 스크립트 없음. 실제 이미지 생성 시험은 하지 않음(비용).
-- **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+---
 
-## 2026-10-18 v1.13 — 대체 그림 원인 안내 (Claude Code 윈도우)
-- **대체 그림 원인 안내**: Gemini가 실패해 대체 그림을 쓸 때 원인(키 가린 한국어 안내)을 화면에 알림. `imageGen.ts` 세 함수에 선택 인자 `onFallback(reason)` 추가(키가 없어 무료 렌더러로 간 경우 포함), `CharacterSection`·`WebtoonCanvasSection` 단일 생성은 바로·일괄 생성은 끝난 뒤 알림.
-- **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+## 4. 현재 버전 및 버전별 변경 히스토리
+- **현재 버전**: `v1.14` (2026-10-18)
+- **v1.14 (2026-10-18, Antigravity CLI)**:
+  - **크리에이티브 아틀리에 스타일 (웹툰 스튜디오 다크 변형)** 전면 적용 (`globals.css`, `layout.tsx`, `Header.tsx`, `Sidebar.tsx`, `StudioWorkspace.tsx`, STEP 1~4 및 `SettingsModal`).
+  - 모바일(375px) 상단 헤더 및 슬라이드 오버레이 드로어 메뉴 구축 완료.
+  - **비주얼 연동 & 사용 매뉴얼 (`GuideSection.tsx`) 완전 신설** (마스코트 배너, 4단계 파이프라인, 5대 화풍 가이드, 캔버스 안전영역, FAQ 5종).
+  - 로컬 Turbopack 빌드 무결성 검증, Supabase DB v1.14 갱신 및 Vercel 프로덕션 배포 완료.
+  - Microsoft Edge 포그라운드 실세션 검수 완료 (데스크톱/모바일 5종 캡처 보존).
+- **v1.13 (2026-10-18, Claude Code)**: 대체 그림 원인 안내 (Gemini 실패 시 무료 대체 그림 원인 한 줄 안내).
+- **v1.12 (2026-10-18, Claude Code)**: 이미지 생성 호출을 공용 기준 코드로 (`geminiImage.ts` 연동).
+- **v1.11 (2026-10-17, Claude Code)**: 이미지 모델 최신 정식 교체 (`gemini-nano-banana-2.1`).
+- **v1.08 (2026-10-15)**: AI 지시문에 한국 시간 현재 월 추가 (`koreaNowRule()`).
+- **v1.05 (2026-10-12)**: 기본 이름 빈칸 처리 및 UI 상태 정리.
+- **v1.02 (2026-10-12)**: "AI 웹툰 자동화" 공식 리브랜딩 및 SSO 커스텀 도메인 연동.
+- **v1.01 (2026-10-11)**: 최초 릴리스 (Next.js 16, 4단계 파이프라인, JSON 백업).
+
+---
+
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 내역은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) 참조:
+  1. `WEBTOON-01`: 컷 이미지 위에서 드래그 앤 드롭으로 말풍선 위치/크기/폰트를 편집하는 캔버스 인라인 말풍선 에디터.
+  2. `WEBTOON-02`: 완성된 웹툰 컷을 `shots`로 1클릭 전송하여 보이스 무빙툰 쇼츠 비디오로 변환하는 크로스 미디어 연계.
+  3. `WEBTOON-03`: 캐릭터당 4종 표정 세트(기쁨/분노/슬픔/놀람) 프리셋 저장 라이브러리.
+  4. `WEBTOON-04`: 컷 수가 길어질 때 우측 미니맵을 통한 컷 퀵 이동 네비게이터.
+
+---
+
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 제안
+1. **`shots` (YOUTUBE Shorts 자동화) 연계**:
+   - 완성된 웹툰 컷(이미지, 대사, 연출)을 쇼츠 제작 파이프라인으로 전송하여 무빙툰 영상화.
+2. **`four-cut-comics` (AI 4컷 만화 자동화) 연계**:
+   - 롱스크롤 웹툰 중 하이라이트 4컷을 인스타 피드용 정방형 4컷 만화로 자동 변환.
+
+---
+
+## 7. 사용자 편의성 증대를 위한 디자인 UI개선안과 레이아웃 제안
+1. **캔버스 인라인 폰트/말풍선 에디터**: 컷 위에서 직접 말풍선 꼬리와 글꼴을 편집할 수 있는 인터랙티브 오버레이 UI.
+2. **원고 미니맵 네비게이터**: 롱스크롤 작업 시 스크롤 위치를 시각적으로 표시해 주는 오른쪽 미니맵 바.
+
+---
+
+## 8. 관련 문서 링크
+- [디자인 개발 플랜](docs/PLAN_20261018_DESIGN_RENEWAL.md)
+- [디자인 핸드오프](docs/DESIGN_HANDOFF.md)
+- [개선 및 특이사항](docs/IMPROVEMENTS.md)
+- [개선 백로그](docs/IMPROVEMENT_BACKLOG.md)

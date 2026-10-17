@@ -7,6 +7,7 @@ import { ProjectSection } from "@/components/ProjectSection";
 import { CharacterSection } from "@/components/CharacterSection";
 import { ScriptEditorSection } from "@/components/ScriptEditorSection";
 import { WebtoonCanvasSection } from "@/components/WebtoonCanvasSection";
+import { GuideSection } from "@/components/GuideSection";
 import { SettingsModal } from "@/components/SettingsModal";
 import {
   AppSettings,
@@ -61,7 +62,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
       const stepParam = sp.get("step") as ActiveTab;
-      if (["concept", "character", "script", "canvas"].includes(stepParam)) {
+      if (["concept", "character", "script", "canvas", "guide"].includes(stepParam)) {
         setActiveTab(stepParam);
       }
       if (sp.get("modal") === "settings") {
@@ -102,7 +103,6 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
         } else {
           alert(`올바른 ${APP_NAME} 프로젝트 파일이 아닙니다.`);
         }
-
       } catch (err) {
         alert("JSON 파일을 파싱하는 데 실패했습니다.");
       }
@@ -130,7 +130,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-[#0a0d14] text-slate-100">
       {/* 1. 좌측 표준 사이드바 */}
       <Sidebar
         activeTab={activeTab}
@@ -212,13 +212,23 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
               onPrevStep={() => setActiveTab("script")}
             />
           )}
+
+          {/* 📖 연동 & 사용 매뉴얼 */}
+          {activeTab === "guide" && (
+            <GuideSection
+              onGoToStep={(step) => {
+                setActiveTab(step);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+            />
+          )}
         </main>
 
         {/* Footer */}
-        <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+        <footer className="mt-auto border-t border-[#232b3e] bg-[#121620] py-6 text-center text-xs text-slate-400">
           <p>© 2026 AIMaster · {APP_NAME} · 사용자 개인 API 키 격리 보관 원칙 준수</p>
         </footer>
-
       </div>
 
       {/* API 키 설정 모달 */}

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #0a0d14;
+  --foreground: #f8fafc;
 }
 
 @theme inline {
@@ -17,26 +17,26 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars for Creative Atelier Dark */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #0a0d14;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #232b3e;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #374151;
 }
 
 /* Webtoon vertical scroll container styling */
 .webtoon-scroll-viewport {
   max-width: 690px;
   margin: 0 auto;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 8px 15px -6px rgba(0, 0, 0, 0.5);
+  background-color: #000000;
 }
