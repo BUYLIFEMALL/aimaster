@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 실제 Chrome(보이는 창)에서 Studio·ProjectList 흐름을 검수한다. 서버 API는 시험용 모의 응답으로 대체한다.
 import { build } from "esbuild";
 import { chromium } from "playwright";
@@ -47,7 +49,7 @@ const sets = { a: { versions: [], cur: -1 }, b: { versions: [], cur: -1 } };
 let vn = 0;
 const addVersion = (opt, instruction) => {
   vn += 1;
-  const v = { path: `u/p/${opt}-${vn}.jpg`, v: sets[opt].versions.length + 1, at: new Date().toISOString(), model: "gemini-3-pro-image-preview", ...(instruction ? { instruction } : {}) };
+  const v = { path: `u/p/${opt}-${vn}.jpg`, v: sets[opt].versions.length + 1, at: new Date().toISOString(), model: "gemini-3-pro-image", ...(instruction ? { instruction } : {}) };
   sets[opt] = { versions: [...sets[opt].versions, v].slice(-5), cur: Math.min(sets[opt].versions.length, 4) };
   const urls = {};
   for (const x of sets[opt].versions) urls[x.path] = `${origin}/img/${x.path.replace(/\//g, "_")}`;
