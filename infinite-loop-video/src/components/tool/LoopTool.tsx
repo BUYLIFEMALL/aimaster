@@ -15,7 +15,7 @@ const MODES: { id: LoopMode; name: string; desc: string }[] = [
   { id: "overlap", name: "강제 오버랩", desc: "분석 없이 영상 전체의 끝과 처음을 1초 겹칩니다" },
   { id: "bounce", name: "바운스", desc: "앞으로 갔다가 거꾸로 돌아오는 반복입니다" },
 ];
-const LEVEL_COLOR = { excellent: "text-emerald-600", good: "text-emerald-600", fair: "text-amber-600", poor: "text-rose-600" } as const;
+const LEVEL_COLOR = { excellent: "text-lv-success", good: "text-lv-success", fair: "text-lv-warn", poor: "text-lv-danger" } as const;
 const fmt = (s: number) => `${s.toFixed(2)}초`;
 
 export function LoopTool() {
@@ -149,20 +149,20 @@ export function LoopTool() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-5">
+      <section className="rounded-2xl border border-lv-border bg-lv-surface p-5">
         <label
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); pickFile(e.dataTransfer.files?.[0] ?? null); }}
-          className="mx-auto flex max-w-xl cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-10 text-center hover:border-blue-400"
+          className="mx-auto flex max-w-xl cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-lv-border bg-lv-raised px-4 py-10 text-center hover:border-lv-pink"
         >
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-200 text-neutral-600"><UploadCloud size={28} /></span>
-          <span className="mt-2 text-xl font-bold text-neutral-900">{file ? file.name : "비디오 업로드"}</span>
-          <span className="text-sm text-neutral-600">드래그 앤 드롭 또는 클릭하여 업로드하세요.</span>
-          <span className="text-xs text-neutral-500">MP4, WebM 지원 (최대 50MB, 30초 미만 권장) · 영상은 서버로 전송되지 않고 이 기기 안에서만 처리됩니다</span>
-          <span className="mt-3 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm">파일 선택</span>
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-lv-raised text-lv-muted"><UploadCloud size={28} /></span>
+          <span className="mt-2 text-xl font-bold text-lv-text">{file ? file.name : "비디오 업로드"}</span>
+          <span className="text-sm text-lv-muted">드래그 앤 드롭 또는 클릭하여 업로드하세요.</span>
+          <span className="text-xs text-lv-muted">MP4, WebM 지원 (최대 50MB, 30초 미만 권장) · 영상은 서버로 전송되지 않고 이 기기 안에서만 처리됩니다</span>
+          <span className="mt-3 rounded-xl lv-gradient px-5 py-2.5 text-sm font-bold text-white shadow-sm">파일 선택</span>
           <input type="file" accept="video/*" className="hidden" onChange={(e) => pickFile(e.target.files?.[0] ?? null)} />
         </label>
-        {error && <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+        {error && <p className="mt-3 rounded-lg bg-lv-danger/15 px-3 py-2 text-sm text-lv-danger">{error}</p>}
 
         <div className="mx-auto mt-6 grid max-w-3xl gap-3 sm:grid-cols-3">
           {[
@@ -172,34 +172,34 @@ export function LoopTool() {
           ].map(([Icon, t, d]) => {
             const I = Icon as typeof UploadCloud;
             return (
-              <div key={t as string} className="flex flex-col items-center rounded-2xl border border-neutral-200 bg-white px-4 py-5 text-center">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600"><I size={16} /></span>
-                <p className="mt-2 text-sm font-bold text-neutral-900">{t as string}</p>
-                <p className="mt-1 text-xs text-neutral-500">{d as string}</p>
+              <div key={t as string} className="flex flex-col items-center rounded-2xl border border-lv-border bg-lv-surface px-4 py-5 text-center">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lv-pink/10 text-lv-cyan"><I size={16} /></span>
+                <p className="mt-2 text-sm font-bold text-lv-text">{t as string}</p>
+                <p className="mt-1 text-xs text-lv-muted">{d as string}</p>
               </div>
             );
           })}
         </div>
         <div className="mt-5 flex justify-center">
-          <Link href="/guide" className="inline-flex items-center gap-2 rounded-full border border-neutral-300 px-4 py-2 text-xs text-neutral-600 hover:bg-neutral-50">
+          <Link href="/guide" className="inline-flex items-center gap-2 rounded-full border border-lv-border px-4 py-2 text-xs text-lv-muted hover:bg-lv-raised">
             <CircleHelp size={14} /> 초보자를 위한 상세 가이드 열기
           </Link>
         </div>
       </section>
 
       {url && (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <h2 className="mb-3 text-base font-bold text-neutral-900">2. 루프 방식과 구간</h2>
+        <section className="rounded-2xl border border-lv-border bg-lv-surface p-5">
+          <h2 className="mb-3 text-base font-bold text-lv-text">2. 루프 방식과 구간</h2>
           <div className="grid gap-5 lg:grid-cols-2">
             <div>
               <video ref={videoRef} src={url} controls muted playsInline onLoadedMetadata={onLoaded}
                 onTimeUpdate={(e) => { const v = e.currentTarget; if (showSegment && end > start && v.currentTime >= end) v.currentTime = start; }}
                 className="aspect-square w-full rounded-xl bg-black object-contain" />
-              <p className="mt-1 text-xs text-neutral-500">미리보기는 선택한 구간만 반복합니다 (크로스페이드는 만든 결과에서 확인).</p>
+              <p className="mt-1 text-xs text-lv-muted">미리보기는 선택한 구간만 반복합니다 (크로스페이드는 만든 결과에서 확인).</p>
               {curve.length > 0 && (
                 <div className="mt-3">
-                  <p className="mb-1 text-xs font-medium text-neutral-600">시작 프레임과의 유사도 (높을수록 닮음)</p>
-                  <svg viewBox="0 0 300 60" className="h-16 w-full rounded-lg border border-neutral-200 bg-neutral-50">
+                  <p className="mb-1 text-xs font-medium text-lv-muted">시작 프레임과의 유사도 (높을수록 닮음)</p>
+                  <svg viewBox="0 0 300 60" className="h-16 w-full rounded-lg border border-lv-border bg-lv-raised">
                     <polyline fill="none" stroke="#2563eb" strokeWidth="1.5"
                       points={curve.map((v, i) => `${(i / Math.max(1, curve.length - 1)) * 300},${58 - Math.max(0, (v - 0.5) / 0.5) * 56}`).join(" ")} />
                     {duration > 0 && <line x1={(end / Math.min(duration, MAX_ANALYZE_SEC)) * 300} x2={(end / Math.min(duration, MAX_ANALYZE_SEC)) * 300} y1="0" y2="60" stroke="#e11d48" strokeWidth="1.5" />}
@@ -211,25 +211,25 @@ export function LoopTool() {
             <div className="space-y-4">
               <div className="space-y-2">
                 {MODES.map((m) => (
-                  <label key={m.id} className={`flex cursor-pointer gap-3 rounded-xl border p-3 ${mode === m.id ? "border-blue-500 bg-blue-50" : "border-neutral-200 hover:bg-neutral-50"}`}>
+                  <label key={m.id} className={`flex cursor-pointer gap-3 rounded-xl border p-3 ${mode === m.id ? "border-lv-pink bg-lv-pink/10" : "border-lv-border hover:bg-lv-raised"}`}>
                     <input type="radio" name="mode" checked={mode === m.id} onChange={() => setMode(m.id)} className="mt-1" />
-                    <span><span className="block text-sm font-bold text-neutral-900">{m.name}</span><span className="text-xs text-neutral-500">{m.desc}</span></span>
+                    <span><span className="block text-sm font-bold text-lv-text">{m.name}</span><span className="text-xs text-lv-muted">{m.desc}</span></span>
                   </label>
                 ))}
               </div>
 
               {mode === "smart" && (
-                <div className="space-y-3 rounded-xl bg-neutral-50 p-3">
-                  <label className="block text-xs font-medium text-neutral-700">최소 루프 길이 {minLen.toFixed(1)}초
+                <div className="space-y-3 rounded-xl bg-lv-raised p-3">
+                  <label className="block text-xs font-medium text-lv-text">최소 루프 길이 {minLen.toFixed(1)}초
                     <input type="range" min={0.5} max={Math.max(1, Math.min(30, duration / 2))} step={0.1} value={minLen} onChange={(e) => setMinLen(+e.target.value)} className="w-full" />
                   </label>
-                  <button onClick={analyze} disabled={busy || !duration} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-50">
+                  <button onClick={analyze} disabled={busy || !duration} className="inline-flex items-center gap-2 rounded-lg lv-gradient px-4 py-2 text-sm font-bold text-white hover:brightness-110 disabled:opacity-50">
                     {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />} 최적 루프 자동 찾기
                   </button>
                   {cands.length > 1 && (
                     <div className="flex flex-wrap gap-2">
                       {cands.map((c, i) => (
-                        <button key={i} disabled={busy} onClick={() => applyCandidate(c)} className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-100">
+                        <button key={i} disabled={busy} onClick={() => applyCandidate(c)} className="rounded-lg border border-lv-border bg-lv-surface px-2 py-1 text-xs hover:bg-lv-raised">
                           후보 {i + 1} · {(c.score * 100).toFixed(0)}%
                         </button>
                       ))}
@@ -239,26 +239,26 @@ export function LoopTool() {
               )}
 
               {showSegment && (
-                <div className="space-y-2 rounded-xl bg-neutral-50 p-3">
-                  <p className="flex items-center gap-1 text-xs font-bold text-neutral-700"><Scissors size={13} /> 시작·종료 미세 조정 (0.01초)</p>
-                  <label className="block text-xs text-neutral-600">시작 {fmt(start)}
+                <div className="space-y-2 rounded-xl bg-lv-raised p-3">
+                  <p className="flex items-center gap-1 text-xs font-bold text-lv-text"><Scissors size={13} /> 시작·종료 미세 조정 (0.01초)</p>
+                  <label className="block text-xs text-lv-muted">시작 {fmt(start)}
                     <input type="range" min={0} max={Math.max(0, duration)} step={0.01} value={start} onChange={(e) => { const v = +e.target.value; setStart(v); if (videoRef.current) videoRef.current.currentTime = v; }} className="w-full" />
                   </label>
-                  <label className="block text-xs text-neutral-600">종료 {fmt(end)}
+                  <label className="block text-xs text-lv-muted">종료 {fmt(end)}
                     <input type="range" min={0} max={Math.max(0, duration)} step={0.01} value={end} onChange={(e) => setEnd(+e.target.value)} className="w-full" />
                   </label>
-                  <p className="text-xs text-neutral-500">구간 길이 {fmt(Math.max(0, end - start))}</p>
+                  <p className="text-xs text-lv-muted">구간 길이 {fmt(Math.max(0, end - start))}</p>
                 </div>
               )}
 
               {mode === "smart" && (
-                <label className="block text-xs font-medium text-neutral-700">크로스페이드 길이 {crossfade.toFixed(1)}초
+                <label className="block text-xs font-medium text-lv-text">크로스페이드 길이 {crossfade.toFixed(1)}초
                   <input type="range" min={MIN_CROSSFADE} max={MAX_CROSSFADE} step={0.1} value={crossfade} onChange={(e) => setCrossfade(+e.target.value)} className="w-full" />
                 </label>
               )}
 
               {q && mode === "smart" && (
-                <p className="rounded-lg border border-neutral-200 px-3 py-2 text-sm">
+                <p className="rounded-lg border border-lv-border px-3 py-2 text-sm">
                   루프 자연스러움 <b className={LEVEL_COLOR[q.level]}>{((score ?? 0) * 100).toFixed(0)}점 · {q.label}</b>
                 </p>
               )}
@@ -268,38 +268,38 @@ export function LoopTool() {
       )}
 
       {url && (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <h2 className="mb-3 text-base font-bold text-neutral-900">3. 내보내기</h2>
+        <section className="rounded-2xl border border-lv-border bg-lv-surface p-5">
+          <h2 className="mb-3 text-base font-bold text-lv-text">3. 내보내기</h2>
           <div className="flex flex-wrap items-end gap-5">
-            <label className="text-xs font-medium text-neutral-700">반복 횟수 (1~200)
-              <input type="number" min={1} max={200} value={repeat} disabled={format === "gif"} onChange={(e) => setRepeat(+e.target.value || 1)} className="mt-1 block w-24 rounded-lg border border-neutral-300 px-2 py-1.5 text-sm" />
+            <label className="text-xs font-medium text-lv-text">반복 횟수 (1~200)
+              <input type="number" min={1} max={200} value={repeat} disabled={format === "gif"} onChange={(e) => setRepeat(+e.target.value || 1)} className="mt-1 block w-24 rounded-lg border border-lv-border px-2 py-1.5 text-sm" />
             </label>
-            <div className="text-xs font-medium text-neutral-700">형식
+            <div className="text-xs font-medium text-lv-text">형식
               <div className="mt-1 flex gap-1">
                 {(["mp4", "webm", "gif"] as OutFormat[]).map((f) => (
-                  <button key={f} onClick={() => setFormat(f)} className={`rounded-lg border px-3 py-1.5 text-sm font-bold ${format === f ? "border-blue-600 bg-blue-600 text-white" : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"}`}>{f.toUpperCase()}</button>
+                  <button key={f} onClick={() => setFormat(f)} className={`rounded-lg border px-3 py-1.5 text-sm font-bold ${format === f ? "border-lv-pink lv-gradient text-white" : "border-lv-border text-lv-text hover:bg-lv-raised"}`}>{f.toUpperCase()}</button>
                 ))}
               </div>
             </div>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-lv-muted">
               {format === "gif" ? "GIF는 재생기에서 무한 반복되어 1회분만 저장하며 소리는 들어가지 않습니다" : hasAudio ? "소리가 있는 영상은 소리도 함께 이어집니다" : "예상 총 재생 시간"} · 총 {total.toFixed(1)}초
             </p>
-            <button onClick={onRender} disabled={busy || !duration} className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-neutral-700 disabled:opacity-50">
+            <button onClick={onRender} disabled={busy || !duration} className="inline-flex items-center gap-2 rounded-lg lv-gradient px-5 py-2.5 text-sm font-bold text-white hover:brightness-110 disabled:opacity-50">
               {busy ? <Loader2 size={16} className="animate-spin" /> : <Repeat size={16} />} 무한루프 만들기
             </button>
           </div>
           {busy && status && (
             <div className="mt-4">
-              <p className="text-sm text-neutral-700">{status}{ratio !== undefined ? ` ${Math.round(ratio * 100)}%` : "…"}</p>
-              <div className="mt-1 h-2 overflow-hidden rounded-full bg-neutral-100"><div className="h-full bg-blue-600 transition-all" style={{ width: `${Math.round((ratio ?? 0.05) * 100)}%` }} /></div>
-              <button onClick={() => { cancelRef.current = true; }} className="mt-2 text-xs text-neutral-500 underline">분석 취소</button>
+              <p className="text-sm text-lv-text">{status}{ratio !== undefined ? ` ${Math.round(ratio * 100)}%` : "…"}</p>
+              <div className="mt-1 h-2 overflow-hidden rounded-full bg-lv-raised"><div className="h-full lv-gradient transition-all" style={{ width: `${Math.round((ratio ?? 0.05) * 100)}%` }} /></div>
+              <button onClick={() => { cancelRef.current = true; }} className="mt-2 text-xs text-lv-muted underline">분석 취소</button>
             </div>
           )}
           {result && (
             <div className="mt-5 space-y-3">
-              {result.ext === "gif" ? <img src={result.url} alt="결과 GIF" className="max-h-96 rounded-xl border border-neutral-200" />
+              {result.ext === "gif" ? <img src={result.url} alt="결과 GIF" className="max-h-96 rounded-xl border border-lv-border" />
                 : <video src={result.url} controls loop muted playsInline className="max-h-96 rounded-xl bg-black" />}
-              <a href={result.url} download={`infinite-loop.${result.ext}`} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
+              <a href={result.url} download={`infinite-loop.${result.ext}`} className="inline-flex items-center gap-2 rounded-lg lv-gradient px-4 py-2 text-sm font-bold text-white hover:brightness-110">
                 <Download size={16} /> 다운로드 ({(result.size / 1024 / 1024).toFixed(1)}MB)
               </a>
             </div>

@@ -19,5 +19,4 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | ai-image-studio 외 이미지 사본 30곳(scripts/check-shared-modules.mjs 목록) | Claude Code(윈도우) | 2026-10-17 23:30 | 이미지 시간 초과 안내 문구 통일 |
-| infinite-loop-video | Claude Code(맥미니) | 2026-10-17 | 크리에이티브 아틀리에(다크) 디자인 리뉴얼 — 플랜 제시, 주인님 승인 대기 |
 

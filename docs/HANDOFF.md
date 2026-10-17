@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 무한루프 영상자동화 v1.05 디자인 리뉴얼(크리에이티브 아틀리에 · 네온 루프 시네마) · 윈도우 배포 대기
+
+- **한 일**: `lv-*` 다크 토큰(차콜 + 네온 핑크→시안), 화면 색 일괄 치환(로그인 빨강 버튼 통일), `/studio` 히어로 + 루프 방식 도식(`components/ui/LoopModeDiagram.tsx` 신규), `/guide` 시각화(말풍선·4단계·방식 비교·영상 예시·FAQ), 매뉴얼 메뉴 이름 표준화. 영상 처리 로직·권한 변경 없음.
+- **검수**: 맥미니 tsc 0. 빌드·배포·화면 검수 미실행(맥미니 규칙).
+- **윈도우 다음 첫 단계**: `infinite-loop-video/docs/IMPROVEMENT_HANDOFF_20261017.md` (빌드 → 배포 → `programs.version='v1.05'` → 크롬 검수 → DESIGN.md 14번 ✅).
+- **둘러본 다른 프로그램**: AI 인플루언서 자동화(15번 ⚪) 개선 원장 선제 작성 `ai-influencer-studio/docs/IMPROVEMENTS.md` (흰 화면·매뉴얼 팝업뿐·기록 localStorage만·ControlPanel 1,081줄).
+- 링크: https://infinite-loop-video.buylife.xyz
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — 웹 크롤링 자동화 v1.07: 스마트 매트릭스 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `web-crawler-saas` (폴더 `web-crawler/webapp`, https://web-crawler-saas.buylife.xyz)

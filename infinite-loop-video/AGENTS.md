@@ -82,3 +82,9 @@ tests/loop.test.mjs · access.test.mjs   `npm test` 15개 통과
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (infinite-loop-video)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-17 v1.05 — 디자인 리뉴얼: 크리에이티브 아틀리에 「네온 루프 시네마」 (Claude Code 맥미니)
+- `lv-*` 다크 토큰, `/studio` 히어로 + 루프 방식 도식(`components/ui/LoopModeDiagram.tsx`), `/guide` 시각화, 매뉴얼 메뉴 이름 표준화, 로그인 버튼 통일. 영상 처리 로직 변경 없음.
+- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
+- 문서: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
