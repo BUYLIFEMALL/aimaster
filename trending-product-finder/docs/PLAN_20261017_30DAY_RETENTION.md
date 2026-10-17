@@ -39,3 +39,15 @@
 - [ ] 정리 Cron 1개 추가(매일 03:50 KST)
 - [ ] 날짜 칸 인덱스 추가(필요 시)
 - [ ] `sourcing_saved_products` 제외안 동의 여부
+
+## 첫 실행 전 기준값 (2026-10-17 14:49 KST 측정, Claude Code 윈도우)
+
+| 대상 | 전체 | 30일 지난 행(삭제 예정) | 첫 실행 후 예상 남은 수 |
+|---|---|---|---|
+| `recommendation_reports` | 59 | 31 | 28 + 그사이 새로 생긴 수 |
+| `trend_snapshots` | 177 | 65 | 112 + 그사이 새로 생긴 수 |
+| `shopping_competition` | 0 | 0 | 0 |
+| `trend_watchlist.sourcing_alert_last_snapshot`(값 있는 행) | 1 | 1 | 0(행·알림 설정은 유지) |
+
+- 크론 배포: 2026-10-17 12:16 KST → **첫 실행 2026-10-18 03:50 KST**(`50 18 * * *` UTC). 이 시점에는 아직 한 번도 실행되지 않아 결과 대조는 못 했습니다.
+- 다음 첫 단계: 10-18 03:50 이후 같은 SQL로 "30일 지난 행 = 0"인지, 전체 수가 위 예상과 맞는지 확인하고, Vercel 로그에서 `/api/cron/cleanup-generated` 응답(삭제 개수)을 대조합니다.
