@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 4컷 만화 옵션 데이터. 서버·클라이언트가 같은 id를 쓰고, 프롬프트 문장은 서버만 조립한다.
 
 export interface StyleOption { id: string; name: string; summary: string; role: string; guide: string; avoid: string }
@@ -136,7 +138,7 @@ export const FORMATS = [
 
 export const IMAGE_MODELS = [
   { id: "gemini-3.1-flash-lite-image", name: "Nano Banana 2 Lite", hint: "빠르고 비용이 적게 듭니다. 초안·연습용으로 추천합니다." },
-  { id: "gemini-3.1-flash-image", name: "Nano Banana 2", hint: "품질이 더 높고 캐릭터 일관성이 좋습니다. 최종본용으로 추천합니다." },
+  { id: "gemini-nano-banana-2.1", name: "Nano Banana 2", hint: "품질이 더 높고 캐릭터 일관성이 좋습니다. 최종본용으로 추천합니다." },
 ] as const;
 export const DEFAULT_IMAGE_MODEL: string = IMAGE_MODELS[0].id;
 
