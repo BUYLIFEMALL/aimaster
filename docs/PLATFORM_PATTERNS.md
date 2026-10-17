@@ -761,3 +761,11 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
      - **사용자 로그인 세션 인증:** `requireUser()` (쿠키 SSR 클라이언트)로 현재 로그인한 회원의 `user.id` 획득. 비로그인 시 `/login` 리다이렉트.
      - **권한·등급·구독·개별부여 테이블 조회:** `createAdminClient()` (Service Role Key)로 `profiles`, `programs`, `subscriptions`, `user_program_access`를 조회하여 RLS 간섭 없이 안전하고 정확하게 판정.
   3. 또한, 존재하지 않는 임의 컬럼(예: `profiles.program_access_expires_at`)을 SELECT하지 말고, 표준 공용 테이블인 `user_program_access.expires_at` 및 `subscriptions.expires_at`을 검사해야 한다.
+
+## 34. 예약 게시·자동 실행이 있는 프로그램은 `vercel.json` 실행 등록과 주기를 점검 스크립트로 확인한다 (2026-10-18 주인님 승인)
+
+- **배경**: 2026-10-18 점검에서 INSTA 포스팅은 예약 발행 주소만 있고 `vercel.json`이 없어 예약 글이 나가지 않았고(v1.24에서 연결), Threads 포스팅은 하루 1번만 실행(`0 0 * * *`)돼 최대 하루 늦게 발행되고 있었다(v1.18에서 5분으로). 코드 리뷰로는 잘 안 보이는 누락이다.
+- **규칙**: 예약 시각이 있는 글을 발행하는 주소(`dispatch-scheduled`·`generate-and-post` 계열)는 그 프로그램 `vercel.json`에 등록하고 **5분 이하** 간격으로 실행한다. 인증은 `Authorization: Bearer CRON_SECRET`(Vercel이 자동으로 붙임).
+- **점검**: 예약·발행 기능을 만들거나 고친 뒤, 그리고 배포 뒤에 `node scripts/check-scheduled-dispatch.mjs`(파일 기준)와 `node scripts/check-scheduled-dispatch.mjs --live`(Vercel 실제 등록 대조)를 돌려 모두 통과해야 완료다. 실패하면 종료 코드 1.
+- **실행 기록 확인**: 일반 `vercel logs`는 함수 출력만 보여 요청이 잡히지 않는다 — `npx vercel logs requests --since 20m --json`으로 해당 주소의 GET 200을 확인한다.
+- **수강생·독립 배포본(Vercel 무료 요금제)**: 하루 1번보다 잦은 cron이 있으면 배포가 실패하므로 키트에는 운영용 `vercel.json`을 넣지 않고 cron-job.org로 안내한다(`scripts/make_lecture_kit.py`).
