@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 사이드바 제목 5개 배포 후 크롬 확인 ✅
+
+- 주인님 「배포완료」 후 맥미니 크롬(시험 계정 naver)에서 확인: 유튜브 댓글 v1.11 「YOUTUBE 댓글 자동화」 · THREADS 댓글 v1.11 · INSTA 댓글 v1.15 · VIRAL FINDER v1.19(한 줄 전체 표시) · CHANNEL CONSULTANT v1.10(데스크톱 두 줄, 390px 위쪽 바 한 줄·☰와 겹침 없음). 모두 잘림 없음.
+- 남은 일: 없음(`instagram-dm-reply` 제목은 Antigravity 작업분).
+
 ## 2026-10-17 Claude Code(윈도우) — 이미지 생성 모델 목록 통합 `gemini-image-models` (8곳)
 
 - **한 일(주인님 지시)**: 7곳에 따로 복사돼 값이 조금씩 다르던 나노바나나 모델 설정을 공용 기준 코드 하나로 통합했습니다(기준 `ai-image-studio/lib/providers/nanoBananaModels.ts`, 사본은 각 프로그램의 기존 파일 이름 그대로). 값은 이미지 레퍼런스 ai-image-studio v1.11 검증값입니다: 1K=`gemini-3.1-flash-lite-image`, 2K·4K=`gemini-nano-banana-2.1`, Pro=`gemini-3-pro-image`(온도 0.4).
