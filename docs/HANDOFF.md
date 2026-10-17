@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.12: 운영 의존성 보안 경고 0건 (남은 마무리 4/5)
+
+- **한 일**: Next 내부 postcss 8.4.31 → 8.5.26 고정(overrides). 운영 경고 2 → 0, 전체 11 → 9(남은 9건은 tailwind 3 개발 도구, 수용).
+- **검수**: CSS 빌드 결과 동일, 테스트·권한·build·lint 통과, 배포·DB v1.12, 크롬 디자인 동일.
+- **다음**: #16 30일 자동삭제(조사·설계 후 승인). 인수인계: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **링크**: https://trending-product-finder.buylife.xyz
+
+## 2026-10-17 Codex(Windows) — youtube-viral-studio v1.14 Windows 사전 검수 완료·운영 배포 진행
+
+- 주인님 DB/30일 자동 정리 적용 승인. 전용 yvs_favorites·RLS·중복 생성일 보존·30일 조회차단/분당삭제 적용 및 실제 Cron 성공 확인. 기존 무소유 localStorage는 조회/이전하지 않음.
+- 즐겨찾기 실제 저장/해제·새로고침, 자동 검색 제거·누락지수/가이드/CSV 보완. 빌드/타입·단위8·SQL9·Edge 기능10·화면9·합성7·API401 통과, 유료API0. lint 오류0/경고74.
+- 소스 푸시·운영 배포·DBv1.14·운영 Edge 재검수 진행 중. [프로그램 인수인계](../youtube-viral-studio/docs/IMPROVEMENT_HANDOFF_20261017_V114.md), https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.11: DB 조회 장애와 빈 상태 구분 (남은 마무리 3/5)
 
 - **한 일**: 대시보드·키워드 발굴·리포트·소싱·설정 5곳에서 조회 실패를 "자료 없음"과 구분해 안내 + [다시 시도].
