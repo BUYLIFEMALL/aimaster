@@ -100,3 +100,7 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 ## 2026-10-17 v1.16 — 앱 ID·시크릿 저장 형식 검사 (Claude Code 윈도우)
 - 주인님 승인 제안: 시험 계정 Instagram 앱 ID가 끝자리 빠진 15자리로 저장돼 "Invalid platform app"이 난 사례 → `saveApiKeyAction`에서 `*_app_id`는 숫자 15~16자리, `*_app_secret`은 영문·숫자 32자가 아니면 저장하지 않고 입력 글자 수와 함께 안내(기존 저장값은 영향 없음).
 - 검수: 빌드·배포·DB v1.16. DM 화면(시험 계정)에서 "12345" 저장 시도 → 빨간 오류 표시·저장 안 됨·기존 값 유지 확인. 댓글·포스팅은 같은 코드.
+
+## v1.17 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/ai/generator.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
