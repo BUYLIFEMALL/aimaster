@@ -1,5 +1,37 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — Threads 쇼핑제휴 자동화 v1.61: 스레드 바이럴 스튜디오 다크 스타일 디자인 리뉴얼·Vercel 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `threads-affiliate-poster/` (https://threads-affiliate-poster.buylife.xyz)
+- **한 일**:
+  1. **디자인 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **스레드 바이럴 스튜디오 스타일 — 쇼핑제휴 변형 (Threads Viral Studio Style - Affiliate Variant)** (Meta Threads 모노 블랙 `#171717` + 카드 `#1f1f1f` + 쇼핑제휴 파이어 앰버 `#f59e0b` & 플랫폼 로열 블루 `#3b82f6`).
+     - 모바일(375px) 상단 고정 헤더(`Threads 쇼핑제휴 자동화` + 버전 칩 + 햄버거 토글 버튼) 및 슬라이드 오버레이 드로어 메뉴 구축 완료.
+     - 사이드바 메뉴명 표준화: `📖 연동 & 사용 매뉴얼` 통일 및 3단계 파이프라인 칩 시각화.
+     - 사용 매뉴얼(`/guide`) 신규 구축: 🤖 마스코트 안내 말풍선, 4단계 파이프라인 다이어그램, 4대 제휴사(쿠팡/알리/네이버/토스) 비교 연동표, 공정거래위원회 추천·보증 심사지침 필수 준수 가이드, FAQ 4종 구축.
+     - 대시보드(`/dashboard`) 다크 테마 정돈: 프로그램 소개, 5단계 가이드 카드, 통계 카드 5종, 예약 게시 리스트 다크 테마 완비.
+  2. **로컬 빌드 및 배포**:
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`, TypeScript 오류 0건).
+     - Supabase DB `programs` 테이블에서 `slug = 'threads-affiliate-poster'`의 `version = 'v1.61'` 갱신 완료.
+     - Vercel 프로덕션 배포 완료: `dpl_7PAAH9jweRFp3BB3X8tTQmsvuGgK` → alias `threads-affiliate-poster.buylife.xyz` 최신 연결 확인.
+  3. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 대시보드(통계 카드, 5단계 가이드, 소개 박스) 및 연동 & 사용 매뉴얼(비교표, 공정위 고지, FAQ) 정상 노출.
+     - 모바일 (375px): 상단 고정 헤더(`Threads 쇼핑제휴 v1.61` + 햄버거 버튼), 햄버거 클릭 시 슬라이드 드로어 메뉴 정상 노출 및 매뉴얼 가로 스크롤 테이블 완벽 대응.
+     - 스크린샷 아티팩트 보존: `edge_threads_affiliate_desktop_dashboard_v161.png`, `desktop_guide`, `mobile_dashboard`, `mobile_menu`, `mobile_guide`.
+     - 유료 API 호출 버튼 미클릭 (비용 0원).
+  4. **인수인계 문서 및 규격화**:
+     - `threads-affiliate-poster/docs/PLAN_20261017_DESIGN_RENEWAL.md` 작성.
+     - `threads-affiliate-poster/docs/DESIGN_HANDOFF.md` 작성.
+     - `threads-affiliate-poster/docs/IMPROVEMENTS.md` 작성 (3대 개선 제안 및 34번 threads-video-downloader, 36번 video-to-gif 타 프로그램 탐색 제안 포함).
+     - `threads-affiliate-poster/docs/IMPROVEMENT_BACKLOG.md` 작성.
+     - `threads-affiliate-poster/AGENTS.md` 및 `README.md` 7대 핵심 항목 규격화.
+     - `DESIGN.md` 44번 상태: `✅ 1차 작업완료 (v1.61, 스레드 바이럴 스튜디오 — 쇼핑제휴 변형)` 갱신 (전체 현황: ✅ 39개 · ⚪ 42개 · ⏸ 2개).
+     - `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**:
+  - https://threads-affiliate-poster.buylife.xyz
+- **비용**: 0원 (유료 API 호출 없음).
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — Threads AI 기획 자동화 v1.45: 스레드 바이럴 스튜디오 스타일 디자인 리뉴얼·Vercel 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `threads-easy-planner/` (https://threads-easy-planner.buylife.xyz)

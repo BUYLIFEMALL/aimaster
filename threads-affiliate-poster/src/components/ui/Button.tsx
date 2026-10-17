@@ -8,14 +8,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-neutral-900 text-white hover:bg-neutral-700 disabled:bg-neutral-300",
-  secondary: "bg-white text-neutral-900 border border-neutral-300 hover:bg-neutral-50",
-  danger: "bg-red-600 text-white hover:bg-red-500 disabled:bg-red-300",
-  ghost: "bg-transparent text-neutral-600 hover:bg-neutral-100",
-  muted: "bg-neutral-600 text-white border border-neutral-600 hover:bg-neutral-500",
-  purple: "bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 disabled:bg-neutral-200 disabled:text-neutral-400 border border-purple-600 hover:border-purple-700 shadow-2xs",
-  amber: "bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 disabled:opacity-60 border border-amber-500 hover:border-amber-600 shadow-2xs",
-  orange: "bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 border border-orange-500 hover:border-orange-600 shadow-2xs",
+  primary: "bg-white text-neutral-950 font-semibold hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-600 shadow-sm",
+  secondary: "bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700 hover:text-white disabled:opacity-50",
+  danger: "bg-red-600 text-white hover:bg-red-500 disabled:opacity-50",
+  ghost: "bg-transparent text-neutral-400 hover:bg-neutral-800 hover:text-white",
+  muted: "bg-neutral-700 text-neutral-200 border border-neutral-600 hover:bg-neutral-600",
+  purple: "bg-purple-600 text-white hover:bg-purple-500 disabled:opacity-50 border border-purple-500 shadow-xs",
+  amber: "bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 shadow-xs",
+  orange: "bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-xs",
 };
 
 export function Button({ variant = "primary", className, ...props }: ButtonProps) {

@@ -59,8 +59,8 @@ export default async function SettingsPage({
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="mb-2 text-2xl font-semibold text-neutral-900">API키 설정 및 연결</h1>
-        <p className="text-sm text-neutral-600">
+        <h1 className="mb-2 text-2xl font-bold text-white tracking-tight">API키 설정 및 플랫폼 연동</h1>
+        <p className="text-sm text-neutral-400">
           게시글/이미지 생성이나 제휴 링크 생성 전 본인의 API 키를 먼저 등록해주세요. 안 쓰는
           플랫폼의 키는 등록하지 않아도 됩니다.
         </p>

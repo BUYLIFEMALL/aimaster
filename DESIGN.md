@@ -118,7 +118,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-17 기준: ✅ 38개 · ⚪ 43개 · 🟠 0개 · ⏸ 2개 — 총 83개):
+> **상태 구분** (2026-10-17 기준: ✅ 39개 · ⚪ 42개 · 🟠 0개 · ⏸ 2개 — 총 83개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -175,7 +175,7 @@
 | 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` (폴더 `kakao_auto_poster`) | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao_auto_poster/AGENTS.md` |
 | 42 | 웹 크롤링 자동화 | `web-crawler-saas` (폴더 `web-crawler/webapp`) | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 스타일) | [`web-crawler/IMPROVEMENT_HANDOFF_20261017.md`](web-crawler/IMPROVEMENT_HANDOFF_20261017.md) · [`web-crawler/DESIGN_HANDOFF.md`](web-crawler/DESIGN_HANDOFF.md) |
 | 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 스마트 매트릭스 다크, Windows 빌드/배포/DB/Edge1440·375 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
-| 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-affiliate-poster/AGENTS.md` |
+| 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | **스레드 바이럴 스튜디오 스타일** (쇼핑제휴 변형) | 다크(모노블랙 `#171717` + 앰버 `#f59e0b`·블루 `#3b82f6`) | ✅ 1차 작업완료 (`v1.61`, 스레드 바이럴 스튜디오 — 쇼핑제휴 변형) | [`threads-affiliate-poster/docs/DESIGN_HANDOFF.md`](threads-affiliate-poster/docs/DESIGN_HANDOFF.md) |
 | 45 | INSTA DM답변 자동화 | `instagram-dm-reply` | **스튜디오 댓글 콘솔 — 인스타 라이트 변형 (DM 대화 화면)** (47번 이식, Tailwind v3) | 라이트(`#fafafa` + 인스타 파랑 `#0095f6`·그라데이션 포인트) | ✅ 1차 작업완료 (`v1.14`, 3대 추가개선 완료 2026-10-17) | [`instagram-dm-reply/docs/DESIGN_HANDOFF.md`](instagram-dm-reply/docs/DESIGN_HANDOFF.md) |
 | 46 | Threads 댓글자동화 | `threads-comment-reply` | **스튜디오 댓글 콘솔 — 쓰레드 모노 변형** (youtube-auto-reply 구성 이식, Tailwind v3) | 다크(`#101010` 흑백 + 흰 알약 버튼) | ✅ 1차 작업완료 (`v1.11`, 사이드바 타이틀 정리 + 빌드·배포·DB·Edge 검수 2026-10-17) | [`threads-comment-reply/docs/DESIGN_HANDOFF.md`](threads-comment-reply/docs/DESIGN_HANDOFF.md) |
 | 47 | INSTA 댓글자동화 | `instagram-comment-reply` | **스튜디오 댓글 콘솔 — 인스타 라이트 변형** (threads v1.10 구성 이식, Tailwind v3) | 라이트(`#fafafa` + 인스타 파랑 `#0095f6`·그라데이션 포인트) | ✅ 1차 작업완료 (`v1.15`, 사이드바 타이틀 정리 + 빌드·배포·DB·포그라운드 Edge 검수 2026-10-17) | [`instagram-comment-reply/docs/DESIGN_HANDOFF.md`](instagram-comment-reply/docs/DESIGN_HANDOFF.md) |

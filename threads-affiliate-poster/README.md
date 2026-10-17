@@ -1,9 +1,34 @@
-# 🛍️ Threads Affiliate Poster — Threads 쇼핑제휴 자동화
+# 🛍️ Threads Affiliate Poster — Threads 쇼핑제휴 자동화 (v1.61)
 
-쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트 제휴 링크를 자동으로 붙여서 쓰레드 홍보
-게시글을 만들어주는 프로그램. `threads/`(쓰레드 자동 포스팅)와 `auto-detail-page/`(상세페이지
-자동화)를 조사한 뒤, 처음부터 새로 만들지 않고 두 프로젝트의 재사용 가능한 부분을 최대한
-가져다 썼다.
+> **최신 버전**: `v1.61` | **실제 서비스 링크**: https://threads-affiliate-poster.buylife.xyz  
+> **디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 — 쇼핑제휴 변형 (Threads Viral Studio Style - Affiliate Variant)**  
+
+---
+
+## 🏛️ [규격화 7대 핵심 항목 안내]
+
+1. **프로그램의 사용 목적 및 대상**:
+   - 쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트/토스쇼핑 쉐어링크 상품을 기반으로 10종 AI 페르소나와 나노바나나 AI 이미지를 결합한 Threads 홍보 글·카드뉴스를 자동 생성 및 발행하는 마케팅 자동화 SaaS.
+   - 대상: 이커머스 제휴 마케터, 부업 크리에이터, Threads 인플루언서.
+2. **개발 구현에 사용된 도구 / 기술 스택**:
+   - Next.js 16.2.11 (Turbopack, App Router), React 19, TypeScript, Tailwind CSS v4
+   - Supabase SSR, Vercel Serverless Functions, Playwright (Edge 전용 검수)
+   - Meta Threads Graph API (OAuth), Google Gemini (NanoBanana), OpenAI (GPT-4.1), Claude, Coupang/AliExpress/Toss API
+3. **핵심 기능 및 시스템 아키텍처 (장점/단점)**:
+   - 10종 페르소나 어조 맞춤 캡션 생성, 4대 플랫폼 제휴 링크 자동 파싱/썸네일 수집, 공정위 경제적 대가 고지문 자동 포함, 나노바나나 AI 카드뉴스 조립, 즉시/예약 발행 스케줄러.
+   - 장점: 키가 없어도 직링크로 즉시 사용 가능, Meta 모노 다크 감성 및 375px 모바일 완벽 대응, 100% 회원 본인 키 사용으로 비용 0원.
+   - 단점: 알리/토스의 경우 초기 사전 키 등록 필요, Threads API 앱 심사 전 테스터 계정 위주 연동.
+4. **현재 버전 및 버전별 변경 히스토리**:
+   - 현재: `v1.61` (DB 및 UI 일치)
+   - `v1.61`: 스레드 바이럴 스튜디오 다크 콘솔 스타일 전면 리뉴얼, 모바일 햄버거 메뉴 신설, 비주얼 매뉴얼(`/guide`) 신규 구축, 대시보드 다크 테마 일관화.
+5. **남아 있는 추가 프로그램 및 디자인 대기 내용**:
+   - `docs/IMPROVEMENT_BACKLOG.md` (상품 품절 자동 체크, 구매 링크 첫댓글 자동 포스팅 연계, 폼 세부 다크 인풋 보강).
+6. **기존 다른 프로그램과의 연계/기능 병합 제안**:
+   - 8번 `detail-page-12p` (상세페이지 요약문 가져오기), 34번 `threads-video-downloader` (영상 미디어 연계), 46번 `threads-comment-reply` (구매 링크 대댓글 자동 발송).
+7. **사용자 편의성 증대를 위한 디자인 UI 개선안**:
+   - `docs/DESIGN_HANDOFF.md` 및 `docs/IMPROVEMENTS.md` 참조.
+
+---
 
 ## 설계 배경 — 왜 이렇게 만들었나
 
