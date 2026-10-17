@@ -1,5 +1,6 @@
 import "server-only";
 import { TEXT_MODEL, type RemakeRequest } from "./remake/types";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import { compositionPrompt, restorationPrompt, suggestionPrompt } from "./remake/prompts";
 export class AiError extends Error { constructor(public status: number, public code: string, message: string) { super(message); } }
 export function toUserError(e: unknown) {
@@ -25,11 +26,24 @@ async function call(apiKey: string, model: string, body: unknown) {
 }
 function parts(x: RemakeRequest) { return [x.base, ...x.objects].map(p => ({ inlineData: { data: p.data, mimeType: p.mimeType } })); }
 export async function generateRemake(apiKey: string, x: RemakeRequest) {
-  const response = await call(apiKey, x.model, { contents: { parts: [...parts(x), { text: x.mode === "restore" ? restorationPrompt(x) : compositionPrompt(x) }] }, generationConfig: { responseModalities: ["TEXT", "IMAGE"], ...(x.aspect !== "original" ? { imageConfig: { aspectRatio: x.aspect } } : {}) } });
-  const candidate = response.candidates?.[0];
-  if (response.promptFeedback?.blockReason || ["SAFETY", "IMAGE_SAFETY", "PROHIBITED_CONTENT", "IMAGE_OTHER"].includes(candidate?.finishReason)) throw new AiError(422, "safety", "AI가 이 사진 또는 요청을 처리할 수 없습니다. 사진·지시를 확인해 주세요.");
-  const image = candidate?.content?.parts?.find((p: { inlineData?: { data?: string; mimeType?: string }; thought?: boolean }) => p.inlineData?.data && !p.thought)?.inlineData;
-  if (!image || typeof image.data !== "string" || !/^image\/(jpeg|png|webp)$/.test(image.mimeType)) throw new AiError(502, "noimage", "AI가 완성 이미지를 반환하지 않았습니다. 다른 사진 또는 지시로 다시 시도해 주세요.");
+  // 2026-10-17: 호출·대기·최종 이미지 받아오기(중간 초안 thought 조각 제외)·안전 차단 판별은 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+  // 180초 제한은 그대로이고, 재시도하면 함수 한도(300초)를 넘으므로 원래처럼 재시도 없음(retries: 0). 프롬프트·사진·비율·오류 문구는 그대로.
+  let out: { base64: string; mimeType: string };
+  try {
+    out = await generateGeminiImage({ apiKey, modelName: x.model, parts: [...parts(x), { text: x.mode === "restore" ? restorationPrompt(x) : compositionPrompt(x) }], ...(x.aspect !== "original" ? { aspectRatio: x.aspect } : {}), responseModalities: ["TEXT", "IMAGE"], timeoutMs: 180_000, retries: 0 });
+  } catch (e) {
+    if (!(e instanceof GeminiImageError)) throw e;
+    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "AI 응답이 늦거나 연결이 끊겼습니다. 잠시 후 다시 시도해 주세요.");
+    if (e.code === "SAFETY_BLOCKED") throw new AiError(422, "safety", "AI가 이 사진 또는 요청을 처리할 수 없습니다. 사진·지시를 확인해 주세요.");
+    if (e.code === "NO_IMAGE") throw new AiError(502, "noimage", "AI가 완성 이미지를 반환하지 않았습니다. 다른 사진 또는 지시로 다시 시도해 주세요.");
+    if (e.status === 429) throw new AiError(429, "quota", "본인 Gemini 계정의 사용 한도·결제 설정을 확인해 주세요.");
+    if ([401, 403].includes(e.status)) throw new AiError(400, "key", "본인 Gemini API 키와 해당 모델의 사용 권한을 확인해 주세요.");
+    if (e.status === 404) throw new AiError(422, "model", "이 모델을 사용할 수 없습니다. 다른 모델을 직접 선택해 주세요.");
+    if (e.status === 400) throw new AiError(400, "request", "Gemini가 사진 또는 요청 형식을 처리하지 못했습니다. 사진·모델을 확인해 주세요.");
+    throw new AiError(502, "provider", "Gemini 서버에서 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+  }
+  const image = { data: out.base64, mimeType: out.mimeType };
+  if (!/^image\/(jpeg|png|webp)$/.test(image.mimeType)) throw new AiError(502, "noimage", "AI가 완성 이미지를 반환하지 않았습니다. 다른 사진 또는 지시로 다시 시도해 주세요.");
   return Buffer.from(image.data, "base64");
 }
 export async function generateSuggestion(apiKey: string, x: RemakeRequest) {

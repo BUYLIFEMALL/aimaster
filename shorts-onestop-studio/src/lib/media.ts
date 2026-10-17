@@ -5,36 +5,39 @@ import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AiError } from "@/lib/ai";
 import { UserError } from "@/lib/errors";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
+import { NANO_BANANA_MODEL_CONFIGS } from "./nanoBananaModels";
 
 // AI 배경 이미지: 회원 본인 Gemini 키로 생성 → 비공개 버킷(shorts-onestop-studio)의 회원 폴더에 저장 → 임시 서명 주소로 보여 준다.
 // Cloudinary 대행 생성은 쓰지 않는다(CLAUDE.md, PLATFORM_PATTERNS §12). 모델 ID는 이 저장소 다른 프로그램에서 쓰는 값.
 export const BUCKET = "shorts-onestop-studio";
+// 2026-10-17: 이미지 모델 이름은 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)의 1K·2K 등급에서 가져온다(주인님 지시로 통합).
 export const IMAGE_MODELS = [
-  { id: "gemini-3.1-flash-lite-image", name: "Nano Banana · 가벼운 모델 (기본)" },
-  { id: "gemini-nano-banana-2.1", name: "Nano Banana 2 · 균형형" },
+  { id: NANO_BANANA_MODEL_CONFIGS.nanobanana.modelName, name: "Nano Banana · 가벼운 모델 (기본)" },
+  { id: NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"].modelName, name: "Nano Banana 2 · 균형형" },
 ] as const;
 export const DEFAULT_IMAGE_MODEL = IMAGE_MODELS[0].id;
 export const isImageModel = (v: unknown): v is string => IMAGE_MODELS.some((m) => m.id === v);
 const MAX_IMAGES_PER_USER = 300;
 
 export async function generateSceneImage(apiKey: string, model: string, prompt: string): Promise<{ bytes: Buffer; mimeType: string }> {
-  let res: Response;
+  // 2026-10-17: 호출·대기·최종 이미지 받아오기(중간 초안 thought 조각 제외)·안전 차단 판별은 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+  // 150초 제한은 그대로이고, 재시도하면 함수 한도(300초)를 넘으므로 원래처럼 재시도 없음(retries: 0). 프롬프트·9:16 비율·오류 문구는 그대로.
+  let out: { base64: string; mimeType: string };
   try {
-    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-      method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey }, cache: "no-store", signal: AbortSignal.timeout(150_000),
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["TEXT", "IMAGE"], imageConfig: { aspectRatio: "9:16" } } }),
-    });
-  } catch { throw new AiError(504, "timeout", "이미지 생성이 늦어지고 있습니다. 잠시 후 다시 시도해 주세요."); }
-  if (res.status === 401 || res.status === 403) throw new AiError(400, "key", "본인 Gemini API 키와 이미지 모델 사용 권한을 확인해 주세요.");
-  if (res.status === 429) throw new AiError(429, "quota", "본인 Gemini 계정의 사용 한도·결제 설정을 확인해 주세요.");
-  if (res.status === 404) throw new AiError(422, "model", "선택한 이미지 모델을 쓸 수 없습니다. 다른 이미지 모델을 골라 주세요.");
-  if (!res.ok) throw new AiError(502, "provider", "이미지를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
-  const data = await res.json();
-  const cand = data?.candidates?.[0];
-  if (data?.promptFeedback?.blockReason || ["SAFETY", "IMAGE_SAFETY", "PROHIBITED_CONTENT", "IMAGE_OTHER"].includes(cand?.finishReason)) throw new AiError(422, "safety", "AI가 이 이미지 요청을 처리하지 않았습니다. 장면 설명을 바꿔 주세요.");
-  const img = (cand?.content?.parts ?? []).find((p: { inlineData?: { data?: string; mimeType?: string }; thought?: boolean }) => p.inlineData?.data && !p.thought)?.inlineData;
-  if (!img || !/^image\/(png|jpeg|webp)$/.test(img.mimeType)) throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
-  return { bytes: Buffer.from(img.data, "base64"), mimeType: img.mimeType };
+    out = await generateGeminiImage({ apiKey, modelName: model, prompt, aspectRatio: "9:16", responseModalities: ["TEXT", "IMAGE"], timeoutMs: 150_000, retries: 0 });
+  } catch (e) {
+    if (!(e instanceof GeminiImageError)) throw e;
+    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "이미지 생성이 늦어지고 있습니다. 잠시 후 다시 시도해 주세요.");
+    if (e.code === "SAFETY_BLOCKED") throw new AiError(422, "safety", "AI가 이 이미지 요청을 처리하지 않았습니다. 장면 설명을 바꿔 주세요.");
+    if (e.code === "NO_IMAGE") throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
+    if (e.status === 401 || e.status === 403) throw new AiError(400, "key", "본인 Gemini API 키와 이미지 모델 사용 권한을 확인해 주세요.");
+    if (e.status === 429) throw new AiError(429, "quota", "본인 Gemini 계정의 사용 한도·결제 설정을 확인해 주세요.");
+    if (e.status === 404) throw new AiError(422, "model", "선택한 이미지 모델을 쓸 수 없습니다. 다른 이미지 모델을 골라 주세요.");
+    throw new AiError(502, "provider", "이미지를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
+  }
+  if (!/^image\/(png|jpeg|webp)$/.test(out.mimeType)) throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
+  return { bytes: Buffer.from(out.base64, "base64"), mimeType: out.mimeType };
 }
 
 export async function saveSceneImage(userId: string, img: { bytes: Buffer; mimeType: string }): Promise<string> {

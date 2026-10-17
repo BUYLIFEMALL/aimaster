@@ -18,14 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| cardnews-studio | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| style-dna-analyzer | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| shop-detail-page | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| blog-content-maker | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| blog-workroom | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| music-video-studio | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| emotion-writer | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| photo-remake-studio | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| shorts-onestop-studio | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
-| seo-thumbnail-pro | Claude Code(윈도우) | 2026-10-17 21:30 | 이미지 생성 공용 모듈 4묶음 A(직접 호출형) |
 | web-crawler | Claude Code(맥미니) | 2026-10-17 | 스마트 매트릭스(다크) 디자인 리뉴얼 — 플랜 제시, 주인님 승인 대기 |

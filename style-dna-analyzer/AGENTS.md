@@ -215,3 +215,9 @@ vercel deploy --prod --yes --scope buylife
 ## v1.17 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
 - `src/lib/ai/imageModels.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
 - 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-17 v1.18 — 이미지 생성 호출·모델 목록을 공용 기준 코드로 (4묶음 A 직접 호출형, Claude Code 윈도우)
+- `src/lib/ai/image.ts` 결과 테스트 이미지 생성이 공용 사본으로 위임(참고 이미지 조각 그대로), `imageModels.ts`는 공용 등급표에서 값 가져옴(2K·1K 모델 동일). 주소 v1 → v1beta. **테스트 정리**: `tests/dna.test.mjs`가 v1.16 모델 교체 전 문구(“Gemini 2.5 Flash Image”·“Gemini 3.1 Flash Image”)를 기대해 실패하던 것을 현재 프롬프트 문구로 맞춤(프롬프트는 안 바꿈).
+- 공용 사본이 주는 것: 키 머리글 전송, 시간 제한, 응답의 모든 조각에서 **최종** 이미지 선택(gemini-3-pro-image의 중간 초안 `thought` 조각 제외), 안전 차단·한도·키 오류 구분, 키 가리기. 프롬프트·비율·화질은 그대로.
+- 검수: tsc 0·기존 테스트 통과, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전 확인. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
+- **주의(다음 CLI)**: `geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()`/`NANO_BANANA_MODEL_CONFIGS` 결과를 호출하는 쪽에서 덮어써 보완한다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.

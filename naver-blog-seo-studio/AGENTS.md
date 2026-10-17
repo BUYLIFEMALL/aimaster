@@ -99,3 +99,8 @@
 - `StudioPage.tsx` 928줄 → `components/studio/`(useStudio 훅·공통·화면 5개, 동작 동일 검증). 공용 사이드바 `StudioSidebar.tsx`(실제 동작하는 로그아웃·휴대폰 ☰·📖), `/guide` 신설, 설정의 옛 사이드바 2개 제거, 「AIMaster 계정 연동 전」 고정 문구 → 로그인 계정. 확장 화면 변경 없음, `manifest` 1.69.0/v1.69. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
 - **확장 ZIP·빌드·배포는 윈도우 CLI 대기.** 화면은 이제 `components/studio/*View.tsx`에서 고친다(옛 `StudioPage.tsx`에 화면 코드 없음).
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## 2026-10-17 v1.70 — 공용 이미지 기준 코드 갱신 반영 (Claude Code 윈도우)
+- 기준 `gemini-image-client`(ai-image-studio)이 바뀌어 사본을 `--sync`로 다시 받음: ① 응답에서 **최종** 이미지를 고름 — gemini-3-pro-image가 함께 보내는 중간 초안(`thought: true`) 이미지를 결과로 잘못 쓰던 위험 제거 ② 사용량(usageMetadata) 함께 반환 ③ 선택적 요청 취소 신호(`signal`) 지원(쓰지 않으면 동작 같음). 이 프로그램 코드·프롬프트는 바꾸지 않음.
+- 확장: manifest·ZIP·DB `extension_version`을 같은 버전으로 맞추고 `check-extension-release` 확인.
+- 검수: tsc 0, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전 확인. 실제 이미지 생성 시험은 하지 않음(주인님 지시).

@@ -75,7 +75,27 @@ function toGeminiImageError(status, body, modelName = "") {
     return new GeminiImageError(raw ? `이미지 생성에 실패했습니다: ${raw.slice(0, 200)}` : `이미지 생성에 실패했습니다. (${status})`, "UNKNOWN", status || 500);
 }
 const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
-/** 응답에서 이미지를 꺼낸다. 이미지가 없으면 이유(안전 차단 등)를 담은 오류를 던진다(순수 함수). */
+/** 시간 제한 신호와 외부 취소 신호를 합친다(AbortSignal.any가 없는 환경도 지원). */
+function combineSignals(timeoutMs, external) {
+    const timeout = AbortSignal.timeout(timeoutMs);
+    if (!external)
+        return timeout;
+    const anyFn = AbortSignal.any;
+    if (anyFn)
+        return anyFn([timeout, external]);
+    const ctrl = new AbortController();
+    const abort = () => ctrl.abort();
+    if (timeout.aborted || external.aborted)
+        ctrl.abort();
+    timeout.addEventListener("abort", abort, { once: true });
+    external.addEventListener("abort", abort, { once: true });
+    return ctrl.signal;
+}
+const cancelled = () => new GeminiImageError("이미지 생성을 취소했습니다.", "CANCELLED", 499);
+/**
+ * 응답에서 이미지를 꺼낸다. 이미지가 없으면 이유(안전 차단 등)를 담은 오류를 던진다(순수 함수).
+ * 2026-10-17 보완: 생각 중 중간 초안(thought: true)은 건너뛰고 최종 이미지(마지막 비-생각 이미지)를 고른다.
+ */
 function extractGeminiImage(data, modelName = "") {
     const res = (data ?? {});
     const block = res.promptFeedback?.blockReason;
@@ -83,14 +103,16 @@ function extractGeminiImage(data, modelName = "") {
         throw new GeminiImageError(`프롬프트가 Gemini 안전 정책에 걸려 이미지를 만들지 않았습니다(${block}). 표현을 바꿔 다시 시도해 주세요.`, "SAFETY_BLOCKED", 422);
     }
     for (const cand of res.candidates ?? []) {
-        const part = cand.content?.parts?.find((p) => p?.inlineData?.data);
+        const finals = (cand.content?.parts ?? []).filter((p) => p?.inlineData?.data && p.thought !== true);
+        const part = finals[finals.length - 1];
         if (part?.inlineData?.data) {
-            const text = (cand.content?.parts ?? []).map((p) => p.text ?? "").join("").trim();
+            const text = (cand.content?.parts ?? []).filter((p) => p.thought !== true).map((p) => p.text ?? "").join("").trim();
             return {
                 base64: part.inlineData.data.replace(/\s+/g, ""),
                 mimeType: part.inlineData.mimeType || "image/png",
                 modelName,
                 ...(text ? { text } : {}),
+                ...(res.usageMetadata ? { usage: res.usageMetadata } : {}),
             };
         }
     }
@@ -102,7 +124,7 @@ function extractGeminiImage(data, modelName = "") {
 }
 /** Gemini 이미지 생성 1회. 성공하면 base64 이미지, 실패하면 GeminiImageError. */
 async function generateGeminiImage(req) {
-    const { apiKey, modelName, timeoutMs = 120_000, retries = 1, fetchImpl = fetch, sleep = defaultSleep } = req;
+    const { apiKey, modelName, timeoutMs = 120_000, retries = 1, fetchImpl = fetch, sleep = defaultSleep, signal: external } = req;
     if (!apiKey)
         throw new GeminiImageError("Gemini API 키가 없습니다. [API키등록·플랫폼연동]에서 본인 키를 등록해 주세요.", "INVALID_KEY", 400);
     const url = req.endpoint || `${exports.GEMINI_API_BASE}/${modelName}:generateContent`;
@@ -122,8 +144,12 @@ async function generateGeminiImage(req) {
     });
     let lastError = null;
     for (let attempt = 0; attempt <= retries; attempt++) {
+        if (external?.aborted)
+            throw cancelled();
         if (attempt > 0)
             await sleep(1500 * attempt);
+        if (external?.aborted)
+            throw cancelled();
         let res;
         try {
             res = await fetchImpl(url, {
@@ -131,10 +157,12 @@ async function generateGeminiImage(req) {
                 headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
                 body,
                 cache: "no-store",
-                signal: AbortSignal.timeout(timeoutMs),
+                signal: combineSignals(timeoutMs, external),
             });
         }
         catch (e) {
+            if (external?.aborted)
+                throw cancelled();
             const name = e?.name;
             lastError =
                 name === "TimeoutError" || name === "AbortError"

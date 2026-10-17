@@ -3,10 +3,13 @@
 // 섹션 이미지 생성 모델: 나노바나나2(저렴) / 나노바나나 프로(고품질, 기본값).
 // server-only인 gemini.ts와 분리한 이유: 이 상수들은 클라이언트 컴포넌트
 // (ProductAnalyzeForm, SectionImageGrid)에서도 값으로 직접 import해서 써야 하기 때문.
+// 2026-10-17: 모델 이름은 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)의 등급에서 가져온다(주인님 지시로 통합).
+import { NANO_BANANA_MODEL_CONFIGS } from "./nanoBananaModels";
+
 export const IMAGE_MODELS = {
-  nanobanana2: "gemini-nano-banana-2.1",
-  nanobananaPro: "gemini-3-pro-image",
-} as const;
+  nanobanana2: NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"].modelName,
+  nanobananaPro: NANO_BANANA_MODEL_CONFIGS["nanobanana-pro"].modelName,
+};
 export type ImageModelKey = keyof typeof IMAGE_MODELS;
 export const DEFAULT_IMAGE_MODEL: ImageModelKey = "nanobananaPro";
 

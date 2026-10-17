@@ -1,6 +1,7 @@
 import "server-only";
 import { parseJsonLoose } from "@/lib/util";
 import type { AiProvider } from "@/lib/models";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 
 // AI 호출은 전부 회원 본인 키로, 서버에서만 한다. 공급사 응답 원문은 회원 입력·키가 섞일 수 있어 화면에 그대로 보내지 않는다.
 export class AiError extends Error {
@@ -74,13 +75,26 @@ export async function testKey(provider: AiProvider, apiKey: string, model: strin
 
 /** Gemini 이미지 생성(회원 본인 키). 참고 이미지는 inlineData로 함께 보낸다 */
 export async function generateImage(apiKey: string, model: string, prompt: string, refs: { data: string; mimeType: string }[], aspect: string): Promise<{ bytes: Buffer; mimeType: string }> {
-  const data = await post(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { "x-goog-api-key": apiKey }, {
-    contents: { parts: [...refs.map((r) => ({ inlineData: { data: r.data, mimeType: r.mimeType } })), { text: prompt }] },
-    generationConfig: { responseModalities: ["TEXT", "IMAGE"], imageConfig: { aspectRatio: aspect } },
-  }, "gemini", 200_000);
-  const cand = data?.candidates?.[0];
-  if (data?.promptFeedback?.blockReason || ["SAFETY", "IMAGE_SAFETY", "PROHIBITED_CONTENT", "IMAGE_OTHER"].includes(cand?.finishReason)) throw new AiError(422, "safety", "AI가 이 이미지 요청을 처리하지 않았습니다. 요청이나 참고 이미지를 바꿔 주세요.");
-  const img = (cand?.content?.parts ?? []).find((p: { inlineData?: { data?: string; mimeType?: string }; thought?: boolean }) => p.inlineData?.data && !p.thought)?.inlineData;
-  if (!img || typeof img.data !== "string" || !/^image\/(png|jpeg|webp)$/.test(img.mimeType)) throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
-  return { bytes: Buffer.from(img.data, "base64"), mimeType: img.mimeType };
+  // 2026-10-17: 호출·대기·최종 이미지 받아오기(중간 초안 thought 조각 제외)·안전 차단 판별은 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
+  // 원래처럼 재시도하지 않고(retries: 0, 저장된 단계부터 다시 진행하는 구조) 200초 제한·프롬프트·비율·오류 문구는 그대로.
+  let image: { base64: string; mimeType: string };
+  try {
+    image = await generateGeminiImage({
+      apiKey,
+      modelName: model,
+      parts: [...refs.map((r) => ({ inlineData: { data: r.data, mimeType: r.mimeType } })), { text: prompt }],
+      aspectRatio: aspect,
+      responseModalities: ["TEXT", "IMAGE"],
+      timeoutMs: 200_000,
+      retries: 0,
+    });
+  } catch (e) {
+    if (!(e instanceof GeminiImageError)) throw e;
+    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "AI 응답이 늦거나 연결이 끊겼습니다. 저장된 단계부터 다시 진행해 주세요.");
+    if (e.code === "SAFETY_BLOCKED") throw new AiError(422, "safety", "AI가 이 이미지 요청을 처리하지 않았습니다. 요청이나 참고 이미지를 바꿔 주세요.");
+    if (e.code === "NO_IMAGE") throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
+    throw providerError("gemini", e.status);
+  }
+  if (!/^image\/(png|jpeg|webp)$/.test(image.mimeType)) throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
+  return { bytes: Buffer.from(image.base64, "base64"), mimeType: image.mimeType };
 }

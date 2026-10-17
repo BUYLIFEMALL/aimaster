@@ -7,6 +7,8 @@ import {
   GENRE_OPTIONS,
   MOOD_OPTIONS,
 } from "@/types/thumbnail";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
+import { NANO_BANANA_MODEL_CONFIGS } from "./nanoBananaModels";
 
 const CURRENT_YEAR = new Date().getFullYear(); // 2026년 동적 주입
 const [KOREA_YEAR, KOREA_MONTH] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
@@ -274,53 +276,33 @@ export async function generateThumbnailImage(
     });
   }
 
-  // 나노바나나(Gemini Image) 모델 우선순위
+  // 나노바나나(Gemini Image) 모델 우선순위 — 2026-10-17: 모델 이름은 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)의
+  // 2K → 1K(경량) → Pro 등급 순서(주인님 지시로 통합). 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage) — 키는 주소가 아니라 머리글로 보낸다.
   const imageModels = [
-    "gemini-nano-banana-2.1",
-    "gemini-3.1-flash-lite-image",
-    "gemini-3-pro-image",
+    NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"].modelName,
+    NANO_BANANA_MODEL_CONFIGS.nanobanana.modelName,
+    NANO_BANANA_MODEL_CONFIGS["nanobanana-pro"].modelName,
   ];
 
   let lastError: Error | null = null;
 
   for (const model of imageModels) {
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-            imageConfig: {
-              aspectRatio: "16:9",
-            },
-          },
-        }),
+      // 모델을 바꿔 가며 시도하므로 한 모델 안에서는 재시도하지 않는다(retries: 0). 프롬프트·참고 이미지·16:9는 그대로.
+      const out = await generateGeminiImage({
+        apiKey: apiKey.trim(),
+        modelName: model,
+        parts,
+        aspectRatio: "16:9",
+        responseModalities: ["IMAGE"],
+        retries: 0,
       });
-
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        const msg = errJson?.error?.message || `모델 ${model} 실패 (${response.status})`;
-        if (response.status === 403 || msg.includes("permission") || msg.includes("quota")) {
-          throw new Error("API 키 권한 오류: 유료 결제 계정의 Gemini API 키이거나 사용량 한도를 확인해주세요.");
-        }
-        throw new Error(msg);
-      }
-
-      const data = await response.json();
-      const candidateParts = data?.candidates?.[0]?.content?.parts;
-      const imagePart = candidateParts?.find((p: any) => p.inlineData?.data);
-
-      if (imagePart) {
-        const mime = imagePart.inlineData.mimeType || "image/png";
-        return {
-          image: `data:${mime};base64,${imagePart.inlineData.data}`,
-          prompt: finalPrompt,
-        };
-      }
+      return { image: `data:${out.mimeType};base64,${out.base64}`, prompt: finalPrompt };
     } catch (err: any) {
+      // 키·권한·한도 문제는 다른 모델로 바꿔도 같으므로 바로 알린다(기존 안내 문구)
+      if (err instanceof GeminiImageError && (err.keyProblem || err.code === "QUOTA_EXCEEDED")) {
+        throw new Error("API 키 권한 오류: 유료 결제 계정의 Gemini API 키이거나 사용량 한도를 확인해주세요.");
+      }
       lastError = err;
       continue;
     }

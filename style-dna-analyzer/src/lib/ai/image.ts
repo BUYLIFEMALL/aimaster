@@ -1,4 +1,5 @@
 import "server-only";
+import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import { findImageModel } from "./imageModels";
 
 export type ImageBytes = { bytes: Buffer; mime: string };
@@ -23,40 +24,30 @@ export async function generateImage(params: {
   const config = findImageModel(params.imageModel);
   if (!config) throw new Error("지원하지 않는 이미지 모델입니다.");
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${config.model}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": params.apiKey },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            ...(params.reference ? [{ inlineData: { mimeType: params.reference.mime, data: params.reference.base64 } }] : []),
-            { text: params.prompt },
-          ],
-        },
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio). 키는 머리글로,
+  // 시간 제한·서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 최종 이미지 탐색, 안전 차단 구분. 프롬프트·비율·화질은 그대로.
+  let image: { base64: string; mimeType: string };
+  try {
+    image = await generateGeminiImage({
+      apiKey: params.apiKey,
+      modelName: config.model,
+      parts: [
+        ...(params.reference ? [{ inlineData: { mimeType: params.reference.mime, data: params.reference.base64 } }] : []),
+        { text: params.prompt },
       ],
-      generationConfig: {
-        responseModalities: ["Image"],
-        imageConfig: { aspectRatio: params.ratio, imageSize: config.size },
-        temperature: config.temperature,
-      },
-    }),
-    cache: "no-store",
-    signal: AbortSignal.timeout(110_000),
-  });
-
-  if (!response.ok) {
-    throw new Error(errorMessage(response.status, await response.text().catch(() => "")));
+      aspectRatio: params.ratio,
+      imageSize: config.size,
+      temperature: config.temperature,
+      responseModalities: ["Image"],
+      timeoutMs: 110_000,
+    });
+  } catch (e) {
+    if (e instanceof GeminiImageError) {
+      // 키·권한·모델·한도 오류는 이 프로그램의 기존 안내 문구를 그대로 쓴다
+      if ([401, 403, 404, 429].includes(e.status)) throw new Error(errorMessage(e.status, ""));
+      throw new Error(e.message);
+    }
+    throw e;
   }
-  const data = (await response.json()) as {
-    candidates?: { content?: { parts?: { inlineData?: { data?: string; mimeType?: string } }[] } }[];
-  };
-  const part = data.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data);
-  if (!part?.inlineData?.data) {
-    throw new Error("응답에 이미지가 없습니다. 안전 정책에 걸렸을 수 있으니 다시 시도해 주세요.");
-  }
-  return {
-    bytes: Buffer.from(part.inlineData.data.replace(/\s+/g, ""), "base64"),
-    mime: part.inlineData.mimeType || "image/png",
-  };
+  return { bytes: Buffer.from(image.base64, "base64"), mime: image.mimeType };
 }

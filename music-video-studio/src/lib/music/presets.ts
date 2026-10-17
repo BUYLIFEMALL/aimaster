@@ -1,3 +1,4 @@
+import { DEFAULT_NANO_BANANA_MODEL, getNanoBananaConfig } from "@/lib/ai/nanoBananaModels";
 // [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 뮤직비디오 옵션 프리셋. 장르 10종·장면 수·기본 화풍은 참고 도구(Google Flow "뮤직비디오 만들기 V3")의
@@ -55,4 +56,5 @@ export const ASPECT_RATIOS: Option<AspectRatioId>[] = [
 ];
 
 export const TEXT_MODEL = "gemini-3.7-flash";
-export const IMAGE_MODEL = "gemini-nano-banana-2.1";
+// 2026-10-17: 장면 이미지 모델 이름은 공용 기준 코드 gemini-image-models(@/lib/ai/nanoBananaModels — 기준은 ai-image-studio)의 기본 등급(주인님 지시로 통합). 화질·온도는 이 프로그램이 정한다(1K·0.7).
+export const IMAGE_MODEL = getNanoBananaConfig(DEFAULT_NANO_BANANA_MODEL).modelName;

@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 이미지 생성 4묶음 A: 직접 호출형 10곳 공용 모듈 적용 + 기준 갱신으로 사본 20곳 재배포
+
+- **한 일**: cardnews-studio·style-dna-analyzer·shop-detail-page·blog-content-maker·blog-workroom·music-video-studio·emotion-writer·photo-remake-studio·shorts-onestop-studio·seo-thumbnail-pro의 이미지 호출을 공용 사본(`gemini-image-client`)으로, 모델 목록을 공용 등급표(`gemini-image-models`)에서 값만 가져오게 바꿨습니다. 프롬프트·비율·화질·각 프로그램 오류 문구는 그대로입니다.
+- **기준 갱신**(`ai-image-studio/lib/providers/geminiImage.ts`): ① gemini-3-pro-image의 중간 초안(`thought`) 이미지를 건너뛰고 최종 이미지 선택 ② 사용량(usage) 반환 ③ 외부 취소 신호(`signal`) 지원. 테스트 12개 통과. 사본을 쓰는 기존 20곳도 +0.01 재배포(blog_auto_poster는 `dist` 빌드만).
+- **주의점(ERROR_LESSONS 추가)**: 시간 제한 150초 이상(shop-detail 240·photo-remake 180·shorts-onestop 150)이나 중복 과금 방지 설계(blog-content-maker·blog-workroom)는 `retries: 0`. 재시도하면 함수 한도 300초 초과·중복 과금 위험.
+- **바뀐 결과물**: cardnews 「Pro · 4K」 등급만 모델이 `nano-banana-2.1` → `gemini-3-pro-image`(등급 이름대로, 회원 본인 키·가격 오름). 나머지는 같은 모델. seo-thumbnail-pro는 키가 주소에서 머리글로, 키·한도 오류면 바로 안내.
+- **테스트 정리**: style-dna(v1.16 교체 전 문구 기대 2곳)·photo-remake(요청 본문 위치) 테스트를 현재 코드에 맞춤.
+- **버전(30곳)**: cardnews v1.11 · style-dna v1.18 · shop-detail v1.11 · blog-content-maker v1.06 · blog-workroom v1.08 · music-video v1.07 · emotion-writer v1.11 · photo-remake v1.05 · shorts-onestop v1.15 · seo-thumbnail-pro v1.06 / ai-image-studio v1.15 · ai-auto-blog v1.71 · tistory v1.78 · seo-studio v1.70 · poster_app v1.09 · poster-web v1.10 · shots v1.13 · insta v1.19 · threads v1.13 · affiliate v1.58 · cafe v1.12 · threads-content-ops v2.01 · kakao v1.13 · stepmail v1.13 · auto-detail-page v1.10 · tarot v1.10 · mbti v1.11 · music v1.13 · agent v1.90 · allinone v1.45
+- **검수**: tsc 0(threads-content-ops `coupangLinks.ts` 기존 오류 1건 제외)·기존 테스트 통과, 31곳 Vercel 프로덕션 배포(루트 사이트 포함, poster-web ZIP용), DB 30곳 버전·확장 7곳 `extension_version` 갱신, `check-extension-release` 7곳 실패 0, 크롬 화면 버전 28곳 확인. poster_app·poster-web 2곳은 비공개+권한 없음으로 화면 확인 불가(IMPROVEMENTS 기록). 실제 이미지 생성 시험은 하지 않음(주인님 지시).
+- **확장 회원 안내**: ai-auto-blog·tistory·seo-studio·poster-web·agent·allinone·blog-content-maker 확장은 ZIP 다시 받기 → 기존 폴더 덮어쓰기 → `chrome://extensions` 새로고침.
+- **다음 첫 단계**: 4묶음 B(SDK 사용 9곳) → 5묶음(Imagen 교체 5곳) → threads-affiliate-poster 다중 플랫폼 생성기.
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — AI 블로그 키워드 자동화 v1.05: 스마트 매트릭스 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `blog-keyword/` (https://blog-keyword.buylife.xyz)

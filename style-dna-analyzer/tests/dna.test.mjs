@@ -172,7 +172,7 @@ test("buildAnalysisSystem: 확장 옵션(mutationLevel, includeImageTag, targetM
   assert.match(mut, /Genomic Chaos/);
   assert.match(mut, /85%/);
   assert.match(mut, /\[첨부 이미지\]/);
-  assert.match(mut, /Gemini 2.5 Flash Image/);
+  assert.match(mut, /Gemini 3.1 Flash Lite Image/);
   assert.match(mut, /16:9 감지/);
 
   const clone = buildAnalysisSystem("replicate", 2026, {
@@ -180,7 +180,7 @@ test("buildAnalysisSystem: 확장 옵션(mutationLevel, includeImageTag, targetM
     targetModel: "gemini-nano-banana-2.1",
   });
   assert.match(clone, /유전자 복제/);
-  assert.match(clone, /Gemini 3.1 Flash Image/);
+  assert.match(clone, /Gemini Nano Banana 2.1/);
 });
 
 test("parseAnalysis: 원본 스키마(symbolicTitle, structuralBlueprint, aspectRatio) 파싱 검증", () => {

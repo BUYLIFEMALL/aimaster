@@ -111,3 +111,7 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 - 이 프로그램에서 바뀐 값: 1K 등급 → flash-lite, Pro 등급 모델 `nano-banana-2.1` → `3-pro-image`(4K 1장 약 $0.113 → $0.24, 회원 본인 키).
 - 검수: tsc·eslint 0, build, 배포·DB(`auto-instagram-posting`) v1.18. 참고: `test:own-meta`는 도메인 이전 때 `getFacebookAuthorizeUrl`에 매개변수가 늘어 원래부터 실패(이번 변경과 무관, `docs/IMPROVEMENTS.md` 기록). 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
 - **주의(다음 CLI)**: `geminiImage.ts`(호출)·`nanoBananaModels.ts`(등급별 모델)는 공용 기준 코드 `gemini-image-client`·`gemini-image-models`의 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()` 결과를 호출하는 쪽에서 덮어써 보완한다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
+
+## 2026-10-17 v1.19 — 공용 이미지 기준 코드 갱신 반영 (Claude Code 윈도우)
+- 기준 `gemini-image-client`(ai-image-studio)이 바뀌어 사본을 `--sync`로 다시 받음: ① 응답에서 **최종** 이미지를 고름 — gemini-3-pro-image가 함께 보내는 중간 초안(`thought: true`) 이미지를 결과로 잘못 쓰던 위험 제거 ② 사용량(usageMetadata) 함께 반환 ③ 선택적 요청 취소 신호(`signal`) 지원(쓰지 않으면 동작 같음). 이 프로그램 코드·프롬프트는 바꾸지 않음.
+- 검수: tsc 0, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전 확인. 실제 이미지 생성 시험은 하지 않음(주인님 지시).

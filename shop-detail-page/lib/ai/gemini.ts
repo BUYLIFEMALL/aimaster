@@ -1,4 +1,5 @@
 import "server-only";
+import { generateGeminiImage } from "./geminiImage";
 import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "./imageModels";
 
 export { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_OPTIONS, type ImageModelKey } from "./imageModels";
@@ -75,40 +76,23 @@ export async function generateSectionImageWithGemini(params: {
   apiKey: string;
   model?: ImageModelKey;
 }): Promise<{ base64: string; mimeType: string }> {
-  const json = await callGemini(
-    IMAGE_MODELS[params.model ?? DEFAULT_IMAGE_MODEL],
-    {
-      contents: [
-        {
-          parts: [
-            { text: params.prompt },
-            {
-              inlineData: {
-                mimeType: params.referenceImage.mimeType,
-                data: params.referenceImage.base64,
-              },
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        responseModalities: ["IMAGE"],
-        imageConfig: {
-          aspectRatio: params.aspectRatio || "16:9",
-          imageSize: (params.resolution || "2K").toUpperCase(),
-        },
-      },
-    },
-    params.apiKey,
-  );
-
-  const imagePart = json?.candidates?.[0]?.content?.parts?.find(
-    (p: GeminiPart) => p.inlineData?.data,
-  );
-  if (!imagePart?.inlineData) {
-    throw new Error("이미지 생성 응답에서 이미지 데이터를 찾지 못했습니다.");
-  }
-  return { base64: imagePart.inlineData.data, mimeType: imagePart.inlineData.mimeType };
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio). 키는 머리글로,
+  // 시간 제한 240초(함수 한도 300초 안 — 재시도하면 한도를 넘으므로 원래처럼 재시도 없음), 응답의 모든 조각에서 최종 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내.
+  // 프롬프트·원본 이미지·비율·화질은 그대로(온도는 원래 넣지 않았으므로 넣지 않음).
+  const image = await generateGeminiImage({
+    apiKey: params.apiKey,
+    modelName: IMAGE_MODELS[params.model ?? DEFAULT_IMAGE_MODEL],
+    parts: [
+      { text: params.prompt },
+      { inlineData: { mimeType: params.referenceImage.mimeType, data: params.referenceImage.base64 } },
+    ],
+    aspectRatio: params.aspectRatio || "16:9",
+    imageSize: (params.resolution || "2K").toUpperCase(),
+    responseModalities: ["IMAGE"],
+    timeoutMs: 240_000,
+    retries: 0,
+  });
+  return { base64: image.base64, mimeType: image.mimeType };
 }
 
 /** 모델 응답에서 ```json ... ``` 코드펜스나 잡텍스트를 걷어내고 JSON을 파싱한다. */

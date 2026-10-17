@@ -81,3 +81,33 @@ test("시간 초과·네트워크 끊김은 재시도 후 안내, 키 없음은 
   await assert.rejects(generateGeminiImage({ apiKey: "", modelName: "m", prompt: "p" }), (e) => e.code === "INVALID_KEY");
   assert.equal(maskGeminiKey("x?key=AIzaSyABCDEFGHIJKLMNOPQRSTUVW&y=1"), "x?key=***&y=1");
 });
+
+test("생각 중 중간 초안(thought)은 건너뛰고 최종 이미지를 고른다", () => {
+  const r = extractGeminiImage({
+    candidates: [{ content: { parts: [
+      { thought: true, text: "구상 중" },
+      { thought: true, inlineData: { mimeType: "image/png", data: "DRAFT" } },
+      { text: "완성" },
+      { inlineData: { mimeType: "image/png", data: "FINAL" } },
+    ] } }],
+    usageMetadata: { totalTokenCount: 10 },
+  });
+  assert.equal(r.base64, "FINAL");
+  assert.equal(r.text, "완성");
+  assert.deepEqual(r.usage, { totalTokenCount: 10 });
+  assert.throws(() => extractGeminiImage({ candidates: [{ finishReason: "STOP", content: { parts: [{ thought: true, inlineData: { data: "DRAFT" } }] } }] }), (e) => e.code === "NO_IMAGE");
+});
+
+test("외부 취소 신호: 취소되면 재시도하지 않고 CANCELLED", async () => {
+  const ctrl = new AbortController();
+  let n = 0;
+  const p = generateGeminiImage({
+    apiKey: "K", modelName: "m", prompt: "p", signal: ctrl.signal, sleep: noSleep,
+    fetchImpl: (_u, init) => new Promise((_r, reject) => { n++; init.signal.addEventListener("abort", () => { const e = new Error("a"); e.name = "AbortError"; reject(e); }); }),
+  });
+  ctrl.abort();
+  await assert.rejects(p, (e) => e.code === "CANCELLED");
+  assert.equal(n, 1);
+  const c2 = new AbortController(); c2.abort();
+  await assert.rejects(generateGeminiImage({ apiKey: "K", modelName: "m", prompt: "p", signal: c2.signal, fetchImpl: async () => res(200, img()) }), (e) => e.code === "CANCELLED");
+});
