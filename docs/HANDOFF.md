@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 웹 크롤링 자동화 v1.08 생성 데이터 30일 자동 삭제(주인님 승인) · 윈도우 배포·CRON_SECRET 대기
+
+- **한 일**: `web-crawler/webapp/src/app/api/cron/purge-expired/route.ts` + `vercel.json` 매일 03:17(KST) — 30일 지난 작업의 결과 엑셀(Storage)과 기록 삭제. 매뉴얼 FAQ에 30일 안내. 맥미니 tsc 0.
+- **윈도우 다음 첫 단계**: `web-crawler/IMPROVEMENT_HANDOFF_20261017.md` 「v1.08」 — `CRON_SECRET` 확인·추가 → 빌드·배포 → `programs.version='v1.08'` → 비밀값으로 경로 1회 호출(30일 지난 1건 삭제 기대).
+- **새로 발견(주인님 결정 필요)**: 도메인 구조 캐시 회원 공용(최상위 규칙 충돌 검토, IMPROVEMENTS #8), 결과 버킷 공개(#9).
+- 링크: https://web-crawler-saas.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 이미지 생성 시간 초과 안내 문구 통일(이중 과금 방지) · 사본 30곳 재배포
 
 - **한 일**: 공용 기준 `ai-image-studio/lib/providers/geminiImage.ts`의 시간 초과 안내를 「이미지 생성이 N초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.」로 바꾸고(테스트에 문구 확인 추가) `--sync`로 사본 30곳 반영. 시간 초과여도 구글 쪽에서 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 바로 다시 눌러 이중 과금되는 일을 줄이려는 목적.

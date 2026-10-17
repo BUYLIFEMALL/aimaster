@@ -105,3 +105,9 @@ python scripts\preflight.py              # 검증: core / agent-browser 분리 P
 - **빌드·배포·화면 검수는 윈도우 CLI 대기.** 30일 자동 삭제 미적용 발견(IMPROVEMENTS #5).
 - 문서(이 폴더는 `docs/`가 gitignore라 최상위): [PLAN_20261017_DESIGN_RENEWAL.md](PLAN_20261017_DESIGN_RENEWAL.md) · [DESIGN_HANDOFF.md](DESIGN_HANDOFF.md) · [IMPROVEMENTS.md](IMPROVEMENTS.md) · [IMPROVEMENT_HANDOFF_20261017.md](IMPROVEMENT_HANDOFF_20261017.md)
 
+## 2026-10-17 v1.08 — 생성 데이터 30일 자동 삭제 (Claude Code 맥미니, 주인님 승인)
+- `webapp/src/app/api/cron/purge-expired/route.ts`: `CRON_SECRET` 확인 → 30일 지난 `web_crawler_jobs`를 500개씩 찾아 Storage `web-crawler-results/${user_id}/${job_id}.xlsx`를 지운 뒤 기록 삭제(파일 삭제 실패 시 기록 유지·다음 날 재시도). `webapp/vercel.json` 매일 18:17 UTC(03:17 KST).
+- Storage는 SQL 직접 삭제가 보호돼 있어 pg_cron 대신 Vercel Cron + Storage API를 씀.
+- 매뉴얼 FAQ에 30일 삭제 안내 추가. **빌드·배포·`CRON_SECRET` 설정·첫 실행 확인은 윈도우 CLI 대기**: [IMPROVEMENT_HANDOFF_20261017.md](IMPROVEMENT_HANDOFF_20261017.md) 「v1.08」.
+- 새로 발견(주인님 결정 필요): 도메인 구조 공유 캐시(IMPROVEMENTS #8), 결과 버킷 공개(#9).
+

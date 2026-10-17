@@ -17,3 +17,21 @@
 ## 남은 일 (IMPROVEMENTS.md)
 - #5 30일 자동 삭제(최상위 규칙) 미적용 — DB 예약 작업이 필요해 주인님 승인 후 진행.
 - #6 진행 중 자동 새로고침, #7 결과 미리보기·타 프로그램 연결.
+
+---
+
+# v1.08 — 생성 데이터 30일 자동 삭제 (2026-10-17 Claude Code 맥미니, 주인님 승인)
+
+## 한 일
+- 새 경로 `webapp/src/app/api/cron/purge-expired/route.ts` + `webapp/vercel.json` cron(매일 03:17 KST). 30일 지난 작업의 결과 엑셀(Storage)과 기록(`web_crawler_jobs`)을 함께 삭제.
+- 매뉴얼 FAQ에 30일 삭제 안내. 버전 v1.07 → **v1.08**. 맥미니 tsc 0.
+- 현재 데이터(2026-10-17 조회): 작업 2건 중 30일 지난 것 1건(2026-09-04), 결과 파일 1개 → **첫 실행에서 1건 삭제 예정**.
+
+## 윈도우 CLI 다음 첫 단계
+1. Vercel 프로젝트(web-crawler/webapp)에 `CRON_SECRET`이 있는지 확인: `vercel env ls production`. 없으면 임의의 긴 값으로 추가(주인님 승인 범위). 값은 문서·코드에 적지 않는다.
+2. `cd web-crawler/webapp && npm run build` → `vercel deploy --prod --yes`
+3. DB: `update programs set version='v1.08', updated_at=now() where slug='web-crawler-saas';`
+4. 첫 실행 확인: `curl -s -H "Authorization: Bearer $CRON_SECRET" https://web-crawler-saas.buylife.xyz/api/cron/purge-expired` → `{"deletedJobs":1,"deletedFiles":1}` 기대. 비밀값 없이 호출하면 401.
+5. DB 확인: `select count(*) from web_crawler_jobs where created_at < now()-interval '30 days';` → 0, `storage.objects`(bucket `web-crawler-results`)에서 해당 파일 사라짐.
+6. Vercel 대시보드 Cron Jobs에 `/api/cron/purge-expired` 등록 확인.
+

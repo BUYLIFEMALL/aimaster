@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — 30일 자동 삭제: Storage 파일은 SQL(pg_cron)로 지울 수 없음 → Vercel Cron + Storage API (web-crawler v1.08, Claude Code 맥미니)
+- **증상**: 생성 데이터 30일 자동 삭제를 pg_cron SQL 하나로 만들면 DB 기록만 지워지고 Storage의 결과 파일은 남는다(고아 파일). `storage.objects`에는 직접 DELETE를 막는 보호 트리거가 있다(2026-10-17 조회 1개).
+- **해결**: 앱에 `CRON_SECRET`으로 보호한 정리 경로를 두고 `vercel.json` cron으로 매일 호출 → `storage.from(bucket).remove(paths)` 먼저, 성공하면 DB 행 삭제(파일 삭제 실패 시 행 유지·다음 날 재시도). 위치: `web-crawler/webapp/src/app/api/cron/purge-expired/route.ts`.
+- **다음부터**: 생성 데이터에 Storage 파일이 딸려 있으면 이 방식으로, DB 행뿐이면 pg_cron(`youtube-viral-studio`의 `cleanup_yvs_expired_favorites` 방식)으로 만든다. `CRON_SECRET`이 없으면 경로가 401만 내니 배포 때 Vercel 환경변수 확인 필수.
+
 ## 2026-10-17 — 연속 배포 성공·실패는 출력 글자가 아니라 종료 코드로 판정 (공용 모듈 재배포, Claude Code 윈도우)
 - **증상**: 여러 프로그램을 연달아 `vercel deploy` 하는 스크립트가 출력에 `Error`가 있으면 실패로 봤더니, 정상 배포(stepmail)를 빌드 로그의 `_global-error` 글자 때문에 실패로 잘못 판정.
 - **해결**: `out=$(vercel deploy --prod --yes 2>&1); rc=$?` 처럼 **종료 코드**로 판정. 2026-10-17 31곳 재배포에서 오탐 0. 그래도 의심되면 `vercel inspect <주소>`로 production·Ready 확인.
