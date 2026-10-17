@@ -18,7 +18,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { showToast } from "@/components/ui/Toast";
-import { type DocumentRevision, type PinColor, PIN_COLORS, PIN_COLOR_LABELS, PIN_NAME_MAX, nextPinColor, pinLabel, safeFilename, sanitizePinNames } from "@/lib/documents/model";
+import { type DocumentRevision, type PinColor, PIN_COLORS, PIN_COLOR_LABELS, PIN_NAME_MAX, TRASH_OLD_DAYS, nextPinColor, pinLabel, safeFilename, sanitizePinNames, trashAgeDays } from "@/lib/documents/model";
 import { DOCUMENT_TEMPLATES } from "@/lib/documents/templates";
 import { DocumentExplorer } from "./DocumentExplorer";
 import { HotkeysButton } from "../editor/HotkeysModal";
@@ -604,25 +604,55 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
             <section className="card">
               <h2>휴지통</h2>
               <p className="muted">폴더 복원 시 함께 옮긴 하위 항목도 복원됩니다. [휴지통 비우기]를 누르기 전까지는 영구 삭제하지 않습니다.</p>
-              {trash.map(n => (
+              {trash.map(n => {
+                // v1.18: 휴지통에 들어간 날 안내 — 30일이 넘으면 눈에 띄게(자동 삭제는 하지 않음)
+                const days = n.deletedAt ? trashAgeDays(n.deletedAt) : 0;
+                const old = days >= TRASH_OLD_DAYS;
+                return (
                 <div className="history-row" key={n.id}>
                   <div>
                     <strong>{n.name}</strong>
-                    <small>{n.kind === "folder" ? "폴더" : "문서"}</small>
+                    <small>
+                      {n.kind === "folder" ? "폴더" : "문서"} · {days === 0 ? "오늘 삭제" : `${days}일 전 삭제`}
+                      {old && <span className="trash-old" title="오래된 항목입니다. 필요 없으면 영구 삭제, 필요하면 복원하세요(자동으로 지우지 않습니다).">{TRASH_OLD_DAYS}일 지남</span>}
+                    </small>
                   </div>
-                  <button
-                    disabled={pending}
-                    onClick={() =>
-                      action(async () => {
-                        await store.save();
-                        await store.run(repo => repo.restore(n.id, n.revision));
-                      })
-                    }
-                  >
-                    복원
-                  </button>
+                  <div className="actions">
+                    <button
+                      disabled={pending}
+                      onClick={() =>
+                        action(async () => {
+                          await store.save();
+                          await store.run(repo => repo.restore(n.id, n.revision));
+                        })
+                      }
+                    >
+                      복원
+                    </button>
+                    {/* v1.18: 이 항목만 영구 삭제(함께 휴지통에 넣은 안쪽 항목 포함) */}
+                    <button
+                      className="danger"
+                      disabled={pending}
+                      aria-label={`${n.name} 영구 삭제`}
+                      onClick={() => {
+                        if (!window.confirm(`'${n.name}'${n.kind === "folder" ? "(함께 휴지통에 넣은 안쪽 항목 포함)" : ""}을(를) 영구 삭제할까요?\n수정 이력까지 지워져 되돌릴 수 없습니다. Google Drive의 파일은 그대로 남습니다.`)) return;
+                        void action(async () => {
+                          await store.save();
+                          const result = await store.run(repo => repo.purgeTrashItem(n.id, n.revision));
+                          const gone = new Set(result.ids);
+                          const pins = store.preferences.pinnedIds ?? [];
+                          if (pins.some(id => gone.has(id))) await store.setPreferences({ pinnedIds: pins.filter(id => !gone.has(id)) });
+                          showToast(`'${n.name}'${result.purged > 1 ? ` 외 ${result.purged - 1}개` : ""}를 영구 삭제했습니다.`);
+                        });
+                      }}
+                    >
+                      <Trash2 size={13} />
+                      영구 삭제
+                    </button>
+                  </div>
                 </div>
-              ))}
+                );
+              })}
               {!trash.length && <p className="empty">휴지통이 비어 있습니다.</p>}
               {/* v1.17: 휴지통 비우기 — 되돌릴 수 없으므로 확인 창에서 한 번 더 묻는다 */}
               {trash.length > 0 && (

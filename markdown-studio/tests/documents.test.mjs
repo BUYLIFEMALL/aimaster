@@ -130,3 +130,25 @@ test("v1.17 purgeTrash deletes only trashed items with their history and keeps l
   assert.deepEqual((await repo.driveMappings("acct")).map(m => m.nodeId), [keep.id]);
   assert.equal((await repo.purgeTrash()).purged, 0); await repo.close();
 });
+test("v1.18 purgeTrashItem removes one trash item with its same-batch children only", async () => {
+  const repo = new DocumentRepository(user());
+  const folder = await repo.create("folder", "폴더");
+  const early = await repo.create("document", "먼저 지움.md", folder.id, "a");
+  const child = await repo.create("document", "함께 지움.md", folder.id, "b");
+  const other = await repo.create("document", "다른 휴지통.md", null, "c");
+  await repo.trash(early.id, 1);
+  let rows = await repo.list();
+  await repo.trash(folder.id, rows.find(n => n.id === folder.id).revision);
+  await repo.trash(other.id, 1);
+  rows = await repo.list();
+  await assert.rejects(repo.purgeTrashItem(folder.id, 1), /다른 탭/);
+  const live = await repo.create("document", "살아있음.md");
+  await assert.rejects(repo.purgeTrashItem(live.id, 1), /휴지통에 있는 항목만/);
+  const result = await repo.purgeTrashItem(folder.id, rows.find(n => n.id === folder.id).revision);
+  assert.deepEqual(new Set(result.ids), new Set([folder.id, child.id]));
+  rows = await repo.list();
+  assert.deepEqual(new Set(rows.map(n => n.id)), new Set([early.id, other.id, live.id]));
+  // 먼저 지운 항목은 복원하면 최상위로
+  const restored = await repo.restore(early.id, rows.find(n => n.id === early.id).revision);
+  assert.equal((await repo.list()).find(n => n.id === early.id).parentId, null); await repo.close();
+});

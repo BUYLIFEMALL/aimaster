@@ -175,12 +175,27 @@ export class DocumentRepository {
    * 수정 이력·Drive 연결 기록도 함께 지운다. Google Drive의 파일은 건드리지 않는다.
    */
   async purgeTrash() {
+    return this.purge(nodes => new Set(nodes.filter(n => n.deletedAt).map(n => n.id)));
+  }
+  /**
+   * v1.18 휴지통 항목 하나만 영구 삭제: 휴지통에 보이는 항목과, 함께 휴지통에 넣은 안쪽 항목(같은 trashBatchId)만.
+   * 따로 먼저 휴지통에 넣은 안쪽 항목은 휴지통에 남는다(복원하면 최상위로).
+   */
+  async purgeTrashItem(id: string, expectedRevision: number) {
+    return this.purge(nodes => {
+      const root = this.current(nodes, id, expectedRevision, true);
+      if (!root.deletedAt) throw new DocumentError("INVALID", "휴지통에 있는 항목만 영구 삭제할 수 있습니다.");
+      const all = descendants(nodes, id);
+      return new Set(nodes.filter(n => all.has(n.id) && n.deletedAt && n.trashBatchId === root.trashBatchId).map(n => n.id).concat(id));
+    });
+  }
+  private async purge(select: (nodes: DocumentNode[]) => Set<string>) {
     const db = await this.dbPromise;
     const tx = db.transaction(["nodes", "revisions", "drive"], "readwrite");
     try {
       const nodes = await tx.objectStore("nodes").getAll();
       nodes.forEach(n => verifyOwner(n, this.userId));
-      const gone = new Set(nodes.filter(n => n.deletedAt).map(n => n.id));
+      const gone = select(nodes);
       for (const id of gone) {
         await tx.objectStore("nodes").delete(id);
         for (const key of await tx.objectStore("revisions").index("by-node").getAllKeys(id)) await tx.objectStore("revisions").delete(key);

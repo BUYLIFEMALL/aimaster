@@ -42,6 +42,12 @@ export function nextPinColor(current?: PinColor): PinColor | undefined {
   const i = current ? PIN_COLORS.indexOf(current) : -1;
   return i + 1 < PIN_COLORS.length ? PIN_COLORS[i + 1] : undefined;
 }
+/** v1.18: 휴지통에 들어간 지 며칠 지났는지(날짜 기준, 자동 삭제에는 쓰지 않음) */
+export const TRASH_OLD_DAYS = 30;
+export function trashAgeDays(deletedAt: string, now = new Date()): number {
+  const t = Date.parse(deletedAt);
+  return Number.isFinite(t) ? Math.max(0, Math.floor((now.getTime() - t) / 86_400_000)) : 0;
+}
 export const PIN_NAME_MAX = 10;
 /** 꼬리표 이름: 정해진 색만, 앞뒤 공백 제거, 10자까지, 빈 이름은 뺀다 */
 export function sanitizePinNames(value: unknown): Partial<Record<PinColor, string>> {

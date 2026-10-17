@@ -74,3 +74,14 @@ test("v1.16 꼬리표 이름: 정해진 색만·공백 제거·10자·빈 이름
   assert.equal(pinLabel("red", { red: "급함" }), "급함");
   assert.equal(pinLabel("blue", { red: "급함" }), "파랑");
 });
+
+test("v1.18 휴지통 경과일: 날짜 차이·잘못된 값은 0", async () => {
+  const { trashAgeDays, TRASH_OLD_DAYS } = await import("../src/lib/documents/model.ts");
+  const now = new Date("2026-11-20T12:00:00Z");
+  assert.equal(trashAgeDays("2026-11-20T01:00:00Z", now), 0);
+  assert.equal(trashAgeDays("2026-10-21T12:00:00Z", now), 30);
+  assert.ok(trashAgeDays("2026-10-21T12:00:00Z", now) >= TRASH_OLD_DAYS);
+  assert.equal(trashAgeDays("2026-10-22T12:00:01Z", now), 28);
+  assert.equal(trashAgeDays("이상한 값", now), 0);
+  assert.equal(trashAgeDays("2027-01-01T00:00:00Z", now), 0);
+});

@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.18: 휴지통 항목별 영구 삭제·30일 안내 표시
+
+- **대상**: `markdown-studio/` v1.17 → **v1.18** (코드·DB 동기화)
+- **한 일**: ① 휴지통 줄마다 [영구 삭제](확인 창, 함께 넣은 안쪽 항목만) ② "N일 전 삭제" + 30일 이상 "30일 지남" 표시(자동 삭제 없음)
+- **검수**: 단위 72개, 빌드·배포, 크롬 시험 계정(시험 항목으로 배치 범위·30일 표시·IndexedDB 대조). 시험 항목 모두 정리.
+- **남은 일**: 실제 Google Drive 화면 검수(주인님 Google 연결 필요)
+- **인수인계**: [`markdown-studio/AGENTS.md`](../markdown-studio/AGENTS.md) 「v1.18」
+- **링크**: https://markdown-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.17: 휴지통 비우기·탐색기 꼬리표 색 점·Drive 동기화에 고정 정보
 
 - **대상**: `markdown-studio/` v1.16 → **v1.17** (코드·DB 동기화)
