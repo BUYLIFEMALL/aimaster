@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — 공용 문서(HANDOFF 등)에 다른 CLI의 미커밋 항목이 있는데 파일째 커밋해 남의 항목까지 커밋함 (Claude Code 윈도우, 2회)
+- 증상: `git status`에 ` M docs/HANDOFF.md`가 이미 보였는데 `git add docs/HANDOFF.md`로 파일 전체를 올려, Antigravity(vinyl-lp-studio v1.08)·Codex(youtube-viral-studio v1.14 진행 중) 항목이 내 커밋(f988f101, d04ab1e4)에 섞임. 내용은 정상 기록이라 되돌리지 않음(되돌리면 같은 파일을 쓰는 그 CLI 작업본에서 항목이 사라질 위험).
+- 원인: 공용 문서를 고치기 전후로 남의 미커밋 변경을 확인만 하고 분리하지 않음.
+- 해결/다음부터: 공용 문서(`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`·`docs/ACTIVE_WORK.md`·루트 지침)에 **커밋 전 ` M`이 보이면 파일째 `git add` 금지** — `git show HEAD:<파일>`에 내 항목만 끼운 내용을 `git hash-object -w` → `git update-index --cacheinfo 100644,<sha>,<파일>`로 스테이징하고, 작업 폴더 파일은 그대로 둔다(남의 변경 보존). 커밋 직후 `git show HEAD -- <파일>`로 내 줄만 들어갔는지 확인.
+
 ## 2026-10-17 — Google 연결 시 "scopes that cannot be requested together"(400): 예전에 허용한 다른 권한이 합쳐짐 (markdown-studio v1.19, Claude Code 윈도우)
 - 증상: Drive 연결 창에 "액세스 차단됨: 승인 오류 … drive.file, youtube.force-ssl … 400 invalid_request". 코드에는 drive.file만 있음.
 - 원인: Google Identity Services `initTokenClient`의 `include_granted_scopes` 기본값이 true라, 같은 Client ID(같은 Google Cloud 앱)로 다른 프로그램(유튜브 자동화)에서 허용한 권한까지 함께 요청됨. Google은 Drive·YouTube 권한 동시 요청을 막는다.
