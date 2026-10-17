@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 글 작성·분석 모델과 이미지 모델 목록(서버·화면 공용). 모델 ID는 ai-auto-blog/utils/ai/contentModels.ts에서
 // 공급사 모델 목록 API로 확인한 ID만 쓴다(2026-10-01 확인). 새 모델을 넣을 때도 먼저 실제 존재를 확인할 것.
 export type AiProvider = "openai" | "gemini";
@@ -15,12 +17,12 @@ export const TEXT_MODELS: ModelOption[] = [
 ];
 
 export const IMAGE_MODELS = [
-  { id: "gemini-3.1-flash-image", name: "Nano Banana 2 · 균형형 (기본)" },
+  { id: "gemini-nano-banana-2.1", name: "Nano Banana 2 · 균형형 (기본)" },
   { id: "gemini-3-pro-image", name: "Nano Banana Pro · 정밀형" },
 ] as const;
 
 export const DEFAULT_MODEL: Record<AiProvider, string> = { openai: "gpt-4.1", gemini: "gemini-3.5-flash" };
-export const DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image";
+export const DEFAULT_IMAGE_MODEL = "gemini-nano-banana-2.1";
 
 export function isTextModel(provider: unknown, id: unknown): boolean {
   return TEXT_MODELS.some((m) => m.provider === provider && m.id === id);

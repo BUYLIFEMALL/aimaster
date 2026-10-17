@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseBlogId, parsePostRef, decodeEntities } from "../src/lib/blogParse.ts";
@@ -78,7 +80,7 @@ test("모델 목록 검증", () => {
   assert.equal(isTextModel("openai", DEFAULT_MODEL.openai), true);
   assert.equal(isTextModel("gemini", DEFAULT_MODEL.gemini), true);
   assert.equal(isTextModel("openai", "gemini-3.5-flash"), false, "공급사와 모델이 맞아야 함");
-  assert.equal(isImageModel("gemini-3.1-flash-image"), true);
+  assert.equal(isImageModel("gemini-nano-banana-2.1"), true);
   assert.ok(TEXT_MODELS.every((m) => m.provider === "openai" || m.provider === "gemini"));
 });
 
