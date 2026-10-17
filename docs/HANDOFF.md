@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.19: Google 연결 400 오류(권한 동시 요청) 수정
+
+- **증상·원인**: 같은 Google Client ID로 유튜브 자동화에서 허용한 `youtube.force-ssl`이 `include_granted_scopes` 기본값 때문에 Drive 요청에 합쳐져 Google이 차단.
+- **수정**: `markdown-studio/src/lib/drive/auth.ts` `include_granted_scopes: false`, 배포·라이브 번들 확인, DB `v1.19`.
+- **남은 일**: 주인님 재연결 후 실제 Drive 고정 정보 화면 검수. 다른 Google 연동 프로그램도 같은 점검 권장(`docs/ERROR_LESSONS.md`).
+- **링크**: https://markdown-studio.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.18: 휴지통 항목별 영구 삭제·30일 안내 표시
 
 - **대상**: `markdown-studio/` v1.17 → **v1.18** (코드·DB 동기화)

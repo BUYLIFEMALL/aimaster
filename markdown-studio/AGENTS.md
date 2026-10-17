@@ -136,3 +136,8 @@
 - **항목별 영구 삭제**: 휴지통 각 줄 [복원] 옆 [🗑 영구 삭제] → 확인 창 → `repository.purgeTrashItem(id, revision)`: 그 항목과 **함께 휴지통에 넣은 안쪽 항목(같은 trashBatchId)만** 지움(수정 이력·Drive 연결 기록 포함). 따로 먼저 휴지통에 넣은 안쪽 항목은 남고 복원하면 최상위로. `purgeTrash`와 같은 내부 `purge()` 사용. 다른 탭에서 바뀌었으면 거절(`CONFLICT`).
 - **경과 안내**: 휴지통 줄에 "오늘 삭제 / N일 전 삭제", 30일 이상이면 노란 "30일 지남" 표시(`model.ts`의 `trashAgeDays`·`TRASH_OLD_DAYS`). 자동 삭제 없음.
 - 테스트: 단위 72개(항목별 삭제 배치 범위·거절, 경과일 계산 추가). 실화면(크롬 시험 계정): 시험 백업으로 만든 폴더·문서 2개 → 문서 1을 먼저 휴지통, 폴더를 나중에 휴지통 → 문서 1의 삭제 시각을 31일 전으로 바꿔 "31일 전 삭제 · 30일 지남" 확인 → 폴더 영구 삭제("외 1개", 문서 1은 남음) → 문서 1 영구 삭제 → 휴지통 비어 있음·IndexedDB 원래 문서 1개. 확인 창 문구 확인.
+## 2026-10-17 v1.19 — Google 연결 "액세스 차단됨: 승인 오류(400 invalid_request)" 수정 (Claude Code 윈도우)
+- 증상: 시험 계정 보관함 [Google에 연결] → Google 창에 "This request contains scopes that cannot be requested together: drive.file, youtube.force-ssl".
+- 원인: 우리 코드는 `drive.file`만 요청하지만 Google Identity Services 토큰 클라이언트의 `include_granted_scopes` 기본값(true)이 **같은 Client ID로 예전에 허용한 권한**(유튜브 자동화의 `youtube.force-ssl`)을 합쳐 요청 → Google이 두 권한 동시 요청을 거절.
+- 해결: `src/lib/drive/auth.ts` `initTokenClient`에 `include_granted_scopes: false`. 라이브 번들에서 `include_granted_scopes:!1` 확인. 단위 72개 통과.
+- 남은 것: 주인님이 다시 [Google에 연결] → 실제 Drive 고정 정보 올리기·가져오기 화면 검수.

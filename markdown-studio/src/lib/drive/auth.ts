@@ -9,7 +9,7 @@ const CLIENT_ID_PATTERN = /^[0-9]+-[a-z0-9_]+\.apps\.googleusercontent\.com$/i;
 interface TokenResponse { access_token?: string; expires_in?: number | string; scope?: string; error?: string; error_description?: string }
 interface TokenClient { requestAccessToken(overrides?: { prompt?: string }): void }
 interface GoogleAccounts { oauth2: {
-  initTokenClient(config: { client_id: string; scope: string; callback: (r: TokenResponse) => void; error_callback?: (e: { type?: string }) => void }): TokenClient;
+  initTokenClient(config: { client_id: string; scope: string; include_granted_scopes?: boolean; callback: (r: TokenResponse) => void; error_callback?: (e: { type?: string }) => void }): TokenClient;
   revoke(token: string, done?: () => void): void;
 } }
 declare global { interface Window { google?: { accounts?: GoogleAccounts } } }
@@ -46,6 +46,9 @@ export async function connectGoogle(clientId: string, prompt = ""): Promise<void
   await new Promise<void>((resolve, reject) => {
     const client = google.oauth2.initTokenClient({
       client_id: clientId.trim(), scope: DRIVE_SCOPE,
+      // v1.19: 같은 Client ID로 예전에 허용한 다른 권한(예: 유튜브 자동화의 youtube.force-ssl)을 합쳐 요청하지 않는다.
+      // 합치면 Google이 "This request contains scopes that cannot be requested together"(400)로 막는다.
+      include_granted_scopes: false,
       callback: r => {
         if (r.error || !r.access_token) {
           reject(new DriveError("AUTH", r.error === "access_denied" ? "Google 연결 권한을 허용하지 않았습니다." : `Google 연결에 실패했습니다. ${r.error_description ?? r.error ?? ""}`.trim()));

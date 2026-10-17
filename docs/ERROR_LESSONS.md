@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — Google 연결 시 "scopes that cannot be requested together"(400): 예전에 허용한 다른 권한이 합쳐짐 (markdown-studio v1.19, Claude Code 윈도우)
+- 증상: Drive 연결 창에 "액세스 차단됨: 승인 오류 … drive.file, youtube.force-ssl … 400 invalid_request". 코드에는 drive.file만 있음.
+- 원인: Google Identity Services `initTokenClient`의 `include_granted_scopes` 기본값이 true라, 같은 Client ID(같은 Google Cloud 앱)로 다른 프로그램(유튜브 자동화)에서 허용한 권한까지 함께 요청됨. Google은 Drive·YouTube 권한 동시 요청을 막는다.
+- 해결: `include_granted_scopes: false` (`markdown-studio/src/lib/drive/auth.ts`).
+- 다음부터: 회원이 여러 프로그램에 같은 Google Client ID를 쓸 수 있으므로, Google 토큰/코드 클라이언트를 만들 때 필요한 권한만 요청하도록 `include_granted_scopes: false`를 기본으로 둔다(유튜브·Drive·시트 등 Google 연동 프로그램 공통 점검 항목).
+
 ## 2026-10-17 — 화살표 함수 안에서 아래쪽 const를 쓰면 tsc·빌드는 통과하고 화면만 깨짐 (markdown-studio v1.15, Claude Code 윈도우)
 - 증상: 배포 직후 대시보드가 "This page couldn't load", 콘솔 `ReferenceError: Cannot access 'V' before initialization`.
 - 원인: `PIN_COLORS.filter(c => liveDocs.some(...))`를 `const liveDocs` 선언보다 위에 둠. 사용 위치가 화살표 함수 안이라 TypeScript의 "선언 전 사용" 검사가 잡지 않고, 실행 시점에는 아직 초기화 전(TDZ).
