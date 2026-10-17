@@ -8,13 +8,17 @@
 - **남은 일(다음 첫 단계)**: `youtube-data-client` 2단계(ai-auto-blog·tistory-auto-blog·naver-blog-agent는 확장 ZIP 재생성 포함, threads-content-ops, trending-product-finder) → 지도 §1 표 순서대로 진행합니다. 그 뒤 이미지 생성 호출 모듈(지도 §3)로 넘어갑니다.
 - **링크**: https://youtube-channel-consultant.buylife.xyz · https://youtube-viral-studio.buylife.xyz · https://shorts-viral-studio.buylife.xyz
 
-## 2026-10-17 Claude Code(맥미니) — INSTA DM답변 자동화 v1.13: 인스타 라이트 (DM 대화 화면) (🟠 윈도우 마무리 요청)
+## 2026-10-17 Claude Code(맥미니) & Antigravity CLI(윈도우) — INSTA DM답변 자동화 v1.13: 인스타 라이트 (DM 대화 화면) (✅ 1차 작업완료)
 
-- **대상**: `instagram-dm-reply/` (https://instagram-dm-reply.buylife.xyz). 플랜 → 주인님 「진행해」 승인 후 구현.
-- **한 일**: `instagram-comment-reply` v1.14 토큰·부품 이식, DM 검토·이력을 인스타 DM 말풍선으로, `/dashboard`(24시간 기한 임박 대화)·`/guide` 신설, **휴대폰 ☰ 신설**, 로그인 같은 배경. 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+- **대상**: `instagram-dm-reply/` (https://instagram-dm-reply.buylife.xyz). 플랜 → 주인님 「진행해」 승인 후 구현 및 배포 검수 완료.
+- **한 일**:
+  - 맥미니: `instagram-comment-reply` v1.14 토큰·부품 이식, DM 검토·이력을 인스타 DM 말풍선으로, `/dashboard`(24시간 기한 임박 대화)·`/guide` 신설, **휴대폰 ☰ 신설**, 로그인 같은 배경. 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+  - 윈도우 Antigravity: 로컬 빌드(`npm run build`) 오류 0건 검증, Vercel 프로덕션 배포 완료 (`instagram-dm-reply.buylife.xyz` alias 연결), Supabase DB `programs.version` `v1.13` 업데이트 완료, Microsoft Edge 전용 실세션 검수 완료(1440px 데스크톱 및 375px 모바일 캡처 보존, 외부 Meta API 호출 방지를 위해 「답변승인 · 발송」 클릭하지 않음).
 - **추가개선(3대 항목)**: 기한 임박 텔레그램 알림, 이전 대화 맥락 표시 — [`IMPROVEMENTS.md`](../instagram-dm-reply/docs/IMPROVEMENTS.md). 타 프로그램 탐색: `naver-blog-seo-studio`는 928줄 단일 컴포넌트·일반 CSS·확장 포함이라 리팩터링 먼저 권장 — [`IMPROVEMENTS.md`](../naver-blog-seo-studio/docs/IMPROVEMENTS.md) 신설.
-- **⚠️ 윈도우 CLI 요청**: [`instagram-dm-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../instagram-dm-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.13 → 검수(답변승인·발송 금지) → 45번 ✅.
+- **현황판**: `DESIGN.md` 45번 ✅ 1차 작업완료로 갱신, `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**: https://instagram-dm-reply.buylife.xyz
 - **비용**: 없음.
+
 
 ## 2026-10-17 Claude Code(맥미니) & Antigravity CLI(윈도우) — INSTA 댓글자동화 v1.14: 스튜디오 댓글 콘솔 — 인스타 라이트 변형 (✅ 1차 작업완료)
 
