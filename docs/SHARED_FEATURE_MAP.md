@@ -46,7 +46,7 @@
 | 묶음 | 프로그램 · 파일 | 상태 |
 |---|---|---|
 | 기준 | ai-image-studio · 호출 모듈 `lib/providers/geminiImage.ts`(+ `tests/geminiImage.test.mjs`) · 어댑터 `lib/providers/adapters/{gemini,openai,replicate,fal}.ts`·`registry.ts` | 🟢 기준(v1.13) — 호출·대기·이미지 받아오기 |
-| 나노바나나 설정 파일 계열 (1단계 적용) | ai-auto-blog(장면·편집기 이미지) v1.69 · tistory-auto-blog v1.76 · naver-blog-seo-studio v1.67 · naver-blog-auto-poster_app v1.07 · naver-blog-auto-poster_web v1.08 · shots v1.11 · blog_auto_poster — 각 폴더 `geminiImage.ts` | 🔵 사본(호출 부분). 모델 설정 파일(`nanoBananaConfig.ts` 등)은 프로그램별 생성 온도가 달라 그대로 둠(통합은 주인님 확인 후) |
+| 나노바나나 설정 파일 계열 (1단계 적용) | ai-auto-blog(장면·편집기 이미지) v1.69 · tistory-auto-blog v1.76 · naver-blog-seo-studio v1.67 · naver-blog-auto-poster_app v1.07 · naver-blog-auto-poster_web v1.08 · shots v1.11 · blog_auto_poster — 각 폴더 `geminiImage.ts` | 🔵 사본 — 호출(`geminiImage.ts`)과 모델 목록(`nanoBananaConfig.ts`/`nanoBananaModels.ts` → 공용 `gemini-image-models`, 2026-10-17 주인님 지시로 통합) 모두 |
 | SNS 생성기 내장형 | insta_auto_poster · threads · threads-affiliate-poster(`generator.ts`·`imageGenerator.ts`) · naver-cafe-poster `imageGenerator.ts` · threads-content-ops `lib/postImage.ts` · naver-blog-agent `imageGenerator.ts` · naver-blog-allinone `blog/gemini.ts`·`imageGen.ts` | ⚪ |
 | 단일 주소 상수형 | (ai-auto-blog·tistory-auto-blog `editorImage.ts`는 1단계에서 🔵) · kakao_auto_poster `reportImage.ts` · stepmail `emailImage.ts` · auto-detail-page `api/generate-image` · tarot · mbti-character · music `nanobanana.ts` | ⚪ |
 | 등급 목록형(경량/기본/고급) | cardnews-studio · style-dna-analyzer · playlist-channel-studio · shop-detail-page · blog-content-maker · blog-workroom · four-cut-comics · music-video-studio · emotion-writer · photo-remake-studio · shorts-onestop-studio · thumbnail-master · seo-thumbnail-pro · portrait-photo · banana-canvas · fashion-style · allinone-graphic · cinematic-storyboard-studio · ai-influencer-studio | ⚪ |
@@ -86,6 +86,7 @@
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-17 | 이미지 모델 목록 통합 — gemini-image-models 기준(ai-image-studio)·사본 7곳 | Claude Code(윈도우) |
 | 2026-10-17 | 이미지 생성 호출 1단계 — gemini-image-client 기준(ai-image-studio)·사본 7곳 | Claude Code(윈도우) |
 | 2026-10-17 | 유튜브 조회 2단계 — ai-auto-blog·tistory-auto-blog·naver-blog-agent·threads-content-ops·trending-product-finder 사본 적용 | Claude Code(윈도우) |
 | 2026-10-17 | 문서 신설. 유튜브 조회(1단계 3개 적용)·황금 채널 엔진 등록, 이미지·수집·프롬프트 규칙 후보 조사 | Claude Code(윈도우) |

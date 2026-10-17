@@ -49,6 +49,20 @@ const MODULES = [
     ],
   },
   {
+    // 나노바나나 등급별 모델·화질·온도(2026-10-17 주인님 지시로 통합). 파일 이름은 프로그램마다 달라도 내용은 같다
+    id: "gemini-image-models",
+    source: "ai-image-studio/lib/providers/nanoBananaModels.ts",
+    copies: [
+      "ai-auto-blog/utils/news/nanoBananaConfig.ts",
+      "tistory-auto-blog/utils/news/nanoBananaConfig.ts",
+      "naver-blog-seo-studio/lib/ai/nanoBananaConfig.ts",
+      "naver-blog-auto-poster_app/web/lib/naverBlogAutoPoster/nanoBananaConfig.ts",
+      "naver-blog-auto-poster_web/web/lib/naverBlogAutoPoster/nanoBananaConfig.ts",
+      "shots/src/lib/ai/nanoBananaModels.ts",
+      "blog_auto_poster/src/nanoBananaConfig.ts",
+    ],
+  },
+  {
     id: "youtube-golden-engine-test",
     source: "youtube-channel-consultant/tests/goldenEngine.test.mjs",
     copies: ["youtube-viral-studio/tests/goldenEngine.test.mjs"],

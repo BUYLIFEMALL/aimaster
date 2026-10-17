@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test:access": "node scripts/test-access.cjs",
-    "test:gemini-image": "node --test tests/geminiImage.test.mjs"
+    "test:gemini-image": "node --test tests/geminiImage.test.mjs tests/nanoBananaModels.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

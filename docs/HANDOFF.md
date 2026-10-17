@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 이미지 생성 모델 목록 통합 `gemini-image-models` (8곳)
+
+- **한 일(주인님 지시)**: 7곳에 따로 복사돼 값이 조금씩 다르던 나노바나나 모델 설정을 공용 기준 코드 하나로 통합했습니다(기준 `ai-image-studio/lib/providers/nanoBananaModels.ts`, 사본은 각 프로그램의 기존 파일 이름 그대로). 값은 이미지 레퍼런스 ai-image-studio v1.11 검증값입니다: 1K=`gemini-3.1-flash-lite-image`, 2K·4K=`gemini-nano-banana-2.1`, Pro=`gemini-3-pro-image`(온도 0.4).
+- **결과물이 달라질 수 있는 곳**: 블로그·포스터·shots의 1K 등급 모델과 Pro 온도(0.7→0.4)가 바뀌었습니다. shots는 Pro 등급 모델이 `nano-banana-2.1`→`3-pro-image`로 바뀌어 1장 가격이 오릅니다(회원 본인 키). 프로그램별로 다르게 해야 하면 그 프로그램에서 덮어써 보완합니다(주인님 지시).
+- **호환 확인**: 불러오는 이름·등급 키·옛 등급 이름 처리가 그대로라 저장된 회원 선택값도 그대로 동작합니다. 7곳 타입 검사, 기존 테스트(블로그 쇼츠·생성·보안, shots 키, SEO 카테고리), 모델 목록 테스트 4 추가(ai-image-studio 10 통과), 사본 검사 OK.
+- **버전**: ai-image-studio v1.14 · ai-auto-blog v1.70 · tistory-auto-blog v1.77 · naver-blog-seo-studio v1.68 · shots v1.12 · naver-blog-auto-poster v1.08 · -web v1.09 · blog_auto_poster(dist). 확장 4개 ZIP 재생성.
+- **링크**: https://ai-image-studio.buylife.xyz · https://shots.buylife.xyz
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — YOUTUBE CHANNEL CONSULTANT v1.10: 사이드바 긴 이름 두 줄 표시 및 포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `youtube-channel-consultant/` (https://youtube-channel-consultant.buylife.xyz)

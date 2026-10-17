@@ -79,3 +79,18 @@
 - 개선: 키를 주소 대신 요청 머리글(`x-goog-api-key`)로, 120초 시간 제한, 서버 오류·일시 혼잡·시간 초과만 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 필터 차단·이미지 없음·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·모델·화질·비율·생성 온도는 그대로.
 - 검수: tsc·eslint 0, test:categories·update-banner 통과, 확장 manifest 1.67.0/v1.67·ZIP 재생성(예전 v1.66 ZIP 삭제), build, 배포·DB v1.67, `check-extension-release` OK, 크롬 화면 v1.67. 회원 확장 ZIP 다시 받기 안내 필요. 실제 이미지 생성 시험은 하지 않음 — 이미지 생성 오류가 나면 그때 테스트 검증(주인님 지시).
 - **주의(다음 CLI)**: `geminiImage.ts`는 공용 기준 코드 `gemini-image-client`의 사본이다(기준: `ai-image-studio/lib/providers/geminiImage.ts`). 직접 고치지 않는다. 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync` → 사본을 쓰는 프로그램 모두 테스트·빌드·배포·버전 +0.01. 프롬프트·모델·화질·온도는 각 프로그램 값을 넘기는 구조라 모듈에서 바꾸지 않는다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
+
+## 2026-10-17 v1.68 — 이미지 생성 모델 목록 통합(공용 기준 코드 `gemini-image-models`) (Claude Code 윈도우)
+- 주인님 지시("이미지 생성 모델 사용 관련 기능은 통합, 프로그램마다 다르게 나와야 하면 그때 프로그램별로 보완"). `lib/ai/nanoBananaConfig.ts`를 공용 모델 목록 사본으로 교체(사본에는 `server-only`가 없지만 키·비밀값이 없는 목록이라 문제없음).
+- 통합 값(ai-image-studio v1.11 검증값):
+
+| 등급 | 모델 | 기본 화질 | 온도 |
+|---|---|---|---|
+| nanobanana (1K 경량) | gemini-3.1-flash-lite-image | 1K | 0.7 |
+| nanobanana-2-2k | gemini-nano-banana-2.1 | 2K | 0.7 |
+| nanobanana-2-4k | gemini-nano-banana-2.1 | 4K | 0.7 |
+| nanobanana-pro | gemini-3-pro-image | 4K | 0.4 |
+
+- 이 프로그램에서 바뀐 값: 1K 등급 → `gemini-3.1-flash-lite-image`, Pro 온도 0.7 → 0.4. 확장 manifest 1.68.0/v1.68·ZIP 재생성.
+- 호환: 불러오는 이름(`getNanoBananaConfig`·`NanoBananaModelType`·`NANO_BANANA_MODEL_OPTIONS`)·등급 키·옛 등급 이름(`nanobanana-2` → 기본 2K)은 그대로라 저장된 회원 선택값도 그대로 동작. 타입 검사·기존 테스트·빌드·배포·DB 버전 확인. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
+- **주의(다음 CLI)**: 모델 설정 파일은 공용 기준 코드 `gemini-image-models`의 사본이다(기준: `ai-image-studio/lib/providers/nanoBananaModels.ts`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()` 결과를 호출하는 쪽에서 덮어써 보완한다(주인님 지시). 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
