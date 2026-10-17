@@ -28,7 +28,7 @@ export async function generateSceneImage(apiKey: string, model: string, prompt: 
     out = await generateGeminiImage({ apiKey, modelName: model, prompt, aspectRatio: "9:16", responseModalities: ["TEXT", "IMAGE"], timeoutMs: 150_000, retries: 0 });
   } catch (e) {
     if (!(e instanceof GeminiImageError)) throw e;
-    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "이미지 생성 응답을 받지 못했습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.");
+    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "이미지 생성 응답을 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인해 주세요.");
     if (e.code === "SAFETY_BLOCKED") throw new AiError(422, "safety", "AI가 이 이미지 요청을 처리하지 않았습니다. 장면 설명을 바꿔 주세요.");
     if (e.code === "NO_IMAGE") throw new AiError(502, "noimage", "AI가 이미지를 돌려주지 않았습니다. 다시 시도해 주세요.");
     if (e.status === 401 || e.status === 403) throw new AiError(400, "key", "본인 Gemini API 키와 이미지 모델 사용 권한을 확인해 주세요.");

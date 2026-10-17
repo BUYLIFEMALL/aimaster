@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 이미지 시간 초과 안내를 「Google AI Studio 사용량 확인」으로 정정 · 사본 30곳 재배포
+
+- **한 일**: 시간 초과는 우리 서버가 구글 요청을 끊는 것이라 이미지가 프로그램(보관함)에 저장되지 않는다는 것을 확인 → 이전 문구 「잠시 뒤 결과를 확인」과 「보관함 링크」 제안은 틀린 안내였음. 공용 기준 문구를 「…결과를 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인」으로 정정(주인님 선택), 문구를 덮어쓰던 4곳(blog-workroom·photo-remake·shorts-onestop·blog-content-maker 이미지 부분)도 같게.
+- **버전(코드+DB)**: ai-image-studio v1.18 · ai-auto-blog v1.74 · tistory v1.81 · seo-studio v1.73 · poster_app v1.12 · poster-web v1.13 · shots v1.16 · insta v1.22 · threads v1.16 · threads-affiliate v1.61 · cafe v1.15 · threads-content-ops v2.04 · kakao v1.16 · stepmail v1.16 · auto-detail-page v1.13 · tarot v1.13 · mbti v1.14 · music v1.16 · naver-blog-agent v1.93 · allinone v1.48 · cardnews v1.14 · style-dna v1.21 · shop-detail v1.14 · blog-content-maker v1.09 · blog-workroom v1.11 · music-video v1.10 · emotion-writer v1.14 · photo-remake v1.08 · shorts-onestop v1.18 · seo-thumbnail-pro v1.09.
+- **검수**: 기준 테스트 8개 통과, 4곳 tsc 0, `check-shared-modules` OK, Vercel 31곳 종료 코드 0, DB 30곳, 확장 7곳 실패 0, 크롬 화면 버전 28곳(poster_app·poster-web은 `vercel inspect` Ready).
+- **⚠ Antigravity와 겹친 일(threads-affiliate-poster)**: 배포 도중 Antigravity가 이 폴더에서 v1.61 디자인 리뉴얼을 시작했고(작업 중 표 줄은 02:10 확인 뒤 생김), 제 연속 배포가 작업 폴더를 그대로 올려 **작업 중이던 디자인이 운영에 먼저 나감**(화면 정상, 주인님 결정으로 유지). 버전 번호도 같은 v1.61. 이후 Antigravity가 v1.61을 마무리 커밋(`5b1847a8`)하면서 이 폴더의 제 변경(공용 사본·AGENTS 항목)도 함께 커밋함 — 내용 충돌 없음.
+- **재발 방지**: 연속 배포는 폴더마다 배포 직전에 작업 중 표를 다시 읽어 다른 에이전트 작업 폴더를 건너뛰는 방식으로 바꿈(ERROR_LESSONS 2026-10-18).
+- **다음 첫 단계**: 이미지 4묶음 B(SDK 9곳) 구현 — 플랜은 채팅 보고, 구현 시 각 폴더 docs에 기록.
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — Threads 쇼핑제휴 자동화 v1.61: 스레드 바이럴 스튜디오 다크 스타일 디자인 리뉴얼·Vercel 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
 
 - **대상**: `threads-affiliate-poster/` (https://threads-affiliate-poster.buylife.xyz)

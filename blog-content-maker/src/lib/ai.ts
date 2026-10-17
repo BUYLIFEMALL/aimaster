@@ -76,7 +76,7 @@ export async function imageGenerate(user: string, prompt: string, aspect: string
     image = await generateGeminiImage({ apiKey: key, modelName: s.imageModel, parts: [...(reference ? [{ inlineData: { data: reference.bytes.toString("base64"), mimeType: reference.mime } }] : []), { text: `${prompt}\n${reference ? "첨부한 제품의 형태와 주요 특징을 보존하여 요청한 배경과 자연스럽게 합성합니다." : ""} 인물이 필요한 장면에서는 한국인(동아시아인)을 기본으로 합니다. 인물이 필요하지 않은 제품·풍경에는 억지로 사람을 추가하지 않습니다. 원본 업체 로고·워터마크·프로그램명을 넣지 않습니다.` }], aspectRatio: aspect === "16:9" ? "16:9" : "1:1", responseModalities: ["TEXT", "IMAGE"], timeoutMs: 240000, retries: 0 });
   } catch (e) {
     if (!(e instanceof GeminiImageError)) throw e;
-    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new UserError(504, "AI 연결이 끊겨 완료 여부를 확인하지 못했습니다. 보관함과 본인 사용량을 확인한 뒤 새 요청을 진행해 주세요.", { uncertain: true });
+    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new UserError(504, "이미지 생성 응답을 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인해 주세요.", { uncertain: true });
     if (e.code === "SAFETY_BLOCKED" || e.code === "NO_IMAGE") throw new UserError(422, "이미지가 반환되지 않았습니다. 안전 기준·모델 권한·입력 내용을 확인해 주세요.");
     const messages: Record<number, string> = { 400: "선택한 모델이 요청 형식을 처리하지 못했습니다. 모델과 검색 옵션을 확인해 주세요.", 401: "본인 API 키를 확인해 주세요.", 403: "본인 API 키의 모델·결제 권한을 확인해 주세요.", 404: "본인 계정에서 이 모델을 사용할 수 없습니다. 설정에서 모델을 바꿔 주세요.", 429: "본인 API의 한도에 도달했습니다. 제공사 한도·결제 상태를 확인해 주세요.", 503: "AI 서버가 혼잡합니다. 잠시 후 다시 요청해 주세요." };
     throw new UserError(e.status === 429 ? 429 : 422, messages[e.status] || e.message);

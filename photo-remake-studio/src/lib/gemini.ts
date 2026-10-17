@@ -33,7 +33,7 @@ export async function generateRemake(apiKey: string, x: RemakeRequest) {
     out = await generateGeminiImage({ apiKey, modelName: x.model, parts: [...parts(x), { text: x.mode === "restore" ? restorationPrompt(x) : compositionPrompt(x) }], ...(x.aspect !== "original" ? { aspectRatio: x.aspect } : {}), responseModalities: ["TEXT", "IMAGE"], timeoutMs: 180_000, retries: 0 });
   } catch (e) {
     if (!(e instanceof GeminiImageError)) throw e;
-    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "이미지 생성 응답을 받지 못했습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.");
+    if (e.code === "TIMEOUT" || e.code === "NETWORK") throw new AiError(504, "timeout", "이미지 생성 응답을 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인해 주세요.");
     if (e.code === "SAFETY_BLOCKED") throw new AiError(422, "safety", "AI가 이 사진 또는 요청을 처리할 수 없습니다. 사진·지시를 확인해 주세요.");
     if (e.code === "NO_IMAGE") throw new AiError(502, "noimage", "AI가 완성 이미지를 반환하지 않았습니다. 다른 사진 또는 지시로 다시 시도해 주세요.");
     if (e.status === 429) throw new AiError(429, "quota", "본인 Gemini 계정의 사용 한도·결제 설정을 확인해 주세요.");

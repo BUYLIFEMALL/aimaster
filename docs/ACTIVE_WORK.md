@@ -18,7 +18,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| ai-image-studio 외 이미지 사본 30곳(scripts/check-shared-modules.mjs 목록) | Claude Code(윈도우) | 2026-10-18 02:10 | 이미지 시간 초과 안내를 사용량 확인으로 정정 |
 
 
 

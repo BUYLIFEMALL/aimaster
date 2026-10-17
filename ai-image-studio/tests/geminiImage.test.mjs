@@ -75,7 +75,7 @@ test("시간 초과는 재시도 없이 안내, 네트워크 끊김은 재시도
   let n = 0;
   await assert.rejects(
     generateGeminiImage({ apiKey: "K", modelName: "m", prompt: "p", sleep: noSleep, fetchImpl: async () => { n++; const e = new Error("t"); e.name = "TimeoutError"; throw e; } }),
-    (e) => e.code === "TIMEOUT" && e.message.includes("이미 만들어졌을 수 있으니") // 이중 과금 방지 안내(2026-10-17)
+    (e) => e.code === "TIMEOUT" && e.message.includes("aistudio.google.com/usage") // 이중 과금 방지: 사용량 확인 안내(2026-10-18)
   );
   assert.equal(n, 1); // 시간 초과는 이미 생성·과금됐을 수 있어 자동 재시도하지 않음
   n = 0;

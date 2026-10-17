@@ -226,8 +226,9 @@ export async function generateGeminiImage(req: GeminiImageRequest): Promise<Gemi
       const name = (e as { name?: string })?.name;
       if (name === "TimeoutError" || name === "AbortError") {
         // 시간 초과여도 구글 쪽에서는 이미지가 만들어져 요금이 나갔을 수 있다. 그래서 자동으로 다시 보내지 않고(이중 과금 방지),
-        // 바로 다시 누르지 않도록 결과 확인을 먼저 안내한다(2026-10-17). 재시도는 서버 오류·혼잡·연결 실패에만 한다.
-        throw new GeminiImageError(`이미지 생성이 ${Math.round(timeoutMs / 1000)}초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.`, "TIMEOUT", 504);
+        // 바로 다시 누르지 않도록 안내한다. 요청을 끊었으므로 이미지는 프로그램에 저장되지 않는다 — 확인할 곳은 회원 본인 Google 사용량뿐(2026-10-18 정정).
+        // 재시도는 서버 오류·혼잡·연결 실패에만 한다.
+        throw new GeminiImageError(`이미지 생성이 ${Math.round(timeoutMs / 1000)}초 안에 끝나지 않아 결과를 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인해 주세요.`, "TIMEOUT", 504);
       }
       lastError = new GeminiImageError("Gemini 서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.", "NETWORK", 502);
       continue;
