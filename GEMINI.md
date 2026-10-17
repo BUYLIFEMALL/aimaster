@@ -3,6 +3,77 @@
 > **★★★ 개발 대화 규칙 (최상단 고정, 모든 CLI 공통) — 진행 과정·현재 진행 중인 내용은 반드시 한글로 표시 (2026-10-17 주인님 지시 — 개발 핵심 지침 맨 위 고정, 모든 규칙보다 먼저 읽는다)**
 > **최종 보고뿐 아니라 작업 도중 보여 주는 모든 문장 — "지금 하고 있는 일·다음 단계" 안내, 도구 호출 사이의 짧은 설명, 명령 실행 설명(description) — 을 쉬운 한글 존댓말로 쓴다.** 영어는 전문 용어(파일 경로·함수명·API·라이브러리명·프로그램 링크 등 영어로만 표현되는 것)에만 쓴다. 영어 문장으로 진행 상황을 보여 주지 않는다(주인님이 읽기 어려움). **단, 실행 명령어·소스 코드·프로그램 실행 결과(출력)·로그는 원래대로 영어 그대로 둔다** — 한글로 쓰는 대상은 에이전트가 쓰는 설명 문장뿐이다(2026-10-17 주인님 보충 지시). 긴 작업 중간에 영어로 흐트러지기 쉬우니 매 안내 문장을 보내기 전에 한글인지 확인한다. 예: "다음은 문서 정리와 커밋입니다.", "배포했습니다. 이제 크롬에서 화면을 확인하겠습니다."
 
+> **★★★ 코딩 행동 원칙 — karpathy 4원칙 (2026-10-17 주인님 지시, Claude Code·Codex·Antigravity 세 CLI 공통)**
+> 아래 4원칙(Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven Execution)은 `CLAUDE.md` 「불변의 핵심 원칙」 맨 앞과 같은 내용이며, Claude Code에는 `andrej-karpathy-skills` 플러그인으로도 설치돼 있다. Codex(`AGENTS.md`)·Antigravity(`GEMINI.md`)는 플러그인을 읽지 못하므로 이 블록으로 같은 원칙을 적용한다. 원문을 고칠 때는 세 파일(`CLAUDE.md`·`AGENTS.md`·`GEMINI.md`)을 함께 고친다.
+
+<!-- KARPATHY_GUIDELINES_20261017 -->
+## 코딩 행동 원칙 (karpathy guidelines)
+
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+---
+
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+<!-- /KARPATHY_GUIDELINES_20261017 -->
+
 > **테스트 비용 규칙(2026-10-17 주인님 지시):** 테스트할 때는 진행 가능한 가장 저렴한 모델로 최소 호출만 한다. 퀄리티(품질) 테스트나 특정 기능 구현에 꼭 필요하면 상위 모델을 써도 되며, 이유·모델·횟수를 기록한다. 상세: [`docs/TEST_COST_POLICY.md`](docs/TEST_COST_POLICY.md)
 
 > **생성 데이터도 회원 본인 소유로 격리하며 다른 회원과 공유·복사·재사용하지 않는다.** 분석 결과·회사 조사 정보·수집 결과·본문·이미지·임시 캐시는 회원별로 저장하고 생성일 기준 **30일 후 자동 삭제**한다. 비용 절감·공개 회사정보라는 이유로 전역 생성 캐시나 관리자 공용 생성 데이터 예외를 만들지 않는다. DB 기반 시설은 기존 AIMaster 공통 Supabase를 유지하되 모든 회원 데이터에 소유자 조건·RLS·회원별 저장 경로를 적용한다. 계정·API 키·회원 권한·결제·환경설정은 생성 콘텐츠와 구분한다.

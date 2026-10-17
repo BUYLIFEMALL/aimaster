@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — karpathy 4원칙을 AGENTS.md·GEMINI.md에 추가 + 에이전트 플러그인 설치 현황
+
+- **한 일**: `CLAUDE.md` 맨 앞의 karpathy 4원칙(Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven Execution)을 루트 `AGENTS.md`(Codex)·`GEMINI.md`(Antigravity) 맨 위 「개발 대화 규칙」 다음에 같은 원문으로 넣음(표시: `KARPATHY_GUIDELINES_20261017`). 원문을 고칠 때는 세 파일을 함께 고친다.
+- **플러그인은 CLI·컴퓨터마다 따로 설치된다**(Claude Code 플러그인은 Codex·agy가 읽지 못함):
+
+| 장비 | CLI | Superpowers | andrej-karpathy-skills |
+|---|---|---|---|
+| 윈도우 | Claude Code | ✅ (주인님 설치) | ✅ 마켓플레이스 `karpathy-skills` = `https://github.com/multica-ai/andrej-karpathy-skills.git` (옛 `forrestchang` 주소는 가져오기 실패) |
+| 윈도우 | Antigravity(agy) | ✅ `agy plugin install https://github.com/obra/superpowers` (스킬 15개) | 지침 파일(`GEMINI.md`)로 적용 |
+| 윈도우 | Codex | 주인님이 `/plugins` → superpowers 검색 → Install Plugin으로 설치 중 | 지침 파일(`AGENTS.md`)로 적용 |
+| 맥미니 | 세 CLI 모두 | 미설치(필요하면 같은 방법으로 각각 설치) | 지침 파일로 이미 적용(Claude Code 플러그인은 맥미니에서 따로 설치) |
+
+- **다음 첫 단계**: 없음(맥미니 설치는 필요할 때 주인님 판단).
+
 ## 2026-10-17 Claude Code(맥미니) — 웹 크롤링 자동화 v1.07 디자인 리뉴얼(스마트 매트릭스 다크) · 윈도우 배포 대기
 
 - **한 일**: `web-crawler/webapp`에 `ghost-scraper` 색 토큰·히어로·KPI 이식, 화면 색 일괄 치환, 사이드바 스텝퍼 + 📖 매뉴얼 + 휴대폰 ☰, 대시보드(상태 KPI 5칸·수집 중 강조·최근 작업 표), `/guide` 신설, 로그인 다크. 서버·파이썬 서비스·DB 변경 없음. 현황판 폴더 표기 정정(`web-crawler/webapp`).
