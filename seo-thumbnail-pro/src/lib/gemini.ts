@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import {
   ThumbnailSettings,
   StrategyResponse,
@@ -274,9 +276,9 @@ export async function generateThumbnailImage(
 
   // 나노바나나(Gemini Image) 모델 우선순위
   const imageModels = [
-    "gemini-3.1-flash-image-preview",
-    "gemini-2.5-flash-image",
-    "gemini-3-pro-image-preview",
+    "gemini-nano-banana-2.1",
+    "gemini-3.1-flash-lite-image",
+    "gemini-3-pro-image",
   ];
 
   let lastError: Error | null = null;
