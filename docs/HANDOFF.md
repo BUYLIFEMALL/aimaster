@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 유튜브 바이럴 파인더: 개발 도구 보안 경고 high 5 조사 완료·수용 (코드 변경 없음)
+
+- **결과**: 5건 모두 `eslint-config-next → @next/eslint-plugin-next → fast-glob → micromatch → braces@3.0.3` 한 경로. braces 최신이 3.0.3이고 Next 검사 플러그인 최신·canary도 같은 경로라 고칠 버전 없음. 개발 PC lint에서만 쓰이고 Next 16 빌드는 lint를 안 돌려 운영 영향 없음(운영 audit 0) → 근거 기록 후 수용.
+- **문서**: [`youtube-viral-studio/AGENTS.md`](../youtube-viral-studio/AGENTS.md) · [`docs/IMPROVEMENT_BACKLOG.md`](../youtube-viral-studio/docs/IMPROVEMENT_BACKLOG.md)
+- **다음**: 같은 프로그램 코드 규칙 경고 74건 정리(v1.15 예정).
+- **링크**: https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-17 Codex — 작업 종료·완료/미완료 및 CLI 공동작업 규칙
 
 - 이번 기능 범위 종료. Viral Finder v1.14 본인 즐겨찾기DB/RLS·30일 정리 운영 완료, Playlist v1.08 참고 메모 수신/운영 Edge 연계10 완료. 소스68b2b010 / ea42c5b8, Playlist 결과a504b96d master 푸시. DB/APP 일치·DESIGN28/12 완료·본인 ACTIVE 제거.

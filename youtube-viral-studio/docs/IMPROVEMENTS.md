@@ -35,3 +35,6 @@
 ## 2026-10-17 종료 — Playlist 연계 완료
 
 위 v1.14 기록의 수신 대기는 Playlist v1.08 운영 배포/DB 동기화와 일반 회원 Edge10검사로 해소됐습니다. 제목/URL 읽기 전용 참고 메모이며 실제 미디어/AI/게시 실행 없음. 미해결은 IMPROVEMENT_BACKLOG.md에 구분했습니다. https://youtube-playlist.buylife.xyz
+
+## 2026-10-17 Claude Code(윈도우) — 개발 도구 보안 경고 high 5 조사
+- 결과: 상류(braces·Next 검사 플러그인)에 고친 버전이 없어 수용. 운영 영향 없음(운영 audit 0). 근거 `AGENTS.md` 같은 날 항목, 대기 목록 갱신.

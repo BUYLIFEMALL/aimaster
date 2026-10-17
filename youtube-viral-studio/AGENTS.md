@@ -104,3 +104,9 @@
 5. **대기 과제:** [개선 대기 목록](docs/IMPROVEMENT_BACKLOG.md) 및 [원장](docs/IMPROVEMENTS.md). 개발 의존성 high5·lint경고74, 즐겨찾기1000건 페이지 나눔, 회원별 검색 임시 저장은 미완료입니다. 새로운 DB 범위는 별도 승인 확인이 필요합니다.
 6. **연계·아이디어:** Playlist에 본인 영상 제목/URL 참고 메모를 명시적으로 복사/붙여넣는 연결을 제공합니다. 채널 진단/쇼츠 대본/SEO 프로그램 연계는 제안입니다. 다른 회원 결과·키를 공유하지 않습니다.
 7. **UI·스타일 제안:** 유튜브 다크와 모바일 메뉴를 유지합니다. 후속은 즐겨찾기 대량 탐색/페이지 나눔과 키보드 조작성입니다. 과거 예시칩/정렬 제안은 기존 구현과 대조한 뒤 중복 개발하지 않습니다.
+
+## 2026-10-17 개발 도구 보안 경고 high 5 — 조사 완료·수용 (Claude Code 윈도우, 코드 변경 없음)
+- 5건 모두 한 경로: `eslint-config-next@16.4.2 → @next/eslint-plugin-next@16.4.2 → fast-glob@3.3.1 → micromatch@4.0.8 → braces@3.0.3`(깊게 중첩된 패턴으로 인한 서비스 거부).
+- 고칠 수 없음: `braces` 최신이 3.0.3(2024-09 이후 새 버전 없음), `@next/eslint-plugin-next` 최신 16.4.2·16.5.0-canary.16도 같은 `fast-glob@3.3.1`. npm 제안(eslint-config-next 14.2.35로 내리기)은 Next 16과 맞지 않아 제외. 검사 도구를 빼면 Next 전용 규칙을 잃어 제외.
+- 영향 없음: 개발 PC의 `npm run lint`에서만 실행, Next 16 `next build`는 lint를 돌리지 않음, 패턴은 설정 파일 고정이라 외부 입력이 닿지 않음. 운영 의존성 `npm audit --omit=dev` 0건.
+- 다음: Next 검사 플러그인이 `fast-glob`을 바꾸거나 `braces` 수정판이 나오면 `npm audit`로 재확인 후 갱신. 증거 `docs/evidence/dependency-audit-dev-20261017.json`·`dependency-audit-prod-20261017.json`.
