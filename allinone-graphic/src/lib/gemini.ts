@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import { GoogleGenAI } from "@google/genai";
 
 function koreaNowRule(now = new Date()): string {
@@ -51,7 +53,7 @@ export async function validateGeminiApiKey(apiKey: string): Promise<ApiKeyValida
   // 표준 이미지 테스트
   try {
     await ai.models.generateContent({
-      model: "gemini-2.5-flash-image",
+      model: "gemini-3.1-flash-lite-image",
       contents: { parts: [{ text: "dot" }] },
       config: { imageConfig: { aspectRatio: "1:1" } } as unknown as Record<string, unknown>,
     });
@@ -63,7 +65,7 @@ export async function validateGeminiApiKey(apiKey: string): Promise<ApiKeyValida
   // Pro 이미지 테스트
   try {
     await ai.models.generateContent({
-      model: "gemini-3.1-flash-image-preview",
+      model: "gemini-nano-banana-2.1",
       contents: { parts: [{ text: "dot" }] },
       config: { imageConfig: { aspectRatio: "1:1" } } as unknown as Record<string, unknown>,
     });
@@ -84,7 +86,7 @@ export async function generateGraphicImage(
   modelTier: "standard" | "pro" = "standard"
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
-  const modelName = modelTier === "pro" ? "gemini-3.1-flash-image-preview" : "gemini-2.5-flash-image";
+  const modelName = modelTier === "pro" ? "gemini-nano-banana-2.1" : "gemini-3.1-flash-lite-image";
 
   const parts: Array<Record<string, unknown>> = [];
 
@@ -150,7 +152,7 @@ export async function editGraphicImage(
   referenceImages: ImageReference[] = []
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
-  const modelName = modelTier === "pro" ? "gemini-3.1-flash-image-preview" : "gemini-2.5-flash-image";
+  const modelName = modelTier === "pro" ? "gemini-nano-banana-2.1" : "gemini-3.1-flash-lite-image";
 
   const cleanBase = baseImageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
   const parts: Array<Record<string, unknown>> = [
