@@ -69,3 +69,7 @@
 - 메인 사이트 `app/(main)/naver-blog-seo-studio/page.tsx` 전달 대상을 새 주소로(메인 배포, `137098a0`).
 - 검수: 새 주소 / → /dashboard, 옛 주소 / /login /settings /dashboard 모두 308, API(whoami) 옛·새 주소 401(동작), 크롬에서 재로그인 없이 대시보드 열림(공유 세션이 관리자 계정이라 관리자로 표시). 
 - **회원 안내 필요**: 설치된 옛 확장의 web-bridge는 옛 주소에서만 동작 → 화면이 새 주소로 옮겨진 지금은 확장 설치 확인·카테고리 읽기가 새 확장(v1.65)에서만 동작. ZIP 다시 받기 → 덮어쓰기 → 새로고침.
+
+## v1.66 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `lib/ai/nanoBananaConfig.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
