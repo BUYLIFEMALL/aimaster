@@ -1,5 +1,47 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — 네이버 블로그 에이전트 v1.94: 플로우 위저드 라이트 테마 리뉴얼·모바일 헤더&드로어 신설·비주얼 가이드북 고도화·확장 일괄동기화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 45개 완료 달성!)
+
+- **대상**: `naver-blog-agent/` (https://naver-blog-agent.buylife.xyz, slug: `naver-blog-agent`)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **플로우 위저드 스타일 (네이버 그린 라이트 변형)** 라이트 테마 (`bg-[#f8fafc]`, 서피스 카드 `#ffffff`, 보더 `#e2e8f0`, 네이버 시그니처 그린 `#03c75a` / `#00c73c`, 포인트 앰버/인디고).
+     - **모바일(375px) 반응형 내비게이션 완비**: `Header.tsx` 햄버거 토글 버튼(`aria-label="사이드 메뉴 열기"`), `Sidebar.tsx` 모바일 슬라이드 오버레이 드로어, `DashboardShell.tsx` 클라이언트 셸을 신설하여 모바일에서도 1~3 스텝퍼와 유틸리티를 터치 한 번으로 안전하게 접근 가능.
+     - **사이드바 메뉴 표준화**: `Sidebar.tsx` 내 유틸리티 섹션에 `📖 연동 & 사용 매뉴얼` 메뉴 배치, 에메랄드 하이라이트 활성화.
+     - **비주얼 연동 & 사용 매뉴얼 (`guide/page.tsx`) 전면 고도화**: 공식 가이드북 히어로 배너 (`v1.94`), 3단계 올인원 제작 파이프라인(01 떡상 글감 수집 → 02 5단계 AI 생성 → 03 보관 & 발행), 스마트에디터 ONE 전용 크롬 확장 설치 & 1회 페어링 4단계 가이드, 네이버 C-Rank & D.I.A.+ 검색엔진 상위 노출 4대 실전 핵심 원칙, FAQ 5종 아코디언 컴포넌트 탑재.
+  2. **크롬 확장 프로그램 & 버전 일괄 동기화**:
+     - `extension/manifest.json`: `1.94.0` / `v1.94`
+     - `package.json`: `1.94.0`
+     - `src/lib/version.ts`: `v1.94`
+     - `public/downloads/naver-blog-agent-extension-latest.zip`: 재패키징 완료 (`npm run build:extension`)
+     - Supabase DB `programs` 테이블: `version: v1.94`, `extension_version: v1.94` 일괄 갱신 완료 (`scripts/update_naver_blog_agent_version_v194.cjs`).
+     - 확장 프로그램 릴리즈 일치 검증 통과 (`check-extension-release.mjs naver-blog-agent`: PASS).
+  3. **로컬 빌드 및 Vercel 프로덕션 배포**:
+     - 주요 단위 테스트 통과 (`npm run test:years`, `npm run test:queue-filter`, `npm run test:models`).
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`).
+     - Vercel 프로덕션 배포 완료: `https://naver-blog-agent-pl9us8nk5-buylife.vercel.app` → alias `naver-blog-agent.buylife.xyz` 최신 연결 확인 (`readyState: READY`).
+  4. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 플로우 위저드 라이트 대시보드(STEP 1~3 스텝퍼, 원클릭 빠른 작업 카드, 크롬 확장 상태) 및 고도화된 비주얼 가이드북(`/guide`) 완벽 노출.
+     - 모바일 (375px): 상단 햄버거 메뉴 클릭 시 슬라이드 드로어 메뉴 정상 작동 및 모바일 가이드북 반응형 완벽 대응.
+     - 스크린샷 증빙 아티팩트 5종 보존:
+       - `edge_naver_blog_agent_desktop_dashboard_v194.png`
+       - `edge_naver_blog_agent_desktop_guide_v194.png`
+       - `edge_naver_blog_agent_mobile_dashboard_v194.png`
+       - `edge_naver_blog_agent_mobile_menu_v194.png`
+       - `edge_naver_blog_agent_mobile_guide_v194.png`
+  5. **인수인계 규격화 문서 6종 완비**:
+     - `naver-blog-agent/docs/PLAN_20261018_DESIGN_RENEWAL.md`
+     - `naver-blog-agent/docs/DESIGN_HANDOFF.md`
+     - `naver-blog-agent/docs/IMPROVEMENTS.md` (3대 핵심 항목 및 타 프로그램 연계 분석)
+     - `naver-blog-agent/docs/IMPROVEMENT_BACKLOG.md` (우선순위별 작업 백로그)
+     - `naver-blog-agent/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `naver-blog-agent/README.md` (7대 핵심 항목 동기화)
+  6. **현황판 동기화**:
+     - `DESIGN.md` 29번 상태 「✅ 1차 작업완료 (`v1.94`, 플로우 위저드 라이트 테마 & 가이드북 신설)」 갱신 완료 (**✅ 45개 완료 / ⚪ 36개 예정 / ⏸ 2개 보류**).
+     - `docs/ACTIVE_WORK.md` 작업 중 줄 삭제 완료.
+- **다음 첫 단계**: 30번(`threads-content-ops`)과 32번(`threads-easy-planner`)은 이미 완료되어 있으므로, 31번 쇼츠 떡상 분석·대본 자동화 (`shorts-viral-studio`, 플로우 위저드 스타일 권장) 분석 및 디자인 리뉴얼 플랜 수립.
+
 ## 2026-10-18 Claude Code(윈도우) — 강의용 독립 설치 키트: Threads 콘텐츠 운영 자동화 + INSTA 포스팅 자동화 (버전·배포 없음)
 
 - **대상**: `threads-content-ops/`, `insta_auto_poster/`, 루트 `scripts/make_lecture_kit.py`
