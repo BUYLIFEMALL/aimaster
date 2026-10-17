@@ -28,3 +28,7 @@
 먼저 이 문서·AGENTS/README·IMPROVEMENTS를 읽습니다. 소유자 불명 전역 자료를 복구/자동이전하지 않습니다. 새 테이블 외 삭제 대상 추가 금지. API키·계정·권한은30일 정리 대상이 아닙니다. 메인 Git 자동배포 뒤 설치파일 보호는 기존 scripts/finalize-supabase-compat-main.cjs 지침을 따릅니다.
 
 검수 명령(프로그램 폴더): npm run build:verify / node --test tests/favorites.test.mjs / npm run lint / npm run test:runtime / node tests/runtime-favorites.mjs / npm run test:fixtures / node tests/security-http.mjs. 로컬서버 node tests/local.mjs start, 운영은 YVS_TEST_BASE를 공식 도메인으로 지정. 자료·키는 로그로 출력하지 않습니다. 증거 docs/evidence/v114/.
+
+## 최신 한도 안내 추가 보완
+
+2026-10-17 [공식 문서](https://developers.google.com/youtube/data/determine_quota_cost)(2026-10-15 갱신)를 확인해 search.list 하루100회 별도 한도와 기타 API10,000units를 대시보드/설정/가이드/오류 안내에 맞췄습니다. 수천 회 가능·새 키를 만들면 한도 회복 등의 문구를 제거했습니다. 실제 한도는 본인 Cloud 프로젝트 콘솔 기준입니다.

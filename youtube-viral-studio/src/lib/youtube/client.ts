@@ -31,7 +31,7 @@ function handleApiError(data: any, status: number): never {
 
   if (reason === "quotaExceeded") {
     throw new YouTubeApiError(
-      "등록하신 YouTube API 키의 일일 사용 한도(10,000 units)가 모두 소진되었습니다. 내일 오후 4시(PST 기준 자정)에 초기화되거나 새 키를 등록해주세요.",
+      "본인 Google Cloud 프로젝트의 YouTube 일일 한도가 소진되었습니다. 검색과 기타 API 한도는 별도로 적용되므로 콘솔에서 확인해주세요. 미국 태평양 자정(한국 서머타임 오후4시·겨울 오후5시)에 초기화됩니다.",
       "QUOTA_EXCEEDED",
       429
     );

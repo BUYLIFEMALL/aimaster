@@ -281,7 +281,7 @@ export default function SettingsPage() {
                 YouTube Data API v3 키 (필수)
               </h2>
               <p className="text-xs text-yt-muted">
-                매일 10,000 units의 무료 쿼리가 제공됩니다. (수천 회의 쇼츠 및 채널 분석 가능)
+                기본 할당량은 search.list 하루 100회, 기타 API 합산 하루 10,000 units입니다. 검색 한 번에 여러 요청이 사용될 수 있습니다.
               </p>
             </div>
           </div>
@@ -396,7 +396,7 @@ export default function SettingsPage() {
         <div className="p-3 bg-yt-link/10 border border-yt-link/30 rounded-xl text-xs text-yt-link flex items-start gap-2">
           <ShieldCheck className="w-4 h-4 text-yt-link shrink-0 mt-0.5" />
           <span>
-            Google YouTube API는 매일 10,000 unit을 전액 무료로 제공하므로 별도의 결제가 발생하지 않습니다.
+            YouTube 기본 할당량은 search.list 하루 100회와 기타 API 합산 10,000 units로 구분됩니다. 본인 Google Cloud 콘솔에서 실제 한도를 확인해주세요. AI 대본 분석은 별도 사용료가 발생할 수 있습니다.
           </span>
         </div>
       </div>

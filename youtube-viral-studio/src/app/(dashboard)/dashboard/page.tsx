@@ -128,10 +128,10 @@ export default async function DashboardPage() {
         <div className="yt-card">
           <h2 className="yt-section-title">⛽ 무료 한도 안내</h2>
           <p className="text-sm leading-relaxed text-yt-muted">
-            YouTube Data API는 회원님 구글 프로젝트마다 <b className="text-yt-text">하루 10,000 units</b>를 무료로 줍니다. 매일
+            기본 한도는 <b className="text-yt-text">search.list 하루 100회</b>, 기타 API 합산 <b className="text-yt-text">하루 10,000 units</b>입니다. 매일
             <b className="text-yt-text"> 한국 시간 오후 4시(겨울철 오후 5시)</b>, 미국 태평양 자정에 다시 채워져요.
           </p>
-          <p className="mt-2 text-xs text-yt-muted">한도가 다 차면 다음 충전 때까지 검색이 멈춰요. 검색 조건을 좁혀 쓰면 더 오래 씁니다.</p>
+          <p className="mt-2 text-xs text-yt-muted">화면에서 한 번 검색해도 여러 API 요청이 사용될 수 있습니다. 실제 한도는 본인 Google Cloud 콘솔에서 확인해주세요. <a href="https://developers.google.com/youtube/data/determine_quota_cost" target="_blank" rel="noopener noreferrer" className="text-yt-link underline">공식 한도 안내</a></p>
         </div>
 
         <div className="yt-card">
