@@ -1,5 +1,48 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.15: 테마 자동·로그인 화면 다크·설정 저장 속도·꼬리표 거르기
+
+- **대상**: `markdown-studio/` v1.14 → **v1.15** (코드·DB 동기화)
+- **한 일**: ① 테마 라이트/다크/자동(컴퓨터 설정) ② 로그인 화면도 같은 테마 ③ 고정·꼬리표 등 화면 설정 저장 즉시(로그인 확인 생략, 회원 전용 기기 저장소) ④ 대시보드 꼬리표 색 거르기
+- **검수**: 단위 63개, 빌드·배포, 크롬 시험 계정 실화면(고정 6ms·거르기·자동·로그인 다크/라이트·400px iframe). 원상복구.
+- **사고**: 첫 배포 3분간 대시보드 오류(선언 순서, TDZ) → 즉시 수정·재배포. `docs/ERROR_LESSONS.md` 기록.
+- **인수인계**: [`markdown-studio/AGENTS.md`](../markdown-studio/AGENTS.md) 「v1.15」 · [`docs/IMPROVEMENTS.md`](../markdown-studio/docs/IMPROVEMENTS.md) · [`docs/IMPROVEMENT_HANDOFF_20261017.md`](../markdown-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **남은 일**: 새 제안 3건(최근 문서 더 보기·백업에 고정 정보 포함·꼬리표 이름) — 승인 전 미구현
+- **링크**: https://markdown-studio.buylife.xyz
+
+## 2026-10-17 Antigravity(Windows) — 페르소나 문체 자동화 v1.08: 로그인·회원가입 표준 2탭 레이아웃(포커스 스튜디오 테마) 전면 리뉴얼 완료
+
+- **대상 프로그램**: `persona-style-studio/` (slug: `persona-style-studio`, 프로그램 번호 10번)
+- **공식 라이브 URL**: https://persona-style-studio.buylife.xyz/login
+- **배포 버전**: `v1.08` (로컬 패키지 `1.08.0`, `APP_VERSION = "v1.08"`, Supabase DB `programs.version = 'v1.08'` 동기화 완료)
+- **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 문체 변환 스튜디오 · 클린 슬레이트 `#f8fafc` 24px 모눈 격자, 카드 화이트 `#ffffff` & 보더 `border-slate-200`, 바이올렛/인디고 `#7c3aed` ➔ `#4f46e5` 알약 탭 & 버튼)**
+- **인수인계 문서**:
+  - 리뉴얼 개발 플랜: [`persona-style-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`](../persona-style-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md)
+  - 개선사항 인수인계: [`persona-style-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](../persona-style-studio/docs/IMPROVEMENT_HANDOFF_20261017.md)
+  - 디자인 완료 인수인계: [`persona-style-studio/docs/DESIGN_HANDOFF.md`](../persona-style-studio/docs/DESIGN_HANDOFF.md)
+  - 프로그램 가이드: [`persona-style-studio/AGENTS.md`](../persona-style-studio/AGENTS.md)
+- **주요 작업 내용**:
+  1. **로그인·회원가입 표준 2탭 레이아웃 전면 구현 (DESIGN.md 14번 규격 준수)**:
+     - `src/app/(auth)/login/page.tsx`: 기존의 텍스트 기반 폼 전환 및 이질적인 레드(`bg-red-600`) 버튼을 `threads-comment-reply` 표준 규격에 맞춘 `[로그인]` / `[회원가입]` 2탭 세그먼트 토글 컨트롤(포커스 스튜디오 화이트 알약 탭)로 전면 개편.
+     - 잘못 복사되어 있던 타 프로그램 안내 문구("이미지를 변환·편집하세요")를 "다양한 페르소나 문체로 텍스트를 재작성하고 나만의 스타일을 저장하세요"로 정상화.
+     - `#f8fafc` 클린 슬레이트 배경 + 24px 모눈 격자, 상단 바이올렛-인디고 `SlidersHorizontal` 심볼 및 "AIMaster 통합 계정" 알약 뱃지 탑재.
+     - 구형 도메인(`www.buylife.xyz/register`)을 최신 `https://aimaster.buylife.xyz` 및 `forgot-password`로 최신화.
+     - **로그인 모드**: 이메일 주소(좌측 Mail 아이콘 + 42px 패딩), 비밀번호(좌측 Lock 아이콘 + 우측 "비밀번호를 잊으셨나요?" 링크), 풀 위드 바이올렛-인디고 그라디언트 액션 버튼 (`로그인하고 문체 스튜디오 시작 ➔`) 탑재.
+     - **회원가입 모드**: 단일 계정(SSO) 안내 틴트 박스, 페르소나 문체 자동화 혜택 3종 체크리스트, 풀 위드 `AIMaster에서 무료 회원가입하기` 링크 버튼 탑재.
+     - **하단 푸터**: 라이트 테마 이용약관 · 개인정보처리방침 · 고객지원 안내 링크 탑재.
+  2. **프로덕션 빌드, Vercel 배포 & Microsoft Edge 실세션 검수 완료**:
+     - Turbopack 로컬 빌드 성공 (`npm run build`, exit code 0).
+     - Vercel 프로덕션 배포 완료 (Deployment ID: `dpl_8L1Avt7j54kKbeue4K2sktJokbSn`, 라이브: `https://persona-style-studio.buylife.xyz`).
+     - Microsoft Edge 실세션 캡처 3종 확인:
+       - `edge_persona_login_desktop_v108.png`: 데스크톱 1280x900 로그인 탭 화면 (클린 슬레이트 격자 배경, 화이트 알약 탭, 인풋/버튼/약관 완벽 렌더링).
+       - `edge_persona_signup_desktop_v108.png`: 데스크톱 1280x900 회원가입 탭 화면 (통합 계정 안내 박스 + 혜택 체크리스트 + 가입 링크 버튼 정상 토글).
+       - `edge_persona_login_mobile_v108.png`: 모바일 390x844 반응형 뷰 (넘침/스크롤 없음).
+  3. **현황판 & 작업 락 동기화**:
+     - `DESIGN.md`: 10번 `persona-style-studio` 상태 `✅ 1차 작업완료 (`v1.08`, 포커스 스튜디오 스타일)` 갱신.
+     - `docs/ACTIVE_WORK.md`: `persona-style-studio` 작업 행 삭제 완료.
+
+[프로그램 열기](https://persona-style-studio.buylife.xyz/login)
+
 ## 2026-10-17 Claude Code(윈도우) — 마크다운 문서 자동화 v1.14: 다크 모드·닫을 때 즉시 저장·단축키 창 서식 넣기·고정 색깔 꼬리표
 
 - **대상**: `markdown-studio/` (slug `markdown-studio`), v1.13 → **v1.14** (코드 `APP_VERSION`·DB `programs.version` 동기화)

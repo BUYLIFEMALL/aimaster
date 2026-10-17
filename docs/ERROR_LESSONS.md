@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-17 — 화살표 함수 안에서 아래쪽 const를 쓰면 tsc·빌드는 통과하고 화면만 깨짐 (markdown-studio v1.15, Claude Code 윈도우)
+- 증상: 배포 직후 대시보드가 "This page couldn't load", 콘솔 `ReferenceError: Cannot access 'V' before initialization`.
+- 원인: `PIN_COLORS.filter(c => liveDocs.some(...))`를 `const liveDocs` 선언보다 위에 둠. 사용 위치가 화살표 함수 안이라 TypeScript의 "선언 전 사용" 검사가 잡지 않고, 실행 시점에는 아직 초기화 전(TDZ).
+- 해결: 선언 아래로 이동(`markdown-studio/src/components/workspace/WorkspacePage.tsx`).
+- 다음부터: 컴포넌트 안에 계산 줄을 끼울 때 참조하는 변수의 선언 위치를 확인하고, 배포 직후 해당 화면을 반드시 한 번 열어 콘솔 오류를 확인한다(빌드 통과 ≠ 화면 정상).
+
 ## 2026-10-17 — 다크 모드 작업에서 찾은 3가지 (markdown-studio v1.14, Claude Code 윈도우)
 - **CodeMirror 강조를 두 개 겹치면 기본 강조가 사라짐**: 증상 — `syntaxHighlighting(classHighlighter)`를 추가하자 밝은 화면에서 제목 굵기·밑줄과 `##` 회색이 없어짐. 원인 — `defaultHighlightStyle`에 `{ fallback: true }`가 있으면 다른 강조가 하나라도 있을 때 적용되지 않음. 해결 — `fallback` 옵션 제거(`markdown-studio/src/components/editor/MarkdownEditor.tsx`). 다음부터 — 강조를 추가하면 기존 화면 글자 굵기·색을 JS `getComputedStyle`로 전후 비교.
 - **`"use client"` 파일의 상수를 서버 레이아웃에서 import하면 문자열이 아니라 클라이언트 참조가 됨**: 깜빡임 방지 스크립트 문자열은 일반 모듈(`src/lib/theme.ts`)에 둔다.

@@ -43,3 +43,26 @@ test("v1.14 색깔 꼬리표 정리: 고정된 문서·정해진 색만 남김",
   assert.deepEqual(sanitizePinColors(null, ["a"]), {});
   assert.deepEqual(sanitizePinColors("red", ["a"]), {});
 });
+
+test("v1.15 테마 스크립트: 라이트·다크·자동(컴퓨터 설정 변경도 따라감, 자동이 아니면 무시)", async () => {
+  const { THEME_INIT_SCRIPT, THEME_KEY } = await import("../src/lib/theme.ts");
+  const run = (stored, systemDark) => {
+    const store = { [THEME_KEY]: stored };
+    const listeners = [];
+    const q = { matches: systemDark, addEventListener: (_e, f) => listeners.push(f) };
+    const root = { dataset: {} };
+    const env = { window: { matchMedia: () => q }, document: { documentElement: root }, localStorage: { getItem: k => store[k] ?? null } };
+    new Function("window", "document", "localStorage", THEME_INIT_SCRIPT)(env.window, env.document, env.localStorage);
+    return { root, q, store, fire: () => listeners.forEach(f => f()) };
+  };
+  assert.equal(run(null, true).root.dataset.theme, undefined);
+  assert.equal(run("light", true).root.dataset.theme, undefined);
+  assert.equal(run("dark", false).root.dataset.theme, "dark");
+  assert.equal(run("auto", true).root.dataset.theme, "dark");
+  const auto = run("auto", false);
+  assert.equal(auto.root.dataset.theme, undefined);
+  auto.q.matches = true; auto.fire();
+  assert.equal(auto.root.dataset.theme, "dark");
+  auto.store[THEME_KEY] = "light"; auto.fire();
+  assert.equal(auto.root.dataset.theme, undefined);
+});

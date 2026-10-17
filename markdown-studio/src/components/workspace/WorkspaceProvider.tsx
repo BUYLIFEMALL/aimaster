@@ -108,12 +108,18 @@ export function WorkspaceProvider({ userId, children }: { userId: string; childr
   const setPreferences = useCallback((value: Partial<WorkspacePreferences>) => {
     const operation = prefsSaveRef.current.catch(() => {}).then(async () => {
       const next = { ...prefsRef.current, ...value };
-      await run(repo => repo.savePreferences(next));
+      // v1.15: 화면 설정(고정·꼬리표·탐색기·편집 너비)은 이 회원 전용 기기 저장소에만 쓰므로 매번 로그인 확인(약 1~2초)을
+      // 하지 않는다. 계정 확인은 화면을 열 때·1분마다·창으로 돌아올 때·문서를 저장할 때 계속 한다.
+      try {
+        const repo = repoRef.current;
+        if (!repo) throw new Error("문서 보관함을 아직 열지 못했습니다.");
+        await repo.savePreferences(next);
+      } catch (e) { if (aliveRef.current) setError(messageForError(e)); throw e; }
       prefsRef.current = next; setPrefs(next);
     });
     prefsSaveRef.current = operation;
     return operation;
-  }, [run]);
+  }, []);
   const select = useCallback(async (id: string) => {
     await save();
     const rows = await refresh();

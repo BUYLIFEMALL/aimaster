@@ -16,7 +16,7 @@ import {
   Search,
   Tag,
 } from "lucide-react";
-import { type DocumentRevision, type PinColor, PIN_COLOR_LABELS, nextPinColor, safeFilename } from "@/lib/documents/model";
+import { type DocumentRevision, type PinColor, PIN_COLORS, PIN_COLOR_LABELS, nextPinColor, safeFilename } from "@/lib/documents/model";
 import { DOCUMENT_TEMPLATES } from "@/lib/documents/templates";
 import { DocumentExplorer } from "./DocumentExplorer";
 import { HotkeysButton } from "../editor/HotkeysModal";
@@ -58,6 +58,11 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
 
   const active = store.nodes.find(n => n.id === store.draft?.id && !n.deletedAt);
   const liveDocs = store.nodes.filter(n => n.kind === "document" && !n.deletedAt);
+  // v1.15: 꼬리표 색으로 걸러 보기 — 지금 쓰고 있는 색만 버튼으로 보이고, 쓰지 않게 된 색은 자동으로 "전체"
+  const [tagFilter, setTagFilter] = useState<PinColor | null>(null); // (liveDocs 아래에 둬야 함)
+  const colorOf = (id: string) => (pinnedIds.includes(id) ? pinColors[id] : undefined);
+  const usedColors = PIN_COLORS.filter(c => liveDocs.some(n => colorOf(n.id) === c));
+  const activeTag = tagFilter && usedColors.includes(tagFilter) ? tagFilter : null;
   const trash = store.nodes.filter(
     n => n.deletedAt && !store.nodes.some(p => p.id === n.parentId && p.deletedAt && p.trashBatchId === n.trashBatchId)
   );
@@ -218,6 +223,17 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
                 />
               </label>
             )}
+            {usedColors.length > 0 && (
+              <div className="tag-filter" role="group" aria-label="꼬리표 색으로 걸러 보기">
+                <button type="button" aria-pressed={!activeTag} onClick={() => setTagFilter(null)}>전체</button>
+                {usedColors.map(c => (
+                  <button key={c} type="button" aria-pressed={activeTag === c} onClick={() => setTagFilter(activeTag === c ? null : c)}>
+                    <span className={`tag-dot tag-${c}`} aria-hidden="true" />
+                    {PIN_COLOR_LABELS[c]} {liveDocs.filter(n => colorOf(n.id) === c).length}
+                  </button>
+                ))}
+              </div>
+            )}
             {liveDocs.length > 0 && docQuery.trim() && !liveDocs.some(n => n.name.toLowerCase().includes(docQuery.trim().toLowerCase())) && (
               <p className="muted" style={{ margin: "8px 0" }}>&quot;{docQuery.trim()}&quot;이(가) 들어간 문서가 없습니다.</p>
             )}
@@ -225,8 +241,9 @@ export function WorkspacePage({ section }: { section: WorkspaceSection }) {
               <div className="recent-docs-grid">
                 {liveDocs
                   .filter(n => !docQuery.trim() || n.name.toLowerCase().includes(docQuery.trim().toLowerCase()))
+                  .filter(n => !activeTag || colorOf(n.id) === activeTag)
                   .sort((a, b) => Number(pinnedIds.includes(b.id)) - Number(pinnedIds.includes(a.id)) || b.updatedAt.localeCompare(a.updatedAt))
-                  .slice(0, docQuery.trim() ? 12 : 6)
+                  .slice(0, docQuery.trim() || activeTag ? 12 : 6)
                   .map(n => {
                     const pinned = pinnedIds.includes(n.id);
                     const color = pinned ? pinColors[n.id] : undefined;

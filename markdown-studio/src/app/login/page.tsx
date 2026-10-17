@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { APP_NAME, MAIN_SITE } from "@/lib/version";
 
+// v1.15: 색은 CSS 변수(--lg-*)로 — 밝은 화면은 기존 색 그대로, 다크 모드는 globals.css에서 바꾼다
 function LoginCard() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "/dashboard";
@@ -43,8 +44,8 @@ function LoginCard() {
     <div
       style={{
         borderRadius: "16px",
-        border: "1px solid #e4e4e7",
-        backgroundColor: "#ffffff",
+        border: "1px solid var(--lg-line, #e4e4e7)",
+        backgroundColor: "var(--lg-card, #ffffff)",
         padding: "32px",
         boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)",
       }}
@@ -54,7 +55,7 @@ function LoginCard() {
         style={{
           display: "flex",
           borderRadius: "12px",
-          backgroundColor: "#eef2ff",
+          backgroundColor: "var(--lg-tabbar, #eef2ff)",
           padding: "4px",
           marginBottom: "24px",
         }}
@@ -76,7 +77,7 @@ function LoginCard() {
             transition: "all 0.2s ease",
             border: "none",
             backgroundColor: mode === "login" ? "#4f46e5" : "transparent",
-            color: mode === "login" ? "#ffffff" : "#475569",
+            color: mode === "login" ? "#ffffff" : "var(--lg-text-2, #475569)",
             boxShadow: mode === "login" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
           }}
         >
@@ -99,7 +100,7 @@ function LoginCard() {
             transition: "all 0.2s ease",
             border: "none",
             backgroundColor: mode === "signup" ? "#4f46e5" : "transparent",
-            color: mode === "signup" ? "#ffffff" : "#475569",
+            color: mode === "signup" ? "#ffffff" : "var(--lg-text-2, #475569)",
             boxShadow: mode === "signup" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
           }}
         >
@@ -112,13 +113,13 @@ function LoginCard() {
           style={{
             marginBottom: "16px",
             borderRadius: "8px",
-            border: "1px solid #fee2e2",
-            backgroundColor: "#fef2f2",
+            border: "1px solid var(--lg-err-line, #fee2e2)",
+            backgroundColor: "var(--lg-err-bg, #fef2f2)",
             padding: "12px",
             textAlign: "center",
             fontSize: "12px",
             fontWeight: 500,
-            color: "#dc2626",
+            color: "var(--lg-err, #dc2626)",
           }}
         >
           {error}
@@ -127,7 +128,7 @@ function LoginCard() {
 
       {mode === "signup" ? (
         <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: "16px" }}>
-          <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#475569", margin: "10px 0" }}>
+          <p style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--lg-text-2, #475569)", margin: "10px 0" }}>
             이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다.
             <br />
             AIMaster에서 회원가입 후 이 프로그램을 구독하면 이용할 수 있습니다.
@@ -161,7 +162,7 @@ function LoginCard() {
           <div>
             <label
               htmlFor="email"
-              style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}
+              style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--lg-text, #334155)", marginBottom: "6px" }}
             >
               이메일 주소
             </label>
@@ -204,21 +205,21 @@ function LoginCard() {
                   width: "100%",
                   boxSizing: "border-box",
                   borderRadius: "12px",
-                  border: "1px solid #e2e8f0",
-                  backgroundColor: "#f8fafc",
+                  border: "1px solid var(--lg-input-line, #e2e8f0)",
+                  backgroundColor: "var(--lg-input, #f8fafc)",
                   padding: "12px 14px 12px 42px",
                   fontSize: "14px",
-                  color: "#1e293b",
+                  color: "var(--lg-input-text, #1e293b)",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "#4f46e5";
-                  e.currentTarget.style.backgroundColor = "#ffffff";
+                  e.currentTarget.style.backgroundColor = "var(--lg-input-focus, #ffffff)";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "#e2e8f0";
-                  e.currentTarget.style.backgroundColor = "#f8fafc";
+                  e.currentTarget.style.borderColor = "var(--lg-input-line, #e2e8f0)";
+                  e.currentTarget.style.backgroundColor = "var(--lg-input, #f8fafc)";
                 }}
               />
             </div>
@@ -226,7 +227,7 @@ function LoginCard() {
 
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-              <label htmlFor="password" style={{ fontSize: "12px", fontWeight: 600, color: "#334155" }}>
+              <label htmlFor="password" style={{ fontSize: "12px", fontWeight: 600, color: "var(--lg-text, #334155)" }}>
                 비밀번호
               </label>
               <a
@@ -235,7 +236,7 @@ function LoginCard() {
                   event.preventDefault();
                   setError("비밀번호 재설정 기능은 준비 중입니다. 관리자에게 문의해주세요.");
                 }}
-                style={{ fontSize: "12px", fontWeight: 600, color: "#4f46e5", textDecoration: "none" }}
+                style={{ fontSize: "12px", fontWeight: 600, color: "var(--lg-link, #4f46e5)", textDecoration: "none" }}
                 onMouseOver={(e) => (e.currentTarget.style.textDecoration = "underline")}
                 onMouseOut={(e) => (e.currentTarget.style.textDecoration = "none")}
               >
@@ -281,21 +282,21 @@ function LoginCard() {
                   width: "100%",
                   boxSizing: "border-box",
                   borderRadius: "12px",
-                  border: "1px solid #e2e8f0",
-                  backgroundColor: "#f8fafc",
+                  border: "1px solid var(--lg-input-line, #e2e8f0)",
+                  backgroundColor: "var(--lg-input, #f8fafc)",
                   padding: "12px 14px 12px 42px",
                   fontSize: "14px",
-                  color: "#1e293b",
+                  color: "var(--lg-input-text, #1e293b)",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "#4f46e5";
-                  e.currentTarget.style.backgroundColor = "#ffffff";
+                  e.currentTarget.style.backgroundColor = "var(--lg-input-focus, #ffffff)";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "#e2e8f0";
-                  e.currentTarget.style.backgroundColor = "#f8fafc";
+                  e.currentTarget.style.borderColor = "var(--lg-input-line, #e2e8f0)";
+                  e.currentTarget.style.backgroundColor = "var(--lg-input, #f8fafc)";
                 }}
               />
             </div>
@@ -375,7 +376,7 @@ function LoginCard() {
           href={`${MAIN_SITE}/terms`}
           target="_blank"
           rel="noreferrer"
-          style={{ fontWeight: 500, color: "#475569", textDecoration: "underline" }}
+          style={{ fontWeight: 500, color: "var(--lg-text-2, #475569)", textDecoration: "underline" }}
         >
           이용약관
         </a>{" "}
@@ -384,7 +385,7 @@ function LoginCard() {
           href={`${MAIN_SITE}/privacy`}
           target="_blank"
           rel="noreferrer"
-          style={{ fontWeight: 500, color: "#475569", textDecoration: "underline" }}
+          style={{ fontWeight: 500, color: "var(--lg-text-2, #475569)", textDecoration: "underline" }}
         >
           개인정보 처리방침
         </a>
@@ -404,9 +405,9 @@ export default function LoginPage() {
         alignItems: "center",
         justifyContent: "center",
         padding: "48px 16px",
-        backgroundColor: "#faf8f5",
+        backgroundColor: "var(--lg-page, #faf8f5)",
         backgroundImage:
-          "linear-gradient(to right, rgba(79, 70, 229, 0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(79, 70, 229, 0.035) 1px, transparent 1px), radial-gradient(circle at 50% 50%, transparent 20%, #f3efe8 95%)",
+          "linear-gradient(to right, rgba(79, 70, 229, 0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(79, 70, 229, 0.035) 1px, transparent 1px), radial-gradient(circle at 50% 50%, transparent 20%, var(--lg-page-edge, #f3efe8) 95%)",
         backgroundSize: "24px 24px, 24px 24px, 100% 100%",
       }}
     >
@@ -448,12 +449,12 @@ export default function LoginPage() {
               fontSize: "28px",
               fontWeight: 800,
               letterSpacing: "-0.03em",
-              color: "#4f46e5",
+              color: "var(--lg-link, #4f46e5)",
             }}
           >
             {APP_NAME}
           </h1>
-          <p style={{ margin: 0, fontSize: "14px", fontWeight: 500, color: "#64748b" }}>
+          <p style={{ margin: 0, fontSize: "14px", fontWeight: 500, color: "var(--lg-muted, #64748b)" }}>
             AIMaster 계정(이메일·비밀번호)으로 로그인하세요.
           </p>
         </div>

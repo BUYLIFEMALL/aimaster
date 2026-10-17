@@ -622,7 +622,9 @@
    작업실 모든 화면(대시보드·준비·편집·내보내기·보관함·설정·매뉴얼)에 함께 적용된다.
 ======================================================== */
 .banner-right{display:inline-flex;align-items:center;gap:10px}
-.theme-toggle{padding:5px 10px;font-size:11px}
+.theme-toggle{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:9px}
+.theme-toggle button{padding:4px 8px;font-size:11px;border:0;background:transparent;gap:4px}
+.theme-toggle button[aria-pressed=true]{background:#eef2ff;color:#4338ca}
 .doc-tag{margin-left:6px;width:28px;height:28px;min-width:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#94a3b8;cursor:pointer}
 .doc-tag.tag-red{color:#dc2626;border-color:#fecaca;background:#fef2f2}
 .doc-tag.tag-amber{color:#d97706;border-color:#fde68a;background:#fffbeb}
@@ -634,16 +636,24 @@
 .doc-card-modern.pin-green{box-shadow:inset 4px 0 0 #10b981}
 .doc-card-modern.pin-blue{box-shadow:inset 4px 0 0 #3b82f6}
 .doc-card-modern.pin-purple{box-shadow:inset 4px 0 0 #8b5cf6}
+.tag-filter{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.tag-filter button{padding:5px 10px;font-size:11px;border-radius:999px}
+.tag-filter button[aria-pressed=true]{background:#eef2ff;color:#4338ca;border-color:#c7d2fe}
+.tag-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.tag-dot.tag-red{background:#ef4444}.tag-dot.tag-amber{background:#f59e0b}.tag-dot.tag-green{background:#10b981}.tag-dot.tag-blue{background:#3b82f6}.tag-dot.tag-purple{background:#8b5cf6}
 .hotkey-item{display:flex;flex-direction:column;gap:2px;border-radius:8px;padding:4px 6px;margin:0 -6px}
 .hotkey-item[role=button]{cursor:pointer}
 .hotkey-item[role=button]:hover,.hotkey-item[role=button]:focus-visible{background:#eef2ff;outline:none}
 .hotkey-apply{font-size:11px;font-weight:700;color:#4f46e5;opacity:0;transition:opacity .15s}
 .hotkey-item[role=button]:hover .hotkey-apply,.hotkey-item[role=button]:focus-visible .hotkey-apply{opacity:1}
 @media(hover:none){.hotkey-apply{opacity:1}}
-@media(max-width:767px){.theme-toggle{padding:4px 8px;font-size:10px}.banner-right{gap:6px}}
+@media(max-width:767px){.theme-toggle button{padding:4px 6px}.theme-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.banner-right{gap:6px}}
 
 html[data-theme=dark]{color-scheme:dark;--foreground:#e5e7eb;--line:#263042;--muted:#94a3b8;--brand:#6366f1;--text-1:#f1f5f9;--text-2:#cbd5e1;--brand-text:#a5b4fc;--soft:#161e2e;--soft-line:#263042;--soft-accent:#151c33;--soft-accent-line:#3b4a7a;--deep:#c7d2fe}
 html[data-theme=dark] body{background:#0b0f17}
+/* v1.15 로그인 화면(인라인 색을 --lg-* 변수로 바꿔 둠) */
+html[data-theme=dark]{--lg-page:#0b0f17;--lg-page-edge:#05070b;--lg-card:#111827;--lg-line:#263042;--lg-tabbar:#1b2436;--lg-text:#cbd5e1;--lg-text-2:#94a3b8;--lg-muted:#94a3b8;--lg-input:#0f1623;--lg-input-line:#334155;--lg-input-text:#e5e7eb;--lg-input-focus:#111827;--lg-err-line:#7f1d1d;--lg-err-bg:rgba(239,68,68,.12);--lg-err:#fca5a5;--lg-link:#a5b4fc}
+html[data-theme=dark] .tag-filter button[aria-pressed=true],html[data-theme=dark] .theme-toggle button[aria-pressed=true]{background:rgba(129,140,248,.16);color:#c7d2fe}
 /* 면(카드·메뉴·입력칸·버튼) */
 /* 버튼은 :where로 약하게 — .primary·.download·투명 버튼 규칙이 이긴다 */
 html[data-theme=dark] :where(button,.button){background:#111827;color:var(--foreground);border-color:var(--line)}

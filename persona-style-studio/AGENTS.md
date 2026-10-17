@@ -6,10 +6,10 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 페르소나 문체 자동화 / `persona-style-studio` |
-| 현재 버전 | **v1.07** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.08** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://persona-style-studio.buylife.xyz (옛 `persona-style-studio.vercel.app` 유지) |
 | 적용 디자인 템플릿 | **포커스 스튜디오 스타일 (Focus Studio Style · 문체 변환 스튜디오)** |
-| 인수인계 문서 | [개발 플랜](docs/PLAN_20261016_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) · [개선 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md) |
+| 인수인계 문서 | [로그인 플랜](docs/PLAN_20261017_LOGIN_RENEWAL.md) · [로그인 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [가이드 플랜](docs/PLAN_20261016_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) |
 | Vercel | 팀 `buylife`, 프로젝트 `persona-style-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, Tools, 최소 등급 일반, 요금제 1·2·3개월(1만/2만/3만원) 등록 |
 | 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase · `@google/genai` |
