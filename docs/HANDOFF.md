@@ -1,5 +1,34 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — 웹 크롤링 자동화 v1.07: 스마트 매트릭스 디자인 배포·포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `web-crawler-saas` (폴더 `web-crawler/webapp`, https://web-crawler-saas.buylife.xyz)
+- **배경**: 
+  - 맥미니 CLI가 스마트 매트릭스 다크 디자인 리뉴얼(색 토큰, 대시보드 지표 5종, 4단계 파이프라인, 휴대폰 ☰ 메뉴, /guide 매뉴얼 신설)을 구현하고 커밋 `59f41953`으로 푸시 후 윈도우 마무리 작업을 요청함.
+- **한 일**:
+  1. 로컬 Turbopack 프로덕션 빌드 성공 (`npm run build`).
+  2. Vercel 프로덕션 배포 완료: `dpl_6cWcbNhhxvUZ4hWFRj4b2dUkZ36a` → alias `web-crawler-saas.buylife.xyz` 최신 연결 확인.
+  3. Supabase DB `programs` 테이블에서 `slug = 'web-crawler-saas'`의 `version = 'v1.07'` 갱신 완료.
+  4. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 테스트 계정(`buylifemall@naver.com`) 환경에서 데스크톱(1440px) 및 모바일(390px) 실세션 검수 통과.
+     - 대시보드(상단 히어로, 지표 카드 5종, 거미줄 빈 작업 카드, 4단계 파이프라인, 접이식 소개), /guide 매뉴얼(수집 비서 캐릭터 말풍선, 5단계 파이프라인, 작업 상태 5종 설명, 팁/주의 박스, 키 발급 팝업 4종, FAQ 아코디언), /jobs, /jobs/new, /settings, 모바일 ☰ 햄버거 메뉴 정상 렌더링 확인.
+     - 캡처 보존: `edge_web_crawler_*_v107.png`.
+     - 실제 Edge 창을 띄워 사용자 화면에 유지 완료.
+     - 주의사항 준수: 「새 작업 시작」 및 「우회해서 계속 진행」 등 실제 수집 버튼 일체 미클릭 (비용 0원).
+  5. 현황판 및 인수인계 문서 갱신:
+     - `DESIGN.md` 42번 상태: `✅ 1차 작업완료 (v1.07, 스마트 매트릭스 스타일)` 갱신.
+     - `DESIGN.md` 상단 상태 요약: `✅ 35개 · ⚪ 46개 · 🟠 0개 · ⏸ 2개 — 총 83개` 최신 전수 집계 동기화.
+     - `web-crawler/IMPROVEMENT_HANDOFF_20261017.md` 갱신.
+     - `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **현황판 상태 요약 (총 83개)**:
+  - ✅ **1차 작업완료**: **35개**
+  - 🟠 **윈도우 마무리 대기**: **0개**
+  - ⚪ **작업 예정**: **46개**
+  - ⏸ **보류**: **2개**
+- **링크**:
+  - https://web-crawler-saas.buylife.xyz
+- **비용**: 0원 (유료 API 호출 없음).
+
 ## 2026-10-17 Claude Code(윈도우) — 공용 모듈 검사에 이미지 호출 시간(300초) 자동 검사 추가
 
 - **한 일**: `scripts/check-shared-modules.mjs`가 사본 일치 검사 뒤에 `gemini-image-client`를 쓰는 프로그램 폴더의 `generateGeminiImage()` 호출을 모두 찾아, 최악 시간 = (retries+1) × timeoutMs + 재시도 대기(1.5초×회차)를 계산합니다. 300초 초과는 `OVER`(실패, 종료 코드 1), 값을 못 읽으면 `CHECK`(직접 확인)입니다. 기본값은 기준과 같은 120초·재시도 1회입니다.

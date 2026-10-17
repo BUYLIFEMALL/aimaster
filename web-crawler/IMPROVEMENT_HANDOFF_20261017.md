@@ -6,12 +6,13 @@
 - 버전 `webapp/src/lib/version.ts` v1.06 → **v1.07**. 서버 로직·파이썬 수집 서비스·DB 변경 없음.
 - 검수: 맥미니 `tsc --noEmit` 오류 0. 비용 없음.
 
-## 윈도우 CLI 다음 첫 단계
-1. `cd web-crawler/webapp && npm run build`
-2. `vercel deploy --prod --yes` (기존 프로젝트, 도메인 web-crawler-saas.buylife.xyz)
-3. DB: `update programs set version='v1.07', updated_at=now() where slug='web-crawler-saas';`
-4. 크롬(시험 계정 buylifemall@naver.com) 데스크톱·390px 검수 — 「새 작업 시작」·「우회해서 계속 진행」은 누르지 않음
-5. `DESIGN.md` 42번 → ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스)
+## 윈도우 CLI 검수 및 배포 완료 (2026-10-17 Antigravity)
+1. `npm run build` Turbopack 프로덕션 빌드 성공.
+2. Vercel 프로덕션 배포 완료 (`dpl_6cWcbNhhxvUZ4hWFRj4b2dUkZ36a` → alias `web-crawler-saas.buylife.xyz`).
+3. Supabase DB `programs` 테이블 `slug = 'web-crawler-saas'`의 `version = 'v1.07'` 갱신 완료.
+4. Microsoft Edge 포그라운드(화면 노출 `headless: false`) 실세션 검수 완료 (데스크톱 1440px / 모바일 390px, `buylifemall@naver.com` 세션). 대시보드 지표 5종, 4단계 파이프라인, /guide 매뉴얼(말풍선·5단계·팝업 4종·FAQ), ☰ 모바일 메뉴 정상 확인. (수집 실행 버튼 미클릭, 비용 0원).
+5. `DESIGN.md` 42번 → ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 스타일).
+
 
 ## 남은 일 (IMPROVEMENTS.md)
 - #5 30일 자동 삭제(최상위 규칙) 미적용 — DB 예약 작업이 필요해 주인님 승인 후 진행.
