@@ -1,9 +1,9 @@
 # AI 프롬프트 템플릿 자동화 (Prompt Template Studio)
 
-> **버전**: `v1.02`
+> **버전**: `v1.05` (2026-10-17 로그인·회원가입 표준 2탭 레이아웃 리뉴얼 완료)  
 > **공식 도메인**: `https://prompt-template.buylife.xyz`  
 > **프로젝트 디렉토리**: `prompt-template-studio`  
-> **플랫폼**: AIMaster 통합 서브프로젝트 (카탈로그 1위)
+> **플랫폼**: AIMaster 통합 서브프로젝트
 
 ---
 

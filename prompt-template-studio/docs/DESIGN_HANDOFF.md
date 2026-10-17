@@ -2,7 +2,7 @@
 
 > **프로그램 공식 명칭**: AI 프롬프트 템플릿 자동화 (`prompt-template-studio`)  
 > **공식 라이브 도메인**: https://prompt-template.buylife.xyz/  
-> **배포 버전**: `v1.04` (2026-10-16 완료)  
+> **배포 버전**: `v1.05` (2026-10-17 로그인 2탭 표준화 완료, `v1.04` 매뉴얼 완료)  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 템플릿 스튜디오)**  
 > **배경 테마**: 라이트(클린 슬레이트 `#f8fafc`)  
 > **검수 브라우저**: Microsoft Edge 전용 (`msedge.exe`)  
@@ -13,18 +13,32 @@
 ## 1. 디자인 시스템 & 컬러 토큰
 
 - **단일 배경색 원칙 (최상단 지침 11번 준수)**:
-  - 메인 배경: `#f8fafc` (Clean Slate 50) — `globals.css` 및 `PromptTemplateApp.tsx` 컨테이너 일체화.
+  - 메인 배경: `#f8fafc` (Clean Slate 50) — `globals.css` 및 `PromptTemplateApp.tsx`, 로그인 화면 일체화.
   - 서피스/카드: `#ffffff` (Pure White, `border-slate-200`, `shadow-2xs`).
   - 텍스트: 본문 `#0f172a` (Slate 900), 설명 `#64748b` (Slate 500).
 - **브랜드 포인트 컬러**:
-  - 프라이머리: `#2563eb` (Blue 600) ~ `#4f46e5` (Indigo 600) 그라디언트.
+  - 프라이머리: `#4f46e5` (Indigo 600) ~ `#7c3aed` (Violet 600) 그라디언트.
   - 상태 강조: 에메랄드 `#10b981` (API 연동/성공), 앰버 `#f59e0b` (팝업 안내/실행).
 
 ---
 
 ## 2. 화면별 컴포넌트 구조 및 구현
 
-### A. 단계별 비주얼 사용 매뉴얼 (`src/components/PromptGuideView.tsx` & `/guide`)
+### A. 로그인 / 회원가입 표준 2탭 레이아웃 (`src/app/(auth)/login/page.tsx` - v1.05 신설)
+- **DESIGN.md 14번 표준 규격 완벽 준수**:
+  - 상단 브랜딩: 인디고-바이올렛 그라디언트 `FileCode` 아이콘, `v1.05` 알약 뱃지, "AIMaster 통합 계정" 뱃지.
+  - 2탭 세그먼트 토글: `[로그인]` / `[회원가입]` (화이트 알약 탭 전환).
+  - **로그인 모드**:
+    - 이메일 입력창(메일 아이콘 + 42px 패딩).
+    - 비밀번호 입력창(락 아이콘 + 우측 "비밀번호를 잊으셨나요?" 링크).
+    - 액션 버튼: `로그인하고 프롬프트 스튜디오 시작 ➔` (인디고-바이올렛 그라디언트).
+  - **회원가입 모드**:
+    - AIMaster SSO 통합 계정 안내 박스 (`bg-indigo-50/70 border-indigo-100`).
+    - 프롬프트 템플릿 혜택 3종 체크리스트.
+    - 무료 가입 링크 버튼 (`AIMaster에서 무료 회원가입하기 ➔`).
+  - **하단 푸터**: 이용약관 · 개인정보처리방침 · 고객지원 가이드 링크.
+
+### B. 단계별 비주얼 사용 매뉴얼 (`src/components/PromptGuideView.tsx` & `/guide`)
 - **5단계 파이프라인 인포그래픽**:
   1. Step 1: `Gemini API 키 1초 연동` (`user_api_keys.provider = 'gemini'`)
   2. Step 2: `템플릿 탐색 & {{변수}} 선언` (중괄호 2개 동적 변수 선언)
@@ -39,14 +53,10 @@
   - 키 무료 발급, 변수 개수 제한, 자동 채우기 원리, 영구 보관 안전성.
 - **보안 원칙 배너**: 회원 본인 API 키 직접 연동 원칙 안내.
 
-### B. 표준 사이드바 정돈 (`src/components/Sidebar.tsx`)
+### C. 표준 사이드바 정돈 (`src/components/Sidebar.tsx`)
 - 사이드바 유틸리티 영역 최상단에 `📖 연동 & 사용 매뉴얼` 메뉴 신설 (`tab=guide` 및 `/guide` 라우트).
 - 대시보드 홈과 1번 템플릿 라이브러리 간 자연스러운 전환.
 - 계정 이메일 및 로그아웃 버튼 12px 간격 밀착 배치.
-
-### C. 최상위 뷰 및 라우팅 (`PromptTemplateApp.tsx` & `src/app/guide/page.tsx`)
-- URL 쿼리 파라미터 `?tab=`과 React SPA 상태 양방향 동기화.
-- `/guide` 직접 접속 라우트 제공.
 
 ---
 
@@ -54,6 +64,9 @@
 
 | 화면 구분 | 검수 해상도 | 증거 파일명 | 검수 결과 |
 |---|:---:|---|:---:|
+| 로그인 탭 (데스크톱) | 1280 × 900 | `edge_prompt_login_desktop_v105.png` | 정상 (클린 슬레이트 모눈 배경, 2탭 세그먼트, 인풋/버튼 정렬) |
+| 회원가입 탭 (데스크톱) | 1280 × 900 | `edge_prompt_signup_desktop_v105.png` | 정상 (SSO 안내 박스, 혜택 3종 체크리스트, 가입 링크 버튼) |
+| 로그인 탭 (모바일) | 390 × 844 | `edge_prompt_login_mobile_v105.png` | 정상 (모바일 반응형 적응, 넘침/스크롤 없음) |
 | 가이드북 헤더 & 5단계 파이프라인 | 1440 × 1200 | `edge_prompt_guide_desktop_v104.png` | 정상 (배지, 인포그래픽 정렬) |
 | 변수 치트시트 & 골든 룰 | 1440 × 1200 | `edge_prompt_guide_pipeline_v104.png` | 정상 (코드 블록, 복사 버튼) |
 | FAQ 아코디언 & 보안 배너 | 1440 × 1200 | `edge_prompt_guide_faq_v104.png` | 정상 (아코디언 토글, CTA 버튼) |
