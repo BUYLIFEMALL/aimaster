@@ -24,20 +24,20 @@ export function JobForm({ providers }: { providers: ApiKeyProvider[] }) {
   return (
     <form action={formAction} className="space-y-5">
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">수집할 페이지 URL</label>
+        <label className="mb-1 block text-sm font-medium text-mx-text">수집할 페이지 URL</label>
         <Input name="url" type="url" required placeholder="https://example.com/products" />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">수집 항목</label>
-        <p className="mb-1 text-xs text-neutral-500">
+        <label className="mb-1 block text-sm font-medium text-mx-text">수집 항목</label>
+        <p className="mb-1 text-xs text-mx-muted">
           쉼표(,)로 구분해서 입력해주세요. 예: 상품명, 가격, 평점
         </p>
         <Textarea name="targetFields" rows={3} required placeholder="상품명, 가격, 평점" />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">최대 수집 건수</label>
+        <label className="mb-1 block text-sm font-medium text-mx-text">최대 수집 건수</label>
         <Input
           name="maxRows"
           type="number"
@@ -47,19 +47,19 @@ export function JobForm({ providers }: { providers: ApiKeyProvider[] }) {
           defaultValue={DEFAULT_MAX_ROWS}
           className="max-w-[160px]"
         />
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-mx-muted">
           이 건수에 도달하면 그 즉시 수집을 멈춥니다. 최대 {MAX_ROWS_CEILING.toLocaleString()}건까지
           지정할 수 있습니다.
         </p>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">분석에 사용할 AI</label>
+        <label className="mb-1 block text-sm font-medium text-mx-text">분석에 사용할 AI</label>
         <select
           name="aiModel"
           required
           defaultValue={defaultModel}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
+          className="w-full rounded-lg border border-mx-border px-3 py-2 text-sm text-mx-text"
         >
           {availableProviders.map((provider) => (
             <optgroup key={provider} label={AI_MODEL_PROVIDER_SHORT_LABELS[provider]}>
@@ -71,14 +71,14 @@ export function JobForm({ providers }: { providers: ApiKeyProvider[] }) {
             </optgroup>
           ))}
         </select>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-mx-muted">
           더 상위 모델일수록 복잡한 페이지 구조도 잘 찾아내지만, 호출 비용도 함께 올라갑니다.
           페이지 구조가 단순하면 가성비 모델로도 충분합니다.
         </p>
       </div>
 
       {state.error && (
-        <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+        <p className="rounded-lg border border-mx-danger/40 bg-mx-danger/15 p-3 text-sm text-mx-danger">
           {state.error}
         </p>
       )}

@@ -168,7 +168,7 @@
 | 39 | 성격코드(MBTI) 측정기 | `personality-code` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti/AGENTS.md` |
 | 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-cafe-poster/AGENTS.md` |
 | 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao-auto-posting/AGENTS.md` |
-| 42 | 웹 크롤링 자동화 | `web-crawler-saas` (폴더 `web-crawler/webapp`) | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4, 권장안) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🔵 작업 중 (Claude Code 맥미니 2026-10-17, 플랜 승인 대기) | [`web-crawler/PLAN_20261017_DESIGN_RENEWAL.md`](web-crawler/PLAN_20261017_DESIGN_RENEWAL.md) |
+| 42 | 웹 크롤링 자동화 | `web-crawler-saas` (폴더 `web-crawler/webapp`) | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4, 권장안) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 🟠 메인(윈도우) CLI 마무리 작업요망 (`v1.07`, 스마트 매트릭스 다크, Claude Code 맥미니 2026-10-17) | [`web-crawler/DESIGN_HANDOFF.md`](web-crawler/DESIGN_HANDOFF.md) · [플랜](web-crawler/PLAN_20261017_DESIGN_RENEWAL.md) |
 | 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 스마트 매트릭스 다크, Windows 빌드/배포/DB/Edge1440·375 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |
 | 44 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 플로우 위저드 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `threads-affiliate-poster/AGENTS.md` |
 | 45 | INSTA DM답변 자동화 | `instagram-dm-reply` | **스튜디오 댓글 콘솔 — 인스타 라이트 변형 (DM 대화 화면)** (47번 이식, Tailwind v3) | 라이트(`#fafafa` + 인스타 파랑 `#0095f6`·그라데이션 포인트) | ✅ 1차 작업완료 (`v1.14`, 3대 추가개선 완료 2026-10-17) | [`instagram-dm-reply/docs/DESIGN_HANDOFF.md`](instagram-dm-reply/docs/DESIGN_HANDOFF.md) |

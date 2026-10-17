@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 웹 크롤링 자동화 v1.07 디자인 리뉴얼(스마트 매트릭스 다크) · 윈도우 배포 대기
+
+- **한 일**: `web-crawler/webapp`에 `ghost-scraper` 색 토큰·히어로·KPI 이식, 화면 색 일괄 치환, 사이드바 스텝퍼 + 📖 매뉴얼 + 휴대폰 ☰, 대시보드(상태 KPI 5칸·수집 중 강조·최근 작업 표), `/guide` 신설, 로그인 다크. 서버·파이썬 서비스·DB 변경 없음. 현황판 폴더 표기 정정(`web-crawler/webapp`).
+- **검수**: 맥미니 tsc 0. 빌드·배포·화면 검수 미실행(맥미니 규칙).
+- **발견**: 생성 데이터 30일 자동 삭제 미적용(최상위 규칙) — `web-crawler/IMPROVEMENTS.md` #5, DB 예약 작업 필요해 주인님 승인 대기. 매뉴얼에 30일 문구 넣지 않음.
+- **윈도우 다음 첫 단계**: `web-crawler/IMPROVEMENT_HANDOFF_20261017.md` (빌드 → 배포 → `programs.version='v1.07'` → 크롬 검수 → DESIGN.md 42번 ✅).
+- **둘러본 다른 프로그램**: 무한루프 영상자동화(14번 ⚪) 개선 원장 선제 작성 `infinite-loop-video/docs/IMPROVEMENTS.md`.
+- 링크: https://web-crawler-saas.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 이미지 생성 4묶음 A: 직접 호출형 10곳 공용 모듈 적용 + 기준 갱신으로 사본 20곳 재배포
 
 - **한 일**: cardnews-studio·style-dna-analyzer·shop-detail-page·blog-content-maker·blog-workroom·music-video-studio·emotion-writer·photo-remake-studio·shorts-onestop-studio·seo-thumbnail-pro의 이미지 호출을 공용 사본(`gemini-image-client`)으로, 모델 목록을 공용 등급표(`gemini-image-models`)에서 값만 가져오게 바꿨습니다. 프롬프트·비율·화질·각 프로그램 오류 문구는 그대로입니다.

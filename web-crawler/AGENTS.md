@@ -99,3 +99,9 @@ python scripts\preflight.py              # 검증: core / agent-browser 분리 P
 - 새 주소 `https://web-crawler-saas.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 / → /dashboard 재로그인 없이 열림(시험 계정 표시), 옛 주소 308. 코드 위치 web-crawler/webapp
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-17 v1.07 — 디자인 리뉴얼: 스마트 매트릭스(다크) (Claude Code 맥미니)
+- `ghost-scraper` 토큰·부품 이식, 사이드바 스텝퍼 + 📖 매뉴얼 + **휴대폰 ☰**, 대시보드(상태 KPI·수집 중 강조·최근 작업 표), `/guide` 신설, 로그인 다크. 서버 로직 변경 없음.
+- **빌드·배포·화면 검수는 윈도우 CLI 대기.** 30일 자동 삭제 미적용 발견(IMPROVEMENTS #5).
+- 문서(이 폴더는 `docs/`가 gitignore라 최상위): [PLAN_20261017_DESIGN_RENEWAL.md](PLAN_20261017_DESIGN_RENEWAL.md) · [DESIGN_HANDOFF.md](DESIGN_HANDOFF.md) · [IMPROVEMENTS.md](IMPROVEMENTS.md) · [IMPROVEMENT_HANDOFF_20261017.md](IMPROVEMENT_HANDOFF_20261017.md)
+

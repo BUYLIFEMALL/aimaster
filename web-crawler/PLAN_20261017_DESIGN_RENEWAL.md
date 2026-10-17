@@ -1,6 +1,6 @@
 # 디자인 리뉴얼 플랜 — 웹 크롤링 자동화 (web-crawler/webapp, slug `web-crawler-saas`) · 2026-10-17 · Claude Code(맥미니)
 
-> 상태: ⏳ 주인님 승인 대기 (승인 전 코드 수정 없음 — DESIGN.md 원칙 6)
+> 상태: ✅ 2026-10-17 주인님 승인 → 구현 완료(v1.07, 맥미니 tsc 0). 빌드·배포·화면 검수는 윈도우 CLI 대기
 > ※ `web-crawler/.gitignore`가 `docs/`를 제외해 이 플랜·원장·인수인계는 폴더 최상위에 둔다.
 
 ## 1. 템플릿 (권장안)

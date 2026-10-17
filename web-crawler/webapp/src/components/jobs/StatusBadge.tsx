@@ -10,11 +10,11 @@ export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
 };
 
 const STATUS_CLASSES: Record<JobStatus, string> = {
-  pending: "bg-neutral-100 text-neutral-600",
-  running: "bg-blue-100 text-blue-700",
-  blocked: "bg-amber-100 text-amber-700",
-  completed: "bg-green-100 text-green-700",
-  failed: "bg-red-100 text-red-700",
+  pending: "bg-mx-raised text-mx-muted",
+  running: "bg-mx-primary/15 text-mx-link",
+  blocked: "bg-mx-accent/15 text-mx-accent",
+  completed: "bg-mx-success/15 text-mx-success",
+  failed: "bg-mx-danger/15 text-mx-danger",
 };
 
 export function StatusBadge({ status }: { status: JobStatus }) {
@@ -26,7 +26,7 @@ export function StatusBadge({ status }: { status: JobStatus }) {
       )}
     >
       {status === "running" && (
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-600" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mx-primary" />
       )}
       {JOB_STATUS_LABELS[status]}
     </span>
