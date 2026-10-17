@@ -1,6 +1,8 @@
 import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
+import { logLoadErrors } from "@/lib/loadErrors";
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { SourcingCalculator } from "@/components/sourcing/SourcingCalculator";
 import { BatchMarginCalculator } from "@/components/sourcing/BatchMarginCalculator";
@@ -33,7 +35,7 @@ export default async function SourcingPage({
   if (registered.has("domeggook_api_key")) registeredPlatforms.push("domeggook");
   if (registered.has("elevenst_api_key")) registeredPlatforms.push("elevenst");
 
-  const { data: watchlist } = await supabase
+  const { data: watchlist, error: watchlistError } = await supabase
     .from("trend_watchlist")
     .select("category_name, keywords")
     .eq("user_id", user.id)
@@ -42,7 +44,7 @@ export default async function SourcingPage({
     .filter((w) => w.keywords.length > 0)
     .map((w) => ({ categoryName: w.category_name, keywords: w.keywords }));
 
-  const { data: savedProductRows } = await supabase
+  const { data: savedProductRows, error: savedError } = await supabase
     .from("sourcing_saved_products")
     .select(
       "id, keyword, platform, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels, alert_enabled, active_hour_start, active_hour_end",
@@ -73,6 +75,14 @@ export default async function SourcingPage({
         description="키워드로 알리익스프레스(해외)·도매매·11번가(국내) 소싱 후보를 검색하고, 관세·부가세·운송비·플랫폼 수수료까지 반영한 예상 마진을 바로 계산합니다. 트렌드 리포트의 「🌏 소싱」을 누르면 키워드가 자동으로 들어와요."
         tip="마음에 드는 상품은 ⭐ 관심상품으로 저장하면 가격 변동·품절을 알려 드려요."
       />
+
+      {/* v1.11: 계산기는 DB 없이도 쓸 수 있어 그대로 두고, 관심 키워드·관심 상품 조회 실패만 안내 */}
+      {(() => {
+        const failed = logLoadErrors("sourcing", { "관심 키워드": { error: watchlistError }, "관심 상품": { error: savedError } });
+        return failed.length > 0 ? (
+          <LoadErrorNotice what={failed.join("·")} retryHref="/sourcing" extra="마진 계산기는 그대로 쓸 수 있습니다." />
+        ) : null;
+      })()}
 
       <SourcingCalculator initialKeyword={keyword} registeredPlatforms={registeredPlatforms} />
 

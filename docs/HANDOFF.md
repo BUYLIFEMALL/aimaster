@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.11: DB 조회 장애와 빈 상태 구분 (남은 마무리 3/5)
+
+- **한 일**: 대시보드·키워드 발굴·리포트·소싱·설정 5곳에서 조회 실패를 "자료 없음"과 구분해 안내 + [다시 시도].
+- **검수**: 단위 9개·권한 15개·build·lint, 배포·DB v1.11, 크롬 5화면 정상(안내 없음).
+- **다음**: #14 → #16(승인 필요). 인수인계: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **링크**: https://trending-product-finder.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.10: 소싱 계산기 파일 분리 (남은 마무리 2/5)
 
 - **한 일**: `SourcingCalculator.tsx` 800줄을 5개 파일로 나눔(동작·화면 동일), 계산 로직 단위 테스트 4개 추가.

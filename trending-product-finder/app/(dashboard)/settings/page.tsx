@@ -1,6 +1,8 @@
 import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
+import { logLoadErrors } from "@/lib/loadErrors";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ProviderAccountSection } from "@/components/settings/ProviderAccountSection";
@@ -151,7 +153,7 @@ export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: keys }, { data: smtpAccounts }, { data: solapiAccount }, { data: telegramLink }, { data: kakaoTemplates }] = await Promise.all([
+  const [keysRes, smtpRes, solapiRes, telegramRes, kakaoRes] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase
       .from("user_smtp_accounts")
@@ -175,6 +177,9 @@ export default async function SettingsPage() {
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
+  const { data: keys } = keysRes, { data: smtpAccounts } = smtpRes, { data: solapiAccount } = solapiRes, { data: telegramLink } = telegramRes, { data: kakaoTemplates } = kakaoRes;
+  // v1.11: 조회 실패 시 "등록 안 됨"처럼 보여 키를 다시 입력하지 않도록 위쪽에 안내
+  const failed = logLoadErrors("settings", { "API 키": keysRes, 이메일: smtpRes, 카카오: solapiRes, 텔레그램: telegramRes, "알림톡 템플릿": kakaoRes });
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
 
   // 다른 AIMaster 프로그램(stepmail 등)에서 이미 SMTP 계정을 등록했다면 공용 테이블이라
@@ -195,6 +200,10 @@ export default async function SettingsPage() {
         title="API 키·알림 연결"
         description="필수: 네이버클라우드 API HUB(쇼핑인사이트) + OpenAI 또는 Gemini 1개. 선택: 네이버 검색광고(후보 추천), 알리익스프레스·도매매·11번가(소싱 채널), YouTube(영상 신호). 모두 회원님 본인 키만 쓰며, 운영자 공용 키로 대신 동작하지 않습니다."
       />
+
+      {failed.length > 0 && (
+        <LoadErrorNotice what={`저장된 ${failed.join("·")} 정보`} retryHref="/settings" extra="아래가 「등록 안 됨」으로 보여도 다시 입력하지 말고 먼저 다시 시도해 주세요." />
+      )}
 
       <section>
         <div className="space-y-5">

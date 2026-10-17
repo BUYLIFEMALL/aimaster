@@ -3,6 +3,8 @@ import { requireProgramAccess } from "@/lib/access";
 import { PageHero } from "@/components/ui/PageHero";
 import { formatDateTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
+import { logLoadErrors } from "@/lib/loadErrors";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { TREND_DAYS, buildKeywordTrends, clampPage } from "@/lib/reportTrend";
 
@@ -45,7 +47,7 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
   const params = (await searchParams) ?? {};
 
   // v1.09: 전체 개수를 먼저 세고, 요청한 페이지만 가져온다(20개씩)
-  const { count: totalCount } = await supabase
+  const { count: totalCount, error: countError } = await supabase
     .from("recommendation_reports")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id);
@@ -53,7 +55,7 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
   const page = clampPage(params.page, totalPages);
   const from = (page - 1) * PAGE_SIZE;
 
-  const { data: reports } = await supabase
+  const { data: reports, error: reportsError } = await supabase
     .from("recommendation_reports")
     .select("id, watchlist_id, generated_at, ai_summary, items")
     .eq("user_id", user.id)
@@ -62,7 +64,7 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
 
   // v1.09: 키워드별 기회점수 추이 — 최근 90일 리포트만(이미 저장된 자료, 새 API 호출 없음)
   const since = new Date(Date.now() - TREND_DAYS * 86_400_000).toISOString();
-  const { data: trendRows } = await supabase
+  const { data: trendRows, error: trendError } = await supabase
     .from("recommendation_reports")
     .select("generated_at, watchlist_id, items")
     .eq("user_id", user.id)
@@ -72,9 +74,12 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
   const trends = buildKeywordTrends(trendRows ?? []).filter((t) => t.points.length >= 2);
 
   const watchlistIds = Array.from(new Set([...(reports ?? []), ...(trendRows ?? [])].map((r) => r.watchlist_id)));
-  const { data: watchlists } = watchlistIds.length
+  const { data: watchlists, error: categoryError } = watchlistIds.length
     ? await supabase.from("trend_watchlist").select("id, category_name").eq("user_id", user.id).in("id", watchlistIds)
-    : { data: [] as { id: string; category_name: string }[] };
+    : { data: [] as { id: string; category_name: string }[], error: null };
+  // v1.11: 목록 조회 실패는 "리포트 없음"과 구분해 안내, 추이·카테고리 이름 실패는 작은 안내
+  const listFailed = logLoadErrors("reports", { 개수: { error: countError }, 목록: { error: reportsError } }).length > 0;
+  const extraFailed = logLoadErrors("reports", { 추이: { error: trendError }, 카테고리: { error: categoryError } });
   const categoryNameById = new Map((watchlists ?? []).map((w) => [w.id, w.category_name]));
 
   return (
@@ -162,7 +167,14 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
         </section>
       )}
 
-      {!reports?.length && (
+      {listFailed && <LoadErrorNotice what="트렌드 리포트" retryHref={`/reports${page > 1 ? `?page=${page}` : ""}`} />}
+      {!listFailed && extraFailed.length > 0 && (
+        <p role="status" className="mb-4 text-xs text-mx-danger">
+          ⚠️ {extraFailed.includes("추이") ? "점수 추이" : "카테고리 이름"}를 불러오지 못해 일부만 표시합니다. 새로고침하면 다시 시도합니다.
+        </p>
+      )}
+
+      {!listFailed && !reports?.length && (
         <div className="mx-card py-16 text-center">
           <p className="text-5xl">📈</p>
           <p className="mt-3 text-sm text-mx-muted">아직 생성된 리포트가 없습니다.</p>

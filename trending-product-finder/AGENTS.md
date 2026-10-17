@@ -220,3 +220,8 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
   - `components/sourcing/MarginCalculatorPanel.tsx` — 💰 마진 계산기(입력값을 `MarginForm` 한 객체로, `costFieldsFrom`·`marginOf`)
 - 테스트: `npm run test:trend`에 `tests/sourcingResults.test.mjs` 4개 추가(총 7개 통과, esbuild로 묶어 불러옴), 권한·마진 15개·build·lint 통과. 합성 화면 검사(`tests/fixtures.mjs`, Edge)는 라벨·자리표시 문구를 그대로 둬 영향 없게 했으나 Claude Code는 실행하지 않음 — Codex 다음 회차 실행 권장.
 - 실화면(크롬 시험 계정): `/sourcing?keyword=합성 테스트` — 키워드 전달·알리 기본 선택, 원가 10,000·판매가 30,000 → **마진 8,460원·28.2%·최종 수입 단가 15,300원**(분리 전과 동일). 검색·저장·발송 0회.
+
+## 2026-10-17 v1.11 — DB 조회 장애와 "자료 없음" 구분 (Claude Code 윈도우, 개선 원장 #15)
+- 예전엔 조회 `error`를 확인하지 않아 DB 장애도 "아직 리포트가 없습니다"·0개·미연결로 보였음. `lib/loadErrors.ts`(`failedQueries`·`logLoadErrors` — 서버 로그엔 조회 이름·오류 코드만) + `components/ui/LoadErrorNotice.tsx`(⚠️ 안내 + [🔄 다시 시도] 링크).
+- 화면별: **키워드 발굴** 조회 실패 시 입력 화면 대신 안내(빈 목록을 보고 중복 등록 방지) · **리포트** 목록 실패 시 "리포트 없음" 대신 안내, 추이·카테고리 실패는 작은 안내 · **대시보드** 위쪽 안내(숫자·연결이 0/미연결로 보일 수 있음) · **소싱** 관심 키워드·관심 상품 실패 안내(계산기는 그대로 사용) · **설정** "등록 안 됨으로 보여도 다시 입력하지 말고 먼저 다시 시도" 안내.
+- 테스트: `npm run test:trend` 9개(판정 함수 2개 추가), 권한 15개·build·lint 통과. 실화면(크롬 시험 계정) 5화면 정상 시 안내 없음·기존 화면 동일, 콘솔 오류 0. 운영에서 DB 장애를 일부러 낼 수 없어 오류 화면은 단위 테스트·코드 확인으로만 검증.

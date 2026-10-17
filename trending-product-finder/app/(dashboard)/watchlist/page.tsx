@@ -1,6 +1,8 @@
 import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
+import { logLoadErrors } from "@/lib/loadErrors";
 import { WatchlistWorkspace } from "@/components/watchlist/WatchlistWorkspace";
 import type { WatchlistEntry } from "@/lib/actions/watchlist";
 
@@ -11,7 +13,7 @@ export default async function WatchlistPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: watchlist } = await supabase
+  const { data: watchlist, error: watchlistError } = await supabase
     .from("trend_watchlist")
     .select(
       "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode",
@@ -42,7 +44,12 @@ export default async function WatchlistPage() {
         tip="키워드마다 「예약 소싱 알림」을 켜 두면 정한 주기마다 소싱 후보를 알림으로 받아요."
       />
 
-      <WatchlistWorkspace initialEntries={initialEntries} />
+      {/* v1.11: 조회 오류면 빈 목록 대신 안내 — 빈 화면을 보고 키워드를 중복 등록하지 않게 */}
+      {logLoadErrors("watchlist", { 관심키워드: { error: watchlistError } }).length ? (
+        <LoadErrorNotice what="등록한 관심 키워드" retryHref="/watchlist" extra="목록이 비어 보여도 새로 등록하지 말고 먼저 다시 시도해 주세요." />
+      ) : (
+        <WatchlistWorkspace initialEntries={initialEntries} />
+      )}
     </div>
   );
 }

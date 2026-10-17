@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
+import { logLoadErrors } from "@/lib/loadErrors";
 import { PageHero } from "@/components/ui/PageHero";
 import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
 
@@ -45,6 +47,11 @@ export default async function DashboardPage() {
       .maybeSingle(),
   ]);
 
+  // v1.11: 조회 실패를 0개·미연결로 착각하지 않게 위쪽에 안내
+  const failed = logLoadErrors("dashboard", {
+    "관심 키워드": watchRes, 리포트: reportsRes, "관심 상품": savedRes, "API 키": keysRes,
+    이메일: smtpRes, 카카오: solapiRes, 텔레그램: telegramRes,
+  });
   const watchlists = watchRes.data ?? [];
   const keywordCount = watchlists.reduce((n, w) => n + (w.keywords?.length ?? 0), 0);
   const alertOn = watchlists.filter((w) => w.sourcing_alert_enabled).length;
@@ -79,6 +86,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
+      {failed.length > 0 && (
+        <LoadErrorNotice what={failed.join("·")} retryHref="/dashboard" extra="아래 숫자·연결 상태가 0이나 미연결로 보일 수 있습니다." />
+      )}
       <PageHero
         badge="🏠 대시보드"
         title="지금 뜨는 상품을 찾고, 남는 상품만 소싱하세요"
