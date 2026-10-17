@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 이미지 생성 레퍼런스 규칙: AI 이미지 자동화(ai-image-studio) 기준
+
+- **주인님 지시**: ai-image-studio를 이미지 자동화의 레퍼런스 프로그램으로 운영. 최신 모델·다양한 모델은 여기에 구현·유지하고, 다른 프로그램 개발·업그레이드 시 여기 구현된 로직·프롬프트·모델·엔드포인트를 참고.
+- **반영**: [`CLAUDE.md`](../CLAUDE.md)·[`AGENTS.md`](../AGENTS.md)·[`GEMINI.md`](../GEMINI.md) 상단 「★★★ 이미지 생성 레퍼런스 규칙」, [`DESIGN.md`](../DESIGN.md) 최상위 원칙 앞 안내, [`docs/PLATFORM_PATTERNS.md`](PLATFORM_PATTERNS.md) §12 갱신(Imagen 3 종료·2.5 Flash Image 구형·최신 정식 모델).
+- **다음**: ai-image-studio 자체 점검(기본 모델이 구형 `gemini-2.5-flash-image`) — 최신 모델 반영.
+
 ## 2026-10-17 Claude Code(윈도우) — 플레이리스트 스튜디오 v1.10: AI 배경 생성 복구(Imagen 종료 → gemini-nano-banana-2.1)
 
 - **한 일(주인님 승인)**: 종료된 Imagen 대신 최신 정식 `gemini-nano-banana-2.1`(16:9, 기본 2K)로 교체. 호출 방식은 이미지 레퍼런스 ai-image-studio와 동일(REST generateContent + imageConfig). `gemini-2.5-flash-image`는 가격표상 2026-10-02 종료 예정 구형이라 제외.
