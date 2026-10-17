@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { ChannelCard } from "@/components/common/ChannelCard";
-import type { YouTubeChannelItem, GoldenChannelsParams } from "@/lib/youtube/types";
+import type { YouTubeChannelItem } from "@/lib/youtube/types";
+import type { GoldenPeriod, GoldenRegion } from "@/lib/youtube/goldenEngine";
 import {
   Sparkles,
   Search,
@@ -28,6 +29,12 @@ export default function GoldenChannelsPage() {
   const [keyword, setKeyword] = useState("이슈 쇼츠");
   const [maxSubscribers, setMaxSubscribers] = useState(10000); // 1만 이하 소형 채널
   const [minAverageViews, setMinAverageViews] = useState(30000); // 평균 3만회 이상
+  // v1.17 공용 엔진 조건 — 기본값은 예전 동작과 같음(최근 30일·쇼츠·전체 국가·1페이지)
+  const [period, setPeriod] = useState<GoldenPeriod>("30d");
+  const [shortVideosOnly, setShortVideosOnly] = useState(true);
+  const [region, setRegion] = useState<GoldenRegion>("all");
+  const [pages, setPages] = useState<1 | 2>(1);
+  const [quotaUsed, setQuotaUsed] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [channels, setChannels] = useState<YouTubeChannelItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -46,8 +53,11 @@ export default function GoldenChannelsPage() {
           keyword: targetKeyword,
           maxSubscribers,
           minAverageViews,
-          maxResults: 24,
-        } as GoldenChannelsParams),
+          period,
+          shortVideosOnly,
+          region,
+          pages,
+        }),
       });
 
       const data = await res.json();
@@ -62,6 +72,7 @@ export default function GoldenChannelsPage() {
       }
 
       setChannels(data.items || []);
+      setQuotaUsed(typeof data.quotaUsed === "number" ? data.quotaUsed : null);
     } catch (err: unknown) {
       setError(errorMessage(err) || "네트워크 오류가 발생했습니다.");
     } finally {
@@ -203,6 +214,40 @@ export default function GoldenChannelsPage() {
               <option value="100000">10만회 이상 (초고효율 채널)</option>
             </select>
           </div>
+
+          <div>
+            <label className="block text-yt-muted font-semibold mb-1.5">검색 기간 (업로드 시점)</label>
+            <select value={period} onChange={(e) => setPeriod(e.target.value as GoldenPeriod)} className="w-full p-2.5 bg-yt-raised border border-yt-border rounded-lg text-yt-text font-medium focus:bg-yt-surface focus:outline-hidden focus:ring-1 focus:ring-amber-500">
+              <option value="30d">최근 30일 (추천)</option>
+              <option value="90d">최근 90일</option>
+              <option value="365d">최근 1년</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-yt-muted font-semibold mb-1.5">영상 길이</label>
+            <select value={shortVideosOnly ? "short" : "all"} onChange={(e) => setShortVideosOnly(e.target.value === "short")} className="w-full p-2.5 bg-yt-raised border border-yt-border rounded-lg text-yt-text font-medium focus:bg-yt-surface focus:outline-hidden focus:ring-1 focus:ring-amber-500">
+              <option value="short">쇼츠·짧은 영상만 (4분 미만)</option>
+              <option value="all">모든 길이 영상</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-yt-muted font-semibold mb-1.5">국가·언어</label>
+            <select value={region} onChange={(e) => setRegion(e.target.value as GoldenRegion)} className="w-full p-2.5 bg-yt-raised border border-yt-border rounded-lg text-yt-text font-medium focus:bg-yt-surface focus:outline-hidden focus:ring-1 focus:ring-amber-500">
+              <option value="all">전체</option>
+              <option value="kr">한국 (한국어)</option>
+              <option value="global">해외 (미국·영어)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-yt-muted font-semibold mb-1.5">검색 깊이 (할당량)</label>
+            <select value={pages} onChange={(e) => setPages(e.target.value === "2" ? 2 : 1)} className="w-full p-2.5 bg-yt-raised border border-yt-border rounded-lg text-yt-text font-medium focus:bg-yt-surface focus:outline-hidden focus:ring-1 focus:ring-amber-500">
+              <option value="1">영상 50개 검색 (약 102유닛)</option>
+              <option value="2">영상 100개 검색 (약 204유닛)</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -224,6 +269,9 @@ export default function GoldenChannelsPage() {
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-yt-warn/10 text-yt-warn">
               {channels.length}개 발견
             </span>
+          )}
+          {quotaUsed !== null && (
+            <span className="text-xs text-yt-muted">이번 검색 할당량 약 {quotaUsed}유닛</span>
           )}
         </div>
       </div>

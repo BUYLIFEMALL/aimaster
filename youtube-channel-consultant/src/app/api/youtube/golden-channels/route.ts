@@ -2,18 +2,13 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { findTargetChannels } from "@/lib/youtube/analysis";
-import type { SearchRegion, TargetPeriod } from "@/lib/youtube/types";
+import { normalizeGoldenParams } from "@/lib/youtube/goldenEngine";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const REGIONS: SearchRegion[] = ["all", "kr", "global"];
-const PERIODS: TargetPeriod[] = ["30d", "90d", "365d"];
-
-function boundedInt(value: unknown, min: number, max: number, fallback: number): number {
-  const n = typeof value === "number" && Number.isFinite(value) ? Math.round(value) : NaN;
-  return Number.isNaN(n) ? fallback : Math.min(max, Math.max(min, n));
-}
+// 이 프로그램의 기본 조건(입력이 비거나 잘못됐을 때)
+const DEFAULTS = { maxSubscribers: 10_000, minAverageViews: 10_000, period: "90d", shortVideosOnly: false, region: "all", pages: 1 } as const;
 
 export async function POST(request: Request) {
   try {
@@ -32,23 +27,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const keyword = typeof body.keyword === "string" ? body.keyword.trim() : "";
-    if (!keyword || keyword.length > 100) {
-      return NextResponse.json({ error: "검색 키워드를 100자 이내로 입력해주세요." }, { status: 400 });
+    const params = normalizeGoldenParams(body ?? {}, DEFAULTS);
+    if ("error" in params) {
+      return NextResponse.json({ error: params.error }, { status: 400 });
     }
 
-    const result = await findTargetChannels(
-      {
-        keyword,
-        maxSubscribers: boundedInt(body.maxSubscribers, 100, 10_000_000, 10_000),
-        minAverageViews: boundedInt(body.minAverageViews, 0, 100_000_000, 10_000),
-        period: PERIODS.includes(body.period) ? body.period : "90d",
-        shortVideosOnly: body.shortVideosOnly === true,
-        region: REGIONS.includes(body.region) ? body.region : "all",
-        pages: Number(body.pages) === 2 ? 2 : 1,
-      },
-      apiKey
-    );
+    const result = await findTargetChannels(params, apiKey);
     return NextResponse.json(result);
   } catch (err) {
     const e = err as { message?: string; code?: string; status?: number };

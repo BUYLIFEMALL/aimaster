@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 황금·공략 채널 계산 통합(공용 기준 코드 1호) + 공용 기준 코드 규칙 신설
+
+- **한 일(주인님 승인 ①안)**: CHANNEL CONSULTANT 「공략 채널 찾기」와 VIRAL FINDER 「황금 채널 발굴」의 계산을 공용 기준 코드 `youtube-golden-engine` 하나로 맞췄습니다. 기준은 consultant `src/lib/youtube/goldenEngine.ts`, 사본은 viral-studio입니다. 두 프로그램은 서로 호출하지 않고, 메뉴와 화면은 그대로입니다. VIRAL FINDER에는 조건 4개(기간·길이·국가·검색 깊이)를 추가했습니다(기본값은 예전과 같음).
+- **버전**: youtube-channel-consultant v1.08, youtube-viral-studio v1.17. 빌드·배포·DB 반영을 마쳤습니다. 크롬으로 두 화면 조건 칸과 빈 키워드 400 응답을 확인했습니다. 실제 검색(할당량 사용)은 하지 않았습니다.
+- **새 규칙**: 메인 지침 3곳에 「공용 기준 코드 규칙」을 추가했습니다(비슷한 프로그램의 같은 기능은 자동화가 쉽고 품질 높은 쪽을 기준으로, 사본은 직접 고치지 않음). 목록·절차·공용화 후보(이미지 생성·프롬프트 틀·외부 데이터 수집·유튜브 조회)는 [`docs/SHARED_MODULES.md`](SHARED_MODULES.md)에 있습니다. 사본 검사: `node scripts/check-shared-modules.mjs`(동기화 `--sync`).
+- **남은 일**: 공용화 후보는 지시 시 착수합니다(대상 비교 → 기준 선정 → 플랜 먼저).
+- **링크**: https://youtube-channel-consultant.buylife.xyz · https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-17 Antigravity CLI(agy, 윈도우) — AI 이미지 스튜디오 v1.12: 크리에이티브 아틀리에 럭셔리 다크 리뉴얼 & 공식 표준 로그인/비주얼 가이드 완결
 
 - **대상**: `ai-image-studio/` (https://ai-image-studio.buylife.xyz) — 플랫폼 이미지 자동화 레퍼런스(기준) 프로그램.

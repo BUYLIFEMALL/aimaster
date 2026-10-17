@@ -51,7 +51,7 @@ function handleApiError(data: any, status: number): never {
   throw new YouTubeApiError(message, reason || "UNKNOWN", status);
 }
 
-async function call(path: string, params: Record<string, string>, apiKey: string, meter: QuotaMeter, units: number) {
+export async function call(path: string, params: Record<string, string>, apiKey: string, meter: QuotaMeter, units: number) {
   const url = new URL(`${YOUTUBE_API_BASE}/${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   url.searchParams.set("key", apiKey);

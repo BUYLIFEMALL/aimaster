@@ -122,3 +122,12 @@
 - 주인님 결정 A안: 실제 저장 0개(회원 0명)·30일 자동 삭제로 1,000개 제한 도달 가능성이 낮아, 완전한 페이지 나눔 대신 `favorites/page.tsx`에 "최신 1,000개만 표시" 안내(1,000개 이상일 때만). `src/lib/favorites.ts`에 `FAVORITES_LOAD_LIMIT = 1000` 공통 상수, `api/favorites`는 숫자 1000을 이 상수로만 바꿈(값·로직 동일, v1.14 Codex 구현 보존).
 - 검수: tsc·eslint 0, 즐겨찾기 단위 8, build, 배포·DB v1.16, 비로그인 API 401, 크롬 보관함 정상(0개라 안내 미표시가 정상). 1,000개 상태는 DB 시험 자료가 필요해 코드 조건으로만 확인.
 - 재검토 조건: 한 회원 저장이 수백 개 이상으로 늘면 B안(날짜 커서 페이지 나눔 + ⭐ 상태용 전체 읽기).
+
+## 2026-10-17 v1.17 — 「황금 채널 발굴」 계산을 공용 기준 코드 사본으로 + 조건 4개 추가 (Claude Code 윈도우)
+- 주인님 승인 ①안: CHANNEL CONSULTANT 「공략 채널 찾기」와 같은 기능이라 안쪽 계산을 기준 코드(consultant의 `goldenEngine.ts`) 사본으로 바꿨다. 두 프로그램은 서로를 호출하지 않는다.
+- 바뀐 점: 화면 조건에 **검색 기간·영상 길이·국가·검색 깊이** 추가. 기본값은 예전과 같음(30일·쇼츠·전체·50개, 구독자 1만·평균 3만). 결과 카드·보관함·대본 분석은 그대로이고, 카드에 이번 검색에서 가장 많이 본 영상(`topVideo`)이 채워진다. 검색 뒤 할당량(약 유닛) 표시.
+- 계산 차이(개선): 구독자 비공개 채널을 0명으로 계산하지 않고 제외. 떡상 지수 = 파괴력 배수 × 10(최대 100), 예전 식과 같음. 검색어에 붙이던 `#shorts`는 빼고 영상 길이 조건으로만 거른다. 결과 최대 20개.
+- 바뀐 파일: `goldenEngine.ts`·`tests/goldenEngine.test.mjs`(사본, 신규), `goldenChannels.ts`(엔진 호출 + 카드 변환), `client.ts`(`youtubeCall` 추가), API `golden-channels`(공용 입력 정리 + 기본값), 화면 `golden-channels/page.tsx`, `types.ts`(안 쓰게 된 `GoldenChannelsParams` 삭제), 버전 v1.17.
+- 검수: tsc 0, eslint(바뀐 파일) 0, build, 배포·DB v1.17, 크롬 화면(조건 6칸·기본값·v1.17·가로 넘침 없음).
+- 사본·기준 확인: `node scripts/check-shared-modules.mjs` → 모두 OK. 공용 파일 테스트 3개(가짜 YouTube 응답) 통과. 실제 검색(할당량 사용)은 하지 않았고, 빈 키워드 요청이 서버에서 400으로 막히는 것까지 크롬으로 확인.
+- **주의(다음 CLI)**: `src/lib/youtube/goldenEngine.ts`·`tests/goldenEngine.test.mjs`는 공용 기준 코드다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `--sync` → 두 프로그램 모두 빌드·배포·버전 +0.01. 목록·절차: 루트 `docs/SHARED_MODULES.md`.

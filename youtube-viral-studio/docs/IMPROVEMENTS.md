@@ -11,7 +11,7 @@
 | 7 | 2026-10-17 | ① 로직·기능 | 검색 결과에 「채널 진단 보내기」 없음 — 터진 영상의 채널을 바로 깊게 분석할 수 없음 | 영상 카드·채널 카드 | 중간 | 제안 |
 | 8 | 2026-10-17 | ① 로직·기능 | 같은 검색을 반복하면 매번 YouTube 할당량을 다시 씀 — 회원별 결과 임시 저장(30일 자동 삭제, 최상위 규칙)으로 재검색 비용 절감 | `api/youtube/*` | 중간 | 제안(DB 추가 — 승인 필요) |
 | 9 | 2026-10-17 | ② UI·편의성 | 검색 전 빈 화면에 예시 키워드 칩(주식·다이어트·AI 등) 원클릭 검색 없음, 결과 정렬(VPH·vsRatio·점수) 토글 없음 | `viral-shorts/page.tsx` | 낮음 | 제안 |
-| 10 | 2026-10-17 | ③ 타 프로그램 연계 | **`youtube-channel-consultant`의 「공략 채널 찾기」와 이 프로그램 「황금 채널 발굴」이 같은 기능**(구독자 1만 이하 + 평균 조회수 높은 채널) — 한쪽으로 합치거나 서로 링크 | `goldenChannels.ts` ↔ consultant `targets.ts` | 중간 | 제안 |
+| 10 | 2026-10-17 | ③ 타 프로그램 연계 | **`youtube-channel-consultant`의 「공략 채널 찾기」와 이 프로그램 「황금 채널 발굴」이 같은 기능**(구독자 1만 이하 + 평균 조회수 높은 채널) — 한쪽으로 합치거나 서로 링크 | `goldenChannels.ts` ↔ consultant `targets.ts` | 중간 | **완료(2026-10-17 v1.17)** — 공용 기준 코드 `youtube-golden-engine` 사본 사용(기준: consultant). 조건 4개(기간·길이·국가·검색 깊이) 추가. `docs/SHARED_MODULES.md` |
 | 11 | 2026-10-17 | ③ 타 프로그램 연계 | 터진 쇼츠 → `shorts-viral-studio`(공식 분석→대본)로 영상 주소 넘기기, 황금 채널 → `youtube-channel-consultant` 채널 분석으로 넘기기, 터진 영상 제목 → `seo-thumbnail-pro` 메타데이터 전략 | 영상·채널 카드 | 중간 | 제안 |
 
 ## 2026-10-17 Codex(Windows) — Windows 검수 발견·추가개선 3대 항목

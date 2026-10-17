@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { selectTargetChannels } from "../src/lib/youtube/targets.ts";
+// 2026-10-17 v1.08: 선별 계산은 공용 엔진으로 이동(targets.ts는 같은 함수를 다시 내보냄)
+import { selectGoldenChannels as selectTargetChannels } from "../src/lib/youtube/goldenEngine.ts";
 
 const cand = (id, subs, views, videos, over = {}) => ({
   id, title: id, thumbnailUrl: "", publishedAt: "2025-01-01T00:00:00Z",

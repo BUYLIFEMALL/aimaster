@@ -91,3 +91,11 @@ vercel deploy --prod --yes --scope buylife
 - `youtube-viral-studio`와 같은 `yt-*` 토큰·사이드바, 📖 매뉴얼 메뉴·`/guide` 신설, 대시보드 배너, 로그인 다크. API·지표 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
 - **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+## 2026-10-17 v1.08 — 「공략 채널 찾기」 계산을 공용 기준 코드로 (Claude Code 윈도우)
+- 주인님 승인 ①안: VIRAL FINDER 「황금 채널 발굴」과 같은 기능이라 안쪽 계산만 하나로 맞췄다. **이 프로그램 `src/lib/youtube/goldenEngine.ts`가 기준**(조건·할당량 계산·구독자 비공개 처리·테스트가 더 갖춰져 있어서)이고, viral-studio가 사본을 쓴다. 두 프로그램은 서로를 호출하지 않는다.
+- 바뀐 파일: `goldenEngine.ts`(신규, 검색→영상→채널→선별), `analysis.ts`의 `findTargetChannels`(엔진 호출로 축소), `targets.ts`·`types.ts`(기존 이름을 엔진 것으로 다시 내보냄), `client.ts`(`call` 내보내기), API `golden-channels`(입력 정리 공용 함수), `tests/goldenEngine.test.mjs`(신규)·`tests/targets.test.mjs`(엔진에서 불러오게), `package.json` 테스트 목록.
+- 화면·결과(표·CSV)·기본 조건(90일·전체 길이·구독자 1만·평균 1만)은 그대로. 대표 영상 썸네일만 고화질 우선으로 바뀜.
+- 검수: tsc 0, 테스트 20개 통과, build, 배포·DB v1.08, 크롬 화면(조건 6칸·v1.08·가로 넘침 없음).
+- 사본·기준 확인: `node scripts/check-shared-modules.mjs` → 모두 OK. 공용 파일 테스트 3개(가짜 YouTube 응답) 통과. 실제 검색(할당량 사용)은 하지 않았고, 빈 키워드 요청이 서버에서 400으로 막히는 것까지 크롬으로 확인.
+- **주의(다음 CLI)**: `src/lib/youtube/goldenEngine.ts`·`tests/goldenEngine.test.mjs`는 공용 기준 코드다. 기준은 `youtube-channel-consultant`이고 사본은 직접 고치지 않는다. 기준을 고친 뒤 `--sync` → 두 프로그램 모두 빌드·배포·버전 +0.01. 목록·절차: 루트 `docs/SHARED_MODULES.md`.

@@ -54,14 +54,6 @@ export interface ShortsSearchParams {
   pageToken?: string;
 }
 
-export interface GoldenChannelsParams {
-  keyword?: string;
-  maxSubscribers?: number; // 기본 10000 이하
-  minAverageViews?: number; // 기본 50000 이상
-  category?: string;
-  maxResults?: number;
-}
-
 export interface TrendingParams {
   type: "shorts" | "long" | "all";
   regionCode?: string; // 기본 KR

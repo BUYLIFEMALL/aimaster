@@ -52,6 +52,19 @@ function handleApiError(data: unknown, status: number): never {
 }
 
 /**
+ * 공용 엔진(goldenEngine.ts)에 넘기는 YouTube 호출 함수 — 회원 본인 키·이 프로그램의 오류 안내 문구 사용(2026-10-17 v1.17).
+ */
+export async function youtubeCall(endpoint: string, query: Record<string, string>, apiKey: string): Promise<unknown> {
+  const url = new URL(`${YOUTUBE_API_BASE}/${endpoint}`);
+  for (const [k, v] of Object.entries(query)) url.searchParams.set(k, v);
+  url.searchParams.set("key", apiKey);
+  const res = await fetch(url.toString(), { cache: "no-store" });
+  const data = await res.json();
+  if (!res.ok) handleApiError(data, res.status);
+  return data;
+}
+
+/**
  * 다수 비디오 상세 정보(조회수, 길이, 통계) 일괄 조회
  */
 export async function fetchVideosDetails(
