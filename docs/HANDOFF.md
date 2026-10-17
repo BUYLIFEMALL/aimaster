@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — gstack 스킬 묶음 설치·동작 확인, CLAUDE.md에 사용 지침
+
+- **한 일**: `~/.claude/skills/gstack`에 gstack 1.91.121.0 설치(내려받기는 Claude Code, `./setup --host claude`는 자동 승인 기능이 막아 주인님이 직접 실행). 하위 스킬 50여 개 등록, `setup --status` current, `gstack-doctor` 정상 13·경고 2·미설정 1·실패 0, `browse.exe` 실행 확인.
+- **설정 파일**: Stop 훅 1개만 추가, 기존 훅·상태바 그대로(백업 `~/.claude/settings.json.before-gstack-20261018`).
+- **CLAUDE.md**: 「gstack」 섹션 추가 — gstack 권장 문구(“claude-in-chrome 금지, 모든 웹 작업은 /browse”)는 저장소 Chrome 검수 규칙과 충돌해 넣지 않음. `/ship`·`/land-and-deploy`는 저장소 배포 절차와 달라 쓰지 않음.
+- **범위**: 윈도우 Claude Code만. 맥미니·Codex·agy는 미설치.
+- **다음 첫 단계**: 이미지 제안 2번(시간 초과 안내에 결과 확인 위치 링크) 플랜.
+
 ## 2026-10-17 Claude Code(맥미니) — 맥미니 에이전트 작업 플레이북(세 CLI 공통)
 
 - **새 문서**: [`docs/MAC_MINI_AGENT_PLAYBOOK.md`](MAC_MINI_AGENT_PLAYBOOK.md) — 원격 작업 공간 요약, 맥미니에서 하는 일/윈도우에 요청할 일/주인님께 여쭐 일, CLI별 브라우저, 커밋 스크립트 사용법, 표준 작업 루프, 보고 규칙, 막혔을 때.

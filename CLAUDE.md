@@ -402,6 +402,17 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - **디자인 개발완료 및 유의사항 인수인계 문서 의무 (2026-10-16 주인님 지시)**: 항상 디자인 작업이 끝나면 관련 주요사항과 유의사항(적용 템플릿, 비주얼 구현 내역, 사이드바/모바일 767px/명도대비 주의점, Edge 검수 증거, 배포 링크 등)을 정리한 **디자인 개발완료 문서(`docs/DESIGN_HANDOFF.md`)**를 해당 프로그램 폴더에 인수인계 문서로 반드시 추가하여 남겨둔다.
     - **디자인 템플릿 스타일 명명 및 카탈로그화 의무 (2026-10-16 주인님 지시)**: 항상 디자인 작업 후 작업 내용을 템플릿화하여 "○○○ 스타일 템플릿"으로 고유 명칭(예: `포커스 스튜디오 스타일`, `사이버 네온 다크 콘솔 스타일` 등)을 정해 명시한다. 사용된 프로그램에 어떤 디자인 템플릿이 적용되었는지 [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md) 카탈로그와 해당 프로그램 `AGENTS.md`/`docs/DESIGN_HANDOFF.md`에 기록해두어, 나중에 다른 프로그램에서 해당 템플릿 스타일로 변경 요청 시 즉시 참고하여 완벽하게 이식할 수 있도록 한다.
 
+## gstack (Claude Code 스킬 묶음 — 2026-10-18 주인님 지시로 설치)
+
+- **설치 위치·범위**: 윈도우 PC Claude Code 전역 `~/.claude/skills/gstack`(gstack 1.91.121.0, `./setup --host claude`). 맥미니·Codex·agy에는 설치하지 않았다(필요하면 각 장비에서 같은 명령으로 따로 설치). Claude Code가 설치된 스킬 목록을 스스로 보여 주므로 여기에는 목록을 옮겨 적지 않는다.
+- **이 저장소에서 쓰는 방법 — 저장소 규칙이 항상 우선한다**:
+  1. **화면 검수는 지금처럼 주인님 크롬 실제 창(claude-in-chrome)으로 한다.** gstack 문서가 권하는 "웹 작업은 모두 `/browse`, claude-in-chrome 금지" 문구는 이 저장소의 Chrome 검수 규칙(핵심 원칙 13·18)과 충돌하므로 따르지 않는다. gstack `/browse`·`/scrape`(헤드리스/Aside 브라우저)는 공개 페이지 자료 수집 같은 보조 용도로만 쓰고, 검수 증거로 삼지 않는다.
+  2. **`/ship`·`/land-and-deploy`는 쓰지 않는다** — PR 생성·`VERSION`/`CHANGELOG` 갱신 방식이 이 저장소 절차(master 직접 커밋, `vX.YY` 버전 + DB `programs.version`, 프로그램 폴더별 `vercel deploy --prod --yes`, 인수인계 문서)와 다르다.
+  3. 쓸 만한 것: `/investigate`(원인 조사), `/review`(커밋 전 변경 검토), `/plan-eng-review`·`/plan-design-review`(개발 플랜 점검), `/cso`(보안 점검), `/health`(코드 품질), `/office-hours`·`/spec`(새 프로그램 기획). 결과는 이 저장소 규칙(개발 플랜 먼저 보고, 한글 진행 표시, 단일 작업 순서, 프로그램별 인수인계)에 맞춰 보고한다.
+  4. 유료 호출이 있는 기능(`gstack-doctor --live`, `/benchmark-models`, `/eval-plan` 등)은 테스트 비용 규칙대로 사전 승인을 받는다.
+- **설정 변경**: `setup`이 `~/.claude/settings.json`에 세션 종료 기록 훅(Stop `timeline-stop-hook`) 하나를 추가했다. 기존 상태바 보호 훅·상태바 설정은 그대로다(설치 전 백업: `~/.claude/settings.json.before-gstack-20261018`). 훅 제거: `~/.claude/skills/gstack/bin/gstack-settings-hook remove-source --source gstack-timeline-stop`.
+- **점검·갱신**: `~/.claude/skills/gstack/bin/gstack-doctor`(2026-10-18 결과: 정상 13 · 경고 2[Codex 실호출 미점검, gstack 자체 CLAUDE.md 목록] · 미설정 1[장비 간 동기화] · 실패 0). 윈도우는 파일 복사 방식이라 `git pull` 뒤에는 `./setup`을 다시 실행한다(또는 `/gstack-upgrade`).
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.
