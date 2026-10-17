@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { callOpenAiText } from "./openai";
 
@@ -41,7 +43,7 @@ export async function generateEmailImagePrompt(input: GenerateEmailImagePromptIn
   return prompt.trim();
 }
 
-const GEMINI_IMAGE_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-image:generateContent";
+const GEMINI_IMAGE_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent";
 
 export interface GeneratedImage {
   base64: string;
