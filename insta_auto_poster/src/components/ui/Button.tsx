@@ -8,13 +8,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-neutral-900 text-white hover:bg-neutral-700 disabled:bg-neutral-300",
-  secondary: "bg-white text-neutral-900 border border-neutral-300 hover:bg-neutral-50",
-  danger: "bg-red-600 text-white hover:bg-red-500 disabled:bg-red-300",
-  ghost: "bg-transparent text-neutral-600 hover:bg-neutral-100",
+  primary: "bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white font-bold shadow-sm hover:opacity-90 disabled:opacity-50",
+  secondary: "bg-[#0d0f17] text-slate-200 border border-[#262c3d] hover:bg-[#1f2433] hover:text-white disabled:opacity-50",
+  danger: "bg-rose-600 text-white hover:bg-rose-500 font-bold disabled:opacity-50",
+  ghost: "bg-transparent text-slate-400 hover:bg-[#1f2433] hover:text-slate-100",
   // 계정 연결 방식 구분용: Facebook 로그인 = 파란색, Instagram 로그인 = 초록색
-  facebook: "bg-blue-600 text-white hover:bg-blue-500 disabled:bg-blue-300",
-  instagram: "bg-green-600 text-white hover:bg-green-500 disabled:bg-green-300",
+  facebook: "bg-blue-600 text-white hover:bg-blue-500 font-bold shadow-sm disabled:opacity-50",
+  instagram: "bg-emerald-600 text-white hover:bg-emerald-500 font-bold shadow-sm disabled:opacity-50",
 };
 
 export function Button({ variant = "primary", className, ...props }: ButtonProps) {

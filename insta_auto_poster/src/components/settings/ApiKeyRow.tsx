@@ -27,16 +27,16 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: 
   const showForm = !maskedValue || isEditing;
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+    <div className="rounded-xl border border-[#262c3d] bg-[#0d0f17] p-3.5">
       <div className="mb-2 flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-neutral-900">{label}</p>
+          <p className="text-sm font-semibold text-slate-200">{label}</p>
           {helpUrl && !maskedValue && (
             <a
               href={helpUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-blue-600 hover:underline"
+              className="text-xs text-pink-400 hover:underline"
             >
               {helpLabel ?? "발급받기"}
             </a>
@@ -47,13 +47,13 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: 
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-xs text-emerald-600 hover:underline"
+              className="text-xs text-sky-400 hover:underline"
             >
               수정
             </button>
             <form action={deleteApiKeyAction}>
               <input type="hidden" name="provider" value={provider} />
-              <button type="submit" className="text-xs text-red-600 hover:underline">
+              <button type="submit" className="text-xs text-rose-400 hover:underline">
                 삭제
               </button>
             </form>
@@ -68,7 +68,7 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: 
             name="apiKey"
             type="password"
             placeholder={maskedValue ? `새 키 입력 (현재: ${maskedValue})` : "API 키 입력"}
-            className="min-w-[220px] flex-1"
+            className="min-w-[220px] flex-1 bg-[#161922] border-[#262c3d] text-slate-100 placeholder-slate-500"
           />
           <Button type="submit" variant="secondary" disabled={isPending}>
             {isPending ? "저장 중..." : "저장"}
@@ -80,10 +80,10 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: 
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-neutral-500">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-xs text-emerald-400 font-semibold">{maskedValue} · 등록됨</p>
       )}
-      {state.error && <p className="mt-1 text-xs text-red-600">{state.error}</p>}
-      {state.success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {state.error && <p className="mt-1 text-xs text-rose-400">{state.error}</p>}
+      {state.success && <p className="mt-1 text-xs text-emerald-400">저장되었습니다.</p>}
     </div>
   );
 }

@@ -1,5 +1,41 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — INSTA 포스팅 자동화 v1.23: 플로우 위저드 스타일 다크 테마 리뉴얼·가이드북 전면 고도화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 42개 완료 달성!)
+
+- **대상**: `insta_auto_poster/` (https://auto-instagram-posting.buylife.xyz, slug: `auto-instagram-posting`)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **플로우 위저드 스타일 (인스타 바이럴 변형)** 다크 테마 (`bg-[#0d0f17]`, 서피스 `#161922`, 보더 `#262c3d`, 인스타 로즈/핑크 그라디언트 & 앰버/에메랄드 악센트).
+     - **모바일(375px) 반응형 완비**: 상단 고정 헤더(`h-14`, 앱 타이틀 + `v1.23` 핑크 칩 + 햄버거 토글 버튼 `aria-label="메뉴 열기"`) 및 슬라이드 오버레이 드로어 메뉴 구축 완료.
+     - **사이드바 메뉴 표준화**: `📖 연동 & 사용 매뉴얼` 메뉴 정비 및 다크 테마 최적화.
+     - **비주얼 연동 & 사용 매뉴얼(`/guide`) 전면 고도화**: 🤖 마스코트 환영 배너, 5단계 원스톱 인스타 마케팅 파이프라인(AI 키 등록 → Meta 앱 & 인스타 연결 → 게시글 주제 수집 → AI 피드/카드뉴스 생성 → 즉시/예약 게시), 📘 Facebook 페이지 연동 vs 📗 Instagram 로그인 연동 2대 공식 경로 비교 안내 카드, 인스타그램 알고리즘 도달률/인게이지먼트 공략 팁, BYOK API 키 가이드, FAQ 6종, 하단 CTA 배너.
+     - **대시보드(`/dashboard`), 설정(`/settings`) 및 공용 UI 컴포넌트 다크 테마 일체화**: 상단 헤더 바, 4대 파이프라인 바로가기, 5종 상태 카운터, 예약 게시 리스트, `StatusBadge`, `Button`, `Input`, `ApiKeyRow` 전면 다크 토큰 통일.
+  2. **로컬 빌드 및 Vercel 프로덕션 배포**:
+     - Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (`npm run build`, 컴파일 및 TypeScript 무결성 통과).
+     - Supabase DB `programs` 테이블에서 `slug = 'auto-instagram-posting'`의 `version = 'v1.23'` 갱신 완료.
+     - Vercel 프로덕션 배포 완료: `https://auto-instagram-posting-58f0k438a-buylife.vercel.app` → alias `auto-instagram-posting.buylife.xyz` 최신 연결 확인 (`readyState: READY`).
+  3. **Microsoft Edge 포그라운드 실세션 검수 완료 (화면 노출 `headless: false`)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 인증 세션 쿠키 주입 후 실제 Edge 창으로 검수.
+     - 데스크톱 (1440px): 다크 대시보드(통계, 4대 바로가기, 예약 게시 목록) 및 고도화된 연동 & 사용 매뉴얼(`/guide`) 완벽 노출.
+     - 모바일 (375px): 상단 고정 헤더(`INSTA 포스팅 자동화 v1.23` + 햄버거 버튼), 햄버거 클릭 시 슬라이드 드로어 메뉴 정상 작동 및 매뉴얼 반응형 완벽 대응.
+     - 스크린샷 증빙 아티팩트 5종 보존:
+       - `edge_insta_auto_poster_desktop_dashboard_v123.png`
+       - `edge_insta_auto_poster_desktop_guide_v123.png`
+       - `edge_insta_auto_poster_mobile_dashboard_v123.png`
+       - `edge_insta_auto_poster_mobile_menu_v123.png`
+       - `edge_insta_auto_poster_mobile_guide_v123.png`
+  4. **인수인계 규격화 문서 6종 완비**:
+     - `insta_auto_poster/docs/PLAN_20261017_DESIGN_RENEWAL.md`
+     - `insta_auto_poster/docs/DESIGN_HANDOFF.md`
+     - `insta_auto_poster/docs/IMPROVEMENTS.md` (3대 핵심 항목 및 타 프로그램 연계 분석)
+     - `insta_auto_poster/docs/IMPROVEMENT_BACKLOG.md` (우선순위별 작업 백로그)
+     - `insta_auto_poster/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `insta_auto_poster/README.md` (7대 핵심 항목 동기화)
+  5. **현황판 동기화**:
+     - `DESIGN.md` 56번 상태 「✅ 1차 작업완료 (`v1.23`, 플로우 위저드 스타일)」 갱신 완료 (**✅ 42개 완료 / ⚪ 39개 예정 / ⏸ 2개 보류**).
+     - `docs/ACTIVE_WORK.md` 작업 중 줄 삭제 완료.
+- **다음 첫 단계**: 24번 또는 인스타그램 카테고리 남은 프로그램 확인 후 다음 순번 디자인 리뉴얼 플랜 수립.
+
 ## 2026-10-17 23:50(KST) Claude Code(윈도우) — ⚠ 날짜 정정 + 트렌드 정리 Cron 실행 전 기준값
 
 - **날짜 정정**: 이 파일 위쪽과 각 프로그램 `AGENTS.md`·`docs/SHARED_*`·`docs/ERROR_LESSONS.md`·`scripts/check-shared-modules.mjs` 주석에 **「2026-10-18」로 적힌 Claude Code(윈도우) 항목은 실제로 2026-10-17 오후~밤(KST) 작업**이다(이미지 시간 초과 재시도 중단·사용량 안내 정정·gstack·4묶음 B·Vercel 비용 절감·5묶음·함수 한도 상향/대체 그림 안내·threads-affiliate-poster v1.62). 시스템 날짜를 확인하지 않고 적은 착오. 핵심 지침(`CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 「배포 비용 절감 규칙」)과 `docs/VERCEL_COST_REDUCTION_PLAN.md`의 날짜는 2026-10-17로 직접 고쳤다. 단, 「2026-10-18 03:50 KST 첫 실행」 같은 **앞으로의 예정 시각** 표기는 원래 맞다.
