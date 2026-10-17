@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — 유튜브 댓글자동화 v1.11: 좌측 상단 제목 「YOUTUBE 댓글 자동화」 (🟠 윈도우 배포 요청)
+
+- 주인님 지시로 사이드바 로고 옆 제목 변경(`youtube-auto-reply/components/layout/Sidebar.tsx`), 버전 v1.11. `tsc --noEmit` 오류 0.
+- **⚠️ 윈도우 CLI 요청**: 빌드 → 배포 → DB `programs.version='v1.11'` → 1440·375px 제목 잘림 확인. 상세: [`youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../youtube-auto-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) 끝.
+- 같은 세션 맥미니 크롬 확인: 유튜브 댓글자동화 v1.10 대시보드·댓글 검토·390px ☰ 정상. 상품소싱 「리포트 없음」은 관리자 계정 관심 목록 7개가 모두 꺼짐 + 30일 보관 규칙 때문(오류 아님, 전체 자동 리포트는 2026-10-17 09:00 정상 생성).
+
 ## 2026-10-17 Claude Code(윈도우) — 유튜브 조회 공용 모듈 1단계 + 기능별 프로그램 지도 + 공용 코드 규칙 보강
 
 - **한 일**: 공용 기준 코드 `youtube-data-client`를 신설했습니다(기준: `youtube-channel-consultant/src/lib/youtube/youtubeData.ts`). 기준 선정은 ① 안정성 ② 유지보수 순서이고, 혼자 다 갖춘 후보가 없어 각 후보의 장점을 모아 새로 썼습니다. 1단계로 유튜브 전용 3개에 적용했습니다: consultant v1.09, viral-studio v1.18, shorts-viral-studio v1.10. 세 프로그램 모두 테스트·빌드·배포·DB 버전·크롬 화면 확인을 마쳤고, 실제 YouTube 호출은 하지 않았습니다.

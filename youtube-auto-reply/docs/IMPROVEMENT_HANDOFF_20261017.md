@@ -55,3 +55,7 @@
 
 ## 2026-10-17 Claude Code(윈도우) v1.10 후속 처리
 - #7·#13·#16 구현, #8은 10-16 완료 확인. 상세·남은 범위: `AGENTS.md` v1.10.
+
+## 추가 (v1.11) — 좌측 상단 제목 변경
+- 주인님 지시로 사이드바 제목을 「YOUTUBE 댓글 자동화」로. 바뀐 파일: `components/layout/Sidebar.tsx`, `lib/version.ts`.
+- 윈도우 CLI: `npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.11', updated_at=now() where slug='youtube-auto-reply';` → 1440·375px에서 제목 잘림 없는지 확인.

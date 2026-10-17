@@ -135,3 +135,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - **#16** 30일 보관: `/api/cron/cleanup-comments`(CRON_SECRET, `vercel.json` 매일 18:40 UTC=03:40 KST). **행은 지우지 않고 내용만 비움** — sync가 `youtube_comment_id`로 처리 여부를 판단하므로 행 삭제 시 같은 댓글 재초안(유료)·자동 게시 회원 중복 공개 게시 위험. 30일 지난 `pending_review`는 `skipped`(만료), 30일 지난 모든 기록은 `comment_text=''`·작성자·AI 답글 null. 이력 목록은 비워진 기록 제외(개수엔 포함). 운영 첫 실행 대상: 11건(1명, 모두 30일 경과, 대기 2건).
 - **#8** 관리자 텔레그램 웹훅 이전: 2026-10-16 이미 완료(`docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` §8 — getWebhookInfo로 새 주소·오류 없음 확인). 미완 아님.
 - 범위 밖: #6 선택 일괄 승인(실제 공개 게시 기능, 별도 승인), #11 잔여 의존성 경고(Next16·Tailwind4 이전 필요), #12 토큰 갱신.
+
+## 2026-10-17 v1.11 — 좌측 상단 제목 「YOUTUBE 댓글 자동화」 (Claude Code 맥미니)
+- 주인님 지시: 사이드바 로고 옆 제목 `댓글자동화` → `YOUTUBE 댓글 자동화`(`components/layout/Sidebar.tsx` Brand — 데스크톱·휴대폰 위쪽 바 공통). `tsc --noEmit` 오류 0.
+- **빌드·배포·DB v1.11은 윈도우 CLI 대기**(맥미니 원칙 18-④). 확인: 1440·375px에서 제목이 잘리지 않는지(`truncate`).
