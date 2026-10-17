@@ -16,7 +16,7 @@ from datetime import date
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = sys.argv[1] if len(sys.argv) > 1 else r"D:\PDS"
 STAMP = date.today().strftime("%Y%m%d")
-KIT_NAME = f"AIMaster_lecture_kit_{STAMP}"
+KIT_NAME = f"SNS_Auto_Posting_Kit_{STAMP}"
 
 PROGRAMS = [
     # (원본 폴더, 키트 안 폴더 이름, 빼는 최상위 항목, KIT 에서 덮어쓸 파일 {키트 경로: 원본 KIT 파일})
