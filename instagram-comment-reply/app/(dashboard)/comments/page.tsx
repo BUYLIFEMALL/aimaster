@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SyncCommentsButton } from "@/components/comments/SyncCommentsButton";
 import { CommentReviewItem } from "@/components/comments/CommentReviewItem";
 import { SettingsSummary } from "@/components/comments/SettingsSummary";
+import { StudioHeader } from "@/components/ui/StudioHeader";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // 신규 댓글마다 AI 초안 생성이 걸려 다소 시간이 걸릴 수 있음
@@ -40,15 +41,14 @@ export default async function CommentsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="mx-auto max-w-4xl">
       {/* 스크롤해도 화면 상단에 계속 보이도록 댓글 목록과 분리한 고정 헤더 */}
-      <div className="sticky top-0 z-10 -mx-4 bg-gray-50 px-4 pb-4 pt-1">
-        <div className="mb-4">
-          <h1 className="text-2xl font-black text-gray-900">댓글 검토/게시</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            AI가 만든 답글 초안을 확인하고 수정한 뒤 "답변승인"을 눌러야 실제로 인스타그램에 올라갑니다.
-          </p>
-        </div>
+      <div className="sticky top-[64px] z-10 -mx-4 bg-ig-bg px-4 pb-4 pt-1 md:top-0 md:-mx-8 md:px-8">
+        <StudioHeader
+          icon="💬"
+          title="댓글 검토/게시"
+          description={'AI가 만든 답글 초안을 확인하고 수정한 뒤 "답변승인"을 눌러야 실제로 인스타그램에 올라갑니다.'}
+        />
 
         <SettingsSummary
           data={{
@@ -66,20 +66,22 @@ export default async function CommentsPage() {
         <SyncCommentsButton />
       </div>
 
-      <div className="pt-6">
+      <div className="pt-4">
         {!comments || comments.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
-            <div className="text-5xl mb-4">💬</div>
-            <p>검토 대기 중인 댓글이 없습니다. "지금 새 댓글 확인하기"를 눌러보세요.</p>
+          <div className="ig-card py-16 text-center">
+            <div className="mb-3 text-5xl">💬</div>
+            <p className="text-sm text-ig-muted">검토 대기 중인 댓글이 없습니다. 「지금 새 댓글 확인하기」를 눌러보세요.</p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {Array.from(groupedByMedia.entries()).map(([mediaId, mediaComments]) => (
-              <div key={mediaId}>
-                <h2 className="text-sm font-bold text-gray-700 mb-3">
-                  📸 {captionByMediaId.get(mediaId) || "(삭제된 게시물)"}
+              <section key={mediaId} className="ig-card py-3">
+                <h2 className="flex items-center gap-2 border-b border-ig-border pb-3 text-sm font-bold text-ig-text">
+                  <span>🖼️</span>
+                  <span className="truncate">{captionByMediaId.get(mediaId) || "(삭제된 게시물)"}</span>
+                  <span className="ml-auto shrink-0 text-xs font-normal text-ig-muted">댓글 {(mediaComments ?? []).length}개</span>
                 </h2>
-                <div className="space-y-3">
+                <div className="divide-y divide-ig-border">
                   {(mediaComments ?? []).map((c) => (
                     <CommentReviewItem
                       key={c.id}
@@ -92,7 +94,7 @@ export default async function CommentsPage() {
                     />
                   ))}
                 </div>
-              </div>
+              </section>
             ))}
           </div>
         )}

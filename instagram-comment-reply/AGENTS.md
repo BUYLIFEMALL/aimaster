@@ -143,5 +143,7 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - 주인님 승인 제안: 시험 계정 Instagram 앱 ID가 끝자리 빠진 15자리로 저장돼 "Invalid platform app"이 난 사례 → `saveApiKeyAction`에서 `*_app_id`는 숫자 15~16자리, `*_app_secret`은 영문·숫자 32자가 아니면 저장하지 않고 입력 글자 수와 함께 안내(기존 저장값은 영향 없음).
 - 검수: 빌드·배포·DB v1.13. DM 화면(시험 계정)에서 "12345" 저장 시도 → 빨간 오류 표시·저장 안 됨·기존 값 유지 확인. 댓글·포스팅은 같은 코드.
 
-## 2026-10-17 디자인 리뉴얼 (Claude Code 맥미니, ⏳ 승인 대기)
+## 2026-10-17 v1.14 — 디자인 리뉴얼: 스튜디오 댓글 콘솔 — 인스타 라이트 변형 (Claude Code 맥미니)
+- `threads-comment-reply` v1.10 구성 이식 + 인스타 라이트(`ig-*`, 파랑 알약·그라데이션 포인트), 사이드바 그라데이션 막대·대기 배지·**휴대폰 ☰**, `/dashboard`·`/guide` 신설(`/`→`/dashboard`), 로그인까지 같은 배경. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
+- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)

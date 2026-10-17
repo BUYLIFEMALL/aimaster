@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — INSTA 댓글자동화 v1.14: 스튜디오 댓글 콘솔 — 인스타 라이트 변형 (🟠 윈도우 마무리 요청)
+
+- **대상**: `instagram-comment-reply/` (https://instagram-comment-reply.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
+- **한 일**: `threads-comment-reply` v1.10 구성 이식 + 인스타 라이트 토큰(`ig-*`, 파랑 알약·그라데이션), **휴대폰 ☰ 신설**, `/dashboard`·`/guide` 신설, 대기 배지, 로그인 같은 배경. 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+- **추가개선(3대 항목)**: 이력 검색·페이지, 검토 카드 썸네일, 3종 통합 댓글함 — [`IMPROVEMENTS.md`](../instagram-comment-reply/docs/IMPROVEMENTS.md). 타 프로그램 탐색: `instagram-dm-reply`도 ☰·매뉴얼·대시보드 없음 — [`IMPROVEMENTS.md`](../instagram-dm-reply/docs/IMPROVEMENTS.md) 신설.
+- **⚠️ 윈도우 CLI 요청**: [`instagram-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../instagram-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.14 → 검수 → 47번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(윈도우) — 황금·공략 채널 계산 통합(공용 기준 코드 1호) + 공용 기준 코드 규칙 신설
 
 - **한 일(주인님 승인 ①안)**: CHANNEL CONSULTANT 「공략 채널 찾기」와 VIRAL FINDER 「황금 채널 발굴」의 계산을 공용 기준 코드 `youtube-golden-engine` 하나로 맞췄습니다. 기준은 consultant `src/lib/youtube/goldenEngine.ts`, 사본은 viral-studio입니다. 두 프로그램은 서로 호출하지 않고, 메뉴와 화면은 그대로입니다. VIRAL FINDER에는 조건 4개(기간·길이·국가·검색 깊이)를 추가했습니다(기본값은 예전과 같음).

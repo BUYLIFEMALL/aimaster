@@ -19,13 +19,13 @@ export function HiddenMediaRow({ media }: { media: { id: string; caption: string
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50/60 px-4 py-2.5">
-      <p className="min-w-0 flex-1 truncate text-sm text-gray-500">{media.caption || "(캡션 없음)"}</p>
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-ig-border bg-ig-raised px-4 py-2.5">
+      <p className="min-w-0 flex-1 truncate text-sm text-ig-muted">{media.caption || "(캡션 없음)"}</p>
       <button
         type="button"
         onClick={handleUnhide}
         disabled={isPending}
-        className="shrink-0 text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+        className="shrink-0 text-xs font-semibold text-ig-primary hover:underline disabled:opacity-60"
       >
         {isPending ? "복원 중..." : "다시 보이기"}
       </button>

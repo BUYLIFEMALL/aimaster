@@ -56,14 +56,14 @@ export function ApiKeyRow({
   return (
     <div
       className={`rounded-xl border p-4 ${
-        isActive ? "border-blue-300 bg-blue-50/40" : "border-gray-200 bg-gray-50"
+        isActive ? "border-ig-primary/30 bg-ig-primary/10" : "border-ig-border bg-ig-raised"
       }`}
     >
       <div className="mb-2 flex items-center justify-between">
-        <p className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+        <p className="flex items-center gap-2 text-sm font-semibold text-ig-text">
           {label}
           {isActive && (
-            <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-ig-primary px-2 py-0.5 text-[10px] font-bold text-white">
               지금 사용 중
             </span>
           )}
@@ -73,13 +73,13 @@ export function ApiKeyRow({
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-xs text-green-600 hover:text-green-800"
+              className="text-xs text-ig-success hover:text-ig-success"
             >
               수정
             </button>
             <form action={deleteApiKeyAction}>
               <input type="hidden" name="provider" value={provider} />
-              <button type="submit" className="text-xs text-red-500 hover:text-red-700">
+              <button type="submit" className="text-xs text-ig-danger hover:text-ig-danger">
                 삭제
               </button>
             </form>
@@ -100,7 +100,7 @@ export function ApiKeyRow({
           <button
             type="submit"
             disabled={isPending}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 disabled:opacity-60 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-ig-raised hover:bg-ig-hover disabled:opacity-60 transition-colors"
           >
             {isPending ? "저장 중..." : "저장"}
           </button>
@@ -112,28 +112,28 @@ export function ApiKeyRow({
                 setError(null);
                 setSuccess(false);
               }}
-              className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-semibold border border-ig-border text-ig-muted hover:bg-ig-hover transition-colors"
             >
               취소
             </button>
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-gray-500">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-sm text-ig-muted">{maskedValue} · 등록됨</p>
       )}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-      {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {error && <p className="mt-1 text-xs text-ig-danger">{error}</p>}
+      {success && <p className="mt-1 text-xs text-ig-success">저장되었습니다.</p>}
       {helpUrl && (
         <div className="mt-2">
-          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">
+          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-ig-primary hover:underline">
             {helpLabel ?? "API 키 발급받기"}
           </a>
           {helpHighlight && (
-            <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-bold text-emerald-700">
+            <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-ig-success/10 border border-ig-success/30 px-2.5 py-1 text-xs font-bold text-ig-success">
               🎁 {helpHighlight}
             </p>
           )}
-          {helpDescription && <p className="mt-1 text-xs text-gray-400">{helpDescription}</p>}
+          {helpDescription && <p className="mt-1 text-xs text-ig-muted">{helpDescription}</p>}
         </div>
       )}
     </div>

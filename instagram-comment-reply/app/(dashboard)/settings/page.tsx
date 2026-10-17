@@ -1,3 +1,4 @@
+import { StudioHeader } from "@/components/ui/StudioHeader";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
@@ -73,34 +74,34 @@ export default async function SettingsPage() {
   const activeProvider = getReplyModelProvider(activeModel);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
+    <div className="mx-auto max-w-3xl space-y-8">
       <section>
-        <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
-        <p className="mb-6 text-sm text-gray-500">
-          INSTA 댓글자동화는 본인의 Meta 앱(인스타그램 연동)과 AI 키(답글 생성)를 각각 연동해서
-          사용합니다. <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</span>
-        </p>
+        <StudioHeader
+          icon="🔑"
+          title="API키등록·플랫폼연동"
+          description="INSTA 댓글자동화는 본인의 Meta 앱(인스타그램 연동)과 AI 키(답글 생성)를 각각 연동해서 사용합니다. 앱(관리자) 공용 키로 대신 동작하지 않습니다."
+        />
 
         <div className="space-y-5">
           <InstagramMetaAddressSummary />
 
           {/* 📸 Instagram 계정 연결 그룹 */}
-          <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+          <div className="space-y-4 rounded-2xl border border-ig-border bg-ig-surface p-4 shadow-sm">
             <div>
-              <h2 className="text-sm font-bold text-gray-900">📸 Instagram 계정 연결</h2>
-              <p className="text-xs text-gray-500">
+              <h2 className="text-sm font-bold text-ig-text">📸 Instagram 계정 연결</h2>
+              <p className="text-xs text-ig-muted">
                 인스타그램 게시물·댓글을 읽고 답글을 게시하기 위한 Instagram 앱 ID / Instagram 앱 시크릿 코드 등록과
                 OAuth 계정 연결입니다.
               </p>
             </div>
 
-            <div className="space-y-2 text-xs text-gray-500">
+            <div className="space-y-2 text-xs text-ig-muted">
               <p>
                 Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로
                 등록해주셔야 합니다. 또한 그 앱의 "역할" 메뉴에서 본인 인스타그램 계정을
                 테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
               </p>
-              <p className="font-semibold text-gray-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+              <p className="font-semibold text-ig-text">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
           <p>① 기존 주소</p>
           <CopyAddress value={INSTAGRAM_REDIRECT_OLD()} />
           {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && (
@@ -115,7 +116,7 @@ export default async function SettingsPage() {
 
             {/* 2026-10-16: 시험 계정에서 Facebook 앱 ID를 넣어 Instagram 로그인이 "Invalid platform app"로 실패한 사례 — 값 위치 안내 */}
 
-            <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900">
+            <div className="space-y-2 rounded-lg border border-ig-warn/40 bg-ig-warn/10 px-4 py-3 text-sm leading-relaxed text-ig-warn">
 
               <p className="font-semibold">⚠️ &quot;Instagram 앱 ID&quot;는 앱 화면 맨 위의 &quot;앱 ID&quot;(Facebook 앱 ID)와 다른 값입니다.</p>
 
@@ -145,24 +146,24 @@ export default async function SettingsPage() {
           </div>
 
           {/* 🤖 AI 답글 생성 키 그룹 */}
-          <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+          <div className="space-y-4 rounded-2xl border border-ig-border bg-ig-surface p-4 shadow-sm">
             <div>
-              <h2 className="text-sm font-bold text-gray-900">🤖 AI 답글 생성 키</h2>
-              <p className="text-xs text-gray-500">
+              <h2 className="text-sm font-bold text-ig-text">🤖 AI 답글 생성 키</h2>
+              <p className="text-xs text-ig-muted">
                 댓글에 대한 답글 초안을 만드는 AI 키입니다. OpenAI/Anthropic Claude/Google
                 Gemini 중 "답글 생성 AI 모델"에서 고른 모델에 해당하는 provider의 키 하나만
                 등록되어 있으면 됩니다(세 개 다 등록할 필요 없음).
               </p>
             </div>
 
-            <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            <div className="space-y-1 rounded-xl border border-ig-primary/30 bg-ig-primary/10 px-4 py-3 text-sm text-ig-primary">
               <p>
                 🎯 현재 답글 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
               </p>
               <p>
                 사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
               </p>
-              <p className="text-xs text-blue-700">
+              <p className="text-xs text-ig-primary">
                 모델은 아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 바꿀 수 있어요.
               </p>
             </div>
@@ -184,12 +185,12 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
-        <p className="text-sm text-gray-500">
+      <section className="glass-card space-y-4 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-ig-text">📨 텔레그램 알림 연동</h2>
+        <p className="text-sm text-ig-muted">
           인스타그램 계정 연결이 끊어지면 매일 자동 점검 후 텔레그램으로 알려드려요. 또한 새
           댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께 보내드리고,
-          텔레그램에서 바로 <strong className="text-gray-700">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
+          텔레그램에서 바로 <strong className="text-ig-text">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
           선택할 수 있어요(선택 기능). "보류"를 누르면 웹의 "댓글 검토/게시" 화면에 남아있어 나중에
           수정 후 게시할 수 있습니다. 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
           연동해야 합니다.
@@ -197,10 +198,10 @@ export default async function SettingsPage() {
 
         {telegramLink ? (
           <div className="space-y-3">
-            <p className="text-sm text-green-600">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
+            <p className="text-sm text-ig-success">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
             <div className="flex flex-wrap items-center gap-2">
               <form action={disconnectTelegramAction}>
-                <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
+                <button type="submit" className="rounded-lg bg-ig-danger/10 px-4 py-2 text-xs font-bold text-ig-danger hover:bg-ig-danger/15">
                   연동 해제
                 </button>
               </form>
@@ -209,13 +210,13 @@ export default async function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <ol className="list-inside list-decimal space-y-2 text-sm text-gray-600">
+            <ol className="list-inside list-decimal space-y-2 text-sm text-ig-muted">
               <li>
-                텔레그램에서 <span className="font-semibold text-gray-900">@BotFather</span>를 검색해서 대화를 시작하세요.
+                텔레그램에서 <span className="font-semibold text-ig-text">@BotFather</span>를 검색해서 대화를 시작하세요.
               </li>
               <li>
-                <code className="rounded bg-gray-100 px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요 (마지막엔
-                반드시 <code className="rounded bg-gray-100 px-1 py-0.5">bot</code>으로 끝나야 해요).
+                <code className="rounded bg-ig-raised px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요 (마지막엔
+                반드시 <code className="rounded bg-ig-raised px-1 py-0.5">bot</code>으로 끝나야 해요).
               </li>
               <li>
                 완료되면 BotFather가 <strong>토큰</strong>을 알려줘요. 그 값을 복사하세요.
@@ -230,8 +231,8 @@ export default async function SettingsPage() {
         )}
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">🔗 답글 기본 설정</h2>
+      <section className="glass-card space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-ig-text">🔗 답글 기본 설정</h2>
         <ReplySettingsForm
           defaultLink={settings?.default_link ?? null}
           aiInstructions={settings?.ai_instructions ?? null}
@@ -240,8 +241,8 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">⏱ 예약 모니터링</h2>
+      <section className="glass-card space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-ig-text">⏱ 예약 모니터링</h2>
         <MonitoringSettingsForm
           enabled={settings?.monitoring_enabled ?? false}
           intervalMinutes={settings?.monitoring_interval_minutes ?? 60}
@@ -250,19 +251,19 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">⚡ 자동 게시 (선택, 고급)</h2>
-        <p className="text-sm text-gray-500">
+      <section className="glass-card space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-ig-text">⚡ 자동 게시 (선택, 고급)</h2>
+        <p className="text-sm text-ig-muted">
           기본적으로는 새 댓글마다 AI 초안만 만들고, 실제 게시는 웹 화면이나 텔레그램 버튼에서
           직접 승인해야 합니다. 이 설정을 켜면 검토 없이 AI 초안이 바로 게시됩니다.
         </p>
         <AutoApproveSettingsForm enabled={settings?.auto_approve ?? false} />
       </section>
 
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="glass-card space-y-4 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">📖 연동 매뉴얼</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-ig-text">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-ig-muted">
             이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
             따라 할 수 있습니다.
           </p>

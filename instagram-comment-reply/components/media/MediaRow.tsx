@@ -69,7 +69,7 @@ export function MediaRow({
   const caption = media.caption || "(캡션 없음)";
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-start gap-3">
+    <div className="bg-ig-surface border border-ig-border rounded-2xl p-4 shadow-sm flex items-start gap-3">
       <input
         type="checkbox"
         checked={selected}
@@ -87,14 +87,14 @@ export function MediaRow({
             href={media.permalink}
             target="_blank"
             rel="noreferrer"
-            className="font-bold text-gray-900 hover:underline line-clamp-2"
+            className="font-bold text-ig-text hover:underline line-clamp-2"
           >
             {caption}
           </a>
         ) : (
-          <p className="font-bold text-gray-900 line-clamp-2">{caption}</p>
+          <p className="font-bold text-ig-text line-clamp-2">{caption}</p>
         )}
-        <p className="text-xs text-gray-400 mt-0.5">
+        <p className="text-xs text-ig-muted mt-0.5">
           {media.custom_link ? `링크: ${media.custom_link}` : "채널 기본 링크 사용"}
         </p>
         {showLinkForm && (
@@ -110,13 +110,13 @@ export function MediaRow({
             <button
               type="submit"
               disabled={isSavingLink}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-ig-primary hover:bg-ig-primary-hover disabled:opacity-60"
             >
               저장
             </button>
           </form>
         )}
-        {linkError && <p className="mt-1 text-xs text-red-600">{linkError}</p>}
+        {linkError && <p className="mt-1 text-xs text-ig-danger">{linkError}</p>}
       </div>
       <div className="flex flex-col items-end gap-2 shrink-0">
         <button
@@ -125,8 +125,8 @@ export function MediaRow({
           disabled={isToggling}
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
             media.is_monitored
-              ? "bg-green-50 text-green-700 border border-green-200"
-              : "bg-gray-100 text-gray-500 border border-gray-200"
+              ? "bg-ig-success/10 text-ig-success border border-ig-success/30"
+              : "bg-ig-raised text-ig-muted border border-ig-border"
           }`}
         >
           {media.is_monitored ? "✅ 모니터링 중" : "⏸ 꺼짐"}
@@ -134,7 +134,7 @@ export function MediaRow({
         <button
           type="button"
           onClick={() => setShowLinkForm((v) => !v)}
-          className="text-xs text-blue-600 hover:underline"
+          className="text-xs text-ig-primary hover:underline"
         >
           링크 설정
         </button>
@@ -142,7 +142,7 @@ export function MediaRow({
           type="button"
           onClick={handleHide}
           disabled={isHiding}
-          className="text-xs text-gray-400 hover:text-red-600 hover:underline"
+          className="text-xs text-ig-muted hover:text-ig-danger hover:underline"
         >
           {isHiding ? "숨기는 중..." : "목록에서 숨기기"}
         </button>

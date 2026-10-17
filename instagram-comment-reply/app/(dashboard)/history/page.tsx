@@ -1,6 +1,8 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTimeKo } from "@/lib/formatDate";
+import { StudioHeader, StatCard, Avatar } from "@/components/ui/StudioHeader";
+import { IgLogo } from "@/components/ui/IgLogo";
 
 export const dynamic = "force-dynamic";
 
@@ -47,50 +49,48 @@ export default async function HistoryPage() {
   const captionByMediaId = new Map((mediaList ?? []).map((m) => [m.id, m.caption]));
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">📊 답글 이력</h1>
-        <p className="text-sm text-gray-500 mt-1">지금까지 실제로 게시된 답글 이력입니다.</p>
-      </div>
+    <div className="mx-auto max-w-4xl">
+      <StudioHeader icon="📊" title="답글 이력" description="지금까지 실제로 인스타그램에 게시된 답글입니다." />
 
-      <div className="mb-8 grid grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
-          <p className="text-2xl font-black text-gray-900">{postedTotal ?? 0}</p>
-          <p className="mt-1 text-xs text-gray-400">총 게시된 답글</p>
-        </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
-          <p className="text-2xl font-black text-gray-900">{postedThisWeek ?? 0}</p>
-          <p className="mt-1 text-xs text-gray-400">최근 7일 게시</p>
-        </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
-          <p className="text-2xl font-black text-gray-900">{pendingCount ?? 0}</p>
-          <p className="mt-1 text-xs text-gray-400">검토 대기 중</p>
-        </div>
+      <div className="mb-6 grid grid-cols-3 gap-3">
+        <StatCard label="총 게시한 답글" value={postedTotal ?? 0} />
+        <StatCard label="최근 7일 게시" value={postedThisWeek ?? 0} />
+        <StatCard label="검토 대기 중" value={pendingCount ?? 0} accent={(pendingCount ?? 0) > 0} />
       </div>
 
       {!posted || posted.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4">📭</div>
-          <p>아직 게시된 답글이 없습니다.</p>
+        <div className="ig-card py-16 text-center text-ig-muted">
+          <div className="mb-3 text-5xl">📭</div>
+          <p className="text-sm">아직 게시된 답글이 없습니다.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="ig-card divide-y divide-ig-border py-2">
           {posted.map((c) => (
-            <div key={c.id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-xs font-semibold text-gray-400">📸 {captionByMediaId.get(c.media_id) || "(삭제된 게시물)"}</p>
-                {c.replied_at && <p className="text-xs text-gray-400">{formatDateTimeKo(c.replied_at)}</p>}
+            <div key={c.id} className="flex gap-3 py-4">
+              <Avatar name={c.author_username} />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 text-xs">
+                  <span className="font-semibold text-ig-text">{c.author_username ? `@${c.author_username}` : "익명"}</span>
+                  <span className="truncate text-ig-muted">· 🖼️ {captionByMediaId.get(c.media_id) || "(삭제된 게시물)"}</span>
+                </div>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-ig-text">{c.comment_text}</p>
+                <div className="mt-3 flex gap-2.5">
+                  <span className="mt-0.5"><IgLogo size={22} /></span>
+                  <div className="min-w-0 flex-1 rounded-lg bg-ig-raised p-3">
+                    <p className="mb-1 flex flex-wrap items-center gap-2 text-xs">
+                      <span className="font-semibold text-ig-success">✓ 게시됨</span>
+                      {c.replied_at && <span className="text-ig-muted">{formatDateTimeKo(c.replied_at)}</span>}
+                    </p>
+                    <p className="whitespace-pre-wrap text-sm text-ig-text">{c.generated_reply}</p>
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-gray-400">{c.author_username ?? "익명"}의 댓글</p>
-              <p className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{c.comment_text}</p>
-              <p className="mt-2 text-xs font-semibold text-gray-400">✅ 게시된 답글</p>
-              <p className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{c.generated_reply}</p>
             </div>
           ))}
-          {posted.length === HISTORY_LIMIT && (
-            <p className="pt-2 text-center text-xs text-gray-400">최근 {HISTORY_LIMIT}건만 표시됩니다.</p>
-          )}
         </div>
+      )}
+      {posted && posted.length === HISTORY_LIMIT && (
+        <p className="pt-3 text-center text-xs text-ig-muted">최근 {HISTORY_LIMIT}건만 표시됩니다.</p>
       )}
     </div>
   );

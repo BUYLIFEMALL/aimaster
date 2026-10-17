@@ -32,12 +32,12 @@ export function SyncMediaButton() {
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 hover:opacity-90 disabled:opacity-60"
+        className="ig-btn-primary"
       >
         {isPending ? "동기화 중..." : "🔄 계정 게시물 동기화"}
       </button>
-      {result && <p className="mt-2 text-xs text-green-600">{result}</p>}
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {result && <p className="mt-2 text-xs text-ig-success">{result}</p>}
+      {error && <p className="mt-2 text-xs text-ig-danger">{error}</p>}
     </div>
   );
 }
