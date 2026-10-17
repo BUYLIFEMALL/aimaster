@@ -1,5 +1,7 @@
 # 맥미니 원격 작업 지침 (MAC_MINI_WORK_GUIDE.md)
 
+> **▶ 맥미니에서 다시 시작할 때(2026-10-17 추가)**: 직전 Claude Code 맥미니 세션의 실제 작업 방식·환경 값·이력·남은 일은 [`MAC_MINI_CLAUDE_RESUME_20261017.md`](MAC_MINI_CLAUDE_RESUME_20261017.md), 커밋은 [`scripts/mac-mini/commit-gate.sh`](../scripts/mac-mini/commit-gate.sh)(내 파일만·공용 문서는 HEAD+내 변경만).
+
 > **적용 대상: 맥미니에서 이 저장소를 네트워크 공유(SMB)로 열어 작업하는 모든 에이전트 세션(Antigravity CLI·Codex·Claude Code). (2026-10-16 개정)**
 > 윈도우 PC의 메인 Claude Code·Codex·Gemini 지침(`CLAUDE.md`, `AGENTS.md`)은 이 문서 때문에 바뀌지 않는다. 메인 지침과 충돌하면 메인 지침(`CLAUDE.md`)이 우선하되, 아래 "실행 금지"와 "경로 해석"은 맥미니에서 항상 추가로 지킨다.
 > 만든 날: 2026-10-15 (맥미니에서 `mount`로 실측)
