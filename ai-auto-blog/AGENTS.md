@@ -649,3 +649,7 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md` 항목 D·E. `extension/background.js`·`sidepanel.js`의 `BASE`와 `sidepanel.html` 안내 링크를 `https://ai-auto-blog.buylife.xyz`로. 허용 목록(manifest host_permissions·content_scripts matches·web-bridge·background sender 검사)은 두 주소 유지. 테스트 `tests/extension-worker.test.cjs` BASE 대체 문자열 갱신.
 - 원칙 10: prebuild가 manifest v1.66·ZIP(버전별+latest) 생성, DB `version`/`extension_version` v1.66·`extension_download_url` 새 주소 latest(이미 새 주소), `check-extension-release ai-auto-blog` OK, 라이브 ZIP 안 BASE 새 주소 확인. `npm run test:extension` 74 통과.
 - **회원 안내 필요**: 설치된 확장은 자동 갱신 안 됨 → ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → chrome://extensions 새로고침. 옛 확장(BASE 옛 주소)은 옛 주소 삭제 전까지 계속 동작.
+
+## v1.67 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `utils/news/nanoBananaConfig.ts` `utils/ai/editorImage.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
