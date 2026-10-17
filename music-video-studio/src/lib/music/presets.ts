@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 // 뮤직비디오 옵션 프리셋. 장르 10종·장면 수·기본 화풍은 참고 도구(Google Flow "뮤직비디오 만들기 V3")의
 // 화면에서 확인한 항목을 따른다. 화풍 목록은 화면에서 5종(Cinematic·Anime·Oil Painting·Watercolor·Cyberpunk)까지만
 // 확인되어 나머지 3종은 같은 성격으로 보탠 것이다.
@@ -53,4 +55,4 @@ export const ASPECT_RATIOS: Option<AspectRatioId>[] = [
 ];
 
 export const TEXT_MODEL = "gemini-3.7-flash";
-export const IMAGE_MODEL = "gemini-3.1-flash-image";
+export const IMAGE_MODEL = "gemini-nano-banana-2.1";
