@@ -1,122 +1,35 @@
 "use client";
+// v1.10: 800줄짜리 한 파일을 나눴다(동작·화면은 그대로).
+//  - lib/sourcingResults.ts: 채널 정의·검색결과 형식·결과 전체 마진 계산·CSV(순수 함수, 단위 테스트 있음)
+//  - components/sourcing/sourcingFetchers.ts: 채널별 검색(서버 액션) 호출과 결과 형식 맞추기
+//  - components/sourcing/SourcingResults.tsx: 결과 위 도구(CSV·프로모션 필터)와 채널별 결과 목록
+//  - components/sourcing/MarginCalculatorPanel.tsx: 💰 마진 계산기
+// 이 파일은 상태(선택 채널·검색어·결과·선택 상품·계산기 입력)와 화면 배치만 맡는다.
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  findSourcingCandidatesAction,
-  findDomeggookCandidatesAction,
-  findElevenstCandidatesAction,
-} from "@/lib/actions/sourcing";
 import { saveSourcingProductAction } from "@/lib/actions/savedProducts";
-import { calcMargin, MARGIN_DEFAULTS, DOMESTIC_MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
-import { isPromoProduct, matchedPromoKeyword } from "@/lib/promoKeywords";
-
-type Platform = "aliexpress" | "domeggook" | "elevenst";
+import {
+  buildResultMarginRows,
+  defaultsFor,
+  EMPTY_RESULTS,
+  PLATFORMS,
+  promoMatchKeys,
+  resultRowsToCsv,
+  SELLING_MULTIPLIER,
+  type NormalizedProduct,
+  type Platform,
+  type PlatformResults,
+} from "@/lib/sourcingResults";
+import { FETCHERS } from "./sourcingFetchers";
+import { PlatformResultList, ResultTools } from "./SourcingResults";
+import { MarginCalculatorPanel, costFieldsFrom, INITIAL_MARGIN_FORM, type MarginForm } from "./MarginCalculatorPanel";
 
 interface SourcingCalculatorProps {
   initialKeyword?: string;
   /** 회원이 이미 API 키를 등록해둔 채널 — 검색 체크박스 기본 선택값으로 쓴다 */
   registeredPlatforms?: Platform[];
 }
-
-// 도매매/11번가는 국내 소싱이라 통관 절차가 없다 — 관세/부가세/해외운송비 기본값을
-// 0원으로 채우는 대상 채널.
-const DOMESTIC_PLATFORMS: Platform[] = ["domeggook", "elevenst"];
-
-interface NormalizedProduct {
-  key: string;
-  platform: Platform;
-  title: string;
-  imageUrl: string;
-  priceKrw: number | null;
-  metaText: string;
-  detailUrl: string;
-}
-
-interface PlatformResult {
-  products: NormalizedProduct[];
-  error?: string;
-  translatedKeyword?: string;
-  warning?: string;
-}
-
-const PLATFORMS: { value: Platform; label: string; description: string }[] = [
-  { value: "aliexpress", label: "🌏 알리익스프레스 (해외)", description: "관세·부가세·해외운송비 반영" },
-  { value: "domeggook", label: "🏠 도매매 (국내)", description: "통관 절차 없음, 최소구매수량 확인 필요" },
-  { value: "elevenst", label: "🏪 11번가 (국내)", description: "통관 절차 없음, 오픈마켓 실판매가 비교" },
-];
-
-async function fetchAliexpress(keyword: string): Promise<PlatformResult> {
-  const formData = new FormData();
-  formData.set("keyword", keyword);
-  const result = await findSourcingCandidatesAction(formData);
-  if (result.error) return { products: [], error: result.error };
-  return {
-    products: (result.products ?? []).map((p) => ({
-      key: p.productId,
-      platform: "aliexpress" as const,
-      title: p.title,
-      imageUrl: p.imageUrl,
-      priceKrw: p.salePriceKrw,
-      metaText: [
-        p.volume != null ? `판매량 ${p.volume.toLocaleString()}` : null,
-        p.evaluateRate ? `평점 ${p.evaluateRate}` : null,
-      ]
-        .filter(Boolean)
-        .join(" · "),
-      detailUrl: p.detailUrl,
-    })),
-    translatedKeyword: result.translatedKeyword,
-    warning: result.warning,
-  };
-}
-
-async function fetchDomeggook(keyword: string): Promise<PlatformResult> {
-  const formData = new FormData();
-  formData.set("keyword", keyword);
-  const result = await findDomeggookCandidatesAction(formData);
-  if (result.error) return { products: [], error: result.error };
-  return {
-    products: (result.products ?? []).map((p) => ({
-      key: p.itemNo,
-      platform: "domeggook" as const,
-      title: p.title,
-      imageUrl: p.thumbUrl,
-      priceKrw: p.priceKrw,
-      metaText: [
-        p.minOrderQty != null ? `최소구매수량 ${p.minOrderQty.toLocaleString()}개` : null,
-        p.sellerId ? `판매자 ${p.sellerId}` : null,
-      ]
-        .filter(Boolean)
-        .join(" · "),
-      detailUrl: p.detailUrl,
-    })),
-  };
-}
-
-async function fetchElevenst(keyword: string): Promise<PlatformResult> {
-  const formData = new FormData();
-  formData.set("keyword", keyword);
-  const result = await findElevenstCandidatesAction(formData);
-  if (result.error) return { products: [], error: result.error };
-  return {
-    products: (result.products ?? []).map((p) => ({
-      key: p.productCode,
-      platform: "elevenst" as const,
-      title: p.title,
-      imageUrl: p.imageUrl,
-      priceKrw: p.salePriceKrw ?? p.priceKrw,
-      metaText: p.seller ? `판매자 ${p.seller}` : "",
-      detailUrl: p.detailUrl,
-    })),
-  };
-}
-
-const FETCHERS: Record<Platform, (keyword: string) => Promise<PlatformResult>> = {
-  aliexpress: fetchAliexpress,
-  domeggook: fetchDomeggook,
-  elevenst: fetchElevenst,
-};
 
 export function SourcingCalculator({ initialKeyword, registeredPlatforms }: SourcingCalculatorProps) {
   const router = useRouter();
@@ -132,37 +45,12 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
   // 여부는 서버의 sourcing_saved_products가 진실 공급원). 새로 검색하면 초기화된다.
   const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set());
   const [savingKey, setSavingKey] = useState<string | null>(null);
-  const [results, setResults] = useState<Record<Platform, PlatformResult | null>>({
-    aliexpress: null,
-    domeggook: null,
-    elevenst: null,
-  });
+  const [results, setResults] = useState<PlatformResults>(EMPTY_RESULTS);
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
-
-  // 계산기 입력값 — 전부 기본값을 미리 채워두고, 상품을 선택하지 않아도 바로 수정하며
-  // 시뮬레이션할 수 있게 한다. 검색 후 상품을 고르면 원가/추천판매가만 자동으로
-  // 채워주고, 나머지 값은 계속 자유롭게 조정 가능하다.
-  const [sourcePrice, setSourcePrice] = useState("0");
-  const [sellingPrice, setSellingPrice] = useState("0");
-  const [customsDutyRate, setCustomsDutyRate] = useState(String(MARGIN_DEFAULTS.customsDutyRate));
-  const [vatRate, setVatRate] = useState(String(MARGIN_DEFAULTS.vatRate));
-  const [shippingPerUnit, setShippingPerUnit] = useState(String(MARGIN_DEFAULTS.shippingPerUnitKrw));
-  const [domesticFee, setDomesticFee] = useState(String(MARGIN_DEFAULTS.domesticFeePerUnitKrw));
-  const [platformFeeRate, setPlatformFeeRate] = useState(String(MARGIN_DEFAULTS.platformFeeRate));
-  const [deliveryFee, setDeliveryFee] = useState(String(MARGIN_DEFAULTS.deliveryFeeKrw));
-  const [marketingFee, setMarketingFee] = useState(String(MARGIN_DEFAULTS.marketingFeeKrw));
-
-  function applyDefaults(defaults: typeof MARGIN_DEFAULTS) {
-    setCustomsDutyRate(String(defaults.customsDutyRate));
-    setVatRate(String(defaults.vatRate));
-    setShippingPerUnit(String(defaults.shippingPerUnitKrw));
-    setDomesticFee(String(defaults.domesticFeePerUnitKrw));
-    setPlatformFeeRate(String(defaults.platformFeeRate));
-    setDeliveryFee(String(defaults.deliveryFeeKrw));
-    setMarketingFee(String(defaults.marketingFeeKrw));
-  }
+  // 계산기 입력값 — 상품을 고르면 원가/추천판매가를 자동으로 채우고, 나머지 값은 계속 자유롭게 조정 가능.
+  const [form, setForm] = useState<MarginForm>(INITIAL_MARGIN_FORM);
 
   function togglePlatform(p: Platform) {
     setSelectedPlatforms((prev) => {
@@ -184,7 +72,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
     try {
       const targets = Array.from(selectedPlatforms);
       const entries = await Promise.all(targets.map(async (p) => [p, await FETCHERS[p](keyword.trim())] as const));
-      const next: Record<Platform, PlatformResult | null> = { aliexpress: null, domeggook: null, elevenst: null };
+      const next: PlatformResults = { ...EMPTY_RESULTS };
       for (const [p, r] of entries) next[p] = r;
       setResults(next);
     } finally {
@@ -196,13 +84,15 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
     setSelectedTitle(product.title);
     setSelectedImage(product.imageUrl || null);
     setSelectedPlatform(product.platform);
-    if (product.priceKrw) {
-      setSourcePrice(String(product.priceKrw));
-      setSellingPrice(String(Math.round(product.priceKrw * 2.5)));
-    }
     // 이전에 직접 수정했던 값이 남아있지 않도록, 상품을 새로 선택할 때마다
     // 나머지 비용 항목도 전부 (선택한 상품의 채널에 맞는) 기본값으로 되돌려서 다시 채운다.
-    applyDefaults(DOMESTIC_PLATFORMS.includes(product.platform) ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS);
+    setForm((prev) => ({
+      ...prev,
+      ...(product.priceKrw
+        ? { sourcePrice: String(product.priceKrw), sellingPrice: String(Math.round(product.priceKrw * SELLING_MULTIPLIER)) }
+        : {}),
+      ...costFieldsFrom(defaultsFor(product.platform)),
+    }));
   }
 
   async function handleSaveProduct(product: NormalizedProduct) {
@@ -232,111 +122,21 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
     setSelectedTitle(null);
     setSelectedImage(null);
     setSelectedPlatform(null);
-    setSourcePrice("");
-    setSellingPrice("");
+    setForm((prev) => ({ ...prev, sourcePrice: "", sellingPrice: "" }));
   }
 
-  const marginResult: MarginResult = calcMargin({
-    sourcePriceKrw: Number(sourcePrice) || 0,
-    customsDutyRate: Number(customsDutyRate) || 0,
-    vatRate: Number(vatRate) || 0,
-    shippingPerUnitKrw: Number(shippingPerUnit) || 0,
-    domesticFeePerUnitKrw: Number(domesticFee) || 0,
-    platformFeeRate: Number(platformFeeRate) || 0,
-    deliveryFeeKrw: Number(deliveryFee) || 0,
-    marketingFeeKrw: Number(marketingFee) || 0,
-    sellingPriceKrw: Number(sellingPrice) || 0,
-  });
-
-  const isDomestic = selectedPlatform != null && DOMESTIC_PLATFORMS.includes(selectedPlatform);
-  const activeDefaults = isDomestic ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS;
-
-  // 지금 검색한 결과물 전체를 CSV로 내려받는 용도 — 채널별 검색결과 상품 하나하나에
-  // 원가×2.5 기준 추정 판매가로 마진을 계산해 마진율 순으로 정렬해둔다(관심 키워드
-  // 일괄계산과 달리 최저가 1건이 아니라 결과 전체를 대상으로 함).
-  const resultMarginRows = useMemo(() => {
-    const rows: {
-      platform: Platform;
-      key: string;
-      title: string;
-      sourcePriceKrw: number;
-      sellingPriceKrw: number;
-      marginRatePct: number;
-      contributionProfitKrw: number;
-      detailUrl: string;
-      isPromo: boolean;
-    }[] = [];
-
-    for (const p of PLATFORMS) {
-      const result = results[p.value];
-      if (!result) continue;
-      const defaults = DOMESTIC_PLATFORMS.includes(p.value) ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS;
-      for (const prod of result.products) {
-        if (prod.priceKrw == null) continue;
-        const sellingPriceKrw = Math.round(prod.priceKrw * 2.5);
-        const margin = calcMargin({
-          sourcePriceKrw: prod.priceKrw,
-          customsDutyRate: defaults.customsDutyRate,
-          vatRate: defaults.vatRate,
-          shippingPerUnitKrw: defaults.shippingPerUnitKrw,
-          domesticFeePerUnitKrw: defaults.domesticFeePerUnitKrw,
-          platformFeeRate: defaults.platformFeeRate,
-          deliveryFeeKrw: defaults.deliveryFeeKrw,
-          marketingFeeKrw: defaults.marketingFeeKrw,
-          sellingPriceKrw,
-        });
-        rows.push({
-          platform: p.value,
-          key: prod.key,
-          title: prod.title,
-          sourcePriceKrw: prod.priceKrw,
-          sellingPriceKrw,
-          marginRatePct: margin.marginRatePct,
-          contributionProfitKrw: margin.contributionProfitKrw,
-          detailUrl: prod.detailUrl,
-          isPromo: isPromoProduct(prod.title),
-        });
-      }
-    }
-    return rows.sort((a, b) => b.marginRatePct - a.marginRatePct);
-  }, [results]);
+  const resultMarginRows = useMemo(() => buildResultMarginRows(results), [results]);
 
   // 프로모션 키워드(공동구매/할인/이벤트 등) + 마진율 조건을 동시에 만족하는 상품만
   // 골라서 보고 싶을 때 쓰는 필터. 키워드만으로는 "홍보할 가치가 있는지"를 보장 못 한다는
   // 피드백에 따라 마진율 하한을 함께 걸도록 설계함(2026-09-03).
   const [promoFilterEnabled, setPromoFilterEnabled] = useState(false);
   const [minMarginPct, setMinMarginPct] = useState("20");
-  const promoFilteredKeys = useMemo(() => {
-    const threshold = Number(minMarginPct) || 0;
-    return new Set(
-      resultMarginRows.filter((r) => r.isPromo && r.marginRatePct >= threshold).map((r) => `${r.platform}:${r.key}`),
-    );
-  }, [resultMarginRows, minMarginPct]);
-  const promoMatchCount = promoFilteredKeys.size;
+  const promoFilteredKeys = useMemo(() => promoMatchKeys(resultMarginRows, minMarginPct), [resultMarginRows, minMarginPct]);
 
   function handleDownloadResultsCsv() {
     if (resultMarginRows.length === 0) return;
-    const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
-    const header = ["키워드", "채널", "상품명", "원가(원)", "추천판매가(원)", "마진율(%)", "마진(원)", "상품링크"];
-    const lines = [header.map(escape).join(",")];
-    for (const r of resultMarginRows) {
-      lines.push(
-        [
-          keyword,
-          PLATFORMS.find((p) => p.value === r.platform)?.label ?? r.platform,
-          r.title,
-          r.sourcePriceKrw,
-          r.sellingPriceKrw,
-          r.marginRatePct,
-          r.contributionProfitKrw,
-          r.detailUrl,
-        ]
-          .map(escape)
-          .join(","),
-      );
-    }
-    const csv = "﻿" + lines.join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([resultRowsToCsv(resultMarginRows, keyword)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -395,406 +195,43 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         </button>
       </form>
 
-      {resultMarginRows.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-2xl border-2 border-mx-success/30 bg-mx-success/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-bold text-[#a7f3d0]">📊 &quot;{keyword}&quot; 검색결과 {resultMarginRows.length}건 마진 계산 완료</p>
-            <p className="mt-0.5 text-xs text-mx-success">
-              지금 검색된 상품 전체를 마진율 순으로 정리했습니다(추천판매가는 원가×2.5 기준 추정치). 엑셀에서 비교해보세요.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleDownloadResultsCsv}
-            className="shrink-0 rounded-lg bg-[#047857] px-4 py-2 text-sm font-bold text-white hover:bg-[#059669]"
-          >
-            📥 검색결과 전체 CSV 다운로드
-          </button>
-        </div>
-      )}
-
-      {resultMarginRows.length > 0 && (
-        <div className="rounded-2xl border-2 border-mx-danger/30 bg-mx-danger/10 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p className="text-sm font-bold text-[#fecdd3]">🎯 프로모션 상품만 골라보기</p>
-              <p className="mt-0.5 text-xs text-mx-danger">
-                상품명에 공동구매/할인/이벤트 등 문구가 있으면서, 설정 마진율 조건을 넘는 상품만 걸러줍니다.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setPromoFilterEnabled((v) => !v)}
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold text-white transition-colors ${
-                promoFilterEnabled ? "bg-mx-primary hover:bg-[#1d4ed8]" : "bg-mx-danger hover:bg-[#e11d48]"
-              }`}
-            >
-              {promoFilterEnabled ? "ON" : "OFF"}
-            </button>
-          </div>
-          {promoFilterEnabled && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] text-mx-danger">최소 마진율</span>
-              <input
-                type="number"
-                value={minMarginPct}
-                onChange={(e) => setMinMarginPct(e.target.value)}
-                className="input-sm w-20 text-xs"
-              />
-              <span className="text-[11px] text-mx-danger">% 이상</span>
-              <span className="ml-2 rounded-full bg-mx-danger/10 px-2.5 py-1 text-[11px] font-bold text-mx-danger">
-                조건 만족 {promoMatchCount}건
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      <ResultTools
+        keyword={keyword}
+        rowCount={resultMarginRows.length}
+        onDownloadCsv={handleDownloadResultsCsv}
+        promoFilterEnabled={promoFilterEnabled}
+        onTogglePromo={() => setPromoFilterEnabled((v) => !v)}
+        minMarginPct={minMarginPct}
+        onMinMarginChange={setMinMarginPct}
+        promoMatchCount={promoFilteredKeys.size}
+      />
 
       {/* 채널별 검색 결과 — 선택한 채널마다 구분해서 보여주고, 그 안에서 상품을 고른다 */}
-      {PLATFORMS.filter((p) => selectedPlatforms.has(p.value) && results[p.value]).map((p) => {
-        const result = results[p.value]!;
-        return (
-          <div key={p.value} className="space-y-3 rounded-2xl border-2 border-mx-border bg-mx-surface p-4">
-            <p className="text-base font-extrabold text-mx-text">{p.label} 검색결과</p>
-            {result.translatedKeyword && (
-              <p className="text-xs text-mx-muted">
-                알리익스프레스는 한글 검색어를 잘 인식하지 못해, 실제 검색어를{" "}
-                <span className="font-semibold text-mx-muted">&quot;{result.translatedKeyword}&quot;</span>(영어)로
-                자동 번역해서 검색했습니다.
-              </p>
-            )}
-            {result.warning && (
-              <p className="text-xs text-mx-accent bg-mx-accent/10 rounded-lg px-3 py-2">⚠️ {result.warning}</p>
-            )}
-            {result.error && <p className="text-sm text-mx-danger bg-mx-danger/10 rounded-lg px-3 py-2">{result.error}</p>}
-            {!result.error && result.products.length === 0 && (
-              <p className="text-sm text-mx-muted">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
-            )}
-            {promoFilterEnabled && result.products.length > 0 && !result.products.some((prod) => promoFilteredKeys.has(`${prod.platform}:${prod.key}`)) && (
-              <p className="text-sm text-mx-muted">조건(프로모션 문구 + 마진율 {minMarginPct}% 이상)을 만족하는 상품이 없습니다.</p>
-            )}
-            {result.products
-              .filter((prod) => !promoFilterEnabled || promoFilteredKeys.has(`${prod.platform}:${prod.key}`))
-              .map((prod) => {
-              const isSelected = selectedTitle === prod.title && selectedPlatform === prod.platform;
-              const promoKeyword = matchedPromoKeyword(prod.title);
-              return (
-                <div
-                  key={prod.key}
-                  className={`flex w-full items-center gap-3 rounded-xl border p-3 ${
-                    isSelected ? "border-mx-primary/40 bg-mx-primary/10" : "border-mx-border bg-mx-raised"
-                  }`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {prod.imageUrl && <img src={prod.imageUrl} alt={prod.title} className="h-14 w-14 rounded object-cover" />}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-mx-text">
-                      {promoKeyword && (
-                        <span className="mr-1 shrink-0 rounded-full bg-mx-danger/10 px-2 py-0.5 text-[10px] font-bold text-mx-danger">
-                          🎯 {promoKeyword}
-                        </span>
-                      )}
-                      {prod.title}
-                    </p>
-                    <p className="text-xs text-mx-muted">
-                      {prod.priceKrw ? `${prod.priceKrw.toLocaleString()}원` : "가격 정보 없음"}
-                      {prod.metaText && ` · ${prod.metaText}`}
-                    </p>
-                  </div>
-                  {prod.detailUrl && (
-                    <a
-                      href={prod.detailUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="shrink-0 rounded-lg bg-[#047857] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#059669]"
-                    >
-                      🔗 상품 링크
-                    </a>
-                  )}
-                  {(() => {
-                    const savedKey = `${prod.platform}:${prod.key}`;
-                    const isSaved = savedKeys.has(savedKey);
-                    const isSaving = savingKey === savedKey;
-                    return (
-                      <button
-                        type="button"
-                        onClick={() => handleSaveProduct(prod)}
-                        disabled={isSaved || isSaving}
-                        title="가격/품절 변화가 있을 때만 알림을 받습니다"
-                        className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold disabled:opacity-70 ${
-                          isSaved ? "bg-mx-accent/10 text-mx-accent" : "bg-mx-surface text-mx-accent border border-mx-accent/30 hover:bg-mx-accent/20"
-                        }`}
-                      >
-                        {isSaving ? "저장 중..." : isSaved ? "⭐ 저장됨" : "⭐ 관심상품 저장"}
-                      </button>
-                    );
-                  })()}
-                  <button
-                    type="button"
-                    onClick={() => handleSelect(prod)}
-                    className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${
-                      isSelected ? "bg-mx-success/10 text-mx-success" : "bg-mx-primary text-white hover:bg-[#1d4ed8]"
-                    }`}
-                  >
-                    {isSelected ? "✅ 선택됨" : "상품 선택"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
+      {PLATFORMS.filter((p) => selectedPlatforms.has(p.value) && results[p.value]).map((p) => (
+        <PlatformResultList
+          key={p.value}
+          label={p.label}
+          result={results[p.value]!}
+          promoFilterEnabled={promoFilterEnabled}
+          promoFilteredKeys={promoFilteredKeys}
+          minMarginPct={minMarginPct}
+          selectedTitle={selectedTitle}
+          selectedPlatform={selectedPlatform}
+          savedKeys={savedKeys}
+          savingKey={savingKey}
+          onSave={handleSaveProduct}
+          onSelect={handleSelect}
+        />
+      ))}
 
-      <div className="space-y-3 bg-mx-surface border border-mx-border rounded-2xl p-5">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-bold text-mx-text">💰 마진 계산기</p>
-          {selectedTitle && (
-            <button
-              onClick={handleReset}
-              className="rounded-lg border border-mx-primary/40 bg-mx-primary/10 px-3 py-1.5 text-xs font-bold text-mx-link hover:bg-mx-primary/20"
-            >
-              직접입력
-            </button>
-          )}
-        </div>
-
-        {selectedTitle && (
-          <div className="flex items-center gap-3 rounded-lg bg-mx-raised p-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {selectedImage && <img src={selectedImage} alt={selectedTitle} className="h-10 w-10 rounded object-cover" />}
-            <div className="min-w-0">
-              <p className="truncate text-xs text-mx-text">{selectedTitle}</p>
-              <p className="text-[11px] text-mx-muted">
-                {PLATFORMS.find((p) => p.value === selectedPlatform)?.label}
-              </p>
-            </div>
-          </div>
-        )}
-
-        <p className="text-xs text-mx-muted">
-          상품 선택시 <span className="font-semibold text-mx-text">원가/추천판매가만 자동으로
-          채워지고</span>, 다른 값은 수정시 즉시 다시 계산됩니다.
-          {isDomestic && (
-            <>
-              <br />
-              <span className="font-semibold text-mx-success">
-                국내 소싱(도매매/11번가) 상품이라 관세·부가세·해외운송비·국내 입고/검수비는
-                계산에서 제외됩니다(입력창도 숨김 처리됩니다).
-              </span>
-            </>
-          )}
-        </p>
-
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <label className="space-y-1">
-            <span className="text-xs font-semibold text-mx-text">원가(원) *</span>
-            <input
-              type="number"
-              value={sourcePrice}
-              onChange={(e) => setSourcePrice(e.target.value)}
-              className="input-sm w-full border-mx-primary/40"
-            />
-          </label>
-          <label className="space-y-1">
-            <span className="text-xs font-semibold text-mx-text">추천판매가(원) *</span>
-            <input
-              type="number"
-              value={sellingPrice}
-              onChange={(e) => setSellingPrice(e.target.value)}
-              className="input-sm w-full border-mx-primary/40"
-            />
-          </label>
-          {!isDomestic && (
-            <>
-              <label className="space-y-1">
-                <span className="text-xs text-mx-muted">관세율(%) — 기본 {activeDefaults.customsDutyRate}%</span>
-                <input
-                  type="number"
-                  value={customsDutyRate}
-                  onChange={(e) => setCustomsDutyRate(e.target.value)}
-                  className="input-sm w-full"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs text-mx-muted">부가세율(%) — 기본 {activeDefaults.vatRate}%</span>
-                <input
-                  type="number"
-                  value={vatRate}
-                  onChange={(e) => setVatRate(e.target.value)}
-                  className="input-sm w-full"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs text-mx-muted">
-                  개당 해외 운송비(원) — 기본 {activeDefaults.shippingPerUnitKrw.toLocaleString()}원
-                </span>
-                <input
-                  type="number"
-                  value={shippingPerUnit}
-                  onChange={(e) => setShippingPerUnit(e.target.value)}
-                  className="input-sm w-full"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs text-mx-muted">
-                  국내 입고/검수비(원) — 기본 {activeDefaults.domesticFeePerUnitKrw.toLocaleString()}원
-                </span>
-                <input
-                  type="number"
-                  value={domesticFee}
-                  onChange={(e) => setDomesticFee(e.target.value)}
-                  className="input-sm w-full"
-                />
-              </label>
-            </>
-          )}
-          <label className="space-y-1">
-            <span className="text-xs text-mx-muted">
-              판매 플랫폼 수수료율(%) — 기본 {MARGIN_DEFAULTS.platformFeeRate}%
-            </span>
-            <input
-              type="number"
-              value={platformFeeRate}
-              onChange={(e) => setPlatformFeeRate(e.target.value)}
-              className="input-sm w-full"
-            />
-            <p className="text-[11px] leading-snug text-mx-muted">
-              실제 판매하실 플랫폼·카테고리 기준으로 직접 수정후 사용해주세요.{" "}
-              <a href="/fees" className="font-semibold text-mx-link underline">
-                플랫폼별 수수료 보기
-              </a>
-            </p>
-          </label>
-          <label className="space-y-1">
-            <span className="text-xs text-mx-muted">
-              택배비(원) — 기본 {MARGIN_DEFAULTS.deliveryFeeKrw.toLocaleString()}원
-            </span>
-            <input
-              type="number"
-              value={deliveryFee}
-              onChange={(e) => setDeliveryFee(e.target.value)}
-              className="input-sm w-full"
-            />
-            <p className="text-[11px] leading-snug text-mx-muted">
-              상품의 무게·부피·배송 지역에 따라 실제 택배비가 달라질 수 있습니다. 본인 상황에
-              맞게 직접 수정해서 사용해주세요.
-            </p>
-          </label>
-          <label className="col-span-2 space-y-1">
-            <span className="text-xs text-mx-muted">개당 마케팅비(원, 선택)</span>
-            <input
-              type="number"
-              value={marketingFee}
-              onChange={(e) => setMarketingFee(e.target.value)}
-              className="input-sm w-full"
-            />
-          </label>
-        </div>
-
-        {(() => {
-          const dutyAndVatKrw = Math.round(
-            (Number(sourcePrice) || 0) * ((Number(customsDutyRate) || 0) + (Number(vatRate) || 0)) / 100,
-          );
-          const tone =
-            marginResult.marginRatePct >= 20
-              ? { badge: "bg-[#047857]", box: "border-mx-success/30 bg-mx-success/10", text: "text-[#a7f3d0]" }
-              : marginResult.marginRatePct >= 0
-                ? { badge: "bg-mx-accent", box: "border-mx-accent/30 bg-mx-accent/10", text: "text-[#fde68a]" }
-                : { badge: "bg-mx-danger", box: "border-mx-danger/30 bg-mx-danger/10", text: "text-[#fecdd3]" };
-
-          return (
-            <div className={`rounded-xl border ${tone.box} overflow-hidden`}>
-              {/* 핵심 결과 — 한눈에 보이는 요약 */}
-              <div className="flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className={`text-xs font-semibold ${tone.text} opacity-80`}>개당 예상 마진</p>
-                  <p className={`text-2xl font-extrabold tabular-nums ${tone.text}`}>
-                    {marginResult.contributionProfitKrw.toLocaleString()}원
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 rounded-full ${tone.badge} px-4 py-1.5 text-sm font-bold text-white tabular-nums`}
-                >
-                  마진율 {marginResult.marginRatePct}%
-                </span>
-              </div>
-
-              {/* 계산 과정 상세 — 영수증 형태로 항목별 표시 */}
-              <div className="border-t border-black/5 bg-mx-surface/60 px-4 py-3 text-sm">
-                {isDomestic ? (
-                  <p className="mb-1.5 text-xs text-mx-muted">
-                    국내 소싱이라 관세·부가세·해외운송비·국내 입고/검수비는 계산에서 제외됩니다 —
-                    원가 그대로가 최종 원가입니다.
-                  </p>
-                ) : (
-                  <>
-                    <p className="mb-1.5 text-xs font-bold text-mx-muted">최종 수입 단가 계산</p>
-                    <div className="space-y-1 text-mx-text">
-                      <div className="flex justify-between">
-                        <span>원가</span>
-                        <span className="tabular-nums">{(Number(sourcePrice) || 0).toLocaleString()}원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>+ 관세·부가세 ({(Number(customsDutyRate) || 0) + (Number(vatRate) || 0)}%)</span>
-                        <span className="tabular-nums">{dutyAndVatKrw.toLocaleString()}원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>+ 해외 운송비</span>
-                        <span className="tabular-nums">{(Number(shippingPerUnit) || 0).toLocaleString()}원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>+ 국내 입고/검수비</span>
-                        <span className="tabular-nums">{(Number(domesticFee) || 0).toLocaleString()}원</span>
-                      </div>
-                      <div className="flex justify-between border-t border-dashed border-mx-border pt-1 font-bold text-mx-text">
-                        <span>= 최종 수입 단가</span>
-                        <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <p className="mb-1.5 mt-3 text-xs font-bold text-mx-muted">판매 비용 + 최종 결과</p>
-                <div className="space-y-1 text-mx-text">
-                  <div className="flex justify-between">
-                    <span>{isDomestic ? "최종 원가" : "최종 수입 단가"}</span>
-                    <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>+ 플랫폼 수수료 ({platformFeeRate || 0}%)</span>
-                    <span className="tabular-nums">{marginResult.platformFeeKrw.toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>+ 택배비</span>
-                    <span className="tabular-nums">{(Number(deliveryFee) || 0).toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>+ 마케팅비</span>
-                    <span className="tabular-nums">{(Number(marketingFee) || 0).toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between border-t border-dashed border-mx-border pt-1 font-bold text-mx-text">
-                    <span>= 총 비용</span>
-                    <span className="tabular-nums">{marginResult.totalCostKrw.toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between text-mx-text">
-                    <span>추천판매가</span>
-                    <span className="tabular-nums">{(Number(sellingPrice) || 0).toLocaleString()}원</span>
-                  </div>
-                  <div className={`flex justify-between border-t border-mx-border pt-1 text-base font-extrabold ${tone.text}`}>
-                    <span>= 마진</span>
-                    <span className="tabular-nums">{marginResult.contributionProfitKrw.toLocaleString()}원</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
-        <p className="text-xs text-mx-muted">
-          ※ 관세/부가세율은 품목·통관 방식에 따라 달라지는 추정치입니다. 실제 세율은 관세청 또는
-          세무사를 통해 확인해주세요.
-        </p>
-      </div>
+      <MarginCalculatorPanel
+        form={form}
+        onChange={(field, value) => setForm((prev) => ({ ...prev, [field]: value }))}
+        selectedTitle={selectedTitle}
+        selectedImage={selectedImage}
+        selectedPlatform={selectedPlatform}
+        onReset={handleReset}
+      />
     </div>
   );
 }

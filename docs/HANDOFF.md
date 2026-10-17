@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(윈도우) — 상품소싱 자동화 v1.10: 소싱 계산기 파일 분리 (남은 마무리 2/5)
+
+- **한 일**: `SourcingCalculator.tsx` 800줄을 5개 파일로 나눔(동작·화면 동일), 계산 로직 단위 테스트 4개 추가.
+- **검수**: 단위 7개·권한/마진 15개·build·lint, 배포·DB v1.10, 크롬 계산기 8,460원·28.2% 동일 확인.
+- **다음**: #15 → #14 → #16(승인 필요). 인수인계: [`trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md`](../trending-product-finder/docs/IMPROVEMENT_HANDOFF_20261017.md)
+- **링크**: https://trending-product-finder.buylife.xyz
+
 ## 2026-10-17 Claude Code(윈도우) — 대화 규칙 최상단 승격: 진행 과정·현재 진행 내용은 반드시 한글로
 
 - **주인님 재지시**: 등록해 둔 규칙인데도 중간 진행 안내가 영어로 나와 보기 힘들다 → 메인 지침 상단으로 올리고 인수인계에도 남길 것.

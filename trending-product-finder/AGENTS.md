@@ -211,3 +211,12 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 테스트: `npm run test:trend`(신규 3개 통과), `npm run test:permissions` 통과, build·lint 통과. 합성 화면 테스트용 `tests/fixture-adapters.tsx`에 `.range()` 지원 추가(이 검사는 Edge 자동화라 Claude Code는 실행하지 않음 — Codex가 다음 회차에 실행).
 - 실화면: 크롬 시험 계정(buylifemall@naver.com, 리포트 0개) — v1.09·빈 화면 정상, 추이·페이지 버튼 숨김. 관리자 실데이터(리포트 23개, 2026-08-31~09-11) 기대값을 SQL로 계산: 추이 키워드 11개(첫 화면 8 + 펼침 3), 1위 "추석선물" 49점(▼51), 페이지 "1 / 2 · 전체 23개" — **관리자 계정 화면 대조는 주인님 로그인 후 확인 필요.**
 - 비용: 유료 API·리포트 생성·검색·발송 0회. Cron 3개 설정 그대로.
+
+## 2026-10-17 v1.10 — 소싱 계산기 파일 분리(동작·화면 동일) (Claude Code 윈도우, 개선 원장 #8)
+- `components/sourcing/SourcingCalculator.tsx` 800줄 → 237줄(상태·배치만). 나눈 파일:
+  - `lib/sourcingResults.ts` — 채널 정의(`PLATFORMS`·국내 판정·채널 기본값), 검색결과 형식, 결과 전체 마진표 `buildResultMarginRows`, 프로모션 필터 `promoMatchKeys`, CSV `resultRowsToCsv`(순수 함수)
+  - `components/sourcing/sourcingFetchers.ts` — 알리·도매매·11번가 검색 서버 액션 호출과 결과 형식 맞추기(`FETCHERS`)
+  - `components/sourcing/SourcingResults.tsx` — 결과 위 도구(CSV 다운로드·🎯 프로모션 필터), 채널별 결과 목록
+  - `components/sourcing/MarginCalculatorPanel.tsx` — 💰 마진 계산기(입력값을 `MarginForm` 한 객체로, `costFieldsFrom`·`marginOf`)
+- 테스트: `npm run test:trend`에 `tests/sourcingResults.test.mjs` 4개 추가(총 7개 통과, esbuild로 묶어 불러옴), 권한·마진 15개·build·lint 통과. 합성 화면 검사(`tests/fixtures.mjs`, Edge)는 라벨·자리표시 문구를 그대로 둬 영향 없게 했으나 Claude Code는 실행하지 않음 — Codex 다음 회차 실행 권장.
+- 실화면(크롬 시험 계정): `/sourcing?keyword=합성 테스트` — 키워드 전달·알리 기본 선택, 원가 10,000·판매가 30,000 → **마진 8,460원·28.2%·최종 수입 단가 15,300원**(분리 전과 동일). 검색·저장·발송 0회.
