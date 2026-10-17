@@ -36,20 +36,20 @@ export function ThreadsConnectSection({
   }
 
   return (
-    <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-gray-900">🧵 쓰레드 계정 연결</h2>
+    <section className="glass-card space-y-3 rounded-2xl border border-th-border bg-th-surface p-6">
+      <h2 className="text-lg font-bold text-th-text">🧵 쓰레드 계정 연결</h2>
 
       {needsReconnect && (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs font-medium text-amber-800">
+        <p className="rounded-lg border border-th-warn/40 bg-th-warn/10 p-2 text-xs font-medium text-th-warn">
           ⚠️ 쓰레드 연결이 만료되었습니다. 아래에서 다시 연결해주세요.
         </p>
       )}
 
       {connected && !needsReconnect ? (
         <div className="space-y-3">
-          <p className="text-sm text-green-600">✅ @{username ?? "내 계정"}으로 연동되어 있어요.</p>
+          <p className="text-sm text-th-success">✅ @{username ?? "내 계정"}으로 연동되어 있어요.</p>
           <form action={disconnectThreadsAction}>
-            <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
+            <button type="submit" className="rounded-lg bg-th-danger/10 px-4 py-2 text-xs font-bold text-th-danger hover:bg-th-danger/20">
               연동 해제
             </button>
           </form>
@@ -61,18 +61,18 @@ export function ThreadsConnectSection({
                 name="callback"
                 value="new"
                 disabled={isPending}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-bold text-gray-800 hover:bg-gray-50 disabled:opacity-60"
+                className="rounded-lg border border-th-border bg-th-surface px-4 py-2 text-xs font-bold text-th-text hover:bg-th-hover disabled:opacity-60"
               >
                 {isPending ? "연결 중..." : "새 주소로 다시 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)"}
               </button>
-              {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+              {error && <p className="text-sm text-th-danger bg-th-danger/10 rounded-lg px-3 py-2">{error}</p>}
             </form>
           )}
         </div>
       ) : (
         <form onSubmit={handleConnect} className="space-y-3">
           <input type="hidden" name="returnTo" value={pathname} />
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-th-muted">
             위 Threads 앱 ID / Threads 앱 시크릿 코드를 먼저 등록한 뒤 연결해주세요. 연결 시 동의 화면에서 댓글 읽기/답글
             권한(<code className="text-xs">threads_read_replies</code>,{" "}
             <code className="text-xs">threads_manage_replies</code>)에 동의하셔야 합니다.
@@ -80,7 +80,7 @@ export function ThreadsConnectSection({
           <button
             type="submit"
             disabled={isPending}
-            className="w-full bg-gradient-to-r from-neutral-800 via-neutral-900 to-black hover:opacity-90 disabled:opacity-60 text-white font-bold py-3 px-4 rounded-xl transition-all"
+            className="w-full to-black disabled:opacity-60 text-black font-bold py-3 px-4 rounded-full transition-all bg-th-primary hover:bg-white"
           >
             {isPending ? "연결 중..." : connected ? "다시 연결하기" : "계정 연결하기"}
           </button>
@@ -90,12 +90,12 @@ export function ThreadsConnectSection({
               name="callback"
               value="new"
               disabled={isPending}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-800 hover:bg-gray-50 disabled:opacity-60"
+              className="w-full rounded-xl border border-th-border bg-th-surface px-4 py-2.5 text-sm font-bold text-th-text hover:bg-th-hover disabled:opacity-60"
             >
               새 주소로 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)
             </button>
           )}
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {error && <p className="text-sm text-th-danger bg-th-danger/10 rounded-lg px-3 py-2">{error}</p>}
         </form>
       )}
     </section>

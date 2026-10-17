@@ -37,12 +37,12 @@ export function TelegramConnectForm() {
         autoComplete="off"
         className="input"
       />
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-      {success && <p className="text-sm text-green-600">{success}</p>}
+      {error && <p className="text-sm text-th-danger bg-th-danger/10 rounded-lg px-3 py-2">{error}</p>}
+      {success && <p className="text-sm text-th-success">{success}</p>}
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 text-white font-bold py-3 px-4 rounded-xl transition-all"
+        className="w-full disabled:opacity-60 text-black font-bold py-3 px-4 rounded-full transition-all bg-th-primary hover:bg-white"
       >
         {isPending ? "확인 중..." : "연동 확인하기"}
       </button>

@@ -146,5 +146,7 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 같은 날 주인님이 Meta 앱에 새 콜백 등록 → 관리자 [새 주소로 다시 연결] 성공(댓글 권한 동의 후 `th_accounts` 확인).
 - 검수: 빌드·배포·DB v1.09, 크롬에서 카드 제목·사이드바 v1.09 확인.
 
-## 2026-10-17 디자인 리뉴얼 (Claude Code 맥미니, ⏳ 승인 대기)
+## 2026-10-17 v1.10 — 디자인 리뉴얼: 스튜디오 댓글 콘솔 — 쓰레드 모노 변형 (Claude Code 맥미니)
+- `youtube-auto-reply` v1.09 구성 이식 + Threads 흑백(`th-*`, 흰 알약 버튼), 사이드바 흰 막대·대기 배지·**휴대폰 ☰**, `/dashboard`·`/guide` 신설(`/`→`/dashboard`), 댓글을 쓰레드 답글 모양으로, 로그인까지 다크. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
+- **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)

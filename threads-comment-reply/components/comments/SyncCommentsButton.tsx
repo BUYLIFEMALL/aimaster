@@ -36,12 +36,12 @@ export function SyncCommentsButton() {
           type="button"
           onClick={handleClick}
           disabled={isPending}
-          className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
+          className="th-btn-primary"
         >
           {isPending ? "확인 중..." : "🔄 지금 새 댓글 확인하기"}
         </button>
-        {result && <p className="mt-2 text-xs text-green-600">{result}</p>}
-        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+        {result && <p className="mt-2 text-xs text-th-success">{result}</p>}
+        {error && <p className="mt-2 text-xs text-th-danger">{error}</p>}
       </div>
       {missingProvider && <ApiKeyRequiredModal provider={missingProvider} onClose={() => setMissingProvider(null)} />}
     </>

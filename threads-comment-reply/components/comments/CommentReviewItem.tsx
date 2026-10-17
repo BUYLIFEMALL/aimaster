@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { postReplyAction, skipReplyAction } from "@/lib/actions/comments";
+import { Avatar } from "@/components/ui/StudioHeader";
+import { ThLogo } from "@/components/ui/ThLogo";
 
 export interface CommentReviewData {
   id: string;
@@ -46,40 +48,41 @@ export function CommentReviewItem({ comment }: { comment: CommentReviewData }) {
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
-      <div>
-        <p className="text-xs font-semibold text-gray-400">{comment.author_display_name ?? "익명"}의 댓글</p>
-        <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">{comment.comment_text}</p>
+    <div className="flex gap-3 py-4">
+      <Avatar name={comment.author_display_name} />
+      <div className="min-w-0 flex-1">
+        <p className="text-[13px] font-semibold text-th-text">{comment.author_display_name ? `@${comment.author_display_name}` : "익명"}</p>
+        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-th-text">{comment.comment_text}</p>
+
+        {/* 유튜브 답글처럼 들여쓴 "내 채널 답글" 초안 */}
+        <div className="mt-3 flex gap-2.5">
+          <span className="mt-1"><ThLogo size={22} /></span>
+          <div className="min-w-0 flex-1">
+            <p className="mb-1 text-xs font-semibold text-th-muted">↳ 내 답글 · AI 초안 (수정 가능)</p>
+            <textarea
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              rows={3}
+              className="input text-sm"
+              placeholder="답글 초안이 없으면 직접 작성해주세요."
+            />
+            <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
+              <button type="button" onClick={handleSkip} disabled={isSkipping} className="th-btn min-h-[36px] px-4">
+                {isSkipping ? "처리 중..." : "답변제외"}
+              </button>
+              <button
+                type="button"
+                onClick={handlePost}
+                disabled={isPosting || !replyText.trim()}
+                className="th-btn-primary min-h-[36px] px-4"
+              >
+                {isPosting ? "게시 중..." : "답변승인 · 게시"}
+              </button>
+            </div>
+            {error && <p className="mt-2 text-xs text-th-danger">{error}</p>}
+          </div>
+        </div>
       </div>
-      <div>
-        <p className="text-xs font-semibold text-gray-400 mb-1">AI 답글 초안 (수정 가능)</p>
-        <textarea
-          value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
-          rows={3}
-          className="input"
-          placeholder="답글 초안이 없으면 직접 작성해주세요."
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={handlePost}
-          disabled={isPosting || !replyText.trim()}
-          className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
-        >
-          {isPosting ? "승인 중..." : "✅ 답변승인"}
-        </button>
-        <button
-          type="button"
-          onClick={handleSkip}
-          disabled={isSkipping}
-          className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-60"
-        >
-          ❌ 답변제외
-        </button>
-      </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }

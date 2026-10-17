@@ -4,20 +4,37 @@
 
 @layer components {
   .input {
-    @apply w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+    @apply w-full rounded-xl border border-th-border bg-th-bg px-4 py-3 text-th-text placeholder:text-th-muted focus:border-transparent focus:outline-none focus:ring-2 focus:ring-th-link;
   }
   .input-sm {
-    @apply w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+    @apply w-full rounded-lg border border-th-border bg-th-bg px-3 py-2 text-sm text-th-text placeholder:text-th-muted focus:border-transparent focus:outline-none focus:ring-2 focus:ring-th-link;
+  }
+  /* Threads식 알약(Pill) 버튼 — 주 버튼은 흰 바탕 + 검은 글자 */
+  .th-btn-primary {
+    @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-th-primary px-5 text-sm font-bold text-black transition-colors hover:bg-white disabled:opacity-50;
+  }
+  .th-btn {
+    @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-th-raised px-5 text-sm font-semibold text-th-text transition-colors hover:bg-th-hover disabled:opacity-50;
+  }
+  .th-card {
+    @apply rounded-xl border border-th-border bg-th-surface p-5;
+  }
+  .th-section-title {
+    @apply mb-3 text-base font-bold text-th-text;
+  }
+  .th-chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-th-raised px-3 py-1 text-xs font-semibold text-th-text;
   }
 }
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #101010;
+  --foreground: #f3f5f7;
+  color-scheme: dark;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 }

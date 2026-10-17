@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Claude Code(맥미니) — Threads 댓글자동화 v1.10: 스튜디오 댓글 콘솔 — 쓰레드 모노 변형 (🟠 윈도우 마무리 요청)
+
+- **대상**: `threads-comment-reply/` (https://threads-comment-reply.buylife.xyz). 플랜 → 주인님 「진행해줘」 승인 후 구현.
+- **한 일**: `youtube-auto-reply` v1.09 구성 이식 + Threads 흑백 토큰(`th-*`, 흰 알약 버튼), **휴대폰 ☰ 신설(원칙 19)**, `/dashboard`·`/guide` 신설(원칙 ⑦), 대기 수 배지, 쓰레드 답글 모양 검토 화면, 로그인 다크. 서버 로직 변경 없음. `tsc --noEmit` 오류 0.
+- **추가개선(3대 항목)**: 이력 검색·페이지(유튜브 쪽 Codex 방식 이식), 일괄 승인, 3종 통합 댓글함 — [`IMPROVEMENTS.md`](../threads-comment-reply/docs/IMPROVEMENTS.md). 타 프로그램 탐색: `instagram-comment-reply`도 ☰·매뉴얼·대시보드 없음(같은 구조라 이식 가능) — [`IMPROVEMENTS.md`](../instagram-comment-reply/docs/IMPROVEMENTS.md).
+- **⚠️ 윈도우 CLI 요청**: [`threads-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md`](../threads-comment-reply/docs/IMPROVEMENT_HANDOFF_20261017.md) — 빌드 → 배포 → DB v1.10 → 검수(답변승인·새 댓글 확인·동기화 금지) → 46번 ✅.
+- **비용**: 없음.
+
 ## 2026-10-17 Claude Code(윈도우) — YOUTUBE CHANNEL CONSULTANT v1.07 마무리(맥미니 디자인 리뉴얼의 빌드·배포·검수)
 
 - **한 일**: 맥미니 Claude Code가 구현·커밋한 v1.07(유튜브 다크 콘솔 스타일, 📖 매뉴얼 신설)을 윈도우에서 빌드·프로덕션 배포하고 DB `programs.version`을 v1.07로 올렸습니다. 코드 변경은 없습니다.
