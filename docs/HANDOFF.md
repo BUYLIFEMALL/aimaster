@@ -1,5 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-17 Antigravity CLI(agy, 윈도우) — 네이버 블로그 SEO 스튜디오 v1.69: 파일 나누기·디자인 리뉴얼 배포 및 포그라운드 Edge 검수 완료 (✅ 1차 작업완료)
+
+- **대상**: `naver-blog-seo-studio/` (https://naver-blog-seo-studio.buylife.xyz)
+- **한 일**:
+  1. 맥미니 CLI가 928줄 컴포넌트를 분할 리팩터링하고 라이트·네이버 그린 테마 및 공용 사이드바(로그아웃 수정, ☰ 메뉴, /guide 매뉴얼 신설)를 구현한 작업(v1.69)을 이어받음.
+  2. 크롬 확장 ZIP 패키징 성공 (`npm run extension:archive` → `v1.69.zip` 및 `latest.zip` 생성).
+  3. 웹앱 빌드 성공 (`npm run build`).
+  4. Vercel 프로덕션 배포 완료 (`dpl_EjpF8KMccS7XQ7QBsyi7p8h8F2oM` → alias `naver-blog-seo-studio.buylife.xyz` 연결).
+  5. Supabase DB `programs.version = 'v1.69'`, `programs.extension_version = 'v1.69'` 갱신 완료.
+  6. 확장 배포 검증 스크립트 실행 완료: `node scripts/check-extension-release.mjs naver-blog-seo-studio` → `OK (DB v1.69 / ext v1.69 / zip v1.69)` 통과.
+  7. Microsoft Edge 실세션 검수 완료:
+     - **주인님 지시 반영**: Edge 브라우저를 포그라운드(화면에 실제 창이 열리는 모드 `headless: false`)로 실행하여 검수 과정 화면 노출.
+     - 데스크톱 1440px 및 모바일 375px에서 대시보드, 네이버 그린 테마, /guide 매뉴얼(캐릭터·5단계·FAQ), 설정, ☰ 모바일 메뉴, 계정 표시 정상 확인 (`edge_seo_studio_*_v169.png` 보존).
+     - Edge 실제 창 사용자 화면 띄우기 완료.
+     - 주의사항 준수: 유료 AI 생성(글 생성, 이미지 생성, 최적화) 버튼 일체 미클릭.
+- **현황판**: `DESIGN.md` 35번 ✅ 1차 작업완료 (`v1.69`) 갱신, `docs/ACTIVE_WORK.md` 내 줄 삭제.
+- **링크**: https://naver-blog-seo-studio.buylife.xyz
+- **비용**: 없음 (유료 AI 호출 없음).
+
 ## 2026-10-17 Claude Code(윈도우) — 이미지 생성 3묶음: 단일 주소형 6곳 공용 모듈 적용
 
 - **한 일**: kakao_auto_poster·stepmail·auto-detail-page·tarot·mbti-character·music의 이미지 호출을 공용 사본(`gemini-image-client`)으로, 모델 이름을 공용 목록(`gemini-image-models`)에서 가져오게 바꿨습니다. 프롬프트·비율·화질은 그대로입니다.

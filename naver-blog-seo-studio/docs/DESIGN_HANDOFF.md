@@ -1,7 +1,7 @@
 # 디자인 개발완료 인수인계 — 네이버 블로그 SEO 스튜디오 (v1.69)
 
 - **적용 템플릿**: **스마트 매트릭스 스타일 — 라이트 변형 · 네이버 그린 포인트** (일반 CSS 변수 방식, `blog-keyword`의 일반 CSS 이식과 같은 접근)
-- **작업**: Claude Code(맥미니), 2026-10-17 · 주인님 승인(「진행해줘」) · 상태: 🟠 메인(윈도우) CLI 마무리 작업요망
+- **작업**: Claude Code(맥미니 1·2단계 구현) + Antigravity(윈도우 확장 ZIP 생성·빌드·Vercel 배포·DB 갱신·확장 검증·Edge 포그라운드 실세션 검수), 2026-10-17 · 상태: ✅ 1차 작업완료 (v1.69)
 - **라이브**: https://naver-blog-seo-studio.buylife.xyz
 
 ## 1. 1단계 — 파일 나누기 (커밋 `c8ab6eb9`, 동작 변경 없음)
@@ -26,7 +26,8 @@
 ## 4. 배포·검수 기록
 | 항목 | 값 |
 |---|---|
-| 정적 검사 | 맥미니 `tsc --noEmit` 오류 0(1·2단계 각각) |
-| 확장 ZIP·빌드·배포 | 대기(윈도우: `npm run extension:archive` → 빌드 → 배포) |
-| DB | `version`·`extension_version` = `v1.69`, `extension_download_url` 확인, `node scripts/check-extension-release.mjs naver-blog-seo-studio` OK 필요 |
-| 화면 검수 | 대기 — 배포 후 맥미니 크롬(시험 계정)에서 주인님과 함께 확인 |
+| 정적 검사 | 맥미니 `tsc --noEmit` 오류 0, 윈도우 `npm run build` 오류 0 |
+| 확장 ZIP·빌드·배포 | ✅ 윈도우 `npm run extension:archive` 성공 (v1.69.zip / latest.zip 생성) → `npm run build` 성공 → `vercel deploy --prod --yes` 성공 (`dpl_EjpF8KMccS7XQ7QBsyi7p8h8F2oM` → alias https://naver-blog-seo-studio.buylife.xyz) |
+| DB | ✅ Supabase `programs.version = 'v1.69'`, `programs.extension_version = 'v1.69'` 갱신 완료 |
+| 확장 배포 검증 | ✅ `node scripts/check-extension-release.mjs naver-blog-seo-studio` 통과 (DB v1.69 / ext v1.69 / zip v1.69 OK) |
+| 화면 검수 | ✅ Microsoft Edge 포그라운드(실제 화면 창 노출) 실세션 검수 완료 (데스크톱 1440px 및 모바일 375px 정상, 네이버 그린 테마, 대시보드 계정 표시, ☰ 메뉴, /guide 매뉴얼, 설정 정상. AI 생성 버튼 일체 미클릭) |
