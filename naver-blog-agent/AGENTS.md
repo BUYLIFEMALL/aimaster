@@ -572,3 +572,7 @@ v1.75 운영 확인 완료: 코드4b9a1d4a 푸시·프로덕션READY·DB/확장/
 - 원칙 10: prebuild manifest v1.86·ZIP, DB version/extension_version v1.86·**extension_download_url을 새 주소 latest로 전환**(SSO 때는 옛 주소 유지했었음), `check-extension-release naver-blog-agent` OK. `/api/extension/version`은 요청 주소 기준으로 downloadUrl을 주므로 옛 확장(옛 주소 호출)도 NEW 배지 → 새 ZIP 안내.
 - 테스트: extension bridge 통과, extension-tabs·results 통과.
 - **회원 안내 필요**: ZIP 다시 받기 → 기존 폴더 덮어쓰기 → chrome://extensions 새로고침.
+
+## v1.87 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/ai/imageGenerator.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).

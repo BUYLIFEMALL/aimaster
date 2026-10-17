@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-nano-banana-2.1·gemini-nano-banana-2.1·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 
 import { findImageModel, type ImagePlatform, type ImageRatio } from "./contentModels";
@@ -25,10 +27,10 @@ export type ImageBytes = { bytes: Buffer; mime: string };
 
 // ---- 1. NanoBanana (Google Gemini) ----
 const NANO_BANANA: Record<string, { model: string; size: "1K" | "2K" | "4K"; temperature: number }> = {
-  nanobanana: { model: "gemini-2.5-flash-image", size: "1K", temperature: 0.7 },
-  "nanobanana-2-2k": { model: "gemini-3.1-flash-image", size: "2K", temperature: 0.7 },
-  "nanobanana-2-4k": { model: "gemini-3.1-flash-image", size: "4K", temperature: 0.7 },
-  "nanobanana-pro": { model: "gemini-3.1-flash-image", size: "4K", temperature: 0.4 },
+  nanobanana: { model: "gemini-3.1-flash-lite-image", size: "1K", temperature: 0.7 },
+  "nanobanana-2-2k": { model: "gemini-nano-banana-2.1", size: "2K", temperature: 0.7 },
+  "nanobanana-2-4k": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.7 },
+  "nanobanana-pro": { model: "gemini-nano-banana-2.1", size: "4K", temperature: 0.4 },
 };
 
 async function withGemini(model: string, ratio: ImageRatio, prompt: string, apiKey: string): Promise<ImageBytes> {
