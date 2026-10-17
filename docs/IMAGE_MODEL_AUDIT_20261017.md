@@ -41,5 +41,5 @@
 | 기타 | tarot v1.08, mbti-character v1.09, music v1.11, blog-workroom v1.07, four-cut-comics v1.09, music-video-studio v1.06, emotion-writer v1.10, shorts-onestop-studio v1.14, blog_auto_poster(운영자 도구, 배포 없음) |
 
 - 검수: 프로그램마다 `npm run build` 통과 → Vercel 프로덕션 배포 → DB `programs.version` 갱신 → 커밋·푸시. 배포 후 43개 주소 응답 정상(200/307). **실제 이미지 생성 시험: 0회(주인님 지시).**
-- 남은 위험: ① `mbti-character`는 환경변수 `GEMINI_IMAGE_MODEL`이 있으면 그 값을 쓴다(값은 확인 안 함 — 구형이면 오류 시 이 변수부터 확인). ② 회원이 예전에 고른 모델 값을 DB·브라우저에 저장해 둔 프로그램은 대부분 목록에 없는 값이면 기본값으로 돌아가지만, 그대로 보내는 곳이 있을 수 있다 — 오류가 나면 해당 프로그램의 저장값 처리부터 확인. ③ 프롬프트·화면 문구에 남은 옛 모델 이름(예: naver-blog-allinone 설정 화면 설명)은 "연동 부분만" 원칙으로 그대로 뒀다.
+- 남은 위험: ① `mbti-character`의 환경변수 `GEMINI_IMAGE_MODEL`은 Vercel에 등록돼 있지 않음을 확인(2026-10-17) → 코드 기본값 `gemini-nano-banana-2.1` 사용. 나중에 이 변수를 추가하면 그 값이 우선한다. ② 회원이 예전에 고른 모델 값을 DB·브라우저에 저장해 둔 프로그램은 대부분 목록에 없는 값이면 기본값으로 돌아가지만, 그대로 보내는 곳이 있을 수 있다 — 오류가 나면 해당 프로그램의 저장값 처리부터 확인. ③ 프롬프트·화면 문구에 남은 옛 모델 이름(예: naver-blog-allinone 설정 화면 설명)은 "연동 부분만" 원칙으로 그대로 뒀다.
 - 이미지 생성 프롬프트 작성 기준: [`docs/IMAGE_PROMPT_RULES.md`](IMAGE_PROMPT_RULES.md)(프로그램별 고유, 공유 금지).
