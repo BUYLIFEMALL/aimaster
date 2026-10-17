@@ -1,3 +1,5 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image·경량 1K는 gemini-3.1-flash-lite-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import "server-only";
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AISuggestion, AspectRatio, BackgroundMode, BeautyAdvice, BeautyType, ImageState, Lang, ModelLevel, SuggestionKind } from "@/lib/look/types";
@@ -6,8 +8,8 @@ import { parseBeauty, parseSuggestions } from "@/lib/look/validate";
 
 // 모델 구성은 한곳에서 관리한다(모델명은 자주 바뀐다). pro가 계정에서 쓸 수 없으면 standard로 자동 폴백한다.
 export const MODELS: Record<ModelLevel, { text: string; image: string }> = {
-  standard: { text: "gemini-2.5-flash", image: "gemini-2.5-flash-image" },
-  pro: { text: "gemini-3-pro-preview", image: "gemini-3.1-flash-image-preview" },
+  standard: { text: "gemini-2.5-flash", image: "gemini-3.1-flash-lite-image" },
+  pro: { text: "gemini-3-pro-preview", image: "gemini-nano-banana-2.1" },
 };
 
 export type AiErrorCode = "key" | "quota" | "safety" | "noimage" | "timeout" | "parse" | "unknown";
