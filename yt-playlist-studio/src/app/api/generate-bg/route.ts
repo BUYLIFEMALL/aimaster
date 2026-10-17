@@ -5,13 +5,13 @@ import { getUserGeminiApiKey } from "@/lib/apiKeys";
 // v1.10: Google Imagen(imagen-3.0-generate-002)이 2025-11-10 종료되어 Nano Banana 2.1(gemini-nano-banana-2.1, 2026-10-06 정식)로 교체.
 // gemini-2.5-flash-image는 공식 가격표에 2026-10-02 종료 예정 구형으로 표시돼 쓰지 않는다(2026-10-17 주인님 결정).
 // 호출 방식은 ai-image-studio/lib/providers/adapters/gemini.ts와 같게 REST generateContent + imageConfig.
+// 2026-10-17 정정: 이미지 프롬프트·생성 스타일은 기존값 유지(주인님 지시) — v1.10에서 덧붙였던 인물 지시문·temperature 제거.
+// 실제 이미지 생성 재시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다.
 const IMAGE_MODEL = "gemini-nano-banana-2.1";
 /** 화질 — 기본 2K(영상 배경용, 장당 약 $0.050). 1K(약 $0.034)는 더 싸게 쓰거나 시험할 때만 */
 const ALLOWED_SIZES = ["1K", "2K"] as const;
 type ImageSize = (typeof ALLOWED_SIZES)[number];
 const IMAGE_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:generateContent`;
-const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
-  "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
 
 interface GeminiImagePart { inlineData?: { data?: string; mimeType?: string } }
 
@@ -60,13 +60,10 @@ NO typography, NO letters, NO text, NO watermarks, edge-to-edge wallpaper backgr
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: `${promptText}
-
-${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}` }] }],
+        contents: [{ parts: [{ text: promptText }] }],
         generationConfig: {
           responseModalities: ["IMAGE"],
           imageConfig: { aspectRatio: "16:9", imageSize },
-          temperature: 0.7,
         },
       }),
     });
