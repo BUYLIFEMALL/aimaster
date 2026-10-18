@@ -60,13 +60,13 @@ export default function ResultColumn({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 flex flex-col gap-5">
       {/* Step Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex items-center justify-between pb-2 border-b border-[#222d42]">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+          <div className="w-7 h-7 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center font-bold text-sm">
             3
           </div>
-          <div className="flex items-center gap-1.5 text-slate-900 font-bold text-base">
-            <ImageIcon className="w-5 h-5 text-indigo-600" />
+          <div className="flex items-center gap-1.5 text-white font-bold text-base">
+            <ImageIcon className="w-5 h-5 text-red-400" />
             <h2>결과물</h2>
           </div>
         </div>
@@ -76,15 +76,15 @@ export default function ResultColumn({
           <div className="flex items-center gap-1.5">
             <button
               onClick={handleCopyPrompt}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[#182030] hover:bg-[#222d42] border border-[#222d42] text-slate-300 rounded-lg text-xs font-semibold transition-colors"
               title="사용한 프롬프트 복사"
             >
-              {copiedPrompt ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedPrompt ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               {copiedPrompt ? "복사됨" : "프롬프트"}
             </button>
             <button
               onClick={handleDownload}
-              className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold transition-colors"
               title="1080p 고화질 다운로드"
             >
               <Download className="w-3.5 h-3.5" />
@@ -99,7 +99,7 @@ export default function ResultColumn({
         <button
           onClick={() => onGenerateImage()}
           disabled={isGeneratingImage || !hasTitle}
-          className="w-full py-4 px-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 text-white rounded-2xl text-sm sm:text-base font-extrabold flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-100 cursor-pointer disabled:cursor-not-allowed"
+          className="w-full py-4 px-5 bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 disabled:opacity-50 text-white rounded-2xl text-sm sm:text-base font-extrabold flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-500/20 cursor-pointer disabled:cursor-not-allowed"
         >
           {isGeneratingImage ? (
             <>

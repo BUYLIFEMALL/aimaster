@@ -78,12 +78,12 @@ export default function SettingsColumn({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 flex flex-col gap-5">
       {/* Step Header */}
-      <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
-        <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+      <div className="flex items-center gap-2.5 pb-2 border-b border-[#222d42]">
+        <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm">
           2
         </div>
-        <div className="flex items-center gap-1.5 text-slate-900 font-bold text-base">
-          <Sliders className="w-5 h-5 text-indigo-600" />
+        <div className="flex items-center gap-1.5 text-white font-bold text-base">
+          <Sliders className="w-5 h-5 text-amber-400" />
           <h2>썸네일 상세 설정</h2>
         </div>
       </div>

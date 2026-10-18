@@ -111,12 +111,12 @@ ${comprehensive.pinnedComment}`;
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 flex flex-col gap-5">
       {/* Step Header */}
-      <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
-        <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+      <div className="flex items-center gap-2.5 pb-2 border-b border-[#222d42]">
+        <div className="w-7 h-7 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center font-bold text-sm">
           1
         </div>
-        <div className="flex items-center gap-1.5 text-slate-900 font-bold text-base">
-          <FileText className="w-5 h-5 text-indigo-600" />
+        <div className="flex items-center gap-1.5 text-white font-bold text-base">
+          <FileText className="w-5 h-5 text-red-400" />
           <h2>기획 및 전략</h2>
         </div>
       </div>
@@ -124,12 +124,12 @@ ${comprehensive.pinnedComment}`;
       {/* Script Textarea */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+          <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
             대본 또는 기획안 입력
           </label>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline transition-colors"
+            className="flex items-center gap-1 text-xs font-medium text-amber-400 hover:text-amber-300 hover:underline transition-colors"
           >
             <Upload className="w-3.5 h-3.5" />
             파일 업로드 (.txt, .md)
@@ -148,23 +148,23 @@ ${comprehensive.pinnedComment}`;
           value={script}
           onChange={(e) => onScriptChange(e.target.value)}
           placeholder="유튜브 대본이나 영상 아이디어, 요약본을 입력하세요. AI가 성공 공식을 반영한 3가지 A/B 테스트 전략과 태그를 제안합니다."
-          className="w-full p-3.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none resize-none transition-all placeholder:text-slate-400"
+          className="w-full p-3.5 text-xs sm:text-sm bg-[#182030] border border-[#2e3b55] rounded-xl focus:border-red-500 outline-none resize-none transition-all placeholder:text-slate-500 text-white"
         />
 
         {/* Generate Button */}
         <button
           onClick={onGenerateStrategies}
           disabled={isGeneratingStrategies || !script.trim()}
-          className="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
+          className="w-full py-3 px-4 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 disabled:opacity-50 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-red-500/20"
         >
           {isGeneratingStrategies ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
               <span>3대 A/B 전략 생성 중...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+              <Sparkles className="w-4 h-4 text-amber-300" />
               <span>A/B 테스트 전략 생성</span>
             </>
           )}

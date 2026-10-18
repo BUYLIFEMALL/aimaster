@@ -1,5 +1,58 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 유튜브 썸네일 프로 v1.10: 크리에이티브 아틀리에 프로 썸네일 캔버스 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 57개 완료 / 68.7% 달성!)
+
+- **대상**: `seo-thumbnail-pro/` (https://seo-thumbnail-pro.buylife.xyz, slug: `seo-thumbnail-pro`, 22번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 프로 썸네일 캔버스 변형 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 프로 썸네일 캔버스 변형 (Creative Atelier Style — Pro Thumbnail Canvas Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(대시보드, 1단계 기획·전략, 2단계 상세설정, 3단계 결과물, 비주얼 가이드북, API키 모달) 배경을 딥 미드나잇 다크 네이비(`#0c0f17`), 서피스 카드(`#131824`), 테두리(`#222d42`), 유튜브 레드(`#ef4444` / `#dc2626`) 및 골드 앰버(`#f59e0b`)로 일체화.
+     - 대본 분석 기반 3대 A/B 전략 도출, SEO 역분석, 장르/분위기 10종, 피사체 인물 커스텀(레퍼런스 이미지 업로드), Nano Banana 2.1 16:9 고화질 렌더링 및 자연어 피드백 수정 루프, 프로젝트 JSON 백업/복원 엔진의 기존 핵심 로직 무결성을 100% 보존.
+  2. **사이드바 메뉴 규격화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 좌측 사이드바 구분선 아래에 **`📖 연동 & 사용 매뉴얼`** 메뉴/버튼을 신설하여 누구나 쉽게 사용법에 접근할 수 있도록 표준화.
+  3. **비주얼 에디토리얼 가이드북 (`GuideModal.tsx`) 전면 고도화**:
+     - 다크 글래스모피즘 모달 및 `PRO THUMBNAIL CANVAS EDITORIAL GUIDE` 히어로 배너 신설 (`v1.10 프로 썸네일 캔버스 에디션` 배지).
+     - **4단계 핵심 워크플로우 비주얼 카드**:
+       1. `STEP 1. 대본 분석 & CTR 3대 공식`: 호기심 유발형, 가치/혜택 중심형, 감성 후킹형 A/B 전략 도출.
+       2. `STEP 2. 피사체 & 비주얼 연출`: 인물 성별/연령대/표정 및 장르별 시각 프롬프트 설계.
+       3. `STEP 3. 16:9 고화질 렌더링`: Nano Banana 2.1 기반 시네마틱 썸네일 렌더링 및 자연어 피드백 수정 루프.
+       4. `STEP 4. 유튜브 스튜디오 태그 복사`: 500자 최적화 태그 및 고정 댓글 전략 원클릭 복사.
+     - **유튜브 알고리즘 CTR 극대화 팁 3선** (첫 3초 시선 강탈, 5단어 이하 압축, 감정 극대화 표정).
+     - 회원 본인 Gemini API 키 발급 가이드 및 FAQ 4종 아코디언 완비.
+  4. **버전 및 DB 메타데이터 4중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), 푸터 문구, Supabase DB `programs` 메타데이터 업데이트 (`version: v1.10`) 동기화 완료.
+  5. **로컬 무결성 검증 통과**:
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공.
+  6. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_FA36Ey34aWYeYdnsVpYPa4g8dVHb`
+     - 공식 도메인 즉시 반영: https://seo-thumbnail-pro.buylife.xyz
+  7. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 주인님 실시간 모니터링 보장)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면(최대화)으로 띄워 10분간 화면 유지.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_seo_thumbnail_desktop_main_v110.png`: 1440px 데스크톱 메인 워크스페이스
+       - `edge_seo_thumbnail_desktop_guide_v110.png`: 1440px 데스크톱 비주얼 에디토리얼 가이드북
+       - `edge_seo_thumbnail_desktop_apikey_v110.png`: 1440px 데스크톱 API 키 설정 모달
+       - `edge_seo_thumbnail_desktop_step2_v110.png`: 1440px 데스크톱 2단계 상세 설정 탭
+       - `edge_seo_thumbnail_desktop_step3_v110.png`: 1440px 데스크톱 3단계 결과물 탭
+       - `edge_seo_thumbnail_mobile_v110.png`: 모바일 375px 반응형 뷰포트
+  8. **문서 6종 작성 완료**:
+     - `seo-thumbnail-pro/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `seo-thumbnail-pro/README.md` (동기화 생성)
+     - `seo-thumbnail-pro/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `seo-thumbnail-pro/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `seo-thumbnail-pro/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `seo-thumbnail-pro/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  9. **루트 마스터 현황판 동기화**:
+     - `DESIGN.md`: 22번 행 ✅ 1차 작업완료 (`v1.10`, 프로 썸네일 캔버스 변형) 갱신 및 전체 통계 (누적 ✅ 57개 완료 / ⚪ 24개 예정 / ⏸ 2개 보류 — 68.7% 달성)
+     - `docs/ACTIVE_WORK.md`: 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - `buylifemall@naver.com` 일반 회원 테스트 계정으로 대시보드 진입, 대본 입력창, 3대 전략 생성 UI, 상세 설정 탭 전환, 16:9 결과물 화면, 비주얼 가이드북 아코디언, API 키 설정 정상 확인.
+- **못 한 것**:
+  - 유료 Gemini API 생성 실제 호출(테스트 비용 최소화 지침 준수).
+- **프로그램 링크**:
+  - https://seo-thumbnail-pro.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — 브라우저 자동 테스트 보강(4컷 만화·성격 진단 신설) + 기존 15곳 일괄 점검 결과
 
 - **신설(앱 코드 무변경, 배포 없음)**: `test:browser` 명령만 있고 파일이 없던 2곳 — `four-cut-comics`(검사 8개 통과: 대본→캐릭터→컷→말풍선→저장), `personality-suite`(검사 6개 통과: 진행→제출→결과·민감 검사 저장 흐름, `tests/stub-navigation.ts`로 `useRouter` 대체). 모두 모의 API, AI 비용 없음. 사용법은 각 폴더 `AGENTS.md` 2026-10-19 절.

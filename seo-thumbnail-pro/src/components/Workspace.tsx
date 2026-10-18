@@ -247,23 +247,27 @@ export default function Workspace({ userEmail }: WorkspaceProps) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 md:flex-row antialiased">
+    <div className="flex min-h-screen flex-col bg-[#0c0f17] md:flex-row antialiased">
       {/* Sidebar (docs/SIDEBAR_LAYOUT_STANDARD.md 규격) */}
       <Sidebar
         userEmail={userEmail}
         activeStep={activeStep}
         onSelectStep={setActiveStep}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        onOpenGuideModal={() => setIsGuideModalOpen(true)}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col bg-[#0c0f17]">
         {/* Top Mini Header */}
-        <header className="bg-white/80 backdrop-blur-xs border-b border-slate-200 px-5 py-3 flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-slate-700">
+        <header className="bg-[#131824]/90 backdrop-blur-md border-b border-[#222d42] px-5 py-3 flex items-center justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-sm shadow-red-500/50" />
+            <span className="text-xs font-bold text-slate-200">
               AI 유튜브 썸네일 & A/B 전략 스튜디오
+            </span>
+            <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-red-500/10 text-red-400 border border-red-500/20 rounded">
+              PRO CANVAS
             </span>
           </div>
 
@@ -272,13 +276,13 @@ export default function Workspace({ userEmail }: WorkspaceProps) {
             <button
               onClick={handleExportProject}
               title="설정 JSON 백업 다운로드"
-              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 bg-[#182030] hover:bg-[#222d42] border border-[#222d42] rounded-lg transition-colors"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-slate-400" />
               백업
             </button>
-            <label className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">
-              <Upload className="w-3.5 h-3.5" />
+            <label className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 bg-[#182030] hover:bg-[#222d42] border border-[#222d42] rounded-lg transition-colors cursor-pointer">
+              <Upload className="w-3.5 h-3.5 text-slate-400" />
               불러오기
               <input
                 type="file"
@@ -290,18 +294,19 @@ export default function Workspace({ userEmail }: WorkspaceProps) {
 
             <button
               onClick={() => setIsGuideModalOpen(true)}
-              className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg transition-colors"
               title="가이드"
             >
               <HelpCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">매뉴얼</span>
             </button>
 
             <button
               onClick={() => setIsApiKeyModalOpen(true)}
-              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                 apiKey.trim()
-                  ? "bg-slate-900 text-white hover:bg-slate-800"
-                  : "bg-amber-500 text-white hover:bg-amber-600 animate-bounce"
+                  ? "bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700"
+                  : "bg-gradient-to-r from-red-600 to-amber-600 text-white hover:from-red-500 hover:to-amber-500 shadow-md shadow-red-500/20 animate-pulse"
               }`}
             >
               <Key className="w-3.5 h-3.5" />
@@ -314,7 +319,7 @@ export default function Workspace({ userEmail }: WorkspaceProps) {
         <main className="flex-1 p-4 sm:p-6 lg:p-7">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             {/* 1. 기획 및 전략 */}
-            <div className={activeStep === 1 ? "ring-2 ring-indigo-500/20 rounded-2xl" : ""}>
+            <div className={activeStep === 1 ? "ring-2 ring-red-500/40 rounded-2xl shadow-lg shadow-red-500/5" : ""}>
               <StrategyColumn
                 script={script}
                 onScriptChange={setScript}
@@ -331,7 +336,7 @@ export default function Workspace({ userEmail }: WorkspaceProps) {
             </div>
 
             {/* 2. 썸네일 상세 설정 */}
-            <div className={activeStep === 2 ? "ring-2 ring-indigo-500/20 rounded-2xl" : ""}>
+            <div className={activeStep === 2 ? "ring-2 ring-amber-500/40 rounded-2xl shadow-lg shadow-amber-500/5" : ""}>
               <SettingsColumn
                 settings={settings}
                 onSettingsChange={setSettings}
@@ -339,7 +344,7 @@ export default function Workspace({ userEmail }: WorkspaceProps) {
             </div>
 
             {/* 3. 결과물 */}
-            <div className={activeStep === 3 ? "ring-2 ring-indigo-500/20 rounded-2xl" : ""}>
+            <div className={activeStep === 3 ? "ring-2 ring-red-500/40 rounded-2xl shadow-lg shadow-red-500/5" : ""}>
               <ResultColumn
                 imageResult={imageResult}
                 usedPrompt={usedPrompt}
@@ -354,8 +359,8 @@ export default function Workspace({ userEmail }: WorkspaceProps) {
         </main>
 
         {/* Footer */}
-        <footer className="py-5 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
-          <p>© 2026 AIMaster · AI 유튜브 썸네일 프로 PRO (v1.01) · All Rights Reserved</p>
+        <footer className="py-5 border-t border-[#222d42] bg-[#131824] text-center text-xs text-slate-400">
+          <p>© 2026 AIMaster · AI 유튜브 썸네일 프로 (v1.10) · All Rights Reserved</p>
         </footer>
       </div>
 
