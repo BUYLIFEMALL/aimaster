@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { clearHistory, listHistory, removeHistory } from "@/lib/portrait/history";
 import type { HistoryItem } from "@/lib/portrait/history";
+import { localDateStamp } from "@/lib/portrait/post";
 
 interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string; expiresAt: string | null }
 
@@ -30,7 +31,7 @@ export function HistoryList({ userId }: { userId: string }) {
   }
   function save(item: HistoryItem) {
     const a = document.createElement("a");
-    a.href = item.thumb; a.download = `인물사진-기록-${new Date(item.createdAt).toISOString().slice(0, 10)}.jpg`;
+    a.href = item.thumb; a.download = `인물사진-기록-${localDateStamp(new Date(item.createdAt))}.jpg`;
     document.body.appendChild(a); a.click(); a.remove();
   }
   async function removeSaved(id: string) {

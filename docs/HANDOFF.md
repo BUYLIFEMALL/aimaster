@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — AI 인물사진 v1.28: 저장 파일 이름 날짜를 현지(한국) 날짜로
+- **한 일**: 파일 이름 날짜가 세계 표준시(`toISOString`)라 한국 오전 9시 전엔 하루 전 날짜로 찍히던 문제 수정 — `post.ts` `localDateStamp` + `Studio.tsx` 4곳·`HistoryList.tsx` 1곳. 상세 `portrait-photo/AGENTS.md` v1.28 절, 플랜 `portrait-photo/docs/PLAN_20261019_V128_LOCAL_DATE_FILENAME.md`.
+- **검수**: 단위 26/26, tsc, 빌드, 브라우저 13/13(크롬 포그라운드), Vercel Ready, DB v1.28, 메인 크롬 운영 화면 v1.28 확인. AI 비용 없음.
+- **남은 일·다음 첫 단계**: 이어서 기존 브라우저 테스트 실패 5곳을 하나씩 판정(file-merge부터). 실제 휴대폰 터치 확인은 그대로 대기.
+- https://portrait-photo.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 글쓰기 에디터 v1.10: 포커스 스튜디오 테마 리뉴얼·/guide 비주얼 에디토리얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 59개 완료 / 71.1% 달성!)
 
 - **대상**: `ai-writing-editor/` (https://ai-writing-editor.buylife.xyz, slug: `ai-writing-editor`, 68번)

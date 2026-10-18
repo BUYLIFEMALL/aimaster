@@ -667,3 +667,11 @@ test("생성 전 사진 품질 점검(assessFaces)·머리 위치 선 계산(ove
   assert.ok(Math.abs(overlayY(1, 1000, 1000, 3 / 4) - 87.5) < 1e-9);
   assert.ok(Math.abs(overlayY(0.5, 300, 600, 3 / 4) - 50) < 1e-9, "세로로 긴 사진은 높이를 꽉 채움");
 });
+
+test("파일 이름 날짜: 세계 표준시가 아니라 현지 날짜(오전 9시 전 하루 밀림 방지)", async () => {
+  const { localDateStamp } = await import("../src/lib/portrait/post.ts");
+  assert.equal(localDateStamp(new Date(2026, 9, 19, 8, 30)), "2026-10-19");
+  assert.equal(localDateStamp(new Date(2026, 0, 5, 0, 1)), "2026-01-05");
+  assert.equal(localDateStamp(new Date(2026, 11, 31, 23, 59)), "2026-12-31");
+  assert.match(localDateStamp(), /^\d{4}-\d{2}-\d{2}$/);
+});

@@ -7,7 +7,7 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, PROFILE_FORMATS, SIZE_PRESETS, baseNameOf, overlayY, profileCrop, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, recommendSizedCrop, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, PROFILE_FORMATS, SIZE_PRESETS, baseNameOf, overlayY, profileCrop, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, localDateStamp, moveItem, parseStoredControls, recommendSizedCrop, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 import type { SizedRecommendation } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
@@ -487,7 +487,7 @@ export function Studio({ userId }: { userId: string }) {
         entries.push({ name: `${nameFor(fileIdx, `증명사진-${i + 1}`)}-${preset.id}-${preset.width}x${preset.height}.jpg`, data: new Uint8Array(await r.blob.arrayBuffer()) });
       }
       const zip = createZip(entries);
-      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `증명사진-${preset.id}-${entries.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `증명사진-${preset.id}-${entries.length}장-${localDateStamp()}.zip`);
       setNotice(`${entries.length}장을 ${preset.width}×${preset.height}px로 ZIP 저장했습니다(지정·머리 기준 추천 영역 ${custom}장, 가운데 자르기 ${entries.length - custom}장${over ? `, 용량 제한을 넘은 파일 ${over}장` : ""}). 제출 기관의 사진 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
@@ -549,7 +549,7 @@ export function Studio({ userId }: { userId: string }) {
         entries.push({ name: `${batchMode ? nameFor(sources[i] ?? i, `인물사진-${i + 1}`) : `인물사진-${String(i + 1).padStart(2, "0")}`}-${aspect.replace(":", "x")}-${resolution}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
       }
       const zip = createZip(entries);
-      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `인물사진-${entries.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `인물사진-${entries.length}장-${localDateStamp()}.zip`);
       setNotice(`${entries.length}장을 ZIP 파일 하나로 저장했습니다(${Math.round(zip.length / 1024)}KB).`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
@@ -596,7 +596,7 @@ export function Studio({ userId }: { userId: string }) {
     try {
       const entries = await Promise.all(profilePreview.items.map(async (it) => ({ name: it.name, data: new Uint8Array(await it.blob.arrayBuffer()) })));
       const zip = createZip(entries);
-      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `${profilePreview.base}-세트-${new Date().toISOString().slice(0, 10)}.zip`);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `${profilePreview.base}-세트-${localDateStamp()}.zip`);
       setNotice(`프로필 세트 ${entries.length}장(${PROFILE_FORMATS.map((f) => f.label).join(" · ")})을 ZIP으로 저장했습니다. ${profilePreview.measured ? "머리 위치를 기준으로 얼굴이 가운데 오게 잘랐습니다." : "머리 위치를 몰라 위쪽 가운데로 잘랐습니다 — [얼굴 위치 직접 지정]을 하면 얼굴 기준으로 잘립니다."}`);
       closeProfilePreview();
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
@@ -616,7 +616,7 @@ export function Studio({ userId }: { userId: string }) {
         crop = scaleCrop(rec.crop, m.srcW, m.srcH, im.naturalWidth, im.naturalHeight);
       }
       const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive, crop });
-      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}${crop ? "-추천" : ""}-${preset.width}x${preset.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
+      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}${crop ? "-추천" : ""}-${preset.width}x${preset.height}-${localDateStamp()}.jpg`);
       const pct = (n: number) => Math.round(n * 100);
       const range = preset.headRange ? `기준 ${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%` : "";
       const head = rec.mode === "none"

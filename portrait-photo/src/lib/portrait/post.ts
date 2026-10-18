@@ -483,3 +483,9 @@ export function describeBatchDecision(d: BatchDecision, manual = false): { text:
   const base = `머리 약 ${pct(d.ratio ?? 0)}% → 확대 자르기로 약 ${pct(d.achieved ?? 0)}%${d.clamped ? " (원본 한계로 더 확대하지 못함)" : ""}`;
   return { text: manual ? `수동 지정: ${base}` : base, tone: "ok" };
 }
+
+/** 파일 이름용 현지 날짜 YYYY-MM-DD (toISOString은 세계 표준시라 한국 오전 9시 전엔 하루 전 날짜가 됨) */
+export function localDateStamp(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
