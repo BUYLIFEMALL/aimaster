@@ -48,7 +48,9 @@ const a=await sample(),b=await sample(true);
 const checks=[],errors=[],mutations=[],workers=[],failedResponses=[];
 const ok=name=>{checks.push({name,passed:true});console.log('PASS',name);};
 let context,page;
-const browser=await chromium.launch({channel:'msedge',headless:false});
+const channel=process.env.FM_TEST_CHANNEL||'msedge'; // Claude Code는 FM_TEST_CHANNEL=chrome(CLI별 브라우저 규칙)
+const browserLabel=channel==='chrome'?'Google Chrome (visible)':'Microsoft Edge (visible)';
+const browser=await chromium.launch({channel,headless:false});
 async function goto(route){
   const r=await page.goto(base+route,{waitUntil:'networkidle'});assert.equal(r.status(),200,route);
   await page.locator('main h1').waitFor();
@@ -143,6 +145,6 @@ try{
   assert.deepEqual(mutations,[]);assert.deepEqual(errors,[]);assert.deepEqual(failedResponses,[]);ok('파일 전송/서버 쓰기·유료 API·브라우저 오류·실패 HTTP 없음');
 }catch(e){checks.push({name:'FAILED',passed:false,error:e.message});console.error('FAIL',e.message);process.exitCode=1;if(page)await page.screenshot({path:`${evidence}/${mode}-failure.png`,fullPage:true}).catch(()=>{});}
 finally{
-  await fs.writeFile(`${evidence}/${mode}-browser-v107.json`,JSON.stringify({base,version:'v1.07',browser:'Microsoft Edge (visible)',member:email,member_is_admin:false,checked_at:new Date().toISOString(),checks,errors,mutations,failedResponses,workers,paid_calls:0,files:'synthetic fixtures only; native download files reread with ExcelJS/JSZip',production_auth_mocked:false},null,2));
+  await fs.writeFile(`${evidence}/${mode}-browser-v107.json`,JSON.stringify({base,version:'v1.07',browser:browserLabel,member:email,member_is_admin:false,checked_at:new Date().toISOString(),checks,errors,mutations,failedResponses,workers,paid_calls:0,files:'synthetic fixtures only; native download files reread with ExcelJS/JSZip',production_auth_mocked:false},null,2));
   await context?.close();await browser.close();
 }

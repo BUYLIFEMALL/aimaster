@@ -199,6 +199,7 @@ https://style-dna-analyzer.buylife.xyz
 | `reverse-prompt` | 키 미등록 안내(`API키등록` 문구가 든 alert)가 안 나타남 | 안내 문구·표시 방식 변경(디자인 리뉴얼 등) 가능성 |
 
 - **다음 첫 단계**: 실패 5곳은 각 폴더 담당 작업 중 여부(`docs/ACTIVE_WORK.md`) 확인 후, 테스트 기대값이 낡은 것인지 실제 회귀인지 하나씩 판정. `file-merge`는 `npm run dev` 상태에서 다시 실행.
+- **판정 진행(2026-10-19 Claude Code 윈도우)**: `file-merge` ✅ **코드 문제 아님 확인** — 문서 순서(`npm run build:verify` → `node tests/local.mjs start` → `test:browser`)로 다시 돌려 12/12 통과. `tests/browser.mjs`에 브라우저 선택 `FM_TEST_CHANNEL`(기본 `msedge` 유지, Claude Code는 `chrome`) 추가, 앞선 실패 실행이 덮어쓴 `docs/evidence/local-browser-v107.json`을 통과 기록으로 갱신. 앱 코드·버전·배포 변경 없음.
 
 ## 📌 AGY 반영 대기 — 매뉴얼 연계 링크 4건 (2026-10-19 Claude Code(윈도우) 정리)
 

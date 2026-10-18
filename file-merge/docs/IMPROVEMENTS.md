@@ -14,3 +14,8 @@
 ## 2026-10-17 Codex(Windows) — 인수 검수
 
 기존 처리 코드·디자인을 바꿔야 할 제품 결함은 발견되지 않았습니다. #1/#2 운영·모바일 검수 완료, #3/#4/#6은 기존 개선 제안으로 유지합니다. #5 다크 전환은 아이디어이며 현재 라이트 정책 변경 승인을 의미하지 않습니다. 테스트 환경/도구 개선(로컬 공통 DB 설정 전달, 감싸는 label/select 선택, #fff 축약색 대비 계산, 화면 맨 위 캡처)은 tests/와 루트 ERROR_LESSONS에 남겼습니다. 실제 휴대폰 파일 선택/저장은 미검수로 남깁니다. [최종 결과](IMPROVEMENT_HANDOFF_20261017.md).
+
+## 2026-10-19 Claude Code(윈도우) — 브라우저 테스트 실패 판정
+- 플랫폼 일괄 점검에서 `test:browser`가 `127.0.0.1:3032` 접속 거부로 실패 → **서버를 먼저 켜는 방식이라 순서 문제**였고 코드 문제 아님. `npm run build:verify` → `node tests/local.mjs start` → `npm run test:browser`로 12/12 통과(크롬 포그라운드, 일반 회원 실제 세션, 유료 호출 0).
+- 보완: `tests/browser.mjs`에 `FM_TEST_CHANNEL`(기본 `msedge`, Claude Code는 `chrome` — CLI별 브라우저 규칙). 결과 파일 `browser` 칸이 실제 사용한 브라우저를 적음.
+- 제안(미구현): 서버가 꺼져 있으면 「먼저 `node tests/local.mjs start`」 한 줄 안내 후 종료하도록 테스트 시작부에 접속 확인 추가 — 다른 CLI가 같은 오판을 하지 않게.
