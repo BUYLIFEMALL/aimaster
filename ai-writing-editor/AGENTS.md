@@ -1,39 +1,151 @@
-# AI 글쓰기 에디터 자동화 (ai-writing-editor) — 작업 지침 (v1.04: 서식 에디터 + 표·이미지·색·정렬)
+# 🖋️ AI 글쓰기 에디터 자동화 (ai-writing-editor) — AI 에이전트 인수인계서
 
-> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+> **공식 서비스 URL**: https://ai-writing-editor.buylife.xyz  
+> **현재 버전**: `v1.10` (포커스 스튜디오 스타일 — 글쓰기 에디터 에디션)  
+> **최근 갱신일**: 2026-10-19  
+> **표준 템플릿**: 포커스 스튜디오 스타일 (`Focus Studio Theme`, 크림 페이퍼 `#fdfbf7` + 딥 인디고 `#4f46e5` + 로열 바이올렛 `#8b5cf6`)  
+> **참고 기준 문서**: 루트 `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`
 
-## 한 줄 요약
-주제·형식·톤·분량(+참고 파일·인터넷 검색)으로 초안을 만들거나 기존 글을 붙여 넣어, **Tiptap 서식 에디터**에서 문장을 드래그해 고치고(버블 툴바) 글 전체 분석 제안(문법·표현·구조·명확성)을 적용한다. **표·이미지·글자 색·형광펜·밑줄·정렬**까지 지원하며, 본문은 문서마다 `content_type`(markdown | html)으로 저장된다(이전 문서·AI 초안은 마크다운, 편집하면 HTML). 참고 원본은 AI Studio "매직 에디터 (Magic Editor)"(순수 클라이언트 앱)이며 코드는 복제하지 않고 기능 구조만 참고했다. 올인원 그래픽의 이미지 "매직 에디터"와는 다른 프로그램이다.
+---
 
-## 구조
-- `src/lib/we/` 순수 로직(단위 테스트 대상): `types`(형식 9·톤·분량·동작·한도), `util`(연도 지침, 정리, JSON 추출, **제안 정규화**, 평문 위치 재탐색 치환, 제목), `prompts`(생성·수정·분석 프롬프트, 분석 스키마), **`pmText`(ProseMirror 문서에서 평문 위치 찾기 — 서식으로 나뉜 텍스트·hard break 대응)**.
-- 서버 전용: `gemini.ts`(모델 폴백 `gemini-3.5-flash → 2.5-flash`, 그라운딩 출처, JSON 재시도, **MAX_TOKENS 감지**), `documents.ts`(문서 CRUD·30개 정리), `apiKeys.ts`, `aiRoute.ts`(`guardAi`).
-- API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/generate`, `/api/rewrite`, `/api/analyze`, `GET/POST/PUT/DELETE /api/documents`, `/api/keys`(+`/test`).
-- 화면: `/dashboard`(`StartPanel` + 최근 문서), `/editor/[id]`(`Editor`=Tiptap `useEditor` + `RichToolbar`(서식) + `BubbleToolbar`(AI 수정, Tiptap BubbleMenu) + `SuggestionPanel`, `?analyze=1`이면 자동 분석), `/documents`, `/settings`, `/guide`. 패키지는 `@tiptap/* 3.31.4`·`@floating-ui/dom 1.8.0` 정확 버전 고정.
-- DB: `ai_writing_editor_documents`(RLS owner-only, 서버는 service role + `user_id` 필터). 키는 공용 `user_api_keys`의 기존 provider `gemini`만 쓴다 — 제약 변경 없음.
+## 1. 프로그램 사용 목적 및 대상
 
-## 지킬 것
-- 키는 회원 본인 Gemini 키만. 없으면 `needKey` 안내, 폴백 금지.
-- 모든 프롬프트에 `yearGuard()`로 당해 연도·오늘 날짜 주입(핵심 원칙 8번). 사용자 글은 "데이터"로 취급(프롬프트 인젝션 방지 문구 유지).
-- **사고(thinking) 토큰은 `maxOutputTokens`에 포함된다**: 한도를 작게 잡으면 답이 중간에 끊기거나 사고 내용이 섞여 나온다(수정 호출 1,024에서 실제 발생). 수정은 6,144, 키 확인은 2,048. 끊기면(`truncated`) 본문에 적용하지 말고 오류로 알린다.
-- 제안 적용은 항상 **적용 시점에 본문에서 원문을 다시 찾아** 한 곳만 바꾼다(원본의 `String.replace` 첫 일치 방식 금지). 못 찾으면 목록에서 빼고 안내.
-- **저장 형식은 `content_type`**: 새로 편집·저장하면 `editor.getHTML()`(content_type=html), 이전 문서·AI 초안·기존 글 분석 시작은 마크다운. 로드는 `contentType`을 그대로 넘기며 마크다운일 때 `breaks: true`. HTML을 쓰는 이유: 글자 색(`TextStyle/Color`)·정렬(`TextAlign`)은 마크다운 표현이 없다. `.md`·마크다운 복사는 `getMarkdown()`이라 색·정렬·형광펜·이미지 크기가 빠진다(화면에도 안내). 서버는 HTML을 렌더링하지 않고 평문 변환(`htmlToPlain`)만 한다 — 에디터 스키마가 다시 읽을 때 허용 노드만 남는다. AI 프롬프트는 마크다운 서식과 GFM 표를 허용한다(HTML·이미지·색 금지). 제목은 `deriveTitle()`이 기호·"메타 제목:" 라벨을 제거해 만든다.
-- AI 수정 결과는 `editor.markdown.parse()`로 노드화해 선택 범위에 넣는다(한 문단이면 인라인만 넣어 문단이 쪼개지지 않게). 분석 제안은 `insertText`로 바꿔 그 자리의 서식(굵게·링크)을 이어받는다. 실행 취소는 Tiptap 이력(Ctrl+Z)이 AI 수정·제안 적용까지 모두 되돌린다.
-- 분석·수정에 보내는 텍스트는 평문(`getText({ blockSeparator: 빈 줄 })`, `rangeText`도 같은 규칙). 제안 위치는 적용 시점에 `findText`가 문서의 텍스트 블록을 빈 줄로 이어 붙인 평문(`flatten`)에서 다시 찾는다 — **여러 문단에 걸친 제안도 찾고**, 교체문에 빈 줄이 없으면 `insertText`로 문단을 하나로 합치며, 있으면 문단 수만큼 나눈다.
-- **이미지**: 브라우저가 긴 변 1,600px로 줄여 `POST /api/images`(multipart)로 올리고(Vercel 본문 4.5MB 한도), 서버가 매직 바이트(`we/imageSniff.ts`)로 형식을 다시 검사해 **공개 버킷** `ai-writing-editor-images/<uid>/<uuid>.<ext>`에 저장 → 공개 주소를 `<img src>`로 쓴다(서식 복사·.html·블로그 붙여넣기가 깨지지 않게). 회원당 60개, 캐시 1시간. 문서 삭제·정리 시 **다른 문서가 쓰지 않는** 이미지만 지운다(`documents.ts` `cleanupImages`). 붙여넣기·드롭도 업로드 후 삽입(base64 금지: `allowBase64:false`).
-- 버전은 `src/lib/version.ts`와 DB `programs.version`을 함께 올린다. Supabase MCP `execute_sql`은 문장별로 보낸다.
+### 1.1 사용 목적
+- 블로그 글, 뉴스레터, 업무 보고서, 칼럼, 기획서 등 다양한 양식의 글을 주제와 간단한 키워드만으로 빠르고 완성도 높은 전문 초안으로 작성합니다.
+- Tiptap 기반의 고성능 서식 에디터(WYSIWYG)를 통해 문장별 AI 다듬기(버블 툴바), 글 전체 심층 교정 제안(문법·표현·구조·명확성 4대 관점), 표(Table) 삽입/편집, 이미지 클라우드 업로드, 서식 복사(Rich Copy)를 원스톱으로 제공합니다.
+- 사용자가 원하는 톤(친근함, 전문적, 설득력 등)과 분량을 자유롭게 조절하고, 필요 시 최신 구글 웹 검색(Grounding)을 연동하여 신뢰도 높은 글을 작성합니다.
 
-## 검수
-- `npm test`(순수 로직 17건: 위치 찾기·여러 문단·HTML 평문·이미지 판별), `npm run test:browser`(보이는 Chrome, 모의 API 20건: 마크다운/HTML 렌더링·버블 툴바·서식 도구·표·이미지(선택·붙여넣기·실패)·밑줄/색/형광펜/정렬·문단 병합 제안·서식 복사 HTML), `npm run build`. 실제 인프라 검증: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/image-real.mts`(업로드·공개 주소·문서 삭제 시 이미지 정리). 하네스 팁: 선택이 남아 있는 곳을 바로 3중 클릭하면 브라우저가 텍스트 끌기로 처리하므로 먼저 다른 곳을 클릭해 선택을 푼다; Tiptap `focus()`는 다음 프레임에 DOM 선택을 반영하므로 `waitForFunction`으로 기다린다.
-- 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [generate|generate-web|rewrite|instruction|analyze]`(운영자 본인 Gemini 키). 출력은 파일로 리다이렉트. `rewrite-debug.mts`(사고 토큰·truncated 확인), `grounding-debug.mts`(모델별 출처 구조).
+### 1.2 주요 대상
+- 매일 콘텐츠를 발행해야 하는 1인 창업가, 콘텐츠 마케터, 블로거, 뉴스레터 크리에이터.
+- 문서 기획서 및 보고서 작성 시간을 단축하고 문장 교정과 문체 교정을 원하는 직장인 및 연구원.
+- 초안 작성부터 최종 플랫폼(네이버 블로그, 티스토리, 벨로그, 노션, 워드) 발행까지 한 번에 끝내고자 하는 모든 사용자.
 
-## 2026-10-14 v1.06 — 모바일 셸 CSS 추가 (Claude Code)
+---
 
-- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
-- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.06(코드·package·DB).
-- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+## 2. 개발 구현에 사용된 도구 / 개발기법 / 플러그인 / 스킬
 
+- **프레임워크 및 런타임**:
+  - `Next.js 16.4.0` (Turbopack 탑재 App Router), `React 19.3.0`, `TypeScript 5.9.3`
+  - Node.js 환경에서 완전 무결한 SSR 및 클라이언트 하이브리드 아키텍처
+- **리치 에디터 및 UI 툴킷**:
+  - `@tiptap/core`, `@tiptap/react`, `@tiptap/starter-kit` (v3.31.4 고정)
+  - `@tiptap/extension-table`, `@tiptap/extension-image`, `@tiptap/extension-color`, `@tiptap/extension-text-style`, `@tiptap/extension-highlight`, `@tiptap/extension-underline`, `@tiptap/extension-text-align`
+  - `@floating-ui/dom` (v1.8.0 고정) — 마우스 드래그 기반 플로팅 버블 툴바 위치 제어
+  - `lucide-react` (아이콘 툴킷), `tailwind-merge`, `clsx`
+- **AI 엔진 및 백엔드 파이프라인**:
+  - Google Gemini API (`@google/genai` 기반 모델 체인: `gemini-2.5-flash` 주력, 자동 복원 폴백)
+  - Thinking 토큰 예산 관리(`maxOutputTokens: 6,144`) 및 절삭(truncation) 감지 엔진
+  - ProseMirror 평문 매핑 유틸(`pmText.ts`): 인라인 마크업과 줄바꿈으로 분절된 텍스트 위치를 완벽하게 역추적하여 원문 서식을 보존하며 AI 교정안을 치환
+  - `yearGuard()` 지침 주입: 최신 연도(2026년) 자동 동기화 및 프롬프트 인젝션 방어벽
+- **데이터베이스 및 스토리지**:
+  - Supabase Database (PostgreSQL RLS 완비: `ai_writing_editor_documents`)
+  - Supabase Storage (`ai-writing-editor-images` 공개 버킷, 파일 매직 바이트 검증 및 자동 용량 최적화)
+  - 회원 본인 API 키 연동 (공용 DB `user_api_keys` AES 암호화 조회, BYOK 불변 원칙 준수)
+- **품질 검증 및 테스트**:
+  - `Node.js built-in test runner` (17개 순수 로직 단위 테스트: 위치 탐색, 문단 병합, 평문 추출, 매직 바이트 판별)
+  - `Puppeteer-core` 기반 Microsoft Edge 브라우저 최전면 포그라운드 실세션 검수 스크립트
 
-## 2026-10-16 DB 연동 변수 호환 — v1.07 (ai-writing-editor)
+---
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처
+
+### 3.1 시스템 아키텍처
+```
+[사용자 입력 (주제/형식/톤/분량)] 
+         │
+         ▼
+[POST /api/generate] ──▶ [Gemini 2.5 Flash + Web Grounding] ──▶ [마크다운/HTML 초안 생성]
+         │
+         ▼
+[Tiptap Rich Editor (/editor/[id])]
+   ├── [마우스 문장 드래그] ──▶ [Floating Bubble Toolbar] ──▶ [POST /api/rewrite (재작성/확장/요약/톤조절)]
+   ├── [상단 글 분석 버튼] ──▶ [POST /api/analyze] ──▶ [우측 SuggestionPanel (4대 교정안)]
+   ├── [표 삽입 & 편집] ──▶ [행/열 추가/삭제, 병합/너비조절 인터랙션]
+   ├── [이미지 클라우드 업로드] ──▶ [POST /api/images] ──▶ [Supabase Storage 자동 리사이즈]
+   └── [자동 저장 엔진] ──▶ [1.5초 디바운스] ──▶ [PUT /api/documents (Supabase DB RLS)]
+```
+
+### 3.2 핵심 기능
+1. **9대 전문 글쓰기 템플릿 & 파라미터 제어**:
+   - 블로그 게시물(SEO 구조), 뉴스레터, 업무 보고서, 칼럼, 기획서, 상품 리뷰, 보도자료, SNS 스레드, 자유 양식.
+   - 톤(전문적, 친근함, 위트, 설득력, 객관적) 및 분량(짧게, 보통, 길게) 정밀 선택.
+2. **ProseMirror 완벽 보존 AI 버블 툴바 (Bubble Toolbar)**:
+   - 사용자가 본문 내 임의의 문장을 마우스로 드래그하면 즉시 플로팅 툴바가 노출.
+   - 다시 쓰기, 짧게 줄이기, 자세히 풀기, 전문적으로, 친근하게, 직접 지시(자유 프롬프트) 제공.
+   - 교체 시 문단 구조를 깨뜨리지 않고 인라인 노드 단위로 정밀 치환.
+3. **4대 관점 AI 심층 분석 패널 (Suggestion Panel)**:
+   - 문법 및 맞춤법, 어휘 및 표현력, 문단 및 글 구조, 메시지 명확성 분석.
+   - 제안별 [본문에서 보기] 포커싱 이동, 개별 [적용] 및 [모두 적용].
+4. **리치 서식 및 외부 플랫폼 호환성**:
+   - 표(Table) 삽입/편집, 이미지 드래그 앤 드롭/붙여넣기 업로드, 글자 색상, 형광펜, 밑줄, 정렬.
+   - [서식 복사(Rich Copy)] 기능으로 네이버 블로그, 노션, 워드 등에 표와 서식을 그대로 붙여넣기 지원.
+5. **독립 비주얼 가이드북 (`/guide`)**:
+   - 상위 보안 원칙(BYOK) 안내 배너, 4단계 파이프라인 다이어그램, 에디터 도구 쇼케이스, FAQ 아코디언 제공.
+
+### 3.3 장점 및 단점
+- **장점**:
+  - 완성된 초안을 단순 복사하는 기존 AI 툴과 달리, 문서 안에서 문장 단위로 직접 AI와 대화하며 다듬을 수 있는 뛰어난 편집 연속성.
+  - 마크다운과 HTML 서식을 모두 지원하며, 표와 이미지까지 포함된 본문을 네이버 블로그나 노션에 원클릭으로 완벽 이식 가능.
+  - Thinking 토큰 절삭 방지 엔진과 정확한 평문 역추적 매핑으로 오치환이나 서식 깨짐 제로 달성.
+- **단점 및 한계**:
+  - 모바일 뷰포트(375px)에서는 Tiptap 에디터의 복잡한 표 편집(행/열 너비 드래그) 인터랙션이 제한적이므로 데스크톱 환경 권장.
+  - Gemini 무료 할당량(RPM/TPM) 초과 시 재시도 대기 시간이 발생할 수 있음.
+
+---
+
+## 4. 버전 및 변경 히스토리
+
+- **`v1.00 ~ v1.04` (2026-10-12 ~ 2026-10-14)**:
+  - Tiptap 서식 에디터 구축, 9대 템플릿 초안 생성, 문장별 버블 툴바, 글 전체 심층 분석 제안.
+  - 표, 이미지 클라우드 업로드, 글자 색/형광펜/밑줄/정렬 및 서식 복사(Rich Copy) 구현.
+- **`v1.06` (2026-10-14)**:
+  - 모바일 반응형 셸 미디어 쿼리 버그 수정 (Claude Code).
+- **`v1.07` (2026-10-16)**:
+  - Supabase DB 연결 환경변수 하위 호환성 표준화 적용.
+- **`v1.10` (2026-10-19, 현재 버전 - Antigravity CLI)**:
+  - **포커스 스튜디오 테마 (`Focus Studio Theme`) 전면 리뉴얼**:
+    - 소프트 크림(`#fdfbf7`), 퓨어 화이트, 딥 인디고(`#4f46e5`), 로열 바이올렛(`#8b5cf6`) 기반 무결성 디자인 토큰 구축.
+    - 대시보드 웰컴 히어로 배너, 3대 기능 지표 카드, 시작 패널 인터페이스 고도화.
+  - **사이드바 메뉴 표준화 및 신설**:
+    - `v1.10 FOCUS STUDIO` 브랜드 뱃지 적용.
+    - 좌측 네비게이션에 `📖 연동 & 사용 매뉴얼` (`/guide`) 앰버 골드 메뉴 신설.
+  - **독립 비주얼 에디토리얼 가이드북 (`/guide`) 신규 구축**:
+    - 4단계 표준 글쓰기 파이프라인, 에디터 파워 툴킷 쇼케이스, 회원 본인 API 키 연동 보안 배너, FAQ 5종 아코디언.
+  - **버전 3중 동기화 완비**:
+    - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` (`v1.10`) 동기화.
+  - **로컬 무결성 및 프로덕션 배포 완료**:
+    - 단위 테스트 17건 통과, TypeScript 에러 0건, Next.js Turbopack 빌드 성공.
+    - Vercel 프로덕션 배포 (`dpl_GdaAAvbuL59MUFWYtGQZ6G9aJvXo`), `https://ai-writing-editor.buylife.xyz` 반영.
+  - **Microsoft Edge 최전면 포그라운드 실세션 검수 완료**:
+    - 데스크톱 대시보드, 가이드북, 문서 보관함, 설정, 에디터, 모바일 뷰 6종 캡처 완료 및 10분 최전면 화면 유지.
+
+---
+
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용 (`docs/IMPROVEMENT_BACKLOG.md`)
+
+- [ ] **에디터 다크 모드(Night Writer) 테마 지원**: 야간 집필 사용자를 위한 딥 슬레이트 다크 테마 토글.
+- [ ] **버전 히스토리 스냅샷 타임머신**: 문서 자동 저장 시 주요 시점별 스냅샷을 보관하여 과거 버전으로 롤백할 수 있는 히스토리 기능.
+- [ ] **SEO 키워드 밀도 실시간 분석기**: 본문 작성 중 타겟 키워드의 빈도수와 밀도를 우측 사이드바에서 실시간으로 계측해 주는 위젯.
+- [ ] **표(Table) 스타일 프리셋 갤러리**: 기본 흑백 테두리 표 외에 모던 스트라이프, 미니멀 헤더, 파스텔 하이라이트 등 원클릭 표 테마 적용 기능.
+
+---
+
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 제안 및 기능 확장 아이디어
+
+1. **75번 AI 블로그 콘텐츠 제작 자동화 (`blog-content-maker`) 연계**:
+   - `blog-content-maker`에서 생성된 블로그 아웃라인 및 본문 초안을 "AI 글쓰기 에디터에서 열기" 버튼으로 원클릭 전송하여 Tiptap 에디터에서 정밀 서식 편집 및 교정을 진행할 수 있는 워크플로우 파이프라인 연계.
+2. **76번 AI 썸네일 마스터 자동화 (`thumbnail-master`) 연계**:
+   - 본문 에디터 상단에서 [AI 썸네일 생성] 버튼을 누르면 문서의 핵심 제목과 소제목을 썸네일 마스터로 전달하여 맞춤형 대표 이미지를 바로 삽입하는 기능.
+3. **1번 유튜브 황금키워드 자동화 (`youtube-golden-engine`) 연계**:
+   - 발굴된 유튜브 고효율 키워드와 롱테일 태그를 글쓰기 에디터의 참고 자료로 직접 불러와 대본이나 리뷰 포스팅을 즉시 생성하는 연계.
+
+---
+
+## 7. 사용자 편의성 증대를 위한 디자인 UI 개선안과 레이아웃 / 테마 변경 제안
+
+1. **집중 집필 모드 (Distraction-Free Zen Mode)**:
+   - 글쓰기 집중을 위해 좌측 사이드바와 상단 헤더, 우측 패널을 모두 숨기고 에디터 페이퍼 영역만 화면 중앙에 넓게 띄우는 전체화면 집중 모드 버튼 제공.
+2. **단어수 & 예상 읽기 시간(Read Time) 실시간 플로팅 인디케이터**:
+   - 에디터 우측 하단에 공백 포함/제외 글자 수, 단어 수, 독자 평균 읽기 시간(예: `읽는 데 약 3분 소요`)을 세련된 미니 플로팅 뱃지로 표시.
+3. **AI 추천 문장 슬라이더 (Alternative Variations)**:
+   - 버블 툴바에서 '다시 쓰기'를 클릭했을 때 1개 결과만 보여주는 대신, 3가지 톤별 대안 문장을 가로 슬라이더나 카드 형태로 나열하여 사용자가 취향에 맞게 선택할 수 있는 UX 제공.

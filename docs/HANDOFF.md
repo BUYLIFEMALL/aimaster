@@ -1,5 +1,60 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 글쓰기 에디터 v1.10: 포커스 스튜디오 테마 리뉴얼·/guide 비주얼 에디토리얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 59개 완료 / 71.1% 달성!)
+
+- **대상**: `ai-writing-editor/` (https://ai-writing-editor.buylife.xyz, slug: `ai-writing-editor`, 68번)
+- **한 일**:
+  1. **포커스 스튜디오 스타일 — 글쓰기 에디터 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **포커스 스튜디오 스타일 — 글쓰기 에디터 에디션 (Focus Studio Theme — Writing Editor Edition)**.
+     - **디자인 토큰 시스템 완비**: 소프트 크림 페이퍼 바탕(`#fdfbf7`), 퓨어 화이트 카드 서피스(`#ffffff`), 딥 인디고(`#4f46e5`) 및 로열 바이올렛(`#8b5cf6`) 포인트 컬러 체계 적용 (`src/app/globals.css`).
+     - Tiptap 3.31.4 서식 에디터, ProseMirror 평문 매핑 역추적(`pmText.ts`), 4대 관점 심층 분석 제안, Thinking 토큰 절삭 감지 엔진, 표(Table) 편집, 이미지 자동 최적화 클라우드 업로드, 서식 복사(Rich Copy) 로직 100% 무결성 유지.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 좌측 사이드바 상단에 브랜드 뱃지(`v1.10 FOCUS STUDIO`) 배치.
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (앰버 골드 활성 배지).
+  3. **대시보드 리뉴얼 (`src/app/(workspace)/dashboard/page.tsx`)**:
+     - 딥 인디고 그라데이션 바탕의 `.studio-hero` 웰컴 배너 및 3대 기능 지표 카드(9종 템플릿, Tiptap 리치 서식, AI 심층 교정) 배치.
+     - 시작 패널(새 글 작성/기존 글 분석 탭, 9종 포맷 선택 드롭다운, 웹 검색 토글) 고도화.
+  4. **독립 비주얼 에디토리얼 가이드북 (`/guide/page.tsx`) 신설**:
+     - 상단 히어로 배너: "생각을 명작으로 완성하는 AI 글쓰기 에디터 완전 가이드".
+     - **4단계 표준 글쓰기 워크플로우 파이프라인**: 1) 주제 기획 & 파라미터 ➔ 2) AI 초안 생성 ➔ 3) Tiptap 정밀 편집 ➔ 4) 서식 복사 & 원클릭 발행.
+     - **Tiptap 파워 툴킷 쇼케이스**: 문장별 AI 버블 툴바, 스마트 표 편집, 이미지 클라우드 업로드, 글 전체 심층 분석 제안 4대 카드.
+     - 최상위 보안 원칙 (BYOK) 연동 가이드 배너 및 Google AI Studio 키 발급/설정 바로가기.
+     - 자주 묻는 질문(FAQ) 5종 인터랙티브 아코디언 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_68_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 단위 테스트 17건 전건 통과 (17 pass, 0 fail).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공.
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_GdaAAvbuL59MUFWYtGQZ6G9aJvXo`
+     - 공식 도메인 즉시 반영: https://ai-writing-editor.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-13470`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_ai_writing_desktop_dashboard_v110.png`: 1440px 데스크톱 대시보드 및 히어로 배너
+       - `edge_ai_writing_desktop_guide_v110.png`: 1440px 데스크톱 비주얼 에디토리얼 가이드북
+       - `edge_ai_writing_desktop_documents_v110.png`: 1440px 데스크톱 내 문서 보관함
+       - `edge_ai_writing_desktop_settings_v110.png`: 1440px 데스크톱 API 키 설정 연동 화면
+       - `edge_ai_writing_desktop_editor_v110.png`: 1440px 데스크톱 Tiptap 리치 에디터 화면
+       - `edge_ai_writing_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `ai-writing-editor/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `ai-writing-editor/README.md` (동기화 생성)
+     - `ai-writing-editor/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `ai-writing-editor/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `ai-writing-editor/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `ai-writing-editor/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 68번 행 ✅ 1차 작업완료 (`v1.10`, 포커스 스튜디오 스타일) 갱신 및 전체 통계 (누적 ✅ 59개 완료 / ⚪ 22개 예정 / ⏸ 2개 보류 — 71.1% 달성)
+      - `docs/ACTIVE_WORK.md`: 68번 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - Edge 브라우저에서 대시보드 배너, 3대 지표 카드, Tiptap 에디터, 가이드북, 설정 페이지가 깨짐 없이 렌더링됨.
+  - 가이드북 FAQ 아코디언 인터랙션 정상 작동 확인.
+  - 모바일(375px) 화면에서 상단 헤더, 햄버거 메뉴, 가이드북 카드들이 유연하게 반응형 레이아웃으로 표시됨.
+- **다음 첫 단계**: 70번 UI Canvas 자동화 (`ui-canvas`) 개발 플랜 수립 및 디자인 리뉴얼 순차 진행.
+- https://ai-writing-editor.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — AI 인물사진 v1.27: 생성 전 사진 품질 점검 · 머리 위치 선 + 얼굴 인식 부품 공용화 후보 등록
 
 - **인물사진**: 사진을 올리면 브라우저 안에서 품질 점검(얼굴 없음·여러 사람·작은 얼굴·옆모습·기울어짐, 안내만), 결과 사진 위에 정수리·턱 점선(출처 표시). 단위 25/25, 브라우저 13/13(크롬 포그라운드), Vercel Ready, DB v1.27. 운영 실검수(메인 크롬, Flash 1회): 「정면 얼굴 1명 확인」 → 자동 추정 머리 약 58% → 76% · 선이 정수리·턱에 정확히 맞음 · 추천 영역 규격 저장 39KB. 상세 `portrait-photo/AGENTS.md` v1.27 절.

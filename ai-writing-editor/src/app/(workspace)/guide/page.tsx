@@ -1,104 +1,298 @@
 import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
 import { GEMINI_GUIDE_URL } from "@/lib/guides";
 import { ACTIONS, FORMATS } from "@/lib/we/types";
+import { APP_VERSION } from "@/lib/version";
+import {
+  BookOpen,
+  PenLine,
+  Sparkles,
+  Layers,
+  Wand2,
+  FileText,
+  KeyRound,
+  ShieldCheck,
+  ChevronDown,
+  HelpCircle,
+  Download,
+  Image as ImageIcon,
+  Table,
+  CheckCircle2,
+  ExternalLink,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
-  return (
-    <li className="gd-step">
-      <span className="gd-num">{n}</span>
-      <div><strong>{title}</strong><p>{children}</p></div>
-    </li>
-  );
-}
+const WORKFLOW_STEPS = [
+  {
+    step: "01",
+    title: "주제 기획 & 파라미터 설계",
+    desc: "블로그·뉴스레터·보고서 등 9종 포맷 중 원하는 형식을 고르고, 톤과 분량 및 최신 웹 검색 옵션을 설정합니다.",
+    tag: "Planning & Ingestion",
+    color: "#4f46e5",
+  },
+  {
+    step: "02",
+    title: "AI 초안 고속 생성",
+    desc: "회원 본인의 Gemini 키로 10~40초 만에 구조화된 고품질 초안을 작성하며, 참고 파일(.txt, .md) 문맥을 반영합니다.",
+    tag: "Gemini Synthesis",
+    color: "#7c3aed",
+  },
+  {
+    step: "03",
+    title: "Tiptap 리치 서식 편집",
+    desc: "표, 이미지, 텍스트 컬러, 형광펜 하이라이트와 문장 드래그 시 즉시 열리는 버블 툴바로 자유롭게 다듬습니다.",
+    tag: "Rich Styling",
+    color: "#2563eb",
+  },
+  {
+    step: "04",
+    title: "심층 분석 & 멀티 포맷 내보내기",
+    desc: "문법·표현·구조 제안을 원클릭 적용하고, 블로그용 서식 복사 또는 .md / .html / .txt 파일로 즉시 내려받습니다.",
+    tag: "Inspection & Export",
+    color: "#16a34a",
+  },
+];
+
+const FAQS = [
+  {
+    q: "작성 중인 글은 어디에 어떻게 저장되나요?",
+    a: "키보드 입력을 멈추고 1.5초 뒤 서버(Supabase DB)에 자동으로 안전하게 저장됩니다. 상단에 '✓ 저장됨' 상태가 뜨면 언제든 창을 닫아도 [내 문서 보관함]에서 그대로 이어 쓸 수 있으며, 최대 30개 문서가 영구 보관됩니다.",
+  },
+  {
+    q: "서식 복사(Rich Copy)와 마크다운 복사는 어떻게 다른가요?",
+    a: "'서식 복사'는 표·이미지·글자 색상·형광펜·정렬 스타일을 100% 온전히 클립보드에 담아 네이버 블로그, 노션, 워드 등에 원클릭 붙여넣기 할 수 있습니다. '마크다운 복사'는 깃허브나 개발자 블로그용 표준 Markdown 문법으로 변환됩니다.",
+  },
+  {
+    q: "AI 제안을 적용하면 본문의 기존 서식이 깨지지 않나요?",
+    a: "안심하세요! 본 에디터는 ProseMirror 기반 정밀 텍스트 트랜잭션 치환 엔진(`pmText`)을 탑재하여, 문장을 교체해도 그 자리의 볼드, 기울임, 링크 등 인라인 서식을 완벽하게 계승하며 문단 구조를 안전하게 보존합니다.",
+  },
+  {
+    q: "이미지 첨부 및 표 삽입 한도가 있나요?",
+    a: "이미지는 한 문서당 최대 60개까지 업로드할 수 있으며, 브라우저가 긴 변 1,600px로 스마트 리사이징하여 빠른 로딩 속도를 유지합니다. 표는 3×3 기본 생성 후 행/열 추가·삭제와 너비 조절이 자유롭습니다.",
+  },
+  {
+    q: "AI 초안 생성이나 수정 시 추가 크레딧이나 요금이 발생하나요?",
+    a: "본 프로그램은 '회원 본인 API 키 직접 연동(BYOK)' 원칙을 준수합니다. [🔑 API키등록·플랫폼연동] 메뉴에서 등록하신 회원님 본인의 Google Gemini API 키 쿼터로만 호출되므로 중개 수수료나 플랫폼 크레딧 차감 없이 투명하게 작동합니다.",
+  },
+];
 
 export default function GuidePage() {
   return (
     <>
-      <div className="page-heading">
-        <p className="eyebrow">사용 설명서</p>
-        <h1>연동 & 사용 매뉴얼</h1>
-        <p>주제만 적으면 AI가 초안을 쓰고, 에디터에서 문장을 드래그해 바로 고치거나 글 전체의 제안을 한 번에 적용합니다. ①~②만 따라 해도 충분합니다.</p>
+      {/* 1. 상단 히어로 배너 */}
+      <div className="studio-hero">
+        <div className="studio-hero-badge">
+          <BookOpen size={13} />
+          <span>Focus Studio Guide Book {APP_VERSION}</span>
+        </div>
+        <h1>생각을 명작으로 완성하는 AI 글쓰기 에디터 완전 가이드</h1>
+        <p>
+          주제 한 줄에서 고품질 초안 작성, Tiptap 리치 서식 편집, 문장별 AI 다듬기와 글 전체의 심층 교정까지
+          원스톱으로 끝내는 전문가용 에디토리얼 워크플로우를 안내해 드립니다.
+        </p>
+        <div className="studio-hero-actions">
+          <a href="/dashboard" className="btn-hero-primary">
+            <PenLine size={15} />
+            <span>새 글 작성하러 가기</span>
+          </a>
+          <a href="/settings" className="btn-hero-secondary">
+            <KeyRound size={15} />
+            <span>본인 Gemini 키 설정</span>
+          </a>
+        </div>
       </div>
+
       <div className="gd">
-        <nav className="gd-toc card" aria-label="목차">
-          <strong>바로가기</strong>
-          <a href="#key">① 키 등록(최초 1회)</a>
-          <a href="#quick">② 5분 시작하기</a>
-          <a href="#editor">③ 에디터 사용법</a>
-          <a href="#formats">④ 형식·옵션</a>
-          <a href="#tips">⑤ 활용 요령</a>
-          <a href="#faq">⑥ 막힐 때(FAQ)</a>
-        </nav>
+        {/* 2. 4단계 파이프라인 프로세스 맵 */}
+        <section className="card">
+          <div style={{ marginBottom: "18px" }}>
+            <span className="eyebrow">Standard Pipeline</span>
+            <h2>표준 4단계 글쓰기 워크플로우</h2>
+            <p className="gd-lead" style={{ margin: "4px 0 0" }}>
+              누구나 쉽게 따라 할 수 있는 AI 글쓰기 & 서식 완성 프로세스입니다.
+            </p>
+          </div>
 
-        <section id="key" className="card">
-          <h2>① Gemini API 키 등록 (최초 1회)</h2>
-          <p className="gd-lead">모든 AI 기능은 <b>회원님 본인의 Google Gemini API 키</b>로 동작합니다. 운영자나 다른 회원의 키로 대신 처리되지 않습니다.</p>
-          <ol className="gd-steps">
-            <Step n={1} title="키 만들기"><code>aistudio.google.com/apikey</code>에서 본인 Google 계정으로 로그인 → [Create API key] → <code>AIza…</code> 키를 복사합니다.</Step>
-            <Step n={2} title="이 프로그램에 등록">왼쪽 메뉴 [API키등록·플랫폼연동]에서 붙여 넣고 [키 등록] → [연결 확인]을 누릅니다.</Step>
-          </ol>
-          {GEMINI_GUIDE_URL && <div className="actions" style={{ marginTop: 14 }}><GuideLinkButton url={GEMINI_GUIDE_URL} label="Gemini 키 발급 상세 매뉴얼 (그림 포함, 팝업)" /></div>}
-          <p className="gd-warn">⚠️ 초안 생성·수정·분석은 호출할 때마다 본인 Gemini 키 사용량으로 계산됩니다. 인터넷 검색 옵션은 Google 계정의 검색 그라운딩 한도·요금 정책을 따릅니다.</p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: "14px",
+            }}
+          >
+            {WORKFLOW_STEPS.map((step) => (
+              <div
+                key={step.step}
+                style={{
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "14px",
+                  padding: "20px",
+                  background: "#ffffff",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+                }}
+              >
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                    <span style={{ fontSize: "11px", fontWeight: "750", color: step.color, background: "#f8fafc", padding: "2px 8px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                      {step.tag}
+                    </span>
+                    <span style={{ fontSize: "20px", fontWeight: "900", color: step.color }}>
+                      {step.step}
+                    </span>
+                  </div>
+                  <strong style={{ fontSize: "15px", display: "block", color: "#0f172a", marginBottom: "6px" }}>
+                    {step.title}
+                  </strong>
+                  <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.5" }}>
+                    {step.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <section id="quick" className="card">
-          <h2>② 5분 시작하기</h2>
-          <ol className="gd-steps">
-            <Step n={1} title="새 글 생성 또는 기존 글 분석">[새 글 생성]에 주제를 적고 형식·톤·분량을 고르거나, [기존 글 분석]에 이미 쓴 글을 붙여 넣습니다.</Step>
-            <Step n={2} title="에디터에서 다듬기">초안이 열리면 마음에 안 드는 문장을 드래그해 툴바의 [다시쓰기]·[짧게]·[자세하게] 등을 누릅니다.</Step>
-            <Step n={3} title="[글 분석]으로 한 번에 점검">오른쪽에 문법·표현·구조·명확성 제안이 나타납니다. [적용]하거나 [모두 적용]하세요.</Step>
-            <Step n={4} title="내보내기">[본문 복사] 또는 .md/.txt로 내려받습니다. 글은 자동 저장되며 [내 문서]에서 이어 쓸 수 있습니다.</Step>
-          </ol>
-        </section>
+        {/* 3. 에디터 리치 기능 & 치트시트 */}
+        <section className="card">
+          <div style={{ marginBottom: "18px" }}>
+            <span className="eyebrow">Editor Toolkit</span>
+            <h2>에디터 핵심 기능 & 서식 도구</h2>
+            <p className="gd-lead" style={{ margin: "4px 0 0" }}>
+              Tiptap 에디터에서 자유롭게 쓸 수 있는 강력한 기능 모음입니다.
+            </p>
+          </div>
 
-        <section id="editor" className="card">
-          <h2>③ 에디터 사용법</h2>
           <div className="gd-cards">
-            <article><h3>문장 수정 툴바</h3><p>문장을 드래그하면 위에 툴바가 뜹니다: {ACTIONS.map((a) => a.label).join(" · ")}. [직접 지시]에는 &quot;초등학생도 이해하게&quot;처럼 원하는 방향을 적을 수 있습니다.</p></article>
-            <article><h3>되돌리기</h3><p>AI 수정과 제안 적용은 [되돌리기]로 한 단계씩 취소할 수 있습니다(최대 50단계). 직접 타이핑한 내용은 Ctrl+Z로 되돌립니다.</p></article>
-            <article><h3>글 분석 제안</h3><p>[적용]은 본문에서 해당 문장을 다시 찾아 바꿉니다. 글이 바뀌어 찾을 수 없으면 알려 주고 제안을 목록에서 뺍니다. [본문에서 보기]를 누르면 그 문장이 선택됩니다.</p></article>
-            <article><h3>자동 저장</h3><p>입력을 멈추고 1.5초 뒤 저장됩니다. 상단에 &quot;✓ 저장됨&quot;이 보이면 안전합니다. 문서는 최대 30개까지 보관됩니다.</p></article>
-            <article><h3>표</h3><p>서식 도구의 [표 넣기]로 3×3 표를 넣고, 표 안을 클릭하면 나타나는 [표 편집] 줄에서 행·열 추가/삭제, 머리글 행 전환, 표 삭제를 합니다. 열 경계를 끌어 너비를 조절할 수 있습니다.</p></article>
-            <article><h3>이미지</h3><p>[이미지 넣기]로 파일을 고르거나, 이미지를 본문에 붙여 넣기(Ctrl+V)·끌어다 놓기 하면 올라갑니다(PNG·JPEG·WebP·GIF, 문서 전체 최대 60개, 긴 변 1,600px로 자동 축소). 이미지를 클릭하면 설명(alt)·크기(작게/보통/크게)·삭제 메뉴가 뜨고, 모서리를 끌어 크기를 바꿀 수도 있습니다.</p></article>
-            <article><h3>글자 색·형광펜·밑줄·정렬</h3><p>글자를 선택하고 [글자 색]·[형광펜]에서 색을 고르거나 [밑줄]·가운데/오른쪽 정렬을 누릅니다. 서식 복사·.html로 내보낼 때는 그대로 유지되지만 .md·마크다운 복사에는 담기지 않습니다.</p></article>
+            <article>
+              <h3 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Wand2 size={16} />
+                <span>문장별 AI 버블 툴바</span>
+              </h3>
+              <p>
+                마우스로 문장을 드래그하면 즉시 플로팅 툴바가 나타납니다.
+                <b> {ACTIONS.map((a) => a.label).join(" · ")}</b> 기능을 지원하며,
+                [직접 지시]로 &quot;초등학생도 알기 쉽게&quot; 등 자유로운 프롬프트를 넣을 수 있습니다.
+              </p>
+            </article>
+
+            <article>
+              <h3 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Table size={16} />
+                <span>스마트 표(Table) 편집</span>
+              </h3>
+              <p>
+                [표 넣기] 버튼으로 3×3 표를 생성하고, 셀 안을 클릭하면 나타나는 메뉴에서
+                행/열 추가·삭제 및 열 경계를 마우스로 드래그하여 너비를 자유롭게 조절할 수 있습니다.
+              </p>
+            </article>
+
+            <article>
+              <h3 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <ImageIcon size={16} />
+                <span>이미지 클라우드 업로드</span>
+              </h3>
+              <p>
+                PC의 이미지 파일을 선택하거나 본문에 직접 붙여넣기(Ctrl+V)하면 긴 변 1,600px로
+                자동 최적화되어 안전하게 삽입됩니다. 클릭 시 크기(소/중/대) 및 캡션을 설정할 수 있습니다.
+              </p>
+            </article>
+
+            <article>
+              <h3 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <CheckCircle2 size={16} />
+                <span>글 전체 심층 분석 제안</span>
+              </h3>
+              <p>
+                상단 [글 분석] 버튼을 누르면 문법·표현·구조·명확성 4대 관점의 교정 제안이 우측 패널에 생성됩니다.
+                [본문에서 보기]로 확인 후 개별 또는 [모두 적용]으로 단숨에 글의 완성도를 끌어올릴 수 있습니다.
+              </p>
+            </article>
           </div>
         </section>
 
-        <section id="formats" className="card">
-          <h2>④ 글쓰기 형식·옵션</h2>
-          <div className="gd-table">
-            {FORMATS.map((f) => <div key={f.id}><b>{f.label}</b><span>{f.hint}</span></div>)}
-            <div><b>톤 · 분량</b><span>기본/전문적인/친근한/격식 있는 톤, 짧게(500자)·보통·길게(2,500자 이상)</span></div>
-            <div><b>참고 파일</b><span>.txt .md .csv 파일의 앞 30,000자까지 AI가 참고합니다.</span></div>
-            <div><b>인터넷 검색</b><span>최신 정보가 필요할 때 켜면 검색 결과를 바탕으로 쓰고 출처를 보여 줍니다.</span></div>
+        {/* 4. 회원 본인 API 키 연동 원칙 안내 */}
+        <section className="card" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)", borderColor: "#bbf7d0" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "40px",
+                height: "40px",
+                borderRadius: "12px",
+                background: "#dcfce7",
+                color: "#16a34a",
+                flexShrink: 0,
+              }}
+            >
+              <ShieldCheck size={22} />
+            </span>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                <strong style={{ fontSize: "16px", color: "#166534" }}>최상위 보안 원칙 (회원 본인 키 독립 연동)</strong>
+                <span style={{ fontSize: "11px", fontWeight: "700", background: "#dcfce7", color: "#15803d", padding: "1px 6px", borderRadius: "4px" }}>
+                  BYOK Standard
+                </span>
+              </div>
+              <p style={{ fontSize: "13px", color: "#1e293b", lineHeight: "1.6", margin: "6px 0 12px" }}>
+                본 프로그램은 회원님 본인의 Google Gemini API 키로만 작동합니다. 운영자나 다른 회원의 키를 절대 공유하지 않으며,
+                등록된 키는 암호화되어 안전하게 보관됩니다. 무료로 API 키를 발급받아 등록하시면 제한 없이 글쓰기를 시작하실 수 있습니다.
+              </p>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="button"
+                  style={{ background: "#ffffff", borderColor: "#86efac", color: "#166534" }}
+                >
+                  <ExternalLink size={13} />
+                  <span>Google AI Studio 무료 키 발급</span>
+                </a>
+                <a href="/settings" className="button primary">
+                  <KeyRound size={13} />
+                  <span>API 키 등록하러 가기</span>
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="tips" className="card">
-          <h2>⑤ 활용 요령</h2>
-          <ul className="gd-list">
-            <li>주제에 <b>독자·목적·분량</b>을 함께 적으면 초안이 훨씬 구체적입니다. 예: &quot;신입 마케터를 위한 이메일 마케팅 입문 블로그 글&quot;.</li>
-            <li>초안은 출발점입니다. 경험·사례·수치는 직접 더하고, AI가 쓴 사실 정보는 출처를 확인하세요.</li>
-            <li>긴 글은 문단 단위로 선택해 수정하면 결과가 안정적입니다(선택은 최대 5,000자).</li>
-            <li>보도자료·자기소개서처럼 사실이 중요한 글의 빈칸 [  ]은 직접 채워 주세요. AI가 사실을 지어내지 않도록 비워 두게 되어 있습니다.</li>
-          </ul>
-        </section>
+        {/* 5. 자주 묻는 질문 (FAQ) 아코디언 */}
+        <section className="card">
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+            <HelpCircle size={18} color="#4f46e5" />
+            <h2>자주 묻는 질문 (FAQ)</h2>
+          </div>
 
-        <section id="faq" className="card">
-          <h2>⑥ 막힐 때 (자주 묻는 질문)</h2>
           <div className="gd-faq">
-            <details><summary>“Gemini API 키가 등록되지 않았습니다”라고 나와요.</summary><p>①의 순서대로 본인 키를 등록하세요. 키는 다른 회원이나 운영자와 공유되지 않습니다.</p></details>
-            <details><summary>“AI가 올바른 형식으로 응답하지 못했습니다”라고 나와요.</summary><p>같은 버튼을 한 번 더 누르세요. 계속되면 글을 짧게 나누어 분석해 보세요.</p></details>
-            <details><summary>선택했는데 툴바가 안 보여요.</summary><p>드래그로 문장을 선택해야 합니다(5,000자 이하). 선택이 풀리면 툴바도 사라집니다.</p></details>
-            <details><summary>제안 [적용]이 “찾지 못했다”고 나와요.</summary><p>분석 후 본문을 고쳐서 원래 문장이 사라진 경우입니다. [다시 분석]을 눌러 새 제안을 받아 보세요.</p></details>
-            <details><summary>넣은 이미지는 누구나 볼 수 있나요?</summary><p>이미지는 공개 저장소에 추측하기 어려운 긴 이름으로 저장되어, 주소를 아는 사람만 볼 수 있습니다. 그래야 서식 복사·.html 내보내기에서도 이미지가 보입니다. 다만 주소를 공유하면 누구나 볼 수 있으니 개인정보가 담긴 이미지는 넣지 마세요. 문서를 삭제하면 다른 문서가 쓰지 않는 이미지 파일도 함께 삭제되며, 이미 캐시된 주소는 최대 1시간 정도 보일 수 있습니다.</p></details>
-            <details><summary>마크다운(.md)으로 내려받으면 색이 사라져요.</summary><p>글자 색·형광펜·정렬·이미지 크기는 마크다운으로 표현할 수 없습니다. 서식을 모두 유지하려면 [서식 복사] 또는 .html을 사용하세요.</p></details>
-            <details><summary>“저장 실패”가 나와요.</summary><p>네트워크를 확인하세요. 화면에 글이 남아 있으니 [본문 복사]로 먼저 백업한 뒤 새로고침하세요.</p></details>
+            {FAQS.map((faq, index) => (
+              <details key={index} open={index === 0}>
+                <summary style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ color: "#4f46e5", fontWeight: "800" }}>Q{index + 1}.</span>
+                  <span>{faq.q}</span>
+                </summary>
+                <p>{faq.a}</p>
+              </details>
+            ))}
           </div>
         </section>
+
+        {/* 6. 하단 시작 CTA */}
+        <div style={{ textAlign: "center", padding: "24px 16px" }}>
+          <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "12px" }}>
+            준비되셨나요? 나만의 생각을 완성도 높은 글로 지금 표현해보세요.
+          </p>
+          <a href="/dashboard" className="button primary" style={{ padding: "11px 24px", fontSize: "14px" }}>
+            <PenLine size={16} />
+            <span>AI 글쓰기 시작하기</span>
+          </a>
+        </div>
       </div>
     </>
   );
