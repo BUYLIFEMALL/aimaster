@@ -1,5 +1,56 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — 감성 글귀 이미지 v1.15: 포커스 스튜디오 웜 크림 테마 리뉴얼·375px 모바일 슬림헤더&드로어·비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 50개 완료 돌파 달성!)
+
+- **대상**: `emotion-writer/` (https://emotion-writer.buylife.xyz, slug: `emotion-writer`, 19번)
+- **한 일**:
+  1. **포커스 스튜디오 스타일 — 감성 캘리그라피 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **포커스 스튜디오 스타일 — 감성 캘리그라피 에디션 (Focus Studio Style — Emotion Calligraphy Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(스튜디오 홈, 비주얼 가이드, API 키 설정, 로그인) 배경을 소프트 크림(`#fdfbf7`), 웜 페이퍼 서피스 카드(`bg-white border-[#e7ded0] shadow-sm`), 딥 로즈/코랄 그라디언트 CTA 버튼(`from-[#be185d] via-[#e11d48] to-[#f43f5e]`), 웜 베이지 스크롤바로 완벽 일체화.
+  2. **375px 모바일 반응형 내비게이션 완비 (Sidebar.tsx & layout.tsx)**:
+     - 375px 모바일 뷰포트 최적화 56px 상단 슬림 웜 크림 헤더(`h-14 bg-[#fdfbf7]/95 backdrop-blur-md border-b border-[#e7ded0]`, 로고 + 프로그램명 + 버전 배지 + ☰ 햄버거 버튼).
+     - ☰ 버튼 클릭 시 좌측 슬라이딩 오버레이 드로어(Drawer) 및 웜 페이퍼 내비게이션 전개, 메뉴 터치 시 자동 닫힘, 가로 스크롤 넘침(`overflow-x-hidden`) 0px 완벽 방어.
+  3. **좌측 사이드바 6단계 워크플로우 칩 정돈 및 메뉴 신설**:
+     - 6단계 워크플로우 칩(`1.감성분석` ~ `6.내보내기`) 시각화.
+     - 좌측 사이드바에 **`📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 신설** (`DESIGN.md` 9번 원칙 충족).
+  4. **비주얼 연동 & 사용 매뉴얼 (/guide) 전면 신설**:
+     - 웜 그라디언트 오라 히어로 배너 (`v1.15 WARM PAPER`).
+     - **5단계 감성 캘리그라피 파이프라인 비주얼 카드** (1. 감성 분석 ➔ 2. 문구 정제 ➔ 3. 배경 합성 ➔ 4. 캘리그라피 ➔ 5. 인스타/쇼츠 발행).
+     - 서체 매칭 팁 (나눔손글씨, 마루부리, Pretendard 활용법).
+     - Unsplash 무료 이미지 vs Nano Banana AI 생성 배경 선택 가이드.
+     - 100% 온디바이스 로컬 Canvas 렌더링 개인정보 보안 안내.
+     - 초보 창작자 자주 묻는 질문(FAQ 5종 아코디언 컴포넌트) 수록.
+  5. **2-Tab 표준 로그인 화면 리뉴얼 (`/login`)**:
+     - 소프트 웜 크림 배경 + 화이트 페이퍼 카드.
+     - [로그인] / [회원가입] 2-Tab 표준 전환 구조 및 구글/카카오 소셜 로그인 연동 테마 통일.
+  6. **버전 동기화 (v1.15)**:
+     - `src/lib/version.ts`, `package.json` `v1.15` 갱신.
+     - Supabase DB `programs.version`을 `v1.15`로 업데이트 완료 (`slug: emotion-writer`).
+  7. **로컬 빌드 및 무결성 검증**:
+     - `npm test`: 20개 단위 테스트 케이스 100% 통과 (20.5s).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공 (Compiled in 5.1s).
+  8. **Vercel 프로덕션 배포 완료**:
+     - Vercel 프로덕션 배포 완료 (`dpl_5T95hAjGAit5E1WEJuYCUjufhqVB`), 프로덕션 도메인 https://emotion-writer.buylife.xyz 즉시 반영.
+  9. **Microsoft Edge 포그라운드 실세션 검수 (headless: false)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 검수 완료.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_emotion_writer_desktop_studio_v115.png`: 1440px 데스크톱 스튜디오 홈
+       - `edge_emotion_writer_desktop_guide_v115.png`: 1440px 데스크톱 비주얼 가이드북
+       - `edge_emotion_writer_desktop_settings_v115.png`: 1440px 데스크톱 API 키 설정
+       - `edge_emotion_writer_mobile_studio_v115.png`: 375px 모바일 스튜디오 및 56px 상단 슬림 헤더
+       - `edge_emotion_writer_mobile_drawer_v115.png`: 375px 모바일 슬라이딩 드로어 메뉴
+       - `edge_emotion_writer_mobile_guide_v115.png`: 375px 모바일 비주얼 가이드북
+  10. **인수인계 문서 6종 완비**:
+      - `emotion-writer/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+      - `emotion-writer/README.md` (동기화)
+      - `emotion-writer/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+      - `emotion-writer/docs/IMPROVEMENTS.md` (개선 제안서: 필수 3대 항목 + 타 프로그램 탐색 제안)
+      - `emotion-writer/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+      - `emotion-writer/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+
+https://emotion-writer.buylife.xyz
+
 ## 2026-10-18 Claude Code(윈도우) — AI 인물사진 자동화 v1.22: 디자인 리뉴얼 「크리에이티브 아틀리에 — 포토 스튜디오 그래파이트 변형」 (✅ 1차 작업완료, 79번)
 
 - **대상**: `portrait-photo/` (https://portrait-photo.buylife.xyz)
