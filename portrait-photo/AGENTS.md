@@ -111,11 +111,19 @@
 - **검수**: tsc 0, `npm test` 21/21(새 테스트 「규격 저장 추천 영역」 — 작음·범위 안·큼·없음 4경우), 빌드, Vercel 프로덕션(같은 날 두 번째 — 주인님 지시), DB v1.23, 크롬 버전·매뉴얼 문구·스튜디오 오류 없음 확인. 생성 사진으로 저장하는 실제 흐름은 비용 때문에 별도 확인(`docs/IMPROVEMENT_HANDOFF_20261018.md`).
 - 플랜: `docs/PLAN_20261018_SIZED_SAVE_RECOMMEND.md`.
 
+## 2026-10-18 v1.24 — 일괄 저장 통일 · 머리 검사 안내 강조 · 프로필 세트 (Claude Code 윈도우, **10-19 배포 예정**)
+- **일괄 통일**: `decideBatchCrop`이 내부에서 `recommendSizedCrop`을 써 단일 [규격 저장]과 같은 판정(범위 안 → 얼굴 가운데, 큼 → 위치만). `centerOk` 인자·[범위 안 사진도 얼굴을 가로 중앙에 맞춤] 체크박스 삭제(기본 동작). `saveSizedBatch`: 지정 영역 → 없으면 `measures` 추천 영역 → 가운데. 보고 「큼」 문구 갱신, `autoCropBatch`는 `describeBatchDecision` 한 곳으로.
+- **안내 강조**: 머리 기준이 있는 규격인데 현재 사진 측정값이 없으면 저장 줄 위에 안내 + [머리 비율 검사]·[얼굴 위치 직접 지정 (무료)](`gotoCrop(active, true)`)를 `primary`로.
+- **프로필 세트**: `post.ts` `PROFILE_FORMATS`(1:1 1080·4:5 1080×1350·원형 1080)·`PROFILE_HEAD_RATIO` 0.42·`profileCrop`, `canvas.ts` `renderProfile`(원형은 바깥 투명 PNG), `Studio.tsx` `saveProfileSet` → ZIP. AI 호출·서버 저장 없음.
+- **정정**: v1.23 보고의 "AI 이미지 자동화 프로필 크롭으로 넘기기"는 ai-image-studio에 그런 기능이 없어 인물사진 안의 프로필 세트로 대체(대안 B는 백로그).
+- **검수**: tsc 0, `npm test` 22/22(기존 `decideBatchCrop` 테스트는 기대값만 새 동작으로 수정 + 「프로필 세트 구도」 추가), 빌드. 배포·DB·크롬은 10-19(같은 날 같은 프로그램 3번째 배포를 피함).
+- 플랜: `docs/PLAN_20261018_V124_BATCH_HINT_PROFILE.md`.
+
 ## 7대 핵심 항목 (2026-10-18 정리)
 1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
 2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.
 3. **핵심 기능·구조·장단점**: 목적 프리셋 5종 + 조명·카메라·배경·포즈·복장·피부·필름·보정 4종, 후보 1~4장·격자/확대 비교, 원본 비교 슬라이더, 규격 21종 저장·머리 비율 검사·자르기 영역 조정·얼굴 위치 직접 지정, 일괄 6장·ZIP. 장점: 원본 서버 미저장·본인 키·공식 출처로 확인한 규격. 단점: 머리 비율을 모델이 잘 못 따름(50~56%), `Studio.tsx` 한 파일이 큼(890줄), 안 쓰는 CSS 잔존, 실제 휴대폰 터치 미검수.
-4. **버전**: v1.23(운영). 이력은 위 각 절.
+4. **버전**: 코드 v1.24(10-19 배포 예정) / 운영 v1.23. 이력은 위 각 절.
 5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
 6. **연계·아이디어**: 결과 사진을 AI 이미지 자동화 배경 교체·명함/이력서 프로그램으로 넘기기 등 — `docs/IMPROVEMENTS.md` 3절.
 7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 무대 배경 밝기 전환(흰/회색/검정), 라이트 테마 토글 — `docs/IMPROVEMENTS.md` 2절.

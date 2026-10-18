@@ -422,14 +422,14 @@ test("일괄 자동 판정·아일랜드 규격", async () => {
   assert.equal(small.status, "small");
   assert.ok(small.crop && small.achieved > 0.7 && small.achieved < 0.82);
   assert.ok(small.ratio < 0.45);
-  // 범위 안 → 영역 없음
+  // 범위 안 → (v1.24) 단일 저장과 같이 기본 크기 그대로 얼굴만 가로 가운데 영역
   const ok = decideBatchCrop({ found: true, crownY: 0.02, chinY: 0.7, centerX: 0.5 }, preset, W, H);
   assert.equal(ok.status, "ok");
-  assert.equal(ok.crop, undefined);
-  // 크게 → 영역 없음
+  assert.ok(ok.crop, "범위 안도 가운데 맞춤 영역");
+  // 크게 → (v1.24) 원본 한계라 비율은 못 낮추고 위치만 맞춘 영역(clamped)
   const large = decideBatchCrop({ found: true, crownY: 0.01, chinY: 0.97, centerX: 0.5 }, preset, W, H);
   assert.equal(large.status, "large");
-  assert.equal(large.crop, undefined);
+  assert.ok(large.crop && large.clamped, "큼은 위치만 맞춤");
   // 얼굴 못 찾음·검사 실패·범위 없는 규격
   assert.equal(decideBatchCrop({ found: false, crownY: 0, chinY: 0 }, preset, W, H).status, "notfound");
   assert.equal(decideBatchCrop(null, preset, W, H).status, "notfound");
@@ -460,14 +460,13 @@ test("얼굴 중앙 맞춤 옵션·호주 규격", async () => {
 
   const kr = sizePresetById("passport");
   const m = { found: true, crownY: 0.02, chinY: 0.78, centerX: 0.3 };
-  const off = decideBatchCrop(m, kr, 1000, 1000, false);
-  assert.equal(off.crop, undefined, "옵션 끄면 범위 안은 영역 없음");
-  const on = decideBatchCrop(m, kr, 1000, 1000, true);
-  assert.ok(on.crop, "옵션 켜면 중앙 맞춤 영역");
-  assert.equal(on.status, off.status, "판정 상태는 같다");
+  // v1.24: 옵션 체크박스 없이 범위 안은 항상 얼굴 가운데 맞춤(centerFaceCrop과 같은 영역)
+  const on = decideBatchCrop(m, kr, 1000, 1000);
+  assert.ok(on.crop, "범위 안도 중앙 맞춤 영역");
   assert.equal(on.status, "ok");
-  // 작은 머리는 옵션과 상관없이 확대 자르기
-  const small = decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.5, centerX: 0.5 }, kr, 1000, 1000, true);
+  assert.deepEqual(on.crop, centerFaceCrop(0.3, 1000, 1000, kr), "단일 저장과 같은 영역");
+  // 작은 머리는 확대 자르기
+  const small = decideBatchCrop({ found: true, crownY: 0.2, chinY: 0.5, centerX: 0.5 }, kr, 1000, 1000);
   assert.equal(small.status, "small");
   assert.ok(small.achieved > 0.7);
 });
@@ -565,4 +564,24 @@ test("규격 저장 추천 영역(recommendSizedCrop)", async () => {
   assert.equal(recommendSizedCrop(null, tw, W, H).mode, "none");
   assert.equal(recommendSizedCrop({ crownY: 0.2, chinY: 0.56 }, { width: 413, height: 531 }, W, H).mode, "none");
   assert.equal(recommendSizedCrop({ crownY: 0.5, chinY: 0.4 }, tw, W, H).mode, "none");
+});
+
+test("프로필 세트 구도(profileCrop)", async () => {
+  const { profileCrop, PROFILE_FORMATS, PROFILE_HEAD_RATIO, coverCrop } = await import("../src/lib/portrait/post.ts");
+  assert.deepEqual(PROFILE_FORMATS.map((f) => f.id), ["square", "portrait", "circle"]);
+  assert.ok(PROFILE_FORMATS.find((f) => f.id === "circle").circle);
+  const W = 1200, H = 1600;
+  const inside = (c) => c.sx >= 0 && c.sy >= 0 && c.sx + c.sw <= W && c.sy + c.sh <= H;
+  const m = { crownY: 0.25, chinY: 0.45, centerX: 0.4 };
+  for (const f of PROFILE_FORMATS) {
+    const c = profileCrop(m, f, W, H);
+    assert.ok(inside(c), `${f.id} 원본 안`);
+    assert.ok(Math.abs(c.sw / c.sh - f.width / f.height) < 0.01, `${f.id} 비율`);
+    const head = (m.chinY - m.crownY) * H / c.sh;
+    assert.ok(Math.abs(head - PROFILE_HEAD_RATIO) < 0.02, `${f.id} 머리 비율 ${head}`);
+    assert.ok(m.crownY * H > c.sy && m.chinY * H < c.sy + c.sh, `${f.id} 머리가 잘리지 않음`);
+    assert.ok(Math.abs(c.sx + c.sw / 2 - 0.4 * W) <= 1 || c.sx === 0, `${f.id} 얼굴 가로 중심`);
+  }
+  // 머리 위치가 없으면 위쪽 치우친 가운데 자르기
+  assert.deepEqual(profileCrop(null, PROFILE_FORMATS[1], W, H), coverCrop(W, H, 1080, 1350, 0.15));
 });

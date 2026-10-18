@@ -7,11 +7,11 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, recommendSizedCrop, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, PROFILE_FORMATS, SIZE_PRESETS, baseNameOf, profileCrop, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, recommendSizedCrop, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 import type { SizedRecommendation } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
-import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
+import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
 import { GuideOverlay } from "./GuideOverlay";
@@ -85,7 +85,6 @@ export function Studio({ userId }: { userId: string }) {
   const [measures, setMeasures] = useState<Record<number, { crownY: number; chinY: number; centerX: number; srcW: number; srcH: number; manual: boolean }>>({});
   const [markStart, setMarkStart] = useState(false);
   const [retryConfirm, setRetryConfirm] = useState(false);
-  const [centerOk, setCenterOk] = useState(false);
   const [autoBusy, setAutoBusy] = useState(false);
   const [autoProgress, setAutoProgress] = useState("");
   const [batchReport, setBatchReport] = useState<{ idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[]>([]);
@@ -279,7 +278,7 @@ export function Studio({ userId }: { userId: string }) {
         if (old) rep.push(old);
         return;
       }
-      const d = decideBatchCrop({ found: true, crownY: m.crownY, chinY: m.chinY, centerX: m.centerX }, p, m.srcW, m.srcH, centerOk);
+      const d = decideBatchCrop({ found: true, crownY: m.crownY, chinY: m.chinY, centerX: m.centerX }, p, m.srcW, m.srcH);
       if (d.crop) next[fi] = { presetId: p.id, crop: d.crop, srcW: m.srcW, srcH: m.srcH };
       else if (next[fi] && next[fi].presetId !== p.id) delete next[fi];
       const t = describeBatchDecision(d, m.manual);
@@ -365,7 +364,6 @@ export function Studio({ userId }: { userId: string }) {
     let stop = false;
     let done = 0;
     let next = 0;
-    const pct = (n: number) => Math.round(n * 100);
     const worker = async () => {
       while (!stop && next < keep.length) {
         const i = keep[next++];
@@ -379,27 +377,18 @@ export function Studio({ userId }: { userId: string }) {
           if (!res.ok) { if (data.needKey) { setNeedKey(true); stop = true; } throw new Error(data.error || "검사하지 못했습니다."); }
           const im = new Image();
           await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = results[i]; });
-          const d = decideBatchCrop(data, preset, im.naturalWidth, im.naturalHeight, centerOk);
+          // v1.24: 단일 [규격 저장]과 같은 추천 영역 계산(작음 확대 · 범위 안 가운데 · 큼 위치만)
+          const d = decideBatchCrop(data, preset, im.naturalWidth, im.naturalHeight);
           if (d.status !== "notfound") {
             const mm = { crownY: data.crownY as number, chinY: data.chinY as number, centerX: typeof data.centerX === "number" ? (data.centerX as number) : 0.5, srcW: im.naturalWidth, srcH: im.naturalHeight, manual: false };
             setMeasures((cur) => ({ ...cur, [fileIdx]: mm }));
           }
-          if (d.status === "notfound") report.push({ idx: i, name: label, text: "얼굴 위치를 찾지 못해 자동 중앙 자르기를 씁니다.", tone: "warn" });
-          else if (d.status === "ok" || d.status === "large") {
-            if (d.crop) {
-              const crop = d.crop;
-              setBatchCrops((cur) => ({ ...cur, [fileIdx]: { presetId: preset.id, crop, srcW: im.naturalWidth, srcH: im.naturalHeight } }));
-            }
-            const where = d.crop ? "얼굴 가로 중앙 맞춤" : "자동 중앙 자르기";
-            report.push(d.status === "ok"
-              ? { idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 범위 안(${where})`, tone: "ok" }
-              : { idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% — 기준보다 큼(${where}, 필요하면 [자르기 영역 조정])`, tone: "warn" });
-          }
-          else if (d.crop) {
+          if (d.crop) {
             const crop = d.crop;
             setBatchCrops((cur) => ({ ...cur, [fileIdx]: { presetId: preset.id, crop, srcW: im.naturalWidth, srcH: im.naturalHeight } }));
-            report.push({ idx: i, name: label, text: `머리 약 ${pct(d.ratio ?? 0)}% → 확대 자르기로 약 ${pct(d.achieved ?? 0)}%${d.clamped ? " (원본 한계로 더 확대하지 못함)" : ""}`, tone: "ok" });
           }
+          const t = describeBatchDecision(d);
+          report.push({ idx: i, name: label, text: t.text, tone: t.tone });
         } catch (e) {
           report.push({ idx: i, name: label, text: e instanceof Error ? e.message : "검사하지 못했습니다.", tone: "warn" });
         }
@@ -412,7 +401,8 @@ export function Studio({ userId }: { userId: string }) {
       report.sort((a, b) => a.idx - b.idx);
       setBatchReport(report);
       const applied = report.filter((r) => r.text.includes("확대 자르기로")).length;
-      setNotice(`일괄 머리 비율 검사를 마쳤습니다(${keep.length}장 중 확대 자르기 지정 ${applied}장). [규격으로 일괄 저장]을 누르면 지정된 영역으로 저장됩니다. 머리 위치는 AI 추정이라 결과를 눈으로 확인하세요.`);
+      const measured = report.filter((r) => r.text.includes("머리 약")).length;
+      setNotice(`일괄 머리 비율 검사를 마쳤습니다(머리 기준 영역 지정 ${measured}장, 그중 확대 ${applied}장). [규격으로 일괄 저장]을 누르면 지정된 영역으로 저장됩니다. 머리 위치는 AI 추정이라 결과를 눈으로 확인하세요.`);
     } finally { setAutoBusy(false); setAutoProgress(""); }
   }
 
@@ -431,11 +421,16 @@ export function Studio({ userId }: { userId: string }) {
         if (whiten) { try { src = (await whitenDataUrl(src)).dataUrl; } catch { /* 원본 사용 */ } }
         const fileIdx = sources[i] ?? i;
         const bc = batchCrops[fileIdx];
+        // 지정 영역 → 없으면 머리 측정값 추천 영역(v1.24, 단일 저장과 같은 계산) → 없으면 가운데 자르기
+        const mm = measures[fileIdx];
+        const rec = !(bc && bc.presetId === preset.id) && mm ? recommendSizedCrop(mm, preset, mm.srcW, mm.srcH).crop : undefined;
         let crop: { sx: number; sy: number; sw: number; sh: number } | undefined;
-        if (bc && bc.presetId === preset.id) {
+        if ((bc && bc.presetId === preset.id) || (rec && mm)) {
           const im = new Image();
           await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = src; });
-          crop = scaleCrop(bc.crop, bc.srcW, bc.srcH, im.naturalWidth, im.naturalHeight);
+          crop = bc && bc.presetId === preset.id
+            ? scaleCrop(bc.crop, bc.srcW, bc.srcH, im.naturalWidth, im.naturalHeight)
+            : scaleCrop(rec!, mm!.srcW, mm!.srcH, im.naturalWidth, im.naturalHeight);
           custom++;
         }
         const r = await renderSized(src, preset, { mirrored, filter, applyFilter: toneActive, crop });
@@ -444,7 +439,7 @@ export function Studio({ userId }: { userId: string }) {
       }
       const zip = createZip(entries);
       downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `증명사진-${preset.id}-${entries.length}장-${new Date().toISOString().slice(0, 10)}.zip`);
-      setNotice(`${entries.length}장을 ${preset.width}×${preset.height}px로 ZIP 저장했습니다(직접 지정한 영역 ${custom}장, 자동 중앙 자르기 ${entries.length - custom}장${over ? `, 용량 제한을 넘은 파일 ${over}장` : ""}). 제출 기관의 사진 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
+      setNotice(`${entries.length}장을 ${preset.width}×${preset.height}px로 ZIP 저장했습니다(지정·머리 기준 추천 영역 ${custom}장, 가운데 자르기 ${entries.length - custom}장${over ? `, 용량 제한을 넘은 파일 ${over}장` : ""}). 제출 기관의 사진 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -516,6 +511,28 @@ export function Studio({ userId }: { userId: string }) {
     try {
       const blob = await renderPng(shown, { mirrored, filter, applyFilter: toneActive, resolution });
       downloadBlob(blob, `${batchMode ? nameFor(sourceIdx, "인물사진") : "인물사진"}-${aspect.replace(":", "x")}-${resolution}${whiten ? "-순백" : ""}.png`);
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  }
+
+  /** v1.24 프로필 세트: 같은 사진·같은 머리 측정값으로 정사각·세로 4:5·원형 프로필을 ZIP 하나로(AI 호출 없음) */
+  async function saveProfileSet() {
+    if (!shown) return;
+    setSaving("profile");
+    try {
+      const m = currentMeasure();
+      const im = new Image();
+      await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = shown; });
+      const W = im.naturalWidth, H = im.naturalHeight;
+      const base = batchMode ? nameFor(sourceIdx, "프로필") : "프로필";
+      const entries: { name: string; data: Uint8Array }[] = [];
+      for (const f of PROFILE_FORMATS) {
+        const c = m ? scaleCrop(profileCrop(m, f, m.srcW, m.srcH), m.srcW, m.srcH, W, H) : profileCrop(null, f, W, H);
+        const blob = await renderProfile(shown, f, c, { mirrored, filter, applyFilter: toneActive });
+        entries.push({ name: `${base}-${f.id}-${f.width}x${f.height}.${f.circle ? "png" : "jpg"}`, data: new Uint8Array(await blob.arrayBuffer()) });
+      }
+      const zip = createZip(entries);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `${base}-세트-${new Date().toISOString().slice(0, 10)}.zip`);
+      setNotice(`프로필 세트 ${entries.length}장(${PROFILE_FORMATS.map((f) => f.label).join(" · ")})을 ZIP으로 저장했습니다. ${m ? "머리 위치를 기준으로 얼굴이 가운데 오게 잘랐습니다." : "머리 위치를 몰라 위쪽 가운데로 잘랐습니다 — [얼굴 위치 직접 지정]을 하면 얼굴 기준으로 잘립니다."}`);
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -811,6 +828,11 @@ export function Studio({ userId }: { userId: string }) {
             <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
               {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
             </button>
+            {shown && sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none" && !headBusy && (
+              <p className="notice warning" role="status">
+                머리 위치를 아직 모릅니다. 지금 [규격 저장]은 가운데를 자릅니다 — <b>[머리 비율 검사 (AI 1회)]</b> 또는 <b>[얼굴 위치 직접 지정 (무료)]</b>을 먼저 하면 공식 머리 기준에 맞춘 추천 영역으로 저장됩니다.
+              </p>
+            )}
             {shown && (
               <div className="actions st-save">
                 {batchMode && results.length > 1 && sizePresetById(sizeId).headRange && (
@@ -819,12 +841,6 @@ export function Studio({ userId }: { userId: string }) {
                     {autoBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}
                     {autoBusy ? `검사 중… ${autoProgress}` : autoConfirm ? `확인하고 시작 (AI ${results.length - skip.filter(Boolean).length}회 호출)` : "일괄 머리 비율 검사 + 자동 확대 자르기"}
                   </button>
-                )}
-                {batchMode && results.length > 1 && sizePresetById(sizeId).headRange && (
-                  <label className="check" title="머리 비율이 범위 안이거나 큰 사진도 얼굴을 가로 중앙에 맞춰 자릅니다">
-                    <input type="checkbox" checked={centerOk} onChange={(e) => setCenterOk(e.target.checked)} />
-                    <span>범위 안 사진도 얼굴을 가로 중앙에 맞춤(다음 일괄 검사부터)</span>
-                  </label>
                 )}
                 {(() => {
                   const missed = batchReport.filter((r) => r.text.includes("얼굴 위치를 찾지 못해") && !skip[r.idx]).map((r) => r.idx);
@@ -838,7 +854,17 @@ export function Studio({ userId }: { userId: string }) {
                 {batchMode && results.length > 1 && <button type="button" onClick={saveSizedBatch} disabled={!!saving}>{saving === "batch" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격으로 일괄 저장 ({sizePresetById(sizeId).width}×{sizePresetById(sizeId).height}, ZIP)</button>}
                 {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
-                <button type="button" onClick={checkHead} disabled={headBusy || !!saving} title="선택한 규격의 공식 머리 높이 기준과 견줍니다(본인 키 1회 호출)">{headBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}머리 비율 검사 (AI 1회)</button>
+                <button type="button" onClick={saveProfileSet} disabled={!!saving} title="같은 사진으로 정사각 1:1 · 세로 4:5 · 원형 프로필을 한 번에 저장합니다(AI 호출 없음)">{saving === "profile" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}프로필 세트 저장 (1:1·4:5·원형, ZIP)</button>
+                {(() => {
+                  // v1.24: 머리 위치를 모르면 검사·직접 지정을 눈에 띄게(측정값이 생기면 원래 모양)
+                  const needMeasure = !!sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none";
+                  return (
+                    <>
+                      <button type="button" className={needMeasure ? "primary" : undefined} onClick={checkHead} disabled={headBusy || !!saving} title="선택한 규격의 공식 머리 높이 기준과 견줍니다(본인 키 1회 호출)">{headBusy ? <Loader2 size={14} className="ls-spin" /> : <Sparkles size={14} />}머리 비율 검사 (AI 1회)</button>
+                      {needMeasure && <button type="button" className="primary" onClick={() => gotoCrop(active, true)} disabled={!!saving} title="자르기 패널에서 정수리·턱 끝을 차례로 클릭합니다(AI 호출 없음)">얼굴 위치 직접 지정 (무료)</button>}
+                    </>
+                  );
+                })()}
                 <button type="button" onClick={openCrop} disabled={!!saving} title="저장될 영역을 미리 보고 위치·확대를 직접 조정합니다">자르기 영역 조정</button>
                 <select value={sizeId} onChange={(e) => changePreset(e.target.value)} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}

@@ -318,26 +318,19 @@ export interface BatchDecision {
 }
 
 /**
- * 일괄 모드: 사진 한 장의 머리 위치 추정(AI)을 규격의 공식 범위와 견줘 자동 확대 자르기 영역을 정한다.
- * 범위 안/크게 나옴이면 영역을 만들지 않는다(자동 중앙 자르기 유지). 규격에 범위가 없으면 notfound.
+ * 일괄 모드: 사진 한 장의 머리 위치 추정(AI·직접 지정)을 규격의 공식 범위와 견줘 자르기 영역을 정한다.
+ * v1.24부터 단일 [규격 저장]과 같은 `recommendSizedCrop`을 쓴다 — 작음은 확대, 범위 안은 얼굴 가로 가운데,
+ * 큼은 머리가 잘리지 않게 위치만 맞춤. 얼굴을 못 찾았거나 규격에 범위가 없으면 notfound.
  */
 export function decideBatchCrop(
   m: { found: boolean; crownY: number; chinY: number; centerX?: number } | null,
   preset: { width: number; height: number; headRange?: [number, number] },
   srcW: number, srcH: number,
-  centerOk = false,
 ): BatchDecision {
-  if (!m || !m.found || !preset.headRange) return { status: "notfound" };
-  const cur = headInCrop(m.crownY, m.chinY, srcW, srcH, preset).ratio;
-  const ev = evaluateHead(cur, preset.headRange);
-  if (ev.status !== "small") {
-    // 범위 안·큼: 기본 자르기 크기를 유지한 채 얼굴만 가로 중앙으로 맞추는 옵션
-    return centerOk && typeof m.centerX === "number"
-      ? { status: ev.status, ratio: cur, crop: centerFaceCrop(m.centerX, srcW, srcH, preset) }
-      : { status: ev.status, ratio: cur };
-  }
-  const t = tightCrop(m.crownY, m.chinY, srcW, srcH, preset, (preset.headRange[0] + preset.headRange[1]) / 2, m.centerX ?? 0.5);
-  return { status: "small", ratio: cur, crop: t.crop, achieved: t.achievedRatio, clamped: t.clamped };
+  if (!m || !m.found) return { status: "notfound" };
+  const r = recommendSizedCrop(m, preset, srcW, srcH);
+  if (r.mode === "none" || !r.status) return { status: "notfound" };
+  return { status: r.status, ratio: r.ratio, crop: r.crop, achieved: r.achieved, clamped: r.clamped };
 }
 
 /** 기본 자르기(coverCrop)와 같은 크기로, 얼굴 가로 중심(centerX 0~1)이 영역 가운데에 오도록 좌우만 옮긴 영역 */
@@ -377,6 +370,29 @@ export function recommendSizedCrop(
   return { mode: "tight", status: ev.status, ratio, crop: t.crop, achieved: t.achievedRatio, clamped: t.clamped };
 }
 
+/** v1.24 프로필 사진 세트(SNS·메신저 프로필용). 증명사진 규격과 별개로 한 번에 ZIP 저장한다. */
+export interface ProfileFormat { id: string; label: string; width: number; height: number; circle: boolean }
+export const PROFILE_FORMATS: ProfileFormat[] = [
+  { id: "square", label: "정사각 1:1", width: 1080, height: 1080, circle: false },
+  { id: "portrait", label: "세로 4:5", width: 1080, height: 1350, circle: false },
+  { id: "circle", label: "원형 프로필", width: 1080, height: 1080, circle: true },
+];
+/** 프로필 구도의 머리 높이 비율(증명사진보다 여유 있게 어깨까지 보이도록) */
+export const PROFILE_HEAD_RATIO = 0.42;
+
+/**
+ * 프로필 사진 자르기 영역: 머리 위치가 있으면 머리가 영역 높이의 약 42%가 되도록 얼굴 기준으로(원본 한계면 최대한),
+ * 없으면 위쪽으로 치우친 가운데 자르기(coverCrop).
+ */
+export function profileCrop(
+  m: { crownY: number; chinY: number; centerX?: number } | null | undefined,
+  fmt: { width: number; height: number },
+  srcW: number, srcH: number,
+): CropRect {
+  if (!m || !(m.chinY > m.crownY)) return coverCrop(srcW, srcH, fmt.width, fmt.height, 0.15);
+  return tightCrop(m.crownY, m.chinY, srcW, srcH, fmt, PROFILE_HEAD_RATIO, typeof m.centerX === "number" ? m.centerX : 0.5).crop;
+}
+
 /**
  * 사용자가 사진에서 직접 찍은 두 점(정수리, 턱 끝)을 머리 측정값(0~1)으로 바꾼다.
  * 위쪽 점이 정수리·아래쪽 점이 턱이며, 가로 중심은 두 점의 평균이다. 두 점이 너무 가까우면 null.
@@ -397,7 +413,7 @@ export function describeBatchDecision(d: BatchDecision, manual = false): { text:
   if (d.status === "notfound") return { text: "얼굴 위치를 찾지 못해 자동 중앙 자르기를 씁니다.", tone: "warn" };
   const where = d.crop ? "얼굴 가로 중앙 맞춤" : "자동 중앙 자르기";
   if (d.status === "ok") return { text: `머리 약 ${pct(d.ratio ?? 0)}% — 범위 안(${where})`, tone: "ok" };
-  if (d.status === "large") return { text: `머리 약 ${pct(d.ratio ?? 0)}% — 기준보다 큼(${where}, 필요하면 [자르기 영역 조정])`, tone: "warn" };
+  if (d.status === "large") return { text: `머리 약 ${pct(d.ratio ?? 0)}% — 기준보다 큼(${d.crop ? "머리가 잘리지 않게 위치만 맞춤" : where} — 상체가 더 보이게 다시 만들거나 [자르기 영역 조정])`, tone: "warn" };
   const base = `머리 약 ${pct(d.ratio ?? 0)}% → 확대 자르기로 약 ${pct(d.achieved ?? 0)}%${d.clamped ? " (원본 한계로 더 확대하지 못함)" : ""}`;
   return { text: manual ? `수동 지정: ${base}` : base, tone: "ok" };
 }

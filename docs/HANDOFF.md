@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — AI 인물사진 자동화 v1.24(코드, **10-19 배포 예정**): 일괄 저장 통일·머리 검사 강조·프로필 세트
+
+- **대상**: `portrait-photo/` (https://portrait-photo.buylife.xyz) — 운영은 v1.23 그대로.
+- **한 일**: ① 일괄 검사·일괄 ZIP이 단일 [규격 저장]과 같은 `recommendSizedCrop` 판정(옵션 체크박스 삭제) ② 머리 위치를 모를 때 안내 + [머리 비율 검사]·[얼굴 위치 직접 지정 (무료)] 강조 ③ [프로필 세트 저장](1:1·4:5·원형 PNG ZIP, AI 호출 없음). v1.23 보고의 "AI 이미지 자동화 프로필 크롭 연계"는 그쪽에 기능이 없어 ③으로 정정.
+- **검수**: tsc 0, `npm test` 22/22, 빌드. **배포·DB v1.24·크롬 확인은 10-19**(같은 날 3번째 배포 회피).
+- **다음 첫 단계**: `portrait-photo/docs/IMPROVEMENT_HANDOFF_20261018.md` 「추가 작업 2」.
+
 ## 2026-10-18 Claude Code(윈도우) — AI 인물사진 자동화 v1.23: 규격 저장 기본값을 「머리 기준 추천 영역」으로 (기능 개선)
 
 - **대상**: `portrait-photo/` (https://portrait-photo.buylife.xyz)

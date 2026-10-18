@@ -109,6 +109,27 @@ export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirr
   return { blob, bytes: blob.size, quality, overLimit: blob.size > preset.maxBytes, underMin: !!preset.minBytes && blob.size < preset.minBytes };
 }
 
+/** v1.24 프로필 세트 한 장: 사각형은 JPEG, 원형은 바깥이 투명한 PNG */
+export async function renderProfile(dataUrl: string, fmt: { width: number; height: number; circle: boolean }, crop: CropRect, o: { mirrored: boolean; filter: string; applyFilter: boolean }): Promise<Blob> {
+  const img = await loadImage(dataUrl);
+  const canvas = document.createElement("canvas");
+  canvas.width = fmt.width; canvas.height = fmt.height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("이 브라우저에서는 저장할 수 없습니다.");
+  if (fmt.circle) {
+    ctx.beginPath();
+    ctx.arc(fmt.width / 2, fmt.height / 2, Math.min(fmt.width, fmt.height) / 2, 0, Math.PI * 2);
+    ctx.clip();
+  } else {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  ctx.imageSmoothingQuality = "high";
+  if (o.applyFilter) ctx.filter = o.filter;
+  if (o.mirrored) { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+  ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, canvas.width, canvas.height);
+  return fmt.circle ? canvasToBlob(canvas, "image/png") : canvasToBlob(canvas, "image/jpeg", 0.92);
+}
+
 /** 기록용 작은 미리보기(긴 변 900px JPEG) */
 export async function makeThumb(dataUrl: string): Promise<string> {
   const img = await loadImage(dataUrl);
