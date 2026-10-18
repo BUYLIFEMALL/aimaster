@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — AI 인물사진 v1.27: 생성 전 사진 품질 점검 · 머리 위치 선 + 얼굴 인식 부품 공용화 후보 등록
+
+- **인물사진**: 사진을 올리면 브라우저 안에서 품질 점검(얼굴 없음·여러 사람·작은 얼굴·옆모습·기울어짐, 안내만), 결과 사진 위에 정수리·턱 점선(출처 표시). 단위 25/25, 브라우저 13/13(크롬 포그라운드), Vercel Ready, DB v1.27. 운영 실검수(메인 크롬, Flash 1회): 「정면 얼굴 1명 확인」 → 자동 추정 머리 약 58% → 76% · 선이 정수리·턱에 정확히 맞음 · 추천 영역 규격 저장 39KB. 상세 `portrait-photo/AGENTS.md` v1.27 절.
+- **공용화 후보**: `docs/SHARED_FEATURE_MAP.md` 7절 「브라우저 안 얼굴 인식」(기준 후보 portrait-photo, 쓸 곳 4컷 만화·인플루언서·웹툰 등). `four-cut-comics`·`ai-influencer-studio` `docs/IMPROVEMENTS.md`에 재사용 제안.
+- **발견(미처리)**: 인물사진 저장 파일 이름 날짜가 세계 표준시라 한국 시간 오전 9시 전엔 하루 전 날짜.
+- https://portrait-photo.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 이미지 스타일 분석기 v1.22: 크리에이티브 아틀리에 스타일 DNA 랩 테마 리뉴얼·/guide 비주얼 가이드북 페이지 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 58개 완료 / 69.9% 달성!)
 
 - **대상**: `style-dna-analyzer/` (https://style-dna-analyzer.buylife.xyz, slug: `style-dna-analyzer`, 23번)

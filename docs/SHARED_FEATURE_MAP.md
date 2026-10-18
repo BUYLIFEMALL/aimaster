@@ -73,6 +73,16 @@
 | 별도 규칙 파일 | threads-content-ops `lib/yearRule.ts` · ai-auto-blog `utils/news/promptRules.ts`(`buildYearRule`·`koreaNowRule`) · prompt-template-studio `lib/koreaNowRule.ts` | ⚪ 기준 후보 |
 | 프롬프트 안에 직접 | 약 38개 프로그램(예: youtube-channel-consultant `lib/ai/prompts.ts`, naver-blog-agent `lib/ai/pipeline.ts`, shorts-onestop-studio `lib/prompts.ts`, cardnews-studio `copyPrompts.ts` …) — 검색: `기준 연도 엄수|buildYearRule|koreaNowRule` | ⚪ |
 
+## 7. 브라우저 안 얼굴 인식(머리 위치·사진 품질) — 공용화 후보 (2026-10-19 등록)
+
+회원 PC 브라우저 안에서 Google MediaPipe FaceLandmarker(얼굴 점 478개)로 얼굴을 찾는다. **사진을 서버로 보내지 않고 AI 호출·비용이 없다.** 지금은 인물사진 한 곳에서만 쓰며, 아래 프로그램에서 재사용할 만하다.
+
+| 구분 | 위치 · 내용 | 상태 |
+|---|---|---|
+| 기준 후보 | `portrait-photo/src/lib/portrait/faceLocal.ts`(동적 불러오기·실패 시 재시도, `detectHeadLocal`·`checkPhotoLocal`) + `post.ts`의 순수 함수 `landmarksToMeasure`(턱 152·이마 10·볼 234/454, 정수리 α=0.42)·`largestFace`·`assessFaces`(얼굴 없음·여러 사람·작은 얼굴·옆모습·기울어짐)·`overlayY` + 정적 파일 `public/mediapipe/`(`face_landmarker.task` 3.7MB, `wasm/vision_wasm_internal.*`·`vision_wasm_nosimd_internal.*`) | 🟢 인물사진 v1.26~v1.27 운영 |
+| 쓸 만한 곳 | four-cut-comics(캐릭터 참고 사진이 정면·한 사람인지 생성 전 점검) · ai-influencer-studio(컷마다 같은 얼굴인지 얼굴 점 비교로 일관성 점검) · ai-webtoon-studio(캐릭터 시트 점검) · photo-remake-studio·fashion-style(업로드 사진 점검) | ⚪ 각 프로그램 `docs/IMPROVEMENTS.md`에 제안 기록 |
+| 공용화할 때 주의 | ① 라이브러리 `@mediapipe/tasks-vision` **1.0.0 고정**(버전을 올리면 wasm 파일도 함께 다시 복사) ② 모델·실행 파일 약 15MB를 각 프로그램 `public/`에 정적 배포(첫 사용 때만 내려받고 브라우저 캐시) ③ 정수리는 비율 추정이라 머리 모양에 따라 오차 — 출처 표시·직접 수정 수단을 함께 둘 것 ④ 얼굴 일관성 비교는 별도 함수가 필요(현재 미구현) | — |
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |
@@ -88,6 +98,7 @@
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-19 | 「7. 브라우저 안 얼굴 인식」 공용화 후보 등록(기준 후보 portrait-photo v1.27, 사본 없음) | Claude Code(윈도우) |
 | 2026-10-18 | threads-affiliate-poster `imageGenerator.ts`(다중 엔진 생성기) Gemini 부분 사본 적용 — 이미지 공용화 대상 모두 완료 | Claude Code(윈도우) |
 | 2026-10-18 | 이미지 5묶음 Imagen 교체분 5곳 사본 적용(오류마다 다른 모델로 재요청하던 2곳 정리) | Claude Code(윈도우) |
 | 2026-10-18 | 이미지 4묶음 B SDK 사용형 9곳 사본 적용(시간 제한·최종 이미지 선택·오류 구분) | Claude Code(윈도우) |

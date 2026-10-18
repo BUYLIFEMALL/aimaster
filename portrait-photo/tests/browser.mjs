@@ -133,10 +133,18 @@ try {
   await page.goto(origin);
   await page.locator("input[type=file]").first().setInputFiles({ name: "portrait.png", mimeType: "image/png", buffer: png });
   await page.locator(".dropzone.has img").waitFor();
+  await page.getByText(/사진 점검: 정면 얼굴 1명 확인/).waitFor({ timeout: 60000 });
+  pass("생성 전 사진 점검(v1.27): 정상 사진 → 「정면 얼굴 1명 확인」");
   await page.locator(".st-own input[type=checkbox]").first().check();
   await page.getByRole("button", { name: "인물 사진 만들기" }).click();
   await page.locator(".st-stage img").waitFor();
   await page.getByText("머리 위치: 브라우저 자동 추정").waitFor({ timeout: 60000 });
+  assert.equal(await page.locator(".st-stage .head-line").count(), 2, "정수리·턱 선 2개");
+  assert.ok((await page.locator(".st-stage .head-line").first().innerText()).includes("정수리(자동 추정)"));
+  await page.getByLabel("머리 위치 선 보기").uncheck();
+  assert.equal(await page.locator(".st-stage .head-line").count(), 0);
+  await page.getByLabel("머리 위치 선 보기").check();
+  pass("머리 위치 선(v1.27): 정수리(자동 추정)·턱 선 표시 · 끄고 켜기");
   const autoBtn = saveRow().getByRole("button", { name: /^규격 저장/ });
   assert.ok((await autoBtn.innerText()).includes("추천 영역"), "자동 추정만으로 추천 영역 적용");
   assert.equal(await page.getByText("머리 위치를 아직 모릅니다").count(), 0);
@@ -145,6 +153,23 @@ try {
   const autoNotice = await page.getByText(/추천 영역으로 저장했습니다\(머리 약 \d+% → \d+%/).first().innerText();
   assert.equal(calls.filter((c) => c.path === "/api/headcheck").length, headBefore, "자동 추정은 AI 검사를 부르지 않음");
   pass(`브라우저 자동 추정: 누르지 않아도 추천 영역 저장(${autoSized.name}) · AI 호출 0회 · ${autoNotice.match(/머리 약 \d+% → \d+%/)[0]}`);
+
+  // 품질 경고(v1.27): 같은 사진을 두 장 나란히 붙인 합성(여러 사람) · 작게 줄인 사진(작은 얼굴)
+  const makeVariant = (kind) => page.evaluate(async ([b64, k]) => {
+    const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+    const c = document.createElement("canvas");
+    if (k === "multi") { c.width = img.width * 2; c.height = img.height; c.getContext("2d").drawImage(img, 0, 0); c.getContext("2d").drawImage(img, img.width, 0); }
+    // 사진은 원래 크기 그대로, 바탕만 3배로 넓혀 얼굴이 사진 높이의 약 12%가 되게(인식은 되지만 작은 얼굴)
+    else { c.width = img.width * 3; c.height = img.height * 3; const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, img.width, img.height); }
+    return c.toDataURL("image/png").split(",")[1];
+  }, [png.toString("base64"), kind]);
+  for (const [kind, re] of [["multi", /여러 사람\(2명\)/], ["small", /얼굴이 작게 나왔어요/]]) {
+    const b = Buffer.from(await makeVariant(kind), "base64");
+    await page.locator("input[type=file]").first().setInputFiles({ name: `${kind}.png`, mimeType: "image/png", buffer: b });
+    await page.getByText(re).waitFor({ timeout: 60000 });
+    assert.ok(await page.getByRole("button", { name: "인물 사진 만들기" }).isEnabled(), "경고만 하고 막지 않음");
+  }
+  pass("사진 점검 경고(v1.27): 여러 사람 합성 → 「여러 사람(2명)」, 작은 얼굴 → 「얼굴이 작게」 · 생성 버튼은 그대로");
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(400);

@@ -640,3 +640,30 @@ test("브라우저 얼굴 인식 점 → 머리 위치(landmarksToMeasure)", asy
   assert.equal(landmarksToMeasure(pts.slice(0, 100)), null);
   assert.equal(landmarksToMeasure(null), null);
 });
+
+test("생성 전 사진 품질 점검(assessFaces)·머리 위치 선 계산(overlayY)", async () => {
+  const { assessFaces, largestFace, overlayY } = await import("../src/lib/portrait/post.ts");
+  // 정면·적당한 크기 얼굴 하나
+  const face = (o = {}) => {
+    const p = Array.from({ length: 478 }, () => ({ x: 0.5, y: 0.5 }));
+    p[10] = { x: 0.5, y: 0.2 }; p[152] = { x: 0.5, y: 0.55 }; p[234] = { x: 0.35, y: 0.4 }; p[454] = { x: 0.65, y: 0.4 };
+    p[1] = { x: 0.5, y: 0.42 }; p[33] = { x: 0.42, y: 0.35 }; p[263] = { x: 0.58, y: 0.35 };
+    for (const [k, v] of Object.entries(o)) p[Number(k)] = v;
+    return p;
+  };
+  const codes = (faces) => assessFaces(faces, 1000, 1000).map((x) => x.code);
+  assert.deepEqual(codes([face()]), [], "정면 1명은 문제 없음");
+  assert.deepEqual(codes([]), ["none"]);
+  assert.deepEqual(codes([face(), face({ 10: { x: 0.5, y: 0.45 }, 152: { x: 0.5, y: 0.5 } })]), ["multi"]);
+  assert.deepEqual(codes([face({ 10: { x: 0.5, y: 0.4 }, 152: { x: 0.5, y: 0.5 } })]), ["small"]);
+  assert.deepEqual(codes([face({ 1: { x: 0.6, y: 0.42 } })]), ["side"], "코끝이 얼굴 너비의 1/3 치우침");
+  assert.deepEqual(codes([face({ 33: { x: 0.42, y: 0.32 }, 263: { x: 0.58, y: 0.38 } })]), ["tilt"], "눈 선 약 20° 기움");
+  // 여러 얼굴이면 가장 큰 얼굴로 판정·추정
+  const big = face(), small = face({ 10: { x: 0.2, y: 0.1 }, 152: { x: 0.2, y: 0.2 } });
+  assert.equal(largestFace([small, big]), big);
+  // 선 위치: 비율이 같으면 그대로, 사진이 무대보다 가로로 길면 위아래 여백을 반영
+  assert.ok(Math.abs(overlayY(0.25, 300, 400, 3 / 4) - 25) < 1e-9);
+  assert.ok(Math.abs(overlayY(0, 1000, 1000, 3 / 4) - 12.5) < 1e-9, "정사각 사진을 3:4 무대에 넣으면 위 여백 12.5%");
+  assert.ok(Math.abs(overlayY(1, 1000, 1000, 3 / 4) - 87.5) < 1e-9);
+  assert.ok(Math.abs(overlayY(0.5, 300, 600, 3 / 4) - 50) < 1e-9, "세로로 긴 사진은 높이를 꽉 채움");
+});

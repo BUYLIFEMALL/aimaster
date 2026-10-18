@@ -391,6 +391,51 @@ export function landmarksToMeasure(
   return { crownY: clamp(top.y - alpha * face), chinY: clamp(chin.y), centerX: clamp((left.x + right.x) / 2) };
 }
 
+type FacePts = { x: number; y: number }[];
+
+/** 여러 얼굴 중 이마~턱 높이가 가장 큰 얼굴(머리 위치 자동 추정용) */
+export function largestFace(faces: FacePts[] | null | undefined): FacePts | null {
+  let best: FacePts | null = null, size = 0;
+  for (const f of faces ?? []) {
+    if (!f || f.length < 455) continue;
+    const s = f[152].y - f[10].y;
+    if (s > size) { size = s; best = f; }
+  }
+  return best;
+}
+
+export interface FaceIssue { code: "none" | "multi" | "small" | "side" | "tilt"; text: string }
+
+/**
+ * v1.27 생성 전 원본 사진 품질 점검(브라우저 안 얼굴 인식 결과로 판정 — AI 호출 없음).
+ * 막지 않고 안내만 한다. 기준: 얼굴 0개 / 2개 이상 / 이마~턱이 사진 높이의 15% 미만 /
+ * 코끝(점 1)이 양 볼(234·454) 가운데에서 얼굴 너비의 25% 이상 치우침(옆모습) / 두 눈 바깥 끝(33·263) 선이 15° 이상 기움.
+ */
+export function assessFaces(faces: FacePts[] | null | undefined, srcW: number, srcH: number): FaceIssue[] {
+  const list = (faces ?? []).filter((f) => f && f.length >= 455);
+  if (list.length === 0) return [{ code: "none", text: "얼굴을 찾지 못했어요. 얼굴이 잘 보이는 사진을 권장합니다." }];
+  const issues: FaceIssue[] = [];
+  if (list.length > 1) issues.push({ code: "multi", text: `여러 사람(${list.length}명)이 보여요. AI가 다른 얼굴을 섞을 수 있어 한 사람만 나온 사진을 권장합니다.` });
+  const f = largestFace(list)!;
+  if (f[152].y - f[10].y < 0.15) issues.push({ code: "small", text: "얼굴이 작게 나왔어요. 더 가까이 찍은 사진이 더 닮게 나옵니다." });
+  const width = f[454].x - f[234].x;
+  if (width > 0 && Math.abs(f[1].x - (f[234].x + f[454].x) / 2) / width >= 0.25) issues.push({ code: "side", text: "옆을 보고 있어요. 정면 사진이 더 닮게 나옵니다." });
+  const dx = (f[263].x - f[33].x) * srcW, dy = (f[263].y - f[33].y) * srcH;
+  const deg = Math.abs((Math.atan2(dy, dx) * 180) / Math.PI);
+  if (Math.min(deg, 180 - deg) >= 15) issues.push({ code: "tilt", text: "얼굴이 많이 기울었어요. 똑바른 사진을 권장합니다." });
+  return issues;
+}
+
+/**
+ * v1.27 결과 사진(srcW×srcH)이 비율 stageRatio(가로/세로)인 무대 안에 `object-fit: contain`으로 그려질 때,
+ * 사진 안 세로 위치 y(0~1)가 무대 높이의 몇 %인지(0~100) 돌려준다(위아래 여백 반영).
+ */
+export function overlayY(y: number, srcW: number, srcH: number, stageRatio: number): number {
+  const imgRatio = srcW / srcH;
+  const h = imgRatio > stageRatio ? stageRatio / imgRatio : 1; // 무대 대비 그림 높이 비율
+  return ((1 - h) / 2 + y * h) * 100;
+}
+
 /** v1.24 프로필 사진 세트(SNS·메신저 프로필용). 증명사진 규격과 별개로 한 번에 ZIP 저장한다. */
 export interface ProfileFormat { id: string; label: string; width: number; height: number; circle: boolean }
 export const PROFILE_FORMATS: ProfileFormat[] = [

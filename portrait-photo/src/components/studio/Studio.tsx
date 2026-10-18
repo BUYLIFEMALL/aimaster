@@ -7,14 +7,15 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, PROFILE_FORMATS, SIZE_PRESETS, baseNameOf, profileCrop, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, recommendSizedCrop, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, PROFILE_FORMATS, SIZE_PRESETS, baseNameOf, overlayY, profileCrop, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, recommendSizedCrop, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
 import type { SizedRecommendation } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 
 /** v1.24 프로필 세트 미리보기 한 장(미리보기와 저장에 같은 그림을 쓴다) */
 interface ProfileItem { label: string; circle: boolean; name: string; blob: Blob; url: string }
-import { detectHeadLocal } from "@/lib/portrait/faceLocal";
+import { checkPhotoLocal, detectHeadLocal } from "@/lib/portrait/faceLocal";
+import type { FaceIssue } from "@/lib/portrait/post";
 import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
@@ -89,6 +90,9 @@ export function Studio({ userId }: { userId: string }) {
   // auto: v1.26 브라우저 안 얼굴 인식으로 자동 추정한 값(AI 검사·직접 지정이 들어오면 덮어씀)
   const [measures, setMeasures] = useState<Record<number, { crownY: number; chinY: number; centerX: number; srcW: number; srcH: number; manual: boolean; auto?: boolean }>>({});
   const [faceDetecting, setFaceDetecting] = useState(false);
+  // v1.27: 올린 사진별 품질 점검 결과(undefined=점검 중, null=점검 불가, []=문제 없음)
+  const [photoChecks, setPhotoChecks] = useState<Record<number, FaceIssue[] | null>>({});
+  const [showHeadLines, setShowHeadLines] = useState(true);
   const [markStart, setMarkStart] = useState(false);
   const [retryConfirm, setRetryConfirm] = useState(false);
   const [autoBusy, setAutoBusy] = useState(false);
@@ -177,6 +181,20 @@ export function Studio({ userId }: { userId: string }) {
     return () => { alive = false; setFaceDetecting(false); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [results, sources]);
+
+  // v1.27: 사진을 올리면 생성 전에 브라우저 안에서 품질 점검(얼굴 없음·여러 사람·작은 얼굴·옆모습·기울어짐). 안내만, 막지 않음.
+  useEffect(() => {
+    let alive = true;
+    setPhotoChecks({});
+    (async () => {
+      for (let i = 0; i < previews.length; i++) {
+        const r = await checkPhotoLocal(previews[i]).catch(() => null);
+        if (!alive) return;
+        setPhotoChecks((cur) => ({ ...cur, [i]: r }));
+      }
+    })();
+    return () => { alive = false; };
+  }, [previews]);
 
   const shown = whiten && cleaned ? cleaned.url : result;
   useEffect(() => { setCropOpen(null); }, [shown]);
@@ -674,6 +692,22 @@ export function Studio({ userId }: { userId: string }) {
               )}
               <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden onChange={(e) => onPick(e.target.files)} />
             </label>
+            {previews.length > 0 && (() => {
+              // v1.27 생성 전 품질 점검 결과(브라우저 안 얼굴 인식, AI 비용 없음) — 안내만 하고 막지 않는다
+              const done = previews.map((_, i) => photoChecks[i]);
+              if (done.some((d) => d === undefined)) return <p className="notice" role="status"><Loader2 size={14} className="ls-spin" /> 사진을 점검하는 중입니다(이 브라우저 안에서만)…</p>;
+              if (done.every((d) => d === null)) return null;
+              const bad = done.map((d, i) => ({ i, d: d ?? [] })).filter((x) => x.d.length > 0);
+              if (bad.length === 0) return <p className="notice head-ok" role="status">사진 점검: 정면 얼굴 1명 확인{previews.length > 1 ? ` (${previews.length}장 모두)` : ""}.</p>;
+              return (
+                <div className="notice warning" role="status">
+                  <b>사진 점검 — 이대로도 만들 수 있지만 결과가 덜 닮을 수 있어요.</b>
+                  <ul className="gd-list" style={{ marginTop: 6 }}>
+                    {bad.map(({ i, d }) => d.map((x) => <li key={`${i}-${x.code}`}>{previews.length > 1 ? `${i + 1}번 사진: ` : ""}{x.text}</li>))}
+                  </ul>
+                </div>
+              );
+            })()}
             <label className="check st-selfie">
               <input type="checkbox" checked={selfie} onChange={(e) => setSelfie(e.target.checked)} />
               <span><b>전면 카메라 셀카입니다</b><small>켜면 좌우를 뒤집어 남들이 보는 실제 방향으로 만들어요(가르마·점 위치 유지).</small></span>
@@ -778,6 +812,20 @@ export function Studio({ userId }: { userId: string }) {
               )}
               {shown && compare && comparePreview && <div className="cmp-handle" style={{ left: `${cmpPos}%` }} aria-hidden="true" />}
               {shown && guide && !compare && <GuideOverlay />}
+              {shown && showHeadLines && !compare && (() => {
+                // v1.27 머리 위치 선(정수리·턱) — 사진이 무대 안에 contain으로 그려지는 영역에 맞춘다
+                const m = currentMeasure();
+                if (!m) return null;
+                const [aw, ah] = aspect.split(":").map(Number);
+                const ratio = aw && ah ? aw / ah : m.srcW / m.srcH;
+                const src = "auto" in m && m.auto ? "자동 추정" : headMeasure && headMeasure.url === (result ?? shown) ? "검사·지정" : ("manual" in m && m.manual ? "직접 지정" : "검사");
+                const line = (y: number, color: string, label: string) => (
+                  <div key={label} className="head-line" style={{ position: "absolute", left: 0, right: 0, top: `${overlayY(y, m.srcW, m.srcH, ratio)}%`, borderTop: `2px dashed ${color}`, opacity: 0.85, pointerEvents: "none", zIndex: 4 }}>
+                    <span style={{ position: "absolute", left: 6, top: -18, fontSize: 10, padding: "0 4px", borderRadius: 4, background: "#000000b3", color }}>{label}</span>
+                  </div>
+                );
+                return <>{line(m.crownY, "#38bdf8", `정수리(${src})`)}{line(m.chinY, "#f59e0b", "턱")}</>;
+              })()}
             </div>
             {shown && compare && comparePreview && (
               <label className="slider cmp-slider"><span>원본</span><input type="range" min={0} max={100} value={cmpPos} onChange={(e) => setCmpPos(Number(e.target.value))} aria-label="원본과 결과 비교 슬라이더" /><b>결과</b></label>
@@ -821,6 +869,7 @@ export function Studio({ userId }: { userId: string }) {
               <div className="st-tools">
                 <label className="check"><input type="checkbox" checked={whiten} onChange={(e) => setWhiten(e.target.checked)} /><span>배경 순백 정리 {cleaning ? "(처리 중…)" : whiten && cleaned ? `(배경 ${Math.round(cleaned.ratio * 100)}% 정리)` : ""}</span></label>
                 <label className="check"><input type="checkbox" checked={guide} onChange={(e) => setGuide(e.target.checked)} /><span>증명사진 가이드선</span></label>
+                <label className="check" title="자동 추정·검사·직접 지정한 정수리와 턱 위치를 사진 위에 선으로 보여 줍니다(고정 위치인 증명사진 가이드선과 달리 실제 머리 위치)"><input type="checkbox" checked={showHeadLines} onChange={(e) => setShowHeadLines(e.target.checked)} /><span>머리 위치 선 보기</span></label>
                 <label className="check"><input type="checkbox" checked={mirrored} onChange={(e) => setMirrored(e.target.checked)} /><span>거울상으로 보기</span></label>
                 {results.length > 1 && <label className="check"><input type="checkbox" checked={zoomOn} onChange={(e) => { setZoomOn(e.target.checked); if (e.target.checked) setGrid(false); }} /><span>확대 비교(두 장)</span></label>}
                 {results.length > 1 && <label className="check"><input type="checkbox" checked={grid} onChange={(e) => setGrid(e.target.checked)} /><span>후보 한눈에 비교</span></label>}

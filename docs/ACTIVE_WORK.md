@@ -18,7 +18,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| portrait-photo | Claude Code(윈도우) | 2026-10-19 | v1.26 브라우저 안 얼굴 인식 자동 측정 (`portrait-photo/docs/PLAN_20261019_LOCAL_FACE_TESTS_AGY.md` ①) |
 
 
 
