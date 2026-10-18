@@ -51,14 +51,18 @@ export function useLang(): LangContextValue {
 export function LangSwitcher() {
   const { lang, setLang } = useLang();
   return (
-    <div className="inline-flex overflow-hidden rounded-lg border border-neutral-300 bg-white text-xs font-semibold" role="group" aria-label="Language">
+    <div className="inline-flex overflow-hidden rounded-xl border border-[#1e293b] bg-[#111726] p-0.5 text-xs font-semibold shadow-xs" role="group" aria-label="Language">
       {LANGS.map((code) => (
         <button
           key={code}
           type="button"
           onClick={() => setLang(code)}
           aria-pressed={lang === code}
-          className={`px-3 py-1.5 transition-colors ${lang === code ? "bg-blue-600 text-white" : "text-neutral-600 hover:bg-neutral-100"}`}
+          className={`rounded-lg px-3 py-1.5 transition-all text-xs font-medium ${
+            lang === code
+              ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs"
+              : "text-slate-400 hover:text-slate-200 hover:bg-[#162032]"
+          }`}
         >
           {LANG_NAMES[code]}
         </button>

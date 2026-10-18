@@ -1,4 +1,56 @@
-﻿# 작업 인수인계 현황판 (HANDOFF.md)
+# 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — 이미지 변환 스튜디오 v1.07: 크리에이티브 아틀리에 딥 나이트 테마 리뉴얼·375px 모바일 헤더&드로어 구축·비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 48개 완료 달성!)
+
+- **대상**: `image-convert-studio/` (https://image-convert-studio.buylife.xyz, slug: `image-convert-studio`, 17번)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 이미지 스튜디오 에디션 (Creative Atelier Style — Image Studio Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전체 페이지 단일 배경(`bg-[#0b0f17]`, 딥 나이트 옵시디언), 서피스 카드(`bg-[#111726]`), 테두리(`border-[#1e293b]`), 아틀리에 시그니처 바이올렛(`text-violet-400` / `bg-violet-600`) & 인디고(`bg-indigo-600`) 및 에메랄드 절감 칩 포인트 일체화.
+  2. **375px 모바일 반응형 내비게이션 완비 (Sidebar.tsx & layout.tsx)**:
+     - 모바일 전용 56px 상단 슬림 헤더(`sticky top-0 z-40 h-14 bg-[#0d121f]/95 backdrop-blur-md border-b border-[#1e293b]`, 로고 + 프로그램명 + 버전 뱃지 + ☰ 햄버거 버튼).
+     - ☰ 버튼 터치 시 좌측 슬라이딩 드로어(Drawer) 및 백드롭 오버레이 연출, 메뉴 이동 시 드로어 자동 닫힘 처리, 가로 넘침(`overflow-x-hidden`) 0px 완벽 방어.
+  3. **2단계 크리에이션 파이프라인 스텝퍼 시각화**:
+     - 1단계: 변환 & 업스케일 (`/convert`) ➔ 2단계: 콜라주 스튜디오 (`/collage`) 파이프라인 스텝퍼를 세로 타임라인으로 시각화.
+     - 유틸리티 영역에 **📖 연동 & 사용 매뉴얼 (`/guide`) 메뉴 신설**.
+  4. **비주얼 연동 & 사용 매뉴얼 (GuideView.tsx & /guide) 전면 신설 (DESIGN.md 원칙 9번 준수)**:
+     - 공식 가이드북 히어로 배너 (`v1.07`).
+     - **5단계 원스톱 변환 & 최적화 파이프라인 다이어그램**: 1. 파일 업로드 ➔ 2. 출력 포맷 선택 ➔ 3. 업스케일 & 필터 ➔ 4. 브라우저 고속 변환 ➔ 5. 1-Click ZIP 다운로드.
+     - **포맷별 최적 활용 매트릭스** (WebP, AVIF, PNG, JPEG 비교 가이드 테이블).
+     - 전문가 이미지 가이드 팁 4종 (Lanczos3 리샘플링, 언샵 마스크 샤프닝, Cover vs Contain, 1-Click ZIP).
+     - 변환 전 필수 실전 체크리스트 및 트러블슈팅 FAQ 아코디언 5종 (투명 배경 처리, AVIF 호환성, 300장 한도, 100% 로컬 보안 등).
+  5. **핵심 도구 및 로그인 화면 전면 리뉴얼**:
+     - `ConvertTool.tsx`: 대형 점선 드롭존, 옵션 패널(포맷, 품질 슬라이더, 배율, 필터, 샤프닝), 실시간 용량 절감율 칩 갤러리 딥 나이트 테마 일체화.
+     - `CollageTool.tsx`: 캔버스 뷰포트 프리뷰, 순서 조정 카드 갤러리, 컬러 피커 및 레이아웃 조절 패널 아틀리에 테마 동기화.
+     - `login/page.tsx`: 이미지 스튜디오 시그니처 아이콘 및 다크 아틀리에 로그인 카드 리뉴얼.
+     - `TopBar.tsx`: 100% 온디바이스 로컬 보안 뱃지 탑재 및 LangSwitcher 다크 테마 정돈.
+  6. **버전 동기화 (v1.07)**:
+     - `src/lib/version.ts`, `package.json` v1.07 갱신.
+     - Supabase DB `programs.version`을 `v1.07`로 업데이트 완료.
+  7. **로컬 빌드 및 무결성 검증**:
+     - `npm test`: 16개 테스트 케이스 100% 통과 (0.5s).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (Compiled successfully in 5.7s).
+  8. **Vercel 프로덕션 배포 완료**:
+     - Vercel 프로덕션 배포 완료 (`dpl_53c8Li6LeZtecM3HFf2aBThWTbkj`), 프로덕션 도메인 https://image-convert-studio.buylife.xyz 즉시 반영.
+  9. **Microsoft Edge 포그라운드 실세션 검수 (headless: false)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 검수 완료.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_image_convert_desktop_convert_v107.png`: 1440px 데스크톱 변환 & 업스케일 스튜디오
+       - `edge_image_convert_desktop_collage_v107.png`: 1440px 데스크톱 콜라주 스튜디오
+       - `edge_image_convert_desktop_guide_v107.png`: 1440px 데스크톱 비주얼 가이드북
+       - `edge_image_convert_mobile_convert_v107.png`: 375px 모바일 변환 스튜디오 및 상단 슬림 헤더
+       - `edge_image_convert_mobile_drawer_v107.png`: 375px 모바일 햄버거 메뉴 터치 후 슬라이딩 드로어
+       - `edge_image_convert_mobile_guide_v107.png`: 375px 모바일 비주얼 가이드북 (가로 넘침 0px)
+  10. **인수인계 문서 6종 완비**:
+      - `image-convert-studio/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+      - `image-convert-studio/README.md` (동기화)
+      - `image-convert-studio/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+      - `image-convert-studio/docs/IMPROVEMENTS.md` (개선 제안서: 필수 3대 항목 + 타 프로그램 탐색 제안)
+      - `image-convert-studio/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+      - `image-convert-studio/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+
+https://image-convert-studio.buylife.xyz
 
 ## 2026-10-18 Claude Code(윈도우) — AI 4컷 만화 자동화 v1.12 디자인 리뉴얼(구현·로컬 검수 완료, **10-19 배포 예정**)
 - **대상**: `four-cut-comics/` (81번) — 템플릿 「크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형」(`DESIGN.md` 5번 행에 변형 등록, 기준 구현)

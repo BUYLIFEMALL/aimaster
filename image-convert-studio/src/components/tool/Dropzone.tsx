@@ -53,13 +53,17 @@ export function Dropzone({ currentCount, label, onFiles }: DropzoneProps) {
           setDragging(false);
           accept(Array.from(event.dataTransfer.files));
         }}
-        className={`cursor-pointer rounded-2xl border-2 border-dashed px-5 py-10 text-center transition-colors ${
-          dragging ? "border-blue-500 bg-blue-50" : "border-neutral-300 bg-neutral-50 hover:border-blue-400 hover:bg-blue-50/40"
+        className={`cursor-pointer rounded-2xl border-2 border-dashed px-5 py-10 text-center transition-all ${
+          dragging
+            ? "border-violet-500 bg-violet-950/30 shadow-lg shadow-violet-500/10 scale-[1.01]"
+            : "border-[#1e293b] bg-[#111726]/60 hover:border-violet-500/50 hover:bg-[#162032]/80"
         }`}
       >
-        <UploadCloud className="mx-auto mb-3 h-8 w-8 text-blue-500" aria-hidden />
-        <p className="text-base font-semibold text-neutral-800">{label}</p>
-        <p className="mt-1.5 text-sm text-neutral-500">{t.dropzone.sub}</p>
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/10 border border-violet-500/20 text-violet-400">
+          <UploadCloud className="h-6 w-6" aria-hidden />
+        </div>
+        <p className="text-base font-bold text-white">{label}</p>
+        <p className="mt-1.5 text-xs text-slate-400">{t.dropzone.sub}</p>
         <input
           ref={inputRef}
           type="file"
@@ -72,7 +76,12 @@ export function Dropzone({ currentCount, label, onFiles }: DropzoneProps) {
           }}
         />
       </div>
-      {notice && <p className="mt-2 text-xs text-amber-700">{notice}</p>}
+      {notice && (
+        <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-950/40 p-3 text-xs text-amber-300 font-medium flex items-center gap-2">
+          <span>⚠️</span>
+          <span>{notice}</span>
+        </div>
+      )}
     </div>
   );
 }

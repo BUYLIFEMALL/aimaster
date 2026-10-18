@@ -129,7 +129,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-18 기준: ✅ 46개 · ⚪ 35개 · 🟠 0개 · ⏸ 2개 — 총 83개):
+> **상태 구분** (2026-10-18 기준: ✅ 48개 · ⚪ 33개 · 🟠 0개 · ⏸ 2개 — 총 83개):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -159,7 +159,7 @@
 | 14 | 무한루프 영상자동화 | `infinite-loop-video` | **크리에이티브 아틀리에 스타일** (네온 루프 시네마 변형) | 다크(차콜 `#0b0d12` + 네온 핑크 `#ec4899`→시안 `#22d3ee`) | ✅ 1차 작업완료 (`v1.05`, 크리에이티브 아틀리에 스타일) | [`infinite-loop-video/docs/IMPROVEMENT_HANDOFF_20261017.md`](infinite-loop-video/docs/IMPROVEMENT_HANDOFF_20261017.md) · [`infinite-loop-video/docs/DESIGN_HANDOFF.md`](infinite-loop-video/docs/DESIGN_HANDOFF.md) |
 | 15 | AI 인플루언서 자동화 | `ai-influencer-studio` | **크리에이티브 아틀리에 스타일** (핑크 화보 스튜디오 변형) | 다크(미드나잇 `#0d0b12` + 핑크 `#ec4899`→로즈 `#f43f5e`) | ✅ 1차 작업완료 (`v1.10`, 크리에이티브 아틀리에 스타일) | [`ai-influencer-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`](ai-influencer-studio/docs/IMPROVEMENT_HANDOFF_20261017.md) · [`ai-influencer-studio/docs/DESIGN_HANDOFF.md`](ai-influencer-studio/docs/DESIGN_HANDOFF.md) |
 | 16 | 뮤직비디오 자동화 | `music-video-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `music-video-studio/AGENTS.md` |
-| 17 | 이미지 변환 스튜디오 | `image-convert-studio` | 크리에이티브 아틀리에 스타일 (권장) | 다크/라이트 | ⚪ 작업 예정 | `image-convert-studio/AGENTS.md` |
+| 17 | 이미지 변환 스튜디오 | `image-convert-studio` | **크리에이티브 아틀리에 스타일** (이미지 스튜디오 에디션) | 다크(딥 옵시디언 `#0b0f17` + 바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.07`, 크리에이티브 아틀리에 스타일) | [`image-convert-studio/docs/DESIGN_HANDOFF.md`](image-convert-studio/docs/DESIGN_HANDOFF.md) |
 | 18 | Suno 음악기획 자동화 | `suno-music-studio` | **사이버 수노 다크 스튜디오 스타일** | 다크(옵시디언 블랙) | ✅ 1차 완료 | [`suno-music-studio/docs/DESIGN_HANDOFF.md`](suno-music-studio/docs/DESIGN_HANDOFF.md) |
 | 19 | 감성 글귀 이미지 | `emotion-writer` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `emotion-writer/AGENTS.md` |
 | 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ebook-studio/AGENTS.md` |
@@ -221,7 +221,7 @@
 | 76 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `thumbnail-master/AGENTS.md` |
 | 77 | AI 마스터링 스튜디오 | `ai-mastering-studio` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `ai-mastering-studio/AGENTS.md` |
 | 78 | AI Audio분석 자동화 | `ai-audio-analyzer` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `ai-audio-analyzer/AGENTS.md` |
-| 79 | AI 인물사진 자동화 | `portrait-photo` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `portrait-photo/AGENTS.md` |
+| 79 | AI 인물사진 자동화 | `portrait-photo` | 크리에이티브 아틀리에 스타일 — 포토 스튜디오 그래파이트 변형 (안) | 다크(중립 그래파이트) | 🔵 작업 중 — 플랜 승인 대기 (Claude Code(윈도우), 2026-10-18) | `portrait-photo/docs/PLAN_20261018_DESIGN_RENEWAL.md` |
 | 80 | AI 바나나 캔버스 자동화 | `banana-canvas` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `banana-canvas/AGENTS.md` |
 | 81 | AI 4컷 만화 자동화 | `four-cut-comics` | 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 | 파스텔 크림 | 🔵 작업 중 — 구현·로컬 검수 완료, 10-19 배포·크롬 검수 예정 (`v1.12`, Claude Code(윈도우), 2026-10-18) | `four-cut-comics/AGENTS.md` |
 | 82 | AI 패션스타일 자동화 | `fashion-style` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `fashion-style/AGENTS.md` |

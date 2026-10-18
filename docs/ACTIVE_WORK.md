@@ -19,4 +19,5 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | four-cut-comics | Claude Code(윈도우) | 2026-10-18 03:25 | 디자인 리뉴얼 v1.12(81번) — 구현 완료, 10-19 배포·크롬 검수 대기 |
+| portrait-photo | Claude Code(윈도우) | 2026-10-18 | 79번 디자인 리뉴얼 — 플랜 승인 대기 (`portrait-photo/docs/PLAN_20261018_DESIGN_RENEWAL.md`) |
 
