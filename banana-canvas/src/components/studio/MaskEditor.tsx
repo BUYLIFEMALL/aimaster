@@ -13,6 +13,9 @@ export function MaskEditor({ src, onApply, onCancel, busy }: { src: string; onAp
   const strokes = useRef<Stroke[]>([]);
   const current = useRef<Stroke | null>(null);
   const [count, setCount] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  // [빠른 작업] 카드에서 열면 편집기는 위쪽 원본 카드 안이라 화면 밖일 수 있음 → 열릴 때 보이게 스크롤
+  useEffect(() => { rootRef.current?.scrollIntoView?.({ block: "center" }); }, []);
 
   function onLoad() {
     const im = imgRef.current;
@@ -73,7 +76,7 @@ export function MaskEditor({ src, onApply, onCancel, busy }: { src: string; onAp
   }
 
   return (
-    <div className="bc-mask">
+    <div className="bc-mask" ref={rootRef}>
       <div className="actions">
         <b>지울 영역을 브러시로 칠하세요</b>
         <label className="bc-inline">브러시 크기

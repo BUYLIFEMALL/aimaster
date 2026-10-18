@@ -256,6 +256,7 @@ https://style-dna-analyzer.buylife.xyz
 - **다음 첫 단계**: 실패 5곳은 각 폴더 담당 작업 중 여부(`docs/ACTIVE_WORK.md`) 확인 후, 테스트 기대값이 낡은 것인지 실제 회귀인지 하나씩 판정. `file-merge`는 `npm run dev` 상태에서 다시 실행.
 - **판정 진행(2026-10-19 Claude Code 윈도우)**: `file-merge` ✅ **코드 문제 아님 확인** — 문서 순서(`npm run build:verify` → `node tests/local.mjs start` → `test:browser`)로 다시 돌려 12/12 통과. `tests/browser.mjs`에 브라우저 선택 `FM_TEST_CHANNEL`(기본 `msedge` 유지, Claude Code는 `chrome`) 추가, 앞선 실패 실행이 덮어쓴 `docs/evidence/local-browser-v107.json`을 통과 기록으로 갱신. 앱 코드·버전·배포 변경 없음.
   - `ai-task-planner` ✅ **v1.08 배포** — 실패 3건: ① 제목 문구 변경(기대값만 갱신) ② **실제 회귀**: 차트 눈금이 막대와 30px·10px 어긋남 → `overview.css` ③ **실제 회귀**: 계정 `margin-top: auto`로 메뉴와 떨어짐(플랫폼 규칙 위반) → `globals.css`. 브라우저 30/30, READY, DB v1.08, 메인 크롬 운영 확인(눈금 차이 0px·계정 간격 8px). https://ai-task-planner.buylife.xyz
+  - `banana-canvas` ✅ **v1.09 배포** — ① 테스트 번들에 새 변수 이름(`PUBLISHABLE_KEY`) 정의 누락 → 테스트 화면만 업로드 멈춤(운영 정상, 설정 추가) ② **실제 편의성 문제**: 「부분 삭제」 편집기가 화면 밖에 열림 → 열릴 때 자동 스크롤. 브라우저 17/17, READY, DB v1.09, 운영 v1.09 확인. https://banana-canvas.buylife.xyz
 
 ## 📌 AGY 반영 대기 — 매뉴얼 연계 링크 4건 (2026-10-19 Claude Code(윈도우) 정리)
 

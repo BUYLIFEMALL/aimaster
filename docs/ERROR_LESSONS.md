@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — 공용 변수 이름을 추가한 뒤 esbuild 브라우저 테스트가 업로드에서 멈춤 (banana-canvas·reverse-prompt, Claude Code 윈도우)
+- **증상**: 테스트 화면에서 업로드가 「업로드 중…」에 멈추거나 안내가 뜨지 않음. 운영 화면은 정상.
+- **원인**: 2026-10-16 새·기존 변수 호환으로 클라이언트가 `process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 먼저 읽게 됐는데, esbuild로 묶는 테스트는 `define`에 적힌 이름만 바꿔 넣는다. 빠진 이름은 브라우저에서 `process is not defined` 오류(Next 빌드는 모르는 `NEXT_PUBLIC_*`도 채워서 운영은 무사).
+- **해결**: 각 `tests/browser.mjs` `define`에 `"process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": '""'` 추가(`four-cut-comics`는 처음부터 있었음).
+- **다음부터 확인**: 코드에서 읽는 환경 변수 이름을 늘리면 `grep -rn "define" */tests/*.mjs`로 esbuild 테스트의 `define`도 함께 고친다.
+
 ## 2026-10-19 — 디자인 리뉴얼 뒤 브라우저 테스트를 안 돌려, 테스트가 이미 잡던 화면 회귀 2건이 운영에 남음 (ai-task-planner v1.07 → v1.08, Claude Code 윈도우)
 - **증상**: `npm run test:browser` 실패. 차트 눈금이 막대와 30px·10px 어긋남, 큰 화면에서 계정이 메뉴와 떨어짐.
 - **원인**: 리뉴얼 CSS에서 눈금 칸 여백을 어림값(`padding-bottom: 20px`)으로 두고, `.sidebar-account`를 `margin-top: auto`로 바꿈. 테스트는 두 가지를 모두 검사하고 있었지만 리뉴얼 뒤 실행되지 않음.

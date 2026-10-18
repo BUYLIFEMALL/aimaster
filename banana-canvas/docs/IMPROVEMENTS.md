@@ -62,3 +62,11 @@
 - **공식 서비스 URL**:  
   https://photo-remake-studio.buylife.xyz
 - **분석 및 개선점**: 옛날 사진 복원, 흑백 컬러화, 고화질 리마스터링을 전문으로 하는 프로그램이므로, Before/After 슬라이더 비교 뷰어 컴포넌트 강화 및 사진 복원 단계별 비주얼 가이드북(`/guide`) 신설이 필수적임.
+
+## 2026-10-19 Claude Code(윈도우) — 브라우저 테스트 판정 중 발견 (v1.09)
+| 구분 | 내용 | 상태 | 관련 파일 |
+|---|---|---|---|
+| 편의성 | 「부분 삭제」를 누르면 편집기가 화면 밖(위쪽 원본 카드)에 열려 반응이 없어 보임 | **처리(v1.09, 열릴 때 자동 스크롤)** | `src/components/studio/MaskEditor.tsx` |
+| 테스트 | 테스트 번들에 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 정의 누락 → 업로드 멈춤(테스트 화면만) | **처리(v1.09)** | `tests/browser.mjs` |
+| 디자인(AGY) | 원본이 없어 꺼진 [앨범 제작 실행]·[만화 패널 생성] 노란 버튼이 다른 꺼진 버튼보다 밝아 켜진 것처럼 보임 — 꺼진 `.primary` 대비 조정 제안 | 제안 | `src/app/globals.css` |
+| 로직 | 업로드 중 예외가 나면 `busy`가 풀리지 않아 「업로드 중…」에 멈출 수 있음 — `pickBase`/`addSource`를 `try/finally`로 | 제안 | `src/components/studio/Studio.tsx` |
