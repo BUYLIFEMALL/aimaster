@@ -1,5 +1,59 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — 뮤직비디오 자동화 v1.11: 사이버 네온 다크 콘솔 스타일 리뉴얼·375px 모바일 슬림헤더&드로어·비주얼 가이드북 신설·Vercel 프로덕션 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 49개 완료 달성!)
+
+- **대상**: `music-video-studio/` (https://music-video-studio.buylife.xyz, slug: `music-video-studio`, 16번)
+- **한 일**:
+  1. **사이버 네온 다크 콘솔 스타일 — 뮤직비디오 앰프 데크 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **사이버 네온 다크 콘솔 스타일 — 뮤직비디오 앰프 데크 에디션 (Cyber Neon Dark Console Style — Music Video Deck Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(음악 기획, 스토리보드, 씬 제작, API 키 설정, 로그인) 배경을 퓨어 딥 블랙(`#060911`), 콘솔 서피스 카드(`bg-[#0a0f1d]`), 테두리(`border-cyan-500/20`), 앰프 노브 & 네온 포인트(시안 `#00f2fe`, 마젠타/핑크 `#f43f5e`, `#ec4899`)로 완벽 일체화.
+  2. **375px 모바일 반응형 내비게이션 완비 (Sidebar.tsx & layout.tsx)**:
+     - 375px 모바일 뷰포트 최적화 56px 상단 슬림 네온 헤더(`h-14 bg-[#0a0f1d]/95 backdrop-blur-md border-b border-cyan-500/20`, 앰프 로고 + 프로그램명 + 버전 뱃지 + ☰ 햄버거 버튼).
+     - ☰ 버튼 클릭 시 좌측 슬라이딩 오버레이 드로어(Drawer) 및 네온 네비게이션 전개, 메뉴 터치 시 자동 닫힘, 가로 스크롤 넘침(`overflow-x-hidden`) 0px 완벽 방어.
+  3. **3단계 엔드투엔드 파이프라인 콘솔화**:
+     - 1단계: 음악·가사 기획 (`/music`) ➔ 2단계: AI 스토리보드 분할 (`/storyboard`) ➔ 3단계: 씬 렌더링 콘솔 (`/scenes`).
+     - 좌측 사이드바에 **`📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 신설**.
+  4. **비주얼 연동 & 사용 매뉴얼 (/guide) 전면 신설 (DESIGN.md 원칙 9번 준수)**:
+     - 네온 앰프 오라 히어로 배너 (`v1.11`).
+     - **4단계 뮤직비디오 프로덕션 파이프라인 비주얼 카드** (1. 음악 기획 ➔ 2. 스토리보드 분할 ➔ 3. 장면 이미지 생성 ➔ 4. Veo 비디오 렌더링).
+     - Suno AI 음악 프롬프트 치트시트 (`[Verse]`, `[Chorus]` 구조화 팁 & 장르 태그 나열법).
+     - Google Veo 영상 생성 및 8초 심리스 루프(Seamless Loop) 영상 제작 노하우.
+     - Google Gemini API 키 연동 및 결제 활성화(Pay-as-you-go) 보안 안내.
+     - 자주 묻는 질문(FAQ 5종 아코디언 컴포넌트) 수록.
+  5. **씬 렌더링 콘솔 & 설정/로그인 화면 리뉴얼**:
+     - `scenes/page.tsx`: Veo 엔진 셀렉터 랙, 클립 길이, 종횡비, 심리스 루프 On/Off 토글, 사전 예상 비용(달러 및 원화) 안내 배지, 씬별 프리뷰 카드 다크 테마 일체화.
+     - `settings/page.tsx`: Gemini API 키 등록 카드 다크 글래스모피즘 일체화, 마스킹 키 표시, 삭제 기능, 팝업 매뉴얼 버튼.
+     - `login/page.tsx`: 네온 앰프 콘솔 스타일 로그인/회원가입 탭 토글 카드 리뉴얼 및 오타 문구 정정.
+  6. **버전 동기화 (v1.11)**:
+     - `src/lib/version.ts`, `package.json` `v1.11` 갱신.
+     - Supabase DB `programs.version`을 `v1.11`로 업데이트 완료 (`slug: music-video-studio`).
+  7. **로컬 빌드 및 무결성 검증**:
+     - `npm test`: 17개 단위 테스트 케이스 100% 통과 (0.37s).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (Compiled in 5.9s).
+  8. **Vercel 프로덕션 배포 완료**:
+     - Vercel 프로덕션 배포 완료 (`dpl_CQLHSQZP7FQj3foYhmoXNN9VVjwh`), 프로덕션 도메인 https://music-video-studio.buylife.xyz 즉시 반영.
+  9. **Microsoft Edge 포그라운드 실세션 검수 (headless: false)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 검수 완료.
+     - 캡처 8종 아티팩트 보존:
+       - `edge_music_video_desktop_music_v111.png`: 1440px 데스크톱 1단계 음악·가사 기획
+       - `edge_music_video_desktop_storyboard_v111.png`: 1440px 데스크톱 2단계 스토리보드 분할
+       - `edge_music_video_desktop_scenes_v111.png`: 1440px 데스크톱 3단계 씬 렌더링 콘솔
+       - `edge_music_video_desktop_guide_v111.png`: 1440px 데스크톱 비주얼 가이드북
+       - `edge_music_video_desktop_settings_v111.png`: 1440px 데스크톱 API 키 설정 콘솔
+       - `edge_music_video_mobile_music_v111.png`: 375px 모바일 음악 기획 및 상단 56px 슬림 네온 헤더
+       - `edge_music_video_mobile_drawer_v111.png`: 375px 모바일 햄버거 메뉴 터치 후 슬라이딩 드로어
+       - `edge_music_video_mobile_guide_v111.png`: 375px 모바일 비주얼 가이드북
+  10. **인수인계 문서 6종 완비**:
+      - `music-video-studio/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+      - `music-video-studio/README.md` (동기화)
+      - `music-video-studio/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+      - `music-video-studio/docs/IMPROVEMENTS.md` (개선 제안서: 필수 3대 항목 + 타 프로그램 탐색 제안)
+      - `music-video-studio/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+      - `music-video-studio/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+
+https://music-video-studio.buylife.xyz
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — 이미지 변환 스튜디오 v1.07: 크리에이티브 아틀리에 딥 나이트 테마 리뉴얼·375px 모바일 헤더&드로어 구축·비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 48개 완료 달성!)
 
 - **대상**: `image-convert-studio/` (https://image-convert-studio.buylife.xyz, slug: `image-convert-studio`, 17번)

@@ -1,42 +1,34 @@
-# 뮤직비디오 자동화 (music-video-studio) — v1.02
+# 뮤직비디오 자동화 (music-video-studio)
 
-주제·장르로 가사를 쓰고, 가사를 장면으로 나눈 스토리보드를 만들어 **장면별 이미지(나노바나나)와 Veo 영상 클립**까지 만드는 프로그램입니다.
-참고 도구: Google Flow "뮤직비디오 만들기 V3"(공유 도구). 화면·옵션을 실제 Chrome으로 확인해 AIMaster 규칙(통합 로그인·권한, 흰색 베이스, 표준 사이드바, 회원 본인 키)에 맞춰 새로 만들었습니다.
+> **공식 서비스 URL**: https://music-video-studio.buylife.xyz  
+> **현재 버전**: `v1.11` (사이버 네온 다크 콘솔 스타일 — 뮤직비디오 앰프 데크 에디션)
 
-- 주소: https://music-video-studio.buylife.xyz (Vercel 프로젝트 `music-video-studio`, 팀 buylife)
-- 카테고리 멀티미디어, FREE 배지(프로그램 자체는 무료). **AI 호출은 모두 회원 본인 Gemini 키**(서버에서만 사용, 폴백 없음)이며 영상 비용은 본인 계정에 청구됩니다.
+---
 
-## 단계
-1. **음악·가사**(`/music`): 주제+장르 10종 → 제목·Suno 스타일·가사(복사 버튼), 직접 붙여 넣기, 설정 내보내기/불러오기/새로 시작
-2. **스토리보드**(`/storyboard`): 장면 수 1~8, 추가 묘사, 기본 화풍 8종, 참고 이미지 최대 3장 → 장면별 가사 + 영문 촬영 묘사(수정 가능)
-3. **장면 제작**(`/scenes`): 장면별 Image/Video, 전체 생성, Veo 모델(Lite/Fast/Standard)·길이 4/6/8초·심리스 루프·16:9/9:16, 예상 비용 확인창, ZIP 저장
-4. **API키등록·플랫폼연동**(`/settings`): Gemini 키 등록(마스킹 표시)
+## 1. 개요 및 목적
+- AI 작곡(Suno/Udio) 음원에 맞춰 가사 기획부터 스토리보드 분할, Gemini 나노바나나 고화질 이미지 생성, Google Veo 3.1 비디오 렌더링 및 8초 심리스 루프(Seamless Loop) 영상 생성까지 원스톱으로 지원하는 AI 뮤직비디오 프로덕션 자동화 플랫폼.
+- 유튜브 쇼츠, 인스타그램 릴스, 틱톡 등에 특화된 세로형(9:16) 및 가로형(16:9) 고화질 음악 배경 영상을 손쉽게 양산할 수 있습니다.
 
-## 구조
-- `src/lib/music/{presets,types,prompts,veo,project}.ts` 순수 함수(프롬프트·파서·Veo 요청/응답·비용·검증) — `npm test`(17개)
-- `src/lib/ai/{llm,gemini}.ts` 서버 호출(Gemini 텍스트 `gemini-3.7-flash`, 이미지 `gemini-3.1-flash-image` + sharp로 JPEG 축소)
-- `src/app/api/music/{lyrics,storyboard,image}` 텍스트·이미지, `video/{start,status,download}` Veo 비동기 작업(시작 → 8초마다 확인 → 서버가 본인 키로 내려받아 스트리밍)
-- 상태: `ProjectProvider`(글은 localStorage 자동 저장, 이미지·영상은 메모리에만 — 내려받아 보관)
+---
 
-## Veo 규격(문서 확인 2026-10-12, ai.google.dev/gemini-api/docs/veo)
-`POST /v1beta/models/{veo-3.1-lite|fast|}-generate-preview:predictLongRunning` → 작업 이름 → `GET /v1beta/{name}` 반복 → `response.generateVideoResponse.generatedSamples[0].video.uri` → 키 헤더로 내려받기. 이미지 입력은 `image.inlineData`, 루프는 `lastFrame`(같은 이미지)로 구현하고 이때 8초로 고정. 내려받기 주소는 `generativelanguage.googleapis.com`만 허용(SSRF 방지).
-요금(초당, 720p·오디오 포함): Lite $0.05 / Fast $0.10 / Standard $0.40 (`presets.ts` `VEO_MODELS`, 바뀌면 같이 수정).
+## 2. 주요 기능 및 4단계 파이프라인
+1. **1단계: 음악 & 가사 기획 (`/music`)**: 장르, 무드, 보컬 프리셋 설정, 완성형 가사 자동 생성, Suno 음악 프롬프트 추출.
+2. **2단계: AI 스토리보드 분할 (`/storyboard`)**: 가사를 타임라인 씬(Scene)으로 분할, 장면별 카메라 앵글 및 비주얼 프롬프트 자동 작성.
+3. **3단계: 고화질 장면 렌더링 (`/scenes`)**: Gemini 나노바나나 씬 이미지 생성, Google Veo 3.1 비디오 모션 렌더링, ZIP 패키징 다운로드.
+4. **연동 & 비주얼 매뉴얼 (`/guide`, `/settings`)**: 4단계 워크플로우 가이드, Suno/Veo 노하우, FAQ, 본인 Gemini API 키 암호화 관리.
 
-## 작업 기록·남은 일
-- v1.01 (2026-10-12): 신규 제작·등록·배포. 라이브 Chrome(member 계정)에서 1·3단계 화면, 비용 확인창, 안내 문구 확인.
-- **실제 AI·Veo 생성은 검증하지 못했습니다**(회원 본인 키 필요, Veo는 유료). 첫 사용 시 확인할 것: ① `gemini-3.7-flash`/`gemini-3.1-flash-image` 모델 응답 ② Veo 요청 본문(특히 `durationSeconds` 숫자 형식, `lastFrame` 루프) ③ 4.5MB 응답 제한 안에서의 영상 내려받기(스트리밍 프록시) ④ Lite 모델 ID 사용 가능 여부.
-- 화풍 목록: Flow에서 5종(Cinematic·Anime·Oil Painting·Watercolor·Cyberpunk)만 확인, 나머지 3종은 추가분. 장면 수·길이 선택지는 Veo 문서 기준.
-- 등록 SQL: `supabase/migrations/0001_register_program.sql`
-- **고도화 예정(2026-10-12 주인님 확정): Suno 음악기획 자동화(`suno-music-studio`)와 연계.** 1단계 가사 생성이 겹치므로, Suno 음악기획의 저장곡 JSON을 불러오거나 1단계를 가사 붙여 넣기 중심으로 줄이는 방향. 상세: `docs/HANDOFF_CLAUDE_SESSION_2026-10-12_PART2.md` 3번.
-- v1.02 (2026-10-12): 주인님 지시로 프로그램명을 "뮤직비디오 스튜디오"에서 **"뮤직비디오 자동화"**로 변경(화면·메타데이터·DB). slug·주소는 그대로.
-- 카탈로그 썸네일 등록(2026-10-12): `programs.thumbnail_url`, 기록 `supabase/migrations/0002_thumbnail.sql`.
+---
 
+## 3. UI/UX 디자인 시스템
+- **공식 테마**: **사이버 네온 다크 콘솔 스타일 — 뮤직비디오 앰프 데크 에디션**
+- **색상 팔레트**: 퓨어 딥 블랙(`#060911`), 네온 다크 콘솔(`#0a0f1d`), 네온 시안(`#00f2fe`), 네온 핑크/마젠타(`#f43f5e`, `#ec4899`).
+- **모바일 반응형**: 375px 모바일 56px 슬림 네온 헤더 + 슬라이딩 드로어 메뉴 완비.
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.04)
+---
 
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.05 (music-video-studio)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 4. 인수인계 문서 및 히스토리
+- 상세 기술 스펙 및 인수인계: [`AGENTS.md`](./AGENTS.md)
+- 디자인 개발완료 보고서: [`docs/DESIGN_HANDOFF.md`](./docs/DESIGN_HANDOFF.md)
+- 개선사항 및 고도화 제안: [`docs/IMPROVEMENTS.md`](./docs/IMPROVEMENTS.md)
+- 작업 대기 백로그: [`docs/IMPROVEMENT_BACKLOG.md`](./docs/IMPROVEMENT_BACKLOG.md)
+- 사전 개발 플랜: [`docs/PLAN_20261018_DESIGN_RENEWAL.md`](./docs/PLAN_20261018_DESIGN_RENEWAL.md)

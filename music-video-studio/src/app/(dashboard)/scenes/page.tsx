@@ -174,70 +174,128 @@ export default function ScenesPage() {
 
   return (
     <div className="space-y-6">
-      <StepHeader step={3} title="장면 제작" desc="장면마다 이미지를 만들고, 그 이미지로 Veo 영상 클립을 만듭니다. 영상은 길이만큼 본인 계정에 요금이 청구됩니다." />
+      <StepHeader
+        step={3}
+        title="장면 제작 (Scene Rendering Console)"
+        desc="장면마다 시네마틱 이미지를 생성하고, Veo 엔진을 통해 고화질 비디오 클립으로 렌더링합니다. (회원님 본인 Gemini API 키로 직접 실행)"
+      />
 
-      <Card className="space-y-4">
-        <h2 className="text-sm font-bold text-gray-900">씬 전용 설정</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="영상 생성 모델" hint={`${modelInfo.note} · 초당 약 $${modelInfo.usdPerSecond} (720p, 오디오 포함)`}>
+      <Card className="space-y-5 border-cyan-500/30 bg-gradient-to-br from-[#0c1322] via-[#0a0f1d] to-[#070b14]">
+        <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
+            <h2 className="text-sm font-bold tracking-wide text-cyan-300">씬 전용 엔진 설정 (Engine Rack)</h2>
+          </div>
+          <span className="font-mono text-xs text-slate-400">
+            총 {scenes.length}개 장면 · {imageCount}개 이미지 · {videoCount}개 영상 완료
+          </span>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="영상 생성 모델 (Veo Engine)" hint={`${modelInfo.note} · 초당 약 $${modelInfo.usdPerSecond} (720p, 시네마틱 모션)`}>
             <select className={SELECT} value={video.model} onChange={(e) => patchVideo({ model: e.target.value as VeoModelId })}>
               {VEO_MODELS.map((m) => (
-                <option key={m.value} value={m.value}>
+                <option key={m.value} value={m.value} className="bg-[#0b101e] text-slate-100">
                   {m.label}
                 </option>
               ))}
             </select>
           </Field>
-          <Field label="영상 길이" hint={video.loop ? "루프(첫·마지막 프레임 지정)를 쓰면 8초로 고정됩니다." : undefined}>
+          <Field label="영상 클립 길이" hint={video.loop ? "심리스 루프 활성화 시 8초로 자동 고정됩니다." : "단일 클립 길이 선택"}>
             <select className={SELECT} value={video.length} onChange={(e) => patchVideo({ length: Number(e.target.value) as VideoLength })}>
               {VIDEO_LENGTHS.map((n) => (
-                <option key={n} value={n}>
+                <option key={n} value={n} className="bg-[#0b101e] text-slate-100">
                   {n}초
                 </option>
               ))}
             </select>
           </Field>
-          <Field label="화면 비율" hint="이미지와 영상 모두에 적용됩니다. 이미 만든 이미지는 바뀌지 않습니다.">
+          <Field label="화면 비율 (Aspect Ratio)" hint="이미지와 비디오 클립 모두에 일괄 적용됩니다.">
             <select className={SELECT} value={video.ratio} onChange={(e) => patchVideo({ ratio: e.target.value as AspectRatioId })}>
               {ASPECT_RATIOS.map((r) => (
-                <option key={r.value} value={r.value}>
+                <option key={r.value} value={r.value} className="bg-[#0b101e] text-slate-100">
                   {r.label}
                 </option>
               ))}
             </select>
           </Field>
           <div>
-            <span className="mb-1 block text-xs font-bold text-gray-700">심리스 루프</span>
-            <div className="inline-flex overflow-hidden rounded-xl border border-gray-200 text-sm font-semibold" role="group">
+            <span className="mb-1.5 block text-xs font-semibold text-slate-300">심리스 무한 루프 (Seamless Loop)</span>
+            <div className="inline-flex overflow-hidden rounded-xl border border-cyan-500/30 bg-slate-900/80 p-0.5 text-xs font-semibold" role="group">
               {[true, false].map((on) => (
-                <button key={String(on)} type="button" aria-pressed={video.loop === on} onClick={() => patchVideo({ loop: on })} className={`px-4 py-2.5 ${video.loop === on ? "bg-rose-600 text-white" : "text-gray-600 hover:bg-gray-50"}`}>
-                  {on ? "On" : "Off"}
+                <button
+                  key={String(on)}
+                  type="button"
+                  aria-pressed={video.loop === on}
+                  onClick={() => patchVideo({ loop: on })}
+                  className={`rounded-lg px-4 py-2 transition-all ${
+                    video.loop === on
+                      ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-[0_0_12px_rgba(244,63,94,0.4)]"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {on ? "On (8s)" : "Off"}
                 </button>
               ))}
             </div>
-            <span className="mt-1 block text-[11px] text-gray-500">장면 이미지가 있어야 적용됩니다(이미지 → 같은 이미지로 돌아오는 영상).</span>
+            <span className="mt-1.5 block text-[11px] text-slate-500">
+              첫 프레임과 마지막 프레임이 매끄럽게 연결되는 루핑 영상 (쇼츠/릴스 배경에 이상적)
+            </span>
           </div>
         </div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-          예상 비용: 영상 1개 약 ${perSceneCost(true).usd} (약 {perSceneCost(true).krw.toLocaleString()}원), 장면 {scenes.length}개 전부 만들면 약 ${totalCost.usd} (약 {totalCost.krw.toLocaleString()}원). 요금표·환율에 따라 달라질 수 있으며 회원님 Gemini 계정에 청구됩니다.
+
+        <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-3.5 text-xs text-amber-200">
+          <div className="flex items-center gap-2 font-semibold text-amber-300">
+            <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+            <span>예상 API 비용 안내 (Google Cloud 직접 청구)</span>
+          </div>
+          <p className="mt-1 leading-relaxed text-amber-200/90">
+            영상 1개당 약 ${perSceneCost(true).usd} (약 {perSceneCost(true).krw.toLocaleString()}원), 전체 {scenes.length}개 장면 일괄 렌더링 시 약 ${totalCost.usd} (약 {totalCost.krw.toLocaleString()}원).
+            회원님 본인 Gemini API 계정으로만 청구되며, 이미지만 생성할 경우 무료/저비용으로 기획안을 확인할 수 있습니다.
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className={BTN_GHOST} disabled={anyBusy || imageCount === scenes.length} onClick={() => void generateAllImages()}>
-            <ImageIcon className="h-4 w-4" /> 이미지 전체 생성 ({scenes.length - imageCount}개)
+
+        <div className="flex flex-wrap items-center gap-2.5 pt-1">
+          <button
+            type="button"
+            className={BTN_GHOST}
+            disabled={anyBusy || imageCount === scenes.length}
+            onClick={() => void generateAllImages()}
+          >
+            <ImageIcon className="h-4 w-4 text-cyan-400" />
+            <span>이미지 일괄 생성 ({scenes.length - imageCount}개 대기)</span>
           </button>
-          <button type="button" className={BTN_PRIMARY} disabled={anyBusy} onClick={() => setConfirm("all")}>
-            <Film className="h-4 w-4" /> 영상 전체 생성
+          <button
+            type="button"
+            className={BTN_PRIMARY}
+            disabled={anyBusy}
+            onClick={() => setConfirm("all")}
+          >
+            <Film className="h-4 w-4" />
+            <span>영상 일괄 렌더링 (Veo 렌더 랙)</span>
           </button>
-          <button type="button" className={BTN_GHOST} disabled={zipping || (imageCount === 0 && videoCount === 0)} onClick={() => void downloadZip()}>
-            {zipping ? <Loader2 className="h-4 w-4 animate-spin" /> : <Package className="h-4 w-4" />} 전체 ZIP 저장
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-2.5 text-xs font-semibold text-slate-200 transition-all hover:border-slate-600 hover:bg-slate-800 disabled:opacity-40"
+            disabled={zipping || (imageCount === 0 && videoCount === 0)}
+            onClick={() => void downloadZip()}
+          >
+            {zipping ? <Loader2 className="h-4 w-4 animate-spin text-pink-400" /> : <Package className="h-4 w-4 text-pink-400" />}
+            <span>전체 프로젝트 ZIP 패키지 다운로드</span>
           </button>
         </div>
+
         {confirm === "all" && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900">
-            <p>영상 {scenes.length}개를 만듭니다. 약 ${totalCost.usd}(약 {totalCost.krw.toLocaleString()}원)이 회원님 Gemini 계정에 청구됩니다. 진행할까요?</p>
-            <div className="mt-2 flex gap-2">
+          <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-4 text-xs text-rose-200">
+            <p className="font-semibold text-rose-300">
+              전체 {scenes.length}개 장면의 Veo 비디오 생성을 시작합니다.
+            </p>
+            <p className="mt-1 leading-relaxed text-rose-200/90">
+              약 ${totalCost.usd} (약 {totalCost.krw.toLocaleString()}원)의 API 비용이 등록하신 회원님 Gemini 계정에 직접 청구됩니다. 계속 진행하시겠습니까?
+            </p>
+            <div className="mt-3 flex gap-2">
               <button type="button" onClick={() => void generateAllVideos()} className={BTN_PRIMARY}>
-                진행
+                네, 일괄 렌더링 시작
               </button>
               <button type="button" onClick={() => setConfirm(null)} className={BTN_GHOST}>
                 취소
@@ -245,83 +303,145 @@ export default function ScenesPage() {
             </div>
           </div>
         )}
+
         {error && <ErrorNote message={error.message} needKey={error.needKey} />}
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* 장면 그리드 */}
+      <div className="grid gap-5 lg:grid-cols-2">
         {scenes.map((s, i) => {
           const m = media[s.id] ?? {};
           const hasImage = !!m.imageUrl;
           const cost = perSceneCost(hasImage);
-          const aspect = video.ratio === "16:9" ? "aspect-video" : "aspect-[9/16] max-h-[420px] mx-auto";
+          const aspect = video.ratio === "16:9" ? "aspect-video" : "aspect-[9/16] max-h-[460px] mx-auto";
           return (
-            <Card key={s.id} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-700">SCENE {i + 1}</span>
-                <span className="text-[11px] text-gray-400">{imageCount > 0 || videoCount > 0 ? "" : "결과는 저장되지 않으니 내려받아 보관하세요"}</span>
-              </div>
-              <div className={`relative w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-100 ${aspect}`}>
-                {m.videoUrl ? (
-                  <video src={m.videoUrl} controls loop playsInline className="h-full w-full object-cover" />
-                ) : m.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.imageUrl} alt={`장면 ${i + 1}`} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full min-h-40 items-center justify-center text-sm text-gray-400">이미지를 만들어주세요</div>
-                )}
-                {(m.imageBusy || m.videoBusy) && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/80 text-sm text-gray-700">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                    <span className="px-3 text-center text-xs">{m.videoBusy ? m.videoNote : "이미지를 만드는 중…"}</span>
+            <Card
+              key={s.id}
+              className="flex flex-col justify-between space-y-3.5 border-slate-800/80 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] hover:border-cyan-500/30"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800/60 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-lg border border-pink-500/30 bg-pink-500/10 px-2.5 py-0.5 font-mono text-xs font-bold text-pink-400">
+                      SCENE {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-[11px] font-medium text-slate-400">
+                      {m.videoUrl ? "🎬 영상 준비 완료" : m.imageUrl ? "🖼 이미지 준비 완료" : "대기 중"}
+                    </span>
                   </div>
-                )}
-              </div>
-              <p className="whitespace-pre-line text-sm font-semibold text-gray-800">{s.lyric}</p>
-              <p className="line-clamp-2 text-xs italic text-gray-500" title={s.prompt}>
-                {s.prompt}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <button type="button" className={BTN_GHOST} disabled={m.imageBusy || m.videoBusy} onClick={() => void generateImage(s)}>
-                  <ImageIcon className="h-4 w-4" /> {hasImage ? "이미지 다시" : "Image"}
-                </button>
-                <button type="button" className={BTN_PRIMARY} disabled={m.imageBusy || m.videoBusy} onClick={() => setConfirm(s.id)}>
-                  <Film className="h-4 w-4" /> {m.videoUrl ? "영상 다시" : "Video"}
-                </button>
-                {m.imageUrl && (
-                  <button type="button" className={BTN_GHOST} onClick={() => saveUrl(m.imageUrl!, `scene-${String(i + 1).padStart(2, "0")}.jpg`)}>
-                    <Download className="h-4 w-4" /> 이미지
-                  </button>
-                )}
-                {m.videoUrl && (
-                  <button type="button" className={BTN_GHOST} onClick={() => saveUrl(m.videoUrl!, `scene-${String(i + 1).padStart(2, "0")}.mp4`)}>
-                    <Download className="h-4 w-4" /> 영상
-                  </button>
-                )}
-              </div>
-              {confirm === s.id && (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900">
-                  <p>
-                    영상 1개({effectiveLength(video.length, video.loop, hasImage)}초{hasImage ? ", 이 장면 이미지 기반" : ", 이미지 없이 텍스트만"})를 만듭니다. 약 ${cost.usd}(약 {cost.krw.toLocaleString()}원)이 청구됩니다. 진행할까요?
+                  <span className="font-mono text-[10px] text-slate-500">
+                    약 ${cost.usd} ({effectiveLength(video.length, video.loop, hasImage)}s)
+                  </span>
+                </div>
+
+                <div className={`relative w-full overflow-hidden rounded-xl border border-slate-800/90 bg-[#05070f] ${aspect}`}>
+                  {m.videoUrl ? (
+                    <video src={m.videoUrl} controls loop playsInline className="h-full w-full object-cover" />
+                  ) : m.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={m.imageUrl} alt={`장면 ${i + 1}`} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full min-h-48 flex-col items-center justify-center gap-2 text-slate-500">
+                      <ImageIcon className="h-8 w-8 text-slate-700" />
+                      <span className="text-xs">이미지를 먼저 생성해주세요</span>
+                    </div>
+                  )}
+
+                  {(m.imageBusy || m.videoBusy) && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 bg-black/80 backdrop-blur-xs text-cyan-300">
+                      <Loader2 className="h-7 w-7 animate-spin text-pink-500" />
+                      <span className="px-3 text-center font-mono text-xs tracking-wide">
+                        {m.videoBusy ? m.videoNote : "이미지 비주얼 렌더링 중…"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1.5 rounded-xl border border-slate-800/50 bg-slate-900/40 p-3">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Lyric Cue</div>
+                  <p className="whitespace-pre-line text-xs font-semibold leading-relaxed text-slate-200">
+                    {s.lyric}
                   </p>
-                  <div className="mt-2 flex gap-2">
+                </div>
+
+                <div className="space-y-1">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Visual Prompt</div>
+                  <p className="line-clamp-2 font-mono text-[11px] leading-relaxed text-slate-400 hover:line-clamp-none transition-all cursor-pointer" title={s.prompt}>
+                    {s.prompt}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-slate-800/60">
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    className={BTN_GHOST}
+                    disabled={m.imageBusy || m.videoBusy}
+                    onClick={() => void generateImage(s)}
+                  >
+                    <ImageIcon className="h-3.5 w-3.5 text-cyan-400" />
+                    <span>{hasImage ? "이미지 재생성" : "이미지 생성"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={BTN_PRIMARY}
+                    disabled={m.imageBusy || m.videoBusy}
+                    onClick={() => setConfirm(s.id)}
+                  >
+                    <Film className="h-3.5 w-3.5" />
+                    <span>{m.videoUrl ? "비디오 재생성" : "비디오 생성"}</span>
+                  </button>
+                  {m.imageUrl && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setConfirm(null);
-                        setError(null);
-                        void generateVideo(s);
-                      }}
-                      className={BTN_PRIMARY}
+                      className="inline-flex items-center gap-1 rounded-xl border border-slate-700/60 bg-slate-900/60 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
+                      onClick={() => saveUrl(m.imageUrl!, `scene-${String(i + 1).padStart(2, "0")}.jpg`)}
                     >
-                      진행
+                      <Download className="h-3.5 w-3.5 text-slate-400" />
+                      <span>JPG</span>
                     </button>
-                    <button type="button" onClick={() => setConfirm(null)} className={BTN_GHOST}>
-                      취소
+                  )}
+                  {m.videoUrl && (
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 rounded-xl border border-slate-700/60 bg-slate-900/60 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
+                      onClick={() => saveUrl(m.videoUrl!, `scene-${String(i + 1).padStart(2, "0")}.mp4`)}
+                    >
+                      <Download className="h-3.5 w-3.5 text-pink-400" />
+                      <span>MP4</span>
                     </button>
-                  </div>
+                  )}
                 </div>
-              )}
-              {m.error && <ErrorNote message={m.error} />}
+
+                {confirm === s.id && (
+                  <div className="rounded-xl border border-rose-500/40 bg-rose-950/40 p-3 text-xs text-rose-200">
+                    <p>
+                      장면 {i + 1} 비디오 클립({effectiveLength(video.length, video.loop, hasImage)}초
+                      {hasImage ? ", 생성된 이미지 기반 모션 적용" : ", 텍스트 프롬프트 기반"})을 생성합니다.
+                      약 ${cost.usd} (약 {cost.krw.toLocaleString()}원)이 청구됩니다. 진행하시겠습니까?
+                    </p>
+                    <div className="mt-2.5 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setConfirm(null);
+                          setError(null);
+                          void generateVideo(s);
+                        }}
+                        className={BTN_PRIMARY}
+                      >
+                        렌더링 시작
+                      </button>
+                      <button type="button" onClick={() => setConfirm(null)} className={BTN_GHOST}>
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {m.error && <ErrorNote message={m.error} />}
+              </div>
             </Card>
           );
         })}
