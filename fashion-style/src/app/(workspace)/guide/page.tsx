@@ -17,10 +17,29 @@ export default function GuidePage() {
   return (
     <>
       <div className="page-heading">
-        <p className="eyebrow">사용 설명서</p>
-        <h1>연동 & 사용 매뉴얼</h1>
-        <p>내 사진에 코디를 입혀 보고 메이크업·헤어까지 완성하는 방법입니다. 처음이라면 ①~③만 따라 해도 충분합니다.</p>
+        <p className="eyebrow" style={{ color: "var(--brand)" }}>FASHION MAGAZINE EDITORIAL GUIDE</p>
+        <h1 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span>👗 AI 패션스타일 연동 & 사용 매뉴얼</span>
+          <span style={{ fontSize: 13, padding: "3px 9px", borderRadius: 999, background: "rgba(244,114,182,0.18)", color: "var(--brand)", fontWeight: 700, border: "1px solid rgba(244,114,182,0.3)" }}>v1.10 매거진 미드나잇 에디션</span>
+        </h1>
+        <p>내 사진에 스타일리시한 코디를 직접 입혀보고 메이크업·헤어 뷰티 분석까지 완성하는 프리미엄 가이드북입니다.</p>
       </div>
+
+      <div className="card" style={{ marginBottom: 20, background: "linear-gradient(135deg, rgba(244,114,182,0.12) 0%, rgba(56,189,248,0.08) 100%)", borderColor: "rgba(244,114,182,0.3)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h3 style={{ fontSize: 16, color: "var(--brand)", marginBottom: 4 }}>✨ 패션 매거진 미드나잇 파이프라인 (3-Step Studio)</h3>
+            <p style={{ fontSize: 12, color: "var(--muted)" }}>드래그앤드롭 가상 착용과 감각적인 런웨이 조명으로 완벽한 퍼스널 스타일링을 구현합니다.</p>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "var(--brand-alt)" }}>#올드머니룩</span>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "var(--brand)" }}>#프렌치시크</span>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "#a78bfa" }}>#미니멀모던</span>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "var(--ok)" }}>#스마트비즈니스</span>
+          </div>
+        </div>
+      </div>
+
       <div className="gd">
         <nav className="gd-toc card" aria-label="목차">
           <strong>바로가기</strong>

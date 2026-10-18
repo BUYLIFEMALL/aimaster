@@ -1,23 +1,27 @@
-# AI 패션스타일 자동화 (fashion-style)
+# fashion-style (AI 패션스타일 자동화)
 
-인물 사진에 AI 스타일리스트가 추천한 코디를 입혀 보고 메이크업·헤어까지 완성하는 AIMaster 가상 피팅 스튜디오입니다. 사진·옷장은 서버에 저장하지 않고 회원 브라우저에만 보관하며, AI는 회원 본인의 Gemini 키로 호출합니다.
+> **공식 서비스 URL**: [https://fashion-style.buylife.xyz](https://fashion-style.buylife.xyz)  
+> **현재 버전**: `v1.10` (2026-10-18)  
+> **디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형 (Creative Atelier Style — Fashion Magazine Midnight Edition)**  
+> **관리/인수인계 규격서**: [AGENTS.md](AGENTS.md)
 
-- 운영: https://fashion-style.buylife.xyz · v1.01 · 인수인계 [AGENTS.md](AGENTS.md), [docs/CLI_HANDOFF.md](docs/CLI_HANDOFF.md) · 계획 [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md)
+---
 
-```bash
-npm install
-npm test                # 순수 로직 12개
-npm run test:browser    # 보이는 Chrome 15개(모의 Gemini). Playwright + 설치된 Chrome 필요
-npx next build
-vercel deploy --prod --yes --scope buylife   # 수정 때마다 DB programs.version +0.01
-```
+## 👗 개요
+AI 패션스타일 자동화는 업로드한 인물 사진에 TPO 상황별 의상/소품을 가상으로 입혀보고(Virtual Try-On), 메이크업 및 헤어 뷰티 분석까지 완성하는 프리미엄 퍼스널 스타일링 스튜디오입니다.
 
+## 🌟 주요 기능
+1. **상황별 코디 추천**: TPO 입력 시 의상 2세트 및 액세서리 자동 이미지 생성.
+2. **드래그앤드롭 가상 착용**: 인물 사진 위로 옷을 끌어다 놓아 즉시 피팅.
+3. **나만의 옷장**: 쇼핑몰 이미지 파일, 붙여넣기(Ctrl+V), 웹 주소로 옷 보관.
+4. **Before/After 비교 슬라이더**: 원본과 피팅 결과의 실시간 스와이프 비교.
+5. **AI 뷰티 스튜디오**: 의상 어울림 메이크업/헤어 분석 및 스타일링 조언.
+6. **비주얼 에디토리얼 가이드북 (`/guide`)**: 3-Step 스튜디오 파이프라인, 코디 칩 4종, FAQ 7종 아코디언.
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.05)
-
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.06 (fashion-style)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 🛠️ 기술 스택
+- **Framework**: Next.js 16.4.0 (Turbopack), React 19.3.0
+- **Language**: TypeScript 5.9.3
+- **AI**: `@google/genai` 1.21.0 (Gemini 2.5 Flash / Flash Lite)
+- **DB/Auth**: Supabase SSR (`@supabase/ssr`, `@supabase/supabase-js`)
+- **Storage**: IndexedDB (`idb`) 회원별 로컬 옷장 보관
+- **UI Icons**: `lucide-react` 1.48.0

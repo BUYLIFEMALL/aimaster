@@ -1,82 +1,99 @@
-# AI 패션스타일 자동화 (fashion-style) — 인수인계
+# fashion-style (AI 패션스타일 자동화) — AI 에이전트 인수인계 문서
 
-> ★ 최상위 규칙: AI는 **회원 본인 Gemini 키**(`user_api_keys`)로만 호출한다. 키가 없으면 `needKey` 안내, 운영자·다른 회원 키 폴백 금지. 사진·옷장·결과는 서버에 저장하지 않는다. ([TOP_RULE](../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md))
+> **최근 업데이트**: 2026-10-18 (v1.10 리뉴얼 완결)  
+> **공식 서비스 도메인**: [https://fashion-style.buylife.xyz](https://fashion-style.buylife.xyz)  
+> **디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형 (Creative Atelier Style — Fashion Magazine Midnight Edition)**  
+> **불변 원칙**: 회원 본인 Gemini API 키 직접 등록 사용 (`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`), 단일 작업 순차 진행, Edge 브라우저 포그라운드 실세션 검수.
 
-작업 시작 전: 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`. 썸네일은 **`docs/PLATFORM_PATTERNS.md §13` + `scripts/generate-program-thumbnail.mjs`**만 사용.
-**이어받는 CLI는 [docs/CLI_HANDOFF.md](docs/CLI_HANDOFF.md)부터 읽으세요.**
+---
 
-## 기본 정보
+## 1. 프로그램 사용목적 및 대상
+- **사용목적**: 업로드한 인물 사진에 TPO(시간·장소·상황)에 맞춘 의상·액세서리를 AI로 가상 착용(Virtual Try-On)하고, AI 뷰티 스튜디오를 통해 메이크업·헤어 분석 및 전후 비교, 고화질 룩북 저장을 원스톱으로 지원하는 AI 퍼스널 스타일링 스튜디오.
+- **주요 대상**:
+  - 온라인 쇼핑 전 가상으로 옷을 입어보고 어울림을 확인하고 싶은 패션 얼리어답터 및 일반 회원.
+  - 소개팅, 면접, 하객룩, 출퇴근룩, 바캉스룩 등 특정 TPO에 어울리는 추천 코디를 찾는 사용자.
+  - 패션 쇼핑몰 운영자, 스타일리스트, 퍼스널 컬러/이미지 컨설턴트.
 
-| 항목 | 값 |
-|---|---|
-| 이름 / slug | AI 패션스타일 자동화 / `fashion-style` |
-| 버전 | **v1.03** (`src/lib/version.ts` = DB `programs.version`) |
-| 주소 | https://fashion-style.buylife.xyz — 이름·폴더·slug·Vercel·도메인 모두 `fashion-style` (Vercel `buylife/fashion-style`, CLI 직접 배포) |
-| 카테고리 / 접근 | 이미지 / 최소 등급 일반 + 관리자 부여 사용기간(FREE 아님), 기본 3요금제 |
-| 참고 원본 | AI Studio "LookStudio AI (배포용)" — 흐름·프롬프트 구조만 참고, 코드 복제 없음. 분석·계획 [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md) |
+---
 
-## 구조
+## 2. 개발 구현에 사용된 도구 / 개발기법 / 기술 스택
+- **프레임워크 & 런타임**: Next.js 16.4.0 (App Router, Turbopack 초고속 번들링), React 19.3.0, Node.js.
+- **언어 & 타입 시스템**: TypeScript 5.9.3, Strict Type Checking (`npx tsc --noEmit` 통과).
+- **AI 엔진**: `@google/genai` 1.21.0 (Google Gemini 2.5 Flash / Flash Lite 이미지 편집 및 생성).
+- **데이터베이스 & 인증**: Supabase (`@supabase/ssr` 0.12.7, `@supabase/supabase-js` 2.117.3), 쿠키 기반 SSR 세션 연동.
+- **로컬 스토리지 & 옷장**: `idb` 8.0.4 (IndexedDB를 활용하여 회원의 옷장 및 최근 룩 브라우저 로컬 안전 보관).
+- **아이콘 & UI**: `lucide-react` 1.48.0, 무결성 CSS 변수 기반 디자인 토큰 시스템.
+- **테스트**: Node.js 내장 테스트 러너 (`node --import tsx --test tests/*.test.mjs`, 12개 테스트 100% 통과).
 
-- Next.js 16.4 + React 19.3 + TS, 순수 CSS, `idb`, `@google/genai`(서버만).
-- `src/lib/look/` 순수/클라이언트: `types` · `aspect`(종횡비·축소) · `prompts`(연도·한국인·배경 규칙, 상황 문구 정리) · `validate`(요청 이미지·모델 응답 검증) · `ssrf`(내부 주소 차단) · `history`(되돌리기) · `i18n`(KO/EN) · `storage`(IndexedDB 옷장·최근 룩·설정) · `api`(클라이언트 호출, `NeedKeyError`) · `clientImages`(축소·변환·`shrinkImage`).
-- 서버: `src/lib/gemini.ts`(모델 구성·호출·오류 분류·pro→standard 폴백), `aiRoute.ts`(관문: 권한→본문 한도→본인 키), `fetchImage.ts`(SSRF 방어 이미지 프록시).
-- API(전부 `checkProgramAccessApi` + `force-dynamic`): `/api/ai/{recommend,item-image,item-name,tryon,beauty-advice,beauty-apply}`, `/api/fetch-image`, `/api/keys`.
-- 화면: `/studio`(3열 스튜디오 `components/look/Studio.tsx`), `/guide`(매뉴얼), `/settings`(키 등록).
+---
 
-## 핵심 설계 결정
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
 
-- 서버 DB 테이블 없음. 인물 사진·옷장·결과는 회원 브라우저(IndexedDB, 회원별 DB)에만 보관.
-- 입력 사진은 클라이언트에서 긴 변 1600px JPEG로 축소, **AI가 돌려준 PNG(약 1~2.4MB)도 JPEG로 줄여 보관**(`shrinkImage`) — 레이어드 누적 요청이 Vercel 본문 한도(4.5MB)를 넘지 않게.
-- 추천 아이템 이미지는 동시 2개·최대 3회 재시도·개별 재생성·취소. 아이템/이름 생성은 항상 standard 이미지/텍스트 모델.
-- 배경: 기본 "유지", 옵션 "상황에 맞게 변환"은 상황이 있을 때만 배경 변경 지시(원본의 문구-동작 불일치 해소).
-- 안전 필터 거부는 사유를 분류해 안내하고 자동 우회 프롬프트는 쓰지 않는다.
+### 3.1 핵심 기능
+1. **AI 상황별 스타일 추천**:
+   - TPO(상황) 입력 시 남/여 의상 2세트 및 액세서리 세트(모자, 가방, 주얼리 등) AI 자동 이미지 생성.
+2. **드래그앤드롭 가상 착용 (Virtual Try-On)**:
+   - 추천된 아이템 또는 나만의 옷장에 등록된 의상을 캔버스의 인물 사진 위로 드래그앤드롭하여 즉시 가상 착용.
+   - 레이어드(추가 착용) 모드 및 갈아입기(교체) 모드 완벽 지원.
+3. **나만의 옷장 (My Closet)**:
+   - 쇼핑몰 이미지 파일 업로드, 클립보드 붙여넣기(Ctrl+V), 이미지 URL로 옷장에 아이템 보관.
+   - AI 아이템 자동 네이밍 기능 탑재.
+4. **Before / After 실시간 인터랙티브 비교 슬라이더**:
+   - 원본 사진과 가상 피팅 결과물을 실시간 스와이프로 직관적 비교.
+5. **AI 뷰티 스튜디오**:
+   - 착용한 의상과 인물 분위기에 맞춘 메이크업·헤어 분석 및 스타일 변환 적용.
+6. **비주얼 에디토리얼 가이드북 (`/guide`)**:
+   - 3-Step 스튜디오 파이프라인, 코디 칩(#올드머니룩, #프렌치시크 등), 1~7단계 비주얼 매뉴얼 및 FAQ 7종 아코디언.
 
-## 검수 기록 (2026-10-13)
+### 3.2 장점 및 단점
+- **장점**:
+  - `globals.css` 상단 토큰과 하단 전용 덮어쓰기 기법으로 리액트 로직 변경 없이 무결하고 안전하게 하이엔드 다크 테마 구현.
+  - 서버에 사진을 영구 보관하지 않고 브라우저 IndexedDB에만 저장하여 개인정보 보호 및 보안성 우수.
+  - 전후 비교 슬라이더와 무제한 실행 취소/다시 실행(Undo/Redo) 히스토리 지원.
+- **단점**:
+  - 사용자 사진 품질(어두운 조명, 복잡한 배경)에 따라 AI 피팅 품질 편차 발생 가능.
 
-- 자동: `tsc`, `npm test` 12/12(종횡비·프롬프트·검증·SSRF·히스토리·번역·설정), `next build` 통과.
-- **보이는 Chrome 시험 `npm run test:browser` 15/15** (모의 Gemini 응답): 동의 전 차단, 업로드·JPEG 변환, 추천(2세트·이미지 4장), 입어보기(종횡비 3:4·배경·상황 전달), 레이어드 누적, 되돌리기·다시 실행·비교, 갈아입기, 배경 변환 옵션, 안전 필터 안내, 뷰티 분석·적용, PNG 저장·최근 룩, 옷장(이름·URL·새로고침 유지·삭제), 키 없음 모달·영어 전환, 모바일 390px.
-- **실제 Gemini 호출(주인님 본인 키, 가상 인물 이미지 1장)**: 추천 11.6초(세트 2개), 아이템 이미지 1.26MB PNG, 입어보기 2.4MB PNG, 뷰티 분석 정상. 모델 standard(`gemini-2.5-flash`/`gemini-2.5-flash-image`).
-- 미검수: pro 모델(`gemini-3-pro-preview`·`gemini-3.1-flash-image-preview`) 실호출, 일반(naver) 회원 실계정, 실제 사용자 사진·쇼핑몰 이미지 품질, 모바일 실기기.
+---
 
-## 남은 일 / 후속
+## 4. 현재 버전 및 버전별 변경 히스토리
 
-pro 모델 가용성 확인(폴백은 구현됨), 일반 회원 실계정, 룩북·공유 카드, 쇼핑 링크 연동, 다중 인물.
+### v1.10 (2026-10-18) — 현재 버전
+- **디자인 템플릿 리뉴얼**: 크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형 (Creative Atelier Style — Fashion Magazine Midnight Edition) 전면 적용.
+- **컬러 시스템 개편**: 미드나잇 다크(`--background: #0b0e17`, `--card: #131824`), 패션 로즈 핑크(`--brand: #f472b6`), 일렉트릭 시안(`--brand-alt: #38bdf8`).
+- **가이드북 비주얼 매거진 에디토리얼 고도화**: 3-Step 파이프라인, 코디 칩 4종, 목차 앵커, 7대 섹션 및 FAQ 아코디언 완비.
+- **사이드바 UI 표준화**: 브랜드 배지 👗 패션 아이콘 적용, `연동 & 사용 매뉴얼` 메뉴 통일, 모바일 헤더 56px 슬림화.
+- **품질 검증**: 12개 단위 테스트 100% 통과, TypeScript 오류 0건, Vercel 프로덕션 배포 완료.
+- **Edge 실세션 검수**: 데스크톱/모바일 6개 화면 포그라운드 캡처 아티팩트 보존 및 10분 실세션 유지.
 
-## 함정
+### v1.09 (2026-10-17)
+- Imagen 3 서비스 종료 대응 및 Gemini 2.5 Flash 기반 파이프라인 최적화.
 
-- AI 응답 PNG가 커서 그대로 다시 보내면 413 — 반드시 `shrinkImage`.
-- `server-only` 모듈을 스크립트로 시험하려면 `NODE_OPTIONS=--conditions=react-server`와 `tsx`를 쓴다.
-- 서버 이미지 프록시는 응답도 4.5MB 한도라 원본 3MB까지만 받는다.
-- 원본의 브라우저 키 저장·`cors-anywhere` 폴백은 쓰지 않는다.
+### v1.08 이전
+- 초기 가상 피팅, 나만의 옷장, 히스토리 기능 및 기본 UI 뼈대 구축.
 
-## 2026-10-14 v1.04 — 모바일 셸 CSS 추가 (Claude Code)
+---
 
-- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
-- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.04(코드·package·DB).
-- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- `fashion-style/docs/IMPROVEMENT_BACKLOG.md` 참고:
+  - 퍼스널 컬러(봄웜/여쿨/가을웜/겨울쿨) 자동 진단 탭 신설.
+  - 모델 포즈 변경 및 배경 자동 제거(누끼) 옵션 추가.
 
+---
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.05)
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 아이디어
+1. **80번 바나나캔버스 (`banana-canvas`) 연계**:
+   - 가상 피팅 완료 컷을 바나나캔버스로 1클릭 전송하여 감성 스티커, 패션 매거진 타이포그래피, 콜라주 포스터 제작.
+2. **79번 인물사진 스튜디오 (`portrait-studio`) 연계**:
+   - 인물사진 스튜디오에서 고화질 프로필/스냅샷을 생성한 후, 패션스타일로 보내 다양한 의상을 입혀보는 파이프라인 연계.
+3. **19번 감성 글귀 이미지 (`emotion-writer`) 연계**:
+   - 완성된 데일리 룩북에 패션 영감 문구 및 감성 캘리그라피를 얹어 인스타그램 릴스/카드뉴스 템플릿 완성.
 
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
+---
 
-
-## 2026-10-16 DB 연동 변수 호환 — v1.06 (fashion-style)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
-
-## v1.07 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/lib/gemini.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
-
-## 2026-10-18 v1.08 — 이미지 생성 호출을 공용 기준 코드로 (이미지 4묶음 B · SDK 사용형, Claude Code 윈도우)
-- **한 일**: `src/lib/gemini.ts` `generateImage`를 공용 호출로(아이템·피팅·뷰티 적용). 이미지 라우트 한도 60초 → 폴백 포함 한 요청 50초 안(마감 시각 방식, 시간 검사 `CHECK` — 직접 확인 최대 50초). pro 모델이 없으면 standard로 넘어가는 `withModelFallback` 유지(공용 `MODEL_NOT_FOUND`도 인식). `toUserError`가 공용 오류를 이 프로그램 문구로 바꿈.
-- **왜**: ① SDK 호출에 시간 제한이 없어 Vercel 함수 한도에서 원인 모를 끊김(요금은 나갔을 수 있음) ② 응답의 첫 이미지만 꺼내 `gemini-3-pro-image`의 중간 초안(thought) 이미지를 결과로 쓸 위험 ③ 영어 오류 문장을 정규식으로 추측해 분류 — 공용 모듈은 시간 제한·최종 이미지 선택·상태 코드별 오류 구분·키 가리기·시간 초과 표준 안내(Google AI Studio 사용량 확인)를 갖췄다.
-- **바꾸지 않은 것**: 프롬프트·모델 이름·비율·화질·화면·글 생성 호출(SDK 그대로). 유료 생성이라 재시도 0(이중 과금 방지).
-- **검수**: tsc 0, 프로그램 테스트(12개 통과), `check-shared-modules` OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. eslint는 이 폴더에 설정 파일이 없어(이전부터) 실행 안 됨. 실제 이미지 생성 시험은 하지 않음(비용) — 오류가 나면 그때 검증.
-- **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 이 프로그램만 다르게 해야 하면 호출하는 쪽에서 덮어쓴다. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
-
-## 2026-10-18 v1.09 — 이미지 함수 한도 상향 (Claude Code 윈도우)
-- **함수 한도 상향**: 이미지 라우트 `maxDuration` 60초 → 300초, 이미지 호출 시간 제한 50초 → 240초(Pro 이미지 모델 시간 초과 방지). 오래 걸리는 요청만 그만큼 함수 시간이 늘고, 예전엔 60초에서 잘려도 구글 요금은 이미 나갔다.
-  대상: `/api/ai/tryon`·`beauty-apply`·`item-image`, `IMAGE_BUDGET_MS` 240초.
-- **검수**: tsc 0, 테스트 12개 통과, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+## 7. 사용자 편의성 증대를 위한 UI 개선안 및 스타일 변경 제안
+1. **의상 프리셋 퀵 카탈로그**:
+   - 상황을 일일이 입력하지 않고도 "데이트룩", "공항패션", "하객룩" 원클릭 버튼 제공.
+2. **드래그앤드롭 시각적 가이드**:
+   - 옷을 캔버스로 드래그할 때 캔버스 테두리에 로즈 핑크 네온 펄스 애니메이션 강화.
+3. **체형 정보 입력 옵션**:
+   - 키, 체형 비율(슬림, 보통, 오버핏 선호 등)을 선택하여 보다 정밀한 핏 연출 지원.

@@ -1,7 +1,32 @@
-:root{--background:#fff;--foreground:#172033;--brand:#4f46e5;--line:#e5e7eb;--muted:#64748b}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:#fafbfc;color:var(--foreground);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",Arial,sans-serif;font-size:14px;line-height:1.6}
+/* v1.10 크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형 (DESIGN.md 카탈로그 규격) */
+:root {
+  --background: #0b0e17;
+  --foreground: #f1f5f9;
+  --brand: #f472b6;
+  --brand-ink: #380718;
+  --brand-alt: #38bdf8;
+  --card: #131824;
+  --card2: #1c2333;
+  --stage: #0f1420;
+  --line: #242c3d;
+  --line-strong: #333e54;
+  --muted: #8b9bb4;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --ok: #34d399;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Segoe UI", "Malgun Gothic", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
 a{color:inherit;text-decoration:none}
 button,input,textarea,select{font:inherit}
 button,.button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #d8dde5;background:#fff;color:#334155;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
@@ -186,3 +211,356 @@ small{font-size:11px}
   .workspace-content{padding:23px 14px}
   .card{padding:18px}
 }
+
+/* ==========================================================================
+   v1.10 패션 매거진 미드나잇 변형 덮어쓰기 (컴포넌트 무변경, globals.css 단독 처리)
+   ========================================================================== */
+
+/* 1. 기본 서피스 및 타이포그래피 */
+.card {
+  background: var(--card);
+  border-color: var(--line);
+  color: var(--foreground);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+.card > p {
+  color: var(--muted);
+}
+.notice {
+  background: #111827;
+  border-color: #1f293d;
+  color: var(--foreground);
+}
+.warning {
+  background: #2a1f14;
+  border-color: #523a1a;
+  color: #fde68a;
+}
+.subtle-link {
+  color: var(--brand);
+}
+
+/* 2. 버튼 및 폼 컨트롤 */
+button, .button {
+  background: var(--card2);
+  border-color: var(--line);
+  color: var(--foreground);
+  transition: all 0.15s ease;
+}
+button:hover:not(:disabled), .button:hover:not(:disabled) {
+  background: #242d40;
+  border-color: var(--line-strong);
+  color: #fff;
+}
+.primary {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+  color: #fff;
+  border-color: #db2777;
+  box-shadow: 0 2px 10px rgba(244, 114, 182, 0.3);
+  font-weight: 700;
+}
+.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f472b6 20%, #db2777 100%);
+  box-shadow: 0 4px 14px rgba(244, 114, 182, 0.45);
+}
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select, textarea {
+  background: var(--stage);
+  border-color: var(--line);
+  color: var(--foreground);
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--brand);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(244, 114, 182, 0.25);
+}
+label {
+  color: #cbd5e1;
+}
+
+/* 3. 사이드바 (데스크톱 및 모바일) */
+.desktop-sidebar {
+  background: #0d111a;
+  border-right-color: var(--line);
+}
+.sidebar-brand {
+  border-bottom-color: var(--line);
+}
+.brand-icon {
+  background: linear-gradient(135deg, #f472b6, #38bdf8);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(244, 114, 182, 0.35);
+}
+.brand-row strong {
+  color: var(--foreground);
+}
+.brand-row small {
+  color: var(--brand);
+  font-weight: 600;
+}
+.other-programs {
+  color: var(--muted);
+}
+.other-programs:hover {
+  color: var(--brand-alt);
+}
+.nav-item {
+  color: #94a3b8;
+}
+.nav-item:hover, .flow-item:hover {
+  background: rgba(244, 114, 182, 0.08);
+  color: #fff;
+}
+.nav-item[aria-current=page] {
+  color: #f472b6;
+  background: rgba(244, 114, 182, 0.15);
+  font-weight: 700;
+}
+.nav-caption {
+  color: #64748b;
+}
+.flow-item {
+  color: #cbd5e1;
+}
+.flow-item strong {
+  color: #f1f5f9;
+}
+.flow-item small {
+  color: #94a3b8;
+}
+.step-number {
+  background: #1c2333;
+  color: #94a3b8;
+}
+.flow-item[aria-current=page] {
+  background: rgba(244, 114, 182, 0.12);
+  color: #f472b6;
+}
+.flow-item[aria-current=page] .step-number {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(244, 114, 182, 0.4);
+}
+.utility-menu {
+  border-top-color: var(--line);
+}
+.sidebar-account {
+  border-top-color: var(--line);
+}
+.sidebar-account > p {
+  color: #94a3b8;
+}
+.sidebar-account button {
+  color: #cbd5e1;
+}
+.sidebar-account button:hover {
+  color: #f87171;
+}
+
+/* 모바일 사이드바 */
+.mobile-sidebar {
+  background: #0d111a;
+  border-bottom-color: var(--line);
+}
+.mobile-header {
+  color: var(--foreground);
+  height: 56px;
+  padding: 0 16px;
+}
+.mobile-header button {
+  color: var(--foreground);
+  background: transparent;
+  border: 0;
+}
+.mobile-menu {
+  background: #0d111a;
+  border-top: 1px solid var(--line);
+}
+
+/* 4. 스튜디오 레이아웃 및 패널 */
+.ls-panel {
+  background: var(--card);
+  border-color: var(--line);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.ls-settings {
+  background: var(--card2);
+  border-color: var(--line);
+}
+.ls-alert {
+  background: #2b1115;
+  border-color: #5c1d24;
+  color: #fca5a5;
+}
+.ls-tabs {
+  border-bottom-color: var(--line);
+}
+.ls-tabs button {
+  color: var(--muted);
+}
+.ls-tabs button[aria-pressed=true] {
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+  font-weight: 700;
+}
+.ls-set {
+  background: var(--stage);
+  border: 1px solid var(--line);
+}
+.ls-card {
+  background: var(--card2);
+  border-color: var(--line);
+  color: var(--foreground);
+}
+.ls-card:hover {
+  border-color: var(--brand);
+}
+.ls-thumb {
+  background: #111622;
+}
+.ls-canvas {
+  background: var(--stage);
+  border-color: var(--line);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.ls-canvas.over {
+  outline-color: var(--brand);
+  background: rgba(244, 114, 182, 0.05);
+}
+.ls-overlay {
+  background: rgba(11, 14, 23, 0.85);
+  color: var(--brand);
+}
+.ls-consent {
+  background: var(--stage);
+  border-color: var(--line);
+  color: #cbd5e1;
+}
+.ls-drop {
+  background: var(--stage);
+  border-color: var(--line-strong);
+  color: #cbd5e1;
+}
+.ls-drop:hover:not(:disabled) {
+  background: rgba(244, 114, 182, 0.06);
+  border-color: var(--brand);
+}
+.ls-seg {
+  background: var(--card2);
+  border: 1px solid var(--line);
+}
+.ls-seg span {
+  color: #cbd5e1;
+}
+.ls-seg button[aria-pressed=true] {
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+}
+.ls-beauty {
+  background: rgba(244, 114, 182, 0.12);
+  color: #f472b6;
+  border-color: rgba(244, 114, 182, 0.35);
+}
+.ls-beauty:hover {
+  background: rgba(244, 114, 182, 0.2);
+}
+.ls-modal {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--foreground);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+.ls-look img {
+  border-color: var(--line);
+}
+
+/* 5. 가이드북 비주얼 매거진 스타일 */
+.gd-toc {
+  background: var(--card);
+  border-color: var(--line);
+}
+.gd-toc a {
+  color: var(--brand-alt);
+}
+.gd-toc a:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+.gd-lead {
+  color: #cbd5e1;
+}
+.gd-num {
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(244, 114, 182, 0.35);
+}
+.gd-step strong {
+  color: var(--foreground);
+}
+.gd-step p {
+  color: #94a3b8;
+}
+.gd-tip {
+  background: #0f1d2e;
+  border-color: #1e3a5f;
+  color: #7dd3fc;
+}
+.gd-warn {
+  background: #2a1f14;
+  border-color: #523a1a;
+  color: #fde68a;
+}
+.gd-list {
+  color: #cbd5e1;
+}
+.gd-cards article {
+  background: var(--card2);
+  border-color: var(--line);
+}
+.gd-cards h3 {
+  color: #f472b6;
+}
+.gd-cards p {
+  color: #94a3b8;
+}
+.gd code {
+  background: var(--stage);
+  border: 1px solid var(--line);
+  color: #38bdf8;
+}
+.gd-table {
+  border-color: var(--line);
+}
+.gd-table > div {
+  border-bottom-color: var(--line);
+  background: var(--card2);
+}
+.gd-table > div:nth-child(even) {
+  background: var(--card);
+}
+.gd-table span {
+  color: #cbd5e1;
+}
+.gd-faq details {
+  background: var(--card2);
+  border-color: var(--line);
+}
+.gd-faq details[open] {
+  border-color: var(--brand);
+}
+.gd-faq summary {
+  color: var(--foreground);
+}
+.gd-faq p {
+  color: #94a3b8;
+}
+.key-status {
+  background: #0e291c;
+  border-color: #1b533a;
+  color: #6ee7b7;
+}
+.key-status.none {
+  background: #2a1f14;
+  border-color: #523a1a;
+  color: #fde68a;
+}
+

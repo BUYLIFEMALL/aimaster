@@ -1,5 +1,62 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 패션스타일 자동화 v1.10: 크리에이티브 아틀리에 패션 매거진 미드나잇 테마 리뉴얼·가이드북 에디토리얼 고도화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 52개 완료 달성!)
+
+- **대상**: `fashion-style/` (https://fashion-style.buylife.xyz, slug: `fashion-style`, 82번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형 (Creative Atelier Style — Fashion Magazine Midnight Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(스튜디오 대시보드, 비주얼 가이드북, API 설정, 로그인) 배경을 딥 미드나잇 블랙(`#0b0e17`), 미드나잇 다크 네이비 서피스 카드(`var(--card): #131824`), 패션 로즈 핑크 포인트(`--brand: #f472b6`), 일렉트릭 시안 하이라이트(`--brand-alt: #38bdf8`)로 완벽 일체화.
+     - `banana-canvas`·`four-cut-comics`와 동일하게 **맨 위 색 토큰 + 맨 끝 덮어쓰기 CSS** 기법을 적용하여 3단 스튜디오 패널, 캔버스, 비교 슬라이더, 뷰티 모달까지 리액트 컴포넌트 로직 수정 없이 안전하고 신속하게 테마 구축 완료.
+  2. **사이드바 👗 브랜드 아이콘 테마화 및 메뉴명 표준화**:
+     - 좌측 사이드바 브랜드 아이콘을 👗 패션 배지로 시각화하고, 메뉴명을 **`📖 연동 & 사용 매뉴얼` (`/guide`)**로 표준화 (`DESIGN.md` 9번 원칙 충족).
+  3. **비주얼 연동 & 사용 매뉴얼 (/guide) 전면 고도화**:
+     - `FASHION MAGAZINE EDITORIAL GUIDE` 히어로 배너 및 `v1.10 매거진 미드나잇 에디션` 배지 신설.
+     - **3단계 핵심 파이프라인 비주얼 카드** (1. 사진 올리기 ➔ 2. 추천·가상 피팅 ➔ 3. 뷰티·저장).
+     - **스타일링 코디 키워드 칩** (#올드머니룩, #프렌치시크, #미니멀모던, #스마트비즈니스) 수록.
+     - 바로가기 목차 앵커, 1~7단계 설명 카드, 자주 묻는 질문(FAQ 7종 아코디언 컴포넌트) 정돈.
+  4. **375px 모바일 뷰포트 반응형 최적화**:
+     - 상단 56px 슬림 헤더, 👗 로고 + 프로그램명 + 버전 배지 + ☰ 햄버거 버튼.
+     - ☰ 터치 시 다크 미드나잇 슬라이딩 메뉴 전개, 3단 패널 수직 스택 및 가로 넘침 0px 완벽 방어.
+  5. **버전 동기화 (v1.10)**:
+     - `src/lib/version.ts`, `package.json` `v1.10.0` 갱신.
+     - Supabase DB `programs.version`을 `v1.10`으로 업데이트 완료 (`slug: fashion-style`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 12개 단위 테스트 케이스 100% 통과 (0.41s).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공 (Compiled in 3.2s).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_BfMhzn9kpcimVpz1LKWKKMXmgSmo`
+     - 공식 도메인 즉시 반영: https://fashion-style.buylife.xyz
+  8. **Microsoft Edge 포그라운드 실세션 검수 (headless: false)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창 10분간 화면 유지.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_fashion_style_desktop_studio_v110.png`: 1440px 데스크톱 스튜디오 3단 대시보드
+       - `edge_fashion_style_desktop_guide_v110.png`: 1440px 데스크톱 에디토리얼 가이드북
+       - `edge_fashion_style_desktop_settings_v110.png`: 1440px 데스크톱 API 키 설정
+       - `edge_fashion_style_mobile_studio_v110.png`: 모바일 375px 스튜디오 대시보드
+       - `edge_fashion_style_mobile_menu_v110.png`: 모바일 375px 드로어 메뉴
+       - `edge_fashion_style_mobile_guide_v110.png`: 모바일 375px 에디토리얼 가이드북
+  9. **문서 6종 작성 완료**:
+     - `fashion-style/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `fashion-style/README.md` (동기화)
+     - `fashion-style/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `fashion-style/docs/IMPROVEMENTS.md` (개선 제안서)
+     - `fashion-style/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `fashion-style/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 82번 행 ✅ 1차 작업완료 (`v1.10`, 크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형) 갱신 및 전체 통계 (누적 ✅ 52개 완료 / ⚪ 29개 예정 / ⏸ 2개 보류 — 62.7% 달성)
+      - `docs/ACTIVE_WORK.md`: 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - `buylifemall@naver.com` 일반 회원 테스트 계정으로 스튜디오 진입 및 API 키 상태, 가상 피팅 레이아웃 정상 동작 확인.
+  - 전후 비교 슬라이더, 뷰티 스튜디오 팝업 버튼, 나만의 옷장 UI 일체감 확인.
+  - 데스크톱/모바일 뷰포트 전환 시 레이아웃 깨짐 없음.
+- **못 한 것**:
+  - 실제 이미지 유료 생성(코디 피팅 AI 호출)은 비용 절감 및 회원 본인 키 원칙 준수로 자동 생략.
+- **남은 일 / 다음 추천 작업**:
+  - 83번 AI 포토 리메이크 자동화 (`photo-remake-studio`, https://photo-remake-studio.buylife.xyz) — 동일 뼈대의 마지막 복원 전문 프로그램 (Before/After 비교 슬라이더 및 복원 가이드북 리뉴얼 추천).
+
+
 ## 2026-10-18 Claude Code(윈도우) — 인물사진 v1.24에 추가(코드, 10-19 배포): 증명사진 여유 구도 · 프로필 미리보기 + **AGY 앞 연계 제안**
 
 - **인물사진**: 증명사진 생성 프롬프트의 "머리 80% 꽉 찬 구도" → 여유 구도(머리 55~65%·정수리 여백·양어깨, 저장 때 추천 영역이 기준까지 확대) / [프로필 세트 미리보기·저장] 패널(보이는 모양 = 저장 모양). tsc 0·테스트 22/22·빌드, 배포는 10-19(v1.24 한 번에).
