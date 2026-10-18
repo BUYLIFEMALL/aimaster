@@ -1,5 +1,60 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — UI Canvas 자동화 v1.10: 크리에이티브 아틀리에 캔버스 프로 테마 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 60개 완료 / 72.3% 달성!)
+
+- **대상**: `ui-canvas/` (https://ui-canvas.buylife.xyz, slug: `ui-canvas`, 70번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션 (Creative Atelier Style — Canvas Pro Edition)**.
+     - **디자인 토큰 시스템 완비**: 딥 미드나잇 다크 네이비(`#0c0f17`), 슬레이트 다크 서피스(`#131824`), 일렉트릭 시안 블루(`#06b6d4`), 아티스틱 바이올렛(`#8b5cf6`), 앰버 골드(`#f59e0b`) 컬러 토큰 체계 적용 (`src/app/globals.css`).
+     - 25종 컴포넌트 라이브러리, html2canvas 1:1 고해상도 무손실 PNG 캡처, Gemini Vision AI 스크린샷 역공학, 다중 선택 마퀴 & Ctrl+G 상대좌표 그룹화 엔진 100% 무결성 유지.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.10 CANVAS PRO` 및 작업 워크플로우 1-2-3 넘버링 뱃지 적용 (`src/components/layout/Sidebar.tsx`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (앰버 골드 활성 배지).
+  3. **대시보드 리뉴얼 (`src/app/(workspace)/dashboard/page.tsx`)**:
+     - 딥 네이비 그라데이션 바탕의 `.studio-hero` 웰컴 배너 및 3대 기능 지표 카드(25종 UI 컴포넌트, Gemini AI 역공학, 1:1 실측 내보내기) 배치.
+     - 프로젝트 목록 그리드 다크 카드 인터페이스 및 컴포넌트 수 뱃지 고도화 (`ProjectList.tsx`).
+  4. **독립 비주얼 에디토리얼 가이드북 (`/guide/page.tsx`) 신설**:
+     - 상단 히어로 배너: "상상을 완벽한 프로토타입으로 만드는 UI Canvas 완전 가이드".
+     - **4단계 표준 UI 프로토타이핑 파이프라인**: 1) 캔버스 해상도 설정 ➔ 2) 25종 컴포넌트 드래그 ➔ 3) AI 스크린샷 역공학 ➔ 4) 실측 PNG & JSON 명세.
+     - 최상위 보안 원칙 (BYOK Standard) 연동 가이드 배너 및 Google AI Studio 키 발급/설정 바로가기.
+     - 25종 컴포넌트 도구상자 쇼케이스 & 단축키 치트시트 완비.
+     - 자주 묻는 질문(FAQ) 5종 인터랙티브 아코디언 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_70_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 단위 테스트 12건 전건 통과 (12 pass, 0 fail).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공.
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_GbSYF9sf5N7QRSjP7jMJjJCZA6PH`
+     - 공식 도메인 즉시 반영: https://ui-canvas.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-13663`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_ui_canvas_desktop_dashboard_v110.png`: 1440px 데스크톱 대시보드 및 히어로 배너
+       - `edge_ui_canvas_desktop_guide_v110.png`: 1440px 데스크톱 비주얼 에디토리얼 가이드북
+       - `edge_ui_canvas_desktop_guide_faq_v110.png`: 1440px 데스크톱 FAQ 아코디언 인터랙션
+       - `edge_ui_canvas_desktop_settings_v110.png`: 1440px 데스크톱 API 키 설정 연동 화면
+       - `edge_ui_canvas_desktop_editor_v110.png`: 1440px 데스크톱 다크 아틀리에 캔버스 에디터
+       - `edge_ui_canvas_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `ui-canvas/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `ui-canvas/README.md` (동기화 생성)
+     - `ui-canvas/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `ui-canvas/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `ui-canvas/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `ui-canvas/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 70번 행 ✅ 1차 작업완료 (`v1.10`, 크리에이티브 아틀리에 스타일) 갱신 및 전체 통계 (누적 ✅ 60개 완료 / ⚪ 21개 예정 / ⏸ 2개 보류 — 72.3% 달성)
+      - `docs/ACTIVE_WORK.md`: 70번 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - Edge 브라우저에서 대시보드 배너, 3대 지표 카드, 캔버스 에디터, 가이드북, 설정 페이지가 세련된 다크 테마로 정상 렌더링됨.
+  - 가이드북 4단계 파이프라인 및 FAQ 아코디언 동작 확인.
+  - 모바일(375px) 화면에서 상단 헤더, 브랜드 배지, 가이드북 카드들이 유연하게 반응형 레이아웃으로 표시됨.
+- **다음 첫 단계**: 71번 AI 슬라이드 자동화 (`ai-slide-builder`) 또는 다른 예정 프로그램 개발 플랜 수립 및 디자인 리뉴얼 순차 진행.
+- https://ui-canvas.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — AI 인물사진 v1.28: 저장 파일 이름 날짜를 현지(한국) 날짜로
 - **한 일**: 파일 이름 날짜가 세계 표준시(`toISOString`)라 한국 오전 9시 전엔 하루 전 날짜로 찍히던 문제 수정 — `post.ts` `localDateStamp` + `Studio.tsx` 4곳·`HistoryList.tsx` 1곳. 상세 `portrait-photo/AGENTS.md` v1.28 절, 플랜 `portrait-photo/docs/PLAN_20261019_V128_LOCAL_DATE_FILENAME.md`.
 - **검수**: 단위 26/26, tsc, 빌드, 브라우저 13/13(크롬 포그라운드), Vercel Ready, DB v1.28, 메인 크롬 운영 화면 v1.28 확인. AI 비용 없음.

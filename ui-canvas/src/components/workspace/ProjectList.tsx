@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { FilePlus2, Trash2 } from "lucide-react";
+import { ExternalLink, FilePlus2, Layers, PencilRuler, Trash2 } from "lucide-react";
 
 interface Row { id: string; name: string; component_count: number; updated_at: string }
 
@@ -51,23 +51,61 @@ export function ProjectList() {
 
   return (
     <div className="card">
-      <div className="actions">
-        <button type="button" className="primary" disabled={busy} onClick={create}><FilePlus2 size={15} />{busy ? "만드는 중…" : "새 프로젝트"}</button>
+      <div className="actions" style={{ justifyContent: "space-between" }}>
+        <button type="button" className="primary" disabled={busy} onClick={create} style={{ padding: "8px 16px" }}>
+          <FilePlus2 size={16} />
+          <span>{busy ? "만드는 중…" : "새 프로젝트 생성"}</span>
+        </button>
+        {rows && rows.length > 0 && (
+          <span style={{ fontSize: 12, color: "var(--muted)" }}>
+            총 <strong>{rows.length}</strong>개 프로젝트
+          </span>
+        )}
       </div>
       {error && <p role="alert" className="error" style={{ marginTop: 12 }}>{error}</p>}
       {rows === null ? (
-        <p className="empty">불러오는 중…</p>
+        <p className="empty">프로젝트 목록을 불러오는 중입니다…</p>
       ) : rows.length === 0 ? (
-        <p className="empty">아직 프로젝트가 없습니다. [새 프로젝트]로 첫 디자인을 시작해 보세요.</p>
+        <div className="empty" style={{ padding: "48px 12px" }}>
+          <PencilRuler size={36} style={{ color: "var(--muted-dark)", marginBottom: 12, opacity: 0.6 }} />
+          <p style={{ color: "var(--foreground)", fontWeight: 600, marginBottom: 6 }}>아직 생성된 프로젝트가 없습니다.</p>
+          <p style={{ color: "var(--muted)", fontSize: 13 }}>[새 프로젝트 생성] 버튼을 눌러 첫 화면 프로토타이핑을 시작해 보세요.</p>
+        </div>
       ) : (
         <div className="project-grid">
           {rows.map((r) => (
             <div key={r.id} className="project-card">
-              <h3>{r.name}</h3>
-              <small>컴포넌트 {r.component_count}개 · {when(r.updated_at)}</small>
-              <div className="actions">
-                <a className="button primary" href={`/editor/${r.id}`}>열기</a>
-                <button type="button" onClick={() => remove(r)} aria-label={`${r.name} 삭제`}><Trash2 size={14} />삭제</button>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                <h3>{r.name}</h3>
+                <span style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontSize: 11,
+                  padding: "2px 6px",
+                  borderRadius: 4,
+                  background: "rgba(6, 182, 212, 0.12)",
+                  color: "#67e8f9",
+                  fontWeight: 600,
+                  flexShrink: 0
+                }}>
+                  <Layers size={11} /> {r.component_count}
+                </span>
+              </div>
+              <small>마지막 수정: {when(r.updated_at)}</small>
+              <div className="actions" style={{ marginTop: 12 }}>
+                <a className="button primary" href={`/editor/${r.id}`} style={{ flex: 1 }}>
+                  <ExternalLink size={13} /> 캔버스 열기
+                </a>
+                <button
+                  type="button"
+                  onClick={() => remove(r)}
+                  aria-label={`${r.name} 삭제`}
+                  style={{ color: "var(--muted)", borderColor: "var(--line)" }}
+                  title="프로젝트 삭제"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
           ))}
