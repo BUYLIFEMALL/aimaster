@@ -4,7 +4,7 @@
 
 https://four-cut-comics.buylife.xyz
 
-- 현재 버전: 코드 `v1.12`(2026-10-18 구현, 10-19 배포 예정) / 운영 `v1.11`
+- 현재 버전: `v1.12`(2026-10-18 디자인 리뉴얼 배포)
 - 개발 지침·7대 항목: [`AGENTS.md`](AGENTS.md)
 - 디자인: 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 → [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
 - 개선 제안·백로그: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) · [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)

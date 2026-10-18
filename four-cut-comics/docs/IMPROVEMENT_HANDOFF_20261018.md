@@ -13,7 +13,11 @@
 - 크롬 로컬 확인: 데스크톱·390px(방법과 한계는 `docs/DESIGN_HANDOFF.md` 5절).
 - 못 한 것: 운영 배포, 로그인 실화면, 실제 휴대폰, 이미지 생성(비용).
 
-## 다음 첫 단계 (2026-10-19)
+## 배포 완료 (2026-10-18 — 주인님 배포 규칙 정정으로 하루 앞당김)
+- 아래 1~4단계를 같은 날 진행: Vercel 배포 Ready·DB v1.12·크롬 데스크톱/390px 확인·현황판 ✅. 결과는 `docs/DESIGN_HANDOFF.md` 6절.
+- 남은 일: 실제 이미지 생성 확인(비용), 실제 휴대폰 터치, 시험 계정 로그인 상태 확인. 다음 개선은 `docs/IMPROVEMENT_BACKLOG.md`.
+
+## (당시 계획) 다음 첫 단계 (2026-10-19)
 1. `docs/ACTIVE_WORK.md` 확인 → `cd four-cut-comics && npx tsc --noEmit && npm test && npm run build`
 2. `vercel deploy --prod --yes` (이 폴더) → `update programs set version='v1.12', updated_at=now() where slug='four-cut-comics';`
 3. 크롬(시험 계정 `buylifemall@naver.com`)으로 `/studio`·`/works`·`/settings`·`/guide` 데스크톱·390px 확인 → `docs/DESIGN_HANDOFF.md` 6절 체크

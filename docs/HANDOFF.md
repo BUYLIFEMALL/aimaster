@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — AI 4컷 만화 자동화 v1.12 디자인 리뉴얼 배포 (✅ 1차 작업완료, 81번)
+
+- **대상**: `four-cut-comics/` (https://four-cut-comics.buylife.xyz) — 「크리에이티브 아틀리에 — 코믹 파스텔 변형」(구현·커밋은 오전 `db494473`). 당초 10-19 배포 예정이었으나 주인님 배포 규칙 정정(순차 배포 원칙)으로 오늘 인물사진 다음 순서로 배포.
+- **검수**: tsc 0, 테스트 26/26, 빌드 → Vercel 프로덕션 Ready·DB v1.12 → 크롬: 데스크톱 만들기 화면, 4개 화면 배경 `#fffaf2`·버전·📖 매뉴얼 메뉴, 매뉴얼 마스코트·5단계·FAQ, 390px 틀 위쪽 메뉴·가로 넘침 없음. 못 한 것: 이미지 생성(비용)·실제 휴대폰·시험 계정 로그인.
+- **문서**: `four-cut-comics/docs/DESIGN_HANDOFF.md` 6절·`IMPROVEMENT_HANDOFF_20261018.md`·`AGENTS.md`·`README.md`, `DESIGN.md` 81번 ✅, 역량 지도 v1.12, 작업 중 표 줄 삭제.
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 썸네일 마스터 자동화 v1.07: 크리에이티브 아틀리에 썸네일 매거진 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 54개 완료 달성!)
 
 - **대상**: `thumbnail-master/` (https://thumbnail-master.buylife.xyz, slug: `thumbnail-master`, 76번)

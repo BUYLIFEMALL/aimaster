@@ -223,7 +223,7 @@
 | 78 | AI Audio분석 자동화 | `ai-audio-analyzer` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `ai-audio-analyzer/AGENTS.md` |
 | 79 | AI 인물사진 자동화 | `portrait-photo` | 크리에이티브 아틀리에 스타일 — 포토 스튜디오 그래파이트 변형 | 다크(중립 그래파이트) | ✅ 1차 작업완료 (`v1.22`, 포토 스튜디오 그래파이트 변형, Claude Code(윈도우), 2026-10-18) | `portrait-photo/docs/DESIGN_HANDOFF.md` |
 | 80 | AI 바나나 캔버스 자동화 | `banana-canvas` | **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형** | 다크(따뜻한 차콜 `#16140f` + 바나나 옐로 `#ffd84d`·리프 그린 `#7ed38a`) | ✅ 1차 작업완료 (`v1.08`, 바나나 팝 차콜 변형) | [`banana-canvas/docs/DESIGN_HANDOFF.md`](banana-canvas/docs/DESIGN_HANDOFF.md) · [`banana-canvas/docs/IMPROVEMENTS.md`](banana-canvas/docs/IMPROVEMENTS.md) |
-| 81 | AI 4컷 만화 자동화 | `four-cut-comics` | 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 | 파스텔 크림 | 🔵 작업 중 — 구현·로컬 검수 완료, 10-19 배포·크롬 검수 예정 (`v1.12`, Claude Code(윈도우), 2026-10-18) | `four-cut-comics/AGENTS.md` |
+| 81 | AI 4컷 만화 자동화 | `four-cut-comics` | 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 | 파스텔 크림 | ✅ 1차 작업완료 (`v1.12`, 코믹 파스텔 변형, Claude Code(윈도우), 2026-10-18) | `four-cut-comics/docs/DESIGN_HANDOFF.md` |
 | 82 | AI 패션스타일 자동화 | `fashion-style` | **크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형** | 다크(미드나잇 네이비 `#0b0e17` + 로즈 골드 `#f472b6`·일렉트릭 시안 `#38bdf8`) | ✅ 1차 작업완료 (`v1.10`, 패션 매거진 미드나잇 변형) | [`fashion-style/docs/DESIGN_HANDOFF.md`](fashion-style/docs/DESIGN_HANDOFF.md) · [`fashion-style/docs/IMPROVEMENTS.md`](fashion-style/docs/IMPROVEMENTS.md) |
 | 83 | AI 포토 리메이크 자동화 | `photo-remake-studio` | **크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형** | 다크(옵시디언 딥블랙 `#090a0f` + 리메이크 앰버 `#f59e0b`·에메랄드 `#10b981`) | ✅ 1차 작업완료 (`v1.09`, 포토 리메이크 옵시디언 변형) | [`photo-remake-studio/docs/DESIGN_HANDOFF.md`](photo-remake-studio/docs/DESIGN_HANDOFF.md) · [`photo-remake-studio/docs/IMPROVEMENTS.md`](photo-remake-studio/docs/IMPROVEMENTS.md) |
 
