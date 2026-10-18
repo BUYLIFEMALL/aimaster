@@ -17,10 +17,29 @@ export default function GuidePage() {
   return (
     <>
       <div className="page-heading">
-        <p className="eyebrow">사용 설명서</p>
-        <h1>연동 & 사용 매뉴얼</h1>
-        <p>영상 주제와 시청 타겟만 고르면 AI가 A/B 두 가지 전략으로 문구가 들어간 유튜브 썸네일 2종을 만들어 줍니다. ①~②만 따라 해도 충분합니다.</p>
+        <p className="eyebrow" style={{ color: "var(--brand)" }}>THUMBNAIL MASTER EDITORIAL GUIDE</p>
+        <h1 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span>🎬 AI 썸네일 마스터 연동 & 사용 매뉴얼</span>
+          <span style={{ fontSize: 13, padding: "3px 9px", borderRadius: 999, background: "rgba(139,92,246,0.18)", color: "var(--brand)", fontWeight: 700, border: "1px solid rgba(139,92,246,0.3)" }}>v1.07 썸네일 매거진 에디션</span>
+        </h1>
+        <p>영상 주제와 시청 타겟만 고르면 AI가 A/B 두 가지 전략으로 문구가 들어간 유튜브 썸네일 2종을 만들어 줍니다.</p>
       </div>
+
+      <div className="card" style={{ marginBottom: 20, background: "linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(249,115,22,0.08) 100%)", borderColor: "rgba(139,92,246,0.3)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h3 style={{ fontSize: 16, color: "var(--brand)", marginBottom: 4 }}>✨ AI 썸네일 A/B 테스트 3-Step 파이프라인</h3>
+            <p style={{ fontSize: 12, color: "var(--muted)" }}>시청층 맞춤형 고대비 폰트와 감각적인 비주얼로 유튜브 클릭률(CTR)을 극대화합니다.</p>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "var(--brand)" }}>#숫자이득A안</span>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "var(--brand-alt)" }}>#호기심유발B안</span>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "#38bdf8" }}>#고대비헤드라인</span>
+            <span style={{ padding: "4px 10px", borderRadius: 8, background: "var(--card2)", border: "1px solid var(--line)", fontSize: 11, color: "var(--ok)" }}>#클릭률극대화</span>
+          </div>
+        </div>
+      </div>
+
       <div className="gd">
         <nav className="gd-toc card" aria-label="목차">
           <strong>바로가기</strong>

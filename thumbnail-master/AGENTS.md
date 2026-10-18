@@ -1,54 +1,76 @@
-# AI 썸네일 마스터 자동화 (thumbnail-master) — 작업 지침
+# AI 썸네일 마스터 자동화 (thumbnail-master) — 작업 지침 및 인수인계 규격서
 
-> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+> 먼저 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`·`docs/HANDOFF.md`를 읽습니다.
+> 최신 배포 URL: [https://thumbnail-master.buylife.xyz](https://thumbnail-master.buylife.xyz)
 
-## 한 줄 요약
-주제(또는 대본) + 시청 타겟 + 피사체 → AI가 A안(직관·정보)/B안(호기심·감성) 문구·이미지 프롬프트 제안 → 문구가 박힌 16:9 썸네일 2종 병렬 생성 → 지시문 수정·버전 되돌리기·JPG 다운로드·프로젝트 저장. 참고 원본은 "썸네일 마스터 AI Pro"(개발자 GPT PARK, 순수 클라이언트 앱)이며 코드는 복제하지 않고 흐름·프롬프트 구조만 참고했다.
+---
 
-## 구조
-- `src/lib/tmb/` 순수 로직(단위 테스트 대상): `types`(입력·전략·이미지 세트), `audience`(타겟 4종 규칙, 시니어 모드), `prompts`(연도 주입·피사체·전략/이미지/수정 프롬프트), `strategy`(응답 검증·정규화·글자 수 경고·responseSchema), `validate`(입력/문서/경로 정리).
-- `src/lib/gemini.ts`(서버): 텍스트 `gemini-3.5-flash → 2.5-flash`, 이미지 `gemini-3-pro-image-preview → gemini-2.5-flash-image`(후자는 imageSize 미지원이라 aspectRatio만). 안전 필터는 `safety`, 이미지 미반환은 `noimage`로 구분.
-- `src/lib/images.ts`(서버): `sharp`로 JPEG(q90) 변환, 비공개 버킷 저장·읽기·삭제, 서명 URL(1시간), 이미지 세트 정리·`pushVersion`(최근 5개 유지).
-- API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/strategy`, `POST /api/generate`(옵션 1개, `maxDuration 120`), `POST /api/edit`(서버가 Storage 원본을 읽음), `GET/POST /api/projects`, `GET/PUT/PATCH/DELETE /api/projects/[id]`(PUT=이름·입력·전략 자동 저장, PATCH=버전 되돌리기), `/api/keys`.
-- 화면: `/open`(최근 프로젝트 열기/생성) → `/project/[id]`(`components/studio/Studio.tsx` 3단계), `/dashboard`, `/settings`, `/guide`.
-- DB: `thumbnail_master_projects`(RLS owner-only, 서버는 service role + `user_id` 필터), 이미지는 A/B를 **컬럼 분리**(`images_a`, `images_b`)해 병렬 생성이 서로 덮어쓰지 않게 했다. Storage 비공개 `thumbnail-master-images`(정책 없음, 경로 `<uid>/<projectId>/<a|b>-<uuid>.jpg`).
+## 1. 프로그램 사용 목적 및 대상
+- **사용 목적**: 영상 주제나 대본을 입력받아 직관형(A안)과 호기심 유발형(B안) 전략 문구를 자동 도출하고, 고대비 폰트 및 감각적 그래픽이 결합된 유튜브 썸네일 2종을 한 번에 생성·편집·저장하는 유튜브 크리에이터 전용 자동화 솔루션.
+- **주요 대상**:
+  - 유튜브/쇼츠/릴스 크리에이터 및 채널 운영자
+  - 영상 기획 및 디지털 마케팅 담당자
+  - 클릭률(CTR) 개선 및 A/B 테스트가 필요한 콘텐츠 제작자
+  - 시니어 및 고령층 맞춤형 고대비/대형 글꼴 썸네일이 필요한 제작자
 
-## 지킬 것
-- 키는 회원 본인 Gemini 키만(`user_api_keys.provider = gemini`). 없으면 `needKey` 안내, 폴백 금지.
-- 이미지는 **응답에 base64로 싣지 않는다**(Vercel 4.5MB 한도): 항상 Storage 저장 후 서명 URL만 반환. 수정 요청도 클라이언트가 이미지를 보내지 않고 서버가 Storage에서 읽는다.
-- 경로 검증은 `isOwnImagePath(uid, projectId, path)`. 프로젝트 삭제 시 이미지도 함께 삭제.
-- A/B 생성은 옵션별 별도 요청(`/api/generate`를 두 번). 한 컬럼만 갱신한다.
-- 인물은 기본 한국인(핵심 원칙 3), 프롬프트에 당해 연도 주입(핵심 원칙 8). 모델 표기는 실제 사용 모델(`ImageVersion.model`).
-- "AI 수정"은 인페인팅이 아니라 전체 재생성이다 — 화면 문구에 그대로 밝힌다.
-- 버전은 `src/lib/version.ts`와 DB `programs.version`을 함께 올린다. Supabase MCP `execute_sql`은 문장별로 보낸다.
+---
 
-## 검수
-- `npm test`(순수 로직 11건), `npm run test:browser`(보이는 Chrome, 모의 API 14건, `test-artifacts/gen-a.jpg` 필요 — 임의 JPG를 그 이름으로 두면 됨), `npm run build`.
-- 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [strategy]`(운영자 본인 키; 2026-10-14: 전략 9초, 1K 이미지 18초, 수정 18초). 출력을 파이프로 받으면 끝날 때까지 안 보이니 파일로 리다이렉트한다. 2K 이미지는 운영 화면에서 약 40초.
+## 2. 개발 구현 도구 / 기술 스택 / 스킬
+- **프레임워크**: Next.js 16.4.0 (App Router, Turbopack)
+- **라이브러리**: React 19.3.0, TypeScript 5.9.3, `@google/genai` 1.21.0, `sharp` 0.35.5
+- **인프라 & 백엔드**: Supabase (PostgreSQL, Auth, Storage), Vercel 배포
+- **디자인 시스템**: 크리에이티브 아틀리에 스타일 — 썸네일 매거진 변형 (딥 매거진 다크 `#0c0f17`, 카드 `#131722`, 악센트 바이올렛 `#8b5cf6`, 오렌지 `#f97316`)
+- **브라우저 검수 도구**: Playwright (Microsoft Edge 전용, 화면 최전면 포그라운드 노출)
 
-## 2026-10-14 v1.03 — 모바일 셸 CSS 추가 (Claude Code)
+---
 
-- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
-- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.03(코드·package·DB).
-- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+## 3. 핵심 기능, 시스템 아키텍처, 장점 및 단점
 
+### 핵심 시스템 구조
+- `src/lib/tmb/`: 전략 및 프롬프트 생성 순수 비즈니스 로직 (11개 단위 테스트 무결성 보장)
+- `src/lib/gemini.ts`: 텍스트(`gemini-3.5-flash`), 이미지(`gemini-3-pro-image`, `gemini-nano-banana-2.1`) 듀얼 호출 파이프라인
+- `src/lib/images.ts`: Sharp 기반 무손실 JPEG 변환 및 Supabase 비공개 버킷 서명 URL 발급
+- DB 테이블: `thumbnail_master_projects` (RLS 회원 본인 격리, `images_a`, `images_b` 컬럼 분리로 동시 병렬 생성 충돌 방지)
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.03)
+### 장점
+1. **A/B 듀얼 전략 동시 도출**: 단일 요청으로 직관형/호기심형 2가지 카피와 비주얼을 동시에 비교 검토 가능.
+2. **시니어 및 타겟 맞춤형 모드**: 10대~시니어까지 4대 타겟에 최적화된 글자 크기 및 색상 대비 가이드 제공.
+3. **무결성 CSS 토큰 격리**: 기존 레이아웃을 파괴하지 않고 `:root` 변수와 하단 덮어쓰기 방식으로 세련된 매거진 룩 완성.
 
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
+### 단점 및 개선 여지
+1. 이미지 인페인팅 미지원: 부분 영역 수정이 아닌 전체 재생성 방식이므로 프롬프트 기반 재생성 필요.
+2. 모바일 프로젝트 편집 캔버스의 확대/축소 및 텍스트 미세 오버레이 조절 툴 부재.
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (thumbnail-master)
+## 4. 버전별 변경 히스토리
+- **v1.07 (2026-10-18, Antigravity CLI)**:
+  - 크리에이티브 아틀리에 — 썸네일 매거진 변형 디자인 리뉴얼 (`#0c0f17`, `#131722`, 바이올렛/오렌지 포인트).
+  - 비주얼 가토리얼 가이드북 (`/guide`) 신설 보강 (히어로 배너, A/B 파이프라인, 스타일 칩 4종, 빠른 바로가기).
+  - Microsoft Edge 최전면 포그라운드 실세션 6종 검수 완료 및 10분 화면 유지.
+- **v1.06 (2026-10-18, Claude Code)**: 이미지 생성 공용 기준 코드 적용 (`gemini-nano-banana-2.1` 연동 최적화).
+- **v1.05 (2026-10-17, Claude Code)**: 이미지 모델 최신화 (`gemini-3-pro-image`, `gemini-nano-banana-2.1`).
+- **v1.04 (2026-10-16)**: 최상위 Supabase 데이터베이스 연동 변수 호환 작업.
+- **v1.03 (2026-10-14)**: 모바일 반응형 셸 CSS 및 한국 현재 월 기준 프롬프트 주입.
+- **v1.00 (2026-10-13)**: 최초 정식 릴리즈.
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+---
 
-## v1.05 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/lib/gemini.ts` `tests/browser.mjs` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+## 5. 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 내용은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) 참조.
+- 캔버스 내 텍스트 스티커/뱃지 수동 추가 기능 (예: 'LIVE', '속보', '충격').
+- 생성된 썸네일 히스토리 그리드에서 바로 유튜브 스튜디오 업로드 프리뷰 모달 연동.
 
-## 2026-10-18 v1.06 — 이미지 생성 호출을 공용 기준 코드로 (이미지 4묶음 B · SDK 사용형, Claude Code 윈도우)
-- **한 일**: `src/lib/gemini.ts` `makeImage`를 공용 호출로. 모델이 없거나 이미지가 안 나오면 다음 모델로 넘어가는 흐름 유지, 두 모델 합쳐 100초(라우트 120초 − 저장 여유) 안에서 남은 시간만 다음 모델에 줌(시간 검사는 `CHECK` — 직접 확인 최대 100초). 시간 초과·한도·키 오류는 다음 모델로 넘기지 않음.
-- **왜**: ① SDK 호출에 시간 제한이 없어 Vercel 함수 한도에서 원인 모를 끊김(요금은 나갔을 수 있음) ② 응답의 첫 이미지만 꺼내 `gemini-3-pro-image`의 중간 초안(thought) 이미지를 결과로 쓸 위험 ③ 영어 오류 문장을 정규식으로 추측해 분류 — 공용 모듈은 시간 제한·최종 이미지 선택·상태 코드별 오류 구분·키 가리기·시간 초과 표준 안내(Google AI Studio 사용량 확인)를 갖췄다.
-- **바꾸지 않은 것**: 프롬프트·모델 이름·비율·화질·화면·글 생성 호출(SDK 그대로). 유료 생성이라 재시도 0(이중 과금 방지).
-- **검수**: tsc 0, 프로그램 테스트(11개 통과), `check-shared-modules` OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. eslint는 이 폴더에 설정 파일이 없어(이전부터) 실행 안 됨. 실제 이미지 생성 시험은 하지 않음(비용) — 오류가 나면 그때 검증.
-- **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 이 프로그램만 다르게 해야 하면 호출하는 쪽에서 덮어쓴다. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+---
+
+## 6. 기존 타 자동화 프로그램과의 연계 / 기능 병합 제안
+1. **`youtube-golden-engine` (유튜브 채널 컨설턴트) 연계**: 황금 키워드 및 영상 대본 도출 즉시 원클릭으로 썸네일 마스터 프로젝트를 생성하고 A/B 썸네일 제작 파이프라인으로 연결.
+2. **`viral-finder` (바이럴 영상 발굴) 연계**: 실시간 떡상 썸네일의 구도와 텍스트 스타일을 분석하여 썸네일 마스터 프롬프트로 전송하는 프리셋 추출 기능.
+3. **`ai-image-studio` (AI 이미지 자동화) 연계**: 레퍼런스 이미지 모델 어댑터 공유 및 고해상도 업스케일링 파이프라인 공유.
+
+---
+
+## 7. 사용자 편의성 증대를 위한 UI/UX 개선안
+1. **실시간 CTR 예측 게이지**: AI가 텍스트 가독성, 피사체 시선 방향, 명도 대비를 계산하여 예상 CTR 점수(0~100점)를 시각화하는 위젯 도입.
+2. **썸네일 폰트 프리셋 라이브러리**: 배달의민족 한나체, 여기어때 잘난체 등 유튜브 인기 폰트 스타일 텍스트 칩 제공.
+3. **유튜브 다크모드/라이트모드 피드 프리뷰**: 실제 유튜브 모바일/데스크톱 검색 피드 화면에 썸네일을 합성해 보여주는 실전 모의 테스트 뷰.

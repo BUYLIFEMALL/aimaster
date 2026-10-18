@@ -1,5 +1,60 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 썸네일 마스터 자동화 v1.07: 크리에이티브 아틀리에 썸네일 매거진 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 54개 완료 달성!)
+
+- **대상**: `thumbnail-master/` (https://thumbnail-master.buylife.xyz, slug: `thumbnail-master`, 76번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 썸네일 매거진 변형 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 썸네일 매거진 변형 (Creative Atelier Style — Thumbnail Magazine Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(대시보드, 프로젝트 상세, 비주얼 가이드북, 설정, 로그인) 배경을 딥 매거진 다크(`#0c0f17`), 카드 표면(`var(--card): #131722`), 바이올렛 포인트(`--brand: #8b5cf6`), 오렌지 하이라이트(`--brand-alt: #f97316`)로 통일감 있게 일체화.
+     - 80번(`banana-canvas`), 82번(`fashion-style`), 83번(`photo-remake-studio`)과 동일한 **맨 위 색 토큰 + 맨 끝 덮어쓰기 CSS** 기법을 적용하여 3단계 프로젝트 스튜디오 파이프라인(주제/피사체 ➔ 타겟/A/B 전략 ➔ 2종 동시 생성/수정)의 컴포넌트 로직 손상 없이 안전하고 신속하게 테마 완성.
+  2. **사이드바 브랜드 아이콘 테마화 및 메뉴명 표준화**:
+     - 좌측 사이드바 브랜드 아이콘을 🎬 슬레이트 배지로 시각화하고, 메뉴명을 **`📖 연동 & 사용 매뉴얼` (`/guide`)**로 표준화 (`DESIGN.md` 9번 원칙 충족).
+  3. **비주얼 에디토리얼 가이드북 (/guide) 전면 고도화**:
+     - `THUMBNAIL MASTER EDITORIAL GUIDE` 바이올렛 그라데이션 히어로 배너 및 `v1.07 썸네일 매거진 에디션` 배지 신설.
+     - **3단계 핵심 파이프라인 비주얼 카드** (1. 주제/피사체 ➔ 2. 타겟/전략 ➔ 3. 2종 생성/수정).
+     - **전략 키워드 칩** (#숫자이득A안, #호기심유발B안, #고대비헤드라인, #클릭률극대화) 수록.
+     - 1~4단계 설명 카드, API 키 등록 안내, 자주 묻는 질문(FAQ 6종 아코디언) 정돈.
+  4. **375px 모바일 뷰포트 반응형 최적화**:
+     - 상단 슬림 헤더, 🎬 로고 + 프로그램명 + 버전 배지 + ☰ 햄버거 버튼.
+     - ☰ 터치 시 다크 매거진 슬라이딩 메뉴 전개, 가로 넘침 0px 완벽 방어.
+  5. **버전 동기화 (v1.07)**:
+     - `src/lib/version.ts`, `package.json` `v1.07` (1.7.0) 갱신.
+     - Supabase DB `programs.version`을 `v1.07`로 업데이트 완료 (`slug: thumbnail-master`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 11개 단위 테스트 케이스 100% 통과 (370ms).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공 (Compiled in 2.8s).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_DKyTYhEZP9FhmSzSLbvMDUP4d8PJ`
+     - 공식 도메인 즉시 반영: https://thumbnail-master.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 주인님 실시간 모니터링 보장)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면(최대화)으로 띄워 10분간 화면 유지.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_thumbnail_master_desktop_dashboard_v107.png`: 1440px 데스크톱 대시보드
+       - `edge_thumbnail_master_desktop_guide_v107.png`: 1440px 데스크톱 에디토리얼 가이드북
+       - `edge_thumbnail_master_desktop_settings_v107.png`: 1440px 데스크톱 API 키 설정
+       - `edge_thumbnail_master_mobile_dashboard_v107.png`: 모바일 375px 대시보드
+       - `edge_thumbnail_master_mobile_menu_v107.png`: 모바일 375px 드로어 메뉴
+       - `edge_thumbnail_master_mobile_guide_v107.png`: 모바일 375px 에디토리얼 가이드북
+  9. **문서 6종 작성 완료**:
+     - `thumbnail-master/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `thumbnail-master/README.md` (동기화)
+     - `thumbnail-master/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `thumbnail-master/docs/IMPROVEMENTS.md` (개선 제안서)
+     - `thumbnail-master/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `thumbnail-master/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 76번 행 ✅ 1차 작업완료 (`v1.07`, 크리에이티브 아틀리에 스타일 — 썸네일 매거진 변형) 갱신 및 전체 통계 (누적 ✅ 54개 완료 / ⚪ 27개 예정 / ⏸ 2개 보류 — 65.1% 달성)
+      - `docs/ACTIVE_WORK.md`: 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - `buylifemall@naver.com` 일반 회원 테스트 계정으로 대시보드 진입, 내 프로젝트 목록, API 키 상태, 가이드북 렌더링 정상 확인.
+  - 데스크톱/모바일 뷰포트 전환 시 레이아웃 깨짐 없음.
+- **못 한 것**:
+  - 실제 유료 이미지 2종 생성 호출(테스트 비용 최소화 지침에 따라 모의 검증 완료).
+- **프로그램 링크**:
+  - 공식 프로덕션: https://thumbnail-master.buylife.xyz
+
 ## 2026-10-18 Claude Code(윈도우) — 인물사진 v1.24 배포 + v1.25 즉시 수정·운영 실검수 / **배포 규칙 정정(모든 CLI)**
 
 - **배포 규칙 정정(주인님)**: 「같은 날 같은 프로그램 1회 배포」는 하루 횟수 제한이 아니다. 필요하면 같은 날에도 배포하고, 여러 프로그램은 **한 번에 하나씩 순차 배포**(앞 배포 Ready 확인 후 다음), 짧은 간격의 작은 수정은 작업 단위로 모은다. 루트 `CLAUDE.md` 비용 규칙 ①·`docs/VERCEL_COST_REDUCTION_PLAN.md` C2 정정 행.
