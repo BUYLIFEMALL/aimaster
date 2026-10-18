@@ -11,6 +11,9 @@ import { MAX_CANDIDATES, PROFILE_FORMATS, SIZE_PRESETS, baseNameOf, profileCrop,
 import type { SizedRecommendation } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
+
+/** v1.24 프로필 세트 미리보기 한 장(미리보기와 저장에 같은 그림을 쓴다) */
+interface ProfileItem { label: string; circle: boolean; name: string; blob: Blob; url: string }
 import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
@@ -90,6 +93,7 @@ export function Studio({ userId }: { userId: string }) {
   const [batchReport, setBatchReport] = useState<{ idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[]>([]);
   const [batchCrops, setBatchCrops] = useState<Record<number, { presetId: string; crop: { sx: number; sy: number; sw: number; sh: number }; srcW: number; srcH: number }>>({});
   const [headMeasure, setHeadMeasure] = useState<{ url: string; crownY: number; chinY: number; centerX: number; srcW: number; srcH: number } | null>(null);
+  const [profilePreview, setProfilePreview] = useState<{ items: ProfileItem[]; measured: boolean; base: string } | null>(null);
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
   const [cmpPos, setCmpPos] = useState(50);
@@ -160,6 +164,8 @@ export function Studio({ userId }: { userId: string }) {
     void openCrop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingCrop, result, shown, whiten, cleaning, cleaned]);
+  // 보고 있는 사진이 바뀌면 지난 프로필 미리보기는 닫는다(다른 사진의 그림이 저장되지 않게)
+  useEffect(() => { closeProfilePreview(); }, [shown]); // eslint-disable-line react-hooks/exhaustive-deps
   const filter = useMemo(() => toneFilter(brightness, exposure, contrast), [brightness, exposure, contrast]);
   const toneActive = brightness !== 0 || exposure !== 0 || contrast !== 0;
 
@@ -514,8 +520,8 @@ export function Studio({ userId }: { userId: string }) {
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
-  /** v1.24 프로필 세트: 같은 사진·같은 머리 측정값으로 정사각·세로 4:5·원형 프로필을 ZIP 하나로(AI 호출 없음) */
-  async function saveProfileSet() {
+  /** v1.24 프로필 세트: 같은 사진·같은 머리 측정값으로 정사각·세로 4:5·원형 프로필을 만들어 먼저 미리보기로 보여 준다(AI 호출 없음) */
+  async function openProfilePreview() {
     if (!shown) return;
     setSaving("profile");
     try {
@@ -524,15 +530,31 @@ export function Studio({ userId }: { userId: string }) {
       await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = shown; });
       const W = im.naturalWidth, H = im.naturalHeight;
       const base = batchMode ? nameFor(sourceIdx, "프로필") : "프로필";
-      const entries: { name: string; data: Uint8Array }[] = [];
+      const items: ProfileItem[] = [];
       for (const f of PROFILE_FORMATS) {
         const c = m ? scaleCrop(profileCrop(m, f, m.srcW, m.srcH), m.srcW, m.srcH, W, H) : profileCrop(null, f, W, H);
         const blob = await renderProfile(shown, f, c, { mirrored, filter, applyFilter: toneActive });
-        entries.push({ name: `${base}-${f.id}-${f.width}x${f.height}.${f.circle ? "png" : "jpg"}`, data: new Uint8Array(await blob.arrayBuffer()) });
+        items.push({ label: f.label, circle: f.circle, name: `${base}-${f.id}-${f.width}x${f.height}.${f.circle ? "png" : "jpg"}`, blob, url: URL.createObjectURL(blob) });
       }
+      closeProfilePreview();
+      setProfilePreview({ items, measured: !!m, base });
+    } catch (e) { setError(e instanceof Error ? e.message : "미리보기를 만들지 못했습니다."); } finally { setSaving(""); }
+  }
+
+  function closeProfilePreview() {
+    setProfilePreview((cur) => { cur?.items.forEach((it) => URL.revokeObjectURL(it.url)); return null; });
+  }
+
+  /** 미리보기에서 본 그림 그대로 ZIP 저장(보이는 모양 = 저장 모양) */
+  async function saveProfileSet() {
+    if (!profilePreview) return;
+    setSaving("profile");
+    try {
+      const entries = await Promise.all(profilePreview.items.map(async (it) => ({ name: it.name, data: new Uint8Array(await it.blob.arrayBuffer()) })));
       const zip = createZip(entries);
-      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `${base}-세트-${new Date().toISOString().slice(0, 10)}.zip`);
-      setNotice(`프로필 세트 ${entries.length}장(${PROFILE_FORMATS.map((f) => f.label).join(" · ")})을 ZIP으로 저장했습니다. ${m ? "머리 위치를 기준으로 얼굴이 가운데 오게 잘랐습니다." : "머리 위치를 몰라 위쪽 가운데로 잘랐습니다 — [얼굴 위치 직접 지정]을 하면 얼굴 기준으로 잘립니다."}`);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `${profilePreview.base}-세트-${new Date().toISOString().slice(0, 10)}.zip`);
+      setNotice(`프로필 세트 ${entries.length}장(${PROFILE_FORMATS.map((f) => f.label).join(" · ")})을 ZIP으로 저장했습니다. ${profilePreview.measured ? "머리 위치를 기준으로 얼굴이 가운데 오게 잘랐습니다." : "머리 위치를 몰라 위쪽 가운데로 잘랐습니다 — [얼굴 위치 직접 지정]을 하면 얼굴 기준으로 잘립니다."}`);
+      closeProfilePreview();
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
@@ -825,6 +847,24 @@ export function Studio({ userId }: { userId: string }) {
               </ul>
             )}
             {headMsg && <p className={headMsg.tone === "ok" ? "notice head-ok" : headMsg.tone === "warn" ? "notice warning" : "notice"} role="status">{headMsg.text}</p>}
+            {profilePreview && (
+              <div className="zc" role="dialog" aria-label="프로필 세트 미리보기">
+                <div className="zc-bar"><b>프로필 세트 미리보기 — 저장될 모양 그대로</b><button type="button" onClick={closeProfilePreview}>닫기</button></div>
+                <div className="zc-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))", alignItems: "end" }}>
+                  {profilePreview.items.map((it) => (
+                    <figure key={it.name} className="zc-pane" style={{ margin: 0, textAlign: "center" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={it.url} alt={`${it.label} 미리보기`} style={{ width: "100%", display: "block", borderRadius: it.circle ? "50%" : 8 }} />
+                      <figcaption><small>{it.label}</small></figcaption>
+                    </figure>
+                  ))}
+                </div>
+                {!profilePreview.measured && <p className="notice warning" style={{ marginTop: 8 }}>머리 위치를 몰라 위쪽 가운데로 잘랐습니다. <button type="button" className="mini" onClick={() => { closeProfilePreview(); gotoCrop(active, true); }}>얼굴 위치 직접 지정 (무료)</button> 후 다시 미리보면 얼굴 기준으로 잘립니다.</p>}
+                <div className="actions" style={{ marginTop: 8 }}>
+                  <button type="button" className="primary" onClick={saveProfileSet} disabled={!!saving}>{saving === "profile" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 저장 ({profilePreview.items.length}장)</button>
+                </div>
+              </div>
+            )}
             <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
               {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
             </button>
@@ -854,7 +894,7 @@ export function Studio({ userId }: { userId: string }) {
                 {batchMode && results.length > 1 && <button type="button" onClick={saveSizedBatch} disabled={!!saving}>{saving === "batch" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격으로 일괄 저장 ({sizePresetById(sizeId).width}×{sizePresetById(sizeId).height}, ZIP)</button>}
                 {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
-                <button type="button" onClick={saveProfileSet} disabled={!!saving} title="같은 사진으로 정사각 1:1 · 세로 4:5 · 원형 프로필을 한 번에 저장합니다(AI 호출 없음)">{saving === "profile" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}프로필 세트 저장 (1:1·4:5·원형, ZIP)</button>
+                <button type="button" onClick={openProfilePreview} disabled={!!saving} title="같은 사진으로 정사각 1:1 · 세로 4:5 · 원형 프로필을 미리 보고 한 번에 저장합니다(AI 호출 없음)">{saving === "profile" ? <Loader2 size={14} className="ls-spin" /> : <ImageIcon size={14} />}프로필 세트 미리보기·저장 (1:1·4:5·원형)</button>
                 {(() => {
                   // v1.24: 머리 위치를 모르면 검사·직접 지정을 눈에 띄게(측정값이 생기면 원래 모양)
                   const needMeasure = !!sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none";

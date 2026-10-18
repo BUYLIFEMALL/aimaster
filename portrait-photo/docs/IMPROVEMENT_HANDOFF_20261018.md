@@ -27,4 +27,9 @@
 - **미배포**: 오늘 이미 두 번 배포해 **10-19에 배포**. 다음 첫 단계: `vercel deploy --prod --yes`(portrait-photo) → `vercel inspect`로 Ready 확인 → DB `programs.version`='v1.24' → 크롬에서 버전·머리 검사 강조 안내·[얼굴 위치 직접 지정 (무료)] 바로가기·[프로필 세트 저장] 버튼 확인 → 역량 지도 버전 → `docs/ACTIVE_WORK.md` 줄 삭제.
 - 생성 사진으로 저장 파일 확인은 Flash 1회 필요(주인님 확인 후).
 
+## 추가 작업 3 — v1.24에 포함: 증명사진 여유 구도 · 프로필 미리보기 · 연계 제안 기록 (같은 날, Claude Code 윈도우)
+- 한 일: `AGENTS.md` v1.24 「추가」 줄 참고. 플랜 `PLAN_20261018_V124B_FRAMING_PREVIEW_LINK.md`.
+- 10-19 확인 항목 추가: 크롬에서 [프로필 세트 미리보기·저장] → 패널 3장 → [ZIP으로 저장], 그리고 (주인님 확인 후) 증명사진 목적으로 Flash 1장 생성 → 머리 비율 검사 또는 직접 지정 → 머리가 55~65% 근처로 나오는지·[규격 저장] 추천 영역 파일 확인.
+- 발견(미처리): 비즈니스 목적에 증명사진식 구도·무표정 지시가 들어감 — `IMPROVEMENTS.md`.
+
 https://portrait-photo.buylife.xyz

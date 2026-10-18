@@ -61,6 +61,10 @@ test("프롬프트 조립: 슬롯·플래그·알 수 없는 id", () => {
   const t = buildPrompt(base({ truePerspective: true, symmetry: true, retouch: ALL_RETOUCH, skinIds: [] }));
   assert.match(t, /already been horizontally inverted/);
   assert.match(t, /ID-STYLE FRAMING/);
+  // v1.24: 저장 때 확대로 기준을 맞추므로 생성은 여유 구도(머리 55~65%) — 크게 나와 고칠 수 없는 경우를 막는다
+  assert.match(t, /SAFE ID FRAMING/);
+  assert.match(t, /55% to 65%/);
+  assert.ok(!t.includes("80%"), "옛 80% 꽉 찬 구도 지시가 남지 않음");
   assert.match(t, /NATURAL RETOUCHING/);
   assert.match(t, /SKIN DETAIL: natural realistic skin/);
   assert.equal((t.match(/^- /gm) || []).length >= 4, true);

@@ -38,7 +38,7 @@ const KEEP_ORIENTATION = `FACIAL ORIENTATION:
 const SYMMETRY = `ID-STYLE FRAMING:
 - Frontal head-on composition with the eyes looking straight into the lens on a level eye line.
 - Balanced natural facial symmetry, both ears visible and level, shoulders balanced and horizontal.
-- TIGHT ID FRAMING: the distance from the top of the head to the bottom of the chin must be about 80% of the full image height (a very tight, close-up ID framing). The head almost fills the frame, with only a thin margin above the head, and only the neck and the very top of the shoulders visible at the bottom edge.
+- SAFE ID FRAMING: a straight-on head-and-shoulders portrait. The distance from the top of the head (including hair) to the bottom of the chin should be about 55% to 65% of the full image height. Leave a clear empty margin of background above the head, never crop the top of the head or the chin, and show both shoulders fully at the bottom of the frame. Keep the face horizontally centered.
 - Neutral composed expression with the mouth closed.
 - Even, shadowless lighting with a clean separation from the backdrop and no shadow behind the shoulders or neck.`;
 
