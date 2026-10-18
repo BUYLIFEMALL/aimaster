@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 📌 AGY 반영 대기 — 매뉴얼 연계 링크 4건 (2026-10-19 Claude Code(윈도우) 정리)
+
+> 매뉴얼(`/guide`) 화면은 AGY 디자인 영역이라 Claude Code가 코드를 고치지 않고 제안만 남겼다. 해당 프로그램을 리뉴얼·수정할 때 반영을 검토해 주세요. 공통 원칙: **링크만**(프로그램 간 호출·데이터 전달 없음), 새 창(`target="_blank" rel="noopener"`), 링크 대상 프로그램은 별도 이용 권한·회원 본인 키가 필요함을 문구에 밝힘, 반영 시 그 프로그램 버전 +0.01. 반영하면 아래 표의 상태를 바꿔 주세요.
+
+| 프로그램(폴더) | 넣을 위치 | 문구 요지 | 링크 | 상세 원문 | 상태 |
+|---|---|---|---|---|---|
+| Threads 포스팅 자동화(`threads/`) | 「🧵 Meta Threads 공식 계정 연동 가이드」 절 끝 | 프로필 사진은 AI 인물사진의 프로필 세트(1:1·4:5·원형)로 | https://portrait-photo.buylife.xyz/studio | `threads/docs/IMPROVEMENTS.md` 맨 아래 | 대기 |
+| INSTA 포스팅 자동화(`insta_auto_poster/`) | 「Meta 앱 & 계정 연동」 단계 또는 계정 연동 페이지 이동 버튼 근처 | 위와 같음 | https://portrait-photo.buylife.xyz/studio | `insta_auto_poster/docs/IMPROVEMENTS.md` 맨 아래 | 대기 |
+| AI 인플루언서 자동화(`ai-influencer-studio/`) | 결과 저장·활용 안내 부분 | 만든 프로필·화보 컷을 인물사진의 [규격 저장]·[프로필 세트]로 정리 | https://portrait-photo.buylife.xyz/studio | `ai-influencer-studio/docs/IMPROVEMENTS.md` 맨 아래 | 대기 |
+| AI 4컷 만화 자동화(`four-cut-comics/`) | 캐릭터 시트·잘 나오는 요령 부분 | 실제 인물 캐릭터는 인물사진의 정면 결과를 참고 사진으로 쓰면 컷마다 얼굴이 일정 | https://portrait-photo.buylife.xyz/studio | `four-cut-comics/docs/IMPROVEMENTS.md` 맨 아래 | 대기 |
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 블로그 콘텐츠 제작 자동화 v1.10: 플로우 위저드 단계별 블로그 콘텐츠 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·확장 동기화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 56개 완료 / 67.5% 달성!)
 
 - **대상**: `blog-content-maker/` (https://blog-content-maker.buylife.xyz, slug: `blog-content-maker`, 75번)
