@@ -1,5 +1,29 @@
 import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
 import { GEMINI_GUIDE_URL } from "@/lib/guides";
+import { PURPOSES } from "@/lib/portrait/purposes";
+
+// v1.22 비주얼 매뉴얼 — 그림은 이모티콘·CSS 도형만 사용(이미지 생성 비용 없음)
+const FLOW = [
+  { icon: "📷", title: "사진 올리기", desc: "정면·밝은 사진 1장 (일괄은 최대 6장)" },
+  { icon: "🎯", title: "목적·옵션", desc: "목적 하나로 비율·조명·배경·복장이 한 번에" },
+  { icon: "✨", title: "만들기", desc: "후보 1~4장을 만들고 비교해서 고르기" },
+  { icon: "💾", title: "저장·규격", desc: "PNG 저장 또는 증명사진 규격으로 저장" },
+];
+const GOOD = [
+  { icon: "🙂", text: "얼굴이 정면에 가깝고 눈·코·입이 또렷한 사진" },
+  { icon: "💡", text: "그늘 없이 밝은 곳에서 찍은 사진" },
+  { icon: "🖼️", text: "어깨까지 보이고 화질이 선명한 원본" },
+];
+const BAD = [
+  { icon: "🕶️", text: "모자·선글라스·마스크로 얼굴이 가려진 사진" },
+  { icon: "🌫️", text: "어둡거나 흔들린 사진, 강한 필터·보정 앱 사진" },
+  { icon: "👥", text: "여러 사람이 함께 나온 사진, 너무 멀리서 찍은 사진" },
+];
+const SIZES = [
+  { label: "여권·신분증·면허", spec: "3.5×4.5cm · 413×531px", w: 52, h: 67 },
+  { label: "이력서", spec: "3×4cm · 354×472px", w: 45, h: 60 },
+  { label: "미국 비자", spec: "2×2인치 · 600×600px", w: 60, h: 60 },
+];
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,6 +46,14 @@ export default function GuidePage() {
         <p>본인 Gemini 키를 한 번 등록하면, 사진 한 장으로 목적에 맞는 인물 사진을 만들 수 있습니다.</p>
       </div>
       <div className="gd">
+        <section className="card gd-hero">
+          <span className="gd-mascot" aria-hidden="true">📸</span>
+          <div className="gd-bubble">
+            <strong>안녕하세요, 사진관 실장 &lsquo;찰칵이&rsquo;예요!</strong>
+            사진 한 장만 올리면 증명사진·비즈니스 프로필·SNS·시네마틱 화보까지 목적에 맞게 만들어 드려요. 처음이라면 ① 키 등록 → ② 5분 시작하기 순서로 따라와 주세요.
+          </div>
+        </section>
+
         <nav className="gd-toc card" aria-label="목차">
           <strong>바로가기</strong>
           <a href="#key">① 키 등록(최초 1회)</a>
@@ -45,6 +77,24 @@ export default function GuidePage() {
 
         <section id="quick" className="card">
           <h2>② 5분 시작하기</h2>
+          <ol className="gd-flow" aria-label="4단계 흐름">
+            {FLOW.map((f, i) => (
+              <li key={f.title}><em>STEP {i + 1}</em><b aria-hidden="true">{f.icon}</b><strong>{f.title}</strong><small>{f.desc}</small></li>
+            ))}
+          </ol>
+          <h3>촬영 목적 5가지 한눈에 보기</h3>
+          <div className="gd-purposes">
+            {PURPOSES.map((p) => (
+              <article key={p.id}>
+                <b aria-hidden="true">{p.icon}</b>
+                <strong>{p.label}</strong>
+                <span className="tag">{p.badge}</span>
+                <p>{p.desc}</p>
+                <small>비율 {p.aspect}</small>
+              </article>
+            ))}
+          </div>
+          <h3>자세한 순서</h3>
           <ol className="gd-steps">
             <Step n={1} title="촬영 목적 고르기">증명사진·비즈니스·SNS·시네마틱·자유 중 하나를 고르면 비율·조명·배경·복장·포즈가 한 번에 맞춰집니다.</Step>
             <Step n={2} title="사진 올리고 확인 체크">정면이 잘 나온 밝은 사진을 올리고, 본인(또는 동의받은) 사진임을 체크합니다. 전면 카메라 셀카라면 [셀카입니다]를 켭니다.</Step>
@@ -55,7 +105,17 @@ export default function GuidePage() {
 
         <section id="tips" className="card">
           <h2>③ 잘 나오는 요령</h2>
-          <ul className="gd-list">
+          <div className="gd-dodont">
+            <article className="good">
+              <h3>⭕ 이런 사진이 잘 나와요</h3>
+              <ul>{GOOD.map((g) => <li key={g.text}><b aria-hidden="true">{g.icon}</b>{g.text}</li>)}</ul>
+            </article>
+            <article className="bad">
+              <h3>❌ 이런 사진은 피해 주세요</h3>
+              <ul>{BAD.map((g) => <li key={g.text}><b aria-hidden="true">{g.icon}</b>{g.text}</li>)}</ul>
+            </article>
+          </div>
+          <ul className="gd-list" style={{ marginTop: 14 }}>
             <li>얼굴이 가려지지 않은 정면·밝은 사진이 가장 닮게 나옵니다. 모자·선글라스·강한 필터는 피하세요.</li>
             <li>결과가 본인과 다르게 느껴지면 같은 설정으로 다시 만들거나 보정 옵션을 줄여 보세요(보정이 많을수록 변형 가능성이 커집니다).</li>
             <li>먼저 <b>빠른 생성(Flash)·1K</b>로 구도를 확인하고, 마음에 들면 Pro·2K로 한 번 더 만드세요.</li>
@@ -65,7 +125,21 @@ export default function GuidePage() {
 
         <section id="id" className="card">
           <h2>④ 증명사진 저장</h2>
-          <ul className="gd-list">
+          <p className="gd-lead">자주 쓰는 규격 크기 비교 (실제 비율로 그린 그림)</p>
+          <div className="gd-sizes">
+            {SIZES.map((s) => (
+              <div key={s.label} className="gd-size"><i style={{ width: s.w, height: s.h }} aria-hidden="true" /><strong>{s.label}</strong>{s.spec}</div>
+            ))}
+          </div>
+          <div className="gd-headratio">
+            <div className="frame" aria-hidden="true"><span className="face" /><span className="crown" /><span className="chin" /></div>
+            <ol className="gd-steps">
+              <Step n={1} title="규격 고르기">결과 화면에서 저장할 규격(국내·해외 여권·비자 등)을 고릅니다.</Step>
+              <Step n={2} title="머리 비율 검사">파란 선(정수리)~주황 선(턱) 높이가 공식 기준 범위 안인지 AI가 추정해 알려 줍니다.</Step>
+              <Step n={3} title="자르기 영역 확인 후 저장">작게 나오면 [얼굴 확대 자르기] 또는 [자르기 영역 조정]으로 맞춘 뒤 규격 크기로 저장합니다.</Step>
+            </ol>
+          </div>
+          <ul className="gd-list" style={{ marginTop: 14 }}>
             <li><b>배경 순백 정리</b>: 가장자리와 이어진 밝은 배경만 순백(#FFFFFF)으로 바꿉니다. 밝은 머리·옷이 배경과 닿아 있으면 번질 수 있으니 결과를 확인하세요.</li>
             <li><b>증명사진 413×531px</b>: 면허·신분증 온라인 제출에서 흔히 쓰는 크기·250KB 이하 JPEG로 저장합니다.</li>
           </ul>

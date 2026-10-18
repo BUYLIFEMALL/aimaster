@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — AI 인물사진 자동화 v1.22: 디자인 리뉴얼 「크리에이티브 아틀리에 — 포토 스튜디오 그래파이트 변형」 (✅ 1차 작업완료, 79번)
+
+- **대상**: `portrait-photo/` (https://portrait-photo.buylife.xyz)
+- **한 일**: 중립 그래파이트 배경(`#121316`)·라이트 블루(`#7cc4fa`)·텅스텐 앰버(`#f6c177`)로 전 화면 통일, 결과 무대 격자·네 귀퉁이 초점 표시, ①~④ 단계 칩(표시 전용), 메뉴 `📖 연동 & 사용 매뉴얼`, `/guide` 비주얼 매뉴얼(마스코트·4단계 흐름·목적 5종 카드·좋은/피할 사진·규격 그림·머리 비율 그림, 기존 6절·FAQ 13개 유지). 기능·프롬프트·API·규격 값 무변경.
+- **바뀐 파일**: `src/app/globals.css`, `src/components/layout/Sidebar.tsx`, `src/components/studio/Studio.tsx`(단계 칩만), `src/app/(workspace)/guide/page.tsx`, `src/lib/version.ts`, 문서 6종(`AGENTS.md`·`README.md`(신규)·`docs/PLAN_20261018_DESIGN_RENEWAL.md`·`DESIGN_HANDOFF.md`·`IMPROVEMENTS.md`·`IMPROVEMENT_BACKLOG.md`·`IMPROVEMENT_HANDOFF_20261018.md`), 루트 `DESIGN.md`(카탈로그 변형 등록·79번 ✅)·`docs/PROGRAM_CAPABILITY_MAP.md`(v1.22).
+- **검수**: tsc 0, `npm test` 20/20, 로컬 빌드, Vercel 프로덕션 1회(Ready), DB `programs.version` v1.22. 크롬: 좁은 화면(실제 창 503px) studio·guide·settings·history, 데스크톱은 크롬 옆 패널로 창 폭이 고정되어 1280px iframe으로 studio·guide 확인. 표시 계정은 관리자(`buylifemall@gmail.com`) — 시험 계정 로그인 상태 확인과 실제 이미지 생성(비용)은 하지 않음.
+- **다음 첫 단계**: `portrait-photo/docs/IMPROVEMENT_HANDOFF_20261018.md`. 같은 뼈대 80·82·83번은 안 쓰는 성격 검사 CSS 잔존 여부를 리뉴얼 때 확인.
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — 뮤직비디오 자동화 v1.11: 사이버 네온 다크 콘솔 스타일 리뉴얼·375px 모바일 슬림헤더&드로어·비주얼 가이드북 신설·Vercel 프로덕션 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 49개 완료 달성!)
 
 - **대상**: `music-video-studio/` (https://music-video-studio.buylife.xyz, slug: `music-video-studio`, 16번)

@@ -566,6 +566,13 @@ export function Studio({ userId }: { userId: string }) {
         )}
       </div>
 
+      <ol className="st-steps" aria-label="진행 단계">
+        <li className={previewUrl ? "done" : "on"}><span>1</span>사진</li>
+        <li className={previewUrl && !shown && !busy ? "on" : shown ? "done" : ""}><span>2</span>목적·옵션</li>
+        <li className={busy ? "on" : shown ? "done" : ""}><span>3</span>만들기</li>
+        <li className={shown && !busy ? "on" : ""}><span>4</span>저장·규격</li>
+      </ol>
+
       <div className="purposes" role="tablist" aria-label="촬영 목적">
         {PURPOSES.map((p) => (
           <button key={p.id} type="button" role="tab" aria-selected={purposeId === p.id} className={purposeId === p.id ? "purpose on" : "purpose"} onClick={() => applyPurpose(p)}>

@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.17)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.22)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -20,7 +20,7 @@
 - v1.12 추가: **"얼굴 없음"만 다시 검사**(`autoCropBatch(only)`: 보고 목록에서 얼굴을 찾지 못한 사진 번호만 재호출, 나머지 보고는 유지, 2단계 비용 확인), **범위 안 사진도 얼굴 중앙 맞춤 옵션**(`centerFaceCrop`·`decideBatchCrop(..., centerOk)`: 크기는 기본 자르기와 같고 얼굴 가로 중심만 맞춤), 규격 18종(호주 시민권 신청 `immi.homeaffairs.gov.au` 1200×1600 선호·JPEG 70KB~3.5MB·머리 32~36mm 추가).
 - v1.13 추가: **얼굴 위치 직접 지정**(`CropAdjuster`의 `onMark`: 사진에서 ① 정수리 ② 턱 끝을 클릭 → `marksToMeasure`가 순서와 무관하게 측정값으로 변환, AI 호출 없음, 너무 가까우면 거부) → `handleMark`가 `headMeasure`·`batchCrops`·보고를 갱신해 추천 영역 재계산, **일괄 보고 행 바로가기**([영역 조정]·얼굴 없음 사진은 [얼굴 위치 직접 지정], `gotoCrop`+`pendingCrop` 효과로 해당 결과를 선택·순백 정리 준비 후 패널 열기), 규격 19종(폴란드 신분증 전자 신청 `gov.pl` 492×633 이상·2.5MB·얼굴 70~80% 추가).
 - 클라이언트 전용: `canvas.ts`(입력 1,600px JPEG 축소+셀카 반전, 순백 정리, PNG/413×531 렌더, 썸네일), `history.ts`(IndexedDB `portrait-photo:<userId>`, 최대 20).
-- 서버: `gemini.ts`(`IMAGE_MODELS` flash=`gemini-2.5-flash-image`, pro=`gemini-3-pro-image-preview`(imageSize는 pro만), pro 없음→flash 폴백, 오류 분류 key/quota/timeout/safety/noimage), `aiRoute.ts`(`guardAi(request, maxBody)`: 권한→본문 한도→본인 키).
+- 서버: `gemini.ts`(`IMAGE_MODELS` — v1.20부터 flash=`gemini-nano-banana-2.1`, pro=`gemini-3-pro-image`, v1.21부터 공용 호출 `geminiImage.ts` 사본 사용(imageSize는 pro만), pro 없음→flash 폴백, 오류 분류 key/quota/timeout/safety/noimage), `aiRoute.ts`(`guardAi(request, maxBody)`: 권한→본문 한도→본인 키).
 - API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/generate`, `/api/keys`(+`/test`).
 - 화면: `/studio`(`Studio.tsx`, 3열: 사진·보정·모델 / 결과·저장 / 옵션), `/history`, `/settings`, `/guide`.
 - DB 테이블 없음. 키는 공용 `user_api_keys`(provider `gemini`).
@@ -33,7 +33,7 @@
 - 요청 본문은 Vercel 4.5MB 한도 때문에 입력을 긴 변 1,600px JPEG로 줄여 base64 3.2M자 이하로 보낸다.
 - 새 옵션을 추가하면 `purposes.ts`의 id 참조와 `tests/portrait.test.mjs`(개수·id 일관성)를 함께 고친다.
 - 버전은 `src/lib/version.ts`·`package.json`·DB `programs.version`을 함께 올린다. Supabase MCP `execute_sql`은 문장별로 보낸다.
-- 화면은 흰색 베이스 + 표준 사이드바(계정은 마지막 메뉴 바로 아래, `← 다른 프로그램 보기` 상단).
+- 화면은 v1.22부터 「크리에이티브 아틀리에 — 포토 스튜디오 그래파이트 변형」(어두운 중립 회색, `docs/DESIGN_HANDOFF.md`) + 표준 사이드바(계정은 마지막 메뉴 바로 아래, `← 다른 프로그램 보기` 상단).
 
 ## 검수
 - `npm test`(순수 로직 19건: 두 점→측정값(순서·경계·너무 가까움)·수동 지정 확대 자르기·폴란드 규격 포함, 얼굴 중앙 맞춤·호주 규격 포함, 일괄 판정(작음·범위 안·큼·얼굴 없음·범위 없는 규격·얼굴 중심)·아일랜드 규격 포함, 조정 값 검증·영역 비례 변환 포함, 자르기 영역 계산·왕복·경계 보정·인도네시아 규격 포함, 확대 자르기(달성 비율·범위·중심 X·한계)·대만 규격 포함, 머리 비율 평가·순서 이동·홍콩/뉴질랜드 규격 포함, 파일 이름 정리·미국/싱가포르/베트남 규격 포함, 규격 비율·픽셀 범위(캐나다·영국·인도), ZIP 구조·CRC32 표준값, 보관 기간), `npx tsc --noEmit`, `npm run build`.
@@ -97,3 +97,18 @@
 - **바꾸지 않은 것**: 프롬프트·모델 이름·비율·화질·화면·글 생성 호출(SDK 그대로). 유료 생성이라 재시도 0(이중 과금 방지).
 - **검수**: tsc 0, 프로그램 테스트(20개 통과), `check-shared-modules` OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. eslint는 이 폴더에 설정 파일이 없어(이전부터) 실행 안 됨. 실제 이미지 생성 시험은 하지 않음(비용) — 오류가 나면 그때 검증.
 - **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 이 프로그램만 다르게 해야 하면 호출하는 쪽에서 덮어쓴다. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+
+## 2026-10-18 v1.22 — 디자인 리뉴얼 「크리에이티브 아틀리에 — 포토 스튜디오 그래파이트 변형」 (Claude Code 윈도우)
+- 중립 그래파이트 배경(`#121316`)·스튜디오 라이트 블루(`#7cc4fa`)·텅스텐 앰버(`#f6c177`), 결과 무대 격자·네 귀퉁이 초점 표시, ①~④ 단계 칩(표시 전용), 메뉴 `📖 연동 & 사용 매뉴얼`, 비주얼 매뉴얼(마스코트·4단계 흐름·목적 5종 카드(`PURPOSES` 직접 사용)·좋은/피할 사진·규격 크기 그림·머리 비율 그림). 기능 로직·프롬프트·API·규격 값 무변경.
+- 바뀐 파일: `globals.css`(맨 위 토큰 + 맨 끝 덮어쓰기 묶음, 클래스 이름 유지), `Sidebar.tsx`, `Studio.tsx`(단계 칩만), `guide/page.tsx`, `version.ts`. DB v1.22.
+- 검수: tsc 0, 테스트 20개 통과, 로컬 빌드, Vercel 프로덕션 배포(Ready)·DB 버전. 크롬 화면 확인 결과는 `docs/DESIGN_HANDOFF.md`.
+- 상세: `docs/PLAN_20261018_DESIGN_RENEWAL.md` · `docs/DESIGN_HANDOFF.md` · `docs/IMPROVEMENT_HANDOFF_20261018.md`(다음 첫 단계).
+
+## 7대 핵심 항목 (2026-10-18 정리)
+1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
+2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.
+3. **핵심 기능·구조·장단점**: 목적 프리셋 5종 + 조명·카메라·배경·포즈·복장·피부·필름·보정 4종, 후보 1~4장·격자/확대 비교, 원본 비교 슬라이더, 규격 21종 저장·머리 비율 검사·자르기 영역 조정·얼굴 위치 직접 지정, 일괄 6장·ZIP. 장점: 원본 서버 미저장·본인 키·공식 출처로 확인한 규격. 단점: 머리 비율을 모델이 잘 못 따름(50~56%), `Studio.tsx` 한 파일이 큼(890줄), 안 쓰는 CSS 잔존, 실제 휴대폰 터치 미검수.
+4. **버전**: v1.22(운영). 이력은 위 각 절.
+5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
+6. **연계·아이디어**: 결과 사진을 AI 이미지 자동화 배경 교체·명함/이력서 프로그램으로 넘기기 등 — `docs/IMPROVEMENTS.md` 3절.
+7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 무대 배경 밝기 전환(흰/회색/검정), 라이트 테마 토글 — `docs/IMPROVEMENTS.md` 2절.
