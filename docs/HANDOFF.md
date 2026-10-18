@@ -1,4 +1,56 @@
-# 작업 인수인계 현황판 (HANDOFF.md)
+﻿# 작업 인수인계 현황판 (HANDOFF.md)
+
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — 티스토리(원문)생성 자동화 v1.82: 플로우 위저드 앰버 테마 리뉴얼·375px 모바일 헤더&드로어 구축·비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 47개 완료 달성!)
+
+- **대상**: 	istory-auto-blog/ (https://tistory-auto-blog.buylife.xyz, slug: 	istory-auto-blog)
+- **한 일**:
+  1. **디자인 테마 전면 리뉴얼 및 템플릿화**:
+     - **공식 템플릿**: **플로우 위저드 스타일 — 티스토리 오렌지 앰버 에디션 (Flow Wizard Style — Tistory Orange Amber Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전체 페이지 단일 배경(g-slate-50, #f8fafc), 퓨어 화이트 서피스 카드(g-white), 슬레이트 테두리(order-slate-200), 티스토리 시그니처 웜 앰버 오렌지(g-orange-500 / 	ext-orange-600) 포인트 일체화.
+  2. **375px 모바일 반응형 내비게이션 완비 (BlogSidebar.tsx & BlogShell.tsx)**:
+     - 모바일 전용 56px 상단 슬림 헤더(sticky top-0 z-40 bg-white/95 border-b border-slate-200, 주황색 T 로고 + 현재 페이지 타이틀 + ☰ 햄버거 버튼).
+     - ☰ 버튼 터치 시 좌측 슬라이딩 드로어(Drawer) 및 딤 오버레이 연출, 메뉴 이동 시 드로어 자동 닫힘 처리, 가로 넘침(overflow-x) 0px 방어.
+  3. **3단계 플로우 위저드 스텝퍼 시각화 강화**:
+     - 1단계: 게시글 주제 수집 ➔ 2단계: AI 글쓰기 ➔ 3단계: 게시글 관리 파이프라인 스텝퍼를 세로 타임라인으로 시각화.
+     - 유틸리티 영역에 🔑 API키·플랫폼연동 및 **📖 연동 & 사용 매뉴얼 (/guide) 메뉴 신설**.
+  4. **비주얼 연동 & 사용 매뉴얼 (pp/guide/page.tsx) 전면 신설 (DESIGN.md 원칙 9번 준수)**:
+     - 공식 가이드북 히어로 배너 (1.82) 및 빠른 바로가기 액션 버튼.
+     - **5단계 원스톱 자동화 파이프라인 다이어그램**: 1. 확장 설치 ➔ 2. 블로그 이름 연동 ➔ 3. AI/YouTube 키 설정 ➔ 4. 주제수집·AI글쓰기 ➔ 5. 1-Click 자동 입력.
+     - 단계별 상세 실행 가이드 및 실전 체크리스트.
+     - 키캡 치트시트 & 에디터 팁 3종 (닫힌 탭 복구 Ctrl+Shift+T, 서식 소실 방지 엔진, 30분 자동 큐 창).
+     - 트러블슈팅 FAQ 아코디언 5종 (블로그 이름 입력법, 이어쓰기 창 자동 취소, 보호글 정책, 쇼츠 중복 차단, 이미지 30일 보관 정책).
+  5. **대시보드 및 전 화면 리뉴얼**:
+     - pp/dashboard/page.tsx: 상단 프로그램 소개 배너 앰버 스타일 업그레이드, 3종 KPI 카드(내 게시글, 수집된 글감 후보, 티스토리 카테고리) 및 3대 핵심 작업 순서 카드 정돈.
+     - pp/auth/auth-form.tsx & page.tsx: 공식 표준 탭 토글 레이아웃(로그인/회원가입) 앰버 오렌지 테마 동기화.
+     - pp/docs/page.tsx: 잘못된 import 경로 수정 및 /guide 매뉴얼 링크 연동.
+  6. **크롬 확장 프로그램 버전 동기화 (1.82)**:
+     - utils/version.ts, extension/manifest.json, package.json 동기화.
+     - 
+pm run build:extension 아카이브 자동 생성 (public/downloads/tistory-auto-blog-extension-v1.82.zip & latest.zip).
+     - 
+pm run sync:program-version으로 Supabase DB programs.version, extension_version, extension_download_url 갱신.
+     - 
+ode scripts/check-extension-release.mjs tistory-auto-blog ➔ OK (DB v1.82 / ext v1.82 / zip v1.82).
+  7. **로컬 빌드 검증 및 Vercel 프로덕션 배포**:
+     - 로컬 Next.js 16.2.10 Turbopack 프로덕션 빌드 성공 (✓ Compiled successfully in 6.6s).
+     - Vercel 프로덕션 배포 완료 (dpl_6BqPUAAuxjs5r7u8nUgBwtfSQLRE), 프로덕션 도메인 https://tistory-auto-blog.buylife.xyz 즉시 반영.
+  8. **Microsoft Edge 포그라운드 실세션 검수 (headless: false)**:
+     - 일반 회원 테스트 계정(uylifemall@naver.com)으로 실세션 로그인 및 검수 완료.
+     - 캡처 5종 아티팩트 보존:
+       - edge_tistory_desktop_dashboard_v182.png: 1440px 데스크톱 대시보드 & 플로우 스텝퍼
+       - edge_tistory_desktop_guide_v182.png: 1440px 데스크톱 가이드북 & 5단계 파이프라인
+       - edge_tistory_mobile_dashboard_v182.png: 375px 모바일 슬림 헤더 & 반응형 카드
+       - edge_tistory_mobile_drawer_v182.png: 375px 모바일 햄버거 메뉴 터치 후 슬라이딩 드로어
+       - edge_tistory_mobile_guide_v182.png: 375px 모바일 가이드북 및 가로 넘침 없음
+  9. **인수인계 문서 6종 완비**:
+     - 	istory-auto-blog/AGENTS.md (7대 핵심 항목 완벽 규격화)
+     - 	istory-auto-blog/README.md (동기화)
+     - 	istory-auto-blog/docs/DESIGN_HANDOFF.md (디자인 개발완료 보고서)
+     - 	istory-auto-blog/docs/IMPROVEMENTS.md (개선 제안서: 필수 3대 항목 + 타 프로그램 탐색 제안)
+     - 	istory-auto-blog/docs/IMPROVEMENT_BACKLOG.md (작업 대기 백로그)
+     - 	istory-auto-blog/docs/PLAN_20261018_DESIGN_RENEWAL.md (사전 개발 플랜 원본)
+- **프로그램 링크**:
+  - https://tistory-auto-blog.buylife.xyz
 
 ## 2026-10-18 Claude Code(윈도우) — trending-product-finder 30일 정리 Cron 첫 실행 확인
 

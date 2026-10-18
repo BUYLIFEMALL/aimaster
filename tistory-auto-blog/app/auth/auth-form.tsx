@@ -21,7 +21,7 @@ export default function AuthForm() {
     setSuccessMsg(null)
 
     const formData = new FormData(event.currentTarget)
-    
+
     startTransition(async () => {
       const result = await login(formData)
       if (result?.error) {
@@ -34,19 +34,23 @@ export default function AuthForm() {
     <div className="w-full max-w-[440px] px-4">
       {/* 티스토리(원문)생성 자동화 로고 영역 */}
       <div className="flex flex-col items-center mb-8 text-center">
-        <Link href="/" className="text-3xl font-extrabold tracking-tight text-[#005acc] mb-1 font-sans no-underline">
-          티스토리(원문)생성 자동화
+        <Link href="/" className="inline-flex items-center gap-2 mb-2 no-underline">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 text-white font-black text-xl shadow-xs">
+            T
+          </div>
+          <span className="text-2xl font-extrabold tracking-tight text-slate-900 font-sans">
+            티스토리 자동화
+          </span>
         </Link>
-        <p className="text-sm font-medium text-zinc-500">
+        <p className="text-xs sm:text-sm font-medium text-slate-500">
           AIMaster 계정(이메일·비밀번호)으로 로그인하세요.
         </p>
       </div>
 
       {/* 카드 레이아웃 */}
-      <div className="bg-white rounded-2xl border border-zinc-150/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] p-8">
-        
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8">
         {/* 상단 탭 버튼 */}
-        <div className="flex bg-[#e8effd]/60 p-1 rounded-xl mb-6">
+        <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
           <button
             type="button"
             onClick={() => {
@@ -54,10 +58,10 @@ export default function AuthForm() {
               setError(null)
               setSuccessMsg(null)
             }}
-            className={`flex-1 text-center py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+            className={`flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 ${
               mode === 'login'
-                ? 'bg-[#005acc] text-white shadow-sm'
-                : 'text-zinc-600 hover:text-zinc-900'
+                ? 'bg-orange-500 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             로그인
@@ -69,10 +73,10 @@ export default function AuthForm() {
               setError(null)
               setSuccessMsg(null)
             }}
-            className={`flex-1 text-center py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+            className={`flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 ${
               mode === 'signup'
-                ? 'bg-[#005acc] text-white shadow-sm'
-                : 'text-zinc-600 hover:text-zinc-900'
+                ? 'bg-orange-500 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             회원가입
@@ -81,168 +85,140 @@ export default function AuthForm() {
 
         {/* 안내 메시지 표시 */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-xs text-red-600 font-medium text-center">
+          <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600 font-medium text-center">
             {error}
           </div>
         )}
 
         {successMsg && (
-          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-100 rounded-lg text-xs text-emerald-600 font-medium text-center">
+          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-xs text-emerald-600 font-medium text-center">
             {successMsg}
           </div>
         )}
 
-        {/* 회원가입은 AIMaster에서만 받는다 — 모든 AI 프로그램은 AIMaster 계정/구독 권한을 공유한다. */}
+        {/* 회원가입은 AIMaster에서만 받는다 */}
         {mode === 'signup' ? (
           <div className="space-y-4 text-center">
-            <p className="text-sm text-zinc-600">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다.
               <br />
-              AIMaster에서 회원가입 후 이 프로그램을 구독하면 이용할 수 있습니다.
+              AIMaster에서 회원가입 후 이 프로그램을 구독하면 즉시 이용할 수 있습니다.
             </p>
             <a
               href={`${MAIN_SITE_URL}/register`}
-              className="block w-full py-3 bg-[#005acc] hover:bg-[#004bb9] text-white font-semibold rounded-xl text-sm transition-all shadow-sm"
+              className="block w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs sm:text-sm transition-all shadow-xs"
             >
-              AIMaster 회원가입 하러가기
+              AIMaster 회원가입 하러가기 →
             </a>
           </div>
         ) : (
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <input type="hidden" name="redirect" value={redirectTo} />
-          {/* 이메일 주소 입력 */}
-          <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <label htmlFor="email" className="text-xs font-semibold text-zinc-700">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input type="hidden" name="redirect" value={redirectTo} />
+            {/* 이메일 주소 입력 */}
+            <div>
+              <label htmlFor="email" className="block text-xs font-bold text-slate-700 mb-1.5">
                 이메일 주소
               </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H4.5A2.25 2.25 0 0 1 2.25 17.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                    />
+                  </svg>
+                </span>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="w-full text-xs sm:text-sm py-2.5 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all font-sans text-slate-800 placeholder-slate-400"
+                  placeholder="name@example.com"
+                />
+              </div>
             </div>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  className="w-4.5 h-4.5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H4.5A2.25 2.25 0 0 1 2.25 17.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
-                  />
-                </svg>
-              </span>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="w-full text-sm py-3 pl-10 pr-4 bg-zinc-50 border border-zinc-200/80 rounded-xl focus:outline-none focus:border-[#005acc] focus:ring-1 focus:ring-[#005acc]/20 transition-all font-sans text-zinc-800 placeholder-zinc-400"
-                placeholder="developer@example.com"
-              />
-            </div>
-          </div>
 
-          {/* 비밀번호 입력 */}
-          <div>
-            <div className="flex justify-between items-center mb-1.5 font-sans">
-              <label htmlFor="password" className="text-xs font-semibold text-zinc-700 font-sans">
-                비밀번호
-              </label>
-              {mode === 'login' && (
-                <a
-                  href="#forgot-password"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setError('비밀번호 재설정 기능은 준비 중입니다.');
-                  }}
-                  className="text-xs text-[#005acc] font-semibold hover:underline"
-                >
-                  비밀번호 찾기?
-                </a>
+            {/* 비밀번호 입력 */}
+            <div>
+              <div className="flex justify-between items-center mb-1.5 font-sans">
+                <label htmlFor="password" className="text-xs font-bold text-slate-700">
+                  비밀번호
+                </label>
+                {mode === 'login' && (
+                  <a
+                    href="#forgot-password"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setError('비밀번호 재설정은 AIMaster 메인 사이트에서 가능합니다.')
+                    }}
+                    className="text-[11px] text-orange-600 font-bold hover:underline"
+                  >
+                    비밀번호 찾기?
+                  </a>
+                )}
+              </div>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                    />
+                  </svg>
+                </span>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="w-full text-xs sm:text-sm py-2.5 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all font-sans text-slate-800 placeholder-slate-400"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            {/* 제출 버튼 */}
+            <button
+              type="submit"
+              disabled={isPending}
+              className={`w-full py-2.5 sm:py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 focus:outline-none shadow-xs active:scale-95 ${
+                isPending ? 'opacity-80 cursor-not-allowed' : ''
+              }`}
+            >
+              {isPending ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                <>로그인 →</>
               )}
-            </div>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  className="w-4.5 h-4.5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-                  />
-                </svg>
-              </span>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="w-full text-sm py-3 pl-10 pr-4 bg-zinc-50 border border-zinc-200/80 rounded-xl focus:outline-none focus:border-[#005acc] focus:ring-1 focus:ring-[#005acc]/20 transition-all font-sans text-zinc-800 placeholder-zinc-400"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          {/* 제출 버튼 */}
-          <button
-            type="submit"
-            disabled={isPending}
-            className={`w-full py-3 bg-[#005acc] hover:bg-[#004bb9] text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-1.5 focus:outline-none shadow-sm cursor-pointer shadow-blue-500/10 ${
-              isPending ? 'opacity-80 cursor-not-allowed' : ''
-            }`}
-          >
-            {isPending ? (
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            ) : mode === 'login' ? (
-              <>
-                로그인
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2.5"
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
-              </>
-            ) : (
-              <>
-                가입하기
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2.5"
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
-              </>
-            )}
-          </button>
-        </form>
+            </button>
+          </form>
         )}
 
         {/* 이용약관 및 푸터 */}
-        <p className="mt-8 text-center text-[10.5px] leading-5 text-zinc-400 font-sans tracking-wide">
+        <p className="mt-6 text-center text-[11px] leading-relaxed text-slate-400 font-sans">
           계속 진행함으로써 귀하는 당사의{' '}
-          <a href="#terms" className="text-zinc-600 hover:underline hover:text-zinc-800 font-medium">
+          <a href="#terms" className="text-slate-600 hover:underline font-semibold">
             이용약관
           </a>{' '}
           및{' '}
-          <Link href="/privacy" className="text-zinc-600 hover:underline hover:text-zinc-800 font-medium">
+          <Link href="/privacy" className="text-slate-600 hover:underline font-semibold">
             개인정보 처리방침
           </Link>
           에 동의하게 됩니다.

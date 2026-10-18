@@ -17,7 +17,7 @@ export default async function AuthPage() {
         <div className="w-full max-w-[440px] px-4 animate-fade-in">
           {/* 티스토리(원문)생성 자동화 인증 완료 로고 헤더 */}
           <div className="flex flex-col items-center mb-8 text-center">
-            <Link href="/" className="text-2xl font-black text-indigo-600 tracking-tight no-underline">
+            <Link href="/" className="text-2xl font-black text-orange-600 tracking-tight no-underline">
               티스토리(원문)생성 자동화
             </Link>
             <p className="text-sm font-medium text-zinc-500">

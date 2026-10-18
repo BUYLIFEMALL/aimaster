@@ -175,7 +175,7 @@
 | 30 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | **스레드 바이럴 스튜디오 스타일** | 라이트(화이트/앰버) | ✅ 1차 완료 (`v1.97`) | [`threads-content-ops/docs/DESIGN_HANDOFF.md`](threads-content-ops/docs/DESIGN_HANDOFF.md) |
 | 31 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | **플로우 위저드 스타일 (다크 차콜 변형)** | 다크(차콜 `#0d1117` + 서피스 `#161b22` + 쇼츠 레드 `#ef4444`) | ✅ 1차 작업완료 (`v1.11`, 플로우 위저드 다크 테마 & 가이드북 신설) | [`shorts-viral-studio/docs/DESIGN_HANDOFF.md`](shorts-viral-studio/docs/DESIGN_HANDOFF.md) |
 | 32 | Threads AI 기획 자동화 | `threads-easy-planner` | **스레드 바이럴 스튜디오 스타일 — 기획기 변형** | 라이트(화이트/블랙/앰버) | ✅ 1차 작업완료 (`v1.45`, 스레드 바이럴 스튜디오 스타일) | [`threads-easy-planner/docs/DESIGN_HANDOFF.md`](threads-easy-planner/docs/DESIGN_HANDOFF.md) |
-| 33 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `tistory-auto-blog/AGENTS.md` |
+| 33 | 티스토리(원문)생성 자동화 | `tistory-auto-blog` | **플로우 위저드 스타일 — 티스토리 오렌지 앰버 에디션** | 라이트(클린 슬레이트 `#f8fafc` + 티스토리 오렌지 `#f97316`) | ✅ 1차 작업완료 (`v1.82`, 플로우 위저드 앰버 테마 & 가이드북 신설) | [`tistory-auto-blog/docs/DESIGN_HANDOFF.md`](tistory-auto-blog/docs/DESIGN_HANDOFF.md) |
 | 34 | AI 이미지 스튜디오 | `ai-image-studio` | **크리에이티브 아틀리에 럭셔리 다크 스타일** | 다크(옵시디언 `#09090b` + 골드/앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.12`, 크리에이티브 아틀리에 럭셔리 다크 템플릿) | [`ai-image-studio/docs/DESIGN_HANDOFF.md`](ai-image-studio/docs/DESIGN_HANDOFF.md) |
 | 35 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | **스마트 매트릭스 스타일 — 라이트 변형 · 네이버 그린 포인트** (일반 CSS 변수) | 라이트(`#f6f7f9` + 네이버 그린 `#009b4d`/`#03c75a`) | ✅ 1차 작업완료 (`v1.69`, 파일나누기+네이버그린 리뉴얼, 윈도우 배포·확장검증·Edge포그라운드검수 2026-10-17) | [`naver-blog-seo-studio/docs/DESIGN_HANDOFF.md`](naver-blog-seo-studio/docs/DESIGN_HANDOFF.md) |
 | 36 | 상세페이지 GIF 자동화 | `video-to-gif` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `video-to-gif/AGENTS.md` |

@@ -1,5 +1,74 @@
-# tistory-auto-blog — 티스토리 자동화 (BLOG 원문생성 + 크롬 확장)
+﻿# tistory-auto-blog — 티스토리 자동화 (BLOG 원문생성 + 크롬 확장)
 
+> **공식 서비스 URL**: https://tistory-auto-blog.buylife.xyz  
+> **현재 버전**: 1.82 (플로우 위저드 앰버 스타일 템플릿 & 비주얼 가이드북 신설)  
+> **작업 시작 전 필독:** [운영·개발 인수인계 및 검수 체크포인트](docs/OPERATIONS_HANDOFF.md), [디자인 개발완료 보고서](docs/DESIGN_HANDOFF.md)
+
+---
+
+## 7대 핵심 프로그램 정보 (규격화)
+
+### 1. 프로그램의 사용목적 및 대상 (Target & Purpose)
+- **대상**: 티스토리 블로그를 운영하며 애드센스 수익 창출, 기술 블로그 운영, 전문 정보성 콘텐츠를 대량 또는 정기적으로 발행하고자 하는 전문 블로거, 마케터 및 1인 기업가.
+- **목적**: 키워드/쇼츠/트렌드 기반 고품질 원문 생성부터 전용 크롬 확장을 통한 티스토리 에디터(TinyMCE) 1-Click 자동 입력까지 사람의 수동 복사/붙여넣기 번거로움을 90% 이상 단축하는 올인원 자동화 지원.
+
+### 2. 개발 구현에 사용된 도구 / 개발기법 / 스킬 (Tech Stack & Skills)
+- **Frontend / Fullstack**: Next.js 16.2.10 (Turbopack, App Router), React 19, TypeScript, TailwindCSS v4.
+- **Rich Text Editor**: Tiptap v3 Suite (@tiptap/react, @tiptap/starter-kit, @tiptap/extension-* 등 15종 패키지).
+- **Database & Storage**: Supabase SSR (@supabase/ssr, @supabase/supabase-js), Supabase Storage (이미지 보관).
+- **Chrome Extension (Manifest V3)**:
+  - 	istory-core.js (검증 규칙), 	istory-engine.js (입력 순서 제어), 	istory-adapter.js (TinyMCE 제어 및 자동 가드).
+  - ackground.js (30분 작업 큐 및 폴링), web-bridge.js (웹 ↔ 확장 안전 통신).
+- **공용 기준 코드 사본 연동**:
+  - gemini-image-client (utils/ai/geminiImage.ts): ai-image-studio 기준 이미지 생성 어댑터.
+  - gemini-image-models (utils/news/nanoBananaConfig.ts): 최신 NanoBanana 및 Gemini Pro Image 목록.
+  - youtube-data-client (utils/ai/youtubeData.ts): 채널 컨설턴트 기준 YouTube Data API 공용 클라이언트.
+
+### 3. 핵심 기능 및 시스템 아키텍처, 장점 및 단점 (Features, Architecture, Pros & Cons)
+- **핵심 기능**:
+  1. **4대 주제 수집기 (/candidates)**: HTTP URL 스크래핑, RSS 피드 연동, Perplexity 실시간 트렌드 검색, **유튜브 쇼츠 떡상 분석**.
+  2. **AI 블로그 원문 생성 (/write/ai-form)**: 카테고리, 톤앤매너, 모델(Gemini/Claude/OpenAI), 본문 삽입 NanoBanana 이미지 자동 생성.
+  3. **게시글 관리 및 티스토리 전송 (/posts/[id])**: 서식 검수, 발행 설정 패널(카테고리, 공개 범위, 댓글 허용, 홈주제, 예약 발행).
+  4. **전용 크롬 확장 입력기**: 사람 타이핑 속도로 TinyMCE에 서식·이미지 자동 입력, 저장된 글 이어쓰기 팝업 자동 취소.
+  5. **비주얼 연동 가이드북 (/guide)**: 5단계 파이프라인, 키캡 치트시트, FAQ 아코디언.
+- **장점**:
+  - 티스토리 Open API 종료 이후에도 크롬 확장을 통해 완전 자동 입력 지원.
+  - 블로그 본문의 소제목 밑줄, 요약 인용구, 이미지 라운딩 서식이 티스토리 스킨과 완벽 호환.
+- **단점/한계**:
+  - 티스토리 보안 원칙상 최종 저장/발행 버튼은 회원이 직접 확인 후 클릭해야 함 (불변 안전 정책).
+  - 보호글(비밀번호)은 보안 정책상 지원하지 않음.
+
+### 4. 현재 버전 및 버전별 변경 히스토리 (Changelog)
+- **v1.82 (2026-10-18)**:
+  - **플로우 위저드 스타일 — 티스토리 오렌지 앰버 에디션** UI/UX 리뉴얼.
+  - 3단계 플로우 스텝퍼 시각화 강화 및 375px 모바일 햄버거 헤더(로고 + ☰ 버튼) & 슬라이딩 드로어 메뉴 구축 (가로 넘침 0px).
+  - **비주얼 가이드북 (/guide) 신설**: 5단계 파이프라인 다이어그램, 핵심 가이드, 키캡 치트시트, FAQ 아코디언 5종 완비.
+  - 전 화면 단일 배경색(#f8fafc) 및 카드 서피스/버튼 테마 일체화.
+  - 크롬 확장 버전 동기화(1.82), Vercel 프로덕션 배포 및 Microsoft Edge 포그라운드 실세션 검수(5종 캡처 보존).
+- **v1.81 (2026-10-18)**: 이미지 시간 초과 안내를 Google 사용량 확인으로 정정.
+- **v1.80 (2026-10-18)**: 이미지 시간 초과 자동 재시도 중단(이중 과금 방지).
+- **v1.79 (2026-10-17)**: 이미지 생성 시간 초과 안내 문구 통일.
+- **v1.78 (2026-10-17)**: 공용 이미지 기준 코드 갱신 반영.
+- **v1.77 (2026-10-17)**: 이미지 생성 모델 목록 통합.
+
+### 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 백로그: [docs/IMPROVEMENT_BACKLOG.md](docs/IMPROVEMENT_BACKLOG.md)
+  - 티스토리 크롬 확장 연결 상태 실시간 핑 뱃지(연동 성공 / 미연동) 표시.
+  - 본문 서식(HTML) 템플릿 다양화 (리뷰형, 가이드형, 브리핑형 등 4종 프리셋).
+  - 수집된 주제 후보 카테고리별 일괄 선택 및 다중 글 생성 큐 기능.
+
+### 6. 타 프로그램과의 연계 및 기능 확장 제안 (Integration Ideas)
+- 상세 제안서: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)
+  - **쇼츠 떡상 분석(shorts-viral-studio, 31번)**: 쇼츠 대본 ➔ 티스토리 롱폼 블로그 원문 1-Click 변환 내보내기 연계.
+  - **AI 이미지 스튜디오(i-image-studio, 34번)**: 생성된 갤러리 보관함 이미지를 에디터로 직접 불러오기 연계.
+  - **네이버 블로그 에이전트(
+aver-blog-agent, 29번)**: 1회 생성으로 티스토리와 네이버 블로그에 동시 분기 발행하는 크로스 퍼블리싱 파이프라인.
+
+### 7. 사용자 편의성 증대를 위한 UI/UX 개선안 (UI/UX Proposals)
+- 3단계 스텝퍼에 현재 작업 중인 글 및 임시저장 데이터 유무에 따른 동적 카운트 뱃지 연동.
+- 글 작성 화면에서 본문 생성 진행 시 타임라인 프로그레스 애니메이션 고도화.
+
+---
 > **작업 시작 전 필독:** [운영·개발 인수인계 및 검수 체크포인트](docs/OPERATIONS_HANDOFF.md)를 먼저 읽는다. 실제 장애 원인, 금지된 우회 방식, 부분 입력 시 조치, 배포 전 검수 순서가 정리되어 있다.
 
 ## v1.57 (2026-10-10) — 자동 입력 큐: 보내면 확장이 가져가는 서버 (BLOG 방식 이식 1/4, DB 칸 3개 추가 승인)
