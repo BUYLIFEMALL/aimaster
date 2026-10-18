@@ -13,25 +13,70 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   );
 }
 
+const STYLES_LIST = [
+  "피규어", "지브리 애니메이션", "신카이 마코토", "한국 수묵화", "사이버펑크",
+  "레트로 픽셀아트", "클레이메이션", "유화 (인상주의)", "수채화 일러스트", "3D 픽사 스타일",
+  "흑백 느와르", "팝아트", "스테인드글라스", "종이공예(페이퍼아트)", "보태니컬 아트",
+  "미니멀리즘 벡터", "네온 글로우", "빈티지 코믹스", "다크 판타지", "사이버 메카닉"
+];
+
 export default function GuidePage() {
   return (
     <>
       <div className="page-heading">
-        <p className="eyebrow">사용 설명서</p>
-        <h1>연동 & 사용 매뉴얼</h1>
+        <p className="eyebrow">비주얼 사용 설명서</p>
+        <h1>📖 연동 & 사용 매뉴얼</h1>
         <p>사진 한 장으로 복원·스타일 변환·합성·배경 제거·증명사진·인생 앨범·만화·스토리까지 만드는 이미지 도구함입니다. ①~②만 따라 해도 충분합니다.</p>
       </div>
+
       <div className="gd">
+        {/* 상단 바나나 히어로 배너 */}
+        <section className="gd-hero">
+          <div className="gd-mascot">🍌</div>
+          <div className="gd-bubble">
+            <strong>반갑습니다! AI 바나나 캔버스 아틀리에입니다.</strong>
+            단 한 장의 사진만으로도 전문가급 리터칭, 스타일 변환, 5장 이미지 합성, 증명사진 및 8컷 연속 스토리 제작까지 브라우저에서 바로 실현할 수 있습니다. 아래 3단계 작업 흐름과 가이드를 확인해보세요!
+          </div>
+        </section>
+
+        {/* 3단계 핵심 파이프라인 */}
+        <section className="card">
+          <h2>🍌 3단계 스마트 워크플로우</h2>
+          <ul className="gd-flow">
+            <li>
+              <em>STEP 01</em>
+              <b>🖼️</b>
+              <strong>원본 이미지 준비</strong>
+              <small>JPG·PNG·WEBP 업로드 (이미지 없이 만들기 가능)</small>
+            </li>
+            <li>
+              <em>STEP 02</em>
+              <b>✨</b>
+              <strong>도구 선택 및 실행</strong>
+              <small>생성·편집·합성·빠른작업·스페셜 작업 실행</small>
+            </li>
+            <li>
+              <em>STEP 03</em>
+              <b>🌟</b>
+              <strong>다운로드 & 계속 편집</strong>
+              <small>고해상도 저장 또는 결과를 새 원본으로 연결</small>
+            </li>
+          </ul>
+        </section>
+
+        {/* 바로가기 목차 */}
         <nav className="gd-toc card" aria-label="목차">
           <strong>바로가기</strong>
           <a href="#key">① 키 등록(최초 1회)</a>
           <a href="#quick">② 5분 시작하기</a>
           <a href="#tools">③ 작업별 설명</a>
-          <a href="#tips">④ 잘 나오는 요령</a>
-          <a href="#privacy">⑤ 개인정보·사용 주의</a>
-          <a href="#faq">⑥ 막힐 때(FAQ)</a>
+          <a href="#styles">④ 20종 스타일 프리셋</a>
+          <a href="#tips">⑤ 잘 나오는 요령</a>
+          <a href="#privacy">⑥ 개인정보·사용 주의</a>
+          <a href="#faq">⑦ 막힐 때(FAQ)</a>
         </nav>
 
+        {/* 1. API 키 등록 */}
         <section id="key" className="card">
           <h2>① Gemini API 키 등록 (최초 1회)</h2>
           <p className="gd-lead">이미지 생성·편집은 <b>회원님 본인의 Google Gemini API 키</b>로 동작합니다. 키가 없으면 작업 버튼을 눌렀을 때 등록 안내가 나옵니다.</p>
@@ -44,6 +89,7 @@ export default function GuidePage() {
           <p className="gd-warn">⚠️ 이미지 생성·편집은 Gemini 이미지 모델을 쓰며, 계정에 따라 결제(유료) 설정이 되어 있어야 동작할 수 있습니다. 작업 1회가 이미지 생성 1건이고, 연속 스토리·이미지 레시피는 6~8건이 본인 키 사용량으로 계산됩니다.</p>
         </section>
 
+        {/* 2. 5분 시작하기 */}
         <section id="quick" className="card">
           <h2>② 5분 시작하기</h2>
           <ol className="gd-steps">
@@ -54,22 +100,48 @@ export default function GuidePage() {
           </ol>
         </section>
 
+        {/* 3. 작업별 설명 */}
         <section id="tools" className="card">
           <h2>③ 작업별 설명</h2>
           <div className="gd-cards">
-            <article><h3>만들기</h3><p>아이디어를 입력하고 카테고리(실사·음식·건축·판타지·수채화·3D·벡터·스티커·로고·미니멀)와 종횡비를 고르면 이미지를 만듭니다.</p></article>
-            <article><h3>편집</h3><p>복원·컬러화·채색(스케치 전용)·업스케일(2x/4x)을 복수 선택하고, 스타일 20종(피규어·유화·한국수묵화 등)과 추가 요청을 더할 수 있습니다.</p></article>
-            <article><h3>합성</h3><p>원본에 소스 이미지(최대 5장)의 요소를 합칩니다. 원본 인물의 얼굴은 그대로 유지하도록 지시합니다. 결과 종횡비를 바꾸면 장면을 확장합니다.</p></article>
-            <article><h3>배경 제거</h3><p>AI가 배경을 단색으로 바꾼 뒤 서버에서 투명 배경 PNG로 만듭니다. 피사체와 비슷한 색의 배경이면 가장자리가 거칠 수 있습니다.</p></article>
-            <article><h3>부분 삭제</h3><p>브러시로 칠한 영역을 지우고 주변과 자연스럽게 채웁니다. 작은 영역일수록 결과가 좋습니다.</p></article>
-            <article><h3>증명사진 · 평면도 3D</h3><p>증명사진은 정장·흰 배경·3:4로 변환합니다. 평면도는 45도 컷어웨이 3D 렌더로 바꿉니다.</p></article>
-            <article><h3>인생 앨범 · 만화 패널</h3><p>인생 앨범은 현재 나이를 입력하면 유아~70대 콜라주를 만듭니다. 만화 패널은 느와르·웹툰·미국 코믹스 중에서 대사를 넣어 만듭니다.</p></article>
-            <article><h3>연속 스토리 · 이미지 레시피</h3><p>스토리는 AI가 8개 장면을 먼저 기획한 뒤 컷마다 이전 컷을 참고해 그립니다(글자 없음). 레시피는 한국어 단계 설명과 단계별 이미지를 만듭니다.</p></article>
+            <article><h3>🎨 만들기</h3><p>아이디어를 입력하고 카테고리(실사·음식·건축·판타지·수채화·3D·벡터·스티커·로고·미니멀)와 종횡비를 고르면 이미지를 만듭니다.</p></article>
+            <article><h3>✨ 편집</h3><p>복원·컬러화·채색(스케치 전용)·업스케일(2x/4x)을 복수 선택하고, 스타일 20종(피규어·유화·한국수묵화 등)과 추가 요청을 더할 수 있습니다.</p></article>
+            <article><h3>🧩 합성</h3><p>원본에 소스 이미지(최대 5장)의 요소를 합칩니다. 원본 인물의 얼굴은 그대로 유지하도록 지시합니다. 결과 종횡비를 바꾸면 장면을 확장합니다.</p></article>
+            <article><h3>✂️ 배경 제거</h3><p>AI가 배경을 단색으로 바꾼 뒤 서버에서 투명 배경 PNG로 만듭니다. 피사체와 비슷한 색의 배경이면 가장자리가 거칠 수 있습니다.</p></article>
+            <article><h3>🖌️ 부분 삭제</h3><p>브러시로 칠한 영역을 지우고 주변과 자연스럽게 채웁니다. 작은 영역일수록 결과가 좋습니다.</p></article>
+            <article><h3>📸 증명사진 · 평면도 3D</h3><p>증명사진은 정장·흰 배경·3:4로 변환합니다. 평면도는 45도 컷어웨이 3D 렌더로 바꿉니다.</p></article>
+            <article><h3>📚 인생 앨범 · 만화 패널</h3><p>인생 앨범은 현재 나이를 입력하면 유아~70대 콜라주를 만듭니다. 만화 패널은 느와르·웹툰·미국 코믹스 중에서 대사를 넣어 만듭니다.</p></article>
+            <article><h3>📖 연속 스토리 · 이미지 레시피</h3><p>스토리는 AI가 8개 장면을 먼저 기획한 뒤 컷마다 이전 컷을 참고해 그립니다(글자 없음). 레시피는 한국어 단계 설명과 단계별 이미지를 만듭니다.</p></article>
           </div>
         </section>
 
+        {/* 4. 20종 스타일 프리셋 시각화 */}
+        <section id="styles" className="card">
+          <h2>④ 20종 프리미엄 스타일 프리셋</h2>
+          <p className="gd-lead">원하는 분위기의 스타일을 클릭하여 프롬프트에 자동으로 주입하고, 색다른 질감의 아트워크를 제작해 보세요.</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
+            {STYLES_LIST.map((style, i) => (
+              <span key={i} style={{
+                padding: "6px 12px",
+                borderRadius: "999px",
+                background: "var(--card2)",
+                border: "1px solid var(--line)",
+                color: "var(--foreground)",
+                fontSize: "12px",
+                fontWeight: 600,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px"
+              }}>
+                <span style={{ color: "var(--brand)" }}>●</span> {style}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* 5. 결과가 잘 나오는 요령 */}
         <section id="tips" className="card">
-          <h2>④ 결과가 잘 나오는 요령</h2>
+          <h2>⑤ 결과가 잘 나오는 요령</h2>
           <ul className="gd-list">
             <li>원본은 <b>해상도가 충분하고 피사체가 선명한</b> 사진이 좋습니다. 너무 작거나 흐린 사진은 업스케일해도 한계가 있습니다.</li>
             <li>요청은 <b>한 번에 한 가지</b>를 구체적으로 쓰세요. 여러 변환이 필요하면 결과를 [계속 편집]으로 이어 가는 편이 안정적입니다.</li>
@@ -78,8 +150,9 @@ export default function GuidePage() {
           </ul>
         </section>
 
+        {/* 6. 개인정보 · 사용 주의 */}
         <section id="privacy" className="card">
-          <h2>⑤ 개인정보 · 사용 주의</h2>
+          <h2>⑥ 개인정보 · 사용 주의</h2>
           <ul className="gd-list">
             <li>올린 이미지는 작업에만 쓰이며 비공개 임시 저장소에서 <b>1시간 안에 자동 삭제</b>됩니다. 결과 이미지는 [내 결과 기록]에서 삭제할 수 있습니다.</li>
             <li>이미지는 회원님의 Gemini 키로 Google에 전송되어 처리됩니다.</li>
@@ -87,8 +160,9 @@ export default function GuidePage() {
           </ul>
         </section>
 
+        {/* 7. 막힐 때 (자주 묻는 질문) */}
         <section id="faq" className="card">
-          <h2>⑥ 막힐 때 (자주 묻는 질문)</h2>
+          <h2>⑦ 막힐 때 (자주 묻는 질문)</h2>
           <div className="gd-faq">
             <details><summary>“API 키 등록이 필요합니다”라고 나와요.</summary><p>①의 순서대로 본인 키를 등록하세요. 키는 다른 회원이나 운영자와 공유되지 않습니다.</p></details>
             <details><summary>“키가 올바르지 않거나 권한이 없습니다”라고 나와요.</summary><p>키를 다시 확인하고, Google AI Studio에서 해당 키의 결제(유료) 설정이 되어 있는지 확인하세요.</p></details>

@@ -1,5 +1,55 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 바나나 캔버스 자동화 v1.08: 크리에이티브 아틀리에 바나나 팝 차콜 테마 리뉴얼·작업 칩 띠 신설·비주얼 가이드북 구축·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 51개 완료 달성!)
+
+- **대상**: `banana-canvas/` (https://banana-canvas.buylife.xyz, slug: `banana-canvas`, 80번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형 (Creative Atelier Style — Banana Pop Charcoal Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(스튜디오 대시보드, 비주얼 가이드북, 내 결과 기록, API 설정, 로그인) 배경을 따뜻한 차콜(`#16140f`), 딥 차콜 서피스 카드(`bg-[#201d16] border-[#3a3427]`), 바나나 옐로 포인트(`--brand: #ffd84d`, 잉크 `#1d1806`), 잎사귀 그린(`--leaf: #7ed38a`), 웜 브라운 스크롤바로 완벽 일체화.
+     - `portrait-photo`·`four-cut-comics` 검증 방식인 **맨 위 색 토큰 + 맨 끝 덮어쓰기 CSS** 기법을 적용하여 로직 수정 없이 안전하고 신속하게 테마 구축 완료.
+  2. **상단 빠른 작업 지도 칩 띠 신설 (`.bc-nav-chips` & 카드 id 부여)**:
+     - 스튜디오 대시보드 상단에 8개 작업 카드로 즉시 이동하는 앵커 칩(🖼️ 원본 · ✨ 생성 · ⚡ 빠른 작업 · 🎞️ 스토리 · 🛠️ 편집 · 🧩 합성 · 📖 인생 앨범 · 💬 만화 패널 · 🌟 결과 보기)을 신설.
+  3. **사이드바 🍌 브랜드 아이콘 테마화 및 메뉴명 표준화**:
+     - 좌측 사이드바 브랜드 아이콘을 🍌 바나나 배지로 시각화하고, 메뉴명을 **`📖 연동 & 사용 매뉴얼` (`/guide`)**로 표준화 (`DESIGN.md` 9번 원칙 충족).
+  4. **비주얼 연동 & 사용 매뉴얼 (/guide) 전면 고도화**:
+     - 바나나 마스코트 히어로 배너 (`.gd-hero`, `.gd-mascot`, `.gd-bubble`).
+     - **3단계 핵심 파이프라인 비주얼 카드** (1. 원본 준비 ➔ 2. 도구 실행 ➔ 3. 결과 다운로드 & 계속 편집).
+     - 4대 도구 그룹 안내 및 **20종 프리미엄 스타일 프리셋 시각화 칩** 수록.
+     - 본인 Gemini 키 연동 보안 및 자주 묻는 질문(FAQ 6종 아코디언 컴포넌트) 탑재.
+  5. **375px 모바일 뷰포트 반응형 최적화**:
+     - 상단 56px 슬림 헤더(`h-14 bg-[#201d16] border-b border-[#3a3427]`, 🍌 로고 + 프로그램명 + 버전 배지 + ☰ 햄버거 버튼).
+     - ☰ 터치 시 슬라이딩 메뉴 전개, 작업 칩 가로 줄바꿈 및 가로 스크롤 넘침(`overflow-x-hidden`) 0px 완벽 방어.
+  6. **버전 동기화 (v1.08)**:
+     - `src/lib/version.ts`, `package.json` `v1.08` 갱신.
+     - Supabase DB `programs.version`을 `v1.08`로 업데이트 완료 (`slug: banana-canvas`).
+  7. **로컬 무결성 검증 통과**:
+     - `npm test`: 7개 단위 테스트 케이스 100% 통과 (0.43s).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공 (Compiled in 3.9s).
+  8. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_9DPewHntU69SMr9xv9T67XRJu47s`
+     - 공식 도메인 즉시 반영: https://banana-canvas.buylife.xyz
+  9. **Microsoft Edge 포그라운드 실세션 검수 (headless: false)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창 10분간 화면 유지.
+     - 캡처 7종 아티팩트 보존:
+       - `edge_banana_canvas_desktop_studio_v108.png`: 1440px 데스크톱 스튜디오 대시보드
+       - `edge_banana_canvas_desktop_guide_v108.png`: 1440px 데스크톱 비주얼 가이드북
+       - `edge_banana_canvas_desktop_settings_v108.png`: 1440px 데스크톱 API 키 설정
+       - `edge_banana_canvas_desktop_history_v108.png`: 1440px 데스크톱 결과 기록
+       - `edge_banana_canvas_mobile_studio_v108.png`: 375px 모바일 스튜디오 및 56px 상단 슬림 헤더
+       - `edge_banana_canvas_mobile_menu_v108.png`: 375px 모바일 햄버거 메뉴 열림
+       - `edge_banana_canvas_mobile_guide_v108.png`: 375px 모바일 비주얼 가이드북
+  10. **인수인계 문서 6종 완비**:
+      - `banana-canvas/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+      - `banana-canvas/README.md` (동기화)
+      - `banana-canvas/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+      - `banana-canvas/docs/IMPROVEMENTS.md` (개선 제안서: 필수 3대 항목 + 타 프로그램 탐색 제안)
+      - `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+      - `banana-canvas/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+
+https://banana-canvas.buylife.xyz
+
 ## 2026-10-18 Claude Code(윈도우) — AI 인물사진 자동화 v1.24(코드, **10-19 배포 예정**): 일괄 저장 통일·머리 검사 강조·프로필 세트
 
 - **대상**: `portrait-photo/` (https://portrait-photo.buylife.xyz) — 운영은 v1.23 그대로.

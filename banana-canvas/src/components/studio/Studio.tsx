@@ -213,6 +213,18 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
         </div>
       )}
 
+      <nav className="bc-nav-chips" aria-label="작업 바로가기">
+        <a href="#source">🖼️ 원본</a>
+        <a href="#card-generate">✨ 생성</a>
+        <a href="#card-quick">⚡ 빠른 작업</a>
+        <a href="#card-story">🎞️ 스토리·레시피</a>
+        <a href="#card-edit">🛠️ 편집</a>
+        <a href="#card-composite">🧩 합성</a>
+        <a href="#card-album">📖 인생 앨범</a>
+        <a href="#card-comic">💬 만화 패널</a>
+        <a href="#result" style={{ background: "rgba(255, 216, 77, 0.2)", borderColor: "var(--brand)", color: "var(--brand)" }}>🌟 결과 보기</a>
+      </nav>
+
       <div className="bc-board">
         {/* ───── 1열: 원본 · 생성 · 빠른 작업 · 스토리/레시피 ───── */}
         <div className="bc-col">
@@ -251,7 +263,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
             <p className="bc-privacy">올린 이미지는 1시간 안에 자동 삭제됩니다. 본인 사진 또는 사용 동의를 받은 사진만 올려 주세요.</p>
           </section>
 
-          <Card icon="✨" title="이미지 생성" hint="아이디어만 입력하면 새 이미지를 만듭니다. 원본 이미지가 없어도 됩니다.">
+          <Card id="card-generate" icon="✨" title="이미지 생성" hint="아이디어만 입력하면 새 이미지를 만듭니다. 원본 이미지가 없어도 됩니다.">
             <textarea rows={3} value={idea} maxLength={600} onChange={(e) => setIdea(e.target.value)} placeholder="예: 우주를 나는 고양이" disabled={disabled} aria-label="이미지 아이디어" />
             <div className="bc-row2">
               <label className="bc-field">카테고리
@@ -267,7 +279,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
             </div>
           </Card>
 
-          <Card icon="⚡" title="빠른 작업" hint="버튼 한 번으로 끝나는 변환입니다." needsImage locked={noBase}>
+          <Card id="card-quick" icon="⚡" title="빠른 작업" hint="버튼 한 번으로 끝나는 변환입니다." needsImage locked={noBase}>
             <div className="bc-quick">
               <button type="button" disabled={disabled || noBase} onClick={() => void run("bgremove")}>✂️ 배경 제거<small>투명 PNG</small></button>
               <button type="button" disabled={disabled || noBase} onClick={() => setMaskMode(true)}>🎨 부분 삭제<small>브러시로 칠해 지우기</small></button>
@@ -277,7 +289,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
             <AspectPick value={planAspect} onChange={(a) => setPlanAspect(a as Aspect)} options={["4:3", "16:9", "1:1"]} />
           </Card>
 
-          <Card icon="🎞️" title="연속 스토리 · 이미지 레시피" hint="글자 없이 이미지로만 이야기하거나, 요리 과정을 단계별 사진으로 만듭니다.">
+          <Card id="card-story" icon="🎞️" title="연속 스토리 · 이미지 레시피" hint="글자 없이 이미지로만 이야기하거나, 요리 과정을 단계별 사진으로 만듭니다.">
             <textarea rows={2} value={storyIdea} maxLength={600} onChange={(e) => setStoryIdea(e.target.value)} placeholder="스토리 아이디어 (예: 숲길을 따라 걷다 작은 오두막을 발견하는 여행자 이야기)" disabled={disabled} aria-label="스토리 아이디어" />
             <div className="bc-btns">
               <button type="button" className="bc-suggest" disabled={disabled || noBase} onClick={() => void suggest("story", setStoryIdea)}><Sparkles size={14} />이미지에서 제안</button>
@@ -293,7 +305,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
 
         {/* ───── 2열: 편집 · 합성 · 인생 앨범 · 만화 ───── */}
         <div className="bc-col">
-          <Card icon="🛠️" title="이미지 편집" hint="처리 방식과 스타일을 고르고 필요하면 추가 요청을 적습니다." needsImage locked={noBase}>
+          <Card id="card-edit" icon="🛠️" title="이미지 편집" hint="처리 방식과 스타일을 고르고 필요하면 추가 요청을 적습니다." needsImage locked={noBase}>
             <div>
               <small className="bc-label">처리 방식 (복수 선택)</small>
               <div className="bc-seg">
@@ -320,7 +332,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
             </div>
           </Card>
 
-          <Card icon="🧩" title="이미지 합성" hint="원본에 소스 이미지(최대 5장)의 요소를 합칩니다. 원본 인물 얼굴은 유지됩니다." needsImage locked={noBase}>
+          <Card id="card-composite" icon="🧩" title="이미지 합성" hint="원본에 소스 이미지(최대 5장)의 요소를 합칩니다. 원본 인물 얼굴은 유지됩니다." needsImage locked={noBase}>
             <div className="bc-sources">
               {sources.map((s, i) => (
                 <div key={s.path} className="bc-src">
@@ -340,7 +352,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
             </div>
           </Card>
 
-          <Card icon="📖" title="인생 앨범 제작" hint="사진 속 인물의 유아기~70대 모습을 한 장의 앨범 콜라주로 만듭니다." needsImage locked={noBase}>
+          <Card id="card-album" icon="📖" title="인생 앨범 제작" hint="사진 속 인물의 유아기~70대 모습을 한 장의 앨범 콜라주로 만듭니다." needsImage locked={noBase}>
             <div className="bc-row2">
               <input type="number" min={1} max={120} value={age} onChange={(e) => setAge(e.target.value)} placeholder="현재 나이 (예: 25)" disabled={disabled || noBase} aria-label="현재 나이" />
             </div>
@@ -348,7 +360,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
             <button type="button" className="primary" disabled={disabled || noBase || !age.trim()} onClick={() => void run("lifealbum", { age: Number(age), aspect: albumAspect })}>앨범 제작 실행</button>
           </Card>
 
-          <Card icon="💬" title="만화 패널" hint="사진을 만화 한 컷으로 바꾸고 대사를 넣습니다." needsImage locked={noBase}>
+          <Card id="card-comic" icon="💬" title="만화 패널" hint="사진을 만화 한 컷으로 바꾸고 대사를 넣습니다." needsImage locked={noBase}>
             <div className="bc-seg">
               {([["noir", "느와르"], ["webtoon", "웹툰"], ["american", "미국 코믹스"]] as [ComicStyle, string][]).map(([v, l]) => <button key={v} type="button" aria-pressed={comicStyle === v} onClick={() => setComicStyle(v)}>{l}</button>)}
               <button type="button" aria-pressed={comicLang === "ko"} onClick={() => setComicLang("ko")}>한국어</button>

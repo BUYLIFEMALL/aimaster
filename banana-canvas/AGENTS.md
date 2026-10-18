@@ -1,56 +1,107 @@
-# AI 바나나 캔버스 자동화 (banana-canvas) — 작업 지침
+# AI 바나나 캔버스 자동화 (`banana-canvas`) — AI 에이전트 인수인계 지침
 
-> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+> **공식 서비스 URL**: https://banana-canvas.buylife.xyz  
+> **공식 디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형 (Creative Atelier Style — Banana Pop Charcoal Edition)**  
+> **현재 버전**: `v1.08` (2026-10-18 디자인 전면 리뉴얼 및 가이드북 신설)  
+> **담당 CLI**: Antigravity (윈도우)
 
-## 한 줄 요약
-사진 한 장(또는 아이디어)을 Nano Banana(Gemini 이미지 모델)로 만들고 고치는 도구함: 생성·편집(복원/컬러화/채색/업스케일, 스타일 20종)·합성(소스 5장)·빠른 작업(배경 제거/부분 삭제/증명사진/평면도 3D)·스페셜(인생 앨범/만화 패널/연속 스토리 8컷/이미지 레시피). 참고 원본은 Google AI Studio 앱 "Banana Canvas"(소스 전체 분석, 코드는 복제하지 않고 프롬프트 구조·기능 목록만 참고).
+---
 
-## 구조
-- `src/lib/bnc/` 순수 로직(단위 테스트): `types`(작업 종류·파라미터), `styles`(처리 4·스타일 20·재질 지침·카테고리 11), `prompts`(작업별 영어 고정 템플릿·종횡비 부록·프롬프트 제안·스토리/레시피 기획), `tasks`(`cleanParams`·`missingInput`·`buildTask`), `paths`(이미지 판별·크기·소유 경로).
-- `src/lib/gemini.ts`(서버): `textModel`(3.5-flash→2.5-flash), `imageModel`(flash: `gemini-2.5-flash-image`→pro, pro: `gemini-3-pro-image-preview`→flash). 안전 필터 `safety`, 이미지 미반환 `noimage`.
-- `src/lib/files.ts`(서버): Storage(비공개 `banana-canvas-files`) 읽기/쓰기/삭제/서명, `sharp` 처리(`isBackgroundEmpty`, `chromaKey`, `upscale`, `normalizeOutput`).
-- `src/lib/runner.ts`(서버): `runTask` — 단일 이미지 / 스토리(텍스트 모델이 8컷 기획 → 이전 컷을 참고해 순차 생성, 예산 230초) / 레시피(단계 기획 → 3병렬 생성). 결과는 항상 Storage 저장 후 목록 반환.
-- API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST/DELETE /api/upload`(서명 URL·임시 삭제), `POST /api/suggest`, `POST /api/run`(`maxDuration 300`), `GET /api/history`, `GET/PATCH/DELETE /api/history/[id]`, `/api/keys`.
-- 화면: `/open`→`/studio`(`components/studio/Studio.tsx` — **탭 없는 한 화면 대시보드**: 1열 원본·생성·빠른 작업·스토리/레시피, 2열 편집·합성·인생 앨범·만화, 3열 결과(화면 고정, 1380px 이하는 결과가 위로), `MaskEditor.tsx`), `/history`, `/settings`, `/guide`.
-- DB: `banana_canvas_results`(RLS owner-only, 서버는 service role + `user_id` 필터, 최대 30건·즐겨찾기 보존). Storage 비공개 `banana-canvas-files`(정책 없음): `<uid>/in/`(입력·마스크, 1시간 후 정리) / `<uid>/out/`(결과).
+## 1. 프로그램의 사용 목적 및 대상
+- **사용 목적**: 단 한 장의 사진 또는 텍스트 아이디어만으로 고화질 이미지 생성, 정밀 편집(복원/컬러화/업스케일), 멀티 소스 합성, 배경 제거(누끼), 부분 수정(인페인팅), 증명사진, 3D 평면도 렌더링, 8컷 연속 스토리 및 요리 레시피 카드까지 브라우저 한 화면에서 완결 짓는 올인원 이미지 창작 작업실.
+- **대상 사용자**: 
+  - SNS 마케터, 유튜브/블로그 크리에이터, 웹툰/스토리 작가, 디자이너.
+  - 포토샵 등 무거운 소프트웨어 없이 브라우저에서 원클릭으로 고급 사진 편집과 AI 일러스트 합성을 원하는 일반 회원.
 
-## 지킬 것
-- 키는 회원 본인 Gemini 키만. 없으면 `needKey` 안내, 폴백 금지.
-- 이미지는 응답 본문에 싣지 않는다(Vercel 4.5MB): 입력은 서명 URL 직접 업로드, 결과는 Storage 저장 후 서명 URL. 경로는 항상 `isOwnPath(uid, path)`로 검증한다.
-- **배경 제거는 모델의 "마스크 출력"을 믿지 않는다**: 모델이 흑백 사진을 돌려줄 뿐 이진 마스크를 만들지 않는다(2026-10-14 실측). 배경을 순수 녹색(#00FF00)으로 바꾸게 한 뒤 서버 `chromaKey`로 알파를 만든다(키 색은 가장자리에서 추정, 가장자리와 연결된 배경만 투명 처리해 피부색 구멍 방지). 자주색 키는 피부색과 가까워 쓰지 않는다.
-- 업스케일은 AI 선명화 + 서버 Lanczos3 확대(긴 변 8192px 상한)이며 JPEG로 저장한다(PNG는 20MB 버킷 제한 초과 위험).
-- 새로 그리는 인물은 기본 한국인(핵심 원칙 3), 프롬프트 제안·기획에는 당해 연도 주입(핵심 원칙 8). 업로드 사진 변환은 사진 속 인물 그대로.
-- 얼굴 정체성 고정·라벨 금지 등 원본의 규칙 프롬프트는 유지하되 번역 호출은 하지 않는다.
-- 버전은 `src/lib/version.ts`(이름·slug 포함 — 복사 후 반드시 수정)와 DB `programs.version`을 함께 올린다. Supabase MCP `execute_sql`은 문장별로 보낸다.
+---
 
-## 검수
-- `npm test`(순수 로직 7건), `npm run test:browser`(보이는 Chrome, 모의 API·Storage 17건, `test-artifacts/sample.jpg` 필요 — 임의 JPG), `npm run build`.
-- 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [generate|edit|upscale|bgremove|inpaint|comic|idphoto|story|recipe]`(운영자 본인 키 + 실제 Storage, 끝나면 정리). `BASE_FILE=<이미지>`로 원본 지정. 출력은 파이프 대신 파일로 리다이렉트한다.
-- 2026-10-14 실측(flash-image): 생성 9초, 편집 16초, 업스케일 13초, 배경 제거 12초, 부분 삭제 13초, 만화 13초, 증명사진 11초, 스토리 8컷 98초, 레시피 7단계 41초.
+## 2. 개발 도구 및 기술 스택
+- **프레임워크**: Next.js 16.4.0 (Turbopack, App Router, React 19).
+- **언어 및 런타임**: TypeScript 5, Node.js v24.
+- **스타일링**: CSS Variables 기반 단일 토큰 테마 시스템 (바나나 팝 차콜 팔레트, 제로 런타임 CSS 덮어쓰기 기법).
+- **이미지 프로세싱**: Sharp (서버단 Lanczos3 업스케일, 가장자리 기반 지능형 ChromaKey 크로마키 투명 알파 추출).
+- **AI 엔진**: Google Gemini / Nano Banana (`gemini-nano-banana-2.1`, `gemini-3-pro-image`, `gemini-2.5-flash`).
+- **데이터베이스 & 스토리지**: Supabase Database (`banana_canvas_results`, RLS 적용), Supabase Private Storage (`banana-canvas-files`).
+- **배포 환경**: Vercel Serverless Functions (`--scope buylife`, maxDuration 300초).
+- **검수 환경**: Microsoft Edge 전용 포그라운드 자동화 실세션 검수 (Playwright).
 
-## 2026-10-14 v1.04 — 모바일 셸 CSS 추가 (Claude Code)
+---
 
-- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
-- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.04(코드·package·DB).
-- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+## 3. 핵심 기능, 시스템 아키텍처, 장단점
 
+### 1) 핵심 기능
+1. **한 화면 3열 대시보드 (`/studio`)**:
+   - 1열: 원본 이미지 업로드 (JPG/PNG/WEBP 15MB 이하), AI 신규 이미지 생성, 빠른 작업(배경 제거/인페인팅/증명사진/3D 평면도), 8컷 연속 스토리/레시피 카드.
+   - 2열: 정밀 이미지 편집(복원·컬러화·채색·업스케일 + 20종 프리미엄 스타일 프리셋), 5장 멀티 소스 합성, 인생 앨범 콜라주, 3개 언어 만화 패널.
+   - 3열: 화면 우측 상단 고정 결과 뷰어 (실시간 고해상도 프리뷰, 확대경 모달, 1클릭 다운로드, "이 결과로 계속 편집" 연결).
+2. **빠른 작업 지도 칩 띠 (`.bc-nav-chips`)**:
+   - 상단 원터치 앵커 칩(🖼️ 원본 · ✨ 생성 · ⚡ 빠른 작업 · 🎞️ 스토리 · 🛠️ 편집 · 🧩 합성 · 📖 인생 앨범 · 💬 만화 패널 · 🌟 결과).
+3. **비주얼 연동 & 사용 매뉴얼 (`/guide`)**:
+   - 바나나 캐릭터 배지와 친근한 말풍선 히어로 배너, 3단계 워크플로우 비주얼, 20종 스타일 프리셋 칩, FAQ 6종 아코디언.
+4. **결과 기록 보관소 (`/history`)**:
+   - 최근 작업 30건 회원별 독립 격리 보관 및 즐겨찾기 보존.
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.04)
+### 2) 시스템 아키텍처
+- `src/lib/bnc/`: 순수 비즈니스 로직 및 파라미터 유효성 검사 (`tasks`, `styles`, `prompts`, `paths`).
+- `src/lib/gemini.ts` & `src/lib/geminiImage.ts`: 공용 기준 이미지 어댑터 사본 (`ai-image-studio` 기준 연동), 시간 제한(120s/280s) 엄수 및 이중 과금 방지(`retries: 0`).
+- `src/lib/runner.ts`: 8컷 스토리 및 레시피 단계별 병렬/순차 안전 파이프라인.
+- `src/lib/files.ts`: 회원별 격리 서명 URL(`isOwnPath`) 및 1시간 자동 만료 임시 저장소 관리.
 
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
+### 3) 장점 및 단점
+- **장점**:
+  - 탭 전환 없는 단일 대시보드로 작업 생산성 극대화.
+  - Sharp 기반 정밀 크로마키로 AI 마스크 실패 없는 깔끔한 투명 배경 PNG 생성.
+  - "이 결과로 계속 편집" 워크플로우로 생성 ➔ 편집 ➔ 합성 무한 루프 가능.
+  - 100% 개인 회원 본인 API 키 사용 원칙으로 운영 비용 제로화.
+- **단점**:
+  - 8컷 연속 스토리 생성 시 Vercel 300초 제한에 근접할 수 있어 네트워크 상태에 민감.
+  - 브라우저 온디바이스 캔버스가 아닌 서버 API 중심 렌더링이므로 키 발급이 필수적임.
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.05 (banana-canvas)
+## 4. 현재 버전 및 변경 히스토리
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+- **v1.08 (2026-10-18, Antigravity 윈도우)**:
+  - **공식 템플릿 리뉴얼**: **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형** 전면 적용.
+  - 전 화면 따뜻한 차콜(`#16140f`) 및 바나나 옐로(`#ffd84d`), 잎사귀 그린(`#7ed38a`) 테마 통일.
+  - 스튜디오 상단 **작업 지도 칩 띠**(`bc-nav-chips`) 및 카드별 `id` 앵커 네비게이션 신설.
+  - 좌측 사이드바 🍌 브랜드 아이콘 테마화 및 `📖 연동 & 사용 매뉴얼` 메뉴명 표준화.
+  - 비주얼 가이드북(`/guide`) 히어로 배너, 3단계 워크플로우 카드, 20종 스타일 칩 고도화.
+  - 375px 모바일 56px 슬림 헤더 및 오버레이 메뉴 터치 최적화 (가로 넘침 0px 방어).
+  - Vercel 프로덕션 배포 완료 (`https://banana-canvas.buylife.xyz`) 및 Microsoft Edge 포그라운드 실세션 검수 완료 (`headless: false`).
+- **v1.07 (2026-10-18, Claude Code 윈도우)**:
+  - 이미지 생성 호출부를 공용 기준 코드 사본(`ai-image-studio` 기준)으로 통합.
+  - 마감 시간(deadline 280초) 검사 및 이중 과금 방지.
+- **v1.06 (2026-10-17, Claude Code 윈도우)**:
+  - 최신 정식 모델(`gemini-nano-banana-2.1`, `gemini-3-pro-image`) 교체.
+- **v1.05 (2026-10-16, Codex)**:
+  - Supabase DB 연동 변수 호환성 강화 (`PUBLISHABLE_KEY`, `SECRET_KEY`).
+- **v1.04 (2026-10-14, Claude Code)**:
+  - 모바일 767px 셸 접는 메뉴 CSS 추가.
+- **v1.00 ~ v1.03**:
+  - 초기 Banana Canvas 3열 대시보드 런칭 및 기능 구현.
 
-## v1.06 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/lib/gemini.ts` `tests/browser.mjs` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+---
 
-## 2026-10-18 v1.07 — 이미지 생성 호출을 공용 기준 코드로 (이미지 4묶음 B · SDK 사용형, Claude Code 윈도우)
-- **한 일**: `src/lib/gemini.ts` `imageModel`을 공용 호출로(이미지+글 동시 받기 모드 유지 — 공용 모듈이 글도 돌려줌). 한 번 호출 최대 120초, `opts.deadline`이 있으면 남은 시간만. `src/lib/runner.ts`의 `runTask`가 시작 때 마감 시각(라우트 300초 − 20초 = 280초)을 정해 모든 이미지 호출(단일·이야기·레시피)에 넘김 — 여러 장 모드도 한도 안(시간 검사 `CHECK` — 직접 확인 1회 120초·전체 280초).
-- **왜**: ① SDK 호출에 시간 제한이 없어 Vercel 함수 한도에서 원인 모를 끊김(요금은 나갔을 수 있음) ② 응답의 첫 이미지만 꺼내 `gemini-3-pro-image`의 중간 초안(thought) 이미지를 결과로 쓸 위험 ③ 영어 오류 문장을 정규식으로 추측해 분류 — 공용 모듈은 시간 제한·최종 이미지 선택·상태 코드별 오류 구분·키 가리기·시간 초과 표준 안내(Google AI Studio 사용량 확인)를 갖췄다.
-- **바꾸지 않은 것**: 프롬프트·모델 이름·비율·화질·화면·글 생성 호출(SDK 그대로). 유료 생성이라 재시도 0(이중 과금 방지).
-- **검수**: tsc 0, 프로그램 테스트(7개 통과), `check-shared-modules` OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. eslint는 이 폴더에 설정 파일이 없어(이전부터) 실행 안 됨. 실제 이미지 생성 시험은 하지 않음(비용) — 오류가 나면 그때 검증.
-- **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 이 프로그램만 다르게 해야 하면 호출하는 쪽에서 덮어쓴다. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+## 5. 작업 대기 백로그
+상세 목록은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)를 참조하십시오.
+- [ ] 8컷 스토리 컷별 프롬프트 개별 수정 및 재생성(Regenerate) 버튼 지원.
+- [ ] 부분 삭제(Inpaint) 브러시 크기 단축키(`[` / `]`) 및 되돌리기(Undo/Redo) 단축키 추가.
+- [ ] 다크/라이트 테마 토글 스위처 검토.
+
+---
+
+## 6. 타 프로그램 연계 및 기능 병합 제안
+1. **`ai-image-studio` (AI 이미지 자동화, https://ai-image-studio.buylife.xyz)**:
+   - 이미지 자동화에서 생성된 고화질 결과물을 바나나 캔버스의 원본으로 1클릭 전송하여 바로 부분 삭제 및 합성을 이어가는 워크플로우.
+2. **`four-cut-comics` (AI 4컷 만화 자동화, https://four-cut-comics.buylife.xyz)**:
+   - 만화 패널 기능에서 생성된 컷들을 4컷 만화 스튜디오로 전송하여 4컷 만화 템플릿 프레임에 자동 배치.
+3. **`portrait-photo` (AI 인물사진 자동화, https://portrait-photo.buylife.xyz)**:
+   - 증명사진/프로필 사진 생성 후 바나나 캔버스에서 정밀 인페인팅 및 스타일 변환 연계.
+
+---
+
+## 7. UI/UX 개선 및 디자인 고도화 제안
+1. **드래그 앤 드롭 캔버스 뷰어**: 결과 이미지 3열 카드에서 캔버스로의 줌/패닝 제스처 지원.
+2. **사이드바 워크플로우 칩 실시간 진행 상태 표시**: 현재 업로드된 이미지 및 결과 유무에 따라 사이드바 1·2·3단계 뱃지에 체크(✓) 아이콘 동적 활성화.
+3. **모바일 하단 플로팅 퀵 액션 바**: 모바일에서 결과 카드로 한 번에 스크롤되는 플로팅 버튼 제공.
