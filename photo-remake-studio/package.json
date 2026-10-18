@@ -1,6 +1,6 @@
 {
   "name": "photo-remake-studio",
-  "version": "1.0.2",
+  "version": "1.9.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3043",

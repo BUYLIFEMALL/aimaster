@@ -1,5 +1,63 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 포토 리메이크 자동화 v1.09: 크리에이티브 아틀리에 포토 리메이크 옵시디언 테마 리뉴얼·가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 53개 완료 달성!)
+
+- **대상**: `photo-remake-studio/` (https://photo-remake-studio.buylife.xyz, slug: `photo-remake-studio`, 83번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형 (Creative Atelier Style — Photo Remake Obsidian Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(스튜디오 대시보드, 사물 합성, 내 보관함, 비주얼 가이드북, API 설정, 로그인) 배경을 딥 옵시디언 블랙(`#090a0f`), 옵시디언 다크 서피스 카드(`var(--card): #12141c`, `var(--card2): #191c28`), 리메이크 앰버 골드 포인트(`--brand: #f59e0b`), 복원 에메랄드 그린 하이라이트(`--ok: #10b981`)로 완벽 일체화.
+     - `banana-canvas`·`fashion-style`과 동일하게 **맨 위 색 토큰 + 맨 끝 덮어쓰기 CSS** 기법을 적용하여 2열 스튜디오 패널, 캔버스, Before/After 실시간 비교 슬라이더, 내 보관함까지 리액트 컴포넌트 로직 수정 없이 안전하고 신속하게 테마 구축 완료.
+  2. **사이드바 🪄 브랜드 아이콘 테마화 및 메뉴명 표준화**:
+     - 좌측 사이드바 브랜드 아이콘을 🪄 마법봉 배지로 시각화하고, 메뉴명을 **`📖 연동 & 사용 매뉴얼` (`/guide`)**로 표준화 (`DESIGN.md` 9번 원칙 충족).
+  3. **비주얼 연동 & 사용 매뉴얼 (/guide) 전면 고도화**:
+     - `PHOTO REMAKE LAB EDITORIAL GUIDE` 히어로 배너 및 `v1.09 옵시디언 에디션` 배지 신설.
+     - **3단계 핵심 파이프라인 비주얼 카드** (1. 사진 복원 ➔ 2. 사물 합성 ➔ 3. 내 보관함 및 고화질 저장).
+     - **복원 키워드 칩** (#오래된흑백복원, #스크래치제거, #얼굴선명화, #사물자연합성) 수록.
+     - 1~4단계 설명 카드, API 키 등록 안내, 자주 묻는 질문(FAQ 6종 아코디언 컴포넌트) 정돈.
+  4. **375px 모바일 뷰포트 반응형 최적화**:
+     - 상단 56px 슬림 헤더, 🪄 로고 + 프로그램명 + 버전 배지 + ☰ 햄버거 버튼.
+     - ☰ 터치 시 다크 옵시디언 슬라이딩 메뉴 전개, 2열 패널 수직 스택 및 가로 넘침 0px 완벽 방어.
+  5. **버전 동기화 (v1.09)**:
+     - `src/lib/version.ts`, `package.json` `v1.09` (1.9.0) 갱신.
+     - Supabase DB `programs.version`을 `v1.09`로 업데이트 완료 (`slug: photo-remake-studio`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 18개 단위 테스트 케이스 100% 통과 (1.24s).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공 (Compiled in 2.4s).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_Bpe4jr8HxoaprrKF2HnSdwWn2pXp`
+     - 공식 도메인 즉시 반영: https://photo-remake-studio.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 주인님 실시간 모니터링 보장)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면(최대화)으로 띄워 10분간 화면 유지.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_photo_remake_desktop_studio_v109.png`: 1440px 데스크톱 스튜디오 2열 대시보드
+       - `edge_photo_remake_desktop_guide_v109.png`: 1440px 데스크톱 에디토리얼 가이드북
+       - `edge_photo_remake_desktop_settings_v109.png`: 1440px 데스크톱 API 키 설정
+       - `edge_photo_remake_mobile_studio_v109.png`: 모바일 375px 스튜디오 대시보드
+       - `edge_photo_remake_mobile_menu_v109.png`: 모바일 375px 드로어 메뉴
+       - `edge_photo_remake_mobile_guide_v109.png`: 모바일 375px 에디토리얼 가이드북
+  9. **문서 6종 작성 완료**:
+     - `photo-remake-studio/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `photo-remake-studio/README.md` (동기화)
+     - `photo-remake-studio/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `photo-remake-studio/docs/IMPROVEMENTS.md` (개선 제안서)
+     - `photo-remake-studio/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `photo-remake-studio/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 83번 행 ✅ 1차 작업완료 (`v1.09`, 크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형) 갱신 및 전체 통계 (누적 ✅ 53개 완료 / ⚪ 28개 예정 / ⏸ 2개 보류 — 63.9% 달성)
+      - `docs/ACTIVE_WORK.md`: 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - `buylifemall@naver.com` 일반 회원 테스트 계정으로 스튜디오 진입 및 API 키 상태, 복원 옵션(손상 복원, 흑백 컬러화, 2x/4x 확대) 정상 표시 확인.
+  - Before/After 실시간 슬라이더, 사물 합성 탭, 내 보관함 UI 일체감 확인.
+  - 데스크톱/모바일 뷰포트 전환 시 레이아웃 깨짐 없음.
+- **못 한 것**:
+  - 실제 이미지 복원 생성 AI 호출은 비용 절감 및 회원 본인 키 원칙 준수로 자동 생략.
+- **남은 일 / 다음 추천 작업**:
+  - 동일 이미지 뼈대 프로그램 3종(80번 바나나캔버스, 82번 패션스타일, 83번 포토 리메이크) 모두 완결 완료!
+  - 다음 순차 작업으로 아직 미착수 상태인 크리에이티브 아틀리에 계열(예: 76번 AI 썸네일 마스터 자동화 `thumbnail-master` 또는 72번 AI 웹 UI 제작 `ai-web-ui`) 또는 플로우 위저드 계열(75번 AI 블로그 콘텐츠 제작 `blog-content-maker`)을 추천.
+
+
 ## 2026-10-18 Claude Code(윈도우) — 인물사진 v1.24에 추가(코드, 미배포): 비즈니스 구도·표정 분리 · 원형 바깥색 + **AGY 앞 연계 제안**
 
 - **인물사진**: 비즈니스 목적에 들어가던 증명사진 구도·무표정 지시를 분리(`ID_FRAMING`은 증명사진 목적만, 옛 화면 호환), 프로필 미리보기에 원형 바깥 투명/흰색. tsc 0·테스트 23/23·빌드. 배포는 v1.24 한 번에.

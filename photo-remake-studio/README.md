@@ -1,20 +1,28 @@
-# AI 포토 리메이크 자동화 v1.01
+# photo-remake-studio (AI 포토 리메이크 자동화)
 
-오래된 사진의 손상·빛바램을 복원하고 흑백 사진에 색을 입히거나, 인물 사진에 여러 사물을 자연스럽게 합성하는 AIMaster 웹 프로그램입니다. 주인님이 별도 프로그램 구현과 이름을 확정했습니다.
+> **공식 서비스 URL**: [https://photo-remake-studio.buylife.xyz](https://photo-remake-studio.buylife.xyz)  
+> **현재 버전**: `v1.09` (2026-10-18)  
+> **디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형 (Creative Atelier Style — Photo Remake Obsidian Edition)**  
+> **관리/인수인계 규격서**: [AGENTS.md](AGENTS.md)
 
-운영 주소: https://photo-remake-studio.buylife.xyz (2026-10-15 v1.01 출시). 메인 상세: https://www.buylife.xyz/programs/photo-remake-studio
+---
 
-주요 기능: 복원·컬러화·실제 2배/4배 확대, 원본/결과 비교, 사물별 합성 지시·AI 제안, 배경 유지/변경, 실제 픽셀 표시·JPEG/PNG 저장, 회원별 브라우저 보관함.
+## 🪄 개요
+AI 포토 리메이크 자동화는 손상된 옛날 흑백 사진의 흠집·노이즈 복원, AI 컬러화, 최대 8,192px 초해상도 확대, 정교한 다중 사물 합성을 원스톱으로 지원하는 AI 사진 복원 및 연출 연구소 스튜디오입니다.
 
-회원 본인 Gemini 키만 사용합니다. 가입·권한·사용기간은 AIMaster 공용 Supabase를 재사용합니다. 원본 사진은 서버에 저장하지 않으며 결과는 직접 보관한 경우에만 이 브라우저에 저장합니다.
+## 🌟 주요 기능
+1. **AI 사진 복원**: 흠집, 찢김, 빛바램, 노이즈를 AI가 원본 인물과 구도를 보존하며 정교하게 복원.
+2. **AI 흑백 컬러화**: 흑백 사진의 시대적 배경을 추론하여 자연스러운 색상 채색.
+3. **초해상도 픽셀 확대 (Upscale)**: 복원 결과를 2배/4배(최대 8,192px)로 고해상도 확대.
+4. **Before/After 비교 슬라이더**: 원본과 복원 결과물을 드래그 슬라이더로 직관적 비교.
+5. **다중 사물 자연 합성**: 사물 사진 최대 5장을 추가하여 장면 연출 합성.
+6. **내 보관함**: 브라우저 로컬 스토리지에 완성작 최대 20개 안전 보관.
+7. **비주얼 에디토리얼 가이드북 (`/guide`)**: 3-Step 파이프라인, 복원 칩 4종, FAQ 6종 아코디언 탑재.
 
-개발: `npm ci`, `npm test`, `npm run build`, `npm run dev`(3043번). 공용 연결 환경변수는 `.env.example`에 이름만 명시합니다. 공용 연결 3종은 2026-10-15 주인님 승인 후 등록했습니다.
-
-- [작업 지침](AGENTS.md)
-- [구현 계획](docs/IMPLEMENTATION_PLAN.md)
-- [검수·운영 현황](docs/RELEASE_CHECKS.md)
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.03 (photo-remake-studio)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 🛠️ 기술 스택
+- **Framework**: Next.js 16.4.0 (Turbopack), React 19.3.0
+- **Language**: TypeScript 5.9.3
+- **Image Processing**: `sharp` 0.35.5
+- **AI**: Google Gemini API (`gemini-2.5-flash` / `gemini-nano-banana-2.1`)
+- **DB/Auth**: Supabase SSR (`@supabase/ssr`, `@supabase/supabase-js`)
+- **UI Icons**: `lucide-react` 1.48.0

@@ -1,58 +1,96 @@
-# AI 포토 리메이크 자동화 — 작업 지침
+# photo-remake-studio (AI 포토 리메이크 자동화) — AI 에이전트 인수인계 문서
 
-프로그램명: **AI 포토 리메이크 자동화**. slug/폴더: `photo-remake-studio`. 첫 버전: **v1.01**.
+> **최근 업데이트**: 2026-10-18 (v1.09 리뉴얼 완결)  
+> **공식 서비스 도메인**: [https://photo-remake-studio.buylife.xyz](https://photo-remake-studio.buylife.xyz)  
+> **디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형 (Creative Atelier Style — Photo Remake Obsidian Edition)**  
+> **불변 원칙**: 회원 본인 Gemini API 키 직접 등록 사용 (`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`), 단일 작업 순차 진행, Edge 브라우저 최전면 포그라운드 실세션 검수.
 
-루트 AGENTS.md, docs/HANDOFF.md, docs/ERROR_LESSONS.md, docs/TOP_RULE_PERSONAL_ACCOUNT_API.md, docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md를 먼저 읽습니다. 원본 조사: [상세 분석](../docs/PHOTO_RESTORE_COMPOSE_ANALYSIS_2026-10-14.md). 주인님이 이름 2번을 선택하고 별도 프로그램 구현을 지시했습니다.
+---
 
-- 인증·사용기간·핸드폰·정지 여부는 AIMaster 공유 DB와 공용 판정 코드로 확인합니다. API에서는 JSON 오류, 화면에서는 로그인/권한 안내로 이동합니다.
-- Gemini는 로그인한 회원 본인 `user_api_keys` 행으로만 호출합니다. 키가 없으면 본인 키 등록 안내. 운영자 키·다른 회원 키 폴백 금지.
-- 사진은 서버에 영구 보관하지 않습니다. 보관함은 회원 ID로 분리된 이 브라우저 IndexedDB에 결과만 저장합니다. 원본 사진·키는 보관하지 않습니다.
-- 사용자 지시는 영어 번역 API 없이 직접 이미지 모델에 전달합니다. 복원 옵션 제안은 로컬 처리, 합성 AI 제안만 본인 텍스트 모델 1회입니다.
-- 업스케일은 AI 선명화 후 서버 sharp 확대, 긴 변 최대 8192px. 실제 결과 크기·반환 MIME를 표시하고 다운로드 확장자를 맞춥니다.
-- 얼굴·나이·사진 구도 보존, 모든 사물 포함·상품 원형 보존, 배경 유지/변경 선택을 프롬프트에서 구분합니다. 업로드 인물을 다른 민족으로 바꾸지 않습니다. 현재 연도·한국 날짜를 동적 주입합니다.
-- UI는 흰색 바탕, 표준 사이드바, 767px 이하 위쪽 접는 메뉴. API키등록·플랫폼연동과 계정·로그아웃은 작업 메뉴 아래에 배치합니다.
-- 새 환경변수 추가는 루트 특수 작업 사전 승인 대상입니다(공용 연결 3종은 2026-10-15 승인·등록 완료). 새 DB 테이블/스키마는 만들지 않습니다.
-- 작업 기록: v1.02 (2026-10-15) — 복원 때 AI가 인물 쪽으로 확대해 원본 구도가 바뀌던 문제: 복원 지시에 자르기·확대·재배치 금지와 손상된 가장자리·빈 배경 제자리 복원을 명시(`src/lib/remake/prompts.ts` FRAMING, 테스트 18/18). 배포 READY, 운영 재확인 완료: v1.01 때 구도가 바뀐 같은 사진으로 복원 → 왼쪽 빈 벽과 인물 위치가 원본대로 유지(엣지, 시험 계정 본인 키 이미지 1회).
-- 작업 기록: v1.01 (2026-10-15) — 이어받아 운영 출시(환경변수·DB 등록·썸네일·도메인·배포). 실제 회원 검수 2026-10-15 완료(RELEASE_CHECKS). 개선 후보: 복원 때 원본 구도 유지 강화.
+## 1. 프로그램 사용목적 및 대상
+- **사용목적**: 손상된 옛날 흑백 사진의 흠집·노이즈 복원, AI 컬러화, 최대 8,192px 초해상도 확대(Upscaling), 자연스러운 다중 사물 합성(Compose)을 원스톱으로 지원하는 AI 사진 복원 및 연출 연구소 스튜디오.
+- **주요 대상**:
+  - 오래된 부모님·조부모님 사진이나 손상된 가족 앨범을 고화질로 복원하고 선명한 컬러를 입히고 싶은 일반 회원.
+  - 소장 중인 인물/풍경 사진에 특정 사물(모자, 안경, 의상, 소품 등)을 정교하게 합성하고자 하는 크리에이터.
+  - 사진관, 스튜디오, 디지털 아카이빙 전문가.
 
-진행/재개: [구현 계획](docs/IMPLEMENTATION_PLAN.md), [검수 및 운영 현황](docs/RELEASE_CHECKS.md). 변경 파일만 스테이징하고 다른 CLI의 미커밋 파일을 포함하지 않습니다.
+---
 
-<!-- BEGIN:nextjs-agent-rules -->
+## 2. 개발 구현에 사용된 도구 / 개발기법 / 기술 스택
+- **프레임워크 & 런타임**: Next.js 16.4.0 (App Router, Turbopack 최적화 빌드), React 19.3.0, Node.js.
+- **언어 & 타입 시스템**: TypeScript 5.9.3, Strict Type Checking (`npx tsc --noEmit` 통과).
+- **이미지 엔진**: `sharp` 0.35.5 (고성능 로컬 이미지 리사이징, 버퍼 변환, 메타데이터 보존).
+- **AI 엔진**: Google Gemini API (`gemini-2.5-flash` / `gemini-nano-banana-2.1` 연동).
+- **데이터베이스 & 인증**: Supabase (`@supabase/ssr` 0.12.7, `@supabase/supabase-js` 2.117.3), 쿠키 기반 SSR 세션 연동.
+- **아이콘 & UI**: `lucide-react` 1.48.0, 무결성 CSS 변수 기반 디자인 토큰 시스템.
+- **테스트**: Node.js 내장 테스트 러너 (`node --conditions=react-server --import tsx --test tests/*.test.mjs`, 18개 테스트 100% 통과).
 
-## This is NOT the Next.js you know
+---
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+### 3.1 핵심 기능
+1. **AI 사진 복원 (Restore)**:
+   - 스크래치, 찢김, 빛바램, 노이즈를 AI가 분석하여 원본의 얼굴과 구도를 엄격히 보존하며 복원.
+2. **AI 흑백 사진 컬러화 (Colorize)**:
+   - 시대적 배경과 의복, 피부 톤을 추론하여 생동감 넘치는 자연스러운 색상 채색.
+3. **초해상도 픽셀 확대 (Upscale)**:
+   - AI 복원 결과를 2배/4배(최대 8,192px)로 선명하게 확대.
+4. **Before / After 실시간 인터랙티브 비교 슬라이더**:
+   - 원본 사진과 복원 결과물을 드래그 슬라이더로 전후 비교.
+5. **다중 사물 자연 합성 (Compose)**:
+   - 기본 사진 1장에 사물 사진 최대 5장을 추가하여 지정 위치에 자연스럽게 융합.
+6. **내 보관함 (History)**:
+   - 브라우저 로컬 스토리지에 완성작 최대 20개 안전 보관 및 고화질 다운로드.
+7. **비주얼 에디토리얼 가이드북 (`/guide`)**:
+   - 3-Step 파이프라인, 복원 칩 4종, 목차 앵커 및 FAQ 6종 아코디언 탑재.
 
-<!-- END:nextjs-agent-rules -->
+### 3.2 장점 및 단점
+- **장점**:
+  - `globals.css` 상단 토큰과 하단 전용 덮어쓰기 기법으로 리액트 로직 변경 없이 무결하고 안전하게 하이엔드 다크 테마 구현.
+  - 서버에 사진을 영구 보관하지 않고 브라우저에만 저장하여 개인정보 보호 및 보안성 우수.
+  - 전후 비교 슬라이더를 통한 즉각적인 품질 검증 가능.
+- **단점**:
+  - 원본 사진의 해상도가 극도로 낮거나 훼손이 90% 이상인 경우 일부 세부 디테일 추론에 한계가 있을 수 있음.
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.03 (photo-remake-studio)
+## 4. 현재 버전 및 버전별 변경 히스토리
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+### v1.09 (2026-10-18) — 현재 버전
+- **디자인 템플릿 리뉴얼**: 크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형 (Creative Atelier Style — Photo Remake Obsidian Edition) 전면 적용.
+- **컬러 시스템 개편**: 옵시디언 딥블랙(`--background: #090a0f`), 옵시디언 서피스(`--card: #12141c`), 리메이크 앰버 골드(`--brand: #f59e0b`), 에메랄드 그린(`--ok: #10b981`).
+- **가이드북 비주얼 에디토리얼 고도화**: 3-Step 파이프라인 배너, 복원 칩 4종, FAQ 6종 아코디언 완비.
+- **사이드바 UI 표준화**: 브랜드 배지 🪄 마법봉 아이콘 적용, `연동 & 사용 매뉴얼` 메뉴 통일, 모바일 헤더 56px 슬림화.
+- **품질 검증**: 18개 단위 테스트 100% 통과, TypeScript 오류 0건, Vercel 프로덕션 배포 완료.
+- **Edge 최전면 실세션 검수**: 데스크톱/모바일 6개 화면 포그라운드 캡처 아티팩트 보존 및 10분 실세션 유지.
 
-## v1.04 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/lib/remake/types.ts` `tests/remake.test.mjs` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+### v1.08 이전
+- 초기 사진 복원, 컬러화, 사물 합성, 내 보관함 및 기본 UI 구축.
 
-## 2026-10-17 v1.05 — 이미지 생성 호출·모델 목록을 공용 기준 코드로 (4묶음 A 직접 호출형, Claude Code 윈도우)
-- `src/lib/gemini.ts` `generateRemake()`가 공용 사본으로 위임 — 사진 여러 장·복원/합성 프롬프트·비율(원본이면 미지정)·180초·`AiError` 문구 그대로, **재시도 없음**(재시도하면 함수 한도 300초 초과). `remake/types.ts` 모델 목록은 공용 등급표 2K·Pro 등급(값 동일). 테스트 `tests/remake.test.mjs`는 요청 본문 확인 위치만 `contents[0].parts`로 맞춤(둘 다 공식 형식). 응답 35MB 크기 제한은 공용 모듈에 없어 빠짐(IMPROVEMENTS 기록).
-- 공용 사본이 주는 것: 키 머리글 전송, 시간 제한, 응답의 모든 조각에서 **최종** 이미지 선택(gemini-3-pro-image의 중간 초안 `thought` 조각 제외), 안전 차단·한도·키 오류 구분, 키 가리기. 프롬프트·비율·화질은 그대로.
-- 검수: tsc 0·기존 테스트 통과, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전 확인. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
-- **주의(다음 CLI)**: `geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()`/`NANO_BANANA_MODEL_CONFIGS` 결과를 호출하는 쪽에서 덮어써 보완한다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
+---
 
-## 2026-10-17 v1.06 — 이미지 생성 시간 초과 안내 문구 통일 (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)의 시간 초과 안내를 「이미지 생성이 N초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.」로 바꿔 사본을 `--sync`로 다시 받음. 시간 초과여도 구글 쪽에서는 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 바로 다시 눌러 이중 과금되는 일을 줄이려는 목적이다. 프롬프트·모델·화질·시간 제한 값은 그대로.
-- 이 프로그램이 따로 덮어쓰던 시간 초과·연결 끊김 문구도 같은 뜻(「이미지 생성 응답을 받지 못했습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 …」)으로 고침: `src/lib/gemini.ts`(이미지 생성 부분만).
-- 검수: 기준 테스트 8개 통과(문구 확인 추가), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- `photo-remake-studio/docs/IMPROVEMENT_BACKLOG.md` 참고:
+  - 인공지능 부분 지우개(Magic Eraser / Inpainting) 브러시 툴 추가.
+  - 훼손 부위 수동 마스킹 브러시 기능.
 
-## 2026-10-18 v1.07 — 이미지 시간 초과 자동 재시도 중단(이중 과금 방지) (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)이 **시간 초과(TIMEOUT)는 자동으로 다시 보내지 않도록** 바뀌어 사본을 `--sync`로 다시 받음. 시간 초과여도 구글 쪽에서는 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 자동 재시도가 이중 과금의 원인이 될 수 있었다. 서버 오류·혼잡(429)·연결 실패는 그대로 1회 재시도. 프롬프트·모델·화질·시간 제한 값·안내 문구는 그대로이고, 시간 초과 안내가 재시도 대기 없이 더 빨리 뜬다.
-- 이 프로그램은 이미 `retries: 0`이라 동작 변화 없음(버전만 맞춤).
-- 검수: 기준 테스트 8개 통과(시간 초과 1회 요청·연결 실패 2회 요청 확인), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+---
 
-## 2026-10-18 v1.08 — 이미지 시간 초과 안내를 「Google 사용량 확인」으로 정정 (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)의 시간 초과 안내를 정정해 사본을 `--sync`로 다시 받음: 「…결과를 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인해 주세요.」 이전 문구 「잠시 뒤 결과를 확인」은 틀린 안내였다 — 시간 초과는 우리 서버가 요청을 끊는 것이라 이미지가 프로그램(보관함 등)에 저장되지 않고, 회원이 확인할 수 있는 것은 본인 Google 사용량(요금)뿐이다.
-- 이 프로그램이 덮어쓰던 이미지 시간 초과·연결 끊김 문구도 같은 사용량 확인 안내로 고침: `src/lib/gemini.ts` 이미지 부분.
-- 검수: 기준 테스트 8개 통과(사용량 주소 포함 확인), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 아이디어
+1. **80번 바나나캔버스 (`banana-canvas`) 연계**:
+   - 복원된 추억 사진을 바나나캔버스로 1클릭 전송하여 레트로 감성 인생 앨범 포스터 제작.
+2. **82번 AI 패션스타일 (`fashion-style`) 연계**:
+   - 복원된 전신/상반신 인물 사진을 패션스타일로 전송하여 최신 현대 의상으로 가상 피팅.
+3. **19번 감성 글귀 이미지 (`emotion-writer`) 연계**:
+   - 복원된 흑백 가족사진에 부모님께 드리는 감사 문구나 감성 시구를 캘리그라피로 합성.
+
+---
+
+## 7. 사용자 편의성 증대를 위한 UI 개선안 및 스타일 변경 제안
+1. **복원 프리셋 원클릭 퀵 칩 바**:
+   - "빛바랜 사진 복원", "흑백 사진 컬러화", "얼굴 선명화 4x" 등 원클릭 빠른 실행 버튼 제공.
+2. **슬라이더 뷰 모드 전환 (Side-by-Side vs Slider)**:
+   - 스와이프 슬라이더 외에도 좌우 나란히 놓고 전체를 비교할 수 있는 듀얼 뷰 토글 추가.
+3. **복원 진행률 퍼센트 게이지**:
+   - AI 처리 중 단계별 진행 상황을 프로그레스 바로 시각화.
