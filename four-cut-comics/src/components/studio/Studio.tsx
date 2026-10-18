@@ -355,7 +355,7 @@ export function Studio({ userId }: { userId: string }) {
 
   const stepper = (
     <ol className="cc-steps" aria-label="진행 단계">
-      {["주제 선정", "대본 확인", "등장인물 확인", "만화 생성"].map((t, i) => (
+      {["💡 주제", "📝 대본", "🧑‍🎨 캐릭터", "🖼️ 컷·말풍선·저장"].map((t, i) => (
         <li key={t} className={step === i + 1 ? "on" : step > i + 1 ? "done" : ""}><span>{i + 1}</span>{t}</li>
       ))}
     </ol>

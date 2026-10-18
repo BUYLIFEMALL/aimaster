@@ -1,7 +1,8 @@
-:root{--background:#fff;--foreground:#172033;--brand:#4f46e5;--line:#e5e7eb;--muted:#64748b}
+/* v1.12 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 (토큰은 DESIGN.md 카탈로그와 docs/DESIGN_HANDOFF.md) */
+:root{--background:#fffaf2;--foreground:#1f2430;--brand:#ff6b57;--brand-dark:#e8503c;--sub:#ffc94d;--info:#5b8def;--selected:#fff1ec;--ink:#1f2430;--card:#fff;--line:#f1e6d6;--muted:#6b6457;--pop:3px 3px 0 #1f2430}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:#fafbfc;color:var(--foreground);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",Arial,sans-serif;font-size:14px;line-height:1.6}
+body{margin:0;background:var(--background);color:var(--foreground);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",Arial,sans-serif;font-size:14px;line-height:1.6}
 a{color:inherit;text-decoration:none}
 button,input,textarea,select{font:inherit}
 button,.button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #d8dde5;background:#fff;color:#334155;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
@@ -389,4 +390,103 @@ a.project-card{color:inherit}
   .card{padding:18px}
   .cc-steps{flex-wrap:wrap}
   .cc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+}
+
+/* ==== v1.12 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 (앞의 남색 고정값을 덮어씀, 클래스 이름은 그대로) ==== */
+:root{--accent-text:#c2412f}
+.eyebrow{color:var(--accent-text)}
+button,.button{border-color:#e6d8c3;color:var(--ink)}
+button:hover,.button:hover{background:#fff6ea}
+.primary{background:var(--brand);color:var(--ink);border:2px solid var(--ink);box-shadow:var(--pop);font-weight:800}
+.primary:hover{background:#ff8a78;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.primary:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.primary:disabled{transform:none}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--info)}
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{border-color:#e6d8c3;color:var(--ink)}
+.card{border:2px solid var(--ink);border-radius:16px;box-shadow:var(--pop)}
+.notice{background:#fff;border-color:var(--line)}
+.warning{background:#fff8e1;border-color:var(--sub)}
+.subtle-link{color:var(--muted)}
+/* 셸·메뉴 */
+.desktop-sidebar{background:#fffdf8;border-right:2px solid var(--ink)}
+.sidebar-brand{border-bottom:1px dashed #e6d8c3}
+.brand-icon{background:var(--sub);color:var(--ink);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);border-radius:12px}
+.brand-row small{color:var(--muted)}
+.nav-caption{color:var(--muted)}
+.nav-item{color:#4a4438}
+.nav-item[aria-current=page],.flow-item[aria-current=page]{background:var(--selected);color:var(--accent-text)}
+.nav-item:hover,.flow-item:hover{background:#fff6ea}
+.step-number{background:#fff;border:2px solid var(--ink);color:var(--ink)}
+.flow-item[aria-current=page] .step-number{background:var(--brand);color:var(--ink)}
+.utility-menu,.sidebar-account{border-top:1px dashed #e6d8c3}
+.sidebar-account>p{color:var(--muted)}
+/* 만화 만들기 — 단계 칩을 말풍선 모양으로 */
+.cc-steps{gap:12px;padding-bottom:6px}
+.cc-steps li{position:relative;border:2px solid var(--ink);border-radius:18px;background:#fff;color:var(--muted);padding:7px 14px}
+.cc-steps li::after{content:"";position:absolute;left:18px;bottom:-7px;width:11px;height:11px;background:inherit;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg)}
+.cc-steps li span{background:#f6ecdc;color:var(--ink)}
+.cc-steps li.on{background:var(--sub);color:var(--ink);box-shadow:var(--pop)}
+.cc-steps li.on span{background:var(--ink);color:#fff}
+.cc-steps li.done{background:var(--selected);color:var(--accent-text)}
+.cc-steps li.done span{background:var(--brand);color:var(--ink)}
+.cc-char,.cc-panel-edit,.cc-merge,.cc-editor{background:#fffdf8;border-color:var(--line)}
+.cc-save{background:#fffdf8;border:2px dashed var(--brand)}
+.cc-sheet img,.cc-cut img,.cc-work img{border:3px solid var(--ink);border-radius:6px}
+.cc-placeholder{border:3px dashed #d9c7ab;border-radius:6px;background:#fffdf8}
+.cc-cut .actions button.on,.chip.on,.purpose.on,.outfit.on,.cand-cell.on,.scale-btn.on{border-color:var(--ink);background:var(--selected);color:var(--accent-text)}
+.cc-swatch.on,.swatch.on{box-shadow:0 0 0 2px var(--ink)}
+.cc-finished{border-color:var(--sub);background:#fff8e1}
+.project-card{border:2px solid var(--ink);box-shadow:var(--pop)}
+.project-card:hover{border-color:var(--brand)}
+.lp-alert{border:2px solid #f3a19a}
+.key-status{border:2px solid #9ad7ad}
+.key-status.none{background:#fff8e1;border-color:var(--sub)}
+/* 매뉴얼 기존 요소 */
+.gd-toc a{color:var(--accent-text)}
+.gd-toc a:hover{background:var(--selected)}
+.gd-num{background:var(--brand);color:var(--ink);border:2px solid var(--ink)}
+.gd-tip{background:#eef4ff;border-color:#bcd0fb;color:#24427a}
+.gd-warn{background:#fff8e1;border-color:var(--sub);color:#7a5200}
+.gd code{background:#f6ecdc}
+.gd-faq dt{font-weight:700;margin-top:10px}
+.gd-faq dd{margin:4px 0 0;color:#4a4438;font-size:13px}
+/* 매뉴얼 비주얼(v1.12 신규) */
+.gd-hero{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;background:linear-gradient(135deg,#fff 0%,#fff1ec 55%,#fff8e1 100%)}
+.gd-mascot{display:grid;place-items:center;width:88px;height:88px;border:3px solid var(--ink);border-radius:50%;background:var(--sub);font-size:44px;box-shadow:var(--pop)}
+.gd-bubble{position:relative;padding:14px 18px;border:2px solid var(--ink);border-radius:18px;background:#fff;font-size:14px;line-height:1.7}
+.gd-bubble::before{content:"";position:absolute;left:-9px;top:24px;width:16px;height:16px;background:#fff;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg)}
+.gd-bubble strong{display:block;font-size:16px;margin-bottom:4px}
+.gd-flow{list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.gd-flow li{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:2px solid var(--ink);border-radius:14px;background:#fff;text-align:center;box-shadow:var(--pop)}
+.gd-flow li:nth-child(odd){background:#fff8e1}
+.gd-flow li:not(:last-child)::after{content:"➜";position:absolute;right:-14px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--accent-text);z-index:1}
+.gd-flow b{font-size:28px;line-height:1}
+.gd-flow strong{font-size:13px}
+.gd-flow small{font-size:11px;line-height:1.5}
+.gd-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.gd-chips span{padding:5px 11px;border:2px solid var(--ink);border-radius:999px;background:#fff;font-size:12px;font-weight:700}
+.gd-chips span:nth-child(3n+1){background:#fff1ec}
+.gd-chips span:nth-child(3n+2){background:#fff8e1}
+.gd-chips span:nth-child(3n){background:#eef4ff}
+.gd-panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
+.gd-panels article{padding:14px;border:2px solid var(--ink);border-radius:12px;background:#fff}
+.gd-panels h3{margin:0 0 6px;font-size:14px}
+.gd-panels p{font-size:13px;color:#4a4438}
+.gd-mini{display:grid;gap:4px;width:64px;margin-bottom:8px}
+.gd-mini i{display:block;border:2px solid var(--ink);border-radius:3px;background:#fff8e1}
+.gd-mini.c3{grid-template-columns:1fr}.gd-mini.c3 i{height:14px}
+.gd-mini.c4{grid-template-columns:1fr 1fr}.gd-mini.c4 i{height:22px}
+.gd-mini.c6{grid-template-columns:1fr 1fr}.gd-mini.c6 i{height:14px}
+.gd-ratio{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
+.gd-ratio span{display:flex;align-items:center;justify-content:center;border:2px solid var(--ink);border-radius:4px;background:#fff;font-size:11px;font-weight:800}
+.gd section{scroll-margin-top:84px}
+.gd-detail{margin-top:12px}
+.gd-detail summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent-text)}
+.gd-detail ul{margin-top:8px}
+@media(max-width:900px){.gd-flow{grid-template-columns:repeat(2,minmax(0,1fr))}.gd-flow li::after{display:none}.gd-panels{grid-template-columns:1fr}}
+@media(max-width:767px){
+  .mobile-sidebar{background:#fffdf8;border-bottom:2px solid var(--ink)}
+  .card{box-shadow:2px 2px 0 var(--ink)}
+  .gd-hero{grid-template-columns:1fr;justify-items:center}
+  .gd-bubble::before{left:40px;top:-9px;border-bottom:0;border-top:2px solid var(--ink)}
 }

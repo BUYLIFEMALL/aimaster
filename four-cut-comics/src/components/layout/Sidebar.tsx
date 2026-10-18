@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, Clapperboard, KeyRound, LogOut, Menu, X } from "lucide-react";
+import { Clapperboard, KeyRound, LogOut, Menu, X } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
@@ -30,14 +30,14 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
       <nav className="sidebar-nav" aria-label="프로그램 메뉴">
         <p className="nav-caption">작업 흐름</p>
         <a className="flow-item" aria-current={currentPath === "/studio" ? "page" : undefined} href="/studio">
-          <span className="step-number">1</span><div><strong>만화 만들기</strong><small>주제 · 대본 · 캐릭터 · 컷 생성 · 저장</small></div>
+          <span className="step-number">1</span><div><strong>만화 만들기</strong><small>주제 → 대본 → 캐릭터 → 컷·말풍선·저장</small></div>
         </a>
         <a className="flow-item" aria-current={currentPath === "/works" ? "page" : undefined} href="/works">
           <span className="step-number">2</span><div><strong>내 작품</strong><small>저장한 완성작 보기 · 다운로드 (최근 20개)</small></div>
         </a>
         <div className="utility-menu">
           <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings"><KeyRound size={17} />API키등록·플랫폼연동</a>
-          <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide"><BookOpen size={17} />연동 & 사용 매뉴얼</a>
+          <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide"><span aria-hidden="true" style={{ width: 17, textAlign: "center" }}>📖</span>연동 & 사용 매뉴얼</a>
         </div>
       </nav>
       <div className="sidebar-account">

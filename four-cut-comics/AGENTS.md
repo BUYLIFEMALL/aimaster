@@ -25,3 +25,17 @@
 - **함수 한도 상향**: 이미지 라우트 `maxDuration` 60초 → 300초, 이미지 호출 시간 제한 50초 → 240초(Pro 이미지 모델 시간 초과 방지). 오래 걸리는 요청만 그만큼 함수 시간이 늘고, 예전엔 60초에서 잘려도 구글 요금은 이미 나갔다.
   대상: `/api/character`·`/api/panel`, `src/lib/gemini.ts` 240초.
 - **검수**: tsc 0, 테스트 26개 통과, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+
+## 2026-10-18 v1.12 — 디자인 리뉴얼 「크리에이티브 아틀리에 — 코믹 파스텔 변형」 (Claude Code 윈도우, **10-19 배포 예정**)
+- 크림 배경·먹선 카드·코랄/머스타드 포인트, 말풍선 단계 칩, 비주얼 매뉴얼(마스코트·흐름 그림·옵션 비교). 기능 로직·프롬프트·API 무변경.
+- 바뀐 파일: `globals.css`, `Sidebar.tsx`, `Studio.tsx`(단계 라벨만), `guide/page.tsx`, `version.ts`. DB 버전은 배포 때 v1.12.
+- 상세: `docs/PLAN_20261018_DESIGN_RENEWAL.md` · `docs/DESIGN_HANDOFF.md` · `docs/IMPROVEMENT_HANDOFF_20261018.md`(다음 첫 단계).
+
+## 7대 핵심 항목 (2026-10-18 정리)
+1. **사용 목적·대상**: 그림을 못 그려도 인스타툰·4컷 만화로 홍보·일상 콘텐츠를 만들고 싶은 1인 사업자·마케터·크리에이터. 주제 한 줄 → 완성 만화까지 한 화면에서.
+2. **기술 스택**: Next.js App Router(16) + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·서버 보관함 버킷 `four-cut-comics-files`), Google Gemini(글: SDK, 그림: 공용 기준 코드 `geminiImage.ts` 사본), Canvas 합성(말풍선·저장), Vercel.
+3. **핵심 기능·구조·장단점**: 4단계(주제·대본·캐릭터·컷) 스튜디오(`Studio.tsx`), 캐릭터 시트를 모든 컷 참고 이미지로 써 일관성 유지, AI 자동 말풍선(`/api/balloon`)·직접 편집(`BalloonEditor.tsx`), 스타일 8·컷 3/4/6·비율 4, 웹툰형 저장·ZIP 나눔, 이어서 만들기(연재)·합치기, 인스타 문구, 브라우저 보관(20개)·서버 보관함(30개, 기간 선택). 장점: 본인 키·서버 미저장 기본, 연재 일관성. 단점: 새로고침 시 작업 손실, 컷마다 그림 비용, 실제 휴대폰 미검수.
+4. **버전**: v1.12(코드, 10-19 배포 예정) / 운영 v1.11. 이력은 위 각 절과 `docs/CLI_HANDOFF.md`.
+5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
+6. **연계·아이디어**: INSTA 자동포스팅으로 넘기기, 카드뉴스 표지 붙이기, 웹툰 스튜디오와 역할 구분 — `docs/IMPROVEMENTS.md` 3절.
+7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 예시 그림, 빈 화면 마스코트, 다크 변형 — `docs/IMPROVEMENTS.md` 2절.

@@ -1,5 +1,14 @@
 ﻿# 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — AI 4컷 만화 자동화 v1.12 디자인 리뉴얼(구현·로컬 검수 완료, **10-19 배포 예정**)
+- **대상**: `four-cut-comics/` (81번) — 템플릿 「크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형」(`DESIGN.md` 5번 행에 변형 등록, 기준 구현)
+- **한 일**: 크림 배경·2px 먹선 카드·어긋난 그림자·코랄/머스타드 포인트(`globals.css` 토큰 + 끝 덮어쓰기 블록, 클래스 이름 그대로), 말풍선 단계 칩, 매뉴얼 메뉴 `📖 연동 & 사용 매뉴얼`, `/guide` 비주얼 매뉴얼(마스코트 말풍선·5단계 흐름·옵션 비교 — 옵션 목록은 `options.ts` 직접 사용). 기능 로직·프롬프트·API 무변경. 코드 v1.12, **DB는 배포 때 v1.12**.
+- **검수**: tsc·테스트(실패 0)·빌드 성공, 크롬 로컬(데스크톱 + 390px iframe, 가로 넘침 없음). 운영 배포·로그인 실화면은 비용 규칙(같은 날 1회 — 10-18 v1.11 배포함)으로 10-19.
+- **다음 첫 단계**: `four-cut-comics/docs/IMPROVEMENT_HANDOFF_20261018.md`. 작업 중 표의 `four-cut-comics` 줄은 배포·검수 끝날 때까지 유지.
+- 문서: `four-cut-comics/docs/DESIGN_HANDOFF.md` · `IMPROVEMENTS.md` · `IMPROVEMENT_BACKLOG.md` · `AGENTS.md`(7대 항목) · `README.md`(신규)
+
+https://four-cut-comics.buylife.xyz
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — 티스토리(원문)생성 자동화 v1.82: 플로우 위저드 앰버 테마 리뉴얼·375px 모바일 헤더&드로어 구축·비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 47개 완료 달성!)
 
 - **대상**: 	istory-auto-blog/ (https://tistory-auto-blog.buylife.xyz, slug: 	istory-auto-blog)
