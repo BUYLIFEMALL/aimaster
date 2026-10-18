@@ -42,3 +42,9 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.06 (personality-suite)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-19 브라우저 자동 테스트 추가 (Claude Code 윈도우, 앱 코드 무변경 — 버전·배포 없음)
+- **발견**: `package.json`에 `test:browser` 명령·`playwright`는 있었지만 테스트 파일이 없었다(뼈대 복사 흔적).
+- **추가**: `tests/browser.mjs` + `tests/browser-entry.tsx` + `tests/stub-navigation.ts`(시험 서버에는 Next 앱 라우터가 없어 `next/navigation`의 `useRouter`를 대체 — 이동 요청을 `window.__pushed`에 기록). `/api/submit`·`/api/analyze`는 모의 응답이라 실제 저장·AI 호출 없음. 민감 검사 결과는 실제 `scoreTest`로 계산해 돌려준다.
+- **검사 6개**: 검사 진행(답하면 다음·←로 이전·답 유지·답 전 [다음] 잠김) / 제출(답 개수·값 전송 → `/result/<id>` 이동) / 마음 상태 점검(위기 안내 표시·저장 없이 결과만·결과 이미지 버튼 없음·[내 기록에 저장] 때 `save=true`) / 결과 화면(점수 보고서·AI 심층 분석 모의 표시·결과 이미지 PNG 내려받기) / 390px 가로 넘침 없음 / 화면 스크립트 오류 없음.
+- **실행**: `npm run test:browser` (보이는 Chrome 창이 잠깐 열림, 외부 파일 불필요). 실패하면 `test-artifacts/browser-fail.png`.

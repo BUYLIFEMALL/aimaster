@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 브라우저 자동 테스트 보강(4컷 만화·성격 진단 신설) + 기존 15곳 일괄 점검 결과
+
+- **신설(앱 코드 무변경, 배포 없음)**: `test:browser` 명령만 있고 파일이 없던 2곳 — `four-cut-comics`(검사 8개 통과: 대본→캐릭터→컷→말풍선→저장), `personality-suite`(검사 6개 통과: 진행→제출→결과·민감 검사 저장 흐름, `tests/stub-navigation.ts`로 `useRouter` 대체). 모두 모의 API, AI 비용 없음. 사용법은 각 폴더 `AGENTS.md` 2026-10-19 절.
+- **기존 15곳 점검(한 곳씩 순서대로 실행, 2026-10-19)** — 통과 10: ai-writing-editor(20)·blog-keyword(14)·competitor-analysis·document-translator·fashion-style·landing-architect(14)·longtail-keyword-expander·markdown-studio(11)·music-player·thumbnail-master(14). **실패 5(고치기는 각각 별도 승인)**:
+
+| 폴더 | 실패 지점 | 추정 원인(확인 필요) |
+|---|---|---|
+| `ai-task-planner` | `tests/browser.mjs:127` 값 비교(`false !== true`) — 앞의 저장 실패·재시도·충돌 검사는 통과 | 최근 화면/동작 변경 뒤 테스트 기대값이 낡았거나 실제 회귀 |
+| `banana-canvas` | 원본 이미지 업로드 뒤 `.bc-base img` 미리보기가 30초 안에 안 나타남 | 오늘 AGY 디자인 리뉴얼로 원본 카드 마크업(클래스)이 바뀌었을 가능성 |
+| `file-merge` | `http://127.0.0.1:3032/dashboard` 접속 거부 | 이 테스트는 **개발 서버를 먼저 켜 두는 방식**(`npm run dev`)이라 서버 없이 돌려서 실패 — 코드 문제 아님일 가능성 높음 |
+| `naver-blog-seo-studio` | 확장 회귀 테스트 다수 실패(소스 문자열 `content-block-editor-footer`·`content-provider-selector` 등을 정규식으로 찾음) | 화면 코드 리팩터링·리뉴얼 뒤 테스트가 옛 문자열을 찾는 중 — 기대값 갱신 필요 |
+| `reverse-prompt` | 키 미등록 안내(`API키등록` 문구가 든 alert)가 안 나타남 | 안내 문구·표시 방식 변경(디자인 리뉴얼 등) 가능성 |
+
+- **다음 첫 단계**: 실패 5곳은 각 폴더 담당 작업 중 여부(`docs/ACTIVE_WORK.md`) 확인 후, 테스트 기대값이 낡은 것인지 실제 회귀인지 하나씩 판정. `file-merge`는 `npm run dev` 상태에서 다시 실행.
+
 ## 📌 AGY 반영 대기 — 매뉴얼 연계 링크 4건 (2026-10-19 Claude Code(윈도우) 정리)
 
 > 매뉴얼(`/guide`) 화면은 AGY 디자인 영역이라 Claude Code가 코드를 고치지 않고 제안만 남겼다. 해당 프로그램을 리뉴얼·수정할 때 반영을 검토해 주세요. 공통 원칙: **링크만**(프로그램 간 호출·데이터 전달 없음), 새 창(`target="_blank" rel="noopener"`), 링크 대상 프로그램은 별도 이용 권한·회원 본인 키가 필요함을 문구에 밝힘, 반영 시 그 프로그램 버전 +0.01. 반영하면 아래 표의 상태를 바꿔 주세요.

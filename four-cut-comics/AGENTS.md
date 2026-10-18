@@ -39,3 +39,9 @@
 5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
 6. **연계·아이디어**: INSTA 자동포스팅으로 넘기기, 카드뉴스 표지 붙이기, 웹툰 스튜디오와 역할 구분 — `docs/IMPROVEMENTS.md` 3절.
 7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 예시 그림, 빈 화면 마스코트, 다크 변형 — `docs/IMPROVEMENTS.md` 2절.
+
+## 2026-10-19 브라우저 자동 테스트 추가 (Claude Code 윈도우, 앱 코드 무변경 — 버전·배포 없음)
+- **발견**: `package.json`에 `test:browser` 명령·`playwright`는 있었지만 테스트 파일이 없었다(뼈대 복사 흔적).
+- **추가**: `tests/browser.mjs` + `tests/browser-entry.tsx` — esbuild로 `Studio`를 묶어 로컬 시험 서버 → 보이는 Chrome. `/api/script`·`character`·`panel`·`balloon`은 모의 응답(실제 AI 호출·비용 없음), 시험 그림은 스크립트가 직접 만든 단색 PNG라 외부 파일 불필요.
+- **검사 8개**: 빈 주제 안내 / 대본 생성 → 2단계·컷 수 4 전송 / 캐릭터 시트 2장 / 「만화 생성하러 가기」 → 「모든 이미지 한번에 생성」 → 컷 4장·컷마다 캐릭터 시트 2장 참고 전송 / 대사 있는 컷만 AI 말풍선 배치(3회) / 바둑판·웹툰형 저장 파일 / 390px 가로 넘침 없음 / 화면 스크립트 오류 없음.
+- **실행**: `npm run test:browser`. 실패하면 `test-artifacts/browser-fail.png`. 화면 동작을 바꾼 작업은 배포 전에 `npx tsc --noEmit` → `npm test` → `npm run test:browser` → `npm run build`.
