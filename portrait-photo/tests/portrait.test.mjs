@@ -589,3 +589,34 @@ test("프로필 세트 구도(profileCrop)", async () => {
   // 머리 위치가 없으면 위쪽 치우친 가운데 자르기
   assert.deepEqual(profileCrop(null, PROFILE_FORMATS[1], W, H), coverCrop(W, H, 1080, 1350, 0.15));
 });
+
+test("비즈니스·증명사진 구도 지시 분리(idFraming)", () => {
+  const promptFor = (id, idFraming) => {
+    const p = getPurpose(id);
+    return buildPrompt({
+      lightingId: p.lightingId, cameraId: p.cameraId, skinIds: p.skinIds, poseId: p.poseId, outfitId: p.outfitId, filmId: p.filmId,
+      colorId: p.colorId, backgroundId: p.backgroundId, retouch: p.retouch, truePerspective: false, symmetry: p.symmetry,
+      ...(idFraming === undefined ? {} : { idFraming }),
+    });
+  };
+  // 비즈니스: 대칭 지시는 있지만 증명사진 구도·무표정은 없음 → 은은한 미소 포즈와 충돌하지 않음
+  const biz = promptFor("business", false);
+  assert.match(biz, /FRONTAL SYMMETRY/);
+  assert.ok(!biz.includes("ID-STYLE FRAMING") && !biz.includes("mouth closed"), "비즈니스에 무표정·증명사진 구도 없음");
+  // 증명사진: 대칭 + 여유 구도 + 무표정
+  const idp = promptFor("id-photo", true);
+  assert.match(idp, /FRONTAL SYMMETRY/);
+  assert.match(idp, /SAFE ID FRAMING/);
+  assert.match(idp, /mouth closed/);
+  // 옛 화면(idFraming 없음)은 symmetry를 따른다 — 예전 동작 유지
+  assert.match(promptFor("business"), /ID-STYLE FRAMING/);
+  // 요청 검증: idFraming은 선택 값, 불리언이 아니면 거부
+  const req = (extra) => ({ image: { data: "a".repeat(100), mimeType: "image/jpeg" }, model: "flash", resolution: "1K", aspect: "3:4",
+    options: { lightingId: "softbox", cameraId: "dslr-85", poseId: "soft-smile", outfitId: "classic-suit", filmId: "portra", colorId: "charcoal",
+      backgroundId: "solid", skinIds: ["pores"], retouch: NO_RETOUCH, truePerspective: false, symmetry: true, ...extra } });
+  const okReq = parseGenerateRequest(req({ idFraming: false }));
+  assert.equal(okReq.ok, true);
+  assert.equal(okReq.value.prompt.idFraming, false);
+  assert.equal(parseGenerateRequest(req({})).value.prompt.idFraming, undefined);
+  assert.equal(parseGenerateRequest(req({ idFraming: "yes" })).ok, false);
+});

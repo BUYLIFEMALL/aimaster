@@ -93,6 +93,7 @@ export function Studio({ userId }: { userId: string }) {
   const [batchReport, setBatchReport] = useState<{ idx: number; name: string; text: string; tone: "ok" | "warn" | "info" }[]>([]);
   const [batchCrops, setBatchCrops] = useState<Record<number, { presetId: string; crop: { sx: number; sy: number; sw: number; sh: number }; srcW: number; srcH: number }>>({});
   const [headMeasure, setHeadMeasure] = useState<{ url: string; crownY: number; chinY: number; centerX: number; srcW: number; srcH: number } | null>(null);
+  const [profileCircleBg, setProfileCircleBg] = useState<"transparent" | "white">("transparent");
   const [profilePreview, setProfilePreview] = useState<{ items: ProfileItem[]; measured: boolean; base: string } | null>(null);
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
@@ -192,7 +193,7 @@ export function Studio({ userId }: { userId: string }) {
     abortRef.current = ctrl;
     type Out = { url: string; model: string; src: number };
     try {
-      const options = { lightingId, cameraId, poseId, outfitId, filmId, colorId, backgroundId, skinIds, retouch, truePerspective: selfie, symmetry };
+      const options = { lightingId, cameraId, poseId, outfitId, filmId, colorId, backgroundId, skinIds, retouch, truePerspective: selfie, symmetry, idFraming: purposeId === "id-photo" };
       const callOne = async (body: string): Promise<{ url: string; model: string }> => {
         const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctrl.signal, body });
         const data = await res.json().catch(() => ({}));
@@ -521,8 +522,9 @@ export function Studio({ userId }: { userId: string }) {
   }
 
   /** v1.24 프로필 세트: 같은 사진·같은 머리 측정값으로 정사각·세로 4:5·원형 프로필을 만들어 먼저 미리보기로 보여 준다(AI 호출 없음) */
-  async function openProfilePreview() {
+  async function openProfilePreview(circleBg: "transparent" | "white" = profileCircleBg) {
     if (!shown) return;
+    setProfileCircleBg(circleBg);
     setSaving("profile");
     try {
       const m = currentMeasure();
@@ -533,7 +535,7 @@ export function Studio({ userId }: { userId: string }) {
       const items: ProfileItem[] = [];
       for (const f of PROFILE_FORMATS) {
         const c = m ? scaleCrop(profileCrop(m, f, m.srcW, m.srcH), m.srcW, m.srcH, W, H) : profileCrop(null, f, W, H);
-        const blob = await renderProfile(shown, f, c, { mirrored, filter, applyFilter: toneActive });
+        const blob = await renderProfile(shown, f, c, { mirrored, filter, applyFilter: toneActive, circleBg });
         items.push({ label: f.label, circle: f.circle, name: `${base}-${f.id}-${f.width}x${f.height}.${f.circle ? "png" : "jpg"}`, blob, url: URL.createObjectURL(blob) });
       }
       closeProfilePreview();
@@ -850,6 +852,12 @@ export function Studio({ userId }: { userId: string }) {
             {profilePreview && (
               <div className="zc" role="dialog" aria-label="프로필 세트 미리보기">
                 <div className="zc-bar"><b>프로필 세트 미리보기 — 저장될 모양 그대로</b><button type="button" onClick={closeProfilePreview}>닫기</button></div>
+                <div className="chips" role="radiogroup" aria-label="원형 프로필 바깥 색">
+                  <small className="muted">원형 바깥:</small>
+                  {(["transparent", "white"] as const).map((v) => (
+                    <Chip key={v} on={profileCircleBg === v} onClick={() => { if (profileCircleBg !== v) void openProfilePreview(v); }} title={v === "white" ? "투명 부분을 검게 보여 주는 메신저용" : "배경에 자연스럽게 얹히는 투명 PNG"}>{v === "transparent" ? "투명" : "흰색"}</Chip>
+                  ))}
+                </div>
                 <div className="zc-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))", alignItems: "end" }}>
                   {profilePreview.items.map((it) => (
                     <figure key={it.name} className="zc-pane" style={{ margin: 0, textAlign: "center" }}>
@@ -894,7 +902,7 @@ export function Studio({ userId }: { userId: string }) {
                 {batchMode && results.length > 1 && <button type="button" onClick={saveSizedBatch} disabled={!!saving}>{saving === "batch" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격으로 일괄 저장 ({sizePresetById(sizeId).width}×{sizePresetById(sizeId).height}, ZIP)</button>}
                 {results.length > 1 && <button type="button" onClick={saveAll} disabled={!!saving}>{saving === "all" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}ZIP으로 전체 저장 ({results.length - skip.filter(Boolean).length}장)</button>}
                 <button type="button" onClick={savePng} disabled={!!saving}>{saving === "png" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}PNG 저장 ({resolution})</button>
-                <button type="button" onClick={openProfilePreview} disabled={!!saving} title="같은 사진으로 정사각 1:1 · 세로 4:5 · 원형 프로필을 미리 보고 한 번에 저장합니다(AI 호출 없음)">{saving === "profile" ? <Loader2 size={14} className="ls-spin" /> : <ImageIcon size={14} />}프로필 세트 미리보기·저장 (1:1·4:5·원형)</button>
+                <button type="button" onClick={() => void openProfilePreview()} disabled={!!saving} title="같은 사진으로 정사각 1:1 · 세로 4:5 · 원형 프로필을 미리 보고 한 번에 저장합니다(AI 호출 없음)">{saving === "profile" ? <Loader2 size={14} className="ls-spin" /> : <ImageIcon size={14} />}프로필 세트 미리보기·저장 (1:1·4:5·원형)</button>
                 {(() => {
                   // v1.24: 머리 위치를 모르면 검사·직접 지정을 눈에 띄게(측정값이 생기면 원래 모양)
                   const needMeasure = !!sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none";

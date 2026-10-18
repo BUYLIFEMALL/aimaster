@@ -16,8 +16,10 @@ export interface PromptInput {
   retouch: Retouch;
   /** 셀카를 좌우 반전해 보낸 경우 방향을 유지하도록 지시 */
   truePerspective: boolean;
-  /** 정면·대칭·순백 배경 등 증명사진 규격 지시 */
+  /** 정면·좌우 대칭·귀·어깨 수평·균일 조명 지시 */
   symmetry: boolean;
+  /** v1.24 증명사진 전용: 여유 구도(머리 55~65%)·입 다문 무표정. 없으면 symmetry를 따른다(옛 화면 호환) */
+  idFraming?: boolean;
 }
 
 const MASTER_RULES = `PHOTOREALISTIC PORTRAIT RULES:
@@ -35,12 +37,15 @@ const TRUE_PERSPECTIVE = `FACIAL ORIENTATION:
 const KEEP_ORIENTATION = `FACIAL ORIENTATION:
 - Keep exactly the same left-to-right orientation as the reference image without flipping or mirroring.`;
 
-const SYMMETRY = `ID-STYLE FRAMING:
+const SYMMETRY = `FRONTAL SYMMETRY:
 - Frontal head-on composition with the eyes looking straight into the lens on a level eye line.
 - Balanced natural facial symmetry, both ears visible and level, shoulders balanced and horizontal.
-- SAFE ID FRAMING: a straight-on head-and-shoulders portrait. The distance from the top of the head (including hair) to the bottom of the chin should be about 55% to 65% of the full image height. Leave a clear empty margin of background above the head, never crop the top of the head or the chin, and show both shoulders fully at the bottom of the frame. Keep the face horizontally centered.
-- Neutral composed expression with the mouth closed.
 - Even, shadowless lighting with a clean separation from the backdrop and no shadow behind the shoulders or neck.`;
+
+// v1.24: 증명사진 목적 전용(비즈니스 등 다른 목적의 미소 포즈와 충돌하지 않게 대칭 지시와 분리)
+const ID_FRAMING = `ID-STYLE FRAMING:
+- SAFE ID FRAMING: a straight-on head-and-shoulders portrait. The distance from the top of the head (including hair) to the bottom of the chin should be about 55% to 65% of the full image height. Leave a clear empty margin of background above the head, never crop the top of the head or the chin, and show both shoulders fully at the bottom of the frame. Keep the face horizontally centered.
+- Neutral composed expression with the mouth closed.`;
 
 /** 옵션 id가 하나라도 없으면 null (호출 쪽에서 400 처리) */
 export function buildPrompt(i: PromptInput): string | null {
@@ -62,6 +67,7 @@ export function buildPrompt(i: PromptInput): string | null {
     MASTER_RULES,
     i.truePerspective ? TRUE_PERSPECTIVE : KEEP_ORIENTATION,
     ...(i.symmetry ? [SYMMETRY] : []),
+    ...((i.idFraming ?? i.symmetry) ? [ID_FRAMING] : []),
     ...(retouch.length ? [`NATURAL RETOUCHING (subtle, never alter identity):\n${retouch.join("\n")}`] : []),
     `SUBJECT: the person in the provided reference image.
 OUTFIT: ${outfit.fragment}

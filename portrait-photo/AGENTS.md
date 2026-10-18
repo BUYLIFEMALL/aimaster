@@ -119,7 +119,8 @@
 - **검수**: tsc 0, `npm test` 22/22(기존 `decideBatchCrop` 테스트는 기대값만 새 동작으로 수정 + 「프로필 세트 구도」 추가), 빌드. 배포·DB·크롬은 10-19(같은 날 같은 프로그램 3번째 배포를 피함).
 - 플랜: `docs/PLAN_20261018_V124_BATCH_HINT_PROFILE.md`.
 - **v1.24 추가(같은 날, 같은 배포)**: ① **증명사진 생성 구도**: `prompt.ts` `SYMMETRY`의 "머리 약 80% 꽉 찬 구도" 한 줄 → **SAFE ID FRAMING**(머리 55~65%, 정수리 위 여백, 양어깨 전체, 얼굴 가로 가운데). 이유: 저장 때 확대(`recommendSizedCrop`)로 공식 기준을 맞출 수 있지만 크게 나온 사진은 고칠 수 없으므로 생성은 여유 있게. 주인님 지시에 따른 프롬프트 변경(`docs/IMAGE_PROMPT_RULES.md`). 실제 효과는 생성 1회로 확인 필요. ② **프로필 세트 미리보기**: `openProfilePreview`가 3장을 만들어 패널에 먼저 보여 주고, `saveProfileSet`은 같은 Blob을 ZIP(보이는 모양 = 저장 모양), 보고 있는 사진이 바뀌면 미리보기 닫힘. ③ 쓰레드·인스타 매뉴얼 「여기서 만들기」 링크는 AGY 영역이라 각 `docs/IMPROVEMENTS.md`에 제안만 기록. 플랜: `docs/PLAN_20261018_V124B_FRAMING_PREVIEW_LINK.md`.
-- **발견(미처리)**: `SYMMETRY` 블록(증명사진식 구도·"입 다문 무표정")이 「정면·좌우 대칭」 설정으로 들어가는데 **비즈니스 목적도 이 설정이 켜져** 「은은한 미소」 포즈와 충돌. 요청 형식에 증명사진 구도 플래그를 분리해야 함 — `docs/IMPROVEMENTS.md`.
+- ~~**발견(미처리)**: `SYMMETRY` 블록이 비즈니스 목적의 「은은한 미소」와 충돌~~ → **같은 v1.24에서 처리**: `prompt.ts` 블록 분리 — `SYMMETRY`(정면·대칭·귀·어깨·균일 조명) / `ID_FRAMING`(여유 구도·입 다문 무표정). `PromptInput.idFraming?`(없으면 `symmetry`를 따름 — 배포 직후 옛 화면 호환), `validate.ts` 선택 값 검증, `Studio.tsx`가 `idFraming: purposeId === "id-photo"`로 보냄. 자유 커스텀에서 대칭만 켜면 대칭 지시만 들어감. 테스트 「비즈니스·증명사진 구도 지시 분리」.
+- **원형 바깥색**: 프로필 미리보기 패널에 「원형 바깥: 투명/흰색」(`renderProfile` `circleBg`, 바꾸면 미리보기 다시 그림). AI 인플루언서 연계는 `ai-influencer-studio/docs/IMPROVEMENTS.md`에 매뉴얼 링크 제안만(AGY 영역). 플랜: `docs/PLAN_20261018_V124C_BUSINESS_CIRCLE_INFLUENCER.md`.
 
 ## 7대 핵심 항목 (2026-10-18 정리)
 1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.

@@ -110,13 +110,15 @@ export async function renderSized(dataUrl: string, preset: SizePreset, o: { mirr
 }
 
 /** v1.24 프로필 세트 한 장: 사각형은 JPEG, 원형은 바깥이 투명한 PNG */
-export async function renderProfile(dataUrl: string, fmt: { width: number; height: number; circle: boolean }, crop: CropRect, o: { mirrored: boolean; filter: string; applyFilter: boolean }): Promise<Blob> {
+export async function renderProfile(dataUrl: string, fmt: { width: number; height: number; circle: boolean }, crop: CropRect, o: { mirrored: boolean; filter: string; applyFilter: boolean; circleBg?: "transparent" | "white" }): Promise<Blob> {
   const img = await loadImage(dataUrl);
   const canvas = document.createElement("canvas");
   canvas.width = fmt.width; canvas.height = fmt.height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("이 브라우저에서는 저장할 수 없습니다.");
   if (fmt.circle) {
+    // 투명을 검게 보여 주는 메신저용: 원형 바깥을 흰색으로 채운다
+    if (o.circleBg === "white") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
     ctx.beginPath();
     ctx.arc(fmt.width / 2, fmt.height / 2, Math.min(fmt.width, fmt.height) / 2, 0, Math.PI * 2);
     ctx.clip();

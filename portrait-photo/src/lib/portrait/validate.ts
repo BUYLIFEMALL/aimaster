@@ -48,6 +48,8 @@ export function parseGenerateRequest(body: Record<string, unknown>): ParseOutcom
     retouch[k] = r[k] as boolean;
   }
   if (typeof p.truePerspective !== "boolean" || typeof p.symmetry !== "boolean") return { ok: false, error: "촬영 옵션이 올바르지 않습니다." };
+  // v1.24 선택 값: 없으면 symmetry를 따른다(배포 직후 옛 화면 호환)
+  if (p.idFraming !== undefined && typeof p.idFraming !== "boolean") return { ok: false, error: "촬영 옵션이 올바르지 않습니다." };
 
   return {
     ok: true,
@@ -61,6 +63,7 @@ export function parseGenerateRequest(body: Record<string, unknown>): ParseOutcom
         outfitId: p.outfitId as string, filmId: p.filmId as string, colorId: p.colorId as string,
         backgroundId: p.backgroundId as string, skinIds: p.skinIds as string[], retouch,
         truePerspective: p.truePerspective, symmetry: p.symmetry,
+        ...(typeof p.idFraming === "boolean" ? { idFraming: p.idFraming } : {}),
       },
     },
   };

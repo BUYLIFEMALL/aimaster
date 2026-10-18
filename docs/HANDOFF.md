@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 인물사진 v1.24에 추가(코드, 미배포): 비즈니스 구도·표정 분리 · 원형 바깥색 + **AGY 앞 연계 제안**
+
+- **인물사진**: 비즈니스 목적에 들어가던 증명사진 구도·무표정 지시를 분리(`ID_FRAMING`은 증명사진 목적만, 옛 화면 호환), 프로필 미리보기에 원형 바깥 투명/흰색. tsc 0·테스트 23/23·빌드. 배포는 v1.24 한 번에.
+- **AGY 앞 메모(디자인 영역이라 코드 미수정)**: AI 인플루언서 자동화(`ai-influencer-studio/`) 매뉴얼에 "결과 컷을 인물사진 규격 저장·프로필 세트로 정리" 링크 제안 — `ai-influencer-studio/docs/IMPROVEMENTS.md` 맨 아래.
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 패션스타일 자동화 v1.10: 크리에이티브 아틀리에 패션 매거진 미드나잇 테마 리뉴얼·가이드북 에디토리얼 고도화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 52개 완료 달성!)
 
 - **대상**: `fashion-style/` (https://fashion-style.buylife.xyz, slug: `fashion-style`, 82번)
