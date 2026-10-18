@@ -127,6 +127,14 @@
 - **v1.25 수정**: 크롬 실검수에서 [얼굴 위치 직접 지정 (무료)] 바로가기가 **같은 사진에서는 패널이 열리지 않음** 발견. 원인: `gotoCrop`이 항상 `setCleaned(null)` → 순백 정리 효과는 `result`가 바뀔 때만 다시 돌아 `cleaned`가 계속 비어 `pendingCrop` 효과가 영원히 대기(순백 정리 표시도 사라짐). 일괄 보고(다른 사진으로 이동)에서는 `result`가 바뀌어 드러나지 않았음. 수정: 같은 사진이면 정리본을 지우지 않음(`if (i !== active) setCleaned(null)`). 회원 영향 버그라 바로 배포, DB v1.25.
 - **운영 실검수(2026-10-18, 크롬, AI 가상 인물 사진 입력, Flash 1K 2회)**: ① 증명사진 목적 생성 8초 — 흰 배경·양어깨·머리 약 60~65%(눈대중, 새 여유 구도 반영) ② 측정 전 안내·강조 버튼 2개 표시, [규격 저장]에 「추천 영역」 없음 ③ 비즈니스 목적 생성 10초 — **은은한 미소·상반신**(무표정 충돌 해소) ④ 직접 지정(정수리·턱) → "머리 약 42% → 76%", 패널 「76%(기준 71~80%) 범위 안」 ⑤ [규격 저장 · 추천 영역] → `증명사진-passport-추천-413x531-…jpg` 44KB·안내 문구 ⑥ 프로필 미리보기 3장(얼굴 기준)·원형 바깥 투명→흰색 다시 그림 → ZIP 1개(1.8MB)·패널 닫힘. 저장은 내려받기 직전에 가로채 파일명·크기만 확인(PC에 파일 저장 안 함).
 
+## 2026-10-18 브라우저 자동 테스트 추가 (Claude Code 윈도우, 앱 코드 무변경 — 버전·배포 없음)
+- **발견**: `package.json`에 `test:browser` 명령·`playwright`는 있었지만 테스트 파일이 없었다(뼈대 복사 흔적).
+- **추가**: `tests/browser.mjs` + `tests/browser-entry.tsx` — 바나나 캔버스와 같은 방식(esbuild로 `Studio` 묶음 → 로컬 시험 서버 → 보이는 Chrome). `/api/generate`·`/api/headcheck`는 모의 응답이라 **AI 호출·비용 없음**.
+- **검사 9개**: 기본 목적 증명사진 / 생성(모의)·`idFraming=true`·`symmetry=true` 전송 / 측정 전 안내·강조 버튼 2개·[규격 저장]에 추천 표시 없음 / **같은 사진에서 [얼굴 위치 직접 지정] 패널 열림(v1.25 회귀)**·두 점 → 머리 % 안내 / [규격 저장 · 추천 영역] 파일 이름 `증명사진-passport-추천-413x531-날짜.jpg`·JPEG / 머리 비율 검사(모의) 안내 / 프로필 미리보기 3장 → 원형 흰색 → ZIP 안 3개 파일 이름 / 390px 가로 넘침 없음 / 화면 스크립트 오류 없음.
+- **회귀 검증**: `gotoCrop`을 v1.24 코드로 잠시 되돌리면 「직접 지정 패널 열림」 단계에서 실패함을 확인 후 원복.
+- **실행**: `npm run test:browser` (보이는 Chrome 창이 잠깐 열림). 입력 사진 `test-artifacts/out-business-pro.png`(AI 가상 인물)이 필요한데 `test-artifacts/`는 Git 제외 — 다른 PC에서는 임의의 인물 PNG를 같은 이름으로 넣는다. 실패하면 `test-artifacts/browser-fail.png`에 화면이 남는다.
+- **검수 순서 권장**: 화면 동작을 바꾼 작업은 배포 전에 `npx tsc --noEmit` → `npm test` → `npm run test:browser` → `npm run build`.
+
 ## 7대 핵심 항목 (2026-10-18 정리)
 1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
 2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 인물사진 브라우저 자동 테스트 추가(앱 코드 무변경) + **AGY 앞 연계 제안**
+
+- **인물사진**: `test:browser` 명령만 있고 파일이 없던 것을 채움 — `tests/browser.mjs`·`browser-entry.tsx`(모의 API, AI 비용 없음, 보이는 Chrome). 검사 9개 통과, v1.24 코드로 되돌리면 「직접 지정 패널」 단계에서 실패함을 확인(회귀 검사 유효). 사용법 `portrait-photo/AGENTS.md`. 배포 없음.
+- **AGY 앞 메모(코드 미수정)**: 4컷 만화(`four-cut-comics/`) 매뉴얼에 "캐릭터 참고 사진은 AI 인물사진 정면 결과로" 링크 제안 — `four-cut-comics/docs/IMPROVEMENTS.md` 맨 아래.
+- **정정·대기**: "측정 전 머리 비율 표시"는 가이드선이 고정선이라 틀린 숫자가 됨 → 브라우저 안 얼굴 인식 자동 추정 안으로 `portrait-photo/docs/IMPROVEMENTS.md`에 별도 제안.
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 웹 UI 제작 자동화 v1.05: 크리에이티브 아틀리에 리액트 쇼케이스 미드나잇 다크 네이비 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 55개 완료 달성!)
 
 - **대상**: `react-ui-showcase/` (https://react-ui-showcase.buylife.xyz, slug: `ai-web-ui`, 72번)
