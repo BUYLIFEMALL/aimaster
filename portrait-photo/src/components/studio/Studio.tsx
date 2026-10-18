@@ -7,7 +7,8 @@ import {
 import type { AspectRatio, ModelLevel, PurposeId, Resolution, Retouch } from "@/lib/portrait/options";
 import { PURPOSES, getPurpose } from "@/lib/portrait/purposes";
 import type { Purpose } from "@/lib/portrait/purposes";
-import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import { MAX_CANDIDATES, SIZE_PRESETS, baseNameOf, controlsFromCrop, coverCrop, decideBatchCrop, describeBatchDecision, evaluateHead, headInCrop, moveItem, parseStoredControls, recommendSizedCrop, safeFileName, scaleCrop, sizePresetById, tightCrop, toneFilter } from "@/lib/portrait/post";
+import type { SizedRecommendation } from "@/lib/portrait/post";
 
 const MAX_BATCH = 6;
 import { downloadBlob, makeThumb, prepareInput, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
@@ -340,21 +341,16 @@ export function Studio({ userId }: { userId: string }) {
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
-  /** 머리 비율 검사 결과로 규격에 맞춰 얼굴 쪽을 더 가깝게 잘라 저장한다 */
-  async function saveTight() {
-    if (!shown || !headMeasure) return;
-    const preset = sizePresetById(sizeId);
-    if (!preset.headRange) return;
-    const target = (preset.headRange[0] + preset.headRange[1]) / 2;
-    const t = tightCrop(headMeasure.crownY, headMeasure.chinY, headMeasure.srcW, headMeasure.srcH, preset, target, headMeasure.centerX);
-    setSaving("lic");
-    try {
-      const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive, crop: t.crop });
-      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}-확대-${preset.width}x${preset.height}.jpg`);
-      const pct = (n: number) => Math.round(n * 100);
-      const up = t.crop.sw < preset.width ? " 원본 해상도보다 확대돼 선명도가 낮을 수 있습니다." : "";
-      setNotice(`얼굴 확대 자르기로 저장했습니다(머리 약 ${pct(t.achievedRatio)}%, 기준 ${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%${t.clamped ? ", 사진 크기 한계로 더 확대하지 못했습니다" : ""}).${up} 머리 위치는 AI 추정이라 결과를 눈으로 확인하세요. 제출 기관 규정은 별도로 확인해 주세요.${preset.caution ? " " + preset.caution : ""}`);
-    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  /** 지금 보고 있는 사진의 머리 측정값(머리 비율 검사 결과 → 없으면 일괄 검사·직접 지정 값) */
+  function currentMeasure(): { crownY: number; chinY: number; centerX: number; srcW: number; srcH: number } | null {
+    if (headMeasure && headMeasure.url === (result ?? shown)) return headMeasure;
+    return measures[sourceIdx] ?? null;
+  }
+
+  /** 규격 저장 기본 영역 추천(측정값이 있고 규격에 공식 머리 기준이 있을 때만) */
+  function sizedRecommendation(): { rec: SizedRecommendation; m: ReturnType<typeof currentMeasure> } {
+    const m = currentMeasure();
+    return { rec: m ? recommendSizedCrop(m, sizePresetById(sizeId), m.srcW, m.srcH) : { mode: "none" }, m };
   }
 
   /** 일괄 모드: 사진마다 머리 비율을 AI로 검사하고, 작게 나온 사진은 자동 확대 자르기 영역을 지정한다(AI N회 호출) */
@@ -485,7 +481,7 @@ export function Studio({ userId }: { userId: string }) {
       const ev = evaluateHead(m.ratio, preset.headRange);
       const pct = (n: number) => Math.round(n * 100);
       const range = `${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%`;
-      const verdict = ev.status === "ok" ? "기준 범위 안입니다." : ev.status === "small" ? "기준보다 머리가 작게 나옵니다. 가까이 찍은 사진·4:5에 가까운 비율로 다시 만들어 보세요." : "기준보다 머리가 크게 나옵니다. 상체가 더 보이는 사진·여백이 있는 구도로 다시 만들어 보세요.";
+      const verdict = ev.status === "ok" ? "기준 범위 안입니다." : ev.status === "small" ? "기준보다 머리가 작게 나옵니다. [규격 저장] 시 얼굴 쪽으로 확대한 추천 영역으로 저장됩니다." : "기준보다 머리가 크게 나옵니다. 상체가 더 보이는 사진·여백이 있는 구도로 다시 만들어 보세요.";
       setHeadMsg({
         tone: ev.status === "ok" ? "ok" : "warn",
         text: `머리 높이 약 ${pct(m.ratio)}% (기준 ${range}, ${preset.headSource}) · 정수리 위 여백 약 ${Math.max(0, pct(m.topMargin))}%. ${verdict}${m.cropped ? " 저장 규격으로 자를 때 머리가 잘릴 수 있습니다." : ""} AI 추정치라 오차가 있습니다.`,
@@ -528,9 +524,26 @@ export function Studio({ userId }: { userId: string }) {
     const preset = sizePresetById(sizeId);
     setSaving("lic");
     try {
-      const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive });
-      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}-${preset.width}x${preset.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
-      const extra = [r.underMin ? `용량(${Math.round(r.bytes / 1024)}KB)이 최소 ${Math.round((preset.minBytes ?? 0) / 1024)}KB보다 작습니다. 제출처 기준을 확인해 주세요.` : "", preset.caution ?? ""].filter(Boolean).join(" ");
+      // v1.23: 머리 위치를 알고 있으면 공식 머리 기준에 맞춘 추천 영역으로 저장(모델이 머리 비율을 잘 못 맞추는 문제 보완)
+      const { rec, m } = sizedRecommendation();
+      let crop: { sx: number; sy: number; sw: number; sh: number } | undefined;
+      if (rec.crop && m) {
+        const im = new Image();
+        await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = shown; });
+        crop = scaleCrop(rec.crop, m.srcW, m.srcH, im.naturalWidth, im.naturalHeight);
+      }
+      const r = await renderSized(shown, preset, { mirrored, filter, applyFilter: toneActive, crop });
+      downloadBlob(r.blob, `${batchMode ? nameFor(sourceIdx, "증명사진") : "증명사진"}-${preset.id}${crop ? "-추천" : ""}-${preset.width}x${preset.height}-${new Date().toISOString().slice(0, 10)}.jpg`);
+      const pct = (n: number) => Math.round(n * 100);
+      const range = preset.headRange ? `기준 ${pct(preset.headRange[0])}~${pct(preset.headRange[1])}%` : "";
+      const head = rec.mode === "none"
+        ? (preset.headRange ? "가운데 자르기로 저장했습니다. [머리 비율 검사(AI 1회)] 또는 [자르기 영역 조정]의 얼굴 위치 직접 지정(무료)을 하면 다음 저장부터 머리 기준에 맞춘 추천 영역으로 저장됩니다." : "")
+        : rec.status === "small"
+          ? `추천 영역으로 저장했습니다(머리 약 ${pct(rec.ratio ?? 0)}% → ${pct(rec.achieved ?? 0)}%, ${range}${rec.clamped ? ", 사진 크기 한계로 더 확대하지 못했습니다" : ""}).${crop && crop.sw < preset.width ? " 원본 해상도보다 확대돼 선명도가 낮을 수 있습니다." : ""}`
+          : rec.status === "large"
+            ? `머리가 기준보다 큽니다(약 ${pct(rec.ratio ?? 0)}%, ${range}). 원본 크기 한계로 더 줄이지 못해 머리가 잘리지 않게 위치만 맞춰 저장했습니다. 상체가 더 보이는 구도로 다시 만들어 보세요.`
+            : `머리 약 ${pct(rec.ratio ?? 0)}%로 ${range} 안이라 얼굴만 가로 가운데로 맞춰 저장했습니다.`;
+      const extra = [head, rec.mode !== "none" ? "머리 위치는 추정값이라 결과를 눈으로 확인하세요." : "", r.underMin ? `용량(${Math.round(r.bytes / 1024)}KB)이 최소 ${Math.round((preset.minBytes ?? 0) / 1024)}KB보다 작습니다. 제출처 기준을 확인해 주세요.` : "", preset.caution ?? ""].filter(Boolean).join(" ");
       setNotice(
         r.overLimit
           ? `${preset.width}×${preset.height}px로 저장했지만 용량(${Math.round(r.bytes / 1024)}KB)이 제한(${Math.round(preset.maxBytes / 1024)}KB)을 넘습니다. 제출처에서 다시 압축해 주세요.`
@@ -650,9 +663,9 @@ export function Studio({ userId }: { userId: string }) {
               const base = coverCrop(cropOpen.w, cropOpen.h, pr.width, pr.height, 0.15);
               const bm = measures[sourceIdx];
               const m = headMeasure && headMeasure.url === (result ?? shown) ? headMeasure : (bm ? { url: result ?? shown, crownY: bm.crownY, chinY: bm.chinY, centerX: bm.centerX, srcW: bm.srcW, srcH: bm.srcH } : null);
-              const rec = m && pr.headRange
-                ? tightCrop(m.crownY, m.chinY, m.srcW, m.srcH, pr, (pr.headRange[0] + pr.headRange[1]) / 2, m.centerX).crop
-                : base;
+              // 규격 저장과 같은 추천 영역(v1.23) — 측정 크기와 다르면 패널 이미지 크기로 맞춤
+              const sr = m ? recommendSizedCrop(m, pr, m.srcW, m.srcH) : null;
+              const rec = m && sr?.crop ? scaleCrop(sr.crop, m.srcW, m.srcH, cropOpen.w, cropOpen.h) : base;
               void aspect;
               return (
                 <CropAdjuster
@@ -756,16 +769,16 @@ export function Studio({ userId }: { userId: string }) {
               <p role="alert" className="lp-alert"><span>{error}{needKey && <> <a className="subtle-link" href="/settings">API키등록·플랫폼연동으로 이동</a></>}</span></p>
             )}
             {notice && !error && <p className="notice">{notice}</p>}
-            {headMeasure && headMeasure.url === (result ?? shown) && (() => {
-              const pr = sizePresetById(sizeId);
-              if (!pr.headRange) return null;
-              const cur = headInCrop(headMeasure.crownY, headMeasure.chinY, headMeasure.srcW, headMeasure.srcH, pr).ratio;
-              if (evaluateHead(cur, pr.headRange).status !== "small") return null;
-              const t = tightCrop(headMeasure.crownY, headMeasure.chinY, headMeasure.srcW, headMeasure.srcH, pr, (pr.headRange[0] + pr.headRange[1]) / 2, headMeasure.centerX);
+            {shown && (() => {
+              const { rec } = sizedRecommendation();
+              if (rec.mode === "none") return null;
+              const pct = (n: number) => Math.round(n * 100);
               return (
-                <button type="button" className="primary st-tight" onClick={saveTight} disabled={!!saving}>
-                  <Download size={14} />얼굴 확대 자르기로 규격 저장 (머리 약 {Math.round(cur * 100)}% → {Math.round(t.achievedRatio * 100)}%)
-                </button>
+                <p className="notice head-ok" role="status">
+                  {rec.status === "small" && <>[규격 저장] 시 추천 영역이 자동 적용됩니다 — 얼굴 쪽으로 확대(머리 약 {pct(rec.ratio ?? 0)}% → {pct(rec.achieved ?? 0)}%).</>}
+                  {rec.status === "large" && <>머리가 기준보다 큽니다(약 {pct(rec.ratio ?? 0)}%). [규격 저장] 시 머리가 잘리지 않게 위치만 맞춥니다. 상체가 더 보이게 다시 만들면 좋습니다.</>}
+                  {rec.status === "ok" && <>머리 약 {pct(rec.ratio ?? 0)}%로 기준 범위 안입니다. [규격 저장] 시 얼굴을 가로 가운데로 맞춥니다.</>}
+                </p>
               );
             })()}
             {autoConfirm && !autoBusy && <p className="notice warning" role="status">사진 {results.length - skip.filter(Boolean).length}장을 각각 검사하므로 <b>본인 Gemini 키로 {results.length - skip.filter(Boolean).length}회</b> 호출됩니다. 계속하려면 [확인하고 시작]을 누르세요.</p>}
@@ -830,7 +843,7 @@ export function Studio({ userId }: { userId: string }) {
                 <select value={sizeId} onChange={(e) => changePreset(e.target.value)} aria-label="증명사진 규격" className="size-select">
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
                 </select>
-                <button type="button" onClick={saveSized} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격 저장 ({sizePresetById(sizeId).note})</button>
+                <button type="button" onClick={saveSized} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격 저장 ({sizePresetById(sizeId).note}){sizedRecommendation().rec.mode !== "none" ? " · 추천 영역" : ""}</button>
               </div>
             )}
           </section>

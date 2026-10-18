@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.22)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.23)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -104,11 +104,18 @@
 - 검수: tsc 0, 테스트 20개 통과, 로컬 빌드, Vercel 프로덕션 배포(Ready)·DB 버전. 크롬 화면 확인 결과는 `docs/DESIGN_HANDOFF.md`.
 - 상세: `docs/PLAN_20261018_DESIGN_RENEWAL.md` · `docs/DESIGN_HANDOFF.md` · `docs/IMPROVEMENT_HANDOFF_20261018.md`(다음 첫 단계).
 
+## 2026-10-18 v1.23 — 규격 저장 기본값을 「추천 영역」으로 (Claude Code 윈도우)
+- **문제**: 모델이 증명사진 머리 기준(한국 여권 71~80%)을 잘 못 맞춰 43~56%에 머무는데, [규격 저장]은 항상 가운데를 잘랐다. 머리 위치를 알아도 기본 버튼은 쓰지 않았고, 「작음」일 때만 별도 [얼굴 확대 자르기] 버튼이 떴다.
+- **한 일**: `post.ts` `recommendSizedCrop(m, preset, srcW, srcH)` 추가(작음·큼 → `tightCrop`, 범위 안 → `centerFaceCrop`, 측정 없음·기준 없는 규격 → none). `Studio.tsx`: `currentMeasure()`(같은 사진의 `headMeasure` → 없으면 `measures[sourceIdx]`), `saveSized`가 추천 영역으로 저장(측정 크기 ≠ 현재 이미지면 `scaleCrop`, 파일 이름 `-추천`, 안내 문구에 머리 % 변화), 버튼 이름 `· 추천 영역`, 기존 `saveTight`·확대 버튼 삭제 → 안내 한 줄, [자르기 영역 조정] 추천 값도 같은 함수. 머리 비율 검사 「작음」 안내 문구, 매뉴얼 ④ 절·FAQ 수정. 안 쓰게 된 `.st-tight` CSS 삭제.
+- **주의**: 「큼」은 기본 가운데 자르기가 이미 원본 최대 크기라 비율을 낮출 수 없다 — 위치만 맞추고 다시 만들기를 안내한다. AI 호출은 추가하지 않는다(회원이 누른 검사·직접 지정 값만 사용). 일괄 ZIP(`saveSizedBatch`)은 그대로(백로그).
+- **검수**: tsc 0, `npm test` 21/21(새 테스트 「규격 저장 추천 영역」 — 작음·범위 안·큼·없음 4경우), 빌드, Vercel 프로덕션(같은 날 두 번째 — 주인님 지시), DB v1.23, 크롬 버전·매뉴얼 문구·스튜디오 오류 없음 확인. 생성 사진으로 저장하는 실제 흐름은 비용 때문에 별도 확인(`docs/IMPROVEMENT_HANDOFF_20261018.md`).
+- 플랜: `docs/PLAN_20261018_SIZED_SAVE_RECOMMEND.md`.
+
 ## 7대 핵심 항목 (2026-10-18 정리)
 1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
 2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.
 3. **핵심 기능·구조·장단점**: 목적 프리셋 5종 + 조명·카메라·배경·포즈·복장·피부·필름·보정 4종, 후보 1~4장·격자/확대 비교, 원본 비교 슬라이더, 규격 21종 저장·머리 비율 검사·자르기 영역 조정·얼굴 위치 직접 지정, 일괄 6장·ZIP. 장점: 원본 서버 미저장·본인 키·공식 출처로 확인한 규격. 단점: 머리 비율을 모델이 잘 못 따름(50~56%), `Studio.tsx` 한 파일이 큼(890줄), 안 쓰는 CSS 잔존, 실제 휴대폰 터치 미검수.
-4. **버전**: v1.22(운영). 이력은 위 각 절.
+4. **버전**: v1.23(운영). 이력은 위 각 절.
 5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
 6. **연계·아이디어**: 결과 사진을 AI 이미지 자동화 배경 교체·명함/이력서 프로그램으로 넘기기 등 — `docs/IMPROVEMENTS.md` 3절.
 7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 무대 배경 밝기 전환(흰/회색/검정), 라이트 테마 토글 — `docs/IMPROVEMENTS.md` 2절.

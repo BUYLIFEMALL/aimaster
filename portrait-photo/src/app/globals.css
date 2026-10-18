@@ -276,8 +276,6 @@ a.project-card{color:inherit}
 .cand.skipped{opacity:.35}
 .head-ok{border-color:#86efac;background:#f0fdf4;color:#166534}
 
-/* ---- v1.08 ---- */
-.st-tight{width:100%;margin-top:8px}
 
 /* ---- v1.09 ---- */
 .ca{border:1px solid var(--line);border-radius:12px;padding:10px;background:#f8fafc;display:flex;flex-direction:column;gap:10px}

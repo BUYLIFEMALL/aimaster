@@ -348,6 +348,35 @@ export function centerFaceCrop(centerX: number, srcW: number, srcH: number, pres
   return { sx: Math.round(sx), sy: base.sy, sw: base.sw, sh: base.sh };
 }
 
+export interface SizedRecommendation {
+  /** tight: 머리 비율을 기준 중앙값에 맞춰 확대/축소, center: 크기 유지·얼굴만 가로 가운데, none: 기본 가운데 자르기 */
+  mode: "tight" | "center" | "none";
+  status?: "ok" | "small" | "large";
+  crop?: CropRect;
+  ratio?: number;
+  achieved?: number;
+  clamped?: boolean;
+}
+
+/**
+ * 단일 규격 저장의 기본 영역: 머리 위치(측정값)가 있고 규격에 공식 머리 비율 기준이 있으면
+ * 작음·큼은 기준 중앙값으로 맞춘 영역(tightCrop), 범위 안은 얼굴만 가로 가운데로(centerFaceCrop).
+ * 측정값이 없거나 기준이 없는 규격이면 none(기존 가운데 자르기).
+ */
+export function recommendSizedCrop(
+  m: { crownY: number; chinY: number; centerX?: number } | null | undefined,
+  preset: { width: number; height: number; headRange?: [number, number] },
+  srcW: number, srcH: number,
+): SizedRecommendation {
+  if (!m || !preset.headRange || !(m.chinY > m.crownY)) return { mode: "none" };
+  const cx = typeof m.centerX === "number" ? m.centerX : 0.5;
+  const ratio = headInCrop(m.crownY, m.chinY, srcW, srcH, preset).ratio;
+  const ev = evaluateHead(ratio, preset.headRange);
+  if (ev.status === "ok") return { mode: "center", status: "ok", ratio, crop: centerFaceCrop(cx, srcW, srcH, preset), achieved: ratio };
+  const t = tightCrop(m.crownY, m.chinY, srcW, srcH, preset, (preset.headRange[0] + preset.headRange[1]) / 2, cx);
+  return { mode: "tight", status: ev.status, ratio, crop: t.crop, achieved: t.achievedRatio, clamped: t.clamped };
+}
+
 /**
  * 사용자가 사진에서 직접 찍은 두 점(정수리, 턱 끝)을 머리 측정값(0~1)으로 바꾼다.
  * 위쪽 점이 정수리·아래쪽 점이 턱이며, 가로 중심은 두 점의 평균이다. 두 점이 너무 가까우면 null.

@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-18 — 스테이징을 비어 있다고 확인한 몇 초 뒤 다른 CLI가 파일을 올려 내 커밋에 섞임 (커밋 `4a7beba0`, Claude Code 윈도우)
+- **증상**: banana-canvas 문서 1개 + `DESIGN.md` 한 줄만 커밋하려 했는데, 커밋 결과에 AGY의 emotion-writer v1.15 파일 16개·`HANDOFF.md` 항목이 함께 들어가 푸시됨(내용 손실은 없음).
+- **원인**: `git diff --cached`로 "비어 있음"을 확인한 명령과 `git add`·`git commit` 명령이 따로 실행됐고, 그 사이에 AGY가 같은 공용 인덱스에 스테이징했다. 커밋 직전 `--stat`을 출력했지만 확인 없이 같은 명령에서 바로 커밋했다.
+- **해결**: 이미 푸시돼 기록은 되돌리지 않음(강제 푸시·revert는 다른 CLI 작업을 꼬이게 함). HANDOFF에 사실을 남김.
+- **다음부터**: 한 명령 안에서 ① 내 파일 스테이징 ② `git diff --cached --name-only`가 **내가 지정한 경로 목록과 정확히 같은지** 비교 ③ 다르면 `exit 1`로 커밋하지 않고 멈춤. 예: `[ "$(git diff --cached --name-only | sort)" = "$(printf '%s\n' <내 경로들> | sort)" ] && git commit ... || echo "남의 스테이징 있음 — 중단"`.
+
 ## 2026-10-18 — 공용 문서(`docs/ACTIVE_WORK.md`)가 통째로 한글 깨짐 + BOM으로 다시 저장됨 (발견·복구: Claude Code 윈도우)
 - **증상**: 작업 중 표 파일의 모든 한글이 `?묒뾽 以??` 같은 글자로 바뀌고 맨 앞에 BOM(`EF BB BF`)이 붙음. 표 머리글 문자열이 달라져 다른 CLI의 줄 추가·삭제 스크립트가 실패.
 - **원인(추정)**: 어떤 도구가 UTF-8 파일을 시스템 기본 코드페이지(cp949)로 읽고 UTF-8(BOM)로 다시 저장 — Windows PowerShell 5.1 `Get-Content`/`Set-Content` 기본값으로 흔히 생김. 커밋 전 작업 폴더에서만 생겼고 HEAD는 정상.

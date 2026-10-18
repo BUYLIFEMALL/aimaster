@@ -530,3 +530,39 @@ test("규격 변경 시 측정값 재사용·보고 문구·한국 여권 공식
   assert.match(small.text, /^수동 지정: 머리 약 43% → 확대 자르기로 약 76%$/);
   assert.match(describeBatchDecision({ status: "small", ratio: 0.3, achieved: 0.6, clamped: true, crop: { sx: 0, sy: 0, sw: 1, sh: 1 } }).text, /원본 한계/);
 });
+
+test("규격 저장 추천 영역(recommendSizedCrop)", async () => {
+  const { recommendSizedCrop, coverCrop, sizePresetById, evaluateHead } = await import("../src/lib/portrait/post.ts");
+  const tw = sizePresetById("tw-passport");
+  const range = tw.headRange;
+  const W = 864, H = 1184;
+  const inside = (c) => c.sx >= 0 && c.sy >= 0 && c.sx + c.sw <= W && c.sy + c.sh <= H;
+
+  // 작음: 머리 36% → 기준 중앙값으로 확대
+  const s = recommendSizedCrop({ crownY: 0.2, chinY: 0.56, centerX: 0.5 }, tw, W, H);
+  assert.equal(s.mode, "tight");
+  assert.equal(s.status, "small");
+  assert.ok(s.ratio < range[0] && inside(s.crop));
+  assert.equal(evaluateHead(s.achieved, range).status, "ok", `달성 ${s.achieved}`);
+
+  // 범위 안: 기본 자르기 크기 그대로, 얼굴만 가로 가운데
+  const base = coverCrop(W, H, tw.width, tw.height, 0.15);
+  const okHead = (range[0] + range[1]) / 2 * base.sh / H;
+  const o = recommendSizedCrop({ crownY: 0.1, chinY: 0.1 + okHead, centerX: 0.4 }, tw, W, H);
+  assert.equal(o.mode, "center");
+  assert.equal(o.status, "ok");
+  assert.deepEqual([o.crop.sw, o.crop.sh, o.crop.sy], [base.sw, base.sh, base.sy]);
+
+  // 큼: 기본 자르기가 이미 원본 최대 크기라 비율은 못 낮춤(clamped) — 머리 기준 위치만 맞추고 머리는 잘리지 않음
+  const l = recommendSizedCrop({ crownY: 0.08, chinY: 0.86, centerX: 0.5 }, tw, W, H);
+  assert.equal(l.mode, "tight");
+  assert.equal(l.status, "large");
+  assert.equal(l.clamped, true);
+  assert.ok(inside(l.crop) && l.achieved <= l.ratio + 1e-6);
+  assert.ok(0.08 * H >= l.crop.sy && 0.86 * H <= l.crop.sy + l.crop.sh, "머리가 잘리지 않음");
+
+  // 측정값 없음·기준 없는 규격·잘못된 측정값 → none
+  assert.equal(recommendSizedCrop(null, tw, W, H).mode, "none");
+  assert.equal(recommendSizedCrop({ crownY: 0.2, chinY: 0.56 }, { width: 413, height: 531 }, W, H).mode, "none");
+  assert.equal(recommendSizedCrop({ crownY: 0.5, chinY: 0.4 }, tw, W, H).mode, "none");
+});
