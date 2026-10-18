@@ -370,6 +370,27 @@ export function recommendSizedCrop(
   return { mode: "tight", status: ev.status, ratio, crop: t.crop, achieved: t.achievedRatio, clamped: t.clamped };
 }
 
+/**
+ * v1.26 브라우저 안 얼굴 인식(MediaPipe FaceLandmarker, 얼굴 점 478개, 0~1 정규화 좌표)으로 머리 위치를 추정한다.
+ * 턱 끝 = 점 152, 이마 위 = 점 10. 머리카락까지의 정수리는 얼굴 점으로 나오지 않아 `이마 위 − α × (턱 − 이마 위)`로 추정한다
+ * (α는 시험 사진으로 보정 — FACE_CROWN_ALPHA). 가로 중심은 양 볼 끝(점 234·454)의 가운데. 얼굴이 너무 작으면 null.
+ * 보정(2026-10-19, `tests/face-calibrate.mjs`): 시험 사진 3장의 눈대중 정수리와 비교해 α = 0.41·0.44·0.40 → 평균 0.42
+ * (머리 비율 오차 약 ±2%p). 머리 숱이 많거나 올림머리면 정수리가 더 위일 수 있어 [직접 지정]으로 덮어쓸 수 있게 둔다.
+ */
+export const FACE_CROWN_ALPHA = 0.42;
+export function landmarksToMeasure(
+  pts: { x: number; y: number }[] | null | undefined,
+  alpha = FACE_CROWN_ALPHA,
+): { crownY: number; chinY: number; centerX: number } | null {
+  if (!pts || pts.length < 455) return null;
+  const top = pts[10], chin = pts[152], left = pts[234], right = pts[454];
+  if (!top || !chin || !left || !right) return null;
+  const face = chin.y - top.y;
+  if (!(face > 0.05)) return null;
+  const clamp = (n: number) => Math.max(0, Math.min(1, n));
+  return { crownY: clamp(top.y - alpha * face), chinY: clamp(chin.y), centerX: clamp((left.x + right.x) / 2) };
+}
+
 /** v1.24 프로필 사진 세트(SNS·메신저 프로필용). 증명사진 규격과 별개로 한 번에 ZIP 저장한다. */
 export interface ProfileFormat { id: string; label: string; width: number; height: number; circle: boolean }
 export const PROFILE_FORMATS: ProfileFormat[] = [

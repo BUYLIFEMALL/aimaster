@@ -20,6 +20,12 @@ const server = createServer((req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (req.url.startsWith("/test.js")) { res.setHeader("Content-Type", "application/javascript"); res.end(bundle.outputFiles[0].text); }
   else if (req.url.startsWith("/test.css")) { res.setHeader("Content-Type", "text/css"); res.end(css); }
+  else if (req.url.startsWith("/mediapipe/")) {
+    // v1.26 브라우저 안 얼굴 인식 파일(운영과 같은 public/mediapipe)
+    const f = req.url.split("?")[0];
+    res.setHeader("Content-Type", f.endsWith(".wasm") ? "application/wasm" : f.endsWith(".js") ? "application/javascript" : "application/octet-stream");
+    readFile(path.join("public", f)).then((b) => res.end(b), () => { res.statusCode = 404; res.end(); });
+  }
   else { res.setHeader("Content-Type", "text/html;charset=utf-8"); res.end(PAGE); }
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
@@ -32,6 +38,9 @@ const page = await context.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 const calls = [];
+// 1단계는 얼굴 인식 파일을 막아 "자동 추정 실패 → 예전 흐름"을, 2단계는 풀어서 자동 추정을 검사한다
+let blockFace = true;
+await page.route("**/mediapipe/**", (route) => (blockFace ? route.abort() : route.continue()));
 
 await page.route("**/api/**", async (route) => {
   const url = new URL(route.request().url());
@@ -117,6 +126,25 @@ try {
   }
   await dlg.waitFor({ state: "detached" });
   pass(`프로필 세트: 미리보기 3장 → 원형 흰색 → ZIP(${Math.round(zip.data.length / 1024)}KB, 3개 파일)`);
+
+  // 2단계(v1.26): 얼굴 인식 파일 허용 → 생성 직후 아무것도 누르지 않아도 머리 위치 자동 추정 → [규격 저장]이 추천 영역
+  blockFace = false;
+  const headBefore = calls.filter((c) => c.path === "/api/headcheck").length;
+  await page.goto(origin);
+  await page.locator("input[type=file]").first().setInputFiles({ name: "portrait.png", mimeType: "image/png", buffer: png });
+  await page.locator(".dropzone.has img").waitFor();
+  await page.locator(".st-own input[type=checkbox]").first().check();
+  await page.getByRole("button", { name: "인물 사진 만들기" }).click();
+  await page.locator(".st-stage img").waitFor();
+  await page.getByText("머리 위치: 브라우저 자동 추정").waitFor({ timeout: 60000 });
+  const autoBtn = saveRow().getByRole("button", { name: /^규격 저장/ });
+  assert.ok((await autoBtn.innerText()).includes("추천 영역"), "자동 추정만으로 추천 영역 적용");
+  assert.equal(await page.getByText("머리 위치를 아직 모릅니다").count(), 0);
+  const autoSized = await download(() => autoBtn.click());
+  assert.match(autoSized.name, /-추천-/);
+  const autoNotice = await page.getByText(/추천 영역으로 저장했습니다\(머리 약 \d+% → \d+%/).first().innerText();
+  assert.equal(calls.filter((c) => c.path === "/api/headcheck").length, headBefore, "자동 추정은 AI 검사를 부르지 않음");
+  pass(`브라우저 자동 추정: 누르지 않아도 추천 영역 저장(${autoSized.name}) · AI 호출 0회 · ${autoNotice.match(/머리 약 \d+% → \d+%/)[0]}`);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(400);

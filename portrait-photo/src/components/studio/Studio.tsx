@@ -14,6 +14,7 @@ const MAX_BATCH = 6;
 
 /** v1.24 프로필 세트 미리보기 한 장(미리보기와 저장에 같은 그림을 쓴다) */
 interface ProfileItem { label: string; circle: boolean; name: string; blob: Blob; url: string }
+import { detectHeadLocal } from "@/lib/portrait/faceLocal";
 import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
@@ -85,7 +86,9 @@ export function Studio({ userId }: { userId: string }) {
   const [cropOpen, setCropOpen] = useState<{ w: number; h: number } | null>(null);
   const [autoConfirm, setAutoConfirm] = useState(false);
   const [pendingCrop, setPendingCrop] = useState(false);
-  const [measures, setMeasures] = useState<Record<number, { crownY: number; chinY: number; centerX: number; srcW: number; srcH: number; manual: boolean }>>({});
+  // auto: v1.26 브라우저 안 얼굴 인식으로 자동 추정한 값(AI 검사·직접 지정이 들어오면 덮어씀)
+  const [measures, setMeasures] = useState<Record<number, { crownY: number; chinY: number; centerX: number; srcW: number; srcH: number; manual: boolean; auto?: boolean }>>({});
+  const [faceDetecting, setFaceDetecting] = useState(false);
   const [markStart, setMarkStart] = useState(false);
   const [retryConfirm, setRetryConfirm] = useState(false);
   const [autoBusy, setAutoBusy] = useState(false);
@@ -155,6 +158,25 @@ export function Studio({ userId }: { userId: string }) {
       .finally(() => { if (alive) setCleaning(false); });
     return () => { alive = false; };
   }, [result, whiten]);
+
+  // v1.26: 결과가 나오면 회원 PC 브라우저 안에서 얼굴을 찾아 머리 위치를 자동 추정(사진 서버 전송·AI 호출 없음).
+  // 아직 측정값이 없는 결과만, 한 장씩 순서대로. 이미 AI 검사·직접 지정 값이 있으면 건드리지 않는다.
+  useEffect(() => {
+    let alive = true;
+    const todo = results.map((url, i) => ({ url, fi: sources[i] ?? i })).filter((x) => x.url && !measures[x.fi]);
+    if (todo.length === 0) return;
+    setFaceDetecting(true);
+    (async () => {
+      for (const { url, fi } of todo) {
+        const m = await detectHeadLocal(url).catch(() => null);
+        if (!alive) return;
+        if (m) setMeasures((cur) => (cur[fi] ? cur : { ...cur, [fi]: { ...m, manual: false, auto: true } }));
+      }
+      if (alive) setFaceDetecting(false);
+    })();
+    return () => { alive = false; setFaceDetecting(false); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results, sources]);
 
   const shown = whiten && cleaned ? cleaned.url : result;
   useEffect(() => { setCropOpen(null); }, [shown]);
@@ -813,14 +835,17 @@ export function Studio({ userId }: { userId: string }) {
             )}
             {notice && !error && <p className="notice">{notice}</p>}
             {shown && (() => {
-              const { rec } = sizedRecommendation();
+              const { rec, m } = sizedRecommendation();
               if (rec.mode === "none") return null;
               const pct = (n: number) => Math.round(n * 100);
+              const isAuto = !!(m && "auto" in m && m.auto);
               return (
                 <p className="notice head-ok" role="status">
+                  {isAuto && <b>머리 위치: 브라우저 자동 추정 · </b>}
                   {rec.status === "small" && <>[규격 저장] 시 추천 영역이 자동 적용됩니다 — 얼굴 쪽으로 확대(머리 약 {pct(rec.ratio ?? 0)}% → {pct(rec.achieved ?? 0)}%).</>}
                   {rec.status === "large" && <>머리가 기준보다 큽니다(약 {pct(rec.ratio ?? 0)}%). [규격 저장] 시 머리가 잘리지 않게 위치만 맞춥니다. 상체가 더 보이게 다시 만들면 좋습니다.</>}
                   {rec.status === "ok" && <>머리 약 {pct(rec.ratio ?? 0)}%로 기준 범위 안입니다. [규격 저장] 시 얼굴을 가로 가운데로 맞춥니다.</>}
+                  {isAuto && <> 추정이 어긋나 보이면 [자르기 영역 조정]의 얼굴 위치 직접 지정(무료)이나 [머리 비율 검사]로 고칠 수 있어요.</>}
                 </p>
               );
             })()}
@@ -878,7 +903,10 @@ export function Studio({ userId }: { userId: string }) {
             <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
               {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
             </button>
-            {shown && sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none" && !headBusy && (
+            {shown && sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none" && faceDetecting && (
+              <p className="notice" role="status"><Loader2 size={14} className="ls-spin" /> 얼굴 위치를 이 브라우저 안에서 자동으로 찾는 중입니다(사진은 서버로 보내지 않아요)…</p>
+            )}
+            {shown && sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none" && !headBusy && !faceDetecting && (
               <p className="notice warning" role="status">
                 머리 위치를 아직 모릅니다. 지금 [규격 저장]은 가운데를 자릅니다 — <b>[머리 비율 검사 (AI 1회)]</b> 또는 <b>[얼굴 위치 직접 지정 (무료)]</b>을 먼저 하면 공식 머리 기준에 맞춘 추천 영역으로 저장됩니다.
               </p>

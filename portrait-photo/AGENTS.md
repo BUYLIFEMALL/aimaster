@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.25)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.26)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -135,11 +135,19 @@
 - **실행**: `npm run test:browser` (보이는 Chrome 창이 잠깐 열림). 입력 사진 `test-artifacts/out-business-pro.png`(AI 가상 인물)이 필요한데 `test-artifacts/`는 Git 제외 — 다른 PC에서는 임의의 인물 PNG를 같은 이름으로 넣는다. 실패하면 `test-artifacts/browser-fail.png`에 화면이 남는다.
 - **검수 순서 권장**: 화면 동작을 바꾼 작업은 배포 전에 `npx tsc --noEmit` → `npm test` → `npm run test:browser` → `npm run build`.
 
+## 2026-10-19 v1.26 — 브라우저 안 얼굴 인식으로 머리 위치 자동 측정 (Claude Code 윈도우)
+- **한 일**: 결과가 나오면 회원 PC 브라우저 안에서 Google MediaPipe **FaceLandmarker**(`@mediapipe/tasks-vision` **1.0.0 고정** — 최신 1.1.1은 출시 5일이라 2026-07 판 사용)로 얼굴 점 478개를 찾아 머리 위치를 자동 추정 → 아무것도 누르지 않아도 [규격 저장]·[규격으로 일괄 저장]·[프로필 세트]가 머리 기준 추천 영역으로 동작. **사진 서버 전송·AI 호출 없음.**
+- **계산**: `post.ts` `landmarksToMeasure` — 턱 = 점 152, 이마 위 = 점 10, 정수리 = 이마 위 − α × (턱 − 이마 위), 가로 중심 = 점 234·454 가운데. **α = 0.42**(`FACE_CROWN_ALPHA`, 시험 사진 3장 눈대중 정수리와 비교해 0.41·0.44·0.40, 머리 비율 오차 약 ±2%p). 보정 도구 `node tests/face-calibrate.mjs <사진...>`.
+- **파일**: `src/lib/portrait/faceLocal.ts`(처음 쓸 때만 동적 불러오기, 실패하면 다음에 재시도), 모델·실행 파일은 **`public/mediapipe/`에 함께 배포**(외부 CDN 의존 없음: `face_landmarker.task` 3.7MB — Google 공식 `storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/`, SHA-256 `64184E22…BC9FF` / `wasm/vision_wasm_internal.*`(SIMD)·`vision_wasm_nosimd_internal.*` — `node_modules/@mediapipe/tasks-vision/wasm/`에서 복사, 라이브러리 버전을 올리면 함께 다시 복사).
+- **화면**: `Studio.tsx` — `results`가 바뀌면 측정값 없는 결과만 한 장씩 자동 추정(`measures[fi].auto = true`), 진행 중엔 "브라우저 안에서 자동으로 찾는 중" 안내, 찾으면 녹색 안내에 「머리 위치: 브라우저 자동 추정」 + 고치는 방법. 우선순위: 직접 지정·AI 검사 값이 있으면 자동 추정이 덮어쓰지 않음. 얼굴을 못 찾으면 예전 흐름(측정 전 안내·강조 버튼).
+- **검수**: tsc 0, 단위 24/24(「얼굴 점 → 머리 위치」 추가), 브라우저 10/10 — 1단계는 얼굴 인식 파일을 막아 예전 흐름, 2단계는 허용해 **누르지 않아도 추천 영역 저장(머리 약 50% → 76%)·AI 호출 0회**. 빌드, Vercel 배포 Ready, 운영 주소에서 모델(200, 3.7MB)·wasm(200, application/wasm) 확인, DB v1.26.
+- **한계·주의**: 정수리는 얼굴 점이 아니라 비율 추정이라 머리숱·올림머리·모자에 따라 어긋날 수 있다(그래서 출처 표시와 직접 지정 안내를 둠). 첫 사용 때 약 15MB(모델+실행 파일)를 내려받는다(이후 브라우저 캐시). 옆모습·여러 사람·아주 작은 얼굴은 실패할 수 있다.
+
 ## 7대 핵심 항목 (2026-10-18 정리)
 1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
 2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.
 3. **핵심 기능·구조·장단점**: 목적 프리셋 5종 + 조명·카메라·배경·포즈·복장·피부·필름·보정 4종, 후보 1~4장·격자/확대 비교, 원본 비교 슬라이더, 규격 21종 저장·머리 비율 검사·자르기 영역 조정·얼굴 위치 직접 지정, 일괄 6장·ZIP. 장점: 원본 서버 미저장·본인 키·공식 출처로 확인한 규격. 단점: 머리 비율을 모델이 잘 못 따름(50~56%), `Studio.tsx` 한 파일이 큼(890줄), 안 쓰는 CSS 잔존, 실제 휴대폰 터치 미검수.
-4. **버전**: v1.25(운영). 이력은 위 각 절.
+4. **버전**: v1.26(운영). 이력은 위 각 절.
 5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
 6. **연계·아이디어**: 결과 사진을 AI 이미지 자동화 배경 교체·명함/이력서 프로그램으로 넘기기 등 — `docs/IMPROVEMENTS.md` 3절.
 7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 무대 배경 밝기 전환(흰/회색/검정), 라이트 테마 토글 — `docs/IMPROVEMENTS.md` 2절.

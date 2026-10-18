@@ -620,3 +620,23 @@ test("비즈니스·증명사진 구도 지시 분리(idFraming)", () => {
   assert.equal(parseGenerateRequest(req({})).value.prompt.idFraming, undefined);
   assert.equal(parseGenerateRequest(req({ idFraming: "yes" })).ok, false);
 });
+
+test("브라우저 얼굴 인식 점 → 머리 위치(landmarksToMeasure)", async () => {
+  const { landmarksToMeasure, FACE_CROWN_ALPHA } = await import("../src/lib/portrait/post.ts");
+  const pts = Array.from({ length: 478 }, () => ({ x: 0.5, y: 0.5 }));
+  pts[10] = { x: 0.5, y: 0.2 }; pts[152] = { x: 0.5, y: 0.6 }; pts[234] = { x: 0.3, y: 0.4 }; pts[454] = { x: 0.7, y: 0.4 };
+  const m = landmarksToMeasure(pts);
+  assert.ok(Math.abs(m.chinY - 0.6) < 1e-9);
+  assert.ok(Math.abs(m.crownY - (0.2 - FACE_CROWN_ALPHA * 0.4)) < 1e-9, "정수리 = 이마 위 − α × 얼굴 높이");
+  assert.ok(Math.abs(m.centerX - 0.5) < 1e-9);
+  // 보정 사진(out-id-photo-flash): 이마 0.193·턱 0.461 → 눈대중 정수리 0.074와 ±0.02 안
+  pts[10] = { x: 0.5, y: 0.1931 }; pts[152] = { x: 0.5, y: 0.4614 };
+  assert.ok(Math.abs(landmarksToMeasure(pts).crownY - 0.0743) < 0.02);
+  // 위로 넘치면 0으로, 얼굴이 너무 작거나 점이 모자라면 null
+  pts[10] = { x: 0.5, y: 0.05 }; pts[152] = { x: 0.5, y: 0.6 };
+  assert.equal(landmarksToMeasure(pts).crownY, 0);
+  pts[10] = { x: 0.5, y: 0.5 }; pts[152] = { x: 0.5, y: 0.52 };
+  assert.equal(landmarksToMeasure(pts), null);
+  assert.equal(landmarksToMeasure(pts.slice(0, 100)), null);
+  assert.equal(landmarksToMeasure(null), null);
+});

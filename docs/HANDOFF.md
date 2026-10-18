@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — AI 인물사진 v1.26: 브라우저 안 얼굴 인식으로 머리 위치 자동 측정
+
+- **한 일**: 결과가 나오면 회원 PC 브라우저 안에서 MediaPipe FaceLandmarker(`@mediapipe/tasks-vision` 1.0.0 고정)로 머리 위치를 자동 추정 → 누르지 않아도 규격 저장·일괄 저장·프로필 세트가 머리 기준 추천 영역. 사진 서버 전송·AI 호출 없음. 정수리 추정 비율 α=0.42(시험 사진 3장 보정, 오차 약 ±2%p). 모델·실행 파일은 `portrait-photo/public/mediapipe/`에 함께 배포.
+- **검수**: tsc 0, 단위 24/24, 브라우저 10/10(얼굴 인식 차단 시 예전 흐름 + 허용 시 자동 추천 영역·AI 0회), 빌드, Vercel Ready, 운영 모델·wasm 200, DB v1.26. **남음**: 운영 화면 생성 사진으로 자동 추정 확인(Flash 1회, 주인님 확인 대기).
+- **참고(다른 CLI)**: 이 저장소에서 처음 쓰는 브라우저 얼굴 인식 부품 — 다른 이미지 프로그램(4컷 만화 캐릭터 정면 확인, 인플루언서 얼굴 일관성 점검 등)에서 재사용 가능. 상세 `portrait-photo/AGENTS.md` v1.26 절.
+- https://portrait-photo.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 유튜브 썸네일 프로 v1.10: 크리에이티브 아틀리에 프로 썸네일 캔버스 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 57개 완료 / 68.7% 달성!)
 
 - **대상**: `seo-thumbnail-pro/` (https://seo-thumbnail-pro.buylife.xyz, slug: `seo-thumbnail-pro`, 22번)
