@@ -298,7 +298,9 @@ export function Studio({ userId }: { userId: string }) {
 
   /** 일괄 검사 보고에서 해당 사진의 영역 조정(또는 얼굴 위치 직접 지정)을 연다 */
   function gotoCrop(i: number, mark: boolean) {
-    setGrid(false); setZoomOn(false); setCropOpen(null); setCleaned(null);
+    // 같은 사진이면 순백 정리본을 지우지 않는다 — result가 그대로라 정리 효과가 다시 돌지 않아 패널이 열리지 않던 문제(v1.24 바로가기에서 발견)
+    setGrid(false); setZoomOn(false); setCropOpen(null);
+    if (i !== active) setCleaned(null);
     setActive(i); setMarkStart(mark); setPendingCrop(true);
   }
 

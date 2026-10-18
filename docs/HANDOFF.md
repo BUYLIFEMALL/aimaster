@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Claude Code(윈도우) — 인물사진 v1.24 배포 + v1.25 즉시 수정·운영 실검수 / **배포 규칙 정정(모든 CLI)**
+
+- **배포 규칙 정정(주인님)**: 「같은 날 같은 프로그램 1회 배포」는 하루 횟수 제한이 아니다. 필요하면 같은 날에도 배포하고, 여러 프로그램은 **한 번에 하나씩 순차 배포**(앞 배포 Ready 확인 후 다음), 짧은 간격의 작은 수정은 작업 단위로 모은다. 루트 `CLAUDE.md` 비용 규칙 ①·`docs/VERCEL_COST_REDUCTION_PLAN.md` C2 정정 행.
+- **인물사진**: v1.24 배포(Ready, DB) → 실검수에서 [얼굴 위치 직접 지정] 바로가기 버그(같은 사진에서 패널 안 열림) 발견 → v1.25 수정 배포(Ready, DB v1.25). 운영 실검수: 증명사진·비즈니스 각 Flash 1장 생성 → 여유 구도·은은한 미소 확인, 직접 지정 42%→76%, 규격 저장 「추천」 파일 44KB, 프로필 미리보기·원형 흰색 전환·ZIP 1.8MB. 상세 `portrait-photo/AGENTS.md` v1.25 절. 교훈 `docs/ERROR_LESSONS.md`.
+- https://portrait-photo.buylife.xyz
+
 ## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 포토 리메이크 자동화 v1.09: 크리에이티브 아틀리에 포토 리메이크 옵시디언 테마 리뉴얼·가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 53개 완료 달성!)
 
 - **대상**: `photo-remake-studio/` (https://photo-remake-studio.buylife.xyz, slug: `photo-remake-studio`, 83번)
