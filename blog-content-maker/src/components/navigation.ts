@@ -7,5 +7,5 @@ export const STEPS = [
  { id: "export", title: "네이버로 옮기기", description: "미리보기 · 복사 · 확장 입력", number: "5" },
  { id: "library", title: "작업 보관함", description: "원고와 수정 이력", number: "▤" },
  { id: "settings", title: "API키등록·플랫폼연동", description: "본인 AI 키 · 모델 · 확장 연결", number: "⚙" },
- { id: "guide", title: "사용 안내", description: "제작 흐름과 연동 매뉴얼", number: "?" },
+ { id: "guide", title: "연동 & 사용 매뉴얼", description: "제작 흐름과 네이버 연동 매뉴얼", number: "📖" },
 ];

@@ -1,5 +1,64 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 블로그 콘텐츠 제작 자동화 v1.10: 플로우 위저드 단계별 블로그 콘텐츠 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·확장 동기화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 56개 완료 / 67.5% 달성!)
+
+- **대상**: `blog-content-maker/` (https://blog-content-maker.buylife.xyz, slug: `blog-content-maker`, 75번)
+- **한 일**:
+  1. **플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션 (Flow Wizard Style — Editorial Step-by-Step Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(대시보드, 블로그 글 작성 에디터, 보관함, 비주얼 가이드북, 환경설정) 배경을 소프트 화이트 (`#f8fafc`), 퓨어 화이트 카드 (`#ffffff`), 주조 포인트 인디고 블루 (`#2563eb`), 에메랄드 그린 (`#10b981`), 슬레이트 보더 (`#e2e8f0`)로 통일.
+     - 블로그 초안 생성, 소제목/목차 추출, SEO 메타태그 및 해시태그 최적화, 네이버 블로그 스마트에디터 원클릭 복사/발행 연동의 기존 로직 무결성을 100% 보존.
+  2. **사이드바 메뉴명 표준화**:
+     - 좌측 사이드바 매뉴얼 링크를 **`📖 연동 & 사용 매뉴얼`**로 표준화 (`src/components/navigation.ts`, `DESIGN.md` 9번 원칙 충족).
+  3. **비주얼 에디토리얼 가이드북 (`GuideView.tsx`) 전면 고도화**:
+     - 인디고 그라디언트 히어로 배너 (`BLOG CONTENT MAKER EDITORIAL GUIDE` & `v1.10 플로우 위저드 에디션` 배지 신설).
+     - **5단계 핵심 워크플로우 비주얼 카드**:
+       1. `STEP 1. 키워드 & 주제 발굴`: 네이버/구글 검색 의도 분석 및 메인/서브 키워드 선정.
+       2. `STEP 2. AI 아웃라인 & 목차 설계`: 도입부-본문 3단-결론 논리 구조 자동 생성.
+       3. `STEP 3. 롱폼 에디토리얼 글 작성`: 전문성 있는 문체와 자연스러운 문장 연결.
+       4. `STEP 4. SEO 태그 & 썸네일 키워드 완성`: 스마트블록/View탭 최적화 태그 및 비주얼 제안.
+       5. `STEP 5. 네이버 블로그 원클릭 복사 & 발행`: 크롬 확장을 통한 서식 보존 자동 클립보드 붙여넣기.
+     - **크롬 확장 연동 안내 및 다운로드 링크**: 서식 보존 복사, 스마트에디터 자동 매핑 안내.
+     - **자주 묻는 질문 (FAQ 5종 아코디언)**: 작성 시간, 네이버 저품질 방지 팁, API 키 보안, 서식 유지 방법 등 완비.
+  4. **모바일 390px / 데스크톱 1920px 반응형 뷰포트 최적화**:
+     - 가로 스크롤 넘침 0px 완벽 방어, 카드 그리드 자동 스택.
+  5. **전용 크롬 확장 및 DB 버전 4중 동기화 (v1.10)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), `extension/manifest.json` (`1.10.0`/`v1.10`).
+     - Supabase DB `programs` 메타데이터 업데이트: `version: v1.10`, `extension_version: v1.10` 동기화 완료.
+     - 로컬 번들 패키징을 통해 `public/downloads/blog-content-maker-extension-latest.zip` 갱신 배포.
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 10개 테스트 케이스 100% 통과 (339ms).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.1 Turbopack 프로덕션 빌드 성공.
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_AoHyKtbyi1EnuQQ69GzKjeJiU71U`
+     - 공식 도메인 즉시 반영: https://blog-content-maker.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 주인님 실시간 모니터링 보장)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면(최대화)으로 띄워 10분간 화면 유지.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_blog_content_desktop_dashboard_v110.png`: 1440px 데스크톱 대시보드
+       - `edge_blog_content_desktop_write_v110.png`: 1440px 데스크톱 글 작성 에디터
+       - `edge_blog_content_desktop_guide_v110.png`: 1440px 데스크톱 비주얼 가이드북
+       - `edge_blog_content_desktop_settings_v110.png`: 1440px 데스크톱 환경설정
+       - `edge_blog_content_mobile_dashboard_v110.png`: 모바일 390px 대시보드
+       - `edge_blog_content_mobile_guide_v110.png`: 모바일 390px 비주얼 가이드북
+  9. **문서 6종 작성 완료**:
+     - `blog-content-maker/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `blog-content-maker/README.md` (동기화 생성)
+     - `blog-content-maker/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `blog-content-maker/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `blog-content-maker/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `blog-content-maker/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 75번 행 ✅ 1차 작업완료 (`v1.10`, 플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션) 갱신 및 전체 통계 (누적 ✅ 56개 완료 / ⚪ 25개 예정 / ⏸ 2개 보류 — 67.5% 달성)
+      - `docs/ACTIVE_WORK.md`: 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - `buylifemall@naver.com` 일반 회원 테스트 계정으로 대시보드 진입, 블로그 글 작성 탭 이동, 비주얼 가이드북 아코디언 FAQ 및 5단계 카드 정상 확인, 확장 zip 다운로드 파일 생성 확인.
+- **못 한 것**:
+  - 유료 Gemini API 생성 실제 호출(테스트 비용 최소화 지침 준수).
+- **프로그램 링크**:
+  - https://blog-content-maker.buylife.xyz
+
 ## 2026-10-18 Claude Code(윈도우) — 인물사진 브라우저 자동 테스트 추가(앱 코드 무변경) + **AGY 앞 연계 제안**
 
 - **인물사진**: `test:browser` 명령만 있고 파일이 없던 것을 채움 — `tests/browser.mjs`·`browser-entry.tsx`(모의 API, AI 비용 없음, 보이는 Chrome). 검사 9개 통과, v1.24 코드로 되돌리면 「직접 지정 패널」 단계에서 실패함을 확인(회귀 검사 유효). 사용법 `portrait-photo/AGENTS.md`. 배포 없음.

@@ -1,43 +1,42 @@
-# AI 블로그 콘텐츠 제작 자동화
+# AI 블로그 콘텐츠 제작 자동화 (blog-content-maker)
 
-버전 **v1.03**, AIMaster 서브프로그램 `blog-content-maker`. 운영 주소: https://blog-content-maker.buylife.xyz
+주제나 기존 원고를 바탕으로 클릭을 부르는 글감 발굴부터 5단계 플로우 위저드 기반 원고 작성, 실시간 문장/품질 점검, Gemini 최신 이미지 제작, 그리고 전용 크롬 확장을 통한 네이버 스마트에디터 ONE 자동 전송까지 지원하는 올인원 블로그 마케팅 솔루션입니다.
 
-주제나 기존 원고에서 제목·본문·이미지를 만들고, 사실·표현을 점검한 뒤 회원의 네이버 편집기로 옮기는 제작 도구입니다. 회원 본인의 Gemini/OpenAI 키만 사용하며 AIMaster 통합 로그인·사용 권한·회원별 키 저장소를 재사용합니다.
+- **공식 서비스 URL**: [https://blog-content-maker.buylife.xyz](https://blog-content-maker.buylife.xyz)
+- **현재 버전**: `v1.10` (확장 프로그램: `v1.10`, package: `1.10.0`)
+- **적용 템플릿**: **플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션**
 
-- 글감·제목 10개 추천, 주제 작성과 기존 글·TXT/MD/HTML 다듬기, 작성 방식 5종.
-- 원문·수정 이력 보존, 충돌 시 덮어쓰기 차단, 직접 편집·재점검, AI 검토·SNS 문구.
-- 실제 파일 기준 이미지 점검, 본문 이미지·제품 사진 합성·영상용 첫/끝 장면 이미지 계획과 개별 생성.
-- 비공개 이미지 저장, ALT·삽입 위치·지시문 번역, 텍스트/서식 복사, Markdown·HTML·이미지 포함 ZIP.
-- 본인 원고 읽기 전용 연결 코드와 Chrome 확장. 빈 네이버 편집기에 입력하며 최종 발행은 회원이 직접 합니다.
-- 흰색 작업 화면, 767px 이하 접는 메뉴, 생성일부터 30일 보관·만료 후 다음 접속 시 정리.
+---
 
-점검 충족률은 네이버 공식 점수나 검색 순위가 아닙니다. 장면 이미지는 MP4 영상 생성과 다릅니다. 실제 경험과 최신 사실은 회원이 확인합니다.
+## 1. 개요 및 사용 목적
+- 글감·제목 10개 추천부터 정보성/후기형 5가지 모드의 원고 작성 지원.
+- 원문과 수정 이력을 보존하며, 반복 단어·FAQ·문단 길이 실시간 점검(Audit).
+- Gemini 최신 모델(`gemini-nano-banana-2.1`, `gemini-3-pro-image`)을 활용한 본문 이미지 및 제품 합성 이미지 생성.
+- 전용 크롬 확장을 통해 네이버 스마트에디터 ONE에 제목·본문·이미지 원클릭 자동 입력.
 
-Gemini 검색을 켜면 근거 조사와 원고 구성을 같은 본인 모델·키로 나누어 호출합니다. 실제 검색 출처가 없는 경우 중단하며 키·제공사를 임의로 바꾸지 않습니다.
+---
 
-## 개발·검수
+## 2. 5단계 핵심 작업 흐름 (Workflow Pipeline)
+1. **글감·제목 찾기 (`/ideas`)**: 핵심 키워드 입력 시 10가지 매력적인 제목 추천
+2. **원고 만들기 (`/write`)**: 5가지 작성 모드로 서론·본론·결론 완성형 초안 작성
+3. **글 점검·다듬기 (`/review`)**: 제목 일치율, 반복 단어, 문단 길이 실시간 점검
+4. **이미지·장면 준비 (`/images`)**: 본문 소주제별 설명 및 제품 합성 이미지 제작
+5. **네이버로 옮기기 (`/export`)**: 전용 크롬 확장으로 네이버 편집기 자동 입력 및 ZIP/HTML 내보내기
 
-이 폴더에서 `npm ci`, `npm run dev`(3065), `npm test`, `npm run lint`, `npm run build`를 실행합니다. `.env.example`의 플랫폼 DB URL·공개 키·서버 키를 등록합니다. 공개 키는 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, 서버 키는 `SUPABASE_SECRET_KEY`를 우선 읽고, 비었으면 기존 `NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`를 사용합니다. **안정화 전에는 기존 항목과 키를 삭제하지 않습니다.** AI 키는 환경변수에 넣지 않습니다. [운영 지침·Vercel 단계별 안내](../docs/SUPABASE_API_KEY_COMPATIBILITY.md)
+---
 
-`prebuild`가 확장 버전을 검사하고 고정 주소의 ZIP을 만듭니다. 설치된 확장은 **ZIP 재다운로드 → 덮어쓰기 → chrome://extensions 새로고침**으로 갱신합니다.
+## 3. 기술 스택
+- Next.js 16.4.1 (Turbopack, App Router)
+- React 19.3.0, TypeScript 5.9.3
+- Google Gemini API (`@google/genai`), OpenAI API
+- Supabase (Auth, PostgreSQL, Storage)
+- Chrome Extension (Manifest V3)
 
-개발 PC에서 직접 불러올 전용 확장 소스는 **`D:\Antigravity\AIMaster\blog-content-maker\extension`**입니다. 다른 프로그램 폴더나 별도 확장 복사본을 사용하지 않습니다.
+---
 
-실제 Chrome 검수는 `scripts/verify-browser.mjs`를 사용합니다. `VERIFY_MODE=flow`는 시험 회원 본인 키로 원고·이미지를 실제 생성하므로 반복하지 않습니다. `live`는 저장된 결과·화면·권한을 유료 호출 없이 검사합니다. `features`는 추가 AI 기능을 소량 호출하고, `extension`은 연결 코드·현재 원고 조회·폐기와 임시 검수 작업 삭제를 검사합니다. 키·토큰은 출력하지 않습니다.
-
-로그인된 기본 Chrome의 실제 네이버 입력은 `node scripts/verify-native-extension.mjs`로 검사합니다. 설치된 확장 ID는 `BCM_EXTENSION_ID`로 지정할 수 있습니다. 일반 시험 회원 원고와 이미지를 별도 검수 작업으로 복사하며 AI 호출·최종 발행은 하지 않습니다. 준비된 검수 페이지에서 입력/기존 글 보호를 확인한 뒤 **검수 연결 해제·종료**로 마칩니다. 임시 검수 페이지는 `extension/verify-session/` 아래에만 만들며 Git·Vercel·다운로드 ZIP에서 제외하고 종료 시 삭제합니다.
-
-## 문서
-
-- [프로그램 등록·전용 썸네일·상세 소개 완료 기록](docs/CATALOG_REGISTRATION.md) — 2026-10-16 새 지침 적용, 운영 공개 페이지 검수 완료. [상세 소개 보기](https://www.buylife.xyz/programs/blog-content-maker)
-- [개발 계획·승인 범위](docs/DEVELOPMENT_PLAN.md)
-- [정적 분석 근거와 한계](docs/REFERENCE_ANALYSIS.md)
-- [검수·배포 기록](docs/VERIFICATION.md)
-- [재개 지침](AGENTS.md)
-
-분석 대상은 실행하지 않았으며 추출 코드·아이콘·원문 지시문을 새 제품에 포함하지 않았습니다. 분석 자료는 저장소 밖에 보관합니다. 플랫폼 공통 코드와 기존 자사 네이버 입력 도구는 재사용했습니다.
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (blog-content-maker)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 4. 인수인계 및 작업 문서
+- 개발 및 작업 지침 규격서: [`AGENTS.md`](AGENTS.md)
+- 디자인 리뉴얼 인수인계서: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
+- 개선 제안 보고서: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
+- 작업 대기 백로그: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
+- 사전 개발 플랜: [`docs/PLAN_20261018_DESIGN_RENEWAL.md`](docs/PLAN_20261018_DESIGN_RENEWAL.md)
