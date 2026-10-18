@@ -129,7 +129,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 57개 · ⚪ 24개 · 🟠 0개 · ⏸ 2개 — 총 83개 — 68.7% 달성):
+> **상태 구분** (2026-10-19 기준: ✅ 58개 · ⚪ 23개 · 🟠 0개 · ⏸ 2개 — 총 83개 — 69.9% 달성):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -165,7 +165,7 @@
 | 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ebook-studio/AGENTS.md` |
 | 21 | Website Scraper | `website-scraper` | **스마트 매트릭스 스타일** (Tailwind v4 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.12`, 스마트 매트릭스 스타일) | [`ghost-scraper/docs/DESIGN_HANDOFF.md`](ghost-scraper/docs/DESIGN_HANDOFF.md) |
 | 22 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | **크리에이티브 아틀리에 스타일 — 프로 썸네일 캔버스 변형** | 다크(미드나잇 다크 `#0c0f17` + 유튜브 레드 `#ff0000`·골드 앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.10`, 프로 썸네일 캔버스 변형) | [`seo-thumbnail-pro/docs/DESIGN_HANDOFF.md`](seo-thumbnail-pro/docs/DESIGN_HANDOFF.md) · [`seo-thumbnail-pro/docs/IMPROVEMENTS.md`](seo-thumbnail-pro/docs/IMPROVEMENTS.md) |
-| 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `style-dna-analyzer/AGENTS.md` |
+| 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | **크리에이티브 아틀리에 스타일 — 스타일 DNA 랩 에디션** | 다크(미드나잇 다크 `#0c0f17` + 시안 블루 `#06b6d4`·바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.22`, 스타일 DNA 랩 에디션) | [`style-dna-analyzer/docs/DESIGN_HANDOFF.md`](style-dna-analyzer/docs/DESIGN_HANDOFF.md) · [`style-dna-analyzer/docs/IMPROVEMENTS.md`](style-dna-analyzer/docs/IMPROVEMENTS.md) |
 | 24 | INSTA Cardnews 자동화 | `cardnews-studio` | **크리에이티브 아틀리에 스타일** (인스타 카드뉴스 변형) | 다크(인스타 선셋 그라디언트 & 미드나잇 `#0d0f17`) | ✅ 1차 작업완료 (`v1.15`, 크리에이티브 아틀리에 스타일) | [`cardnews-studio/docs/DESIGN_HANDOFF.md`](cardnews-studio/docs/DESIGN_HANDOFF.md) · [`cardnews-studio/docs/IMPROVEMENTS.md`](cardnews-studio/docs/IMPROVEMENTS.md) |
 | 25 | AI 웹툰 자동화 | `ai-webtoon-studio` | **크리에이티브 아틀리에 스타일** (웹툰 스튜디오 다크 변형) | 다크(딥블랙 나이트 `#0a0d14` + 인디고 `#6366f1`·바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.14`, 크리에이티브 아틀리에 스타일) | [`ai-webtoon-studio/docs/DESIGN_HANDOFF.md`](ai-webtoon-studio/docs/DESIGN_HANDOFF.md) |
 | 26 | 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | **플로우 위저드 스타일** (네이버 그린 라이트 변형) | 라이트(클린 슬레이트 `#f8fafc` + 네이버 그린 `#03c75a`) | ✅ 1차 작업완료 (`v1.49`, 플로우 위저드 라이트 테마 & 가이드북 신설) | [`naver-blog-allinone/docs/DESIGN_HANDOFF.md`](naver-blog-allinone/docs/DESIGN_HANDOFF.md) |

@@ -1,5 +1,62 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 이미지 스타일 분석기 v1.22: 크리에이티브 아틀리에 스타일 DNA 랩 테마 리뉴얼·/guide 비주얼 가이드북 페이지 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 58개 완료 / 69.9% 달성!)
+
+- **대상**: `style-dna-analyzer/` (https://style-dna-analyzer.buylife.xyz, slug: `style-dna-analyzer`, 23번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 스타일 DNA 랩 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 스타일 DNA 랩 에디션 (Creative Atelier Style — Style DNA Lab Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(보관함 대시보드, 1단계 이미지 분석 스튜디오, 2단계 프롬프트 보정, 3단계 결과 테스트, 비주얼 가이드북, API키 설정) 배경을 딥 미드나잇 다크 네이비(`#0c0f17`), 서피스 카드(`#131824`), 테두리(`#222d42`), 일렉트릭 시안 블루(`#06b6d4`) 및 아티스틱 바이올렛(`#8b5cf6`)으로 통일.
+     - Sharp 0.35.5 기반 서버 픽셀 실측 팔레트 계산, Gemini Vision 멀티모달 6대 DNA 파라미터 역공학, 0~100% 변이 강도 슬라이더, 원본 참조 이미지 태그 주입 토글, 히스토그램 색감 일치율 실측 엔진의 기존 핵심 로직 무결성을 100% 보존.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 좌측 사이드바에 브랜드 배지(`v1.22 DNA LAB`) 및 유틸리티 영역에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (앰버 골드 활성 배지).
+     - 1-2-3 단계별 작업 워크플로우 원형 번호 배지와 세로 커넥터 라인 디자인 적용.
+  3. **독립 비주얼 에디토리얼 가이드북 (`/guide/page.tsx`) 신설**:
+     - 상단 히어로 배너: 그라데이션 타이틀, 비주얼 유전자 분석기 소개, 원클릭 CTA (`/analyze`, `/settings`).
+     - **3단계 핵심 워크플로우 비주얼 카드**:
+       1. `STEP 1. Ingestion & Scan`: 카메라·조명·컬러·텍스처·무드·구도 6대 유전자 스캔 및 마스터 프롬프트 생성.
+       2. `STEP 2. Gene Mutation`: 추출된 DNA를 온전히 복제하거나 원하는 요소만 유전자 변이하여 맞춤형 프롬프트 완성.
+       3. `STEP 3. Synthesis & Bench`: 회원 본인 API 키로 즉시 시각화 렌더링 및 원본과의 1:1 색감 일치율 검증.
+     - **스타일 DNA 6대 비주얼 유전자 카드** (카메라 광학 세팅, 라이팅&분위기, 색채 HEX, 렌더링 텍스처, 아티스틱 무드, 네거티브 가드레일).
+     - 회원 본인 Gemini API 키 직접 연동 보안 배너 및 AI Studio 바로가기.
+     - 자주 묻는 질문(FAQ) 5종 인터랙티브 아코디언 완비.
+  4. **공통 컴포넌트 (`ui.tsx`) 다크 아틀리에 테마 토큰화**:
+     - `Card`, `INPUT`, `SELECT`, `BTN_PRIMARY`, `BTN_GHOST`, `StepHeader`, `ErrorNote`, `EnginePicker`, `CopyButton`의 색상을 모두 다크 톤으로 일원화.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.22`)**:
+     - `package.json` (`1.22.0`), `src/lib/version.ts` (`v1.22`), Supabase DB `programs` 메타데이터 업데이트 (`version: v1.22`) 동기화 완료.
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 단위 테스트 23개 전건 통과 (23 pass, 0 fail).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공.
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_AhaJU5XrdZ4NFyKpF32CkGNYzLgy`
+     - 공식 도메인 즉시 반영: https://style-dna-analyzer.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 주인님 실시간 모니터링 보장)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면(최대화)으로 띄워 10분간 화면 유지 (`task-13284`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_style_dna_desktop_dashboard_v122.png`: 1440px 데스크톱 보관함 대시보드
+       - `edge_style_dna_desktop_guide_v122.png`: 1440px 데스크톱 비주얼 에디토리얼 가이드북
+       - `edge_style_dna_desktop_analyze_v122.png`: 1440px 데스크톱 1단계 이미지 분석 스튜디오
+       - `edge_style_dna_desktop_refine_v122.png`: 1440px 데스크톱 2단계 프롬프트 보정 스튜디오
+       - `edge_style_dna_desktop_settings_v122.png`: 1440px 데스크톱 API 키 설정 연동 화면
+       - `edge_style_dna_mobile_guide_v122.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `style-dna-analyzer/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `style-dna-analyzer/README.md` (동기화 생성)
+     - `style-dna-analyzer/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `style-dna-analyzer/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `style-dna-analyzer/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `style-dna-analyzer/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 23번 행 ✅ 1차 작업완료 (`v1.22`, 스타일 DNA 랩 에디션) 갱신 및 전체 통계 (누적 ✅ 58개 완료 / ⚪ 23개 예정 / ⏸ 2개 보류 — 69.9% 달성)
+      - `docs/ACTIVE_WORK.md`: 23번 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - `buylifemall@naver.com` 일반 회원 테스트 계정으로 보관함 대시보드 진입, 가이드북 열람, FAQ 토글 아코디언, 1단계 이미지 업로드 및 스캔 화면, 2단계 보정 탭, API 키 연동 화면, 모바일 375px 햄버거 메뉴 및 카드 뷰 정상 확인.
+- **못 한 것**:
+  - 유료 Gemini 이미지 생성 실제 호출(테스트 비용 최소화 지침 준수).
+- **프로그램 링크**:
+https://style-dna-analyzer.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — AI 인물사진 v1.26: 브라우저 안 얼굴 인식으로 머리 위치 자동 측정
 
 - **한 일**: 결과가 나오면 회원 PC 브라우저 안에서 MediaPipe FaceLandmarker(`@mediapipe/tasks-vision` 1.0.0 고정)로 머리 위치를 자동 추정 → 누르지 않아도 규격 저장·일괄 저장·프로필 세트가 머리 기준 추천 영역. 사진 서버 전송·AI 호출 없음. 정수리 추정 비율 α=0.42(시험 사진 3장 보정, 오차 약 ±2%p). 모델·실행 파일은 `portrait-photo/public/mediapipe/`에 함께 배포.
