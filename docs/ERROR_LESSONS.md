@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — 디자인 리뉴얼 뒤 브라우저 테스트를 안 돌려, 테스트가 이미 잡던 화면 회귀 2건이 운영에 남음 (ai-task-planner v1.07 → v1.08, Claude Code 윈도우)
+- **증상**: `npm run test:browser` 실패. 차트 눈금이 막대와 30px·10px 어긋남, 큰 화면에서 계정이 메뉴와 떨어짐.
+- **원인**: 리뉴얼 CSS에서 눈금 칸 여백을 어림값(`padding-bottom: 20px`)으로 두고, `.sidebar-account`를 `margin-top: auto`로 바꿈. 테스트는 두 가지를 모두 검사하고 있었지만 리뉴얼 뒤 실행되지 않음.
+- **해결**: `ai-task-planner/src/app/overview.css` `.chart-grid-lines { padding: 30px 0 10px }`, `globals.css` `.sidebar-account { margin-top: 8px }`. 낡은 기대값(제목 문구)만 따로 갱신.
+- **다음부터 확인**: 리뉴얼·화면 변경 뒤 그 폴더에 `test:browser`가 있으면 꼭 실행하고, 실패하면 「기대값이 낡음」과 「실제 회귀」를 측정값으로 구분한다(기대값을 먼저 고치지 않는다).
+
 ## 2026-10-18 — 기존 「다른 사진으로 이동」용 함수를 같은 사진 바로가기에 재사용 → 효과가 다시 돌지 않아 패널이 영원히 대기 (portrait-photo v1.24 → v1.25, Claude Code 윈도우)
 - **증상**: 새로 넣은 [얼굴 위치 직접 지정 (무료)] 버튼을 눌러도 자르기 패널이 안 열리고, 「배경 순백 정리」 결과 표시도 사라짐. tsc·단위 테스트·빌드는 모두 통과.
 - **원인**: `gotoCrop(i)`는 일괄 보고에서 **다른 사진으로 옮겨 갈 때** 쓰던 함수라 항상 `setCleaned(null)`을 했다. 순백 정리 `useEffect`는 `[result, whiten]`이 바뀔 때만 돌아서, 같은 사진(`result` 그대로)에서는 정리본이 다시 만들어지지 않고 `pendingCrop` 효과가 `!cleaned` 조건에서 계속 기다렸다.

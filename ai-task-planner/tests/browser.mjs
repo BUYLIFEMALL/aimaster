@@ -123,7 +123,7 @@ try {
   await page.getByRole("button", { name: "최신 기록 불러오기", exact: true }).click(); await page.getByText("최신 기록 확인 완료", { exact: true }).waitFor();
   await menu("대시보드").click();
   await page.setViewportSize({ width: 1366, height: 950 });
-  for (const name of ["새 할 일", "오늘의 성과", "시간대별 완료 수", "AI 성과 분석", "성과 노트"]) {
+  for (const name of ["할 일 추가", "오늘의 성과", "시간대별 완료 수", "AI 성과 분석", "성과 노트"]) {
     assert.equal(await page.getByRole("heading", { name, exact: true }).isVisible(), true);
   }
   const columns = await Promise.all([".overview-task-list", ".overview-planning", ".overview-insights"].map(selector => page.locator(selector).boundingBox()));
@@ -190,7 +190,7 @@ try {
   assert.equal(await page.getByText("미측정", { exact: true }).isVisible(), true); assert.deepEqual(await page.locator(".chart-grid-lines span").allTextContents(), ["4", "3", "2", "1", "0"]);
   assert.ok((await page.locator(".col-bar").evaluateAll(nodes => nodes.map(n => n.style.height))).every(height => height === "0%"));
   const zeroAxis = await page.locator(".chart-grid-lines span").last().boundingBox(), barTrack = await page.locator(".col-bar-track").first().boundingBox();
-  assert.ok(Math.abs(zeroAxis.y + zeroAxis.height / 2 - barTrack.y - barTrack.height) <= 1, "zero tick aligns with bar baseline");
+  assert.ok(Math.abs(zeroAxis.y + zeroAxis.height / 2 - barTrack.y - barTrack.height) <= 1, `zero tick aligns with bar baseline (tick ${JSON.stringify(zeroAxis)}, track ${JSON.stringify(barTrack)})`);
   await emptyScope.getByRole("button", { name: "전체", exact: true }).click(); check("unmeasured accuracy is distinct from zero and empty chart bars match the axis");
   await menu("API키등록·플랫폼연동").click(); await page.getByText("본인 Gemini 키가 등록되어 있습니다.", { exact: true }).waitFor();
   await page.getByRole("combobox", { name: "Gemini 모델", exact: true }).selectOption("gemini-3.8-flash"); await page.getByRole("button", { name: "분석 모델 저장", exact: true }).click(); await page.getByText("서버 저장 완료", { exact: true }).waitFor();

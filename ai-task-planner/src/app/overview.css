@@ -723,7 +723,8 @@
   justify-content: space-between;
   font-size: 9px;
   color: #64748b;
-  padding-bottom: 20px;
+  /* 눈금 4·0의 가운데를 막대 칸(.col-bar-track 90px) 꼭대기·바닥에 맞춤 — 위: 개수 글자 높이, 아래: 시간 이름표 높이 */
+  padding: 30px 0 10px;
   min-width: 16px;
 }
 .chart-panel .chart {
