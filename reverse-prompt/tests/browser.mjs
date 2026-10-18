@@ -17,6 +17,8 @@ const bundle = await build({
     "process.env.NODE_ENV": '"production"',
     "process.env.NEXT_PUBLIC_SUPABASE_URL": JSON.stringify(MOCK_SB),
     "process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY": '"anon-test-key"',
+    // 2026-10-16 새·기존 변수 호환 뒤 클라이언트가 이 이름을 먼저 읽음 — 정의가 없으면 브라우저에서 process 미정의 오류
+    "process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": '""',
   },
 });
 const css = await readFile("src/app/globals.css", "utf8");
