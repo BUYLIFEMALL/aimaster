@@ -1,5 +1,60 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 랜딩페이지 기획 자동화 v1.10: 플로우 위저드 스타일 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 61개 완료 / 73.5% 달성!)
+
+- **대상**: `landing-architect/` (https://landing-architect.buylife.xyz, slug: `landing-architect`, 69번)
+- **한 일**:
+  1. **플로우 위저드 스타일 — 단계별 랜딩페이지 기획 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **플로우 위저드 스타일 — 단계별 랜딩페이지 기획 에디션 (Flow Wizard Style — Landing Architect Edition)**.
+     - **디자인 토큰 시스템 완비**: 소프트 슬레이트 화이트(`#f8fafc`) 배경, 로열 인디고 블루(`#2563eb`), 아티스틱 바이올렛(`#8b5cf6`), 에메랄드 그린(`#10b981`), 앰버 골드(`#d97706`) 컬러 토큰 체계 적용 (`src/app/globals.css`).
+     - 20종 업종별 템플릿, 6대 전환 블록 기획 도출, Tailwind CSS 기반 실시간 단일 HTML 프로토타입 렌더링, React 변환 프롬프트 복사 엔진 100% 무결성 유지.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.10 LANDING WIZARD` 및 작업 워크플로우 1-2-3 넘버링 뱃지 적용 (`src/components/layout/Sidebar.tsx`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (앰버 골드 하이라이트 스타일).
+  3. **대시보드 리뉴얼 (`src/app/(workspace)/dashboard/page.tsx`)**:
+     - 블루/바이올렛 그라데이션 바탕의 `.studio-hero` 웰컴 배너 및 3대 기능 지표 카드(20종 업종별 템플릿, 6대 전환 블록 기획, 실시간 HTML 프로토타입) 배치.
+     - 프로젝트 목록 그리드 깔끔한 카드 인터페이스 및 상태 뱃지 고도화 (`ProjectList.tsx`).
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 신설**:
+     - 상단 히어로 배너: "전환율을 극대화하는 AI 랜딩페이지 기획 완전 가이드".
+     - **4단계 표준 기획 파이프라인**: 1) 전략 & 타겟 설정 ➔ 2) 6대 전환 블록 도출 ➔ 3) 고화질 프로토타입 생성 ➔ 4) 내보내기 & 실전 런칭.
+     - 최상위 보안 원칙 (BYOK Standard) 연동 가이드 배너 및 Google AI Studio 키 발급/설정 바로가기.
+     - 6대 필수 전환 블록 & 5대 최적 레이아웃 쇼케이스 완비.
+     - 산출물(JSON, HTML, Prompt) 활용 테이블 및 FAQ 5종 아코디언 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_69_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 단위 테스트 12건 전건 통과 (12 pass, 0 fail).
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공.
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_EGWQKpGZ1xKay8MBMDW2kD73VrBJ`
+     - 공식 도메인 즉시 반영: https://landing-architect.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-13811`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_landing_desktop_dashboard_v110.png`: 1440px 데스크톱 대시보드 및 3대 지표 카드
+       - `edge_landing_desktop_guide_v110.png`: 1440px 데스크톱 비주얼 가이드북 및 파이프라인
+       - `edge_landing_desktop_guide_faq_v110.png`: 1440px 데스크톱 산출물 테이블 & FAQ 아코디언 오픈
+       - `edge_landing_desktop_settings_v110.png`: 1440px 데스크톱 API 키 설정 연동 화면
+       - `edge_landing_desktop_studio_v110.png`: 1440px 데스크톱 기획 프로젝트 에디터 화면
+       - `edge_landing_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `landing-architect/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `landing-architect/README.md` (동기화 생성)
+     - `landing-architect/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `landing-architect/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `landing-architect/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `landing-architect/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 69번 행 ✅ 1차 작업완료 (`v1.10`, 플로우 위저드 스타일) 갱신 및 전체 통계 (누적 ✅ 61개 완료 / ⚪ 20개 예정 / ⏸ 2개 보류 — 73.5% 달성)
+      - `docs/ACTIVE_WORK.md`: 69번 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - Edge 브라우저에서 대시보드 히어로 배너, 3대 KPI 카드, 프로젝트 카드, 가이드북, 설정 페이지가 소프트 슬레이트 블루 테마로 매우 깔끔하게 렌더링됨.
+  - 가이드북 4단계 파이프라인 및 FAQ 아코디언 클릭 인터랙션 정상 작동.
+  - 모바일(375px) 화면에서 상단 헤더, 접이식 메뉴, 가이드북 카드들이 깨짐 없이 완벽하게 반응형으로 표시됨.
+- **다음 첫 단계**: 71번 AI 슬라이드 자동화 (`ai-slide-builder`) 사전 플랜 수립 및 디자인 리뉴얼 순차 진행.
+- https://landing-architect.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — UI Canvas 자동화 v1.10: 크리에이티브 아틀리에 캔버스 프로 테마 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 60개 완료 / 72.3% 달성!)
 
 - **대상**: `ui-canvas/` (https://ui-canvas.buylife.xyz, slug: `ui-canvas`, 70번)
@@ -258,6 +313,8 @@ https://style-dna-analyzer.buylife.xyz
   - `ai-task-planner` ✅ **v1.08 배포** — 실패 3건: ① 제목 문구 변경(기대값만 갱신) ② **실제 회귀**: 차트 눈금이 막대와 30px·10px 어긋남 → `overview.css` ③ **실제 회귀**: 계정 `margin-top: auto`로 메뉴와 떨어짐(플랫폼 규칙 위반) → `globals.css`. 브라우저 30/30, READY, DB v1.08, 메인 크롬 운영 확인(눈금 차이 0px·계정 간격 8px). https://ai-task-planner.buylife.xyz
   - `banana-canvas` ✅ **v1.09 배포** — ① 테스트 번들에 새 변수 이름(`PUBLISHABLE_KEY`) 정의 누락 → 테스트 화면만 업로드 멈춤(운영 정상, 설정 추가) ② **실제 편의성 문제**: 「부분 삭제」 편집기가 화면 밖에 열림 → 열릴 때 자동 스크롤. 브라우저 17/17, READY, DB v1.09, 운영 v1.09 확인. https://banana-canvas.buylife.xyz
   - `reverse-prompt` ✅ **코드 문제 아님** — banana-canvas와 같은 테스트 번들 변수 정의 누락(운영 정상). `tests/browser.mjs`에 추가, 16/16. 앱 코드·버전·배포 변경 없음. 개선 제안서 `reverse-prompt/docs/IMPROVEMENTS.md` 신설.
+  - `naver-blog-seo-studio` ✅ **코드 문제 아님** — 10개 실패 모두 테스트 낡음(파일 분할 뒤 한 파일만 읽음 7건, v1.69 색 변경, 화면 순서 검사 기준 파일, 다른 프로그램 링크·단계 번호). 테스트만 고쳐 26 통과·1 원래 건너뜀. 앱 코드·버전·배포 변경 없음.
+  - **결론: 실패 5곳 판정 완료** — 실제 회귀를 고쳐 배포한 곳은 `ai-task-planner` v1.08(차트 눈금·계정 위치)·`banana-canvas` v1.09(부분 삭제 편집기 화면 밖) 2곳, 나머지 3곳은 테스트 순서·설정·기대값 문제.
 
 ## 📌 AGY 반영 대기 — 매뉴얼 연계 링크 4건 (2026-10-19 Claude Code(윈도우) 정리)
 

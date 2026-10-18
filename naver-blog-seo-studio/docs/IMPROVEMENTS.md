@@ -13,3 +13,5 @@
 | 7 | 2026-10-17 | 정리 | 설정 화면에 숨김 처리된 옛 사이드바(번호 중복) 남아 있음 | `settings/page.tsx`, `.legacy-settings-sidebar` | 낮음 | **구현(v1.69, 배포 대기)** |
 | 8 | 2026-10-17 | ① 로직·기능 | `useStudio.ts`가 여전히 상태 60여 개를 한곳에 가짐 — 화면별로 필요한 상태만 각 화면 훅으로 나누면 더 가벼워짐(2차 리팩터링) | `components/studio/useStudio.ts` | 낮음 | 제안 |
 | 9 | 2026-10-17 | ② UI·편의성 | 대시보드에 확장 연결 상태(토큰 마지막 사용 시각)를 보여 주면 확장이 붙었는지 바로 앎 | `personal_access_tokens.last_used_at` | 낮음 | 제안 |
+| 10 | 2026-10-19 | 테스트 | `npm run test:browser`(확장 회귀 27개) 10개 실패 → 판정: 실제 회귀 0, 모두 테스트 낡음. ① 7건: 2026-10-17 `StudioPage` 분할 뒤에도 그 한 파일만 읽음 → `readStudioSource()`(StudioPage + `components/studio/*` 이어 읽기) ② 이미지 준비 영역 색이 v1.69 네이버 그린으로 바뀜 ③ 화면 순서 검사는 `TitleView.tsx`만 기준 ④ 「다른 프로그램 보기」가 규칙대로 `/programs`, 단계 번호는 `{item.step}` → 26 통과·1 원래 건너뜀(Claude Code 윈도우) | `tests/browser/extension-regression.test.mjs` | 중간 | **처리(테스트만, 앱 코드·버전·배포 변경 없음)** |
+| 11 | 2026-10-19 | ① 로직·기능 | 소스 글자 정규식 검사는 파일 분할·문구 변경마다 깨짐 — 핵심 흐름은 실제 화면 검사(Playwright로 화면 띄우기)로 옮기는 것을 제안 | `tests/browser/` | 낮음 | 제안 |

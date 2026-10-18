@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — 큰 파일을 나눈 뒤 소스 글자 검사 테스트가 무더기로 실패 (naver-blog-seo-studio, Claude Code 윈도우)
+- **증상**: 확장 회귀 테스트 27개 중 10개 실패(정규식이 문구를 못 찾음). 실제 화면은 정상.
+- **원인**: 2026-10-17 `StudioPage.tsx`(928줄)를 `useStudio`·화면 5개로 나눴는데 테스트는 `StudioPage.tsx` 한 파일만 읽었다.
+- **해결**: 테스트에 `readStudioSource()`(원래 파일 + `components/studio/*` 이어 읽기). 순서 비교 검사는 해당 화면 파일 하나만 기준.
+- **다음부터 확인**: 파일을 나누거나 옮기면 `grep -rn "<옛 파일 이름>" */tests`로 그 파일을 직접 읽는 테스트를 찾아 같은 커밋에서 고친다.
+
 ## 2026-10-19 — 공용 변수 이름을 추가한 뒤 esbuild 브라우저 테스트가 업로드에서 멈춤 (banana-canvas·reverse-prompt, Claude Code 윈도우)
 - **증상**: 테스트 화면에서 업로드가 「업로드 중…」에 멈추거나 안내가 뜨지 않음. 운영 화면은 정상.
 - **원인**: 2026-10-16 새·기존 변수 호환으로 클라이언트가 `process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 먼저 읽게 됐는데, esbuild로 묶는 테스트는 `define`에 적힌 이름만 바꿔 넣는다. 빠진 이름은 브라우저에서 `process is not defined` 오류(Next 빌드는 모르는 `NEXT_PUBLIC_*`도 채워서 운영은 무사).

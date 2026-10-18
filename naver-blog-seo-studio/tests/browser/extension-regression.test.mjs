@@ -1,8 +1,15 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { chromium } from "playwright-core";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import vm from "node:vm";
+
+// 2026-10-17 StudioPage를 useStudio·화면 5개(components/studio/*)로 나눔 → 검사는 나뉜 파일을 이어 붙여 읽는다
+function readStudioSource() {
+  const dir = new URL("../../components/studio/", import.meta.url);
+  const parts = readdirSync(dir).filter((f) => /\.tsx?$/.test(f)).sort().map((f) => readFileSync(new URL(f, dir), "utf8"));
+  return [readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8"), ...parts].join("\n");
+}
 
 const chromePath = process.env.CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 let browser;
@@ -322,7 +329,7 @@ test("extension keeps content creation in the web studio and exposes only the ha
 });
 
 test("supports a fourth image with a third sentence-matched content slot", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   const visuals = readFileSync(new URL("../../lib/ai/contentVisuals.ts", import.meta.url), "utf8");
   const extension = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   assert.match(studio, /4장 생성 · 대표 1장 \+ 본문 3장/);
@@ -332,14 +339,14 @@ test("supports a fourth image with a third sentence-matched content slot", () =>
 });
 
 test("places sentence-matched images before the containing paragraph without splitting it", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   assert.match(studio, /function getParagraphStart\(body: string, sentencePosition: number\)/);
   assert.match(studio, /getParagraphStart\(draft\.body, sentencePosition\)/);
   assert.match(studio, /\.filter\(\(image, index, list\) => index === 0 \|\| image\.position !== list\[index - 1\]\.position\)/);
 });
 
 test("selects the image model beside representative image creation and sends it to every image action", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   const representativeRoute = readFileSync(new URL("../../app/api/images/generate/route.ts", import.meta.url), "utf8");
   const contentRoute = readFileSync(new URL("../../app/api/images/generate-content/route.ts", import.meta.url), "utf8");
   const regenerateRoute = readFileSync(new URL("../../app/api/images/regenerate-content/route.ts", import.meta.url), "utf8");
@@ -355,14 +362,14 @@ test("selects the image model beside representative image creation and sends it 
 });
 
 test("keeps one image model selector for initial creation and later regeneration", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   assert.match(studio, /id="image-model"/);
   assert.doesNotMatch(studio, /id="new-draft-image-model"/);
   assert.match(studio, /model: imageModel/);
 });
 
 test("lays out content-image auto generation with its model and keeps the image description on the right", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
   assert.match(studio, /content-image-auto-option/);
   assert.match(studio, /id="content-image-model"/);
@@ -377,7 +384,7 @@ test("lays out content-image auto generation with its model and keeps the image 
 
 test("visually separates image preparation from the complete content editor", () => {
   const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
-  assert.match(styles, /\.content-image-stage \{[^}]*border-color: #efcfa6; background: #fff8f0/);
+  assert.match(styles, /\.content-image-stage \{[^}]*border-color: #cfe9da; background: #f4fbf7/); // v1.69 네이버 그린 리뉴얼 색
   assert.match(styles, /\.content-block-editor \{[^}]*border-color: #a9cceb; background: #f2f8ff/);
 });
 
@@ -388,7 +395,7 @@ test("keeps content-block position controls on a single toolbar line", () => {
 });
 
 test("saves edits directly from the complete content editor", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
   assert.match(studio, /content-block-editor-footer/);
   assert.match(studio, /수정 내용 저장/);
@@ -399,7 +406,7 @@ test("saves edits directly from the complete content editor", () => {
 });
 
 test("expands each content paragraph editor to avoid an inner scrollbar", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
   assert.match(studio, /function fitContentBlockTextarea/);
   assert.match(studio, /querySelectorAll<HTMLTextAreaElement>\("\.content-block textarea"\)/);
@@ -414,7 +421,7 @@ test("preserves each generated image's original aspect ratio in previews", () =>
 });
 
 test("selects an OpenAI, Claude, or Gemini content model above representative image generation", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
   const models = readFileSync(new URL("../../lib/ai/contentModels.ts", import.meta.url), "utf8");
   assert.match(studio, /id="content-provider-selector"/);
@@ -425,9 +432,11 @@ test("selects an OpenAI, Claude, or Gemini content model above representative im
   assert.match(studio, /model: contentModel/);
   assert.match(studio, /option value="anthropic">Anthropic Claude/);
   assert.match(studio, /option value="gemini">Google Gemini/);
-  const strategyPosition = studio.indexOf('title-strategy-section card');
-  const modelPosition = studio.indexOf('content-model-selection');
-  const imagePosition = studio.indexOf('image-with-draft-option');
+  // 화면 안 순서는 제목 화면(TitleView) 한 파일 기준 — 이어 붙인 글에서는 다른 화면이 앞에 올 수 있음
+  const titleView = readFileSync(new URL("../../components/studio/TitleView.tsx", import.meta.url), "utf8");
+  const strategyPosition = titleView.indexOf('title-strategy-section card');
+  const modelPosition = titleView.indexOf('content-model-selection');
+  const imagePosition = titleView.indexOf('image-with-draft-option');
   assert.ok(strategyPosition < modelPosition && modelPosition < imagePosition);
   assert.match(draftRoute, /resolveContentModel\(provider, input\?\.model\)/);
   assert.match(draftRoute, /resolveApiKey\(supabase, access\.user\.id, provider\)/);
@@ -440,13 +449,13 @@ test("selects an OpenAI, Claude, or Gemini content model above representative im
 });
 
 test("keeps the dashboard navigation aligned with the product workflow", () => {
-  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const studio = readStudioSource();
   const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
-  assert.match(studio, /https:\/\/www\.buylife\.xyz\/blog\/dashboard/);
+  assert.match(studio, /https:\/\/www\.buylife\.xyz\/programs/); // 플랫폼 규칙: 다른 프로그램 보기 → 카탈로그
   assert.match(studio, /← 다른 프로그램 보기/);
   assert.match(studio, /🏠 대시보드/);
   assert.match(studio, /🔑 API키등록·플랫폼연동/);
-  assert.match(studio, /className="nav-number">1/);
+  assert.match(studio, /className="nav-number">\{item\.step\}/);
   assert.match(styles, /\.nav-number \{[^}]*border-radius: 50%/);
   assert.match(styles, /\.nav-divider \{ height: 1px/);
 });
