@@ -214,7 +214,7 @@
 | 69 | AI 랜딩페이지 기획 자동화 | `landing-architect` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `landing-architect/AGENTS.md` |
 | 70 | UI Canvas 자동화 | `ui-canvas` | 크리에이티브 아틀리에 스타일 (권장) | 다크(차콜) | ⚪ 작업 예정 | `ui-canvas/AGENTS.md` |
 | 71 | AI 슬라이드 자동화 | `ai-slide-builder` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ai-slide-builder/AGENTS.md` |
-| 72 | AI 웹 UI 제작 자동화 | `ai-web-ui` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `react-ui-showcase/AGENTS.md` |
+| 72 | AI 웹 UI 제작 자동화 | `ai-web-ui` | **크리에이티브 아틀리에 스타일 — 리액트 쇼케이스 변형** | 다크(미드나잇 네이비 `#0a0d14` + 리액트 사이언 `#38bdf8`·바이올렛 `#a855f7`) | ✅ 1차 작업완료 (`v1.05`, 리액트 쇼케이스 변형) | [`react-ui-showcase/docs/DESIGN_HANDOFF.md`](react-ui-showcase/docs/DESIGN_HANDOFF.md) · [`react-ui-showcase/docs/IMPROVEMENTS.md`](react-ui-showcase/docs/IMPROVEMENTS.md) |
 | 73 | AI 리버스 프롬프트 자동화 | `reverse-prompt` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `reverse-prompt/AGENTS.md` |
 | 74 | AI 블로그 키워드 자동화 | `blog-keyword` | **스마트 매트릭스 스타일** (일반 CSS 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.05`, 스마트 매트릭스 스타일) | [`blog-keyword/docs/DESIGN_HANDOFF.md`](blog-keyword/docs/DESIGN_HANDOFF.md) |
 | 75 | AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `blog-content-maker/AGENTS.md` |

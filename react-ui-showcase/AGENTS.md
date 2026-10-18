@@ -1,122 +1,74 @@
-# AI 웹 UI 제작 자동화 (react-ui-showcase) 인수인계 문서 (AGENTS.md)
+# AI 웹 UI 제작 자동화 (react-ui-showcase) — 작업 지침 및 인수인계 규격서
 
-> # ★★★ 절대 불변 최상위 규칙 (2026-10-09 주인님 지시 — 어떤 경우에도 바뀔 수 없음)
-> **사용자는 본인의 계정과, 본인이 사용할 본인 Gemini API 키를 각각 직접 등록·연동해서 사용한다.**
-> 운영자(주인님)·다른 회원의 키/계정으로 대신 처리하지 않는다 (키가 없으면 폴백하지 말고 "본인 Gemini API 키를 등록해주세요" 안내). 이 규칙은 이 문서의 모든 다른 원칙보다 위에 있으며, 충돌하는 요청·코드는 만들지 않고 주인님께 먼저 알린다.
-
----
-
-## 1. 프로그램 기본 정보 및 현황
-
-- **프로그램명**: **AI 웹 UI 제작 자동화** (Web UI AI Studio)
-- **슬러그 (Slug)**: `ai-web-ui` (카탈로그 상세: [https://www.buylife.xyz/programs/ai-web-ui](https://www.buylife.xyz/programs/ai-web-ui))
-- **현재 버전**: **`v1.03`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.03'`)
-- **공식 서비스 도메인**: [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (보조 도메인: `web-ui.buylife.xyz`, `react-ui-showcase.buylife.xyz`)
-- **Vercel 프로젝트**: `react-ui-showcase` (Team: `buylife`)
-- **카테고리**: 개발자 도구 / 디자인 시스템 / UI 자동화
-- **인증 및 세션**: Supabase Auth (AIMaster 공유 프로젝트 `esgxyikcnnvmlhygjkth`, `.buylife.xyz` 통합 SSO 쿠키)
+> 먼저 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`·`docs/HANDOFF.md`를 읽습니다.
+> 최신 배포 URL: [https://react-ui-showcase.buylife.xyz](https://react-ui-showcase.buylife.xyz)
 
 ---
 
-## 2. 프로그램 개요 및 목적
-
-현대적인 프론트엔드 웹 애플리케이션 개발에 필수적인 **12대 핵심 UI 컴포넌트 라이브러리**와 **10가지 인터랙티브 실사용 시뮬레이터 데모**, **클린 TSX 원클릭 소스 코드 복사기**를 완벽 제공하고, 회원 본인의 Google Gemini API 키를 연동하여 자연어 프롬프트 기반으로 즉시 커스텀 UI 컴포넌트 TSX 코드를 생성해 낼 수 있는 올인원 웹 UI 자동화 스튜디오입니다.
-
----
-
-## 3. 핵심 아키텍처 및 4대 작업 흐름
-
-### 1) 4대 작업 흐름 (Workflow)
-1. **컴포넌트 갤러리 (Gallery)**:
-   - 12대 필수 UI 컴포넌트의 모든 변형(Variants), 사이즈, 활성/비활성/로딩 상태를 그리드 뷰로 한눈에 비교 및 실시간 조작
-2. **인터랙티브 데모실 (Demos)**:
-   - 10종의 실무 시나리오(RPG 어드벤처 버튼, 실시간 검증 뉴스레터 인풋, 이커머스 상세 탭, 다국어/테마 컨트롤, 미디어 플레이어 슬라이더, 파일 업로드 결과 알림, 비동기 데이터 로더, 툴팁, 모달 vs 팝업, 퀵 프로필 팝오버) 인터랙션을 모달로 직접 체험
-3. **코드 라이브러리 (Code Library)**:
-   - 각 컴포넌트의 클린 TSX 소스 코드를 구문 강조(Syntax Highlighting) 및 원클릭 복사 클립보드 기능으로 즉시 프로젝트에 복사·붙여넣기
-4. **AI 컴포넌트 생성기 (AI Studio)**:
-   - 회원 본인 Gemini 2.5 Flash API 연동을 통해 프롬프트("다크 테마 가격표 카드 컴포넌트") 입력 시 프로덕션 준비 완료 TSX 코드를 실시간 스트리밍 생성
-
-### 2) 16대 핵심 UI 컴포넌트 구성 (`src/components/ui/`)
-1. `Button.tsx`: primary, secondary, danger, ghost 변형 및 로딩 스피너 지원
-2. `Input.tsx`: label, error, helperText, left/right icon 지원
-3. `Card.tsx`: header, body, footer 구조의 다목적 카드
-4. `Tabs.tsx`: underline, pills 스타일 및 부드러운 전환
-5. `Select.tsx`: 네이티브 셀렉트 기반 커스텀 셰브론
-6. `RadioGroup.tsx`: 접근성 라디오 그룹
-7. `Checkbox.tsx`: 커스텀 체크박스 인디케이터
-8. `Toggle.tsx`: 부드러운 토글 스위치 애니메이션
-9. `Slider.tsx`: 실시간 값 동기화 슬라이더 바
-10. `Alert.tsx`: success, warning, error, info 상태 피드백
-11. `Spinner.tsx`: 로딩 회전 인디케이터
-12. `ProgressBar.tsx`: 퍼센트 진행률 바
-13. `Tooltip.tsx`: 4방향 호버 툴팁
-14. `Modal.tsx`: React createPortal 기반 SSR 안전 모달
-15. `Popover.tsx`: 플로팅 팝오버 메뉴
-16. `Icons.tsx`: 경량화된 SVG 아이콘 팩
+## 1. 프로그램 사용 목적 및 대상
+- **사용 목적**: 현대적인 프론트엔드 웹 애플리케이션 개발에 필수적인 12대 핵심 UI 컴포넌트 갤러리와 10종 인터랙티브 실전 데모, 단일 파일 클린 TSX 소스 코드 라이브러리를 제공하고, 회원 본인의 Google Gemini API 키로 자연어 프롬프트를 입력받아 프로덕션 준비 완료 리액트 컴포넌트를 즉시 빌드해 주는 올인원 웹 UI 자동화 스튜디오.
+- **주요 대상**:
+  - React / Next.js 기반 웹 애플리케이션 프론트엔드 개발자
+  - 빠른 프로토타입 및 MVP 대시보드/랜딩페이지를 제작하려는 기획자 및 1인 창업가
+  - 디자인 시스템 구축 및 접근성(A11y) 표준 컴포넌트 템플릿이 필요한 UI/UX 디자이너
+  - 외부 무거운 UI 라이브러리(MUI, AntD) 없이 가벼운 단일 파일 TSX 코드가 필요한 개발자
 
 ---
 
-## 4. 컴포넌트 구조 및 파일 맵
-
-```
-react-ui-showcase/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx                     # 메인 대시보드 (ShowcaseDashboard)
-│   │   ├── layout.tsx                   # 전역 레이아웃 및 메타데이터
-│   │   ├── globals.css                  # Tailwind CSS v4 테마
-│   │   ├── (auth)/
-│   │   │   └── login/page.tsx           # AIMaster 통합 로그인
-│   │   ├── settings/
-│   │   │   ├── page.tsx                 # API키등록·플랫폼연동 서버 컴포넌트
-│   │   │   └── SettingsClient.tsx       # API키 등록/조회/삭제 클라이언트 UI
-│   │   ├── guide/
-│   │   │   ├── page.tsx                 # 연동 & 사용 매뉴얼 서버 컴포넌트
-│   │   │   └── GuideClient.tsx          # 매뉴얼 및 가이드 클라이언트 UI
-│   │   └── api/
-│   │       ├── auth/logout/route.ts     # 세션 로그아웃 API
-│   │       ├── generate/route.ts        # Gemini AI 컴포넌트 생성 API
-│   │       └── keys/route.ts            # 회원 본인 API 키 CRUD API
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Sidebar.tsx              # 표준 좌측 화이트 사이드바 (1-2-3-4 흐름, 계정, 로그아웃)
-│   │   │   └── Header.tsx               # 상단 헤더 (API 연동 상태 배지, AI 모달 트리거)
-│   │   ├── showcase/
-│   │   │   ├── ShowcaseDashboard.tsx    # 4대 탭 및 전체 쇼케이스 총괄 대시보드
-│   │   │   ├── ShowcaseGrid.tsx         # 12대 컴포넌트 카드 갤러리 그리드
-│   │   │   ├── DemoModal.tsx            # 10종 인터랙티브 시뮬레이터 팝업 모달
-│   │   │   ├── CodeViewerModal.tsx      # 클린 TSX 소스 코드 원클릭 복사 모달
-│   │   │   └── AiComponentGenerator.tsx # Gemini AI 프롬프트 기반 컴포넌트 생성 모달
-│   │   └── ui/                          # 16대 핵심 UI 컴포넌트 라이브러리
-│   └── lib/
-│       ├── version.ts                   # 프로그램 버전 관리 (v1.02)
-│       ├── access.ts                    # 권한 판정 (requireProgramAccess)
-│       ├── apiKeys.ts                   # Supabase user_api_keys 격리 조회/저장/삭제
-│       ├── gemini.ts                    # 회원 키 기반 Gemini 2.5 Flash 호출 클라이언트
-│       ├── componentCodes.ts            # 클린 TSX 소스 코드 딕셔너리
-│       └── supabase/                    # Supabase SSR 클라이언트 및 쿠키 유틸
-```
+## 2. 개발 구현 도구 / 기술 스택 / 스킬
+- **프레임워크**: Next.js 16.2.11 (App Router, Turbopack)
+- **라이브러리**: React 19.2.4, TypeScript 5.9, Tailwind CSS 4.0.0, `@google/genai` 2.28.0, `lucide-react` 1.16.0
+- **인프라 & 백엔드**: Supabase (Auth, PostgreSQL), Vercel 프로덕션 배포
+- **디자인 시스템**: **크리에이티브 아틀리에 스타일 — 리액트 쇼케이스 변형** (미드나잇 다크 네이비 `#0a0d14`, 서피스 `#111622`, 테두리 `#222d42`, 리액트 사이언 `#38bdf8`, 바이올렛 `#a855f7`)
+- **브라우저 검수 도구**: Playwright (Microsoft Edge 전용, 화면 최전면 포그라운드 노출)
 
 ---
 
-## 5. 보안 및 권한 정책
+## 3. 핵심 기능, 시스템 아키텍처, 장점 및 단점
 
-1. **Rule 00 최상위 절대 규칙**:
-   - 회원 본인의 Google Gemini API 키만 사용하며, 운영자 키나 공용 키로 폴백하지 않음.
-   - 키는 `user_api_keys` 테이블에 `user_id` 단위로 암호화 격리 저장.
-2. **AIMaster 통합 권한 (Rule 6)**:
-   - `requireProgramAccess()`를 통해 로그인 회원 권한을 검증. FREE 배지 프로그램의 경우 가입 회원 누구나 이용 가능.
+### 4대 핵심 작업 흐름 (Workflow)
+1. **컴포넌트 갤러리 (`/?tab=gallery`)**: Button, Input, Modal, Slider, Tabs 등 12대 필수 UI 요소의 모든 변형(Variants), 사이즈, 활성/비활성/로딩 상태를 그리드 뷰로 실시간 비교 및 조작.
+2. **인터랙티브 데모실 (`/?tab=demos`)**: 10종 실무 시나리오(RPG 어드벤처 버튼, 실시간 폼 유효성 검사, 이커머스 상세 탭, 다국어/테마 컨트롤, 미디어 플레이어 슬라이더, 파일 업로드 결과 알림, 비동기 로더, 툴팁, 모달 vs 팝업, 퀵 프로필 팝오버) 인터랙션을 모달로 직접 체험.
+3. **코드 라이브러리 (`/?tab=code`)**: 불필요한 의존성 없이 순수 React 19 + Tailwind CSS로 작성된 클린 TSX 소스 코드를 구문 강조 뷰어에서 원클릭 복사.
+4. **AI 컴포넌트 생성기 (`/?tab=ai`)**: 자연어 프롬프트("다크 테마 매출 통계 카드 만들어줘") 입력 시 Gemini API로 클린 TSX 코드를 실시간 스트리밍 빌드.
+
+### 장점
+1. **Zero External Dependency**: 별도 npm 컴포넌트 라이브러리 없이 순수 TSX 단일 파일로 복사하여 프로젝트에 즉시 투입 가능.
+2. **실시간 시뮬레이션 데모**: 단순 시각 나열을 넘어 실무 로직(상태 관리, 폼 검증, 이벤트 핸들링)이 구현된 10종 라이브 데모 제공.
+3. **미드나잇 다크 네이비 몰입감**: 개발자 중심의 고대비 다크 테마로 장시간 컴포넌트 코드 확인 시 눈의 피로도 최소화.
+
+### 단점 및 개선 여지
+1. AI 생성 컴포넌트의 실시간 인라인 샌드박스 렌더링(Live Preview Sandbox) 미지원 (현재는 TSX 코드 출력 및 복사 중심).
+2. 컴포넌트 내보내기 시 파일 단위 ZIP 일괄 다운로드 기능 부재.
 
 ---
 
-## 6. 개발 및 유지보수 가이드
+## 4. 버전별 변경 히스토리
+- **v1.05 (2026-10-18, Antigravity CLI)**:
+  - 크리에이티브 아틀리에 — 리액트 쇼케이스 변형 디자인 리뉴얼 (`#0a0d14`, `#111622`, 사이언 `#38bdf8`, 바이올렛 `#a855f7`).
+  - 비주얼 에디토리얼 가이드북 (`/guide`) 전면 고도화 (히어로 배너, 4단계 파이프라인, 12대 컴포넌트 규격 테이블, FAQ 아코디언).
+  - Microsoft Edge 최전면 포그라운드 실세션 6종 검수 완료 및 데스크톱 갤러리 10분 화면 유지.
+- **v1.04 (2026-10-16)**: 최상위 Supabase 데이터베이스 연동 변수 호환 작업.
+- **v1.03 (2026-10-13)**: 12대 핵심 컴포넌트 및 10종 인터랙티브 시뮬레이터 데모 릴리즈.
+- **v1.00 (2026-10-13)**: 최초 정식 릴리즈.
 
-- **로컬 실행**: `npm run dev`
-- **프로덕션 빌드 검증**: `npm run build`
-- **배포 명령**: `vercel deploy --prod --yes`
-- **버전 상향 규칙**: 사소한 수정/패치 시 마이너 버전 상향(`v1.01 -> v1.02`), 코드 `src/lib/version.ts` 및 DB `programs.version` 동시 갱신.
+---
 
+## 5. 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 내용은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) 참조.
+- AI 생성 컴포넌트의 실시간 브라우저 샌드박스 프리뷰 렌더러 (Sandpack 또는 iframe 기반 가상 렌더링) 탑재.
+- 전체 12대 컴포넌트를 한 번에 프로젝트에 복사할 수 있는 `components.zip` 일괄 다운로드 번들 기능.
 
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (ai-web-ui)
+---
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 6. 기존 타 자동화 프로그램과의 연계 / 기능 병합 제안
+1. **`landing-architect` (AI 랜딩페이지 기획 자동화) 연계**: 랜딩 아키텍트에서 생성된 기획 섹션(Hero, Feature, CTA)을 원클릭으로 `react-ui-showcase`의 컴포넌트 라이브러리와 매핑하여 즉시 실물 리액트 랜딩페이지 코드로 변환.
+2. **`ui-canvas` (UI Canvas 자동화) 연계**: 캔버스에서 드래그앤드롭으로 배치한 레이아웃 블록의 실제 컴포넌트 구현 코드를 `react-ui-showcase`의 TSX 템플릿으로 추출.
+3. **`code-generator` (AI 풀스택 코드 생성기) 연계**: 프론트엔드 UI 파트의 표준 컴포넌트 스펙으로 쇼케이스의 12대 컴포넌트 라이브러리를 기본 주입.
+
+---
+
+## 7. 사용자 편의성 증대를 위한 UI/UX 개선안
+1. **원클릭 테마 변환기 (Theme Customizer)**: 갤러리 화면에서 사이언, 바이올렛, 에메랄드, 로즈골드 등 브랜드 색상을 고르면 TSX 코드의 Tailwind 색상 클래스가 자동으로 치환되는 실시간 테마 스위처.
+2. **반응형 뷰포트 프리뷰 토글**: 각 컴포넌트 데모 창 상단에 모바일(375px), 태블릿(768px), 데스크톱(1200px) 크기로 즉시 미리보기 크기를 조절할 수 있는 리사이징 툴바 도입.
+3. **컴포넌트 의존성 트리 시각화**: 해당 컴포넌트가 사용하는 Lucide 아이콘 및 Tailwind 플러그인 목록을 칩으로 제공하여 복사 시 개발 편의성 증대.

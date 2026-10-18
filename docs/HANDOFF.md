@@ -1,5 +1,59 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-18 Antigravity CLI(agy, 윈도우) — AI 웹 UI 제작 자동화 v1.05: 크리에이티브 아틀리에 리액트 쇼케이스 미드나잇 다크 네이비 테마 리뉴얼·비주얼 가이드북 에디토리얼 고도화·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 55개 완료 달성!)
+
+- **대상**: `react-ui-showcase/` (https://react-ui-showcase.buylife.xyz, slug: `ai-web-ui`, 72번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 리액트 쇼케이스 변형 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 리액트 쇼케이스 변형 (Creative Atelier Style — React Showcase Edition)**.
+     - **단일 배경색 및 일관된 테마**: 프로그램 전 페이지(컴포넌트 갤러리 대시보드, 인터랙티브 데모실, 코드 라이브러리, AI 생성기, 비주얼 가이드북, 설정, 로그인) 배경을 미드나잇 다크 네이비(`#0a0d14`), 서피스 카드(`var(--surface): #111622`), 보조 서피스(`var(--surface-alt): #182030`), 테두리(`var(--border): #222d42`), 리액트 사이언 블루(`--brand: #38bdf8`), 바이올렛(`--brand-alt: #a855f7`)으로 완벽 일체화.
+     - 12대 컴포넌트 갤러리와 10종 인터랙티브 데모 시뮬레이터, TSX 코드 뷰어의 리액트 컴포넌트 로직 무결성을 100% 보존하면서 `:root` 토큰 주입 및 상속 덮어쓰기 방식으로 감각적인 프론트엔드 다크 아틀리에 무드 완성.
+  2. **사이드바 브랜드 배지 테마화 및 메뉴명 표준화**:
+     - 좌측 사이드바 컴포넌트 아이콘을 사이언 블루 테마로 시각화하고, 메뉴명을 **`📖 연동 & 사용 매뉴얼` (`/guide`)**로 표준화 (`DESIGN.md` 9번 원칙 충족).
+  3. **비주얼 에디토리얼 가이드북 (/guide) 전면 고도화**:
+     - `REACT UI SHOWCASE EDITORIAL GUIDE` 사이언/바이올렛 그라데이션 히어로 배너 및 `v1.05 리액트 쇼케이스 에디션` 배지 신설.
+     - **4단계 핵심 파이프라인 비주얼 카드** (1. 컴포넌트 갤러리 탐색 ➔ 2. 인터랙티브 데모실 ➔ 3. 클린 TSX 코드 복사 ➔ 4. AI 실시간 컴포넌트 생성).
+     - **스타일 칩 4종** (#12대UI컴포넌트, #인터랙티브시뮬레이터, #클린TSX원클릭복사, #AI실시간코드생성기) 수록.
+     - 12대 컴포넌트 규격 및 Props 명세 테이블, 회원 본인 Gemini API 키 발급 가이드, 자주 묻는 질문(FAQ 4종 아코디언) 완비.
+  4. **375px 모바일 뷰포트 반응형 최적화**:
+     - 상단 헤더, 로고 + 프로그램명 + 버전 배지 + 반응형 네비게이션.
+     - 가로 넘침 0px 완벽 방어 및 모바일 수직 스택 최적화.
+  5. **버전 동기화 (v1.05)**:
+     - `src/lib/version.ts`, `package.json` `v1.05` (1.5.0) 갱신.
+     - Supabase DB `programs.version`을 `v1.05`로 업데이트 완료 (`slug: ai-web-ui`).
+  6. **로컬 무결성 검증 통과**:
+     - `npx tsc --noEmit`: TypeScript 컴파일 에러 0건.
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (Compiled in 5.4s).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_GHZWBungd3jsRaQ4RdjhBDSyvqcn`
+     - 공식 도메인 즉시 반영: https://react-ui-showcase.buylife.xyz (및 `ai-web-ui.buylife.xyz`, `web-ui.buylife.xyz`)
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 주인님 실시간 모니터링 보장)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면(최대화)으로 띄워 10분간 화면 유지.
+     - 캡처 6종 아티팩트 보존:
+       - `edge_react_ui_desktop_gallery_v105.png`: 1440px 데스크톱 컴포넌트 갤러리 메인 대시보드
+       - `edge_react_ui_desktop_demos_v105.png`: 1440px 데스크톱 인터랙티브 데모실 (Demos 탭)
+       - `edge_react_ui_desktop_guide_v105.png`: 1440px 데스크톱 비주얼 에디토리얼 가이드북
+       - `edge_react_ui_desktop_settings_v105.png`: 1440px 데스크톱 API 키 설정
+       - `edge_react_ui_mobile_gallery_v105.png`: 모바일 375px 컴포넌트 갤러리
+       - `edge_react_ui_mobile_guide_v105.png`: 모바일 375px 에디토리얼 가이드북
+  9. **문서 6종 작성 완료**:
+     - `react-ui-showcase/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `react-ui-showcase/README.md` (동기화 생성)
+     - `react-ui-showcase/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `react-ui-showcase/docs/IMPROVEMENTS.md` (개선 제안서)
+     - `react-ui-showcase/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `react-ui-showcase/docs/PLAN_20261018_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 72번 행 ✅ 1차 작업완료 (`v1.05`, 크리에이티브 아틀리에 스타일 — 리액트 쇼케이스 변형) 갱신 및 전체 통계 (누적 ✅ 55개 완료 / ⚪ 26개 예정 / ⏸ 2개 보류 — 66.3% 달성)
+      - `docs/ACTIVE_WORK.md`: 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - `buylifemall@naver.com` 일반 회원 테스트 계정으로 컴포넌트 갤러리 진입, 버튼/입력/모달/탭 라이브 컴포넌트 렌더링, 데모실 전환, TSX 코드 뷰어, 가이드북 정상 확인.
+  - 데스크톱/모바일 뷰포트 전환 시 레이아웃 깨짐 없음.
+- **못 한 것**:
+  - 유료 Gemini API 생성 실제 호출(테스트 비용 최소화 지침 준수).
+- **프로그램 링크**:
+  - 공식 프로덕션: https://react-ui-showcase.buylife.xyz
+
 ## 2026-10-18 Claude Code(윈도우) — AI 4컷 만화 자동화 v1.12 디자인 리뉴얼 배포 (✅ 1차 작업완료, 81번)
 
 - **대상**: `four-cut-comics/` (https://four-cut-comics.buylife.xyz) — 「크리에이티브 아틀리에 — 코믹 파스텔 변형」(구현·커밋은 오전 `db494473`). 당초 10-19 배포 예정이었으나 주인님 배포 규칙 정정(순차 배포 원칙)으로 오늘 인물사진 다음 순서로 배포.

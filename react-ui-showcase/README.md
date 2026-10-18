@@ -1,40 +1,40 @@
-# AI 웹 UI 제작 자동화 (Web UI AI Studio)
+# AI 웹 UI 제작 자동화 (react-ui-showcase / ai-web-ui)
 
-> **React 19 & Tailwind CSS v4 기반 12대 필수 UI 컴포넌트 및 인터랙티브 데모 시뮬레이터, TSX 코드 복사기 & AI 웹 UI 자동 생성기**
+React 19 및 Tailwind CSS 기반의 12대 필수 UI 컴포넌트 갤러리, 10종 인터랙티브 시뮬레이터 데모, 클린 TSX 원클릭 소스 코드 복사 라이브러리 및 AI 맞춤 컴포넌트 실시간 생성 솔루션입니다.
 
-- **버전**: `v1.03`
-- **도메인**: [https://ai-web-ui.buylife.xyz](https://ai-web-ui.buylife.xyz) (카탈로그 상세: [https://www.buylife.xyz/programs/ai-web-ui](https://www.buylife.xyz/programs/ai-web-ui))
-- **개발 환경**: Next.js 16 (App Router), React 19, Tailwind CSS v4, TypeScript, Supabase SSR, Google Gemini 2.5 Flash
-
----
-
-## 🚀 주요 기능
-
-1. **12대 필수 UI 컴포넌트 갤러리**:
-   - Button, Input, Modal, Tabs, Select, RadioGroup, Checkbox, Toggle, Slider, Alert, Spinner, ProgressBar, Tooltip, Popover 등 완벽한 변형 및 상태 프리셋 제공
-2. **10종 인터랙티브 데모 시뮬레이터**:
-   - 실무 환경에서 마주치는 다양한 인터랙션 시나리오(폼 검증, 어드벤처 버튼, 미디어 플레이어 동기화, 알림 등)를 직접 체험
-3. **클린 TSX 소스 코드 원클릭 복사**:
-   - 외부 무거운 의존성 없이 순수 React와 Tailwind CSS로 작성된 컴포넌트 코드를 원클릭 복사하여 프로젝트에 즉시 활용
-4. **Gemini AI 컴포넌트 자동 빌더**:
-   - 회원 본인의 Gemini API 키를 연동하여 자연어 프롬프트 기반으로 즉시 맞춤형 TSX 컴포넌트 코드 자동 생성
+- **공식 서비스 URL**: [https://react-ui-showcase.buylife.xyz](https://react-ui-showcase.buylife.xyz)
+- **현재 버전**: `v1.05`
+- **적용 템플릿**: **크리에이티브 아틀리에 스타일 — 리액트 쇼케이스 변형**
 
 ---
 
-## 🛠️ 시작하기
+## 1. 개요 및 사용 목적
+- 외부 무거운 UI 프레임워크 설치 없이 즉시 프로젝트에 복사해 사용할 수 있는 단일 파일 클린 TSX 컴포넌트 제공.
+- 실무 인터랙션(폼 검증, 탭 전환, 미디어 플레이어 등)을 팝업으로 직접 조작해 보는 10종 실전 데모실 운영.
+- 회원 본인의 Google Gemini API 키를 연동하여 자연어 프롬프트 기반으로 즉시 맞춤 UI 컴포넌트 TSX 코드 생성.
 
-```bash
-# 의존성 설치
-npm install
+---
 
-# 개발 서버 실행
-npm run dev
+## 2. 4대 핵심 작업 흐름 (Workflow)
+1. **컴포넌트 갤러리 (`/?tab=gallery`)**: 12대 필수 UI 요소의 모든 변형, 크기, 상태 실시간 비교
+2. **인터랙티브 데모실 (`/?tab=demos`)**: 10종 실무 시나리오 인터랙션 체험
+3. **코드 라이브러리 (`/?tab=code`)**: 클린 TSX 코드 구문 강조 뷰어 및 원클릭 복사
+4. **AI 컴포넌트 생성기 (`/?tab=ai`)**: 자연어 프롬프트 기반 맞춤 컴포넌트 자동 빌드
 
-# 프로덕션 빌드
-npm run build
-```
+---
 
+## 3. 기술 스택
+- Next.js 16.2.11 (Turbopack, App Router)
+- React 19.2.4, TypeScript 5.9
+- Tailwind CSS 4.0.0
+- Google Gemini API (`@google/genai`)
+- Supabase (Auth, PostgreSQL)
 
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (ai-web-ui)
+---
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 4. 인수인계 및 작업 문서
+- 개발 및 작업 지침 규격서: [`AGENTS.md`](AGENTS.md)
+- 디자인 리뉴얼 인수인계서: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)
+- 개선 제안 보고서: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
+- 작업 대기 백로그: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
+- 사전 개발 플랜: [`docs/PLAN_20261018_DESIGN_RENEWAL.md`](docs/PLAN_20261018_DESIGN_RENEWAL.md)
