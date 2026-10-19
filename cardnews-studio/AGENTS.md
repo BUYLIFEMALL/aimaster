@@ -50,7 +50,14 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.17` (2026-10-19)
+- **현재 버전**: `v1.18` (2026-10-19)
+- **v1.18 (2026-10-19, Claude Code 윈도우) — 📤 인스타그램에 바로 올리기(자동 포스팅 1차: 즉시 게시)** — 주인님 지시 「모든 인스타 자동화 프로그램은 자동 포스팅까지」, 「한 번 연결하면 여러 프로그램에서 가져와 쓰기」:
+  - 내보내기 화면 패널(`components/studio/InstagramPublishPanel.tsx`): 연결 상태(연결됨 @계정 / 연결 필요·만료 → INSTA 포스팅 자동화 설정으로 이동), 게시 문구(캡션 생성값 자동 채움, 2200자), 공개 게시 확인 체크 후 [인스타그램에 게시] — 1장=피드, 2~10장=캐러셀.
+  - 흐름: 브라우저에서 카드를 JPEG로 그림(`renderClient.ts` `renderCardToJpegBlob`, 인스타 API는 JPEG만) → `POST /api/cardnews/instagram/upload`(회원 폴더 `{userId}/insta/{묶음}/NN.jpg` 서명 업로드 주소) → 공개 저장소 `cardnews-images`에 올림 → `POST /api/cardnews/instagram/publish`(경로가 본인 폴더인지 검사, 회원 본인 연결값으로 게시, 성공·실패 모두 임시 파일 삭제, 오류 메시지에서 토큰 가림) → 게시물 주소 표시. `GET /api/cardnews/instagram`은 연결 상태만(토큰 미포함).
+  - **연결값은 새로 등록하지 않음**: `src/lib/instagram/memberAccount.ts`가 INSTA 포스팅 자동화에서 회원이 한 번 연결한 공용 DB `insta_accounts`(로그인한 회원 본인 행만)를 읽음 — 루트 최상위 지침 「회원 연동 정보 공용 저장·재사용 규칙」(① AIMaster 운영).
+  - 게시 엔진: 공용 기준 코드 `instagram-publish`(기준 `insta_auto_poster/src/lib/instagram/publish.ts`) 사본 `src/lib/instagram/publish.ts` — 직접 고치지 말 것.
+  - 검수: 단위 42/42, tsc, 빌드, Vercel READY(`cardnews-studio-exjf8a7z8`), DB v1.18. 운영 확인(메인 크롬, 관리자): 연결 상태 API 200 `connected:true, @buylife.co.kr`, 응답에 토큰 없음, 내보내기 패널 표시·확인 체크 전 버튼 비활성. **실제 게시는 외부 공개라 주인님 확인 대기.**
+  - 다음: 예약 게시(2차), 인플루언서·웹툰에 같은 방식 적용(대기 목록).
 - **v1.17 (2026-10-19, Claude Code 윈도우) — 🔥 떡상 리메이크 2단계: 데이터형 카드 레이아웃 3종**:
   - 카드마다 레이아웃(`CardPage.layout`): 배경형(기존·기본) · **번호 목록**(`points` 2~4, 번호 배지+반투명 상자) · **A vs B**(`points` 2칸, 가운데 VS 원) · **큰 숫자**(`number{value,label}`). 데이터형은 진한 막(최소 70%)+흰 글자+주황 강조색, 글자 크기 고정(제목 ≤72px·항목 40/30px)이라 항목이 많아도 작아지지 않음. 배치 계산은 순수 함수(`layout.ts` `layoutDataHeader`·`layoutList`·`layoutVs`·`layoutNumber`·`centeredTop` — 제목 아래 남는 공간 가운데 배치), 그리기는 `render.ts` `drawDataCard`.
   - 떡상 리메이크 문구: AI가 장마다 레이아웃과 데이터를 함께 씀(1장 배경형, 목록=list, 비교=vs, 자료에 있는 수치만 number, 마지막 장 3줄 요약 list). `parseRemakeCopy`가 데이터가 모자란 장은 배경형으로 되돌림. 주제로 시작(일반) 흐름은 그대로 배경형.

@@ -7,6 +7,7 @@ import { buildZip } from "@/lib/cardnews/zip";
 import { CardCanvas } from "@/components/studio/CardCanvas";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, NeedPlan, StepHeader } from "@/components/studio/ui";
+import { InstagramPublishPanel } from "@/components/studio/InstagramPublishPanel";
 
 function saveBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -236,6 +237,9 @@ export default function ExportPage() {
           </div>
         )}
       </Card>
+
+      {/* 2-1. 인스타그램에 바로 올리기(v1.18) */}
+      <InstagramPublishPanel />
 
       {/* 3. 개별 카드 갤러리 */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

@@ -29,6 +29,7 @@
 
 | 모듈 id | 기능 | 기준(여기만 고침) | 사본 | 기준으로 고른 이유 | 최근 변경 |
 |---|---|---|---|---|---|
+| `instagram-publish` | 인스타그램 게시(피드 1장·캐러셀 2~10장): 컨테이너 생성 → 처리 완료 대기 → 게시 → 게시물 주소, Meta "Timeout" 일시 오류 2회 재시도(`graphBaseFor`·`publishInstagramPost`·`publishInstagramCarousel`). 토큰은 호출부가 회원 본인 연결값(`insta_accounts`)에서 넘김 | `insta_auto_poster/src/lib/instagram/publish.ts` (기존 `client.ts`의 게시 부분을 동작 그대로 옮김, `client.ts`는 다시 내보냄) | `cardnews-studio/src/lib/instagram/publish.ts` — 인플루언서·웹툰 적용 예정 | 실제 예약·즉시 게시를 운영 중인 유일한 구현 | 2026-10-19 등록 — cardnews-studio v1.18 |
 | `safe-fetch` | 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(SSRF 방지) — 리디렉트마다 다시 검사, 검사한 IP로 연결을 고정해 DNS 바꿔치기(rebinding) 방지, 인증 정보 포함 URL 거부 (`assertPublicUrl`, `safeFetch`, `BlockedUrlError`). 필요 패키지 `undici` 7.30.0 | `ghost-scraper/src/lib/safeFetch.ts` | `cardnews-studio/src/lib/safeFetch.ts` | 저장소의 SSRF 차단 코드 중 리디렉트 재검사·DNS 고정까지 갖춘 유일한 구현(website-scraper SSRF 교훈 반영, `docs/ERROR_LESSONS.md` 2026-10-16) | 2026-10-19 등록 — cardnews-studio v1.16(기사 주소 가져오기) |
 | `image-file-check` | 올린 사진을 브라우저 안에서 실제로 풀어 보고(서버 전송 없음) 깨졌으면 「사진을 읽지 못했어요…」 — `checkImageFile`(createImageBitmap 실패 시 Image로 재확인, 둘 다 실패해야 실패, 확인 수단 없으면 통과)·`splitReadableImages`·`IMAGE_READ_FAIL_MESSAGE` | `portrait-photo/src/lib/imageFileCheck.ts` (+ 테스트 `tests/imageFileCheck.test.mjs`) | `image-convert-studio/src/lib/imageFileCheck.ts`, `photo-remake-studio/src/lib/imageFileCheck.ts`, `banana-canvas/src/lib/imageFileCheck.ts`, `ai-influencer-studio/src/lib/imageFileCheck.ts`, `allinone-graphic/src/lib/imageFileCheck.ts`, `four-cut-comics/src/lib/imageFileCheck.ts`, `seo-thumbnail-pro/src/lib/imageFileCheck.ts`, `cardnews-studio/src/lib/imageFileCheck.ts` (+ 같은 테스트) — 새 이미지 프로그램도 사진을 받는 곳에서 이 사본을 쓴다 | 운영 실측에서 깨진 사진 처리가 제각각(무반응·영어 원문·서버 업로드 후 실패). 단위·브라우저 테스트가 갖춰진 인물사진에 기준을 둠 | 2026-10-19 신설 — portrait-photo v1.29 · image-convert-studio v1.08 · photo-remake-studio v1.10 · banana-canvas v1.11 · ai-influencer-studio v1.13 · allinone-graphic v1.08 · four-cut-comics v1.13 · seo-thumbnail-pro v1.11 (1차 적용 완료) |
 | `youtube-data-client` | YouTube Data API 읽기 호출 — 15초 시간 제한, 서버 오류·네트워크만 1회 재시도, 키 가리기, 일일 한도/분당 제한/키 사용 제한 구분 안내(초기화 시각 서머타임 반영), 할당량 계산, 같은 요청 재사용 시간(선택) | `youtube-channel-consultant/src/lib/youtube/youtubeData.ts` (+ 테스트 `tests/youtubeData.test.mjs`) | `youtube-viral-studio/src/lib/youtube/youtubeData.ts`, `shorts-viral-studio/src/lib/youtube/youtubeData.ts` (+ 같은 테스트) | 단일 후보가 다 갖추지 못해 장점을 모아 새로 작성 — 오류 안내 범위(shorts 계열)+할당량 계산(consultant)+재시도·시간 제한·키 가리기 신규 | 2026-10-17 1단계 — consultant v1.09, viral-studio v1.18, shorts-viral-studio v1.10 / 2단계 — ai-auto-blog v1.68, tistory-auto-blog v1.75, naver-blog-agent v1.88, threads-content-ops v1.99, trending-product-finder v1.14 (2단계는 폴더 구조가 달라 공용 테스트 파일 없이 각 프로그램 기존 테스트로 확인) |
@@ -52,7 +53,7 @@
 
 | 기준 변경(날짜·내용) | 아직 배포 안 된 프로그램 | 비고 |
 |---|---|---|
-| (현재 없음 — 2026-10-18까지의 변경은 모두 배포됨) | | |
+| 2026-10-19 `instagram-publish` 기준 분리(게시 함수를 `publish.ts`로 옮기고 `client.ts`가 다시 내보냄 — 동작 같음) | `insta_auto_poster` | tsc·`test:own-meta` 통과. 다음 배포 때 버전 +0.01과 함께 나감 |
 
 ## 2026-10-19 기능 안정화·점진 레퍼런스 모듈화와 아이디어 검토
 

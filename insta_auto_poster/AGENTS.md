@@ -122,3 +122,8 @@
 ## 2026-10-18 — 예약 화면 안내 문구 「예약 시각 후 5분 안에 자동으로 발행됩니다」 (Claude Code 윈도우, **미배포 — 다음 배포 때 함께**)
 - `src/components/posts/PostForm.tsx` 예약 시각 입력란에 안내 추가. 정확히 그 분에 안 올라가도 회원이 헷갈리지 않게(예약 게시 누락 방지 ②, 플랜 `docs/PLAN_20261018_SCHEDULED_DISPATCH_MONITOR.md`).
 - 급하지 않은 화면 문구라 비용 규칙에 따라 커밋만 함. **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 넣을 것.** 검수: tsc 0.
+
+## 2026-10-19 — 게시 코드를 공용 기준 코드 `instagram-publish`로 분리 (Claude Code 윈도우, **미배포 — 다음 배포 때 함께**)
+- `src/lib/instagram/publish.ts`(새 파일, **공용 기준**): `client.ts`에 있던 게시 함수(`graphBaseFor`·`publishInstagramPost`·`publishInstagramCarousel`과 내부 컨테이너·대기·재시도)를 동작 그대로 옮김. `client.ts`는 이 파일에서 다시 내보내 기존 import는 그대로 동작. 사본: `cardnews-studio/src/lib/instagram/publish.ts`(v1.18 인스타 바로 게시). 고칠 때는 이 파일만 고치고 `node scripts/check-shared-modules.mjs --sync`.
+- 이 프로그램의 `insta_accounts`(회원별 인스타 연결값)는 루트 최상위 지침 「회원 연동 정보 공용 저장·재사용 규칙」에 따라 카드뉴스·인플루언서·웹툰이 새로 등록하지 않고 가져다 씀 — 테이블 구조를 바꿀 때는 그 프로그램들도 함께 확인.
+- 검수: tsc 0, `npm run test:own-meta` 통과. 동작 변화 없어 배포·버전 변경 없이 커밋만 — **다음 배포자는 버전 +0.01하고 이 항목을 버전 기록에 넣을 것.**

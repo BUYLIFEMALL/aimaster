@@ -60,6 +60,16 @@ export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
+/** 인스타그램 게시용 JPEG(인스타그램 API는 JPEG만 받음). 배경 이미지를 못 불러오면 오류. */
+export async function renderCardToJpegBlob(page: CardContent, style: CardStyle, ratio: RatioId, bgUrl?: string): Promise<Blob> {
+  const canvas = document.createElement("canvas");
+  const { imageFailed } = await renderCardToCanvas(canvas, page, style, ratio, bgUrl);
+  if (imageFailed) throw new Error("배경 이미지를 불러오지 못해 올릴 수 없습니다. 배경을 다시 생성해주세요.");
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("JPEG로 만들지 못했습니다."))), "image/jpeg", 0.92);
+  });
+}
+
 /** 페이지 1장을 PNG 파일 데이터로 만든다(내보내기용). */
 export async function renderCardToBlob(page: CardContent, style: CardStyle, ratio: RatioId, bgUrl?: string): Promise<Blob> {
   const canvas = document.createElement("canvas");
