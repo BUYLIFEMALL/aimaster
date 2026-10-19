@@ -8,6 +8,7 @@ import { postFormSchema } from "@/lib/validation";
 import { publishPost } from "@/lib/posts/publish-core";
 import { dispatchScheduledPostsForUser } from "@/lib/posts/dispatch";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled } from "@/lib/posts/memberScheduler";
 
@@ -15,19 +16,12 @@ export interface PostActionState {
   error?: string;
 }
 
+// v1.21: 공용 연결 계정(다른 Threads 프로그램에서 연결한 것 포함) → 없으면 이 프로그램 표
 async function getThreadsAccountOrError(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  _supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
 ) {
-  const { data, error } = await supabase
-    .from("threads_accounts")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(error.message);
-  }
+  const data = await getThreadsAccountForUser(userId);
   if (!data) {
     throw new Error("먼저 Threads 계정을 연결해주세요.");
   }

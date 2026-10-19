@@ -8,6 +8,7 @@ import {
   getThreadsUserProfile,
 } from "@/lib/threads/client";
 import { SITE_ORIGIN, THREADS_REDIRECT_FOR } from "@/lib/oauthRedirect";
+import { saveSharedThreadsAccount } from "@/lib/threads/memberAccount";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -81,6 +82,16 @@ export async function GET(request: NextRequest) {
     if (error) {
       throw new Error(error.message);
     }
+
+    // v1.21 회원 연동 정보 공용 저장: 다른 Threads 프로그램도 다시 연결하지 않고 쓰도록 공용 표에도 저장(이중 기록)
+    await saveSharedThreadsAccount({
+      userId: user.id,
+      threadsUserId: profile.id,
+      username: profile.username ?? null,
+      accessToken: longLived.access_token,
+      tokenExpiresAt,
+      appId,
+    });
 
     return NextResponse.redirect(`${siteUrl}/settings?connected=1`);
   } catch {

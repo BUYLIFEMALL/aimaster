@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
@@ -38,9 +39,10 @@ export default async function SettingsPage({
   const supabase = await createClient();
   const { connected, error } = await searchParams;
 
-  const [{ data: keys }, { data: account }] = await Promise.all([
+  // v1.21: 다른 Threads 프로그램에서 연결한 공용 계정도 「연결됨」으로 보여 준다
+  const [{ data: keys }, account] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
-    supabase.from("threads_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getThreadsAccountForUser(user.id),
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
@@ -140,12 +142,16 @@ export default async function SettingsPage({
               <p className="mt-1 text-lg font-medium text-neutral-900">
                 @{account.username ?? account.threads_user_id}
               </p>
+              {account.source === "shared" && account.connected_via && account.connected_via !== "auto-threads-posting" && (
+                <p className="mt-1 text-xs text-neutral-500">다른 프로그램({account.connected_via})에서 연결한 계정을 함께 사용 중입니다.</p>
+              )}
               {account.token_expires_at && (
                 <p className="mt-1 text-xs text-neutral-500">
                   토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
                 </p>
               )}
-              <form action={disconnectThreadsAccountAction} className="mt-4">
+              <p className="mt-3 text-xs text-neutral-500">연결을 해제하면 이 계정을 함께 쓰는 다른 Threads 프로그램에서도 해제됩니다.</p>
+              <form action={disconnectThreadsAccountAction} className="mt-2">
                 <Button type="submit" variant="danger">
                   연결 해제
                 </Button>

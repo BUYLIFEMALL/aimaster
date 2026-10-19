@@ -12,6 +12,12 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
   {
+    // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
+    id: "member-integrations",
+    source: "lib/memberIntegrations.ts",
+    copies: ["threads/src/lib/memberIntegrations.ts"],
+  },
+  {
     // 인스타그램 게시(피드 1장·캐러셀 2~10장) — 회원 본인 연결값(insta_accounts, 한 번 연결해 여러 프로그램이 함께 사용). 2026-10-19
     id: "instagram-publish",
     source: "insta_auto_poster/src/lib/instagram/publish.ts",

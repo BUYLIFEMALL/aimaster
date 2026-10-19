@@ -2,7 +2,7 @@
 
 > **프로그램명**: Threads 포스팅 자동화 (`auto-threads-posting`)  
 > **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
-> **현재 버전**: `v1.20`  
+> **현재 버전**: `v1.21`  
 > **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**  
 > **관리자 계정**: `buylifemall@gmail.com`  
 > **일반 테스트 계정**: `buylifemall@naver.com`
@@ -50,6 +50,14 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+
+### `v1.21` (2026-10-20) - Claude Code (윈도우) — 회원 연동 정보 공용 저장 ②단계 시범 (Threads 계정 한 번 연결 → 여러 Threads 프로그램 함께 사용)
+- 루트 [`docs/MEMBER_INTEGRATIONS.md`](../docs/MEMBER_INTEGRATIONS.md)·플랜 [`docs/PLAN_20261020_MEMBER_INTEGRATIONS.md`](../docs/PLAN_20261020_MEMBER_INTEGRATIONS.md). 공용 부품 사본 `src/lib/memberIntegrations.ts`(기준 루트 `lib/memberIntegrations.ts`, `check-shared-modules.mjs` 「member-integrations」 — 사본 직접 수정 금지).
+- `src/lib/threads/memberAccount.ts`: `getThreadsAccountForUser()` = 공용 표 `member_platform_accounts`(게시 권한 있고 재연결 필요 아님) → 없으면 `threads_accounts`. 즉시 게시(`actions/posts.ts`)·예약 발행(`posts/dispatch.ts`)·설정/대시보드/새 글/글 상세/수정 화면이 모두 이 함수로 읽음.
+- 연결 콜백: `threads_accounts` 저장 + 공용 표에도 저장(이중 기록, 권한 `threads_basic,threads_content_publish`, `app_ref`=회원 Threads 앱 ID). 공용 저장 실패는 로그만(연결은 그대로).
+- 연결 해제: `threads_accounts` + 공용 표 Threads 계정 함께 삭제. 설정 화면에 「해제하면 함께 쓰는 다른 Threads 프로그램에서도 해제」, 다른 프로그램에서 연결한 계정이면 「다른 프로그램(…)에서 연결한 계정을 함께 사용 중」 안내.
+- 운영 DB: `supabase/migrations/20261020100000_member_integrations_v1_21.sql` — 이 프로그램 표의 **만료되지 않은 연결만** 공용 표로 백필(원본 유지) + `programs.version` v1.21.
+- 함께 나감(버전 없이 배포됐던 agy 변경 `fd69da1d`): 설정 화면 Meta 주소 카드 배경 밝게(`ThreadsMetaAddressSummary`·`CopyAddress`).
 
 ### `v1.20` (2026-10-19) - Claude Code (윈도우) — 날짜·예약 시각 한국 시간 표시
 - 서버 화면(`dashboard`·`posts`·`posts/[id]`·`settings` 페이지)이 `toLocaleString("ko-KR")`를 시간대 없이 써서 Vercel(UTC) 기준으로 그려 9시간 이르게 보였다(INSTA v1.25 검수 중 같은 문제 발견). 6곳 + `CandidateList` 1곳에 `timeZone: "Asia/Seoul"`. 버전 기록 `supabase/migrations/20261019260000_kst_display_v1_20.sql`(구조 변경 없음).

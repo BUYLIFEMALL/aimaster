@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { createClient } from "@/lib/supabase/server";
 import { PostForm } from "@/components/posts/PostForm";
 import { createPostAction } from "@/lib/actions/posts";
@@ -28,11 +29,8 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     }
   }
 
-  const { data: account } = await supabase
-    .from("threads_accounts")
-    .select("id")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  // v1.21: 공용 연결 계정 포함
+  const account = await getThreadsAccountForUser(user.id);
 
   return (
     <div className="mx-auto max-w-2xl">

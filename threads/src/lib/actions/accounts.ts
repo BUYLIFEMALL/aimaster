@@ -7,6 +7,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getThreadsAuthorizeUrl } from "@/lib/threads/client";
 import { THREADS_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
+import { deleteSharedThreadsAccount } from "@/lib/threads/memberAccount";
 
 export async function connectThreadsAccountAction() {
   await startThreadsOAuth("old");
@@ -39,6 +40,8 @@ export async function disconnectThreadsAccountAction() {
   const supabase = await createClient();
 
   await supabase.from("threads_accounts").delete().eq("user_id", user.id);
+  // v1.21: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedThreadsAccount(user.id);
 
   revalidatePath("/accounts");
 }

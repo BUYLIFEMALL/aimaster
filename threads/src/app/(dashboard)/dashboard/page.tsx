@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
@@ -14,13 +15,13 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: posts }, { data: account }, { data: program }] = await Promise.all([
+  const [{ data: posts }, account, { data: program }] = await Promise.all([
     supabase
       .from("posts")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase.from("threads_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getThreadsAccountForUser(user.id),
     // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
     // short_desc)를 그대로 가져와 보여준다(naver-cafe-poster에서 먼저 만든 패턴, 2026-09-13).
     // 이 프로젝트의 database.types.ts는 아직 programs 테이블을 포함하지 않아(루트 공용 테이블이라

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { Button } from "@/components/ui/Button";
@@ -16,9 +17,9 @@ export default async function PostDetailPage({
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: post }, { data: account }] = await Promise.all([
+  const [{ data: post }, account] = await Promise.all([
     supabase.from("posts").select("*").eq("id", id).eq("user_id", user.id).maybeSingle(),
-    supabase.from("threads_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+    getThreadsAccountForUser(user.id),
   ]);
 
   if (!post) notFound();
