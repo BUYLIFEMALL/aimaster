@@ -1,7 +1,7 @@
 # 🤖 네이버 카페 포스팅 자동화 에이전트 인수인계 가이드 (AGENTS.md)
 
 > **최종 갱신**: 2026-10-19 (Antigravity CLI `agy`)  
-> **현재 버전**: `v1.20` (플로우 위저드 스타일 — 네이버 카페 그린 에디션)  
+> **현재 버전**: `v1.21` (플로우 위저드 스타일 — 네이버 카페 그린 에디션)  
 > **공식 서비스 URL**: [https://naver-cafe-poster.buylife.xyz](https://naver-cafe-poster.buylife.xyz)  
 > **공식 가이드북**: [https://naver-cafe-poster.buylife.xyz/guide](https://naver-cafe-poster.buylife.xyz/guide)  
 > **적용 디자인 템플릿**: **플로우 위저드 스타일 — 네이버 카페 그린 에디션 (Flow Wizard Style — Naver Cafe Green Edition)**
@@ -62,6 +62,13 @@
 ---
 
 ## 4. 현재 버전 및 버전 히스토리 (Changelog)
+
+- **v1.21 (2026-10-20, Claude Code 윈도우) — ⏰ 정기 자동 실행 방식 회원 선택(AIMaster 기본 Vercel / 본인 cron-job.org) + 중복 실행 방지·비밀값 검사 보완** — 주인님 「정기형에도 적용」. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `threads/` v1.19.
+  - 정기형 차이: 작업은 **정기 실행 스위치를 켤 때** 켜고 **켜진 정기 소스가 0개면** 끈다(소스 끄기·삭제·회원 실행 뒤 확인). cron-job.org 확인 주기 **5분**(`minutes` 0,5,…,55). 24시간 규칙 대신 기존 `isScheduleDue`(주기) 그대로.
+  - 코드: `src/lib/scheduledSource/cronJobOrg.ts`·`memberScheduler.ts`(표 `ncafe_member_scheduler`, 토큰 `ncafe_…` DB엔 해시, 끄기 스위치 `NCAFE_PLATFORM_SCHEDULER=off`, 기본 Vercel, `remainingScheduled` = 켜진 정기 소스 수), `dispatch.ts`(운영자 주소에서 옮긴 실행 로직 + 옵션 `userId`·`excludeUserIds`·`failWithMessage` + **조건부 `last_run_at` 선점** — 일시 오류면 선점 값을 되돌려 예전처럼 다음 5분에 재시도, 후보 없음은 엔진이 바꾼 값 유지), `/api/cron/generate-and-post`(vercel·비일시정지 회원만, **`CRON_SECRET` 비어 있으면 401** — 예전엔 `Bearer undefined`로 통과 가능), 새 `/api/cron/dispatch-member`(회원 토큰, 즉시 응답 + `after`, 켜진 소스 0개면 작업 끔), `src/lib/actions/scheduler.ts`(방식·일시정지·재개), `scheduledSources.ts` 등록·스위치·삭제 때 `syncMemberScheduler`(켤 때 준비 안 됐으면 스위치를 다시 끄고 안내), `settings.ts` 키 허용·변경·삭제.
+  - 화면: 설정 「⏰ 예약 발행」(`SchedulerModePicker` + 키 칸 + 가입 3단계), 글감 수집 「정기 자동 실행」 상태 줄·일시정지/재개(`components/candidates/SchedulePublishingControl.tsx`), `/guide` FAQ.
+  - DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261020110000_ncafe_member_scheduler.sql` — 2026-10-20 크롬 SQL Editor로 적용, 결과 `ncafe_member_scheduler`·`v1.21`.
+  - 검수: tsc 0, build(새 주소 포함), 배포 `naver-cafe-poster-oun9zc23z`(Ready), 무인증·`Bearer undefined`·가짜 토큰 401, `/login` 200, 새 배포 운영자 실행 200·회원 실행(cron-job.org 호출) 200. 크롬(관리자 본인 키, **실제 카페 게시 없음** — 관리자에게 네이버 연결·게시판이 없어 시험용 게시판·소스를 「정기 실행 꺼짐·마지막 실행=지금·매주」로 DB에 넣어 차례가 오지 않게 함): 「내 cron-job.org」 선택 → 소스 스위치 켜기 → 작업 8678746 자동 생성·켜짐 → 상태 줄 「실행 중 · 켜진 정기 실행 1개」 → 일시정지·재개 → 회원 실행 200인데 소스 미실행(차례 아님) → 스위치 끄기 → 작업 즉시 꺼짐 → Vercel 복귀 → 시험 데이터 삭제.
 
 - **v1.20 (2026-10-19, Antigravity CLI)**:
   - **플로우 위저드 스타일 — 네이버 카페 그린 에디션** 전면 디자인 리뉴얼.
