@@ -7,6 +7,11 @@
 - 남은 일: GPT-5 계열 생성 400(온도 지정 추정, 원장 #14), 휴대폰 목록 가로 넘침(#15), 일반 회원 계정 화면 검수. 인수인계 `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261020.md`.
 - 링크: https://naver-blog-seo-studio.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 쓰레드 포스팅 v1.23: 예약 공용 코드 「실패 시 상태 되돌리기」 마지막 1개 (주인님 「진행해줘」)
+- 다른 세션이 끝난 `threads/`에 11개와 같은 두 곳 수정. 커밋 `497f7e7c`, DB 버전 v1.23(크롬 SQL Editor), 배포 `threads-o66bilp7g` Ready, `/login` 200, 회원 실행 주소 가짜 토큰 401. 이로써 운영 예약 프로그램 12개 모두 적용(Lab `labs/kit-threads`만 별도).
+- 남은 일: 1번(「내 cron-job.org」 성공 경로 실검수: crm 재개·youtube·trending — cron-job.org 한도 해제 확인 후), 2번(crm-google-form 운영자 실행 2026-10-20 09:00 KST 로그 확인).
+- 링크: https://auto-threads-posting.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 예약 공용 코드 「실패 시 상태 되돌리기」 11개 + 예약 리마인드 켜기 실패 안내 (주인님 「순서대로 진행해줘」 3·4번)
 - 고친 것: 「내 cron-job.org」 전환 실패 → 이전 방식으로, 재개 실패 → 일시정지로 되돌림(`memberScheduler.ts` 두 함수). booking-reminder 규칙 켜기 실패 안내 표시. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor 갱신, 11개 **한 개씩 순차 배포** 모두 Ready, `/login` 정상·회원 실행 주소 가짜 토큰 401.
 - 버전: booking-reminder v1.22 · stepmail v1.22 · crm-google-form v1.11 · youtube-auto-reply v1.13 · trending-product-finder v1.16 · kakao_auto_poster v1.23 · naver-cafe-poster v1.23 · cardnews-studio v1.25 · insta_auto_poster v1.29 · threads-affiliate-poster v1.65(배포 `threads-affiliate-poster-7c34y14ei` — 이 프로그램 `AGENTS.md`는 다른 CLI의 미커밋 변경이 있어 기록을 여기에만 남김) · threads-content-ops v2.10.

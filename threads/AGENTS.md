@@ -128,3 +128,7 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.23 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
+- 주인님 「순서대로 진행해줘」(남은 일 4번 마지막). 다른 11개 프로그램과 같은 수정: 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**, 「재개」가 실패하면 **일시정지 상태로 되돌림**(`src/lib/posts/memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler`). 다른 세션(회원 연동 정보 ②단계 v1.22)이 끝나고 미커밋 변경이 없음을 확인한 뒤 작업.
+- 커밋 `497f7e7c`, DB 버전 크롬 SQL Editor로 v1.23, 배포 `threads-o66bilp7g` Ready, `/login` 200, `/api/posts/dispatch-member` 가짜 토큰 401. 실패 경로 실검수는 같은 코드인 booking-reminder에서 확인(2026-10-20).
