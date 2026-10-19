@@ -37,7 +37,7 @@ export function Waveform({ buffer, color }: { buffer: AudioBuffer | null; color:
       const bottom = mid - min * mid;
       ctx.fillRect(x, top, 1, Math.max(1, bottom - top));
     }
-    ctx.fillStyle = "rgba(0,0,0,0.12)";
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
     ctx.fillRect(0, mid, w, 1);
   }, [buffer, color]);
 
@@ -47,5 +47,5 @@ export function Waveform({ buffer, color }: { buffer: AudioBuffer | null; color:
     return () => window.removeEventListener("resize", draw);
   }, [draw]);
 
-  return <canvas ref={ref} className="block h-28 w-full rounded-lg bg-neutral-50" aria-label="파형" />;
+  return <canvas ref={ref} className="block h-28 w-full rounded-lg bg-[#070b13] border border-[#1e293b]" aria-label="파형" />;
 }

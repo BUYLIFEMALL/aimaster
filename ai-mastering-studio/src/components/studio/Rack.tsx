@@ -15,19 +15,22 @@ function Slider({ label, value, range, unit, onChange, disabled }: SliderProps) 
   const [min, max, step] = range;
   return (
     <label className="block">
-      <span className="flex items-center justify-between text-[11px] font-medium text-neutral-500">
+      <span className="flex items-center justify-between text-[11px] font-medium text-slate-400">
         <span>{label}</span>
-        <span className="font-mono text-neutral-800">{fmt(value, step)}{unit}</span>
+        <span className="font-mono text-[#00f0ff] font-bold">{fmt(value, step)}{unit}</span>
       </span>
-      <input type="range" min={min} max={max} step={step} value={value} disabled={disabled} onChange={(e) => onChange(parseFloat(e.target.value))} className="mt-1 w-full accent-indigo-600 disabled:opacity-50" />
+      <input type="range" min={min} max={max} step={step} value={value} disabled={disabled} onChange={(e) => onChange(parseFloat(e.target.value))} className="mt-1 w-full accent-[#00f0ff] disabled:opacity-50 cursor-pointer" />
     </label>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-4">
-      <h4 className="text-xs font-bold tracking-wide text-neutral-800">{title}</h4>
+    <div className="space-y-3 rounded-xl border border-[#1e293b] bg-[#0d121f] p-4.5 shadow-sm">
+      <h4 className="text-xs font-bold tracking-wide text-slate-200 flex items-center gap-1.5">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#00f0ff]"></span>
+        {title}
+      </h4>
       {children}
     </div>
   );
