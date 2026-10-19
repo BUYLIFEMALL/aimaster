@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { formatPhoneNumber } from "@/lib/utils/format";
+import { isValidPhone } from "@/lib/utils/phone";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -15,6 +17,65 @@ async function requireAdmin() {
 
   if (!profile?.is_admin) return { error: "관리자 권한 필요", status: 403 };
   return { user };
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/**
+ * PUT — 관리자가 회원 정보(이름·핸드폰·이메일) 수정 (2026-10-19 주인님 지시: 잘못 입력한 회원 정보 바로잡기).
+ * 이름·핸드폰 규칙은 회원 본인 수정(/api/user/profile)과 같다. 핸드폰은 비우면 미등록(null).
+ * 이메일은 로그인 아이디(auth.users)이므로 auth를 먼저 바꾸고(확인 메일 없이 즉시), profiles 저장이 실패하면 auth를 되돌린다.
+ */
+export async function PUT(req: NextRequest) {
+  try {
+    const auth = await requireAdmin();
+    if ("error" in auth)
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+    const { user_id, name, phone, email } = await req.json();
+    if (!user_id) return NextResponse.json({ error: "user_id 필수" }, { status: 400 });
+
+    const cleanName = typeof name === "string" ? name.trim() : "";
+    if (!cleanName) return NextResponse.json({ error: "이름을 입력해주세요." }, { status: 400 });
+    const rawPhone = typeof phone === "string" ? phone.trim() : "";
+    if (rawPhone && !isValidPhone(rawPhone))
+      return NextResponse.json({ error: "핸드폰 번호를 정확히 입력해주세요. (예: 010-1234-5678, 비우면 미등록)" }, { status: 400 });
+    const cleanEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    if (!EMAIL_RE.test(cleanEmail)) return NextResponse.json({ error: "이메일 형식이 올바르지 않습니다." }, { status: 400 });
+
+    const service = createServiceClient();
+    const { data: current, error: curErr } = await service.from("profiles").select("email").eq("id", user_id).single();
+    if (curErr || !current) return NextResponse.json({ error: "회원을 찾을 수 없습니다." }, { status: 404 });
+
+    const emailChanged = (current.email ?? "").toLowerCase() !== cleanEmail;
+    if (emailChanged) {
+      const { count } = await service.from("profiles").select("id", { count: "exact", head: true }).ilike("email", cleanEmail.replace(/[\\%_]/g, "\\$&")).neq("id", user_id); // _·% 를 글자 그대로 비교
+      if ((count ?? 0) > 0) return NextResponse.json({ error: "이미 다른 회원이 쓰는 이메일입니다." }, { status: 409 });
+      const { error: authErr } = await service.auth.admin.updateUserById(user_id, { email: cleanEmail, email_confirm: true });
+      if (authErr) return NextResponse.json({ error: `로그인 이메일 변경 실패: ${authErr.message}` }, { status: 400 });
+    }
+
+    const { data, error } = await service
+      .from("profiles")
+      .update({ name: cleanName.slice(0, 50), phone: rawPhone ? formatPhoneNumber(rawPhone) : null, email: cleanEmail })
+      .eq("id", user_id)
+      .select("id, name, phone, email")
+      .single();
+
+    if (error) {
+      if (emailChanged && current.email) {
+        await service.auth.admin.updateUserById(user_id, { email: current.email, email_confirm: true });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: true, member: data, emailChanged });
+  } catch (err) {
+    console.error("회원 정보 수정 실패:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "회원 정보 수정 중 오류가 발생했습니다." },
+      { status: 500 },
+    );
+  }
 }
 
 /** PATCH — 회원 정지 / 정지 해제 */

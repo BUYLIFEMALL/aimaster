@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 메인 사이트 관리자 회원 정보 수정(이름·이메일·핸드폰)
+- **한 일**: `/admin/members/[id]`에서 관리자가 회원 이름·이메일·핸드폰을 고칠 수 있게 함 — `PUT /api/admin/members`, `components/admin/MemberInfoFields.tsx`. 이메일은 로그인 아이디라 auth·profiles를 함께 바꾸고 실패 시 되돌림. 상세 `docs/ADMIN_POLICY_GUIDELINES.md` 2026-10-19.
+- **검수**: tsc, 로컬 빌드 통과. 배포는 GitHub 푸시 자동 빌드(메인 사이트). 운영 화면 검수 결과는 아래 이어서 기록.
+- https://www.buylife.xyz/admin/members
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 마스터링 스튜디오 v1.10: 사이버 네온 다크 콘솔 스타일 리뉴얼·/guide 비주얼 가이드북 전면 리뉴얼·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 64개 완료 / 77.1% 달성!)
 
 - **대상**: `ai-mastering-studio/` (https://ai-mastering-studio.buylife.xyz, slug: `ai-mastering-studio`, 77번)

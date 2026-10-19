@@ -143,3 +143,8 @@ select email, phone from profiles where phone is not null and phone<>'' and phon
 - 증상: 10/13~14 VIP로 승급한 회원 19명이 승급 전 받은 개별 부여(`grant_source` 비어 있음, 만료 2026-10-16 00:00 UTC)가 남아 있어, 등급 자동 부여 트리거(`ON CONFLICT DO NOTHING`)가 덮지 못해 오늘부터 27개 프로그램을 쓸 수 없었다(유효 VIP 119/138).
 - 조치: VIP 등급 표에 체크된 프로그램의 만료된 개별 부여 513건을 등급 부여로 전환 — `grant_source='grade'`, `granted_grade_id=VIP`, `expires_at = grade_assigned_at + 365일`(다른 VIP와 같은 기준, 2027-10-13~14). VIP 표에 없는 프로그램의 만료 개별 부여(38건)는 그대로 둠. 결과: VIP 표의 모든 운영 프로그램에서 138/138.
 - 다음부터 확인: 회원을 VIP로 올릴 때 기존 개별 부여가 있으면 자동 부여가 덮지 않는다 → 승급 직후 `user_program_access`에서 그 회원의 개별 부여 만료일을 확인하고, 필요하면 같은 방식으로 등급 부여로 전환한다. 점검 쿼리: VIP 회원 수 vs 프로그램별 유효 부여 수.
+
+## 2026-10-19 추가 — 관리자 회원 정보 수정(이름·이메일·핸드폰) (주인님 지시, Claude Code 윈도우)
+- 배경: 회원가입 때 이름·핸드폰·이메일을 잘못 넣는 회원이 있어 관리자가 바로잡아야 함.
+- 화면: `/admin/members/[id]` 「회원 정보」 카드의 [이름·이메일·핸드폰 수정] → 입력 후 [저장] (`components/admin/MemberInfoFields.tsx`).
+- 서버: `PUT /api/admin/members` (관리자만). 이름 필수·50자, 핸드폰은 `isValidPhone`(010 등 휴대폰만)·`010-1234-5678` 저장·비우면 미등록(null) — 회원 본인 수정 규칙과 같음. **이메일은 로그인 아이디**(전 회원 이메일 로그인, 2026-10-19 확인 260명)라 `auth.admin.updateUserById(email, email_confirm: true)`로 확인 메일 없이 즉시 바꾸고 `profiles.email`도 맞춤. 다른 회원과 겹치면 거절(409), profiles 저장 실패 시 auth 이메일 되돌림. 이메일을 바꾸면 화면에 「로그인 아이디가 바로 바뀜」 경고.
