@@ -16,9 +16,13 @@ kit.json 항목(포장에 쓰는 것):
 프로그램 폴더 맨 위에 복사해 넣는다(프로그램별 사본을 따로 고치지 않는다). 「패키지 설치마법사」 표준: 지침 §2-2.
 포장 뒤 비밀값 자동 검사: .env*(.env.example 제외)·실제 키 패턴이 있으면 실패하고 압축을 지운다.
 
+배포판 번호(2026-10-20 주인님 지시 — 메인 넘버링 정책과 같음): `--version vX.YY` 필수. 다시 포장할 때마다 +0.01(v1.99 다음 v2.00),
+메이저는 주인님 지시 때만. 이름은 <묶음이름>_<버전>(예: SNS_Auto_Posting_Kit_v1.01.zip), 같은 번호가 이미 있으면 덮어쓰지 않고 멈춘다.
+지금까지 낸 번호는 docs/DISTRIBUTION_KIT_GUIDE.md §8 현황표에 적는다.
+
 사용:
-  python scripts/make_lecture_kit.py                                   (기본: SNS 묶음 = threads-content-ops + insta_auto_poster → D:\\PDS)
-  python scripts/make_lecture_kit.py --name 묶음이름 --programs 폴더1 폴더2 [--out 출력폴더]
+  python scripts/make_lecture_kit.py --version v1.01                   (기본: SNS 묶음 = threads-content-ops + insta_auto_poster → D:\\PDS)
+  python scripts/make_lecture_kit.py --version v1.01 --name 묶음이름 --programs 폴더1 폴더2 [--out 출력폴더]
 """
 import argparse
 import glob
@@ -126,12 +130,12 @@ def copy_program(program, kit, dst_root):
         "자세한 설명과 그다음 단계는 [`KIT/README.md`](KIT/README.md), 플랫폼별 가입·API 키 발급은 [`KIT/PLATFORMS.md`](KIT/PLATFORMS.md)에 있습니다.\n")
 
 
-def start_here(name, kits):
+def start_here(name, kits, version):
     rows = "\n".join(f"| `{p}/` | {k.get('title', p)} — {k.get('description', '')} | `{p}/KIT/README.md` |" for p, k in kits)
     titles = " + ".join(k.get("title", p) for p, k in kits)
     return f"""# 설치 키트 — 시작하기
 
-> {STAMP} · {titles} · 윈도우·맥 공통
+> 배포판 {version} ({date.today().isoformat()}) · {titles} · 윈도우·맥 공통
 > 이 압축 파일로 프로그램을 **내 계정**(Supabase·Vercel·플랫폼 앱)에 설치해, 실제로 동작하는 나만의 자동화 웹을 만듭니다.
 > AIMaster와 연결되는 부분은 없습니다. 화면에 보이는 이름도 내 이름/브랜드로 바꿀 수 있습니다.
 
@@ -196,9 +200,14 @@ def main():
     ap.add_argument("--name", default="SNS_Auto_Posting_Kit")
     ap.add_argument("--programs", nargs="+", default=["threads-content-ops", "insta_auto_poster"])
     ap.add_argument("--out", default=r"D:\PDS")
+    ap.add_argument("--version", required=True, help="배포판 번호 vX.YY (예: v1.01) — 다시 포장할 때마다 +0.01")
     args = ap.parse_args()
 
-    kit_name = f"{args.name}_{STAMP}"
+    if not re.fullmatch(r"v\d+\.\d{2}", args.version):
+        sys.exit(f"[실패] 배포판 번호는 vX.YY 형식이어야 합니다(예: v1.01). 입력: {args.version}")
+    kit_name = f"{args.name}_{args.version}"
+    if os.path.exists(os.path.join(args.out, kit_name + ".zip")):
+        sys.exit(f"[실패] {kit_name}.zip 이 이미 있습니다. 같은 번호로 덮어쓰지 않습니다 — 번호를 +0.01 올려 다시 실행하세요.")
     kits = [(p, load_kit(p)) for p in args.programs]
     stage = os.path.join(args.out, kit_name)
     if os.path.exists(stage):
@@ -206,7 +215,7 @@ def main():
     os.makedirs(stage)
     for program, kit in kits:
         copy_program(program, kit, stage)
-    io.open(os.path.join(stage, "00_START_HERE.md"), "w", encoding="utf-8", newline="\n").write(start_here(args.name, kits))
+    io.open(os.path.join(stage, "00_START_HERE.md"), "w", encoding="utf-8", newline="\n").write(start_here(args.name, kits, args.version))
 
     problems = scan_secrets(stage)
     if problems:
