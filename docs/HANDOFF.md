@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 작업 대기 등록(주인님 지시) — 모든 인스타 자동화 프로그램에 자동 포스팅
+- **지시**: 「모든 인스타 자동화 프로그램은 자동 포스팅 기능까지 같이 구현되어 있어야 한다」 → 「작업 대기 리스트에 올려놔」.
+- **대상(게시 기능 없음)**: `cardnews-studio`, `ai-influencer-studio`, `ai-webtoon-studio`. 이미 있음: `insta_auto_poster`. 해당 없음: 댓글·DM 자동화(게시물 생성 도구 아님).
+- **방식**: insta_auto_poster 게시 코드를 공용 기준 코드로 등록 → 사본 적용, 회원 본인 Meta 앱·계정. 각 프로그램 `docs/IMPROVEMENT_BACKLOG.md`와 `docs/SHARED_MODULES.md` 공용화 후보에 기록. 착수 전 플랜 보고·주인님 지시 필요.
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 상세페이지 GIF 자동화(VideoToGIF) v1.10: 크리에이티브 아틀리에 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 69개 완료 / 83.1% 달성!)
 
 - **대상**: `video-to-gif/` (https://video-to-gif.buylife.xyz, slug: `video-to-gif`, 36번)

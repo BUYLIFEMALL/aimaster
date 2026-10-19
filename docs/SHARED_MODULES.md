@@ -44,6 +44,7 @@
 | AI 이미지 생성 | 모델·엔드포인트 기준은 이미 ai-image-studio(`lib/providers/adapters/`). 프로그램마다 호출 코드는 따로 있음 | 모델 호출·대기·이미지 받아오기 코드. **프롬프트 내용은 제외** | 루트 `CLAUDE.md` 「이미지 생성 레퍼런스 규칙」, `docs/IMAGE_MODEL_AUDIT_20261017.md` |
 | 이미지·글 프롬프트 만드는 틀 | 연도 주입·한국인 기본 규칙 문장이 프로그램마다 복사돼 있음 | 공통 규칙 문장과 조립 함수(틀)만. 프로그램별 컨셉·스타일 문장은 각자 | `docs/IMAGE_PROMPT_RULES.md`, 핵심 원칙 8번 |
 | 외부 데이터 수집(스크래핑·RSS·검색) | 블로그·쓰레드·인스타·트렌드 프로그램마다 수집 코드가 따로 있음 | 주소 검사(SSRF 차단)·시간 제한·본문 추출·오류 처리 | `docs/PLATFORM_PATTERNS.md`(AI 3종 수집), `website-scraper` SSRF 교훈(`docs/ERROR_LESSONS.md` 2026-10-16) |
+| 인스타그램 게시(예약·즉시·캐러셀) | `insta_auto_poster`만 구현(`src/lib/instagram/client.ts`, `src/lib/posts/publish-core.ts`) | 회원 본인 Meta 앱·토큰 게시 호출·캐러셀·예약 실행·실패 재시도. 2026-10-19 주인님 지시 「모든 인스타 자동화 프로그램은 자동 포스팅까지」 — 대상: cardnews-studio·ai-influencer-studio·ai-webtoon-studio(작업 대기) | 각 프로그램 `docs/IMPROVEMENT_BACKLOG.md` |
 | 유튜브 데이터 조회 | 유튜브 계열 5~6개 프로그램이 각자 YouTube API 호출·할당량 안내 | 호출·한도 소진 안내·할당량 계산 | 이번 `youtube-golden-engine`이 첫 사례 |
 
 ## 미배포 사본 (급하지 않은 기준 변경 — 다음 배포 때 함께 나감)
