@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 「일반」 등급 전환 시 가입일부터 14일 프로그램 사용
+- **한 일**: 기존 자동 부여 장치 설정만 변경(일반: 자동 부여·14일·가입일 기준, 마이그레이션 `supabase/migrations/0038_normal_grade_signup_14days.sql`). 관리자 화면에 기간 기준 표시 추가. 상세 `docs/ADMIN_POLICY_GUIDELINES.md` 2026-10-19.
+- **검수**: rollback 시험(81개·가입일+14일), 적용 후 기존 일반 회원 88명 변화 없음, tsc·빌드, 운영 화면 표시 확인(아래).
+- https://www.buylife.xyz/admin/access-matrix
+
 ## 2026-10-19 Claude Code(윈도우) — 메인 사이트 관리자 회원 정보 수정(이름·이메일·핸드폰)
 - **한 일**: `/admin/members/[id]`에서 관리자가 회원 이름·이메일·핸드폰을 고칠 수 있게 함 — `PUT /api/admin/members`, `components/admin/MemberInfoFields.tsx`. 이메일은 로그인 아이디라 auth·profiles를 함께 바꾸고 실패 시 되돌림. 상세 `docs/ADMIN_POLICY_GUIDELINES.md` 2026-10-19.
 - **검수**: tsc, 로컬 빌드 통과, GitHub 푸시 자동 빌드 Ready(`aimaster-j0gpqqgox`). **운영 실검수(메인 크롬, 관리자 로그인, 시험 계정 `buylifemall@naver.com`)**: ① 관리자 이메일 입력 → 「이미 다른 회원이 쓰는 이메일입니다.」 거절·변경 없음 ② 이름·이메일·핸드폰(01012345678) 변경 → DB profiles·auth 모두 반영, 핸드폰 `010-1234-5678` 자동 형식, 화면 「새 이메일로 로그인」 안내 ③ 같은 화면에서 원래 값으로 되돌림 → DB 원상 확인.

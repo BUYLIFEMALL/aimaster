@@ -13,6 +13,8 @@ export interface MemberGrade {
   max_programs: number | null;
   auto_grant?: boolean;
   default_access_days?: number | null;
+  /** 자동 부여 기간 계산 기준: signup=가입일, grant=등급 지정(부여)일 */
+  access_start_basis?: "signup" | "grant" | null;
   created_at: string;
 }
 

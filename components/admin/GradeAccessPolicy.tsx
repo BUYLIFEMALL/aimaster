@@ -94,6 +94,7 @@ export function GradeRow({ grade }: { grade: MemberGrade }) {
         <label className="flex items-center gap-2 text-sm text-subtext">
           기본 기간(일)
           <input value={days} onChange={(e) => setDays(e.target.value)} placeholder="무기한" inputMode="numeric" className="input-dark w-24 py-1 text-sm" />
+          <span className="text-xs text-white/50">{grade.access_start_basis === "signup" ? "가입일부터" : "등급 지정일부터"}</span>
         </label>
         <GoldButton size="sm" onClick={savePolicy} disabled={busy}>저장</GoldButton>
         <GoldButton size="sm" variant="outline" onClick={apply} disabled={busy || !auto}>지금 등급 회원 전원에 적용</GoldButton>

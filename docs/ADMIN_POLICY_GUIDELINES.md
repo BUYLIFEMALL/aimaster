@@ -148,3 +148,11 @@ select email, phone from profiles where phone is not null and phone<>'' and phon
 - 배경: 회원가입 때 이름·핸드폰·이메일을 잘못 넣는 회원이 있어 관리자가 바로잡아야 함.
 - 화면: `/admin/members/[id]` 「회원 정보」 카드의 [이름·이메일·핸드폰 수정] → 입력 후 [저장] (`components/admin/MemberInfoFields.tsx`).
 - 서버: `PUT /api/admin/members` (관리자만). 이름 필수·50자, 핸드폰은 `isValidPhone`(010 등 휴대폰만)·`010-1234-5678` 저장·비우면 미등록(null) — 회원 본인 수정 규칙과 같음. **이메일은 로그인 아이디**(전 회원 이메일 로그인, 2026-10-19 확인 260명)라 `auth.admin.updateUserById(email, email_confirm: true)`로 확인 메일 없이 즉시 바꾸고 `profiles.email`도 맞춤. 다른 회원과 겹치면 거절(409), profiles 저장 실패 시 auth 이메일 되돌림. 이메일을 바꾸면 화면에 「로그인 아이디가 바로 바뀜」 경고.
+
+## 2026-10-19 추가 — 「일반」 등급 전환 시 가입일부터 2주(14일) 프로그램 사용 (주인님 지시, Claude Code 윈도우)
+- 설정: `member_grades` 일반 → `auto_grant=true`, `default_access_days=14`, `access_start_basis='signup'` (`supabase/migrations/0038_normal_grade_signup_14days.sql`). 코드 변경 없이 기존 자동 부여 장치(`profiles_grade_change_sync` 트리거)를 사용.
+- 동작: 관리자가 회원 등급을 「일반」으로 바꾸는 순간, 일반 등급 표에 체크된 프로그램(적용 시점 81개)이 **가입일 + 14일**까지 부여됨(`grant_source='grade'`). 가입한 지 14일이 지난 회원은 이미 지난 만료일로 들어가 사실상 열리지 않음(말씀하신 「가입 시점부터 2주」 그대로). 더 쓰게 하려면 회원 상세의 사용만료기간 설정으로 사람별 연장.
+- 새 가입자는 등급이 빈 상태로 시작(`profiles.grade_id` 기본값 없음) → 관리자 지정 때 적용. 기존 일반 회원(88명)에게는 소급하지 않음(트리거는 등급이 바뀔 때만 작동, 적용 직후 자동 부여 0건 확인).
+- 주의: 일반 등급 행의 [지금 등급 회원 전원에 적용]을 누르면 기존 일반 회원 전원에게도 「가입일+14일」 권한 행이 추가됨(대부분 이미 지난 날짜). 필요할 때만 사용.
+- 관리자 화면: 접근 권한 관리의 등급 자동 부여 행에 기간 기준(「가입일부터」/「등급 지정일부터」)을 표시(`components/admin/GradeAccessPolicy.tsx`).
+- 검수: 트랜잭션 rollback 시험(10월 17일 가입 일반 회원을 빈 등급→일반 → 81개, 만료 10월 31일), 실제 적용 후 기존 회원 변화 없음 확인.
