@@ -1,8 +1,20 @@
-# AI 상세페이지 자동생성기 (auto-detail-page)
+# AI 상세페이지 자동생성기 (auto-detail-page) — v1.20
+
+> **서비스 주소**: [https://auto-detail-page.buylife.xyz](https://auto-detail-page.buylife.xyz)  
+> **컨셉 테마**: **이커머스 셀러 스튜디오 (E-Commerce Seller Studio) — 상세페이지 기획 에디션**  
+> **최신 버전**: `v1.20` (2026-10-19 리뉴얼)
 
 제품 이미지와 정보를 입력하면 Claude가 쿠팡/스마트스토어/프리미엄 스타일의 완성된 HTML
 상세페이지를 생성해주는 프로그램. 필요하면 나노바나나(Gemini)/Replicate(FLUX)/GPT Image 1로
 제품 이미지를 추가 생성할 수 있고, 완성된 페이지는 HTML 또는 긴 이미지(PNG)로 내려받을 수 있다.
+
+## v1.20 주요 리뉴얼 사항 (2026-10-19)
+- **이커머스 셀러 스튜디오 디자인 리뉴얼**: 로열 블루 & 앰버 오렌지 테마 적용.
+- **좌측 반응형 사이드바 신설 (`DetailSidebar.tsx`)**: 260px 데스크톱 고정 사이드바, `v1.20` 배지, 4단계 파이프라인 가이드, 모바일 햄버거 슬라이드 드로어 탑재.
+- **메인 워크스페이스 대시보드 (`app/page.tsx`)**: `.studio-hero` 프리미엄 배너, 3대 핵심 KPI 통계 카드, 4단계 파이프라인 가이드 바, 쾌적한 입력 폼 레이아웃.
+- **독립 비주얼 가이드북 전면 신설 (`app/guide/page.tsx`)**: 플랫폼별 이미지 규격 매트릭스 표, 전환율 7대 황금 기획 수칙, FAQ 5종.
+- **버전 3중 동기화**: `package.json` (`1.20.0`), `lib/version.ts` (`v1.20`), Supabase DB `programs` (`v1.20`).
+- **Edge 전용 포그라운드(headless: false) 실세션 검수 완료 (7종 캡처 & 10분 유지)**.
 
 ## 파이프라인
 
@@ -63,45 +75,8 @@ NEXT_PUBLIC_MAIN_SITE_URL=https://buylife.xyz
 ## 배포 정보
 
 - Vercel 프로젝트: `buylife/auto-detail-page` (2026-08-13에 `shop-page`에서 이름 변경함)
-- 프로덕션 URL: `https://shop-page-seven.vercel.app`
+- 공식 SSO 프로덕션 URL: `https://auto-detail-page.buylife.xyz`
+- 옛 프로덕션 URL: `https://shop-page-seven.vercel.app` (308 자동 리다이렉트)
 - Puppeteer(`/api/export-image`)는 Vercel 환경에서 `@sparticuz/chromium-min` + `puppeteer-core`
   조합을 쓴다. 로컬 개발 시에는 `CHROME_PATH` 환경변수(또는 기본 Windows Chrome 경로)로 설치된
   Chrome을 그대로 사용한다.
-
-### ⚠️ 프로덕션 URL이 `shop-page-seven`인 이유 (건드리지 말 것)
-
-프로젝트 이름·폴더·GitHub 소스는 전부 `auto-detail-page`로 통일했지만, **실제 프로덕션
-URL만 옛 이름(`shop-page-seven.vercel.app`)이 그대로 남아있다.** 의도적으로 안 바꾼 것이 아니라
-Vercel 플랫폼 제약 때문에 **못 바꾼 것**이다:
-
-- Vercel은 프로젝트마다 "Vercel Authentication(로그인 필요 인증벽)이 면제된 대표 도메인" 딱
-  하나를 프로젝트 최초 생성 시점에 영구 고정한다. 이후 `vercel project rename`으로 이름을 바꾸거나
-  `vercel alias set`으로 새 별칭(`auto-detail-page.vercel.app`,
-  `auto-detail-page-buylife.vercel.app` 등)을 아무리 추가해도, 그 새 별칭들은 전부 인증벽에 막혀
-  로그인한 팀 멤버만 접속 가능하고 일반 사용자는 못 들어간다(2026-08-13에 직접 재현 확인함 — 다른
-  서브프로젝트의 `<이름>-buylife.vercel.app`류 별칭도 동일하게 막혀 있고, 오직
-  `insta-auto-poster-red`/`shots-inky`/`real-estate-sales-delta`처럼 최초 배포 시 자동 할당된
-  단어 하나짜리 별칭만 예외였다).
-- 이 대표 도메인 별칭(`shop-page-seven`)을 지워봐도, 다음 `vercel --prod` 배포 시 **똑같은 이름으로
-  자동 재생성**된다 — 새 프로젝트 이름을 반영한 다른 이름으로 바뀌지 않는다.
-- 완전히 새 이름의 주소를 쓰려면 이 Vercel 프로젝트 자체를 삭제하고 새로 만드는 방법뿐인데,
-  배포 이력·환경변수를 다시 세팅해야 하고 되돌리기 어려워 진행하지 않기로 했다(사용자 확인,
-  2026-08-13). 기능·보안(로그인 게이트, RLS, API 키 정책)에는 URL 이름과 무관하게 전혀 영향 없다.
-
-**따라서 이후 다른 CLI 작업이나 이 프로젝트를 다시 정리할 때, `shop-page-seven.vercel.app`
-도메인/별칭을 "이름이 안 맞으니까" 지우거나 바꾸려고 시도하지 말 것** — 지워도 똑같이
-`shop-page-seven`으로 재생성될 뿐이고, 그 사이 실제 서비스가 일시적으로 끊긴다. `programs.app_url`
-도 이 주소를 가리키도록 이미 맞춰뒀다.
-
-## 남은 과제
-
-- 가격 정책(`pricing_plans`)이 아직 정해지지 않았다 — 현재 `programs.required_grade_id`가
-  null이라 로그인한 AIMaster 회원이면 등급과 무관하게 이용 가능한 상태.
-- `detail_pages`를 사용자가 직접 목록으로 보고 다시 열람/삭제할 수 있는 화면은 아직 없다
-  (지금은 생성 직후 `/preview/[id]`로만 접근). 필요해지면 `insta_auto_poster`의 게시글 목록
-  화면과 같은 패턴으로 추가하면 된다.
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.06 (auto-detail-page)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.

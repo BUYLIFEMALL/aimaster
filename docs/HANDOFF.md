@@ -1,5 +1,38 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 상세페이지 자동생성기 v1(auto-detail-page) v1.20: 이커머스 셀러 스튜디오 리뉴얼·사이드바 신설·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 77개 완료 / 92.8% 달성!)
+
+- **대상**: `auto-detail-page/` (https://auto-detail-page.buylife.xyz, slug: `auto-detail-page`, 61번)
+- **한 일**:
+  1. **이커머스 셀러 스튜디오 스타일 — 상세페이지 기획 에디션 전면 리뉴얼**:
+     - 퓨어 화이트 & 소프트 슬레이트 베이스 + 셀러 로열 블루(`#2563eb`), 세일즈 앰버/오렌지(`#f97316`) 고전환율 테마 컬러 적용 (`app/globals.css`).
+     - 메인 워크스페이스 (`app/page.tsx`): `.studio-hero` 프리미엄 그라디언트 배너, `v1.20` 배지, 3대 핵심 KPI 통계 카드 (기획 완성 시간 `30초`, 플랫폼 최적화 `3대 템플릿`, 전환 설득 파이프라인 `7단계`), 4단계 파이프라인 가이드 바 (템플릿 선정 ➔ 제품스펙/이미지 ➔ 신뢰/보장데이터 ➔ AI카피 & 프리뷰/내보내기), 쾌적한 중앙 정렬 폼 컨테이너 구축.
+  2. **반응형 사이드바 신설 (`components/layout/DetailSidebar.tsx`, `DetailShell.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 데스크톱 고정 좌측 사이드바: 브랜드 로고 + `v1.20` 배지 + 3개 메뉴 (`🛍️ 상세페이지 제작`, `📖 연동 & 사용 매뉴얼`, `🔑 API 키 설정`) + 4단계 파이프라인 스텝퍼 + 접속 계정 및 원클릭 로그아웃.
+     - 모바일(767px 미만): 56px 상단 바 + 햄버거 토글 슬라이드 오버레이 드로어 완비.
+     - `DetailShell`: 로그인/회원가입 및 미리보기(`/preview/[id]`) 전체화면 뷰 분기 처리.
+  3. **독립 비주얼 가이드북 (`app/guide/page.tsx`) 전면 신설**:
+     - 4단계 이커머스 상세페이지 제작 프로세스 다이어그램 (템플릿 ➔ 스펙/이미지 ➔ 신뢰/보장 ➔ AI 카피/원클릭 출력).
+     - 플랫폼별 이미지 권장 규격 & 템플릿 매트릭스 표 (쿠팡, 네이버 스마트스토어, 백화점/럭셔리몰 가로폭, 이미지 비율, 필수 표기 항목 비교).
+     - 전환율을 극대화하는 상세페이지 7대 황금 기획 수칙 카드 7종 (3초 후킹, 결핍 공감, Before/After, 신뢰 수치, 전문가 인증, 실제 리뷰, 3대 보장).
+     - 자주 묻는 질문 (FAQ 5종) 아코디언 컴포넌트 탑재.
+  4. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `auto-detail-page/package.json` (`1.20.0`), `auto-detail-page/lib/version.ts` (`v1.20`), Supabase DB `programs` 메타데이터 (`version: v1.20`) 동기화 완료 (`scripts/update_auto_detail_version.cjs`).
+  5. **로컬 무결성 검증 통과**:
+     - Next.js 14.2.35 프로덕션 빌드 성공 (정적 페이지 9개 생성, 타입체크 무오류 통과, exit code 0).
+  6. **Vercel 프로덕션 배포 완료**:
+     - `https://auto-detail-page-q7aw8xvat-buylife.vercel.app` (Alias: `https://auto-detail-page.buylife.xyz`).
+     - ReadyState: `READY` 배포 완료.
+  7. **Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수 완료**:
+     - 일반 회원 테스트 세션(`buylifemall@naver.com`) 주입 후 데스크톱(1440px) 및 모바일(375px) 7종 캡처 수집 완료.
+     - 캡처: `edge_detail_desktop_main_v120.png`, `edge_detail_desktop_kpi_v120.png`, `edge_detail_desktop_form_v120.png`, `edge_detail_desktop_guide_v120.png`, `edge_detail_desktop_guide_matrix_v120.png`, `edge_detail_mobile_main_v120.png`, `edge_detail_mobile_guide_v120.png`.
+     - 사용자 실시간 확인을 위한 10분간(600초) 포그라운드 화면 유지 세션 가동.
+  8. **문서화 완비**:
+     - `auto-detail-page/docs/PLAN_20261019_DESIGN_RENEWAL.md`, `DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `IMPROVEMENT_HANDOFF_20261019.md`, `AGENTS.md`, `README.md` 완비.
+- **프로그램 링크**:
+
+https://auto-detail-page.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — BLOG(원문)생성 자동화(ai-auto-blog) v1.75: 플로우 위저드 블로그 퍼블리싱 에디션 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 76개 완료 / 91.6% 달성!)
 
 - **대상**: `ai-auto-blog/` (https://ai-auto-blog.buylife.xyz, slug: `ai-auto-blog`, 59번)

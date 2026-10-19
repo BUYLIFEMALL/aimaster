@@ -18,15 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| 루트 `app/(auth)`·`app/api/auth/password-reset`·`lib/auth` | Claude Code(윈도우) | 2026-10-19 | 메인 사이트 비밀번호 찾기(이메일·문자 인증) |
 | ai-doc-chatbot | Claude Code(윈도우) | 2026-10-19 | 신규 Tools 프로그램 「AI 문서 챗봇 자동화」(Upstage·Tavily·RAG) v1.01 |
-
-
-
-
-
-
-
-
-
-
-
