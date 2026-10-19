@@ -118,12 +118,13 @@ node scripts/lab/delete-lab.mjs <이름> --yes      # 실제 삭제
 - [x] claude.ai Supabase 커넥터에 `BUYLIFE-DEV` 조직 권한 추가(주인님) — 2026-10-19 Claude Code(윈도우)가 MCP로 확인: 주소 조회·SQL 실행 정상, `public` 테이블 0개
 - [x] Authentication → 이메일 확인(Confirm email) 끄기 — 수강생이 바로 가입·로그인 (2026-10-19 Claude Code가 대시보드 Sign In / Providers에서 끄고 저장, 새로고침 후 꺼짐 확인. 「새 가입 허용」은 켜짐 유지)
 - [ ] Authentication → URL 설정에 Lab 주소를 허용 목록에 추가(비밀번호 재설정 등 메일 링크가 필요할 때) — **Lab 프로그램을 만들 때마다 그 정확한 주소(`https://dev-<이름>.vercel.app/**`)를 하나씩 추가한다.** `https://dev-*.vercel.app/**`, `*-buylife.vercel.app` 같은 와일드카드는 쓰지 않는다: `vercel.app` 이름은 누구나 만들 수 있어, 남이 `dev-xxx` 프로젝트를 만들면 로그인 링크(토큰)가 그쪽으로 넘어갈 수 있다(2026-10-19 Claude Code 판단, 아직 Lab 프로그램 없음)
-- [ ] 삭제 스크립트용 `LAB_DB_URL`(dev Postgres 연결 문자열)을 주인님 PC 환경변수로 등록 — 에이전트는 비밀번호를 입력하지 않는다
+- [x] 삭제 스크립트용 `LAB_DB_URL`(dev Postgres 연결 문자열)을 주인님 PC 환경변수로 등록 — 에이전트는 비밀번호를 입력하지 않는다 (2026-10-19 윈도우 PC 사용자 환경변수 등록, Session pooler `aws-1-ap-northeast-2.pooler.supabase.com:5432`. Claude Code가 값 출력 없이 dev ref 포함·운영 ref 없음·접속 성공(`lab_admin` 스키마 확인) 검증. 맥미니에는 미등록)
 
 ## 7. 변경 이력
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-19 | dev DB 비밀번호 리셋 + `LAB_DB_URL` 윈도우 PC 등록(주인님), Claude Code 접속 검증 성공 → 6번 체크리스트 중 URL 허용 목록(첫 Lab 프로그램 때)만 남음 |
 | 2026-10-19 | dev(ref `rjjtjakljjxsgjelqgek`) Auth 「Confirm email」 끔(주인님 지시, Claude Code가 크롬 대시보드에서 처리) — 가입 즉시 로그인 가능. 운영 DB 설정은 변경 없음 |
 | 2026-10-19 | dev 커넥터 연결 확인(Claude Code): ref `rjjtjakljjxsgjelqgek` 주소 조회·SQL 실행 성공(PostgreSQL 17.6) → 6번 체크리스트 커넥터 항목 완료 처리 |
 | 2026-10-19 | 절대 불변 최상위 규칙 추가(주인님 지시): AIMaster_dev 작업 CLI는 AIMaster 운영 프로그램·DB를 수정·삭제할 수 없다(관리자 명시 요청만 예외) |
