@@ -10,7 +10,9 @@
 |---|---|
 | `KIT/README.md` | 이 설치 안내서 |
 | `KIT/PLATFORMS.md` | 플랫폼별 가입·API 키 발급 상세(Meta·Instagram·OpenAI·Gemini 등) |
-| `KIT/schema.sql` | 새 Supabase DB에 한 번 붙여넣는 전체 구조 |
+| `KIT/schema.sql` | 새 Supabase DB에 한 번 붙여넣는 전체 구조(패키지 설치마법사가 자동 복사) |
+| `KIT/upgrade-20261019-cronjob.sql` | 2026-10-19 이전 설치자만: 예약 방식 선택용 DB 추가 |
+| `KIT/enable-vercel-cron.ps1` / `.sh` | (선택) Vercel 유료(Pro)에서 Vercel 예약 호출 켜기 |
 | `KIT/env.example` | 설정값(환경변수) 목록과 설명 |
 | `패키지설치마법사.cmd` / `.command` | **패키지 설치마법사** 실행 파일(윈도우 / 맥 — 더블클릭) |
 | `KIT/setup.ps1` / `KIT/setup.sh` | 마법사 본체(직접 열 필요 없음) |
@@ -29,7 +31,7 @@
 | **Gemini API 키** | 카드뉴스·피드 이미지 생성(결제 연결 필요) | 사용한 만큼 |
 | **OpenAI 또는 Claude 키** | 캡션·해시태그 생성 | 사용한 만큼 |
 | (선택) Perplexity 키 | 실시간 주제 수집 | 사용한 만큼 |
-| (선택) cron-job.org | 예약 게시 실행 | 무료 |
+| (선택) cron-job.org | 예약 게시 실행(기본 방식 — 사이트에 API 키만 등록) | 무료 |
 | (선택) 내 도메인 | | 연 1~2만 원대 |
 
 > ⚠ **개인 인스타 계정은 자동 게시가 안 됩니다**(Meta 정책). 반드시 비즈니스/크리에이터 계정으로 전환하세요.
@@ -106,13 +108,30 @@
 
 ---
 
-## 6. 예약 게시 연결
+## 6. 예약 게시 연결 (정해진 시각에 자동 게시)
 
-1. https://cron-job.org 가입 → **CREATE CRONJOB**
-2. URL: `https://내주소/api/posts/dispatch-scheduled`
-3. Execution schedule: **Every 5 minutes**
-4. **ADVANCED → Headers**: Key `Authorization`, Value `Bearer 내CRON_SECRET` (`.env.local`에 있음)
-5. 저장 → **TEST RUN** → `200`이면 완료(`401`이면 Authorization 값 확인)
+> **공지 — 예약 게시는 1분마다 「올릴 시각이 된 글」을 확인해 주는 곳이 있어야 동작합니다.**
+> Vercel **무료(Hobby)** 요금제는 자동 실행을 하루 1번만 허용하므로, Vercel로 1분 확인을 하려면 **Vercel 유료(Pro) 구독**이 필요합니다.
+> 그래서 이 배포판의 **기본 방식은 B(내 cron-job.org)** 이고, Vercel 유료(Pro)라면 A를 켠 뒤 설정에서 「Vercel 예약 호출」을 고를 수도 있습니다(회원마다 선택). 「즉시 게시」는 아무 연결 없이도 됩니다.
+
+### B. 기본 — 내 cron-job.org (무료, API 키만 등록)
+1. https://console.cron-job.org/signup 에서 무료 가입 → 이메일 인증 → 로그인
+2. 콘솔 **Settings → API** → **Create API key** → 키 복사 (**IP 제한은 켜지 마세요** — Vercel 서버 주소는 계속 바뀝니다)
+3. 내 사이트 → **API키등록·플랫폼연동** → **⏰ 예약 발행** → 실행 방식이 「내 cron-job.org · 기본값」인지 확인 → 아래 **cron-job.org API 키** 칸에 붙여 넣고 **저장** → 끝
+4. 이제 **게시글을 예약**하면 프로그램이 내 cron-job.org에 1분 확인 작업을 **자동으로 만들고 켭니다**. 남은 예약이 없으면 **자동으로 끕니다**(cron-job.org 콘솔에서 작업 「INSTA 포스팅 예약 발행(1분)」이 켜졌다 꺼졌다 하는 것이 정상).
+5. **게시글 관리** 위 「⏰ 예약 발행」 줄에서 상태(실행 중·대기·일시정지됨)를 보고 **전체 일시정지 / 재개**를 할 수 있습니다.
+   - 이 사이트에 가입한 사람마다 **각자 본인 키**로 돌아갑니다(서로의 글은 게시되지 않음). cron-job.org에는 사이트 비밀값(`CRON_SECRET`)이 아니라 **회원 전용 연결값**만 들어갑니다(프로그램이 자동으로 넣음 — 직접 작업을 만들지 마세요).
+   - cron-job.org 무료 규칙: 작업당 1분 1회, 응답 30초 초과 시 실패, 실패 25번 넘으면 작업 자동 정지(프로그램이 예약할 때마다 다시 켬), API 하루 100회.
+   - 예약 시각이 24시간 넘게 지난 글은 자동으로 올리지 않습니다(장애 뒤 오래된 글이 한꺼번에 올라가는 것을 막음).
+
+### A. Vercel 유료(Pro) 구독자 — Vercel 예약 호출 켜기 (선택)
+1. 프로그램 폴더에서 PowerShell을 엽니다(탐색기 주소창에 `powershell` → Enter).
+2. 실행: `powershell -ExecutionPolicy Bypass -File KIT\enable-vercel-cron.ps1` (맥: `bash KIT/enable-vercel-cron.sh`)
+3. 스크립트가 `vercel.json`에 1분 예약 호출을 넣고 환경변수 `INSTA_PLATFORM_SCHEDULER=on`을 등록한 뒤 다시 배포합니다.
+4. 사이트 → **API키등록·플랫폼연동 → ⏰ 예약 발행**에서 「Vercel 예약 호출」을 고르면 cron-job.org 키 없이 예약할 수 있습니다(회원마다 선택, 고르지 않은 회원은 기본 cron-job.org 그대로).
+   - 무료 요금제에서 실행하면 배포가 실패합니다 → 프로그램 폴더의 `vercel.json`을 지우고 B를 쓰세요.
+
+> **예전 방식으로 설치했다면**(2026-10-19 이전: cron-job.org에 `/api/posts/dispatch-scheduled` + `CRON_SECRET` 작업을 직접 만든 경우): ① Supabase SQL Editor에서 `KIT/upgrade-20261019-cronjob.sql`을 한 번 실행 ② 새 코드로 다시 배포 ③ cron-job.org에서 예전 작업을 **끄거나 지우고** 위 B 순서대로 키만 등록하세요.
 
 ---
 
@@ -133,7 +152,7 @@
 | 연결 시 "리디렉션 URI" 오류 | Meta에 등록한 주소가 `https://내주소/api/instagram/callback/byok`와 **완전히 같은지**, `NEXT_PUBLIC_SITE_URL`이 실제 주소인지 |
 | 연결은 되는데 게시 실패 | 인스타가 **비즈니스/크리에이터** 계정인지, 테스터 초대를 **수락**했는지 |
 | 이미지 생성 실패 | Gemini 키와 **결제 연결**(이미지는 무료 한도 없음), 사용량: https://aistudio.google.com/usage |
-| 예약 글이 안 올라감 | cron-job.org 응답 200인지, Authorization 값 |
+| 예약 글이 안 올라감 | 설정 → ⏰ 예약 발행에 cron-job.org 키가 「등록됨」인지, 게시글 관리 위 상태 줄이 「일시정지됨」이 아닌지, cron-job.org 콘솔의 작업 「INSTA 포스팅 예약 발행(1분)」 최근 실행이 성공(200)인지(401이면 키를 다시 저장하면 새 연결값으로 다시 만들어짐) |
 | 설정을 바꿨는데 반영 안 됨 | Vercel 환경변수는 바꾼 뒤 **Redeploy** |
 | 빌드 실패 `file is too long` / `TurbopackInternalError` (윈도우) | 폴더 경로가 너무 깁니다. 바탕화면·다운로드 안 깊은 곳 말고 `D:\work\my-insta`처럼 **짧은 경로**로 폴더를 옮긴 뒤 다시 실행 |
 

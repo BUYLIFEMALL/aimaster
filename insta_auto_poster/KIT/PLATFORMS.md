@@ -65,5 +65,6 @@ https://www.perplexity.ai/settings/api → 결제 등록 → **Generate API Key*
 | Publishable(anon) key | Project Settings → API Keys | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
 | Secret(service_role) key | Project Settings → API Keys | `SUPABASE_SERVICE_ROLE_KEY` (비공개) |
 | 사이트 주소 | Vercel → 프로젝트 → Settings → Domains | `NEXT_PUBLIC_SITE_URL` |
-| 예약 실행 비밀값 | 설치 스크립트 자동 생성 | `CRON_SECRET` (cron-job.org 헤더에도) |
+| 예약 실행 비밀값 | 패키지 설치마법사 자동 생성 | `CRON_SECRET` (사이트 내부용 — cron-job.org에 넣지 않음) |
+| cron-job.org | https://console.cron-job.org/signup → Settings → API → Create API key | cron-job.org API 키(사이트 설정 → ⏰ 예약 발행) |
 | 내 이름/브랜드 | 직접 정함 | `NEXT_PUBLIC_BRAND_NAME` |

@@ -11,4 +11,5 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   meta_app_secret: "Instagram 앱 시크릿 코드",
   facebook_app_id: "Facebook 앱 ID (Facebook 페이지 방식)",
   facebook_app_secret: "Facebook 앱 시크릿 코드 (Facebook 페이지 방식)",
+  cronjob_org_api_key: "cron-job.org API 키 (예약 발행 — 「내 cron-job.org」 방식에서만 필요)",
 };

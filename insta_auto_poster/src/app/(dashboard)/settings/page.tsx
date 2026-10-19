@@ -9,6 +9,10 @@ import { connectInstagramAccountAction, disconnectInstagramAccountAction } from 
 import type { ApiKeyProvider } from "@/types/database.types";
 import { FACEBOOK_REDIRECT_NEW, FACEBOOK_REDIRECT_OLD, INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD, SITE_ORIGIN } from "@/lib/oauthRedirect";
 import { IS_STANDALONE } from "@/lib/deployment";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/posts/memberScheduler";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
 
 const AUTH_METHOD_LABELS: Record<string, string> = {
   facebook_login: "Facebook 계정 연동",
@@ -68,6 +72,8 @@ export default async function SettingsPage({
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  // 예약 발행 실행 방식(v1.25): 운영 기본 Vercel, 설치 키트 기본 cron-job.org. 지침: 루트 docs/SCHEDULER_POLICY.md
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
   // Facebook 방식은 전용 칸 또는(이전 방식) 기존 칸, Instagram 방식은 기존 칸이 있으면 연결 버튼을 보여준다
   const hasMetaKeys =
     (keyMap.has("meta_app_id") && keyMap.has("meta_app_secret")) ||
@@ -329,6 +335,31 @@ export default async function SettingsPage({
               </div>
             )}
           </div>
+        </div>
+
+        {/* ⏰ 예약 발행 (v1.25) */}
+        <div className="rounded-2xl border border-[#262c3d] bg-[#161922] p-5 shadow-xs">
+          <div className="mb-3.5">
+            <h2 className="text-sm font-bold text-slate-100">⏰ 예약 발행</h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {scheduler.defaultMode === "cronjob"
+                ? "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「내 cron-job.org」(무료 — 아래에 키만 등록)이고, Vercel 유료(Pro)라면 「Vercel 예약 호출」을 켜고 고를 수 있습니다."
+                : "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요."}{" "}
+              예약은 게시글 작성·수정 화면에서 하고, 즉시 게시는 방식과 상관없이 됩니다.
+            </p>
+          </div>
+          <SchedulerModePicker initialMode={scheduler.mode} defaultMode={scheduler.defaultMode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
+          <p className="mb-2 text-xs font-semibold text-slate-200">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+          <ol className="mb-3 list-decimal space-y-1 pl-4 text-xs text-slate-400">
+            <li><a className="font-semibold text-pink-400 underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+            <li>콘솔 <strong className="text-slate-200">Settings → API</strong> → <strong className="text-slate-200">Create API key</strong> → 키 복사 (<strong className="text-slate-200">IP 제한은 켜지 마세요</strong>)</li>
+            <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+          </ol>
+          <ApiKeyRow
+            provider="cronjob_org_api_key"
+            label={PROVIDER_LABELS.cronjob_org_api_key}
+            maskedValue={keyMap.has("cronjob_org_api_key") ? maskApiKey(keyMap.get("cronjob_org_api_key")!) : null}
+          />
         </div>
 
         {/* 📖 연동 매뉴얼 */}

@@ -6,6 +6,10 @@ import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { POST_STATUS_LABELS, type PostStatus } from "@/types/post";
 import { deletePostAction } from "@/lib/actions/posts";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/posts/memberScheduler";
+import { SchedulePublishingControl } from "@/components/posts/SchedulePublishingControl";
 
 const FILTERS: Array<{ value: PostStatus | "all"; label: string }> = [
   { value: "all", label: "전체" },
@@ -40,7 +44,10 @@ export default async function PostsPage({
     query = query.eq("status", status);
   }
 
-  const { data: posts } = await query;
+  const [{ data: posts }, schedulerState] = await Promise.all([
+    query,
+    memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -50,6 +57,9 @@ export default async function PostsPage({
           <Button>새 게시글 작성</Button>
         </Link>
       </div>
+
+      {/* 예약 발행 상태·전체 일시정지/재개(v1.25) — 지침 docs/SCHEDULER_POLICY.md */}
+      <SchedulePublishingControl initial={schedulerState} />
 
       <div className="mb-4 flex flex-wrap gap-2">
         {FILTERS.map((filter) => (

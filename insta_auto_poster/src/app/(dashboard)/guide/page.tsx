@@ -294,9 +294,9 @@ export default function GuidePage() {
             <h4 className="font-bold text-pink-300 text-xs">Q. 예약 포스팅이 지정한 시간에 자동으로 안 올라가요.</h4>
             <p className="text-xs text-slate-400 leading-relaxed">
               {IS_STANDALONE ? (
-                <>설치한 사이트의 <strong>예약 실행 연결(cron-job.org 등 5분마다 호출)</strong>이 되어 있어야 예약 시간에 올라갑니다. 설치 안내서의 &apos;예약 게시 연결&apos;을 확인해 주세요.</>
+                <><strong>설정 → ⏰ 예약 발행</strong>에서 「내 cron-job.org」(기본)를 고르고 본인 cron-job.org API 키를 저장해 두어야 예약 시간에 올라갑니다. 예약하면 cron-job.org 작업이 자동으로 켜지고, 남은 예약이 없으면 자동으로 멈춥니다. 게시글 관리 위 상태 줄이 「일시정지됨」이면 재개해 주세요. 예약 시각이 24시간 넘게 지난 글은 자동으로 올리지 않습니다.</>
               ) : (
-                <>AIMaster 공통 정책에 따라 <strong>핸드폰 번호가 등록된 회원</strong>에 한해 예약 Cron이 정상 실행됩니다. 메인 사이트 프로필 설정에서 휴대폰 번호를 확인해 주세요.</>
+                <>실행 방식은 <strong>설정 → ⏰ 예약 발행</strong>에서 고릅니다. 기본 「AIMaster 기본(Vercel)」은 키 없이 예약 시각 후 5분 안에, 「내 cron-job.org」(본인 무료 계정·API 키 한 줄)는 1분 안에 올립니다. 게시글 관리 위 상태 줄이 「일시정지됨」이면 재개해 주세요. 또 AIMaster 공통 정책에 따라 <strong>핸드폰 번호가 등록된 회원</strong>만 예약이 실행되며(메인 사이트 프로필 설정), 예약 시각이 24시간 넘게 지난 글은 자동으로 올리지 않습니다.</>
               )}
             </p>
           </div>
