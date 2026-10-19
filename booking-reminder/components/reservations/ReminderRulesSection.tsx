@@ -212,6 +212,7 @@ function RuleRow({ rule }: { rule: ReminderRuleData }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [toggleError, setToggleError] = useState<string | null>(null);
 
   const channels = [
     rule.channel_sms && "문자",
@@ -222,7 +223,9 @@ function RuleRow({ rule }: { rule: ReminderRuleData }) {
   async function handleToggle() {
     setIsToggling(true);
     try {
-      await toggleReminderRuleActiveAction(rule.id, !rule.is_active);
+      // 「내 cron-job.org」 방식인데 키가 없는 등 켤 준비가 안 됐으면 규칙이 다시 꺼지고 안내가 돌아온다(v1.22, crm-google-form v1.10과 같은 방식)
+      const result = await toggleReminderRuleActiveAction(rule.id, !rule.is_active);
+      setToggleError(result.error ?? null);
       router.refresh();
     } finally {
       setIsToggling(false);
@@ -259,6 +262,7 @@ function RuleRow({ rule }: { rule: ReminderRuleData }) {
             {rule.is_active ? "가동 중" : "일시중지"}
           </span>
         </div>
+        {toggleError && <p className="text-xs font-semibold text-rose-600" role="alert">{toggleError}</p>}
 
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
           <span className="rounded-md bg-indigo-50 text-indigo-700 px-1.5 py-0.5 text-[11px] font-semibold">

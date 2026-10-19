@@ -133,8 +133,17 @@ export async function setMemberSchedulerMode(service: SupabaseClient, userId: st
   const key = await memberCronjobKey(service, userId);
   if (mode === "cronjob") {
     if (!key) throw new Error("cron-job.org로 실행하려면 아래 칸에 본인 cron-job.org API 키를 먼저 저장해 주세요.");
+    const previousMode = await memberSchedulerMode(service, userId);
     await service.from(SCHEDULER_TABLE).update({ mode: "cronjob", updated_at: now() }).eq("user_id", userId);
-    if ((await remainingScheduled(service, userId)) > 0) await ensureMemberSchedulerRunning(service, userId, key);
+    if ((await remainingScheduled(service, userId)) > 0) {
+      try {
+        await ensureMemberSchedulerRunning(service, userId, key);
+      } catch (error) {
+        // 2026-10-20: cron-job.org 작업을 켜지 못하면 이전 방식으로 되돌린다 — cronjob으로 남으면 운영자 실행에서도 빠져 예약이 멈춘다.
+        await service.from(SCHEDULER_TABLE).update({ mode: previousMode, active: false, updated_at: now() }).eq("user_id", userId);
+        throw error;
+      }
+    }
     return;
   }
   if (!platformSchedulerEnabled()) throw new Error("이 사이트는 Vercel 예약 호출이 꺼져 있어 cron-job.org 방식만 쓸 수 있습니다(설치 키트: Vercel 유료(Pro)라면 복제 키트의 Vercel 예약 호출 설정 실행).");
@@ -154,7 +163,13 @@ export async function resumeMemberScheduler(service: SupabaseClient, userId: str
   if ((await memberSchedulerMode(service, userId)) === "vercel") return { started: platformSchedulerEnabled() };
   const key = await memberCronjobKey(service, userId);
   if (!key || (await remainingScheduled(service, userId)) === 0) return { started: false };
-  await ensureMemberSchedulerRunning(service, userId, key);
+  try {
+    await ensureMemberSchedulerRunning(service, userId, key);
+  } catch (error) {
+    // 2026-10-20: 작업을 켜지 못하면 일시정지 상태로 되돌린다 — 화면(일시정지됨)과 DB가 어긋나지 않게.
+    await service.from(SCHEDULER_TABLE).update({ paused: true, active: false, updated_at: now() }).eq("user_id", userId);
+    throw error;
+  }
   return { started: true };
 }
 
