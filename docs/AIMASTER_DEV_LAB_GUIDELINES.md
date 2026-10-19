@@ -116,7 +116,7 @@ node scripts/lab/delete-lab.mjs <이름> --yes      # 실제 삭제
 
 - [x] AIMaster_dev 재개(2026-10-19) → Free 조직 `BUYLIFE-DEV`로 이전(2026-10-19)
 - [x] claude.ai Supabase 커넥터에 `BUYLIFE-DEV` 조직 권한 추가(주인님) — 2026-10-19 Claude Code(윈도우)가 MCP로 확인: 주소 조회·SQL 실행 정상, `public` 테이블 0개
-- [ ] Authentication → 이메일 확인(Confirm email) 끄기 — 수강생이 바로 가입·로그인
+- [x] Authentication → 이메일 확인(Confirm email) 끄기 — 수강생이 바로 가입·로그인 (2026-10-19 Claude Code가 대시보드 Sign In / Providers에서 끄고 저장, 새로고침 후 꺼짐 확인. 「새 가입 허용」은 켜짐 유지)
 - [ ] Authentication → URL 설정에 Lab 주소를 허용 목록에 추가(비밀번호 재설정 등 메일 링크가 필요할 때)
 - [ ] 삭제 스크립트용 `LAB_DB_URL`(dev Postgres 연결 문자열)을 주인님 PC 환경변수로 등록 — 에이전트는 비밀번호를 입력하지 않는다
 
@@ -124,6 +124,7 @@ node scripts/lab/delete-lab.mjs <이름> --yes      # 실제 삭제
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-19 | dev(ref `rjjtjakljjxsgjelqgek`) Auth 「Confirm email」 끔(주인님 지시, Claude Code가 크롬 대시보드에서 처리) — 가입 즉시 로그인 가능. 운영 DB 설정은 변경 없음 |
 | 2026-10-19 | dev 커넥터 연결 확인(Claude Code): ref `rjjtjakljjxsgjelqgek` 주소 조회·SQL 실행 성공(PostgreSQL 17.6) → 6번 체크리스트 커넥터 항목 완료 처리 |
 | 2026-10-19 | 절대 불변 최상위 규칙 추가(주인님 지시): AIMaster_dev 작업 CLI는 AIMaster 운영 프로그램·DB를 수정·삭제할 수 없다(관리자 명시 요청만 예외) |
 | 2026-10-19 | 제정(주인님 지시): AIMaster_dev = 개별 프로그램 개발·강의 Class 전용 독립 체계, 누구나 가입(1번), `labs/` 폴더·이름표·`dev-<이름>.vercel.app` 주소(Vercel 프로젝트 `dev-` 접두어), 뼈대(`labs/_template`)·생성/삭제 스크립트(`scripts/lab/`) |
