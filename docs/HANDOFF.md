@@ -1,5 +1,29 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — INSTA 포스팅 자동화(v1.25) 회원 선택형 예약 스케줄러 검증 완료 (운영 DB 적용 확인, 엔드포인트 보안 검증, Edge 포그라운드 실세션 검수 완비)
+
+- **배경**: 인스타그램 포스팅 자동화(`auto-instagram-posting`)에 회원 선택형 예약 스케줄러([`docs/SCHEDULER_POLICY.md`](file:///D:/Antigravity/AIMaster/docs/SCHEDULER_POLICY.md))가 구현(v1.25)됨에 따라, 사용자 사전 승인 하에 운영 DB 마이그레이션 적용 상태를 검증하고, 프로덕션 배포 및 Microsoft Edge 포그라운드 실세션 검수를 완결함.
+- **주요 검증 및 완료 내용**:
+  1. **운영 DB 마이그레이션 적용 및 버전 갱신 완료 (`esgxyikcnnvmlhygjkth`)**:
+     - 사용자 사전 승인 하에 `insta_member_scheduler` 테이블 정상 생성(RLS 본인 조회 정책) 및 `programs.version` `v1.25` 갱신 완료 검증.
+  2. **Vercel 프로덕션 배포 및 보안 엔드포인트 검증**:
+     - 배포 URL: `https://insta-auto-poster-46r0me9fo-buylife.vercel.app` (Aliased: `https://auto-instagram-posting.buylife.xyz`)
+     - 엔드포인트 보안 검증:
+       - `/api/posts/dispatch-member` (무인증): `401 Unauthorized` 통과
+       - `/api/posts/dispatch-member` (가짜 토큰): `401 Unauthorized` 통과
+       - `/api/posts/dispatch-scheduled` (무인증): `401 Unauthorized` 통과
+       - `/login`: `200 OK` 정상 응답 통과
+  3. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - `buylifemall@naver.com` 세션으로 포그라운드 검수 수행 완료.
+     - **설정 페이지 (`/settings`)**: 다크 테마 기반 「⏰ 예약 발행」 섹션 정상 렌더링 확인 (AIMaster 기본 Vercel / 내 cron-job.org 라디오 선택, 공용 provider `cronjob_org_api_key` 연동 확인) → `edge_insta_settings_scheduler_v125.png`.
+     - **게시글 관리 페이지 (`/posts`)**: 상단 상태 줄 (「⏰ 예약 발행: AIMaster 기본(Vercel) 실행 중 · 예약 대기 0건」 및 일시정지 제어 버튼) 정상 노출 확인 → `edge_insta_posts_scheduler_v125.png`.
+     - **이용 가이드 FAQ (`/guide`)**: 예약 발행 주기(Vercel 5분 / cron-job.org 1분) 및 24시간 초과 예약 미발행 규칙 안내 확인 → `edge_insta_guide_scheduler_v125.png`.
+- **서비스 링크**:
+  - INSTA 포스팅 자동화: https://auto-instagram-posting.buylife.xyz
+  - 설정(API/스케줄러): https://auto-instagram-posting.buylife.xyz/settings
+  - 게시글 관리: https://auto-instagram-posting.buylife.xyz/posts
+  - 가이드 & 매뉴얼: https://auto-instagram-posting.buylife.xyz/guide
+
 ## 2026-10-19 Claude Code(윈도우) — INSTA 포스팅 자동화 v1.25: 예약 발행 실행 방식 회원 선택(운영 Vercel / 배포판 cron-job.org) + 중복 발행 방지
 - 기준 구현 쇼핑제휴 v1.63·쓰레드 v1.19. 설정 「⏰ 예약 발행」(다크 테마), 게시글 관리 상태 줄, 회원 실행 주소 `/api/posts/dispatch-member`, `dispatch-scheduled`에 빠져 있던 `dynamic`·`fetchCache` 추가. 커밋 `60c13f7e`.
 - 운영 DB(`esgxyikcnnvmlhygjkth`) 표 `insta_member_scheduler` — 주인님 승인 후 크롬 SQL Editor로 적용·확인, 배포 `insta-auto-poster-46r0me9fo`, 실행 주소 401 확인.
