@@ -17,7 +17,7 @@
 | — | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | ✅ 실검수 | v1.63 → **v1.64** | ✅ 24시간 규칙 코드·Claude·Replicate 키 저장 오류 — 2026-10-19 다른 Claude 세션이 v1.64로 처리·배포(커밋 `2bdeb523`, `threads-affiliate-poster-5ql36sudm`) |
 | ① | `threads` (쓰레드 자동포스팅, slug `auto-threads-posting`) | ✅ 배포·자동 확인·**크롬 실검수(2026-10-20)** | v1.19 · `threads-80uxhi9g1` | 커밋 `d2758f2c`. 표 `atp_member_scheduler`. 운영 전용 → 기본 Vercel |
 | ② | `insta_auto_poster` (INSTA 포스팅, slug `auto-instagram-posting`) | ✅ 배포·자동 확인·**크롬 실검수(2026-10-19, v1.26)** | v1.25 · `insta-auto-poster-46r0me9fo` | 커밋 `60c13f7e`·`14245086`. 표 `insta_member_scheduler`. **배포판(SNS 키트) 있음** → 운영 Vercel / 배포판 cron-job.org, `KIT/` 함께 갱신 |
-| ③ | `cardnews-studio` (카드뉴스, v1.23) | ⚪ **다음** | — | 아래 §4-1 |
+| ③ | `cardnews-studio` (카드뉴스, slug `cardnews-studio`) | ✅ 배포·크롬 실검수(2026-10-20) | v1.24 · `cardnews-studio-ictkczgcr` | 커밋 `ad9d259e`. 표 `cns_member_scheduler`. §4-1대로 |
 | ④ | `naver-cafe-poster` (네이버 카페, v1.20) | ⚪ | — | 아래 §4-2 (정기 자동 실행형) |
 | ⑤ | `kakao_auto_poster` (카카오, slug `kakao-auto-posting`, v1.20) | ⚪ | — | 아래 §4-3 (정기 자동 실행형) |
 | 끝 | 5개 전체 **크롬 실화면 검수** | ⚪ | — | 주인님 지시: 5개를 다 적용한 뒤 한꺼번에(§6) |

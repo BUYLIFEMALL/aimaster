@@ -50,7 +50,12 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.23` (2026-10-19)
+- **현재 버전**: `v1.24` (2026-10-20)
+- **v1.24 (2026-10-20, Claude Code 윈도우) — ⏰ 인스타 예약 게시 실행 방식 회원 선택(AIMaster 기본 Vercel / 본인 cron-job.org) + 24시간 규칙** — 주인님 지시(예약 방식 1순위 ③). 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `threads/` v1.19.
+  - 코드: `src/lib/instagram/cronJobOrg.ts`·`memberScheduler.ts`(표 `cns_member_scheduler`, 토큰 `cns_…` DB엔 해시, 끄기 스위치 `CNS_PLATFORM_SCHEDULER=off`, 운영 전용이라 기본 Vercel), `posts.ts` `dispatchDuePosts(limit, { userId, excludeUserIds, failWithMessage })` + 24시간 규칙(`schedule.ts` `isTooLate`) — 기존 조건부 잠금·10분 뒤 1회 재시도·재시도 전 중복 확인은 그대로. 새 주소 `/api/cardnews/instagram/dispatch-member`(회원 토큰, 즉시 응답 + `after`, 남은 예약 0건이면 작업 끔), `/api/cardnews/scheduler`(화면용 상태·방식·일시정지·재개 — 이 프로그램은 서버 액션 대신 API 구조). 운영자 주소는 vercel·비일시정지 회원만. 예약 저장 API: 저장 전 방식·키 확인, 저장 뒤 작업 켜기(실패 시 예약 취소·이미지 정리). 키 API: 허용 목록 `cronjob_org_api_key`(설정용 타입 `SettingsKeyProvider` — AI 키 타입은 그대로), 키 변경·삭제 시 작업 정리.
+  - 화면(다크): 설정 「⏰ 예약 발행」(`SchedulerModePicker` + cron-job.org 키 칸 + 가입 3단계), 인스타 게시 패널 예약 모드에 상태 줄·일시정지/재개(`SchedulePublishingControl`), 예약 완료 문구에 1분/5분, `/guide` FAQ.
+  - DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261020100000_cns_member_scheduler.sql` — 2026-10-20 주인님 승인 후 크롬 SQL Editor(AIMaster·PRODUCTION 확인)로 적용, 결과 `cns_member_scheduler`·`v1.24`.
+  - 검수: tsc 0, 단위 52/52(24시간 규칙 추가), build(새 주소 2개), 배포 `cardnews-studio-ictkczgcr`(Ready), 실행 주소 무인증·가짜 토큰 401, `/api/cardnews/scheduler` 비로그인 401, `/login` 200. 크롬(관리자 본인 키, **실제 게시 없음**): 설정 v1.24·공용 키 「연동 완료」 → 「내 cron-job.org」 선택 → 관리자에게 카드뉴스가 없어(AI 생성 비용 피함) 작은 시험 이미지를 회원 폴더에 올리고 로그인된 크롬에서 실제 예약 API로 10-21 21:00 예약 → 작업 8678676 자동 생성·켜짐 → 상태 API 실행 중·대기 1건 → 일시정지·재개 → 예약 취소(이미지도 삭제) → 약 61초 뒤 자동 꺼짐 → Vercel 복귀. 게시 패널 안 상태 줄 화면은 카드뉴스가 있어야 보여 실화면 확인은 회원 사용 때.
 - **v1.23 (2026-10-19, Claude Code 윈도우) — 🔎 지금 게시 실패 때 이미 올라갔는지 확인 + 기록에 「이미 게시 확인」 표시** — 주인님 지시 「추가개선 제안 1·2 진행」:
   - 즉시 게시: `publish/route.ts`가 일시 오류(`isTransientPublishError`)로 실패하면 회원 본인 최근 게시물(`fetchRecentMedia`, `posts.ts`에서 공개)을 보고, **버튼을 누른 시각 이후** 같은 캡션이 있으면(`findSameRecentPost(..., startedAt + FIRST_ATTEMPT_MARGIN_MS)` → 기준 = 누른 시각) 성공으로 처리·「게시됨」 기록·응답 `alreadyPosted: true`. 화면: 「응답이 늦었지만 @계정에 이미 올라간 것을 확인했습니다. 다시 게시하지 않아도 됩니다.」 → 사용자가 다시 눌러 중복 게시하는 일을 막음.
   - 기록 표시: 「이미 올라간 것 확인」으로 처리된 게시됨 기록(예약 재시도·즉시 게시 모두)에 `ALREADY_POSTED_NOTE`를 `error_message`에 남기고(게시됨 기록에서는 원래 빈 칸 — DB 칸 추가 없음) 목록에 회색 「ℹ️ 응답이 늦었지만 …」 줄로 표시.
