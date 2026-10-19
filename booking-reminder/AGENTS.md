@@ -110,3 +110,11 @@ F-008(P1), F-009(P1), F-010(P1), F-011(P1)를 운영 설정/코드/조건부 위
 - **버전 3중 동기화 (`v1.20`)**: `package.json` (`1.20.0`), `lib/version.ts` (`v1.20`), Supabase DB `programs` (`v1.20`).
 - **검수 증거**: Microsoft Edge 포그라운드(headless: false) 7종 캡처 수집 및 10분간 화면 유지 세션 완료.
 - **상세 문서**: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · [docs/IMPROVEMENT_HANDOFF_20261019.md](docs/IMPROVEMENT_HANDOFF_20261019.md)
+
+## 2026-10-20 v1.21 — ⏰ 리마인드 발송 실행 방식 회원 선택 + 발송 전 선점(중복 방지)·이용 권한 확인·비밀값 검사 (Claude Code 윈도우)
+- 주인님 「2순위도 적용하고 권한 확인도 넣어줘」. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `stepmail` v1.21.
+- 정기형: 규칙을 켤 때 작업 켜기, 켜진 규칙이 0개면 끄기, 회원 cron-job.org도 **15분**(운영자와 같음). **Next 14라 회원 실행 주소는 `@vercel/functions` `waitUntil`**(1.5.2 설치).
+- 코드: `lib/schedulerMember/`(표 `booking_member_scheduler`, 토큰 `booking_…`, 끄기 스위치 `BOOKING_PLATFORM_SCHEDULER=off`), `lib/programAccess.ts`(사본), `/api/cron/reminder`(제외 목록·`CRON_SECRET` 빈 값 401), 새 `/api/cron/dispatch-member`, `lib/actions/scheduler.ts`, `reminderRules.ts` 생성·켜기/끄기·삭제 때 `syncMemberScheduler`. **이 프로그램은 API 키 화면이 없어** cron-job.org 키 전용 `lib/actions/settings.ts`(`saveCronjobKeyAction`·`deleteCronjobKeyAction`)·`components/settings/CronjobKeyRow.tsx`(stepmail ApiKeyRow 사본)를 새로 둠.
+- 안전: **중복 발송 방지 보강** — `lib/booking/reminderDispatch.ts`가 예전엔 「보냈는지 확인 → 발송 → 기록」이라 실행이 겹치면 둘 다 보낼 수 있었다 → 발송 전에 `booking_reminder_sends`에 먼저 넣어 선점((rule_id, reservation_id) 고유 제약), 상태값이 sent/failed뿐이라 「발송 중」은 failed로 넣고 끝나면 실제 결과로 고침(실패 리마인드는 원래도 재발송 안 함). **이용 권한(사용기간) 확인 추가**.
+- 화면: 설정 「⏰ 예약 발행」, 예약 관리 화면(리마인드 규칙 위) 상태 줄·일시정지/재개, `/guide` FAQ Q6. DB: `supabase/migrations/20261020150000_booking_member_scheduler.sql`(크롬 SQL Editor 적용). `package.json` 1.21.0.
+- 검수: tsc 0, build, 배포 `booking-reminder-mnqqz3cyx`(Ready), 무인증·`Bearer undefined`·가짜 토큰 401, `/login` 200. 크롬(관리자, **실제 발송 없음** — 관리자 예약 고객 0명, 시험 규칙은 발송 채널 모두 끔): 「내 cron-job.org」 선택(새 키 칸에서도 공용 키 「등록됨」) → 「대기 · 켜진 규칙 0개」 → 시험 규칙 켜기 → 작업 8678986 자동 켜짐 → 일시정지·재개 → 16:30 cron-job.org 회원 실행 200 → 규칙 끄기 → 작업 즉시 꺼짐 → Vercel 복귀 → 시험 규칙 삭제.
