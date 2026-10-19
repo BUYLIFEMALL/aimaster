@@ -3,7 +3,7 @@
 > **최초 제정**: 2026-10-16 (주인님 지시)  
 > **상태**: 최상위 불변 디자인 메인 지침 (Living Standard Document)  
 > **적용 대상**: Claude Code, Codex, Antigravity(Gemini) 등 **모든 AI 코딩 에이전트 및 CLI 공통 필독**  
-> **연계 문서**: [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md) (상세 디자인 가이드), [`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md) (좌측 메뉴바 표준)
+> **연계 문서**: [`docs/PROGRAM_DESIGN_STANDARD.md`](docs/PROGRAM_DESIGN_STANDARD.md) (상세 디자인 가이드), [`docs/SIDEBAR_LAYOUT_STANDARD.md`](docs/SIDEBAR_LAYOUT_STANDARD.md) (좌측 메뉴바 표준), [`docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md`](docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md) (카테고리별 템플릿 총람 및 선정 가이드)
 
 ---
 
@@ -132,9 +132,9 @@
 
 ## 2. 전체 프로그램 디자인 작업 현황판 (Master Design Registry) — 중복 작업 방지
 
-> **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
+> **2026-10-16 주인님 지시**: 개발된 전체 프로그램(84개, `docs/PROGRAM_CAPABILITY_MAP.md` 및 `docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 81개 · ⚪ 0개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **97.6% 달성 / 1차 전수 완료!**):
+> **상태 구분** (2026-10-19 기준: ✅ 82개 · ⚪ 0개 · 🟠 0개 · ⏸ 2개 — 총 84개 — **97.6% 달성 / 정상 운영 프로그램 82개 100% 1차 전수 완료!**):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
