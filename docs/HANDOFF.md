@@ -1,5 +1,35 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 미디어 생성 & 에셋 가이드 5종 전면 단계별 시각화 완료 (누적 33대 핵심 가이드 완성, 82.5% 달성, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 영상 자동 합성 엔진(JSON2Video), 썸네일·배너 자동화(PLACID), 클라우드 미디어 CDN(Cloudinary), 상업용 무료 스톡 사진/영상(Pixabay, Pexels) 등 미디어 콘텐츠 자동화에 필수적인 5대 API 가이드를 **개요 카드, Step 1~4 시각 스텝 뷰어, 3대 인증정보 분리 안내, 💡 팁, ⚠️ 보안 및 Pexels 대체재 안내 배너, 공식 콘솔 직링크**가 탑재된 프리미엄 반응형 카드 템플릿으로 전면 고도화함. (이로써 AIMaster 가이드 40종 중 33종 완성, 달성률 82.5% 기록)
+- **주요 작업 내용**:
+  1. **미디어 생성 & 에셋 5대 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **JSON2Video API 연동하기**: 자막/나레이션/영상 클라우드 자동 렌더링 합성 엔진 개요, 카드 등록 없는 이메일 가입, 메일로 전송된 비밀번호 겸용 API Key 복사 요령, 첫 가입 600크레딧(HD 5~10편) 무료 제공 안내, Step 1~4 시각화.
+     - **PLACID API 연동하기**: 디자이너급 템플릿 기반 유튜브 썸네일·카드뉴스 자동 생성 엔진, 프로젝트 생성 및 템플릿 ID 확인, API Token 발급, 7일간 50크레딧 무료 체험 안내, 템플릿 레이어(title/subtitle) 팁, Step 1~4 시각화.
+     - **Cloudinary API 연동하기**: 이미지·영상 실시간 자동 변환/압축 및 초고속 CDN 호스팅, Settings → API Keys 이동, 3대 필수 인증정보(Cloud name, API Key, API Secret) 분리 복사 안내, API Secret 비공개 보안 주의 배너, 매월 25 크레딧 평생 무료 갱신 안내, Step 1~4 시각화.
+     - **Pixabay(픽사베이) API 키 발급받기**: 430만 개 상업용 출처 미표기 완전 무료 스톡 미디어, 가입 즉시 API Docs 페이지 녹색 상자에서 본인 전용 API Key 1초 원클릭 복사 요령, 분당 5,000회/초당 100회 무제한급 한도 안내, Step 1~4 시각화.
+     - **Pexels(펙셀스) API 키 발급받기**: 트렌디한 감성 사진 및 세로형(9:16) 숏폼 영상 검색, 시간당 200회/월 20,000회 무료, **중요 정책 안내**: 신규 API 키 일시 중단 시 100% 동일 대체재인 **Pixabay API** 사용 권장 배너, Step 1~4 시각화.
+  2. **메타데이터 엔진 보강 (`lib/guideMeta.ts`)**:
+     - JSON2Video(🎥·3분·공식 사이트 직링크), PLACID(🖼️·4분·공식 콘솔 직링크), Cloudinary(☁️·4분·API Keys 콘솔 직링크), Pixabay(📷·2분·API Docs 직링크), Pexels(📸·2분·API 콘솔 직링크) 정밀 매핑.
+  3. **Vercel 프로덕션 빌드 & 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_X6Mm3oUwguc1mKrdCUz8Qii5mX9K`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 5개 가이드 상세 페이지 전수 순회 캡처 완료:
+       - `edge_guide_json2video_detail.png`
+       - `edge_guide_placid_detail.png`
+       - `edge_guide_cloudinary_detail.png`
+       - `edge_guide_pixabay_detail.png`
+       - `edge_guide_pexels_detail.png`
+- **서비스 링크**:
+  - 이용 가이드북 종합: https://www.buylife.xyz/guides
+  - JSON2Video API 가이드: https://www.buylife.xyz/guides/b632a359-d9fd-4e0c-8920-3283094a4892
+  - PLACID API 가이드: https://www.buylife.xyz/guides/33089b0c-fb3b-4a7e-b872-527a35b988a0
+  - Cloudinary API 가이드: https://www.buylife.xyz/guides/e2004c0f-160d-4360-bcbf-98f4409edde2
+  - Pixabay API 가이드: https://www.buylife.xyz/guides/c315c6d7-4187-446a-86da-5c37d4274d54
+  - Pexels API 가이드: https://www.buylife.xyz/guides/ff6c331e-74a8-4b00-99c9-3b91f44f41f7
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 Google 워크스페이스 & 네이버 카페 가이드 3종 전면 단계별 시각화 완료 (누적 28대 핵심 가이드 완성, 70% 달성, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 구글 드라이브(문서 동기화), Gmail/Drive 공용 OAuth, 네이버 카페 글쓰기 자동화 등 연동 시 자주 혼동되는 필수 플랫폼 가이드 3종 본문을 **개요 카드, Step 1~4 시각 스텝 뷰어, 복사 가능한 콜백 URL, 💡 팁, ⚠️ 함정 방지 배너, 공식 콘솔 직링크**가 탑재된 프리미엄 반응형 카드 템플릿으로 전면 고도화함. (이로써 AIMaster 가이드 40종 중 28종이 100% 비주얼화 완료되어 달성률 70.0% 기록)

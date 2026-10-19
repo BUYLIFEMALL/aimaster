@@ -326,14 +326,64 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
       consoleLabel: "Runway 콘솔",
     };
   }
-  if (t.includes("pixabay") || t.includes("pexels")) {
+  if (t.includes("json2video")) {
+    return {
+      icon: "🎥",
+      badgeTone: "bg-indigo-500/10 text-indigo-300 border-indigo-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "3분",
+      summary: "JSON 데이터 기반 영상 장면/자막/오디오 자동 렌더링 합성 API 연동",
+      consoleUrl: "https://json2video.com",
+      consoleLabel: "JSON2Video 콘솔",
+    };
+  }
+  if (t.includes("placid")) {
     return {
       icon: "🖼️",
+      badgeTone: "bg-violet-500/10 text-violet-300 border-violet-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "디자인 템플릿 기반 썸네일·배너·카드뉴스 자동 생성 PLACID API 연동",
+      consoleUrl: "https://placid.app",
+      consoleLabel: "PLACID 콘솔",
+    };
+  }
+  if (t.includes("cloudinary")) {
+    return {
+      icon: "☁️",
+      badgeTone: "bg-sky-500/10 text-sky-300 border-sky-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "클라우드 미디어 실시간 자동 변환·최적화 및 초고속 CDN 호스팅 연동",
+      consoleUrl: "https://console.cloudinary.com/settings/api-keys",
+      consoleLabel: "Cloudinary 콘솔",
+    };
+  }
+  if (t.includes("pixabay") || t.includes("픽사베이")) {
+    return {
+      icon: "📷",
       badgeTone: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
       difficulty: "초급",
       difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
       estimatedTime: "2분",
-      summary: "무료 상업용 스톡 이미지/영상 검색 API 발급 가이드",
+      summary: "상업적 100% 무료 고화질 사진 및 일러스트 즉시 검색 Pixabay API 발급",
+      consoleUrl: "https://pixabay.com/api/docs/",
+      consoleLabel: "Pixabay API 콘솔",
+    };
+  }
+  if (t.includes("pexels") || t.includes("펙셀스")) {
+    return {
+      icon: "📸",
+      badgeTone: "bg-teal-500/10 text-teal-300 border-teal-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "2분",
+      summary: "고감성 무료 스톡 비디오 및 사진 검색 Pexels API 가이드",
+      consoleUrl: "https://www.pexels.com/api/",
+      consoleLabel: "Pexels API 콘솔",
     };
   }
 
