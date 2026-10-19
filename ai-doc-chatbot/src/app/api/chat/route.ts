@@ -4,7 +4,7 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { chatOnce, chatStream, embed, ROUTER_MODEL, type ChatMessage } from "@/lib/chat/upstage";
 import { webSearch, type WebResult } from "@/lib/chat/tavily";
-import { buildRouterPrompt, buildSources, buildSystemPrompt, parseRouteDecision, pickDocHits, roomTitleFrom, todayKst, type DocHit } from "@/lib/chat/core";
+import { buildRouterPrompt, buildSources, buildSystemPrompt, extractKeywords, isSummaryQuestion, mergeHybrid, parseRouteDecision, pickDocHits, roomTitleFrom, todayKst, type ChunkHit, type DocHit } from "@/lib/chat/core";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -79,20 +79,7 @@ export async function POST(request: Request) {
       const send = (obj: unknown) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
       try {
         // 1) 내 문서에서 관련 내용 찾기
-        let docs: DocHit[] = [];
-        if (useDocs) {
-          const { count } = await admin.from("dcb_chunks").select("id", { count: "exact", head: true }).eq("user_id", userId);
-          if ((count ?? 0) > 0) {
-            const [qv] = await embed(upstageKey, [question], "query");
-            const { data: hits } = await admin.rpc("dcb_match_chunks", { p_user_id: userId, p_embedding: JSON.stringify(qv), p_count: onlyDocumentId ? 20 : 5 });
-            docs = pickDocHits((hits ?? []) as DocHit[], onlyDocumentId);
-          }
-          // 「이 문서만」인데 상위 결과에 그 문서가 없으면(요약 질문 등) 문서 앞부분 조각을 근거로 쓴다
-          if (onlyDocumentId && !docs.length) {
-            const { data: first } = await admin.from("dcb_chunks").select("content, dcb_documents(name)").eq("document_id", onlyDocumentId).eq("user_id", userId).order("chunk_index").limit(5);
-            docs = (first ?? []).map((c) => ({ document_id: onlyDocumentId!, document_name: (c.dcb_documents as unknown as { name: string } | null)?.name ?? "문서", content: c.content as string, similarity: 0 }));
-          }
-        }
+        const docs: DocHit[] = useDocs ? await findDocHits(admin, userId, upstageKey, question, onlyDocumentId) : [];
 
         // 2) 웹 검색이 필요한지 판단 → 필요하면 Tavily(MCP) 검색
         let web: WebResult[] = [];
@@ -140,4 +127,52 @@ export async function POST(request: Request) {
   });
 
   return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });
+}
+
+type Admin = ReturnType<typeof createAdminClient>;
+
+/** 문서 앞부분 조각(요약·「이 문서만」 질문에서 관련도가 낮게 나올 때의 근거) */
+async function firstChunks(admin: Admin, userId: string, documentId: string): Promise<DocHit[]> {
+  const { data } = await admin.from("dcb_chunks").select("content, dcb_documents(name)").eq("document_id", documentId).eq("user_id", userId).order("chunk_index").limit(5);
+  return (data ?? []).map((c) => ({ document_id: documentId, document_name: (c.dcb_documents as unknown as { name: string } | null)?.name ?? "문서", content: c.content as string, similarity: 0 }));
+}
+
+/** 내 문서에서 근거 찾기 — 벡터 + 키워드 혼합(L4), 「이 문서만」(U4), 요약 질문(L12) */
+async function findDocHits(admin: Admin, userId: string, upstageKey: string, question: string, onlyDocumentId: string | null): Promise<DocHit[]> {
+  const { count } = await admin.from("dcb_chunks").select("id", { count: "exact", head: true }).eq("user_id", userId);
+  if (!count) return [];
+
+  const [qv] = await embed(upstageKey, [question], "query");
+  const { data: hits } = await admin.rpc("dcb_match_chunks", { p_user_id: userId, p_embedding: JSON.stringify(qv), p_count: onlyDocumentId ? 20 : 10 });
+  const vectorHits = (hits ?? []) as ChunkHit[];
+
+  if (onlyDocumentId) {
+    const picked = pickDocHits(vectorHits, onlyDocumentId);
+    return picked.length ? picked : firstChunks(admin, userId, onlyDocumentId);
+  }
+
+  // 키워드가 그대로 들어 있는 조각(이름·숫자·고유명사 보강)
+  const keywords = extractKeywords(question);
+  let keywordHits: ChunkHit[] = [];
+  if (keywords.length) {
+    const { data } = await admin
+      .from("dcb_chunks")
+      .select("id, document_id, content, dcb_documents(name)")
+      .eq("user_id", userId)
+      .or(keywords.map((k) => `content.ilike.%${k}%`).join(","))
+      .limit(30);
+    keywordHits = (data ?? []).map((c) => ({
+      id: c.id as string,
+      document_id: c.document_id as string,
+      document_name: (c.dcb_documents as unknown as { name: string } | null)?.name ?? "문서",
+      content: c.content as string,
+      similarity: vectorHits.find((v) => v.id === c.id)?.similarity ?? 0,
+    }));
+  }
+  const merged = mergeHybrid(vectorHits, keywordHits, keywords);
+  if (merged.length) return merged;
+
+  // 요약 질문인데 근거가 없으면 가장 가까운 문서의 앞부분으로 답한다
+  if (isSummaryQuestion(question) && vectorHits[0]?.document_id) return firstChunks(admin, userId, vectorHits[0].document_id);
+  return [];
 }

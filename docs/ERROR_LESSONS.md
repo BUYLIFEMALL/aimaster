@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — Upstage 비동기 문서 읽기는 「대기열 포함 최대 72시간」 → 서버 요청 안에서 기다리면 안 된다 (ai-doc-chatbot v1.05, Claude Code 윈도우)
+
+- **배경**: 100쪽 넘는 PDF는 동기 `document-digitization`이 413으로 거절한다. 비동기(`/async`, 2,000쪽·500MB)는 공식 문서상 대기+처리가 최대 72시간, 결과 `download_url`은 15분만 유효.
+- **해결**: 서버는 요청 번호만 받아 돌려주고, 화면이 20초마다 상태 API를 불러 완료되면 그때 결과를 받아 저장한다. 진행 중 번호는 localStorage에 기억해 화면을 닫았다 와도 이어서 확인. 저장 후 Upstage 결과를 DELETE. 조회는 회원 본인 키로만 해 남의 요청은 볼 수 없다. 코드 `ai-doc-chatbot/src/lib/chat/upstage.ts`·`src/app/api/documents/async/route.ts`.
+- **다음부터 확인**: 외부 「비동기」 API를 붙일 때는 최대 처리 시간을 공식 문서로 먼저 확인하고, Vercel 함수(최대 300초) 안에서 기다리는 구조를 만들지 않는다. 또 Next App Router의 `route.ts`는 HTTP 함수·설정값 외에는 export하지 않는다(공용 검사 함수는 `src/lib`로) — 다른 route에서 가져다 쓰려고 export하면 빌드에서 막힌다.
+
 ## 2026-10-19 — `remark-gfm` 기본값은 물결표 하나(`~`)도 취소선 → 한국어 범위 표기 「2026~2030년」 사이가 통째로 줄 그어짐 (ai-doc-chatbot v1.02 → v1.03, Claude Code 윈도우)
 
 - **증상**: AI 답변을 마크다운으로 표시하자 「2026~2030년 … 20~22일」 사이 문장이 취소선으로 보이고 화면 글에서는 `~`가 사라짐.

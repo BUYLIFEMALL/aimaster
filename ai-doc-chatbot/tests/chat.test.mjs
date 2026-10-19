@@ -115,3 +115,33 @@ test("출처: 문서는 근거 미리보기(U1), 웹은 검색 경로·발행일
   assert.deepEqual(s[1], { type: "web", title: "x", url: "https://x", published: "2026-10-18", via: "rest" });
   assert.ok(buildSources([{ document_name: "c", content: "가".repeat(500), similarity: 0.9 }], [])[0].snippet.length <= 401);
 });
+
+import { extractKeywords, mergeHybrid, isSummaryQuestion, joinBatchTexts, textFromParseResult } from "../src/lib/chat/core.ts";
+test("키워드 뽑기: 조사 떼기·불용어 제외·안전한 글자만(L4)", () => {
+  assert.deepEqual(extractKeywords("국내 출장 일비는 얼마고, Orbit X1 보증 기간도 알려줘?"), ["국내", "출장", "일비", "Orbit", "X1", "보증"]);
+  assert.deepEqual(extractKeywords("39,000원 배터리 교체 비용"), ["배터리", "교체", "비용"]);
+  assert.ok(extractKeywords("a%b,c(d) 이름").every((k) => /^[0-9A-Za-z가-힣]+$/.test(k)));
+});
+
+test("혼합 검색: 키워드가 절반 이상 들어 있으면 관련도가 낮아도 포함, 점수순(L4)", () => {
+  const v = [
+    { id: "1", document_name: "a", content: "일반 내용", similarity: 0.45 },
+    { id: "2", document_name: "a", content: "관련 없음", similarity: 0.2 },
+  ];
+  const k = [{ id: "3", document_name: "b", content: "Orbit X1 보증 18개월", similarity: 0 }];
+  const out = mergeHybrid(v, k, ["Orbit", "X1", "보증"]);
+  assert.deepEqual(out.map((h) => h.id), ["1", "3"]);
+  assert.ok(mergeHybrid(v, [], []).every((h) => h.id !== "2"));
+});
+
+test("요약 질문 판단(L12)", () => {
+  assert.equal(isSummaryQuestion("이 문서 내용을 3줄로 요약해 줘"), true);
+  assert.equal(isSummaryQuestion("핵심만 정리해줘"), true);
+  assert.equal(isSummaryQuestion("국내 출장 일비는?"), false);
+});
+
+test("비동기 문서 읽기 결과: 쪽 순서대로 잇기·결과 글 꺼내기(L3)", () => {
+  assert.equal(joinBatchTexts([{ start_page: 11, text: "둘" }, { start_page: 1, text: "하나" }]), "하나\n\n둘");
+  assert.equal(textFromParseResult({ content: { markdown: "# 제목 \n본문" } }), "# 제목\n본문");
+  assert.equal(textFromParseResult({ content: {}, elements: [{ content: { text: "가" } }, { content: { markdown: "나" } }] }), "가\n나");
+});

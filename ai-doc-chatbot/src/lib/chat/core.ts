@@ -234,3 +234,81 @@ export function parseMcpSearchText(text: string): WebResult[] {
   return out;
 }
 
+
+// ── 혼합 검색(L4): 벡터 유사도 + 키워드 일치 ──────────────────────────────
+// 이름·숫자·고유명사(예: 「Orbit X1」, 「39,000」)는 임베딩만으로 놓치기 쉬워, 질문의 핵심 단어가
+// 그대로 들어 있는 조각을 함께 찾아 점수를 더한다.
+
+const PARTICLES = ["에서는", "으로는", "에서", "으로", "까지", "부터", "처럼", "보다", "에게", "한테", "이랑", "랑", "은", "는", "이", "가", "을", "를", "의", "에", "로", "와", "과", "도", "만", "요"];
+const STOPWORDS = new Set(["알려줘", "알려", "주세요", "해줘", "해주세요", "뭐야", "무엇", "무엇인가요", "얼마", "얼마야", "얼마고", "언제", "언제까지", "어디", "어떻게", "어떤", "그리고", "그런데", "있어", "있나요", "인가요", "내용", "문서", "자료", "관련", "대해", "대한", "정리", "요약", "설명", "the", "and", "for", "what", "how", "is", "are"]);
+
+/** 질문에서 키워드를 뽑는다 — 조사 떼기, 불용어·한 글자 제외, 최대 6개. PostgREST 필터에 안전한 글자만 남김 */
+export function extractKeywords(question: string): string[] {
+  const out: string[] = [];
+  // 「39,000원」처럼 쉼표가 든 숫자는 쪼개면 「000원」 같은 엉뚱한 단어가 되고 쉼표는 검색 조건에 못 쓰므로 빼고(벡터 검색이 찾음) 나머지 단어만 쓴다
+  const cleaned = question.replace(/\d{1,3}(?:,\d{3})+\S*/g, " ");
+  for (const raw of cleaned.split(/[\s,.?!·~"'()[\]{}<>:;/\\|]+/)) {
+    let w = raw.replace(/[^0-9A-Za-z가-힣]/g, "");
+    for (const p of PARTICLES) {
+      if (w.length > p.length + 1 && w.endsWith(p)) {
+        w = w.slice(0, -p.length);
+        break;
+      }
+    }
+    if (w.length < 2 && !/^\d+$/.test(w)) continue;
+    if (STOPWORDS.has(w.toLowerCase())) continue;
+    if (!out.includes(w)) out.push(w);
+    if (out.length >= 6) break;
+  }
+  return out;
+}
+
+export interface ChunkHit extends DocHit {
+  id: string;
+}
+
+/** 벡터 결과와 키워드 결과를 합쳐 점수순 상위 limit개. 키워드 절반 이상 들어 있으면 관련도 기준 미만이어도 포함 */
+export function mergeHybrid(vectorHits: ChunkHit[], keywordHits: ChunkHit[], keywords: string[], limit = 5): ChunkHit[] {
+  const byId = new Map<string, ChunkHit & { kw: number }>();
+  for (const h of vectorHits) byId.set(h.id, { ...h, kw: 0 });
+  for (const h of keywordHits) if (!byId.has(h.id)) byId.set(h.id, { ...h, similarity: h.similarity ?? 0, kw: 0 });
+  const lowerKeywords = keywords.map((k) => k.toLowerCase());
+  const scored = [...byId.values()].map((h) => {
+    const text = h.content.toLowerCase();
+    const kw = lowerKeywords.length ? lowerKeywords.filter((k) => text.includes(k)).length / lowerKeywords.length : 0;
+    return { h, kw, score: h.similarity + 0.25 * kw };
+  });
+  return scored
+    .filter((x) => x.h.similarity >= MIN_DOC_SIMILARITY || x.kw >= 0.5)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ h, score }) => {
+      const { kw: _kw, ...rest } = h;
+      void _kw;
+      return { ...rest, similarity: Math.min(1, Math.round(score * 100) / 100) };
+    });
+}
+
+/** 「요약해 줘·정리해 줘·핵심」처럼 문서 전체를 묻는 질문인지(L12) — 관련도가 낮게 나와도 가장 가까운 문서 앞부분으로 답하게 */
+export function isSummaryQuestion(question: string): boolean {
+  return /(요약|정리|핵심|주요 ?내용|무슨 ?내용|전체 ?내용|summar)/i.test(question);
+}
+
+// ── 큰 문서(L2·L3) ───────────────────────────────────────────────
+/** 화면→서버 직접 업로드 한도(Vercel 요청 본문 4.5MB 안) */
+export const DIRECT_UPLOAD_MAX = 4 * 1024 * 1024;
+/** Storage를 거쳐 올릴 수 있는 최대 크기 */
+export const STORAGE_UPLOAD_MAX = 50 * 1024 * 1024;
+
+/** Upstage 비동기 결과(배치)들을 쪽 순서대로 이어 붙인다 */
+export function joinBatchTexts(batches: { start_page: number; text: string }[]): string {
+  return [...batches].sort((a, b) => a.start_page - b.start_page).map((b) => b.text.trim()).filter(Boolean).join("\n\n");
+}
+
+/** Upstage 문서 읽기 결과 JSON에서 글을 꺼낸다(동기·비동기 배치 공통) */
+export function textFromParseResult(data: { content?: { markdown?: string; text?: string; html?: string }; elements?: { content?: { markdown?: string; text?: string } }[] }): string {
+  const c = data.content ?? {};
+  let text = c.markdown || c.text || (c.html ?? "").replace(/<[^>]+>/g, " ");
+  if (!text && Array.isArray(data.elements)) text = data.elements.map((e) => e.content?.markdown || e.content?.text || "").filter(Boolean).join("\n");
+  return text.replace(/[ \t]+\n/g, "\n").trim();
+}

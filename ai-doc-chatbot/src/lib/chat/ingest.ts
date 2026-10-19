@@ -1,10 +1,11 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { embed } from "./upstage";
-import { chunkText } from "./core";
+import { embed, NeedsAsyncParseError, parseDocument, submitAsyncParse } from "./upstage";
+import { chunkText, fileKind } from "./core";
 
 // 문서 저장 과정(공용): 글 읽기 → 조각 나누기 → 임베딩 → 저장. 원본 파일은 보관하지 않는다.
 // onStage로 진행 단계를 알려 화면이 「읽는 중 → 조각 → 임베딩 → 저장」을 보여 준다(U2).
+// 100쪽이 넘어 Upstage 동기 읽기가 거절되면 비동기 요청으로 넘기고 request_id를 돌려준다(L3).
 
 export type IngestStage = "read" | "chunk" | "embed" | "save";
 
@@ -16,30 +17,25 @@ export interface IngestedDoc {
   created_at: string;
 }
 
+export type UploadOutcome = { kind: "done"; document: IngestedDoc } | { kind: "async"; requestId: string };
+
 export class IngestError extends Error {
   constructor(message: string, readonly status: number) {
     super(message);
   }
 }
 
-export async function ingestDocument(opts: {
+/** 이미 뽑은 글을 조각 → 임베딩 → 저장 */
+export async function ingestText(opts: {
   admin: SupabaseClient;
   userId: string;
   apiKey: string;
   name: string;
   sizeBytes: number;
-  readText: () => Promise<string>;
+  text: string;
   onStage?: (stage: IngestStage) => void;
 }): Promise<IngestedDoc> {
-  const { admin, userId, apiKey, name, sizeBytes, readText, onStage } = opts;
-
-  onStage?.("read");
-  let text: string;
-  try {
-    text = await readText();
-  } catch (err) {
-    throw new IngestError((err as Error).message || "문서를 읽지 못했습니다.", 502);
-  }
+  const { admin, userId, apiKey, name, sizeBytes, text, onStage } = opts;
 
   onStage?.("chunk");
   const chunks = chunkText(text);
@@ -72,18 +68,46 @@ export async function ingestDocument(opts: {
   return doc as IngestedDoc;
 }
 
-/** 진행 단계를 한 줄 JSON으로 흘려보내는 응답. 마지막 줄은 done 또는 error */
-export function ingestStream(run: (onStage: (s: IngestStage) => void) => Promise<IngestedDoc>): Response {
+/** 파일 하나를 처리한다 — TXT·MD·CSV는 바로, 나머지는 Upstage 문서 읽기(100쪽 초과면 비동기 요청) */
+export async function processFile(opts: {
+  admin: SupabaseClient;
+  userId: string;
+  apiKey: string;
+  name: string;
+  file: Blob;
+  onStage?: (stage: IngestStage) => void;
+}): Promise<UploadOutcome> {
+  const { apiKey, name, file, onStage } = opts;
+  onStage?.("read");
+  let text: string;
+  try {
+    text = fileKind(name) === "text" ? await file.text() : await parseDocument(apiKey, file, name);
+  } catch (err) {
+    if (err instanceof NeedsAsyncParseError) {
+      try {
+        return { kind: "async", requestId: await submitAsyncParse(apiKey, file, name) };
+      } catch (e) {
+        throw new IngestError((e as Error).message || "큰 문서 읽기를 요청하지 못했습니다.", 502);
+      }
+    }
+    throw new IngestError((err as Error).message || "문서를 읽지 못했습니다.", 502);
+  }
+  return { kind: "done", document: await ingestText({ ...opts, sizeBytes: file.size, text }) };
+}
+
+/** 진행 단계를 한 줄 JSON으로 흘려보내는 응답. 마지막 줄은 done · async · error 중 하나 */
+export function ingestStream(run: (onStage: (s: IngestStage) => void) => Promise<UploadOutcome>, onFinally?: () => Promise<void>): Response {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       const send = (obj: unknown) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
       try {
-        const document = await run((stage) => send({ type: "stage", stage }));
-        send({ type: "done", document });
+        const out = await run((stage) => send({ type: "stage", stage }));
+        send(out.kind === "done" ? { type: "done", document: out.document } : { type: "async", requestId: out.requestId });
       } catch (err) {
         send({ type: "error", error: (err as Error).message || "문서를 올리지 못했습니다." });
       } finally {
+        await onFinally?.().catch(() => undefined);
         controller.close();
       }
     },
