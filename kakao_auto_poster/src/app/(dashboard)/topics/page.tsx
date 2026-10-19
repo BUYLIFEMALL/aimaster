@@ -2,6 +2,10 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { TopicForm } from "@/components/topics/TopicForm";
 import { TopicRow } from "@/components/topics/TopicRow";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulePublishingControl } from "@/components/topics/SchedulePublishingControl";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -105,6 +109,7 @@ export default async function TopicsPage() {
         </p>
       </div>
 
+      <SchedulePublishingControl initial={await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id)} />
       <div className="space-y-3">
         {(topics ?? []).length === 0 ? (
           <p className="rounded-lg border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">

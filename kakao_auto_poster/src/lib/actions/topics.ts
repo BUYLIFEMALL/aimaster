@@ -6,6 +6,39 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { generateReportForTopic } from "@/lib/reportEngine";
 import { topicFormSchema } from "@/lib/validation";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled, stopMemberSchedulerIfIdle } from "@/lib/schedulerMember/memberScheduler";
+
+/**
+ * 정기 생성 스위치(예약 켜기·주제 활성화)가 바뀐 뒤 회원 실행 작업 맞추기(v1.21, 지침 docs/SCHEDULER_POLICY.md).
+ * 켰을 때: 고른 방식이 준비 안 됐거나(키 없음·Vercel 꺼짐) cron-job.org 작업을 켜지 못하면 그 주제의 예약을 다시 끄고 안내를 돌려준다
+ * (「켜졌는데 안 도는」 상태를 만들지 않음). 껐을 때: 켜진 주제가 하나도 없으면 회원 작업을 끈다(실패해도 다음 회원 실행 때 다시 끔).
+ */
+async function syncMemberScheduler(userId: string, topicId: string, enabledNow: boolean): Promise<string | null> {
+  const service = createAdminClient() as unknown as SupabaseClient;
+  const mode = await memberSchedulerMode(service, userId);
+  if (!enabledNow) {
+    if (mode === "cronjob") await stopMemberSchedulerIfIdle(service, userId).catch(() => false);
+    return null;
+  }
+  let error: string | null = null;
+  if (mode === "cronjob") {
+    const key = await memberCronjobKey(service, userId);
+    if (!key) error = "「내 cron-job.org」 방식은 API 키가 필요합니다. 설정 → ⏰ 예약 발행에서 키를 등록하거나 AIMaster 기본(Vercel) 방식을 선택해 주세요.";
+    else {
+      try {
+        await ensureMemberSchedulerRunning(service, userId, key);
+      } catch (err) {
+        error = `정기 생성 작업을 켜지 못했습니다. ${err instanceof Error ? err.message : ""}`.trim();
+      }
+    }
+  } else if (!platformSchedulerEnabled()) {
+    error = "이 사이트는 Vercel 예약 호출이 꺼져 있습니다. 설정 → ⏰ 예약 발행에서 「내 cron-job.org」를 선택하고 키를 등록해 주세요.";
+  }
+  if (error) await service.from("kakao_topics").update({ schedule_enabled: false }).eq("id", topicId).eq("user_id", userId);
+  return error;
+}
 
 export interface CreateTopicState {
   error?: string;
@@ -46,11 +79,15 @@ export async function toggleTopicActiveAction(formData: FormData) {
   const isActive = formData.get("isActive") === "true";
   const supabase = await createClient();
 
-  await supabase
+  const { data: toggled } = await supabase
     .from("kakao_topics")
     .update({ is_active: !isActive })
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("schedule_enabled")
+    .maybeSingle();
+  // 예약이 켜진 주제를 다시 활성화하면 작업을 켜고, 비활성화하면 남은 주제를 보고 끈다(v1.21)
+  if (toggled?.schedule_enabled) await syncMemberScheduler(user.id, id, !isActive);
 
   revalidatePath("/topics");
 }
@@ -61,6 +98,7 @@ export async function deleteTopicAction(formData: FormData) {
   const supabase = await createClient();
 
   await supabase.from("kakao_topics").delete().eq("id", id).eq("user_id", user.id);
+  await syncMemberScheduler(user.id, id, false);
 
   revalidatePath("/topics");
 }
@@ -118,8 +156,9 @@ export async function updateTopicScheduleAction(
 
   if (error) return { error: error.message };
 
+  const syncError = await syncMemberScheduler(user.id, id, scheduleEnabled);
   revalidatePath("/topics");
-  return {};
+  return syncError ? { error: `예약을 켜지 못해 다시 꺼 두었습니다. ${syncError}` } : {};
 }
 
 export interface UpdateKeywordsState {

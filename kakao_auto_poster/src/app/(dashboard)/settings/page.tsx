@@ -9,6 +9,10 @@ import { TelegramSection } from "@/components/settings/TelegramSection";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 import { KAKAO_REDIRECT_NEW, KAKAO_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
 
 const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
 
@@ -90,6 +94,7 @@ export default async function SettingsPage({
     ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -191,6 +196,29 @@ export default async function SettingsPage({
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <TelegramSection link={telegramLink ?? null} />
+        </div>
+
+        {/* ⏰ 정기 자동 생성 실행 방식(v1.21, 지침 docs/SCHEDULER_POLICY.md) — 예약 켜기/끄기는 「관심 주제」에서 주제마다 한다 */}
+        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+          <div className="mb-3">
+            <h2 className="text-sm font-bold text-neutral-900">⏰ 예약 발행</h2>
+            <p className="text-xs text-neutral-500">
+              주제별 정기 자동 생성을 무엇으로 돌릴지 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
+              본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약 켜기/끄기는 「관심 주제」에서 주제마다 합니다. 카카오 발송은 지금처럼 사람이 결정합니다.
+            </p>
+          </div>
+          <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
+          <p className="mb-2 text-xs font-semibold text-neutral-800">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+          <ol className="mb-3 list-decimal space-y-1 pl-4 text-xs text-neutral-600">
+            <li><a className="font-semibold underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+            <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
+            <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+          </ol>
+          <ApiKeyRow
+            provider="cronjob_org_api_key"
+            label={PROVIDER_LABELS.cronjob_org_api_key}
+            maskedValue={keyMap.has("cronjob_org_api_key") ? maskApiKey(keyMap.get("cronjob_org_api_key")!) : null}
+          />
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">

@@ -1,96 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { currentKstHour, isScheduleDue, isWithinActiveHours } from "@/lib/schedule";
-import { generateReportForTopic } from "@/lib/reportEngine";
-
-/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
-async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
-  const ids = Array.from(new Set(userIds.filter(Boolean)));
-  if (ids.length === 0) return new Set();
-  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
-  return new Set(
-    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
-      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
-      .map((p) => p.id)
-  );
-}
+import { dispatchDueTopics } from "@/lib/schedulerMember/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
 // Phase 3 — 예약(정기 자동 생성) dispatch. 주제마다 회원이 정한 주기(1시간~매주)가 다를 수
-// 있어, Vercel Cron은 5분마다 깨우기만 하고(vercel.json) 실제로 생성할 차례인지는 이
-// 라우트에서 last_run_at 기준으로 다시 판단한다(trending-product-finder의
-// dispatch-sourcing-alerts와 동일 패턴). 카카오 발송은 이 크론이 직접 하지 않는다 —
-// generateReportForTopic 안에서 텔레그램이 연동돼 있으면 검토 요청만 보내고, 발행 여부는
-// 항상 사람이 텔레그램 버튼(또는 웹 화면)으로 직접 결정한다.
+// 있어, Vercel Cron은 5분마다 깨우기만 하고(vercel.json) 실제로 생성할 차례인지는
+// last_run_at 기준으로 다시 판단한다(trending-product-finder의 dispatch-sourcing-alerts와 동일 패턴).
+// 카카오 발송은 이 크론이 직접 하지 않는다 — 발행 여부는 항상 사람이 텔레그램 버튼(또는 웹 화면)으로 결정한다.
+// v1.21: 회원이 고른 실행 방식대로 — 「Vercel(운영 기본)」 회원 주제만 여기서 생성하고, 「내 cron-job.org」 회원·일시정지 회원은 건너뛴다
+// (그 회원들은 /api/cron/dispatch-member를 회원 토큰으로 부른다). 실행 로직: src/lib/schedulerMember/dispatch.ts. 지침: 루트 docs/SCHEDULER_POLICY.md
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
-}
-
-async function dispatch() {
-  const admin = createAdminClient();
-  const now = new Date();
-
-  const { data: rows, error } = await admin
-    .from("kakao_topics")
-    .select(
-      "id, user_id, topic_name, keywords, lookback_days, interval_minutes, last_run_at, active_hour_start, active_hour_end, notify_channels",
-    )
-    .eq("is_active", true)
-    .eq("schedule_enabled", true);
-
-  if (error) throw new Error(error.message);
-
-  const kstHour = currentKstHour(now);
-  const dueRows = (rows ?? []).filter(
-    (r) =>
-      r.interval_minutes != null &&
-      isScheduleDue(r.last_run_at, r.interval_minutes, now) &&
-      isWithinActiveHours(kstHour, r.active_hour_start, r.active_hour_end),
-  );
-
-  let generated = 0;
-  let failed = 0;
-  const details: { topicId: string; result: string }[] = [];
-
-  const phoneOkUsers = await phoneRegisteredUserIds(admin, (dueRows).map((r: { user_id: string }) => r.user_id));
-  for (const row of (dueRows).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
-    try {
-      const result = await generateReportForTopic(
-        admin,
-        row.user_id,
-        {
-          id: row.id,
-          topic_name: row.topic_name,
-          keywords: row.keywords,
-          lookback_days: row.lookback_days,
-          notify_channels: row.notify_channels,
-        },
-        "scheduled",
-      );
-      await admin.from("kakao_topics").update({ last_run_at: now.toISOString() }).eq("id", row.id);
-      generated++;
-      details.push({ topicId: row.id, result: `report ${result.reportId} created` });
-    } catch (err) {
-      // 본인 API 키가 없거나 검색/생성 실패는 이 주제만 건너뛰고 계속 진행한다 — 다른
-      // 회원의 예약 생성을 막지 않는다. last_run_at은 갱신하지 않아 다음 tick에 재시도된다.
-      failed++;
-      const message = err instanceof Error ? err.message : "unknown error";
-      details.push({ topicId: row.id, result: `failed: ${message}` });
-      console.error(`[kakao_auto_poster cron] topic ${row.id} 생성 실패:`, err);
-    }
-  }
-
-  return { total: rows?.length ?? 0, due: dueRows.length, generated, failed, details };
+  const secret = process.env.CRON_SECRET;
+  // v1.21: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const result = await dispatch();
+  const result = await dispatchDueTopics({
+    excludeUserIds: await membersExcludedFromPlatform(createAdminClient() as unknown as SupabaseClient),
+    failWithMessage: platformSchedulerEnabled() ? undefined : "이 사이트는 Vercel 예약 호출이 꺼져 있습니다.",
+  });
   return NextResponse.json({ ok: true, ...result });
 }

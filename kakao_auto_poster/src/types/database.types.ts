@@ -4,7 +4,8 @@ export type ApiKeyProvider =
   | "gemini"
   | "perplexity"
   | "kakao_rest_api_key"
-  | "kakao_client_secret";
+  | "kakao_client_secret"
+  | "cronjob_org_api_key";
 export type ReportSourceType = "perplexity";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
