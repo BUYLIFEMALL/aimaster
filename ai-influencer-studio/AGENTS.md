@@ -193,3 +193,9 @@ ai-influencer-studio/
 - **함수 한도 상향**: 이미지 라우트 `maxDuration` 60초 → 300초, 이미지 호출 시간 제한 50초 → 240초(Pro 이미지 모델 시간 초과 방지). 오래 걸리는 요청만 그만큼 함수 시간이 늘고, 예전엔 60초에서 잘려도 구글 요금은 이미 나갔다.
   대상: `/api/generate-image`, `src/lib/gemini.ts` 240초.
 - **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+
+## 2026-10-19 v1.13 — 깨진 사진을 받지 않고 화면 안에 안내 (Claude Code 윈도우)
+- 운영 실측: 깨진 JPG가 깨진 미리보기(아이콘)로 들어가고 안내 없음.
+- 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`. `npm test` 명령 신설.
+- `src/components/ControlPanel.tsx` `handleFileUpload`에서 `splitReadableImages` → 깨진 사진은 받지 않고 상품 사진·레퍼런스(인물·장소) 칸 아래에 `role="alert"` 안내(팝업 `alert` 대신 화면 안).
+- 검수: 공용 테스트 5/5, tsc, 빌드, Vercel READY(`ai-influencer-studio-pmvyjefy2`), DB v1.13, 운영 실측 — 상품·인물 칸 모두 안내, 깨진 미리보기 0. AI 비용 없음.

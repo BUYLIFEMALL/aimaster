@@ -43,6 +43,7 @@ import {
   ASPECT_RATIO_OPTIONS,
 } from "@/data/influencer-options";
 import type { InfluencerConfig, TimelineScenario } from "@/types/influencer";
+import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileCheck";
 
 interface ControlPanelProps {
   config: InfluencerConfig;
@@ -69,6 +70,7 @@ export function ControlPanel({
 }: ControlPanelProps) {
   // 일과 플래닝 상태
   const [routineInput, setRoutineInput] = useState("");
+  const [fileError, setFileError] = useState<{ field: "product" | "reference"; text: string } | null>(null);
   const [eventInput, setEventInput] = useState("");
   const [isPlanningRoutine, setIsPlanningRoutine] = useState(false);
   const [isPlanningEvent, setIsPlanningEvent] = useState(false);
@@ -137,16 +139,21 @@ export function ControlPanel({
   };
 
   // 파일 업로드 헬퍼 (Base64 변환)
-  const handleFileUpload = (
+  const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     field: "personImage" | "placeImage" | "productImages"
   ) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const picked = Array.from(e.target.files ?? []);
+    if (picked.length === 0) return;
+    // 깨진 사진은 받지 않고 화면 안에 안내(공용 image-file-check — 브라우저 안에서 풀어 보기)
+    const { readable, failed } = await splitReadableImages(picked);
+    setFileError(failed.length ? { field: field === "productImages" ? "product" : "reference", text: failed.length === picked.length ? IMAGE_READ_FAIL_MESSAGE : `${IMAGE_READ_FAIL_MESSAGE} (${failed.map((f) => f.name).join(", ")})` } : null);
+    if (readable.length === 0) return;
+    const files = readable;
 
     if (field === "productImages") {
       const remainingSlots = 3 - (config.productImages?.length || 0);
-      const toUpload = Array.from(files).slice(0, remainingSlots);
+      const toUpload = files.slice(0, remainingSlots);
       toUpload.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -599,6 +606,7 @@ export function ControlPanel({
 
               {/* 상품 사진 (최대 3장) */}
               <div className="space-y-1.5">
+                {fileError?.field === "product" && <p role="alert" className="text-[11px] text-rose-300">{fileError.text}</p>}
                 <div className="flex items-center justify-between text-[10px]">
                   <span className="text-if-muted font-bold uppercase">상품 사진 (최대 3장)</span>
                   <span className="text-amber-300 font-semibold">
@@ -720,6 +728,7 @@ export function ControlPanel({
               )}
             </div>
           </div>
+          {fileError?.field === "reference" && <p role="alert" className="text-[11px] text-rose-300">{fileError.text}</p>}
         </div>
 
         {/* [섹션 6] 표정 및 포즈 (셀카 특화) */}
