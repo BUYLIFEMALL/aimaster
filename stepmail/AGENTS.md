@@ -131,3 +131,20 @@ F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 4개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-19 디자인 리뉴얼 & 가이드북 구축 — v1.20 (Antigravity Windows)
+- **플로우 위저드 스타일 — 스텝메일 마케팅 에디션** 전면 개편:
+  - 상단 `.studio-hero` 배너 (스텝메일 마케팅 콘솔 헤더, `v1.20` 배지, 분할 크론 디스패치 가동 상태 인디케이터, 빠른 액션 버튼 2종).
+  - 3대 핵심 KPI 카드: 총 잠재고객 수(미발송/진행중/완료), 활성 발송 계정 수(다중 SMTP), 등록된 캠페인 수.
+  - 4단계 플로우 파이프라인 가이드 바 (Step 1 리드 DB ➔ Step 2 초안 작성 ➔ Step 3 계정 연동 ➔ Step 4 예약 발송).
+  - 사이드바 표준화: 4단계 스텝퍼 번호, `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 신설, 모바일 햄버거 토글 드로어.
+  - 엑셀 업로드 폼, 차수별 필터 칩셋, 잠재고객 데이터 테이블 UI 세련화.
+- **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+  - 4단계 스텝메일 마케팅 프로세스 (DB ➔ 초안 ➔ 연동 ➔ 발송).
+  - 메일 프로바이더별 일일 한도 및 특성 비교 매트릭스 표 (네이버 vs 다음 vs Gmail vs 사내 SMTP).
+  - 스팸함 직행을 막는 7대 발송 황금률.
+  - 100% BYOK 공용 DB 회원 소유 격리 보안 원칙 배너.
+  - 자주 묻는 질문(FAQ 5종) 아코디언 컴포넌트.
+- **버전 3중 동기화 (`v1.20`)**: `package.json` (`1.20.0`), `lib/version.ts` (`v1.20`), Supabase DB `programs` (`v1.20`).
+- **검수 증거**: Microsoft Edge 포그라운드(headless: false) 7종 캡처 수집 및 10분간 화면 유지 세션 완료.
+- **상세 문서**: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · [docs/IMPROVEMENT_HANDOFF_20261019.md](docs/IMPROVEMENT_HANDOFF_20261019.md)

@@ -4,26 +4,37 @@
 
 @layer components {
   .input {
-    @apply w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+    @apply w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all;
   }
   .input-sm {
-    @apply w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+    @apply w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all;
+  }
+  
+  /* 플로우 위저드 스타일 — 스텝메일 마케팅 에디션 컴포넌트 */
+  .studio-hero {
+    @apply relative overflow-hidden rounded-2xl border border-sky-100 bg-gradient-to-br from-white via-sky-50/50 to-blue-50/40 p-6 md:p-8 shadow-sm;
+  }
+  .stat-card {
+    @apply rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-200;
+  }
+  .guide-card {
+    @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:border-sky-200 transition-all;
   }
 }
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 이메일 본문 편집기(EmailRichTextEditor) 타이포그래피 — 루트 app/globals.css의
-   .prose-editor(다크 테마)를 stepmail의 라이트 테마에 맞게 옮긴 것. */
+/* 이메일 본문 편집기(EmailRichTextEditor) 타이포그래피 */
 .prose-email {
   color: #111827;
   line-height: 1.7;
@@ -31,25 +42,22 @@ body {
 .prose-email h1 { font-size: 1.5rem; font-weight: 700; margin: 1em 0 0.5em; }
 .prose-email h2 { font-size: 1.25rem; font-weight: 700; margin: 0.9em 0 0.45em; }
 .prose-email p { margin: 0.5em 0; }
-/* 내용이 아예 없는 <p></p>(빈 줄)는 기본적으로 높이 0으로 접힌다 — 우리 화면(미리보기, HTML
-   코드 직접 편집 경로)에서 만이라도 최소 한 줄 높이를 유지시킨다. 실제 발송 메일에서는
-   EmailRichTextEditor.tsx가 <p><br></p>로 강제 변환해서 이 CSS 없이도 살아남는다. */
 .prose-email p:empty { min-height: 1.2em; }
-.prose-email strong { color: #1d4ed8; }
+.prose-email strong { color: #0284c7; }
 .prose-email em { color: #374151; }
 .prose-email u { text-decoration: underline; text-underline-offset: 3px; }
 .prose-email s { opacity: 0.6; }
-.prose-email mark { background: rgba(37, 99, 235, 0.15); border-radius: 2px; padding: 0 2px; }
-.prose-email a { color: #2563eb; text-decoration: underline; }
+.prose-email mark { background: rgba(2, 132, 199, 0.15); border-radius: 2px; padding: 0 2px; }
+.prose-email a { color: #0284c7; text-decoration: underline; }
 .prose-email ul { list-style: disc; padding-left: 1.5em; margin: 0.5em 0; }
 .prose-email ol { list-style: decimal; padding-left: 1.5em; margin: 0.5em 0; }
 .prose-email li { margin: 0.25em 0; }
 .prose-email blockquote {
-  border-left: 3px solid #93c5fd;
+  border-left: 3px solid #7dd3fc;
   padding-left: 1em;
   margin: 1em 0;
   color: #4b5563;
   font-style: italic;
 }
-.prose-email hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.5em 0; }
+.prose-email hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.5em 0; }
 .prose-email img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }

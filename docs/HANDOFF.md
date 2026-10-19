@@ -1,5 +1,41 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 대량 메일발송 자동화(stepmail) v1.20: 플로우 위저드 스텝메일 마케팅 에디션 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 75개 완료 / 90.4% 달성!)
+
+- **대상**: `stepmail/` (https://stepmail.buylife.xyz, slug: `stepmail`, 53번)
+- **한 일**:
+  1. **플로우 위저드 스타일 — 스텝메일 마케팅 에디션 전면 리뉴얼**:
+     - 클린 화이트 테마 + 스카이블루(`rgb(2 132 199)`), 인디고, 슬레이트 포인트 컬러 토큰 적용 (`app/globals.css`).
+     - 메인 리드 콘솔 (`app/(dashboard)/leads/page.tsx`): `.studio-hero` 배너, `v1.20` 배지, 3대 핵심 KPI 통계 카드 (총 리드 수, 진행 중 캠페인, 평균 오픈율), 4단계 파이프라인 가이드 바 (리드DB/엑셀 ➔ 1~5차 시퀀스 ➔ SMTP/SES ➔ 발송추적).
+     - 엑셀 20MB 대용량 업로더 & 1~5차 차수별 상태 머신 필터 탭 세련화.
+  2. **사이드바 표준화 (`Sidebar.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 4단계 플로우 스텝퍼 번호화: Step 1 👥 리드 관리, Step 2 ⚙️ 캠페인 시퀀스, Step 3 📊 발송 모니터링, Step 4 📬 템플릿 관리.
+     - 유틸리티 메뉴: `🔑 API키등록·SMTP연동` (`/settings`) + **`📖 연동 & 사용 매뉴얼` (`/guide`)** 신설.
+     - 모바일 전용 햄버거 토글 드로어 완비.
+  3. **독립 비주얼 가이드북 (`app/(dashboard)/guide/page.tsx`) 전면 신설**:
+     - 4단계 마케팅 프로세스 다이어그램 (리드 데이터 수집 ➔ 1~5차 자동 시퀀스 ➔ SMTP/SES 발송 인프라 ➔ 오픈율·클릭율 성과 분석).
+     - 주요 이메일 프로바이더(Gmail/Workspace, Resend, Amazon SES, SendGrid) 규격 및 비용 비교 매트릭스 표.
+     - 대량 메일 발송 전 스팸 필터링 방어 7대 수칙 체크리스트.
+     - 동적 치환 태그 가이드 (`#{이름}`, `#{회사명}`, `#{이메일}`).
+     - 100% BYOK 공용 DB 회원 소유 격리 보안 원칙 배너 (Supabase RLS 적용).
+     - 자주 묻는 질문 (FAQ 5종) 아코디언 컴포넌트 탑재.
+  4. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `stepmail/package.json` (`1.20.0`), `stepmail/lib/version.ts` (`v1.20`), Supabase DB `programs` 메타데이터 (`version: v1.20`) 동기화 완료 (`scripts/update_stepmail_version.cjs`).
+  5. **로컬 무결성 검증 통과**:
+     - Next.js 16.4.1 (Turbopack) 프로덕션 빌드 성공 (정적 페이지 10개 생성, exit code 0).
+  6. **Vercel 프로덕션 배포 완료**:
+     - `https://stepmail-3i0oupd9t-buylife.vercel.app` (Alias: `stepmail.buylife.xyz`).
+     - `curl -I https://stepmail.buylife.xyz` ➔ `307 Temporary Redirect` 정상 응답.
+  7. **Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수 완료**:
+     - 일반 회원 테스트 세션(`buylifemall@naver.com`) 주입 후 데스크톱 및 모바일 반응형 검수 수행.
+     - 7종 캡처 수집 완료 (`edge_stepmail_desktop_main_v120.png`, `edge_stepmail_desktop_kpi_v120.png`, `edge_stepmail_desktop_table_v120.png`, `edge_stepmail_desktop_guide_v120.png`, `edge_stepmail_desktop_guide_matrix_v120.png`, `edge_stepmail_mobile_main_v120.png`, `edge_stepmail_mobile_guide_v120.png`).
+     - 사용자 실시간 확인을 위한 10분간(600초) 포그라운드 화면 유지 세션 가동.
+  8. **문서화 완비**:
+     - `stepmail/docs/PLAN_20261019_DESIGN_RENEWAL.md`, `DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `IMPROVEMENT_HANDOFF_20261019.md`, `AGENTS.md`, `README.md` 완비.
+- **프로그램 링크**:
+
+https://stepmail.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — INSTA Cardnews 자동화 v1.23: 지금 게시 실패 때 이미 올라갔는지 확인 + 기록 안내 표시
 
 - **대상**: `cardnews-studio/` · DB 운영 `esgxyikcnnvmlhygjkth`(표 변경 없음, 버전만)
