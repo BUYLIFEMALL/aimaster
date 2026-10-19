@@ -261,7 +261,7 @@ export default async function HomePage() {
 
       {/* 최신 등록 프로그램 — NEW로 지정한 프로그램을 우선하고, 나머지는 등록일 최신순 */}
       {latestPrograms.length > 0 && (
-        <section id="program-catalog" className="py-16 px-4 bg-surface/20 scroll-mt-20">
+        <section id="program-catalog" className="py-16 px-4 bg-surface/20 scroll-mt-[240px]">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-end justify-between mb-8">
               <div>
@@ -371,7 +371,7 @@ export default async function HomePage() {
 
             <div className="space-y-16">
               {categoryBlocks.map(({ category, programs: catPrograms }) => (
-                <div key={category.id} id={`category-${category.slug}`} className="scroll-mt-36">
+                <div key={category.id} id={`category-${category.slug}`} className="scroll-mt-[240px]">
                   <div className="flex items-end justify-between mb-6">
                     <h3 className="text-2xl font-bold text-white">{category.name}</h3>
                     <Link href={`/programs/category/${category.slug}`} className="hidden md:block">

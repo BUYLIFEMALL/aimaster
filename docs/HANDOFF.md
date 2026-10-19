@@ -1,5 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 카테고리 스크롤 시 카테고리 이름 & 전체보기 최상단 노출 완벽 보정 및 Threads 예약 발행 주기/토글 인수인계 완료
+
+- **배경**:
+  1. 주인님 추가 피드백("카테고리 버튼을 눌렀을 때 카테고리 이름부터 나오고 밑에 썸네일이 나와야지"): 카테고리 버튼 클릭 시 스크롤 오프셋(`scroll-mt-36` = 144px)이 상단 고정 헤더(64px) + 2열 카테고리 퀵 바(160px) 총합(220px)보다 작아서, 카테고리 제목(예: `CRM`, `이커머스`)과 `전체 보기 ->` 링크가 퀵 바 밑에 가려지던 버그 해결.
+  2. 주인님 추가 지시("난 등록했는데 1분마다 발행하면 안되지. 사용자가 설정한 시간 단위마다 발행되어야 하고, 예약 발행 기능은 사용자가 직접 켜고 끌 수 있도록 해줘"): `labs/kit-threads`에 시간 단위 주기 설정(1시간, 2시간, 3시간, 6시간, 12시간, 24시간, 30분, 15분, 10분, 5분, 1분) 및 예약 발행 ON/OFF 직접 토글 스위치 구현 및 배포 완료, Claude Code 운영(`threads-content-ops`) 적용용 인수인계 문서 작성 완료.
+- **주요 작업 내용**:
+  1. **카테고리 블록 scroll-mt 대폭 확장 (`app/(main)/page.tsx`)**:
+     - `category-${category.slug}` 블록 및 `program-catalog` 섹션의 스크롤 마진을 `scroll-mt-36`(144px) → **`scroll-mt-[240px]`** 로 확장.
+     - 헤더(64px) + 카테고리 퀵 바(160px) + 숨통 여백(16px)을 완벽 확보하여, 카테고리 버튼 클릭 시 **카테고리 이름(`CRM`, `이커머스` 등)과 `전체 보기 ->`가 카테고리 퀵 바 바로 아래에 시원하게 먼저 노출**되고, 그 밑에 프로그램 썸네일 카드들이 정갈하게 진열되도록 완성.
+  2. **메인 사이트 배포 및 Edge 실세션 검수 완료**:
+     - 로컬 `npx tsc --noEmit` 무오류 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_9yvGf4sGHMQ3PQm34vZZMLUtPCx9`, Aliased: `https://www.buylife.xyz`).
+     - Microsoft Edge 포그라운드 실세션 검수:
+       - CRM 클릭 시 카테고리 이름 노출: `edge_main_crm_header_visible.png`
+       - 이커머스 클릭 시 카테고리 이름 노출: `edge_main_ecommerce_header_visible.png`
+  3. **Threads 운영 자동화 예약 발행 주기 설정 & ON/OFF 토글 구현 및 배포 (`labs/kit-threads/`)**:
+     - `lib/cronJobOrg.ts`: `CronInterval`(1h, 2h, 3h, 6h, 12h, 24h, 30m, 15m, 10m, 5m, 1m), `inferInterval`, `toggleDispatchJob`, `upsertDispatchJob` 확장.
+     - `app/threads-content-ops/web-actions.ts`: `toggleCronJobOrg(enable)`, `updateCronJobOrgSchedule(interval)`, `cronJobOrgStatus()` 확장.
+     - `app/threads-content-ops/CronJobOrgSetup.tsx`: 예약 발행 ON/OFF 스위치 카드, 시간 단위 주기 드롭다운 셀렉트 + 적용 버튼 UI 구현.
+     - Vercel 배포 완료 (`dpl_J5fzPYvt4QmA6pQ9kbgQXorKqsK1`, Aliased: `https://dev-threads-posting.vercel.app`).
+     - Claude Code 인수인계 문서 완비: [`threads-content-ops/docs/HANDOFF_MEMBER_CRONJOB_INTERVAL_TOGGLE.md`](threads-content-ops/docs/HANDOFF_MEMBER_CRONJOB_INTERVAL_TOGGLE.md).
+- **서비스 링크**:
+  - 메인 사이트: https://www.buylife.xyz
+  - Lab Threads: https://dev-threads-posting.vercel.app/threads-content-ops?tab=settings
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 카테고리 퀵 바 글자 확대 & 선택 시 노란색(골드) 하이라이트 적용 (배포 및 Edge 실세션 검수 완료)
 
 - **배경**: 주인님의 추가 UI 개선 지시("2열이니 카테고리 글자를 좀 더 키워서 잘 보이게 해주고, 카테고리 버튼 선택 시 바탕색을 노란색으로 같이 맞춰서 사용자가 지금 어떤 카테고리를 보고 있는지 가독성을 높여줘")에 따라, 카테고리 칩셋 가독성 및 선택 피드백을 극대화하고 Edge 포그라운드 실세션 검수 완료.
