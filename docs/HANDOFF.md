@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — AI 바나나 캔버스 v1.10: 업로드 대기 해제 보강·꺼진 버튼 색 통일
+- **한 일**: 업로드 예외가 나도 「업로드 중…」에 멈추지 않게 `try/finally`·예외 처리. 꺼진 노란 버튼이 카드마다 밝기가 달랐던 원인(잠김 카드 투명도가 앨범·만화 버튼 자신에 걸림)을 찾아 `.primary:disabled` 꺼진 색으로 통일. 상세 `banana-canvas/AGENTS.md` v1.10.
+- **검수**: 브라우저 19/19(회귀 검사 2개 추가), 단위 7/7, tsc, 빌드, Vercel READY, DB v1.10, 메인 크롬 운영 확인. AI 비용 없음.
+- **남은 일**: 없음(디자인 담당 AGY에게는 꺼진 버튼 색 규칙이 추가됐음을 알림 — `banana-canvas/docs/IMPROVEMENTS.md`).
+- https://banana-canvas.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 랜딩페이지 기획 자동화 v1.10: 플로우 위저드 스타일 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 61개 완료 / 73.5% 달성!)
 
 - **대상**: `landing-architect/` (https://landing-architect.buylife.xyz, slug: `landing-architect`, 69번)

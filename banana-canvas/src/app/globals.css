@@ -264,6 +264,13 @@ button:hover:not(:disabled), .button:hover:not(:disabled) {
   border-color: #f5cb32;
   box-shadow: 0 4px 14px rgba(255, 216, 77, 0.4);
 }
+/* 꺼진 노란 버튼: 투명도 겹침(잠김 카드 0.55 × 꺼짐 0.45)에 따라 밝기가 제각각이라 색 자체를 꺼진 모양으로 통일 */
+.primary:disabled, button.primary:disabled {
+  background: var(--card2);
+  color: var(--muted) !important;
+  border-color: var(--line);
+  box-shadow: none;
+}
 input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select, textarea {
   background: var(--card2);
   border-color: var(--line);

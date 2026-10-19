@@ -44,12 +44,13 @@ const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 const calls = [];
 let needKey = true;
+let storageFail = false; // 업로드 저장소 연결 끊김 흉내(v1.10)
 let seq = 0;
 const UID = "11111111-2222-4333-8444-555555555555";
 const uuid = () => `aaaaaaaa-bbbb-4ccc-8ddd-${String(++seq).padStart(12, "0")}`;
 const outItem = (text) => { const id = uuid(); return { path: `${UID}/out/${id}.png`, url: `${origin}/img/${id}.png`, w: 1344, h: 768, mime: "image/png", ...(text ? { text } : {}) }; };
 
-await page.route(`${MOCK_SB}/**`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ Key: "ok" }) }));
+await page.route(`${MOCK_SB}/**`, (route) => storageFail ? route.abort() : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ Key: "ok" }) }));
 await page.route("**/api/**", async (route) => {
   const url = new URL(route.request().url());
   const method = route.request().method();
@@ -91,6 +92,9 @@ try {
   }
   assert.equal(await page.locator(".bc-card.locked").count(), 5);
   pass("초기 화면: 모든 기능 카드가 한 화면에 표시(원본 필요 카드 5개 잠김 표시)");
+  const offLooks = await page.locator("button.primary:disabled").evaluateAll((bs) => bs.map((b) => getComputedStyle(b).backgroundColor));
+  assert.ok(offLooks.length >= 4 && offLooks.every((c) => c === offLooks[0] && c !== "rgb(255, 216, 77)"), JSON.stringify(offLooks));
+  pass("꺼진 노란 버튼: 카드와 상관없이 같은 꺼진 색(v1.10)");
 
   await page.getByPlaceholder("예: 우주를 나는 고양이").fill("우주를 나는 고양이");
   await page.getByRole("button", { name: "이미지 생성", exact: true }).click();
@@ -114,6 +118,13 @@ try {
   await input.setInputFiles({ name: "big.jpg", mimeType: "image/jpeg", buffer: Buffer.alloc(16 * 1024 * 1024, 1) });
   await page.getByRole("alert").getByText(/15MB 이하/).waitFor();
   pass("형식·크기 초과 거부");
+
+  storageFail = true;
+  await input.setInputFiles({ name: "photo.jpg", mimeType: "image/jpeg", buffer: jpg });
+  await page.getByRole("alert").getByText(/업로드에 실패/).waitFor();
+  await page.locator(".bc-drop").getByText("클릭하거나 이미지를 끌어다 놓으세요").waitFor();
+  storageFail = false;
+  pass("업로드 실패 시 안내 후 업로드 영역으로 복귀(「업로드 중」에 멈추지 않음, v1.10)");
 
   await input.setInputFiles({ name: "photo.jpg", mimeType: "image/jpeg", buffer: jpg });
   await page.locator(".bc-base img").waitFor();

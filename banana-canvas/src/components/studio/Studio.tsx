@@ -122,7 +122,9 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
     if (big) { setError({ text: big, needKey: false }); return null; }
     const sign = await api<{ path: string; token: string }>("/api/upload", "POST", { name: file.name, mime: det.mime, size: file.size });
     if (!sign.ok) { fail(sign); return null; }
-    const { error: upErr } = await createClient().storage.from(BUCKET).uploadToSignedUrl(sign.data.path, sign.data.token, file, { contentType: det.mime });
+    let upErr: unknown = null;
+    try { ({ error: upErr } = await createClient().storage.from(BUCKET).uploadToSignedUrl(sign.data.path, sign.data.token, file, { contentType: det.mime })); }
+    catch (e) { upErr = e; }
     if (upErr) { setError({ text: "파일 업로드에 실패했습니다. 네트워크를 확인하고 다시 시도해 주세요.", needKey: false }); return null; }
     return { path: sign.data.path, url: URL.createObjectURL(file), name: file.name };
   }
@@ -130,8 +132,8 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
   async function pickBase(file: File | undefined | null) {
     if (!file) return;
     setError(null); setBusy("upload");
-    const img = await uploadFile(file);
-    setBusy("");
+    let img: Img | null;
+    try { img = await uploadFile(file); } finally { setBusy(""); } // 예외가 나도 「업로드 중…」에 멈추지 않게
     if (!img) return;
     dropTemp(basePathRef.current);
     setBase(img); setResult(null); setMaskMode(false);
@@ -141,8 +143,8 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
     if (!file) return;
     if (sources.length >= MAX_SOURCES) { setError({ text: `합성 소스는 최대 ${MAX_SOURCES}장까지 추가할 수 있습니다.`, needKey: false }); return; }
     setError(null); setBusy("upload");
-    const img = await uploadFile(file);
-    setBusy("");
+    let img: Img | null;
+    try { img = await uploadFile(file); } finally { setBusy(""); }
     if (img) setSources((s) => [...s, img]);
   }
 
