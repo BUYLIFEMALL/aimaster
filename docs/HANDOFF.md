@@ -1,5 +1,55 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI Audio분석 자동화 v1.10: 사이버 네온 다크 콘솔 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 67개 완료 / 80.7% 달성!)
+
+- **대상**: `ai-audio-analyzer/` (https://audio.buylife.xyz, slug: `ai-audio-analyzer`, 78번)
+- **한 일**:
+  1. **사이버 네온 다크 콘솔 스타일 — 오디오 인텔리전스 랩 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **사이버 네온 다크 콘솔 스타일 — 오디오 인텔리전스 랩 에디션 (Cyber Neon Dark Console Style — Audio Intelligence Lab Edition)**.
+     - **디자인 토큰 시스템 구축**: 딥 스페이스 다크(`--background: #060911`, `--surface: #0a0e19`, `--surface-hover: #0e1526`, `--border: #162035`), 네온 시안(`--brand: #00f0ff`), 네온 바이올렛(`--brand-violet: #8b5cf6`), 일렉트릭 블루(`--brand-blue: #38bdf8`), 에메랄드 그린(`--brand-green: #10b981`), 앰버 골드(`--brand-gold: #f59e0b`), 슬레이트 텍스트(`--foreground: #f1f5f9`) 토큰 체계 적용 (`src/app/globals.css`).
+     - Gemini 2.5 Flash 멀티모달 오디오 AI 분석 엔진 (인라인 데이터, JSON Schema 구조화 파싱) 무결성 유지.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.10 AUDIO LAB` 네온 시안 발광 및 분석 모드 3종 칩 (스마트 자동 감지 `AI Auto`, 음성 인텔리전스·회의록, 음악 분석·Suno v5) 탑재.
+     - 작업 흐름 1-2-3 넘버링 적용 (`1. 오디오 파일 등록`, `2. Gemini 멀티모달 분석`, `3. 회의록 & 프롬프트 추출`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (골드 하이라이트 배지).
+     - 모바일(767px 이하) 반응형 헤더 및 햄버거 토글 드로어 메뉴 완비.
+  3. **메인 스튜디오 리뉴얼 (`src/components/studio/AudioAnalyzerApp.tsx` 등)**:
+     - 상단 네온 발광 테두리의 `.studio-hero` 웰컴 배너 및 퀵 링크 버튼([📖 사용 매뉴얼 보기], [🔑 Gemini API 설정]) 탑재.
+     - 3대 핵심 KPI 지표 카드(듀얼 멀티모달 AI 엔진, 화자 분리 & 마크다운 회의록, Suno v5 역설계 & 음향 포렌식) 탑재.
+     - 다크 드롭존(`AudioUploader.tsx`), 네온 파형 플레이어 캔버스(`WaveformCanvas.tsx`), 다크 설정 모달(`ApiKeyModal.tsx`) 완비.
+     - 음성 리포트 뷰어(`SpeechReportView.tsx`): 화자별 점유율 바, 발언 타임라인, 감정/어조 칩, 마크다운 회의록 원클릭 복사.
+     - 음악 리포트 뷰어(`MusicReportView.tsx`): 4대 메타 카드, Suno AI v5 Reverse Prompt 하이라이트 박스, 4대 스템 청각 묘사 다크 카드, 고주파 음향 포렌식 품질 카드, 가사 전사 박스 완비.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "AI Audio 분석 스튜디오 완벽 가이드".
+     - **4단계 오디오 인텔리전스 파이프라인**: 1) 음원 파일 등록 ➔ 2) 스마트 자동 모드 감지 ➔ 3) 멀티모달 딥 해체 ➔ 4) 회의록 & 프롬프트 추출.
+     - **듀얼 인텔리전스 랩 핵심 기능 비교**: 음성 랩 (Speech Lab) vs 음악 랩 (Music Lab) 상세 비교 테이블.
+     - **4대 스템 및 음향 포렌식 상세 해설**: Vocals, Bass, Drums, Others 주파수 분리 및 MP3 가짜 고음질(Upscaled) 판별 원리.
+     - 100% 회원 본인 API 키 원칙 (BYOK) 및 음원 무저장 보안 안내 배너 탑재.
+     - 자주 묻는 질문 FAQ 5종 네온 아코디언 인터랙션 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_78_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (경로 7개 완벽 생성, exit code 0).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_FdVg6n5vvFNznPftCCMcoTaxfazp`
+     - 공식 도메인 즉시 반영: https://audio.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 SSR 세션 쿠키를 주입하여 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-14637`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_audio_desktop_studio_v110.png`: 데스크톱 메인 스튜디오 전경, 네온 히어로 배너, 3대 KPI 지표 카드
+       - `edge_audio_desktop_uploader_v110.png`: 엔진 모드 탭, 다크 드롭존, 옵션 입력 폼
+       - `edge_audio_desktop_guide_v110.png`: 비주얼 가이드북 상단 및 4단계 오디오 파이프라인
+       - `edge_audio_desktop_guide_faq_v110.png`: 듀얼 랩 비교 테이블, BYOK 보안 배너, 가이드북 FAQ 아코디언 오픈
+       - `edge_audio_desktop_settings_v110.png`: Google Gemini API 키 연동 다크 콘솔 모달
+       - `edge_audio_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `ai-audio-analyzer/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `ai-audio-analyzer/README.md` (동기화 갱신)
+     - `ai-audio-analyzer/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `ai-audio-analyzer/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `ai-audio-analyzer/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `ai-audio-analyzer/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본 및 검수 결과 기록)
+
 ## 2026-10-19 Claude Code(윈도우) — 「일반」 등급 전환 시 가입일부터 14일 프로그램 사용
 - **한 일**: 기존 자동 부여 장치 설정만 변경(일반: 자동 부여·14일·가입일 기준, 마이그레이션 `supabase/migrations/0038_normal_grade_signup_14days.sql`). 관리자 화면에 기간 기준 표시 추가. 상세 `docs/ADMIN_POLICY_GUIDELINES.md` 2026-10-19.
 - **검수**: rollback 시험(81개·가입일+14일), 적용 후 기존 일반 회원 88명 변화 없음, tsc·빌드, 운영 화면 표시 확인(아래).

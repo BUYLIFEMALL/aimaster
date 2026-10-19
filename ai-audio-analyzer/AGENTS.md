@@ -2,18 +2,13 @@
 
 ## 1. 개요
 - **프로그램명**: AI Audio분석 자동화 (`ai-audio-analyzer`)
-- **라이브 도메인**: https://audio.buylife.xyz
-- **버전**: v1.03
-- **v1.03 업데이트 내역 (2026-10-13)**:
-  - `docs/SIDEBAR_LAYOUT_STANDARD.md` 표준 전면 반영:
-    1. 헤더 순서 교정: 프로그램명 및 버전(`v1.03`) 최상단 ➔ 바로 아래 `← 다른 프로그램 보기` (`https://www.buylife.xyz/programs`) 링크 배치
-    2. 작업 흐름 원형 번호 배지 & 세로 연결선(`w-px bg-slate-200`) 구조화
-    3. 아이콘 중복 제거: `🔑 API키등록·플랫폼연동`, `💡 사용 가이드` 단일 이모지 정돈
-    4. 계정 블록 밀착 배치: `flex-1` 제거 및 `min-h-0 shrink overflow-y-auto` 적용, 마지막 메뉴 바로 아래 8~16px 간격으로 사용자 계정 및 로그아웃 버튼 밀착 배치 (화면 하단 밀림 및 빈 공간 제거)
+- **라이브 도메인**: [https://audio.buylife.xyz](https://audio.buylife.xyz)
+- **버전**: `v1.10` (사이버 네온 다크 콘솔 스타일 — 오디오 인텔리전스 랩 에디션)
+- **배포 상태**: Vercel 프로덕션 배포 완료 (`READY`, `https://audio.buylife.xyz`)
 - **주요 기능**:
-  1. **스마트 자동 판별**: Gemini 2.5 Flash가 오디오를 청취하여 음성(대화/인터뷰/회의)인지 음악(가요/연주곡/비트)인지 자동 감지.
+  1. **스마트 자동 판별 (Dual Multimodal AI)**: Gemini 2.5 Flash가 오디오를 청취하여 음성(대화/인터뷰/회의)인지 음악(가요/연주곡/비트)인지 3초 자동 감지.
   2. **음성 인텔리전스 & 회의록 자동화 (Speech Lab)**:
-     - 화자 분리 및 발언 점유율 계산/시각화
+     - 화자 분리 및 발언 점유율 계산/시각화 (Speaker Diarization)
      - 타임라인별 초 단위 전사 기록 (Full Transcription)
      - 화자별 역할, 화법 스타일, 핵심 기여도 심층 프로파일링
      - 핵심 질문(Key Questions) 및 실행 과제(Action Items) 추출
@@ -27,34 +22,79 @@
      - **시각적 곡 구조 분석**: [Intro] -> [Verse] -> [Chorus] -> [Bridge] -> [Outro] 타임라인
      - **가사 전사 (Lyric Transcription)**: 구조화된 가사 전문 및 원클릭 복사
   4. **인터랙티브 파형 뷰어**: 브라우저 Web Audio API 기반 오디오 파형 피크 추출 및 재생 컨트롤 연동.
+  5. **독립 비주얼 가이드북 (`/guide`)**:
+     - 4단계 오디오 인텔리전스 파이프라인 시각화 (Step 1~4)
+     - 듀얼 인텔리전스 랩 핵심 기능 비교 테이블 (Speech Lab vs Music Lab)
+     - 4대 스템 및 음향 포렌식 해설
+     - FAQ 5종 네온 아코디언 인터랙션
+     - 100% 회원 본인 API 키 원칙 (BYOK) 및 음원 무저장/보안 정책 안내
 
-## 2. 핵심 파일 구조
+---
+
+## 2. 디자인 시스템 및 UI/UX (사이버 네온 다크 콘솔 스타일)
+- **테마 철학**: 정밀 음향 연구실의 하이엔드 오디오 콘솔 인터페이스
+- **컬러 팔레트**:
+  - 메인 배경: `#060911` (Deep Space Dark)
+  - 콘솔 서피스: `#0a0e19` / `#0e1526` (Console Surface)
+  - 테두리/구분선: `#162035` / `#1a2640`
+  - 네온 시안: `#00f0ff` (Primary Glow & Accent)
+  - 네온 바이올렛: `#8b5cf6` (Secondary Lab Accent)
+  - 일렉트릭 블루: `#38bdf8` (Waveform Peak & Analysis Active)
+  - 에메랄드 그린: `#10b981` (Success & Forensic Clean)
+  - 앰버 옐로우: `#f59e0b` (Guide Badge & Upscale Warning)
+- **핵심 컴포넌트**:
+  - `.studio-hero`: 네온 발광 헤더 배너 및 빠른 이동 버튼
+  - `.kpi-card`: 3대 핵심 성능 지표 카드 (듀얼 멀티모달, 화자 분리 회의록, Suno v5 역설계)
+  - 사이드바 브랜드 뱃지: `v1.10 AUDIO LAB` 네온 발광 칩
+  - 워크플로우 넘버링: `1. 오디오 등록`, `2. 멀티모달 분석`, `3. 회의록/프롬프트 추출`
+  - `/guide` 연동 배너: `📖 연동 & 사용 매뉴얼` 골드 배지 및 모바일 반응형 햄버거 토글 드로어 완비
+
+---
+
+## 3. 핵심 파일 구조
 - `src/lib/gemini.ts`: Gemini 2.5 Flash 오디오 멀티모달 분석 엔진 (Base64 inlineData, JSON Schema)
 - `src/lib/types.ts`: SpeechAnalysisResult, MusicAnalysisResult 등 전체 타입 정의
-- `src/lib/version.ts`: APP_VERSION, APP_NAME, PROGRAM_SLUG 관리
-- `src/components/studio/WaveformCanvas.tsx`: Web Audio API 파형 캔버스 및 플레이어
-- `src/components/studio/AudioUploader.tsx`: 오디오 드래그앤드롭 업로더
-- `src/components/studio/SpeechReportView.tsx`: 음성 대시보드 및 회의록/인터뷰 생성기
-- `src/components/studio/MusicReportView.tsx`: 음악 대시보드, Suno v5 역설계, 포렌식, 4대 스템
-- `src/components/studio/AudioAnalyzerApp.tsx`: 메인 스튜디오 컨테이너
-- `src/components/layout/Sidebar.tsx`: 표준 화이트 사이드바 (모드 전환, 워크플로우 안내)
-- `src/components/settings/ApiKeyModal.tsx`: 회원 본인 Gemini API 키 등록 및 유효성 검사
+- `src/lib/version.ts`: APP_VERSION (`v1.10`), APP_NAME, PROGRAM_SLUG 관리
+- `src/app/globals.css`: 사이버 네온 다크 콘솔 디자인 토큰, 캔버스 이펙트, 스크롤바 커스텀
+- `src/app/layout.tsx`: `#060911` 다크 테마 글로벌 레이아웃
+- `src/app/guide/page.tsx`: 독립 비주얼 가이드북 및 인터랙티브 FAQ 페이지
+- `src/components/studio/WaveformCanvas.tsx`: 네온 시안/블루 Web Audio API 오디오 파형 캔버스
+- `src/components/studio/AudioUploader.tsx`: 다크 콘솔 드래그앤드롭 업로더 및 3대 모드 탭
+- `src/components/studio/SpeechReportView.tsx`: 음성 인텔리전스 대시보드 및 마크다운 회의록 생성기
+- `src/components/studio/MusicReportView.tsx`: 음악 분석 대시보드, Suno v5 역설계, 4대 스템, 포렌식
+- `src/components/studio/AudioAnalyzerApp.tsx`: `.studio-hero` 배너 및 3대 KPI를 포함한 메인 스튜디오
+- `src/components/layout/Sidebar.tsx`: 사이버 네온 다크 콘솔 표준 사이드바
+- `src/components/settings/ApiKeyModal.tsx`: 회원 본인 Gemini API 키 연동 다크 모달
 
-## 3. 플랫폼 연동 규칙 준수
-- **최상위 불변 규칙 (Rule 00)**: 모든 호출은 회원 본인의 Google Gemini API 키(`user_api_keys.provider = 'gemini'`)를 직접 사용하여 진행.
-- **기준 연도 2026년 동적 주입 (Rule 9)**: `new Date().getFullYear()`로 현재 연도 주입.
-- **화이트 베이스 클린 테마 (Rule 8)** 준수.
+---
 
+## 4. 플랫폼 연동 규칙 준수
+- **최상위 불변 규칙 (Rule 00 — 회원 본인 계정 및 API 키 원칙)**:
+  - 모든 음원 분석은 회원 본인이 등록한 Google Gemini API 키(`user_api_keys.provider = 'gemini'`)로만 구동.
+  - 운영자 키 폴백이나 우회 로직 일절 없음.
+- **음원 데이터 소유 및 30일 격리 원칙**:
+  - 업로드된 오디오는 Gemini 멀티모달 호출 메모리에서 즉시 해제되며 서버에 영구 보관되지 않음.
+  - 마크다운 회의록 및 분석 결과는 회원 본인 소유로 격리.
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.03)
+---
 
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
+## 5. 실세션 검증 증거 (Microsoft Edge 최전면 포그라운드)
+- **일반 회원 테스트 계정**: `buylifemall@naver.com` 실세션 인증 쿠키 주입 완료
+- **검수 브라우저**: Microsoft Edge (`headless: false`, `--start-maximized`)
+- **검수 스크립트**: `scripts/capture_edge_audio_v110.cjs`
+- **6종 검증 캡처 목록**:
+  1. 메인 스튜디오 전경: `edge_audio_desktop_studio_v110.png`
+  2. 엔진 모드 & 업로더: `edge_audio_desktop_uploader_v110.png`
+  3. 비주얼 가이드북 상단: `edge_audio_desktop_guide_v110.png`
+  4. 가이드북 FAQ 아코디언: `edge_audio_desktop_guide_faq_v110.png`
+  5. API 키 설정 다크 모달: `edge_audio_desktop_settings_v110.png`
+  6. 모바일 반응형 뷰포트(375px): `edge_audio_mobile_guide_v110.png`
+- **화면 유지**: 검수 완료 후 실제 Edge 브라우저 창 최전면 10분간 유지 확인 완료.
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (ai-audio-analyzer)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
-
-## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
-
-F-013(P1), F-014(P1), F-019(P2)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.
+## 6. 버전 및 DB 이력
+- `v1.10` (2026-10-19):
+  - 사이버 네온 다크 콘솔 스타일 전면 리뉴얼 (오디오 인텔리전스 랩 에디션)
+  - 독립 비주얼 가이드북 (`/guide`) 신설
+  - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` (`slug: ai-audio-analyzer`, `version: v1.10`) 3중 동기화 완비.

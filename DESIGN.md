@@ -129,7 +129,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 64개 · ⚪ 17개 · 🟠 0개 · ⏸ 2개 — 총 83개 — 77.1% 달성!):
+> **상태 구분** (2026-10-19 기준: ✅ 67개 · ⚪ 14개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **80.7% 달성!**):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -220,7 +220,7 @@
 | 75 | AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | **플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션** | 라이트(소프트 화이트 `#f8fafc` + 인디고 블루 `#2563eb`·에메랄드 `#10b981`) | ✅ 1차 작업완료 (`v1.10`, 플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션) | [`blog-content-maker/docs/DESIGN_HANDOFF.md`](blog-content-maker/docs/DESIGN_HANDOFF.md) · [`blog-content-maker/docs/IMPROVEMENTS.md`](blog-content-maker/docs/IMPROVEMENTS.md) |
 | 76 | AI 썸네일 마스터 자동화 | `thumbnail-master` | **크리에이티브 아틀리에 스타일 — 썸네일 매거진 변형** | 다크(미드나잇 다크 `#0c0f17` + 썸네일 바이올렛 `#8b5cf6`·코랄 오렌지 `#f97316`) | ✅ 1차 작업완료 (`v1.07`, 썸네일 매거진 변형) | [`thumbnail-master/docs/DESIGN_HANDOFF.md`](thumbnail-master/docs/DESIGN_HANDOFF.md) · [`thumbnail-master/docs/IMPROVEMENTS.md`](thumbnail-master/docs/IMPROVEMENTS.md) |
 | 77 | AI 마스터링 스튜디오 | `ai-mastering-studio` | **사이버 네온 다크 콘솔 스타일 — 오디오 마스터링 콘솔 에디션** | 다크(딥블랙 `#060911` + 네온 시안 `#00f0ff`·퍼플 `#7000ff`) | ✅ 1차 작업완료 (`v1.10`, 사이버 네온 다크 콘솔 스타일) | [`ai-mastering-studio/docs/DESIGN_HANDOFF.md`](ai-mastering-studio/docs/DESIGN_HANDOFF.md) · [`ai-mastering-studio/docs/IMPROVEMENTS.md`](ai-mastering-studio/docs/IMPROVEMENTS.md) |
-| 78 | AI Audio분석 자동화 | `ai-audio-analyzer` | 사이버 네온 다크 콘솔 스타일 (권장) | 다크(딥블랙) | ⚪ 작업 예정 | `ai-audio-analyzer/AGENTS.md` |
+| 78 | AI Audio분석 자동화 | `ai-audio-analyzer` | **사이버 네온 다크 콘솔 스타일 — 오디오 인텔리전스 랩 에디션** | 다크(딥블랙 `#060911` + 네온 시안 `#00f0ff`·바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.10`, 사이버 네온 다크 콘솔 스타일) | [`ai-audio-analyzer/docs/DESIGN_HANDOFF.md`](ai-audio-analyzer/docs/DESIGN_HANDOFF.md) · [`ai-audio-analyzer/docs/IMPROVEMENTS.md`](ai-audio-analyzer/docs/IMPROVEMENTS.md) |
 | 79 | AI 인물사진 자동화 | `portrait-photo` | 크리에이티브 아틀리에 스타일 — 포토 스튜디오 그래파이트 변형 | 다크(중립 그래파이트) | ✅ 1차 작업완료 (`v1.22`, 포토 스튜디오 그래파이트 변형, Claude Code(윈도우), 2026-10-18) | `portrait-photo/docs/DESIGN_HANDOFF.md` |
 | 80 | AI 바나나 캔버스 자동화 | `banana-canvas` | **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형** | 다크(따뜻한 차콜 `#16140f` + 바나나 옐로 `#ffd84d`·리프 그린 `#7ed38a`) | ✅ 1차 작업완료 (`v1.08`, 바나나 팝 차콜 변형) | [`banana-canvas/docs/DESIGN_HANDOFF.md`](banana-canvas/docs/DESIGN_HANDOFF.md) · [`banana-canvas/docs/IMPROVEMENTS.md`](banana-canvas/docs/IMPROVEMENTS.md) |
 | 81 | AI 4컷 만화 자동화 | `four-cut-comics` | 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 | 파스텔 크림 | ✅ 1차 작업완료 (`v1.12`, 코믹 파스텔 변형, Claude Code(윈도우), 2026-10-18) | `four-cut-comics/docs/DESIGN_HANDOFF.md` |

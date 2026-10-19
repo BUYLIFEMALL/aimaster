@@ -1,37 +1,33 @@
-# AI Audio분석 자동화 (AI Audio Lab)
+# AI Audio분석 자동화 (AI Audio Intelligence Lab) — v1.10
 
-> Gemini 멀티모달 기반 음성 인텔리전스 리포트, 회의록 자동 생성, 음악 분석, Suno v5 역설계 프롬프트, 오디오 포렌식 스튜디오
+> **Google Gemini 2.5 Flash 멀티모달 오디오 AI 엔진 기반의 차세대 사운드 해체 및 분석 스튜디오**  
+> 회의 음성의 화자 분리 회의록 자동화부터 Suno AI v5 음악 역설계, 고주파 음향 포렌식까지 완벽 지원합니다.
 
-## 🚀 빠른 시작
+- **서비스 URL**: [https://audio.buylife.xyz](https://audio.buylife.xyz)
+- **독립 가이드북**: [https://audio.buylife.xyz/guide](https://audio.buylife.xyz/guide)
+- **최신 버전**: `v1.10` (사이버 네온 다크 콘솔 스타일 — 오디오 인텔리전스 랩 에디션)
 
-```bash
-# 의존성 설치
-npm install
+---
 
-# 로컬 개발 서버 실행
-npm run dev
+## 🎧 핵심 기능 (Core Features)
 
-# 프로덕션 빌드 검증
-npm run build
-```
+1. **스마트 자동 판별 (Dual Multimodal AI)**
+   - WAV, MP3, M4A, FLAC 음원을 드래그앤드롭하면 Gemini 2.5 Flash가 음성(대화/회의)과 음악(가요/연주곡)을 3초 만에 자동 판별합니다.
+2. **음성 인텔리전스 & 회의록 자동화 (Speech Lab)**
+   - 화자 분리(Speaker Diarization) 및 발언 점유율 계산
+   - 타임라인별 초 단위 전사 기록
+   - 화자별 역할, 화법 스타일, 핵심 질문 및 후속 실행 과제(Action Items) 추출
+   - 마크다운 회의록 원클릭 복사
+3. **음악 분석 & Suno v5 역설계 (Music Lab)**
+   - **Suno AI v5 Reverse Prompt (God Tier)**: 동일한 분위기와 편곡을 재현하는 마스터 프롬프트 역설계
+   - **음향 포렌식 & 위변조 품질 분석**: 고주파 절단면 감지로 MP3 가짜 고음질(Upscaled) 판별
+   - **4대 스템 청각 묘사**: Vocals, Bass, Drums, Others 주파수 대역 및 믹싱 상세 묘사
+   - **작곡 및 채보 데이터**: 조성(Key & Scale), 박자, 코드 진행(Chord Progression)
+4. **인터랙티브 파형 뷰어 & 다크 콘솔 UI**
+   - Web Audio API 기반 오디오 파형 피크 시각화 및 재생 컨트롤
 
-## 🛠️ 기술 스택
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **UI**: React 19, Tailwind CSS v4, Lucide React
-- **AI Engine**: Google Gemini 2.5 Flash (`@google/genai`)
-- **Audio Processing**: Web Audio API (Waveform Peak Extraction)
-- **Database & Auth**: Supabase SSR
+---
 
-
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.03)
-
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (ai-audio-analyzer)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
-
-## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
-
-F-013(P1), F-014(P1), F-019(P2)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.
+## 🔒 100% 회원 본인 API 키 원칙 (BYOK)
+- 회원 본인이 등록한 Google Gemini API 키로만 구동되며, 운영자 키 폴백이나 우회 로직이 일절 없습니다.
+- 업로드된 오디오는 분석 직후 메모리에서 소멸되며 영구 서버에 저장되지 않습니다.

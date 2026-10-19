@@ -9,7 +9,6 @@ interface WaveformCanvasProps {
 }
 
 export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -17,7 +16,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
   const [isMuted, setIsMuted] = useState(false);
   const [waveformData, setWaveformData] = useState<number[]>([]);
 
-  // Decode audio data to extract waveform peaks
+  // 오디오 피크 데이터 디코딩
   useEffect(() => {
     if (!audioUrl) {
       setWaveformData([]);
@@ -34,8 +33,8 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
         if (isCancelled) return;
         setDuration(audioBuffer.duration);
 
-        const rawData = audioBuffer.getChannelData(0); // Left channel
-        const samples = 120; // Number of bars
+        const rawData = audioBuffer.getChannelData(0);
+        const samples = 120;
         const blockSize = Math.floor(rawData.length / samples);
         const filteredData: number[] = [];
 
@@ -48,7 +47,6 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
           filteredData.push(sum / blockSize);
         }
 
-        // Normalize data to 0..1
         const multiplier = Math.pow(Math.max(...filteredData), -1);
         const normalized = filteredData.map((n) => Math.max(0.08, n * multiplier));
         setWaveformData(normalized);
@@ -65,7 +63,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
     };
   }, [audioUrl]);
 
-  // Handle Play/Pause
+  // 재생 / 정지 핸들러
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
@@ -108,7 +106,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-3">
+    <div className="bg-[#0a0e19] rounded-2xl p-4 border border-[#1a2333] shadow-md space-y-3">
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -122,22 +120,22 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
       {/* 헤더 & 파일 정보 */}
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-2 truncate max-w-[70%]">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-bold text-slate-800 truncate">{fileName || "오디오 파일"}</span>
+          <span className="w-2 h-2 rounded-full bg-[#00f0ff] animate-pulse" />
+          <span className="font-bold text-slate-200 truncate">{fileName || "오디오 파일"}</span>
         </div>
-        <div className="font-mono text-[11px] text-slate-500 font-semibold">
+        <div className="font-mono text-[11px] text-[#00f0ff] font-semibold">
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
       </div>
 
-      {/* 인터랙티브 파형 바 컨테이너 */}
+      {/* 인터랙티브 네온 파형 바 컨테이너 */}
       <div
         onClick={handleSeek}
-        className="h-16 bg-slate-50 rounded-xl px-3 flex items-center gap-0.5 cursor-pointer relative overflow-hidden border border-slate-200/50 hover:border-indigo-300 transition-colors"
+        className="h-16 bg-[#060911] rounded-xl px-3 flex items-center gap-0.5 cursor-pointer relative overflow-hidden border border-[#1a2333] hover:border-[#00f0ff]/50 transition-colors"
       >
-        {/* 진행률 오버레이 백그라운드 */}
+        {/* 진행률 오버레이 */}
         <div
-          className="absolute inset-y-0 left-0 bg-indigo-50/60 pointer-events-none transition-all duration-75"
+          className="absolute inset-y-0 left-0 bg-[#00f0ff]/10 pointer-events-none transition-all duration-75"
           style={{ width: `${progressPercent}%` }}
         />
 
@@ -153,7 +151,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
               >
                 <div
                   className={`w-full max-w-[4px] rounded-full transition-all duration-75 ${
-                    isPassed ? "bg-indigo-600" : "bg-slate-300"
+                    isPassed ? "bg-[#00f0ff] shadow-[0_0_8px_rgba(0,240,255,0.6)]" : "bg-slate-700"
                   }`}
                   style={{ height: `${Math.max(12, val * 100)}%` }}
                 />
@@ -161,7 +159,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
             );
           })
         ) : (
-          <div className="w-full flex items-center justify-center text-slate-400 text-xs">
+          <div className="w-full flex items-center justify-center text-slate-500 text-xs">
             파형 생성 중...
           </div>
         )}
@@ -173,7 +171,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
           <button
             type="button"
             onClick={togglePlay}
-            className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-transform active:scale-95 shadow-xs"
+            className="w-8 h-8 rounded-full bg-[#00f0ff] hover:bg-[#38bdf8] text-black font-bold flex items-center justify-center transition-transform active:scale-95 shadow-[0_0_12px_rgba(0,240,255,0.3)]"
           >
             {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
           </button>
@@ -187,7 +185,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
               }
             }}
             title="처음으로"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           >
             <RotateCcw size={14} />
           </button>
@@ -197,7 +195,7 @@ export default function WaveformCanvas({ audioUrl, fileName }: WaveformCanvasPro
           <button
             type="button"
             onClick={toggleMute}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           >
             {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
           </button>
