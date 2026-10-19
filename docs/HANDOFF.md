@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 4컷 v1.16 「카드뉴스(컷별 4장)로 올리기」 + INSTA v1.28 여러 파일 한 번에 첨부·`postType` 주소값
+- 커밋 `ae441d63`, 배포 `insta-auto-poster-lxpjm2zhb`·`four-cut-comics-2axnxq2dy`(순차), DB v1.28·v1.16. 크롬: 카드뉴스 주소로 형식 자동 선택 → 4장 한 번에(역순 선택해도 이름순 정렬) → AI 없이 임시저장 확인. 4컷은 컷이 4개일 때만 버튼 활성.
+- 못 한 것: 4컷 화면 버튼 실제 클릭(컷 그림 생성 필요). 관리자 계정 시험 초안 2건 남음.
+
 ## 2026-10-20 Claude Code(윈도우) — 4컷 만화 v1.15 「INSTA 자동포스팅으로 올리기」 + INSTA v1.27 「AI 생성 없이 내 이미지로 저장」
 - 4컷: 인스타 문구 칸 버튼 → 문구 복사 + INSTA 새 글 화면(캡션·해시태그 미리 채움) + 바둑판 그림 저장. 커밋 `05aa85c2`, 배포 `four-cut-comics-gmsrnixmd`, DB v1.15. 플랜 `four-cut-comics/docs/PLAN_20261020_INSTA_HANDOFF.md`.
 - INSTA(범위 변경 주인님 승인): 이미지 없을 때도 「이미지 파일 직접 첨부」, 캡션+필요 장수 이미지가 있으면 AI 생성 건너뛰고 그대로 저장. 커밋 `7a84716a`, 배포 `insta-auto-poster-qb6d42edv`, DB v1.27.
