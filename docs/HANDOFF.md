@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) Phase 1 긴급 버그 & UX 정돈 완료 (배포 및 Edge 검수 완료)
+
+- **배경**: AIMaster 메인 사이트 전면 디자인 분석 및 개선 제안서(`docs/analysis-20261019/MAIN_SITE_DESIGN_IMPROVEMENT_PROPOSAL.md`)에 따라, 주인님 지시로 Phase 1(긴급 버그 & UX 정돈)을 선제 완료하고 Microsoft Edge 포그라운드 실세션으로 검수 완료.
+- **주요 작업 내용**:
+  1. **모바일 햄버거 메뉴 오버레이 버그 해결 (`components/layout/Header.tsx`)**:
+     - 기존에 모바일 메뉴 오픈 시 아래쪽 Hero 버튼(화이트/회색)이 메뉴 밖으로 삐져나오던 버그 완전 수정.
+     - `fixed inset-x-0 top-16 bottom-0 z-50 bg-[#0a0a0f]/98 backdrop-blur-2xl` 풀 오버레이를 적용하여 뒷배경 간섭 100% 차단.
+  2. **무료 프로그램 카드 버튼 혼선 해소 (`components/programs/ProgramCard.tsx`)**:
+     - `무료 (회원 전용)` 프로그램 카드에 비로그인/미이용 상태일 때 `구독하기` 버튼이 떠서 결제 의구심을 주던 현상 해결.
+     - `resolvedBadges.includes("free")`인 경우 에메랄드 그라데이션의 `▶ 무료 이용하기` 버튼으로 명확히 분기.
+  3. **Hero CTA 버튼 3종 톤앤매너 정돈 & 모바일 375px 최적화 (`app/(main)/page.tsx`)**:
+     - 기존 골드/화이트/챠콜의 제각각이었던 3개 버튼을 **Primary(골드)**, **Secondary(골드 아웃라인 글래스)**, **Tertiary(소프트 글래스)** 3단계 다크 시스템으로 조화롭게 정돈.
+     - 모바일(375px)에서 3층으로 꽉 차던 버튼들을 상단 메인 버튼 + 하단 2열 그리드로 개편하여 세로 스크롤 공간 50% 절약(아래쪽 통계 카드까지 한 화면에 진입).
+  4. **빌드 안정화 및 배포**:
+     - `components/admin/ProgramsAdminBoard.tsx` 및 `lib/access/getProgramAccessMap.ts`의 타입 명시를 보강하여 로컬 `npx tsc --noEmit` 및 `npm run build` 100% 통과(72개 페이지 전수 최적화).
+     - Vercel 프로덕션 배포 완료 (`dpl_7udWv4FSPHjLyLmJwgMvJ87sh27C`, Aliased: `https://www.buylife.xyz`).
+  5. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 데스크톱 Hero 버튼 정돈 캡처: `edge_main_phase1_desktop_hero.png`
+     - 데스크톱 무료 카드 `무료 이용하기` 버튼 캡처: `edge_main_phase1_desktop_free_card.png`
+     - 모바일 375px Hero 2열 버튼 캡처: `edge_main_phase1_mobile_hero.png`
+     - 모바일 메뉴 풀 오버레이 캡처: `edge_main_phase1_mobile_menu.png`
+- **서비스 링크**: https://www.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — Threads 콘텐츠 운영 자동화(threads-content-ops) v2.06: 대시보드 시각 UTC 표시(9시간 빠름) 수정
 
 - 서버 컴포넌트 `OperationsDashboard.tsx`의 날짜 표시에 `timeZone: "Asia/Seoul"` 추가. 배포 `threads-content-cnmn2cb7m` Ready, 운영 DB v2.06, 크롬 확인. 강의용 키트 사본(`labs/kit-threads`)도 같은 수정·배포. 교훈: `docs/ERROR_LESSONS.md` 맨 위.

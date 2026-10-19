@@ -198,41 +198,49 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — 전체 화면을 덮는 블러 오버레이로 뒤쪽 요소 뚫림 현상 차단 */}
       {isMenuOpen && (
-        <div className="md:hidden bg-surface/95 backdrop-blur-md border-b border-white/10">
-          <div className="px-4 py-4 space-y-1">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  link.href === activeHref
-                    ? "text-gold bg-gold/10"
-                    : "text-subtext hover:text-white hover:bg-white/5"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="pt-4 flex flex-col gap-2">
+        <div className="md:hidden fixed inset-x-0 top-16 bottom-0 z-50 bg-[#0a0a0f]/98 backdrop-blur-2xl border-t border-white/10 overflow-y-auto">
+          <div className="px-5 py-6 space-y-2 min-h-full flex flex-col justify-between">
+            <div className="space-y-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-medium transition-all ${
+                    link.href === activeHref
+                      ? "text-gold bg-gold/10 font-bold border border-gold/20"
+                      : "text-subtext hover:text-white hover:bg-white/5"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span>{link.label}</span>
+                  {link.href === activeHref && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold" />
+                  )}
+                </Link>
+              ))}
+            </div>
+
+            <div className="pt-6 border-t border-white/10 flex flex-col gap-3 mt-4">
               {profile ? (
                 <>
                   <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                    <GoldButton variant="outline" fullWidth>대시보드</GoldButton>
+                    <GoldButton variant="outline" fullWidth size="lg">
+                      <LayoutDashboard size={16} /> 대시보드 바로가기
+                    </GoldButton>
                   </Link>
-                  <GoldButton variant="ghost" fullWidth onClick={handleLogout}>
-                    로그아웃
+                  <GoldButton variant="ghost" fullWidth onClick={handleLogout} className="text-red-400 hover:text-red-300">
+                    <LogOut size={16} /> 로그아웃
                   </GoldButton>
                 </>
               ) : (
                 <>
-                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                    <GoldButton variant="outline" fullWidth>로그인</GoldButton>
-                  </Link>
                   <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                    <GoldButton fullWidth>무료 시작</GoldButton>
+                    <GoldButton fullWidth size="lg">무료로 시작하기</GoldButton>
+                  </Link>
+                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                    <GoldButton variant="outline" fullWidth size="lg">로그인</GoldButton>
                   </Link>
                 </>
               )}

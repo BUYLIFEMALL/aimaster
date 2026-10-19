@@ -32,16 +32,16 @@ export async function getProgramAccessMap(
   ]);
 
   const now = new Date();
-  const gradeSortMap = new Map((grades ?? []).map((grade: { id: string; sort_order: number }) => [grade.id, grade.sort_order]));
+  const gradeSortMap = new Map<string, number>((grades ?? []).map((grade: { id: string; sort_order: number }) => [grade.id, grade.sort_order]));
   const userGrade = Array.isArray(profile?.grade) ? profile.grade[0] : profile?.grade;
-  const subscriptionsByProgram = new Set(
+  const subscriptionsByProgram = new Set<string>(
     (subscriptions ?? [])
       .filter((subscription: { status: string; expires_at: string | null }) =>
         subscription.status === "active" && (!subscription.expires_at || new Date(subscription.expires_at) > now)
       )
       .map((subscription: { program_id: string }) => subscription.program_id)
   );
-  const grantsByProgram = new Map(
+  const grantsByProgram = new Map<string, string | null>(
     (grants ?? [])
       .filter((grant: { expires_at: string | null }) => !grant.expires_at || new Date(grant.expires_at) > now)
       .map((grant: { program_id: string; expires_at: string | null }) => [grant.program_id, grant.expires_at])

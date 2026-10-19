@@ -198,9 +198,9 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   };
 
   const handleToggleLatest = async (p: ProgramRow) => {
-    const nextBadges = p.badges.includes("new")
+    const nextBadges = (p.badges.includes("new")
       ? p.badges.filter((badge) => badge !== "new")
-      : [...p.badges, "new"];
+      : [...p.badges, "new"]) as Program["badges"];
     await applyUpdate([p.id], { badges: nextBadges });
   };
 

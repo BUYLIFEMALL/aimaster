@@ -136,6 +136,16 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                   <span>실행하기</span>
                 </button>
               </a>
+            ) : resolvedBadges.includes("free") ? (
+              <a href={program.app_url || `/programs/${program.slug}`} className="block">
+                <button
+                  type="button"
+                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
+                >
+                  <Play size={12} className="fill-slate-950 text-slate-950" />
+                  <span>무료 이용하기</span>
+                </button>
+              </a>
             ) : (
               <Link href={subscriptionTarget}>
                 <button

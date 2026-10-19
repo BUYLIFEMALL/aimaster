@@ -257,22 +257,32 @@ export default async function HomePage() {
             매출을 극대화하세요.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/programs">
-              <GoldButton size="lg" className="gap-2">
+          {/* Hero CTA — Primary(골드) 중심 + 모바일 반응형(상단 와이드 + 하단 2열) 정돈 */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center max-w-xl mx-auto">
+            <Link href="/programs" className="w-full sm:w-auto">
+              <GoldButton size="lg" className="w-full sm:w-auto gap-2 justify-center shadow-lg shadow-gold/10">
                 프로그램 둘러보기 <ArrowRight size={18} />
               </GoldButton>
             </Link>
-            <Link href="/guides">
-              <GoldButton variant="ghost" size="lg" className="bg-white text-black hover:bg-white/90">
-                API키생성|플랫폼연동
-              </GoldButton>
-            </Link>
-            <Link href="/revenue-share">
-              <GoldButton variant="ghost" size="lg" className="bg-neutral-600 text-white hover:bg-neutral-500">
-                수익 공유 알아보기
-              </GoldButton>
-            </Link>
+
+            <div className="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto">
+              <Link href="/guides" className="w-full sm:w-auto">
+                <button
+                  type="button"
+                  className="w-full sm:w-auto px-4 py-3 rounded-xl bg-gold/[0.08] hover:bg-gold/[0.15] border border-gold/40 hover:border-gold/70 text-gold font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  API키·플랫폼연동
+                </button>
+              </Link>
+              <Link href="/revenue-share" className="w-full sm:w-auto">
+                <button
+                  type="button"
+                  className="w-full sm:w-auto px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-subtext hover:text-white font-medium text-sm sm:text-base transition-all flex items-center justify-center gap-1.5"
+                >
+                  수익 공유 안내
+                </button>
+              </Link>
+            </div>
           </div>
 
         </div>
