@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 메인 사이트 이메일(아이디) 찾기·인증번호 남은 시간·관리자 메일/문자 연결 점검
+
+- **대상**: ① AIMaster 운영 메인 사이트, DB 구조 변경 없음
+- **한 일**: (1) `/find-email` — 이름+핸드폰 문자 인증 → 가입 이메일 일부 가림(`bu*********@gmail.com`), 같은 이름·번호 계정이 여럿이면 모두 표시(가장 먼저 가입한 계정에 인증 상태 저장). API `app/api/auth/find-email/sms`·`…/verify`. (2) 공용 `app/(auth)/_components/CodeTimer.tsx` — 인증번호 입력칸 아래 5:00 카운트다운(1분 이하 빨강, 0이면 만료 안내), 비밀번호 찾기·이메일 찾기 공용. (3) 관리자 `/admin/settings` 맨 위 「메일·문자 연결 점검」 — `GET /api/admin/messaging-health`(관리자만): SMTP `verify()` 로그인 시험 + 운영자 솔라피 잔액 조회, 실제 발송 없음. (4) 인증번호에 용도(`code_purpose`: reset/find_email) 구분, 발송·확인 로직을 `lib/auth/passwordReset.ts`의 `sendCodeSms`/`checkCode`로 통합(비밀번호 찾기 API도 이 함수 사용). (5) 로그인 화면에 「이메일 찾기」 링크.
+- **커밋·배포**: `d9dd3c91` 푸시 → 메인 사이트 자동 배포, `/find-email` 200. 로컬 `npm run build` 통과.
+- **크롬 검수(Browser 3)**: 관리자 점검 버튼 → 메일 「실패 — smtp.naver.com 로그인 거절」, 문자 「정상 — 솔라피 잔액 32,361원」 표시. `/find-email`에서 가입되지 않은 이름+`010-0000-0000`으로 요청 → 같은 안내(가입 여부 비노출, 문자 미발송), 남은 시간 4:53→4:27 감소, 틀린 번호 `123456` → 「만료되었거나 없습니다」 안내 확인. 창 크기 줄이기는 창이 최대화 상태라 적용되지 않음(화면은 로그인과 같은 `max-w-md`·16px 여백 구조).
+- **남은 일**: ① 운영 SMTP 비밀번호 교체(주인님) 후 관리자 점검으로 「정상」 확인 → 이메일 인증 재시험. ② 실제 문자 인증(비밀번호 찾기·이메일 찾기) 시험은 휴대폰이 필요해 주인님이 직접. ③ 인증 실패 시 위쪽 「보냈습니다」 안내가 함께 남는 점(작은 화면 정리 거리).
+- **링크**: https://www.buylife.xyz/find-email · https://www.buylife.xyz/admin/settings
+
 ## 2026-10-19 Claude Code(윈도우) — 메인 사이트 비밀번호 찾기(이메일 링크·문자 인증번호) 추가
 
 - **대상**: ① AIMaster 운영 메인 사이트(루트 `app/`), DB ref `esgxyikcnnvmlhygjkth`(DDL 없음, REST 읽기만)

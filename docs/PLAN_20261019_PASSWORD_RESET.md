@@ -72,3 +72,7 @@
 
 - 메인 사이트 배포(루트 `.`) — 프로그램 버전(`programs.version`)은 해당 없음.
 - 커밋·푸시·배포 후 `docs/HANDOFF.md` 맨 위, `docs/ERROR_LESSONS.md`(발견 사항 있을 때), `docs/PROGRAM_IDEA_BACKLOG.md`(아이디어 항목) 갱신.
+
+## 9. 2차 추가 (2026-10-19, 주인님 승인 「진행해줘」)
+
+- 이메일(아이디) 찾기 `/find-email`(이름+핸드폰 문자 인증, 이메일 일부 가림), 인증번호 남은 시간 표시(`CodeTimer`), 관리자 「메일·문자 연결 점검」(`/api/admin/messaging-health`, 실제 발송 없음). 비용 없음, DB 구조 변경 없음.
