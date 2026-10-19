@@ -27,6 +27,7 @@ export default function LoginPage() {
   const redirectParam = searchParams.get("redirect");
   const redirectTo = !redirectParam || redirectParam === "/dashboard" ? "/" : redirectParam;
   const isSessionExpired = searchParams.get("session_expired") === "true";
+  const isPasswordReset = searchParams.get("reset") === "1";
   const supabase = createClient();
 
   // 세션 만료로 리디렉트된 경우: Supabase 세션 클리어
@@ -210,7 +211,18 @@ export default function LoginPage() {
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              <div className="mt-2 text-right">
+                <Link href="/forgot-password" className="text-xs text-subtext hover:text-gold hover:underline">
+                  비밀번호를 잊으셨나요?
+                </Link>
+              </div>
             </div>
+
+            {isPasswordReset && !error && (
+              <p className="text-sm bg-gold/10 border border-gold/30 text-gold-light rounded-lg px-4 py-3">
+                비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.
+              </p>
+            )}
 
             {error && (
               <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
