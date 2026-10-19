@@ -93,3 +93,15 @@ test("중복 확인 v1.22: 1차 실패 시각 − 10분 이후 글만 같은 글
   assert.equal(findSameRecentPost([media[0]], "같은 캡션", now)?.permalink, "https://ig/old"); // 시각을 모르면 1시간 기준
   assert.equal(findSameRecentPost([media[0]], "같은 캡션", now, Date.UTC(2026, 9, 19, 1, 0))?.permalink, "https://ig/old"); // 1시간보다 넓히지 않음
 });
+
+// v1.23 — 지금 게시 실패 때: 버튼을 누른 시각 이후 같은 캡션만 이미 올라간 글로 본다(route가 startedAt + 여유를 넘김)
+import { FIRST_ATTEMPT_MARGIN_MS } from "../src/lib/cardnews/schedule.ts";
+
+test("즉시 게시 중복 확인: 누른 시각 이후 글만", () => {
+  const startedAt = Date.UTC(2026, 9, 19, 5, 0);
+  const now = startedAt + 2 * 60 * 1000;
+  const before = { caption: "오늘의 카드", timestamp: "2026-10-19T04:59:00+0000", permalink: "https://ig/before" };
+  const after = { caption: "오늘의 카드", timestamp: "2026-10-19T05:01:00+0000", permalink: "https://ig/after" };
+  assert.equal(findSameRecentPost([before], "오늘의 카드", now, startedAt + FIRST_ATTEMPT_MARGIN_MS), null);
+  assert.equal(findSameRecentPost([before, after], "오늘의 카드", now, startedAt + FIRST_ATTEMPT_MARGIN_MS)?.permalink, "https://ig/after");
+});

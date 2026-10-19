@@ -43,7 +43,7 @@ export async function publishPaths(userId: string, paths: string[], caption: str
 }
 
 /** 회원 본인 계정의 최근 게시물(최대 10개). 조회 실패는 null — 호출부는 그때 평소대로 진행한다(v1.21) */
-async function fetchRecentMedia(userId: string): Promise<RecentMedia[] | null> {
+export async function fetchRecentMedia(userId: string): Promise<RecentMedia[] | null> {
   const account = await getMemberInstagramAccount(userId);
   if (!account || account.expired) return null;
   try {
@@ -56,6 +56,9 @@ async function fetchRecentMedia(userId: string): Promise<RecentMedia[] | null> {
     return null;
   }
 }
+
+/** 게시된 기록에 남기는 안내 — 응답은 실패였지만 인스타에 이미 올라간 것을 확인해 다시 올리지 않은 경우(v1.23, 게시됨 기록의 error_message는 원래 비어 있어 안내 칸으로 쓴다) */
+export const ALREADY_POSTED_NOTE = "응답이 늦었지만 인스타그램에 이미 올라간 것을 확인해 다시 올리지 않았습니다.";
 
 export interface PostRecordInput {
   userId: string;
@@ -114,7 +117,7 @@ export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status
     if (post.error_message) {
       const same = findSameRecentPost((await fetchRecentMedia(post.user_id)) ?? [], post.caption ?? "", Date.now(), post.updated_at ? Date.parse(post.updated_at) : undefined);
       if (same) {
-        await finish({ status: "published", published_at: same.timestamp ? new Date(same.timestamp).toISOString() : new Date().toISOString(), permalink: same.permalink ?? null, error_message: null });
+        await finish({ status: "published", published_at: same.timestamp ? new Date(same.timestamp).toISOString() : new Date().toISOString(), permalink: same.permalink ?? null, error_message: ALREADY_POSTED_NOTE });
         await removeImages(post.image_paths ?? []);
         results.push({ id: post.id, status: "already_published" });
         continue;

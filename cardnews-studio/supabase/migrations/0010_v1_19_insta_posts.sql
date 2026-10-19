@@ -40,3 +40,6 @@ update public.programs set version = 'v1.21', updated_at = now() where slug = 'c
 
 -- 버전 갱신(v1.22, 표 변경 없음: 중복 확인 기준을 1차 실패 시각 기준으로 좁힘)
 update public.programs set version = 'v1.22', updated_at = now() where slug = 'cardnews-studio';
+
+-- 버전 갱신(v1.23, 표 변경 없음: 지금 게시 실패 때 이미 게시 확인·기록 안내 표시)
+update public.programs set version = 'v1.23', updated_at = now() where slug = 'cardnews-studio';

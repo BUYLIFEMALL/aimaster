@@ -131,7 +131,7 @@ export function InstagramPublishPanel() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "처리하지 못했습니다.");
-      setDone(mode === "now" ? `@${data.username} 계정에 게시했습니다.` : `${formatKst(data.scheduledAt)}에 @${data.username} 계정으로 게시되도록 예약했습니다(예약 시각 후 5분 안에 올라갑니다).`);
+      setDone(mode === "now" ? (data.alreadyPosted ? `응답이 늦었지만 @${data.username} 계정에 이미 올라간 것을 확인했습니다. 다시 게시하지 않아도 됩니다.` : `@${data.username} 계정에 게시했습니다.`) : `${formatKst(data.scheduledAt)}에 @${data.username} 계정으로 게시되도록 예약했습니다(예약 시각 후 5분 안에 올라갑니다).`);
       setAgree(false);
       void loadPosts();
     } catch (e) {
@@ -219,6 +219,7 @@ export function InstagramPublishPanel() {
                 {p.permalink && <a href={p.permalink} target="_blank" rel="noreferrer" className="font-bold text-pink-300 underline">게시물 보기</a>}
                 {p.status === "failed" && p.error_message && <span className="w-full text-red-300">{p.error_message}</span>}
                 {p.status === "scheduled" && p.error_message && <span className="w-full text-amber-300">{p.error_message}</span>}
+                {p.status === "published" && p.error_message && <span className="w-full text-slate-400">ℹ️ {p.error_message}</span>}
                 {p.status === "scheduled" && (
                   <button type="button" onClick={() => void cancel(p.id)} className={`${BTN_GHOST} ml-auto px-2 py-1 text-[11px]`}><X className="h-3 w-3" /> 예약 취소</button>
                 )}
