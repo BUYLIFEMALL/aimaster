@@ -925,7 +925,7 @@ async function loadTossAuth(supabase: Awaited<ReturnType<typeof authorizedUser>>
     resolveApiKey(supabase, userId, "toss_publisher_id"),
   ]);
   if (!accessKey || !secretKey || !publisherId) {
-    throw new Error("토스쇼핑 쉐어링크 Access Key·Secret Key·Publisher ID를 먼저 등록해 주세요. API키등록·플랫폼연동에서 본인 키를 저장하면 사용할 수 있습니다.");
+    throw new Error("토스쇼핑 쉐어링크 Access Key·Secret Key·회원 연동 ID를 먼저 등록해 주세요. API키등록·플랫폼연동에서 본인 키를 저장하면 사용할 수 있습니다.");
   }
   return { accessKey, secretKey, publisherId };
 }

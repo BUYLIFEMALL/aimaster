@@ -207,11 +207,11 @@ export default function WebSetup({
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-      <SectionTitle title="🛍️ 토스쇼핑 쉐어링크" description="베스트·카테고리별·오늘의 특가 상품을 불러와 쉐어링크(제휴 링크)를 만드는 데 쓰는 Access Key·Secret Key·Publisher ID입니다." />
+      <SectionTitle title="🛍️ 토스쇼핑 쉐어링크" description="베스트·카테고리별·오늘의 특가 상품을 불러와 쉐어링크(제휴 링크)를 만드는 데 쓰는 Access Key·Secret Key·회원 연동 ID입니다." />
       <div className="space-y-3">
         <CredentialRow provider="toss_access_key" label="토스쇼핑 Access Key" maskedValue={credentials.toss_access_key} editing={editing === "toss_access_key"} saving={saving === "toss_access_key"} removing={removing === "toss_access_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
         <CredentialRow provider="toss_secret_key" label="토스쇼핑 Secret Key" maskedValue={credentials.toss_secret_key} editing={editing === "toss_secret_key"} saving={saving === "toss_secret_key"} removing={removing === "toss_secret_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
-        <CredentialRow provider="toss_publisher_id" label="토스쇼핑 Publisher ID" maskedValue={credentials.toss_publisher_id} editing={editing === "toss_publisher_id"} saving={saving === "toss_publisher_id"} removing={removing === "toss_publisher_id"} onEdit={setEditing} onSave={save} onDelete={remove} />
+        <CredentialRow provider="toss_publisher_id" label="토스쇼핑 회원 연동 ID" maskedValue={credentials.toss_publisher_id} editing={editing === "toss_publisher_id"} saving={saving === "toss_publisher_id"} removing={removing === "toss_publisher_id"} onEdit={setEditing} onSave={save} onDelete={remove} />
       </div>
     </section>
 

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — Threads 콘텐츠 운영 자동화(threads-content-ops) v2.05: 토스쇼핑 「Publisher ID」 → 「회원 연동 ID」 표기 변경
+
+- 주인님 지시. 화면 문구 4곳만 변경(저장값 이름 `toss_publisher_id`는 유지 — 기존 저장값 그대로 동작). 배포 `threads-content-pbt500zd3` Ready, 운영 DB 버전 v2.05, 크롬 확인 완료. 상세: [`threads-content-ops/AGENTS.md`](../threads-content-ops/AGENTS.md) 맨 아래.
+- 강의용 키트 사본(`labs/kit-threads`, Lab)에도 같은 변경 적용·배포. PDS 원본 키트는 미반영.
+- https://threads-content-ops.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — AI 문서 챗봇 자동화(ai-doc-chatbot) 하루 작업 핵심 요약 문서 작성
 
 - **요약 문서**: [`ai-doc-chatbot/docs/HANDOFF_SUMMARY_20261019.md`](../ai-doc-chatbot/docs/HANDOFF_SUMMARY_20261019.md) — v1.01 신규 배포부터 v1.06까지(키 저장 오류 해결, 답변 품질, 화면 편의, 50MB·101쪽 문서, 혼합 검색, 대화 고정), 운영 적용 목록(표·공용 키 목록·Storage 버킷), 검수 증거, 비용, 남은 일(L15 관련도 재점검·C1/C2 보류)과 교훈.

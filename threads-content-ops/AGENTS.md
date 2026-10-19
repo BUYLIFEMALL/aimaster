@@ -621,3 +621,9 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-19 v2.05 — 토스쇼핑 「Publisher ID」 화면 표기를 「회원 연동 ID」로 변경 (Claude Code 윈도우, 주인님 지시)
+- 바꾼 곳(화면 문구만 4곳): `WebSetup.tsx` 키 등록 라벨 「토스쇼핑 회원 연동 ID」·토스 섹션 설명, `SourceQueue.tsx` 키 미등록 안내, `web-actions.ts` 키 없음 오류 문구.
+- 그대로 둔 것: 저장값 이름 `toss_publisher_id`(회원이 이미 저장한 값이 그대로 쓰이도록), 변수명 `tossPublisherId`, `lib/toss.ts` 주석.
+- 검수: `npx tsc --noEmit` 0건, Vercel 프로덕션 배포(`threads-content-pbt500zd3`, Ready), 운영 DB(`esgxyikcnnvmlhygjkth`) `programs.version = 'v2.05'`, 크롬에서 https://threads-content-ops.buylife.xyz 키 등록 화면 v2.05·새 라벨·기존 저장값 「등록됨」 유지 확인.
+- 같은 변경을 강의용 키트 사본 `labs/kit-threads`(Lab, https://dev-threads-posting.vercel.app)에도 적용·배포함. PDS 원본 `SNS_Auto_Posting_Kit_20261018`에는 아직 미반영.
