@@ -42,7 +42,8 @@ modules=data['reference_modules']
 check('18 reference modules distinguish 4 registered / 14 candidates',len(modules)==18 and sum(m['status']=='기존 등록' for m in modules)==4)
 check('Every module reference path exists',all((OUT.parents[1]/p.strip()).exists() for m in modules for p in m['references'].split(';')))
 ideas=(OUT.parent/'PROGRAM_IDEA_BACKLOG.md').read_text(encoding='utf-8')
-check('Ongoing ideas preserve 18 proposal IDs plus user direction',len(re.findall(r'^\| (?:I-\d\d|U-01) \|',ideas,re.M))==19 and all(k in ideas for k in ['안정적인 자동화','기존 프로그램 적용성','사용자 편의']))
+idea_ids=re.findall(r'^\| (I-\d\d|U-01) \|',ideas,re.M)
+check('19 unique ideas with criteria and three-perspective reviews',len(idea_ids)==38 and len(set(idea_ids))==19 and all(k in ideas for k in ['안정적인 자동화','기존 프로그램 적용성','사용자 편의','개발·유지보수 관점','디자인·사용성 관점','창의적 신규 자동화 시스템 관점']))
 begin='<!-- INCREMENTAL_REFERENCE_IDEAS_20261019 -->';end='<!-- /INCREMENTAL_REFERENCE_IDEAS_20261019 -->'
 blocks=[]
 for name in ['AGENTS.md','CLAUDE.md','GEMINI.md']:
