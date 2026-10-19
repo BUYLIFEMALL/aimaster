@@ -42,7 +42,9 @@ function fixture(options = {}) {
     // v2.07 예약 발행: 회원 본인 cron-job.org 키(기본 등록됨) + 실행 작업 자동 켜기 모의
     if (id === "@/threads-content-ops/lib/memberScheduler") return {
       CRONJOB_PROVIDER: "cronjob_org_api_key",
-      platformSchedulerEnabled: () => false,
+      platformSchedulerEnabled: () => !options.platformOff,
+      memberSchedulerMode: async () => options.schedulerMode ?? "vercel",
+      setMemberSchedulerMode: async () => {},
       memberCronjobKey: async () => options.noCronjobKey ? null : "fake-cronjob-key",
       ensureMemberSchedulerRunning: async (_service, owner, key) => { state.schedulerRuns = (state.schedulerRuns ?? 0) + 1; assert.equal(owner, userId); assert.equal(key, "fake-cronjob-key"); return { paused: false }; },
       pauseMemberScheduler: async () => {}, resumeMemberScheduler: async () => ({ started: false }), removeMemberScheduler: async () => {},
@@ -176,22 +178,39 @@ test("예약은 수정 본문을 저장하고 취소 후 다시 수정 가능한
   assert.equal(state.calls.length, 0);
 });
 
-test("예약하면 회원 cron-job.org 실행 작업을 한 번 켠다 (v2.07)", async () => {
-  const { state, actions } = fixture();
+test("「내 cron-job.org」 회원이 예약하면 실행 작업을 한 번 켠다 (v2.07)", async () => {
+  const { state, actions } = fixture({ schedulerMode: "cronjob" });
   const scheduledAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
   assert.equal((await actions.runDraftAction({ draftId, intent: "schedule", body: "예약 본문", scheduledAt })).ok, true);
   assert.equal(state.post.status, "scheduled");
   assert.equal(state.schedulerRuns, 1);
 });
 
-test("cron-job.org 키가 없으면 예약하지 않고 초안으로 남긴다 (v2.07)", async () => {
-  const { state, actions } = fixture({ noCronjobKey: true });
+test("「내 cron-job.org」 회원이 키가 없으면 예약하지 않고 초안으로 남긴다 (v2.07)", async () => {
+  const { state, actions } = fixture({ schedulerMode: "cronjob", noCronjobKey: true });
   const scheduledAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
   const result = await actions.runDraftAction({ draftId, intent: "schedule", body: "예약 본문", scheduledAt });
   assert.equal(result.ok, false);
-  assert.match(result.error, /cron-job\.org API 키/);
+  assert.match(result.error, /API 키가 필요합니다/);
   assert.equal(state.post.status, "draft");
   assert.equal(state.schedulerRuns ?? 0, 0);
+});
+
+test("기본(AIMaster Vercel) 방식은 cron-job.org 키 없이 예약되고 작업을 켜지 않는다 (v2.08)", async () => {
+  const { state, actions } = fixture({ noCronjobKey: true });
+  const scheduledAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  assert.equal((await actions.runDraftAction({ draftId, intent: "schedule", body: "기본 방식 예약", scheduledAt })).ok, true);
+  assert.equal(state.post.status, "scheduled");
+  assert.equal(state.schedulerRuns ?? 0, 0);
+});
+
+test("Vercel 예약 호출이 꺼진 사이트에서 기본 방식 회원은 예약하지 않는다 (v2.08)", async () => {
+  const { state, actions } = fixture({ platformOff: true });
+  const scheduledAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const result = await actions.runDraftAction({ draftId, intent: "schedule", body: "예약 본문", scheduledAt });
+  assert.equal(result.ok, false);
+  assert.match(result.error, /Vercel 예약 호출이 꺼져/);
+  assert.equal(state.post.status, "draft");
 });
 
 test("발행 실패 콘텐츠는 명시적으로 재검토 상태로 돌린 뒤 수정할 수 있다", async () => {

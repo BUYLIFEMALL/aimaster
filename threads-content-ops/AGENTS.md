@@ -648,3 +648,11 @@
 - **cron-job.org 무료 규칙 대비**: 응답 30초 초과=실패, 실패 25회 넘으면 작업 자동 정지 → `dispatch-member`가 즉시 응답하고 발행은 `waitUntil`(`@vercel/functions@1.5.2` 추가)로 이어서 처리. `ensureMemberSchedulerRunning`은 예약 때마다 cron-job.org 실제 상태 확인 후 켬.
 - **실검수(주인님 cron-job.org 키, 관리자 계정)**: 예약 → 작업 자동 생성(8676408) → 예약 취소 후 약 50초에 자동 꺼짐(`active=false`) → 재예약(19:34, DB `10:34Z` 정상) 시 같은 작업 자동 재가동 → **19:34:18 자동 발행**(https://www.threads.com/@buylife.co.kr/post/DerDePglQ1P) → 2초 뒤 자동 꺼짐 → 일시정지(「일시정지됨」)·재개(「대기」) 정상. 테스트 30/30, tsc 0, 빌드 성공.
 - 남은 일: 키트(`labs/kit-threads`) 같은 기준 정리(같은 `DraftComposer` 9시간 버그도 있음), 나머지 프로그램 적용(지침 §8).
+
+## 2026-10-19 v2.08 — 예약 발행 실행 방식을 회원이 선택(기본 Vercel) (Claude Code 윈도우, 주인님 지시)
+- 주인님: 「사용자가 Vercel과 cron-job.org 중 선택해서 사용, 기본은 Vercel」(배포판은 기본 cron-job.org). 비교 분석 근거: Vercel 예약 호출은 프로그램당 1분 1회로 전 회원 처리, cron-job.org는 회원마다 호출하지만 처리는 똑같이 사이트 Vercel에서 실행 → 회원이 많을수록 Vercel 방식이 확인 비용이 적음.
+- 설정 「⏰ 예약 발행」: 실행 방식 라디오(`SchedulerModePicker.tsx`) + cron-job.org 키 한 줄. 보관함 상태 줄은 방식별 표시·일시정지(두 방식 모두).
+- 코드: `tco_member_scheduler.mode`(`vercel`|`cronjob`, 기본 vercel), `DEFAULT_SCHEDULER_MODE = IS_STANDALONE ? "cronjob" : "vercel"`, `platformSchedulerEnabled()`(운영 기본 켜짐·`TCO_PLATFORM_SCHEDULER=off`로 끔, 키트는 `=on`일 때만), 운영자 호출은 `membersExcludedFromPlatform`(cronjob·일시정지 제외), `setScheduledPublishingMode` 서버 액션, `scheduleDraft` 방식별 분기, 키 변경 시 방식 유지·삭제 시 vercel로, `memberIdForToken`은 cronjob 회원만. 운영/키트 같은 코드(키트 전용 분기 제거).
+- 운영 DB(`esgxyikcnnvmlhygjkth`): `mode` 칸 추가(기본 vercel, 기존 행 vercel) — 마이그레이션 `supabase/migrations/20261019210000_tco_scheduler_mode.sql`.
+- 검수: tsc 0, 테스트 32/32(기본 Vercel 키 없이 예약·Vercel 꺼짐 거부 2개 추가), 빌드, 배포 `threads-content-7ojntefs8`, DB v2.08, 크롬: 기본 Vercel 선택 표시 → cron-job.org 전환(「내 cron-job.org 대기」) → Vercel 복귀(「AIMaster 기본(Vercel) 실행 중」).
+- 배포 뒤 추가된 「기본값 배지·키트용 문구(defaultMode)」 변경은 운영 동작이 같아 **미배포 — 다음 배포 때 함께**(버전 +0.01).

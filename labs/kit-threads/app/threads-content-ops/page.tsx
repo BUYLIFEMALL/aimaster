@@ -81,9 +81,9 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   const postCounts = Object.fromEntries(countRows) as Record<keyof PostCounts, number | null>;
   const usableViral = (viralCandidates ?? []).filter((candidate) => candidate.status !== "archived");
   const tab = ["dashboard", "viral", "create", "manage", "accounts", "sources", "settings", "guide"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
-  // 예약 발행(v2.07): 운영은 회원 본인 cron-job.org 키(또는 관리자 지정 AIMaster 실행), 키트는 서버 CRON_SECRET. 지침: 루트 docs/SCHEDULER_POLICY.md
-  const scheduler = (tab === "create" || tab === "manage") ? await memberSchedulerState(createServiceClient(), user.id) : null;
-  const schedulerReady = scheduler ? scheduler.state !== "no-key" : true;
+  // 예약 발행(v2.08): 회원이 고른 방식 — AIMaster 기본(Vercel) 또는 본인 cron-job.org. 지침: 루트 docs/SCHEDULER_POLICY.md
+  const scheduler = (tab === "create" || tab === "manage" || tab === "settings") ? await memberSchedulerState(createServiceClient(), user.id) : null;
+  const schedulerReady = scheduler ? scheduler.state !== "no-key" && scheduler.state !== "platform-off" : true;
 
   return <div className="threads-content-ops-light flex min-h-screen bg-white text-neutral-900">
     <MobileNav email={user.email ?? ""} />
@@ -112,7 +112,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
       {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
       {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} categories={viralCategories ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
       {tab === "sources" && <SourceQueue tossProxyReady={isTossProxyConfigured()} accounts={accounts ?? []} sources={contentSources ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
-      {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-amber-500" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
+      {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-amber-500" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} scheduler={scheduler ? { mode: scheduler.mode, defaultMode: scheduler.defaultMode, platformAvailable: scheduler.platformAvailable } : undefined} /></div>}
       {tab === "guide" && <UsageGuide />}
     </div>
   </div>;

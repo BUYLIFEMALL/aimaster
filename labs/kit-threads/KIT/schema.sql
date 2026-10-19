@@ -294,9 +294,12 @@ create table if not exists public.tco_member_scheduler (
   cronjob_job_id bigint,
   active boolean not null default false,
   paused boolean not null default false,
+  mode text not null default 'cronjob' check (mode in ('vercel', 'cronjob')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+-- mode: 예약 발행 실행 방식(배포판 기본 cronjob = 회원 본인 cron-job.org, vercel = Vercel 예약 호출 — Pro에서 KIT/enable-vercel-cron 실행 후 선택)
+alter table public.tco_member_scheduler add column if not exists mode text not null default 'cronjob';
 alter table public.tco_member_scheduler enable row level security;
 drop policy if exists tco_member_scheduler_select_own on public.tco_member_scheduler;
 create policy tco_member_scheduler_select_own on public.tco_member_scheduler for select to authenticated using (auth.uid() = user_id);

@@ -15,4 +15,4 @@ if ! npx --yes vercel@latest deploy --prod --yes; then
   echo "[주의] 배포 실패. 무료(Hobby) 요금제라면 vercel.json을 원래대로 되돌리고(cp KIT/vercel.json vercel.json) cron-job.org 방식(B)을 쓰세요."
   exit 1
 fi
-echo "==== 완료: 이제 Vercel이 1분마다 예약 글을 확인합니다. 회원은 cron-job.org 키 없이도 예약할 수 있습니다(키를 등록한 회원은 본인 cron-job.org로 실행). ===="
+echo "==== 완료: 이제 Vercel이 1분마다 예약 글을 확인합니다. 사이트 설정 ⏰ 예약 발행에서 「Vercel 예약 호출」을 고른 회원은 cron-job.org 키 없이 예약할 수 있습니다(기본은 cron-job.org 그대로). ===="

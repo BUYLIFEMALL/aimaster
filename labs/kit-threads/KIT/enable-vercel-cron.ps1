@@ -24,4 +24,4 @@ if ($LASTEXITCODE -ne 0) {
   Write-Host "[주의] 배포가 실패했습니다. 무료(Hobby) 요금제라면 vercel.json을 원래대로 되돌리고(KIT\vercel.json 복사) cron-job.org 방식(B)을 쓰세요." -ForegroundColor Yellow
   exit 1
 }
-Write-Host "==== 완료: 이제 Vercel이 1분마다 예약 글을 확인합니다. 회원은 cron-job.org 키 없이도 예약할 수 있습니다(키를 등록한 회원은 본인 cron-job.org로 실행). ====" -ForegroundColor Green
+Write-Host "==== 완료: 이제 Vercel이 1분마다 예약 글을 확인합니다. 사이트 설정 ⏰ 예약 발행에서 「Vercel 예약 호출」을 고른 회원은 cron-job.org 키 없이 예약할 수 있습니다(기본은 cron-job.org 그대로). ====" -ForegroundColor Green

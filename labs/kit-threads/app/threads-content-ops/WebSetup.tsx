@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2, ExternalLink } from "lucide-react";
 import { IS_STANDALONE } from "@/lib/deployment";
+import SchedulerModePicker from "./SchedulerModePicker";
 import {
   deleteMemberCredential,
   disconnectThreadsAccount,
@@ -65,10 +66,12 @@ export default function WebSetup({
   connectedAccounts: initialAccounts,
   maskedCredentials,
   redirectUri,
+  scheduler,
 }: {
   connectedAccounts: ConnectedAccount[];
   maskedCredentials: Record<string, string>;
   redirectUri: string;
+  scheduler?: { mode: "vercel" | "cronjob"; defaultMode: "vercel" | "cronjob"; platformAvailable: boolean };
 }) {
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState<Provider | null>(null);
@@ -218,11 +221,13 @@ export default function WebSetup({
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-      <SectionTitle title="⏰ 예약 발행 (cron-job.org)" description="예약한 글을 정한 시각에 자동으로 올리려면 본인의 무료 cron-job.org API 키가 필요합니다. 키만 등록해 두면, 콘텐츠 생성·보관함에서 예약할 때 프로그램이 알아서 연결하고 예약이 없으면 자동으로 멈춥니다. 「지금 발행」은 키 없이도 됩니다." />
+      <SectionTitle title="⏰ 예약 발행" description={scheduler?.defaultMode === "cronjob" ? "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「내 cron-job.org」(무료 — 아래에 키만 등록)이고, Vercel 유료(Pro)라면 「Vercel 예약 호출」을 켜고 고를 수 있습니다. 예약은 콘텐츠 생성·보관함에서 하고, 「지금 발행」은 방식과 상관없이 됩니다." : "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약은 콘텐츠 생성·보관함에서 하고, 「지금 발행」은 방식과 상관없이 됩니다."} />
+      {scheduler && <SchedulerModePicker initialMode={scheduler.mode} defaultMode={scheduler.defaultMode} platformAvailable={scheduler.platformAvailable} hasKey={Boolean(credentials.cronjob_org_api_key)} />}
+      <p className="mb-2 text-xs font-semibold text-neutral-800">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
       <ol className="mb-3 list-decimal space-y-1 pl-4 text-xs text-neutral-600">
         <li><a className="font-semibold underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
         <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
-        <li>아래에 붙여 넣고 저장 → 끝. (Vercel 유료 Pro라면 키 대신 설치 키트의 <code>KIT\enable-vercel-cron.ps1</code>로 Vercel 예약 호출을 켤 수도 있습니다 — KIT/README 6장)</li>
+        <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
       </ol>
       <div className="space-y-3">
         <CredentialRow provider="cronjob_org_api_key" label="cron-job.org API 키" maskedValue={credentials.cronjob_org_api_key} editing={editing === "cronjob_org_api_key"} saving={saving === "cronjob_org_api_key"} removing={removing === "cronjob_org_api_key"} onEdit={setEditing} onSave={save} onDelete={remove} />

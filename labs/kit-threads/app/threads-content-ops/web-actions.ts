@@ -24,7 +24,7 @@ import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MEDIA_BUCKET, memberMediaFolder, owne
 import { publishToThreads } from "@/threads-content-ops/lib/threadsPublish";
 import { PRODUCT_SOURCE_TYPES, assemblePostBody, contentRange, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { createServiceClient } from "@/lib/supabase/server";
-import { CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberCronjobKey, pauseMemberScheduler, platformSchedulerEnabled, removeMemberScheduler, resumeMemberScheduler } from "@/threads-content-ops/lib/memberScheduler";
+import { CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, pauseMemberScheduler, platformSchedulerEnabled, removeMemberScheduler, resumeMemberScheduler, setMemberSchedulerMode, type SchedulerMode } from "@/threads-content-ops/lib/memberScheduler";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
   YouTubeSearchError,
@@ -121,14 +121,9 @@ export async function saveMemberCredentials(input: {
 
   if (!rows.length) throw new Error("저장할 값을 입력해 주세요.");
 
-  // cron-job.org 키를 바꾸면 예전 계정의 예약 실행 작업을 지우고, 남은 예약이 있으면 새 계정에서 다시 켠다(v2.07).
+  // cron-job.org 키를 바꾸면 예전 계정의 예약 실행 작업을 지우고, cron-job.org 방식 회원이면 남은 예약이 있을 때 새 계정에 다시 켠다(v2.08, 방식·일시정지 유지).
   const cronjobChanged = rows.some(([provider]) => provider === CRONJOB_PROVIDER);
-  let wasPaused = false;
-  if (cronjobChanged) {
-    const { data: schedulerRow } = await createServiceClient().from("tco_member_scheduler").select("paused").eq("user_id", user.id).maybeSingle();
-    wasPaused = Boolean(schedulerRow?.paused);
-    await removeMemberScheduler(createServiceClient(), user.id);
-  }
+  if (cronjobChanged) await removeMemberScheduler(createServiceClient(), user.id, { keepMode: true });
   const { error } = await supabase.from("user_api_keys").upsert(
     rows.map(([provider, api_key]) => ({ user_id: user.id, provider, api_key: api_key.trim() })),
     { onConflict: "user_id,provider" },
@@ -138,8 +133,7 @@ export async function saveMemberCredentials(input: {
     const service = createServiceClient();
     const { count } = await service.from("tco_posts").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "scheduled");
     const key = await memberCronjobKey(service, user.id);
-    if (wasPaused) await pauseMemberScheduler(service, user.id);
-    else if ((count ?? 0) > 0 && key) await ensureMemberSchedulerRunning(service, user.id, key);
+    if ((await memberSchedulerMode(service, user.id)) === "cronjob" && (count ?? 0) > 0 && key) await ensureMemberSchedulerRunning(service, user.id, key);
   }
   revalidatePath("/threads-content-ops");
 }
@@ -427,11 +421,15 @@ export async function scheduleDraft(input: { draftId: string; scheduledAt: strin
   }
 
   const { supabase, user } = await authorizedUser();
-  // v2.07: 예약 실행은 회원 본인 cron-job.org가 맡는다(관리자 지정 프로그램만 AIMaster 제공 실행). 키가 없으면 예약하지 않는다.
+  // v2.08: 회원이 고른 실행 방식 — Vercel(기본, 사이트 1분 호출) 또는 본인 cron-job.org(키 필요, 작업 자동 켜기).
   const service = createServiceClient();
-  const cronjobKey = await memberCronjobKey(service, user.id);
-  if (!cronjobKey && !platformSchedulerEnabled()) {
-    throw new Error("예약 발행을 쓰려면 API키등록·플랫폼연동에서 본인 cron-job.org API 키를 먼저 등록해 주세요(무료, 1분이면 됩니다). 「지금 발행」은 키 없이도 됩니다.");
+  const mode = await memberSchedulerMode(service, user.id);
+  const cronjobKey = mode === "cronjob" ? await memberCronjobKey(service, user.id) : null;
+  if (mode === "cronjob" && !cronjobKey) {
+    throw new Error("「내 cron-job.org」 방식은 API 키가 필요합니다. API키등록·플랫폼연동 → ⏰ 예약 발행에서 키를 등록하거나 「AIMaster 기본(Vercel)」을 선택해 주세요.");
+  }
+  if (mode === "vercel" && !platformSchedulerEnabled()) {
+    throw new Error("이 사이트는 Vercel 예약 호출이 꺼져 있습니다. API키등록·플랫폼연동 → ⏰ 예약 발행에서 「내 cron-job.org」를 선택하고 키를 등록해 주세요. 「지금 발행」은 그대로 됩니다.");
   }
   const { data, error } = await supabase.from("tco_posts")
     .update({ status: "scheduled", scheduled_at: scheduledAt.toISOString(), error_message: null })
@@ -1565,5 +1563,18 @@ export async function resumeScheduledPublishing(): Promise<{ ok: true; started: 
     return { ok: true, started: result.started };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "재개하지 못했습니다." };
+  }
+}
+
+/** 예약 발행 실행 방식 선택(v2.08): "vercel"(기본, 사이트 1분 호출) | "cronjob"(본인 cron-job.org 키) */
+export async function setScheduledPublishingMode(mode: SchedulerMode): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    if (mode !== "vercel" && mode !== "cronjob") throw new Error("지원하지 않는 실행 방식입니다.");
+    const { user } = await authorizedUser();
+    await setMemberSchedulerMode(createServiceClient(), user.id, mode);
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "실행 방식을 바꾸지 못했습니다." };
   }
 }

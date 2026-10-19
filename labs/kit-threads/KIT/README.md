@@ -122,12 +122,12 @@
 
 > **공지 — 예약 발행은 1분마다 「올릴 시각이 된 글」을 확인해 주는 곳이 있어야 동작합니다.**
 > Vercel **무료(Hobby)** 요금제는 자동 실행을 하루 1번만 허용하므로, Vercel로 1분 확인을 하려면 **Vercel 유료(Pro) 구독**이 필요합니다.
-> 무료로 쓰려면 **B(cron-job.org 키 등록)** 를 쓰세요. 「지금 발행」(즉시 발행)은 아무 연결 없이도 됩니다.
+> 그래서 이 배포판의 **기본 방식은 B(내 cron-job.org)** 이고, Vercel 유료(Pro)라면 A를 켠 뒤 설정에서 「Vercel 예약 호출」을 고를 수도 있습니다(회원마다 선택). 「지금 발행」(즉시 발행)은 아무 연결 없이도 됩니다.
 
-### B. 무료 — cron-job.org API 키만 등록 (권장)
+### B. 기본 — 내 cron-job.org (무료, API 키만 등록)
 1. https://console.cron-job.org/signup 에서 무료 가입 → 이메일 인증 → 로그인
 2. 콘솔 **Settings → API** → **Create API key** → 키 복사 (**IP 제한은 켜지 마세요** — Vercel 서버 주소는 계속 바뀝니다)
-3. 내 사이트 → **API키등록·플랫폼연동** → **⏰ 예약 발행 (cron-job.org)** 칸에 붙여 넣고 **저장** → 끝
+3. 내 사이트 → **API키등록·플랫폼연동** → **⏰ 예약 발행** → 실행 방식이 「내 cron-job.org · 기본값」인지 확인 → 아래 **cron-job.org API 키** 칸에 붙여 넣고 **저장** → 끝
 4. 이제 **콘텐츠 생성(STEP 5)·콘텐츠 보관함에서 글을 예약**하면 프로그램이 내 cron-job.org에 1분 확인 작업을 **자동으로 만들고 켭니다**. 남은 예약이 없으면 **자동으로 끕니다**(cron-job.org 콘솔에서 작업 「Threads 운영 자동화 예약 발행(1분)」이 켜졌다 꺼졌다 하는 것이 정상).
 5. 보관함 위 「⏰ 예약 발행」 줄에서 상태(실행 중·대기·일시정지됨)를 보고 **전체 일시정지 / 재개**를 할 수 있습니다.
    - 이 사이트에 가입한 사람마다 **각자 본인 키**로 돌아갑니다(서로의 글은 발행되지 않음).
@@ -136,7 +136,8 @@
 ### A. Vercel 유료(Pro) 구독자 — Vercel 예약 호출 켜기 (선택)
 1. 프로그램 폴더에서 PowerShell을 엽니다(탐색기 주소창에 `powershell` → Enter).
 2. 실행: `powershell -ExecutionPolicy Bypass -File KIT\enable-vercel-cron.ps1` (맥: `bash KIT/enable-vercel-cron.sh`)
-3. 스크립트가 `vercel.json`에 1분 예약 호출을 넣고 환경변수 `TCO_PLATFORM_SCHEDULER=on`을 등록한 뒤 다시 배포합니다. 이후 **cron-job.org 키가 없는 회원도 예약할 수 있습니다**(키를 등록한 회원은 본인 cron-job.org로 실행).
+3. 스크립트가 `vercel.json`에 1분 예약 호출을 넣고 환경변수 `TCO_PLATFORM_SCHEDULER=on`을 등록한 뒤 다시 배포합니다.
+4. 사이트 → **API키등록·플랫폼연동 → ⏰ 예약 발행**에서 「Vercel 예약 호출」을 고르면 cron-job.org 키 없이 예약할 수 있습니다(회원마다 선택, 고르지 않은 회원은 기본 cron-job.org 그대로).
    - 무료 요금제에서 실행하면 배포가 실패합니다 → `KIT\vercel.json`을 프로그램 폴더로 다시 복사해 되돌리고 B를 쓰세요.
 
 > 2026-10-19 이전에 설치했다면 Supabase SQL Editor에서 `KIT/upgrade-20261019-cronjob.sql`을 한 번 실행하세요(키 이름 허용 + 예약 실행 표). 30일 지난 미디어 정리는 `vercel.json`의 하루 1번 자동 실행으로 돌아갑니다(무료 플랜 허용, A·B와 무관).

@@ -517,7 +517,7 @@ function VariantCard({ userId, schedulerReady, option, accountId, viralId, engin
             <button type="button" onClick={() => void finalize("schedule")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || !scheduleAt || over} className="whitespace-nowrap rounded-lg bg-neutral-900 px-4 py-2 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300">{working === "schedule" ? "예약 중…" : "📅 지정한 시각에 예약 발행하기"}</button>
           </div>
           <p className="text-[11px] text-neutral-500">지정한 날짜와 시각이 되면 서버가 자동으로 Threads에 포스팅합니다(1분 간격으로 확인). 현재로부터 5분 이후부터 지정할 수 있고, 예약 취소는 콘텐츠 보관함에서 합니다.</p>
-          {!schedulerReady && <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">예약 발행에는 본인 cron-job.org API 키가 필요합니다(무료). API키등록·플랫폼연동 → ⏰ 예약 발행에서 키를 먼저 등록해 주세요. 키를 등록하면 예약할 때 자동으로 연결되고, 「지금 발행」은 키 없이도 됩니다.</p>}
+          {!schedulerReady && <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">{"예약 발행 실행 방식을 먼저 정해 주세요. API키등록·플랫폼연동 → ⏰ 예약 발행에서 「AIMaster 기본(Vercel)」을 고르거나, 「내 cron-job.org」를 고르고 키를 등록하면 됩니다. 「지금 발행」은 그대로 됩니다."}</p>}
         </div>
       </details>
       {finalState?.kind === "published" && <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">✓ Threads에 발행했습니다.{finalState.permalink && <> <a className="underline" href={finalState.permalink} target="_blank" rel="noopener noreferrer">게시글 보기</a></>}</p>}

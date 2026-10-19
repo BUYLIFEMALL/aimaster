@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 예약 발행 실행 방식 회원 선택(Vercel / cron-job.org): 운영 threads-content-ops v2.08(기본 Vercel) + 키트(기본 cron-job.org)
+
+- 주인님 결정·근거·동작: [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) §1·§3(변경 이력 포함). 설정 「⏰ 예약 발행」 라디오 + cron-job.org 키 한 줄, 운영자 Vercel 호출은 vercel 회원만, cron-job.org 회원은 회원 토큰 호출.
+- 운영: 배포 `threads-content-7ojntefs8`, DB `mode` 칸·v2.08, 테스트 32/32, 크롬 전환 확인. 키트: 배포 `dev-threads-posting-bq7doxfpr`, 리허설 DB `mode`(기본 cronjob), 크롬 확인.
+- 다음: 같은 방식을 나머지 1순위 프로그램(쓰레드 쇼핑제휴부터)에 적용 — 지침 §7 체크리스트.
+- https://threads-content-ops.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — 강의 키트(labs/kit-threads, ② Lab) 예약 발행을 운영 v2.07과 같은 방식으로 정리·배포
 
 - 지침 [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) 기준. 운영 파일(`cronJobOrg`·`memberScheduler`·`scheduledDispatch`·`dispatch-member`·`dispatch-scheduled`·`web-actions`·`WebSetup`·`page`·`DraftComposer`·`AttentionComposer`·`SchedulePublishingControl`)을 키트로 복사하고 독립 모드 예외 분기만 제거 → 키트도 가입자마다 본인 cron-job.org 키. agy 1차안(설정 화면 주기·토글, 설치자 1명) 삭제. A(Vercel Pro) 스크립트는 `TCO_PLATFORM_SCHEDULER=on` 등록 추가. 리허설 DB(`jehfmpqzcuwjyzqejtnq`)에 `tco_member_scheduler` 생성, `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`KIT/README.md` 6장 갱신.
