@@ -70,8 +70,48 @@ export interface EngineChoice {
   model: string;
 }
 
+/** 떡상 리메이크 7대 관점(remakePrompts.ts VIRAL_ANGLES) */
+export type AngleId = "warning" | "cheat" | "easy" | "vs" | "story" | "target" | "calc";
+
+export interface RemakeAngle {
+  id: AngleId;
+  /** 1장 후킹 카피 */
+  hook: string;
+  /** 이 관점을 고른 이유 */
+  reason: string;
+  /** 전개 방향 */
+  approach: string;
+  /** 장별 줄거리 */
+  storyline: string[];
+}
+
+/** 떡상 레퍼런스 분석 결과(v1.16) */
+export interface RemakeAnalysis {
+  summary: string;
+  keyFacts: string[];
+  trigger: string;
+  viralReason: string;
+  weakness: string;
+  strategy: string;
+  /** 원본에 들어 있는 목록 항목 수(정보 누락 없이 담기 위한 장수 계산용) */
+  itemCount: number;
+  recommendedPages: number;
+  suggestedTopic: string;
+  angles: RemakeAngle[];
+}
+
+export interface RemakeState {
+  sourceText: string;
+  sourceUrl: string;
+  analysis?: RemakeAnalysis;
+  angleId?: AngleId;
+}
+
 export interface ProjectData {
   title: string;
+  /** 시작 방식: 주제로 시작(기본) / 떡상 리메이크(v1.16) */
+  startMode?: "topic" | "remake";
+  remake?: RemakeState;
   plan: CardPlan;
   style: CardStyle;
   pages: CardPage[];

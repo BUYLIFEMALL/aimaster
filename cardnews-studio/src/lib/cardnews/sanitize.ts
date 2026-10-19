@@ -3,7 +3,8 @@
 import { defaultProject, defaultStyle } from "./defaults";
 import { COMPOSITIONS, DISPLAY_STYLES, FONTS, MOODS, PAGE_COUNTS, PLACEMENTS, RATIOS, THEME_COLORS, TONES, VISUAL_STYLES } from "./presets";
 import { ICON_PATHS } from "./iconData";
-import type { CardPage, CardStyle, ProjectData, TextStyle } from "./types";
+import type { AngleId, CardPage, CardStyle, ProjectData, TextStyle } from "./types";
+import { parseRemakeAnalysis } from "../ai/remakePrompts";
 
 const rec = (v: unknown): Record<string, unknown> => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
 const str = (v: unknown, max: number, fallback = ""): string => (typeof v === "string" ? v.slice(0, max) : fallback);
@@ -107,10 +108,24 @@ export function sanitizeProject(
     fullCaption: str(rawCaption.fullCaption, 2500),
   } : undefined;
 
+  // 🔥 떡상 리메이크(v1.16): 원문·주소·분석 결과·고른 관점만 보관(이미지는 저장하지 않음)
+  const rr = r.remake && typeof r.remake === "object" ? rec(r.remake) : null;
+  const remakeAnalysis = rr?.analysis ? parseRemakeAnalysis(JSON.stringify(rr.analysis)) : null;
+  const remake = rr
+    ? {
+        sourceText: str(rr.sourceText, 12000),
+        sourceUrl: str(rr.sourceUrl, 1000),
+        ...(remakeAnalysis ? { analysis: remakeAnalysis } : {}),
+        ...(remakeAnalysis && remakeAnalysis.angles.some((a) => a.id === rr.angleId) ? { angleId: rr.angleId as AngleId } : {}),
+      }
+    : undefined;
+
   return {
     ok: true,
     data: {
       title: str(r.title, 80, fb.title).trim() || fb.title,
+      startMode: r.startMode === "remake" ? "remake" : "topic",
+      ...(remake ? { remake } : {}),
       plan: {
         category: str(plan.category, 40, fb.plan.category) || fb.plan.category,
         topic: str(plan.topic, 200),

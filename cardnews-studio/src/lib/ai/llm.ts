@@ -13,6 +13,8 @@ export interface LlmRequest {
   videoUrl?: string;
   /** JSON 응답을 요청한다(Gemini responseMimeType, OpenAI json_object). 프롬프트에 JSON이라는 말이 있어야 한다. */
   json?: boolean;
+  /** 함께 볼 이미지(base64, 떡상 레퍼런스 화면 캡처 등). 세 공급사 모두 지원 */
+  images?: { mimeType: string; data: string }[];
 }
 
 export class LlmError extends Error {
@@ -47,6 +49,7 @@ function mapError(provider: LlmProvider, status: number, apiMessage: string, api
 
 export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch): Promise<string> {
   const { provider, model, apiKey, system, user, videoUrl, json } = req;
+  const images = req.images ?? [];
 
   let url: string;
   let headers: Record<string, string>;
@@ -57,6 +60,7 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
     headers = { "Content-Type": "application/json", "x-goog-api-key": apiKey };
     const parts: unknown[] = [];
     if (videoUrl) parts.push({ fileData: { fileUri: videoUrl } });
+    for (const img of images) parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
     parts.push({ text: user });
     body = {
       systemInstruction: { parts: [{ text: system }] },
@@ -70,7 +74,12 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
       model,
       messages: [
         { role: "system", content: system },
-        { role: "user", content: user },
+        {
+          role: "user",
+          content: images.length
+            ? [...images.map((img) => ({ type: "image_url", image_url: { url: `data:${img.mimeType};base64,${img.data}` } })), { type: "text", text: user }]
+            : user,
+        },
       ],
       // 샘플링 설정은 기존 비추론 계열(gpt-4*)에만 보낸다.
       ...(/^gpt-4(?:[.o-]|$)/i.test(model) ? { temperature: 0.8 } : {}),
@@ -79,7 +88,10 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
   } else {
     url = "https://api.anthropic.com/v1/messages";
     headers = { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" };
-    body = { model, max_tokens: 8192, system, messages: [{ role: "user", content: user }] };
+    const content = images.length
+      ? [...images.map((img) => ({ type: "image", source: { type: "base64", media_type: img.mimeType, data: img.data } })), { type: "text", text: user }]
+      : user;
+    body = { model, max_tokens: 8192, system, messages: [{ role: "user", content }] };
   }
 
   let res: Response;

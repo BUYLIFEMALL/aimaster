@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { authorize, parseEngine, requireOwnKey } from "@/lib/cardnews/apiGuard";
 import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildCopyPrompt, parseCopy } from "@/lib/ai/copyPrompts";
+import { buildRemakeCopyPrompt, parseRemakeAnalysis, VIRAL_ANGLES } from "@/lib/ai/remakePrompts";
+import type { AngleId } from "@/lib/cardnews/types";
 import { PAGE_COUNTS, TONES, type ToneId } from "@/lib/cardnews/presets";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +28,13 @@ export async function POST(request: Request) {
     const key = await requireOwnKey(gate.auth.user.id, engine.provider, engine.label);
     if (!key.ok) return key.response;
 
-    const prompt = buildCopyPrompt({ category, topic, tone, pageCount });
+    // 🔥 떡상 리메이크(v1.16): 분석 결과와 고른 관점이 있으면 리메이크 문구 프롬프트를 쓴다
+    const remake = (body.remake && typeof body.remake === "object" ? body.remake : null) as Record<string, unknown> | null;
+    const analysis = remake?.analysis ? parseRemakeAnalysis(JSON.stringify(remake.analysis)) : null;
+    const angleId = VIRAL_ANGLES.some((a) => a.id === remake?.angleId) ? (remake!.angleId as AngleId) : null;
+    const prompt = analysis && angleId
+      ? buildRemakeCopyPrompt({ category, topic, tone, pageCount, analysis, angleId })
+      : buildCopyPrompt({ category, topic, tone, pageCount });
     const text = await callLlm({ provider: engine.provider, model: engine.model, apiKey: key.apiKey, system: prompt.system, user: prompt.user, json: true });
     const pages = parseCopy(text, pageCount);
     if (!pages) {

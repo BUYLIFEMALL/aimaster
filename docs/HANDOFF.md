@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — INSTA 카드뉴스 v1.16: 🔥 떡상 리메이크 1단계 (참고 원본 15_cardnews A안)
+- **한 일**: 기획에 「🔥 떡상 리메이크」 시작 방식 — 원문·기사/유튜브 주소·카드 캡처 → 분석(핵심 사실·떡상 이유·차별화·7대 관점 TOP 3·추천 장수) → 관점 선택 시 주제·장수 자동 → 문구가 원본 항목을 빠짐없이 담음. 장수 4~10. 공용 모듈 `safe-fetch` 신규 등록(기준 ghost-scraper, 기준 파일 변경 없음 → ghost-scraper 재배포 불필요)·`image-file-check` 사본 추가. 상세 `cardnews-studio/AGENTS.md` v1.16.
+- **검수**: 단위 36, tsc, 빌드, READY, DB v1.16, 운영 실검수(Gemini Flash Lite 분석 1회+문구 1회, 7항목 모두 담김).
+- **남은 일·다음 첫 단계**: 2단계 v1.17 데이터형 레이아웃(번호 목록·A vs B·큰 숫자) — 주인님 지시 후. 인스타 자동 포스팅은 대기 목록.
+- https://cardnews-studio.buylife.xyz
+
 ## 2026-10-19 작업 대기 등록(주인님 지시) — 모든 인스타 자동화 프로그램에 자동 포스팅
 - **지시**: 「모든 인스타 자동화 프로그램은 자동 포스팅 기능까지 같이 구현되어 있어야 한다」 → 「작업 대기 리스트에 올려놔」.
 - **대상(게시 기능 없음)**: `cardnews-studio`, `ai-influencer-studio`, `ai-webtoon-studio`. 이미 있음: `insta_auto_poster`. 해당 없음: 댓글·DM 자동화(게시물 생성 도구 아님).

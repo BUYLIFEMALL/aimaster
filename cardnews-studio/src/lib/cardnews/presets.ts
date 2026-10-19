@@ -98,7 +98,8 @@ export const FONTS: (Option<FontId> & { family: string; note: string })[] = [
   { value: "penscript", label: "나눔손글씨 펜", family: '"Nanum Pen Script", cursive', note: "손글씨" },
 ];
 
-export const PAGE_COUNTS = [4, 6, 8, 10] as const;
+// v1.16: 떡상 리메이크가 원본 항목 수에 맞춰 4~10장을 추천하므로 모든 장수를 허용
+export const PAGE_COUNTS = [4, 5, 6, 7, 8, 9, 10] as const;
 export type PageCount = (typeof PAGE_COUNTS)[number];
 
 export type RatioId = "4:5" | "1:1";

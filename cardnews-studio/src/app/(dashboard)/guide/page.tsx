@@ -255,6 +255,16 @@ export default function GuidePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="rounded-xl bg-[#161922] p-4 sm:p-5 border border-orange-400/30 space-y-2 md:col-span-2">
+            <p className="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span className="text-orange-400">Q.</span>
+              🔥 떡상 리메이크는 어떻게 쓰나요?
+            </p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              1단계 기획에서 「🔥 떡상 리메이크」를 고르고, 반응이 좋았던 게시물의 캡션·대본·기사 본문을 붙여넣거나 기사·유튜브 주소, 카드 화면 캡처(최대 6장)를 넣은 뒤 [떡상 분석]을 누르세요. AI가 원문 핵심·떡상 이유·차별화 전략과 7가지 관점(경고·체크리스트·쉬운 요약·A vs B·실화·타깃 맞춤·계산) 중 TOP 3를 추천합니다. 관점을 고르면 주제와 장수(원본 항목 수에 맞춰 4~10장)가 채워지고, 2단계 문구에서 원본 항목을 빠짐없이 담아 씁니다. 원본 문장·이미지는 그대로 쓰지 않고 새로 재구성하며, 인스타그램 주소는 로그인이 필요해 직접 가져올 수 없으니 화면을 캡처해 올려 주세요.
+            </p>
+          </div>
+
           <div className="rounded-xl bg-[#161922] p-4 sm:p-5 border border-[#262c3d] space-y-2">
             <p className="text-sm font-bold text-slate-200 flex items-center gap-2">
               <span className="text-pink-400">Q.</span>

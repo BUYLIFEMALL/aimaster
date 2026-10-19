@@ -50,7 +50,14 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.15` (2026-10-17)
+- **현재 버전**: `v1.16` (2026-10-19)
+- **v1.16 (2026-10-19, Claude Code 윈도우) — 🔥 떡상 리메이크 1단계** (참고 원본 `nam-ai-trend/15_cardnews` 장점 합치기 A안, 분석 `docs/ANALYSIS_20261019_REF_15_CARDNEWS.md`(루트), 플랜 `docs/PLAN_20261019_VIRAL_REMAKE.md`):
+  - 기획 화면 시작 방식 2가지(✍️ 주제로 시작 / 🔥 떡상 리메이크, `startMode`). 리메이크: 원문 붙여넣기·주소(기사=서버가 본문 추출, 유튜브=Gemini 영상 직접 보기, 인스타=안내)·카드 화면 캡처 최대 6장(브라우저에서 1024px JPEG로 줄임, 공용 `image-file-check`로 깨진 사진 거름, 저장 안 함) → `POST /api/cardnews/remake/analyze`.
+  - 분석: 원문 요약·핵심 사실(최대 24)·떡상 이유(심리)·차별화 전략·목록 항목 수 → 추천 장수(표지+본문 3개씩+마무리, 4~10)·**7대 관점**(`remakePrompts.ts` `VIRAL_ANGLES`) 중 TOP 3(후킹 카피·이유·전개·장별 줄거리). 관점을 고르면 주제·장수·프로젝트 이름 자동 입력.
+  - 문구: `/api/cardnews/copy`가 `remake{analysis, angleId}`를 받으면 `buildRemakeCopyPrompt` — 관점 지침·정보 누락 금지(핵심 사실 번호 목록 전달)·제목 22자/보조 120자(①②③ 줄바꿈). 장수 선택지 4~10 모두(`PAGE_COUNTS`).
+  - AI 호출 `llm.ts`에 이미지 전달(Gemini inlineData·OpenAI image_url·Claude base64). 기사 주소는 공용 `safe-fetch`(기준 ghost-scraper, 내부망 차단·리디렉트 재검사·DNS 고정, `undici` 7.30.0 추가). 저장 정리(`sanitize.ts`)에 `startMode`·`remake` 보관.
+  - 검수: 단위 36/36(신규 `tests/remake.test.mjs` 10개 + 공용 사진 검사 5), tsc, 빌드, Vercel READY(`cardnews-studio-2un1qwbk2`), DB v1.16. **운영 실검수(메인 크롬, 관리자, Gemini 3.5 Flash Lite 2회)**: 직접 쓴 시험 원문(사회초년생 월급 관리 7단계) → 분석 성공(항목 7개→5장 추천, TOP3: 치트키·타깃 맞춤·쉬운 요약) → 1위 선택 시 주제·5장·이름 자동 → 문구 5장 생성, ①~⑦ 7항목 모두 담김·2026년 기준 → 디자인 미리보기 정상. 시험 프로젝트 「사회초년생 첫 월급 관리 7단계 체크리스트」가 관리자 보관함에 남아 있음.
+  - 다음: 2단계 v1.17 데이터형 레이아웃(번호 목록·A vs B·큰 숫자) — 지금 보조 문구가 길면 글자가 작아짐. 3단계 인스타 자동 포스팅은 대기 목록.
 - **v1.15 (2026-10-17, Antigravity CLI)**:
   - **크리에이티브 아틀리에 스타일 (인스타 카드뉴스 변형)** 다크 테마 전면 적용 (`globals.css`, `layout.tsx`, `dashboard`, `settings`, `ui.tsx`).
   - 375px 모바일 전용 고정 헤더(`h-14`) 및 슬라이드 오버레이 드로어 메뉴 구축.

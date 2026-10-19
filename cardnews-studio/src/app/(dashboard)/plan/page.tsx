@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Loader2, Sparkles } from "lucide-react";
 import { CATEGORIES, CUSTOM_CATEGORY, PAGE_COUNTS, RATIOS, TONES, type ToneId } from "@/lib/cardnews/presets";
 import { useStudio } from "@/components/studio/ProjectProvider";
+import { RemakePanel } from "@/components/studio/RemakePanel";
 import { BTN_PRIMARY, Card, EnginePicker, ErrorNote, Field, INPUT, SELECT, StepHeader } from "@/components/studio/ui";
 
 export default function PlanPage() {
@@ -40,6 +41,7 @@ export default function PlanPage() {
   };
 
   const engineReady = keys ? keys[project.engine.provider] : true;
+  const remakeMode = project.startMode === "remake";
 
   return (
     <div className="space-y-6">
@@ -48,6 +50,24 @@ export default function PlanPage() {
         title="기획"
         desc="인스타그램 타겟 분야와 핵심 주제, 문구 어조, 피드 규격 비율(4:5 세로형 / 1:1 정방형)을 정합니다."
       />
+
+      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#262c3d] bg-[#161922] p-1.5" role="group" aria-label="시작 방식">
+        {([
+          ["topic", "✍️ 주제로 시작", "분야와 주제만 정하면 AI가 문구를 씁니다"],
+          ["remake", "🔥 떡상 리메이크", "반응 좋았던 레퍼런스를 분석해 더 나은 카드로"],
+        ] as const).map(([v, label, hint]) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={(remakeMode ? "remake" : "topic") === v}
+            onClick={() => update((d) => ({ ...d, startMode: v }))}
+            className={`rounded-xl px-3 py-2.5 text-left transition-colors ${(remakeMode ? "remake" : "topic") === v ? "bg-gradient-to-r from-pink-500/25 via-purple-500/25 to-amber-500/25 ring-1 ring-purple-400" : "hover:bg-[#1e2230]"}`}
+          >
+            <span className="block text-sm font-bold text-slate-100">{label}</span>
+            <span className="block text-[11px] text-slate-400">{hint}</span>
+          </button>
+        ))}
+      </div>
 
       <Card className="space-y-4">
         <Field label="프로젝트 이름">
@@ -92,7 +112,9 @@ export default function PlanPage() {
           </div>
         )}
 
-        <Field label="핵심 주제" hint="카드 전체를 관통하는 한 줄 주제입니다. 위 추천 주제를 누르면 채워집니다.">
+        {remakeMode && <RemakePanel />}
+
+        <Field label="핵심 주제" hint={remakeMode ? "떡상 분석에서 관점을 고르면 자동으로 채워집니다. 직접 고쳐도 됩니다." : "카드 전체를 관통하는 한 줄 주제입니다. 위 추천 주제를 누르면 채워집니다."}>
           <textarea className={`${INPUT} min-h-20`} value={plan.topic} maxLength={200} placeholder="예: 매일 1시간 독서의 기적" onChange={(e) => patchPlan({ topic: e.target.value })} />
         </Field>
 

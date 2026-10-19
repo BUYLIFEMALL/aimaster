@@ -12,15 +12,21 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
   {
+    // 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(리디렉트마다 재검사, DNS 바꿔치기 방지) — 2026-10-19 기준 등록
+    id: "safe-fetch",
+    source: "ghost-scraper/src/lib/safeFetch.ts",
+    copies: ["cardnews-studio/src/lib/safeFetch.ts"],
+  },
+  {
     // 올린 사진을 브라우저 안에서 풀어 보고 깨졌으면 「사진을 읽지 못했어요」(2026-10-19). 사본은 프로그램을 적용할 때마다 추가
     id: "image-file-check",
     source: "portrait-photo/src/lib/imageFileCheck.ts",
-    copies: ["image-convert-studio/src/lib/imageFileCheck.ts", "photo-remake-studio/src/lib/imageFileCheck.ts", "banana-canvas/src/lib/imageFileCheck.ts", "ai-influencer-studio/src/lib/imageFileCheck.ts", "allinone-graphic/src/lib/imageFileCheck.ts", "four-cut-comics/src/lib/imageFileCheck.ts", "seo-thumbnail-pro/src/lib/imageFileCheck.ts"],
+    copies: ["image-convert-studio/src/lib/imageFileCheck.ts", "photo-remake-studio/src/lib/imageFileCheck.ts", "banana-canvas/src/lib/imageFileCheck.ts", "ai-influencer-studio/src/lib/imageFileCheck.ts", "allinone-graphic/src/lib/imageFileCheck.ts", "four-cut-comics/src/lib/imageFileCheck.ts", "seo-thumbnail-pro/src/lib/imageFileCheck.ts", "cardnews-studio/src/lib/imageFileCheck.ts"],
   },
   {
     id: "image-file-check-test",
     source: "portrait-photo/tests/imageFileCheck.test.mjs",
-    copies: ["image-convert-studio/tests/imageFileCheck.test.mjs", "photo-remake-studio/tests/imageFileCheck.test.mjs", "banana-canvas/tests/imageFileCheck.test.mjs", "ai-influencer-studio/tests/imageFileCheck.test.mjs", "allinone-graphic/tests/imageFileCheck.test.mjs", "four-cut-comics/tests/imageFileCheck.test.mjs", "seo-thumbnail-pro/tests/imageFileCheck.test.mjs"],
+    copies: ["image-convert-studio/tests/imageFileCheck.test.mjs", "photo-remake-studio/tests/imageFileCheck.test.mjs", "banana-canvas/tests/imageFileCheck.test.mjs", "ai-influencer-studio/tests/imageFileCheck.test.mjs", "allinone-graphic/tests/imageFileCheck.test.mjs", "four-cut-comics/tests/imageFileCheck.test.mjs", "seo-thumbnail-pro/tests/imageFileCheck.test.mjs", "cardnews-studio/tests/imageFileCheck.test.mjs"],
   },
   {
     id: "youtube-golden-engine",
