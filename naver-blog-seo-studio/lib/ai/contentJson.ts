@@ -1,5 +1,6 @@
 import "server-only";
 import type { ContentProvider } from "./contentModels";
+import { openAIErrorReason, openAITemperature } from "./openaiModels";
 
 function extractJson(value: string) {
   const trimmed = value.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
@@ -37,9 +38,9 @@ export async function generateContentJson(params: { provider: ContentProvider; a
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages: [{ role: "system", content: system }, { role: "user", content: user }], response_format: { type: "json_object" }, temperature: 0.65 }),
+    body: JSON.stringify({ model, messages: [{ role: "system", content: system }, { role: "user", content: user }], response_format: { type: "json_object" }, ...openAITemperature(model, 0.65) }),
   });
-  if (!response.ok) throw new Error(`OpenAI 글 생성 요청에 실패했습니다. (${response.status})`);
+  if (!response.ok) throw new Error(`OpenAI 글 생성 요청에 실패했습니다. (${response.status})${await openAIErrorReason(response)}`);
   const data = await response.json() as { choices?: { message?: { content?: string } }[] };
   const text = data.choices?.[0]?.message?.content?.trim();
   if (!text) throw new Error("OpenAI가 본문 결과를 반환하지 않았습니다.");

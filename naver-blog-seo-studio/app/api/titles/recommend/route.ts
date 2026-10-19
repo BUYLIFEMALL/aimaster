@@ -3,7 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 import { purgeExpiredTitleRecommendations } from "@/lib/draftRetention";
-import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { getUserOpenAIContentModel, openAIErrorReason, openAITemperature } from "@/lib/ai/openaiModels";
 import { getExplicitYears, getKoreaToday, hasUnrequestedYear } from "@/lib/ai/freshness";
 
 export const dynamic = "force-dynamic";
@@ -49,12 +49,13 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
   try {
+    const model = getUserOpenAIContentModel(access.user.user_metadata);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: getUserOpenAIContentModel(access.user.user_metadata),
-        temperature: 0.8,
+        model,
+        ...openAITemperature(model, 0.8),
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: `네이버 블로그 SEO 편집자입니다. 오늘은 한국 기준 ${today}입니다. 검색 의도와 클릭 가능성을 고려한 한국어 제목 후보 8개를 JSON으로 반환하세요. 형식은 {"titles":[{"title":"제목","intent":"검색 의도"}]} 입니다.
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
         ],
       }),
     });
-    if (!response.ok) return NextResponse.json({ error: `제목 추천 요청에 실패했습니다. (${response.status})` }, { status: 502 });
+    if (!response.ok) return NextResponse.json({ error: `제목 추천 요청에 실패했습니다. (${response.status})${await openAIErrorReason(response)}` }, { status: 502 });
     const data = await response.json() as { choices?: { message?: { content?: string } }[] };
     const parsed = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as { titles?: unknown };
     const titles = normalizeTitles(parsed.titles)

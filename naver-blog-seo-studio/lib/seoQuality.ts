@@ -24,7 +24,11 @@ export function runQualityChecks(input: QualityInput): QualityCheck[] {
   const title = input.title.trim();
   const body = input.body;
   const bodyCompact = compact(body);
-  const keyword = compact(input.keywords.find((item) => item.trim()) ?? "");
+  const keywordRaw = input.keywords.find((item) => item.trim())?.trim() ?? "";
+  const keyword = compact(keywordRaw);
+  // v1.75 여러 단어 키워드(예: 서울 근교 당일치기)는 통째로 없어도 단어가 모두 들어 있으면 포함으로 봅니다.
+  const keywordParts = keywordRaw.split(/\s+/).filter(Boolean);
+  const hasAllParts = (text: string) => keywordParts.length > 1 && keywordParts.every((part) => text.includes(part));
   const titleCompact = compact(title);
   const paragraphs = splitParagraphs(body);
   const checks: QualityCheck[] = [];
@@ -37,11 +41,15 @@ export function runQualityChecks(input: QualityInput): QualityCheck[] {
     add("intro-keyword", "첫 문단에 핵심 키워드", "skip", "핵심 키워드 없음");
     add("keyword-repeat", "핵심 키워드 반복 적당히", "skip", "핵심 키워드 없음");
   } else {
-    const position = titleCompact.indexOf(keyword);
-    add("title-keyword", "제목에 핵심 키워드", position >= 0 ? "pass" : "warn", position >= 0 ? "포함됨" : "제목에 키워드가 없습니다.");
+    const exactPosition = titleCompact.indexOf(keyword);
+    const partsInTitle = exactPosition < 0 && hasAllParts(titleCompact);
+    const position = exactPosition >= 0 ? exactPosition : partsInTitle ? titleCompact.indexOf(keywordParts[0]) : -1;
+    add("title-keyword", "제목에 핵심 키워드", position >= 0 ? "pass" : "warn", exactPosition >= 0 ? "포함됨" : partsInTitle ? "단어별로 포함됨" : "제목에 키워드가 없습니다.");
     add("title-keyword-front", "핵심 키워드를 제목 앞쪽에", position >= 0 && position <= 12 ? "pass" : "warn", position >= 0 ? `${position + 1}번째 글자부터` : "제목에 키워드가 없습니다.");
-    add("intro-keyword", "첫 문단에 핵심 키워드", compact(paragraphs[0] ?? "").includes(keyword) ? "pass" : "warn", "도입부에서 검색 의도에 바로 답하면 좋습니다.");
-    const count = countOccurrences(bodyCompact, keyword);
+    const introCompact = compact(paragraphs[0] ?? "");
+    add("intro-keyword", "첫 문단에 핵심 키워드", introCompact.includes(keyword) || hasAllParts(introCompact) ? "pass" : "warn", "도입부에서 검색 의도에 바로 답하면 좋습니다.");
+    const exactCount = countOccurrences(bodyCompact, keyword);
+    const count = keywordParts.length > 1 ? Math.max(exactCount, Math.min(...keywordParts.map((part) => countOccurrences(bodyCompact, part)))) : exactCount;
     const max = Math.max(6, Math.ceil(bodyCompact.length / 300));
     add("keyword-repeat", "핵심 키워드 반복 적당히", count >= 2 && count <= max ? "pass" : "warn", count < 2 ? `본문에 ${count}번 — 조금 더 자연스럽게 넣어 보세요.` : count > max ? `본문에 ${count}번 — 억지 반복으로 보일 수 있습니다(권장 ${max}번 이하).` : `본문에 ${count}번`);
   }

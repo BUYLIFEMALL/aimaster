@@ -126,6 +126,14 @@
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
 
+## 2026-10-20 v1.75 — GPT-5 계열 생성 400 수정·여러 단어 키워드 점검·휴대폰 목록 넘침 (Claude Code 윈도우)
+- **원장 #14 수정**: GPT-5·GPT-6·o 계열은 OpenAI가 `temperature` 지정을 거부(400). `lib/ai/openaiModels.ts`에 `openAITemperature(model, t)`(이 계열이면 온도 제외)·`openAIErrorReason(response)`(OpenAI 거부 이유를 「— OpenAI 안내: …」로 덧붙임) 추가, OpenAI 호출 6곳(`generator.ts`·`contentJson.ts`·`contentVisuals.ts`·`drafts/analyze`·`drafts/optimize`·`titles/recommend`)에 적용. 새 OpenAI 호출을 만들 때도 이 두 함수를 쓴다.
+- **원장 #16**: `lib/seoQuality.ts` 여러 단어 키워드는 단어가 모두 있으면 포함(「단어별로 포함됨」), 반복 횟수는 통째 횟수와 단어별 최소 횟수 중 큰 값.
+- **원장 #15**: `.history-item > span`·`.history-list > *`에 `min-width:0` — 긴 제목이 날짜 칸을 밀어내 휴대폰 가로 스크롤이 생기던 문제.
+- 버전: `lib/version.ts`·manifest 1.75.0/v1.75·ZIP 재생성(확장 코드 변경 없음, 회원 재설치 불필요), DB `version`/`extension_version` v1.75(ref `esgxyikcnnvmlhygjkth`, `20261020150000_bump_version_v1_75.sql`), `check-extension-release` OK.
+- 검수: tsc 0 · 테스트 seo-quality 8(새 2개) · categories 2 · update-banner 3 · browser 26(1 건너뜀) · build · 배포 1회(`naver-blog-seo-studio-5070zzgwa` Ready). 크롬(관리자 세션): 사이드바 v1.75, `gpt-5.6-luna`로 경험 질문 API 호출 200·질문 5개(v1.74에서 400이던 같은 경로), 400px iframe 문서 폭 381=화면 폭·날짜 칸 안쪽. 비용: 관리자 본인 OpenAI 키 짧은 호출 1회.
+- 새로 발견: 원장 #18(대시보드 상태 안내 초기값이 그대로 보임) — 미수정.
+
 ## 2026-10-20 v1.74 — 「SEO 최적화 도우미 6.5.4」 분석 기반 업그레이드 + 전략 거부 버그 수정 (Claude Code 윈도우)
 - 주인님 결정: 외부 데스크톱 앱을 새 프로그램으로 만들지 않고 이 스튜디오에 흡수. 원본은 정적 분석만(실행 안 함), 코드·프롬프트는 옮기지 않음. 플랜 [docs/PLAN_20261020_SEO_HELPER_UPGRADE.md](docs/PLAN_20261020_SEO_HELPER_UPGRADE.md), 인수인계 [docs/IMPROVEMENT_HANDOFF_20261020.md](docs/IMPROVEMENT_HANDOFF_20261020.md).
 - **버그 수정**: `app/api/drafts/generate/route.ts` 허용 목록이 옛 이름(「전환 스토리」「인사이트 가이드」)이라 화면에서 **「홈판 스토리」「인사이트 엣지」를 고르면 항상 400**이었다. 이제 `lib/ai/generator.ts`의 `SEO_STRATEGY_NAMES`(전략 안내 표의 키) 하나를 화면·API가 같이 쓴다. 회귀 테스트: `tests/seo-quality.test.mjs` 마지막 항목.

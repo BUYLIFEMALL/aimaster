@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — SEO 스튜디오 v1.75: GPT-5 계열 생성 400 수정·여러 단어 키워드 점검·휴대폰 목록 넘침 (주인님 「진행해」)
+- 원인 확인: GPT-5·GPT-6·o 계열은 OpenAI가 `temperature` 지정을 거부. `naver-blog-seo-studio/lib/ai/openaiModels.ts`의 `openAITemperature()`·`openAIErrorReason()`을 OpenAI 호출 6곳에 적용(실패 시 OpenAI 거부 이유 표시). 같은 방식으로 온도를 고정한 다른 프로그램도 GPT-5 계열을 고르면 같은 400이 날 수 있음(미점검).
+- 점검표: 여러 단어 키워드는 단어가 모두 있으면 포함. 휴대폰 목록 날짜 칸 넘침 수정.
+- 검수: tsc 0 · 테스트 39 통과(1 건너뜀) · build · 배포 `naver-blog-seo-studio-5070zzgwa` Ready · DB(ref `esgxyikcnnvmlhygjkth`)·확장 v1.75 `check-extension-release` OK · 크롬: v1.75 표시, `gpt-5.6-luna` 호출 200, 400px 넘침 없음. 비용: 관리자 본인 키 짧은 호출 1회.
+- 남은 일: 원장 #18(대시보드 상태 안내 초기값), #17 SNS 연계, 일반 회원 계정 검수. 상세: `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261020.md`
+- https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — SEO 스튜디오 v1.74: 「SEO 최적화 도우미 6.5.4」 분석 기능 흡수 + 전략 거부 버그 수정 (주인님 「제안한 대로 진행」)
 - 결정: 외부 Electron 앱(`D:/PDS`, 정적 분석만)을 새 프로그램으로 만들지 않고 `naver-blog-seo-studio`에 흡수. 경험 메모·경험 질문(AI는 질문만)·자연스러운 문체·FAQ 옵션, AI 없는 「발행 전 점검」·단어 빈도·모바일 미리보기. 아이디어 표 I-22.
 - 버그: 생성 API 허용 목록이 옛 이름이라 「홈판 스토리」「인사이트 엣지」가 항상 400 → 수정. 실검수 중 발견: 저렴한 모델이 2,000자를 못 넘으면 요금만 나가고 글을 못 받음 → 보강 2회·1,500자 이상 저장+분량 안내.

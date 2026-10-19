@@ -192,6 +192,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .draft-result-card > .draft-actions-panel { margin-top: 18px; }
 .history-empty { margin: 0; color: var(--muted); font-size: 13px; }
 .history-list { display: grid; gap: 8px; }
+.history-list > * { min-width: 0; }
 .history-row { display: flex; align-items: stretch; gap: 8px; }
 .history-row .history-item { flex: 1 1 auto; min-width: 0; }
 .history-controls { display: grid; grid-template-columns: minmax(0, 1fr) 130px 140px; gap: 8px; margin: 18px 0 12px; }
@@ -202,6 +203,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .history-delete { flex: 0 0 auto; padding: 0 10px; }
 .history-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid var(--line); border-radius: 11px; background: #fff; padding: 11px 12px; text-align: left; }
 .history-item:hover { border-color: var(--accent); background: var(--accent-soft); }
+.history-item > span { flex: 1 1 auto; min-width: 0; } /* v1.75 긴 제목이 날짜 칸을 오른쪽 밖으로 밀어내지 않게 */
 .history-item strong, .history-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .history-item strong { color: var(--ink); font-size: 13px; }
 .history-item small { max-width: 520px; margin-top: 3px; color: var(--muted); font-size: 11px; }
