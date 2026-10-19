@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — AIMaster_dev(개별 프로그램 개발·강의 Class) 개발·운영지침 최상위 등록 + Lab 기반 구조
+
+- **지시(주인님)**: 저장소에 프로젝트 2개(① 운영 AIMaster: 메인 사이트+서브 프로그램+공동 DB / ② AIMaster_dev: 신규 개별 프로그램 개발·테스트·바이브코딩 Class 시연용 개별 도메인 프로그램)를 최상위 지침으로 명시. **AIMaster_dev 작업 CLI는 운영 AIMaster 프로그램·DB를 절대 수정·삭제 불가(관리자 명시 요청만 예외)**. dev DB 초기화·재설계, 누구나 가입(1번), Vercel 프로젝트 이름 `dev-` 접두어.
+- **한 일**:
+  1. 지침 원문 `docs/AIMASTER_DEV_LAB_GUIDELINES.md` 신설 + 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위에 「최상위 규칙 0 — 프로젝트 2개 + 절대 불변 규칙」 블록(같은 내용 11줄씩 추가만).
+  2. `labs/` 신설: `_template/`(Next 16 + Supabase 로그인·가입 + 본인 메모 예시, 운영 DB 주소면 시작 거부), `_platform/migrations/0001_lab_admin.sql`, `README.md`. `scripts/lab/new-lab.mjs`(뼈대 복사·이름표·`lab.json`에 Vercel 이름 `dev-<이름>`), `scripts/lab/delete-lab.mjs`(목록 → `--yes` 삭제, 운영 ref·`dev-` 아닌 Vercel 이름이면 거부). 루트 `.vercelignore`에 `/labs`.
+  3. **AIMaster_dev DB(ref `rjjtjakljjxsgjelqgek`만)**: 재개 → 예전 블로그 시험 데이터(public 12테이블, `blog_posts` 212MB, dev 계정 1)를 `lab_backup_20261019` 스키마에 복사·건수 대조 후 public·계정 비움 → `lab_admin`(등록부·`register_program`·`drop_program`·이벤트 트리거: 미등록 이름표 테이블 거부 + RLS 자동 켜기) 적용.
+- **검수**: 뼈대 `next build`·`tsc` 통과(로컬). 실제 dev DB에서 미등록 테이블 거부·RLS 자동·본인 데이터만 보임·`drop_program` 삭제를 트랜잭션 시험 후 되돌림. 보안 점검 경고 0. 운영 DB(`esgx…`)·운영 폴더 변경 없음. 배포 없음(문서·`labs/`·스크립트만, 메인 사이트 빌드 대상 아님).
+- **틀렸던 것**: 재개 중(`COMING_UP`) 빈 임시 DB를 보고 "이미 비어 있다"고 보고했다가 정정 → `docs/ERROR_LESSONS.md` 2026-10-19 항목.
+- **남은 일 / 다음 첫 단계**: ① dev Auth 「Confirm email」 끄기(수강생 즉시 가입) — 대시보드 설정, 주인님 확인 ② 첫 Lab을 `node scripts/lab/new-lab.mjs <이름>`으로 만들어 `dev-<이름>.vercel.app` 배포·크롬 가입 시험(빌드 1회) ③ 쓰지 않을 때 dev 일시정지(현재 켜져 있음) ④ 백업 스키마 `lab_backup_20261019` 보관 여부 주인님 확인.
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 네이버 카페 포스팅 자동화(naver-cafe-poster) v1.20: 플로우 위저드 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 71개 완료 / 85.5% 달성!)
 
 - **대상**: `naver-cafe-poster/` (https://naver-cafe-poster.buylife.xyz, slug: `naver-cafe-poster`, 40번)

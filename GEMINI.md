@@ -1,5 +1,16 @@
 # GEMINI.md
 
+<!-- TWO_PROJECTS_AIMASTER_DEV_20261019 -->
+> # ★★★ 최상위 규칙 0 — 이 저장소에는 서로 다른 프로젝트 2개가 있다 (2026-10-19 주인님 지시, 모든 CLI 공통 — 가장 먼저 읽는다)
+> | 프로젝트 | 무엇 | DB (Supabase) | 코드 위치 | 주소 | 따르는 지침 |
+> |---|---|---|---|---|---|
+> | **① AIMaster (운영)** | buylife.xyz 메인 사이트 **하나 안에** 서브 자동화 프로그램들이 들어가고, **공동 DB 하나**를 함께 쓰는 회원 서비스 | `AIMaster` ref `esgxyikcnnvmlhygjkth` | 루트 `app/` + `AIMaster/<프로그램>/` | `www.buylife.xyz`, `<이름>.buylife.xyz` | 이 문서 아래의 모든 규칙 |
+> | **② AIMaster_dev (Lab)** | **신규 개별 프로그램 개발·테스트**와 **바이브코딩 Class 교육 시연**을 위한, 프로그램마다 **각각 개별 도메인**이 부여된 독립 프로그램들(메인 사이트·회원 권한 연결 없음, 누구나 가입, 언제든 생성·삭제) | `AIMaster_dev` ref `rjjtjakljjxsgjelqgek` | `AIMaster/labs/<프로그램>/` | Vercel 프로젝트 `dev-<이름>` → `dev-<이름>.vercel.app` (목록에서 `dev-`로 운영과 구분) | **[AIMaster_dev 개발·운영 지침](docs/AIMASTER_DEV_LAB_GUIDELINES.md)** (①의 운영 규칙을 섞지 않는다) |
+>
+> **★★★ 절대 불변 최상위 규칙 — AIMaster_dev 쪽을 작업하는 CLI는 AIMaster 운영 쪽의 프로그램이나 DB를 절대 수정하거나 삭제할 수 없다.** 운영 메인 사이트·`AIMaster/<프로그램>/` 운영 폴더·운영 Vercel 프로젝트/도메인/환경변수·운영 DB(ref `esgxyikcnnvmlhygjkth`)에 대한 모든 수정·삭제·쓰기가 금지다(읽기·참고·`labs/`로 복사는 허용). **유일한 예외는 관리자(주인님 `buylifemall@gmail.com`)가 그 작업을 명시적으로 요청한 경우뿐이며**, 이때도 요청 범위만 ① 운영 지침대로 처리한다. 운영 쪽을 건드려야 할 것 같으면 멈추고 주인님께 먼저 여쭌다. 이 규칙은 주인님 외에는 누구도 바꿀 수 없다.
+> 작업을 시작할 때 **지금 하는 일이 ①인지 ②인지 먼저 정하고**, DB 작업 보고에는 항상 대상 ref를 적는다. 상세: [`docs/AIMASTER_DEV_LAB_GUIDELINES.md`](docs/AIMASTER_DEV_LAB_GUIDELINES.md)
+
+
 <!-- INCREMENTAL_REFERENCE_IDEAS_20261019 -->
 > **★★★ 공통 개발 방향 — 기능 안정화 우선·점진 레퍼런스 모듈화·아이디어 등록 (2026-10-19 주인님 확정)**
 > **당분간 기존 프로그램 기능 개선·오류 수정·안정화에 집중한다.** 그 과정에서 잘 만들어지고 검증된 기능을 레퍼런스 모듈로 정리하고, 신규 프로그램 또는 기존 프로그램 리뉴얼 때 필요한 모듈을 하나씩 적용한다. 기존 프로그램 전체를 일괄 수정하거나 모든 후보를 지금 추출하는 작업으로 바꾸지 않는다. 기존 공용 기준 코드의 사본 일치·긴급 수정 전파 규칙은 유지한다.

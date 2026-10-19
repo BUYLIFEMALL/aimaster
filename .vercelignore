@@ -28,3 +28,6 @@ naver-blog-auto-poster_app/node_modules
 /cardnews-studio
 
 /style-dna-analyzer
+
+# labs/(AIMaster_dev 독립 실험 프로그램, 2026-10-19)는 각자 자체 Vercel 프로젝트로 배포되며 루트 앱과 무관하다(docs/AIMASTER_DEV_LAB_GUIDELINES.md).
+/labs
