@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 신규 Tools 프로그램 「AI 문서 챗봇 자동화」 v1.01 배포
+
+- **대상**: ① AIMaster 운영, DB ref `esgxyikcnnvmlhygjkth`
+- **한 일**: 채팅·내 문서·매뉴얼·키 등록 화면과 RAG(Upstage Solar·Embedding·Document Parse)·웹 검색(Tavily MCP→REST)·출처 표시. 운영 DB 표 4개(RLS)+`dcb_match_chunks`+30일 cron, `platform_guides` 2개, 메인 등록(설명·요금 3단계·VIP 141명 자동 부여), 도메인 연결, 배포.
+- **DB 작업 방법 주의**: 재시작 후 세션에 연결된 Supabase MCP는 Lab(`rjjtjak…`)뿐이라 운영 등록은 루트 `.env.local` 서버 키 + REST로 처리(운영 ref 확인 후 실행). 기록: `ai-doc-chatbot/supabase/migrations/0002_register_program.sql`.
+- **확인한 것**: `npm test` 14/14, 빌드 성공, Vercel Ready, 비로그인 401·로그인 화면 이동, 크롬(Browser 3) 메인 상세·`/chat`·`/settings`.
+- **남은 일**: ① 주인님이 https://ai-doc-chatbot.buylife.xyz/settings 에서 본인 Upstage 키(필수)·Tavily 키(선택) 등록 → 문서 1개·질문 1~2회 검수 ② 카탈로그 썸네일 생성.
+- **문서**: `ai-doc-chatbot/AGENTS.md`, `docs/IMPROVEMENT_HANDOFF_20261019.md`, `docs/DESIGN_HANDOFF.md`
+- **링크**: https://ai-doc-chatbot.buylife.xyz · https://www.buylife.xyz/programs/ai-doc-chatbot
+
 ## 2026-10-19 Claude Code(윈도우) — 메인 사이트 이메일(아이디) 찾기·인증번호 남은 시간·관리자 메일/문자 연결 점검
 
 - **대상**: ① AIMaster 운영 메인 사이트, DB 구조 변경 없음

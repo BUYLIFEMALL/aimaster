@@ -100,6 +100,7 @@
 | 81 | AI 웹툰 자동화 | `ai-webtoon-studio` | 인스타 | v1.13 | 운영 | 시놉시스로 캐릭터 시트·컷 콘티·세로 스크롤 원고까지 웹툰 한 편을 완성하는 스튜디오 |
 | 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.23 | 운영 | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | 유튜브 | v1.18 | 공개(new) | 주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다. |
+| 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.01 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
 
 ## 0. 이 문서를 쓰는 방법
 1. **새 프로그램 기획 전**: §3 분야 묶음에서 비슷한 프로그램을 찾고, §4 카드의 장점·단점을 읽는다. 「기존 A의 장점 + B의 장점 − A·B의 단점」으로 기획안을 쓰고, 보고할 때 어떤 프로그램에서 무엇을 가져왔는지 밝힌다.
@@ -148,6 +149,8 @@
 | DOCX·EPUB·PDF·HTML 내보내기 | `document-translator`(DOCX), `ebook-studio`(EPUB·PDF·HTML), `markdown-studio`(PDF·DOCX·ZIP) | |
 | 화면 캡처 PNG | `ui-canvas`(html2canvas) | |
 | ZIP 묶음 저장 | `jszip` 사용 10여 곳(예: `four-cut-comics`, `cardnews-studio`) | |
+| 문서 RAG(조각 나누기·pgvector 검색·출처) | `ai-doc-chatbot/src/lib/chat/core.ts`, DB 함수 `dcb_match_chunks`, Upstage 문서 읽기·임베딩 `src/lib/chat/upstage.ts` | 실제 호출 검수 전(2026-10-19) |
+| 웹 검색(Tavily MCP→REST 대체) | `ai-doc-chatbot/src/lib/chat/tavily.ts` | 회원 본인 Tavily 키 |
 | 캐릭터 일관성(참고 이미지로 같은 얼굴) | `four-cut-comics`, `ai-webtoon-studio`, `ai-influencer-studio` | |
 | 말풍선 자동 배치·끌기 | `four-cut-comics` | |
 | 이미지 위 한글 글자 합성 | `cardnews-studio`, `emotion-writer`, `playlist-channel-studio` | |
@@ -174,7 +177,7 @@
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
 | 상세페이지 | detail-page-12p(상품명만으로 12단) · shop-detail-page(사진 분석 15섹션) · auto-detail-page(HTML) | 사진 분석 + 스펙 자동 채우기 + 이미지형·HTML형 동시 출력 |
 | 고객 응대·CRM | stepmail(스텝 메일) · booking-reminder(예약 리마인드) · crm-google-form(신청 접수) · kakao-auto-posting(뉴스레터) | 한 고객 명부로 메일·문자·알림톡·카톡 채널 발송을 통합 |
-| 문서·기획 도구 | ai-writing-editor · persona-style-studio · markdown-studio · document-translator · ebook-studio · ai-slide-builder · landing-architect · ui-canvas · ai-web-ui · file-merge · web-crawler-saas · website-scraper | 수집(스크래퍼) → 정리(에디터·번역) → 출판(전자책·슬라이드·랜딩)으로 이어지는 문서 파이프라인 |
+| 문서·기획 도구 | ai-doc-chatbot · ai-writing-editor · persona-style-studio · markdown-studio · document-translator · ebook-studio · ai-slide-builder · landing-architect · ui-canvas · ai-web-ui · file-merge · web-crawler-saas · website-scraper | 수집(스크래퍼) → 정리(에디터·번역) → 출판(전자책·슬라이드·랜딩)으로 이어지는 문서 파이프라인 |
 | 프롬프트 | ai-prompt-studio(설계) · prompt-template-studio(보관·실행) · reverse-prompt · style-dna-analyzer | 설계한 프롬프트를 템플릿 보관함에 바로 저장·실행 |
 | 성격·재미 | personality-suite(16종·종합) · personality-code · mbti-character · tarot-reading | 무료 유입용(코드·캐릭코드·타로) → 종합 진단으로 이어지는 흐름 |
 | 생활·업무 | ai-task-planner · real-estate-sales | — |
@@ -236,6 +239,16 @@
 - **활용 용도**: 해외 고객과 문서를 주고받는 실무자(원문 대조로 오역 확인·서식 유지한 채 내보내기) · 전문 용어가 많은 분야 담당자(용어 일관성 유지·검수 시간 단축) · 번역 품질을 확인해야 하는 분(번역 품질 점수 확인·어색한 문장 바로 수정)
 - **단점·한계**: 스캔 PDF·HWP·PPTX·XLSX 미지원 · 원문 2만 자·파일 5MB 제한
 - **키·계정·주의**: 회원 본인의 Gemini API 키를 사용합니다. 파일당 5MB·텍스트 PDF 50쪽·원문 2만 자까지이며 스캔 PDF·HWP는 지원하지 않고, AI 평가는 정확성을 보증하지 않습니다.
+
+#### AI 문서 챗봇 자동화 (`ai-doc-chatbot`)
+- 주소·폴더: https://ai-doc-chatbot.buylife.xyz · `ai-doc-chatbot/` · v1.01 (2026-10-19 첫 배포)
+- **차별점**: 내가 올린 문서에서 근거를 찾고, 최신 정보가 필요하면 웹까지 검색해 출처와 함께 답하는 ChatGPT형 문서 챗봇입니다.
+- **기능**: PDF·DOCX·PPTX·XLSX·HWP·이미지·TXT 업로드(최대 30개·4MB, 원본 미보관) → 800자 조각·Upstage 임베딩 저장 → 질문 시 관련 조각 검색 + 웹 검색 필요 여부를 라우터 모델이 판단해 Tavily 검색 → Solar 답변 스트리밍, 채팅방별 저장
+- **장점**: 내 문서 근거 우선(없는 내용은 찾지 못했다고 답함) · 필요할 때만 웹 검색 · 📄문서/🌐웹 출처 표시 · 30일 자동 삭제로 저장 부담 적음
+- **사용 순서**: 1 본인 키 등록 → 2 내 문서 올리기 → 3 AI 채팅으로 질문 → 4 출처 확인·이어 묻기
+- **활용 용도**: 사내 자료를 자주 찾는 직장인(문서 출처 표시) · 강의 자료로 공부하는 수강생(자료 근거 설명) · 최신 정보까지 봐야 하는 분(웹 링크 출처)
+- **단점·한계**: 파일당 4MB·문서 30개 · 100쪽 넘는 PDF 미지원 · 벡터 검색만(키워드 혼합 없음) · 실제 호출 검수 전
+- **키·계정·주의**: 회원 본인의 Upstage 키(필수)와 Tavily 키(선택)를 사용합니다. 답변은 참고용입니다.
 
 #### AI 엑셀·텍스트 합치기 자동화 (`file-merge`)
 - 주소·폴더: https://file-merge.buylife.xyz · `file-merge/` · v1.07 (스마트 매트릭스 라이트 변형, 배포 대기)
@@ -1061,6 +1074,7 @@
 ## 5. 갱신 기록
 - 2026-10-16 최초 작성(82개, Claude Code 보조 계정). 원본 데이터: DB programs(description·detail_sections), 단점은 코드·문서 분석.
 - 2026-10-16 맨 앞 「개발 목록 요약 표」(82개) 신설, 카드에 「활용 용도」 추가(DB `detail_sections.audiences`), 카드 버전을 DB 현재 값으로 갱신(74개) — Claude Code 메인 계정. Codex DB 변수 호환 전환 배포 완료 후 반영.
+- 2026-10-19 `ai-doc-chatbot` v1.01 신규 — 목록 표 84번·카드·분야 묶음(문서·기획 도구)·재사용 부품 2개(문서 RAG, Tavily 웹 검색) 추가 — Claude Code(윈도우).
 - 2026-10-16 `shorts-onestop-studio`(AI 쇼츠 원스톱 제작 자동화) v1.01 P1 등록 — 목록 표 83번·유튜브 카드 추가(개발 중) — Claude Code 메인 계정.
 - 2026-10-16 `shorts-onestop-studio` v1.02 — 주제·대본 기능과 디자인 개편 반영(목록 표 버전·카드 기능).
 - 2026-10-16 `shorts-onestop-studio` v1.05 — 음성·자막·배경음악 반영(목록 표 버전·한 줄 용도·카드 기능).

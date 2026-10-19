@@ -231,6 +231,7 @@
 | 81 | AI 4컷 만화 자동화 | `four-cut-comics` | 크리에이티브 아틀리에 스타일 — 코믹 파스텔 변형 | 파스텔 크림 | ✅ 1차 작업완료 (`v1.12`, 코믹 파스텔 변형, Claude Code(윈도우), 2026-10-18) | `four-cut-comics/docs/DESIGN_HANDOFF.md` |
 | 82 | AI 패션스타일 자동화 | `fashion-style` | **크리에이티브 아틀리에 스타일 — 패션 매거진 미드나잇 변형** | 다크(미드나잇 네이비 `#0b0e17` + 로즈 골드 `#f472b6`·일렉트릭 시안 `#38bdf8`) | ✅ 1차 작업완료 (`v1.10`, 패션 매거진 미드나잇 변형) | [`fashion-style/docs/DESIGN_HANDOFF.md`](fashion-style/docs/DESIGN_HANDOFF.md) · [`fashion-style/docs/IMPROVEMENTS.md`](fashion-style/docs/IMPROVEMENTS.md) |
 | 83 | AI 포토 리메이크 자동화 | `photo-remake-studio` | **크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형** | 다크(옵시디언 딥블랙 `#090a0f` + 리메이크 앰버 `#f59e0b`·에메랄드 `#10b981`) | ✅ 1차 작업완료 (`v1.09`, 포토 리메이크 옵시디언 변형) | [`photo-remake-studio/docs/DESIGN_HANDOFF.md`](photo-remake-studio/docs/DESIGN_HANDOFF.md) · [`photo-remake-studio/docs/IMPROVEMENTS.md`](photo-remake-studio/docs/IMPROVEMENTS.md) |
+| 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | **포커스 스튜디오 스타일 — 미드나잇 챗 콘솔 변형** | 다크(미드나잇 `#0d0f17` + 인디고→스카이 포인트) | ✅ 1차 작업완료 (`v1.01`, 포커스 스튜디오 스타일 — 미드나잇 챗 콘솔 변형) | [`ai-doc-chatbot/docs/DESIGN_HANDOFF.md`](ai-doc-chatbot/docs/DESIGN_HANDOFF.md) |
 
 ---
 
