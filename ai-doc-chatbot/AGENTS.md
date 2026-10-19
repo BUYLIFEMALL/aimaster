@@ -78,4 +78,5 @@
 - 개발 플랜(승인 원본): `docs/PLAN_20261019_AI_DOC_CHATBOT.md`
 - 개선 제안: `docs/IMPROVEMENTS.md` / 백로그: `docs/IMPROVEMENT_BACKLOG.md`
 - 디자인: `docs/DESIGN_HANDOFF.md`
-- 작업 인수인계: `docs/IMPROVEMENT_HANDOFF_20261019.md`
+- **핵심 요약(먼저 읽기)**: `docs/HANDOFF_SUMMARY_20261019.md` — 현재 상태·구조·운영 적용·검수 증거·남은 일
+- 작업 인수인계(날짜순 상세): `docs/IMPROVEMENT_HANDOFF_20261019.md`
