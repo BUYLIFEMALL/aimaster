@@ -453,6 +453,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     - 운영자 Vercel 예약 호출(`crons`)은 **관리자가 지정한 프로그램만** 회원 글을 처리한다. 다회원 사이트는 **사이트 비밀값(`CRON_SECRET`)을 회원 cron-job.org에 넣지 않고 회원 전용 토큰(DB엔 해시)** 을 쓴다. 30일 자동 삭제 같은 운영 정리 작업은 대상이 아니다.
     - 예약 기능을 만들거나 고치기 전에 **[`docs/SCHEDULER_POLICY.md`](docs/SCHEDULER_POLICY.md)**(원칙·화면·동작·보안·저장 구조·체크리스트·적용 현황)를 읽고, 적용하면 그 문서 §8 현황표를 갱신한다. 기준 구현: `threads-content-ops` v2.07.
 
+27. **외부 배포 키트 지침 — AIMaster 서브프로그램을 수강생·외부에 「설치 키트」로 넘길 때 (2026-10-19 주인님 지시, 모든 CLI 공통, 계속 갱신하는 레퍼런스 문서).**
+    - 원칙: **코드는 하나**(원본 프로그램 안 `NEXT_PUBLIC_STANDALONE_MODE` 스위치, 배포판은 원본 + `KIT/` 포장), **수강생이 전부 소유**(본인 Supabase·Vercel·플랫폼 앱·키, AIMaster 의존 0), **무료 요금제로 동작**(유료 기능은 선택지), **설치는 DB 파일 1개 + 스크립트 1번**, **배포 전 Lab에서 수강생처럼 리허설 필수**.
+    - 외부 배포 작업 전에 **[`docs/DISTRIBUTION_KIT_GUIDE.md`](docs/DISTRIBUTION_KIT_GUIDE.md)**(키트 표준 구성·독립 모드 체크리스트·포장·업데이트·리허설·알려진 함정·현황)를 읽고, 작업 중 새로 알게 된 **주의사항·함정·개선점은 같은 커밋에서 그 문서(§6-3 함정 표·§11 개선 대기·§8 현황)에 추가**한다(지우지 않고 보완만).
+
 ## gstack (Claude Code 스킬 묶음 — 2026-10-18 주인님 지시로 설치)
 
 - **설치 위치·범위**: 윈도우 PC Claude Code 전역 `~/.claude/skills/gstack`(gstack 1.91.121.0, `./setup --host claude`). 맥미니·Codex·agy에는 설치하지 않았다(필요하면 각 장비에서 같은 명령으로 따로 설치). Claude Code가 설치된 스킬 목록을 스스로 보여 주므로 여기에는 목록을 옮겨 적지 않는다.
