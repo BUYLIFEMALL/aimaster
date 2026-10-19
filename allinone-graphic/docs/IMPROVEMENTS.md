@@ -52,3 +52,7 @@
 ## 3. 이관 및 인수인계 연결
 - 2026-10-16 인수인계서: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](IMPROVEMENT_HANDOFF_20261016.md)
 - 개발 플랜: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](PLAN_20261016_DESIGN_RENEWAL.md)
+
+## 2026-10-19 Claude Code(윈도우)
+- **처리(v1.08)**: 깨진 사진이 AI 자동 입력 첨부에 그대로 붙던 문제 → 공용 `image-file-check`로 빼고 안내.
+- **제안**: AI 자동 입력의 오류도 팝업 `alert` 대신 화면 안 안내로.

@@ -49,3 +49,9 @@
 - **바꾸지 않은 것**: 프롬프트·모델 이름·비율·화질·화면·글 생성 호출(SDK 그대로). 유료 생성이라 재시도 0(이중 과금 방지).
 - **검수**: tsc 0, 프로그램 테스트(없음(테스트 스크립트 없음)), `check-shared-modules` OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. eslint는 이 폴더에 설정 파일이 없어(이전부터) 실행 안 됨. 실제 이미지 생성 시험은 하지 않음(비용) — 오류가 나면 그때 검증.
 - **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 이 프로그램만 다르게 해야 하면 호출하는 쪽에서 덮어쓴다. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+
+## 2026-10-19 v1.08 — 깨진 사진을 AI 자동 입력 첨부에서 빼고 안내 (Claude Code 윈도우)
+- 운영 실측: 「AI 자동 입력」 레퍼런스 첨부에 깨진 JPG가 그대로 붙음(AI로 보내면 실패·비용 낭비 가능).
+- 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`. `npm test` 명령 신설.
+- `AllInOneGraphicApp.tsx` `handleFileUpload`: 사진 파일만 검사해 깨진 것은 빼고 첨부 바 아래 `role="alert"` 안내. 글·PDF 첨부는 그대로.
+- 검수: 공용 테스트 5/5, tsc, 빌드, Vercel READY(`allinone-graphic-282u19ydo`), DB v1.08, 운영 실측 — 깨진 사진+메모 → 안내 표시, 메모만 첨부(1개 파일). AI 비용 없음.

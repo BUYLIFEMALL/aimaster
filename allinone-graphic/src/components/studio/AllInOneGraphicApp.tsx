@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileCheck";
 import {
   Search,
   Wand2,
@@ -221,6 +222,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [refFileError, setRefFileError] = useState<string | null>(null);
 
   // 매직 에디터 마스크 캔버스 상태
   const [brushSize, setBrushSize] = useState<number>(24);
@@ -289,11 +291,16 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
   });
 
   // 레퍼런스 파일 업로드 핸들러
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []);
+    if (picked.length === 0) return;
+    // 깨진 사진은 AI 자동 입력에 붙이지 않는다(공용 image-file-check). 글·PDF 파일은 그대로
+    const images = picked.filter((f) => f.type.startsWith("image/"));
+    const { failed } = await splitReadableImages(images);
+    setRefFileError(failed.length ? `${IMAGE_READ_FAIL_MESSAGE} (${failed.map((f) => f.name).join(", ")})` : null);
+    const files = picked.filter((f) => !failed.includes(f));
 
-    Array.from(files).forEach((file) => {
+    files.forEach((file) => {
       const reader = new FileReader();
       if (file.type.startsWith("image/")) {
         reader.onload = (event) => {
@@ -899,6 +906,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
               </span>
             )}
           </div>
+          {refFileError && <p role="alert" className="text-[11px] text-rose-600">{refFileError}</p>}
         </div>
 
         {/* 템플릿별 동적 가변 필드 입력 폼 */}
