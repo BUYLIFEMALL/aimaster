@@ -134,7 +134,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 73개 · ⚪ 8개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **88.0% 달성!**):
+> **상태 구분** (2026-10-19 기준: ✅ 74개 · ⚪ 7개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **89.2% 달성!**):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -198,7 +198,7 @@
 | 48 | 유튜브 댓글자동화 | `youtube-auto-reply` | **유튜브 다크 콘솔 스타일 — 스튜디오 댓글 콘솔 변형** (+ 스마트 매트릭스 지표 구성) | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | ✅ 1차 작업완료 (`v1.11`, 사이드바 타이틀 정리 + 빌드·배포·DB·포그라운드 Edge 검수 2026-10-17) | [`youtube-auto-reply/docs/DESIGN_HANDOFF.md`](youtube-auto-reply/docs/DESIGN_HANDOFF.md) |
 | 49 | 롱테일 키워드분석 자동화 | `longtail-keyword-expander` | **스마트 매트릭스 스타일** (기준 구현) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 완료 (`v1.06`) | [`longtail-keyword-expander/docs/DESIGN_HANDOFF.md`](longtail-keyword-expander/docs/DESIGN_HANDOFF.md) |
 | 50 | 경쟁사 키워드분석 자동화 | `competitor-analysis` | **스마트 매트릭스 스타일** (기준 구현과 같은 뼈대) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 스타일) | [`competitor-analysis/docs/DESIGN_HANDOFF.md`](competitor-analysis/docs/DESIGN_HANDOFF.md) |
-| 51 | 예약(취소)방지 리마인드 | `booking-reminder` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `booking-reminder/AGENTS.md` |
+| 51 | 예약(취소)방지 리마인드 | `booking-reminder` | **플로우 위저드 스타일 — 캘린더 리마인드 에디션** | 라이트/화이트 (에메랄드/인디고 액센트) | ✅ 1차 작업완료 (`v1.20`, 플로우 위저드 캘린더 리마인드 에디션) | [`booking-reminder/docs/DESIGN_HANDOFF.md`](booking-reminder/docs/DESIGN_HANDOFF.md) |
 | 52 | 구글폼 CRM 자동화 | `crm-google-form` | **스마트 매트릭스 스타일 — 라이트 변형** (Tailwind v3 첫 적용) | 라이트(`#f6f7f9`/`#ffffff` + 블루 `#2563eb`·앰버 `#b45309`) | ✅ 1차 작업완료 (`v1.09`, 맥미니 구현 + 윈도우 빌드·배포·DB·Edge 검수 2026-10-17) | [`crm-google-form/docs/DESIGN_HANDOFF.md`](crm-google-form/docs/DESIGN_HANDOFF.md) |
 | 53 | 대량 메일발송 자동화 | `stepmail` | 플로우 위저드 스타일 (권장) | 라이트/화이트 | ⚪ 작업 예정 | `stepmail/AGENTS.md` |
 | 54 | 음악(SUNO)자동화 | `music-automation` | 사이버 수노 다크 스튜디오 스타일 | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | ✅ 1차 완료 (`v1.08`) | [`music/docs/DESIGN_HANDOFF.md`](music/docs/DESIGN_HANDOFF.md) |

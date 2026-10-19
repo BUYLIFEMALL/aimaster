@@ -1,6 +1,42 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-19 Claude Code(윈도우) — INSTA Cardnews 자동화 v1.21: 다시 시도 전 중복 게시 확인 + 디자인 테마 안내 문구
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 예약(취소)방지 리마인드(booking-reminder) v1.20: 플로우 위저드 캘린더 에디션 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 74개 완료 / 89.2% 달성!)
+
+- **대상**: `booking-reminder/` (https://booking-reminder.buylife.xyz, slug: `booking-reminder`, 51번)
+- **한 일**:
+  1. **플로우 위저드 스타일 — 캘린더 리마인드 에디션 전면 리뉴얼**:
+     - 클린 화이트 테마 + 캘린더 블루(`rgb(37 99 235)`), 에메랄드, 인디고 포인트 컬러 적용.
+     - `.studio-hero` 배너: 캘린더 리마인드 헤더, `v1.20` 배지, 15분 주기 자동 크론 가동 상태 인디케이터, 원클릭 액션 버튼.
+     - 3대 핵심 KPI 카드: 총 등록 예약 현황, 활성 리마인드 규칙 수, 발송 채널 연동 현황(알림톡/문자, 메일, 텔레그램).
+     - 3단계 플로우 파이프라인 가이드 바 (Step 1 예약 등록 ➔ Step 2 알림 규칙 ➔ Step 3 15분 자동 발송).
+     - 예약 등록 폼, 리마인드 규칙 섹션, 예약 행 컴포넌트 모던 카드 UI 세련화.
+  2. **사이드바 표준화 (`Sidebar.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 3단계 플로우 스텝퍼 번호화: Step 1 📅 예약 관리, Step 2 ⚙️ 리마인드 규칙, Step 3 📊 발송 현황.
+     - 유틸리티 메뉴: `🔑 API키등록·플랫폼연동` (`/settings`) + **`📖 연동 & 사용 매뉴얼` (`/guide`)** 신설.
+     - 모바일 햄버거 토글 드로어 완비.
+  3. **독립 비주얼 가이드북 (`app/(dashboard)/guide/page.tsx`) 전면 신설**:
+     - 4단계 리마인드 시퀀스 파이프라인 (D-3 사전 안내 ➔ D-1 확정 확인 ➔ 당일 3시간 전 방문 안내 ➔ 방문 후 2시간 리뷰 유도).
+     - 발송 채널별 비교 및 연동 매트릭스 표 (알림톡 vs SMS/LMS vs 메일 vs 텔레그램 특징 및 비용 비교).
+     - 동적 치환 태그 가이드 (`#{고객명}`, `#{예약일시}`, `#{메모}`).
+     - 100% BYOK 공용 DB 회원 소유 격리 보안 원칙 배너 (Supabase RLS 적용).
+     - 자주 묻는 질문 (FAQ 5종) 아코디언 컴포넌트 탑재.
+  4. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `booking-reminder/package.json` (`1.20.0`), `booking-reminder/lib/version.ts` (`v1.20`), Supabase DB `programs` 메타데이터 (`version: v1.20`) 동기화 완료 (`scripts/update_booking_version.cjs`).
+  5. **로컬 무결성 검증 통과**:
+     - Next.js 14.2.35 프로덕션 빌드 성공 (정적 페이지 8개 생성, exit code 0).
+  6. **Vercel 프로덕션 배포 완료**:
+     - `https://booking-reminder-kiu3b0m0i-buylife.vercel.app` (Alias: `booking-reminder.buylife.xyz`).
+     - `curl -I https://booking-reminder.buylife.xyz` ➔ `307 Temporary Redirect` 정상 응답.
+  7. **Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수 완료**:
+     - 일반 회원 테스트 세션(`buylifemall@naver.com`) 주입 후 데스크톱 및 모바일 반응형 검수 수행.
+     - 7종 캡처 수집 완료 (`edge_booking_desktop_main_v120.png`, `edge_booking_desktop_kpi_v120.png`, `edge_booking_desktop_rules_v120.png`, `edge_booking_desktop_guide_v120.png`, `edge_booking_desktop_guide_matrix_v120.png`, `edge_booking_mobile_main_v120.png`, `edge_booking_mobile_guide_v120.png`).
+     - 사용자 실시간 확인을 위한 10분간(600초) 포그라운드 화면 유지 세션 완비.
+  8. **문서화 완비**:
+     - `booking-reminder/docs/PLAN_20261019_DESIGN_RENEWAL.md`, `DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `IMPROVEMENT_HANDOFF_20261019.md`, `AGENTS.md`, `README.md` 완비.
+- **프로그램 링크**:
+
+https://booking-reminder.buylife.xyz
+
 
 - **대상**: `cardnews-studio/` · DB 운영 `esgxyikcnnvmlhygjkth`(표 변경 없음, 버전만)
 - **한 일**: 예약 게시를 다시 시도하기 직전 회원 본인 인스타 최근 게시물 10개를 확인해, 1시간 안에 같은 캡션이 이미 올라가 있으면 다시 올리지 않고 그 게시물로 「게시됨」 기록. 디자인 단계 안내에 「강조색은 바로 반영」 추가. v1.20 검수용 임시 기록 2건 삭제(기록 0건).

@@ -16,17 +16,17 @@ export interface ReservationData {
 }
 
 const STATUS_LABELS: Record<ReservationStatus, string> = {
-  booked: "예약됨",
-  completed: "방문완료",
-  no_show: "노쇼",
-  cancelled: "취소됨",
+  booked: "예약 대기",
+  completed: "방문 완료",
+  no_show: "노쇼(불참)",
+  cancelled: "예약 취소",
 };
 
 const STATUS_STYLES: Record<ReservationStatus, string> = {
-  booked: "bg-blue-100 text-blue-700",
-  completed: "bg-green-100 text-green-700",
-  no_show: "bg-red-100 text-red-700",
-  cancelled: "bg-gray-100 text-gray-500",
+  booked: "bg-blue-50 text-blue-700 border border-blue-200",
+  completed: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  no_show: "bg-red-50 text-red-700 border border-red-200",
+  cancelled: "bg-slate-100 text-slate-500 border border-slate-200",
 };
 
 export function ReservationRow({ reservation }: { reservation: ReservationData }) {
@@ -45,7 +45,7 @@ export function ReservationRow({ reservation }: { reservation: ReservationData }
   }
 
   async function handleDelete() {
-    if (!confirm(`${reservation.customer_name}님 예약을 삭제할까요?`)) return;
+    if (!confirm(`${reservation.customer_name}님 예약을 삭제하시겠습니까?`)) return;
     setIsDeleting(true);
     try {
       await deleteReservationAction(reservation.id);
@@ -55,40 +55,75 @@ export function ReservationRow({ reservation }: { reservation: ReservationData }
     }
   }
 
-  const time = new Date(reservation.reservation_at).toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" });
+  const dateObj = new Date(reservation.reservation_at);
+  const formattedDate = dateObj.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  });
+  const formattedTime = dateObj.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-2">
-        <div>
-          <p className="text-sm font-bold text-gray-900">{reservation.customer_name}</p>
-          <p className="text-xs text-gray-500">{time}</p>
-        </div>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_STYLES[reservation.status]}`}>
-          {STATUS_LABELS[reservation.status]}
-        </span>
-      </div>
-      <p className="mt-1 text-xs text-gray-400">
-        {reservation.customer_phone ?? "연락처 없음"} · {reservation.customer_email ?? "이메일 없음"}
-      </p>
-      {reservation.memo && <p className="mt-1 text-xs text-gray-500">{reservation.memo}</p>}
+    <div className="rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm hover:border-blue-200 hover:shadow-md transition-all">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-900 text-sm">{reservation.customer_name}</span>
+            <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLES[reservation.status]}`}>
+              {STATUS_LABELS[reservation.status]}
+            </span>
+          </div>
 
-      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-        <select
-          value={reservation.status}
-          onChange={(e) => handleStatusChange(e.target.value as ReservationStatus)}
-          disabled={isUpdating}
-          className="rounded-lg border border-gray-200 px-2 py-1 text-xs disabled:opacity-60"
-        >
-          {(Object.keys(STATUS_LABELS) as ReservationStatus[]).map((status) => (
-            <option key={status} value={status}>
-              {STATUS_LABELS[status]}
-            </option>
-          ))}
-        </select>
-        <button type="button" onClick={handleDelete} disabled={isDeleting} className="font-semibold text-red-500 hover:underline disabled:opacity-60">
-          {isDeleting ? "삭제 중..." : "삭제"}
-        </button>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className="font-semibold text-blue-600 flex items-center gap-1">
+              <span>📅</span>
+              <span>{formattedDate} {formattedTime}</span>
+            </span>
+            <span>·</span>
+            <span>📞 {reservation.customer_phone ?? "연락처 미등록"}</span>
+            {reservation.customer_email && (
+              <>
+                <span>·</span>
+                <span>✉️ {reservation.customer_email}</span>
+              </>
+            )}
+          </div>
+
+          {reservation.memo && (
+            <p className="text-xs text-slate-600 bg-slate-50 rounded-lg px-2.5 py-1 mt-1 inline-block">
+              💬 {reservation.memo}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+          <select
+            value={reservation.status}
+            onChange={(e) => handleStatusChange(e.target.value as ReservationStatus)}
+            disabled={isUpdating}
+            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          >
+            {(Object.keys(STATUS_LABELS) as ReservationStatus[]).map((status) => (
+              <option key={status} value={status}>
+                {STATUS_LABELS[status]}
+              </option>
+            ))}
+          </select>
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+            title="예약 삭제"
+          >
+            {isDeleting ? "삭제 중" : "삭제"}
+          </button>
+        </div>
       </div>
     </div>
   );

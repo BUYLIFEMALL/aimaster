@@ -41,6 +41,9 @@ SOLAPI(`solapi.com/crm`)가 소개한 CRM 자동화 활용 사례(예약 자동�
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
 
-## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
-
-F-008(P1), F-009(P1), F-010(P1), F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.
+## 2026-10-19 디자인 리뉴얼 & 가이드북 구축 — v1.20
+- **스타일**: **플로우 위저드 스타일 — 캘린더 리마인드 에디션** 전면 개편
+- **신설 기능**: 독립 비주얼 가이드북 (`/guide`), 3대 KPI 카드, 3단계 파이프라인 가이드 바, 사이드바 모바일 햄버거 드로어
+- **버전**: `v1.20` (3중 동기화 완료)
+- **서비스 주소**: [https://booking-reminder.buylife.xyz](https://booking-reminder.buylife.xyz)
+- **상세 문서**: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md) · [docs/IMPROVEMENT_HANDOFF_20261019.md](docs/IMPROVEMENT_HANDOFF_20261019.md)
