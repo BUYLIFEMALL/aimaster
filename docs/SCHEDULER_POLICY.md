@@ -82,7 +82,7 @@
 | `naver-cafe-poster` (네이버 카페, 정기형) | ✅ 적용·배포·실검수 | v1.21 · 2026-10-20 (배포 `naver-cafe-poster-oun9zc23z`) | 정기 자동 실행형: 스위치 켤 때 작업 켜기, 켜진 소스 0개면 끄기, 주기 5분. 표 `ncafe_member_scheduler`, 환경변수 `NCAFE_PLATFORM_SCHEDULER`, 회원 주소 `/api/cron/dispatch-member`. **같은 소스 중복 실행 방지(조건부 `last_run_at`)·`CRON_SECRET` 빈 값 401 새로 추가**. 실검수: 작업 8678746 자동 켜짐 → 일시정지·재개 → 끄기 즉시 꺼짐 |
 | `kakao_auto_poster` (카카오 뉴스레터, 정기형) | ✅ 적용·배포·실검수 | v1.21 · 2026-10-20 (배포 `kakaoautoposter-at4fi42eb`) | 네이버 카페와 같은 정기형(예약 켤 때 켜기·0개면 끄기·5분). 표 `kakao_member_scheduler`, 환경변수 `KAKAO_PLATFORM_SCHEDULER`, 회원 주소 `/api/cron/dispatch-member`. 카카오 발송은 사람이 결정(그대로). 중복 생성 방지·비밀값 검사 추가. 실검수: 작업 8678825 자동 켜짐 → 일시정지·재개 → 끄기 즉시 꺼짐 |
 | `stepmail`, `booking-reminder`, `crm-google-form`, `youtube-auto-reply`, `trending-product-finder` | ⚪ 예정(2순위) | — | 회원 정기 자동 작업 |
-| `real_estate_sales` | ⏸ 주인님 확인 | — | 공공 키 예외로 지역 공용 수집 → 운영자 유지 가능성 |
+| `real_estate_sales` | ⏸ 운영자 유지(주인님 결정 2026-10-20) | — | 공공데이터 키(서울열린데이터·공공데이터포털·브이월드)는 회원이 직접 발급·등록하기 어려워 **당분간 운영자 공용 키 + 운영자 Vercel 정기 수집 그대로**. 회원 cron-job.org 방식은 적용하지 않음. **사용자가 많아지면** 회원 본인 공공 키 등록 + 본인 예약 방식으로 전환(그때 다시 플랜). AI 키는 지금처럼 회원 본인 키 |
 
 ## 9. 비용·cron-job.org 무료 제한 메모
 - cron-job.org 무료(공식 FAQ): 작업 개수 제한 없음(공정 사용), 작업당 1분 1회까지, 응답 30초 초과 시 실패, 응답 64KB까지, 실패 25회 넘으면 작업 자동 정지, API 하루 100회(후원 회원 5,000회), 유료 요금제 없음.
