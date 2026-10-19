@@ -1,5 +1,76 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 이미지 프로그램 업로드 멈춤·꺼진 버튼 밝기 점검 + AI 리버스 프롬프트 v1.05
+- **업로드 점검**: 서명 주소 업로드(`uploadToSignedUrl`)를 쓰는 곳은 banana-canvas(v1.10 처리)·`reverse-prompt`·`shorts-onestop-studio` 3곳. shorts는 `try/catch/finally`로 안전, **reverse-prompt는 멈춤은 없지만 예외 시 안내 없이 끝남 → v1.05에서 안내 추가**. 나머지 이미지 프로그램(photo-remake·fashion-style·4컷·인플루언서·allinone·image-convert·seo-thumbnail·portrait 등)은 사진을 서버로 올리지 않고 브라우저 안에서만 읽고, 읽기 전에 대기 표시를 켜지 않아 멈춤 위험 없음.
+- **꺼진 버튼 밝기 점검**: 카드 전체를 흐리게 하는 잠김 규칙은 banana-canvas에만 있었음(v1.10 처리). 같은 뼈대 4곳 운영 화면 실측(메인 크롬) — portrait-photo·fashion-style·photo-remake-studio 꺼진 버튼 실효 투명도 모두 0.45로 일정, four-cut-comics는 처음 화면에 꺼진 버튼 없음 → **추가 수정 불필요**.
+- **reverse-prompt v1.05 검수**: 브라우저 17/17(저장소 연결 끊김 회귀 검사 추가), 단위 15/15, tsc, 빌드, READY, DB v1.05, 운영 v1.05 확인. AI 비용 없음.
+- https://reverse-prompt.buylife.xyz
+
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 슬라이드 자동화 v1.10: 플로우 위저드 스타일 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 62개 완료 / 74.7% 달성!)
+
+- **대상**: `ai-slide-builder/` (https://ai-slide-builder.buylife.xyz, slug: `ai-slide-builder`, 71번)
+- **한 일**:
+  1. **플로우 위저드 스타일 — 단계별 슬라이드 기획 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **플로우 위저드 스타일 — 단계별 슬라이드 기획 에디션 (Flow Wizard Style — Slide Builder Edition)**.
+     - **디자인 토큰 시스템 완비**: 소프트 슬레이트 화이트(`#f8fafc`) 배경, 로열 인디고 블루(`#2563eb`), 아티스틱 바이올렛(`#8b5cf6`), 에메랄드 그린(`#10b981`), 앰버 골드(`#d97706`) 토큰 체계 적용 (`src/app/globals.css`).
+     - 22종 전문 시각화 레이아웃, 3대 생성 프롬프트 엔진, 16:9 와이드 PPTX 파워포인트 바이너리 생성 및 발표자 스피커 노트 자동 삽입 엔진 100% 무결성 유지.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.10 SLIDE WIZARD` 및 작업 워크플로우 1-2-3 넘버링 적용 (`src/components/layout/Sidebar.tsx`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (앰버 골드 하이라이트 배지).
+     - 모바일(lg 미만) 반응형 플로팅 햄버거 토글 버튼 및 슬라이드 드로어 메뉴 완비.
+  3. **메인 스튜디오 리뉴얼 (`src/components/studio/SlideBuilderApp.tsx`)**:
+     - 블루/바이올렛 그라데이션 바탕의 `.studio-hero` 웰컴 배너 및 듀얼 CTA ([📖 사용 매뉴얼 보기], [🔑 API 키 설정]) 배치.
+     - 3대 핵심 기능 KPI 지표 카드(22종 전문 시각화 레이아웃, 3대 맞춤 프롬프트 엔진, 16:9 와이드 PPTX 내보내기) 탑재.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`, `GuideClient.tsx`) 신설**:
+     - 상단 히어로 배너: "아이디어를 완벽한 프레젠테이션으로 만드는 AI 슬라이드 완전 가이드".
+     - **4단계 표준 슬라이드 제작 파이프라인**: 1) 자료 입력 & 파싱 ➔ 2) AI 장표 자동 편성 ➔ 3) 양방향 카드 편집 ➔ 4) 16:9 와이드 PPTX.
+     - 최상위 보안 원칙 (BYOK Standard) 연동 가이드 배너 및 Google AI Studio 키 발급/설정 바로가기.
+     - 22가지 전문 슬라이드 타입 & 3대 엔진 비교 쇼케이스 완비.
+     - 실전 발표 팁 & 스피커 노트 활용법 및 FAQ 5종 아코디언 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_71_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 16.2.11 Turbopack 최적화 프로덕션 빌드 성공.
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_AWZmbVsMYJcmpGxNcYXpASkpPfiF`
+     - 공식 도메인 즉시 반영: https://ai-slide-builder.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 실세션 로그인 및 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-14059`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_slide_desktop_studio_v110.png`: 1440px 데스크톱 메인 스튜디오 및 배너, 3대 KPI 카드
+       - `edge_slide_desktop_guide_v110.png`: 1440px 데스크톱 비주얼 가이드북 및 파이프라인
+       - `edge_slide_desktop_guide_faq_v110.png`: 1440px 데스크톱 가이드북 FAQ 아코디언 오픈
+       - `edge_slide_desktop_settings_modal_v110.png`: 1440px 데스크톱 API 키 설정 연동 모달
+       - `edge_slide_desktop_help_modal_v110.png`: 1440px 데스크톱 슬라이드 도움말 모달
+       - `edge_slide_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트 및 플로팅 햄버거 메뉴
+  9. **문서 6종 완비**:
+     - `ai-slide-builder/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `ai-slide-builder/README.md` (동기화 생성)
+     - `ai-slide-builder/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `ai-slide-builder/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `ai-slide-builder/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `ai-slide-builder/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 71번 행 ✅ 1차 작업완료 (`v1.10`, 플로우 위저드 스타일) 갱신 및 전체 통계 (누적 ✅ 62개 완료 / ⚪ 19개 예정 / ⏸ 2개 보류 — 74.7% 달성!)
+      - `docs/ACTIVE_WORK.md`: 71번 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - Edge 브라우저에서 메인 스튜디오 히어로 배너, 3대 지표 카드, 입력 패널, 슬라이드 카드 편집 패널이 완벽하게 렌더링됨.
+  - 신설된 `/guide` 비주얼 가이드북에서 4단계 파이프라인과 FAQ 아코디언 클릭 인터랙션 무결 확인.
+  - 모바일(375px) 화면에서 데스크톱 사이드바 대신 우측 하단 플로팅 햄버거 버튼이 노출되고 본문이 100% 꽉 차게 반응형 표시됨.
+- **다음 첫 단계**: 73번 AI 리버스 프롬프트 자동화 (`reverse-prompt`) 또는 다른 예정 프로그램 개발 플랜 수립 및 디자인 리뉴얼 순차 진행.
+- https://ai-slide-builder.buylife.xyz
+
+## 2026-10-19 Codex — 83개 프로그램 분석·개발 제안과 점진 레퍼런스 모듈화
+
+- **완료**: 83개/현재14개 카테고리 분석표, 확인·조건부 문제19건, 병합 후보12개, 아이디어18개, 협업 작업 후보12개. HTML 검색/필터·엑셀8시트·Markdown·근거 JSON. 10개 프로그램에 분석 인수인계 추가(기존 변경이 있던 competitor-analysis는 보존·중앙 기록만).
+- **주인님 확정**: 당분간 프로그램 기능 개선·안정화 → 그 과정에서 좋은 기능 검증·레퍼런스 모듈화 → 신규 개발/리뉴얼 때 하나씩 적용. 일괄 전환 없음. 기존4개/후보14개를 구분한 [모듈 운영안](analysis-20261019/REFERENCE_MODULE_PROPOSAL.md).
+- **아이디어 관리**: [공통 원장](PROGRAM_IDEA_BACKLOG.md)에 주인님/CLI 제안을 계속 등록. ① 안정적 자동화 ② 현재 프로그램 적용성 ③ 사용자 편의, 세 기준별 근거·비용/위험·상태·다음 단계 기록. 방향 채택과 실제 구현을 구분.
+- **미완료**: 제품 버그 수정/신규 모듈 추출·교체/DB·환경변수 변경/전체 회원E2E·유료 호출/운영 배포는 하지 않음. F-001 공통DB PUBLIC 전체허용 정책·eBook API 자격/URL 보호를 우선 검토하되 DB 변경은 승인 필요. 실제 데이터 피해/유출은 시험하지 않음.
+- **검수·근거·다음 첫 단계**: [총괄 인수인계](ANALYSIS_PROPOSAL_HANDOFF_20261019.md) → 최신 지침/ACTIVE_WORK → 맡을 프로그램 F/W-ID 근거 재확인 → 개발 플랜. 보고서 검수와 제품 기능 검수를 혼동하지 않음. 문서 전용이므로 앱 버전/DB/배포 없음. 커밋·푸시는 이 문서의 Git 이력과 최종 결과 보고 참조.
+- [보기 좋은 분석표](analysis-20261019/REPORT.html) · [Excel](analysis-20261019/AIMaster_분석_개발제안_20261019.xlsx) · [전체 분석](analysis-20261019/REPORT.md)
+
+https://www.buylife.xyz/programs
+
 ## 2026-10-19 Claude Code(윈도우) — AI 바나나 캔버스 v1.10: 업로드 대기 해제 보강·꺼진 버튼 색 통일
 - **한 일**: 업로드 예외가 나도 「업로드 중…」에 멈추지 않게 `try/finally`·예외 처리. 꺼진 노란 버튼이 카드마다 밝기가 달랐던 원인(잠김 카드 투명도가 앨범·만화 버튼 자신에 걸림)을 찾아 `.primary:disabled` 꺼진 색으로 통일. 상세 `banana-canvas/AGENTS.md` v1.10.
 - **검수**: 브라우저 19/19(회귀 검사 2개 추가), 단위 7/7, tsc, 빌드, Vercel READY, DB v1.10, 메인 크롬 운영 확인. AI 비용 없음.

@@ -40,3 +40,8 @@
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (reverse-prompt)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-19 v1.05 — 분석 중 예외를 조용히 끝내지 않고 안내 (Claude Code 윈도우)
+- **배경**: banana-canvas v1.10 후속 점검(같은 서명 주소 업로드 방식 `uploadToSignedUrl`을 쓰는 프로그램). `run()`은 `try/finally`라 멈추지는 않지만 `catch`가 없어, 저장소 업로드·화면 처리에서 예외가 나면 안내 없이 끝났다.
+- **수정**: `src/components/studio/Analyzer.tsx` `run()`에 `catch` — 직접 취소(`AbortError`)가 아니면 「분석 중 문제가 생겼습니다…」 안내.
+- **검수**: 브라우저 17/17(새 검사: 저장소 연결 끊김 시 안내 후 [분석 시작] 다시 가능), 단위 15/15, tsc, 빌드, Vercel READY(`reverse-prompt-lsxdc7msn`), DB v1.05, 메인 크롬 운영 화면 v1.05. AI 비용 없음.

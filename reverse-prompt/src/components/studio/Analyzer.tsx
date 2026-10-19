@@ -190,6 +190,9 @@ export function Analyzer({ historyId }: { historyId?: string }) {
         return;
       }
       showResult({ id: res.data.id, media: res.data.media, title: res.data.title, data: res.data.result, modelUsed: res.data.modelUsed, fileName: file.name, target: options.target });
+    } catch (e) {
+      // 업로드(저장소)·화면 처리 중 예외 — 조용히 끝나지 않게 안내(직접 취소는 제외)
+      if ((e as Error)?.name !== "AbortError") setError("분석 중 문제가 생겼습니다. 네트워크를 확인하고 다시 시도해 주세요.");
     } finally {
       setPhase("");
       abort.current = null;

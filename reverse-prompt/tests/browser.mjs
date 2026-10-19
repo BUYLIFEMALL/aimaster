@@ -52,9 +52,10 @@ const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 const calls = [];
 let needKey = true;
+let storageFail = false; // 업로드 저장소 연결 끊김 흉내(v1.05)
 let expireOnce = false;
 let seq = 0;
-await page.route(`${MOCK_SB}/**`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ Key: "ok" }) }));
+await page.route(`${MOCK_SB}/**`, (route) => storageFail ? route.abort() : route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ Key: "ok" }) }));
 await page.route("**/api/**", async (route) => {
   const url = new URL(route.request().url());
   const method = route.request().method();
@@ -101,6 +102,12 @@ try {
   assert.equal(await page.locator(".rp-privacy").count(), 1);
   pass("이미지 미리보기·삭제 안내 표시");
 
+  storageFail = true;
+  await page.getByRole("button", { name: "분석 시작" }).click();
+  await page.getByRole("alert").getByText(/업로드에 실패|문제가 생겼/).first().waitFor();
+  await page.getByRole("button", { name: "분석 시작" }).waitFor();
+  storageFail = false;
+  pass("업로드 실패 시 안내 후 다시 시도 가능(조용히 끝나지 않음, v1.05)");
   await page.getByRole("button", { name: "분석 시작" }).click();
   await page.getByRole("alert").getByText(/API키등록/).first().waitFor();
   pass("키 미등록 시 등록 안내(needKey)");
