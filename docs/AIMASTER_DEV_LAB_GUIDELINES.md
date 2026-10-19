@@ -42,7 +42,7 @@
 | `auth` | 모든 Lab이 함께 쓰는 로그인. 데이터는 각 테이블 RLS로 본인 것만 |
 | Storage | 버킷 이름은 `<이름>-`로 시작. 삭제는 Storage API(`delete-lab.mjs`) |
 
-- **2026-10-19 초기화 기록**: 예전 블로그 시험 데이터(public 테이블 12개, `blog_posts` 31건·212MB 포함, dev 계정 `buylifemall@gmail.com` 1개)를 dev DB 안의 **`lab_backup_20261019` 스키마**(API 비공개)에 복사해 건수를 맞춰 본 뒤 public·계정을 비웠다. 필요 없으면 `drop schema lab_backup_20261019 cascade;`로 지워 용량을 줄인다(주인님 확인 후).
+- **2026-10-19 초기화 기록**: 예전 블로그 시험 데이터(public 테이블 12개, `blog_posts` 31건·212MB 포함, dev 계정 `buylifemall@gmail.com` 1개)를 dev DB 안의 **`lab_backup_20261019` 스키마**(API 비공개)에 복사해 건수를 맞춰 본 뒤 public·계정을 비웠다. **보관 결정(2026-10-19 주인님): dev 쪽 Lab 프로그램이 안정화될 때까지 보관하고, 안정화되면 `drop schema lab_backup_20261019 cascade;`로 삭제한다.** 삭제 시점은 주인님께 「안정화됐으니 지워도 될지」 한 번 여쭌 뒤 진행한다.
 - **주의 — 일시정지 프로젝트를 재개할 때**: 상태가 `COMING_UP`인 동안에는 빈 임시 DB가 먼저 응답하고, 복원이 끝나면(`ACTIVE_HEALTHY`) 원래 데이터로 바뀐다. 그 사이에 조회·적용한 내용은 사라진다. **반드시 `ACTIVE_HEALTHY`를 확인한 뒤** 조회·변경한다.
 - 원본 SQL: [`labs/_platform/migrations/0001_lab_admin.sql`](../labs/_platform/migrations/0001_lab_admin.sql) — dev를 다시 초기화하면 이 파일부터 다시 적용한다.
 - 새 Lab 마이그레이션은 항상 `select lab_admin.register_program('<이름>');`으로 시작한다(뼈대에 포함).
