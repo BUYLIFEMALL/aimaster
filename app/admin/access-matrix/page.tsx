@@ -31,7 +31,8 @@ export default async function AccessMatrixPage() {
 
       <GlassCard className="mb-6 p-5">
         <h2 className="text-white font-bold mb-3">등급별 자동 부여 · 사용기간</h2>
-        <GradeAccessPolicy grades={(grades ?? []).filter((g: { name: string }) => g.name !== "일반" && g.name !== "실버")} />
+        {/* 일반은 2026-10-19부터 자동 부여(가입일+14일)라 보이게 함, 실버는 수동 부여라 숨김 */}
+        <GradeAccessPolicy grades={(grades ?? []).filter((g: { name: string }) => g.name !== "실버")} />
       </GlassCard>
 
       <GlassCard className="p-0 overflow-hidden">
