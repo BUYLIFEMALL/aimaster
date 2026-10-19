@@ -15,12 +15,12 @@ const MODULES = [
     // 올린 사진을 브라우저 안에서 풀어 보고 깨졌으면 「사진을 읽지 못했어요」(2026-10-19). 사본은 프로그램을 적용할 때마다 추가
     id: "image-file-check",
     source: "portrait-photo/src/lib/imageFileCheck.ts",
-    copies: ["image-convert-studio/src/lib/imageFileCheck.ts", "photo-remake-studio/src/lib/imageFileCheck.ts", "banana-canvas/src/lib/imageFileCheck.ts", "ai-influencer-studio/src/lib/imageFileCheck.ts", "allinone-graphic/src/lib/imageFileCheck.ts", "four-cut-comics/src/lib/imageFileCheck.ts"],
+    copies: ["image-convert-studio/src/lib/imageFileCheck.ts", "photo-remake-studio/src/lib/imageFileCheck.ts", "banana-canvas/src/lib/imageFileCheck.ts", "ai-influencer-studio/src/lib/imageFileCheck.ts", "allinone-graphic/src/lib/imageFileCheck.ts", "four-cut-comics/src/lib/imageFileCheck.ts", "seo-thumbnail-pro/src/lib/imageFileCheck.ts"],
   },
   {
     id: "image-file-check-test",
     source: "portrait-photo/tests/imageFileCheck.test.mjs",
-    copies: ["image-convert-studio/tests/imageFileCheck.test.mjs", "photo-remake-studio/tests/imageFileCheck.test.mjs", "banana-canvas/tests/imageFileCheck.test.mjs", "ai-influencer-studio/tests/imageFileCheck.test.mjs", "allinone-graphic/tests/imageFileCheck.test.mjs", "four-cut-comics/tests/imageFileCheck.test.mjs"],
+    copies: ["image-convert-studio/tests/imageFileCheck.test.mjs", "photo-remake-studio/tests/imageFileCheck.test.mjs", "banana-canvas/tests/imageFileCheck.test.mjs", "ai-influencer-studio/tests/imageFileCheck.test.mjs", "allinone-graphic/tests/imageFileCheck.test.mjs", "four-cut-comics/tests/imageFileCheck.test.mjs", "seo-thumbnail-pro/tests/imageFileCheck.test.mjs"],
   },
   {
     id: "youtube-golden-engine",

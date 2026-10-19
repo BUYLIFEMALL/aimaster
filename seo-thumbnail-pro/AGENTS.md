@@ -106,3 +106,8 @@
    - 텍스트 배경과 글자색의 명암비를 계산하여 '가독성 우수(A+)' 등의 지표를 뱃지로 실시간 표시.
 3. **원클릭 프리셋 스타일 칩**:
    - 국뽕/뉴스, 충격/폭로, 브이로그/감성, 테크/리뷰 등 클릭 한 번으로 모든 10대 옵션을 최적 조합해주는 원클릭 스타일 칩 제공.
+
+## 2026-10-19 v1.11 — 참조 인물 사진 칸에서 깨진 사진을 받지 않고 안내 (Claude Code 윈도우)
+- 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`. `npm test` 명령 신설.
+- `src/components/SettingsColumn.tsx` `handleImageUpload`: `checkImageFile` → 깨졌으면 받지 않고 사진 칸 아래 `role="alert"` 안내. 같은 파일을 다시 골라도 반응하게 입력값 초기화.
+- 검수: 공용 테스트 5/5, tsc, 빌드, Vercel READY(`seo-thumbnail-4buqf6i9l`), DB v1.11, 운영 실측(인물 설정 켬 → 깨진 사진 → 안내·깨진 미리보기 없음 → 설정 원복). AI 비용 없음.

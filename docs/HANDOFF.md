@@ -55,7 +55,7 @@
   - 모바일(375px) 화면에서 상단 헤더, 로고, 햄버거 토글 버튼 및 본문 카드가 정상 반응형 동작함.
 - **다음 첫 단계**: 77번 AI 마스터링 스튜디오 (`ai-mastering-studio`) 또는 다른 예정 프로그램 사전 개발 플랜 수립 및 순차 착수.
 
-## 2026-10-19 Claude Code(윈도우) — 공용 부품 `image-file-check`(깨진 사진 안내) 신설 + AI 인물사진 v1.29 (진행 중: 이미지 프로그램 순차 적용)
+## 2026-10-19 Claude Code(윈도우) — 공용 부품 `image-file-check`(깨진 사진 안내) 신설 + AI 인물사진 v1.29 (✅ 완료: 이미지 프로그램 8곳 적용)
 - **운영 실측(깨진 JPG)**: portrait-photo 무반응(깨진 아이콘), image-convert-studio 깨진 미리보기로 목록 진입, photo-remake-studio 영어 원문 안내, banana-canvas 서버 업로드 후 AI 단계 실패. 플랜 `portrait-photo/docs/PLAN_20261019_IMAGE_FILE_CHECK_SHARED.md`.
 - **완료**: 기준 `portrait-photo/src/lib/imageFileCheck.ts`(+테스트) 등록(`scripts/check-shared-modules.mjs`, `docs/SHARED_MODULES.md`). portrait-photo v1.29 — 깨진 사진 안내·받지 않음 + 꺼진 [만들기] 이유 한 줄. 단위 31·브라우저 14 통과, READY, DB v1.29, 운영 실측 확인. https://portrait-photo.buylife.xyz
 - **image-convert-studio v1.08 ✅**: Dropzone(변환·콜라주 공용)에 적용, 번역 문구 한·영. 단위 21, READY, DB v1.08, 운영 실측 확인. https://image-convert-studio.buylife.xyz
@@ -66,7 +66,9 @@
 - **allinone-graphic v1.08 ✅**: AI 자동 입력 첨부에서 깨진 사진만 빼고 안내(글·PDF는 그대로). READY, DB v1.08, 운영 실측 확인. https://graphic.buylife.xyz
 - **four-cut-comics v1.13 ✅**: 만화 합치기 도구에서 깨진 사진을 빼고 안내(캐릭터 시트 칸은 원래 안내 있음). READY, DB v1.13, 운영 실측 확인. https://four-cut-comics.buylife.xyz
 - **수정 불필요**: style-dna-analyzer(이미 「이미지를 읽지 못했습니다…」), emotion-writer(사진 입력칸 없음).
-- **다음 첫 단계**: seo-thumbnail-pro(인물 사진 칸 `SettingsColumn.tsx` `handleImageUpload`가 검사 없이 받음). 각 프로그램: 스크립트 `copies`에 경로 추가 → `node scripts/check-shared-modules.mjs --sync` → 사진 받는 곳에서 `checkImageFile` → 테스트·배포·+0.01.
+- **seo-thumbnail-pro v1.11 ✅**: 참조 인물 사진 칸. READY, DB v1.11, 운영 실측 확인. https://seo-thumbnail-pro.buylife.xyz
+- **결론**: 사본 적용 8곳(portrait v1.29·image-convert v1.08·photo-remake v1.10·banana v1.11·ai-influencer v1.13·allinone-graphic v1.08·four-cut v1.13·seo-thumbnail v1.11), 수정 불필요 3곳(fashion-style·style-dna-analyzer 이미 한글 안내, emotion-writer 사진 칸 없음). `node scripts/check-shared-modules.mjs` 통과.
+- **다음 CLI**: 새 이미지 프로그램·사진 칸을 만들 때 이 사본을 쓴다(기준만 고치고 `--sync`). 각 프로그램: 스크립트 `copies`에 경로 추가 → `node scripts/check-shared-modules.mjs --sync` → 사진 받는 곳에서 `checkImageFile` → 테스트·배포·+0.01.
 
 ## 2026-10-19 Claude Code(윈도우) — 이미지 프로그램 업로드 멈춤·꺼진 버튼 밝기 점검 + AI 리버스 프롬프트 v1.05
 - **업로드 점검**: 서명 주소 업로드(`uploadToSignedUrl`)를 쓰는 곳은 banana-canvas(v1.10 처리)·`reverse-prompt`·`shorts-onestop-studio` 3곳. shorts는 `try/catch/finally`로 안전, **reverse-prompt는 멈춤은 없지만 예외 시 안내 없이 끝남 → v1.05에서 안내 추가**. 나머지 이미지 프로그램(photo-remake·fashion-style·4컷·인플루언서·allinone·image-convert·seo-thumbnail·portrait 등)은 사진을 서버로 올리지 않고 브라우저 안에서만 읽고, 읽기 전에 대기 표시를 켜지 않아 멈춤 위험 없음.

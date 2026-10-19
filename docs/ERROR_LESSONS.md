@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — `FileReader.readAsDataURL`은 깨진 사진도 「성공」으로 읽는다 (이미지 프로그램 8곳, Claude Code 윈도우)
+- **증상**: 깨진 JPG를 올리면 깨진 그림 아이콘만 보이거나 목록·첨부에 그대로 들어가고, 일부는 서버 업로드 뒤 AI 단계에서야 실패. 브라우저 영어 원문(「The source image could not be decoded.」)이 그대로 보인 곳도 있었음.
+- **원인**: 파일을 글자로 읽는 단계(`readAsDataURL`)는 그림이 맞는지 확인하지 않는다. 실패는 그림을 풀 때(`createImageBitmap`·`Image`) 생긴다.
+- **해결**: 공용 부품 `image-file-check`(기준 `portrait-photo/src/lib/imageFileCheck.ts`) — 받는 순간 실제로 풀어 보고, 두 방식 모두 실패할 때만 한글 안내로 거절.
+- **다음부터 확인**: 사진을 받는 화면을 만들면 이 사본을 쓰고, 깨진 파일(앞 4바이트만 JPEG 머리, 나머지 쓰레기)로 한 번 넣어 본다.
+
 ## 2026-10-19 — 큰 파일을 나눈 뒤 소스 글자 검사 테스트가 무더기로 실패 (naver-blog-seo-studio, Claude Code 윈도우)
 - **증상**: 확장 회귀 테스트 27개 중 10개 실패(정규식이 문구를 못 찾음). 실제 화면은 정상.
 - **원인**: 2026-10-17 `StudioPage.tsx`(928줄)를 `useStudio`·화면 5개로 나눴는데 테스트는 `StudioPage.tsx` 한 파일만 읽었다.

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { checkImageFile } from "@/lib/imageFileCheck";
 import {
   Sliders,
   Type,
@@ -37,6 +38,7 @@ export default function SettingsColumn({
 }: SettingsColumnProps) {
   const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
+  const [imageError, setImageError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,9 +52,14 @@ export default function SettingsColumn({
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = ""; // 같은 파일을 다시 골라도 반응하게
     if (file) {
+      // 깨진 사진은 받지 않고 안내(공용 image-file-check — 브라우저 안에서 풀어 보기)
+      const check = await checkImageFile(file);
+      setImageError(check.ok ? "" : check.message);
+      if (!check.ok) return;
       const reader = new FileReader();
       reader.onload = (event) => {
         const base64 = event.target?.result as string;
@@ -280,6 +287,7 @@ export default function SettingsColumn({
                     />
                   </div>
                 )}
+                {imageError && <p role="alert" className="mt-1.5 text-[11px] text-rose-600">{imageError}</p>}
               </div>
             </div>
           )}
