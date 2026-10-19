@@ -35,3 +35,30 @@ test("보기용 한국 시간 표기", () => {
   assert.equal(formatKst("2026-10-19T23:05:00.000Z"), "10월 20일 08:05");
   assert.equal(formatKst(null), "");
 });
+
+// v1.20 — 일시 오류만 한 번 다시 시도, 데이터형 카드 강조색은 테마 색을 따름
+import { isTransientPublishError, RETRY_DELAY_MS } from "../src/lib/cardnews/schedule.ts";
+import { dataAccent, DATA_ACCENTS, THEME_COLORS } from "../src/lib/cardnews/presets.ts";
+
+test("다시 시도 판단: 일시 오류만 true", () => {
+  for (const m of ["인스타그램 게시에 실패했습니다. Timeout", "인스타그램 미디어 처리가 너무 오래 걸려 게시를 중단했습니다.", "fetch failed", "Instagram/Facebook API 요청이 실패했습니다. (503)", "Service temporarily unavailable"]) {
+    assert.equal(isTransientPublishError(m), true, m);
+  }
+  for (const m of ["인스타그램 연결이 만료되었습니다.", "Invalid OAuth access token", "인스타그램 미디어 처리에 실패했습니다. (ERROR)", "(#10) Application does not have permission", "Instagram/Facebook API 요청이 실패했습니다. (400)"]) {
+    assert.equal(isTransientPublishError(m), false, m);
+  }
+  assert.equal(RETRY_DELAY_MS, 10 * 60 * 1000);
+});
+
+test("데이터형 카드 강조색: 모든 테마에 색이 있고 자동은 기존 주황", () => {
+  for (const t of THEME_COLORS) {
+    const a = DATA_ACCENTS[t.value];
+    assert.ok(a, t.value);
+    assert.match(a.main, /^#[0-9a-f]{6}$/i);
+    assert.match(a.mainRgb, /^\d{1,3},\d{1,3},\d{1,3}$/);
+  }
+  assert.equal(dataAccent("auto").main, "#FF6B4A");
+  assert.equal(dataAccent(undefined).main, "#FF6B4A");
+  assert.equal(dataAccent("cool").main, "#38BDF8");
+  assert.notEqual(dataAccent("cool").main, dataAccent("cool").alt);
+});

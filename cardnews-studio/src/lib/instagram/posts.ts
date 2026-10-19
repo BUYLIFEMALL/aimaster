@@ -4,6 +4,7 @@ import { checkProgramAccess } from "@/lib/programAccess";
 import { THIS_PROGRAM_SLUG } from "@/lib/access";
 import { getMemberInstagramAccount } from "./memberAccount";
 import { graphBaseFor, publishInstagramCarousel, publishInstagramPost } from "./publish";
+import { isTransientPublishError, RETRY_DELAY_MS } from "@/lib/cardnews/schedule";
 
 // 인스타 게시 기록·예약 게시(v1.19). 즉시 게시와 예약 실행이 같은 함수(publishPaths)를 쓴다.
 // 게시 기록 표 cns_insta_posts — 회원 본인만 읽기(RLS), 쓰기는 이 서버 코드만. 생성 30일 뒤 삭제(cleanupOldPosts).
@@ -71,7 +72,7 @@ export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status
   const admin = createAdminClient();
   const { data: due } = await admin
     .from("cns_insta_posts")
-    .select("id, user_id, image_paths, caption")
+    .select("id, user_id, image_paths, caption, error_message")
     .eq("status", "scheduled")
     .lte("scheduled_at", new Date().toISOString())
     .order("scheduled_at", { ascending: true })
@@ -95,6 +96,12 @@ export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status
       continue;
     }
     const out = await publishPaths(post.user_id, post.image_paths ?? [], post.caption ?? "");
+    // 일시 오류는 한 번만 10분 뒤 다시 시도(v1.20). 예약 상태로 되돌리고 실패 사유를 남겨 두면, 그 사유가 「이미 한 번 다시 시도했다」는 표시가 된다(이미지는 보관).
+    if (!out.ok && !out.needConnect && !post.error_message && isTransientPublishError(out.error)) {
+      await finish({ status: "scheduled", scheduled_at: new Date(Date.now() + RETRY_DELAY_MS).toISOString(), error_message: `1차 실패 — 10분 뒤 한 번 더 시도합니다. ${out.error}`.slice(0, 400) });
+      results.push({ id: post.id, status: "retry" });
+      continue;
+    }
     await finish(out.ok ? { status: "published", published_at: new Date().toISOString(), permalink: out.permalink, ig_username: out.username, error_message: null } : { status: "failed", error_message: out.error });
     await removeImages(post.image_paths ?? []);
     results.push({ id: post.id, status: out.ok ? "published" : "failed" });

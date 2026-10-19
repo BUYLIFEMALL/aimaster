@@ -74,6 +74,23 @@ export const THEME_COLORS: (Option<ThemeColorId> & { prompt: string; gradient: [
   { value: "mono", label: "Minimal/Black & White", prompt: "a minimal monochrome black, white and gray palette", gradient: ["#6b7280", "#111827"] },
 ];
 
+/** 데이터형 카드(목록·VS·큰 숫자) 강조색 — 디자인 단계 테마 색을 따른다(v1.20). main=번호·숫자·밑줄·VS 오른쪽, alt=VS 왼쪽. rgb는 반투명 상자용 */
+export interface DataAccent {
+  main: string;
+  mainRgb: string;
+  alt: string;
+  altRgb: string;
+}
+export const DATA_ACCENTS: Record<ThemeColorId, DataAccent> = {
+  auto: { main: "#FF6B4A", mainRgb: "255,107,74", alt: "#7dd3fc", altRgb: "56,189,248" },
+  warm: { main: "#F2B880", mainRgb: "242,184,128", alt: "#F5E6C8", altRgb: "245,230,200" },
+  cool: { main: "#38BDF8", mainRgb: "56,189,248", alt: "#A5B4FC", altRgb: "165,180,252" },
+  mono: { main: "#F3F4F6", mainRgb: "243,244,246", alt: "#9CA3AF", altRgb: "156,163,175" },
+};
+export function dataAccent(themeColor: ThemeColorId | undefined): DataAccent {
+  return DATA_ACCENTS[themeColor ?? "auto"] ?? DATA_ACCENTS.auto;
+}
+
 export type PlacementId = "center" | "top" | "bottom" | "left";
 export const PLACEMENTS: Option<PlacementId>[] = [
   { value: "center", label: "중앙형" },

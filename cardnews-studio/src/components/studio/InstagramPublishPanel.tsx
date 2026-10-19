@@ -38,6 +38,14 @@ const STATUS_LABEL: Record<PostRow["status"], { text: string; cls: string }> = {
   canceled: { text: "취소", cls: "bg-slate-500/15 text-slate-400" },
 };
 
+/** 기록 한 줄의 시각 문구 — 예약·취소는 예약 시각, 게시는 게시 시각 기준(v1.20) */
+function postTimeLabel(p: PostRow): string {
+  if (p.status === "scheduled") return `${formatKst(p.scheduled_at)} ${p.error_message ? "다시 시도 예정" : "예약"}`;
+  if (p.status === "canceled" && p.scheduled_at) return `${formatKst(p.scheduled_at)} 예약 → 취소`;
+  if (p.published_at) return `${formatKst(p.published_at)} 게시`;
+  return `${formatKst(p.created_at)} 등록`;
+}
+
 /** 지금부터 1시간 뒤(한국 시간)를 datetime-local 기본값으로 */
 function defaultLocal(): string {
   const d = new Date(Date.now() + 60 * 60 * 1000 + 9 * 60 * 60 * 1000);
@@ -206,10 +214,11 @@ export function InstagramPublishPanel() {
             {posts.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-[#0d0f17] px-3 py-2 text-[11px] text-slate-300">
                 <span className={`rounded-full px-2 py-0.5 font-bold ${STATUS_LABEL[p.status].cls}`}>{STATUS_LABEL[p.status].text}</span>
-                <span>{p.status === "scheduled" ? `${formatKst(p.scheduled_at)} 예약` : p.published_at ? `${formatKst(p.published_at)} 게시` : `${formatKst(p.created_at)} 등록`}</span>
+                <span>{postTimeLabel(p)}</span>
                 <span className="text-slate-500">· {p.page_count}장{p.ig_username ? ` · @${p.ig_username}` : ""}</span>
                 {p.permalink && <a href={p.permalink} target="_blank" rel="noreferrer" className="font-bold text-pink-300 underline">게시물 보기</a>}
                 {p.status === "failed" && p.error_message && <span className="w-full text-red-300">{p.error_message}</span>}
+                {p.status === "scheduled" && p.error_message && <span className="w-full text-amber-300">{p.error_message}</span>}
                 {p.status === "scheduled" && (
                   <button type="button" onClick={() => void cancel(p.id)} className={`${BTN_GHOST} ml-auto px-2 py-1 text-[11px]`}><X className="h-3 w-3" /> 예약 취소</button>
                 )}

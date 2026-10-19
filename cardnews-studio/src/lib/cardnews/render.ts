@@ -1,6 +1,6 @@
 // 카드 한 장을 캔버스에 그린다. 화면 미리보기와 PNG 내보내기가 같은 함수를 쓰므로 결과가 같다.
 // 글자 줄바꿈·배치 계산은 layout.ts(순수 함수)에 있다.
-import { FONTS, RATIOS } from "./presets";
+import { FONTS, RATIOS, dataAccent } from "./presets";
 import { ICON_PATHS } from "./iconData";
 import { placeholderGradient } from "./defaults";
 import type { CardContent, CardStyle, TextStyle } from "./types";
@@ -136,8 +136,7 @@ export function drawCard(
 
 
 // ── 데이터형 카드(v1.17): 번호 목록 · A vs B · 큰 숫자 ──────────────────────────────
-// 어두운 막 위에 흰 글자로 고정해 읽기 쉽게 하고, 강조색(주황)으로 번호·숫자·VS를 칠한다.
-const ACCENT = "#FF6B4A";
+// 어두운 막 위에 흰 글자로 고정해 읽기 쉽게 하고, 강조색(디자인 테마 색, 자동=주황 — v1.20)으로 번호·숫자·VS를 칠한다.
 const BOX_FILL = "rgba(255,255,255,0.08)";
 const BOX_LINE = "rgba(255,255,255,0.16)";
 const TEXT_MAIN = "#ffffff";
@@ -161,6 +160,8 @@ function drawDataCard(
   bg: (CanvasImageSource & { width: number; height: number }) | null
 ) {
   const { width, height } = size;
+  const A = dataAccent(style.themeColor);
+  const ACCENT = A.main;
   // 1) 배경: 이미지가 있으면 깔고 진한 막(최소 70%), 없으면 짙은 차콜 그라데이션
   if (bg) {
     drawCover(ctx, bg, width, height);
@@ -200,15 +201,15 @@ function drawDataCard(
     const L = layoutList(width, height, header.bottom, points, page.sub, measureAt(800));
     L.items.forEach((it, i) => {
       roundRect(ctx, L.x, it.y, L.width, it.height, Math.round(width * 0.024));
-      ctx.fillStyle = i === 0 ? "rgba(255,107,74,0.12)" : BOX_FILL;
+      ctx.fillStyle = i === 0 ? `rgba(${A.mainRgb},0.12)` : BOX_FILL;
       ctx.fill();
-      ctx.strokeStyle = i === 0 ? "rgba(255,107,74,0.45)" : BOX_LINE;
+      ctx.strokeStyle = i === 0 ? `rgba(${A.mainRgb},0.45)` : BOX_LINE;
       ctx.lineWidth = 2;
       ctx.stroke();
       const bx = L.x + Math.round(width * 0.028);
       const by = it.y + L.padY;
       roundRect(ctx, bx, by, L.badge, L.badge, Math.round(L.badge * 0.28));
-      ctx.fillStyle = "rgba(255,107,74,0.18)";
+      ctx.fillStyle = `rgba(${A.mainRgb},0.18)`;
       ctx.fill();
       text(String(i + 1).padStart(2, "0"), bx + L.badge / 2, by + Math.round(L.badge * 0.22), 900, Math.round(L.badge * 0.5), ACCENT, "center");
       let ty = it.y + L.padY;
@@ -230,14 +231,14 @@ function drawDataCard(
     const V = layoutVs(width, height, header.bottom, points, page.sub, measureAt(800));
     V.columns.forEach((c, i) => {
       roundRect(ctx, c.x, V.top, c.width, V.height, Math.round(width * 0.026));
-      ctx.fillStyle = i === 0 ? "rgba(56,189,248,0.10)" : "rgba(255,107,74,0.10)";
+      ctx.fillStyle = i === 0 ? `rgba(${A.altRgb},0.10)` : `rgba(${A.mainRgb},0.10)`;
       ctx.fill();
-      ctx.strokeStyle = i === 0 ? "rgba(56,189,248,0.45)" : "rgba(255,107,74,0.45)";
+      ctx.strokeStyle = i === 0 ? `rgba(${A.altRgb},0.45)` : `rgba(${A.mainRgb},0.45)`;
       ctx.lineWidth = 2;
       ctx.stroke();
       let ty = V.top + V.pad;
       c.titleLines.forEach((line) => {
-        text(line, c.x + V.pad, ty, 900, V.titleSize, i === 0 ? "#7dd3fc" : ACCENT);
+        text(line, c.x + V.pad, ty, 900, V.titleSize, i === 0 ? A.alt : ACCENT);
         ty += Math.round(V.titleSize * 1.3);
       });
       ty += Math.round(V.descSize * 0.6);

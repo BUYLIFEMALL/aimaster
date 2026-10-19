@@ -11,6 +11,15 @@ export function validateScheduleTime(raw: unknown, now: number = Date.now()): { 
   return { ok: true, at: new Date(t) };
 }
 
+/** 예약 실행 실패 후 다시 시도까지 기다리는 시간(v1.20, 한 번만) */
+export const RETRY_DELAY_MS = 10 * 60 * 1000;
+
+/** 다시 시도할 만한 일시 오류인가 — 인스타 서버 지연·미디어 처리 지연·네트워크 끊김·5xx. 연결 만료·권한·형식 오류는 다시 해도 같으므로 제외 */
+export function isTransientPublishError(message: string): boolean {
+  if (/만료|권한|연결된 인스타그램 계정이 없|permission|expired|invalid|OAuth/i.test(message)) return false;
+  return /timeout|timed out|너무 오래|fetch failed|network|ECONNRESET|ETIMEDOUT|socket|\((5\d\d)\)|temporarily|unavailable|try again|잠시 후/i.test(message);
+}
+
 /** 한국 시간 「YYYY-MM-DDTHH:mm」(datetime-local 입력값) → ISO. 브라우저 시간대와 상관없이 한국 시간으로 본다. */
 export function kstLocalToIso(local: string): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(local);

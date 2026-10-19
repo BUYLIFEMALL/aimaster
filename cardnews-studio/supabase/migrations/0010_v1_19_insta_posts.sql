@@ -31,3 +31,6 @@ create policy "cns_insta_posts_select_own" on public.cns_insta_posts for select 
 
 -- 버전 갱신(v1.19)
 update public.programs set version = 'v1.19', updated_at = now() where slug = 'cardnews-studio';
+
+-- 버전 갱신(v1.20, 표 변경 없음: 데이터형 카드 강조색 테마 연동·예약 일시 오류 1회 재시도·취소 기록 문구)
+update public.programs set version = 'v1.20', updated_at = now() where slug = 'cardnews-studio';
