@@ -1,3 +1,4 @@
+import { saveSharedDmAccount } from "@/lib/instagram/memberAccount";
 import { NextRequest, NextResponse } from "next/server";
 import { SITE_ORIGIN, INSTAGRAM_REDIRECT_FOR } from "@/lib/oauthRedirect";
 import { createClient } from "@/lib/supabase/server";
@@ -80,6 +81,16 @@ export async function GET(request: NextRequest) {
     if (error) {
       throw new Error(error.message);
     }
+
+    // v1.16: 공용 연결 계정에도 저장(이중 기록)
+    await saveSharedDmAccount({
+      userId: user.id,
+      igUserId: accountInfo.igUserId,
+      username: accountInfo.username ?? null,
+      accessToken: longLived.access_token,
+      tokenExpiresAt,
+      appId,
+    });
 
     return NextResponse.redirect(`${siteUrl}${redirectTarget}?instagram_connected=1`);
   } catch {

@@ -49,6 +49,7 @@ export function InstagramConnectSection({
       {connected && !needsReconnect ? (
         <div className="space-y-3">
           <p className="text-sm text-ig-success">✅ @{username ?? "내 계정"}으로 연동되어 있어요.</p>
+          <p className="text-xs text-ig-muted">연동을 해제하면 이 계정을 함께 쓰는 다른 Instagram 프로그램에서도 해제됩니다.</p>
           <form action={disconnectInstagramAction}>
             <button type="submit" className="rounded-lg bg-ig-danger/10 px-4 py-2 text-xs font-bold text-ig-danger hover:bg-ig-danger/15">
               연동 해제

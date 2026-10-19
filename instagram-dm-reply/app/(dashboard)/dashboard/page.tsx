@@ -1,3 +1,4 @@
+import { getDmAccount } from "@/lib/instagram/memberAccount";
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +25,7 @@ export default async function DashboardPage() {
   const weekAgo = new Date(Date.now() - 7 * 24 * HOUR).toISOString();
 
   const [accountRes, settingsRes, keysRes, telegramRes, pendingRes, weekRes, totalRes] = await Promise.all([
-    supabase.from("dm_accounts").select("username, needs_reconnect").eq("user_id", user.id).maybeSingle(),
+    getDmAccount(supabase, user.id).then((data) => ({ data })),
     supabase
       .from("dm_settings")
       .select("reply_model, auto_approve, bot_enabled, bot_started_at")

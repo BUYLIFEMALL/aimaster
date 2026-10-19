@@ -1,4 +1,5 @@
 import "server-only";
+import { getDmAccount } from "@/lib/instagram/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getValidInstagramAccessToken } from "@/lib/actions/instagram";
@@ -44,11 +45,8 @@ export async function postDmReplyForUser(
     .maybeSingle();
   if (!conversation) return { error: "대화를 찾을 수 없습니다." };
 
-  const { data: account } = await supabase
-    .from("dm_accounts")
-    .select("instagram_user_id, access_token, token_expires_at")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.16: 공용 연결 계정(DM 권한 있는 것) → 없으면 dm_accounts
+  const account = await getDmAccount(supabase, userId);
   if (!account) return { error: "인스타그램 계정이 연결되어 있지 않습니다." };
 
   const { data: settings } = await supabase
