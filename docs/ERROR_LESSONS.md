@@ -10,6 +10,15 @@
 - 위험: 이미지·영상 Threads 발행은 처리 대기로 30초를 넘길 수 있어 실패가 쌓이면 회원 예약이 조용히 멈춘다.
 - 해결: `dispatch-member`가 `{accepted:true}`를 바로 돌려주고 발행은 `waitUntil`(`@vercel/functions`, Next 14엔 `after` 없음)로 이어서 처리. 예약 때마다 cron-job.org 작업 실제 상태를 확인해 다시 켬. 지침: `docs/SCHEDULER_POLICY.md` §3.
 
+## 2026-10-19 — 세션에 운영 DB 연결 도구가 없다고 주인님께 SQL 실행을 넘기지 말 것 → 승인받고 크롬(로그인된 Supabase SQL Editor)으로 직접 실행 (threads v1.19, Claude Code 윈도우)
+- 증상: 이 세션의 Supabase 도구는 Lab용(`Supabase_DEV`)뿐이고 Supabase CLI도 로그인 안 돼 있어, 운영 표 생성 SQL을 주인님께 「직접 실행해 주세요」로 넘김 → 주인님: 「이걸 왜 니가 안하고 나한테 해달라는거지?」
+- 해결: 주인님 크롬은 Supabase에 로그인돼 있으므로 claude-in-chrome으로 `https://supabase.com/dashboard/project/esgxyikcnnvmlhygjkth/sql/new` 열기 → 상단 **AIMaster · PRODUCTION** 표시 확인 → `window.monaco.editor.getModels()[0].setValue(sql)`로 넣기 → Run → 「Potential issue detected」는 내용 확인 후 Run query → 결과 표 확인(마지막 줄에 확인용 select를 붙이면 한 번에 검증).
+- 다음부터: DB 쓰기(스키마 변경)는 사전 승인 대상이므로 **무엇을 왜 바꾸는지 설명 → 승인 → 크롬으로 직접 실행 → 결과 확인**까지 에이전트가 한다. 프로젝트 표시(PRODUCTION/Lab)를 화면으로 확인하고 대상 ref를 보고에 적는다.
+
+## 2026-10-19 — PowerShell `Invoke-WebRequest`로 Supabase를 부르면 Secret key(`sb_secret_…`)가 401로 거부된다 (패키지 설치마법사, Claude Code 윈도우)
+- 원인: 기본 User-Agent(`Mozilla/5.0 … WindowsPowerShell`)를 Supabase가 브라우저 요청으로 보고 Secret key 사용을 막음. 같은 키로 `curl`은 200.
+- 해결: `-UserAgent "aimaster-kit-setup"` 지정(`scripts/kit-template/setup.ps1` `HttpStatus`). 다음부터: 서버용 키를 PowerShell로 시험할 때 User-Agent를 지정한다. 지침 `docs/DISTRIBUTION_KIT_GUIDE.md` §2-2·§6-3.
+
 ## 2026-10-19 — 운영 DB `user_api_keys_provider_check` 정의는 `ARRAY['a'::text,…]`가 아니라 `'{a,b,…}'::text[]` 형식이다 → 허용 목록에 값을 넣는 SQL은 두 형식을 모두 처리 (threads-content-ops v2.07, Claude Code 윈도우)
 - 증상: 현재 정의를 읽어 끝의 `]))`를 바꿔 값을 덧붙이는 DO 블록이 「unexpected constraint format」으로 중단(형식 검사를 넣어 둬서 아무것도 바뀌지 않음).
 - 원인: `pg_get_constraintdef`가 운영 DB에서는 `CHECK ((provider = ANY ('{…}'::text[])))`로 돌려줌(키트·새 DB는 `ARRAY[...]` 형식).

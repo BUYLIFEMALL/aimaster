@@ -56,7 +56,8 @@
 - 화면: 설정 「⏰ 예약 발행」(방식 선택 `components/settings/SchedulerModePicker.tsx` + cron-job.org 키 `ApiKeyRow`, 공용 provider `cronjob_org_api_key` — 다른 프로그램에서 넣은 키면 「등록됨」), 게시글 관리 위 상태 줄·전체 일시정지/재개(`components/posts/SchedulePublishingControl.tsx`), `/guide` FAQ·예약 시각 안내 문구.
 - 코드: `src/lib/posts/cronJobOrg.ts`·`memberScheduler.ts`(표 `atp_member_scheduler`, 토큰 `atp_…` DB엔 해시, 끄기 스위치 환경변수 `ATP_PLATFORM_SCHEDULER=off`), `src/lib/actions/scheduler.ts`, `actions/posts.ts` 예약 전 방식·키 확인 + 예약 뒤 작업 켜기(실패 시 초안으로), `actions/settings.ts` 키 변경(방식 유지)·삭제(Vercel로), 새 주소 `/api/posts/dispatch-member`(회원 토큰, 즉시 응답 + `after`, 남은 예약 0건이면 작업 끔), `/api/posts/dispatch-scheduled`는 vercel·비일시정지 회원만.
 - **중복 발행 방지·24시간 규칙(새로 추가)**: `dispatch.ts`가 글마다 `scheduled → publishing` 조건부 update로 먼저 가져간 실행만 발행, 예약 시각이 24시간 넘게 지난 글은 올리지 않고 실패 처리. 회원 실행에도 핸드폰 필수 정책 적용.
-- DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261019230000_atp_member_scheduler.sql`(표 + RLS 본인 조회 + `programs.version` v1.19). **표가 없으면 운영자 예약 실행이 오류로 멈추므로 반드시 DB 적용 후 배포.**
+- DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261019230000_atp_member_scheduler.sql`(표 + RLS 본인 조회 + `programs.version` v1.19). **표가 없으면 운영자 예약 실행이 오류로 멈추므로 반드시 DB 적용 후 배포.** → 2026-10-19 주인님 승인 후 크롬(주인님 로그인 Supabase SQL Editor, AIMaster·PRODUCTION 확인)으로 적용, 결과 `atp_member_scheduler`·`v1.19` 확인.
+- 배포: `threads-80uxhi9g1`(Ready). 운영 주소 `/api/posts/dispatch-member`·`/api/posts/dispatch-scheduled` 무인증 401, 가짜 회원 토큰 401, `/login` 200.
 - 2026-10-18 미배포 예약 안내 문구도 이번 배포에 함께 나감. 검수: tsc 0, `npm run build`(`/api/posts/dispatch-member` 포함). 크롬 실화면 검수는 주인님 지시대로 예약 방식 적용(B 묶음) 전체 완료 뒤 한꺼번에.
 
 ### `v1.18` (2026-10-18) - Claude Code (윈도우)
