@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — 연결 계정 행을 지우기 전에 그 행을 가리키는 외래키의 `on delete cascade`부터 확인 (Meta 삭제 콜백 · threads-content-ops, Claude Code 윈도우)
+- 증상(구현 중 발견, 배포 전): Meta 제거·삭제 콜백 대상 표에 `tco_threads_accounts`를 넣으려 했는데, 그 표를 `tco_posts`·운영 설정·글감이 `references … on delete cascade`로 가리킴 → 회원이 Meta 앱만 제거해도 직접 쓴 글이 모두 지워질 뻔했다(콜백은 원래 「회원이 쓴 글은 보존」).
+- 해결: 그 표는 행을 두고 **토큰만 무효화**(`access_token=''`, `token_expires_at=now()`), 프로그램은 「토큰 만료 — 다시 연결」로 안내(`threads-affiliate-poster/src/lib/threads/signedRequest.ts` `clearOtherThreadsConnections`).
+- 다음부터: 연결 계정·토큰 행 `delete` 전에 `git grep "references public.<표>"`로 cascade 대상이 회원 콘텐츠인지 확인한다.
+
 ## 2026-10-20 — 여러 프로그램이 같은 OAuth 토큰을 함께 쓸 때 「받은 권한」을 합쳐 저장하면 안 된다 (회원 연동 정보 공용 저장 ②, Claude Code 윈도우)
 - 증상(설계 검토 중 발견, 회원 영향 없음): 공용 부품 첫 버전이 같은 앱이면 이전 권한과 새 권한을 합쳐 기록 → 게시 프로그램(게시 권한만 요청)이 다시 연결해 토큰을 바꿔도 표에는 「댓글 권한 있음」으로 남아, 댓글 프로그램이 권한 없는 토큰을 쓰게 될 수 있었다.
 - 해결: `lib/memberIntegrations.ts` `saveMemberAccount`는 **이번 연결에서 요청한 권한만** 기록. 권한이 모자란 프로그램은 `missing_scopes` → 자기 표 토큰(threads v1.22로 사본 재배포).

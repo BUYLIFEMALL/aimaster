@@ -69,6 +69,16 @@
 - 주인님 결정(2026-10-20): 네이버 카페·카카오(정기 자동 실행형)에도 회원 cron-job.org 선택지 적용 → 다음 작업.
 - 링크: https://auto-threads-posting.buylife.xyz · https://cardnews-studio.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ③단계: 쇼핑제휴 v1.66 · 운영 자동화 v2.11 (Threads 4개 전환 완료)
+- 주인님 승인(「진행해」). 다른 세션의 공용 예약 수정(`ccf80d68`, 11개 프로그램) 배포가 두 폴더에서 끝나길 기다린 뒤(02:29·02:30 배포 확인) 시작. 현황·주의: **`docs/MEMBER_INTEGRATIONS.md` §6·§7**.
+- 쇼핑제휴: 공용 우선 읽기·이중 기록·해제·토큰 연장 기록, 배포판 제외, 키워드 검색은 자기 표만. **Meta 제거·삭제 콜백**: 공용 표·운영 자동화에만 연결이 있는 회원도 서명 확인 후 처리, 공용 행 삭제, 운영 자동화는 토큰만 무효화(지우면 cascade로 글 삭제 — 처음 목록에 넣었다가 발견해 바꿈). 기존에 운영 자동화 토큰이 삭제 요청 후에도 남던 빈틈도 해결.
+- 운영 자동화: 화면 열 때 공용 계정 가져오기(없는 계정 추가·만료 토큰 교체), 이중 기록, 해제 시 공용 행 삭제.
+- 백필 쇼핑제휴 2·운영 자동화 1 → 공용 Threads 12건(Threads 연결 회원 12명 전원). DB 버전 v1.66·v2.11.
+- 검수: tsc·build·운영 자동화 테스트 32/32, 순차 배포 Ready(`threads-affiliate-poster-gfw7rcsg0` → `threads-content-kcpwp2q17`), 콜백 잘못된 서명 400(빈 요청 500은 원래 동작), 크롬 두 설정 화면 「@buylife.co.kr」 정상, 운영 자동화 계정 6건 중복 0. 실제 게시·해제·OAuth·Meta 실제 콜백은 하지 않음.
+- 쇼핑제휴 `AGENTS.md`의 미커밋 공백 변경은 다른 곳의 것이라 커밋에서 제외(HEAD + 내 항목만 스테이징).
+- 다음 첫 단계: ④ Instagram(INSTA·카드뉴스·인플루언서·댓글·DM·shots) — 앱 종류(Instagram/Facebook 로그인)와 권한(게시/댓글/DM)이 섞여 있어 플랜부터 주인님께.
+- 링크: https://threads-affiliate-poster.buylife.xyz · https://threads-content-ops.buylife.xyz · https://www.buylife.xyz/api-settings
+
 ## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ②단계 Threads 시범: threads v1.22 · threads-comment-reply v1.13
 - 주인님 승인(「진행해」). 현황·주의: **`docs/MEMBER_INTEGRATIONS.md` §6·§7**. 공용 부품 사본 등록 `check-shared-modules.mjs` 「member-integrations」(기준 `lib/memberIntegrations.ts` → threads·threads-comment-reply).
 - threads: 게시·예약 발행·설정/대시보드/글 화면이 공용 계정(게시 권한) → 없으면 `threads_accounts`. 콜백 이중 기록, 해제 시 공용 계정도 삭제. 백필 9건. v1.21 배포 후 **공용 부품 정정**(권한 합치기 제거 — 새 토큰에 이전 권한 보장 못 함)으로 v1.22 재배포. agy 카드 색 개선(`fd69da1d`) 버전 기록 포함.
