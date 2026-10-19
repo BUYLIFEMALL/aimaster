@@ -15,8 +15,9 @@ export const maxDuration = 280;
 // 예약 모니터링은 "새 댓글 수집 + AI 초안 생성"까지만 자동으로 하고, 실제 게시는 하지 않는다
 // (postReplyAction은 여전히 사람이 검토 화면/텔레그램 버튼에서 직접 승인해야 한다).
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  const secret = process.env.CRON_SECRET;
+  // v1.16: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 async function dispatch() {

@@ -12,8 +12,9 @@ const THIS_PROGRAM_SLUG = "instagram-comment-reply";
 // stepmail/real_estate_sales/threads/youtube-auto-reply의 CRON_SECRET Bearer 인증 패턴을
 // 그대로 재사용. vercel.json에 매일 1회 스케줄로 등록한다.
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  const secret = process.env.CRON_SECRET;
+  // v1.16: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 /**

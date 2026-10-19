@@ -38,8 +38,9 @@ async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promi
 // "지금 조회하기"로 이미 최근에 수집된 지역도 이 재사용 로직 덕분에 중복 호출되지 않는다.
 
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  const secret = process.env.CRON_SECRET;
+  // v1.16: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 async function dispatch() {
