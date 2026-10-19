@@ -38,7 +38,7 @@
 - 조사: Threads 연결 회원 12명 중 6명이 2곳 이상 중복 연결(표 4개), Instagram·YouTube도 연결 회원 전원 중복. 프로그램마다 권한 범위가 달라(게시 / 댓글 / DM) 「받은 권한」을 함께 저장하는 구조로 설계. `meta_app_id`·`facebook_app_id`·`threads_app_id`는 서로 다른 앱이라 합치지 않음(처음 플랜의 「이름 섞임」은 정정).
 - ⓪ 운영 DB(`esgxyikcnnvmlhygjkth`) — 크롬 SQL Editor로 `supabase/migrations/0039_member_integrations.sql` 실행(경고는 새 표에만 쓰는 drop policy/revoke 때문) → 점검: 카탈로그 9건, 회원 토큰 칸 SELECT false, 회원 삭제 true·저장/수정 false, anon false.
 - ① `lib/memberIntegrations.ts`(기준 코드: `getMemberAccount`·`saveMemberAccount`·`updateMemberAccountToken`·`markMemberAccountNeedsReconnect`), `components/settings/MemberIntegrations.tsx`를 `/api-settings` 맨 아래에. 아직 어떤 프로그램도 새 표를 쓰지 않아 회원 화면은 「아직 연결된 계정이 없습니다 → 연결하러 가기」만 보임(정상).
-- 검수: tsc(관련 오류 0)·`npm run build` 통과. 배포·화면 확인 결과는 이 항목 아래 줄에 추가.
+- 검수: tsc(관련 오류 0)·`npm run build` 통과 → 푸시 자동 배포 `aimaster-qr1exmnyd`(Ready) → 크롬(관리자 로그인): 카드·5개 항목·「연결하러 가기」 주소 정상, 오류 문구 없음. 실제 세션으로 REST 직접 요청: 토큰 칸·전체 칸 읽기 403, 화면용 칸 200, 회원 직접 저장 403. 휴대폰 폭은 창 최대화라 390px iframe으로 확인(가로 스크롤 없음, 카드 348px). 일반 회원 계정 화면은 미확인(같은 코드·같은 권한).
 - 다음 첫 단계: ② Threads 시범(threads → threads-comment-reply 이중 기록·공용 우선 읽기 + Threads 백필) — **주인님께 결과 보고 후 승인받고 시작**.
 - 링크: https://www.buylife.xyz/api-settings
 

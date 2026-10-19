@@ -52,7 +52,7 @@
 | 단계 | 상태 | 날짜·증거 |
 |---|---|---|
 | ⓪ 표·권한·카탈로그 | ✅ 운영 DB 적용 | 2026-10-20, 크롬 SQL Editor 실행 `Success`, 권한 점검(카탈로그 9건·회원 토큰 읽기 false·삭제 true·쓰기 false·anon false) |
-| ① 공용 부품·메인 「내 연동 정보」 | ✅ (배포·화면 확인은 HANDOFF 참고) | 2026-10-20 |
+| ① 공용 부품·메인 「내 연동 정보」 | ✅ 배포·검수 | 2026-10-20, 커밋 `abe0e3ed`, 배포 `aimaster-qr1exmnyd`, 크롬 실화면 + 실제 세션 REST(토큰 칸 403·화면용 칸 200·직접 저장 403) |
 | ② Threads 시범(threads → threads-comment-reply) | ⚪ 주인님 승인 대기 | — |
 | ③ 나머지 Threads(쇼핑제휴·운영 자동화) | ⚪ | — |
 | ④ Instagram(INSTA·카드뉴스·댓글·DM·shots·인플루언서·웹툰) | ⚪ | — |
