@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
+import { saveSharedThreadsAccount } from "@/threads-content-ops/lib/threadsSharedAccounts";
 import { SHARED_COOKIE_DOMAIN } from "@/lib/supabase/cookieDomain";
 import {
   THREADS_CONTENT_OPS_CALLBACK_URI,
@@ -89,6 +91,16 @@ export async function GET(request: NextRequest) {
       token_expires_at: tokenExpiresAt,
     }, { onConflict: "user_id,threads_user_id" });
     if (error) throw error;
+
+    // v2.11 회원 연동 정보 공용 저장: 다른 Threads 프로그램도 다시 연결하지 않고 쓰도록 공용 표에도 저장(이중 기록, 배포판은 건너뜀)
+    await saveSharedThreadsAccount(createServiceClient(), {
+      userId: user.id,
+      threadsUserId: profile.id,
+      username: profile.username ?? null,
+      accessToken: longLived.access_token,
+      tokenExpiresAt,
+      appId,
+    });
 
     return redirectToSetup("connected=1", true);
   } catch {

@@ -670,3 +670,10 @@
 ## 2026-10-20 v2.10 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
 - 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `threads-content-azbrq4gkd`.
 - 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).
+
+## 2026-10-20 v2.11 — 회원 연동 정보 공용 저장 ③단계: 다른 Threads 프로그램에서 연결한 계정 자동 가져오기 (Claude Code 윈도우)
+- 루트 [`docs/MEMBER_INTEGRATIONS.md`](../docs/MEMBER_INTEGRATIONS.md). 공용 부품 사본 `lib/memberIntegrations.ts`(기준 루트 `lib/memberIntegrations.ts`, `check-shared-modules.mjs` 「member-integrations」 — 사본 직접 수정 금지).
+- 이 프로그램은 계정이 여러 개이고 글·운영 설정·글감이 `tco_threads_accounts.id`를 `on delete cascade`로 가리켜서, 공용 표를 직접 읽지 않고 **화면을 열 때 가져온다**(`lib/threadsSharedAccounts.ts` `importSharedThreadsAccounts`, `page.tsx`): 공용 계정(게시 권한·재연결 필요 아님·만료 전) 중 이 프로그램에 없는 것은 추가, 이 프로그램 계정이 만료/빈 토큰인데 공용 계정이 살아 있으면 토큰만 교체. 실패해도 화면은 열림.
+- 연결 콜백 이중 기록(게시 권한, `app_ref`=회원 Threads 앱 ID), 계정 연결 해제 시 그 Threads 계정의 공용 행도 삭제(남기면 다시 가져와짐). **배포판(`IS_STANDALONE`)은 공용 표를 건드리지 않음.**
+- Meta 제거·삭제 콜백(쇼핑제휴 v1.66 처리기)은 이 프로그램 계정을 **지우지 않고 토큰만 무효화**(빈 토큰 + 만료=지금) — 지우면 cascade로 글까지 사라지므로.
+- 운영 DB: `supabase/migrations/20261020140000_member_integrations_v2_11.sql` — 공용 행 없는 회원만 백필 + 버전. 검수: tsc 0, 테스트 32/32, build.

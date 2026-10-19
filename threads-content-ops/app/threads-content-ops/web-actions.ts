@@ -24,6 +24,7 @@ import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MEDIA_BUCKET, memberMediaFolder, owne
 import { publishToThreads } from "@/threads-content-ops/lib/threadsPublish";
 import { PRODUCT_SOURCE_TYPES, assemblePostBody, contentRange, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { createServiceClient } from "@/lib/supabase/server";
+import { deleteSharedThreadsAccount } from "@/threads-content-ops/lib/threadsSharedAccounts";
 import { CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, pauseMemberScheduler, platformSchedulerEnabled, removeMemberScheduler, resumeMemberScheduler, setMemberSchedulerMode, type SchedulerMode } from "@/threads-content-ops/lib/memberScheduler";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
@@ -155,12 +156,16 @@ export async function deleteMemberCredential(provider: string) {
 export async function disconnectThreadsAccount(accountId: string) {
   if (!accountId) throw new Error("연결 해제할 Threads 계정을 확인해 주세요.");
   const { supabase, user } = await authorizedUser();
+  // v2.11: 해제할 계정의 Threads ID를 먼저 읽어 공용 행도 함께 지운다(남겨 두면 화면을 열 때 다시 가져와짐)
+  const { data: target } = await supabase.from("tco_threads_accounts")
+    .select("threads_user_id").eq("user_id", user.id).eq("id", accountId).maybeSingle();
   const { error } = await supabase
     .from("tco_threads_accounts")
     .delete()
     .eq("user_id", user.id)
     .eq("id", accountId);
   if (error) throw new Error("Threads 계정 연결을 해제하지 못했습니다.");
+  if (target?.threads_user_id) await deleteSharedThreadsAccount(createServiceClient(), user.id, target.threads_user_id);
   revalidatePath("/threads-content-ops");
 }
 

@@ -5,6 +5,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { importSharedThreadsAccounts } from "@/threads-content-ops/lib/threadsSharedAccounts";
 import { cleanupUserContent } from "@/threads-content-ops/lib/contentCleanup";
 import { cleanupUserMedia } from "@/threads-content-ops/lib/mediaCleanup";
 import { APP_VERSION } from "@/threads-content-ops/lib/version";
@@ -51,6 +52,8 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     try { await cleanupUserContent(createServiceClient(), user.id); } catch { /* 정리 실패는 무시 */ }
   }
 
+  // v2.11: 다른 Threads 프로그램에서 연결한 공용 계정을 이 프로그램 계정 목록으로 가져온다(다시 연결 불필요). 실패해도 화면은 연다
+  try { await importSharedThreadsAccounts(createServiceClient(), user.id); } catch { /* 가져오기 실패는 무시 */ }
   const { data: accounts } = await supabase.from("tco_threads_accounts")
     .select("id, username, token_expires_at").eq("user_id", user.id).order("updated_at", { ascending: false });
   const [{ data: posts }, { data: credentials }, { data: operationProfiles }, { data: contentSources }, { data: viralCandidates }, { data: viralCategories }] = await Promise.all([
