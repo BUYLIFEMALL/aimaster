@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authorize, requireOwnKey } from "@/lib/chat/apiGuard";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { DIRECT_UPLOAD_MAX, STORAGE_UPLOAD_MAX } from "@/lib/chat/core";
+import { DIRECT_UPLOAD_MAX, lastUsedByDoc, STORAGE_UPLOAD_MAX, type Source } from "@/lib/chat/core";
 import { checkDocLimits, MAX_DOCS, validateUpload } from "@/lib/chat/uploadChecks";
 import { IngestError, ingestStream, processFile, type IngestStage } from "@/lib/chat/ingest";
 import { UPLOAD_BUCKET, removeUpload } from "@/lib/chat/uploads";
@@ -15,13 +15,15 @@ export const maxDuration = 300;
 export async function GET() {
   const gate = await authorize();
   if (!gate.ok) return gate.response;
-  const { data, error } = await createAdminClient()
-    .from("dcb_documents")
-    .select("id, name, size_bytes, chunk_count, created_at")
-    .eq("user_id", gate.auth.user.id)
-    .order("created_at", { ascending: false });
+  const admin = createAdminClient();
+  const userId = gate.auth.user.id;
+  const { data, error } = await admin.from("dcb_documents").select("id, name, size_bytes, chunk_count, created_at").eq("user_id", userId).order("created_at", { ascending: false });
   if (error) return NextResponse.json({ error: "문서 목록을 불러오지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ documents: data ?? [], maxDocs: MAX_DOCS, maxBytes: STORAGE_UPLOAD_MAX, directMaxBytes: DIRECT_UPLOAD_MAX });
+  // 문서별 마지막으로 근거로 쓰인 시각 — 30일 보관 답변의 출처에서 계산
+  const { data: answers } = await admin.from("dcb_messages").select("created_at, sources").eq("user_id", userId).eq("role", "assistant").order("created_at", { ascending: false }).limit(1000);
+  const lastUsed = lastUsedByDoc(data ?? [], (answers ?? []) as { created_at: string; sources: Source[] }[]);
+  const documents = (data ?? []).map((d) => ({ ...d, last_used_at: lastUsed[d.id] ?? null }));
+  return NextResponse.json({ documents, maxDocs: MAX_DOCS, maxBytes: STORAGE_UPLOAD_MAX, directMaxBytes: DIRECT_UPLOAD_MAX });
 }
 
 /**

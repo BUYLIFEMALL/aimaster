@@ -2,7 +2,9 @@
 
 export const CHUNK_SIZE = 800;
 export const CHUNK_OVERLAP = 120;
-export const MAX_CHUNKS_PER_DOC = 400;
+// 2026-10-19 L14: 400 → 1000(약 80만 자). 회원 전체 조각은 MAX_CHUNKS_PER_USER로 묶어 공용 DB 용량을 지킨다
+export const MAX_CHUNKS_PER_DOC = 1000;
+export const MAX_CHUNKS_PER_USER = 5000;
 // 2026-10-19 실검수: 0.3이면 관련 없는 뉴스 질문에도 문서가 출처로 붙어 0.4로 올림(L10)
 export const MIN_DOC_SIMILARITY = 0.4;
 
@@ -121,6 +123,8 @@ export interface Source {
   score?: number;
   /** 문서 출처: 가장 관련 높은 조각 앞부분(U1) */
   snippet?: string;
+  /** 문서 출처: 문서 id(내 문서의 「마지막 사용」 표시용) */
+  docId?: string;
   /** 웹 출처: 발행일 */
   published?: string;
   /** 웹 출처: 검색 경로(L6 — MCP가 실패해 REST로 대신한 비율 점검용) */
@@ -163,7 +167,7 @@ export function buildSources(docs: DocHit[], web: { title: string; url: string; 
       }
       continue;
     }
-    const src: Source = { type: "doc", title: d.document_name, score, snippet: snippetOf(d.content) };
+    const src: Source = { type: "doc", title: d.document_name, score, snippet: snippetOf(d.content), ...(d.document_id ? { docId: d.document_id } : {}) };
     seenDocs.set(d.document_name, src);
     out.push(src);
   }
@@ -267,26 +271,38 @@ export interface ChunkHit extends DocHit {
   id: string;
 }
 
-/** 벡터 결과와 키워드 결과를 합쳐 점수순 상위 limit개. 키워드 절반 이상 들어 있으면 관련도 기준 미만이어도 포함 */
+/** 키워드가 「구체적」인지 — 영문·숫자가 섞인 모델명·코드·수치는 하나만 일치해도 의미가 있다 */
+function isSpecific(k: string): boolean {
+  return /[0-9A-Za-z]/.test(k);
+}
+
+/** 상위 결과보다 이만큼 이상 점수가 낮은 조각은 근거에서 뺀다(2026-10-19 실데이터: 무관한 문서가 0.09~0.16 아래로 붙음) */
+export const RELATIVE_SCORE_GAP = 0.15;
+
+/**
+ * 벡터 결과와 키워드 결과를 합쳐 점수순 상위 limit개.
+ * - 키워드 점수(최대 +0.25)는 2개 이상 일치하거나 구체적 키워드(영문·숫자)가 일치할 때만 준다(L13 — 「규정」 같은 흔한 단어 하나로 붙지 않게)
+ * - 관련도 기준 미만이어도 위 조건으로 키워드가 절반 이상 일치하면 포함
+ * - 가장 높은 점수보다 RELATIVE_SCORE_GAP 이상 낮은 조각은 뺀다(단, 위 조건으로 키워드가 절반 이상 일치한 조각은 남김 — 키워드로만 찾은 정확한 조각 보호)
+ */
 export function mergeHybrid(vectorHits: ChunkHit[], keywordHits: ChunkHit[], keywords: string[], limit = 5): ChunkHit[] {
-  const byId = new Map<string, ChunkHit & { kw: number }>();
-  for (const h of vectorHits) byId.set(h.id, { ...h, kw: 0 });
-  for (const h of keywordHits) if (!byId.has(h.id)) byId.set(h.id, { ...h, similarity: h.similarity ?? 0, kw: 0 });
+  const byId = new Map<string, ChunkHit>();
+  for (const h of vectorHits) byId.set(h.id, h);
+  for (const h of keywordHits) if (!byId.has(h.id)) byId.set(h.id, { ...h, similarity: h.similarity ?? 0 });
   const lowerKeywords = keywords.map((k) => k.toLowerCase());
   const scored = [...byId.values()].map((h) => {
     const text = h.content.toLowerCase();
-    const kw = lowerKeywords.length ? lowerKeywords.filter((k) => text.includes(k)).length / lowerKeywords.length : 0;
+    const matched = lowerKeywords.filter((k) => text.includes(k));
+    const meaningful = matched.length >= 2 || matched.some(isSpecific);
+    const kw = meaningful && lowerKeywords.length ? matched.length / lowerKeywords.length : 0;
     return { h, kw, score: h.similarity + 0.25 * kw };
   });
-  return scored
-    .filter((x) => x.h.similarity >= MIN_DOC_SIMILARITY || x.kw >= 0.5)
-    .sort((a, b) => b.score - a.score)
+  const kept = scored.filter((x) => x.h.similarity >= MIN_DOC_SIMILARITY || x.kw >= 0.5).sort((a, b) => b.score - a.score);
+  const best = kept[0]?.score ?? 0;
+  return kept
+    .filter((x) => x.kw >= 0.5 || x.score >= best - RELATIVE_SCORE_GAP)
     .slice(0, limit)
-    .map(({ h, score }) => {
-      const { kw: _kw, ...rest } = h;
-      void _kw;
-      return { ...rest, similarity: Math.min(1, Math.round(score * 100) / 100) };
-    });
+    .map(({ h, score }) => ({ ...h, similarity: Math.min(1, Math.round(score * 100) / 100) }));
 }
 
 /** 「요약해 줘·정리해 줘·핵심」처럼 문서 전체를 묻는 질문인지(L12) — 관련도가 낮게 나와도 가장 가까운 문서 앞부분으로 답하게 */
@@ -311,4 +327,51 @@ export function textFromParseResult(data: { content?: { markdown?: string; text?
   let text = c.markdown || c.text || (c.html ?? "").replace(/<[^>]+>/g, " ");
   if (!text && Array.isArray(data.elements)) text = data.elements.map((e) => e.content?.markdown || e.content?.text || "").filter(Boolean).join("\n");
   return text.replace(/[ \t]+\n/g, "\n").trim();
+}
+
+// ── v1.06 화면 편의 ─────────────────────────────────────────────
+/** 문서가 조각 한도에 걸려 일부만 저장됐는지(L14) — 마지막 조각이 원문 끝까지 닿지 않으면 잘린 것 */
+export function wasTruncated(text: string, chunks: string[]): boolean {
+  if (chunks.length < MAX_CHUNKS_PER_DOC) return false;
+  const tail = text.replace(/\s+/g, " ").trim().slice(-40);
+  return !chunks[chunks.length - 1].replace(/\s+/g, " ").includes(tail);
+}
+
+/** 큰 문서 읽기 예상 남은 시간(초). 아직 읽은 쪽이 없거나 계산할 수 없으면 null */
+export function estimateRemainingSec(startedAt: number, now: number, completed?: number, total?: number): number | null {
+  if (!total || !completed || completed >= total) return null;
+  const elapsed = (now - startedAt) / 1000;
+  if (elapsed <= 0) return null;
+  return Math.round(((total - completed) * elapsed) / completed);
+}
+
+/** 문서별 마지막으로 근거로 쓰인 시각 — 답변 출처의 docId(없으면 문서 이름)로 맞춘다 */
+export function lastUsedByDoc(
+  docs: { id: string; name: string }[],
+  answers: { created_at: string; sources?: Source[] | null }[]
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const a of answers) {
+    for (const s of a.sources ?? []) {
+      if (s.type !== "doc") continue;
+      const doc = s.docId ? docs.find((d) => d.id === s.docId) : docs.find((d) => d.name === s.title);
+      if (doc && (!out[doc.id] || out[doc.id] < a.created_at)) out[doc.id] = a.created_at;
+    }
+  }
+  return out;
+}
+
+/** 웹 검색 경로 통계(MCP 처리·REST 대체 비율) — 답변 한 개를 검색 1회로 센다 */
+export function webViaStats(answers: { sources?: Source[] | null }[]): { searches: number; mcp: number; rest: number; unknown: number } {
+  const st = { searches: 0, mcp: 0, rest: 0, unknown: 0 };
+  for (const a of answers) {
+    const web = (a.sources ?? []).filter((s) => s.type === "web");
+    if (!web.length) continue;
+    st.searches++;
+    const via = web[0].via;
+    if (via === "mcp") st.mcp++;
+    else if (via === "rest") st.rest++;
+    else st.unknown++;
+  }
+  return st;
 }

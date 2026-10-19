@@ -5,7 +5,7 @@
 
 - 라이브: https://ai-doc-chatbot.buylife.xyz (Vercel 프로젝트 `ai-doc-chatbot`, 팀 `buylife`)
 - 메인 상세: https://www.buylife.xyz/programs/ai-doc-chatbot
-- 현재 버전: **v1.05** (`src/lib/version.ts` = DB `programs.version`)
+- 현재 버전: **v1.06** (`src/lib/version.ts` = DB `programs.version`)
 - 카테고리: Tools / 최소 등급 일반 / 배지 new / 요금 1·2·3개월(1만·2만·3만 원) / VIP 자동 부여
 
 ## 1. 사용 목적 및 대상
@@ -34,6 +34,7 @@
 | `POST /api/documents/upload-url`, `POST /api/documents/async` | 4MB 초과 파일 1회용 업로드 주소(L2) / 100쪽 초과 문서 비동기 읽기 상태 확인·저장(L3) |
 | `GET/POST/DELETE /api/documents` | 목록 / 업로드(최대 30개·4MB, TXT·MD·CSV는 바로 읽고 나머지는 Upstage document-parse → 800자·120자 겹침 조각 → passage 임베딩 → 100개씩 저장, 실패 시 문서 행 되돌림) / 삭제. **원본 파일은 저장하지 않음** |
 | `GET/DELETE /api/rooms`, `GET/PATCH /api/rooms/[id]` | 채팅방 목록·삭제 / 한 방의 메시지 불러오기(방은 첫 질문 때 `/api/chat`이 자동 생성, 제목 = 첫 질문 30자) |
+| `GET /api/settings/web-stats` | 최근 30일 웹 검색 횟수·MCP/REST 비율 |
 | `GET/POST/DELETE /api/settings/api-keys` | 본인 Upstage·Tavily 키 등록(마스킹 조회) |
 
 모든 API·레이아웃은 `requireProgramAccess()`/`checkProgramAccessApi()`(판정 순서: 정지 → 관리자 → 핸드폰 → FREE → 구독 → 등급+사용기간) + `dynamic="force-dynamic"`·`fetchCache="force-no-store"`. 키가 없으면 다른 키로 대신하지 않고 「본인 키를 등록해 주세요」 안내.
@@ -46,6 +47,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.06 | 2026-10-19 | L13 혼합 검색 오탐 축소(키워드 가점 조건·상대 기준 `RELATIVE_SCORE_GAP` 0.15), L14 문서당 1,000조각·회원당 5,000조각·잘림 안내, U3 대화 고정(`dcb_rooms.pinned` — `0007` 실행 전에는 `pinSupported:false`로 버튼 숨김), U5 큰 문서 예상 남은 시간, U6 문서별 마지막 사용(`GET /api/documents`의 `last_used_at`, 출처에 `docId` 저장), 설정 화면 웹 검색 경로 통계(`GET /api/settings/web-stats`). 테스트 33개 |
 | v1.05 | 2026-10-19 | L2 4MB 초과 파일(50MB까지): `POST /api/documents/upload-url` → 화면이 비공개 버킷 `dcb-uploads`에 서명 주소로 업로드 → `POST /api/documents`(JSON `storagePath`) → 처리 직후 삭제, 1시간 지난 남은 파일은 다음 발급 때 정리(`src/lib/chat/uploads.ts`). L3 100쪽 초과 PDF: 동기 읽기 413 → `submitAsyncParse` → 스트림 `async(requestId)` → 화면이 `POST /api/documents/async`를 20초마다 호출(localStorage `dcb-pending-parses`로 이어서 확인) → 완료 시 배치 결과를 쪽 순서로 이어 저장 후 Upstage 결과 DELETE. L4 벡터 상위 10 + 키워드 ilike 30 → `mergeHybrid`(유사도 + 0.25×키워드 비율, 키워드 절반 이상이면 기준 미만도 포함). L12 요약 질문은 가장 가까운 문서 앞부분 5조각. 검사 함수 `src/lib/chat/uploadChecks.ts`(route.ts에는 HTTP 함수만). 테스트 28개 |
 | v1.04 | 2026-10-19 | L5 같은 문서(이름·크기) 중복 업로드 409 차단, L6 웹 출처에 검색 경로 `via` 저장, U1 문서 출처 칩을 누르면 근거 조각(400자) 펼침(`snippet` 저장), U2 업로드 진행 단계 스트리밍(`x-progress: 1` 헤더 → 한 줄 JSON read→chunk→embed→save→done, 처리 공통화 `src/lib/chat/ingest.ts`), U3 대화 검색·이름 바꾸기(`PATCH /api/rooms/[id]`)·답변 복사·마지막 답변 다시 생성(`regenerate: true` → 서버가 직전 질문·답변 삭제 후 재답변), U4 내 문서 「이 문서로 질문」 → `/chat?doc=<id>`, 그 문서 조각만 기준 없이 근거로(없으면 앞 조각 5개). 테스트 24개 |
 | v1.03 | 2026-10-19 | v1.02 실검수에서 찾은 문제 수정: 물결표 하나(「2026~2030년」)가 취소선으로 바뀌어 답변 문단에 줄이 그어짐 → `remark-gfm` `singleTilde: false`(`~~두 개~~`만 취소선). 테스트 `tests/markdown.test.mjs` 3개 추가(21개) |

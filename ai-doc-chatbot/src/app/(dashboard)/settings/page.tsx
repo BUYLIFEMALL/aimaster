@@ -113,8 +113,14 @@ export default function SettingsPage() {
     }
   }, []);
 
+  const [webStats, setWebStats] = useState<{ searches: number; mcp: number; rest: number; unknown: number } | null>(null);
+
   useEffect(() => {
     fetchKeys();
+    fetch("/api/settings/web-stats", { cache: "no-store" })
+      .then((x) => (x.ok ? x.json() : null))
+      .then((d) => d && typeof d.searches === "number" && setWebStats(d))
+      .catch(() => undefined);
   }, [fetchKeys]);
 
   const handleSave = async (provider: string, apiKey: string) => {
@@ -200,6 +206,18 @@ export default function SettingsPage() {
       </div>
 
       <KeyCard provider="tavily" title="Tavily API 키" description="최신 정보 웹 검색용 (선택)" placeholder="tvly-... 로 시작하는 Tavily API 키" {...common} />
+      {webStats && webStats.searches > 0 && (
+        <p className="-mt-3 rounded-xl border border-[#262c3d] bg-[#11141c] px-4 py-2.5 text-xs text-slate-400">
+          🌐 최근 30일 웹 검색 <b className="text-slate-200">{webStats.searches}회</b>
+          {webStats.mcp + webStats.rest > 0 && (
+            <>
+              {" "}· Tavily MCP로 처리 {Math.round((webStats.mcp / (webStats.mcp + webStats.rest)) * 100)}% · 일반 연결(REST)로 대신 처리 {Math.round((webStats.rest / (webStats.mcp + webStats.rest)) * 100)}%
+            </>
+          )}
+          {webStats.unknown > 0 && <> · 기록 전 검색 {webStats.unknown}회</>}
+          <span className="block pt-0.5 text-[11px] text-slate-500">일반 연결 비율이 높으면 Tavily MCP 연결이 자주 실패하는 것입니다. 답변에는 영향이 없고, 같은 본인 키로 한 번 더 시도해 찾습니다.</span>
+        </p>
+      )}
 
       <div className="space-y-3 rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">
         <h2 className="text-sm font-bold text-slate-200">📖 연동 매뉴얼</h2>

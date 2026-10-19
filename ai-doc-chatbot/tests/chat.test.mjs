@@ -145,3 +145,53 @@ test("비동기 문서 읽기 결과: 쪽 순서대로 잇기·결과 글 꺼내
   assert.equal(textFromParseResult({ content: { markdown: "# 제목 \n본문" } }), "# 제목\n본문");
   assert.equal(textFromParseResult({ content: {}, elements: [{ content: { text: "가" } }, { content: { markdown: "나" } }] }), "가\n나");
 });
+
+import { wasTruncated, estimateRemainingSec, lastUsedByDoc, webViaStats, RELATIVE_SCORE_GAP } from "../src/lib/chat/core.ts";
+test("출처 오탐 줄이기(L13): 흔한 단어 하나 일치는 점수 없음, 상위보다 많이 낮으면 뺌, 키워드 조각은 보호", () => {
+  const v = [
+    { id: "w", document_name: "복지규정.txt", content: "복지 규정 헬스장 도서", similarity: 0.6 },
+    { id: "t", document_name: "출장규정.txt", content: "출장 규정 일비", similarity: 0.44 },
+  ];
+  // 「규정」 하나만 겹친 출장규정은 가점 없이 0.44 → 0.6-0.15=0.45 미만이라 빠짐
+  assert.deepEqual(mergeHybrid(v, [], ["복지", "규정", "핵심"]).map((h) => h.id), ["w"]);
+  // 모델명처럼 구체적인 키워드는 하나만 일치해도 가점
+  const o = mergeHybrid([{ id: "o", document_name: "a", content: "Orbit 배터리", similarity: 0.3 }], [], ["Orbit", "배터리"]);
+  assert.equal(o.length, 1);
+  assert.ok(RELATIVE_SCORE_GAP > 0.1 && RELATIVE_SCORE_GAP < 0.3);
+});
+
+test("문서 조각 한도(L14): 한도까지 차고 끝이 안 담겼으면 잘린 것", () => {
+  assert.equal(wasTruncated("짧은 글", ["짧은 글"]), false);
+  // 실제 조각처럼 길게(마지막 조각은 원문 끝 40자를 담음)
+  const full = Array.from({ length: MAX_CHUNKS_PER_DOC }, (_, i) => `조각${i} `.repeat(20));
+  const text = full.join(" ");
+  assert.equal(wasTruncated(text, full), false);
+  assert.equal(wasTruncated(text + " 뒤에 더 이어지는 내용이 있어서 한도 밖으로 잘린 문장입니다", full), true);
+});
+
+test("큰 문서 예상 남은 시간: 읽은 속도로 계산, 아직 0쪽이면 계산 안 함", () => {
+  assert.equal(estimateRemainingSec(0, 60000, 20, 100), 240);
+  assert.equal(estimateRemainingSec(0, 60000, 0, 100), null);
+  assert.equal(estimateRemainingSec(0, 60000, 100, 100), null);
+});
+
+test("문서 마지막 사용: 출처 docId 우선, 없으면 이름으로", () => {
+  const docs = [{ id: "d1", name: "a.pdf" }, { id: "d2", name: "b.pdf" }, { id: "d3", name: "c.pdf" }];
+  const answers = [
+    { created_at: "2026-10-18T00:00:00Z", sources: [{ type: "doc", title: "a.pdf" }] },
+    { created_at: "2026-10-19T00:00:00Z", sources: [{ type: "doc", title: "다른이름", docId: "d1" }, { type: "web", title: "x", url: "https://x" }] },
+    { created_at: "2026-10-17T00:00:00Z", sources: [{ type: "doc", title: "b.pdf" }] },
+  ];
+  assert.deepEqual(lastUsedByDoc(docs, answers), { d1: "2026-10-19T00:00:00Z", d2: "2026-10-17T00:00:00Z" });
+});
+
+test("웹 검색 경로 통계: 답변 1개 = 검색 1회", () => {
+  const st = webViaStats([
+    { sources: [{ type: "web", title: "a", url: "https://a", via: "mcp" }, { type: "web", title: "b", url: "https://b", via: "mcp" }] },
+    { sources: [{ type: "web", title: "c", url: "https://c", via: "rest" }] },
+    { sources: [{ type: "web", title: "d", url: "https://d" }] },
+    { sources: [{ type: "doc", title: "e" }] },
+    { sources: null },
+  ]);
+  assert.deepEqual(st, { searches: 3, mcp: 1, rest: 1, unknown: 1 });
+});

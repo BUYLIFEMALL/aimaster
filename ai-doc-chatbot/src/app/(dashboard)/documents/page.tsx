@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { FileText, Loader2, MessageSquare, Trash2, UploadCloud } from "lucide-react";
 import { BTN_PRIMARY, Card, ErrorNote } from "@/components/studio/ui";
-import { UPLOAD_STAGE_LABELS } from "@/lib/chat/core";
+import { estimateRemainingSec, MAX_CHUNKS_PER_DOC, UPLOAD_STAGE_LABELS } from "@/lib/chat/core";
 import { createClient } from "@/lib/supabase/client";
 
 interface Doc {
@@ -13,6 +13,7 @@ interface Doc {
   size_bytes: number;
   chunk_count: number;
   created_at: string;
+  last_used_at?: string | null;
 }
 
 const ACCEPT = ".txt,.md,.markdown,.csv,.pdf,.docx,.pptx,.xlsx,.hwp,.hwpx,.png,.jpg,.jpeg";
@@ -20,12 +21,25 @@ const ACCEPT = ".txt,.md,.markdown,.csv,.pdf,.docx,.pptx,.xlsx,.hwp,.hwpx,.png,.
 function sizeLabel(n: number) {
   return n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)}MB` : `${Math.max(1, Math.round(n / 1024))}KB`;
 }
+/** 문서당 조각 한도(L14)에 걸렸을 때 덧붙이는 안내 */
+const TRUNCATED_NOTE = ` 다만 문서가 아주 길어 앞부분 ${MAX_CHUNKS_PER_DOC.toLocaleString()}조각(약 ${Math.round((MAX_CHUNKS_PER_DOC * 800) / 10000)}만 자)까지만 저장했습니다. 뒷부분이 필요하면 나눠서 올려 주세요.`;
+
+function usedLabel(iso?: string | null) {
+  if (!iso) return "아직 근거로 안 쓰임";
+  const days = Math.floor((Date.now() - Date.parse(iso)) / 86400000);
+  return days <= 0 ? "오늘 근거로 쓰임" : `${days}일 전 마지막 사용`;
+}
+function etaLabel(p: { startedAt: number; completedPages?: number; totalPages?: number }) {
+  const sec = estimateRemainingSec(p.startedAt, Date.now(), p.completedPages, p.totalPages);
+  if (sec === null) return p.totalPages ? `${p.completedPages ?? 0}/${p.totalPages}쪽 · 대기열에서 순서를 기다리는 중` : "대기 중";
+  return `${p.completedPages}/${p.totalPages}쪽 · 약 ${sec < 60 ? `${sec}초` : `${Math.ceil(sec / 60)}분`} 남음`;
+}
 function daysLeft(iso: string) {
   const left = 30 - Math.floor((Date.now() - Date.parse(iso)) / 86400000);
   return Math.max(0, left);
 }
 
-type UploadResult = { chunkCount: number } | { requestId: string } | { error: string; needKey?: boolean };
+type UploadResult = { chunkCount: number; truncated?: boolean } | { requestId: string } | { error: string; needKey?: boolean };
 
 /** 100쪽 넘는 문서의 비동기 읽기(L3) — 화면을 닫아도 이어서 확인하도록 브라우저에 기억한다 */
 interface PendingParse {
@@ -57,7 +71,7 @@ async function readProgress(res: Response, onStage: (label: string) => void): Pr
   if (!res.ok || !res.body || !(res.headers.get("content-type") ?? "").includes("ndjson")) {
     const d = await res.json().catch(() => ({}));
     if (res.ok && d.async && d.requestId) return { requestId: d.requestId };
-    return res.ok ? { chunkCount: d.document?.chunk_count ?? 0 } : { error: d.error ?? "올리지 못했습니다.", needKey: d.needApiKey };
+    return res.ok ? { chunkCount: d.document?.chunk_count ?? 0, truncated: d.document?.truncated } : { error: d.error ?? "올리지 못했습니다.", needKey: d.needApiKey };
   }
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
@@ -71,9 +85,9 @@ async function readProgress(res: Response, onStage: (label: string) => void): Pr
     buffer = lines.pop() ?? "";
     for (const line of lines) {
       if (!line.trim()) continue;
-      const ev = JSON.parse(line) as { type: string; stage?: string; error?: string; requestId?: string; document?: { chunk_count?: number } };
+      const ev = JSON.parse(line) as { type: string; stage?: string; error?: string; requestId?: string; document?: { chunk_count?: number; truncated?: boolean } };
       if (ev.type === "stage" && ev.stage) onStage(UPLOAD_STAGE_LABELS[ev.stage] ?? "처리하는 중…");
-      else if (ev.type === "done") result = { chunkCount: ev.document?.chunk_count ?? 0 };
+      else if (ev.type === "done") result = { chunkCount: ev.document?.chunk_count ?? 0, truncated: ev.document?.truncated };
       else if (ev.type === "async" && ev.requestId) result = { requestId: ev.requestId };
       else if (ev.type === "error") result = { error: ev.error ?? "올리지 못했습니다." };
     }
@@ -122,7 +136,7 @@ export default function DocumentsPage() {
       if (r.d.status === "pending" || (!r.ok && !r.d.status && r.d.error === "연결이 끊겼습니다.")) {
         keep.push({ ...p, totalPages: r.d.totalPages ?? p.totalPages, completedPages: r.d.completedPages ?? p.completedPages });
       } else if (r.d.status === "done") {
-        setDone(`「${p.name}」(${r.d.totalPages ?? "?"}쪽)을 ${r.d.document?.chunk_count ?? "여러"}개 조각으로 저장했습니다. 이제 채팅에서 이 문서를 근거로 답합니다.`);
+        setDone(`「${p.name}」(${r.d.totalPages ?? "?"}쪽)을 ${r.d.document?.chunk_count ?? "여러"}개 조각으로 저장했습니다. 이제 채팅에서 이 문서를 근거로 답합니다.${r.d.document?.truncated ? TRUNCATED_NOTE : ""}`);
       } else {
         setError({ text: `「${p.name}」: ${r.d.error ?? "큰 문서를 읽지 못했습니다."}`, needKey: r.d.needApiKey });
       }
@@ -177,7 +191,7 @@ export default function DocumentsPage() {
         setPending(next);
         setDone(`「${f.name}」은 100쪽이 넘어 오래 걸리는 방식으로 읽는 중입니다. 아래 「읽는 중인 큰 문서」에서 진행 상황을 볼 수 있고, 이 화면을 닫았다가 다시 와도 이어서 확인합니다.`);
       } else {
-        setDone(`「${f.name}」을 ${result.chunkCount}개 조각으로 저장했습니다(${Math.round((Date.now() - started) / 1000)}초). 이제 채팅에서 이 문서를 근거로 답합니다.`);
+        setDone(`「${f.name}」을 ${result.chunkCount}개 조각으로 저장했습니다(${Math.round((Date.now() - started) / 1000)}초). 이제 채팅에서 이 문서를 근거로 답합니다.${result.truncated ? TRUNCATED_NOTE : ""}`);
       }
       await load();
     }
@@ -230,7 +244,7 @@ export default function DocumentsPage() {
               <li key={p.requestId} className="flex items-center gap-3 py-2">
                 <Loader2 className="h-4 w-4 shrink-0 animate-spin text-indigo-300" />
                 <span className="min-w-0 flex-1 truncate text-xs text-slate-200">{p.name}</span>
-                <span className="shrink-0 text-[11px] text-slate-500">{p.totalPages ? `${p.completedPages ?? 0}/${p.totalPages}쪽` : "대기 중"}</span>
+                <span className="shrink-0 text-[11px] text-slate-500">{etaLabel(p)}</span>
               </li>
             ))}
           </ul>
@@ -248,7 +262,7 @@ export default function DocumentsPage() {
                 <FileText className="h-5 w-5 shrink-0 text-emerald-300" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-slate-200">{d.name}</p>
-                  <p className="text-[11px] text-slate-500">{sizeLabel(d.size_bytes)} · 조각 {d.chunk_count}개 · {daysLeft(d.created_at)}일 뒤 자동 삭제</p>
+                  <p className="text-[11px] text-slate-500">{sizeLabel(d.size_bytes)} · 조각 {d.chunk_count}개 · <span className={d.last_used_at ? "" : "text-amber-300/80"}>{usedLabel(d.last_used_at)}</span> · {daysLeft(d.created_at)}일 뒤 자동 삭제</p>
                 </div>
                 <Link href={`/chat?doc=${d.id}`} className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-200 hover:bg-indigo-500/20">
                   <MessageSquare className="h-3.5 w-3.5" /> 이 문서로 질문

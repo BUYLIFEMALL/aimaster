@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bot, Check, Copy, FileText, Globe, Loader2, MessageSquarePlus, PanelLeft, Pencil, RotateCcw, Search, Send, Trash2, User, X } from "lucide-react";
+import { Bot, Check, Copy, FileText, Globe, Loader2, MessageSquarePlus, PanelLeft, Pencil, Pin, PinOff, RotateCcw, Search, Send, Trash2, User, X } from "lucide-react";
 import { ErrorNote, INPUT } from "@/components/studio/ui";
 import { Markdown } from "@/components/chat/Markdown";
 
@@ -25,6 +25,7 @@ interface Room {
   id: string;
   title: string;
   updated_at: string;
+  pinned?: boolean;
 }
 
 function timeLabel(iso?: string): string {
@@ -36,6 +37,7 @@ const EXAMPLES = ["올린 문서의 핵심 내용을 5줄로 요약해 줘", "�
 
 export default function ChatPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [pinSupported, setPinSupported] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -57,6 +59,7 @@ export default function ChatPage() {
   const loadRooms = useCallback(async () => {
     const r = await fetch("/api/rooms", { cache: "no-store" }).then((x) => x.json()).catch(() => ({}));
     setRooms(r.rooms ?? []);
+    setPinSupported(r.pinSupported === true);
   }, []);
 
   useEffect(() => {
@@ -111,6 +114,13 @@ export default function ChatPage() {
     setEditing(null);
     if (!title) return;
     const r = await fetch(`/api/rooms/${editing.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title }) }).then((x) => x.json()).catch(() => ({}));
+    if (r.error) setError({ text: r.error });
+    void loadRooms();
+  }
+
+  /** 대화 고정/해제(U3) — 고정한 대화는 목록 맨 위 */
+  async function togglePin(room: Room) {
+    const r = await fetch(`/api/rooms/${room.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pinned: !room.pinned }) }).then((x) => x.json()).catch(() => ({}));
     if (r.error) setError({ text: r.error });
     void loadRooms();
   }
@@ -233,8 +243,13 @@ export default function ChatPage() {
               />
             ) : (
               <button type="button" onClick={() => void openRoom(r.id)} className="min-w-0 flex-1 px-2.5 py-2 text-left">
-                <p className="truncate text-xs font-semibold text-slate-200">{r.title}</p>
+                <p className="truncate text-xs font-semibold text-slate-200">{r.pinned && <Pin className="mr-1 inline h-3 w-3 text-amber-300" aria-label="고정됨" />}{r.title}</p>
                 <p className="text-[10px] text-slate-500">{timeLabel(r.updated_at)}</p>
+              </button>
+            )}
+            {pinSupported && (
+              <button type="button" aria-label={r.pinned ? "대화 고정 해제" : "대화 고정"} title={r.pinned ? "고정 해제" : "맨 위에 고정"} onClick={() => void togglePin(r)} className={`rounded p-1.5 hover:bg-amber-500/10 hover:text-amber-200 group-hover:opacity-100 ${r.pinned ? "text-amber-300 opacity-100" : "text-slate-500 opacity-60"}`}>
+                {r.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
               </button>
             )}
             <button type="button" aria-label="대화 이름 바꾸기" onClick={() => setEditing({ id: r.id, title: r.title })} className="rounded p-1.5 text-slate-500 opacity-60 hover:bg-indigo-500/10 hover:text-indigo-200 group-hover:opacity-100">
