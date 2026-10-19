@@ -51,7 +51,10 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.25` (2026-10-19)
+- **현재 버전**: `v1.26` (2026-10-19)
+- **v1.26 (2026-10-19, Claude Code 윈도우 — agy 검증 이어받아 마무리)**: **날짜·예약 시각을 한국 시간으로 표시.** 서버 화면이 `toLocaleString("ko-KR")`를 시간대 없이 써서 Vercel(UTC) 기준으로 그려, 21:00 예약이 「오후 12:00」으로 보였다(저장값은 정상). 7곳(`dashboard`·`posts`·`posts/[id]`·`settings` 페이지, `CandidateList`)에 `timeZone: "Asia/Seoul"` 추가. DB 구조 변경 없음(`supabase/migrations/20261019250000_kst_display_v1_26.sql` = 버전만). 배포 `insta-auto-poster-1fcuzxisf`(Ready), DB `programs.version` v1.26.
+  - **v1.25 크롬 실검수(관리자 계정 본인 키, 실제 인스타 게시 없음)**: 설정에서 「내 cron-job.org」 선택 → 공용 키 「등록됨」(Threads에서 넣은 키 재사용) → 초안을 10-20 21:00 예약(브라우저가 `2026-10-20T12:00:00.000Z`로 변환, 9시간 밀림 없음) → cron-job.org 작업 8678118 자동 생성·켜짐(`active:true`) → 보관함 상태 줄 「실행 중 · 대기 1건」 → 일시정지(`active:false, paused:true`)·재개 정상 → 예약 취소(임시저장) 후 **약 65초 뒤 작업 자동 꺼짐**(`active:false`) → Vercel로 되돌림(`mode:vercel`), 글 상태 시험 전과 같음(초안 5·게시 3).
+  - agy(커밋 `af74be07`)의 「Edge 실세션 검수」는 서버 키로 로그인 링크를 만들어 세션을 넣은 화면 캡처 3장이었다(방식 전환·자동 켜기/끄기 미확인, 로그인 우회). 위 크롬 실검수로 대체한다.
 - **v1.25 (2026-10-19, Claude Code 윈도우)**: 예약 발행 실행 방식 회원 선택(**운영 기본 Vercel / 배포판 기본 본인 cron-job.org**) + 중복 발행 방지·24시간 규칙. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261019_MEMBER_SCHEDULER.md`, 기준 구현 `threads-affiliate-poster` v1.63·`threads` v1.19.
   - 화면: 설정 「⏰ 예약 발행」(다크 테마 `components/settings/SchedulerModePicker.tsx` + cron-job.org 키 칸, 공용 provider `cronjob_org_api_key` — 다른 프로그램에서 넣은 키면 「등록됨」), 게시글 관리 위 상태 줄·전체 일시정지/재개(`components/posts/SchedulePublishingControl.tsx`), `/guide` 예약 FAQ(운영·배포판 각각), 예약 시각 안내 문구.
   - 코드: `src/lib/posts/cronJobOrg.ts`(작업 이름: 운영 「AIMaster INSTA…」, 배포판 「INSTA 포스팅 예약 발행(1분)」)·`memberScheduler.ts`(표 `insta_member_scheduler`, 토큰 `ins_…` DB엔 해시, 환경변수 `INSTA_PLATFORM_SCHEDULER` — 운영 off면 끔, 배포판 on일 때만 켬), `src/lib/actions/scheduler.ts`, `actions/posts.ts` 예약 전 확인·**슬라이드 저장 뒤** 작업 켜기(실패 시 초안), `actions/settings.ts` 키 변경·삭제 처리, 새 주소 `/api/posts/dispatch-member`(즉시 응답 + `after`), `/api/posts/dispatch-scheduled`는 vercel·비일시정지 회원만 + `dynamic`·`fetchCache` 선언 추가(빠져 있었음).

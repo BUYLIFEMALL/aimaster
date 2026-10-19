@@ -30,6 +30,7 @@
 - 원인: `OperationsDashboard.tsx`는 `"use client"`가 없는 **서버 컴포넌트**라 Vercel 서버(UTC)에서 날짜 문자열을 만든다. `ko-KR`은 표기 형식일 뿐 시간대를 바꾸지 않는다. 보관함 화면은 브라우저에서 그려져(클라이언트 컴포넌트) 한국 시각이 나왔다.
 - 해결: `toLocaleString("ko-KR", { …, timeZone: "Asia/Seoul" })`. 강의용 키트 사본(`labs/kit-threads`)도 같은 수정.
 - 다음부터 확인: 서버 컴포넌트·서버 액션·API에서 사람에게 보여 줄 날짜를 만들 때는 반드시 `timeZone: "Asia/Seoul"`을 넣는다. 점검: `"use client"` 없는 파일에서 `toLocale(Date|Time)?String(` 검색.
+- 재발(2026-10-19, insta_auto_poster v1.25 → v1.26): 예약 글 상세에 21:00 예약이 「오후 12:00」으로 표시(저장값은 정상). 7곳 수정. **예약 기능을 옮겨 심을 때 이 표시 점검도 함께 한다** — `threads`(5파일)·`threads-affiliate-poster`(4)·`threads-content-ops`(7)에도 시간대 없는 `toLocaleString("ko-KR")`이 남아 있음(서버 화면인지 미확인, 다음 배포 때 점검).
 
 ## 2026-10-19 — 솔라피 문자가 「접수 성공」인데 수신이 안 됨 → 발신번호가 통신사 「번호도용문자차단서비스」에 가입돼 있었다 (메인 사이트 비밀번호 찾기 문자, Claude Code 윈도우)
 

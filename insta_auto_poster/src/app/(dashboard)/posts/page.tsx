@@ -101,8 +101,8 @@ export default async function PostsPage({
                       </span>
                       <span>
                         {post.status === "scheduled" && post.scheduled_at
-                          ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR")}`
-                          : new Date(post.created_at).toLocaleString("ko-KR")}
+                          ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
+                          : new Date(post.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
                       </span>
                     </p>
                   </div>

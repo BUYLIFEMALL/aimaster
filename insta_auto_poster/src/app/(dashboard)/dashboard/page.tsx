@@ -198,7 +198,7 @@ export default async function DashboardPage() {
                     {post.caption || "(내용 없음)"}
                   </Link>
                   <p className="mt-1 text-[11px] font-mono text-slate-400">
-                    ⏰ {post.scheduled_at ? new Date(post.scheduled_at).toLocaleString("ko-KR") : "-"}
+                    ⏰ {post.scheduled_at ? new Date(post.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"}
                   </p>
                 </div>
                 <StatusBadge status={post.status} />

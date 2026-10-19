@@ -265,7 +265,7 @@ export default async function SettingsPage({
                 </p>
                 {account.token_expires_at && (
                   <p className="mt-1 text-xs text-slate-400">
-                    토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR")}
+                    토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
                   </p>
                 )}
                 <form action={disconnectInstagramAccountAction} className="mt-4">
