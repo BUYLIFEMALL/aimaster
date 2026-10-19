@@ -1,5 +1,38 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 주요 API 9종 전면 단계별 시각화 완료 (Replicate, ElevenLabs, SUNO, Runway, 텔레그램, SOLAPI, 네이버메일, Tavily, RSS/Inoreader 등 누적 18대 핵심 API 완성, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 이용 가이드북(`/guides`)에서 회원들이 자주 활용하는 미디어 생성 AI 4종, 알림/메일 3종, 정보수집 2종 등 총 9대 주요 API 가이드 본문을 **개요 카드, Step 1~4 시각적 스텝 뷰어, 💡 팁, ⚠️ 주의사항 배너, 공식 콘솔 직링크**가 탑재된 프리미엄 템플릿으로 전면 고도화함. (이로써 AIMaster 핵심 18대 가이드가 100% 비주얼화됨)
+- **주요 작업 내용**:
+  1. **9대 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **Replicate (FLUX)**: FLUX.1 [schnell/dev] 초고화질 실사 이미지 생성, API 토큰 발급, 장당 약 4원 가성비 팁, Step 1~4 시각화.
+     - **ElevenLabs**: 초현실적 AI 음성 합성 및 보이스 클로닝, Voice Lab 한국어 Voice ID 탐색, 월 10,000자 무료 팁, Step 1~4 시각화.
+     - **SUNO**: AI 보컬 및 BGM 작곡 엔진, 매일 50크레딧 무료 혜택, 저작권 프리 상업 음원 제작 안내, Step 1~4 시각화.
+     - **Runway**: Gen-2 / Gen-3 Alpha 시네마틱 비디오 엔진, 이미지 투 비디오 모션 부여 팁, Developer Portal 키 발급, Step 1~4 시각화.
+     - **텔레그램 봇 (Telegram)**: @BotFather를 통한 1분 봇 생성, Chat ID 추출 팁, 평생 무료 무제한 포스팅 알림, Step 1~4 시각화.
+     - **SOLAPI**: 카카오 알림톡/친구톡 및 고객 SMS 대량 발송, 발신번호 등록, API Key/Secret 연동, 건당 8원대 혜택 안내, Step 1~4 시각화.
+     - **네이버 메일 (SMTP)**: 네이버 환경설정 IMAP/SMTP 사용함 활성화, 2단계 인증 애플리케이션 전용 16자리 비밀번호 발급, Step 1~4 시각화.
+     - **Tavily**: LLM 할루시네이션 방지 실시간 웹 검색 엔진, 월 1,000회 무료 크레딧, 최신 뉴스 딥 리서치 연동, Step 1~4 시각화.
+     - **RSS / Inoreader**: 24시간 콘텐츠 실시간 자동 감지 파이프라인, 네이버 블로그 RSS 추출 팁, Inoreader Developer App 등록, Step 1~4 시각화.
+  2. **메타데이터 엔진 보강 (`lib/guideMeta.ts`)**:
+     - Runway, 텔레그램 직링크, 네이버 메일(SMTP), Tavily, RSS/Inoreader의 공식 사이트 직링크, 테마 컬러, 아이콘, 소요시간 정밀 매핑.
+  3. **Vercel 프로덕션 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_5e273JuYQezfkd6Y2fC67oMWi23f`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 9개 가이드 상세 페이지 전수 순회 캡처 완료 (`edge_guide_replicate_detail.png`, `edge_guide_elevenlabs_detail.png`, `edge_guide_suno_detail.png`, `edge_guide_runway_detail.png`, `edge_guide_telegram_detail.png`, `edge_guide_solapi_detail.png`, `edge_guide_navermail_detail.png`, `edge_guide_tavily_detail.png`, `edge_guide_inoreader_detail.png`).
+- **서비스 링크**:
+  - 이용 가이드북 종합: https://www.buylife.xyz/guides
+  - Replicate 가이드: https://www.buylife.xyz/guides/78a00b16-eef5-42be-810b-80c513d57ab4
+  - ElevenLabs 가이드: https://www.buylife.xyz/guides/9457687a-75ed-40d8-bc4a-9415173eba70
+  - SUNO 가이드: https://www.buylife.xyz/guides/0ecb9a3c-e4f7-4229-8fc3-f74fdb6dc6fd
+  - Runway 가이드: https://www.buylife.xyz/guides/373bdf47-7a5b-4557-b47a-ddd15cf07c09
+  - 텔레그램 가이드: https://www.buylife.xyz/guides/f43e8ebe-a930-4933-b965-7068b38d79aa
+  - SOLAPI 가이드: https://www.buylife.xyz/guides/eb8f5eaf-6ef7-46b8-9b05-994e944fe69a
+  - 네이버 메일 가이드: https://www.buylife.xyz/guides/1dbea19b-4c83-4453-ae41-0b59d7f27b5f
+  - Tavily 가이드: https://www.buylife.xyz/guides/e02892df-9ac8-48ac-821f-c51e238ca1ab
+  - RSS/Inoreader 가이드: https://www.buylife.xyz/guides/8eff3ebb-7c05-45b7-9494-fc8fdf17bb5f
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 이커머스·메신저 핵심 API 본문 단계별 시각화 보강 (쿠팡 파트너스, 카카오 플랫폼 연동, 알리익스프레스 3종 완료, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 쇼핑 자동화 솔루션 및 카카오 알림 연동에서 가장 핵심적인 3대 플랫폼(쿠팡 파트너스, 카카오 플랫폼 연동, 알리익스프레스)의 가이드 본문을 **개요 카드, Step 1~4 시각적 스텝 뷰어, 💡 팁, ⚠️ 공정위 및 심사 주의사항 배너, 공식 콘솔 직링크**가 탑재된 고품질 비주얼 템플릿으로 전면 고도화함.

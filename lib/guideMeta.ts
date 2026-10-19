@@ -216,6 +216,18 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
       consoleLabel: "Replicate 토큰 발급",
     };
   }
+  if (t.includes("runway") || t.includes("런웨이")) {
+    return {
+      icon: "🎬",
+      badgeTone: "bg-violet-500/10 text-violet-300 border-violet-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "Gen-2 / Gen-3 Alpha AI 비디오 생성 Runway API 키 발급",
+      consoleUrl: "https://app.runwayml.com",
+      consoleLabel: "Runway 콘솔",
+    };
+  }
   if (t.includes("pixabay") || t.includes("pexels")) {
     return {
       icon: "🖼️",
@@ -236,6 +248,8 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
       difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
       estimatedTime: "3분",
       summary: "@BotFather를 통한 1분 텔레그램 봇 토큰 생성 가이드",
+      consoleUrl: "https://t.me/BotFather",
+      consoleLabel: "@BotFather 바로가기",
     };
   }
   if (t.includes("solapi") || t.includes("알림톡")) {
@@ -248,6 +262,44 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
       summary: "카카오톡 알림톡/친구톡 대량 발송 SOLAPI 키 연동",
       consoleUrl: "https://solapi.com",
       consoleLabel: "SOLAPI 콘솔",
+    };
+  }
+  if (t.includes("메일") || t.includes("smtp")) {
+    return {
+      icon: "📧",
+      badgeTone: "bg-green-500/10 text-green-300 border-green-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "3분",
+      summary: "네이버 메일 POP3/SMTP 설정 및 2단계 인증 애플리케이션 비밀번호 발급",
+      consoleUrl: "https://mail.naver.com",
+      consoleLabel: "네이버 메일 설정",
+    };
+  }
+
+  // 7. 정보수집 & 웹스크랩핑
+  if (t.includes("tavily") || t.includes("타빌리")) {
+    return {
+      icon: "🔍",
+      badgeTone: "bg-teal-500/10 text-teal-300 border-teal-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "2분",
+      summary: "AI 실시간 웹 검색 및 딥 리서치 Tavily Search API 연동",
+      consoleUrl: "https://tavily.com",
+      consoleLabel: "Tavily 콘솔",
+    };
+  }
+  if (t.includes("rss") || t.includes("inoreader")) {
+    return {
+      icon: "📡",
+      badgeTone: "bg-amber-500/10 text-amber-300 border-amber-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "3분",
+      summary: "블로그·뉴스 콘텐츠 자동 수집을 위한 RSS 피드 및 Inoreader 연동",
+      consoleUrl: "https://www.inoreader.com",
+      consoleLabel: "Inoreader 사이트",
     };
   }
 
