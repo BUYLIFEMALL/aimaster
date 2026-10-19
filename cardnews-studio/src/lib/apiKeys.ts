@@ -2,17 +2,21 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ApiKeyProvider = "openai" | "gemini" | "anthropic";
+/** 설정 화면에서 저장·삭제할 수 있는 키(AI 키 + 공용 연동 키, v1.24) */
+export type SettingsKeyProvider = ApiKeyProvider | "cronjob_org_api_key";
 
-export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
+export const PROVIDER_LABELS: Record<SettingsKeyProvider, string> = {
   openai: "OpenAI API 키 (선택 - 문구 기획용)",
   gemini: "Google Gemini API 키 (배경 이미지 생성에 필수, 문구 기획에도 사용)",
   anthropic: "Anthropic Claude API 키 (선택 - 문구 기획용)",
+  cronjob_org_api_key: "cron-job.org API 키 (선택 - 인스타 예약 게시를 내 cron-job.org로 실행할 때)",
 };
 
-export const ALL_PROVIDERS: ApiKeyProvider[] = [
+export const ALL_PROVIDERS: SettingsKeyProvider[] = [
   "openai",
   "gemini",
   "anthropic",
+  "cronjob_org_api_key", // v1.24: 공용 연동 키 — 다른 프로그램에서 넣었으면 그대로 「등록됨」
 ];
 
 /**

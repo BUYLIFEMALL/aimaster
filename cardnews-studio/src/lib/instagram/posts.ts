@@ -4,7 +4,7 @@ import { checkProgramAccess } from "@/lib/programAccess";
 import { THIS_PROGRAM_SLUG } from "@/lib/access";
 import { getMemberInstagramAccount } from "./memberAccount";
 import { graphBaseFor, publishInstagramCarousel, publishInstagramPost } from "./publish";
-import { findSameRecentPost, isTransientPublishError, RETRY_DELAY_MS, type RecentMedia } from "@/lib/cardnews/schedule";
+import { findSameRecentPost, isTooLate, isTransientPublishError, RETRY_DELAY_MS, TOO_LATE_MESSAGE, type RecentMedia } from "@/lib/cardnews/schedule";
 
 // 인스타 게시 기록·예약 게시(v1.19). 즉시 게시와 예약 실행이 같은 함수(publishPaths)를 쓴다.
 // 게시 기록 표 cns_insta_posts — 회원 본인만 읽기(RLS), 쓰기는 이 서버 코드만. 생성 30일 뒤 삭제(cleanupOldPosts).
@@ -85,16 +85,26 @@ export async function insertPost(rec: PostRecordInput, fields: Record<string, un
   return data.id as string;
 }
 
+export interface DispatchOptions {
+  /** 이 회원의 글만(회원 cron-job.org 실행, v1.24) */
+  userId?: string;
+  /** 운영자(Vercel) 실행에서 제외할 회원: cron-job.org를 고른 회원·일시정지 회원(v1.24) */
+  excludeUserIds?: string[];
+  /** Vercel 방식이 꺼진 사이트에서 운영자 실행이 Vercel 회원 글을 만나면 게시하지 않고 이 안내로 실패 처리(v1.24) */
+  failWithMessage?: string;
+}
+
 /** 예약 시각이 지난 글을 한 건씩 잠그고(scheduled→publishing) 게시한다. 같은 글이 두 번 올라가지 않게 조건부로 잠근다. */
-export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status: string }[]> {
+export async function dispatchDuePosts(limit = 10, options: DispatchOptions = {}): Promise<{ id: string; status: string }[]> {
   const admin = createAdminClient();
-  const { data: due } = await admin
+  let query = admin
     .from("cns_insta_posts")
-    .select("id, user_id, image_paths, caption, error_message, updated_at")
+    .select("id, user_id, image_paths, caption, error_message, updated_at, scheduled_at")
     .eq("status", "scheduled")
-    .lte("scheduled_at", new Date().toISOString())
-    .order("scheduled_at", { ascending: true })
-    .limit(limit);
+    .lte("scheduled_at", new Date().toISOString());
+  if (options.userId) query = query.eq("user_id", options.userId);
+  if (options.excludeUserIds?.length) query = query.not("user_id", "in", `(${options.excludeUserIds.join(",")})`);
+  const { data: due } = await query.order("scheduled_at", { ascending: true }).limit(limit);
   const results: { id: string; status: string }[] = [];
   for (const post of due ?? []) {
     const { data: claimed } = await admin
@@ -106,6 +116,14 @@ export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status
       .maybeSingle();
     if (!claimed) continue; // 다른 실행이 먼저 가져감
     const finish = (fields: Record<string, unknown>) => admin.from("cns_insta_posts").update({ ...fields, updated_at: new Date().toISOString() }).eq("id", post.id);
+    // 실행 방식이 준비 안 됐거나(failWithMessage) 24시간 넘게 밀린 예약은 올리지 않는다(v1.24)
+    const skipMessage = options.failWithMessage ?? (isTooLate(post.scheduled_at) ? TOO_LATE_MESSAGE : null);
+    if (skipMessage) {
+      await finish({ status: "failed", error_message: skipMessage });
+      await removeImages(post.image_paths ?? []);
+      results.push({ id: post.id, status: "failed" });
+      continue;
+    }
     const access = await checkProgramAccess(admin, post.user_id, THIS_PROGRAM_SLUG);
     if (!access.allowed) {
       await finish({ status: "failed", error_message: "예약 시각에 프로그램 이용 권한(또는 핸드폰 등록)이 확인되지 않아 게시하지 않았습니다." });

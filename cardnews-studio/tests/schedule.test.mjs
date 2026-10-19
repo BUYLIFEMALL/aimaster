@@ -105,3 +105,14 @@ test("즉시 게시 중복 확인: 누른 시각 이후 글만", () => {
   assert.equal(findSameRecentPost([before], "오늘의 카드", now, startedAt + FIRST_ATTEMPT_MARGIN_MS), null);
   assert.equal(findSameRecentPost([before, after], "오늘의 카드", now, startedAt + FIRST_ATTEMPT_MARGIN_MS)?.permalink, "https://ig/after");
 });
+
+// v1.24 — 24시간 넘게 밀린 예약은 올리지 않는다(지침 docs/SCHEDULER_POLICY.md)
+test("isTooLate: 24시간이 넘게 지난 예약만 true", async () => {
+  const { isTooLate, MAX_LATE_MS } = await import("../src/lib/cardnews/schedule.ts");
+  const now = Date.parse("2026-10-20T00:00:00Z");
+  assert.equal(isTooLate(new Date(now - MAX_LATE_MS - 1000).toISOString(), now), true);
+  assert.equal(isTooLate(new Date(now - MAX_LATE_MS + 60_000).toISOString(), now), false);
+  assert.equal(isTooLate(new Date(now + 60_000).toISOString(), now), false);
+  assert.equal(isTooLate(null, now), false);
+  assert.equal(isTooLate("잘못된 값", now), false);
+});

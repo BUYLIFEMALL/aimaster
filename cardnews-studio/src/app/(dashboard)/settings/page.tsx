@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Key, CheckCircle2, AlertCircle, Trash2, ShieldCheck } from "lucide-react";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
 
 type KeyState = Record<string, { registered: boolean; maskedKey?: string }>;
 
@@ -202,6 +203,26 @@ export default function SettingsPage() {
 
       <KeyCard provider="openai" title="OpenAI API 키" description="문구 기획용 (선택)" placeholder="sk-... 로 시작하는 OpenAI API 키" {...common} />
       <KeyCard provider="anthropic" title="Anthropic Claude API 키" description="문구 기획용 (선택)" placeholder="sk-ant-... 로 시작하는 Claude API 키" {...common} />
+
+      {/* ⏰ 예약 발행 실행 방식(v1.24, 지침 docs/SCHEDULER_POLICY.md) — 예약 자체는 카드뉴스 「인스타그램 게시」에서 한다 */}
+      <div className="space-y-4 rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">
+        <div>
+          <h2 className="text-base font-bold text-slate-100">⏰ 예약 발행</h2>
+          <p className="mt-1 text-xs text-slate-400">
+            인스타 예약 게시를 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약은 카드뉴스의 「인스타그램 게시」에서 합니다.
+          </p>
+        </div>
+        <SchedulerModePicker hasKey={Boolean(keys.cronjob_org_api_key?.registered)} />
+        <div className="rounded-xl border border-[#262c3d] bg-[#0d0f17] p-3.5 text-xs text-slate-400">
+          <p className="mb-1 font-semibold text-slate-300">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+          <ol className="list-decimal space-y-0.5 pl-4">
+            <li><a className="font-semibold text-rose-300 underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+            <li>콘솔 Settings → API → Create API key → 키 복사(<b className="text-slate-200">IP 제한은 켜지 마세요</b>)</li>
+            <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+          </ol>
+        </div>
+      </div>
+      <KeyCard provider="cronjob_org_api_key" title="cron-job.org API 키" description="예약 발행 — 「내 cron-job.org」 방식에서만 필요 (선택)" placeholder="cron-job.org 콘솔에서 만든 API 키" {...common} />
 
       <div className="space-y-3 rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">
         <h2 className="text-sm font-bold text-slate-200">📖 연동 매뉴얼</h2>

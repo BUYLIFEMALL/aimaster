@@ -304,6 +304,16 @@ export default function GuidePage() {
               `ProjectProvider`가 1.5초 단위로 로컬 및 Supabase DB에 실시간 자동 저장을 수행하므로, 언제든 다시 접속해도 직전 작업 상태를 그대로 복원하여 이어서 작업할 수 있습니다.
             </p>
           </div>
+
+          <div className="rounded-xl bg-[#161922] p-4 sm:p-5 border border-[#262c3d] space-y-2">
+            <p className="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span className="text-pink-400">Q.</span>
+              인스타 예약 게시는 언제, 무엇으로 올라가나요?
+            </p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              설정 → ⏰ 예약 발행에서 방식을 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 예약 시각 후 5분 안에 올라갑니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 예약할 때 본인 계정에 작업이 자동으로 켜져 1분 안에 올라가고 남은 예약이 없으면 자동으로 멈춥니다. 예약 게시 화면의 「일시정지」로 전체를 잠시 멈출 수 있으며, 예약 시각이 24시간 넘게 지난 글은 자동으로 올리지 않습니다.
+            </p>
+          </div>
         </div>
       </div>
 

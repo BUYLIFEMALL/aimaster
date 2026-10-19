@@ -9,6 +9,7 @@ import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, INPUT } from "./ui";
 import { renderCardToJpegBlob } from "@/lib/cardnews/renderClient";
 import { createClient } from "@/lib/supabase/client";
 import { formatKst, kstLocalToIso } from "@/lib/cardnews/schedule";
+import { SchedulePublishingControl } from "./SchedulePublishingControl";
 
 interface Status {
   connected: boolean;
@@ -131,7 +132,7 @@ export function InstagramPublishPanel() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "처리하지 못했습니다.");
-      setDone(mode === "now" ? (data.alreadyPosted ? `응답이 늦었지만 @${data.username} 계정에 이미 올라간 것을 확인했습니다. 다시 게시하지 않아도 됩니다.` : `@${data.username} 계정에 게시했습니다.`) : `${formatKst(data.scheduledAt)}에 @${data.username} 계정으로 게시되도록 예약했습니다(예약 시각 후 5분 안에 올라갑니다).`);
+      setDone(mode === "now" ? (data.alreadyPosted ? `응답이 늦었지만 @${data.username} 계정에 이미 올라간 것을 확인했습니다. 다시 게시하지 않아도 됩니다.` : `@${data.username} 계정에 게시했습니다.`) : `${formatKst(data.scheduledAt)}에 @${data.username} 계정으로 게시되도록 예약했습니다(예약 시각 후 5분 안에, 「내 cron-job.org」 방식은 1분 안에 올라갑니다).`);
       setAgree(false);
       void loadPosts();
     } catch (e) {
@@ -187,6 +188,7 @@ export function InstagramPublishPanel() {
           <input type="datetime-local" className={`${INPUT} max-w-64`} value={when} onChange={(e) => setWhen(e.target.value)} aria-label="예약 날짜와 시간" />
         </label>
       )}
+      {mode === "schedule" && <SchedulePublishingControl refreshKey={pending.length} />}
 
       <label className="block">
         <span className="mb-1 flex justify-between text-xs font-bold text-slate-300">게시 문구(캡션) <span className={text.length > 2200 ? "text-red-400" : "text-slate-500"}>{text.length}/2200</span></span>

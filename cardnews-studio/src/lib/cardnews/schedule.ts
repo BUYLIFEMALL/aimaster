@@ -11,6 +11,15 @@ export function validateScheduleTime(raw: unknown, now: number = Date.now()): { 
   return { ok: true, at: new Date(t) };
 }
 
+/** 장애 뒤 오래 밀린 예약이 갑자기 올라가지 않도록, 예약 시각이 24시간 넘게 지난 글은 올리지 않는다(v1.24, 지침 docs/SCHEDULER_POLICY.md) */
+export const MAX_LATE_MS = 24 * 60 * 60 * 1000;
+export const TOO_LATE_MESSAGE = "예약 시각이 24시간 넘게 지나 자동으로 올리지 않았습니다. 내용을 확인하고 다시 예약하거나 바로 게시해 주세요.";
+
+export function isTooLate(scheduledAt: string | null | undefined, now: number = Date.now()): boolean {
+  const t = scheduledAt ? Date.parse(scheduledAt) : NaN;
+  return Number.isFinite(t) && now - t > MAX_LATE_MS;
+}
+
 /** 예약 실행 실패 후 다시 시도까지 기다리는 시간(v1.20, 한 번만) */
 export const RETRY_DELAY_MS = 10 * 60 * 1000;
 
