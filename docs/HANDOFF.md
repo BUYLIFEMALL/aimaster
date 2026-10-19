@@ -1,5 +1,37 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Antigravity CLI(agy, 윈도우) — 연동 & 사용 매뉴얼 공식 개발·운영 지침 제정 및 8대 템플릿 스타일 체계 등록 (신규 개발/업그레이드 표준 레퍼런스 확립)
+
+- **배경**: 주인님 지시 ("지금까지 작업 내용 연동&사용매뉴얼 지침으로 등록 해놓고 이후에도 새로운 프로그램을 개발하거나 업그레이드 할때 레퍼런스로 참고하도록 하자. 그리고 프로그램별로 사용된 매뉴얼 스타일을 이름에 맞게 정해서 카테고리 기준으로 어떤 매뉴얼 템플릿 스타일이 적용되어 있는지 자세하게 정리해놓고 인수인계 해줘")에 따라, 40대 전수 가이드북 시각화 및 서브프로그램 매뉴얼 설계 노하우를 공식 표준 지침서로 집대성함.
+- **제정 문서**: [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](MANUAL_AND_INTEGRATION_GUIDELINES.md) (AIMaster 연동 & 사용 매뉴얼 개발·운영 지침서)
+- **핵심 체계 요약**:
+  1. **표준 UI 컴포넌트 7계층 규격 확립**:
+     - ① 헤더 메타데이터 바 (아이콘, 카테고리 뱃지, 난이도, 소요시간, 공식 콘솔 직링크 버튼)
+     - ② 개요 히어로 카드 (Overview Hero Card - 그라디언트 테두리, 핵심 기능 요약)
+     - ③ 핵심 4단계 시각 카드 뷰어 (Quick 4-Step Cards Grid - 데스크톱 4열 반응형 그리드)
+     - ④ 단계별 상세 안내 블록 (Detailed Step Blocks - 둥근 번호 뱃지, 코드 블록, 1초 복사 박스)
+     - ⑤ 💡 실전 팁 배너 (Pro Tips - 가성비 모델 선택, C-Rank/DIA 로직 가산점 비법 등)
+     - ⑥ ⚠️ 핵심 주의사항 배너 (Crucial Warnings - Perplexity Pro vs API 크레딧 분리, 고정 IP 등록 등)
+     - ⑦ 공식 콘솔 원클릭 액션 버튼 (Action Button)
+  2. **프로그램별 8대 매뉴얼 템플릿 스타일 (Style Personas) 명명 및 정의**:
+     - **스타일 1 [API Key Vault 연동형]**: LLM AI (OpenAI, Gemini, Claude, Upstage, Perplexity)
+     - **스타일 2 [OAuth & 개발자 앱 승인형]**: Meta(인스타, 쓰레드), Google Cloud, 유튜브, 네이버 카페
+     - **스타일 3 [Chrome 확장 & 보안 페어링형]**: AI 블로그 작업실, 스크래핑 확장 프로그램
+     - **스타일 4 [이커머스 & 고정 IP 화이트리스트형]**: 토스쇼핑 쉐어링크, 네이버 브랜드커넥트, 쿠팡 12단
+     - **스타일 5 [미디어 CDN & 생성 엔진형]**: JSON2Video, PLACID, Cloudinary, Pixabay, Pexels, SUNO, Runway
+     - **스타일 6 [실시간 웹훅 & 메신저 봇형]**: 텔레그램 봇, SOLAPI(카카오 알림톡), SMTP 메일
+     - **스타일 7 [실시간 정보 수집 & RSS형]**: Inoreader, Tavily, 웹 크롤러
+     - **스타일 8 [도메인 이전 & 서비스 통합형]**: buylife.xyz 도메인 통합 및 콜백 URL 교체
+  3. **전수 매핑 완비**:
+     - 40대 가이드 전수 1:1 매핑 및 82대 서브프로그램 카테고리별 채택 가이드 수립.
+  4. **최상위 개발 원칙 반영**:
+     - `AGENTS.md` 및 `GEMINI.md` 최상단에 레퍼런스 준수 규칙 탑재 (새 프로그램 개발 및 업그레이드 시 이 지침을 레퍼런스로 채택).
+- **관련 파일**:
+  - 표준 지침서: [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](MANUAL_AND_INTEGRATION_GUIDELINES.md)
+  - 에이전트 지침: [`AGENTS.md`](../AGENTS.md) · [`GEMINI.md`](../GEMINI.md)
+  - 가이드북 허브: https://www.buylife.xyz/guides
+
+
 ## 2026-10-20 Antigravity CLI(agy, 윈도우) — 가이드북 Phase 9 최종 3종 단계별 시각화 완료 및 전체 40개 가이드 100% 비주얼화 완수 (Grand Finale 🎉, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: AI 블로그 자동화 Chrome 확장 연결, Upstage(Solar LLM & Document Parse), Perplexity(Sonar 실시간 웹 리서치) 등 마지막 잔여 3대 핵심 가이드를 **개요 카드, Step 1~4 시각 스텝 뷰어, 💡 팁, ⚠️ 핵심 주의사항(Perplexity Pro 구독 vs API 별개 크레딧 충전, 네이버 정상 로그인 세션 보호 등), 공식 콘솔 직링크**가 탑재된 프리미엄 반응형 카드 템플릿으로 전면 고도화함.
