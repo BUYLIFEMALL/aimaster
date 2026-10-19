@@ -88,7 +88,7 @@ node scripts/lab/delete-lab.mjs <이름>            # 지울 목록만 보여 �
 node scripts/lab/delete-lab.mjs <이름> --yes      # 실제 삭제
 ```
 - 지우는 것: 마이그레이션에 `create table`로 적힌 이름표 테이블(이름표로 시작하는지 다시 확인), 이름표 버킷, Vercel 프로젝트(`vercel project rm`), `labs/<이름>/` 폴더.
-- DB 삭제에는 dev 연결 주소 환경변수 `LAB_DB_URL`(dev의 Postgres 연결 문자열, 주인님이 직접 넣음)이 필요하다. 주소에 운영 ref가 있거나 dev ref가 없으면 스크립트가 실행을 거부한다. `LAB_DB_URL`이 없으면 DB 쪽은 실행할 SQL만 출력하고 건너뛴다.
+- DB 삭제에는 dev 연결 주소 환경변수 `LAB_DB_URL`(dev의 Postgres 연결 문자열, 주인님이 직접 넣음)이 필요하다. **윈도우 PC에만 등록돼 있으며 삭제 스크립트는 윈도우에서만 실행한다(맥미니 미등록, 2026-10-19 주인님 결정).** 주소에 운영 ref가 있거나 dev ref가 없으면 스크립트가 실행을 거부한다. `LAB_DB_URL`이 없으면 DB 쪽은 실행할 SQL만 출력하고 건너뛴다.
 
 ### 4-4. 운영으로 옮기기 (잘 됐을 때만, **주인님의 명시적 지시가 있을 때만** — 최상위 규칙의 예외에 해당)
 1. `labs/<이름>/` → `AIMaster/<이름>/`로 옮긴다.
@@ -118,7 +118,7 @@ node scripts/lab/delete-lab.mjs <이름> --yes      # 실제 삭제
 - [x] claude.ai Supabase 커넥터에 `BUYLIFE-DEV` 조직 권한 추가(주인님) — 2026-10-19 Claude Code(윈도우)가 MCP로 확인: 주소 조회·SQL 실행 정상, `public` 테이블 0개
 - [x] Authentication → 이메일 확인(Confirm email) 끄기 — 수강생이 바로 가입·로그인 (2026-10-19 Claude Code가 대시보드 Sign In / Providers에서 끄고 저장, 새로고침 후 꺼짐 확인. 「새 가입 허용」은 켜짐 유지)
 - [ ] Authentication → URL 설정에 Lab 주소를 허용 목록에 추가(비밀번호 재설정 등 메일 링크가 필요할 때) — **Lab 프로그램을 만들 때마다 그 정확한 주소(`https://dev-<이름>.vercel.app/**`)를 하나씩 추가한다.** `https://dev-*.vercel.app/**`, `*-buylife.vercel.app` 같은 와일드카드는 쓰지 않는다: `vercel.app` 이름은 누구나 만들 수 있어, 남이 `dev-xxx` 프로젝트를 만들면 로그인 링크(토큰)가 그쪽으로 넘어갈 수 있다(2026-10-19 Claude Code 판단, 아직 Lab 프로그램 없음)
-- [x] 삭제 스크립트용 `LAB_DB_URL`(dev Postgres 연결 문자열)을 주인님 PC 환경변수로 등록 — 에이전트는 비밀번호를 입력하지 않는다 (2026-10-19 윈도우 PC 사용자 환경변수 등록, Session pooler `aws-1-ap-northeast-2.pooler.supabase.com:5432`. Claude Code가 값 출력 없이 dev ref 포함·운영 ref 없음·접속 성공(`lab_admin` 스키마 확인) 검증. 맥미니에는 미등록)
+- [x] 삭제 스크립트용 `LAB_DB_URL`(dev Postgres 연결 문자열)을 주인님 PC 환경변수로 등록 — 에이전트는 비밀번호를 입력하지 않는다 (2026-10-19 윈도우 PC 사용자 환경변수 등록, Session pooler `aws-1-ap-northeast-2.pooler.supabase.com:5432`. Claude Code가 값 출력 없이 dev ref 포함·운영 ref 없음·접속 성공(`lab_admin` 스키마 확인) 검증. **맥미니에는 등록하지 않음(주인님 결정) — 삭제 스크립트는 윈도우 전용**: DB·Vercel 삭제는 윈도우 담당(`docs/MAC_MINI_AGENT_PLAYBOOK.md`)이므로 맥미니 에이전트는 Lab 삭제가 필요하면 윈도우에 요청한다)
 
 ## 7. 변경 이력
 
