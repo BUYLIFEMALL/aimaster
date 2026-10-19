@@ -27,6 +27,9 @@ export type ResetState = {
   code_exp?: number | null;
   code_purpose?: CodePurpose | null;
   attempts?: number;
+  // 다시 받기 직전의 인증번호 — 새 문자가 늦거나 통신사에서 막혀도 먼저 받은 번호로 인증할 수 있게 유효 시간 안에서 함께 인정
+  prev_code_hash?: string | null;
+  prev_code_exp?: number | null;
 };
 
 /** 실패 응답(상태 코드 + 본문). 성공이면 null */
@@ -127,6 +130,8 @@ export async function sendCodeSms(
   await saveResetState(userId, {
     ...state,
     sms_sent: [...sent, now],
+    prev_code_hash: state.code_purpose === purpose ? state.code_hash ?? null : null,
+    prev_code_exp: state.code_purpose === purpose ? state.code_exp ?? null : null,
     code_hash: hashCode(code, userId),
     code_exp: now + CODE_TTL_MS,
     code_purpose: purpose,
@@ -143,8 +148,18 @@ export async function checkCode(userId: string, code: string, purpose: CodePurpo
   if (!state.code_hash || !state.code_exp || Date.now() > state.code_exp || state.code_purpose !== purpose) {
     return fail(400, CODE_EXPIRED);
   }
-  const cleared = { ...state, code_hash: null, code_exp: null, code_purpose: null, attempts: 0 };
-  if (!codesMatch(hashCode(code, userId), state.code_hash)) {
+  const cleared = {
+    ...state,
+    code_hash: null,
+    code_exp: null,
+    code_purpose: null,
+    attempts: 0,
+    prev_code_hash: null,
+    prev_code_exp: null,
+  };
+  const hashed = hashCode(code, userId);
+  const prevValid = !!state.prev_code_hash && !!state.prev_code_exp && Date.now() <= state.prev_code_exp;
+  if (!codesMatch(hashed, state.code_hash) && !(prevValid && codesMatch(hashed, state.prev_code_hash!))) {
     const attempts = (state.attempts ?? 0) + 1;
     if (attempts >= CODE_MAX_ATTEMPTS) {
       await saveResetState(userId, cleared);
