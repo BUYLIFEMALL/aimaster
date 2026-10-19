@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 4컷 만화 v1.15 「INSTA 자동포스팅으로 올리기」 + INSTA v1.27 「AI 생성 없이 내 이미지로 저장」
+- 4컷: 인스타 문구 칸 버튼 → 문구 복사 + INSTA 새 글 화면(캡션·해시태그 미리 채움) + 바둑판 그림 저장. 커밋 `05aa85c2`, 배포 `four-cut-comics-gmsrnixmd`, DB v1.15. 플랜 `four-cut-comics/docs/PLAN_20261020_INSTA_HANDOFF.md`.
+- INSTA(범위 변경 주인님 승인): 이미지 없을 때도 「이미지 파일 직접 첨부」, 캡션+필요 장수 이미지가 있으면 AI 생성 건너뛰고 그대로 저장. 커밋 `7a84716a`, 배포 `insta-auto-poster-qb6d42edv`, DB v1.27.
+- 크롬 확인: 미리 채움·첨부·AI 없이 임시저장 성공(관리자 계정 시험 초안 1건 남음). 못 한 것: 4컷 버튼 실제 클릭(컷 그림 생성 필요), 카드뉴스 4장 첨부 경로.
+- 링크: https://four-cut-comics.buylife.xyz · https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 실행 주소 비밀값 검사 보완 4개 프로그램(쓰레드 댓글 v1.12 · 인스타 댓글 v1.16 · 인스타 DM v1.15 · 부동산 v1.16)
 - `CRON_SECRET`이 비면 「Bearer undefined」로 통과하던 7곳을 `Boolean(secret) && …`로 차단(회원 화면 변화 없음). 커밋 `e7571cc0`, 한 개씩 배포 `threads-comment-reply-hit3ns3w8`·`instagram-comment-reply-2wxr3mxiw`·`instagram-dm-reply-52tuzcsdu`·`real-estate-sales-209i3dqj5`(모두 Ready), 운영 DB 버전 4개 갱신(크롬 SQL Editor).
 - 확인: 7곳 모두 무인증·`Bearer undefined` 401, 각 `/login` 200, 부동산 새 배포 첫 운영자 호출 200(진짜 비밀값 정상 통과). 댓글 3개는 운영자 예약 호출이 원래 꺼져 있음.

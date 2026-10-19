@@ -147,3 +147,6 @@
 
 ## 2026-10-19 — 배포 키트 공용화 (Claude Code 윈도우, 코드·배포 변경 없음)
 - `KIT/kit.json`에 포장 설정(예전 `scripts/make_lecture_kit.py` 안에 있던 뺄 항목·덮어쓸 파일)을 옮김, `KIT/setup.*`는 공용 템플릿(`AIMaster/scripts/kit-template/`)으로 교체(키 숨김 입력·GitHub 자동 연결 해제). 예약 방식 지침(`docs/SCHEDULER_POLICY.md`)은 아직 미적용(1순위 예정). 지침: 루트 `docs/DISTRIBUTION_KIT_GUIDE.md`.
+
+## 2026-10-20 v1.27 배포·검수 (Claude Code 윈도우)
+- 배포 `insta-auto-poster-qb6d42edv` Ready, DB `programs.version` v1.27(slug `auto-instagram-posting`). 크롬(관리자 계정): 4컷 넘기기 주소로 새 글 화면 → 이미지 없을 때 「이미지 파일 직접 첨부 (0/1장…)」 표시 → 시험 그림(400px 단색 PNG) 첨부 → 「AI 생성 없이 그대로 저장」 안내 → 주제 비운 채 [게시물 생성하기](임시저장) → AI 호출 없이 초안 저장(`/posts/794aff2a-…`, 캡션·해시태그·그림 유지). 인스타 게시는 하지 않음. **시험 초안 1건이 관리자 계정에 남아 있음**(제목 「월요일 아침 & 알람 다섯 번 (넘기기 시험)」 — 필요 없으면 게시글 관리에서 삭제). 카드뉴스(4장) 직접 첨부 경로는 미검수.
