@@ -28,6 +28,23 @@ const STRATEGY_GUIDE: Record<string, string> = {
   "인사이트 엣지": "좁고 깊은 관점과 실용적인 판단 기준을 제시합니다.",
 };
 
+export const SEO_STRATEGY_NAMES = Object.keys(STRATEGY_GUIDE);
+
+export interface SeoDraftOptions { experienceNote?: string; naturalStyle?: boolean; includeFaq?: boolean; }
+
+// v1.74: 회원이 고른 선택 사항을 생성 규칙 뒤에 덧붙입니다. 경험은 회원이 직접 적은 내용만 사용합니다.
+function buildOptionRules(options: SeoDraftOptions | undefined, strategy: string) {
+  const rules: string[] = [];
+  if (options?.experienceNote) rules.push("사용자가 직접 적은 실제 경험이 함께 제공됩니다. 이 경험은 사실로 사용할 수 있으니 관련 소제목에 1인칭으로 자연스럽게 녹이되, 내용을 부풀리거나 적히지 않은 경험·감정·수치를 덧붙이지 마세요.");
+  if (options?.naturalStyle) rules.push("문장 길이를 짧은 문장과 긴 문장으로 섞고, 소제목마다 문단 수와 형식(질문형·판단 기준형·짧은 선언형)을 조금씩 다르게 합니다. '결론적으로', '~에 대해 알아보겠습니다', '중요한 것은 바로', '이상으로 마치겠습니다', '현대 사회에서' 같은 상투 표현은 쓰지 않습니다. 이 규칙은 읽기 좋은 문체를 위한 것이며 AI 탐지 회피를 약속하지 않습니다.");
+  if (options?.includeFaq || strategy === "AEO") rules.push("본문 마지막에 '자주 묻는 질문' 소제목을 두고 독자가 실제로 물을 만한 질문 3~5개를 'Q. 질문' 줄과 'A. 답변' 줄로 작성합니다. 답변도 확인되지 않은 사실은 [확인 필요]로 표시합니다.");
+  return rules.length ? `\n\n추가 규칙:\n${rules.map((rule, index) => `${index + 1}) ${rule}`).join("\n")}` : "";
+}
+
+function experienceSection(options: SeoDraftOptions | undefined) {
+  return options?.experienceNote ? `\n\n사용자가 직접 적은 실제 경험(이 내용만 경험으로 사용):\n${options.experienceNote}` : "";
+}
+
 function normalizeSeoReport(report: Partial<Record<string, unknown>> | undefined, body: string) {
   const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(report ?? {})) {
@@ -59,7 +76,7 @@ async function requestDraftJson(apiKey: string, provider: ContentProvider, model
   return JSON.parse(raw) as Partial<SeoDraft>;
 }
 
-export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string }): Promise<SeoDraft> {
+export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions }): Promise<SeoDraft> {
   if (!/^[\x00-\xFF]*$/.test(params.apiKey)) throw new Error("등록된 OpenAI API 키 형식이 올바르지 않습니다.");
   const today = getKoreaToday();
   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];
@@ -76,25 +93,35 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
 4. 독자가 실제로 실행할 수 있도록 업무 흐름, 선택 기준, 흔한 실수, 점검 방법을 포함합니다. 주제에 맞는 경우에만 최소 2개의 목록형 문단(• 기호)을 사용합니다. 확인되지 않은 실제 기업명·수치·경험담은 만들지 않습니다.
 5. 핵심 키워드는 제목과 도입부, 관련 소제목에 자연스럽게 반영하며 억지 반복·키워드 나열·해시태그는 금지합니다.
 6. 확인되지 않은 수치, 출처, 체험담을 만들지 말고 필요한 곳은 [확인 필요]라고 표시합니다. AI 탐지 회피를 약속하거나 자동 발행을 유도하지 않습니다.
-7. 실시간 검색·뉴스·공식 자료가 제공되지 않았으므로 최신 수치, 정책, 순위, 연도별 사실을 지어내지 마세요. 사용자가 직접 제시한 연도(${explicitYears.join(", ") || "없음"}) 외의 연도는 제목과 본문에 쓰지 마세요. 최신성 검증이 필요한 내용은 [확인 필요]로 표시합니다.
+7. 실시간 검색·뉴스·공식 자료가 제공되지 않았으므로 최신 수치, 정책, 순위, 연도별 사실을 지어내지 마세요. 사용자가 직접 제시한 연도(${explicitYears.join(", ") || "없음"}) 외의 연도는 제목과 본문에 쓰지 마세요. 최신성 검증이 필요한 내용은 [확인 필요]로 표시합니다.${buildOptionRules(params.options, params.strategy)}
 
 제목과 본문은 JSON으로만 응답하세요. 형식: {"title":"...","body":"...","seoReport":{"searchIntent":"...","strength":"...","factCheck":"..."}}` },
-        { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n페르소나: ${params.persona.name}${params.sourceContext ? `\n\n기존 글에서 확인한 핵심 내용(새 글의 관점과 구조를 잡는 참고 자료이며 문장을 복제하지 마세요):\n${params.sourceContext}` : ""}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },
+        { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n페르소나: ${params.persona.name}${experienceSection(params.options)}${params.sourceContext ? `\n\n기존 글에서 확인한 핵심 내용(새 글의 관점과 구조를 잡는 참고 자료이며 문장을 복제하지 마세요):\n${params.sourceContext}` : ""}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },
   ];
   let parsed = await requestDraftJson(params.apiKey, params.provider, model, messages);
   if (!parsed.title || !parsed.body) throw new Error("AI가 제목과 본문을 모두 반환하지 않았습니다.");
   const title = normalizeBlogText(parsed.title).replace(/\n+/g, " ").slice(0, 150);
   let body = normalizeBlogText(parsed.body);
   let compactLength = body.replace(/\s/g, "").length;
-  if (compactLength < 2_000) {
-    parsed = await requestDraftJson(params.apiKey, params.provider, model, [
+  // v1.74: 보강을 최대 2번 하고, 부족한 글자 수를 숫자로 알려 줍니다. 보강본이 더 짧으면 이전 본문을 유지합니다.
+  for (let attempt = 0; attempt < 2 && compactLength < 2_000; attempt += 1) {
+    const shortage = 2_300 - compactLength;
+    const expanded = await requestDraftJson(params.apiKey, params.provider, model, [
       { role: "system", content: "당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 2,000~3,500자의 자연스러운 완성형 본문으로 확장하고, 4개 소제목과 각 소제목 아래 2개 이상의 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}" },
-      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요.` },
+      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 2,300자 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 1~2개씩 더합니다.` },
     ]);
-    if (!parsed.body) throw new Error("AI가 보강 본문을 반환하지 않았습니다.");
-    body = normalizeBlogText(parsed.body);
-    compactLength = body.replace(/\s/g, "").length;
+    if (!expanded.body) throw new Error("AI가 보강 본문을 반환하지 않았습니다.");
+    const expandedBody = normalizeBlogText(expanded.body);
+    const expandedLength = expandedBody.replace(/\s/g, "").length;
+    if (expandedLength > compactLength) {
+      parsed = { ...expanded, seoReport: expanded.seoReport ?? parsed.seoReport };
+      body = expandedBody;
+      compactLength = expandedLength;
+    }
   }
-  if (compactLength < 2_000) throw new Error(`AI가 보강 후에도 완성형 본문 분량을 충족하지 못했습니다. (공백 제외 ${compactLength}자 / 최소 2,000자)`);
-  return { title, body, seoReport: normalizeSeoReport(parsed.seoReport, body) };
+  // v1.74: 1,500자 이상이면 회원 키 요금이 헛되지 않게 저장하고 분량 안내를 붙입니다(2,000자 미만은 발행 전 점검에서도 경고).
+  if (compactLength < 1_500) throw new Error(`AI가 보강 후에도 본문 분량이 너무 짧습니다. (공백 제외 ${compactLength}자 / 최소 1,500자) 다른 모델로 다시 시도해주세요.`);
+  const seoReport = normalizeSeoReport(parsed.seoReport, body);
+  if (compactLength < 2_000) seoReport.lengthNotice = `본문이 공백 제외 ${compactLength.toLocaleString("ko-KR")}자로 권장 분량(2,000자)보다 짧습니다. 직접 내용을 보강하거나 더 큰 모델로 다시 만들어 보세요.`;
+  return { title, body, seoReport };
 }

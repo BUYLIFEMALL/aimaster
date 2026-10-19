@@ -119,4 +119,5 @@ export const reportLabels: Record<string, string> = {
   factCheck: "사실 확인",
   readability: "가독성",
   paragraphCount: "문단 수",
+  lengthNotice: "분량 안내",
 };

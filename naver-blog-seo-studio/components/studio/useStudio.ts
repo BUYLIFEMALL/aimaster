@@ -29,6 +29,13 @@ export function useStudio() {
   const [contentProvider, setContentProvider] = useState<ContentProvider>("openai");
   const [contentModel, setContentModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
   const [contentImageCount, setContentImageCount] = useState<2 | 3>(2);
+  // v1.74 글쓰기 선택 사항(저장하지 않고 생성 요청에만 사용)
+  const [experienceNote, setExperienceNote] = useState("");
+  const [experienceQuestions, setExperienceQuestions] = useState<string[]>([]);
+  const [experienceQuestionPending, setExperienceQuestionPending] = useState(false);
+  const [experienceQuestionMessage, setExperienceQuestionMessage] = useState("");
+  const [naturalStyle, setNaturalStyle] = useState(false);
+  const [includeFaq, setIncludeFaq] = useState(false);
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
   const [titleEditValue, setTitleEditValue] = useState("");
   const [existingBody, setExistingBody] = useState("");
@@ -337,6 +344,26 @@ export function useStudio() {
     } finally { setDraftSaving(false); }
   }
 
+  async function requestExperienceQuestions() {
+    if (!topic.trim() && !selectedTitle.trim()) return setExperienceQuestionMessage("주제나 제목을 먼저 입력해주세요.");
+    setExperienceQuestionPending(true);
+    setExperienceQuestionMessage("");
+    try {
+      const response = await fetch("/api/drafts/experience-questions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, title: selectedTitle, keywords, provider: contentProvider, model: contentModel }) });
+      const result = await response.json().catch(() => ({})) as { questions?: string[]; error?: string };
+      if (!response.ok || !result.questions?.length) throw new Error(result.error || "경험 질문을 만들지 못했습니다.");
+      setExperienceQuestions(result.questions);
+    } catch (error) {
+      setExperienceQuestionMessage(error instanceof Error ? error.message : "경험 질문을 만들지 못했습니다.");
+    } finally {
+      setExperienceQuestionPending(false);
+    }
+  }
+
+  function appendExperienceQuestion(question: string) {
+    setExperienceNote((note) => `${note.trim() ? `${note.trim()}\n` : ""}- ${question} → `);
+  }
+
   async function prepareDraft(overrides?: { topic: string; keywords: string; selectedTitle: string; sourceContext?: string }) {
     const draftTopic = overrides?.topic ?? topic;
     const draftKeywords = overrides?.keywords ?? keywords;
@@ -348,7 +375,7 @@ export function useStudio() {
     setPending(true);
     setMessage("AI가 블로그(원문)을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
-      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel }) });
+      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel, experienceNote, naturalStyle, includeFaq }) });
       const result = await response.json() as { draft?: { id: string; title: string; body: string; seo_report?: Record<string, string> | null; created_at?: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "블로그(원문) 생성에 실패했습니다.");
       const draft = result.draft;
@@ -731,6 +758,17 @@ export function useStudio() {
     copyDraftText,
     selectedContentModelLabel,
     completedInputCount,
+    experienceNote,
+    setExperienceNote,
+    experienceQuestions,
+    experienceQuestionPending,
+    experienceQuestionMessage,
+    requestExperienceQuestions,
+    appendExperienceQuestion,
+    naturalStyle,
+    setNaturalStyle,
+    includeFaq,
+    setIncludeFaq,
   };
 }
 

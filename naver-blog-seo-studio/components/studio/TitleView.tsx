@@ -8,7 +8,7 @@ import { strategies } from "./shared";
 import type { Studio } from "./useStudio";
 
 export function TitleView({ s }: { s: Studio }) {
-  const { strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel } = s;
+  const { strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq } = s;
   return (
     <section className="title-recommendation" id="title">
           <section className="card title-input-section">
@@ -40,6 +40,21 @@ export function TitleView({ s }: { s: Studio }) {
     <input id="custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} placeholder="예: 30대 초보 창업자에게 차분하게 설명하는 실무 멘토" />
     <small>말투, 독자 대상, 설명 방식 등을 500자 이내로 입력하세요.</small>
   </div>}
+  <section className="writing-options" aria-label="글쓰기 선택 사항">
+    <div className="field">
+      <label htmlFor="experience-note">내 실제 경험 (선택)</label>
+      <textarea id="experience-note" value={experienceNote} maxLength={1500} onChange={(event) => setExperienceNote(event.target.value)} placeholder="예: 지난 토요일 오전 9시에 출발했는데 주차장이 10시쯤 꽉 찼어요. 아이랑 걷기엔 산책로가 2km 정도라 딱 좋았어요." />
+      <small>직접 겪은 일만 적어 주세요. 적은 내용만 경험으로 본문에 녹이고, 없는 경험은 지어내지 않습니다. ({experienceNote.length.toLocaleString("ko-KR")} / 1,500자)</small>
+      <div className="experience-question-row">
+        <button type="button" className="secondary compact" onClick={() => void requestExperienceQuestions()} disabled={experienceQuestionPending}>{experienceQuestionPending ? "질문 만드는 중..." : "경험 떠올리기 질문 받기"}</button>
+        <small>AI가 답을 쓰지 않고, 떠올리기 쉬운 질문 5개만 만듭니다. 질문을 누르면 메모에 추가됩니다.</small>
+      </div>
+      {experienceQuestionMessage && <p className="experience-question-error" role="status">{experienceQuestionMessage}</p>}
+      {experienceQuestions.length > 0 && <div className="experience-question-list">{experienceQuestions.map((question) => <button type="button" key={question} className="experience-question" onClick={() => appendExperienceQuestion(question)}>+ {question}</button>)}</div>}
+    </div>
+    <label className="writing-option-check"><input type="checkbox" checked={naturalStyle} onChange={(event) => setNaturalStyle(event.target.checked)} /> <span><strong>자연스러운 문체로 다듬기</strong><small>문장 길이를 섞고 「결론적으로」 같은 상투 표현을 줄입니다. 읽기 좋은 글을 위한 옵션이며 AI 탐지 회피를 약속하지 않습니다.</small></span></label>
+    <label className="writing-option-check"><input type="checkbox" checked={includeFaq || strategy === "AEO"} disabled={strategy === "AEO"} onChange={(event) => setIncludeFaq(event.target.checked)} /> <span><strong>글 끝에 자주 묻는 질문(FAQ) 넣기</strong><small>{strategy === "AEO" ? "AEO 전략은 FAQ가 항상 들어갑니다." : "독자가 물을 만한 질문 3~5개를 Q./A. 형식으로 덧붙입니다."}</small></span></label>
+  </section>
   <section className="content-model-selection" aria-label="본문 생성 모델 선택">
     <div className="content-generation-models-heading">
       <strong>본문 생성모델 · {selectedContentModelLabel}</strong>

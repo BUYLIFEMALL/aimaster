@@ -125,3 +125,15 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.74 — 「SEO 최적화 도우미 6.5.4」 분석 기반 업그레이드 + 전략 거부 버그 수정 (Claude Code 윈도우)
+- 주인님 결정: 외부 데스크톱 앱을 새 프로그램으로 만들지 않고 이 스튜디오에 흡수. 원본은 정적 분석만(실행 안 함), 코드·프롬프트는 옮기지 않음. 플랜 [docs/PLAN_20261020_SEO_HELPER_UPGRADE.md](docs/PLAN_20261020_SEO_HELPER_UPGRADE.md), 인수인계 [docs/IMPROVEMENT_HANDOFF_20261020.md](docs/IMPROVEMENT_HANDOFF_20261020.md).
+- **버그 수정**: `app/api/drafts/generate/route.ts` 허용 목록이 옛 이름(「전환 스토리」「인사이트 가이드」)이라 화면에서 **「홈판 스토리」「인사이트 엣지」를 고르면 항상 400**이었다. 이제 `lib/ai/generator.ts`의 `SEO_STRATEGY_NAMES`(전략 안내 표의 키) 하나를 화면·API가 같이 쓴다. 회귀 테스트: `tests/seo-quality.test.mjs` 마지막 항목.
+- **새 기능** (모두 저장하지 않고 생성 요청에만 사용, DB 변경 없음):
+  - 제목 화면 「내 실제 경험」 메모(1,500자) + 「경험 떠올리기 질문 받기」(`POST /api/drafts/experience-questions`, 본인 키, 질문 5개만 — AI가 경험을 지어내지 않음). 메모는 사실로 본문에 녹이고 그 밖의 경험은 만들지 않도록 지시.
+  - 「자연스러운 문체로 다듬기」(기본 꺼짐 — 기존 회원 결과가 예고 없이 바뀌지 않게), 「FAQ 넣기」(AEO는 항상 켜짐).
+  - 결과 화면 「발행 전 점검」(`components/studio/QualityPanel.tsx` + 순수 함수 `lib/seoQuality.ts`): 제목 길이·키워드 포함/위치·첫 문단·키워드 반복·분량·긴 문단·[확인 필요]·상투 표현·FAQ·이미지, 많이 쓴 단어 상위 15개(조사·서술어·연결어 제외), 📱 모바일 미리보기. **네이버 공식 점수 아님**을 화면·매뉴얼에 명시.
+- **분량 보강 개선**(실검수 중 발견): 저렴한 모델이 2,000자 기준을 못 넘으면 요금만 나가고 글을 못 받던 문제 → 보강을 최대 2회, 부족한 글자 수를 숫자로 지시, 더 짧아지면 이전 본문 유지, **1,500자 이상이면 저장하고 `seo_report.lengthNotice`(분량 안내)** 를 붙임(1,500자 미만만 실패).
+- 확장: 코드 변경 없음, manifest 1.74.0/v1.74·ZIP 재생성, DB `version`/`extension_version` v1.74(ref `esgxyikcnnvmlhygjkth`, 마이그레이션 `20261020120000_bump_version_v1_74.sql`), `check-extension-release` OK. 회원 확장은 다시 받을 필요 없음(동작 같음).
+- 검수: tsc 0 · eslint 새 경고 0 · 테스트 seo-quality 6 · categories 2 · update-banner 3 · browser 26(1 건너뜀) · build · 배포 4회(마지막 `naver-blog-seo-studio-aydgzlfis` Ready). 크롬(관리자 세션, 이미지 요청은 시험 탭에서 차단): 제목 추천 → 경험 질문 5개 → 메모 추가 → 홈판 스토리 생성 성공(공백 제외 2,052자, 메모 경험 반영) → 점검 5/10·단어 빈도·모바일 미리보기 확인, 400px iframe에서 점검표 1열 전환(창 최대화로 실제 창 폭은 못 줄임).
+- **다음 CLI 주의**: ① GPT-5 계열(`gpt-5.6-luna`)은 생성 요청이 OpenAI 400으로 실패 — 온도(`temperature`) 지정을 받지 않는 것으로 추정, 이번에 미수정(개선 원장 #14). ② 저렴한 모델은 메모 경험을 조금 부풀릴 수 있음(「신나게 뛰어놀았다」) — 발행 전 직접 확인 안내 유지.

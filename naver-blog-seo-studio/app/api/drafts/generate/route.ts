@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { generateSeoDraft } from "@/lib/ai/generator";
+import { generateSeoDraft, SEO_STRATEGY_NAMES } from "@/lib/ai/generator";
 import { isContentProvider, resolveContentModel } from "@/lib/ai/contentModels";
 import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
@@ -10,12 +10,17 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const strategies = new Set(["C-Rank 기본", "ALCON", "AEO", "전환 스토리", "인사이트 가이드"]);
+// v1.74: 화면·생성기와 같은 목록을 씁니다(예전 옛 이름 목록 때문에 홈판 스토리·인사이트 엣지가 항상 거부됐음).
+const strategies = new Set(SEO_STRATEGY_NAMES);
+const EXPERIENCE_NOTE_MAX = 1_500;
 
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown } | null;
+  const experienceNote = typeof input?.experienceNote === "string" ? input.experienceNote.trim() : "";
+  if (experienceNote.length > EXPERIENCE_NOTE_MAX) return NextResponse.json({ error: `내 실제 경험은 ${EXPERIENCE_NOTE_MAX.toLocaleString("ko-KR")}자 이내로 입력해주세요.` }, { status: 400 });
+  const options = { experienceNote: experienceNote || undefined, naturalStyle: input?.naturalStyle === true, includeFaq: input?.includeFaq === true };
   const topic = input?.topic?.trim() ?? "";
   const strategy = input?.strategy?.trim() ?? "";
   const provider = isContentProvider(input?.provider) ? input.provider : "openai";
@@ -36,7 +41,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, model: resolveContentModel(provider, input?.model) });
+    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model: resolveContentModel(provider, input?.model) });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
     const { data: saved, error } = await supabase.from("naver_blog_seo_drafts")
       .insert({ user_id: access.user.id, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: draft.seoReport, status: "ready" })
