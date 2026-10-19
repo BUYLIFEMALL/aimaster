@@ -27,6 +27,7 @@ export default function BlogShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/candidates') ||
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/settings') ||
+    pathname.startsWith('/guide') ||
     (isPostsRoute && isLoggedIn)
 
   if (showSidebar) {

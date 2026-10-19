@@ -1,5 +1,40 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — BLOG(원문)생성 자동화(ai-auto-blog) v1.75: 플로우 위저드 블로그 퍼블리싱 에디션 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 76개 완료 / 91.6% 달성!)
+
+- **대상**: `ai-auto-blog/` (https://ai-auto-blog.buylife.xyz, slug: `ai-auto-blog`, 59번)
+- **한 일**:
+  1. **플로우 위저드 스타일 — 블로그 퍼블리싱 에디션 전면 리뉴얼**:
+     - 퓨어 화이트 & 소프트 슬레이트 베이스 + 에디터 블루(`rgb(0 90 204)`), 에메랄드, 인디고 포인트 컬러 토큰 적용 (`app/globals.css`).
+     - 메인 게시글 관리 화면 (`app/_components/HomePage.tsx`): `.studio-hero` 프리미엄 그라디언트 배너, `v1.75` 블루 뱃지, 3대 핵심 KPI 통계 카드 (총 작성 글, 분류 카테고리, 100% BYOK & RLS 30일 보관), 4단계 파이프라인 가이드 바 (글감수집 ➔ AI본문/나노바나나 ➔ 에디터검수 ➔ 블로그발행), 인라인 검색 및 카테고리 칩 UI 세련화.
+  2. **사이드바 표준화 (`app/_components/BlogSidebar.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 3단계 플로우 스텝퍼 번호화: Step 1 🔍 게시글 주제 수집, Step 2 ✏️ AI 글쓰기, Step 3 📝 게시글 관리.
+     - 유틸리티 메뉴: `🔑 API키등록·플랫폼연동` (`/settings`) + **`📖 연동 & 사용 매뉴얼` (`/guide`)** 신설.
+     - 767px 이하 모바일 전용 56px 헤더 및 햄버거 토글 슬라이드 드로어 완비.
+     - `app/_components/BlogShell.tsx`: `/guide` 라우트에서 사이드바가 정상 노출되도록 `showSidebar` 규칙 보강.
+  3. **독립 비주얼 가이드북 (`app/guide/page.tsx`) 전면 신설**:
+     - 4단계 블로그 자동화 프로세스 다이어그램 (글감 수집 ➔ AI 초안 & 나노바나나 ➔ Tiptap 리치 에디터 ➔ 블로그 발행).
+     - 지원 AI 모델(GPT-4o / Claude 3.5 Sonnet / Gemini 2.5 Flash) 및 나노바나나(NanoBanana 2K/4K/Pro) 매트릭스 표.
+     - 검색엔진 최적화(SEO) 7대 수칙 카드 6종.
+     - 100% BYOK 공용 DB 회원 소유 격리 보안 원칙 배너 (Supabase RLS 적용).
+     - 자주 묻는 질문 (FAQ 5종) 아코디언 컴포넌트 탑재.
+  4. **버전 및 DB 메타데이터 3중 동기화 (`v1.75`)**:
+     - `ai-auto-blog/package.json` (`1.75.0`), `ai-auto-blog/utils/version.ts` (`v1.75`), Supabase DB `programs` 메타데이터 (`version: v1.75`) 동기화 완료 (`scripts/update_ai_auto_blog_version.cjs`).
+  5. **로컬 무결성 검증 통과**:
+     - Next.js 16.2.10 (Turbopack) 프로덕션 빌드 성공 (정적 페이지 11개 생성, 크롬 확장 ZIP 2종 자동 패키징, exit code 0).
+  6. **Vercel 프로덕션 배포 완료**:
+     - `https://ai-auto-blog-ekhtjnnbu-buylife.vercel.app` (Alias: `ai-auto-blog.buylife.xyz`).
+     - ReadyState: `READY` 배포 완료.
+  7. **Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수 완료**:
+     - 일반 회원 테스트 세션(`buylifemall@naver.com`) 주입 후 데스크톱(1440px) 및 모바일(375px) 7종 캡처 수집 완료.
+     - 캡처: `edge_blog_desktop_main_v175.png`, `edge_blog_desktop_kpi_v175.png`, `edge_blog_desktop_write_v175.png`, `edge_blog_desktop_guide_v175.png`, `edge_blog_desktop_guide_matrix_v175.png`, `edge_blog_mobile_main_v175.png`, `edge_blog_mobile_guide_v175.png`.
+     - 사용자 실시간 확인을 위한 10분간(600초) 포그라운드 화면 유지 세션 가동.
+  8. **문서화 완비**:
+     - `ai-auto-blog/docs/PLAN_20261019_DESIGN_RENEWAL.md`, `DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `IMPROVEMENT_HANDOFF_20261019.md`, `AGENTS.md`, `README.md` 완비.
+- **프로그램 링크**:
+
+https://ai-auto-blog.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 대량 메일발송 자동화(stepmail) v1.20: 플로우 위저드 스텝메일 마케팅 에디션 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 75개 완료 / 90.4% 달성!)
 
 - **대상**: `stepmail/` (https://stepmail.buylife.xyz, slug: `stepmail`, 53번)

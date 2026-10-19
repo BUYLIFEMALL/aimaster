@@ -8,6 +8,7 @@ import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import CategoryManagementModal from './CategoryManagementModal'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import { retentionDaysLeft } from '@/blog/utils/imageRetention'
+import { APP_VERSION } from '@/utils/version'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -227,55 +228,159 @@ export default function HomePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* =================== HERO =================== */}
-      <section className="text-center mb-12">
-        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
-          주제, 키워드, 참고링크를 제시하면
-        </h1>
-        <p className="text-slate-500 text-base mb-8">
-          자동으로 검색엔진에 최적화된 블로그를 만들어 드립니다
-        </p>
-
-        {/* 검색 폼 (입력창 + 검색하기 버튼) */}
-        <form onSubmit={handleSearch} className="flex items-center gap-2 max-w-md mx-auto mb-8">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="블로그 제목으로 검색..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-9 py-2.5 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
-            />
-            <svg
-              className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+      {/* =================== STUDIO HERO BANNER =================== */}
+      <section className="studio-hero p-6 sm:p-8 mb-8">
+        <div className="relative z-10">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-600 text-white shadow-sm shadow-blue-500/20">
+                <span>✍️ BLOG PUBLISHING STUDIO</span>
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-white/80 text-blue-700 border border-blue-200 shadow-xs">
+                {APP_VERSION}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/guide"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/80 hover:bg-white border border-slate-200 transition-all shadow-xs"
+              >
+                <span>📖 사용 매뉴얼</span>
+              </Link>
+              <Link
+                href="/settings"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white/80 hover:bg-white border border-slate-200 transition-all shadow-xs"
+              >
+                <span>🔑 API 키 설정</span>
+              </Link>
+            </div>
           </div>
-          <button
-            type="submit"
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition-all shadow-md shadow-blue-500/20 cursor-pointer flex-shrink-0 flex items-center gap-1.5"
-          >
-            <span>🔍</span>
-            <span>검색하기</span>
-          </button>
-        </form>
 
-        <Link
-          href="/write/ai-form"
-          className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:bg-blue-700 shadow-lg shadow-blue-500/20"
-        >
-          <span className="text-lg">✨</span>
-          <span>AI 글쓰기 (자동 포스팅 생성)</span>
-        </Link>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
+            주제·키워드 입력만으로 완성하는 SEO 최적화 블로그
+          </h1>
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mb-6 leading-relaxed">
+            멀티 AI(GPT-4o / Claude 3.5 Sonnet / Gemini 2.5 Flash) 기반 본문 작성, 나노바나나 고화질 삽화 자동 생성, Tiptap 리치 에디터 검수 및 크롬 확장 프로그램 연동까지 원스톱으로 지원합니다.
+          </p>
+
+          {/* 퀵 액션 버튼 & 검색 폼 */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <Link
+              href="/write/ai-form"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-3 text-sm font-bold text-white transition-all shadow-md shadow-blue-500/25 hover:scale-[1.02]"
+            >
+              <span>✨ AI 글쓰기 (자동 생성)</span>
+            </Link>
+            <Link
+              href="/candidates"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 px-5 py-3 text-sm font-bold text-slate-700 transition-all"
+            >
+              <span>🔍 글감·토픽 수집</span>
+            </Link>
+
+            {/* 인라인 검색 폼 */}
+            <form onSubmit={handleSearch} className="flex-1 flex items-center gap-2 sm:ml-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="작성된 블로그 제목 검색..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 shadow-xs"
+                />
+                <svg
+                  className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <button
+                type="submit"
+                className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
+              >
+                검색
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* =================== 3대 KPI 통계 카드 =================== */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="stat-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-500">📝 총 작성 게시글</span>
+            <span className="p-2 rounded-xl bg-blue-50 text-blue-600 text-sm">📊</span>
+          </div>
+          <div className="text-2xl font-black text-slate-900">
+            {loading ? "..." : `${totalCount}건`}
+          </div>
+          <p className="text-[11px] text-slate-500 mt-1">회원 본인 소유의 전체 발행 글감</p>
+        </div>
+
+        <div className="stat-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-500">🏷️ 분류 카테고리</span>
+            <span className="p-2 rounded-xl bg-indigo-50 text-indigo-600 text-sm">🗂️</span>
+          </div>
+          <div className="text-2xl font-black text-slate-900">
+            {categories.length}개 분야
+          </div>
+          <p className="text-[11px] text-slate-500 mt-1">전문 기술 및 네이버/티스토리 카테고리</p>
+        </div>
+
+        <div className="stat-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-500">🛡️ 데이터 보안 및 보관</span>
+            <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600 text-sm">🔒</span>
+          </div>
+          <div className="text-lg font-black text-emerald-600">
+            100% BYOK & RLS
+          </div>
+          <p className="text-[11px] text-slate-500 mt-1">회원 본인 소유 격리 / 생성일 기준 30일 보관</p>
+        </div>
+      </section>
+
+      {/* =================== 4단계 파이프라인 가이드 바 =================== */}
+      <section className="mb-8 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+            <span>⚡ 4단계 블로그 자동 발행 파이프라인</span>
+          </span>
+          <Link href="/guide" className="text-xs font-bold text-blue-600 hover:text-blue-800">
+            매뉴얼 상세 보기 →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200/60">
+            <div className="text-[10px] font-black text-blue-600 uppercase">STEP 1</div>
+            <div className="text-xs font-bold text-slate-900 mt-0.5">🔍 글감·토픽 수집</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">RSS·뉴스·쇼츠 트렌드</div>
+          </div>
+          <div className="p-3 rounded-xl bg-indigo-50/60 border border-indigo-200/60">
+            <div className="text-[10px] font-black text-indigo-600 uppercase">STEP 2</div>
+            <div className="text-xs font-bold text-slate-900 mt-0.5">✏️ AI 초안 & 나노바나나</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">멀티 모델 본문 & 고화질 삽화</div>
+          </div>
+          <div className="p-3 rounded-xl bg-violet-50/60 border border-violet-200/60">
+            <div className="text-[10px] font-black text-violet-600 uppercase">STEP 3</div>
+            <div className="text-xs font-bold text-slate-900 mt-0.5">📝 리치 에디터 검수</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">Tiptap 서식 & 이미지 배치</div>
+          </div>
+          <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60">
+            <div className="text-[10px] font-black text-emerald-600 uppercase">STEP 4</div>
+            <div className="text-xs font-bold text-slate-900 mt-0.5">🚀 블로그 발행·연동</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">크롬 확장 프로그램 & 웹 발행</div>
+          </div>
+        </div>
       </section>
 
       {/* =================== MAIN CONTENT =================== */}

@@ -1,5 +1,17 @@
 # BLOG(원문)생성 자동화 — AIMaster 통합 DB 사용
 
+## 2026-10-19 v1.75 — 플로우 위저드 블로그 퍼블리싱 에디션 전면 리뉴얼 및 /guide 비주얼 가이드북 신설
+
+- **적용 템플릿**: **플로우 위저드 스타일 — 블로그 퍼블리싱 에디션 (Flow Wizard Blog Publishing Edition)**
+- **주요 개편 내용**:
+  - 메인 콘솔(`.studio-hero` 배너, 3대 KPI 카드, 4단계 파이프라인 가이드 바) 전면 리뉴얼
+  - 좌측 사이드바: 3단계 스텝퍼 번호화, `🔑 API키등록·플랫폼연동` + **`📖 연동 & 사용 매뉴얼` (`/guide`)** 신설
+  - 독립 비주얼 가이드북(`app/guide/page.tsx`): 4단계 파이프라인 다이어그램, AI 모델 및 나노바나나 매트릭스 표, SEO 7대 수칙, FAQ 5종 완비
+  - 767px 이하 모바일 전용 56px 상단 헤더 및 햄버거 토글 슬라이드 드로어 탑재
+  - 버전 3중 동기화 (`v1.75`): `package.json`, `utils/version.ts`, Supabase DB `programs`
+- **배포 주소**: https://ai-auto-blog.buylife.xyz
+- **상세 인수인계**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md), [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md), [`docs/IMPROVEMENT_HANDOFF_20261019.md`](docs/IMPROVEMENT_HANDOFF_20261019.md)
+
 ## 2026-10-12 v1.60 — 글 상세 화면 카테고리 정렬
 
 주인님 요청으로 네이버 카테고리를 관리 버튼 아래 전체 폭 행으로 옮기고 이름/선택 상자/불러오기 버튼을 한 줄로 정렬했습니다. 관리 버튼 글자 줄바꿈/폭 축소를 막고 모바일은 요소 단위로 줄바꿈합니다. 공통 선택 영역의 안내 문구는 아래 전체 폭을 씁니다. 로컬/운영 빌드·타입 통과. 코드a39e2792 푸시·프로덕션READY·DB/라이브ZIP v1.60·14파일 일치·실제 일반 회원 Chrome 상세 화면 한 줄 정렬/카테고리·본문 보존 확인 완료. 이번 요청의 남은 작업 없음. 운영 증거는 [검수·운영 기록](docs/CATEGORY_LAYOUT_2026-10-12.md)에 기록했습니다. 본문/이미지·실행 로직/API·회원 데이터·스키마/키 변경 없음.

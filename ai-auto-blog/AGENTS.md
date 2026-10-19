@@ -13,6 +13,23 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만 사용, 앱/운영자 공용 키로 폴백하지 않음 — 2026-08-12 정책, 2026-09-03에 이 서브프로젝트에 남아있던 옛 폴백 로직 제거)을 그대로 쓴다. 본인 키가 없으면 `null`을 반환하니, 호출부는 조용히 실패시키지 말고 "API 키 등록 필요" 안내로 이어가야 한다.
 - 최상위 본인 계정 규칙에 따라 `blog_posts`/`blog_authors`는 회원 본인 소유 데이터입니다. 소유자가 없는 옛 글은 임의 귀속·접근 허용하지 않습니다. `blog_categories`는 공통 분류 목록이며 변경은 관리자만 가능합니다. 이전의 공유 블로그 설명은 최상위 규칙과 충돌하므로 사용하지 않습니다.
 
+## 2026-10-19 v1.75 — 플로우 위저드 블로그 퍼블리싱 에디션 전면 리뉴얼 및 /guide 비주얼 가이드북 신설 (Antigravity 윈도우)
+
+- **디자인 리뉴얼**:
+  - `globals.css`: `.studio-hero`, `.stat-card`, `.pipeline-step`, `.guide-card` 등 전용 스타일 유틸리티 정의.
+  - 메인 콘솔(`app/_components/HomePage.tsx`): 상단 `.studio-hero` 프리미엄 그라디언트 배너, `v1.75` 블루 뱃지, 3대 핵심 KPI 통계 카드, 4단계 파이프라인 가이드 바 탑재.
+  - 사이드바 표준화(`app/_components/BlogSidebar.tsx`): 3단계 스텝퍼 번호화, `🔑 API키등록·플랫폼연동` + **`📖 연동 & 사용 매뉴얼` (`/guide`)** 신설, 767px 이하 모바일 전용 56px 헤더 및 햄버거 토글 슬라이드 드로어 완비.
+  - 독립 비주얼 가이드북(`app/guide/page.tsx`): 4단계 프로세스 다이어그램, AI 모델 및 나노바나나 매트릭스 표, SEO 7대 수칙, BYOK RLS 보안 원칙, FAQ 5종 아코디언 신설.
+  - `app/_components/BlogShell.tsx`: `/guide` 경로에서 사이드바가 정상 노출되도록 `showSidebar` 조건에 `pathname.startsWith('/guide')` 반영.
+- **버전 3중 동기화 (`v1.75`)**:
+  - `package.json` (`1.75.0`), `utils/version.ts` (`v1.75`), Supabase DB `programs` (`v1.75`) 완료 (`scripts/update_ai_auto_blog_version.cjs`).
+- **빌드 및 검수**:
+  - Next.js 16.2.10 (Turbopack) 로컬 빌드 성공 (`npm run build`).
+  - Vercel 프로덕션 배포 완료 (`https://ai-auto-blog.buylife.xyz`).
+  - Microsoft Edge(headless: false) 포그라운드 7종 캡처 수집 및 10분간 화면 유지 세션 수행 완료 (`scripts/verify_edge_ai_auto_blog_v175.cjs`).
+- **관련 문서**:
+  - `docs/PLAN_20261019_DESIGN_RENEWAL.md`, `docs/DESIGN_HANDOFF.md`, `docs/IMPROVEMENTS.md`, `docs/IMPROVEMENT_HANDOFF_20261019.md`.
+
 ## 2026-10-12 v1.60 — 글 상세 화면 카테고리 정렬
 
 주인님 요청으로 네이버 카테고리를 관리 버튼 아래 전체 폭 행으로 옮기고 이름/선택 상자/불러오기 버튼을 한 줄로 정렬했습니다. 관리 버튼 글자 줄바꿈/폭 축소를 막고 모바일은 요소 단위로 줄바꿈합니다. 공통 선택 영역의 안내 문구는 아래 전체 폭을 씁니다. 로컬/운영 빌드·타입 통과. 코드a39e2792 푸시·프로덕션READY·DB/라이브ZIP v1.60·14파일 일치·실제 일반 회원 Chrome 상세 화면 한 줄 정렬/카테고리·본문 보존 확인 완료. 이번 요청의 남은 작업 없음. 운영 증거는 [검수·운영 기록](docs/CATEGORY_LAYOUT_2026-10-12.md)에 기록했습니다. 본문/이미지·실행 로직/API·회원 데이터·스키마/키 변경 없음.
