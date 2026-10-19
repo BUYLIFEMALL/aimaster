@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bot, FileText, Globe, Loader2, MessageSquarePlus, PanelLeft, Send, Trash2, User } from "lucide-react";
+import { Bot, Check, Copy, FileText, Globe, Loader2, MessageSquarePlus, PanelLeft, Pencil, RotateCcw, Search, Send, Trash2, User, X } from "lucide-react";
 import { ErrorNote, INPUT } from "@/components/studio/ui";
 import { Markdown } from "@/components/chat/Markdown";
 
@@ -10,6 +10,8 @@ interface Source {
   type: "doc" | "web";
   title: string;
   url?: string;
+  snippet?: string;
+  published?: string;
 }
 interface Msg {
   id?: string;
@@ -45,6 +47,11 @@ export default function ChatPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [showRooms, setShowRooms] = useState(false);
   const [docCount, setDocCount] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [copied, setCopied] = useState<number | null>(null);
+  const [roomQuery, setRoomQuery] = useState("");
+  const [editing, setEditing] = useState<{ id: string; title: string } | null>(null);
+  const [onlyDoc, setOnlyDoc] = useState<{ id: string; name: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const loadRooms = useCallback(async () => {
@@ -54,9 +61,16 @@ export default function ChatPage() {
 
   useEffect(() => {
     void loadRooms();
+    const wantDoc = new URLSearchParams(window.location.search).get("doc");
     fetch("/api/documents", { cache: "no-store" })
       .then((x) => x.json())
-      .then((d) => setDocCount((d.documents ?? []).length))
+      .then((d) => {
+        const list = (d.documents ?? []) as { id: string; name: string }[];
+        setDocCount(list.length);
+        // 「이 문서로 질문」(U4): 내 문서에서 넘어온 경우 그 문서만 참고
+        const picked = wantDoc ? list.find((x) => x.id === wantDoc) : undefined;
+        if (picked) setOnlyDoc({ id: picked.id, name: picked.name });
+      })
       .catch(() => setDocCount(0));
   }, [loadRooms]);
 
@@ -91,10 +105,39 @@ export default function ChatPage() {
     void loadRooms();
   }
 
-  async function send(text?: string) {
+  async function renameRoom() {
+    if (!editing) return;
+    const title = editing.title.trim();
+    setEditing(null);
+    if (!title) return;
+    const r = await fetch(`/api/rooms/${editing.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title }) }).then((x) => x.json()).catch(() => ({}));
+    if (r.error) setError({ text: r.error });
+    void loadRooms();
+  }
+
+  async function copyAnswer(i: number, text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(i);
+      setTimeout(() => setCopied((c) => (c === i ? null : c)), 1500);
+    } catch {
+      setError({ text: "복사하지 못했습니다. 답변을 직접 선택해 복사해 주세요." });
+    }
+  }
+
+  /** 마지막 답변 다시 생성(U3) — 마지막 질문을 같은 방에서 다시 보낸다(서버가 이전 질문·답변을 지움) */
+  function regenerate() {
+    if (busy) return;
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (!lastUser) return;
+    setMessages((m) => m.slice(0, Math.max(0, m.length - 2)));
+    void send(lastUser.content, true);
+  }
+
+  async function send(text?: string, isRegenerate = false) {
     const question = (text ?? input).trim();
     if (!question || busy) return;
-    setInput("");
+    if (!isRegenerate) setInput("");
     setError(null);
     setNotice(null);
     setBusy(true);
@@ -105,7 +148,7 @@ export default function ChatPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off" }),
+        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off", documentId: useDocs ? onlyDoc?.id : undefined, regenerate: isRegenerate }),
       });
       if (!res.ok || !res.body) {
         const d = await res.json().catch(() => ({}));
@@ -153,19 +196,49 @@ export default function ChatPage() {
     }
   }
 
+  const q = roomQuery.trim().toLowerCase();
+  const visibleRooms = q ? rooms.filter((r) => r.title.toLowerCase().includes(q)) : rooms;
+  const lastAssistant = messages.length - 1;
+
   const roomList = (
     <div className="flex h-full flex-col">
       <button type="button" onClick={newChat} className="mb-3 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-3 py-2.5 text-sm font-bold text-indigo-200 hover:bg-indigo-500/20">
         <MessageSquarePlus className="h-4 w-4" /> 새 대화
       </button>
+      {rooms.length > 0 && (
+        <label className="mb-2 flex items-center gap-1.5 rounded-lg border border-[#262c3d] bg-[#11141c] px-2 py-1.5">
+          <Search className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+          <input value={roomQuery} onChange={(e) => setRoomQuery(e.target.value)} placeholder="대화 검색" aria-label="대화 검색" className="min-w-0 flex-1 bg-transparent text-xs text-slate-200 outline-none placeholder:text-slate-600" />
+        </label>
+      )}
       <p className="mb-1.5 px-1 text-[11px] text-slate-500">대화 기록 (30일 보관)</p>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
         {rooms.length === 0 && <p className="px-1 text-xs text-slate-500">아직 대화가 없습니다.</p>}
-        {rooms.map((r) => (
+        {rooms.length > 0 && !visibleRooms.length && <p className="px-1 text-xs text-slate-500">「{roomQuery}」 대화가 없습니다.</p>}
+        {visibleRooms.map((r) => (
           <div key={r.id} className={`group flex items-center gap-1 rounded-lg ${r.id === roomId ? "bg-[#1e2230]" : "hover:bg-[#161922]"}`}>
-            <button type="button" onClick={() => void openRoom(r.id)} className="min-w-0 flex-1 px-2.5 py-2 text-left">
-              <p className="truncate text-xs font-semibold text-slate-200">{r.title}</p>
-              <p className="text-[10px] text-slate-500">{timeLabel(r.updated_at)}</p>
+            {editing?.id === r.id ? (
+              <input
+                autoFocus
+                aria-label="대화 이름"
+                value={editing.title}
+                maxLength={60}
+                onChange={(e) => setEditing({ id: r.id, title: e.target.value })}
+                onBlur={() => void renameRoom()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing) void renameRoom();
+                  if (e.key === "Escape") setEditing(null);
+                }}
+                className="m-1 min-w-0 flex-1 rounded border border-indigo-500/50 bg-[#11141c] px-2 py-1.5 text-xs text-slate-100 outline-none"
+              />
+            ) : (
+              <button type="button" onClick={() => void openRoom(r.id)} className="min-w-0 flex-1 px-2.5 py-2 text-left">
+                <p className="truncate text-xs font-semibold text-slate-200">{r.title}</p>
+                <p className="text-[10px] text-slate-500">{timeLabel(r.updated_at)}</p>
+              </button>
+            )}
+            <button type="button" aria-label="대화 이름 바꾸기" onClick={() => setEditing({ id: r.id, title: r.title })} className="rounded p-1.5 text-slate-500 opacity-60 hover:bg-indigo-500/10 hover:text-indigo-200 group-hover:opacity-100">
+              <Pencil className="h-3.5 w-3.5" />
             </button>
             <button type="button" aria-label="대화 삭제" onClick={() => void deleteRoom(r.id)} className="mr-1 rounded p-1.5 text-slate-500 opacity-60 hover:bg-rose-500/10 hover:text-rose-300 group-hover:opacity-100">
               <Trash2 className="h-3.5 w-3.5" />
@@ -243,10 +316,43 @@ export default function ChatPage() {
                             <Globe className="h-3 w-3 shrink-0" /> <span className="truncate">{s.title}</span>
                           </a>
                         ) : (
-                          <span key={k} className="inline-flex max-w-[16rem] items-center gap-1 truncate rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-200">
+                          <button
+                            key={k}
+                            type="button"
+                            aria-expanded={expanded === `${i}-${k}`}
+                            title={s.snippet ? "눌러서 근거 내용 보기" : s.title}
+                            onClick={() => setExpanded((x) => (x === `${i}-${k}` ? null : `${i}-${k}`))}
+                            className={`inline-flex max-w-[16rem] items-center gap-1 truncate rounded-full border px-2 py-0.5 text-[11px] ${expanded === `${i}-${k}` ? "border-emerald-400/70 bg-emerald-500/25 text-emerald-100" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20"}`}
+                          >
                             <FileText className="h-3 w-3 shrink-0" /> <span className="truncate">{s.title}</span>
-                          </span>
+                          </button>
                         )
+                      )}
+                    </div>
+                  )}
+                  {m.role === "assistant" &&
+                    m.sources?.map((s, k) =>
+                      expanded === `${i}-${k}` ? (
+                        <div key={`x${k}`} className="mt-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 text-left text-xs leading-relaxed text-slate-300">
+                          <p className="mb-1 flex items-center gap-1 font-bold text-emerald-200">
+                            <FileText className="h-3.5 w-3.5" /> {s.title}에서 찾은 근거
+                            <button type="button" aria-label="근거 닫기" onClick={() => setExpanded(null)} className="ml-auto rounded p-0.5 text-slate-500 hover:text-slate-200">
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </p>
+                          <p className="whitespace-pre-wrap">{s.snippet || "이 답변은 근거 내용 미리보기가 저장되기 전(v1.04 이전)에 만들어졌습니다."}</p>
+                        </div>
+                      ) : null
+                    )}
+                  {m.role === "assistant" && !m.pending && m.content && (
+                    <div className="mt-1.5 flex items-center gap-1">
+                      <button type="button" onClick={() => void copyAnswer(i, m.content)} className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] text-slate-500 hover:bg-[#161922] hover:text-slate-200">
+                        {copied === i ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <Copy className="h-3.5 w-3.5" />} {copied === i ? "복사됨" : "복사"}
+                      </button>
+                      {i === lastAssistant && !busy && (
+                        <button type="button" onClick={regenerate} className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] text-slate-500 hover:bg-[#161922] hover:text-slate-200">
+                          <RotateCcw className="h-3.5 w-3.5" /> 다시 생성
+                        </button>
                       )}
                     </div>
                   )}
@@ -262,6 +368,15 @@ export default function ChatPage() {
           <div className="mx-auto max-w-3xl space-y-2">
             {error && <ErrorNote message={error.text} needKey={error.needKey} />}
             {notice && <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-200">{notice}</p>}
+            {onlyDoc && (
+              <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-200">
+                <FileText className="h-3.5 w-3.5 shrink-0" />
+                <span className="min-w-0 truncate">「{onlyDoc.name}」만 참고해서 답합니다</span>
+                <button type="button" aria-label="모든 문서 참고로 돌아가기" onClick={() => setOnlyDoc(null)} className="ml-auto inline-flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] text-emerald-300 hover:bg-emerald-500/20">
+                  <X className="h-3 w-3" /> 전체 문서로
+                </button>
+              </div>
+            )}
             <div className="flex items-end gap-2">
               <textarea
                 className={`${INPUT} max-h-40 min-h-[48px] resize-none`}

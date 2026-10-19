@@ -60,7 +60,7 @@ test("출처: 같은 문서·같은 주소는 한 번만", () => {
     [{ document_name: "a.pdf", content: "1", similarity: 0.9 }, { document_name: "a.pdf", content: "2", similarity: 0.8 }],
     [{ title: "x", url: "https://x" }, { title: "x2", url: "https://x" }]
   );
-  assert.deepEqual(s, [{ type: "doc", title: "a.pdf", score: 0.9 }, { type: "web", title: "x", url: "https://x" }]);
+  assert.deepEqual(s, [{ type: "doc", title: "a.pdf", score: 0.9, snippet: "1" }, { type: "web", title: "x", url: "https://x" }]);
 });
 
 test("채팅방 제목·파일 형식", () => {
@@ -85,4 +85,33 @@ test("Tavily MCP 결과 해석: 글 형식·JSON 형식", () => {
   assert.deepEqual(n[0], { title: "뉴스", url: "https://n.com", content: "본문", published: "2026-10-18" });
   const nj = parseMcpSearchText(JSON.stringify({ results: [{ title: "t", url: "https://d.com", content: "c", published_date: "2026-10-17" }] }));
   assert.equal(nj[0].published, "2026-10-17");
+});
+
+import { pickDocHits, isDuplicateDoc } from "../src/lib/chat/core.ts";
+test("근거 조각 고르기: 보통은 관련도 기준, 「이 문서만」은 그 문서만 기준 없이(U4)", () => {
+  const hits = [
+    { document_id: "a", document_name: "a.pdf", content: "1", similarity: 0.7 },
+    { document_id: "b", document_name: "b.pdf", content: "2", similarity: 0.2 },
+    { document_id: "b", document_name: "b.pdf", content: "3", similarity: 0.1 },
+  ];
+  assert.deepEqual(pickDocHits(hits, null).map((h) => h.content), ["1"]);
+  assert.deepEqual(pickDocHits(hits, "b").map((h) => h.content), ["2", "3"]);
+});
+
+test("같은 문서 중복 판단: 이름과 크기가 모두 같을 때만(L5)", () => {
+  const list = [{ name: "규정.pdf", size_bytes: 100 }];
+  assert.equal(isDuplicateDoc(list, "규정.pdf", 100), true);
+  assert.equal(isDuplicateDoc(list, "규정.pdf", 101), false);
+  assert.equal(isDuplicateDoc(list, "규정2.pdf", 100), false);
+});
+
+test("출처: 문서는 근거 미리보기(U1), 웹은 검색 경로·발행일(L6)", () => {
+  const s = buildSources(
+    [{ document_name: "a.pdf", content: "낮은 조각", similarity: 0.5 }, { document_name: "a.pdf", content: "높은   조각\n내용", similarity: 0.8 }],
+    [{ title: "x", url: "https://x", published: "2026-10-18" }],
+    "rest"
+  );
+  assert.deepEqual(s[0], { type: "doc", title: "a.pdf", score: 0.8, snippet: "높은 조각 내용" });
+  assert.deepEqual(s[1], { type: "web", title: "x", url: "https://x", published: "2026-10-18", via: "rest" });
+  assert.ok(buildSources([{ document_name: "c", content: "가".repeat(500), similarity: 0.9 }], [])[0].snippet.length <= 401);
 });

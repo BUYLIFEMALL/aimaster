@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { authorize, requireOwnKey } from "@/lib/chat/apiGuard";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { embed, parseDocument } from "@/lib/chat/upstage";
-import { chunkText, fileKind } from "@/lib/chat/core";
+import { parseDocument } from "@/lib/chat/upstage";
+import { fileKind, isDuplicateDoc } from "@/lib/chat/core";
+import { ingestDocument, IngestError, ingestStream, type IngestStage } from "@/lib/chat/ingest";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -39,44 +40,33 @@ export async function POST(request: Request) {
   if (file.size > MAX_BYTES) return NextResponse.json({ error: "파일은 4MB까지 올릴 수 있습니다. 큰 문서는 나눠서 올려 주세요." }, { status: 400 });
 
   const admin = createAdminClient();
-  const { count } = await admin.from("dcb_documents").select("id", { count: "exact", head: true }).eq("user_id", userId);
-  if ((count ?? 0) >= MAX_DOCS) return NextResponse.json({ error: `문서는 ${MAX_DOCS}개까지 올릴 수 있습니다. 안 쓰는 문서를 지운 뒤 다시 올려 주세요.` }, { status: 400 });
+  const limitError = await checkDocLimits(admin, userId, name, file.size);
+  if (limitError) return limitError;
 
   const up = await requireOwnKey(userId, "upstage");
   if (!up.ok) return up.response;
 
-  let text: string;
+  const readText = () => (kind === "text" ? file.text() : parseDocument(up.apiKey, file, name));
+  const run = (onStage?: (s: IngestStage) => void) => ingestDocument({ admin, userId, apiKey: up.apiKey, name, sizeBytes: file.size, readText, onStage });
+
+  // 화면이 진행 단계를 받겠다고 하면(U2) 한 줄 JSON으로 단계를 흘려보낸다
+  if (request.headers.get("x-progress") === "1") return ingestStream(run);
   try {
-    text = kind === "text" ? await file.text() : await parseDocument(up.apiKey, file, name);
+    return NextResponse.json({ success: true, document: await run() });
   } catch (err) {
-    return NextResponse.json({ error: (err as Error).message || "문서를 읽지 못했습니다." }, { status: 502 });
+    return NextResponse.json({ error: (err as Error).message }, { status: err instanceof IngestError ? err.status : 500 });
   }
-  const chunks = chunkText(text);
-  if (!chunks.length) return NextResponse.json({ error: "문서에서 읽을 수 있는 글을 찾지 못했습니다." }, { status: 400 });
+}
 
-  let vectors: number[][];
-  try {
-    vectors = await embed(up.apiKey, chunks, "passage");
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message || "문서 임베딩에 실패했습니다." }, { status: 502 });
+/** 문서 개수 한도·같은 문서 중복(L5) 확인. 문제가 있으면 오류 응답, 없으면 null */
+async function checkDocLimits(admin: ReturnType<typeof createAdminClient>, userId: string, name: string, size: number): Promise<Response | null> {
+  const { data: existing } = await admin.from("dcb_documents").select("name, size_bytes").eq("user_id", userId);
+  const list = existing ?? [];
+  if (list.length >= MAX_DOCS) return NextResponse.json({ error: `문서는 ${MAX_DOCS}개까지 올릴 수 있습니다. 안 쓰는 문서를 지운 뒤 다시 올려 주세요.` }, { status: 400 });
+  if (isDuplicateDoc(list as { name: string; size_bytes: number }[], name, size)) {
+    return NextResponse.json({ error: "같은 문서(이름·크기 동일)를 이미 올렸습니다. 다시 올리려면 기존 문서를 먼저 삭제해 주세요.", duplicate: true }, { status: 409 });
   }
-
-  const { data: doc, error: docErr } = await admin
-    .from("dcb_documents")
-    .insert({ user_id: userId, name, size_bytes: file.size, chunk_count: chunks.length })
-    .select("id, name, size_bytes, chunk_count, created_at")
-    .single();
-  if (docErr || !doc) return NextResponse.json({ error: "문서를 저장하지 못했습니다." }, { status: 500 });
-
-  const rows = chunks.map((content, i) => ({ document_id: doc.id, user_id: userId, chunk_index: i, content, embedding: JSON.stringify(vectors[i]) }));
-  for (let i = 0; i < rows.length; i += 100) {
-    const { error } = await admin.from("dcb_chunks").insert(rows.slice(i, i + 100));
-    if (error) {
-      await admin.from("dcb_documents").delete().eq("id", doc.id).eq("user_id", userId);
-      return NextResponse.json({ error: "문서 조각을 저장하지 못했습니다. 다시 시도해 주세요." }, { status: 500 });
-    }
-  }
-  return NextResponse.json({ success: true, document: doc });
+  return null;
 }
 
 /** DELETE ?id= — 내 문서 삭제(조각·임베딩 함께 삭제) */

@@ -84,10 +84,34 @@ export function buildRouterPrompt(question: string, today: string, docs: DocHit[
 }
 
 export interface DocHit {
+  document_id?: string;
   document_name: string;
   content: string;
   similarity: number;
 }
+
+/**
+ * 검색 결과에서 답변 근거로 쓸 조각을 고른다.
+ * - 보통: 관련도 기준(MIN_DOC_SIMILARITY) 이상만
+ * - 「이 문서만 참고」(U4): 그 문서 조각만, 기준 없이(요약처럼 관련도가 낮게 나오는 질문도 답하게)
+ */
+export function pickDocHits(hits: DocHit[], onlyDocumentId: string | null, limit = 5): DocHit[] {
+  if (onlyDocumentId) return hits.filter((h) => h.document_id === onlyDocumentId).slice(0, limit);
+  return hits.filter((h) => h.similarity >= MIN_DOC_SIMILARITY).slice(0, limit);
+}
+
+/** 같은 문서(이름·크기 같음)를 이미 올렸는지(L5) */
+export function isDuplicateDoc(existing: { name: string; size_bytes: number }[], name: string, size: number): boolean {
+  return existing.some((d) => d.name === name && d.size_bytes === size);
+}
+
+/** 문서 올리기 진행 단계(U2) — 서버가 단계 이름을 보내면 화면이 이 문구로 보여 준다 */
+export const UPLOAD_STAGE_LABELS: Record<string, string> = {
+  read: "문서에서 글을 읽는 중…",
+  chunk: "내용을 조각으로 나누는 중…",
+  embed: "조각을 임베딩하는 중…",
+  save: "저장하는 중…",
+};
 
 export interface Source {
   type: "doc" | "web";
@@ -95,6 +119,12 @@ export interface Source {
   url?: string;
   /** 문서 출처의 가장 높은 관련도(0~1, 소수 둘째 자리) — 기준값 점검용 */
   score?: number;
+  /** 문서 출처: 가장 관련 높은 조각 앞부분(U1) */
+  snippet?: string;
+  /** 웹 출처: 발행일 */
+  published?: string;
+  /** 웹 출처: 검색 경로(L6 — MCP가 실패해 REST로 대신한 비율 점검용) */
+  via?: "mcp" | "rest";
 }
 
 /** 답변 시스템 지시문 — 오늘 날짜·당해 연도 기준, 자료 우선, 모르면 모른다고 */
@@ -120,17 +150,20 @@ export function buildSystemPrompt(today: string, docs: DocHit[], web: { title: s
 }
 
 /** 화면에 보여 줄 참고 출처(문서 이름은 중복 제거, 웹은 주소 중복 제거) */
-export function buildSources(docs: DocHit[], web: { title: string; url: string }[]): Source[] {
+export function buildSources(docs: DocHit[], web: { title: string; url: string; published?: string }[], webVia?: "mcp" | "rest"): Source[] {
   const out: Source[] = [];
   const seenDocs = new Map<string, Source>();
   for (const d of docs) {
     const score = Math.round(d.similarity * 100) / 100;
     const prev = seenDocs.get(d.document_name);
     if (prev) {
-      prev.score = Math.max(prev.score ?? 0, score);
+      if (score > (prev.score ?? 0)) {
+        prev.score = score;
+        prev.snippet = snippetOf(d.content);
+      }
       continue;
     }
-    const src: Source = { type: "doc", title: d.document_name, score };
+    const src: Source = { type: "doc", title: d.document_name, score, snippet: snippetOf(d.content) };
     seenDocs.set(d.document_name, src);
     out.push(src);
   }
@@ -138,9 +171,15 @@ export function buildSources(docs: DocHit[], web: { title: string; url: string }
   for (const w of web) {
     if (seenUrls.has(w.url)) continue;
     seenUrls.add(w.url);
-    out.push({ type: "web", title: w.title, url: w.url });
+    out.push({ type: "web", title: w.title, url: w.url, ...(w.published ? { published: w.published } : {}), ...(webVia ? { via: webVia } : {}) });
   }
   return out;
+}
+
+/** 출처를 눌렀을 때 펼쳐 보여 줄 근거 조각(U1) — 최대 400자 */
+function snippetOf(content: string): string {
+  const one = content.replace(/\s+/g, " ").trim();
+  return one.length > 400 ? `${one.slice(0, 400)}…` : one;
 }
 
 /** 첫 질문으로 채팅방 제목을 만든다(한 줄, 30자) */

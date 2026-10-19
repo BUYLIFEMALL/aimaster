@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FileText, Loader2, Trash2, UploadCloud } from "lucide-react";
+import Link from "next/link";
+import { FileText, Loader2, MessageSquare, Trash2, UploadCloud } from "lucide-react";
 import { BTN_PRIMARY, Card, ErrorNote } from "@/components/studio/ui";
+import { UPLOAD_STAGE_LABELS } from "@/lib/chat/core";
 
 interface Doc {
   id: string;
@@ -20,6 +22,35 @@ function sizeLabel(n: number) {
 function daysLeft(iso: string) {
   const left = 30 - Math.floor((Date.now() - Date.parse(iso)) / 86400000);
   return Math.max(0, left);
+}
+
+type UploadResult = { chunkCount: number } | { error: string; needKey?: boolean };
+
+/** 업로드 응답을 읽는다 — 진행 단계(한 줄 JSON)를 받으면 onStage로 알리고, 오류(JSON)는 그대로 돌려준다 */
+async function readProgress(res: Response, onStage: (label: string) => void): Promise<UploadResult> {
+  if (!res.ok || !res.body || !(res.headers.get("content-type") ?? "").includes("ndjson")) {
+    const d = await res.json().catch(() => ({}));
+    return res.ok ? { chunkCount: d.document?.chunk_count ?? 0 } : { error: d.error ?? "올리지 못했습니다.", needKey: d.needApiKey };
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result: UploadResult = { error: "응답이 중간에 끊겼습니다. 목록을 확인한 뒤 다시 시도해 주세요." };
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const ev = JSON.parse(line) as { type: string; stage?: string; error?: string; document?: { chunk_count?: number } };
+      if (ev.type === "stage" && ev.stage) onStage(UPLOAD_STAGE_LABELS[ev.stage] ?? "처리하는 중…");
+      else if (ev.type === "done") result = { chunkCount: ev.document?.chunk_count ?? 0 };
+      else if (ev.type === "error") result = { error: ev.error ?? "올리지 못했습니다." };
+    }
+  }
+  return result;
 }
 
 export default function DocumentsPage() {
@@ -50,15 +81,16 @@ export default function DocumentsPage() {
         setError({ text: `「${f.name}」은 4MB를 넘습니다. 나눠서 올려 주세요.` });
         continue;
       }
-      setBusy(`「${f.name}」 읽고 임베딩하는 중…(PDF는 1~2분 걸릴 수 있어요)`);
+      setBusy(`「${f.name}」 올리는 중…`);
       const form = new FormData();
       form.append("file", f);
-      const res = await fetch("/api/documents", { method: "POST", body: form });
-      const d = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError({ text: `「${f.name}」: ${d.error ?? "올리지 못했습니다."}`, needKey: d.needApiKey });
+      const started = Date.now();
+      const res = await fetch("/api/documents", { method: "POST", body: form, headers: { "x-progress": "1" } }).catch(() => null);
+      const result = res ? await readProgress(res, (label) => setBusy(`「${f.name}」 ${label} (${Math.round((Date.now() - started) / 1000)}초)`)) : { error: "연결이 끊겼습니다. 다시 시도해 주세요." };
+      if ("error" in result) {
+        setError({ text: `「${f.name}」: ${result.error}`, needKey: result.needKey });
       } else {
-        setDone(`「${f.name}」을 ${d.document?.chunk_count ?? 0}개 조각으로 저장했습니다. 이제 채팅에서 이 문서를 근거로 답합니다.`);
+        setDone(`「${f.name}」을 ${result.chunkCount}개 조각으로 저장했습니다(${Math.round((Date.now() - started) / 1000)}초). 이제 채팅에서 이 문서를 근거로 답합니다.`);
       }
       await load();
     }
@@ -112,6 +144,9 @@ export default function DocumentsPage() {
                   <p className="truncate text-sm font-semibold text-slate-200">{d.name}</p>
                   <p className="text-[11px] text-slate-500">{sizeLabel(d.size_bytes)} · 조각 {d.chunk_count}개 · {daysLeft(d.created_at)}일 뒤 자동 삭제</p>
                 </div>
+                <Link href={`/chat?doc=${d.id}`} className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-200 hover:bg-indigo-500/20">
+                  <MessageSquare className="h-3.5 w-3.5" /> 이 문서로 질문
+                </Link>
                 <button type="button" aria-label={`${d.name} 삭제`} onClick={() => void remove(d.id, d.name)} className="rounded-lg p-2 text-slate-500 hover:bg-rose-500/10 hover:text-rose-300">
                   <Trash2 className="h-4 w-4" />
                 </button>

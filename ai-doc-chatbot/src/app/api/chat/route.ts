@@ -4,7 +4,7 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { chatOnce, chatStream, embed, ROUTER_MODEL, type ChatMessage } from "@/lib/chat/upstage";
 import { webSearch, type WebResult } from "@/lib/chat/tavily";
-import { buildRouterPrompt, buildSources, buildSystemPrompt, MIN_DOC_SIMILARITY, parseRouteDecision, roomTitleFrom, todayKst, type DocHit } from "@/lib/chat/core";
+import { buildRouterPrompt, buildSources, buildSystemPrompt, parseRouteDecision, pickDocHits, roomTitleFrom, todayKst, type DocHit } from "@/lib/chat/core";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,11 +19,12 @@ export async function POST(request: Request) {
   const gate = await authorize();
   if (!gate.ok) return gate.response;
   const userId = gate.auth.user.id;
-  const body = (await request.json().catch(() => ({}))) as { roomId?: unknown; message?: unknown; useDocs?: unknown; web?: unknown };
+  const body = (await request.json().catch(() => ({}))) as { roomId?: unknown; message?: unknown; useDocs?: unknown; web?: unknown; documentId?: unknown; regenerate?: unknown };
   const question = typeof body.message === "string" ? body.message.trim().slice(0, MAX_QUESTION) : "";
   if (!question) return NextResponse.json({ error: "질문을 입력해 주세요." }, { status: 400 });
   const useDocs = body.useDocs !== false;
   const webMode = body.web === "off" ? "off" : "auto";
+  const regenerate = body.regenerate === true;
 
   const up = await requireOwnKey(userId, "upstage");
   if (!up.ok) return up.response;
@@ -42,6 +43,22 @@ export async function POST(request: Request) {
     const { data, error } = await admin.from("dcb_rooms").insert({ user_id: userId, title: roomTitleFrom(question) }).select("id").single();
     if (error || !data) return NextResponse.json({ error: "채팅방을 만들지 못했습니다." }, { status: 500 });
     roomId = data.id as string;
+  }
+
+  // 「이 문서만 참고」(U4): 내 문서가 맞을 때만
+  let onlyDocumentId: string | null = null;
+  if (useDocs && typeof body.documentId === "string" && UUID.test(body.documentId)) {
+    const { data } = await admin.from("dcb_documents").select("id").eq("id", body.documentId).eq("user_id", userId).maybeSingle();
+    if (!data) return NextResponse.json({ error: "선택한 문서를 찾지 못했습니다. 내 문서에서 다시 선택해 주세요." }, { status: 404 });
+    onlyDocumentId = data.id as string;
+  }
+
+  // 다시 생성(U3): 마지막 질문·답변이 같은 질문이면 지우고 새로 답한다
+  if (regenerate) {
+    const { data: last } = await admin.from("dcb_messages").select("id, role, content").eq("room_id", roomId).eq("user_id", userId).order("created_at", { ascending: false }).limit(2);
+    if (last?.length === 2 && last[0].role === "assistant" && last[1].role === "user" && last[1].content === question) {
+      await admin.from("dcb_messages").delete().in("id", [last[0].id, last[1].id]).eq("user_id", userId);
+    }
   }
 
   const { data: historyRows } = await admin
@@ -67,14 +84,20 @@ export async function POST(request: Request) {
           const { count } = await admin.from("dcb_chunks").select("id", { count: "exact", head: true }).eq("user_id", userId);
           if ((count ?? 0) > 0) {
             const [qv] = await embed(upstageKey, [question], "query");
-            const { data: hits } = await admin.rpc("dcb_match_chunks", { p_user_id: userId, p_embedding: JSON.stringify(qv), p_count: 5 });
-            docs = ((hits ?? []) as DocHit[]).filter((h) => h.similarity >= MIN_DOC_SIMILARITY);
+            const { data: hits } = await admin.rpc("dcb_match_chunks", { p_user_id: userId, p_embedding: JSON.stringify(qv), p_count: onlyDocumentId ? 20 : 5 });
+            docs = pickDocHits((hits ?? []) as DocHit[], onlyDocumentId);
+          }
+          // 「이 문서만」인데 상위 결과에 그 문서가 없으면(요약 질문 등) 문서 앞부분 조각을 근거로 쓴다
+          if (onlyDocumentId && !docs.length) {
+            const { data: first } = await admin.from("dcb_chunks").select("content, dcb_documents(name)").eq("document_id", onlyDocumentId).eq("user_id", userId).order("chunk_index").limit(5);
+            docs = (first ?? []).map((c) => ({ document_id: onlyDocumentId!, document_name: (c.dcb_documents as unknown as { name: string } | null)?.name ?? "문서", content: c.content as string, similarity: 0 }));
           }
         }
 
         // 2) 웹 검색이 필요한지 판단 → 필요하면 Tavily(MCP) 검색
         let web: WebResult[] = [];
         let webNote: string | null = null;
+        let webVia: "mcp" | "rest" | undefined;
         if (webMode === "auto") {
           if (!tavilyKey) {
             webNote = "no_key";
@@ -83,7 +106,9 @@ export async function POST(request: Request) {
             const decision = parseRouteDecision(await chatOnce(upstageKey, ROUTER_MODEL, [{ role: "user", content: buildRouterPrompt(question, today, docs) }], 160), question);
             if (decision.web) {
               try {
-                web = (await webSearch(tavilyKey, decision.query, 5, { topic: decision.topic, timeRange: decision.timeRange })).results;
+                const outcome = await webSearch(tavilyKey, decision.query, 5, { topic: decision.topic, timeRange: decision.timeRange });
+                web = outcome.results;
+                webVia = outcome.via;
                 webNote = "searched";
               } catch (err) {
                 webNote = `error:${(err as Error).message}`;
@@ -92,7 +117,7 @@ export async function POST(request: Request) {
           }
         }
 
-        const sources = buildSources(docs, web);
+        const sources = buildSources(docs, web, webVia);
         send({ type: "meta", roomId, sources, webNote });
 
         // 3) 답변(실시간으로 흘려보냄)
