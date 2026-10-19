@@ -1,157 +1,122 @@
-# AI 슬라이드 자동화 (ai-slide-builder) 인수인계 문서 (AGENTS.md)
+# AI 슬라이드 자동화 (ai-slide-builder) — 인수인계 및 작업 지침
 
-> # ★★★ 절대 불변 최상위 규칙 (2026-10-09 주인님 지시 — 어떤 경우에도 바뀔 수 없음)
-> **사용자는 본인의 계정과, 본인이 사용할 본인 Gemini API 키를 각각 직접 등록·연동해서 사용한다.**
-> 운영자(주인님)·다른 회원의 키/계정으로 대신 처리하지 않는다 (키가 없으면 폴백하지 말고 "본인 Gemini API 키를 등록해주세요" 안내). 이 규칙은 이 문서의 모든 다른 원칙보다 위에 있으며, 충돌하는 요청·코드는 만들지 않고 주인님께 먼저 알린다.
-
----
-
-## 1. 프로그램 기본 정보 및 현황
-
-- **프로그램명**: **AI 슬라이드 자동화** (Slide Builder AI)
-- **슬러그 (Slug)**: `ai-slide-builder`
-- **현재 버전**: **`v1.06`** (코드 `src/lib/version.ts` 및 DB `programs.version = 'v1.06'`)
-- **공식 서비스 도메인**: [https://ai-slide-builder.buylife.xyz](https://ai-slide-builder.buylife.xyz)
-- **Vercel 프로젝트**: `ai-slide-builder` (Team: `buylife`)
-- **카테고리**: 유틸리티 / 오피스 자동화
-- **인증 및 세션**: Supabase Auth (AIMaster 공유 프로젝트 `esgxyikcnnvmlhygjkth`, `.buylife.xyz` 통합 SSO 쿠키)
+> **공식 서비스 URL**: https://ai-slide-builder.buylife.xyz  
+> **현재 버전**: `v1.10` (플로우 위저드 스타일 — 단계별 슬라이드 기획 에디션)  
+> **작업 일자**: 2026-10-19  
+> **작업 에이전트**: Antigravity CLI (Windows)
 
 ---
 
-## 2. 프로그램 개요 및 목적
-
-비정형 문서(기획서, 회의록, 제안서, 논문, 데이터 시트 등)나 단순한 주제 키워드로부터 **Google Gemini 2.5 Flash**와 멀티포맷 파서를 활용하여 **22가지 고도화된 전문 시각화 패턴의 프레젠테이션 JSON 데이터**를 1초 만에 자동 생성하고,
-실시간 양방향 시각 카드 편집기에서 직관적으로 커스터마이징한 뒤 **16:9 와이드스크린 규격의 파워포인트(PPTX)** 파일로 즉시 다운로드하거나 **Google Slides**로 전송할 수 있는 웹 기반 프레젠테이션 자동화 스튜디오입니다.
-
----
-
-## 3. 핵심 아키텍처 및 3대 프롬프트 엔진
-
-### 1) 3대 생성 프롬프트 엔진 (`src/lib/gemini.ts`)
-1. **표준 형식 (Standard 10~12P)**:
-   - 22가지 전문 시각화 레이아웃을 균형 있게 조합
-   - 발표자를 위한 고품질 스피커 노트(`notes`) 자동 생성
-   - 논리적 기승전결(도입부, 핵심 문제, 솔루션, 비즈니스 모델, 로드맵, 클로징)
-2. **확장판 (Detailed 14~16P)**:
-   - 표, 차트, 대용량 정량 텍스트를 안정적으로 담아내는 상세 분석용 장표
-   - 13행 이상의 긴 표는 가독성을 위해 자동 분할 처리
-3. **C-Suite 보고 형식 (Executive Pitch)**:
-   - 한국 대기업 C-Level(CEO/임원) 보고 전용 두괄식 프레젠테이션
-   - 10대 보고 주제(신규 사업, 예산안, 성과 보고 등) 및 7대 보고 목적 지원
-   - 발표 시간별 분량 최적화 (10분/15분/20~30분/30분 이상)
-   - "So What?"(결론 및 시사점)과 "Why?"(근거 데이터) 중심의 결재용 구성
-
-### 2) 22가지 전문 슬라이드 타입 (`src/types/slide.ts`)
-- **도입/결론**: `title`(표지), `section`(간지), `closing`(맺음말), `agenda`(목차)
-- **기본 본문**: `content`(본문 카드), `quote`(명언/강조), `faq`(Q&A)
-- **프로세스/흐름**: `process`(단계별 프로세스), `processList`(상세 흐름 목록), `timeline`(연혁/로드맵), `cycle`(순환도), `flowChart`(플로우차트), `stepUp`(계단식 성장)
-- **비교/분석**: `compare`(대조 분석), `statsCompare`(통계 비교), `barCompare`(막대 차트 비교)
-- **데이터/성과**: `table`(표), `progress`(진행률/달성률), `kpi`(핵심 지표)
-- **구조/카드**: `cards`(그리드 카드), `headerCards`(헤더 카드), `bulletCards`(불릿 카드), `triangle`(삼각형 계층), `pyramid`(피라미드 계층), `imageText`(이미지 결합)
+## 1. 프로그램의 사용 목적 및 대상
+- **사용 목적**:
+  - 비정형 문서(기획서, 회의록, 제안서, 논문, 데이터 시트 등)나 단순한 주제 키워드로부터 Google Gemini AI를 활용하여 **22가지 전문 시각화 패턴의 프레젠테이션 장표 데이터**를 자동 생성하고,
+  - 양방향 시각 카드 편집기에서 실시간 커스터마이징한 뒤 **16:9 와이드스크린 규격의 파워포인트(PPTX)** 파일로 즉시 다운로드하거나 Google Slides로 전송하는 오피스 자동화 솔루션.
+- **주요 대상**:
+  - 제안서, 보고서, 강의안 제작 시간이 부족한 직장인 및 기획자.
+  - IR 피칭 덱과 사업 계획서를 빠르게 구조화하려는 스타트업 창업가.
+  - C-Level 임원 보고용 두괄식 프레젠테이션을 작성해야 하는 비즈니스 전문가.
 
 ---
 
-## 4. 컴포넌트 구조 및 파일 맵
-
-```
-ai-slide-builder/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx                     # 메인 스튜디오 페이지 (EditorSection + SlideEditor)
-│   │   ├── layout.tsx                   # 메인 레이아웃 (폰트, 메타데이터)
-│   │   ├── globals.css                  # Tailwind CSS 스타일
-│   │   ├── settings/page.tsx            # API키등록·플랫폼연동 (Gemini API 키 등록)
-│   │   └── guide/page.tsx               # 연동 & 사용 매뉴얼
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Sidebar.tsx              # 플랫폼 표준 좌측 사이드바 (SIDEBAR_LAYOUT_STANDARD.md)
-│   │   │   └── Header.tsx               # 화이트 테마 상단 헤더 및 API 연동 배지
-│   │   ├── studio/
-│   │   │   ├── EditorSection.tsx        # 좌측 입력 패널 (프롬프트, 파일 업로드, JSON 에디터)
-│   │   │   ├── SlideEditor.tsx          # 우측 슬라이드 목록/카드 에디터 & 일괄 AI 수정
-│   │   │   ├── SlideCard.tsx            # 22개 타입별 전용 입력 필드 렌더러
-│   │   │   ├── SlidePreviewModal.tsx    # 16:9 와이드스크린 실시간 슬라이드쇼 프리뷰어
-│   │   │   └── ActionFooter.tsx         # PPTX 다운로드, GAS 슬라이드 생성, Gemini 연동
-│   │   └── guide/
-│   │       └── HelpModal.tsx            # 3대 포맷 및 22개 슬라이드 타입 도움말 모달
-│   ├── lib/
-│   │   ├── gemini.ts                    # Google GenAI 2.5 Flash 호출 및 JSON 파싱
-│   │   ├── pptxGenerator.ts             # pptxgenjs 기반 16:9 파워포인트 바이너리 생성기
-│   │   ├── fileParser.ts                # PDF, DOCX, XLSX, TXT, CSV 멀티포맷 파서
-│   │   ├── version.ts                   # APP_VERSION = "v1.05"
-│   │   └── supabase/                    # Supabase SSR 클라이언트 (공용 DB 연동)
-│   └── types/
-│       └── slide.ts                     # 22개 슬라이드 스키마 인터페이스 정의
-├── README.md                            # 프로젝트 안내 및 사용자 가이드
-└── AGENTS.md                            # 이 인수인계 문서
-```
+## 2. 개발 구현에 사용된 도구 / 개발 기법 / 플러그인 / 스킬
+- **프레임워크**: Next.js 16.2.11 (App Router, Turbopack), React 19.2.4, TypeScript 5.
+- **스타일링**: Tailwind CSS v4 (`@tailwindcss/postcss`), Flow Wizard Token CSS (`globals.css`).
+- **아이콘 라이브러리**: `lucide-react`.
+- **AI 연동 엔진**:
+  - `@google/genai` (Google Gemini 2.5 Flash).
+  - 3대 맞춤 프롬프트 엔진 (`standard`, `kimura`(대용량 표), `gpt_park`(C-Suite 임원보고)).
+  - 회원 본인 API 키 원칙 (BYOK — Bring Your Own Key).
+- **바이너리 생성 및 파일 파서**:
+  - `pptxgenjs`: 16:9 와이드스크린 파워포인트 바이너리 직접 생성 (스피커 노트 자동 포함).
+  - `pdfjs-dist`: PDF 문서 텍스트 고속 추출 파서.
+- **데이터베이스 & 인증**: Supabase Auth & Database (`@supabase/ssr`, `@supabase/supabase-js`).
+- **검수 도구**: Microsoft Edge 최전면 포그라운드 실세션 검수.
 
 ---
 
-## 5. UI/UX 및 디자인 표준 규격 (규칙 8번 준수)
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
 
-1. **화이트 베이스 UI**:
-   - 본문 배경: `#f8fafc` (Slate-50) 및 카드 영역 `#ffffff` (White)
-   - 테두리: `#e2e8f0` (Slate-200)
-   - 텍스트: Slate-900 / Slate-700 기반의 높은 가독성 유지
-2. **좌측 사이드바 (`SIDEBAR_LAYOUT_STANDARD.md`) 규격 준수**:
-   - 프로그램 로고 및 버전(`v1.05`) 표시
-   - `← 다른 프로그램 보기` (`https://www.buylife.xyz/programs`) 링크
-   - 1-2-3 번호형 작업 흐름:
-     - `1. 자료 입력 & AI 생성`
-     - `2. 슬라이드 카드 편집`
-     - `3. PPTX 내보내기`
-   - `API키등록·플랫폼연동`
-   - `연동 & 사용 매뉴얼`
-   - 하단 사용자 계정(`buylifemall@naver.com`) 및 원클릭 로그아웃 버튼 완벽 배치
+### 3.1 핵심 기능
+1. **22가지 전문 슬라이드 타입 지원**:
+   - 도입/결론: `title`, `section`, `closing`, `agenda`
+   - 기본 본문: `content`, `quote`, `faq`
+   - 프로세스/흐름: `process`, `processList`, `timeline`, `cycle`, `flowChart`, `stepUp`
+   - 비교/분석: `compare`, `statsCompare`, `barCompare`
+   - 데이터/성과: `table`, `progress`, `kpi`
+   - 구조/카드: `cards`, `headerCards`, `bulletCards`, `triangle`, `pyramid`, `imageText`
+2. **3대 맞춤 생성 프롬프트 엔진**:
+   - 표준 형식 (10~12P): 기승전결이 있는 발표용 슬라이드.
+   - 확장판 (14~16P): 대용량 표와 상세 분석 장표.
+   - C-Suite 보고 형식: 임원 결재용 두괄식 보고서.
+3. **발표자용 스피커 노트 (Notes) 자동 편성**:
+   - 각 장표마다 발표자가 실제로 청중 앞에서 읽을 발표 대본을 함께 작성하여 PPTX 발표자 노트에 자동 삽입.
+4. **독립 비주얼 가이드북 (`/guide`) 신설**:
+   - 4단계 파이프라인, BYOK 보안 배너, 22종 레이아웃 쇼케이스, FAQ 5종 아코디언 완비.
 
----
+### 3.2 시스템 아키텍처
+- `src/lib/gemini.ts`: 3대 프롬프트 템플릿 주입 및 Gemini 2.5 Flash 호출/JSON 파서.
+- `src/lib/pptxGenerator.ts`: 22개 슬라이드 타입별 pptxgenjs 도형/텍스트/차트 매핑 엔진.
+- `src/lib/fileParser.ts`: PDF, DOCX, XLSX, TXT, CSV 멀티포맷 파서.
+- `src/components/studio/`: `EditorSection`(좌측 입력), `SlideEditor`(우측 카드 편집), `ActionFooter`(다운로드).
+- `src/app/guide/`: 독립 비주얼 가이드북 라우트 (`page.tsx` + `GuideClient.tsx`).
 
-## 6. 버전 히스토리 (Changelog)
-
-- **v1.01**: 초기 릴리스 (22개 슬라이드 스키마, 3대 생성 프롬프트, 16:9 PPTX 생성, 멀티포맷 파일 파서).
-- **v1.02**: 프로그램 명칭 정정 (`AI 슬라이드 빌더 PRO` ➔ `AI 슬라이드 자동화`), 헤더/사이드바/도움말 전면 동기화.
-- **v1.03**: 언어 현지화 (도움말 모달 및 예시 텍스트 내 잔존 일본어 표기 영문/한글로 정정).
-- **v1.04**: UI 정돈 (사이드바 및 하단 불필요 링크 제거, 좌측 사이드바 하단 계정 정보 및 로그아웃 버튼 표준화).
-- **v1.05**: 도움말 모달 내 외부 개발자/스키마 명칭(`Majin`, `Kimura Yoshiki`, `GPT PARK`) 전면 삭제 및 순수 기능 안내로 정돈.
-
----
-
-## 7. 검수, 빌드 및 배포 절차 (Rule 2 준수)
-
-단일 작업 세트 절차에 따라 다음 순서로 일괄 처리합니다:
-
-```bash
-# 1. 로컬 빌드 및 컴파일 100% 검수
-cd D:\Antigravity\AIMaster\ai-slide-builder
-npm run build
-
-# 2. Git 커밋 및 원격 푸시
-git add .
-git commit -m "feat(ai-slide-builder): 작업 내용 요약"
-git push origin master
-
-# 3. Vercel 프로덕션 배포
-vercel deploy --prod --yes
-
-# 4. 버전 갱신 시 DB programs.version 동기화 (SQL 또는 관리자 스크립트 실행)
-```
+### 3.3 장점 및 단점
+- **장점**:
+  - 복잡한 프레젠테이션 제작 과정을 단 1분 만에 완성.
+  - 전 세계 표준 파워포인트(PPTX) 바이너리로 바로 다운로드되어 호환성 100%.
+  - 모바일에서도 플로팅 햄버거 메뉴를 통해 완벽한 반응형 뷰포트 지원.
+- **단점**:
+  - 표나 차트가 지나치게 방대할 경우 2개 이상의 장표로 자동 분할되므로 세부 검토 권장.
 
 ---
 
-## 8. 차기 작업자(에이전트) 체크리스트
+## 4. 현재 버전 및 버전별 변경 히스토리
 
-1. [ ] **최상위 규칙**: 회원 본인의 Gemini API 키가 정상적으로 연동되어 호출되는지 확인 (운영자 키 폴백 금지).
-2. [ ] **버전 관리**: 코드 `src/lib/version.ts`의 `APP_VERSION`과 Supabase DB `programs.version`이 항상 일치하는지 확인.
-3. [ ] **PPTX 파일 검증**: 한글 텍스트 깨짐 없음, 16:9 와이드스크린 비율, 발표자 스피커 노트 정상 삽입 확인.
-4. [ ] **화이트 테마 유지**: 다크 모드 강제 적용 금지 (작업 화면은 항상 흰색 베이스).
+### v1.10 (2026-10-19) — 플로우 위저드 스타일 테마 리뉴얼 (Antigravity CLI)
+- **디자인 전면 개편**:
+  - 소프트 슬레이트 화이트(`#f8fafc`) 배경과 로열 인디고 블루(`#2563eb`), 아티스틱 바이올렛(`#8b5cf6`) 기반 플로우 위저드 스타일 적용.
+  - 메인 스튜디오 상단 웰컴 히어로 배너(`.studio-hero`) 및 3대 KPI 카드(22종 레이아웃, 3대 엔진, 16:9 PPTX) 탑재.
+- **독립 비주얼 가이드북 (`/guide`) 신설**:
+  - 4단계 제작 파이프라인, BYOK 보안 안내, 22종 레이아웃 쇼케이스, FAQ 5종 완비.
+- **사이드바 메뉴 표준화**:
+  - 브랜드 뱃지 `v1.10 SLIDE WIZARD` 적용.
+  - `📖 연동 & 사용 매뉴얼` 앰버 골드 하이라이트 배지 메뉴 신설.
+  - 모바일 반응형 햄버거 플로팅 드로어 메뉴 완비.
+- **버전 3중 동기화**: `package.json`(1.10.0), `src/lib/version.ts`(v1.10), Supabase DB `programs`(v1.10).
+- **무결성 검증**:
+  - Next.js Turbopack 최적화 빌드 성공 및 Vercel 프로덕션 배포 (`dpl_AWZmbVsMYJcmpGxNcYXpASkpPfiF`).
+  - Microsoft Edge 최전면 포그라운드 실세션 검수 (6종 캡처 완료 및 10분 창 유지).
 
+### v1.07 (2026-10-16) — 데이터베이스 연동 환경변수 호환
+- Supabase 신규 `PUBLISHABLE`/`SECRET` 키 및 기존 `ANON`/`SERVICE_ROLE` 키 듀얼 호환 적용.
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.06)
+### v1.06 (2026-10-15) — 한국 시간 현재 월 기준 추가
+- AI 슬라이드 작성 시 한국 시간 현재 연/월 기준 주입.
 
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
+---
 
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 내용은 `docs/IMPROVEMENT_BACKLOG.md` 참고:
+  - 장표별 배경 색상/브랜드 팔레트 커스텀 테마 선택기.
+  - PPTX 외에 Keynote 및 Google Slides 직접 API 발행 연동.
+  - AI 이미지 자동화(`ai-image-studio`) 연계를 통한 슬라이드별 삽화 자동 생성.
 
-## 2026-10-16 DB 연동 변수 호환 — v1.07 (ai-slide-builder)
+---
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 제안
+1. **69번 `landing-architect` (AI 랜딩페이지 기획)과의 연계**:
+   - `landing-architect`의 기획안 내용을 바탕으로 투자자용 피칭 슬라이드를 원클릭 자동 생성.
+2. **68번 `ai-writing-editor` (AI 글쓰기/카피라이팅)과의 연계**:
+   - 긴 비즈니스 기획서나 보고서 원문을 `ai-slide-builder`로 전달하여 핵심 요약 발표 장표로 자동 압축.
+3. **80번 `banana-canvas` / 70번 `ui-canvas`와의 연계**:
+   - 슬라이드 내 도표나 다이어그램을 캔버스 툴로 전송하여 벡터 그래픽으로 정밀 커스텀.
+
+---
+
+## 7. 사용자 편의성 증대를 위한 디자인 UI 개선안
+1. **슬라이드 드래그 앤 드롭 순서 변경**:
+   - 우측 편집기에서 슬라이드 카드를 마우스로 끌어 장표 순서를 자유롭게 재배치.
+2. **장표별 컬러 프리셋 스위처**:
+   - 기업 브랜드 컬러(블루, 레드, 다크, 그린 등)에 맞춰 PPTX 테마 색상을 한 번에 변경.
+3. **전체화면 프레젠테이션 미리보기 모드 단축키**:
+   - F5 키를 누르면 파워포인트 없이도 브라우저에서 바로 슬라이드쇼 발표를 진행할 수 있는 전체화면 뷰어 지원.

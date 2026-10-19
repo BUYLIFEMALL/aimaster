@@ -22,7 +22,7 @@ export default function Header({ onOpenGuide, onOpenApiKey, hasApiKey, userEmail
   };
 
   return (
-    <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+    <header className="bg-white border-b border-slate-200 px-4 lg:px-6 py-3 lg:py-4 flex flex-wrap gap-3 items-center justify-between shrink-0">
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-1.5">

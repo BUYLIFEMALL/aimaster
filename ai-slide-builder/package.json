@@ -1,6 +1,6 @@
 {
   "name": "ai-slide-builder",
-  "version": "1.01.0",
+  "version": "1.10.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3016",
