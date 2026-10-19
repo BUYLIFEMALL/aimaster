@@ -53,7 +53,7 @@
 - [x] **실제 호출 검수**(2026-10-19): 공용 provider 허용 목록에 `upstage`·`tavily` 추가(`0003`) 후 주인님 키 저장 → TXT·PDF 업로드, 문서 질문·최신 정보 질문 모두 동작·출처 표시 확인. 상세: `docs/IMPROVEMENT_HANDOFF_20261019.md`.
 - [x] **v1.02~v1.03 품질 수정**(2026-10-19): L7~L10 + 물결표 취소선. 재검수 결과는 `docs/IMPROVEMENT_HANDOFF_20261019.md`.
 - [ ] 관련도 기준 0.4는 시험 문서 2개 기준(관련 질문 0.61~0.63, 무관한 뉴스 질문은 0.4 미만). 실제 회원 문서가 쌓이면 `score`를 보고 다시 점검.
-- [ ] 카탈로그 썸네일 미생성(`thumbnail_url` 비어 있음) — `scripts/generate-program-thumbnail.mjs` 규칙(PLATFORM_PATTERNS §13)대로 생성 필요(유료 이미지 1회, 주인님 확인 후).
+- [x] 카탈로그 썸네일(2026-10-19): PLATFORM_PATTERNS §13 템플릿 + `scripts/generate-program-thumbnail.mjs`, `gemini-3-pro-image-preview` 1회(관리자 본인 키). 실사·한국인 직장인·노트북 화면은 도형만(글자 없음)·문서/검색/지구본 아이콘, 16:9. 카탈로그에서 다른 썸네일과 나란히 비교 확인. `program-images/catalog/ai-doc-chatbot-thumbnail.jpg`.
 - [ ] 개선 후보는 `docs/IMPROVEMENTS.md`.
 
 ## 6. 다른 프로그램 연계·확장 아이디어
