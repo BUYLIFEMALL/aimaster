@@ -117,7 +117,7 @@ node scripts/lab/delete-lab.mjs <이름> --yes      # 실제 삭제
 - [x] AIMaster_dev 재개(2026-10-19) → Free 조직 `BUYLIFE-DEV`로 이전(2026-10-19)
 - [x] claude.ai Supabase 커넥터에 `BUYLIFE-DEV` 조직 권한 추가(주인님) — 2026-10-19 Claude Code(윈도우)가 MCP로 확인: 주소 조회·SQL 실행 정상, `public` 테이블 0개
 - [x] Authentication → 이메일 확인(Confirm email) 끄기 — 수강생이 바로 가입·로그인 (2026-10-19 Claude Code가 대시보드 Sign In / Providers에서 끄고 저장, 새로고침 후 꺼짐 확인. 「새 가입 허용」은 켜짐 유지)
-- [ ] Authentication → URL 설정에 Lab 주소를 허용 목록에 추가(비밀번호 재설정 등 메일 링크가 필요할 때)
+- [ ] Authentication → URL 설정에 Lab 주소를 허용 목록에 추가(비밀번호 재설정 등 메일 링크가 필요할 때) — **Lab 프로그램을 만들 때마다 그 정확한 주소(`https://dev-<이름>.vercel.app/**`)를 하나씩 추가한다.** `https://dev-*.vercel.app/**`, `*-buylife.vercel.app` 같은 와일드카드는 쓰지 않는다: `vercel.app` 이름은 누구나 만들 수 있어, 남이 `dev-xxx` 프로젝트를 만들면 로그인 링크(토큰)가 그쪽으로 넘어갈 수 있다(2026-10-19 Claude Code 판단, 아직 Lab 프로그램 없음)
 - [ ] 삭제 스크립트용 `LAB_DB_URL`(dev Postgres 연결 문자열)을 주인님 PC 환경변수로 등록 — 에이전트는 비밀번호를 입력하지 않는다
 
 ## 7. 변경 이력
