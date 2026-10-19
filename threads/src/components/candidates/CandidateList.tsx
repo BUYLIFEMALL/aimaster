@@ -193,7 +193,7 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                 </div>
               )}
               <p className="mt-2 text-xs text-neutral-400">
-                {SOURCE_LABELS[c.source_type]} · {c.source_input} · {new Date(c.created_at).toLocaleString("ko-KR")}
+                {SOURCE_LABELS[c.source_type]} · {c.source_input} · {new Date(c.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
               </p>
             </li>
           );

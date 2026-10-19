@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — Threads 계열 3개 날짜·예약 시각 한국 시간 표시 (threads v1.20 · 쇼핑제휴 v1.64 · 운영 자동화 v2.09)
+- INSTA v1.26과 같은 문제(서버가 UTC로 날짜를 그려 9시간 이르게 보임)를 세 프로그램에서 수정: 날짜 표시 27곳에 `timeZone: "Asia/Seoul"`(숫자 표시 제외).
+- 쇼핑제휴에는 미뤄 둔 회원 오류 2건도 함께: 24시간 넘게 밀린 예약 미발행 규칙(지침 §8 ⚠), 설정 Claude·Replicate 키 저장 막힘(배포 키트 지침 §11-7). 운영 자동화는 미배포였던 키트 정리분이 함께 나감.
+- 검수: 세 프로그램 tsc 0·테스트(쇼핑제휴 naver-key, 운영 자동화 32/32)·build → 한 번에 하나씩 배포(`threads-jkaysjfgy`·`threads-affiliate-poster-5ql36sudm`·`threads-content-9lqok5f5k`, 모두 Ready) → DB 버전 → 크롬에서 버전 표시와 날짜가 DB 시각의 한국 시간과 같은지 확인.
+- 못 한 것: Claude·Replicate 키 실제 저장 시험(에이전트는 키를 입력하지 않음). 남은 일 없음.
+- 링크: https://auto-threads-posting.buylife.xyz · https://threads-affiliate-poster.buylife.xyz · https://threads-content-ops.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 미디어 생성 & 에셋 가이드 5종 전면 단계별 시각화 완료 (누적 33대 핵심 가이드 완성, 82.5% 달성, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 영상 자동 합성 엔진(JSON2Video), 썸네일·배너 자동화(PLACID), 클라우드 미디어 CDN(Cloudinary), 상업용 무료 스톡 사진/영상(Pixabay, Pexels) 등 미디어 콘텐츠 자동화에 필수적인 5대 API 가이드를 **개요 카드, Step 1~4 시각 스텝 뷰어, 3대 인증정보 분리 안내, 💡 팁, ⚠️ 보안 및 Pexels 대체재 안내 배너, 공식 콘솔 직링크**가 탑재된 프리미엄 반응형 카드 템플릿으로 전면 고도화함. (이로써 AIMaster 가이드 40종 중 33종 완성, 달성률 82.5% 기록)

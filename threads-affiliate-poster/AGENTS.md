@@ -578,3 +578,9 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 발견(미수정): 운영 설정 화면의 Claude·Replicate 키 칸이 `src/lib/actions/settings.ts` `VALID_PROVIDERS`에 없어 저장 실패 — **다음 배포 때 수정**(지침 `docs/DISTRIBUTION_KIT_GUIDE.md` §11-7).
 - 시험 포장: `python scripts/make_lecture_kit.py --name TAP_Kit_TEST --programs threads-affiliate-poster` → 149개 파일, DB 파일 16조각 자동 생성(예약 표·cron-job.org 키 포함), 무료용 vercel.json, 비밀값 검사 통과. 실제 리허설은 아직(지침 §6).
 - 코드는 주석만(`clone-kit` → `KIT/`) — 동작 변화 없음, 배포 불필요. 지침: 루트 `docs/DISTRIBUTION_KIT_GUIDE.md`.
+
+## 2026-10-19 v1.64 — 날짜 한국 시간 표시 + 24시간 규칙 + Claude·Replicate 키 저장 (Claude Code 윈도우)
+- **날짜 표시**: 서버 화면(`dashboard`·`posts`·`posts/[id]`·`settings`)과 `MarketResearch`·`actions/viral.ts`의 날짜 10곳에 `timeZone: "Asia/Seoul"` — Vercel(UTC) 기준으로 9시간 이르게 보이던 문제(INSTA v1.25 검수 중 같은 문제 발견). 가격 같은 숫자 표시는 그대로.
+- **24시간 규칙(밀린 보완)**: 화면은 「24시간 넘게 지난 예약은 올리지 않음」이라 안내하는데 `src/lib/posts/dispatch.ts`에 규칙이 없었다 → threads v1.19와 같은 코드(`MAX_LATE_MS`·`TOO_LATE_MESSAGE`, 실패 처리 + 안내 문구). 루트 `docs/SCHEDULER_POLICY.md` §8 ⚠ 항목 처리.
+- **키 저장(밀린 보완)**: 설정 화면에 Claude(`anthropic`)·Replicate 칸이 있는데 `src/lib/actions/settings.ts` `VALID_PROVIDERS`에 없어 「알 수 없는 provider」로 저장이 막혀 있었다 → 두 값 추가(운영 DB 허용 목록에는 이미 있음 확인). 루트 `docs/DISTRIBUTION_KIT_GUIDE.md` §11-7 처리. 실제 키 입력 시험은 하지 않음(에이전트는 키를 입력하지 않음 — 회원 저장 시 확인).
+- 버전 기록 `supabase/migrations/20261019260000_kst_24h_keys_v1_64.sql`(구조 변경 없음). 검수: tsc 0, `test:naver-key` 통과, build, 배포 `threads-affiliate-poster-5ql36sudm`(Ready), DB v1.64, 크롬: v1.64 표시, 「등록: 2026. 10. 19. 오후 8:30:29」 = DB `11:30:29Z`의 한국 시각.

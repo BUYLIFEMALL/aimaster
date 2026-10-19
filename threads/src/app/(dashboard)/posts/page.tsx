@@ -90,8 +90,8 @@ export default async function PostsPage({
                     <p className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
                       <span>
                         {post.status === "scheduled" && post.scheduled_at
-                          ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR")}`
-                          : new Date(post.created_at).toLocaleString("ko-KR")}
+                          ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
+                          : new Date(post.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
                       </span>
                       {post.video_filename && (
                         <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-600">

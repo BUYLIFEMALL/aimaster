@@ -62,7 +62,7 @@ export default async function PostDetailPage({
 
       {post.status === "scheduled" && post.scheduled_at && (
         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
-          예약 게시 시각: {new Date(post.scheduled_at).toLocaleString("ko-KR")}
+          예약 게시 시각: {new Date(post.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
         </div>
       )}
 
@@ -86,7 +86,7 @@ export default async function PostDetailPage({
             </span>
           )}
           <p className="mt-3 text-xs text-neutral-400">
-            {new Date(post.created_at).toLocaleString("ko-KR")}
+            {new Date(post.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
           </p>
         </div>
       </div>

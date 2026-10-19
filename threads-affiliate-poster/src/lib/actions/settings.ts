@@ -16,6 +16,8 @@ export interface SaveApiKeyState {
 const VALID_PROVIDERS: ApiKeyProvider[] = [
   "openai",
   "gemini",
+  "anthropic", // v1.64: 설정 화면에 칸이 있는데 목록에 없어 저장이 막혀 있었음
+  "replicate",
   "threads_app_id",
   "threads_app_secret",
   "naver_client_id",

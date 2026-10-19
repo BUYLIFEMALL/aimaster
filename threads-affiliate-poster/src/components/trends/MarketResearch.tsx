@@ -18,7 +18,7 @@ function dateOf(item: NaverSearchItem): string {
   if (!raw) return "";
   if (/^\d{8}$/.test(raw)) return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
   const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? raw : d.toLocaleDateString("ko-KR");
+  return Number.isNaN(d.getTime()) ? raw : d.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" });
 }
 
 function ResultColumn({ label, items }: { label: string; items?: NaverSearchItem[] }) {

@@ -216,7 +216,7 @@ export default async function DashboardPage() {
                     {post.content}
                   </Link>
                   <p className="mt-1 text-[11px] text-neutral-500">
-                    {post.scheduled_at ? new Date(post.scheduled_at).toLocaleString("ko-KR") : "-"}
+                    {post.scheduled_at ? new Date(post.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"}
                   </p>
                 </div>
                 <StatusBadge status={post.status} />

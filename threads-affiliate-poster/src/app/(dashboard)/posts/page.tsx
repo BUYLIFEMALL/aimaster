@@ -103,8 +103,8 @@ export default async function PostsPage({
                       <p className="truncate text-sm text-neutral-900 font-medium">{post.content}</p>
                       <p className="mt-1 text-xs text-neutral-500">
                         {post.status === "scheduled" && post.scheduled_at
-                          ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR")}`
-                          : `등록: ${new Date(post.created_at).toLocaleString("ko-KR")}`}
+                          ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`
+                          : `등록: ${new Date(post.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`}
                       </p>
                     </div>
                     <StatusBadge status={post.status} />
@@ -122,7 +122,7 @@ export default async function PostsPage({
                           ? "bg-red-50 text-red-600 border border-red-200"
                           : "bg-neutral-100 text-neutral-600 border border-neutral-200"
                       }`}
-                      title={`등록일: ${new Date(post.created_at).toLocaleString("ko-KR")} (30일 보관 후 자동 삭제)`}
+                      title={`등록일: ${new Date(post.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} (30일 보관 후 자동 삭제)`}
                     >
                       {remaining.text}
                     </span>

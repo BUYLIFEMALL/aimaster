@@ -2,7 +2,7 @@
 
 > **프로그램명**: Threads 포스팅 자동화 (`auto-threads-posting`)  
 > **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
-> **현재 버전**: `v1.19`  
+> **현재 버전**: `v1.20`  
 > **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**  
 > **관리자 계정**: `buylifemall@gmail.com`  
 > **일반 테스트 계정**: `buylifemall@naver.com`
@@ -50,6 +50,10 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+
+### `v1.20` (2026-10-19) - Claude Code (윈도우) — 날짜·예약 시각 한국 시간 표시
+- 서버 화면(`dashboard`·`posts`·`posts/[id]`·`settings` 페이지)이 `toLocaleString("ko-KR")`를 시간대 없이 써서 Vercel(UTC) 기준으로 그려 9시간 이르게 보였다(INSTA v1.25 검수 중 같은 문제 발견). 6곳 + `CandidateList` 1곳에 `timeZone: "Asia/Seoul"`. 버전 기록 `supabase/migrations/20261019260000_kst_display_v1_20.sql`(구조 변경 없음).
+- 검수: tsc 0, build, 배포 `threads-jkaysjfgy`(Ready), DB v1.20, 크롬: 게시글 관리 첫 글 「2026. 8. 25. 오전 12:12:46」 = DB `2026-08-24T15:12:46Z`의 한국 시각(고치기 전엔 「8. 24. 오후 3:12」).
 
 ### `v1.19` (2026-10-19) - Claude Code (윈도우) — 예약 발행 실행 방식 회원 선택(Vercel / 본인 cron-job.org) + 중복 발행 방지
 - 지침: 루트 [`docs/SCHEDULER_POLICY.md`](../docs/SCHEDULER_POLICY.md), 플랜: [`docs/PLAN_20261019_MEMBER_SCHEDULER.md`](docs/PLAN_20261019_MEMBER_SCHEDULER.md). 기준 구현 `threads-affiliate-poster` v1.63을 이 프로그램에 맞춤 — **배포판(설치 키트) 모드가 없는 운영 전용이라 기본 방식은 항상 Vercel**.

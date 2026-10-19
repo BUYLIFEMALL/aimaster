@@ -142,7 +142,7 @@ export default async function SettingsPage({
               </p>
               {account.token_expires_at && (
                 <p className="mt-1 text-xs text-neutral-500">
-                  토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR")}
+                  토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
                 </p>
               )}
               <form action={disconnectThreadsAccountAction} className="mt-4">

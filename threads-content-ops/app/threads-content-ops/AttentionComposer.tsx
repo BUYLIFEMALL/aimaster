@@ -417,7 +417,7 @@ function VariantCard({ userId, schedulerReady, option, accountId, viralId, engin
       } else {
         const result = await scheduleSavedDraft({ draftId: id, scheduledAt: scheduledIso });
         if (result.ok) {
-          const label = new Date(scheduledIso).toLocaleString("ko-KR");
+          const label = new Date(scheduledIso).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
           setFinalState({ kind: "scheduled", at: label });
           onSaved(`${label}에 발행하도록 예약했습니다. 취소는 콘텐츠 보관함에서 할 수 있습니다.`);
         } else {

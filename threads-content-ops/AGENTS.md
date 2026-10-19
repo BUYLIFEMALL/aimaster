@@ -661,3 +661,8 @@
 - 리허설 사본(`labs/kit-threads`)에만 있던 키트 파일을 원본으로 이전: `KIT/README.md`(예약 방식 6장 등), `KIT/schema.sql`(예약 표·키 허용), `KIT/upgrade-20261019-cronjob.sql`, `KIT/enable-vercel-cron.*`, 앱 코드 `ScheduleSetupNotice.tsx`·`OperationsDashboard.tsx`·`UsageGuide.tsx`(모두 독립 모드에서만 표시). `lib/cronJobOrg.ts` 작업 이름을 독립 모드에선 「AIMaster」 없이.
 - `KIT/kit.json`에 포장·설치 설정(description·callbackLabel·nextStep·exclude·overrides·schema static), `KIT/setup.*`는 공용 템플릿(`scripts/kit-template/`, 키 숨김 입력·GitHub 자동 연결 해제)으로 교체.
 - 운영 화면 동작 변화 없음 → **운영 재배포 안 함(미배포 — 다음 배포 때 함께, 버전 +0.01)**. tsc 0·테스트 32/32. 지침: 루트 `docs/DISTRIBUTION_KIT_GUIDE.md`.
+
+## 2026-10-19 v2.09 — 날짜·예약 시각 한국 시간 표시 (Claude Code 윈도우)
+- 화면 8개 파일의 날짜 표시 10곳(`new Date(...).toLocale(Date)String("ko-KR")`)에 `timeZone: "Asia/Seoul"`. 대부분 `"use client"`지만 첫 화면은 서버(UTC)에서 그려져 잠깐 9시간 이른 시각이 보이거나 화면 불일치가 생길 수 있었다. 가격·조회수 같은 숫자 표시는 그대로. 버전 기록 `supabase/migrations/20261019260000_kst_display_v2_09.sql`.
+- **함께 나감**: 바로 위 「배포 키트 정리」 항목(미배포로 남아 있던 운영 코드 변화 없는 정리분).
+- 검수: tsc 0, 테스트 32/32, build, 배포 `threads-content-9lqok5f5k`(Ready), DB v2.09, 크롬: v2.09 표시, 발행 기록 「26. 10. 19. 오후 7:34」(실제 자동 발행 19:34와 일치).

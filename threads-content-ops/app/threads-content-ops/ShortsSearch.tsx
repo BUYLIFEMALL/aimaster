@@ -185,7 +185,7 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${GRADE_TONE[video.grade] ?? GRADE_TONE.보통}`}>{video.grade}</span><span className="text-xs text-neutral-500">점수 {video.viralScore}</span></div>
             <p className="mt-1 line-clamp-2 text-sm font-semibold text-neutral-900" title={video.title}>{video.title}</p>
-            <p className="mt-0.5 text-xs text-neutral-500">{video.channelName} · {new Date(video.publishedAt).toLocaleDateString("ko-KR")}</p>
+            <p className="mt-0.5 text-xs text-neutral-500">{video.channelName} · {new Date(video.publishedAt).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}</p>
             <p className="mt-1 text-xs text-neutral-600">조회수 <b>{formatNumber(video.views)}</b> · 구독자 {formatNumber(video.subs)} · 조회÷구독 {video.vsRatio === null ? "-" : `${video.vsRatio.toFixed(1)}배`} · 채널평균 대비 {video.outlier.toFixed(1)}배 · 하루 {formatNumber(Math.round(video.viewsPerDay))}회</p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-1.5">

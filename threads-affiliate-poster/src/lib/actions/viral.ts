@@ -150,7 +150,7 @@ function formatRelativeTime(iso?: string): string {
   if (hours < 24) return `${hours}시간 전`;
   const days = Math.floor(hours / 24);
   if (days < 30) return `${days}일 전`;
-  return new Date(iso).toLocaleDateString("ko-KR");
+  return new Date(iso).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" });
 }
 
 const DATE_RANGE_SECONDS: Record<"1d" | "1w" | "1m", number> = {

@@ -13,7 +13,7 @@ type TokenRow = {
 };
 
 function formatDateTime(value: string | null) {
-  return value ? new Date(value).toLocaleString("ko-KR") : "아직 사용하지 않음";
+  return value ? new Date(value).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "아직 사용하지 않음";
 }
 
 export default function TokenManager({ initialTokens }: { initialTokens: TokenRow[] }) {

@@ -33,6 +33,10 @@ interface DispatchOptions {
   enforcePhone?: boolean;
 }
 
+/** 장애 뒤 오래 밀린 예약이 갑자기 올라가지 않도록, 예약 시각이 24시간 넘게 지난 글은 올리지 않는다(v1.64, threads v1.19와 같은 규칙 — 지침 docs/SCHEDULER_POLICY.md). */
+const MAX_LATE_MS = 24 * 60 * 60 * 1000;
+const TOO_LATE_MESSAGE = "예약 시각이 24시간 넘게 지나 자동으로 올리지 않았습니다. 내용을 확인하고 다시 예약하거나 직접 게시해 주세요.";
+
 async function dispatchDuePosts(
   supabase: SupabaseClient<Database>,
   options: DispatchOptions = {},
@@ -73,9 +77,11 @@ async function dispatchDuePosts(
       .maybeSingle();
     if (!claimed) continue;
 
-    if (options.failWithMessage) {
-      await supabase.from("tap_posts").update({ status: "failed", error_message: options.failWithMessage }).eq("id", post.id);
-      results.push({ postId: post.id, success: false, errorMessage: options.failWithMessage });
+    const lateMessage = post.scheduled_at && Date.now() - new Date(post.scheduled_at).getTime() > MAX_LATE_MS ? TOO_LATE_MESSAGE : null;
+    const skipMessage = options.failWithMessage ?? lateMessage;
+    if (skipMessage) {
+      await supabase.from("tap_posts").update({ status: "failed", error_message: skipMessage }).eq("id", post.id);
+      results.push({ postId: post.id, success: false, errorMessage: skipMessage });
       continue;
     }
 
