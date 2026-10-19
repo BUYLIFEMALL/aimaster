@@ -173,7 +173,7 @@ export default async function HomePage() {
     .filter((block) => block.programs.length > 0);
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-x-clip">
       {/* Hero */}
       <section className="relative flex items-center justify-center px-4 pt-24 pb-0">
         {/* Background glow */}

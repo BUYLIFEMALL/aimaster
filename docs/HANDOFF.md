@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 카테고리 퀵 바 글자 확대 & 선택 시 노란색(골드) 하이라이트 적용 (배포 및 Edge 실세션 검수 완료)
+
+- **배경**: 주인님의 추가 UI 개선 지시("2열이니 카테고리 글자를 좀 더 키워서 잘 보이게 해주고, 카테고리 버튼 선택 시 바탕색을 노란색으로 같이 맞춰서 사용자가 지금 어떤 카테고리를 보고 있는지 가독성을 높여줘")에 따라, 카테고리 칩셋 가독성 및 선택 피드백을 극대화하고 Edge 포그라운드 실세션 검수 완료.
+- **주요 작업 내용**:
+  1. **카테고리 폰트 및 패딩 확대 (`components/home/CategoryQuickBar.tsx`)**:
+     - 기존 `text-xs`(12px), `px-2.5 py-1.5`에서 `text-xs sm:text-sm font-semibold`, `px-3 sm:px-3.5 py-2`로 시원하게 확대.
+     - 미선택 버튼의 명도 대비를 `bg-white/[0.06] text-white/90 border-white/15`로 상향하여 어두운 배경에서도 14대 분야명이 한눈에 또렷하게 인지됨.
+  2. **선택(Active) 버튼 선명한 노란색(골드) 배경 하이라이트 (`components/home/CategoryQuickBar.tsx`)**:
+     - 사용자가 선택한 카테고리 버튼에 `bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black border-amber-300 shadow-md shadow-gold/30 scale-105`를 적용.
+     - 105% 미세 확대와 앰버-옐로우 투톤 골드 바탕 + 블랙 텍스트로, 현재 보고 있는 카테고리가 0.1초 만에 인지되는 압도적인 시각적 피드백 제공.
+  3. **메인 홈 레이아웃 sticky 안정화 (`app/(main)/page.tsx`)**:
+     - 메인 래퍼 요소의 `overflow-hidden`을 `overflow-x-clip`으로 변경하여 가로 스크롤 방지를 완벽 유지하면서 `CategoryQuickBar`의 `sticky top-16` 고정 동작이 뷰포트 전체에서 매끄럽게 작동하도록 완성.
+  4. **빌드 안정화 및 배포**:
+     - `npx tsc --noEmit` 무오류 통과 및 `npm run build` Next.js 72개 페이지 프로덕션 빌드 100% 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_AXwATt8Cmku8VLtvVscw8siXaV8z`, Aliased: `https://www.buylife.xyz`).
+  5. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 기본 상태(글자 크기 확대 및 2열 정돈): `edge_main_category_font_enlarged.png`
+     - 유튜브 카테고리 클릭 선택 시(선명한 노란색 바탕 + 상단 고정 + 유튜브 섹션 스크롤 안착): `edge_main_category_active_yellow.png`
+- **서비스 링크**: https://www.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) Phase 2 정보 구조 슬림화 & 14대 카테고리 퀵 탭 도입 완료 (배포 및 Edge 검수 완료)
 
 - **배경**: AIMaster 메인 사이트 고도화 로드맵에 따라, 주인님 지시로 Phase 2(정보 구조 슬림화 & 14대 카테고리 퀵 탭)를 연이어 완료하고 Microsoft Edge 포그라운드 실세션으로 검수 완료.
