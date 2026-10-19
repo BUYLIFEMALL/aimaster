@@ -1,5 +1,34 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 Meta & SNS 심화 가이드 7종 전면 단계별 시각화 완료 (누적 25대 핵심 가이드 완성, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: Meta for Developers(인스타그램/쓰레드) 및 YouTube 채널 연동 등 가장 복잡하고 회원 문의가 많은 Meta & SNS 심화 가이드 7종 본문을 **개요 카드, [경로 A] Facebook 페이지 vs [경로 B] Instagram 직접 로그인 비교 배너, Step 1~4 시각적 스텝 뷰어, 복사 가능한 콜백 URL, 💡 팁, ⚠️ 함정 방지 배너, 공식 개발자 센터 직링크**가 탑재된 프리미엄 템플릿으로 전면 고도화함. (이로써 AIMaster 가이드 40종 중 25종이 100% 비주얼화 완료됨)
+- **주요 작업 내용**:
+  1. **Meta & SNS 심화 7대 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **인스타그램 계정 연동하기 (자동포스팅)**: 프로페셔널 계정 전환 및 페이스북 페이지 연결, 2가지 경로(페이지 연동 vs 직접 로그인) 비교, 유효한 OAuth 리디렉션 URI(`https://auto-instagram-posting.buylife.xyz/api/instagram/callback`, `/byok`), 60일 장기 토큰 자동 갱신, Step 1~4 시각화.
+     - **인스타그램 계정 연동하기 (댓글·DM 자동화)**: 모바일 앱 내 '메시지 연결 도구(메시지 접근 허용)' 활성화, Webhooks 제품 추가 및 `comments`, `messages` 필드 구독, 콜백 URL(`https://www.buylife.xyz/api/webhooks/instagram`) 및 Verify Token 연동, Step 1~4 시각화.
+     - **쓰레드(Threads) 계정 연동하기**: 비즈니스 앱 생성, Threads API 제품 추가, OAuth 리디렉션 URI(`https://auto-threads-posting.buylife.xyz/api/threads/callback`), Threads 테스터 등록 및 초대 수락, 4476002 오류(Threads 앱 ID 혼동) 방지 가이드, Step 1~4 시각화.
+     - **쓰레드 댓글자동화 - 메타 앱 만들기**: Threads 비즈니스 앱 Webhooks 실시간 이벤트 구독(`threads_reply`), 콜백 URL(`https://www.buylife.xyz/api/webhooks/threads`), 30~60초 랜덤 지연 안전 발송 옵션 가이드, Step 1~4 시각화.
+     - **쓰레드(Threads) 공개 글 검색 권한 받기 — Meta 비즈니스 앱 승인 절차**: `threads_keyword_search` 권한 획득을 위한 사전 1회 테스트 호출 요건, 사업자등록증 비즈니스 인증 주의사항, 데이터 처리 질문 4대 모범 답안, 실제 심사 통과된 영문 사용 설명서 및 1분 시연 영상 제작 가이드, Step 1~4 시각화.
+     - **숏츠 자동포스팅 - 인스타그램 릴스 연동 (메타 앱 만들기)**: 9:16 세로형(1080x1920) 비디오 규격 가이드, `instagram_content_publish` 권한, 비디오 컨테이너 트랜스코딩 폴링 안내, 숏츠 제작 시 릴스 동시 발행 원클릭 연동, Step 1~4 시각화.
+     - **유튜브 채널 연동하기**: Google Cloud Console YouTube Data API v3 활성화, OAuth 동의 화면(외부) 및 테스트 사용자 등록, 웹 애플리케이션 클라이언트 ID 발급, 리디렉션 URI(`https://www.buylife.xyz/api/auth/callback/google`), Google 미인증 앱 경고 화면 통과 요령, Step 1~4 시각화.
+  2. **메타데이터 엔진 보강 (`lib/guideMeta.ts`)**:
+     - 쓰레드 검색 심사(고급·심사 3~7일·🔍), 쓰레드 댓글자동화(💬), 인스타 댓글·DM(💬), 인스타 릴스(🎬), 인스타 자동포스팅(📸), 유튜브 채널 연동(▶️) 등 각 가이드별 최적 이모티콘, 소요시간, 난이도, 메타 개발자 센터/Google Cloud 콘솔 직링크 정밀 매핑.
+  3. **Vercel 프로덕션 빌드 & 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_5NCie4HDBHs4GK4vHareQke2wkQu`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 7개 가이드 상세 페이지 전수 순회 캡처 완료 (`edge_guide_insta_posting_detail.png`, `edge_guide_insta_dm_detail.png`, `edge_guide_threads_account_detail.png`, `edge_guide_threads_reply_app_detail.png`, `edge_guide_threads_search_approval_detail.png`, `edge_guide_shorts_reels_detail.png`, `edge_guide_youtube_channel_detail.png`).
+- **서비스 링크**:
+  - 이용 가이드북 종합: https://www.buylife.xyz/guides
+  - 인스타그램 자동포스팅 가이드: https://www.buylife.xyz/guides/6cdae259-b9d2-45ae-9c21-e5f498f78956
+  - 인스타그램 댓글·DM 가이드: https://www.buylife.xyz/guides/4115e455-1585-4304-89b4-d29859fd7a5a
+  - 쓰레드 계정 연동 가이드: https://www.buylife.xyz/guides/343996d3-8c77-455d-9bd4-54bcd47a34cd
+  - 쓰레드 댓글자동화 메타 앱 가이드: https://www.buylife.xyz/guides/0f5cd337-1231-48c0-a9a1-63297686a97e
+  - 쓰레드 공개 글 검색 권한 가이드: https://www.buylife.xyz/guides/ae85d991-d907-4349-809e-818a6b3a2f54
+  - 숏츠 릴스 연동 메타 앱 가이드: https://www.buylife.xyz/guides/c3ed7fe3-00d8-466b-b4ce-9c115accb273
+  - 유튜브 채널 연동 가이드: https://www.buylife.xyz/guides/1c4181ac-a8c4-4b11-80f4-b29f3318c39b
+
 ## 2026-10-19 Claude Code(윈도우) — INSTA 포스팅 자동화 v1.25 크롬 실검수 마무리 + v1.26 시각 표시 수정 (agy 작업 이어받음)
 - agy 「검수 완료」(커밋 `af74be07`)를 분석함: 서버 키로 만든 로그인 링크 세션으로 찍은 화면 3장과 401 확인뿐이었다. 방식 전환과 작업 자동 켜기·끄기는 확인하지 않았고, 로그인도 우회했다. → 크롬 실검수로 대체함.
 - 크롬 실검수(관리자 계정 본인 키, 실제 인스타 게시 없음): 「내 cron-job.org」 선택(공용 키 재사용 「등록됨」) → 10-20 21:00 예약 → 작업 8678118 자동 생성·켜짐 → 일시정지·재개 → 예약 취소 ~65초 뒤 자동 꺼짐 → Vercel 복귀. 시험 전 상태(초안 5·게시 3, mode vercel)로 되돌림.

@@ -78,19 +78,67 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
   }
 
   // 2. SNS & Meta
+  if (t.includes("공개 글 검색") || t.includes("keyword_search")) {
+    return {
+      icon: "🔍",
+      badgeTone: "bg-indigo-500/10 text-indigo-300 border-indigo-500/30",
+      difficulty: "고급",
+      difficultyTone: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+      estimatedTime: "심사 3~7일",
+      summary: "Meta 비즈니스 앱 승인 및 threads_keyword_search 권한 획득 가이드",
+      consoleUrl: "https://developers.facebook.com/apps",
+      consoleLabel: "Meta 개발자 센터",
+    };
+  }
+  if (t.includes("댓글") && (t.includes("쓰레드") || t.includes("threads"))) {
+    return {
+      icon: "💬",
+      badgeTone: "bg-cyan-500/10 text-cyan-300 border-cyan-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "5분",
+      summary: "Threads Webhooks 실시간 이벤트 수신 및 AI 자동 답글 앱 연동",
+      consoleUrl: "https://developers.facebook.com/apps",
+      consoleLabel: "Meta 개발자 센터",
+    };
+  }
   if (t.includes("쓰레드") || t.includes("threads")) {
     return {
       icon: "🧵",
       badgeTone: "bg-amber-400/10 text-amber-300 border-amber-400/30",
       difficulty: "중급",
       difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-      estimatedTime: "5분",
+      estimatedTime: "3분",
       summary: "Meta for Developers Threads API 연동 및 자동 발행 설정",
       consoleUrl: "https://developers.facebook.com/apps",
       consoleLabel: "Meta 개발자 센터",
     };
   }
-  if (t.includes("인스타그램") || t.includes("릴스")) {
+  if (t.includes("댓글") || t.includes("dm")) {
+    return {
+      icon: "💬",
+      badgeTone: "bg-purple-500/10 text-purple-300 border-purple-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "5분",
+      summary: "인스타그램 Webhooks 실시간 감지 및 자동 답글/DM 발송 연동",
+      consoleUrl: "https://developers.facebook.com/apps",
+      consoleLabel: "Meta 개발자 센터",
+    };
+  }
+  if (t.includes("릴스")) {
+    return {
+      icon: "🎬",
+      badgeTone: "bg-rose-500/10 text-rose-300 border-rose-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "인스타그램 릴스(Reels) 비디오 컨테이너 업로드 및 자동 발행 연동",
+      consoleUrl: "https://developers.facebook.com/apps",
+      consoleLabel: "Meta 개발자 센터",
+    };
+  }
+  if (t.includes("인스타그램")) {
     return {
       icon: "📸",
       badgeTone: "bg-pink-500/10 text-pink-300 border-pink-500/30",
@@ -100,6 +148,18 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
       summary: "인스타그램 프로페셔널 계정 연결 및 Graph API 자동 포스팅 가이드",
       consoleUrl: "https://developers.facebook.com/apps",
       consoleLabel: "Meta 개발자 센터",
+    };
+  }
+  if (t.includes("유튜브 채널") || t.includes("youtube channel")) {
+    return {
+      icon: "▶️",
+      badgeTone: "bg-red-500/10 text-red-300 border-red-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "Google Cloud OAuth 본인 유튜브 채널 연결 및 동영상 관리 가이드",
+      consoleUrl: "https://console.cloud.google.com/apis/credentials",
+      consoleLabel: "Google Cloud 콘솔",
     };
   }
   if (t.includes("youtube") || t.includes("유튜브")) {
