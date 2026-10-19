@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — INSTA 포스팅 자동화 v1.25: 예약 발행 실행 방식 회원 선택(운영 Vercel / 배포판 cron-job.org) + 중복 발행 방지
+- 기준 구현 쇼핑제휴 v1.63·쓰레드 v1.19. 설정 「⏰ 예약 발행」(다크 테마), 게시글 관리 상태 줄, 회원 실행 주소 `/api/posts/dispatch-member`, `dispatch-scheduled`에 빠져 있던 `dynamic`·`fetchCache` 추가. 커밋 `60c13f7e`.
+- 운영 DB(`esgxyikcnnvmlhygjkth`) 표 `insta_member_scheduler` — 주인님 승인 후 크롬 SQL Editor로 적용·확인, 배포 `insta-auto-poster-46r0me9fo`, 실행 주소 401 확인.
+- 배포판 `KIT/` 함께 갱신(DB 파일·업그레이드 SQL·Pro 스크립트·README 6장: 예전 「cron-job.org에 CRON_SECRET 직접 넣기」 → 「설정에 키만 등록」). **SNS 배포판 다음 포장부터 반영(재포장 필요).** 크롬 실화면 검수는 예약 1순위 묶음 끝난 뒤. 상세 `insta_auto_poster/AGENTS.md` v1.25.
+
 ## 2026-10-19 Claude Code(윈도우) — 「패키지 설치마법사」(배포판 설치 표준) + 쓰레드 자동포스팅 예약 방식 v1.19(미배포)
 - **패키지 설치마법사**(주인님 지시·명명): 배포판 설치를 더블클릭 1번으로 — `scripts/kit-template/패키지설치마법사.cmd`·`.command` + 마법사 본체 `setup.ps1`·`setup.sh`(8단계: Node → Supabase 프로젝트(주소에서 ID 자동 추출) → 키(종류 혼동 차단·실제 호출 확인) → DB(SQL 클립보드 복사·`checkTable`로 성공 확인) → 이메일 확인 끄기 → 사이트 설정 → 빌드 → Vercel(주소 자동 확인), 이어서 하기 `.kit-progress`, 결과 `설치결과.txt`). `kit.json`에 `checkTable`(필수)·`authRedirectPath`(쇼핑제휴). 지침 `docs/DISTRIBUTION_KIT_GUIDE.md` **§2-2 필수 표준**, 루트 CLAUDE.md 27·AGENTS.md 26 문장 교체, 세 키트 `KIT/README.md` 2·3장 교체.
 - 발견: PowerShell 기본 User-Agent 때문에 Supabase가 Secret key를 401로 거부 → 확인 요청에 `aimaster-kit-setup` 지정(함정 표). 계기: 주인님이 새 배포판 설치 때 `.env.local`을 직접 고치게 된 일.
