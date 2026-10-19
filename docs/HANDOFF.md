@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 메인 사이트 비밀번호 찾기(이메일 링크·문자 인증번호) 추가
+
+- **대상**: ① AIMaster 운영 메인 사이트(루트 `app/`), DB ref `esgxyikcnnvmlhygjkth`(DDL 없음, REST 읽기만)
+- **한 일**: `/forgot-password`(이메일 인증 / 문자 인증 탭), `/reset-password`(저장 버튼 때 recovery 토큰 확인 → 새 비밀번호 저장 → 로그아웃 → `/login?reset=1` 안내), 로그인 화면에 「비밀번호를 잊으셨나요?」 링크. API `app/api/auth/password-reset/{email,sms,sms/verify}`, 공용 `lib/auth/passwordReset.ts`, 문자 `lib/sms/solapi.ts`(공식 SDK `solapi@^6.0.1` 설치).
+- **설계 핵심**: 1회용 토큰은 `auth.admin.generateLink({type:"recovery"})`의 `hashed_token`. 인증번호 해시(HMAC)·만료 5분·5회 제한·문자 60초 간격·1시간 5회·메일 10분 3회 상태는 `auth.users.app_metadata.password_reset`에 보관(새 테이블 없음 — 이 세션 MCP가 Lab DB라 운영 DDL 불가). 가입 여부 비노출(같은 안내). 메일 링크 주소는 `NEXT_PUBLIC_APP_URL` 고정(Host 헤더 바꿔치기 방지).
+- **문자 발송 계정**: 관리자 `buylifemall@gmail.com`이 `user_solapi_accounts`에 등록한 솔라피 계정(주인님 지시 「솔라피 연동, 이미 구현되어 있으니 확인」). 최상위 규칙 예외 §8에 범위 기록 — 회원 자동화 기능에는 쓰지 않는다. 2026-10-19 잔액 조회로 키 유효 확인(약 32,000원).
+- **커밋·배포**: `7154d2bb` 푸시 → Vercel `aimaster` 자동 배포 `dpl_Fh9syHFjMwCCMbUaqdAXWHjXA8TQ` Ready, `/forgot-password` 200, 배포된 로그인 스크립트에 링크 포함 확인. 로컬 `npm run build` 통과.
+- **확인한 것**: 크롬(Browser 3)에서 `/forgot-password` 화면 표시, 시험 계정 이메일 요청 → **서버 로그 `535 5.7.1 Username and Password not accepted - nsmtp`로 메일 발송 실패**(화면은 「메일을 보내지 못했습니다」로 정상 안내).
+- **못 한 것 / 남은 일**:
+  1. **[주인님 조치 필요] 운영 SMTP(네이버 메일) 로그인 거절** — 기존 `lib/email/client.ts`를 쓰는 고객문의·지연 알림 메일도 같이 막혀 있을 가능성이 큼. 네이버 메일 환경설정 → POP3/IMAP 설정 → SMTP 사용 「사용함」 확인, 2단계 인증 계정이면 애플리케이션 비밀번호 발급 → Vercel `aimaster`의 `SMTP_PASSWORD` 교체 → 재배포 후 이메일 인증 재시험.
+  2. **문자 인증 실제 시험**은 인증번호를 받는 휴대폰이 필요해 주인님이 직접: `https://www.buylife.xyz/forgot-password` → 문자로 인증 → 시험 계정 이메일·핸드폰 → 인증번호 → 새 비밀번호 저장 → 새 비밀번호로 로그인.
+  3. (아이디어 I-20) 서브프로그램 로그인 화면에서 이 주소로 연결.
+- **문서**: 플랜 `docs/PLAN_20261019_PASSWORD_RESET.md`, 예외 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8, 교훈 `docs/ERROR_LESSONS.md`(Supabase DEV MCP = Lab DB), 아이디어 표 I-20.
+- **링크**: https://www.buylife.xyz/forgot-password
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 상세페이지 자동생성기 v1(auto-detail-page) v1.20: 이커머스 셀러 스튜디오 리뉴얼·사이드바 신설·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 77개 완료 / 92.8% 달성!)
 
 - **대상**: `auto-detail-page/` (https://auto-detail-page.buylife.xyz, slug: `auto-detail-page`, 61번)

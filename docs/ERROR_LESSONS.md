@@ -9,6 +9,13 @@
 - **다음부터 확인**: 필터를 만들면 표시 제목과 접근성 이름을 함께 확인합니다. 자동 검사 실패는 실제 클릭·이름·대상 요소를 대조한 뒤 원인을 구분합니다.
 <!-- /DETAILED_REVIEW_REPORT_LABELS_20261019 -->
 
+## 2026-10-19 — Supabase MCP 이름이 「Supabase DEV」인데 연결 대상은 Lab DB(`rjjtjak…`)였다 — 운영 DB에 DDL을 넣을 뻔함 (메인 사이트 비밀번호 찾기, Claude Code 윈도우)
+
+- 증상: 운영 메인 사이트 기능에 새 테이블을 만들려고 MCP `execute_sql`/`apply_migration`을 쓰려 했으나, 이 세션에 붙은 Supabase MCP는 하나뿐이었고 `get_project_url` 결과가 `https://rjjtjakljjxsgjelqgek.supabase.co`(② AIMaster_dev Lab)였다.
+- 원인: 연결된 MCP 이름만 보고 대상 DB를 짐작함. 운영(`esgxyik…`)용 MCP는 이 세션에 없었다.
+- 해결: DDL 없이 구현(회원별 상태를 `auth.users.app_metadata`에 서버 키로 보관). 운영 DB 읽기는 `.env.local`의 운영 URL+서버 키로 REST 조회만 했다.
+- 다음부터: **DB 작업 전 반드시 `get_project_url`로 대상 ref를 확인**하고 보고에 ref를 적는다. 운영 DDL이 필요한데 운영 MCP가 없으면 SQL 파일을 남기고 주인님께 적용을 요청한다.
+
 ## 2026-10-19 — 일시정지된 Supabase 프로젝트를 재개하는 동안(`COMING_UP`) 조회하면 빈 임시 DB가 보이고, 그때 적용한 내용은 사라진다 (AIMaster_dev, Claude Code 윈도우)
 - **증상**: 재개 직후 조회에서 테이블 0개·사용자 0명으로 보여 "이미 비어 있다"고 보고하고 Lab 구조를 적용·시험까지 했는데, 몇 분 뒤 `ACTIVE_HEALTHY`가 되자 예전 테이블 12개·사용자 1명이 다시 나타나고 적용한 구조는 사라졌다.
 - **원인**: 복원이 끝나기 전에는 빈 임시 DB가 먼저 응답한다. 복원이 끝나면 원래 데이터로 바뀐다.
