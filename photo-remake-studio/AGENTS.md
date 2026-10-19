@@ -98,3 +98,9 @@
 ## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
 
 F-006(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.
+
+## 2026-10-19 v1.10 — 깨진 사진 안내를 한글로 (Claude Code 윈도우)
+- 운영 실측: 깨진 JPG를 올리면 브라우저 영어 원문 「The source image could not be decoded.」이 안내로 보였음.
+- 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`.
+- `src/lib/remake/clientImages.ts` `preparePhoto`가 `createImageBitmap` 전에 `checkImageFile` → 깨졌으면 공용 한글 안내로 오류.
+- 검수: 단위 23/23(공용 5 포함), tsc, 빌드, Vercel READY(`photo-remake-studio-4x9drmmcr`), DB v1.10, 운영 실측 — 「사진을 읽지 못했어요…」, 영어 원문 없음. AI 비용 없음.

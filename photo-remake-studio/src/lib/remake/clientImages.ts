@@ -1,8 +1,12 @@
 "use client";
 import { downloadName, type InputImage, type RemakeResult } from "./types";
+import { checkImageFile } from "@/lib/imageFileCheck";
 export interface PhotoInput extends InputImage { preview: string; width: number; height: number; originalWidth: number; originalHeight: number }
 export async function preparePhoto(file: File, object = false): Promise<PhotoInput> {
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 25_000_000) throw new Error("25MB 이하 JPEG·PNG·WebP 사진을 올려 주세요.");
+  // 깨진 사진은 브라우저 영어 오류 대신 공용 한글 안내(image-file-check)
+  const check = await checkImageFile(file);
+  if (!check.ok) throw new Error(check.message);
   const bitmap = await createImageBitmap(file);
   try {
     if (bitmap.width * bitmap.height > 70_000_000) throw new Error("사진이 너무 큽니다. 크기를 줄여 다시 올려 주세요.");
