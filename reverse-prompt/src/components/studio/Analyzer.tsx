@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ClipboardCopy, Download, FileAudio, FileImage, FileVideo, Loader2, RefreshCw, Save, UploadCloud, X } from "lucide-react";
+import { Check, ClipboardCopy, Download, FileAudio, FileImage, FileVideo, Loader2, RefreshCw, Save, UploadCloud, X, Sparkles, Cpu, Layers, SlidersHorizontal, BookOpen, KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Analysis, MediaType, Options } from "@/lib/rpa/types";
 import { DEFAULT_OPTIONS, MEDIA_LABEL, TARGETS, defaultTarget } from "@/lib/rpa/types";
@@ -236,6 +236,61 @@ export function Analyzer({ historyId }: { historyId?: string }) {
 
   return (
     <div className="rp">
+      {/* 크리에이티브 아틀리에 웰컴 히어로 배너 */}
+      <div className="studio-hero">
+        <div className="studio-hero-title">
+          <Sparkles size={24} style={{ color: "#f59e0b" }} />
+          <span>Creative Reverse Prompt Atelier</span>
+        </div>
+        <p className="studio-hero-desc">
+          이미지·동영상·오디오 미디어를 멀티모달 AI로 정밀 역분석하여 Midjourney, Flux, Sora, Suno 등 10대 주요 생성 AI에 최적화된 프롬프트와 파라미터를 도출합니다.
+        </p>
+        <div className="studio-hero-badges">
+          <span className="badge-tag amber"><Sparkles size={12} /> v1.10 ARCHITECT</span>
+          <span className="badge-tag violet"><Layers size={12} /> 10대 AI 도구 맞춤 최적화</span>
+          <span className="badge-tag cyan"><Cpu size={12} /> 멀티모달 3종 미디어 역분석</span>
+        </div>
+        <div className="actions" style={{ marginTop: "16px" }}>
+          <a href="/guide" className="button" style={{ background: "rgba(245, 158, 11, 0.15)", borderColor: "#f59e0b", color: "#fbbf24" }}>
+            <BookOpen size={14} /> 📖 연동 & 사용 매뉴얼 보기
+          </a>
+          <a href="/settings" className="button">
+            <KeyRound size={14} /> 🔑 API 키 설정
+          </a>
+        </div>
+      </div>
+
+      {/* 3대 핵심 KPI 지표 카드 */}
+      <div className="kpi-grid">
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap amber">
+            <Layers size={20} />
+          </div>
+          <div className="kpi-content">
+            <strong>10대 타겟 AI 도구</strong>
+            <small>Midjourney · Flux · Sora · Suno 완벽 호환</small>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap violet">
+            <Cpu size={20} />
+          </div>
+          <div className="kpi-content">
+            <strong>멀티모달 3종 역분석</strong>
+            <small>이미지 · 동영상 · 오디오 시각/음향 정밀 분해</small>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap cyan">
+            <SlidersHorizontal size={20} />
+          </div>
+          <div className="kpi-content">
+            <strong>실시간 재조합 & 내보내기</strong>
+            <small>프롬프트 수정 · 파라미터 재계산 · JSON 저장</small>
+          </div>
+        </div>
+      </div>
+
       <section className="card rp-step" id="upload">
         <h2><span className="gd-num">1</span> 파일 올리기</h2>
         {!file ? (

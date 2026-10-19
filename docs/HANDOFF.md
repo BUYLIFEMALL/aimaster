@@ -1,5 +1,60 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 리버스 프롬프트 자동화 v1.10: 크리에이티브 아틀리에 스타일 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 63개 완료 / 75.9% 달성!)
+
+- **대상**: `reverse-prompt/` (https://reverse-prompt.buylife.xyz, slug: `reverse-prompt`, 73번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 리버스 프롬프트 아키텍트 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 리버스 프롬프트 아키텍트 에디션 (Creative Atelier Style — Reverse Prompt Architect Edition)**.
+     - **디자인 토큰 시스템 완비**: 딥 미드나잇 다크(`var(--background): #0b0e14`, `var(--surface): #121722`), 아틀리에 앰버 골드(`var(--brand): #f59e0b`), 인디고 바이올렛(`var(--brand-violet): #8b5cf6`), 시안(`var(--brand-cyan): #06b6d4`), 슬레이트 화이트(`var(--foreground): #f1f5f9`) 토큰 체계 적용 (`src/app/globals.css`).
+     - 멀티모달 3종 미디어(이미지·동영상·오디오) 정밀 분석, 10대 타겟 AI 도구(Midjourney, DALL-E, Flux, Sora, Veo, Suno 등) 맞춤 프롬프트 생성 엔진 100% 무결성 유지. Claude Code의 최신 예외 처리(`catch`) 로직 완벽 보존.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.10 ARCHITECT` 및 작업 흐름 1-2-3 넘버링 적용 (`src/components/layout/Sidebar.tsx`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (골드 하이라이트 배지).
+     - 모바일(767px 이하) 반응형 헤더 및 햄버거 토글 드로어 메뉴 완비.
+  3. **메인 스튜디오 리뉴얼 (`src/components/studio/Analyzer.tsx`)**:
+     - 상단 골드/바이올렛 그라데이션 바탕의 `.studio-hero` 웰컴 배너 및 듀얼 CTA ([📖 사용 매뉴얼 보기], [🔑 API 키 설정]) 탑재.
+     - 3대 핵심 KPI 지표 카드(10대 타겟 AI 도구, 멀티모달 3종 역분석, 실시간 재조합 & 내보내기) 탑재.
+     - 대형 점선 드래그앤드롭/붙여넣기 뷰포트 및 분석 결과 편집/재조합 패널 고도화.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "AI 리버스 프롬프트 완전 마스터 가이드".
+     - **4단계 표준 리버스 프롬프트 파이프라인**: 1) 미디어 업로드 ➔ 2) 멀티모달 AI 심층 분석 ➔ 3) 타겟 AI 프롬프트 최적화 ➔ 4) 실시간 편집 & 재조합.
+     - 최상위 보안 원칙 (BYOK Standard) 연동 가이드 및 Google AI Studio 키 발급/설정 바로가기.
+     - 10대 지원 생성 AI 도구(Midjourney, DALL-E 3, Flux/SD, Sora/Veo, Runway/Kling, Suno/Udio) 특성 비교 카드 완비.
+     - 분석 옵션/길이 가이드, 파일 규격/격리 원칙 및 FAQ 5종 아코디언 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_73_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm test`: 15/15 순수 로직 단위 테스트 통과.
+     - `npm run build`: Next.js 16.4.0 Turbopack 프로덕션 빌드 성공.
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_2ByyUZTscdxQ9riu4gEmS8993Qnk`
+     - 공식 도메인 즉시 반영: https://reverse-prompt.buylife.xyz
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 SSR 세션 쿠키를 주입하여 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-14234`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_rp_desktop_studio_v110.png`: 데스크톱 메인 스튜디오 및 배너, 3대 KPI 카드
+       - `edge_rp_desktop_guide_v110.png`: 데스크톱 비주얼 가이드북 및 파이프라인
+       - `edge_rp_desktop_guide_faq_v110.png`: 가이드북 FAQ 아코디언 오픈
+       - `edge_rp_desktop_settings_modal_v110.png`: API 키 등록 및 플랫폼 연동 화면
+       - `edge_rp_desktop_history_v110.png`: 내 분석 기록 화면
+       - `edge_rp_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `reverse-prompt/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `reverse-prompt/README.md` (동기화 생성)
+     - `reverse-prompt/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `reverse-prompt/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `reverse-prompt/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `reverse-prompt/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본)
+  10. **루트 마스터 현황판 동기화**:
+      - `DESIGN.md`: 73번 행 ✅ 1차 작업완료 (`v1.10`, 크리에이티브 아틀리에 스타일) 갱신 및 전체 통계 (누적 ✅ 63개 완료 / ⚪ 18개 예정 / ⏸ 2개 보류 — 75.9% 달성!)
+      - `docs/ACTIVE_WORK.md`: 73번 작업 완료 행 정상 삭제
+- **확인한 것**:
+  - Edge 브라우저에서 메인 스튜디오 배너, 3대 KPI 카드, 파일 업로드 드롭존, 옵션 그리드가 크리에이티브 아틀리에 다크 테마로 완벽히 렌더링됨.
+  - `/guide` 비주얼 가이드북에서 4단계 파이프라인과 FAQ 아코디언 인터랙션 무결 확인.
+  - 모바일(375px) 화면에서 상단 헤더, 로고, 햄버거 토글 버튼 및 본문 카드가 정상 반응형 동작함.
+- **다음 첫 단계**: 77번 AI 마스터링 스튜디오 (`ai-mastering-studio`) 또는 다른 예정 프로그램 사전 개발 플랜 수립 및 순차 착수.
+
 ## 2026-10-19 Claude Code(윈도우) — 공용 부품 `image-file-check`(깨진 사진 안내) 신설 + AI 인물사진 v1.29 (진행 중: 이미지 프로그램 순차 적용)
 - **운영 실측(깨진 JPG)**: portrait-photo 무반응(깨진 아이콘), image-convert-studio 깨진 미리보기로 목록 진입, photo-remake-studio 영어 원문 안내, banana-canvas 서버 업로드 후 AI 단계 실패. 플랜 `portrait-photo/docs/PLAN_20261019_IMAGE_FILE_CHECK_SHARED.md`.
 - **완료**: 기준 `portrait-photo/src/lib/imageFileCheck.ts`(+테스트) 등록(`scripts/check-shared-modules.mjs`, `docs/SHARED_MODULES.md`). portrait-photo v1.29 — 깨진 사진 안내·받지 않음 + 꺼진 [만들기] 이유 한 줄. 단위 31·브라우저 14 통과, READY, DB v1.29, 운영 실측 확인. https://portrait-photo.buylife.xyz

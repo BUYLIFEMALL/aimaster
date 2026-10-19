@@ -1,47 +1,76 @@
-# AI 리버스 프롬프트 자동화 (reverse-prompt) — 작업 지침
+# AI 리버스 프롬프트 자동화 (reverse-prompt) — 작업 지침 및 에이전트 인수인계 문서
 
-> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+<!-- INCREMENTAL_REFERENCE_IDEAS_20261019 -->
+> **★★★ 공통 개발 방향 — 기능 안정화 우선·점진 레퍼런스 모듈화·아이디어 등록 (2026-10-19 주인님 확정)**
+> 당분간 기존 프로그램 기능 개선·오류 수정·안정화에 집중합니다. 그 과정에서 잘 만들어지고 검증된 기능을 레퍼런스 모듈로 정리하고, 신규 프로그램 또는 기존 프로그램 리뉴얼 때 필요한 모듈을 하나씩 적용합니다.
+<!-- /INCREMENTAL_REFERENCE_IDEAS_20261019 -->
 
-## 한 줄 요약
-이미지·동영상·오디오 파일 → (브라우저가 비공개 임시 버킷에 직접 업로드) → 서버가 Gemini로 분석 → 대상 도구(Midjourney·DALL·E·Flux·Sora·Veo·Runway·Kling·Suno·Udio)용 영어 프롬프트 + 구조화 JSON → 편집·재조합·기록·내보내기. 참고 원본은 "Reverse Prompt Architect"(개발자 GPT PARK, 순수 클라이언트 앱)이며 코드는 복제하지 않고 흐름·스키마 구조만 참고했다.
+## 1. 기본 정보
+| 항목 | 내용 |
+|---|---|
+| 프로그램명 | AI 리버스 프롬프트 자동화 (`reverse-prompt`, 73번) |
+| 배포 URL | https://reverse-prompt.buylife.xyz |
+| 최신 버전 | `v1.10` (2026-10-19 갱신, 패키지 `1.10.0`, DB `v1.10` 3중 동기화) |
+| 적용 디자인 템플릿 | **크리에이티브 아틀리에 스타일 — 리버스 프롬프트 아키텍트 에디션 (Creative Atelier Style — Reverse Prompt Architect Edition)** |
+| 담당/기여 에이전트 | Claude Code(윈도우, v1.03/v1.05 업로드 예외 처리) ➔ Antigravity CLI(agy, 윈도우, v1.10 크리에이티브 아틀리에 디자인 리뉴얼 및 가이드북 구축) |
 
-## 구조
-- `src/lib/rpa/` 순수 로직(단위 테스트 대상): `types`(종류·옵션·대상 도구), `media`(MIME 판별·크기 제한·임시 경로 소유 검증·썸네일 검증), `schemas`(Gemini responseSchema 3종·정규화·Midjourney 명령어 조립·Markdown), `prompts`(시스템 지침·연도 주입·대상 도구/길이/메모 반영), `validate`(옵션 정리), `thumb`(브라우저 전용 미리보기 생성).
-- `src/lib/gemini.ts`(서버): 모델 체인 `flash: 3.5-flash → 2.5-flash`, `pro: 3.1-pro-preview → 3.5-flash → 2.5-flash`. 이미지는 인라인, 동영상·오디오는 **Files API 업로드 → PROCESSING 폴링(최대 240초) → 분석 → 원격 파일 삭제(finally)**. 형식 어긋나면 모델당 1회 재시도, 안전 필터는 `safety` 오류로 구분.
-- API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST/DELETE /api/upload`(서명 URL 발급·임시 파일 즉시 삭제, 본인 폴더만), `POST /api/analyze`(`maxDuration 300`, Storage에서 읽기→분석→기록 저장, 임시 파일은 다시 분석용으로 남김), `GET /api/history`, `GET/PATCH/DELETE /api/history/[id]`, `/api/keys`.
-- 화면: `/open`→`/analyze`(`components/studio/Analyzer.tsx` 업로드·옵션·결과), `/history`, `/settings`(API키등록·플랫폼연동), `/guide`.
-- DB: `reverse_prompt_history`(RLS owner-only, 서버는 service role + `user_id` 필터, 최대 100건·즐겨찾기 보존), Storage 비공개 버킷 `reverse-prompt-tmp`(정책 없음 = 서버만 서명/읽기/삭제, 50MB 제한).
+---
 
-## 지킬 것
-- 키는 회원 본인 Gemini 키만(`user_api_keys.provider = gemini`). 없으면 `needKey` 안내, 폴백 금지.
-- 임시 파일 경로는 항상 `<uid>/<uuid>.<ext>` 형식을 `isOwnTempPath`로 검증(다른 회원 파일 접근 차단). 1시간 지난 본인 파일은 업로드 때 정리(`TEMP_TTL_MS`).
-- 원본 파일은 기록에 저장하지 않는다(결과 JSON·옵션·≤20KB 미리보기만).
-- Midjourney가 아닌 대상 도구는 `full_command == prompt`(파라미터 플래그를 붙이지 않는다) — `normalize(media, raw, target)`.
-- 프롬프트에는 당해 연도 주입(`yearGuard`). 인물은 파일에 보이는 그대로 묘사한다(한국인 기본 규칙 비적용 — 역설계이므로).
-- 버전은 `src/lib/version.ts`와 DB `programs.version`을 함께 올린다.
-- Supabase MCP `execute_sql`은 여러 문장을 한 번에 보내면 거부될 수 있다 → 문장별로 보낸다.
+## 2. 사용 목적 및 대상
+- **사용 목적**: 이미지·동영상·오디오 미디어를 멀티모달 AI로 역분석하여 주요 생성 AI(Midjourney, DALL·E 3, Flux, Sora, Veo 2, Suno 등)에 바로 사용할 수 있는 최적의 프롬프트와 정밀 파라미터를 역도출.
+- **주요 대상**:
+  - 미드저니, 플럭스 등 이미지 생성 시 레퍼런스 이미지의 조명/구도/스타일을 복제하고 싶은 크리에이터.
+  - 소라, 클링, 런웨이용 시네마틱 카메라 무빙 및 영상 프롬프트 설계를 원하는 영상 제작자.
+  - 수노, 우디오에서 유사한 분위기의 음악 장르/악기 구성을 추출하고자 하는 사운드 디자이너.
 
-## 검수
-- `npm test`(순수 로직 15건), `npm run test:browser`(보이는 Chrome, 모의 API·Storage 16건, `test-artifacts/sample.jpg` 필요 — 임의 JPG를 두면 됨), `npm run build`.
-- 실제 호출: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts image|audio|video`(운영자 본인 키, 2026-10-14: 이미지 12초·오디오 14초·영상 18초, 3.5-flash). 출력을 파이프(`| tail`)로 받으면 끝날 때까지 보이지 않으니 파일로 리다이렉트한다.
+---
 
-## 2026-10-14 v1.03 — 모바일 셸 CSS 추가 (Claude Code)
+## 3. 개발 도구 및 기술 스택
+- **프레임워크**: Next.js 16.4.0 (App Router, Turbopack)
+- **라이브러리**: React 19.3.0, Lucide React 1.48.0
+- **AI 엔진**: `@google/genai` (Google Gemini 2.5/3.5 Flash & 3.1 Pro 체인)
+- **백엔드/인프라**: Supabase SSR (`@supabase/ssr` 0.12.7, `@supabase/supabase-js` 2.117.3), Storage 비공개 버킷 `reverse-prompt-tmp`
+- **테스트 & 검증**: Node.js test runner (`npm test`), Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수
 
-- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
-- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.03(코드·package·DB).
-- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+---
 
+## 4. 핵심 기능 및 시스템 아키텍처
+1. **멀티모달 3종 미디어 역분석 엔진**:
+   - `src/lib/rpa/media.ts`: MIME 타입 감지, 크기 제한(이미지 20MB, 영상/음악 50MB), 임시 경로 검증(`isOwnTempPath`).
+   - `src/lib/gemini.ts`: 이미지는 인라인 분석, 영상·오디오는 Files API 업로드 후 처리 폴링 및 분석 완료 즉시 원격 파일 자동 삭제.
+2. **10대 타겟 AI 도구별 프롬프트 최적화**:
+   - Midjourney(명령어 및 파라미터 조립), DALL·E 3(상세 서술형), Flux/SD(태그형), Sora/Veo/Runway/Kling(카메라 및 연속 동작), Suno/Udio(장르/BPM/악기 메타태그).
+3. **독립 비주얼 가이드북 (`/guide`)**:
+   - 4단계 파이프라인(미디어 업로드 ➔ 멀티모달 AI 분석 ➔ 타겟 최적화 ➔ 실시간 재조합).
+   - 10대 도구별 프롬프트 특성 비교표 및 FAQ 5종 아코디언 제공.
+4. **절대 불변 최상위 원칙 (BYOK Standard)**:
+   - 회원 본인의 Google Gemini API 키로만 동작하며, 다른 회원과 키 및 분석 데이터가 일절 공유되지 않고 격리 보관.
 
-## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.03)
+---
 
-- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
+## 5. 버전 히스토리
+- **`v1.03`** (2026-10-14, Claude Code): 767px 모바일 셸 전환 스타일 보완.
+- **`v1.04`** (2026-10-16, Claude Code): DB 연동 변수 호환성 보강.
+- **`v1.05`** (2026-10-19, Claude Code): 분석 중 예외 발생 시 안내 없이 종료되던 문제를 `catch` 안내 처리로 개선.
+- **`v1.10`** (2026-10-19, Antigravity CLI):
+  - **크리에이티브 아틀리에 스타일 전면 리뉴얼**: 딥 미드나잇 다크 테마(`#0b0e14`), 아틀리에 앰버 골드(`#f59e0b`), 인디고 바이올렛(`#8b5cf6`), 시안(`#06b6d4`) 토큰 체계 적용.
+  - **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**: 브랜드 뱃지 `v1.10 ARCHITECT`, 1-2-3 넘버링, `📖 연동 & 사용 매뉴얼` (`/guide`) 골드 뱃지 신설.
+  - **메인 스튜디오 고도화**: `.studio-hero` 웰컴 배너 및 3대 KPI 지표 카드 신설.
+  - **독립 비주얼 가이드북 (`/guide`) 전면 개편**: 4단계 파이프라인, 10대 AI 도구 비교 카드, BYOK 보안 안내, FAQ 5종 아코디언 탑재.
+  - **버전 3중 동기화 완료**: `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` (`v1.10`).
+  - **Vercel 프로덕션 배포 및 Edge 최전면 포그라운드 실세션 검수 완료 (6종 캡처 보존)**.
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (reverse-prompt)
+## 6. 개선 과제 및 타 프로그램 연계 아이디어
+- `docs/IMPROVEMENTS.md` 참조:
+  1. 역분석된 프롬프트와 원본 미디어를 동시에 비교하는 듀얼 스플릿 뷰어 지원.
+  2. 프롬프트 내 특정 단어의 가중치(Weight)를 슬라이더로 조절하는 인터랙티브 UI 제공.
+  3. `thumbnail-master`(76번), `banana-canvas`(80번), `fashion-style`(82번)로 원클릭 프롬프트 전송 연계.
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+---
 
-## 2026-10-19 v1.05 — 분석 중 예외를 조용히 끝내지 않고 안내 (Claude Code 윈도우)
-- **배경**: banana-canvas v1.10 후속 점검(같은 서명 주소 업로드 방식 `uploadToSignedUrl`을 쓰는 프로그램). `run()`은 `try/finally`라 멈추지는 않지만 `catch`가 없어, 저장소 업로드·화면 처리에서 예외가 나면 안내 없이 끝났다.
-- **수정**: `src/components/studio/Analyzer.tsx` `run()`에 `catch` — 직접 취소(`AbortError`)가 아니면 「분석 중 문제가 생겼습니다…」 안내.
-- **검수**: 브라우저 17/17(새 검사: 저장소 연결 끊김 시 안내 후 [분석 시작] 다시 가능), 단위 15/15, tsc, 빌드, Vercel READY(`reverse-prompt-lsxdc7msn`), DB v1.05, 메인 크롬 운영 화면 v1.05. AI 비용 없음.
+## 7. 검수 가이드
+- 단위 테스트: `npm test` (15/15 통과)
+- 빌드 검증: `npm run build` (Turbopack 최적화 프로덕션 빌드 무결)
+- 브라우저 실세션 검수: `node scripts/capture_edge_reverse_prompt_v110.cjs` (Microsoft Edge 최전면 포그라운드, 일반 회원 테스트 계정 `buylifemall@naver.com`)

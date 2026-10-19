@@ -129,7 +129,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 62개 · ⚪ 19개 · 🟠 0개 · ⏸ 2개 — 총 83개 — 74.7% 달성!):
+> **상태 구분** (2026-10-19 기준: ✅ 63개 · ⚪ 18개 · 🟠 0개 · ⏸ 2개 — 총 83개 — 75.9% 달성!):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -215,7 +215,7 @@
 | 70 | UI Canvas 자동화 | `ui-canvas` | **크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션** | 다크(미드나잇 다크 네이비 `#0c0f17`) | ✅ 1차 작업완료 (`v1.10`, 크리에이티브 아틀리에 스타일) | [`ui-canvas/docs/DESIGN_HANDOFF.md`](ui-canvas/docs/DESIGN_HANDOFF.md) · [`ui-canvas/docs/IMPROVEMENTS.md`](ui-canvas/docs/IMPROVEMENTS.md) |
 | 71 | AI 슬라이드 자동화 | `ai-slide-builder` | **플로우 위저드 스타일 — 단계별 슬라이드 기획 에디션** | 라이트(소프트 슬레이트 `#f8fafc` + 인디고 블루 `#2563eb`) | ✅ 1차 작업완료 (`v1.10`, 플로우 위저드 스타일) | [`ai-slide-builder/docs/DESIGN_HANDOFF.md`](ai-slide-builder/docs/DESIGN_HANDOFF.md) · [`ai-slide-builder/docs/IMPROVEMENTS.md`](ai-slide-builder/docs/IMPROVEMENTS.md) |
 | 72 | AI 웹 UI 제작 자동화 | `ai-web-ui` | **크리에이티브 아틀리에 스타일 — 리액트 쇼케이스 변형** | 다크(미드나잇 네이비 `#0a0d14` + 리액트 사이언 `#38bdf8`·바이올렛 `#a855f7`) | ✅ 1차 작업완료 (`v1.05`, 리액트 쇼케이스 변형) | [`react-ui-showcase/docs/DESIGN_HANDOFF.md`](react-ui-showcase/docs/DESIGN_HANDOFF.md) · [`react-ui-showcase/docs/IMPROVEMENTS.md`](react-ui-showcase/docs/IMPROVEMENTS.md) |
-| 73 | AI 리버스 프롬프트 자동화 | `reverse-prompt` | 크리에이티브 아틀리에 스타일 (권장) | 다크(미드나잇) | ⚪ 작업 예정 | `reverse-prompt/AGENTS.md` |
+| 73 | AI 리버스 프롬프트 자동화 | `reverse-prompt` | **크리에이티브 아틀리에 스타일 — 리버스 프롬프트 아키텍트 에디션** | 다크(미드나잇 `#0b0e14` + 앰버 `#f59e0b`·바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.10`, 크리에이티브 아틀리에 스타일) | [`reverse-prompt/docs/DESIGN_HANDOFF.md`](reverse-prompt/docs/DESIGN_HANDOFF.md) · [`reverse-prompt/docs/IMPROVEMENTS.md`](reverse-prompt/docs/IMPROVEMENTS.md) |
 | 74 | AI 블로그 키워드 자동화 | `blog-keyword` | **스마트 매트릭스 스타일** (일반 CSS 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.05`, 스마트 매트릭스 스타일) | [`blog-keyword/docs/DESIGN_HANDOFF.md`](blog-keyword/docs/DESIGN_HANDOFF.md) |
 | 75 | AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | **플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션** | 라이트(소프트 화이트 `#f8fafc` + 인디고 블루 `#2563eb`·에메랄드 `#10b981`) | ✅ 1차 작업완료 (`v1.10`, 플로우 위저드 스타일 — 단계별 블로그 콘텐츠 에디션) | [`blog-content-maker/docs/DESIGN_HANDOFF.md`](blog-content-maker/docs/DESIGN_HANDOFF.md) · [`blog-content-maker/docs/IMPROVEMENTS.md`](blog-content-maker/docs/IMPROVEMENTS.md) |
 | 76 | AI 썸네일 마스터 자동화 | `thumbnail-master` | **크리에이티브 아틀리에 스타일 — 썸네일 매거진 변형** | 다크(미드나잇 다크 `#0c0f17` + 썸네일 바이올렛 `#8b5cf6`·코랄 오렌지 `#f97316`) | ✅ 1차 작업완료 (`v1.07`, 썸네일 매거진 변형) | [`thumbnail-master/docs/DESIGN_HANDOFF.md`](thumbnail-master/docs/DESIGN_HANDOFF.md) · [`thumbnail-master/docs/IMPROVEMENTS.md`](thumbnail-master/docs/IMPROVEMENTS.md) |

@@ -1,3 +1,4 @@
+import { BookOpen, Sparkles, KeyRound, Cpu, Layers, SlidersHorizontal, CheckCircle2, ArrowRight, ShieldCheck, HelpCircle } from "lucide-react";
 import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
 import { GEMINI_GUIDE_URL } from "@/lib/guides";
 import { SIZE_LIMIT } from "@/lib/rpa/media";
@@ -7,96 +8,217 @@ export const fetchCache = "force-no-store";
 
 const MB = 1048576;
 
-function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
-  return (
-    <li className="gd-step">
-      <span className="gd-num">{n}</span>
-      <div><strong>{title}</strong><p>{children}</p></div>
-    </li>
-  );
-}
-
 export default function GuidePage() {
   return (
-    <>
-      <div className="page-heading">
-        <p className="eyebrow">사용 설명서</p>
-        <h1>연동 & 사용 매뉴얼</h1>
-        <p>마음에 드는 이미지·영상·음악을 올리면, 같은 느낌을 다른 AI로 다시 만들 수 있는 프롬프트를 뽑아 줍니다. ①~②만 따라 해도 충분합니다.</p>
+    <div className="gd">
+      {/* 1. 가이드 히어로 배너 */}
+      <div className="studio-hero" style={{ marginBottom: "0px" }}>
+        <div className="studio-hero-title">
+          <Sparkles size={26} style={{ color: "#f59e0b" }} />
+          <span>AI 리버스 프롬프트 완전 마스터 가이드</span>
+        </div>
+        <p className="studio-hero-desc">
+          이미지·동영상·오디오 미디어를 멀티모달 AI로 심층 역분석하여, Midjourney, Flux, Sora, Suno 등 주요 생성 AI에 바로 사용할 수 있는 최적의 프롬프트와 파라미터를 도출하는 완벽 활용 매뉴얼입니다.
+        </p>
+        <div className="studio-hero-badges">
+          <span className="badge-tag amber"><Sparkles size={12} /> v1.10 GUIDE</span>
+          <span className="badge-tag violet"><Layers size={12} /> 10대 AI 생성 도구 지원</span>
+          <span className="badge-tag cyan"><Cpu size={12} /> 멀티모달 3종 미디어 역분석</span>
+        </div>
       </div>
-      <div className="gd">
-        <nav className="gd-toc card" aria-label="목차">
-          <strong>바로가기</strong>
-          <a href="#key">① 키 등록(최초 1회)</a>
-          <a href="#quick">② 5분 시작하기</a>
-          <a href="#options">③ 옵션 설명</a>
-          <a href="#output">④ 결과물 활용</a>
-          <a href="#limits">⑤ 파일 형식·크기·개인정보</a>
-          <a href="#faq">⑥ 막힐 때(FAQ)</a>
-        </nav>
 
-        <section id="key" className="card">
-          <h2>① Gemini API 키 등록 (최초 1회)</h2>
-          <p className="gd-lead">이 프로그램의 AI 분석은 <b>회원님 본인의 Google Gemini API 키</b>로 동작합니다. 키가 없으면 분석 버튼을 눌렀을 때 등록 안내가 나옵니다.</p>
-          <ol className="gd-steps">
-            <Step n={1} title="키 만들기"><code>aistudio.google.com/apikey</code>에서 본인 Google 계정으로 로그인 → [Create API key] → <code>AIza…</code>로 시작하는 키를 복사합니다.</Step>
-            <Step n={2} title="이 프로그램에 등록">왼쪽 메뉴 [API키등록·플랫폼연동]에서 붙여 넣고 [키 등록]을 누릅니다.</Step>
-            <Step n={3} title="확인">“등록됨”과 키 일부가 보이면 끝입니다. 언제든 삭제·교체할 수 있습니다.</Step>
-          </ol>
-          {GEMINI_GUIDE_URL && <div className="actions" style={{ marginTop: 14 }}><GuideLinkButton url={GEMINI_GUIDE_URL} label="Gemini 키 발급 상세 매뉴얼 (그림 포함, 팝업)" /></div>}
-          <p className="gd-tip">ℹ️ 파일 1개를 분석할 때마다 본인 키의 Gemini 사용량이 1건 계산됩니다. 동영상은 이미지보다 사용량이 많습니다.</p>
-        </section>
+      {/* 2. 빠른 목차 바 */}
+      <nav className="gd-toc" aria-label="가이드 목차">
+        <strong>바로가기:</strong>
+        <a href="#pipeline">① 4단계 파이프라인</a>
+        <a href="#key">② Gemini API 키 등록</a>
+        <a href="#tools">③ 10대 지원 AI 도구</a>
+        <a href="#options">④ 분석 옵션 & 길이</a>
+        <a href="#limits">⑤ 파일 규격 & 보안</a>
+        <a href="#faq">⑥ 자주 묻는 질문(FAQ)</a>
+      </nav>
 
-        <section id="quick" className="card">
-          <h2>② 5분 시작하기</h2>
-          <ol className="gd-steps">
-            <Step n={1} title="파일을 올립니다">[파일 올리기] 영역을 누르거나 파일을 끌어다 놓습니다. 이미지는 Ctrl+V 붙여넣기도 됩니다.</Step>
-            <Step n={2} title="대상 도구와 옵션을 고릅니다">이미지는 Midjourney·DALL·E·Flux, 영상은 Sora·Veo·Runway·Kling, 음악은 Suno·Udio 중에서 고릅니다. 강조하고 싶은 부분은 [추가 지시]에 적습니다.</Step>
-            <Step n={3} title="[분석 시작]">이미지는 10~30초, 동영상·오디오는 1~3분 걸릴 수 있습니다. 끝나면 추천 프롬프트와 분석 요소가 나타납니다.</Step>
-            <Step n={4} title="복사해서 사용하고, 필요하면 고칩니다">프롬프트 칸을 직접 고친 뒤 [수정 저장·명령어 재조합]을 누르면 Midjourney 명령어가 다시 조립됩니다. 결과는 [내 분석 기록]에 자동 저장됩니다.</Step>
-          </ol>
-        </section>
-
-        <section id="options" className="card">
-          <h2>③ 옵션 설명</h2>
-          <div className="gd-cards">
-            <article><h3>대상 도구</h3><p>같은 파일이라도 도구마다 잘 먹히는 문장 형태가 다릅니다. Midjourney는 파라미터 명령어, DALL·E는 문장형, Flux/SD는 태그형으로 만들어 줍니다.</p></article>
-            <article><h3>설명 언어</h3><p>분석 설명은 한국어/영어 중 선택합니다. 프롬프트 자체는 도구 호환을 위해 항상 영어입니다.</p></article>
-            <article><h3>프롬프트 길이</h3><p>간결(약 25~45단어), 표준(60~100), 상세(120~180). 결과가 너무 단조로우면 상세로 바꿔 보세요.</p></article>
-            <article><h3>AI 모델</h3><p>Flash는 빠르고 기본값입니다. Pro는 더 정밀하지만 느리며, 계정에서 쓸 수 없으면 자동으로 Flash로 처리됩니다.</p></article>
+      {/* 3. 4단계 표준 역추출 파이프라인 */}
+      <section id="pipeline" className="card">
+        <h2>① 4단계 표준 리버스 프롬프트 파이프라인</h2>
+        <p className="gd-lead">
+          복잡한 프롬프트 작성 없이, 마음에 드는 레퍼런스 미디어 하나로 4단계를 거쳐 완벽한 생성 AI 명령어를 추출합니다.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "14px", marginTop: "16px" }}>
+          <div style={{ background: "#0f141f", border: "1px solid var(--line)", borderRadius: "12px", padding: "18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+              <span className="gd-num">1</span>
+              <strong style={{ fontSize: "14px", color: "#f1f5f9" }}>미디어 업로드</strong>
+            </div>
+            <p style={{ fontSize: "12.5px", color: "#94a3b8", lineHeight: "1.55" }}>
+              이미지·동영상·오디오 파일을 드래그앤드롭하거나 클립보드(Ctrl+V)로 간편하게 로드합니다.
+            </p>
           </div>
-        </section>
 
-        <section id="output" className="card">
-          <h2>④ 결과물 활용</h2>
-          <div className="gd-table">
-            <div><b>추천 프롬프트</b><span>해당 도구의 입력창에 붙여 넣으면 비슷한 결과를 만들 수 있습니다. 완전히 같은 결과를 보장하지는 않습니다.</span></div>
-            <div><b>부정 프롬프트</b><span>이미지에서 빼고 싶은 요소입니다(Midjourney는 --no 로 명령어에 포함됩니다).</span></div>
-            <div><b>분석 요소 카드</b><span>조명·구도·카메라 움직임·악기 구성 등 분해 결과입니다. 직접 프롬프트를 고칠 때 참고하세요.</span></div>
-            <div><b>JSON / Markdown</b><span>JSON은 자동화·보관용, Markdown은 문서나 메모에 붙여 넣기용입니다.</span></div>
+          <div style={{ background: "#0f141f", border: "1px solid var(--line)", borderRadius: "12px", padding: "18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+              <span className="gd-num">2</span>
+              <strong style={{ fontSize: "14px", color: "#f1f5f9" }}>멀티모달 AI 심층 분석</strong>
+            </div>
+            <p style={{ fontSize: "12.5px", color: "#94a3b8", lineHeight: "1.55" }}>
+              Google Gemini Vision/Audio 모델이 피사체, 조명, 구도, 색감, 음향 구조를 전문가 시각으로 정밀 분해합니다.
+            </p>
           </div>
-        </section>
 
-        <section id="limits" className="card">
-          <h2>⑤ 파일 형식·크기·개인정보</h2>
-          <ul className="gd-list">
-            <li>이미지 JPG·PNG·WEBP·HEIC {SIZE_LIMIT.image / MB}MB 이하, 동영상 MP4·MOV·WEBM·AVI 등 {SIZE_LIMIT.video / MB}MB 이하, 오디오 MP3·WAV·AAC·OGG·FLAC {SIZE_LIMIT.audio / MB}MB 이하.</li>
-            <li>올린 파일은 비공개 임시 저장소에만 보관되며 <b>1시간 안에 자동 삭제</b>됩니다. 분석이 끝난 뒤 [삭제]를 누르면 즉시 지워집니다. 기록에는 결과 문구와 작은 미리보기만 저장됩니다.</li>
-            <li>분석을 위해 파일은 회원님의 Gemini 키로 Google에 전송됩니다. 타인의 저작물·초상이 담긴 파일은 권리와 개인정보를 확인한 뒤 사용하세요.</li>
-          </ul>
-        </section>
-
-        <section id="faq" className="card">
-          <h2>⑥ 막힐 때 (자주 묻는 질문)</h2>
-          <div className="gd-faq">
-            <details><summary>“API 키 등록이 필요합니다”라고 나와요.</summary><p>①의 순서대로 본인 키를 등록하세요. 키는 다른 회원이나 운영자와 공유되지 않습니다.</p></details>
-            <details><summary>파일이 너무 크다고 나와요.</summary><p>동영상은 짧게 잘라 내거나 해상도를 낮추고, 오디오는 필요한 구간만 잘라서 다시 올려 주세요.</p></details>
-            <details><summary>“AI 안전 정책으로 분석하지 못했습니다”라고 나와요.</summary><p>AI가 안전 기준에 걸린다고 판단한 파일입니다. 다른 파일로 시도해 주세요.</p></details>
-            <details><summary>“AI가 올바른 형식으로 응답하지 못했습니다”라고 나와요.</summary><p>같은 버튼을 한 번 더 눌러 주세요. 계속되면 AI 모델을 바꿔 보세요.</p></details>
-            <details><summary>영상 분석이 오래 걸려요.</summary><p>영상은 업로드 후 AI가 처리하는 시간이 필요해 1~3분 걸릴 수 있습니다. 창을 닫지 말고 기다려 주세요.</p></details>
+          <div style={{ background: "#0f141f", border: "1px solid var(--line)", borderRadius: "12px", padding: "18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+              <span className="gd-num">3</span>
+              <strong style={{ fontSize: "14px", color: "#f1f5f9" }}>타겟 AI 프롬프트 최적화</strong>
+            </div>
+            <p style={{ fontSize: "12.5px", color: "#94a3b8", lineHeight: "1.55" }}>
+              Midjourney 파라미터, DALL-E 자연어, Flux 태그, Suno 메타태그 등 타겟 도구 맞춤형 영어 프롬프트를 자동 생성합니다.
+            </p>
           </div>
-        </section>
-      </div>
-    </>
+
+          <div style={{ background: "#0f141f", border: "1px solid var(--line)", borderRadius: "12px", padding: "18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+              <span className="gd-num">4</span>
+              <strong style={{ fontSize: "14px", color: "#f1f5f9" }}>실시간 편집 & 재조합</strong>
+            </div>
+            <p style={{ fontSize: "12.5px", color: "#94a3b8", lineHeight: "1.55" }}>
+              원클릭 복사는 물론, 프롬프트를 직접 수정하여 명령어를 재조합하고 JSON/Markdown 파일로 즉시 내보냅니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. 최상위 보안 원칙 (BYOK Standard) 연동 가이드 */}
+      <section id="key" className="card">
+        <h2>② Gemini API 키 등록 (BYOK 원칙)</h2>
+        <p className="gd-lead">
+          AIMaster의 <b>절대 불변 최상위 규칙</b>에 따라, AI 분석은 <b>회원님 본인의 Google Gemini API 키</b>로만 독립 동작합니다. 타 회원과 키나 생성 데이터가 절대 공유되지 않습니다.
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "14px", marginTop: "14px" }}>
+          <div style={{ background: "#141a27", border: "1px solid var(--line)", borderRadius: "12px", padding: "16px 18px" }}>
+            <strong style={{ color: "#f59e0b", fontSize: "13.5px" }}>1단계: Google AI Studio 접속</strong>
+            <p style={{ fontSize: "12.5px", color: "#94a3b8", marginTop: "6px" }}>
+              <code>aistudio.google.com/apikey</code>에 본인 Google 계정으로 로그인한 뒤 [Create API key]를 클릭합니다.
+            </p>
+          </div>
+
+          <div style={{ background: "#141a27", border: "1px solid var(--line)", borderRadius: "12px", padding: "16px 18px" }}>
+            <strong style={{ color: "#f59e0b", fontSize: "13.5px" }}>2단계: 키 복사 및 등록</strong>
+            <p style={{ fontSize: "12.5px", color: "#94a3b8", marginTop: "6px" }}>
+              발급된 <code>AIzaSy...</code> 키를 복사하여 왼쪽 메뉴의 [API키등록·플랫폼연동] 메뉴에서 등록합니다.
+            </p>
+          </div>
+
+          <div style={{ background: "#141a27", border: "1px solid var(--line)", borderRadius: "12px", padding: "16px 18px" }}>
+            <strong style={{ color: "#f59e0b", fontSize: "13.5px" }}>3단계: 안전한 보관 및 즉시 사용</strong>
+            <p style={{ fontSize: "12.5px", color: "#94a3b8", marginTop: "6px" }}>
+              키는 브라우저 보안 저장소에 암호화 보관되며, 언제든 등록·교체·삭제할 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div className="actions" style={{ marginTop: "16px" }}>
+          <a href="/settings" className="button primary">
+            <KeyRound size={15} /> 🔑 본인 Gemini 키 등록하러 가기
+          </a>
+          {GEMINI_GUIDE_URL && <GuideLinkButton url={GEMINI_GUIDE_URL} label="Google Gemini API 키 발급 상세 가이드 (새 창)" />}
+        </div>
+      </section>
+
+      {/* 5. 10대 지원 생성 AI 도구별 특성 */}
+      <section id="tools" className="card">
+        <h2>③ 10대 지원 생성 AI 도구별 프롬프트 특성</h2>
+        <p className="gd-lead">
+          각 생성 AI 모델마다 가장 잘 반응하는 문장 구조와 문법이 다릅니다. 리버스 프롬프트는 선택한 타겟 도구에 최적화된 형식으로 프롬프트를 변환합니다.
+        </p>
+
+        <div className="gd-cards">
+          <article>
+            <h3>Midjourney (v6 / Niji)</h3>
+            <p>서술형 묘사와 함께 <code>--ar</code>, <code>--stylize</code>, <code>--v 6.0</code> 등 정밀 명령어 파라미터를 결합하여 조립합니다.</p>
+          </article>
+          <article>
+            <h3>DALL·E 3</h3>
+            <p>단어 나열보다는 배경, 피사체, 조명, 디테일을 자연스러운 영어 문장으로 상세히 서술하는 문장형 프롬프트에 최적화됩니다.</p>
+          </article>
+          <article>
+            <h3>Flux.1 / Stable Diffusion</h3>
+            <p>품질 태그, 스타일 태그, 조명 및 렌더링 엔진 키워드가 쉼표(comma)로 구분되는 정밀 태그형 프롬프트로 변환합니다.</p>
+          </article>
+          <article>
+            <h3>Sora / Google Veo 2</h3>
+            <p>시점 변화, 카메라 무빙(팬, 틸트, 돌리), 피사체의 연속적인 동작 흐름과 프레임 속도를 시간순으로 묘사합니다.</p>
+          </article>
+          <article>
+            <h3>Runway Gen-3 / Kling</h3>
+            <p>샷 유형(클로즈업, 와이드샷), 렌즈 특성, 조명 무드 및 역동적인 물리 법칙을 강조한 시네마틱 프롬프트를 편성합니다.</p>
+          </article>
+          <article>
+            <h3>Suno v3.5 / Udio v1.5</h3>
+            <p>음악의 주 장르, 세부 서브장르, BPM, 악기 레이어(리드, 베이스, 드럼), 보컬 스타일 메타태그를 정확히 추출합니다.</p>
+          </article>
+        </div>
+      </section>
+
+      {/* 6. 옵션 설명 */}
+      <section id="options" className="card">
+        <h2>④ 분석 옵션 및 프롬프트 길이 가이드</h2>
+        <div className="gd-table">
+          <div>
+            <b>프롬프트 길이: 간결</b>
+            <span>핵심 피사체와 지배적인 화풍/장르 위주로 25~45단어로 압축합니다. AI의 자율적인 상상력을 유도할 때 유리합니다.</span>
+          </div>
+          <div>
+            <b>프롬프트 길이: 표준 (권장)</b>
+            <span>피사체, 배경, 조명, 색감의 균형 잡힌 60~100단어로 구성하여 원본 레퍼런스의 무드를 가장 안정적으로 재현합니다.</span>
+          </div>
+          <div>
+            <b>프롬프트 길이: 상세</b>
+            <span>렌즈 mm, 조명 각도, 미세한 질감, 의상 디테일까지 120~180단어로 정밀 묘사하여 원본을 극도로 유사하게 복각합니다.</span>
+          </div>
+          <div>
+            <b>추가 지시 (메모)</b>
+            <span>"인물의 의상에 집중", "배경과 건축 구조 위주", "조명 톤만 차용" 등 회원님이 강조하고 싶은 부분을 직접 지시할 수 있습니다.</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. 파일 규격 및 개인정보 원칙 */}
+      <section id="limits" className="card">
+        <h2>⑤ 파일 규격 및 데이터 격리 원칙</h2>
+        <ul className="gd-list">
+          <li><b>지원 파일 규격</b>: 이미지(JPG, PNG, WEBP, HEIC) 최대 {SIZE_LIMIT.image / MB}MB, 동영상(MP4, MOV, WEBM) 최대 {SIZE_LIMIT.video / MB}MB, 오디오(MP3, WAV, AAC, FLAC) 최대 {SIZE_LIMIT.audio / MB}MB.</li>
+          <li><b>1시간 내 자동 파기</b>: 회원이 업로드한 원본 미디어 파일은 비공개 임시 버킷에만 저장되며 <b>1시간 내 완전히 자동 삭제</b>됩니다.</li>
+          <li><b>데이터 영구 격리</b>: 회원 간 생성 데이터나 프롬프트 기록은 상호 공유되지 않으며 본인 계정에만 귀속됩니다.</li>
+        </ul>
+      </section>
+
+      {/* 8. 자주 묻는 질문 (FAQ) */}
+      <section id="faq" className="card">
+        <h2>⑥ 자주 묻는 질문 (FAQ)</h2>
+        <div className="gd-faq">
+          <details open>
+            <summary>Q. 원본 이미지와 100% 동일하게 생성되나요?</summary>
+            <p>생성 AI 모델마다 자체 학습된 스타일과 가중치가 다르므로 100% 동일한 복제본이 나오지는 않습니다. 하지만 원본의 조명, 구도, 색감, 피사체의 본질적인 분위기를 가장 흡사하게 재현하도록 유도합니다.</p>
+          </details>
+          <details>
+            <summary>Q. "API 키 등록이 필요합니다"라는 안내가 나옵니다.</summary>
+            <p>본인 소유의 Google Gemini API 키가 아직 등록되지 않은 상태입니다. 왼쪽 메뉴의 [API키등록·플랫폼연동] 메뉴에서 키를 등록하신 후 다시 시도해 주세요.</p>
+          </details>
+          <details>
+            <summary>Q. 동영상이나 오디오 분석 시 시간이 오래 걸립니다.</summary>
+            <p>동영상과 오디오는 대용량 미디어이므로 멀티모달 프레임 파싱 및 타임코드 인덱싱에 보통 1~3분 정도 소요될 수 있습니다. 창을 닫지 않고 잠시만 대기해 주시면 분석이 완료됩니다.</p>
+          </details>
+          <details>
+            <summary>Q. 분석 후 프롬프트를 일부 수정하고 싶습니다.</summary>
+            <p>결과 화면의 텍스트 영역에서 프롬프트나 부정 프롬프트를 원하는 대로 수정한 뒤, [수정 저장·명령어 재조합] 버튼을 누르면 Midjourney 전체 명령어와 파라미터가 실시간으로 재조립됩니다.</p>
+          </details>
+          <details>
+            <summary>Q. 분석 기록은 어디서 확인하나요?</summary>
+            <p>모든 분석 결과는 [내 분석 기록] 메뉴에 최대 100건까지 자동 저장됩니다. 언제든 다시 열어보거나 JSON, Markdown 요약본으로 내보낼 수 있습니다.</p>
+          </details>
+        </div>
+      </section>
+    </div>
   );
 }
