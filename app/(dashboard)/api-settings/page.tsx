@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
+import MemberIntegrations from "@/components/settings/MemberIntegrations";
 
 type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
 
@@ -286,6 +287,8 @@ export default function ApiSettingsPage() {
             </p>
           )}
         </GlassCard>
+
+        <MemberIntegrations userId={userId} />
       </div>
     </div>
   );

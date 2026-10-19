@@ -33,6 +33,15 @@
 - 주인님 결정(2026-10-20): 네이버 카페·카카오(정기 자동 실행형)에도 회원 cron-job.org 선택지 적용 → 다음 작업.
 - 링크: https://auto-threads-posting.buylife.xyz · https://cardnews-studio.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ⓪·①단계: 새 표 2개(운영 DB) + 공용 부품 + 메인 「내 연동 정보」
+- 주인님 승인(「진행해」). 플랜 `docs/PLAN_20261020_MEMBER_INTEGRATIONS.md`, 확정 구조·쓰는 법·현황 **`docs/MEMBER_INTEGRATIONS.md`**.
+- 조사: Threads 연결 회원 12명 중 6명이 2곳 이상 중복 연결(표 4개), Instagram·YouTube도 연결 회원 전원 중복. 프로그램마다 권한 범위가 달라(게시 / 댓글 / DM) 「받은 권한」을 함께 저장하는 구조로 설계. `meta_app_id`·`facebook_app_id`·`threads_app_id`는 서로 다른 앱이라 합치지 않음(처음 플랜의 「이름 섞임」은 정정).
+- ⓪ 운영 DB(`esgxyikcnnvmlhygjkth`) — 크롬 SQL Editor로 `supabase/migrations/0039_member_integrations.sql` 실행(경고는 새 표에만 쓰는 drop policy/revoke 때문) → 점검: 카탈로그 9건, 회원 토큰 칸 SELECT false, 회원 삭제 true·저장/수정 false, anon false.
+- ① `lib/memberIntegrations.ts`(기준 코드: `getMemberAccount`·`saveMemberAccount`·`updateMemberAccountToken`·`markMemberAccountNeedsReconnect`), `components/settings/MemberIntegrations.tsx`를 `/api-settings` 맨 아래에. 아직 어떤 프로그램도 새 표를 쓰지 않아 회원 화면은 「아직 연결된 계정이 없습니다 → 연결하러 가기」만 보임(정상).
+- 검수: tsc(관련 오류 0)·`npm run build` 통과. 배포·화면 확인 결과는 이 항목 아래 줄에 추가.
+- 다음 첫 단계: ② Threads 시범(threads → threads-comment-reply 이중 기록·공용 우선 읽기 + Threads 백필) — **주인님께 결과 보고 후 승인받고 시작**.
+- 링크: https://www.buylife.xyz/api-settings
+
 ## 2026-10-20 Claude Code(윈도우) — 비밀번호·이메일 찾기 실제 시험 완료: 문자(9926) 수신·인증 성공, 이메일 인증은 SMTP 비밀번호 교체 후 성공
 - 문자: 첫 시도는 주인님 번호 오입력(발송 기록 없음 = 입력 불일치), 01:13 재시도 솔라피 `4000 수신 완료`·인증 성공. 번호도용 차단(`3113`)은 10-19 20:51 이후 재발 없음.
 - 이메일: 네이버 SMTP `535` 로그인 거부 → 주인님이 애플리케이션 비밀번호로 Vercel `SMTP_USER`·`SMTP_PASSWORD` 갱신 → 같은 커밋 재배포는 건너뛰기 규칙으로 CANCELED → CLI 업로드 배포 `aimaster-60apfsmir`(Ready, www.buylife.xyz) → 주인님 시험 「잘되네」. 코드 변경 없음. 교훈: `docs/ERROR_LESSONS.md` 2026-10-20.

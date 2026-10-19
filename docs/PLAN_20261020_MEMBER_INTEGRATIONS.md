@@ -1,7 +1,7 @@
 # 개발 플랜 — 회원 연동 정보 공용 저장(한 번 연결 → 모든 프로그램 재사용) · 2026-10-20
 
 - 대상: ① AIMaster 운영 공용 DB ref `esgxyikcnnvmlhygjkth` + 메인 사이트 + 연동을 쓰는 서브프로그램
-- 작성: Claude Code(윈도우) · 상태: **승인 대기**(DB 구조 변경 = 사전 승인 대상)
+- 작성: Claude Code(윈도우) · 상태: **⓪·① 승인(2026-10-20 「진행해」)·적용** → ②부터 단계별 보고 후 승인. 현황: [`MEMBER_INTEGRATIONS.md`](MEMBER_INTEGRATIONS.md) §6
 - 근거 지시: 루트 `CLAUDE.md` 최상단 「회원 연동 정보 공용 저장·재사용 규칙」(2026-10-19), `docs/HANDOFF.md` 2026-10-19 대기 항목
 - 확정 후 결과 정리 문서: `docs/MEMBER_INTEGRATIONS.md`(카탈로그·저장 구조·쓰는 법)
 
@@ -24,8 +24,8 @@
 | **YouTube** | `youtube_accounts`(shots) · `ytreply_accounts`(자동답글) | 채널 ID·토큰·refresh_token | 1명 중복 |
 | 카카오·네이버 | `user_kakao_accounts` · `ncafe_accounts` · `nba_accounts`(블로그 ID, 토큰 아님) | 각 1개 프로그램 | 중복 없음(아직) |
 
-### 1-3. 같은 값의 이름이 섞임
-- Meta 앱: `meta_app_id`(9) · `facebook_app_id`(1) · `threads_app_id`(12) — 프로그램마다 읽는 이름이 달라 같은 앱을 두 번 등록하게 됨.
+### 1-3. ~~같은 값의 이름이 섞임~~ → 정정(2026-10-20 착수 때 확인)
+- `meta_app_id`(Instagram 앱) · `facebook_app_id`(Facebook 앱, 0037 마이그레이션) · `threads_app_id`(Threads 앱)는 **서로 다른 앱의 값을 일부러 나눈 것**이다. 별칭으로 합치지 않는다. 카탈로그에는 항목별로 어떤 키 이름을 쓰는지만 적는다.
 
 ### 1-4. 그냥 합칠 수 없는 이유 — **권한 범위(scope)가 프로그램마다 다르다**
 | 플랫폼 | 프로그램 | 요청 권한 |
@@ -47,7 +47,7 @@
 | `key` (PK) | 항목 이름 | `threads`, `instagram`, `youtube`, `kakao`, `naver_login`, `openai`, `solapi` |
 | `kind` | `oauth_account`(연결형) / `api_key`(키 입력형, 실제 값은 `user_api_keys`) / `account_set`(솔라피·SMTP처럼 전용 표) | |
 | `label`, `description` | 화면 표시 이름·설명 | 「Threads 계정」 |
-| `key_names` | `user_api_keys`에서 읽는 이름과 **옛 이름(별칭)** | `{meta_app_id, facebook_app_id}` |
+| `key_names` | 이 항목이 `user_api_keys`에서 쓰는 키 이름들 | `{threads_app_id, threads_app_secret}` |
 | `scope_sets` | 권한 묶음 이름 → 권한 목록 | `{"publish":[…], "replies":[…]}` |
 | `guide_id` | 연동 매뉴얼 글(`platform_guides`) | |
 | `connect_program` | 「여기서 한 번 연결해 주세요」 안내할 대표 프로그램 주소 | |
@@ -69,7 +69,7 @@
 ### 2-2. 공용 읽기 부품 (기준 코드 1개 → 사본, `docs/SHARED_MODULES.md` 등록)
 - `getMemberAccount(userId, platform, { needScopes })` → 계정 있음 / **권한 부족(추가 연결 필요)** / 없음(「○○에서 한 번 연결해 주세요」) 세 가지로 돌려줌.
 - `saveMemberAccount(...)` — OAuth 콜백에서 저장. 기존 권한과 **합쳐서** 저장(권한이 줄어들지 않게).
-- `resolveKey(userId, catalogKey)` — 별칭까지 찾아 `user_api_keys` 값 반환(본인 키만, 폴백 없음 — 최상위 규칙 그대로).
+- 키 입력형(`api_key`)은 지금처럼 각 프로그램의 `resolveApiKey()`로 `user_api_keys`를 읽는다(본인 키만, 폴백 없음). 카탈로그는 화면 표시·안내용.
 - 토큰 갱신(60일 Threads 등)은 이 부품 한 곳에서 → 모든 프로그램이 갱신된 토큰을 함께 씀.
 
 ### 2-3. 기존 프로그램은 「이중 기록 → 공용 우선 읽기」로 천천히 전환 (깨지지 않게)
@@ -85,12 +85,12 @@
 ## 3. 진행 순서 (한 단계씩, 단계마다 배포·검수·보고)
 | 단계 | 내용 | 바뀌는 곳 | 승인 |
 |---|---|---|---|
-| **0** | 표 2개 + RLS + 화면용 보기 + 카탈로그 첫 항목(Threads·Instagram·YouTube·Kakao·Naver 로그인 + 기존 키 항목 별칭) | 운영 DB(크롬 SQL Editor로 직접 실행), `supabase/migrations/0039_member_integrations.sql` | **이번에 요청** |
+| **0** | 표 2개 + RLS + 화면용 보기 + 카탈로그 첫 항목(연결형 5개 + 기존 공용 항목) | 운영 DB(크롬 SQL Editor로 직접 실행), `supabase/migrations/0039_member_integrations.sql` | **이번에 요청** |
 | 1 | 기준 부품 `lib/memberIntegrations.ts` + 메인 「내 연동 정보」(읽기·해제) | 메인 사이트 | 0 승인에 포함 |
 | 2 | **시범: Threads** — threads(v1.21) → 댓글 자동화 순서로 이중 기록·공용 우선 읽기 + Threads 백필 | 2개 프로그램 | 단계 1 끝나고 결과 보고 후 |
 | 3 | 나머지 Threads(쇼핑제휴·운영 자동화) | 2개 | 시범 결과 보고 후 |
 | 4 | Instagram(INSTA·카드뉴스·댓글·DM·shots), 인플루언서·웹툰 인스타 게시는 처음부터 이 구조로 | 5~7개 | 〃 |
-| 5 | YouTube·카카오·네이버 + Meta 앱 키 이름 별칭 정리 | 〃 | 〃 |
+| 5 | YouTube·카카오·네이버 | 〃 | 〃 |
 
 ## 4. 검수
 - 단계 0: 운영 DB에서 표·RLS 확인 — 시험 계정(`buylifemall@naver.com`) 세션으로 **남의 행 0건**, 토큰 칸 직접 조회 거부 확인.
