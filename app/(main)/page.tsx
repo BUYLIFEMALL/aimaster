@@ -21,6 +21,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import ProgramCard from "@/components/programs/ProgramCard";
 import NoticeTabs from "@/components/home/NoticeTabs";
 import CategoryQuickBar from "@/components/home/CategoryQuickBar";
+import HeroShowcase from "@/components/home/HeroShowcase";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
@@ -228,24 +229,50 @@ export default async function HomePage() {
             </div>
           </div>
 
+          {/* Phase 3: 인터랙티브 3D 글래스 쇼케이스 프리뷰 */}
+          <HeroShowcase />
         </div>
       </section>
 
-      {/* KPI 통계 카드 */}
-      <section className="px-4 pt-12 pb-4">
+      {/* KPI 통계 카드 — 로그인/비로그인 문맥 맞춤 전환 */}
+      <section className="px-4 pt-4 pb-4">
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           <GlassCard className="p-4 text-center">
-            <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
-            <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
+            <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}개</div>
+            <div className="text-subtext text-xs">현재 등록된 자동화 솔루션</div>
           </GlassCard>
-          <GlassCard className="p-4 text-center">
-            <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess?.accessibleCount ?? programs.length}</div>
-            <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
-          </GlassCard>
-          <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
-            <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess?.expiryLabel ?? "평생"}</div>
-            <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
-          </GlassCard>
+
+          {loggedIn ? (
+            <>
+              <GlassCard className="p-4 text-center">
+                <div className="text-2xl md:text-3xl font-black gold-text mb-1">
+                  {userAccess?.accessibleCount ?? programs.length}개
+                </div>
+                <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
+              </GlassCard>
+              <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
+                <div className="text-2xl md:text-3xl font-black gold-text mb-1">
+                  {userAccess?.expiryLabel ?? "평생"}
+                </div>
+                <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
+              </GlassCard>
+            </>
+          ) : (
+            <>
+              <GlassCard className="p-4 text-center">
+                <div className="text-2xl md:text-3xl font-black gold-text mb-1">
+                  {categories.length || 14}개
+                </div>
+                <div className="text-subtext text-xs">마케팅 표준 분야 라인업</div>
+              </GlassCard>
+              <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
+                <div className="text-2xl md:text-3xl font-black gold-text mb-1">
+                  100%
+                </div>
+                <div className="text-subtext text-xs">회원 본인 키·계정 안전 격리</div>
+              </GlassCard>
+            </>
+          )}
         </div>
       </section>
 

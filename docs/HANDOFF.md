@@ -1,6 +1,31 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-19 Claude Code(윈도우) — 예약 기능 지침 제정 + Threads 콘텐츠 운영 자동화(threads-content-ops) v2.07 회원 본인 cron-job.org 예약 실행
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) Phase 3 비주얼 고도화 & 쇼케이스 강화 완료 (배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 메인 사이트 UX/UI 혁신의 완결 단계인 **Phase 3(비주얼 고도화 & 쇼케이스 강화)** 작업을 진행. 텍스트 위주의 Hero 영역을 최첨단 SaaS 수준의 인터랙티브 글래스 쇼케이스로 승격시키고, 84개 솔루션 카드에 9대 디자인 템플릿 마스터 기준 뱃지를 연동하여 솔루션별 특성을 한눈에 파악할 수 있도록 완성.
+- **주요 작업 내용**:
+  1. **Hero 인터랙티브 쇼케이스 결합 (`components/home/HeroShowcase.tsx`, `app/(main)/page.tsx`)**:
+     - 텍스트 CTA 하단에 다크 글래스모피즘 3D 대시보드 쇼케이스 구현.
+     - 3대 핵심 템플릿(🎯 포커스 스튜디오, ⚡ 네온 마케팅 콘솔, 🧙 단계별 위저드)의 실제 UI 프리뷰와 6초 간격 자동 롤링/수동 탭 전환 지원.
+     - 창 컨트롤 도트(Red/Yellow/Green), `AI Engine Active · 84 Solutions` 실시간 인디케이터, 앰비언트 골드 글로우로 사이트 첫 진입 시 압도적 기술력 전달.
+  2. **프로그램 카드 디자인 템플릿 뱃지 연동 (`lib/templateBadge.ts`, `components/programs/ProgramCard.tsx`)**:
+     - 9대 디자인 템플릿 마스터 가이드 기반으로 각 솔루션의 성격에 맞춰 `🎯 포커스`, `⚡ 네온콘솔`, `🧙 위저드`, `📊 2-컬럼`, `✨ 미니멀` 뱃지를 프로그램 카드 카테고리 라인에 자동 태깅.
+     - 카드 호버 시 앰비언트 골드 글로우(`hover:border-gold/40 shadow-gold/10`)를 강화하여 프리미엄 감성 극대화.
+  3. **비로그인 방문자 대상 스마트 KPI 통계 분기 (`app/(main)/page.tsx`)**:
+     - 비로그인 시 기존 개인 만료일(`내 이용 만료: 평생`) 대신 `84개 자동화 솔루션`, `14대 표준 분야 라인업`, `100% 개인 연동 격리 보안` 등 사이트의 핵심 가치 지표를 노출하도록 조건부 분기.
+  4. **로컬 빌드 검증 및 Vercel 프로덕션 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과 (exit code 0).
+     - `npm run build` Next.js 72개 페이지 프로덕션 빌드 100% 통과 (exit code 0).
+     - Vercel 프로덕션 배포 완료 (`dpl_7zfwkTwhHiysGyD4wCyV7cZrf8pc`, Aliased: `https://www.buylife.xyz`).
+  5. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - Hero 쇼케이스 & 스마트 KPI: `edge_main_phase3_hero_showcase.png`
+     - 네온 콘솔 탭 전환: `edge_main_phase3_showcase_neon.png`
+     - 프로그램 카드 템플릿 뱃지 & 호버 글로우: `edge_main_phase3_template_badges.png`
+     - 모바일 375px 반응형 최적화: `edge_main_phase3_mobile.png`
+- **서비스 링크**:
+  - 메인 사이트: https://www.buylife.xyz
+
+
 
 - **지침(모든 CLI 필독)**: [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) — 회원은 설정에 cron-job.org 키 한 줄만, 예약은 포스팅 쪽에서만, 1분 확인 고정 + 예약 시 자동 켜기·남은 예약 0건이면 자동 끄기, 보관함 일시정지·재개, 회원 전용 토큰(사이트 비밀값 금지), 운영자 `crons`는 관리자 지정 시에만. 루트 `CLAUDE.md` 원칙 26·`AGENTS.md` 원칙 25로 연결. 전체 프로그램 검토: [`docs/MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md`](MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md).
 - **threads-content-ops v2.07**: 배포 `threads-content-8x0xk35eg` Ready, 운영 DB(허용 목록 `cronjob_org_api_key` + `tco_member_scheduler`) 반영, 테스트 30/30, 크롬 화면 확인. **실제 cron-job.org 연결·자동 발행 실검수는 주인님 키 등록 후 남음.** 상세: [`threads-content-ops/AGENTS.md`](../threads-content-ops/AGENTS.md) 맨 아래.

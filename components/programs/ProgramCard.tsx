@@ -9,6 +9,7 @@ import Badge from "@/components/ui/Badge";
 import GoldButton from "@/components/ui/GoldButton";
 import LikeButton from "@/components/programs/LikeButton";
 import { formatKRW } from "@/lib/utils/format";
+import { getTemplateBadge } from "@/lib/templateBadge";
 import type { Program } from "@/types/database.types";
 
 interface ProgramCardProps {
@@ -27,13 +28,14 @@ interface ProgramCardProps {
 export default function ProgramCard({ program, badge, hasAccess = false, isAdmin = false, liked = false, loggedIn = false }: ProgramCardProps) {
   const resolvedBadges = badge ? [badge] : (program.badges ?? []);
   const subscriptionTarget = `/programs/${program.slug}#pricing`;
+  const templateBadge = getTemplateBadge(program.slug, program.category?.slug);
 
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
     .sort((a, b) => a.price - b.price)[0];
 
   return (
-    <GlassCard hover className="flex flex-col h-full p-0 overflow-hidden">
+    <GlassCard hover className="flex flex-col h-full p-0 overflow-hidden hover:border-gold/40 hover:shadow-lg hover:shadow-gold/10 transition-all duration-300">
       {/* Thumbnail */}
       {(() => {
         const thumbnailUrl = program.thumbnail_url;
@@ -89,10 +91,16 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         {(program.category || program.version) && (
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-xs text-gold/70 font-medium">{program.category?.name}</span>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-xs text-gold/80 font-medium truncate">{program.category?.name}</span>
+              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${templateBadge.tone}`}>
+                <span>{templateBadge.icon}</span>
+                <span>{templateBadge.label}</span>
+              </span>
+            </div>
             {program.version && (
-              <span className="text-[11px] text-subtext">{program.version}</span>
+              <span className="text-[11px] text-subtext shrink-0">{program.version}</span>
             )}
           </div>
         )}
