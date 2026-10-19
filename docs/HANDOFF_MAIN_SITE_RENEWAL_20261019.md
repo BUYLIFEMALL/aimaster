@@ -100,10 +100,24 @@ flowchart TD
 
 ---
 
-### 🎬 4단계: 프로그램 카드 마이크로 비디오 프리뷰
-- **과제**: 정적 썸네일 이미지만으로는 프로그램의 실제 작동 화면이나 결과물을 가늠하기 어려울 수 있음.
-- **구체적 구현 방안**:
-  - 카드 호버 시 2~3초 길이의 마이크로 루프 WebM/MP4 비디오 클립이 재생되어 실제 프로그램 동작 화면을 직관적으로 확인 가능하도록 업그레이드.
+### 🎬 4단계: 프로그램 카드 마이크로 비디오/동적 프리뷰 & 퀵 프리뷰 팝업 — ✅ 완료 (2026-10-19)
+- **개선 내용**: 정적 썸네일 이미지만으로는 프로그램의 작동 화면이나 핵심 기능을 가늠하기 어렵던 한계를 극복하기 위해, **마이크로 동적 프리뷰 레이어** 및 **원클릭 퀵 프리뷰 팝업 모달([`QuickPreviewModal.tsx`](file:///D:/Antigravity/AIMaster/components/programs/QuickPreviewModal.tsx))**을 구현 및 결합했습니다:
+  1. **썸네일 줌 & 미래지향적 스캔라인 모션**:
+     - 카드 마우스 호버(`isHovered`) 시 썸네일 이미지가 부드럽게 110% 줌인(`scale-110 duration-700 ease-out`).
+     - 상단에 `[실시간 가동대기]` 녹색 핑 뱃지 & `AI LIVE PREVIEW` 골드 모노 뱃지 자동 점등.
+     - 하단에 앰버-골드 스캔라인 펄스 애니메이션 바가 스치듯 지나가며 첨단 AI가 가동 대기 중인 인상을 연출.
+     - 직링크 mp4/webm 비디오가 있는 경우 비디오 자동 루프 재생(`muted loop playsInline`).
+  2. **디자인 템플릿별 시그니처 마이크로 인디케이터 태그**:
+     - 🎯 `포커스 스튜디오`: `초고해상도 AI 렌더링 엔진`
+     - ⚡ `네온 콘솔`: `멀티채널 실시간 파이프라인`
+     - 🧙 `스텝 위저드`: `3단계 원클릭 콘텐츠 자동화`
+     - 📊 `2-컬럼`: `데이터 분석 & AI 자동 분류`
+     - ✨ `미니멀`: `원클릭 경량 자동화 솔루션`
+  3. **원클릭 퀵 프리뷰(Quick Look) 팝업 모달**:
+     - 호버 시 썸네일 정중앙에 나타나는 `[👁️ 퀵 프리뷰]` 버튼 클릭 시, 페이지 이동 없이 0.1초 만에 다크 글래스 대형 팝업 모달 렌더링.
+     - 대형 스크린샷 뷰어 + 뱃지 그룹 + 3대 핵심 포인트(원클릭 자동화, 회원 보안 격리, 지속 업데이트 최신 엔진) + 가격 안내 + 즉시 실행/구독/상세보기 액션 버튼 원스톱 제공.
+     - ESC 키보드 입력 및 배경 클릭 닫기 지원.
+- **배포 & 검수**: Vercel 프로덕션 배포(`dpl_XZB6iQSLj49HmGXZgdkzGTTA3DQT`) 및 Edge 포그라운드 실세션 검수 완료 (`edge_step4_card_micro_preview_hover.png`, `edge_step4_quick_preview_modal_open.png`, `edge_step4_modal_closed.png`).
 
 ---
 
@@ -117,3 +131,5 @@ flowchart TD
 | **검수 2단계: 초고속 검색 & 필터** | [edge_step2_search_threads_results.png](file:///C:/Users/Administrator/.gemini/antigravity-cli/brain/3a7fab5b-023b-4b09-81e4-11e7ec517fc9/edge_step2_search_threads_results.png) |
 | **검수 3단계: 나만의 작업대 즐겨찾기** | [edge_step3_workspace_favorites_active.png](file:///C:/Users/Administrator/.gemini/antigravity-cli/brain/3a7fab5b-023b-4b09-81e4-11e7ec517fc9/edge_step3_workspace_favorites_active.png) |
 | **검수 3단계: 나만의 작업대 최근실행** | [edge_step3_workspace_recent_tab.png](file:///C:/Users/Administrator/.gemini/antigravity-cli/brain/3a7fab5b-023b-4b09-81e4-11e7ec517fc9/edge_step3_workspace_recent_tab.png) |
+| **검수 4단계: 카드 호버 마이크로 프리뷰** | [edge_step4_card_micro_preview_hover.png](file:///C:/Users/Administrator/.gemini/antigravity-cli/brain/3a7fab5b-023b-4b09-81e4-11e7ec517fc9/edge_step4_card_micro_preview_hover.png) |
+| **검수 4단계: 퀵 프리뷰 모달 팝업** | [edge_step4_quick_preview_modal_open.png](file:///C:/Users/Administrator/.gemini/antigravity-cli/brain/3a7fab5b-023b-4b09-81e4-11e7ec517fc9/edge_step4_quick_preview_modal_open.png) |

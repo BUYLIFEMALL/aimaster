@@ -7,6 +7,31 @@
 - 남은 일: 키트 인스타(`labs/kit-insta`) 리허설, 교육 매뉴얼(`docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) 작성, PDS 원본 키트 반영, 나머지 운영 프로그램 예약 방식 적용(지침 §8).
 - https://dev-threads-posting.vercel.app
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 4단계: 프로그램 카드 마이크로 동적 프리뷰 & 원클릭 퀵 프리뷰(Quick Look) 팝업 모달 완료 (배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 84개 솔루션 카드가 정적인 썸네일 이미지에 머물러 있어 작동 화면이나 기능을 파악하기 어려웠던 한계를 극복하기 위해, 마우스 호버 시 줌 모션, 첨단 AI 스캔라인 펄스, 템플릿별 실시간 파이프라인 태그, 원클릭 퀵 프리뷰(`QuickPreviewModal`)를 탑재하여 탐색 편의성과 생동감을 대폭 극대화함.
+- **주요 작업 내용**:
+  1. **원클릭 퀵 프리뷰 팝업 모달 개발 (`components/programs/QuickPreviewModal.tsx`)**:
+     - 페이지 이동 없이 0.1초 만에 열리는 반응형 다크 글래스 대형 모달.
+     - 대형 스크린샷 뷰어, 카테고리 & 템플릿 뱃지, 핵심 요약 설명 박스, 3대 포인트(원클릭 자동화, 회원 보안 격리, 지속 업데이트), 월 구독료/무료 안내, 다이렉트 실행/구독/상세보기 원스톱 제공.
+     - ESC 키보드 입력 및 배경 클릭 닫기 완비.
+  2. **프로그램 카드 마이크로 동적 프리뷰 레이어 탑재 (`components/programs/ProgramCard.tsx`)**:
+     - 카드 마우스 호버 시 썸네일 110% 줌인(`scale-110 duration-700 ease-out`).
+     - 상단 `[실시간 가동대기]` 녹색 핑 뱃지 & `AI LIVE PREVIEW` 골드 모노 뱃지 자동 점등.
+     - 썸네일 중앙에 `[👁️ 퀵 프리뷰]` 플로팅 버튼 및 템플릿별 시그니처 텍스트(🎯 초고해상도 AI 렌더링 엔진, ⚡ 멀티채널 실시간 파이프라인, 🧙 3단계 원클릭 콘텐츠 자동화, 📊 데이터 분석 & AI 자동 분류, ✨ 원클릭 경량 자동화 솔루션) 노출.
+     - 하단 앰버-골드 스캔라인 펄스 애니메이션 바 작동. 직링크 mp4/webm 비디오 보유 시 자동 비디오 루프 재생.
+  3. **로컬 빌드 검증 및 Vercel 프로덕션 배포 완료**:
+     - `npx tsc --noEmit` 통과 & Next.js 72개 페이지 프로덕션 빌드 100% 무오류 완료.
+     - Vercel 프로덕션 배포 완료 (`dpl_XZB6iQSLj49HmGXZgdkzGTTA3DQT`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 카드 호버 시 마이크로 프리뷰 오버레이(스캔라인, 인디케이터, 퀵 프리뷰 버튼) 작동 확인: `edge_step4_card_micro_preview_hover.png`
+     - `[👁️ 퀵 프리뷰]` 버튼 클릭 시 대형 글래스 팝업 모달 정상 오픈 확인: `edge_step4_quick_preview_modal_open.png`
+     - 모달 닫기 버튼(✕) 클릭 시 정상 닫힘 확인: `edge_step4_modal_closed.png`
+- **서비스 링크**:
+  - 메인 사이트: https://www.buylife.xyz
+- **상세 인수인계 및 로드맵 문서**:
+  - [`docs/HANDOFF_MAIN_SITE_RENEWAL_20261019.md`](HANDOFF_MAIN_SITE_RENEWAL_20261019.md)
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 3단계: 회원 맞춤형 '나만의 작업대' (즐겨찾기 ⭐ 핀 고정 & 최근 실행 퀵 액세스) 완료 (배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 84개 대규모 라인업 속에서 회원이 매번 스크롤하지 않고 자주 쓰는 솔루션과 최근 작업에 0.1초 만에 접근할 수 있도록, 메인 홈 상단에 즐겨찾기 핀 고정 및 최근 실행 히스토리를 제공하는 개인화 작업대(`UserWorkspace`)를 구현함.
