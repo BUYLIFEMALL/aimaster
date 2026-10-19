@@ -11,7 +11,9 @@ kit.json 항목(포장에 쓰는 것):
                                  {"mode": "generate", "parts": ["KIT/database/00_core_tables.sql", "supabase/migrations/*.sql", "KIT/database/99_finalize.sql"]}
                                  → 순서대로 합쳐 KIT/schema.sql 생성(운영 DB 변경이 저절로 따라옴)
   extraEnv, callbackPath, ...  : 설치 스크립트가 읽는 값(scripts/kit-template/setup.ps1·sh)
-설치 스크립트는 항상 공용 템플릿(scripts/kit-template/setup.ps1·setup.sh)을 KIT/ 로 복사해 넣는다(프로그램별 사본을 따로 고치지 않는다).
+  checkTable                   : 패키지 설치마법사가 DB 파일 실행 성공을 확인할 표(schema.sql에서 마지막에 만들어지는 표)
+설치 스크립트는 항상 공용 템플릿(scripts/kit-template/setup.ps1·setup.sh)을 KIT/ 로, 더블클릭 실행 파일(패키지설치마법사.cmd·.command)을
+프로그램 폴더 맨 위에 복사해 넣는다(프로그램별 사본을 따로 고치지 않는다). 「패키지 설치마법사」 표준: 지침 §2-2.
 포장 뒤 비밀값 자동 검사: .env*(.env.example 제외)·실제 키 패턴이 있으면 실패하고 압축을 지운다.
 
 사용:
@@ -35,7 +37,9 @@ STAMP = date.today().strftime("%Y%m%d")
 
 # 어떤 프로그램이든 항상 빼는 것(비밀값·빌드 결과·연결 정보·내부 문서)
 ALWAYS_SKIP_DIRS = {"node_modules", ".next", ".vercel", ".git", ".turbo", "out", "coverage"}
-ALWAYS_SKIP_TOP = {"AGENTS.md", "CLAUDE.md", "GEMINI.md", "docs", "supabase", ".vercelignore"}
+ALWAYS_SKIP_TOP = {"AGENTS.md", "CLAUDE.md", "GEMINI.md", "docs", "supabase", ".vercelignore", ".kit-progress", "설치결과.txt"}
+LAUNCHERS = ("패키지설치마법사.cmd", "패키지설치마법사.command")  # 더블클릭 실행 파일(프로그램 폴더 맨 위)
+EXECUTABLE = (".command", ".sh")  # 압축에 실행 권한(맥)을 붙일 파일
 SKIP_FILE_SUFFIX = (".tsbuildinfo", ".log")
 
 # 비밀값 검사 패턴(포장물 안 텍스트 파일)
@@ -47,7 +51,7 @@ SECRET_PATTERNS = [
     ("Google 키", re.compile(r"AIza[0-9A-Za-z_-]{35}")),
     ("Replicate 키", re.compile(r"r8_[A-Za-z0-9]{30,}")),
 ]
-TEXT_SUFFIX = (".ts", ".tsx", ".js", ".mjs", ".cjs", ".json", ".md", ".sql", ".ps1", ".sh", ".html", ".css", ".txt", ".yml", ".yaml", ".example", ".env")
+TEXT_SUFFIX = (".cmd", ".command", ".ts", ".tsx", ".js", ".mjs", ".cjs", ".json", ".md", ".sql", ".ps1", ".sh", ".html", ".css", ".txt", ".yml", ".yaml", ".example", ".env")
 
 
 def load_kit(program):
@@ -105,13 +109,21 @@ def copy_program(program, kit, dst_root):
             shutil.copy2(os.path.join(cur, f), target)
     for kit_path, kit_src in kit.get("overrides", {}).items():
         shutil.copy2(os.path.join(src, kit_src), os.path.join(dst, kit_path))
-    # 공용 설치 스크립트(항상 최신 템플릿으로)
+    # 공용 패키지 설치마법사(항상 최신 템플릿으로) + 더블클릭 실행 파일(프로그램 폴더 맨 위)
     for name in ("setup.ps1", "setup.sh"):
         shutil.copy2(os.path.join(TEMPLATE_DIR, name), os.path.join(dst, "KIT", name))
+    for name in LAUNCHERS:
+        shutil.copy2(os.path.join(TEMPLATE_DIR, name), os.path.join(dst, name))
+    if not kit.get("checkTable"):
+        print(f"[주의] {program}: kit.json 에 checkTable 이 없어 패키지 설치마법사가 profiles 표로 DB 실행을 확인합니다.")
     build_schema(program, kit, dst)
     io.open(os.path.join(dst, "README.md"), "w", encoding="utf-8", newline="\n").write(
-        f"# {kit.get('title', program)}\n\n설치 안내는 [`KIT/README.md`](KIT/README.md)를 처음부터 순서대로 따라 하세요.\n"
-        "플랫폼별 가입·API 키 발급은 [`KIT/PLATFORMS.md`](KIT/PLATFORMS.md)에 있습니다.\n")
+        f"# {kit.get('title', program)}\n\n"
+        "## 설치는 더블클릭 한 번 — 패키지 설치마법사\n\n"
+        "- 윈도우: 이 폴더의 **`패키지설치마법사.cmd`** 를 더블클릭\n"
+        "- 맥: 이 폴더의 **`패키지설치마법사.command`** 를 더블클릭(처음 한 번 막히면 마우스 오른쪽 클릭 → [열기])\n\n"
+        "마법사가 묻는 값만 넣으면 DB 만들기·설정·빌드·인터넷에 올리기까지 끝납니다. 필요한 화면은 마법사가 브라우저로 열어 줍니다.\n"
+        "자세한 설명과 그다음 단계는 [`KIT/README.md`](KIT/README.md), 플랫폼별 가입·API 키 발급은 [`KIT/PLATFORMS.md`](KIT/PLATFORMS.md)에 있습니다.\n")
 
 
 def start_here(name, kits):
@@ -135,23 +147,26 @@ def start_here(name, kits):
 
 1. **준비물 설치·가입(공통, 한 번)**: Node.js 22 LTS · Supabase · Vercel · 플랫폼 개발자 계정 · AI 키
 2. **압축 풀고 프로그램 폴더를 원하는 곳으로 옮기기**(경로에 한글·공백 없이 **짧게**, 예: `D:\\work\\my-app`, `~/work/my-app` — **GitHub 저장소 폴더 안에는 풀지 마세요**)
-3. **Supabase 새 프로젝트(지역 Seoul) → SQL Editor에 `KIT/schema.sql` 붙여넣고 Run** → 이메일 확인(Confirm email) 끄기
-4. **설치 스크립트 실행** — 설정값 입력(키는 화면에 안 보임)·빌드·Vercel 배포까지 한 번에
-   - 윈도우: 프로그램 폴더에서 `powershell -ExecutionPolicy Bypass -File KIT\\setup.ps1`
-   - 맥: 터미널에서 프로그램 폴더로 이동 후 `bash KIT/setup.sh`
-5. **플랫폼 앱 만들기 → 내 사이트 API키등록에 키 저장 → 계정 연결 → 첫 게시**
-6. **예약 게시**: 사이트 설정 「⏰ 예약 발행」에서 기본 「내 cron-job.org」에 키만 등록 → (선택) **내 도메인 연결**
+3. **패키지 설치마법사 실행 — 프로그램 폴더의 `패키지설치마법사` 파일을 더블클릭**(윈도우 `.cmd`, 맥 `.command`)
+   - 마법사가 8단계를 차례로 안내합니다: Node.js 확인 → Supabase 프로젝트 → 키 확인 → DB 만들기(SQL 자동 복사·성공 확인) → 이메일 확인 끄기 → 내 사이트 이름 → 설치·빌드 → Vercel에 올리기(주소 자동 확인)
+   - 필요한 화면은 마법사가 브라우저로 **직접 열어 주고**, 붙여 넣을 내용은 **클립보드에 복사해** 둡니다. 키는 입력할 때 화면에 안 보입니다.
+   - 중간에 창을 닫아도 다시 더블클릭하면 **이어서** 진행합니다. 끝나면 프로그램 폴더에 `설치결과.txt`(내 사이트·콜백 주소)가 생깁니다.
+4. **플랫폼 앱 만들기 → 내 사이트 API키등록에 키 저장 → 계정 연결 → 첫 게시** (각 프로그램 `KIT/README.md`)
+5. **예약 게시**: 사이트 설정 「⏰ 예약 발행」에서 기본 「내 cron-job.org」에 키만 등록 → (선택) **내 도메인 연결**
 
 ## 맥 사용자 메모
 
 - Node.js: https://nodejs.org 에서 macOS 설치 파일(.pkg)을 받아 설치 → 터미널에서 `node -v` 확인
 - 터미널: Spotlight(⌘+Space)에서 "터미널" 검색 / 압축 해제: 파일 더블클릭
-- 스크립트는 `bash KIT/setup.sh` 로 실행합니다(권한 설정 불필요)
+- `패키지설치마법사.command` 를 더블클릭했는데 "확인되지 않은 개발자" 창이 뜨면: 파일을 마우스 오른쪽 클릭 → [열기] → [열기] (처음 한 번만)
+- 그래도 안 열리면 터미널에서 프로그램 폴더로 이동 후 `bash KIT/setup.sh`
 
 ## AI 코딩 도구(Claude Code 등)를 쓴다면
 
 프로그램 폴더를 프로젝트 폴더로 열고 이렇게 요청하세요.
-> "KIT/README.md 를 읽고 순서대로 설치를 진행해줘. 비밀번호·키는 내가 직접 입력할게."
+> "설치는 내가 `패키지설치마법사`를 더블클릭해서 직접 할게. 마법사에서 막히면 그 화면 문구를 보여 줄 테니 원인만 알려줘. .env.local 같은 설정 파일을 대신 만들거나 고치지는 마."
+
+(마법사는 사람이 직접 답을 입력하는 방식이라 AI 도구 안에서 대신 실행하지 않습니다.)
 """
 
 
@@ -209,7 +224,15 @@ def main():
         for cur, _dirs, files in os.walk(stage):
             for f in files:
                 full = os.path.join(cur, f)
-                z.write(full, os.path.join(kit_name, os.path.relpath(full, stage)).replace(os.sep, "/"))
+                arc = os.path.join(kit_name, os.path.relpath(full, stage)).replace(os.sep, "/")
+                if f.endswith(EXECUTABLE):  # 맥에서 더블클릭·실행되도록 실행 권한(rwxr-xr-x)
+                    info = zipfile.ZipInfo.from_file(full, arc)
+                    info.external_attr = (0o100755 << 16)
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    with open(full, "rb") as fh:
+                        z.writestr(info, fh.read())
+                else:
+                    z.write(full, arc)
                 count += 1
     print(f"OK {zip_path} ({count} files, {os.path.getsize(zip_path) // 1024} KB) — 비밀값 검사 통과")
     print(f"   펼친 폴더: {stage}")

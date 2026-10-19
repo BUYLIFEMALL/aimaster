@@ -11,7 +11,8 @@
 |---|---|
 | `KIT/README.md` | 이 설치 안내 |
 | `KIT/schema.sql` | 새 Supabase에 한 번에 붙여넣는 전체 DB 파일 |
-| `KIT/setup.ps1` / `KIT/setup.sh` | 설치 스크립트(윈도우 / 맥) — 설정값 입력·빌드·Vercel 배포까지 한 번에 |
+| `패키지설치마법사.cmd` / `.command` | **패키지 설치마법사** 실행 파일(윈도우 / 맥 — 더블클릭) |
+| `KIT/setup.ps1` / `KIT/setup.sh` | 마법사 본체(직접 열 필요 없음) |
 | `KIT/PLATFORMS.md` + `KIT/manuals/*.html` | 플랫폼별 가입·키 발급 매뉴얼(OpenAI·Gemini·Threads·쿠팡·알리·토스·네이버) |
 | `KIT/enable-vercel-cron.ps1` / `.sh` | (Vercel 유료 Pro만) 사이트 단위 1분 예약 호출 켜기 |
 | `KIT/DB_DESIGN.md`, `KIT/GUIDELINES.md` | DB 설계, 운영·개발 기본 지침(AI 코딩 도구용) |
@@ -31,25 +32,48 @@
 | cron-job.org 계정 | 예약 게시 | 무료(6장) |
 
 ## 1. 압축 풀기 · 폴더 정하기
-- 경로에 **한글·공백 없이 짧게**: 예) `D:\work\my-tap`, `~/work/my-tap` (바탕화면·다운로드처럼 긴 경로는 빌드 실패가 잦습니다)
-- **GitHub 저장소 폴더 안에는 풀지 마세요.** (설치 스크립트가 자동 연결을 끄긴 하지만, 저장소 밖이 가장 안전합니다)
 
-## 2. Supabase 만들기
-1. Supabase → **New project** → 이름(예: `my-tap`)·DB 비밀번호(**Generate a password**)·지역은 **「Need a specific region?」 → Northeast Asia (Seoul)** → 생성
-   - 잠시 임시 이름·「Coming up」으로 보이면 1분 기다렸다 새로고침
-2. **SQL Editor → New query** → `KIT/schema.sql` 전체 붙여넣기 → **Run**
-   - 「Snippets…」 안내 창은 **Understood**, 「Potential issue detected」 경고는 **Run query**(새 프로젝트라 안전)
-   - 「Success. No rows returned」면 완료. Table Editor에 `profiles`·`tap_posts` 등, Storage에 `post-images`(Public)가 보이면 정상
-3. **Authentication → Sign In / Providers** → User Signups 칸 맨 아래 **Confirm email 끄기 → Save changes** (가입 즉시 로그인)
-4. **Project Settings → API Keys**: **Publishable key**·**Secret key**(눈 아이콘·복사 버튼)를 설치 스크립트에 넣습니다. Project URL은 상단 **Connect** 또는 Settings → Data API
-5. (3장 배포 뒤 주소가 정해지면) **Authentication → URL Configuration**: Site URL = 내 사이트 주소, Redirect URLs에 `https://<내 주소>/auth/callback` 추가
+1. 압축 파일을 풉니다. 이 프로그램은 `threads-affiliate-poster` 폴더입니다.
+2. 원하는 곳으로 옮깁니다. 예: 윈도우 `D:\work\my-tap`, 맥 `~/work/my-tap`
+   - **경로에 한글·공백 없이, 짧게**(윈도우는 경로가 길면 빌드가 실패합니다). **GitHub 저장소 폴더 안에는 풀지 마세요.**
 
-## 3. 설치 스크립트 실행 (설정·빌드·배포를 한 번에)
-- 윈도우: 프로그램 폴더 주소창에 `powershell` → `powershell -ExecutionPolicy Bypass -File KIT\setup.ps1`
-- 맥: 터미널에서 프로그램 폴더로 이동 → `bash KIT/setup.sh`
-- 질문 순서: Vercel 프로젝트 이름(예 `my-tap`) → 사이트 주소(Enter) → 내 이름/브랜드 → Supabase URL → Publishable key → Secret key → **운영자 이름·연락 이메일**(약관·개인정보 페이지 표시) → (선택) Fixie 주소(토스 안 쓰면 Enter) → 배포(y)
-  - **키는 입력해도 화면에 보이지 않습니다**(붙여넣기: 윈도우 마우스 오른쪽 클릭, 맥 ⌘V).
-- 끝나면 **Vercel → 프로젝트 → Settings → Domains에 보이는 주소 하나만** 쓰세요(배포마다 생기는 긴 주소는 로그인 보호가 걸려 있어 쓰지 않습니다). 2-5단계 Supabase 주소 설정을 마저 하세요.
+---
+
+## 2. 패키지 설치마법사 실행 (DB 만들기부터 인터넷에 올리기까지 한 번에)
+
+프로그램 폴더 맨 위에 있는 실행 파일을 **더블클릭**합니다.
+
+- **윈도우**: `패키지설치마법사.cmd` 더블클릭 (「Windows의 PC 보호」 창이 뜨면 [추가 정보] → [실행])
+- **맥**: `패키지설치마법사.command` 더블클릭 (「확인되지 않은 개발자」 창이 뜨면 마우스 오른쪽 클릭 → [열기] → [열기], 처음 한 번만)
+
+마법사가 8단계를 차례로 안내합니다. **필요한 화면은 마법사가 브라우저로 직접 열어 주고, 붙여 넣을 내용은 클립보드에 복사해 둡니다.**
+
+| 단계 | 마법사가 하는 일 | 내가 할 일 |
+|---|---|---|
+| ① Node.js | 설치돼 있는지 확인(윈도우는 없으면 자동 설치 제안) | 설치 후 마법사 다시 실행 |
+| ② Supabase 프로젝트 | 새 프로젝트 화면 열기 | 이름·DB 비밀번호(Generate 후 메모)·지역 **Northeast Asia (Seoul)** → 생성 → **주소창 주소 붙여넣기** |
+| ③ Supabase 키 | API Keys 화면 열기, **맞는 키인지 자동 확인** | Publishable key → Secret key 순서로 붙여넣기(화면에 안 보임) |
+| ④ DB 만들기 | 설치 SQL을 **클립보드에 복사**하고 SQL Editor 열기, 끝나면 **성공 여부 자동 확인** | 빈 칸 클릭 → 붙여넣기 → [Run] |
+| ⑤ 이메일 확인 끄기 | Sign In / Providers 화면 열기 | Email → **Confirm email 끄기** → Save |
+| ⑥ 내 사이트 설정 | 주소·비밀값 자동 생성 | 사이트 이름(영문, 주소가 됨) · 화면에 표시할 내 이름/브랜드 · **운영자 이름·연락 이메일**(약관 표시) · (선택) Fixie 주소(토스 안 쓰면 Enter) — 끝나면 Supabase **URL Configuration** 화면도 열어 주니 주소 두 칸을 저장 |
+| ⑦ 설치·빌드 | 프로그램 설치·확인(3~5분) | 기다리기 |
+| ⑧ 인터넷에 올리기 | Vercel 연결·설정 등록·배포, **실제 주소 자동 확인** | 브라우저에서 Vercel 로그인(처음이면 무료 가입) |
+
+- 중간에 창을 닫아도 **다시 더블클릭하면 이어서** 진행합니다(처음부터 하려면 질문에 `n`).
+- 끝나면 내 사이트가 열리고, 프로그램 폴더에 **`설치결과.txt`**(내 사이트 주소·Meta 앱에 등록할 콜백 주소)가 생깁니다. 콜백 주소는 클립보드에도 복사돼 있습니다.
+
+---
+
+## 3. 설치 확인 · (선택) 관리자 지정
+
+- Supabase **Table Editor**에 `profiles`·`tap_posts` 등이 보이고, `https://내주소/login`에서 **회원가입 → 로그인**이 되면 설치 성공입니다.
+
+**(선택) 내 계정을 관리자로**: Supabase SQL Editor에서
+`update public.profiles set is_admin = true where email = '내이메일@example.com';`
+
+> 마법사가 안 될 때만(고급): `KIT/env.example`을 `.env.local`로 복사해 값을 채우고 `npm install` → `npm run build` → `npx vercel@latest deploy --prod` 후 Vercel **Settings → Environment Variables**에 같은 값을 넣고 다시 배포합니다. **AI 코딩 도구에 설치를 맡기지 말고** 마법사를 직접 실행하세요(마법사는 사람이 답을 입력하는 방식입니다).
+
+---
 
 ## 4. Meta(Threads) 앱 만들기 — 상세 `KIT/manuals/03_threads_connect.html`
 1. developers.facebook.com → **앱 만들기** → 이름(「Threads」 같은 Meta 상표는 넣지 않기, 예 `my-tap-app`) → 이용 사례 **Threads API 액세스** → 비즈니스 **「아직 연결하고 싶지 않음」** → **앱 만들기**(Meta 약관 동의)

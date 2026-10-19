@@ -7,7 +7,7 @@
 > - 다른 CLI가 쓴 항목은 지우거나 덮어쓰지 않고 보완만 한다(append-only).
 
 > 2026-10-19 주인님 지시로 제정, 모든 CLI 공통. **AIMaster에서 개발·운영 중인 서브프로그램을 수강생(외부)에게 「설치 키트」로 넘겨 각자 자기 계정에서 독립 프로그램으로 돌리게 할 때 반드시 이 문서를 따른다.**
-> 목표: ① 수강생이 초보여도 **압축 풀기 → DB 파일 1개 실행 → 설치 스크립트 1번 → 키 등록**으로 끝나게 ② 운영자(주인님·CLI)의 **이전 작업 손이 최소**가 되게 ③ 운영 프로그램이 바뀌면 **배포판도 같은 코드로 바로 다시 만들 수 있게**.
+> 목표: ① 수강생이 초보여도 **압축 풀기 → 「패키지 설치마법사」 더블클릭 1번(묻는 값만 입력) → 키 등록**으로 끝나게 ② 운영자(주인님·CLI)의 **이전 작업 손이 최소**가 되게 ③ 운영 프로그램이 바뀌면 **배포판도 같은 코드로 바로 다시 만들 수 있게**.
 > 기준 사례: `threads-content-ops/KIT/`(PDS `SNS_Auto_Posting_Kit_20261018`, 2026-10-19 리허설 완료 — 기록 `docs/sns-kit-manual/REHEARSAL_LOG.md`), `threads-affiliate-poster/clone-kit/`.
 
 ---
@@ -18,7 +18,7 @@
    - 이유: 2026-10-19 리허설에서 키트 사본(`labs/kit-threads`)을 따로 고치다 운영 원본과 어긋나, 같은 수정을 두 번 하고 다시 맞추는 일이 생겼다. 고칠 것은 **원본에서** 고치고 키트는 다시 포장한다.
 2. **수강생이 모든 것을 소유한다.** Supabase·Vercel·플랫폼 앱(Meta 등)·AI 키·예약 실행(cron-job.org)까지 전부 수강생 본인 계정. 배포판은 AIMaster(buylife.xyz), 공용 DB, 다른 AIMaster 프로그램 테이블, 운영자 키에 **하나도 기대지 않는다**(최상단 규칙 「본인 계정·본인 키」).
 3. **무료 요금제로 끝까지 돌아가야 한다.** 수강생은 대부분 Vercel·Supabase 무료로 시작한다. 무료에서 안 되는 기능(예: Vercel 1분 `crons`)은 무료 대안(예: 회원 본인 cron-job.org)을 **기본값**으로 두고, 유료(Pro) 기능은 「켜면 쓸 수 있는 선택지」로 둔다.
-4. **설치는 「DB 파일 1개 + 스크립트 1번」.** 수강생이 SQL을 여러 개 고르거나 환경변수를 손으로 넣게 하지 않는다.
+4. **설치는 「패키지 설치마법사」 더블클릭 1번(2026-10-19 주인님 지시·명명, 필수 표준 §2-2).** 수강생은 마법사가 묻는 값만 입력한다. 마법사가 필요한 화면(Supabase·SQL Editor·API Keys 등)을 브라우저로 직접 열어 주고, 붙여 넣을 SQL·주소는 클립보드에 복사하며, 키·DB·사이트 주소가 맞는지 스스로 확인한다. 수강생이 SQL을 여러 개 고르거나 환경변수 파일(`.env.local`)을 찾아 손으로 고치게 하지 않는다.
 5. **배포 전에 반드시 수강생처럼 리허설한다**(§6). 리허설 없이 PDS·강의에 넘기지 않는다.
 
 ---
@@ -32,16 +32,46 @@
 | `KIT/schema.sql` | **새 Supabase에 한 번에 붙여넣는 전체 스키마 1개**: `profiles`+가입 트리거, `user_api_keys`(이 프로그램이 저장하는 provider만 허용 목록에), 프로그램 테이블·RLS·스토리지 버킷, 예약 실행 표(§4-6) | 같은 폴더 |
 | `KIT/upgrade-YYYYMMDD-<내용>.sql` | 배포 **뒤에** DB가 바뀌면 이미 설치한 수강생이 한 번 실행하는 추가 SQL(신규 설치는 `schema.sql`에 이미 반영) | `upgrade-20261019-cronjob.sql` |
 | `KIT/env.example` | 환경변수 설명(값 없음). `NEXT_PUBLIC_STANDALONE_MODE=true` 포함 | 같은 폴더 |
-| `KIT/setup.ps1` / `KIT/setup.sh` | **공용 설치 스크립트**(원본 `scripts/kit-template/` 하나 — 포장 때 항상 최신으로 복사, 프로그램별 사본을 고치지 않는다. 키는 숨김 입력, `vercel link` 직후 GitHub 자동 연결 해제): Node 확인 → `npm install` → 질문(프로젝트 이름·주소·브랜드·Supabase URL·Publishable/Secret key) → `.env.local` 생성(`CRON_SECRET` 자동 생성) → 빌드 → Vercel 로그인·연결·환경변수·배포 → 콜백 주소 출력 | 같은 폴더(**`.ps1`은 UTF-8 BOM** — 없으면 윈도우 PowerShell 5.1이 한글을 깨뜨림) |
+| `패키지설치마법사.cmd` / `패키지설치마법사.command` (프로그램 폴더 **맨 위**) | **더블클릭 실행 파일**(윈도우 / 맥) — 포장 때 `scripts/kit-template/`에서 자동 복사. 수강생은 이것만 누른다 | `.cmd`는 내용 **영문만**(한글 줄은 코드페이지 전환 전에 깨질 수 있음), `.command`는 압축에 **실행 권한**(포장 스크립트가 자동) |
+| `KIT/setup.ps1` / `KIT/setup.sh` | **패키지 설치마법사 본체**(원본 `scripts/kit-template/` 하나 — 포장 때 항상 최신으로 복사, 프로그램별 사본을 고치지 않는다). 8단계·자동 확인·이어서 하기 — 상세 §2-2 | 같은 폴더(**`.ps1`은 UTF-8 BOM** — 없으면 윈도우 PowerShell 5.1이 한글을 깨뜨림) |
 | `KIT/vercel.json` | **무료(Hobby)에서 배포되는 설정**(하루 1번 이하 `crons`만). 운영용 1분 `crons`가 든 원본 `vercel.json`을 포장 때 이 파일로 바꿔 넣는다 | 같은 폴더 |
 | `KIT/enable-vercel-cron.ps1` / `.sh` | (예약 기능이 있으면) Vercel Pro 수강생이 1분 예약 호출 + `*_PLATFORM_SCHEDULER=on`을 켜고 재배포 | 같은 폴더 |
-| `KIT/kit.json` | **키트의 모든 프로그램별 설정**: `title`·`shortName`·`description`, 설치 끝 안내(`callbackPath`·`callbackLabel`·`nextStep`), 추가 환경변수 질문(`extraEnv`: name·question·default·secret·from=brand/siteUrl), 포장(`exclude`·`overrides`), DB 파일(`schema`: `static` 또는 `generate`+`parts`) | `threads-affiliate-poster/KIT/kit.json`(generate), `threads-content-ops/KIT/kit.json`(static) |
+| `KIT/kit.json` | **키트의 모든 프로그램별 설정**: `title`·`shortName`·`description`, 설치 끝 안내(`callbackPath`·`callbackLabel`·`nextStep`), **마법사 DB 확인 표 `checkTable`(DB 파일에서 마지막에 만들어지는 표 — 필수)**, (선택) `authRedirectPath`(가입·OAuth 로그인 콜백이 Supabase URL Configuration 등록을 요구하면, 예 `/auth/callback` → 마법사가 배포 뒤 그 화면을 열고 주소를 복사해 줌), 추가 환경변수 질문(`extraEnv`: name·question·default·secret·from=brand/siteUrl), 포장(`exclude`·`overrides`), DB 파일(`schema`: `static` 또는 `generate`+`parts`) | `threads-affiliate-poster/KIT/kit.json`(generate), `threads-content-ops/KIT/kit.json`(static) |
 | `KIT/database/*.sql` | (`schema.mode=generate`일 때) DB 파일 앞·뒤 조각 — 가운데는 운영 `supabase/migrations/*`가 자동으로 들어감 → **운영 DB 변경이 키트에 저절로 반영** | `threads-affiliate-poster/KIT/database/` |
 | `KIT/manuals/*.html` | (선택) 캡처형 단계별 매뉴얼 | `threads-affiliate-poster/KIT/manuals/` |
 
 ### 2-1. `KIT/README.md` 목차(고정 — 수강생이 프로그램이 달라도 같은 순서로 익히게)
-0. 준비물(Node 22 LTS·Supabase·Vercel·플랫폼 개발자 계정·AI 키) / 1. 압축 풀기·폴더 정하기(**경로 짧게·한글/공백 없이, GitHub 저장소 폴더 안에 풀지 않기**) / 2. Supabase 만들기(지역 서울, SQL 실행, 이메일 확인 끄기) / 3. 설치 스크립트 / 4. 플랫폼 앱 만들기 / 5. 키 등록·계정 연결·첫 게시 / 6. 예약 게시 연결(기본 cron-job.org, Pro 선택) / 7. (선택) 내 도메인 / 8. 자주 막히는 곳 / 9. 비용 안내 / 업데이트 내역
+0. 준비물(Node 22 LTS·Supabase·Vercel·플랫폼 개발자 계정·AI 키) / 1. 압축 풀기·폴더 정하기(**경로 짧게·한글/공백 없이, GitHub 저장소 폴더 안에 풀지 않기**) / 2. **패키지 설치마법사 실행**(더블클릭, 8단계 표) / 3. 설치 확인·(선택) 관리자 지정 / 4. 플랫폼 앱 만들기 / 5. 키 등록·계정 연결·첫 게시 / 6. 예약 게시 연결(기본 cron-job.org, Pro 선택) / 7. (선택) 내 도메인 / 8. 자주 막히는 곳 / 9. 비용 안내 / 업데이트 내역
 - 화면 이름·버튼 이름은 **리허설 때 실제 화면 그대로** 적는다(§6-3 함정 목록 반영).
+
+### 2-2. 「패키지 설치마법사」 표준 (필수 — 2026-10-19 주인님 지시·명명)
+
+**모든 배포판은 이 방식으로 설치한다.** 수강생은 프로그램 폴더의 `패키지설치마법사` 파일을 더블클릭하고, 마법사가 묻는 값만 입력한다. 기준 구현: `scripts/kit-template/setup.ps1`·`setup.sh`·`패키지설치마법사.cmd`·`패키지설치마법사.command`(모든 키트 공용 — 프로그램별 차이는 `KIT/kit.json`).
+
+**① 8단계(고정 순서)** — 단계마다 마법사가 할 수 있는 일은 마법사가 하고, 사람은 확인·입력만 한다.
+| 단계 | 마법사가 하는 일 | 사람이 하는 일 |
+|---|---|---|
+| 1 Node.js | 버전 확인, 없으면 윈도우 `winget` 자동 설치 제안 / 설치 화면 열기 | 설치 후 다시 실행 |
+| 2 Supabase 프로젝트 | 새 프로젝트 화면 열기, 붙여 넣은 **주소창 주소 또는 Project URL에서 프로젝트 ID 자동 추출**, 연결 확인 | 프로젝트 만들고 주소 붙여넣기 |
+| 3 Supabase 키 | API Keys 화면 열기, **키 종류(공개/비밀) 혼동 차단**, 실제 호출로 이 프로젝트 키인지 확인 | 키 2개 붙여넣기(숨김 입력) |
+| 4 DB 만들기 | `KIT/schema.sql`을 **클립보드에 복사**, SQL Editor 열기, Run 뒤 **`checkTable` 조회로 성공 확인**(실패면 다시 안내) | 붙여넣기 → Run |
+| 5 이메일 확인 끄기 | Sign In / Providers 화면 열기 | Confirm email 끄기 |
+| 6 내 사이트 설정 | 사이트 이름 형식 검사, `CRON_SECRET` 자동 생성, `extraEnv` 질문 | 이름·브랜드(·추가 질문) |
+| 7 설치·빌드 | `npm install`·`npm run build` | 기다리기 |
+| 8 인터넷에 올리기 | Vercel 로그인·연결·**GitHub 자동 연결 해제**·환경변수 등록·배포, **`vercel inspect` 별칭으로 실제 주소 자동 확인** 후 주소가 다르면 맞춰 재배포, (선택) `authRedirectPath` 화면 열기 | Vercel 로그인 |
+| 끝 | 사이트 열기, **콜백 주소 클립보드 복사**, `설치결과.txt`(비밀값 없음) 저장 | 다음 단계(플랫폼 앱) |
+
+**② 꼭 지킬 것**
+- **이어서 하기**: 끝난 단계를 `.kit-progress`(비밀값 없음)에 적고, 다시 실행하면 이어서 한다. 값은 단계마다 `.env.local`에 바로 저장한다(창을 닫아도 잃지 않게). 두 파일과 `설치결과.txt`는 포장에서 항상 뺀다.
+- **확인은 스스로**: 「잘 했나요?」로 끝내지 않고 실제 호출로 확인한다(키 → `/auth/v1/settings`·`/rest/v1/`, DB → `checkTable`, 사이트 → HTTP 200).
+- **Supabase 확인 요청에는 User-Agent를 지정**한다(`aimaster-kit-setup`). PowerShell 기본 표시(Mozilla 포함)는 브라우저로 취급돼 **Secret key가 401로 거부**된다(2026-10-19 실측).
+- 키는 **숨김 입력**, 화면·`설치결과.txt`·로그에 키를 출력하지 않는다.
+- **AI 코딩 도구에 설치를 맡기지 않게 안내**한다(마법사는 사람이 답하는 방식 — AI 도구는 `.env.local`을 손으로 만들게 유도하는 경우가 있었다, 2026-10-19 주인님 실제 사례). 「손으로 하는 방법」은 안내서 맨 아래 고급 참고로만 둔다.
+- `.cmd` 실행 파일 내용은 영문만, `.command`·`.sh`는 압축에 실행 권한(포장 스크립트 `EXECUTABLE`), `.ps1`은 UTF-8 BOM.
+
+**③ 새 프로그램을 키트로 만들 때** — `KIT/kit.json`에 `checkTable`(필수), 필요하면 `authRedirectPath`·`extraEnv`를 넣는다. 마법사 코드는 고치지 않는다(모든 키트가 같은 마법사). 프로그램만의 단계가 꼭 필요하면 마법사에 `kit.json` 선택 항목으로 일반화해 넣고 이 표를 갱신한다.
+
+**④ 마법사를 고쳤으면** — 두 파일(ps1·sh)을 함께 고치고, 문법 검사(`[Parser]::ParseFile`·`bash -n`)와 Lab 프로젝트로 확인 동작 시험(키·DB·주소) 뒤 포장한다. 실제 설치 리허설(§6)은 주인님 지시 시점에.
 
 ---
 
@@ -107,6 +137,8 @@
 | 예약 발행 | Vercel 무료는 `crons` 하루 1번·최대 59분 지연 | 기본 「내 cron-job.org」, Pro만 Vercel 선택(`docs/SCHEDULER_POLICY.md`) |
 | cron-job.org | 응답 30초 초과 실패, 25회 실패 시 작업 자동 정지, IP 제한 켜면 403 | 즉시 응답 + 응답 뒤 처리, 예약 때마다 작업 켜짐 확인, 「IP 제한 끄기」 안내 |
 | 화면 | 밝은 테마가 `.text-white`를 검정으로 바꿔 버튼 글자가 안 보임 | 버튼 글자색 `text-[#ffffff]` |
+| 설치(2026-10-19 주인님 실사용) | 질문형 스크립트 대신 `.env.local`을 직접 찾아 값을 넣게 됨(AI 도구가 「손으로 하는 방법」을 고르거나, 실행 명령을 못 찾음) | **패키지 설치마법사**(더블클릭 실행 파일) 도입, 안내서 2장을 마법사로, 손 설치는 고급 참고로 내림(§2-2) |
+| 키 확인(PowerShell) | `Invoke-WebRequest` 기본 User-Agent(Mozilla 포함) 때문에 Supabase가 Secret key를 401로 거부 | 확인 요청에 `-UserAgent "aimaster-kit-setup"`(맥 `curl -A`) |
 
 ---
 
@@ -130,6 +162,7 @@
 ## 10. 변경 이력
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-19 | **「패키지 설치마법사」 표준 제정(주인님 지시·명명)**: 더블클릭 실행 파일 + 8단계 마법사(화면 자동 열기·클립보드 복사·키/DB/주소 자동 확인·이어서 하기·`설치결과.txt`), `kit.json` `checkTable`(필수)·`authRedirectPath`(선택), 포장에 실행 파일·실행 권한 자동 반영, 세 키트 안내서 2·3장 교체. 계기: 주인님이 새 배포판으로 설치할 때 환경설정 파일을 직접 찾아 넣게 된 일. |
 | 2026-10-19 | **키트 방식 통일(주인님 결정)**: `KIT/` 표준 + clone-kit의 DB 자동 생성·HTML 매뉴얼. 공용 설치 스크립트 템플릿(`scripts/kit-template/`, 키 숨김·GitHub 연결 해제), kit.json 기반 포장(`--name --programs`)·비밀값 자동 검사, 쇼핑제휴 `clone-kit/` → `KIT/` 이전. 이유: 수강생은 스크립트 한 번(환경변수 수동 입력 제거), 운영자는 DB 파일 자동 생성(수동 동기화 제거), 리허설로 검증된 방식, 모든 키트 같은 순서. |
 | 2026-10-19 | 공용 레퍼런스 문서로 지정(주인님 지시): 맨 위 갱신 의무, §11 개선 대기 목록 추가. |
 | 2026-10-19 | 제정(Claude Code 윈도우). 주인님 지시: 「AIMaster 서브프로그램을 개별 배포판으로 만들어 수강생에게 키트 방식으로 이전 — 최대한 편리하고 손이 덜 가는 방법의 지침」. Threads 키트 리허설(T1~T25)·쇼핑제휴 clone-kit·예약 방식 결정을 근거로 작성. |
@@ -144,4 +177,6 @@
 | 5 | 2026-10-19 | `threads-affiliate-poster/clone-kit` 방식과 `KIT/` 방식 중 하나로 통일 | 키트 방식이 두 가지라 수강생·CLI 모두 헷갈림 | ✅ 2026-10-19 주인님 결정: **`KIT/` 표준 + clone-kit의 DB 자동 생성·HTML 매뉴얼** |
 | 6 | 2026-10-19 | 교육 매뉴얼(`docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) 작성 후 키트 `KIT/README.md`와 화면 이름·순서 일치시키기 | 리허설에서 안내서와 실제 화면이 다른 곳 다수 | 🔄 진행 중 |
 | 7 | 2026-10-19 | 쇼핑제휴 운영: 설정 화면에 Claude(`anthropic`)·Replicate 키 칸이 있는데 저장 함수 허용 목록(`src/lib/actions/settings.ts` `VALID_PROVIDERS`)에 없어 저장 시 「알 수 없는 provider」 | 키트 허용 목록 점검 중 발견(키트 `99_finalize.sql`에는 naver·replicate 추가함) | ⚪ 다음 쇼핑제휴 배포 때 수정 |
+| 9 | 2026-10-19 | 설치를 「묻는 값만 입력」하는 마법사로 — 화면 자동 열기·클립보드·자동 확인·이어서 하기 | 주인님 실사용: 새 배포판에서 `.env.local`을 직접 고치게 됨 | ✅ 2026-10-19 **패키지 설치마법사**(§2-2). 실제 리허설은 대기 |
+| 10 | 2026-10-19 | 마법사가 Supabase 이메일 확인 끄기·URL Configuration까지 자동으로(지금은 화면만 열어 줌) | Supabase Management API는 수강생 개인 접근 토큰이 필요 — 토큰 발급 단계가 늘어 오히려 복잡 | ⚪ 검토(지금은 화면 열기 + 안내가 더 쉬움) |
 | 8 | 2026-10-19 | 리허설에서 고친 **키트 파일**이 사본(`labs/kit-*`)에만 남는 문제 → 리허설 끝날 때 「사본 ↔ 원본 KIT·앱 코드 차이 비교」를 필수 단계로 | Threads 키트 README·schema·Pro 스크립트가 사본에만 있었음(2026-10-19 발견·이전) | ✅ 규칙화(§6-1 4번) |

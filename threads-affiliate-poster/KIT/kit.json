@@ -4,6 +4,8 @@
   "description": "쿠팡·알리·토스·네이버 제휴 상품으로 Threads 홍보 글 AI 생성·즉시/예약 게시",
   "callbackPath": "/api/threads/callback",
   "callbackLabel": "Meta(Threads) 앱 리디렉션 콜백 주소",
+  "checkTable": "tap_member_scheduler",
+  "authRedirectPath": "/auth/callback",
   "nextStep": "KIT/README.md 의 2-5단계(Supabase 주소 설정)와 4단계(Meta 앱 만들기)를 이어서 진행하세요.",
   "exclude": [
     "scripts",

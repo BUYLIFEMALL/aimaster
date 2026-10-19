@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 「패키지 설치마법사」(배포판 설치 표준) + 쓰레드 자동포스팅 예약 방식 v1.19(미배포)
+- **패키지 설치마법사**(주인님 지시·명명): 배포판 설치를 더블클릭 1번으로 — `scripts/kit-template/패키지설치마법사.cmd`·`.command` + 마법사 본체 `setup.ps1`·`setup.sh`(8단계: Node → Supabase 프로젝트(주소에서 ID 자동 추출) → 키(종류 혼동 차단·실제 호출 확인) → DB(SQL 클립보드 복사·`checkTable`로 성공 확인) → 이메일 확인 끄기 → 사이트 설정 → 빌드 → Vercel(주소 자동 확인), 이어서 하기 `.kit-progress`, 결과 `설치결과.txt`). `kit.json`에 `checkTable`(필수)·`authRedirectPath`(쇼핑제휴). 지침 `docs/DISTRIBUTION_KIT_GUIDE.md` **§2-2 필수 표준**, 루트 CLAUDE.md 27·AGENTS.md 26 문장 교체, 세 키트 `KIT/README.md` 2·3장 교체.
+- 발견: PowerShell 기본 User-Agent 때문에 Supabase가 Secret key를 401로 거부 → 확인 요청에 `aimaster-kit-setup` 지정(함정 표). 계기: 주인님이 새 배포판 설치 때 `.env.local`을 직접 고치게 된 일.
+- 새 배포판: `D:\PDS\SNS_Auto_Posting_Kit_v2_20261019.zip`(193개 파일, 비밀값 검사 통과, `.command` 실행 권한). 검수: 문법(ps1·sh), Lab 프로젝트로 확인 동작 시험(주소 추출·health 401·키 200/401·표 200/404). **실제 끝까지 설치 리허설은 주인님 시험으로**.
+- 쓰레드 자동포스팅(`threads`) v1.19: 예약 방식 회원 선택 + 중복 발행 방지·24시간 규칙 구현·커밋(`d2758f2c`). **운영 DB 표 `atp_member_scheduler` 생성 대기 → 생성 후 배포**(이 세션에 운영 DB 연결 없음, SQL: `threads/supabase/migrations/20261019230000_atp_member_scheduler.sql`).
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 주요 API 9종 전면 단계별 시각화 완료 (Replicate, ElevenLabs, SUNO, Runway, 텔레그램, SOLAPI, 네이버메일, Tavily, RSS/Inoreader 등 누적 18대 핵심 API 완성, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 이용 가이드북(`/guides`)에서 회원들이 자주 활용하는 미디어 생성 AI 4종, 알림/메일 3종, 정보수집 2종 등 총 9대 주요 API 가이드 본문을 **개요 카드, Step 1~4 시각적 스텝 뷰어, 💡 팁, ⚠️ 주의사항 배너, 공식 콘솔 직링크**가 탑재된 프리미엄 템플릿으로 전면 고도화함. (이로써 AIMaster 핵심 18대 가이드가 100% 비주얼화됨)

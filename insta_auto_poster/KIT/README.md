@@ -12,7 +12,8 @@
 | `KIT/PLATFORMS.md` | 플랫폼별 가입·API 키 발급 상세(Meta·Instagram·OpenAI·Gemini 등) |
 | `KIT/schema.sql` | 새 Supabase DB에 한 번 붙여넣는 전체 구조 |
 | `KIT/env.example` | 설정값(환경변수) 목록과 설명 |
-| `KIT/setup.ps1` / `KIT/setup.sh` | 대화형 설치 스크립트(윈도우 / 맥) |
+| `패키지설치마법사.cmd` / `.command` | **패키지 설치마법사** 실행 파일(윈도우 / 맥 — 더블클릭) |
+| `KIT/setup.ps1` / `KIT/setup.sh` | 마법사 본체(직접 열 필요 없음) |
 
 ---
 
@@ -36,43 +37,47 @@
 
 ---
 
-## 1. 압축 풀기 · 프로젝트 폴더 정하기
+## 1. 압축 풀기 · 폴더 정하기
 
 1. 압축 파일을 풉니다. 이 프로그램은 `insta_auto_poster` 폴더입니다.
-2. 원하는 곳으로 옮깁니다. 예: 윈도우 `D:\work\my-insta`, 맥 `~/work/my-insta` (**경로에 한글·공백 없이, 짧게** — 윈도우는 경로가 길면 빌드가 실패합니다)
-3. (AI 코딩 도구를 쓰면) 이 폴더를 프로젝트 폴더로 열고 "KIT/README.md 대로 설치를 진행해줘"라고 하면 됩니다.
+2. 원하는 곳으로 옮깁니다. 예: 윈도우 `D:\work\my-insta`, 맥 `~/work/my-insta`
+   - **경로에 한글·공백 없이, 짧게**(윈도우는 경로가 길면 빌드가 실패합니다). **GitHub 저장소 폴더 안에는 풀지 마세요.**
 
 ---
 
-## 2. Supabase(DB) 만들기
+## 2. 패키지 설치마법사 실행 (DB 만들기부터 인터넷에 올리기까지 한 번에)
 
-1. https://supabase.com → **New project** (Region: **Northeast Asia (Seoul)**)
-2. **SQL Editor → New query** → `KIT/schema.sql` 전체 붙여넣기 → **Run**
-   - **Table Editor**에 `insta_posts` 등, **Storage**에 `insta-post-images` 버킷이 보이면 성공
-3. **Authentication → Sign In / Providers → Email**: 켜져 있는지 확인, **Confirm email 끄기**
-4. **Project Settings → API Keys**에서 메모: **Project URL**, **Publishable(anon) key**, **Secret(service_role) key**(비공개)
+프로그램 폴더 맨 위에 있는 실행 파일을 **더블클릭**합니다.
+
+- **윈도우**: `패키지설치마법사.cmd` 더블클릭 (「Windows의 PC 보호」 창이 뜨면 [추가 정보] → [실행])
+- **맥**: `패키지설치마법사.command` 더블클릭 (「확인되지 않은 개발자」 창이 뜨면 마우스 오른쪽 클릭 → [열기] → [열기], 처음 한 번만)
+
+마법사가 8단계를 차례로 안내합니다. **필요한 화면은 마법사가 브라우저로 직접 열어 주고, 붙여 넣을 내용은 클립보드에 복사해 둡니다.**
+
+| 단계 | 마법사가 하는 일 | 내가 할 일 |
+|---|---|---|
+| ① Node.js | 설치돼 있는지 확인(윈도우는 없으면 자동 설치 제안) | 설치 후 마법사 다시 실행 |
+| ② Supabase 프로젝트 | 새 프로젝트 화면 열기 | 이름·DB 비밀번호(Generate 후 메모)·지역 **Northeast Asia (Seoul)** → 생성 → **주소창 주소 붙여넣기** |
+| ③ Supabase 키 | API Keys 화면 열기, **맞는 키인지 자동 확인** | Publishable key → Secret key 순서로 붙여넣기(화면에 안 보임) |
+| ④ DB 만들기 | 설치 SQL을 **클립보드에 복사**하고 SQL Editor 열기, 끝나면 **성공 여부 자동 확인** | 빈 칸 클릭 → 붙여넣기 → [Run] |
+| ⑤ 이메일 확인 끄기 | Sign In / Providers 화면 열기 | Email → **Confirm email 끄기** → Save |
+| ⑥ 내 사이트 설정 | 주소·비밀값 자동 생성 | 사이트 이름(영문, 주소가 됨) · 화면에 표시할 내 이름/브랜드 |
+| ⑦ 설치·빌드 | 프로그램 설치·확인(3~5분) | 기다리기 |
+| ⑧ 인터넷에 올리기 | Vercel 연결·설정 등록·배포, **실제 주소 자동 확인** | 브라우저에서 Vercel 로그인(처음이면 무료 가입) |
+
+- 중간에 창을 닫아도 **다시 더블클릭하면 이어서** 진행합니다(처음부터 하려면 질문에 `n`).
+- 끝나면 내 사이트가 열리고, 프로그램 폴더에 **`설치결과.txt`**(내 사이트 주소·Meta 앱에 등록할 콜백 주소)가 생깁니다. 콜백 주소는 클립보드에도 복사돼 있습니다.
 
 ---
 
-## 3. 설치 스크립트 실행
+## 3. 설치 확인 · (선택) 관리자 지정
 
-- **윈도우**: 프로그램 폴더 주소창에 `powershell` → Enter →
-  ```
-  powershell -ExecutionPolicy Bypass -File KIT\setup.ps1
-  ```
-- **맥**: 터미널에서 `cd ~/work/my-insta` →
-  ```
-  bash KIT/setup.sh
-  ```
-
-묻는 값: **Vercel 프로젝트 이름**(예: `hong-insta`) · 사이트 주소(그대로 Enter) · **내 이름/브랜드**(예: `홍길동 마케팅`) · Supabase URL / Publishable / Secret.
-자동으로 설치 → `.env.local` 생성 → 빌드 확인 → Vercel 로그인·연결 → 환경변수 등록 → 배포까지 진행합니다.
-마지막에 **Vercel → 프로젝트 → Settings → Domains**의 실제 주소를 입력하면 필요할 때 자동으로 다시 배포합니다.
-
-배포 후 `https://내주소/login` → **회원가입 탭**에서 가입 → 로그인되면 설치 성공.
+- Supabase **Table Editor**에 `insta_posts` 등이 보이고, `https://내주소/login`에서 **회원가입 → 로그인**이 되면 설치 성공입니다.
 
 **(선택) 내 계정을 관리자로**: Supabase SQL Editor에서
 `update public.profiles set is_admin = true where email = '내이메일@example.com';`
+
+> 마법사가 안 될 때만(고급): `KIT/env.example`을 `.env.local`로 복사해 값을 채우고 `npm install` → `npm run build` → `npx vercel@latest deploy --prod` 후 Vercel **Settings → Environment Variables**에 같은 값을 넣고 다시 배포합니다. **AI 코딩 도구에 설치를 맡기지 말고** 마법사를 직접 실행하세요(마법사는 사람이 답을 입력하는 방식입니다).
 
 ---
 

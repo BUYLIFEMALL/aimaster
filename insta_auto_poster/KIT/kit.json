@@ -4,6 +4,7 @@
   "callbackPath": "/api/instagram/callback/byok",
   "description": "주제 수집·캡션·이미지 생성·즉시/예약 게시",
   "callbackLabel": "Meta(Instagram) 앱 리디렉션 콜백 주소",
+  "checkTable": "newsblur_accounts",
   "nextStep": "KIT/README.md 의 Meta 앱 만들기 단계부터 진행하세요.",
   "exclude": [
     "scripts",
