@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — agy 작업 파악·반영: 매뉴얼 지침을 CLAUDE.md에도 연결
+- agy가 제정한 [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](MANUAL_AND_INTEGRATION_GUIDELINES.md)(8대 매뉴얼 스타일·Step 1~4 카드 규격)가 `AGENTS.md`·`GEMINI.md`에만 있어 **`CLAUDE.md` 맨 위에도 같은 안내 추가**(화면 검수 브라우저는 Claude=크롬으로 표기). 배포 키트 수강생 매뉴얼(`docs/sns-kit-manual/`)은 별도 지침(`DISTRIBUTION_KIT_GUIDE.md`)이라 충돌 없음.
+- 확인: agy의 Threads 설정 주소 카드 색 개선(`fd69da1d`)은 `ThreadsMetaAddressSummary`·`CopyAddress`만 바꿔 예약 칸(v1.19·v1.63)과 충돌 없음.
+- 발견(agy 확인 요청, 미수정): ① `fd69da1d`로 `threads`·`threads-affiliate-poster`를 배포했지만 `src/lib/version.ts`·DB `programs.version`이 그대로(핵심 원칙 5: 배포마다 +0.01). ② 지침 §4 매핑표의 「주요 연동 프로그램」 이름 일부가 실제 폴더·slug와 다름(예: `threads-comment-bot`→실제 `threads-comment-reply`, `insta-auto-poster`→slug `auto-instagram-posting`) — 다른 CLI 문서라 덮어쓰지 않고 기록만.
+
 ## 2026-10-20 Claude Code(윈도우) — 예약 방식: Threads 포스팅 크롬 실검수 + INSTA 카드뉴스 v1.24 적용·배포·실검수
 - Threads 포스팅(v1.19 예약 방식): 크롬 실검수 완료 — 예약 → cron-job.org 작업 8678578 자동 켜짐 → 일시정지·재개 → 취소 ~60초 뒤 자동 꺼짐 → Vercel 복귀. 주의: 새 글 화면 「게시물 생성하기」는 AI 글+이미지를 무조건 생성(시험 중 AI 글 1회·나노바나나 1장 관리자 키로 나감) → 다음 검수는 수정 화면으로.
 - 카드뉴스 v1.24: 실행 방식 회원 선택 + 24시간 규칙(기존 중복 방지·재시도 유지). 운영 DB 표 `cns_member_scheduler`(주인님 승인 → 크롬 SQL Editor). 배포 `cardnews-studio-ictkczgcr`, 커밋 `ad9d259e`. 실검수: 작업 8678676 자동 켜짐 → 일시정지·재개 → 취소 ~61초 뒤 자동 꺼짐(관리자에게 카드뉴스가 없어 시험 이미지 + 실제 예약 API로).
