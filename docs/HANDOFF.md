@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 인스타 자동 포스팅 확대 2단계: AI 인플루언서 v1.15 예약 게시·게시 기록
+- 한 일: `ai-influencer-studio` v1.14 → **v1.15**. 게시 패널에 「지금 게시 / 예약 게시」·예약 실행 상태 줄·최근 30일 게시 기록(예약 취소), 「🔑 API키등록·플랫폼연동」 창에 「⏰ 예약 발행」(Vercel 기본 / 내 cron-job.org + 공용 키 한 줄). 기준: 카드뉴스 v1.19·v1.24 사본. 플랜 `ai-influencer-studio/docs/PLAN_20261020_INSTA_SCHEDULE.md`, 상세 `ai-influencer-studio/AGENTS.md` v1.15.
+- 운영 변경(주인님 승인 「진행해줘」): DB ref `esgxyikcnnvmlhygjkth` 표 `aif_insta_posts`·`aif_member_scheduler` 추가 + version v1.15(크롬 SQL Editor), Vercel `ai-influencer-studio` 환경변수 `CRON_SECRET` 추가, `vercel.json` crons 5분.
+- 검수: 시험 18개·타입·빌드 통과, 배포 `ai-influencer-studio-ibmwdx619` Ready, 새 주소 비로그인·잘못된 토큰 401, Vercel 예약 호출 200. 크롬: 설정 창 「⏰ 예약 발행」(공용 cron-job.org 키 「등록됨」), 예약 1건 등록 → DB·4:5 사진(900×1125) 확인 → 취소·사진 삭제.
+- 못 한 것: 실제 인스타 게시(예약 실행 포함)·「내 cron-job.org」 전환(관리자 하루 호출 한도 보호) — 첫 실제 예약 때 확인.
+- 다음 첫 단계: 인스타 자동 포스팅 확대 3단계 **AI 웹툰(`ai-webtoon-studio`) 1차 즉시 게시**(세로 원고 → 4:5 컷 캐러셀 설계, 공용 `instagram-publish` 사본 추가).
+- 링크: https://ai-influencer.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — SEO 스튜디오 v1.75: GPT-5 계열 생성 400 수정·여러 단어 키워드 점검·휴대폰 목록 넘침 (주인님 「진행해」)
 - 원인 확인: GPT-5·GPT-6·o 계열은 OpenAI가 `temperature` 지정을 거부. `naver-blog-seo-studio/lib/ai/openaiModels.ts`의 `openAITemperature()`·`openAIErrorReason()`을 OpenAI 호출 6곳에 적용(실패 시 OpenAI 거부 이유 표시). 같은 방식으로 온도를 고정한 다른 프로그램도 GPT-5 계열을 고르면 같은 400이 날 수 있음(미점검).
 - 점검표: 여러 단어 키워드는 단어가 모두 있으면 포함. 휴대폰 목록 날짜 칸 넘침 수정.

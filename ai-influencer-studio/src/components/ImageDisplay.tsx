@@ -18,6 +18,8 @@ interface ImageDisplayProps {
   onRegenerateCaption: (feedback: string) => void;
   isGeneratingCaption?: boolean;
   history?: HistoryItem[];
+  /** 예약 실행 방식 바꾸기 → 「🔑 API키등록·플랫폼연동」 창 열기(v1.15) */
+  onOpenSettings?: () => void;
 }
 
 export function ImageDisplay({
@@ -26,6 +28,7 @@ export function ImageDisplay({
   onRegenerateCaption,
   isGeneratingCaption = false,
   history = [],
+  onOpenSettings,
 }: ImageDisplayProps) {
   const [selectedCaptionTab, setSelectedCaptionTab] = useState<number>(0);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -202,12 +205,13 @@ export function ImageDisplay({
               </div>
             </div>
 
-            {/* v1.14 인스타그램에 바로 게시(자동 포스팅 1차) */}
+            {/* v1.14 인스타그램에 바로 게시(자동 포스팅 1차) · v1.15 예약 게시·게시 기록(2차) */}
             {result.imageUrl && !result.loading && (
               <InstagramPublishPanel
                 currentImage={result.imageUrl}
                 caption={result.captions[selectedCaptionTab] || ""}
                 history={history}
+                onOpenSettings={onOpenSettings}
               />
             )}
           </div>

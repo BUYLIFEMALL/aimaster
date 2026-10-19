@@ -194,6 +194,16 @@ ai-influencer-studio/
   대상: `/api/generate-image`, `src/lib/gemini.ts` 240초.
 - **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
 
+## 2026-10-20 v1.15 — ⏰ 인스타 예약 게시·게시 기록(자동 포스팅 2차) (Claude Code 윈도우)
+- 플랜: `docs/PLAN_20261020_INSTA_SCHEDULE.md`. 기준 구현(복사 후 맞춤): `cardnews-studio` v1.19(게시 기록·예약)·v1.24(회원 실행 방식)·2026-10-20 실패 시 되돌리기. 지침: 루트 `docs/SCHEDULER_POLICY.md`.
+- 게시 패널: 「지금 게시 / 예약 게시」 전환, 예약 날짜·시간(한국 시간, 10분 뒤~60일 안), 예약 실행 상태 줄(일시정지·재개·「실행 방식 바꾸기」 → 설정 창), 「최근 인스타 게시 기록(30일)」(예약됨·게시 중·게시됨·실패·취소, 게시물 보기, 예약 취소). 즉시 게시도 기록에 남고, 일시 오류 때 이미 올라갔는지 확인해 중복 게시를 막는다.
+- 설정: 「🔑 API키등록·플랫폼연동」 창 아래 「⏰ 예약 발행」 — 실행 방식(AIMaster 기본 Vercel / 내 cron-job.org) + cron-job.org 키 한 줄(공용 `cronjob_org_api_key`, 다른 프로그램에서 등록했으면 「등록됨」으로 그대로 사용).
+- 서버: `src/lib/instagram/posting.ts`(기록·예약 실행·30일 정리·30분 멈춤 정리·24시간 지연 미게시·1회 재시도 전 중복 확인), `schedule.ts`(순수 함수), `memberScheduler.ts`·`cronJobOrg.ts`(카드뉴스 사본, 표·주소·토큰 접두어 `aif_`만 변경). API: `/api/instagram/posts`(GET/POST/DELETE), `/api/instagram/dispatch`(Vercel 5분, `CRON_SECRET`), `/api/instagram/dispatch-member`(회원 cron-job.org 1분, 회원 토큰), `/api/instagram/scheduler`(상태·방식·일시정지·키 저장/삭제). `vercel.json` crons 추가.
+- 예약 사진: INSTA 공개 저장소 `insta-post-images`의 `{userId}/influencer-insta/{묶음}/NN.jpg`에 예약 시각까지 보관 → 게시·실패·취소·30일 뒤 삭제.
+- 운영 DB(ref `esgxyikcnnvmlhygjkth`, 주인님 승인): 표 `aif_insta_posts`·`aif_member_scheduler`(RLS 본인 읽기만, 쓰기는 서버만), `programs.version` v1.15 — `supabase/migrations/20261020120000_insta_schedule_v1_15.sql`. 운영 Vercel 환경변수 `CRON_SECRET` 추가(무작위 값). `AIF_PLATFORM_SCHEDULER`는 없음(= Vercel 방식 켜짐, 끌 때만 `off`).
+- 검수(2026-10-20): 단위 시험 18개 통과(예약 시험 9개 추가), 타입 검사·빌드 통과. 배포 `ai-influencer-studio-ibmwdx619` Ready. 비로그인 새 주소 8개 모두 401, 잘못된 회원 토큰·잘못된 비밀값 401, **Vercel 예약 호출 08:45(KST) `GET /api/instagram/dispatch` 200**(로그 확인 — `CRON_SECRET` 인증 정상). 크롬(관리자 계정, 좁은 화면): 사이드바 v1.15, 설정 창 「⏰ 예약 발행」(Vercel 기본 선택, 공용 cron-job.org 키 「등록됨」 표시), 브라우저에만 넣은 시험 기록(900×1600 그림)으로 **예약 1건 실제 등록 → DB `scheduled`·09:42 KST=00:42 UTC 저장, 올라간 사진 900×1125(4:5로 잘림) 확인 → 화면에서 예약 취소 → 기록 「취소」·대기 0건·사진 삭제(저장소 400)**. 시험 기록은 원래대로 되돌림. 취소된 시험 기록 1건(관리자 본인)은 30일 뒤 자동 삭제.
+- **하지 않은 것**: 실제 인스타 게시(예약 실행 포함), 「내 cron-job.org」 방식 전환(관리자 cron-job.org 하루 호출 한도 보호). 첫 실제 예약 때 게시 결과 확인 필요.
+
 ## 2026-10-20 v1.14 — 📤 인스타그램에 바로 게시(자동 포스팅 1차: 즉시 게시) (Claude Code 윈도우)
 - 주인님 지시 「모든 인스타 자동화 프로그램은 자동 포스팅까지」. 플랜 `docs/PLAN_20261020_INSTA_AUTOPOST.md`, 기준 `cardnews-studio` v1.18.
 - 결과 화면 아래 패널(`components/InstagramPublishPanel.tsx`, `ImageDisplay`에 `history` 전달): 연결 상태 → 사진 고르기(지금 + 이전 기록, 최대 10장 캐러셀) → 캡션 → 공개 게시 확인 → 게시. 브라우저에서 JPEG·피드 비율 자르기(`src/lib/instagram/feedImage.ts`).

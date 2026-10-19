@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Key, Shield, ExternalLink, Check, AlertCircle } from "lucide-react";
+import { ScheduleSettings } from "./ScheduleSettings";
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -49,7 +50,7 @@ export function ApiKeyModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-if-surface border border-if-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+      <div className="bg-if-surface border border-if-border rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* 모달 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-if-border bg-if-raised">
           <div className="flex items-center gap-2">
@@ -156,6 +157,9 @@ export function ApiKeyModal({
             </button>
           </div>
         </form>
+
+        {/* ⏰ 예약 발행(v1.15) — 실행 방식 선택 + cron-job.org 키 한 줄(지침 docs/SCHEDULER_POLICY.md) */}
+        <ScheduleSettings />
       </div>
     </div>
   );

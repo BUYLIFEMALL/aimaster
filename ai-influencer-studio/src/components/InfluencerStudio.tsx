@@ -331,6 +331,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
           onRegenerateCaption={handleRegenerateCaption}
           isGeneratingCaption={isGeneratingCaption}
           history={historyItems}
+          onOpenSettings={() => setIsApiKeyModalOpen(true)}
         />
       </div>
 
