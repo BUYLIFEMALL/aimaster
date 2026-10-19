@@ -1,4 +1,5 @@
 import "server-only";
+import { getCommentAccount } from "@/lib/instagram/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getUserApiKey } from "@/lib/apiKeys";
@@ -37,11 +38,8 @@ export async function runCommentSync(
   userId: string,
   cutoffAt?: string | null,
 ): Promise<RunCommentSyncResult> {
-  const { data: account } = await supabase
-    .from("ig_accounts")
-    .select("access_token, token_expires_at, username")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.17: 공용 연결 계정(댓글 권한 있는 것) → 없으면 ig_accounts
+  const account = await getCommentAccount(supabase, userId);
   if (!account) return { error: "인스타그램 계정이 연결되어 있지 않습니다." };
 
   const { data: media } = await supabase

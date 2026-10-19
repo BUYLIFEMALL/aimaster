@@ -1,5 +1,6 @@
 "use server";
 
+import { getCommentAccount } from "@/lib/instagram/memberAccount";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -56,11 +57,8 @@ export async function syncMediaAction(): Promise<SyncMediaState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: account } = await supabase
-    .from("ig_accounts")
-    .select("access_token, token_expires_at, ig_user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  // v1.17: 공용 연결 계정(댓글 권한 있는 것) → 없으면 ig_accounts
+  const account = await getCommentAccount(supabase, user.id);
   if (!account) return { error: "인스타그램 계정이 연결되어 있지 않습니다." };
 
   try {

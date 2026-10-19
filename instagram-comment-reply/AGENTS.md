@@ -162,3 +162,7 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - `app/api/cron/sync-comments`·`check-connection`(2곳)의 `auth === \`Bearer ${process.env.CRON_SECRET}\`` → `CRON_SECRET`이 비면 「Bearer undefined」를 보낸 누구나 통과하던 빈틈을 `Boolean(secret) && …`로 차단(회원 화면·동작 변화 없음). 지금은 Vercel에 `CRON_SECRET`이 등록돼 있어 실제로 뚫린 적은 없음 — 방어 보완. 근거·전체 목록: 루트 `docs/SCHEDULER_PRIORITY2_REVIEW_20261020.md` §2-1, `docs/ERROR_LESSONS.md` 2026-10-20.
 - 검수: `tsc` 0, `npm run build`, 배포 `instagram-comment-reply-2wxr3mxiw`(Ready), DB `programs.version` v1.16, 운영 주소 실행 주소 무인증·`Bearer undefined` 모두 401, `/login` 200. 운영자 예약 호출이 원래 꺼져 있어 정상 호출 확인 대상 없음.
 - 텔레그램 `migrate-webhooks`는 이미 「비밀값이 있을 때만」 검사, `webhookSecret.ts`는 비밀값이 없으면 오류로 멈춰 안전(변경 없음).
+
+## 2026-10-20 v1.17 — 회원 연동 정보 공용 저장 ④단계 Instagram (Claude Code 윈도우)
+- 연결 콜백이 `ig_accounts`와 공용 표 `member_platform_accounts`(platform `instagram`, `auth_method=instagram_login`, 댓글 권한)에 함께 저장. 읽는 곳(동기화·답글 게시·게시물 동기화·대시보드·연결 상태)은 `lib/instagram/memberAccount.ts` `getCommentAccount` — 댓글 권한 + Instagram 로그인 방식 + 재연결 필요 아님 + **계정 이름 있음**(자기 답글 거르기) 공용 계정 → 없으면 `ig_accounts`. 토큰 갱신·재연결 표시는 읽은 곳(공용이면 공용 표)에 기록. 해제는 공용 행도 삭제(설정 안내 문구). 매일 연결 점검 cron(`check-connection`)은 그대로 `ig_accounts`만 본다.
+- 공용 부품 사본 `lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020160000_member_integrations_v1_17.sql`(공용 행 없는 회원만). 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP4_INSTAGRAM.md`.

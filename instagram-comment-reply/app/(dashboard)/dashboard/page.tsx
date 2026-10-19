@@ -1,3 +1,4 @@
+import { getCommentAccount } from "@/lib/instagram/memberAccount";
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +25,7 @@ export default async function DashboardPage() {
 
   const [accountRes, settingsRes, keysRes, telegramRes, pendingRes, weekRes, totalRes, monitoredRes, recentRes] =
     await Promise.all([
-      supabase.from("ig_accounts").select("username, needs_reconnect").eq("user_id", user.id).maybeSingle(),
+      getCommentAccount(supabase, user.id).then((data) => ({ data })),
       supabase
         .from("ig_settings")
         .select("reply_model, monitoring_enabled, monitoring_interval_minutes, last_run_at, auto_approve")

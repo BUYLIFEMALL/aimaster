@@ -11,6 +11,9 @@ import { buildOAuthState } from "@/lib/oauthState";
 import { getInstagramAuthorizeUrl, refreshInstagramLongLivedToken } from "@/lib/instagram/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
+import { deleteSharedInstagramAccount, getCommentAccount } from "@/lib/instagram/memberAccount";
 
 export interface ConnectInstagramState {
   error?: string;
@@ -36,6 +39,8 @@ export async function disconnectInstagramAction() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   await supabase.from("ig_accounts").delete().eq("user_id", user.id);
+  // v1.17: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedInstagramAccount(user.id);
   revalidatePath("/settings");
 }
 
@@ -46,7 +51,7 @@ export async function disconnectInstagramAction() {
 export async function getValidInstagramAccessToken(
   supabase: SupabaseClient<Database>,
   userId: string,
-  account: { access_token: string; token_expires_at: string | null },
+  account: { access_token: string; token_expires_at: string | null; shared_id?: string | null },
 ): Promise<string> {
   const expiresAt = account.token_expires_at ? new Date(account.token_expires_at).getTime() : 0;
   // 만료 3일 이내면 미리 갱신한다(공식 문서: 만료 24시간 전부터 갱신 가능, 여유를 더 둠).
@@ -56,6 +61,14 @@ export async function getValidInstagramAccessToken(
   try {
     const refreshed = await refreshInstagramLongLivedToken(account.access_token);
     const tokenExpiresAt = new Date(Date.now() + refreshed.expires_in * 1000).toISOString();
+    // v1.17: 공용 연결 계정에서 읽은 토큰이면 공용 표를 갱신(다른 Instagram 프로그램도 새 토큰을 씀)
+    if (account.shared_id) {
+      await updateMemberAccountToken(createAdminClient(), userId, account.shared_id, {
+        accessToken: refreshed.access_token,
+        tokenExpiresAt,
+      });
+      return refreshed.access_token;
+    }
     await supabase
       .from("ig_accounts")
       .update({
@@ -70,7 +83,8 @@ export async function getValidInstagramAccessToken(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.startsWith("INSTAGRAM_TOKEN_EXPIRED:")) {
-      await markNeedsReconnect(supabase, userId);
+      if (account.shared_id) await markMemberAccountNeedsReconnect(createAdminClient(), userId, account.shared_id);
+      else await markNeedsReconnect(supabase, userId);
       throw new Error("INSTAGRAM_RECONNECT_REQUIRED");
     }
     throw err;
@@ -89,11 +103,8 @@ export async function getPersistedConnectionFlag(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<{ connected: boolean; needsReconnect: boolean }> {
-  const { data } = await supabase
-    .from("ig_accounts")
-    .select("needs_reconnect")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.17: 공용 연결 계정(댓글 권한 있는 것) → 없으면 이 프로그램 표
+  const data = await getCommentAccount(supabase, userId);
   if (!data) return { connected: false, needsReconnect: false };
   return { connected: true, needsReconnect: data.needs_reconnect };
 }
@@ -108,11 +119,7 @@ export async function getInstagramConnectionStatus(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<InstagramConnectionStatus> {
-  const { data: account } = await supabase
-    .from("ig_accounts")
-    .select("access_token, token_expires_at, username")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const account = await getCommentAccount(supabase, userId);
   if (!account) return { connected: false, username: null, needsReconnect: false };
 
   try {
