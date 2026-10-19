@@ -3,6 +3,7 @@
 export type TemplateType = "focus" | "neon" | "wizard" | "twocolumn" | "minimal";
 
 export interface TemplateBadgeInfo {
+  type: TemplateType;
   label: string;
   tone: string;
   icon: string;
@@ -10,26 +11,31 @@ export interface TemplateBadgeInfo {
 
 const TEMPLATE_CONFIG: Record<TemplateType, TemplateBadgeInfo> = {
   focus: {
+    type: "focus",
     label: "포커스",
     icon: "🎯",
     tone: "bg-amber-400/10 text-amber-300 border-amber-400/30",
   },
   neon: {
+    type: "neon",
     label: "네온콘솔",
     icon: "⚡",
     tone: "bg-cyan-400/10 text-cyan-300 border-cyan-400/30",
   },
   wizard: {
+    type: "wizard",
     label: "위저드",
     icon: "🧙",
     tone: "bg-purple-400/10 text-purple-300 border-purple-400/30",
   },
   twocolumn: {
+    type: "twocolumn",
     label: "2-컬럼",
     icon: "📊",
     tone: "bg-emerald-400/10 text-emerald-300 border-emerald-400/30",
   },
   minimal: {
+    type: "minimal",
     label: "미니멀",
     icon: "✨",
     tone: "bg-white/10 text-white/80 border-white/20",

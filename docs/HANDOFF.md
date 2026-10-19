@@ -1,6 +1,29 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 1단계: Hero 쇼케이스 실용화(대표 솔루션 다이렉트 런처 결합) 완료 (배포 및 Edge 실세션 검수 완비)
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 2단계: 84개 솔루션 초고속 인스턴트 검색 & 스마트 다차원 필터링 시스템 완료 (배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 84개로 대폭 확장된 마케팅 자동화 솔루션 라인업을 스크롤 지옥 없이 0.05초 만에 탐색할 수 있도록, 메인 홈 상단에 실시간 인메모리 라이브 검색창과 스마트 다차원 퀵 필터 칩셋을 결합하여 탐색 편의성을 극대화함.
+- **주요 작업 내용**:
+  1. **초고속 인스턴트 검색 & 스마트 필터 컴포넌트 개발 (`components/home/ProgramInstantSearch.tsx`, `app/(main)/page.tsx`)**:
+     - **실시간 인메모리 라이브 검색**: 키워드(프로그램명, 영문 slug, 한 줄 설명, 카테고리) 입력 즉시 0.05초 만에 실시간 결과 그리드를 동적으로 렌더링. 검색어 즉시 초기화(X) 버튼 완비.
+     - **다차원 스마트 퀵 필터 칩셋**: `전체 (82)` · `🔥 추천` · `🎁 무료` · `🎯 포커스형` · `⚡ 네온콘솔형` · `🧙 위저드형` 원클릭 필터 지원.
+     - **스마트 뷰 전환**: 검색어나 2차 필터 선택 시 `[검색 및 필터링 결과 N개 발견]` 섹션이 즉시 펼쳐지며, 우측 상단 `[✕ 전체보기로 복원]` 버튼 제공. 비활성화 시에는 기존 카탈로그 섹션이 온전히 유지됨.
+  2. **뱃지 매핑 정밀화 (`lib/templateBadge.ts`)**:
+     - `TemplateBadgeInfo` 인터페이스에 `type` 필드를 정규화하여 템플릿별 필터링이 100% 일치하도록 보강.
+  3. **로컬 빌드 검증 및 Vercel 프로덕션 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과 및 `npm run build` Next.js 72개 페이지 프로덕션 빌드 100% 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_8EDzNyEHGfqikX1T6hQzvxFsVayc`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 검색창 & 스마트 필터 칩셋 기본 노출: `edge_step2_search_bar_default.png`
+     - '쓰레드' 실시간 키워드 검색 결과 5개 발견: `edge_step2_search_threads_results.png`
+     - '🔥 추천' 스마트 필터 클릭 결과 81개 발견: `edge_step2_filter_recommended_results.png`
+     - '🎁 무료' 스마트 필터 클릭 결과 8개 발견: `edge_step2_filter_free_results.png`
+- **서비스 링크**:
+  - 메인 사이트: https://www.buylife.xyz
+- **상세 인수인계 및 로드맵 문서**:
+  - [`docs/HANDOFF_MAIN_SITE_RENEWAL_20261019.md`](HANDOFF_MAIN_SITE_RENEWAL_20261019.md)
+
+
 
 - **배경**: 주인님의 피드백("현재 구현해 놓은 건 그냥 단순 보여주는 시뮬레이션인거네")을 반영하여, 단순 눈요기용 시연 박스를 탈피하고 **3대 핵심 템플릿의 대표 솔루션으로 1초 만에 진입할 수 있는 실제 다이렉트 런처(CTA 실행 버튼)를 결합**하여 실사용성과 고객 전환율을 극대화함.
 - **주요 작업 내용**:

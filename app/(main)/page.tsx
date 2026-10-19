@@ -22,6 +22,7 @@ import ProgramCard from "@/components/programs/ProgramCard";
 import NoticeTabs from "@/components/home/NoticeTabs";
 import CategoryQuickBar from "@/components/home/CategoryQuickBar";
 import HeroShowcase from "@/components/home/HeroShowcase";
+import ProgramInstantSearch from "@/components/home/ProgramInstantSearch";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
@@ -282,6 +283,15 @@ export default async function HomePage() {
           <NoticeTabs />
         </div>
       </section>
+
+      {/* 84개 솔루션 초고속 인스턴트 검색 & 스마트 다차원 퀵 필터 */}
+      <ProgramInstantSearch
+        programs={programs}
+        accessByProgramId={Object.fromEntries(accessByProgramId)}
+        likedSet={Array.from(likedSet)}
+        isAdmin={isAdminUser}
+        loggedIn={loggedIn}
+      />
 
       {/* 14대 표준 카테고리 퀵 내비게이션 바 (가로 롤링 & 원스톱 스크롤) */}
       <CategoryQuickBar categories={categories} totalCount={programs.length} />
