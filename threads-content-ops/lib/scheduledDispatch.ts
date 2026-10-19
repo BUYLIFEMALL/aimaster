@@ -5,7 +5,9 @@ import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, sanitizeMedia } from "@/threads-conte
 import { publishToThreads } from "@/threads-content-ops/lib/threadsPublish";
 
 // 예약 발행 실행기 (v1.84) — 회원이 "예약"으로 올려 둔 글(tco_posts.status='scheduled')만 시각이 되면 본인 Threads 계정으로 발행한다.
-// 새 글을 만들거나 예약하지 않은 글을 올리지 않는다(예약 자체가 회원의 명시적 허락이다). 호출처: Vercel 크론(1분 간격, CRON_SECRET 필요).
+// 새 글을 만들거나 예약하지 않은 글을 올리지 않는다(예약 자체가 회원의 명시적 허락이다).
+// 호출처(v2.07): ① 회원 본인 cron-job.org → /dispatch-member(회원 토큰, 그 회원 글만) ② 운영자 Vercel 크론 → /dispatch-scheduled(CRON_SECRET,
+// 관리자 지정 시에만 연결 안 한 회원 글 발행, 지정 없으면 "연결 필요" 실패 처리). 지침: 루트 docs/SCHEDULER_POLICY.md
 //
 // 안전 장치
 // · 중복 발행 방지: 상태를 scheduled → publishing으로 "먼저 가져간" 실행만 발행한다(조건부 update). 크론이 겹쳐 돌아도 같은 글을 두 번 올리지 않는다.
@@ -22,22 +24,36 @@ export type DispatchSummary = { recovered: number; due: number; published: numbe
 
 type DuePost = { id: string; user_id: string; account_id: string; body: string; media: unknown; scheduled_at: string };
 
-export async function dispatchDueScheduledPosts(service: SupabaseClient, options: { deadlineMs?: number } = {}): Promise<DispatchSummary> {
+export type DispatchOptions = {
+  deadlineMs?: number;
+  /** 회원 전용 실행(cron-job.org 회원 토큰): 이 회원의 글만 처리한다. v2.07 */
+  onlyUserId?: string;
+  /** 운영자 실행: 본인 cron-job.org를 연결한 회원의 글은 건드리지 않는다(회원 자원으로만 실행). v2.07 */
+  excludeUserIds?: string[];
+  /** 운영자 실행인데 관리자 지정(AIMaster 제공 실행)이 없을 때: 발행하지 않고 이 안내로 실패 처리한다. v2.07 */
+  failWithMessage?: string;
+};
+
+export async function dispatchDueScheduledPosts(service: SupabaseClient, options: DispatchOptions = {}): Promise<DispatchSummary> {
   const startedAt = Date.now();
   const deadlineMs = options.deadlineMs ?? 200_000;
   const summary: DispatchSummary = { recovered: 0, due: 0, published: 0, failed: 0, skipped: 0 };
 
   // 1) 발행 중에 끊긴 글 정리(예약으로 들어온 글만: scheduled_at이 있고 claim 때 updated_at을 찍어 둔 것).
-  const { data: stuck } = await service.from("tco_posts")
+  let stuckQuery = service.from("tco_posts")
     .update({ status: "failed", error_message: "발행 중 서버가 중단돼 결과를 확인하지 못했습니다. Threads에 올라갔는지 확인한 뒤 필요하면 다시 시도해 주세요. 중복 게시를 막으려고 자동으로 다시 올리지 않았습니다." })
-    .eq("status", "publishing").not("scheduled_at", "is", null).lt("updated_at", new Date(Date.now() - STUCK_MS).toISOString()).select("id");
+    .eq("status", "publishing").not("scheduled_at", "is", null).lt("updated_at", new Date(Date.now() - STUCK_MS).toISOString());
+  if (options.onlyUserId) stuckQuery = stuckQuery.eq("user_id", options.onlyUserId);
+  const { data: stuck } = await stuckQuery.select("id");
   summary.recovered = stuck?.length ?? 0;
 
   // 2) 시각이 된 예약 글
-  const { data: dueRows, error } = await service.from("tco_posts")
+  let dueQuery = service.from("tco_posts")
     .select("id, user_id, account_id, body, media, scheduled_at")
-    .eq("status", "scheduled").lte("scheduled_at", new Date().toISOString())
-    .order("scheduled_at", { ascending: true }).limit(BATCH);
+    .eq("status", "scheduled").lte("scheduled_at", new Date().toISOString());
+  if (options.onlyUserId) dueQuery = dueQuery.eq("user_id", options.onlyUserId);
+  if (options.excludeUserIds?.length) dueQuery = dueQuery.not("user_id", "in", `(${options.excludeUserIds.join(",")})`);
+  const { data: dueRows, error } = await dueQuery.order("scheduled_at", { ascending: true }).limit(BATCH);
   if (error) throw new Error("예약 글을 조회하지 못했습니다.");
   const due = (dueRows ?? []) as DuePost[];
   summary.due = due.length;
@@ -59,6 +75,7 @@ export async function dispatchDueScheduledPosts(service: SupabaseClient, options
     };
 
     try {
+      if (options.failWithMessage) { await fail(options.failWithMessage); continue; }
       if (Date.now() - new Date(post.scheduled_at).getTime() > MAX_LATE_MS) {
         await fail("예약 시각이 24시간 넘게 지나 자동으로 올리지 않았습니다. 내용을 확인하고 다시 예약하거나 직접 발행해 주세요.");
         continue;

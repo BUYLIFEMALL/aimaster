@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — 운영 DB `user_api_keys_provider_check` 정의는 `ARRAY['a'::text,…]`가 아니라 `'{a,b,…}'::text[]` 형식이다 → 허용 목록에 값을 넣는 SQL은 두 형식을 모두 처리 (threads-content-ops v2.07, Claude Code 윈도우)
+- 증상: 현재 정의를 읽어 끝의 `]))`를 바꿔 값을 덧붙이는 DO 블록이 「unexpected constraint format」으로 중단(형식 검사를 넣어 둬서 아무것도 바뀌지 않음).
+- 원인: `pg_get_constraintdef`가 운영 DB에서는 `CHECK ((provider = ANY ('{…}'::text[])))`로 돌려줌(키트·새 DB는 `ARRAY[...]` 형식).
+- 해결: `\}'::text\[\]\)\)\)$` → `,새값}'::text[])))`, `\]\)\)$` → `, '새값'::text]))` 두 경우 처리(`threads-content-ops/supabase/migrations/20261019180000_tco_member_scheduler.sql`). 다른 CLI가 넣은 값(`tavily`·`upstage`)이 보존됐는지 실행 결과로 확인.
+- 다음부터: 허용 목록 변경은 「현재 정의를 읽어 값만 추가」 + 형식 검사 + 실행 후 기존 값 보존 조회. 다회원 사이트 예약 실행은 `docs/SCHEDULER_POLICY.md`(사이트 비밀값을 회원 외부 서비스에 넣지 않기).
+
 ## 2026-10-19 — 서버 컴포넌트에서 `toLocaleString("ko-KR")`만 쓰면 시각이 UTC로 나온다(9시간 빠름) (threads-content-ops v2.06, Claude Code 윈도우)
 - 증상: 대시보드 「실제 작업 진행」의 저장 시각이 「오전 9:02」(실제 한국 18:02). 같은 글이 보관함에서는 「오후 6:02」로 정상.
 - 원인: `OperationsDashboard.tsx`는 `"use client"`가 없는 **서버 컴포넌트**라 Vercel 서버(UTC)에서 날짜 문자열을 만든다. `ko-KR`은 표기 형식일 뿐 시간대를 바꾸지 않는다. 보관함 화면은 브라우저에서 그려져(클라이언트 컴포넌트) 한국 시각이 나왔다.

@@ -23,6 +23,8 @@ import MobileNav from "./MobileNav";
 import { PRODUCT_SOURCE_TYPES } from "@/threads-content-ops/lib/productPost";
 import { isTossProxyConfigured } from "@/threads-content-ops/lib/toss";
 import { POST_STATUSES, type PostCounts } from "@/threads-content-ops/lib/postStatus";
+import { memberSchedulerState } from "@/threads-content-ops/lib/memberScheduler";
+import SchedulePublishingControl from "./SchedulePublishingControl";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -79,6 +81,9 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   const postCounts = Object.fromEntries(countRows) as Record<keyof PostCounts, number | null>;
   const usableViral = (viralCandidates ?? []).filter((candidate) => candidate.status !== "archived");
   const tab = ["dashboard", "viral", "create", "manage", "accounts", "sources", "settings", "guide"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
+  // 예약 발행(v2.07): 운영은 회원 본인 cron-job.org 키(또는 관리자 지정 AIMaster 실행), 키트는 서버 CRON_SECRET. 지침: 루트 docs/SCHEDULER_POLICY.md
+  const scheduler = !IS_STANDALONE && (tab === "create" || tab === "manage") ? await memberSchedulerState(createServiceClient(), user.id) : null;
+  const schedulerReady = IS_STANDALONE ? Boolean(process.env.CRON_SECRET) : scheduler ? scheduler.state !== "no-key" : true;
 
   return <div className="threads-content-ops-light flex min-h-screen bg-white text-neutral-900">
     <MobileNav email={user.email ?? ""} />
@@ -101,7 +106,8 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
         </p>
       </header>
       {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} postCounts={postCounts} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} sources={(contentSources ?? []).map((source) => ({ source_type: source.source_type, status: source.status }))} />}
-      {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} schedulerReady={Boolean(process.env.CRON_SECRET)} operationAccountIds={(operationProfiles ?? []).filter((profile) => [profile.topic, profile.personality, profile.tone, profile.target_audience, profile.forbidden_topics, profile.forbidden_expressions].some((value) => typeof value === "string" && value.trim())).map((profile) => profile.account_id)} accounts={accounts} products={(contentSources ?? []).filter((source) => (PRODUCT_SOURCE_TYPES as readonly string[]).includes(source.source_type) && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-center"><h2 className="text-lg font-bold text-neutral-900">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-neutral-600">계정 연결 후 본인 AI API 키로 고몰입 초안을 만들 수 있습니다.</p></div>)}
+      {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} schedulerReady={schedulerReady} operationAccountIds={(operationProfiles ?? []).filter((profile) => [profile.topic, profile.personality, profile.tone, profile.target_audience, profile.forbidden_topics, profile.forbidden_expressions].some((value) => typeof value === "string" && value.trim())).map((profile) => profile.account_id)} accounts={accounts} products={(contentSources ?? []).filter((source) => (PRODUCT_SOURCE_TYPES as readonly string[]).includes(source.source_type) && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-center"><h2 className="text-lg font-bold text-neutral-900">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-neutral-600">계정 연결 후 본인 AI API 키로 고몰입 초안을 만들 수 있습니다.</p></div>)}
+      {tab === "manage" && scheduler && <SchedulePublishingControl initial={scheduler} />}
       {tab === "manage" && <DraftComposer accounts={accounts ?? []} drafts={drafts} categories={viralCategories ?? []} postCounts={postCounts} />}
       {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
       {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} categories={viralCategories ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}

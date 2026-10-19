@@ -1,5 +1,7 @@
 # 회원 본인 cron-job.org 예약 실행 — 전체 프로그램 검토 (2026-10-19, Claude Code 윈도우)
 
+> 확정 지침·적용 현황: [`SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) (이 문서의 §6 공통 설계는 지침으로 대체됨)
+
 > 주인님 지시(2026-10-19): **예약 기능을 쓰려면 회원 각자 본인 cron-job.org API 키를 등록한 뒤 사용**한다(최상단 규칙 「본인 키·본인 계정」, AIMaster 구축 자원은 관리자가 지정한 프로그램만). 운영자 Vercel(Pro) 예약 호출(`vercel.json` `crons`)에 회원 기능이 기대는 곳을 전수 조사했다. **검토만 — 코드 미변경.**
 > 방법: 저장소 전체 `vercel.json`의 `crons`(labs·node_modules 제외) 21개 프로그램 + 각 호출 경로 `route.ts` 설명 확인.
 

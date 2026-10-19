@@ -38,7 +38,15 @@ function fixture(options = {}) {
   const module = { exports: {} };
   const requireMock = (id) => {
     if (id === "next/cache") return { revalidatePath: () => state.refreshes++ };
-    if (id === "@/lib/supabase/server") return { createClient: async () => db };
+    if (id === "@/lib/supabase/server") return { createClient: async () => db, createServiceClient: () => db };
+    // v2.07 예약 발행: 회원 본인 cron-job.org 키(기본 등록됨) + 실행 작업 자동 켜기 모의
+    if (id === "@/threads-content-ops/lib/memberScheduler") return {
+      CRONJOB_PROVIDER: "cronjob_org_api_key",
+      platformSchedulerEnabled: () => false,
+      memberCronjobKey: async () => options.noCronjobKey ? null : "fake-cronjob-key",
+      ensureMemberSchedulerRunning: async (_service, owner, key) => { state.schedulerRuns = (state.schedulerRuns ?? 0) + 1; assert.equal(owner, userId); assert.equal(key, "fake-cronjob-key"); return { paused: false }; },
+      pauseMemberScheduler: async () => {}, resumeMemberScheduler: async () => ({ started: false }), removeMemberScheduler: async () => {},
+    };
     if (id === "@/lib/access/checkProgramAccess") return { checkProgramAccess: async () => ({ allowed: !options.noAccess }) };
     if (id === "@/lib/apiKeys") return { resolveApiKey: async () => options.noKey ? null : "fake-member-ai-key" };
     if (id === "@/threads-content-ops/lib/personas") {
@@ -166,6 +174,24 @@ test("예약은 수정 본문을 저장하고 취소 후 다시 수정 가능한
   assert.equal((await actions.runDraftAction({ draftId, intent: "cancel" })).ok, true);
   assert.equal(state.post.status, "draft");
   assert.equal(state.calls.length, 0);
+});
+
+test("예약하면 회원 cron-job.org 실행 작업을 한 번 켠다 (v2.07)", async () => {
+  const { state, actions } = fixture();
+  const scheduledAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  assert.equal((await actions.runDraftAction({ draftId, intent: "schedule", body: "예약 본문", scheduledAt })).ok, true);
+  assert.equal(state.post.status, "scheduled");
+  assert.equal(state.schedulerRuns, 1);
+});
+
+test("cron-job.org 키가 없으면 예약하지 않고 초안으로 남긴다 (v2.07)", async () => {
+  const { state, actions } = fixture({ noCronjobKey: true });
+  const scheduledAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const result = await actions.runDraftAction({ draftId, intent: "schedule", body: "예약 본문", scheduledAt });
+  assert.equal(result.ok, false);
+  assert.match(result.error, /cron-job\.org API 키/);
+  assert.equal(state.post.status, "draft");
+  assert.equal(state.schedulerRuns ?? 0, 0);
 });
 
 test("발행 실패 콘텐츠는 명시적으로 재검토 상태로 돌린 뒤 수정할 수 있다", async () => {

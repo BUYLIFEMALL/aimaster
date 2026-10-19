@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 예약 기능 지침 제정 + Threads 콘텐츠 운영 자동화(threads-content-ops) v2.07 회원 본인 cron-job.org 예약 실행
+
+- **지침(모든 CLI 필독)**: [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) — 회원은 설정에 cron-job.org 키 한 줄만, 예약은 포스팅 쪽에서만, 1분 확인 고정 + 예약 시 자동 켜기·남은 예약 0건이면 자동 끄기, 보관함 일시정지·재개, 회원 전용 토큰(사이트 비밀값 금지), 운영자 `crons`는 관리자 지정 시에만. 루트 `CLAUDE.md` 원칙 26·`AGENTS.md` 원칙 25로 연결. 전체 프로그램 검토: [`docs/MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md`](MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md).
+- **threads-content-ops v2.07**: 배포 `threads-content-8x0xk35eg` Ready, 운영 DB(허용 목록 `cronjob_org_api_key` + `tco_member_scheduler`) 반영, 테스트 30/30, 크롬 화면 확인. **실제 cron-job.org 연결·자동 발행 실검수는 주인님 키 등록 후 남음.** 상세: [`threads-content-ops/AGENTS.md`](../threads-content-ops/AGENTS.md) 맨 아래.
+- agy 1차안(키트 설정 화면의 주기 선택·켜기/끄기, `threads-content-ops/docs/HANDOFF_MEMBER_CRONJOB_INTERVAL_TOGGLE.md`)은 포스팅 쪽 예약과 중복·충돌해 주인님 지시로 정리됨 → 키트(`labs/kit-threads`)도 이 지침으로 맞출 예정(진행 중).
+- https://threads-content-ops.buylife.xyz
+
 <!-- SKILLS_INSTALL_HANDOFF_20261019 -->
 ## 2026-10-19 Codex — mattpocock 스킬 27개 묶음 설치·선택 사용 방침 확정
 

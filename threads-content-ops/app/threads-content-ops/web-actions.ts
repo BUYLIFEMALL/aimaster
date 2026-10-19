@@ -24,6 +24,8 @@ import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MEDIA_BUCKET, memberMediaFolder, owne
 import { publishToThreads } from "@/threads-content-ops/lib/threadsPublish";
 import { PRODUCT_SOURCE_TYPES, assemblePostBody, contentRange, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { createServiceClient } from "@/lib/supabase/server";
+import { CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberCronjobKey, pauseMemberScheduler, platformSchedulerEnabled, removeMemberScheduler, resumeMemberScheduler } from "@/threads-content-ops/lib/memberScheduler";
+import { IS_STANDALONE } from "@/threads-content-ops/lib/deployment";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
   YouTubeSearchError,
@@ -66,6 +68,7 @@ const CREDENTIAL_PROVIDERS = new Set([
   "toss_publisher_id",
   "threads_app_id",
   "threads_app_secret",
+  "cronjob_org_api_key",
 ]);
 
 async function authorizedUser() {
@@ -94,6 +97,7 @@ export async function saveMemberCredentials(input: {
   tossPublisherId?: string;
   threadsAppId?: string;
   threadsAppSecret?: string;
+  cronjobOrgKey?: string;
 }) {
   const { supabase, user } = await authorizedUser();
   const rows = [
@@ -113,21 +117,39 @@ export async function saveMemberCredentials(input: {
     ["toss_publisher_id", input.tossPublisherId],
     ["threads_app_id", input.threadsAppId],
     ["threads_app_secret", input.threadsAppSecret],
+    ["cronjob_org_api_key", input.cronjobOrgKey],
   ].filter(([, value]) => typeof value === "string" && value.trim()) as Array<[string, string]>;
 
   if (!rows.length) throw new Error("저장할 값을 입력해 주세요.");
 
+  // cron-job.org 키를 바꾸면 예전 계정의 예약 실행 작업을 지우고, 남은 예약이 있으면 새 계정에서 다시 켠다(v2.07).
+  const cronjobChanged = !IS_STANDALONE && rows.some(([provider]) => provider === CRONJOB_PROVIDER);
+  let wasPaused = false;
+  if (cronjobChanged) {
+    const { data: schedulerRow } = await createServiceClient().from("tco_member_scheduler").select("paused").eq("user_id", user.id).maybeSingle();
+    wasPaused = Boolean(schedulerRow?.paused);
+    await removeMemberScheduler(createServiceClient(), user.id);
+  }
   const { error } = await supabase.from("user_api_keys").upsert(
     rows.map(([provider, api_key]) => ({ user_id: user.id, provider, api_key: api_key.trim() })),
     { onConflict: "user_id,provider" },
   );
   if (error) throw new Error("연동 정보를 저장하지 못했습니다.");
+  if (cronjobChanged) {
+    const service = createServiceClient();
+    const { count } = await service.from("tco_posts").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "scheduled");
+    const key = await memberCronjobKey(service, user.id);
+    if (wasPaused) await pauseMemberScheduler(service, user.id);
+    else if ((count ?? 0) > 0 && key) await ensureMemberSchedulerRunning(service, user.id, key);
+  }
   revalidatePath("/threads-content-ops");
 }
 
 export async function deleteMemberCredential(provider: string) {
   if (!CREDENTIAL_PROVIDERS.has(provider)) throw new Error("지원하지 않는 연동 정보입니다.");
   const { supabase, user } = await authorizedUser();
+  // cron-job.org 키를 지우면 회원 예약 실행 작업·연결 정보도 함께 지운다(v2.07).
+  if (provider === CRONJOB_PROVIDER && !IS_STANDALONE) await removeMemberScheduler(createServiceClient(), user.id);
   const { error } = await supabase
     .from("user_api_keys")
     .delete()
@@ -406,6 +428,12 @@ export async function scheduleDraft(input: { draftId: string; scheduledAt: strin
   }
 
   const { supabase, user } = await authorizedUser();
+  // v2.07: 예약 실행은 회원 본인 cron-job.org가 맡는다(관리자 지정 프로그램만 AIMaster 제공 실행). 키가 없으면 예약하지 않는다.
+  const service = createServiceClient();
+  const cronjobKey = IS_STANDALONE ? null : await memberCronjobKey(service, user.id);
+  if (!IS_STANDALONE && !cronjobKey && !platformSchedulerEnabled()) {
+    throw new Error("예약 발행을 쓰려면 API키등록·플랫폼연동에서 본인 cron-job.org API 키를 먼저 등록해 주세요(무료, 1분이면 됩니다). 「지금 발행」은 키 없이도 됩니다.");
+  }
   const { data, error } = await supabase.from("tco_posts")
     .update({ status: "scheduled", scheduled_at: scheduledAt.toISOString(), error_message: null })
     .eq("id", input.draftId)
@@ -414,6 +442,15 @@ export async function scheduleDraft(input: { draftId: string; scheduledAt: strin
     .select("id")
     .maybeSingle();
   if (error || !data) throw new Error("예약할 수 있는 초안을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+  if (cronjobKey) {
+    try {
+      await ensureMemberSchedulerRunning(service, user.id, cronjobKey);
+    } catch (caught) {
+      // 실행 작업을 켜지 못하면 예약을 되돌려, "예약됐는데 안 올라가는" 상태를 만들지 않는다.
+      await supabase.from("tco_posts").update({ status: "draft", scheduled_at: null }).eq("id", input.draftId).eq("user_id", user.id).eq("status", "scheduled");
+      throw new Error(`예약 실행 작업을 켜지 못해 예약을 취소했습니다. ${caught instanceof Error ? caught.message : ""}`.trim());
+    }
+  }
   revalidatePath("/threads-content-ops");
 }
 
@@ -1505,5 +1542,29 @@ export async function deleteMediaFile(url: string): Promise<{ ok: true } | { ok:
     return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "파일을 삭제하지 못했습니다." };
+  }
+}
+
+// ── 예약 발행 일시정지·재개 (v2.07, 2026-10-19) — 지침: 루트 docs/SCHEDULER_POLICY.md ──
+// 예약은 포스팅 쪽에서만 하고(scheduleDraft가 회원 cron-job.org 작업을 자동으로 켬), 회원은 보관함에서 전체 일시정지·재개만 한다.
+export async function pauseScheduledPublishing(): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const { user } = await authorizedUser();
+    await pauseMemberScheduler(createServiceClient(), user.id);
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "일시정지하지 못했습니다." };
+  }
+}
+
+export async function resumeScheduledPublishing(): Promise<{ ok: true; started: boolean } | { ok: false; error: string }> {
+  try {
+    const { user } = await authorizedUser();
+    const result = await resumeMemberScheduler(createServiceClient(), user.id);
+    revalidatePath("/threads-content-ops");
+    return { ok: true, started: result.started };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "재개하지 못했습니다." };
   }
 }

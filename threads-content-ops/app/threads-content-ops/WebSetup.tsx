@@ -10,7 +10,7 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "aliexpress_app_key" | "aliexpress_app_secret" | "aliexpress_tracking_id" | "toss_access_key" | "toss_secret_key" | "toss_publisher_id" | "threads_app_id" | "threads_app_secret";
+type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "aliexpress_app_key" | "aliexpress_app_secret" | "aliexpress_tracking_id" | "toss_access_key" | "toss_secret_key" | "toss_publisher_id" | "threads_app_id" | "threads_app_secret" | "cronjob_org_api_key";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
@@ -28,6 +28,7 @@ type SavePayload = {
   tossPublisherId?: string;
   threadsAppId?: string;
   threadsAppSecret?: string;
+  cronjobOrgKey?: string;
 };
 type ConnectedAccount = { id: string; username: string | null; tokenExpiresAt: string | null };
 
@@ -48,6 +49,7 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   toss_publisher_id: "tossPublisherId",
   threads_app_id: "threadsAppId",
   threads_app_secret: "threadsAppSecret",
+  cronjob_org_api_key: "cronjobOrgKey",
 };
 
 const GUIDES = [
@@ -214,6 +216,18 @@ export default function WebSetup({
         <CredentialRow provider="toss_publisher_id" label="토스쇼핑 회원 연동 ID" maskedValue={credentials.toss_publisher_id} editing={editing === "toss_publisher_id"} saving={saving === "toss_publisher_id"} removing={removing === "toss_publisher_id"} onEdit={setEditing} onSave={save} onDelete={remove} />
       </div>
     </section>
+
+    {!IS_STANDALONE && <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      <SectionTitle title="⏰ 예약 발행 (cron-job.org)" description="예약한 글을 정한 시각에 자동으로 올리려면 본인의 무료 cron-job.org API 키가 필요합니다. 키만 등록해 두면, 콘텐츠 생성·보관함에서 예약할 때 프로그램이 알아서 연결하고 예약이 없으면 자동으로 멈춥니다. 「지금 발행」은 키 없이도 됩니다." />
+      <ol className="mb-3 list-decimal space-y-1 pl-4 text-xs text-neutral-600">
+        <li><a className="font-semibold underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+        <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
+        <li>아래에 붙여 넣고 저장 → 끝. 이 키는 예약 기능이 있는 다른 AIMaster 프로그램에서도 그대로 씁니다.</li>
+      </ol>
+      <div className="space-y-3">
+        <CredentialRow provider="cronjob_org_api_key" label="cron-job.org API 키" maskedValue={credentials.cronjob_org_api_key} editing={editing === "cronjob_org_api_key"} saving={saving === "cronjob_org_api_key"} removing={removing === "cronjob_org_api_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
+      </div>
+    </section>}
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
       <h2 className="mb-1 text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>

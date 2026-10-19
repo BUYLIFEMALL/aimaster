@@ -632,3 +632,13 @@
 - 증상: 대시보드 「실제 작업 진행」 시각이 9시간 빠르게(예: 18:02 → 「오전 9:02」) 표시. 강의용 키트 리허설에서 발견.
 - 원인·수정: `OperationsDashboard.tsx`는 서버 컴포넌트라 서버(UTC) 기준으로 시각을 만든다 → `formatDate()`에 `timeZone: "Asia/Seoul"` 추가. 다른 날짜 표시(보관함·토큰·계정 화면)는 클라이언트 컴포넌트라 브라우저 시각으로 정상이어서 손대지 않음.
 - 검수: `tsc` 0건, 배포 `threads-content-cnmn2cb7m` Ready, 운영 DB `programs.version = 'v2.06'`, 크롬에서 운영 대시보드 v2.06·한국 시각 표시 확인. 키트 사본(`labs/kit-threads`, https://dev-threads-posting.vercel.app)도 같은 수정·배포 후 발행 시각 「오후 6:04」 정상 확인.
+
+## 2026-10-19 v2.07 — 예약 발행을 회원 본인 cron-job.org로 실행 (Claude Code 윈도우, 주인님 지시)
+- **지침(필독)**: 루트 [`docs/SCHEDULER_POLICY.md`](../docs/SCHEDULER_POLICY.md) — 이 프로그램이 기준 구현이다. 플랜: `docs/PLAN_20261019_MEMBER_CRONJOB.md`, agy 1차 인수인계: `docs/HANDOFF_MEMBER_CRONJOB_INTERVAL_TOGGLE.md`(주기·토글 설정 화면안 → 폐기·정리됨).
+- **회원 화면**: 설정 「⏰ 예약 발행 (cron-job.org)」에 키 한 줄만(`cronjob_org_api_key`, 공용 연동). 예약은 콘텐츠 생성 STEP 5·보관함에서만, 키 없으면 예약 거부 안내. 보관함 위 「⏰ 예약 발행: 실행 중/대기/일시정지됨/키 미등록 · 예약 대기 N건」 + 전체 일시정지·재개(`SchedulePublishingControl.tsx`).
+- **동작**: `scheduleDraft` → `ensureMemberSchedulerRunning`(회원 cron-job.org에 1분 작업 자동 생성·켜기, 실패 시 예약 되돌림). 회원 전용 실행 주소 `/api/threads-content-ops/dispatch-member`(회원 토큰 → 그 회원 글만) 끝에 `stopMemberSchedulerIfIdle`(남은 예약 0건이면 작업 끄기). 운영자 1분 `crons`(`dispatch-scheduled`)는 키 등록 회원 제외, 관리자 지정(`TCO_PLATFORM_SCHEDULER=on`, 현재 미설정) 없으면 키 없는 회원 글은 「키 필요」 실패 처리. 키 변경 시 예전 작업 삭제·새 계정 재생성(일시정지 유지), 키 삭제 시 작업·연결 삭제.
+- **보안**: 사이트 `CRON_SECRET`은 회원 cron-job.org에 넣지 않음. 회원 전용 토큰(`tco_` + 64 hex), DB엔 SHA-256 해시만.
+- **운영 DB(`esgxyikcnnvmlhygjkth`, 주인님 승인)**: `user_api_keys_provider_check`에 `cronjob_org_api_key` 추가(기존 `'{...}'::text[]` 형식 — 첫 실행은 형식 검사로 안전 중단, 두 형식 처리로 재실행, `tavily`·`upstage` 등 보존 확인), 새 표 `tco_member_scheduler`(user_id PK, token_hash unique, cronjob_job_id, active, paused, RLS 본인 조회). 마이그레이션: `supabase/migrations/20261019180000_tco_member_scheduler.sql`.
+- **파일**: `lib/cronJobOrg.ts`, `lib/memberScheduler.ts`, `lib/scheduledDispatch.ts`(옵션 3개), `app/api/threads-content-ops/dispatch-member/route.ts`, `dispatch-scheduled/route.ts`, `web-actions.ts`(scheduleDraft·키 저장/삭제·일시정지/재개), `WebSetup.tsx`, `SchedulePublishingControl.tsx`, `page.tsx`, `AttentionComposer.tsx`·`UsageGuide.tsx` 문구, `tests/draft-actions.test.cjs`(모의 보강 + 새 테스트 2개).
+- **검수**: `tsc` 0건, 테스트 30/30, 빌드 성공, 배포 `threads-content-8x0xk35eg` Ready, DB `programs.version = 'v2.07'`, 실행 주소 토큰 없음/틀림 401, 배포 후 5분 오류 로그 0건, 크롬: 설정 칸·보관함 상태 줄 표시 확인.
+- **남은 일(다음 첫 단계)**: 주인님(또는 테스트 회원)이 설정에 cron-job.org 키 등록 → 글 하나 몇 분 뒤로 예약 → cron-job.org 콘솔에 「AIMaster Threads 운영 자동화 예약 발행(1분)」 작업 생성 확인 → 시각에 자동 발행(실제 공개 글) → 남은 예약 0건이면 작업 꺼짐 확인 → 일시정지·재개 확인. 이후 나머지 프로그램 적용(지침 §8).

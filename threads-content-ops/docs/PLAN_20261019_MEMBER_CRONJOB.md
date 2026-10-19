@@ -1,6 +1,6 @@
 # 개발 플랜 — 예약 발행 실행 방식 2가지 선택 (AIMaster 제공 / 회원 본인 cron-job.org) — 2026-10-19 Claude Code(윈도우)
 
-> 상태: **주인님 승인 대기** (운영 DB 구조 변경 포함). 2026-10-19 주인님 추가 지시 「예약 기능은 회원 본인 cron-job.org 키 등록 후 사용」 → ①(AIMaster 제공)은 관리자 지정 시에만, 기본은 ②. 전체 프로그램 검토: `docs/MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md`
+> 상태: **✅ 승인·적용(v2.07, 2026-10-19)** — 최종 설계는 루트 `docs/SCHEDULER_POLICY.md`(설정은 키만·포스팅 쪽 예약·자동 켜기/끄기)로 바뀜. 아래는 최초 플랜 원본. 2026-10-19 주인님 추가 지시 「예약 기능은 회원 본인 cron-job.org 키 등록 후 사용」 → ①(AIMaster 제공)은 관리자 지정 시에만, 기본은 ②. 전체 프로그램 검토: `docs/MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md`
 
 ## 1. 배경·문제
 - 지금 예약 발행은 운영자(주인님) Vercel Pro의 1분 예약 호출(`vercel.json` `* * * * *`) 하나가 **모든 회원**의 예약 글을 발행한다.

@@ -64,3 +64,10 @@
   - `labs/kit-threads/app/threads-content-ops/web-actions.ts`
   - `labs/kit-threads/app/threads-content-ops/CronJobOrgSetup.tsx`
 - 검증된 실서비스: `https://dev-threads-posting.vercel.app/threads-content-ops?tab=settings`
+
+---
+
+## 4. 방향 변경 (2026-10-19, Claude Code — 주인님 지시)
+- 주인님: 「예약 발행 기능은 포스팅 쪽에 구현되어 있다. 중복되니 설정 화면은 API 키값만 등록하고 포스팅 쪽에서 설정하도록」.
+- 확인 결과 예약은 글마다 날짜·시각을 정하는 구조(콘텐츠 생성 STEP 5·보관함)라, 설정 화면의 **주기 선택은 정한 시각과 충돌**(예: 1시간 주기면 14:20 예약이 15:00 발행, 24시간 주기는 24시간 초과 실패 위험)하고 켜기/끄기는 포스팅 쪽 기능과 중복.
+- 최종 기준: **1분 확인 고정 + 예약 시 자동 켜기 + 남은 예약 0건이면 자동 끄기 + 보관함 전체 일시정지·재개**, 설정 화면은 cron-job.org 키 한 줄. 지침: 루트 `docs/SCHEDULER_POLICY.md`. 운영 적용 v2.07 완료, 키트는 이 기준으로 정리 예정.
