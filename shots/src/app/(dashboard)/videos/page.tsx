@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { PostingSection } from "@/components/candidates/PostingSection";
 
@@ -16,7 +17,7 @@ export default async function VideosPage() {
       .eq("render_status", "ready")
       .order("created_at", { ascending: false }),
     getYoutubeConnectionStatus(supabase, user.id),
-    supabase.from("instagram_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getShotsInstagramAccount(supabase, user.id).then((a) => ({ data: a ? { ig_username: a.ig_username } : null })),
   ]);
 
   return (

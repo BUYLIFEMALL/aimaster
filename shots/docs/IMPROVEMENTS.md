@@ -22,3 +22,7 @@
 - **AI 훅(Hook) A/B 스플릿 테스터**: 하나의 쇼츠 소재로 초반 3초 훅 3종을 동시 생성하고, 클릭률(CTR)과 시청 지속 시간이 가장 높을 것으로 예측되는 베스트 훅을 AI가 점수화하여 자동 추천하는 기능.
 - **음악 비트 자동 싱크 컷 편집(Auto Beat-Sync Editor)**: Suno AI가 생성한 BGM의 드럼 킥과 베이스 드롭 타이밍을 파형 분석하여 6개 씬의 전환 타이밍을 밀리초(ms) 단위로 완벽하게 자동 정렬하는 하이퍼 싱크 시스템.
 - **쇼츠 ➔ 릴스 ➔ 틱톡 동시 원클릭 배포기**: 완성된 MP4를 한 번에 3대 숏폼 플랫폼 규격에 맞춰 제목, 해시태그를 플랫폼별로 자동 최적화 변환하여 동시 예약 게시하는 멀티 플랫폼 디스패처.
+
+## 2026-10-20 (Claude Code 윈도우) — Facebook 로그인 앱 키 이름 불일치
+- 근거: INSTA 포스팅은 Facebook 로그인에 `facebook_app_id`(없으면 `meta_app_id`), 이 프로그램은 `meta_app_id`만 쓴다(`src/app/api/instagram/callback/route.ts`, `lib/actions/instagram.ts`). `meta_app_id`는 원래 Instagram 앱 칸이라 회원이 두 프로그램에 다른 값을 넣어야 할 수 있다.
+- 영향: 중간(혼동). 상태: 미처리 — 바꾸려면 설정 화면 안내·기존 연결 영향 확인 필요. 다음 첫 단계: 이 프로그램 설정 화면에 `facebook_app_id` 칸을 INSTA와 같은 순서로 읽게 바꾸는 플랜.

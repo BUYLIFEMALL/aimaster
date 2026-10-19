@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { deleteSharedInstagramAccount, getShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { buildOAuthState } from "@/lib/oauthState";
 import { generateInstagramCaption } from "@/lib/ai/posting";
@@ -40,6 +41,8 @@ export async function disconnectInstagramAction() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   await supabase.from("instagram_accounts").delete().eq("user_id", user.id);
+  // v1.21: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedInstagramAccount(user.id);
   revalidatePath("/scripts");
 }
 
@@ -134,11 +137,8 @@ export async function postToInstagramAction(
     return { error: "먼저 영상 생성을 완료해주세요." };
   }
 
-  const { data: account } = await supabase
-    .from("instagram_accounts")
-    .select("ig_user_id, access_token")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  // v1.21: 공용 연결 계정(Facebook 로그인·게시 권한) → 없으면 instagram_accounts
+  const account = await getShotsInstagramAccount(supabase, user.id);
   if (!account) return { error: "인스타그램 계정이 연결되어 있지 않습니다." };
 
   await supabase

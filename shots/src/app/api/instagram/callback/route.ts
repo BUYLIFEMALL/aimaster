@@ -1,3 +1,4 @@
+import { saveSharedShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
@@ -70,6 +71,17 @@ export async function GET(request: NextRequest) {
     if (error) {
       throw new Error(error.message);
     }
+
+    // v1.21: 공용 연결 계정에도 저장(이중 기록)
+    await saveSharedShotsInstagramAccount({
+      userId: user.id,
+      igUserId: account.igUserId,
+      username: account.igUsername ?? null,
+      pageId: account.pageId ?? null,
+      accessToken: longLived.accessToken,
+      tokenExpiresAt,
+      appId,
+    });
 
     return NextResponse.redirect(`${siteUrl}${redirectTarget}?instagram_connected=1`);
   } catch {

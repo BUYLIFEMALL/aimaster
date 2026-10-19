@@ -75,7 +75,7 @@ export function PostingSection({
   video: Video;
   youtubeConnected: boolean;
   youtubeNeedsReconnect: boolean;
-  instagramAccount: InstagramAccount | null;
+  instagramAccount: Pick<InstagramAccount, "ig_username"> | null;
 }) {
   const canPost = video.render_status === "ready" && !!video.rendered_video_url;
   const pathname = usePathname();

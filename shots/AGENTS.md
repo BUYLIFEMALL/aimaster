@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.20` (3중 동기화 완료: `package.json` 1.20.0, `version.ts` v1.20, Supabase DB `programs` v1.20)
+> - **버전**: `v1.21` (`package.json` 1.21.0, `version.ts` v1.21, DB `programs` v1.21 — 2026-10-20)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -56,3 +56,9 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.21 — 회원 연동 정보 공용 저장 ④단계 Instagram (Claude Code 윈도우)
+- 연결 콜백이 `instagram_accounts`와 공용 표 `member_platform_accounts`(platform `instagram`, `auth_method=facebook_login`, `extra.page_id`)에 함께 저장. 게시(`postToInstagramAction`)·영상 포스팅·스크립트 화면은 `src/lib/instagram/memberAccount.ts` `getShotsInstagramAccount` — Facebook 로그인 + 게시 권한 + 재연결 필요 아님 공용 계정 → 없으면 `instagram_accounts`. 해제는 공용 행도 삭제.
+- 함께 고침: 화면 컴포넌트(`PostingSection`)에 계정 전체(토큰 포함)를 넘기던 것을 표시용 `ig_username`만 넘기도록 줄임.
+- 남은 점: INSTA는 Facebook 로그인에 `facebook_app_id`(없으면 `meta_app_id`)를 쓰는데 이 프로그램은 `meta_app_id`만 쓴다 — 기존 동작이라 그대로 두고 `docs/IMPROVEMENTS.md`에 기록.
+- 공용 부품 사본 `src/lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020180000_member_integrations_v1_21.sql`. 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP4_INSTAGRAM.md`.

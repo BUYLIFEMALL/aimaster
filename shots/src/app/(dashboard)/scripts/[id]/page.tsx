@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { ScriptEditor } from "@/components/candidates/ScriptEditor";
@@ -53,7 +54,7 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
       .maybeSingle(),
     getRegisteredProviders(supabase, user.id),
     getYoutubeConnectionStatus(supabase, user.id),
-    supabase.from("instagram_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getShotsInstagramAccount(supabase, user.id).then((a) => ({ data: a ? { ig_username: a.ig_username } : null })),
   ]);
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
