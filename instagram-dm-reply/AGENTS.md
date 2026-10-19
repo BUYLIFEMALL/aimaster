@@ -165,3 +165,9 @@ threads-comment-reply에서 "봇이 방금 단 답글을 새 댓글로 착각해
 - `instagram-comment-reply` v1.14 토큰·부품 이식, 검토·이력을 인스타 DM 말풍선으로, `/dashboard`(24시간 기한 임박 대화)·`/guide` 신설(`/`→`/dashboard`), **휴대폰 ☰**, 로그인 같은 배경. 서버 로직 변경 없음. 디자인: [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md)
 - **빌드·배포·화면 검수는 윈도우 CLI 대기.**
 - 플랜: [docs/PLAN_20261017_DESIGN_RENEWAL.md](docs/PLAN_20261017_DESIGN_RENEWAL.md) · 개선 원장: [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) · 인수인계: [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md)
+
+<!-- DETAILED_PROGRAM_REVIEW_20261019 -->
+## 2026-10-19 Codex — 프로그램별 상세 개선 분석(구현 아님)
+
+[세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 4개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
+<!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
