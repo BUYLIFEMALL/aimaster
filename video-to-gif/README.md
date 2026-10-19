@@ -1,58 +1,47 @@
-# VideoToGIF
+# VideoToGIF — 상세페이지 GIF 자동화 (v1.10)
 
-상세페이지용 동영상을 고품질 GIF로 변환하는 AIMaster 서브프로젝트입니다.
+상세페이지용 동영상을 고품질 GIF로 브라우저 내에서 직접 변환하는 AIMaster 서브프로젝트입니다.
 
-## 아키텍처 (2026-09-20부터 — 서버리스 변환으로 전환)
+- **공식 서비스 URL**: https://video-to-gif.buylife.xyz (대시보드: `/dashboard`)
+- **비주얼 가이드북 URL**: https://video-to-gif.buylife.xyz/guide
+- **적용 템플릿**: **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션 (Creative Atelier Style — eCommerce GIF Lab Edition)**
 
-**변환은 서버가 아니라 사용자 브라우저 안에서 처리됩니다** (`@ffmpeg/ffmpeg`,
-ffmpeg.wasm). 영상 파일은 어디로도 업로드되지 않고, FFmpeg 코어(WASM, 약
-25~30MB)만 CDN(jsdelivr)에서 받아와 그 자리에서 실행합니다.
+---
 
-**왜 이렇게 바꿨나**: 처음엔 "브라우저 → Vercel API → Render 워커(FFmpeg)" 구조였는데,
-운영해보니 문제가 계속 겹쳤다 — Vercel Functions의 요청 본문 100MB 제한, Render
-Blueprint가 이 저장소(`aimaster`) 전체의 git push마다 워커를 재배포해서 처리 중이던
-작업이 계속 유실되는 문제, Render 무료 플랜(0.1 vCPU)의 극도로 느린 처리 속도, 두
-서버(Vercel/Render) 간 비밀값(`VIDEOTOGIF_WORKER_SECRET`) 불일치로 인한 인증 실패
-등. 사용자와 상의 후 서버를 아예 없애고 브라우저에서 직접 처리하는 방식으로
-재구현했다 — 서버 인프라 문제 자체가 통째로 사라진다.
+## 1. 아키텍처 (클라이언트 사이드 WASM 구동)
 
-- 브라우저 처리라 처리 속도는 사용자 기기 성능에 좌우된다(느린 기기에선 더 오래
-  걸릴 수 있음) — 대신 업로드 자체가 없어서 대용량 파일 전송 지연이 없고, 서버
-  비용이 전혀 들지 않는다.
-- 결과물(GIF)은 서버에 저장되지 않고 브라우저 메모리의 Blob URL로만 존재한다 —
-  페이지를 벗어나면 사라지므로, 그 자리에서 바로 다운로드해야 한다. 이력 저장
-  기능은 없다.
+**변환은 서버가 아니라 사용자 브라우저 안에서 처리됩니다** (`@ffmpeg/ffmpeg`, ffmpeg.wasm). 영상 파일은 어디로도 업로드되지 않고, FFmpeg 코어(WASM, 약 25~30MB)만 CDN(jsdelivr)에서 받아와 그 자리에서 실행합니다.
 
-## 구현된 범위
+- **100% 프라이버시 보호**: 원본 영상 및 결과 GIF는 브라우저 메모리의 Blob URL로만 존재하며, 서버나 DB로 단 1바이트도 전송되지 않습니다.
+- **8MiB 지능형 사다리 (Candidates Ladder)**: 네이버 스마트스토어 및 쿠팡 상세페이지 업로드 기준(8MiB 이하)에 맞춰 원본 영상 재생 길이를 유지한 채 최적 해상도와 팔레트 색상 수를 자동 조율합니다.
+- **2-Pass 고화질 팔레트 인코딩**: `palettegen` 및 `paletteuse` 2단계 필터로 디더링 품질을 극대화합니다.
 
-- MP4/MKV/AVI/MOV/WebM/FLV/WMV/M4V/TS 업로드(파일 선택만, 서버 전송 없음)
-- 40/50fps와 160~800px 너비 설정
-- 최대 20개 파일, 파일당 200MB(브라우저 메모리 기준 안전값)
-- FFmpeg 2-pass palettegen/paletteuse 최적화 및 8MiB 품질 래더(원본 해상도부터
-  단계적으로 낮춰가며 8MiB 이하가 될 때까지 재시도)
-- AIMaster 프로그램 권한(구독/수동 부여/회원 등급) 검사는 로그인 게이트
-  (`requireProgramAccess()`)로 그대로 유지 — `/dashboard` 진입 자체는 여전히
-  로그인 필요
+---
 
-## 실행
+## 2. v1.10 디자인 리뉴얼 주요 변경사항 (2026-10-19)
+
+1. **크리에이티브 아틀리에 다크 토큰 시스템 적용**:
+   - 딥 차콜 나이트(`--background: #0d1117`, `--surface: #161b22`) 및 이커머스 앰버 골드(`--brand: #f59e0b`) 토큰 체계 완비.
+2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+   - `v1.10 GIF LAB` 앰버 칩 배지 및 1-2-3단계 넘버링 파이프라인.
+   - **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (골드 칩 강조).
+   - 모바일 햄버거 토글 드로어 완비.
+3. **메인 워크스페이스 대시보드 리뉴얼**:
+   - 상단 `.studio-hero` 웰컴 배너 및 3대 핵심 KPI 지표 카드 (WASM 무손실, 8MiB 사다리, 20개 일괄 큐) 배치.
+   - 드롭존 호버 인터랙션, 진행률 게이지 바, 인라인 GIF 미리보기 모달 지원.
+4. **독립 비주얼 가이드북 (`/guide`) 전면 신설**:
+   - 4단계 이커머스 파이프라인, 쇼핑몰 플랫폼별 규격 매트릭스, 8단계 사다리 해설, FAQ 5종 아코디언.
+
+---
+
+## 3. 실행 방법
 
 ```bash
 npm install
 npm run dev
 ```
 
-별도 워커 프로세스가 필요 없습니다 — 변환은 브라우저에서 처리됩니다.
-
-## 레거시 정리 이력
-
-Render 워커 아키텍처를 걷어내면서(2026-09-20) 아래도 함께 정리했습니다:
-- `videotogif_conversions` 테이블 삭제 (`supabase/migrations/0005_drop_legacy_render_architecture.sql`)
-- `videotogif-uploads`, `videotogif-results` Storage 버킷 삭제
-- `video-to-gif/worker/`, 루트 `render.yaml`, `RENDER_DEPLOYMENT_MANUAL.md`, `vercel.json`(cron) 삭제
-- Vercel 프로덕션 환경변수 `VIDEOTOGIF_WORKER_URL`/`VIDEOTOGIF_WORKER_SECRET`/`SUPABASE_SERVICE_ROLE_KEY`/`CRON_SECRET` 삭제
-- Render의 `videotogif-worker` 서비스 자체는 사용자가 Render 대시보드에서 직접 삭제 필요(외부 서비스라 대신 삭제하지 않음)
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.05 (video-to-gif)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+Next.js Turbopack 빌드:
+```bash
+npm run build
+```

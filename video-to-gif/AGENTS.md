@@ -1,41 +1,100 @@
-# VideoToGIF 에이전트 작업 지침
+# VideoToGIF 에이전트 작업 지침 (AGENTS.md)
 
-이 프로젝트는 AIMaster 공용 Supabase 인증·권한 체계를 사용하는 `video-to-gif` 서브프로젝트입니다. 작업 전 루트 `../AGENTS.md`와 `../CLAUDE.md`를 함께 읽습니다.
+> **최초 제정**: 2026-09-19  
+> **최종 개정**: 2026-10-19 (v1.10 디자인 리뉴얼 & 가이드북 신설)  
+> **적용 대상**: Claude Code, Codex, Antigravity(Gemini) 등 모든 AI 에이전트  
 
-## 안전 규칙
+이 프로젝트는 AIMaster 공용 Supabase 인증·권한 체계를 사용하는 `video-to-gif` 서브프로젝트입니다. 작업 전 루트 `../AGENTS.md`와 `../CLAUDE.md`, `../DESIGN.md`를 반드시 먼저 읽습니다.
 
-- 코드·문서·로컬 테스트는 자율 진행합니다.
-- 파일 삭제, DB 마이그레이션 적용, 환경변수 변경, 실제 운영 배포, 실제 변환 워커 공개는 사전 확인합니다.
-- 원본 영상은 DB에 저장하지 않고 임시 디렉터리에서 처리 후 삭제합니다.
-- 결과 GIF는 사용자별 Storage 경로에 저장하고 다운로드 권한을 분리합니다.
+---
 
-## 구현 원칙
+## 1. 기본 정보 및 서비스 식별자
 
-- 프로그램 slug: `video-to-gif`
-- **2026-09-20부터 변환은 서버(Render 워커)가 아니라 브라우저에서 `@ffmpeg/ffmpeg`
-  (ffmpeg.wasm)로 직접 처리합니다.** 이전엔 Vercel API → Render Docker 워커 구조였는데,
-  Vercel 요청 본문 100MB 제한·Render Blueprint가 이 저장소 전체 push마다 워커를
-  재배포해 작업이 유실되는 문제·두 서버 간 비밀값 불일치 등이 반복돼 사용자와 상의 후
-  서버를 제거하고 브라우저 처리로 전환했다(자세한 경위는 README.md 참고). **이제 이
-  프로젝트에는 별도 워커/백엔드 변환 서버가 없다 — 새 기능을 추가할 때 워커를 다시
-  만들지 말고, 브라우저 쪽 ffmpeg.wasm 로직(`components/ConverterWorkspace.tsx`)을
-  확장할 것.**
-- GIF는 2-pass `palettegen`/`paletteuse`를 사용합니다(브라우저 안에서 실행).
-- 출력은 8MiB 이하가 될 때까지 해상도·팔레트를 단계적으로 최적화하며 영상 길이는 임의로 자르지 않습니다.
-- 원본 영상과 결과 GIF 모두 서버/DB에 저장하지 않습니다 — 결과는 브라우저 메모리의
-  Blob URL로만 존재하고 페이지를 벗어나면 사라집니다. 이력 저장이 필요해지면 그때
-  다시 설계할 것(현재는 의도적으로 없음).
-- 로그인 게이트(`requireProgramAccess()`)는 그대로 유지합니다 — `/dashboard` 진입 자체는
-  여전히 AIMaster 프로그램 권한이 필요합니다.
-- 권한이 필요한 레이아웃에는 `dynamic = "force-dynamic"`과 `fetchCache = "force-no-store"`를 함께 선언합니다.
-- v1.04 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+| 항목 | 내용 |
+|---|---|
+| **프로그램 번호** | **36번** |
+| **프로그램 명칭** | **상세페이지 GIF 자동화 (VideoToGIF)** |
+| **프로그램 slug** | `video-to-gif` |
+| **현재 버전** | `v1.10` (`package.json`, `lib/version.ts`, Supabase DB 3중 동기화) |
+| **공식 도메인** | `https://video-to-gif.buylife.xyz` (대시보드: `/dashboard`) |
+| **적용 템플릿** | **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션** |
+| **테마 및 색상** | 다크 차콜 (`#0d1117` + `#161b22`) + 이커머스 앰버 골드 (`#f59e0b`) |
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.05 (video-to-gif)
+## 2. 안전 규칙 (Mandatory Safety Rules)
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+- 코드 생성, 수정, 로컬 테스트 및 빌드는 자율 진행합니다.
+- 파일/폴더 삭제, DB 마이그레이션 적용, 환경변수 변경, 유료 API 호출은 사전 승인을 받습니다.
+- **원격 서버 무저장 원칙**: 원본 동영상과 변환된 GIF는 서버나 DB에 영구 저장하지 않고, 100% 브라우저 메모리의 Blob URL로만 유지됩니다.
+- 회원 계정 및 권한: 관리자는 `buylifemall@gmail.com`, 일반 테스트 계정은 `buylifemall@naver.com`으로 고정합니다.
 
-## 2026-10-16 도메인 통일(SSO) — v1.06 (Claude Code 윈도우)
-- 새 주소 `https://video-to-gif.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
-- 검수: 미들웨어가 없던 구조라 middleware.ts 신설(옛 주소 이동만)·서버 클라이언트 쿠키 도메인. 옛 주소 /dashboard → 새 주소 308, 재로그인 없이 열림(시험 계정 표시). app_url은 기존처럼 /dashboard 포함
-- 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+---
+
+## 3. 아키텍처 및 핵심 기술 스택
+
+1. **클라이언트 사이드 WASM 변환 엔진**:
+   - 서버(Render 워커)가 아닌 사용자 브라우저 내에서 `@ffmpeg/ffmpeg` (v0.12.15) WebAssembly 바이너리로 직접 구동.
+   - Vercel 100MB 요청 제한 및 서버 유지비용을 원천 차단.
+2. **지능형 8단계 화질 사다리 (Candidates Ladder)**:
+   - 결과 GIF가 **8MiB(약 8.3MB)** 이하가 될 때까지 1단계(100% 해상도/256색)부터 8단계(45% 해상도/128색)까지 자동 최적화 탐색.
+   - 영상의 전체 재생 시간을 임의로 자르지 않고 100% 보존.
+3. **2-Pass 고화질 팔레트 인코딩**:
+   - `palettegen` (lanczos 필터, stats_mode=diff) ➔ `paletteuse` (sierra2_4a 디더링).
+4. **다중 큐 및 일괄 처리**:
+   - 최대 20개 동시 등록, 파일당 최대 200MB 지원. 브라우저 CPU 안전을 위해 순차(1개씩) 인코딩 처리.
+
+---
+
+## 4. 적용 디자인 템플릿 및 UI/UX 구조
+
+- **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션 (Creative Atelier Style — eCommerce GIF Lab Edition)**
+- **토큰 시스템 (`app/globals.css`, `tailwind.config.ts`)**:
+  - 배경: `--background: #0d1117` (딥 차콜 나이트)
+  - 서피스: `--surface: #161b22`, `--surface-hover: #1f2937`, `--border: #30363d`
+  - 포인트: `--brand: #f59e0b` (앰버 골드), `--brand-emerald: #10b981`, `--brand-cyan: #38bdf8`
+- **사이드바 메뉴 표준화 (`components/layout/Sidebar.tsx`)**:
+  - 브랜드 칩: `v1.10 GIF LAB` 앰버 칩 발광
+  - 1-2-3단계 넘버링: 1. 동영상 파일 등록 ➔ 2. WASM 8MiB 최적화 ➔ 3. 고화질 GIF 다운로드
+  - **`📖 연동 & 사용 매뉴얼` (`/guide`)** 신설 (골드 하이라이트)
+  - 모바일 햄버거 토글 드로어 완비 (767px 이하)
+- **메인 스튜디오 (`components/ConverterWorkspace.tsx`)**:
+  - 상단 `.studio-hero` 웰컴 배너 및 3대 KPI 지표 카드
+  - 모던 다크 드롭존, 실시간 진행률 게이지 바, 인라인 GIF 미리보기 모달 지원
+  - 40fps/50fps 토글 및 560px/780px/860px 쇼핑몰 프리셋 버튼
+
+---
+
+## 5. 독립 비주얼 가이드북 (`/guide/page.tsx`) 구조
+
+- 4단계 이커머스 GIF 출판 파이프라인 (등록 ➔ 세팅 ➔ WASM 사다리 ➔ 즉시 삽입)
+- 쇼핑몰 플랫폼별 규격 비교 매트릭스 (스마트스토어 860px, 쿠팡 780px, 자사몰, 와디즈)
+- 8단계 화질 사다리 최적화 알고리즘 심층 해설
+- 100% 브라우저 메모리 구동 & 프라이버시 보호 배너
+- 자주 묻는 질문 FAQ 5종 골드 아코디언 인터랙션
+
+---
+
+## 6. 검증 및 배포 절차
+
+1. 로컬 무결성 검증: `npm run build` (Next.js Turbopack 빌드 성공 확인)
+2. 프로덕션 배포: `npx vercel --prod --yes`
+3. 브라우저 실세션 검수:
+   - **Antigravity / Codex**: **Microsoft Edge(엣지) 전용** (`msedge.exe`, `headless: false`, 10분 창 최전면 유지).
+   - 일반 회원 테스트 계정(`buylifemall@naver.com`) SSR 세션 쿠키 주입.
+   - 데스크톱(1440px) 및 모바일(375px) 6종 스크린샷 아티팩트 보존.
+
+---
+
+## 7. 작업 히스토리
+
+- **v1.00 ~ v1.03 (2026-09-20)**: Render 워커 구조 폐기, 브라우저 클라이언트 `@ffmpeg/ffmpeg` WASM 직접 변환 구조 전환.
+- **v1.04 (2026-10-12)**: 회원 핸드폰 번호 필수 정책 적용.
+- **v1.05 (2026-10-16)**: DB 연동 변수 호환 (`NEXT_PUBLIC_SUPABASE_URL` 등).
+- **v1.06 (2026-10-16)**: 도메인 통일(SSO) `https://video-to-gif.buylife.xyz`.
+- **v1.10 (2026-10-19, Antigravity CLI)**:
+  - 크리에이티브 아틀리에 다크 스타일 전면 리뉴얼.
+  - `/guide` 독립 비주얼 가이드북 전면 신설.
+  - 사이드바 표준화 (1-2-3 넘버링, `/guide` 골드 칩, 모바일 햄버거 메뉴).
+  - 메인 워크스페이스 `.studio-hero` 배너, 3대 KPI 카드, GIF 인라인 미리보기 모달 탑재.
+  - Vercel 프로덕션 배포 및 Microsoft Edge 최전면 포그라운드 실세션 검수 완료.

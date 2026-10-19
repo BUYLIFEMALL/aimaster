@@ -1,5 +1,53 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 상세페이지 GIF 자동화(VideoToGIF) v1.10: 크리에이티브 아틀리에 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 69개 완료 / 83.1% 달성!)
+
+- **대상**: `video-to-gif/` (https://video-to-gif.buylife.xyz, slug: `video-to-gif`, 36번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션 (Creative Atelier Style — eCommerce GIF Lab Edition)**.
+     - **디자인 토큰 시스템 구축**: 딥 차콜 나이트(`--background: #0d1117`, `--surface: #161b22`, `--surface-hover: #1f2937`, `--border: #30363d`), 이커머스 앰버 골드(`--brand: #f59e0b`, `--brand-gold: #fbbf24`), 에메랄드(`--brand-emerald: #10b981`), 시안 블루(`--brand-cyan: #38bdf8`), 클린 슬레이트 텍스트 체계 적용 (`src/app/globals.css`, `tailwind.config.ts`).
+     - 클라이언트 브라우저 WebAssembly FFmpeg (`@ffmpeg/ffmpeg`) 2-Pass 고화질 팔레트 및 8MiB 지능형 사다리 최적화 엔진 무결성 유지 (100% 프라이버시 보호·서버 무저장).
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.10 GIF LAB` 앰버 발광 칩 탑재.
+     - 작업 파이프라인 1-2-3단계 넘버링 적용 (`1. 동영상 파일 등록`, `2. WASM 8MiB 최적화`, `3. 고화질 GIF 다운로드`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (골드 하이라이트 배지).
+     - 모바일(767px 이하) 반응형 헤더 및 햄버거 토글 드로어 메뉴 완비.
+  3. **메인 스튜디오 리뉴얼 (`components/ConverterWorkspace.tsx`)**:
+     - 상단 앰버 골드 발광 테두리의 `.studio-hero` 웰컴 배너 및 퀵 링크 버튼([📖 사용 매뉴얼 보기]) 탑재.
+     - 3대 핵심 KPI 지표 카드(WASM 2-Pass 고화질 무손실 엔진, 8MiB 스마트 사다리 압축, 최대 20개 일괄 큐 & 200MB 지원) 탑재.
+     - 모던 다크 드롭존, 실시간 진행률 게이지 바, 완료 시 인라인 GIF 미리보기 모달 및 원클릭 다운로드 완비.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "상세페이지를 사로잡는 초고화질 8MiB GIF 제작 & 최적화 완벽 가이드".
+     - **4단계 이커머스 GIF 출판 파이프라인**: 1) 동영상 등록 ➔ 2) 해상도/FPS 세팅 ➔ 3) WASM 8단계 사다리 압축 ➔ 4) 미리보기 & 즉시 삽입.
+     - **주요 쇼핑몰 플랫폼별 규격 비교 매트릭스**: 스마트스토어(860px), 쿠팡(780px), 자사몰, 와디즈별 권장 용량·해상도·FPS 가이드.
+     - **지능형 8단계 화질 사다리(Candidates Ladder) 작동 원리 해설**: 재생 시간 100% 보존 기술 안내.
+     - 100% 클라이언트 사이드 WASM 구동 & 프라이버시 무저장 보안 배너 탑재.
+     - 자주 묻는 질문 FAQ 5종 골드 아코디언 인터랙션 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_36_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 14.2.35 Turbopack 프로덕션 빌드 성공 (경로 8개 완벽 생성, exit code 0).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_7rnbcAseCW2ZUMfsPBQRLe85PA1z`
+     - 공식 도메인 즉시 반영: https://video-to-gif.buylife.xyz (대시보드: `/dashboard`)
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 SSR 세션 쿠키를 주입하여 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-14981`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_gif_desktop_studio_v110.png`: 데스크톱 메인 스튜디오 전경, 히어로 배너, 3대 KPI 지표 카드
+       - `edge_gif_desktop_dropzone_v110.png`: 모던 다크 드롭존 및 변환 옵션 패널
+       - `edge_gif_desktop_guide_v110.png`: 비주얼 가이드북 상단 및 4단계 출판 파이프라인 카드
+       - `edge_gif_desktop_guide_matrix_v110.png`: 쇼핑몰 플랫폼별 매트릭스, 8단계 사다리 해설, FAQ 아코디언
+       - `edge_gif_desktop_usage_v110.png`: 대시보드 하단 상세페이지 실전 활용 가이드 섹션
+       - `edge_gif_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `video-to-gif/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `video-to-gif/README.md` (동기화 갱신)
+     - `video-to-gif/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `video-to-gif/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `video-to-gif/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `video-to-gif/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본 및 검수 결과 기록)
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — eBook Studio v1.10: 포커스 스튜디오 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 68개 완료 / 81.9% 달성!)
 
 - **대상**: `ebook-studio/` (https://ebook-studio.buylife.xyz, slug: `ebook-studio`, 20번)
