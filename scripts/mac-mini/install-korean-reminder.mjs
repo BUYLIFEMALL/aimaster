@@ -14,13 +14,17 @@ import { fileURLToPath } from "node:url";
 const argHome = process.argv.indexOf("--home");
 const HOME = argHome > 0 ? path.resolve(process.argv[argHome + 1]) : os.homedir();
 const here = path.dirname(fileURLToPath(import.meta.url));
-const source = path.join(here, "korean-reminder.js");
+// 3단 장치(2026-10-19): ① 출력 스타일 Korean(기본 지침에 한국어 규칙) ② 질문마다 상기(UserPromptSubmit) ③ 도구 사용마다 상기(PostToolUse)
+const posix = (p) => p.split(path.sep).join("/");
 const target = path.join(HOME, ".claude", "korean-reminder.js");
-const command = `node "${target.split(path.sep).join("/")}"`;
+const targetPost = path.join(HOME, ".claude", "korean-reminder-posttool.js");
+const command = `node "${posix(target)}"`;
+const commandPost = `node "${posix(targetPost)}"`;
 
 fs.mkdirSync(path.dirname(target), { recursive: true });
-fs.copyFileSync(source, target);
-console.log(`상기 스크립트 복사: ${target}`);
+fs.copyFileSync(path.join(here, "korean-reminder.js"), target);
+fs.copyFileSync(path.join(here, "korean-reminder-posttool.js"), targetPost);
+console.log(`상기 스크립트 복사: ${target}, ${targetPost}`);
 
 const dirs = new Set([path.join(HOME, ".claude")]);
 if (argHome < 0 && process.env.CLAUDE_CONFIG_DIR) dirs.add(process.env.CLAUDE_CONFIG_DIR);
@@ -46,18 +50,35 @@ for (const dir of dirs) {
     console.log(`건너뜀(설정 파일 형식 오류 — 손대지 않음): ${file}`);
     continue;
   }
+  // 출력 스타일 파일은 설정 폴더마다 output-styles/ 에 둔다(Orca 계정은 계정 폴더가 사용자 폴더 역할)
+  const styleDir = path.join(dir, "output-styles");
+  fs.mkdirSync(styleDir, { recursive: true });
+  fs.copyFileSync(path.join(here, "korean-output-style.md"), path.join(styleDir, "korean.md"));
   data.hooks ??= {};
   data.hooks.UserPromptSubmit ??= [];
-  const exists = data.hooks.UserPromptSubmit.some((e) => (e.hooks ?? []).some((h) => String(h.command ?? "").includes("korean-reminder.js")));
-  if (exists) {
+  data.hooks.PostToolUse ??= [];
+  const has = (list, name) => list.some((e) => (e.hooks ?? []).some((h) => String(h.command ?? "").includes(name)));
+  const changes = [];
+  if (!has(data.hooks.UserPromptSubmit, "korean-reminder.js")) {
+    data.hooks.UserPromptSubmit.push({ hooks: [{ type: "command", command, timeout: 5 }] });
+    changes.push("질문마다 상기");
+  }
+  if (!has(data.hooks.PostToolUse, "korean-reminder-posttool.js")) {
+    data.hooks.PostToolUse.push({ matcher: "*", hooks: [{ type: "command", command: commandPost, timeout: 5 }] });
+    changes.push("도구마다 상기");
+  }
+  if (data.outputStyle !== "Korean") {
+    data.outputStyle = "Korean";
+    changes.push("출력 스타일 Korean");
+  }
+  if (!changes.length) {
     console.log(`이미 설치됨: ${file}`);
     continue;
   }
   const backup = `${file}.before-korean-hook`;
   if (!fs.existsSync(backup)) fs.copyFileSync(file, backup);
-  data.hooks.UserPromptSubmit.push({ hooks: [{ type: "command", command, timeout: 5 }] });
   fs.writeFileSync(file, JSON.stringify(data, null, 2) + "\n");
   added++;
-  console.log(`훅 추가: ${file} (백업 ${path.basename(backup)})`);
+  console.log(`추가(${changes.join("·")}): ${file} (백업 ${path.basename(backup)})`);
 }
-console.log(`완료 — 새로 추가 ${added}곳. 새 Orca 계정을 연결했다면 이 명령을 한 번 더 실행하세요. 적용은 다음 질문부터입니다.`);
+console.log(`완료 — 새로 추가 ${added}곳. 새 Orca 계정을 연결했다면 이 명령을 한 번 더 실행하세요. 출력 스타일은 Claude Code를 다시 시작해야 적용됩니다.`);

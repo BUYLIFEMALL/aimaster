@@ -142,6 +142,7 @@ Co-Authored-By: <CLI 서명>" \
 node /Volumes/gt1_mega/Antigravity/AIMaster/scripts/mac-mini/install-korean-reminder.mjs
 ```
 
+- **(2026-10-19 확장) 3단 장치를 설치한다: ① 출력 스타일 `Korean`(기본 지침에 한국어 규칙, 재시작 후 적용) ② 질문마다 상기 ③ 도구 사용마다 상기.** 이전에 한 번 실행했어도 다시 실행하면 빠진 장치만 추가된다.
 - 상기 스크립트를 `~/.claude/korean-reminder.js`로 복사하고, `~/.claude`·`CLAUDE_CONFIG_DIR`·Orca 계정 폴더(`~/Library/Application Support/orca/claude-profiles/*/home`)의 `settings.json`마다 `UserPromptSubmit` 훅 하나를 추가한다(기존 상태바 보호·Orca 훅 유지, 바꾸기 전 `settings.json.before-korean-hook` 백업, 두 번 실행해도 겹치지 않음).
 - 새 Orca 계정을 연결하면 다시 실행한다. 적용은 다음 질문부터. 확인: 새 질문 때 훅 출력 「[0순위 규칙 상기] …」가 맥락에 들어오면 정상.
 - 규칙 전문·원인 분석: 루트 `CLAUDE.md` 맨 위 0순위 규칙.
