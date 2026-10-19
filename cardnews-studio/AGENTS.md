@@ -50,7 +50,14 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.18` (2026-10-19)
+- **현재 버전**: `v1.19` (2026-10-19)
+- **v1.19 (2026-10-19, Claude Code 윈도우) — 📅 인스타 예약 게시(자동 포스팅 2차) + 게시 기록** — 주인님 지시 「예약 게시 2차 진행」 + 제안 「게시 기록(시각·게시물 주소)으로 중복 방지」:
+  - DB(운영 `esgxyikcnnvmlhygjkth`): `cns_insta_posts`(회원 본인만 읽기 RLS, 쓰기는 서버만, 30일 뒤 자동 삭제) — `supabase/migrations/0010_v1_19_insta_posts.sql`. Vercel 운영 환경변수 `CRON_SECRET` 추가(비밀값, 주인님 승인).
+  - 예약: 내보내기 패널에 [지금 게시]/[예약 게시] 전환, 한국 시간 10분 뒤~60일 안, 회원당 대기 20건. 이미지는 예약 시각까지 회원 폴더에 보관 → `vercel.json` 자동 실행(5분마다) `/api/cardnews/instagram/dispatch`(Bearer CRON_SECRET, 없으면 401)가 조건부 잠금(scheduled→publishing)으로 두 번 게시를 막고, 게시 직전 이용 권한을 다시 확인한 뒤 회원 본인 연결값으로 게시, 끝나면 이미지 삭제. 30분 넘게 멈춘 글은 실패 처리.
+  - 게시 기록: 즉시·예약 모두 기록(상태·시각·게시물 주소·실패 사유). 이 카드뉴스를 이미 게시했으면 「○월 ○일에 이미 게시했습니다」 경고. 예약은 목록에서 취소(이미지도 삭제).
+  - 파일: `src/lib/cardnews/schedule.ts`(순수 함수), `src/lib/instagram/posts.ts`(게시·기록·예약 실행 공용), `api/cardnews/instagram/{posts,dispatch}`, `publish/route.ts`(기록 추가), `InstagramPublishPanel.tsx`, `tests/schedule.test.mjs`.
+  - 검수: 단위 46/46, tsc, 빌드, Vercel READY(`cardnews-studio-5djaix1h9` — 출력이 잘려 같은 코드로 1회 더 배포됨, 빌드 1회 추가), DB v1.19, 자동 실행 등록 확인(`vercel crons ls`: `*/5 * * * *`), 비밀값 없는 호출 401·비로그인 기록 조회 401. 메인 크롬(관리자): 임시 프로젝트로 12월 8일 10:00 예약 → 기록에 「예약됨」 표시 → 예약 취소 → DB `canceled`·업로드 이미지 0장 확인 → 임시 프로젝트·기록 삭제(0건). **실제 게시는 하지 않음(주인님 결정 유지).**
+  - 남은 것: 취소된 예약의 기록 문구가 「등록 시각」으로 보임 → 「예약 시각 + 취소」로 바꾸기(다음 배포 때 함께), 예약 실행 결과를 실제로 본 적 없음(첫 실제 예약 때 확인).
 - **v1.18 (2026-10-19, Claude Code 윈도우) — 📤 인스타그램에 바로 올리기(자동 포스팅 1차: 즉시 게시)** — 주인님 지시 「모든 인스타 자동화 프로그램은 자동 포스팅까지」, 「한 번 연결하면 여러 프로그램에서 가져와 쓰기」:
   - 내보내기 화면 패널(`components/studio/InstagramPublishPanel.tsx`): 연결 상태(연결됨 @계정 / 연결 필요·만료 → INSTA 포스팅 자동화 설정으로 이동), 게시 문구(캡션 생성값 자동 채움, 2200자), 공개 게시 확인 체크 후 [인스타그램에 게시] — 1장=피드, 2~10장=캐러셀.
   - 흐름: 브라우저에서 카드를 JPEG로 그림(`renderClient.ts` `renderCardToJpegBlob`, 인스타 API는 JPEG만) → `POST /api/cardnews/instagram/upload`(회원 폴더 `{userId}/insta/{묶음}/NN.jpg` 서명 업로드 주소) → 공개 저장소 `cardnews-images`에 올림 → `POST /api/cardnews/instagram/publish`(경로가 본인 폴더인지 검사, 회원 본인 연결값으로 게시, 성공·실패 모두 임시 파일 삭제, 오류 메시지에서 토큰 가림) → 게시물 주소 표시. `GET /api/cardnews/instagram`은 연결 상태만(토큰 미포함).

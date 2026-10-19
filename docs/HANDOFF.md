@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — INSTA Cardnews 자동화 v1.19: 인스타 예약 게시(자동 포스팅 2차) + 게시 기록
+
+- **대상**: `cardnews-studio/` · DB 운영 `esgxyikcnnvmlhygjkth`
+- **한 일**: 내보내기 패널에 [지금 게시]/[예약 게시](한국 시간 10분 뒤~60일) + 이 카드뉴스의 게시 기록(상태·시각·게시물 주소·예약 취소) + 이미 게시한 카드뉴스 경고. 새 표 `cns_insta_posts`, Vercel 자동 실행 5분마다 `/api/cardnews/instagram/dispatch`(`CRON_SECRET` 새로 추가). 연결값은 INSTA 포스팅 자동화의 회원 본인 `insta_accounts` 재사용.
+- **검수**: 단위 46/46·tsc·빌드, 배포 READY, DB v1.19, 자동 실행 등록, 비밀값 없는 호출 401. 크롬(관리자)에서 12월 8일 예약 → 취소 → DB 취소·이미지 0장 → 임시 데이터 삭제. **실제 게시는 하지 않음.** 배포 출력이 잘려 같은 코드로 1회 더 배포됨(빌드 1회 추가).
+- **남은 일**: 취소 기록 문구 수정(다음 배포 때), 첫 실제 예약 실행 결과 확인, 다음 작업 = 데이터형 카드 강조색을 테마 색과 맞추기. 상세: `cardnews-studio/AGENTS.md` v1.19, `cardnews-studio/docs/PLAN_20261019_INSTA_SCHEDULE.md`.
+- **프로그램 링크**:
+
+https://cardnews-studio.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — YOUTUBE Shorts 자동화(shots) v1.20: 유튜브 다크 콘솔 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 72개 완료 / 86.7% 달성!)
 
 - **대상**: `shots/` (https://shots.buylife.xyz, slug: `auto-shorts-posting`, 58번)
