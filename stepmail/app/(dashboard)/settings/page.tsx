@@ -4,6 +4,10 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -33,6 +37,7 @@ export default async function SettingsPage() {
     .eq("user_id", user.id);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -65,6 +70,29 @@ export default async function SettingsPage() {
           ))}
         </div>
       </div>
+
+      {/* ⏰ 예약 발송 실행 방식(v1.21, 지침 docs/SCHEDULER_POLICY.md) — 캠페인 켜기/끄기는 「예약 발송」 화면에서 한다 */}
+      <section className="mt-5 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-gray-900">⏰ 예약 발행</h2>
+          <p className="text-xs text-gray-500">
+            캠페인 예약 발송을 무엇으로 돌릴지 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
+            본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 캠페인 켜기/끄기는 「예약 발송」 화면에서 합니다.
+          </p>
+        </div>
+        <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
+        <p className="mb-2 text-xs font-semibold text-gray-800">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+        <ol className="mb-3 list-decimal space-y-1 pl-4 text-xs text-gray-600">
+          <li><a className="font-semibold underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+          <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
+          <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+        </ol>
+        <ApiKeyRow
+          provider="cronjob_org_api_key"
+          label={PROVIDER_LABELS.cronjob_org_api_key}
+          maskedValue={keyMap.has("cronjob_org_api_key") ? maskApiKey(keyMap.get("cronjob_org_api_key")!) : null}
+        />
+      </section>
 
       <section className="mt-5 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
         <div className="mb-3">

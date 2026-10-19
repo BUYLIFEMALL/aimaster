@@ -10,7 +10,8 @@ export type ApiKeyProvider =
   | "suno"
   | "json2video"
   | "google_client_id"
-  | "google_client_secret";
+  | "google_client_secret"
+  | "cronjob_org_api_key";
 
 // 발송 "차수"(1~5차)는 상태값이 아니라 send_count(정수)로 표현한다 — status는 미발송/발송중
 // 공통의 "new"와 종료 상태(customer_completed/stopped) 3가지로만 구분한다.

@@ -2,6 +2,10 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { CampaignCard, type CampaignCardData } from "@/components/campaigns/CampaignCard";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulePublishingControl } from "@/components/campaigns/SchedulePublishingControl";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +35,7 @@ export default async function CampaignsPage() {
         </Link>
       </div>
 
+      <SchedulePublishingControl initial={await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id)} />
       {campaignList.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <div className="text-5xl mb-4">📤</div>

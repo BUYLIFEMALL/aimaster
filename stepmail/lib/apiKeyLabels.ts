@@ -12,4 +12,5 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   json2video: "JSON2Video",
   google_client_id: "Google OAuth Client ID",
   google_client_secret: "Google OAuth Client Secret",
+  cronjob_org_api_key: "cron-job.org API 키 (캠페인 예약 발송 — 「내 cron-job.org」 방식에서만 필요)",
 };

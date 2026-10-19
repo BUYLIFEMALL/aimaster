@@ -288,7 +288,7 @@ export default async function GuidePage() {
         </div>
       </div>
 
-      {/* 6. 자주 묻는 질문 (FAQ 5종) */}
+      {/* 6. 자주 묻는 질문 (FAQ 6종) */}
       <section className="space-y-4">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <span>❓</span>
@@ -343,6 +343,16 @@ export default async function GuidePage() {
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
               리드 관리 테이블에서 해당 고객의 상태를 '고객 전환 완료' 또는 '발송 중지'로 변경하시면, 이후의 모든 예약 캠페인 대상에서 자동으로 제외되어 불필요한 메일이 더 이상 발송되지 않습니다.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q6. 예약 발송은 무엇으로 돌아가나요? 내 cron-job.org로 돌릴 수 있나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              API키등록·플랫폼연동 → ⏰ 예약 발행에서 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 매시 정각에 발송 시각이 된 캠페인을 보냅니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 캠페인을 켤 때 본인 계정에 작업이 자동으로 켜져 매시 0·30분에 확인하고, 보낼 캠페인이 없으면 자동으로 멈춥니다. 예약 발송 화면의 「예약 발송 일시정지」로 전체를 잠시 멈출 수 있습니다.
             </p>
           </details>
         </div>

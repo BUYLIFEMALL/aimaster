@@ -1,79 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dispatchCampaign } from "@/lib/dispatch";
-import { isCampaignDue } from "@/lib/schedule";
-
-/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
-async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
-  const ids = Array.from(new Set(userIds.filter(Boolean)));
-  if (ids.length === 0) return new Set();
-  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
-  return new Set(
-    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
-      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
-      .map((p) => p.id)
-  );
-}
+import { dispatchDueCampaigns } from "@/lib/schedulerMember/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-// real_estate_sales/threads의 CRON_SECRET Bearer 인증 패턴을 그대로 재사용.
-// vercel.json에 매시 정각(0 * * * *) 스케줄로 등록한다.
+// 캠페인 정기 발송 — 운영자 Vercel 예약 호출(vercel.json, 매시 정각). real_estate_sales/threads의 CRON_SECRET Bearer 인증 패턴.
+// v1.21: 회원이 고른 실행 방식대로 — 「Vercel(운영 기본)」 회원 캠페인만 여기서 보내고, 「내 cron-job.org」 회원·일시정지 회원은 건너뛴다
+// (그 회원들은 /api/cron/dispatch-member를 회원 토큰으로 부른다). 실행 로직: lib/schedulerMember/dispatch.ts. 지침: 루트 docs/SCHEDULER_POLICY.md
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  const secret = process.env.CRON_SECRET;
+  // v1.21: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
-async function dispatch() {
-  const admin = createAdminClient();
-  const now = new Date();
-
-  const { data: campaigns, error } = await admin
-    .from("stepmail_campaigns")
-    .select("id, user_id, draft_id, target_send_count, quantity_per_run, send_hour, recurrence, weekly_day, last_run_at, is_active")
-    .eq("is_active", true);
-
-  if (error) throw new Error(error.message);
-
-  // 정지된 계정은 자동 발송 대상에서 제외한다. profiles는 AIMaster 공용 테이블이라 이
-  // 서브프로젝트의 Database 타입에는 없다(music/lib/access.ts와 동일하게 느슨한 타입으로 조회).
-  const candidateUserIds = Array.from(new Set((campaigns ?? []).map((c) => c.user_id)));
-  const adminLoose = admin as unknown as { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
-  const { data: suspendedProfiles } = await adminLoose
-    .from("profiles")
-    .select("id")
-    .in("id", candidateUserIds.length > 0 ? candidateUserIds : [""])
-    .eq("is_suspended", true);
-  const suspendedUserIds = new Set((suspendedProfiles ?? []).map((p: { id: string }) => p.id));
-
-  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 캠페인은 발송하지 않는다.
-  const phoneOkUsers = await phoneRegisteredUserIds(adminLoose, candidateUserIds);
-  const dueCampaigns = (campaigns ?? []).filter((c) => !suspendedUserIds.has(c.user_id) && phoneOkUsers.has(c.user_id) && isCampaignDue(c, now));
-
-  const summary: { campaignId: string; sentCount: number; failedCount: number }[] = [];
-
-  for (const campaign of dueCampaigns) {
-    const result = await dispatchCampaign(admin, campaign);
-    await admin.from("stepmail_campaigns").update({ last_run_at: now.toISOString() }).eq("id", campaign.id);
-    summary.push({ campaignId: campaign.id, sentCount: result.sentCount, failedCount: result.failedCount });
+async function handle(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  return { processed: dueCampaigns.length, summary };
+  const result = await dispatchDueCampaigns({
+    excludeUserIds: await membersExcludedFromPlatform(createAdminClient() as unknown as SupabaseClient),
+    skipAll: !platformSchedulerEnabled(),
+  });
+  return NextResponse.json({ ok: true, ...result });
 }
 
 export async function GET(request: NextRequest) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const result = await dispatch();
-  return NextResponse.json({ ok: true, ...result });
+  return handle(request);
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const result = await dispatch();
-  return NextResponse.json({ ok: true, ...result });
+  return handle(request);
 }
