@@ -84,7 +84,8 @@
 | `stepmail` (대량 메일발송, 정기형) | ✅ 적용·배포·실검수 | v1.21 · 2026-10-20 (`stepmail-oriyijlug`) | 캠페인 켤 때 켜기·보낼 캠페인 0개면 끄기(이미 보낸 「한 번만」 제외), 매시 0·30분. 표 `stepmail_member_scheduler`. 중복 발송 방지·**이용 권한 확인**·비밀값 검사 추가 |
 | `booking-reminder` (예약 리마인드, 정기형) | ✅ 적용·배포·실검수 | v1.21 · 2026-10-20 (`booking-reminder-mnqqz3cyx`) | 규칙 켤 때 켜기·0개면 끄기, 15분, Next 14라 `waitUntil`. 표 `booking_member_scheduler`. **발송 전 선점(중복 방지)**·이용 권한 확인·비밀값 검사 추가, cron-job.org 키 칸 새로 둠 |
 | `crm-google-form` (구글폼 CRM 팔로우업, 정기형) | ✅ 적용·배포·실검수(재개만 한도 초과로 미확인) | v1.10 · 2026-10-20 (`crm-google-form-2jvoxalyt`) | 규칙 켤 때 켜기·0개면 끄기, **매일 09:00 KST**, Next 14라 `waitUntil`. 표 `crm_member_scheduler`. 발송 전 선점·이용 권한 확인·비밀값 검사 추가 |
-| `youtube-auto-reply`, `trending-product-finder` | ⚪ 진행 중(2순위) — 2026-10-20 주인님 「2순위도 적용」 | — | 회원 정기 자동 작업 |
+| `youtube-auto-reply` (유튜브 댓글 예약 모니터링, 정기형) | ✅ 적용·배포(Vercel 방식 실검수, cron-job.org 실검수는 한도 소진으로 대기) | v1.12 · 2026-10-20 (`youtube-auto-reply-1ehpbw5to`) | 모니터링 시작=켜기·중지=끄기, 5분마다 깨우고 주기는 회원 설정, `after`. 표 `ytreply_member_scheduler`. 중복 실행 방지·이용 권한 확인·예약 주소 4곳 비밀값 검사 |
+| `trending-product-finder` | ⚪ 진행 중(2순위) — 2026-10-20 주인님 「2순위도 적용」 | — | 회원 정기 자동 작업 |
 | `real_estate_sales` | ⏸ 운영자 유지(주인님 결정 2026-10-20) | — | 공공데이터 키(서울열린데이터·공공데이터포털·브이월드)는 회원이 직접 발급·등록하기 어려워 **당분간 운영자 공용 키 + 운영자 Vercel 정기 수집 그대로**. 회원 cron-job.org 방식은 적용하지 않음. **사용자가 많아지면** 회원 본인 공공 키 등록 + 본인 예약 방식으로 전환(그때 다시 플랜). AI 키는 지금처럼 회원 본인 키 |
 
 ## 9. 비용·cron-job.org 무료 제한 메모
@@ -96,3 +97,9 @@
 |---|---|
 | 2026-10-19 | 제정(Claude Code 윈도우). 주인님 지시: 「예약 기능은 회원 본인 cron-job.org API 키 등록 후 사용」, 「설정 화면은 키만, 예약 설정은 포스팅 쪽」. agy의 주기 선택·토글(설정 화면) 1차안은 포스팅 쪽 예약과 충돌해 「1분 고정 + 자동 켜기/끄기 + 보관함 일시정지」로 정리. |
 | 2026-10-19 | 주인님 결정: **회원이 Vercel / cron-job.org 중 선택**(최상단 규칙에 따라 본인 계정 선택지 제공), **기본값 운영 Vercel·배포판 cron-job.org**. 비용 비교(공식 요금표): cron-job.org를 써도 처리는 사이트 Vercel에서 돌아 회원이 많을수록 Vercel 방식이 확인 비용이 적음. threads-content-ops v2.08·키트 반영. |
+
+### 2026-10-20 공용 개선 대기 — 실패 시 상태 되돌리기 (Claude Code 윈도우, crm-google-form·youtube-auto-reply 작업 중 발견)
+threads 기준 `memberScheduler.ts` 사본 전체(threads·threads-content-ops·INSTA·카드뉴스·네이버 카페·카카오·stepmail·booking-reminder·crm-google-form·youtube-auto-reply) 공통:
+1. `setMemberSchedulerMode(cronjob)`가 방식을 먼저 저장하고 작업을 켠다 → cron-job.org 실패(하루 한도 100회 초과·키 오류) 시 방식만 cronjob으로 남아 운영자 실행에서도 빠져 **예약이 멈춘다**(화면엔 오류 안내). 실패하면 이전 방식으로 되돌려야 한다.
+2. `resumeMemberScheduler`가 일시정지를 먼저 풀고 작업을 켠다 → 실패하면 화면은 「일시정지됨」, DB는 「대기」로 어긋난다(잘못 발행되지는 않음).
+처리: 다음에 기준(threads)을 고칠 때 두 함수에 try/catch로 되돌리기를 넣고 사본에 함께 반영(회원 영향 = 예약 멈춤 → 급한 수정 등급으로 판단해 사본 전체 배포 검토). cron-job.org 하루 호출 한도는 계정당 100회라, 같은 날 여러 프로그램을 실검수하면 소진된다 — 실검수는 프로그램당 호출 수를 줄이거나 날을 나눈다.

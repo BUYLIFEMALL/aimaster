@@ -145,3 +145,11 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 4개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.12 — ⏰ 예약 댓글 모니터링 실행 방식 회원 선택 + 중복 실행 방지·이용 권한 확인·비밀값 검사 (Claude Code 윈도우)
+- 주인님 「2순위도 적용하고 권한 확인도 넣어줘」. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `booking-reminder`·`stepmail` v1.21.
+- 정기형: 모니터링을 **시작하면** 회원 cron-job.org 작업 켜기, **중지하면** 끄기(「남은 일」 = 모니터링 켜짐 1/0). 회원 cron-job.org도 **5분마다** 깨우고 실제 확인은 회원이 고른 주기(5분~24시간)로 판단. Next 15라 회원 실행 주소는 `after`.
+- 코드: `lib/schedulerMember/`(표 `ytreply_member_scheduler`, 토큰 `ytreply_…`, 끄기 스위치 `YTREPLY_PLATFORM_SCHEDULER=off`), `dispatch.ts`(운영자 주소에서 옮긴 실행 로직 + **이용 권한 확인** + **조건부 `last_run_at` 선점**), `lib/programAccess.ts`(사본), `/api/cron/sync-comments`(제외 목록), 새 `/api/cron/dispatch-member`, `lib/actions/monitoring.ts` 시작/중지 때 작업 맞추기(준비가 안 되면 모니터링을 다시 끄고 안내), `settings.ts`·타입·이름표에 `cronjob_org_api_key`. **예약 주소 4곳 모두 `CRON_SECRET` 빈 값이면 401**(sync·dispatch-member·check-connection·cleanup-comments). 연결 점검·30일 정리는 운영 관리 작업이라 운영자 실행 그대로.
+- 화면: 설정 「⏱ 예약 모니터링」 위 실행 상태 줄·일시정지/재개, 새 「⏰ 예약 발행」 구역(방식 선택 + 키 칸, 유튜브 다크 색), `/guide` FAQ. DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261020170000_ytreply_member_scheduler.sql` — 크롬 SQL Editor 적용, 결과 `ytreply_member_scheduler`·`v1.12`. `package.json` 1.12.0.
+- 검수: tsc 0, build, `test:permissions` 전부 PASS(`test:runtime`은 로컬 서버를 따로 띄우는 Codex 도구라 미실행, 결과 파일 되돌림), 커밋 `3091a189`, 배포 `youtube-auto-reply-1ehpbw5to`(Ready), 예약 주소 4곳 무인증·`Bearer undefined`·가짜 토큰 401, `/login` 200. 크롬(관리자): 설정 v1.12·상태 줄 「AIMaster 기본(Vercel) 실행 중 · 모니터링 켜짐」·예약 발행 구역·공용 키 「등록됨」 → 일시정지 → 재개 정상(DB paused false 복귀, 관리자 실제 모니터링 24시간 주기·마지막 확인 시각 그대로). **「내 cron-job.org」 실검수는 미실행** — 2026-10-20 cron-job.org 하루 호출 한도 소진, 관리자 실제 모니터링이 켜져 있어 방식 전환은 한도가 풀린 뒤.
+- 발견(공용, 미수정): 「내 cron-job.org」로 바꿀 때 `setMemberSchedulerMode`가 방식을 먼저 저장한 뒤 작업을 켠다 → cron-job.org가 실패하면 방식은 cronjob인데 작업이 없어 운영자 실행에서도 빠져 **모니터링이 멈춘다**(화면엔 오류 안내). 공용 기준 수정 때 실패하면 방식을 되돌리기 — 루트 `docs/SCHEDULER_POLICY.md` 공용 개선 대기.
