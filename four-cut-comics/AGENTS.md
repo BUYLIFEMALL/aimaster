@@ -62,3 +62,4 @@
 - 백로그 「비즈니스 로직」 3건: ① **끝난 단계 칩을 눌러 바로 이동**(가 본 단계는 앞뒤 모두, 생성 중·대본 없음은 막음) ② **저장 전 탭 닫기·새로고침 경고**(대본·그림이 있는데 지금 화를 [내 작품]·서버 보관함에 저장 안 했을 때 `beforeunload`) ③ **일괄 생성 진행률**(캐릭터·컷 일괄 생성 「그리는 중 2/4」 + 진행 막대).
 - 파일: `src/lib/comic/flow.ts`(신규 — `canJumpToStep`·`hasUnsavedWork`·`progressLabel`), `src/components/studio/Studio.tsx`, `src/app/globals.css`, `tests/comic.test.mjs`(+3). 플랜: `docs/PLAN_20261020_STUDIO_CONVENIENCE.md`.
 - 검수: tsc 0, 시험 34/34, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.
+- 배포·검수(2026-10-20): `four-cut-comics-8nsul8r8h` Ready, DB `programs.version` v1.14. 크롬 실화면(관리자 계정): 사이드바 v1.14, 대본 생성 1회(관리자 본인 키) 후 2단계에서 칩 1만 버튼·3·4는 비활성, 칩 1→1단계 이동 후 칩 2로 대본 화면 복귀(대본 유지), 저장 전 `beforeunload` 차단(defaultPrevented=true) 확인. 일괄 생성 진행률은 그림 생성 비용 때문에 실화면 미검수(단위 시험 `progressLabel`로만 확인) — 다음에 그림 생성 시 「그리는 중 n/4」 표시 확인 필요.
