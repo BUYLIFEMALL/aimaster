@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 강의 키트(labs/kit-threads, ② Lab) 예약 발행을 운영 v2.07과 같은 방식으로 정리·배포
+
+- 지침 [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) 기준. 운영 파일(`cronJobOrg`·`memberScheduler`·`scheduledDispatch`·`dispatch-member`·`dispatch-scheduled`·`web-actions`·`WebSetup`·`page`·`DraftComposer`·`AttentionComposer`·`SchedulePublishingControl`)을 키트로 복사하고 독립 모드 예외 분기만 제거 → 키트도 가입자마다 본인 cron-job.org 키. agy 1차안(설정 화면 주기·토글, 설치자 1명) 삭제. A(Vercel Pro) 스크립트는 `TCO_PLATFORM_SCHEDULER=on` 등록 추가. 리허설 DB(`jehfmpqzcuwjyzqejtnq`)에 `tco_member_scheduler` 생성, `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`KIT/README.md` 6장 갱신.
+- 검수: tsc 0, 빌드 성공, 배포 `dev-threads-posting-hzdohavqd`, 크롬·DB 실검수(예약 → 작업 자동 생성 8676638·켜짐 → 취소 후 ~50초 자동 꺼짐, 예약 시각 KST 정상).
+- 남은 일: 키트 인스타(`labs/kit-insta`) 리허설, 교육 매뉴얼(`docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) 작성, PDS 원본 키트 반영, 나머지 운영 프로그램 예약 방식 적용(지침 §8).
+- https://dev-threads-posting.vercel.app
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 2단계: 84개 솔루션 초고속 인스턴트 검색 & 스마트 다차원 필터링 시스템 완료 (배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 84개로 대폭 확장된 마케팅 자동화 솔루션 라인업을 스크롤 지옥 없이 0.05초 만에 탐색할 수 있도록, 메인 홈 상단에 실시간 인메모리 라이브 검색창과 스마트 다차원 퀵 필터 칩셋을 결합하여 탐색 편의성을 극대화함.

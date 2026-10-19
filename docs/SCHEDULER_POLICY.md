@@ -68,7 +68,7 @@
 | 프로그램 | 상태 | 버전·날짜 | 메모 |
 |---|---|---|---|
 | `threads-content-ops` (Threads 운영 자동화) | ✅ 적용·배포·**실검수 완료** | v2.07 · 2026-10-19 | 기준 구현. 주인님 키로 실검수: 예약 → 작업 자동 생성(8676408)·켜기 → 예약 취소 후 ~50초에 자동 꺼짐 → 재예약 시 자동 재가동 → 19:34 예약이 19:34:18 자동 발행 → 2초 뒤 자동 꺼짐 → 일시정지·재개 정상 |
-| `labs/kit-threads` (강의 키트) | 🔄 진행 | — | 설치자 1명 구조(`CRON_SECRET`). agy 1차(주기·토글 설정 화면)는 이 지침으로 정리 예정 |
+| `labs/kit-threads` (강의 키트) | ✅ 적용·배포·실검수 | 2026-10-19 | 운영 v2.07과 같은 코드(회원 전용 토큰, 가입자마다 각자 키). A(Vercel Pro)는 `KIT/enable-vercel-cron`이 `crons` + `TCO_PLATFORM_SCHEDULER=on`. 설치 SQL `KIT/schema.sql`, 기존 설치자 `KIT/upgrade-20261019-cronjob.sql`. 실검수: 예약 → 작업 자동 생성·켜짐 → 취소 후 자동 꺼짐 |
 | `threads-affiliate-poster`, `threads`, `insta_auto_poster`, `cardnews-studio`, `naver-cafe-poster`, `kakao_auto_poster` | ⚪ 예정(1순위) | — | 첫 적용 검수 후 한 개씩 |
 | `stepmail`, `booking-reminder`, `crm-google-form`, `youtube-auto-reply`, `trending-product-finder` | ⚪ 예정(2순위) | — | 회원 정기 자동 작업 |
 | `real_estate_sales` | ⏸ 주인님 확인 | — | 공공 키 예외로 지역 공용 수집 → 운영자 유지 가능성 |

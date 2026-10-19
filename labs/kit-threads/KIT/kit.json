@@ -1,0 +1,5 @@
+{
+  "title": "Threads 콘텐츠 운영 자동화",
+  "shortName": "threads",
+  "callbackPath": "/api/threads-content-ops/callback"
+}
