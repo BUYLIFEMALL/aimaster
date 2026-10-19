@@ -19,4 +19,3 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | (문서·배포판만) docs/sns-kit-manual, docs/DISTRIBUTION_KIT_GUIDE.md, scripts/make_lecture_kit.py | Claude Code(윈도우) | 2026-10-20 | ② 배포판 `SNS_Auto_Posting_Kit_v1.01` 주인님 시험 대응·v1.02 준비·수강생 매뉴얼, agy 이어받기 문서 정리. Lab 리허설 자원은 2026-10-20 삭제 완료. 운영 프로그램 폴더 미접촉 |
-| threads-comment-reply → instagram-comment-reply → instagram-dm-reply → real_estate_sales (순서대로) | Claude Code(윈도우) | 2026-10-20 | ① 운영: 실행 주소 비밀값 검사 보완(「Bearer undefined」 차단, 7곳) — 회원 화면 변화 없음, 한 개씩 배포. 근거 `docs/SCHEDULER_PRIORITY2_REVIEW_20261020.md` §2-1 |

@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 실행 주소 비밀값 검사 보완 4개 프로그램(쓰레드 댓글 v1.12 · 인스타 댓글 v1.16 · 인스타 DM v1.15 · 부동산 v1.16)
+- `CRON_SECRET`이 비면 「Bearer undefined」로 통과하던 7곳을 `Boolean(secret) && …`로 차단(회원 화면 변화 없음). 커밋 `e7571cc0`, 한 개씩 배포 `threads-comment-reply-hit3ns3w8`·`instagram-comment-reply-2wxr3mxiw`·`instagram-dm-reply-52tuzcsdu`·`real-estate-sales-209i3dqj5`(모두 Ready), 운영 DB 버전 4개 갱신(크롬 SQL Editor).
+- 확인: 7곳 모두 무인증·`Bearer undefined` 401, 각 `/login` 200, 부동산 새 배포 첫 운영자 호출 200(진짜 비밀값 정상 통과). 댓글 3개는 운영자 예약 호출이 원래 꺼져 있음.
+- 남은 같은 패턴: 2순위 5개는 다른 Claude 세션이 회원 선택형 적용과 함께 처리 중, `kakao_auto_poster` 1곳은 1순위 담당 세션. 목록: `docs/SCHEDULER_PRIORITY2_REVIEW_20261020.md` §2-1.
+
 ## 2026-10-20 Claude Code(윈도우) — 예약 방식 2순위 5개 조사·판단 자료(코드 변경 없음)
 - [`docs/SCHEDULER_PRIORITY2_REVIEW_20261020.md`](SCHEDULER_PRIORITY2_REVIEW_20261020.md): 스텝메일·예약 알림·CRM·유튜브 자동 답글·트렌딩 상품 — 모두 정기 자동 실행형(네이버 카페·카카오와 같은 유형). 실행 기준·켜기/끄기·중복 방지 여부 표.
 - 발견: ① 실행 주소 비밀값 검사 22곳(9개 프로그램)이 `CRON_SECRET`이 비면 통과되는 패턴 — 지금은 변수가 모두 있어 안전, 방어 보완 권장(`ERROR_LESSONS` 기록) ② 스텝메일·유튜브·트렌딩은 실행 시각을 조건 없이 갱신 → cron-job.org 방식 추가 전 조건부 갱신 필수(중복 발송 위험).

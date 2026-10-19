@@ -25,6 +25,7 @@
 - 같은 패턴 22개 파일(9개 프로그램): `stepmail`, `booking-reminder`, `crm-google-form`, `youtube-auto-reply`(3), `trending-product-finder`(4), `real_estate_sales`(2), `threads-comment-reply`(3), `instagram-comment-reply`(3), `instagram-dm-reply`(2), `kakao_auto_poster`(1 — 다른 세션 담당).
 - 고치는 법(네이버 카페 v1.21과 같음): `const secret = process.env.CRON_SECRET; return Boolean(secret) && request.headers.get("authorization") === \`Bearer ${secret}\`;`
 - 급한 회원 영향은 없으므로 **각 프로그램 다음 배포 때 함께**(비용 규칙) 또는 주인님 지시 시 한 번에 순차 배포.
+- **처리 현황(2026-10-20)**: ✅ `threads-comment-reply` v1.12 · `instagram-comment-reply` v1.16 · `instagram-dm-reply` v1.15 · `real_estate_sales` v1.16 — 7곳 보완·배포·401 확인(Claude Code 윈도우, 커밋 `e7571cc0`). 2순위 5개(스텝메일 등)는 다른 Claude 세션이 회원 선택형 적용과 함께 처리 중(스텝메일 v1.21에 반영 확인). `kakao_auto_poster` 1곳은 1순위 담당 세션.
 
 ### 2-2. 같은 규칙 두 번 실행 위험
 - `stepmail`·`youtube-auto-reply`·`trending-product-finder`는 「차례인지」 판단 후 실행 시각을 **조건 없이** 덮어쓴다. 지금은 운영자 호출 하나뿐이라 겹칠 일이 드물지만, **회원 cron-job.org 방식을 추가하면 두 실행이 같은 규칙을 동시에 잡을 수 있다** → 메일·알림 중복 발송.
