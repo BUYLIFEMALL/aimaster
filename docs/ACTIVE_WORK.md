@@ -20,4 +20,3 @@
 |---|---|---|---|
 | ai-doc-chatbot | Claude Code(윈도우) | 2026-10-19 | ① AIMaster: 남은 개선 순차 진행 — v1.04(L5·L6·U1~U4) → v1.05(L2~L4) → C4·썸네일 |
 | labs/kit-threads, labs/kit-insta | Claude Code(윈도우) | 2026-10-19 | ② Lab: 강의용 SNS 키트(PDS `SNS_Auto_Posting_Kit_20261018`) 수강생 관점 설치 리허설 — BUYLIFE-DEV 새 Supabase 프로젝트·Vercel `dev-kit-*`, 녹화·교육 매뉴얼 작성. 운영 폴더·운영 DB 미접촉 |
-| insta_auto_poster | Claude Code(윈도우) | 2026-10-19 | ① 운영+키트: 예약 발행 실행 방식 회원 선택(운영 기본 Vercel / 배포판 기본 cron-job.org) + 중복 발행 방지 v1.25 — 플랜 `insta_auto_poster/docs/PLAN_20261019_MEMBER_SCHEDULER.md` |

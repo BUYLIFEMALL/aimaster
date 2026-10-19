@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 예약 방식 적용 인수인계: 남은 카드뉴스·네이버 카페·카카오는 다른 Claude 세션이 이어받음
+- 주인님 지시로 이 세션은 여기까지. **이어받는 CLI 필독: [`docs/SCHEDULER_ROLLOUT_HANDOFF_20261019.md`](SCHEDULER_ROLLOUT_HANDOFF_20261019.md)** — 진행 현황(쓰레드 v1.19·INSTA v1.25 완료), 한 프로그램 적용 10단계, 운영 DB는 승인 후 크롬 SQL Editor로 직접 실행, 남은 3개 조사 결과(카드뉴스=글마다 예약·이미 중복 방지 있음 / 네이버 카페·카카오=정기 자동 실행형이라 켜고 끄는 기준이 다름), 마지막 크롬 실화면 검수 계획.
+- 다음 첫 단계: `cardnews-studio` 조사 → 플랜 보고. 작업 중 표의 `insta_auto_poster` 줄은 정리함.
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — INSTA 포스팅 자동화(v1.25) 회원 선택형 예약 스케줄러 검증 완료 (운영 DB 적용 확인, 엔드포인트 보안 검증, Edge 포그라운드 실세션 검수 완비)
 
 - **배경**: 인스타그램 포스팅 자동화(`auto-instagram-posting`)에 회원 선택형 예약 스케줄러([`docs/SCHEDULER_POLICY.md`](file:///D:/Antigravity/AIMaster/docs/SCHEDULER_POLICY.md))가 구현(v1.25)됨에 따라, 사용자 사전 승인 하에 운영 DB 마이그레이션 적용 상태를 검증하고, 프로덕션 배포 및 Microsoft Edge 포그라운드 실세션 검수를 완결함.
