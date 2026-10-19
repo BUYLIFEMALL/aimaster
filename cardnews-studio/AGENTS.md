@@ -51,7 +51,7 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 - **현재 버전**: `v1.22` (2026-10-19)
-- **v1.22 (2026-10-19, Claude Code 윈도우) — 🎯 중복 확인 기준을 1차 시도 이후로 좁힘** — v1.21 남은 문제 「같은 캡션의 다른 글을 1시간 안에 올리면 오판」 보완: `findSameRecentPost(media, caption, now, firstFailedAt)` — 기준 시각 = 1차 실패 기록 시각(`updated_at`, 예약 실행이 잠그기 전 값) − 10분(`FIRST_ATTEMPT_MARGIN_MS`), 단 1시간보다 넓히지 않음. 오판 범위 약 1시간 → 약 20분. 검수: 단위 50/50, tsc, 빌드, Vercel READY(`cardnews-studio-kfrhrhfgb`, 1회), DB v1.22(Supabase MCP 재연결 확인), 크롬 버전 표시 v1.22·예약 실행 주소 401. 실제 게시·재시도 실행은 미확인(주인님 허락 필요).
+- **v1.22 (2026-10-19, Claude Code 윈도우) — 🎯 중복 확인 기준을 1차 시도 이후로 좁힘** — v1.21 남은 문제 「같은 캡션의 다른 글을 1시간 안에 올리면 오판」 보완: `findSameRecentPost(media, caption, now, firstFailedAt)` — 기준 시각 = 1차 실패 기록 시각(`updated_at`, 예약 실행이 잠그기 전 값) − 10분(`FIRST_ATTEMPT_MARGIN_MS`), 단 1시간보다 넓히지 않음. 오판 범위 약 1시간 → 약 20분. 검수: 단위 50/50, tsc, 빌드, Vercel READY(`cardnews-studio-kfrhrhfgb`, 1회), DB v1.22(Supabase MCP 재연결 확인), 크롬 버전 표시 v1.22·예약 실행 주소 401. 실제 게시 시험은 주인님 결정으로 하지 않음(2026-10-19 「지금은 하지 않음」 — 첫 실제 예약 게시 때 결과 확인).
 - **v1.21 (2026-10-19, Claude Code 윈도우) — 🛡️ 다시 시도 전 중복 게시 확인 + 디자인 테마 안내 문구** — 주인님 지시 「추가개선 제안 1·2 진행」:
   - 중복 확인: 예약 실행이 다시 시도하는 차례(`error_message`에 1차 실패 기록이 있을 때)면 먼저 회원 본인 계정 최근 게시물 10개(`/{ig-user-id}/media?fields=caption,timestamp,permalink`)를 보고, 최근 1시간(`DUPLICATE_WINDOW_MS`) 안에 같은 캡션(앞뒤 공백·줄바꿈 차이 무시)이 있으면 다시 올리지 않고 그 게시물로 「게시됨」 기록(`schedule.ts` `findSameRecentPost`, `posts.ts` `fetchRecentMedia`). 조회 실패는 평소대로 다시 시도. 캡션이 같은 다른 글을 1시간 안에 따로 올린 드문 경우 이미 게시된 것으로 볼 수 있음(그 경우에도 글은 이미 올라가 있음).
   - 디자인 단계 안내: 「테마 컬러는 목록·비교·큰 숫자 카드의 강조색에 바로 반영 … 배경을 만들 때도 반영」.
