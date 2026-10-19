@@ -128,6 +128,18 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
   }
 
   // 3. 네이버
+  if (t.includes("검색광고")) {
+    return {
+      icon: "📈",
+      badgeTone: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "네이버 검색광고 API 키(라이선스·비밀키·고객ID) 무료 발급",
+      consoleUrl: "https://searchad.naver.com",
+      consoleLabel: "네이버 검색광고 센터",
+    };
+  }
   if (t.includes("네이버") || c.includes("네이버")) {
     return {
       icon: "🟢",

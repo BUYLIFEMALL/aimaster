@@ -1,5 +1,33 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 핵심 API 본문 단계별 시각화 전면 보강 (OpenAI, Gemini, Claude, 네이버 검색/데이터랩, 네이버 검색광고, YouTube Data API 6종 완료, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 이용 가이드북(`/guides`)에서 회원들이 가장 많이 연동하는 핵심 API들의 본문이 단순 텍스트 번호 목록에 머물러 있어, 이를 **개요 카드, Step 1~4 시각적 스텝 뷰어, 💡 팁, ⚠️ 보안 및 할당량 주의사항 콜아웃, 공식 콘솔 직링크**가 완비된 프리미엄 비주얼 카드 형태로 전면 업그레이드함.
+- **주요 작업 내용**:
+  1. **6대 핵심 API 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **OpenAI ChatGPT**: Billing Tier 1 선충전, 자동 충전(Auto-recharge) 설정 가이드, GPT Image 1 조직 인증 안내, Step 1~4 시각화.
+     - **Google Gemini**: Google AI Studio 무료 키 1분 발급, 무료 할당량(RPM 15) 안내, Cloud Console 유료 크레딧 팁, Step 1~4 시각화.
+     - **Anthropic Claude**: Claude 3.5 Sonnet / Haiku 모델 특성, 크레딧 충전(Plans & Billing), Auto-reload 설정, Step 1~4 시각화.
+     - **네이버 검색 & 데이터랩**: 네이버 개발자 센터 애플리케이션 등록, 일일 25,000건 무료 제공, WEB 환경 설정 가이드, Step 1~4 시각화.
+     - **네이버 검색광고 (SearchAd)**: 비즈머니 무과금 0원 무료 라이선스 발급, 도구 → API 사용 관리, 3종 키(액세스라이선스/비밀키/고객ID) 안내, Step 1~4 시각화.
+     - **YouTube Data API v3**: 쇼츠 떡상 분석기 및 채널 분석기 필수 연동, 일일 10,000 유닛 무료 할당량, PST 자정 리셋 시각 안내, Step 1~4 시각화.
+  2. **플랫폼별 메타데이터 및 콘솔 직링크 분기 고도화 (`lib/guideMeta.ts`)**:
+     - 네이버 검색광고 전용 메타 분기 추가: 콘솔 바로가기 URL(`https://searchad.naver.com`), 라벨(`네이버 검색광고 센터`), 아이콘(`📈`), 소요시간(`4분`), 난이도(`중급`) 정밀 매핑.
+  3. **Vercel 프로덕션 빌드 & 배포 완료**:
+     - `npx tsc --noEmit` 통과 & Next.js 72개 페이지 프로덕션 빌드 100% 무오류 완료.
+     - Vercel 프로덕션 배포 완료 (`dpl_BShAU4YeBJ7Vc1A4hXzRbSLyxEts`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - Claude 가이드 스텝 뷰어 검증: `edge_guide_claude_detail.png`
+     - 네이버 검색·데이터랩 가이드 스텝 뷰어 검증: `edge_guide_naver_search_detail.png`
+     - 네이버 검색광고 가이드 스텝 뷰어 검증: `edge_guide_naver_ad_detail.png` (네이버 검색광고 센터 직링크 및 📈 아이콘 확인)
+     - YouTube Data API 가이드 스텝 뷰어 검증: `edge_guide_youtube_detail.png`
+- **서비스 링크**:
+  - 이용 가이드북: https://www.buylife.xyz/guides
+  - Claude 가이드: https://www.buylife.xyz/guides/d03f65c2-efbb-421f-a041-a075562e3b7a
+  - 네이버 검색 가이드: https://www.buylife.xyz/guides/8f201233-b2f6-4da0-851c-f045bdb5f9c7
+  - 네이버 검색광고 가이드: https://www.buylife.xyz/guides/8be38787-dacf-4921-9800-83159c9001be
+  - YouTube Data API 가이드: https://www.buylife.xyz/guides/72d39d06-a7ca-4ab0-8327-f9bb085ac394
+
 ## 2026-10-19 Claude Code(윈도우) — 배포 키트 방식 통일(`KIT/` 표준 + DB 자동 생성): 공용 설치 스크립트·kit.json 포장·비밀값 자동 검사, 쇼핑제휴 clone-kit → KIT
 
 - 주인님 결정·이유: [`docs/DISTRIBUTION_KIT_GUIDE.md`](DISTRIBUTION_KIT_GUIDE.md) §10. 공용 템플릿 `scripts/kit-template/setup.ps1·sh`(키 숨김 입력, `vercel link` 직후 GitHub 연결 해제, kit.json `extraEnv`), `scripts/make_lecture_kit.py`(`--name --programs`, schema static/generate, 비밀값 검사 — 가짜 키로 검출 확인).
