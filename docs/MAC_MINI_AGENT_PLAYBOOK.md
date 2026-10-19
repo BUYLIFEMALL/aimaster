@@ -133,3 +133,15 @@ Co-Authored-By: <CLI 서명>" \
 | tsc가 node_modules 없음으로 실패 | 윈도우에 `npm install` 요청(맥에서 설치 금지) |
 | 배포 확인 권한 없음(Vercel 403) | DB 버전·`curl` 버전·화면으로 판정 |
 | Edge 없음(Codex·agy) | 주인님께 설치 요청 또는 검수를 Claude Code(맥미니)/윈도우에 요청 |
+
+## 한국어 진행 표시 상기 훅 (2026-10-19 주인님 지시)
+
+맥미니 Claude Code에도 윈도우와 같은 「매 질문마다 한국어 진행 표시 규칙 상기」 훅을 쓴다. 맥미니 터미널에서 한 번 실행한다(주인님 또는 맥미니 에이전트):
+
+```bash
+node /Volumes/gt1_mega/Antigravity/AIMaster/scripts/mac-mini/install-korean-reminder.mjs
+```
+
+- 상기 스크립트를 `~/.claude/korean-reminder.js`로 복사하고, `~/.claude`·`CLAUDE_CONFIG_DIR`·Orca 계정 폴더(`~/Library/Application Support/orca/claude-profiles/*/home`)의 `settings.json`마다 `UserPromptSubmit` 훅 하나를 추가한다(기존 상태바 보호·Orca 훅 유지, 바꾸기 전 `settings.json.before-korean-hook` 백업, 두 번 실행해도 겹치지 않음).
+- 새 Orca 계정을 연결하면 다시 실행한다. 적용은 다음 질문부터. 확인: 새 질문 때 훅 출력 「[0순위 규칙 상기] …」가 맥락에 들어오면 정상.
+- 규칙 전문·원인 분석: 루트 `CLAUDE.md` 맨 위 0순위 규칙.
