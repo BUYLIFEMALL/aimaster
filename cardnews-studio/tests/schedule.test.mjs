@@ -62,3 +62,21 @@ test("데이터형 카드 강조색: 모든 테마에 색이 있고 자동은 �
   assert.equal(dataAccent("cool").main, "#38BDF8");
   assert.notEqual(dataAccent("cool").main, dataAccent("cool").alt);
 });
+
+// v1.21 — 다시 시도 전 같은 글이 이미 올라갔는지 확인
+import { findSameRecentPost, DUPLICATE_WINDOW_MS } from "../src/lib/cardnews/schedule.ts";
+
+test("중복 확인: 최근 1시간 안 같은 캡션만 이미 게시된 것으로 판단", () => {
+  const now = Date.UTC(2026, 9, 19, 4, 0);
+  const media = [
+    { caption: "다른 글", timestamp: "2026-10-19T03:50:00+0000", permalink: "https://ig/a" },
+    { caption: "청약 가점 정리\r\n#청약  ", timestamp: "2026-10-19T03:45:00+0000", permalink: "https://ig/b" },
+    { caption: "오래된 같은 글", timestamp: "2026-10-19T02:30:00+0000", permalink: "https://ig/c" },
+  ];
+  assert.equal(findSameRecentPost(media, "청약 가점 정리\n#청약", now)?.permalink, "https://ig/b");
+  assert.equal(findSameRecentPost(media, "오래된 같은 글", now), null);
+  assert.equal(findSameRecentPost(media, "없는 글", now), null);
+  assert.equal(findSameRecentPost(media, "   ", now), null);
+  assert.equal(findSameRecentPost([], "청약 가점 정리", now), null);
+  assert.equal(DUPLICATE_WINDOW_MS, 60 * 60 * 1000);
+});

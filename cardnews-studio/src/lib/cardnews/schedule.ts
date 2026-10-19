@@ -20,6 +20,28 @@ export function isTransientPublishError(message: string): boolean {
   return /timeout|timed out|너무 오래|fetch failed|network|ECONNRESET|ETIMEDOUT|socket|\((5\d\d)\)|temporarily|unavailable|try again|잠시 후/i.test(message);
 }
 
+/** 다시 시도 전 중복 확인 범위 — 최근 이 시간 안에 같은 캡션으로 올라간 글이 있으면 이미 게시된 것으로 본다(v1.21) */
+export const DUPLICATE_WINDOW_MS = 60 * 60 * 1000;
+
+export interface RecentMedia {
+  caption?: string | null;
+  timestamp?: string | null;
+  permalink?: string | null;
+}
+
+/** 최근 게시물 중 같은 캡션(앞뒤 공백·줄바꿈 차이 무시)으로 기준 시각 이후 올라간 글을 찾는다. 캡션이 비면 비교하지 않는다 */
+export function findSameRecentPost(media: RecentMedia[], caption: string, now: number = Date.now()): RecentMedia | null {
+  const norm = (t: string) => t.replace(/\r\n/g, "\n").replace(/[ \t]+$/gm, "").trim();
+  const target = norm(caption);
+  if (!target) return null;
+  return (
+    media.find((m) => {
+      const at = m.timestamp ? Date.parse(m.timestamp) : NaN;
+      return Number.isFinite(at) && at >= now - DUPLICATE_WINDOW_MS && norm(m.caption ?? "") === target;
+    }) ?? null
+  );
+}
+
 /** 한국 시간 「YYYY-MM-DDTHH:mm」(datetime-local 입력값) → ISO. 브라우저 시간대와 상관없이 한국 시간으로 본다. */
 export function kstLocalToIso(local: string): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(local);

@@ -34,3 +34,6 @@ update public.programs set version = 'v1.19', updated_at = now() where slug = 'c
 
 -- 버전 갱신(v1.20, 표 변경 없음: 데이터형 카드 강조색 테마 연동·예약 일시 오류 1회 재시도·취소 기록 문구)
 update public.programs set version = 'v1.20', updated_at = now() where slug = 'cardnews-studio';
+
+-- 버전 갱신(v1.21, 표 변경 없음: 재시도 전 최근 게시물 중복 확인·디자인 테마 안내 문구)
+update public.programs set version = 'v1.21', updated_at = now() where slug = 'cardnews-studio';

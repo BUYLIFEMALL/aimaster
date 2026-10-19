@@ -4,7 +4,7 @@ import { checkProgramAccess } from "@/lib/programAccess";
 import { THIS_PROGRAM_SLUG } from "@/lib/access";
 import { getMemberInstagramAccount } from "./memberAccount";
 import { graphBaseFor, publishInstagramCarousel, publishInstagramPost } from "./publish";
-import { isTransientPublishError, RETRY_DELAY_MS } from "@/lib/cardnews/schedule";
+import { findSameRecentPost, isTransientPublishError, RETRY_DELAY_MS, type RecentMedia } from "@/lib/cardnews/schedule";
 
 // 인스타 게시 기록·예약 게시(v1.19). 즉시 게시와 예약 실행이 같은 함수(publishPaths)를 쓴다.
 // 게시 기록 표 cns_insta_posts — 회원 본인만 읽기(RLS), 쓰기는 이 서버 코드만. 생성 30일 뒤 삭제(cleanupOldPosts).
@@ -39,6 +39,21 @@ export async function publishPaths(userId: string, paths: string[], caption: str
   } catch (err) {
     const msg = String((err as Error)?.message ?? "").split(account.accessToken).join("***").slice(0, 300);
     return { ok: false, error: `인스타그램 게시에 실패했습니다. ${msg}` };
+  }
+}
+
+/** 회원 본인 계정의 최근 게시물(최대 10개). 조회 실패는 null — 호출부는 그때 평소대로 진행한다(v1.21) */
+async function fetchRecentMedia(userId: string): Promise<RecentMedia[] | null> {
+  const account = await getMemberInstagramAccount(userId);
+  if (!account || account.expired) return null;
+  try {
+    const url = `${graphBaseFor(account.authMethod)}/${account.igUserId}/media?fields=caption,timestamp,permalink&limit=10&access_token=${encodeURIComponent(account.accessToken)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { data?: RecentMedia[] };
+    return Array.isArray(body.data) ? body.data : null;
+  } catch {
+    return null;
   }
 }
 
@@ -94,6 +109,16 @@ export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status
       await removeImages(post.image_paths ?? []);
       results.push({ id: post.id, status: "failed" });
       continue;
+    }
+    // 다시 시도하는 차례면, 1차 시도가 실제로는 올라갔는데 응답만 늦었던 경우를 먼저 확인해 중복 게시를 막는다(v1.21)
+    if (post.error_message) {
+      const same = findSameRecentPost((await fetchRecentMedia(post.user_id)) ?? [], post.caption ?? "");
+      if (same) {
+        await finish({ status: "published", published_at: same.timestamp ? new Date(same.timestamp).toISOString() : new Date().toISOString(), permalink: same.permalink ?? null, error_message: null });
+        await removeImages(post.image_paths ?? []);
+        results.push({ id: post.id, status: "already_published" });
+        continue;
+      }
     }
     const out = await publishPaths(post.user_id, post.image_paths ?? [], post.caption ?? "");
     // 일시 오류는 한 번만 10분 뒤 다시 시도(v1.20). 예약 상태로 되돌리고 실패 사유를 남겨 두면, 그 사유가 「이미 한 번 다시 시도했다」는 표시가 된다(이미지는 보관).

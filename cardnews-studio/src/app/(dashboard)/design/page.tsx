@@ -108,7 +108,7 @@ export default function DesignPage() {
                 </select>
               </Field>
             </div>
-            <p className="text-[11px] text-gray-500">스타일·구성·테마 컬러는 다음 단계에서 배경을 만들 때 반영됩니다. 이미 만든 배경은 바뀌지 않습니다.</p>
+            <p className="text-[11px] text-gray-500">테마 컬러는 목록·비교·큰 숫자 카드의 강조색에 바로 반영됩니다. 스타일·구성·테마 컬러는 다음 단계에서 배경을 만들 때도 반영되며, 이미 만든 배경은 바뀌지 않습니다.</p>
           </Card>
 
           <Card className="space-y-4">
