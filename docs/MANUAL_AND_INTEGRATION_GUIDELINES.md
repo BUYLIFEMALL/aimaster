@@ -84,24 +84,24 @@ AIMaster는 연동 대상 기술 스택과 사용자 행동 패턴에 따라 **8
 
 | ID (앞 8자리) | 가이드 명칭 | 카테고리 | 적용 매뉴얼 템플릿 스타일 | 주요 연동 프로그램 |
 |---|---|---|---|---|
-| `6f9872e4` | OpenAI API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | GPT 글쓰기, 카드뉴스, 쇼츠 대본 등 전 프로그램 |
-| `6b30f81d` | Google Gemini API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | AI 이미지 스튜디오, 블로그, 바이럴 숏츠 등 |
-| `fe2b7d27` | Anthropic Claude API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | 롱테일 키워드, AI 상세페이지 등 |
+| `1c5c24e2` | OpenAI API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | GPT 글쓰기, 카드뉴스, 쇼츠 대본 등 전 프로그램 |
+| `f442cd37` | Google Gemini API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | AI 이미지 스튜디오, 블로그, 바이럴 숏츠 등 |
+| `d03f65c2` | Anthropic Claude API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | 롱테일 키워드, AI 상세페이지 등 |
 | `1df95d8b` | Perplexity API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | 실시간 트렌드 리서치, 시장조사 자동화 |
 | `38d1ac20` | Upstage(업스테이지) API 키 발급받기 | LLM AI | **스타일 1 (API Key Vault)** | AI 문서 챗봇, PDF Document Parse 자동화 |
 | `db4a10cb` | AI 블로그 콘텐츠 제작 자동화 · 본인 AI 키와 Chrome 확장 연결 | LLM AI | **스타일 3 (Chrome 확장 & 보안 페어링)** | AI 블로그 작업실 (`blog-content-maker`) |
-| `6cdae259` | 인스타그램 계정 연동하기 (자동포스팅) | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | INSTA 포스팅 자동화 (`insta-auto-poster`) |
-| `4115e455` | 인스타그램 계정 연동하기 (댓글·DM 자동화) | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | 인스타 댓글/DM 봇 (`instagram-dm-bot`) |
-| `343996d3` | 쓰레드(Threads) 계정 연동하기 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | Threads 포스팅 자동화 (`threads`) |
-| `0f5cd337` | 쓰레드 댓글자동화 - 메타 앱 만들기 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | Threads 댓글 자동화 (`threads-comment-bot`) |
-| `ae85d991` | 쓰레드(Threads) 공개 글 검색 권한 받기 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | Threads 키워드 발굴기 (`threads-search`) |
-| `c3ed7fe3` | 숏츠 자동포스팅 - 인스타그램 릴스 연동 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | 쇼핑 숏츠 자동포스팅 (`shorts-auto-poster`) |
-| `1c4181ac` | 유튜브 채널 연동하기 | 유튜브·영상 | **스타일 2 (OAuth & 개발자 앱 승인)** | 유튜브 영상 업로더 (`youtube-uploader`) |
+| `6cdae259` | 인스타그램 계정 연동하기 (자동포스팅) | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | INSTA 포스팅 자동화 (`insta_auto_poster`, slug `auto-instagram-posting`) |
+| `4115e455` | 인스타그램 계정 연동하기 (댓글·DM 자동화) | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | 인스타 댓글 자동답글 (`instagram-comment-reply`) · 인스타 DM 자동답장 (`instagram-dm-reply`) |
+| `343996d3` | 쓰레드(Threads) 계정 연동하기 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | Threads 포스팅 자동화 (`threads`, slug `auto-threads-posting`) · Threads 쇼핑제휴 (`threads-affiliate-poster`) |
+| `0f5cd337` | 쓰레드 댓글자동화 - 메타 앱 만들기 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | Threads 댓글 자동화 (`threads-comment-reply`) |
+| `ae85d991` | 쓰레드(Threads) 공개 글 검색 권한 받기 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | Threads 쇼핑제휴 떡상글 탐지기 (`threads-affiliate-poster` `/trends`) |
+| `c3ed7fe3` | 숏츠 자동포스팅 - 인스타그램 릴스 연동 | SNS·쓰레드·인스타 | **스타일 2 (OAuth & 개발자 앱 승인)** | 숏츠 자동포스팅 (`shots`) |
+| `1c4181ac` | 유튜브 채널 연동하기 | 유튜브·영상 | **스타일 2 (OAuth & 개발자 앱 승인)** | 숏츠 자동포스팅 (`shots` 유튜브 업로드) · 유튜브 댓글 자동답글 (`youtube-auto-reply`) — 두 프로그램 모두 이 가이드 버튼은 아직 미연결 |
 | `523e7401` | Google OAuth 클라이언트 만들기 (Gmail·Drive 등) | 구글·네이버 | **스타일 2 (OAuth & 개발자 앱 승인)** | 공용 구글 로그인 및 메일 발송 솔루션 |
 | `7d473e83` | Google Drive 연동용 OAuth 클라이언트 만들기 | 구글·네이버 | **스타일 2 (OAuth & 개발자 앱 승인)** | 마크다운 스튜디오 (`markdown-studio`) |
 | `ec45e4bd` | 네이버 카페 자동화 - 본인 앱 등록·계정 연동 | 구글·네이버 | **스타일 2 (OAuth & 개발자 앱 승인)** | 네이버 카페 포스터 (`naver-cafe-poster`) |
-| `de6e2878` | 토스쇼핑 쉐어링크 API 키 발급받기 | 이커머스·쿠팡 | **스타일 4 (이커머스 & IP 화이트리스트)** | 쇼핑 숏츠 생성기 (`shopping-shorts`) |
-| `e39a02e3` | 네이버 브랜드커넥트 링크 등록하기 | 이커머스·쿠팡 | **스타일 4 (이커머스 & IP 화이트리스트)** | 네이버 제휴 포스터 (`naver-affiliate`) |
+| `de6e2878` | 토스쇼핑 쉐어링크 API 키 발급받기 | 이커머스·쿠팡 | **스타일 4 (이커머스 & IP 화이트리스트)** | Threads 쇼핑제휴 (`threads-affiliate-poster`) |
+| `e39a02e3` | 네이버 브랜드커넥트 링크 등록하기 | 이커머스·쿠팡 | **스타일 4 (이커머스 & IP 화이트리스트)** | Threads 쇼핑제휴 (`threads-affiliate-poster`) |
 | `3255b41b` | AI 12단 상세페이지 자동화 완벽 가이드 | 이커머스·쿠팡 | **스타일 4 (이커머스 & IP 화이트리스트)** | AI 12단 상세페이지 제작기 (`detail-page-12p`) |
 | `cffe0d83` | 프로그램 주소 변경(buylife.xyz) 통합 가이드 | 도메인·통합 | **스타일 8 (도메인 이전 & 동기화)** | 82개 전 서브프로그램 공통 |
 | `b632a359` | JSON2Video API 연동하기 | 미디어·에셋 | **스타일 5 (미디어 CDN & 생성 엔진)** | 바이럴 숏츠 자동 합성기 |
@@ -109,16 +109,18 @@ AIMaster는 연동 대상 기술 스택과 사용자 행동 패턴에 따라 **8
 | `e2004c0f` | Cloudinary API 연동하기 | 미디어·에셋 | **스타일 5 (미디어 CDN & 생성 엔진)** | 클라우드 이미지 CDN 호스팅 솔루션 |
 | `c315c6d7` | Pixabay(픽사베이) API 키 발급받기 | 미디어·에셋 | **스타일 5 (미디어 CDN & 생성 엔진)** | 무료 스톡 이미지/영상 수집기 |
 | `ff6c331e` | Pexels(펙셀스) API 키 발급받기 | 미디어·에셋 | **스타일 5 (미디어 CDN & 생성 엔진)** | 감성 숏폼 비디오 에셋 수집기 |
-| `replicate` | Replicate(FLUX) API 키 발급받기 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | AI 이미지 스튜디오 (`ai-image-studio`) |
-| `elevenlabs`| ElevenLabs 음성 복제 & 나레이션 연동 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | 쇼츠 음성 나레이터 (`shorts-voice`) |
-| `suno`      | SUNO 음악/BGM 연동 가이드 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | AI 음악 플레이리스트 메이커 (`suno-studio`) |
-| `runway`    | Runway AI 비디오 생성 연동 가이드 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | 비디오 제너레이터 (`video-generator`) |
-| `telegram`  | 텔레그램 봇 생성 및 Chat ID 추출 | 메신저·알림 | **스타일 6 (실시간 웹훅 & 봇)** | 알림봇 자동 발송 솔루션 |
-| `solapi`    | SOLAPI 카카오 알림톡/친구톡 연동 | 메신저·알림 | **스타일 6 (실시간 웹훅 & 봇)** | 고객 관리 카카오톡 자동화 |
-| `smtp`      | 네이버 메일(SMTP) 2단계 앱 비밀번호 발급 | 메신저·알림 | **스타일 6 (실시간 웹훅 & 봇)** | 스텝메일 마케팅 자동화 (`step-mail`) |
-| `tavily`    | Tavily 실시간 웹 리서치 API 발급 | 정보수집·리서치 | **스타일 7 (실시간 수집 & RSS)** | 시장조사 및 경쟁사 분석 솔루션 |
-| `inoreader` | Inoreader & RSS 콘텐츠 피드 연동 | 정보수집·리서치 | **스타일 7 (실시간 수집 & RSS)** | 콘텐츠 자동 큐레이션 솔루션 |
+| `78a00b16` | Replicate(FLUX) API 키 발급받기 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | AI 이미지 스튜디오 (`ai-image-studio`) |
+| `9457687a` | ElevenLabs 음성 복제 & 나레이션 연동 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | 숏츠 자동포스팅 (`shots` 음성 설정) |
+| `0ecb9a3c` | SUNO 음악/BGM 연동 가이드 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | SUNO 음악 스튜디오 (`suno-music-studio`) |
+| `373bdf47` | Runway AI 비디오 생성 연동 가이드 | 이미지·영상·음원 | **스타일 5 (미디어 CDN & 생성 엔진)** | 현재 코드로 연동된 프로그램 없음(가이드만) |
+| `f43e8ebe` | 텔레그램 봇 생성 및 Chat ID 추출 | 메신저·알림 | **스타일 6 (실시간 웹훅 & 봇)** | 알림봇 자동 발송 솔루션 |
+| `eb8f5eaf` | SOLAPI 카카오 알림톡/친구톡 연동 | 메신저·알림 | **스타일 6 (실시간 웹훅 & 봇)** | 고객 관리 카카오톡 자동화 |
+| `1dbea19b` | 네이버 메일(SMTP) 2단계 앱 비밀번호 발급 | 메신저·알림 | **스타일 6 (실시간 웹훅 & 봇)** | 스텝메일 마케팅 자동화 (`stepmail`) |
+| `e02892df` | Tavily 실시간 웹 리서치 API 발급 | 정보수집·리서치 | **스타일 7 (실시간 수집 & RSS)** | 시장조사 및 경쟁사 분석 솔루션 |
+| `8eff3ebb` | Inoreader & RSS 콘텐츠 피드 연동 | 정보수집·리서치 | **스타일 7 (실시간 수집 & RSS)** | 콘텐츠 자동 큐레이션 솔루션 |
 *(외 총 40개 가이드 전수 100% 매핑 완료)*
+
+> 2026-10-20 Claude Code(윈도우, agy 휴식 중 이어받음): 「주요 연동 프로그램」 칸을 **실제 폴더·slug로 정정** — 각 프로그램 코드에서 가이드 ID(`GuideLinkButton`·guide 페이지)와 키 이름을 검색해 확인한 결과다(없는 이름 13개 교체). 같은 날 「ID」 칸도 메인 사이트 `/guides` 실제 40개와 대조해 **틀린 ID 3개(OpenAI·Gemini·Claude)와 ID 대신 이름이 적힌 9개를 실제 ID 앞 8자리로 교체**했다. 가이드 버튼이 아직 연결되지 않은 프로그램은 「미연결」로 적었다.
 
 ---
 
