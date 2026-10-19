@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 예약 방식 2순위 5개 조사·판단 자료(코드 변경 없음)
+- [`docs/SCHEDULER_PRIORITY2_REVIEW_20261020.md`](SCHEDULER_PRIORITY2_REVIEW_20261020.md): 스텝메일·예약 알림·CRM·유튜브 자동 답글·트렌딩 상품 — 모두 정기 자동 실행형(네이버 카페·카카오와 같은 유형). 실행 기준·켜기/끄기·중복 방지 여부 표.
+- 발견: ① 실행 주소 비밀값 검사 22곳(9개 프로그램)이 `CRON_SECRET`이 비면 통과되는 패턴 — 지금은 변수가 모두 있어 안전, 방어 보완 권장(`ERROR_LESSONS` 기록) ② 스텝메일·유튜브·트렌딩은 실행 시각을 조건 없이 갱신 → cron-job.org 방식 추가 전 조건부 갱신 필수(중복 발송 위험).
+- 추천(주인님 결정 대기): 지금은 ①②만 보완·순차 배포, 회원 선택지는 1순위 정기형 안정 확인 뒤 유튜브 → 트렌딩 → 스텝메일 → 예약 알림 → CRM 순.
+
 ## 2026-10-20 Claude Code(윈도우) — agy 작업 이어받기 ①②: 매뉴얼 지침 매핑표 정정 + 버전 미반영 배포 표시
 - ① [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](MANUAL_AND_INTEGRATION_GUIDELINES.md) §4 매핑표: 없는 프로그램 이름 13개를 실제 폴더·slug로(코드의 가이드 ID·키 이름 검색으로 확인), 틀리거나 비어 있던 가이드 ID 12개를 메인 사이트 `/guides` 실제 40개와 대조해 교체(커밋 `88aebb28`). 유튜브 채널 가이드(`1c4181ac`)는 `shots`·`youtube-auto-reply`가 쓰지만 가이드 버튼 미연결, Runway는 연동 프로그램 없음.
 - ② agy가 `fd69da1d`로 **버전을 올리지 않고 배포**한 두 프로그램 — 쇼핑제휴는 `threads-affiliate-poster/AGENTS.md` 맨 아래에 「다음 배포자: v1.65로 올리고 카드 색 개선 기록」 표시. **`threads`(쓰레드 자동포스팅)는 다른 Claude 세션의 작업 폴더라 여기에만 적음: 다음 배포 때 v1.21로 올리고 같은 카드 색 개선(`ThreadsMetaAddressSummary`·`CopyAddress`)을 버전 기록에 넣을 것.**

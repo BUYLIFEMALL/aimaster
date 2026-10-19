@@ -86,7 +86,7 @@
 ## 7. 함께 남은 일 (이 작업 밖)
 - ~~쇼핑제휴 다음 배포 때: 24시간 규칙 코드 + `VALID_PROVIDERS`에 `anthropic`·`replicate`~~ → ✅ v1.64(커밋 `2bdeb523`)에서 처리됨.
 - SNS 배포판: INSTA `KIT/` 변경(예약 방식)은 **`SNS_Auto_Posting_Kit_v1.01`(2026-10-20)에 반영됨**. 이후 다시 포장하면 `python scripts/make_lecture_kit.py --version v1.02`(배포판 번호 규칙: 메인과 같은 vX.YY, +0.01, 같은 번호 덮어쓰기 금지 — 지침 §4-3).
-- 2순위(스텝메일·예약 알림·CRM·유튜브 자동 답글·트렌딩 상품)·`real_estate_sales`는 적용 여부를 주인님께 확인.
+- 2순위(스텝메일·예약 알림·CRM·유튜브 자동 답글·트렌딩 상품)·`real_estate_sales`는 적용 여부를 주인님께 확인 — 조사·판단 자료: [`SCHEDULER_PRIORITY2_REVIEW_20261020.md`](SCHEDULER_PRIORITY2_REVIEW_20261020.md)(2026-10-20).
 - 패키지 설치마법사(배포판 설치 표준) 실제 끝까지 설치 시험은 주인님이 v2 배포판으로 진행 중 — 막힌 곳 오면 `scripts/kit-template/` 수정 후 재포장.
 
 ## 8. 비용

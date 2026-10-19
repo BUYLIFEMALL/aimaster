@@ -18,4 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| labs/kit-threads, labs/kit-insta | Claude Code(윈도우) | 2026-10-19 | ② Lab: 강의용 SNS 키트(PDS `SNS_Auto_Posting_Kit_20261018`) 수강생 관점 설치 리허설 — BUYLIFE-DEV 새 Supabase 프로젝트·Vercel `dev-kit-*`, 녹화·교육 매뉴얼 작성. 운영 폴더·운영 DB 미접촉 |
+| (문서·배포판만) docs/sns-kit-manual, docs/DISTRIBUTION_KIT_GUIDE.md, scripts/make_lecture_kit.py | Claude Code(윈도우) | 2026-10-20 | ② 배포판 `SNS_Auto_Posting_Kit_v1.01` 주인님 시험 대응·v1.02 준비·수강생 매뉴얼, agy 이어받기 문서 정리. Lab 리허설 자원은 2026-10-20 삭제 완료. 운영 프로그램 폴더 미접촉 |

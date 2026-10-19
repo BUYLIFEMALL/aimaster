@@ -17,6 +17,11 @@
 - 위험: 이미지·영상 Threads 발행은 처리 대기로 30초를 넘길 수 있어 실패가 쌓이면 회원 예약이 조용히 멈춘다.
 - 해결: `dispatch-member`가 `{accepted:true}`를 바로 돌려주고 발행은 `waitUntil`(`@vercel/functions`, Next 14엔 `after` 없음)로 이어서 처리. 예약 때마다 cron-job.org 작업 실제 상태를 확인해 다시 켬. 지침: `docs/SCHEDULER_POLICY.md` §3.
 
+## 2026-10-20 — 실행 주소 비밀값 검사 `auth === \`Bearer ${process.env.CRON_SECRET}\``는 변수가 비면 「Bearer undefined」로 통과된다 (22곳, Claude Code 윈도우)
+- 원인: `CRON_SECRET`이 없으면 비교 문자열이 `Bearer undefined`가 되어, 그 글자를 보낸 누구나 운영자 실행 주소(발송·수집)를 부를 수 있다. 2026-10-20 기준 해당 프로그램들은 변수가 등록돼 있어 실제로 열린 곳은 없음.
+- 해결 패턴(네이버 카페 v1.21): `const secret = process.env.CRON_SECRET; return Boolean(secret) && request.headers.get("authorization") === \`Bearer ${secret}\`;`
+- 다음부터: 새 실행 주소·프로그램 복사 때 이 패턴으로 쓴다. 남은 22곳 목록·적용 계획: `docs/SCHEDULER_PRIORITY2_REVIEW_20261020.md` §2-1.
+
 ## 2026-10-19 — 세션에 운영 DB 연결 도구가 없다고 주인님께 SQL 실행을 넘기지 말 것 → 승인받고 크롬(로그인된 Supabase SQL Editor)으로 직접 실행 (threads v1.19, Claude Code 윈도우)
 - 증상: 이 세션의 Supabase 도구는 Lab용(`Supabase_DEV`)뿐이고 Supabase CLI도 로그인 안 돼 있어, 운영 표 생성 SQL을 주인님께 「직접 실행해 주세요」로 넘김 → 주인님: 「이걸 왜 니가 안하고 나한테 해달라는거지?」
 - 해결: 주인님 크롬은 Supabase에 로그인돼 있으므로 claude-in-chrome으로 `https://supabase.com/dashboard/project/esgxyikcnnvmlhygjkth/sql/new` 열기 → 상단 **AIMaster · PRODUCTION** 표시 확인 → `window.monaco.editor.getModels()[0].setValue(sql)`로 넣기 → Run → 「Potential issue detected」는 내용 확인 후 Run query → 결과 표 확인(마지막 줄에 확인용 select를 붙이면 한 번에 검증).
