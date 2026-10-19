@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ScheduleSetupNotice from "./ScheduleSetupNotice";
 import {
   CalendarClock,
   CircleAlert,
@@ -101,6 +102,7 @@ export default function OperationsDashboard({ accounts, posts, postCounts, confi
 
     <GlassCard className="p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div className="flex items-center gap-2"><CalendarClock size={18} className="text-gold" /><div><h3 className="font-bold text-white">전체 예약 작업</h3><p className="mt-1 text-xs text-subtext">저장된 예약만 표시합니다. 예약 시각이 되면 1분 간격으로 확인해 자동으로 발행합니다.</p></div></div><Link className="w-fit rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50" href="/threads-content-ops?tab=manage">예약 관리</Link></div>
+      <ScheduleSetupNotice />
       {scheduled.length ? <div className="mt-4 overflow-hidden rounded-xl border border-neutral-200">{scheduled.map((post) => <div className="grid gap-2 border-b border-neutral-200 p-3 last:border-b-0 md:grid-cols-[180px_1fr_auto] md:items-center" key={post.id}><span className="text-sm font-medium text-neutral-800">{post.scheduled_at ? formatDate(post.scheduled_at) : "시간 미지정"}</span><span className="truncate text-sm text-neutral-600">{post.body}</span><span className="text-xs font-semibold text-amber-700">예약 대기</span></div>)}</div> : <EmptyState icon={CalendarClock} text="예약된 작업이 없습니다. 초안·발행 관리에서 원하는 시간으로 예약할 수 있습니다." />}
     </GlassCard>
   </div>;

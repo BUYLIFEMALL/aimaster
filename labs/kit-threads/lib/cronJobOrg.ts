@@ -3,9 +3,12 @@
 // 머리글에는 회원 전용 토큰을 넣는다(사이트 비밀값 CRON_SECRET은 절대 넣지 않는다). 기준: labs/kit-threads/lib/cronJobOrg.ts.
 // 하루 호출 한도가 100회(기본)라 화면을 열 때 자동으로 부르지 않고, 버튼을 누를 때만 부른다.
 
+import { IS_STANDALONE } from "@/threads-content-ops/lib/deployment";
+
 const API_BASE = "https://api.cron-job.org";
 export const MEMBER_DISPATCH_PATH = "/api/threads-content-ops/dispatch-member";
-export const CRON_JOB_TITLE = "Threads 운영 자동화 예약 발행(1분)";
+// 회원 cron-job.org 계정에 남는 이름 — 배포판(독립 모드)에는 「AIMaster」를 넣지 않는다(docs/DISTRIBUTION_KIT_GUIDE.md §3)
+export const CRON_JOB_TITLE = IS_STANDALONE ? "Threads 운영 자동화 예약 발행(1분)" : "AIMaster Threads 운영 자동화 예약 발행(1분)";
 
 export type CronJobSummary = {
   jobId: number;

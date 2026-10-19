@@ -32,10 +32,12 @@
 | `KIT/schema.sql` | **새 Supabase에 한 번에 붙여넣는 전체 스키마 1개**: `profiles`+가입 트리거, `user_api_keys`(이 프로그램이 저장하는 provider만 허용 목록에), 프로그램 테이블·RLS·스토리지 버킷, 예약 실행 표(§4-6) | 같은 폴더 |
 | `KIT/upgrade-YYYYMMDD-<내용>.sql` | 배포 **뒤에** DB가 바뀌면 이미 설치한 수강생이 한 번 실행하는 추가 SQL(신규 설치는 `schema.sql`에 이미 반영) | `upgrade-20261019-cronjob.sql` |
 | `KIT/env.example` | 환경변수 설명(값 없음). `NEXT_PUBLIC_STANDALONE_MODE=true` 포함 | 같은 폴더 |
-| `KIT/setup.ps1` / `KIT/setup.sh` | **설치 스크립트**: Node 확인 → `npm install` → 질문(프로젝트 이름·주소·브랜드·Supabase URL·Publishable/Secret key) → `.env.local` 생성(`CRON_SECRET` 자동 생성) → 빌드 → Vercel 로그인·연결·환경변수·배포 → 콜백 주소 출력 | 같은 폴더(**`.ps1`은 UTF-8 BOM** — 없으면 윈도우 PowerShell 5.1이 한글을 깨뜨림) |
+| `KIT/setup.ps1` / `KIT/setup.sh` | **공용 설치 스크립트**(원본 `scripts/kit-template/` 하나 — 포장 때 항상 최신으로 복사, 프로그램별 사본을 고치지 않는다. 키는 숨김 입력, `vercel link` 직후 GitHub 자동 연결 해제): Node 확인 → `npm install` → 질문(프로젝트 이름·주소·브랜드·Supabase URL·Publishable/Secret key) → `.env.local` 생성(`CRON_SECRET` 자동 생성) → 빌드 → Vercel 로그인·연결·환경변수·배포 → 콜백 주소 출력 | 같은 폴더(**`.ps1`은 UTF-8 BOM** — 없으면 윈도우 PowerShell 5.1이 한글을 깨뜨림) |
 | `KIT/vercel.json` | **무료(Hobby)에서 배포되는 설정**(하루 1번 이하 `crons`만). 운영용 1분 `crons`가 든 원본 `vercel.json`을 포장 때 이 파일로 바꿔 넣는다 | 같은 폴더 |
 | `KIT/enable-vercel-cron.ps1` / `.sh` | (예약 기능이 있으면) Vercel Pro 수강생이 1분 예약 호출 + `*_PLATFORM_SCHEDULER=on`을 켜고 재배포 | 같은 폴더 |
-| `KIT/kit.json` | 이름·짧은 이름·콜백 경로 등 메타 | `{"title","shortName","callbackPath"}` |
+| `KIT/kit.json` | **키트의 모든 프로그램별 설정**: `title`·`shortName`·`description`, 설치 끝 안내(`callbackPath`·`callbackLabel`·`nextStep`), 추가 환경변수 질문(`extraEnv`: name·question·default·secret·from=brand/siteUrl), 포장(`exclude`·`overrides`), DB 파일(`schema`: `static` 또는 `generate`+`parts`) | `threads-affiliate-poster/KIT/kit.json`(generate), `threads-content-ops/KIT/kit.json`(static) |
+| `KIT/database/*.sql` | (`schema.mode=generate`일 때) DB 파일 앞·뒤 조각 — 가운데는 운영 `supabase/migrations/*`가 자동으로 들어감 → **운영 DB 변경이 키트에 저절로 반영** | `threads-affiliate-poster/KIT/database/` |
+| `KIT/manuals/*.html` | (선택) 캡처형 단계별 매뉴얼 | `threads-affiliate-poster/KIT/manuals/` |
 
 ### 2-1. `KIT/README.md` 목차(고정 — 수강생이 프로그램이 달라도 같은 순서로 익히게)
 0. 준비물(Node 22 LTS·Supabase·Vercel·플랫폼 개발자 계정·AI 키) / 1. 압축 풀기·폴더 정하기(**경로 짧게·한글/공백 없이, GitHub 저장소 폴더 안에 풀지 않기**) / 2. Supabase 만들기(지역 서울, SQL 실행, 이메일 확인 끄기) / 3. 설치 스크립트 / 4. 플랫폼 앱 만들기 / 5. 키 등록·계정 연결·첫 게시 / 6. 예약 게시 연결(기본 cron-job.org, Pro 선택) / 7. (선택) 내 도메인 / 8. 자주 막히는 곳 / 9. 비용 안내 / 업데이트 내역
@@ -60,10 +62,10 @@
 
 ## 4. 포장(압축) — 손이 덜 가는 방법
 
-1. **포장 스크립트 하나로**: `scripts/make_lecture_kit.py`의 `PROGRAMS` 목록에 한 줄 추가(원본 폴더·키트 안 이름·뺄 항목·덮어쓸 파일)하고 실행 → `D:\PDS\<키트이름>_<YYYYMMDD>.zip`.
+1. **포장 스크립트 하나로**: 프로그램의 `KIT/kit.json`만 써 두고 `python scripts/make_lecture_kit.py --name <묶음이름> --programs <폴더1> [폴더2 …] [--out D:\PDS]` → `<묶음이름>_<YYYYMMDD>.zip`(인자 없이 실행하면 SNS 묶음 = threads-content-ops + insta_auto_poster). 스크립트가 공용 설치 스크립트를 넣고, `schema.mode=generate`면 DB 파일을 조각에서 합쳐 만든다.
    - **항상 빼는 것**: `.env*`(`.env.example` 제외), `node_modules`, `.next`, `.vercel`, `.git`, `*.tsbuildinfo`, `*.log`, 내부 문서(`docs/`, `AGENTS.md`, `CLAUDE.md`), 운영 마이그레이션(`supabase/` — `KIT/schema.sql`이 대신), 내부 테스트·스크립트(필요 없으면)
    - **덮어쓰는 것**: `vercel.json` ← `KIT/vercel.json`(무료용), `.env.example` ← `KIT/env.example`, 루트 `README.md` ← 「`KIT/README.md`부터 보세요」 한 줄
-2. **포장 후 비밀값 검사(필수)**: 압축 안에 `.env.local`·실제 키(`sk-`, `sk-ant-`, `eyJ`(JWT), `AIza`, `r8_` 등)·`.vercel`이 없는지 확인한 뒤 넘긴다.
+2. **포장 후 비밀값 검사(자동)**: 스크립트가 `.env*`(`.env.example` 제외)·실제 키 모양(OpenAI·Anthropic·JWT·Supabase 새 키·Google·Replicate)을 찾으면 **포장을 멈추고 펼친 폴더를 지운다**. 통과 메시지 「비밀값 검사 통과」를 확인하고 넘긴다.
 3. **이름 규칙**: `<묶음이름>_<YYYYMMDD>.zip`(예: `SNS_Auto_Posting_Kit_20261018.zip`). 여러 프로그램을 한 압축에 넣으면 최상위 `00_START_HERE.md`(묶음 안내·공통 순서·맥 메모·AI 코딩 도구용 문장).
 4. **옛 압축은 지우지 않는다**(수강생이 받은 버전 추적용). 새 버전은 날짜만 바꿔 새로 만든다.
 
@@ -83,7 +85,7 @@
 1. 작업 중 표(`docs/ACTIVE_WORK.md`)에 `labs/kit-<이름>` 등록 → 포장한 압축을 풀어 `labs/kit-<이름>/`에 둔다(운영 폴더·운영 DB 미접촉).
 2. **Supabase 조직 `BUYLIFE-DEV`(무료)** 에 새 프로젝트(무료 조직은 활성 프로젝트 2개 한도 — 리허설 끝나면 일시정지·삭제), **Vercel 프로젝트 이름 `dev-<이름>`**(Lab 규칙).
 3. 주인님이 수강생 역할로 `KIT/README.md`를 처음부터 따라 하고, CLI는 크롬 화면·DB로 확인하며 **단계별 기록**(`docs/<키트>-manual/REHEARSAL_LOG.md` + 캡처 `img/`).
-4. 발견한 문제는 **원본 프로그램에서** 고치고(코드 하나 원칙), 키트 사본에는 다시 복사하거나 다시 포장한다. 운영에도 영향이 있는 버그(예: 시간대)는 운영도 같이 고쳐 배포.
+4. 발견한 문제는 **원본 프로그램에서** 고치고(코드 하나 원칙), 키트 사본에는 다시 복사하거나 다시 포장한다. **리허설을 마칠 때 사본과 원본의 `KIT/`·앱 코드를 비교해 사본에만 있는 수정이 없는지 확인**한다(2026-10-19 사본에만 남은 키트 파일 발견). 운영에도 영향이 있는 버그(예: 시간대)는 운영도 같이 고쳐 배포.
 5. 끝나면 교육 매뉴얼(초보자용 단계·필요한 값·화면 캡처) 작성 → 새 날짜로 재포장 → PDS 반영.
 
 ### 6-2. 리허설에서 반드시 확인
@@ -118,9 +120,9 @@
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
-| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` + `make_lecture_kit.py` | `SNS_Auto_Posting_Kit_20261018` | ✅ 2026-10-19(가입~자동 발행·예약 방식) | 리허설 수정분(예약 방식 선택·시간대·토스 표기 등)은 원본 반영 완료 → **재포장 필요** |
-| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` + `make_lecture_kit.py` | `SNS_Auto_Posting_Kit_20261018` | ⚪ 대기 | 예약 방식 지침 미적용(1순위 예정) |
-| `threads-affiliate-poster` (쓰레드 쇼핑제휴) | `clone-kit/`(`make-clone.mjs`, 마이그레이션 자동 합침) | — | ⚪ 없음 | 예약 방식 반영(v1.63). 다음 개정 때 `KIT/` 표준으로 맞출지 결정 |
+| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_20261018` | ✅ 2026-10-19(가입~자동 발행·예약 방식) | 리허설 수정분(예약 방식 선택·시간대·토스 표기·키트 안내서·DB 파일·Pro 스크립트)은 원본 반영 완료(키트 파일은 2026-10-19 사본→원본 이전) → **재포장 필요** |
+| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_20261018` | ⚪ 대기 | 예약 방식 지침 미적용(1순위 예정) |
+| `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
 
 ## 9. 관련 문서
 - 예약 기능: [`SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) · Lab 규칙: [`AIMASTER_DEV_LAB_GUIDELINES.md`](AIMASTER_DEV_LAB_GUIDELINES.md) · 리허설 기록: [`sns-kit-manual/REHEARSAL_LOG.md`](sns-kit-manual/REHEARSAL_LOG.md) · 오류 교훈: [`ERROR_LESSONS.md`](ERROR_LESSONS.md) · 최상위 규칙: [`TOP_RULE_PERSONAL_ACCOUNT_API.md`](TOP_RULE_PERSONAL_ACCOUNT_API.md)
@@ -128,15 +130,18 @@
 ## 10. 변경 이력
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-19 | **키트 방식 통일(주인님 결정)**: `KIT/` 표준 + clone-kit의 DB 자동 생성·HTML 매뉴얼. 공용 설치 스크립트 템플릿(`scripts/kit-template/`, 키 숨김·GitHub 연결 해제), kit.json 기반 포장(`--name --programs`)·비밀값 자동 검사, 쇼핑제휴 `clone-kit/` → `KIT/` 이전. 이유: 수강생은 스크립트 한 번(환경변수 수동 입력 제거), 운영자는 DB 파일 자동 생성(수동 동기화 제거), 리허설로 검증된 방식, 모든 키트 같은 순서. |
 | 2026-10-19 | 공용 레퍼런스 문서로 지정(주인님 지시): 맨 위 갱신 의무, §11 개선 대기 목록 추가. |
 | 2026-10-19 | 제정(Claude Code 윈도우). 주인님 지시: 「AIMaster 서브프로그램을 개별 배포판으로 만들어 수강생에게 키트 방식으로 이전 — 최대한 편리하고 손이 덜 가는 방법의 지침」. Threads 키트 리허설(T1~T25)·쇼핑제휴 clone-kit·예약 방식 결정을 근거로 작성. |
 
 ## 11. 개선 대기 목록 (계속 추가)
 | # | 날짜 | 개선할 점 | 근거 | 상태 |
 |---|---|---|---|---|
-| 1 | 2026-10-19 | 설치 스크립트(`setup.ps1`/`.sh`)에 `vercel link` 직후 `npx vercel@latest git disconnect --yes` 자동 실행 | 리허설 T9-1: 저장소 안 폴더에서 GitHub 자동 연결 → 엉뚱한 코드 배포·빌드 비용 | ⚪ 대기(다음 키트 개정) |
-| 2 | 2026-10-19 | 설치 스크립트가 키 입력을 화면에 보이지 않게(`Read-Host -AsSecureString` / `read -s`) | 리허설 T9: 입력한 Secret key가 창에 그대로 보임 | ⚪ 대기 |
-| 3 | 2026-10-19 | 포장 스크립트 `make_lecture_kit.py`를 프로그램별 `KIT/kit.json`(빼기·덮어쓰기 목록)으로 읽게 일반화 → 새 프로그램은 `kit.json`만 쓰면 포장 | 지금은 스크립트 안 `PROGRAMS` 목록을 손으로 고쳐야 함 | ⚪ 대기 |
-| 4 | 2026-10-19 | 포장 직후 비밀값 자동 검사(압축 안 `.env*`·키 패턴 발견 시 실패) | §4-2를 사람이 하지 않게 | ⚪ 대기 |
-| 5 | 2026-10-19 | `threads-affiliate-poster/clone-kit` 방식과 `KIT/` 방식 중 하나로 통일 | 키트 방식이 두 가지라 수강생·CLI 모두 헷갈림 | ⚪ 주인님 결정 대기 |
+| 1 | 2026-10-19 | 설치 스크립트(`setup.ps1`/`.sh`)에 `vercel link` 직후 `npx vercel@latest git disconnect --yes` 자동 실행 | 리허설 T9-1: 저장소 안 폴더에서 GitHub 자동 연결 → 엉뚱한 코드 배포·빌드 비용 | ✅ 2026-10-19 공용 템플릿 |
+| 2 | 2026-10-19 | 설치 스크립트가 키 입력을 화면에 보이지 않게(`Read-Host -AsSecureString` / `read -s`) | 리허설 T9: 입력한 Secret key가 창에 그대로 보임 | ✅ 2026-10-19 공용 템플릿 |
+| 3 | 2026-10-19 | 포장 스크립트 `make_lecture_kit.py`를 프로그램별 `KIT/kit.json`(빼기·덮어쓰기 목록)으로 읽게 일반화 → 새 프로그램은 `kit.json`만 쓰면 포장 | 지금은 스크립트 안 `PROGRAMS` 목록을 손으로 고쳐야 함 | ✅ 2026-10-19(`--name --programs`, schema generate) |
+| 4 | 2026-10-19 | 포장 직후 비밀값 자동 검사(압축 안 `.env*`·키 패턴 발견 시 실패) | §4-2를 사람이 하지 않게 | ✅ 2026-10-19(가짜 키로 검출 확인) |
+| 5 | 2026-10-19 | `threads-affiliate-poster/clone-kit` 방식과 `KIT/` 방식 중 하나로 통일 | 키트 방식이 두 가지라 수강생·CLI 모두 헷갈림 | ✅ 2026-10-19 주인님 결정: **`KIT/` 표준 + clone-kit의 DB 자동 생성·HTML 매뉴얼** |
 | 6 | 2026-10-19 | 교육 매뉴얼(`docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) 작성 후 키트 `KIT/README.md`와 화면 이름·순서 일치시키기 | 리허설에서 안내서와 실제 화면이 다른 곳 다수 | 🔄 진행 중 |
+| 7 | 2026-10-19 | 쇼핑제휴 운영: 설정 화면에 Claude(`anthropic`)·Replicate 키 칸이 있는데 저장 함수 허용 목록(`src/lib/actions/settings.ts` `VALID_PROVIDERS`)에 없어 저장 시 「알 수 없는 provider」 | 키트 허용 목록 점검 중 발견(키트 `99_finalize.sql`에는 naver·replicate 추가함) | ⚪ 다음 쇼핑제휴 배포 때 수정 |
+| 8 | 2026-10-19 | 리허설에서 고친 **키트 파일**이 사본(`labs/kit-*`)에만 남는 문제 → 리허설 끝날 때 「사본 ↔ 원본 KIT·앱 코드 차이 비교」를 필수 단계로 | Threads 키트 README·schema·Pro 스크립트가 사본에만 있었음(2026-10-19 발견·이전) | ✅ 규칙화(§6-1 4번) |

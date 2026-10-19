@@ -1,4 +1,4 @@
--- Standalone clone of Threads Affiliate Poster — part 1 of 3 (clone-kit/scripts/make-clone.mjs joins all parts into supabase/schema.sql).
+-- Standalone clone of Threads Affiliate Poster — part 1 of 3 (AIMaster scripts/make_lecture_kit.py joins all parts into KIT/schema.sql — order in KIT/kit.json).
 -- Runs before supabase/migrations/0001~0007 in the NEW Supabase project.
 --
 -- In AIMaster these tables are shared by every program and are created by the root app.

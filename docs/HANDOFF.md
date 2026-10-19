@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 배포 키트 방식 통일(`KIT/` 표준 + DB 자동 생성): 공용 설치 스크립트·kit.json 포장·비밀값 자동 검사, 쇼핑제휴 clone-kit → KIT
+
+- 주인님 결정·이유: [`docs/DISTRIBUTION_KIT_GUIDE.md`](DISTRIBUTION_KIT_GUIDE.md) §10. 공용 템플릿 `scripts/kit-template/setup.ps1·sh`(키 숨김 입력, `vercel link` 직후 GitHub 연결 해제, kit.json `extraEnv`), `scripts/make_lecture_kit.py`(`--name --programs`, schema static/generate, 비밀값 검사 — 가짜 키로 검출 확인).
+- Threads: 리허설 사본에만 있던 키트 파일·독립 모드 코드를 원본으로 이전(운영 동작 동일, 미배포). INSTA: kit.json·설치 스크립트 공용화. 쇼핑제휴: `clone-kit/` → `KIT/`(안내서 재작성, DB 자동 생성), 시험 포장 통과. 발견: 쇼핑제휴 운영 설정의 Claude·Replicate 키 저장 불가(다음 배포 때 수정).
+- 다음: Threads·INSTA SNS 묶음 재포장(PDS), 쇼핑제휴 키트 리허설, INSTA 리허설.
+- 참고: `threads-affiliate-poster/clone-kit/` → `KIT/` **파일 이동(git mv)은 작업 초반에 스테이징해 둔 탓에 다른 CLI의 커밋 `a1f3cf62`(문자 인증번호 수정)에 섞여 들어갔다** — 내용 변경 없는 이동이라 피해 없음, 이미 푸시된 커밋이라 수정하지 않음. 교훈: 파일 이동도 커밋 직전에 스테이징(공유 index).
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 종합 이용 가이드(/guides) 전면 리뉴얼 완료 (API 연동 가이드 + 서브프로그램 실전 매뉴얼 듀얼 트랙 구축, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 주인님의 지시("지금보다 보다 자세하게 단계별로, 시각적으로 가독성 있게 내용에 어울리는 이모티콘 사용, 각각 서브프로그램의 사용법·매뉴얼 페이지 참고")를 바탕으로, 단순한 텍스트 나열이었던 가이드 메뉴를 **외부 플랫폼 API 연동 가이드와 서브프로그램 실전 매뉴얼이 결합된 프리미엄 듀얼 트랙 가이드북**으로 전면 리뉴얼함.

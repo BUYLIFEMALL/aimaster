@@ -656,3 +656,8 @@
 - 운영 DB(`esgxyikcnnvmlhygjkth`): `mode` 칸 추가(기본 vercel, 기존 행 vercel) — 마이그레이션 `supabase/migrations/20261019210000_tco_scheduler_mode.sql`.
 - 검수: tsc 0, 테스트 32/32(기본 Vercel 키 없이 예약·Vercel 꺼짐 거부 2개 추가), 빌드, 배포 `threads-content-7ojntefs8`, DB v2.08, 크롬: 기본 Vercel 선택 표시 → cron-job.org 전환(「내 cron-job.org 대기」) → Vercel 복귀(「AIMaster 기본(Vercel) 실행 중」).
 - 배포 뒤 추가된 「기본값 배지·키트용 문구(defaultMode)」 변경은 운영 동작이 같아 **미배포 — 다음 배포 때 함께**(버전 +0.01).
+
+## 2026-10-19 — 배포 키트 정리: 리허설 수정분을 원본 KIT로 이전 + 공용 설치 스크립트·kit.json 포장 (Claude Code 윈도우)
+- 리허설 사본(`labs/kit-threads`)에만 있던 키트 파일을 원본으로 이전: `KIT/README.md`(예약 방식 6장 등), `KIT/schema.sql`(예약 표·키 허용), `KIT/upgrade-20261019-cronjob.sql`, `KIT/enable-vercel-cron.*`, 앱 코드 `ScheduleSetupNotice.tsx`·`OperationsDashboard.tsx`·`UsageGuide.tsx`(모두 독립 모드에서만 표시). `lib/cronJobOrg.ts` 작업 이름을 독립 모드에선 「AIMaster」 없이.
+- `KIT/kit.json`에 포장·설치 설정(description·callbackLabel·nextStep·exclude·overrides·schema static), `KIT/setup.*`는 공용 템플릿(`scripts/kit-template/`, 키 숨김 입력·GitHub 자동 연결 해제)으로 교체.
+- 운영 화면 동작 변화 없음 → **운영 재배포 안 함(미배포 — 다음 배포 때 함께, 버전 +0.01)**. tsc 0·테스트 32/32. 지침: 루트 `docs/DISTRIBUTION_KIT_GUIDE.md`.

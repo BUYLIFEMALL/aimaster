@@ -35,7 +35,7 @@ function AimasterSignupNotice() {
   );
 }
 
-// Standalone copies (clone-kit) take their own sign-ups.
+// Standalone copies (KIT/ install kit) take their own sign-ups.
 function StandaloneSignupForm() {
   const [state, formAction, isPending] = useActionState(signUpAction, initialState);
 

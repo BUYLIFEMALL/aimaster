@@ -1,97 +1,151 @@
-"""강의용 설치 키트 묶음 스크립트 (2026-10-18).
+"""AIMaster 배포 키트 포장 스크립트 (2026-10-18 제작, 2026-10-19 kit.json 방식으로 일반화).
 
-threads-content-ops(쓰레드 콘텐츠 운영 자동화)와 insta_auto_poster(INSTA 포스팅 자동화)를
-수강생이 자기 계정(Supabase·Vercel·Meta)에 설치할 수 있는 압축 파일 하나로 묶는다.
-- 비밀값(.env*), 빌드 결과물(.next), 패키지(node_modules), Vercel 연결(.vercel), AIMaster 내부 문서는 넣지 않는다.
-- 각 프로그램의 KIT/ 폴더(설치 안내·스키마·설치 스크립트)를 함께 넣는다.
-사용: python scripts/make_lecture_kit.py [출력폴더]   (기본: D:\\PDS)
+지침: docs/DISTRIBUTION_KIT_GUIDE.md — 「코드는 하나(원본 + KIT/), 포장만 한다」.
+프로그램마다 <프로그램>/KIT/kit.json 에 적힌 대로 포장한다. 새 프로그램은 kit.json만 쓰면 된다.
+
+kit.json 항목(포장에 쓰는 것):
+  title, description           : 묶음 안내(00_START_HERE.md)에 쓰는 이름·한 줄 설명
+  exclude                      : 프로그램 최상위에서 뺄 폴더·파일 목록(아래 ALWAYS_SKIP 외 추가)
+  overrides                    : {키트 안 경로: 원본 KIT 파일} — 예: vercel.json ← KIT/vercel.json(무료 요금제용)
+  schema                       : {"mode": "static"}  → KIT/schema.sql 그대로
+                                 {"mode": "generate", "parts": ["KIT/database/00_core_tables.sql", "supabase/migrations/*.sql", "KIT/database/99_finalize.sql"]}
+                                 → 순서대로 합쳐 KIT/schema.sql 생성(운영 DB 변경이 저절로 따라옴)
+  extraEnv, callbackPath, ...  : 설치 스크립트가 읽는 값(scripts/kit-template/setup.ps1·sh)
+설치 스크립트는 항상 공용 템플릿(scripts/kit-template/setup.ps1·setup.sh)을 KIT/ 로 복사해 넣는다(프로그램별 사본을 따로 고치지 않는다).
+포장 뒤 비밀값 자동 검사: .env*(.env.example 제외)·실제 키 패턴이 있으면 실패하고 압축을 지운다.
+
+사용:
+  python scripts/make_lecture_kit.py                                   (기본: SNS 묶음 = threads-content-ops + insta_auto_poster → D:\\PDS)
+  python scripts/make_lecture_kit.py --name 묶음이름 --programs 폴더1 폴더2 [--out 출력폴더]
 """
+import argparse
+import glob
 import io
+import json
 import os
+import re
 import shutil
 import sys
 import zipfile
 from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT_DIR = sys.argv[1] if len(sys.argv) > 1 else r"D:\PDS"
+TEMPLATE_DIR = os.path.join(ROOT, "scripts", "kit-template")
 STAMP = date.today().strftime("%Y%m%d")
-KIT_NAME = f"SNS_Auto_Posting_Kit_{STAMP}"
 
-PROGRAMS = [
-    # (원본 폴더, 키트 안 폴더 이름, 빼는 최상위 항목, KIT 에서 덮어쓸 파일 {키트 경로: 원본 KIT 파일})
-    ("threads-content-ops", "threads-content-ops",
-     {"desktop", "supabase", "docs", "scripts", "tests", "AGENTS.md", "CLAUDE.md", "README.md", ".env.example", ".vercelignore"},
-     {"vercel.json": "KIT/vercel.json", ".env.example": "KIT/env.example"}),
-    ("insta_auto_poster", "insta_auto_poster",
-     # vercel.json: 운영용 5분 cron(v1.24)은 Vercel 무료 요금제에서 배포 실패 → 수강생은 cron-job.org 사용
-     {"supabase", "docs", "scripts", "AGENTS.md", "CLAUDE.md", "README.md", "vercel.json"},
-     {".env.example": "KIT/env.example"}),
-]
+# 어떤 프로그램이든 항상 빼는 것(비밀값·빌드 결과·연결 정보·내부 문서)
 ALWAYS_SKIP_DIRS = {"node_modules", ".next", ".vercel", ".git", ".turbo", "out", "coverage"}
+ALWAYS_SKIP_TOP = {"AGENTS.md", "CLAUDE.md", "GEMINI.md", "docs", "supabase", ".vercelignore"}
 SKIP_FILE_SUFFIX = (".tsbuildinfo", ".log")
 
+# 비밀값 검사 패턴(포장물 안 텍스트 파일)
+SECRET_PATTERNS = [
+    ("OpenAI 키", re.compile(r"sk-(?:proj-)?[A-Za-z0-9_-]{32,}")),
+    ("Anthropic 키", re.compile(r"sk-ant-[A-Za-z0-9_-]{30,}")),
+    ("JWT(Supabase 키 등)", re.compile(r"eyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}")),
+    ("Supabase 새 키", re.compile(r"sb_(?:secret|publishable)_[A-Za-z0-9_-]{20,}")),
+    ("Google 키", re.compile(r"AIza[0-9A-Za-z_-]{35}")),
+    ("Replicate 키", re.compile(r"r8_[A-Za-z0-9]{30,}")),
+]
+TEXT_SUFFIX = (".ts", ".tsx", ".js", ".mjs", ".cjs", ".json", ".md", ".sql", ".ps1", ".sh", ".html", ".css", ".txt", ".yml", ".yaml", ".example", ".env")
 
-def skip_file(name: str) -> bool:
+
+def load_kit(program):
+    path = os.path.join(ROOT, program, "KIT", "kit.json")
+    if not os.path.exists(path):
+        sys.exit(f"[실패] {program}/KIT/kit.json 이 없습니다. docs/DISTRIBUTION_KIT_GUIDE.md §2 를 보고 먼저 만드세요.")
+    with io.open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def skip_file(name):
     if name.startswith(".env") and name != ".env.example":
         return True
     return name.endswith(SKIP_FILE_SUFFIX)
 
 
-def copy_program(src_name, dst_name, skip_top, overrides, dst_root):
-    src = os.path.join(ROOT, src_name)
-    dst = os.path.join(dst_root, dst_name)
+def build_schema(program, kit, dst):
+    schema = kit.get("schema", {"mode": "static"})
+    target = os.path.join(dst, "KIT", "schema.sql")
+    if schema.get("mode") != "generate":
+        if not os.path.exists(target):
+            sys.exit(f"[실패] {program}: KIT/schema.sql 이 없습니다(schema.mode=static).")
+        return
+    src = os.path.join(ROOT, program)
+    files = []
+    for part in schema["parts"]:
+        matched = sorted(glob.glob(os.path.join(src, part)))
+        if not matched:
+            sys.exit(f"[실패] {program}: schema 조각 {part} 을 찾지 못했습니다.")
+        files.extend(matched)
+    out = [
+        f"-- {kit.get('title', program)} — 새 Supabase 프로젝트용 전체 스키마 (make_lecture_kit.py가 {STAMP} 생성)",
+        "-- Supabase 대시보드 → SQL Editor → New query에 이 파일 전체를 붙여넣고 Run 한 번이면 된다.",
+        "-- (drop … if exists 때문에 'Potential issue detected' 경고가 뜨면 Run query 를 누르면 된다 — 새 프로젝트라 안전)",
+        "",
+    ]
+    for f in files:
+        rel = os.path.relpath(f, src).replace(os.sep, "/")
+        out.append(f"-- ===== {rel} =====\n{io.open(f, encoding='utf-8').read().strip()}\n")
+    io.open(target, "w", encoding="utf-8", newline="\n").write("\n".join(out))
+
+
+def copy_program(program, kit, dst_root):
+    src = os.path.join(ROOT, program)
+    dst = os.path.join(dst_root, program)
+    skip_top = ALWAYS_SKIP_TOP | set(kit.get("exclude", []))
     for cur, dirs, files in os.walk(src):
         rel = os.path.relpath(cur, src)
-        top = rel.split(os.sep)[0] if rel != "." else ""
         dirs[:] = [d for d in dirs if d not in ALWAYS_SKIP_DIRS and not (rel == "." and d in skip_top)]
         for f in files:
-            if rel == "." and f in skip_top:
-                continue
-            if skip_file(f):
+            if (rel == "." and f in skip_top) or skip_file(f):
                 continue
             target = os.path.join(dst, rel, f)
             os.makedirs(os.path.dirname(target), exist_ok=True)
             shutil.copy2(os.path.join(cur, f), target)
-    for kit_path, kit_src in overrides.items():
+    for kit_path, kit_src in kit.get("overrides", {}).items():
         shutil.copy2(os.path.join(src, kit_src), os.path.join(dst, kit_path))
-    title = "Threads 콘텐츠 운영 자동화" if "threads" in dst_name else "INSTA 포스팅 자동화"
+    # 공용 설치 스크립트(항상 최신 템플릿으로)
+    for name in ("setup.ps1", "setup.sh"):
+        shutil.copy2(os.path.join(TEMPLATE_DIR, name), os.path.join(dst, "KIT", name))
+    build_schema(program, kit, dst)
     io.open(os.path.join(dst, "README.md"), "w", encoding="utf-8", newline="\n").write(
-        f"# {title}\n\n설치 안내는 [`KIT/README.md`](KIT/README.md)를 처음부터 순서대로 따라 하세요.\n"
+        f"# {kit.get('title', program)}\n\n설치 안내는 [`KIT/README.md`](KIT/README.md)를 처음부터 순서대로 따라 하세요.\n"
         "플랫폼별 가입·API 키 발급은 [`KIT/PLATFORMS.md`](KIT/PLATFORMS.md)에 있습니다.\n")
 
 
-START = """# 강의용 설치 키트 — 시작하기
+def start_here(name, kits):
+    rows = "\n".join(f"| `{p}/` | {k.get('title', p)} — {k.get('description', '')} | `{p}/KIT/README.md` |" for p, k in kits)
+    titles = " + ".join(k.get("title", p) for p, k in kits)
+    return f"""# 설치 키트 — 시작하기
 
-> {stamp} · Threads 콘텐츠 운영 자동화 + INSTA 포스팅 자동화 · 윈도우·맥 공통
-> 이 압축 파일 하나로 두 프로그램을 **내 계정**(Supabase·Vercel·Meta)에 설치해, 실제 포스팅까지 되는 나만의 자동화 웹을 만듭니다.
+> {STAMP} · {titles} · 윈도우·맥 공통
+> 이 압축 파일로 프로그램을 **내 계정**(Supabase·Vercel·플랫폼 앱)에 설치해, 실제로 동작하는 나만의 자동화 웹을 만듭니다.
 > AIMaster와 연결되는 부분은 없습니다. 화면에 보이는 이름도 내 이름/브랜드로 바꿀 수 있습니다.
 
 ## 들어 있는 것
 
 | 폴더 | 프로그램 | 설치 안내 |
 |---|---|---|
-| `threads-content-ops/` | Threads 콘텐츠 운영 자동화 — 글감 수집·AI 글 생성·즉시/예약 게시 | `threads-content-ops/KIT/README.md` |
-| `insta_auto_poster/` | INSTA 포스팅 자동화 — 주제 수집·캡션·이미지 생성·즉시/예약 게시 | `insta_auto_poster/KIT/README.md` |
+{rows}
 
-두 프로그램은 서로 **독립**입니다. 하나만 설치해도 되고, 둘 다 설치하면 Supabase 프로젝트·Vercel 프로젝트를 **각각 하나씩** 만듭니다.
+프로그램은 서로 **독립**입니다. 하나만 설치해도 되고, 여러 개 설치하면 Supabase 프로젝트·Vercel 프로젝트를 **각각 하나씩** 만듭니다.
 
-## 전체 순서 (프로그램마다)
+## 전체 순서 (프로그램마다 같음)
 
-1. **준비물 설치·가입(공통, 한 번)**: Node.js 22 LTS · Supabase · Vercel · Meta 개발자 · AI 키(OpenAI/Gemini)
-2. **압축 풀고 프로그램 폴더를 원하는 곳으로 옮기기**(경로에 한글·공백 없이 **짧게**, 예: `D:\\work\\my-threads`, `~/work/my-threads` — 윈도우는 바탕화면·다운로드 안처럼 경로가 길면 빌드가 실패합니다)
-3. **Supabase 새 프로젝트 → SQL Editor에 `KIT/schema.sql` 붙여넣고 Run**
-4. **설치 스크립트 실행** — 설정값 입력·빌드·Vercel 배포까지 한 번에
+1. **준비물 설치·가입(공통, 한 번)**: Node.js 22 LTS · Supabase · Vercel · 플랫폼 개발자 계정 · AI 키
+2. **압축 풀고 프로그램 폴더를 원하는 곳으로 옮기기**(경로에 한글·공백 없이 **짧게**, 예: `D:\\work\\my-app`, `~/work/my-app` — **GitHub 저장소 폴더 안에는 풀지 마세요**)
+3. **Supabase 새 프로젝트(지역 Seoul) → SQL Editor에 `KIT/schema.sql` 붙여넣고 Run** → 이메일 확인(Confirm email) 끄기
+4. **설치 스크립트 실행** — 설정값 입력(키는 화면에 안 보임)·빌드·Vercel 배포까지 한 번에
    - 윈도우: 프로그램 폴더에서 `powershell -ExecutionPolicy Bypass -File KIT\\setup.ps1`
    - 맥: 터미널에서 프로그램 폴더로 이동 후 `bash KIT/setup.sh`
-5. **Meta 앱 만들기**(콜백 주소·테스터 등록) → 내 사이트 **API키등록·플랫폼연동**에 앱 ID·시크릿·AI 키 저장 → 계정 연결
-6. **첫 게시 시험** → **예약 게시 연결**(cron-job.org) → (선택) **내 도메인 연결**
+5. **플랫폼 앱 만들기 → 내 사이트 API키등록에 키 저장 → 계정 연결 → 첫 게시**
+6. **예약 게시**: 사이트 설정 「⏰ 예약 발행」에서 기본 「내 cron-job.org」에 키만 등록 → (선택) **내 도메인 연결**
 
 ## 맥 사용자 메모
 
 - Node.js: https://nodejs.org 에서 macOS 설치 파일(.pkg)을 받아 설치 → 터미널에서 `node -v` 확인
-- 터미널: Spotlight(⌘+Space)에서 "터미널" 검색
-- 압축 해제: 파일을 더블클릭하면 같은 위치에 폴더가 생깁니다
+- 터미널: Spotlight(⌘+Space)에서 "터미널" 검색 / 압축 해제: 파일 더블클릭
 - 스크립트는 `bash KIT/setup.sh` 로 실행합니다(권한 설정 불필요)
 
 ## AI 코딩 도구(Claude Code 등)를 쓴다면
@@ -101,15 +155,53 @@ START = """# 강의용 설치 키트 — 시작하기
 """
 
 
+def scan_secrets(stage):
+    problems = []
+    for cur, _dirs, files in os.walk(stage):
+        for f in files:
+            full = os.path.join(cur, f)
+            rel = os.path.relpath(full, stage)
+            if f.startswith(".env") and f != ".env.example":
+                problems.append(f"{rel}: 비밀값 파일")
+                continue
+            if not f.endswith(TEXT_SUFFIX) and "." in f:
+                continue
+            try:
+                text = io.open(full, encoding="utf-8", errors="ignore").read()
+            except OSError:
+                continue
+            for label, pattern in SECRET_PATTERNS:
+                if pattern.search(text):
+                    problems.append(f"{rel}: {label} 모양의 값")
+    return problems
+
+
 def main():
-    stage = os.path.join(OUT_DIR, KIT_NAME)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--name", default="SNS_Auto_Posting_Kit")
+    ap.add_argument("--programs", nargs="+", default=["threads-content-ops", "insta_auto_poster"])
+    ap.add_argument("--out", default=r"D:\PDS")
+    args = ap.parse_args()
+
+    kit_name = f"{args.name}_{STAMP}"
+    kits = [(p, load_kit(p)) for p in args.programs]
+    stage = os.path.join(args.out, kit_name)
     if os.path.exists(stage):
         shutil.rmtree(stage)
     os.makedirs(stage)
-    for src_name, dst_name, skip_top, overrides in PROGRAMS:
-        copy_program(src_name, dst_name, skip_top, overrides, stage)
-    io.open(os.path.join(stage, "00_START_HERE.md"), "w", encoding="utf-8", newline="\n").write(START.format(stamp=STAMP))
-    zip_path = os.path.join(OUT_DIR, KIT_NAME + ".zip")
+    for program, kit in kits:
+        copy_program(program, kit, stage)
+    io.open(os.path.join(stage, "00_START_HERE.md"), "w", encoding="utf-8", newline="\n").write(start_here(args.name, kits))
+
+    problems = scan_secrets(stage)
+    if problems:
+        shutil.rmtree(stage)
+        print("[실패] 비밀값으로 보이는 내용이 있어 포장을 멈췄습니다(펼친 폴더 삭제):")
+        for p in problems[:30]:
+            print("  -", p)
+        sys.exit(1)
+
+    zip_path = os.path.join(args.out, kit_name + ".zip")
     if os.path.exists(zip_path):
         os.remove(zip_path)
     count = 0
@@ -117,10 +209,9 @@ def main():
         for cur, _dirs, files in os.walk(stage):
             for f in files:
                 full = os.path.join(cur, f)
-                arc = os.path.join(KIT_NAME, os.path.relpath(full, stage)).replace(os.sep, "/")
-                z.write(full, arc)
+                z.write(full, os.path.join(kit_name, os.path.relpath(full, stage)).replace(os.sep, "/"))
                 count += 1
-    print(f"OK {zip_path} ({count} files, {os.path.getsize(zip_path) // 1024} KB)")
+    print(f"OK {zip_path} ({count} files, {os.path.getsize(zip_path) // 1024} KB) — 비밀값 검사 통과")
     print(f"   펼친 폴더: {stage}")
 
 

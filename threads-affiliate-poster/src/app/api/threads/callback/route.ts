@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   // 2026-10-16 도메인 통일(SSO) 콜백: 회원 앱에 등록된 콜백(환경변수, 옛 *.vercel.app 주소)으로 돌아오면 로그인 쿠키가 없으므로
   // 같은 경로·쿼리 그대로 새 주소(https://threads-affiliate-poster.buylife.xyz)로 넘겨 거기서 토큰을 교환한다. 교환 시 redirect_uri는 옛 주소 문자열 그대로라 일치 검사 통과.
   // 넘길 때 via=old를 붙여, 새 주소에서 토큰 교환 시 인증 요청에 썼던 옛 콜백 주소를 그대로 쓰게 한다(두 주소 동시 지원).
-  // 독립 배포본(clone-kit)은 자기 vercel.app 주소에서 돌 수 있으므로 넘기지 않는다(isLegacyHost).
+  // 독립 배포본(배포 키트 KIT/)은 자기 vercel.app 주소에서 돌 수 있으므로 넘기지 않는다(isLegacyHost).
   if (isLegacyHost(request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "")) {
     const next = new URL(`${SITE_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`);
     next.searchParams.set("via", "old");

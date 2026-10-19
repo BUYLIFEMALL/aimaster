@@ -1,7 +1,7 @@
 // Where this copy of the program runs.
 // - AIMaster (default): accounts, grants and manuals live on the AIMaster site (buylife.xyz).
 // - Standalone (NEXT_PUBLIC_STANDALONE_MODE=true): a clone on someone else's Vercel/Supabase
-//   (clone-kit/ has the manual). It takes its own sign-ups, hosts its own legal pages and
+//   (KIT/ has the install guide). It takes its own sign-ups, hosts its own legal pages and
 //   does not touch the other AIMaster Threads programs' tables.
 // NEXT_PUBLIC_* values are inlined at build time, so this is safe in client components too.
 

@@ -571,3 +571,10 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 운영 DB(`esgxyikcnnvmlhygjkth`): `tap_member_scheduler` 생성(RLS 본인 조회) — `supabase/migrations/20261019220000_tap_member_scheduler.sql`. 복제 키트: `clone-kit/database/99_finalize.sql` 허용 목록에 `cronjob_org_api_key`, `clone-kit/README.md` 8장·`env.example` 갱신.
 - 검수: tsc 0, `test:naver-key` 통과, 빌드(`/api/posts/dispatch-member` 포함), 배포 `threads-affiliate-poster-iew3xqyvl`, DB v1.63, 두 실행 주소 무인증 401, 15분 오류 로그 0. 크롬(관리자): 설정 v1.63·Vercel 기본·공용 키 「등록됨」 → 「내 cron-job.org」 전환 → 게시글 목록 「내 cron-job.org 대기」 → 상품 선택 후 시험 글 이틀 뒤 예약 → 작업 자동 생성(8676864)·켜짐, DB 예약 시각 KST 정상 → 임시저장으로 초안 복귀 → 약 10초에 작업 자동 꺼짐 → 방식 Vercel로 원복. 시험 글은 초안 상태로 남아 있음(30일 뒤 자동 삭제). 실제 자동 발행은 기준 구현(threads-content-ops)에서 확인됨.
 - 이번 배포에 2026-10-18 미배포 항목(예약 화면 「예약 시각 후 1분 안에 자동으로 발행됩니다」 안내)도 함께 나감. 린트는 이 폴더에서 설정 파일 인식 문제로 실행 못 함(타입 검사·빌드로 대체).
+
+## 2026-10-19 — 배포 키트를 AIMaster 표준 `KIT/` 방식으로 통합 (Claude Code 윈도우, 주인님 지시 — 코드·버전·배포 변경 없음)
+- `clone-kit/` → `KIT/`(git mv): `KIT/README.md`(수강생용 표준 목차로 재작성), `KIT/PLATFORMS.md`(신규), `KIT/kit.json`(신규 — schema `generate`: `KIT/database/00_core_tables.sql` + `supabase/migrations/*` + `KIT/database/99_finalize.sql`, extraEnv: 운영자 이름·이메일·FIXIE_URL), `KIT/vercel.json`(무료용: 정리 작업만), `KIT/enable-vercel-cron.*`(Pro), `KIT/setup.*`(공용 템플릿), `KIT/manuals/`·`DB_DESIGN.md`·`GUIDELINES.md`·`env.example` 이동. `make-clone.mjs`·생성물 `schema.sql` 삭제(포장 스크립트가 대신).
+- 키트 허용 목록(`KIT/database/99_finalize.sql`)에 빠져 있던 `naver_client_id`·`naver_client_secret`·`replicate` 추가.
+- 발견(미수정): 운영 설정 화면의 Claude·Replicate 키 칸이 `src/lib/actions/settings.ts` `VALID_PROVIDERS`에 없어 저장 실패 — **다음 배포 때 수정**(지침 `docs/DISTRIBUTION_KIT_GUIDE.md` §11-7).
+- 시험 포장: `python scripts/make_lecture_kit.py --name TAP_Kit_TEST --programs threads-affiliate-poster` → 149개 파일, DB 파일 16조각 자동 생성(예약 표·cron-job.org 키 포함), 무료용 vercel.json, 비밀값 검사 통과. 실제 리허설은 아직(지침 §6).
+- 코드는 주석만(`clone-kit` → `KIT/`) — 동작 변화 없음, 배포 불필요. 지침: 루트 `docs/DISTRIBUTION_KIT_GUIDE.md`.

@@ -1,4 +1,5 @@
 "use client";
+import { IS_STANDALONE } from "@/threads-content-ops/lib/deployment";
 import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 
 import React, { useState } from "react";
@@ -499,7 +500,7 @@ export default function UsageGuide() {
                 },
                 {
                   q: "예약 발행을 걸어두면 컴퓨터를 꺼두어도 발행되나요?",
-                  a: "네! 내 컴퓨터가 아니라 클라우드에서 1분마다 예약 글을 확인해 정해진 시각에 Meta 공식 API로 발행합니다. 실행 방식은 「API키등록·플랫폼연동 → ⏰ 예약 발행」에서 고릅니다 — 기본 「AIMaster 기본(Vercel)」은 따로 할 일이 없고, 「내 cron-job.org」는 본인 무료 cron-job.org API 키를 등록하면 예약할 때 자동으로 연결·남은 예약이 없으면 자동으로 멈춥니다. 콘텐츠 보관함 위에서 전체 일시정지·재개도 할 수 있습니다. 컴퓨터나 스마트폰을 꺼두셔도 정상 포스팅됩니다."
+                  a: IS_STANDALONE ? "네! 내 컴퓨터가 아니라 클라우드에서 1분마다 예약 글을 확인해 정해진 시각에 Meta 공식 API로 발행합니다. 실행 방식은 「API키등록·플랫폼연동 → ⏰ 예약 발행」에서 고릅니다 — 기본 「내 cron-job.org」는 본인 무료 cron-job.org API 키만 등록하면 예약할 때 자동으로 연결되고 남은 예약이 없으면 자동으로 멈춥니다. Vercel 유료(Pro)라면 KIT/enable-vercel-cron으로 Vercel 예약 호출을 켜고 그 방식을 고를 수도 있습니다. 콘텐츠 보관함 위에서 전체 일시정지·재개도 할 수 있습니다." : "네! 사용자의 로컬 컴퓨터에서 실행되는 것이 아니라, Vercel 클라우드 서버의 크론(Cron) 서비스가 1분 단위로 대기 중인 예약 글을 확인하여 정해진 시각에 Meta 공식 API를 통해 자동으로 발행합니다. 컴퓨터나 스마트폰을 꺼두셔도 정상 포스팅됩니다."
                 },
                 {
                   q: "여러 개의 Threads 계정을 번갈아 운영할 수 있나요?",

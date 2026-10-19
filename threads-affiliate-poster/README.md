@@ -121,19 +121,22 @@
 5. `🚀 퍼블리싱 & 예약 관리 (/posts)` — Threads 즉시 게시 또는 스케줄링 예약 자동 포스팅 진행
 4. 예약 게시는 `threads/`와 동일한 크론 이중화(cron-job.org 메인 + Vercel Cron 백업)로 처리
 
-## 별도 서버로 통째 복제하기
+## 배포 키트(수강생·외부 설치용) — AIMaster 표준 `KIT/` 방식 (2026-10-19 개편)
 
-다른 GitHub·Vercel·Supabase 계정으로 옮겨 독립 운영하는 **복제 키트**가 [`clone-kit/`](clone-kit/)에 있다 (v1.02, 2026-09-29).
+다른 사람이 자기 Supabase·Vercel·Meta 계정에 설치해 독립 운영하는 **배포 키트**는 [`KIT/`](KIT/)에 있다. 지침: 루트 [`docs/DISTRIBUTION_KIT_GUIDE.md`](../docs/DISTRIBUTION_KIT_GUIDE.md).
+(예전 `clone-kit/` + `make-clone.mjs` 방식은 2026-10-19 `KIT/` 표준으로 통합 — 설치 스크립트로 환경변수·배포 자동화, DB 파일은 포장 때 마이그레이션에서 자동 생성)
 
 | 파일 | 내용 |
 |---|---|
-| `clone-kit/README.md` | 설치 매뉴얼 (Supabase → Vercel → 환경변수 → 첫 계정 → Threads 연동 → 크론 → 문제 해결) |
-| `clone-kit/GUIDELINES.md` | 복제본의 기본지침 (복제본에서는 `AGENTS.md`가 됨) |
-| `clone-kit/DB_DESIGN.md` | DB 설계 (테이블·관계·RLS·이용 권한 판정) |
-| `clone-kit/database/schema.sql` | 새 DB에 한 번에 붙여넣는 전체 스키마 (= `00_core_tables.sql` + `supabase/migrations/*` + `99_finalize.sql`) |
-| `clone-kit/env.example` | 환경변수 목록 |
-| `clone-kit/manuals/*.html` | 회원용 연동 매뉴얼 8종 (`platform_guides`에서 내보냄) |
-| `clone-kit/scripts/make-clone.mjs` | `node clone-kit/scripts/make-clone.mjs <대상폴더>` — 비밀값을 뺀 복제본 폴더를 만들고 위 파일들을 배치 |
+| `KIT/README.md` | 수강생용 설치 안내(표준 목차 0~9장) |
+| `KIT/kit.json` | 포장·설치 설정(뺄 항목, 덮어쓸 파일, DB 파일 생성 순서, 추가 환경변수 질문) |
+| `KIT/database/00_core_tables.sql`, `99_finalize.sql` | DB 파일 앞·뒤 조각(가운데는 `supabase/migrations/*`) — 포장 때 `KIT/schema.sql`로 합쳐짐 |
+| `KIT/setup.ps1` / `setup.sh` | 공용 설치 스크립트(원본 `AIMaster/scripts/kit-template/`) |
+| `KIT/enable-vercel-cron.*`, `KIT/vercel.json` | Pro용 1분 예약 호출 켜기 / 무료 요금제용 설정 |
+| `KIT/PLATFORMS.md`, `KIT/manuals/*.html` | 플랫폼별 키 발급 매뉴얼 8종 |
+| `KIT/DB_DESIGN.md`, `KIT/GUIDELINES.md` | DB 설계, 설치본 기본 지침 |
+
+- 포장: 루트에서 `python scripts/make_lecture_kit.py --name <묶음이름> --programs threads-affiliate-poster` → `D:\PDS\<묶음이름>_<날짜>.zip`(비밀값 자동 검사)
 
 - **독립 운영 모드**: 같은 코드가 `NEXT_PUBLIC_STANDALONE_MODE=true`일 때 자체 회원가입(`/signup`, `/auth/callback`), 권한 없음 안내(`/no-access`),
   법적 고지(`/legal/privacy|terms|data-deletion`, 운영자 정보는 `NEXT_PUBLIC_OPERATOR_*`)를 쓰고, AIMaster 링크·매뉴얼 버튼·다른 쓰레드 프로그램
@@ -141,8 +144,8 @@
   기존 동작과 같다.
 - 2026-09-29 검증: 두 모드 모두 `npm run build` 통과, `make-clone.mjs`로 만든 복제본 빌드 통과, `schema.sql`을 빈 PostgreSQL 17(Supabase auth/storage 최소 모사)에
   실행해 오류 없이 테이블 15개·`post-images` 버킷·가입 트리거·키 종류 제한 동작 확인. 실제 새 Supabase/Vercel 계정에서의 전체 설치는 아직 안 해 봄.
-- **유지 규칙**: 새 마이그레이션을 추가하면 `make-clone.mjs`로 복제본을 한 번 만들어 `clone-kit/database/schema.sql`을 갱신하고, 새 AIMaster 의존
-  (공용 테이블·`buylife.xyz` 링크·다른 프로그램 테이블)을 추가하면 `deployment.ts` 분기와 `clone-kit/` 문서를 같이 고칠 것.
+- **유지 규칙**: 새 마이그레이션은 포장 때 자동으로 DB 파일에 들어간다(별도 갱신 불필요). 회원 키 종류를 추가하면 `KIT/database/99_finalize.sql` 허용 목록에도 넣고,
+  새 AIMaster 의존(공용 테이블·`buylife.xyz` 링크·다른 프로그램 테이블)을 추가하면 `deployment.ts` 분기와 `KIT/` 문서를 같이 고칠 것.
 
 ## Phase 진행 상태
 

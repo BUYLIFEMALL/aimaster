@@ -1,13 +1,13 @@
 # DB 설계 — Threads 쇼핑제휴 자동화 (독립 운영 복제본)
 
 DB는 **Supabase(PostgreSQL) 프로젝트 1개**를 쓴다. 전체 스키마는 `supabase/schema.sql` 한 파일로 만들어지며
-(`clone-kit/scripts/make-clone.mjs`가 생성), 아래 3부분을 순서대로 이어 붙인 것이다.
+(포장 스크립트 `AIMaster/scripts/make_lecture_kit.py`가 `KIT/kit.json`의 schema.parts 순서로 생성), 아래 3부분을 순서대로 이어 붙인 것이다.
 
 | 순서 | 원본 파일 | 내용 |
 |---|---|---|
-| 1 | `clone-kit/database/00_core_tables.sql` | 회원·권한·키 공용 테이블 (원래 AIMaster가 만들어 주던 부분의 최소 버전) |
+| 1 | `KIT/database/00_core_tables.sql` | 회원·권한·키 공용 테이블 (원래 AIMaster가 만들어 주던 부분의 최소 버전) |
 | 2 | `supabase/migrations/0001` ~ `0007` | 이 프로그램 전용 테이블, 이미지 저장소 버킷 |
-| 3 | `clone-kit/database/99_finalize.sql` | API 키 종류 제한을 이 프로그램이 쓰는 13종으로 정리 |
+| 3 | `KIT/database/99_finalize.sql` | API 키 종류 제한을 이 프로그램이 쓰는 13종으로 정리 |
 
 모든 회원 데이터 테이블은 `user_id`(→ `auth.users.id`, 회원 삭제 시 함께 삭제) + **RLS 본인 행만 접근** 원칙을 따른다.
 서버에서 service role 키로 접근할 때(예약 게시·Meta 콜백·사용 기록)도 코드가 `user_id`로 직접 걸러낸다.
