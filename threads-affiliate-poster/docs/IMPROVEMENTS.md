@@ -56,3 +56,4 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 1. **예약 24시간 규칙 누락**: 게시글 목록 상태 줄(`SchedulePublishingControl`)은 「24시간 넘게 지난 예약은 올리지 않음」이라고 안내하지만 `src/lib/posts/dispatch.ts`에 그 규칙이 없다. 장애 뒤 오래 밀린 예약이 한꺼번에 올라갈 수 있다. 같은 날 `threads` v1.19 `src/lib/posts/dispatch.ts`(MAX_LATE_MS·TOO_LATE_MESSAGE, 가져간 뒤 실패 처리)와 같은 코드로 보완. 지침 `docs/SCHEDULER_POLICY.md` §7·§8.
 2. **Claude·Replicate 키 저장 불가**: 설정 화면 칸은 있지만 `src/lib/actions/settings.ts` `VALID_PROVIDERS`에 `anthropic`·`replicate`가 없어 「알 수 없는 provider」 오류(지침 `docs/DISTRIBUTION_KIT_GUIDE.md` §11-7).
 - 검수: 키 저장 → 「등록됨」 표시, 24시간 넘게 지난 예약 글(시험용)이 실패 처리되는지 DB 확인. 회원 영향이 있으므로 다음 쇼핑제휴 배포 때 반드시 함께(+0.01).
+- ✅ **처리 완료(2026-10-19, v1.64, 커밋 `2bdeb523`, 배포 `threads-affiliate-poster-5ql36sudm`)**: 위 1·2번 모두 반영됨 — `dispatch.ts` `MAX_LATE_MS` 24시간 규칙, `VALID_PROVIDERS`에 `anthropic`·`replicate`. 2026-10-20 Claude Code(윈도우)가 코드·운영 응답(로그인 200)으로 확인.
