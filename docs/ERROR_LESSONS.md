@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — 메인 사이트 환경변수만 바꾼 「재배포(Redeploy)」는 빌드 건너뛰기 규칙에 걸려 CANCELED → CLI 업로드 배포로 반영 (비밀번호 찾기 메일, Claude Code 윈도우)
+- 증상 ①: 비밀번호 찾기 이메일이 「메일을 보내지 못했습니다」. 서버 기록 `Invalid login: 535 5.7.1 Username and Password not accepted - nsmtp`(네이버 SMTP 로그인 거부). 같은 SMTP를 쓰는 환영·문의 메일도 함께 막혀 있었다.
+- 해결 ①: 주인님이 네이버 「애플리케이션 비밀번호」를 새로 만들어 Vercel `aimaster`의 `SMTP_USER`(네이버 주소 전체)·`SMTP_PASSWORD`를 같은 계정으로 다시 저장. Secret 변수는 편집 칸이 비어 보이지만 값이 없는 게 아니다 — 빈 칸 그대로 Save하면 값이 지워지니 주의.
+- 증상 ②: 환경변수 반영을 위해 기존 운영 배포를 MCP `create_deployment`(deploymentId, forceNew)로 다시 배포했더니 몇 초 만에 `CANCELED`(Ignored Build Step).
+- 원인 ②: `scripts/vercel-ignore-build.sh`는 직전 배포 커밋과 비교해 메인 사이트 파일이 안 바뀌면 건너뛴다 → 같은 커밋을 다시 배포하면 항상 건너뜀.
+- 해결 ②: 루트에서 `vercel deploy --prod --yes --scope buylife`(CLI 업로드는 git 정보가 없어 스크립트가 항상 빌드). 그 전에 `git status --porcelain -- app components lib types public …`로 메인 사이트 경로에 다른 CLI의 미커밋 변경이 없는지 확인(로컬 폴더가 그대로 올라감).
+- 덧붙임: 「문자가 안 온다」 신고는 먼저 솔라피 `getMessages`와 회원 `app_metadata.password_reset.sms_sent`를 본다. 둘 다 기록이 없으면 입력값(이메일·이름·번호) 불일치다 — 가입 여부를 숨기려고 화면 안내가 성공과 같다(2026-10-20 실제 사례: 번호 오입력).
+
 ## 2026-10-20 — cron-job.org를 부르는 서버 함수는 20~40초 걸릴 수 있다 + Vercel CLI 59에서 `vercel logs requests`가 없어짐 (예약 방식 적용 4개 프로그램, Claude Code 윈도우)
 - 증상 ①: 카카오 실검수에서 실행 방식을 빠르게 Vercel → cron-job.org로 연달아 바꾸자, 늦게 끝난 Vercel 저장이 마지막에 반영돼 방식이 되돌아감. 잠깐 「방식=cronjob인데 작업 꺼짐」 상태도 보임(작업 생성 도중).
 - 원인 ①: 방식 저장·예약 스위치 서버 함수가 cron-job.org REST(`GET /jobs` + `PUT/PATCH`)를 기다리는 동안 응답이 20~40초 걸릴 때가 있다. 코드 판단 오류가 아니라 외부 응답 지연. 화면 부품은 처리 중 중복 클릭을 막지만, 페이지를 새로 열거나 스크립트로 누르면 겹칠 수 있다.
