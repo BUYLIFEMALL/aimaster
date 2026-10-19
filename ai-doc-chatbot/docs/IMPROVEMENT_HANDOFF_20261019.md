@@ -13,3 +13,12 @@
 ## 못 한 것 / 다음 첫 단계
 1. 실제 질문 검수 — 주인님이 https://ai-doc-chatbot.buylife.xyz/settings 에서 본인 Upstage 키(필수)·Tavily 키(선택) 등록 → 에이전트가 문서 1개 업로드·질문 1~2회 확인.
 2. 카탈로그 썸네일 생성.
+
+## 추가 — 실제 호출 검수 (2026-10-19 오후, Claude Code 윈도우)
+- **키 저장 오류 수정**: 설정 화면 저장 시 `user_api_keys_provider_check` 위반 → 공용 허용 목록에 `upstage`·`tavily` 누락이 원인. `supabase/migrations/0003_user_api_keys_upstage_tavily.sql`(현재 목록을 읽어 두 값만 추가)을 주인님이 운영 SQL Editor(`esgxyikcnnvmlhygjkth`)에서 실행 → 저장 성공, `GET /api/settings/api-keys` 두 키 `registered: true`.
+- **검수(관리자 계정 주인님 본인 키, 크롬)**:
+  - 업로드: TXT 1개(4.3초, 조각 1) · 영어 1쪽 PDF 1개(Upstage document-parse 경유, 11.6초, 조각 1) — 「내 문서」 목록 정상.
+  - 문서 질문 1회: 두 문서 내용을 정확히 답하고 📄 출처 칩 2개 표시 ✅
+  - 최신 정보 질문 1회: Tavily 웹 검색 실행, 🌐 웹 출처 표시 ✅
+- **호출 수**: Upstage document-parse 1쪽, passage 임베딩 2회, query 임베딩 2회, 라우터(solar-mini4) 2회, 답변(solar-pro4) 2회, Tavily 검색 2회. 시험 문서 2개와 채팅방 1개는 30일 뒤 자동 삭제(필요하면 화면에서 삭제).
+- **발견한 문제 → `IMPROVEMENTS.md` L7~L10** (수정은 개발 플랜 승인 후 v1.02).

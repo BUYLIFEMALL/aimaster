@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — 새 키 종류를 쓰는 프로그램을 배포했는데 `user_api_keys_provider_check`에 값을 안 넣어 회원 키 저장이 막힘 (ai-doc-chatbot v1.01, Claude Code 윈도우)
+
+- **증상**: 설정 화면에서 Upstage 키 저장 시 `new row for relation "user_api_keys" violates check constraint "user_api_keys_provider_check"`.
+- **원인**: 공용 `user_api_keys.provider`에는 허용 목록(CHECK)이 있다. 새 provider(`upstage`·`tavily`)를 코드에만 쓰고 목록에 추가하지 않았다. 배포 검수 때 키 저장을 실제로 눌러 보지 않아(에이전트는 키 입력 금지) 놓쳤다.
+- **해결**: `ai-doc-chatbot/supabase/migrations/0003_user_api_keys_upstage_tavily.sql` — 운영 DB의 **현재** 목록을 `pg_get_constraintdef`로 읽어 두 값만 더해 다시 만드는 DO 블록(다른 CLI가 늘린 값이 빠지지 않음). 운영 SQL 수단이 없어 주인님이 SQL Editor에서 실행.
+- **다음부터 확인**: 새 provider 이름을 쓰는 프로그램은 배포 전에 `select pg_get_constraintdef(oid) from pg_constraint where conname='user_api_keys_provider_check'`로 목록에 있는지 확인하고, 없으면 같은 작업에서 위 방식의 마이그레이션을 넣는다. 고정 목록을 통째로 다시 쓰는 SQL(예: 0037)은 그 사이 다른 CLI가 추가한 값을 지울 수 있으니 쓰지 않는다.
+
 <!-- DETAILED_REVIEW_REPORT_LABELS_20261019 -->
 ## 2026-10-19 — 보고서 필터의 선택 목록이 label 이름에 합쳐져 자동 검수가 대기함 (Codex)
 

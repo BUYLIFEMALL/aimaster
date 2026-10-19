@@ -47,7 +47,8 @@
 | v1.01 | 2026-10-19 | 첫 배포. 채팅·내 문서·매뉴얼·키 등록 화면, RAG·웹 검색·출처, 운영 DB 표 4개+RLS+30일 삭제, 키 발급 매뉴얼 2개(Upstage·Tavily, `platform_guides`), 메인 등록(설명·요금 3단계·VIP 141명 자동 부여), 도메인 `ai-doc-chatbot.buylife.xyz` |
 
 ## 5. 남은 작업 (백로그: `docs/IMPROVEMENT_BACKLOG.md`)
-- [ ] **실제 호출 검수**: 주인님(또는 시험 계정 `buylifemall@naver.com`)이 본인 Upstage 키를 등록한 뒤 ① 문서 1개 업로드 ② 문서 질문 1회 ③ 최신 정보 질문 1회(Tavily 키 있으면)로 확인. 에이전트는 키를 입력하지 않는다.
+- [x] **실제 호출 검수**(2026-10-19): 공용 provider 허용 목록에 `upstage`·`tavily` 추가(`0003`) 후 주인님 키 저장 → TXT·PDF 업로드, 문서 질문·최신 정보 질문 모두 동작·출처 표시 확인. 상세: `docs/IMPROVEMENT_HANDOFF_20261019.md`.
+- [ ] **v1.02 품질 수정(플랜 승인 대기)**: `docs/IMPROVEMENTS.md` L7 마크다운 표시, L8 최신 질문에 오늘 날짜·Tavily 기간 지정, L9 문서로 답할 수 있으면 웹 검색 생략, L10 문서 유사도 기준 상향.
 - [ ] 카탈로그 썸네일 미생성(`thumbnail_url` 비어 있음) — `scripts/generate-program-thumbnail.mjs` 규칙(PLATFORM_PATTERNS §13)대로 생성 필요(유료 이미지 1회, 주인님 확인 후).
 - [ ] 개선 후보는 `docs/IMPROVEMENTS.md`.
 
