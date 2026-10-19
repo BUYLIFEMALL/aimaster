@@ -317,3 +317,33 @@ test("ZIP: 항목 수·이름·CRC", () => {
   assert.equal(new DataView(z.buffer).getUint32(0, true), 0x04034b50, "로컬 헤더 서명");
   assert.equal(crc32(new TextEncoder().encode("123456789")) >>> 0, 0xcbf43926);
 });
+
+// v1.14: 작업 화면 흐름 판단
+import { canJumpToStep, hasUnsavedWork, progressLabel } from "../src/lib/comic/flow.ts";
+
+test("단계 칩: 가 본 단계만 이동, 지금 단계·생성 중·대본 없음은 막음", () => {
+  assert.equal(canJumpToStep(1, 3, 3, true, false), true);   // 뒤로
+  assert.equal(canJumpToStep(3, 1, 3, true, false), true);   // 가 본 단계로 다시 앞으로
+  assert.equal(canJumpToStep(4, 2, 3, true, false), false);  // 아직 안 가 본 단계
+  assert.equal(canJumpToStep(2, 2, 4, true, false), false);  // 지금 단계
+  assert.equal(canJumpToStep(1, 3, 3, true, true), false);   // 생성 중
+  assert.equal(canJumpToStep(2, 1, 2, false, false), false); // 대본 없음
+  assert.equal(canJumpToStep(1, 2, 2, false, false), true);  // 대본 없어도 1단계는 가능
+});
+
+test("저장 안 한 작업: 대본·그림이 있고 지금 화를 어디에도 저장하지 않았을 때만", () => {
+  const base = { hasScript: true, images: 0, episode: 1, savedEpisode: 0, serverSavedEpisode: 0 };
+  assert.equal(hasUnsavedWork(base), true);
+  assert.equal(hasUnsavedWork({ ...base, hasScript: false }), false);
+  assert.equal(hasUnsavedWork({ ...base, hasScript: false, images: 2 }), true);
+  assert.equal(hasUnsavedWork({ ...base, savedEpisode: 1 }), false);
+  assert.equal(hasUnsavedWork({ ...base, serverSavedEpisode: 1 }), false);
+  assert.equal(hasUnsavedWork({ ...base, episode: 2, savedEpisode: 1 }), true); // 1화만 저장, 2화는 아직
+});
+
+test("진행 문구: 지금 그리는 장 번호/전체", () => {
+  assert.equal(progressLabel("그리는", 0, 4), "그리는 중 1/4");
+  assert.equal(progressLabel("그리는", 3, 4), "그리는 중 4/4");
+  assert.equal(progressLabel("그리는", 9, 4), "그리는 중 4/4");
+  assert.equal(progressLabel("캐릭터 그리는", 0, 0), "캐릭터 그리는 중...");
+});

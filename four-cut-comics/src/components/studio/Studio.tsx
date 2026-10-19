@@ -18,8 +18,9 @@ import { saveWork } from "@/lib/comic/gallery";
 import { MergeTool } from "./MergeTool";
 import type { MergeItem } from "./MergeTool";
 import type { SaveLayout } from "@/lib/comic/draw";
+import { canJumpToStep, hasUnsavedWork, progressLabel } from "@/lib/comic/flow";
+import type { Step } from "@/lib/comic/flow";
 
-type Step = 1 | 2 | 3 | 4;
 type ApiError = Error & { needKey?: boolean };
 const MODEL_KEY = "four-cut-comics.imageModel";
 
@@ -42,6 +43,10 @@ const gridName = (n: number) => (n === 3 ? "1x3" : n === 6 ? "2x3" : "2x2");
 
 export function Studio({ userId }: { userId: string }) {
   const [step, setStep] = useState<Step>(1);
+  // v1.14: 한 번이라도 가 본 가장 뒤 단계 — 단계 칩으로 앞뒤 이동할 때 기준
+  const [reached, setReached] = useState<Step>(1);
+  // v1.14: 일괄 생성 진행률(캐릭터 그림·컷 그림)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [styleId, setStyleId] = useState(STYLES[0].id);
   const [model, setModel] = useState<string>(DEFAULT_IMAGE_MODEL);
   const [bubbleId, setBubbleId] = useState(BUBBLES[0].id);
@@ -88,6 +93,7 @@ export function Studio({ userId }: { userId: string }) {
   useEffect(() => {
     try { const m = localStorage.getItem(MODEL_KEY); if (isImageModel(m)) setModel(m); } catch { /* 저장소 없이도 동작 */ }
   }, []);
+  useEffect(() => { setReached((r) => (step > r ? step : r)); }, [step]);
   function chooseModel(id: string) {
     setModel(id);
     try { localStorage.setItem(MODEL_KEY, id); } catch { /* 무시 */ }
@@ -126,7 +132,7 @@ export function Studio({ userId }: { userId: string }) {
       setScript(r.script); setSheets(r.script.characters.map(() => null)); resetPanels(r.script.panels.length);
       setInsta(null); setEpisode(1); setEpisodes([]); setMergeSeed(null); setSavedEpisode(0);
       setFinished(false); setExtraOpen(false); setServerSavedEpisode(0);
-      setStep(2);
+      setReached(2); setStep(2);
     } catch (e) { fail(e, "대본을 만들지 못했습니다."); }
     finally { setBusy(""); }
   }
@@ -158,12 +164,13 @@ export function Studio({ userId }: { userId: string }) {
     if (!script) return;
     clearMsg(); setBusy("sheets"); setStep(3);
     let failed = 0;
-    for (let i = 0; i < script.characters.length; i++) {
-      if (sheets[i]) continue;
+    const targets = script.characters.map((_, i) => i).filter((i) => !sheets[i]);
+    for (const [k, i] of targets.entries()) {
+      setProgress({ done: k, total: targets.length });
       try { await makeSheet(i); } catch (e) { failed++; fail(e, "캐릭터 그림을 만들지 못했습니다."); if ((e as ApiError).needKey) break; }
     }
     if (failed) setNotice("일부 캐릭터 그림이 실패했습니다. 실패한 캐릭터만 [다시 그리기]를 눌러 주세요.");
-    setBusy("");
+    setProgress(null); setBusy("");
   }
   async function regenSheet(i: number) {
     clearMsg(); setBusy(`sheet-${i}`);
@@ -194,7 +201,8 @@ export function Studio({ userId }: { userId: string }) {
     if (!script) return;
     clearMsg(); setBusy(only === undefined ? "panels" : `panel-${only}`);
     const targets = only === undefined ? script.panels.map((_, i) => i).filter((i) => !raw[i]) : [only];
-    for (const i of targets) {
+    for (const [k, i] of targets.entries()) {
+      if (only === undefined) setProgress({ done: k, total: targets.length });
       try { await makePanel(i); }
       catch (e) {
         const msg = e instanceof Error ? e.message : "그림을 만들지 못했습니다.";
@@ -202,7 +210,7 @@ export function Studio({ userId }: { userId: string }) {
         if ((e as ApiError).needKey) { fail(e, msg); break; }
       }
     }
-    setBusy("");
+    setProgress(null); setBusy("");
   }
 
   // ---- 말풍선(AI 자동·직접 배치) ----
@@ -247,6 +255,18 @@ export function Studio({ userId }: { userId: string }) {
     })();
     return () => { alive = false; };
   }, [raw, script, bubbleId, balloons]);
+
+  // v1.14: 저장하지 않은 대본·그림이 있으면 탭 닫기·새로고침 때 브라우저가 한 번 묻는다
+  const unsaved = hasUnsavedWork({
+    hasScript: !!script, images: sheets.filter(Boolean).length + raw.filter(Boolean).length,
+    episode, savedEpisode, serverSavedEpisode,
+  });
+  useEffect(() => {
+    if (!unsaved) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [unsaved]);
 
   const count = script?.panels.length ?? panelCount;
   const allDone = composed.length === count && composed.every(Boolean);
@@ -315,7 +335,7 @@ export function Studio({ userId }: { userId: string }) {
       setEpisode((n) => n + 1);
       setNotice(`${episode + 1}화${ending === "end" ? "(완결)" : ""} 대본을 만들었습니다. 등장인물과 캐릭터 그림은 그대로 다시 씁니다.`);
       setEnding("continue");
-      setStep(2);
+      setReached(2); setStep(2);
     } catch (e) { fail(e, "다음 화 대본을 만들지 못했습니다."); }
     finally { setBusy(""); }
   }
@@ -348,16 +368,21 @@ export function Studio({ userId }: { userId: string }) {
   }
 
   function restart() {
-    setStep(1); setScript(null); setSheets([]); resetPanels(panelCount); clearMsg();
+    setReached(1); setStep(1); setScript(null); setSheets([]); resetPanels(panelCount); clearMsg();
     setInsta(null); setEpisode(1); setEpisodes([]); setMergeSeed(null); setSavedEpisode(0); setNextTopic("");
     setFinished(false); setExtraOpen(false); setServerSavedEpisode(0); setEnding("continue");
   }
 
   const stepper = (
     <ol className="cc-steps" aria-label="진행 단계">
-      {["💡 주제", "📝 대본", "🧑‍🎨 캐릭터", "🖼️ 컷·말풍선·저장"].map((t, i) => (
-        <li key={t} className={step === i + 1 ? "on" : step > i + 1 ? "done" : ""}><span>{i + 1}</span>{t}</li>
-      ))}
+      {["💡 주제", "📝 대본", "🧑‍🎨 캐릭터", "🖼️ 컷·말풍선·저장"].map((t, i) => {
+        const target = (i + 1) as Step;
+        const cls = step === target ? "on" : reached >= target ? "done" : "";
+        // v1.14: 가 본 단계는 칩을 눌러 바로 이동(생성 중에는 막음)
+        return canJumpToStep(target, step, reached, !!script, !!busy)
+          ? <li key={t} className={cls}><button type="button" className="cc-step-btn" onClick={() => { clearMsg(); setStep(target); }} title={`${t.slice(t.indexOf(" ") + 1)} 단계로 이동`}><span>{i + 1}</span>{t}</button></li>
+          : <li key={t} className={cls} aria-current={step === target ? "step" : undefined}><span>{i + 1}</span>{t}</li>;
+      })}
     </ol>
   );
 
@@ -438,7 +463,7 @@ export function Studio({ userId }: { userId: string }) {
             <button type="button" onClick={() => setShowMerge((v) => !v)} aria-expanded={showMerge}><Layers size={15} />만화 합치기</button>
           </div>
           {showMerge && <MergeTool />}
-          <small className="muted">대본·그림 생성은 등록한 본인 Gemini 키 사용량으로 계산됩니다. 결과는 서버에 저장되지 않고 이 화면에만 있으니 저장 전에 새로고침하지 마세요.</small>
+          <small className="muted">대본·그림 생성은 등록한 본인 Gemini 키 사용량으로 계산됩니다. 결과는 서버에 저장되지 않고 이 화면에만 있으니 저장 전에 새로고침하지 마세요(저장 전에 닫으려 하면 브라우저가 한 번 묻습니다).</small>
         </section>
       )}
 
@@ -484,7 +509,7 @@ export function Studio({ userId }: { userId: string }) {
           <small className="muted">그림 속 글자(간판 등)는 AI가 한글을 잘 못 그려 영어로만 그려지고, 한글 대사는 앱이 그림 위에 얹습니다.</small>
           <div className="actions">
             <button type="button" onClick={() => setStep(1)}><ArrowLeft size={15} />주제로 돌아가기</button>
-            <button type="button" className="primary" onClick={makeAllSheets} disabled={!!busy}>{busy === "sheets" ? "캐릭터 그리는 중..." : "캐릭터 생성하고 계속하기"}</button>
+            <button type="button" className="primary" onClick={makeAllSheets} disabled={!!busy}>{busy === "sheets" ? (progress ? progressLabel("캐릭터 그리는", progress.done, progress.total) : "캐릭터 그리는 중...") : "캐릭터 생성하고 계속하기"}</button>
           </div>
         </section>
       )}
@@ -492,6 +517,7 @@ export function Studio({ userId }: { userId: string }) {
       {step === 3 && script && (
         <section className="card cc-form">
           <h2 className="cc-h">등장인물 확인</h2>
+          {progress && <p role="status" className="cc-progress">{progressLabel(busy === "sheets" ? "캐릭터 그리는" : "컷 그리는", progress.done, progress.total)}<progress value={progress.done} max={progress.total} /></p>}
           <p className="muted">캐릭터 그림은 모든 컷에 참고 이미지로 들어가 같은 인물이 같은 모습으로 나오게 해 줍니다. 마음에 들 때까지 다듬어 주세요.</p>
           <div className="cc-sheets">
             {script.characters.map((c, i) => (
@@ -521,9 +547,10 @@ export function Studio({ userId }: { userId: string }) {
         <section className="card cc-form">
           <h2 className="cc-h">만화 생성{episode > 1 ? ` — ${episode}화` : ""}{finished ? " (완결)" : ""}</h2>
           <small className="muted">{count}컷 · 비율 {aspect} — 컷 수와 비율은 1단계에서 정하며 이어서 만들기에도 그대로 쓰입니다.</small>
+          {progress && <p role="status" className="cc-progress">{progressLabel(busy === "sheets" ? "캐릭터 그리는" : "컷 그리는", progress.done, progress.total)}<progress value={progress.done} max={progress.total} /></p>}
           <div className="actions">
             <button type="button" className="primary" onClick={() => makePanels()} disabled={!!busy || missing === 0}>
-              {busy === "panels" ? "그리는 중..." : missing === count ? "모든 이미지 한번에 생성" : missing === 0 ? "모든 컷 완성" : "남은 이미지 생성"}
+              {busy === "panels" ? (progress ? progressLabel("그리는", progress.done, progress.total) : "그리는 중...") : missing === count ? "모든 이미지 한번에 생성" : missing === 0 ? "모든 컷 완성" : "남은 이미지 생성"}
             </button>
             <label className="cc-inline">모델
               <select value={model} onChange={(e) => chooseModel(e.target.value)}>

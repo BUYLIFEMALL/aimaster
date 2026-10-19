@@ -490,3 +490,11 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color])
   .gd-hero{grid-template-columns:1fr;justify-items:center}
   .gd-bubble::before{left:40px;top:-9px;border-bottom:0;border-top:2px solid var(--ink)}
 }
+
+/* v1.14: 단계 칩 이동 버튼·일괄 생성 진행률 */
+.cc-steps li:has(.cc-step-btn){padding:0}
+.cc-step-btn{display:flex;align-items:center;gap:7px;padding:6px 12px;border:0;border-radius:999px;background:transparent;font:inherit;color:inherit;cursor:pointer;min-height:32px}
+.cc-step-btn:hover{background:#fff6ea}
+.cc-step-btn span{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:700}
+.cc-progress{display:flex;align-items:center;gap:10px;margin:0;font-size:13px;font-weight:700}
+.cc-progress progress{flex:1;max-width:260px;height:10px;accent-color:var(--brand)}

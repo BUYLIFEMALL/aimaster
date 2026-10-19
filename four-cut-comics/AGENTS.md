@@ -57,3 +57,8 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.14 — 작업 화면 편의 기능 3가지 (Claude Code 윈도우)
+- 백로그 「비즈니스 로직」 3건: ① **끝난 단계 칩을 눌러 바로 이동**(가 본 단계는 앞뒤 모두, 생성 중·대본 없음은 막음) ② **저장 전 탭 닫기·새로고침 경고**(대본·그림이 있는데 지금 화를 [내 작품]·서버 보관함에 저장 안 했을 때 `beforeunload`) ③ **일괄 생성 진행률**(캐릭터·컷 일괄 생성 「그리는 중 2/4」 + 진행 막대).
+- 파일: `src/lib/comic/flow.ts`(신규 — `canJumpToStep`·`hasUnsavedWork`·`progressLabel`), `src/components/studio/Studio.tsx`, `src/app/globals.css`, `tests/comic.test.mjs`(+3). 플랜: `docs/PLAN_20261020_STUDIO_CONVENIENCE.md`.
+- 검수: tsc 0, 시험 34/34, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.
