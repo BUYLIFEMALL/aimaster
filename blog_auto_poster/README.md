@@ -2,6 +2,8 @@
 
 > **운영자 전용 도구 — 회원 서비스가 아닙니다 (2026-10-09 주인님 승인).** 사이트·Vercel 배포가 없고 운영자가 명령줄로 직접 실행하며, 환경변수 `GEMINI_API_KEY`는 운영자 본인 실행에만 씁니다. 회원이 쓰는 기능으로 바꿀 때는 회원 본인 키 방식으로 새로 만들어야 합니다(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8).
 
+> **⚠️ 현재 실행 불가 (2026-10-19 Claude Code 확인).** 이 도구는 의도대로 AIMaster_dev(ref `rjjtjakljjxsgjelqgek`)를 쓴다(`.env`의 `SUPABASE_URL`, `src/db.ts` 기본값). 그런데 2026-10-19 dev 초기화로 `public.blog_*` 테이블이 비워져 백업 스키마 `lab_backup_20261019`로만 남았다(`blog_posts` 31건·마지막 2026-07-25, `blog_authors` 6, `blog_categories` 9). 지금 실행하면 테이블이 없어 저장에 실패한다. 다시 쓰려면 Lab 규칙(`docs/AIMASTER_DEV_LAB_GUIDELINES.md`: `labs/` 폴더·이름표 테이블·`lab_admin` 등록)에 맞춰 옮기거나 백업에서 복원해야 하며, 어느 쪽인지는 주인님 결정 대기. 백업 스키마를 지우기 전에 이 도구 처리부터 정한다. 참고: `src/db.ts`에 dev publishable 키가 기본값으로 박혀 있다(공개용 키라 비밀은 아니지만 옮길 때 환경변수로만 받도록 정리).
+
 본 프로그램은 `AIMaster_dev` 프로젝트 지침에 따라 개발된 **독립형 AI 자동 포스팅 프로그램**입니다.
 지정된 키워드/주제에 대하여 **최근 24시간 실시간 뉴스**를 수집하고, **4대 신호 지표(트렌드, 노출빈도, 소셜언급, 사회적 파급력)**를 분석하여 구글·네이버 SEO에 최적화된 마크다운 포스트를 자동 작성 후 통합 DB (`AIMaster_dev`)에 저장합니다.
 
