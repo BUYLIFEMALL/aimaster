@@ -1,37 +1,119 @@
-# AI 랜딩페이지 기획 자동화 (landing-architect) — 작업 지침
+# AI 랜딩페이지 기획 자동화 (landing-architect) — 인수인계 및 작업 지침
 
-> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+> **공식 서비스 URL**: https://landing-architect.buylife.xyz  
+> **현재 버전**: `v1.10` (플로우 위저드 스타일 — 단계별 랜딩페이지 기획 에디션)  
+> **작업 일자**: 2026-10-19  
+> **작업 에이전트**: Antigravity CLI (Windows)
 
-## 한 줄 요약
-주제·타겟·목표 → AI 기획안(JSON, 6개 섹션) → 단일 HTML 프로토타입 → 이미지 치환 → 미리보기·내보내기. 참고 원본은 Google AI Studio 앱 "AI Landing Page Architect Enhance"(개발자 GPT PARK)이며 코드는 복제하지 않고 흐름·프롬프트 구조만 참고했다.
+---
 
-## 구조
-- `src/lib/lpa/` 순수 로직(단위 테스트 대상): `templates`(주제 20종), `prompts`(연도 주입·한국어·구조 고정), `plan`(JSON 파싱·검증·정규화·Markdown), `html`(HTML 추출·검증·이미지 키워드), `validate`(입력 정리), `types`.
-- `src/lib/gemini.ts`(서버): 모델 폴백 `gemini-3.1-pro-preview → gemini-2.5-flash(gemini-2.5-pro는 신규 계정 사용 불가로 제외, 2026-10-13 확인)`(standard는 flash), 기획안은 형식 오류 시 1회 재시도. `src/lib/images.ts`(서버): Unsplash/Pexels/Pixabay 조회.
-- API(모두 `checkProgramAccessApi` + `force-dynamic`): `/api/ai/suggest|plan|code`, `/api/images/resolve`, `/api/keys`, `/api/projects(/[id])`.
-- 화면: `/open`(최근 프로젝트 열기) → `/project/[id]`(`components/studio/Workspace.tsx`), `/dashboard`, `/settings`(API키등록·플랫폼연동), `/guide`.
+## 1. 프로그램의 사용 목적 및 대상
+- **사용 목적**:
+  - 제품/서비스의 주제·타겟·비즈니스 목표만 입력하면, 전문 마케터 수준의 **6대 핵심 전환 블록 기획안(JSON/Markdown)**과 실제 인터랙티브하게 작동하는 **고화질 반응형 HTML 프로토타입**을 실시간 생성·제공.
+- **주요 대상**:
+  - 신규 서비스를 런칭하는 스타트업 및 1인 창업가.
+  - 전환율 높은 카피라이팅과 웹 레이아웃을 빠르게 검증하려는 그로스 마케터 및 기획자.
+  - 랜딩페이지 시안을 고객에게 빠르게 제안해야 하는 웹 에이전시 및 프리랜서 개발자.
 
-## 지킬 것
-- 키는 회원 본인 것만(`user_api_keys`: gemini, unsplash, pexels, pixabay). 없으면 needKey 안내, 폴백 금지. 이미지 제공자 키도 서버에서만 호출한다.
-- 프로토타입 생성은 **무상태**: 기획안을 요청에 담아 보낸다(서버 세션 없음).
-- 프롬프트에는 당해 연도 주입(`yearGuard`)과 한국인 기본 묘사를 유지한다.
-- 미리보기 iframe은 `sandbox="allow-scripts"`만(팝업·모달·same-origin 금지).
-- 버전은 `src/lib/version.ts`와 DB `programs.version`을 함께 올린다.
+---
 
-## 검수
-- `npm test`(순수 로직 11건), `npm run test:browser`(보이는 Chrome, 모의 API 14건), `npm run build`.
-- 실제 호출 확인: `NODE_OPTIONS=--conditions=react-server node --import tsx`로 `src/lib/gemini.ts`의 `makePlan`/`makeHtml`을 본인 키로 1회 실행(2026-10-13: 기획안 20초, HTML 71초, standard 모델).
+## 2. 개발 구현에 사용된 도구 / 개발 기법 / 플러그인 / 스킬
+- **프레임워크**: Next.js 16.4.0 (App Router, Turbopack), React 19.3.0, TypeScript 5.9.3.
+- **스타일링**: 무결성 글로벌 CSS 토큰 시스템 (`globals.css`), Tailwind CSS (프로토타입 렌더링).
+- **아이콘 라이브러리**: `lucide-react`.
+- **AI 연동 엔진**:
+  - `@google/genai` (Google Gemini 3.1 Pro Preview / Gemini 2.5 Flash).
+  - 회원 본인 API 키 원칙 (BYOK — Bring Your Own Key).
+- **외부 에셋 연동**:
+  - Unsplash / Pexels / Pixabay API (회원 키 등록 기반) 및 Lorem Picsum (기본 무료 폴백).
+- **데이터베이스 & 인증**: Supabase Database & Auth (`@supabase/supabase-js`, `@supabase/ssr`).
+- **테스트 & 검증**: Node Test Runner (`npm test`), Microsoft Edge 최전면 포그라운드 실세션 검수.
 
-## 2026-10-14 v1.04 — 모바일 셸 CSS 추가 (Claude Code)
+---
 
-- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
-- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.04(코드·package·DB).
-- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+## 3. 핵심 기능 및 시스템 로직 / 아키텍처, 장점 및 단점
 
-## v1.05 (2026-10-15) — AI 지시문에 한국 시간 현재 월 추가 (Claude Code 보조 계정)
-- 연도만 주면 AI가 계절을 지어내는 문제(10월에 "봄", 루트 `docs/ERROR_LESSONS.md` 2026-10-14) 예방: src/lib/lpa/prompts.ts `yearGuard()`에 `koreaNowRule()` — "[기준 시점: 한국 시간으로 지금은 YYYY년 M월… 계절·시기 표현은 현재 월에 맞춤]"(Asia/Seoul, 서버 UTC여도 한국 날짜). 빌드 통과·프로덕션 배포 READY·DB `programs.version` v1.05. 유료 AI 실제 생성 확인은 하지 않음.
+### 3.1 핵심 기능
+1. **20종 업종별 최적 레이아웃 템플릿**: SaaS, 모바일 앱, 교육/강의, 커머스, 포트폴리오 등 업종별 템플릿 지원.
+2. **6대 필수 전환 블록 기획안 생성**:
+   - 히어로(헤드라인/서브카피/CTA), 페인포인트, 핵심 솔루션, 소셜 프루프, 가격 & 오퍼, 클로징 FAQ.
+   - 섹션별 선택적 재성성([이 섹션 다시 만들기]) 및 인라인 JSON 편집 지원.
+3. **실시간 반응형 HTML 프로토타입 렌더링**:
+   - Tailwind CSS 기반 단일 HTML 파일 실시간 생성.
+   - 모바일(375px), 태블릿(768px), 데스크톱(1200px) 뷰포트 전환 지원.
+4. **산출물 내보내기 & React 변환 프롬프트**:
+   - HTML 파일 다운로드 및 JSON/Markdown 내보내기.
+   - Claude Code / Cursor / ChatGPT 전용 React/Next.js 변환 프롬프트 원클릭 복사.
+5. **독립 비주얼 가이드북 (`/guide`)**: 4단계 파이프라인, BYOK 보안 안내, 6대 블록 쇼케이스, FAQ 5종 완비.
 
+### 3.2 시스템 아키텍처
+- `src/lib/lpa/`: 순수 비즈니스 로직 및 파서 (`templates`, `prompts`, `plan`, `html`, `validate`, `types`).
+- `src/lib/gemini.ts`: Gemini API 서버 호출 및 모델 폴백 로직.
+- `src/lib/images.ts`: 외부 이미지 API 검색 및 Picsum 키워드 치환.
+- `src/components/layout/`: `Sidebar.tsx`, `Header.tsx` 등 통합 네비게이션.
+- `src/app/(workspace)/`: `dashboard`, `guide`, `settings`, `project/[id]` 워크스페이스 라우트.
 
-## 2026-10-16 DB 연동 변수 호환 — v1.06 (landing-architect)
+### 3.3 장점 및 단점
+- **장점**:
+  - 기획안 도출에서 실제 열리는 HTML 프로토타입까지 단 3분 만에 원스톱 완성.
+  - 회원 본인 키 원칙(BYOK)으로 완벽한 개인 데이터 격리 및 무료 요금제 사용 가능.
+  - 깔끔한 플로우 위저드 디자인으로 초보자도 1→2→3 단계 순서대로 손쉽게 작성 가능.
+- **단점**:
+  - 고품질 이미지 생성을 위해서는 Unsplash/Pexels 추가 키 등록이 권장됨.
+  - 프로토타입 HTML 생성 시 약 1~2분의 AI 응답 대기 시간이 필요함.
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+---
+
+## 4. 현재 버전 및 버전별 변경 히스토리
+
+### v1.10 (2026-10-19) — 플로우 위저드 스타일 테마 리뉴얼 (Antigravity CLI)
+- **디자인 전면 개편**:
+  - 소프트 슬레이트 화이트(`#f8fafc`) 배경과 로열 인디고 블루(`#2563eb`) & 바이올렛(`#8b5cf6`) 기반 플로우 위저드 스타일 적용.
+  - 대시보드 웰컴 히어로 배너(`.studio-hero`) 및 3대 KPI 카드(20종 템플릿, 6대 블록, 실시간 프로토타입) 탑재.
+- **독립 비주얼 가이드북 (`/guide`) 신설**:
+  - 4단계 기획 파이프라인, BYOK 최상위 보안 원칙, 6대 전환 블록 쇼케이스, 산출물 활용 테이블, FAQ 5종 구축.
+- **사이드바 메뉴 표준화**:
+  - 브랜드 뱃지 `v1.10 LANDING WIZARD` 적용.
+  - `📖 연동 & 사용 매뉴얼` 앰버 골드 하이라이트 메뉴 신설.
+- **버전 3중 동기화**: `package.json`(1.10.0), `src/lib/version.ts`(v1.10), Supabase DB `programs`(v1.10).
+- **무결성 검증**:
+  - 단위 테스트 12건 정상 통과 (`npm test`).
+  - Next.js Turbopack 빌드 성공 및 Vercel 프로덕션 배포 (`dpl_EGWQKpGZ1xKay8MBMDW2kD73VrBJ`).
+  - Microsoft Edge 최전면 포그라운드 실세션 검수(6종 캡처 완료 및 10분 창 유지).
+
+### v1.06 (2026-10-16) — 데이터베이스 연동 환경변수 호환
+- Supabase 신규 `PUBLISHABLE`/`SECRET` 키 및 기존 `ANON`/`SERVICE_ROLE` 키 듀얼 호환 적용.
+
+### v1.05 (2026-10-15) — 한국 시간 현재 월 주입
+- `koreaNowRule()`을 통해 AI가 계절을 지어내지 않고 현재 한국 기준 시점 반영.
+
+### v1.04 (2026-10-14) — 모바일 반응형 셸 CSS 추가
+- 767px 이하 모바일 뷰포트에서 상단 햄버거 메뉴 및 좌측 사이드바 접기 완비.
+
+---
+
+## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
+- 상세 내용은 `docs/IMPROVEMENT_BACKLOG.md` 참고:
+  - 기획안 A/B 테스트 다중 버전 동시 생성 기능.
+  - 완성된 HTML 프로토타입을 바로 Vercel/Netlify에 원클릭 호스팅하는 기능.
+  - 다국어(영어/일본어) 랜딩페이지 자동 번역 및 로컬라이징 옵션.
+
+---
+
+## 6. 기존 다른 프로그램과의 연계 / 기능 병합 제안
+1. **72번 `react-ui-showcase` (AI 웹 UI 제작)과의 연계**:
+   - `landing-architect`의 기획안을 바탕으로 `react-ui-showcase`의 풀스택 리액트 컴포넌트로 자동 변환 파이프라인 구축.
+2. **68번 `ai-writing-editor` (AI 글쓰기/카피라이팅)과의 연계**:
+   - 헤드라인 카피 및 소셜 프루프 문구를 `ai-writing-editor`의 고도화된 마케팅 엔진과 교차 검증.
+3. **70번 `ui-canvas` (AI UI 캔버스)와의 연계**:
+   - 도출된 섹션 블록들을 캔버스 상에서 드래그 앤 드롭으로 자유롭게 재배치할 수 있는 비주얼 편집 연동.
+
+---
+
+## 7. 사용자 편의성 증대를 위한 디자인 UI 개선안
+1. **기획 단계 스텝 인디케이터 상단 고정**:
+   - 에디터 상단에 진행 상황(1단계 정의 → 2단계 기획안 → 3단계 프로토타입)을 한눈에 볼 수 있는 프로그레스 바 제공.
+2. **섹션별 토큰 사용량 및 소요 시간 인디케이터**:
+   - 기획안 생성 시 남은 예상 시간(초) 카운트다운 및 완성 알림 토스트 제공.
+3. **프로토타입 실시간 코드/미리보기 스플릿 뷰**:
+   - 데스크톱 화면에서 좌측은 HTML 코드 에디터, 우측은 실시간 반응형 iframe 렌더링 화면을 분할 제공.

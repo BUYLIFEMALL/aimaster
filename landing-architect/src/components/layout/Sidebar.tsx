@@ -23,7 +23,22 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
       <div className="sidebar-brand">
         <a href="/dashboard" className="brand-row">
           <span className="brand-icon"><PencilRuler size={20} /></span>
-          <div><strong>{APP_NAME}</strong><small>{APP_VERSION}</small></div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <strong>{APP_NAME}</strong>
+              <span className="version-pill" style={{
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "#2563eb",
+                background: "#eff6ff",
+                border: "1px solid #bfdbfe",
+                padding: "1px 6px",
+                borderRadius: "9999px",
+                letterSpacing: "0.02em"
+              }}>v1.10</span>
+            </div>
+            <small style={{ color: "#64748b", fontSize: "11px", fontWeight: 500 }}>FLOW WIZARD EDITION</small>
+          </div>
         </a>
         <a className="other-programs" href={`${MAIN_SITE}/programs`}>← 다른 프로그램 보기</a>
       </div>
@@ -39,9 +54,18 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
         <a className="flow-item" href="/dashboard">
           <span className="step-number">3</span><div><strong>내보내기</strong><small>HTML · JSON · 변환 프롬프트</small></div>
         </a>
-        <div className="utility-menu">
+        <div className="utility-menu" style={{ marginTop: "16px", paddingTop: "12px", borderTop: "1px solid #e2e8f0" }}>
           <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings"><KeyRound size={17} />API키등록·플랫폼연동</a>
-          <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide"><BookOpen size={17} />연동 & 사용 매뉴얼</a>
+          <a className={`nav-item ${currentPath === "/guide" ? "active" : ""}`} aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide" style={{
+            background: currentPath === "/guide" ? "#eff6ff" : "#fffbeb",
+            color: currentPath === "/guide" ? "#1d4ed8" : "#b45309",
+            border: currentPath === "/guide" ? "1px solid #bfdbfe" : "1px solid #fde68a",
+            fontWeight: 600,
+            marginTop: "6px"
+          }}>
+            <BookOpen size={17} style={{ color: currentPath === "/guide" ? "#2563eb" : "#d97706" }} />
+            <span>📖 연동 & 사용 매뉴얼</span>
+          </a>
         </div>
       </nav>
       <div className="sidebar-account">
