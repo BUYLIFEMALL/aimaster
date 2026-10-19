@@ -12,7 +12,8 @@ import { SettingsModal } from "@/components/modals/SettingsModal";
 import { HelpModal } from "@/components/modals/HelpModal";
 import { EbookProject, Chapter, OutlineItem } from "@/lib/types";
 import { buildStandaloneHtml } from "@/lib/template";
-import { Sparkles, RefreshCw, X, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Sparkles, RefreshCw, X, AlertCircle, BookOpen, Layers, Palette, Share2, KeyRound, ArrowRight } from "lucide-react";
 
 const STORAGE_KEY = "ebook_studio_current_project";
 
@@ -373,7 +374,76 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
         <main className="flex-1 overflow-hidden p-4 md:p-6">
           <div className="grid h-full grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* 좌측 단계별 작업 패널 (7단) */}
-            <div className="lg:col-span-7 h-full overflow-y-auto pr-1 custom-scrollbar">
+            <div className="lg:col-span-7 h-full overflow-y-auto pr-1 custom-scrollbar space-y-4">
+              {/* 포커스 스튜디오 상단 .studio-hero 웰컴 배너 */}
+              <div className="studio-hero rounded-2xl p-4 sm:p-5 border border-indigo-100 shadow-xs relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-[10px] font-bold">
+                      <Sparkles className="w-3 h-3 text-indigo-600" />
+                      <span>v1.10 Focus Publishing Studio</span>
+                    </div>
+                    <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
+                      <span>eBook Studio 전자책 집필 콘솔</span>
+                    </h2>
+                    <p className="text-[11px] text-slate-500 leading-snug">
+                      문서 수집부터 프로급 전자책 발행까지. 독립형 HTML, EPUB, 인쇄/PDF 및 Vercel Drop 웹 배포를 완벽 지원합니다.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link
+                      href="/guide"
+                      className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition flex items-center gap-1 shadow-2xs"
+                    >
+                      <span>📖 사용 매뉴얼</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-1 shadow-xs"
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>API 키</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3대 핵심 KPI 지표 카드 */}
+                <div className="grid grid-cols-3 gap-2.5 pt-3.5 border-t border-indigo-100/60 mt-3">
+                  <div className="bg-white/80 rounded-xl p-2.5 border border-slate-200/80 shadow-2xs">
+                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
+                      <Layers className="w-3 h-3 text-indigo-600" />
+                      <span>스마트 입력 & 목차</span>
+                    </div>
+                    <div className="text-xs font-black text-slate-800 mt-0.5 truncate">
+                      TXT·DOCX·URL
+                    </div>
+                    <p className="text-[9px] text-slate-400 truncate">소제목·분량 자동 분할</p>
+                  </div>
+
+                  <div className="bg-white/80 rounded-xl p-2.5 border border-slate-200/80 shadow-2xs">
+                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
+                      <Palette className="w-3 h-3 text-indigo-600" />
+                      <span>21종 테마 & 5대 서체</span>
+                    </div>
+                    <div className="text-xs font-black text-slate-800 mt-0.5 truncate">
+                      10대 출판 프리셋
+                    </div>
+                    <p className="text-[9px] text-slate-400 truncate">실시간 반응형 뷰어</p>
+                  </div>
+
+                  <div className="bg-white/80 rounded-xl p-2.5 border border-slate-200/80 shadow-2xs">
+                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
+                      <Share2 className="w-3 h-3 text-indigo-600" />
+                      <span>4대 멀티 포맷 발행</span>
+                    </div>
+                    <div className="text-xs font-black text-slate-800 mt-0.5 truncate">
+                      HTML·EPUB·ZIP
+                    </div>
+                    <p className="text-[9px] text-slate-400 truncate">인쇄 규격 PDF 지원</p>
+                  </div>
+                </div>
+              </div>
               {currentStep === "source" && (
                 <SourceInputPanel
                   project={project}

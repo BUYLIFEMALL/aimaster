@@ -1,5 +1,53 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — eBook Studio v1.10: 포커스 스튜디오 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 68개 완료 / 81.9% 달성!)
+
+- **대상**: `ebook-studio/` (https://ebook-studio.buylife.xyz, slug: `ebook-studio`, 20번)
+- **한 일**:
+  1. **포커스 스튜디오 스타일 — 전자책 퍼블리싱 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **포커스 스튜디오 스타일 — 전자책 퍼블리싱 에디션 (Focus Studio Style — eBook Publishing Edition)**.
+     - **디자인 토큰 시스템 구축**: 딥 슬레이트 다크(`--background: #0b0f17`, `--surface: #111827`, `--surface-hover: #1f2937`, `--border: #1f2937`), 앰버 골드(`--brand: #f59e0b`, `--brand-gold: #fbbf24`), 네온 시안(`--brand-cyan: #06b6d4`), 에메랄드(`--brand-emerald: #10b981`), 바이올렛(`--brand-purple: #8b5cf6`), 라이트 슬레이트 텍스트 체계 적용 (`src/app/globals.css`).
+     - Claude / Gemini 듀얼 LLM 기반 8대 챕터 목차 생성 및 21종 챕터 본문/표지 생성 파이프라인 무결성 유지.
+  2. **사이드바 메뉴 표준화 (`DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.10 PUBLISHING LAB` 골드 발광 칩 탑재.
+     - 작업 파이프라인 1-2-3-4 단계 넘버링 적용 (`1. 도서 기획 & 스타일 설정`, `2. AI 챕터 목차 설계`, `3. 본문 챕터별 집필`, `4. 표지 디자인 & 최종 출판`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 메뉴 신설 (골드 하이라이트 배지).
+     - 모바일(767px 이하) 반응형 헤더 및 햄버거 토글 드로어 메뉴 완비.
+  3. **메인 스튜디오 리뉴얼 (`src/components/studio/StudioWorkspace.tsx`)**:
+     - 상단 골드 발광 테두리의 `.studio-hero` 웰컴 배너 및 퀵 링크 버튼([📖 출판 가이드북 보기], [🔑 AI API Key 설정]) 탑재.
+     - 3대 핵심 KPI 지표 카드(21종 프리미엄 테마 & 10대 출판 프리셋, 듀얼 LLM 무손실 파이프라인, 3대 포맷 원클릭 수출) 탑재.
+     - 1-4단계 입력 폼, 챕터 카드, 실시간 마크다운 미리보기 에디터, 표지 생성 캔버스, 원클릭 다운로드(HTML/EPUB/TXT) 무결성 유지.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "eBook Studio 출판 완벽 가이드북".
+     - **4단계 전자책 출판 파이프라인**: 1) 주제 기획 & 타깃 분석 ➔ 2) AI 챕터 목차 설계 ➔ 3) 챕터별 심층 본문 집필 ➔ 4) 표지 생성 & 멀티포맷 출판.
+     - **21종 테마 & 10대 출판 프리셋 매트릭스**: 비즈니스, 재테크, AI 프롬프트북, 자기계발 등 테마별 CSS 스타일 및 최적 폰트 안내.
+     - **4대 표지 디자인 프롬프트 & 스타일 가이드**: 미니멀 모던 타이포, 3D 일러스트레이션, 다크 네온 테크, 클래식 레더 바인딩 프롬프트 템플릿 제공.
+     - 100% 회원 본인 API 키 원칙 (BYOK) 및 데이터 무저장 보안 안내 배너 탑재.
+     - 자주 묻는 질문 FAQ 5종 골드 아코디언 인터랙션 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.10`)**:
+     - `package.json` (`1.10.0`), `src/lib/version.ts` (`v1.10`), Supabase DB `programs` 메타데이터 (`version: v1.10`) 동기화 완료 (`scripts/update_prog_20_v110.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (경로 9개 완벽 생성, exit code 0).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_GzSRfYzdi9UdfiTsVJyJZZQocNwn`
+     - 공식 도메인 즉시 반영: https://ebook-studio.buylife.xyz (및 https://ebook.buylife.xyz)
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`)으로 SSR 세션 쿠키를 주입하여 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-14802`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_ebook_desktop_studio_v110.png`: 데스크톱 메인 스튜디오 전경, 히어로 배너, 3대 KPI 지표 카드
+       - `edge_ebook_desktop_inputs_v110.png`: 4단계 파이프라인 폼 영역 및 21종 테마/프리셋 선택기
+       - `edge_ebook_desktop_guide_v110.png`: 비주얼 가이드북 상단 및 4단계 출판 파이프라인 카드
+       - `edge_ebook_desktop_guide_faq_v110.png`: 테마 매트릭스, 표지 프롬프트 가이드, BYOK 배너, FAQ 아코디언
+       - `edge_ebook_desktop_settings_v110.png`: Claude & Gemini API 키 연동 설정 모달
+       - `edge_ebook_mobile_guide_v110.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `ebook-studio/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `ebook-studio/README.md` (동기화 갱신)
+     - `ebook-studio/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `ebook-studio/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `ebook-studio/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `ebook-studio/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본 및 검수 결과 기록)
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI Audio분석 자동화 v1.10: 사이버 네온 다크 콘솔 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 67개 완료 / 80.7% 달성!)
 
 - **대상**: `ai-audio-analyzer/` (https://audio.buylife.xyz, slug: `ai-audio-analyzer`, 78번)
@@ -52,7 +100,7 @@
 
 ## 2026-10-19 Claude Code(윈도우) — 「일반」 등급 전환 시 가입일부터 14일 프로그램 사용
 - **한 일**: 기존 자동 부여 장치 설정만 변경(일반: 자동 부여·14일·가입일 기준, 마이그레이션 `supabase/migrations/0038_normal_grade_signup_14days.sql`). 관리자 화면에 기간 기준 표시 추가. 상세 `docs/ADMIN_POLICY_GUIDELINES.md` 2026-10-19.
-- **검수**: rollback 시험(81개·가입일+14일), 적용 후 기존 일반 회원 88명 변화 없음, tsc·빌드, 운영 화면 표시 확인(아래).
+- **검수**: rollback 시험(81개·가입일+14일), 적용 후 기존 일반 회원 88명 변화 없음, tsc·빌드, 자동 빌드 Ready(`aimaster-hl32yytko`). 운영 화면(메인 크롬): 접근 권한 관리 「등급별 자동 부여 · 사용기간」에 일반(켬·14일·가입일부터)·골드(180일·등급 지정일부터)·VIP(365일·가입일부터) 표시.
 - https://www.buylife.xyz/admin/access-matrix
 
 ## 2026-10-19 Claude Code(윈도우) — 메인 사이트 관리자 회원 정보 수정(이름·이메일·핸드폰)

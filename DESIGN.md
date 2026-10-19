@@ -129,7 +129,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 67개 · ⚪ 14개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **80.7% 달성!**):
+> **상태 구분** (2026-10-19 기준: ✅ 68개 · ⚪ 13개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **81.9% 달성!**):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -162,7 +162,7 @@
 | 17 | 이미지 변환 스튜디오 | `image-convert-studio` | **크리에이티브 아틀리에 스타일** (이미지 스튜디오 에디션) | 다크(딥 옵시디언 `#0b0f17` + 바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.07`, 크리에이티브 아틀리에 스타일) | [`image-convert-studio/docs/DESIGN_HANDOFF.md`](image-convert-studio/docs/DESIGN_HANDOFF.md) |
 | 18 | Suno 음악기획 자동화 | `suno-music-studio` | **사이버 수노 다크 스튜디오 스타일** | 다크(옵시디언 블랙) | ✅ 1차 완료 | [`suno-music-studio/docs/DESIGN_HANDOFF.md`](suno-music-studio/docs/DESIGN_HANDOFF.md) |
 | 19 | 감성 글귀 이미지 | `emotion-writer` | **포커스 스튜디오 스타일 — 감성 캘리그라피 에디션** | 라이트(소프트 크림 `#fdfbf7` + 웜 페이퍼 & 로즈 엑센트 `#be185d`) | ✅ 1차 작업완료 (`v1.15`, 포커스 스튜디오 스타일) | [`emotion-writer/docs/DESIGN_HANDOFF.md`](emotion-writer/docs/DESIGN_HANDOFF.md) · [`emotion-writer/docs/IMPROVEMENTS.md`](emotion-writer/docs/IMPROVEMENTS.md) |
-| 20 | eBook Studio | `ebook-studio` | 포커스 스튜디오 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `ebook-studio/AGENTS.md` |
+| 20 | eBook Studio | `ebook-studio` | **포커스 스튜디오 스타일 — 전자책 퍼블리싱 에디션** | 라이트(소프트 크림 `#fbfbf9` + 딥 인디고 `#4f46e5`) | ✅ 1차 작업완료 (`v1.10`, 포커스 스튜디오 스타일) | [`ebook-studio/docs/DESIGN_HANDOFF.md`](ebook-studio/docs/DESIGN_HANDOFF.md) · [`ebook-studio/docs/IMPROVEMENTS.md`](ebook-studio/docs/IMPROVEMENTS.md) |
 | 21 | Website Scraper | `website-scraper` | **스마트 매트릭스 스타일** (Tailwind v4 이식) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.12`, 스마트 매트릭스 스타일) | [`ghost-scraper/docs/DESIGN_HANDOFF.md`](ghost-scraper/docs/DESIGN_HANDOFF.md) |
 | 22 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | **크리에이티브 아틀리에 스타일 — 프로 썸네일 캔버스 변형** | 다크(미드나잇 다크 `#0c0f17` + 유튜브 레드 `#ff0000`·골드 앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.10`, 프로 썸네일 캔버스 변형) | [`seo-thumbnail-pro/docs/DESIGN_HANDOFF.md`](seo-thumbnail-pro/docs/DESIGN_HANDOFF.md) · [`seo-thumbnail-pro/docs/IMPROVEMENTS.md`](seo-thumbnail-pro/docs/IMPROVEMENTS.md) |
 | 23 | 이미지 스타일 분석기 | `style-dna-analyzer` | **크리에이티브 아틀리에 스타일 — 스타일 DNA 랩 에디션** | 다크(미드나잇 다크 `#0c0f17` + 시안 블루 `#06b6d4`·바이올렛 `#8b5cf6`) | ✅ 1차 작업완료 (`v1.22`, 스타일 DNA 랩 에디션) | [`style-dna-analyzer/docs/DESIGN_HANDOFF.md`](style-dna-analyzer/docs/DESIGN_HANDOFF.md) · [`style-dna-analyzer/docs/IMPROVEMENTS.md`](style-dna-analyzer/docs/IMPROVEMENTS.md) |
