@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — agy 작업 이어받기 ①②: 매뉴얼 지침 매핑표 정정 + 버전 미반영 배포 표시
+- ① [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](MANUAL_AND_INTEGRATION_GUIDELINES.md) §4 매핑표: 없는 프로그램 이름 13개를 실제 폴더·slug로(코드의 가이드 ID·키 이름 검색으로 확인), 틀리거나 비어 있던 가이드 ID 12개를 메인 사이트 `/guides` 실제 40개와 대조해 교체(커밋 `88aebb28`). 유튜브 채널 가이드(`1c4181ac`)는 `shots`·`youtube-auto-reply`가 쓰지만 가이드 버튼 미연결, Runway는 연동 프로그램 없음.
+- ② agy가 `fd69da1d`로 **버전을 올리지 않고 배포**한 두 프로그램 — 쇼핑제휴는 `threads-affiliate-poster/AGENTS.md` 맨 아래에 「다음 배포자: v1.65로 올리고 카드 색 개선 기록」 표시. **`threads`(쓰레드 자동포스팅)는 다른 Claude 세션의 작업 폴더라 여기에만 적음: 다음 배포 때 v1.21로 올리고 같은 카드 색 개선(`ThreadsMetaAddressSummary`·`CopyAddress`)을 버전 기록에 넣을 것.**
+
 ## 2026-10-20 Claude Code(윈도우) — 예약 방식 1순위 마무리: 네이버 카페 v1.21 · 카카오 뉴스레터 v1.21 (정기형, 적용·배포·실검수)
 - 주인님 결정 「정기형에도 적용」. 두 프로그램 모두: 회원이 실행 방식 선택(기본 Vercel / 본인 cron-job.org), 정기 실행을 켤 때 작업 켜기·켜진 것이 0개면 끄기, 확인 주기 5분, 일시정지·재개, **같은 소스·주제 중복 실행 방지(조건부 `last_run_at`)**, **`CRON_SECRET` 비면 401**(예전엔 `Bearer undefined` 통과 가능).
 - 네이버 카페: 표 `ncafe_member_scheduler`, 배포 `naver-cafe-poster-oun9zc23z`, 커밋 `f757b12d`·`2dc947a3`. 카카오: 표 `kakao_member_scheduler`, 배포 `kakaoautoposter-at4fi42eb`, 커밋 `41f4926f`, FAQ의 「15분 주기·자동 발송」 안내 정정(실제 5분·발송은 사람이 결정). 운영 DB 두 표 모두 크롬 SQL Editor로 적용.

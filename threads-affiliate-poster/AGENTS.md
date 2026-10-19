@@ -584,3 +584,7 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - **24시간 규칙(밀린 보완)**: 화면은 「24시간 넘게 지난 예약은 올리지 않음」이라 안내하는데 `src/lib/posts/dispatch.ts`에 규칙이 없었다 → threads v1.19와 같은 코드(`MAX_LATE_MS`·`TOO_LATE_MESSAGE`, 실패 처리 + 안내 문구). 루트 `docs/SCHEDULER_POLICY.md` §8 ⚠ 항목 처리.
 - **키 저장(밀린 보완)**: 설정 화면에 Claude(`anthropic`)·Replicate 칸이 있는데 `src/lib/actions/settings.ts` `VALID_PROVIDERS`에 없어 「알 수 없는 provider」로 저장이 막혀 있었다 → 두 값 추가(운영 DB 허용 목록에는 이미 있음 확인). 루트 `docs/DISTRIBUTION_KIT_GUIDE.md` §11-7 처리. 실제 키 입력 시험은 하지 않음(에이전트는 키를 입력하지 않음 — 회원 저장 시 확인).
 - 버전 기록 `supabase/migrations/20261019260000_kst_24h_keys_v1_64.sql`(구조 변경 없음). 검수: tsc 0, `test:naver-key` 통과, build, 배포 `threads-affiliate-poster-5ql36sudm`(Ready), DB v1.64, 크롬: v1.64 표시, 「등록: 2026. 10. 19. 오후 8:30:29」 = DB `11:30:29Z`의 한국 시각.
+
+## 2026-10-20 — 다음 배포자 할 일: 버전 +0.01 (Claude Code 윈도우, agy 작업 이어받음 — 코드 변경 없음)
+- agy가 2026-10-20 설정 화면 주소 카드 색 개선(`ThreadsMetaAddressSummary`·`CopyAddress` 밝게, 커밋 `fd69da1d`)을 **버전을 올리지 않고 배포**함(배포 `dpl_EQoNqeWQ6fU4ZQsscaezUyzgjsyQ`, 코드·DB 모두 v1.64 그대로).
+- 급하지 않아 다시 배포하지 않음(빌드 비용 규칙). **다음에 이 프로그램을 배포하는 CLI는 v1.65(코드 `src/lib/version.ts` + DB `programs.version`)로 올리고, 버전 기록에 이 카드 색 개선을 함께 적을 것.**
