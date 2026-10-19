@@ -18,6 +18,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| ai-doc-chatbot | Claude Code(윈도우) | 2026-10-19 | 신규 Tools 프로그램 「AI 문서 챗봇 자동화」(Upstage·Tavily·RAG) v1.01 |
 
 
 
