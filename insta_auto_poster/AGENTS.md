@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.27` (2026-10-20)
+- **현재 버전**: `v1.28` (2026-10-20)
+- **v1.28 (2026-10-20, Claude Code 윈도우)**: 직접 첨부 칸에서 **여러 파일을 한 번에 선택**(카드뉴스일 때 `multiple`, 파일 이름순·남은 장수만큼 차례로 업로드 — `handleAddUploadedSlides`), 새 글 주소 **`postType=card_news`** 로 카드뉴스 형식을 미리 고름(`posts/new/page.tsx` → `initialPostType`). 계기: 4컷 만화 v1.16 「카드뉴스(컷별 4장)로 올리기」. DB 구조 변경 없음(`supabase/migrations/20261020110000_multi_upload_v1_28.sql` = 버전만).
 - **v1.27 (2026-10-20, Claude Code 윈도우)**: **AI 생성 없이 내 이미지·캡션으로 바로 저장.** 새 글 화면에서 이미지가 하나도 없을 때도 「이미지 파일 직접 첨부 (n/필요 장수)」 칸을 보여 주고(피드 1장·카드뉴스 4장까지 추가), 캡션과 필요한 장수의 이미지가 이미 있으면 「게시물 생성하기」가 주제·AI 키 확인과 AI 생성을 건너뛰고 그대로 임시저장/예약/즉시 게시한다(`readyWithoutAi`, 초록 안내 문구). 예전에는 이미지가 있어도 제출 때마다 AI로 캡션·이미지를 새로 만들어 덮어썼고, 직접 첨부 칸은 AI 이미지가 생긴 뒤에만 보였다. 계기: 4컷 만화 v1.15 「INSTA 자동포스팅으로 올리기」(주소 `?caption=&hashtags=`로 문구를 채우고 그림은 회원이 직접 첨부). 파일 `src/components/posts/PostForm.tsx`, DB 구조 변경 없음(`supabase/migrations/20261020100000_own_image_handoff_v1_27.sql` = 버전만). 플랜: `../four-cut-comics/docs/PLAN_20261020_INSTA_HANDOFF.md`(범위 변경 주인님 승인).
 - **v1.26 (2026-10-19, Claude Code 윈도우 — agy 검증 이어받아 마무리)**: **날짜·예약 시각을 한국 시간으로 표시.** 서버 화면이 `toLocaleString("ko-KR")`를 시간대 없이 써서 Vercel(UTC) 기준으로 그려, 21:00 예약이 「오후 12:00」으로 보였다(저장값은 정상). 7곳(`dashboard`·`posts`·`posts/[id]`·`settings` 페이지, `CandidateList`)에 `timeZone: "Asia/Seoul"` 추가. DB 구조 변경 없음(`supabase/migrations/20261019250000_kst_display_v1_26.sql` = 버전만). 배포 `insta-auto-poster-1fcuzxisf`(Ready), DB `programs.version` v1.26.
   - **v1.25 크롬 실검수(관리자 계정 본인 키, 실제 인스타 게시 없음)**: 설정에서 「내 cron-job.org」 선택 → 공용 키 「등록됨」(Threads에서 넣은 키 재사용) → 초안을 10-20 21:00 예약(브라우저가 `2026-10-20T12:00:00.000Z`로 변환, 9시간 밀림 없음) → cron-job.org 작업 8678118 자동 생성·켜짐(`active:true`) → 보관함 상태 줄 「실행 중 · 대기 1건」 → 일시정지(`active:false, paused:true`)·재개 정상 → 예약 취소(임시저장) 후 **약 65초 뒤 작업 자동 꺼짐**(`active:false`) → Vercel로 되돌림(`mode:vercel`), 글 상태 시험 전과 같음(초안 5·게시 3).

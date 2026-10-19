@@ -8,7 +8,7 @@ import { MAX_TAIL, MIN_H, MIN_W, shortenTail, applyDrag, defaultBalloon, fitText
 import { buildBalloonPrompt } from "../src/lib/comic/prompt.ts";
 import { isBalloonMode, isAspect, isPanelCount, aspectValue, ASPECTS, PANEL_COUNTS } from "../src/lib/comic/options.ts";
 import { MAX_SAVED, addToIndex, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "../src/lib/comic/savedIndex.ts";
-import { INSTA_NEW_POST_URL, MAX_WORKS, cleanHashtag, continueScript, instaHandoffUrl, instaText, normalizeInsta, stackLayout, trimWorks, webtoonLayout, panelsLayout, splitRanges } from "../src/lib/comic/extras.ts";
+import { INSTA_CARD_COUNT, INSTA_NEW_POST_URL, MAX_WORKS, cleanHashtag, continueScript, instaHandoffUrl, instaText, normalizeInsta, stackLayout, trimWorks, webtoonLayout, panelsLayout, splitRanges } from "../src/lib/comic/extras.ts";
 import { createZip, crc32 } from "../src/lib/comic/zip.ts";
 import { buildInstaPrompt, koreaMonth } from "../src/lib/comic/prompt.ts";
 import { parseInstaRequest } from "../src/lib/comic/validate.ts";
@@ -358,4 +358,15 @@ test("v1.15 INSTA로 넘기기: 짧은 문구는 주소에 싣고, 너무 길면
   assert.deepEqual(u.searchParams.get("hashtags").split(","), c.hashtags);
   const long = instaHandoffUrl({ caption: "가".repeat(2000), hashtags: c.hashtags });
   assert.deepEqual(long, { url: INSTA_NEW_POST_URL, prefilled: false });
+});
+
+test("v1.16 카드뉴스로 넘기기: postType=card_news를 싣고, 문구가 길어도 형식은 유지", () => {
+  const c = { caption: "짧은 문구", hashtags: ["#a", "#b", "#c"] };
+  const r = instaHandoffUrl(c, undefined, "card_news");
+  assert.equal(new URL(r.url).searchParams.get("postType"), "card_news");
+  assert.equal(r.prefilled, true);
+  const long = instaHandoffUrl({ caption: "가".repeat(2000), hashtags: c.hashtags }, undefined, "card_news");
+  assert.deepEqual(long, { url: `${INSTA_NEW_POST_URL}?postType=card_news`, prefilled: false });
+  assert.equal(new URL(instaHandoffUrl(c).url).searchParams.get("postType"), null, "피드는 형식 값 없음");
+  assert.equal(INSTA_CARD_COUNT, 4);
 });

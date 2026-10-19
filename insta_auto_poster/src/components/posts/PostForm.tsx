@@ -356,15 +356,22 @@ export function PostForm({
   const requiredSlides = postType === "card_news" ? CARD_NEWS_SLIDE_COUNT : 1;
   const readyWithoutAi = isCreate && caption.trim().length > 0 && slides.length >= requiredSlides;
   const [addingUpload, setAddingUpload] = useState(false);
-  const handleAddUploadedSlide = (file: File) => {
+  // v1.28: 여러 파일을 한 번에 고르면 파일 이름순으로 남은 장수만큼 차례로 올린다(카드뉴스 4장 한 번에).
+  const handleAddUploadedSlides = (files: File[]) => {
+    const picked = [...files]
+      .sort((a, b) => a.name.localeCompare(b.name, "ko", { numeric: true }))
+      .slice(0, Math.max(0, requiredSlides - slides.length));
+    if (picked.length === 0) return;
     setAddingUpload(true);
     startRegenerating(async () => {
-      const result = await uploadImageDirect(file);
-      if (result.url) {
+      for (const file of picked) {
+        const result = await uploadImageDirect(file);
+        if (!result.url) {
+          setAiError(result.error ?? "이미지 업로드에 실패했습니다.");
+          break;
+        }
         const url = result.url;
         setSlides((prev) => [...prev, { imagePrompt: "", imageUrl: url, imageUrls: [url] }]);
-      } else {
-        setAiError(result.error ?? "이미지 업로드에 실패했습니다.");
       }
       setAddingUpload(false);
     });
@@ -822,15 +829,18 @@ export function PostForm({
           )}
           {slides.length < requiredSlides && (
             <label className="mt-2 block cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2 py-2 text-center text-xs text-neutral-500 hover:border-neutral-400">
-              {addingUpload ? "올리는 중..." : `이미지 파일 직접 첨부 (${slides.length}/${requiredSlides}장, JPG/PNG/WEBP, 10MB 이하)`}
+              {addingUpload
+                ? "올리는 중..."
+                : `이미지 파일 직접 첨부 (${slides.length}/${requiredSlides}장, JPG/PNG/WEBP, 10MB 이하${requiredSlides > 1 ? " · 여러 장 한 번에 선택 가능, 파일 이름순" : ""})`}
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
+                multiple={requiredSlides > 1}
                 className="hidden"
                 disabled={addingUpload || isGeneratingAll}
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleAddUploadedSlide(file);
+                  const files = Array.from(e.target.files ?? []);
+                  if (files.length > 0) handleAddUploadedSlides(files);
                   e.target.value = "";
                 }}
               />

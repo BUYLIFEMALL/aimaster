@@ -12,7 +12,7 @@ import type { Balloon } from "@/lib/comic/balloon";
 import { BalloonEditor } from "./BalloonEditor";
 import type { Script } from "@/lib/comic/script";
 import { composePanel, dataUrlsToZip, downloadUrl, fileToSheet, layoutPanels, shrinkForUpload, toJpeg, webtoonImages } from "@/lib/comic/draw";
-import { continueScript, instaHandoffUrl, instaText } from "@/lib/comic/extras";
+import { INSTA_CARD_COUNT, continueScript, instaHandoffUrl, instaText } from "@/lib/comic/extras";
 import type { InstaCopy } from "@/lib/comic/extras";
 import { saveWork } from "@/lib/comic/gallery";
 import { MergeTool } from "./MergeTool";
@@ -336,6 +336,27 @@ export function Studio({ userId }: { userId: string }) {
         : "INSTA 새 글 화면을 열었습니다. 문구가 길어 미리 채우지 못했으니 붙여넣어 주세요.";
       setNotice(`${head} ${(await copied) ? "문구를 복사해 두었고, " : ""}바둑판 그림(4컷만화-인스타.jpg)을 내려받았으니 [이미지 파일 직접 첨부]에 올려 주세요.`);
     } catch (e) { fail(e, "그림을 저장하지 못했습니다."); }
+    finally { setBusy(""); }
+  }
+  /** v1.16: 컷 4장을 INSTA 카드뉴스(캐러셀 4장)로 — 카드뉴스 형식으로 새 탭을 먼저 열고 컷별 JPEG 4장을 차례로 저장 */
+  async function sendCardsToInsta() {
+    if (!insta || composed.length !== INSTA_CARD_COUNT) return;
+    clearMsg();
+    const { url, prefilled } = instaHandoffUrl(insta, undefined, "card_news");
+    const copied = navigator.clipboard.writeText(instaText(insta)).then(() => true, () => false);
+    const win = window.open(url, "_blank");
+    if (win) win.opener = null;
+    setBusy("insta-cards");
+    try {
+      for (let i = 0; i < INSTA_CARD_COUNT; i++) {
+        downloadUrl(await toJpeg(composed[i] as string), `4컷만화-${i + 1}컷.jpg`);
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      const head = !win ? "새 탭이 열리지 않았습니다(팝업 차단). INSTA 포스팅 자동화의 [새 게시글 작성]에서 카드뉴스를 골라 주세요."
+        : prefilled ? "INSTA 새 글 화면을 카드뉴스로 열고 문구·해시태그를 채웠습니다."
+        : "INSTA 새 글 화면을 카드뉴스로 열었습니다. 문구가 길어 미리 채우지 못했으니 붙여넣어 주세요.";
+      setNotice(`${head} ${(await copied) ? "문구를 복사해 두었고, " : ""}컷 4장(4컷만화-1컷~4컷.jpg)을 내려받았으니 [이미지 파일 직접 첨부]에서 4장을 한 번에 골라 주세요(여러 파일 저장 허용 창이 뜨면 [허용]).`);
+    } catch (e) { fail(e, "컷 그림을 저장하지 못했습니다."); }
     finally { setBusy(""); }
   }
 
@@ -666,6 +687,7 @@ export function Studio({ userId }: { userId: string }) {
                 <button type="button" onClick={makeInsta} disabled={!!busy}><Sparkles size={14} />{busy === "insta" ? "문구 만드는 중..." : insta ? "다시 만들기" : "인스타 문구 만들기"}</button>
                 {insta && <button type="button" onClick={copyInsta}><Copy size={14} />복사</button>}
                 {insta && <button type="button" onClick={sendToInsta} disabled={!!busy}><Send size={14} />{busy === "insta-send" ? "넘기는 중..." : "INSTA 자동포스팅으로 올리기"}</button>}
+                {insta && <button type="button" onClick={sendCardsToInsta} disabled={!!busy || count !== INSTA_CARD_COUNT} title={count !== INSTA_CARD_COUNT ? "INSTA 카드뉴스는 4장 고정이라 4컷일 때만 넘길 수 있습니다." : undefined}><Layers size={14} />{busy === "insta-cards" ? "넘기는 중..." : "카드뉴스(컷별 4장)로 올리기"}</button>}
               </div>
               {insta && <small className="muted">INSTA 포스팅 자동화에서 인스타그램 계정을 연결해 두면, 새 글 화면에서 그림만 첨부해 바로 게시하거나 예약할 수 있습니다.</small>}
               {insta && <textarea className="cc-insta" readOnly rows={7} value={instaText(insta)} aria-label="인스타 게시 문구" />}

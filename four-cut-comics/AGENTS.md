@@ -70,3 +70,7 @@
 - 주의: INSTA 주소가 바뀌면 `INSTA_NEW_POST_URL`도 함께 고친다. 새 탭은 그림 저장보다 먼저 연다(비동기 뒤에 열면 팝업 차단).
 - 검수: tsc 0, 시험 35/35, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.
 - 배포·검수(2026-10-20): `four-cut-comics-gmsrnixmd` Ready, DB `programs.version` v1.15. 크롬: 사이드바 v1.15, 버튼이 여는 INSTA 주소(`?caption=&hashtags=`)로 INSTA 새 글 화면의 캡션·해시태그 칸이 정확히 채워짐(`&` 포함). 크롬 확인 중 INSTA가 AI 이미지 없이는 첨부 칸을 안 보이고 제출 때 항상 AI로 덮어쓰는 문제를 발견 → 주인님 승인으로 INSTA v1.27에서 보완(아래 INSTA 기록). 4컷 화면의 버튼 클릭 자체(컷 그림이 모두 있어야 보임)는 그림 생성 비용 때문에 실화면 미검수 — 다음에 그림을 만들 때 버튼→새 탭·그림 저장·안내 확인.
+
+## 2026-10-20 v1.16 — 카드뉴스(컷별 4장)로 INSTA 넘기기 (Claude Code 윈도우, 주인님 지시 「추가 개선 제안 1·2」)
+- 인스타 문구 칸 **[카드뉴스(컷별 4장)로 올리기]**: INSTA 새 글을 `postType=card_news`로 열고(문구가 길어도 형식 값은 유지) 문구 복사 + 컷 4장 `4컷만화-1컷~4컷.jpg`(JPEG) 차례로 저장(0.4초 간격 — 크롬이 「여러 파일 다운로드 허용」을 한 번 물을 수 있음). INSTA 카드뉴스가 4장 고정이라 **4컷일 때만** 활성(3·6컷은 비활성 + 안내 툴팁). 컷마다 비율이 다르면 인스타가 첫 장 비율로 맞춰 자름(인스타 정책).
+- 파일: `src/lib/comic/extras.ts`(`INSTA_CARD_COUNT`, `instaHandoffUrl(…, postType)`), `Studio.tsx`(`sendCardsToInsta`), `tests/comic.test.mjs`(+1, 36/36). INSTA 짝 작업: INSTA v1.28(여러 파일 한 번에 첨부·`postType` 주소값).

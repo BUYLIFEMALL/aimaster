@@ -16,6 +16,8 @@ interface NewPostPageProps {
     candidateId?: string;
     caption?: string;
     hashtags?: string;
+    // v1.28: 다른 프로그램(4컷 만화)에서 카드뉴스로 넘길 때 형식을 미리 고른다
+    postType?: string;
   }>;
 }
 
@@ -63,6 +65,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         mode="create"
         hasInstagramAccount={Boolean(account)}
         registeredProviders={Array.from(registeredProviders)}
+        initialPostType={sp.postType === "card_news" ? "card_news" : "feed"}
         initialTopic={sp.topic ?? ""}
         initialKeywords={loadedKeywords}
         initialCaption={loadedCaption}

@@ -34,10 +34,19 @@ export function instaText(c: InstaCopy): string {
 export const INSTA_NEW_POST_URL = "https://auto-instagram-posting.buylife.xyz/posts/new";
 const MAX_HANDOFF_URL = 6000;
 
-/** INSTA 새 글 화면 주소. 문구가 길어 주소가 너무 길어지면 문구는 빼고(복사본으로 붙여넣기) 화면만 연다 */
-export function instaHandoffUrl(c: InstaCopy, base = INSTA_NEW_POST_URL): { url: string; prefilled: boolean } {
-  const full = `${base}?${new URLSearchParams({ caption: c.caption, hashtags: c.hashtags.join(",") })}`;
-  return full.length <= MAX_HANDOFF_URL ? { url: full, prefilled: true } : { url: base, prefilled: false };
+// v1.16: INSTA 카드뉴스는 4장 고정이라 컷이 4개일 때만 컷별로 넘긴다.
+export const INSTA_CARD_COUNT = 4;
+
+/**
+ * INSTA 새 글 화면 주소. 문구가 길어 주소가 너무 길어지면 문구는 빼고(복사본으로 붙여넣기) 화면만 연다.
+ * 카드뉴스(v1.16)는 INSTA v1.28의 `postType=card_news`로 형식을 미리 고른다(문구를 빼도 형식은 유지).
+ */
+export function instaHandoffUrl(c: InstaCopy, base = INSTA_NEW_POST_URL, postType: "feed" | "card_news" = "feed"): { url: string; prefilled: boolean } {
+  const type: Record<string, string> = postType === "card_news" ? { postType } : {};
+  const full = `${base}?${new URLSearchParams({ ...type, caption: c.caption, hashtags: c.hashtags.join(",") })}`;
+  if (full.length <= MAX_HANDOFF_URL) return { url: full, prefilled: true };
+  const short = new URLSearchParams(type).toString();
+  return { url: short ? `${base}?${short}` : base, prefilled: false };
 }
 
 /**
