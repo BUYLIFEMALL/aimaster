@@ -5,6 +5,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { parseOAuthState } from "@/lib/oauthState";
 import { SITE_ORIGIN, redirectUriFor } from "@/lib/oauthRedirect";
 import { exchangeThreadsCode, exchangeForLongLivedToken, getThreadsAccountInfo } from "@/lib/threads/client";
+import { saveSharedReplyAccount } from "@/lib/threads/memberAccount";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -80,6 +81,16 @@ export async function GET(request: NextRequest) {
     if (error) {
       throw new Error(error.message);
     }
+
+    // v1.13 회원 연동 정보 공용 저장: 댓글 권한까지 받은 토큰을 공용 표에도 저장(이중 기록) — 다른 Threads 프로그램도 그대로 사용
+    await saveSharedReplyAccount({
+      userId: user.id,
+      threadsUserId: accountInfo.threadsUserId,
+      username: accountInfo.username ?? null,
+      accessToken: longLived.access_token,
+      tokenExpiresAt,
+      appId,
+    });
 
     return NextResponse.redirect(`${siteUrl}${redirectTarget}?threads_connected=1`);
   } catch {

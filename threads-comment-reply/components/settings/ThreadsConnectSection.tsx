@@ -48,6 +48,7 @@ export function ThreadsConnectSection({
       {connected && !needsReconnect ? (
         <div className="space-y-3">
           <p className="text-sm text-th-success">✅ @{username ?? "내 계정"}으로 연동되어 있어요.</p>
+          <p className="text-xs text-th-muted">연동을 해제하면 이 계정을 함께 쓰는 다른 Threads 프로그램에서도 해제됩니다.</p>
           <form action={disconnectThreadsAction}>
             <button type="submit" className="rounded-lg bg-th-danger/10 px-4 py-2 text-xs font-bold text-th-danger hover:bg-th-danger/20">
               연동 해제

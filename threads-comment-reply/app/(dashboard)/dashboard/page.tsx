@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { getReplyAccount } from "@/lib/threads/memberAccount";
 import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
@@ -24,7 +25,8 @@ export default async function DashboardPage() {
 
   const [accountRes, settingsRes, keysRes, telegramRes, pendingRes, weekRes, totalRes, monitoredRes, recentRes] =
     await Promise.all([
-      supabase.from("th_accounts").select("username, needs_reconnect").eq("user_id", user.id).maybeSingle(),
+      // v1.13: 공용 연결 계정 포함
+      getReplyAccount(supabase, user.id).then((data) => ({ data })),
       supabase
         .from("th_settings")
         .select("reply_model, monitoring_enabled, monitoring_interval_minutes, last_run_at, auto_approve")

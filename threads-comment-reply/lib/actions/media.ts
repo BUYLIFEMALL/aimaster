@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { getReplyAccount } from "@/lib/threads/memberAccount";
 import { getValidThreadsAccessToken } from "@/lib/actions/threads";
 import { listThreadsPosts } from "@/lib/threads/client";
 import { normalizeUrl } from "@/lib/normalizeUrl";
@@ -21,11 +22,8 @@ export async function syncMediaAction(): Promise<SyncMediaState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: account } = await supabase
-    .from("th_accounts")
-    .select("access_token, token_expires_at, threads_user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  // v1.13: 공용 연결 계정(댓글 권한 있는 것) → 없으면 th_accounts
+  const account = await getReplyAccount(supabase, user.id);
   if (!account) return { error: "쓰레드 계정이 연결되어 있지 않습니다." };
 
   try {

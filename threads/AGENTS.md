@@ -2,7 +2,7 @@
 
 > **프로그램명**: Threads 포스팅 자동화 (`auto-threads-posting`)  
 > **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
-> **현재 버전**: `v1.21`  
+> **현재 버전**: `v1.22`  
 > **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**  
 > **관리자 계정**: `buylifemall@gmail.com`  
 > **일반 테스트 계정**: `buylifemall@naver.com`
@@ -50,6 +50,9 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+
+### `v1.22` (2026-10-20) - Claude Code (윈도우) — 공용 부품 정정(권한 합치기 제거)
+- 공용 부품 사본 `src/lib/memberIntegrations.ts`를 기준과 동기화: 연결 저장 때 이전 권한과 합치지 않고 **이번 연결에서 요청한 권한만** 기록. 이 프로그램(게시 권한)이 다시 연결해 공용 토큰을 바꾸면 댓글자동화는 권한 부족으로 자기 표 토큰을 쓰게 됨(새 토큰에 댓글 권한이 있다고 보장 못 함). 운영 DB 버전만: `supabase/migrations/20261020120000_member_integrations_v1_22.sql`.
 
 ### `v1.21` (2026-10-20) - Claude Code (윈도우) — 회원 연동 정보 공용 저장 ②단계 시범 (Threads 계정 한 번 연결 → 여러 Threads 프로그램 함께 사용)
 - 루트 [`docs/MEMBER_INTEGRATIONS.md`](../docs/MEMBER_INTEGRATIONS.md)·플랜 [`docs/PLAN_20261020_MEMBER_INTEGRATIONS.md`](../docs/PLAN_20261020_MEMBER_INTEGRATIONS.md). 공용 부품 사본 `src/lib/memberIntegrations.ts`(기준 루트 `lib/memberIntegrations.ts`, `check-shared-modules.mjs` 「member-integrations」 — 사본 직접 수정 금지).

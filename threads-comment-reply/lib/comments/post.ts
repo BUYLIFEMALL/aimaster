@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
+import { getReplyAccount } from "@/lib/threads/memberAccount";
 import { getValidThreadsAccessToken } from "@/lib/actions/threads";
 import { postThreadsCommentReply } from "@/lib/threads/client";
 
@@ -33,11 +34,8 @@ export async function postCommentReplyForUser(
   if (!comment) return { error: "댓글을 찾을 수 없습니다." };
   if (comment.status === "posted") return { error: "이미 게시된 답글입니다." };
 
-  const { data: account } = await supabase
-    .from("th_accounts")
-    .select("access_token, token_expires_at, threads_user_id")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.13: 공용 연결 계정(댓글 권한 있는 것) → 없으면 th_accounts
+  const account = await getReplyAccount(supabase, userId);
   if (!account) return { error: "쓰레드 계정이 연결되어 있지 않습니다." };
 
   try {

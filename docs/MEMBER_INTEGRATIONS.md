@@ -35,7 +35,7 @@
 | 함수 | 쓰는 곳 | 동작 |
 |---|---|---|
 | `getMemberAccount(userId, platform, { needScopes })` | 게시·댓글 등 토큰이 필요할 때 | `ok` / `missing_scopes`(권한 추가 연결 안내) / `not_connected`(「○○에서 한 번 연결해 주세요」 + 카탈로그 주소) |
-| `saveMemberAccount({...})` | OAuth 콜백 | 같은 앱(`app_ref`)이면 받은 권한을 **합쳐** 저장(줄어들지 않음), refresh_token이 안 오면 기존 값 유지 |
+| `saveMemberAccount({...})` | OAuth 콜백 | 새 토큰으로 바꾸고 **이번 연결에서 요청한 권한만** 기록(합치지 않음 — 2026-10-20 정정: 새 토큰에 이전 권한이 있다고 보장 못 함), 같은 앱이면 refresh_token이 안 오면 기존 값 유지 |
 | `updateMemberAccountToken(...)` | 토큰 갱신 | 권한·연결 정보는 그대로 |
 | `markMemberAccountNeedsReconnect(...)` | 토큰 만료·폐기 감지 | 「다시 연결 필요」 표시 |
 

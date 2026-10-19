@@ -165,3 +165,10 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - `app/api/cron/sync-comments`·`check-connection`(2곳)의 `auth === \`Bearer ${process.env.CRON_SECRET}\`` → `CRON_SECRET`이 비면 「Bearer undefined」를 보낸 누구나 통과하던 빈틈을 `Boolean(secret) && …`로 차단(회원 화면·동작 변화 없음). 지금은 Vercel에 `CRON_SECRET`이 등록돼 있어 실제로 뚫린 적은 없음 — 방어 보완. 근거·전체 목록: 루트 `docs/SCHEDULER_PRIORITY2_REVIEW_20261020.md` §2-1, `docs/ERROR_LESSONS.md` 2026-10-20.
 - 검수: `tsc` 0, `npm run build`, 배포 `threads-comment-reply-hit3ns3w8`(Ready), DB `programs.version` v1.12, 운영 주소 실행 주소 무인증·`Bearer undefined` 모두 401, `/login` 200. 이 프로그램은 운영자 예약 호출(`vercel.json` crons)이 원래 꺼져 있어 정상 호출 확인 대상 없음.
 - 텔레그램 `migrate-webhooks`는 이미 「비밀값이 있을 때만」 검사, `webhookSecret.ts`는 비밀값이 없으면 오류로 멈춰 안전(변경 없음).
+
+## 2026-10-20 v1.13 — 회원 연동 정보 공용 저장 ②단계: Threads 계정 한 번 연결 → 여러 Threads 프로그램 함께 사용 (Claude Code 윈도우)
+- 루트 [`docs/MEMBER_INTEGRATIONS.md`](../docs/MEMBER_INTEGRATIONS.md)·플랜 [`docs/PLAN_20261020_MEMBER_INTEGRATIONS.md`](../docs/PLAN_20261020_MEMBER_INTEGRATIONS.md). 공용 부품 사본 `lib/memberIntegrations.ts`(기준 루트 `lib/memberIntegrations.ts`, `check-shared-modules.mjs` 「member-integrations」 — 사본 직접 수정 금지).
+- `lib/threads/memberAccount.ts` `getReplyAccount()`: 공용 표 `member_platform_accounts`에 **댓글 권한까지 있고 재연결 필요 아니고 계정 이름이 있는** Threads 계정이 있으면 그것, 없으면 `th_accounts`. 게시물 동기화(`actions/media.ts`)·댓글 수집(`comments/sync.ts`)·답글 게시(`comments/post.ts`)·연결 상태/상단 배너(`actions/threads.ts`)·대시보드가 모두 이 함수로 읽음. 계정 이름 조건은 「내 답글에 다시 답하는 무한 반복」 방지(`sync.ts`)에 이름이 꼭 필요해서.
+- 토큰 자동 갱신·「다시 연결 필요」 표시: 공용 계정에서 읽은 토큰이면 공용 표에 기록(`updateMemberAccountToken`·`markMemberAccountNeedsReconnect`), 아니면 지금처럼 `th_accounts`. 매일 연결 점검 cron(`/api/cron/check-connection`, 원래 꺼져 있음)은 `th_accounts` 기준 그대로.
+- 연결 콜백: `th_accounts` + 공용 표 이중 기록(권한 4개, `app_ref`=회원 Threads 앱 ID). 연결 해제: 두 곳 모두 삭제 + 설정 화면 안내 「다른 Threads 프로그램에서도 해제」.
+- 운영 DB: `supabase/migrations/20261020110000_member_integrations_v1_13.sql` — 정상 연결만, **공용 행이 없는 회원만** 백필(원본 유지) + 버전.

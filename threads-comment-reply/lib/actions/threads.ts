@@ -10,6 +10,9 @@ import { redirectUriFor, type CallbackMode } from "@/lib/oauthRedirect";
 import { getThreadsAuthorizeUrl, refreshThreadsLongLivedToken } from "@/lib/threads/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
+import { deleteSharedThreadsAccount, getReplyAccount } from "@/lib/threads/memberAccount";
 
 export interface ConnectThreadsState {
   error?: string;
@@ -35,6 +38,8 @@ export async function disconnectThreadsAction() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   await supabase.from("th_accounts").delete().eq("user_id", user.id);
+  // v1.13: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedThreadsAccount(user.id);
   revalidatePath("/settings");
 }
 
@@ -45,7 +50,7 @@ export async function disconnectThreadsAction() {
 export async function getValidThreadsAccessToken(
   supabase: SupabaseClient<Database>,
   userId: string,
-  account: { access_token: string; token_expires_at: string | null },
+  account: { access_token: string; token_expires_at: string | null; shared_id?: string | null },
 ): Promise<string> {
   const expiresAt = account.token_expires_at ? new Date(account.token_expires_at).getTime() : 0;
   // 만료 3일 이내면 미리 갱신한다(공식 문서: 발급 후 24시간~60일 사이 갱신 가능, 여유를 더 둠).
@@ -55,6 +60,14 @@ export async function getValidThreadsAccessToken(
   try {
     const refreshed = await refreshThreadsLongLivedToken(account.access_token);
     const tokenExpiresAt = new Date(Date.now() + refreshed.expires_in * 1000).toISOString();
+    // v1.13: 공용 연결 계정에서 읽은 토큰이면 공용 표를 갱신(다른 Threads 프로그램도 새 토큰을 씀)
+    if (account.shared_id) {
+      await updateMemberAccountToken(createAdminClient(), userId, account.shared_id, {
+        accessToken: refreshed.access_token,
+        tokenExpiresAt,
+      });
+      return refreshed.access_token;
+    }
     await supabase
       .from("th_accounts")
       .update({
@@ -69,7 +82,8 @@ export async function getValidThreadsAccessToken(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.startsWith("THREADS_TOKEN_EXPIRED:")) {
-      await markNeedsReconnect(supabase, userId);
+      if (account.shared_id) await markMemberAccountNeedsReconnect(createAdminClient(), userId, account.shared_id);
+      else await markNeedsReconnect(supabase, userId);
       throw new Error("THREADS_RECONNECT_REQUIRED");
     }
     throw err;
@@ -88,11 +102,8 @@ export async function getPersistedConnectionFlag(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<{ connected: boolean; needsReconnect: boolean }> {
-  const { data } = await supabase
-    .from("th_accounts")
-    .select("needs_reconnect")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.13: 공용 연결 계정(댓글 권한 있는 것) → 없으면 이 프로그램 표
+  const data = await getReplyAccount(supabase, userId);
   if (!data) return { connected: false, needsReconnect: false };
   return { connected: true, needsReconnect: data.needs_reconnect };
 }
@@ -107,11 +118,7 @@ export async function getThreadsConnectionStatus(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<ThreadsConnectionStatus> {
-  const { data: account } = await supabase
-    .from("th_accounts")
-    .select("access_token, token_expires_at, username")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const account = await getReplyAccount(supabase, userId);
   if (!account) return { connected: false, username: null, needsReconnect: false };
 
   try {

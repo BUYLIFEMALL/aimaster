@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getUserApiKey } from "@/lib/apiKeys";
+import { getReplyAccount } from "@/lib/threads/memberAccount";
 import { getValidThreadsAccessToken } from "@/lib/actions/threads";
 import { listRecentThreadsComments } from "@/lib/threads/client";
 import { generateCommentReply } from "@/lib/ai/reply";
@@ -37,11 +38,8 @@ export async function runCommentSync(
   userId: string,
   cutoffAt?: string | null,
 ): Promise<RunCommentSyncResult> {
-  const { data: account } = await supabase
-    .from("th_accounts")
-    .select("access_token, token_expires_at, username")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.13: 공용 연결 계정(댓글 권한 있는 것) → 없으면 th_accounts
+  const account = await getReplyAccount(supabase, userId);
   if (!account) return { error: "쓰레드 계정이 연결되어 있지 않습니다." };
 
   const { data: media } = await supabase

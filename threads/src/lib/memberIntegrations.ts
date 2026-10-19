@@ -124,22 +124,22 @@ export type SaveMemberAccountInput = {
 };
 
 /**
- * OAuth 콜백에서 저장한다. 같은 계정이 이미 있으면 받은 권한을 합쳐(줄어들지 않게) 갱신한다.
- * 다른 앱(app_ref)으로 받은 토큰은 권한을 합치지 않는다 — 앱이 다르면 이전 권한이 이 토큰에 없기 때문.
+ * OAuth 콜백에서 저장한다. 같은 계정이 이미 있으면 새 토큰으로 바꾼다.
+ * 권한(granted_scopes)은 **이번 연결에서 요청한 권한만** 적는다 — 이전 권한과 합치지 않는다(2026-10-20 정정).
+ * 예: 댓글 프로그램에서 받은 토큰을 게시 프로그램이 다시 연결해 바꾸면, 새 토큰에 댓글 권한이 있다고 보장할 수 없다.
+ * 이렇게 적으면 권한이 모자란 프로그램은 missing_scopes를 받고 자기 표의 토큰을 쓰므로 안전하다.
  */
 export async function saveMemberAccount(admin: AdminDb, input: SaveMemberAccountInput): Promise<{ error: string | null }> {
   const { data: existing } = await admin
     .from("member_platform_accounts")
-    .select("granted_scopes, app_ref, refresh_token")
+    .select("app_ref, refresh_token")
     .eq("user_id", input.userId)
     .eq("platform", input.platform)
     .eq("external_id", input.externalId)
     .maybeSingle();
 
   const sameApp = existing && (existing.app_ref ?? null) === (input.appRef ?? null);
-  const scopes = sameApp
-    ? Array.from(new Set([...(existing.granted_scopes ?? []), ...input.grantedScopes]))
-    : Array.from(new Set(input.grantedScopes));
+  const scopes = Array.from(new Set(input.grantedScopes));
 
   const { error } = await admin.from("member_platform_accounts").upsert(
     {
