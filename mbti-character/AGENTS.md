@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-19 v1.20 — 크리에이티브 아틀리에 파스텔 에디션 리뉴얼 & 가이드북 구축 (Antigravity)
+- **디자인 테마**: 크리에이티브 아틀리에 스타일 — 파스텔 크림 캐릭터 에디션 (`#fefcf9`, 코랄 로즈 `#f43f5e`, 라벤더 `#8b5cf6`, 파스텔 에메랄드 `#10b981`).
+- **가이드북 신설**: `DESIGN.md` 9번 필수 원칙에 따라 `/guide` (`📖 연동 & 사용 매뉴얼`) 독립 페이지 신설 및 상단 헤더 메뉴 배치.
+- **메인 고도화**: 아틀리에 히어로 배너, 3대 핵심 KPI 카드(16대 캐릭터 풀, 20문항 지표, AI 일러스트 생성), 4단계 파이프라인 가이드 바 탑재.
+- **버전 3중 동기화**: `package.json`(`1.20.0`), `lib/version.ts`(`v1.20`), Supabase DB `programs`(`v1.20`).
+- **검수**: Next.js 14 로컬 빌드 성공, Vercel 프로덕션 배포(`https://mbti-character.buylife.xyz`), Edge 포그라운드 7종 캡처 수집 및 10분 화면 유지 세션 완료.
+
 ## 2026-10-16 v1.06 — 권한 판정 테이블 조회를 서비스 롤로 (원칙 6)
 - `lib/access.ts`의 `decideAccess()` 호출을 세션 클라이언트에서 `createAdminClient()`(`lib/supabase/admin.ts`)로 변경. 로그인 확인만 세션. Vercel `mbti-character`에 `SUPABASE_SERVICE_ROLE_KEY` 등록(`scripts/add-service-role-env.mjs`). FREE 배지 = 가입·로그인 회원 누구나(원칙 6 재확인).
 - 운영 확인: `/`·`/login` 200, 비로그인 `/test`·`/result/INFP` 307 → `/login`. 로그인 후 확인(2026-10-16, 엣지·시험 계정): `/test` 1번 문항, `/result/INFP`(리아) 정상.

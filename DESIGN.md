@@ -134,7 +134,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 79개 · ⚪ 2개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **95.2% 달성!**):
+> **상태 구분** (2026-10-19 기준: ✅ 80개 · ⚪ 1개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **96.4% 달성!**):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -185,7 +185,7 @@
 | 35 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | **스마트 매트릭스 스타일 — 라이트 변형 · 네이버 그린 포인트** (일반 CSS 변수) | 라이트(`#f6f7f9` + 네이버 그린 `#009b4d`/`#03c75a`) | ✅ 1차 작업완료 (`v1.69`, 파일나누기+네이버그린 리뉴얼, 윈도우 배포·확장검증·Edge포그라운드검수 2026-10-17) | [`naver-blog-seo-studio/docs/DESIGN_HANDOFF.md`](naver-blog-seo-studio/docs/DESIGN_HANDOFF.md) |
 | 36 | 상세페이지 GIF 자동화 | `video-to-gif` | **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션** | 다크(차콜 `#0d1117` + 앰버 골드 `#f59e0b`) | ✅ 1차 작업완료 (`v1.10`, 크리에이티브 아틀리에 스타일) | [`video-to-gif/docs/DESIGN_HANDOFF.md`](video-to-gif/docs/DESIGN_HANDOFF.md) · [`video-to-gif/docs/IMPROVEMENTS.md`](video-to-gif/docs/IMPROVEMENTS.md) |
 | 37 | AIMaster 타로점 | `tarot-reading` | **크리에이티브 아틀리에 스타일 — 신비로운 미드나잇 퍼플 랩 에디션** | 딥 미드나잇 퍼플 (`#090614` + 바이올렛 `#a855f7`) | ✅ 1차 작업완료 (`v1.20`, 크리에이티브 아틀리에 스타일) | [`tarot/docs/DESIGN_HANDOFF.md`](tarot/docs/DESIGN_HANDOFF.md) · [`tarot/docs/IMPROVEMENTS.md`](tarot/docs/IMPROVEMENTS.md) |
-| 38 | 캐릭코드(MBTI) 측정기 | `mbti-character` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti-character/AGENTS.md` |
+| 38 | 캐릭코드(MBTI) 측정기 | `mbti-character` | **크리에이티브 아틀리에 스타일 — 파스텔 크림 에디션** | 파스텔 크림 (`#fefcf9`) & 코랄 로즈/라벤더 | ✅ 1차 작업완료 (`v1.20`, 크리에이티브 아틀리에 파스텔 에디션) | [`mbti-character/docs/DESIGN_HANDOFF.md`](mbti-character/docs/DESIGN_HANDOFF.md) · [`mbti-character/docs/IMPROVEMENTS.md`](mbti-character/docs/IMPROVEMENTS.md) |
 | 39 | 성격코드(MBTI) 측정기 | `personality-code` | **크리에이티브 아틀리에 스타일 — 파스텔 퍼스널리티 랩 에디션** | 파스텔 크림 (`#faf8f5`) & 4대 지표 컬러 | ✅ 1차 작업완료 (`v1.20`, 크리에이티브 아틀리에 스타일) | [`mbti/docs/DESIGN_HANDOFF.md`](mbti/docs/DESIGN_HANDOFF.md) · [`mbti/docs/IMPROVEMENTS.md`](mbti/docs/IMPROVEMENTS.md) |
 | 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | **플로우 위저드 스타일 — 네이버 카페 그린 에디션** | 라이트(클린 슬레이트 `#f8fafc` + 네이버 그린 `#03c75a`) | ✅ 1차 작업완료 (`v1.20`, 플로우 위저드 스타일) | [`naver-cafe-poster/docs/DESIGN_HANDOFF.md`](naver-cafe-poster/docs/DESIGN_HANDOFF.md) · [`naver-cafe-poster/docs/IMPROVEMENTS.md`](naver-cafe-poster/docs/IMPROVEMENTS.md) |
 | 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` (폴더 `kakao_auto_poster`) | **플로우 위저드 스타일 — 카카오 옐로우 뉴스레터 에디션** | 클린 화이트 (카카오 옐로우 `#fee500` / 다크 차콜 `#191919`) | ✅ 1차 작업완료 (`v1.20`, 플로우 위저드 카카오 옐로우 에디션) | [`kakao_auto_poster/docs/DESIGN_HANDOFF.md`](kakao_auto_poster/docs/DESIGN_HANDOFF.md) · [`kakao_auto_poster/docs/IMPROVEMENTS.md`](kakao_auto_poster/docs/IMPROVEMENTS.md) |

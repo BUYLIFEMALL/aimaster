@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { KakaoScript } from "@/components/KakaoScript";
 import { getSessionUser } from "@/lib/auth";
 import { signOutAction } from "@/lib/actions/auth";
@@ -13,11 +14,11 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "캐릭코드(MBTI) - 나와 닮은 캐릭터 찾기",
-  description: "20문항으로 알아보는 나의 성격유형, 그리고 나와 꼭 닮은 오리지널 캐릭터.",
+  title: "캐릭코드(MBTI) - 나와 닮은 오리지널 캐릭터 찾기",
+  description: "20문항으로 알아보는 나의 4차원 성격유형과 16대 오리지널 매칭 캐릭터 & AI 일러스트 생성 아틀리에.",
   openGraph: {
-    title: "캐릭코드(MBTI)",
-    description: "20문항으로 알아보는 나와 닮은 캐릭터",
+    title: "캐릭코드(MBTI) - 나와 닮은 캐릭터 아틀리에",
+    description: "20문항으로 알아보는 나와 꼭 닮은 오리지널 캐릭터 매칭 & AI 일러스트",
     images: ["/api/og"],
   },
 };
@@ -27,42 +28,99 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="ko">
-      <body>
+      <body className="min-h-screen bg-[#fefcf9] text-[#1f2937]">
         <KakaoScript />
         <div className="min-h-screen flex flex-col">
-          <header className="px-4 py-3 flex items-center justify-between max-w-xl mx-auto w-full">
-            <div className="flex items-center gap-2">
-              <a href="/" className="font-black text-lg text-neutral-900">
-                🎭 캐릭코드
-              </a>
-              <span className="text-xs text-neutral-400">{APP_VERSION}</span>
-            </div>
-            <div className="flex flex-col items-end gap-0.5">
-              <a
-                href={`${MAIN_SITE_URL}/programs`}
-                className="text-xs text-neutral-400 hover:text-neutral-700"
-              >
-                다른 프로그램 보기 →
-              </a>
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <a href="/settings" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
-                    API키등록·플랫폼연동
-                  </a>
-                  <form action={signOutAction}>
-                    <button type="submit" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
-                      {user.email} · 로그아웃
-                    </button>
-                  </form>
-                </div>
-              ) : (
-                <a href="/login" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
-                  로그인
+          {/* 상단 56px 반응형 아틀리에 헤더 */}
+          <header className="sticky top-0 z-50 backdrop-blur-md bg-[#fefcf9]/90 border-b border-[#f1ebe1] px-4 py-3">
+            <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+              {/* 로고 & 버전 배지 & 매뉴얼 링크 */}
+              <div className="flex items-center gap-3">
+                <Link href="/" className="flex items-center gap-2 group">
+                  <span className="text-2xl transition-transform group-hover:scale-110">🎭</span>
+                  <span className="font-extrabold text-lg text-[#1f2937] tracking-tight group-hover:text-rose-600 transition-colors">
+                    캐릭코드
+                  </span>
+                </Link>
+                <span className="atelier-badge text-[11px] py-0.5 px-2">
+                  {APP_VERSION}
+                </span>
+
+                {/* 독립 가이드북 메뉴 (DESIGN.md 9번 원칙 승격) */}
+                <Link
+                  href="/guide"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200/60 hover:bg-rose-100 hover:text-rose-800 transition-all shadow-sm"
+                >
+                  <span>📖</span>
+                  <span>연동 & 사용 매뉴얼</span>
+                </Link>
+              </div>
+
+              {/* 우측 네비게이션 및 사용자 메뉴 */}
+              <div className="flex items-center gap-2 sm:gap-4">
+                {/* 모바일용 매뉴얼 버튼 */}
+                <Link
+                  href="/guide"
+                  className="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200/60"
+                >
+                  <span>📖</span>
+                  <span>매뉴얼</span>
+                </Link>
+
+                <a
+                  href={`${MAIN_SITE_URL}/programs`}
+                  className="hidden md:inline-flex text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                >
+                  다른 프로그램 →
                 </a>
-              )}
+
+                {user ? (
+                  <div className="flex items-center gap-2 text-xs">
+                    <Link
+                      href="/settings"
+                      className="hidden sm:inline-flex text-neutral-600 hover:text-rose-600 font-medium"
+                    >
+                      🔑 API키등록
+                    </Link>
+                    <form action={signOutAction} className="inline-block">
+                      <button
+                        type="submit"
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 transition-all"
+                      >
+                        로그아웃
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="px-3 py-1.5 rounded-xl bg-neutral-900 text-white text-xs font-bold hover:bg-neutral-800 transition-all shadow-sm"
+                  >
+                    로그인
+                  </Link>
+                )}
+              </div>
             </div>
           </header>
-          <main className="flex-1">{children}</main>
+
+          {/* 메인 콘텐츠 컨테이너 */}
+          <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-6 md:py-10">
+            {children}
+          </main>
+
+          {/* 푸터 */}
+          <footer className="border-t border-[#f1ebe1] py-8 text-center text-xs text-neutral-400 bg-[#faf6f0]">
+            <div className="max-w-3xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-neutral-600">AIMaster 캐릭코드(MBTI)</span>
+                <span className="text-neutral-300">|</span>
+                <span>{APP_VERSION}</span>
+              </div>
+              <p className="text-[11px] text-neutral-400">
+                16대 오리지널 캐릭터는 자체 제작 저작물이며 공식 MBTI®와 무관한 창작물입니다.
+              </p>
+            </div>
+          </footer>
         </div>
       </body>
     </html>

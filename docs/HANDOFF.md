@@ -1,5 +1,40 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 캐릭코드(MBTI) 측정기(mbti-character) v1.20: 크리에이티브 아틀리에 파스텔 에디션 리뉴얼·/guide 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 80개 완료 / 96.4% 달성!)
+
+- **대상**: `mbti-character/` (https://mbti-character.buylife.xyz, slug: `mbti-character`, 38번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 파스텔 크림 캐릭터 에디션 전면 리뉴얼**:
+     - 소프트 파스텔 크림(`#fefcf9`), 코랄 로즈(`#f43f5e`), 라벤더 바이올렛(`#8b5cf6`), 파스텔 에메랄드(`#10b981`), 차콜 잉크(`#1f2937`) 컬러 토큰 적용 (`app/globals.css`).
+     - 메인 랜딩 화면 (`app/page.tsx`): `.atelier-hero` 프리미엄 그라데이션 배너, `v1.20` 배지, 3대 핵심 KPI 통계 카드 (16대 오리지널 캐릭터 풀, 20문항 4차원 지표 정밀분석, AI 화풍 일러스트 맞춤 생성), 4단계 파이프라인 가이드 바 (20문항 검사 ➔ 4대 지표 산출 ➔ 캐릭터 매칭 ➔ AI 생성 & 공유), Gemini 키 연동 및 선호 화풍 선택기 카드 룩 강화.
+  2. **반응형 상단 헤더 & 내비게이션 개편 (`app/layout.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 신설 및 상단 노출.
+     - `v1.20` 파스텔 배지 및 56px 모바일 반응형 헤더/매뉴얼 버튼 완비.
+  3. **독립 비주얼 가이드북 (`app/guide/page.tsx`) 전면 신설**:
+     - 4단계 분석 & 생성 파이프라인 다이어그램.
+     - 16대 MBTI 오리지널 캐릭터 매트릭스 도감 표 (유형 코드, 이름, 역할/설정, 시그니처 대사, 대표 특성 등 16인 전원 수록).
+     - 캐릭터 생성 극대화 7대 황금 수칙 카드 (직관 응답, 일상 모습 반영, API 키 사전 연동, 화풍 세팅, 시그니처 대사 음미, SNS 카드 공유, 주기적 재검사).
+     - 자주 묻는 질문 (FAQ 5종) 인터랙티브 아코디언 컴포넌트 탑재.
+  4. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `mbti-character/package.json` (`1.20.0`), `mbti-character/lib/version.ts` (`v1.20`), Supabase DB `programs` 테이블 (`v1.20`) 동기화 완료 (`scripts/update_mbti_character_version.cjs`).
+  5. **로컬 무결성 검증 통과**:
+     - Next.js 14.2.35 프로덕션 빌드 성공 (정적 페이지 9개 무오류 컴파일 통과, exit code 0).
+  6. **Vercel 프로덕션 배포 완료**:
+     - `https://mbti-character-ao57gtlq8-buylife.vercel.app` (Alias: `https://mbti-character.buylife.xyz`).
+     - ReadyState: `READY` 배포 완료. 도메인 응답 확인 완료.
+  7. **Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수 완료**:
+     - `scripts/verify_edge_mbti_character_v120.cjs` 스크립트를 통해 실세션 캡처 7종 수집 완료:
+       - 데스크톱 메인 스튜디오 (`edge_mbti_desktop_main_v120.png`)
+       - 데스크톱 3대 KPI 카드 (`edge_mbti_desktop_kpi_v120.png`)
+       - 데스크톱 4단계 파이프라인 바 & 연동 (`edge_mbti_desktop_pipeline_v120.png`)
+       - 데스크톱 가이드북 상단 (`edge_mbti_desktop_guide_v120.png`)
+       - 데스크톱 16대 캐릭터 매트릭스 도감 & 황금수칙 (`edge_mbti_desktop_guide_matrix_v120.png`)
+       - 모바일 메인 스튜디오 (`edge_mbti_mobile_main_v120.png`)
+       - 모바일 가이드북 & FAQ (`edge_mbti_mobile_guide_v120.png`)
+     - 사용자 실시간 확인을 위해 Microsoft Edge 브라우저 창을 최전면 포그라운드로 10분간(600초) 띄워 유지.
+- **문서**: `mbti-character/docs/DESIGN_HANDOFF.md`, `mbti-character/docs/IMPROVEMENTS.md`, `mbti-character/docs/IMPROVEMENT_HANDOFF_20261019.md`, `mbti-character/AGENTS.md`, `mbti-character/README.md`
+- **링크**: https://mbti-character.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 문서번역 자동화(document-translator) v1.20: 포커스 스튜디오 소프트 크림 에디션 리뉴얼·사이드바 개편·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 79개 완료 / 95.2% 달성!)
 
 - **대상**: `document-translator/` (https://document-translator.buylife.xyz, slug: `document-translator`, 64번)
