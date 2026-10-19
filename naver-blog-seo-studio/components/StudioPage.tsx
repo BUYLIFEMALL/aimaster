@@ -38,7 +38,7 @@ export default function StudioPage({ email }: { email: string }) {
 
         {activeMenu === "history" && <HistoryView s={s} />}
 
-        <div className="notice workspace-notice" role="status">{message}</div>
+        {message && <div className="notice workspace-notice" role="status">{message}</div>}
         {categoryManageOpen && <CategoryManagerModal categories={seoCategories} counts={historyCategoryCounts} onSave={saveSeoCategories} onClose={() => setCategoryManageOpen(false)} />}
       </main>
     </div>

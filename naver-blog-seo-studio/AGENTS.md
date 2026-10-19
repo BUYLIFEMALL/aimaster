@@ -126,6 +126,11 @@
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
 
+## 2026-10-20 v1.76 — 대시보드 상태 안내 초기값 수정 (Claude Code 윈도우)
+- 원장 #18: `useStudio.ts` `message` 초기값을 빈 문자열로, `StudioPage.tsx`는 안내가 있을 때만 `.workspace-notice` 표시. 기록이 있어도 「아직 생성된 블로그(원문)이 없습니다.」가 보이던 문제.
+- 버전 v1.76(코드·manifest 1.76.0·ZIP·DB, `20261020160000_bump_version_v1_76.sql`, ref `esgxyikcnnvmlhygjkth`), `check-extension-release` OK. 검수: tsc 0 · 테스트 39 통과(1 건너뜀) · build · 배포 `naver-blog-seo-studio-lrsl9fczp` Ready · 크롬: v1.76, 목록 2건일 때 안내 상자 없음.
+- 같은 날 다른 프로그램 GPT-5 계열 점검 결과는 루트 `docs/HANDOFF.md` 맨 위 항목 참고.
+
 ## 2026-10-20 v1.75 — GPT-5 계열 생성 400 수정·여러 단어 키워드 점검·휴대폰 목록 넘침 (Claude Code 윈도우)
 - **원장 #14 수정**: GPT-5·GPT-6·o 계열은 OpenAI가 `temperature` 지정을 거부(400). `lib/ai/openaiModels.ts`에 `openAITemperature(model, t)`(이 계열이면 온도 제외)·`openAIErrorReason(response)`(OpenAI 거부 이유를 「— OpenAI 안내: …」로 덧붙임) 추가, OpenAI 호출 6곳(`generator.ts`·`contentJson.ts`·`contentVisuals.ts`·`drafts/analyze`·`drafts/optimize`·`titles/recommend`)에 적용. 새 OpenAI 호출을 만들 때도 이 두 함수를 쓴다.
 - **원장 #16**: `lib/seoQuality.ts` 여러 단어 키워드는 단어가 모두 있으면 포함(「단어별로 포함됨」), 반복 횟수는 통째 횟수와 단어별 최소 횟수 중 큰 값.

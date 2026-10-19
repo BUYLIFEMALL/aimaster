@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — GPT-5 계열 오류 다른 프로그램 점검(코드 변경 없음) + SEO 스튜디오 v1.76
+- 점검: GPT-5·GPT-6 계열을 고를 수 있는 19개 프로그램의 OpenAI 호출을 확인. **온도**: SEO 스튜디오 외에는 문제 없음(이미 `gpt-4` 계열일 때만 지정하거나, 고정 모델 `gpt-4o-mini`·Perplexity·Gemini 호출).
+- **발견(미수정)**: `threads-affiliate-poster/src/lib/ai/generator.ts:182` OpenAI 호출이 `max_tokens: 600`을 보냄. GPT-5 계열은 `max_tokens`를 거부하고 `max_completion_tokens`를 요구하므로, 회원이 GPT-5.6·GPT-6 모델(선택지 6개)을 고르면 글 생성이 400으로 실패할 가능성이 높음(실호출로는 미확인). 이 폴더는 다른 Claude Code 세션의 회원 연동 ④단계 공용 사본 동기화와 겹쳐 손대지 않았음 → 그 작업이 끝난 뒤 처리. 고칠 때는 추론 모델이 출력 한도를 생각 단계에서 다 써서 빈 응답이 나지 않도록 한도를 넉넉히(또는 생략) 둘 것.
+- SEO 스튜디오 v1.76: 원장 #18 수정, 배포 `naver-blog-seo-studio-lrsl9fczp` Ready, DB·확장 v1.76 OK. https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 인스타 자동 포스팅 확대 2단계: AI 인플루언서 v1.15 예약 게시·게시 기록
 - 한 일: `ai-influencer-studio` v1.14 → **v1.15**. 게시 패널에 「지금 게시 / 예약 게시」·예약 실행 상태 줄·최근 30일 게시 기록(예약 취소), 「🔑 API키등록·플랫폼연동」 창에 「⏰ 예약 발행」(Vercel 기본 / 내 cron-job.org + 공용 키 한 줄). 기준: 카드뉴스 v1.19·v1.24 사본. 플랜 `ai-influencer-studio/docs/PLAN_20261020_INSTA_SCHEDULE.md`, 상세 `ai-influencer-studio/AGENTS.md` v1.15.
 - 운영 변경(주인님 승인 「진행해줘」): DB ref `esgxyikcnnvmlhygjkth` 표 `aif_insta_posts`·`aif_member_scheduler` 추가 + version v1.15(크롬 SQL Editor), Vercel `ai-influencer-studio` 환경변수 `CRON_SECRET` 추가, `vercel.json` crons 5분.

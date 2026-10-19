@@ -14,7 +14,7 @@ export function useStudio() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [topic, setTopic] = useState("");
   const [keywords, setKeywords] = useState("");
-  const [message, setMessage] = useState("아직 생성된 블로그(원문)이 없습니다.");
+  const [message, setMessage] = useState(""); // v1.76 처음엔 안내 없음(기록이 있어도 「없습니다」가 보이던 문제, 원장 #18)
   const [pending, setPending] = useState(false);
   const [titlePending, setTitlePending] = useState(false);
   const [recommendedTitles, setRecommendedTitles] = useState<RecommendedTitle[]>([]);
