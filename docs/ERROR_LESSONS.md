@@ -1,5 +1,15 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — `<input type="datetime-local">` 값을 그대로 서버 액션에 보내면 서버(UTC)가 UTC로 읽어 예약이 9시간 늦어진다 (threads-content-ops 보관함, Claude Code 윈도우)
+- 증상: 19:31(한국)로 예약했는데 DB `scheduled_at`이 `19:31+00`(= 한국 다음 날 04:31).
+- 원인: `DraftComposer`가 `"2026-10-19T19:31"`(시간대 없음)을 전송 → 서버 `new Date()`가 서버 시간대(UTC)로 해석. 같은 프로그램의 콘텐츠 생성 화면은 브라우저에서 `toISOString()`으로 바꿔 보내 정상이었음.
+- 해결: 브라우저에서 `new Date(value).toISOString()`으로 변환해 전송(`threads-content-ops/app/threads-content-ops/DraftComposer.tsx` `toIsoOrRaw`).
+- 다음부터: 날짜·시각 입력을 서버로 보낼 때는 항상 브라우저에서 ISO(시간대 포함)로 바꾼다. 점검: `datetime-local`을 쓰는 화면에서 서버로 넘기는 값이 `toISOString()`을 거치는지 검색. 키트 사본(`labs/kit-threads`)도 같은 버그.
+
+## 2026-10-19 — cron-job.org 무료는 응답 30초 초과를 실패로 보고, 실패 25회 넘으면 작업을 자동으로 끈다 → 외부 스케줄러가 부르는 주소는 즉시 응답 + `waitUntil` (threads-content-ops v2.07, Claude Code 윈도우)
+- 위험: 이미지·영상 Threads 발행은 처리 대기로 30초를 넘길 수 있어 실패가 쌓이면 회원 예약이 조용히 멈춘다.
+- 해결: `dispatch-member`가 `{accepted:true}`를 바로 돌려주고 발행은 `waitUntil`(`@vercel/functions`, Next 14엔 `after` 없음)로 이어서 처리. 예약 때마다 cron-job.org 작업 실제 상태를 확인해 다시 켬. 지침: `docs/SCHEDULER_POLICY.md` §3.
+
 ## 2026-10-19 — 운영 DB `user_api_keys_provider_check` 정의는 `ARRAY['a'::text,…]`가 아니라 `'{a,b,…}'::text[]` 형식이다 → 허용 목록에 값을 넣는 SQL은 두 형식을 모두 처리 (threads-content-ops v2.07, Claude Code 윈도우)
 - 증상: 현재 정의를 읽어 끝의 `]))`를 바꿔 값을 덧붙이는 DO 블록이 「unexpected constraint format」으로 중단(형식 검사를 넣어 둬서 아무것도 바뀌지 않음).
 - 원인: `pg_get_constraintdef`가 운영 DB에서는 `CHECK ((provider = ANY ('{…}'::text[])))`로 돌려줌(키트·새 DB는 `ARRAY[...]` 형식).

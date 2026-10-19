@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { dispatchDueScheduledPosts } from "@/threads-content-ops/lib/scheduledDispatch";
 import { memberIdForToken, stopMemberSchedulerIfIdle } from "@/threads-content-ops/lib/memberScheduler";
@@ -18,14 +19,15 @@ async function handle(request: NextRequest) {
   const userId = token ? await memberIdForToken(service, token) : null;
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  try {
-    const summary = await dispatchDueScheduledPosts(service, { onlyUserId: userId });
-    // 남은 예약이 없으면 회원 cron-job.org 작업을 끈다(다음 예약 때 자동으로 다시 켜짐). 실패해도 발행 결과는 그대로 돌려준다.
-    const stopped = await stopMemberSchedulerIfIdle(service, userId).catch(() => false);
-    return NextResponse.json({ ...summary, stopped });
-  } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "dispatch failed" }, { status: 500 });
-  }
+  // cron-job.org는 30초 안에 응답이 없으면 실패로 기록하고, 실패가 25번 넘으면 작업을 자동으로 끈다(무료 규칙).
+  // 이미지·영상 발행은 30초를 넘길 수 있으므로 곧바로 「받았음」으로 응답하고, 발행은 응답 뒤 이어서 처리한다(waitUntil).
+  // 다음 호출과 겹쳐도 글마다 scheduled → publishing을 먼저 가져간 실행만 발행하므로 중복 발행은 없다.
+  waitUntil((async () => {
+    await dispatchDueScheduledPosts(service, { onlyUserId: userId });
+    // 남은 예약이 없으면 회원 cron-job.org 작업을 끈다(다음 예약 때 자동으로 다시 켜짐).
+    await stopMemberSchedulerIfIdle(service, userId);
+  })().catch((error) => console.error("[dispatch-member]", error instanceof Error ? error.message : error)));
+  return NextResponse.json({ accepted: true });
 }
 
 export async function GET(request: NextRequest) {

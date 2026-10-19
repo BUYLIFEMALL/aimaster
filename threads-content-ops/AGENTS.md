@@ -642,3 +642,9 @@
 - **파일**: `lib/cronJobOrg.ts`, `lib/memberScheduler.ts`, `lib/scheduledDispatch.ts`(옵션 3개), `app/api/threads-content-ops/dispatch-member/route.ts`, `dispatch-scheduled/route.ts`, `web-actions.ts`(scheduleDraft·키 저장/삭제·일시정지/재개), `WebSetup.tsx`, `SchedulePublishingControl.tsx`, `page.tsx`, `AttentionComposer.tsx`·`UsageGuide.tsx` 문구, `tests/draft-actions.test.cjs`(모의 보강 + 새 테스트 2개).
 - **검수**: `tsc` 0건, 테스트 30/30, 빌드 성공, 배포 `threads-content-8x0xk35eg` Ready, DB `programs.version = 'v2.07'`, 실행 주소 토큰 없음/틀림 401, 배포 후 5분 오류 로그 0건, 크롬: 설정 칸·보관함 상태 줄 표시 확인.
 - **남은 일(다음 첫 단계)**: 주인님(또는 테스트 회원)이 설정에 cron-job.org 키 등록 → 글 하나 몇 분 뒤로 예약 → cron-job.org 콘솔에 「AIMaster Threads 운영 자동화 예약 발행(1분)」 작업 생성 확인 → 시각에 자동 발행(실제 공개 글) → 남은 예약 0건이면 작업 꺼짐 확인 → 일시정지·재개 확인. 이후 나머지 프로그램 적용(지침 §8).
+
+### 2026-10-19 v2.07 추가 수정·실검수 (같은 작업 단위, 2번째 배포 `threads-content-cjc07xb81`)
+- **보관함 예약 시각 9시간 늦음(기존 버그)**: `DraftComposer`가 `datetime-local` 값을 시간대 없이 보내 서버(UTC)가 UTC로 해석 → 브라우저에서 ISO로 변환해 전송(`toIsoOrRaw`). 콘텐츠 생성 화면은 원래 ISO라 정상.
+- **cron-job.org 무료 규칙 대비**: 응답 30초 초과=실패, 실패 25회 넘으면 작업 자동 정지 → `dispatch-member`가 즉시 응답하고 발행은 `waitUntil`(`@vercel/functions@1.5.2` 추가)로 이어서 처리. `ensureMemberSchedulerRunning`은 예약 때마다 cron-job.org 실제 상태 확인 후 켬.
+- **실검수(주인님 cron-job.org 키, 관리자 계정)**: 예약 → 작업 자동 생성(8676408) → 예약 취소 후 약 50초에 자동 꺼짐(`active=false`) → 재예약(19:34, DB `10:34Z` 정상) 시 같은 작업 자동 재가동 → **19:34:18 자동 발행**(https://www.threads.com/@buylife.co.kr/post/DerDePglQ1P) → 2초 뒤 자동 꺼짐 → 일시정지(「일시정지됨」)·재개(「대기」) 정상. 테스트 30/30, tsc 0, 빌드 성공.
+- 남은 일: 키트(`labs/kit-threads`) 같은 기준 정리(같은 `DraftComposer` 9시간 버그도 있음), 나머지 프로그램 적용(지침 §8).

@@ -64,13 +64,13 @@ export async function memberIdForToken(service: SupabaseClient, token: string): 
 }
 
 /**
- * 예약 직후 호출: 회원 cron-job.org 작업이 켜져 있게 만든다. 이미 켜져 있으면 cron-job.org를 부르지 않는다(하루 100회 한도 절약).
+ * 예약 직후 호출: 회원 cron-job.org 작업이 실제로 켜져 있게 만든다(예약 1건당 cron-job.org 호출 1~2회, 하루 100회 한도 안).
  * 일시정지 중이면 켜지 않고 paused를 돌려준다.
  */
 export async function ensureMemberSchedulerRunning(service: SupabaseClient, userId: string, apiKey: string): Promise<{ paused: boolean }> {
   const row = await schedulerRow(service, userId);
   if (row?.paused) return { paused: true };
-  if (row?.active) return { paused: false };
+  // DB에 켜짐으로 적혀 있어도 cron-job.org가 실패 25회 뒤 작업을 자동으로 껐을 수 있어, 예약할 때마다 실제 상태를 확인해 켠다(GET 1회 + 필요 시 PATCH).
   const url = memberDispatchUrl();
   if (row && (await setDispatchJobEnabled(apiKey, url, true))) {
     await service.from(SCHEDULER_TABLE).update({ active: true, updated_at: new Date().toISOString() }).eq("user_id", userId);

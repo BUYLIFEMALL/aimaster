@@ -118,7 +118,7 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
     if (intent === "publish" && !window.confirm(`이 콘텐츠를 ${account?.username ? `@${account.username}` : "연결된 계정"}에 지금 포스팅하시겠습니까?`)) return;
     setPending(intent);
     try {
-      const ok = await onRun(() => runDraftAction({ draftId: draft.id, intent, body, scheduledAt: intent === "schedule" ? scheduledAt : undefined }), success);
+      const ok = await onRun(() => runDraftAction({ draftId: draft.id, intent, body, scheduledAt: intent === "schedule" ? toIsoOrRaw(scheduledAt) : undefined }), success);
       if (ok) setEditing(false);
     } finally { setPending(null); }
   };
@@ -167,4 +167,11 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
       {draft.status === "failed" && <button type="button" className={`${buttonClass} inline-flex items-center gap-1`} disabled={busy} onClick={() => void submit("retry", "검토 대기로 되돌렸습니다. 수정 버튼으로 내용을 확인한 뒤 다시 발행하세요.")}><RotateCcw size={12} />재검토·재시도</button>}
     </div>
   </article>;
+}
+
+// 예약 시각 입력값(datetime-local, 시간대 없음)을 브라우저(회원) 시간대 기준 ISO로 바꿔 보낸다.
+// 시간대 없이 보내면 서버(UTC)가 UTC로 읽어 한국 시각보다 9시간 늦게 예약되던 버그 수정(v2.07, 2026-10-19).
+function toIsoOrRaw(value: string): string {
+  const at = new Date(value);
+  return Number.isNaN(at.getTime()) ? value : at.toISOString();
 }

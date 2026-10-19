@@ -36,7 +36,7 @@
 
 
 - **지침(모든 CLI 필독)**: [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) — 회원은 설정에 cron-job.org 키 한 줄만, 예약은 포스팅 쪽에서만, 1분 확인 고정 + 예약 시 자동 켜기·남은 예약 0건이면 자동 끄기, 보관함 일시정지·재개, 회원 전용 토큰(사이트 비밀값 금지), 운영자 `crons`는 관리자 지정 시에만. 루트 `CLAUDE.md` 원칙 26·`AGENTS.md` 원칙 25로 연결. 전체 프로그램 검토: [`docs/MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md`](MEMBER_CRONJOB_SCHEDULER_REVIEW_20261019.md).
-- **threads-content-ops v2.07**: 배포 `threads-content-8x0xk35eg` Ready, 운영 DB(허용 목록 `cronjob_org_api_key` + `tco_member_scheduler`) 반영, 테스트 30/30, 크롬 화면 확인. **실제 cron-job.org 연결·자동 발행 실검수는 주인님 키 등록 후 남음.** 상세: [`threads-content-ops/AGENTS.md`](../threads-content-ops/AGENTS.md) 맨 아래.
+- **threads-content-ops v2.07**: 배포 `threads-content-8x0xk35eg` Ready, 운영 DB(허용 목록 `cronjob_org_api_key` + `tco_member_scheduler`) 반영, 테스트 30/30. **주인님 키로 실검수 완료**: 예약 → cron-job.org 작업 자동 생성·켜기 → 19:34 예약이 19:34:18 자동 발행 → 남은 예약 0건에 자동 꺼짐 → 일시정지·재개 정상. 같은 작업에서 보관함 예약 시각 9시간 늦음(기존 버그)·cron-job.org 30초 시간 초과 대비(`waitUntil`) 수정(2번째 배포 `threads-content-cjc07xb81`). 상세: [`threads-content-ops/AGENTS.md`](../threads-content-ops/AGENTS.md) 맨 아래.
 - agy 1차안(키트 설정 화면의 주기 선택·켜기/끄기, `threads-content-ops/docs/HANDOFF_MEMBER_CRONJOB_INTERVAL_TOGGLE.md`)은 포스팅 쪽 예약과 중복·충돌해 주인님 지시로 정리됨 → 키트(`labs/kit-threads`)도 이 지침으로 맞출 예정(진행 중).
 - https://threads-content-ops.buylife.xyz
 
