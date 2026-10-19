@@ -10,5 +10,6 @@ alter table public.user_api_keys add constraint user_api_keys_provider_check
     'coupang_access_key', 'coupang_secret_key',
     'aliexpress_app_key', 'aliexpress_app_secret', 'aliexpress_tracking_id',
     'toss_access_key', 'toss_secret_key', 'toss_publisher_id',
-    'threads_app_id', 'threads_app_secret'
+    'threads_app_id', 'threads_app_secret',
+    'cronjob_org_api_key' -- 예약 발행 「내 cron-job.org」(v1.63, 복제본 기본 방식 — docs/SCHEDULER_POLICY.md)
   ]));

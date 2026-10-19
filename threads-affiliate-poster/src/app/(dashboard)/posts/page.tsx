@@ -7,6 +7,10 @@ import { DeleteButton } from "@/components/posts/DeleteButton";
 import { POST_STATUS_LABELS, type PostStatus } from "@/types/post";
 import { deletePostAction } from "@/lib/actions/posts";
 import { getRemainingRetentionTime } from "@/lib/mediaRetention";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/posts/memberScheduler";
+import { SchedulePublishingControl } from "@/components/posts/SchedulePublishingControl";
 
 const FILTERS: Array<{ value: PostStatus | "all"; label: string }> = [
   { value: "all", label: "전체" },
@@ -42,6 +46,8 @@ export default async function PostsPage({
   }
 
   const { data: posts } = await query;
+  // 예약 발행 실행 방식·상태(v1.63). 지침: 루트 docs/SCHEDULER_POLICY.md
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -51,6 +57,8 @@ export default async function PostsPage({
           <Button>새 게시글 작성</Button>
         </Link>
       </div>
+
+      <SchedulePublishingControl initial={scheduler} />
 
       {/* 30일 자동 삭제 안내 배너 */}
       <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-200/90 bg-amber-50/80 p-3.5 text-xs text-amber-950 shadow-2xs">

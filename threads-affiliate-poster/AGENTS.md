@@ -562,3 +562,12 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-19 v1.63 — 예약 발행 실행 방식 회원 선택(Vercel / 본인 cron-job.org) + 중복 발행 방지 (Claude Code 윈도우, 주인님 지시)
+- 지침: 루트 [`docs/SCHEDULER_POLICY.md`](../docs/SCHEDULER_POLICY.md) — 기준 구현 `threads-content-ops` v2.08을 이 프로그램에 맞춰 적용. 운영 기본 Vercel, 복제본(`NEXT_PUBLIC_STANDALONE_MODE=true`) 기본 cron-job.org.
+- 화면: 설정 「⏰ 예약 발행」(실행 방식 라디오 `components/settings/SchedulerModePicker.tsx` + cron-job.org 키 `ApiKeyRow`, 공용 provider `cronjob_org_api_key` — Threads 운영 자동화에 넣은 키가 그대로 「등록됨」), 게시글 목록 위 상태 줄·전체 일시정지/재개(`components/posts/SchedulePublishingControl.tsx`).
+- 코드: `src/lib/posts/cronJobOrg.ts`·`memberScheduler.ts`(표 `tap_member_scheduler`, 토큰 `tap_…`, 환경변수 `TAP_PLATFORM_SCHEDULER`), `src/lib/actions/scheduler.ts`(방식 선택·일시정지·재개), `actions/posts.ts` create/update에 예약 전 방식 확인·예약 뒤 작업 켜기(실패 시 초안으로 되돌림), `actions/settings.ts` 키 변경(방식 유지)·삭제(운영은 Vercel로) 처리, 새 주소 `/api/posts/dispatch-member`(회원 토큰, 즉시 응답 + `after`로 발행, 남은 예약 0건이면 작업 끔), `/api/posts/dispatch-scheduled`는 vercel·비일시정지 회원만.
+- **중복 발행 방지(새로 추가)**: `dispatch.ts`가 글마다 `scheduled → publishing` 조건부 update로 먼저 가져간 실행만 발행(예전엔 없어서 호출이 겹치면 두 번 올라갈 수 있었음). 회원 실행에도 핸드폰 필수 정책 적용.
+- 운영 DB(`esgxyikcnnvmlhygjkth`): `tap_member_scheduler` 생성(RLS 본인 조회) — `supabase/migrations/20261019220000_tap_member_scheduler.sql`. 복제 키트: `clone-kit/database/99_finalize.sql` 허용 목록에 `cronjob_org_api_key`, `clone-kit/README.md` 8장·`env.example` 갱신.
+- 검수: tsc 0, `test:naver-key` 통과, 빌드(`/api/posts/dispatch-member` 포함), 배포 `threads-affiliate-poster-iew3xqyvl`, DB v1.63, 두 실행 주소 무인증 401, 15분 오류 로그 0. 크롬(관리자): 설정 v1.63·Vercel 기본·공용 키 「등록됨」 → 「내 cron-job.org」 전환 → 게시글 목록 「내 cron-job.org 대기」 → 상품 선택 후 시험 글 이틀 뒤 예약 → 작업 자동 생성(8676864)·켜짐, DB 예약 시각 KST 정상 → 임시저장으로 초안 복귀 → 약 10초에 작업 자동 꺼짐 → 방식 Vercel로 원복. 시험 글은 초안 상태로 남아 있음(30일 뒤 자동 삭제). 실제 자동 발행은 기준 구현(threads-content-ops)에서 확인됨.
+- 이번 배포에 2026-10-18 미배포 항목(예약 화면 「예약 시각 후 1분 안에 자동으로 발행됩니다」 안내)도 함께 나감. 린트는 이 폴더에서 설정 파일 인식 문제로 실행 못 함(타입 검사·빌드로 대체).

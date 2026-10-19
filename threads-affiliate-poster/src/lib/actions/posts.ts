@@ -8,6 +8,9 @@ import { postFormSchema } from "@/lib/validation";
 import { publishPost } from "@/lib/posts/publish-core";
 import { dispatchScheduledPostsForUser } from "@/lib/posts/dispatch";
 import { extractStoragePathFromUrl } from "@/lib/mediaRetention";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled } from "@/lib/posts/memberScheduler";
 
 export interface PostActionState {
   error?: string;
@@ -43,6 +46,34 @@ function parsePostForm(formData: FormData) {
   });
 }
 
+/**
+ * 예약 전 확인(v1.63): 회원이 고른 실행 방식이 준비됐는가. 「내 cron-job.org」면 본인 키를 돌려준다(예약 뒤 작업을 켜는 데 씀).
+ * 지침: 루트 docs/SCHEDULER_POLICY.md
+ */
+async function checkScheduleReady(userId: string): Promise<{ error?: string; cronjobKey: string | null }> {
+  const service = createAdminClient() as unknown as SupabaseClient;
+  const mode = await memberSchedulerMode(service, userId);
+  if (mode === "cronjob") {
+    const key = await memberCronjobKey(service, userId);
+    if (!key) return { cronjobKey: null, error: "「내 cron-job.org」 방식은 API 키가 필요합니다. 설정 → ⏰ 예약 발행에서 키를 등록하거나 「Vercel 예약 호출」을 선택해 주세요." };
+    return { cronjobKey: key };
+  }
+  if (!platformSchedulerEnabled()) return { cronjobKey: null, error: "이 사이트는 Vercel 예약 호출이 꺼져 있습니다. 설정 → ⏰ 예약 발행에서 「내 cron-job.org」를 선택하고 키를 등록해 주세요." };
+  return { cronjobKey: null };
+}
+
+/** 예약 저장 뒤: 「내 cron-job.org」 회원이면 회원 작업을 켠다. 실패하면 예약을 초안으로 되돌리고 오류를 돌려준다. */
+async function startMemberScheduler(supabase: Awaited<ReturnType<typeof createClient>>, userId: string, postId: string, cronjobKey: string | null): Promise<string | null> {
+  if (!cronjobKey) return null;
+  try {
+    await ensureMemberSchedulerRunning(createAdminClient() as unknown as SupabaseClient, userId, cronjobKey);
+    return null;
+  } catch (err) {
+    await supabase.from("tap_posts").update({ status: "draft", scheduled_at: null }).eq("id", postId).eq("user_id", userId).eq("status", "scheduled");
+    return `예약 실행 작업을 켜지 못해 예약을 취소하고 초안으로 저장했습니다. ${err instanceof Error ? err.message : ""}`.trim();
+  }
+}
+
 export async function createPostAction(
   _prevState: PostActionState,
   formData: FormData,
@@ -57,6 +88,8 @@ export async function createPostAction(
   const { content, imageUrl, videoUrl, publishMode, scheduledAt, productId } = parsed.data;
 
   const status = publishMode === "now" ? "draft" : publishMode === "schedule" ? "scheduled" : "draft";
+  const schedule = publishMode === "schedule" ? await checkScheduleReady(user.id) : null;
+  if (schedule?.error) return { error: schedule.error };
 
   const { data: inserted, error } = await supabase
     .from("tap_posts")
@@ -74,6 +107,11 @@ export async function createPostAction(
 
   if (error || !inserted) {
     return { error: error?.message ?? "게시글 저장에 실패했습니다." };
+  }
+
+  if (schedule) {
+    const scheduleError = await startMemberScheduler(supabase, user.id, inserted.id, schedule.cronjobKey);
+    if (scheduleError) return { error: scheduleError };
   }
 
   if (publishMode === "now") {
@@ -125,6 +163,8 @@ export async function updatePostAction(
   }
 
   const status = publishMode === "schedule" ? "scheduled" : "draft";
+  const schedule = publishMode === "schedule" ? await checkScheduleReady(user.id) : null;
+  if (schedule?.error) return { error: schedule.error };
 
   const { error } = await supabase
     .from("tap_posts")
@@ -140,6 +180,11 @@ export async function updatePostAction(
 
   if (error) {
     return { error: error.message };
+  }
+
+  if (schedule) {
+    const scheduleError = await startMemberScheduler(supabase, user.id, postId, schedule.cronjobKey);
+    if (scheduleError) return { error: scheduleError };
   }
 
   if (publishMode === "now") {

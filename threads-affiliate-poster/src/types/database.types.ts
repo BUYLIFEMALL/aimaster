@@ -15,7 +15,8 @@ export type ApiKeyProvider =
   | "threads_app_id"
   | "threads_app_secret"
   | "naver_client_id"
-  | "naver_client_secret";
+  | "naver_client_secret"
+  | "cronjob_org_api_key";
 export type AffiliatePlatform = "coupang" | "aliexpress" | "naver" | "toss";
 export type AffiliateInputMode = "url" | "manual";
 

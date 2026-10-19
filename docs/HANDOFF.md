@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — 쓰레드 쇼핑제휴(threads-affiliate-poster) v1.63: 예약 발행 실행 방식 회원 선택 + 중복 발행 방지
+
+- 지침 [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) 1순위 두 번째 적용(기준 threads-content-ops v2.08). 운영 기본 Vercel, 복제본 기본 cron-job.org. 예약 실행기에 중복 발행 방지(조건부 상태 변경) 새로 추가.
+- 배포 `threads-affiliate-poster-iew3xqyvl`, 운영 DB `tap_member_scheduler`·v1.63, 크롬 실검수(작업 자동 생성·자동 꺼짐·공용 키 재사용). 상세: [`threads-affiliate-poster/AGENTS.md`](../threads-affiliate-poster/AGENTS.md) 맨 아래.
+- 다음: `threads`(쓰레드 자동포스팅) → `insta_auto_poster` → `cardnews-studio` → `naver-cafe-poster` → `kakao_auto_poster`.
+- https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — 예약 발행 실행 방식 회원 선택(Vercel / cron-job.org): 운영 threads-content-ops v2.08(기본 Vercel) + 키트(기본 cron-job.org)
 
 - 주인님 결정·근거·동작: [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) §1·§3(변경 이력 포함). 설정 「⏰ 예약 발행」 라디오 + cron-job.org 키 한 줄, 운영자 Vercel 호출은 vercel 회원만, cron-job.org 회원은 회원 토큰 호출.

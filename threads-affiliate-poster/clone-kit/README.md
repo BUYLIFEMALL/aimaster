@@ -29,7 +29,7 @@
 | Vercel 계정 | 웹 서버 | https://vercel.com (예약 게시를 많이 쓰면 Pro 권장) |
 | Node.js 20 이상 | 내 컴퓨터에서 빌드 확인 | https://nodejs.org |
 | Meta 개발자 계정 | 회원마다 본인 Threads 앱 | 회원이 각자 만듭니다 (6단계) |
-| (선택) cron-job.org | 예약 게시 실행 | 무료 |
+| cron-job.org | 예약 게시 실행(회원 각자, 복제본 기본 방식) | 무료 |
 | (선택) 네이버 클라우드 API HUB | 검색어 트렌드 차트 | 운영자 키 |
 | (선택) Fixie | 토스 쉐어링크(고정 IP 필요) | 운영자 계정 |
 
@@ -148,7 +148,7 @@ vercel deploy --prod
 3. **API키등록·플랫폼연동** 화면에서 OpenAI(또는 Gemini/Claude) 키 저장 → 새로고침해도 남아 있는지
 4. 쿠팡 등 제휴 키 저장 → **상품 관리**에서 상품 등록 → 제휴 링크가 만들어지는지
 5. Threads 연동 (아래 7단계) → **게시글 관리**에서 새 글 작성 → AI 캡션·이미지 생성 → 즉시 게시
-6. 예약 게시 1건 등록 → 크론(8단계)이 돌면 게시되는지
+6. 설정 ⏰ 예약 발행에 cron-job.org 키 저장 → 예약 게시 1건 등록 → 시각에 게시되는지(8단계)
 7. **트렌드 & 떡상 탐지기**: 키워드 검색(Meta 앱 심사 전에는 본인 글만), 떡상글 직접 가져오기, 찜 보관함
 
 ---
@@ -173,12 +173,27 @@ vercel deploy --prod
 
 ---
 
-## 8. 예약 게시 크론
+## 8. 예약 게시 실행 (v1.63 — 회원이 방식 선택, 복제본 기본은 cron-job.org)
 
-cron-job.org → Create cronjob
+예약 글은 1분마다 「올릴 시각이 된 글」을 확인해 주는 곳이 있어야 올라갑니다. Vercel 무료(Hobby)는 자동 실행이 하루 1번뿐이라 이 확인을 할 수 없습니다.
+
+**기본(권장) — 회원 각자 본인 cron-job.org**
+- 운영자가 따로 할 일은 없습니다. 회원이 설정 → **⏰ 예약 발행**에서 「내 cron-job.org · 기본값」을 확인하고, 본인 cron-job.org API 키(콘솔 Settings → API → Create API key, IP 제한 끄기)를 저장하면 됩니다.
+- 회원이 예약하면 프로그램이 그 회원의 cron-job.org에 1분 작업을 자동으로 만들고 켜며(회원 전용 토큰, `/api/posts/dispatch-member`), 남은 예약이 없으면 자동으로 끕니다.
+
+**선택 — 사이트 단위 예약 호출(Vercel Pro 등)**
+- Vercel Pro라면 `vercel.json`의 `crons`에 `{ "path": "/api/posts/dispatch-scheduled", "schedule": "* * * * *" }`를 넣거나, 운영자 본인 cron-job.org에 아래 작업을 1개 만듭니다.
 
 | 항목 | 값 |
 |---|---|
+| URL | `https://<복제본 주소>/api/posts/dispatch-scheduled` |
+| 실행 간격 | 1분 |
+| Headers | `Authorization: Bearer <CRON_SECRET 값>` |
+
+- 그리고 Vercel 환경변수 **`TAP_PLATFORM_SCHEDULER=on`** 을 추가해 다시 배포해야 회원 설정에 「Vercel 예약 호출」 선택지가 열립니다(이 방식을 고른 회원은 키 없이 예약). 고르지 않은 회원은 기본 cron-job.org 그대로입니다.
+- 응답이 401이면 `CRON_SECRET` 값이 Vercel 환경변수와 다른 것입니다. 상세 규칙: AIMaster `docs/SCHEDULER_POLICY.md`.
+
+---|---|
 | URL | `https://<복제본 주소>/api/posts/dispatch-scheduled` |
 | 실행 간격 | 1~5분 |
 | Request method | POST |
@@ -207,7 +222,7 @@ cron-job.org → Create cronjob
 | Threads 연결 시 "앱 ID를 인식할 수 없음"/4476002 | 앱 ID 칸에 일반 앱 ID를 넣음 → "Threads 앱 ID"로 교체 |
 | Threads 연결 후 원래 화면으로 안 돌아옴 | `NEXT_PUBLIC_SITE_URL`과 Meta 리디렉션 콜백 URL의 주소가 서로 다름 |
 | 이미지 생성은 되는데 게시 실패 | `post-images` 버킷이 Public이 아님 |
-| 예약 글이 게시되지 않음 | 크론 미등록, 또는 Authorization 헤더 값 불일치 |
+| 예약 글이 게시되지 않음 | 회원 cron-job.org 키 미등록·IP 제한 켜짐, 또는 사이트 단위 호출을 쓰는데 `TAP_PLATFORM_SCHEDULER=on` 누락·Authorization 값 불일치 |
 | 토스 상품 조회 실패 | `FIXIE_URL` 미설정 (토스는 등록된 고정 IP만 허용) |
 
 ---

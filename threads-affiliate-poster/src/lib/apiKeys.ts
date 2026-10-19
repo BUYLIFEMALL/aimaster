@@ -19,6 +19,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   toss_access_key: "토스쇼핑 쉐어링크 Access Key (Open API 연동 정보)",
   toss_secret_key: "토스쇼핑 쉐어링크 Secret Key (Open API 연동 정보)",
   toss_publisher_id: "회원 연동 ID",
+  cronjob_org_api_key: "cron-job.org API 키 (「내 cron-job.org」 예약 실행용)",
 };
 
 export async function getUserApiKey(
