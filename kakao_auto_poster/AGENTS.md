@@ -240,3 +240,7 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 
 ## 2026-10-20 v1.22 — 정기 생성 직전 프로그램 이용 권한 확인 (Claude Code 윈도우)
 - **v1.22 (2026-10-20, Claude Code 윈도우) — 정기 실행 직전 프로그램 이용 권한 확인** — 주인님 지시. 예전엔 핸드폰 번호만 확인해 사용기간이 끝난 회원의 켜 둔 정기 실행도 계속 돌았다. `src/lib/programAccess.ts`(카드뉴스·메인 사이트와 같은 판정: 정지→관리자→핸드폰→FREE→구독→등급+사용기간, 사본)를 실행 로직에서 회원별 1회 확인, 권한 없으면 실행하지 않음(카카오 주제 표에는 안내 칸이 없어 건너뛰기만 함). 적용 시점 영향: 정기 생성 켜진 주제 0건. 검수: tsc 0, build, 배포 `kakaoautoposter-pw5stukxe`, DB v1.22, `package.json` 1.22.0.
+
+## 2026-10-20 v1.23 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
+- 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `kakaoautoposter-nxhxthux8`.
+- 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).

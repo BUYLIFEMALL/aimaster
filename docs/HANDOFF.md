@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 예약 공용 코드 「실패 시 상태 되돌리기」 11개 + 예약 리마인드 켜기 실패 안내 (주인님 「순서대로 진행해줘」 3·4번)
+- 고친 것: 「내 cron-job.org」 전환 실패 → 이전 방식으로, 재개 실패 → 일시정지로 되돌림(`memberScheduler.ts` 두 함수). booking-reminder 규칙 켜기 실패 안내 표시. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor 갱신, 11개 **한 개씩 순차 배포** 모두 Ready, `/login` 정상·회원 실행 주소 가짜 토큰 401.
+- 버전: booking-reminder v1.22 · stepmail v1.22 · crm-google-form v1.11 · youtube-auto-reply v1.13 · trending-product-finder v1.16 · kakao_auto_poster v1.23 · naver-cafe-poster v1.23 · cardnews-studio v1.25 · insta_auto_poster v1.29 · threads-affiliate-poster v1.65(배포 `threads-affiliate-poster-7c34y14ei` — 이 프로그램 `AGENTS.md`는 다른 CLI의 미커밋 변경이 있어 기록을 여기에만 남김) · threads-content-ops v2.10.
+- 크롬 실검수(booking-reminder, 관리자, 발송 없음): cron-job.org 하루 한도 소진 상태를 그대로 이용해 규칙 켜기·재개·방식 전환 세 실패 경로 모두 안내 표시 + 화면·DB 일치 확인, 시험 규칙 삭제 후 최종 Vercel·규칙 0.
+- 남은 일: **`threads/`는 다른 세션 작업 중이라 미적용** — 끝난 뒤 같은 두 곳 수정·배포. 1번(「내 cron-job.org」 성공 경로 실검수: crm 재개·youtube·trending)과 2번(crm 운영자 실행 09시)은 cron-job.org 한도가 풀린 뒤·내일 09시 이후.
+- 링크: https://booking-reminder.buylife.xyz (실검수) — 나머지는 각 프로그램 `AGENTS.md`
+
 ## 2026-10-20 Claude Code(윈도우) — 인스타 자동 포스팅 확대 1단계: AI 인플루언서 v1.14 「인스타그램에 바로 게시」
 - 검토 결과 순서: 인플루언서(화보+캡션, 바로 맞음) → 웹툰(세로 원고를 4:5로 자르는 설계 필요) → 4컷(넘기기 있음). 카드뉴스→INSTA 전송(INSTA-03)은 카드뉴스 직접 게시로 이미 해결 — 문서 정정 `7cea3562`.
 - 인플루언서 v1.14: 공용 `instagram-publish` 사본 + 공용 `insta_accounts` 재사용, 최대 10장 캐러셀, 임시 사진은 `insta-post-images/{회원}/influencer-insta/`(DB 변경 없음). 커밋 `2461027f`, 배포 `ai-influencer-studio-odna10ak9`, DB v1.14. 실제 게시 미시험.

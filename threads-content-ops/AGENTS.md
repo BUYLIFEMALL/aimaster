@@ -666,3 +666,7 @@
 - 화면 8개 파일의 날짜 표시 10곳(`new Date(...).toLocale(Date)String("ko-KR")`)에 `timeZone: "Asia/Seoul"`. 대부분 `"use client"`지만 첫 화면은 서버(UTC)에서 그려져 잠깐 9시간 이른 시각이 보이거나 화면 불일치가 생길 수 있었다. 가격·조회수 같은 숫자 표시는 그대로. 버전 기록 `supabase/migrations/20261019260000_kst_display_v2_09.sql`.
 - **함께 나감**: 바로 위 「배포 키트 정리」 항목(미배포로 남아 있던 운영 코드 변화 없는 정리분).
 - 검수: tsc 0, 테스트 32/32, build, 배포 `threads-content-9lqok5f5k`(Ready), DB v2.09, 크롬: v2.09 표시, 발행 기록 「26. 10. 19. 오후 7:34」(실제 자동 발행 19:34와 일치).
+
+## 2026-10-20 v2.10 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
+- 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `threads-content-azbrq4gkd`.
+- 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).

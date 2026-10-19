@@ -122,3 +122,7 @@ F-007(P1), F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기�
 - 안전: **발송 전 선점** — `lib/crm/followupDispatch.ts`가 예전엔 「보냈는지 확인 → 발송 → 기록」이라 실행이 겹치면 두 번 보낼 수 있었다 → `crm_followup_sends`에 먼저 넣어 선점((rule_id, submission_id) 고유 제약), 「발송 중」은 failed로 넣고 끝나면 실제 결과로 고침. **이용 권한(사용기간) 확인 추가**(예전엔 핸드폰만).
 - 화면: 설정 「⏰ 예약 발행」(방식 선택 + 키 칸), 구글폼 연결 화면 맨 위 상태 줄·일시정지/재개, `/guide` FAQ. DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261020160000_crm_member_scheduler.sql` — 크롬 SQL Editor 적용, 결과 `crm_member_scheduler`·`v1.10`.
 - 검수: tsc 0, build, 커밋 `5af88dd5`, 배포 `crm-google-form-2jvoxalyt`(Ready), 무인증·`Bearer undefined`·가짜 토큰 401(두 주소), `/login` 200. 크롬(관리자, **실제 발송 없음** — 접수 0건, 시험 규칙 채널 모두 끔): 설정 v1.10·공용 키 「등록됨」 → 「내 cron-job.org」 선택 → 상태 줄 「대기 · 켜진 규칙 0개」 → 시험 규칙 추가 → 작업 8679092 자동 켜짐 → 일시정지 정상 → **재개는 cron-job.org 하루 호출 한도(100회) 초과로 실패**(같은 코드가 예약 리마인드에서 정상 확인됨, 안내 문구 정상 표시) → 규칙 끄기 → 상태 「켜진 규칙 0개」 → Vercel 복귀 → 시험 규칙 삭제. 회원 실행 200·운영자 실행 200(매일 09시)은 미확인 — 다음 첫 단계.
+
+## 2026-10-20 v1.11 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
+- 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `crm-google-form-isi69512a`.
+- 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).

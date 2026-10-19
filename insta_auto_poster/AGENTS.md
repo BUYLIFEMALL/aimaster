@@ -152,3 +152,7 @@
 ## 2026-10-20 v1.27 배포·검수 (Claude Code 윈도우)
 - 배포 `insta-auto-poster-qb6d42edv` Ready, DB `programs.version` v1.27(slug `auto-instagram-posting`). 크롬(관리자 계정): 4컷 넘기기 주소로 새 글 화면 → 이미지 없을 때 「이미지 파일 직접 첨부 (0/1장…)」 표시 → 시험 그림(400px 단색 PNG) 첨부 → 「AI 생성 없이 그대로 저장」 안내 → 주제 비운 채 [게시물 생성하기](임시저장) → AI 호출 없이 초안 저장(`/posts/794aff2a-…`, 캡션·해시태그·그림 유지). 인스타 게시는 하지 않음. **시험 초안 1건이 관리자 계정에 남아 있음**(제목 「월요일 아침 & 알람 다섯 번 (넘기기 시험)」 — 필요 없으면 게시글 관리에서 삭제). 카드뉴스(4장) 직접 첨부 경로는 미검수.
 - v1.28 배포·검수(2026-10-20): `insta-auto-poster-lxpjm2zhb` Ready, DB v1.28. 크롬(관리자 계정): `?postType=card_news&caption=&hashtags=` → 카드뉴스 형식 선택됨·첨부 칸 「0/4장 · 여러 장 한 번에」(`multiple`) → 시험 그림 4장을 4·2·3·1 순서로 한 번에 선택 → 이름순 1·2·3·4로 정렬돼 올라감 → AI 없이 임시저장(`/posts/dce21ba1-…`, 캐러셀 4장 순서 유지). 인스타 게시 없음. **시험 초안 2건이 관리자 계정에 남음**(「…(넘기기 시험)」 피드, 「카드뉴스 넘기기 시험」).
+
+## 2026-10-20 v1.29 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
+- 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `insta-auto-poster-cyvr87qf1`.
+- 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).

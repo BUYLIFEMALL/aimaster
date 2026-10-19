@@ -156,3 +156,7 @@ F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 안전: 발송 전 `last_run_at` 조건부 선점(겹치면 먼저 가져간 실행만), **발송 도중 예외에도 선점을 되돌리지 않음**(일부 메일이 나갔을 수 있어 재발송 시 중복 — 예전 동작과 같음), **이용 권한(사용기간) 확인 추가**(예전엔 정지·핸드폰만). `vercel.json` 예약 호출은 바꾸지 않음.
 - 화면: 설정 「⏰ 예약 발행」, 예약 발송 화면 상태 줄·일시정지/재개, `/guide` FAQ Q6. DB: `supabase/migrations/20261020140000_stepmail_member_scheduler.sql`(크롬 SQL Editor 적용). `package.json` 1.21.0.
 - 검수: tsc 0, build, 배포 `stepmail-oriyijlug`(Ready), 무인증·`Bearer undefined`·가짜 토큰 401, `/login` 200. 크롬(관리자, **실제 발송 없음** — 시험 캠페인을 「꺼짐·매주 금 03시·마지막 실행=지금」으로 넣음): 「내 cron-job.org」 선택 → 관리자의 이미 보낸 「한 번만」 캠페인은 남은 일에서 빠져 작업 꺼진 채 「대기 · 보낼 캠페인 0개」 → 시험 캠페인 다시 활성화 → 작업 8678940 자동 켜짐 → 일시정지·재개 → 16:30 cron-job.org 회원 실행 200(발송 없음) → 캠페인 끄기 → 작업 즉시 꺼짐 → Vercel 복귀 → 시험 캠페인 삭제.
+
+## 2026-10-20 v1.22 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
+- 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `stepmail-ojit52us6`.
+- 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).
