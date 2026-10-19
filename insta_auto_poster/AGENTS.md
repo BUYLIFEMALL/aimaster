@@ -87,7 +87,7 @@
 - 상세 내역은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) 참조:
   1. `INSTA-01`: Instagram 릴스(Reels) 영상 자동 포스팅 지원
   2. `INSTA-02`: 인스타그램 9분할 피드 그리드 시뮬레이터 뷰
-  3. `INSTA-03`: INSTA Cardnews 자동화(`cardnews-studio`) 1클릭 캐러셀 전송 파이프라인
+  3. ~~`INSTA-03`: INSTA Cardnews 자동화(`cardnews-studio`) 1클릭 캐러셀 전송 파이프라인~~ → 해결(카드뉴스 스튜디오가 인스타에 직접 즉시·예약 게시, 2026-10-20 확인)
   4. `INSTA-04`: 팔로워 활동 기반 최적 발행 시간대 AI 추천
 
 ---
