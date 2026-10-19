@@ -199,6 +199,7 @@ ai-influencer-studio/
 - 결과 화면 아래 패널(`components/InstagramPublishPanel.tsx`, `ImageDisplay`에 `history` 전달): 연결 상태 → 사진 고르기(지금 + 이전 기록, 최대 10장 캐러셀) → 캡션 → 공개 게시 확인 → 게시. 브라우저에서 JPEG·피드 비율 자르기(`src/lib/instagram/feedImage.ts`).
 - 서버: `src/app/api/instagram/{route,upload/route,publish/route}.ts`, `src/lib/instagram/{publish.ts(공용 사본),memberAccount.ts(카드뉴스 사본),posting.ts}`. 연결값은 공용 `insta_accounts`(INSTA에서 한 번 연결). 임시 사진은 `insta-post-images/{회원}/influencer-insta/` — 게시 뒤 삭제, DB 변경 없음.
 - 검수: 단위 9/9(`tests/feedImage.test.mjs` +4), tsc, 빌드. 배포·크롬 결과는 아래 줄에.
+- 배포·검수(2026-10-20): `ai-influencer-studio-odna10ak9` Ready, DB v1.14, 주소 https://ai-influencer.buylife.xyz . 비로그인 `/api/instagram`·`upload`·`publish` 모두 401. 크롬(관리자 계정): 사이드바 v1.14, 연결 상태 「연결됨 @계정」(INSTA에서 연결한 공용 값 그대로), 브라우저에만 시험 기록 2개를 넣어 패널 확인 — 사진 2개 표시·누른 순서 1·2 배지·「게시 (2장)」·확인 체크 전 비활성, 업로드 준비 주소 `내폴더/influencer-insta/묶음/01.jpg`, 11장 요청 400, 다른 회원 경로 게시 400. 시험 기록은 지움. **실제 인스타 게시·사진 변환 후 업로드는 하지 않음**(첫 회원 사용 때 확인).
 - 다음: 2차 예약 게시(운영 DB 표 필요 — 사전 승인).
 
 ## 2026-10-19 v1.13 — 깨진 사진을 받지 않고 화면 안에 안내 (Claude Code 윈도우)

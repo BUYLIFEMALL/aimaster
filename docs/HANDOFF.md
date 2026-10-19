@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 인스타 자동 포스팅 확대 1단계: AI 인플루언서 v1.14 「인스타그램에 바로 게시」
+- 검토 결과 순서: 인플루언서(화보+캡션, 바로 맞음) → 웹툰(세로 원고를 4:5로 자르는 설계 필요) → 4컷(넘기기 있음). 카드뉴스→INSTA 전송(INSTA-03)은 카드뉴스 직접 게시로 이미 해결 — 문서 정정 `7cea3562`.
+- 인플루언서 v1.14: 공용 `instagram-publish` 사본 + 공용 `insta_accounts` 재사용, 최대 10장 캐러셀, 임시 사진은 `insta-post-images/{회원}/influencer-insta/`(DB 변경 없음). 커밋 `2461027f`, 배포 `ai-influencer-studio-odna10ak9`, DB v1.14. 실제 게시 미시험.
+- 다음: 인플루언서 2차 예약 게시(운영 DB 표 필요 — 승인 대기), 웹툰 1차. 플랜 `ai-influencer-studio/docs/PLAN_20261020_INSTA_AUTOPOST.md`. https://ai-influencer.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 예약 방식 2순위(정기형) 5개 + 네이버 카페·카카오 이용 권한 확인 (주인님 「2순위도 적용하고 권한 확인도 넣어줘」)
 - 공통: 회원이 실행 방식(AIMaster 기본 Vercel / 본인 cron-job.org)을 고르고, 정기 작업이 켜지면 회원 작업 자동 켜기·0개면 끄기. **실행 직전 이용 권한(사용기간) 확인**, 실행이 겹쳐도 한 번만(먼저 차지하기), `CRON_SECRET` 빈 값 401. 지침 `docs/SCHEDULER_POLICY.md` §8 현황표 갱신. 운영 DB `esgxyikcnnvmlhygjkth`는 크롬 SQL Editor로 적용.
 - 네이버 카페·카카오 v1.22: 정기 실행 직전 권한 확인만 추가(배포·운영자 실행 200).
