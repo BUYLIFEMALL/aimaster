@@ -352,6 +352,24 @@ export function PostForm({
     });
   };
 
+  // v1.27: 다른 프로그램(예: 4컷 만화)에서 넘겨받은 그림처럼, AI 생성 없이 내 이미지 파일로 슬라이드를 채운다.
+  const requiredSlides = postType === "card_news" ? CARD_NEWS_SLIDE_COUNT : 1;
+  const readyWithoutAi = isCreate && caption.trim().length > 0 && slides.length >= requiredSlides;
+  const [addingUpload, setAddingUpload] = useState(false);
+  const handleAddUploadedSlide = (file: File) => {
+    setAddingUpload(true);
+    startRegenerating(async () => {
+      const result = await uploadImageDirect(file);
+      if (result.url) {
+        const url = result.url;
+        setSlides((prev) => [...prev, { imagePrompt: "", imageUrl: url, imageUrls: [url] }]);
+      } else {
+        setAiError(result.error ?? "이미지 업로드에 실패했습니다.");
+      }
+      setAddingUpload(false);
+    });
+  };
+
   const [zoomTarget, setZoomTarget] = useState<{ index: number; url: string } | null>(null);
 
   const scheduledAtIso =
@@ -375,6 +393,15 @@ export function PostForm({
       // 수정 화면: 슬라이드는 별도 액션으로 이미 반영돼 있으므로 캡션/발행 정보만 제출한다.
       startTransition(() => {
         formAction(buildFormData(caption, hashtags, slides));
+      });
+      return;
+    }
+
+    // v1.27: 캡션과 필요한 장수의 이미지가 이미 있으면(내 이미지 첨부·다른 프로그램에서 넘겨받음) AI 생성 없이 그대로 저장한다.
+    if (readyWithoutAi) {
+      setAiError(null);
+      startTransition(() => {
+        formAction(buildFormData(caption, hashtags, slides.slice(0, requiredSlides)));
       });
       return;
     }
@@ -792,6 +819,27 @@ export function PostForm({
                 </div>
               ))}
             </div>
+          )}
+          {slides.length < requiredSlides && (
+            <label className="mt-2 block cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2 py-2 text-center text-xs text-neutral-500 hover:border-neutral-400">
+              {addingUpload ? "올리는 중..." : `이미지 파일 직접 첨부 (${slides.length}/${requiredSlides}장, JPG/PNG/WEBP, 10MB 이하)`}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                disabled={addingUpload || isGeneratingAll}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleAddUploadedSlide(file);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+          {readyWithoutAi && (
+            <p className="mt-2 text-xs text-emerald-600">
+              캡션과 이미지가 준비되어 있어 &quot;{submitLabel}&quot;를 누르면 AI 생성 없이 그대로 저장됩니다.
+            </p>
           )}
         </div>
       )}
