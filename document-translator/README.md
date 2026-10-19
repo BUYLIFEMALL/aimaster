@@ -34,3 +34,16 @@ TXT·텍스트 PDF·Word 가져오기,10개 언어 번역, 문단별 수정·수
 ## 2026-10-16 DB 연동 변수 호환 — v1.04 (document-translator)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-19 v1.20 — 포커스 스튜디오 소프트 크림 문서번역 에디션 디자인 리뉴얼 & 가이드북 구축
+
+- **라이브 서비스**: [https://document-translator.buylife.xyz](https://document-translator.buylife.xyz)
+- **적용 테마**: 포커스 스튜디오 스타일 — 소프트 크림 문서번역 에디션
+- **주요 개편 사항**:
+  - `📖 연동 & 사용 매뉴얼` (`/guide`) 독립 비주얼 가이드북 전면 개편 (`DESIGN.md` 9번 필수 원칙 충족).
+  - 대시보드 `.studio-hero` 프리미엄 그라데이션 배너 및 3대 KPI 실시간 통계 카드 도입.
+  - 4단계 파이프라인 가이드 바 탑재 (원문입력/파일분석 ➔ 용어집매칭/언어설정 ➔ AI분할번역/3중검수 ➔ 역번역대조/다중내보내기).
+  - 모바일(375px) 56px 헤더 및 햄버거 토글 슬라이드 오버레이 드로어 반응형 최적화.
+  - 버전 3중 동기화 (`package.json`, `version.ts`, Supabase `programs` 모두 `v1.20`).
+- **검수**: Microsoft Edge 포그라운드(headless: false) 캡처 7종 수집 및 10분간 화면 유지 세션 검증 완료.
+

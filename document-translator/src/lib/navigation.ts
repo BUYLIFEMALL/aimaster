@@ -2,7 +2,7 @@ export const SCREENS = [
   {
     id: "dashboard",
     label: "대시보드",
-    detail: "번역 작업과 사용 흐름",
+    detail: "번역 현황 & 파이프라인",
     icon: "⌂",
   },
   {
@@ -26,9 +26,9 @@ export const SCREENS = [
   },
   {
     id: "guide",
-    label: "사용 안내",
-    detail: "문서 입력부터 저장까지",
-    icon: "?",
+    label: "📖 연동 & 사용 매뉴얼",
+    detail: "4단계 프로세스 & 포맷 매트릭스",
+    icon: "📖",
   },
 ] as const;
 export type Screen = (typeof SCREENS)[number]["id"];

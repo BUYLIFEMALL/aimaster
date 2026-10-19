@@ -134,7 +134,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 78개 · ⚪ 3개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **94.0% 달성!**):
+> **상태 구분** (2026-10-19 기준: ✅ 79개 · ⚪ 2개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **95.2% 달성!**):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -211,7 +211,7 @@
 | 61 | 상세페이지 자동생성기 v1 | `auto-detail-page` | **이커머스 셀러 스튜디오 스타일 — 상세페이지 기획 에디션** | 퓨어 화이트 (로열 블루 `#2563eb` / 셀러 오렌지 `#f97316`) | ✅ 1차 작업완료 (`v1.20`, 이커머스 셀러 스튜디오 스타일) | [`auto-detail-page/docs/DESIGN_HANDOFF.md`](auto-detail-page/docs/DESIGN_HANDOFF.md) · [`auto-detail-page/docs/IMPROVEMENTS.md`](auto-detail-page/docs/IMPROVEMENTS.md) |
 | 62 | AI 할 일·성과 관리 | `ai-task-planner` | **스마트 매트릭스 다크 스타일** | 다크(딥 나이트 네이비 `#0b0f19`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 다크 스타일) | [`ai-task-planner/docs/DESIGN_HANDOFF.md`](ai-task-planner/docs/DESIGN_HANDOFF.md) |
 | 63 | AI 종합 성격 진단 자동화 | `personality-suite` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `personality-suite/AGENTS.md` |
-| 64 | AI 문서번역 자동화 | `document-translator` | 포커스 스튜디오 스타일 (권장) | 라이트(크림) | ⚪ 작업 예정 | `document-translator/AGENTS.md` |
+| 64 | AI 문서번역 자동화 | `document-translator` | **포커스 스튜디오 스타일 — 소프트 크림 문서번역 에디션** | 라이트(소프트 크림 `#fdfbf7` + 딥 인디고 `#4f46e5`) | ✅ 1차 작업완료 (`v1.20`, 포커스 스튜디오 스타일) | [`document-translator/docs/DESIGN_HANDOFF.md`](document-translator/docs/DESIGN_HANDOFF.md) · [`document-translator/docs/IMPROVEMENTS.md`](document-translator/docs/IMPROVEMENTS.md) |
 | 65 | AI 엑셀·텍스트 합치기 자동화 | `file-merge` | **스마트 매트릭스 스타일 — 라이트 변형** (라이트 토큰 기준값) | 라이트(`#f6f7f9`/`#ffffff` + 블루 `#2563eb`·앰버 `#b45309`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 라이트 변형) | [`file-merge/docs/DESIGN_HANDOFF.md`](file-merge/docs/DESIGN_HANDOFF.md) |
 | 66 | 네이버 블로그 자동화(App) | `naver-blog-auto-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⏸ 보류 (비활성 프로그램) | `naver-blog-auto-poster_app/AGENTS.md` |
 | 67 | 네이버 블로그 자동화(Web) | `naver-blog-auto-poster-web` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⏸ 보류 (비활성 프로그램) | `naver-blog-auto-poster_web/AGENTS.md` |

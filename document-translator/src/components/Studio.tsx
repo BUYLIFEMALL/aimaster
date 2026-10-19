@@ -951,76 +951,171 @@ export function Workspace({
         />
         {screen === "dashboard" && (
           <>
-            <section className="hero card">
-              <p className="eyebrow">언어를 넘어, 뜻을 그대로</p>
+            {/* 포커스 스튜디오 프리미엄 히어로 배너 */}
+            <section className="studio-hero">
+              <div className="hero-badge-row">
+                <span className="hero-badge">
+                  ✦ 포커스 스튜디오 소프트 크림 에디션
+                </span>
+                <span className="hero-badge teal">
+                  🛡️ BYOK 100% 로컬 프라이버시
+                </span>
+                <span className="hero-badge">
+                  🌐 글로벌 10대 언어 무손실 번역
+                </span>
+              </div>
               <h2>
-                문서를 번역하고
+                언어를 넘어, 전문성을 그대로.
                 <br />
-                꼼꼼하게 검토하세요.
+                AI 문서번역 & 3중 검수 스튜디오
               </h2>
               <p>
-                텍스트·PDF·Word 문서에서 원문을 불러오고, 문맥·전문 용어·문체를
-                함께 확인합니다.
+                텍스트, PDF, Word DOCX 문서를 기기 안에서 무손실 분석하고,
+                회원님만의 전문 용어집(Glossary) 매칭과 문맥·문체 3중 검수를 거쳐
+                출판급 번역 문서를 완성합니다.
               </p>
-              <button
-                className="primary"
-                onClick={() => navigate("translator")}
-              >
-                {doc.sourceText ? "현재 번역 이어서 보기" : "문서번역 시작하기"}{" "}
-                →
-              </button>
-              <span className="hero-symbol" aria-hidden>
-                文<span>A</span>
-              </span>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+                <button
+                  className="primary"
+                  onClick={() => navigate("translator")}
+                  style={{ fontSize: "14px", padding: "11px 20px" }}
+                >
+                  {doc.sourceText ? "현재 번역 이어서 보기" : "문서번역 시작하기"}{" "}
+                  →
+                </button>
+                <button
+                  onClick={() => navigate("guide")}
+                  style={{ fontSize: "14px", padding: "11px 18px", background: "#ffffff" }}
+                >
+                  📖 연동 & 사용 매뉴얼
+                </button>
+                <button
+                  onClick={() => navigate("glossary")}
+                  style={{ fontSize: "14px", padding: "11px 18px", background: "#ffffff" }}
+                >
+                  용어집 관리
+                </button>
+              </div>
             </section>
-            <div className="metric-grid">
-              <section className="card">
-                <small>현재 원문</small>
-                <strong>
+
+            {/* 4단계 파이프라인 가이드 바 */}
+            <div className="pipeline-bar">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                <h3>4단계 AI 문서번역 파이프라인</h3>
+                <span style={{ fontSize: "12px", color: "#64748b" }}>
+                  TXT · PDF · Word DOCX 지원
+                </span>
+              </div>
+              <div className="pipeline-steps">
+                <div className={`pipeline-step-item ${doc.sourceText ? "active" : ""}`}>
+                  <div className="pipeline-step-num">1</div>
+                  <div className="pipeline-step-text">
+                    <strong>원문 입력 & 파일 분석</strong>
+                    <small>최대 20,000자 / 50페이지</small>
+                  </div>
+                </div>
+                <div className={`pipeline-step-item ${doc.glossary.length ? "active" : ""}`}>
+                  <div className="pipeline-step-num">2</div>
+                  <div className="pipeline-step-text">
+                    <strong>용어집 & 언어 설정</strong>
+                    <small>10대 언어 · 전문 도메인</small>
+                  </div>
+                </div>
+                <div className={`pipeline-step-item ${doc.translationText ? "active" : ""}`}>
+                  <div className="pipeline-step-num">3</div>
+                  <div className="pipeline-step-text">
+                    <strong>AI 분할 번역 & 3중 검수</strong>
+                    <small>Gemini Flash / Pro 호출</small>
+                  </div>
+                </div>
+                <div className="pipeline-step-item">
+                  <div className="pipeline-step-num">4</div>
+                  <div className="pipeline-step-text">
+                    <strong>역번역 대조 & 다중 내보내기</strong>
+                    <small>TXT · MD · Word DOCX</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 3대 핵심 KPI 통계 카드 */}
+            <div className="stat-grid-v120">
+              <section className="stat-card-v120 indigo">
+                <div className="stat-header-v120">
+                  <span className="stat-title-v120">현재 작업 원문</span>
+                  <span className="stat-icon-v120">📄</span>
+                </div>
+                <div className="stat-value-v120">
                   {unicodeLength(doc.sourceText).toLocaleString()}
-                  <span>자</span>
-                </strong>
+                  <span>/ 20,000자</span>
+                </div>
+                <div className="stat-sub-v120">
+                  {doc.filename ? `파일: ${doc.filename}` : "직접 입력 텍스트"}
+                </div>
               </section>
-              <section className="card">
-                <small>대상 언어</small>
-                <strong>
-                  {
-                    LANGUAGES.find((l) => l.id === doc.options.targetLanguage)
-                      ?.name
-                  }
-                </strong>
+
+              <section className="stat-card-v120 teal">
+                <div className="stat-header-v120">
+                  <span className="stat-title-v120">번역 대상 언어</span>
+                  <span className="stat-icon-v120">🌐</span>
+                </div>
+                <div className="stat-value-v120">
+                  {LANGUAGES.find((l) => l.id === doc.options.targetLanguage)?.name || "한국어"}
+                  <span>(10대 언어)</span>
+                </div>
+                <div className="stat-sub-v120">
+                  원문 감지: {doc.options.sourceLanguage === "auto" ? "자동 감지" : doc.options.sourceLanguage}
+                </div>
               </section>
-              <section className="card">
-                <small>적용 용어</small>
-                <strong>
+
+              <section className="stat-card-v120 amber">
+                <div className="stat-header-v120">
+                  <span className="stat-title-v120">적용 전문 용어</span>
+                  <span className="stat-icon-v120">📚</span>
+                </div>
+                <div className="stat-value-v120">
                   {doc.glossary.length}
-                  <span>개</span>
-                </strong>
+                  <span>개 등록</span>
+                </div>
+                <div className="stat-sub-v120">
+                  도메인: {doc.options.domain}
+                </div>
               </section>
             </div>
+
+            {/* 하단 퀵 액션 카드 그리드 */}
             <div className="guide-grid">
-              <section className="card">
-                <h2>문서 준비</h2>
-                <p>
-                  TXT·텍스트 PDF·DOCX를 기기에서 읽습니다. 파일을 고르는
-                  것만으로 AI를 호출하지 않습니다.
+              <section className="card" style={{ background: "#ffffff" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "18px" }}>📂</span>
+                  <h2 style={{ fontSize: "16px", margin: 0 }}>문서 파일 불러오기</h2>
+                </div>
+                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6" }}>
+                  TXT, 텍스트 PDF, Word DOCX 문서를 기기 내에서 즉시 파싱합니다.
+                  파일을 선택하는 것만으로는 AI가 호출되지 않아 비용이 발생하지 않습니다.
                 </p>
                 <button
                   onClick={() => {
                     navigate("translator");
                     fileRef.current?.click();
                   }}
+                  style={{ fontSize: "13px" }}
                 >
-                  파일 불러오기
+                  파일 선택 및 열기
                 </button>
               </section>
-              <section className="card">
-                <h2>회원님의 번역 기준</h2>
-                <p>
-                  같은 용어를 일관되게 번역하도록 용어집을 만들어 적용하세요.
+
+              <section className="card" style={{ background: "#ffffff" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "18px" }}>📖</span>
+                  <h2 style={{ fontSize: "16px", margin: 0 }}>연동 & 사용 매뉴얼</h2>
+                </div>
+                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6" }}>
+                  4단계 번역 프로세스, 파일 포맷 매트릭스 표, 고품질 번역을 위한 7대 수칙과
+                  자주 묻는 질문(FAQ)을 시각적 가이드북에서 확인하세요.
                 </p>
-                <button onClick={() => navigate("glossary")}>
-                  용어집 관리
+                <button onClick={() => navigate("guide")} style={{ fontSize: "13px" }}>
+                  매뉴얼 가이드북 열기 →
                 </button>
               </section>
             </div>

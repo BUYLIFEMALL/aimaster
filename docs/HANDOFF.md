@@ -1,5 +1,41 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 문서번역 자동화(document-translator) v1.20: 포커스 스튜디오 소프트 크림 에디션 리뉴얼·사이드바 개편·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 79개 완료 / 95.2% 달성!)
+
+- **대상**: `document-translator/` (https://document-translator.buylife.xyz, slug: `document-translator`, 64번)
+- **한 일**:
+  1. **포커스 스튜디오 스타일 — 소프트 크림 문서번역 에디션 전면 리뉴얼**:
+     - 소프트 크림(`#fdfbf7`), 딥 인디고(`#4f46e5`), 웜 앰버(`#d97706`), 에메랄드 틸(`#0d9488`), 차콜 잉크(`#1e293b`) 서재 테마 컬러 토큰 적용 (`src/app/globals.css`).
+     - 대시보드 메인 (`src/components/Studio.tsx`): `.studio-hero` 프리미엄 그라데이션 배너, `v1.20` 배지, 3대 핵심 KPI 통계 카드 (현재 작업 원문 자수 실시간 집계, 번역 대상 언어 10종, 적용 전문 용어 수), 4단계 파이프라인 가이드 바 (원문입력/파일분석 ➔ 용어집매칭/언어설정 ➔ AI분할번역/3중검수 ➔ 역번역대조/다중내보내기) 탑재.
+  2. **반응형 사이드바 개편 (`src/components/Sidebar.tsx`, `src/lib/navigation.ts`, `DESIGN.md` 9번 원칙 충족)**:
+     - `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴명 승격 및 세부 설명 강화.
+     - `v1.20` 배지 및 4단계 파이프라인 스텝퍼 탑재.
+     - 모바일(767px 미만) 56px 헤더 및 햄버거 토글 슬라이드 오버레이 드로어 완비.
+  3. **독립 비주얼 가이드북 (`src/components/Guide.tsx`) 전면 개편**:
+     - 4단계 핵심 문서번역 프로세스 워크플로우 다이어그램.
+     - 지원 포맷(TXT, PDF, Word DOCX, Markdown)별 기능 매트릭스 표 (용량 한도, 텍스트 추출 방식, 서식 보존 범위, 10대 지원 언어 비교).
+     - 전문 번역 품질 극대화 7대 황금 수칙 카드 (용어집 사전 등록, 적정 청크 크기, 전문 도메인 지정, 인라인 교정, 숫자/URL 점검, 역번역 교차 검증, 로컬 백업).
+     - 자주 묻는 질문 (FAQ 5종) 인터랙티브 아코디언 컴포넌트 탑재.
+  4. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `document-translator/package.json` (`1.20.0`), `document-translator/src/lib/version.ts` (`v1.20`), Supabase DB `programs` 테이블 (`v1.20`) 동기화 완료 (`scripts/update_document_translator_version.cjs`).
+  5. **로컬 무결성 검증 통과**:
+     - Next.js 16.4.0 (Turbopack) 프로덕션 빌드 성공 (3.3초 컴파일, 정적/동적 라우트 무오류 통과, exit code 0).
+  6. **Vercel 프로덕션 배포 완료**:
+     - `https://document-translator-4u273megg-buylife.vercel.app` (Alias: `https://document-translator.buylife.xyz`).
+     - ReadyState: `READY` 배포 완료. 도메인 응답 확인 완료.
+  7. **Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수 완료**:
+     - `scripts/verify_edge_document_translator_v120.cjs` 스크립트를 통해 실세션 캡처 7종 수집 완료:
+       - 데스크톱 메인 대시보드 (`edge_translator_desktop_main_v120.png`)
+       - 데스크톱 3대 KPI 카드 (`edge_translator_desktop_kpi_v120.png`)
+       - 데스크톱 4단계 파이프라인 가이드 바 (`edge_translator_desktop_steps_v120.png`)
+       - 데스크톱 가이드북 상단 (`edge_translator_desktop_guide_v120.png`)
+       - 데스크톱 파일 매트릭스 & FAQ (`edge_translator_desktop_guide_matrix_v120.png`)
+       - 모바일 메인 대시보드 (`edge_translator_mobile_main_v120.png`)
+       - 모바일 가이드북 (`edge_translator_mobile_guide_v120.png`)
+     - 사용자 실시간 확인을 위해 Microsoft Edge 브라우저 창을 최전면 포그라운드로 10분간(600초) 띄워 유지.
+- **문서**: `document-translator/docs/DESIGN_HANDOFF.md`, `document-translator/docs/IMPROVEMENTS.md`, `document-translator/docs/IMPROVEMENT_HANDOFF_20261019.md`, `document-translator/AGENTS.md`, `document-translator/README.md`
+- **링크**: https://document-translator.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 카카오톡 뉴스레터 자동화(kakao_auto_poster) v1.20: 플로우 위저드 카카오 옐로우 에디션 리뉴얼·사이드바 개편·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 78개 완료 / 94.0% 달성!)
 
 - **대상**: `kakao_auto_poster/` (https://kakao-auto-posting.buylife.xyz, slug: `kakao-auto-posting`, 41번)
