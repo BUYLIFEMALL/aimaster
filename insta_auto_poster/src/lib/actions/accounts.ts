@@ -10,6 +10,7 @@ import { getFacebookAuthorizeUrl, getInstagramAuthorizeUrl } from "@/lib/instagr
 import { FACEBOOK_REDIRECT_FOR, INSTAGRAM_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
 import { PENDING_INSTAGRAM_CONNECTION_COOKIE, type PendingInstagramConnection } from "@/lib/instagram/pendingConnection";
 import type { InstagramAuthMethod } from "@/types/database.types";
+import { deleteSharedInstagramAccount, saveSharedInstagramAccount } from "@/lib/instagram/memberAccount";
 
 /**
  * 인스타그램 연결을 시작한다. formData의 hidden "method" 필드로 방식을 고른다.
@@ -88,6 +89,18 @@ export async function confirmInstagramAccountAction(formData: FormData) {
     redirect(`/settings?error=connect_failed&reason=${encodeURIComponent(error.message)}`);
   }
 
+  // v1.30: 공용 연결 계정에도 저장(이중 기록) — 콜백과 같은 순서로 앱 ID를 고른다
+  await saveSharedInstagramAccount({
+    userId: user.id,
+    igUserId: chosen.igUserId,
+    username: chosen.igUsername ?? null,
+    pageId: chosen.pageId,
+    authMethod: "facebook_login",
+    accessToken: pending.accessToken,
+    tokenExpiresAt,
+    appId: (await resolveApiKey(supabase, user.id, "facebook_app_id")) ?? (await resolveApiKey(supabase, user.id, "meta_app_id")),
+  });
+
   revalidatePath("/settings");
   redirect("/settings?connected=1");
 }
@@ -97,6 +110,8 @@ export async function disconnectInstagramAccountAction() {
   const supabase = await createClient();
 
   await supabase.from("insta_accounts").delete().eq("user_id", user.id);
+  // v1.30: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedInstagramAccount(user.id);
 
   revalidatePath("/settings");
 }

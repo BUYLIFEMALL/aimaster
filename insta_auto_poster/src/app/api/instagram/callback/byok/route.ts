@@ -5,6 +5,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { exchangeInstagramCode, exchangeForLongLivedToken, getInstagramAccountInfo } from "@/lib/instagram/client";
 import { IS_STANDALONE } from "@/lib/deployment";
+import { saveSharedInstagramAccount } from "@/lib/instagram/memberAccount";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -93,6 +94,18 @@ export async function GET(request: NextRequest) {
     if (error) {
       throw new Error(error.message);
     }
+
+    // v1.30: 공용 연결 계정에도 저장(이중 기록)
+    await saveSharedInstagramAccount({
+      userId: user.id,
+      igUserId: accountInfo.igUserId,
+      username: accountInfo.username ?? null,
+      pageId: null,
+      authMethod: "instagram_login",
+      accessToken: longLived.access_token,
+      tokenExpiresAt,
+      appId,
+    });
 
     return NextResponse.redirect(`${siteUrl}/settings?connected=1`);
   } catch (err) {

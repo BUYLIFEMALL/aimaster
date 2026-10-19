@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
@@ -18,7 +19,7 @@ export default async function DashboardPage() {
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase.from("insta_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getInstaAccountForUser(supabase, user.id).then((data) => ({ data })),
   ]);
 
   // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/

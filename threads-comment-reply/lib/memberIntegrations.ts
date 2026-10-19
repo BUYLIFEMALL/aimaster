@@ -74,20 +74,23 @@ export function missingScopes(granted: string[], need: string[]): string[] {
 /**
  * 회원의 연결 계정을 가져온다. 기본 계정(is_default) → 최근 갱신 순.
  * needScopes를 주면 받은 권한이 모자랄 때 missing_scopes로 알려준다(호출부는 「권한 추가 연결」 안내).
+ * authMethod를 주면 그 로그인 방식으로 연결한 계정만 본다(Instagram: facebook_login/instagram_login 토큰은 서로 바꿔 쓸 수 없음).
  */
 export async function getMemberAccount(
   admin: AdminDb,
   userId: string,
   platform: MemberPlatform,
-  opts: { needScopes?: string[] } = {}
+  opts: { needScopes?: string[]; authMethod?: string } = {}
 ): Promise<MemberAccountResult> {
-  const { data } = await admin
+  let query = admin
     .from("member_platform_accounts")
     .select(
       "id, platform, external_id, username, access_token, refresh_token, token_expires_at, granted_scopes, auth_method, app_ref, extra, needs_reconnect, connected_via"
     )
     .eq("user_id", userId)
-    .eq("platform", platform)
+    .eq("platform", platform);
+  if (opts.authMethod) query = query.eq("auth_method", opts.authMethod);
+  const { data } = await query
     .order("is_default", { ascending: false })
     .order("updated_at", { ascending: false })
     .limit(1)

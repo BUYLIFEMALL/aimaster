@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import { PostForm } from "@/components/posts/PostForm";
 import { createPostAction } from "@/lib/actions/posts";
 import { getRegisteredProviders } from "@/lib/apiKeys";
@@ -48,11 +49,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     }
   }
 
-  const { data: account } = await supabase
-    .from("insta_accounts")
-    .select("id")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const account = await getInstaAccountForUser(supabase, user.id);
 
   const registeredProviders = await getRegisteredProviders(supabase, user.id);
 

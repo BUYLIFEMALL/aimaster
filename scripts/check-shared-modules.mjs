@@ -15,7 +15,7 @@ const MODULES = [
     // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
     id: "member-integrations",
     source: "lib/memberIntegrations.ts",
-    copies: ["threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts"],
+    copies: ["threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts", "insta_auto_poster/src/lib/memberIntegrations.ts", "instagram-comment-reply/lib/memberIntegrations.ts", "instagram-dm-reply/lib/memberIntegrations.ts", "shots/src/lib/memberIntegrations.ts", "cardnews-studio/src/lib/memberIntegrations.ts"],
   },
   {
     // 인스타그램 게시(피드 1장·캐러셀 2~10장) — 회원 본인 연결값(insta_accounts, 한 번 연결해 여러 프로그램이 함께 사용). 2026-10-19

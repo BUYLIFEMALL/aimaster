@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import { requireProgramAccess } from "@/lib/access";
 import { postFormSchema } from "@/lib/validation";
 import { publishPost } from "@/lib/posts/publish-core";
@@ -27,15 +28,8 @@ async function getInstagramAccountOrError(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
 ) {
-  const { data, error } = await supabase
-    .from("insta_accounts")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(error.message);
-  }
+  // v1.30: 공용 연결 계정(게시 권한 있는 것) → 없으면 insta_accounts
+  const data = await getInstaAccountForUser(supabase, userId);
   if (!data) {
     throw new Error("먼저 인스타그램 계정을 연결해주세요.");
   }

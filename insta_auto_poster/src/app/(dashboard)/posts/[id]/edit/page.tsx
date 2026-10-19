@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import { PostForm } from "@/components/posts/PostForm";
 import { SlideGallery } from "@/components/posts/SlideGallery";
 import { updatePostAction } from "@/lib/actions/posts";
@@ -21,7 +22,7 @@ export default async function PostEditPage({
 
   const [{ data: post }, { data: account }, { data: slides }] = await Promise.all([
     supabase.from("insta_posts").select("*").eq("id", id).eq("user_id", user.id).maybeSingle(),
-    supabase.from("insta_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+    getInstaAccountForUser(supabase, user.id).then((data) => ({ data })),
     supabase
       .from("insta_post_slides")
       .select("*")

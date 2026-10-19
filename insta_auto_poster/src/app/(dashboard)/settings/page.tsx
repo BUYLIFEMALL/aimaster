@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
@@ -68,7 +69,7 @@ export default async function SettingsPage({
 
   const [{ data: keys }, { data: account }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
-    supabase.from("insta_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getInstaAccountForUser(supabase, user.id).then((data) => ({ data })),
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
@@ -263,6 +264,10 @@ export default async function SettingsPage({
                 <p className="mt-1 text-xs text-slate-400">
                   연결 방식: {AUTH_METHOD_LABELS[account.auth_method] ?? account.auth_method}
                 </p>
+                {account.shared_id && account.connected_via !== "auto-instagram-posting" && (
+                  <p className="mt-1 text-xs text-emerald-300">다른 Instagram 프로그램에서 연결한 계정을 함께 쓰고 있어요.</p>
+                )}
+                <p className="mt-1 text-xs text-slate-500">연결을 해제하면 이 계정을 함께 쓰는 다른 Instagram 프로그램에서도 해제됩니다.</p>
                 {account.token_expires_at && (
                   <p className="mt-1 text-xs text-slate-400">
                     토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
