@@ -1,5 +1,34 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 종합 이용 가이드(/guides) 전면 리뉴얼 완료 (API 연동 가이드 + 서브프로그램 실전 매뉴얼 듀얼 트랙 구축, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 주인님의 지시("지금보다 보다 자세하게 단계별로, 시각적으로 가독성 있게 내용에 어울리는 이모티콘 사용, 각각 서브프로그램의 사용법·매뉴얼 페이지 참고")를 바탕으로, 단순한 텍스트 나열이었던 가이드 메뉴를 **외부 플랫폼 API 연동 가이드와 서브프로그램 실전 매뉴얼이 결합된 프리미엄 듀얼 트랙 가이드북**으로 전면 리뉴얼함.
+- **주요 작업 내용**:
+  1. **듀얼 트랙(Dual Track) 가이드북 체계 구축 (`components/guides/GuideHub.tsx`, `app/(main)/guides/page.tsx`)**:
+     - **`[🔑 API · 플랫폼 연동 가이드 (40)]`**: OpenAI, Gemini, Claude, Meta(인스타/쓰레드), Naver, Kakao, Coupang 등 40대 외부 플랫폼 API 발급 및 연동 가이드.
+     - **`[🚀 서브프로그램 실전 매뉴얼 (82)]`**: 82개 마케팅 자동화 솔루션의 실제 화면 구성, 3단 레이아웃, 단계별 워크플로우를 진열하고 `[기능 상세]` 매뉴얼 링크 및 `[▶ 즉시 실행]` 연동.
+     - 가이드 카드마다 플랫폼 전용 이모티콘(🤖, 💎, 🧠, 📸, 💬 등), 예상 소요 시간(⏱️ 3분), 난이도 뱃지(🟢 초급 / 🟡 중급 / 🔴 고급), 요약 설명, 공식 콘솔 직링크 버튼 탑재.
+  2. **초고속 실시간 검색 & 카테고리 칩셋 엔진**:
+     - 키워드(API명, 프로그램명, slug, 설명) 입력 시 0.05초 만에 반응하는 인메모리 라이브 검색. 검색어 입력 시 카테고리 무관 전역 검색 우선 적용.
+     - 7대 퀵 칩셋(`전체`, `LLM AI`, `SNS`, `네이버`, `이커머스`, `이미지/영상`, `메신저/알림`) 지원.
+  3. **단계별 상세 가이드 뷰어 고도화 (`app/(main)/guides/[id]/page.tsx`, `lib/guideMeta.ts`)**:
+     - 상단 헤더: 뒤로가기 버튼, 대표 이모티콘, 소요 시간, 난이도 뱃지, `[공식 콘솔 바로가기 ↗]` 원클릭 링크.
+     - 최상위 보안 격리 배너(개인 키 100% 분리 안내) 및 단계별 스텝 카드(`1`, `2`, `3`, `4`), 💡 팁, ⚠️ 보안 주의사항 콜아웃, 하단 연관 가이드 추천 결합.
+     - OpenAI, Gemini 가이드 본문 최신 스텝별 비주얼 형식으로 업데이트 완료.
+  4. **로컬 빌드 검증 및 Vercel 프로덕션 배포 완료**:
+     - `npx tsc --noEmit` 통과 & Next.js 72개 페이지 프로덕션 빌드 100% 무오류 완료.
+     - Vercel 프로덕션 배포 완료 (`dpl_6UB8u7SpLdbDS3DgQ18qb6D3PAMF`, Aliased: `https://www.buylife.xyz`).
+  5. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - API 가이드 탭 기본 화면 렌더링 확인: `edge_guides_api_tab.png`
+     - SNS 카테고리 필터링 확인: `edge_guides_sns_filter.png`
+     - 실시간 키워드 검색 확인: `edge_guides_search.png`
+     - 서브프로그램 실전 매뉴얼 탭 전환 확인: `edge_guides_programs_tab.png`
+     - 단계별 상세 가이드 화면 확인: `edge_guide_detail_step_by_step.png`
+- **서비스 링크**:
+  - 이용 가이드북: https://www.buylife.xyz/guides
+- **상세 인수인계 문서**:
+  - [`docs/HANDOFF_GUIDES_RENEWAL_20261019.md`](HANDOFF_GUIDES_RENEWAL_20261019.md)
+
 ## 2026-10-19 Claude Code(윈도우) — 쓰레드 쇼핑제휴(threads-affiliate-poster) v1.63: 예약 발행 실행 방식 회원 선택 + 중복 발행 방지
 
 - 지침 [`docs/SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) 1순위 두 번째 적용(기준 threads-content-ops v2.08). 운영 기본 Vercel, 복제본 기본 cron-job.org. 예약 실행기에 중복 발행 방지(조건부 상태 변경) 새로 추가.
