@@ -45,3 +45,9 @@
 - **추가**: `tests/browser.mjs` + `tests/browser-entry.tsx` — esbuild로 `Studio`를 묶어 로컬 시험 서버 → 보이는 Chrome. `/api/script`·`character`·`panel`·`balloon`은 모의 응답(실제 AI 호출·비용 없음), 시험 그림은 스크립트가 직접 만든 단색 PNG라 외부 파일 불필요.
 - **검사 8개**: 빈 주제 안내 / 대본 생성 → 2단계·컷 수 4 전송 / 캐릭터 시트 2장 / 「만화 생성하러 가기」 → 「모든 이미지 한번에 생성」 → 컷 4장·컷마다 캐릭터 시트 2장 참고 전송 / 대사 있는 컷만 AI 말풍선 배치(3회) / 바둑판·웹툰형 저장 파일 / 390px 가로 넘침 없음 / 화면 스크립트 오류 없음.
 - **실행**: `npm run test:browser`. 실패하면 `test-artifacts/browser-fail.png`. 화면 동작을 바꾼 작업은 배포 전에 `npx tsc --noEmit` → `npm test` → `npm run test:browser` → `npm run build`.
+
+## 2026-10-19 v1.13 — 「만화 합치기」에서 깨진 사진을 빼고 안내 (Claude Code 윈도우)
+- 확인: 캐릭터 시트 칸(`fileToSheet`)은 이미 「이미지를 불러오지 못했습니다.」 안내가 있었고, **만화 합치기(`MergeTool`)**는 `fileToDataUrl`로 풀어 보지 않고 목록에 넣어 깨진 사진이 들어갔음.
+- 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`.
+- `src/components/studio/MergeTool.tsx` `add`에서 `splitReadableImages` → 깨진 사진은 빼고 「사진을 읽지 못했어요…(파일명)」.
+- 검수: 단위 31/31(공용 5 포함), 브라우저 8/8, tsc, 빌드, Vercel READY(`four-cut-comics-6btu5w7ty`), DB v1.13, 운영 실측 — 합치기 도구에 깨진 사진 → 안내, 목록 0장. AI 비용 없음.

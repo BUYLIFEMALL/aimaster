@@ -64,7 +64,9 @@
 - **fashion-style — 수정 불필요**: 운영 실측에서 이미 「이미지를 읽지 못했습니다.」 한글 안내(`prepareImage`의 `ImageInputError`).
 - **ai-influencer-studio v1.13 ✅**: 상품·레퍼런스 칸에서 깨진 사진을 받지 않고 화면 안 안내. READY, DB v1.13, 운영 실측 확인. https://ai-influencer.buylife.xyz
 - **allinone-graphic v1.08 ✅**: AI 자동 입력 첨부에서 깨진 사진만 빼고 안내(글·PDF는 그대로). READY, DB v1.08, 운영 실측 확인. https://graphic.buylife.xyz
-- **다음 첫 단계**: seo-thumbnail-pro·four-cut-comics·emotion-writer·style-dna-analyzer(사진 받는 화면 확인 후). 각 프로그램: 스크립트 `copies`에 경로 추가 → `node scripts/check-shared-modules.mjs --sync` → 사진 받는 곳에서 `checkImageFile` → 테스트·배포·+0.01.
+- **four-cut-comics v1.13 ✅**: 만화 합치기 도구에서 깨진 사진을 빼고 안내(캐릭터 시트 칸은 원래 안내 있음). READY, DB v1.13, 운영 실측 확인. https://four-cut-comics.buylife.xyz
+- **수정 불필요**: style-dna-analyzer(이미 「이미지를 읽지 못했습니다…」), emotion-writer(사진 입력칸 없음).
+- **다음 첫 단계**: seo-thumbnail-pro(인물 사진 칸 `SettingsColumn.tsx` `handleImageUpload`가 검사 없이 받음). 각 프로그램: 스크립트 `copies`에 경로 추가 → `node scripts/check-shared-modules.mjs --sync` → 사진 받는 곳에서 `checkImageFile` → 테스트·배포·+0.01.
 
 ## 2026-10-19 Claude Code(윈도우) — 이미지 프로그램 업로드 멈춤·꺼진 버튼 밝기 점검 + AI 리버스 프롬프트 v1.05
 - **업로드 점검**: 서명 주소 업로드(`uploadToSignedUrl`)를 쓰는 곳은 banana-canvas(v1.10 처리)·`reverse-prompt`·`shorts-onestop-studio` 3곳. shorts는 `try/catch/finally`로 안전, **reverse-prompt는 멈춤은 없지만 예외 시 안내 없이 끝남 → v1.05에서 안내 추가**. 나머지 이미지 프로그램(photo-remake·fashion-style·4컷·인플루언서·allinone·image-convert·seo-thumbnail·portrait 등)은 사진을 서버로 올리지 않고 브라우저 안에서만 읽고, 읽기 전에 대기 표시를 켜지 않아 멈춤 위험 없음.

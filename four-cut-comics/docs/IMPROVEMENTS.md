@@ -40,3 +40,6 @@
 - **제안**: 캐릭터 시트를 [직접 올리기]로 바꿀 때 AI 인물사진 v1.27의 브라우저 안 얼굴 인식(`portrait-photo/src/lib/portrait/faceLocal.ts`의 `checkPhotoLocal`, 판정 `post.ts` `assessFaces`)으로 정면·한 사람·얼굴 크기를 점검해 "컷마다 얼굴이 달라질 수 있는 사진"을 미리 알려 준다. 사진 서버 전송·AI 비용 없음.
 - **근거·주의**: `docs/SHARED_FEATURE_MAP.md` 7절(공용화 후보 — 라이브러리 1.0.0 고정, 정적 파일 약 15MB, 안내만 하고 막지 않기).
 - **상태**: 미구현 제안. 구현 시 사본 방식은 SHARED_FEATURE_MAP 절차에 따라 기준 지정 후 진행(별도 승인).
+
+## 2026-10-19 Claude Code(윈도우)
+- **처리(v1.13)**: 「만화 합치기」에 깨진 사진이 들어가던 문제 → 공용 `image-file-check`로 빼고 안내.

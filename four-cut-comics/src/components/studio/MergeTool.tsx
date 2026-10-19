@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ArrowDown, ArrowUp, Download, Trash2, Upload } from "lucide-react";
 import { downloadUrl, fileToDataUrl, stackImages } from "@/lib/comic/draw";
+import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileCheck";
 
 export interface MergeItem { name: string; url: string }
 
@@ -19,8 +20,11 @@ export function MergeTool({ seed = [], title = "만화 합치기" }: { seed?: Me
     const room = MAX_ITEMS - items.length;
     if (room <= 0) { setError(`최대 ${MAX_ITEMS}장까지 합칠 수 있습니다.`); return; }
     try {
-      const picked = [...files].filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type)).slice(0, room);
-      if (picked.length < files.length) setError(`PNG·JPG·WEBP 이미지만, 최대 ${MAX_ITEMS}장까지 추가했습니다.`);
+      const typed = [...files].filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type)).slice(0, room);
+      if (typed.length < files.length) setError(`PNG·JPG·WEBP 이미지만, 최대 ${MAX_ITEMS}장까지 추가했습니다.`);
+      // 깨진 사진은 목록에 넣지 않는다(공용 image-file-check — 브라우저 안에서 풀어 보기)
+      const { readable: picked, failed } = await splitReadableImages(typed);
+      if (failed.length) setError(`${IMAGE_READ_FAIL_MESSAGE} (${failed.map((f) => f.name).join(", ")})`);
       const next = await Promise.all(picked.map(async (f) => ({ name: f.name, url: await fileToDataUrl(f) })));
       setItems((cur) => [...cur, ...next]);
     } catch (e) { setError(e instanceof Error ? e.message : "이미지를 읽지 못했습니다."); }
