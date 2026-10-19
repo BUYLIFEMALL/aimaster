@@ -1,103 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { currentKstHour, isAlertDue, isWithinActiveHours } from "@/lib/schedule";
-import { checkSavedProduct, type SavedProductRow } from "@/lib/priceAlert";
-
-/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
-async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
-  const ids = Array.from(new Set(userIds.filter(Boolean)));
-  if (ids.length === 0) return new Set();
-  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
-  return new Set(
-    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
-      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
-      .map((p) => p.id)
-  );
-}
+import { dispatchDuePriceAlerts } from "@/lib/schedulerMember/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-// Phase 14 — 관심 상품(찜) 가격/품절 변화 감지 dispatch. Phase 18의 dispatch-sourcing-alerts와
-// 동일하게 5분마다 깨어나고, 저장된 상품마다 정해둔 주기(alert_interval_minutes)를 기준으로
-// 재조회할 차례인지 다시 판단한다(real_estate_sales의 예약 조회 패턴 재사용).
+// Phase 14 관심 상품 가격/품절 알림 — 5분마다 깨우고, 상품별 주기·동작 시간대로 재조회 차례를 판단.
+// 실행 로직은 lib/schedulerMember/dispatch.ts(회원 cron-job.org 주소와 공용, v1.15).
+// v1.15(2026-10-20): 「내 cron-job.org」를 고른 회원·일시정지한 회원은 건너뛴다. 지침: 루트 docs/SCHEDULER_POLICY.md
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
-}
-
-async function dispatch() {
-  const admin = createAdminClient();
-  const now = new Date();
-  const kstHour = currentKstHour(now);
-
-  const { data: rows, error } = await admin
-    .from("sourcing_saved_products")
-    .select(
-      "id, user_id, keyword, platform, product_key, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels, alert_enabled, active_hour_start, active_hour_end",
-    )
-    .eq("alert_enabled", true);
-
-  if (error) throw new Error(error.message);
-
-  const dueRows = (rows ?? []).filter(
-    (r) =>
-      isAlertDue(r.last_checked_at, r.alert_interval_minutes, now) &&
-      isWithinActiveHours(kstHour, r.active_hour_start, r.active_hour_end),
-  );
-
-  let changed = 0;
-  let unchanged = 0;
-  let failed = 0;
-  const details: { id: string; result: string }[] = [];
-
-  const phoneOkUsers = await phoneRegisteredUserIds(admin, (dueRows).map((r: { user_id: string }) => r.user_id));
-  for (const row of (dueRows).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
-    try {
-      const result = await checkSavedProduct(admin, row as SavedProductRow);
-      if (!result.ok) {
-        failed++;
-        details.push({ id: row.id, result: `failed: ${result.error}` });
-        await admin.from("sourcing_saved_products").update({ last_checked_at: now.toISOString() }).eq("id", row.id);
-        continue;
-      }
-
-      if (result.current) {
-        await admin
-          .from("sourcing_saved_products")
-          .update({
-            last_price_krw: result.current.priceKrw,
-            last_status: result.current.status,
-            title: result.current.title,
-            detail_url: result.current.detailUrl,
-            last_checked_at: now.toISOString(),
-          })
-          .eq("id", row.id);
-      }
-
-      if (result.changed) {
-        changed++;
-        details.push({ id: row.id, result: "changed: notified" });
-      } else {
-        unchanged++;
-        details.push({ id: row.id, result: "unchanged" });
-      }
-    } catch (err) {
-      failed++;
-      const message = err instanceof Error ? err.message : "unknown error";
-      details.push({ id: row.id, result: `failed: ${message}` });
-      console.error(`[trending-product-finder cron] price alert ${row.id} 실패:`, err);
-    }
-  }
-
-  return { total: rows?.length ?? 0, due: dueRows.length, changed, unchanged, failed, details };
+  // CRON_SECRET이 비어 있으면 「Bearer undefined」로 통과되던 빈틈을 막는다(v1.15).
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) return false;
+  return request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const result = await dispatch();
-  return NextResponse.json({ ok: true, ...result });
+  try {
+    const service = createAdminClient() as unknown as SupabaseClient;
+    const result = await dispatchDuePriceAlerts({
+      excludeUserIds: await membersExcludedFromPlatform(service),
+      skipAll: !platformSchedulerEnabled(),
+    });
+    return NextResponse.json({ ok: true, ...result });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+  }
 }

@@ -4,6 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
 import { logLoadErrors } from "@/lib/loadErrors";
 import { WatchlistWorkspace } from "@/components/watchlist/WatchlistWorkspace";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulePublishingControl } from "@/components/watchlist/SchedulePublishingControl";
 import type { WatchlistEntry } from "@/lib/actions/watchlist";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +39,9 @@ export default async function WatchlistPage() {
     sourcingAlertNotifyMode: w.sourcing_alert_notify_mode === "changes_only" ? "changes_only" : "always",
   }));
 
+  // 정기 작업(매일 리포트·소싱 알림·가격 알림) 실행 상태(v1.15) — 회원별 상태는 서비스 키로 읽는다(표 RLS는 본인 조회만)
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHero
@@ -43,6 +50,8 @@ export default async function WatchlistPage() {
         description="카테고리와 추적할 키워드를 등록하면 네이버 쇼핑인사이트 관심도를 바탕으로 기회점수를 계산합니다. 무엇을 등록할지 모르겠다면 아래 「카테고리로 후보 상품군 추천받기」를 먼저 써 보세요."
         tip="키워드마다 「예약 소싱 알림」을 켜 두면 정한 주기마다 소싱 후보를 알림으로 받아요."
       />
+
+      <SchedulePublishingControl initial={scheduler} />
 
       {/* v1.11: 조회 오류면 빈 목록 대신 안내 — 빈 화면을 보고 키워드를 중복 등록하지 않게 */}
       {logLoadErrors("watchlist", { 관심키워드: { error: watchlistError } }).length ? (

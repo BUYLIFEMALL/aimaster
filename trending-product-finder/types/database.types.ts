@@ -11,7 +11,8 @@ export type ApiKeyProvider =
   | "youtube_api_key"
   | "elevenst_api_key"
   | "openai"
-  | "gemini";
+  | "gemini"
+  | "cronjob_org_api_key";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -72,6 +73,7 @@ export interface Database {
           sourcing_alert_active_hour_end: number | null;
           sourcing_alert_notify_mode: string;
           sourcing_alert_last_snapshot: Json | null;
+          report_last_run_at: string | null;
         };
         Insert: {
           id?: string;
@@ -90,6 +92,7 @@ export interface Database {
           sourcing_alert_active_hour_end?: number | null;
           sourcing_alert_notify_mode?: string;
           sourcing_alert_last_snapshot?: Json | null;
+          report_last_run_at?: string | null;
         };
         Update: {
           id?: string;
@@ -108,6 +111,7 @@ export interface Database {
           sourcing_alert_active_hour_end?: number | null;
           sourcing_alert_notify_mode?: string;
           sourcing_alert_last_snapshot?: Json | null;
+          report_last_run_at?: string | null;
         };
         Relationships: [];
       };

@@ -1,91 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { currentKstHour, isAlertDue, isWithinActiveHours } from "@/lib/schedule";
-import { runSourcingAlertForWatchlist } from "@/lib/sourcingAlert";
-import type { Json } from "@/types/database.types";
-
-/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
-async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
-  const ids = Array.from(new Set(userIds.filter(Boolean)));
-  if (ids.length === 0) return new Set();
-  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
-  return new Set(
-    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
-      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
-      .map((p) => p.id)
-  );
-}
+import { dispatchDueSourcingAlerts } from "@/lib/schedulerMember/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-// Phase 12 — 예약 소싱 알림 dispatch. 관심 키워드마다 회원이 정한 주기(1/3/6/12/24시간)와
-// 채널이 다를 수 있어, Vercel Cron은 5분마다 깨우기만 하고(vercel.json) 실제로 보낼
-// 차례인지는 이 라우트에서 sourcing_alert_last_run_at 기준으로 다시 판단한다
-// (real_estate_sales/src/app/api/collect/dispatch/route.ts와 동일 패턴).
+// Phase 12 예약 소싱 알림 — Vercel Cron은 5분마다 깨우기만 하고, 보낼 차례는 키워드별 주기·동작 시간대로 판단.
+// 실행 로직은 lib/schedulerMember/dispatch.ts(회원 cron-job.org 주소와 공용, v1.15).
+// v1.15(2026-10-20): 「내 cron-job.org」를 고른 회원·일시정지한 회원은 건너뛴다. 지침: 루트 docs/SCHEDULER_POLICY.md
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
-}
-
-async function dispatch() {
-  const admin = createAdminClient();
-  const now = new Date();
-  const kstHour = currentKstHour(now);
-
-  const { data: rows, error } = await admin
-    .from("trend_watchlist")
-    .select(
-      "id, user_id, category_name, keywords, sourcing_alert_channels, sourcing_alert_interval_minutes, sourcing_alert_last_run_at, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode, sourcing_alert_last_snapshot",
-    )
-    .eq("is_active", true)
-    .eq("sourcing_alert_enabled", true);
-
-  if (error) throw new Error(error.message);
-
-  const dueRows = (rows ?? []).filter(
-    (r) =>
-      r.sourcing_alert_interval_minutes != null &&
-      isAlertDue(r.sourcing_alert_last_run_at, r.sourcing_alert_interval_minutes, now) &&
-      isWithinActiveHours(kstHour, r.sourcing_alert_active_hour_start, r.sourcing_alert_active_hour_end),
-  );
-
-  let sent = 0;
-  let failed = 0;
-  const details: { watchlistId: string; result: string }[] = [];
-
-  const phoneOkUsers = await phoneRegisteredUserIds(admin, (dueRows).map((r: { user_id: string }) => r.user_id));
-  for (const row of (dueRows).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
-    try {
-      const result = await runSourcingAlertForWatchlist(admin, row);
-      const updatePayload: { sourcing_alert_last_run_at: string; sourcing_alert_last_snapshot?: Json } = {
-        sourcing_alert_last_run_at: now.toISOString(),
-      };
-      if (result.snapshot !== undefined) updatePayload.sourcing_alert_last_snapshot = result.snapshot as unknown as Json;
-      await admin.from("trend_watchlist").update(updatePayload).eq("id", row.id);
-      if (result.ok) {
-        sent++;
-        details.push({ watchlistId: row.id, result: result.notified ? "sent" : "no change" });
-      } else {
-        failed++;
-        details.push({ watchlistId: row.id, result: `skipped: ${result.error}` });
-      }
-    } catch (err) {
-      failed++;
-      const message = err instanceof Error ? err.message : "unknown error";
-      details.push({ watchlistId: row.id, result: `failed: ${message}` });
-      console.error(`[trending-product-finder cron] sourcing alert ${row.id} 실패:`, err);
-    }
-  }
-
-  return { total: rows?.length ?? 0, due: dueRows.length, sent, failed, details };
+  // CRON_SECRET이 비어 있으면 「Bearer undefined」로 통과되던 빈틈을 막는다(v1.15).
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) return false;
+  return request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const result = await dispatch();
-  return NextResponse.json({ ok: true, ...result });
+  try {
+    const service = createAdminClient() as unknown as SupabaseClient;
+    const result = await dispatchDueSourcingAlerts({
+      excludeUserIds: await membersExcludedFromPlatform(service),
+      skipAll: !platformSchedulerEnabled(),
+    });
+    return NextResponse.json({ ok: true, ...result });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+  }
 }

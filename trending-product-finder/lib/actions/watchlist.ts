@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { syncMemberScheduler } from "@/lib/schedulerMember/sync";
 
 export interface WatchlistEntry {
   id: string;
@@ -88,6 +89,8 @@ export async function createWatchlistAction(formData: FormData): Promise<Watchli
     .single();
   if (error) return { error: error.message };
 
+  // 정기 작업(매일 리포트·소싱 알림) 실행 작업 맞추기(v1.15) — 새로 만든 관심 목록은 그대로 두고, 실패 안내는 관심 키워드 화면 상태 줄이 보여 준다
+  await syncMemberScheduler(user.id, true);
   revalidatePath("/watchlist");
   return { entry: toEntry(data) };
 }
@@ -107,6 +110,13 @@ export async function toggleWatchlistActiveAction(formData: FormData): Promise<W
     .single();
   if (error) return { error: error.message };
 
+  // 실행 작업 맞추기(v1.15): 켤 준비가 안 됐으면(「내 cron-job.org」인데 키 없음 등) 다시 끄고 안내한다
+  const syncError = await syncMemberScheduler(user.id, nextActive);
+  if (syncError) {
+    await supabase.from("trend_watchlist").update({ is_active: false }).eq("id", id).eq("user_id", user.id);
+    revalidatePath("/watchlist");
+    return { error: `관심 목록을 켜지 못해 다시 꺼 두었습니다. ${syncError}` };
+  }
   revalidatePath("/watchlist");
   return { entry: toEntry(data) };
 }
@@ -193,6 +203,7 @@ export async function deleteWatchlistAction(formData: FormData): Promise<Watchli
   const { error } = await supabase.from("trend_watchlist").delete().eq("id", id).eq("user_id", user.id);
   if (error) return { error: error.message };
 
+  await syncMemberScheduler(user.id, false);
   revalidatePath("/watchlist");
   return {};
 }

@@ -8,8 +8,10 @@ export const maxDuration = 300;
 
 // 기존 Cron과 같은 CRON_SECRET Bearer 인증. vercel.json에 매일 1회(UTC 18:50 = 한국 03:50) 등록.
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  // CRON_SECRET이 비어 있으면 「Bearer undefined」로 통과되던 빈틈을 막는다(v1.15).
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) return false;
+  return request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 /**

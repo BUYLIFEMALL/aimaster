@@ -14,6 +14,10 @@ import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
 import type { ApiKeyProvider } from "@/types/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -181,6 +185,8 @@ export default async function SettingsPage() {
   // v1.11: 조회 실패 시 "등록 안 됨"처럼 보여 키를 다시 입력하지 않도록 위쪽에 안내
   const failed = logLoadErrors("settings", { "API 키": keysRes, 이메일: smtpRes, 카카오: solapiRes, 텔레그램: telegramRes, "알림톡 템플릿": kakaoRes });
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  // 정기 작업 실행 방식(v1.15)
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
 
   // 다른 AIMaster 프로그램(stepmail 등)에서 이미 SMTP 계정을 등록했다면 공용 테이블이라
   // 여기서도 그대로 보인다.
@@ -230,6 +236,29 @@ export default async function SettingsPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ⏰ 정기 작업 실행 방식(v1.15, 지침 docs/SCHEDULER_POLICY.md) — 관심 목록·알림 켜기/끄기는 각 화면에서 한다 */}
+      <section id="scheduler-mode" className="rounded-2xl border border-mx-border bg-mx-surface p-4">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-mx-text">⏰ 예약 발행</h2>
+          <p className="text-xs text-mx-muted">
+            매일 리포트·예약 소싱 알림·관심 상품 가격 알림을 무엇으로 돌릴지 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
+            본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요.
+          </p>
+        </div>
+        <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
+        <p className="mb-2 text-xs font-semibold text-mx-text">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+        <ol className="mb-3 list-decimal space-y-1 pl-4 text-xs text-mx-muted">
+          <li><a className="font-semibold text-mx-link underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+          <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
+          <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+        </ol>
+        <ApiKeyRow
+          provider="cronjob_org_api_key"
+          label={PROVIDER_LABELS.cronjob_org_api_key}
+          maskedValue={keyMap.has("cronjob_org_api_key") ? maskApiKey(keyMap.get("cronjob_org_api_key")!) : null}
+        />
       </section>
 
       <section className="space-y-5">

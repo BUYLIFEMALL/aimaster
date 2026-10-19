@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { syncMemberScheduler } from "@/lib/schedulerMember/sync";
 
 export interface SavedProductEntry {
   id: string;
@@ -98,6 +99,8 @@ export async function saveSourcingProductAction(formData: FormData): Promise<Sav
 
   if (error) return { error: error.message };
 
+  // 새 관심 상품은 알림이 기본 켜짐 → 정기 작업 실행 작업 맞추기(v1.15, 실패 안내는 관심 키워드 화면 상태 줄)
+  await syncMemberScheduler(user.id, true);
   revalidatePath("/sourcing");
   return { entry: toEntry(data) };
 }
@@ -109,6 +112,7 @@ export async function deleteSavedProductAction(formData: FormData): Promise<{ er
 
   const { error } = await supabase.from("sourcing_saved_products").delete().eq("id", id).eq("user_id", user.id);
   if (error) return { error: error.message };
+  await syncMemberScheduler(user.id, false);
 
   revalidatePath("/sourcing");
   return {};
@@ -153,6 +157,13 @@ export async function updateSavedProductAlertAction(formData: FormData): Promise
     .single();
   if (error) return { error: error.message };
 
+  // 실행 작업 맞추기(v1.15): 켤 준비가 안 됐으면(「내 cron-job.org」인데 키 없음 등) 알림을 다시 끄고 안내한다
+  const syncError = await syncMemberScheduler(user.id, enabled);
+  if (syncError) {
+    await supabase.from("sourcing_saved_products").update({ alert_enabled: false }).eq("id", id).eq("user_id", user.id);
+    revalidatePath("/sourcing");
+    return { error: `알림을 켜지 못해 다시 꺼 두었습니다. ${syncError}` };
+  }
   revalidatePath("/sourcing");
   return { entry: toEntry(data) };
 }

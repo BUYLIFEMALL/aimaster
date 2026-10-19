@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { syncMemberScheduler } from "@/lib/schedulerMember/sync";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getRelatedKeywords, sanitizeSeedKeyword, type NaverAdsAuth } from "@/lib/naver/searchAd";
 import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
@@ -263,6 +264,8 @@ export async function addCandidateToWatchlistAction(formData: FormData): Promise
     .single();
   if (error) return { error: error.message };
 
+  // 새 관심 목록 → 정기 작업 실행 작업 맞추기(v1.15, 실패 안내는 관심 키워드 화면 상태 줄)
+  await syncMemberScheduler(user.id, true);
   revalidatePath("/watchlist");
   return { entry: toEntry(data) };
 }
