@@ -16,6 +16,7 @@
 |---|---|---|
 | 용도 | 실제 회원 서비스 | 개별 프로그램 개발 실험, 강의 수업 시연·실습 |
 | Supabase 프로젝트 | `AIMaster` — ref `esgxyikcnnvmlhygjkth` | `AIMaster_dev` — ref `rjjtjakljjxsgjelqgek` |
+| Supabase 조직·요금제 | `BUYLIFE` (Pro) | **`BUYLIFE-DEV` (Free, 0원)** — 2026-10-19 BUYLIFE에서 이전(주소·키·ref 그대로) |
 | 메인 사이트 연결 | buylife.xyz 회원·등급·권한·결제로 묶임 | **연결 없음** — 프로그램 하나하나가 혼자 동작 |
 | 코드 위치 | `AIMaster/<프로그램>/` | `AIMaster/labs/<프로그램>/` |
 | Vercel 프로젝트 이름 | 프로그램 이름 그대로 | **항상 `dev-<이름>`** — Vercel 목록에서 운영 프로젝트와 바로 구분(2026-10-19 주인님 지시). 도메인에 밑줄을 쓸 수 없어 `dev_`가 아니라 `dev-` |
@@ -103,9 +104,18 @@ node scripts/lab/delete-lab.mjs <이름> --yes      # 실제 삭제
 4. dev 계정과 운영 회원 계정은 완전히 별개다(쿠키 이름에 ref가 들어가 섞이지 않음). 수강생이 운영 사이트로 넘어가면 운영 가입이 따로 필요하다고 안내한다.
 5. 수업 편의 설정(가입 이메일 인증 끄기 등)은 **dev에만** 적용한다.
 
+## 5-1. Free 조직(BUYLIFE-DEV) 운영 메모 (2026-10-19)
+
+- **비용 0원.** 대신 Free 제약: 7일 동안 사용이 없으면 자동 일시정지(오래 정지되면 대시보드 복구가 막힐 수 있음), DB 500MB(넘으면 읽기 전용), 파일 1GB·파일당 50MB, 전송량 월 5GB, 활성 사용자 월 5만, 자동 백업 없음, 로그 1일, 가장 작은 서버.
+- DB 용량에는 `lab_backup_20261019`(약 0.2GB)가 포함된다 — 500MB 한도에 가까워지면 백업부터 정리(주인님 확인).
+- **유료로 돌릴 때**: AIMaster_dev → Project Settings → General → Transfer project → `BUYLIFE`(Pro). 조직 기본료 추가 없이 dev 컴퓨트만 과금. `BUYLIFE-DEV` 조직 자체를 Pro로 올리면 기본료가 조직 하나 더 붙으므로 하지 않는다.
+- **에이전트 접근**: claude.ai Supabase 커넥터는 허용된 조직만 볼 수 있다. dev를 MCP로 다루려면 커넥터에 `BUYLIFE-DEV` 조직 권한이 있어야 한다(없으면 `permission` 오류).
+- 7일 자동 정지 방지 장치(하루 1회 가벼운 요청)는 별도 작업으로 결정 예정.
+
 ## 6. dev 프로젝트 1회 준비 (주인님 승인 후)
 
-- [ ] AIMaster_dev 재개 (현재 일시정지, 2026-10-19 확인)
+- [x] AIMaster_dev 재개(2026-10-19) → Free 조직 `BUYLIFE-DEV`로 이전(2026-10-19)
+- [ ] claude.ai Supabase 커넥터에 `BUYLIFE-DEV` 조직 권한 추가(주인님)
 - [ ] Authentication → 이메일 확인(Confirm email) 끄기 — 수강생이 바로 가입·로그인
 - [ ] Authentication → URL 설정에 Lab 주소를 허용 목록에 추가(비밀번호 재설정 등 메일 링크가 필요할 때)
 - [ ] 삭제 스크립트용 `LAB_DB_URL`(dev Postgres 연결 문자열)을 주인님 PC 환경변수로 등록 — 에이전트는 비밀번호를 입력하지 않는다
