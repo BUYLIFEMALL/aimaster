@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 예약 방식 2순위(정기형) 5개 + 네이버 카페·카카오 이용 권한 확인 (주인님 「2순위도 적용하고 권한 확인도 넣어줘」)
+- 공통: 회원이 실행 방식(AIMaster 기본 Vercel / 본인 cron-job.org)을 고르고, 정기 작업이 켜지면 회원 작업 자동 켜기·0개면 끄기. **실행 직전 이용 권한(사용기간) 확인**, 실행이 겹쳐도 한 번만(먼저 차지하기), `CRON_SECRET` 빈 값 401. 지침 `docs/SCHEDULER_POLICY.md` §8 현황표 갱신. 운영 DB `esgxyikcnnvmlhygjkth`는 크롬 SQL Editor로 적용.
+- 네이버 카페·카카오 v1.22: 정기 실행 직전 권한 확인만 추가(배포·운영자 실행 200).
+- stepmail v1.21 · booking-reminder v1.21 · crm-google-form v1.10 · youtube-auto-reply v1.12 · trending-product-finder v1.15: 배포 Ready, 예약 주소 401, 크롬 확인, **운영자 실행 200 확인(stepmail 매시·booking 15분·youtube 5분·trending 5분; crm은 매일 09시라 다음 날 확인)**. 각 프로그램 `AGENTS.md`에 상세.
+- 못 한 것: crm·youtube·trending의 「내 cron-job.org」 실검수 — **cron-job.org 하루 호출 한도(100회) 소진**, 한도가 풀린 날 관리자 계정으로(youtube는 관리자 실제 모니터링 유지 주의). booking 규칙 켜기 실패 안내가 화면에 안 보이는 문제(다음 배포 때, crm v1.10에서 고친 방식). 공용 「실패 시 상태 되돌리기」 2건(`docs/SCHEDULER_POLICY.md` 공용 개선 대기).
+- 링크: https://stepmail.buylife.xyz · https://booking-reminder.buylife.xyz · https://crm-google-form.buylife.xyz · https://youtube-auto-reply.buylife.xyz · https://trending-product-finder.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 4컷 v1.16 「카드뉴스(컷별 4장)로 올리기」 + INSTA v1.28 여러 파일 한 번에 첨부·`postType` 주소값
 - 커밋 `ae441d63`, 배포 `insta-auto-poster-lxpjm2zhb`·`four-cut-comics-2axnxq2dy`(순차), DB v1.28·v1.16. 크롬: 카드뉴스 주소로 형식 자동 선택 → 4장 한 번에(역순 선택해도 이름순 정렬) → AI 없이 임시저장 확인. 4컷은 컷이 4개일 때만 버튼 활성.
 - 못 한 것: 4컷 화면 버튼 실제 클릭(컷 그림 생성 필요). 관리자 계정 시험 초안 2건 남음.

@@ -260,3 +260,15 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.15 — ⏰ 매일 리포트·소싱 알림·가격 알림 실행 방식 회원 선택 + 하루 1번·중복 발송 방지·이용 권한 확인·비밀값 검사 (Claude Code 윈도우)
+- 주인님 「2순위도 적용하고 권한 확인도 넣어줘」. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `youtube-auto-reply` v1.12.
+- 정기형(작업 3개): 회원 cron-job.org는 **5분마다** 깨워 세 작업의 차례를 각각 판단. 「남은 일」 = 켜진 관심 목록 수 + 알림 켠 관심 상품 수(0이면 작업 끔). Next 15라 회원 실행 주소는 `after`.
+- 코드: `lib/schedulerMember/`(cronJobOrg·memberScheduler·dispatch·sync — 표 `trend_member_scheduler`, 토큰 `trend_…`, 끄기 스위치 `TREND_PLATFORM_SCHEDULER=off`), `lib/programAccess.ts`(사본). `dispatch.ts`가 세 작업(`dispatchDueReports`·`dispatchDueSourcingAlerts`·`dispatchDuePriceAlerts`)을 운영자 주소에서 옮겨 와 **이용 권한 확인 + 먼저 차지하기**를 더함:
+  - 매일 리포트: 새 칸 `trend_watchlist.report_last_run_at` — 「오늘 09:00 KST 이후 1번」(`reportWindowStart`, 08:59면 어제 09시 기준). 예전엔 이 기록이 없었음. 직접 누르는 「지금 리포트 생성」은 이 칸을 건드리지 않음.
+  - 소싱 알림 `sourcing_alert_last_run_at`·가격 알림 `last_checked_at`: 예전엔 보낸 **뒤에** 적어 실행이 겹치면 두 번 보낼 수 있었음 → 보내기 전에 조건부로 먼저 바꾼 실행만 진행.
+- 운영자 주소 3곳(`generate-reports`·`dispatch-sourcing-alerts`·`dispatch-price-alerts`)은 제외 목록(cronjob·일시정지 회원)·비밀값 검사만 하는 얇은 주소. 30일 정리(`cleanup-generated`) 포함 **예약 주소 5곳 모두 `CRON_SECRET` 빈 값이면 401**. 새 `/api/cron/dispatch-member`.
+- 켜고 끄는 7곳 연결(`sync.ts`): 관심 목록 만들기·후보에서 추가·켜기/끄기·삭제, 관심 상품 저장(알림 기본 켜짐)·알림 켜기/끄기·삭제. **켜기 스위치는 준비가 안 되면(「내 cron-job.org」인데 키 없음 등) 다시 끄고 행에 안내**, 새로 만든 것은 그대로 두고 관심 키워드 화면 상태 줄로 알 수 있게 함. `settings.ts` 키 변경·삭제 처리, 키 종류·이름표에 `cronjob_org_api_key`.
+- 화면: 설정 「⏰ 예약 발행」(방식 선택 + 키 칸, mx 다크 색), 관심 키워드 화면 위 「⏰ 실행 상태」 줄·일시정지/재개, `/guide` FAQ. DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261020180000_trend_member_scheduler.sql` — 크롬 SQL Editor 적용(배포 **전**), 결과 표 생성·`report_last_run_at` 칸 1·`v1.15`. `package.json` 1.15.0.
+- 검수: tsc 0, `test:trend` 11/11, `test:permissions` PASS, build, 09시 기준 계산 4가지 시각 확인, 커밋 `0e695730`, 배포 `trending-product-finder-3put0pd4n`(Ready), 예약 주소 5곳 무인증·`Bearer undefined`·가짜 토큰 401, `/login` 200. 크롬(관리자): 설정 v1.15·예약 발행 구역·공용 키 「등록됨」, 관심 키워드 화면 상태 줄 「AIMaster 기본(Vercel) 실행 중 · 켜진 정기 작업 5개」(DB 대조: 켜진 관심 목록 0/7 + 알림 켠 관심 상품 5/5) → 일시정지 → 재개 정상(DB paused false). 실제 리포트 생성·알림 발송·유료 호출 없음. 배포 뒤 운영자 5분 실행이 새 배포에서 `dispatch-sourcing-alerts`·`dispatch-price-alerts` 모두 200.
+- **미확인(다음 첫 단계)**: 「내 cron-job.org」 실검수 — 2026-10-20 cron-job.org 하루 호출 한도(100회) 소진, 한도가 풀린 날 관리자 계정으로 방식 전환 → 관심 상품 알림 켜기로 작업 자동 켜짐 → 회원 실행 200 → Vercel 복귀. 첫 09시 리포트 실행 뒤 `report_last_run_at`이 채워지는지 DB 확인(관리자는 켜진 관심 목록이 0개라 다른 회원 행으로 확인).
