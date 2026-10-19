@@ -1,3 +1,3 @@
-// Program version, shown in the sidebar. Keep it equal to programs.version in the shared DB.
-// Bump the two-digit minor on every change (v1.01 -> v1.02); a major rework moves to the next major (v2.01).
-export const APP_VERSION = "v1.16";
+export const APP_VERSION = "v1.20";
+export const APP_NAME = "YOUTUBE SHORTS STUDIO";
+export const APP_DESCRIPTION = "유튜브 쇼츠 자동화 스튜디오 (YouTube Dark Console Edition)";

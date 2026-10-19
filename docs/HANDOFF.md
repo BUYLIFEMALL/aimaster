@@ -1,5 +1,49 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — YOUTUBE Shorts 자동화(shots) v1.20: 유튜브 다크 콘솔 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 72개 완료 / 86.7% 달성!)
+
+- **대상**: `shots/` (https://shots.buylife.xyz, slug: `auto-shorts-posting`, 58번)
+- **사용자 특별 지시**: **"58번 유투브 느낌을 살려줘"**
+- **한 일**:
+  1. **유튜브 다크 콘솔 스타일 — 쇼츠 스튜디오 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **유튜브 다크 콘솔 스타일 — 쇼츠 스튜디오 에디션 (YouTube Dark Console — Shorts Studio Edition)**.
+     - **디자인 토큰 시스템 구축**: 옵시디언 다크(`--background: #0f0f0f`), 스튜디오 다크 서피스(`--surface: #181818`, `--surface-card: #1a1a1a`), 유튜브 공식 레드(`--brand: #ff0000`, `--brand-hover: #cc0000`, `--brand-light: #ff4e45`), 다크 디바이더(`--border: #272727`), 텍스트 시스템(`--text-primary: #f1f1f1`, `--text-secondary: #aaaaaa`, `--text-muted: #717171`) 및 `.studio-hero`, `.stat-card` 클래스 탑재 (`src/app/globals.css`).
+  2. **사이드바 표준화 & 브랜딩 강화 (`Sidebar.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.20 SHORTS LAB` 네온 뱃지 및 유튜브 레드 플레이 로고(▶) 탑재.
+     - 5단계 쇼츠 제작 스텝퍼: `1. 최신 쇼츠 주제 수집` (`/candidates`), `2. 영상스크립트 생성` (`/scripts`), `3. 장면 이미지 생성` (`/images`), `4. Suno 배경음악` (`/music`), `5. 영상 포스팅` (`/videos`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 전용 골드 칩 메뉴 신설.
+     - 모바일(767px 이하) 상단 헤더 고정 및 햄버거 토글 드로어 메뉴 완비.
+  3. **메인 워크스페이스 리뉴얼 (`src/app/(dashboard)/candidates/page.tsx`)**:
+     - 상단 유튜브 레드 발광 테두리의 `.studio-hero` 웰컴 배너 및 [📖 제작 가이드북] 퀵 버튼 탑재.
+     - 3대 핵심 KPI 카드: ① 바이럴 트렌드 수집(🔥) ② 9:16 비주얼 스토리보드(🪄) ③ Suno AI BGM & Full HD 렌더링(🎵).
+     - HTTP/RSS/Perplexity 수집 현황 바 및 수집 도구(`CandidateCollector`), 후보 목록(`CandidateList`) 다크 스튜디오 테마 일체화.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "쇼츠 자동화 공식 가이드북 — 소재 수집부터 6장면 스토리, 9:16 비주얼, Suno AI 테마곡 생성 및 Full HD 렌더링까지".
+     - **5단계 쇼츠 제작 파이프라인**: 1) 트렌드 & 바이럴 주제 수집 ➔ 2) 6장면 시나리오 & 훅 작성 ➔ 3) 나노바나나 9:16 비주얼 생성 ➔ 4) Suno AI BGM & 감성 사운드 ➔ 5) Full HD 렌더링 & 업로드.
+     - **9:16 세로 씬 구성 및 떡상 연출 공식 매트릭스 표**: 오프닝 훅(0~3s), 문제 제기(3~15s), 핵심 해법 1·2(15~38s), 반전 클라이맥스(38~48s), CTA 엔딩(48~58s)별 연출 포인트, 비주얼 가이드, 사운드 템포 정리.
+     - **3대 오디오 & 렌더링 팁**: 0초 훅 비트 드롭, 1.8초 컷 전환 리듬, 고대비 볼드 자막 바.
+     - **100% BYOK 보안 원칙 배너**: 회원 본인 OpenAI / Perplexity / Suno / Google API 키 격리 원칙 명시.
+     - **자주 묻는 질문 FAQ 5종 레드 아코디언 인터랙션** 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `shots/package.json` (`1.20.0`), `shots/src/lib/version.ts` (`v1.20`), Supabase DB `programs` 메타데이터 (`version: v1.20`) 동기화 완료 (`scripts/update_prog_58_v120.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (경로 14개 완벽 생성, exit code 0).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_DAJtV5KLPT8KPpgv2FePCvcdpLf8`
+     - 공식 도메인 즉시 반영: https://shots.buylife.xyz (가이드북: `https://shots.buylife.xyz/guide`)
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 기반 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-15478`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_shots_desktop_main_v120.png`: 데스크톱 메인 전경, 스튜디오 히어로 배너, 3대 KPI 카드 및 다크 수집기
+       - `edge_shots_desktop_kpi_v120.png`: 스튜디오 헤더 & 3대 KPI 카드 클로즈업
+       - `edge_shots_desktop_guide_v120.png`: 신규 비주얼 가이드북 상단 및 5단계 파이프라인
+       - `edge_shots_desktop_guide_matrix_v120.png`: 9:16 비주얼 프롬프트 매트릭스 표 및 FAQ 아코디언
+       - `edge_shots_mobile_candidates_v120.png`: 모바일(390px) 뷰포트 반응형 메인 화면
+       - `edge_shots_mobile_guide_v120.png`: 모바일(390px) 뷰포트 반응형 가이드북 화면
+  9. **서브문서 6종 완비**:
+     - `shots/AGENTS.md`, `shots/README.md`, `shots/docs/DESIGN_HANDOFF.md`, `shots/docs/IMPROVEMENTS.md`, `shots/docs/IMPROVEMENT_BACKLOG.md`, `shots/docs/PLAN_20261019_DESIGN_RENEWAL.md`
+- https://shots.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — INSTA 카드뉴스 v1.18: 인스타그램에 바로 올리기(자동 포스팅 1차) · ① AIMaster 운영
 - **한 일**: 내보내기 화면에서 회원 본인 인스타에 즉시 게시(1장 피드·2~10장 캐러셀). 인스타 연결은 **INSTA 포스팅 자동화에서 한 번 연결한 `insta_accounts`를 그대로 재사용**(새 등록 없음). 공용 기준 코드 `instagram-publish` 신설(기준 insta_auto_poster `publish.ts`, insta_auto_poster는 동작 같아 미배포 — `docs/SHARED_MODULES.md` 미배포 표). 최상위 지침에 「회원 연동 정보 공용 저장·재사용 규칙」 추가(① 운영 기준 명시).
 - **검수**: 단위 42, tsc, 빌드, READY, DB v1.18(운영 ref `esgxyikcnnvmlhygjkth`), 연결 상태 API·패널 표시 확인. **실제 게시 시험은 외부 공개라 주인님 확인 대기.** 패널 확인용 임시 프로젝트 「[시험] 인스타 게시 패널 확인」이 관리자 보관함에 있음(게시 시험 여부 결정 후 삭제).
