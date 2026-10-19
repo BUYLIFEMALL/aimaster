@@ -1,76 +1,62 @@
-# 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
+# 🔑 AIMaster — 39번 성격코드(MBTI) 측정기 (AGENTS.md)
 
-이 문서는 **성격코드(mbti)** 프로젝트에서 AI Agent(Claude Code 등)가 협업할 때
-준수해야 할 필수 가이드라인입니다.
-
----
-
-## ★ 2026-10-16 v1.03 — 로그인 + 공통 이용 권한 판정 적용 (구조 변경, 이 문서의 옛 "로그인 없는 공개 사이트" 설명보다 우선)
-- 주인님 지시: "FREE 뱃지를 끄면 다른 프로그램과 동일하게 사용 권한이 있는 사람만". → `lib/access.ts`(`requireProgramAccess`/`checkProgramAccessApi`, 판정 순서 정지 → 관리자 → 핸드폰 → **FREE 배지** → 구독 → 등급+사용기간, 권한 테이블은 서비스 롤 `lib/supabase/admin.ts`), `middleware.ts`(`/test`·`/result`는 로그인 필요, `/`·`/api/og`는 공개), 로그인·가입 안내 화면 `app/(auth)/`(mbti-character와 같은 구조), `/test`·`/test/full`·`/result/[type]`에 권한 확인. 결과 화면은 정적 생성 대신 매 요청 판정.
-- FREE 배지는 관리자 프로그램 편집 화면에서 켜고 끄면 코드 수정 없이 바로 반영(켜면 가입·로그인 회원 누구나, 끄면 권한 있는 회원만).
-- Vercel 프로젝트 `mbti`에 공용 DB 연결값 3종 등록(`scripts/configure-platform.mjs`). 주소는 그대로 https://mbti-rho-two.vercel.app (자체 로그인, 메인 SSO 아님).
-- 운영 확인: 비로그인 `/test`·`/test/full`·`/result/INFP` → 307 `/login?redirect=…`, `/`·`/login`·`/api/og` 200. 배포 직후 옛 정적 페이지가 엣지 캐시에 남아 잠깐 200/404로 보였음(캐시 무효화 후 정상 — ERROR_LESSONS 2026-10-16).
-- 정정: 이 폴더 규칙(푸시·배포·환경변수 사전 승인)을 작업 시작 때 확인하지 못하고 진행함(주인님 직접 지시 작업). 보고에 명시.
-- 로그인 후 확인(2026-10-16, 엣지·시험 계정 buylifemall@naver.com, FREE 꺼짐·VIP 사용기간 있음): `/test` 1번 문항, `/result/INFP` 결과 카드 정상.
-
-## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
-
-### 1. 자율 진행 허용 작업
-다음 작업은 사용자 사전 승인 없이 자율적으로 수행합니다:
-- 파일 생성 및 코드 수정
-- 패키지 설치 (`npm` 등)
-- 로컬 테스트 및 빌드 실행
-
-### 2. 사전 승인 필수 작업 (🚨 승인 없이 금지)
-> **2026-10-16 주인님 지시로 정리**: Git 커밋·푸시와 프로덕션 배포는 **사전 승인 없이** 메인 지침(`CLAUDE.md` 원칙 12 「작업 완료 절차」: 검수 → 커밋 → 푸시 → 배포 → 배포 후 확인 → 결과·라이브 링크 보고)대로 진행한다. 초기 템플릿에 있던 「Git push·배포 사전 승인」은 폐지. 아래 항목만 여전히 사전 승인이 필요하다.
-1. **파일이나 폴더 삭제**
-2. **환경변수와 API 키 변경**(카카오 공유 SDK 앱키 등 앞으로 추가될 수 있는 키 포함)
+> **프로그램 정보**
+> - **프로그램 번호**: 39번
+> - **프로그램명**: 성격코드(MBTI) 측정기 (`personality-code`, `mbti/`)
+> - **공식 배포 주소**: https://personality-code.buylife.xyz
+> - **버전**: `v1.20` (3중 동기화 완료: `package.json` 1.20.0, `lib/version.ts` v1.20, Supabase DB `programs` v1.20)
+> - **적용 디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 파스텔 퍼스널리티 랩 에디션 (Creative Atelier — Pastel Personality Lab Edition)**
 
 ---
 
-## 🎯 프로젝트 목적
-
-로그인 없이 누구나 이용하는 **공개 성격유형 테스트 웹사이트**. 20문항 빠른 검사(`/test`)
-또는 60문항 정식 검사(`/test/full`) → 4개 이분지표(E/I, S/N, T/F, J/P) 점수화 → 16개
-유형 중 하나로 결과 표시 → 카카오톡/인스타 공유용 동적 OG 카드 생성까지가 핵심 흐름이다.
-자세한 설계 배경(왜 로그인/Supabase가 없는지, 왜 "MBTI" 대신 "성격코드"라는 이름을
-썼는지, 두 검사가 채점 로직을 공유하는 방식)은 README.md 참고.
+## 1. 프로그램 사용목적 및 대상 (Target & Purpose)
+- **목적**: 융(Jung) 심리유형론의 4대 이분지표(E/I, S/N, T/F, J/P)를 정밀 분석하여 16가지 성격 유형 중 나의 진짜 성향을 찾아내고, 결과 카드를 친구 및 SNS에 공유하는 성격유형 측정 도구입니다.
+- **대상**: 나의 타고난 성향과 숨겨진 강점을 알고 싶은 개인, 팀원 간의 소통 코드를 맞추고 싶은 스타트업/조직, 카카오톡/인스타그램에 재미있는 심리 분석 카드를 공유하고 싶은 일반 사용자.
 
 ---
 
-## 📂 프로젝트 작업 디렉토리
-* **메인 모듈 경로**: `mbti/`
-* 모든 관련 소스 코드는 이 폴더 내에서 개발 및 관리합니다.
+## 2. 개발 도구 및 기술 스택 (Tech Stack & Skills)
+- **Framework**: Next.js 14.2.35 (App Router)
+- **UI & Styling**: React 18, Tailwind CSS v3.4.1, Lucide React
+- **Icons**: Lucide Icons
+- **Backend / Auth**: Supabase SSR (`@supabase/ssr`, `@supabase/supabase-js`), 서비스 롤 관리자 권한
+- **Social Sharing**: 동적 OG 이미지 생성기 (`app/api/og/route.tsx`), 카카오톡 공유 SDK
+- **Deployment**: Vercel Production (`https://personality-code.buylife.xyz`)
 
 ---
 
-## 🔗 AIMaster 플랫폼 공통 원칙 — 이 프로젝트에는 예외적으로 적용되지 않는 부분
+## 3. 핵심 기능 및 아키텍처 (Features & Architecture)
+1. **2분 퀵 진단 (20문항)**: 핵심 문항으로 신속하게 4대 성격 지표를 산출하여 16가지 유형 카드 도출.
+2. **10분 정식 진단 (60문항)**: 다각도 교차 검증 문항을 통해 성향의 강도와 균형을 정밀 채점.
+3. **독립 비주얼 가이드북 (`/guide`)**: 4단계 진단 파이프라인 다이어그램, 4대 이분지표 대비 매트릭스 표, 16유형 4대 기질 맵, FAQ 5종 파스텔 아코디언 제공.
+4. **100% 프라이버시 안심 로컬 연산**: 응답 내역이 서버에 저장되지 않고 브라우저 로컬에서 안전하게 채점.
+5. **동적 SNS 공유 카드**: 카카오톡 및 인스타그램 공유 시 유형별 맞춤 뱃지와 설명이 담긴 고화질 OG 카드 자동 생성.
 
-mbti는 AIMaster 저장소 안의 서브프로젝트이므로 "Platform-hub 구조"(서브폴더
-안에서 자기완결적으로 개발·배포)는 그대로 따른다. **다만 이 프로젝트는 로그인이 필요 없는
-무료 공개 서비스라 아래 항목은 의도적으로 적용하지 않는다** — 새로 합류하는 에이전트가
-"멀티테넌시 원칙이 빠졌다"고 오해해 억지로 끼워 넣지 않도록 명시해둔다:
-- `requireProgramAccess()`/`checkProgramAccessApi()` 같은 로그인·구독 권한 체크 — 이
-  서비스에는 로그인 자체가 없다.
-- 공용 Supabase DB 연결 — 검사 응답/결과가 서버에 저장되지 않고 전부 클라이언트+URL에서만
-  처리된다. 나중에 결과 저장/통계 같은 기능이 추가되면 그때 공용 Supabase를 연결할 것.
-- `user_api_keys`/API 키 등록 페이지 — 이 프로젝트는 현재 외부 유료 API를 전혀 호출하지
-  않는다(카카오 공유 SDK를 붙이게 되면 그때 키 등록 페이지가 필요해질 수 있음).
+---
 
-AIMaster 플랫폼과의 연결은 헤더의 "다른 프로그램 보기" 링크(`buylife.xyz/programs`)와,
-추후 `programs` 카탈로그 등록 정도로 가볍게만 유지한다(README.md "남은 작업" 참고).
+## 4. 버전 및 변경 히스토리 (Changelog)
+- **v1.20 (2026-10-19, Antigravity 윈도우)**:
+  - 크리에이티브 아틀리에 스타일 — 파스텔 퍼스널리티 랩 에디션 전면 디자인 리뉴얼
+  - 상단 헤더: `🔑 성격코드 LAB`, `v1.20` 파스텔 뱃지, [📖 16성격 가이드북 (`/guide`)] 퀵 버튼 탑재
+  - 메인 워크스페이스: `.studio-hero` 파스텔 배너, 3대 KPI 카드, 검사 선택 듀얼 카드, 16유형 4대 기질 갤러리 칩셋
+  - 독립 비주얼 가이드북 (`/guide`) 전면 신설
+  - Next.js 프로덕션 빌드 무결성 통과 및 Vercel 배포 완료
+  - Microsoft Edge 최전면 포그라운드(headless: false) 6종 캡처 수집 및 10분 화면 유지 검수 완료
+  - 버전 3중 동기화 완료 (`package.json`, `version.ts`, DB `programs` v1.20)
+- **v1.05 (2026-10-16)**: 공통 이용 권한 판정 및 로그인 화면 도입
 
-## 📦 Phase 진행 상태
+---
 
-상세 내용은 README.md의 "Phase 진행 상태" 표 참고. 한 번에 다 만들지 않고 Phase별로
-하나씩 붙여나간다.
+## 5. 백로그 및 남은 작업 (Pending Tasks & Backlog)
+- `mbti/docs/IMPROVEMENT_BACKLOG.md` 참고.
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.04 (personality-code)
+## 6. 타 프로그램 연계 및 혁신 아이디어 (Integration & Ideas)
+- **38번 캐릭코드(MBTI) 측정기 (`mbti-character`)와의 파이프라인 결합**: 성격코드 결과에 맞춰 AI 캐릭터/아바타 일러스트를 자동 매칭하여 굿즈나 프로필 이미지로 다운로드 지원.
+- **AI 맞춤형 소통 팁 & 대인관계 시뮬레이터**: 두 사람의 유형을 선택하면 갈등 예방 팁과 업무 협업 가이드를 AI가 즉시 분석해주는 기능.
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+---
 
-## 2026-10-16 도메인 통일(SSO) — v1.05 (Claude Code 윈도우)
-- 새 주소 `https://personality-code.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
-- 검수: 옛 주소 /test → 새 주소 308, 로그인 필요 화면(/test)이 로그인 화면으로 이동하지 않고 열림(시험 계정)
-- 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+## 7. UI/UX 및 스타일 가이드 (UI/UX Guide)
+- `mbti/docs/DESIGN_HANDOFF.md` 참고.

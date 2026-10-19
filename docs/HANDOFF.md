@@ -1,5 +1,59 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- DETAILED_PROGRAM_REVIEW_HANDOFF_20261019 -->
+## 2026-10-19 Codex — 83개 프로그램별 상세 분석·265개 개선 이유/시험 조건 작성
+
+- **결과물**: [프로그램별 전체 표](program-reviews-20261019/INDEX.md) · [검색 보고서](program-reviews-20261019/REPORT.html) · [엑셀](program-reviews-20261019/AIMaster_프로그램별_상세개선_20261019.xlsx) · [상세 인수인계](PROGRAM_DETAILED_REVIEW_HANDOFF_20261019.md).
+- **범위**: 문서·선택 핵심 소스 정적 분석. 14개 카테고리, 개발·유지보수99/디자인83/신규 자동화83. 필요 이유·현재 조건·근거·제안 범위·세 채택 기준·시험 표본 포함. 실제 운영 장애/83개 기능 전수 검수 판정과 구분합니다.
+- **검수**: 문서 일관성104개·보이는 Edge 보고서14개 통과(1440/375px, 검색/필터/줄바꿈, 오류0·외부요청0). 제품 구현·DB/키/환경변수 변경·유료 호출·게시/발송·앱 배포는 미실행입니다.
+- **협업**: 77개 프로그램에 새 분석 문서와 전용 진입 링크 추가. 기존 변경/다른 CLI 작업으로 `web-crawler`, `ai-auto-blog`, `naver-blog-agent`, `competitor-analysis`, `longtail-keyword-expander`, `mbti` 6개 폴더 사본은 보류했으나 중앙 개별 분석은 83개 모두 완료. 기존 작업을 보존했습니다.
+- **다음**: 공통 아이디어 원장 → 대상 상세 분석 → 최신 프로그램 원장/ACTIVE_WORK 대조 → 후보 ID 선택·개발 플랜 → 비용 없는 재현부터 시작. 이미 완료된 기능은 유지하고 수정 결과/미완료/인사이트/라이브 링크를 원장에 추가합니다. 기존 안정화 우선·점진적 기준 모듈화 원칙 유지.
+- **별도 요청**: 현재 Codex 계정에 `mattpocock/skills` 마켓플레이스 소스 등록·목록 확인 완료. 개별 스킬 설치나 타 계정 복제는 하지 않았습니다.
+<!-- /DETAILED_PROGRAM_REVIEW_HANDOFF_20261019 -->
+
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 성격코드(MBTI) 측정기(mbti) v1.20: 크리에이티브 아틀리에 파스텔 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 73개 완료 / 88.0% 달성!)
+
+- **대상**: `mbti/` (https://personality-code.buylife.xyz, slug: `personality-code`, 39번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 파스텔 퍼스널리티 랩 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 파스텔 퍼스널리티 랩 에디션 (Creative Atelier — Pastel Personality Lab Edition)**.
+     - **디자인 토큰 시스템 구축**: 웜 파스텔 크림(`--background: #faf8f5`), 클린 화이트 서피스(`--surface: #ffffff`), 소프트 슬레이트 디바이더(`--border: #e8e5df`), 4대 이분지표 시그니처 4색 컬러(E/I 바이올렛 `#8b5cf6`, S/N 에메랄드 `#10b981`, T/F 로즈 `#f43f5e`, J/P 앰버 `#f59e0b`) 및 파스텔 백라이트의 `.studio-hero`, `.stat-card` 클래스 탑재 (`app/globals.css`).
+  2. **헤더 표준화 & 브랜딩 강화 (`app/layout.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 로고 `🔑 성격코드 LAB` 및 `v1.20` 파스텔 바이올렛 뱃지 탑재.
+     - 상단 우측 유틸리티 영역에 **`📖 16성격 가이드북` (`/guide`)** 퀵 링크 신설.
+     - 모바일 반응형 뷰포트 최적화 및 융 심리유형론 저작권 안내 푸터 완비.
+  3. **메인 랜딩 워크스페이스 리뉴얼 (`app/page.tsx`)**:
+     - 상단 파스텔 글로우의 `.studio-hero` 웰컴 배너 및 가이드북 바로가기 버튼.
+     - **3대 핵심 KPI 카드**: ① 2분 퀵 진단(20문항) ② 16유형 정밀 매트릭스(60문항 정밀형) ③ 100% 프라이버시 보장(안심 로컬 연산 & OG 공유).
+     - **빠른 검사 vs 정식 검사 듀얼 선택 카드** (소요시간, 문항수, 특징 비교).
+     - **16가지 성격 유형 4대 기질별 퀵 프리뷰 갤러리 칩셋** (분석가형, 외교관형, 관리자형, 탐험가형 16개 유형 코드 및 명칭 정리).
+  4. **독립 비주얼 가이드북 (`app/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "성격코드 공식 가이드북 — 4대 이분지표 분석부터 16유형 기질 매핑, 소통 가이드까지".
+     - **4단계 성격코드 진단 파이프라인**: 1) 질문지 응답 ➔ 2) 4대 축 독립 채점 ➔ 3) 16유형 매핑 & 프로파일 ➔ 4) 카드 저장 & SNS 공유.
+     - **4대 이분지표(E/I, S/N, T/F, J/P) 핵심 해설 매트릭스 표**: 에너지 방향, 인식 방식, 판단 기준, 생활 양식별 좌측/우측 성향 및 작동 원리 완전 정리.
+     - **16가지 성격코드 4대 기질 맵**: 분석가형(_NT_), 외교관형(_NF_), 관리자형(_S_J), 탐험가형(_S_P) 핵심 특징.
+     - **100% 프라이버시 안심 로컬 연산 배너**: 브라우저 로컬 안전 채점 및 서버 미저장 안내.
+     - **자주 묻는 질문 FAQ 5종 파스텔 아코디언 인터랙션** 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `mbti/package.json` (`1.20.0`), `mbti/lib/version.ts` (`v1.20`), Supabase DB `programs` 메타데이터 (`version: v1.20`) 동기화 완료 (`scripts/update_prog_39_v120.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 14.2.35 프로덕션 빌드 성공 (정적 페이지 9개 생성, exit code 0).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_3racjm45XxHm3npQUhAqM4i2jBUE`
+     - 공식 도메인 즉시 반영: https://personality-code.buylife.xyz (가이드북: `https://personality-code.buylife.xyz/guide`)
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 기반 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-15671`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_mbti_desktop_main_v120.png`: 데스크톱 메인 전경, 히어로 배너, 3대 KPI 카드 및 검사 선택 듀얼 카드
+       - `edge_mbti_desktop_kpi_v120.png`: 히어로 배너 & 3대 KPI 카드 클로즈업
+       - `edge_mbti_desktop_guide_v120.png`: 신규 16성격 비주얼 가이드북 상단 및 4단계 파이프라인
+       - `edge_mbti_desktop_guide_matrix_v120.png`: 4대 지표 매트릭스 표 & 4대 기질 맵 & FAQ 아코디언
+       - `edge_mbti_mobile_main_v120.png`: 모바일(390px) 뷰포트 반응형 메인 화면
+       - `edge_mbti_mobile_guide_v120.png`: 모바일(390px) 뷰포트 반응형 가이드북 화면
+  9. **서브문서 6종 완비**:
+     - `mbti/AGENTS.md`, `mbti/README.md`, `mbti/docs/DESIGN_HANDOFF.md`, `mbti/docs/IMPROVEMENTS.md`, `mbti/docs/IMPROVEMENT_BACKLOG.md`, `mbti/docs/PLAN_20261019_DESIGN_RENEWAL.md`
+- https://personality-code.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — INSTA Cardnews 자동화 v1.19: 인스타 예약 게시(자동 포스팅 2차) + 게시 기록
 
 - **대상**: `cardnews-studio/` · DB 운영 `esgxyikcnnvmlhygjkth`
