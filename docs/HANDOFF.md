@@ -1,5 +1,26 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 이커머스·메신저 핵심 API 본문 단계별 시각화 보강 (쿠팡 파트너스, 카카오 플랫폼 연동, 알리익스프레스 3종 완료, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 쇼핑 자동화 솔루션 및 카카오 알림 연동에서 가장 핵심적인 3대 플랫폼(쿠팡 파트너스, 카카오 플랫폼 연동, 알리익스프레스)의 가이드 본문을 **개요 카드, Step 1~4 시각적 스텝 뷰어, 💡 팁, ⚠️ 공정위 및 심사 주의사항 배너, 공식 콘솔 직링크**가 탑재된 고품질 비주얼 템플릿으로 전면 고도화함.
+- **주요 작업 내용**:
+  1. **이커머스 & 메신저 3대 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **쿠팡 파트너스 (Coupang Partners)**: 상품 검색 및 딥링크 생성, 누적 판매금액 15만원 달성 조건 및 초보자 수동 링크 팁, Access Key / Secret Key 발급, 공정위 경제적 이해관계 표시 필수 문구 안내, Step 1~4 시각화.
+     - **카카오 플랫폼 (Kakao Developers)**: Kakao Developers 앱 생성, REST API 키 발급, 카카오 로그인 활성화 & Redirect URI(`https://www.buylife.xyz/api/auth/callback/kakao`), 카카오톡 나에게 보내기(메시지 전송) 동의항목 설정, Step 1~4 시각화.
+     - **알리익스프레스 (AliExpress Portals)**: 글로벌 핫딜 상품 검색 및 제휴 링크 변환, Tools → API 신청서 제출 팁, AppKey/AppSecret 및 Tracking ID 발급, 심사 소요시간 안내, Step 1~4 시각화.
+  2. **Vercel 프로덕션 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_Gm7eQJ7h7Mbo76N6ovV64uC8zhCM`, Aliased: `https://www.buylife.xyz`).
+  3. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 쿠팡 파트너스 스텝 뷰어 검증: `edge_guide_coupang_detail.png`
+     - 카카오 플랫폼 연동 스텝 뷰어 검증: `edge_guide_kakao_detail.png`
+     - 알리익스프레스 스텝 뷰어 검증: `edge_guide_aliexpress_detail.png`
+- **서비스 링크**:
+  - 이용 가이드북 종합: https://www.buylife.xyz/guides
+  - 쿠팡 파트너스 가이드: https://www.buylife.xyz/guides/117ffedb-c554-458a-9b92-e9ed6ee33988
+  - 카카오 플랫폼 가이드: https://www.buylife.xyz/guides/4042a4b3-e573-4baa-8f70-103f52b1cbbd
+  - 알리익스프레스 가이드: https://www.buylife.xyz/guides/0eb4180e-a076-4ee6-b75e-6b3c3c9ec442
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 핵심 API 본문 단계별 시각화 전면 보강 (OpenAI, Gemini, Claude, 네이버 검색/데이터랩, 네이버 검색광고, YouTube Data API 6종 완료, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 이용 가이드북(`/guides`)에서 회원들이 가장 많이 연동하는 핵심 API들의 본문이 단순 텍스트 번호 목록에 머물러 있어, 이를 **개요 카드, Step 1~4 시각적 스텝 뷰어, 💡 팁, ⚠️ 보안 및 할당량 주의사항 콜아웃, 공식 콘솔 직링크**가 완비된 프리미엄 비주얼 카드 형태로 전면 업그레이드함.
