@@ -1,5 +1,48 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Antigravity CLI(agy, 윈도우) — Threads 계열 설정 카드 배경색 가독성 개선 (Threads 자동포스팅 & Threads 쇼핑제휴, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 사용자 피드백 ("배경색이 너무 진해서 글이 안 보여 잘 보일 수 있도록 연하게 해줘, 비슷하게 해놓은 데 있으면 거기도 같이 맞춰줘")을 접수하여 조사한 결과, `ThreadsMetaAddressSummary` 카드가 다크 모드/어두운 배경 위에서 반투명 `bg-blue-50/40`로 인해 뒤쪽 검정 배경이 투과되어 진한 회색으로 어두워지고 텍스트(`text-neutral-500` 등)가 묻히는 문제를 확인 및 해결함.
+- **수정 내용**:
+  1. `threads/src/components/settings/ThreadsMetaAddressSummary.tsx`: 반투명 `bg-blue-50/40` 제거하고 불투명 연하늘 `bg-blue-50 border-2 border-blue-200` 적용, 텍스트 가독성을 위한 고대비 `text-neutral-900` 및 본문 `text-neutral-700` 명확화.
+  2. `threads/src/components/settings/CopyAddress.tsx`: 주소 복사 박스를 깨끗한 흰색 배경(`bg-white border border-blue-200/80 shadow-xs`)과 선명한 모노스페이스 폰트(`text-neutral-900 font-mono`)로 개선.
+  3. `threads-affiliate-poster/src/components/settings/ThreadsMetaAddressSummary.tsx` 및 `CopyAddress.tsx`: 동일한 패턴으로 제작된 Threads 쇼핑제휴 프로그램 설정 카드도 함께 동기화 개선.
+- **배포 및 검증**:
+  - `threads` Vercel 프로덕션 배포 완료 (`dpl_5mvT2YoxZ2k4v9v5GkqFPNwKsbHh`, Aliased: `https://auto-threads-posting.buylife.xyz`).
+  - `threads-affiliate-poster` Vercel 프로덕션 배포 완료 (`dpl_EQoNqeWQ6fU4ZQsscaezUyzgjsyQ`, Aliased: `https://threads-affiliate-poster.buylife.xyz`).
+  - Microsoft Edge 포그라운드 실세션 검수 완료 (`edge_threads_settings_light_card.png` - 화사하고 연한 하늘색 카드와 또렷한 글씨 가독성 확인).
+- **서비스 링크**:
+  - Threads 자동포스팅 설정: https://auto-threads-posting.buylife.xyz/settings
+  - Threads 쇼핑제휴 설정: https://threads-affiliate-poster.buylife.xyz/settings
+
+## 2026-10-20 Antigravity CLI(agy, 윈도우) — 가이드북 Phase 8 이커머스 & 통합 안내 가이드 4종 전면 단계별 시각화 완료 (누적 37대 핵심 가이드 완성, 92.5% 달성, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: AI 12단 상세페이지(쿠팡/스마트스토어), 토스쇼핑 쉐어링크 API, 네이버 브랜드커넥트, buylife.xyz 도메인 통합 이전 가이드 등 이커머스 및 통합 플랫폼 핵심 가이드 4종을 **개요 카드, Step 1~4 시각 스텝 뷰어, 고정 IP/콜백 주소 복사기, 💡 팁, ⚠️ 보안/주의사항 배너, 공식 콘솔 직링크**가 탑재된 프리미엄 반응형 카드 템플릿으로 전면 고도화함. (이로써 AIMaster 가이드 40종 중 37종 완성, 달성률 92.5% 돌파)
+- **주요 작업 내용**:
+  1. **이커머스 & 통합 안내 4대 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **토스쇼핑 쉐어링크 API 키 발급받기**: 토스쇼핑 판매자센터 가입부터 API Key 발급까지 Step 1~4 카드화. **중요 함정 방지**: 토스 서버 보안 정책상 출발지 고정 IP 2개(`52.87.82.133`, `52.5.155.132`)를 사전 등록해야만 403 Forbidden 에러가 발생하지 않음을 경고 배너로 명시, 직링크 연동.
+     - **네이버 브랜드커넥트 링크 등록하기**: 네이버 브랜드커넥트 크리에이터 가입, 스마트스토어/브랜드 캠페인 링크 발급 및 자동화 프로그램 등록 절차 Step 1~4 시각화. 제휴 쇼핑 발행 시 공정위 문구 필수 안내.
+     - **AI 12단 상세페이지 자동화 - 쿠팡 12단 & 스마트스토어 상세페이지 제작 완벽 가이드**: 시장조사·소구점 분석부터 12단 구성(후킹헤드카피, 문제제기, 솔루션, 소셜프루프 등), AI 고화질 그래픽 생성, HTML/이미지 원클릭 내보내기까지 완벽 가이드 Step 1~4 시각화.
+     - **프로그램 주소 변경(buylife.xyz) — 새 콜백 주소 추가·웹훅 교체·확장 재설치 방법**: 통합 도메인(`buylife.xyz`) 이전에 따른 메타(Meta) 앱 설정의 앱 도메인, 리디렉션 URI, 제거/삭제 콜백 URL 변경 요령 및 Chrome 확장 재설치 안내 Step 1~4 시각화.
+  2. **메타데이터 엔진 보강 (`lib/guideMeta.ts`)**:
+     - 토스쇼핑(🛍️·3분·토스 판매자센터 직링크), 네이버 브랜드커넥트(🏷️·3분·브랜드커넥트 직링크), 12단 상세페이지(📄·5분), 도메인 이전(🌐·5분) 정밀 매핑.
+  3. **Vercel 프로덕션 빌드 & 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과.
+     - Vercel 메인 포털 프로덕션 배포 완료 (`dpl_CznQHJxAkr7F9uAPtTB2xKanzWmA`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 4개 가이드 상세 페이지 전수 순회 캡처 완료:
+       - `edge_guide_toss_sharelink_detail.png`
+       - `edge_guide_naver_brandconnect_detail.png`
+       - `edge_guide_coupang_12step_detail_detail.png`
+       - `edge_guide_buylife_migration_detail.png`
+- **서비스 링크**:
+  - 이용 가이드북 종합: https://www.buylife.xyz/guides
+  - 토스쇼핑 쉐어링크 API 가이드: https://www.buylife.xyz/guides/de6e2878-1615-455a-a219-c9b0b3d0795a
+  - 네이버 브랜드커넥트 등록 가이드: https://www.buylife.xyz/guides/e39a02e3-2b00-45a1-92ed-2e33d0d331d2
+  - AI 12단 상세페이지 완벽 가이드: https://www.buylife.xyz/guides/3255b41b-0ddd-414b-9e45-309b7072cbef
+  - buylife.xyz 프로그램 주소 변경 가이드: https://www.buylife.xyz/guides/cffe0d83-1e7f-494c-947d-75dcfcaee01e
+
+
 ## 2026-10-20 Claude Code(윈도우) — 배포판 번호 규칙(메인 넘버링과 같은 vX.YY) + `SNS_Auto_Posting_Kit_v1.01`
 - 주인님 지시: 배포판도 메인 넘버링 정책을 따른다, 이번 배포판은 v1.01. `scripts/make_lecture_kit.py`에 `--version vX.YY` 필수·형식 검사·같은 번호 덮어쓰기 거부, 이름 `<묶음>_<번호>.zip`, 포장 날짜는 `00_START_HERE.md`에. 지침 `docs/DISTRIBUTION_KIT_GUIDE.md` §4-3·§8 「배포판 번호 이력」·§10.
 - `D:\PDS\SNS_Auto_Posting_Kit_v1.01.zip`(202개 파일, 비밀값 검사 통과): 패키지 설치마법사 + INSTA 예약 방식 반영. 이전 날짜 이름 압축(`_20261019`, `_v2_20261019`)은 번호 규칙 전 시험판 — 삭제는 주인님 확인 후. 다음 포장은 `--version v1.02`.

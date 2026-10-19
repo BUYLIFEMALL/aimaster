@@ -23,8 +23,8 @@ export function CopyAddress({ value }: { value: string }) {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded bg-neutral-100 px-2 py-1.5">
-      <code className="min-w-0 flex-1 break-all text-neutral-800">{value}</code>
+    <div className="flex items-center gap-2 rounded-lg border border-blue-200/80 bg-white px-3 py-2 shadow-xs">
+      <code className="min-w-0 flex-1 break-all text-neutral-900 font-mono text-xs">{value}</code>
       <button
         type="button"
         onClick={copy}

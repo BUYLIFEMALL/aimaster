@@ -276,6 +276,54 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
       consoleLabel: "AliExpress Portals",
     };
   }
+  if (t.includes("토스") || t.includes("toss")) {
+    return {
+      icon: "🔵",
+      badgeTone: "bg-blue-500/10 text-blue-300 border-blue-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "3분",
+      summary: "토스쇼핑 크리에이터 쉐어링크 API 발급 및 고정 IP 등록 가이드",
+      consoleUrl: "https://sharelink.toss.im",
+      consoleLabel: "토스 쉐어링크 콘솔",
+    };
+  }
+  if (t.includes("브랜드커넥트") || t.includes("brandconnect")) {
+    return {
+      icon: "💼",
+      badgeTone: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "3분",
+      summary: "네이버 브랜드커넥트 스페이스 개설 및 제휴 링크 복사 등록 가이드",
+      consoleUrl: "https://brandconnect.naver.com",
+      consoleLabel: "네이버 브랜드커넥트",
+    };
+  }
+  if (t.includes("12단") || t.includes("상세페이지")) {
+    return {
+      icon: "📄",
+      badgeTone: "bg-indigo-500/10 text-indigo-300 border-indigo-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "5분",
+      summary: "쿠팡 12단 & 스마트스토어 860px 고화질 통상세페이지 자동 생성 완벽 가이드",
+      consoleUrl: "https://www.buylife.xyz/programs",
+      consoleLabel: "상세페이지 프로그램 바로가기",
+    };
+  }
+  if (t.includes("주소 변경") || t.includes("buylife.xyz")) {
+    return {
+      icon: "🔄",
+      badgeTone: "bg-amber-500/10 text-amber-300 border-amber-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "5분",
+      summary: "buylife.xyz 통합 도메인 전환에 따른 콜백 URL·웹훅·확장 프로그램 갱신 가이드",
+      consoleUrl: "https://www.buylife.xyz",
+      consoleLabel: "AI Master 메인 포털",
+    };
+  }
 
   // 5. 이미지 / 음성 / 미디어
   if (t.includes("suno") || t.includes("수노")) {
