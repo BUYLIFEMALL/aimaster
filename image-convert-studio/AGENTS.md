@@ -93,3 +93,9 @@
   - '인스타그램 피드 (1:1, 1080px)', '유튜브 썸네일 (16:9, 1280px)', '블로그 본문 (가로 800px, WebP 85%)' 원클릭 세팅 칩 제공.
 - **퀵 크롭 & 회전 툴바**:
   - 각 썸네일 위에서 90도 회전 및 1:1 자르기를 즉시 수행할 수 있는 미니 툴바 오버레이.
+
+## 2026-10-19 v1.08 — 깨진 사진을 목록에 넣지 않고 안내 (Claude Code 윈도우)
+- 운영 실측: 깨진 JPG가 깨진 미리보기로 변환 목록에 들어가고 안내 없음.
+- 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts`를 고치고 `node scripts/check-shared-modules.mjs --sync`.
+- `src/components/tool/Dropzone.tsx`(변환·콜라주 공용)에서 `splitReadableImages`로 깨진 사진을 빼고, 문구는 이 프로그램 번역 `t.dropzone.unreadable`(한·영) 사용.
+- 검수: 단위 21/21(공용 5 포함), tsc, 빌드, Vercel READY(`image-convert-studio-4vgrtzo4p`), DB v1.08, 운영 실측 — 깨진 사진 → 「사진을 읽지 못해 1장을 뺐어요…」, 목록에 안 들어감. AI 비용 없음.

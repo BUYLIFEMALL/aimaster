@@ -7,7 +7,7 @@ const ko = {
   tagline: "이미지 변환 · 업스케일 · 콜라주 · WebP/PNG/JPEG/AVIF 일괄 처리",
   help: "사용 안내",
   privacy: "모든 처리는 이 브라우저 안에서만 이뤄지며 이미지가 서버로 전송되지 않습니다.",
-  dropzone: { convert: "이미지를 드래그하거나 클릭하여 선택하세요", collage: "콜라주에 사용할 이미지를 추가하세요", sub: "JPG, PNG, WebP, GIF, BMP, AVIF 등 지원", tooMany: "한 번에 최대 {max}장까지 올릴 수 있습니다. 처음 {n}장만 추가했습니다.", many: "{n}장이 넘으면 브라우저 메모리 부담이 커집니다. 나눠서 처리하는 것을 권장합니다." },
+  dropzone: { convert: "이미지를 드래그하거나 클릭하여 선택하세요", collage: "콜라주에 사용할 이미지를 추가하세요", sub: "JPG, PNG, WebP, GIF, BMP, AVIF 등 지원", tooMany: "한 번에 최대 {max}장까지 올릴 수 있습니다. 처음 {n}장만 추가했습니다.", many: "{n}장이 넘으면 브라우저 메모리 부담이 커집니다. 나눠서 처리하는 것을 권장합니다.", unreadable: "사진을 읽지 못해 {n}장을 뺐어요(파일이 깨졌거나 사진 파일이 아닐 수 있어요): {names}" },
   convert: {
     options: "변환 옵션", format: "출력 형식", quality: "품질", qualityPng: "PNG는 무손실이라 품질을 쓰지 않습니다", scale: "업스케일 배율",
     scaleHalf: "0.5× (축소)", scaleOne: "1× (원본)", scaleOneHalf: "1.5×", scaleTwo: "2×", scaleThree: "3×", scaleFour: "4×",
@@ -66,7 +66,7 @@ const en: Dict = {
   tagline: "Image convert · upscale · collage · batch WebP/PNG/JPEG/AVIF",
   help: "Guide",
   privacy: "Everything runs inside this browser. Your images are never sent to a server.",
-  dropzone: { convert: "Drag images here or click to choose", collage: "Add images for the collage", sub: "JPG, PNG, WebP, GIF, BMP, AVIF and more", tooMany: "Up to {max} images at a time. Only the first {n} were added.", many: "More than {n} images can strain browser memory. Consider processing in batches." },
+  dropzone: { convert: "Drag images here or click to choose", collage: "Add images for the collage", sub: "JPG, PNG, WebP, GIF, BMP, AVIF and more", tooMany: "Up to {max} images at a time. Only the first {n} were added.", many: "More than {n} images can strain browser memory. Consider processing in batches.", unreadable: "Could not read {n} image(s), so they were skipped (the file may be damaged or not an image): {names}" },
   convert: {
     options: "Conversion options", format: "Output format", quality: "Quality", qualityPng: "PNG is lossless, so quality is not used", scale: "Upscale factor",
     scaleHalf: "0.5× (shrink)", scaleOne: "1× (original)", scaleOneHalf: "1.5×", scaleTwo: "2×", scaleThree: "3×", scaleFour: "4×",

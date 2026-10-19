@@ -15,12 +15,12 @@ const MODULES = [
     // 올린 사진을 브라우저 안에서 풀어 보고 깨졌으면 「사진을 읽지 못했어요」(2026-10-19). 사본은 프로그램을 적용할 때마다 추가
     id: "image-file-check",
     source: "portrait-photo/src/lib/imageFileCheck.ts",
-    copies: [],
+    copies: ["image-convert-studio/src/lib/imageFileCheck.ts"],
   },
   {
     id: "image-file-check-test",
     source: "portrait-photo/tests/imageFileCheck.test.mjs",
-    copies: [],
+    copies: ["image-convert-studio/tests/imageFileCheck.test.mjs"],
   },
   {
     id: "youtube-golden-engine",

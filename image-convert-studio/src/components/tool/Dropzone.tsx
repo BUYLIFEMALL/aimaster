@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { UploadCloud } from "lucide-react";
 import { MANY_FILES_WARN, MAX_FILES } from "@/lib/imageTools/formats";
 import { fmt } from "@/lib/i18n";
+import { splitReadableImages } from "@/lib/imageFileCheck";
 import { useLang } from "./LangProvider";
 
 interface DropzoneProps {
@@ -19,12 +20,15 @@ export function Dropzone({ currentCount, label, onFiles }: DropzoneProps) {
   const [notice, setNotice] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const accept = (incoming: File[]) => {
-    const images = incoming.filter((file) => file.type.startsWith("image/"));
-    if (images.length === 0) return;
+  const accept = async (incoming: File[]) => {
+    const typed = incoming.filter((file) => file.type.startsWith("image/"));
+    if (typed.length === 0) return;
+    // 깨진 사진은 목록에 넣지 않는다(공용 image-file-check — 브라우저 안에서 풀어 보기, 문구는 이 프로그램 번역 사용)
+    const { readable: images, failed } = await splitReadableImages(typed);
     const room = Math.max(0, MAX_FILES - currentCount);
     const taken = images.slice(0, room);
     const messages: string[] = [];
+    if (failed.length) messages.push(fmt(t.dropzone.unreadable, { n: failed.length, names: failed.map((f) => f.name).join(", ") }));
     if (taken.length < images.length) messages.push(fmt(t.dropzone.tooMany, { max: MAX_FILES, n: taken.length }));
     if (currentCount + taken.length > MANY_FILES_WARN) messages.push(fmt(t.dropzone.many, { n: MANY_FILES_WARN }));
     setNotice(messages.join(" "));
@@ -51,7 +55,7 @@ export function Dropzone({ currentCount, label, onFiles }: DropzoneProps) {
         onDrop={(event) => {
           event.preventDefault();
           setDragging(false);
-          accept(Array.from(event.dataTransfer.files));
+          void accept(Array.from(event.dataTransfer.files));
         }}
         className={`cursor-pointer rounded-2xl border-2 border-dashed px-5 py-10 text-center transition-all ${
           dragging
@@ -71,7 +75,7 @@ export function Dropzone({ currentCount, label, onFiles }: DropzoneProps) {
           multiple
           className="hidden"
           onChange={(event) => {
-            accept(Array.from(event.target.files ?? []));
+            void accept(Array.from(event.target.files ?? []));
             event.target.value = "";
           }}
         />

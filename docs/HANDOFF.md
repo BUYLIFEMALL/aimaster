@@ -3,7 +3,8 @@
 ## 2026-10-19 Claude Code(윈도우) — 공용 부품 `image-file-check`(깨진 사진 안내) 신설 + AI 인물사진 v1.29 (진행 중: 이미지 프로그램 순차 적용)
 - **운영 실측(깨진 JPG)**: portrait-photo 무반응(깨진 아이콘), image-convert-studio 깨진 미리보기로 목록 진입, photo-remake-studio 영어 원문 안내, banana-canvas 서버 업로드 후 AI 단계 실패. 플랜 `portrait-photo/docs/PLAN_20261019_IMAGE_FILE_CHECK_SHARED.md`.
 - **완료**: 기준 `portrait-photo/src/lib/imageFileCheck.ts`(+테스트) 등록(`scripts/check-shared-modules.mjs`, `docs/SHARED_MODULES.md`). portrait-photo v1.29 — 깨진 사진 안내·받지 않음 + 꺼진 [만들기] 이유 한 줄. 단위 31·브라우저 14 통과, READY, DB v1.29, 운영 실측 확인. https://portrait-photo.buylife.xyz
-- **다음 첫 단계**: 사본 적용을 한 곳씩 — image-convert-studio → photo-remake-studio → banana-canvas → fashion-style → (나머지는 사진 받는 화면 확인 후). 각 프로그램: 스크립트 `copies`에 경로 추가 → `node scripts/check-shared-modules.mjs --sync` → 사진 받는 곳에서 `checkImageFile` → 테스트·배포·+0.01.
+- **image-convert-studio v1.08 ✅**: Dropzone(변환·콜라주 공용)에 적용, 번역 문구 한·영. 단위 21, READY, DB v1.08, 운영 실측 확인. https://image-convert-studio.buylife.xyz
+- **다음 첫 단계**: 사본 적용을 한 곳씩 — photo-remake-studio → banana-canvas → fashion-style → (나머지는 사진 받는 화면 확인 후). 각 프로그램: 스크립트 `copies`에 경로 추가 → `node scripts/check-shared-modules.mjs --sync` → 사진 받는 곳에서 `checkImageFile` → 테스트·배포·+0.01.
 
 ## 2026-10-19 Claude Code(윈도우) — 이미지 프로그램 업로드 멈춤·꺼진 버튼 밝기 점검 + AI 리버스 프롬프트 v1.05
 - **업로드 점검**: 서명 주소 업로드(`uploadToSignedUrl`)를 쓰는 곳은 banana-canvas(v1.10 처리)·`reverse-prompt`·`shorts-onestop-studio` 3곳. shorts는 `try/catch/finally`로 안전, **reverse-prompt는 멈춤은 없지만 예외 시 안내 없이 끝남 → v1.05에서 안내 추가**. 나머지 이미지 프로그램(photo-remake·fashion-style·4컷·인플루언서·allinone·image-convert·seo-thumbnail·portrait 등)은 사진을 서버로 올리지 않고 브라우저 안에서만 읽고, 읽기 전에 대기 표시를 켜지 않아 멈춤 위험 없음.
