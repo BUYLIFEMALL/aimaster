@@ -3,18 +3,73 @@
 @tailwind utilities;
 
 :root {
-  --background: #f7f5fb;
-  --foreground: #1f2937;
+  --background: #090614;
+  --surface: #120d24;
+  --surface-hover: #1c1536;
+  --border: #2a1f4e;
+  --foreground: #f1f5f9;
+  --foreground-muted: #94a3b8;
+  --brand: #a855f7;
+  --brand-purple: #c084fc;
+  --brand-gold: #f59e0b;
+  --brand-cyan: #38bdf8;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-/* 카드 뽑기 화면의 간단한 셔플/플립 연출용 유틸리티. framer-motion 같은 별도 라이브러리
-   없이 순수 CSS 트랜지션만으로 구현했다 — MVP 범위에서는 이 정도면 충분하다는 판단. */
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090614;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a1f4e;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3e2e70;
+}
+
+/* Studio Hero Banner */
+.studio-hero {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(18, 13, 36, 0.95) 50%, rgba(245, 158, 11, 0.12) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.7), 0 0 30px -8px rgba(168, 85, 247, 0.25);
+}
+
+/* KPI Card */
+.kpi-card {
+  background: rgba(18, 13, 36, 0.85);
+  border: 1px solid #2a1f4e;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.kpi-card:hover {
+  border-color: rgba(168, 85, 247, 0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px -10px rgba(168, 85, 247, 0.25);
+}
+
+/* Focus Card */
+.focus-card {
+  background: #120d24;
+  border: 1px solid #2a1f4e;
+  border-radius: 1rem;
+}
+
+/* 카드 뽑기 화면의 간단한 셔플/플립 연출용 유틸리티 */
 .card-flip-scene {
   perspective: 1000px;
 }
@@ -40,8 +95,7 @@ body {
 }
 
 @keyframes card-shuffle-pulse {
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(0) rotate(0deg);
   }
   25% {
@@ -58,41 +112,15 @@ body {
 
 @keyframes magic-sparkle-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 30px rgba(236, 72, 153, 0.3);
-    border-color: rgba(236, 72, 153, 0.7);
+    opacity: 0.4;
+    filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.4));
   }
   50% {
-    box-shadow: 0 0 25px rgba(168, 85, 247, 0.9), 0 0 50px rgba(245, 158, 11, 0.6);
-    border-color: rgba(245, 158, 11, 0.9);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 14px rgba(192, 132, 252, 0.8));
   }
 }
 
-.magic-glow-anim {
-  animation: magic-sparkle-glow 1.8s ease-in-out infinite;
+.magic-sparkle {
+  animation: magic-sparkle-glow 2.4s ease-in-out infinite;
 }
-
-@keyframes card-shine-pass {
-  0% {
-    transform: translateX(-120%) rotate(25deg);
-  }
-  100% {
-    transform: translateX(250%) rotate(25deg);
-  }
-}
-
-.card-shine-effect {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 60%;
-  height: 200%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
-  animation: card-shine-pass 1.2s ease-out forwards;
-  pointer-events: none;
-}
-

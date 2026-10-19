@@ -5,6 +5,54 @@
 - **대상(게시 기능 없음)**: `cardnews-studio`, `ai-influencer-studio`, `ai-webtoon-studio`. 이미 있음: `insta_auto_poster`. 해당 없음: 댓글·DM 자동화(게시물 생성 도구 아님).
 - **방식**: insta_auto_poster 게시 코드를 공용 기준 코드로 등록 → 사본 적용, 회원 본인 Meta 앱·계정. 각 프로그램 `docs/IMPROVEMENT_BACKLOG.md`와 `docs/SHARED_MODULES.md` 공용화 후보에 기록. 착수 전 플랜 보고·주인님 지시 필요.
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 타로점(tarot-reading) v1.20: 크리에이티브 아틀리에 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 70개 완료 / 84.3% 달성!)
+
+- **대상**: `tarot/` (https://tarot-reading.buylife.xyz, slug: `tarot-reading`, 37번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 신비로운 미드나잇 퍼플 랩 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **크리에이티브 아틀리에 스타일 — 미드나잇 퍼플 랩 에디션 (Creative Atelier Style — Midnight Purple Lab Edition)**.
+     - **디자인 토큰 시스템 구축**: 딥 미드나잇 퍼플(`--background: #090614`, `--surface: #120d24`, `--surface-hover: #1b1337`, `--border: #2a1f4e`), 미스틱 퍼플(`--brand: #a855f7`, `--brand-purple: #c084fc`), 아스트랄 골드(`--brand-gold: #f59e0b`), 시안 블루(`--brand-cyan: #38bdf8`) 및 3D 셔플/플립 애니메이션 완비 (`tarot/app/globals.css`, `tarot/tailwind.config.ts`).
+     - Gemini 2.5 Flash 기반 정통 아르카나 타로 해석 엔진 및 회원 본인 Gemini API 키 100% BYOK 보안 체계 유지.
+  2. **헤더 네비게이션 표준화 (`HeaderNav.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.20 TAROT LAB` 퍼플 발광 칩 탑재.
+     - 메인 탭 네비게이션: `🔮 타로 리딩`, `📖 타로 가이드북` (`/guide`), `📜 리딩 기록`.
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 가이드북` (`/guide`)** 전용 골드 칩 탑재.
+     - 모바일(767px 이하) 반응형 헤더 및 햄버거 토글 드로어 메뉴 완비.
+  3. **메인 리딩 스튜디오 리뉴얼 (`tarot/app/page.tsx`)**:
+     - 상단 퍼플 & 골드 그라데이션 발광 테두리의 `.studio-hero` 웰컴 배너 및 퀵 링크 버튼([📖 타로 가이드북 보기]) 탑재.
+     - 3대 핵심 KPI 지표 카드(78장 정통 아르카나 데이터베이스, 12종 심층 스프레드 알고리즘, Gemini 2.5 Flash AI 초고속 해석) 탑재.
+     - 다크 서피스 API 키 연동 상태 카드, 셔플/스프레드 뷰, 카드 3D 플립 인터랙션 완비.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "AI 타로 리딩 마스터 가이드 — 78장의 카드와 AI가 전하는 깊은 통찰".
+     - **4단계 AI 타로 리딩 파이프라인**: 1) 질문 정의 ➔ 2) 스프레드 선택 ➔ 3) 카드 셔플 & 드로우 ➔ 4) Gemini AI 심층 해석.
+     - **12종 타로 스프레드 매트릭스**: 원 카드, 쓰리 카드(과거/현재/미래), 켈틱 크로스, 연애운 등 질문 성격별 추천 스프레드 상세 해설.
+     - **78장 타로 카드 시스템 안내**: 메이저 아르카나 22장, 마이너 아르카나 56장(완드/컵/소드/펜타클 4대 원소) 상징 체계 안내.
+     - 100% 프라이버시 보호 & Gemini BYOK API 키 무저장 보안 배너 탑재.
+     - 자주 묻는 질문 FAQ 5종 골드 아코디언 인터랙션 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `tarot/package.json` (`1.20.0`), `tarot/lib/version.ts` (`v1.20`), Supabase DB `programs` 메타데이터 (`version: v1.20`) 동기화 완료 (`scripts/update_prog_37_v120.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 14.2.35 Turbopack 프로덕션 빌드 성공 (경로 11개 완벽 생성, exit code 0).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_AUMFbgvscKDgVHENxYNuDu7jpQkq`
+     - 공식 도메인 즉시 반영: https://tarot-reading.buylife.xyz (가이드북: `https://tarot-reading.buylife.xyz/guide`)
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 기반 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-15145`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_tarot_desktop_main_v120.png`: 데스크톱 메인 전경, 히어로 배너, API 키 상태 카드
+       - `edge_tarot_desktop_kpi_v120.png`: 3대 핵심 KPI 지표 카드 및 스프레드 선택 패널
+       - `edge_tarot_desktop_guide_v120.png`: 가이드북 상단 히어로 배너 및 4단계 리딩 파이프라인
+       - `edge_tarot_desktop_guide_matrix_v120.png`: 12종 스프레드 매트릭스, 78장 아르카나 해설, FAQ 아코디언
+       - `edge_tarot_desktop_draw_v120.png`: 카드 선택 및 셔플 인터랙션 화면
+       - `edge_tarot_mobile_guide_v120.png`: 모바일 375px 반응형 뷰포트
+  9. **문서 6종 완비**:
+     - `tarot/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `tarot/README.md` (동기화 갱신)
+     - `tarot/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `tarot/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `tarot/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `tarot/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본 및 검수 결과 기록)
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 상세페이지 GIF 자동화(VideoToGIF) v1.10: 크리에이티브 아틀리에 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 69개 완료 / 83.1% 달성!)
 
 - **대상**: `video-to-gif/` (https://video-to-gif.buylife.xyz, slug: `video-to-gif`, 36번)
