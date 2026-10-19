@@ -330,6 +330,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
           onRefineImage={(feedback) => handleGenerate(feedback)}
           onRegenerateCaption={handleRegenerateCaption}
           isGeneratingCaption={isGeneratingCaption}
+          history={historyItems}
         />
       </div>
 

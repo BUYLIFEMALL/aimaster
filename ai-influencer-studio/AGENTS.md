@@ -194,6 +194,13 @@ ai-influencer-studio/
   대상: `/api/generate-image`, `src/lib/gemini.ts` 240초.
 - **검수**: tsc 0, `check-shared-modules` OK, Vercel 프로덕션 배포 1회(비용 절감 규칙)·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
 
+## 2026-10-20 v1.14 — 📤 인스타그램에 바로 게시(자동 포스팅 1차: 즉시 게시) (Claude Code 윈도우)
+- 주인님 지시 「모든 인스타 자동화 프로그램은 자동 포스팅까지」. 플랜 `docs/PLAN_20261020_INSTA_AUTOPOST.md`, 기준 `cardnews-studio` v1.18.
+- 결과 화면 아래 패널(`components/InstagramPublishPanel.tsx`, `ImageDisplay`에 `history` 전달): 연결 상태 → 사진 고르기(지금 + 이전 기록, 최대 10장 캐러셀) → 캡션 → 공개 게시 확인 → 게시. 브라우저에서 JPEG·피드 비율 자르기(`src/lib/instagram/feedImage.ts`).
+- 서버: `src/app/api/instagram/{route,upload/route,publish/route}.ts`, `src/lib/instagram/{publish.ts(공용 사본),memberAccount.ts(카드뉴스 사본),posting.ts}`. 연결값은 공용 `insta_accounts`(INSTA에서 한 번 연결). 임시 사진은 `insta-post-images/{회원}/influencer-insta/` — 게시 뒤 삭제, DB 변경 없음.
+- 검수: 단위 9/9(`tests/feedImage.test.mjs` +4), tsc, 빌드. 배포·크롬 결과는 아래 줄에.
+- 다음: 2차 예약 게시(운영 DB 표 필요 — 사전 승인).
+
 ## 2026-10-19 v1.13 — 깨진 사진을 받지 않고 화면 안에 안내 (Claude Code 윈도우)
 - 운영 실측: 깨진 JPG가 깨진 미리보기(아이콘)로 들어가고 안내 없음.
 - 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`. `npm test` 명령 신설.

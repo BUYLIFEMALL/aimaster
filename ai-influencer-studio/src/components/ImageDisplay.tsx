@@ -9,13 +9,15 @@ import {
   MessageSquare,
   Wand2,
 } from "lucide-react";
-import type { GenerationResult } from "@/types/influencer";
+import type { GenerationResult, HistoryItem } from "@/types/influencer";
+import { InstagramPublishPanel } from "./InstagramPublishPanel";
 
 interface ImageDisplayProps {
   result: GenerationResult;
   onRefineImage: (feedback: string) => void;
   onRegenerateCaption: (feedback: string) => void;
   isGeneratingCaption?: boolean;
+  history?: HistoryItem[];
 }
 
 export function ImageDisplay({
@@ -23,6 +25,7 @@ export function ImageDisplay({
   onRefineImage,
   onRegenerateCaption,
   isGeneratingCaption = false,
+  history = [],
 }: ImageDisplayProps) {
   const [selectedCaptionTab, setSelectedCaptionTab] = useState<number>(0);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -198,6 +201,15 @@ export function ImageDisplay({
                 </button>
               </div>
             </div>
+
+            {/* v1.14 인스타그램에 바로 게시(자동 포스팅 1차) */}
+            {result.imageUrl && !result.loading && (
+              <InstagramPublishPanel
+                currentImage={result.imageUrl}
+                caption={result.captions[selectedCaptionTab] || ""}
+                history={history}
+              />
+            )}
           </div>
         ) : (
           /* 생성 전 안내 카드 (2026-10-17 디자인 리뉴얼: 한글 안내 + 캐릭터 + 단계 칩) */
