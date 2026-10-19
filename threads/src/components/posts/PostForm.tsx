@@ -724,7 +724,7 @@ export function PostForm({
             value={scheduledAtLocal}
             onChange={(e) => setScheduledAtLocal(e.target.value)}
           />
-          <p className="mt-1 text-xs text-neutral-500">예약 시각 후 5분 안에 자동으로 발행됩니다.</p>
+          <p className="mt-1 text-xs text-neutral-500">예약 시각 후 5분 안에 자동으로 발행됩니다(「내 cron-job.org」 방식은 1분 안에). 실행 방식은 설정 → ⏰ 예약 발행에서 고릅니다.</p>
         </div>
       )}
       <input type="hidden" name="scheduledAt" value={scheduledAtIso} />

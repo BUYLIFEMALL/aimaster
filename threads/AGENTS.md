@@ -2,7 +2,7 @@
 
 > **프로그램명**: Threads 포스팅 자동화 (`auto-threads-posting`)  
 > **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
-> **현재 버전**: `v1.18`  
+> **현재 버전**: `v1.19`  
 > **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**  
 > **관리자 계정**: `buylifemall@gmail.com`  
 > **일반 테스트 계정**: `buylifemall@naver.com`
@@ -50,6 +50,14 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+
+### `v1.19` (2026-10-19) - Claude Code (윈도우) — 예약 발행 실행 방식 회원 선택(Vercel / 본인 cron-job.org) + 중복 발행 방지
+- 지침: 루트 [`docs/SCHEDULER_POLICY.md`](../docs/SCHEDULER_POLICY.md), 플랜: [`docs/PLAN_20261019_MEMBER_SCHEDULER.md`](docs/PLAN_20261019_MEMBER_SCHEDULER.md). 기준 구현 `threads-affiliate-poster` v1.63을 이 프로그램에 맞춤 — **배포판(설치 키트) 모드가 없는 운영 전용이라 기본 방식은 항상 Vercel**.
+- 화면: 설정 「⏰ 예약 발행」(방식 선택 `components/settings/SchedulerModePicker.tsx` + cron-job.org 키 `ApiKeyRow`, 공용 provider `cronjob_org_api_key` — 다른 프로그램에서 넣은 키면 「등록됨」), 게시글 관리 위 상태 줄·전체 일시정지/재개(`components/posts/SchedulePublishingControl.tsx`), `/guide` FAQ·예약 시각 안내 문구.
+- 코드: `src/lib/posts/cronJobOrg.ts`·`memberScheduler.ts`(표 `atp_member_scheduler`, 토큰 `atp_…` DB엔 해시, 끄기 스위치 환경변수 `ATP_PLATFORM_SCHEDULER=off`), `src/lib/actions/scheduler.ts`, `actions/posts.ts` 예약 전 방식·키 확인 + 예약 뒤 작업 켜기(실패 시 초안으로), `actions/settings.ts` 키 변경(방식 유지)·삭제(Vercel로), 새 주소 `/api/posts/dispatch-member`(회원 토큰, 즉시 응답 + `after`, 남은 예약 0건이면 작업 끔), `/api/posts/dispatch-scheduled`는 vercel·비일시정지 회원만.
+- **중복 발행 방지·24시간 규칙(새로 추가)**: `dispatch.ts`가 글마다 `scheduled → publishing` 조건부 update로 먼저 가져간 실행만 발행, 예약 시각이 24시간 넘게 지난 글은 올리지 않고 실패 처리. 회원 실행에도 핸드폰 필수 정책 적용.
+- DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261019230000_atp_member_scheduler.sql`(표 + RLS 본인 조회 + `programs.version` v1.19). **표가 없으면 운영자 예약 실행이 오류로 멈추므로 반드시 DB 적용 후 배포.**
+- 2026-10-18 미배포 예약 안내 문구도 이번 배포에 함께 나감. 검수: tsc 0, `npm run build`(`/api/posts/dispatch-member` 포함). 크롬 실화면 검수는 주인님 지시대로 예약 방식 적용(B 묶음) 전체 완료 뒤 한꺼번에.
 
 ### `v1.18` (2026-10-18) - Claude Code (윈도우)
 - 예약 게시 자동 실행 주기를 하루 1번(`0 0 * * *`, 한국시간 오전 9시) → **5분마다**(`*/5 * * * *`)로 변경(`vercel.json`). 예약 시각이 지나도 다음 날 오전 9시까지 밀리던 문제 수정. `CRON_SECRET` 기존 등록값 사용(환경변수 변경 없음). 변경 전 밀린·예정 예약 글 0건 확인(한꺼번에 발행될 글 없음).

@@ -8,6 +8,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   perplexity: "Perplexity (실시간 주제 수집)",
   threads_app_id: "Threads 앱 ID (Meta 앱 설정 > 기본 설정 하단의 Threads 앱 ID — 맨 위 '앱 ID' 아님)",
   threads_app_secret: "Threads 앱 시크릿 코드 (기본 설정 하단의 Threads 앱 시크릿 코드)",
+  cronjob_org_api_key: "cron-job.org API 키 (예약 발행 — 「내 cron-job.org」 방식에서만 필요)",
 };
 
 export async function getUserApiKey(

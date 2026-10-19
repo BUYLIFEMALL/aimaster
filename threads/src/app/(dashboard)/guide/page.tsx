@@ -230,7 +230,9 @@ export default function GuidePage() {
               <span>예약된 게시글은 어떤 주기로 실행되나요?</span>
             </h4>
             <p className="text-xs text-neutral-400 leading-relaxed pl-4">
-              클라우드 스케줄러가 백그라운드에서 예약 시각을 지속적으로 감지하여 지정된 시각에 맞춰 자동으로 Meta Threads 서버로 안전하게 발행합니다.
+              실행 방식은 설정 → ⏰ 예약 발행에서 고릅니다. 기본인 「AIMaster 기본(Vercel)」은 키 없이 5분마다 확인해 예약 시각 후 5분 안에 발행하고,
+              「내 cron-job.org」(본인 무료 계정, API 키 한 줄 등록)는 1분마다 확인합니다. cron-job.org 작업은 예약하면 자동으로 켜지고 남은 예약이 없으면 자동으로 멈추며,
+              게시글 관리 화면에서 전체 일시정지·재개할 수 있습니다. 예약 시각이 24시간 넘게 지난 글은 자동으로 올리지 않습니다.
             </p>
           </div>
 

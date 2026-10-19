@@ -74,7 +74,9 @@
 | `threads-content-ops` (Threads 운영 자동화) | ✅ 적용·배포·**실검수 완료** | v2.08 · 2026-10-19 (방식 선택, 기본 Vercel) / v2.07 (cron-job.org) | 기준 구현. 주인님 키로 실검수: 예약 → 작업 자동 생성(8676408)·켜기 → 예약 취소 후 ~50초에 자동 꺼짐 → 재예약 시 자동 재가동 → 19:34 예약이 19:34:18 자동 발행 → 2초 뒤 자동 꺼짐 → 일시정지·재개 정상 |
 | `labs/kit-threads` (강의 키트) | ✅ 적용·배포·실검수 | 2026-10-19 | **방식 선택, 기본 cron-job.org**(Vercel은 Pro+스크립트 시 선택 가능). 운영 v2.08과 같은 코드(회원 전용 토큰, 가입자마다 각자 키). A(Vercel Pro)는 `KIT/enable-vercel-cron`이 `crons` + `TCO_PLATFORM_SCHEDULER=on`. 설치 SQL `KIT/schema.sql`, 기존 설치자 `KIT/upgrade-20261019-cronjob.sql`. 실검수: 예약 → 작업 자동 생성·켜짐 → 취소 후 자동 꺼짐 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | ✅ 적용·배포·실검수 | v1.63 · 2026-10-19 | 표 `tap_member_scheduler`, 환경변수 `TAP_PLATFORM_SCHEDULER`, 회원 주소 `/api/posts/dispatch-member`. **중복 발행 방지 새로 추가**(예전엔 없었음). 복제 키트(clone-kit) 기본 cron-job.org. 실검수: 예약 → 작업 자동 생성 → 초안 복귀 후 자동 꺼짐 |
-| `threads`, `insta_auto_poster`, `cardnews-studio`, `naver-cafe-poster`, `kakao_auto_poster` | ⚪ 예정(1순위) | — | 한 개씩 |
+| `threads` (Threads 포스팅 자동화, slug `auto-threads-posting`) | 🟡 구현·빌드 완료, DB 적용·배포 대기 | v1.19 · 2026-10-19 | 표 `atp_member_scheduler`, 환경변수 `ATP_PLATFORM_SCHEDULER`, 회원 주소 `/api/posts/dispatch-member`. 운영 전용(배포판 없음) → 기본 Vercel(5분 간격). **중복 발행 방지·24시간 규칙 새로 추가.** 크롬 실검수는 1순위 묶음 끝난 뒤 |
+| ⚠ `threads-affiliate-poster` 보완 | ⚪ 다음 배포 때 | — | 화면엔 「24시간 넘게 지난 예약은 올리지 않음」이라 안내하지만 `dispatch.ts`에 그 규칙이 없음(2026-10-19 threads 작업 중 발견) — threads v1.19와 같은 코드로 보완 |
+| `insta_auto_poster`, `cardnews-studio`, `naver-cafe-poster`, `kakao_auto_poster` | ⚪ 예정(1순위) | — | 한 개씩 |
 | `stepmail`, `booking-reminder`, `crm-google-form`, `youtube-auto-reply`, `trending-product-finder` | ⚪ 예정(2순위) | — | 회원 정기 자동 작업 |
 | `real_estate_sales` | ⏸ 주인님 확인 | — | 공공 키 예외로 지역 공용 수집 → 운영자 유지 가능성 |
 
