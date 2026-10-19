@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) Phase 2 정보 구조 슬림화 & 14대 카테고리 퀵 탭 도입 완료 (배포 및 Edge 검수 완료)
+
+- **배경**: AIMaster 메인 사이트 고도화 로드맵에 따라, 주인님 지시로 Phase 2(정보 구조 슬림화 & 14대 카테고리 퀵 탭)를 연이어 완료하고 Microsoft Edge 포그라운드 실세션으로 검수 완료.
+- **주요 작업 내용**:
+  1. **Hero 직후 긴 이용안내/수강생 혜택 스마트 2-Tab 슬림화 (`components/home/NoticeTabs.tsx`)**:
+     - 기존에 세로로 길게 차지하던 2개 안내문(총 6개 긴 항목)을 `[📢 서비스 이용 안내]` / `[🎓 드림팀·수강생 혜택]` 2-Tab 스위처 UI로 리팩터링.
+     - 박스 높이를 50% 이상 슬림화하고 하단에 개인 API 키 보안 보증 바를 배치하여, 첫 방문자가 스크롤하자마자 메인 솔루션(최신/무료 프로그램)에 즉각 시선이 닿도록 전환.
+  2. **14대 표준 카테고리 퀵 롤링 내비게이션 바 도입 (`components/home/CategoryQuickBar.tsx`)**:
+     - 메인 프로그램 섹션 진입부 상단에 `CategoryQuickBar`를 배치하여, 14대 표준 카테고리(전체 82, 데이터수집|기획, 쓰레드, 인스타, 블로그, 워드프레스, 네이버, 유튜브, CRM, 이커머스 등)를 가로 스크롤 가능한 칩셋 바로 노출.
+     - 칩 클릭 시 해당 카테고리 블록(`#category-${slug}`)으로 스무스 스크롤 이동 연동 및 디렉터리 전체보기 링크 제공.
+  3. **메인 홈 레이아웃 결합 (`app/(main)/page.tsx`)**:
+     - `NoticeTabs` 및 `CategoryQuickBar` 결합, 각 카테고리 블록에 `id={`category-${category.slug}`}` 및 `scroll-mt-36` 부여.
+     - 최신 등록 프로그램 섹션에 `id="program-catalog"` 부여.
+  4. **빌드 안정화 및 배포**:
+     - 로컬 `npx tsc --noEmit` 통과 및 Next.js 72개 페이지 프로덕션 빌드 100% 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_3CRBZXUsyahRWqcvgfDsa8HnRvPf`, Aliased: `https://www.buylife.xyz`).
+  5. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 데스크톱 2-Tab 이용안내(탭1) 캡처: `edge_main_phase2_notice_tabs_1.png`
+     - 데스크톱 드림팀 혜택(탭2) 전환 캡처: `edge_main_phase2_notice_tabs_2.png`
+     - 데스크톱 14대 카테고리 퀵 바 캡처: `edge_main_phase2_category_quick_bar.png`
+     - 모바일 375px 플로우 캡처: `edge_main_phase2_mobile_flow.png`
+- **서비스 링크**: https://www.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) Phase 1 긴급 버그 & UX 정돈 완료 (배포 및 Edge 검수 완료)
 
 - **배경**: AIMaster 메인 사이트 전면 디자인 분석 및 개선 제안서(`docs/analysis-20261019/MAIN_SITE_DESIGN_IMPROVEMENT_PROPOSAL.md`)에 따라, 주인님 지시로 Phase 1(긴급 버그 & UX 정돈)을 선제 완료하고 Microsoft Edge 포그라운드 실세션으로 검수 완료.

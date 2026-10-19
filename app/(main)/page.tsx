@@ -19,6 +19,8 @@ import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GlassCard from "@/components/ui/GlassCard";
 import ProgramCard from "@/components/programs/ProgramCard";
+import NoticeTabs from "@/components/home/NoticeTabs";
+import CategoryQuickBar from "@/components/home/CategoryQuickBar";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
@@ -147,65 +149,6 @@ const FEATURES = [
   },
 ];
 
-interface NoticeItem {
-  text: string;
-  highlights: string[];
-}
-
-const NOTICE_ITEMS: NoticeItem[] = [
-  {
-    text: "서비스 중인 자동화 프로그램은 회원 개인별로 플랫폼별 본인의 API 키와 계정을 연동하여 사용할 수 있도록 제공됩니다.",
-    highlights: ["자동화 프로그램", "개인별", "플랫폼별", "API 키와 계정"],
-  },
-  {
-    text: "사용자별로 생성된 데이터는 본인만 볼 수 있으며, 보안이 적용된 서버에 개인별 분리되어 저장됩니다.",
-    highlights: [],
-  },
-  {
-    text: "본 서비스는 프로그램 안정화를 위해 현재 베타(무료)로 서비스 중이며, 사용자 트래픽 및 서버 사용량 증가 시 일부 서비스는 유료로 전환될 예정임을 사전 공지드립니다.",
-    highlights: ["베타(무료)", "일부 서비스는 유료로 전환"],
-  },
-];
-
-// 드림팀(수강생) 혜택만 따로 묶어서 보여준다 — 일반 안내와 섞여 있으면 "나는 해당 없는
-// 내용"으로 오해하기 쉬워, 소제목으로 구분했다.
-const DREAM_TEAM_ITEMS: NoticeItem[] = [
-  {
-    text: "드림팀 회원의 경우 대부분의 프로그램을 무료로 이용할 수 있습니다.",
-    highlights: ["드림팀 회원", "무료로 이용"],
-  },
-  {
-    text: "드림팀 혜택 제공을 위해 실명으로 가입해야 하며, 실명 확인이 안될 경우 일반사용자 등급으로 서비스가 제공됩니다.",
-    highlights: ["실명으로 가입", "실명 확인이 안될 경우", "일반사용자 등급"],
-  },
-  {
-    text: "트래픽 발생량이 많거나 서버 저장공간을 많이 사용되는 일부 프로그램은 유료(할인가 적용)로 제공됩니다.",
-    highlights: ["일부 프로그램은 유료(할인가 적용)"],
-  },
-];
-
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/** 문구 중 강조하고 싶은 구절만 볼드 + 골드 색상으로 감싼다. */
-function renderNoticeText(item: NoticeItem) {
-  if (item.highlights.length === 0) return item.text;
-  const pattern = new RegExp(`(${item.highlights.map(escapeRegExp).join("|")})`, "g");
-  return item.text
-    .split(pattern)
-    .filter((part) => part.length > 0)
-    .map((part, i) =>
-      item.highlights.includes(part) ? (
-        <strong key={i} className="font-bold text-gold">
-          {part}
-        </strong>
-      ) : (
-        <span key={i}>{part}</span>
-      )
-    );
-}
-
 export default async function HomePage() {
   const { programs, categories, accessByProgramId, userAccess, isAdminUser, likedIds, loggedIn } = await getHomeData();
   const likedSet = new Set(likedIds);
@@ -288,8 +231,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="px-4 pt-20 pb-2">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
+      {/* KPI 통계 카드 */}
+      <section className="px-4 pt-12 pb-4">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           <GlassCard className="p-4 text-center">
             <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
             <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
@@ -305,51 +249,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 이용 안내 — 첫 방문자가 스크롤 한 번으로 바로 보도록 히어로 바로 아래에 배치
-          (2026-09-08: 프로그램 목록 아래에 뒀더니 등록 프로그램이 많아 스크롤을 한참
-          내려야 보인다는 신고로 위치를 옮김) */}
-      <section className="px-4 pb-16">
+      {/* 이용 안내 & 드림팀 혜택 — 슬림 2-Tab 스마트 인터페이스 */}
+      <section className="px-4 pb-8">
         <div className="max-w-4xl mx-auto">
-          {/* 로그아웃 상태: 등록된 프로그램 수만. 로그인 상태: 회원 개인의 이용 가능
-              프로그램 수 + 가장 빠른 만료일까지 함께 보여준다 */}
-          <div className="glass-card rounded-2xl border border-gold/30 bg-gold/[0.04] p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
-                <Info size={18} className="text-gold" />
-              </div>
-              <h2 className="text-lg md:text-xl font-bold text-white">이용 안내</h2>
-            </div>
-            <ul className="space-y-3">
-              {NOTICE_ITEMS.map((item) => (
-                <li key={item.text} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
-                  <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gold/60 shrink-0" />
-                  <span>{renderNoticeText(item)}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* 드림팀(수강생) 혜택 — 일반 안내와 섞이지 않도록 소제목으로 구분 */}
-            <div className="mt-6 pt-5 border-t border-gold/20">
-              <div className="flex items-center gap-2 mb-3">
-                <GraduationCap size={16} className="text-gold" />
-                <h3 className="text-sm md:text-base font-bold text-gold">드림팀·드림AI팀 - 수강생 혜택</h3>
-              </div>
-              <ul className="space-y-3">
-                {DREAM_TEAM_ITEMS.map((item) => (
-                  <li key={item.text} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
-                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gold/60 shrink-0" />
-                    <span>{renderNoticeText(item)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          <NoticeTabs />
         </div>
       </section>
 
+      {/* 14대 표준 카테고리 퀵 내비게이션 바 (가로 롤링 & 원스톱 스크롤) */}
+      <CategoryQuickBar categories={categories} totalCount={programs.length} />
+
       {/* 최신 등록 프로그램 — NEW로 지정한 프로그램을 우선하고, 나머지는 등록일 최신순 */}
       {latestPrograms.length > 0 && (
-        <section className="py-16 px-4 bg-surface/20">
+        <section id="program-catalog" className="py-16 px-4 bg-surface/20 scroll-mt-20">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-end justify-between mb-8">
               <div>
@@ -459,7 +371,7 @@ export default async function HomePage() {
 
             <div className="space-y-16">
               {categoryBlocks.map(({ category, programs: catPrograms }) => (
-                <div key={category.id}>
+                <div key={category.id} id={`category-${category.slug}`} className="scroll-mt-36">
                   <div className="flex items-end justify-between mb-6">
                     <h3 className="text-2xl font-bold text-white">{category.name}</h3>
                     <Link href={`/programs/category/${category.slug}`} className="hidden md:block">
