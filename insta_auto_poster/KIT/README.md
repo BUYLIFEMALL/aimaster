@@ -138,7 +138,7 @@
 ## 7. (선택) 내 도메인 연결
 
 1. Vercel → **Settings → Domains → Add** → 안내대로 DNS 등록(`CNAME` → `cname.vercel-dns.com` / 루트는 `A` → `76.76.21.21`) → **Valid**
-2. 새 주소로 고칠 곳: Vercel `NEXT_PUBLIC_SITE_URL`(수정 후 **Redeploy**) · Meta **OAuth 리디렉션 URI 추가** · Meta **앱 도메인 추가** · cron-job.org URL · 내 `.env.local`
+2. 새 주소로 고칠 곳: Vercel `NEXT_PUBLIC_SITE_URL`(수정 후 **Redeploy**) · Meta **OAuth 리디렉션 URI 추가** · Meta **앱 도메인 추가** · 내 `.env.local` · 사이트 설정 → ⏰ 예약 발행에서 **cron-job.org 키를 한 번 더 저장**(새 주소로 예약 작업이 다시 만들어짐 — cron-job.org 콘솔에 예전 주소의 작업이 남아 있으면 삭제)
 3. 프로그램에서 **Instagram 로그인 방식으로 연결하기**를 한 번 더 누릅니다.
 
 ---

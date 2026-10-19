@@ -139,7 +139,7 @@
 3. 주소가 바뀌었으니 아래를 **새 주소로** 고칩니다.
    - Vercel **Environment Variables**의 `NEXT_PUBLIC_SITE_URL` → 수정 후 **Redeploy**
    - Meta 앱 리디렉션 콜백 URL에 새 주소 콜백 **추가**
-   - cron-job.org URL
+   - 사이트 설정 → ⏰ 예약 발행에서 **cron-job.org 키를 한 번 더 저장**(새 주소로 예약 작업이 다시 만들어짐 — cron-job.org 콘솔에 예전 주소의 작업이 남아 있으면 삭제)
    - 내 컴퓨터 `.env.local`의 `NEXT_PUBLIC_SITE_URL`
 4. 프로그램에서 **Threads 계정 연결하기**를 한 번 더 누릅니다.
 
@@ -154,7 +154,7 @@
 | Threads 연결 시 "리디렉션 URI" 오류 | Meta 콜백 URL이 `https://내주소/api/threads-content-ops/callback`와 **글자 하나까지** 같은지, `NEXT_PUBLIC_SITE_URL`이 실제 주소인지 |
 | "테스터가 아닙니다" | Threads 테스터 초대를 **수락**했는지 |
 | 글 생성 시 "API 키 등록 필요" | API키등록·플랫폼연동에 해당 AI 키 저장 |
-| 예약 글이 안 올라감 | cron-job.org 응답이 200인지, Authorization 값 |
+| 예약 글이 안 올라감 | 설정 → ⏰ 예약 발행에 cron-job.org 키가 「등록됨」인지, 보관함 위 상태 줄이 「일시정지됨」이 아닌지, cron-job.org 콘솔의 예약 작업 최근 실행이 성공(200)인지(401이면 키를 다시 저장하면 새 연결값으로 다시 만들어짐) |
 | 빌드 실패 `JavaScript heap out of memory` | 다시 실행하거나 다른 프로그램을 닫고 실행 |
 | 설정을 바꿨는데 반영 안 됨 | Vercel 환경변수는 바꾼 뒤 **Redeploy**해야 반영 |
 | 빌드 실패 `file is too long` / `TurbopackInternalError` (윈도우) | 폴더 경로가 너무 깁니다. `D:\work\my-threads`처럼 **짧은 경로**로 폴더를 옮긴 뒤 다시 실행 |

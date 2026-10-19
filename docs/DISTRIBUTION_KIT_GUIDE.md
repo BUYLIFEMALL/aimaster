@@ -181,7 +181,7 @@
 | 3 | 2026-10-19 | 포장 스크립트 `make_lecture_kit.py`를 프로그램별 `KIT/kit.json`(빼기·덮어쓰기 목록)으로 읽게 일반화 → 새 프로그램은 `kit.json`만 쓰면 포장 | 지금은 스크립트 안 `PROGRAMS` 목록을 손으로 고쳐야 함 | ✅ 2026-10-19(`--name --programs`, schema generate) |
 | 4 | 2026-10-19 | 포장 직후 비밀값 자동 검사(압축 안 `.env*`·키 패턴 발견 시 실패) | §4-2를 사람이 하지 않게 | ✅ 2026-10-19(가짜 키로 검출 확인) |
 | 5 | 2026-10-19 | `threads-affiliate-poster/clone-kit` 방식과 `KIT/` 방식 중 하나로 통일 | 키트 방식이 두 가지라 수강생·CLI 모두 헷갈림 | ✅ 2026-10-19 주인님 결정: **`KIT/` 표준 + clone-kit의 DB 자동 생성·HTML 매뉴얼** |
-| 6 | 2026-10-19 | 교육 매뉴얼(`docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) 작성 후 키트 `KIT/README.md`와 화면 이름·순서 일치시키기 | 리허설에서 안내서와 실제 화면이 다른 곳 다수 | 🔄 진행 중 |
+| 6 | 2026-10-19 | 교육 매뉴얼(`docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) 작성 후 키트 `KIT/README.md`와 화면 이름·순서 일치시키기 | 리허설에서 안내서와 실제 화면이 다른 곳 다수 | 🔄 2026-10-20 초안 작성(패키지 설치마법사 8단계 기준, `docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) — 📷 캡처는 주인님 v1.01 시험 화면으로 채움. 같은 날 두 키트 README의 예전 예약 방식 문구(도메인 변경 시 「cron-job.org URL 고치기」·「Authorization 값」)도 「키 다시 저장」으로 교체 → 다음 배포판 v1.02에 반영 |
 | 7 | 2026-10-19 | 쇼핑제휴 운영: 설정 화면에 Claude(`anthropic`)·Replicate 키 칸이 있는데 저장 함수 허용 목록(`src/lib/actions/settings.ts` `VALID_PROVIDERS`)에 없어 저장 시 「알 수 없는 provider」 | 키트 허용 목록 점검 중 발견(키트 `99_finalize.sql`에는 naver·replicate 추가함) | ✅ 2026-10-19 쇼핑제휴 v1.64(`anthropic`·`replicate` 허용 목록 추가) |
 | 9 | 2026-10-19 | 설치를 「묻는 값만 입력」하는 마법사로 — 화면 자동 열기·클립보드·자동 확인·이어서 하기 | 주인님 실사용: 새 배포판에서 `.env.local`을 직접 고치게 됨 | ✅ 2026-10-19 **패키지 설치마법사**(§2-2). 실제 리허설은 대기 |
 | 10 | 2026-10-19 | 마법사가 Supabase 이메일 확인 끄기·URL Configuration까지 자동으로(지금은 화면만 열어 줌) | Supabase Management API는 수강생 개인 접근 토큰이 필요 — 토큰 발급 단계가 늘어 오히려 복잡 | ⚪ 검토(지금은 화면 열기 + 안내가 더 쉬움) |
