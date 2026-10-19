@@ -38,3 +38,7 @@
 ## 3. 처리 상태 요약
 - `v1.10` 완료: 포커스 스튜디오 스타일 전면 리뉴얼, `.studio-hero` 배너 및 3대 KPI 지표 카드 탑재, 독립 비주얼 가이드북 (`/guide`) 신설, Vercel 배포 및 Edge 포그라운드 실세션 검수 완료.
 - 향후 과제: 상기 아이디어 백로그 검토 및 단계적 적용.
+
+
+## 다른 프로그램 연계 메모 — 2026-10-19 Claude Code(윈도우, ai-doc-chatbot 작업 중 발견)
+- **AI 문서 챗봇(`ai-doc-chatbot`)과 파일로 연계 가능**: 「인쇄/PDF」로 저장한 원고를 https://ai-doc-chatbot.buylife.xyz/documents 에 올리면 원고 내용을 근거로 질문할 수 있다(100쪽 초과 PDF도 챗봇 v1.05 비동기 읽기). 독자용 공개 Q&A 챗봇은 비로그인 공개가 필요해 플랫폼 규칙과 맞지 않아 보류(챗봇 `docs/IMPROVEMENTS.md` C2).

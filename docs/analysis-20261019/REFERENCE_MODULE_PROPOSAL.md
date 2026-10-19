@@ -32,6 +32,7 @@
 | R-16 | 회원 자격·본인 키 연결 | 검증 패턴 후보 | lib/access/checkProgramAccess.ts; docs/DATABASE_CONNECTION_POLICY.md | 인증/자격 오류 규격·키 연결 인터페이스·호환 정책 | 인증 실행·회원 식별·본인 키 조회·비밀 보관은 앱 경계 | 401/403·정지/만료·누락 키·운영자 키 폴백 금지 |
 | R-17 | 개인 데이터·30일 보관 | 검증 패턴 후보 | youtube-viral-studio/supabase/migrations/20261017025253_yvs_member_favorites.sql | 원생성일·만료 규격·조회 cutoff·정리 결과 관측 | 프로그램별 데이터/파일/로컬 저장 방식·RLS·승인된 정리 작업 | 교차 회원 거절·직접 조회·미접속 정리·이전 시 만료 연장 금지 |
 | R-18 | 예약·발송 실행 제어 | 수정·검증 뒤 후보 | booking-reminder/README.md; crm-google-form/README.md; stepmail/README.md | 작업 선점·멱등성·채널별 상태·재시도 정책 | 외부 채널·템플릿·회원 키·최종 전송 판단 | F-007~011 해결 후 경합·부분 실패·정지/만료·비밀 누락 검사. 현재 코드를 기준으로 승격하지 않기 |
+| R-19 | 문서 RAG(올린 자료 근거 답변) | 후보·미추출(2026-10-19 등록, Claude Code) | ai-doc-chatbot/src/lib/chat/core.ts; ai-doc-chatbot/src/lib/chat/ingest.ts; ai-doc-chatbot/src/lib/chat/upstage.ts; ai-doc-chatbot/supabase/migrations/0001_dcb_init.sql(`dcb_match_chunks`) | 조각 나누기·임베딩 저장(100개 묶음·실패 시 되돌림)·벡터+키워드 혼합 검색·관련도 기준·출처(근거 미리보기)·100쪽 초과 비동기 읽기·4MB 초과 Storage 경유·30일 삭제 | 표 접두사(`dcb_`)·답변 지시문·화면·웹 검색 사용 여부 | 두 번째 프로그램 적용 때: 표·함수 접두사 분리, `core.ts` 테스트 28개 그대로 통과, 회원 본인 Upstage 키만, 관련도 기준(0.4)을 그 프로그램 실데이터로 재점검 |
 
 
 ## 구조와 책임

@@ -31,10 +31,10 @@
 ## 3. 다른 프로그램과 연계
 | # | 내용 | 상태 |
 |---|---|---|
-| C1 | `document-translator` 번역 결과 → 챗봇 「내 문서」로 바로 보내기 | 대기 |
-| C2 | `ebook-studio` 원고 → 독자용 Q&A 챗봇 | 대기 |
-| C3 | Upstage·Tavily 공용 키를 쓰는 다음 프로그램은 `user_api_keys` 재사용(새 등록 화면 금지) | 규칙 — 적용 시 확인 |
-| C4 | RAG 엔진(`core.ts`·`dcb_match_chunks` 패턴) 검증 후 레퍼런스 모듈 후보 등록 | 대기(L1 검수 후) |
+| C1 | `document-translator` 번역 결과 → 챗봇 「내 문서」로 바로 보내기 | 검토 완료(2026-10-19): 번역기의 TXT·MD·DOCX 다운로드 → 챗봇 「내 문서」 업로드로 지금 바로 연계 가능(코드 변경 없음). 원클릭 보내기는 「프로그램끼리 서로 호출하지 않음」 원칙상 남의 표에 직접 쓰는 구조가 필요해 보류 — 필요하면 주인님 결정 후 공용 「회원 문서함」 설계로 |
+| C2 | `ebook-studio` 원고 → 독자용 Q&A 챗봇 | 검토 완료(2026-10-19): eBook의 「인쇄/PDF」 내보내기 → 챗봇 업로드로 연계 가능(100쪽 초과도 v1.05 비동기 읽기). 독자용 공개 챗봇은 비로그인 공개가 필요해 플랫폼 규칙(로그인 회원만)과 맞지 않아 보류 |
+| C3 | Upstage·Tavily 공용 키를 쓰는 다음 프로그램은 `user_api_keys` 재사용(새 등록 화면 금지) | 규칙 — 적용 시 확인(현재 Upstage·Tavily 키를 쓰는 프로그램은 이 챗봇뿐, 2026-10-19 grep) |
+| C4 | RAG 엔진(`core.ts`·`dcb_match_chunks` 패턴) 검증 후 레퍼런스 모듈 후보 등록 | ✅ 2026-10-19 레퍼런스 모듈 후보 R-19 등록(`docs/analysis-20261019/REFERENCE_MODULE_PROPOSAL.md`), 아이디어 표 I-21 갱신. 추출은 두 번째 사용 프로그램이 생길 때 |
 
 ## 타 프로그램 탐색 중 발견
-- 메인 상세 페이지의 공통 FAQ 「API 키 연동」 답변이 OpenAI·Gemini·Claude·Threads·YouTube만 예로 들어, Upstage·Tavily 같은 새 키는 언급이 없음 — 프로그램별 FAQ가 생기면 반영 검토(메인 사이트 작업, 대기).
+- 메인 상세 페이지의 공통 FAQ 「API 키 연동」 답변이 OpenAI·Gemini·Claude·Threads·YouTube만 예로 들어, Upstage·Tavily 같은 새 키는 언급이 없음 — 프로그램별 FAQ가 생기면 반영 검토(메인 사이트 작업, 대기). → **2026-10-19 확인: 코드 변경 불필요.** 문구는 「등」 예시이고 연결된 `/guides` 목록(DB)에 「Upstage API 키 발급받기」(LLM AI)·「Tavily 웹 검색 API 키 발급받기」(정보수집)가 공개 표시됨(크롬 확인). 메인 사이트 빌드 비용을 아끼려고 문구는 그대로 둠.
