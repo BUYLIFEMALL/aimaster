@@ -1,0 +1,186 @@
+{
+  "captured_at": "2026-10-19",
+  "scope": "policy/grant/index/column metadata only; no rows, no credentials",
+  "data": [
+    {
+      "jsonb_build_object": {
+        "crm_indexes": [
+          {
+            "name": "crm_submissions_pkey",
+            "definition": "CREATE UNIQUE INDEX crm_submissions_pkey ON public.crm_submissions USING btree (id)"
+          },
+          {
+            "name": "crm_submissions_user_id_idx",
+            "definition": "CREATE INDEX crm_submissions_user_id_idx ON public.crm_submissions USING btree (user_id)"
+          },
+          {
+            "name": "crm_submissions_form_source_id_idx",
+            "definition": "CREATE INDEX crm_submissions_form_source_id_idx ON public.crm_submissions USING btree (form_source_id)"
+          }
+        ],
+        "svs_policies": [
+          {
+            "name": "svs_projects_delete_own",
+            "check": null,
+            "using": "(auth.uid() = user_id)",
+            "command": "DELETE"
+          },
+          {
+            "name": "svs_projects_insert_own",
+            "check": "(auth.uid() = user_id)",
+            "using": null,
+            "command": "INSERT"
+          },
+          {
+            "name": "svs_projects_select_own",
+            "check": null,
+            "using": "(auth.uid() = user_id)",
+            "command": "SELECT"
+          },
+          {
+            "name": "svs_projects_update_own",
+            "check": "(auth.uid() = user_id)",
+            "using": "(auth.uid() = user_id)",
+            "command": "UPDATE"
+          }
+        ],
+        "cache_columns": [
+          {
+            "table": "competitor_profiles",
+            "column": "id"
+          },
+          {
+            "table": "competitor_profiles",
+            "column": "domain"
+          },
+          {
+            "table": "competitor_profiles",
+            "column": "company_name"
+          },
+          {
+            "table": "competitor_profiles",
+            "column": "summary"
+          },
+          {
+            "table": "competitor_profiles",
+            "column": "researched_at"
+          },
+          {
+            "table": "competitor_profiles",
+            "column": "created_at"
+          },
+          {
+            "table": "naver_search_cache",
+            "column": "id"
+          },
+          {
+            "table": "naver_search_cache",
+            "column": "cache_key"
+          },
+          {
+            "table": "naver_search_cache",
+            "column": "search_type"
+          },
+          {
+            "table": "naver_search_cache",
+            "column": "query"
+          },
+          {
+            "table": "naver_search_cache",
+            "column": "items"
+          },
+          {
+            "table": "naver_search_cache",
+            "column": "fetched_at"
+          },
+          {
+            "table": "naver_trend_cache",
+            "column": "id"
+          },
+          {
+            "table": "naver_trend_cache",
+            "column": "cache_key"
+          },
+          {
+            "table": "naver_trend_cache",
+            "column": "period_months"
+          },
+          {
+            "table": "naver_trend_cache",
+            "column": "time_unit"
+          },
+          {
+            "table": "naver_trend_cache",
+            "column": "groups"
+          },
+          {
+            "table": "naver_trend_cache",
+            "column": "results"
+          },
+          {
+            "table": "naver_trend_cache",
+            "column": "fetched_at"
+          }
+        ],
+        "critical_grants": [
+          {
+            "check": "true",
+            "roles": [
+              "public"
+            ],
+            "table": "coupon_usage",
+            "using": "true",
+            "policy": "Service role full access",
+            "command": "ALL",
+            "anon_delete": true,
+            "anon_insert": true,
+            "anon_select": true,
+            "anon_update": true
+          },
+          {
+            "check": "true",
+            "roles": [
+              "public"
+            ],
+            "table": "coupons",
+            "using": "true",
+            "policy": "Service role full access",
+            "command": "ALL",
+            "anon_delete": true,
+            "anon_insert": true,
+            "anon_select": true,
+            "anon_update": true
+          },
+          {
+            "check": "true",
+            "roles": [
+              "public"
+            ],
+            "table": "site_settings",
+            "using": "true",
+            "policy": "Service role full access",
+            "command": "ALL",
+            "anon_delete": true,
+            "anon_insert": true,
+            "anon_select": true,
+            "anon_update": true
+          },
+          {
+            "check": "true",
+            "roles": [
+              "public"
+            ],
+            "table": "user_sessions",
+            "using": "true",
+            "policy": "Service role full access",
+            "command": "ALL",
+            "anon_delete": true,
+            "anon_insert": true,
+            "anon_select": true,
+            "anon_update": true
+          }
+        ]
+      }
+    }
+  ]
+}

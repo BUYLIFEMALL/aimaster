@@ -1,0 +1,1329 @@
+{
+  "captured_at": "2026-10-19",
+  "scope": "public catalog metadata only; no member content/keys",
+  "programs": [
+    {
+      "slug": "ai-writing-editor",
+      "name": "AI 글쓰기 에디터 자동화",
+      "short_desc": "주제만 적으면 AI가 초안을 쓰고 문장을 드래그해 바로 고치는 범용 서식 글쓰기 에디터",
+      "version": "v1.10",
+      "app_url": "https://ai-writing-editor.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "cinematic-storyboard-studio",
+      "name": "시네마틱 스토리보드 자동화",
+      "short_desc": "이미지 한 장으로 영화 같은 9컷 스토리보드와 영상 AI용 프롬프트를 만드는 도구",
+      "version": "v1.09",
+      "app_url": "https://cinematic-storyboard-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "landing-architect",
+      "name": "AI 랜딩페이지 기획 자동화",
+      "short_desc": "주제·타겟·목표만 넣으면 랜딩페이지 기획안과 바로 보는 HTML 프로토타입을 만드는 도구",
+      "version": "v1.06",
+      "app_url": "https://landing-architect.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "markdown-studio",
+      "name": "마크다운 문서 자동화",
+      "short_desc": "마크다운 문서를 폴더로 관리하며 편집·미리보기·변환하고 내 Google Drive와 동기화하는 작업실",
+      "version": "v1.20",
+      "app_url": "https://markdown-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "persona-style-studio",
+      "name": "페르소나 문체 자동화",
+      "short_desc": "슬라이더와 캐릭터 페르소나로 내 글의 문체를 원하는 느낌으로 다시 써 주는 글쓰기 도구",
+      "version": "v1.08",
+      "app_url": "https://persona-style-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new",
+        "free"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "ui-canvas",
+      "name": "UI Canvas 자동화",
+      "short_desc": "UI 화면을 드래그로 설계하고 스크린샷에서 구조를 복원해 PNG·JSON으로 내보내는 캔버스",
+      "version": "v1.10",
+      "app_url": "https://ui-canvas.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "website-scraper",
+      "name": "Website Scraper",
+      "short_desc": "웹사이트 주소로 본문·표·이미지를 모으고 AI로 반복 목록을 표로 정리하는 스크래퍼",
+      "version": "v1.12",
+      "app_url": "https://website-scraper.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "web-crawler-saas",
+      "name": "웹 크롤링 자동화",
+      "short_desc": "주소와 모을 항목만 알려 주면 AI가 사이트 구조를 찾아 데이터를 엑셀로 정리하는 크롤러",
+      "version": "v1.07",
+      "app_url": "https://web-crawler-saas.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-prompt-studio",
+      "name": "AI Prompt 자동화",
+      "short_desc": "거친 아이디어를 ChatGPT·Claude·Gemini에 바로 쓰는 완성형 프롬프트로 설계하는 스튜디오",
+      "version": "v1.06",
+      "app_url": "https://ai-prompt.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "free",
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "prompt-template-studio",
+      "name": "AI 프롬프트 템플릿 자동화",
+      "short_desc": "자주 쓰는 프롬프트를 변수 템플릿으로 보관하고 AI로 채워 바로 실행하는 프롬프트 보관함",
+      "version": "v1.05",
+      "app_url": "https://prompt-template.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-slide-builder",
+      "name": "AI 슬라이드 자동화",
+      "short_desc": "회의록·기획서 문서로 IR 피치덱·사업계획서 슬라이드를 구성해 PPTX로 내려받는 도구",
+      "version": "v1.07",
+      "app_url": "https://ai-slide-builder.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-web-ui",
+      "name": "AI 웹 UI 제작 자동화",
+      "short_desc": "UI 컴포넌트를 직접 써 보고 TSX 코드를 복사하며 AI로 새 컴포넌트까지 만드는 스튜디오",
+      "version": "v1.05",
+      "app_url": "https://ai-web-ui.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "데이터수집|기획",
+      "category_slug": "scraping&plan",
+      "parent_category": null
+    },
+    {
+      "slug": "threads-easy-planner",
+      "name": "Threads AI 기획 자동화",
+      "short_desc": "초보자도 버튼 하나로 Threads 글의 첫 문장 훅부터 본문·댓글 CTA·후속 아이디어까지 기획",
+      "version": "v1.45",
+      "app_url": "https://threads-easy-planner.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "쓰레드",
+      "category_slug": "threads",
+      "parent_category": null
+    },
+    {
+      "slug": "auto-threads-posting",
+      "name": "Threads 포스팅 자동화",
+      "short_desc": "글감 수집부터 AI 초안, 이미지 첨부, 즉시·예약 게시까지 하는 기본형 Threads 포스팅 도구",
+      "version": "v1.18",
+      "app_url": "https://auto-threads-posting.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "free"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "쓰레드",
+      "category_slug": "threads",
+      "parent_category": null
+    },
+    {
+      "slug": "threads-comment-reply",
+      "name": "Threads 댓글자동화",
+      "short_desc": "내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구",
+      "version": "v1.11",
+      "app_url": "https://threads-comment-reply.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "쓰레드",
+      "category_slug": "threads",
+      "parent_category": null
+    },
+    {
+      "slug": "threads-affiliate-poster",
+      "name": "Threads 쇼핑제휴 자동화",
+      "short_desc": "쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구",
+      "version": "v1.62",
+      "app_url": "https://threads-affiliate-poster.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "쓰레드",
+      "category_slug": "threads",
+      "parent_category": null
+    },
+    {
+      "slug": "threads-content-ops",
+      "name": "Threads 콘텐츠 운영 자동화",
+      "short_desc": "떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구",
+      "version": "v2.04",
+      "app_url": "https://threads-content-ops.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best",
+        "new",
+        "recommended"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "쓰레드",
+      "category_slug": "threads",
+      "parent_category": null
+    },
+    {
+      "slug": "auto-instagram-posting",
+      "name": "INSTA 포스팅 자동화",
+      "short_desc": "주제만 정하면 인스타 피드·카드뉴스를 AI로 만들어 예약·즉시 게시까지 하는 도구",
+      "version": "v1.24",
+      "app_url": "https://auto-instagram-posting.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "free"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "인스타",
+      "category_slug": "instagram",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-influencer-studio",
+      "name": "AI 인플루언서 자동화",
+      "short_desc": "가상 인플루언서의 하루 화보와 인스타 캡션 3종을 같은 얼굴로 만드는 인플루언서 스튜디오",
+      "version": "v1.12",
+      "app_url": "https://ai-influencer.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new",
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "인스타",
+      "category_slug": "instagram",
+      "parent_category": null
+    },
+    {
+      "slug": "instagram-comment-reply",
+      "name": "INSTA 댓글자동화",
+      "short_desc": "내 인스타 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구",
+      "version": "v1.15",
+      "app_url": "https://instagram-comment-reply.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "인스타",
+      "category_slug": "instagram",
+      "parent_category": null
+    },
+    {
+      "slug": "instagram-dm-reply",
+      "name": "INSTA DM답변 자동화",
+      "short_desc": "인스타 DM 문의를 AI가 읽고 답장 초안을 만들어 검토 후 또는 자동으로 보내는 도구",
+      "version": "v1.14",
+      "app_url": "https://instagram-dm-reply.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "인스타",
+      "category_slug": "instagram",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-webtoon-studio",
+      "name": "AI 웹툰 자동화",
+      "short_desc": "시놉시스로 캐릭터 시트·컷 콘티·세로 스크롤 원고까지 웹툰 한 편을 완성하는 스튜디오",
+      "version": "v1.14",
+      "app_url": "https://ai-webtoon-automation.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "인스타",
+      "category_slug": "instagram",
+      "parent_category": null
+    },
+    {
+      "slug": "cardnews-studio",
+      "name": "INSTA Cardnews 자동화",
+      "short_desc": "주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오",
+      "version": "v1.15",
+      "app_url": "https://cardnews-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new",
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "인스타",
+      "category_slug": "instagram",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-auto-blog",
+      "name": "BLOG(원문)생성 자동화",
+      "short_desc": "실시간 이슈로 블로그 글·이미지를 AI로 만들고 크롬 확장으로 네이버에 입력하는 도구",
+      "version": "v1.74",
+      "app_url": "https://ai-auto-blog.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": "v1.74",
+      "extension_download_url": "https://ai-auto-blog.buylife.xyz/downloads/ai-auto-blog-extension-latest.zip",
+      "category": "블로그",
+      "category_slug": "blog",
+      "parent_category": null
+    },
+    {
+      "slug": "blog-keyword",
+      "name": "AI 블로그 키워드 자동화",
+      "short_desc": "키워드 하나로 자동완성·상위 블로그·경쟁력·오늘의 이슈·글감까지 한 화면에서 분석하는 도구",
+      "version": "v1.05",
+      "app_url": "https://blog-keyword.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "블로그",
+      "category_slug": "blog",
+      "parent_category": null
+    },
+    {
+      "slug": "tistory-auto-blog",
+      "name": "티스토리(원문)생성 자동화",
+      "short_desc": "AI로 티스토리 원문·이미지를 만들고 크롬 확장이 서식까지 글쓰기 화면에 입력하는 도구",
+      "version": "v1.82",
+      "app_url": "https://tistory-auto-blog.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": "v1.82",
+      "extension_download_url": "https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-latest.zip",
+      "category": "블로그",
+      "category_slug": "blog",
+      "parent_category": null
+    },
+    {
+      "slug": "naver-blog-agent",
+      "name": "네이버 블로그 에이전트",
+      "short_desc": "5단계 AI 에이전트가 네이버 블로그 글·이미지를 만들고 크롬 확장이 스마트에디터에 입력",
+      "version": "v1.94",
+      "app_url": "https://naver-blog-agent.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best",
+        "new",
+        "recommended"
+      ],
+      "extension_version": "v1.94",
+      "extension_download_url": "https://naver-blog-agent.buylife.xyz/downloads/naver-blog-agent-extension-latest.zip",
+      "category": "블로그",
+      "category_slug": "blog",
+      "parent_category": null
+    },
+    {
+      "slug": "naver-blog-allinone",
+      "name": "네이버 블로그 올인원 자동화",
+      "short_desc": "사진을 AI가 보고 쓰는 맛집·여행 글부터 주제·키워드 조사, 서식 원고까지 하는 블로그 올인원",
+      "version": "v1.49",
+      "app_url": "https://naver-blog-allinone.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new",
+        "best"
+      ],
+      "extension_version": "v1.49",
+      "extension_download_url": "https://naver-blog-allinone.buylife.xyz/downloads/naver-blog-allinone-latest.zip",
+      "category": "블로그",
+      "category_slug": "blog",
+      "parent_category": null
+    },
+    {
+      "slug": "blog-workroom",
+      "name": "AI 블로그 작업실 자동화",
+      "short_desc": "내 블로그 문체 분석부터 키워드·근거 자료·초안·검수·이미지까지 돕는 네이버 블로그 작업실",
+      "version": "v1.11",
+      "app_url": "https://blog-workroom.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "블로그",
+      "category_slug": "blog",
+      "parent_category": null
+    },
+    {
+      "slug": "blog-content-maker",
+      "name": "AI 블로그 콘텐츠 제작 자동화",
+      "short_desc": "주제·기존 원고로 글과 이미지를 만들고 수정 이력·발행 전 점검·네이버 입력까지 돕는 제작 도구",
+      "version": "v1.10",
+      "app_url": "https://blog-content-maker.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": "v1.10",
+      "extension_download_url": "https://blog-content-maker.buylife.xyz/downloads/blog-content-maker-extension-latest.zip",
+      "category": "블로그",
+      "category_slug": "blog",
+      "parent_category": null
+    },
+    {
+      "slug": "naver-cafe-poster",
+      "name": "네이버 카페 포스팅 자동화",
+      "short_desc": "내 네이버 계정으로 활동 중인 카페에 AI가 쓴 글을 예약·자동 등록하는 카페 포스팅 도구",
+      "version": "v1.15",
+      "app_url": "https://naver-cafe-poster.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "네이버",
+      "category_slug": "naver",
+      "parent_category": null
+    },
+    {
+      "slug": "naver-blog-auto-poster",
+      "name": "네이버 블로그 자동화(App)",
+      "short_desc": "내 PC에서 AI가 쓴 블로그 글을 내 네이버 계정 글쓰기 화면에 채워 넣는 데스크톱 앱",
+      "version": "v1.12",
+      "app_url": "https://naver-blog-auto-poster.buylife.xyz",
+      "is_active": false,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "네이버",
+      "category_slug": "naver",
+      "parent_category": null
+    },
+    {
+      "slug": "naver-blog-auto-poster-web",
+      "name": "네이버 블로그 자동화(Web)",
+      "short_desc": "설치 없이 크롬 사이드패널에서 AI 블로그 글을 네이버 글쓰기 화면에 채우는 확장",
+      "version": "v1.13",
+      "app_url": "https://naver-blog-auto-poster-web.buylife.xyz",
+      "is_active": false,
+      "badges": [
+        "new"
+      ],
+      "extension_version": "v1.13",
+      "extension_download_url": "https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip",
+      "category": "네이버",
+      "category_slug": "naver",
+      "parent_category": null
+    },
+    {
+      "slug": "naver-blog-seo-studio",
+      "name": "네이버 블로그 SEO 스튜디오",
+      "short_desc": "검색 전략과 페르소나로 네이버 블로그 초안을 만들고 기존 글·URL을 SEO로 다시 쓰는 스튜디오",
+      "version": "v1.73",
+      "app_url": "https://naver-blog-seo-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best",
+        "new"
+      ],
+      "extension_version": "v1.73",
+      "extension_download_url": "https://naver-blog-seo-studio.buylife.xyz/downloads/naver-blog-seo-studio-extension-latest.zip",
+      "category": "네이버",
+      "category_slug": "naver",
+      "parent_category": null
+    },
+    {
+      "slug": "playlist-channel-studio",
+      "name": "플레이리스트 채널 제작 자동화",
+      "short_desc": "장르만 고르면 플레이리스트 채널용 제목·Suno 프롬프트·가사·설명·썸네일을 만드는 도구",
+      "version": "v1.14",
+      "app_url": "https://playlist-maker.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "thumbnail-master",
+      "name": "AI 썸네일 마스터 자동화",
+      "short_desc": "영상 주제와 시청 타겟으로 A/B 전략과 문구가 들어간 유튜브 썸네일 2종을 만드는 도구",
+      "version": "v1.07",
+      "app_url": "https://thumbnail-master.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "youtube-channel-consultant",
+      "name": "YOUTUBE CHANNEL CONSULTANT",
+      "short_desc": "유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트",
+      "version": "v1.10",
+      "app_url": "https://youtube-channel-consultant.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "youtube-viral-studio",
+      "name": "YOUTUBE VIRAL FINDER",
+      "short_desc": "조회수가 터진 쇼츠·소형 황금 채널·급상승 영상을 찾아 벤치마킹하는 유튜브 도구",
+      "version": "v1.19",
+      "app_url": "https://youtube-viral-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new",
+        "best",
+        "recommended"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "shorts-viral-studio",
+      "name": "쇼츠 떡상 분석·대본 자동화",
+      "short_desc": "떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구",
+      "version": "v1.11",
+      "app_url": "https://shorts-viral-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "auto-shorts-posting",
+      "name": "YOUTUBE Shots(이미지 스토리) 자동화",
+      "short_desc": "주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구",
+      "version": "v1.16",
+      "app_url": "https://shots.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "youtube-auto-reply",
+      "name": "유튜브 댓글자동화",
+      "short_desc": "내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구",
+      "version": "v1.11",
+      "app_url": "https://youtube-auto-reply.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "seo-thumbnail-pro",
+      "name": "AI 유튜브 썸네일 프로",
+      "short_desc": "대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구",
+      "version": "v1.10",
+      "app_url": "https://seo-thumbnail-pro.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "shorts-onestop-studio",
+      "name": "AI 쇼츠 원스톱 제작 자동화",
+      "short_desc": "주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다.",
+      "version": "v1.18",
+      "app_url": "https://shorts-onestop-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "유튜브",
+      "category_slug": "youtube",
+      "parent_category": null
+    },
+    {
+      "slug": "crm-google-form",
+      "name": "구글폼 CRM 자동화",
+      "short_desc": "구글폼 신청이 들어오면 신청자에게 자동 접수 확인을 보내고 운영자에게 알려 주는 CRM",
+      "version": "v1.09",
+      "app_url": "https://crm-google-form.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "CRM",
+      "category_slug": "crm",
+      "parent_category": null
+    },
+    {
+      "slug": "kakao-auto-posting",
+      "name": "카카오톡 뉴스레터 자동화",
+      "short_desc": "관심 주제의 최신 뉴스·정책·트렌드를 AI가 정리해 카카오톡 채널로 보내는 뉴스레터 도구",
+      "version": "v1.16",
+      "app_url": "https://kakao-auto-posting.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "CRM",
+      "category_slug": "crm",
+      "parent_category": null
+    },
+    {
+      "slug": "trending-product-finder",
+      "name": "상품소싱 자동화",
+      "short_desc": "네이버 쇼핑·검색 데이터로 관심은 오르고 경쟁은 적은 소싱 상품을 찾아 주는 도구",
+      "version": "v1.14",
+      "app_url": "https://trending-product-finder.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이커머스",
+      "category_slug": "ecommerce",
+      "parent_category": null
+    },
+    {
+      "slug": "video-to-gif",
+      "name": "상세페이지 GIF 자동화",
+      "short_desc": "상세페이지용 동영상을 8MB 이하 고품질 GIF로 일괄 변환하는 브라우저 도구",
+      "version": "v1.06",
+      "app_url": "https://video-to-gif.buylife.xyz/dashboard",
+      "is_active": true,
+      "badges": [
+        "free"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이커머스",
+      "category_slug": "ecommerce",
+      "parent_category": null
+    },
+    {
+      "slug": "shop-detail-page",
+      "name": "상세페이지 자동화(15p)",
+      "short_desc": "상품 사진과 정보로 상세페이지 섹션 이미지 15장을 만들어 한 장으로 합치는 도구",
+      "version": "v1.14",
+      "app_url": "https://shop-detail-page.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이커머스",
+      "category_slug": "ecommerce",
+      "parent_category": null
+    },
+    {
+      "slug": "auto-detail-page",
+      "name": "상세페이지 자동생성기 v1",
+      "short_desc": "제품 이미지와 정보로 쿠팡·스마트스토어용 HTML 상세페이지를 AI가 완성하는 도구",
+      "version": "v1.13",
+      "app_url": "https://auto-detail-page.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "coming"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이커머스",
+      "category_slug": "ecommerce",
+      "parent_category": null
+    },
+    {
+      "slug": "detail-page-12p",
+      "name": "AI 12단 상세페이지 자동화",
+      "short_desc": "상품명만으로 스펙을 채우고 쿠팡 12단·스마트스토어 9단 860px 통이미지 상세페이지를 만드는 도구",
+      "version": "v1.09",
+      "app_url": "https://detail-12p.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이커머스",
+      "category_slug": "ecommerce",
+      "parent_category": null
+    },
+    {
+      "slug": "stepmail",
+      "name": "대량 메일발송 자동화(Step Mail)",
+      "short_desc": "고객 엑셀과 내 메일 계정 여러 개로 AI가 쓴 이메일을 차수별로 예약 발송하는 도구",
+      "version": "v1.16",
+      "app_url": "https://stepmail.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "마케팅(홍보)",
+      "category_slug": "marketing",
+      "parent_category": null
+    },
+    {
+      "slug": "competitor-analysis",
+      "name": "경쟁사 키워드분석 자동화",
+      "short_desc": "키워드로 구글 상위 결과를 분석해 경쟁사·강점·콘텐츠 기회를 리포트로 정리하는 도구",
+      "version": "v1.07",
+      "app_url": "https://competitor-analysis.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "free"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "마케팅(홍보)",
+      "category_slug": "marketing",
+      "parent_category": null
+    },
+    {
+      "slug": "longtail-keyword-expander",
+      "name": "롱테일 키워드분석 자동화",
+      "short_desc": "키워드 하나에서 연관·롱테일 키워드를 넓히고 블로그 담당자용 작업 지시문까지 만드는 도구",
+      "version": "v1.08",
+      "app_url": "https://longtail-keyword-expander.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "마케팅(홍보)",
+      "category_slug": "marketing",
+      "parent_category": null
+    },
+    {
+      "slug": "booking-reminder",
+      "name": "예약(취소)방지 리마인드 자동화",
+      "short_desc": "예약일시 기준으로 문자·카카오·이메일 리마인드를 자동 발송해 노쇼를 줄이는 도구",
+      "version": "v1.07",
+      "app_url": "https://booking-reminder.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "마케팅(홍보)",
+      "category_slug": "marketing",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-image-studio",
+      "name": "AI 이미지 스튜디오",
+      "short_desc": "한국어 아이디어를 프롬프트로 다듬어 여러 AI 엔진으로 이미지를 1~10장 만드는 스튜디오",
+      "version": "v1.18",
+      "app_url": "https://ai-image-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "banana-canvas",
+      "name": "AI 바나나 캔버스 자동화",
+      "short_desc": "사진 한 장을 Nano Banana로 복원·스타일 변환·합성·배경 제거하는 이미지 도구함",
+      "version": "v1.08",
+      "app_url": "https://banana-canvas.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "fashion-style",
+      "name": "AI 패션스타일 자동화",
+      "short_desc": "내 사진에 AI가 추천한 코디를 입혀 보고 메이크업·헤어까지 완성하는 가상 피팅 스튜디오",
+      "version": "v1.10",
+      "app_url": "https://fashion-style.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "four-cut-comics",
+      "name": "AI 4컷 만화 자동화",
+      "short_desc": "주제만 적으면 대본·캐릭터·컷 그림·말풍선까지 만드는 3·4·6컷 인스타툰 제작기",
+      "version": "v1.12",
+      "app_url": "https://four-cut-comics.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "image-convert-studio",
+      "name": "이미지 변환 스튜디오",
+      "short_desc": "이미지를 WebP·PNG·JPEG·AVIF로 일괄 변환·확대하고 콜라주로 합치는 브라우저 도구",
+      "version": "v1.07",
+      "app_url": "https://image-convert-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "portrait-photo",
+      "name": "AI 인물사진 자동화",
+      "short_desc": "사진 한 장으로 증명사진·프로필·SNS·화보 인물 사진을 만드는 AI 인물사진 스튜디오",
+      "version": "v1.28",
+      "app_url": "https://portrait-photo.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "style-dna-analyzer",
+      "name": "이미지 스타일 분석기",
+      "short_desc": "이미지 한 장의 카메라·조명·색감·화풍을 분석해 같은 느낌의 마스터 프롬프트로 바꾸는 도구",
+      "version": "v1.22",
+      "app_url": "https://style-dna-analyzer.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "emotion-writer",
+      "name": "감성 글귀 이미지",
+      "short_desc": "AI 감성 글귀와 배경 사진을 합성해 카톡·SNS 공유용 카드 이미지를 만드는 스튜디오",
+      "version": "v1.15",
+      "app_url": "https://emotion-writer.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "allinone-graphic",
+      "name": "AI 올인원 그래픽 자동화",
+      "short_desc": "19개 직군 123종 템플릿으로 상업용 이미지를 만들고 브러시로 부분 수정·확장하는 그래픽 도구",
+      "version": "v1.07",
+      "app_url": "https://graphic.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "photo-remake-studio",
+      "name": "AI 포토 리메이크 자동화",
+      "short_desc": "오래된 사진을 복원·컬러화·확대하고 사물을 자연스럽게 합성하는 포토 리메이크 스튜디오",
+      "version": "v1.09",
+      "app_url": "https://photo-remake-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "이미지",
+      "category_slug": "image",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-mastering-studio",
+      "name": "AI 마스터링 스튜디오",
+      "short_desc": "WAV 음원을 브라우저에서 마스터링하고 원하는 소리를 적으면 AI가 설정값을 제안하는 도구",
+      "version": "v1.04",
+      "app_url": "https://ai-mastering-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "음악",
+      "category_slug": "music",
+      "parent_category": null
+    },
+    {
+      "slug": "music-video-studio",
+      "name": "뮤직비디오 자동화",
+      "short_desc": "주제·장르로 가사와 스토리보드를 만들고 장면 이미지·Veo 영상까지 만드는 뮤직비디오 도구",
+      "version": "v1.11",
+      "app_url": "https://music-video-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "음악",
+      "category_slug": "music",
+      "parent_category": null
+    },
+    {
+      "slug": "suno-music-studio",
+      "name": "Suno 음악기획 자동화",
+      "short_desc": "음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구",
+      "version": "v1.11",
+      "app_url": "https://suno-music-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "음악",
+      "category_slug": "music",
+      "parent_category": null
+    },
+    {
+      "slug": "music-automation",
+      "name": "음악(SUNO)자동화",
+      "short_desc": "곡 설명만 적으면 AI가 기획하고 Suno로 보컬·연주곡 실제 음악까지 만들어 보관하는 도구",
+      "version": "v1.16",
+      "app_url": "https://music-automation.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "음악",
+      "category_slug": "music",
+      "parent_category": null
+    },
+    {
+      "slug": "vinyl-lp-studio",
+      "name": "LP 턴테이블 자동화",
+      "short_desc": "나만의 LP·CD 앨범 아트를 만들고 돌아가는 턴테이블 MP4·GIF 영상으로 완성하는 도구",
+      "version": "v1.12",
+      "app_url": "https://lp-turntable.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "음악",
+      "category_slug": "music",
+      "parent_category": null
+    },
+    {
+      "slug": "yt-playlist-studio",
+      "name": "Youtube Playlist 자동화",
+      "short_desc": "음악에 반응하는 스펙트럼·파티클·AI 배경으로 1080p 유튜브 플레이리스트 영상을 만드는 도구",
+      "version": "v1.14",
+      "app_url": "https://youtube-playlist.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "음악",
+      "category_slug": "music",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-audio-analyzer",
+      "name": "AI Audio분석 자동화",
+      "short_desc": "음성·음악 파일로 회의록·화자 분석, Suno 역설계 프롬프트, 음향 진단을 만드는 오디오 분석실",
+      "version": "v1.04",
+      "app_url": "https://audio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "free",
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "음악",
+      "category_slug": "music",
+      "parent_category": null
+    },
+    {
+      "slug": "infinite-loop-video",
+      "name": "무한루프 영상자동화",
+      "short_desc": "영상에서 가장 자연스럽게 이어지는 구간을 찾아 끝없이 반복되는 MP4·WebM·GIF로 만드는 도구",
+      "version": "v1.05",
+      "app_url": "https://infinite-loop-video.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "멀티미디어",
+      "category_slug": "multimedia",
+      "parent_category": null
+    },
+    {
+      "slug": "music-player",
+      "name": "뮤직 플레이어 자동화",
+      "short_desc": "내 음악 파일을 끌어다 놓고 시각화·이퀄라이저로 즐기는 브라우저 뮤직 플레이어",
+      "version": "v1.08",
+      "app_url": "https://music-player.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new",
+        "free"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "멀티미디어",
+      "category_slug": "multimedia",
+      "parent_category": null
+    },
+    {
+      "slug": "reverse-prompt",
+      "name": "AI 리버스 프롬프트 자동화",
+      "short_desc": "이미지·영상·음악 파일 하나로 다른 생성 AI에 넣을 프롬프트를 거꾸로 만들어 주는 도구",
+      "version": "v1.04",
+      "app_url": "https://reverse-prompt.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "멀티미디어",
+      "category_slug": "multimedia",
+      "parent_category": null
+    },
+    {
+      "slug": "real-estate-sales",
+      "name": "부동산 실거래 투자분석 자동화",
+      "short_desc": "서울 관심 지역의 새 실거래가를 알려 주고 AI가 투자 매력도를 분석하는 부동산 도구",
+      "version": "v1.15",
+      "app_url": "https://real-estate-sales.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "부동산",
+      "category_slug": "real-estate",
+      "parent_category": null
+    },
+    {
+      "slug": "ai-task-planner",
+      "name": "AI 할 일·성과 관리",
+      "short_desc": "날짜별 할 일과 실제 집중 시간을 기록하고 성과 차트·AI 분석으로 돌아보는 관리 도구",
+      "version": "v1.07",
+      "app_url": "https://ai-task-planner.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    },
+    {
+      "slug": "document-translator",
+      "name": "AI 문서번역 자동화",
+      "short_desc": "문서를 10개 언어로 번역하고 원문과 비교하며 문맥·용어·문체를 검수하는 번역 도구",
+      "version": "v1.04",
+      "app_url": "https://document-translator.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    },
+    {
+      "slug": "file-merge",
+      "name": "AI 엑셀·텍스트 합치기 자동화",
+      "short_desc": "엑셀·CSV·텍스트 파일을 머리글 기준으로 합치고 나누는 브라우저 도구, 원본 서식 유지",
+      "version": "v1.07",
+      "app_url": "https://file-merge.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    },
+    {
+      "slug": "personality-suite",
+      "name": "AI 종합 성격 진단 자동화",
+      "short_desc": "16가지 성격·마음 상태 검사를 한곳에서 하고 변화 비교와 AI 종합 프로필을 받는 진단 도구",
+      "version": "v1.06",
+      "app_url": "https://personality-suite.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    },
+    {
+      "slug": "personality-code",
+      "name": "성격코드(MBTI) 측정기",
+      "short_desc": "20문항 빠른 검사와 60문항 정식 검사로 16가지 성격유형을 알아보고 공유하는 테스트",
+      "version": "v1.05",
+      "app_url": "https://personality-code.buylife.xyz",
+      "is_active": true,
+      "badges": [],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    },
+    {
+      "slug": "mbti-character",
+      "name": "캐릭코드(MBTI) 측정기",
+      "short_desc": "20문항 성격유형 검사로 나와 꼭 닮은 오리지널 캐릭터를 찾아 공유하는 테스트",
+      "version": "v1.14",
+      "app_url": "https://mbti-character.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    },
+    {
+      "slug": "tarot-reading",
+      "name": "AIMaster 타로점",
+      "short_desc": "질문을 떠올리고 카드를 뽑으면 AI가 카드 그림을 그리고 해석해 주는 AI 타로 리딩",
+      "version": "v1.13",
+      "app_url": "https://tarot-reading.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    },
+    {
+      "slug": "ebook-studio",
+      "name": "eBook Studio",
+      "short_desc": "흩어진 문서·웹페이지·자막을 AI로 정리해 HTML·EPUB·PDF 전자책으로 만드는 출판 스튜디오",
+      "version": "v1.09",
+      "app_url": "https://ebook-studio.buylife.xyz",
+      "is_active": true,
+      "badges": [
+        "new",
+        "best"
+      ],
+      "extension_version": null,
+      "extension_download_url": null,
+      "category": "Tools",
+      "category_slug": "tools",
+      "parent_category": null
+    }
+  ]
+}

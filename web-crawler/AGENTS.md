@@ -111,3 +111,7 @@ python scripts\preflight.py              # 검증: core / agent-browser 분리 P
 - 매뉴얼 FAQ에 30일 삭제 안내 추가. **빌드·배포·`CRON_SECRET` 설정·첫 실행 확인은 윈도우 CLI 대기**: [IMPROVEMENT_HANDOFF_20261017.md](IMPROVEMENT_HANDOFF_20261017.md) 「v1.08」.
 - 새로 발견(주인님 결정 필요): 도메인 구조 공유 캐시(IMPROVEMENTS #8), 결과 버킷 공개(#9).
 
+
+## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
+
+F-017(P2)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.

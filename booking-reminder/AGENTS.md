@@ -83,3 +83,7 @@ README.md의 Phase 표와 동기화해서 관리할 것.
 - 새 주소 `https://booking-reminder.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
 - 검수: 새 주소 / → /reservations 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 → 새 주소(크론 API는 옛 주소 그대로)
 - 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+
+## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
+
+F-008(P1), F-009(P1), F-010(P1), F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.

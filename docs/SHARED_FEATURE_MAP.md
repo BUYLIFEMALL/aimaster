@@ -112,3 +112,7 @@
 | 2026-10-17 | 이미지 생성 호출 1단계 — gemini-image-client 기준(ai-image-studio)·사본 7곳 | Claude Code(윈도우) |
 | 2026-10-17 | 유튜브 조회 2단계 — ai-auto-blog·tistory-auto-blog·naver-blog-agent·threads-content-ops·trending-product-finder 사본 적용 | Claude Code(윈도우) |
 | 2026-10-17 | 문서 신설. 유튜브 조회(1단계 3개 적용)·황금 채널 엔진 등록, 이미지·수집·프롬프트 규칙 후보 조사 | Claude Code(윈도우) |
+
+## 2026-10-19 기능 안정화·점진 레퍼런스 모듈화와 아이디어 검토
+
+당분간 기능 개선·안정화 우선입니다. 개선 중 검증된 기능을 레퍼런스로 정리해 신규 개발/리뉴얼 때 하나씩 적용합니다. 일괄 교체는 시작하지 않습니다. [확장 지도·경계·검증 기준](analysis-20261019/REFERENCE_MODULE_PROPOSAL.md), [아이디어 표·세 가지 검토 기준](PROGRAM_IDEA_BACKLOG.md)를 함께 읽습니다. 기존 공식 기준/사본 분류는 위 표를 따르며 신규 후보는 아직 기준으로 승격하지 않았습니다.

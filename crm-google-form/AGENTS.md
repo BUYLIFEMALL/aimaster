@@ -104,3 +104,7 @@ README.md의 Phase 표와 동기화해서 관리할 것.
 - 롱테일 기반 부품 + `file-merge` 라이트 토큰, 사이드바 🏠·📢·📖 + 휴대폰 ☰(원칙 19 — 기존 누락), `/dashboard`·`/guide` 신설(`/` → `/dashboard`), 접수 내역 검색·상태/폼 필터·원본 펼치기, 기존 화면 색 토큰 일괄 치환, 시각 Asia/Seoul. 웹훅·발송·Cron·DB 변경 없음.
 - 🚨 발견(미조치, 승인 대기): 웹훅 `response_id` 중복 미차단(이중 발송·요금), 크기·횟수 제한 없음 — [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md) #1·#2.
 - **빌드·배포·화면 검수는 윈도우 CLI 대기** — [docs/IMPROVEMENT_HANDOFF_20261017.md](docs/IMPROVEMENT_HANDOFF_20261017.md).
+
+## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
+
+F-007(P1), F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.

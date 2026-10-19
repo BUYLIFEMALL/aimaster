@@ -97,3 +97,7 @@
 - [디자인 핸드오프](docs/DESIGN_HANDOFF.md)
 - [개선 및 특이사항](docs/IMPROVEMENTS.md)
 - [개선 백로그](docs/IMPROVEMENT_BACKLOG.md)
+
+## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
+
+F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.
