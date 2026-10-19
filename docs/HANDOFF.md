@@ -2,7 +2,7 @@
 
 ## 2026-10-19 Claude Code(윈도우) — 메인 사이트 관리자 회원 정보 수정(이름·이메일·핸드폰)
 - **한 일**: `/admin/members/[id]`에서 관리자가 회원 이름·이메일·핸드폰을 고칠 수 있게 함 — `PUT /api/admin/members`, `components/admin/MemberInfoFields.tsx`. 이메일은 로그인 아이디라 auth·profiles를 함께 바꾸고 실패 시 되돌림. 상세 `docs/ADMIN_POLICY_GUIDELINES.md` 2026-10-19.
-- **검수**: tsc, 로컬 빌드 통과. 배포는 GitHub 푸시 자동 빌드(메인 사이트). 운영 화면 검수 결과는 아래 이어서 기록.
+- **검수**: tsc, 로컬 빌드 통과, GitHub 푸시 자동 빌드 Ready(`aimaster-j0gpqqgox`). **운영 실검수(메인 크롬, 관리자 로그인, 시험 계정 `buylifemall@naver.com`)**: ① 관리자 이메일 입력 → 「이미 다른 회원이 쓰는 이메일입니다.」 거절·변경 없음 ② 이름·이메일·핸드폰(01012345678) 변경 → DB profiles·auth 모두 반영, 핸드폰 `010-1234-5678` 자동 형식, 화면 「새 이메일로 로그인」 안내 ③ 같은 화면에서 원래 값으로 되돌림 → DB 원상 확인.
 - https://www.buylife.xyz/admin/members
 
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 마스터링 스튜디오 v1.10: 사이버 네온 다크 콘솔 스타일 리뉴얼·/guide 비주얼 가이드북 전면 리뉴얼·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 64개 완료 / 77.1% 달성!)
