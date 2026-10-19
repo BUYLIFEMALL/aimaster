@@ -8,6 +8,9 @@ interface ShowcaseTab {
   title: string;
   badge: string;
   subtitle: string;
+  programName: string;
+  programUrl: string;
+  ctaText: string;
 }
 
 const SHOWCASE_TABS: ShowcaseTab[] = [
@@ -16,18 +19,27 @@ const SHOWCASE_TABS: ShowcaseTab[] = [
     title: "포커스 스튜디오",
     badge: "🎯 Focus Studio",
     subtitle: "시각적 캔버스 & 원클릭 하이퍼 컨트롤",
+    programName: "AI 이미지 스튜디오",
+    programUrl: "https://ai-image-studio.buylife.xyz",
+    ctaText: "AI 이미지 스튜디오 바로 시작하기",
   },
   {
     id: "neon",
     title: "네온 마케팅 콘솔",
     badge: "⚡ Neon Console",
     subtitle: "실시간 알고리즘 추적 & 데이터 파이프라인",
+    programName: "Threads 콘텐츠 운영 자동화",
+    programUrl: "https://threads-content-ops.buylife.xyz",
+    ctaText: "Threads 운영 자동화 즉시 실행하기",
   },
   {
     id: "wizard",
     title: "인터랙티브 위저드",
     badge: "🧙 Step Wizard",
     subtitle: "초보자도 1분 만에 완성하는 단계별 생성기",
+    programName: "유튜브 쇼츠 자동 생성기",
+    programUrl: "https://youtube-shorts-maker.buylife.xyz",
+    ctaText: "유튜브 쇼츠 위저드 바로 시작하기",
   },
 ];
 
@@ -47,6 +59,13 @@ export default function HeroShowcase() {
     }, 6000);
     return () => clearInterval(timer);
   }, [isAutoPlay]);
+
+  const scrollToCatalog = () => {
+    const el = document.getElementById("program-catalog");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div
@@ -94,7 +113,7 @@ export default function HeroShowcase() {
         </div>
 
         {/* 메인 쇼케이스 콘텐츠 영역 */}
-        <div className="p-4 sm:p-6 min-h-[260px] flex flex-col justify-between">
+        <div className="p-4 sm:p-6 min-h-[280px] flex flex-col justify-between">
           {activeTab === "focus" && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -141,9 +160,17 @@ export default function HeroShowcase() {
                   <p className="text-xs text-white/80 leading-relaxed">
                     프롬프트 작성부터 모델별 파라미터 조율, 초고화질 업스케일링 및 소셜 포맷 변환까지 한 화면에서 실시간으로 시각화됩니다.
                   </p>
-                  <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-subtext">
-                    <span>지원 모델: Gemini Nano Banana 2.1, Flux, Midjourney 등</span>
-                    <span className="text-gold font-medium">단 2.4초 렌더링 →</span>
+                  <div className="mt-3 pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-subtext">
+                    <span>지원: Gemini Nano Banana 2.1, Flux, Midjourney</span>
+                    <a
+                      href="https://ai-image-studio.buylife.xyz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-bold text-xs hover:brightness-110 shadow-sm shadow-gold/20 transition-all cursor-pointer"
+                    >
+                      <span>🎨 AI 이미지 스튜디오 바로 시작하기</span>
+                      <ChevronRight size={13} />
+                    </a>
                   </div>
                 </div>
               </div>
@@ -166,7 +193,7 @@ export default function HeroShowcase() {
               </div>
 
               {/* 콘솔 모형 */}
-              <div className="p-3.5 rounded-xl border border-cyan-500/30 bg-black/60 font-mono text-xs space-y-2">
+              <div className="p-3.5 rounded-xl border border-cyan-500/30 bg-black/60 font-mono text-xs space-y-2.5">
                 <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[11px] text-white/60">
                   <span className="flex items-center gap-1.5 text-cyan-400"><Terminal size={12} />AUTOMATION TERMINAL</span>
                   <span className="text-emerald-400">● 100% PERSONAL ENCRYPTED</span>
@@ -175,6 +202,18 @@ export default function HeroShowcase() {
                   <p className="text-cyan-300">[19:15:02] ▶ 경쟁사 급상승 떡상 쇼츠 48건 알고리즘 분석 수집 완료</p>
                   <p className="text-white/80">[19:15:03] ↳ 조회수 터진 키워드 추출: &quot;소자본 부업&quot;, &quot;AI 자동화&quot; (상위 1.2% 도달률)</p>
                   <p className="text-gold">[19:15:04] ↳ Threads 자동 포스팅 파이프라인 큐 장전 완료 (예약 스케줄러 동기화)</p>
+                </div>
+                <div className="pt-2 border-t border-cyan-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-[11px] text-cyan-200/70 font-sans">실시간 데이터 수집 및 자동 발행 파이프라인</span>
+                  <a
+                    href="https://threads-content-ops.buylife.xyz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-bold text-xs hover:brightness-110 shadow-sm shadow-cyan-400/20 transition-all cursor-pointer font-sans"
+                  >
+                    <span>⚡ Threads 운영 자동화 즉시 실행하기</span>
+                    <ChevronRight size={13} />
+                  </a>
                 </div>
               </div>
             </div>
@@ -196,28 +235,43 @@ export default function HeroShowcase() {
               </div>
 
               {/* 위저드 모형 */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                <div className="p-3 rounded-xl border border-purple-500/40 bg-purple-500/10 space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300">
-                    <CheckCircle2 size={13} className="text-purple-400" />
-                    <span>STEP 1. 소재 선택</span>
+              <div className="space-y-3 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="p-3 rounded-xl border border-purple-500/40 bg-purple-500/10 space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300">
+                      <CheckCircle2 size={13} className="text-purple-400" />
+                      <span>STEP 1. 소재 선택</span>
+                    </div>
+                    <p className="text-[11px] text-white/80">주제 키워드 및 타깃 시청자 설정</p>
                   </div>
-                  <p className="text-[11px] text-white/80">주제 키워드 및 타깃 시청자 설정</p>
+
+                  <div className="p-3 rounded-xl border border-gold/40 bg-gold/10 space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-gold">
+                      <Play size={13} className="text-gold animate-pulse" />
+                      <span>STEP 2. AI 대본·이미지</span>
+                    </div>
+                    <p className="text-[11px] text-white/80">장면별 스크립트 및 컷 자동 빌드</p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-white/10 bg-white/[0.03] space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-white/60">
+                      <span>STEP 3. 원클릭 렌더링</span>
+                    </div>
+                    <p className="text-[11px] text-white/50">자막·음성 합성 후 영상 추출</p>
+                  </div>
                 </div>
 
-                <div className="p-3 rounded-xl border border-gold/40 bg-gold/10 space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-gold">
-                    <Play size={13} className="text-gold animate-pulse" />
-                    <span>STEP 2. AI 대본·이미지</span>
-                  </div>
-                  <p className="text-[11px] text-white/80">장면별 스크립트 및 컷 자동 빌드</p>
-                </div>
-
-                <div className="p-3 rounded-xl border border-white/10 bg-white/[0.03] space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-white/60">
-                    <span>STEP 3. 원클릭 렌더링</span>
-                  </div>
-                  <p className="text-[11px] text-white/50">자막·음성 합성 후 영상 추출</p>
+                <div className="p-2.5 rounded-xl border border-purple-500/20 bg-purple-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-[11px] text-purple-200/80">초보자도 1분 만에 유튜브 떡상 숏폼 대본/영상 추출</span>
+                  <a
+                    href="https://youtube-shorts-maker.buylife.xyz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-400 to-amber-300 text-slate-950 font-bold text-xs hover:brightness-110 shadow-sm shadow-purple-400/20 transition-all cursor-pointer"
+                  >
+                    <span>🧙 유튜브 쇼츠 위저드 바로 시작하기</span>
+                    <ChevronRight size={13} />
+                  </a>
                 </div>
               </div>
             </div>
@@ -230,9 +284,13 @@ export default function HeroShowcase() {
             <Layers size={13} className="text-gold" />
             <span>총 84개 프로그램이 위 9대 표준 디자인 템플릿으로 구축되어 있습니다.</span>
           </span>
-          <span className="hidden sm:inline text-gold/80 hover:text-gold transition-colors font-medium cursor-pointer">
+          <button
+            type="button"
+            onClick={scrollToCatalog}
+            className="hidden sm:inline text-gold/80 hover:text-gold transition-colors font-medium cursor-pointer"
+          >
             프로그램 카드의 템플릿 태그를 확인해보세요 →
-          </span>
+          </button>
         </div>
       </div>
     </div>

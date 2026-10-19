@@ -1,6 +1,29 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) Phase 3 비주얼 고도화 & 쇼케이스 강화 완료 (배포 및 Edge 실세션 검수 완비)
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 1단계: Hero 쇼케이스 실용화(대표 솔루션 다이렉트 런처 결합) 완료 (배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 주인님의 피드백("현재 구현해 놓은 건 그냥 단순 보여주는 시뮬레이션인거네")을 반영하여, 단순 눈요기용 시연 박스를 탈피하고 **3대 핵심 템플릿의 대표 솔루션으로 1초 만에 진입할 수 있는 실제 다이렉트 런처(CTA 실행 버튼)를 결합**하여 실사용성과 고객 전환율을 극대화함.
+- **주요 작업 내용**:
+  1. **3대 템플릿별 대표 프로그램 다이렉트 런처 결합 (`components/home/HeroShowcase.tsx`)**:
+     - **`🎯 Focus Studio`**: `[🎨 AI 이미지 스튜디오 바로 시작하기 →]` (골드 런처, `https://ai-image-studio.buylife.xyz`)
+     - **`⚡ Neon Console`**: `[⚡ Threads 운영 자동화 즉시 실행하기 →]` (시안-블루 런처, `https://threads-content-ops.buylife.xyz`)
+     - **`🧙 Step Wizard`**: `[🧙 유튜브 쇼츠 위저드 바로 시작하기 →]` (퍼플-골드 런처, `https://youtube-shorts-maker.buylife.xyz`)
+  2. **카탈로그 바로가기 스크롤 인터랙션 연동 (`components/home/HeroShowcase.tsx`)**:
+     - 쇼케이스 하단 툴팁 배너("프로그램 카드의 템플릿 태그를 확인해보세요 →") 클릭 시 84개 솔루션 카탈로그 섹션(`#program-catalog`)으로 부드럽게 스크롤 이동하도록 `scrollToCatalog` 기능 탑재.
+  3. **로컬 빌드 검증 및 Vercel 프로덕션 배포**:
+     - `npx tsc --noEmit` 통과 & Next.js 72개 페이지 프로덕션 빌드 100% 무오류 완료.
+     - Vercel 프로덕션 배포 완료 (`dpl_8p7Ky48SAoRcXSuA1FyQamLnv4Cj`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - Focus Studio 탭 CTA 노출: `edge_step1_showcase_focus_cta.png`
+     - Neon Console 탭 CTA 노출: `edge_step1_showcase_neon_cta.png`
+     - Step Wizard 탭 CTA 노출: `edge_step1_showcase_wizard_cta.png`
+     - 카탈로그 스크롤 동작 확인: `edge_step1_scroll_to_catalog.png`
+- **서비스 링크**:
+  - 메인 사이트: https://www.buylife.xyz
+- **상세 인수인계 및 로드맵 문서**:
+  - [`docs/HANDOFF_MAIN_SITE_RENEWAL_20261019.md`](HANDOFF_MAIN_SITE_RENEWAL_20261019.md)
+
+
 
 - **배경**: 메인 사이트 UX/UI 혁신의 완결 단계인 **Phase 3(비주얼 고도화 & 쇼케이스 강화)** 작업을 진행. 텍스트 위주의 Hero 영역을 최첨단 SaaS 수준의 인터랙티브 글래스 쇼케이스로 승격시키고, 84개 솔루션 카드에 9대 디자인 템플릿 마스터 기준 뱃지를 연동하여 솔루션별 특성을 한눈에 파악할 수 있도록 완성.
 - **주요 작업 내용**:
