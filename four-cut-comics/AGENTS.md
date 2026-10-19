@@ -63,3 +63,9 @@
 - 파일: `src/lib/comic/flow.ts`(신규 — `canJumpToStep`·`hasUnsavedWork`·`progressLabel`), `src/components/studio/Studio.tsx`, `src/app/globals.css`, `tests/comic.test.mjs`(+3). 플랜: `docs/PLAN_20261020_STUDIO_CONVENIENCE.md`.
 - 검수: tsc 0, 시험 34/34, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.
 - 배포·검수(2026-10-20): `four-cut-comics-8nsul8r8h` Ready, DB `programs.version` v1.14. 크롬 실화면(관리자 계정): 사이드바 v1.14, 대본 생성 1회(관리자 본인 키) 후 2단계에서 칩 1만 버튼·3·4는 비활성, 칩 1→1단계 이동 후 칩 2로 대본 화면 복귀(대본 유지), 저장 전 `beforeunload` 차단(defaultPrevented=true) 확인. 일괄 생성 진행률은 그림 생성 비용 때문에 실화면 미검수(단위 시험 `progressLabel`로만 확인) — 다음에 그림 생성 시 「그리는 중 n/4」 표시 확인 필요.
+
+## 2026-10-20 v1.15 — INSTA 자동포스팅으로 넘기기 (Claude Code 윈도우)
+- 백로그 「외부 연계」: 인스타 문구 칸에 **[INSTA 자동포스팅으로 올리기]** — 문구 복사 + INSTA 새 글 화면(`https://auto-instagram-posting.buylife.xyz/posts/new?caption=&hashtags=`, 주소 6000자 넘으면 문구 없이) 새 탭 + 바둑판 그림 `4컷만화-인스타.jpg` 내려받기 + 직접 첨부 안내. INSTA 폴더는 수정하지 않음(기존 입력값·직접 첨부 기능 사용).
+- 파일: `src/lib/comic/extras.ts`(`INSTA_NEW_POST_URL`·`instaHandoffUrl`), `src/components/studio/Studio.tsx`(`sendToInsta`), `tests/comic.test.mjs`(+1). 플랜: `docs/PLAN_20261020_INSTA_HANDOFF.md`.
+- 주의: INSTA 주소가 바뀌면 `INSTA_NEW_POST_URL`도 함께 고친다. 새 탭은 그림 저장보다 먼저 연다(비동기 뒤에 열면 팝업 차단).
+- 검수: tsc 0, 시험 35/35, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.

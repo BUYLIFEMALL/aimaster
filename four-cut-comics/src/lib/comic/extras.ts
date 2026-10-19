@@ -30,6 +30,16 @@ export function instaText(c: InstaCopy): string {
   return `${c.caption}\n\n${c.hashtags.join(" ")}`;
 }
 
+// v1.15: INSTA 포스팅 자동화(insta_auto_poster) 새 글 화면. 그 화면은 주소의 caption·hashtags(쉼표 구분)를 받아 미리 채운다.
+export const INSTA_NEW_POST_URL = "https://auto-instagram-posting.buylife.xyz/posts/new";
+const MAX_HANDOFF_URL = 6000;
+
+/** INSTA 새 글 화면 주소. 문구가 길어 주소가 너무 길어지면 문구는 빼고(복사본으로 붙여넣기) 화면만 연다 */
+export function instaHandoffUrl(c: InstaCopy, base = INSTA_NEW_POST_URL): { url: string; prefilled: boolean } {
+  const full = `${base}?${new URLSearchParams({ caption: c.caption, hashtags: c.hashtags.join(",") })}`;
+  return full.length <= MAX_HANDOFF_URL ? { url: full, prefilled: true } : { url: base, prefilled: false };
+}
+
 /**
  * 후속편 대본을 이전 화에 잇는다. 캐릭터 그림을 그대로 다시 쓰기 위해 등장인물 목록은 이전 화 것을 유지하고,
  * 새 대본의 화자 이름이 등장인물에 없으면 그대로 두되(생각·없음 포함) 컷 4개만 새 것으로 바꾼다.

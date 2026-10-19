@@ -8,7 +8,7 @@ import { MAX_TAIL, MIN_H, MIN_W, shortenTail, applyDrag, defaultBalloon, fitText
 import { buildBalloonPrompt } from "../src/lib/comic/prompt.ts";
 import { isBalloonMode, isAspect, isPanelCount, aspectValue, ASPECTS, PANEL_COUNTS } from "../src/lib/comic/options.ts";
 import { MAX_SAVED, addToIndex, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "../src/lib/comic/savedIndex.ts";
-import { MAX_WORKS, cleanHashtag, continueScript, instaText, normalizeInsta, stackLayout, trimWorks, webtoonLayout, panelsLayout, splitRanges } from "../src/lib/comic/extras.ts";
+import { INSTA_NEW_POST_URL, MAX_WORKS, cleanHashtag, continueScript, instaHandoffUrl, instaText, normalizeInsta, stackLayout, trimWorks, webtoonLayout, panelsLayout, splitRanges } from "../src/lib/comic/extras.ts";
 import { createZip, crc32 } from "../src/lib/comic/zip.ts";
 import { buildInstaPrompt, koreaMonth } from "../src/lib/comic/prompt.ts";
 import { parseInstaRequest } from "../src/lib/comic/validate.ts";
@@ -346,4 +346,16 @@ test("진행 문구: 지금 그리는 장 번호/전체", () => {
   assert.equal(progressLabel("그리는", 3, 4), "그리는 중 4/4");
   assert.equal(progressLabel("그리는", 9, 4), "그리는 중 4/4");
   assert.equal(progressLabel("캐릭터 그리는", 0, 0), "캐릭터 그리는 중...");
+});
+
+test("v1.15 INSTA로 넘기기: 짧은 문구는 주소에 싣고, 너무 길면 화면만 연다", () => {
+  const c = { caption: "월요일 아침 & 알람 다섯 번", hashtags: ["#직장인", "#4컷만화", "#인스타툰"] };
+  const r = instaHandoffUrl(c);
+  assert.equal(r.prefilled, true);
+  const u = new URL(r.url);
+  assert.equal(u.origin + u.pathname, INSTA_NEW_POST_URL);
+  assert.equal(u.searchParams.get("caption"), c.caption);
+  assert.deepEqual(u.searchParams.get("hashtags").split(","), c.hashtags);
+  const long = instaHandoffUrl({ caption: "가".repeat(2000), hashtags: c.hashtags });
+  assert.deepEqual(long, { url: INSTA_NEW_POST_URL, prefilled: false });
 });
