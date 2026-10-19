@@ -1,6 +1,14 @@
-# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.04)
+# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.20)
 
-> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/IMPROVEMENT_HANDOFF_20261019.md`](docs/IMPROVEMENT_HANDOFF_20261019.md), 디자인 인수인계는 [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md).
+
+## 2026-10-19 v1.20 — 크리에이티브 아틀리에 파스텔 에디션 리뉴얼 & 가이드북 고도화 (Antigravity)
+- **디자인 테마**: 크리에이티브 아틀리에 스타일 — 파스텔 퍼스널리티 종합 진단 에디션 (`#fefcf9`, 코랄 로즈 `#f43f5e`, 라벤더 `#8b5cf6`, 파스텔 에메랄드 `#10b981`).
+- **가이드북 고도화**: `/guide` (`📖 연동 & 사용 매뉴얼`)에 4단계 프로세스 다이어그램, 지원 검사군 매트릭스 도감 표, 7대 황금 수칙, FAQ 5종 아코디언 구축.
+- **대시보드 메인**: 프리미엄 아틀리에 히어로 배너, 3대 핵심 KPI 카드(지원 검사 종수, 나의 완료 검사 이력, AI 융합 프로필), 4단계 파이프라인 가이드 바 탑재.
+- **사이드바 & 모바일**: `v1.20` 배지, 가이드북 하이라이트 메뉴, 56px 모바일 반응형 헤더 완비.
+- **버전 3중 동기화**: `package.json`(`1.20.0`), `src/lib/version.ts`(`v1.20`), Supabase DB `programs`(`v1.20`).
+- **검수**: Next.js 16.4.0 (Turbopack) 로컬 빌드 성공(3.3초), Vercel 프로덕션 배포(`https://personality-suite.buylife.xyz`), Edge 포그라운드 7종 캡처 수집 및 10분 화면 유지 세션 완료.
 
 ## 한 줄 요약
 상황별 16유형 검사 10종 + 성격 5요인·행동 스타일·애착·에니어그램·기질·성향 5종 + 마음 상태 자기점검 1종(총 16종)을 한 문항씩 풀고, 점수·기본 해석을 바로 보며, 회원 본인 Gemini 키로 **AI 심층 분석**과 **종합 프로필**을 받는다. 참고 원본은 AI Studio "다기능 종합 성격 진단기 (배포용)"이며 코드·문항·해석문은 복제하지 않고 기능 구조만 참고했다. 모든 문항·해석은 새로 작성했다.

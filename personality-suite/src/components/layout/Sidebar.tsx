@@ -22,8 +22,11 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
     <>
       <div className="sidebar-brand">
         <a href="/dashboard" className="brand-row">
-          <span className="brand-icon"><Sparkles size={20} /></span>
-          <div><strong>{APP_NAME}</strong><small>{APP_VERSION}</small></div>
+          <span className="brand-icon" style={{ background: "linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)" }}><Sparkles size={20} /></span>
+          <div>
+            <strong>{APP_NAME}</strong>
+            <span className="atelier-badge" style={{ marginTop: "4px", fontSize: "10px", padding: "1px 6px" }}>{APP_VERSION}</span>
+          </div>
         </a>
         <a className="other-programs" href={`${MAIN_SITE}/programs`}>← 다른 프로그램 보기</a>
       </div>
@@ -39,8 +42,14 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
           <span className="step-number">3</span><div><strong>종합 프로필</strong><small>여러 검사를 하나로 해석</small></div>
         </a>
         <div className="utility-menu">
-          <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings"><KeyRound size={17} />API키등록·플랫폼연동</a>
-          <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide"><BookOpen size={17} />연동 & 사용 매뉴얼</a>
+          <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide" style={{ fontWeight: 700, color: currentPath === "/guide" ? "#881337" : "#be123c", background: currentPath === "/guide" ? "#ffe4e6" : "#fff1f2" }}>
+            <BookOpen size={17} color="#e11d48" />
+            📖 연동 & 사용 매뉴얼
+          </a>
+          <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings">
+            <KeyRound size={17} />
+            API키등록·플랫폼연동
+          </a>
         </div>
       </nav>
       <div className="sidebar-account">
@@ -55,9 +64,17 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
     <>
       <aside className="desktop-sidebar">{menu}</aside>
       <div className="mobile-sidebar">
-        <div className="mobile-header">
-          <strong>{APP_NAME}</strong>
-          <button type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} onClick={() => setOpen((v) => !v)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
+        <div className="mobile-header" style={{ height: "56px", padding: "0 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <strong>{APP_NAME}</strong>
+            <span className="atelier-badge" style={{ fontSize: "10px", padding: "1px 6px" }}>{APP_VERSION}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <a href="/guide" style={{ fontSize: "11px", fontWeight: "bold", padding: "3px 8px", borderRadius: "99px", background: "#fff1f2", color: "#be123c", border: "1px solid #fecdd3" }}>
+              📖 매뉴얼
+            </a>
+            <button type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} onClick={() => setOpen((v) => !v)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
+          </div>
         </div>
         {open && <div className="mobile-menu">{menu}</div>}
       </div>

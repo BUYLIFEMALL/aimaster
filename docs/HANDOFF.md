@@ -1,5 +1,40 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AI 종합 성격 진단 자동화(personality-suite) v1.20: 크리에이티브 아틀리에 파스텔 에디션 리뉴얼·사이드바 개편·/guide 비주얼 가이드북 전면 고도화·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (🎉 정상 운영 81개 1차 전수 완료 달성! — 누적 81개 완료 / 97.6% 달성!)
+
+- **대상**: `personality-suite/` (https://personality-suite.buylife.xyz, slug: `personality-suite`, 63번)
+- **한 일**:
+  1. **크리에이티브 아틀리에 스타일 — 파스텔 퍼스널리티 종합 진단 에디션 전면 리뉴얼**:
+     - 소프트 크림(`#fefcf9`), 코랄 로즈(`#f43f5e`), 라벤더 바이올렛(`#8b5cf6`), 파스텔 에메랄드(`#10b981`), 차콜 잉크(`#1f2937`) 컬러 토큰 적용 (`src/app/globals.css`).
+     - 대시보드 메인 (`src/app/(workspace)/dashboard/page.tsx`): `.atelier-hero` 프리미엄 배너, `v1.20` 배지, 3대 핵심 KPI 통계 카드 (지원 검사 스위트 7종, 나의 검사 이력 집계, AI 융합 프로필 분석 상태), 4단계 파이프라인 가이드 바 (검사선택 ➔ 문항응답 ➔ 결과도출 ➔ AI융합분석) 탑재.
+  2. **반응형 사이드바 개편 (`src/components/layout/Sidebar.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 강조 및 `v1.20` 배지 탑재.
+     - 모바일 56px 헤더 및 반응형 햄버거 메뉴 토글 완비.
+  3. **독립 비주얼 가이드북 (`src/app/(workspace)/guide/page.tsx`) 전면 고도화**:
+     - 4단계 진단 & 융합 분석 파이프라인 워크플로우 다이어그램.
+     - 지원 검사군 매트릭스 도감 표 (검사 종류, 문항 수 & 소요시간, 진단 핵심 지표, 권장 활용 목적 등 7대 검사 매트릭스).
+     - 진단 정밀도 극대화 7대 황금 수칙 카드 (직관 응답, 평상시 상태 기준, 주기적 재진단, 융합 다면 분석, 컨디션 메모, 결과 맹신 지양, 마음 상태 로컬 보안 원칙).
+     - 자주 묻는 질문 (FAQ 5종) 인터랙티브 아코디언 컴포넌트 탑재.
+  4. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `personality-suite/package.json` (`1.20.0`), `personality-suite/src/lib/version.ts` (`v1.20`), Supabase DB `programs` 테이블 (`v1.20`) 동기화 완료 (`scripts/update_personality_suite_version.cjs`).
+  5. **로컬 무결성 검증 통과**:
+     - Next.js 16.4.0 (Turbopack) 프로덕션 빌드 성공 (정적/동적 라우트 컴파일 3.3s 무오류 통과, exit code 0).
+  6. **Vercel 프로덕션 배포 완료**:
+     - `https://personality-suite-4oubhcel3-buylife.vercel.app` (Alias: `https://personality-suite.buylife.xyz`).
+     - ReadyState: `READY` 배포 완료. 도메인 응답 확인 완료.
+  7. **Microsoft Edge 최전면 포그라운드(headless: false) 실세션 검수 완료**:
+     - `scripts/verify_edge_personality_suite_v120.cjs` 스크립트를 통해 실세션 캡처 7종 수집 완료:
+       - 데스크톱 메인 대시보드 (`edge_personality_desktop_main_v120.png`)
+       - 데스크톱 3대 KPI 카드 (`edge_personality_desktop_kpi_v120.png`)
+       - 데스크톱 4단계 파이프라인 바 (`edge_personality_desktop_pipeline_v120.png`)
+       - 데스크톱 가이드북 상단 (`edge_personality_desktop_guide_v120.png`)
+       - 데스크톱 검사군 매트릭스 도감 & 황금수칙 (`edge_personality_desktop_guide_matrix_v120.png`)
+       - 모바일 메인 대시보드 (`edge_personality_mobile_main_v120.png`)
+       - 모바일 가이드북 & FAQ (`edge_personality_mobile_guide_v120.png`)
+     - 사용자 실시간 확인을 위해 Microsoft Edge 브라우저 창을 최전면 포그라운드로 10분간(600초) 띄워 유지.
+- **문서**: `personality-suite/docs/PLAN_20261019_DESIGN_RENEWAL.md`, `personality-suite/docs/DESIGN_HANDOFF.md`, `personality-suite/docs/IMPROVEMENTS.md`, `personality-suite/docs/IMPROVEMENT_HANDOFF_20261019.md`, `personality-suite/AGENTS.md`, `personality-suite/README.md`
+- **링크**: https://personality-suite.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — AI 문서 챗봇 자동화(ai-doc-chatbot) v1.02~v1.03: 키 저장 오류 해결·실호출 검수·답변 품질 4건+취소선 수정
 
 - **키 저장 오류**: 공용 `user_api_keys_provider_check`에 `upstage`·`tavily` 누락 → `ai-doc-chatbot/supabase/migrations/0003_…`(현재 목록을 읽어 두 값만 추가)을 주인님이 운영 SQL Editor에서 실행. 교훈은 `docs/ERROR_LESSONS.md` 맨 위 2건.

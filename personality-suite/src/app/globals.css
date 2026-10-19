@@ -180,3 +180,109 @@ a.project-card{color:inherit}
   .workspace-content{padding:23px 14px}
   .card{padding:18px}
 }
+
+/* 크리에이티브 아틀리에 파스텔 테마 컴포넌트 */
+.atelier-hero {
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(245, 243, 255, 0.9) 50%, rgba(236, 253, 245, 0.85) 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 1.25rem;
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.08), 0 8px 10px -6px rgba(139, 92, 246, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.stat-card-pastel {
+  background: #ffffff;
+  border: 1px solid #f1ebe1;
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.125rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.stat-card-pastel:hover {
+  transform: translateY(-2px);
+  border-color: #fbcfe8;
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.08);
+}
+
+.pipeline-bar-pastel {
+  background: #ffffff;
+  border: 1px solid #f1ebe1;
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-bottom: 1.75rem;
+}
+
+.atelier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffe4e6 0%, #ede9fe 100%);
+  color: #881337;
+  border: 1px solid #fecdd3;
+}
+
+.atelier-matrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid #f1ebe1;
+  margin-top: 1rem;
+}
+
+.atelier-matrix-table th {
+  background: #faf6f0;
+  color: #4b5563;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f1ebe1;
+}
+
+.atelier-matrix-table td {
+  background: #ffffff;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #f5efe6;
+  color: #374151;
+}
+
+.atelier-matrix-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rule-card-atelier {
+  background: #ffffff;
+  border: 1px solid #f1ebe1;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.rule-card-atelier:hover {
+  border-color: #ddd6fe;
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.06);
+}
+
+.faq-atelier {
+  background: #ffffff;
+  border: 1px solid #f1ebe1;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.faq-atelier:hover {
+  border-color: #fbcfe8;
+}
+

@@ -18,5 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| ai-doc-chatbot | Claude Code(윈도우) | 2026-10-19 | ① AIMaster: v1.02 — L7 답변 마크다운 표시, L8 최신 질문 오늘 날짜·Tavily 기간 조건, L9 문서로 충분하면 웹 검색 생략, L10 문서 관련도 기준 상향 |
+| ai-doc-chatbot | Claude Code(윈도우) | 2026-10-19 | ① AIMaster: 남은 개선 순차 진행 — v1.04(L5·L6·U1~U4) → v1.05(L2~L4) → C4·썸네일 |
 | labs/kit-threads, labs/kit-insta | Claude Code(윈도우) | 2026-10-19 | ② Lab: 강의용 SNS 키트(PDS `SNS_Auto_Posting_Kit_20261018`) 수강생 관점 설치 리허설 — BUYLIFE-DEV 새 Supabase 프로젝트·Vercel `dev-kit-*`, 녹화·교육 매뉴얼 작성. 운영 폴더·운영 DB 미접촉 |
