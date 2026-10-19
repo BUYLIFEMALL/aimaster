@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — 서버 컴포넌트에서 `toLocaleString("ko-KR")`만 쓰면 시각이 UTC로 나온다(9시간 빠름) (threads-content-ops v2.06, Claude Code 윈도우)
+- 증상: 대시보드 「실제 작업 진행」의 저장 시각이 「오전 9:02」(실제 한국 18:02). 같은 글이 보관함에서는 「오후 6:02」로 정상.
+- 원인: `OperationsDashboard.tsx`는 `"use client"`가 없는 **서버 컴포넌트**라 Vercel 서버(UTC)에서 날짜 문자열을 만든다. `ko-KR`은 표기 형식일 뿐 시간대를 바꾸지 않는다. 보관함 화면은 브라우저에서 그려져(클라이언트 컴포넌트) 한국 시각이 나왔다.
+- 해결: `toLocaleString("ko-KR", { …, timeZone: "Asia/Seoul" })`. 강의용 키트 사본(`labs/kit-threads`)도 같은 수정.
+- 다음부터 확인: 서버 컴포넌트·서버 액션·API에서 사람에게 보여 줄 날짜를 만들 때는 반드시 `timeZone: "Asia/Seoul"`을 넣는다. 점검: `"use client"` 없는 파일에서 `toLocale(Date|Time)?String(` 검색.
+
 ## 2026-10-19 — 솔라피 문자가 「접수 성공」인데 수신이 안 됨 → 발신번호가 통신사 「번호도용문자차단서비스」에 가입돼 있었다 (메인 사이트 비밀번호 찾기 문자, Claude Code 윈도우)
 
 - 증상: 시험 계정(`buylifemall@naver.com`)으로 비밀번호 찾기 문자를 2번 요청했다. 서버는 정상 발송으로 처리했고(`app_metadata.password_reset.sms_sent` 기록됨, 오류 없음), 문자는 도착하지 않았다.

@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — Threads 콘텐츠 운영 자동화(threads-content-ops) v2.06: 대시보드 시각 UTC 표시(9시간 빠름) 수정
+
+- 서버 컴포넌트 `OperationsDashboard.tsx`의 날짜 표시에 `timeZone: "Asia/Seoul"` 추가. 배포 `threads-content-cnmn2cb7m` Ready, 운영 DB v2.06, 크롬 확인. 강의용 키트 사본(`labs/kit-threads`)도 같은 수정·배포. 교훈: `docs/ERROR_LESSONS.md` 맨 위.
+- https://threads-content-ops.buylife.xyz
+
 ## 2026-10-19 Claude Code(윈도우) — Threads 콘텐츠 운영 자동화(threads-content-ops) v2.05: 토스쇼핑 「Publisher ID」 → 「회원 연동 ID」 표기 변경
 
 - 주인님 지시. 화면 문구 4곳만 변경(저장값 이름 `toss_publisher_id`는 유지 — 기존 저장값 그대로 동작). 배포 `threads-content-pbt500zd3` Ready, 운영 DB 버전 v2.05, 크롬 확인 완료. 상세: [`threads-content-ops/AGENTS.md`](../threads-content-ops/AGENTS.md) 맨 아래.

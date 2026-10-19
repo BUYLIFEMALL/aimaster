@@ -123,5 +123,5 @@ function EmptyState({ icon: Icon, text }: { icon: typeof ListChecks; text: strin
 }
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleString("ko-KR", { dateStyle: "short", timeStyle: "short" });
+  return new Date(value).toLocaleString("ko-KR", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Seoul" });
 }

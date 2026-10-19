@@ -627,3 +627,8 @@
 - 그대로 둔 것: 저장값 이름 `toss_publisher_id`(회원이 이미 저장한 값이 그대로 쓰이도록), 변수명 `tossPublisherId`, `lib/toss.ts` 주석.
 - 검수: `npx tsc --noEmit` 0건, Vercel 프로덕션 배포(`threads-content-pbt500zd3`, Ready), 운영 DB(`esgxyikcnnvmlhygjkth`) `programs.version = 'v2.05'`, 크롬에서 https://threads-content-ops.buylife.xyz 키 등록 화면 v2.05·새 라벨·기존 저장값 「등록됨」 유지 확인.
 - 같은 변경을 강의용 키트 사본 `labs/kit-threads`(Lab, https://dev-threads-posting.vercel.app)에도 적용·배포함. PDS 원본 `SNS_Auto_Posting_Kit_20261018`에는 아직 미반영.
+
+## 2026-10-19 v2.06 — 대시보드 시각이 UTC로 보이던 문제 수정 (Claude Code 윈도우, 주인님 지시)
+- 증상: 대시보드 「실제 작업 진행」 시각이 9시간 빠르게(예: 18:02 → 「오전 9:02」) 표시. 강의용 키트 리허설에서 발견.
+- 원인·수정: `OperationsDashboard.tsx`는 서버 컴포넌트라 서버(UTC) 기준으로 시각을 만든다 → `formatDate()`에 `timeZone: "Asia/Seoul"` 추가. 다른 날짜 표시(보관함·토큰·계정 화면)는 클라이언트 컴포넌트라 브라우저 시각으로 정상이어서 손대지 않음.
+- 검수: `tsc` 0건, 배포 `threads-content-cnmn2cb7m` Ready, 운영 DB `programs.version = 'v2.06'`, 크롬에서 운영 대시보드 v2.06·한국 시각 표시 확인. 키트 사본(`labs/kit-threads`, https://dev-threads-posting.vercel.app)도 같은 수정·배포 후 발행 시각 「오후 6:04」 정상 확인.
