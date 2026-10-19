@@ -72,8 +72,18 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
       difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
       estimatedTime: "3분",
       summary: "Solar LLM 및 문서 파싱(Document Parse) API 발급 가이드",
-      consoleUrl: "https://console.upstage.ai",
-      consoleLabel: "Upstage Console",
+      consoleUrl: "https://console.upstage.ai/api-keys",
+      consoleLabel: "Upstage API 콘솔",
+    };
+  }
+  if (t.includes("블로그") && (t.includes("chrome") || t.includes("확장") || t.includes("콘텐츠"))) {
+    return {
+      icon: "✍️",
+      badgeTone: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+      difficulty: "초급",
+      difficultyTone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      estimatedTime: "3분",
+      summary: "AI 블로그 원고 작성 및 Chrome 확장 안전 페어링 가이드",
     };
   }
 

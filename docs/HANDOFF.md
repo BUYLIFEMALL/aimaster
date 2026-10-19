@@ -1,5 +1,32 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Antigravity CLI(agy, 윈도우) — 가이드북 Phase 9 최종 3종 단계별 시각화 완료 및 전체 40개 가이드 100% 비주얼화 완수 (Grand Finale 🎉, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: AI 블로그 자동화 Chrome 확장 연결, Upstage(Solar LLM & Document Parse), Perplexity(Sonar 실시간 웹 리서치) 등 마지막 잔여 3대 핵심 가이드를 **개요 카드, Step 1~4 시각 스텝 뷰어, 💡 팁, ⚠️ 핵심 주의사항(Perplexity Pro 구독 vs API 별개 크레딧 충전, 네이버 정상 로그인 세션 보호 등), 공식 콘솔 직링크**가 탑재된 프리미엄 반응형 카드 템플릿으로 전면 고도화함.
+- **★ 역사적 이정표**: 이로써 **AIMaster 가이드북 전체 40개 가이드 중 40개 전수 100% 단계별 비주얼화(Step 1~4 카드화)가 완벽하게 완료**되었습니다! (누적 달성률 100.0%)
+- **주요 작업 내용**:
+  1. **Phase 9 최종 3대 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **AI 블로그 콘텐츠 제작 자동화 · 본인 AI 키와 Chrome 확장 연결**: AI 원고 작성(Gemini/OpenAI 본인 키)부터 Chrome 전용 확장 프로그램 설치(`chrome://extensions` 개발자 모드 로드), 7일 임시 보안 연결 코드 페어링, 네이버 스마트에디터 ONE 자연스러운 타이핑 속도 자동 입력 및 수동 최종 발행까지 완벽 가이드 Step 1~4 시각화. 계정 비밀번호를 수집하지 않는 안전 원리 및 업데이트 요령 명시.
+     - **Upstage(업스테이지) API 키 발급받기**: 한국어 최적화 Solar LLM 및 세계 최고 수준의 PDF/표 파싱 엔진인 Document Parse API 연동 가이드. Upstage Console 가입, API Keys 메뉴 이동, 키 이름 지정 및 `up_...` 복사, 첫 가입 무료 체험 크레딧 팁, Step 1~4 시각화.
+     - **Perplexity API 키 발급받기**: 최신 전 세계 웹 검색 및 출처 인용 요약 엔진(Sonar / Sonar Pro). **가장 치명적인 함정 방지**: Perplexity Pro 월 구독($20)과 API 요금은 완전히 별개이며, API 사용을 위해 콘솔의 Settings › API에서 최소 $5~$10 이상의 크레딧을 사전 충전해야 키가 작동함을 경고 배너로 강력하게 명시, Step 1~4 시각화.
+  2. **메타데이터 엔진 보강 (`lib/guideMeta.ts`)**:
+     - AI 블로그 확장 연결(✍️·3분·초급), Upstage(📄·3분·Upstage API 콘솔 직링크), Perplexity(⚡·2분·Perplexity API 설정 직링크) 정밀 매핑.
+  3. **Vercel 프로덕션 빌드 & 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과.
+     - Vercel 메인 포털 프로덕션 배포 완료 (`dpl_GNjgaSZh9QxFv2Pmhg25ujaNnvV7`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 3개 가이드 상세 페이지 및 전체 가이드 허브 전수 순회 캡처 완료:
+       - `edge_guide_blog_extension_detail.png`
+       - `edge_guide_upstage_detail.png`
+       - `edge_guide_perplexity_detail.png`
+       - `edge_guides_all_completed_40of40.png` (가이드북 40개 전체 일관된 프리미엄 뷰 확인)
+- **서비스 링크**:
+  - 이용 가이드북 종합 허브 (40종 완결): https://www.buylife.xyz/guides
+  - AI 블로그 Chrome 확장 가이드: https://www.buylife.xyz/guides/db4a10cb-36aa-4432-9b5f-880c98b0230b
+  - Upstage API 가이드: https://www.buylife.xyz/guides/38d1ac20-15f8-47d9-877b-bbaca2f88dd7
+  - Perplexity API 가이드: https://www.buylife.xyz/guides/1df95d8b-6a27-4de0-b1d9-8bbc218534ad
+
+
 ## 2026-10-20 Antigravity CLI(agy, 윈도우) — Threads 계열 설정 카드 배경색 가독성 개선 (Threads 자동포스팅 & Threads 쇼핑제휴, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 사용자 피드백 ("배경색이 너무 진해서 글이 안 보여 잘 보일 수 있도록 연하게 해줘, 비슷하게 해놓은 데 있으면 거기도 같이 맞춰줘")을 접수하여 조사한 결과, `ThreadsMetaAddressSummary` 카드가 다크 모드/어두운 배경 위에서 반투명 `bg-blue-50/40`로 인해 뒤쪽 검정 배경이 투과되어 진한 회색으로 어두워지고 텍스트(`text-neutral-500` 등)가 묻히는 문제를 확인 및 해결함.
