@@ -37,3 +37,6 @@ update public.programs set version = 'v1.20', updated_at = now() where slug = 'c
 
 -- 버전 갱신(v1.21, 표 변경 없음: 재시도 전 최근 게시물 중복 확인·디자인 테마 안내 문구)
 update public.programs set version = 'v1.21', updated_at = now() where slug = 'cardnews-studio';
+
+-- 버전 갱신(v1.22, 표 변경 없음: 중복 확인 기준을 1차 실패 시각 기준으로 좁힘)
+update public.programs set version = 'v1.22', updated_at = now() where slug = 'cardnews-studio';

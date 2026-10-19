@@ -80,3 +80,16 @@ test("중복 확인: 최근 1시간 안 같은 캡션만 이미 게시된 것으
   assert.equal(findSameRecentPost([], "청약 가점 정리", now), null);
   assert.equal(DUPLICATE_WINDOW_MS, 60 * 60 * 1000);
 });
+
+test("중복 확인 v1.22: 1차 실패 시각 − 10분 이후 글만 같은 글로 판단", () => {
+  const now = Date.UTC(2026, 9, 19, 4, 0);
+  const firstFailedAt = Date.UTC(2026, 9, 19, 3, 50); // 기준 = 03:40
+  const media = [
+    { caption: "같은 캡션", timestamp: "2026-10-19T03:30:00+0000", permalink: "https://ig/old" }, // 1시간 안이지만 1차 시도 전 → 다른 글
+    { caption: "같은 캡션", timestamp: "2026-10-19T03:45:00+0000", permalink: "https://ig/new" },
+  ];
+  assert.equal(findSameRecentPost(media, "같은 캡션", now, firstFailedAt)?.permalink, "https://ig/new");
+  assert.equal(findSameRecentPost([media[0]], "같은 캡션", now, firstFailedAt), null);
+  assert.equal(findSameRecentPost([media[0]], "같은 캡션", now)?.permalink, "https://ig/old"); // 시각을 모르면 1시간 기준
+  assert.equal(findSameRecentPost([media[0]], "같은 캡션", now, Date.UTC(2026, 9, 19, 1, 0))?.permalink, "https://ig/old"); // 1시간보다 넓히지 않음
+});

@@ -87,7 +87,7 @@ export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status
   const admin = createAdminClient();
   const { data: due } = await admin
     .from("cns_insta_posts")
-    .select("id, user_id, image_paths, caption, error_message")
+    .select("id, user_id, image_paths, caption, error_message, updated_at")
     .eq("status", "scheduled")
     .lte("scheduled_at", new Date().toISOString())
     .order("scheduled_at", { ascending: true })
@@ -112,7 +112,7 @@ export async function dispatchDuePosts(limit = 10): Promise<{ id: string; status
     }
     // 다시 시도하는 차례면, 1차 시도가 실제로는 올라갔는데 응답만 늦었던 경우를 먼저 확인해 중복 게시를 막는다(v1.21)
     if (post.error_message) {
-      const same = findSameRecentPost((await fetchRecentMedia(post.user_id)) ?? [], post.caption ?? "");
+      const same = findSameRecentPost((await fetchRecentMedia(post.user_id)) ?? [], post.caption ?? "", Date.now(), post.updated_at ? Date.parse(post.updated_at) : undefined);
       if (same) {
         await finish({ status: "published", published_at: same.timestamp ? new Date(same.timestamp).toISOString() : new Date().toISOString(), permalink: same.permalink ?? null, error_message: null });
         await removeImages(post.image_paths ?? []);

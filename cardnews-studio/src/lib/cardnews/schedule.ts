@@ -29,15 +29,20 @@ export interface RecentMedia {
   permalink?: string | null;
 }
 
-/** 최근 게시물 중 같은 캡션(앞뒤 공백·줄바꿈 차이 무시)으로 기준 시각 이후 올라간 글을 찾는다. 캡션이 비면 비교하지 않는다 */
-export function findSameRecentPost(media: RecentMedia[], caption: string, now: number = Date.now()): RecentMedia | null {
+/** 1차 시도 시작 추정 여유 — 1차 실패 기록 시각에서 이만큼 앞부터 본다(게시 처리 최대 5분 + 여유, v1.22) */
+export const FIRST_ATTEMPT_MARGIN_MS = 10 * 60 * 1000;
+
+/** 최근 게시물 중 같은 캡션(앞뒤 공백·줄바꿈 차이 무시)으로 기준 시각 이후 올라간 글을 찾는다. 캡션이 비면 비교하지 않는다.
+ *  기준 시각 = 1차 실패 기록 시각 − 10분(알면), 최대 1시간 전까지 — 같은 캡션의 다른 글을 이미 게시된 것으로 오판하는 범위를 줄인다(v1.22) */
+export function findSameRecentPost(media: RecentMedia[], caption: string, now: number = Date.now(), firstFailedAt?: number): RecentMedia | null {
   const norm = (t: string) => t.replace(/\r\n/g, "\n").replace(/[ \t]+$/gm, "").trim();
   const target = norm(caption);
   if (!target) return null;
+  const since = Math.max(now - DUPLICATE_WINDOW_MS, firstFailedAt !== undefined && Number.isFinite(firstFailedAt) ? firstFailedAt - FIRST_ATTEMPT_MARGIN_MS : -Infinity);
   return (
     media.find((m) => {
       const at = m.timestamp ? Date.parse(m.timestamp) : NaN;
-      return Number.isFinite(at) && at >= now - DUPLICATE_WINDOW_MS && norm(m.caption ?? "") === target;
+      return Number.isFinite(at) && at >= since && norm(m.caption ?? "") === target;
     }) ?? null
   );
 }

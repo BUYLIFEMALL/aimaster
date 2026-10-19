@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — INSTA Cardnews 자동화 v1.22: 중복 확인 기준을 1차 시도 이후로 좁힘
+
+- **대상**: `cardnews-studio/` · DB 운영 `esgxyikcnnvmlhygjkth`(표 변경 없음, 버전만)
+- **한 일**: 다시 시도 전 「이미 올라간 같은 글」 판단 기준을 「최근 1시간」에서 「1차 실패 기록 시각 − 10분 이후」로 좁혀, 같은 캡션의 다른 글을 오판하는 범위를 약 20분으로 줄임. Supabase MCP 재연결 확인.
+- **검수**: 단위 50/50·tsc·빌드, 배포 READY 1회, DB v1.22, 크롬 버전 표시·예약 실행 주소 401 확인. 실제 게시·재시도 실행은 미확인(주인님 허락 필요). 상세: `cardnews-studio/AGENTS.md` v1.22.
+- **프로그램 링크**:
+
+https://cardnews-studio.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 예약(취소)방지 리마인드(booking-reminder) v1.20: 플로우 위저드 캘린더 에디션 리뉴얼·/guide 비주얼 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 74개 완료 / 89.2% 달성!)
 
 - **대상**: `booking-reminder/` (https://booking-reminder.buylife.xyz, slug: `booking-reminder`, 51번)
