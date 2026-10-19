@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- SKILLS_INSTALL_HANDOFF_20261019 -->
+## 2026-10-19 Codex — mattpocock 스킬 27개 묶음 설치·선택 사용 방침 확정
+
+- **설치 완료**: 현재 Orca Codex 계정의 `mattpocock-skills@mattpocock` v1.3.1. CLI 목록 `installed/enabled=true`, 실제 스킬 파일 27개·고유 이름 27개 확인.
+- **운영 규칙**: 필요한 스킬만 작업에 맞춰 사용하며 주인님 지시·AIMaster 최상위 지침 우선. AGENTS/CLAUDE/GEMINI 상단 공통 블록과 [상세 사용 기준](EXTERNAL_SKILLS_POLICY.md)에 반영.
+- **인수인계**: [설치 결과·검수·미실행·다음 단계](HANDOFF_SKILLS_INSTALL_20261019.md). 인수인계는 저장소에 남기며 초기 설정/이슈/라벨 생성은 실행하지 않음. 타 계정·다른 CLI 설치도 미실행.
+- **범위**: 설치·공통 문서만 변경. 제품 코드·DB·키·환경변수·프로덕션 배포·유료 호출 없음. 다음 업무는 기존 공통 원장/프로그램 지침·플랜부터 시작.
+<!-- /SKILLS_INSTALL_HANDOFF_20261019 -->
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 카테고리 스크롤 시 카테고리 이름 & 전체보기 최상단 노출 완벽 보정 및 Threads 예약 발행 주기/토글 인수인계 완료
 
 - **배경**:
