@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled, stopMemberSchedulerIfIdle } from "@/lib/schedulerMember/memberScheduler";
 
 export interface StartMonitoringState {
   error?: string;
@@ -35,6 +38,24 @@ export async function startMonitoringAction(formData: FormData): Promise<StartMo
   );
   if (error) return { error: error.message };
 
+  // 실행 방식 맞추기(v1.12, 지침 docs/SCHEDULER_POLICY.md): 「내 cron-job.org」면 작업을 켠다. 준비가 안 됐으면 모니터링을 다시 끄고 안내한다.
+  const service = createAdminClient() as unknown as SupabaseClient;
+  let syncError: string | null = null;
+  if ((await memberSchedulerMode(service, user.id)) === "cronjob") {
+    const key = await memberCronjobKey(service, user.id);
+    if (!key) syncError = "「내 cron-job.org」 방식은 API 키가 필요합니다. 아래 ⏰ 예약 발행에서 키를 등록하거나 AIMaster 기본(Vercel) 방식을 선택해 주세요.";
+    else {
+      try { await ensureMemberSchedulerRunning(service, user.id, key); } catch (err) { syncError = `댓글 모니터링 작업을 켜지 못했습니다. ${err instanceof Error ? err.message : ""}`.trim(); }
+    }
+  } else if (!platformSchedulerEnabled()) {
+    syncError = "이 사이트는 Vercel 예약 호출이 꺼져 있습니다. 아래 ⏰ 예약 발행에서 「내 cron-job.org」를 선택하고 키를 등록해 주세요.";
+  }
+  if (syncError) {
+    await supabase.from("ytreply_settings").update({ monitoring_enabled: false }).eq("user_id", user.id);
+    revalidatePath("/settings");
+    return { error: `모니터링을 켜지 못해 다시 꺼 두었습니다. ${syncError}` };
+  }
+
   revalidatePath("/settings");
   return {};
 }
@@ -46,5 +67,8 @@ export async function stopMonitoringAction() {
     .from("ytreply_settings")
     .update({ monitoring_enabled: false })
     .eq("user_id", user.id);
+  // 「내 cron-job.org」면 작업도 끈다(v1.12)
+  const service = createAdminClient() as unknown as SupabaseClient;
+  if ((await memberSchedulerMode(service, user.id)) === "cronjob") await stopMemberSchedulerIfIdle(service, user.id).catch(() => false);
   revalidatePath("/settings");
 }

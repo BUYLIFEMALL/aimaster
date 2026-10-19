@@ -1,4 +1,4 @@
-export type ApiKeyProvider = "google_client_id" | "google_client_secret" | "openai" | "anthropic" | "gemini";
+export type ApiKeyProvider = "google_client_id" | "google_client_secret" | "openai" | "anthropic" | "gemini" | "cronjob_org_api_key";
 export type CommentStatus = "pending_review" | "posted" | "skipped" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];

@@ -12,7 +12,10 @@ export const fetchCache = "force-no-store";
 const RETENTION_DAYS = 30;
 
 function isAuthorized(request: NextRequest): boolean {
-  return request.headers.get("authorization") === `Bearer ${process.env.CRON_SECRET}`;
+  // CRON_SECRET이 비어 있으면 「Bearer undefined」로 통과되던 빈틈을 막는다(v1.12).
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) return false;
+  return request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {
