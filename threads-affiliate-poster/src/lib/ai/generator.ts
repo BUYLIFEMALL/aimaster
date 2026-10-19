@@ -179,8 +179,9 @@ export async function generatePostContent(
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      max_tokens: 600,
-      ...(isGpt4 ? { temperature: 0.8 } : {}),
+      // GPT-5.x·GPT-6·o 계열(추론 모델)은 max_tokens를 거부(400)하고 max_completion_tokens만 받는다.
+      // 이 한도에는 생각 단계도 포함돼 600이면 빈 응답이 날 수 있어 넉넉히 준다(v1.67).
+      ...(isGpt4 ? { max_tokens: 600, temperature: 0.8 } : { max_completion_tokens: 4000 }),
     });
     rawContent = completion.choices[0]?.message?.content?.trim() || "";
   }

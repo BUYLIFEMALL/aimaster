@@ -61,7 +61,7 @@
 | 42 | Threads AI 기획 자동화 | `threads-easy-planner` | 쓰레드 | v1.43 | 운영 | 초보자도 버튼 하나로 Threads 글의 첫 문장 훅부터 본문·댓글 CTA·후속 아이디어까지 기획 |
 | 43 | Threads 포스팅 자동화 | `auto-threads-posting` | 쓰레드 | v1.18 | 운영 | 글감 수집부터 AI 초안, 이미지 첨부, 즉시·예약 게시까지 하는 기본형 Threads 포스팅 도구 |
 | 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.10 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
-| 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.62 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
+| 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.67 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.04 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 유튜브 | v1.18 | 운영 | 조회수가 터진 쇼츠·소형 황금 채널·급상승 영상을 찾아 벤치마킹하는 유튜브 도구 |
 | 48 | 플레이리스트 채널 제작 자동화 | `playlist-channel-studio` | 유튜브 | v1.14 | 운영 | 장르만 고르면 플레이리스트 채널용 제목·Suno 프롬프트·가사·설명·썸네일을 만드는 도구 |
@@ -668,7 +668,7 @@
 - **키·계정·주의**: 회원 본인의 Meta 앱과 쓰레드 계정, 본인 AI 키(OpenAI·Gemini·Claude)를 사용합니다. 과도한 답글은 쓰레드 이용 제한을 받을 수 있습니다.
 
 #### Threads 쇼핑제휴 자동화 (`threads-affiliate-poster`)
-- 주소·폴더: https://threads-affiliate-poster.vercel.app · `threads-affiliate-poster/` · v1.52
+- 주소·폴더: https://threads-affiliate-poster.buylife.xyz · `threads-affiliate-poster/` · v1.67
 - **차별점**: 상품 검색이나 URL만으로 쇼핑 제휴 링크가 들어간 쓰레드 홍보 글을 만들어 발행하는 쇼핑제휴 자동화입니다.
 - **기능**: 쿠팡파트너스와 알리익스프레스는 상품 검색이나 상품 URL만 넣으면 제휴 링크가 자동으로 만들어지고, 네이버 브랜드커넥트는 직접 발급한 링크를 등록해 씁니다. / AI가 제목 10자·본문 450자 이내의 쓰레드 글에 제휴 링크를 자연스럽게 넣어 주고, 상세페이지 자동화 결과를 참고해 더 풍부한 글을 만들 수도 있습니다. / 이미지도 함께 만들고, 즉시 게시하거나 원하는 시간에 예약 게시합니다.
 - **장점**: 제휴 링크 자동(쿠팡파트너스·알리 링크를 자동으로 만듭니다) · 홍보 글 작성(링크를 자연스럽게 넣은 쓰레드 글을 씁니다) · 상세 정보 활용(상세페이지 결과를 참고해 글을 풍부하게 합니다) · 즉시·예약 게시(이미지와 함께 바로 또는 예약 게시합니다)

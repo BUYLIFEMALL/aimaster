@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — Threads 쇼핑제휴 v1.67: GPT-5·GPT-6 모델 글 생성 400(`max_tokens`) 수정
+- 바로 아래 항목의 점검에서 찾은 미수정 건 처리. 다른 세션 ④단계 작업 목록에 이 폴더가 없고 공용 사본 동기화가 커밋(`62686273`)된 것을 확인한 뒤 시작.
+- 운영 v1.66에서 `gpt-5.6-luna`로 재현(`400 Unsupported parameter: max_tokens`) → `threads-affiliate-poster/src/lib/ai/generator.ts` 추론 모델은 `max_completion_tokens: 4000` → 배포 `threads-affiliate-poster-mgsqzhmd0` Ready, DB v1.67(ref `esgxyikcnnvmlhygjkth`), 크롬 재시험 490자 생성 성공. 다른 세션의 공용 사본(`authMethod` 선택 인자)도 함께 배포됨.
+- 상세: `threads-affiliate-poster/docs/IMPROVEMENT_HANDOFF_20261020.md`
+- https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — GPT-5 계열 오류 다른 프로그램 점검(코드 변경 없음) + SEO 스튜디오 v1.76
 - 점검: GPT-5·GPT-6 계열을 고를 수 있는 19개 프로그램의 OpenAI 호출을 확인. **온도**: SEO 스튜디오 외에는 문제 없음(이미 `gpt-4` 계열일 때만 지정하거나, 고정 모델 `gpt-4o-mini`·Perplexity·Gemini 호출).
 - **발견(미수정)**: `threads-affiliate-poster/src/lib/ai/generator.ts:182` OpenAI 호출이 `max_tokens: 600`을 보냄. GPT-5 계열은 `max_tokens`를 거부하고 `max_completion_tokens`를 요구하므로, 회원이 GPT-5.6·GPT-6 모델(선택지 6개)을 고르면 글 생성이 400으로 실패할 가능성이 높음(실호출로는 미확인). 이 폴더는 다른 Claude Code 세션의 회원 연동 ④단계 공용 사본 동기화와 겹쳐 손대지 않았음 → 그 작업이 끝난 뒤 처리. 고칠 때는 추론 모델이 출력 한도를 생각 단계에서 다 써서 빈 응답이 나지 않도록 한도를 넉넉히(또는 생략) 둘 것.
