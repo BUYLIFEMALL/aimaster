@@ -1,73 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isScheduleDue } from "@/lib/schedule";
-import { runScheduledSource } from "@/lib/scheduledSource/engine";
-import type { ScheduledSource } from "@/types/post";
-
-/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
-async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
-  const ids = Array.from(new Set(userIds.filter(Boolean)));
-  if (ids.length === 0) return new Set();
-  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
-  return new Set(
-    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
-      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
-      .map((p) => p.id)
-  );
-}
+import { dispatchDueSources } from "@/lib/scheduledSource/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/scheduledSource/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-// 예약(정기 자동 생성+포스팅) dispatch. Vercel Cron은 5분마다 깨우기만 하고, 실제로 실행할
-// 차례인지는 이 라우트에서 last_run_at 기준으로 다시 판단한다(kakao_auto_poster의
-// generate-reports 크론과 동일 패턴).
+// 정기 자동 실행(생성+포스팅) — 운영자 Vercel 예약 호출. Vercel Cron은 5분마다 깨우기만 하고, 실제로 실행할
+// 차례인지는 last_run_at 기준으로 다시 판단한다(kakao_auto_poster의 generate-reports 크론과 동일 패턴).
+// v1.21: 회원이 고른 실행 방식대로 — 「Vercel(운영 기본)」 회원 소스만 여기서 실행하고, 「내 cron-job.org」 회원·일시정지 회원은 건너뛴다
+// (그 회원들은 /api/cron/dispatch-member를 회원 토큰으로 부른다). 실행 로직: src/lib/scheduledSource/dispatch.ts. 지침: 루트 docs/SCHEDULER_POLICY.md
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
-}
-
-async function dispatch() {
-  const admin = createAdminClient();
-  const now = new Date();
-
-  const { data: rows, error } = await admin
-    .from("ncafe_scheduled_sources")
-    .select("*")
-    .eq("is_active", true)
-    .eq("schedule_enabled", true);
-
-  if (error) throw new Error(error.message);
-
-  const dueRows = ((rows ?? []) as ScheduledSource[]).filter(
-    (r) => r.interval_minutes != null && isScheduleDue(r.last_run_at, r.interval_minutes, now),
-  );
-
-  let succeeded = 0;
-  let failed = 0;
-  const details: { sourceId: string; result: string }[] = [];
-
-  const phoneOkUsers = await phoneRegisteredUserIds(admin, (dueRows).map((r: { user_id: string }) => r.user_id));
-  for (const source of (dueRows).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
-    const result = await runScheduledSource(admin, source.user_id, source);
-    if (result.success) {
-      succeeded += 1;
-      details.push({ sourceId: source.id, result: `post ${result.postId} created` });
-    } else {
-      failed += 1;
-      details.push({ sourceId: source.id, result: `failed: ${result.error}` });
-      console.error(`[naver-cafe-poster cron] source ${source.id} 실행 실패:`, result.error);
-    }
-  }
-
-  return { total: rows?.length ?? 0, due: dueRows.length, succeeded, failed, details };
+  const secret = process.env.CRON_SECRET;
+  // v1.21: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const result = await dispatch();
+  const result = await dispatchDueSources({
+    excludeUserIds: await membersExcludedFromPlatform(createAdminClient() as unknown as SupabaseClient),
+    failWithMessage: platformSchedulerEnabled() ? undefined : "이 사이트는 Vercel 예약 호출이 꺼져 있어 실행하지 않았습니다. 설정 → ⏰ 예약 발행에서 「내 cron-job.org」를 선택하고 키를 등록해 주세요.",
+  });
   return NextResponse.json({ ok: true, ...result });
 }

@@ -8,6 +8,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   perplexity: "Perplexity (트렌드 검색 기반 글감 수집)",
   naver_client_id: "네이버 Client ID (네이버 로그인 연동)",
   naver_client_secret: "네이버 Client Secret (네이버 로그인 연동)",
+  cronjob_org_api_key: "cron-job.org API 키 (정기 자동 실행 — 「내 cron-job.org」 방식에서만 필요)",
 };
 
 export async function getUserApiKey(

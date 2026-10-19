@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/scheduledSource/memberScheduler";
+import { SchedulePublishingControl } from "@/components/candidates/SchedulePublishingControl";
 import { createClient } from "@/lib/supabase/server";
 import { newsblurLogin, fetchNewsblurFeeds, type NewsblurFeedSummary } from "@/lib/ai/collector";
 import { getRegisteredProviders } from "@/lib/apiKeys";
@@ -149,6 +153,7 @@ export default async function CandidatesPage() {
       </div>
 
       <div className="mb-8">
+        <SchedulePublishingControl initial={await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id)} />
         <ScheduledSourceManager
           sources={(scheduledSources ?? []) as ScheduledSource[]}
           targets={targets ?? []}
