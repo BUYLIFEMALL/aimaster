@@ -12,6 +12,17 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
   {
+    // 올린 사진을 브라우저 안에서 풀어 보고 깨졌으면 「사진을 읽지 못했어요」(2026-10-19). 사본은 프로그램을 적용할 때마다 추가
+    id: "image-file-check",
+    source: "portrait-photo/src/lib/imageFileCheck.ts",
+    copies: [],
+  },
+  {
+    id: "image-file-check-test",
+    source: "portrait-photo/tests/imageFileCheck.test.mjs",
+    copies: [],
+  },
+  {
     id: "youtube-golden-engine",
     source: "youtube-channel-consultant/src/lib/youtube/goldenEngine.ts",
     copies: ["youtube-viral-studio/src/lib/youtube/goldenEngine.ts"],

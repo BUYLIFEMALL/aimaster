@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.28)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.29)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -155,11 +155,17 @@
 - **수정**: `post.ts` `localDateStamp(d)`(회원 PC 현지 날짜 `YYYY-MM-DD`) → `Studio.tsx` 4곳(증명사진 ZIP·인물사진 ZIP·프로필 세트 ZIP·규격 저장 JPG)·`HistoryList.tsx` 1곳 교체. 서버 저장 시각(`apiKeys.ts`·`saved.ts`)은 비교용이라 그대로.
 - **검수**: 단위 26/26(오전 8시 30분 → 같은 날짜 — 옛 방식이면 10-18로 실패), tsc 0, 빌드, 브라우저 13/13(크롬 포그라운드, 저장 이름 `…-2026-10-19.jpg`), Vercel Ready(`portrait-photo-l4gq06cdh`), DB v1.28, 메인 크롬 운영 화면 v1.28 표시. AI 비용 없음.
 
+## 2026-10-19 v1.29 — 깨진 사진 안내(공용 `image-file-check` 기준) · 꺼진 [만들기] 이유 한 줄 (Claude Code 윈도우)
+- **공용 기준 코드 신설**: `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — 올린 사진을 브라우저 안에서 실제로 풀어 보고(서버 전송 없음) 깨졌으면 「사진을 읽지 못했어요…」. `createImageBitmap` 실패 시 `Image`로 한 번 더 확인해 둘 다 실패할 때만 실패(정상 사진 오판 방지), 확인 수단이 없는 환경은 통과. **이 파일이 기준** — 다른 이미지 프로그램은 사본(`docs/SHARED_MODULES.md` `image-file-check`). 플랜 `docs/PLAN_20261019_IMAGE_FILE_CHECK_SHARED.md`.
+- **적용**: `onPick`에서 `splitReadableImages` — 모두 깨졌으면 안내하고 받지 않음, 일부만 깨졌으면 빼고 「읽지 못한 사진 n장(이름)은 뺐습니다」.
+- **꺼진 [인물 사진 만들기] 이유**: 사진이 없으면 「① 인물 사진 칸에 사진을 먼저 올려 주세요.」, 사진은 있는데 동의 미체크면 「위 「본인 사진·사용 동의」에 체크해야 만들 수 있어요.」(`.st-generate-why`, 준비되면 숨김).
+- **검수**: 단위 31/31(공용 5 포함), 브라우저 14/14(깨진 사진 안내·미리보기 안 받음·이유 문구 전환), tsc, 빌드, Vercel READY(`portrait-photo-61i7cpw88`), DB v1.29. 운영 실측(메인 크롬): 깨진 JPG → 안내 표시·미리보기 없음·버튼 꺼짐, 이유 한 줄 표시. AI 비용 없음.
+
 ## 7대 핵심 항목 (2026-10-18 정리)
 1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
 2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.
 3. **핵심 기능·구조·장단점**: 목적 프리셋 5종 + 조명·카메라·배경·포즈·복장·피부·필름·보정 4종, 후보 1~4장·격자/확대 비교, 원본 비교 슬라이더, 규격 21종 저장·머리 비율 검사·자르기 영역 조정·얼굴 위치 직접 지정, 일괄 6장·ZIP. 장점: 원본 서버 미저장·본인 키·공식 출처로 확인한 규격. 단점: 머리 비율을 모델이 잘 못 따름(50~56%), `Studio.tsx` 한 파일이 큼(890줄), 안 쓰는 CSS 잔존, 실제 휴대폰 터치 미검수.
-4. **버전**: v1.28(운영). 이력은 위 각 절.
+4. **버전**: v1.29(운영). 이력은 위 각 절.
 5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
 6. **연계·아이디어**: 결과 사진을 AI 이미지 자동화 배경 교체·명함/이력서 프로그램으로 넘기기 등 — `docs/IMPROVEMENTS.md` 3절.
 7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 무대 배경 밝기 전환(흰/회색/검정), 라이트 테마 토글 — `docs/IMPROVEMENTS.md` 2절.

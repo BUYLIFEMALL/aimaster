@@ -69,9 +69,20 @@ try {
   assert.ok(await page.locator(".purpose.on", { hasText: "증명사진" }).count(), "기본 목적은 증명사진(순백 정리 켜짐)");
   pass("초기 화면: 증명사진 목적 기본 선택");
 
+  // v1.29: 꺼진 버튼 아래 이유 · 깨진 사진은 받지 않고 한글 안내(공용 image-file-check)
+  assert.match(await page.locator(".st-generate-why").innerText(), /사진을 먼저 올려/);
+  const broken = Buffer.alloc(4096); broken.set([0xff, 0xd8, 0xff, 0xe0]); for (let i = 4; i < broken.length; i++) broken[i] = (i * 37) & 255;
+  await page.locator("input[type=file]").first().setInputFiles({ name: "broken.jpg", mimeType: "image/jpeg", buffer: broken });
+  await page.getByText(/사진을 읽지 못했어요/).first().waitFor();
+  assert.equal(await page.locator(".dropzone.has").count(), 0, "깨진 사진은 미리보기로 받지 않음");
+  assert.equal(await page.getByRole("button", { name: "인물 사진 만들기" }).isDisabled(), true);
+  pass("꺼진 [만들기] 이유 한 줄 · 깨진 사진 → 「사진을 읽지 못했어요」(받지 않음)");
+
   await page.locator("input[type=file]").first().setInputFiles({ name: "portrait.png", mimeType: "image/png", buffer: png });
   await page.locator(".dropzone.has img").waitFor();
+  assert.match(await page.locator(".st-generate-why").innerText(), /동의.*체크/);
   await page.locator(".st-own input[type=checkbox]").first().check();
+  assert.equal(await page.locator(".st-generate-why").count(), 0, "준비되면 안내 숨김");
   await page.getByRole("button", { name: "인물 사진 만들기" }).click();
   await page.locator(".st-stage img").waitFor();
   const gen = calls.find((c) => c.path === "/api/generate").body;

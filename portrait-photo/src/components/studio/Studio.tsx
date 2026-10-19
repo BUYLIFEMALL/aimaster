@@ -16,6 +16,7 @@ const MAX_BATCH = 6;
 interface ProfileItem { label: string; circle: boolean; name: string; blob: Blob; url: string }
 import { checkPhotoLocal, detectHeadLocal } from "@/lib/portrait/faceLocal";
 import type { FaceIssue } from "@/lib/portrait/post";
+import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileCheck";
 import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
@@ -210,16 +211,20 @@ export function Studio({ userId }: { userId: string }) {
   const filter = useMemo(() => toneFilter(brightness, exposure, contrast), [brightness, exposure, contrast]);
   const toneActive = brightness !== 0 || exposure !== 0 || contrast !== 0;
 
-  function onPick(list: FileList | File[] | null) {
-    const picked = Array.from(list ?? []).filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type));
-    if (picked.length === 0) { if (list && Array.from(list).length) setError("PNG, JPG, WEBP 사진만 올릴 수 있습니다."); return; }
+  async function onPick(list: FileList | File[] | null) {
+    const typed = Array.from(list ?? []).filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type));
+    if (typed.length === 0) { if (list && Array.from(list).length) setError("PNG, JPG, WEBP 사진만 올릴 수 있습니다."); return; }
+    // 깨진 사진은 받지 않는다(공용 image-file-check — 브라우저 안에서 풀어 보기, 서버 전송 없음)
+    const { readable: picked, failed } = await splitReadableImages(typed);
+    if (picked.length === 0) { setError(IMAGE_READ_FAIL_MESSAGE); return; }
     const chosen = picked.slice(0, MAX_BATCH);
     previews.forEach((u) => URL.revokeObjectURL(u));
     const urls = chosen.map((f) => URL.createObjectURL(f));
     setNames({}); setBatchCrops({}); setMeasures({}); setBatchReport([]); setAutoConfirm(false); setZoomOn(false); setFiles(chosen); setPreviews(urls);
     setFile(chosen[0]); setPreviewUrl(urls[0]);
     setResults([]); setSources([]); setActive(0); setCompare(false); setCleaned(null); setError(""); setNeedKey(false);
-    setNotice(picked.length > MAX_BATCH ? `사진은 한 번에 ${MAX_BATCH}장까지 처리합니다. 앞의 ${MAX_BATCH}장만 사용합니다.` : chosen.length > 1 ? `${chosen.length}장을 한 번에 처리합니다(사진마다 결과 1장).` : "");
+    const skipped = failed.length ? ` 읽지 못한 사진 ${failed.length}장(${failed.map((f) => f.name).join(", ")})은 뺐습니다.` : "";
+    setNotice((picked.length > MAX_BATCH ? `사진은 한 번에 ${MAX_BATCH}장까지 처리합니다. 앞의 ${MAX_BATCH}장만 사용합니다.` : chosen.length > 1 ? `${chosen.length}장을 한 번에 처리합니다(사진마다 결과 1장).` : "") + skipped);
   }
 
   async function generate() {
@@ -683,14 +688,14 @@ export function Studio({ userId }: { userId: string }) {
       <div className="st-grid">
         <div className="st-col">
           <Section n={1} title="인물 사진" sub={`얼굴이 정면에 가깝고 밝은 사진을 권장합니다. PNG·JPG·WEBP · 여러 장(최대 ${MAX_BATCH}장)을 한꺼번에 올리면 일괄 처리됩니다.`}>
-            <label className={previewUrl ? "dropzone has" : "dropzone"} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onPick(e.dataTransfer.files); }}>
+            <label className={previewUrl ? "dropzone has" : "dropzone"} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); void onPick(e.dataTransfer.files); }}>
               {previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={previewUrl} alt="업로드한 참조 사진" style={selfie ? { transform: "scaleX(-1)" } : undefined} />
               ) : (
                 <span className="drop-empty"><Upload size={22} /><b>클릭하거나 사진을 끌어다 놓으세요</b><small>얼굴 위주 사진 권장</small></span>
               )}
-              <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden onChange={(e) => onPick(e.target.files)} />
+              <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden onChange={(e) => void onPick(e.target.files)} />
             </label>
             {previews.length > 0 && (() => {
               // v1.27 생성 전 품질 점검 결과(브라우저 안 얼굴 인식, AI 비용 없음) — 안내만 하고 막지 않는다
@@ -949,9 +954,12 @@ export function Studio({ userId }: { userId: string }) {
                 </div>
               </div>
             )}
-            <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file}>
+            <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file} aria-describedby="st-generate-why">
               {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
             </button>
+            {!busy && (!file || !confirmOwn) && (
+              <p id="st-generate-why" className="st-generate-why">{!file ? "① 인물 사진 칸에 사진을 먼저 올려 주세요." : "위 「본인 사진·사용 동의」에 체크해야 만들 수 있어요."}</p>
+            )}
             {shown && sizePresetById(sizeId).headRange && sizedRecommendation().rec.mode === "none" && faceDetecting && (
               <p className="notice" role="status"><Loader2 size={14} className="ls-spin" /> 얼굴 위치를 이 브라우저 안에서 자동으로 찾는 중입니다(사진은 서버로 보내지 않아요)…</p>
             )}
