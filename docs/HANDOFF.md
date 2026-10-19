@@ -50,6 +50,14 @@
 - 주인님 결정(2026-10-20): 네이버 카페·카카오(정기 자동 실행형)에도 회원 cron-job.org 선택지 적용 → 다음 작업.
 - 링크: https://auto-threads-posting.buylife.xyz · https://cardnews-studio.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ②단계 Threads 시범: threads v1.22 · threads-comment-reply v1.13
+- 주인님 승인(「진행해」). 현황·주의: **`docs/MEMBER_INTEGRATIONS.md` §6·§7**. 공용 부품 사본 등록 `check-shared-modules.mjs` 「member-integrations」(기준 `lib/memberIntegrations.ts` → threads·threads-comment-reply).
+- threads: 게시·예약 발행·설정/대시보드/글 화면이 공용 계정(게시 권한) → 없으면 `threads_accounts`. 콜백 이중 기록, 해제 시 공용 계정도 삭제. 백필 9건. v1.21 배포 후 **공용 부품 정정**(권한 합치기 제거 — 새 토큰에 이전 권한 보장 못 함)으로 v1.22 재배포. agy 카드 색 개선(`fd69da1d`) 버전 기록 포함.
+- threads-comment-reply: 게시물 동기화·댓글 수집·답글 게시·상태/배너·대시보드가 공용 계정(**댓글 권한·계정 이름 있음**) → 없으면 `th_accounts`. 토큰 갱신·재연결 표시는 읽은 곳에 기록. 백필 0건(3명 모두 이미 threads 공용 행 → 자기 표 토큰 사용, 설계대로).
+- 검수: 두 프로그램 tsc·build, 순차 배포(메인 자동 빌드 Ready 후 threads `threads-ay42ddvth` → 댓글 `threads-comment-reply-qu57ukuso`, 모두 Ready), DB 버전 v1.22·v1.13, 크롬(관리자): threads 설정 「@buylife.co.kr」·대시보드 경고 없음, 메인 「내 연동 정보」 Threads 표시, 댓글자동화 설정 연동 정상·「게시물 동기화」 3,965건 성공. 실제 게시·답글·연결 해제·OAuth 재연결은 하지 않음(관리자 실연결 보호).
+- 다음 첫 단계: ③ 쇼핑제휴(`tap_accounts`)·운영 자동화(`tco_threads_accounts`, 계정 여러 개) 전환 + 쇼핑제휴 Meta 제거·삭제 콜백이 공용 표도 지우게 — **주인님 승인 후**.
+- 링크: https://auto-threads-posting.buylife.xyz · https://threads-comment-reply.buylife.xyz · https://www.buylife.xyz/api-settings
+
 ## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ⓪·①단계: 새 표 2개(운영 DB) + 공용 부품 + 메인 「내 연동 정보」
 - 주인님 승인(「진행해」). 플랜 `docs/PLAN_20261020_MEMBER_INTEGRATIONS.md`, 확정 구조·쓰는 법·현황 **`docs/MEMBER_INTEGRATIONS.md`**.
 - 조사: Threads 연결 회원 12명 중 6명이 2곳 이상 중복 연결(표 4개), Instagram·YouTube도 연결 회원 전원 중복. 프로그램마다 권한 범위가 달라(게시 / 댓글 / DM) 「받은 권한」을 함께 저장하는 구조로 설계. `meta_app_id`·`facebook_app_id`·`threads_app_id`는 서로 다른 앱이라 합치지 않음(처음 플랜의 「이름 섞임」은 정정).
