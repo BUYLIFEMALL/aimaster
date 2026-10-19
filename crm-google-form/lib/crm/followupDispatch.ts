@@ -33,8 +33,8 @@ function fillTemplate(text: string, submission: DueSubmission): string {
 
 /**
  * 활성화된 팔로우업 규칙 하나를 실행한다 — 조건에 맞는(days_after 경과 + 아직 발송 안 한)
- * 접수건을 찾아 채널별로 발송하고, crm_followup_sends에 기록해 중복 발송을 막는다.
- * cron(app/api/cron/followup)에서 규칙마다 호출한다.
+ * 접수건을 찾아 채널별로 발송하고, crm_followup_sends에 먼저 기록(선점)해 중복 발송을 막는다.
+ * lib/schedulerMember/dispatch.ts(운영자 cron·회원 cron-job.org 공용)에서 규칙마다 호출한다.
  */
 export async function runFollowupRule(rule: FollowupRule): Promise<{ sent: number; failed: number }> {
   const admin = createAdminClient();
@@ -88,6 +88,16 @@ export async function runFollowupRule(rule: FollowupRule): Promise<{ sent: numbe
   let failed = 0;
 
   for (const submission of due) {
+    // 중복 발송 방지(v1.10): 보내기 전에 발송 기록을 먼저 넣어 선점한다 — (rule_id, submission_id) 고유 제약 때문에
+    // 운영자 호출·회원 호출이 겹쳐도 먼저 넣은 실행만 보낸다. 상태값이 sent/failed뿐이라 「발송 중」은 failed로 넣고 끝나면 고친다
+    // (실패한 팔로우업은 원래도 다시 보내지 않으므로 중간에 서버가 멈춰도 동작은 예전과 같다). 기준: booking-reminder v1.21.
+    const { data: claim, error: claimError } = await admin
+      .from("crm_followup_sends")
+      .insert({ user_id: rule.user_id, rule_id: rule.id, submission_id: submission.id, status: "failed", error_message: "발송 중" })
+      .select("id")
+      .maybeSingle();
+    if (claimError || !claim) continue;
+
     const text = fillTemplate(rule.message_text, submission);
     const errors: string[] = [];
 
@@ -146,13 +156,10 @@ export async function runFollowupRule(rule: FollowupRule): Promise<{ sent: numbe
     if (status === "sent") sent++;
     else failed++;
 
-    await admin.from("crm_followup_sends").insert({
-      user_id: rule.user_id,
-      rule_id: rule.id,
-      submission_id: submission.id,
-      status,
-      error_message: errors.length > 0 ? errors.join(" / ") : null,
-    });
+    await admin
+      .from("crm_followup_sends")
+      .update({ status, error_message: errors.length > 0 ? errors.join(" / ") : null, sent_at: new Date().toISOString() })
+      .eq("id", claim.id);
   }
 
   return { sent, failed };

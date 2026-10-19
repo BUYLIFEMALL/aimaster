@@ -133,6 +133,7 @@ function RuleRow({ rule }: { rule: FollowupRuleData }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [toggleError, setToggleError] = useState<string | null>(null);
 
   const channels = [
     rule.channel_email && "이메일",
@@ -144,7 +145,9 @@ function RuleRow({ rule }: { rule: FollowupRuleData }) {
   async function handleToggle() {
     setIsToggling(true);
     try {
-      await toggleFollowupRuleActiveAction(rule.id, !rule.is_active);
+      // 「내 cron-job.org」 방식인데 키가 없는 등 켤 준비가 안 됐으면 규칙이 다시 꺼지고 안내가 돌아온다(v1.10)
+      const result = await toggleFollowupRuleActiveAction(rule.id, !rule.is_active);
+      setToggleError(result.error ?? null);
       router.refresh();
     } finally {
       setIsToggling(false);
@@ -167,7 +170,8 @@ function RuleRow({ rule }: { rule: FollowupRuleData }) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded-lg bg-mx-surface border border-mx-border px-3 py-2">
+    <div className="rounded-lg bg-mx-surface border border-mx-border px-3 py-2">
+    <div className="flex items-center justify-between gap-2">
       <div>
         <p className="font-semibold text-mx-text">
           {rule.name} <span className="font-normal text-mx-muted">· {rule.days_after}일 후 · {channels.join("/") || "채널 없음"}</span>
@@ -187,6 +191,8 @@ function RuleRow({ rule }: { rule: FollowupRuleData }) {
           삭제
         </button>
       </div>
+    </div>
+    {toggleError && <p className="mt-1 text-mx-danger" role="alert">{toggleError}</p>}
     </div>
   );
 }

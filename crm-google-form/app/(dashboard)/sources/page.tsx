@@ -4,6 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { SourceCreateForm } from "@/components/sources/SourceCreateForm";
 import { SourceCard, type FormSourceData } from "@/components/sources/SourceCard";
 import type { FollowupRuleData } from "@/components/sources/FollowupRulesSection";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulePublishingControl } from "@/components/sources/SchedulePublishingControl";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,6 +33,8 @@ export default async function SourcesPage() {
       .order("days_after", { ascending: true }),
   ]);
 
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
+
   const rulesBySource = new Map<string, FollowupRuleData[]>();
   for (const rule of rules ?? []) {
     const list = rulesBySource.get(rule.form_source_id) ?? [];
@@ -44,6 +50,8 @@ export default async function SourcesPage() {
         description="본인의 구글폼(신청서·설문지 등)을 연결하면, 새 응답이 들어올 때마다 신청자에게 접수 확인을 자동 발송하고 운영자 본인에게 텔레그램으로 알려 드립니다."
         tip="폼 이름을 먼저 등록한 뒤, 카드 안의 「구글시트에 연결하는 방법」을 따라 설정을 마쳐 주세요."
       />
+
+      <SchedulePublishingControl initial={scheduler} />
 
       <SourceCreateForm />
 

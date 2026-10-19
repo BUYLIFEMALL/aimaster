@@ -8,6 +8,13 @@ import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberCronjobKey, memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
+import { CronjobKeyRow } from "@/components/settings/CronjobKeyRow";
+
+const maskKey = (key: string) => (key.length <= 8 ? "••••••••" : `${key.slice(0, 6)}${"•".repeat(8)}${key.slice(-4)}`);
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -42,6 +49,10 @@ export default async function SettingsPage() {
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
+
+  // 팔로우업 발송 실행 방식(v1.10) — 회원별 상태는 서비스 키로 읽는다(표 RLS는 본인 조회만, 키 칸은 공용 user_api_keys)
+  const schedulerService = createAdminClient() as unknown as SupabaseClient;
+  const [scheduler, cronjobKey] = await Promise.all([memberSchedulerState(schedulerService, user.id), memberCronjobKey(schedulerService, user.id)]);
 
   // 등록 당시 provider가 프리셋 밖의 값(레거시/누락)이면 "기타" 섹션에 모아 보여준다.
   const knownProviders = new Set(SMTP_PROVIDER_PRESETS.map((p) => p.value));
@@ -128,6 +139,25 @@ export default async function SettingsPage() {
             <TelegramConnectForm />
           </div>
         )}
+      </section>
+
+      {/* ⏰ 팔로우업 발송 실행 방식(v1.10, 지침 docs/SCHEDULER_POLICY.md) — 규칙 켜기/끄기는 「구글폼 연결」에서 한다 */}
+      <section className="glass-card space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-mx-text">⏰ 예약 발행</h2>
+          <p className="text-sm text-mx-muted">
+            접수 후 팔로우업 자동 발송(매일 09시)을 무엇으로 돌릴지 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
+            본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 규칙 켜기/끄기는 「구글폼 연결」에서 합니다.
+          </p>
+        </div>
+        <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
+        <p className="text-xs font-semibold text-mx-text">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+        <ol className="list-decimal space-y-1 pl-4 text-xs text-mx-muted">
+          <li><a className="font-semibold underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+          <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
+          <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+        </ol>
+        <CronjobKeyRow label="cron-job.org API 키 (팔로우업 발송 — 「내 cron-job.org」 방식에서만 필요)" maskedValue={cronjobKey ? maskKey(cronjobKey) : null} />
       </section>
 
       <section className="glass-card space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-6 shadow-sm">

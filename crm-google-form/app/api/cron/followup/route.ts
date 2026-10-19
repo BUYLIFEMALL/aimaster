@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { runFollowupRule } from "@/lib/crm/followupDispatch";
-
-/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
-async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
-  const ids = Array.from(new Set(userIds.filter(Boolean)));
-  if (ids.length === 0) return new Set();
-  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
-  return new Set(
-    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
-      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
-      .map((p) => p.id)
-  );
-}
+import { dispatchDueFollowups } from "@/lib/schedulerMember/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
 // dynamic = "force-dynamic"만으로는 supabase-js 내부 fetch가 Next.js Data Cache에 걸려
@@ -21,11 +11,14 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-// stepmail/real_estate_sales/threads의 CRON_SECRET Bearer 인증 패턴을 그대로 재사용.
-// vercel.json에 매일 09:00(KST, UTC 00:00) 스케줄로 등록한다.
+// 운영자(AIMaster) Vercel 예약 호출 — vercel.json에 매일 09:00(KST, UTC 00:00) 스케줄로 등록.
+// v1.10(2026-10-20): 「내 cron-job.org」를 고른 회원·일시정지한 회원은 건너뛴다(회원 본인 호출이 /api/cron/dispatch-member로 처리).
+// 실행 로직(핸드폰·이용 권한 확인, 발송 전 선점)은 lib/schedulerMember/dispatch.ts. 지침: 루트 docs/SCHEDULER_POLICY.md
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  // CRON_SECRET이 비어 있으면 「Bearer undefined」로 통과되던 빈틈을 막는다(v1.10).
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) return false;
+  return request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {
@@ -33,34 +26,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const admin = createAdminClient();
-
-  const { data: rules, error } = await admin
-    .from("crm_followup_rules")
-    .select(
-      "id, user_id, form_source_id, name, days_after, channel_email, channel_sms, channel_alimtalk, channel_friendtalk, message_subject, message_text, kakao_template_id, kakao_variables",
-    )
-    .eq("is_active", true);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const service = createAdminClient() as unknown as SupabaseClient;
+    const result = await dispatchDueFollowups({
+      excludeUserIds: await membersExcludedFromPlatform(service),
+      skipAll: !platformSchedulerEnabled(),
+    });
+    return NextResponse.json({ ok: true, ...result });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
-
-  const summary: { ruleId: string; ruleName: string; sent: number; failed: number }[] = [];
-
-  const phoneOkUsers = await phoneRegisteredUserIds(admin, (rules ?? []).map((r: { user_id: string }) => r.user_id));
-  for (const rule of (rules ?? []).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
-    try {
-      const result = await runFollowupRule({
-        ...rule,
-        kakao_variables: rule.kakao_variables as Record<string, string>,
-      });
-      summary.push({ ruleId: rule.id, ruleName: rule.name, ...result });
-    } catch (err) {
-      summary.push({ ruleId: rule.id, ruleName: rule.name, sent: 0, failed: -1 });
-      console.error(`팔로우업 규칙 실행 실패 (${rule.id}):`, err);
-    }
-  }
-
-  return NextResponse.json({ ok: true, ruleCount: (rules ?? []).length, summary });
 }
