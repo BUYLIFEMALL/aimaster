@@ -134,7 +134,7 @@
 
 > **2026-10-16 주인님 지시**: 개발된 전체 프로그램(83개, `docs/PROGRAM_CAPABILITY_MAP.md` 기준)의 디자인 작업 상태를 이 표 하나로 관리한다. **작업을 시작하기 전에 반드시 이 표와 `docs/ACTIVE_WORK.md`를 함께 확인**하고, 「✅ 1차 작업완료」·「🔵 작업 중」인 프로그램은 다른 CLI가 새로 리뉴얼하지 않는다(추가 개선은 그 프로그램 `docs/IMPROVEMENTS.md`에 적고 주인님 승인 후 진행).
 >
-> **상태 구분** (2026-10-19 기준: ✅ 70개 · ⚪ 11개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **84.3% 달성!**):
+> **상태 구분** (2026-10-19 기준: ✅ 71개 · ⚪ 10개 · 🟠 0개 · ⏸ 2개 — 총 83개 — **85.5% 달성!**):
 > - ✅ **1차 작업완료**: 디자인 템플릿 적용·배포까지 끝남 (가능하면 `docs/DESIGN_HANDOFF.md` 있음)
 > - 📋 **플랜 수립 완료**: 기능/로직 분석 기반 디자인 리뉴얼 플랜 및 개선사항 인수인계서 작성 완료 (구현 착수 대기)
 > - 🔵 **작업 중**: 지금 어떤 CLI가 디자인 작업 중 — 같은 프로그램 착수 금지
@@ -187,7 +187,7 @@
 | 37 | AIMaster 타로점 | `tarot-reading` | **크리에이티브 아틀리에 스타일 — 신비로운 미드나잇 퍼플 랩 에디션** | 딥 미드나잇 퍼플 (`#090614` + 바이올렛 `#a855f7`) | ✅ 1차 작업완료 (`v1.20`, 크리에이티브 아틀리에 스타일) | [`tarot/docs/DESIGN_HANDOFF.md`](tarot/docs/DESIGN_HANDOFF.md) · [`tarot/docs/IMPROVEMENTS.md`](tarot/docs/IMPROVEMENTS.md) |
 | 38 | 캐릭코드(MBTI) 측정기 | `mbti-character` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti-character/AGENTS.md` |
 | 39 | 성격코드(MBTI) 측정기 | `personality-code` | 크리에이티브 아틀리에 스타일 (권장) | 파스텔 크림 | ⚪ 작업 예정 | `mbti/AGENTS.md` |
-| 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 플로우 위저드 스타일 (권장) | 라이트(화이트) | ⚪ 작업 예정 | `naver-cafe-poster/AGENTS.md` |
+| 40 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | **플로우 위저드 스타일 — 네이버 카페 그린 에디션** | 라이트(클린 슬레이트 `#f8fafc` + 네이버 그린 `#03c75a`) | ✅ 1차 작업완료 (`v1.20`, 플로우 위저드 스타일) | [`naver-cafe-poster/docs/DESIGN_HANDOFF.md`](naver-cafe-poster/docs/DESIGN_HANDOFF.md) · [`naver-cafe-poster/docs/IMPROVEMENTS.md`](naver-cafe-poster/docs/IMPROVEMENTS.md) |
 | 41 | 카카오톡 뉴스레터 자동화 | `kakao-auto-posting` (폴더 `kakao_auto_poster`) | 플로우 위저드 스타일 (권장) | 옐로우/화이트 | ⚪ 작업 예정 | `kakao_auto_poster/AGENTS.md` |
 | 42 | 웹 크롤링 자동화 | `web-crawler-saas` (폴더 `web-crawler/webapp`) | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v4) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.07`, 스마트 매트릭스 스타일) | [`web-crawler/IMPROVEMENT_HANDOFF_20261017.md`](web-crawler/IMPROVEMENT_HANDOFF_20261017.md) · [`web-crawler/DESIGN_HANDOFF.md`](web-crawler/DESIGN_HANDOFF.md) |
 | 43 | 상품소싱 자동화 | `trending-product-finder` | **스마트 매트릭스 스타일** (다크 슬레이트, Tailwind v3) | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | ✅ 1차 작업완료 (`v1.08`, 스마트 매트릭스 다크, Windows 빌드/배포/DB/Edge1440·375 2026-10-17) | [`trending-product-finder/docs/DESIGN_HANDOFF.md`](trending-product-finder/docs/DESIGN_HANDOFF.md) |

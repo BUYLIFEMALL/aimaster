@@ -1,92 +1,48 @@
-# 🟢 Naver Cafe Poster — 네이버 카페 포스팅 자동화
+# 🟢 Naver Cafe Poster — 네이버 카페 포스팅 자동화 (v1.20)
 
-AIMaster 회원이 본인 네이버 계정을 연동하고 본인이 활동하는 카페 게시판을 등록하면, AI가
-만든 게시글을 그 카페에 자동으로 등록해주는 프로그램입니다.
+> **공식 서비스 URL**: [https://naver-cafe-poster.buylife.xyz](https://naver-cafe-poster.buylife.xyz)  
+> **공식 가이드북**: [https://naver-cafe-poster.buylife.xyz/guide](https://naver-cafe-poster.buylife.xyz/guide)  
+> **현재 버전**: `v1.20` (플로우 위저드 스타일 — 네이버 카페 그린 에디션)
 
-## 설계 배경
+AIMaster 회원이 본인 네이버 계정을 연동하고 본인이 활동하는 카페 게시판을 등록하면, AI가 작성한 맞춤형 게시글을 그 카페에 자동으로 등록해주는 멀티테넌시 자동화 프로그램입니다.
 
-### 1. threads-affiliate-poster를 스캐폴드 템플릿으로 사용
-Next.js 16 App Router, Supabase 인증/RLS, `requireProgramAccess()`/`checkProgramAccessApi()`
-패턴, UI 컴포넌트(Button/Input/Textarea 등)를 `threads-affiliate-poster`에서 그대로
-가져왔다. Threads/쿠팡/알리익스프레스/토스 관련 코드는 전부 제거하고 네이버 카페 전용
-코드로 교체했다.
+---
 
-### 2. 회원별 BYOK 앱 등록 + OAuth 연동 (2026-09-16 전환)
-처음엔 이 프로젝트가 등록한 단일 개발자센터 앱을 모든 회원이 공유했는데(Threads 공용 Meta 앱
-패턴과 동일했음), 네이버 로그인도 앱이 검수를 통과하지 않은 동안은 그 앱에 테스터로 등록된
-계정(운영자 본인)만 로그인을 완료할 수 있어, 다른 회원은 연동이 불가능한 문제가 있었다
-(kakao_auto_poster의 KAKAO_REST_API_KEY 전환과 동일한 원인·조치). `user_api_keys`에
-`naver_client_id`/`naver_client_secret` provider를 추가해(공유 CHECK 제약에 이미 존재해
-마이그레이션 불필요) 회원마다 본인이 만든 네이버 앱의 Client ID/Secret을 설정 페이지에
-등록하고 `resolveNaverAppCredentials()`(`lib/naver/account.ts`)로 조회해서 쓰도록 바꿨다.
-앱 등록 시 "네이버 로그인"과 "카페" API를 함께 사용 API로 추가해야 카페 가입/글쓰기 권한이
-부여된다. `NAVER_REDIRECT_URI`(콜백 주소, 회원과 무관하게 고정)만 env var로 남고
-`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`은 더 이상 코드에서 읽지 않는다. 전환 전 이미
-연동된 기존 `ncafe_accounts` 토큰(buylifemall@naver.com)은 삭제하지 않아 access_token이
-유효한 동안은 계속 동작하지만, refresh가 필요해지는 시점부터는 본인 앱 등록이 있어야
-갱신된다(카카오와 달리 이 프로젝트는 대체 발송 경로가 없어, 갱신 실패 시 게시 자체가
-명확한 안내 메시지와 함께 실패한다).
+## 🎨 주요 디자인 및 아키텍처 특징 (v1.20)
 
-### 3. 카페 club_id/menu_id는 수동 입력
-네이버 카페 오픈API는 "내 카페 목록 조회"/"게시판 목록 조회" API를 제공하지 않는다(가입/
-글쓰기 2개 엔드포인트뿐). 그래서 회원이 본인 카페 관리 화면에서 club_id/menu_id를 직접
-확인해 설정 페이지에서 등록한다.
+1. **플로우 위저드 스타일 — 네이버 카페 그린 에디션**:
+   - 네이버 고유의 그린(`--brand: #03c75a`) 및 웜 슬레이트 라이트(`--background: #f8fafc`) 테마 적용.
+   - 사이드바 내 1-2-3-4 단계 넘버링 스텝퍼 (`주제 수집` ➔ `초안 확인` ➔ `AI 글쓰기` ➔ `게시글 관리`).
+   - 모바일(767px 이하) 반응형 헤더 & 햄버거 토글 드로어 완비.
+2. **독립 비주얼 가이드북 (`/guide`) 전면 신설**:
+   - 4단계 출판 파이프라인 다이어그램.
+   - 카페 `club_id` 및 게시판 `menu_id` 추출 비주얼 매트릭스.
+   - 3대 소스(URL, RSS NewsBlur, Perplexity 실시간 검색) 비교표.
+   - 자주 묻는 질문 FAQ 5종 아코디언 제공.
+3. **100% BYOK 보안 원칙**:
+   - 회원 본인이 발급한 네이버 개발자센터 앱(Client ID/Secret) 및 본인 AI API 키(OpenAI/Perplexity/Gemini)만 사용.
+   - 네이버 공식 Cafe API(OAuth 2.0)를 통한 100% 합법적이고 안전한 포스팅 보장.
 
-자세한 배경/제약사항은 [AGENTS.md](AGENTS.md) 참고.
+---
 
-## 환경변수 (`.env.local`)
+## 🚀 빠른 시작
 
-```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+```bash
+# 1. 패키지 설치
+npm install
 
-NEXT_PUBLIC_SITE_URL=https://naver-cafe-poster.vercel.app
-NEXT_PUBLIC_MAIN_SITE_URL=https://buylife.xyz
+# 2. 로컬 개발 서버 실행
+npm run dev
 
-NAVER_REDIRECT_URI=https://naver-cafe-poster.vercel.app/api/naver/callback
-
-# 예약(정기 자동 생성+포스팅) 크론 보호용 — 아무 임의 문자열이나 발급해 등록
-CRON_SECRET=
+# 3. 프로덕션 빌드
+npm run build
 ```
 
-## DB 테이블
+---
 
-- `ncafe_accounts` — 네이버 로그인 연동(user_id unique, naver_id, nickname, access_token,
-  refresh_token, token_expires_at)
-- `ncafe_targets` — 게시할 카페 게시판(user_id, label, club_id, menu_id)
-- `ncafe_posts` — 게시글 이력(user_id, target_id, title, content, status, cafe_article_url,
-  raw_response, error_message)
-- `ncafe_scheduled_sources` — 예약 자동 생성·포스팅 소스(user_id, source_type, source_input,
-  source_label, target_id, auto_post, schedule_enabled, interval_minutes, last_run_at,
-  is_active, last_error)
-
-## 예약 자동 생성·포스팅 (2026-09-15)
-
-`/candidates`의 "글감 수집" 아래 "🔔 예약 자동 생성·포스팅" 패널에서, 수집 소스(HTTP/RSS/
-Perplexity)와 게시할 카페를 등록하고 주기(1시간~매주)를 켜두면 Vercel Cron이 정해둔 주기마다
-AI 콘텐츠 1건을 자동 생성한다. 소스별 "자동 포스팅" 스위치가 켜져 있으면 검토 없이 바로
-게시하고, 꺼두면 초안으로 저장돼 `/drafts`에서 검수 후 배포한다.
-
-- 크론: `vercel.json`의 `*/5 * * * *` 스케줄이 `/api/cron/generate-and-post`를 5분마다
-  깨우고, 이 라우트가 `ncafe_scheduled_sources.last_run_at`/`interval_minutes` 기준으로
-  실제 실행 대상을 골라낸다(kakao_auto_poster의 `generate-reports` 크론과 동일한 "5분마다
-  깨우기 + 자체 판단" 패턴 — 하나의 크론으로 소스마다 다른 주기를 지원하기 위함).
-- 핵심 로직은 `src/lib/naver/account.ts`(계정/타겟 조회, 세션·admin 클라이언트 겸용)와
-  `src/lib/scheduledSource/engine.ts`(`runScheduledSource`)에 모아, 수동 "지금 실행"과
-  크론 실행이 동일한 코드 경로를 탄다.
-- 예약 실행은 항상 정확히 1건만 생성한다 — 수동 "글감 수집"처럼 최대 5건을 한 번에 만들면
-  예약 주기마다 비용/게시량이 걷잡을 수 없이 늘어나기 때문.
-
-## 남은 작업
-
-- 네이버 개발자센터 앱 등록(Client ID/Secret 발급) — 사용자가 직접 진행
-- 실계정으로 첫 게시 테스트 → `createCafeArticle()` 응답 스키마 확인 후 클라이언트 보강
-- `programs` 카탈로그 등록 + Vercel 배포
-- 예약 자동 포스팅을 실계정으로 "지금 실행"까지 끝까지 테스트(유료 API 호출 + 실제 게시
-  가능성이 있어 사전 승인 후 진행할 것)
-
-
-## 2026-10-16 DB 연동 변수 호환 — v1.07 (naver-cafe-poster)
-
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+## 📂 관련 인수인계 문서
+- [AGENTS.md](AGENTS.md): 7대 핵심 항목 개발 인수인계 가이드
+- [docs/DESIGN_HANDOFF.md](docs/DESIGN_HANDOFF.md): 디자인 개발완료 보고서
+- [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md): 프로그램 개선 제안서 (3대 필수 관점)
+- [docs/IMPROVEMENT_BACKLOG.md](docs/IMPROVEMENT_BACKLOG.md): 작업 대기 백로그
+- [docs/PLAN_20261019_DESIGN_RENEWAL.md](docs/PLAN_20261019_DESIGN_RENEWAL.md): 사전 개발 플랜 원본 및 검수 결과

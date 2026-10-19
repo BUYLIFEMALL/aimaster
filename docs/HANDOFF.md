@@ -1,5 +1,53 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 네이버 카페 포스팅 자동화(naver-cafe-poster) v1.20: 플로우 위저드 스타일 리뉴얼·/guide 비주얼 가이드북 전면 신설·Vercel 배포·Edge 최전면 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 71개 완료 / 85.5% 달성!)
+
+- **대상**: `naver-cafe-poster/` (https://naver-cafe-poster.buylife.xyz, slug: `naver-cafe-poster`, 40번)
+- **한 일**:
+  1. **플로우 위저드 스타일 — 네이버 카페 그린 에디션 전면 리뉴얼**:
+     - **공식 템플릿**: **플로우 위저드 스타일 — 네이버 카페 그린 에디션 (Flow Wizard Style — Naver Cafe Green Edition)**.
+     - **디자인 토큰 시스템 구축**: 네이버 카페 그린(`--brand: #03c75a`, `--brand-hover: #02b150`, `--brand-light: #e8f9f0`), 웜 슬레이트 라이트(`--background: #f8fafc`, `--surface: #ffffff`), 에메랄드(`--brand-emerald: #10b981`), 앰버 골드(`--brand-amber: #f59e0b`) 토큰 및 `.studio-hero`, `.stat-card` 시그니처 스타일 구축 (`src/app/globals.css`).
+     - 네이버 공식 Cafe API(OAuth 2.0) 기반 안전 포스팅 엔진 및 100% BYOK 보안 체계 유지.
+  2. **사이드바 4단계 넘버링 스텝퍼 & 모바일 반응형 헤더 완비 (`Sidebar.tsx`, `DESIGN.md` 9번 원칙 충족)**:
+     - 브랜드 뱃지 `v1.20 CAFE BOT` 네이버 그린 칩 탑재.
+     - 4단계 순차 흐름 스텝퍼: `1. 게시글 주제 수집` (`/candidates`), `2. AI 자동 글쓰기(초안)` (`/drafts`), `3. AI 자동 글쓰기(수동)` (`/write`), `4. 게시글 관리` (`/posts`).
+     - 유틸리티 메뉴 그룹에 **`📖 연동 & 사용 매뉴얼` (`/guide`)** 전용 골드 칩 메뉴 신설.
+     - 모바일(767px 이하) 상단 헤더 고정 및 햄버거 토글 드로어 메뉴 완비.
+  3. **메인 대시보드 리뉴얼 (`src/app/(dashboard)/dashboard/page.tsx`)**:
+     - 상단 네이버 카페 그린 발광 테두리의 `.studio-hero` 웰컴 배너 및 퀵 링크 버튼([📖 연동 & 사용 매뉴얼 보기] / [✨ AI 자동 글쓰기]) 탑재.
+     - 3대 핵심 KPI 지표 카드(3대 소스 글감 자동 수집, 카페 맞춤 AI 초안 생성, 네이버 공식 API 안전 발행) 탑재.
+     - 상태별(초안/발행중/발행완료/실패) 진행 통계 카드 및 최근 게시글 목록 UI 현대화.
+  4. **독립 비주얼 가이드북 (`/guide/page.tsx`) 전면 신설**:
+     - 상단 히어로 배너: "네이버 카페 포스팅 자동화 완벽 가이드 — 글감 수집부터 AI 초안, 예약 발행까지".
+     - **4단계 카페 포스팅 파이프라인**: 1) 네이버 앱/카페 등록 ➔ 2) URL·RSS·검색 글감 수집 ➔ 3) AI 자동 초안 생성 & 검수 ➔ 4) 카페 게시판 발행.
+     - **네이버 카페 `club_id` 및 `menu_id` 추출 비주얼 다이어그램 매트릭스** (PC 웹 주소 파싱 및 쉬운 팁 안내).
+     - **글감 수집 3대 소스 비교 매트릭스** (HTTP URL / RSS NewsBlur / Perplexity 실시간 검색).
+     - 100% 프라이버시 보호 & 네이버 토큰/API 키 무저장 보안 배너 탑재.
+     - 자주 묻는 질문 FAQ 5종 네이버 그린 아코디언 인터랙션 제공.
+  5. **버전 및 DB 메타데이터 3중 동기화 (`v1.20`)**:
+     - `naver-cafe-poster/package.json` (`1.20.0`), `naver-cafe-poster/src/lib/version.ts` (`v1.20`), Supabase DB `programs` 메타데이터 (`version: v1.20`) 동기화 완료 (`scripts/update_prog_40_v120.cjs`).
+  6. **로컬 무결성 검증 통과**:
+     - `npm run build`: Next.js 16.2.11 Turbopack 프로덕션 빌드 성공 (경로 15개 완벽 생성, exit code 0).
+  7. **Vercel 프로덕션 배포 완료**:
+     - Deployment ID: `dpl_4D3v4tgmwPJxgHznBHh61sj9BeWh`
+     - 공식 도메인 즉시 반영: https://naver-cafe-poster.buylife.xyz (가이드북: `https://naver-cafe-poster.buylife.xyz/guide`)
+  8. **Microsoft Edge 최전면 포그라운드 실세션 검수 (headless: false, 10분 화면 유지)**:
+     - 일반 회원 테스트 계정(`buylifemall@naver.com`) 세션 기반 Edge 실제 창을 화면 최전면에 띄워 10분간 화면 유지 (`task-15304`).
+     - 캡처 6종 아티팩트 보존:
+       - `edge_cafe_desktop_main_v120.png`: 데스크톱 메인 전경, 히어로 배너, KPI 및 통계 카드
+       - `edge_cafe_desktop_kpi_v120.png`: 3대 핵심 KPI 지표 카드 및 상태별 진행 현황 카드
+       - `edge_cafe_desktop_guide_v120.png`: 비주얼 가이드북 상단 히어로 배너 및 4단계 파이프라인
+       - `edge_cafe_desktop_guide_matrix_v120.png`: 카페 club_id 추출 매트릭스, 3대 소스 비교표, FAQ 아코디언
+       - `edge_cafe_desktop_candidates_v120.png`: 글감 수집 화면 전경
+       - `edge_cafe_mobile_guide_v120.png`: 모바일 375px 반응형 뷰포트 (햄버거 메뉴 및 무오버플로우)
+  9. **문서 6종 완비**:
+     - `naver-cafe-poster/AGENTS.md` (7대 핵심 항목 완벽 규격화)
+     - `naver-cafe-poster/README.md` (동기화 갱신)
+     - `naver-cafe-poster/docs/DESIGN_HANDOFF.md` (디자인 개발완료 보고서)
+     - `naver-cafe-poster/docs/IMPROVEMENTS.md` (개선 제안서 - 3대 필수 항목 완비)
+     - `naver-cafe-poster/docs/IMPROVEMENT_BACKLOG.md` (작업 대기 백로그)
+     - `naver-cafe-poster/docs/PLAN_20261019_DESIGN_RENEWAL.md` (사전 개발 플랜 원본 및 검수 결과 기록)
+
 ## 2026-10-19 Claude Code(윈도우) — INSTA 카드뉴스 v1.17: 데이터형 카드 레이아웃 3종(번호 목록·A vs B·큰 숫자)
 - **한 일**: 카드마다 레이아웃 선택(배경형·번호 목록·A vs B·큰 숫자), 떡상 리메이크 문구가 장마다 레이아웃·항목·숫자를 함께 씀, 문구 화면 편집기. 글자 크기 고정이라 항목이 많아도 작아지지 않음(v1.16 남은 문제 해결). 상세 `cardnews-studio/AGENTS.md` v1.17.
 - **검수**: 단위 42, tsc, 빌드, READY, DB v1.17, 운영 실검수(세 레이아웃 그리기·위치 보정 후 재확인). v1.16 시험 프로젝트 삭제 완료(DB 0건).

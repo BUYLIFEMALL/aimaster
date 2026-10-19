@@ -1,194 +1,107 @@
-# 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
+# 🤖 네이버 카페 포스팅 자동화 에이전트 인수인계 가이드 (AGENTS.md)
 
-이 문서는 **네이버 카페 포스팅 자동화(naver-cafe-poster, 폴더/slug는 하위호환을 위해 그대로
-유지)** 프로젝트에서 AI Agent(Claude Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및
-규칙입니다. (2026-09-15: 화면 표시 이름을 "네이버 카페 자동화" → "네이버 카페 포스팅
-자동화"로 변경 — `programs.name`과 앱 내 표시 문자열만 바뀌었고, 폴더명/`programs.slug`
-(`naver-cafe-poster`)는 그대로다.)
-
----
-
-## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
-
-### 1. 자율 진행 허용 작업
-파일 생성/코드 수정, 패키지 설치, 로컬 테스트/빌드, 스키마 추가/마이그레이션.
-
-### 2. 사전 승인 필수 작업 (🚨 승인 없이 금지)
-> **2026-10-16 주인님 지시로 정리**: Git 커밋·푸시와 프로덕션 배포는 **사전 승인 없이** 메인 지침(`CLAUDE.md` 원칙 12 「작업 완료 절차」: 검수 → 커밋 → 푸시 → 배포 → 배포 후 확인 → 결과·라이브 링크 보고)대로 진행한다. 초기 템플릿에 있던 「Git push·배포 사전 승인」은 폐지. 아래 항목만 여전히 사전 승인이 필요하다.
-1. 파일이나 폴더 삭제
-2. 데이터베이스 데이터 삭제
-3. 환경변수와 API 키 변경
-4. 유료 API 호출(AI 게시글 생성 등)
-5. **실제 게시(`publishCafePost`)** — 원칙적으로 사람이 대시보드에서 내용을 직접 확인·수정한
-   뒤 "게시" 버튼을 눌러야만 실행된다(즉시 게시). **예외**: 2026-09-15부터 `/candidates`의
-   "🔔 예약 자동 생성·포스팅" 패널에서 소스별로 등록한 "자동 포스팅" 스위치를 회원이 직접
-   켜둔 경우에 한해, 예약 주기마다 사람 검토 없이 자동으로 게시된다(회원의 명시적 사전
-   설정에 의한 예외이지, 이 규칙 자체를 깬 게 아니다). 스위치를 꺼두면 기존과 동일하게
-   초안(`draft`)으로만 저장되어 `/drafts`에서 검수 후 수동 배포한다.
+> **최종 갱신**: 2026-10-19 (Antigravity CLI `agy`)  
+> **현재 버전**: `v1.20` (플로우 위저드 스타일 — 네이버 카페 그린 에디션)  
+> **공식 서비스 URL**: [https://naver-cafe-poster.buylife.xyz](https://naver-cafe-poster.buylife.xyz)  
+> **공식 가이드북**: [https://naver-cafe-poster.buylife.xyz/guide](https://naver-cafe-poster.buylife.xyz/guide)  
+> **적용 디자인 템플릿**: **플로우 위저드 스타일 — 네이버 카페 그린 에디션 (Flow Wizard Style — Naver Cafe Green Edition)**
 
 ---
 
-## 🎯 프로젝트 목적
+## 1. 프로그램 사용목적 및 대상 (Target & Purpose)
 
-AIMaster 회원이 각자 본인 네이버 계정을 연동하고, 본인이 운영/활동하는 카페의 게시판을
-등록하면, AI가 만든 게시글을 그 카페에 자동으로 등록해주는 멀티테넌시 SaaS 프로그램.
-
-**중요 — 이 프로젝트는 buylifemall 내부 도구가 아니다.** "공동구매 공식카페 가입 연결",
-"강의 수강생 전용카페 가입" 같은 아이디어가 처음 논의됐을 때 표현만 보면 운영자 전용 도구처럼
-보였지만, 2026-09-11 사용자에게 직접 확인한 결과 **AIMaster 회원이 각자 본인 카페를 연동해
-쓰는 SaaS 기능**으로 확정됐다(threads-affiliate-poster 등 기존 서브프로젝트와 동일한 멀티테넌시
-원칙 적용). 카페 "가입 유도 자동화"는 아직 구현 전(Phase 2)이며, 착수 전에 이 문서의 Phase
-표부터 갱신할 것.
+- **사용 목적**: 네이버 카페에서 활발히 활동하거나 카페 마케팅을 진행하는 회원이 뉴스, 블로그, 실시간 트렌드 검색(URL/RSS/Perplexity)을 통해 양질의 글감을 수집하고, 네이버 카페 특유의 친근한 구어체 및 정보성 글로 재구성하여 원하는 카페 게시판으로 즉시 및 예약 발행할 수 있도록 지원하는 올인원 카페 포스팅 자동화 SaaS 도구입니다.
+- **주요 대상**:
+  1. 네이버 카페 커뮤니티 운영자 및 매니저
+  2. 카페 침투 마케팅 및 브랜드 인지도 제고를 원하는 1인 셀러 및 마케터
+  3. 특정 전문 분야(IT, 부동산, 육아, 건강 등)의 데일리 이슈와 칼럼을 정기적으로 공유하는 크리에이터
+  4. 다수의 카페 게시판에 일정한 간격으로 게시글을 스케줄링하여 안전하게 배포하고자 하는 사용자
 
 ---
 
-## 📂 프로젝트 작업 디렉토리
-* **메인 모듈 경로**: `naver-cafe-poster/`
-* Next.js 16(App Router, `src/` 디렉토리 구조) — `threads-affiliate-poster/`를 스캐폴드
-  템플릿으로 복제해서 시작했다(2026-09-11). 인증/레이아웃/UI 컴포넌트 등 범용 코드는
-  그대로 재사용했고, Threads/쿠팡/알리익스프레스/토스 관련 코드는 전부 제거했다.
+## 2. 개발 도구 / 기술 스택 / 스킬 (Tech Stack & Skills)
+
+- **Framework**: Next.js 16.2.11 (App Router, Turbopack)
+- **Library**: React 19.2.4, Lucide React 1.44.0, Zod 4.4.3, Cheerio 1.2.0, Undici 8.10.1
+- **Styling**: Tailwind CSS v4 (`@import "tailwindcss";` 및 `@theme inline`), 플로우 위저드 네이버 카페 그린 토큰 시스템
+- **Database & Auth**: Supabase SSR (`@supabase/ssr` 0.12.3, `@supabase/supabase-js` 2.110.8), 공유 DB `esgxyikcnnvmlhygjkth`
+- **AI Engine & API**:
+  - OpenAI GPT-4o-mini / GPT-4o
+  - Google Gemini 2.5 Flash (`@google/genai`)
+  - Perplexity API (Sonar 실시간 웹 검색)
+  - 네이버 공식 Cafe API (OAuth 2.0 및 글쓰기 API)
+- **보안 및 규정**: 100% BYOK(회원 본인 네이버 계정 및 AI API 키 등록), SSR 쿠키 기반 세션 인증 (`.buylife.xyz`)
 
 ---
 
-## 🔗 AIMaster 플랫폼 공통 원칙
+## 3. 핵심 기능 및 시스템 아키텍처 / 로직 (Features & Architecture)
 
-naver-cafe-poster는 AIMaster 저장소 안의 서브프로젝트다. 루트 `../CLAUDE.md`를 메인 지침으로
-함께 따른다. 핵심 요약:
+### 📌 4단계 포스팅 파이프라인 구조
+1. **1단계: 플랫폼 & 카페 연동 (`/settings`)**:
+   - 네이버 로그인(OAuth 2.0)을 통해 카페 글쓰기 권한 토큰을 발급받습니다.
+   - 글을 올릴 카페 고유 ID(`club_id`)와 게시판 번호(`menu_id`)를 등록합니다.
+2. **2단계: 3대 글감 소스 자동 수집 (`/candidates`)**:
+   - HTTP URL: 특정 웹페이지 기사 크롤링 및 요약.
+   - RSS 피드: NewsBlur 연동 구독 피드 자동 감지.
+   - Perplexity 검색: 실시간 키워드 질의를 통한 팩트 중심 최신 트렌드 글감 수집.
+3. **3단계: AI 자동 글쓰기 & 초안 검수 (`/drafts` & `/write`)**:
+   - 카페 회원의 공감을 이끌어내는 친근한 구어체 어투로 제목과 본문 자동 생성.
+   - 수동 글쓰기 에디터 및 초안 보관함에서 실시간 수정 후 저장.
+4. **4단계: 카페 게시판 즉시 & 예약 발행 (`/posts`)**:
+   - 검수된 초안을 네이버 공식 Cafe API를 통해 즉시 등록하거나 cron 스케줄러를 통해 예약 발행.
 
-- `programs.slug = "naver-cafe-poster"` 이용 권한(구독/개별부여/등급)이 있는 모든 AIMaster
-  회원이 각자 계정으로 쓸 수 있는 멀티테넌시 SaaS다.
-- 페이지는 `requireProgramAccess()`, API route는 `checkProgramAccessApi()`로 권한을 확인한다
-  (`src/lib/access.ts`).
-- 사용자 소유 데이터(`ncafe_accounts`, `ncafe_targets`, `ncafe_posts`)는 `user_id` + RLS
-  owner-only로 격리한다.
-- **API 키는 본인 키만 사용, 관리자 키 폴백 없음** — `src/lib/apiKeys.ts` (openai만 사용).
+### 🌟 장점 및 강점
+- **네이버 공식 API 연동**: 비정상 브라우저 매크로나 셀레니움 방식이 아닌 공식 API를 사용하므로 캡차(CAPTCHA)나 비인가 차단 위험이 없습니다.
+- **다양한 글감 수집 파이프라인**: URL 하나만 넣거나 RSS를 등록해두면 매일 새로운 글감이 자동으로 쌓입니다.
+- **완벽한 반응형 및 가이드북**: PC 및 모바일 375px 환경을 완벽 지원하며 `/guide`를 통해 누구나 5분 안에 카페 ID를 찾아 연동할 수 있습니다.
 
-### 테이블명이 다른 서브프로젝트와 겹치지 않도록 접두어를 붙였다
-공용 Supabase 프로젝트에 이미 `naver_search_cache`/`naver_trend_cache`(threads-affiliate-poster,
-검색어트렌드 기능용) 테이블이 있어서, 이 프로젝트는 **`ncafe_accounts`/`ncafe_targets`/
-`ncafe_posts`**(naver-cafe-poster 접두어)로 분리했다(2026-09-11, `information_schema.tables`
-전체 대조 후 결정). 새 테이블을 추가할 때도 이름이 겹치지 않는지 먼저 확인할 것.
+### ⚠️ 기술적 주의사항 및 한계점
+- 네이버 정책상 카페 목록을 API로 제공하지 않으므로, 글을 올릴 카페의 `club_id`와 게시판의 `menu_id`를 사용자가 직접 확인해 등록해야 합니다. (가이드북에서 상세 안내)
+- 네이버 로그인 토큰이 만료되면 글 발행이 일시 중지되며, 설정 화면에서 재연동 버튼 클릭이 필요합니다.
 
-### 네이버 로그인 OAuth — 회원별 BYOK 앱 등록 구조 (2026-09-16부터, 최초엔 공유 앱이었음)
-- **최초 설계(2026-09-11)는 Threads/Instagram(threads-affiliate-poster, threads/,
-  instagram-comment-reply 등)이 공용 Meta 앱을 재사용하는 것과 같은 구조였다**: 이 프로젝트가
-  네이버 개발자센터에 앱을 하나만 등록(`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`)하고, 모든
-  회원이 그 앱을 통해 각자 본인 네이버 계정으로 로그인해 access token을 받는 방식이었다.
-  **하지만 2026-09-16, kakao_auto_poster의 카카오 로그인에서 "앱이 심사(검수)를 통과하지
-  않은 동안은 그 앱에 테스터로 등록된 계정만 로그인을 완료할 수 있다"는 제약이 Meta 앱
-  Development 모드와 동일한 구조로 실제 발견됐고, 네이버 로그인도 앱이 "네이버 검수"를
-  통과하지 않은 동안 동일한 제약(등록된 테스트 계정만 로그인 가능)이 있는 것으로 웹 리서치로
-  확인돼, 이 프로젝트도 그날 회원별 BYOK 방식으로 전환했다** — 운영자 본인 계정 외 다른
-  회원은 애초에 공용 앱으로 로그인을 완료할 수 없었던 잠재적 버그를, 실제로 걸리기 전에
-  같은 원인 클래스로 먼저 수정한 사례다.
-- **현재 구조**: 회원마다 본인이 만든 네이버 앱의 Client ID/Secret을 설정 페이지에서
-  `user_api_keys`(`naver_client_id`/`naver_client_secret` — 공유 CHECK 제약에 이미 존재해
-  별도 마이그레이션 없이 바로 사용)에 등록하고, `resolveNaverAppCredentials()`
-  (`src/lib/naver/account.ts`)로 조회해서 `src/lib/naver/client.ts`의 함수들(`getNaverAuthorizeUrl`/
-  `exchangeNaverCode`/`refreshNaverToken`)에 파라미터로 넘긴다. `NAVER_REDIRECT_URI`(콜백
-  주소, 이 앱의 고정 배포 도메인 기준이라 회원과 무관)만 환경변수로 남고, `NAVER_CLIENT_ID`/
-  `NAVER_CLIENT_SECRET` 환경변수는 더 이상 코드에서 읽지 않는다. 연동한 본인 명의로만
-  카페 가입/글쓰기가 되는 점은 그대로다.
-- 네이버 로그인 authorize 엔드포인트(`https://nid.naver.com/oauth2.0/authorize`)는 OAuth2
-  표준과 달리 `scope` 파라미터가 없다 — 카페 가입/글쓰기 같은 "제공 정보" 접근 권한은
-  개발자센터 앱 등록 화면에서 미리 체크해둔 설정으로 결정된다(2026-09-11 확인,
-  blog.itcode.dev의 OAuth 가이드 근거).
-- **회원이 본인 앱을 등록할 때 필요한 것**: 개발자센터에서 애플리케이션 등록 → "네이버
-  로그인" 사용 API 체크 → 사용 API에 "카페" 추가 → Callback URL에
-  `https://naver-cafe-poster.vercel.app/api/naver/callback` 등록 → 앱이 아직 검수 전이면
-  "개발 상태" 화면에서 본인 네이버 계정을 테스트 계정으로 추가 → 발급받은 Client ID/Secret을
-  이 프로젝트의 설정 페이지("🔑 네이버 앱 등록" 섹션)에 입력. `platform_guides`의 기존
-  가이드(id `ec45e4bd-fccc-4f14-92e8-3e2df3ced50b`, category="네이버")를 이 새 절차에 맞게
-  갱신했다(새 가이드를 만들지 않고 기존 것을 확장).
-- **하위호환**: 전환 전 이미 연동됐던 기존 `ncafe_accounts` 토큰(예: buylifemall@naver.com,
-  user_id `4a82ff77-97f7-474d-866e-8e9431858ed3`)은 삭제하지 않아 access_token이 유효한
-  동안은 그대로 게시가 되지만, 만료돼 refresh_token으로 갱신해야 하는 시점부터는 본인 네이버
-  앱 등록이 있어야 갱신된다 — 카카오(SOLAPI 폴백 존재)와 달리 이 프로젝트는 대체 발송 경로가
-  없어, 갱신 실패 시 "본인의 네이버 앱 Client ID/Secret이 필요합니다" 안내 메시지와 함께
-  게시 자체가 실패한다(`getNaverAccountOrError()`). 재연결(연동 해제 후 재로그인)도 본인 앱
-  등록이 선행돼야 시작할 수 있다.
+---
 
-### 네이버 카페 오픈API의 구조적 한계 (설계에 반영됨)
-2026-09-11 확인: 네이버 카페 오픈API는 **가입(`POST /v1/cafe/{clubid}/members`)과 글쓰기
-(`POST /v1/cafe/{clubid}/menu/{menuid}/articles`) 딱 2개뿐**이고, "내 카페 목록 조회"나
-"게시판(메뉴) 목록 조회" API가 아예 없다. 그래서:
-- 회원이 게시할 카페의 `club_id`/`menu_id`를 **직접 입력**해야 한다(`ncafe_targets` 테이블,
-  설정 페이지의 `CafeTargetManager`) — 본인 카페 관리 화면 URL의 쿼리스트링에서 확인 가능.
-- 글쓰기 API의 정확한 요청 파라미터는 커뮤니티 문서로 확인했다(`subject`/`content`/`openyn`,
-  URL-encoded POST body, `Authorization: Bearer {token}` 헤더) — 이건 신뢰도가 높다.
-- **하지만 성공 응답의 정확한 JSON 필드명(게시글 ID/URL 등)은 아직 확인 못 했다** —
-  developers.naver.com 상세 문서는 로그인이 필요해 이 환경(WebFetch)에서 접근이 막혀 있다.
-  그래서 `src/lib/naver/client.ts`의 `createCafeArticle()`은 HTTP status만으로 성공/실패를
-  판단하고, 원본 응답 전체를 `ncafe_posts.raw_response`(jsonb)에 그대로 저장해둔다.
-  **실계정으로 첫 게시 테스트를 할 때 이 raw_response를 확인해서, 응답에서 게시글 URL 등을
-  파싱해 보여줄 가치가 있는 필드가 있으면 그때 클라이언트/화면 코드를 보강할 것** — 이
-  프로젝트에서 처음으로 실제 API를 두드려보는 순간이니, 쿠팡파트너스 때처럼 가정과 실제
-  응답이 다를 가능성을 염두에 둘 것(threads-affiliate-poster의 쿠팡 서명/딥링크 버그 사례
-  참고).
+## 4. 현재 버전 및 버전 히스토리 (Changelog)
 
-## 📦 Phase 진행 상태
+- **v1.20 (2026-10-19, Antigravity CLI)**:
+  - **플로우 위저드 스타일 — 네이버 카페 그린 에디션** 전면 디자인 리뉴얼.
+  - 글로벌 스타일 토큰(`globals.css`) 구축: 네이버 카페 그린(`#03c75a`), 웜 슬레이트 라이트(`#f8fafc`).
+  - 사이드바 네비게이션 리뉴얼: 1-2-3-4 단계 넘버링 스텝퍼, 모바일 햄버거 토글 드로어 완비.
+  - 독립 비주얼 가이드북 (`/guide`) 전면 신설: 4단계 파이프라인, club_id 추출 매트릭스, 3대 소스 비교표, FAQ 5종 아코디언.
+  - 메인 대시보드 리뉴얼: 초록빛 `.studio-hero` 배너, 3대 핵심 KPI 지표 카드, 퀵 가이드 버튼 탑재.
+  - Next.js 16 프로덕션 빌드 무결성 검증, Vercel 배포, Edge 포그라운드 6종 실세션 검수 완료.
+- **v1.15 (2026-09-15)**:
+  - 예약 자동 생성·포스팅 스위치 추가 및 화면 명칭 "네이버 카페 포스팅 자동화"로 표준화.
+- **v1.00 (2026-09-11)**:
+  - 네이버 카페 포스팅 자동화 초기 스캐폴딩 및 네이버 OAuth/Cafe API 연동.
 
-| Phase | 내용 | 상태 |
-|-------|------|------|
-| 1 | 네이버 로그인 OAuth 연결(공용 앱), 카페 게시판(club_id/menu_id) 수동 등록, AI 게시글 생성(OpenAI, 제목+본문), 즉시 게시(`createCafeArticle`), 게시 이력 관리 | ✅ 구현 완료 — **2026-09-12 실계정으로 실제 게시 성공까지 검증 완료**(cafe.naver.com/buylife/2984~2991). 이 과정에서 여러 버그를 발견·수정했다: (1) access token 만료(1시간) 시 자동 갱신 로직 부재 → `getNaverAccountOrError()`에 refresh_token 갱신 추가 (2) 한글이 깨져서 올라가는 문제 → 아래 별도 항목 참고 (3) 비활성화 버튼 글자색 대비 부족(공용 `Button` 컴포넌트 버그, 흰 글자+연한 회색 배경이라 사실상 안 보였음) 수정 |
-| 1 | `programs`/`pricing_plans` 카탈로그 등록(네이버 카테고리, required_grade_id=일반, 1/2/3개월 기본 3단계 요금제) | ✅ 완료(2026-09-11) — 등록 전엔 로그인 후 `/dashboard` 등 진입 시 `requireProgramAccess()`가 `buylife.xyz/programs/naver-cafe-poster`로 리다이렉트했는데 그 프로그램 자체가 카탈로그에 없어 404가 났었다(사용자가 직접 발견해 알려줌) — 등록 후 200 확인 |
-| 1 | Vercel 배포(Client ID/Secret, Supabase 접속정보 env 설정) | ✅ 완료(2026-09-11) — `vercel env pull`로 다른 프로젝트 값을 옮기려다 이 환경이 pull 결과값을 "[SENSITIVE]" 자리표시자로 치환하는 걸 모르고 그대로 넣어 Supabase URL 등이 전부 깨졌던 사고가 있었다. Supabase URL/anon key는 Supabase MCP(`get_project_url`/`get_publishable_keys`)로, service_role key는 사용자에게 직접 복사해서 받아 해결했다. **교훈: 이 환경에서 `vercel env pull`로 받은 파일의 값은 그대로 다른 곳에 재사용하지 말 것** — 항상 [SENSITIVE]로 치환되어 있을 수 있다. Supabase 값은 MCP로, 그 외 비밀값은 사용자에게 직접 요청해서 받을 것.
-| 1 | 글감 수집(HTTP/RSS-NewsBlur/Perplexity) — threads/shots의 콘텐츠 수집 패턴(docs/PLATFORM_PATTERNS.md §2) 그대로 재사용. `ncafe_candidates` 테이블(RLS owner-only), `newsblur_accounts`는 앱 무관 공유 테이블이라 그대로 재사용, `/candidates`에서 후보 생성 후 "이 후보로 AI 글쓰기" → `/drafts?title=...&content=...`로 프리필 | ✅ 구현 완료(2026-09-11) — HTTP/RSS 스크래핑 로직은 threads와 100% 동일, AI 구조화 프롬프트만 카페 톤(존댓말, 글자수 제한 없음)으로 교체. Perplexity API 키 항목을 `ApiKeyProvider`/설정 페이지에 추가 |
-| 1 | **AI 글쓰기(`/drafts`)** — "생성 → 수정 → 검수 → 배포"를 명확히 분리된 단계로 만들었다. 기존엔 `/posts/new`에서 작성 즉시 자동 게시됐는데, 사용자가 "자동 생성하고 수정하고 검수후 배포하는 작업을 할 것"이라고 명시적으로 요청해 구조를 바꿨다: `saveDraftAction`은 카페(targetId) 없이도 초안(status='draft')만 저장하고 게시하지 않는다. `/drafts` 목록(상태가 draft 또는 failed인 글만)에서 각 초안을 인라인으로 수정(`updateDraftAction`)하거나 "검수 완료 · 배포" 버튼으로 실제 게시(`deployDraftAction`, 기존 발행 로직 재사용)한다. `/posts/new`는 제거하고 `/posts`(게시글 관리)는 전체 이력 로그 역할만 남겼다 | ✅ 구현 완료(2026-09-11) |
-| 1 | **AI 글쓰기 세부 옵션 확장(blog AI 글쓰기 폼 전체 이식)** — 사용자가 "blog(BLOG(원문)생성 자동화)의 AI 글쓰기 폼을 적용해달라"고 두 번 요청(처음엔 텍스트 옵션만 이식해서 "다 안 했다"는 지적을 받음)해, `blog/app/write/ai-form/page.tsx` + `blog/utils/news/generator.ts`의 옵션을 **전부** 이식했다: 추천 주제 칩, 글 분위기(tone), 대상 독자, 목표 분량 슬라이더(500~2000단어, blog와 동일 range), 키워드 칩 입력, 참고 URL 최대 3개, 추천 링크(CTA), 추가 지시사항 + **나노바나나(Gemini) AI 이미지 생성**(이미지 모델 4종 선택, 인라인 API 키 오버라이드, 커스텀 엔드포인트, `post-images` 공용 Storage 버킷에 업로드해 `ncafe_posts.image_url`로 저장). 참고 URL은 blog와 동일하게 실제로 스크랩하지 않고 URL 문자열만 AI에게 참고하라고 넘긴다(모델이 아는 URL일 때만 반영됨 — 실제 스크랩이 필요하면 `lib/ai/collector.ts`의 `fetchUrlText`를 붙이는 걸 고려할 것). `CafeTone`/`CAFE_TONE_OPTIONS`는 `lib/ai/tone.ts`로 따로 뺐다 — 클라이언트 컴포넌트(`DraftComposer`)가 `server-only`가 붙은 `cafeGenerator.ts`를 직접 import하면 빌드 에러가 나기 때문. **의도적으로 이식하지 않은 것**: blog의 "카테고리(복수선택)"는 카페 자동화에서 이미 "등록할 카페(target)" 선택이 그 역할을 대신하므로 빼먹은 게 아니라 대응 개념이 달라 제외함 | ✅ 구현 완료(2026-09-11) |
-| 1 | **한글 인코딩 + 실제 이미지 첨부** — 2026-09-12 실계정 게시에서 제목/본문 한글이 전부 깨져서 올라가는 버그와 이미지가 첨부되지 않는 문제를 실계정 재현 테스트로 조사·수정했다. **한글 인코딩**: 전송 방식에 따라 네이버 서버의 디코딩 횟수가 다르다 — `application/x-www-form-urlencoded`는 값을 퍼센트 인코딩 후 **한 번 더** 인코딩해야 정상 표시되고(`encodeURIComponent`를 두 번 적용), `multipart/form-data`는 **한 번만** 인코딩해야 한다(두 번 하면 "%EC%9D%B4..." 문자열이 그대로 저장되고, 인코딩을 안 하면 "&#65533;"/"�"로 깨짐 — 둘 다 실계정 테스트로 재현). **이미지 첨부**: 이미지 URL을 본문에 텍스트로 붙이는 방식은 실제 이미지로 렌더링되지 않고 링크로만 보였다 — 다른 개발자들의 공개 구현 사례를 조사해, 이 오픈API가 원래 `multipart/form-data`로 이미지 파일을 `image[0]` 필드에 직접 첨부하는 방식을 지원한다는 것을 확인했다. `createCafeArticle()`을 x-www-form-urlencoded에서 multipart로 전환하고, Supabase Storage 이미지 URL에서 실제 바이트를 내려받아 `image[0]`으로 첨부하도록 구현 — 네이버 CDN(`cafeptthumb-phinf.pstatic.net`)에 실제 업로드되어 `contentElements`에 진짜 IMAGE 요소가 생기는 것까지 실계정으로 확인했다. 영상은 이 방식으로 첨부 가능한지 아직 미확인이라 기존처럼 링크로만 넣는다 | ✅ 구현 완료(2026-09-12) |
-| 2 | **예약 자동 생성·포스팅** — `/candidates`의 "글감 수집" 아래에 "🔔 예약 자동 생성·포스팅" 패널을 추가. 소스(HTTP/RSS/Perplexity)와 게시할 카페를 등록하고 주기(1시간~매주)를 켜두면, Vercel Cron(`/api/cron/generate-and-post`, 5분마다 깨어나 `ncafe_scheduled_sources.last_run_at` 기준으로 실행 대상 판단 — kakao_auto_poster의 `generate-reports` 크론과 동일 패턴)이 AI 콘텐츠 1건을 자동 생성한다. 소스별 "자동 포스팅" 스위치가 켜져 있으면 검토 없이 바로 게시(위 "사전 승인 필수 작업" 7번 예외), 꺼져 있으면 초안으로 저장돼 `/drafts`에서 검수 후 배포. "✨ 지금 실행" 버튼으로 예약 주기와 무관하게 즉시 1건 테스트 가능. 예약 실행은 항상 정확히 1건만 생성(수동 "글감 수집"의 최대 5건 일괄 생성과 달리, 비용/게시량이 주기마다 무한정 늘어나는 것을 막기 위한 의도적 설계) | ✅ 구현 완료(2026-09-15) — `ncafe_scheduled_sources` 테이블(`supabase/0006_scheduled_sources.sql`), 핵심 로직은 `src/lib/scheduledSource/engine.ts`(`runScheduledSource`)에 모아 세션 기반 수동 실행과 admin 클라이언트 기반 크론 실행 양쪽에서 재사용 |
-| 2 | 카페 가입 유도 자동화(`POST /v1/cafe/{clubid}/members`) — 회원이 본인 카페 초대 링크를 만들어 자신의 고객/구독자가 그 링크로 네이버 로그인하면 자동으로 그 카페에 가입되는 흐름 | ⏳ 예정(의도적으로 미착수) |
-| 2+ | 영상 실제 첨부(이미지처럼 multipart로 가능한지 확인) | ⏳ 예정(필요성 확인 후) |
+---
 
-한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다. 새 Phase를 시작할 때는 이 표를
-갱신할 것.
+## 5. 남아 있는 추가 작업 대기 내용 (Pending Tasks & Backlog)
 
-### 2026-10-09 v1.04 — 후보 없음 반복 실패 수정
-- 증상: 예약 소스(candidate_pool)의 지정 카테고리 후보가 모두 소진되면 실패하는데 `last_run_at`이 갱신되지 않아 크론(5분)이 "매일" 주기를 무시하고 하루 약 288번 같은 실패를 반복(6시간 로그 오류 50건).
-- 수정: `src/lib/scheduledSource/engine.ts`에서 후보 없음(`EmptyPoolError`)일 때만 `last_run_at`도 갱신. 네트워크 등 일시 오류는 기존대로 다음 크론에서 즉시 재시도.
-- 운영 조치: 소스 카테고리에 후보가 남은 국제뉴스·여행·eCommerce·국내뉴스를 추가(자동 포스팅 OFF라 초안만 생성).
-- v1.05 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
-- v1.06 (2026-10-12): 예약·자동 실행(cron/스케줄) 작업에도 핸드폰 번호 필수 정책 적용 — 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않습니다. 상세: `docs/PHONE_REQUIRED_POLICY.md`.
+- [ ] **이미지 자동 첨부 파이프라인 강화**: 카페 글 작성 시 AI 생성 이미지(`ai-image-studio`)나 글감 본문 이미지를 네이버 카페 이미지 업로드 API로 본문에 자동 삽입하는 기능.
+- [ ] **다중 카페 계정 스위처**: 여러 개의 네이버 계정(부계정, 매니저 계정 등)을 등록해두고 글 작성 시 계정을 선택할 수 있는 멀티 계정 기능.
+- [ ] **카페 댓글 모니터링 연계**: 내가 올린 카페 게시글에 새 댓글이 달렸을 때 알림을 받고 AI로 답글을 작성할 수 있는 기능.
+- 상세 백로그는 `docs/IMPROVEMENT_BACKLOG.md`를 참고하십시오.
 
+---
 
-## 2026-10-16 DB 연동 변수 호환 — v1.07 (naver-cafe-poster)
+## 6. 타 프로그램 연계 및 혁신 아이디어 (Integration Ideas)
 
-작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+1. **AI 블로그 작업실 (`blog-workroom`) 연계**:
+   - 블로그에 발행된 고품질 포스팅을 네이버 카페 회원들이 읽기 좋은 요약형 커뮤니티 글로 원클릭 변환하여 카페로 동시 발행.
+2. **AI 이미지 스튜디오 (`ai-image-studio`) 연계**:
+   - 카페 글 내용에 어울리는 대표 썸네일 및 본문 삽화를 DALL-E / Gemini로 자동 생성하여 글과 함께 카페에 업로드.
+3. **롱테일 키워드 분석 (`longtail-keyword-expander`) 연계**:
+   - 네이버 카페 내 검색 상위 노출을 위해 카페 회원들이 자주 검색하는 롱테일 키워드를 제목과 본문 첫 문단에 자동 배치.
 
-## 2026-10-16 도메인 통일(SSO) — v1.08 (Claude Code 윈도우)
-- 새 주소 `https://naver-cafe-poster.buylife.xyz`, `programs.app_url` 갱신(마이그레이션 `supabase/migrations/20261016_sso_domain*.sql`). 로그인 쿠키 `.buylife.xyz` 공유(`cookieDomain.ts` + 브라우저·서버 클라이언트·미들웨어, 기준 `stepmail`). 옛 `*.vercel.app` 화면 → 새 주소 308(API 제외, 옛 주소 유지). 자기 주소 기본값(환경변수 없을 때)만 새 주소로, Vercel 환경변수는 변경 안 함.
-- 검수: 새 주소 /settings 재로그인 없이 열림(시험 계정 표시), 옛 주소 화면 308, 옛 주소 /api/naver/callback → 새 주소 307(시험 요청), 설정 화면 콜백 안내 옛 주소 그대로(회원 네이버 앱 변경 불필요). 실제 계정 연결은 미시험
-- 플랜: `docs/DOMAIN_SSO_MIGRATION_PLAN_20261016.md`
+---
 
-## 2026-10-16 v1.09 — 옛 vercel.app 삭제 대비 두 주소 지원 (Claude Code 윈도우)
-- 플랜: `../docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`(기준 구현 threads-comment-reply v1.08). `src/lib/oauthRedirect.ts`(SITE_ORIGIN·`NAVER_REDIRECT_OLD()`=env `NAVER_REDIRECT_URI`·`NAVER_REDIRECT_FOR(mode)`). 네이버는 토큰 교환에 redirect_uri를 보내지 않아 via 판정 불필요(옛 주소 307은 기존대로).
-- 기본 연결은 옛 콜백, 설정 화면 [새 주소로 (다시) 연결](`connectNaverAccountNewCallbackAction`)은 새 콜백. 연결 후 이동 SITE_ORIGIN. 설정 화면 Callback URL 두 주소 표시. 미사용 `getEnv` 제거.
-- 검수: 빌드·배포, 옛 콜백 → 새 주소 307, 새 콜백 → /login, 시험 계정 설정 화면 두 주소·버튼 표시. 시험 계정에 네이버 앱 미등록이라 `?error=naver_app_missing`으로 돌아와 네이버 인증 화면 확인은 못 함(이 오류 문구가 화면에 안 보이는 기존 문제 → `docs/IMPROVEMENTS.md`).
+## 7. 디자인 UI/UX 개선안 및 스타일 제안 (UI/UX Proposals)
 
-## v1.10 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
-- `src/lib/ai/imageGenerator.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
-- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
-
-## 2026-10-17 v1.11 — 이미지 생성 호출·모델 목록을 공용 기준 코드로 (2단계 SNS 생성기 묶음, Claude Code 윈도우)
-- `src/lib/ai/imageGenerator.ts`의 모델 목록·호출 코드를 공용 사본으로 교체.
-- 통합 값: 1K=`gemini-3.1-flash-lite-image`, 2K·4K=`gemini-nano-banana-2.1`, Pro=`gemini-3-pro-image`(온도 0.4). 개선: 키 머리글 전송, 시간 제한, 서버 오류·혼잡 1회 재시도, 모든 조각 탐색, 안전 차단·한도·키 오류 한국어 안내, 키 가리기. 프롬프트·한국인 지시문·비율·기본 등급(`GEMINI_IMAGE_MODEL` 환경변수 포함)은 그대로.
-- 이 프로그램에서 바뀐 값: 1K → flash-lite, Pro 모델 → `3-pro-image`.
-- 검수: tsc·eslint 0, build, 배포·DB v1.11. 실제 이미지 생성 시험은 하지 않음 — 오류가 나면 그때 검증(주인님 지시).
-- **주의(다음 CLI)**: `geminiImage.ts`(호출)·`nanoBananaModels.ts`(등급별 모델)는 공용 기준 코드 `gemini-image-client`·`gemini-image-models`의 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않는다. 이 프로그램만 결과를 다르게 해야 하면 `getNanoBananaConfig()` 결과를 호출하는 쪽에서 덮어써 보완한다. 지도: 루트 `docs/SHARED_FEATURE_MAP.md` §3.
-
-## 2026-10-17 v1.12 — 공용 이미지 기준 코드 갱신 반영 (Claude Code 윈도우)
-- 기준 `gemini-image-client`(ai-image-studio)이 바뀌어 사본을 `--sync`로 다시 받음: ① 응답에서 **최종** 이미지를 고름 — gemini-3-pro-image가 함께 보내는 중간 초안(`thought: true`) 이미지를 결과로 잘못 쓰던 위험 제거 ② 사용량(usageMetadata) 함께 반환 ③ 선택적 요청 취소 신호(`signal`) 지원(쓰지 않으면 동작 같음). 이 프로그램 코드·프롬프트는 바꾸지 않음.
-- 검수: tsc 0, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전 확인. 실제 이미지 생성 시험은 하지 않음(주인님 지시).
-
-## 2026-10-17 v1.13 — 이미지 생성 시간 초과 안내 문구 통일 (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)의 시간 초과 안내를 「이미지 생성이 N초 안에 끝나지 않았습니다. 이미지가 이미 만들어졌을 수 있으니 잠시 뒤 결과를 확인한 다음 다시 시도해 주세요.」로 바꿔 사본을 `--sync`로 다시 받음. 시간 초과여도 구글 쪽에서는 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 바로 다시 눌러 이중 과금되는 일을 줄이려는 목적이다. 프롬프트·모델·화질·시간 제한 값은 그대로.
-- 검수: 기준 테스트 8개 통과(문구 확인 추가), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
-
-## 2026-10-18 v1.14 — 이미지 시간 초과 자동 재시도 중단(이중 과금 방지) (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)이 **시간 초과(TIMEOUT)는 자동으로 다시 보내지 않도록** 바뀌어 사본을 `--sync`로 다시 받음. 시간 초과여도 구글 쪽에서는 이미지가 만들어져 회원 키에 요금이 나갔을 수 있어, 자동 재시도가 이중 과금의 원인이 될 수 있었다. 서버 오류·혼잡(429)·연결 실패는 그대로 1회 재시도. 프롬프트·모델·화질·시간 제한 값·안내 문구는 그대로이고, 시간 초과 안내가 재시도 대기 없이 더 빨리 뜬다.
-- 검수: 기준 테스트 8개 통과(시간 초과 1회 요청·연결 실패 2회 요청 확인), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
-
-## 2026-10-18 v1.15 — 이미지 시간 초과 안내를 「Google 사용량 확인」으로 정정 (Claude Code 윈도우)
-- 공용 기준 `gemini-image-client`(ai-image-studio)의 시간 초과 안내를 정정해 사본을 `--sync`로 다시 받음: 「…결과를 받지 못했습니다. 구글 쪽에서는 이미 생성되어 요금이 나갔을 수 있으니, 바로 다시 누르기 전에 Google AI Studio 사용량(https://aistudio.google.com/usage)을 확인해 주세요.」 이전 문구 「잠시 뒤 결과를 확인」은 틀린 안내였다 — 시간 초과는 우리 서버가 요청을 끊는 것이라 이미지가 프로그램(보관함 등)에 저장되지 않고, 회원이 확인할 수 있는 것은 본인 Google 사용량(요금)뿐이다.
-- 검수: 기준 테스트 8개 통과(사용량 주소 포함 확인), `check-shared-modules` 전부 OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. 실제 이미지 생성 시험은 하지 않음(비용).
+1. **카페 게시판별 템플릿 프리셋 기능**:
+   - "가입인사 게시판", "자유수다 게시판", "정보공유 게시판" 등 게시판 성격에 따라 어투와 서식을 미리 저장해두고 원클릭 적용.
+2. **글자수 및 미리보기 에디터 고도화**:
+   - 네이버 카페 모바일 앱에서 글이 어떻게 보일지 실시간으로 스마트폰 목업 프레임으로 미리보기 지원.
+3. **예약 캘린더 뷰 (월간/주간)**:
+   - 현재 리스트 형태로만 제공되는 예약 발행 일정을 캘린더 형태의 그리드로 시각화하여 배포 스케줄을 한눈에 조망.
