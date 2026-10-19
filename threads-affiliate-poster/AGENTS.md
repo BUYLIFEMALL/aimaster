@@ -597,3 +597,9 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - **Meta 제거·삭제 콜백**(`/api/threads/uninstall`·`/delete`, `lib/threads/signedRequest.ts`): 공용 표·운영 자동화(`tco_threads_accounts`)에만 연결이 있는 회원도 후보에 포함(서명은 회원 앱 시크릿으로 똑같이 확인), 공용 표 행 삭제, 운영 자동화는 **행을 지우지 않고 토큰만 무효화**(빈 토큰 + 만료=지금) — 그 표는 글·운영 설정·글감이 `on delete cascade`라 지우면 회원이 쓴 글까지 사라짐. (기존엔 운영 자동화 토큰이 삭제 요청 후에도 남던 빈틈.)
 - 운영 DB: `supabase/migrations/20261020130000_member_integrations_v1_66.sql` — 공용 행 없는 회원만 백필 + 버전.
 - 함께 나감(버전 없이 배포됐던 agy `fd69da1d` 카드 색 개선, 위 2026-10-20 「다음 배포자 할 일」 항목)은 v1.65(`ccf80d68`, 다른 세션 배포)에 이미 포함됨.
+
+## 2026-10-20 v1.67 — GPT-5.x·GPT-6 모델로 홍보 글 생성 시 400 오류 수정 (Claude Code 윈도우)
+- 증상(운영 v1.66에서 재현): 새 글 작성에서 글 엔진을 GPT-5.6·GPT-6 계열로 고르고 생성하면 `400 Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.` — 선택지 6개 모두 해당.
+- 수정: `src/lib/ai/generator.ts` OpenAI 호출에서 `gpt-4` 계열만 `max_tokens: 600`·`temperature: 0.8`, 그 밖(추론 모델)은 `max_completion_tokens: 4000`(생각 단계도 한도에 포함돼 600이면 빈 응답 위험). 같은 폴더의 다른 OpenAI 호출(`viral.ts` 2곳·`productAnalyzer.ts`)은 고정 모델이거나 이미 온도만 조건부라 해당 없음.
+- 검수: tsc 0, `test:naver-key` 통과, build, 배포 `threads-affiliate-poster-mgsqzhmd0` Ready, DB v1.67(ref `esgxyikcnnvmlhygjkth`, `supabase/migrations/20261020170000_bump_version_v1_67.sql`). 크롬(관리자): v1.67 표시, 같은 상품·`gpt-5.6-luna`로 「AI 글만 다시 생성」 → 오류 없이 490자 생성·제휴 고지 포함(저장 안 함), 화면 기본 모델은 GPT-4.1로 되돌림. 비용: 관리자 본인 OpenAI 키 실패 1회 + 성공 1회.
+- 함께 나감: 다른 세션의 공용 사본 `src/lib/memberIntegrations.ts`(④단계 `authMethod` 선택 인자, 커밋 `62686273`, 기존 동작 같음).
