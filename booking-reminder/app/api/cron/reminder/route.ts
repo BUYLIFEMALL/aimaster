@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { runReminderRule } from "@/lib/booking/reminderDispatch";
-
-/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
-async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
-  const ids = Array.from(new Set(userIds.filter(Boolean)));
-  if (ids.length === 0) return new Set();
-  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
-  return new Set(
-    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
-      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
-      .map((p) => p.id)
-  );
-}
+import { dispatchDueReminders } from "@/lib/schedulerMember/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
 // dynamic="force-dynamic"만으로는 supabase-js 내부 fetch가 Next.js Data Cache에 걸려 오래된
@@ -21,47 +11,26 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-// crm-google-form/stepmail/real_estate_sales/threads의 CRON_SECRET Bearer 인증 패턴을 그대로
-// 재사용. vercel.json에 15분마다(*/15 * * * *) 스케줄로 등록한다 — 예약 리마인드는 시간 단위
-// 정밀도가 필요해서 crm-google-form의 팔로우업(하루 1번)보다 훨씬 짧은 주기로 돈다.
+// 예약 리마인드 — 운영자 Vercel 예약 호출(vercel.json, 15분마다). CRON_SECRET Bearer 인증 패턴.
+// v1.21: 회원이 고른 실행 방식대로 — 「Vercel(운영 기본)」 회원 규칙만 여기서 보내고, 「내 cron-job.org」 회원·일시정지 회원은 건너뛴다
+// (그 회원들은 /api/cron/dispatch-member를 회원 토큰으로 부른다). 실행 로직: lib/schedulerMember/dispatch.ts. 지침: 루트 docs/SCHEDULER_POLICY.md
 function isAuthorized(request: NextRequest): boolean {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  const secret = process.env.CRON_SECRET;
+  // v1.21: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  const admin = createAdminClient();
-
-  const { data: rules, error } = await admin
-    .from("booking_reminder_rules")
-    .select(
-      "id, user_id, name, offset_minutes, channel_email, channel_sms, channel_alimtalk, channel_friendtalk, message_subject, message_text, kakao_template_id, kakao_variables",
-    )
-    .eq("is_active", true);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const result = await dispatchDueReminders({
+      excludeUserIds: await membersExcludedFromPlatform(createAdminClient() as unknown as SupabaseClient),
+      skipAll: !platformSchedulerEnabled(),
+    });
+    return NextResponse.json({ ok: true, ...result });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "실행하지 못했습니다." }, { status: 500 });
   }
-
-  const summary: { ruleId: string; ruleName: string; sent: number; failed: number }[] = [];
-
-  const phoneOkUsers = await phoneRegisteredUserIds(admin, (rules ?? []).map((r: { user_id: string }) => r.user_id));
-  for (const rule of (rules ?? []).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
-    try {
-      const result = await runReminderRule({
-        ...rule,
-        kakao_variables: rule.kakao_variables as Record<string, string>,
-      });
-      summary.push({ ruleId: rule.id, ruleName: rule.name, ...result });
-    } catch (err) {
-      summary.push({ ruleId: rule.id, ruleName: rule.name, sent: 0, failed: -1 });
-      console.error(`리마인드 규칙 실행 실패 (${rule.id}):`, err);
-    }
-  }
-
-  return NextResponse.json({ ok: true, ruleCount: (rules ?? []).length, summary });
 }

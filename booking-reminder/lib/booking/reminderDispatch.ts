@@ -97,6 +97,16 @@ export async function runReminderRule(rule: ReminderRule): Promise<{ sent: numbe
   let failed = 0;
 
   for (const reservation of due) {
+    // 중복 발송 방지(v1.21): 보내기 전에 발송 기록을 먼저 넣어 선점한다 — (rule_id, reservation_id) 고유 제약 때문에
+    // 운영자 호출·회원 호출이 겹쳐도 먼저 넣은 실행만 보낸다. 상태값이 sent/failed뿐이라 「발송 중」은 failed로 넣고 끝나면 고친다
+    // (실패한 리마인드는 원래도 다시 보내지 않으므로 중간에 서버가 멈춰도 동작은 예전과 같다).
+    const { data: claim, error: claimError } = await admin
+      .from("booking_reminder_sends")
+      .insert({ user_id: rule.user_id, rule_id: rule.id, reservation_id: reservation.id, status: "failed", error_message: "발송 중" })
+      .select("id")
+      .maybeSingle();
+    if (claimError || !claim) continue;
+
     const text = fillTemplate(rule.message_text, reservation);
     const errors: string[] = [];
 
@@ -152,13 +162,10 @@ export async function runReminderRule(rule: ReminderRule): Promise<{ sent: numbe
     if (status === "sent") sent++;
     else failed++;
 
-    await admin.from("booking_reminder_sends").insert({
-      user_id: rule.user_id,
-      rule_id: rule.id,
-      reservation_id: reservation.id,
-      status,
-      error_message: errors.length > 0 ? errors.join(" / ") : null,
-    });
+    await admin
+      .from("booking_reminder_sends")
+      .update({ status, error_message: errors.length > 0 ? errors.join(" / ") : null, sent_at: new Date().toISOString() })
+      .eq("id", claim.id);
   }
 
   return { sent, failed };

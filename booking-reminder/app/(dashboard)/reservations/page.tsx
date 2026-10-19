@@ -5,6 +5,10 @@ import { ReservationCreateForm } from "@/components/reservations/ReservationCrea
 import { ReservationRow, type ReservationData } from "@/components/reservations/ReservationRow";
 import { ReminderRulesSection, type ReminderRuleData } from "@/components/reservations/ReminderRulesSection";
 import { APP_VERSION } from "@/lib/version";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulePublishingControl } from "@/components/reservations/SchedulePublishingControl";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -261,6 +265,7 @@ export default async function ReservationsPage() {
           </div>
           <span className="text-xs text-slate-400">언제 어떤 채널로 발송할지 조건을 정의합니다</span>
         </div>
+        <SchedulePublishingControl initial={await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id)} />
         <ReminderRulesSection rules={ruleList} />
       </div>
 

@@ -319,6 +319,16 @@ export default async function GuidePage() {
               AIMaster 플랫폼 보안 지침에 따라 알림톡·문자 자동 발송 등 통신 서비스를 이용하는 회원은 메인 사이트(buylife.xyz) 내 정보 설정에서 본인 핸드폰 번호를 필수로 등록하셔야 합니다. 관리자 계정을 제외한 미등록 회원의 크론 자동 발송은 안전을 위해 일시 차단되므로 메인 사이트 프로필에서 번호를 먼저 등록해 주시기 바랍니다.
             </p>
           </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q6. 리마인드 자동 발송은 무엇으로 돌아가나요? 내 cron-job.org로 돌릴 수 있나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              설정 → ⏰ 예약 발행에서 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 15분마다 보낼 리마인드를 확인합니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 규칙을 켤 때 본인 계정에 15분 작업이 자동으로 켜지고 켜진 규칙이 없으면 자동으로 멈춥니다. 예약 관리 화면의 「리마인드 발송 일시정지」로 전체를 잠시 멈출 수 있습니다.
+            </p>
+          </details>
         </div>
       </section>
     </div>
