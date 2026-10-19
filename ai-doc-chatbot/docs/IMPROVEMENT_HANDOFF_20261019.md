@@ -59,3 +59,7 @@
 - **크롬 확인**: 「복지 규정 핵심만 정리해줘」 재질문 → 출처 복지규정 1개(출장규정 오탐 사라짐) / 채팅방 목록 정상(`pinSupported:false`, 6개) / 내 문서 「오늘 근거로 쓰임·아직 근거로 안 쓰임」 / 설정 「최근 30일 웹 검색 3회 · 기록 전 검색 3회」.
 - **주인님 실행 필요**: `supabase/migrations/0007_rooms_pinned.sql`(운영 SQL Editor) → 실행 뒤 고정 버튼이 나타남. 코드 재배포 불필요.
 - **호출 수**: 임베딩 1·답변 1(웹 검색 끔).
+
+## 추가 — 대화 고정 켜기 확인 (2026-10-19 밤)
+- 주인님이 운영 SQL Editor(`esgxyikcnnvmlhygjkth`)에서 `0007_rooms_pinned.sql`의 `alter table` 실행(Success).
+- 크롬: `/api/rooms`의 `pinSupported: true` → 「보증 정책 요약」(5번째) 고정 → 맨 위로 이동·📌 표시 → 해제 → 원래 순서·고정 0개. 재배포 없음.
