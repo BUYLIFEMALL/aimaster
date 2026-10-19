@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publishPost } from "@/lib/posts/publish-core";
+import { getThreadsAccountForUser, saveRefreshedToken } from "@/lib/threads/memberAccount";
 
 /** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
 async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
@@ -85,11 +86,8 @@ async function dispatchDuePosts(
       continue;
     }
 
-    const { data: account } = await supabase
-      .from("tap_accounts")
-      .select("*")
-      .eq("user_id", post.user_id)
-      .maybeSingle();
+    // v1.66: 공용 연결 계정 → 없으면 이 프로그램 표(둘 다 이 글 주인 회원 본인 값)
+    const account = await getThreadsAccountForUser(post.user_id);
 
     if (!account || !account.access_token) {
       await supabase
@@ -111,13 +109,8 @@ async function dispatchDuePosts(
         const refreshed = await refreshLongLivedToken(account.access_token);
         if (refreshed.access_token) {
           activeToken = refreshed.access_token;
-          await supabase
-            .from("tap_accounts")
-            .update({
-              access_token: refreshed.access_token,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", account.id);
+          // v1.66: 읽은 곳(공용 표 / 이 프로그램 표)에 새 토큰 기록
+          await saveRefreshedToken(post.user_id, account, refreshed.access_token);
         }
       }
     } catch {

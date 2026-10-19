@@ -1,4 +1,5 @@
 "use server";
+import { deleteSharedThreadsAccount } from "@/lib/threads/memberAccount";
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -47,6 +48,8 @@ export async function disconnectThreadsAccountAction() {
   const supabase = await createClient();
 
   await supabase.from("tap_accounts").delete().eq("user_id", user.id);
+  // v1.66: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedThreadsAccount(user.id);
 
   revalidatePath("/settings");
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resolveSignedRequestAccounts, THREADS_ACCOUNT_TABLES } from "@/lib/threads/signedRequest";
+import { clearOtherThreadsConnections, resolveSignedRequestAccounts, THREADS_ACCOUNT_TABLES } from "@/lib/threads/signedRequest";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     for (const table of THREADS_ACCOUNT_TABLES) {
       await (admin as any).from(table).delete().eq("threads_user_id", threadsUserId!).in("user_id", userIds);
     }
+    await clearOtherThreadsConnections(threadsUserId!, userIds);
   }
 
   console.info("[threads uninstall]", { threadsUserId, disconnected: userIds.length });

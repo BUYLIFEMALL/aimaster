@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
@@ -20,7 +21,7 @@ export default async function DashboardPage() {
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase.from("tap_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getThreadsAccountForUser(user.id).then((data) => ({ data })),
     supabase.from("affiliate_products").select("id", { count: "exact", head: true }).eq("user_id", user.id),
     // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
     // short_desc)를 그대로 가져와 보여준다(naver-cafe-poster에서 먼저 만든 패턴, 2026-09-13).

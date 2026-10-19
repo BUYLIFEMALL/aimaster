@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { Button } from "@/components/ui/Button";
@@ -55,7 +56,8 @@ export default async function SettingsPage({
 
   const [{ data: keys }, { data: account }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
-    supabase.from("tap_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    // v1.66: 다른 Threads 프로그램에서 연결한 공용 계정도 「연결됨」으로 보여 준다
+    getThreadsAccountForUser(user.id).then((data) => ({ data })),
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
@@ -155,7 +157,8 @@ export default async function SettingsPage({
                   토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
                 </p>
               )}
-              <form action={disconnectThreadsAccountAction} className="mt-4">
+              <p className="mt-3 text-xs text-neutral-500">연결을 해제하면 이 계정을 함께 쓰는 다른 Threads 프로그램에서도 해제됩니다.</p>
+              <form action={disconnectThreadsAccountAction} className="mt-2">
                 <Button type="submit" variant="danger">
                   연결 해제
                 </Button>

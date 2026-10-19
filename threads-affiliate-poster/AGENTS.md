@@ -588,3 +588,12 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 ## 2026-10-20 — 다음 배포자 할 일: 버전 +0.01 (Claude Code 윈도우, agy 작업 이어받음 — 코드 변경 없음)
 - agy가 2026-10-20 설정 화면 주소 카드 색 개선(`ThreadsMetaAddressSummary`·`CopyAddress` 밝게, 커밋 `fd69da1d`)을 **버전을 올리지 않고 배포**함(배포 `dpl_EQoNqeWQ6fU4ZQsscaezUyzgjsyQ`, 코드·DB 모두 v1.64 그대로).
 - 급하지 않아 다시 배포하지 않음(빌드 비용 규칙). **다음에 이 프로그램을 배포하는 CLI는 v1.65(코드 `src/lib/version.ts` + DB `programs.version`)로 올리고, 버전 기록에 이 카드 색 개선을 함께 적을 것.**
+
+## 2026-10-20 v1.66 — 회원 연동 정보 공용 저장 ③단계: Threads 계정 한 번 연결 → 여러 Threads 프로그램 함께 사용 (Claude Code 윈도우)
+- 루트 [`docs/MEMBER_INTEGRATIONS.md`](../docs/MEMBER_INTEGRATIONS.md). 공용 부품 사본 `src/lib/memberIntegrations.ts`(기준 루트 `lib/memberIntegrations.ts`, `check-shared-modules.mjs` 「member-integrations」 — 사본 직접 수정 금지).
+- `src/lib/threads/memberAccount.ts` `getThreadsAccountForUser()`: 공용 표(게시 권한·재연결 필요 아님) → 없으면 `tap_accounts`. 즉시 게시(`actions/posts.ts`·`actions/viral.ts` 즉시 포스팅)·예약 발행(`posts/dispatch.ts`, 토큰 자동 연장은 읽은 곳에 기록 `saveRefreshedToken`)·대시보드/설정/새 글/글 상세/수정 화면. **키워드 검색(`viral.ts` 230줄)은 `tap_accounts`만** — `threads_keyword_search`는 연결 때 고르는 선택 권한이라 다른 프로그램 토큰에 없을 수 있음.
+- **배포판(`IS_STANDALONE`)은 공용 표를 전혀 건드리지 않음**(수강생 DB에 표 없음).
+- 연결 콜백 이중 기록(게시 권한, `app_ref`=회원 Threads 앱 ID), 연결 해제 시 공용 행도 삭제 + 설정 화면 안내.
+- **Meta 제거·삭제 콜백**(`/api/threads/uninstall`·`/delete`, `lib/threads/signedRequest.ts`): 공용 표·운영 자동화(`tco_threads_accounts`)에만 연결이 있는 회원도 후보에 포함(서명은 회원 앱 시크릿으로 똑같이 확인), 공용 표 행 삭제, 운영 자동화는 **행을 지우지 않고 토큰만 무효화**(빈 토큰 + 만료=지금) — 그 표는 글·운영 설정·글감이 `on delete cascade`라 지우면 회원이 쓴 글까지 사라짐. (기존엔 운영 자동화 토큰이 삭제 요청 후에도 남던 빈틈.)
+- 운영 DB: `supabase/migrations/20261020130000_member_integrations_v1_66.sql` — 공용 행 없는 회원만 백필 + 버전.
+- 함께 나감(버전 없이 배포됐던 agy `fd69da1d` 카드 색 개선, 위 2026-10-20 「다음 배포자 할 일」 항목)은 v1.65(`ccf80d68`, 다른 세션 배포)에 이미 포함됨.

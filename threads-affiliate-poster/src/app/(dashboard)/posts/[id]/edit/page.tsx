@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { ProductPostForm } from "@/components/posts/ProductPostForm";
 import { updatePostAction } from "@/lib/actions/posts";
 import { toDatetimeLocalValue } from "@/lib/date";
@@ -16,7 +17,7 @@ export default async function PostEditPage({
 
   const [{ data: post }, { data: account }, { data: products }] = await Promise.all([
     supabase.from("tap_posts").select("*").eq("id", id).eq("user_id", user.id).maybeSingle(),
-    supabase.from("tap_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+    getThreadsAccountForUser(user.id).then((data) => ({ data })),
     supabase
       .from("affiliate_products")
       .select("*")

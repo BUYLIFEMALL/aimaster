@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getDisclosureText } from "@/lib/ai/affiliateGenerator";
@@ -760,13 +761,10 @@ export async function createDirectBenchmarkPostAction(input: {
     }
 
     if (input.publishNow) {
-      const { data: account, error: accErr } = await supabase
-        .from("tap_accounts")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      // v1.66: 공용 연결 계정 → 없으면 이 프로그램 표
+      const account = await getThreadsAccountForUser(user.id);
 
-      if (accErr || !account) {
+      if (!account) {
         return {
           postId: inserted.id,
           error: "게시글은 임시 저장되었으나, Threads 계정이 연결되지 않았습니다. [설정] 메뉴에서 계정을 연결해 주세요.",

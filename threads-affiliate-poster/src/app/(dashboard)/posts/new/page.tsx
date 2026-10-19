@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { ProductPostForm } from "@/components/posts/ProductPostForm";
 import { createPostAction } from "@/lib/actions/posts";
 
@@ -17,7 +18,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
   const supabase = await createClient();
 
   const [{ data: account }, { data: products }] = await Promise.all([
-    supabase.from("tap_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+    getThreadsAccountForUser(user.id).then((data) => ({ data })),
     supabase
       .from("affiliate_products")
       .select("*")
