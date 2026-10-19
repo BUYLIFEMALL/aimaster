@@ -217,3 +217,15 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-19 v1.20 — 플로우 위저드 카카오 옐로우 뉴스레터 에디션 디자인 리뉴얼 & 가이드북 구축 (Antigravity agy)
+- **도메인**: [https://kakao-auto-posting.buylife.xyz](https://kakao-auto-posting.buylife.xyz)
+- **디자인 테마**: 플로우 위저드 스타일 — 카카오 옐로우 뉴스레터 마케팅 에디션 (카카오 옐로우 `#fee500`, 웜 앰버 `#f59e0b`, 다크 차콜 `#191919`, 슬레이트 라이트 `#f8fafc`).
+- **주요 변경 사항**:
+  - `src/app/globals.css`: 카카오 옐로우 테마 변수 및 `.studio-hero`, `.stat-card`, `.guide-card` 등 프리미엄 스타일 클래스 추가.
+  - `src/components/layout/Sidebar.tsx`: `DESIGN.md` 9번 필수 원칙을 충족하는 `📖 연동 & 사용 매뉴얼` (`/guide`) 메뉴 신설, `v1.20` 배지, 4단계 파이프라인 스텝퍼, 모바일(56px 헤더) 대응 햄버거 토글 슬라이드 오버레이 드로어 구현.
+  - `src/app/(dashboard)/dashboard/page.tsx`: `.studio-hero` 프리미엄 그라데이션 배너, 3대 핵심 KPI 통계 카드, 4단계 파이프라인 가이드 바 탑재.
+  - `src/app/(dashboard)/guide/page.tsx`: 4단계 워크플로우 다이어그램, 발송 채널별(카카오톡 나에게/친구톡, 텔레그램, 이메일) 기능 매트릭스 표, 7대 황금 수칙, 5종 FAQ 아코디언이 포함된 독립 비주얼 가이드북 전면 신설.
+- **버전 3중 동기화**: `package.json` (`1.20.0`), `src/lib/version.ts` (`v1.20`), Supabase DB `programs` 테이블 (`v1.20`).
+- **검수**: Next.js 16.4.0 로컬 빌드 성공, Vercel 프로덕션 배포 완료, Microsoft Edge 포그라운드(headless: false) 실세션 캡처 7종 수집 및 10분간 화면 유지 세션 검증 완료.
+

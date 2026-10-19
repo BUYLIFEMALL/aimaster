@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #191919;
+  --kakao-yellow: #fee500;
+  --kakao-brown: #3c1e1e;
 }
 
 @theme inline {
@@ -13,12 +15,45 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, sans-serif;
 }
 
-/* 리포트 에디터(components/ui/RichTextEditor.tsx)와 상세 화면의 렌더링된 리포트 본문이
-   함께 쓰는 기본 서식 — 루트 AIMaster의 prose-editor와 같은 역할, 이 프로젝트 밝은
-   테마에 맞춰 새로 작성했다. */
+/* 카카오 옐로우 뉴스레터 마케팅 스튜디오 스타일 */
+.studio-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #191919 0%, #2d261e 50%, #d97706 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.2);
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.guide-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+.guide-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+/* 리포트 에디터(components/ui/RichTextEditor.tsx)와 상세 화면 서식 */
 .prose-report h1 {
   font-size: 1.375rem;
   font-weight: 700;

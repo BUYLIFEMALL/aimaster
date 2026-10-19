@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
+import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,12 +20,6 @@ export default async function DashboardPage() {
         .eq("user_id", user.id)
         .eq("is_active", true),
       supabase.from("kakao_reports").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-      // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
-      // short_desc)를 그대로 가져와 보여준다(2026-09-13 요청, naver-cafe-poster 패턴을 전
-      // 서브프로젝트로 확대 적용) — 이 프로그램만의 별도 텍스트를 새로 쓰지 않고, 판매 페이지
-      // 내용과 항상 같은 소스를 쓰게 해서 나중에 어긋나지 않게 한다.
-      // AIMaster Database 타입에는 없는 테이블이라(access.ts와 동일한 이유) 제네릭 타입 충돌을
-      // 피하기 위해 from()을 느슨한 타입으로 캐스팅한다.
       (supabase as unknown as { from: (table: string) => any }) // eslint-disable-line @typescript-eslint/no-explicit-any
         .from("programs")
         .select("description, short_desc")
@@ -33,83 +28,211 @@ export default async function DashboardPage() {
     ]);
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-2xl font-semibold text-neutral-900">대시보드</h1>
+    <div className="mx-auto max-w-4xl space-y-6">
+      {/* ── 1. 카카오 옐로우 뉴스레터 스튜디오 히어로 배너 ── */}
+      <section className="studio-hero p-6 sm:p-8 relative">
+        <div className="relative z-10 max-w-2xl space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-white text-xs font-bold border border-white/20">
+            <span>💬 카카오톡 뉴스레터 마케팅</span>
+            <span className="w-1 h-1 rounded-full bg-amber-400" />
+            <span className="text-amber-300 font-black">{APP_VERSION}</span>
+          </div>
 
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+            카카오톡 뉴스레터 자동화 스튜디오
+          </h1>
+
+          <p className="text-xs sm:text-sm text-neutral-200 font-medium leading-relaxed">
+            관심 주제만 등록하면 AI(Perplexity·OpenAI)가 실시간 웹 정보를 분석하여
+            <br className="hidden sm:inline" />
+            고품질 리포트를 자동 생성하고 카카오톡 채팅방과 그룹으로 즉시 전송합니다.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Link
+              href="/topics"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-neutral-900 text-xs sm:text-sm font-black shadow-md transition-all hover:scale-105 active:scale-95"
+            >
+              <span>📌 관심 주제 등록하기</span>
+              <span>→</span>
+            </Link>
+            <Link
+              href="/guide"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-bold backdrop-blur-md border border-white/20 transition-all"
+            >
+              <span>📖 연동 & 사용 매뉴얼</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* 장식용 카카오 말풍선 아이콘 */}
+        <div className="absolute right-4 -bottom-4 text-7xl sm:text-8xl opacity-15 select-none pointer-events-none hidden md:block">
+          💬
+        </div>
+      </section>
+
+      {/* ── 2. 프로그램 소개 배너 ── */}
       {(program?.description || program?.short_desc) && (
-        <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-base">💡</span>
+            <h2 className="text-xs font-bold text-neutral-800 uppercase tracking-wider">
+              프로그램 소개 및 핵심 가치
+            </h2>
+          </div>
           {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
-            <p key={i} className="mb-2 text-sm leading-relaxed text-neutral-700 last:mb-0">
+            <p key={i} className="mb-1.5 text-xs sm:text-sm leading-relaxed text-neutral-600 last:mb-0">
               {sentence}
             </p>
           ))}
-        </div>
+        </section>
       )}
 
-      <div className="mb-6 grid grid-cols-3 gap-3">
-        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 text-center">
-          <p className="text-2xl font-bold text-neutral-900">{topicCount ?? 0}</p>
-          <p className="text-xs text-neutral-500">등록된 주제</p>
+      {/* ── 3. 3대 핵심 KPI 통계 카드 ── */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="stat-card">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">
+              📌
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-neutral-500">등록된 관심 주제</p>
+              <p className="text-xl font-black text-neutral-900">{topicCount ?? 0}개</p>
+              <p className="text-[11px] text-amber-700 font-medium mt-0.5">키워드 모니터링</p>
+            </div>
+          </div>
         </div>
-        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 text-center">
-          <p className="text-2xl font-bold text-yellow-600">{activeTopicCount ?? 0}</p>
-          <p className="text-xs text-neutral-500">활성 주제</p>
-        </div>
-        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 text-center">
-          <p className="text-2xl font-bold text-neutral-900">{reportCount ?? 0}</p>
-          <p className="text-xs text-neutral-500">생성된 리포트</p>
-        </div>
-      </div>
 
-      <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4">
-        <h2 className="mb-3 text-sm font-bold text-neutral-900">사용방법</h2>
-        <ol className="list-inside list-decimal space-y-3 text-sm text-neutral-600">
-          <li>
-            <Link href="/settings" className="font-medium text-blue-600 hover:underline">
-              API키등록·플랫폼연동
-            </Link>
-            에서 본인 Perplexity(필수)/OpenAI(필수)/Gemini(이미지 생성용) 키를 등록합니다.
-          </li>
-          <li>
-            <Link href="/topics" className="font-medium text-blue-600 hover:underline">
-              관심 주제 등록
-            </Link>
-            에서 정보를 받아볼 주제 이름과 키워드(최대 10개), 검색할 기간을 등록합니다.
-          </li>
-          <li>
-            바로 확인만 하려면 <strong>&quot;✨ 지금 리포트 생성&quot;</strong>을 눌러 즉시
-            만들거나, 주기적으로 자동으로 받고 싶으면 <strong>&quot;🔔 예약 리포트 알림&quot;</strong>을
-            켜고 주기·조회 범위·동작 시간대를 정합니다.
-          </li>
-          <li>
-            같은 패널의 <strong>알림 채널</strong>에서 발송 방식을 고릅니다 — 💬 카카오톡은
-            검토 없이 즉시 발송(본인 카카오 + 수신자 목록까지 자동 발송), 📨 텔레그램은
-            승인 요청 후 직접 발행, 📧 이메일은 예약 자동 생성 시에만 알림 메일을
-            보냅니다. 카카오톡 발송 대상은 <strong>전체 수신자</strong> 또는 특정{" "}
-            <strong>그룹</strong>으로 좁힐 수 있습니다.
-          </li>
-          <li>
-            <Link href="/reports" className="font-medium text-blue-600 hover:underline">
-              생성리포트 목록
-            </Link>
-            에서 만들어진 콘텐츠를 확인합니다. 각 카드 하단의{" "}
-            <strong>💬 카카오톡 공유</strong> 버튼으로 원하는 채팅방에 직접 골라 공유할
-            수 있고, 받는 사람은 로그인 없이 바로 읽을 수 있습니다. 🔗 링크 복사·✏️
-            수정·삭제도 목록에서 바로 할 수 있습니다.
-          </li>
-          <li>
-            <Link href="/recipients" className="font-medium text-blue-600 hover:underline">
-              카카오톡 수신자 목록
-            </Link>
-            에서 함께 받아볼 사람의 전화번호/이메일을 등록하고 그룹으로 묶어 관리합니다.
-            발송 결과는{" "}
-            <Link href="/broadcast-log" className="font-medium text-blue-600 hover:underline">
-              발송 내역
-            </Link>
-            에서 확인할 수 있습니다.
-          </li>
-        </ol>
-      </div>
+        <div className="stat-card">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shrink-0">
+              🔔
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-neutral-500">활성 예약 모니터링</p>
+              <p className="text-xl font-black text-emerald-600">{activeTopicCount ?? 0}개</p>
+              <p className="text-[11px] text-emerald-600 font-medium mt-0.5">자동 스케줄링 가동</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl shrink-0">
+              📰
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-neutral-500">생성된 뉴스레터</p>
+              <p className="text-xl font-black text-neutral-900">{reportCount ?? 0}건</p>
+              <p className="text-[11px] text-blue-600 font-medium mt-0.5">발송 완료 리포트</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. 4단계 뉴스레터 발송 파이프라인 가이드 바 ── */}
+      <section className="bg-white rounded-2xl border border-neutral-200 p-4 shadow-xs">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <h2 className="text-xs sm:text-sm font-bold text-neutral-900 flex items-center gap-2">
+            <span>🚀</span>
+            <span>카카오톡 뉴스레터 자동화 4단계 흐름</span>
+          </h2>
+          <span className="text-[11px] text-neutral-400 font-medium hidden sm:inline">
+            등록해 두면 AI가 자동으로 분석하여 정기 발송합니다
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 text-left">
+            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-white mb-1">
+              STEP 1
+            </span>
+            <p className="text-xs font-bold text-neutral-900">관심 주제 등록</p>
+            <p className="text-[11px] text-neutral-500 mt-0.5">키워드 & 주기 설정</p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200/60 text-left">
+            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-600 text-white mb-1">
+              STEP 2
+            </span>
+            <p className="text-xs font-bold text-neutral-900">AI 리포트 생성</p>
+            <p className="text-[11px] text-neutral-500 mt-0.5">웹 정보 실시간 분석</p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200/60 text-left">
+            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-600 text-white mb-1">
+              STEP 3
+            </span>
+            <p className="text-xs font-bold text-neutral-900">수신자 그룹 관리</p>
+            <p className="text-[11px] text-neutral-500 mt-0.5">전화번호 & 태그 지정</p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200/60 text-left">
+            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-600 text-white mb-1">
+              STEP 4
+            </span>
+            <p className="text-xs font-bold text-neutral-900">카카오톡 자동 발송</p>
+            <p className="text-[11px] text-neutral-500 mt-0.5">원클릭 공유 & 발송추적</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. 단계별 사용방법 가이드 ── */}
+      <section className="bg-white rounded-2xl border border-neutral-200 p-5 sm:p-6 shadow-xs space-y-4">
+        <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
+          <span>📖</span>
+          <span>빠른 시작 & 단계별 사용방법</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-neutral-600">
+          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70 space-y-1">
+            <p className="font-bold text-neutral-800 flex items-center gap-1.5">
+              <span className="text-amber-600 font-black">1.</span>
+              <Link href="/settings" className="text-blue-600 hover:underline">
+                API 키 및 카카오 연동
+              </Link>
+            </p>
+            <p className="text-neutral-500 leading-relaxed">
+              OpenAI/Perplexity API 키를 등록하고, 카카오톡 나에게 보내기 OAuth 권한을 1회 연결합니다.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70 space-y-1">
+            <p className="font-bold text-neutral-800 flex items-center gap-1.5">
+              <span className="text-amber-600 font-black">2.</span>
+              <Link href="/topics" className="text-blue-600 hover:underline">
+                관심 주제 및 키워드 등록
+              </Link>
+            </p>
+            <p className="text-neutral-500 leading-relaxed">
+              정보를 수집할 주제와 키워드(최대 10개)를 등록하고, 예약 리포트 알림 주기를 켭니다.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70 space-y-1">
+            <p className="font-bold text-neutral-800 flex items-center gap-1.5">
+              <span className="text-amber-600 font-black">3.</span>
+              <Link href="/reports" className="text-blue-600 hover:underline">
+                생성된 리포트 검수 및 공유
+              </Link>
+            </p>
+            <p className="text-neutral-500 leading-relaxed">
+              AI가 작성한 뉴스를 확인하고, 💬 카카오톡 공유 버튼으로 단체 채팅방에 원클릭 전송합니다.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70 space-y-1">
+            <p className="font-bold text-neutral-800 flex items-center gap-1.5">
+              <span className="text-amber-600 font-black">4.</span>
+              <Link href="/recipients" className="text-blue-600 hover:underline">
+                수신자 목록 및 발송 내역
+              </Link>
+            </p>
+            <p className="text-neutral-500 leading-relaxed">
+              함께 받아볼 사람을 등록하고, <Link href="/broadcast-log" className="text-blue-600 hover:underline">발송 내역</Link>에서 성공/실패 여부를 모니터링합니다.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

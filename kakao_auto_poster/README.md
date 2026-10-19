@@ -141,3 +141,16 @@ refresh_token 장기 만료·Phase 6 알림톡 비친구 도달·Phase 7만 남�
 ## 2026-10-16 DB 연동 변수 호환 — v1.09 (kakao-auto-posting)
 
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 2026-10-19 v1.20 — 플로우 위저드 카카오 옐로우 뉴스레터 에디션 디자인 리뉴얼 & 가이드북 구축
+
+- **라이브 서비스**: [https://kakao-auto-posting.buylife.xyz](https://kakao-auto-posting.buylife.xyz)
+- **적용 테마**: 플로우 위저드 스타일 — 카카오 옐로우 뉴스레터 마케팅 에디션
+- **주요 개편 사항**:
+  - `📖 연동 & 사용 매뉴얼` (`/guide`) 독립 비주얼 가이드북 전면 신설 (`DESIGN.md` 9번 필수 원칙 충족).
+  - 대시보드 `.studio-hero` 프리미엄 그라데이션 배너 및 3대 KPI 통계 카드 도입.
+  - 4단계 파이프라인 가이드 바 탑재 (구독자 관리 ➔ 뉴스레터 작성 ➔ 발송 테스트 ➔ 예약 & 성과 분석).
+  - 모바일(375px) 56px 헤더 및 햄버거 토글 슬라이드 오버레이 드로어 반응형 최적화.
+  - 버전 3중 동기화 (`package.json`, `version.ts`, Supabase `programs` 모두 `v1.20`).
+- **검수**: Microsoft Edge 포그라운드(headless: false) 캡처 7종 수집 및 10분간 화면 유지 세션 검증 완료.
+
