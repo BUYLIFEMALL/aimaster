@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Claude Code(윈도우) — AI 문서 챗봇 자동화(ai-doc-chatbot) v1.02~v1.03: 키 저장 오류 해결·실호출 검수·답변 품질 4건+취소선 수정
+
+- **키 저장 오류**: 공용 `user_api_keys_provider_check`에 `upstage`·`tavily` 누락 → `ai-doc-chatbot/supabase/migrations/0003_…`(현재 목록을 읽어 두 값만 추가)을 주인님이 운영 SQL Editor에서 실행. 교훈은 `docs/ERROR_LESSONS.md` 맨 위 2건.
+- **실호출 검수(주인님 본인 키, 크롬)**: TXT·PDF 업로드, 문서 질문·최신 뉴스 질문 모두 동작·출처 표시.
+- **v1.02**: 답변 마크다운 표시, 오늘 날짜·Tavily 뉴스/기간 조건, 문서로 답할 수 있으면 웹 검색 생략, 관련도 기준 0.4. **v1.03**: 물결표 취소선 수정. 테스트 21/21, 빌드 성공, 배포 Ready, DB 버전 v1.03.
+- **상세**: `ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261019.md` · 남은 일: 관련도 기준 실데이터 재점검, `IMPROVEMENTS.md` 나머지 항목, 카탈로그 썸네일.
+- https://ai-doc-chatbot.buylife.xyz
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 캐릭코드(MBTI) 측정기(mbti-character) v1.20: 크리에이티브 아틀리에 파스텔 에디션 리뉴얼·/guide 가이드북 신설·Vercel 배포·Edge 포그라운드 실세션 검수 완료 (✅ 1차 작업완료 — 누적 80개 완료 / 96.4% 달성!)
 
 - **대상**: `mbti-character/` (https://mbti-character.buylife.xyz, slug: `mbti-character`, 38번)

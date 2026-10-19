@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Bot, FileText, Globe, Loader2, MessageSquarePlus, PanelLeft, Send, Trash2, User } from "lucide-react";
 import { ErrorNote, INPUT } from "@/components/studio/ui";
+import { Markdown } from "@/components/chat/Markdown";
 
 interface Source {
   type: "doc" | "web";
@@ -224,8 +225,14 @@ export default function ChatPage() {
                   {m.role === "user" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                 </div>
                 <div className={`max-w-[85%] ${m.role === "user" ? "text-right" : ""}`}>
-                  <div className={`inline-block whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-left text-sm leading-relaxed ${m.role === "user" ? "bg-indigo-600 text-white" : "border border-[#262c3d] bg-[#161922] text-slate-100"}`}>
-                    {m.content || (m.pending ? <span className="inline-flex items-center gap-2 text-slate-400"><Loader2 className="h-4 w-4 animate-spin" />{stage}</span> : "")}
+                  <div className={`inline-block break-words rounded-2xl px-4 py-3 text-left text-sm leading-relaxed ${m.role === "user" ? "whitespace-pre-wrap bg-indigo-600 text-white" : "max-w-full border border-[#262c3d] bg-[#161922] text-slate-100"}`}>
+                    {m.content ? (
+                      m.role === "assistant" ? <Markdown text={m.content} /> : m.content
+                    ) : m.pending ? (
+                      <span className="inline-flex items-center gap-2 text-slate-400"><Loader2 className="h-4 w-4 animate-spin" />{stage}</span>
+                    ) : (
+                      ""
+                    )}
                   </div>
                   {m.role === "assistant" && !!m.sources?.length && (
                     <div className="mt-2 flex flex-wrap gap-1.5">

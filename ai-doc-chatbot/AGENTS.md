@@ -5,7 +5,7 @@
 
 - 라이브: https://ai-doc-chatbot.buylife.xyz (Vercel 프로젝트 `ai-doc-chatbot`, 팀 `buylife`)
 - 메인 상세: https://www.buylife.xyz/programs/ai-doc-chatbot
-- 현재 버전: **v1.01** (`src/lib/version.ts` = DB `programs.version`)
+- 현재 버전: **v1.03** (`src/lib/version.ts` = DB `programs.version`)
 - 카테고리: Tools / 최소 등급 일반 / 배지 new / 요금 1·2·3개월(1만·2만·3만 원) / VIP 자동 부여
 
 ## 1. 사용 목적 및 대상
@@ -21,7 +21,8 @@
   - 임베딩 `solar-embedding-2-query` / `solar-embedding-2-passage`(1024차원, 요청당 100개) — 옛 `embedding-query/passage` 별칭은 2026-12-31 종료 예정이라 쓰지 않음
   - 문서 읽기 `document-parse` — `POST /v1/document-digitization`(동기 100쪽)
 - **Tavily**(회원 본인 키, 선택, `provider='tavily'`): 원격 MCP `https://mcp.tavily.com/mcp/` 도구 `tavily-search`(`@modelcontextprotocol/sdk`), 실패 시 같은 키로 REST `POST https://api.tavily.com/search` 1회.
-- 테스트: `npm test`(node:test + tsx, 14개 — `tests/access.test.mjs` 권한 판정 순서, `tests/chat.test.mjs` 조각 나누기·라우터 해석·출처·MCP 결과 해석).
+- 답변 표시: `react-markdown` 10 + `remark-gfm` 4(`document-translator`와 같은 버전).
+- 테스트: `npm test`(node:test + tsx, 21개 — `tests/markdown.test.mjs` 답변 표시 포함, — `tests/access.test.mjs` 권한 판정 순서, `tests/chat.test.mjs` 조각 나누기·라우터 해석·출처·MCP 결과 해석).
 
 ## 3. 핵심 기능·구조·장단점
 **화면(좌측 메뉴 순서)**: AI 채팅(`/chat`) · 내 문서(`/documents`) · 📖 연동 & 사용 매뉴얼(`/guide`) · API키등록·플랫폼연동(`/settings`). `/`는 `/chat`으로 보냄. 767px 이하에서는 위쪽 ☰ 메뉴.
@@ -44,11 +45,14 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.03 | 2026-10-19 | v1.02 실검수에서 찾은 문제 수정: 물결표 하나(「2026~2030년」)가 취소선으로 바뀌어 답변 문단에 줄이 그어짐 → `remark-gfm` `singleTilde: false`(`~~두 개~~`만 취소선). 테스트 `tests/markdown.test.mjs` 3개 추가(21개) |
+| v1.02 | 2026-10-19 | 답변 품질 L7~L10: ① 답변 마크다운 표시(`react-markdown`+`remark-gfm`, 원본 HTML 미표시, `src/components/chat/Markdown.tsx`) ② 판단·답변 지시문에 한국 시간 오늘 날짜(`todayKst`), 라우터가 `topic`(news/general)·`time_range`(day/week/month/year) 결정 → Tavily에 전달, 발행일 받아 지시문에 표시, 오래된 결과를 최신처럼 말하지 않게 지시 ③ 라우터에 찾은 문서 내용 앞부분을 보여 주어 문서로 답할 수 있으면 웹 검색 생략 ④ 문서 관련도 기준 0.3 → 0.4, 문서 출처에 `score` 포함 |
 | v1.01 | 2026-10-19 | 첫 배포. 채팅·내 문서·매뉴얼·키 등록 화면, RAG·웹 검색·출처, 운영 DB 표 4개+RLS+30일 삭제, 키 발급 매뉴얼 2개(Upstage·Tavily, `platform_guides`), 메인 등록(설명·요금 3단계·VIP 141명 자동 부여), 도메인 `ai-doc-chatbot.buylife.xyz` |
 
 ## 5. 남은 작업 (백로그: `docs/IMPROVEMENT_BACKLOG.md`)
 - [x] **실제 호출 검수**(2026-10-19): 공용 provider 허용 목록에 `upstage`·`tavily` 추가(`0003`) 후 주인님 키 저장 → TXT·PDF 업로드, 문서 질문·최신 정보 질문 모두 동작·출처 표시 확인. 상세: `docs/IMPROVEMENT_HANDOFF_20261019.md`.
-- [ ] **v1.02 품질 수정(플랜 승인 대기)**: `docs/IMPROVEMENTS.md` L7 마크다운 표시, L8 최신 질문에 오늘 날짜·Tavily 기간 지정, L9 문서로 답할 수 있으면 웹 검색 생략, L10 문서 유사도 기준 상향.
+- [x] **v1.02~v1.03 품질 수정**(2026-10-19): L7~L10 + 물결표 취소선. 재검수 결과는 `docs/IMPROVEMENT_HANDOFF_20261019.md`.
+- [ ] 관련도 기준 0.4는 시험 문서 2개 기준(관련 질문 0.61~0.63, 무관한 뉴스 질문은 0.4 미만). 실제 회원 문서가 쌓이면 `score`를 보고 다시 점검.
 - [ ] 카탈로그 썸네일 미생성(`thumbnail_url` 비어 있음) — `scripts/generate-program-thumbnail.mjs` 규칙(PLATFORM_PATTERNS §13)대로 생성 필요(유료 이미지 1회, 주인님 확인 후).
 - [ ] 개선 후보는 `docs/IMPROVEMENTS.md`.
 

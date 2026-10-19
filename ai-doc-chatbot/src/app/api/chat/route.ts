@@ -4,7 +4,7 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { chatOnce, chatStream, embed, ROUTER_MODEL, type ChatMessage } from "@/lib/chat/upstage";
 import { webSearch, type WebResult } from "@/lib/chat/tavily";
-import { buildRouterPrompt, buildSources, buildSystemPrompt, MIN_DOC_SIMILARITY, parseRouteDecision, roomTitleFrom, type DocHit } from "@/lib/chat/core";
+import { buildRouterPrompt, buildSources, buildSystemPrompt, MIN_DOC_SIMILARITY, parseRouteDecision, roomTitleFrom, todayKst, type DocHit } from "@/lib/chat/core";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
   await admin.from("dcb_messages").insert({ room_id: roomId, user_id: userId, role: "user", content: question });
 
-  const year = new Date().getFullYear();
+  const today = todayKst();
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -79,10 +79,11 @@ export async function POST(request: Request) {
           if (!tavilyKey) {
             webNote = "no_key";
           } else {
-            const decision = parseRouteDecision(await chatOnce(upstageKey, ROUTER_MODEL, [{ role: "user", content: buildRouterPrompt(question, year) }], 120), question);
+            // 문서에서 찾은 내용을 함께 보여 주어, 문서로 답할 수 있으면 웹 검색을 건너뛴다(L9)
+            const decision = parseRouteDecision(await chatOnce(upstageKey, ROUTER_MODEL, [{ role: "user", content: buildRouterPrompt(question, today, docs) }], 160), question);
             if (decision.web) {
               try {
-                web = (await webSearch(tavilyKey, decision.query, 5)).results;
+                web = (await webSearch(tavilyKey, decision.query, 5, { topic: decision.topic, timeRange: decision.timeRange })).results;
                 webNote = "searched";
               } catch (err) {
                 webNote = `error:${(err as Error).message}`;
@@ -95,7 +96,7 @@ export async function POST(request: Request) {
         send({ type: "meta", roomId, sources, webNote });
 
         // 3) 답변(실시간으로 흘려보냄)
-        const messages: ChatMessage[] = [{ role: "system", content: buildSystemPrompt(year, docs, web) }, ...history, { role: "user", content: question }];
+        const messages: ChatMessage[] = [{ role: "system", content: buildSystemPrompt(today, docs, web) }, ...history, { role: "user", content: question }];
         const answer = await chatStream(upstageKey, messages, (text) => send({ type: "delta", text }));
 
         const { data: saved } = await admin

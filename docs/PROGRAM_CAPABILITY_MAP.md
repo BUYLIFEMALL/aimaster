@@ -100,7 +100,7 @@
 | 81 | AI 웹툰 자동화 | `ai-webtoon-studio` | 인스타 | v1.13 | 운영 | 시놉시스로 캐릭터 시트·컷 콘티·세로 스크롤 원고까지 웹툰 한 편을 완성하는 스튜디오 |
 | 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.23 | 운영 | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | 유튜브 | v1.18 | 공개(new) | 주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다. |
-| 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.01 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
+| 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.03 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
 
 ## 0. 이 문서를 쓰는 방법
 1. **새 프로그램 기획 전**: §3 분야 묶음에서 비슷한 프로그램을 찾고, §4 카드의 장점·단점을 읽는다. 「기존 A의 장점 + B의 장점 − A·B의 단점」으로 기획안을 쓰고, 보고할 때 어떤 프로그램에서 무엇을 가져왔는지 밝힌다.
@@ -149,8 +149,9 @@
 | DOCX·EPUB·PDF·HTML 내보내기 | `document-translator`(DOCX), `ebook-studio`(EPUB·PDF·HTML), `markdown-studio`(PDF·DOCX·ZIP) | |
 | 화면 캡처 PNG | `ui-canvas`(html2canvas) | |
 | ZIP 묶음 저장 | `jszip` 사용 10여 곳(예: `four-cut-comics`, `cardnews-studio`) | |
-| 문서 RAG(조각 나누기·pgvector 검색·출처) | `ai-doc-chatbot/src/lib/chat/core.ts`, DB 함수 `dcb_match_chunks`, Upstage 문서 읽기·임베딩 `src/lib/chat/upstage.ts` | 실제 호출 검수 전(2026-10-19) |
-| 웹 검색(Tavily MCP→REST 대체) | `ai-doc-chatbot/src/lib/chat/tavily.ts` | 회원 본인 Tavily 키 |
+| 문서 RAG(조각 나누기·pgvector 검색·출처) | `ai-doc-chatbot/src/lib/chat/core.ts`, DB 함수 `dcb_match_chunks`, Upstage 문서 읽기·임베딩 `src/lib/chat/upstage.ts` | 2026-10-19 실호출 검수(TXT·PDF·문서 질문). 라우터에 문서 내용 전달로 불필요한 웹 검색 생략, 관련도 기준 0.4 |
+| 웹 검색(Tavily MCP→REST 대체) | `ai-doc-chatbot/src/lib/chat/tavily.ts` | 회원 본인 Tavily 키. 뉴스·기간 조건(`topic`·`time_range`)과 발행일 지원(v1.02) |
+| AI 답변 마크다운 표시(한국어 물결표 안전) | `ai-doc-chatbot/src/components/chat/Markdown.tsx` | `react-markdown`+`remark-gfm` `singleTilde: false`, 원본 HTML 미표시 |
 | 캐릭터 일관성(참고 이미지로 같은 얼굴) | `four-cut-comics`, `ai-webtoon-studio`, `ai-influencer-studio` | |
 | 말풍선 자동 배치·끌기 | `four-cut-comics` | |
 | 이미지 위 한글 글자 합성 | `cardnews-studio`, `emotion-writer`, `playlist-channel-studio` | |

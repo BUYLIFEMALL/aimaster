@@ -22,3 +22,13 @@
   - 최신 정보 질문 1회: Tavily 웹 검색 실행, 🌐 웹 출처 표시 ✅
 - **호출 수**: Upstage document-parse 1쪽, passage 임베딩 2회, query 임베딩 2회, 라우터(solar-mini4) 2회, 답변(solar-pro4) 2회, Tavily 검색 2회. 시험 문서 2개와 채팅방 1개는 30일 뒤 자동 삭제(필요하면 화면에서 삭제).
 - **발견한 문제 → `IMPROVEMENTS.md` L7~L10** (수정은 개발 플랜 승인 후 v1.02).
+
+## 추가 — v1.02·v1.03 답변 품질 수정 (2026-10-19 저녁, Claude Code 윈도우)
+- **바꾼 파일**: `src/components/chat/Markdown.tsx`(신규), `src/app/(dashboard)/chat/page.tsx`, `src/lib/chat/core.ts`, `src/lib/chat/tavily.ts`, `src/app/api/chat/route.ts`, `tests/chat.test.mjs`, `tests/markdown.test.mjs`(신규), `package.json`(react-markdown·remark-gfm), `src/lib/version.ts`, `supabase/migrations/0004_version_v1_03.sql`.
+- **검사**: `npm test` 21/21, `tsc` 통과, `npm run build` 성공. 배포 v1.02 `ai-doc-chatbot-43uwehspk` → v1.03 `ai-doc-chatbot-8oqc48gir`(Ready). DB `programs.version` v1.03(운영 `esgxyikcnnvmlhygjkth`).
+- **크롬 재검수(같은 질문 2개)**:
+  - 문서 질문: 굵게·목록이 서식으로 표시(L7), 웹 검색 안 함(`webNote: null`, Tavily 0회 — L9), 문서 관련도 0.63·0.61(L10 기준 0.4 통과).
+  - 「이번 주 AI 뉴스」: 「2026년 10월 19일 기준」 이번 주 기사(빅테크 실적 주간·AI 반도체주 급락)로 답함(L8), 관련 없는 내 문서 출처 없음(L10).
+  - v1.02에서 「2026~2030년」이 취소선으로 바뀐 것을 발견 → v1.03 수정 후 같은 답변을 다시 열어 취소선 0개·범위 표기 정상 확인(추가 유료 호출 없음).
+- **호출 수(재검수)**: query 임베딩 2, 라우터 2, 답변 2, Tavily 1(뉴스 질문만).
+- **다음 첫 단계**: 관련도 기준은 실제 회원 문서로 다시 점검(문서 출처 `score`). 남은 개선은 `IMPROVEMENTS.md`(L1~L6, U1~U4, C1~C4).

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-19 — `remark-gfm` 기본값은 물결표 하나(`~`)도 취소선 → 한국어 범위 표기 「2026~2030년」 사이가 통째로 줄 그어짐 (ai-doc-chatbot v1.02 → v1.03, Claude Code 윈도우)
+
+- **증상**: AI 답변을 마크다운으로 표시하자 「2026~2030년 … 20~22일」 사이 문장이 취소선으로 보이고 화면 글에서는 `~`가 사라짐.
+- **원인**: GFM 취소선은 기본으로 `~하나~`도 인정한다. 한국어는 범위를 `~`로 쓰므로 두 개가 한 문단에 있으면 그 사이가 취소선이 된다.
+- **해결**: `remarkPlugins={[[remarkGfm, { singleTilde: false }]]}`(`~~두 개~~`만 취소선) — `ai-doc-chatbot/src/components/chat/Markdown.tsx`, 테스트 `tests/markdown.test.mjs`.
+- **다음부터 확인**: 한국어 AI 답변·원고를 `react-markdown`+`remark-gfm`으로 그리는 프로그램은 `singleTilde: false`를 넣는다. 다른 프로그램(예: `document-translator`)도 같은 패키지를 쓰므로 그 프로그램을 고칠 때 점검한다.
+
 ## 2026-10-19 — 새 키 종류를 쓰는 프로그램을 배포했는데 `user_api_keys_provider_check`에 값을 안 넣어 회원 키 저장이 막힘 (ai-doc-chatbot v1.01, Claude Code 윈도우)
 
 - **증상**: 설정 화면에서 Upstage 키 저장 시 `new row for relation "user_api_keys" violates check constraint "user_api_keys_provider_check"`.
