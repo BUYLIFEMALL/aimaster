@@ -7,6 +7,7 @@ import { ASPECTS, BUCKET, KIND_LABEL, MAX_SOURCES } from "@/lib/bnc/types";
 import { CATEGORIES, PROCESSES, STYLES } from "@/lib/bnc/styles";
 import { ACCEPT_ATTR, FORMAT_HELP, detectImage, sizeError } from "@/lib/bnc/paths";
 import { MaskEditor } from "./MaskEditor";
+import { checkImageFile } from "@/lib/imageFileCheck";
 
 interface Img { path: string; url: string; name: string }
 interface Out { path: string; url: string | null; w: number; h: number; text?: string; mime?: string }
@@ -120,6 +121,9 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
     if (!det) { setError({ text: `지원하지 않는 형식입니다. ${FORMAT_HELP}만 올릴 수 있습니다.`, needKey: false }); return null; }
     const big = sizeError(file.size);
     if (big) { setError({ text: big, needKey: false }); return null; }
+    // 깨진 사진은 서버에 올리기 전에 막는다(공용 image-file-check — 브라우저 안에서 풀어 보기). 마스크(PNG)도 같은 길이라 함께 검사됨
+    const check = await checkImageFile(file);
+    if (!check.ok) { setError({ text: check.message, needKey: false }); return null; }
     const sign = await api<{ path: string; token: string }>("/api/upload", "POST", { name: file.name, mime: det.mime, size: file.size });
     if (!sign.ok) { fail(sign); return null; }
     let upErr: unknown = null;

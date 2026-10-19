@@ -119,6 +119,13 @@ try {
   await page.getByRole("alert").getByText(/15MB 이하/).waitFor();
   pass("형식·크기 초과 거부");
 
+  const brokenJpg = Buffer.alloc(4096); brokenJpg.set([0xff, 0xd8, 0xff, 0xe0]); for (let i = 4; i < brokenJpg.length; i++) brokenJpg[i] = (i * 37) & 255;
+  const uploadsBeforeBroken = calls.filter((c) => c.path === "/api/upload" && c.method === "POST").length;
+  await input.setInputFiles({ name: "broken.jpg", mimeType: "image/jpeg", buffer: brokenJpg });
+  await page.getByRole("alert").getByText(/사진을 읽지 못했어요/).waitFor();
+  assert.equal(calls.filter((c) => c.path === "/api/upload" && c.method === "POST").length, uploadsBeforeBroken, "깨진 사진은 서버에 올리지 않음");
+  pass("깨진 사진: 서버에 올리기 전에 「사진을 읽지 못했어요」(v1.11)");
+
   storageFail = true;
   await input.setInputFiles({ name: "photo.jpg", mimeType: "image/jpeg", buffer: jpg });
   await page.getByRole("alert").getByText(/업로드에 실패/).waitFor();

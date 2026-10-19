@@ -2,7 +2,7 @@
 
 > **공식 서비스 URL**: https://banana-canvas.buylife.xyz  
 > **공식 디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형 (Creative Atelier Style — Banana Pop Charcoal Edition)**  
-> **현재 버전**: `v1.10` (2026-10-19 업로드 대기 해제 보강·꺼진 버튼 색 통일)  
+> **현재 버전**: `v1.11` (2026-10-19 깨진 사진은 서버에 올리기 전에 안내)  
 > **담당 CLI**: Antigravity (윈도우)
 
 ---
@@ -61,6 +61,10 @@
 
 ## 4. 현재 버전 및 변경 히스토리
 
+- **v1.11 (2026-10-19, Claude Code 윈도우)** — 깨진 사진을 서버에 올리기 전에 막음:
+  - 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`.
+  - `uploadFile`이 서명 주소 요청 전에 `checkImageFile` → 깨졌으면 「사진을 읽지 못했어요…」, 서버 업로드 0회(전에는 올린 뒤 AI 단계에서야 실패). 원본·합성 소스·마스크 모두 같은 함수.
+  - 검수: 브라우저 20/20(깨진 사진 → 안내·업로드 호출 없음 검사 추가), 단위 12/12, tsc, 빌드, Vercel READY(`banana-canvas-edcuyhw2f`), DB v1.11, 운영 실측(업로드 호출 0회·안내 표시·업로드 영역 유지). AI 비용 없음.
 - **v1.10 (2026-10-19, Claude Code 윈도우)** — v1.09 보고의 추가개선 제안 1·2:
   - **업로드 대기 해제**: `pickBase`·`addSource`를 `try/finally`로 감싸고, `uploadFile`의 저장소 업로드(`uploadToSignedUrl`)·클라이언트 생성 예외를 잡아 오류 안내로 바꿈 → 예외가 나도 「업로드 중…」에 멈추지 않음(이 멈춤은 v1.09 작업 중 테스트 설정 누락으로 실제 재현됐던 상황). 마스크 업로드도 같은 함수라 함께 보호.
   - **꺼진 노란 버튼 색 통일**: 잠김 카드 규칙(`.bc-card.locked>*` 투명도 0.55)이 앨범·만화 카드에서는 버튼 자신에 걸려 꺼짐 투명도(0.45)를 덮어써 밝게(0.55) 보였고, 편집·합성은 겹쳐서 0.25였음 → `.primary:disabled`를 꺼진 색(`--card2` 배경·`--muted` 글자·그림자 없음)으로 그려 카드와 상관없이 같게.

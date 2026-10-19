@@ -70,3 +70,4 @@
 | 테스트 | 테스트 번들에 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 정의 누락 → 업로드 멈춤(테스트 화면만) | **처리(v1.09)** | `tests/browser.mjs` |
 | 디자인(AGY) | 원본이 없어 꺼진 [앨범 제작 실행]·[만화 패널 생성] 노란 버튼이 다른 꺼진 버튼보다 밝아 켜진 것처럼 보임 — 꺼진 `.primary` 대비 조정 제안 | 제안 | `src/app/globals.css` |
 | 로직 | 업로드 중 예외가 나면 `busy`가 풀리지 않아 「업로드 중…」에 멈출 수 있음 — `pickBase`/`addSource`를 `try/finally`로 | **처리(v1.10)** | `src/components/studio/Studio.tsx` |
+| 로직 | 깨진 사진이 서버에 그대로 올라가고 AI 단계에서야 실패 | **처리(v1.11, 공용 `image-file-check`)** | `src/components/studio/Studio.tsx` `uploadFile` |
