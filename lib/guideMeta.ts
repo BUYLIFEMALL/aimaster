@@ -187,7 +187,45 @@ export function getGuideMeta(title: string, category: string): GuideMeta {
     };
   }
 
-  // 3. 네이버
+  // 3. 구글 워크스페이스
+  if (t.includes("drive") || t.includes("드라이브")) {
+    return {
+      icon: "📁",
+      badgeTone: "bg-blue-500/10 text-blue-300 border-blue-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "5분",
+      summary: "Google Drive API 활성화 및 문서 보관함 자동 동기화 OAuth 클라이언트 설정",
+      consoleUrl: "https://console.cloud.google.com/apis/credentials",
+      consoleLabel: "Google Cloud 콘솔",
+    };
+  }
+  if (t.includes("google oauth") || t.includes("구글 oauth") || t.includes("oauth 클라이언트")) {
+    return {
+      icon: "🔑",
+      badgeTone: "bg-sky-500/10 text-sky-300 border-sky-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "Google Workspace(Gmail·Drive 등) 자동화를 위한 공용 OAuth 2.0 클라이언트 발급",
+      consoleUrl: "https://console.cloud.google.com/apis/credentials",
+      consoleLabel: "Google Cloud 콘솔",
+    };
+  }
+
+  // 4. 네이버
+  if (t.includes("카페") || t.includes("cafe")) {
+    return {
+      icon: "☕",
+      badgeTone: "bg-green-500/10 text-green-300 border-green-500/30",
+      difficulty: "중급",
+      difficultyTone: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      estimatedTime: "4분",
+      summary: "네이버 개발자 센터 앱 등록 및 네이버 카페 글쓰기 자동화 연동",
+      consoleUrl: "https://developers.naver.com/apps/#/register",
+      consoleLabel: "네이버 개발자 센터",
+    };
+  }
   if (t.includes("검색광고")) {
     return {
       icon: "📈",

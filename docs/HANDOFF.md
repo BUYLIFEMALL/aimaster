@@ -1,5 +1,29 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 Google 워크스페이스 & 네이버 카페 가이드 3종 전면 단계별 시각화 완료 (누적 28대 핵심 가이드 완성, 70% 달성, 배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 구글 드라이브(문서 동기화), Gmail/Drive 공용 OAuth, 네이버 카페 글쓰기 자동화 등 연동 시 자주 혼동되는 필수 플랫폼 가이드 3종 본문을 **개요 카드, Step 1~4 시각 스텝 뷰어, 복사 가능한 콜백 URL, 💡 팁, ⚠️ 함정 방지 배너, 공식 콘솔 직링크**가 탑재된 프리미엄 반응형 카드 템플릿으로 전면 고도화함. (이로써 AIMaster 가이드 40종 중 28종이 100% 비주얼화 완료되어 달성률 70.0% 기록)
+- **주요 작업 내용**:
+  1. **구글 워크스페이스 & 네이버 카페 3대 가이드 본문 전면 고도화 (`platform_guides` DB)**:
+     - **Google OAuth 클라이언트 만들기 (Gmail·Drive 등)**: Google Cloud Console 새 프로젝트 생성, OAuth 동의 화면(외부) 설정, 테스트 사용자 등록(외부 심사 없이 즉시 사용 요령), 웹 애플리케이션 클라이언트 ID 발급, 승인된 JavaScript 원본(`https://www.buylife.xyz`), 승인된 리디렉션 URI(`https://www.buylife.xyz/api/auth/callback/google`), "확인되지 않은 앱" 경고 통과 요령, Step 1~4 시각화.
+     - **Google Drive 연동용 OAuth 클라이언트 만들기 (처음 하는 분도 따라 하는 단계별 안내)**: 마크다운 문서 자동화(markdown-studio)에서 Google Drive 양방향 동기화 연동 가이드. **중요 함정 방지**: 리디렉션 URI가 아니라 **승인된 JavaScript 원본(Origin)**(`https://www.buylife.xyz`, `https://markdown-studio.buylife.xyz`)에 주소를 입력해야 하는 원리 명시, Client Secret 필요 없이 Client ID만 사용하는 안전성 설명, 설정 완료 최종 체크리스트, Step 1~4 시각화.
+     - **네이버 카페 자동화 - 본인 앱 등록·계정 연동 및 게시판 등록하기**: 네이버 개발자 센터 애플리케이션 등록, 필수 API 권한(`cafe` 카페 글쓰기, 회원 프로필), 로그인 오픈 API 환경 PC/웹 추가, 서비스 URL(`https://www.buylife.xyz`), Callback URL(`https://naver-cafe-poster.buylife.xyz/api/auth/callback/naver`, `https://www.buylife.xyz/api/auth/callback/naver`), 네이버 캡차(CAPTCHA) 방지 글 발행 텀(2~5분) 권장 팁, Step 1~4 시각화.
+  2. **메타데이터 엔진 보강 (`lib/guideMeta.ts`)**:
+     - 구글 드라이브(📁·5분·Google Cloud 콘솔 직링크), 구글 OAuth(🔑·4분), 네이버 카페(☕·4분·네이버 개발자 센터 직링크) 정밀 매핑.
+  3. **Vercel 프로덕션 빌드 & 배포 완료**:
+     - `npx tsc --noEmit` 무오류 통과.
+     - Vercel 프로덕션 배포 완료 (`dpl_GQofQQPH8QbS9iKt4y91yDJwpXPp`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 3개 가이드 상세 페이지 전수 순회 캡처 완료:
+       - `edge_guide_google_oauth_detail.png`
+       - `edge_guide_google_drive_detail.png`
+       - `edge_guide_naver_cafe_detail.png`
+- **서비스 링크**:
+  - 이용 가이드북 종합: https://www.buylife.xyz/guides
+  - Google OAuth 클라이언트 만들기 가이드: https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d
+  - Google Drive 연동용 OAuth 가이드: https://www.buylife.xyz/guides/7d473e83-e9ce-4f68-ab52-92015a98148e
+  - 네이버 카페 자동화 가이드: https://www.buylife.xyz/guides/ec45e4bd-fccc-4f14-92e8-3e2df3ced50b
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — 가이드북 Meta & SNS 심화 가이드 7종 전면 단계별 시각화 완료 (누적 25대 핵심 가이드 완성, 배포 및 Edge 실세션 검수 완비)
 
 - **배경**: Meta for Developers(인스타그램/쓰레드) 및 YouTube 채널 연동 등 가장 복잡하고 회원 문의가 많은 Meta & SNS 심화 가이드 7종 본문을 **개요 카드, [경로 A] Facebook 페이지 vs [경로 B] Instagram 직접 로그인 비교 배너, Step 1~4 시각적 스텝 뷰어, 복사 가능한 콜백 URL, 💡 팁, ⚠️ 함정 방지 배너, 공식 개발자 센터 직링크**가 탑재된 프리미엄 템플릿으로 전면 고도화함. (이로써 AIMaster 가이드 40종 중 25종이 100% 비주얼화 완료됨)
