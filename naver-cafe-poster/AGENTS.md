@@ -1,7 +1,7 @@
 # 🤖 네이버 카페 포스팅 자동화 에이전트 인수인계 가이드 (AGENTS.md)
 
 > **최종 갱신**: 2026-10-19 (Antigravity CLI `agy`)  
-> **현재 버전**: `v1.21` (플로우 위저드 스타일 — 네이버 카페 그린 에디션)  
+> **현재 버전**: `v1.22` (플로우 위저드 스타일 — 네이버 카페 그린 에디션)  
 > **공식 서비스 URL**: [https://naver-cafe-poster.buylife.xyz](https://naver-cafe-poster.buylife.xyz)  
 > **공식 가이드북**: [https://naver-cafe-poster.buylife.xyz/guide](https://naver-cafe-poster.buylife.xyz/guide)  
 > **적용 디자인 템플릿**: **플로우 위저드 스타일 — 네이버 카페 그린 에디션 (Flow Wizard Style — Naver Cafe Green Edition)**
@@ -63,6 +63,7 @@
 
 ## 4. 현재 버전 및 버전 히스토리 (Changelog)
 
+- **v1.22 (2026-10-20, Claude Code 윈도우) — 정기 실행 직전 프로그램 이용 권한 확인** — 주인님 지시. 예전엔 핸드폰 번호만 확인해 사용기간이 끝난 회원의 켜 둔 정기 실행도 계속 돌았다. `src/lib/programAccess.ts`(카드뉴스·메인 사이트와 같은 판정: 정지→관리자→핸드폰→FREE→구독→등급+사용기간, 사본)를 실행 로직에서 회원별 1회 확인, 권한 없으면 실행하지 않음(소스 `last_error`에 안내). 적용 시점 영향: 정기 실행 켜진 1건 모두 권한 있음(멈춘 회원 0명). 검수: tsc 0, build, 배포 `naver-cafe-poster-ffkx9bw4o`, DB v1.22.
 - **v1.21 (2026-10-20, Claude Code 윈도우) — ⏰ 정기 자동 실행 방식 회원 선택(AIMaster 기본 Vercel / 본인 cron-job.org) + 중복 실행 방지·비밀값 검사 보완** — 주인님 「정기형에도 적용」. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `threads/` v1.19.
   - 정기형 차이: 작업은 **정기 실행 스위치를 켤 때** 켜고 **켜진 정기 소스가 0개면** 끈다(소스 끄기·삭제·회원 실행 뒤 확인). cron-job.org 확인 주기 **5분**(`minutes` 0,5,…,55). 24시간 규칙 대신 기존 `isScheduleDue`(주기) 그대로.
   - 코드: `src/lib/scheduledSource/cronJobOrg.ts`·`memberScheduler.ts`(표 `ncafe_member_scheduler`, 토큰 `ncafe_…` DB엔 해시, 끄기 스위치 `NCAFE_PLATFORM_SCHEDULER=off`, 기본 Vercel, `remainingScheduled` = 켜진 정기 소스 수), `dispatch.ts`(운영자 주소에서 옮긴 실행 로직 + 옵션 `userId`·`excludeUserIds`·`failWithMessage` + **조건부 `last_run_at` 선점** — 일시 오류면 선점 값을 되돌려 예전처럼 다음 5분에 재시도, 후보 없음은 엔진이 바꾼 값 유지), `/api/cron/generate-and-post`(vercel·비일시정지 회원만, **`CRON_SECRET` 비어 있으면 401** — 예전엔 `Bearer undefined`로 통과 가능), 새 `/api/cron/dispatch-member`(회원 토큰, 즉시 응답 + `after`, 켜진 소스 0개면 작업 끔), `src/lib/actions/scheduler.ts`(방식·일시정지·재개), `scheduledSources.ts` 등록·스위치·삭제 때 `syncMemberScheduler`(켤 때 준비 안 됐으면 스위치를 다시 끄고 안내), `settings.ts` 키 허용·변경·삭제.
