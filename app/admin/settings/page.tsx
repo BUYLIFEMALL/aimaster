@@ -1,6 +1,7 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import SiteSettingsManager from "@/components/admin/SiteSettingsManager";
+import MessagingHealthCheck from "@/components/admin/MessagingHealthCheck";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -26,6 +27,7 @@ export default async function AdminSettingsPage() {
         <p className="text-subtext mt-1">사이트 전반의 설정을 관리합니다</p>
       </div>
 
+      <MessagingHealthCheck />
       <SiteSettingsManager initialSettings={settingsMap} />
     </div>
   );

@@ -9,6 +9,9 @@ import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { formatPhoneNumber } from "@/lib/utils/format";
 import { isValidPhone } from "@/lib/utils/phone";
+import CodeTimer from "../_components/CodeTimer";
+
+const CODE_TTL_MS = 5 * 60 * 1000;
 
 type Tab = "email" | "sms";
 
@@ -19,6 +22,7 @@ export default function ForgotPasswordForm() {
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
+  const [codeExp, setCodeExp] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,6 +32,7 @@ export default function ForgotPasswordForm() {
     setNotice("");
     setError("");
     setCodeSent(false);
+    setCodeExp(null);
     setCode("");
   };
 
@@ -65,6 +70,7 @@ export default function ForgotPasswordForm() {
     if (ok) {
       setNotice(data.message);
       setCodeSent(true);
+      setCodeExp(Date.now() + CODE_TTL_MS);
     } else {
       setError(data.error || "요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해주세요.");
     }
@@ -158,6 +164,7 @@ export default function ForgotPasswordForm() {
                     required
                     autoFocus
                   />
+                  <CodeTimer expiresAt={codeExp} />
                   <button type="button" onClick={() => handleSendCode()} disabled={loading} className="mt-2 text-xs text-gold hover:underline disabled:opacity-50">
                     인증번호 다시 받기
                   </button>
@@ -174,6 +181,12 @@ export default function ForgotPasswordForm() {
             비밀번호가 기억나셨나요?{" "}
             <Link href="/login" className="text-gold hover:underline font-medium">
               로그인하기
+            </Link>
+          </p>
+          <p className="text-center text-subtext text-sm mt-2">
+            가입한 이메일이 기억나지 않나요?{" "}
+            <Link href="/find-email" className="text-gold hover:underline font-medium">
+              이메일 찾기
             </Link>
           </p>
         </GlassCard>

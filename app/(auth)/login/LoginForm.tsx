@@ -211,8 +211,11 @@ export default function LoginPage() {
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <div className="mt-2 text-right">
-                <Link href="/forgot-password" className="text-xs text-subtext hover:text-gold hover:underline">
+              <div className="mt-2 flex justify-end gap-3 text-xs">
+                <Link href="/find-email" className="text-subtext hover:text-gold hover:underline">
+                  이메일 찾기
+                </Link>
+                <Link href="/forgot-password" className="text-subtext hover:text-gold hover:underline">
                   비밀번호를 잊으셨나요?
                 </Link>
               </div>

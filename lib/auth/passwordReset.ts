@@ -7,6 +7,9 @@
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getSupabaseSecretKey } from "@/lib/supabase/serverEnv";
+import { getOperatorSmsSender } from "@/lib/sms/solapi";
+import { formatPhoneNumber } from "@/lib/utils/format";
+import { phoneDigits } from "@/lib/utils/phone";
 
 export const EMAIL_LIMIT = { count: 3, windowMs: 10 * 60 * 1000 }; // 이메일: 10분에 3번
 export const SMS_LIMIT = { count: 5, windowMs: 60 * 60 * 1000 }; // 문자: 1시간에 5번
@@ -14,13 +17,20 @@ export const SMS_COOLDOWN_MS = 60 * 1000; // 문자 다시 받기: 60초 뒤
 export const CODE_TTL_MS = 5 * 60 * 1000; // 인증번호 유효 5분
 export const CODE_MAX_ATTEMPTS = 5; // 5번 틀리면 무효
 
+/** reset = 비밀번호 찾기, find_email = 이메일(아이디) 찾기 — 한 용도로 받은 인증번호를 다른 용도에 쓰지 못하게 구분 */
+export type CodePurpose = "reset" | "find_email";
+
 export type ResetState = {
   email_sent?: number[];
   sms_sent?: number[];
   code_hash?: string | null;
   code_exp?: number | null;
+  code_purpose?: CodePurpose | null;
   attempts?: number;
 };
+
+/** 실패 응답(상태 코드 + 본문). 성공이면 null */
+export type CodeFailure = { status: number; body: { error: string } } | null;
 
 export type Member = { id: string; email: string; phone: string | null; is_suspended: boolean | null };
 
@@ -81,6 +91,89 @@ export function codesMatch(a: string, b: string): boolean {
 
 export function newCode(): string {
   return String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
+}
+
+const fail = (status: number, error: string): CodeFailure => ({ status, body: { error } });
+
+/** 인증번호 문자 발송 + 상태 저장. 발송 간격·횟수 제한 포함. 성공하면 null */
+export async function sendCodeSms(
+  userId: string,
+  phone: string,
+  purpose: CodePurpose,
+  text: (code: string) => string
+): Promise<CodeFailure> {
+  const state = await getResetState(userId);
+  const now = Date.now();
+  const sent = recent(state.sms_sent, SMS_LIMIT.windowMs, now);
+  const last = sent[sent.length - 1];
+  if (last && now - last < SMS_COOLDOWN_MS) {
+    return fail(429, `${Math.ceil((SMS_COOLDOWN_MS - (now - last)) / 1000)}초 뒤에 다시 받을 수 있습니다.`);
+  }
+  if (sent.length >= SMS_LIMIT.count) {
+    return fail(429, "인증번호를 너무 많이 요청했습니다. 1시간 뒤에 다시 시도해주세요.");
+  }
+
+  const sendSms = await getOperatorSmsSender();
+  if (!sendSms) return fail(503, "문자 인증은 준비 중입니다. 잠시 뒤 다시 시도해주세요.");
+
+  const code = newCode();
+  try {
+    await sendSms(phone, text(code));
+  } catch (e) {
+    console.error(`[sms-code/${purpose}] 문자 발송 실패`, e);
+    return fail(502, "문자를 보내지 못했습니다. 잠시 뒤 다시 시도해주세요.");
+  }
+
+  await saveResetState(userId, {
+    ...state,
+    sms_sent: [...sent, now],
+    code_hash: hashCode(code, userId),
+    code_exp: now + CODE_TTL_MS,
+    code_purpose: purpose,
+    attempts: 0,
+  });
+  return null;
+}
+
+const CODE_EXPIRED = "인증번호가 만료되었거나 없습니다. 인증번호를 다시 받아주세요.";
+
+/** 인증번호 확인. 맞으면 인증번호를 지우고 null, 틀리면 시도 횟수를 올린다 */
+export async function checkCode(userId: string, code: string, purpose: CodePurpose): Promise<CodeFailure> {
+  const state = await getResetState(userId);
+  if (!state.code_hash || !state.code_exp || Date.now() > state.code_exp || state.code_purpose !== purpose) {
+    return fail(400, CODE_EXPIRED);
+  }
+  const cleared = { ...state, code_hash: null, code_exp: null, code_purpose: null, attempts: 0 };
+  if (!codesMatch(hashCode(code, userId), state.code_hash)) {
+    const attempts = (state.attempts ?? 0) + 1;
+    if (attempts >= CODE_MAX_ATTEMPTS) {
+      await saveResetState(userId, cleared);
+      return fail(400, `인증번호를 ${CODE_MAX_ATTEMPTS}번 틀렸습니다. 인증번호를 다시 받아주세요.`);
+    }
+    await saveResetState(userId, { ...state, attempts });
+    return fail(400, `인증번호가 올바르지 않습니다. (남은 횟수 ${CODE_MAX_ATTEMPTS - attempts}번)`);
+  }
+  await saveResetState(userId, cleared);
+  return null;
+}
+
+/** 이름 + 핸드폰이 같은 회원들(가입 순). 같은 번호로 여러 계정이 있을 수 있다 */
+export async function findMembersByNamePhone(name: string, phone: string): Promise<Member[]> {
+  const { data } = await adminClient()
+    .from("profiles")
+    .select("id, email, phone, is_suspended")
+    .eq("name", name)
+    .eq("phone", formatPhoneNumber(phone))
+    .order("created_at", { ascending: true });
+  return ((data as Member[] | null) ?? []).filter((m) => !m.is_suspended && phoneDigits(m.phone) === phone);
+}
+
+/** buylifemall@gmail.com → bu*********@gmail.com */
+export function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  const keep = local.length <= 2 ? 1 : 2;
+  return `${local.slice(0, keep)}${"*".repeat(Math.max(local.length - keep, 3))}@${domain}`;
 }
 
 /** 메일 링크 주소 — 요청 Host 헤더가 아니라 고정 주소를 쓴다(주소 바꿔치기 방지) */

@@ -28,6 +28,14 @@ async function getOperatorAccount(): Promise<OperatorAccount | null> {
   return data?.api_key && data?.api_secret && data?.sender_phone ? (data as OperatorAccount) : null;
 }
 
+/** 관리자 점검용 — 운영자 솔라피 계정 잔액(무료 조회, 문자 발송 없음). 계정이 없으면 null */
+export async function getOperatorSmsBalance(): Promise<{ balance: number; point: number } | null> {
+  const account = await getOperatorAccount();
+  if (!account) return null;
+  const b = await new SolapiMessageService(account.api_key, account.api_secret).getBalance();
+  return { balance: Number(b.balance ?? 0), point: Number(b.point ?? 0) };
+}
+
 /** 운영자 솔라피 계정이 등록돼 있으면 발송 함수를, 없으면 null 을 돌려준다 */
 export async function getOperatorSmsSender(): Promise<((to: string, text: string) => Promise<void>) | null> {
   const account = await getOperatorAccount();
