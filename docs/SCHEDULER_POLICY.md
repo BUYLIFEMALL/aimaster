@@ -83,7 +83,8 @@
 | `kakao_auto_poster` (카카오 뉴스레터, 정기형) | ✅ 적용·배포·실검수 | v1.21 · 2026-10-20 (배포 `kakaoautoposter-at4fi42eb`) | 네이버 카페와 같은 정기형(예약 켤 때 켜기·0개면 끄기·5분). 표 `kakao_member_scheduler`, 환경변수 `KAKAO_PLATFORM_SCHEDULER`, 회원 주소 `/api/cron/dispatch-member`. 카카오 발송은 사람이 결정(그대로). 중복 생성 방지·비밀값 검사 추가. 실검수: 작업 8678825 자동 켜짐 → 일시정지·재개 → 끄기 즉시 꺼짐 |
 | `stepmail` (대량 메일발송, 정기형) | ✅ 적용·배포·실검수 | v1.21 · 2026-10-20 (`stepmail-oriyijlug`) | 캠페인 켤 때 켜기·보낼 캠페인 0개면 끄기(이미 보낸 「한 번만」 제외), 매시 0·30분. 표 `stepmail_member_scheduler`. 중복 발송 방지·**이용 권한 확인**·비밀값 검사 추가 |
 | `booking-reminder` (예약 리마인드, 정기형) | ✅ 적용·배포·실검수 | v1.21 · 2026-10-20 (`booking-reminder-mnqqz3cyx`) | 규칙 켤 때 켜기·0개면 끄기, 15분, Next 14라 `waitUntil`. 표 `booking_member_scheduler`. **발송 전 선점(중복 방지)**·이용 권한 확인·비밀값 검사 추가, cron-job.org 키 칸 새로 둠 |
-| `crm-google-form`, `youtube-auto-reply`, `trending-product-finder` | ⚪ 진행 중(2순위) — 2026-10-20 주인님 「2순위도 적용」 | — | 회원 정기 자동 작업 |
+| `crm-google-form` (구글폼 CRM 팔로우업, 정기형) | ✅ 적용·배포·실검수(재개만 한도 초과로 미확인) | v1.10 · 2026-10-20 (`crm-google-form-2jvoxalyt`) | 규칙 켤 때 켜기·0개면 끄기, **매일 09:00 KST**, Next 14라 `waitUntil`. 표 `crm_member_scheduler`. 발송 전 선점·이용 권한 확인·비밀값 검사 추가 |
+| `youtube-auto-reply`, `trending-product-finder` | ⚪ 진행 중(2순위) — 2026-10-20 주인님 「2순위도 적용」 | — | 회원 정기 자동 작업 |
 | `real_estate_sales` | ⏸ 운영자 유지(주인님 결정 2026-10-20) | — | 공공데이터 키(서울열린데이터·공공데이터포털·브이월드)는 회원이 직접 발급·등록하기 어려워 **당분간 운영자 공용 키 + 운영자 Vercel 정기 수집 그대로**. 회원 cron-job.org 방식은 적용하지 않음. **사용자가 많아지면** 회원 본인 공공 키 등록 + 본인 예약 방식으로 전환(그때 다시 플랜). AI 키는 지금처럼 회원 본인 키 |
 
 ## 9. 비용·cron-job.org 무료 제한 메모

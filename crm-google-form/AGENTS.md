@@ -114,3 +114,11 @@ F-007(P1), F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 4개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.10 — ⏰ 접수 후 팔로우업 발송 실행 방식 회원 선택 + 발송 전 선점(중복 방지)·이용 권한 확인·비밀값 검사 (Claude Code 윈도우)
+- 주인님 「2순위도 적용하고 권한 확인도 넣어줘」. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `booking-reminder` v1.21(같은 규칙 기반 구조).
+- 정기형: 팔로우업 규칙을 켤 때(만들기 포함) 작업 켜기, 켜진 규칙이 0개면 끄기, 회원 cron-job.org는 **매일 09:00 KST**(운영자와 같은 시각). Next 14라 회원 실행 주소는 `@vercel/functions` `waitUntil`.
+- 코드: `lib/schedulerMember/`(표 `crm_member_scheduler`, 토큰 `crm_…`, 끄기 스위치 `CRM_PLATFORM_SCHEDULER=off`), `lib/programAccess.ts`(사본), `/api/cron/followup`(제외 목록·`CRON_SECRET` 빈 값 401 — 분석 F-011 해결), 새 `/api/cron/dispatch-member`, `lib/actions/scheduler.ts`·`settings.ts`(cron-job.org 키 전용), `followupRules.ts` 만들기·켜기/끄기·삭제 때 `syncMemberScheduler`(켤 준비가 안 되면 규칙을 다시 끄고 안내 — **규칙 줄에 그 안내가 보이게 함**).
+- 안전: **발송 전 선점** — `lib/crm/followupDispatch.ts`가 예전엔 「보냈는지 확인 → 발송 → 기록」이라 실행이 겹치면 두 번 보낼 수 있었다 → `crm_followup_sends`에 먼저 넣어 선점((rule_id, submission_id) 고유 제약), 「발송 중」은 failed로 넣고 끝나면 실제 결과로 고침. **이용 권한(사용기간) 확인 추가**(예전엔 핸드폰만).
+- 화면: 설정 「⏰ 예약 발행」(방식 선택 + 키 칸), 구글폼 연결 화면 맨 위 상태 줄·일시정지/재개, `/guide` FAQ. DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261020160000_crm_member_scheduler.sql` — 크롬 SQL Editor 적용, 결과 `crm_member_scheduler`·`v1.10`.
+- 검수: tsc 0, build, 커밋 `5af88dd5`, 배포 `crm-google-form-2jvoxalyt`(Ready), 무인증·`Bearer undefined`·가짜 토큰 401(두 주소), `/login` 200. 크롬(관리자, **실제 발송 없음** — 접수 0건, 시험 규칙 채널 모두 끔): 설정 v1.10·공용 키 「등록됨」 → 「내 cron-job.org」 선택 → 상태 줄 「대기 · 켜진 규칙 0개」 → 시험 규칙 추가 → 작업 8679092 자동 켜짐 → 일시정지 정상 → **재개는 cron-job.org 하루 호출 한도(100회) 초과로 실패**(같은 코드가 예약 리마인드에서 정상 확인됨, 안내 문구 정상 표시) → 규칙 끄기 → 상태 「켜진 규칙 0개」 → Vercel 복귀 → 시험 규칙 삭제. 회원 실행 200·운영자 실행 200(매일 09시)은 미확인 — 다음 첫 단계.
