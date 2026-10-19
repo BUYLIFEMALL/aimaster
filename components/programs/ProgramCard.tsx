@@ -3,7 +3,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Play } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Play, Star } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import Badge from "@/components/ui/Badge";
 import GoldButton from "@/components/ui/GoldButton";
@@ -15,17 +16,14 @@ import type { Program } from "@/types/database.types";
 interface ProgramCardProps {
   program: Program;
   hasAccess?: boolean;
-  // 명시적으로 넘기면 그것만 단독으로 쓰고, 안 넘기면 관리자가 프로그램 편집에서 지정한
-  // program.badges(DB 값, 여러 개 가능)를 전부 보여준다.
   badge?: "new" | "best" | "sale" | "coming" | "free" | "recommended" | "premium";
-  // 관리자로 로그인했을 때만 true — 썸네일 우상단에 [편집] 버튼(관리자 프로그램 편집 화면 이동)을 보여준다.
   isAdmin?: boolean;
-  // 추천(♥) 투표 — 내가 이미 눌렀는지, 로그인 여부(비로그인이면 누를 때 로그인 화면으로 보낸다)
   liked?: boolean;
   loggedIn?: boolean;
 }
 
 export default function ProgramCard({ program, badge, hasAccess = false, isAdmin = false, liked = false, loggedIn = false }: ProgramCardProps) {
+  const [isFav, setIsFav] = useState(false);
   const resolvedBadges = badge ? [badge] : (program.badges ?? []);
   const subscriptionTarget = `/programs/${program.slug}#pricing`;
   const templateBadge = getTemplateBadge(program.slug, program.category?.slug);
@@ -33,6 +31,68 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
     .sort((a, b) => a.price - b.price)[0];
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("aimaster_favorites");
+      if (raw) {
+        const list: string[] = JSON.parse(raw);
+        setIsFav(list.includes(program.id));
+      }
+    } catch {
+      // ignore
+    }
+
+    const handleFavChange = () => {
+      try {
+        const raw = localStorage.getItem("aimaster_favorites");
+        if (raw) {
+          const list: string[] = JSON.parse(raw);
+          setIsFav(list.includes(program.id));
+        } else {
+          setIsFav(false);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener("aimaster-favorites-changed", handleFavChange);
+    return () => window.removeEventListener("aimaster-favorites-changed", handleFavChange);
+  }, [program.id]);
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const raw = localStorage.getItem("aimaster_favorites");
+      const list: string[] = raw ? JSON.parse(raw) : [];
+      let updated: string[];
+      if (list.includes(program.id)) {
+        updated = list.filter((id) => id !== program.id);
+        setIsFav(false);
+      } else {
+        updated = [program.id, ...list.filter((id) => id !== program.id)];
+        setIsFav(true);
+      }
+      localStorage.setItem("aimaster_favorites", JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent("aimaster-favorites-changed"));
+    } catch {
+      // ignore
+    }
+  };
+
+  const recordRecent = () => {
+    try {
+      const raw = localStorage.getItem("aimaster_recent_programs");
+      const list: string[] = raw ? JSON.parse(raw) : [];
+      const updated = [program.id, ...list.filter((id) => id !== program.id)].slice(0, 12);
+      localStorage.setItem("aimaster_recent_programs", JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent("aimaster-recent-changed"));
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <GlassCard hover className="flex flex-col h-full p-0 overflow-hidden hover:border-gold/40 hover:shadow-lg hover:shadow-gold/10 transition-all duration-300">
@@ -66,6 +126,21 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
               <LikeButton programId={program.id} initialCount={program.like_count ?? 0} initialLiked={liked} loggedIn={loggedIn} />
             </div>
+
+            {/* ⭐ 즐겨찾기 핀 토글 버튼 */}
+            <button
+              type="button"
+              onClick={toggleFavorite}
+              title={isFav ? "즐겨찾기 해제" : "내 작업대에 즐겨찾기 고정"}
+              className={`absolute top-3 ${isAdmin ? "right-14" : "right-3"} z-10 p-1.5 rounded-lg backdrop-blur-md border transition-all cursor-pointer ${
+                isFav
+                  ? "bg-amber-400 text-slate-950 border-amber-300 shadow-md shadow-amber-400/30 scale-105"
+                  : "bg-black/60 text-white/70 hover:text-white border-white/20 hover:border-gold/40 hover:bg-black/80"
+              }`}
+            >
+              <Star size={13} className={isFav ? "fill-slate-950 text-slate-950" : ""} />
+            </button>
+
             {isAdmin && (
               <Link
                 href={`/admin/programs/${program.id}/edit`}
@@ -135,7 +210,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
           </div>
           <div className="flex items-center gap-2">
             {hasAccess && program.app_url ? (
-              <a href={program.app_url} className="block">
+              <a href={program.app_url} onClick={recordRecent} className="block">
                 <button
                   type="button"
                   className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
@@ -145,7 +220,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                 </button>
               </a>
             ) : resolvedBadges.includes("free") ? (
-              <a href={program.app_url || `/programs/${program.slug}`} className="block">
+              <a href={program.app_url || `/programs/${program.slug}`} onClick={recordRecent} className="block">
                 <button
                   type="button"
                   className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
@@ -155,7 +230,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                 </button>
               </a>
             ) : (
-              <Link href={subscriptionTarget}>
+              <Link href={subscriptionTarget} onClick={recordRecent}>
                 <button
                   type="button"
                   className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
@@ -165,7 +240,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                 </button>
               </Link>
             )}
-            <Link href={"/programs/" + program.slug}>
+            <Link href={"/programs/" + program.slug} onClick={recordRecent}>
               <GoldButton size="sm">자세히 보기</GoldButton>
             </Link>
           </div>

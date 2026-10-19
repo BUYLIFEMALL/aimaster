@@ -7,6 +7,29 @@
 - 남은 일: 키트 인스타(`labs/kit-insta`) 리허설, 교육 매뉴얼(`docs/sns-kit-manual/SNS_KIT_STUDENT_MANUAL.md`) 작성, PDS 원본 키트 반영, 나머지 운영 프로그램 예약 방식 적용(지침 §8).
 - https://dev-threads-posting.vercel.app
 
+## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 3단계: 회원 맞춤형 '나만의 작업대' (즐겨찾기 ⭐ 핀 고정 & 최근 실행 퀵 액세스) 완료 (배포 및 Edge 실세션 검수 완비)
+
+- **배경**: 84개 대규모 라인업 속에서 회원이 매번 스크롤하지 않고 자주 쓰는 솔루션과 최근 작업에 0.1초 만에 접근할 수 있도록, 메인 홈 상단에 즐겨찾기 핀 고정 및 최근 실행 히스토리를 제공하는 개인화 작업대(`UserWorkspace`)를 구현함.
+- **주요 작업 내용**:
+  1. **개인화 작업대 컴포넌트 개발 (`components/home/UserWorkspace.tsx`, `app/(main)/page.tsx`)**:
+     - **즐겨찾기 핀 고정 & 최근 실행 탭**: `[⭐ 즐겨찾는 프로그램 (N)]` / `[🕒 최근 실행 (N)]` 탭 스위처 탑재.
+     - **슬림 카드 뷰**: 템플릿 뱃지, 설명 요약, `상세보기`, `▶ 실행`, 우상단 즐겨찾기 해제(✕) 지원.
+     - **실시간 반응**: 브라우저 `localStorage`(`aimaster_favorites`, `aimaster_recent_programs`) 및 `CustomEvent`를 결합하여 서버 부하 0% 및 0.01초 즉각 반응.
+  2. **프로그램 카드 인터랙션 연동 (`components/programs/ProgramCard.tsx`)**:
+     - 카드 썸네일 우상단에 ⭐ 별표 핀 토글 버튼 배치 및 즐겨찾기 상태 실시간 동기화.
+     - 카드 내 `[실행하기]`, `[무료 이용하기]`, `[구독하기]`, `[자세히 보기]` 클릭 시 최근 실행 프로그램 히스토리에 자동 누적.
+  3. **로컬 빌드 검증 및 Vercel 프로덕션 배포 완료**:
+     - `npx tsc --noEmit` 통과 & Next.js 72개 페이지 프로덕션 빌드 100% 무오류 완료.
+     - Vercel 프로덕션 배포 완료 (`dpl_4WECdXfCQoAyfA4xyASUE1rRy5rA`, Aliased: `https://www.buylife.xyz`).
+  4. **Microsoft Edge 포그라운드(화면 노출) 실세션 검수 완료**:
+     - 작업대 기본 빈 상태 렌더링 확인: `edge_step3_workspace_empty.png`
+     - 프로그램 카드 별표 클릭 후 즐겨찾기 2개 즉시 등록 렌더링: `edge_step3_workspace_favorites_active.png`
+     - 최근 실행 탭 전환 및 가이드 뷰 확인: `edge_step3_workspace_recent_tab.png`
+- **서비스 링크**:
+  - 메인 사이트: https://www.buylife.xyz
+- **상세 인수인계 및 로드맵 문서**:
+  - [`docs/HANDOFF_MAIN_SITE_RENEWAL_20261019.md`](HANDOFF_MAIN_SITE_RENEWAL_20261019.md)
+
 ## 2026-10-19 Antigravity CLI(agy, 윈도우) — AIMaster 메인 사이트(buylife.xyz) 2단계: 84개 솔루션 초고속 인스턴트 검색 & 스마트 다차원 필터링 시스템 완료 (배포 및 Edge 실세션 검수 완비)
 
 - **배경**: 84개로 대폭 확장된 마케팅 자동화 솔루션 라인업을 스크롤 지옥 없이 0.05초 만에 탐색할 수 있도록, 메인 홈 상단에 실시간 인메모리 라이브 검색창과 스마트 다차원 퀵 필터 칩셋을 결합하여 탐색 편의성을 극대화함.

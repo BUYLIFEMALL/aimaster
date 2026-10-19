@@ -23,6 +23,7 @@ import NoticeTabs from "@/components/home/NoticeTabs";
 import CategoryQuickBar from "@/components/home/CategoryQuickBar";
 import HeroShowcase from "@/components/home/HeroShowcase";
 import ProgramInstantSearch from "@/components/home/ProgramInstantSearch";
+import UserWorkspace from "@/components/home/UserWorkspace";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
@@ -278,11 +279,14 @@ export default async function HomePage() {
       </section>
 
       {/* 이용 안내 & 드림팀 혜택 — 슬림 2-Tab 스마트 인터페이스 */}
-      <section className="px-4 pb-8">
+      <section className="px-4 pb-4">
         <div className="max-w-4xl mx-auto">
           <NoticeTabs />
         </div>
       </section>
+
+      {/* 회원 맞춤형 '나만의 작업대' (즐겨찾기 ⭐ 핀 고정 & 최근 실행 퀵 액세스) */}
+      <UserWorkspace programs={programs} />
 
       {/* 84개 솔루션 초고속 인스턴트 검색 & 스마트 다차원 퀵 필터 */}
       <ProgramInstantSearch
