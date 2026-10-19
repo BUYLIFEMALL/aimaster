@@ -120,3 +120,69 @@ test("AI 호출: 이미지를 세 공급사 형식으로 함께 보냄", async (
   await callLlm({ provider: "openai", model: "m", apiKey: "k", system: "s", user: "u" }, fake("openai"));
   assert.equal(bodies.openai.messages[1].content, "u", "이미지가 없으면 기존처럼 글자만");
 });
+
+// ── v1.17 데이터형 레이아웃 ──
+import { layoutDataHeader, layoutList, layoutVs, layoutNumber } from "../src/lib/cardnews/layout.ts";
+import { parseRemakeCopy } from "../src/lib/ai/remakePrompts.ts";
+const m = (t, s) => Array.from(t).length * s * 0.9;
+
+test("데이터형 제목: 72px 이하·최대 3줄·왼쪽 여백 80px", () => {
+  const h = layoutDataHeader(1080, 1350, "아주 긴 제목이 여러 줄로 넘어가는 경우를 확인하는 테스트 문장입니다 정말 길어요", 90, m);
+  assert.equal(h.size, 72);
+  assert.ok(h.lines.length <= 3);
+  assert.equal(h.x, 80);
+});
+
+test("번호 목록: 항목 4개까지, 상자가 겹치지 않고 카드 안에 들어감, 글자 크기 고정", () => {
+  const pts = Array.from({ length: 5 }, (_, i) => ({ title: `항목 ${i + 1}`, desc: "설명이 조금 깁니다 설명이 조금 깁니다" }));
+  const L = layoutList(1080, 1350, 300, pts, "보충 한 줄", m);
+  assert.equal(L.items.length, 4);
+  for (let i = 1; i < L.items.length; i++) assert.ok(L.items[i].y >= L.items[i - 1].y + L.items[i - 1].height);
+  assert.ok(L.items.at(-1).y + L.items.at(-1).height <= 1350);
+  assert.equal(L.titleSize, 40);
+  assert.equal(L.descSize, 30);
+});
+
+test("A vs B: 두 칸이 좌우로 나뉘고 상자 높이는 카드의 55% 이하", () => {
+  const V = layoutVs(1080, 1350, 300, [{ title: "전세", desc: "목돈\n이자\n안정" }, { title: "월세", desc: "소액\n매달\n유연" }], "결론", m);
+  assert.ok(V.columns[0].x + V.columns[0].width < V.columns[1].x);
+  assert.ok(V.height <= 1350 * 0.55);
+  assert.deepEqual(V.columns[1].descLines, ["소액", "매달", "유연"]);
+});
+
+test("큰 숫자: 숫자가 길면 폭에 맞춰 줄어듦", () => {
+  const short = layoutNumber(1080, 1350, 300, "84점", "만점", "", m);
+  const long = layoutNumber(1080, 1350, 300, "1,234,567,890원", "설명", "", m);
+  assert.equal(short.valueSize, 216);
+  assert.ok(long.valueSize < 216 && m("1,234,567,890원", long.valueSize) <= 1080 - 160);
+});
+
+test("리메이크 문구 해석: 레이아웃 데이터가 모자라면 배경형, vs는 2칸만", () => {
+  const raw = JSON.stringify({ pages: [
+    { headline: "표지", sub: "s", layout: "background" },
+    { headline: "목록", sub: "", layout: "list", points: [{ title: "a", desc: "1" }, { title: "b", desc: "2" }, { title: "c", desc: "3" }] },
+    { headline: "비교", sub: "결론", layout: "vs", points: [{ title: "A", desc: "x" }, { title: "B", desc: "y" }, { title: "C", desc: "z" }] },
+    { headline: "숫자", sub: "", layout: "number", number: { value: "84점", label: "만점" } },
+    { headline: "목록 모자람", sub: "", layout: "list", points: [{ title: "only", desc: "" }] },
+  ] });
+  const p = parseRemakeCopy(raw, 5);
+  assert.deepEqual(p.map((x) => x.layout), ["background", "list", "vs", "number", "background"]);
+  assert.equal(p[2].points.length, 2);
+  assert.equal(p[3].number.value, "84점");
+  assert.equal(p[4].points, undefined);
+  assert.equal(parseRemakeCopy(raw, 4), null, "장수가 다르면 실패");
+});
+
+test("저장 정리: 데이터형 카드 칸 보관, 모르는 레이아웃은 배경형", () => {
+  const base = defaultProject();
+  const proj = { ...base, pages: [
+    { id: "1", headline: "h", sub: "", layout: "list", points: [{ title: "a", desc: "b" }, { title: "c", desc: "d" }] },
+    { id: "2", headline: "h", sub: "", layout: "number", number: { value: "3개월", label: "비상금" } },
+    { id: "3", headline: "h", sub: "", layout: "weird" },
+  ] };
+  const r = sanitizeProject(proj, { supabaseUrl: "https://s.supabase.co", userId: "u1" });
+  assert.equal(r.data.pages[0].layout, "list");
+  assert.equal(r.data.pages[0].points.length, 2);
+  assert.equal(r.data.pages[1].number.value, "3개월");
+  assert.equal(r.data.pages[2].layout, undefined);
+});

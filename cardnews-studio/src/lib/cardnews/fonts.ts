@@ -10,14 +10,19 @@ import "@fontsource/nanum-pen-script/400.css";
 import "@fontsource/black-han-sans/400.css";
 
 import { fontFamily } from "./render";
-import type { CardPage, CardStyle } from "./types";
+import type { CardContent, CardStyle } from "./types";
 
 /** 이 카드에 쓰이는 글자 조각의 글꼴을 모두 받아 둔다(이미 받았으면 바로 끝난다). */
-export async function ensureCardFonts(style: CardStyle, page: Pick<CardPage, "headline" | "sub">): Promise<void> {
+export async function ensureCardFonts(style: CardStyle, page: CardContent): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
   const family = fontFamily(style.font);
   const jobs: Promise<unknown>[] = [];
   if (page.headline) jobs.push(document.fonts.load(`${style.headline.weight} ${style.headline.size}px ${family}`, page.headline));
   if (page.sub) jobs.push(document.fonts.load(`${style.sub.weight} ${style.sub.size}px ${family}`, page.sub));
+  // 데이터형 카드(v1.17)는 굵기 500~900을 쓰므로 항목·숫자 글자 조각도 받아 둔다
+  if (page.layout && page.layout !== "background") {
+    const extra = [...(page.points ?? []).flatMap((p) => [p.title, p.desc]), page.number?.value ?? "", page.number?.label ?? "", "0123456789VS"].join(" ");
+    for (const w of [500, 600, 800, 900]) jobs.push(document.fonts.load(`${w} 40px ${family}`, `${page.headline} ${page.sub} ${extra}`));
+  }
   await Promise.all(jobs).catch(() => undefined);
 }

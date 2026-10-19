@@ -50,7 +50,12 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.16` (2026-10-19)
+- **현재 버전**: `v1.17` (2026-10-19)
+- **v1.17 (2026-10-19, Claude Code 윈도우) — 🔥 떡상 리메이크 2단계: 데이터형 카드 레이아웃 3종**:
+  - 카드마다 레이아웃(`CardPage.layout`): 배경형(기존·기본) · **번호 목록**(`points` 2~4, 번호 배지+반투명 상자) · **A vs B**(`points` 2칸, 가운데 VS 원) · **큰 숫자**(`number{value,label}`). 데이터형은 진한 막(최소 70%)+흰 글자+주황 강조색, 글자 크기 고정(제목 ≤72px·항목 40/30px)이라 항목이 많아도 작아지지 않음. 배치 계산은 순수 함수(`layout.ts` `layoutDataHeader`·`layoutList`·`layoutVs`·`layoutNumber`·`centeredTop` — 제목 아래 남는 공간 가운데 배치), 그리기는 `render.ts` `drawDataCard`.
+  - 떡상 리메이크 문구: AI가 장마다 레이아웃과 데이터를 함께 씀(1장 배경형, 목록=list, 비교=vs, 자료에 있는 수치만 number, 마지막 장 3줄 요약 list). `parseRemakeCopy`가 데이터가 모자란 장은 배경형으로 되돌림. 주제로 시작(일반) 흐름은 그대로 배경형.
+  - 문구 화면에 장마다 레이아웃 선택·항목/비교/숫자 편집기(`components/studio/LayoutEditor.tsx`). 저장 정리(`sanitize.ts` `pageLayout`)·글꼴 로딩(`fonts.ts`)·미리보기·PNG 저장이 새 칸을 함께 씀(`CardContent` 타입).
+  - 검수: 단위 42/42(레이아웃 배치·응답 해석·저장 정리 6개 추가), tsc, 빌드, Vercel READY(`cardnews-studio-44cqb2wtk`), DB v1.17. 운영 실검수(메인 크롬): v1.16 시험 프로젝트로 리메이크 문구 재생성 1회(Gemini Flash Lite) → AI가 「배경형 표지 + 번호 목록 4장」 선택 → 번호 목록 카드 확인, 3·4장을 화면에서 A vs B·큰 숫자로 바꿔 두 레이아웃 그리기 확인 → 내용이 위에 몰리고 VS 원이 칸 글자를 살짝 가리던 점을 고쳐 재배포 후 재확인 → 시험 프로젝트 삭제(DB 0건 확인).
 - **v1.16 (2026-10-19, Claude Code 윈도우) — 🔥 떡상 리메이크 1단계** (참고 원본 `nam-ai-trend/15_cardnews` 장점 합치기 A안, 분석 `docs/ANALYSIS_20261019_REF_15_CARDNEWS.md`(루트), 플랜 `docs/PLAN_20261019_VIRAL_REMAKE.md`):
   - 기획 화면 시작 방식 2가지(✍️ 주제로 시작 / 🔥 떡상 리메이크, `startMode`). 리메이크: 원문 붙여넣기·주소(기사=서버가 본문 추출, 유튜브=Gemini 영상 직접 보기, 인스타=안내)·카드 화면 캡처 최대 6장(브라우저에서 1024px JPEG로 줄임, 공용 `image-file-check`로 깨진 사진 거름, 저장 안 함) → `POST /api/cardnews/remake/analyze`.
   - 분석: 원문 요약·핵심 사실(최대 24)·떡상 이유(심리)·차별화 전략·목록 항목 수 → 추천 장수(표지+본문 3개씩+마무리, 4~10)·**7대 관점**(`remakePrompts.ts` `VIRAL_ANGLES`) 중 TOP 3(후킹 카피·이유·전개·장별 줄거리). 관점을 고르면 주제·장수·프로젝트 이름 자동 입력.

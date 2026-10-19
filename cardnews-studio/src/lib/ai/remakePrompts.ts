@@ -3,8 +3,8 @@
 // 연도·한국 시간 주입, <data> 격리, 지어낸 수치 금지는 copyPrompts.ts와 같은 규칙을 쓴다.
 import { TONES, type ToneId } from "../cardnews/presets";
 import { ICON_PATHS } from "../cardnews/iconData";
-import type { AngleId, RemakeAnalysis, RemakeAngle } from "../cardnews/types";
-import { extractJson } from "./copyPrompts";
+import type { AngleId, CardLayout, CardPoint, RemakeAnalysis, RemakeAngle } from "../cardnews/types";
+import { extractJson, type CopyPage } from "./copyPrompts";
 
 export const VIRAL_ANGLES: { id: AngleId; emoji: string; label: string; trigger: string; guide: string }[] = [
   { id: "warning", emoji: "🚨", label: "반전·경고형", trigger: "손실 회피", guide: "많은 사람이 놓치는 실수·위험을 먼저 짚고, 근거 → 해결책 순서로 안심시킨다." },
@@ -132,11 +132,13 @@ export function buildRemakeCopyPrompt(req: RemakeCopyRequest, year = new Date().
     `- 카드 ${n}장 분량의 문구를 씁니다. 1장은 스크롤을 멈추게 하는 표지, ${n}장은 핵심 3줄 요약과 저장·공유 유도 마무리, 가운데 장은 본문.`,
     `- 관점: ${meta.emoji} ${meta.label}(심리: ${meta.trigger}). ${meta.guide}`,
     "- [정보 누락 금지] 자료의 핵심 사실·목록 항목은 임의로 줄이거나 빼지 말고 본문 장들에 나눠 모두 담으세요(한 장에 2~4개, 이름과 한 줄 설명).",
-    "- 각 장은 headline(제목, 공백 포함 22자 이내, 줄바꿈이 필요하면 \\n)과 sub(보조 문구, 120자 이내, 항목은 줄바꿈 \\n과 「① ② ③」 번호로 구분)로 구성합니다.",
+    "- 각 장은 headline(제목, 공백 포함 22자 이내, 줄바꿈이 필요하면 \\n), sub(보조 문구), icon, layout으로 구성합니다.",
+    "- layout은 장 내용에 맞게 고릅니다: background(표지·감성 문장 — 배경 이미지 위 큰 글씨, sub 70자 이내) / list(항목 나열 — points에 2~4개 {title:20자 이내, desc:45자 이내}, sub는 한 줄 보충 40자 이내 또는 빈 문자열) / vs(두 가지 비교 — points에 정확히 2개 {title: 비교 대상 이름, desc: 특징을 줄바꿈 \\n으로 3~5줄}, sub는 한 줄 결론) / number(핵심 수치 하나 — number:{value: 자료에 있는 숫자+단위 10자 이내, label: 그 숫자의 의미 30자 이내}, sub는 보충 70자 이내).",
+    "- 1장은 반드시 background, 마지막 장은 list(핵심 3줄 요약 points 3개) 또는 background. 목록 항목은 list 장들에 빠짐없이 나눠 담고, 수치는 자료에 있는 것만 number로 씁니다.",
     "- 이모지는 장당 최대 1개, 해시태그는 쓰지 마세요.",
     `- 말투: ${tone.instruction}`,
     "- 각 장에 icon(그 장 내용을 상징하는 아이콘 id)도 고릅니다. 반드시 다음 중 하나만 쓰세요: " + Object.keys(ICON_PATHS).join(", ") + ".",
-    '- 출력 형식: {"pages":[{"headline":"...","sub":"...","icon":"..."}, ...]} 이며 pages의 길이는 정확히 ' + n + "입니다.",
+    '- 출력 형식: {"pages":[{"headline":"...","sub":"...","icon":"...","layout":"list","points":[{"title":"...","desc":"..."}],"number":{"value":"...","label":"..."}}, ...]} 이며 pages의 길이는 정확히 ' + n + "입니다. 쓰지 않는 칸(points·number)은 빼세요.",
   ].join("\n");
   const facts = req.analysis.keyFacts.map((f, i) => `${i + 1}. ${f}`).join("\n");
   const user = [
@@ -190,4 +192,45 @@ export function extractArticleText(html: string): { title: string; text: string 
     .replace(/\n\s*\n+/g, "\n")
     .trim();
   return { title: title.slice(0, 200), text: body.slice(0, 8000) };
+}
+
+
+export interface RemakeCopyPage extends CopyPage {
+  layout: CardLayout;
+  points?: CardPoint[];
+  number?: { value: string; label: string };
+}
+
+const LAYOUTS: CardLayout[] = ["background", "list", "vs", "number"];
+
+/** 리메이크 문구 응답 해석: 레이아웃 데이터가 모자라면 배경형으로 되돌린다(장은 버리지 않음) */
+export function parseRemakeCopy(text: string, pageCount: number): RemakeCopyPage[] | null {
+  const data = extractJson(text) as { pages?: Record<string, unknown>[] } | null;
+  if (!data || !Array.isArray(data.pages) || data.pages.length !== pageCount) return null;
+  const pages = data.pages.map((raw) => {
+    const p = raw && typeof raw === "object" ? raw : {};
+    const headline = typeof p.headline === "string" ? p.headline.trim().slice(0, 60) : "";
+    const sub = typeof p.sub === "string" ? p.sub.trim().slice(0, 160) : "";
+    const icon = typeof p.icon === "string" && p.icon in ICON_PATHS ? p.icon : undefined;
+    let layout: CardLayout = LAYOUTS.includes(p.layout as CardLayout) ? (p.layout as CardLayout) : "background";
+    const points: CardPoint[] = (Array.isArray(p.points) ? p.points : [])
+      .map((x) => (x && typeof x === "object" ? (x as Record<string, unknown>) : {}))
+      .map((x) => ({ title: str(x.title, 60), desc: str(x.desc, 200) }))
+      .filter((x) => x.title || x.desc)
+      .slice(0, 4);
+    const nr = p.number && typeof p.number === "object" ? (p.number as Record<string, unknown>) : null;
+    const number = nr && str(nr.value, 16) ? { value: str(nr.value, 16), label: str(nr.label, 60) } : undefined;
+    if (layout === "list" && points.length < 2) layout = "background";
+    if (layout === "vs" && points.length < 2) layout = "background";
+    if (layout === "number" && !number) layout = "background";
+    return {
+      headline,
+      sub,
+      ...(icon ? { icon } : {}),
+      layout,
+      ...(layout === "list" ? { points } : layout === "vs" ? { points: points.slice(0, 2) } : {}),
+      ...(layout === "number" ? { number } : {}),
+    };
+  });
+  return pages.every((p) => p.headline) ? pages : null;
 }

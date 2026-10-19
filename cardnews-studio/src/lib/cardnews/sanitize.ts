@@ -64,6 +64,19 @@ export function sanitizeStyle(raw: unknown): CardStyle {
   };
 }
 
+/** 데이터형 카드(v1.17) 칸 정리: 레이아웃에 맞는 데이터만 남기고, 모자라면 배경형 */
+function pageLayout(pr: Record<string, unknown>): Pick<CardPage, "layout" | "points" | "number"> {
+  const layout = ["list", "vs", "number"].includes(pr.layout as string) ? (pr.layout as "list" | "vs" | "number") : undefined;
+  if (!layout) return {};
+  const points = (Array.isArray(pr.points) ? pr.points : []).slice(0, 4).map((x) => {
+    const r = rec(x);
+    return { title: str(r.title, 60), desc: str(r.desc, 200) };
+  });
+  const nr = rec(pr.number);
+  if (layout === "number") return { layout, number: { value: str(nr.value, 16), label: str(nr.label, 60) } };
+  return { layout, points: layout === "vs" ? points.slice(0, 2) : points };
+}
+
 export function sanitizeProject(
   raw: unknown,
   ctx: { supabaseUrl: string; userId: string }
@@ -91,6 +104,7 @@ export function sanitizeProject(
       headline: str(pr.headline, 120),
       sub: str(pr.sub, 300),
       icon: typeof pr.icon === "string" && pr.icon in ICON_PATHS ? pr.icon : undefined,
+      ...pageLayout(pr),
       imageUrl: current,
       imageUrls: urls.length ? urls : current ? [current] : undefined,
     };

@@ -7,6 +7,8 @@ import { newPageId } from "@/lib/cardnews/defaults";
 import { DEFAULT_ICON_BY_CATEGORY, ICON_OPTIONS } from "@/lib/cardnews/presets";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { VIRAL_ANGLES } from "@/lib/ai/remakePrompts";
+import { LayoutEditor } from "@/components/studio/LayoutEditor";
+import type { CardPage } from "@/lib/cardnews/types";
 import { BTN_GHOST, BTN_PRIMARY, Card, EnginePicker, ErrorNote, INPUT, NeedPlan, StepHeader } from "@/components/studio/ui";
 
 export default function CopyPage() {
@@ -46,7 +48,7 @@ export default function CopyPage() {
         setError({ message: data.error || "문구를 만들지 못했습니다.", needKey: data.needApiKey });
         return;
       }
-      const made = data.pages as { headline: string; sub: string; icon?: string }[];
+      const made = data.pages as Pick<CardPage, "headline" | "sub" | "icon" | "layout" | "points" | "number">[];
       update((d) => ({
         ...d,
         // 장 수가 같으면 이미 만든 배경 이미지는 그대로 둔다(장 번호 기준).
@@ -55,6 +57,8 @@ export default function CopyPage() {
           headline: p.headline,
           sub: p.sub,
           icon: p.icon ?? DEFAULT_ICON_BY_CATEGORY[plan.category] ?? "sparkles",
+          // 떡상 리메이크(v1.17)는 장마다 레이아웃·항목·숫자를 함께 받는다
+          ...(p.layout && p.layout !== "background" ? { layout: p.layout, points: p.points, number: p.number } : {}),
           imageUrl: d.pages.length === made.length ? d.pages[i]?.imageUrl : undefined,
           imageUrls: d.pages.length === made.length ? d.pages[i]?.imageUrls : undefined,
         })),
@@ -66,7 +70,7 @@ export default function CopyPage() {
     }
   };
 
-  const setPage = (i: number, patch: { headline?: string; sub?: string; icon?: string }) =>
+  const setPage = (i: number, patch: Partial<Pick<CardPage, "headline" | "sub" | "icon" | "layout" | "points" | "number">>) =>
     update((d) => ({ ...d, pages: d.pages.map((p, idx) => (idx === i ? { ...p, ...patch } : p)) }));
 
   return (
@@ -134,6 +138,7 @@ export default function CopyPage() {
                   <textarea className={`${INPUT} min-h-20`} value={p.sub} maxLength={160} onChange={(e) => setPage(i, { sub: e.target.value })} />
                 </div>
               </div>
+              <LayoutEditor page={p} onChange={(patch) => setPage(i, patch)} />
               <div className="mt-3 flex items-center gap-2">
                 <label className="text-xs font-bold text-gray-700" htmlFor={`icon-${p.id}`}>
                   카드 아이콘

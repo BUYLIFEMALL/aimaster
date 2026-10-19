@@ -45,10 +45,24 @@ export interface CardStyle {
   icon?: IconStyle;
 }
 
+/** 카드 레이아웃(v1.17): 배경형(기존) · 번호 목록 · A vs B 비교 · 큰 숫자 */
+export type CardLayout = "background" | "list" | "vs" | "number";
+
+/** 번호 목록 항목(2~4개) 또는 A vs B의 두 칸(정확히 2개) */
+export interface CardPoint {
+  title: string;
+  desc: string;
+}
+
 export interface CardPage {
   id: string;
   headline: string;
   sub: string;
+  /** 없으면 배경형(기존 데이터 호환) */
+  layout?: CardLayout;
+  points?: CardPoint[];
+  /** 큰 숫자 레이아웃: 강조할 숫자(예: "84점", "3개월")와 그 설명 */
+  number?: { value: string; label: string };
   /** 헤드라인 위에 그리는 아이콘 id(iconData.ts) */
   icon?: string;
   /** 현재 선택된 배경 이미지 */
@@ -56,6 +70,9 @@ export interface CardPage {
   /** 생성 이력(최대 6개) */
   imageUrls?: string[];
 }
+
+/** 그리기에 필요한 카드 내용(미리보기·PNG 저장 공용) */
+export type CardContent = Pick<CardPage, "headline" | "sub" | "icon" | "layout" | "points" | "number">;
 
 export interface CardPlan {
   category: string;

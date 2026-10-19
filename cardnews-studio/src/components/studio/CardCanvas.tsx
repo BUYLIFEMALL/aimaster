@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { renderCardToCanvas } from "@/lib/cardnews/renderClient";
 import type { RatioId } from "@/lib/cardnews/presets";
-import type { CardPage, CardStyle } from "@/lib/cardnews/types";
+import type { CardContent, CardPage, CardStyle } from "@/lib/cardnews/types";
 
 /** 카드 한 장 미리보기. 미리보기와 PNG 내보내기는 같은 그리기 함수를 쓰므로 결과가 같다. */
 export function CardCanvas({
@@ -12,7 +12,7 @@ export function CardCanvas({
   ratio,
   className = "",
 }: {
-  page: Pick<CardPage, "headline" | "sub" | "icon" | "imageUrl">;
+  page: CardContent & Pick<CardPage, "imageUrl">;
   style: CardStyle;
   ratio: RatioId;
   className?: string;

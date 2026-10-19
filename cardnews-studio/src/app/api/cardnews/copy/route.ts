@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authorize, parseEngine, requireOwnKey } from "@/lib/cardnews/apiGuard";
 import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildCopyPrompt, parseCopy } from "@/lib/ai/copyPrompts";
-import { buildRemakeCopyPrompt, parseRemakeAnalysis, VIRAL_ANGLES } from "@/lib/ai/remakePrompts";
+import { buildRemakeCopyPrompt, parseRemakeAnalysis, parseRemakeCopy, VIRAL_ANGLES } from "@/lib/ai/remakePrompts";
 import type { AngleId } from "@/lib/cardnews/types";
 import { PAGE_COUNTS, TONES, type ToneId } from "@/lib/cardnews/presets";
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       ? buildRemakeCopyPrompt({ category, topic, tone, pageCount, analysis, angleId })
       : buildCopyPrompt({ category, topic, tone, pageCount });
     const text = await callLlm({ provider: engine.provider, model: engine.model, apiKey: key.apiKey, system: prompt.system, user: prompt.user, json: true });
-    const pages = parseCopy(text, pageCount);
+    const pages = analysis && angleId ? parseRemakeCopy(text, pageCount) : parseCopy(text, pageCount);
     if (!pages) {
       return NextResponse.json({ error: `AI 응답 형식이 맞지 않습니다(${pageCount}장 필요). 다시 시도하거나 다른 모델을 선택해보세요.` }, { status: 502 });
     }
