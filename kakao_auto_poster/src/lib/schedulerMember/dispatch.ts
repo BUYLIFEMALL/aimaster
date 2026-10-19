@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { currentKstHour, isScheduleDue, isWithinActiveHours } from "@/lib/schedule";
 import { generateReportForTopic } from "@/lib/reportEngine";
+import { checkProgramAccess } from "@/lib/programAccess";
 
 // 정기 자동 생성 — 운영자 Vercel 호출(/api/cron/generate-reports)과 회원 cron-job.org 호출(/api/cron/dispatch-member)이 같이 쓴다(v1.21).
 // 주제마다 주기(1시간~매주)와 활동 시간대가 다르므로 last_run_at·KST 시각으로 차례를 판단한다. 카카오 발송은 여기서 하지 않는다 —
@@ -17,6 +18,16 @@ async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promi
       .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
       .map((p) => p.id)
   );
+}
+
+/** 프로그램 이용 권한(정지·핸드폰·FREE·구독·등급+사용기간) — 실행 직전 회원별 1회 확인(v1.22). 사용기간이 끝난 회원의 켜 둔 정기 실행은 돌리지 않는다. */
+const NO_ACCESS_MESSAGE = "프로그램 이용 기간이 끝났거나 이용 권한이 확인되지 않아 정기 실행을 하지 않았습니다. 이용 기간을 연장한 뒤 다시 돌아갑니다.";
+function accessChecker(admin: unknown, slug: string) {
+  const cache = new Map<string, boolean>();
+  return async (userId: string) => {
+    if (!cache.has(userId)) cache.set(userId, (await checkProgramAccess(admin as Parameters<typeof checkProgramAccess>[0], userId, slug)).allowed);
+    return cache.get(userId)!;
+  };
 }
 
 export interface DispatchOptions {
@@ -61,7 +72,13 @@ export async function dispatchDueTopics(options: DispatchOptions = {}) {
   }
 
   const phoneOkUsers = await phoneRegisteredUserIds(admin, dueRows.map((r: { user_id: string }) => r.user_id));
+  const hasAccess = accessChecker(admin, "kakao-auto-posting");
   for (const row of dueRows.filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
+    if (!(await hasAccess(row.user_id))) {
+      failed++;
+      details.push({ topicId: row.id, result: `skipped: ${NO_ACCESS_MESSAGE}` });
+      continue;
+    }
     // 중복 생성 방지(v1.21): 운영자 호출·회원 호출이 겹쳐도 last_run_at을 「먼저 바꾼」 실행만 진행한다(조건부 update).
     const claimedAt = now.toISOString();
     let claim = admin.from("kakao_topics").update({ last_run_at: claimedAt }).eq("id", row.id);
