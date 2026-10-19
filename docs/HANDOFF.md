@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 예약 방식 1순위 마무리: 네이버 카페 v1.21 · 카카오 뉴스레터 v1.21 (정기형, 적용·배포·실검수)
+- 주인님 결정 「정기형에도 적용」. 두 프로그램 모두: 회원이 실행 방식 선택(기본 Vercel / 본인 cron-job.org), 정기 실행을 켤 때 작업 켜기·켜진 것이 0개면 끄기, 확인 주기 5분, 일시정지·재개, **같은 소스·주제 중복 실행 방지(조건부 `last_run_at`)**, **`CRON_SECRET` 비면 401**(예전엔 `Bearer undefined` 통과 가능).
+- 네이버 카페: 표 `ncafe_member_scheduler`, 배포 `naver-cafe-poster-oun9zc23z`, 커밋 `f757b12d`·`2dc947a3`. 카카오: 표 `kakao_member_scheduler`, 배포 `kakaoautoposter-at4fi42eb`, 커밋 `41f4926f`, FAQ의 「15분 주기·자동 발송」 안내 정정(실제 5분·발송은 사람이 결정). 운영 DB 두 표 모두 크롬 SQL Editor로 적용.
+- 실검수(관리자, 실제 게시·생성 없음 — 시험 소스·주제를 「차례가 오지 않게」 넣고 끝나면 삭제): 작업 자동 켜짐(8678746·8678825) → 일시정지·재개 → 끄기 즉시 꺼짐 → Vercel 복귀. 네이버 카페는 cron-job.org 회원 실행 200도 확인.
+- 발견(미처리, 주인님 확인 필요): 두 프로그램 정기 실행이 **프로그램 이용 권한(사용기간)을 확인하지 않음** — 각 `docs/IMPROVEMENTS.md`. 교훈: cron-job.org 호출 지연 20~40초, `vercel logs requests` 폐지(`docs/ERROR_LESSONS.md`).
+- 1순위(쓰레드·인스타·카드뉴스·네이버 카페·카카오) 예약 방식 적용 완료. 남은 일: SNS 키트 재포장(인스타만 해당 — v1.01에 이미 반영됨, 이후 변경 없음), 2순위 5개는 주인님 확인 후.
+- 링크: https://naver-cafe-poster.buylife.xyz · https://kakao-auto-posting.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — agy 작업 파악·반영: 매뉴얼 지침을 CLAUDE.md에도 연결
 - agy가 제정한 [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](MANUAL_AND_INTEGRATION_GUIDELINES.md)(8대 매뉴얼 스타일·Step 1~4 카드 규격)가 `AGENTS.md`·`GEMINI.md`에만 있어 **`CLAUDE.md` 맨 위에도 같은 안내 추가**(화면 검수 브라우저는 Claude=크롬으로 표기). 배포 키트 수강생 매뉴얼(`docs/sns-kit-manual/`)은 별도 지침(`DISTRIBUTION_KIT_GUIDE.md`)이라 충돌 없음.
 - 확인: agy의 Threads 설정 주소 카드 색 개선(`fd69da1d`)은 `ThreadsMetaAddressSummary`·`CopyAddress`만 바꿔 예약 칸(v1.19·v1.63)과 충돌 없음.

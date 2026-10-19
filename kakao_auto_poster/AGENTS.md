@@ -229,3 +229,11 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 - **버전 3중 동기화**: `package.json` (`1.20.0`), `src/lib/version.ts` (`v1.20`), Supabase DB `programs` 테이블 (`v1.20`).
 - **검수**: Next.js 16.4.0 로컬 빌드 성공, Vercel 프로덕션 배포 완료, Microsoft Edge 포그라운드(headless: false) 실세션 캡처 7종 수집 및 10분간 화면 유지 세션 검증 완료.
 
+## 2026-10-20 v1.21 — ⏰ 정기 자동 생성 실행 방식 회원 선택(AIMaster 기본 Vercel / 본인 cron-job.org) + 중복 생성 방지·비밀값 검사·FAQ 정정 (Claude Code 윈도우)
+- 주인님 「정기형에도 적용」. 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `naver-cafe-poster` v1.21(정기형).
+- 정기형: 작업은 **주제 예약을 켤 때**(예약 스위치·예약 켜진 주제의 활성화) 켜고 **켜진 정기 주제가 0개면** 끈다(예약 끄기·비활성화·삭제·회원 실행 뒤 확인). cron-job.org 확인 5분. 활동 시간대·주기 판정 그대로. **카카오 발송은 지금처럼 사람이 결정**(바꾸지 않음).
+- 코드: `src/lib/schedulerMember/cronJobOrg.ts`·`memberScheduler.ts`(표 `kakao_member_scheduler`, 토큰 `kakao_…` DB엔 해시, 끄기 스위치 `KAKAO_PLATFORM_SCHEDULER=off`)·`dispatch.ts`(운영자 주소에서 옮긴 로직 + `userId`·`excludeUserIds`·`failWithMessage` + **조건부 `last_run_at` 선점**, 생성 실패 시 되돌려 예전처럼 다음 tick 재시도), `/api/cron/generate-reports`(vercel·비일시정지 회원만, **`CRON_SECRET` 비면 401**), 새 `/api/cron/dispatch-member`, `src/lib/actions/scheduler.ts`, `topics.ts` `syncMemberScheduler`, `settings.ts` 키 허용·변경·삭제.
+- 화면: 설정 「⏰ 예약 발행」(`SchedulerModePicker` + 키 칸 + 가입 3단계), 관심 주제 화면 「정기 자동 생성」 상태 줄·일시정지/재개(`components/topics/SchedulePublishingControl.tsx`), `/guide` FAQ — 예약 리포트 답변의 「15분 주기」「생성하고 발송」을 실제(5분, 발송은 사람이 결정)로 정정 + 실행 방식 항목 추가.
+- DB(운영 `esgxyikcnnvmlhygjkth`): `supabase/migrations/20261020120000_kakao_member_scheduler.sql` — 2026-10-20 크롬 SQL Editor로 적용, 결과 `kakao_member_scheduler`·`v1.21`. `package.json` 1.21.0.
+- 검수: tsc 0, build(새 주소 포함), 배포 `kakaoautoposter-at4fi42eb`(Ready), 무인증·`Bearer undefined`·가짜 토큰 401, `/login` 200, 새 배포 운영자 실행 200. 크롬(관리자 본인 키, **실제 생성·발송 없음** — 실제 주제 3개는 모두 예약 꺼짐이라 건드리지 않고, 시험 주제를 「예약 꺼짐·마지막 실행=지금·매주」로 DB에 넣음): 「내 cron-job.org」 선택 → 상태 줄 「대기 · 0개」 → 시험 주제 예약 켜기 → 약 3초에 작업 8678825 자동 켜짐 → 「실행 중 · 1개」 → 일시정지·재개 → 예약 끄기 → 작업 즉시 꺼짐 → Vercel 복귀 → 시험 주제 삭제. 회원 실행 주소의 실제 cron-job.org 호출은 작업이 켜진 1분 사이 5분 단위 시각이 없어 기록 없음(같은 코드의 네이버 카페에서 200 확인).
+- 주의(검수 중 확인): 설정·주제 저장이 cron-job.org를 부르는 동안 **20~40초 걸릴 수 있다** — 그 사이 방식을 빠르게 바꿔 누르면 늦게 끝난 저장이 마지막에 반영된다(루트 `docs/ERROR_LESSONS.md` 2026-10-20).

@@ -19,10 +19,10 @@
 | ② | `insta_auto_poster` (INSTA 포스팅, slug `auto-instagram-posting`) | ✅ 배포·자동 확인·**크롬 실검수(2026-10-19, v1.26)** | v1.25 · `insta-auto-poster-46r0me9fo` | 커밋 `60c13f7e`·`14245086`. 표 `insta_member_scheduler`. **배포판(SNS 키트) 있음** → 운영 Vercel / 배포판 cron-job.org, `KIT/` 함께 갱신 |
 | ③ | `cardnews-studio` (카드뉴스, slug `cardnews-studio`) | ✅ 배포·크롬 실검수(2026-10-20) | v1.24 · `cardnews-studio-ictkczgcr` | 커밋 `ad9d259e`. 표 `cns_member_scheduler`. §4-1대로 |
 | ④ | `naver-cafe-poster` (네이버 카페) | ✅ 배포·크롬 실검수(2026-10-20) | v1.21 · `naver-cafe-poster-oun9zc23z` | 커밋 `f757b12d`. 정기형(§4-2): 켤 때 켜기·0개면 끄기·5분, 중복 실행 방지·비밀값 검사 보완 |
-| ⑤ | `kakao_auto_poster` (카카오, slug `kakao-auto-posting`, v1.20) | ⚪ | — | 아래 §4-3 (정기 자동 실행형) |
+| ⑤ | `kakao_auto_poster` (카카오, slug `kakao-auto-posting`) | ✅ 배포·크롬 실검수(2026-10-20) | v1.21 · `kakaoautoposter-at4fi42eb` | 커밋 `41f4926f`. 정기형(§4-3), 주인님 「정기형에도 적용」 |
 | 끝 | 5개 전체 **크롬 실화면 검수** | ⚪ | — | 주인님 지시: 5개를 다 적용한 뒤 한꺼번에(§6) |
 
-「자동 확인」 = 실행 주소 무인증·가짜 토큰 401, `/login` 200, **새 배포의 첫 운영자 예약 실행(vercel-cron) 200**을 `vercel logs requests`로 확인.
+「자동 확인」 = 실행 주소 무인증·가짜 토큰 401, `/login` 200, **새 배포의 첫 운영자 예약 실행(vercel-cron) 200**을 `vercel logs requests`로 확인. **(2026-10-20 정정) Vercel CLI 59에서는 `logs requests`가 없어졌다 → 프로그램 폴더에서 `npx vercel logs --since 30m --json --scope buylife`(기본 최근 50줄만 — 주소로 걸러 찾기)**.
 
 ## 2. 한 프로그램을 적용하는 순서 (①·②에서 실제로 한 그대로)
 

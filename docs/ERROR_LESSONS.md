@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — cron-job.org를 부르는 서버 함수는 20~40초 걸릴 수 있다 + Vercel CLI 59에서 `vercel logs requests`가 없어짐 (예약 방식 적용 4개 프로그램, Claude Code 윈도우)
+- 증상 ①: 카카오 실검수에서 실행 방식을 빠르게 Vercel → cron-job.org로 연달아 바꾸자, 늦게 끝난 Vercel 저장이 마지막에 반영돼 방식이 되돌아감. 잠깐 「방식=cronjob인데 작업 꺼짐」 상태도 보임(작업 생성 도중).
+- 원인 ①: 방식 저장·예약 스위치 서버 함수가 cron-job.org REST(`GET /jobs` + `PUT/PATCH`)를 기다리는 동안 응답이 20~40초 걸릴 때가 있다. 코드 판단 오류가 아니라 외부 응답 지연. 화면 부품은 처리 중 중복 클릭을 막지만, 페이지를 새로 열거나 스크립트로 누르면 겹칠 수 있다.
+- 해결/다음부터 확인 ①: 실검수는 **한 단계씩 DB 반영을 기다리며**(5초 간격 확인) 진행한다. 회원 안내가 필요하면 「저장 중… 최대 30초」 표시를 검토(개선 대기).
+- 증상·원인 ②: 예약 방식 인수인계서의 확인 명령 `npx vercel logs requests --since 10m --json`이 「Deployment not found: requests」로 실패 — CLI 59에서 하위 명령이 바뀜.
+- 해결 ②: 프로그램 폴더에서 `npx vercel logs --since 30m --json --scope buylife` 후 주소로 걸러 찾기. **기본 최근 50줄만** 나오므로 오래 기다리면 앞 기록이 밀려 빠질 수 있다(필요하면 범위를 줄이거나 바로 확인). `docs/SCHEDULER_ROLLOUT_HANDOFF_20261019.md`에도 정정.
+
 ## 2026-10-19 — `<input type="datetime-local">` 값을 그대로 서버 액션에 보내면 서버(UTC)가 UTC로 읽어 예약이 9시간 늦어진다 (threads-content-ops 보관함, Claude Code 윈도우)
 - 증상: 19:31(한국)로 예약했는데 DB `scheduled_at`이 `19:31+00`(= 한국 다음 날 04:31).
 - 원인: `DraftComposer`가 `"2026-10-19T19:31"`(시간대 없음)을 전송 → 서버 `new Date()`가 서버 시간대(UTC)로 해석. 같은 프로그램의 콘텐츠 생성 화면은 브라우저에서 `toISOString()`으로 바꿔 보내 정상이었음.
