@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `instagram-comment-reply/` · `instagram-dm-reply/` | Claude Code(윈도우) | 2026-10-20 18:10 KST | 병합 B 「INSTA 댓글·DM 자동화」 플랜(주인님 확인 대기) `instagram-comment-reply/docs/PLAN_20261020_DM_MERGE.md` |
