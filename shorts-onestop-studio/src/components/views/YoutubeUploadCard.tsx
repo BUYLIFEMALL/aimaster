@@ -4,8 +4,11 @@ import { ExternalLink, RefreshCw, Upload } from "lucide-react";
 import { api, toMsg, type Msg } from "@/components/ui/api";
 import { Message } from "@/components/ui/Message";
 import type { ShortsScript, YoutubeUpload } from "@/lib/script";
+import type { PlanData } from "@/lib/plan";
+import { planSlotIso, toLocalInput, uploadDefaults as defaults, uploadToYoutube } from "@/lib/youtube/browserUpload";
 
 // v1.19 ⑥ 유튜브에 올리기 — 서버는 업로드 주소만 만들고(/api/youtube/upload-session), 영상은 이 브라우저가 유튜브로 바로 보낸다.
+// v1.21: 업로드는 src/lib/youtube/browserUpload.ts(일괄 제작과 공용), 이 대본이 발행 계획에 있으면 그 일정으로 예약 공개를 미리 채운다.
 type Status = { state: "ok" | "not_connected" | "no_scope" | "no_keys" | "other_app" | "reconnect"; channelTitle: string | null; message: string; connectPrograms: { name: string; url: string }[] };
 const PRIVACY: { id: YoutubeUpload["privacy"]; name: string }[] = [
   { id: "private", name: "비공개(나만 보기 — 확인 뒤 직접 공개)" },
@@ -18,34 +21,7 @@ const CATEGORIES = [
 ];
 const PRIVACY_LABEL: Record<YoutubeUpload["privacy"], string> = { private: "비공개", unlisted: "일부 공개", public: "공개" };
 
-function defaults(s: ShortsScript) {
-  const tags = [...new Set([...(s.seo?.hashtags ?? []), "#Shorts"])];
-  return {
-    title: (s.seo?.titles?.[0] ?? s.intro.title).slice(0, 100),
-    description: [s.seo?.description ?? "", tags.join(" ")].filter(Boolean).join("\n\n").slice(0, 5000),
-    tags: (s.seo?.tags ?? []).join(", "),
-  };
-}
-
-/** 업로드 주소로 영상을 보낸다(진행률). 유튜브 응답의 영상 ID를 돌려준다 */
-function putVideo(url: string, blob: Blob, onPct: (n: number) => void): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const x = new XMLHttpRequest();
-    x.open("PUT", url);
-    x.setRequestHeader("Content-Type", "video/mp4");
-    x.upload.onprogress = (e) => { if (e.lengthComputable) onPct(Math.round((e.loaded / e.total) * 100)); };
-    x.onload = () => {
-      let id = "";
-      try { id = JSON.parse(x.responseText)?.id ?? ""; } catch { /* 아래에서 처리 */ }
-      if (x.status >= 200 && x.status < 300 && id) resolve(id);
-      else reject(new Error(x.status === 403 ? "유튜브가 업로드를 거절했습니다(권한 또는 채널 업로드 제한). 채널 상태를 확인해 주세요." : `유튜브에 영상을 보내지 못했습니다(${x.status}). 다시 시도해 주세요.`));
-    };
-    x.onerror = () => reject(new Error("유튜브로 영상을 보내는 중 연결이 끊겼습니다. 네트워크를 확인하고 다시 시도해 주세요."));
-    x.send(blob);
-  });
-}
-
-export function YoutubeUploadCard({ script, blob, disabled, onUploaded }: { script: ShortsScript; blob: Blob | null; disabled: boolean; onUploaded: (rec: YoutubeUpload) => Promise<void> }) {
+export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploaded }: { projectId: string | null; script: ShortsScript; blob: Blob | null; disabled: boolean; onUploaded: (rec: YoutubeUpload) => Promise<void> }) {
   const [status, setStatus] = useState<Status | null>(null);
   const [form, setForm] = useState(() => ({ ...defaults(script), privacy: "private" as YoutubeUpload["privacy"], categoryId: "22", schedule: false, publishAt: "" }));
   const [pct, setPct] = useState<number | null>(null);
@@ -57,6 +33,23 @@ export function YoutubeUploadCard({ script, blob, disabled, onUploaded }: { scri
     try { setStatus(await api<Status>("/api/youtube/status")); } catch (e) { setMsg(toMsg(e)); }
   }
   useEffect(() => { void check(); }, []);
+  // 발행 계획에서 이 대본의 일정을 찾아 예약 공개를 미리 채운다(지났거나 15분 안이면 안내만)
+  const [planNote, setPlanNote] = useState("");
+  useEffect(() => {
+    if (!projectId) return;
+    let live = true;
+    api<{ items: { title: string; data: PlanData }[] }>("/api/items?kind=plan").then(({ items }) => {
+      for (const p of items) {
+        const e = p.data?.entries?.find((x) => x.projectId === projectId);
+        if (!e || !live) continue;
+        const iso = planSlotIso(e.date, e.time);
+        if (iso) { setForm((f) => ({ ...f, schedule: true, publishAt: toLocalInput(iso) })); setPlanNote(`📅 발행 계획 「${p.title}」의 ${e.date} ${e.time} 일정으로 예약 공개를 채웠습니다. 바꿔도 됩니다.`); }
+        else setPlanNote(`📅 발행 계획 「${p.title}」의 ${e.date} ${e.time} 일정은 이미 지났거나 15분 안이라 예약을 채우지 않았습니다.`);
+        return;
+      }
+    }).catch(() => undefined);
+    return () => { live = false; };
+  }, [projectId]);
   // 업로드 문구를 새로 만들면 제목·설명·태그를 다시 채운다
   useEffect(() => { setForm((f) => ({ ...f, ...defaults(script) })); }, [seoKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -66,12 +59,7 @@ export function YoutubeUploadCard({ script, blob, disabled, onUploaded }: { scri
     try {
       const publishAt = form.schedule && form.publishAt ? new Date(form.publishAt).toISOString() : null;
       if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
-      const tags = form.tags.split(/\s*,\s*/).filter(Boolean);
-      const { uploadUrl } = await api<{ uploadUrl: string }>("/api/youtube/upload-session", {
-        body: { title: form.title, description: form.description, tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, size: blob.size },
-      });
-      const videoId = await putVideo(uploadUrl, blob, setPct);
-      const rec: YoutubeUpload = { videoId, url: `https://youtube.com/shorts/${videoId}`, title: form.title, privacy: publishAt ? "private" : form.privacy, publishAt, channel: status?.channelTitle ?? null, uploadedAt: new Date().toISOString() };
+      const rec = await uploadToYoutube({ blob, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, channel: status?.channelTitle ?? null, onPct: setPct });
       await onUploaded(rec);
       setMsg({ text: publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`, ok: true });
     } catch (e) {
@@ -107,6 +95,7 @@ export function YoutubeUploadCard({ script, blob, disabled, onUploaded }: { scri
           <label>공개 범위<select value={form.privacy} disabled={form.schedule} onChange={(e) => setForm({ ...form, privacy: e.target.value as YoutubeUpload["privacy"] })}>{PRIVACY.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
           <label>카테고리<select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>{CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
         </div>
+        {planNote && <small className="muted">{planNote}</small>}
         <label className="row" style={{ gap: 8, alignItems: "center" }}><input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} style={{ width: "auto" }} />정한 시각에 자동 공개(예약 — 그때까지 비공개)</label>
         {form.schedule && <label>공개 시각<input type="datetime-local" value={form.publishAt} onChange={(e) => setForm({ ...form, publishAt: e.target.value })} /></label>}
         {!blob && <small className="muted">먼저 ④에서 [MP4 만들기]를 눌러 주세요. 만든 MP4는 이 화면을 떠나면 사라집니다.</small>}

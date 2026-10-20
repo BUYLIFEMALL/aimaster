@@ -238,7 +238,7 @@ ${script.seo!.hashtags.join(" ")}`, "설명란+해시태그")}><Copy size={13} /
                 </>}
                 <div className="actions"><button type="button" className={script.seo ? "" : "primary"} disabled={!!busy || !!exp} onClick={() => void makeSeo()}><Search size={14} />{script.seo ? "다시 만들기" : "업로드 문구 만들기"}</button><Busy on={busy.startsWith("업로드")} label={busy} /></div>
               </section>
-              <YoutubeUploadCard key={item?.id} script={script} blob={file?.blob ?? null} disabled={!!busy || !!exp} onUploaded={saveUpload} />
+              <YoutubeUploadCard key={item?.id} projectId={item?.id ?? null} script={script} blob={file?.blob ?? null} disabled={!!busy || !!exp} onUploaded={saveUpload} />
             </div>
             <aside className="card stack panel">
               <div className="stage-frame"><canvas ref={canvas} width={W} height={H} aria-label="소리 포함 미리보기" /></div>

@@ -22,7 +22,7 @@ export const UPLOAD_TIMES: Record<string, string[]> = {
 };
 export const MAX_PLAN_TOPICS = 30;
 
-export interface PlanEntry { date: string; time: string; category: string; title: string; hook: string; format: Format | null; projectId?: string; error?: string; done?: { bg?: boolean; voice?: boolean; mp4?: boolean } }
+export interface PlanEntry { date: string; time: string; category: string; title: string; hook: string; format: Format | null; projectId?: string; error?: string; done?: { bg?: boolean; voice?: boolean; mp4?: boolean; yt?: string } }
 export interface PlanData {
   stage: Stage; perDay: number; days: number; start: string; categories: string[]; seed: string;
   strategy: { summary: string; focus: string[]; tips: string[] };

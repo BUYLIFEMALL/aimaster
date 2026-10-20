@@ -8,10 +8,11 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, type 
 import { MAX_PLAN_TOPICS, STAGES, UPLOAD_TIMES, sortEntries, type PlanData, type PlanEntry, type Stage } from "@/lib/plan";
 import { fillBackgrounds, makeVoices, prepareMedia } from "@/lib/pipeline";
 import { exportMp4 } from "@/lib/render/export";
+import { DAILY_UPLOAD_LIMIT, isQuotaMessage, planSlotIso, uploadDefaults, uploadToYoutube } from "@/lib/youtube/browserUpload";
 
-type Steps = { bg: boolean; voice: boolean; mp4: boolean };
+type Steps = { bg: boolean; voice: boolean; mp4: boolean; yt: boolean };
 /** 이 항목에 아직 남은 단계가 있는가 */
-const remains = (e: PlanEntry, st: Steps) => !e.projectId || (st.bg && !e.done?.bg) || (st.voice && !e.done?.voice) || (st.mp4 && !e.done?.mp4);
+const remains = (e: PlanEntry, st: Steps) => !e.projectId || (st.bg && !e.done?.bg) || (st.voice && !e.done?.voice) || (st.mp4 && !e.done?.mp4) || (st.yt && !e.done?.yt);
 const fileName = (t: string) => `${t.replace(/[\\/:*?"<>|]/g, "").slice(0, 40).trim() || "shorts"}.mp4`;
 
 const today = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
@@ -25,7 +26,7 @@ export function PlanView() {
   const [perDay, setPerDay] = useState(1), [days, setDays] = useState(7), [start, setStart] = useState(today()), [seed, setSeed] = useState("");
   const [sel, setSel] = useState<Set<number>>(new Set()), [tone, setTone] = useState<Tone>("friendly"), [cards, setCards] = useState(4), [useGuide, setUseGuide] = useState(true);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [prog, setProg] = useState<{ done: number; total: number; ok: number } | null>(null);
-  const [steps, setSteps] = useState<Steps>({ bg: true, voice: false, mp4: false });
+  const [steps, setSteps] = useState<Steps>({ bg: true, voice: false, mp4: false, yt: false });
   const [seconds, setSeconds] = useState(45); // 일괄 대본 목표 길이(0 = 제한 없음)
   const [adding, setAdding] = useState<{ title: string; date: string; time: string; category: string; format: string } | null>(null);
   const [edit, setEdit] = useState<{ i: number; title: string; date: string; time: string } | null>(null);
@@ -72,7 +73,17 @@ export function PlanView() {
     if (!item) return;
     const idx = [...sel].sort((a, b) => a - b).filter((i) => item.data.entries[i] && remains(item.data.entries[i], steps));
     if (!idx.length) { setMsg({ text: "남은 단계가 있는 주제를 골라 주세요." }); return; }
+    // v1.21 유튜브 예약: 시작 전에 연결 확인, 하루 한도(약 6편) 넘으면 확인
+    let channel: string | null = null; let ytOn = steps.yt;
+    if (ytOn) {
+      const st = await api<{ state: string; channelTitle: string | null; message: string }>("/api/youtube/status").catch(() => null);
+      if (!st || st.state !== "ok") { setMsg({ text: `유튜브 예약을 하려면 먼저 채널을 연결해 주세요. ${st?.message ?? ""}` }); return; }
+      channel = st.channelTitle;
+      const ups = idx.filter((i) => !item.data.entries[i].done?.yt).length;
+      if (ups > DAILY_UPLOAD_LIMIT && !window.confirm(`유튜브는 하루에 약 ${DAILY_UPLOAD_LIMIT}편까지만 올릴 수 있습니다(무료 할당량). ${ups}편 중 한도를 넘는 편은 건너뛰고 다음에 다시 올리게 됩니다. 계속할까요?`)) return;
+    }
     stopRef.current = false; setMsg(null); setProg({ done: 0, total: idx.length, ok: 0 });
+    let uploaded = 0; const ytNotes: string[] = [];
     let data = structuredClone(item.data); let ok = 0; let halted = false; const guides = new Map<string, string>();
     const persist = async () => { data = structuredClone(data); await savePlan(data).catch(() => undefined); }; // 단계마다 저장(탭을 닫아도 끝난 단계는 남음)
     for (let k = 0; k < idx.length && !stopRef.current; k++) {
@@ -99,13 +110,28 @@ export function PlanView() {
           await store(await makeVoices(await load(), (n, t) => setBusy(`음성 만드는 중(${n}/${t})… ${tag}`)));
           set({ done: { ...e.done, voice: true } }); await persist();
         }
-        if (steps.mp4 && !e.done?.mp4 && !stopRef.current) {
+        const wantYt = ytOn && !e.done?.yt;
+        if (((steps.mp4 && !e.done?.mp4) || wantYt) && !stopRef.current) {
           setBusy(`MP4 준비 중… ${tag}`);
           const s2 = await load(); const m = await prepareMedia(s2);
           const ac = new AbortController(); abortRef.current = ac;
           const blob = await exportMp4({ script: s2, media: m.media, audioUrls: m.audioUrls, signal: ac.signal, onProgress: (pr) => setBusy(`MP4 ${pr.pct}% … ${tag}`) });
           setFiles((fs) => [...fs, { name: fileName(e.title), url: URL.createObjectURL(blob), mb: Math.round((blob.size / 1048576) * 10) / 10 }]);
           set({ done: { ...e.done, mp4: true } }); await persist();
+          // v1.21 일정 시각으로 비공개 예약 업로드(지난 일정은 예약 없이 비공개)
+          if (wantYt && !stopRef.current) {
+            const d = uploadDefaults(s2); const publishAt = planSlotIso(e.date, e.time);
+            try {
+              const rec = await uploadToYoutube({ blob, ...d, privacy: "private", categoryId: "22", publishAt, channel, onPct: (n) => setBusy(`유튜브로 보내는 중 ${n}% … ${tag}`) });
+              await store({ ...s2, youtube: [rec, ...(s2.youtube ?? [])].slice(0, 10) });
+              set({ done: { ...e.done, yt: rec.videoId } }); await persist(); uploaded++;
+              if (!publishAt) ytNotes.push(`「${e.title}」은 일정(${e.date} ${e.time})이 지나 예약 없이 비공개로 올렸습니다`);
+            } catch (ue) {
+              const m2 = ue instanceof Error ? ue.message : "유튜브 업로드 실패";
+              if (isQuotaMessage(m2)) { ytOn = false; ytNotes.push("오늘 유튜브 업로드 한도를 다 써서 남은 편은 올리지 않았습니다(내일 다시 「📤 유튜브 예약」으로 올리세요)"); }
+              throw new Error(m2);
+            }
+          }
         }
         set({ error: undefined }); ok++;
       } catch (err) {
@@ -118,7 +144,7 @@ export function PlanView() {
       if (halted) break;
     }
     setBusy(""); setSel(new Set());
-    if (!halted) setMsg({ text: `${ok}편을 처리해 보관함에 저장했습니다${stopRef.current ? "(중간에 멈춤)" : ""}.${steps.mp4 ? " 아래 [MP4 내려받기]로 저장하세요(이 화면을 벗어나면 사라집니다)." : " 각 주제의 [열기]로 이어서 다듬으세요."}`, ok: ok > 0 });
+    if (!halted) setMsg({ text: `${ok}편을 처리해 보관함에 저장했습니다${stopRef.current ? "(중간에 멈춤)" : ""}.${steps.yt ? ` 유튜브에 ${uploaded}편을 비공개 예약으로 올렸습니다(일정 시각에 자동 공개).` : ""}${ytNotes.length ? ` ${ytNotes.join(" · ")}.` : ""}${steps.mp4 || steps.yt ? " 아래 [MP4 내려받기]로 저장할 수 있습니다(이 화면을 벗어나면 사라집니다)." : " 각 주제의 [열기]로 이어서 다듬으세요."}`, ok: ok > 0 });
   }
 
   async function saveEdit() {
@@ -244,7 +270,7 @@ export function PlanView() {
                   </div>
                 </label>
                 <div className="actions plan-actions">
-                  {e.projectId ? <><span className="badge brand">✅ 대본</span>{e.done?.bg && <span className="badge brand" title="배경">🎨</span>}{e.done?.voice && <span className="badge brand" title="음성">🎙️</span>}{e.done?.mp4 && <span className="badge brand" title="MP4">🎬</span>}<a className="button" href={`/topic?id=${e.projectId}`}>열기</a><a className="button" href={`/render?id=${e.projectId}`} aria-label="음성·자막·영상">🎙️</a></> : <span className="badge">대본 전</span>}
+                  {e.projectId ? <><span className="badge brand">✅ 대본</span>{e.done?.bg && <span className="badge brand" title="배경">🎨</span>}{e.done?.voice && <span className="badge brand" title="음성">🎙️</span>}{e.done?.mp4 && <span className="badge brand" title="MP4">🎬</span>}{e.done?.yt && <a className="badge brand" title="유튜브에 올림" href={`https://youtube.com/shorts/${e.done.yt}`} target="_blank" rel="noreferrer">📤</a>}<a className="button" href={`/topic?id=${e.projectId}`}>열기</a><a className="button" href={`/render?id=${e.projectId}`} aria-label="음성·자막·영상">🎙️</a></> : <span className="badge">대본 전</span>}
                   <button type="button" aria-label="고치기" disabled={!!busy} onClick={() => setEdit({ i, title: e.title, date: e.date, time: e.time })}><Pencil size={13} /></button>
                   <button type="button" aria-label="일정에서 빼기" className="danger" disabled={!!busy} onClick={() => void removeEntry(i)}><Trash2 size={13} /></button>
                 </div>
@@ -259,7 +285,8 @@ export function PlanView() {
               <span className="chip on">📝 대본(항상)</span>
               <button type="button" className={`chip ${steps.bg ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, bg: !x.bg }))}>🎨 배경(스톡 자동)</button>
               <button type="button" className={`chip ${steps.voice ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, voice: !x.voice }))}>🎙️ 음성</button>
-              <button type="button" className={`chip ${steps.mp4 ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, mp4: !x.mp4 }))}>🎬 MP4</button>
+              <button type="button" className={`chip ${steps.mp4 ? "on" : ""}`} disabled={!!busy} onClick={() => setSteps((x) => ({ ...x, mp4: !x.mp4, yt: x.mp4 ? false : x.yt }))}>🎬 MP4</button>
+              <button type="button" className={`chip ${steps.yt ? "on" : ""}`} disabled={!!busy || !steps.mp4} title={steps.mp4 ? "일정 시각으로 비공개 예약 업로드" : "🎬 MP4를 켜야 올릴 수 있습니다"} onClick={() => setSteps((x) => ({ ...x, yt: !x.yt }))}>📤 유튜브 예약</button>
             </div>
             <div className="field-grid">
               <label>말투<select value={tone} onChange={(e) => setTone(e.target.value as Tone)}>{Object.entries(TONES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
@@ -273,7 +300,7 @@ export function PlanView() {
                 : <button className="primary" disabled={!!busy || sel.size === 0} onClick={() => void bulk()}><Layers size={14} />{sel.size}편 만들기</button>}
               <Busy on={!!busy && !busy.startsWith("AI")} label={busy} />
             </div>
-            {sel.size > 0 && <small className="muted">💸 예상(본인 키): 텍스트 약 {est.text}회{est.tts ? ` · 음성 약 ${est.tts}회` : ""} · 스톡 검색 무료{est.mp4 ? ` · MP4 ${est.mp4}편(편당 영상 길이의 약 2~3배 시간, 서버 비용 없음)` : ""}</small>}
+            {sel.size > 0 && <small className="muted">💸 예상(본인 키): 텍스트 약 {est.text}회{est.tts ? ` · 음성 약 ${est.tts}회` : ""} · 스톡 검색 무료{est.mp4 ? ` · MP4 ${est.mp4}편(편당 영상 길이의 약 2~3배 시간, 서버 비용 없음)` : ""}{steps.yt ? ` · 유튜브 예약 ${selE.filter((e) => !e.done?.yt).length}편(하루 약 ${DAILY_UPLOAD_LIMIT}편 한도, 요금 없음)` : ""}</small>}
             <small className="muted">주제마다 순서대로 처리하고 단계가 끝날 때마다 보관함과 계획에 저장합니다(이미 끝난 단계는 건너뜀). 실패한 주제는 표시하고 다음으로 넘어가며, 키가 없으면 멈춥니다. 음성은 각 대본의 음성 설정(처음엔 기본값 OpenAI GPT-4o mini TTS)으로 만듭니다. 만드는 동안 이 탭을 열어 두세요.</small>
             {files.length > 0 && <div className="list">{files.map((x) => <div key={x.url} className="list-item"><span>🎬 {x.name}</span><a className="button primary" href={x.url} download={x.name}><Download size={13} />MP4 내려받기 ({x.mb}MB)</a></div>)}</div>}
           </section>
