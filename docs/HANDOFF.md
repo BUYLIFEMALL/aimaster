@@ -5,7 +5,7 @@
 - 사본 적용(동작 같음, 배포 안 함 → `docs/SHARED_MODULES.md` 「미배포 사본」): style-dna-analyzer·cardnews-studio·naver-blog-allinone·naver-blog-agent(테스트 모의 불러오기 보완)·ai-auto-blog·tistory-auto-blog·threads-content-ops. 제외: youtube-channel-consultant(테스트 구조상 import 없는 파일), 해당 없음: shorts-viral-studio. 커밋 `28e8bf33`.
 - `scripts/check-openai-models.mjs`: 프로그램 코드에서 OpenAI 글 모델 23개 수집·보낼 옵션 표시, `--live`(본인 `OPENAI_API_KEY`)로 시험 안 한 모델만 1회 호출 → `scripts/data/openai-model-check.json`. **아직 `--live` 미실행(키 필요).** 커밋 `deec0eb1`.
 - 모델 성격 표시 `openAIModelTier`(⚡/⚖️/💎) — 두 프로그램 배포 Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.78·v1.69, 크롬 확인(호출 없음).
-- 남은 일: 일반 회원 계정 검수(주인님이 크롬에서 `buylifemall@naver.com` 로그인 필요).
+- 일반 회원 계정 검수 완료(주인님 로그인 후 `buylifemall@naver.com`): 두 프로그램 접속·표시 정상, 시험 계정 본인 키로 `gpt-5.6-luna` 각 1회 성공(SEO 질문 5개·쇼핑제휴 474자).
 - https://naver-blog-seo-studio.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
 
 ## 2026-10-20 Claude Code(윈도우) — AI 웹툰 v1.16 인스타 예약 게시·게시 기록·장 미리보기 (v1.15 추가개선 제안 ①②)

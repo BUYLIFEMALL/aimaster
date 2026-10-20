@@ -47,3 +47,6 @@
 ## 이어서 — v1.78
 - 모델 성격 표시(`openAIModelTier`), 모델 시험 호출 스크립트 `scripts/check-openai-models.mjs`. 배포 `naver-blog-seo-studio-gi3hpdd52` Ready, DB·확장 v1.78 OK.
 - 남은 일: `--live` 실제 호출(주인님 본인 키 필요), 일반 회원 계정 검수(주인님 로그인 필요).
+
+## 일반 회원 계정 검수 (v1.78, 주인님 로그인 후)
+- `buylifemall@naver.com` 세션: 권한 화면 없이 대시보드 진입, v1.78, 제목 화면 `gpt-5.6-luna` 선택 시 「⚡ 빠름」+응답 지연 안내, 시험 계정 본인 키로 경험 질문 200·5개. 모델 선택 GPT-4.1로 되돌림.
