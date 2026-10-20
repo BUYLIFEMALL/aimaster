@@ -8,6 +8,7 @@ import { renderSlide, uploadSlides } from "@/lib/instagram/slideRender";
 import { formatKst, kstLocalToIso } from "@/lib/instagram/schedule";
 import { SchedulePublishingControl } from "./SchedulePublishingControl";
 import { EpisodeBatchSchedule } from "./EpisodeBatchSchedule";
+import { markCanceled, postTimeLabel, useScheduledPostCancel } from "@/lib/instagram/postsClient";
 
 // v1.15 인스타 자동 포스팅 1차(즉시 게시) — 기준: ai-influencer-studio InstagramPublishPanel(v1.14).
 // 웹툰은 「1컷 = 캐러셀 1장」: 흰 4:5 판(1080×1350)에 컷 전체 + 아래 대사 말풍선을 브라우저에서 그려 JPEG로 올린다.
@@ -37,14 +38,6 @@ const STATUS_LABEL: Record<PostRow["status"], { text: string; cls: string }> = {
   canceled: { text: "취소", cls: "bg-slate-500/15 text-slate-400" },
 };
 
-/** 기록 한 줄의 시각 문구 — 예약·취소는 예약 시각, 게시는 게시 시각 기준 */
-function postTimeLabel(p: PostRow): string {
-  if (p.status === "scheduled") return `${formatKst(p.scheduled_at)} ${p.error_message ? "다시 시도 예정" : "예약"}`;
-  if (p.status === "canceled" && p.scheduled_at) return `${formatKst(p.scheduled_at)} 예약 → 취소`;
-  if (p.published_at) return `${formatKst(p.published_at)} 게시`;
-  return `${formatKst(p.created_at)} 등록`;
-}
-
 /** 지금부터 1시간 뒤(한국 시간)를 datetime-local 기본값으로 */
 function defaultLocal(): string {
   return new Date(Date.now() + 60 * 60 * 1000 + 9 * 60 * 60 * 1000).toISOString().slice(0, 16);
@@ -64,8 +57,6 @@ export function InstagramPublishPanel({ project, onOpenSettings }: { project: We
   const [mode, setMode] = useState<"now" | "schedule">("now");
   const [when, setWhen] = useState(defaultLocal);
   const [posts, setPosts] = useState<PostRow[]>([]);
-  // 2026-10-20 예약 취소 중복 누름 방지(4컷 v1.19에서 발견): 취소 중인 줄은 버튼을 막고, 성공하면 다시 불러오기 전에 바로 「취소」로 바꾼다
-  const [canceling, setCanceling] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ urls: string[]; index: number } | null>(null);
   const [previewBusy, setPreviewBusy] = useState(false);
 
@@ -114,20 +105,8 @@ export function InstagramPublishPanel({ project, onOpenSettings }: { project: We
     }
   }
 
-  async function cancel(id: string) {
-    if (canceling) return;
-    setError("");
-    setCanceling(id);
-    try {
-      const r = await fetch(`/api/instagram/posts?id=${id}`, { method: "DELETE" });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) setError(d.error || "예약을 취소하지 못했습니다.");
-      else setPosts((cur) => cur.map((p) => (p.id === id ? { ...p, status: "canceled" } : p)));
-    } finally {
-      setCanceling(null);
-      void loadPosts();
-    }
-  }
+  // 예약 취소(취소 중 다른 버튼 막기·성공 즉시 「취소」 표시) — 공용 postsClient
+  const { canceling, cancel } = useScheduledPostCancel("/api/instagram/posts", { onCanceled: (id) => setPosts((cur) => markCanceled(cur, id)), onError: setError, onSettled: () => void loadPosts() });
 
   async function publish() {
     setError(""); setDone(null);

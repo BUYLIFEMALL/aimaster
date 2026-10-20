@@ -10,6 +10,14 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 인스타 예약 화면 동작 공용화: 상태 줄·게시 기록 시각·예약 취소 (남은 작업 순서 진행 ④, 미배포)
+- 한 일: 카드뉴스·인플루언서·웹툰·4컷의 「⏰ 예약 발행」 상태 줄 동작, 게시 기록 시각 문구, 예약 취소(중복 누름 방지)를 공용 기준 코드 `insta-posts-client`(`src/lib/instagram/postsClient.ts`, 기준 카드뉴스)로. 화면 모양·색·주소는 각 프로그램 그대로(목록 전체를 빼면 큰 게시 패널까지 바뀌어 동작 부분만 공용화).
+- 검수: 네 프로그램 tsc·테스트(52·18·18·52)·build 통과, 공용 코드 점검 일치. 동작·문구·DB 변경 없음.
+- **미배포**(다음 배포 때 함께 — 그때 「⏰ 예약 발행」 줄·「예약 취소」 화면 크롬 확인). 상세 각 `AGENTS.md`, `docs/SHARED_MODULES.md`.
+- 다음 순서 ⑤ 나머지 예약 프로그램 12개 `memberScheduler.ts` 공용 기준 코드 등록.
+- 링크: https://cardnews-studio.buylife.xyz · https://ai-influencer.buylife.xyz · https://ai-webtoon-automation.buylife.xyz · https://four-cut-comics.buylife.xyz
+
+
 ## 2026-10-20 Claude Code(윈도우) — 인스타 게시 처리·예약 API 5개 공용 기준 코드화 2단계 (남은 작업 순서 진행 ③, 미배포)
 - 한 일: 인플루언서·웹툰·4컷이 손 복사로 쓰던 `posting.ts` + `api/instagram/{posts,dispatch,dispatch-member,scheduler}` 5개를 공용 기준 코드로 등록(기준 `ai-webtoon-studio`). 다르던 값(게시 기록 표·slug·이미지 확인 함수 파일)은 각 `schedulerConfig.ts`로. 앞으로 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`. 카드뉴스는 구조가 달라 제외.
 - 검수: 세 프로그램 tsc·테스트(18·18·52)·build 통과, 공용 코드 점검 일치. 동작·DB 변경 없음.

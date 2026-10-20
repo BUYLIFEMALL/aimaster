@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { formatKst } from "@/lib/instagram/schedule";
+import { markCanceled, postTimeLabel, useScheduledPostCancel } from "@/lib/instagram/postsClient";
 
 // v1.19 최근 인스타 게시 기록(30일) — 게시 칸(InstaDirectPublish)과 내 작품 「📤 인스타그램 예약」이 같이 쓴다.
 // v1.18에서 InstaDirectPublish 안에 있던 목록을 그대로 옮기고, 예약 대기 요약(n건·다음 게시)을 위에 붙였다. refreshKey가 바뀌면 다시 불러온다.
@@ -27,14 +28,6 @@ const STATUS_LABEL: Record<PostRow["status"], { text: string; color: string }> =
   canceled: { text: "취소", color: "#64748b" },
 };
 
-/** 기록 한 줄의 시각 문구 — 예약·취소는 예약 시각, 게시는 게시 시각 기준 */
-function postTimeLabel(p: PostRow): string {
-  if (p.status === "scheduled") return `${formatKst(p.scheduled_at)} ${p.error_message ? "다시 시도 예정" : "예약"}`;
-  if (p.status === "canceled" && p.scheduled_at) return `${formatKst(p.scheduled_at)} 예약 → 취소`;
-  if (p.published_at) return `${formatKst(p.published_at)} 게시`;
-  return `${formatKst(p.created_at)} 등록`;
-}
-
 export function InstaPostHistory({ refreshKey = 0, onPendingChange, emptyText }: { refreshKey?: number; onPendingChange?: (n: number) => void; emptyText?: string }) {
   const [posts, setPosts] = useState<PostRow[] | null>(null);
   const [error, setError] = useState("");
@@ -53,23 +46,8 @@ export function InstaPostHistory({ refreshKey = 0, onPendingChange, emptyText }:
   const pending = (posts ?? []).filter((p) => p.status === "scheduled" && p.scheduled_at).sort((a, b) => Date.parse(a.scheduled_at!) - Date.parse(b.scheduled_at!));
   useEffect(() => { if (posts) onPendingChange?.(pending.length); }, [posts, pending.length, onPendingChange]);
 
-  // 취소 중인 줄은 버튼을 막고, 성공하면 다시 불러오기 전에 바로 「취소」로 바꾼다
-  // (목록 갱신이 늦어 같은 버튼을 한 번 더 누르면 「이미 끝난 예약」 오류가 나던 문제 — v1.19 검수 중 발견)
-  const [canceling, setCanceling] = useState<string | null>(null);
-  async function cancel(id: string) {
-    if (canceling) return;
-    setError("");
-    setCanceling(id);
-    try {
-      const r = await fetch(`/api/instagram/posts?id=${id}`, { method: "DELETE" });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) setError(d.error || "예약을 취소하지 못했습니다.");
-      else setPosts((cur) => cur?.map((p) => (p.id === id ? { ...p, status: "canceled" } : p)) ?? cur);
-    } finally {
-      setCanceling(null);
-      void load();
-    }
-  }
+  // 예약 취소(취소 중 다른 버튼 막기·성공 즉시 「취소」 표시) — 공용 postsClient
+  const { canceling, cancel } = useScheduledPostCancel("/api/instagram/posts", { onCanceled: (id) => setPosts((cur) => cur && markCanceled(cur, id)), onError: setError, onSettled: () => void load() });
 
   if (!posts) return null;
   if (posts.length === 0) return emptyText ? <small className="muted">{emptyText}</small> : null;

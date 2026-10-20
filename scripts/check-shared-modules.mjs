@@ -49,6 +49,12 @@ const MODULES = [
     copies: ["ai-influencer-studio/src/lib/instagram/cronJobOrg.ts", "ai-webtoon-studio/src/lib/instagram/cronJobOrg.ts", "four-cut-comics/src/lib/instagram/cronJobOrg.ts"],
   },
   {
+    // 인스타 예약 화면 동작(상태 줄 훅·상태 문구·게시 기록 시각 문구·예약 취소 훅) — 2026-10-20 등록. 화면 모양과 주소는 각 프로그램
+    id: "insta-posts-client",
+    source: "cardnews-studio/src/lib/instagram/postsClient.ts",
+    copies: ["ai-influencer-studio/src/lib/instagram/postsClient.ts", "ai-webtoon-studio/src/lib/instagram/postsClient.ts", "four-cut-comics/src/lib/instagram/postsClient.ts"],
+  },
+  {
     // 인스타 게시 처리(즉시·예약 실행 공통 publishPaths, 게시 기록, 30일 정리) — 2026-10-20 2단계 등록(기준 웹툰, 카드뉴스는 구조가 달라 제외). 프로그램 값은 각 폴더 schedulerConfig.ts
     id: "insta-posting",
     source: "ai-webtoon-studio/src/lib/instagram/posting.ts",
