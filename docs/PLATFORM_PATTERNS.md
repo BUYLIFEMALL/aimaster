@@ -280,6 +280,8 @@ warm bokeh lights]. 16:9 aspect ratio. No visible text, logos, or watermarks in 
 
 9. **글자·상표가 숨어 생기는 곳(2026-10-20 사례 4건)**: 화면 문구만 막아도 아래에서 가짜 글씨·로고가 생긴다 — 생성 후 **잘라서 확대해** 확인한다(`sharp`로 해당 부분 extract). ① 오디오 노브 아래 이름표 → "no knobs with labels, no tick marks with numbers" ② 앨범·카드 타일 아래 캡션 → "no captions or labels under the squares" ③ 슬레이트(클래퍼보드) 칸·책상 위 종이 → "plain matte black board, no writing area" + "no papers or documents" ④ 모니터 테두리 상표(LG 등)·렌즈 눈금 → "generic unbranded display, plain bezel, no logo" + 렌즈 같은 소품은 빼기. 적용: 무한루프 영상·AI 마스터링·플레이리스트 채널·시네마틱 스토리보드 썸네일 교체(3D·일러스트 → 실사).
 
+10. **점검 도구(2026-10-20)**: ① `generate-program-thumbnail.mjs`가 생성 직후 **확대본 6장**(3×2 조각, 2배 — `scripts/.tmp-<slug>-thumbnail-zoom-11.png`…)을 자동 저장한다 — 업로드 뒤 반드시 열어 글자·로고를 확인. 이미 있는 이미지는 `node scripts/thumbnail-zoom-tiles.mjs <이미지>`. ② `node scripts/thumbnail-contact-sheet.mjs` — 카탈로그 전체 썸네일을 번호·slug와 함께 20개씩 모은 점검 이미지(`scripts/.tmp-thumbnail-sheet-01.png`…)와 목록 JSON. DB는 읽기만. 두 도구 모두 루트에 sharp를 설치하지 않고 sharp가 있는 하위 프로그램 것을 찾아 쓴다(메인 사이트 배포 영향 없음). 2026-10-20 점검: 84개 모두 실사, **화면 속 글자가 보이는 9개**(ai-slide-builder·ai-web-ui·allinone-graphic·crm-google-form·detail-page-12p·ebook-studio·personality-code·prompt-template-studio·youtube-viral-studio)는 주인님 확인 후 재생성 대기.
+
 ---
 
 ## 14. 공용 `user_api_keys`에 새 provider 추가할 때 체크 제약도 같이 넓힐 것

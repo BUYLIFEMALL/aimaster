@@ -6,6 +6,7 @@
 //
 // Usage: node scripts/generate-program-thumbnail.mjs <program-slug> <geminiUserId> "<prompt>"
 import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 
 function loadEnvLocal(path) {
@@ -92,6 +93,15 @@ const buffer = Buffer.from(imageBase64, "base64");
 const localPath = new URL(`../scripts/.tmp-${slug}-thumbnail.jpg`, import.meta.url);
 writeFileSync(localPath, buffer);
 console.log("로컬 저장:", localPath.pathname, `${buffer.length} bytes`);
+
+// 2026-10-20: 숨은 글자·로고 확인용 확대본(3×2 조각, 2배) 저장 — 업로드 뒤에도 글자가 보이면 바로 다시 만든다(PLATFORM_PATTERNS §13 9번).
+try {
+  const { saveZoomTiles } = await import("./thumbnail-zoom-tiles.mjs");
+  const tiles = await saveZoomTiles(fileURLToPath(localPath));
+  console.log("확대본 저장(글자·로고 확인용 — 열어서 확인):\n  " + tiles.join("\n  "));
+} catch (e) {
+  console.warn("확대본 저장 건너뜀:", e instanceof Error ? e.message : e);
+}
 
 const storagePath = `catalog/${slug}-thumbnail.jpg`;
 const { error: uploadErr } = await supabase.storage
