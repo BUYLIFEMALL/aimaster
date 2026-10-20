@@ -77,6 +77,7 @@ const MODULES = [
       "youtube-auto-reply/components/ProgramNoticeBanner.tsx",
       "kakao_auto_poster/src/components/ProgramNoticeBanner.tsx",
       "insta_auto_poster/src/components/ProgramNoticeBanner.tsx",
+      "youtube-viral-studio/src/components/ProgramNoticeBanner.tsx",
     ],
   },
   {

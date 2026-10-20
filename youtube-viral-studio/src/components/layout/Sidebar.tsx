@@ -11,6 +11,8 @@ import {
   TrendingUp,
   Link2,
   Bookmark,
+  BarChart3,
+  Search,
   KeyRound,
   BookOpen,
   LogOut,
@@ -26,10 +28,16 @@ interface SidebarProps {
 // 공식 표준 작업 흐름 (1 -> 2 -> 3 -> 4 -> 5). 대시보드는 흐름 밖(맨 위), 설정·매뉴얼은 유틸리티.
 const flow: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/viral-shorts", label: "떡상 쇼츠 발굴", icon: Flame },
-  { href: "/golden-channels", label: "황금 채널 발굴", icon: Sparkles },
+  { href: "/golden-channels", label: "황금·공략 채널 발굴", icon: Sparkles },
   { href: "/trending-videos", label: "실시간 터진 영상", icon: TrendingUp },
   { href: "/source-finder", label: "쇼츠 원본 찾기", icon: Link2 },
   { href: "/favorites", label: "즐겨찾기 보관함", icon: Bookmark },
+];
+
+// 2026-10-20 병합 C: YOUTUBE CHANNEL CONSULTANT에서 옮겨 온 진단 화면(공략 채널은 위 「황금·공략 채널 발굴」로 하나)
+const diagnose: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/channel-analysis", label: "채널 분석", icon: BarChart3 },
+  { href: "/keyword-analysis", label: "키워드 분석", icon: Search },
 ];
 
 const utility: { href: string; label: string; icon: LucideIcon }[] = [
@@ -97,8 +105,16 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
       <div className="md:min-h-0 md:overflow-y-auto">
         <NavItem href="/dashboard" label="대시보드" icon={LayoutDashboard} active={pathname === "/dashboard"} />
         <div className="mt-2 flex flex-col gap-0.5 border-t border-yt-border pt-2">
+          <p className="px-3 pb-1 text-[11px] font-bold text-yt-muted">🔥 트렌드 발굴</p>
           {flow.map((item, i) => (
             <NavItem key={item.href} {...item} step={i + 1} active={pathname === item.href} />
+          ))}
+        </div>
+        {/* 2026-10-20 병합 C: YOUTUBE CHANNEL CONSULTANT 화면 */}
+        <div className="mt-2 flex flex-col gap-0.5 border-t border-yt-border pt-2">
+          <p className="px-3 pb-1 text-[11px] font-bold text-yt-muted">📊 채널·키워드 진단</p>
+          {diagnose.map((item) => (
+            <NavItem key={item.href} {...item} active={pathname === item.href} />
           ))}
         </div>
         <div className="mt-2 flex flex-col gap-0.5 border-t border-yt-border pt-2">

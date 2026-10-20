@@ -151,3 +151,10 @@
 
 ## 2026-10-20 병합 C 준비 — YOUTUBE CHANNEL CONSULTANT를 이 앱 안으로 (Claude Code 윈도우, 플랜 확인 대기·코드 변경 없음)
 - 플랜 겸 인수인계: [`docs/PLAN_20261020_MERGE_C_CONSULTANT.md`](docs/PLAN_20261020_MERGE_C_CONSULTANT.md) — 조사 결과(옮길 파일 18개, 이름 충돌 `lib/youtube/{client,metrics,types}`, 공용 기준 코드 기준 위치, 권한 148명 모두 겹침), 3단계, 다음 첫 단계.
+
+## 2026-10-20 v1.20 — 병합 C 1단계: YOUTUBE CHANNEL CONSULTANT 화면·기능 이식 (Claude Code 윈도우)
+- CONSULTANT 전용 파일 21개 복사(스크립트 방식, 플랜 §3): 화면 `/channel-analysis`·`/keyword-analysis`, API `/api/youtube/channel`·`/api/youtube/keyword`·`/api/ai/analyze`, `components/ai/*`·`components/analysis/*`·`components/settings/GuideLinkButton.tsx`, `lib/ai/{llm,models,prompts}.ts`, `lib/export.ts`.
+- 이름이 겹치는 CONSULTANT 유튜브 계산 코드 5개는 **`src/lib/consultant/youtube/{client,metrics,types,analysis,targets}.ts`**로 분리(VIRAL `lib/youtube/*`는 그대로). 그 안의 `./youtubeData`·`./goldenEngine`은 VIRAL의 같은 공용 사본(`@/lib/youtube/...`, 내용 동일 확인)을 씀.
+- 공략 채널은 VIRAL `/golden-channels` 하나(같은 엔진, 선택 항목도 거의 같음 — 기본 조건만 달랐음), 메뉴 이름 「황금·공략 채널 발굴」. 좌측 메뉴 「🔥 트렌드 발굴」·「📊 채널·키워드 진단」 두 묶음.
+- 공지 띠(`program-notice-banner` 사본, dark) 함께(배포 누락 방지 교훈).
+- 검수: tsc, `npm run build`(새 경로 2개 생성), 공용 코드 점검 OK, 테스트 goldenEngine 3·favorites 8 통과.
