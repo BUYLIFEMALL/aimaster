@@ -91,7 +91,7 @@ export function Sidebar({
   const readingTimeMin = Math.max(1, Math.round(totalCharacters / 500));
 
   const content = (
-    <div className="flex h-full flex-col justify-between overflow-y-auto p-4 custom-scrollbar">
+    <div className="flex h-full flex-col overflow-y-auto p-4 custom-scrollbar">
       <div className="space-y-4">
         {/* 1. 상단 로고 & 프로그램 정보 */}
         <div className="border-b border-slate-200/80 pb-3">
@@ -238,7 +238,7 @@ export function Sidebar({
       </div>
 
       {/* 4. 하단 유틸리티 및 사용자 정보 */}
-      <div className="space-y-2 border-t border-slate-200/80 pt-3">
+      <div className="mt-4 shrink-0 space-y-2 border-t border-slate-200/80 pt-3">
         <Link
           href="/guide"
           className="w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-bold text-slate-800 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 transition-all group"
