@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { OPENAI_CONTENT_MODELS, type OpenAIContentModel } from "@/lib/ai/openaiModels";
-import { openAIModelNotice, openAIModelTier } from "@/lib/ai/openaiRequestParams";
+import { openAIModelNotice, openAIModelTier, openAIModelTierHint } from "@/lib/ai/openaiRequestParams";
 
 export default function AiModelSettings({ initialModel }: { initialModel: OpenAIContentModel }) {
   const [model, setModel] = useState<OpenAIContentModel>(initialModel);
@@ -39,7 +39,7 @@ export default function AiModelSettings({ initialModel }: { initialModel: OpenAI
           <button className="small-button" onClick={save} disabled={pending}>{pending ? "저장 중" : "모델 저장"}</button>
         </div>
       </div>
-      {openAIModelTier(model) && <p className="model-tier">모델 성격: {openAIModelTier(model)}</p>}
+      {openAIModelTier(model) && <details className="model-tier"><summary title={openAIModelTierHint(model)}>모델 성격: {openAIModelTier(model)} ⓘ</summary><span>{openAIModelTierHint(model)}</span></details>}
       {openAIModelNotice(model) && <p className="model-notice">{openAIModelNotice(model)}</p>}
       {message && <p className="settings-message" role="status">{message}</p>}
     </div>

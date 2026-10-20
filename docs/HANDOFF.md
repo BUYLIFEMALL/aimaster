@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 일반 회원 검수 완료 + 점검 스크립트 HANDOFF 자동 기록 + 모델 성격 설명(SEO 스튜디오 v1.79·쇼핑제휴 v1.70)
+- 일반 회원(`buylifemall@naver.com`, 주인님 로그인) 검수: 두 프로그램 정상, 시험 계정 본인 키 `gpt-5.6-luna` 각 1회 성공. 커밋 `f2523dae`.
+- `scripts/check-openai-models.mjs --live` 결과가 이 문서 맨 위에 자동으로 한 줄 남음(`--no-handoff`로 끔). 401 키 오류는 기록 없이 멈추고, 오류 문구의 키 조각은 가림. **실제 `--live`는 아직 미실행(주인님 본인 키 필요).** 커밋 `12207bc8`.
+- 모델 성격 표시에 설명: 마우스 올리기 말풍선 + 누르면 펼침(`openAIModelTierHint`). 두 프로그램 배포 Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.79·v1.70, 사본 7곳 동기화(미배포).
+- https://naver-blog-seo-studio.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ⑤단계: YouTube·카카오·네이버 로그인 (주인님 「진행해」·백필 「진행해줘」)
 - 한 일: 유튜브 댓글 v1.14·shots v1.22(YouTube)·카카오 포스팅 v1.24·네이버 카페 v1.24 — 연결 시 이중 기록, 공용 계정(권한 + **같은 앱(`app_ref`)** + 재연결 필요 아님) 먼저 읽기, 갱신 토큰으로 받은 새 토큰은 읽은 곳에 기록(카카오·네이버는 새 갱신 토큰도), 해제 시 공용 행 삭제. 공용 부품 사본 3개 추가(기준 변경 없음).
 - DB(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor): 백필은 본인 앱 키 있는 연결만(주인님 승인) → YouTube 1건, 카카오·네이버 0건(예전 공용 앱 시절 연결뿐), 버전 4개 반영.

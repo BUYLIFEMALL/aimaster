@@ -1,7 +1,7 @@
 // 공용 기준 코드 「openai-request-params」 테스트 — 기준: naver-blog-seo-studio/tests/openaiRequestParams.test.mjs. 사본은 직접 고치지 않는다.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isOpenAIReasoningModel, openAIGenerationParams, openAIModelNotice, openAIModelTier, openAIErrorReason, REASONING_MIN_COMPLETION_TOKENS } from "../lib/ai/openaiRequestParams.ts";
+import { isOpenAIReasoningModel, openAIGenerationParams, openAIModelNotice, openAIModelTier, openAIModelTierHint, openAIErrorReason, REASONING_MIN_COMPLETION_TOKENS } from "../lib/ai/openaiRequestParams.ts";
 
 const reasoning = ["gpt-5", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-6-luna", "gpt-6-astra", "o4-mini", "o3"];
 const classic = ["gpt-4o-mini", "gpt-4o", "gpt-4.1", "gpt-4.1-mini"];
@@ -33,6 +33,13 @@ test("모델 성격 표시", () => {
   for (const model of ["gpt-4o", "gpt-4.1", "gpt-5.6-terra", "gpt-5.4"]) assert.equal(openAIModelTier(model), "⚖️ 균형", model);
   for (const model of ["gpt-5", "gpt-5.6-sol", "gpt-6-astra", "gpt-6.1-sol", "o3", "o1"]) assert.equal(openAIModelTier(model), "💎 고품질", model);
   for (const model of ["claude-opus-5", "gemini-3.8-flash", ""]) assert.equal(openAIModelTier(model), "", model);
+});
+
+test("모델 성격 설명", () => {
+  assert.match(openAIModelTierHint("gpt-5.6-luna"), /빠른 응답/);
+  assert.match(openAIModelTierHint("gpt-4.1"), /무난한/);
+  assert.match(openAIModelTierHint("gpt-6-astra"), /복잡한 주제/);
+  assert.equal(openAIModelTierHint("claude-opus-5"), "");
 });
 
 test("OpenAI 거부 이유", async () => {

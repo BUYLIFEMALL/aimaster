@@ -24,7 +24,7 @@ import {
   DEFAULT_AI_MODELS,
   PROVIDER_SHORT_LABELS,
 } from "@/lib/ai/models";
-import { openAIModelNotice, openAIModelTier } from "@/lib/ai/openaiRequestParams";
+import { openAIModelNotice, openAIModelTier, openAIModelTierHint } from "@/lib/ai/openaiRequestParams";
 import {
   type ImageProvider,
   IMAGE_PROVIDERS,
@@ -1013,7 +1013,7 @@ export function ProductPostForm({
               ))}
             </select>
             {openAIModelTier(aiModel) && (
-              <p className="text-[11px] font-semibold text-neutral-600">모델 성격: {openAIModelTier(aiModel)}</p>
+              <details className="text-[11px] text-neutral-600"><summary title={openAIModelTierHint(aiModel)} className="w-fit cursor-help list-none font-semibold [&::-webkit-details-marker]:hidden">모델 성격: {openAIModelTier(aiModel)} ⓘ</summary><span className="mt-0.5 block">{openAIModelTierHint(aiModel)}</span></details>
             )}
             {openAIModelNotice(aiModel) && (
               <p className="text-[11px] font-semibold text-amber-700">⏳ {openAIModelNotice(aiModel)}</p>

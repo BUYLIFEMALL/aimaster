@@ -611,3 +611,6 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 ## 2026-10-20 v1.69 — 글 모델 선택 칸에 모델 성격 표시 (Claude Code 윈도우)
 - 새 글 작성·떡상 탐지기 글 모델 선택 칸 아래 「모델 성격: ⚡ 빠름 / ⚖️ 균형 / 💎 고품질」(공용 기준 코드 `openAIModelTier`, 사본 `src/lib/ai/openaiRequestParams.ts` 갱신 — 직접 고치지 않음). 검수: tsc 0 · test:naver-key · test:openai-params 6 · build · 배포 `threads-affiliate-poster-ewejj63fv` Ready · DB v1.69 · 크롬: luna ⚡·astra 💎·4.1 ⚖️ 표시, 기본 모델 GPT-4.1 유지(호출 없음).
+
+## 2026-10-20 v1.70 — 모델 성격 표시에 한 줄 설명 (Claude Code 윈도우)
+- 「모델 성격: … ⓘ」에 마우스를 올리면 말풍선(`title`), 누르면 펼침(`<details>`)으로 설명(공용 기준 코드 `openAIModelTierHint`, 사본 갱신). 배포 `threads-affiliate-poster-7q30yno6l` Ready · DB v1.70 · 크롬(일반 회원 세션): luna 「짧은 글·빠른 응답에 적합…」, 닫힘 17px→열림 35px, 기본 모델 GPT-4.1 유지(호출 없음).

@@ -497,4 +497,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 
 /* v1.77 GPT-5·GPT-6 계열 선택 시 「응답이 조금 느릴 수 있음」 안내 */
 .model-tier { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.model-tier summary { cursor: help; list-style: none; width: fit-content; }
+.model-tier summary::-webkit-details-marker { display: none; }
+.model-tier span { display: block; margin-top: 2px; font-weight: 400; }
 .model-notice { display: block; margin-top: 4px; color: #a16207; font-size: 12px; }

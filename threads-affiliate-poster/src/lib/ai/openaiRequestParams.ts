@@ -42,6 +42,15 @@ export function openAIModelTier(model: string) {
   return "⚖️ 균형";
 }
 
+/** 모델 성격 표시에 마우스를 올리거나 눌렀을 때 보여 줄 한 줄 설명(해당 없으면 빈 문자열) */
+export function openAIModelTierHint(model: string) {
+  const tier = openAIModelTier(model);
+  if (tier.includes("빠름")) return "짧은 글·빠른 응답에 적합하고 비용이 적습니다.";
+  if (tier.includes("고품질")) return "긴 글·복잡한 주제에 적합하지만 느리고 비용이 큽니다.";
+  if (tier.includes("균형")) return "대부분의 글에 무난한 품질과 속도입니다.";
+  return "";
+}
+
 /** OpenAI 오류 응답의 거부 이유(error.message)를 화면 안내에 덧붙일 짧은 문구로 만든다(읽지 못하면 빈 문자열). */
 export async function openAIErrorReason(response: Response) {
   try {
