@@ -1,7 +1,7 @@
 # 이미지 자동화 (AI Image Studio / ai-image-studio)
 
 > **공식 서비스 URL**: [https://ai-image-studio.buylife.xyz](https://ai-image-studio.buylife.xyz)  
-> **현재 버전**: `v1.12` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)  
+> **현재 버전**: `v1.19` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
 > **담당 CLI**: Antigravity CLI (agy) / Claude Code / Codex 공통
 
 AIMaster 플랫폼의 **AI 이미지 자동화 레퍼런스(기준) 프로그램**인 **AI Image Studio**입니다.  
@@ -76,3 +76,6 @@ AIMaster 플랫폼의 **AI 이미지 자동화 레퍼런스(기준) 프로그램
 ## 7. 사용자 편의성 증대 디자인 UI 개선안
 - 화면비(Aspect Ratio) 비주얼 사각형 그리드 셀렉터 도입.
 - 생성 전 실시간 토큰 비용 및 예상 소요시간 계산기 위젯 탑재.
+
+## 2026-10-20 v1.19
+사용 매뉴얼 배너 위치를 API키등록 메뉴 바로 위로 변경했습니다. [작업 결과·검수·남은 일](docs/IMPROVEMENT_HANDOFF_20261020_MANUAL_MENU.md).

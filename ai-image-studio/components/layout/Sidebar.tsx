@@ -52,29 +52,6 @@ export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
           </div>
         </div>
 
-        {/* 📖 연동 & 사용 매뉴얼 Banner Button */}
-        <div className="px-1">
-          <Link
-            href="/guide"
-            className={`group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
-              pathname === "/guide"
-                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-lg shadow-amber-500/10"
-                : "bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/25 text-amber-300/90 hover:border-amber-500/50 hover:bg-amber-500/15 hover:text-amber-200"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-base group-hover:scale-110 transition-transform">📖</span>
-              <div>
-                <p className="font-bold">연동 & 사용 매뉴얼</p>
-                <p className="text-[10px] text-amber-400/70 font-normal">5단계 제작 & 프롬프트 팁</p>
-              </div>
-            </div>
-            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">
-              가이드
-            </span>
-          </Link>
-        </div>
-
         {/* Pipeline Navigation */}
         <nav className="relative flex flex-col pt-1">
           {FLOW_STEPS.map((item, idx) => {
@@ -140,6 +117,29 @@ export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
             </div>
             <span className="rounded bg-zinc-800 text-zinc-400 px-1.5 py-0.5 text-[10px] font-bold border border-zinc-700">
               관리
+            </span>
+          </Link>
+        </div>
+
+        {/* 📖 연동 & 사용 매뉴얼 Banner Button */}
+        <div className="px-1">
+          <Link
+            href="/guide"
+            className={`group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
+              pathname === "/guide"
+                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-lg shadow-amber-500/10"
+                : "bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/25 text-amber-300/90 hover:border-amber-500/50 hover:bg-amber-500/15 hover:text-amber-200"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-base group-hover:scale-110 transition-transform">📖</span>
+              <div>
+                <p className="font-bold">연동 & 사용 매뉴얼</p>
+                <p className="text-[10px] text-amber-400/70 font-normal">5단계 제작 & 프롬프트 팁</p>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">
+              가이드
             </span>
           </Link>
         </div>
