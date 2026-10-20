@@ -76,6 +76,8 @@ const nextConfig = {
       { source: "/programs/youtube-channel-consultant", destination: "/programs/youtube-viral-studio", permanent: false },
       // 2026-10-20 AI 유튜브 썸네일 프로는 AI 썸네일·SEO 자동화(thumbnail-master) 안으로 병합(카탈로그 노출 중지)
       { source: "/programs/seo-thumbnail-pro", destination: "/programs/thumbnail-master", permanent: false },
+      // 2026-10-20 Youtube Playlist 자동화는 YOUTUBE 플레이리스트 자동화(playlist-channel-studio) 「영상 만들기」로 병합(카탈로그 노출 중지)
+      { source: "/programs/yt-playlist-studio", destination: "/programs/playlist-channel-studio", permanent: false },
       {
         source: '/stepmail',
         destination: 'https://stepmail.buylife.xyz',

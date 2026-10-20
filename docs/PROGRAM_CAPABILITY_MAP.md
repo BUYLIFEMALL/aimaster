@@ -64,7 +64,7 @@
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.71 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.04 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.21 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
-| 48 | 플레이리스트 채널 제작 자동화 | `playlist-channel-studio` | 유튜브 | v1.14 | 운영 | 장르만 고르면 플레이리스트 채널용 제목·Suno 프롬프트·가사·설명·썸네일을 만드는 도구 |
+| 48 | YOUTUBE 플레이리스트 자동화 | `playlist-channel-studio` | 유튜브 | v1.16 | 운영 | 장르만 고르면 제목·Suno 프롬프트·가사·썸네일을 만들고, 음악에 반응하는 1080p 플레이리스트 영상까지 완성하는 도구(2026-10-20 yt-playlist-studio 병합) |
 | 49 | AI 썸네일·SEO 자동화 | `thumbnail-master` | 유튜브 | v1.09 | 운영 | 대본으로 제목·설명·태그 SEO 전략 3가지를 만들고, 타겟별 A/B 문구가 들어간 유튜브 썸네일까지 완성하는 도구(2026-10-20 seo-thumbnail-pro 병합) |
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.10 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
@@ -76,7 +76,7 @@
 | 57 | 뮤직비디오 자동화 | `music-video-studio` | 음악 | v1.10 | 운영 | 주제·장르로 가사와 스토리보드를 만들고 장면 이미지·Veo 영상까지 만드는 뮤직비디오 도구 |
 | 58 | 음악(SUNO)자동화 | `music-automation` | 음악 | v1.16 | 운영 | 곡 설명만 적으면 AI가 기획하고 Suno로 보컬·연주곡 실제 음악까지 만들어 보관하는 도구 |
 | 59 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 음악 | v1.12 | 운영 | 나만의 LP·CD 앨범 아트를 만들고 돌아가는 턴테이블 MP4·GIF 영상으로 완성하는 도구 |
-| 60 | Youtube Playlist 자동화 | `yt-playlist-studio` | 음악 | v1.14 | 운영 | 음악에 반응하는 스펙트럼·파티클·AI 배경으로 1080p 유튜브 플레이리스트 영상을 만드는 도구 |
+| 60 | Youtube Playlist 자동화 | `yt-playlist-studio` | 음악 | v1.15 | **병합됨 → playlist-channel-studio(2026-10-20), 노출 중지** | 음악에 반응하는 스펙트럼·파티클·AI 배경으로 1080p 유튜브 플레이리스트 영상을 만드는 도구 |
 | 61 | AI Audio분석 자동화 | `ai-audio-analyzer` | 음악 | v1.04 | 운영 | 음성·음악 파일로 회의록·화자 분석, Suno 역설계 프롬프트, 음향 진단을 만드는 오디오 분석실 |
 | 62 | AI 이미지 스튜디오 | `ai-image-studio` | 이미지 | v1.18 | 운영 | 한국어 아이디어를 프롬프트로 다듬어 여러 AI 엔진으로 이미지를 1~10장 만드는 스튜디오 |
 | 63 | AI 인물사진 자동화 | `portrait-photo` | 이미지 | v1.29 | 운영 | 사진 한 장으로 증명사진·프로필·SNS·화보 인물 사진을 만드는 AI 인물사진 스튜디오 |
@@ -143,7 +143,7 @@
 | 엑셀·CSV 읽기/쓰기·원본 서식 유지 | `file-merge/src/lib/files/{sheetio,table,styled}.ts` | ExcelJS 100만 칸 한도 |
 | 텍스트 인코딩 자동 판별(CP949/UTF-8)·문장 경계 나누기 | `file-merge/src/lib/files/text.ts` | |
 | 브라우저 영상 처리(ffmpeg.wasm) | `video-to-gif`, `infinite-loop-video` | 서버 전송 없음 |
-| 브라우저 MP4 렌더링(WebCodecs+mp4-muxer) | `yt-playlist-studio`, `vinyl-lp-studio` | |
+| 브라우저 MP4 렌더링(WebCodecs+mp4-muxer) | `playlist-channel-studio`(`src/lib/render/`, 2026-10-20 yt-playlist-studio에서 이동), `vinyl-lp-studio` | |
 | 브라우저 오디오 처리(Web Audio) | `ai-mastering-studio`, `music-player` | |
 | PPTX 생성 | `ai-slide-builder`(pptxgenjs) | |
 | DOCX·EPUB·PDF·HTML 내보내기 | `document-translator`(DOCX), `ebook-studio`(EPUB·PDF·HTML), `markdown-studio`(PDF·DOCX·ZIP) | |
@@ -705,7 +705,9 @@
 - **단점·한계**: YouTube API 일일 할당량에 묶임 · AI 대본 분석은 별도 AI 키 필요
 - **키·계정·주의**: 회원 본인의 YouTube Data API 키(구글 클라우드 무료 발급)를 사용하고, AI 분석은 본인 OpenAI 또는 Gemini 키가 있을 때 씁니다.
 
-#### 플레이리스트 채널 제작 자동화 (`playlist-channel-studio`)
+#### YOUTUBE 플레이리스트 자동화 (`playlist-channel-studio`) — 옛 이름 플레이리스트 채널 제작 자동화
+- **2026-10-20 v1.15~v1.16 병합 E(Youtube Playlist 자동화 흡수)**: 「영상 만들기」(`/video`) — 음악·배경 넣기(곡 파일·배경 이미지/영상·AI 배경 `/api/generate-bg`)·편집(스펙트럼 10·파티클·필터·오버레이)·브라우저 1080p MP4 내보내기(`src/lib/render/`, 라이브러리 mp4-muxer·gifenc·gifuct-js)·챕터 타임스탬프. 메뉴 ① 새 플레이리스트 → ② 영상 만들기 → ③ 내 프로젝트, 이름 「YOUTUBE 플레이리스트 자동화」, 공지 띠. 주소 https://playlist-maker.buylife.xyz, 옛 주소 https://youtube-playlist.buylife.xyz 는 `/video`로 이동·API 전달. 권한 143명 동일.
+- **현재 사용 순서**: 1 장르·제목 → 2 Suno 프롬프트·가사·썸네일 → 3 Suno에서 곡 만들기(외부) → 4 영상 만들기·MP4
 - 주소·폴더: https://playlist-channel-studio.buylife.xyz · `playlist-channel-studio/` · v1.07
 - **차별점**: 장르만 고르면 유튜브 플레이리스트 채널 영상 한 편에 필요한 제목·음악 프롬프트·가사·설명·썸네일을 한 번에 만드는 도구입니다.
 - **기능**: 제목 10개 중에서 고르면 그 제목에 맞춘 Suno 5.0 스타일 프롬프트 3종과 곡별 가사를 씁니다. 5개 언어와 이중 언어, 1~20곡, 곡 구조 15종, 연주곡 모드를 고를 수 있습니다. / 유튜브 설명글, 해시태그 5개, 검색 키워드 15개도 함께 만들어 업로드 준비를 끝냅니다. / 7가지 스타일의 썸네일 배경에 14종 글꼴로 제목 글자를 얹어 PNG·JPG로 저장하고, 수정 요청으로 다시 만듭니다. 프로젝트는 내 계정에 최대 30개 저장됩니다.
@@ -845,6 +847,7 @@
 - **키·계정·주의**: 이미지 생성에는 회원 본인의 Gemini API 키를 사용합니다. 영상 변환은 내 브라우저에서 처리되어 기기 성능에 따라 시간이 다릅니다.
 
 #### Youtube Playlist 자동화 (`yt-playlist-studio`)
+- **병합됨 → `playlist-channel-studio`(YOUTUBE 플레이리스트 자동화, 2026-10-20)**: 영상 기능 전체가 합친 앱 `/video`로 이동, 카탈로그(음악 분야) 노출 중지, 옛 주소는 이동·API 전달(v1.15). 아래 카드는 병합 전 기록.
 - 주소·폴더: https://youtube-playlist.buylife.xyz · `yt-playlist-studio/` · v1.04
 - **차별점**: 음악에 맞춰 움직이는 스펙트럼과 감성 효과로, 유튜브 플레이리스트 영상을 브라우저에서 직접 렌더링하는 도구입니다.
 - **기능**: 비트에 반응하는 10종 오디오 스펙트럼(막대·원형·파형·링 등)에 14종 파티클(비·눈·하트·음표 등), 8종 컬러 필터, 10종 오버레이(VHS·글리치·빛 번짐)를 얹습니다. / 「비 오는 날 카페 로파이」 같은 프리셋으로 16:9 배경을 AI로 만들고, 채널 로고·스티커도 올립니다. / 여러 곡의 누적 시간을 계산해 유튜브 설명란용 챕터 타임스탬프를 원클릭으로 복사하고, GPU 가속으로 1080p MP4를 빠르게 렌더링해 디스크에 바로 저장합니다.

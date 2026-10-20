@@ -16,6 +16,12 @@ https://naver-blog-agent.buylife.xyz
 
 https://naver-blog-agent.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 E 완료 + 유튜브 병합 C·D·E 모두 완료 (10개 → 7개)
+- 병합 E 3단계: 옛 Youtube Playlist 주소 이동·API 전달, DB 백업 후 「YOUTUBE 플레이리스트 자동화」 이름·소개, 옛 앱 노출 중지(음악 분야), 메인 상세 이동, 공용 점검 사본 정리, 역량 지도·DESIGN.md. 상세 [플랜 §8](../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md).
+- 유튜브 결과: YOUTUBE 트렌드 분석(C) · AI 썸네일·SEO 자동화(D) · YOUTUBE 플레이리스트 자동화(E). [분석 보고서 §6 진행 결과](analysis-youtube-consolidation-20261020/REPORT.md). 남은 후보: 보류 F(Shots ↔ 쇼츠 원스톱 기능 나눠 쓰기).
+
+https://playlist-maker.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 E 2단계 (playlist-channel-studio v1.16 「YOUTUBE 플레이리스트 자동화」)
 - 이름 변경(주인님 확정), 매뉴얼 06 영상 만들기 단계·FAQ 2개, Viral Finder 문구 → YOUTUBE 트렌드 분석. 커밋 `c2479edb`, 배포 Ready, DB v1.16, 크롬 매뉴얼·이름 확인.
 - 다음 첫 단계: 3단계(주인님 확인 후) — [플랜 §3·§8](../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md).

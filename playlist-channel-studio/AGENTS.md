@@ -137,3 +137,6 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 주인님 「YOUTUBE 플레이리스트 자동화 로 하자」 → `APP_NAME`(메뉴·로그인)·브라우저 제목·매뉴얼 하단 이름 변경, slug·주소(`playlist-maker.buylife.xyz`) 그대로.
 - 매뉴얼 `/guide`: 단계 카드 「06 영상 만들기 — 스펙트럼·배경 → 1080p MP4」, FAQ Q1(영상 만들기 사용법)·Q2(옛 Youtube Playlist 회원) 추가, 기존 질문 Q3~Q6으로.
 - 영상 부품의 「Viral Finder」 문구 → 「YOUTUBE 트렌드 분석」(병합 C 이름 변경 반영): `components/video/{ReferenceNotePanel,PlaylistGuideView}.tsx`, `lib/referenceNote.ts`.
+
+## 2026-10-20 병합 E 3단계 완료 — 카탈로그 「YOUTUBE 플레이리스트 자동화」 (Claude Code 윈도우)
+- DB 이름·소개 갱신, 옛 Youtube Playlist 자동화 노출 중지·옛 주소 이동/API 전달. 브라우저 MP4 렌더(`src/lib/render/`)의 기준 위치가 이제 이 앱. 상세 플랜 §8.

@@ -50,3 +50,12 @@
 ## 5. 확인 필요(주인님 결정)
 - 병합 후 이름(위 후보), 요금·FREE 여부(지금 기준 유지 기본값), 진행 순서(C → D → E 추천).
 - 역량 지도와 실제가 다른 곳: 쇼츠 원스톱은 「P1만 공개」로 적혀 있으나 실제 P8 공개 완료(v1.18) — 병합 작업 때 카드 갱신.
+
+## 6. 진행 결과 (2026-10-20 같은 날 완료)
+| 병합 | 결과 프로그램 | 버전 | 비고 |
+|---|---|---|---|
+| C | **YOUTUBE 트렌드 분석** (`youtube-viral-studio`) ← YOUTUBE CHANNEL CONSULTANT | v1.21 | 권한 148명 모두 겹침, 공용 기준 코드 2개 기준 위치 이동 |
+| D | **AI 썸네일·SEO 자동화** (`thumbnail-master`) ← AI 유튜브 썸네일 프로 | v1.09 | SEO 전략을 서버 API로(프로의 키 원문 브라우저 전달 폐기), 프로 전용 5명 권한 부여 |
+| E | **YOUTUBE 플레이리스트 자동화** (`playlist-channel-studio`) ← Youtube Playlist 자동화 | v1.16 | **기준 앱을 이 보고서(§3)와 반대로 정정** — 영상 앱이 브라우저 부품 한 화면 앱이라 `/video`로 옮기는 편이 쉬웠음, 권한 143명 동일 |
+
+유튜브 관련 10개 → **7개**. 보류 F(Shots ↔ 쇼츠 원스톱 「기능 나눠 쓰기」)와 독립 2개(쇼츠 떡상 분석·대본, 유튜브 댓글자동화)는 그대로. 각 병합 플랜 겸 인수인계: `youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md`, `thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md`, `playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md`.

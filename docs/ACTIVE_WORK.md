@@ -18,4 +18,3 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `playlist-channel-studio/` · `yt-playlist-studio/` | Claude Code(윈도우) | 2026-10-20 | 병합 E 1·2단계 완료(v1.16 「YOUTUBE 플레이리스트 자동화」), 3단계(옛 주소·카탈로그) 주인님 확인 대기 — `playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md` |
