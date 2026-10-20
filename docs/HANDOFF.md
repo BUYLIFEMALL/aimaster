@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — INSTA 댓글·DM v1.24: DM 설정 값 정리·매뉴얼 통합·INSTA 포스팅 템플릿 + 공지 띠 5개 프로그램
+- 공지 띠(`program-notice-banner`) 사본 5개 추가·배포: INSTA 댓글·DM v1.24, threads 댓글 v1.15, 유튜브 자동답글 v1.20, 카카오 v1.29, INSTA 포스팅 v1.42(기준 코드에 형식 정의 없는 조회로 수정, 웹툰은 다음 배포 때).
+- INSTA 댓글·DM v1.24: `/dm/settings` 병합 후 값 정리(키·연결은 API키등록 한 곳, 웹훅 확인 토큰 변경 안내), `/guide` 댓글·DM 통합 초보자 매뉴얼(`/dm/guide` 이동), INSTA 포스팅과 같은 「플로우 위저드 스타일 (인스타 바이럴 변형)」 다크 템플릿(색상 토큰·좌측 메뉴·대시보드). 검수: 크롬 데스크톱·390px. 상세 `instagram-comment-reply/AGENTS.md`·`docs/DESIGN_HANDOFF.md`.
+
+https://instagram-comment-reply.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 텔레그램 연동 확인 수정 전파 (threads-comment-reply v1.14·youtube-auto-reply v1.19·kakao-auto-posting v1.28)
 - instagram-comment-reply v1.21과 같은 수정(`getUpdates`에 `allowed_updates=["message"]`)을 같은 코드를 쓰는 8개에 반영. 웹훅을 거는 3개는 배포(모두 Ready, DB 버전 갱신, /login 200), 웹훅을 안 거는 5개(booking-reminder·crm-google-form·longtail-keyword-expander·real_estate_sales·trending-product-finder)는 **코드만 반영, 다음 배포 때 버전 +0.01과 함께 내보냄**(각 `AGENTS.md`에 「미배포」 기록). 커밋 `1c1aae47`. 교훈: `docs/ERROR_LESSONS.md` 2026-10-20.
 

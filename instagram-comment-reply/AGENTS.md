@@ -202,3 +202,10 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 
 ## 2026-10-20 v1.24 — 프로그램 공지 띠 추가 (Claude Code 윈도우)
 - 공용 기준 코드 `program-notice-banner`(기준 `ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx`) 사본을 받아 대시보드 레이아웃 `<main>` 맨 위에 표시. 메인 사이트 공지의 「관련 프로그램」에 이 프로그램이 있으면 최근 공지 1건(30일 이내), 「닫기」는 브라우저에 기억. 사본은 직접 고치지 않고 기준 수정 후 `node scripts/check-shared-modules.mjs --sync`.
+
+## 2026-10-20 v1.24 — DM 설정 값 정리·매뉴얼 통합·INSTA 포스팅 템플릿 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261020_TEMPLATE_MANUAL.md`(주인님 승인). 같은 배포에 공지 띠 포함.
+- ① `/dm/settings`: 제목 「DM 답변 설정」, Meta 키·OAuth 콜백(① 기존/② 새)·주소 요약 카드·AI 키 입력 중복 제거 → 「🔗 DM 답변 연결 상태」(Meta 키·인스타 DM 권한·AI 키 완료/필요) + API키등록 바로가기. 웹훅 안내: 옛 instagram-dm-reply 기준 등록이면 콜백 URL·확인 토큰 둘 다 교체(병합으로 토큰 바뀜). `/settings` 주소 요약 카드에 DM 웹훅 주소(③). 쓰이지 않게 된 `components/dm/settings/{ApiKeyRow,CopyAddress,InstagramMetaAddressSummary,InstagramConnectSection}.tsx` 삭제.
+- ② `/guide` 통합 초보자 매뉴얼(5단계·복사 상자·텔레그램 봇 2개·옛 DM 회원 할 일·FAQ 6개), `/dm/guide` → `/guide`, 메뉴 「DM 매뉴얼」 제거. `docs/MANUAL_AND_INTEGRATION_GUIDELINES.md` 스타일 2·6·8.
+- ③ 플로우 위저드 스타일(인스타 바이럴 변형) — 상세 `docs/DESIGN_HANDOFF.md`.
+- 검수: tsc·build, 배포 `instagram-comment-reply-pk79kqebg` Ready, DB v1.24, 크롬 대시보드·매뉴얼·DM 설정·390px.

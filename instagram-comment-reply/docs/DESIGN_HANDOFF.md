@@ -31,3 +31,12 @@
 | 빌드·배포 | Vercel 프로덕션 배포 완료 (`dpl_9jjvKM7XxCk18ynV9ZB3RUWJngkF` → https://instagram-comment-reply.buylife.xyz) |
 | DB `programs.version` | `v1.15` 업데이트 완료 (Supabase) |
 | 화면 검수 | Microsoft Edge 포그라운드(실제 화면 창 노출) 실세션 검수 완료 (데스크톱 1440px 및 모바일 375px 정상, 사이드바 「INSTA 댓글 자동화」 명칭 및 줄바꿈/여백 정리 확인, 대시보드·댓글검토 확인) |
+
+## 2026-10-20 v1.24 — 플로우 위저드 스타일 (인스타 바이럴 변형)으로 변경 (Claude Code 윈도우)
+- 주인님 지시: 「auto-instagram-posting.buylife.xyz/dashboard 버전으로 템플릿을 맞춰」. 기준: `insta_auto_poster` 대시보드·좌측 메뉴·매뉴얼.
+- **컬러 토큰**(`tailwind.config.ts` `ig-*`, 화면 코드는 토큰만 씀): bg `#0d0f17` · surface `#161922` · raised `#1f2433` · hover `#2a3044` · border `#262c3d` · text `#f1f5f9` · muted `#94a3b8` · primary `#ec4899`(hover `#db2777`) · link `#f9a8d4` · success `#34d399` · warn `#fbbf24` · danger `#fb7185`. `globals.css` `color-scheme: dark`, 로그인 화면 같은 배경.
+- **좌측 메뉴**(`components/layout/Sidebar.tsx`): 브랜드 아이콘 + 버전 배지 → 대시보드 → 「💬 댓글 자동답글」 번호 단계 ①게시물 관리 ②댓글 검토/게시(대기 수) ③답글·DM 이력 → 「💌 DM 답변」 ①DM 홈 ②DM 검토/발송 ③DM 답변 설정 → 「도움말 & 설정」 → 계정(메뉴 바로 아래). 휴대폰 767px 이하 위쪽 바 + ☰.
+- **대시보드**: 머리 카드(버전 배지·댓글/DM 검토 버튼) → 소개 카드 → 단계 카드 4개(4번 매뉴얼 강조) → 상태 숫자 5개(색 배지) → 검토 대기 댓글 + 연결 상태.
+- **매뉴얼**: `/guide` 하나로 통합(`/dm/guide`는 이동). 머리 카드 → 개요 → 5단계 카드 → 단계별 안내(복사 상자) → 텔레그램 봇 2개 → 옛 DM 회원 할 일 → FAQ → 상세 매뉴얼.
+- 검수: 크롬 데스크톱(대시보드·매뉴얼·DM 설정), 390px iframe 스타일 값(aside none·header block·☰·가로 넘침 없음 371px) — 창이 최대화라 iframe으로 확인.
+- 주의: 밝은 색을 직접 쓴 곳(`text-sky-600` 등)은 어두운 배경에서 안 보이니 새 화면도 `ig-*` 토큰이나 300~400 계열 밝은 강조색을 쓸 것. 공지 띠는 `tone="dark"`.
