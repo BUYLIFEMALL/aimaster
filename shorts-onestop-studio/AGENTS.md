@@ -110,3 +110,7 @@
 - 이 배포에 미배포 공용 사본 함께 나감: `browser-mp4-encoder` `videoBitrate`, `youtube-upload-client` `publishAt`(원스톱 동작 같음).
 - 검수: tsc·build, 운영 Ready, DB v1.21. 크롬 관리자: 시험 계획(일정 2027-03-20 19:00 → 대본 「2026 다이소 꿀템 TOP 4」)으로 ① 렌더 ⑥ 자동 채움·안내 확인 ② 일괄 1편(MP4+유튜브 예약) 30초 완료 → 영상 `KFxAhTxQ9sI`, 유튜브 스튜디오 「공개로 예약 2027.3.20 오후 7:00 · 게시 때까지 비공개」 확인. 시험 계획은 삭제, 영상은 주인님 삭제 필요 https://studio.youtube.com/video/KFxAhTxQ9sI/edit . AI 비용 0원.
 
+## 2026-10-21 v1.22 — 사용 기록 `usage_logs` (보류 F 재판단용) (Claude Code 윈도우, 부계정)
+- 서버 도우미 `src/lib/usage.ts` `recordUsage`(관리자 키, 실패해도 계속, 허용 이름 `script_created`·`mp4_made`·`youtube_uploaded`). AI 대본은 `/api/ai/script` 성공 때 서버가, 브라우저 동작은 `POST /api/usage`(guard: 권한·같은 출처·4KB, 동작 이름 허용 목록)로 기록 — 렌더 MP4·일괄 MP4(`batch`)·유튜브 업로드(`uploadToYoutube` 안, 영상 ID). 메타데이터는 ID·숫자만.
+- 검수: tsc·build, 운영 Ready, DB v1.22. 크롬 관리자 렌더 MP4 1회(16.8MB) → `mp4_made` 1행, 허용 안 된 이름 400, 다른 사이트 요청 401. 비용 0원.
+

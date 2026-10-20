@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 사용 기록 남기기: Shots v1.31 · 원스톱 v1.22
+
+- 보류 F 재판단용 `usage_logs` 기록(DB 변경 없음). Shots 5개 동작, 원스톱 3개 동작(브라우저 동작은 `POST /api/usage`). 두 프로그램 운영 Ready·DB 버전, 크롬 실기록 각 1행 확인(비용 0원), 원스톱 기록 경로 400/401 확인.
+- 재판단 예정 2026-11-18 무렵 — 집계 방법은 [`analysis-youtube-consolidation-20261020/REPORT.md`](analysis-youtube-consolidation-20261020/REPORT.md) §6. 커밋 `780db064` · `6e4b2647` 외 문서.
+
+https://shots.buylife.xyz
+
+https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 보류 F(Shots ↔ 원스톱 합치기) 재검토: 지금은 보류 유지
 
 - 운영 DB 읽기 전용 집계: 권한 234/143명, `usage_logs` 두 프로그램 모두 0건(기록 안 남김), 실제 일반 회원 생성 각 1명 수준. 결론·근거·다음 단계는 [`analysis-youtube-consolidation-20261020/REPORT.md`](analysis-youtube-consolidation-20261020/REPORT.md) §6 「2026-10-21 보류 F 재검토 결과」.

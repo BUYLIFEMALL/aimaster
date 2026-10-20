@@ -74,5 +74,5 @@
 | 관리자·시험 | 관리자 영상 4 | 시험 계정 대본 9·계획 2, 관리자 1 |
 
 - **결론: 지금은 합치지 않음(보류 유지).** ① 실제 회원 사용이 각 1명 수준이고 사용 기록이 없어 추이를 볼 수 없음 ② 엔진 공유(`browser-mp4-encoder`·`youtube-upload-client`) 완료로 중복 유지 부담이 이미 줄었음 ③ 합치면 메뉴·권한(234/143명)·주소·매뉴얼 변경으로 회원 혼란 비용이 큼.
-- **다음 단계 제안**: 두 프로그램 핵심 동작(영상 만들기 완료·유튜브 업로드)에 `usage_logs` 기록 추가(DB 변경 없음, Shots는 `logProgramUsage` 함수가 이미 있음) → 4주 뒤(2026-11-18 무렵) 같은 표로 재판단. 상태: 주인님 결정 대기.
+- **다음 단계**: ✅ 사용 기록 추가 완료(2026-10-21, 주인님 승인) — Shots v1.31 `script_created`·`video_browser`·`video_j2v`·`youtube_uploaded`·`instagram_posted`, 원스톱 v1.22 `script_created`·`mp4_made`·`youtube_uploaded`. **재판단 예정 2026-11-18 무렵**: `usage_logs`에서 program_id(Shots `518ed2eb-ab49-4b53-91c5-380785566232`, 원스톱 `1d458f8e-7e19-489e-8326-f8cbbc9b3e2d`)별 동작·회원 수를 관리자(`profiles.is_admin`)·시험 계정 제외하고 세어 위 표를 다시 채운 뒤 판단. 첫 기록(시험) 2026-10-21 관리자 각 1건은 집계에서 빼기.
 

@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.30` (`package.json` 1.30.0, `version.ts` v1.30, DB `programs` v1.30 — 2026-10-21)
+> - **버전**: `v1.31` (`package.json` 1.31.0, `version.ts` v1.31, DB `programs` v1.31 — 2026-10-21)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -116,4 +116,8 @@
 ## 2026-10-21 — `updated_at` 자동 갱신 장치(DB만, 코드·버전 변경 없음) (Claude Code 윈도우, 부계정)
 - 주인님 승인. 운영 DB(ref `esgxyikcnnvmlhygjkth`)의 Shots 표 5개(`shorts_videos`·`shorts_video_segments`·`shorts_candidates`·`user_render_settings`·`youtube_accounts`)에 `before update` 장치 `<표>_updated_at` → 기존 공용 함수 `public.update_updated_at()`(`programs`와 같음). 원스톱 `shorts_onestop_items`는 코드가 직접 넣어 제외. 크롬 SQL 편집기 실행, 파일 `supabase/migrations/20261021190000_updated_at_triggers.sql`.
 - 확인: 장치 5개 조회, `shorts_videos` 1행 설명을 같은 값으로 다시 저장 → `updated_at` 2026-09-11 → 지금 시각, 내용 같음.
+
+## 2026-10-21 v1.31 — 사용 기록 `usage_logs` (보류 F 재판단용) (Claude Code 윈도우, 부계정)
+- 기존 `logProgramUsage`(`src/lib/access.ts`, 관리자 키·실패해도 계속)를 성공 지점 5곳에서 부름: `script_created`(스크립트 생성) · `video_browser`(브라우저 만들기 저장) · `video_j2v`(JSON2Video 합성 요청) · `youtube_uploaded`(+ `youtubeVideoId`·`scheduled`) · `instagram_posted`. 메타데이터는 ID만.
+- 검수: tsc·build, 운영 Ready, DB v1.31. 크롬 관리자 브라우저 만들기 1회(보관 음성 hit×6, 비용 0원) → `usage_logs` `video_browser` 1행 확인.
 
