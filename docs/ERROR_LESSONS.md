@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — GPT-5·GPT-6(추론 모델)은 `temperature` 지정과 `max_tokens`를 거부(400)한다 + 공유 스테이징에 미리 올린 파일은 다른 세션 커밋에 섞인다 (SEO 스튜디오 v1.75·쇼핑제휴 v1.67, Claude Code 윈도우)
+- 증상: 모델 목록에 `gpt-5.6-*`·`gpt-6-*`를 넣었는데 생성이 400. 원인: 추론 모델은 기본 온도만 받고(`temperature` 지정 거부), 출력 한도는 `max_completion_tokens`만 받는다(`max_tokens` 거부). 해결: `naver-blog-seo-studio/lib/ai/openaiModels.ts` `openAITemperature()`, `threads-affiliate-poster/src/lib/ai/generator.ts` gpt-4 계열만 `max_tokens`. 출력 한도에는 생각 단계도 포함되므로 600처럼 작게 주면 빈 응답이 날 수 있다(4000 사용).
+- 다음부터: OpenAI 모델 목록에 새 세대를 추가하면 그 모델로 실제 1회 호출해 본다. 19개 프로그램 점검 결과(2026-10-20)는 `docs/HANDOFF.md` 같은 날 항목.
+- 함께 겪은 일: `git update-index`로 내 항목만 미리 스테이징해 둔 `threads-affiliate-poster/AGENTS.md`가 1초 뒤 다른 세션의 `git commit`(카드뉴스 `d06dc024`)에 들어갔다. **부분 스테이징도 커밋 직전에, 같은 명령 줄에서 바로 커밋**한다(`git update-index … && git commit`).
+
 ## 2026-10-20 — 연결 계정 행을 지우기 전에 그 행을 가리키는 외래키의 `on delete cascade`부터 확인 (Meta 삭제 콜백 · threads-content-ops, Claude Code 윈도우)
 - 증상(구현 중 발견, 배포 전): Meta 제거·삭제 콜백 대상 표에 `tco_threads_accounts`를 넣으려 했는데, 그 표를 `tco_posts`·운영 설정·글감이 `references … on delete cascade`로 가리킴 → 회원이 Meta 앱만 제거해도 직접 쓴 글이 모두 지워질 뻔했다(콜백은 원래 「회원이 쓴 글은 보존」).
 - 해결: 그 표는 행을 두고 **토큰만 무효화**(`access_token=''`, `token_expires_at=now()`), 프로그램은 「토큰 만료 — 다시 연결」로 안내(`threads-affiliate-poster/src/lib/threads/signedRequest.ts` `clearOtherThreadsConnections`).
