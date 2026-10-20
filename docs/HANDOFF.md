@@ -2,7 +2,7 @@
 
 <!-- IMAGE_STUDIO_MANUAL_MENU_20261020 -->
 ## 2026-10-20 Codex — AI 이미지 스튜디오 v1.19 메뉴 이동
-- 사용 매뉴얼을 API키등록·플랫폼연동 바로 위로 이동. 빌드 통과.
+- 사용 매뉴얼을 API키등록·플랫폼연동 바로 위로 이동. 빌드·프로덕션 배포 READY·DB v1.19·실제 Edge 관리자 화면 순서 확인 완료(구현 bcbb7e18).
 - [세부 결과·다음 작업](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_MANUAL_MENU.md), [프로그램](https://ai-image-studio.buylife.xyz/settings).
 - 다음 요청: 상황별 등록 프롬프트 영문 상세 보강(별도 작업으로 이어서 진행).
 <!-- /IMAGE_STUDIO_MANUAL_MENU_20261020 -->
