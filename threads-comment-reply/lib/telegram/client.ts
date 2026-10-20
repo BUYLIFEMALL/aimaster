@@ -1,5 +1,8 @@
 import "server-only";
 
+// 공용 기준 코드 `telegram-bot-client`(2026-10-21) — 기준: instagram-comment-reply/lib/telegram/client.ts.
+// 사본은 글자 그대로 쓴다(scripts/check-shared-modules.mjs). 고치면 --sync 후 사본을 쓰는 프로그램을 함께 확인한다.
+
 // 텔레그램 연동은 "공용 봇"이 아니라 사용자 각자가 BotFather로 직접 만든 개인 봇을 쓴다
 // (OpenAI/Perplexity 키를 사용자 개인 키로 쓰는 것과 동일한 철학). 그래서 웹훅을 우리가
 // 미리 등록해둘 수 없고, 기존 부동산 자동화 Make 시나리오가 쓰던 방식과 동일하게
@@ -23,7 +26,7 @@ export async function findChatIdFromUpdates(botToken: string): Promise<TelegramC
   await deleteTelegramWebhook(botToken);
 
   // 웹훅을 걸 때 allowed_updates=["callback_query"]로 지정하면 텔레그램이 그 설정을 기억해,
-  // 웹훅을 지운 뒤 getUpdates에서도 일반 메시지를 버린다(2026-10-20 instagram-comment-reply v1.21에서 확인).
+  // 웹훅을 지운 뒤 getUpdates에서도 일반 메시지를 버린다(2026-10-20 DM 봇 연동 실패 원인).
   // 그래서 받을 종류를 매번 message로 다시 지정한다.
   const allowed = encodeURIComponent(JSON.stringify(["message"]));
   const res = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/getUpdates?limit=10&allowed_updates=${allowed}`, {
@@ -80,7 +83,7 @@ export interface TelegramInlineButton {
   callbackData: string;
 }
 
-/** 원본 댓글 + AI 답글 초안과 함께 "답변승인/답변보류/답변제외" 인라인 버튼을 보낸다. */
+/** 인라인 버튼과 함께 메시지를 보낸다(예: 원본 댓글·메시지 + AI 초안에 "답변승인/답변보류/답변제외"). */
 export async function sendTelegramMessageWithButtons(params: {
   botToken: string;
   chatId: string;

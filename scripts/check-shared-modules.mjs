@@ -12,6 +12,23 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
   {
+    // 텔레그램 승인·알림 봇(회원 본인 BotFather 봇): 연동 확인 findChatIdFromUpdates(deleteWebhook → getUpdates allowed_updates=["message"]),
+    // 메시지·버튼 메시지·버튼 처리 응답·웹훅 걸기/해제. 2026-10-21 등록 — 10곳이 같은 코드를 손 복사로 쓰고 있었음(알림 전용 5곳은 일부만)
+    id: "telegram-bot-client",
+    source: "instagram-comment-reply/lib/telegram/client.ts",
+    copies: [
+      "instagram-comment-reply/lib/dmApp/telegram/client.ts",
+      "threads-comment-reply/lib/telegram/client.ts",
+      "youtube-auto-reply/lib/telegram/client.ts",
+      "kakao_auto_poster/src/lib/telegram/client.ts",
+      "booking-reminder/lib/telegram/client.ts",
+      "crm-google-form/lib/telegram/client.ts",
+      "longtail-keyword-expander/lib/telegram/client.ts",
+      "real_estate_sales/src/lib/telegram/client.ts",
+      "trending-product-finder/lib/telegram/client.ts",
+    ],
+  },
+  {
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
     id: "browser-mp4-encoder",
     source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",

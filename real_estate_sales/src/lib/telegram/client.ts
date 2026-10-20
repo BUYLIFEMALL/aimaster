@@ -1,5 +1,8 @@
 import "server-only";
 
+// 공용 기준 코드 `telegram-bot-client`(2026-10-21) — 기준: instagram-comment-reply/lib/telegram/client.ts.
+// 사본은 글자 그대로 쓴다(scripts/check-shared-modules.mjs). 고치면 --sync 후 사본을 쓰는 프로그램을 함께 확인한다.
+
 // 텔레그램 연동은 "공용 봇"이 아니라 사용자 각자가 BotFather로 직접 만든 개인 봇을 쓴다
 // (OpenAI/Perplexity 키를 사용자 개인 키로 쓰는 것과 동일한 철학). 그래서 웹훅을 우리가
 // 미리 등록해둘 수 없고, 기존 부동산 자동화 Make 시나리오가 쓰던 방식과 동일하게
@@ -20,12 +23,10 @@ export async function findChatIdFromUpdates(botToken: string): Promise<TelegramC
   // getUpdates(폴링)와 webhook은 동시에 쓸 수 없다 (409 Conflict). 이 봇이 예전에
   // 다른 서비스(예: Make.com)에서 웹훅으로 등록된 적이 있으면 충돌하므로, 폴링 방식을
   // 쓰기 전에 웹훅을 먼저 해제한다. 웹훅이 없었어도 안전하게 무시된다.
-  await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/deleteWebhook`, { cache: "no-store" }).catch(
-    () => {},
-  );
+  await deleteTelegramWebhook(botToken);
 
   // 웹훅을 걸 때 allowed_updates=["callback_query"]로 지정하면 텔레그램이 그 설정을 기억해,
-  // 웹훅을 지운 뒤 getUpdates에서도 일반 메시지를 버린다(2026-10-20 instagram-comment-reply v1.21에서 확인).
+  // 웹훅을 지운 뒤 getUpdates에서도 일반 메시지를 버린다(2026-10-20 DM 봇 연동 실패 원인).
   // 그래서 받을 종류를 매번 message로 다시 지정한다.
   const allowed = encodeURIComponent(JSON.stringify(["message"]));
   const res = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/getUpdates?limit=10&allowed_updates=${allowed}`, {
@@ -75,4 +76,85 @@ export async function sendTelegramMessage(params: {
     const body = await res.text();
     throw new Error(`텔레그램 메시지 발송 실패 (${res.status}): ${body}`);
   }
+}
+
+export interface TelegramInlineButton {
+  text: string;
+  callbackData: string;
+}
+
+/** 인라인 버튼과 함께 메시지를 보낸다(예: 원본 댓글·메시지 + AI 초안에 "답변승인/답변보류/답변제외"). */
+export async function sendTelegramMessageWithButtons(params: {
+  botToken: string;
+  chatId: string;
+  text: string;
+  buttons: TelegramInlineButton[];
+}): Promise<{ messageId: number }> {
+  const { botToken, chatId, text, buttons } = params;
+  const res = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      reply_markup: { inline_keyboard: [buttons.map((b) => ({ text: b.text, callback_data: b.callbackData }))] },
+    }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data?.result?.message_id) {
+    throw new Error(`텔레그램 메시지 발송 실패 (${res.status}): ${JSON.stringify(data)}`);
+  }
+  return { messageId: data.result.message_id };
+}
+
+/** 버튼을 눌러 처리된 뒤, 그 메시지를 결과 텍스트로 갱신하고 버튼은 제거한다(중복 클릭 방지). */
+export async function editTelegramMessageStatus(params: {
+  botToken: string;
+  chatId: string;
+  messageId: number;
+  text: string;
+}): Promise<void> {
+  await fetch(`${TELEGRAM_API_BASE}/bot${params.botToken}/editMessageText`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: params.chatId,
+      message_id: params.messageId,
+      text: params.text,
+      reply_markup: { inline_keyboard: [] },
+    }),
+  }).catch(() => {});
+}
+
+/** 버튼을 누른 순간 텔레그램 UI의 "로딩 스피너"를 멈추기 위해 반드시 응답해야 한다. */
+export async function answerTelegramCallbackQuery(params: {
+  botToken: string;
+  callbackQueryId: string;
+  text?: string;
+}): Promise<void> {
+  await fetch(`${TELEGRAM_API_BASE}/bot${params.botToken}/answerCallbackQuery`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ callback_query_id: params.callbackQueryId, text: params.text }),
+  }).catch(() => {});
+}
+
+export async function setTelegramWebhook(params: {
+  botToken: string;
+  url: string;
+  secretToken: string;
+}): Promise<void> {
+  const res = await fetch(`${TELEGRAM_API_BASE}/bot${params.botToken}/setWebhook`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: params.url, secret_token: params.secretToken, allowed_updates: ["callback_query"] }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`텔레그램 웹훅 등록 실패 (${res.status}): ${body}`);
+  }
+}
+
+export async function deleteTelegramWebhook(botToken: string): Promise<void> {
+  await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/deleteWebhook`, { cache: "no-store" }).catch(() => {});
 }
