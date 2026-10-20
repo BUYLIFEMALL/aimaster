@@ -1,7 +1,7 @@
 import { testTitle } from "@/lib/tests/registry";
 import type { Trend } from "@/lib/tests/trends";
 
-const COLORS = ["#4f46e5", "#0ea5e9", "#f59e0b", "#10b981", "#ec4899", "#8b5cf6", "#ef4444", "#14b8a6", "#64748b"];
+const COLORS = ["#c084fc", "#38bdf8", "#fbbf24", "#34d399", "#f472b6", "#a78bfa", "#f87171", "#2dd4bf", "#94a3b8"];
 const W = 640;
 const H = 220;
 const PAD = { l: 36, r: 16, t: 14, b: 30 };
@@ -22,8 +22,8 @@ export function TrendChart({ trend }: { trend: Trend }) {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${testTitle(trend.testId)} 점수 변화`}>
         {[0, 50, 100].map((v) => (
           <g key={v}>
-            <line x1={PAD.l} x2={W - PAD.r} y1={y(v)} y2={y(v)} stroke="#e5e7eb" strokeDasharray={v === 50 ? "4 4" : undefined} />
-            <text x={PAD.l - 6} y={y(v) + 4} textAnchor="end" fontSize="11" fill="#94a3b8">{v}</text>
+            <line x1={PAD.l} x2={W - PAD.r} y1={y(v)} y2={y(v)} stroke="#2a1f4e" strokeDasharray={v === 50 ? "4 4" : undefined} />
+            <text x={PAD.l - 6} y={y(v) + 4} textAnchor="end" fontSize="11" fill="#64748b">{v}</text>
           </g>
         ))}
         {trend.series.map((s, si) => {
@@ -36,7 +36,7 @@ export function TrendChart({ trend }: { trend: Trend }) {
           );
         })}
         {trend.points.map((p, i) => (
-          <text key={p.at} x={x(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="#64748b">{fmt(p.at)}</text>
+          <text key={p.at} x={x(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="#94a3b8">{fmt(p.at)}</text>
         ))}
       </svg>
       <ul className="trend-legend">

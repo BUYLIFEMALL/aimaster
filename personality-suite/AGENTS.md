@@ -1,4 +1,12 @@
-# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.20)
+# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.21)
+
+## 2026-10-20 v1.21 — 타로점 「미스틱 미드나잇 퍼플」 스타일로 디자인 변경 + 깨진 화면 복구 (Claude Code 윈도우)
+- **주인님 지시**: AIMaster 타로점(`tarot-reading`) 디자인 템플릿으로 변경. 색 토큰을 타로점 `tarot/app/globals.css`와 같게 맞춤(배경 `#090614`, 카드 `#120d24`, 테두리 `#2a1f4e`, 보라 `#a855f7`/`#c084fc`, 금색 `#f59e0b`, 시안 `#38bdf8`).
+- **발견·수정한 버그**: 이 프로그램에는 Tailwind가 설치돼 있지 않은데 v1.20의 대시보드·매뉴얼이 Tailwind 클래스로 작성돼 배치가 전부 무시됨(숫자 카드·4단계가 세로로 풀리고, 자주 묻는 질문은 브라우저 기본 화살표 ▸와 직접 넣은 ▼가 질문 글 위아래로 따로 찍혀 겹쳐 보임 — 주인님 신고). 두 화면을 `globals.css`의 `ps-*` 일반 CSS 클래스로 다시 작성(새 패키지 설치 없음). 자주 묻는 질문은 기본 화살표를 숨기고 질문 오른쪽 끝 동그란 금색 화살표 하나만 두어, 펼치면 위로 돌아가게 함.
+- **바뀐 파일**: `src/app/globals.css`(전체 색 토큰화·다크 테마, 인쇄 시 밝은 색 복귀), `src/app/(workspace)/dashboard/page.tsx`, `src/app/(workspace)/guide/page.tsx`, `src/components/layout/Sidebar.tsx`(직접 지정 색 제거 → `nav-guide`·`ps-version`·`ps-mobile-guide`), `src/components/tests/TrendChart.tsx`(어두운 배경용 선 색), `src/lib/version.ts`·`package.json`(v1.21).
+- **그대로 둔 것**: 결과 공유 PNG(`src/lib/shareImage.ts`)는 SNS 공유용 밝은 카드 그대로. 기능·DB·API 변경 없음.
+- **주의**: 새 화면을 만들 때 Tailwind 클래스를 쓰지 말 것(미설치) — `globals.css`의 토큰(`var(--surface)` 등)과 `ps-*` 클래스를 사용.
+
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/IMPROVEMENT_HANDOFF_20261019.md`](docs/IMPROVEMENT_HANDOFF_20261019.md), 디자인 인수인계는 [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md).
 

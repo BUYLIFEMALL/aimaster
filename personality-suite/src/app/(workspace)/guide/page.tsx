@@ -69,155 +69,93 @@ const FAQ_ITEMS = [
 
 export default function GuidePage() {
   return (
-    <div className="space-y-8 pb-12">
-      {/* 1. 가이드북 아틀리에 히어로 */}
-      <section className="atelier-hero relative">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 border border-rose-200/80 shadow-sm mb-3">
-          <span className="text-sm">📖</span>
-          <span className="text-xs font-bold text-rose-800">
-            공식 연동 & 사용 가이드북
-          </span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight mb-2">
-          AI 종합 성격 진단 완벽 활용 매뉴얼
-        </h1>
-        <p className="text-neutral-600 text-xs sm:text-sm max-w-2xl leading-relaxed">
-          검사는 키 없이 즉시 무료로 참여할 수 있으며, 2종 이상의 검사 융합 분석과<br className="hidden sm:inline" />
+    <div className="ps-page">
+      {/* 1. 가이드북 히어로 */}
+      <section className="ps-hero">
+        <span className="ps-chip">📖 공식 연동 &amp; 사용 가이드북</span>
+        <h1>AI 종합 성격 진단 <em>완벽 활용 매뉴얼</em></h1>
+        <p>
+          검사는 키 없이 즉시 무료로 참여할 수 있으며, 2종 이상의 검사 융합 분석과
           AI 심층 입체 프로필 생성을 위한 모든 안내와 황금 수칙을 확인하세요.
         </p>
-
-        <div className="mt-5 flex items-center gap-3">
-          <Link
-            href="/dashboard"
-            className="px-5 py-2.5 rounded-xl bg-neutral-900 text-white font-bold text-xs hover:bg-neutral-800 transition-all shadow-sm"
-          >
-            🧭 검사하기로 이동
-          </Link>
-          <Link
-            href="/settings"
-            className="px-4 py-2.5 rounded-xl bg-white text-neutral-700 font-bold text-xs border border-neutral-200 hover:bg-neutral-50 transition-all"
-          >
-            🔑 Gemini 키 설정
-          </Link>
+        <div className="ps-hero-actions">
+          <Link href="/dashboard" className="ps-btn ps-btn-primary">🧭 검사하기로 이동</Link>
+          <Link href="/settings" className="ps-btn ps-btn-ghost">🔑 Gemini 키 설정</Link>
         </div>
       </section>
 
-      {/* 2. 4단계 종합 진단 & 융합 파이프라인 다이어그램 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🗺️</span>
+      {/* 2. 4단계 진단 & 융합 워크플로우 */}
+      <section className="ps-panel">
+        <div className="ps-panel-head">
+          <span className="ps-emoji">🗺️</span>
           <div>
-            <h2 className="text-base font-bold text-neutral-900">
-              4단계 진단 & 융합 워크플로우
-            </h2>
-            <p className="text-xs text-neutral-500">
-              상황별 세부 진단부터 전체 지표를 꿰뚫는 AI 종합 프로필까지의 흐름
-            </p>
+            <h2>4단계 진단 &amp; 융합 워크플로우</h2>
+            <p>상황별 세부 진단부터 전체 지표를 꿰뚫는 AI 종합 프로필까지의 흐름</p>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3.5 pt-2">
-          <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-100 flex flex-col justify-between">
-            <div>
-              <div className="text-[11px] font-extrabold text-rose-600 tracking-wider">STEP 01</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">검사 선택</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                상황별 16유형, 대인관계 소통, 마음 점검 중 원하는 검사를 선택합니다.
-              </p>
-            </div>
-            <div className="mt-3 text-[11px] text-rose-700/80 font-medium">📋 총 {ALL_TESTS.length}종 스위트</div>
+        <div className="ps-steps">
+          <div className="ps-step">
+            <span className="ps-step-no">STEP 01</span>
+            <h3>검사 선택</h3>
+            <p>상황별 16유형, 대인관계 소통, 마음 점검 중 원하는 검사를 선택합니다.</p>
+            <span className="ps-step-foot">📋 총 {ALL_TESTS.length}종 스위트</span>
           </div>
-
-          <div className="p-4 rounded-xl bg-violet-50/60 border border-violet-100 flex flex-col justify-between">
-            <div>
-              <div className="text-[11px] font-extrabold text-violet-600 tracking-wider">STEP 02</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">5단계 직관 응답</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                키보드 숫자키(1~5) 또는 터치로 직관적인 응답을 빠르게 진행합니다.
-              </p>
-            </div>
-            <div className="mt-3 text-[11px] text-violet-700/80 font-medium">⚡ 약 2~5분 소요</div>
+          <div className="ps-step">
+            <span className="ps-step-no">STEP 02</span>
+            <h3>5단계 직관 응답</h3>
+            <p>키보드 숫자키(1~5) 또는 터치로 직관적인 응답을 빠르게 진행합니다.</p>
+            <span className="ps-step-foot">⚡ 약 2~5분 소요</span>
           </div>
-
-          <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-100 flex flex-col justify-between">
-            <div>
-              <div className="text-[11px] font-extrabold text-amber-600 tracking-wider">STEP 03</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">즉시 결과 & 해석</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                강점, 주의점, 활용 팁이 즉시 도출되며 [내 결과]에 안전하게 보관됩니다.
-              </p>
-            </div>
-            <div className="mt-3 text-[11px] text-amber-700/80 font-medium">📊 지난 결과와 비교</div>
+          <div className="ps-step">
+            <span className="ps-step-no">STEP 03</span>
+            <h3>즉시 결과 &amp; 해석</h3>
+            <p>강점, 주의점, 활용 팁이 즉시 도출되며 [내 결과]에 안전하게 보관됩니다.</p>
+            <span className="ps-step-foot">📊 지난 결과와 비교</span>
           </div>
-
-          <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100 flex flex-col justify-between">
-            <div>
-              <div className="text-[11px] font-extrabold text-emerald-600 tracking-wider">STEP 04</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">AI 융합 프로필</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                2종 이상 검사를 완료하면 다중 검사를 결합한 AI 심층 입체 프로필을 받습니다.
-              </p>
-            </div>
-            <div className="mt-3 text-[11px] text-emerald-700/80 font-medium">🔮 입체 상관관계 리포트</div>
+          <div className="ps-step">
+            <span className="ps-step-no">STEP 04</span>
+            <h3>AI 융합 프로필</h3>
+            <p>2종 이상 검사를 완료하면 다중 검사를 결합한 AI 심층 입체 프로필을 받습니다.</p>
+            <span className="ps-step-foot">🔮 입체 상관관계 리포트</span>
           </div>
         </div>
       </section>
 
       {/* 3. 지원 검사군 매트릭스 표 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">📑</span>
+      <section className="ps-panel">
+        <div className="ps-between" style={{ marginBottom: 14 }}>
+          <div className="ps-panel-head" style={{ marginBottom: 0 }}>
+            <span className="ps-emoji">📑</span>
             <div>
-              <h2 className="text-base font-bold text-neutral-900">
-                지원 검사군 매트릭스 도감
-              </h2>
-              <p className="text-xs text-neutral-500">
-                각 검사군별 측정 목적, 문항 수 및 AI 심층 분석 지원 현황
-              </p>
+              <h2>지원 검사군 매트릭스 도감</h2>
+              <p>각 검사군별 측정 목적, 문항 수 및 AI 심층 분석 지원 현황</p>
             </div>
           </div>
-          <span className="text-xs font-bold text-neutral-400">총 {ALL_TESTS.length}개 검사</span>
+          <span className="ps-count">총 {ALL_TESTS.length}개 검사</span>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="atelier-matrix-table">
+        <div className="ps-table-wrap">
+          <table className="ps-table">
             <thead>
               <tr>
-                <th className="w-28">카테고리</th>
-                <th className="w-48">검사명</th>
-                <th className="w-20 text-center">문항수</th>
+                <th>카테고리</th>
+                <th>검사명</th>
+                <th className="center">문항수</th>
                 <th>측정 목적 및 특징</th>
-                <th className="w-24 text-center">AI 분석</th>
+                <th className="center">AI 분석</th>
               </tr>
             </thead>
             <tbody>
               {GROUPS.map((group) => {
                 const tests = testsOf(group.id);
                 return tests.map((t, idx) => (
-                  <tr key={t.id} className="hover:bg-rose-50/20 transition-colors">
+                  <tr key={t.id}>
                     {idx === 0 && (
-                      <td
-                        rowSpan={tests.length}
-                        className="font-bold text-xs text-rose-700 bg-[#faf6f0]/50 align-top pt-3 border-r border-[#f1ebe1]"
-                      >
-                        {group.label}
-                      </td>
+                      <td rowSpan={tests.length} className="ps-cat">{group.label}</td>
                     )}
-                    <td className="font-bold text-xs text-neutral-900">
-                      {t.title}
-                    </td>
-                    <td className="text-center font-mono text-xs text-neutral-600">
-                      {t.questions.length}문항
-                    </td>
-                    <td className="text-xs text-neutral-600">
-                      {t.tagline}
-                    </td>
-                    <td className="text-center">
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        지원
-                      </span>
-                    </td>
+                    <td className="ps-name">{t.title}</td>
+                    <td className="center">{t.questions.length}문항</td>
+                    <td>{t.tagline}</td>
+                    <td className="center"><span className="ps-tag">지원</span></td>
                   </tr>
                 ));
               })}
@@ -227,32 +165,21 @@ export default function GuidePage() {
       </section>
 
       {/* 4. 정확한 자기 이해 7대 황금 수칙 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🏆</span>
+      <section className="ps-panel">
+        <div className="ps-panel-head">
+          <span className="ps-emoji">🏆</span>
           <div>
-            <h2 className="text-base font-bold text-neutral-900">
-              정확한 자기 이해와 진단 신뢰도 극대화 7대 황금 수칙
-            </h2>
-            <p className="text-xs text-neutral-500">
-              가장 왜곡 없는 솔직한 나를 발견하기 위한 핵심 가이드
-            </p>
+            <h2>정확한 자기 이해와 진단 신뢰도 극대화 7대 황금 수칙</h2>
+            <p>가장 왜곡 없는 솔직한 나를 발견하기 위한 핵심 가이드</p>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+        <div className="ps-rules">
           {GOLDEN_RULES.map((rule) => (
-            <div key={rule.step} className="rule-card-atelier flex items-start gap-3">
-              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-100 to-indigo-100 text-rose-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
-                {rule.step}
-              </span>
+            <div key={rule.step} className="ps-rule">
+              <span className="ps-rule-no">{rule.step}</span>
               <div>
-                <h3 className="text-xs font-bold text-neutral-900 mb-0.5">
-                  {rule.title}
-                </h3>
-                <p className="text-xs text-neutral-500 leading-relaxed">
-                  {rule.desc}
-                </p>
+                <h3>{rule.title}</h3>
+                <p>{rule.desc}</p>
               </div>
             </div>
           ))}
@@ -260,62 +187,40 @@ export default function GuidePage() {
       </section>
 
       {/* 5. Gemini API 키 연동 안내 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🔑</span>
-          <h2 className="text-base font-bold text-neutral-900">
-            Gemini API 키 등록 안내 (AI 심층 분석 & 종합 프로필용)
-          </h2>
+      <section className="ps-panel">
+        <div className="ps-panel-head">
+          <span className="ps-emoji">🔑</span>
+          <h2>Gemini API 키 등록 안내 (AI 심층 분석 &amp; 종합 프로필용)</h2>
         </div>
-        <p className="text-xs text-neutral-600 leading-relaxed">
+        <p className="ps-text">
           AI 심층 분석과 종합 프로필은 <strong>회원님 본인의 Google Gemini API 키</strong>로 동작합니다.
           운영자나 다른 회원의 키로 대신 처리되지 않으며, 한 번 등록해 두면 안전하게 암호화 보관되어 모든 분석 기능을 자유롭게 이용할 수 있습니다.
         </p>
-        <div className="flex items-center gap-3 pt-2">
-          <Link
-            href="/settings"
-            className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-bold hover:bg-neutral-800 transition-all"
-          >
-            🔑 API키등록·플랫폼연동으로 이동
-          </Link>
+        <div className="ps-hero-actions" style={{ marginTop: 16 }}>
+          <Link href="/settings" className="ps-btn ps-btn-primary">🔑 API키등록·플랫폼연동으로 이동</Link>
           {GEMINI_GUIDE_URL && (
             <GuideLinkButton url={GEMINI_GUIDE_URL} label="📖 Gemini 키 발급 상세 매뉴얼 (새 창)" />
           )}
         </div>
       </section>
 
-      {/* 6. 실무 FAQ 5종 아코디언 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">❓</span>
+      {/* 6. 자주 묻는 질문 — 펼침 화살표는 질문 오른쪽 끝 동그란 버튼 하나 */}
+      <section className="ps-panel">
+        <div className="ps-panel-head">
+          <span className="ps-emoji">❓</span>
           <div>
-            <h2 className="text-base font-bold text-neutral-900">
-              자주 묻는 질문 (FAQ)
-            </h2>
-            <p className="text-xs text-neutral-500">
-              회원님들이 가장 자주 문의하시는 질문과 답변입니다.
-            </p>
+            <h2>자주 묻는 질문 (FAQ)</h2>
+            <p>회원님들이 가장 자주 문의하시는 질문과 답변입니다. 질문을 누르면 답변이 펼쳐집니다.</p>
           </div>
         </div>
-
-        <div className="space-y-3 pt-1">
+        <div className="ps-faq">
           {FAQ_ITEMS.map((item, idx) => (
-            <details
-              key={idx}
-              className="faq-atelier group p-4 border border-neutral-200/80 rounded-xl [&_summary::-webkit-details-marker]:none"
-            >
-              <summary className="flex items-center justify-between cursor-pointer font-bold text-xs sm:text-sm text-neutral-800 group-open:text-rose-600 transition-colors">
-                <div className="flex items-center gap-2">
-                  <span className="text-rose-500 font-black">Q.</span>
-                  <span>{item.q}</span>
-                </div>
-                <span className="text-neutral-400 group-open:rotate-180 transition-transform text-xs">
-                  ▼
-                </span>
+            <details key={idx}>
+              <summary>
+                <span><b>Q.</b>{item.q}</span>
+                <i aria-hidden="true">▼</i>
               </summary>
-              <p className="mt-3 text-xs text-neutral-600 leading-relaxed pl-6 border-l-2 border-rose-200">
-                {item.a}
-              </p>
+              <p>{item.a}</p>
             </details>
           ))}
         </div>

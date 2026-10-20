@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — AI 종합 성격 진단 v1.21: 타로점 「미스틱 미드나잇 퍼플」 스타일 이식 + 자주 묻는 질문 화살표 겹침 수정
+- 한 일: `personality-suite` v1.20 → **v1.21**. 색 토큰을 타로점(`tarot/app/globals.css`)과 동일하게 다크 퍼플·골드로 전면 교체(전 화면 같은 배경, 인쇄는 밝은 색 복귀). **원인 발견**: 이 프로그램은 Tailwind 미설치인데 v1.20 대시보드·매뉴얼이 Tailwind 클래스로 작성돼 배치가 무시되고 있었음 → `ps-*` 일반 CSS로 재작성. 자주 묻는 질문은 브라우저 기본 화살표를 숨기고 오른쪽 끝 금색 동그라미 화살표 하나로(주인님 신고 건). 사이드바 직접 지정 색 제거, 추이 그래프 색 조정. 기능·API 변경 없음. 상세 `personality-suite/AGENTS.md`·`docs/DESIGN_HANDOFF.md`.
+- 검수: tsc·테스트 19개·build 통과, 배포 `personality-suite-m6xwemqz6` Ready, DB(ref `esgxyikcnnvmlhygjkth`) `programs.version` v1.21. 크롬(관리자 계정): 대시보드·매뉴얼·검사 화면·FAQ 펼침 확인, 390px iframe에서 위쪽 메뉴·가로 스크롤 없음 확인.
+- 남은 일: 결과 공유 PNG 색(예전 남색) 맞출지 판단, Tailwind 없는 다른 프로그램에 같은 문제가 있는지 점검(`personality-suite/docs/IMPROVEMENTS.md`).
+- 링크: https://personality-suite.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — YouTube 연결 하나로 합치기(유튜브 댓글 v1.16·shots v1.23) + shots Facebook 앱 키 이름 맞추기 (주인님 「진행해줘」)
 - ② 두 프로그램 연결 화면에 「다른 YouTube 프로그램 권한도 함께 받기」(기본 꺼짐) — 켜면 `force-ssl`·`upload`·`readonly`를 `include_granted_scopes=true`로 한 번에, 공용 표엔 Google이 실제 내준 권한 기록 → 한 번 연결로 두 프로그램 공용.
 - ③ shots Instagram(Facebook 로그인): `facebook_app_id`/`secret`(INSTA와 같은 칸) 먼저, 없으면 예전 `meta_app_id`/`secret`. 설정 화면에 Facebook 앱 칸 추가. **주의**: 두 칸 값이 다른 회원(시험 회원: Facebook 2093…·Meta 1445…)은 shots에서 다시 연결할 때 Facebook 앱으로 연결되므로 그 앱에 shots 콜백 주소 등록이 필요(설정 화면에 주소 표시). 기존 토큰은 그대로 게시에 쓰인다.

@@ -1,3 +1,16 @@
+# AI 종합 성격 진단 자동화 (`personality-suite`) v1.21 디자인 인수인계 — 미스틱 미드나잇 퍼플 (2026-10-20, Claude Code)
+
+- **적용 템플릿**: **크리에이티브 아틀리에 스타일 — 미스틱 미드나잇 퍼플 랩 에디션** (원본: 37번 AIMaster 타로점 `tarot-reading` v1.20)
+- **서비스 주소**: https://personality-suite.buylife.xyz
+- **색 토큰** (`src/app/globals.css` `:root`): `--background #090614` · `--surface #120d24` · `--surface-2 #170f2e` · `--surface-hover #1c1536` · `--line #2a1f4e` · `--foreground #f1f5f9` · `--muted #94a3b8` · `--brand #a855f7` · `--brand-purple #c084fc` · `--brand-gold #f59e0b` · `--brand-cyan #38bdf8` · `--brand-emerald #34d399`
+- **화면 부품**: `ps-hero`(보라→금 그라데이션 히어로) · `ps-kpis/ps-kpi` · `ps-panel` · `ps-steps/ps-step`(STEP 번호 색: 보라·시안·금·에메랄드) · `ps-table` · `ps-rules/ps-rule`(금색 번호 배지) · `ps-faq`(오른쪽 동그란 금색 화살표, 펼치면 회전) · `ps-btn-primary/ps-btn-ghost`
+- **전 화면 같은 배경**: 로그인·설정·검사·결과·내 결과·종합 프로필·매뉴얼 모두 같은 토큰을 씀(DESIGN.md ⑪).
+- **인쇄**: `@media print`에서 토큰을 밝은 색으로 되돌려 PDF 저장이 종이에 맞게 나옴.
+- **모바일(767px 이하)**: 위쪽 접는 메뉴 유지, 숫자 카드·수칙 1열, 4단계 2열(900px 이하).
+- **주의**: Tailwind 미설치 프로젝트 — Tailwind 클래스를 넣으면 무시됨(v1.20에서 실제로 배치가 깨졌던 원인).
+
+---
+
 # AI 종합 성격 진단 자동화 (`personality-suite`) v1.20 디자인 인수인계서
 
 ## 1. 개요 및 버전 정보
