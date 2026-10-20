@@ -9,7 +9,7 @@ export default function SignupPage() {
   // 독립 운영 모드(강의용 설치 키트, 2026-10-18): 가입은 로그인 화면의 [회원가입] 탭에서 받는다.
   if (IS_STANDALONE) redirect("/login");
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-6 text-center">
+    <div className="rounded-lg border border-neutral-200 bg-[#161922] p-6 text-center">
       <h2 className="mb-2 text-lg font-medium text-neutral-900">회원가입은 AIMaster에서 진행됩니다</h2>
       <p className="mb-6 text-sm text-neutral-500">
         이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다.

@@ -51,7 +51,9 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.39` (2026-10-20)
+- **현재 버전**: `v1.40` (2026-10-20)
+- **v1.40 (2026-10-20, Claude Code 윈도우) — 로그인 화면 INSTA 다크 테마**: 주인님 지시 「로그인 창도 같은 테마로 맞춰」. `(auth)/layout.tsx`·`login`·`signup`의 공통 틀(밝은 격자 + 파란 `#005acc`)을 INSTA 토큰(바탕 `#0d0f17`·카드 `#161922`·보더 `#262c3d`·분홍~보라 그라디언트 버튼, 분홍 격자)으로. 화면 구성·문구·동작은 그대로.
+- **v1.39 관리자 실검수(2026-10-20 크롬, 관리자 로그인)**: 카드뉴스 설정에서 「내 cron-job.org」 선택 → `insta_member_scheduler.mode = cronjob`(옛 `cns_member_scheduler`는 그대로) → INSTA 설정 화면에도 같은 선택 표시 → INSTA 설정에서 Vercel로 되돌림 → `mode = vercel`(시험 전 상태). 남은 예약 0건이라 cron-job.org 작업은 꺼진 채 유지(정상, 예약 생기면 켜짐 — 실제 켜짐은 예약 게시가 필요해 미시험).
 - **v1.39 (2026-10-20, Claude Code 윈도우) — 예약 실행 방식 설정 하나로(피드 글 + 카드뉴스)**: 카드뉴스 API 5곳(`/api/cardnews/instagram/dispatch`·`dispatch-member`·`posts`, `/api/cardnews/scheduler`, `/api/settings/api-keys`)이 카드뉴스용 예약 설정(`cns_member_scheduler`) 대신 INSTA 설정(`@/lib/posts/memberScheduler` → `insta_member_scheduler`)을 씀. `schedulerConfig.ts` 「남은 예약」에 `cns_insta_posts`도 포함(0이면 cron-job.org 작업 끔), INSTA 회원 실행 주소 `/api/posts/dispatch-member`가 피드 글과 카드뉴스 예약을 함께 실행(옛 카드뉴스 회원 실행 주소도 INSTA 토큰으로 두 가지 모두 실행). 화면: INSTA 설정 「⏰ 예약 발행」·카드뉴스 설정에 「하나의 설정」 안내. 배포판(독립 모드)은 카드뉴스 표가 없어 기존과 같음. DB 표 변경 없음 — `cns_member_scheduler`는 지우지 않고 사용 안 함(관리자 1행, vercel 방식). `src/lib/cardnews/instagram/memberScheduler.ts`·`cronJobOrg.ts`·`schedulerConfig.ts`는 INSTA 화면에서 쓰지 않지만 공용 기준 코드(`member-scheduler`·`insta-cronjob-org`)의 기준 파일이라 남김.
 - **v1.38 (2026-10-20, Claude Code 윈도우)**: 다크 바탕에 묻히던 화면 제목 6곳(게시글 관리·새 글·수정·상세·주제 수집·계정 선택 + 카드뉴스 기록 칸 제목)을 밝은 글자(`text-slate-100`)로. 라벨·흰 상자 등 화면 전체 색 정리는 `docs/IMPROVEMENTS.md` 2026-10-20 항목(디자인 담당).
 - **v1.37 (2026-10-20, Claude Code 윈도우) — 병합 2단계: 보관함 하나로·카드뉴스 안내**: 「게시글 관리」(`/posts`) 아래에 「🎨 카드뉴스 예약·게시 기록」 칸(`src/components/cardnews/CardnewsPostsSection.tsx`, 카드뉴스 API `/api/cardnews/instagram/posts` 회원 본인 최근 30건·예약 취소 — 공용 `postsClient` 사용). 새 글 화면에서 「카드뉴스(캐러셀 4장)」를 고르면 「한글이 깨지지 않는 4~10장 카드뉴스는 카드뉴스 스튜디오에서」 안내(직접 첨부·AI 4장은 그대로 — 4컷 만화 넘기기 `postType=card_news` 호환). 배포판(독립 모드)은 둘 다 숨김. 남은 것: 예약 실행 방식 설정이 INSTA(`insta_member_scheduler`)·카드뉴스(`cns_member_scheduler`) 둘로 나뉨 — 통합은 표 이전이 필요해 3단계 이후 검토.
