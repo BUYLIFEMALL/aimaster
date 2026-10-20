@@ -94,8 +94,19 @@ export async function getMemberSchedules(service: SupabaseClient, userId: string
   return all;
 }
 
+/** 다음 게시 = 아직 시각이 안 된 첫 예약(없으면 맨 앞) — 시각이 지난 예약이 「다음」으로 보이지 않게 */
+export function nextSchedule(list: MemberSchedule[]): MemberSchedule | null {
+  const now = Date.now();
+  return list.find((s) => Date.parse(s.scheduledAt) >= now) ?? list[0] ?? null;
+}
+
+/** 예약 시각이 지났는데 아직 남아 있는가(게시 처리 대기·확인 필요) */
+export function isOverdue(s: MemberSchedule): boolean {
+  return Date.parse(s.scheduledAt) < Date.now();
+}
+
 export function summarizeSchedules(list: MemberSchedule[], recurring: MemberRecurring[] = []): MemberScheduleSummary {
-  return { count: list.length, next: list[0] ?? null, conflicts: list.filter((s) => s.conflict).length, recurring: recurring.filter((r) => r.state === "running").length };
+  return { count: list.length, next: nextSchedule(list), conflicts: list.filter((s) => s.conflict).length, recurring: recurring.filter((r) => r.state === "running").length };
 }
 
 /** 올해가 아닌 예약이면 연도도 보여 준다(한국 시간 기준) */

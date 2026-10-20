@@ -61,6 +61,12 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 「📅 내 예약 현황」 2단계: 네이버 블로그 에이전트 예약 + 정기 자동 실행 7개 + 시각 지남 표시
+- 한 일: ① 예약 칸이 있는 표를 운영 DB에서 전수 확인 → 빠져 있던 네이버 블로그 에이전트(`nba_posts`, `is_reserved` + 예약 시각, 발행·실패 전 = 「발행 대기열」과 같은 조건) 추가 → 예약 게시 9개 ② 정기 자동 실행 7개(예약 리마인드·CRM·카카오·네이버 카페·스텝메일·상품소싱·유튜브 댓글) — 켜진 일 수(각 `schedulerConfig.ts` `countRemainingWork`와 같은 조건)·일시정지·실행 방식 카드 ③ 홈 요약에 「🔁 정기 실행 n개」 ④ 예약 시각이 지난 항목에 「⏳ 시각 지남 · 처리 확인 필요」, 「다음 게시」는 아직 안 된 첫 예약으로 ⑤ `docs/SCHEDULER_POLICY.md`에 「새 예약 프로그램은 `lib/schedules/memberSchedules.ts` `SOURCES`/`RECURRING`에 한 줄 등록」 규칙.
+- 검수: tsc·build, 커밋 `a0183f58`(+ 시각 지남 후속), 자동 배포 Ready. 크롬(관리자) 실데이터: 네이버 블로그 에이전트 예약 2건(다른 세션의 검수용 글 — 지우지 않음, 14:10은 이미 지난 시각이라 시각 지남 표시 대상)·30분 겹침, 정기 자동 실행 「네이버 카페 포스팅 자동화 · 예약을 켠 글감 출처 1개 · 실행 중 · AIMaster 기본」.
+- 링크: https://www.buylife.xyz/schedules
+
+
 ## 2026-10-20 Claude Code(윈도우) — 메인 사이트 「📅 내 예약 현황」: 8개 프로그램 SNS 예약 모아 보기 (추가개선 제안 3-2)
 - 한 일: 회원 메뉴 「내 예약 현황」(`/schedules`) + 홈 「내 작업대」 위 요약 한 줄. 인스타 5개·쓰레드 3개 예약 표를 회원 본인 것만 읽어 시각 순으로, 같은 SNS 30분 안 겹침 경고, 「○○에서 보기」 링크. 보기 전용(취소는 각 프로그램). 네이버 카페·카카오(정기형)는 다음 단계 후보.
 - 파일: `lib/schedules/memberSchedules.ts`(SOURCES — 새 예약 프로그램은 여기 한 줄 추가), `app/(dashboard)/schedules/page.tsx`, `components/home/ScheduleSummaryBar.tsx`, `app/(main)/page.tsx`, `components/layout/Sidebar.tsx`. 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULES.md`. DB 변경 없음.

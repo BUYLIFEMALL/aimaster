@@ -4,7 +4,7 @@ import { CalendarClock, ExternalLink, AlertTriangle, Repeat } from "lucide-react
 import GlassCard from "@/components/ui/GlassCard";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { getMemberRecurring, getMemberSchedules, formatScheduleDay, formatScheduleTime, PLATFORM_LABEL, type MemberSchedule, type SnsPlatform } from "@/lib/schedules/memberSchedules";
+import { getMemberRecurring, getMemberSchedules, isOverdue, nextSchedule, formatScheduleDay, formatScheduleTime, PLATFORM_LABEL, type MemberSchedule, type SnsPlatform } from "@/lib/schedules/memberSchedules";
 
 const BADGE: Record<SnsPlatform, string> = {
   instagram: "bg-pink-500/15 text-pink-300",
@@ -50,7 +50,7 @@ export default async function SchedulesPage() {
           <div className="text-subtext text-xs mt-1">남은 예약</div>
         </GlassCard>
         <GlassCard className="p-4 text-center">
-          <div className="text-lg font-black text-white">{schedules[0] ? formatScheduleTime(schedules[0].scheduledAt) : "-"}</div>
+          <div className="text-lg font-black text-white">{nextSchedule(schedules) ? formatScheduleTime(nextSchedule(schedules)!.scheduledAt) : "-"}</div>
           <div className="text-subtext text-xs mt-1">다음 게시</div>
         </GlassCard>
         <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
@@ -84,6 +84,7 @@ export default async function SchedulesPage() {
                       <span className="text-xs text-gold">{s.programName}</span>
                       {s.account && <span className="text-xs text-subtext">@{s.account}</span>}
                       {s.conflict && <span className="text-xs font-bold text-amber-400">⚠️ 30분 안 겹침</span>}
+                      {isOverdue(s) && <span className="text-xs font-bold text-sky-300" title="예약 시각이 지났지만 아직 게시 완료로 바뀌지 않았습니다. 프로그램에서 처리 상태를 확인해 주세요.">⏳ 시각 지남 · 처리 확인 필요</span>}
                       <span className="w-full sm:w-auto sm:flex-1 text-sm text-subtext truncate">{s.text}</span>
                       {s.programUrl && (
                         <Link href={s.programUrl} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1 text-xs font-bold text-gold hover:underline">
