@@ -6,12 +6,7 @@
 - 결과 파일: `naver-blog-agent/docs/BLC00_LIVE_CHECK_20261020.md`. Codex의 미커밋 작업목록·0단계 문서는 건드리지 않음 → **작업목록(`docs/BLOG_CONSOLIDATION_TASKS.md`) BLC-00 상태 갱신은 Codex가 반영**, 다음은 BLC-01 플랜.
 - 링크: https://naver-blog-agent.buylife.xyz
 
-<!-- BLOG_CONSOLIDATION_STAGE0_20261020 -->
-### 2026-10-20 운영 검수 재개 시도 — Codex
-- 14:49 KST 주인님이 Edge 실행을 확인한 뒤 창 목록 조회를 다시 시도했으나 같은 Orca 실행 정보 접근 거부(`CreateFile 0x5`)로 실패. 창이 떠 있어도 현재 세션 제어 접근은 차단됨. 실행 권한이 허용된 세션에서 재개 필요, 운영 실검수/발행/데이터 변경 없음.
-- 주인님 요청으로 1번 운영 확인을 재개. `computer-use`로 기존 Edge 실행 중임은 확인했으나 창 제어는 Orca runtime metadata 접근 거부(`runtime_unavailable`, `CreateFile 0x5`)로 막힘. 신규 기본값/기존 모드 보존/회원 변경 저장의 운영 실검수는 모두 미완료. 실제 발행·유료 호출·운영 데이터 변경 0. 로컬 검사를 운영 통과로 바꾸지 않음.
-- 다음 첫 단계: 운영 접속·Edge 제어 가능한 세션에서 일반 회원으로 세 항목 실검수. [상세 재개 기록](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md), [증거](../naver-blog-agent/docs/evidence/consolidation-stage0/live-recheck-attempt.json). 코드/버전/배포 변경 없음, 문서 커밋/푸시 미실행(`.git` 읽기 전용).
-
+<!-- BLOG_CONSOLIDATION_TASK_REGISTER_20261020 -->
 ## 2026-10-20 Claude Code(윈도우) — 배포 키트 리허설 자원 유지 결정 (주인님 「일단 놔둬, 나중에 삭제할게」)
 - 그대로 둠(삭제 금지 — 주인님이 직접 정리): Supabase `BUYLIFE-DEV`의 `kit-insta`(ref `jlkagfxweoqfqtspraje`, 무료 칸 2/2 사용 중), Vercel `dev-kit-insta`(https://dev-kit-insta.vercel.app, v1.07 배포됨), 이 PC `D:\ktr\w`(v1.01·v1.04·v1.06·v1.07 압축 해제본, 일부 `.env.local`에 Lab 키 있음).
 - 「Confirm email」은 꺼진 상태 유지. 확인 메일 실제 왕복 시험은 주인님 요청 때(켜고 → 가입 → 링크 → 끄기).
@@ -31,6 +26,23 @@
 - 발견·수정(커밋 `6c81b6b4`·`d5ead9fa`, 배포판 v1.05·v1.06): ② 새 조직 화면 → 프로젝트 목록, **윈도우 PowerShell 파이프 BOM으로 `NEXT_PUBLIC_STANDALONE_MODE="﻿true"` → 독립 모드 꺼짐·운영 주소 308**(`Push-Env` 임시 파일 입력, `ERROR_LESSONS.md`), ⑤⑥ 문구.
 - 확인: v1.06 마법사가 옆 v1.01 설치 자동 발견 → 업데이트(키·사이트 이름 질문 없음, Ready 36s) → 버전 줄 「v1.01 (v1.26) → v1.06 (v1.34)」 → 사이트 `/login` 200·브랜드 한글 정상·buylife 링크 0. 매뉴얼 📷 7곳 채움(새 캡처 6 + 1차 `t06`).
 - 비용: Vercel 빌드 2회, Supabase 0원. 남은 일: **Lab 자원(`kit-insta`·`dev-kit-insta`·`D:\ktr\w`) 삭제 여부 주인님 확인**, 매뉴얼 남은 📷 6곳, 개선 대기(배포 로그의 `RemoteException` 줄 정리).
+
+## 2026-10-20 Codex — 블로그 부분 통합 순차 작업목록 등록
+- **후속 순차 진행 확인**: 최신 ACTIVE_WORK에 Claude Code(윈도우)가 `naver-blog-agent/` BLC-00 운영 검수 담당으로 등록돼 있음을 확인. Codex는 같은 폴더 중복 검수/수정 없이 결과 인수 대기로 전환하고 작업목록 담당/상태만 갱신. 완료 기록이 나오면 신규 prepare·기존 모드 보존·변경/저장 세 증거 및 실제 발행 없음 확인 후 BLC-01 세부 플랜으로 진행. 현재 완료로 처리하지 않음. 이번 확인에서 운영 코드/DB/데이터 변경 없음.
+- 주인님 요청: 승인된 4역할 방향을 작업목록에 올리고 하나씩 기능 확장, 새 발견/개선점을 계속 보고·인수인계. **[공식 순차 작업목록 BLC-00~15](BLOG_CONSOLIDATION_TASKS.md)**에 범위·이유·선행·완료 조건·담당 인수/기록 방식을 등록.
+- 순서: 안전장치 운영 검수 → 사진 비공개 저장/후기 → BLOG 수집·편집·입력 검증 → 작업실의 정밀 집필을 SEO로 → 키워드/티스토리 독립 유지·연결/안정된 부품 → 기능 동등성·기존 회원 전환 확인 후 독립 신규 개발 중단. 현재 BLC-00 운영 검수 미완료, 실제 사진 이관/중단 없음.
+- 새 설계 과제 BLC-INS-01: 올인원 사진 최대 6장과 에이전트 AI 생성 1~5장 규격이 다름. 업로드 사진 장수와 생성 장수를 분리해 원본 사진/캡션/대표 순서 보존 필요. 공통 아이디어 표 상단 및 상세 목록에 세 관점/세 기준/근거 기록.
+- 각 구현 작업 종료 시 해당 프로그램 IMPROVEMENTS·인수인계·AGENTS/README + 공통 아이디어 표·이 목록·루트 HANDOFF 갱신. 기존 내용/다른 CLI 스테이징 보존, 작업 결과/라이브 링크·미작업·다음 첫 단계 필수. 새 제안은 검토 상태로 구분.
+- 이번은 문서 등록만 수행. 링크/표 형식 점검, 운영 코드/DB/키/버전/배포 변경·유료 호출·발행 없음. `.git` 읽기 전용으로 이번 문서 커밋/푸시 미실행. 현재 상세 인수인계: [에이전트 0단계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md).
+
+https://naver-blog-agent.buylife.xyz
+<!-- /BLOG_CONSOLIDATION_TASK_REGISTER_20261020 -->
+
+<!-- BLOG_CONSOLIDATION_STAGE0_20261020 -->
+### 2026-10-20 운영 검수 재개 시도 — Codex
+- 14:49 KST 주인님이 Edge 실행을 확인한 뒤 창 목록 조회를 다시 시도했으나 같은 Orca 실행 정보 접근 거부(`CreateFile 0x5`)로 실패. 창이 떠 있어도 현재 세션 제어 접근은 차단됨. 실행 권한이 허용된 세션에서 재개 필요, 운영 실검수/발행/데이터 변경 없음.
+- 주인님 요청으로 1번 운영 확인을 재개. `computer-use`로 기존 Edge 실행 중임은 확인했으나 창 제어는 Orca runtime metadata 접근 거부(`runtime_unavailable`, `CreateFile 0x5`)로 막힘. 신규 기본값/기존 모드 보존/회원 변경 저장의 운영 실검수는 모두 미완료. 실제 발행·유료 호출·운영 데이터 변경 0. 로컬 검사를 운영 통과로 바꾸지 않음.
+- 다음 첫 단계: 운영 접속·Edge 제어 가능한 세션에서 일반 회원으로 세 항목 실검수. [상세 재개 기록](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md), [증거](../naver-blog-agent/docs/evidence/consolidation-stage0/live-recheck-attempt.json). 코드/버전/배포 변경 없음, 문서 커밋/푸시 미실행(`.git` 읽기 전용).
 
 ## 2026-10-20 Claude Code(윈도우) — 배포 키트 v1.05: 마법사 Supabase 주소 수정 (윈도우 리허설 준비 중 발견)
 - 리허설 시작(`D:\ktr\w`에 v1.01·v1.04 풀고 v1.01 마법사 실행) 중 발견: 마법사 ②단계가 여는 `supabase.com/dashboard/new`가 이미 조직이 있는 계정에 「새 조직 만들기」 화면을 보여 줌. → `setup.ps1`·`setup.sh`가 `supabase.com/dashboard/projects`를 열고 「이미 조직이 있으면 그 조직의 [New project], 무료 2개까지 0원」·지역 기본 Asia-Pacific(서울은 Need a specific region?)으로 안내. 학생 매뉴얼 ②·3개 키트 README 같은 문구, 지침 §6-3 함정 표 ✅.
@@ -116,6 +128,11 @@ https://naver-blog-agent.buylife.xyz
 - 링크: https://naver-blog-agent.buylife.xyz
 
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
+
+
+## 2026-10-20 Claude Code(윈도우) — 📌 세션 마무리 인수인계: 남은 작업 1~10 · 추가개선 · 「📅 내 예약 현황」
+- **먼저 읽을 문서: [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_FOLLOWUPS.md`](HANDOFF_CLAUDE_SESSION_2026-10-20_FOLLOWUPS.md)** — 한 일(타로 v1.26~27·캐릭코드 v1.23~24·4컷 v1.22~23·웹툰 v1.21~22·인플루언서 v1.19~21·공용 기준 코드 4종·메인 내 예약 현황), 미배포 목록(다음 배포 때 함께), 주인님 할 일, 미시험 항목, 다음 개선 후보, 주의사항.
+- 다음 첫 단계: 미배포 공용 정리가 남은 프로그램을 다른 일로 배포할 때 `docs/SHARED_MODULES.md` 미배포 표대로 확인 항목까지 처리.
 
 
 ## 2026-10-20 Claude Code(윈도우) — 인플루언서 v1.21: 「🗓 하루 일과 자동 예약」 구현·운영 시험 후 **중지** 상태로 보관
