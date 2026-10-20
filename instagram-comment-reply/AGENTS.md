@@ -199,3 +199,6 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 
 ## 2026-10-20 v1.20 — 텔레그램 칸에 댓글·DM 봇 구분 표시 (Claude Code 윈도우)
 - 주인님 요청: 텔레그램 알림 연동 제목에 「💬 댓글 전용 봇」(API키등록·플랫폼연동)·「💌 DM 전용 봇」(DM 답변 설정) 배지와 「서로 다른 봇이어야 함(봇 하나에 연결 주소 하나)」 안내.
+
+## 2026-10-20 v1.24 — 프로그램 공지 띠 추가 (Claude Code 윈도우)
+- 공용 기준 코드 `program-notice-banner`(기준 `ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx`) 사본을 받아 대시보드 레이아웃 `<main>` 맨 위에 표시. 메인 사이트 공지의 「관련 프로그램」에 이 프로그램이 있으면 최근 공지 1건(30일 이내), 「닫기」는 브라우저에 기억. 사본은 직접 고치지 않고 기준 수정 후 `node scripts/check-shared-modules.mjs --sync`.

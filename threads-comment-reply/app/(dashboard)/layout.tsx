@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { ProgramNoticeBanner } from "@/components/ProgramNoticeBanner";
 import { getPersistedConnectionFlag } from "@/lib/actions/threads";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen flex-col md:flex-row">
       <Sidebar userEmail={user.email ?? ""} pendingCount={pendingCount ?? 0} />
       <main className="min-w-0 flex-1 bg-th-bg p-4 md:p-8">
+        <div className="mb-4">
+          <ProgramNoticeBanner programSlug="threads-comment-reply" tone="dark" />
+        </div>
         {needsReconnect && (
           <Link
             href="/settings"

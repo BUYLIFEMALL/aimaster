@@ -176,3 +176,6 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 ## 2026-10-20 v1.14 — 텔레그램 연동 확인이 메시지를 못 찾는 문제 예방 (Claude Code 윈도우)
 - 원인: 웹훅 등록 때 `allowed_updates:["callback_query"]`를 지정하면 텔레그램이 그 값을 기억해, 웹훅을 지운 뒤 `getUpdates`(값 미지정)에서도 일반 메시지를 버림 → 연동 해제 후 다시 연동하면 「메시지를 찾지 못했어요」가 반복됨(2026-10-20 instagram-comment-reply v1.21에서 실제 발생·해결). 수정: `telegram/client.ts` `findChatIdFromUpdates`가 `allowed_updates=["message"]`를 매번 지정.
 - 검수: tsc 통과, 배포·DB 버전 v1.14. 실제 텔레그램 재연동 시험은 하지 않음(회원 봇 없음).
+
+## 2026-10-20 v1.15 — 프로그램 공지 띠 추가 (Claude Code 윈도우)
+- 공용 기준 코드 `program-notice-banner`(기준 `ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx`) 사본을 받아 대시보드 레이아웃 `<main>` 맨 위에 표시. 메인 사이트 공지의 「관련 프로그램」에 이 프로그램이 있으면 최근 공지 1건(30일 이내), 「닫기」는 브라우저에 기억. 사본은 직접 고치지 않고 기준 수정 후 `node scripts/check-shared-modules.mjs --sync`.

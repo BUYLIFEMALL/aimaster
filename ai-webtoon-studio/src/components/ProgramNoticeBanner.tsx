@@ -6,6 +6,7 @@
 // 필요: lucide-react, `@/lib/supabase/client`의 createClient(). 공용 기준 코드 — 사본은 직접 고치지 않는다(docs/SHARED_MODULES.md).
 import { useEffect, useState } from "react";
 import { Megaphone, X } from "lucide-react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
 const DISMISSED_KEY = "aimaster_dismissed_notices";
@@ -36,7 +37,8 @@ export function ProgramNoticeBanner({ programSlug, tone = "dark" }: { programSlu
   useEffect(() => {
     let alive = true;
     (async () => {
-      const supabase = createClient();
+      // 프로그램마다 DB 형식 정의(Database)에 programs·notices 표가 없을 수 있어, 이 부품은 형식 정의 없이 조회한다(2026-10-20 사본 5개 추가 때 확인).
+      const supabase = createClient() as unknown as SupabaseClient;
       const { data: program } = await supabase.from("programs").select("id").eq("slug", programSlug).maybeSingle();
       if (!program) return;
       const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();

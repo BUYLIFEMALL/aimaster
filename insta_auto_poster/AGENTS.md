@@ -195,3 +195,5 @@
 - 수정: `deployment.ts` `IS_STANDALONE`을 `(… ?? "").trim() === "true"`(BOM·공백 제거, 운영은 변수 없음 → 동작 같음), 가입 시 `emailRedirectTo`=내 사이트 확인 경로, 새 경로 `/api/auth/confirm`(`src/app/api/auth/confirm/route.ts`)(독립 모드 전용, `code`·`token_hash` 처리, 실패하면 `/login?confirmed=1` 「메일 인증이 끝났습니다」 안내), `KIT/kit.json` `authRedirectPath` → 마법사 마무리에서 Supabase URL Configuration(Site URL·Redirect URLs `내주소/**`) 안내.
 - 검수: tsc 0, `test:own-meta` 통과. 운영에서는 `IS_STANDALONE` false라 새 경로·옵션이 동작하지 않음 → 급하지 않은 변경, **다음 배포자는 버전 +0.01하고 이 항목을 버전 기록에 넣을 것**. 배포판 `SNS_Auto_Posting_Kit_v1.07`부터 포함.
 
+## 2026-10-20 v1.42 — 프로그램 공지 띠 추가 (Claude Code 윈도우)
+- 공용 기준 코드 `program-notice-banner`(기준 `ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx`) 사본을 받아 대시보드 레이아웃 `<main>` 맨 위에 표시. 메인 사이트 공지의 「관련 프로그램」에 이 프로그램이 있으면 최근 공지 1건(30일 이내), 「닫기」는 브라우저에 기억. 사본은 직접 고치지 않고 기준 수정 후 `node scripts/check-shared-modules.mjs --sync`.
