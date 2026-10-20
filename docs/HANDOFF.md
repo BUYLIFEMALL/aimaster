@@ -10672,6 +10672,7 @@ A안(새 프로그램 대신 기존 `shorts-viral-studio` 완성·출시)을 마
 <!-- IMAGE_STUDIO_PROMPTS_HANDOFF_20261020 -->
 ## 2026-10-20 Codex — AI 이미지 스튜디오 v1.20 상황별 영문 예시 160개
 - 16개 화풍·각 10개 본문을 개별 상세 보강. 코드 기본값/초기 등록 동일 원본, 기존 ID·제목·분류·순서 유지.
-- 문구 검사 4개·기존 권한 검사·빌드 통과. 원문 비교/전체 취소가 가능한 DB 교체와 복구 자료 준비. 유료 이미지 생성 없음.
+- 구현 67895548 푸시·프로덕션 READY·코드/DB v1.20·운영 본문/메타데이터 160개 일치. 검사 4개·기존 권한·빌드 통과. 유료 이미지 생성 없음.
+- 배포 후 Edge 새로고침에서 로그인 화면으로 이동: 주인님 재로그인 후 최종 표시·검색·좁은 화면 검수 필요. 인증/키/쿠키 코드는 변경하지 않음.
 - [인수인계·완료 증거·미작업](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_ENGLISH_PROMPTS.md) · [프로그램](https://ai-image-studio.buylife.xyz/prompts).
 <!-- /IMAGE_STUDIO_PROMPTS_HANDOFF_20261020 -->

@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-20T00:28:39.296Z",
+  "project": "esgxyikcnnvmlhygjkth",
+  "program": "ai-image-studio",
+  "version": "v1.20",
+  "count": 160,
+  "styles": 16,
+  "matchingBodies": 160,
+  "metadataPreserved": 160,
+  "koreanBodies": 0,
+  "generatedImages": 0,
+  "productionDeployment": "dpl_3nsNAVVVomRkGzUuTsTj8iqfvuie",
+  "sourceCommit": "67895548"
+}
