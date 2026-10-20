@@ -160,9 +160,9 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                 </div>
               )}
 
-              {/* 🎬 마이크로 동적 프리뷰 오버레이 (호버 시 부드러운 페이드인) */}
+              {/* 🎬 마이크로 동적 프리뷰 오버레이 (호버 시 부드러운 페이드인) — 위 여백 pt-12: 배지·좋아요·즐겨찾기·편집 줄(top-3, z-10)과 겹치지 않게(2026-10-20) */}
               <div
-                className={`absolute inset-0 z-[6] bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/20 backdrop-blur-[2px] flex flex-col justify-between p-3 transition-all duration-300 pointer-events-none ${
+                className={`absolute inset-0 z-[6] bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/20 backdrop-blur-[2px] flex flex-col justify-between px-3 pb-3 pt-12 transition-all duration-300 pointer-events-none ${
                   isHovered ? "opacity-100" : "opacity-0"
                 }`}
               >
