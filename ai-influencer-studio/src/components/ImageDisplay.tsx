@@ -12,6 +12,7 @@ import {
 import type { GenerationResult, HistoryItem } from "@/types/influencer";
 import { InstagramPublishPanel } from "./InstagramPublishPanel";
 import { ScheduledSummary } from "./ScheduledSummary";
+import { RoutineSchedulePanel } from "./RoutineSchedulePanel";
 
 interface ImageDisplayProps {
   result: GenerationResult;
@@ -21,6 +22,8 @@ interface ImageDisplayProps {
   history?: HistoryItem[];
   /** 예약 실행 방식 바꾸기 → 「🔑 API키등록·플랫폼연동」 창 열기(v1.15) */
   onOpenSettings?: () => void;
+  /** v1.21 「🗓 하루 일과 자동 예약」 표시(스위치 src/lib/routineSchedule.ts) */
+  routineScheduleEnabled?: boolean;
 }
 
 export function ImageDisplay({
@@ -30,6 +33,7 @@ export function ImageDisplay({
   isGeneratingCaption = false,
   history = [],
   onOpenSettings,
+  routineScheduleEnabled = false,
 }: ImageDisplayProps) {
   const [selectedCaptionTab, setSelectedCaptionTab] = useState<number>(0);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -57,6 +61,7 @@ export function ImageDisplay({
       {/* 본문 콘텐츠 스크롤 영역 */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center">
         <ScheduledSummary />
+        {routineScheduleEnabled && <RoutineSchedulePanel history={history} />}
         {result.imageUrl ? (
           <div className="w-full max-w-2xl bg-if-surface rounded-2xl border border-if-border shadow-md p-4 space-y-4">
             {/* 생성된 화보 이미지 */}

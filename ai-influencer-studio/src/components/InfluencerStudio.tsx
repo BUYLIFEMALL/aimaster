@@ -11,6 +11,8 @@ import type { InfluencerConfig, GenerationResult, HistoryItem } from "@/types/in
 
 interface InfluencerStudioProps {
   userEmail?: string | null;
+  /** v1.21 「🗓 하루 일과 자동 예약」 표시 여부(서버가 src/lib/routineSchedule.ts 스위치로 판정) */
+  routineScheduleEnabled?: boolean;
 }
 
 const LOCAL_STORAGE_KEY = "ai_influencer_history_v1"; // v1.20부터는 예전 브라우저 히스토리를 계정으로 옮길 때만 읽는다
@@ -53,7 +55,7 @@ async function postHistory(imageSrc: string, captions: string[], config: Influen
   return d.item ? fromServer(d.item) : null;
 }
 
-export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
+export function InfluencerStudio({ userEmail, routineScheduleEnabled = false }: InfluencerStudioProps) {
   // 인플루언서 설정 기본값 (기본 선택은 아무것도 안 되어 있는 값)
   const [config, setConfig] = useState<InfluencerConfig>({
     gender: "",
@@ -384,6 +386,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
           isGeneratingCaption={isGeneratingCaption}
           history={historyItems}
           onOpenSettings={() => setIsApiKeyModalOpen(true)}
+          routineScheduleEnabled={routineScheduleEnabled}
         />
       </div>
 

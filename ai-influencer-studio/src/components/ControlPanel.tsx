@@ -77,6 +77,9 @@ export function ControlPanel({
   const [timelineScenarios, setTimelineScenarios] = useState<TimelineScenario[]>([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [isRandomRolling, setIsRandomRolling] = useState(false);
+  // v1.21 하루 일과 장면만 routine 표시를 붙인다(단일 이벤트 변형 장면은 제외)
+  const [dayPlanId, setDayPlanId] = useState<string | null>(null);
+  const [scenarioKind, setScenarioKind] = useState<"day" | "event" | null>(null);
 
   // 전체 옵션 랜덤 믹스 (주사위 버튼 클릭 시 실행)
   const handleRandomize = () => {
@@ -131,6 +134,7 @@ export function ControlPanel({
         skin: skinList,
         aspectRatio: randomAspect?.id || prev.aspectRatio,
         storyContext: undefined,
+        routine: undefined,
         isAdMode: false,
       }));
     } catch (err) {
@@ -204,9 +208,12 @@ export function ControlPanel({
       });
       const data = await res.json();
       if (data.success && data.scenarios) {
+        const planId = `day_${Date.now()}`;
+        setDayPlanId(planId);
+        setScenarioKind("day");
         setTimelineScenarios(data.scenarios);
         if (data.scenarios.length > 0) {
-          applyScenario(data.scenarios[0]);
+          applyScenario(data.scenarios[0], "day", planId);
         }
       } else {
         alert(data.error || "일과 플래닝 실패");
@@ -240,9 +247,10 @@ export function ControlPanel({
       });
       const data = await res.json();
       if (data.success && data.scenarios) {
+        setScenarioKind("event");
         setTimelineScenarios(data.scenarios);
         if (data.scenarios.length > 0) {
-          applyScenario(data.scenarios[0]);
+          applyScenario(data.scenarios[0], "event");
         }
       } else {
         alert(data.error || "이벤트 변형 생성 실패");
@@ -255,7 +263,7 @@ export function ControlPanel({
   };
 
   // 시나리오 클릭 시 원클릭 옵션 적용
-  const applyScenario = (sc: TimelineScenario) => {
+  const applyScenario = (sc: TimelineScenario, kind: "day" | "event" | null = scenarioKind, planId: string | null = dayPlanId) => {
     setSelectedScenarioId(sc.id);
     setConfig((prev) => ({
       ...prev,
@@ -270,6 +278,7 @@ export function ControlPanel({
       filmStock: sc.config.filmStock || prev.filmStock,
       skin: sc.config.skin?.length ? sc.config.skin : prev.skin,
       storyContext: sc.story || prev.storyContext,
+      routine: kind === "day" && planId ? { planId, label: sc.labelKo, order: sc.timeOrder } : undefined,
     }));
   };
 

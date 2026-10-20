@@ -46,7 +46,7 @@ function defaultLocal(): string {
 }
 
 /** 사진을 인스타 피드 비율에 맞춰 잘라 JPEG로(인스타 API는 JPEG만 받음) */
-async function toFeedJpeg(url: string): Promise<Blob> {
+export async function toFeedJpeg(url: string): Promise<Blob> {
   const img = new Image();
   img.crossOrigin = "anonymous";
   await new Promise<void>((resolve, reject) => {

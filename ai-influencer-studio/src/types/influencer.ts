@@ -15,6 +15,8 @@ export interface InfluencerConfig {
   aspectRatio: string;
   quality: string;
   storyContext?: string;
+  /** v1.21 하루 일과 장면 표시(어느 일과의 몇 번째 장면인지) — 「🗓 하루 일과 자동 예약」이 히스토리 컷을 묶는 데 쓴다 */
+  routine?: { planId: string; label: string; order: number };
 
   // 광고 모드
   isAdMode?: boolean;

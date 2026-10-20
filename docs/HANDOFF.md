@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- BLOG_CONSOLIDATION_STAGE0_20261020 -->
+### 2026-10-20 운영 검수 재개 시도 — Codex
+- 14:49 KST 주인님이 Edge 실행을 확인한 뒤 창 목록 조회를 다시 시도했으나 같은 Orca 실행 정보 접근 거부(`CreateFile 0x5`)로 실패. 창이 떠 있어도 현재 세션 제어 접근은 차단됨. 실행 권한이 허용된 세션에서 재개 필요, 운영 실검수/발행/데이터 변경 없음.
+- 주인님 요청으로 1번 운영 확인을 재개. `computer-use`로 기존 Edge 실행 중임은 확인했으나 창 제어는 Orca runtime metadata 접근 거부(`runtime_unavailable`, `CreateFile 0x5`)로 막힘. 신규 기본값/기존 모드 보존/회원 변경 저장의 운영 실검수는 모두 미완료. 실제 발행·유료 호출·운영 데이터 변경 0. 로컬 검사를 운영 통과로 바꾸지 않음.
+- 다음 첫 단계: 운영 접속·Edge 제어 가능한 세션에서 일반 회원으로 세 항목 실검수. [상세 재개 기록](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md), [증거](../naver-blog-agent/docs/evidence/consolidation-stage0/live-recheck-attempt.json). 코드/버전/배포 변경 없음, 문서 커밋/푸시 미실행(`.git` 읽기 전용).
+
+## 2026-10-20 Codex — 블로그 부분 통합·독립 유지 방향 승인 / 0단계 안전장치
+- 주인님이 7개 비교 제안의 순차 진행 승인. 에이전트(올인원 사진→BLOG 수집/편집 흡수), SEO(작업실 정밀 집필 흡수), 키워드·티스토리 독립 유지. 기존 프로그램/권한/데이터는 기능 이관 검수 전 유지. [실행 계획](../naver-blog-agent/docs/PLAN_20261020_BLOG_CONSOLIDATION_STAGE0.md).
+- 먼저 새 원고의 prepare 초기화를 생성 API와 최초 저장 복구에 반영. 기존 원고의 publish/prepare/옛 기본값 보존. 런타임 3개 파일은 아래 Claude 기록대로 `9e3bb9ea`/v2.00 배포에 함께 포함됨. Codex가 커밋/배포/DB 변경한 것은 아니며 같은 변경을 다시 배포하지 않음.
+- 검수: 신규 6개 포함 Node 검사 97개 + 발행 설정/확장 스크립트 2개·타입·로컬 빌드 통과. 보이는 Edge 로컬 비로그인 생성/저장 API 각 401. 운영 URL은 `ERR_NETWORK_ACCESS_DENIED`로 막혀 Codex 일반 회원 E2E 미완료. 유료 호출·발행·운영 데이터 쓰기/삭제 0.
+- **다음 첫 단계**: 네트워크 가능한 CLI가 실제 일반 회원으로 신규 기본값/기존 설정 보존을 확인. 미커밋 새 테스트·계획/인수인계·guide 한 문단만 선별 반영(현재 `.git` 읽기 전용). 사진 이관은 그 검수 뒤 착수. 에이전트 업로드도 공개 URL이므로 비공개 저장/30일 만료/확장 전달 선행 설계 필요. [완료·미작업·사고 비교·재개 절차](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md).
+
+https://naver-blog-agent.buylife.xyz
+<!-- /BLOG_CONSOLIDATION_STAGE0_20261020 -->
+
 ## 2026-10-20 Claude Code(윈도우) — 네이버 블로그 에이전트 v2.00 배포 + ⚠ Codex 진행 중 변경이 함께 배포됨(Codex 확인 필요)
 - v2.00(`9e3bb9ea`, 배포 `naver-blog-agent-z1v26l3j2` Ready, DB ref `esgxyikcnnvmlhygjkth` v2.00·확장 OK): 작성 결과 정리(`src/lib/ai/bodyCleanup.ts` — 글자 그대로의 
 ·맨 앞 「# 제목」 줄 제거), 원문 대조 경고 코드 재확인(`filterUnsupported` — 감상·질문·원문 단어 60% 이상 겹침 제외), 검수 지시에 「근거 자료의 날짜 표현은 연도로 바꾸라고 권하지 말 것」. 전체 테스트 통과.
@@ -70,6 +85,12 @@
 - 링크: https://naver-blog-agent.buylife.xyz
 
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
+
+
+## 2026-10-20 Claude Code(윈도우) — 인플루언서 v1.21: 「🗓 하루 일과 자동 예약」 구현·운영 시험 후 **중지** 상태로 보관
+- 한 일: 일과 플래닝 장면 컷(히스토리)을 하루 시간표대로 한 번에 인스타 예약하는 패널. 그림 자동 생성 없음. 주인님 지시로 시험 후 스위치 `off`(src/lib/routineSchedule.ts `ROUTINE_SCHEDULE_MODE`) — 켤 때 `"on"`으로 바꿔 배포.
+- 시험: 관리자 전용(`admin`)으로 배포해 실제 예약 2건 생성·취소까지 확인. 시험 중 「60일 넘는 날짜는 사진만 올라간 뒤 거절」 문제를 발견해 사진 올리기 전 사전 검사로 수정. 시험 데이터(예약·히스토리·사진) 모두 정리 0건. `off` 배포 후 패널 숨김 확인. DB(ref `esgxyikcnnvmlhygjkth`) v1.21. 상세 `ai-influencer-studio/AGENTS.md` v1.21.
+- 링크: https://ai-influencer.buylife.xyz
 
 
 ## 2026-10-20 Claude Code(윈도우) — 「📅 내 예약 현황」 2단계: 네이버 블로그 에이전트 예약 + 정기 자동 실행 7개 + 시각 지남 표시
