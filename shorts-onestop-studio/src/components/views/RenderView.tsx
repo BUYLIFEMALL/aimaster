@@ -12,6 +12,8 @@ import { CAPTION_STYLES, TTS_MODELS, TTS_VOICES, normalizeAudio, type AudioSetti
 import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } from "@/lib/render/scene";
 import { exportMp4, type ExportProgress } from "@/lib/render/export";
 import { measureAudio as measure } from "@/lib/pipeline";
+import { YoutubeUploadCard } from "@/components/views/YoutubeUploadCard";
+import type { YoutubeUpload } from "@/lib/script";
 
 const label = (s: ShortsScript, i: number) => (i === 0 ? "인트로" : i === s.cards.length + 1 ? "아웃트로" : `카드 ${i}`);
 function setVoice(s: ShortsScript, i: number, v: Voice | undefined): ShortsScript {
@@ -27,7 +29,7 @@ export function RenderView() {
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [dirty, setDirty] = useState(false);
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0.9);
   const canvas = useRef<HTMLCanvasElement>(null); const tRef = useRef(0.9);
-  const [exp, setExp] = useState<ExportProgress | null>(null), [file, setFile] = useState<{ url: string; name: string; mb: number } | null>(null);
+  const [exp, setExp] = useState<ExportProgress | null>(null), [file, setFile] = useState<{ url: string; name: string; mb: number; blob: Blob } | null>(null);
   const abort = useRef<AbortController | null>(null);
   const media = useMedia(script); const audio = useAudio(script);
   const a = useMemo(() => normalizeAudio(script?.audio), [script]);
@@ -115,8 +117,8 @@ export function RenderView() {
     try {
       const blob = await exportMp4({ script, media: media.resolve, audioUrls: audio.urls, signal: ac.signal, onProgress: setExp });
       const name = `${(item?.title || script.intro.title || "shorts").replace(/[\\/:*?"<>|]/g, "").slice(0, 40).trim() || "shorts"}.mp4`;
-      setFile({ url: URL.createObjectURL(blob), name, mb: Math.round((blob.size / 1048576) * 10) / 10 });
-      setMsg({ text: `MP4를 만들었습니다(${Math.round((performance.now() - started) / 1000)}초 걸림). [MP4 내려받기]를 눌러 저장하세요.`, ok: true });
+      setFile({ url: URL.createObjectURL(blob), name, mb: Math.round((blob.size / 1048576) * 10) / 10, blob });
+      setMsg({ text: `MP4를 만들었습니다(${Math.round((performance.now() - started) / 1000)}초 걸림). [MP4 내려받기]로 저장하거나 ⑥에서 유튜브에 바로 올리세요.`, ok: true });
     } catch (e) {
       setMsg(e instanceof DOMException && e.name === "AbortError" ? { text: "MP4 만들기를 멈췄습니다." } : { text: e instanceof Error ? e.message : "MP4를 만들지 못했습니다. 다시 시도해 주세요." });
     } finally { setExp(null); abort.current = null; }
@@ -131,6 +133,15 @@ export function RenderView() {
     try { await navigator.clipboard.writeText(text); setMsg({ text: `${what}을(를) 복사했습니다.`, ok: true }); } catch { setMsg({ text: "복사하지 못했습니다. 글자를 직접 선택해 복사해 주세요." }); }
   }
   const setSeo = (patch: Partial<NonNullable<ShortsScript["seo"]>>) => update((x) => (x.seo ? { ...x, seo: { ...x.seo, ...patch } } : x));
+
+  // v1.19 유튜브에 올린 기록은 바로 저장한다(화면을 떠나도 남도록). 다른 고친 내용도 함께 저장된다
+  async function saveUpload(rec: YoutubeUpload) {
+    if (!item || !script) return;
+    const next = { ...script, youtube: [rec, ...(script.youtube ?? [])].slice(0, 10) };
+    setScript(next);
+    try { const r = await api<{ item: Item<ShortsScript> }>("/api/items", { method: "PATCH", body: { id: item.id, data: next } }); setItem(r.item); setDirty(false); }
+    catch { setDirty(true); setMsg({ text: "유튜브에는 올렸지만 기록을 저장하지 못했습니다. [저장]을 눌러 주세요." }); }
+  }
 
   async function save() {
     if (!item || !script) return; setBusy("저장하는 중…");
@@ -212,7 +223,7 @@ export function RenderView() {
               </section>
               <section className="card stack">
                 <h2>🔎 ⑤ 업로드 문구(SEO)</h2>
-                {!script.seo ? <p className="muted">대본을 바탕으로 쇼츠 제목 후보 5개·설명란·해시태그·검색 태그를 만듭니다(본인 AI 키 1회). 유튜브에 올릴 때 복사해 붙여 넣으세요.</p> : <>
+                {!script.seo ? <p className="muted">대본을 바탕으로 쇼츠 제목 후보 5개·설명란·해시태그·검색 태그를 만듭니다(본인 AI 키 1회). ⑥에서 유튜브에 바로 올리거나 복사해 붙여 넣으세요.</p> : <>
                   <div><small className="muted">제목 후보(누르면 복사)</small><div className="list" style={{ marginTop: 6 }}>{script.seo.titles.map((t, i) => <button key={i} type="button" className="list-item" style={{ textAlign: "left", width: "100%" }} onClick={() => void copy(t, "제목")}><span>{t}</span><Copy size={13} /></button>)}</div></div>
                   <label>설명란<textarea rows={5} value={script.seo.description} maxLength={1500} onChange={(e) => setSeo({ description: e.target.value })} /></label>
                   {/* 입력 중 띄어쓰기·쉼표가 지워지지 않게, 칸을 벗어날 때 나눠서 저장한다 */}
@@ -227,6 +238,7 @@ ${script.seo!.hashtags.join(" ")}`, "설명란+해시태그")}><Copy size={13} /
                 </>}
                 <div className="actions"><button type="button" className={script.seo ? "" : "primary"} disabled={!!busy || !!exp} onClick={() => void makeSeo()}><Search size={14} />{script.seo ? "다시 만들기" : "업로드 문구 만들기"}</button><Busy on={busy.startsWith("업로드")} label={busy} /></div>
               </section>
+              <YoutubeUploadCard key={item?.id} script={script} blob={file?.blob ?? null} disabled={!!busy || !!exp} onUploaded={saveUpload} />
             </div>
             <aside className="card stack panel">
               <div className="stage-frame"><canvas ref={canvas} width={W} height={H} aria-label="소리 포함 미리보기" /></div>

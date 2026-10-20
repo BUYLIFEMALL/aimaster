@@ -171,3 +171,58 @@ export async function uploadYoutubeVideo(input: UploadYoutubeVideoInput): Promis
 
   return { videoId: data.id, videoUrl: `https://www.youtube.com/shorts/${data.id}` };
 }
+
+export interface CreateYoutubeUploadSessionInput {
+  accessToken: string;
+  title: string;
+  description: string;
+  categoryId: string;
+  tags?: string[];
+  privacyStatus: "public" | "unlisted" | "private";
+  /** 예약 공개 시각(ISO). 있으면 유튜브 규칙에 따라 privacyStatus는 private로 보낸다 */
+  publishAt?: string | null;
+  /** 영상 파일 크기(바이트) */
+  contentLength: number;
+  /** 브라우저가 업로드 주소로 직접 보낼 때 그 화면의 출처(예: https://shorts-onestop-studio.buylife.xyz) — 구글이 이 출처의 브라우저 요청을 허용한다 */
+  origin?: string;
+}
+
+/**
+ * 재개 가능 업로드(resumable) 세션을 만들고 업로드 주소를 돌려준다(2026-10-21, 쇼츠 원스톱 v1.19).
+ * 영상이 브라우저에서 만들어지는 프로그램용 — 서버는 이 주소만 만들고, 브라우저가 이 주소로 영상을 PUT 한다
+ * (Vercel 요청 4.5MB 한도를 피하고, 접근 토큰은 브라우저로 보내지 않는다. 주소는 이 영상 한 개에만 쓸 수 있다).
+ */
+export async function createYoutubeResumableSession(input: CreateYoutubeUploadSessionInput): Promise<string> {
+  const metadata = {
+    snippet: {
+      title: input.title,
+      description: input.description,
+      categoryId: input.categoryId,
+      ...(input.tags?.length ? { tags: input.tags } : {}),
+    },
+    status: {
+      privacyStatus: input.publishAt ? "private" : input.privacyStatus,
+      ...(input.publishAt ? { publishAt: input.publishAt } : {}),
+      selfDeclaredMadeForKids: false,
+    },
+  };
+
+  const response = await fetch(`${YOUTUBE_UPLOAD_API}?uploadType=resumable&part=snippet,status`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${input.accessToken}`,
+      "Content-Type": "application/json; charset=UTF-8",
+      "X-Upload-Content-Type": "video/mp4",
+      "X-Upload-Content-Length": String(input.contentLength),
+      ...(input.origin ? { Origin: input.origin } : {}),
+    },
+    body: JSON.stringify(metadata),
+  });
+
+  if (!response.ok) {
+    throw new Error(`유튜브 업로드 준비에 실패했습니다. (${response.status}) ${await response.text()}`);
+  }
+  const location = response.headers.get("location");
+  if (!location) throw new Error("유튜브 업로드 주소를 받지 못했습니다.");
+  return location;
+}

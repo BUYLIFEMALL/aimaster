@@ -51,7 +51,10 @@ export interface ShortsScript {
   audio?: Partial<import("@/lib/voice").AudioSettings>;
   /** 업로드 문구(P7) — src/lib/plan.ts Seo */
   seo?: import("@/lib/plan").Seo;
+  /** 유튜브에 올린 기록(v1.19, 최근 것이 앞, 최대 10개) — 영상 파일은 저장하지 않는다 */
+  youtube?: YoutubeUpload[];
 }
+export interface YoutubeUpload { videoId: string; url: string; title: string; privacy: "private" | "unlisted" | "public"; publishAt?: string | null; channel?: string | null; uploadedAt: string }
 
 export function isTone(v: unknown): v is Tone { return typeof v === "string" && v in TONES; }
 export function isFormat(v: unknown): v is Format { return typeof v === "string" && v in FORMATS; }

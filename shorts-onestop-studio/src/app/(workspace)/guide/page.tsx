@@ -9,7 +9,7 @@ const FLOW = [
   { emoji: "💡", title: "주제·대본", desc: "분야 → 주제 추천 → AI 대본", state: "사용 가능" },
   { emoji: "🎨", title: "배경", desc: "스톡 영상·사진 · AI 이미지", state: "사용 가능" },
   { emoji: "🎬", title: "장면 편집", desc: "테마 · 카드 레이아웃 · 글꼴 · 미리보기 재생", state: "사용 가능" },
-  { emoji: "🎙️", title: "음성·자막·MP4", desc: "본인 키 내레이션 · 자막 · 배경음악 · 브라우저 MP4 · 업로드 문구", state: "사용 가능" },
+  { emoji: "🎙️", title: "음성·자막·MP4", desc: "본인 키 내레이션 · 자막 · 배경음악 · 브라우저 MP4 · 업로드 문구 · 유튜브 바로 올리기", state: "사용 가능" },
   { emoji: "📅", title: "발행 계획", desc: "채널 단계 전략 · 날짜별 일정 · 대본~MP4 일괄 제작", state: "사용 가능" },
 ];
 const KEY_STEPS = [
@@ -91,6 +91,7 @@ export default function GuidePage() {
                 <li><strong>자막 & 배경음악 덕킹</strong>: 자막 스타일·위치·크기를 고르고 내 음악 파일을 업로드하면, 목소리가 나올 때 자동으로 배경음악 볼륨이 35%로 줄어드는 스마트 덕킹이 적용됩니다.</li>
                 <li><strong>브라우저 자체 MP4 완성</strong>: [MP4 만들기]를 누르면 서버 렌더링 비용 없이 브라우저 내에서 1080×1920 세로 MP4(음성+자막+음악 포함)를 직접 렌더링하여 [MP4 내려받기]로 즉시 저장합니다 (제작 중 탭 유지).</li>
                 <li><strong>유튜브 업로드 문구</strong>: [업로드 문구 만들기]를 누르면 최적화된 제목 후보 5개, 영상 설명란, 해시태그, 검색 태그가 생성되어 원클릭으로 복사해 유튜브에 등록할 수 있습니다.</li>
+                <li><strong>📤 유튜브에 바로 올리기</strong>: ⑥ 카드에서 제목·설명·태그·공개 범위(비공개·일부 공개·공개)·예약 공개 시각을 정하고 [유튜브에 올리기]를 누르면 방금 만든 MP4가 내 채널에 올라갑니다. 영상은 이 브라우저에서 유튜브로 직접 보내져 서버 요금이 없고, 유튜브 연결은 「유튜브 댓글 자동화」나 「YOUTUBE Shots 자동화」에서 한 번 연결한 계정을 그대로 씁니다(올린 기록은 대본에 저장).</li>
               </ul>
             </div>
 
@@ -148,6 +149,8 @@ export default function GuidePage() {
           <div className="list">
             <div className="list-item"><div><strong>「키가 없습니다」라고 나와요</strong><small>지금 고른 AI의 키가 없을 때입니다. 🔑 API키등록·플랫폼연동에서 키를 저장하거나, 위쪽 「사용할 AI」를 키가 있는 공급사로 바꿔 주세요.</small></div></div>
             <div className="list-item"><div><strong>「사용 한도」 안내가 나와요</strong><small>본인 공급사 계정의 무료 한도·결제 설정 문제입니다. 잠시 뒤 다시 하거나 다른 AI를 골라 주세요.</small></div></div>
+            <div className="list-item"><div><strong>「유튜브 채널이 아직 연결되지 않았습니다」라고 나와요</strong><small>이 프로그램은 유튜브 연결 화면이 따로 없습니다. 「유튜브 댓글 자동화」 또는 「YOUTUBE Shots 자동화」에서 본인 Google 앱(Client ID·Secret)으로 채널을 한 번 연결한 뒤 ⑥에서 [다시 확인]을 눌러 주세요. 「영상 올리기 권한이 없습니다」면 Shots에서 「다른 YouTube 프로그램 권한도 함께 받기」를 켜고 다시 연결하면 됩니다.</small></div></div>
+            <div className="list-item"><div><strong>유튜브에 하루 몇 편까지 올릴 수 있나요?</strong><small>유튜브 무료 할당량(하루 10,000단위) 기준 업로드 1회가 약 1,600단위라 하루 약 6편입니다. 한도를 넘으면 다음 날 다시 올려 주세요. 처음 올리는 채널은 유튜브가 처리하는 데 몇 분 걸릴 수 있습니다.</small></div></div>
             <div className="list-item"><div><strong>스토리가 자연스럽지 않아요</strong><small>구성을 「스토리」로 두고, 설정에서 상위 모델(Gemini 3.8 Flash · Claude Sonnet 5.5 등)을 고르면 흐름이 더 매끄럽습니다.</small></div></div>
           </div>
         </section>
