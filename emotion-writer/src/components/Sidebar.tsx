@@ -82,7 +82,7 @@ export function Sidebar({ email }: SidebarProps) {
   };
 
   const navContent = (
-    <div className="flex h-full flex-col justify-between overflow-y-auto p-3.5 bg-[#fcfaf5]">
+    <div className="flex h-full flex-col overflow-y-auto p-3.5 bg-[#fcfaf5]">
       <div className="space-y-3">
         {/* 상단 브랜드 헤더 */}
         <div className="border-b border-[#e7e0d3] pb-3">
@@ -197,7 +197,7 @@ export function Sidebar({ email }: SidebarProps) {
       </div>
 
       {/* 유틸리티 및 사용자 정보 */}
-      <div className="space-y-2 border-t border-[#e7e0d3] pt-3 mt-3">
+      <div className="shrink-0 space-y-2 border-t border-[#e7e0d3] pt-3 mt-3">
         <Link
           href="/settings"
           onClick={() => setOpen(false)}
