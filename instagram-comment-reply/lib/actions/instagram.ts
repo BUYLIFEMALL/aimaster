@@ -32,13 +32,17 @@ export async function connectInstagramAction(
   const returnTo = String(formData.get("returnTo") ?? "");
   // 기본은 회원 앱에 예전부터 등록된 옛 콜백, [새 주소로 연결]을 누르면 새 콜백으로 인증한다(두 주소 동시 지원)
   const callbackMode: CallbackMode = formData.get("callback") === "new" ? "new" : "old";
-  redirect(getInstagramAuthorizeUrl(buildOAuthState(user.id, returnTo), appId, INSTAGRAM_REDIRECT_FOR(callbackMode)));
+  // 2026-10-20 병합 B: 「DM 답변도 사용」(체크박스 with_dm) — 메시지 권한까지 한 번에 요청
+  const withMessages = formData.get("with_dm") === "on";
+  redirect(getInstagramAuthorizeUrl(buildOAuthState(user.id, returnTo), appId, INSTAGRAM_REDIRECT_FOR(callbackMode), withMessages));
 }
 
 export async function disconnectInstagramAction() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   await supabase.from("ig_accounts").delete().eq("user_id", user.id);
+  // 2026-10-20 병합 B: 연결은 댓글·DM 하나 — 해제하면 DM 계정도 함께 지운다
+  await supabase.from("dm_accounts").delete().eq("user_id", user.id);
   // v1.17: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
   await deleteSharedInstagramAccount(user.id);
   revalidatePath("/settings");

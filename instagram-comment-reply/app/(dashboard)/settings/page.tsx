@@ -50,6 +50,8 @@ export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
+  // 2026-10-20 병합 B: DM 계정(dm_accounts) 연결 여부 — 연결 화면에 「(댓글·DM)」 표시·DM 권한 추가 버튼
+  const { data: dmAccount } = await supabase.from("dm_accounts").select("user_id").eq("user_id", user.id).maybeSingle();
   const [{ data: keys }, connectionStatus, { data: settings }, { data: telegramLink }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     getInstagramConnectionStatus(supabase, user.id),
@@ -142,6 +144,7 @@ export default async function SettingsPage() {
               connected={connectionStatus.connected}
               username={connectionStatus.username}
               needsReconnect={connectionStatus.needsReconnect}
+              dmConnected={Boolean(dmAccount)}
             />
           </div>
 

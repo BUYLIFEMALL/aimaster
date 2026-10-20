@@ -166,3 +166,11 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 ## 2026-10-20 v1.17 — 회원 연동 정보 공용 저장 ④단계 Instagram (Claude Code 윈도우)
 - 연결 콜백이 `ig_accounts`와 공용 표 `member_platform_accounts`(platform `instagram`, `auth_method=instagram_login`, 댓글 권한)에 함께 저장. 읽는 곳(동기화·답글 게시·게시물 동기화·대시보드·연결 상태)은 `lib/instagram/memberAccount.ts` `getCommentAccount` — 댓글 권한 + Instagram 로그인 방식 + 재연결 필요 아님 + **계정 이름 있음**(자기 답글 거르기) 공용 계정 → 없으면 `ig_accounts`. 토큰 갱신·재연결 표시는 읽은 곳(공용이면 공용 표)에 기록. 해제는 공용 행도 삭제(설정 안내 문구). 매일 연결 점검 cron(`check-connection`)은 그대로 `ig_accounts`만 본다.
 - 공용 부품 사본 `lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020160000_member_integrations_v1_17.sql`(공용 행 없는 회원만). 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP4_INSTAGRAM.md`.
+
+## 2026-10-20 v1.18 — 병합 B 1단계: INSTA DM답변 자동화를 이 앱 안으로 = 「INSTA 댓글·DM 자동화」 (Claude Code 윈도우)
+- 주인님 결정·플랜: `docs/PLAN_20261020_DM_MERGE.md`(분석 루트 `docs/analysis-insta-consolidation-20261020/REPORT.md`). 두 프로그램 이용 권한 234명 동일 → 권한 이전 없음.
+- DM 화면 `/dm`(홈)·`/dm/conversations`·`/dm/history`·`/dm/settings`·`/dm/guide`, 좌측 메뉴 「💬 DM 답변」 묶음, 좌측 상단 이름 「INSTA 댓글·DM 자동화」.
+- 코드: DM 전용·내용 다른 lib 16개 `lib/dmApp/`(access는 이 앱 권한 `instagram-comment-reply`로), 컴포넌트 `components/dm/`, DB 형식 `types/database.types.ts`에 `dm_*` 표 추가. 같은 내용 공용 파일(supabase·auth·apiKeys·memberIntegrations·oauthState 등)은 이 앱 것을 씀.
+- API: Meta DM 웹훅 `/api/instagram/dm-webhook/[userId]`(주소 그대로), DM 텔레그램 봇 웹훅 `/api/dm/telegram/webhook/[userId]`(댓글 봇과 분리, `user_telegram_links.program_slug='instagram-dm-reply'` 행 그대로), `/api/dm/telegram/migrate-webhooks`, `/api/dm/cron/check-connection`(자동 실행은 계속 꺼 둠). DM 웹훅·텔레그램 주소 기준 도메인은 이 앱(`lib/dmApp/oauthRedirect.ts`), 비밀값은 이 앱 `CRON_SECRET` 기준 → **기존 DM 연결(관리자 텔레그램 DM 봇, 관리자·시험 Meta DM 웹훅)은 한 번 다시 등록 필요**.
+- **연결 한 번**: 설정 「계정 연결하기」에 「DM 답변도 사용」(기본 켬) → 메시지 권한(`instagram_business_manage_messages`)도 요청(`getInstagramAuthorizeUrl(..., withMessages)`), 콜백이 허락된 권한(`permissions`)에 메시지 권한이 있으면 `dm_accounts`에도 같은 토큰 저장 + 공용 표 권한 합쳐 기록. 이미 연결된 회원은 「💬 DM 답변도 쓰도록 다시 연결」. 연결 해제 시 `dm_accounts`도 삭제. DM 설정의 옛 DM 전용 연결 버튼은 안내로 교체.
+- 남은 단계: 2단계(대시보드·기록 하나로), 3단계(옛 DM 주소 이동·카탈로그 DM 노출 중지·이름/소개 변경, 주인님 확인).

@@ -9,11 +9,14 @@ export function InstagramConnectSection({
   username,
   needsReconnect,
   showNewCallback = false,
+  dmConnected = false,
 }: {
   connected: boolean;
   username: string | null;
   needsReconnect: boolean;
   showNewCallback?: boolean;
+  /** 2026-10-20 병합 B: DM 계정(dm_accounts)도 연결돼 있는지 */
+  dmConnected?: boolean;
 }) {
   const pathname = usePathname();
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +50,16 @@ export function InstagramConnectSection({
 
       {connected && !needsReconnect ? (
         <div className="space-y-3">
-          <p className="text-sm text-ig-success">✅ @{username ?? "내 계정"}으로 연동되어 있어요.</p>
+          <p className="text-sm text-ig-success">✅ @{username ?? "내 계정"}으로 연동되어 있어요.{dmConnected ? " (댓글·DM)" : " (댓글)"}</p>
+          {!dmConnected && (
+            <form onSubmit={handleConnect} className="space-y-2">
+              <input type="hidden" name="returnTo" value={pathname} />
+              <input type="hidden" name="with_dm" value="on" />
+              <button type="submit" disabled={isPending} className="rounded-lg border border-ig-border bg-ig-surface px-4 py-2 text-xs font-bold text-ig-text hover:bg-ig-hover disabled:opacity-60">
+                {isPending ? "연결 중..." : "💬 DM 답변도 쓰도록 다시 연결 (메시지 권한 추가)"}
+              </button>
+            </form>
+          )}
           <p className="text-xs text-ig-muted">연동을 해제하면 이 계정을 함께 쓰는 다른 Instagram 프로그램에서도 해제됩니다.</p>
           <form action={disconnectInstagramAction}>
             <button type="submit" className="rounded-lg bg-ig-danger/10 px-4 py-2 text-xs font-bold text-ig-danger hover:bg-ig-danger/15">
@@ -79,6 +91,14 @@ export function InstagramConnectSection({
             합니다(개인 계정은 지원되지 않아요). 연결 시 동의 화면에서 댓글 읽기/답글 권한
             (instagram_business_manage_comments)에 동의하셔야 합니다.
           </p>
+          <label className="flex items-start gap-2 rounded-lg border border-ig-border bg-ig-surface px-3 py-2 text-xs text-ig-text">
+            <input type="checkbox" name="with_dm" defaultChecked className="mt-0.5" />
+            <span>
+              <b>DM 답변도 사용</b> — 메시지 권한(instagram_business_manage_messages)도 함께 요청해 한 번 연결로 댓글·DM을 모두 씁니다.
+              Meta 앱에 메시지 권한이 없어 연결이 실패하면 체크를 끄고 다시 연결하세요.
+            </span>
+          </label>
+
           <button
             type="submit"
             disabled={isPending}

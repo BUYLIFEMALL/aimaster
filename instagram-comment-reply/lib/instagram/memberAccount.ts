@@ -52,6 +52,8 @@ export async function getCommentAccount(supabase: SupabaseClient<Database>, user
 
 /** 연결 콜백에서 공용 표에도 저장(이중 기록). 실패해도 이 프로그램 연결은 그대로 — 기록만 남김 */
 export async function saveSharedCommentAccount(input: {
+  /** 2026-10-20 병합 B: 메시지 권한도 받았으면 함께 기록 */
+  extraScopes?: string[];
   userId: string;
   igUserId: string;
   username: string | null;
@@ -66,7 +68,7 @@ export async function saveSharedCommentAccount(input: {
     username: input.username,
     accessToken: input.accessToken,
     tokenExpiresAt: input.tokenExpiresAt,
-    grantedScopes: INSTAGRAM_COMMENT_SCOPES,
+    grantedScopes: [...INSTAGRAM_COMMENT_SCOPES, ...(input.extraScopes ?? [])],
     authMethod: "instagram_login",
     appRef: input.appId,
     connectedVia: PROGRAM_SLUG,

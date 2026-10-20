@@ -22,12 +22,14 @@ function getEnv(name: string): string {
   return value;
 }
 
-export function getInstagramAuthorizeUrl(state: string, appId: string, redirectUri: string): string {
+// 2026-10-20 병합 B: 「DM 답변도 사용」이면 메시지 권한(instagram_business_manage_messages)을 함께 요청 — 연결 한 번으로 댓글·DM
+export const INSTAGRAM_MESSAGES_SCOPE = "instagram_business_manage_messages";
+export function getInstagramAuthorizeUrl(state: string, appId: string, redirectUri: string, withMessages = false): string {
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: INSTAGRAM_SCOPES,
+    scope: withMessages ? `${INSTAGRAM_SCOPES},${INSTAGRAM_MESSAGES_SCOPE}` : INSTAGRAM_SCOPES,
     state,
   });
   return `${AUTHORIZE_BASE}?${params.toString()}`;

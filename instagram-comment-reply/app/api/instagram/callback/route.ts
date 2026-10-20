@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { parseOAuthState } from "@/lib/oauthState";
-import { exchangeInstagramCode, exchangeForLongLivedToken, getInstagramAccountInfo } from "@/lib/instagram/client";
+import { exchangeInstagramCode, exchangeForLongLivedToken, getInstagramAccountInfo, INSTAGRAM_MESSAGES_SCOPE } from "@/lib/instagram/client";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -82,8 +82,31 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message);
     }
 
+    // 2026-10-20 병합 B: 메시지 권한까지 허락됐으면(「DM 답변도 사용」) DM 계정에도 같은 토큰으로 저장 → DM 답변 기능이 그대로 사용
+    const granted = Array.isArray(shortLived.permissions)
+      ? shortLived.permissions
+      : String((shortLived as { permissions?: unknown }).permissions ?? "").split(",").map((v) => v.trim()).filter(Boolean);
+    const withMessages = granted.includes(INSTAGRAM_MESSAGES_SCOPE);
+    if (withMessages) {
+      const { error: dmError } = await supabase.from("dm_accounts").upsert(
+        {
+          user_id: user.id,
+          instagram_user_id: accountInfo.igUserId,
+          username: accountInfo.username,
+          access_token: longLived.access_token,
+          token_expires_at: tokenExpiresAt,
+          needs_reconnect: false,
+          last_checked_at: new Date().toISOString(),
+          reconnect_notified_at: null,
+        },
+        { onConflict: "user_id" },
+      );
+      if (dmError) throw new Error(dmError.message);
+    }
+
     // v1.17: 공용 연결 계정에도 저장(이중 기록)
     await saveSharedCommentAccount({
+      extraScopes: withMessages ? [INSTAGRAM_MESSAGES_SCOPE] : [],
       userId: user.id,
       igUserId: accountInfo.igUserId,
       username: accountInfo.username ?? null,
