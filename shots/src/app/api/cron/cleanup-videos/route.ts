@@ -7,6 +7,7 @@ export const maxDuration = 300;
 
 // 「브라우저에서 만들기」 완성 MP4 30일 정리(최상위 규칙: 생성 데이터는 생성일 기준 30일 후 삭제) — 2026-10-21 v1.24.
 // 버킷 shots-videos의 `<회원 id>/<영상 id>/<시각>.mp4` 중 만든 지 30일이 지난 파일을 지우고, 그 주소를 쓰던 영상의 완성 상태를 비운다.
+// v1.27: 보관 음성(shots-bgm `<회원 id>/<영상 id>/voice/*.mp3`)도 만든 지 30일이 지나면 지운다(배경음악 트랙 파일은 대상 아님).
 // Vercel Cron(shots/vercel.json)이 매일 호출하며 CRON_SECRET이 맞을 때만 실행한다(회원 권한 확인 대상이 아닌 시스템 라우트).
 const BUCKET = "shots-videos";
 const RETENTION_DAYS = 30;
@@ -21,10 +22,10 @@ export async function GET(request: NextRequest) {
   const supabase = createAdminClient();
   const storage = supabase.storage.from(BUCKET);
 
-  const list = async (prefix: string) => {
+  const list = async (prefix: string, bucket = storage) => {
     const out: { name: string; id: string | null; created_at?: string | null }[] = [];
     for (let offset = 0; ; offset += 1000) {
-      const { data, error } = await storage.list(prefix, { limit: 1000, offset });
+      const { data, error } = await bucket.list(prefix, { limit: 1000, offset });
       if (error) throw new Error(error.message);
       out.push(...(data ?? []));
       if (!data || data.length < 1000) break;
@@ -47,6 +48,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "list failed" }, { status: 500 });
   }
 
+  const voiceStorage = supabase.storage.from("shots-bgm");
+  const expiredVoices: string[] = [];
+  try {
+    for (const owner of (await list("", voiceStorage)).filter((x) => x.id === null)) {
+      for (const video of (await list(owner.name, voiceStorage)).filter((x) => x.id === null)) {
+        for (const file of (await list(`${owner.name}/${video.name}/voice`, voiceStorage)).filter((x) => x.id !== null)) {
+          checked += 1;
+          if (file.created_at && new Date(file.created_at) < cutoff) expiredVoices.push(`${owner.name}/${video.name}/voice/${file.name}`);
+        }
+      }
+    }
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : "voice list failed" }, { status: 500 });
+  }
+
   let removed = 0, clearedVideos = 0;
   if (!dryRun) {
     for (let i = 0; i < expired.length; i += 100) {
@@ -63,6 +79,16 @@ export async function GET(request: NextRequest) {
       }
     }
   }
+  let removedVoices = 0;
+  if (!dryRun) {
+    for (let i = 0; i < expiredVoices.length; i += 100) {
+      const batch = expiredVoices.slice(i, i + 100);
+      const { error } = await voiceStorage.remove(batch);
+      if (error) return NextResponse.json({ error: error.message, removed, removedVoices }, { status: 500 });
+      removedVoices += batch.length;
+    }
+  }
+  console.log(`[cleanup-videos] voices expired ${expiredVoices.length} removed ${removedVoices}`);
   console.log(`[cleanup-videos] cutoff ${cutoff.toISOString()} checked ${checked} expired ${expired.length} removed ${removed} cleared ${clearedVideos}${dryRun ? " (dry-run)" : ""}`);
-  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, dryRun });
+  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, expiredVoices: expiredVoices.length, removedVoices, dryRun });
 }

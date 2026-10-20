@@ -25,7 +25,7 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
     setError(null); setWarnings([]);
     const ac = new AbortController(); abort.current = ac;
     try {
-      const { blob, warnings: w } = await buildStoryMp4({ scenes, bgmUrl, voice, speed, onProgress: setProgress, signal: ac.signal });
+      const { blob, warnings: w } = await buildStoryMp4({ videoId, scenes, bgmUrl, voice, speed, onProgress: setProgress, signal: ac.signal });
       setWarnings(w);
       if (blob.size > 50 * 1048576) throw new Error(`영상이 ${(blob.size / 1048576).toFixed(1)}MB라 저장 한도(50MB)를 넘었습니다. 장면 대사를 줄여 다시 만들어 주세요.`);
       setProgress({ pct: 99, status: `저장소에 올리는 중… (${(blob.size / 1048576).toFixed(1)}MB)` });
@@ -46,7 +46,7 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
   return (
     <div className="space-y-3">
       <p className="text-sm text-neutral-600">
-        본인 OpenAI 키로 장면마다 내레이션 음성을 만들고(영상 1편 약 10원), 장면 이미지·자막·배경음악과 함께 이 브라우저 안에서
+        본인 OpenAI 키로 장면마다 내레이션 음성을 만들고(영상 1편 약 10원, 대사·목소리가 같은 장면은 다시 만들 때 보관한 음성을 그대로 써서 무료), 장면 이미지·자막·배경음악과 함께 이 브라우저 안에서
         1080×1920 MP4로 만듭니다. 영상 합성 요금은 없고, 만드는 동안 이 탭을 열어 두세요(1~3분).
       </p>
       {!hasOpenAiKey && <p className="text-sm text-red-600">OpenAI API 키가 없습니다. 설정 페이지에서 본인 키를 등록해 주세요.</p>}

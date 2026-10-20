@@ -33,9 +33,9 @@ async function loadFont(text: string): Promise<void> {
 }
 
 // gpt-4o-mini-tts가 가끔 한 장면만 60~90초씩 늦게 답한다(2026-10-21 실측, 나머지는 4~5초) → 30초에 끊고 한 번 더 요청
-async function tts(text: string, voice: TtsVoice, speed: number, signal: AbortSignal): Promise<Blob> {
+async function tts(videoId: string, text: string, voice: TtsVoice, speed: number, signal: AbortSignal): Promise<Blob> {
   for (let attempt = 1; ; attempt++) {
-    const res = await fetch("/api/render/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, voice, speed }), signal: AbortSignal.any([signal, AbortSignal.timeout(30_000)]) })
+    const res = await fetch("/api/render/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId, text, voice, speed }), signal: AbortSignal.any([signal, AbortSignal.timeout(30_000)]) })
       .catch((e: unknown) => { if (signal.aborted || attempt >= 2) throw signal.aborted ? e : new Error("음성 생성이 늦어지고 있습니다. 잠시 후 다시 시도해 주세요."); return null; });
     if (!res) continue;
     if (!res.ok) throw new Error(((await res.json().catch(() => null)) as { error?: string } | null)?.error ?? "음성을 만들지 못했습니다.");
@@ -57,7 +57,7 @@ function drawSubtitle(ctx: CanvasRenderingContext2D, text: string) {
 }
 
 export async function buildStoryMp4(o: {
-  scenes: StoryScene[]; bgmUrl: string | null; voice: TtsVoice; speed: number;
+  videoId: string; scenes: StoryScene[]; bgmUrl: string | null; voice: TtsVoice; speed: number;
   onProgress: (p: ExportProgress) => void; signal: AbortSignal;
 }): Promise<{ blob: Blob; duration: number; warnings: string[] }> {
   assertWebCodecs();
@@ -77,7 +77,7 @@ export async function buildStoryMp4(o: {
       const img = await createImageBitmap(await imgRes.blob());
       let audio: { src: string; dur: number } | null = null;
       if (sc.narration.trim()) {
-        const blob = await tts(sc.narration, o.voice, o.speed, o.signal);
+        const blob = await tts(o.videoId, sc.narration, o.voice, o.speed, o.signal);
         const dur = (await decoder.decodeAudioData(await blob.arrayBuffer())).duration;
         const src = URL.createObjectURL(blob); blobUrls.push(src); audio = { src, dur };
       }

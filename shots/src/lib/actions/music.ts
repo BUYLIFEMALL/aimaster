@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { requestBackgroundMusic, checkMusicGenerationStatus } from "@/lib/ai/music";
 
@@ -107,32 +108,26 @@ export async function requestBgmGenerationAction(
 }
 
 /**
- * Suno가 준 오디오 URL(임시 파일일 수 있음)을 다운로드해서 우리 Storage에 영구 저장하고
- * 그 공개 URL을 반환한다. 다운로드에 실패하면 Suno 원본 URL을 그대로 폴백으로 쓴다
- * (트랙 저장 자체가 실패해서 사라지는 것보다는 낫다).
+ * Suno가 준 오디오 URL(임시 파일 — 며칠 뒤 사라짐)을 받아 우리 Storage(shots-bgm)에 영구 저장하고 공개 URL을 돌려준다.
+ * 2026-10-21 v1.27: 저장은 서버 관리자 키로(경로는 항상 `<회원 id>/…`), 1번 다시 시도, 그래도 실패하면 null —
+ * 예전처럼 임시 주소를 대신 저장하면 며칠 뒤 영상 만들기에서 음악이 빠진다(운영 2건 실제 발생).
  */
-async function persistBgmAudio(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-  videoId: string,
-  sourceUrl: string,
-): Promise<string> {
-  try {
-    const response = await fetch(sourceUrl);
-    if (!response.ok) return sourceUrl;
-    const buffer = Buffer.from(await response.arrayBuffer());
-    const path = `${userId}/${videoId}-${crypto.randomUUID()}.mp3`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("shots-bgm")
-      .upload(path, buffer, { contentType: "audio/mpeg", upsert: false });
-    if (uploadError) return sourceUrl;
-
-    const { data: publicUrlData } = supabase.storage.from("shots-bgm").getPublicUrl(path);
-    return publicUrlData.publicUrl;
-  } catch {
-    return sourceUrl;
+async function persistBgmAudio(userId: string, videoId: string, sourceUrl: string): Promise<string | null> {
+  const storage = createAdminClient().storage.from("shots-bgm");
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetch(sourceUrl, { signal: AbortSignal.timeout(60_000) });
+      if (!response.ok) continue;
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const path = `${userId}/${videoId}-${crypto.randomUUID()}.mp3`;
+      const { error: uploadError } = await storage.upload(path, buffer, { contentType: "audio/mpeg", upsert: false });
+      if (uploadError) continue;
+      return storage.getPublicUrl(path).data.publicUrl;
+    } catch {
+      /* 다시 시도 */
+    }
   }
+  return null;
 }
 
 export interface CheckBgmState {
@@ -177,17 +172,22 @@ export async function checkBgmStatusAction(
 
     // ready: 오디오 파일을 우리 Storage에 영구 저장한 다음 트랙들을 저장하고,
     // 첫 번째 트랙을 기본 선택으로 지정한다.
-    const tracksWithStorageUrl = await Promise.all(
-      result.tracks.map(async (t) => ({
+    const storedUrls = await Promise.all(result.tracks.map((t) => persistBgmAudio(user.id, videoId, t.audioUrl)));
+    if (storedUrls.some((u) => !u)) {
+      // 일부만 저장됐으면 저장된 파일은 지우고, 상태는 processing 그대로 둬 「다시 확인」으로 이어서 저장하게 한다.
+      const saved = storedUrls.filter((u): u is string => !!u).map(extractShotsBgmStoragePath).filter((p): p is string => !!p);
+      if (saved.length) await createAdminClient().storage.from("shots-bgm").remove(saved);
+      return { status: "processing", error: "배경음악은 완성됐지만 파일을 보관하지 못해 10초 뒤 자동으로 다시 시도합니다." };
+    }
+    const tracksWithStorageUrl = result.tracks.map((t, i) => ({
         video_id: videoId,
         user_id: user.id,
-        audio_url: await persistBgmAudio(supabase, user.id, videoId, t.audioUrl),
+        audio_url: storedUrls[i]!,
         image_url: t.imageUrl,
         title: t.title,
         // Suno는 재생시간을 소수(예: 181.8)로 주는데 DB 컬럼은 정수라 반올림해서 저장한다.
         duration_seconds: t.durationSeconds != null ? Math.round(t.durationSeconds) : null,
-      })),
-    );
+      }));
 
     const { data: insertedTracks, error: insertError } = await supabase
       .from("shorts_bgm_tracks")
@@ -278,8 +278,8 @@ export async function deleteBgmTrackAction(
   if (!track) return { error: "이 영상에서 생성된 트랙이 아닙니다." };
 
   const storagePath = extractShotsBgmStoragePath(track.audio_url);
-  if (storagePath) {
-    await supabase.storage.from("shots-bgm").remove([storagePath]);
+  if (storagePath?.startsWith(`${user.id}/`)) {
+    await createAdminClient().storage.from("shots-bgm").remove([storagePath]); // 본인 폴더 파일만
   }
 
   const { error: deleteError } = await supabase.from("shorts_bgm_tracks").delete().eq("id", trackId);
