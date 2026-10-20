@@ -14,3 +14,10 @@ export const PLATFORM_SCHEDULER_ENV = "FCC_PLATFORM_SCHEDULER";
 export const MEMBER_DISPATCH_PATH = "/api/instagram/dispatch-member";
 /** 회원 cron-job.org에 만드는 작업 이름 */
 export const CRON_JOB_TITLE = "AIMaster AI 4컷 만화 인스타 예약 게시(1분)";
+
+// v2단계(2026-10-20): 공용 게시 처리 코드(posting.ts·api/instagram/*)가 읽는 이 프로그램 값
+import { PROGRAM_SLUG } from "@/lib/version";
+/** 이 프로그램 slug(예약 실행 때 회원 이용 권한 확인) */
+export const SCHEDULER_PROGRAM_SLUG = PROGRAM_SLUG;
+/** 인스타 이미지 확인 함수 — 프로그램마다 파일 이름이 달라 여기서 다시 내보낸다 */
+export { MAX_INSTA_CAPTION, validInstaPaths } from "./feed";

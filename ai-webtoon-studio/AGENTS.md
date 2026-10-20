@@ -59,6 +59,11 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 - **현재 버전**: `v1.19` (2026-10-20 — v1.18 회원 연동 정보 공용 저장, v1.19 예약 서버 코드 공용 사본·일시정지 안전 처리, 아래 기록 참고)
+- **2026-10-20 (버전 변경 없음·미배포, Claude Code 윈도우) — 인스타 게시 처리·예약 API 5개 공용 기준 코드화(2단계, 이 폴더가 기준)**
+  - 한 일: `src/lib/instagram/posting.ts`와 `src/app/api/instagram/{posts,dispatch,dispatch-member,scheduler}/route.ts` 5개를 **공용 기준 코드로 등록**(`insta-posting`·`insta-posts-route`·`insta-dispatch-route`·`insta-dispatch-member-route`·`insta-scheduler-route`, 기준 `ai-webtoon-studio`, 사본 `ai-influencer-studio`·`four-cut-comics`). 프로그램마다 다르던 값(게시 기록 표·slug·이미지 확인 함수 파일)은 `src/lib/instagram/schedulerConfig.ts`의 `SCHEDULER_POSTS_TABLE`·`SCHEDULER_PROGRAM_SLUG`·다시 내보낸 `MAX_INSTA_CAPTION`/`validInstaPaths`로. **사본은 직접 고치지 말고** 기준(웹툰)만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.
+  - 동작 변경 없음(표 이름·slug·키 가림 형식 모두 이전과 같음). DB 변경 없음. 카드뉴스는 구조가 달라 제외. 플랜 `ai-webtoon-studio/docs/PLAN_20261020_INSTA_POSTING_SHARED.md`.
+  - 검수: 세 프로그램 tsc·테스트(웹툰 18·인플루언서 18·4컷 52)·build 통과, `check-shared-modules.mjs` 일치.
+  - **미배포**(내부 정리 — 공용 기준 코드 배포 등급): 버전은 그대로이고, 이 프로그램을 다음에 배포할 때 함께 나가며 그때 버전 +0.01.
 - **v1.17 (2026-10-20, Claude Code 윈도우) — 📚 회차 묶음 예약 · ⏰ 예약 대기 요약 (v1.16 추가개선 제안 진행)**:
   - **회차 묶음 예약**(`src/components/EpisodeBatchSchedule.tsx`): 게시 칸 안 「📚 여러 회차 한 번에 예약 (연재용)」 — 「프로젝트 저장(JSON)」 파일 여러 개를 골라 파일 이름 숫자 순서(1화 < 2화 < 10화)로, 첫 회차 시각부터 매일·3일·매주·2주 간격으로 한 번에 예약. 회차마다 표지+컷 앞 10장 = 게시물 1개, 캡션은 회차 제목·줄거리·해시태그. 그림이 없는 회차는 「건너뜀」 표시. 보내기 전에 화면에서 대기 한도(20건)·첫/마지막 회차 시각(10분 뒤~60일)을 검사해 경고하고 버튼을 막음(서버 검사는 그대로). 회차별 성공/실패 결과 표시.
   - **그리기·올리기 분리**(`src/lib/instagram/slideRender.ts`): v1.15의 `renderSlide`를 그대로 옮기고 `uploadSlides`(그리기 → 서명 업로드 주소 → 업로드)를 만들어 게시 칸·회차 묶음이 같은 코드 사용.

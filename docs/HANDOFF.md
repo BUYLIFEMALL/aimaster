@@ -10,6 +10,14 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 인스타 게시 처리·예약 API 5개 공용 기준 코드화 2단계 (남은 작업 순서 진행 ③, 미배포)
+- 한 일: 인플루언서·웹툰·4컷이 손 복사로 쓰던 `posting.ts` + `api/instagram/{posts,dispatch,dispatch-member,scheduler}` 5개를 공용 기준 코드로 등록(기준 `ai-webtoon-studio`). 다르던 값(게시 기록 표·slug·이미지 확인 함수 파일)은 각 `schedulerConfig.ts`로. 앞으로 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`. 카드뉴스는 구조가 달라 제외.
+- 검수: 세 프로그램 tsc·테스트(18·18·52)·build 통과, 공용 코드 점검 일치. 동작·DB 변경 없음.
+- **미배포**(내부 정리라 비용 절감 규칙대로 다음 배포 때 함께, 버전도 그때 +0.01) — `docs/SHARED_MODULES.md` 미배포 표. 플랜 `ai-webtoon-studio/docs/PLAN_20261020_INSTA_POSTING_SHARED.md`, 상세 각 `AGENTS.md`.
+- 다음 순서 ④ 인스타 화면 부품 공용화(예약 상태 줄·게시 기록 목록).
+- 링크: https://ai-webtoon-automation.buylife.xyz · https://ai-influencer.buylife.xyz · https://four-cut-comics.buylife.xyz
+
+
 ## 2026-10-20 Claude Code(윈도우) — 캐릭코드 v1.23: 그림 자동 생성을 검사 직후로만 제한 (남은 작업 순서 진행 ②)
 - 한 일: 결과 화면을 새로고침·뒤로 가기·공유 링크로 열어도 회원 Gemini 키로 그림이 자동 생성되던 과금 위험 제거. 검사 화면이 `?fresh=1`을 붙이고, 결과 화면은 이 표시가 있을 때만 자동 생성 + 즉시 주소에서 지움, 생성한 그림은 주소 `img`로 유지.
 - 검수: tsc·build, 커밋 `4736e0b6`, 배포 `mbti-character-56vz6q4m1` Ready, DB(ref `esgxyikcnnvmlhygjkth`) mbti-character v1.23, 크롬(관리자) fresh 없는 결과 주소 → 생성 요청 0회·버튼만 표시. 검사 직후 자동 생성 경로는 유료라 실호출 안 함(코드 확인).

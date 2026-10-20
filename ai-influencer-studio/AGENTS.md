@@ -237,3 +237,9 @@ ai-influencer-studio/
 - 회원 토큰 확인(`memberIdForToken`)에서 토큰은 맞지만 실행 방식이 「내 cron-job.org」가 아니면 지금처럼 401을 돌려주되 **cron-job.org 작업을 끄고 `active: false`로 정리**(재개·방식 변경이 겹쳐 작업이 켜진 채 남으면 5분마다 401 헛호출이 이어지던 문제). 직전 배포(c69b0407)의 `skipPausedMember` 방식 조건은 토큰 확인이 먼저 401로 걸러 닿지 않는 코드였으므로 일시정지만 보는 원래 조건으로 되돌림. 커밋 `be5c5107`, DB 버전 크롬 SQL Editor, 15개 순차 배포 Ready·가짜 토큰 401.
 - 재현 검수(상품소싱, 관리자): 작업을 켠 뒤 DB 방식만 Vercel로 → 11:00 회원 실행 401 + 작업 꺼짐(`active: false`) → 11:05~11:34 호출 없음. 시험 전 상태로 복귀.
 - 인스타 공용 기준 코드(`insta-member-scheduler`, 기준 cardnews-studio) 사본 — `node scripts/check-shared-modules.mjs --sync`로 반영.
+
+## 2026-10-20 (버전 변경 없음·미배포) — 인스타 게시 처리·예약 API 5개 공용 사본 전환 (Claude Code 윈도우)
+- 한 일: `src/lib/instagram/posting.ts`와 `src/app/api/instagram/{posts,dispatch,dispatch-member,scheduler}/route.ts` 5개를 **공용 기준 코드로 등록**(`insta-posting`·`insta-posts-route`·`insta-dispatch-route`·`insta-dispatch-member-route`·`insta-scheduler-route`, 기준 `ai-webtoon-studio`, 사본 `ai-influencer-studio`·`four-cut-comics`). 프로그램마다 다르던 값(게시 기록 표·slug·이미지 확인 함수 파일)은 `src/lib/instagram/schedulerConfig.ts`의 `SCHEDULER_POSTS_TABLE`·`SCHEDULER_PROGRAM_SLUG`·다시 내보낸 `MAX_INSTA_CAPTION`/`validInstaPaths`로. **사본은 직접 고치지 말고** 기준(웹툰)만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.
+- 동작 변경 없음(표 이름·slug·키 가림 형식 모두 이전과 같음). DB 변경 없음. 카드뉴스는 구조가 달라 제외. 플랜 `ai-webtoon-studio/docs/PLAN_20261020_INSTA_POSTING_SHARED.md`.
+- 검수: 세 프로그램 tsc·테스트(웹툰 18·인플루언서 18·4컷 52)·build 통과, `check-shared-modules.mjs` 일치.
+- **미배포**(내부 정리 — 공용 기준 코드 배포 등급): 버전은 그대로이고, 이 프로그램을 다음에 배포할 때 함께 나가며 그때 버전 +0.01.

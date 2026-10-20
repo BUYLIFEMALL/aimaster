@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getMemberInstagramAccount, INSTA_CONNECT_URL } from "@/lib/instagram/memberAccount";
-import { MAX_INSTA_CAPTION, validInstaPaths } from "@/lib/instagram/slides";
+import { MAX_INSTA_CAPTION, validInstaPaths } from "@/lib/instagram/schedulerConfig";
 import { insertPost, POSTS_TABLE, removeImages } from "@/lib/instagram/posting";
 import { MAX_PENDING_PER_USER, validateScheduleTime } from "@/lib/instagram/schedule";
 import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled } from "@/lib/instagram/memberScheduler";
@@ -11,7 +11,7 @@ import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, pl
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 인스타 게시 기록·예약 게시(v1.16) — 기준: ai-influencer-studio /api/instagram/posts(v1.15). 지침: 루트 docs/SCHEDULER_POLICY.md
+// 인스타 게시 기록·예약 게시 — 공용 기준 코드 `insta-posts-route`(기준 ai-webtoon-studio, 사본 직접 수정 금지). 지침: 루트 docs/SCHEDULER_POLICY.md
 
 /** 예약 전 확인: 회원이 고른 실행 방식이 준비됐는가. 「내 cron-job.org」면 본인 키를 돌려준다(예약 뒤 작업을 켜는 데 씀). */
 async function checkScheduleReady(userId: string): Promise<{ error?: string; cronjobKey: string | null }> {

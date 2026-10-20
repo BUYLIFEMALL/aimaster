@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-// 회원 전용 인스타 예약 게시 실행 주소(v1.15, 2026-10-20 — 카드뉴스 v1.24 사본). 「내 cron-job.org」를 고른 회원의 cron-job.org 작업이 1분마다 부른다.
+// 회원 전용 인스타 예약 게시 실행 주소(공용 기준 코드 `insta-dispatch-member-route`, 기준 ai-webtoon-studio — 사본 직접 수정 금지). 「내 cron-job.org」를 고른 회원의 cron-job.org 작업이 1분마다 부른다.
 // `Authorization: Bearer <회원 전용 토큰>` → 토큰 해시로 회원을 찾아 그 회원의 예약글만 게시한다(다른 회원 글·전체 실행 불가).
 // cron-job.org는 30초 안에 응답이 없으면 실패로 기록하고 25번 넘게 실패하면 작업을 끄므로, 곧바로 응답하고 게시는 응답 뒤(after) 이어서 처리한다.
 // 남은 예약이 없으면 회원 작업을 자동으로 끈다(다음 예약 때 다시 켜짐). 예약 시각 이용 권한·핸드폰 확인은 dispatchDuePosts 안에서 한다. 지침: 루트 docs/SCHEDULER_POLICY.md

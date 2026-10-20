@@ -49,6 +49,36 @@ const MODULES = [
     copies: ["ai-influencer-studio/src/lib/instagram/cronJobOrg.ts", "ai-webtoon-studio/src/lib/instagram/cronJobOrg.ts", "four-cut-comics/src/lib/instagram/cronJobOrg.ts"],
   },
   {
+    // 인스타 게시 처리(즉시·예약 실행 공통 publishPaths, 게시 기록, 30일 정리) — 2026-10-20 2단계 등록(기준 웹툰, 카드뉴스는 구조가 달라 제외). 프로그램 값은 각 폴더 schedulerConfig.ts
+    id: "insta-posting",
+    source: "ai-webtoon-studio/src/lib/instagram/posting.ts",
+    copies: ["ai-influencer-studio/src/lib/instagram/posting.ts", "four-cut-comics/src/lib/instagram/posting.ts"],
+  },
+  {
+    // 인스타 게시 기록·예약 등록/취소 API — 2026-10-20 2단계 등록(기준 웹툰, 카드뉴스는 구조가 달라 제외). 프로그램 값은 각 폴더 schedulerConfig.ts
+    id: "insta-posts-route",
+    source: "ai-webtoon-studio/src/app/api/instagram/posts/route.ts",
+    copies: ["ai-influencer-studio/src/app/api/instagram/posts/route.ts", "four-cut-comics/src/app/api/instagram/posts/route.ts"],
+  },
+  {
+    // 인스타 예약 실행(Vercel 5분) — 2026-10-20 2단계 등록(기준 웹툰, 카드뉴스는 구조가 달라 제외). 프로그램 값은 각 폴더 schedulerConfig.ts
+    id: "insta-dispatch-route",
+    source: "ai-webtoon-studio/src/app/api/instagram/dispatch/route.ts",
+    copies: ["ai-influencer-studio/src/app/api/instagram/dispatch/route.ts", "four-cut-comics/src/app/api/instagram/dispatch/route.ts"],
+  },
+  {
+    // 인스타 예약 실행(회원 cron-job.org 1분) — 2026-10-20 2단계 등록(기준 웹툰, 카드뉴스는 구조가 달라 제외). 프로그램 값은 각 폴더 schedulerConfig.ts
+    id: "insta-dispatch-member-route",
+    source: "ai-webtoon-studio/src/app/api/instagram/dispatch-member/route.ts",
+    copies: ["ai-influencer-studio/src/app/api/instagram/dispatch-member/route.ts", "four-cut-comics/src/app/api/instagram/dispatch-member/route.ts"],
+  },
+  {
+    // 인스타 예약 실행 방식 설정 API — 2026-10-20 2단계 등록(기준 웹툰, 카드뉴스는 구조가 달라 제외). 프로그램 값은 각 폴더 schedulerConfig.ts
+    id: "insta-scheduler-route",
+    source: "ai-webtoon-studio/src/app/api/instagram/scheduler/route.ts",
+    copies: ["ai-influencer-studio/src/app/api/instagram/scheduler/route.ts", "four-cut-comics/src/app/api/instagram/scheduler/route.ts"],
+  },
+  {
     // 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(리디렉트마다 재검사, DNS 바꿔치기 방지) — 2026-10-19 기준 등록
     id: "safe-fetch",
     source: "ghost-scraper/src/lib/safeFetch.ts",

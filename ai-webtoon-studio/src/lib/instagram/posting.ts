@@ -1,18 +1,19 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccess } from "@/lib/programAccess";
-import { APP_SLUG } from "@/lib/version";
+import { SCHEDULER_POSTS_TABLE, SCHEDULER_PROGRAM_SLUG } from "./schedulerConfig";
 import { getMemberInstagramAccount } from "./memberAccount";
 import { graphBaseFor, publishInstagramCarousel, publishInstagramPost } from "./publish";
 import { findSameRecentPost, isTooLate, isTransientPublishError, RETRY_DELAY_MS, TOO_LATE_MESSAGE, type RecentMedia } from "./schedule";
 
 // 인스타그램 API는 공개 이미지 주소만 받는다. INSTA 포스팅 자동화의 공개 게시용 저장소를 함께 쓰되,
-// 회원 폴더 아래 `webtoon-insta/`에 게시 직후까지만(예약이면 예약 시각까지) 두고 지운다.
+// 회원 폴더 아래 `<프로그램>-insta/`(각 upload 라우트가 정함)에 게시 직후까지만(예약이면 예약 시각까지) 두고 지운다.
 // INSTA가 이 저장소를 정리하는 기능을 만들면 이 폴더를 고려할 것.
-// v1.16 게시 기록·예약 게시 — 기준: ai-influencer-studio posting.ts v1.15(원본 cardnews-studio posts.ts v1.24). 즉시 게시와 예약 실행이 같은 함수(publishPaths)를 쓴다.
-// 게시 기록 표 wts_insta_posts — 회원 본인만 읽기(RLS), 쓰기는 이 서버 코드만. 생성 30일 뒤 삭제(cleanupOldPosts).
+// 게시 기록·예약 게시 — 공용 기준 코드 `insta-posting`(기준 ai-webtoon-studio, 사본 인플루언서·4컷; 원본 cardnews-studio posts.ts v1.24).
+// 사본은 직접 고치지 않는다 — 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`. 프로그램 값은 각 폴더 schedulerConfig.ts.
+// 즉시 게시와 예약 실행이 같은 함수(publishPaths)를 쓴다. 게시 기록 표(SCHEDULER_POSTS_TABLE) — 회원 본인만 읽기(RLS), 쓰기는 이 서버 코드만. 생성 30일 뒤 삭제(cleanupOldPosts).
 export const INSTA_BUCKET = "insta-post-images";
-export const POSTS_TABLE = "wts_insta_posts";
+export const POSTS_TABLE = SCHEDULER_POSTS_TABLE;
 const RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 const STUCK_MS = 30 * 60 * 1000;
 
@@ -110,7 +111,7 @@ export async function dispatchDuePosts(limit = 10, options: DispatchOptions = {}
       results.push({ id: post.id, status: "failed" });
       continue;
     }
-    const access = await checkProgramAccess(admin as unknown as Parameters<typeof checkProgramAccess>[0], post.user_id, APP_SLUG);
+    const access = await checkProgramAccess(admin as unknown as Parameters<typeof checkProgramAccess>[0], post.user_id, SCHEDULER_PROGRAM_SLUG);
     if (!access.allowed) {
       await finish({ status: "failed", error_message: "예약 시각에 프로그램 이용 권한(또는 핸드폰 등록)이 확인되지 않아 게시하지 않았습니다." });
       await removeImages(post.image_paths ?? []);

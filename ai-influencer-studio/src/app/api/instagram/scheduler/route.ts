@@ -2,17 +2,22 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { maskApiKey } from "@/lib/apiKeys";
 import {
   CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, memberSchedulerState,
   pauseMemberScheduler, removeMemberScheduler, resumeMemberScheduler, setMemberSchedulerMode,
 } from "@/lib/instagram/memberScheduler";
 import { POSTS_TABLE } from "@/lib/instagram/posting";
 
+/** 키 가림 표시(앞 6자·뒤 4자만) */
+function maskApiKey(key: string): string {
+  if (!key || key.length < 8) return "••••••••";
+  return key.slice(0, 6) + "••••••••" + key.slice(-4);
+}
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 예약 게시 실행 방식(v1.15, 기준: cardnews-studio /api/cardnews/scheduler + settings/api-keys의 cron-job.org 부분).
+// 예약 게시 실행 방식 — 공용 기준 코드 `insta-scheduler-route`(기준 ai-webtoon-studio, 사본 직접 수정 금지).
 // GET 상태(+ 등록된 cron-job.org 키 가림 표시), POST { action: "mode", mode } | "pause" | "resume" | { action: "key", apiKey }, DELETE 키 삭제.
 // 로그인·이용 권한 확인 뒤 본인 행만 바꾼다(쓰기는 서비스 롤). 상태 조회는 cron-job.org를 부르지 않는다(무료 API 하루 100회). 지침: 루트 docs/SCHEDULER_POLICY.md
 export async function GET() {
