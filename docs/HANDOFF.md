@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 보류 F(Shots ↔ 원스톱 합치기) 재검토: 지금은 보류 유지
+
+- 운영 DB 읽기 전용 집계: 권한 234/143명, `usage_logs` 두 프로그램 모두 0건(기록 안 남김), 실제 일반 회원 생성 각 1명 수준. 결론·근거·다음 단계는 [`analysis-youtube-consolidation-20261020/REPORT.md`](analysis-youtube-consolidation-20261020/REPORT.md) §6 「2026-10-21 보류 F 재검토 결과」.
+- 제안(결정 대기): 핵심 동작에 사용 기록 추가 → 4주 뒤 재판단. 코드·DB 변경 없음(문서만).
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 텔레그램 연동 공용 모듈 `telegram-bot-client` 등록 + 알림 전용 5곳 배포
 
 - 10곳 손 복사본(동작 같음, 주석·줄 모양만 다름)을 기준 `instagram-comment-reply/lib/telegram/client.ts` + 사본 9곳으로 등록(`scripts/check-shared-modules.mjs`). 9개 프로그램 tsc 통과.
