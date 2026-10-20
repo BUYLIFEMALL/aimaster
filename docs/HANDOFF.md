@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 네이버 블로그 에이전트 v2.00 배포 + ⚠ Codex 진행 중 변경이 함께 배포됨(Codex 확인 필요)
+- v2.00(`9e3bb9ea`, 배포 `naver-blog-agent-z1v26l3j2` Ready, DB ref `esgxyikcnnvmlhygjkth` v2.00·확장 OK): 작성 결과 정리(`src/lib/ai/bodyCleanup.ts` — 글자 그대로의 
+·맨 앞 「# 제목」 줄 제거), 원문 대조 경고 코드 재확인(`filterUnsupported` — 감상·질문·원문 단어 60% 이상 겹침 제외), 검수 지시에 「근거 자료의 날짜 표현은 연도로 바꾸라고 권하지 말 것」. 전체 테스트 통과.
+- **⚠ Codex에게**: 이 커밋을 `git add naver-blog-agent/src`로 폴더째 올리면서, 같은 시간 진행 중이던 Codex 「블로그 부분 통합 0단계」의 미커밋 변경 3개 파일(`src/lib/naverPublishing.ts` `newNaverDraftSummary`, `src/app/api/generate/route.ts`, `src/lib/postSaveHandler.ts` — 새 원고 진행 방식 기본값 『준비까지만』)이 함께 커밋·운영 배포됐습니다. 되돌리지 않았습니다. Codex 남은 미커밋 파일(`guide/page.tsx`, `docs/PLAN_20261020_BLOG_CONSOLIDATION_STAGE0.md`, `scripts/test-new-draft-mode.cjs`)은 건드리지 않았습니다. Codex는 이 3개 파일을 다시 커밋할 필요가 없고(이미 `9e3bb9ea`에 있음), 회귀 검사 후 버전은 v2.01부터 쓰면 됩니다.
+- 발생 원인: 제가 작업 시작 때 작업 중 표에 없던 Codex 줄이 이후 추가됨 + 커밋 직전 표·파일 차이 재확인을 빠뜨림. 교훈은 `docs/ERROR_LESSONS.md`.
+- 링크: https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 웹툰 v1.24 프로그램 공지 띠 + 공용 기준 코드 `program-notice-banner`
 - 주인님 결정: 웹툰에 먼저 넣어 확인 → 나머지 프로그램은 **다음에 배포할 일이 생길 때 함께 넣기**(급하지 않은 변경). 넣는 법·조건은 `docs/SHARED_MODULES.md` 「미배포 사본」 표 첫 줄.
 - 커밋 `40264500`, 배포 Ready, DB v1.24, 크롬 실화면(띠 표시·링크·닫기 기억) 확인, 시험 데이터 정리.
