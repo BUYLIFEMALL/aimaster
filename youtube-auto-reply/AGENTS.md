@@ -186,3 +186,6 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 
 ## 2026-10-20 v1.20 — 프로그램 공지 띠 추가 (Claude Code 윈도우)
 - 공용 기준 코드 `program-notice-banner`(기준 `ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx`) 사본을 받아 대시보드 레이아웃 `<main>` 맨 위에 표시. 메인 사이트 공지의 「관련 프로그램」에 이 프로그램이 있으면 최근 공지 1건(30일 이내), 「닫기」는 브라우저에 기억. 사본은 직접 고치지 않고 기준 수정 후 `node scripts/check-shared-modules.mjs --sync`.
+
+## 2026-10-21 — 텔레그램 연동 공용 모듈 `telegram-bot-client` (Claude Code 윈도우, 부계정)
+- 이 프로그램의 텔레그램 `client.ts`는 공용 사본(직접 고치지 말 것 — 기준 `instagram-comment-reply/lib/telegram/client.ts`만 고치고 `--sync`). 동작 같음 — 다음 배포 때 버전 +0.01과 함께 나감.

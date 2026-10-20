@@ -225,3 +225,6 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - ② `/guide` 통합 초보자 매뉴얼(5단계·복사 상자·텔레그램 봇 2개·옛 DM 회원 할 일·FAQ 6개), `/dm/guide` → `/guide`, 메뉴 「DM 매뉴얼」 제거. `docs/MANUAL_AND_INTEGRATION_GUIDELINES.md` 스타일 2·6·8.
 - ③ 플로우 위저드 스타일(인스타 바이럴 변형) — 상세 `docs/DESIGN_HANDOFF.md`.
 - 검수: tsc·build, 배포 `instagram-comment-reply-pk79kqebg` Ready, DB v1.24, 크롬 대시보드·매뉴얼·DM 설정·390px.
+
+## 2026-10-21 — 텔레그램 연동 공용 모듈 `telegram-bot-client` (Claude Code 윈도우, 부계정)
+- 이 프로그램의 텔레그램 `client.ts`는 공용 기준 파일(직접 고쳐도 됨 — 고친 뒤 `--sync`로 사본 9곳에 반영하고 그 프로그램들 확인). 동작 같음 — 다음 배포 때 버전 +0.01과 함께 나감.

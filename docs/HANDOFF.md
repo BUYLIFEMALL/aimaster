@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 텔레그램 연동 공용 모듈 `telegram-bot-client` 등록 + 알림 전용 5곳 배포
+
+- 10곳 손 복사본(동작 같음, 주석·줄 모양만 다름)을 기준 `instagram-comment-reply/lib/telegram/client.ts` + 사본 9곳으로 등록(`scripts/check-shared-modules.mjs`). 9개 프로그램 tsc 통과.
+- 주인님 선택 「등록 + 알림 5개만 순차 배포」: booking-reminder v1.27 · crm-google-form v1.16 · longtail-keyword-expander v1.10 · real_estate_sales v1.18 · trending-product-finder v1.21 — 하나씩 빌드·배포 Ready·DB 버전, 크롬 첫 화면 확인, 예약 실행 회원 경로 가짜 토큰 401(3곳, 미배포였던 `member-scheduler` 사본 함께). 미배포 4곳: instagram-comment-reply · threads-comment-reply · youtube-auto-reply · kakao_auto_poster(다음 배포 때).
+- 다음: 주인님 요청 ③ 보류 F 재검토. 커밋 `d9697d8f` · `bb19ed71` · `eeaeb4a9` · `e336b5ad` · `eb93c43d` · `b856c562` 외 문서.
+
+https://booking-reminder.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — Shots updated_at 장치 · 원스톱 v1.21 발행 계획 → 유튜브 예약
 
 - Shots: 운영 DB Shots 표 5개 `updated_at` 자동 갱신 장치(주인님 승인, 코드 변경 없음, `shots/supabase/migrations/20261021190000_updated_at_triggers.sql`).

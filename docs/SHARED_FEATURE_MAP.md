@@ -115,17 +115,17 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | insta_auto_poster | `src/components/ProgramNoticeBanner.tsx` | 🔵 사본 | v1.42, dark |
 | 나머지 웹 서브프로그램 | — | ⚪ 다음 배포 때 | `docs/SHARED_MODULES.md` 미배포 목록 |
 
-## 10. 텔레그램 승인 봇 연동(`lib/telegram/client.ts`) — 공용화 후보 (2026-10-20 등록)
+## 10. 텔레그램 승인 봇 연동 — 공용 모듈 `telegram-bot-client` (2026-10-20 후보 → 2026-10-21 등록)
 
-같은 구조의 파일이 9개 프로그램에 각자 복사돼 있다(공용 점검 스크립트 미등록). 연동 확인 `findChatIdFromUpdates`는 `deleteWebhook` → `getUpdates` 순서이며, **`getUpdates`에 `allowed_updates=["message"]`를 꼭 지정**해야 한다(웹훅에 `["callback_query"]`를 걸었던 봇은 텔레그램이 그 값을 기억해 일반 메시지를 버림 — `docs/ERROR_LESSONS.md` 2026-10-20). 봇 하나에는 웹훅 하나만 걸리므로 한 프로그램에 승인 기능이 둘이면 봇도 둘(예: INSTA 댓글·DM의 댓글 봇·DM 봇, `user_telegram_links.program_slug`로 구분).
+**2026-10-21 공용 기준 등록**: 기준 `instagram-comment-reply/lib/telegram/client.ts`, 사본 9곳(아래 표 전부 + INSTA DM 봇 `lib/dmApp/telegram/client.ts`) — 직접 고치지 말고 기준만 고친 뒤 `--sync`. (등록 전에는 9개 프로그램이 각자 복사해 썼다.) 연동 확인 `findChatIdFromUpdates`는 `deleteWebhook` → `getUpdates` 순서이며, **`getUpdates`에 `allowed_updates=["message"]`를 꼭 지정**해야 한다(웹훅에 `["callback_query"]`를 걸었던 봇은 텔레그램이 그 값을 기억해 일반 메시지를 버림 — `docs/ERROR_LESSONS.md` 2026-10-20). 봇 하나에는 웹훅 하나만 걸리므로 한 프로그램에 승인 기능이 둘이면 봇도 둘(예: INSTA 댓글·DM의 댓글 봇·DM 봇, `user_telegram_links.program_slug`로 구분).
 
 | 프로그램 | 웹훅 사용 | allowed_updates 수정 |
 |---|---|---|
 | instagram-comment-reply(댓글 `lib/telegram/`·DM `lib/dmApp/telegram/`) | 예(버튼) | ✅ v1.21, 실패 진단 v1.22 |
 | threads-comment-reply · youtube-auto-reply · kakao_auto_poster | 예(버튼) | ✅ v1.14 · v1.19 · v1.28 배포 |
-| booking-reminder · crm-google-form · longtail-keyword-expander · real_estate_sales · trending-product-finder | 아니오(알림만) | 🟡 코드 반영, 다음 배포 때 |
+| booking-reminder · crm-google-form · longtail-keyword-expander · real_estate_sales · trending-product-finder | 아니오(알림만) | ✅ 2026-10-21 배포(v1.27 · v1.16 · v1.10 · v1.18 · v1.21) |
 
-공용화하면 좋은 점: 위 수정·실패 진단(`telegramDiagnosis`, instagram-comment-reply v1.22)을 한 번에 전파. 기준 후보: instagram-comment-reply `lib/telegram/client.ts` + `lib/actions/telegram.ts`의 진단 함수.
+남은 후보: 실패 진단(`telegramDiagnosis`, instagram-comment-reply `lib/actions/telegram.ts`)은 프로그램별 화면·액션과 맞물려 있어 이번엔 제외 — 다음 공용화 후보.
 
 ## 11. 유튜브 업로드 — 공용 모듈 `youtube-upload-client` (2026-10-21 등록, 엔진 공유 1번)
 

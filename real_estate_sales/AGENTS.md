@@ -48,3 +48,6 @@
 ## 2026-10-20 (미배포) — 텔레그램 연동 확인 코드 보완 (Claude Code 윈도우)
 - 원인: 웹훅 등록 때 `allowed_updates:["callback_query"]`를 지정하면 텔레그램이 그 값을 기억해, 웹훅을 지운 뒤 `getUpdates`(값 미지정)에서도 일반 메시지를 버림 → 연동 해제 후 다시 연동하면 「메시지를 찾지 못했어요」가 반복됨(2026-10-20 instagram-comment-reply v1.21에서 실제 발생·해결). 수정: `telegram/client.ts` `findChatIdFromUpdates`가 `allowed_updates=["message"]`를 매번 지정.
 - 이 프로그램은 웹훅을 걸지 않아 다른 프로그램에서 쓰던 봇을 재사용할 때만 해당 → 급하지 않은 변경으로 분류, **코드만 저장소에 반영(tsc 통과)·다음 배포 때 함께 내보내고 그때 버전 +0.01.**
+
+## 2026-10-21 — 텔레그램 연동 공용 모듈 `telegram-bot-client` (Claude Code 윈도우, 부계정)
+- 이 프로그램의 텔레그램 `client.ts`는 공용 사본(직접 고치지 말 것 — 기준 `instagram-comment-reply/lib/telegram/client.ts`만 고치고 `--sync`). 운영 배포 v1.18(미배포였던 연동 확인 `allowed_updates` 수정·공용 사본 함께, 크롬 관리자 첫 화면 확인).
