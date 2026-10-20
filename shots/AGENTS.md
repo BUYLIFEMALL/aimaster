@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.28` (`package.json` 1.28.0, `version.ts` v1.28, DB `programs` v1.28 — 2026-10-21)
+> - **버전**: `v1.29` (`package.json` 1.29.0, `version.ts` v1.29, DB `programs` v1.29 — 2026-10-21)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -101,3 +101,9 @@
 - 서버(`src/lib/actions/youtube.ts` `postToYoutubeAction`): 값 검사(예약은 15분 뒤~6개월 안), 업로드 방식은 그대로 서버가 저장소 영상을 받아 올림(영상이 저장소에 있어 4.5MB 한도 문제 없음 — 브라우저 직접 업로드는 이득이 적어 하지 않음).
 - 공용 기준 `youtube-upload-client`(`src/lib/youtube/client.ts`) `uploadYoutubeVideo`에 선택값 `publishAt` 추가(있으면 privacy를 private로) → `--sync`로 원스톱 사본 반영(원스톱은 이 함수를 안 써서 동작 같음, 미배포).
 - 검수: tsc(두 프로그램)·build·공용 점검, 운영 Ready, DB v1.28, 크롬 화면에서 선택 칸·예약 입력·버튼 문구 확인. **실업로드 성공(2026-10-21, 주인님 재연동 후)**: 관리자 채널에 비공개 + 예약(2027-03-15 09:00 KST) — 영상 `2EgI3UR8eOw`, 카테고리 교육(27), DB `youtube_status=posted`, 유튜브 스튜디오 「예약됨 · 공개로 예약 2027.3.15 오전 9:00 · 게시 때까지 비공개」 확인. **시험 영상은 주인님이 삭제**: https://studio.youtube.com/video/2EgI3UR8eOw/edit
+
+## 2026-10-21 v1.29 — 유튜브 연결 카드 (Claude Code 윈도우, 부계정)
+- 플랜(주인님 승인): [`docs/PLAN_20261021_YOUTUBE_CONNECT_HISTORY.md`](docs/PLAN_20261021_YOUTUBE_CONNECT_HISTORY.md). 계기: 「유투브 연동 버튼이 없어 어디서 하는거야」.
+- 공용 화면 조각 `src/components/youtube/YoutubeConnectCard.tsx`: 상태(✅ 연결됨·채널 이름 / ⚠️ 만료 / ⚪ 미연결) + 「채널 연결하기」·「다시 연결하기」·「연결 해제」 + 「댓글 자동화 권한도 함께 받기」. 넣은 곳: 설정 「📺 YouTube 연동」 맨 위(돌아올 곳 `/settings`), 영상 화면 업로드 칸(알약 버튼·만료 안내·미연결 폼을 대체), 영상 포스팅 `/videos` 맨 위 1번(영상별 칸은 `showConnectCard={false}`). 연결 해제는 `/settings`도 새로 고침. `/videos` 빈 목록 안내의 옛 버튼 이름 「쇼츠생성하기」 → 「최종 영상 만들기」.
+- 검수: tsc·build, 운영 Ready, DB v1.29. 크롬 관리자: 세 화면 카드 「✅ 연결됨 — BUYLIFE ACADEMY…」, 설정의 「다시 연결하기」 → 구글 계정 선택 화면(state에 `/settings`), 계정은 고르지 않고 돌아와 연결 유지 확인.
+
