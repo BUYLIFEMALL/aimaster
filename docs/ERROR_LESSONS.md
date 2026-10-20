@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — 텔레그램 웹훅에 `allowed_updates:["callback_query"]`를 걸었던 봇은 웹훅을 지운 뒤에도 `getUpdates`가 일반 메시지를 버린다 → 연동 확인이 「메시지를 찾지 못했어요」만 반복 (instagram-comment-reply v1.21, Claude Code 윈도우)
+- 증상: 봇 토큰이 맞고(getMe로 봇 이름 확인) 봇 1:1 대화창에 메시지를 보냈는데도 연동 확인이 계속 실패. Vercel 로그상 다른 서비스가 메시지를 가져간 흔적도 없음.
+- 원인: `setWebhook`의 `allowed_updates`는 텔레그램이 봇 설정으로 **기억**한다. `deleteWebhook` 뒤 `getUpdates`를 `allowed_updates` 없이 부르면 이전 값(버튼 알림만)이 그대로 적용돼 `message`가 만들어지는 순간 버려진다. 연동 → 해제 → 재연동, 또는 웹훅을 걸었던 봇을 다른 프로그램에서 재사용할 때 발생.
+- 해결: `findChatIdFromUpdates`의 `getUpdates`에 `allowed_updates=["message"]`(URL 인코딩한 JSON)를 매번 지정. 수정 전에 보낸 메시지는 이미 버려졌으므로 「연동 확인 1번 → 메시지 보내기 → 다시 연동 확인」. 실패 안내에 `getWebhookInfo`·알림 종류 진단을 붙여 두면 원인 파악이 빠름(instagram-comment-reply v1.22 `telegramDiagnosis`).
+- 적용: instagram-comment-reply v1.21, threads-comment-reply v1.14, youtube-auto-reply v1.19, kakao-auto-posting v1.28(배포), booking-reminder·crm-google-form·longtail-keyword-expander·real_estate_sales·trending-product-finder(코드만, 다음 배포 때).
+- 다음부터 확인: 새 프로그램에 텔레그램 연동을 넣을 때 `getUpdates`에 받을 종류를 꼭 지정한다.
+
 ## 2026-10-20 — Orca의 아래 방향 키 이름은 `Down` (Codex, 블로그 로컬 회원 검수)
 
 - 증상: `orca computer press-key --key ArrowDown`이 `Unsupported key: ArrowDown`으로 거부됐습니다.

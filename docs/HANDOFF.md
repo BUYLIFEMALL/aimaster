@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 텔레그램 연동 확인 수정 전파 (threads-comment-reply v1.14·youtube-auto-reply v1.19·kakao-auto-posting v1.28)
+- instagram-comment-reply v1.21과 같은 수정(`getUpdates`에 `allowed_updates=["message"]`)을 같은 코드를 쓰는 8개에 반영. 웹훅을 거는 3개는 배포(모두 Ready, DB 버전 갱신, /login 200), 웹훅을 안 거는 5개(booking-reminder·crm-google-form·longtail-keyword-expander·real_estate_sales·trending-product-finder)는 **코드만 반영, 다음 배포 때 버전 +0.01과 함께 내보냄**(각 `AGENTS.md`에 「미배포」 기록). 커밋 `1c1aae47`. 교훈: `docs/ERROR_LESSONS.md` 2026-10-20.
+
 ## 2026-10-20 Claude Code(윈도우) — 병합 B 완료: INSTA 댓글·DM 자동화 (instagram-comment-reply v1.21~v1.23, instagram-dm-reply v1.17)
 - v1.21~v1.22: 텔레그램 연동 확인이 메시지를 못 찾던 원인 = 웹훅 등록 때 `allowed_updates:["callback_query"]`가 텔레그램에 남아 `getUpdates`에서 일반 메시지를 버림 → 매번 `allowed_updates=["message"]` 지정, 실패 안내에 진단 표시. 관리자 DM 봇 재연동 성공. **같은 텔레그램 코드를 쓰는 다른 9개 프로그램(threads-comment-reply·youtube-auto-reply 등)에 전파 검토 필요.**
 - v1.23(2단계): 대시보드에 DM 대기·연결 상태, 기록 댓글/DM 탭, 옛 이름 문구 10곳 통일, DM 홈·매뉴얼 외부 홍보 카드 교체.
