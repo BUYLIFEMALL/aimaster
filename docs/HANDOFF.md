@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 병합 B 1단계: DM 답변을 INSTA 댓글자동화 안으로 (instagram-comment-reply v1.18)
+- DM 화면 5개 `/dm/*`, 좌측 메뉴 「💬 DM 답변」, 이름 「INSTA 댓글·DM 자동화」(앱 안), DM 전용 코드 `lib/dmApp/`·`components/dm/`, DB 형식에 `dm_*` 표. Meta DM 웹훅 주소 그대로, DM 텔레그램 웹훅 `/api/dm/telegram/webhook/[userId]`. **연결 한 번**: 「DM 답변도 사용」(기본 켬)으로 메시지 권한 함께 요청 → 허락되면 `dm_accounts`도 저장. 해제 시 DM 계정도 삭제. 플랜 `instagram-comment-reply/docs/PLAN_20261020_DM_MERGE.md`.
+- 검수: tsc·build, 공용 코드 점검 일치, 커밋 `f9392323`, 배포 `instagram-comment-reply-g6g06ighg` Ready, DB v1.18, DM 텔레그램·이전 주소 무인증 401, 실제 회원 DM 웹훅 서명 없음 401, 크롬(관리자) DM 5화면·댓글 6화면 200, DM 홈에 기존 DM 계정 표시, 설정 「(댓글·DM)」 표시. **실제 인스타 재연결(권한 동의)·DM 수신/발송은 시험 안 함**. 기존 DM 연결(관리자 텔레그램 DM 봇·Meta DM 웹훅 주소)은 새 주소로 다시 등록 필요.
+- 다음: 2단계(대시보드·기록 하나로, DM 홈의 「댓글자동화와 함께」 홍보 띠 정리), 3단계(주인님 확인).
+
 ## 2026-10-20 Claude Code(윈도우) — INSTA v1.40·v1.41: 로그인 화면 다크 테마 + v1.39 관리자 실검수
 - v1.39 실검수(관리자): 카드뉴스 설정에서 「내 cron-job.org」 → `insta_member_scheduler` cronjob(옛 cns 표 그대로) → INSTA 설정에도 같은 선택 → Vercel로 되돌림(시험 전 상태).
 - v1.40(`e1c22710`): 주인님 「로그인 창도 같은 테마로」 — `(auth)` 공통 틀(밝은 격자·파랑)을 INSTA 다크 토큰으로. v1.41(`e259b5f8`): 크롬 자동 채우기 연파랑 배경을 로그인 틀 안에서만 다크로 고정. 배포 `insta-auto-poster-5num7n40o` Ready, DB v1.41, 크롬 확인.
