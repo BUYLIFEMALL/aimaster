@@ -198,3 +198,6 @@ https://youtube-playlist.buylife.xyz
 
 ## 2026-10-20 병합 E 예정 — 플레이리스트 채널 제작 자동화(playlist-channel-studio) 안으로 (Claude Code 윈도우, 플랜 확인 대기)
 - 플랜: [`../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md`](../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md). 이 앱의 편집·내보내기·렌더 부품이 기준 앱 `/video`로 이동 예정, 3단계 전까지 그대로 운영.
+
+## 2026-10-20 v1.15 — 병합됨 → YOUTUBE 플레이리스트 자동화(playlist-channel-studio) (Claude Code 윈도우)
+- 병합 E 3단계(주인님 승인). 미디어 센터·편집·MP4 내보내기·AI 배경이 `playlist-channel-studio` `/video`(「영상 만들기」)로 이동(v1.15~v1.16). 이 앱은 **옛 주소 전달만**(`next.config.ts`): `/`→`/video`, `/guide`·`/login`→합친 앱 같은 경로, `/api/*` → 합친 앱 같은 경로(rewrite). Vercel 프로젝트·도메인은 지우지 않음. 카탈로그(음악 분야) 노출 중지.
