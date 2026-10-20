@@ -617,3 +617,8 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 ## 2026-10-20 v1.71 — 모델 선택 칸에 상대 비용 표시 (Claude Code 윈도우)
 - 「모델 성격: ⚡ 빠름 · 비용 💰 ⓘ」(공용 기준 코드 `openAIModelBadge`·`openAIModelCostLevel`, 사본 갱신). 💰=빠름·💰💰=균형·💰💰💰=고품질, 설명에 「OpenAI 모델끼리 비교한 상대 표시, 정확한 단가 아님」. 배포 `threads-affiliate-poster-90ad8afiv` Ready · DB v1.71 · 크롬: luna 💰·sol 💰💰💰·4.1 💰💰, 기본 모델 GPT-4.1 유지(호출 없음).
+
+## 2026-10-20 (버전 변경 없음·미배포) — 회원 예약 실행 방식 코드를 공용 기준 코드 `member-scheduler` 사본으로 (Claude Code 윈도우)
+- 한 일: `src/lib/posts/memberScheduler.ts`를 **공용 기준 코드 `member-scheduler`의 사본**으로 바꿨다(기준 `cardnews-studio/src/lib/instagram/memberScheduler.ts`, 예약 프로그램 15개 공용). 이 프로그램만의 값(사이트 주소·실행 방식 표 `tap_member_scheduler`·토큰 앞글자 `tap`·환경변수 `TAP_PLATFORM_SCHEDULER`·설치 키트 여부·「남은 일」= 예약 글 수)은 같은 폴더 새 `schedulerConfig.ts`로 옮겼다(원래 값과 자동 대조 일치). **앞으로 `memberScheduler.ts`는 직접 고치지 말고** 기준만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.
+- 동작 변경 없음. tsc·build 통과, 설치 키트 DB 대조 통과. 플랜 `cardnews-studio/docs/PLAN_20261020_MEMBER_SCHEDULER_SHARED.md`.
+- **미배포**(주인님 결정: 이 프로그램을 다음에 배포할 때 함께 반영) — 그 배포 때 버전 +0.01, 예약 상태 화면과 회원 실행 주소 가짜 토큰 401을 확인할 것.
