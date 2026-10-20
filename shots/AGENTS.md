@@ -100,4 +100,4 @@
 - 예전엔 항상 「공개」로 바로 올라갔다. 업로드 화면(`src/components/candidates/PostingSection.tsx`)에 공개 범위(**비공개 기본**·일부 공개·공개) + 「정한 시각에 자동 공개(예약)」 체크·날짜 시각 입력, 버튼 문구 「유튜브에 예약 올리기」.
 - 서버(`src/lib/actions/youtube.ts` `postToYoutubeAction`): 값 검사(예약은 15분 뒤~6개월 안), 업로드 방식은 그대로 서버가 저장소 영상을 받아 올림(영상이 저장소에 있어 4.5MB 한도 문제 없음 — 브라우저 직접 업로드는 이득이 적어 하지 않음).
 - 공용 기준 `youtube-upload-client`(`src/lib/youtube/client.ts`) `uploadYoutubeVideo`에 선택값 `publishAt` 추가(있으면 privacy를 private로) → `--sync`로 원스톱 사본 반영(원스톱은 이 함수를 안 써서 동작 같음, 미배포).
-- 검수: tsc(두 프로그램)·build·공용 점검, 운영 Ready, DB v1.28, 크롬 화면에서 선택 칸·예약 입력·버튼 문구 확인. 실제 업로드는 외부 게시라 미시험(관리자 Shots 유튜브 연결 「재연동」 필요 상태).
+- 검수: tsc(두 프로그램)·build·공용 점검, 운영 Ready, DB v1.28, 크롬 화면에서 선택 칸·예약 입력·버튼 문구 확인. **실업로드 성공(2026-10-21, 주인님 재연동 후)**: 관리자 채널에 비공개 + 예약(2027-03-15 09:00 KST) — 영상 `2EgI3UR8eOw`, 카테고리 교육(27), DB `youtube_status=posted`, 유튜브 스튜디오 「예약됨 · 공개로 예약 2027.3.15 오전 9:00 · 게시 때까지 비공개」 확인. **시험 영상은 주인님이 삭제**: https://studio.youtube.com/video/2EgI3UR8eOw/edit
