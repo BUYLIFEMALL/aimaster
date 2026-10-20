@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.26` (`package.json` 1.26.0, `version.ts` v1.26, DB `programs` v1.26 — 2026-10-21)
+> - **버전**: `v1.27` (`package.json` 1.27.0, `version.ts` v1.27, DB `programs` v1.27 — 2026-10-21)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -89,3 +89,9 @@
 - 매뉴얼 5단계·FAQ(JSON2Video 없이 만들기) 갱신, 스크립트 화면 「키 등록 필요」 목록에서 JSON2Video 제외. 메인 상세 소개 🎞️·🔑 단락·특징 4번 갱신(453자).
 - 검수: tsc·build·공용 점검, 운영 Ready(v1.24·v1.25·v1.26). 크롬 관리자 영상 「마케팅, AI 없인 못 살겠더라」 3회: 49.4초·31.7MB(v1.24) → 46.4초·19.0MB(v1.25, 이전 파일 자동 삭제 확인) → 50.7초(v1.26, 40초 안에 완성). 자막 위치·모양, 소리(음성 구간만 소리·여백 무음) 확인. 시험 비용: OpenAI TTS 18회(약 30원, 관리자 본인 키).
 - 시험 계정(`buylifemall@naver.com`) 확인(2026-10-21): Shots v1.26 접근 정상, 관리자 영상 주소 404(제목 노출 없음), `/api/render/tts` 권한 통과(빈 대사 400). 남은 일: 실제 유튜브·인스타 게시는 외부 게시라 미시험(관리자 Shots 유튜브 연결은 「재연동」 필요 상태). SQL: `supabase/migrations/20261021120000_shots_videos_bucket_v1_24.sql`·`20261021130000_version_v1_25.sql`·`20261021140000_version_v1_26.sql`.
+
+## 2026-10-21 v1.27 — 배경음악 파일 확실히 보관 + 음성 다시 쓰기 (Claude Code 윈도우, 부계정)
+- 플랜(주인님 승인 「1·2번 진행, 3번 제외」): [`docs/PLAN_20261021_BGM_VOICE_YOUTUBE.md`](docs/PLAN_20261021_BGM_VOICE_YOUTUBE.md).
+- 배경음악(`src/lib/actions/music.ts`): `persistBgmAudio`를 서버 관리자 키 저장(경로 `<회원 id>/<영상 id>-<uuid>.mp3`)·1회 재시도로 바꾸고, **실패하면 Suno 임시 주소를 저장하지 않는다**(예전엔 조용히 임시 주소 저장 → 며칠 뒤 404, 운영 2건). 일부만 저장되면 저장분을 지우고 `processing`으로 둬 10초 자동 확인이 다시 시도. 트랙 삭제도 관리자 키로 본인 폴더 파일만.
+- 음성 다시 쓰기(`src/app/api/render/tts/route.ts`): 요청에 `videoId`를 받아 본인 영상인지 확인 → (모델·목소리·빠르기·대사) 해시로 `shots-bgm/<회원>/<영상>/voice/<해시>.mp3`를 먼저 찾고 있으면 OpenAI 없이 돌려줌(`X-Voice-Cache: hit`), 없으면 만들고 보관(`miss`). 30일 정리(`/api/cron/cleanup-videos`)가 보관 음성도 지움.
+- 검수: tsc·build, 운영 Ready, DB v1.27. 크롬 관리자 같은 영상 2회: 1회째 `miss`×6·67초 → 2회째 `hit`×6(OpenAI 0회)·34초, 길이 46.8초 같음, 보관 음성 6개·영상 파일 최신 1개. 배경음악 보관은 Suno 유료 생성이 필요해 실시험 안 함(코드·빌드만). 시험 비용 TTS 6회(약 10원).
