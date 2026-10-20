@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarClock, Library, Loader2, RotateCcw } from "lucide-react";
-import { MAX_BATCH_EPISODES, MAX_INSTA_PHOTOS, defaultCaption, defaultPicked, episodeTimes, parseEpisode, sortEpisodes, type Episode } from "@/lib/instagram/slides";
+import { CalendarClock, Library, Loader2, Pencil, RotateCcw } from "lucide-react";
+import { MAX_BATCH_EPISODES, MAX_INSTA_CAPTION, MAX_INSTA_PHOTOS, defaultCaption, defaultPicked, episodeTimes, parseEpisode, sortEpisodes, type Episode } from "@/lib/instagram/slides";
 import { formatKst, kstLocalToIso, validateScheduleTime } from "@/lib/instagram/schedule";
 import { uploadSlides } from "@/lib/instagram/slideRender";
 
@@ -43,6 +43,10 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
   const [results, setResults] = useState<Result[]>([]);
   // v1.21: 실패한 회차(usable 안 순번) — 「실패한 회차만 다시 예약」에 쓴다. 파일을 다시 고르면 비운다.
   const [failed, setFailed] = useState<number[]>([]);
+  // v1.22: 회차별 캡션 미리보기·수정 — 고친 회차만 담고(파일 이름 기준), 나머지는 자동 캡션(제목·줄거리·해시태그)
+  const [captions, setCaptions] = useState<Record<string, string>>({});
+  const [editing, setEditing] = useState<string | null>(null);
+  const captionFor = (ep: Episode) => captions[ep.fileName] ?? defaultCaption(ep.title, ep.synopsis);
 
   // v1.21: 예약하는 동안 창을 닫거나 다른 주소로 가면 남은 회차가 예약되지 않는다 → 브라우저 「나가시겠습니까?」 확인을 띄운다.
   useEffect(() => {
@@ -57,8 +61,10 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
   const room = Math.max(0, MAX_BATCH_EPISODES - pendingCount);
   const lastCheck = times.length ? validateScheduleTime(kstLocalToIso(times[times.length - 1]) ?? "") : null;
   const firstCheck = times.length ? validateScheduleTime(kstLocalToIso(times[0]) ?? "") : null;
+  const longCaption = usable.find((ep) => captionFor(ep).length > MAX_INSTA_CAPTION);
   const problem =
     usable.length === 0 ? "" :
+    longCaption ? `「${longCaption.title}」 캡션이 너무 깁니다(${captionFor(longCaption).length}/${MAX_INSTA_CAPTION}자). 줄여 주세요.` :
     usable.length > room ? `대기 중인 예약이 ${pendingCount}건이라 이번에는 ${room}회차까지만 예약할 수 있어요(회원당 대기 예약 ${MAX_BATCH_EPISODES}건).` :
     firstCheck && !firstCheck.ok ? `첫 회차: ${firstCheck.error}` :
     lastCheck && !lastCheck.ok ? `마지막 회차(${formatKst(kstLocalToIso(times[times.length - 1]))}): ${lastCheck.error} 간격을 줄이거나 회차 수를 줄여 주세요.` : "";
@@ -75,6 +81,8 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
     setEpisodes(sortEpisodes(list));
     setSkipped(bad);
     setFailed([]);
+    setCaptions({});
+    setEditing(null);
     setConfirmed(false);
   }
 
@@ -95,7 +103,7 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
         const res = await fetch("/api/instagram/posts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paths, caption: defaultCaption(ep.title, ep.synopsis), scheduledAt: kstLocalToIso(times[i]) }),
+          body: JSON.stringify({ paths, caption: captionFor(ep), scheduledAt: kstLocalToIso(times[i]) }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || "예약하지 못했습니다.");
@@ -152,6 +160,24 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
                     {idx >= 0
                       ? <span className="ml-auto text-sky-300">{formatKst(kstLocalToIso(times[idx]))} · {Math.min(ep.sources.length, MAX_INSTA_PHOTOS)}장</span>
                       : <span className="ml-auto text-amber-300">그림이 있는 컷이 없어 건너뜀</span>}
+                    {idx >= 0 && (
+                      <button type="button" onClick={() => setEditing((cur) => (cur === ep.fileName ? null : ep.fileName))} disabled={!!busy} aria-expanded={editing === ep.fileName}
+                        className="inline-flex items-center gap-0.5 rounded-md border border-[#232b3e] px-1.5 py-0.5 text-slate-300 hover:text-slate-100 disabled:opacity-50">
+                        <Pencil className="h-3 w-3" /> 캡션{captions[ep.fileName] !== undefined ? " (수정됨)" : ""}
+                      </button>
+                    )}
+                    {idx >= 0 && editing === ep.fileName && (
+                      <div className="w-full space-y-1">
+                        <textarea value={captionFor(ep)} onChange={(e) => setCaptions((cur) => ({ ...cur, [ep.fileName]: e.target.value }))} rows={5} disabled={!!busy} aria-label={`${ep.title} 캡션`}
+                          className="w-full rounded-lg border border-[#232b3e] bg-[#0a0d14] px-2.5 py-1.5 text-[11px] text-slate-100 focus:border-pink-500 focus:outline-hidden" />
+                        <div className="flex items-center gap-2 text-slate-500">
+                          <span className={captionFor(ep).length > MAX_INSTA_CAPTION ? "text-red-300" : ""}>{captionFor(ep).length}/{MAX_INSTA_CAPTION}자</span>
+                          {captions[ep.fileName] !== undefined && (
+                            <button type="button" onClick={() => setCaptions((cur) => { const next = { ...cur }; delete next[ep.fileName]; return next; })} className="underline hover:text-slate-300">자동 캡션으로 되돌리기</button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </li>
                 );
               })}

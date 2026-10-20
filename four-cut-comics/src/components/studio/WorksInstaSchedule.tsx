@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarClock, ExternalLink, Library } from "lucide-react";
+import { CalendarClock, ExternalLink, Library, Pencil } from "lucide-react";
 import { listWorks } from "@/lib/comic/gallery";
-import { MAX_BATCH_EPISODES, episodeTimes, sortForBatch, workCaption } from "@/lib/instagram/feed";
+import { MAX_BATCH_EPISODES, MAX_INSTA_CAPTION, episodeTimes, sortForBatch, workCaption } from "@/lib/instagram/feed";
 import { toFeedJpeg, uploadBlobs } from "@/lib/instagram/feedRender";
 import { formatKst, kstLocalToIso, validateScheduleTime } from "@/lib/instagram/schedule";
 import { InstaPostHistory } from "./InstaPostHistory";
@@ -51,6 +51,10 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
   const [results, setResults] = useState<Result[]>([]);
   const [historyKey, setHistoryKey] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
+  // v1.23: 회차별 캡션 미리보기·수정 — 고친 작품만 담고(작품 키 기준), 나머지는 자동 캡션(「제목 N화」+해시태그)
+  const [captions, setCaptions] = useState<Record<string, string>>({});
+  const [editing, setEditing] = useState<string | null>(null);
+  const captionFor = (c: Candidate) => captions[c.key] ?? workCaption(c.title, c.episode);
 
   useEffect(() => {
     let alive = true;
@@ -77,8 +81,10 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
   const room = Math.max(0, MAX_BATCH_EPISODES - pendingCount);
   const firstCheck = times.length ? validateScheduleTime(kstLocalToIso(times[0]) ?? "") : null;
   const lastCheck = times.length ? validateScheduleTime(kstLocalToIso(times[times.length - 1]) ?? "") : null;
+  const longCaption = chosen.find((c) => captionFor(c).length > MAX_INSTA_CAPTION);
   const problem =
     chosen.length === 0 ? "" :
+    longCaption ? `「${label(longCaption)}」 캡션이 너무 깁니다(${captionFor(longCaption).length}/${MAX_INSTA_CAPTION}자). 줄여 주세요.` :
     chosen.length > room ? `대기 중인 예약이 ${pendingCount}건이라 이번에는 ${room}회차까지만 예약할 수 있어요(회원당 대기 예약 ${MAX_BATCH_EPISODES}건).` :
     firstCheck && !firstCheck.ok ? `첫 회차: ${firstCheck.error}` :
     lastCheck && !lastCheck.ok ? `마지막 회차(${formatKst(kstLocalToIso(times[times.length - 1]))}): ${lastCheck.error} 간격을 줄이거나 회차 수를 줄여 주세요.` : "";
@@ -113,7 +119,7 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
         const res = await fetch("/api/instagram/posts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paths, caption: workCaption(c.title, c.episode), scheduledAt: kstLocalToIso(times[i]) }),
+          body: JSON.stringify({ paths, caption: captionFor(c), scheduledAt: kstLocalToIso(times[i]) }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || "예약하지 못했습니다.");
@@ -126,6 +132,8 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
     setBusy("");
     setConfirmed(false);
     setPicked([]);
+    setCaptions({});
+    setEditing(null);
     setHistoryKey((k) => k + 1);
   }
 
@@ -162,6 +170,24 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
                           {idx >= 0 && times[idx] && <small style={{ color: "#0284c7" }}>→ {formatKst(kstLocalToIso(times[idx]))}</small>}
                         </span>
                       </label>
+                      {idx >= 0 && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "4px 8px 6px 34px" }}>
+                          <button type="button" onClick={() => setEditing((cur) => (cur === c.key ? null : c.key))} disabled={!!busy} aria-expanded={editing === c.key} style={{ alignSelf: "flex-start", fontSize: 12 }}>
+                            <Pencil size={12} /> 캡션{captions[c.key] !== undefined ? " (수정됨)" : ""}
+                          </button>
+                          {editing === c.key && (
+                            <>
+                              <textarea value={captionFor(c)} onChange={(e) => setCaptions((cur) => ({ ...cur, [c.key]: e.target.value }))} rows={4} disabled={!!busy} aria-label={`${label(c)} 캡션`} style={{ width: "100%", fontSize: 12 }} />
+                              <small className="muted" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                <span style={captionFor(c).length > MAX_INSTA_CAPTION ? { color: "#dc2626" } : undefined}>{captionFor(c).length}/{MAX_INSTA_CAPTION}자</span>
+                                {captions[c.key] !== undefined && (
+                                  <button type="button" onClick={() => setCaptions((cur) => { const next = { ...cur }; delete next[c.key]; return next; })} style={{ fontSize: 11 }}>자동 캡션으로 되돌리기</button>
+                                )}
+                              </small>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </li>
                   );
                 })}
