@@ -120,3 +120,7 @@
 
 ## 2026-10-20 병합 D 예정 — AI 썸네일 마스터(thumbnail-master) 안으로 (Claude Code 윈도우, 플랜 확인 대기)
 - 플랜: [`../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md`](../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md). 발견: `GET /api/user/key`가 회원 Gemini 키 원문을 브라우저로 반환·`localStorage` 보관, 키 API가 프로그램 이용 권한을 확인하지 않음, 예비 모델에 `gemini-1.5-flash` — 병합(3단계)으로 해소 예정.
+
+## 2026-10-20 v1.12 — 병합됨 → AI 썸네일·SEO 자동화(thumbnail-master) (Claude Code 윈도우)
+- 병합 D 3단계(주인님 승인). SEO 전략(제목·설명·해시태그·스튜디오 태그·고정 댓글)이 `thumbnail-master` `/seo`로 이동(서버 API, v1.08~v1.09). 이 앱은 **화면 이동만**: `/`→`thumbnail-master.buylife.xyz/seo`, `/login`→합친 앱 `/login`(`next.config.ts`).
+- **`/api/user/key`는 410으로 막음** — 회원 Gemini 키 원문을 브라우저로 돌려주던 API(권한 확인도 없었음). 전달(rewrite)하지 않음. Vercel 프로젝트·도메인은 지우지 않음. 카탈로그 노출 중지.
