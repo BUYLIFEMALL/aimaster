@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — Shots updated_at 장치 · 원스톱 v1.21 발행 계획 → 유튜브 예약
+
+- Shots: 운영 DB Shots 표 5개 `updated_at` 자동 갱신 장치(주인님 승인, 코드 변경 없음, `shots/supabase/migrations/20261021190000_updated_at_triggers.sql`).
+- 원스톱 v1.21: 렌더 ⑥이 발행 계획 일정으로 예약 공개를 자동 채움, 일괄 제작 「📤 유튜브 예약」(일정 시각 비공개 예약, 하루 약 6편 한도). 실시험 1편 성공 — 영상 `KFxAhTxQ9sI`(2027-03-20 19:00 예약, **주인님 삭제 필요** https://studio.youtube.com/video/KFxAhTxQ9sI/edit). 미배포 공용 사본 2개 함께 배포.
+- 다음: 주인님 요청 순서대로 ② 텔레그램 연동 공용 모듈 → ③ 보류 F 재검토. 커밋 `b863b003` `764a568d` 외 문서.
+
+https://shorts-onestop-studio.buylife.xyz/plan
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — Shots v1.29~v1.30: 유튜브 연결 카드·업로드 기록
 
 - 주인님 「유투브 연동 버튼이 없어 어디서 하는거야」 → 플랜 승인(`shots/docs/PLAN_20261021_YOUTUBE_CONNECT_HISTORY.md`).

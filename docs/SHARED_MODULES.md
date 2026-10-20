@@ -63,8 +63,8 @@
 
 | 기준 변경(날짜·내용) | 아직 배포 안 된 프로그램 | 비고 |
 |---|---|---|
-| 2026-10-21 `youtube-upload-client` `uploadYoutubeVideo`에 선택값 `publishAt` 추가(Shots v1.28 예약 공개, 원스톱은 이 함수 미사용 — 동작 같음) | `shorts-onestop-studio` | tsc·공용 점검 통과. 원스톱 다음 배포 때 함께 |
-| 2026-10-21 `browser-mp4-encoder`에 선택값 `videoBitrate` 추가(기본 8Mbps 그대로 — 원스톱 동작 같음) | `shorts-onestop-studio` | tsc 통과, 공용 점검 일치. Shots v1.25는 배포됨(4Mbps 사용). 원스톱 다음 배포 때 함께 |
+| 2026-10-21 `youtube-upload-client` `uploadYoutubeVideo`에 선택값 `publishAt` 추가(Shots v1.28 예약 공개, 원스톱은 이 함수 미사용 — 동작 같음) | (없음) | ✅ 원스톱 v1.21(2026-10-21)로 배포됨 |
+| 2026-10-21 `browser-mp4-encoder`에 선택값 `videoBitrate` 추가(기본 8Mbps 그대로 — 원스톱 동작 같음) | (없음) | ✅ 원스톱 v1.21(2026-10-21)로 배포됨. Shots v1.25도 배포됨(4Mbps 사용) |
 | 2026-10-21 `youtube-upload-client` 등록 + `createYoutubeResumableSession` 추가(Shots는 미사용 — 동작 같음) | (없음) | ✅ Shots v1.24(2026-10-21)로 배포됨 |
 | 2026-10-20 카드뉴스 스튜디오 INSTA 병합 3단계: `insta-schedule-time`·`member-scheduler`·`insta-cronjob-org`·`insta-posts-client` 기준을 `cardnews-studio` → `insta_auto_poster/src/lib/cardnews/` 로 이동(내용 같음, 옛 카드뉴스 파일은 사본) | (없음) | 옛 cardnews-studio 앱은 화면 이동·API 전달만 하므로 사본은 다음 배포 때 그대로 |
 | 2026-10-20 공지 띠 `program-notice-banner` 등록(주인님 지시: 웹툰 먼저, 나머지는 **다음에 배포할 일이 생길 때 함께 넣기** — 급하지 않은 변경) | 웹툰 외 모든 웹 서브프로그램(아직 사본 없음) | 넣는 법: 그 프로그램을 배포하는 작업에서 `scripts/check-shared-modules.mjs`의 `copies`에 `<폴더>/src/components/ProgramNoticeBanner.tsx`(구조에 맞는 경로) 추가 → `--sync` → 작업 화면 `<main>` 맨 위에 `<ProgramNoticeBanner programSlug="<programs.slug>" tone="dark\|light" />`(화면 밝기에 맞게) → 그 프로그램 버전·배포에 포함. `@/lib/supabase/client`의 `createClient`와 `lucide-react`가 있어야 함(없으면 import 경로만 맞춘 별도 판단 필요) |
