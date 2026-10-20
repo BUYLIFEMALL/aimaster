@@ -41,6 +41,13 @@ export default async function WatchlistPage() {
 
   // 정기 작업(매일 리포트·소싱 알림·가격 알림) 실행 상태(v1.15) — 회원별 상태는 서비스 키로 읽는다(표 RLS는 본인 조회만)
   const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
+  // 상태 줄을 「관심 목록 a개 · 상품 알림 b개」로 나눠 보여 준다(2026-10-20) — 예전엔 둘을 합친 「켜진 정기 작업 N개」만 보여 무엇이 켜졌는지 몰랐음
+  const { count: alertCount } = await supabase
+    .from("sourcing_saved_products")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("alert_enabled", true);
+  const breakdown = { watchlists: initialEntries.filter((e) => e.isActive).length, alerts: alertCount ?? 0 };
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -51,7 +58,7 @@ export default async function WatchlistPage() {
         tip="키워드마다 「예약 소싱 알림」을 켜 두면 정한 주기마다 소싱 후보를 알림으로 받아요."
       />
 
-      <SchedulePublishingControl initial={scheduler} />
+      <SchedulePublishingControl initial={scheduler} breakdown={breakdown} />
 
       {/* v1.11: 조회 오류면 빈 목록 대신 안내 — 빈 화면을 보고 키워드를 중복 등록하지 않게 */}
       {logLoadErrors("watchlist", { 관심키워드: { error: watchlistError } }).length ? (

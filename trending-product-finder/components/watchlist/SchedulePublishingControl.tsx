@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { pauseScheduledPublishing, resumeScheduledPublishing } from "@/lib/actions/scheduler";
 import type { MemberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
 
@@ -15,8 +15,10 @@ const STATE_TEXT: Record<MemberSchedulerState["state"], { label: string; tone: s
   "no-key": { label: "cron-job.org 키 미등록", tone: "text-mx-danger", help: "「내 cron-job.org」 방식은 본인 API 키가 필요합니다(또는 AIMaster 기본(Vercel)으로 바꾸기)." },
 };
 
-export function SchedulePublishingControl({ initial }: { initial: MemberSchedulerState }) {
+export function SchedulePublishingControl({ initial, breakdown }: { initial: MemberSchedulerState; breakdown?: { watchlists: number; alerts: number } }) {
   const [state, setState] = useState(initial.state);
+  // 2026-10-20: 규칙·예약을 켜고 끄면 화면이 서버 값을 다시 받는다 — 실행 상태도 따라 바꾼다(예전엔 새로고침 전까지 「대기」로 남음).
+  useEffect(() => { setState(initial.state); }, [initial.state]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const info = STATE_TEXT[state];
@@ -29,12 +31,12 @@ export function SchedulePublishingControl({ initial }: { initial: MemberSchedule
     if (!result.ok) { setMessage(result.error); return; }
     if (pause) setState("paused");
     else setState(initial.mode === "vercel" ? (initial.platformAvailable ? "platform" : "platform-off") : ("started" in result && result.started ? "running" : "idle"));
-    setMessage(pause ? "리포트·알림을 일시정지했습니다." : "리포트·알림을 재개했습니다.");
+    setMessage(pause ? (("notice" in result && result.notice) || "리포트·알림을 일시정지했습니다.") : "리포트·알림을 재개했습니다.");
   }
 
   return <div className="mb-4 flex flex-col gap-2 rounded-xl border border-mx-border bg-mx-raised p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
     <div>
-      <p className="font-semibold text-mx-text">⏰ 실행 상태: <span className={info.tone}>{info.label}</span> <span className="font-normal text-mx-muted">· 켜진 정기 작업 {initial.scheduled}개</span></p>
+      <p className="font-semibold text-mx-text">⏰ 실행 상태: <span className={info.tone}>{info.label}</span> <span className="font-normal text-mx-muted">{breakdown ? `· 관심 목록 ${breakdown.watchlists}개 · 상품 알림 ${breakdown.alerts}개` : `· 켜진 정기 작업 ${initial.scheduled}개`}</span></p>
       <p className="mt-0.5 text-xs text-mx-muted">{info.help}{(state === "no-key" || state === "platform-off") && <> <a className="font-semibold underline" href="/settings#scheduler-mode">설정 → ⏰ 예약 발행</a></>}</p>
       {message && <p className="mt-1 text-xs text-mx-muted" role="status">{message}</p>}
     </div>

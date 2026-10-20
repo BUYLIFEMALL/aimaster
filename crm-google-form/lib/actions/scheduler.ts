@@ -22,12 +22,12 @@ export async function setScheduledPublishingMode(mode: SchedulerMode): Promise<{
   }
 }
 
-export async function pauseScheduledPublishing(): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function pauseScheduledPublishing(): Promise<{ ok: true; notice?: string } | { ok: false; error: string }> {
   try {
     const user = await requireProgramAccess();
-    await pauseMemberScheduler(service(), user.id);
+    const { jobStopped } = await pauseMemberScheduler(service(), user.id);
     revalidatePath("/sources");
-    return { ok: true };
+    return jobStopped ? { ok: true } : { ok: true, notice: "일시정지했습니다. cron-job.org 작업 끄기는 실패해 다음 호출 때 다시 시도합니다(그동안에도 실행하지 않습니다)." };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "일시정지하지 못했습니다." };
   }

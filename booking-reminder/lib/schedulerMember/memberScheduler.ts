@@ -150,11 +150,27 @@ export async function setMemberSchedulerMode(service: SupabaseClient, userId: st
   await service.from(SCHEDULER_TABLE).update({ mode: "vercel", active: false, updated_at: now() }).eq("user_id", userId);
 }
 
-export async function pauseMemberScheduler(service: SupabaseClient, userId: string): Promise<void> {
+export async function pauseMemberScheduler(service: SupabaseClient, userId: string): Promise<{ jobStopped: boolean }> {
   await ensureRow(service, userId);
-  const key = await memberCronjobKey(service, userId);
-  if (key && (await memberSchedulerMode(service, userId)) === "cronjob") await setDispatchJobEnabled(key, memberDispatchUrl(), false);
+  // 2026-10-20: 일시정지를 먼저 저장한다 — cron-job.org 끄기가 실패해도(하루 한도 등) 회원 실행 주소가 일시정지 회원을 건너뛰므로(skipPausedMember) 발송되지 않는다.
   await service.from(SCHEDULER_TABLE).update({ active: false, paused: true, updated_at: now() }).eq("user_id", userId);
+  const key = await memberCronjobKey(service, userId);
+  if (!key || (await memberSchedulerMode(service, userId)) !== "cronjob") return { jobStopped: true };
+  try {
+    await setDispatchJobEnabled(key, memberDispatchUrl(), false);
+    return { jobStopped: true };
+  } catch (error) {
+    console.error("[pauseMemberScheduler] cron-job.org 작업 끄기 실패 — 다음 회원 실행 때 다시 시도", error instanceof Error ? error.message : error);
+    return { jobStopped: false };
+  }
+}
+
+/** 회원 실행 주소용: 일시정지된 회원이면 true(실행하지 않음). 일시정지 때 작업 끄기에 실패했을 수 있으니 여기서 다시 끈다. */
+export async function skipPausedMember(service: SupabaseClient, userId: string): Promise<boolean> {
+  if (!(await schedulerRow(service, userId))?.paused) return false;
+  const key = await memberCronjobKey(service, userId);
+  if (key) await setDispatchJobEnabled(key, memberDispatchUrl(), false).catch(() => undefined);
+  return true;
 }
 
 export async function resumeMemberScheduler(service: SupabaseClient, userId: string): Promise<{ started: boolean }> {

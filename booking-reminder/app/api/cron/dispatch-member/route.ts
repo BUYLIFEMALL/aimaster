@@ -3,7 +3,7 @@ import { waitUntil } from "@vercel/functions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchDueReminders } from "@/lib/schedulerMember/dispatch";
-import { memberIdForToken, stopMemberSchedulerIfIdle } from "@/lib/schedulerMember/memberScheduler";
+import { memberIdForToken, skipPausedMember, stopMemberSchedulerIfIdle } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -18,6 +18,7 @@ async function handle(request: NextRequest) {
   const service = createAdminClient() as unknown as SupabaseClient;
   const userId = token ? await memberIdForToken(service, token) : null;
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (await skipPausedMember(service, userId)) return NextResponse.json({ accepted: true, paused: true });
 
   waitUntil((async () => {
     try {
