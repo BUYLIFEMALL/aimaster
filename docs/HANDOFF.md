@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 세션 인수인계: SEO 스튜디오 v1.74~v1.80 · OpenAI 모델 규칙 공용화 · 모델 점검 도구
+- **전체 정리 문서: [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_OPENAI_MODELS.md`](HANDOFF_CLAUDE_SESSION_2026-10-20_OPENAI_MODELS.md)** — 한 일·커밋·남은 일(다음 첫 단계)·주의사항.
+- 남은 일 1순위: **타로 `tarot/lib/deck.ts`의 존재하지 않는 OpenAI 모델 6개(`gpt-5.4/5.5-luna/sol/terra`) 정리**(회원이 고르면 「모델 없음」 오류). 그다음 미배포 사본 7곳은 각 프로그램 다음 배포 때 함께(화면 안내 포함).
+
 ## 2026-10-20 Claude Code(윈도우) — 인스타 예약 서버 코드 공용 기준 코드화 + 일시정지 안전 처리 누락 3개 보강 + 예약 취소 중복 누름 방지
 - 한 일: 카드뉴스 기준으로 `memberScheduler.ts`·`cronJobOrg.ts`·`schedule.ts`를 공용 기준 코드 3개로 등록(`insta-member-scheduler`·`insta-cronjob-org`·`insta-schedule-time`), 프로그램 값은 각 `schedulerConfig.ts`. 인플루언서·웹툰·4컷에 **빠져 있던 일시정지 안전 처리** 반영(사본 + 회원 실행 주소 `skipPausedMember` + 일시정지 응답 `notice`). 카드뉴스·인플루언서·웹툰 게시 기록 「예약 취소」 중복 누름 방지. **DB 구조 변경 없음**.
 - 버전·배포: cardnews-studio v1.29(`cardnews-studio-73dn1lu4s`)·ai-influencer-studio v1.17(`ai-influencer-studio-ohxzut5xz`)·ai-webtoon-studio v1.19(`ai-webtoon-studio-85kgtktv9`)·four-cut-comics v1.20(`four-cut-comics-74d8ph7yq`) 순차 배포 Ready, DB 버전 4개.
