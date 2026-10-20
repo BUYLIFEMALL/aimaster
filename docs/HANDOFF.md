@@ -11,6 +11,7 @@
 - 관리자 `/admin/notices`: 공지 창에 「관련 프로그램」 검색·체크 선택, 목록에 연결 프로그램 칩. API `app/api/admin/notices`는 실제 있는 프로그램 id만 저장(`cleanProgramIds`), PUT은 허용 칸만 받도록 바꿈(예전엔 받은 값을 그대로 저장).
 - 공지 상세 `/support/notice/[id]`: 관련 프로그램 칩(공개 프로그램만) → `/programs/<slug>`.
 - 메인 `app/(main)/page.tsx`가 프로그램이 연결된 최근 60일 공지(최대 100건)를 읽어 `UserWorkspace`에 전달 → 고정 프로그램마다 마지막으로 본 뒤(없으면 고정한 뒤) 올라온 연결 공지가 있으면 「📢 새 공지 + 제목」(누르면 그 공지). 공지·상세보기·실행 누르면 `markFavoriteSeen`이 `seen_notice_at=now()` 저장 → 사라짐. 비로그인은 브라우저 저장소 `aimaster_favorites_notice_seen`.
+- 검수: tsc·build 통과, 커밋 `ed7b7cb8` 자동 배포 `aimaster-lfp1sj5r1` Ready. 크롬(시험 회원)에서 ① 고정 전 공지 → 안 보임 ② 고정 뒤 공지 → 「📢 새 공지」 표시 ③ 누르면 상세 + 관련 프로그램 칩, DB `seen_notice_at` 저장 ④ 홈 다시 열면 사라짐 확인. 시험 공지 2건·즐겨찾기 삭제로 원상 복구. **관리자 공지 화면(프로그램 선택 UI)은 크롬이 시험 회원 로그인이라 실제 화면 검수 못 함** — 주인님 관리자 로그인 때 `/admin/notices`에서 확인 필요(API·빌드는 통과).
 
 ## 2026-10-20 Claude Code(윈도우) — 메인 사이트 「내 작업대」 즐겨찾기 DB 저장 + 새 버전 알림 점 (주인님 「진행해줘」)
 - DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor 적용): 새 표 `program_favorites`(user_id·program_id·seen_version·created_at, 기본키 (user_id, program_id), RLS 본인 행만 select/insert/update/delete 4개). 파일 `supabase/migrations/0040_program_favorites.sql`.
