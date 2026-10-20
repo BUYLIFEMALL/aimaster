@@ -23,7 +23,7 @@ export default async function LandingPage() {
           </span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-black text-slate-100 tracking-tight mb-4">
+        <h1 className="text-3xl sm:text-4xl font-black text-slate-100 tracking-tight mb-4 break-keep">
           나와 꼭 닮은 <span className="text-rose-400">오리지널 캐릭터</span>를 만나요
         </h1>
 
@@ -76,7 +76,7 @@ export default async function LandingPage() {
             <div className="text-[11px] font-bold text-rose-400 uppercase tracking-wider">
               Character Pool
             </div>
-            <div className="text-2xl font-black text-slate-100 mt-0.5">
+            <div className="text-xl lg:text-2xl font-black text-slate-100 mt-0.5 break-keep">
               16대 오리지널
             </div>
             <p className="text-xs text-slate-400 mt-1 leading-snug">
@@ -94,7 +94,7 @@ export default async function LandingPage() {
             <div className="text-[11px] font-bold text-violet-400 uppercase tracking-wider">
               Analysis Metric
             </div>
-            <div className="text-2xl font-black text-slate-100 mt-0.5">
+            <div className="text-xl lg:text-2xl font-black text-slate-100 mt-0.5 break-keep">
               4차원 심리 지표
             </div>
             <p className="text-xs text-slate-400 mt-1 leading-snug">
@@ -112,7 +112,7 @@ export default async function LandingPage() {
             <div className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
               AI Illustration
             </div>
-            <div className="text-2xl font-black text-slate-100 mt-0.5">
+            <div className="text-xl lg:text-2xl font-black text-slate-100 mt-0.5 break-keep">
               맞춤 화풍 생성
             </div>
             <p className="text-xs text-slate-400 mt-1 leading-snug">
