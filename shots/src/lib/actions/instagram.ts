@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireProgramAccess } from "@/lib/access";
+import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { deleteSharedInstagramAccount, getShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { resolveApiKey } from "@/lib/apiKeys";
@@ -160,6 +160,7 @@ export async function postToInstagramAction(
       .from("shorts_videos")
       .update({ instagram_status: "posted", instagram_post_url: result.permalink })
       .eq("id", videoId);
+    await logProgramUsage({ userId: user.id, action: "instagram_posted", metadata: { videoId } });
 
     revalidatePath(`/scripts/${videoId}`);
     return { success: true };

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireProgramAccess } from "@/lib/access";
+import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import {
@@ -81,6 +81,8 @@ export async function generateScriptAction(formData: FormData) {
 
   revalidatePath("/candidates");
   revalidatePath("/scripts");
+  // v1.31 사용 기록(보류 F 재판단용) — 실패해도 본 기능은 계속
+  await logProgramUsage({ userId: user.id, action: "script_created", metadata: { videoId: video.id } });
   redirect(`/scripts/${video.id}`);
 }
 

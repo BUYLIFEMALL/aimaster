@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireProgramAccess } from "@/lib/access";
+import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { buildMovieJson, createMovie, checkRenderStatus } from "@/lib/ai/render";
@@ -82,6 +82,7 @@ export async function requestRenderAction(
     .from("shorts_videos")
     .update({ j2v_project_id: projectId, render_status: "rendering", rendered_video_url: null })
     .eq("id", videoId);
+  await logProgramUsage({ userId: user.id, action: "video_j2v", metadata: { videoId } });
 
   revalidatePath(`/scripts/${videoId}`);
   return { success: true };

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireProgramAccess } from "@/lib/access";
+import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -46,6 +46,7 @@ export async function saveBrowserRenderAction(videoId: string, path: string): Pr
     .eq("user_id", own.user.id)
     .eq("id", videoId);
   if (error) return { error: "영상 주소를 저장하지 못했습니다." };
+  await logProgramUsage({ userId: own.user.id, action: "video_browser", metadata: { videoId } });
   revalidatePath(`/scripts/${videoId}`);
   return {};
 }

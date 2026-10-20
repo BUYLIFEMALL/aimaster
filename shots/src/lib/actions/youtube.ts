@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireProgramAccess } from "@/lib/access";
+import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
@@ -310,6 +310,7 @@ export async function postToYoutubeAction(
         youtube_category_id: categoryId,
       })
       .eq("id", videoId);
+    await logProgramUsage({ userId: user.id, action: "youtube_uploaded", metadata: { videoId, youtubeVideoId: result.videoId, scheduled: !!publishAt } });
 
     revalidatePath(`/scripts/${videoId}`);
     return { success: true };
