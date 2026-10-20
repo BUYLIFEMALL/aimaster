@@ -50,6 +50,7 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+- **v1.32 (2026-10-20, Claude Code 윈도우) — 병합 3단계: 옛 주소 정리·노출 중지.** `next.config.ts` — 화면 주소(`/`·`/dashboard`·`/plan`·`/copy`·`/design`·`/background`·`/export`·`/guide`·`/settings`·`/login`)는 INSTA `/cardnews/...`로 이동, `/api/*`는 같은 주소로 INSTA에 전달(회원 cron-job.org 작업·북마크 호환). 카탈로그 `programs.is_active=false`(노출 중지), 한 줄 요약에 「[병합됨 → INSTA 포스팅 자동화(2026-10-20)]」. 메인 사이트 `/programs/cardnews-studio` → `/programs/auto-instagram-posting`. 공용 기준 코드 4개(insta-schedule-time·member-scheduler·insta-cronjob-org·insta-posts-client)의 기준이 `insta_auto_poster/src/lib/cardnews/`로 이동 — 이 폴더 파일은 이제 사본. **이 폴더에서 새 기능을 만들지 않는다**(INSTA에서). Vercel 프로젝트·도메인은 삭제하지 않음.
 - **v1.31 (2026-10-20, Claude Code 윈도우) — INSTA 포스팅으로 병합 1단계: 예약 자동 실행을 INSTA로 넘김.** 카드뉴스 스튜디오 전체가 INSTA 포스팅(`insta_auto_poster` v1.35) 안 `/cardnews/*`로 들어가면서, 이 앱의 Vercel 5분 자동 실행(`vercel.json` crons `/api/cardnews/instagram/dispatch`)을 지웠다. 같은 표(`cns_insta_posts`)의 예약은 이제 INSTA가 INSTA 권한(FREE)으로 실행한다 — 이 앱이 먼저 가져가면 `cardnews-studio` 권한이 없는 회원 예약이 실패 처리되기 때문. 화면·API·회원 cron-job.org 작업 주소(`/api/cardnews/instagram/dispatch-member`)는 그대로 동작(3단계에서 INSTA로 주소 이동). 플랜 `../insta_auto_poster/docs/PLAN_20261020_CARDNEWS_MERGE.md`.
 - **현재 버전**: `v1.24` (2026-10-20)
 - **v1.24 (2026-10-20, Claude Code 윈도우) — ⏰ 인스타 예약 게시 실행 방식 회원 선택(AIMaster 기본 Vercel / 본인 cron-job.org) + 24시간 규칙** — 주인님 지시(예약 방식 1순위 ③). 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `threads/` v1.19.

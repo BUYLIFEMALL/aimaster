@@ -93,12 +93,12 @@
 | 74 | 상세페이지 자동화(15p) | `shop-detail-page` | 이커머스 | v1.14 | 운영 | 상품 사진과 정보로 상세페이지 섹션 이미지 15장을 만들어 한 장으로 합치는 도구 |
 | 75 | 상세페이지 자동생성기 v1 | `auto-detail-page` | 이커머스 | v1.13 | 운영 | 제품 이미지와 정보로 쿠팡·스마트스토어용 HTML 상세페이지를 AI가 완성하는 도구 |
 | 76 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 이커머스 | v1.09 | 운영 | 상품명만으로 스펙을 채우고 쿠팡 12단·스마트스토어 9단 860px 통이미지 상세페이지를 만드는 도구 |
-| 77 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 인스타 | v1.24 | 운영 | 주제만 정하면 인스타 피드·카드뉴스를 AI로 만들어 예약·즉시 게시까지 하는 도구 |
+| 77 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 인스타 | v1.38 | 운영 | 주제 수집부터 피드 글·글자 깨짐 없는 카드뉴스 제작, 인스타 예약·즉시 게시까지 한 곳에서 하는 도구(2026-10-20 카드뉴스 스튜디오 병합) |
 | 78 | AI 인플루언서 자동화 | `ai-influencer-studio` | 인스타 | v1.15 | 운영 | 가상 인플루언서의 하루 화보와 인스타 캡션 3종을 같은 얼굴로 만드는 인플루언서 스튜디오 |
 | 79 | INSTA 댓글자동화 | `instagram-comment-reply` | 인스타 | v1.14 | 운영 | 내 인스타 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 80 | INSTA DM답변 자동화 | `instagram-dm-reply` | 인스타 | v1.13 | 운영 | 인스타 DM 문의를 AI가 읽고 답장 초안을 만들어 검토 후 또는 자동으로 보내는 도구 |
 | 81 | AI 웹툰 자동화 | `ai-webtoon-studio` | 인스타 | v1.17 | 운영 | 시놉시스로 캐릭터 시트·컷 콘티·세로 스크롤 원고까지 웹툰 한 편을 완성하는 스튜디오 |
-| 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.23 | 운영 | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
+| 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.32 | **병합됨 → auto-instagram-posting(2026-10-20), 노출 중지** | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | 유튜브 | v1.18 | 공개(new) | 주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다. |
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.06 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
 
@@ -171,7 +171,7 @@
 | 네이버 블로그 글쓰기 | blog-workroom(내 문체·근거 승인·검수) · naver-blog-agent(5단계 에이전트·확인 게이트) · naver-blog-seo-studio(검색 전략·기존 글 재작성) · naver-blog-allinone(사진 보고 쓰기) · ai-auto-blog(실시간 이슈) · blog-content-maker(기존 원고 다듬기·발행 전 점검) · tistory-auto-blog(티스토리) · naver-blog-auto-poster App/Web | 「내 문체 분석 + 근거 승인 + 사진 보고 쓰기 + 검색 전략 + 6영역 검수 + 확장 입력(네이버·티스토리)」을 하나로 — 단점(키 많음·확장 덮어쓰기)은 공용 확장 하나로 줄이기 |
 | 키워드·검색 분석 | blog-keyword(한 화면 다각도) · longtail-keyword-expander(계층 확장·작업 지시문) · competitor-analysis(구글 경쟁사) · trending-product-finder(쇼핑 소싱) · blog-workroom 키워드·트렌드 | 네이버(검색광고 실측) + 구글(SerpApi) + 데이터랩 급상승을 한 리포트로, 결과를 글쓰기 도구로 바로 넘기기 |
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
-| Instagram | auto-instagram-posting(피드·카드뉴스 게시) · cardnews-studio(카드 디자인) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply · instagram-dm-reply | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
+| Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply · instagram-dm-reply | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
 | 유튜브 | youtube-viral-studio(떡상 발굴) · youtube-channel-consultant(채널 진단) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(A/B 썸네일) · seo-thumbnail-pro(메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
 | 음악 | music-automation(Suno 실제 생성) · suno-music-studio(정밀 기획) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
@@ -1013,6 +1013,7 @@
 ### 인스타
 
 #### INSTA 포스팅 자동화 (`auto-instagram-posting`)
+- **2026-10-20 v1.35~v1.38 카드뉴스 스튜디오 병합**: 4~10장 카드의 문구·배경·글꼴 편집(글자 없는 배경 + 한글 따로 얹기), PNG·캡션, 즉시·예약 게시가 INSTA 안 `/cardnews/*`로. 「게시글 관리」에서 피드·카드뉴스 기록을 함께 보고 예약 취소. FREE 유지, 회원 본인 계정·키. 남은 일: 예약 실행 방식 설정이 INSTA·카드뉴스 둘로 나뉨.
 - 주소·폴더: https://auto-instagram-posting.buylife.xyz · `insta_auto_poster/` · v1.24 · FREE (v1.24: 운영 예약 게시 Vercel 자동 실행 5분 간격 연결)
 - **차별점**: 주제만 정하면 인스타그램 피드와 카드뉴스(캐러셀)를 AI가 만들고, 내 계정에 예약·즉시 게시까지 관리해 주는 포스팅 자동화입니다.
 - **기능**: URL·RSS·Perplexity 트렌드 검색 중 원하는 방식으로 게시글 주제를 모으고, 주제를 고르면 AI가 인스타 말투의 캡션과 해시태그를 씁니다. / 나노바나나(Gemini)로 이미지 한 장짜리 피드나 4장짜리 카드뉴스를 함께 만들고, 마음에 들지 않는 이미지는 다시 만들거나 이전 후보로 바꿉니다. / 임시저장·예약 게시·즉시 게시를 한 화면에서 관리하고, 게시에 실패하면 다시 시도할 수 있습니다.
@@ -1067,6 +1068,7 @@
 - **키·계정·주의**: 회원 본인의 Gemini API 키를 사용하고 키는 내 브라우저에만 저장됩니다. 프로젝트는 JSON 파일로 백업·복원합니다.
 
 #### INSTA Cardnews 자동화 (`cardnews-studio`)
+- **병합됨 → `auto-instagram-posting`(2026-10-20)**: 카드뉴스 스튜디오 전체가 INSTA 포스팅 자동화 안 `/cardnews/*`로 들어감. 카탈로그 노출 중지, 옛 주소는 INSTA로 이동·API 전달(v1.32). 아래 카드는 병합 전 기록으로 남김. 분석 `docs/analysis-insta-consolidation-20261020/REPORT.md`.
 - 주소·폴더: https://cardnews-studio.buylife.xyz · `cardnews-studio/` · v1.18 (2026-10-19 인스타그램 바로 게시 — INSTA 포스팅 자동화 연결값 재사용 · v1.17 데이터형 카드 레이아웃: 번호 목록·A vs B·큰 숫자 · v1.16 🔥 떡상 리메이크: 레퍼런스 분석·7대 관점 TOP 3·4~10장 정보 누락 없는 문구 · v1.15 크리에이티브 아틀리에 리뉴얼)
 - **차별점**: 주제만 넣으면 인스타그램 카드뉴스의 문구·배경·글자 디자인까지 직접 다듬어 PNG로 완성하는 카드뉴스 디자인 스튜디오입니다.
 - **기능**: 분야와 핵심 주제(AI 추천 가능), 어조(일반·진지·국뽕·유머·넉살), 페이지 수(4·6·8·10장), 비율(4:5·1:1)을 정하면 AI가 페이지별 제목·보조 문구·카드 아이콘을 씁니다. / 화풍(실사·디지털 아트·3D·수채화)·구성·테마 컬러에 맞춰 배경 이미지를 만들고, 글꼴·배치·그림자·외곽선·형광펜 효과를 실시간 미리보기로 조절합니다. / 완성한 카드는 PNG나 ZIP으로 저장하고, 후킹 카피·본문 요약·CTA·해시태그가 담긴 피드 캡션도 만듭니다. 프로젝트는 보관함에 자동 저장됩니다.
