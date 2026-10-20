@@ -1,0 +1,6 @@
+
+D:\Antigravity\AIMaster\naver-blog-agent\src\app\(dashboard)\guide\page.tsx
+   6:3  warning  'BookOpen' is defined but never used     @typescript-eslint/no-unused-vars
+  18:3  warning  'ShieldCheck' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)

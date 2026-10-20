@@ -4,6 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { ArrowDown, ArrowUp, Check, ImagePlus, Loader2, RefreshCw, Star, X } from "lucide-react";
 import { PrivatePhotoInput as PhotoInput, type PhotoInputItem } from "@/lib/privatePhotoInput";
 import { MAX_REVIEW_PHOTOS } from "@/lib/privatePhotoRules";
+import PhotoReviewDraft, { type PhotoReviewOptions } from "./PhotoReviewDraft";
 
 const stateText: Record<PhotoInputItem["status"], string> = {
   checking: "사진 확인 중", uploading: "비공개 저장 중", resolving: "보관 기간 확인 중",
@@ -11,7 +12,7 @@ const stateText: Record<PhotoInputItem["status"], string> = {
 };
 const busy = (item: PhotoInputItem) => ["checking", "uploading", "resolving"].includes(item.status);
 
-export default function PrivatePhotoInput() {
+export default function PrivatePhotoInput(options: PhotoReviewOptions) {
   const [input] = useState(() => new PhotoInput());
   const state = useSyncExternalStore(input.subscribe, input.getSnapshot, input.getSnapshot);
   const [dragging, setDragging] = useState(false);
@@ -32,8 +33,8 @@ export default function PrivatePhotoInput() {
       </summary>
       <div className="space-y-4 border-t border-emerald-100 p-4 sm:p-5">
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-950">
-          <strong>지금은 사진을 준비하는 공간입니다.</strong> 준비한 사진은 아래의 기존 글 생성에 아직 사용되지 않습니다.
-          선택한 사진과 설명은 이 화면에서만 유지되며, 새로고침하거나 다른 화면으로 이동하면 초기화됩니다.
+          <strong>사진을 준비하고 아래 ‘사진 후기 초안 만들기’로 이어가세요.</strong> 일반 글 생성 버튼에는 사진이 사용되지 않습니다.
+          선택한 사진·설명·후기 초안은 이 화면에서만 유지되며, 새로고침하거나 다른 화면으로 이동하면 초기화됩니다.
         </div>
         <ol className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4" aria-label="사진 준비 순서">
           {["사진 선택", "대표·순서 정리", "사진 설명", "준비 상태 확인"].map((label, index) => (
@@ -94,6 +95,7 @@ export default function PrivatePhotoInput() {
             <button type="button" onClick={input.clear} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">사진 준비 전체 취소</button>
           </div>
         </>}
+        <PhotoReviewDraft {...options} prepared={prepared} />
       </div>
     </details>
   );

@@ -1264,7 +1264,7 @@ export default function MainPage() {
         </div>
 
         {/* 2-3. 기획 조건 직접 설정 및 미세 조정 폼 */}
-        <PrivatePhotoInput />
+        <PrivatePhotoInput engine={engine} onEngineChange={setEngine} preferredTone={preferredTone} targetLength={targetCharCount} configuredProviders={configuredProviders} />
         <form onSubmit={handleGenerateForm} className="space-y-4">
           <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
             <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2">

@@ -1,0 +1,72 @@
+{
+  "at": "2026-10-20T17:39:09.877Z",
+  "version": "v2.03",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "steps": [
+    {
+      "name": "regression",
+      "command": "node --test --test-reporter=tap scripts/test-photo-review.cjs scripts/test-private-photo-input.cjs scripts/test-private-photos.cjs scripts/test-new-draft-mode.cjs scripts/test-post-review.cjs scripts/test-post-save.cjs scripts/test-queue-confirmation.cjs scripts/test-homefeed-schedule-links.cjs scripts/test-naver-ranking.cjs scripts/test-extension-results.cjs scripts/test-editor-safety.cjs tests/imageFileCheck.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "name": "extension-lifecycle",
+      "command": "node scripts/test-extension-tabs.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "extension-bridge",
+      "command": "node scripts/test-extension-bridge.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "publishing",
+      "command": "node scripts/test-naver-publishing.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "models",
+      "command": "node scripts/test-model-selection.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "lint",
+      "command": "node node_modules/eslint/bin/eslint.js src/components/PhotoReviewDraft.tsx src/components/PhotoReviewGuide.tsx src/components/PrivatePhotoInput.tsx src/lib/photoReview.ts src/lib/photoReviewClient.ts src/lib/ai/photoReviewModel.ts src/lib/ai/photoReviewPipeline.ts src/app/api/photo-review/route.ts src/app/(dashboard)/guide/page.tsx",
+      "exitCode": 0
+    },
+    {
+      "name": "typecheck",
+      "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+      "exitCode": 0
+    },
+    {
+      "name": "archive",
+      "command": "node scripts/build-extension-archive.mjs",
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "command": "node node_modules/next/dist/bin/next build",
+      "exitCode": 0
+    }
+  ],
+  "hashes": {
+    "src/lib/photoReview.ts": "933badbd1e8114245bde585f0afab7bf613a055e3856e8c9fbd71545f4afda24",
+    "src/lib/photoReviewClient.ts": "7f9fb4ea552bd605aa22328573e5a5ef86034508440c5a50303faeb8abc7d19f",
+    "src/lib/ai/photoReviewModel.ts": "76c690efa0fe5b0c445853aeffc2ce430c39b44ef510fa0a714e11043fa6f065",
+    "src/lib/ai/photoReviewPipeline.ts": "77f61f22c1f63ed9e9b4574d7804a131f01323cfcac5a87b05f4df1f71756473",
+    "src/app/api/photo-review/route.ts": "b72b70b0693934fb5d2429e1b723b2db5154de95666891e8b98f6f3623e98952",
+    "src/components/PhotoReviewDraft.tsx": "6ae931c73a5df6013c280e18aa252ae295648c542ff266eeeeeca15ac79ac894",
+    "src/components/PhotoReviewGuide.tsx": "15214194d84c27ee8298c1cac33beb291df6b3da333b3914c4e4ff5311b81b97",
+    "src/lib/privatePhotoInput.ts": "05fea849e4640704a8ec3a88ec96c087c7afa111adfef756e8d13ef1ebf3652a",
+    "src/lib/privatePhotoRules.ts": "74fab8d59d6196ee6d6d8293c23dfe939f4274572fb97c84770ef12dba80694a",
+    "src/lib/privatePhotos.ts": "1e8f805a543daa34a82d2f41fbe087b2e4910ea65e3c8f6ed2efd65d1625b15b",
+    "src/lib/imageFileCheck.ts": "e1676237431ac55b3d9eb9c16c8a8c57ee60a1fa3617c124ff47fd3d36fdf7bf",
+    "src/components/PrivatePhotoInput.tsx": "ac80435c58fe0e40ce55514eaec8846e70b4f553787795d0909b9e14ae4fa488",
+    "src/app/(dashboard)/page.tsx": "4875c167edf942c88a8696edb42a6755ed59a6160edd98fe004e0f262970c4cf",
+    "src/app/(dashboard)/guide/page.tsx": "87996d3d7790ca5175ebc1a1a037f101ea8a8cd36de985e1832b97db2c5c70c9",
+    "src/lib/version.ts": "cc10a5ae4536287792d05d9080d2322b0ccae99f3fa47782e1e7a921167c6bdf",
+    "extension/manifest.json": "d43c70478eb193a32a11c4e68744ebb308bedbe5f3a89ecec0a8a28c5df49254",
+    "public/downloads/naver-blog-agent-extension-latest.zip": "b7e56eb46913257c3b8fee241a7d8d991361942655f63d7fdb7894b4c7c82caa"
+  },
+  "passed": true
+}

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 import { RETENTION_DAYS } from "@/lib/retention";
+import PhotoReviewGuide from "@/components/PhotoReviewGuide";
 
 export default function GuidePage() {
   const currentYear = new Date().getFullYear();
@@ -33,7 +34,7 @@ export default function GuidePage() {
     { title: "사진 선택", text: "콘텐츠 생성의 ‘내 사진 준비’를 펼치고 사진을 선택하거나 끌어 놓으세요.", detail: "JPEG·PNG·WebP를 한 장에 4MB 이하, 최대 6장까지 선택합니다. 읽히지 않는 파일은 안내를 확인하고 목록에서 제거해 주세요." },
     { title: "대표와 순서", text: "원하는 사진의 ‘대표로’를 누르고 화살표로 앞뒤 순서를 정하세요.", detail: "업로드 완료 순서와 상관없이 선택한 순서와 대표 사진을 유지합니다. 대표 사진을 제거하면 남은 목록의 첫 사진이 대표가 됩니다." },
     { title: "사진별 설명", text: "사진에 실제로 보이는 내용과 직접 경험한 사실을 설명에 적으세요.", detail: "설명은 사진 한 장당 500자까지 입력할 수 있습니다. 순서를 바꾸어도 해당 사진의 설명은 함께 이동합니다. 개인정보·타인의 얼굴은 사용 전에 확인하세요." },
-    { title: "준비 상태 확인", text: "모든 사진의 ‘준비 완료’와 보관 만료 날짜를 확인하세요.", detail: "저장 후 상태 조회만 실패했다면 ‘다시 확인’으로 조회만 재시도합니다. 새로고침·다른 화면 이동 시 현재 목록과 설명이 초기화됩니다. 지금은 사진 준비까지만 제공하며 기존 글 생성에는 아직 사용되지 않습니다." },
+    { title: "준비 상태 확인", text: "모든 사진의 ‘준비 완료’와 보관 만료 날짜를 확인하세요.", detail: "저장 후 상태 조회만 실패했다면 ‘다시 확인’으로 조회만 재시도합니다. 사진 내용을 쓰려면 같은 영역의 ‘사진 후기 초안 만들기’로 이어가세요. 일반 글 생성 버튼에는 사진이 사용되지 않습니다. 이동·새로고침 시 목록과 설명은 초기화됩니다." },
   ];
 
   const toggleFaq = (idx: number) => {
@@ -346,6 +347,7 @@ export default function GuidePage() {
       </section>
 
       {/* 5. 자주 묻는 질문 (FAQ) 아코디언 */}
+      <PhotoReviewGuide />
       <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs">
         <div className="flex items-center gap-2 mb-4">
           <HelpCircle className="h-5 w-5 text-indigo-600" />
