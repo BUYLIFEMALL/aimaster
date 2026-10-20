@@ -96,3 +96,8 @@
 - 공용 기준 코드 `youtube-upload-client`: 기준 `shots/src/lib/youtube/client.ts`(+ `createYoutubeResumableSession`), 사본 `src/lib/youtube/client.ts` — 직접 고치지 말고 기준만 고친 뒤 `--sync`.
 - 매뉴얼(/guide) 업로드 안내·FAQ 2개, 메인 상세 소개(🎙️·🔑 단락 끝 문장)·사용 순서 4단계·특징 4번 문구 갱신. SQL `supabase/migrations/0023_v1_19_youtube_upload.sql`(버전만, 구조 변경 없음).
 - 검수: tsc·build·공용 점검 통과, 운영 배포 Ready, 크롬 시험 계정(연결 없음) ⑥ 안내·연결 버튼 확인. 관리자 계정 비공개 실업로드 완료(2026-10-21): 58.2초·16.8MB MP4 → 「공동구매 아카데미」 비공개, 영상 ID `hdPuSpoz1eY`, 진행률 표시·대본 기록 저장(DB 확인)·유튜브 「비공개 동영상」 확인. 서버가 세션 생성에 `Origin`을 실으면 브라우저 직접 PUT이 허용됨을 확정. 공용 연결 계정이 `youtube.force-ssl`만 있어도 업로드됨 확인. **시험 영상은 주인님이 유튜브 스튜디오에서 삭제.**
+
+## 2026-10-21 v1.20 — MP4 인코더 공용화(엔진 공유 2번 1~3단계) (Claude Code 윈도우, 부계정)
+- `src/lib/render/export.ts`가 소리 섞기·코덱 선택·프레임 인코딩·파일 묶기를 공용 기준 코드 **`browser-mp4-encoder`**(기준 `src/lib/render/mp4Encoder.ts`, 사본 `shots/src/lib/render/mp4Encoder.ts`)에 맡김. 배경 영상 받기·맞추기(`localVideos`·`syncVideo`·`seekVideo`)와 미리보기 재생 되돌리기는 export.ts에 남김. 진행률(1→3→4→5~97→98%)·문구 같음.
+- **mp4Encoder.ts는 공용 기준 파일** — 고치면 `node scripts/check-shared-modules.mjs --sync`로 Shots 사본에 반영하고 두 프로그램을 함께 시험.
+- 검수: tsc·build·공용 점검 통과, 운영 배포 Ready. 크롬 관리자 계정 대본 「2026 다이소 꿀템 TOP 4」(음성 0/6 상태) 다시 만들기 → **58.20초·1080×1920·16.8MB로 v1.19 기준과 같음**, 15초 장면 카드 1 정상. 음성이 있는 대본의 소리 섞기는 옮기기만 한 같은 코드라 이번엔 따로 시험하지 않음(Shots 브라우저 만들기 시험 때 함께 확인). SQL `supabase/migrations/0024_version_v1_20.sql`(버전만).
