@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 남은 작업 1~5 처리 (주인님 「순서대로 진행해줘」)
+- ① `naver-blog-agent` v2.00(`ab07fc55`): 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(다른 세션 v1.99 완료 후). 배포 Ready, DB v2.00, 확장 manifest·ZIP·DB extension_version v2.00, `check-extension-release` OK, 크롬 확인.
+- ② 관리자 `/admin/notices` 「관련 프로그램」 선택: 크롬(관리자)에서 검색·체크·칩·저장 → DB `program_ids` 저장·목록 칩 확인, 시험 공지 삭제.
+- ③ 웹툰 회차별 캡션 실화면 검수(브라우저 안 시험 회차 JSON 2개, 예약 안 누름) — `ai-webtoon-studio/AGENTS.md` 기록(`2ced5f43`).
+- ④⑤ 메인(`f15ad575`, 배포 `aimaster-ncdmyzrlx` Ready): 관리자 프로그램 목록 줄마다 「📢 공지」 → `/admin/notices?program=<id>`가 공지 창을 열고 관련 프로그램·제목 「[이름] vX.YY 업데이트 안내」 미리 채움. 프로그램 소개 페이지 FAQ 위 「이 프로그램 관련 공지」(켜진 연결 공지 최근 5건, 없으면 숨김). 크롬 확인·시험 공지 삭제. 플랜 `docs/PLAN_20261020_NOTICE_FOLLOWUPS.md`.
+- **남음 ⑥ 서브프로그램 화면 위 공지 띠**: 80여 개 프로그램 배포가 필요해 주인님 확인 대기(플랜 문서 6절 — 기준 프로그램 1개 → 공용 등록 → 이후 배포 때 전파 제안).
+
 ## 2026-10-20 Claude Code(윈도우) — 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로 (웹툰·전자책·감성 글귀·블로그 올인원)
 - 원인: 사이드바 바깥 묶음의 `justify-between`이 계정을 화면 맨 아래로 밀어냄(사이드바 표준 위반). 빼고 계정 묶음에 `shrink-0`.
 - 웹툰 `ai-webtoon-studio` v1.23(`351f241c`)·`ebook-studio` v1.11(`6a20091e`)·`emotion-writer` v1.16(`d1ce8960`)·`naver-blog-allinone` v1.50(`bb40a125`, 확장 manifest·ZIP·DB extension_version 함께, `check-extension-release` OK). 모두 배포 Ready·DB 버전 갱신·크롬 화면 확인.
