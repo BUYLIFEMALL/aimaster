@@ -17,6 +17,10 @@ interface PageProps {
   searchParams: Promise<{ q?: string; sort?: string }>;
 }
 
+function safeDecode(v: string): string {
+  try { return decodeURIComponent(v); } catch { return v; }
+}
+
 async function getCategory(slug: string) {
   const supabase = await createClient();
   const { data } = await supabase
@@ -77,7 +81,8 @@ async function getPrograms(categoryId: string, query?: string, sort?: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
+  // 2026-10-21: slug에 &가 있는 카테고리(scraping&plan)는 주소에서 %26으로 넘어와 404가 났다 → 디코딩해서 찾는다
+  const slug = safeDecode((await params).slug);
   const category = await getCategory(slug);
   if (!category) return { title: "카테고리를 찾을 수 없습니다" };
 
@@ -92,7 +97,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function CategoryPage({ params, searchParams }: PageProps) {
-  const { slug } = await params;
+  // 2026-10-21: slug에 &가 있는 카테고리(scraping&plan)는 주소에서 %26으로 넘어와 404가 났다 → 디코딩해서 찾는다
+  const slug = safeDecode((await params).slug);
   const sp = await searchParams;
 
   const category = await getCategory(slug);
@@ -121,7 +127,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       {/* Search + Sort */}
       <Suspense>
         <div className="mb-6">
-          <ProgramSearch basePath={`/programs/category/${slug}`} />
+          <ProgramSearch basePath={`/programs/category/${encodeURIComponent(slug)}`} />
         </div>
       </Suspense>
 

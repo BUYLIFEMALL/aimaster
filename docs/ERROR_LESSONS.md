@@ -2560,3 +2560,5 @@
 - 증상: Storage API로 `file_size_limit: 104857600` 버킷을 만들자 `413 Payload too large`. 원인: 프로젝트 전체 업로드 한도(요금제)가 버킷 한도보다 작으면 거절. 해결: 50MB(52428800)로 생성(`shots/supabase/migrations/20261021120000_shots_videos_bucket_v1_24.sql`). 다음부터: 버킷 한도는 50MB 이하로 잡고, 화면에서도 같은 한도를 미리 검사.
 ### 2026-10-21 Shots v1.26 — OpenAI `gpt-4o-mini-tts` 가끔 한 요청만 60~90초 지연
 - 증상: 6장면 동시 요청 중 5개는 4~5초, 1개만 89초(성공). 서버 제한 90초에 닿으면 영상 전체 실패. 해결: 브라우저 요청마다 30초 제한 + 1번 다시 시도, 서버는 `AbortSignal.any([req.signal, timeout])`로 브라우저가 끊으면 OpenAI 요청도 멈춤(`shots/src/lib/render/story.ts`·`src/app/api/render/tts/route.ts`). 다음부터: 유료 생성 API를 여러 개 동시에 부를 때 요청마다 제한 시간·재시도 1회를 둔다.
+### 2026-10-21 메인 사이트 — 카테고리 slug에 `&`가 있으면 카테고리 페이지 404
+- 증상: 「데이터수집|기획」(slug `scraping&plan`)만 `/programs/category/…`가 404. 원인: 주소의 `&`가 `%26`으로 넘어와 `params.slug`가 인코딩된 채 DB와 비교됨. 해결: 페이지에서 `decodeURIComponent` 후 조회, 링크 4곳(`app/(main)/page.tsx`·`app/(main)/programs/page.tsx`·카테고리 페이지 검색 경로·`components/programs/CategoryNav.tsx`)은 `encodeURIComponent`로 생성. 다음부터: 주소에 쓰는 slug는 영문 소문자·숫자·하이픈만 쓰고, 동적 경로 값은 항상 디코딩해서 조회한다.

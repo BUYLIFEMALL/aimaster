@@ -141,7 +141,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
               <div className="flex items-end justify-between mb-6">
                 <h2 className="text-2xl font-bold text-white">{category.name}</h2>
                 <Link
-                  href={`/programs/category/${category.slug}`}
+                  href={`/programs/category/${encodeURIComponent(category.slug)}`}
                   className="text-sm text-gold hover:underline flex-shrink-0"
                 >
                   전체 보기 →

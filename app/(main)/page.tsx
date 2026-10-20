@@ -434,7 +434,7 @@ export default async function HomePage() {
                 <div key={category.id} id={`category-${category.slug}`} className="scroll-mt-[240px]">
                   <div className="flex items-end justify-between mb-6">
                     <h3 className="text-2xl font-bold text-white">{category.name}</h3>
-                    <Link href={`/programs/category/${category.slug}`} className="hidden md:block">
+                    <Link href={`/programs/category/${encodeURIComponent(category.slug)}`} className="hidden md:block">
                       <GoldButton variant="outline" size="sm">
                         전체 보기 <ArrowRight size={14} />
                       </GoldButton>

@@ -14,7 +14,7 @@ export default function CategoryNav({ categories, activeSlug }: CategoryNavProps
 
   const handleSelect = (slug: string | null) => {
     if (slug) {
-      router.push(`/programs/category/${slug}`);
+      router.push(`/programs/category/${encodeURIComponent(slug)}`);
     } else {
       router.push("/programs");
     }
