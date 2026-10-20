@@ -293,3 +293,16 @@ test("종합 프로필 가중치: 정규화·프롬프트 문구", async () => {
   const p = profilePrompt(["중요도: 핵심\n검사: x"], new Date("2026-10-14T00:00:00Z"));
   assert.match(p.system, /핵심 > 중요 > 참고/);
 });
+
+test("타로점 연결(v1.24): 질문 문장에 점수 숫자를 넣지 않고, 3장 스프레드로 보낸다", async () => {
+  const { tarotQuestion, tarotLink } = await import("../src/lib/tarotLink.ts");
+  for (const t of ALL_TESTS) {
+    const r = scoreTest(t, all(t.questions.length, 4));
+    const q = tarotQuestion(r, buildReport(t, r), isSensitive(t.id));
+    assert.ok(q.length > 10 && q.length <= 300, t.id);
+    assert.doesNotMatch(q, /\d+\s*(점|%)/, `${t.id}: 점수가 질문에 들어감`);
+    const u = new URL(tarotLink(q));
+    assert.equal(u.searchParams.get("spread"), "three_cards");
+    assert.equal(u.searchParams.get("q"), q);
+  }
+});

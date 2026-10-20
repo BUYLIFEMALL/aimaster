@@ -1,6 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- CUSTOM_STYLE_PROMPTS_HANDOFF_20261020 -->
+## 2026-10-20 Claude Code(윈도우) — 성격 진단 v1.24 → 타로점 v1.21 연결 (결과에서 3장 리딩으로 이어 보기)
+- 한 일: 성격 진단 결과 화면에 「🔮 타로점 3장 리딩으로 이어서 보기」(점수 없이 유형·영역 이름만 담은 질문을 `?q=`로 전달), 타로점 카드 뽑기 화면이 `?q=&spread=&from=`을 미리 채움. 타로점 질문 입력란이 흰 바탕+흰 글자로 안 보이던 기존 버그도 수정.
+- 검수: 성격 tsc·테스트 20·build, 타로 tsc·build. 배포 `tarot-eh2gvtwqr`·`personality-suite-l5hgjm7eh` Ready(순차). DB(ref `esgxyikcnnvmlhygjkth`) personality-suite v1.24, tarot-reading v1.21. 크롬: 결과 카드 클릭 → 새 탭 타로점에 질문·3장 스프레드·안내 띠 확인, 비로그인 시 로그인 뒤 같은 주소 유지(curl). 카드 뽑기·AI 호출은 하지 않음(비용 없음).
+- 링크: https://personality-suite.buylife.xyz · https://tarot-reading.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — AI 종합 성격 진단 v1.23: 공유 PNG 테마 통일 + 「균형 구간」 표시
 - 한 일: 결과 공유 이미지를 미드나잇 퍼플·골드로, 결과 막대에 40~60% 금색 띠와 「⚖️ 균형 구간」 안내. 상세 `personality-suite/AGENTS.md` v1.23.
 - 검수: tsc·테스트 19·build, 배포 `personality-suite-llwe58g8x` Ready, DB v1.23, 크롬에서 검사 1회 응답 후 결과·공유 이미지 확인. 발견 버그(빠른 숫자키 입력 시 응답 누락)는 `personality-suite/docs/IMPROVEMENTS.md`에 기록.

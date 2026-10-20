@@ -1,5 +1,10 @@
 # AIMaster 타로점 에이전트 작업 지침 (AGENTS.md)
 
+## 2026-10-20 v1.21 — 다른 프로그램에서 질문 미리 채우기 + 질문 입력란 글자 안 보이던 문제 수정 (Claude Code 윈도우)
+- `components/DrawFlow.tsx`: 주소의 `?q=`(질문, 300자), `?spread=`(SPREAD_CONFIGS에 있는 값만), `?from=personality-suite`(안내 띠)를 처음 열 때 읽어 채운다. 채우기만 하고 카드 뽑기·AI 호출은 회원이 직접 누를 때만. 첫 연결: AI 종합 성격 진단 v1.24 결과 화면.
+- **기존 버그 수정**: 질문 입력란이 흰 바탕(#fff)에 거의 흰 글자(#f1f5f9)라 입력한 글이 거의 안 보였음 → 어두운 칸(#0d0920)·밝은 글자·보라 포커스 링.
+- 버전 v1.21(코드 `lib/version.ts`·`package.json`, DB `programs.version`).
+
 > **최초 제정**: 2026-09-16  
 > **최종 개정**: 2026-10-19 (v1.20 크리에이티브 아틀리에 미드나잇 퍼플 리뉴얼)  
 > **적용 대상**: Claude Code, Codex, Antigravity(Gemini) 등 모든 AI 에이전트  

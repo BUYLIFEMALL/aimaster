@@ -1,4 +1,9 @@
-# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.23)
+# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.24)
+
+## 2026-10-20 v1.24 — 결과 → 타로점 3장 리딩 연결 (Claude Code 윈도우, 주인님 「진행해줘」)
+- 결과 화면 아래 「🔮 타로점 3장 리딩으로 이어서 보기」 카드(`ResultView.tsx` `.tarot-bridge`). 질문 문장은 `src/lib/tarotLink.ts` `tarotQuestion()`이 만든다: 마음 상태 검사=가장 부담이 큰 영역 이름, 16유형=유형 이름, 그 외=가장 높은 성향 이름. **점수 숫자는 주소에 넣지 않는다**(테스트로 확인).
+- 링크: `https://tarot-reading.buylife.xyz/draw?q=…&spread=three_cards&from=personality-suite`(새 창). 타로점은 질문만 미리 채우고, 카드 뽑기·AI 해석은 회원이 직접 눌러야 시작(자동 과금 없음). 비로그인이면 타로점 로그인 뒤 같은 주소로 돌아옴(확인함).
+- 테스트 1개 추가(전 검사 20개 통과). 타로점 쪽 변경은 `tarot/AGENTS.md` v1.21.
 
 ## 2026-10-20 v1.23 — 공유 PNG 테마 통일 + 결과 막대 「균형 구간」 표시 (Claude Code 윈도우, 주인님 「진행해줘」)
 - 결과 공유 이미지(`src/lib/shareImage.ts`): 화면과 같은 미드나잇 퍼플·골드(배경 그라데이션, 금색 별, 보라 막대, 16유형은 40~60% 금색 띠).

@@ -24,7 +24,7 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL || 'https://esgxyikcn
 async function main() {
   const { data, error } = await supabase
     .from('programs')
-    .update({ version: 'v1.23', updated_at: new Date().toISOString() })
+    .update({ version: 'v1.24', updated_at: new Date().toISOString() })
     .eq('slug', 'personality-suite')
     .select('id, slug, version');
   if (error) {

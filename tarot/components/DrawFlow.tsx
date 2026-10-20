@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   SPREAD_CONFIGS,
@@ -44,6 +44,18 @@ export function DrawFlow({
   );
 
   const selectedSpread = SPREAD_CONFIGS[spreadType];
+
+  // v1.21: 다른 프로그램(예: AI 종합 성격 진단)에서 ?q=질문&spread=three_cards 로 넘어오면 미리 채운다.
+  // 채우기만 하고 카드 뽑기·AI 해석은 회원이 직접 눌러야 시작된다.
+  const [fromProgram, setFromProgram] = useState<string | null>(null);
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const q = p.get("q");
+    if (q) setQuestion(q.slice(0, 300));
+    const sp = p.get("spread");
+    if (sp && sp in SPREAD_CONFIGS) setSpreadType(sp as SpreadType);
+    if (p.get("from") === "personality-suite") setFromProgram("AI 종합 성격 진단");
+  }, []);
 
   function handleDraw() {
     if (isShuffling) return;
@@ -198,6 +210,11 @@ export function DrawFlow({
 
       {/* 3. 질문 입력 (선택) */}
       <div className="mb-8">
+        {fromProgram && (
+          <p className="mb-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-300">
+            🧭 {fromProgram} 결과에서 이어 왔습니다. 질문이 미리 채워져 있으며, 자유롭게 고친 뒤 카드를 뽑으세요.
+          </p>
+        )}
         <label htmlFor="question" className="mb-2 block text-xs font-bold text-neutral-500 uppercase tracking-wider">
           STEP 3. 고민 및 질문 입력 (선택)
         </label>
@@ -208,7 +225,7 @@ export function DrawFlow({
           maxLength={300}
           rows={3}
           placeholder="예) 조만간 새로운 프로젝트를 시작하려는데 어떤 마음가짐으로 임하면 좋을까요?"
-          className="w-full px-4 py-3 rounded-2xl border border-neutral-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+          className="w-full px-4 py-3 rounded-2xl border border-[#2a1f4e] bg-[#0d0920] text-slate-100 placeholder:text-slate-500 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/40"
         />
         <p className="mt-1 text-right text-[11px] text-neutral-400">{question.length}/300</p>
       </div>

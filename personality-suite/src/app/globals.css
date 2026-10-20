@@ -310,3 +310,10 @@ a.project-card{color:inherit}
   .ps-panel{padding:18px 16px}
   .mobile-header strong{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
+
+/* v1.24 타로점 연결 카드 */
+.tarot-bridge{border-color:rgba(245,158,11,.35);background:linear-gradient(135deg,rgba(245,158,11,.08),var(--surface) 55%)}
+.tarot-bridge-head{display:flex;gap:12px;align-items:flex-start}
+.tarot-bridge-head h2{font-size:15px;margin-bottom:3px}
+.tarot-bridge-head p{font-size:12px}
+.tarot-bridge-q{margin:14px 0;padding:12px 14px;border-radius:12px;border:1px dashed rgba(245,158,11,.45);color:#fde68a;font-size:13px;font-weight:600}
