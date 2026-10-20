@@ -4,7 +4,8 @@ import { buildHumanizerPrompt, applyHumanizerEdits } from "@/lib/humanizer";
 import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle, type WritingTone, type WritingStyle } from "./writingStyles";
 import { buildFormatResearchRule, buildFormatWriterRule, isArticleFormat, type ArticleFormat } from "./articleFormats";
 import { applyShoppingLinks } from "@/lib/shoppingLinks";
-import { applyUnsupported, buildSourceBlock, buildSourceReviewRule, normalizeSourceMaterial, readUnsupported } from "./sourceGrounding";
+import { applyUnsupported, buildSourceBlock, buildSourceReviewRule, filterUnsupported, normalizeSourceMaterial, readUnsupported } from "./sourceGrounding";
+import { cleanGeneratedBody } from "./bodyCleanup";
 
 import { sanitizeYear, sanitizeBodyYear } from "@/lib/yearPolicy";
 
@@ -208,7 +209,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.${sourceBlock}`;
 
   const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}${buildFormatWriterRule(articleFormat)}\n\n${writingStylePrompt}`, writerUserPrompt);
-  const draftArticle = sanitizeBodyYear(writerRaw.trim(), currentYear);
+  const draftArticle = sanitizeBodyYear(cleanGeneratedBody(writerRaw), currentYear);
 
   stepsLog.push({
     step: "2. Writer Agent",
@@ -267,7 +268,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 
   const reviewerSystemPrompt = `너는 네이버 블로그 SEO 및 팩트체크 검수관이야.
 [기준 연도 엄수]: 현재 연도는 ${currentYear}년이야. 본문 및 태그 검수 시 최신 정보가 과거 연도(2023년, 2024년 등) 기준으로 쓰이지 않았는지 보고(실제 과거 사실의 연도는 정상), 필요 시 ${currentYear}년 최신 태그를 부여해줘.
-본문 전체를 처음부터 끝까지 검토해. 지어낸 수치·출처·경험, 과거 연도 사용, 선택된 말끝·문체 불일치, 주제·키워드 이탈이 있으면 지적하고,
+${sourceMaterial ? "근거 자료에 적힌 날짜 표현(내년·올해·지난해·지난달·○월 ○일 등)은 그 자료가 보도한 사실이므로 그대로 두고, 연도로 바꾸라고 권하지 마.\n" : ""}본문 전체를 처음부터 끝까지 검토해. 지어낸 수치·출처·경험, 과거 연도 사용, 선택된 말끝·문체 불일치, 주제·키워드 이탈이 있으면 지적하고,
 네이버 블로그 검색 노출에 가장 효과적인 태그 5~10개를 선정해줘.
 reviewStatus는 문제가 없으면 "PASS", 고쳐야 할 점이 있으면 "WARN", 그대로 발행하면 안 되면 "FAIL"로만 답해.`;
 
@@ -297,7 +298,7 @@ ${humanizedArticle}
     parsedStatus === "PASS" || parsedStatus === "WARN" || parsedStatus === "FAIL" ? parsedStatus : "UNKNOWN";
   if (reviewStatus === "PASS" && !lengthOk) reviewStatus = "WARN";
   // 근거 자료가 있을 때만 원문 대조 결과를 반영한다(추가 AI 호출 없이 같은 검수 응답 사용).
-  const grounding = applyUnsupported(reviewStatus, sourceMaterial ? readUnsupported((reviewerData as { unsupported?: unknown } | null)?.unsupported) : []);
+  const grounding = applyUnsupported(reviewStatus, sourceMaterial ? filterUnsupported(readUnsupported((reviewerData as { unsupported?: unknown } | null)?.unsupported), sourceMaterial) : []);
   reviewStatus = grounding.status;
   const reviewerTags = Array.isArray(reviewerData?.tags)
     ? (reviewerData!.tags as unknown[]).filter((t): t is string => typeof t === "string" && t.trim().length > 0)
@@ -324,7 +325,7 @@ ${humanizedArticle}
   // [3단계 안전망: 최종 반환 직전 정규식 Safe-guard 교정]
   const finalTitle = sanitizeYear(researchData.finalTitle, currentYear);
   // 쇼핑 링크·대가성 문구는 AI 단계가 끝난 뒤 코드로 넣어 바뀌거나 빠지지 않게 한다.
-  const finalContent = applyShoppingLinks(sanitizeBodyYear(humanizedArticle, currentYear), input.shoppingLinks ?? []);
+  const finalContent = applyShoppingLinks(sanitizeBodyYear(cleanGeneratedBody(humanizedArticle), currentYear), input.shoppingLinks ?? []);
   const finalTags = tags.map((t: string) => sanitizeYear(t, currentYear));
   const finalImages = imagePrompts.map((img) => ({
     ...img,

@@ -9,6 +9,7 @@ import { normalizeShoppingLinks } from "@/lib/shoppingLinks";
 import { normalizeSourceMaterial } from "@/lib/ai/sourceGrounding";
 import { reviewFingerprint, withPostReview } from "@/lib/postReview";
 import { savedPost } from "@/lib/postSaveProtocol";
+import { newNaverDraftSummary } from "@/lib/naverPublishing";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
     });
 
     const row={user_id:user.id,blog_id:blogId,category_name:result.category,title:result.title,content:result.content,tags:result.tags,images:result.images,status:"draft"};
-    const summary=withPostReview(null,{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
+    const summary=withPostReview(newNaverDraftSummary(blogId),{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
     let post:any=null,saveError:unknown=null;
     try {const saved=await admin.from("nba_posts").insert({...row,research_summary:summary}).select("*").single();post=saved.data;saveError=saved.error;}
     catch {saveError=true;}

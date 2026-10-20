@@ -45,3 +45,9 @@ export function withNaverCategory(summary: unknown, blogId: string, category: Na
   return { ...previous, naver_publishing: { ...oldPrefs, blog_id: blogId, category,
     ...(executionMode ? { execution_mode: executionMode } : {}) } };
 }
+
+// New drafts start before the final button. Do not apply this to existing rows:
+// their saved choice (including the legacy default) remains compatible.
+export function newNaverDraftSummary(blogId: string) {
+  return withNaverCategory(null, blogId, null, "prepare");
+}

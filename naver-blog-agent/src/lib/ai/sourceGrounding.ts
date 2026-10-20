@@ -83,3 +83,28 @@ export function articleSourceText(article: { title: string; text: string; url?: 
   const text = article ? `${article.title}\n${article.text}${article.url ? `\n출처: ${article.url}` : ""}` : fallback;
   return text.slice(0, MAX_SOURCE_CHARS);
 }
+
+// 감상·추측·질문으로 끝나는 문장은 사실 주장이 아니므로 경고에서 뺀다.
+const OPINION_ENDING = /(것 같아요|것 같네요|것 같습니다|같아요|느껴지네요|느껴져요|느껴집니다|싶어요|싶네요|좋겠어요|좋겠네요|인상적이에요|인상적이었어요|인상적입니다|궁금해지네요|기대돼요|기대됩니다|아닐까요|볼까요|있을까요|일까요)[.!?…\s」”"']*$/;
+
+/** 원문 단어가 문장 단어의 대부분(기본 60% 이상)에 들어 있으면 원문을 바꿔 쓴 문장으로 본다. */
+export function overlapRatio(sentence: string, material: string): number {
+  const words = (String(sentence || "").match(/[가-힣A-Za-z0-9]{2,}/g) || []).map((w) => w.toLowerCase());
+  if (!words.length) return 0;
+  const source = String(material || "").toLowerCase();
+  // 한국어는 조사가 붙으므로 앞 2글자 이상이 원문에 있으면 같은 단어로 본다.
+  const hit = words.filter((w) => source.includes(w) || (w.length >= 3 && source.includes(w.slice(0, w.length - 1)))).length;
+  return hit / words.length;
+}
+
+/** AI가 고른 「근거 없음」 문장 가운데 감상·질문·원문 바꿔 쓰기를 코드로 한 번 더 걸러낸다. */
+export function filterUnsupported(list: string[], material: string, threshold = 0.6): string[] {
+  return list.filter((sentence) => {
+    const s = sentence.trim();
+    if (!s) return false;
+    if (/[?？]\s*["”」']?$/.test(s)) return false;
+    if (OPINION_ENDING.test(s)) return false;
+    if (material && overlapRatio(s, material) >= threshold) return false;
+    return true;
+  });
+}

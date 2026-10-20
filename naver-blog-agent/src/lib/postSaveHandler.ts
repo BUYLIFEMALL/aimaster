@@ -3,6 +3,7 @@ import { resolveSaveStatus } from "./postStatus";
 import { changesAuthoring, getPostReview } from "./postReview";
 import { nextTimestamp } from "./executionRuns";
 import { validateReservation } from "./scheduleSlots";
+import { newNaverDraftSummary } from "./naverPublishing";
 import { SAVE_CONFLICT, SAVE_UPGRADE, savedPost, postSaveRevision, saveFingerprint, saveReceipt, saveUuid, withSaveReceipt } from "./postSaveProtocol";
 
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {status, headers: {"Cache-Control": "no-store"}});
@@ -48,7 +49,7 @@ export async function handlePostSave(admin: any, userId: string, payload: Record
   if (current && ["queued", "publishing"].includes(current.status) && changesAuthoring(current, updates)) return reply({error: "대기·입력 중인 원고는 변경할 수 없습니다. 대기를 취소한 뒤 저장해 주세요."}, 409);
   if (updates.status === "queued" && !getPostReview({...current, ...updates}).allowed) return reply({error: "저장한 최종 원고를 직접 검수한 뒤 전송해 주세요."}, 422);
   updates.updated_at = nextTimestamp(current?.updated_at);
-  updates.research_summary = withSaveReceipt(current?.research_summary, payload.save_request_id, fingerprint);
+  updates.research_summary = withSaveReceipt(current ? current.research_summary : newNaverDraftSummary(updates.blog_id), payload.save_request_id, fingerprint);
 
   let query;
   if (current) {

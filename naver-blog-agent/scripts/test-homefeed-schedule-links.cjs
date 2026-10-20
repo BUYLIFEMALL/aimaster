@@ -105,3 +105,23 @@ test('글감별 원문: 여러 기사 중 글감과 가장 겹치는 기사 하�
   assert.match(grounding.articleSourceText(arts[1], 'fallback'), /^김수영 게장[\s\S]*출처: https:\/\/n\.news/);
   assert.equal(grounding.articleSourceText(null, '묶음 원문'), '묶음 원문');
 });
+const cleanup = load('src/lib/ai/bodyCleanup.ts');
+test('작성 결과 정리: 글자 그대로의 \n은 줄바꿈으로, 맨 앞 # 제목 줄은 삭제, 구조 태그는 유지', () => {
+  const raw = '# 솔비, 이규한의 사과로 결혼 결심한 이유는?\n여러분, 결혼에 대해 어떻게 생각하세요?\n\\n\\n\n[SECTION - 솔비, 결혼이란]\n본문\\n\\n둘째 문단';
+  const out = cleanup.cleanGeneratedBody(raw);
+  assert.ok(raw.includes('\\n'), '시험 원문에 글자 그대로의 \\n이 있어야 한다');
+  assert.ok(!out.startsWith('#'));
+  assert.ok(!out.includes('\\n'));
+  assert.match(out, /^여러분, 결혼에 대해 어떻게 생각하세요\?\n\n\[SECTION - 솔비, 결혼이란\]\n본문\n\n둘째 문단$/);
+  assert.equal(cleanup.cleanGeneratedBody('[SECTION - A]\n본문'), '[SECTION - A]\n본문');
+});
+test('원문 대조 거르기: 감상·질문·원문 바꿔 쓰기는 빼고 지어낸 사실만 남긴다', () => {
+  const src = '솔비는 “오만추 녹화가 끝난 뒤 오빠가 사과를 계속 선물로 보냈다”며 “내가 진행하는 클래스에도 직접 수강 신청을 해서 찾아왔다”고 말했다. 결혼식은 내년 4월.';
+  const kept = grounding.filterUnsupported([
+    '결혼 소식을 전하면서 “오빠가 사과를 계속 선물로 보내고, 나의 클래스에도 찾아왔다”는 이야기를 들으니 더욱 특별하게 느껴지네요.',
+    '결혼에 대한 그녀의 생각은 정말 깊고 따뜻한 것 같아요.',
+    '많은 이들이 진정한 사랑의 의미를 다시 생각해볼 수 있지 않을까요?',
+    '두 사람은 지인의 소개로 처음 만났고 첫날부터 깊은 인상을 남겼어요.',
+  ], src);
+  assert.deepEqual(kept, ['두 사람은 지인의 소개로 처음 만났고 첫날부터 깊은 인상을 남겼어요.']);
+});
