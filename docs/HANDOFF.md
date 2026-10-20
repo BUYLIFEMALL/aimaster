@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 사용 종료 프로그램 5개 코드 정리(백업 후 삭제)
+
+- 주인님 「백업해놓고 지워」「사용종료 하기로한 프로그램은 백업해서 하나의 폴더로 만든후 진행」. 대상: `cardnews-studio`·`instagram-dm-reply`·`youtube-channel-consultant`·`seo-thumbnail-pro`·`yt-playlist-studio`(모두 병합으로 노출 중지된 옛 앱).
+- **백업 3곳**: ① 폴더 `D:\Antigravity\AIMaster_backupetired-programs\<폴더>\`(색인 `README.md`, 파일 수 git ls-files와 일치) ② git 태그 `backup/old-apps-20261021`(원격 푸시, 복원 `git checkout backup/old-apps-20261021 -- <폴더>`) ③ 압축 `D:\Antigravity\AIMaster_backup\old-apps-20261021.zip`.
+- 저장소에는 옛 주소 전달(`next.config`)·안내 화면 1개·빌드 설정·문서·`supabase/` 마이그레이션만 남김(썸네일 프로 `/api/user/key` 410 유지). `scripts/check-shared-modules.mjs`에서 사본 등록 제거(점검 통과). 로컬 빌드 5개 통과. 커밋 `8b1cee2e`.
+- 재배포 안 함(운영 중인 배포는 이전 빌드 그대로 이동·전달 동작). Vercel 프로젝트·도메인·DB 표 유지. 다음에 이 폴더를 배포하면 안내 화면 앱으로 바뀌며 redirect·rewrite는 같음.
+
 ## 2026-10-20 Codex(윈도우) — 블로그 BLC-02 v2.02 릴리스 준비
 
 - 최대 6장·대표/순서/500자 설명·제거/취소·조회만 재시도하는 사진 준비 UI와 4단계 사용 안내. 기존 글 생성에 사진을 사용하지 않는 현재 범위와 화면 이탈 시 선택 초기화를 명시. BLC-03·04 미구현.
