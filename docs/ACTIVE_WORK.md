@@ -18,4 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `youtube-viral-studio/` · `youtube-channel-consultant/` | Claude Code(윈도우) | 2026-10-20 | 병합 C(CONSULTANT → VIRAL FINDER) 분석·플랜 완료, 주인님 플랜 확인 대기 — `youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md` |
+| `youtube-viral-studio/` · `youtube-channel-consultant/` | Claude Code(윈도우) | 2026-10-20 | 병합 C(CONSULTANT → VIRAL FINDER) 1단계 완료(v1.20), 2단계(대시보드·매뉴얼·이름) 다음 — `youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md` |

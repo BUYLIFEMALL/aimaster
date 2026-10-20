@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 C 1단계 (youtube-viral-studio v1.20)
+- CHANNEL CONSULTANT의 채널 분석·키워드 분석·AI 리포트를 VIRAL FINDER 안으로(파일 21개, 이름 겹치는 유튜브 계산 코드는 `src/lib/consultant/youtube/`), 메뉴 「🔥 트렌드 발굴 / 📊 채널·키워드 진단」, 공략 채널은 VIRAL 화면 하나, 공지 띠. 크롬에서 `@YouTube` 채널 분석 실제 성공. 커밋 `40404619`, 배포 Ready, DB v1.20.
+- 다음 첫 단계: 2단계(대시보드·매뉴얼 통합·앱 이름) — [플랜·진행표](../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md) §8.
+
+https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 분석 + 병합 C 플랜 (코드 변경 없음, 다른 CLI 이어받기 가능)
 - 유튜브 관련 10개 분석: [`analysis-youtube-consolidation-20261020/REPORT.md`](analysis-youtube-consolidation-20261020/REPORT.md) (표 페이지 https://claude.ai/artifact/7Ad6WiRz8ykhuXTZ9PYCqx). 추천: 병합 C(VIRAL FINDER+CONSULTANT)·D(썸네일 프로→마스터)·E(플레이리스트 2개), 보류 F(Shots↔원스톱), 독립 2개.
 - 주인님 「병합 C 이것부터 하자」 → 조사·플랜 완료: [`../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md`](../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md). **다음 첫 단계: 주인님 플랜 확인 → 1단계(CONSULTANT 전용 파일 18개 이식, `lib/youtube` 이름 충돌 3개는 `lib/consultant/youtube/`로).** 권한 148명 모두 겹쳐 이전 불필요, 외부 등록 주소 없음.
