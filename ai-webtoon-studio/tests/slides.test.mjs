@@ -66,3 +66,28 @@ test("임시 경로는 회원 본인 webtoon-insta 폴더의 .jpg 1~10장만", (
   assert.equal(validInstaPaths(u, [`${u}/webtoon-insta/../x/01.jpg`]), false);
   assert.equal(validInstaPaths(u, Array.from({ length: 11 }, (_, i) => `${u}/webtoon-insta/b/${i}.jpg`)), false);
 });
+
+import { MAX_BATCH_EPISODES, episodeTimes, parseEpisode, sortEpisodes } from "../src/lib/instagram/slides.ts";
+
+test("회차 묶음: 간격대로 시각 계산(월·해 넘김 포함), 잘못된 입력은 빈 목록", () => {
+  assert.deepEqual(episodeTimes("2026-10-27T19:00", 3, 7), ["2026-10-27T19:00", "2026-11-03T19:00", "2026-11-10T19:00"]);
+  assert.deepEqual(episodeTimes("2026-12-31T23:30", 2, 1), ["2026-12-31T23:30", "2027-01-01T23:30"]);
+  assert.deepEqual(episodeTimes("2026-10-27 19:00", 3, 7), []);
+  assert.deepEqual(episodeTimes("2026-10-27T19:00", 0, 7), []);
+  assert.equal(MAX_BATCH_EPISODES, 20);
+});
+
+test("회차 파일: 웹툰 프로젝트만 읽고, 제목이 없으면 파일 이름, 표지 넣기 기본값 유지", () => {
+  const ep = parseEpisode("3화.json", JSON.stringify({ title: "", synopsis: " 줄 ", includeCover: false, coverImageUrl: "c", cuts: [cut(1, true, "대사")] }));
+  assert.equal(ep.title, "3화");
+  assert.equal(ep.synopsis, "줄");
+  assert.deepEqual(ep.sources.map((s) => s.id), ["cut-1"]);
+  assert.equal(parseEpisode("x.json", "{깨진"), null);
+  assert.equal(parseEpisode("x.json", JSON.stringify({ foo: 1 })), null);
+  assert.deepEqual(parseEpisode("y.json", JSON.stringify({ title: "제목", coverImageUrl: "c" })).sources.map((s) => s.id), ["cover"]);
+});
+
+test("회차 순서: 파일 이름 숫자 순서(2화 < 10화)", () => {
+  const e = (n) => ({ fileName: n, title: n, synopsis: "", sources: [] });
+  assert.deepEqual(sortEpisodes([e("10화.json"), e("2화.json"), e("1화.json")]).map((x) => x.fileName), ["1화.json", "2화.json", "10화.json"]);
+});

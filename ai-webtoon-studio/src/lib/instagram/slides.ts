@@ -98,3 +98,38 @@ export function validInstaPaths(userId: string, paths: string[]): boolean {
   const prefix = `${userId}/webtoon-insta/`;
   return paths.length >= 1 && paths.length <= MAX_INSTA_PHOTOS && paths.every((p) => p.startsWith(prefix) && !p.includes("..") && /\.jpg$/.test(p));
 }
+
+// ── v1.17 회차 묶음 예약 ─────────────────────────────────────────────
+/** 한 번에 예약할 수 있는 회차 수(서버의 회원별 대기 예약 한도 20건과 같음) */
+export const MAX_BATCH_EPISODES = 20;
+
+export interface Episode {
+  fileName: string;
+  title: string;
+  synopsis: string;
+  sources: SlideSource[];
+}
+
+/** 「프로젝트 저장(JSON)」 파일 내용 → 회차. 웹툰 프로젝트가 아니면 null */
+export function parseEpisode(fileName: string, text: string): Episode | null {
+  let data: unknown;
+  try { data = JSON.parse(text); } catch { return null; }
+  if (!data || typeof data !== "object") return null;
+  const p = data as Partial<WebtoonProject>;
+  if (!Array.isArray(p.cuts) && typeof p.title !== "string") return null;
+  const sources = slideSources({ includeCover: p.includeCover ?? true, coverImageUrl: typeof p.coverImageUrl === "string" ? p.coverImageUrl : undefined, cuts: Array.isArray(p.cuts) ? p.cuts : [] });
+  return { fileName, title: (p.title ?? "").trim() || fileName.replace(/\.json$/i, ""), synopsis: (p.synopsis ?? "").trim(), sources };
+}
+
+/** 파일 이름의 숫자 순서대로(1화, 2화, … 10화) */
+export function sortEpisodes(list: Episode[]): Episode[] {
+  return [...list].sort((a, b) => a.fileName.localeCompare(b.fileName, "ko", { numeric: true }));
+}
+
+/** 첫 회차 시각(한국 시간 「YYYY-MM-DDTHH:mm」)부터 interval일 간격으로 count개 시각(같은 형식) */
+export function episodeTimes(firstLocal: string, count: number, intervalDays: number): string[] {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(firstLocal);
+  if (!m || count < 1 || intervalDays < 1) return [];
+  const base = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+  return Array.from({ length: count }, (_, i) => new Date(base + i * intervalDays * 86400000).toISOString().slice(0, 16));
+}

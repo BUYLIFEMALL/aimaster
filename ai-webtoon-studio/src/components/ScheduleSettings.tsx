@@ -71,7 +71,7 @@ export function ScheduleSettings() {
       <div>
         <h4 className="text-sm font-bold text-slate-100">⏰ 예약 발행</h4>
         <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
-          인스타 예약 게시를 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약은 결과 화면의 「📤 인스타그램에 게시」에서 합니다.
+          인스타 예약 게시를 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약은 STEP 4(웹툰 제작)의 「📤 인스타그램에 게시」에서 하고, 여러 회차는 그 안의 「📚 여러 회차 한 번에 예약」으로 합니다.
         </p>
       </div>
       <div role="radiogroup" aria-label="실행 방식 선택" className="grid gap-2">

@@ -2,18 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Send, Check, ExternalLink, Loader2, CalendarClock, Eye, X } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import type { WebtoonProject } from "@/lib/types";
-import {
-  LINE_H, MAX_INSTA_CAPTION, MAX_INSTA_PHOTOS, SLIDE_H, SLIDE_PAD, SLIDE_W,
-  defaultCaption, defaultPicked, slideLayout, slideSources, togglePicked, wrapDialogue, type SlideSource,
-} from "@/lib/instagram/slides";
+import { MAX_INSTA_CAPTION, MAX_INSTA_PHOTOS, defaultCaption, defaultPicked, slideSources, togglePicked } from "@/lib/instagram/slides";
+import { renderSlide, uploadSlides } from "@/lib/instagram/slideRender";
 import { formatKst, kstLocalToIso } from "@/lib/instagram/schedule";
 import { SchedulePublishingControl } from "./SchedulePublishingControl";
+import { EpisodeBatchSchedule } from "./EpisodeBatchSchedule";
 
 // v1.15 인스타 자동 포스팅 1차(즉시 게시) — 기준: ai-influencer-studio InstagramPublishPanel(v1.14).
 // 웹툰은 「1컷 = 캐러셀 1장」: 흰 4:5 판(1080×1350)에 컷 전체 + 아래 대사 말풍선을 브라우저에서 그려 JPEG로 올린다.
 // v1.16 2차: 예약 게시·게시 기록(기준 ai-influencer-studio v1.15) + 올라갈 장 미리보기(게시와 같은 renderSlide). 플랜: docs/PLAN_20261020_INSTA_SCHEDULE.md
+// v1.17: 회차 묶음 예약(EpisodeBatchSchedule), 컷이 없어도 게시 기록·예약 대기는 보이게. 그리기·올리기는 lib/instagram/slideRender.ts.
 // 인스타 연결은 INSTA 포스팅 자동화에서 한 번 한 값을 그대로 쓴다(공용 insta_accounts). 1차 플랜: docs/PLAN_20261020_INSTA_AUTOPOST.md
 
 interface Status { connected: boolean; username: string; expired: boolean; connectUrl: string }
@@ -52,58 +51,6 @@ function defaultLocal(): string {
 }
 
 const FALLBACK_CONNECT = "https://auto-instagram-posting.buylife.xyz/settings";
-const FONT = "bold 30px 'Pretendard', 'Noto Sans KR', sans-serif";
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("컷 그림을 읽지 못했습니다. 그 컷을 다시 만든 뒤 시도해 주세요."));
-    img.src = src;
-  });
-}
-
-/** 컷 1장 → 4:5 JPEG(흰 판 + 컷 전체 + 대사 말풍선) */
-async function renderSlide(s: SlideSource): Promise<Blob> {
-  const img = await loadImage(s.src);
-  const canvas = document.createElement("canvas");
-  canvas.width = SLIDE_W;
-  canvas.height = SLIDE_H;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("그림을 변환하지 못했습니다.");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, SLIDE_W, SLIDE_H);
-  ctx.font = FONT;
-  const lines = wrapDialogue(s.dialogue, SLIDE_W - SLIDE_PAD * 2 - 64, (t) => ctx.measureText(t).width);
-  const textW = Math.max(0, ...lines.map((l) => ctx.measureText(l).width));
-  const lay = slideLayout(img.naturalWidth, img.naturalHeight, lines.length, textW);
-  ctx.drawImage(img, lay.dx, lay.dy, lay.dw, lay.dh);
-  if (lay.bubble) {
-    const { x, y, w, h } = lay.bubble;
-    const r = 24;
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-    ctx.fillStyle = "#ffffff";
-    ctx.fill();
-    ctx.strokeStyle = "#cbd5e1";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = "#0f172a";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    lines.forEach((l, i) => ctx.fillText(l, SLIDE_W / 2, y + 22 + LINE_H * i + LINE_H / 2));
-  }
-  return new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("그림을 변환하지 못했습니다."))), "image/jpeg", 0.9)
-  );
-}
-
 export function InstagramPublishPanel({ project, onOpenSettings }: { project: WebtoonProject; onOpenSettings?: () => void }) {
   const sources = useMemo(() => slideSources(project), [project]);
   const sourceKey = sources.map((s) => `${s.id}:${s.src.length}`).join("|");
@@ -150,7 +97,6 @@ export function InstagramPublishPanel({ project, onOpenSettings }: { project: We
 
   const chosen = sources.filter((s) => picked.includes(s.id));
   const pending = posts.filter((p) => p.status === "scheduled");
-  if (sources.length === 0) return null;
 
   async function showPreview() {
     setError("");
@@ -179,26 +125,12 @@ export function InstagramPublishPanel({ project, onOpenSettings }: { project: We
     const scheduledAt = mode === "schedule" ? kstLocalToIso(when) : null;
     if (mode === "schedule" && !scheduledAt) return setError("예약 날짜와 시간을 정해 주세요.");
     try {
-      const blobs: Blob[] = [];
-      for (let i = 0; i < chosen.length; i++) {
-        setBusy(`인스타 장 만드는 중... (${i + 1}/${chosen.length})`);
-        blobs.push(await renderSlide(chosen[i]));
-      }
-      setBusy("그림 올리는 중...");
-      const up = await fetch("/api/instagram/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ count: blobs.length }) });
-      const upData = await up.json().catch(() => ({}));
-      if (!up.ok) throw new Error(upData.error || "그림을 올릴 준비를 하지 못했습니다.");
-      const uploads = upData.uploads as { path: string; token: string }[];
-      const supabase = createClient();
-      for (let i = 0; i < uploads.length; i++) {
-        const { error: e } = await supabase.storage.from("insta-post-images").uploadToSignedUrl(uploads[i].path, uploads[i].token, blobs[i], { contentType: "image/jpeg" });
-        if (e) throw new Error("그림을 올리지 못했습니다. 네트워크를 확인하고 다시 시도해주세요.");
-      }
+      const paths = await uploadSlides(chosen, setBusy);
       setBusy(mode === "now" ? "인스타그램에 게시하는 중... (장수가 많으면 1~2분)" : "예약을 저장하는 중...");
       const res = await fetch(mode === "now" ? "/api/instagram/publish" : "/api/instagram/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paths: uploads.map((u) => u.path), caption: text, ...(scheduledAt ? { scheduledAt } : {}) }),
+        body: JSON.stringify({ paths, caption: text, ...(scheduledAt ? { scheduledAt } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || (mode === "now" ? "인스타그램 게시에 실패했습니다." : "예약하지 못했습니다."));
@@ -216,7 +148,7 @@ export function InstagramPublishPanel({ project, onOpenSettings }: { project: We
 
   const ready = status?.connected && !status.expired;
   return (
-    <div className="bg-[#121620] rounded-2xl border border-[#232b3e] p-5 shadow-sm space-y-3">
+    <div id="insta-publish" className="bg-[#121620] rounded-2xl border border-[#232b3e] p-5 shadow-sm space-y-3 scroll-mt-20">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-black text-white">📤 인스타그램에 게시 (컷 캐러셀)</h3>
         {status && ready && <span className="ml-auto rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300">연결됨 · @{status.username}</span>}
@@ -238,6 +170,12 @@ export function InstagramPublishPanel({ project, onOpenSettings }: { project: We
         </div>
       ) : (
         <>
+          {sources.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-[#232b3e] px-3 py-2.5 text-[11px] text-slate-400">
+              이 원고에는 아직 그림이 있는 컷이 없어요. 위에서 표지·컷을 만들면 여기서 바로 게시하거나 예약할 수 있어요. 지난 예약은 아래 게시 기록에서 확인·취소할 수 있습니다.
+            </p>
+          ) : (
+          <>
           <div>
             <p className="mb-1.5 text-[11px] text-slate-400">올릴 장 ({chosen.length}/{MAX_INSTA_PHOTOS}장 · 누르면 빼거나 넣기){sources.length > MAX_INSTA_PHOTOS && " — 10장이 넘어 뒤쪽 컷은 빠져 있어요. 다른 컷을 빼고 넣어 주세요."}</p>
             <div className="flex gap-1.5 overflow-x-auto pb-1">
@@ -312,6 +250,9 @@ export function InstagramPublishPanel({ project, onOpenSettings }: { project: We
             </button>
             {busy && <span className="text-[11px] text-slate-400">{busy}</span>}
           </div>
+          </>
+          )}
+          <EpisodeBatchSchedule username={status.username} pendingCount={pending.length} disabled={!!busy} onScheduled={() => void loadPosts()} />
         </>
       )}
       {error && <p className="text-[11px] text-red-400">{error}</p>}

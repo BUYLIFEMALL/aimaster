@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — AI 웹툰 v1.17 회차 묶음 예약·예약 대기 요약 (v1.16 추가개선 제안)
+- 한 일: `ai-webtoon-studio` v1.16 → **v1.17**. 게시 칸 안 「📚 여러 회차 한 번에 예약(연재용)」(회차 JSON 여러 개 → 파일 이름 순서·매일/3일/매주/2주 간격, 대기 20건·60일 사전 경고), 그리기·올리기를 `src/lib/instagram/slideRender.ts`로 분리, 컷이 없어도 게시 칸·기록 표시, 대시보드 맨 위 「⏰ 인스타 예약 n건 대기」, 설정 창 문구 정리. **DB 구조 변경 없음**(version v1.17). 상세 `ai-webtoon-studio/AGENTS.md` v1.17.
+- 검수: 시험 18개·타입·빌드, 배포 `ai-webtoon-studio-bwvnv1fgm` Ready. 크롬(시험 회원 계정 — 브라우저 로그인이 시험 계정이라 그대로 사용): 회차 3개 정렬·건너뜀·60일 경고 → 실제 예약 2건 → 기록·대시보드 요약 → STEP 4 이동 → 2건 취소 → 요약 사라짐. 이동 스크롤 끊김을 찾아 고쳐 재배포 후 재확인.
+- 못 한 것: 실제 인스타 게시.
+- 다음 첫 단계: 인스타 확대 4단계 **AI 4컷 만화(`four-cut-comics`) 직접 게시** — 웹툰 `slideRender.ts`·`EpisodeBatchSchedule` 재사용 검토.
+- 링크: https://ai-webtoon-automation.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 인플루언서 v1.16: Instagram 공용 계정 먼저 읽기 (주인님 남은 일 1번)
 - `ai-influencer-studio/src/lib/instagram/memberAccount.ts`를 카드뉴스 v1.26과 같은 코드로(공용 표 → 없으면 `insta_accounts`), 공용 부품 사본 등록. 테스트 18개·tsc·build, 배포 `ai-influencer-studio-k93ebvizw` Ready, DB v1.16(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor), 크롬(시험 회원) 연결 상태 API `connected:true`·@buylife.co.kr.
 - 남은 일: **웹툰은 다른 세션이 v1.17 작업 중(ACTIVE_WORK)** — 끝나면 같은 파일 한 개만 바꾸면 된다(`ai-webtoon-studio/src/lib/instagram/memberAccount.ts` + `scripts/check-shared-modules.mjs` 사본 등록 + 버전).

@@ -43,3 +43,6 @@ update public.programs set version = 'v1.16', updated_at = now() where slug = 'a
 
 select to_regclass('public.wts_insta_posts') as posts_table, to_regclass('public.wts_member_scheduler') as scheduler_table,
   (select version from public.programs where slug = 'ai-webtoon-studio') as program_version;
+
+-- v1.17 (2026-10-20, 표 변경 없음: 회차 묶음 예약·예약 대기 요약·설정 문구)
+update public.programs set version = 'v1.17', updated_at = now() where slug = 'ai-webtoon-studio';

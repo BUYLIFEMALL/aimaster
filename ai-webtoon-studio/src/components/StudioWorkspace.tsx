@@ -7,6 +7,7 @@ import { ProjectSection } from "@/components/ProjectSection";
 import { CharacterSection } from "@/components/CharacterSection";
 import { ScriptEditorSection } from "@/components/ScriptEditorSection";
 import { WebtoonCanvasSection } from "@/components/WebtoonCanvasSection";
+import { ScheduledSummary } from "@/components/ScheduledSummary";
 import { GuideSection } from "@/components/GuideSection";
 import { SettingsModal } from "@/components/SettingsModal";
 import {
@@ -166,6 +167,17 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
         {/* 본문 메인 컨텐츠 */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {/* STEP 1: 기획 & 시놉시스 */}
+          {/* v1.17 인스타 예약 대기 요약 — 컷이 없는 새 원고에서도 지난 예약을 알아볼 수 있게 */}
+          {activeTab === "concept" && (
+            <ScheduledSummary
+              onOpen={() => {
+                setActiveTab("canvas");
+                // 게시 칸은 페이지 맨 아래라 위쪽 맞춤이 안 되고, 부드러운 이동은 다시 그려지는 중에 끊긴다 → 바로 이동해 칸 아래쪽(게시 기록)을 화면 아래에 맞춘다
+                setTimeout(() => document.getElementById("insta-publish")?.scrollIntoView({ block: "end" }), 400);
+              }}
+            />
+          )}
+
           {activeTab === "concept" && (
             <ProjectSection
               project={project}
