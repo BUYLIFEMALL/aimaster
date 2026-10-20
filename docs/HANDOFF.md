@@ -10,6 +10,13 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 캐릭코드 v1.24: 홈 제목 줄바꿈 수정 (남은 작업 순서 진행 ⑩ — 1~10번 전체 완료)
+- 한 일: 홈 큰 제목·통계 카드 제목이 좁은 폭에서 글자 중간에 끊기던 문제 → 단어 단위 줄바꿈·중간 폭 글자 크기. 이 배포로 「이어서 보기」 공용 링크도 함께 나감.
+- 검수: tsc·build, 커밋 `0d239ca7`, 배포 `mbti-character-4t8fustga` Ready, DB(ref `esgxyikcnnvmlhygjkth`) mbti-character v1.24, 크롬 700px·390px 측정(단어 사이에서만 끊김).
+- **이번 순서 진행(①~⑩) 남은 미배포**: `docs/SHARED_MODULES.md` 미배포 표 — 인스타 공용 정리는 카드뉴스, 예약 실행 방식은 카드뉴스+11개 예약 프로그램, 이어서 보기 링크는 성격 진단·성격코드·타로점. 각 프로그램 다음 배포 때 함께.
+- 링크: https://mbti-character.buylife.xyz
+
+
 ## 2026-10-20 Claude Code(윈도우) — 인플루언서 v1.19: 결과 화면 맨 위 「⏰ 인스타 예약 n건 대기」·대기 목록 예약 취소 (남은 작업 순서 진행 ⑨)
 - 한 일: 사진을 새로 만들지 않아도 대기 예약 수·다음 게시 시각을 보고 바로 취소할 수 있게(웹툰 v1.17 방식). 이 배포로 인플루언서의 미배포 공용 정리 3건도 함께 나감.
 - 검수: tsc·시험 18·build, 커밋 `6ed583a8`, 배포 `ai-influencer-studio-liuouabpa` Ready, DB(ref `esgxyikcnnvmlhygjkth`) ai-influencer-studio v1.19, 예약 실행 주소 3개 401, 크롬(관리자) v1.19·API 200·대기 0건이라 줄 숨김(정상). 대기 예약이 있는 상태는 실제 예약이 필요해 미시험.

@@ -2,6 +2,11 @@
 
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
+## 2026-10-20 v1.24 — 홈 큰 제목·통계 카드 제목이 글자 중간에서 끊기던 문제 (Claude Code 윈도우, 남은 작업 ⑩)
+- `app/page.tsx`: 큰 제목(h1)과 통계 카드 제목 3개에 `break-keep`(단어 단위 줄바꿈), 카드 제목은 `text-xl lg:text-2xl`(중간 폭에서 한 단계 작게). 「16대 오리지 / 널」 → 끊겨도 「16대 / 오리지널」.
+- **이 배포로 「이어서 보기」 공용 링크(`personality-program-links`)도 함께 나감.**
+- 검수: tsc·build, 커밋 `0d239ca7`, 배포 `mbti-character-4t8fustga` Ready, DB v1.24(크롬 SQL Editor, PRODUCTION). 크롬 운영 홈 v1.24, 같은 페이지를 700px·390px 틀에 넣어 측정 — 390px 카드 제목 3개 모두 1줄, 700px(카드 3개 나란히)는 2줄이지만 단어 사이에서만 끊김(`word-break: keep-all`).
+
 ## 2026-10-20 (버전 변경 없음·미배포) — 「이어서 보기」 링크를 공용 기준 코드 사본으로 (Claude Code 윈도우)
 - 한 일: 성격·운세 4개 프로그램의 「이어서 보기」 링크 코드를 공용 기준 코드 `personality-program-links`(`programLinks.ts`, 기준 `personality-suite/src/lib/`, 사본 `mbti/lib/`·`mbti-character/lib/`·`tarot/lib/`)로 모았다 — 타로점·캐릭코드·성격코드 주소, `tarotDrawLink(질문, from)`(300자 제한), `typeResultLink(주소, 유형, 지표, from)`(0~100 정수), 넘어온 곳 이름 `FROM_LABELS`. 이 프로그램은 `app/result/[type]/page.tsx` `TarotBridge`가 `tarotDrawLink`를 부른다.
 - 옛 링크와 결과가 같은지 표본 3개로 대조(같음). 동작·화면 변경 없음. 검수: tsc·build(성격 진단 단위 22 포함) 통과, 공용 코드 점검 일치.

@@ -1,6 +1,6 @@
 # 캐릭코드(MBTI) (`mbti-character/`) 개선 인수인계 — 2026-10-20 (Claude Code 윈도우)
 
-- 버전: v1.20 → v1.23 · 서비스: https://mbti-character.buylife.xyz
+- 버전: v1.20 → v1.24 · 서비스: https://mbti-character.buylife.xyz
 - 세션 전체 정리(4개 프로그램 공통 규칙·대응표·검수·비용): [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
 ## 한 일
@@ -18,7 +18,7 @@
 | 분류 | 제안 | 우선순위 |
 |---|---|---|
 | 기능(과금 안전) | ~~그림 자동 생성을 검사를 막 끝낸 경우에만~~ → ✅ v1.23 완료 | 완료 |
-| 화면 | 홈 숫자 카드 제목이 좁은 폭에서 두 줄로 끊김(「16대 오리지 / 널」) | 낮음 |
+| 화면 | ~~홈 숫자 카드 제목이 좁은 폭에서 두 줄로 끊김~~ → ✅ v1.24 단어 단위 줄바꿈 | 완료 |
 | 연계 | 결과에서 성격코드(같은 유형 해설)로도 이어 보기 | 낮음 |
 
 ## 다음 첫 단계

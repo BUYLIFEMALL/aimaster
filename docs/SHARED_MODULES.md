@@ -60,7 +60,7 @@
 
 | 기준 변경(날짜·내용) | 아직 배포 안 된 프로그램 | 비고 |
 |---|---|---|
-| 2026-10-20 「이어서 보기」 링크 공용화(`personality-program-links`, 결과 같음) | `personality-suite` · `mbti` · `mbti-character` · `tarot` | tsc·build·성격 진단 단위 22 통과 |
+| 2026-10-20 「이어서 보기」 링크 공용화(`personality-program-links`, 결과 같음) | `personality-suite` · `mbti` · `tarot` | tsc·build·성격 진단 단위 22 통과 · ✅ `mbti-character`는 v1.24(2026-10-20)로 배포됨 |
 | 2026-10-20 회원 예약 실행 방식 `member-scheduler` 15개로 확대(11개 사본 전환 + 각 `schedulerConfig.ts`, 동작 같음) | `cardnews-studio`·`threads-content-ops`·`threads`·`insta_auto_poster`·`threads-affiliate-poster`·`booking-reminder`·`crm-google-form`·`kakao_auto_poster`·`naver-cafe-poster`·`stepmail`·`trending-product-finder`·`youtube-auto-reply` | 15개 tsc·build, 테스트 있는 곳 테스트, 키트 DB 대조 통과. 배포 때 예약 상태 화면·가짜 토큰 401 확인 · ✅ `four-cut-comics`는 v1.22(2026-10-20)로 배포됨 · ✅ `ai-webtoon-studio`는 v1.21(2026-10-20)로 배포됨 · ✅ `ai-influencer-studio`는 v1.19(2026-10-20)로 배포됨 |
 | 2026-10-20 인스타 예약 화면 동작 공용화(`insta-posts-client` — 상태 줄·게시 기록 시각·예약 취소, 화면 마크업 그대로) | `cardnews-studio` | tsc·테스트·build 통과. 배포 때 「⏰ 예약 발행」 줄·「예약 취소」 화면 크롬 확인 · ✅ `four-cut-comics`는 v1.22(2026-10-20)로 배포됨 · ✅ `ai-webtoon-studio`는 v1.21(2026-10-20)로 배포됨 · ✅ `ai-influencer-studio`는 v1.19(2026-10-20)로 배포됨 |
 | 2026-10-20 인스타 게시 처리·예약 API 5개 공용 기준 코드화(`insta-posting` 외 4개, 값은 `schedulerConfig.ts` — 동작 같음) | (없음 — 모두 배포됨) | tsc·테스트·build 통과. 다음 배포 때 함께, 버전 +0.01도 그때 · ✅ `four-cut-comics`는 v1.22(2026-10-20)로 배포됨 · ✅ `ai-webtoon-studio`는 v1.21(2026-10-20)로 배포됨 · ✅ `ai-influencer-studio`는 v1.19(2026-10-20)로 배포됨 |
