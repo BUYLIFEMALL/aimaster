@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { evaluateProgramAccessForUser } from "@/lib/access";
 import { normalizeNaverTags, readNaverCategory, readNaverExecutionMode } from "@/lib/naverPublishing";
+import { containsShoppingLink, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
 
 /** 확장 토큰으로 회원을 확인하고 현재 이용 권한을 다시 검증한다. */
 export async function authenticateExtension(
@@ -143,6 +144,9 @@ export function buildBridgePayload(row: {
     bodyImages.push({ sequence, index, name: assets[index].name });
     lines.push(`[IMAGE INSERT - ${sequence}]`);
   }
+
+  // 편집 중 대가성 문구를 지웠더라도 쇼핑 링크가 남아 있으면 발행 전에 다시 붙인다.
+  if (containsShoppingLink(lines.join("\n")) && !lines.some((line) => line.includes(SHOPPING_DISCLOSURE))) lines.unshift(SHOPPING_DISCLOSURE);
 
   const reserve = Boolean(row.is_reserved && row.scheduled_at);
   return {

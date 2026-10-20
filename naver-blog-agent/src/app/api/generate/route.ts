@@ -4,6 +4,8 @@ import { resolveAvailableAI } from "@/lib/apiKeys";
 import { runBlogGenerationPipeline } from "@/lib/ai/pipeline";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isWritingTone, isWritingStyle } from "@/lib/ai/writingStyles";
+import { isArticleFormat } from "@/lib/ai/articleFormats";
+import { normalizeShoppingLinks } from "@/lib/shoppingLinks";
 import { reviewFingerprint, withPostReview } from "@/lib/postReview";
 import { savedPost } from "@/lib/postSaveProtocol";
 
@@ -39,6 +41,10 @@ export async function POST(req: Request) {
     }
     if(!/^[A-Za-z0-9_-]{2,40}$/.test(blogId))return NextResponse.json({error:"본인 블로그 ID를 선택해 주세요."},{status:400});
 
+    if(body.articleFormat !== undefined && !isArticleFormat(body.articleFormat))return NextResponse.json({error:"지원하는 글 구성을 선택해 주세요."},{status:400});
+    const shopping=normalizeShoppingLinks(body.shoppingLinks);
+    if(shopping.rejected.length)return NextResponse.json({error:`네이버 쇼핑 커넥트 링크(https://naver.me/… 등)만 넣을 수 있습니다. 확인할 주소: ${shopping.rejected.slice(0,3).join(", ")}`},{status:400});
+
     if(body.imageCount !== undefined && (!Number.isInteger(body.imageCount) || body.imageCount < 1 || body.imageCount > 5))return NextResponse.json({error:"이미지 장수는 1~5장으로 선택해 주세요."},{status:400});
 
     const targetProvider = body.engine?.provider || provider;
@@ -70,6 +76,8 @@ export async function POST(req: Request) {
       publishPurpose,
       preferredTone,
       writingStyle,
+      articleFormat: body.articleFormat,
+      shoppingLinks: shopping.links,
       persona,
       targetLength: typeof targetLength === "number" ? targetLength : undefined,
       imageCount:body.imageCount ?? 2,

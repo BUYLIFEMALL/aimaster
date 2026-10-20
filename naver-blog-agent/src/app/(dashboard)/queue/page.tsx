@@ -33,6 +33,7 @@ import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import { bodyImageAt } from "@/lib/draftImages";
 import { PostSaveClient, mergeSavedPosts } from "@/lib/postSaveClient";
+import { buildScheduleSlots, SCHEDULE_INTERVAL_OPTIONS } from "@/lib/scheduleSlots";
 import PostReviewGate from "@/components/PostReviewGate";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import type { CollectorCategory } from "@/types/collector";
@@ -58,6 +59,8 @@ interface SavedPostItem {
   post_url?: string;
   error_message?: string;
   execution?: ExecutionStatus | null;
+  is_reserved?: boolean;
+  scheduled_at?: string | null;
 }
 
 export default function QueuePage() {
@@ -86,6 +89,11 @@ export default function QueuePage() {
   // 발행 공개 범위: 기본은 비공개. 화면을 새로 열 때마다 비공개로 돌아가 실수로 공개되지 않게 한다.
   const [publishVisibility, setPublishVisibility] = useState<"private" | "public">("private");
   const visibilityLabel = publishVisibility === "public" ? "전체공개" : "비공개";
+
+  // 일괄 전송 방식: 즉시 또는 시작 시각 + 간격 예약(네이버 예약 발행)
+  const [bulkScheduleMode, setBulkScheduleMode] = useState<"now" | "reserve">("now");
+  const [bulkScheduleStart, setBulkScheduleStart] = useState("");
+  const [bulkScheduleInterval, setBulkScheduleInterval] = useState<number>(60);
 
   // 4. 원고 목록 로드
   const fetchPosts = useCallback(async (background = false) => {
@@ -228,15 +236,26 @@ export default function QueuePage() {
   // 10. 선택 원고 일괄 발행 큐 전송
   const handleBulkPublishNow = async () => {
     if (checkedIds.length === 0) return;
-    if (!confirm(`선택한 원고 ${checkedIds.length}건을 ${visibilityLabel}로 스마트에디터 ONE 작업 대기에 일괄 등록하시겠습니까?`)) {
+    // 예약은 보관함에 보이는 순서대로 간격을 두고 배정한다.
+    const targetIds = posts.filter(item=>checkedIds.includes(item.id)).map(item=>item.id);
+    let slots: string[] = [];
+    if (bulkScheduleMode === "reserve") {
+      try { slots = buildScheduleSlots(bulkScheduleStart, bulkScheduleInterval, targetIds.length); }
+      catch (error: any) { alert(error.message); return; }
+    }
+    const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    const question = bulkScheduleMode === "reserve"
+      ? `선택한 원고 ${targetIds.length}건을 ${visibilityLabel}로 ${when(slots[0])}부터 ${bulkScheduleInterval}분 간격(마지막 ${when(slots[slots.length - 1])})으로 예약 발행 대기에 등록하시겠습니까?`
+      : `선택한 원고 ${targetIds.length}건을 ${visibilityLabel}로 스마트에디터 ONE 작업 대기에 일괄 등록하시겠습니까?`;
+    if (!confirm(question)) {
       return;
     }
 
     setIsBulkUpdating(true);
-    const targetIds = [...checkedIds];
-    const outcomes=await Promise.allSettled(targetIds.map(async id=>{
+    const outcomes=await Promise.allSettled(targetIds.map(async (id, index)=>{
       const post=posts.find(item=>item.id===id);if(!post)throw new Error("원고를 다시 확인해 주세요.");
-      return writePost(post,{status:"queued",publish_visibility:publishVisibility});
+      const schedule = bulkScheduleMode === "reserve" ? { is_reserved: true, scheduled_at: slots[index] } : { is_reserved: false };
+      return writePost(post,{status:"queued",publish_visibility:publishVisibility,...schedule});
     }));
     const accepted=outcomes.filter((outcome):outcome is PromiseFulfilledResult<SavedPostItem>=>outcome.status==="fulfilled").map(outcome=>outcome.value);
     mergePosts(accepted);
@@ -731,6 +750,47 @@ export default function QueuePage() {
               </button>
             </div>
 
+            {/* 일괄 전송 방식: 즉시 / 간격 예약 */}
+            <div className="flex flex-wrap items-center gap-1.5 bg-white rounded-xl border border-emerald-300 p-1 shadow-2xs">
+              <Clock size={14} className="text-emerald-700 ml-1.5" />
+              <select
+                aria-label="일괄 전송 방식"
+                value={bulkScheduleMode}
+                onChange={(e) => setBulkScheduleMode(e.target.value as "now" | "reserve")}
+                disabled={isBulkUpdating}
+                className="text-xs font-semibold px-2 py-1 bg-transparent text-neutral-800 focus:outline-none cursor-pointer"
+              >
+                <option value="now">바로 발행</option>
+                <option value="reserve">간격 예약 발행</option>
+              </select>
+              {bulkScheduleMode === "reserve" && (
+                <>
+                  <input
+                    type="datetime-local"
+                    aria-label="첫 글 예약 시각"
+                    step={600}
+                    value={bulkScheduleStart}
+                    onChange={(e) => setBulkScheduleStart(e.target.value)}
+                    disabled={isBulkUpdating}
+                    className="text-xs px-1.5 py-1 rounded-lg border border-neutral-200 text-neutral-800"
+                  />
+                  <select
+                    aria-label="예약 간격"
+                    value={bulkScheduleInterval}
+                    onChange={(e) => setBulkScheduleInterval(Number(e.target.value))}
+                    disabled={isBulkUpdating}
+                    className="text-xs font-semibold px-2 py-1 bg-transparent text-neutral-800 focus:outline-none cursor-pointer"
+                  >
+                    {SCHEDULE_INTERVAL_OPTIONS.map((minutes) => (
+                      <option key={minutes} value={minutes}>
+                        {minutes < 60 ? `${minutes}분` : `${minutes / 60}시간`} 간격
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+            </div>
+
             {/* 일괄 발행 전송 */}
             <button
               type="button"
@@ -951,6 +1011,12 @@ export default function QueuePage() {
                         <span className="text-[11px] font-mono text-neutral-400">
                           ID: {post.blog_id || "myblog"}
                         </span>
+
+                        {post.is_reserved && post.scheduled_at && post.status !== "published" && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-sky-50 text-sky-800 border-sky-200">
+                            ⏰ {new Date(post.scheduled_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} 예약
+                          </span>
+                        )}
 
                         {/* 30일 보관 — 삭제까지 남은 일수 배지 */}
                         {(() => {

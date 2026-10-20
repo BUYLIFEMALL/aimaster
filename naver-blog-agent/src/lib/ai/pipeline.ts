@@ -2,6 +2,8 @@ import { buildImagePlan, placePlannedImages } from "@/lib/draftImages";
 import { callAI, parseJsonSafe, type AIModelConfig } from "./models";
 import { buildHumanizerPrompt, applyHumanizerEdits } from "@/lib/humanizer";
 import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle, type WritingTone, type WritingStyle } from "./writingStyles";
+import { buildFormatResearchRule, buildFormatWriterRule, isArticleFormat, type ArticleFormat } from "./articleFormats";
+import { applyShoppingLinks } from "@/lib/shoppingLinks";
 
 import { sanitizeYear, sanitizeBodyYear } from "@/lib/yearPolicy";
 
@@ -21,6 +23,8 @@ export interface PipelineInput {
   publishPurpose?: string;
   preferredTone?: string;
   writingStyle?: WritingStyle;
+  articleFormat?: ArticleFormat; // 기본 standard
+  shoppingLinks?: string[]; // 검증된 네이버 쇼핑 커넥트 링크(최대 5개)
   recentTitles?: string[]; // 중복 방지용
   imageCount?: number; // 썸네일 포함 1~5장
   targetLength?: number; // 목표 글자수 (1 ~ 4000자, 기본 2000자)
@@ -42,6 +46,7 @@ export interface PipelineResult {
   personaName?: string;
   preferredTone?: WritingTone;
   writingStyle?: WritingStyle;
+  articleFormat?: ArticleFormat;
   targetLength?: number;
   charCount?: number;
   reviewStatus?: "PASS" | "WARN" | "FAIL" | "UNKNOWN"; // 저장 글을 불러온 경우에는 없음
@@ -69,6 +74,7 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
   const preferredTone = isWritingTone(input.preferredTone) ? input.preferredTone : "해요체";
   const writingStyle = isWritingStyle(input.writingStyle) ? input.writingStyle : "default";
   const writingStylePrompt = buildWritingStylePrompt(preferredTone, writingStyle);
+  const articleFormat: ArticleFormat = isArticleFormat(input.articleFormat) ? input.articleFormat : "standard";
 
   // [1단계 안전망: 입력단 과거 연도 자동 정제]
   const cleanTopic = sanitizeYear(input.topic, currentYear);
@@ -97,7 +103,7 @@ ${koreaNowRule()}
 네이버 C-Rank 및 D-I-A+ 검색 알고리즘에 최적화되고, 실제 독자의 클릭과 긴 체류시간을 유도하는 ${currentYear}년 최신 트렌드 제목과 ${sectionCountGuide}의 핵심 소제목 목차를 기획해줘.
 목표 글자수는 공백 포함 약 ${targetLength}자이므로, 목표 분량에 걸맞은 알찬 목차 구성이 필요해.
 최근 발행된 글 제목들과 소재가 중복되지 않도록 참신하고 신뢰도 높은 관점을 제시해야 해.
-${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 가장 궁금해하고 신뢰할 수 있는 소제목으로 구성해줘.` : ""}`;
+${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 가장 궁금해하고 신뢰할 수 있는 소제목으로 구성해줘.` : ""}${buildFormatResearchRule(articleFormat)}`;
 
   const researchUserPrompt = `[기획 조건]
 - 기준 연도: ${currentYear}년 (최신 정보를 과거 연도 기준으로 쓰지 말 것. 실제로 있었던 과거 사실의 연도만 그대로 허용)
@@ -197,7 +203,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.
 검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.`;
 
-  const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}\n\n${writingStylePrompt}`, writerUserPrompt);
+  const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}${buildFormatWriterRule(articleFormat)}\n\n${writingStylePrompt}`, writerUserPrompt);
   const draftArticle = sanitizeBodyYear(writerRaw.trim(), currentYear);
 
   stepsLog.push({
@@ -309,7 +315,8 @@ ${humanizedArticle}
 
   // [3단계 안전망: 최종 반환 직전 정규식 Safe-guard 교정]
   const finalTitle = sanitizeYear(researchData.finalTitle, currentYear);
-  const finalContent = sanitizeBodyYear(humanizedArticle, currentYear);
+  // 쇼핑 링크·대가성 문구는 AI 단계가 끝난 뒤 코드로 넣어 바뀌거나 빠지지 않게 한다.
+  const finalContent = applyShoppingLinks(sanitizeBodyYear(humanizedArticle, currentYear), input.shoppingLinks ?? []);
   const finalTags = tags.map((t: string) => sanitizeYear(t, currentYear));
   const finalImages = imagePrompts.map((img) => ({
     ...img,
@@ -325,6 +332,7 @@ ${humanizedArticle}
     personaName: persona?.name,
     preferredTone,
     writingStyle,
+    articleFormat,
     targetLength,
     charCount: finalContent.length,
     reviewStatus,

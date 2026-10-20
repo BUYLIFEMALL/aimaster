@@ -17,7 +17,7 @@ function environment(fetch) {
   const savers=new Map();
   const writePost=async(post,fields)=>{if(!savers.has(post.id))savers.set(post.id,new PostSaveClient(post,false,fetch));return savers.get(post.id).save(fields);};
   const mergePosts=(rows,removed=[])=>saved.push(mergeSavedPosts(posts,rows,removed));
-  return {saved,alerts,errors,ids,cache,env:{useCallback:fn=>fn,listEpoch:{current:0},fetch,posts,writePost,mergePosts,PostSaveClient:class extends PostSaveClient{constructor(post,create=false){super(post,create,fetch);}},mergeSavedPosts,postSaveRef:{current:null},checkedIds:['a','b'],publishVisibility:'private',visibilityLabel:'비공개',confirm:()=>true,alert:value=>alerts.push(value),savePosts:rows=>saved.push(rows),setIsBulkUpdating(){},setCheckedIds(){},
+  return {saved,alerts,errors,ids,cache,env:{useCallback:fn=>fn,listEpoch:{current:0},fetch,posts,writePost,mergePosts,PostSaveClient:class extends PostSaveClient{constructor(post,create=false){super(post,create,fetch);}},mergeSavedPosts,postSaveRef:{current:null},checkedIds:['a','b'],bulkScheduleMode:'now',bulkScheduleStart:'',bulkScheduleInterval:60,buildScheduleSlots:()=>{throw new Error('예약 모드 아님');},publishVisibility:'private',visibilityLabel:'비공개',confirm:()=>true,alert:value=>alerts.push(value),savePosts:rows=>saved.push(rows),setIsBulkUpdating(){},setCheckedIds(){},
     sourceEpoch:{current:1},postIdRef:{current:null},selectedBlogId:'myblog',window:{},localStorage:{getItem:key=>cache.get(key)||null,setItem:(key,value)=>cache.set(key,value)},setError:value=>errors.push(value),setCurrentPostId:value=>ids.push(value),setSavedPostCount(){},setSaveRevision(){},resolveSaveStatus:(_previous,current)=>current}};
 }
 test('single dispatch rejection never changes local status or reports registration success',async()=>{
@@ -29,6 +29,18 @@ test('bulk dispatch reports partial success and updates only accepted rows',asyn
   const h=environment(async(_url,init)=>{const id=JSON.parse(init.body).id;return {ok:id==='a',json:async()=>id==='a'?{success:true,post:{id:'a',status:'queued',save_revision:'a-saved'}}:{error:'검수 필요'}};});
   await handler(queue,'handleBulkPublishNow',h.env)();
   assert.deepEqual(h.saved[0].map(row=>row.status),['queued','draft']);assert.match(h.alerts[0],/등록 1건 \/ 실패 1건/);
+});
+test('bulk reserve dispatch sends each post its own slot in list order; immediate dispatch clears reservation',async()=>{
+  const bodies=[];
+  const ok=async(_url,init)=>{const body=JSON.parse(init.body);bodies.push(body);return {ok:true,json:async()=>({success:true,post:{id:body.id,status:'queued',save_revision:body.id+'-saved'}})};};
+  const slots=harness.load('lib/scheduleSlots.ts');
+  const h=environment(ok);Object.assign(h.env,{checkedIds:['b','a'],bulkScheduleMode:'reserve',bulkScheduleStart:new Date(Date.now()+2*3600_000).toISOString(),bulkScheduleInterval:30,buildScheduleSlots:slots.buildScheduleSlots});
+  await handler(queue,'handleBulkPublishNow',h.env)();
+  const byId=Object.fromEntries(bodies.map(body=>[body.id,body]));
+  assert.equal(byId.a.is_reserved,true);assert.equal(byId.b.is_reserved,true);
+  assert.equal(Date.parse(byId.b.scheduled_at)-Date.parse(byId.a.scheduled_at),30*60_000,'보관함 목록 순서(a→b)로 30분 간격');
+  const now=environment(ok);bodies.length=0;await handler(queue,'handleBulkPublishNow',now.env)();
+  assert.ok(bodies.every(body=>body.is_reserved===false && body.scheduled_at===undefined));
 });
 test('generation-page rejected queue save writes no false queued cache',async()=>{
   const h=environment(async()=>({ok:false,json:async()=>({error:'검수 후 변경'})}));
@@ -179,7 +191,7 @@ test('image persistence sends only ID/images and reports rejected ACK without fa
 test('generation automatically starts images with the returned server ID instead of the previous render ID',async()=>{
   const result={title:'new',content:'body',tags:[],category:'category',images:rules.buildImagePlan('new','category',[],3)};
   const h=imageEnvironment(async()=>({ok:true,json:async()=>({saved:true,postId:UUID,post:{id:UUID,save_revision:'generated'},result})})),starts=[];
-  Object.assign(h.env,{preferencesLoaded:true,setLoading(){},setResult(){},setPreferencesNotice(){},setSavedPostCount(){},cleanCurrentYear:value=>value || '',writingStyle:'default',targetCharCount:2000,engine:{provider:'openai'},selectedViral:null,document:{},setTimeout(){},generateImagesFor:async(...args)=>starts.push(args),savePostToStorage:async()=>{throw Error('duplicate save');}});
+  Object.assign(h.env,{preferencesLoaded:true,setLoading(){},setResult(){},setPreferencesNotice(){},setSavedPostCount(){},cleanCurrentYear:value=>value || '',writingStyle:'default',articleFormat:'standard',shoppingLinksInput:'',targetCharCount:2000,engine:{provider:'openai'},selectedViral:null,document:{},setTimeout(){},generateImagesFor:async(...args)=>starts.push(args),savePostToStorage:async()=>{throw Error('duplicate save');}});
   h.env.currentPostId='old-server-id';h.env.postIdRef.current='old-server-id';
   await handler(main,'executeGeneration',h.env)({overrideCategory:'category'});
   assert.equal(starts.length,1);assert.equal(starts[0][1],UUID);

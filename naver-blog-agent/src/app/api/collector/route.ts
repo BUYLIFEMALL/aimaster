@@ -13,6 +13,7 @@ import {
   structureBlogCandidates,
   analyzeShortForBlog,
 } from "@/lib/collector";
+import { fetchRankingArticles, isRankingKind, RANKING_SOURCES } from "@/lib/naverRanking";
 import type { BlogViralCandidate } from "@/types/collector";
 
 export const dynamic = "force-dynamic";
@@ -99,6 +100,49 @@ export async function POST(req: Request) {
         id: `viral-url-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "http",
         source_input: rawUrl,
+        title: d.title,
+        content: d.content,
+        category: d.category,
+        keywords: d.keywords,
+        angle: d.angle,
+        status: "ready",
+        created_at: new Date(now - index * 1000).toISOString(),
+      }));
+
+      return NextResponse.json({ success: true, candidates, count: candidates.length });
+    }
+
+    // 1-1. 네이버 연예·스포츠·경제 랭킹 글감 (기사 이미지는 쓰지 않고 텍스트만 정리)
+    if (action === "ranking") {
+      const { kind, targetCategory } = body;
+      if (!isRankingKind(kind)) {
+        return NextResponse.json({ error: "랭킹 종류를 다시 선택해 주세요." }, { status: 400 });
+      }
+      if (!hasAnyAiKey) {
+        return NextResponse.json(
+          {
+            error: "글감을 정리할 AI API 키가 없습니다. [API키등록·플랫폼연동] 메뉴에서 OpenAI, Gemini, 또는 Claude 키를 등록해 주세요.",
+            needKey: true,
+          },
+          { status: 400 }
+        );
+      }
+
+      const articles = await fetchRankingArticles(kind, 5);
+      const rawText = articles
+        .map((a, i) => `[랭킹 기사 ${i + 1}] ${a.title}\n${a.text}\n출처: ${a.url}`)
+        .join("\n\n");
+      const drafts = await structureBlogCandidates({
+        rawText,
+        maxItems: Math.min(articles.length, 4),
+        aiKeys,
+        targetCategory: targetCategory ? String(targetCategory).trim() : undefined,
+      });
+      const now = Date.now();
+      const candidates: BlogViralCandidate[] = drafts.map((d, index) => ({
+        id: `viral-rank-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+        method: "http",
+        source_input: `네이버 ${RANKING_SOURCES[kind].label}`,
         title: d.title,
         content: d.content,
         category: d.category,

@@ -38,6 +38,7 @@ function loadTS(filename) {
     if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));
     if (id === '@/lib/extensionBridge') return loadTS(path.join(root, 'src/lib/extensionBridge.ts'));
     if (id === '@/lib/naverPublishing') return loadTS(path.join(root, 'src/lib/naverPublishing.ts'));
+    if (id === '@/lib/shoppingLinks') return loadTS(path.join(root, 'src/lib/shoppingLinks.ts'));
     if (id === '@/lib/executionRuns') return loadTS(path.join(root, 'src/lib/executionRuns.ts'));
     if (id === '@/lib/postReview') return loadTS(path.join(root, 'src/lib/postReview.ts'));
     if (id === './postReviewSnapshot') return loadTS(path.join(root, 'src/lib/postReviewSnapshot.ts'));

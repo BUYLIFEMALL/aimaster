@@ -46,6 +46,8 @@ import { buildEditedPostPatch } from "@/lib/editedPostSave";
 import { PostSaveClient, mergeSavedPosts } from "@/lib/postSaveClient";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
+import { ARTICLE_FORMATS, type ArticleFormat } from "@/lib/ai/articleFormats";
+import { MAX_SHOPPING_LINKS, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
 import {
   ENGINES,
   DEFAULT_ENGINE,
@@ -71,6 +73,8 @@ export default function MainPage() {
   const [publishPurpose, setPublishPurpose] = useState("실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천");
   const [preferredTone, setPreferredTone] = useState<WritingTone>("해요체");
   const [writingStyle, setWritingStyle] = useState<WritingStyle>("default");
+  const [articleFormat, setArticleFormat] = useState<ArticleFormat>("standard");
+  const [shoppingLinksInput, setShoppingLinksInput] = useState("");
   const [targetCharCount, setTargetCharCount] = useState<number>(2000);
 
   // AI 엔진 & 이미지 모델 선택 상태 (threads-content-ops와 동일 구조)
@@ -487,6 +491,8 @@ export default function MainPage() {
           publishPurpose: cleanCurrentYear(params.overridePurpose),
           preferredTone: params.overrideTone,
           writingStyle,
+          articleFormat,
+          shoppingLinks: shoppingLinksInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
           persona: params.overridePersona
@@ -1409,6 +1415,34 @@ export default function MainPage() {
               <p className="font-semibold">표현 예시 · {preferredTone} + {WRITING_STYLES.find((s) => s.value === writingStyle)?.label}</p>
               <p className="mt-1 leading-relaxed">{getWritingStyleExample(preferredTone, writingStyle)}</p>
               <p className="mt-2 text-[11px] text-neutral-500">문체 차이를 보여주는 예시입니다. 실제 원고는 입력한 주제로 작성하며 경험·후기·수치를 지어내지 않습니다.</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-neutral-700 mb-2">글 구성</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" role="group" aria-label="글 구성 선택">
+                {ARTICLE_FORMATS.map((format) => (
+                  <button key={format.value} type="button" aria-pressed={articleFormat === format.value}
+                    onClick={() => setArticleFormat(format.value)}
+                    className={`min-w-0 rounded-lg border p-3 text-left transition-colors ${articleFormat === format.value ? "border-emerald-500 bg-emerald-50 text-emerald-900" : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"}`}>
+                    <span className="block text-xs font-bold">{format.label}</span>
+                    <span className="mt-1 block text-[11px]">{format.description}</span>
+                  </button>
+                ))}
+              </div>
+              {articleFormat === "homefeed" && (
+                <p className="mt-2 text-[11px] text-neutral-500">연예·스포츠·경제 랭킹 글감과 잘 맞습니다. 글감에 있는 사실만 쓰고 소문·추측은 넣지 않습니다.</p>
+              )}
+            </div>
+            <div>
+              <label htmlFor="shopping-links" className="text-xs font-semibold text-neutral-700">
+                네이버 쇼핑 커넥트 링크 <span className="font-normal text-neutral-500">(선택 · 최대 {MAX_SHOPPING_LINKS}개, 한 줄에 하나)</span>
+              </label>
+              <textarea id="shopping-links" rows={2} value={shoppingLinksInput}
+                onChange={(e) => setShoppingLinksInput(e.target.value)}
+                placeholder="https://naver.me/xxxxxxx"
+                className="mt-2 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none" />
+              <p className="mt-1 text-[11px] text-neutral-500">
+                브랜드커넥트에서 직접 발급한 링크를 넣으면 소제목마다 하나씩 들어가고, 글 맨 앞에 대가성 문구가 자동으로 붙습니다: “{SHOPPING_DISCLOSURE}”
+              </p>
             </div>
           </fieldset>
           <div className="pt-2 flex justify-end border-t border-neutral-100">

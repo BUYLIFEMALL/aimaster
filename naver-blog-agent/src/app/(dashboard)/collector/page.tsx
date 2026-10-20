@@ -293,6 +293,44 @@ export default function CollectorPage() {
     }
   };
 
+  // 네이버 연예·스포츠·경제 랭킹 글감 수집 실행
+  const handleCollectRanking = async (kind: "entertainment" | "sports" | "economy", label: string) => {
+    if (collecting) return;
+    setCollecting(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch("/api/collector", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ranking",
+          kind,
+          targetCategory: collectCategory || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage({ type: "error", text: data.error || "수집 실패", needKey: data.needKey });
+        return;
+      }
+      const newItems: BlogViralCandidate[] = (data.candidates || []).map((c: any) => ({
+        ...c,
+        status: "ready" as const,
+        is_archived: false,
+      }));
+      persistCandidates([...newItems, ...candidates]);
+      setMessage({
+        type: "success",
+        text: `네이버 ${label} 상위 기사로 블로그 글감 ${newItems.length}건을 만들었습니다. (카테고리: ${collectCategory || "AI 자동 판정"})`,
+      });
+    } catch (err: any) {
+      setMessage({ type: "error", text: "수집 요청 오류: " + err.message });
+    } finally {
+      setCollecting(false);
+    }
+  };
+
   // Perplexity 실시간 트렌드 수집 실행
   const handleCollectPerplexity = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -774,6 +812,30 @@ export default function CollectorPage() {
                 <Flame size={16} />
                 {collecting ? "분석 및 글감 생성 중..." : "글감 수집"}
               </button>
+            </div>
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+              <p className="text-xs font-semibold text-neutral-700">주소 없이 네이버 랭킹에서 바로 가져오기</p>
+              <p className="mt-0.5 text-[11px] text-neutral-500">
+                지금 많이 읽히는 상위 기사 5건의 내용으로 홈판형 글감을 만듭니다. 기사 사진은 가져오지 않습니다.
+              </p>
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {([
+                  ["entertainment", "연예 많이 본 뉴스", "🎬"],
+                  ["sports", "스포츠 인기 뉴스", "⚽"],
+                  ["economy", "경제 최신 뉴스", "📈"],
+                ] as const).map(([kind, label, icon]) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    disabled={collecting}
+                    onClick={() => handleCollectRanking(kind, label)}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-bold text-neutral-800 hover:border-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span aria-hidden>{icon}</span>
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
             <p className="text-[11px] text-neutral-500">
               ※ SSRF 안전 필터링이 적용되어 공개 웹 페이지만 수집 가능하며, 본인 등록 OpenAI / Gemini / Claude 키가 활용됩니다.

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { resolveSaveStatus } from "./postStatus";
 import { changesAuthoring, getPostReview } from "./postReview";
 import { nextTimestamp } from "./executionRuns";
+import { validateReservation } from "./scheduleSlots";
 import { SAVE_CONFLICT, SAVE_UPGRADE, savedPost, postSaveRevision, saveFingerprint, saveReceipt, saveUuid, withSaveReceipt } from "./postSaveProtocol";
 
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {status, headers: {"Cache-Control": "no-store"}});
@@ -34,11 +35,14 @@ export async function handlePostSave(admin: any, userId: string, payload: Record
     if (payload.scheduled_at) updates.scheduled_at = payload.scheduled_at;
     if (payload.post_url) updates.post_url = payload.post_url;
   } else {
-    const keys = ["blog_id", "title", "content", "category_name", "tags", "images", "status", "post_url", "error_message", "publish_visibility"];
+    const reservationError = validateReservation(payload.is_reserved, payload.scheduled_at);
+    if (reservationError) return reply({error: reservationError}, 400);
+    const keys = ["blog_id", "title", "content", "category_name", "tags", "images", "status", "post_url", "error_message", "publish_visibility", "is_reserved", "scheduled_at"];
     updates = Object.fromEntries(keys.filter(key => payload[key] !== undefined).map(key => [key, payload[key]]));
     if (!Object.keys(updates).length) return reply({error: "저장할 변경 내용을 확인해 주세요."}, 400);
     if (updates.publish_visibility !== undefined) updates.publish_visibility = updates.publish_visibility === "public" ? "public" : "private";
-    if (current.status === "prepared" && payload.status === undefined && [payload.title, payload.content, payload.tags, payload.images, payload.publish_visibility].some(value => value !== undefined)) updates.status = "draft";
+    if (updates.is_reserved === false) updates.scheduled_at = null;
+    if (current.status === "prepared" && payload.status === undefined && [payload.title, payload.content, payload.tags, payload.images, payload.publish_visibility, payload.is_reserved, payload.scheduled_at].some(value => value !== undefined)) updates.status = "draft";
   }
   if (current?.status === "publishing" && ((updates.status !== undefined && updates.status !== current.status) || [payload.publish_visibility, payload.post_url, payload.error_message].some(value => value !== undefined))) return conflict();
   if (current && ["queued", "publishing"].includes(current.status) && changesAuthoring(current, updates)) return reply({error: "대기·입력 중인 원고는 변경할 수 없습니다. 대기를 취소한 뒤 저장해 주세요."}, 409);
