@@ -132,6 +132,8 @@
 ### 6-3. 이미 알려진 함정 (2026-10-19 리허설 — README·스크립트에 미리 반영)
 | 단계 | 함정 | 대응 |
 |---|---|---|
+| 마법사 ②단계(2026-10-20 윈도우 리허설) | 마법사가 여는 `supabase.com/dashboard/new`는 **이미 조직이 있는 사람에게 「새 조직 만들기」 화면**을 보여 줌 — 새 조직을 만들면 무료 한도·요금이 헷갈림 | (대기) 마법사가 `supabase.com/dashboard/projects`를 열고 「기존 조직 → New project」로 안내하도록 고칠 것. 무료 프로젝트는 계정당 2개 — 새 조직을 만들 필요 없음 |
+| 리허설 압축 풀기(2026-10-20) | Git Bash `unzip`은 압축의 UTF-8 이름 표시(`0x800`)를 무시해 `패키지설치마법사.cmd` 이름이 깨짐 | 압축은 정상(표시 있음). 시험할 때는 윈도우 탐색기·`Expand-Archive`로 푼다 |
 | Supabase 새 프로젝트 | 지역 기본값이 「Asia-Pacific」 | 「Need a specific region?」→ **Northeast Asia (Seoul)** 안내 |
 | 프로젝트 준비 | 잠시 임시 이름·「Coming up」 | 「1분 기다렸다 새로고침」 안내 |
 | SQL Editor | 「Snippets…」 안내 창, `drop … if exists` 때문에 「Potential issue detected」 경고 | Understood / **Run query** 눌러도 된다고 안내 |
