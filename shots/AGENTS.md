@@ -113,3 +113,7 @@
 - 화면(`PostingSection`): 예전엔 한 번 올리면 「업로드 영상보기」 링크만 남아 다시 올릴 수 없었음 → 「올린 기록 (N)」 목록(영상 링크·공개 범위 또는 예약 시각·올린 시각) + 「이미 N번 올렸습니다」 경고 + 「유튜브에 한 번 더 (예약) 올리기」.
 - 검수: tsc·build, 운영 Ready, DB v1.30, 크롬 관리자 화면에서 기록 1건·경고·버튼 확인. 실제 재업로드는 외부 게시라 미시험.
 
+## 2026-10-21 — `updated_at` 자동 갱신 장치(DB만, 코드·버전 변경 없음) (Claude Code 윈도우, 부계정)
+- 주인님 승인. 운영 DB(ref `esgxyikcnnvmlhygjkth`)의 Shots 표 5개(`shorts_videos`·`shorts_video_segments`·`shorts_candidates`·`user_render_settings`·`youtube_accounts`)에 `before update` 장치 `<표>_updated_at` → 기존 공용 함수 `public.update_updated_at()`(`programs`와 같음). 원스톱 `shorts_onestop_items`는 코드가 직접 넣어 제외. 크롬 SQL 편집기 실행, 파일 `supabase/migrations/20261021190000_updated_at_triggers.sql`.
+- 확인: 장치 5개 조회, `shorts_videos` 1행 설명을 같은 값으로 다시 저장 → `updated_at` 2026-09-11 → 지금 시각, 내용 같음.
+
