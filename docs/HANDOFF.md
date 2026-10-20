@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 좌측 메뉴 하단 「로그아웃」 아이콘 통일(기준: ai-webtoon-studio, 문구·디자인 변경 없음)
+- 조사: 사이드바가 있는 79개 중 59개는 이미 「구분선 → 이메일 → 아이콘+로그아웃」. 이메일·로그아웃이 없는 곳은 0개. 아이콘이 없던 20개 중 이미 기호가 있는 5개(`↪`: instagram-comment-reply·instagram-dm-reply·threads-comment-reply·youtube-auto-reply·naver-blog-seo-studio, `↗`: blog-content-maker)는 제외 → **15개**에 기준과 같은 모양의 로그아웃 아이콘(인라인 SVG, 새 패키지·import 없음, 14px·글자 앞 6px)만 추가. 데스크톱·모바일 메뉴 두 곳 모두.
+- 배포 13개(버전 +0.01, DB ref `esgxyikcnnvmlhygjkth` 갱신, 모두 Ready): ai-task-planner v1.09 · booking-reminder v1.26 · crm-google-form v1.15 · document-translator v1.21 · auto-instagram-posting v1.34 · longtail-keyword-expander v1.09 · real-estate-sales v1.17 · shorts-viral-studio v1.12 · stepmail v1.26 · auto-threads-posting v1.27 · threads-affiliate-poster v1.75 · threads-easy-planner v1.46 · trending-product-finder v1.20.
+- **미배포 2개(코드만 반영)**: `competitor-analysis`(코드 v1.08 「운영 승인 대기」 회원 데이터 격리 수정이 함께 나가므로), `web-crawler`(코드 v1.08 30일 자동 삭제 미배포). 두 프로그램은 다음 배포 때 아이콘이 함께 나간다.
+- 검수: 15개 타입 검사, 크롬 threads-easy-planner v1.46 「로그인 계정 → 이메일 → ↦ 로그아웃」 확인.
+
 ## 2026-10-20 Claude Code(윈도우) — 남은 작업 1~5 처리 (주인님 「순서대로 진행해줘」)
 - ① `naver-blog-agent` v2.00(`ab07fc55`): 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(다른 세션 v1.99 완료 후). 배포 Ready, DB v2.00, 확장 manifest·ZIP·DB extension_version v2.00, `check-extension-release` OK, 크롬 확인.
 - ② 관리자 `/admin/notices` 「관련 프로그램」 선택: 크롬(관리자)에서 검색·체크·칩·저장 → DB `program_ids` 저장·목록 칩 확인, 시험 공지 삭제.

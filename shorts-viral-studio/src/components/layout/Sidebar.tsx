@@ -142,6 +142,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               type="submit"
               className="w-full rounded-lg border border-[#30363d] bg-[#21262d] py-1.5 text-center text-xs font-semibold text-[#c9d1d9] transition-colors hover:bg-[#30363d] hover:text-white"
             >
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
               로그아웃
             </button>
           </form>
