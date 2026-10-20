@@ -22,7 +22,11 @@ export async function findChatIdFromUpdates(botToken: string): Promise<TelegramC
   // 쓰기 전에 웹훅을 먼저 해제한다. 웹훅이 없었어도 안전하게 무시된다.
   await deleteTelegramWebhook(botToken);
 
-  const res = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/getUpdates?limit=10`, {
+  // 웹훅을 걸 때 allowed_updates=["callback_query"]로 지정하면 텔레그램이 그 설정을 기억해,
+  // 웹훅을 지운 뒤 getUpdates에서도 일반 메시지를 버린다(2026-10-20 DM 봇 연동 실패 원인).
+  // 그래서 받을 종류를 매번 message로 다시 지정한다.
+  const allowed = encodeURIComponent(JSON.stringify(["message"]));
+  const res = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/getUpdates?limit=10&allowed_updates=${allowed}`, {
     cache: "no-store",
   });
   const data = await res.json().catch(() => null);

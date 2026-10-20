@@ -179,5 +179,11 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - 주인님 DM 봇 재연동 중 「메시지를 찾지 못했어요」가 반복(봇 2개 — 댓글 `@aimaster_insta_bot`, DM `@aimaster_insta_dm_bot`). 원인 후보: 다른 봇 토큰 입력 / 옛 웹훅이 걸린 동안 보낸 메시지가 옛 앱으로 감. 실패 안내에 「입력한 토큰의 봇은 @○○ 입니다」(getMe)를 붙여 어느 봇에 메시지를 보내야 하는지 바로 보이게(`lib/actions/telegram.ts`·`lib/dmApp/actions/telegram.ts`의 `botNameHint`).
 - Meta DM 웹훅 새 주소 등록 확인: 2026-10-20 Meta 확인 요청 GET `/api/instagram/dm-webhook/<관리자>` 200(주인님이 콜백 URL·인증 토큰 교체 후 확인 및 저장).
 
+## 2026-10-20 v1.21 — 텔레그램 연동 확인이 메시지를 못 찾던 문제 수정 (Claude Code 윈도우)
+- 증상: DM 봇(@aimaster_insta_dm_bot)에 말을 걸어도 「연동 확인하기」가 계속 「메시지를 찾지 못했어요」.
+- 원인: 웹훅 등록 때 `allowed_updates: ["callback_query"]`로 지정하면 텔레그램이 그 값을 기억해, `deleteWebhook` 뒤 `getUpdates`(값 미지정)에서도 일반 메시지를 버림. 옛 DM 앱이 이 봇에 웹훅을 걸었던 상태였음.
+- 수정: `lib/telegram/client.ts`·`lib/dmApp/telegram/client.ts`의 `findChatIdFromUpdates`가 `allowed_updates=["message"]`를 매번 지정. 수정 전에 보낸 메시지는 이미 버려졌으므로 「연동 확인하기」 한 번 → 메시지 보내기 → 다시 「연동 확인하기」.
+- 남은 일: 옛 `instagram-dm-reply`에도 같은 코드가 있음(3단계에서 옛 앱 정리 예정이라 손대지 않음). 같은 패턴을 쓰는 다른 텔레그램 연동 프로그램 점검 필요.
+
 ## 2026-10-20 v1.20 — 텔레그램 칸에 댓글·DM 봇 구분 표시 (Claude Code 윈도우)
 - 주인님 요청: 텔레그램 알림 연동 제목에 「💬 댓글 전용 봇」(API키등록·플랫폼연동)·「💌 DM 전용 봇」(DM 답변 설정) 배지와 「서로 다른 봇이어야 함(봇 하나에 연결 주소 하나)」 안내.
