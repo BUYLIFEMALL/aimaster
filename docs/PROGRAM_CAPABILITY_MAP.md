@@ -65,12 +65,12 @@
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.04 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.21 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
 | 48 | 플레이리스트 채널 제작 자동화 | `playlist-channel-studio` | 유튜브 | v1.14 | 운영 | 장르만 고르면 플레이리스트 채널용 제목·Suno 프롬프트·가사·설명·썸네일을 만드는 도구 |
-| 49 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 유튜브 | v1.06 | 운영 | 영상 주제와 시청 타겟으로 A/B 전략과 문구가 들어간 유튜브 썸네일 2종을 만드는 도구 |
+| 49 | AI 썸네일·SEO 자동화 | `thumbnail-master` | 유튜브 | v1.09 | 운영 | 대본으로 제목·설명·태그 SEO 전략 3가지를 만들고, 타겟별 A/B 문구가 들어간 유튜브 썸네일까지 완성하는 도구(2026-10-20 seo-thumbnail-pro 병합) |
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.10 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
 | 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.16 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
 | 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.20 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
-| 54 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 유튜브 | v1.11 | 운영 | 대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구 |
+| 54 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 유튜브 | v1.12 | **병합됨 → thumbnail-master(2026-10-20), 노출 중지** | 대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구 |
 | 55 | Suno 음악기획 자동화 | `suno-music-studio` | 음악 | v1.09 | 운영 | 음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구 |
 | 56 | AI 마스터링 스튜디오 | `ai-mastering-studio` | 음악 | v1.04 | 운영 | WAV 음원을 브라우저에서 마스터링하고 원하는 소리를 적으면 AI가 설정값을 제안하는 도구 |
 | 57 | 뮤직비디오 자동화 | `music-video-studio` | 음악 | v1.10 | 운영 | 주제·장르로 가사와 스토리보드를 만들고 장면 이미지·Veo 영상까지 만드는 뮤직비디오 도구 |
@@ -172,7 +172,7 @@
 | 키워드·검색 분석 | blog-keyword(한 화면 다각도) · longtail-keyword-expander(계층 확장·작업 지시문) · competitor-analysis(구글 경쟁사) · trending-product-finder(쇼핑 소싱) · blog-workroom 키워드·트렌드 | 네이버(검색광고 실측) + 구글(SerpApi) + 데이터랩 급상승을 한 리포트로, 결과를 글쓰기 도구로 바로 넘기기 |
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
 | Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply(댓글·DM 응대 — 2026-10-20 instagram-dm-reply 병합) | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
-| 유튜브 | youtube-viral-studio(YOUTUBE 트렌드 분석 — 떡상 발굴 + 채널·키워드 진단, 2026-10-20 youtube-channel-consultant 병합) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(A/B 썸네일) · seo-thumbnail-pro(메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
+| 유튜브 | youtube-viral-studio(YOUTUBE 트렌드 분석 — 떡상 발굴 + 채널·키워드 진단, 2026-10-20 youtube-channel-consultant 병합) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(AI 썸네일·SEO 자동화 — A/B 썸네일 + SEO 전략, 2026-10-20 seo-thumbnail-pro 병합) · (병합됨: seo-thumbnail-pro 메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
 | 음악 | music-automation(Suno 실제 생성) · suno-music-studio(정밀 기획) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
@@ -715,7 +715,9 @@
 - **단점·한계**: 실제 음악·영상 생성은 하지 않음 · 썸네일 글자 위치는 고정 레이아웃 위주
 - **키·계정·주의**: 회원 본인의 Gemini·OpenAI·Claude API 키로 동작합니다. 실제 음악 생성은 회원 본인의 Suno 계정에서 진행합니다.
 
-#### AI 썸네일 마스터 자동화 (`thumbnail-master`)
+#### AI 썸네일·SEO 자동화 (`thumbnail-master`) — 옛 이름 AI 썸네일 마스터 자동화
+- **2026-10-20 v1.08~v1.09 병합 D(AI 유튜브 썸네일 프로 흡수)**: 「SEO 전략」(`/seo`, 서버 API `/api/seo/strategy`) — 대본·txt/md → 호기심·가치·스토리 3전략별 제목·SEO 설명·해시태그·스튜디오 태그(500자)·고정 댓글·연출안(항목별 복사) + 공통 메타데이터, 「이 전략으로 썸네일 만들기」로 프로젝트 생성 연결. 키는 서버에서만(프로의 키 원문 브라우저 전달 방식 폐기), 이름 「AI 썸네일·SEO 자동화」. 프로 역분석은 미이식. 공지 띠는 Tailwind 없어 미적용. 옛 주소 https://seo-thumbnail-pro.buylife.xyz 는 `/seo`로 이동, 프로 전용 회원 5명 권한 부여.
+- **현재 사용 순서**: 1 키 등록 → 2 SEO 전략 → 3 주제·피사체·타겟·A/B 문구 → 4 썸네일 생성·수정·다운로드
 - 주소·폴더: https://thumbnail-master.buylife.xyz · `thumbnail-master/` · v1.04
 - **차별점**: 영상 주제와 시청 타겟만 정하면, 서로 다른 전략의 문구가 들어간 유튜브 썸네일 A/B 2종을 한 번에 만들어 주는 도구입니다.
 - **기능**: 주제(또는 대본 파일), 시청 타겟(10대~시니어), 등장 피사체를 정하면 AI가 직관형 A안과 호기심형 B안의 메인·서브 문구와 이미지 구성을 제안합니다. / 확정하면 문구가 들어간 16:9 썸네일 2종을 동시에 만들고, 테두리(단색·네온·손그림)·채널명 브랜딩·글자 없는 배경·1K·2K 해상도를 고를 수 있습니다. / 지시문으로 수정을 요청하거나 이전 버전으로 되돌리고, 프로젝트를 최대 30개 저장해 JPG로 내려받습니다.
@@ -770,6 +772,7 @@
 - **키·계정·주의**: 회원 본인의 Google Cloud 앱(OAuth)과 유튜브 계정, 본인 AI 키를 사용합니다. 하루 유튜브 API 할당량 안에서 동작합니다.
 
 #### AI 유튜브 썸네일 프로 (`seo-thumbnail-pro`)
+- **병합됨 → `thumbnail-master`(AI 썸네일·SEO 자동화, 2026-10-20)**: SEO 전략이 합친 앱 `/seo`로 이동, 카탈로그 노출 중지, 옛 화면은 이동·키 API(`/api/user/key`)는 410(v1.12). 아래 카드는 병합 전 기록.
 - 주소·폴더: https://seo-thumbnail-pro.buylife.xyz · `seo-thumbnail-pro/` · v1.04
 - **차별점**: 유튜브 대본이나 아이디어로 제목·설명·태그·고정 댓글까지 담긴 SEO 전략 3가지와 16:9 썸네일을 함께 만드는 업로드 준비 도구입니다.
 - **기능**: 대본·아이디어를 넣거나 txt·md 파일을 올리면 호기심 유발형·가치/혜택형·스토리/감성형 3가지 전략이 나오고, 전략마다 영상 제목·SEO 설명·해시태그·스튜디오 태그(500자)·고정 댓글 질문을 정리합니다. / 이미 올린 영상의 메타데이터를 넣어 역분석하고 개선안을 받을 수도 있습니다. / 썸네일 문구·비주얼 키워드·장르·분위기 10종·피사체 정보(참고 이미지 포함)를 정하면 16:9 고화질 썸네일을 만들고, 대화하듯 수정 요청을 보내 다듬습니다.

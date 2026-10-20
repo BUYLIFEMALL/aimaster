@@ -80,3 +80,4 @@
 
 - 2026-10-20 병합 C: `youtube-data-client`·`youtube-golden-engine`(및 각 테스트)의 기준을 `youtube-channel-consultant` → `youtube-viral-studio`(YOUTUBE 트렌드 분석)로 이동. 옛 CONSULTANT 폴더는 주소 전달만 하므로 사본 목록에서도 뺌. 파일 내용 변화 없음(이미 동일).
 - 2026-10-20 `program-notice-banner` 주의: 부품이 Tailwind 클래스로 꾸며져 있어 **Tailwind를 쓰지 않는 프로그램(예: `thumbnail-master`)에는 그대로 넣으면 모양이 깨짐** — 그런 프로그램은 그 앱 CSS로 감싼 별도 버전을 만들지 판단(지금은 미적용).
+- 2026-10-20 병합 D: `seo-thumbnail-pro`(옛 앱, 화면 이동만)를 `image-file-check`·`image-file-check-test`·`gemini-image-client`·`gemini-image-models` 사본 목록에서 제외(파일은 폴더에 남음, 더 이상 동기화 안 함).

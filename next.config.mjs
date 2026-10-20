@@ -74,6 +74,8 @@ const nextConfig = {
       { source: "/programs/instagram-dm-reply", destination: "/programs/instagram-comment-reply", permanent: false },
       // 2026-10-20 YOUTUBE CHANNEL CONSULTANT는 YOUTUBE 트렌드 분석(youtube-viral-studio) 안으로 병합(카탈로그 노출 중지)
       { source: "/programs/youtube-channel-consultant", destination: "/programs/youtube-viral-studio", permanent: false },
+      // 2026-10-20 AI 유튜브 썸네일 프로는 AI 썸네일·SEO 자동화(thumbnail-master) 안으로 병합(카탈로그 노출 중지)
+      { source: "/programs/seo-thumbnail-pro", destination: "/programs/thumbnail-master", permanent: false },
       {
         source: '/stepmail',
         destination: 'https://stepmail.buylife.xyz',
