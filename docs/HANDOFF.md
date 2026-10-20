@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 D 플랜 (코드 변경 없음, 다른 CLI 이어받기 가능)
+- 썸네일 프로 → 썸네일 마스터: SEO 전략 생성·역분석을 마스터 서버 API(`/api/seo/*`)·`/seo` 화면으로 이식. 프로의 문제(키 원문을 브라우저로 반환·권한 미확인·옛 모델) 병합으로 해소. 프로에만 있는 회원 5명은 3단계에서 마스터 권한 부여. [플랜](../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md) §7 다음 첫 단계.
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 C 완료: 「YOUTUBE 트렌드 분석」 (youtube-viral-studio v1.21, youtube-channel-consultant v1.11)
 - 3단계: 옛 CONSULTANT 주소 이동·API 전달, DB 백업 후 이름·소개 갱신·CONSULTANT 노출 중지, 메인 상세 이동, 공용 기준 코드 기준 위치 VIRAL로 이동, 역량 지도·공용 문서·DESIGN.md. 권한 이전 불필요(148명 모두 겹침). 상세 [플랜 §8](../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md).
 - 유튜브 다음 후보: 병합 D(썸네일 프로 → 썸네일 마스터)·E(플레이리스트 2개) — [분석 보고서](analysis-youtube-consolidation-20261020/REPORT.md).

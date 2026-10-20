@@ -117,3 +117,6 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 병합 D 예정 — AI 썸네일 마스터(thumbnail-master) 안으로 (Claude Code 윈도우, 플랜 확인 대기)
+- 플랜: [`../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md`](../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md). 발견: `GET /api/user/key`가 회원 Gemini 키 원문을 브라우저로 반환·`localStorage` 보관, 키 API가 프로그램 이용 권한을 확인하지 않음, 예비 모델에 `gemini-1.5-flash` — 병합(3단계)으로 해소 예정.

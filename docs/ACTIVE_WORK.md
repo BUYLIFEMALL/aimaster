@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `thumbnail-master/` · `seo-thumbnail-pro/` | Claude Code(윈도우) | 2026-10-20 | 병합 D(썸네일 프로 → 썸네일 마스터) 분석·플랜 완료, 주인님 플랜 확인 대기 — `thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md` |
