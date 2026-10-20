@@ -106,6 +106,11 @@ if (!apiKey) {
   console.error("\nOPENAI_API_KEY 환경변수가 없습니다. 본인 키로 실행해 주세요(키는 저장·출력하지 않습니다).");
   process.exit(2);
 }
+// 「본인키」 같은 안내 글자를 그대로 넣으면 요청 전에 실패해 23개가 모두 「실패」로 기록됐다(2026-10-20) — 호출 전에 형식부터 확인
+if (!/^sk-[A-Za-z0-9_-]{20,}$/.test(apiKey)) {
+  console.error("\nOPENAI_API_KEY 형식이 OpenAI 키가 아닙니다(sk-로 시작하는 영문·숫자). 명령의 「본인키」 자리에 실제 키를 붙여 넣어 주세요. 아무것도 기록하지 않았습니다.");
+  process.exit(2);
+}
 const targets = sorted.filter((model) => all || !state[model]?.ok);
 console.log(`\n실제 호출 ${targets.length}개 시작`);
 let failed = 0;
@@ -133,7 +138,9 @@ for (const model of targets) {
       process.exit(2);
     }
   } catch (error) {
-    reason = error instanceof Error ? error.message : String(error);
+    // OpenAI 응답을 받기 전에 실패(네트워크·키 문자 오류 등) — 모델 문제가 아니므로 기록하지 않고 멈춘다
+    console.error(`\n${model} 호출 전에 실패했습니다(OpenAI 응답 없음): ${error instanceof Error ? error.message : String(error)}\n연결·키를 확인한 뒤 다시 실행해 주세요. 이번 실행 결과는 기록하지 않았습니다.`);
+    process.exit(2);
   }
   if (!ok) failed += 1;
   state[model] = { ok, status, reason, params: Object.keys(body).filter((key) => key !== "model" && key !== "messages"), checkedAt: new Date().toISOString() };
