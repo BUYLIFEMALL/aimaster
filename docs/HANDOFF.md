@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 병합 B 완료: INSTA 댓글·DM 자동화 (instagram-comment-reply v1.21~v1.23, instagram-dm-reply v1.17)
+- v1.21~v1.22: 텔레그램 연동 확인이 메시지를 못 찾던 원인 = 웹훅 등록 때 `allowed_updates:["callback_query"]`가 텔레그램에 남아 `getUpdates`에서 일반 메시지를 버림 → 매번 `allowed_updates=["message"]` 지정, 실패 안내에 진단 표시. 관리자 DM 봇 재연동 성공. **같은 텔레그램 코드를 쓰는 다른 9개 프로그램(threads-comment-reply·youtube-auto-reply 등)에 전파 검토 필요.**
+- v1.23(2단계): 대시보드에 DM 대기·연결 상태, 기록 댓글/DM 탭, 옛 이름 문구 10곳 통일, DM 홈·매뉴얼 외부 홍보 카드 교체.
+- 3단계(주인님 승인): 옛 `instagram-dm-reply` 화면 → 합친 앱 `/dm/...`, API 전달(`next.config.mjs`, v1.17), DB `instagram-dm-reply` `is_active=false`·[병합됨] 표시, `instagram-comment-reply` 이름 「INSTA 댓글·DM 자동화」·소개·특징·순서·추천 대상 다시 씀(백업 `docs/analysis-insta-consolidation-20261020/backup-programs-before-merge-b.json`), 메인 `/programs/instagram-dm-reply` → `/programs/instagram-comment-reply`, 역량 지도 갱신. Vercel 프로젝트·도메인 삭제 안 함.
+- 검수: 옛 주소 화면 7곳 307 이동, 옛 주소 텔레그램 API가 합친 앱 `/api/dm/telegram/webhook` 경로에서 처리됨(X-Matched-Path), 크롬으로 대시보드·DM 기록 확인. 실제 고객 DM 수신·발송은 하지 않음.
+
+https://instagram-comment-reply.buylife.xyz
+
 ## 2026-10-20 Codex — 블로그 BLC-01 승인된 Storage 적용·v2.01 릴리스 배포 준비
 
 - [릴리스 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md): 운영 ref `esgxyikcnnvmlhygjkth`, 비공개 버킷/제한 정책 적용, 실제 익명 업로드 403·dry 삭제 0·시험 회원 사진 API 9개 통과. CLI 파일은 MCP 원격 migration 실제 버전 `20261020093222`와 정렬.

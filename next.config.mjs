@@ -70,6 +70,8 @@ const nextConfig = {
       { source: "/naver-blog-auto-poster-web", destination: "https://naver-blog-auto-poster-web.buylife.xyz/naver-blog-auto-poster-web", permanent: false },
       // 2026-10-20 INSTA Cardnews 자동화는 INSTA 포스팅 자동화 안으로 병합(카탈로그 노출 중지) — 옛 상세 주소·북마크는 INSTA 상세로
       { source: "/programs/cardnews-studio", destination: "/programs/auto-instagram-posting", permanent: false },
+      // 2026-10-20 INSTA DM답변 자동화는 INSTA 댓글·DM 자동화 안으로 병합(카탈로그 노출 중지) — 옛 상세 주소·북마크는 합친 프로그램 상세로
+      { source: "/programs/instagram-dm-reply", destination: "/programs/instagram-comment-reply", permanent: false },
       {
         source: '/stepmail',
         destination: 'https://stepmail.buylife.xyz',

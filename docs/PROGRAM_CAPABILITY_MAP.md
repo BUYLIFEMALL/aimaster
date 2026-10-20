@@ -95,8 +95,8 @@
 | 76 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 이커머스 | v1.09 | 운영 | 상품명만으로 스펙을 채우고 쿠팡 12단·스마트스토어 9단 860px 통이미지 상세페이지를 만드는 도구 |
 | 77 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 인스타 | v1.38 | 운영 | 주제 수집부터 피드 글·글자 깨짐 없는 카드뉴스 제작, 인스타 예약·즉시 게시까지 한 곳에서 하는 도구(2026-10-20 카드뉴스 스튜디오 병합) |
 | 78 | AI 인플루언서 자동화 | `ai-influencer-studio` | 인스타 | v1.15 | 운영 | 가상 인플루언서의 하루 화보와 인스타 캡션 3종을 같은 얼굴로 만드는 인플루언서 스튜디오 |
-| 79 | INSTA 댓글자동화 | `instagram-comment-reply` | 인스타 | v1.14 | 운영 | 내 인스타 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
-| 80 | INSTA DM답변 자동화 | `instagram-dm-reply` | 인스타 | v1.13 | 운영 | 인스타 DM 문의를 AI가 읽고 답장 초안을 만들어 검토 후 또는 자동으로 보내는 도구 |
+| 79 | INSTA 댓글·DM 자동화 | `instagram-comment-reply` | 인스타 | v1.23 | 운영 | 인스타 게시물 댓글과 DM 문의에 AI가 답변 초안을 만들어 검토 후 게시·발송하는 도구(2026-10-20 instagram-dm-reply 병합) |
+| 80 | INSTA DM답변 자동화 | `instagram-dm-reply` | 인스타 | v1.17 | **병합됨 → instagram-comment-reply(2026-10-20), 노출 중지** | 인스타 DM 문의를 AI가 읽고 답장 초안을 만들어 검토 후 또는 자동으로 보내는 도구 |
 | 81 | AI 웹툰 자동화 | `ai-webtoon-studio` | 인스타 | v1.17 | 운영 | 시놉시스로 캐릭터 시트·컷 콘티·세로 스크롤 원고까지 웹툰 한 편을 완성하는 스튜디오 |
 | 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.32 | **병합됨 → auto-instagram-posting(2026-10-20), 노출 중지** | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | 유튜브 | v1.18 | 공개(new) | 주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다. |
@@ -171,7 +171,7 @@
 | 네이버 블로그 글쓰기 | blog-workroom(내 문체·근거 승인·검수) · naver-blog-agent(5단계 에이전트·확인 게이트) · naver-blog-seo-studio(검색 전략·기존 글 재작성) · naver-blog-allinone(사진 보고 쓰기) · ai-auto-blog(실시간 이슈) · blog-content-maker(기존 원고 다듬기·발행 전 점검) · tistory-auto-blog(티스토리) · naver-blog-auto-poster App/Web | 「내 문체 분석 + 근거 승인 + 사진 보고 쓰기 + 검색 전략 + 6영역 검수 + 확장 입력(네이버·티스토리)」을 하나로 — 단점(키 많음·확장 덮어쓰기)은 공용 확장 하나로 줄이기 |
 | 키워드·검색 분석 | blog-keyword(한 화면 다각도) · longtail-keyword-expander(계층 확장·작업 지시문) · competitor-analysis(구글 경쟁사) · trending-product-finder(쇼핑 소싱) · blog-workroom 키워드·트렌드 | 네이버(검색광고 실측) + 구글(SerpApi) + 데이터랩 급상승을 한 리포트로, 결과를 글쓰기 도구로 바로 넘기기 |
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
-| Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply · instagram-dm-reply | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
+| Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply(댓글·DM 응대 — 2026-10-20 instagram-dm-reply 병합) | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
 | 유튜브 | youtube-viral-studio(떡상 발굴) · youtube-channel-consultant(채널 진단) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(A/B 썸네일) · seo-thumbnail-pro(메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
 | 음악 | music-automation(Suno 실제 생성) · suno-music-studio(정밀 기획) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
@@ -1034,7 +1034,8 @@
 - **단점·한계**: Gemini 이미지 결과에 따라 같은 얼굴 유지가 흔들릴 수 있음 · 게시 기록·예약 목록은 결과 화면 패널 안에만 있음(작업 히스토리는 브라우저 저장)
 - **키·계정·주의**: 회원 본인의 Gemini API 키를 사용합니다. 가상 인물임을 밝히고, 실존 인물·브랜드 권리를 침해하지 않게 사용하세요.
 
-#### INSTA 댓글자동화 (`instagram-comment-reply`)
+#### INSTA 댓글·DM 자동화 (`instagram-comment-reply`)
+- **2026-10-20 v1.18~v1.23 DM답변 자동화 병합**: 인스타 연결 한 번(「DM 답변도 사용」 켬 → 메시지 권한까지)으로 댓글과 DM을 함께. DM 화면은 `/dm/*`(DM 홈·검토/발송·이력·답변 설정·매뉴얼), 대시보드에 댓글·DM 대기 수와 연결 상태, 기록 화면 댓글/DM 탭. 텔레그램은 댓글 봇·DM 봇을 따로 연결(봇 하나에 웹훅 하나). FREE·권한 그대로, 회원 본인 계정·키. 남은 일: 같은 텔레그램 연동 코드를 쓰는 다른 프로그램에 `allowed_updates` 수정 전파 검토.
 - 주소·폴더: https://instagram-comment-reply.buylife.xyz · `instagram-comment-reply/` · v1.14 (인스타 라이트, 배포 대기)
 - **화면(v1.14)**: 계정 대시보드 · 인스타 댓글 모양 검토 화면 · 대기 수 배지 · 휴대폰 ☰ · 그림 매뉴얼
 - **차별점**: 내 인스타그램 게시물에 달린 댓글마다 AI가 자연스러운 답글 초안을 만들고, 내가 검토한 뒤 올리는 댓글 관리 도구입니다.
@@ -1046,6 +1047,7 @@
 - **키·계정·주의**: 회원 본인의 Meta 앱과 인스타그램 비즈니스·크리에이터 계정, 본인 AI 키를 사용합니다. 개인 계정은 쓸 수 없고, 과도한 답글은 인스타그램 제한을 받을 수 있습니다.
 
 #### INSTA DM답변 자동화 (`instagram-dm-reply`)
+- **병합됨 → `instagram-comment-reply`(2026-10-20)**: DM 기능 전체가 INSTA 댓글·DM 자동화 안 `/dm/*`로 들어감. 카탈로그 노출 중지, 옛 주소는 화면 이동·API 전달(v1.17). 아래 카드는 병합 전 기록으로 남김. 분석 `docs/analysis-insta-consolidation-20261020/REPORT.md`.
 - 주소·폴더: https://instagram-dm-reply.buylife.xyz · `instagram-dm-reply/` · v1.13 (인스타 라이트 DM 화면, 배포 대기)
 - **화면(v1.13)**: 24시간 기한 임박 대화를 보여 주는 대시보드 · 인스타 DM 말풍선 검토 화면 · 휴대폰 ☰ · 그림 매뉴얼
 - **차별점**: 인스타그램으로 들어온 DM 문의를 AI가 읽고, 상황에 맞는 답장을 대신 준비해 주는 DM 응대 자동화입니다.
