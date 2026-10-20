@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 네이버 블로그 에이전트 v1.96·v1.97: 테스트 계정 실검수 → 예약 배지 버그 수정, 사실 왜곡 원인(글감 앞 100자만 전달) 수정·원문 대조, 단건 예약·랭킹 점검·홈판형 바로 쓰기·블로그 목록 서버 연동
+- v1.96(`e149ec46`): 목록 API가 `is_reserved`·`scheduled_at`을 빼던 버그 수정. 테스트 계정으로 홈판형+쇼핑 링크 생성(문구·링크 위치 정상), 간격 예약 2건 DB 저장·확장 처리 확인(원고가 「준비까지만」 방식이라 최종 예약 버튼 전 정지).
+- v1.97(`3d5473e8`): 위 6개. 운영 크롬 검수 통과(재생성 시 지어낸 경위 사라짐, 대조 경고 표시, 단건 예약 저장·해제). DB(ref `esgxyikcnnvmlhygjkth`) v1.97·확장 OK.
+- 남은 것: 크롬에 열린 네이버 글쓰기 창 2개(비공개 예약 준비 상태) 처리 — 주인님 결정, 글감 원문 보관·대조 오탐 줄이기, alert/confirm 교체, 문구 조사 1건 미배포. 상세 `naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020.md`
+- 링크: https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 공지에 관련 프로그램 연결 + 「내 작업대」 📢 새 공지 (주인님 「이것까지 진행해주고 개발 플랜…」)
 - 플랜: `docs/PLAN_20261020_NOTICE_PROGRAM_LINK.md`. DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor 적용): `notices.program_ids uuid[] default '{}'`(빈 값 = 사이트 전체 공지, 기존 공지 전부 해당 → 동작 변화 없음) + GIN 인덱스, `program_favorites.seen_notice_at`. 파일 `supabase/migrations/0041_notice_program_link.sql`.
 - 관리자 `/admin/notices`: 공지 창에 「관련 프로그램」 검색·체크 선택, 목록에 연결 프로그램 칩. API `app/api/admin/notices`는 실제 있는 프로그램 id만 저장(`cleanProgramIds`), PUT은 허용 칸만 받도록 바꿈(예전엔 받은 값을 그대로 저장).

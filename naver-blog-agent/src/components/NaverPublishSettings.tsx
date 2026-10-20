@@ -99,7 +99,7 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
       const post=await saver.current.save({category,tags,setDefault,executionMode,reservation});
       const data={tags:post.tags,executionMode};
       if (!mounted.current) return;
-      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags,post,expected); setMessage(`진행 방식·카테고리·태그${reserved?"·예약":""}를 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.`);
+      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags,post,expected); setMessage(`진행 방식·카테고리·태그${reserved?"·예약을":"를"} 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.`);
       if (setDefault) setDefaultCategory(category?.name || "");
       setSetDefault(false); setSavedForm(JSON.stringify({category,tags:data.tags,setDefault:false,executionMode:data.executionMode,reserved,reserveAt:reserved?reserveAt:""}));
     } catch (err) { if (mounted.current) setError(err instanceof Error ? err.message : "발행 설정 저장 실패"); }
