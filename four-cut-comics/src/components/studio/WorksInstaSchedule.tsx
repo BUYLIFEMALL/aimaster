@@ -32,6 +32,14 @@ function defaultFirstLocal(): string {
 
 const label = (c: { title: string; episode: number }) => `${c.title || "4컷 만화"}${c.episode > 1 ? ` ${c.episode}화` : ""}`;
 
+/** 서버 보관함 작품(그림 주소는 서명 주소라 1시간 뒤 만료 — 예약 직전에 다시 받는다) */
+async function loadServerWorks(): Promise<Candidate[]> {
+  const r = await fetch("/api/saved", { cache: "no-store" });
+  const d = r.ok ? await r.json() : null;
+  const items = (Array.isArray(d) ? d : d?.items ?? []) as { id: string; url: string | null; title: string; episode: number; createdAt: string }[];
+  return items.filter((it) => it.url).map((it) => ({ key: `s-${it.id}`, source: "server" as const, title: it.title, episode: it.episode, createdAt: Date.parse(it.createdAt) || 0, src: it.url! }));
+}
+
 export function WorksInstaSchedule({ userId }: { userId: string }) {
   const [status, setStatus] = useState<Status | null>(null);
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
@@ -56,10 +64,7 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
         for (const w of await listWorks(userId)) out.push({ key: `b-${w.id}`, source: "browser", title: w.title, episode: w.episode, createdAt: w.createdAt, src: w.image });
       } catch { /* 이 브라우저 보관을 쓸 수 없어도 서버 보관함은 쓴다 */ }
       try {
-        const r = await fetch("/api/saved", { cache: "no-store" });
-        const d = r.ok ? await r.json() : null;
-        const items = (Array.isArray(d) ? d : d?.items ?? []) as { id: string; url: string | null; title: string; episode: number; createdAt: string }[];
-        for (const it of items) if (it.url) out.push({ key: `s-${it.id}`, source: "server", title: it.title, episode: it.episode, createdAt: Date.parse(it.createdAt) || 0, src: it.url });
+        out.push(...(await loadServerWorks()));
       } catch { /* 서버 보관함이 비어 있거나 읽지 못하면 이 브라우저 작품만 */ }
       if (alive) setCandidates(sortForBatch(out));
     })();
@@ -86,12 +91,22 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
   async function scheduleAll() {
     const out: Result[] = [];
     setResults([]);
+    // v1.22: 서버 보관함 그림 주소(서명 주소)는 1시간 뒤 만료된다 — 화면을 오래 열어 둔 뒤 예약해도 되도록 직전에 새 주소로 바꾼다.
+    let fresh: Map<string, string> | null = null;
+    if (chosen.some((c) => c.source === "server")) {
+      setBusy("서버 보관함 그림 주소를 새로 받는 중...");
+      try {
+        fresh = new Map((await loadServerWorks()).map((w) => [w.key, w.src]));
+      } catch { /* 다시 받지 못하면 가지고 있던 주소로 시도한다(1시간 안이면 그대로 된다) */ }
+    }
     for (let i = 0; i < chosen.length; i++) {
       const c = chosen[i];
       const name = `${i + 1}/${chosen.length}회차 「${label(c)}」`;
       try {
+        if (c.source === "server" && fresh && !fresh.has(c.key)) throw new Error("서버 보관함에서 이 작품을 찾지 못했어요(그사이 지워졌거나 보관 기간이 끝났을 수 있어요).");
+        const src = (c.source === "server" && fresh?.get(c.key)) || c.src;
         setBusy(`${name} — 인스타용 그림 만드는 중...`);
-        const blob = await toFeedJpeg(c.src);
+        const blob = await toFeedJpeg(src);
         setBusy(`${name} — 그림 올리는 중...`);
         const paths = await uploadBlobs([blob]);
         setBusy(`${name} — 예약을 저장하는 중...`);
