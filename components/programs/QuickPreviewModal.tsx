@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Play, ExternalLink, Sparkles, CheckCircle2, ShieldCheck } from "lucide-react";
+import { X, Play, ExternalLink, Sparkles, CheckCircle2, ShieldCheck, Star } from "lucide-react";
 import { formatKRW } from "@/lib/utils/format";
 import { getTemplateBadge } from "@/lib/templateBadge";
 import Badge from "@/components/ui/Badge";
@@ -15,6 +15,9 @@ interface QuickPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   hasAccess?: boolean;
+  /** 「내 작업대」 즐겨찾기 — 카드의 별 버튼과 같은 상태·저장소(aimaster_favorites)를 쓴다(2026-10-20) */
+  isFav?: boolean;
+  onToggleFavorite?: (e: React.MouseEvent) => void;
 }
 
 export default function QuickPreviewModal({
@@ -22,6 +25,8 @@ export default function QuickPreviewModal({
   isOpen,
   onClose,
   hasAccess = false,
+  isFav = false,
+  onToggleFavorite,
 }: QuickPreviewModalProps) {
   const templateBadge = getTemplateBadge(program.slug, program.category?.slug);
   const resolvedBadges = program.badges ?? [];
@@ -59,7 +64,7 @@ export default function QuickPreviewModal({
           type="button"
           onClick={onClose}
           aria-label="닫기"
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/60 hover:bg-white/20 text-white/80 hover:text-white border border-white/10 backdrop-blur-md transition-all cursor-pointer"
+          className="absolute top-4 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-black/60 hover:bg-white/20 text-white/80 hover:text-white border border-white/10 backdrop-blur-md transition-all cursor-pointer"
         >
           <X size={18} />
         </button>
@@ -156,7 +161,23 @@ export default function QuickPreviewModal({
               )}
             </div>
 
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            {/* 버튼은 휴대폰에서 누르기 편하게 최소 44px(2026-10-20) */}
+            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+              {onToggleFavorite && (
+                <button
+                  type="button"
+                  onClick={onToggleFavorite}
+                  aria-pressed={isFav}
+                  className={`w-full sm:w-auto min-h-[44px] px-4 py-2.5 rounded-xl font-semibold text-xs border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    isFav
+                      ? "bg-amber-400 text-slate-950 border-amber-300"
+                      : "bg-white/10 hover:bg-white/15 text-white border-white/15"
+                  }`}
+                >
+                  <Star size={13} className={isFav ? "fill-slate-950" : ""} />
+                  <span>{isFav ? "내 작업대에 고정됨" : "내 작업대에 고정"}</span>
+                </button>
+              )}
               <Link
                 href={`/programs/${program.slug}`}
                 onClick={onClose}
@@ -164,7 +185,7 @@ export default function QuickPreviewModal({
               >
                 <button
                   type="button"
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs border border-white/15 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs border border-white/15 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <span>상세 가이드 보기</span>
                   <ExternalLink size={13} />
@@ -188,7 +209,7 @@ export default function QuickPreviewModal({
                 >
                   <button
                     type="button"
-                    className="w-full px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-none"
+                    className="w-full min-h-[44px] px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-none"
                   >
                     <Play size={13} className="fill-slate-950" />
                     <span>무료 시작하기</span>

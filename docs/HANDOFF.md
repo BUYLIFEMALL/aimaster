@@ -61,6 +61,7 @@
 - 링크: https://www.buylife.xyz/programs
 - 후속(주인님 제안 채택): 덮개 맨 위 장식 문구 「● 실시간 가동대기」·「AI LIVE PREVIEW」 삭제(실제 상태와 연결되지 않아 동작 중인 것처럼 오해 소지). 휴대폰(마우스 올림 없음)용 퀵 프리뷰 눈 아이콘 버튼을 카드 아래 버튼 줄에 `md:hidden`으로 추가(같은 팝업).
 - 후속 2: 덮개 가운데 문구를 디자인 템플릿 종류별 고정 문구 → 프로그램 한 줄 요약(`short_desc`, 두 줄까지, 없으면 기존 문구)으로. 휴대폰 첫 방문 안내 `components/programs/QuickPreviewHint.tsx`(화면 아래 「눈 아이콘을 누르면 미리 볼 수 있어요」, 닫으면 localStorage `aimaster.quickPreviewHint.dismissed`로 다시 안 뜸, 카드마다 렌더되지만 첫 카드 하나만 띄움, `md:hidden`).
+- 후속 3: 덮개 문구를 한 줄 요약 → 핵심 특징 첫 줄(`detail_sections.features[0]` 아이콘+제목, 없으면 기존 문구 — 카드 본문 요약과 중복 제거). 퀵 프리뷰 팝업(`QuickPreviewModal.tsx`)에 「내 작업대에 고정」 버튼(카드 별 버튼과 같은 `isFav`/`toggleFavorite`, 저장소 `aimaster_favorites`), 닫기·상세 가이드·무료 시작·즐겨찾기 버튼과 카드의 휴대폰 눈 아이콘을 최소 44px로.
 ## 2026-10-20 Claude Code(윈도우) — SNS 배포판 `SNS_Auto_Posting_Kit_v1.02` 포장 (주인님 「진행해줘」)
 - 한 일: v1.01(INSTA v1.26·Threads 운영 v2.09) 이후 변경을 점검 — DB 변경은 버전 갱신·운영 전용 공용 표 백필뿐이라 배포판 DB 파일 수정 없음, 코드가 쓰는 표·버킷 전부 `KIT/schema.sql`에 있음, 공용 연동 표(`member_platform_accounts`·`integration_catalog`)는 `IS_STANDALONE`일 때 건너뜀 확인. INSTA `KIT/README.md` 5장에 「내 이미지로 바로 올리기(직접 첨부·여러 장 한 번에)」, 두 `KIT/README.md` 끝에 「업데이트 내역」 표 신설, 학생 매뉴얼 대상 번호 v1.02·직접 첨부 팁. `python scripts/make_lecture_kit.py --version v1.02` → `D:\PDS\SNS_Auto_Posting_Kit_v1.02.zip`(207개 파일, 비밀값 검사 통과).
 - 검수: 압축 안 버전 INSTA v1.33·Threads 운영 v2.14·`00_START_HERE.md` v1.02, `.env*`는 `.env.example`만. 짧은 경로(`D:\kt2`)에 풀어 가짜 독립 모드 환경으로 `npm ci`+`npm run build` 두 프로그램 통과(시험 폴더 삭제). 실제 Supabase·Vercel·Meta 설치와 인스타/Threads 게시는 미시험.

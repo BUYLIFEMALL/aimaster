@@ -11,6 +11,7 @@ import GoldButton from "@/components/ui/GoldButton";
 import LikeButton from "@/components/programs/LikeButton";
 import QuickPreviewModal from "@/components/programs/QuickPreviewModal";
 import QuickPreviewHint from "@/components/programs/QuickPreviewHint";
+import { parseDetailSections } from "@/lib/programs/detailSections";
 import { formatKRW } from "@/lib/utils/format";
 import { getTemplateBadge } from "@/lib/templateBadge";
 import type { Program } from "@/types/database.types";
@@ -38,6 +39,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
     (program.video_url.endsWith(".mp4") || program.video_url.endsWith(".webm"))
   );
 
+  const firstFeature = parseDetailSections(program.detail_sections).features[0];
   const microPreviewLabel = (() => {
     switch (templateBadge.type) {
       case "focus":
@@ -181,9 +183,9 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                     <Eye size={13} className="text-slate-950" />
                     <span>퀵 프리뷰</span>
                   </button>
-                  {/* 2026-10-20: 템플릿 종류별 고정 문구 대신 이 프로그램의 한 줄 요약(없으면 기존 문구) */}
+                  {/* 2026-10-20: 템플릿 종류별 고정 문구 대신 이 프로그램의 핵심 특징 첫 줄(detail_sections, 없으면 기존 문구) — 카드 본문의 한 줄 요약과 겹치지 않게 */}
                   <span className="max-w-[90%] line-clamp-2 text-[11px] font-bold text-white/95 text-center px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm border border-white/10 drop-shadow-md">
-                    {program.short_desc || microPreviewLabel}
+                    {firstFeature ? `${firstFeature.icon} ${firstFeature.title}`.trim() : microPreviewLabel}
                   </span>
                 </div>
 
@@ -290,7 +292,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
               onClick={() => setIsQuickPreviewOpen(true)}
               aria-label="퀵 프리뷰"
               title="퀵 프리뷰"
-              className="md:hidden p-2 rounded-xl bg-black/40 border border-gold/40 text-gold hover:bg-gold hover:text-black transition-colors cursor-pointer"
+              className="md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-black/40 border border-gold/40 text-gold hover:bg-gold hover:text-black transition-colors cursor-pointer"
             >
               <Eye size={14} />
             </button>
@@ -341,6 +343,8 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
         isOpen={isQuickPreviewOpen}
         onClose={() => setIsQuickPreviewOpen(false)}
         hasAccess={hasAccess}
+        isFav={isFav}
+        onToggleFavorite={toggleFavorite}
       />
     </>
   );
