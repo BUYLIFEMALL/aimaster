@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — AI 종합 성격 진단 v1.22: 좌측 메뉴를 AI 이미지 스튜디오 배치로
+- 한 일: 매뉴얼을 「가이드」 배지 금색 카드로, 구분선 아래 🔑 API키등록, 계정·로그아웃은 데스크톱 사이드바 맨 아래(주인님 스크린샷 지시 — 사이드바 표준의 「메뉴 바로 아래」 기본값보다 우선, `personality-suite/AGENTS.md` v1.22에 근거 기록).
+- 검수: tsc·테스트 19개·build, 배포 `personality-suite-7asclss04` Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.22, 크롬에서 대시보드·매뉴얼 활성 상태 확인.
+- 링크: https://personality-suite.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 상대 비용 표시(SEO 스튜디오 v1.80·쇼핑제휴 v1.71) + 7개 프로그램 화면 안내는 「다음에 고칠 때 함께」
 - 모델 선택 칸 「모델 성격: ⚡ 빠름 · 비용 💰 ⓘ」(💰~💰💰💰, 상대 표시·정확한 단가 아님). 공용 기준 코드 `openAIModelBadge`·`openAIModelCostLevel`, 사본 8곳 동기화. 두 프로그램 배포 Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.80·v1.71, 크롬 확인(호출 없음).
 - 주인님 결정: 나머지 7개 프로그램 화면 안내는 한꺼번에 배포하지 않고 각자 다음에 고칠 때 함께 — 붙일 파일 위치를 각 `AGENTS.md` 끝과 `docs/SHARED_FEATURE_MAP.md` §8에 기록.

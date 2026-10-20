@@ -1,4 +1,9 @@
-# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.21)
+# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.22)
+
+## 2026-10-20 v1.22 — 좌측 메뉴를 AI 이미지 스튜디오 배치로 (Claude Code 윈도우, 주인님 스크린샷 지시)
+- 매뉴얼: 제목+설명(「4단계 진단 & 활용 팁」)+「가이드」 배지가 있는 금색 카드(`guide-card`). 그 아래 구분선 → 🔑 API키등록·플랫폼연동(`utility-links`).
+- 계정 이메일·로그아웃: 데스크톱 사이드바 **맨 아래**(`.desktop-sidebar .sidebar-account{margin-top:auto}`). 주인님이 AI 이미지 스튜디오 화면을 보여 주며 직접 지시한 배치라 `docs/SIDEBAR_LAYOUT_STANDARD.md`의 「마지막 메뉴 바로 아래」 기본값보다 우선함. 모바일 접는 메뉴는 그대로.
+- 바뀐 파일: `src/components/layout/Sidebar.tsx`, `src/app/globals.css`, `src/lib/version.ts`·`package.json`(v1.22). DB `programs.version` v1.22.
 
 ## 2026-10-20 v1.21 — 타로점 「미스틱 미드나잇 퍼플」 스타일로 디자인 변경 + 깨진 화면 복구 (Claude Code 윈도우)
 - **주인님 지시**: AIMaster 타로점(`tarot-reading`) 디자인 템플릿으로 변경. 색 토큰을 타로점 `tarot/app/globals.css`와 같게 맞춤(배경 `#090614`, 카드 `#120d24`, 테두리 `#2a1f4e`, 보라 `#a855f7`/`#c084fc`, 금색 `#f59e0b`, 시안 `#38bdf8`).

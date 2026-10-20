@@ -58,8 +58,6 @@ small{font-size:11px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:11px 10px;font-size:12px;font-weight:600;border-radius:9px;color:var(--text-2)}
 .nav-item[aria-current=page]{color:var(--brand-purple);background:var(--brand-soft)}
 .nav-item:hover,.flow-item:hover{background:var(--surface-hover)}
-.nav-guide{color:var(--gold-soft);background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);font-weight:700}
-.nav-guide[aria-current=page]{color:#fde68a;background:rgba(245,158,11,.18)}
 .nav-caption{font-size:10px;color:var(--faint);font-weight:750;margin:20px 10px 12px;letter-spacing:.08em}
 .flow-item{display:flex;align-items:flex-start;gap:10px;padding:8px 4px;margin-bottom:6px;position:relative;border-radius:10px;color:var(--text-2)}
 .step-number{width:29px;height:29px;border-radius:50%;background:var(--surface-hover);border:1px solid var(--line-strong);color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
@@ -68,8 +66,19 @@ small{font-size:11px}
 .flow-item small{display:block;margin-left:23px;font-size:10px;line-height:1.5;margin-top:2px}
 .flow-item[aria-current=page]{background:var(--brand-soft);color:var(--foreground)}
 .flow-item[aria-current=page] .step-number{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 0 14px -3px rgba(168,85,247,.7)}
-.utility-menu{border-top:1px solid var(--line);padding-top:10px;margin-top:14px;display:flex;flex-direction:column;gap:4px}
+.utility-menu{border-top:1px solid var(--line);padding-top:14px;margin-top:14px;display:flex;flex-direction:column}
+.guide-card{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:12px;color:var(--gold-soft);background:linear-gradient(90deg,rgba(245,158,11,.12),transparent);border:1px solid rgba(245,158,11,.3);transition:all .2s}
+.guide-card:hover{border-color:rgba(245,158,11,.55);background:rgba(245,158,11,.15);color:#fde68a}
+.guide-card[aria-current=page]{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.6);box-shadow:0 8px 20px -10px rgba(245,158,11,.5)}
+.guide-card-icon{font-size:17px;flex-shrink:0;transition:transform .2s}
+.guide-card:hover .guide-card-icon{transform:scale(1.1)}
+.guide-card-text{flex:1;min-width:0;display:flex;flex-direction:column}
+.guide-card-text b{font-size:12px;line-height:1.35}
+.guide-card-text small{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(251,191,36,.7);margin-top:1px}
+.guide-card-badge{flex-shrink:0;padding:1px 6px;border-radius:5px;font-size:10px;font-weight:800;color:var(--gold-soft);background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.35)}
+.utility-links{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .sidebar-account{flex-shrink:0;margin:8px 14px 0;padding:10px 4px 15px;border-top:1px solid var(--line)}
+.desktop-sidebar .sidebar-account{margin-top:auto}
 .sidebar-account>p{font-size:10px;color:var(--muted);overflow-wrap:anywhere;line-height:1.4;padding:0 5px}
 .sidebar-account button{margin-top:7px;padding:7px 5px;justify-content:flex-start;border:0;font-size:12px;font-weight:500;background:transparent;color:var(--text-2)}
 .mobile-sidebar{display:none}

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, KeyRound, LogOut, Menu, Sparkles, X } from "lucide-react";
+import { LogOut, Menu, Sparkles, X } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
@@ -42,14 +42,21 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
           <span className="step-number">3</span><div><strong>종합 프로필</strong><small>여러 검사를 하나로 해석</small></div>
         </a>
         <div className="utility-menu">
-          <a className="nav-item nav-guide" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide">
-            <BookOpen size={17} />
-            📖 연동 & 사용 매뉴얼
+          {/* v1.22 AI 이미지 스튜디오와 같은 배치: 매뉴얼 카드 → 구분선 → API 키 */}
+          <a className="guide-card" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide">
+            <span className="guide-card-icon">📖</span>
+            <span className="guide-card-text">
+              <b>연동 &amp; 사용 매뉴얼</b>
+              <small>4단계 진단 &amp; 활용 팁</small>
+            </span>
+            <span className="guide-card-badge">가이드</span>
           </a>
-          <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings">
-            <KeyRound size={17} />
-            API키등록·플랫폼연동
-          </a>
+          <div className="utility-links">
+            <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings">
+              <span aria-hidden="true">🔑</span>
+              API키등록·플랫폼연동
+            </a>
+          </div>
         </div>
       </nav>
       <div className="sidebar-account">
