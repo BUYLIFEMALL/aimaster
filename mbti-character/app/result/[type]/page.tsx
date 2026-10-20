@@ -80,7 +80,7 @@ export default async function ResultPage({
         shareUrlBase={shareUrlBase}
         fallbackOgImageUrl={fallbackOgImageUrl}
         strengths={strengths}
-        autoGenerate={!strengths.from}
+        autoGenerate={strengths.fresh === "1" && !strengths.from}
       />
       <TarotBridge name={character.name} code={character.code} />
     </div>

@@ -24,7 +24,8 @@ export function TestFlow({ questions }: { questions: Question[] }) {
       const strengthParams = result.dimensions
         .map((d) => `${d.dimension}=${d.strength}`)
         .join("&");
-      router.push(`/result/${result.type}?${strengthParams}`);
+      // v1.23: 검사를 막 끝낸 경우에만 그림을 자동 생성하도록 fresh=1 표시를 붙인다(결과 화면이 곧바로 지움)
+      router.push(`/result/${result.type}?${strengthParams}&fresh=1`);
       return;
     }
 

@@ -23,6 +23,15 @@ const DIMENSION_LABELS: Record<string, string> = {
  * 컴포넌트로 두 곳을 나눠서는 상태를 공유할 수 없어서, 정적인 문구(성향 지표/특징 포함)도
  * 함께 이 컴포넌트 안으로 옮겼다.
  */
+/** 화면을 다시 그리지 않고 주소의 검색 값만 바꾼다(브라우저 기록 덮어쓰기). */
+function replaceQuery(edit: (q: URLSearchParams) => void) {
+  try {
+    const url = new URL(window.location.href);
+    edit(url.searchParams);
+    window.history.replaceState(window.history.state, "", url.toString());
+  } catch {}
+}
+
 export function ResultInteractive({
   character,
   hasApiKey,
@@ -38,7 +47,8 @@ export function ResultInteractive({
   shareUrlBase: string;
   fallbackOgImageUrl: string;
   strengths: Record<string, string | undefined>;
-  /** v1.21: 다른 프로그램 링크(?from=)로 들어오면 false — 회원 키로 이미지가 예고 없이 생성되지 않게 버튼으로만 생성 */
+  /** v1.21: 다른 프로그램 링크(?from=)로 들어오면 false — 회원 키로 이미지가 예고 없이 생성되지 않게 버튼으로만 생성
+   *  v1.23: 검사를 막 끝내고 넘어온 경우(?fresh=1)에만 true — 새로고침·뒤로 가기·공유 링크로는 자동 생성하지 않는다 */
   autoGenerate?: boolean;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl);
@@ -72,6 +82,8 @@ export function ResultInteractive({
         throw new Error(json.error ?? "이미지 생성에 실패했습니다.");
       }
       setImageUrl(json.imageUrl);
+      // 새로고침해도 방금 만든 그림이 남도록 주소에 img를 넣는다(서버가 신뢰 저장소 주소만 받음)
+      replaceQuery((q) => q.set("img", json.imageUrl));
     } catch (e) {
       setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
@@ -83,6 +95,8 @@ export function ResultInteractive({
   // 경우가 아니라면), API 키가 등록돼 있으면 곧바로 자동 생성한다 — 버튼을 눌러야만
   // 생성되던 방식에서 "결과가 곧 캐릭터 이미지"가 되도록 바꾼 것(2026-09-14 요청).
   useEffect(() => {
+    // fresh 표시는 한 번만 쓰고 바로 지운다 — 새로고침·뒤로 가기로 다시 과금되지 않게
+    if (autoGenerate) replaceQuery((q) => q.delete("fresh"));
     if (!initialImageUrl && hasApiKey && autoGenerate) {
       generate(styleId);
     }
