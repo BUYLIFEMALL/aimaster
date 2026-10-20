@@ -26,6 +26,16 @@ const FLOW_STEPS = [
   },
 ];
 
+// 카드뉴스 스튜디오(2026-10-20 cardnews-studio 병합). 배포판(독립 모드)에는 카드뉴스 표가 없어 숨긴다.
+const CARDNEWS_ITEMS = [
+  { href: "/cardnews", icon: "🎨", label: "카드뉴스 홈", exact: true },
+  { href: "/cardnews/plan", icon: "①", label: "기획" },
+  { href: "/cardnews/copy", icon: "②", label: "문구" },
+  { href: "/cardnews/design", icon: "③", label: "디자인" },
+  { href: "/cardnews/background", icon: "④", label: "배경 이미지" },
+  { href: "/cardnews/export", icon: "⑤", label: "저장·인스타 게시" },
+];
+
 const UTILITY_ITEMS = [
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
   { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼" },
@@ -122,6 +132,29 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           );
         })}
       </nav>
+
+      {!IS_STANDALONE && (
+        <div className="mt-5 border-t border-[#262c3d] pt-3.5">
+          <div className="mb-1.5 px-2 text-[11px] font-semibold text-slate-400">카드뉴스 스튜디오</div>
+          {CARDNEWS_ITEMS.map((item) => {
+            const isActive = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
+                  isActive
+                    ? "border border-pink-500/30 bg-pink-500/10 text-pink-300 font-bold"
+                    : "text-slate-400 hover:bg-[#1f2433] hover:text-slate-200"
+                }`}
+              >
+                <span className="w-4 text-center">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mt-5 border-t border-[#262c3d] pt-3.5">
         <div className="mb-1.5 px-2 text-[11px] font-semibold text-slate-400">

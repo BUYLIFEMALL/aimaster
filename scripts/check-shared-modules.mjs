@@ -16,7 +16,7 @@ const MODULES = [
     // 테스트 기준 naver-blog-seo-studio/tests/openaiRequestParams.test.mjs — 폴더 구조가 달라 사본 테스트는 경로만 다른 자체 파일
     id: "openai-request-params",
     source: "naver-blog-seo-studio/lib/ai/openaiRequestParams.ts",
-    copies: ["threads-affiliate-poster/src/lib/ai/openaiRequestParams.ts", "style-dna-analyzer/src/lib/ai/openaiRequestParams.ts", "cardnews-studio/src/lib/ai/openaiRequestParams.ts", "naver-blog-allinone/src/lib/blog/openaiRequestParams.ts", "naver-blog-agent/src/lib/ai/openaiRequestParams.ts", "ai-auto-blog/utils/ai/openaiRequestParams.ts", "tistory-auto-blog/utils/ai/openaiRequestParams.ts", "threads-content-ops/lib/openaiRequestParams.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/ai/openaiRequestParams.ts", "threads-affiliate-poster/src/lib/ai/openaiRequestParams.ts", "style-dna-analyzer/src/lib/ai/openaiRequestParams.ts", "cardnews-studio/src/lib/ai/openaiRequestParams.ts", "naver-blog-allinone/src/lib/blog/openaiRequestParams.ts", "naver-blog-agent/src/lib/ai/openaiRequestParams.ts", "ai-auto-blog/utils/ai/openaiRequestParams.ts", "tistory-auto-blog/utils/ai/openaiRequestParams.ts", "threads-content-ops/lib/openaiRequestParams.ts"],
   },
   {
     // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
@@ -34,14 +34,14 @@ const MODULES = [
     // 인스타 예약 게시 시각 검사(10분 뒤~60일·24시간 지연·일시 오류 판정·중복 확인·한국 시간) — 2026-10-20 등록
     id: "insta-schedule-time",
     source: "cardnews-studio/src/lib/cardnews/schedule.ts",
-    copies: ["ai-influencer-studio/src/lib/instagram/schedule.ts", "ai-webtoon-studio/src/lib/instagram/schedule.ts", "four-cut-comics/src/lib/instagram/schedule.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/schedule.ts", "ai-influencer-studio/src/lib/instagram/schedule.ts", "ai-webtoon-studio/src/lib/instagram/schedule.ts", "four-cut-comics/src/lib/instagram/schedule.ts"],
   },
   {
     // 인스타 예약 회원 실행 방식(Vercel / 내 cron-job.org·일시정지 안전 처리·실패 시 되돌리기) — 2026-10-20 등록. 프로그램 값은 각 폴더 schedulerConfig.ts
     // 2026-10-20 인스타 4개 → 예약 프로그램 15개로 확대(구 id insta-member-scheduler). 값은 같은 폴더 schedulerConfig.ts
     id: "member-scheduler",
     source: "cardnews-studio/src/lib/instagram/memberScheduler.ts",
-    copies: [
+    copies: ["insta_auto_poster/src/lib/cardnews/instagram/memberScheduler.ts", 
       "ai-influencer-studio/src/lib/instagram/memberScheduler.ts", "ai-webtoon-studio/src/lib/instagram/memberScheduler.ts", "four-cut-comics/src/lib/instagram/memberScheduler.ts",
       "threads-content-ops/lib/memberScheduler.ts", "threads/src/lib/posts/memberScheduler.ts", "insta_auto_poster/src/lib/posts/memberScheduler.ts", "threads-affiliate-poster/src/lib/posts/memberScheduler.ts",
       "booking-reminder/lib/schedulerMember/memberScheduler.ts", "crm-google-form/lib/schedulerMember/memberScheduler.ts", "kakao_auto_poster/src/lib/schedulerMember/memberScheduler.ts",
@@ -53,7 +53,7 @@ const MODULES = [
     // 인스타 예약 회원 cron-job.org 작업 만들기·켜기/끄기·지우기 — 2026-10-20 등록. 실행 주소·작업 이름은 각 폴더 schedulerConfig.ts
     id: "insta-cronjob-org",
     source: "cardnews-studio/src/lib/instagram/cronJobOrg.ts",
-    copies: ["ai-influencer-studio/src/lib/instagram/cronJobOrg.ts", "ai-webtoon-studio/src/lib/instagram/cronJobOrg.ts", "four-cut-comics/src/lib/instagram/cronJobOrg.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/instagram/cronJobOrg.ts", "ai-influencer-studio/src/lib/instagram/cronJobOrg.ts", "ai-webtoon-studio/src/lib/instagram/cronJobOrg.ts", "four-cut-comics/src/lib/instagram/cronJobOrg.ts"],
   },
   {
     // 성격·운세 4개 「이어서 보기」 링크(타로점·캐릭코드·성격코드 주소, 넘어온 곳 이름) — 2026-10-20 등록
@@ -65,7 +65,7 @@ const MODULES = [
     // 인스타 예약 화면 동작(상태 줄 훅·상태 문구·게시 기록 시각 문구·예약 취소 훅) — 2026-10-20 등록. 화면 모양과 주소는 각 프로그램
     id: "insta-posts-client",
     source: "cardnews-studio/src/lib/instagram/postsClient.ts",
-    copies: ["ai-influencer-studio/src/lib/instagram/postsClient.ts", "ai-webtoon-studio/src/lib/instagram/postsClient.ts", "four-cut-comics/src/lib/instagram/postsClient.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/instagram/postsClient.ts", "ai-influencer-studio/src/lib/instagram/postsClient.ts", "ai-webtoon-studio/src/lib/instagram/postsClient.ts", "four-cut-comics/src/lib/instagram/postsClient.ts"],
   },
   {
     // 프로그램 공지 띠(메인 공지의 「관련 프로그램」 → 작업 화면 맨 위 최근 공지 1건) — 2026-10-20 등록. 다른 프로그램은 다음 배포 때 사본 추가
@@ -107,13 +107,13 @@ const MODULES = [
     // 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(리디렉트마다 재검사, DNS 바꿔치기 방지) — 2026-10-19 기준 등록
     id: "safe-fetch",
     source: "ghost-scraper/src/lib/safeFetch.ts",
-    copies: ["cardnews-studio/src/lib/safeFetch.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/safeFetch.ts", "cardnews-studio/src/lib/safeFetch.ts"],
   },
   {
     // 올린 사진을 브라우저 안에서 풀어 보고 깨졌으면 「사진을 읽지 못했어요」(2026-10-19). 사본은 프로그램을 적용할 때마다 추가
     id: "image-file-check",
     source: "portrait-photo/src/lib/imageFileCheck.ts",
-    copies: ["image-convert-studio/src/lib/imageFileCheck.ts", "photo-remake-studio/src/lib/imageFileCheck.ts", "banana-canvas/src/lib/imageFileCheck.ts", "ai-influencer-studio/src/lib/imageFileCheck.ts", "allinone-graphic/src/lib/imageFileCheck.ts", "four-cut-comics/src/lib/imageFileCheck.ts", "seo-thumbnail-pro/src/lib/imageFileCheck.ts", "cardnews-studio/src/lib/imageFileCheck.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/imageFileCheck.ts", "image-convert-studio/src/lib/imageFileCheck.ts", "photo-remake-studio/src/lib/imageFileCheck.ts", "banana-canvas/src/lib/imageFileCheck.ts", "ai-influencer-studio/src/lib/imageFileCheck.ts", "allinone-graphic/src/lib/imageFileCheck.ts", "four-cut-comics/src/lib/imageFileCheck.ts", "seo-thumbnail-pro/src/lib/imageFileCheck.ts", "cardnews-studio/src/lib/imageFileCheck.ts"],
   },
   {
     id: "image-file-check-test",

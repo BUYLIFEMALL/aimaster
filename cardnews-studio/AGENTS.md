@@ -50,6 +50,7 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+- **v1.31 (2026-10-20, Claude Code 윈도우) — INSTA 포스팅으로 병합 1단계: 예약 자동 실행을 INSTA로 넘김.** 카드뉴스 스튜디오 전체가 INSTA 포스팅(`insta_auto_poster` v1.35) 안 `/cardnews/*`로 들어가면서, 이 앱의 Vercel 5분 자동 실행(`vercel.json` crons `/api/cardnews/instagram/dispatch`)을 지웠다. 같은 표(`cns_insta_posts`)의 예약은 이제 INSTA가 INSTA 권한(FREE)으로 실행한다 — 이 앱이 먼저 가져가면 `cardnews-studio` 권한이 없는 회원 예약이 실패 처리되기 때문. 화면·API·회원 cron-job.org 작업 주소(`/api/cardnews/instagram/dispatch-member`)는 그대로 동작(3단계에서 INSTA로 주소 이동). 플랜 `../insta_auto_poster/docs/PLAN_20261020_CARDNEWS_MERGE.md`.
 - **현재 버전**: `v1.24` (2026-10-20)
 - **v1.24 (2026-10-20, Claude Code 윈도우) — ⏰ 인스타 예약 게시 실행 방식 회원 선택(AIMaster 기본 Vercel / 본인 cron-job.org) + 24시간 규칙** — 주인님 지시(예약 방식 1순위 ③). 지침 루트 `docs/SCHEDULER_POLICY.md`, 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULER.md`, 기준 `threads/` v1.19.
   - 코드: `src/lib/instagram/cronJobOrg.ts`·`memberScheduler.ts`(표 `cns_member_scheduler`, 토큰 `cns_…` DB엔 해시, 끄기 스위치 `CNS_PLATFORM_SCHEDULER=off`, 운영 전용이라 기본 Vercel), `posts.ts` `dispatchDuePosts(limit, { userId, excludeUserIds, failWithMessage })` + 24시간 규칙(`schedule.ts` `isTooLate`) — 기존 조건부 잠금·10분 뒤 1회 재시도·재시도 전 중복 확인은 그대로. 새 주소 `/api/cardnews/instagram/dispatch-member`(회원 토큰, 즉시 응답 + `after`, 남은 예약 0건이면 작업 끔), `/api/cardnews/scheduler`(화면용 상태·방식·일시정지·재개 — 이 프로그램은 서버 액션 대신 API 구조). 운영자 주소는 vercel·비일시정지 회원만. 예약 저장 API: 저장 전 방식·키 확인, 저장 뒤 작업 켜기(실패 시 예약 취소·이미지 정리). 키 API: 허용 목록 `cronjob_org_api_key`(설정용 타입 `SettingsKeyProvider` — AI 키 타입은 그대로), 키 변경·삭제 시 작업 정리.

@@ -51,7 +51,17 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.30` (2026-10-20)
+- **현재 버전**: `v1.35` (2026-10-20)
+- **v1.35 (2026-10-20, Claude Code 윈도우) — 🎨 카드뉴스 스튜디오 병합 1단계(INSTA Cardnews 자동화 → INSTA 포스팅 안으로)**
+  - 주인님 결정: 병합 A 방향 INSTA 안으로, **FREE 유지**, 최상위 규칙 그대로(회원 본인 인스타 연동 + 본인 Gemini·OpenAI·Claude 키, 폴백 없음). 분석 `../docs/analysis-insta-consolidation-20261020/REPORT.md`, 플랜 `docs/PLAN_20261020_CARDNEWS_MERGE.md`.
+  - 화면 `/cardnews`(홈)·`/cardnews/plan|copy|design|background|export|guide|settings`, 좌측 메뉴 「카드뉴스 스튜디오」 묶음(독립 모드 배포판에서는 숨김 — 배포판 DB에 카드뉴스 표 없음). 작업 상태 보관 `(dashboard)/cardnews/layout.tsx`(ProjectProvider).
+  - API는 **주소 그대로** `/api/cardnews/*`·`/api/projects*`·`/api/templates*`·`/api/settings/api-keys`(옛 주소 전달·회원 cron-job.org 작업 호환). DB 표 `cns_*` 그대로(이전 없음).
+  - 코드 위치: 카드뉴스 전용 lib는 `src/lib/cardnews/`(ai·instagram·supabase·access·apiKeys·auth·programAccess·imageFileCheck·safeFetch), 컴포넌트 `src/components/cardnews/`. INSTA와 내용이 같던 공용 파일 4개(`instagram/publish.ts`·`ai/geminiImage.ts`·`ai/nanoBananaModels.ts`·`memberIntegrations.ts`)는 INSTA 것을 씀. 공용 기준 코드 등록부에 INSTA 사본 7개 추가(openai-request-params·insta-schedule-time·member-scheduler·insta-cronjob-org·insta-posts-client·safe-fetch·image-file-check), 기준 위치는 아직 `cardnews-studio`(3단계에 이동).
+  - 권한: `src/lib/cardnews/access.ts` `THIS_PROGRAM_SLUG = "auto-instagram-posting"` — 카드뉴스 예약 실행도 INSTA 권한(FREE)으로 확인. 예약 자동 실행 `vercel.json`에 `/api/cardnews/instagram/dispatch` 5분 추가, 옛 카드뉴스 앱 v1.31은 자동 실행 제거. 회원 cron-job.org 실행 주소 `schedulerConfig.ts` → INSTA 도메인(기존 작업은 옛 주소로 계속 동작).
+  - 연결 안내 문구·링크: 「INSTA 포스팅 자동화에서 연결」 → 「API키등록·플랫폼연동」(`/settings`, 같은 앱).
+  - 테스트: 카드뉴스 테스트 5개 이식 `tests/cardnews/*`, `npm run test:cardnews`(52개 통과), `test:own-meta` 통과. 패키지: jszip·lucide-react·pretendard·@fontsource 3종·sharp·undici, 개발용 tsx. `next.config.mjs`에 sharp 설정.
+  - 함께 나감(이전 「다음 배포 때 함께」): 2026-10-20 회원 예약 실행 방식 공용 사본 전환, 배포판 가입 확인 메일·독립 모드 판정 보강.
+  - 남은 단계: 2단계(게시물 목록에 카드뉴스 예약 함께 표시, AI 이미지 카드뉴스 4장 → 스튜디오 일원화), 3단계(옛 cardnews-studio 주소 이동·카탈로그 「병합됨」·기준 위치 이동 — 주인님 확인 후).
 - **v1.30 (2026-10-20, Claude Code 윈도우)**: **회원 연동 정보 공용 저장 ④단계** — 연결 계정을 공용 표 `member_platform_accounts`(platform `instagram`)에도 저장(이중 기록: Instagram 로그인 콜백 `callback/byok`, Facebook 방식은 페이지 확정 `confirmInstagramAccountAction`), 게시·예약 게시·화면 5곳은 `src/lib/instagram/memberAccount.ts` `getInstaAccountForUser` — 공용 계정(로그인 방식에 맞는 게시 권한·재연결 필요 아님·Facebook 방식은 페이지 ID 있음) → 없으면 `insta_accounts`. 해제는 공용 행도 삭제(설정 화면 안내 문구). 배포판(IS_STANDALONE)은 공용 표를 건드리지 않음. 공용 부품 사본 `src/lib/memberIntegrations.ts`(기준 루트 `lib/`). 카드뉴스·인플루언서는 아직 `insta_accounts`를 직접 읽으므로 이 표는 그대로 유지. 백필 `supabase/migrations/20261020150000_member_integrations_v1_30.sql`. 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP4_INSTAGRAM.md`.
 - **v1.28 (2026-10-20, Claude Code 윈도우)**: 직접 첨부 칸에서 **여러 파일을 한 번에 선택**(카드뉴스일 때 `multiple`, 파일 이름순·남은 장수만큼 차례로 업로드 — `handleAddUploadedSlides`), 새 글 주소 **`postType=card_news`** 로 카드뉴스 형식을 미리 고름(`posts/new/page.tsx` → `initialPostType`). 계기: 4컷 만화 v1.16 「카드뉴스(컷별 4장)로 올리기」. DB 구조 변경 없음(`supabase/migrations/20261020110000_multi_upload_v1_28.sql` = 버전만).
 - **v1.27 (2026-10-20, Claude Code 윈도우)**: **AI 생성 없이 내 이미지·캡션으로 바로 저장.** 새 글 화면에서 이미지가 하나도 없을 때도 「이미지 파일 직접 첨부 (n/필요 장수)」 칸을 보여 주고(피드 1장·카드뉴스 4장까지 추가), 캡션과 필요한 장수의 이미지가 이미 있으면 「게시물 생성하기」가 주제·AI 키 확인과 AI 생성을 건너뛰고 그대로 임시저장/예약/즉시 게시한다(`readyWithoutAi`, 초록 안내 문구). 예전에는 이미지가 있어도 제출 때마다 AI로 캡션·이미지를 새로 만들어 덮어썼고, 직접 첨부 칸은 AI 이미지가 생긴 뒤에만 보였다. 계기: 4컷 만화 v1.15 「INSTA 자동포스팅으로 올리기」(주소 `?caption=&hashtags=`로 문구를 채우고 그림은 회원이 직접 첨부). 파일 `src/components/posts/PostForm.tsx`, DB 구조 변경 없음(`supabase/migrations/20261020100000_own_image_handoff_v1_27.sql` = 버전만). 플랜: `../four-cut-comics/docs/PLAN_20261020_INSTA_HANDOFF.md`(범위 변경 주인님 승인).
