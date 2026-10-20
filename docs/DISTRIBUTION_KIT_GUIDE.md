@@ -92,7 +92,7 @@
 
 ## 4. 포장(압축) — 손이 덜 가는 방법
 
-1. **포장 스크립트 하나로**: 프로그램의 `KIT/kit.json`만 써 두고 `python scripts/make_lecture_kit.py --name <묶음이름> --programs <폴더1> [폴더2 …] [--out D:\PDS]` → `<묶음이름>_<YYYYMMDD>.zip`(인자 없이 실행하면 SNS 묶음 = threads-content-ops + insta_auto_poster). 스크립트가 공용 설치 스크립트를 넣고, `schema.mode=generate`면 DB 파일을 조각에서 합쳐 만든다.
+1. **포장 스크립트 하나로**: 프로그램의 `KIT/kit.json`만 써 두고 `python scripts/make_lecture_kit.py --name <묶음이름> --programs <폴더1> [폴더2 …] [--out D:\PDS]` → `<묶음이름>_<YYYYMMDD>.zip`(인자 없이 실행하면 SNS 묶음 = threads-content-ops + insta_auto_poster). 스크립트가 공용 설치 스크립트를 넣고, `schema.mode=generate`면 DB 파일을 조각에서 합쳐 만든다. **포장 뒤 자동 검사 2가지**: 비밀값 검사 + **DB 대조**(2026-10-20 — 압축에 들어간 코드가 쓰는 표 `.from`·함수 `.rpc`·버킷 `storage.from`이 `KIT/schema.sql`에 없으면 실패하고 압축을 지운다). 배포판에서 `IS_STANDALONE`으로 일부러 건너뛰는 운영 전용 표(공용 연동 표 등)만 `kit.json` `schemaCheckIgnore`에 적는다 — 보호 코드가 있는지 확인하고 적을 것. 포장 없이 점검만: `--check-only [--programs …]`.
    - **항상 빼는 것**: `.env*`(`.env.example` 제외), `node_modules`, `.next`, `.vercel`, `.git`, `*.tsbuildinfo`, `*.log`, 내부 문서(`docs/`, `AGENTS.md`, `CLAUDE.md`), 운영 마이그레이션(`supabase/` — `KIT/schema.sql`이 대신), 내부 테스트·스크립트(필요 없으면)
    - **덮어쓰는 것**: `vercel.json` ← `KIT/vercel.json`(무료용), `.env.example` ← `KIT/env.example`, 루트 `README.md` ← 「`KIT/README.md`부터 보세요」 한 줄
 2. **포장 후 비밀값 검사(자동)**: 스크립트가 `.env*`(`.env.example` 제외)·실제 키 모양(OpenAI·Anthropic·JWT·Supabase 새 키·Google·Replicate)을 찾으면 **포장을 멈추고 펼친 폴더를 지운다**. 통과 메시지 「비밀값 검사 통과」를 확인하고 넘긴다.

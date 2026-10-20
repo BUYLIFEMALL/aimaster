@@ -18,6 +18,12 @@
     "vercel.json": "KIT/vercel.json",
     ".env.example": "KIT/env.example"
   },
+  "schemaCheckIgnore": [
+    "member_platform_accounts",
+    "integration_catalog",
+    "tco_threads_accounts",
+    "th_posts"
+  ],
   "schema": {
     "mode": "generate",
     "parts": [

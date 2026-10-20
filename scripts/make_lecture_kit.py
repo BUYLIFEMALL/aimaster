@@ -12,9 +12,11 @@ kit.json 항목(포장에 쓰는 것):
                                  → 순서대로 합쳐 KIT/schema.sql 생성(운영 DB 변경이 저절로 따라옴)
   extraEnv, callbackPath, ...  : 설치 스크립트가 읽는 값(scripts/kit-template/setup.ps1·sh)
   checkTable                   : 패키지 설치마법사가 DB 파일 실행 성공을 확인할 표(schema.sql에서 마지막에 만들어지는 표)
+  schemaCheckIgnore            : DB 대조에서 뺄 표 — 배포판(IS_STANDALONE)에서 코드가 일부러 건너뛰는 운영 전용 표만(예: member_platform_accounts)
 설치 스크립트는 항상 공용 템플릿(scripts/kit-template/setup.ps1·setup.sh)을 KIT/ 로, 더블클릭 실행 파일(패키지설치마법사.cmd·.command)을
 프로그램 폴더 맨 위에 복사해 넣는다(프로그램별 사본을 따로 고치지 않는다). 「패키지 설치마법사」 표준: 지침 §2-2.
 포장 뒤 비밀값 자동 검사: .env*(.env.example 제외)·실제 키 패턴이 있으면 실패하고 압축을 지운다.
+포장 뒤 DB 대조(2026-10-20): 코드가 쓰는 표(.from)·함수(.rpc)·저장소 버킷(storage.from·*BUCKET* 상수)이 KIT/schema.sql 에 없으면 실패하고 압축을 지운다.
 
 배포판 번호(2026-10-20 주인님 지시 — 메인 넘버링 정책과 같음): `--version vX.YY` 필수. 다시 포장할 때마다 +0.01(v1.99 다음 v2.00),
 메이저는 주인님 지시 때만. 이름은 <묶음이름>_<버전>(예: SNS_Auto_Posting_Kit_v1.01.zip), 같은 번호가 이미 있으면 덮어쓰지 않고 멈춘다.
@@ -23,6 +25,7 @@ kit.json 항목(포장에 쓰는 것):
 사용:
   python scripts/make_lecture_kit.py --version v1.01                   (기본: SNS 묶음 = threads-content-ops + insta_auto_poster → D:\\PDS)
   python scripts/make_lecture_kit.py --version v1.01 --name 묶음이름 --programs 폴더1 폴더2 [--out 출력폴더]
+  python scripts/make_lecture_kit.py --check-only [--programs 폴더1 …]   (포장 없이 DB 대조만 — 코드·DB 파일을 고친 뒤 미리 확인)
 """
 import argparse
 import glob
@@ -195,13 +198,104 @@ def scan_secrets(stage):
     return problems
 
 
+CODE_SUFFIX = (".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs")
+FROM_RE = re.compile(r"\.from\(\s*[\"'`]([A-Za-z0-9_-]+)[\"'`]")
+RPC_RE = re.compile(r"\.rpc\(\s*[\"'`]([A-Za-z0-9_]+)[\"'`]")
+BUCKET_CONST_RE = re.compile(r"\b[A-Z_]*BUCKET[A-Z_]*\s*=\s*[\"'`]([A-Za-z0-9_-]+)[\"'`]")
+
+
+def schema_names(sql):
+    """KIT/schema.sql 에서 만들어지는 표·뷰·함수·저장소 버킷 이름."""
+    sql = re.sub(r"--[^\n]*", "", sql)
+    rel = set(re.findall(r"create\s+(?:or\s+replace\s+)?(?:materialized\s+)?(?:table|view)\s+(?:if\s+not\s+exists\s+)?(?:public\.)?\"?([A-Za-z0-9_]+)", sql, re.I))
+    funcs = set(re.findall(r"create\s+(?:or\s+replace\s+)?function\s+(?:public\.)?\"?([A-Za-z0-9_]+)", sql, re.I))
+    buckets = set(re.findall(r"insert\s+into\s+storage\.buckets[^;]*?values\s*\(\s*'([A-Za-z0-9_-]+)'", sql, re.I | re.S))
+    return {n.lower() for n in rel}, {n.lower() for n in funcs}, buckets
+
+
+def check_schema(program, kit, prog_dir):
+    """포장된 코드가 쓰는 표(.from)·함수(.rpc)·버킷(storage.from)이 KIT/schema.sql 에 모두 있는지 대조.
+    배포판(IS_STANDALONE)에서 일부러 건너뛰는 운영 전용 표는 kit.json 의 schemaCheckIgnore 에 적는다."""
+    schema_path = os.path.join(prog_dir, "KIT", "schema.sql")
+    tables, funcs, buckets = schema_names(io.open(schema_path, encoding="utf-8").read())
+    ignore = {n.lower() for n in kit.get("schemaCheckIgnore", [])}
+    used = {}  # (종류, 이름) -> 처음 쓰인 파일
+
+    def note(kind, name, rel):
+        used.setdefault((kind, name), rel)
+
+    for cur, dirs, files in os.walk(prog_dir):
+        rel_dir = os.path.relpath(cur, prog_dir)
+        dirs[:] = [d for d in dirs if d not in ALWAYS_SKIP_DIRS and not (rel_dir == "." and d == "KIT")]
+        for f in files:
+            if not f.endswith(CODE_SUFFIX):
+                continue
+            full = os.path.join(cur, f)
+            rel = os.path.relpath(full, prog_dir).replace(os.sep, "/")
+            text = io.open(full, encoding="utf-8", errors="ignore").read()
+            for m in FROM_RE.finditer(text):
+                before = re.sub(r"\s+", "", text[max(0, m.start() - 40):m.start()])
+                note("버킷" if before.endswith("storage") else "표", m.group(1), rel)
+            for m in RPC_RE.finditer(text):
+                note("함수", m.group(1), rel)
+            for m in BUCKET_CONST_RE.finditer(text):
+                note("버킷", m.group(1), rel)
+
+    missing = []
+    for (kind, name), rel in sorted(used.items()):
+        if name.lower() in ignore:
+            continue
+        ok = (name.lower() in tables) if kind == "표" else (name.lower() in funcs) if kind == "함수" else (name in buckets)
+        if not ok:
+            missing.append(f"{program}: {kind} `{name}` 이(가) KIT/schema.sql 에 없음 (처음 쓰인 곳 {rel})")
+    counts = {k: sum(1 for (kk, _n) in used if kk == k) for k in ("표", "함수", "버킷")}
+    return missing, counts
+
+
+def run_schema_checks(kits, stage):
+    problems = []
+    for program, kit in kits:
+        missing, counts = check_schema(program, kit, os.path.join(stage, program))
+        problems.extend(missing)
+        ign = kit.get("schemaCheckIgnore", [])
+        print(f"   DB 대조 {program}: 표 {counts['표']}·함수 {counts['함수']}·버킷 {counts['버킷']}개 확인"
+              + (f" (예외 {', '.join(ign)})" if ign else "") + (" — 빠진 것 있음" if missing else " — 모두 있음"))
+    return problems
+
+
+def check_only(kits):
+    """포장하지 않고 임시 폴더에 펼쳐 DB 대조만 한다(이미 낸 번호를 다시 검사할 때)."""
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix="kitcheck_")
+    try:
+        for program, kit in kits:
+            copy_program(program, kit, tmp)
+        problems = run_schema_checks(kits, tmp)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    if problems:
+        print("[실패] 코드가 쓰는데 배포판 DB 파일에 없는 것:")
+        for p in problems:
+            print("  -", p)
+        print("  → KIT/schema.sql(또는 generate 조각)에 추가하거나, 배포판에서 건너뛰는 운영 전용 표면 kit.json schemaCheckIgnore 에 적으세요.")
+        sys.exit(1)
+    print("OK DB 대조 통과")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", default="SNS_Auto_Posting_Kit")
     ap.add_argument("--programs", nargs="+", default=["threads-content-ops", "insta_auto_poster"])
     ap.add_argument("--out", default=r"D:\PDS")
-    ap.add_argument("--version", required=True, help="배포판 번호 vX.YY (예: v1.01) — 다시 포장할 때마다 +0.01")
+    ap.add_argument("--version", help="배포판 번호 vX.YY (예: v1.01) — 다시 포장할 때마다 +0.01")
+    ap.add_argument("--check-only", action="store_true", help="포장하지 않고 코드가 쓰는 표·함수·버킷이 KIT/schema.sql 에 있는지만 대조")
     args = ap.parse_args()
+
+    if args.check_only:
+        check_only([(p, load_kit(p)) for p in args.programs])
+        return
+    if not args.version:
+        sys.exit("[실패] --version vX.YY 가 필요합니다(점검만 하려면 --check-only).")
 
     if not re.fullmatch(r"v\d+\.\d{2}", args.version):
         sys.exit(f"[실패] 배포판 번호는 vX.YY 형식이어야 합니다(예: v1.01). 입력: {args.version}")
@@ -225,6 +319,15 @@ def main():
             print("  -", p)
         sys.exit(1)
 
+    problems = run_schema_checks(kits, stage)
+    if problems:
+        shutil.rmtree(stage)
+        print("[실패] 코드가 쓰는데 배포판 DB 파일에 없는 것이 있어 포장을 멈췄습니다(펼친 폴더 삭제):")
+        for p in problems:
+            print("  -", p)
+        print("  → KIT/schema.sql(또는 generate 조각)에 추가하거나, 배포판에서 건너뛰는 운영 전용 표면 kit.json schemaCheckIgnore 에 적으세요.")
+        sys.exit(1)
+
     zip_path = os.path.join(args.out, kit_name + ".zip")
     if os.path.exists(zip_path):
         os.remove(zip_path)
@@ -243,7 +346,7 @@ def main():
                 else:
                     z.write(full, arc)
                 count += 1
-    print(f"OK {zip_path} ({count} files, {os.path.getsize(zip_path) // 1024} KB) — 비밀값 검사 통과")
+    print(f"OK {zip_path} ({count} files, {os.path.getsize(zip_path) // 1024} KB) — 비밀값 검사·DB 대조 통과")
     print(f"   펼친 폴더: {stage}")
 
 

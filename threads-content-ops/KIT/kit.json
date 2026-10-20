@@ -17,6 +17,10 @@
     "vercel.json": "KIT/vercel.json",
     ".env.example": "KIT/env.example"
   },
+  "schemaCheckIgnore": [
+    "member_platform_accounts",
+    "integration_catalog"
+  ],
   "schema": {
     "mode": "static"
   },

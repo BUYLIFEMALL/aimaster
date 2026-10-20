@@ -14,6 +14,10 @@
   "overrides": {
     ".env.example": "KIT/env.example"
   },
+  "schemaCheckIgnore": [
+    "member_platform_accounts",
+    "integration_catalog"
+  ],
   "schema": {
     "mode": "static"
   },
