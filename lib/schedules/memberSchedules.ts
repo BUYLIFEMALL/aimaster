@@ -99,17 +99,24 @@ export function summarizeSchedules(list: MemberSchedule[]): MemberScheduleSummar
   return { count: list.length, next: list[0] ?? null, conflicts: list.filter((s) => s.conflict).length };
 }
 
-/** 한국 시간 「10/21(화) 19:00」 */
+/** 올해가 아닌 예약이면 연도도 보여 준다(한국 시간 기준) */
+function otherYear(d: Date): boolean {
+  const y = (x: Date) => x.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", year: "numeric" });
+  return y(d) !== y(new Date());
+}
+
+/** 한국 시간 「10/21(화) 19:00」(올해가 아니면 연도 포함) */
 export function formatScheduleTime(iso: string): string {
   const d = new Date(iso);
-  const date = d.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", weekday: "short" });
+  const date = d.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", ...(otherYear(d) ? { year: "numeric" as const } : {}), month: "numeric", day: "numeric", weekday: "short" });
   const time = d.toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit", hour12: false });
   return `${date} ${time}`;
 }
 
-/** 날짜 묶음 머리글용 「10월 21일 (화)」 */
+/** 날짜 묶음 머리글용 「10월 21일 (화)」(올해가 아니면 「2027년 1월 5일 (화)」) */
 export function formatScheduleDay(iso: string): string {
-  return new Date(iso).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "long", day: "numeric", weekday: "short" });
+  const d = new Date(iso);
+  return d.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", ...(otherYear(d) ? { year: "numeric" as const } : {}), month: "long", day: "numeric", weekday: "short" });
 }
 
 export const PLATFORM_LABEL: Record<SnsPlatform, string> = { instagram: "인스타그램", threads: "쓰레드" };

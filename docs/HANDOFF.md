@@ -51,7 +51,8 @@
 ## 2026-10-20 Claude Code(윈도우) — 메인 사이트 「📅 내 예약 현황」: 8개 프로그램 SNS 예약 모아 보기 (추가개선 제안 3-2)
 - 한 일: 회원 메뉴 「내 예약 현황」(`/schedules`) + 홈 「내 작업대」 위 요약 한 줄. 인스타 5개·쓰레드 3개 예약 표를 회원 본인 것만 읽어 시각 순으로, 같은 SNS 30분 안 겹침 경고, 「○○에서 보기」 링크. 보기 전용(취소는 각 프로그램). 네이버 카페·카카오(정기형)는 다음 단계 후보.
 - 파일: `lib/schedules/memberSchedules.ts`(SOURCES — 새 예약 프로그램은 여기 한 줄 추가), `app/(dashboard)/schedules/page.tsx`, `components/home/ScheduleSummaryBar.tsx`, `app/(main)/page.tsx`, `components/layout/Sidebar.tsx`. 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULES.md`. DB 변경 없음.
-- 검수: tsc·build. 배포·크롬 확인 결과는 아래 줄에 추가.
+- 검수: tsc·build, 커밋 `0a537278`, 푸시 자동 배포 `aimaster-9j62u2f5t` Ready, 비로그인 `/schedules` → 307 로그인. 크롬(관리자): 메뉴 「내 예약 현황」(「내 구독」 아래)·빈 화면 정상. 관리자 계정에 2027년 시험 예약 2건(인플루언서 19:00·웹툰 19:10, SQL 직접 넣기 — 예약 시각 전이라 게시되지 않음)을 넣어 목록·요약 카드·30분 겹침 경고·「○○에서 보기」·홈 요약 한 줄 확인 후 삭제(남은 0건). 검수 중 「올해가 아닌 예약에 연도 없음」을 발견해 연도 표시 보완(후속 커밋).
+- Supabase SQL 편집기 경고 메모: 행 넣기 SQL에 「RLS 없이 표를 만든다」 경고가 떴으나 표를 만들지 않는 SQL이라 「Run without RLS」(작성한 그대로 실행)를 선택 — 「Run and enable RLS」는 다른 표 설정을 바꿀 수 있어 쓰지 않음.
 - 링크: https://www.buylife.xyz/schedules
 
 
