@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, KeyRound, LayoutDashboard, LogOut, Menu, Clapperboard, X } from "lucide-react";
+import { BookOpen, KeyRound, LayoutDashboard, LogOut, Menu, Clapperboard, Megaphone, X } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
@@ -39,6 +39,9 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
         <a className="flow-item" href="/open#result">
           <span className="step-number">3</span><div><strong>생성 · 수정</strong><small>2종 생성 · 수정 요청 · 다운로드</small></div>
         </a>
+        <p className="nav-caption">업로드 준비</p>
+        {/* 2026-10-20 병합 D: AI 유튜브 썸네일 프로의 SEO 전략 */}
+        <a className="nav-item" aria-current={currentPath === "/seo" ? "page" : undefined} href="/seo"><Megaphone size={17} />SEO 전략 (제목·설명·태그)</a>
         <div className="utility-menu">
           <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings"><KeyRound size={17} />API키등록·플랫폼연동</a>
           <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide"><BookOpen size={17} />연동 & 사용 매뉴얼</a>

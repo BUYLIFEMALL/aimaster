@@ -83,3 +83,9 @@
 
 ## 2026-10-20 병합 D 준비 — AI 유튜브 썸네일 프로(seo-thumbnail-pro)를 이 앱 안으로 (Claude Code 윈도우, 플랜 확인 대기·코드 변경 없음)
 - 플랜 겸 인수인계: [`docs/PLAN_20261020_MERGE_D_SEO_PRO.md`](docs/PLAN_20261020_MERGE_D_SEO_PRO.md) — SEO 전략 생성·역분석을 서버 API로 이식, 프로의 키 원문 브라우저 전달·권한 미확인 문제 해소, 프로에만 있는 회원 5명 권한 부여 필요.
+
+## 2026-10-20 v1.08 — 병합 D 1단계: SEO 전략 이식 (Claude Code 윈도우)
+- 썸네일 프로의 「대본 → A/B/C SEO 전략」을 **서버**로: `src/lib/seo/seoStrategy.ts`(프롬프트·결과 형식은 프로 그대로, 호출은 이 앱 `TEXT_MODELS`·`AiError`, 옛 `gemini-1.5-flash` 제거), API `/api/seo/strategy`(`guardAi` — 로그인·프로그램 권한·회원 본인 gemini 키, 키를 브라우저로 내보내지 않음), 화면 `/seo`(`components/seo/SeoStudio.tsx`: 대본·txt/md → 전략 3개 카드(제목·설명·해시태그·스튜디오 태그·고정 댓글·연출안 항목별 복사) + 종합 메타데이터, 「이 전략으로 썸네일 만들기」 = 기존 `POST /api/projects`로 제목·연출안을 주제로 새 프로젝트 → `/project/[id]`). 좌측 메뉴 「업로드 준비 › SEO 전략」. 스타일 `globals.css` `.seo-*`.
+- **역분석(`analyzeSeoData`)은 옮기지 않음** — 프로 자체 썸네일 설정(장르·분위기)을 채우는 용도라, 이 앱의 「주제·타겟 → 전략」 단계와 겹침. 필요하면 「올린 영상 메타데이터 → 프로젝트 입력값 채우기」로 다시 설계.
+- **공지 띠 미적용** — 이 앱은 Tailwind를 쓰지 않아 공용 `ProgramNoticeBanner`(Tailwind 클래스)가 맞지 않음(`docs/SHARED_MODULES.md` 기록).
+- 검수: tsc, build(`/seo`·`/api/seo/strategy`), 테스트 11개.

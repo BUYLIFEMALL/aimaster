@@ -79,3 +79,4 @@
 - 2026-10-20 `program-notice-banner` 기준 수정(급하지 않음, 웹툰은 다음 배포 때): `createClient() as unknown as SupabaseClient` — DB 형식 정의(`Database`)에 `programs`·`notices`가 없는 프로그램에서 타입 검사가 `never`로 실패해서. 실행 동작 변화 없음. 같은 날 사본 5개 추가·배포(INSTA 댓글·DM v1.24, threads 댓글 v1.15, 유튜브 자동답글 v1.20, 카카오 v1.29, INSTA 포스팅 v1.42).
 
 - 2026-10-20 병합 C: `youtube-data-client`·`youtube-golden-engine`(및 각 테스트)의 기준을 `youtube-channel-consultant` → `youtube-viral-studio`(YOUTUBE 트렌드 분석)로 이동. 옛 CONSULTANT 폴더는 주소 전달만 하므로 사본 목록에서도 뺌. 파일 내용 변화 없음(이미 동일).
+- 2026-10-20 `program-notice-banner` 주의: 부품이 Tailwind 클래스로 꾸며져 있어 **Tailwind를 쓰지 않는 프로그램(예: `thumbnail-master`)에는 그대로 넣으면 모양이 깨짐** — 그런 프로그램은 그 앱 CSS로 감싼 별도 버전을 만들지 판단(지금은 미적용).
