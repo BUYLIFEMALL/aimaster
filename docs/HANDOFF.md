@@ -8,6 +8,12 @@
 
 https://naver-blog-agent.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 E 1단계 (playlist-channel-studio v1.15)
+- Youtube Playlist 영상 부품·브라우저 렌더·AI 배경 API를 채널 제작 앱 `/video`(「영상 만들기」)로 이식, 좌측 ① 기획 → ② 영상 만들기 → ③ 내 프로젝트, 공지 띠. 커밋 `1de0ebcf`, 배포 Ready, DB v1.15, 크롬 화면 확인(MP4 실제 렌더는 미시험).
+- 다음 첫 단계: 2단계(이름·매뉴얼·Viral Finder 문구) — [플랜 §8](../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md).
+
+https://playlist-maker.buylife.xyz/video
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 E 플랜 (코드 변경 없음, 다른 CLI 이어받기 가능)
 - Youtube Playlist 영상 → 플레이리스트 채널 제작: **기준 앱을 보고서와 반대로 채널 제작 앱으로 정정**(영상 앱은 브라우저 부품 한 화면 앱이라 `/video`로 옮기기 쉬움). 권한 143명 동일, DB 이전 없음, 키 보안 문제 없음. [플랜](../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md) §7.
 
