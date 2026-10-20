@@ -1,5 +1,7 @@
 # BLC-02 사진 준비 UI — v2.02 운영 완료
 
+> 2026-10-21 후속 보완: 아래 운영 좁은 화면 해시 바로가기 제목 가림/펼침 잔여는 **v2.03 실제 회원 검수에서 확인 완료**했습니다. 안내 링크로 이동한 516px Edge에서 제목이 고정 상단 메뉴 아래에 표시되고 실제 펼침·파일 선택·후기 영역까지 확인했습니다. [화면 증거](evidence/blc03-photo-review/production-photo-anchor-expanded.png) · [BLC-03 최종 검수](IMPROVEMENT_HANDOFF_20261021_BLC03_PHOTO_REVIEW.md). 아래 미검증 기록은 당시 이력입니다.
+
 2026-10-20 Codex(윈도우). BLC-01 운영 완료 후 주인님 ‘계속 작업 진행’ 요청으로 착수. 대상 AIMaster 운영 ref **`esgxyikcnnvmlhygjkth`**. [개발 계획](PLAN_20261020_BLC02_PHOTO_INPUT.md).
 
 2026-10-21 마무리: 코드 `49c6fd62` 커밋/원격 반영, 운영 배포 Ready와 실제 일반 회원 검수를 완료했습니다. 아래 사진 준비 범위만 완료이며 BLC-03·04는 미착수입니다.

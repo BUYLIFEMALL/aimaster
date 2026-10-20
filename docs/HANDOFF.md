@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Codex(윈도우) — 블로그 BLC-03 v2.03 운영 회원 검수 완료
+
+- 주인님 로그인 후 지정 회원 `buylifemall@naver.com` 실제 Edge에서 GPT-4o-mini 후기 초안 1회 생성(관찰·작성 API 2회). 사진/메모 근거 구분·직접 검수 필요·확인할 내용·초안과 주의 문구 복사·메모 변경 시 이전 초안/근거 해제 통과. 합성 단색 시험 자료 1건의 검수이며 일반 사진 품질/사실성을 보장하지 않습니다.
+- 새 시험 PNG 1장/422바이트, 운영 DB ref **`esgxyikcnnvmlhygjkth`** 읽기 확인에서 새 원고 저장 0. 목록 취소→0장, 물리 삭제 없음·원래 30일 정리 유지. AI 사진 생성/최종 발행 0. 시험 선택·메모·초안 초기화, 기존 GPT-4.1 복귀·설정 저장 없음.
+- 실제 사용 안내 STEP 2→3→4·규칙 복사·회원 설정/사진 화면 직링크 확인. 516px 입력·결과·안내와 데스크톱 안내를 캡처해 확인, BLC-02 해시 바로가기 제목 가림/펼침 잔여도 해소 확인. Orca 간헐 캡처 실패는 native PrintWindow로 검수. 생성 본문/관찰 원문은 Git에 남기지 않고 확인 결과·복사 SHA만 기록했습니다. Edge는 1433×1399 일반 창으로 유지, 기존 네이버 준비 탭 변경 없음.
+- 코드 `1812bf7f`·중간 인수인계 `81c36521` 원격 반영, 운영 `dpl_5LXFFLqas2kyfer2VD8SEjXPVpfd` Ready·DB/확장/라이브 ZIP v2.03 일치. 기존 회귀 176개·확장 모의 42개·타입/빌드 통과 유지. 이번은 소스 수정이 없어 재배포하지 않았습니다.
+- [프로그램별 완료 증거·한계·다음 첫 단계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261021_BLC03_PHOTO_REVIEW.md) · [순차 작업목록](BLOG_CONSOLIDATION_TASKS.md). **다음은 BLC-04 편집·저장·검수 지문·기존 대기열/확장 연결 플랜**, 현재 미착수. 아래 로그인 대기 항목은 이전 이력입니다.
+
+https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 엔진 공유 2번 완료: Shots 「브라우저에서 만들기(무료)」 v1.24~v1.26 · 원스톱 v1.20
 
 - 원스톱 MP4 인코더를 공용 기준 **`browser-mp4-encoder`**(`shorts-onestop-studio/src/lib/render/mp4Encoder.ts`, 사본 `shots/src/lib/render/mp4Encoder.ts`)로 분리 — 원스톱 v1.20 다시 만들기 결과 같음(58.20초·1080×1920·16.8MB).
