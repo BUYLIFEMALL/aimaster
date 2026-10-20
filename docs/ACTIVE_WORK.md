@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `insta_auto_poster/` · `cardnews-studio/` | Claude Code(윈도우) | 2026-10-20 22:30 KST | 카드뉴스 스튜디오를 INSTA 포스팅 안으로 병합 1단계(플랜 `insta_auto_poster/docs/PLAN_20261020_CARDNEWS_MERGE.md`) |
