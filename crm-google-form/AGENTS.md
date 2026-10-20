@@ -126,3 +126,9 @@ F-007(P1), F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기�
 ## 2026-10-20 v1.11 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
 - 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `crm-google-form-isi69512a`.
 - 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).
+
+## 2026-10-20 v1.11 실검수 완료 — 운영자 실행 200 · 「내 cron-job.org」 성공 경로 (Claude Code 윈도우, 코드 변경 없음)
+- 운영자 실행: `/api/cron/followup`이 2026-10-20 09:00 KST 최신 배포(`crm-google-form-isi69512a`)에서 **200**.
+- 크롬 실검수(관리자, **실제 발송 없음** — 접수 0건, 시험 규칙 채널 모두 끔): 「내 cron-job.org」 선택(상태 줄 「대기 · 켜진 규칙 0개」) → 시험 규칙 추가 → 작업 8679092 자동 켜짐(DB `active: true`) → 일시정지(`paused: true`) → **재개 성공**(어제 한도 초과로 실패했던 부분, `paused: false`·`active: true`) → 새로고침 뒤 상태 줄 「내 cron-job.org 실행 중 · 켜진 규칙 1개」 → 규칙 끄기로 작업 자동 멈춤(`active: false`) → 시험 규칙 삭제 → Vercel 복귀. 최종: Vercel·규칙 0(시험 전과 같음).
+- 미확인: 회원 실행 200 — 이 프로그램의 cron-job.org 작업은 매일 09시라 시험 중에 호출이 오지 않음(같은 공용 코드의 유튜브·상품소싱 회원 실행 200은 같은 날 확인).
+- 발견(화면, 미수정): 규칙을 추가해 작업이 켜져도 상태 줄은 새로고침 전까지 「대기」로 남음 → `docs/IMPROVEMENTS.md`.

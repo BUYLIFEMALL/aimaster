@@ -60,6 +60,14 @@
 - 남은 일: GPT-5 계열 생성 400(온도 지정 추정, 원장 #14), 휴대폰 목록 가로 넘침(#15), 일반 회원 계정 화면 검수. 인수인계 `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261020.md`.
 - 링크: https://naver-blog-seo-studio.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 예약 실검수 마무리: 운영자 09시 실행 + 「내 cron-job.org」 성공 경로 3개 (주인님 「진행해줘」, 코드 변경 없음)
+- 운영자 실행: 구글폼 CRM `/api/cron/followup` 09:00 KST **200**. 상품소싱 09시 리포트 5개 실행(나머지 3개는 핸드폰 미등록 회원 2명이라 권한 확인에서 정상 제외).
+- cron-job.org 하루 한도는 09:06 KST 이전에 풀려 있었음(UTC 0시 초기화로 보임).
+- 「내 cron-job.org」 성공 경로(관리자, 실제 발송 없음): ① 구글폼 CRM — 시험 규칙으로 작업 자동 켜짐 → 일시정지 → **재개 성공** → 규칙 끄기로 자동 멈춤 → 시험 규칙 삭제 → Vercel. ② 유튜브 — 전환 즉시 작업 8681784 생성·켜짐 → 회원 실행 09:10 **200**(관리자 마지막 확인 시각 그대로 = 실제 답글 없음) → Vercel. ③ 상품소싱 — 작업 8681794 켜짐 → 회원 실행 09:15 **200** → Vercel. 세 프로그램 모두 최종 Vercel·작업 꺼짐.
+- 유튜브 기록은 여기에만: `youtube-auto-reply/`에 다른 CLI의 미커밋 작업(회원 연동 정보, 버전 파일 포함)이 있어 폴더 문서는 건드리지 않음.
+- 발견: 구글폼 CRM 상태 줄이 규칙 추가 뒤 새로고침 전까지 「대기」로 남음(`crm-google-form/docs/IMPROVEMENTS.md`).
+- 링크: https://crm-google-form.buylife.xyz · https://youtube-auto-reply.buylife.xyz · https://trending-product-finder.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 쓰레드 포스팅 v1.23: 예약 공용 코드 「실패 시 상태 되돌리기」 마지막 1개 (주인님 「진행해줘」)
 - 다른 세션이 끝난 `threads/`에 11개와 같은 두 곳 수정. 커밋 `497f7e7c`, DB 버전 v1.23(크롬 SQL Editor), 배포 `threads-o66bilp7g` Ready, `/login` 200, 회원 실행 주소 가짜 토큰 401. 이로써 운영 예약 프로그램 12개 모두 적용(Lab `labs/kit-threads`만 별도).
 - 남은 일: 1번(「내 cron-job.org」 성공 경로 실검수: crm 재개·youtube·trending — cron-job.org 한도 해제 확인 후), 2번(crm-google-form 운영자 실행 2026-10-20 09:00 KST 로그 확인).

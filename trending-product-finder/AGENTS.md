@@ -276,3 +276,7 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 ## 2026-10-20 v1.16 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
 - 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `trending-product-finder-q1oiv1gj9`.
 - 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).
+
+## 2026-10-20 v1.16 실검수 완료 — 09시 리포트 · 「내 cron-job.org」 성공 경로 (Claude Code 윈도우, 코드 변경 없음)
+- 09시 리포트: 켜진 관심 목록 8개 중 5개가 2026-10-20 09:00:47 KST에 `report_last_run_at` 기록(하루 1번). 나머지 3개는 **핸드폰 미등록 회원 2명** 것이라 실행 직전 이용 권한 확인에서 정상 제외.
+- 크롬 실검수(관리자 — 관심 상품 5개 알림이 이미 켜져 있어 Vercel 운영자 실행과 같은 일을 실행 주체만 바꿔 확인): 「내 cron-job.org」 선택 → 작업 8681794 즉시 자동 생성·켜짐 → 회원 실행 `/api/cron/dispatch-member` 09:15 KST **200** → Vercel 복귀(작업 꺼짐). 최종: Vercel·관심 상품 알림 5개 그대로.
