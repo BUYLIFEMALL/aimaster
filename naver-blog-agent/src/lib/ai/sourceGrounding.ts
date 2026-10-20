@@ -61,3 +61,25 @@ export function applyUnsupported(status: "PASS" | "WARN" | "FAIL" | "UNKNOWN", u
     note: `근거 자료에 없는 사실 문장 ${unsupported.length}개 — 확인·수정 필요: ${unsupported.map((s) => `「${s.slice(0, 80)}」`).join(" ")}`,
   };
 }
+
+const tokens = (text: string) => new Set((String(text || "").match(/[가-힣A-Za-z0-9]{2,}/g) || []).map((t) => t.toLowerCase()));
+
+/** 여러 기사로 만든 글감마다 내용이 가장 많이 겹치는 기사 하나를 골라 원문으로 쓴다(없으면 null). */
+export function pickBestArticle<T extends { title: string; text: string; url?: string }>(candidateText: string, articles: T[]): T | null {
+  const want = tokens(candidateText);
+  let best: T | null = null;
+  let bestScore = 0;
+  for (const article of articles) {
+    const have = tokens(`${article.title} ${article.title} ${article.text.slice(0, 1500)}`);
+    let score = 0;
+    for (const t of want) if (have.has(t)) score++;
+    if (score > bestScore) { best = article; bestScore = score; }
+  }
+  return bestScore >= 2 ? best : null;
+}
+
+/** 고른 기사(또는 전체 묶음)를 원문 보관용 문자열로 만든다. */
+export function articleSourceText(article: { title: string; text: string; url?: string } | null, fallback: string): string {
+  const text = article ? `${article.title}\n${article.text}${article.url ? `\n출처: ${article.url}` : ""}` : fallback;
+  return text.slice(0, MAX_SOURCE_CHARS);
+}

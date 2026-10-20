@@ -95,3 +95,13 @@ test('글감 원문 보관: 요약 + 원문을 합치고 4,000자 이내, 원문
   assert.match(rule, /사실 주장/);
   assert.match(rule, /것 같아요/);
 });
+test('글감별 원문: 여러 기사 중 글감과 가장 겹치는 기사 하나만 고른다', () => {
+  const arts = [
+    { title: '솔비, 이규한과 결혼 결심한 이유', text: '솔비가 예비 신랑 이규한에게 사과를 받았다', url: 'https://n.news.naver.com/article/1/1' },
+    { title: '김수영 게장 판매 방송 차단 논란', text: '개그맨 김수영이 게장 원산지 질문을 차단했다', url: 'https://n.news.naver.com/article/2/2' },
+  ];
+  assert.equal(grounding.pickBestArticle('김수영 게장 방송 논란, 원산지 질문이 문제였나', arts).title, arts[1].title);
+  assert.equal(grounding.pickBestArticle('전혀 관계없는 주제', arts), null);
+  assert.match(grounding.articleSourceText(arts[1], 'fallback'), /^김수영 게장[\s\S]*출처: https:\/\/n\.news/);
+  assert.equal(grounding.articleSourceText(null, '묶음 원문'), '묶음 원문');
+});

@@ -14,6 +14,7 @@ import {
   analyzeShortForBlog,
 } from "@/lib/collector";
 import { fetchRankingArticles, isRankingKind, RANKING_SOURCES } from "@/lib/naverRanking";
+import { articleSourceText, pickBestArticle } from "@/lib/ai/sourceGrounding";
 import type { BlogViralCandidate } from "@/types/collector";
 
 export const dynamic = "force-dynamic";
@@ -60,6 +61,7 @@ export async function POST(req: Request) {
       const links = extractArticleLinks(listing.html, listing.finalUrl);
       let rawText = "";
       let maxItems = 1;
+      let sourceArticles: { url: string; title: string; text: string }[] = [];
 
       if (links.length >= 3) {
         const picked = pickRandom(links, 5);
@@ -83,6 +85,7 @@ export async function POST(req: Request) {
           .map((a, i) => `[기사 ${i + 1}] ${a.title}\n${a.text}\n출처: ${a.url}`)
           .join("\n\n");
         maxItems = Math.min(valid.length, 4);
+        sourceArticles = valid;
       } else {
         const text = extractMainText(listing.html);
         if (text.length < 80) {
@@ -103,7 +106,7 @@ export async function POST(req: Request) {
         id: `viral-url-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "http",
         source_input: rawUrl,
-        source_text: rawText.slice(0, SOURCE_TEXT_MAX),
+        source_text: articleSourceText(pickBestArticle(`${d.title} ${d.content}`, sourceArticles), rawText),
         title: d.title,
         content: d.content,
         category: d.category,
@@ -147,7 +150,7 @@ export async function POST(req: Request) {
         id: `viral-rank-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "http",
         source_input: `네이버 ${RANKING_SOURCES[kind].label}`,
-        source_text: rawText.slice(0, SOURCE_TEXT_MAX),
+        source_text: articleSourceText(pickBestArticle(`${d.title} ${d.content}`, articles), rawText),
         title: d.title,
         content: d.content,
         category: d.category,
