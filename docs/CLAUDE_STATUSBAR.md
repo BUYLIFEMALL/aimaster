@@ -19,6 +19,8 @@
 | `C:/Users/Administrator/.claude/statusline-extra.js` | 표시 스크립트(위 형식 출력). 마지막 입력을 `%TEMP%/last-agy-statusline.json`에 저장 |
 | `…/statusline-extra.js.good` | 정상본 백업. 표시 스크립트가 지워지거나 비면 guard가 이것으로 되살린다 |
 | `C:/Users/Administrator/.claude/statusline-guard.js` | 고정 장치. `~/.claude`·`~/.claude-account2`·`CLAUDE_CONFIG_DIR`의 `settings.json`에서 `statusLine`이 표시 스크립트를 부르지 않으면 다시 붙이고(Orca 호출은 유지), 스크립트 파일도 복구한다 |
+| `%APPDATA%/orca/claude-profiles/*/home/settings.json` (윈도우 Orca 계정별, 2026-10-20부터 guard 점검 대상) | 재로그인·새 계정 연결로 생기는 설정 폴더. guard가 상태바 호출과 guard 훅을 자동으로 넣는다 |
+| `…/Startup/claude-statusline-guard.vbs` | 윈도우 로그인 때 guard 1회 숨김 실행 |
 | 두 계정 `settings.json`의 `hooks.SessionStart`·`hooks.UserPromptSubmit` | 매 세션 시작·매 질문마다 guard 실행 → 덮어써져도 다음 입력에서 자동 복구 |
 
 ## 3. 지킬 것
@@ -29,6 +31,8 @@
 4. 출력이 비면 Claude Code가 그 칸의 값을 보내지 않은 경우가 많다(예: 세션 첫 응답 전에는 한도 값이 없음). 스크립트를 고치기 전에 입력 JSON부터 본다.
 5. **세션 시작 직후 5h·weekly가 안 보이던 문제(2026-10-20 주인님 「상태바가 자동으로 올라오지 않아」) — 해결**: 첫 응답 전에는 Claude Code가 `rate_limits`를 보내지 않는다. `statusline-extra.js`가 한도 값을 받을 때마다 `%TEMP%/claude-statusline-last-limits.json`에 저장하고, 값이 빠지면 **초기화 시각(`resets_at`)이 안 지난** 마지막 값을 보여 준다(한도는 계정 전체 값이라 직전 세션 값과 같음, 지난 값은 버림). 윈도우 `~/.claude/statusline-extra.js`·`.good` 갱신 완료. 같은 시각 다른 Claude Code 세션도 같은 스크립트에 저장 블록(`last-claude-ratelimits.json`)과 값이 없을 때 `context --` 자리 표시를 추가함 — 두 수정이 함께 있어도 정상 동작 확인, 되돌리지 않고 `.good`도 그 상태로 맞춤.
    - **맥미니 적용 방법(설치 스크립트)**: 맥미니 터미널에서 `node /Volumes/gt1_mega/Antigravity/AIMaster/scripts/mac-mini/install-statusline-limits.mjs` 한 번 → Claude Code 재시작. 맥미니 스크립트 내용은 바꾸지 않고, 맨 앞에 보충 부품(`~/.claude/statusline-limits-shim.cjs`)을 불러오는 한 줄만 붙임(CommonJS면 `require`, ESM이면 `import`, `.good`에도 적용, 다시 실행해도 중복 없음, 바꾸기 전 `statusline-extra.js.before-limits-shim` 백업). 부품은 입력을 먼저 읽어 `rate_limits`가 있으면 `$TMPDIR/claude-statusline-last-limits.json`에 저장, 없으면 초기화 시각 안 지난 값을 채워 원래 스크립트에 넘김. 되돌리기: `cp ~/.claude/statusline-extra.js.before-limits-shim ~/.claude/statusline-extra.js`. 윈도우에서 가짜 홈 폴더로 CommonJS·ESM 모두 시험 통과(2026-10-20). **맥미니 실제 적용은 아직 — 주인님이 맥미니에서 위 명령 실행 필요.**
+
+6. **재로그인·새 Orca 계정에서도 자동 적용(2026-10-20 주인님 「앞으로 재로그인 하면 어떤 세션이든 지금처럼 상태바 형식대로 잘 노출되도록」) — 적용 완료(윈도우)**: 윈도우 Orca는 계정마다 `%APPDATA%/orca/claude-profiles/<계정ID>/home`을 설정 폴더로 쓰고, 그 안의 `settings.json`은 `~/.claude`와 연결되지 않은 **별도 파일**이다(작업 기록 폴더 등만 연결됨). 그런데 예전 guard는 이 폴더를 점검하지 않아서 다시 연결해 새로 생긴 계정 폴더를 아무도 지키지 않았다. 보강 내용: ① guard가 `claude-profiles/*/home`을 전부 자동으로 찾아 점검한다. ② 각 폴더 `settings.json`에 guard 훅(SessionStart·UserPromptSubmit)이 없으면 맨 앞에 넣는다. 그래서 새 계정 세션도 스스로 복구된다. ③ 윈도우 시작 프로그램 `%APPDATA%/Microsoft/Windows/Start Menu/Programs/Startup/claude-statusline-guard.vbs`가 로그인할 때 guard를 한 번 숨김 실행한다. 바꾸기 전 백업은 `~/.claude/statusline-guard.js.before-20261020`이다. 시험 결과: 가짜 새 계정 폴더에 상태바 호출과 훅 2개가 자동으로 들어갔고, 기존 설정 3개(`~/.claude`·`~/.claude-account2`·Orca 계정)는 해시가 그대로였으며, 다시 실행해도 결과가 같았다. 시험 폴더는 삭제했다. 남은 한계: 새 계정 폴더가 생긴 뒤 **그 계정의 첫 세션이 다른 세션보다 먼저 열리면** 첫 화면에서만 빠질 수 있다. 이때는 아무 질문이나 한 번 입력하면 다음 표시부터 나온다(다른 계정 세션에서 질문할 때도 함께 복구된다).
 
 ## 4. 점검 명령 (Git Bash)
 
