@@ -1,22 +1,29 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarClock, ExternalLink, AlertTriangle } from "lucide-react";
+import { CalendarClock, ExternalLink, AlertTriangle, Repeat } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { getMemberSchedules, formatScheduleDay, formatScheduleTime, PLATFORM_LABEL, type MemberSchedule } from "@/lib/schedules/memberSchedules";
+import { getMemberRecurring, getMemberSchedules, formatScheduleDay, formatScheduleTime, PLATFORM_LABEL, type MemberSchedule, type SnsPlatform } from "@/lib/schedules/memberSchedules";
+
+const BADGE: Record<SnsPlatform, string> = {
+  instagram: "bg-pink-500/15 text-pink-300",
+  threads: "bg-slate-500/20 text-slate-200",
+  naver_blog: "bg-emerald-500/15 text-emerald-300",
+};
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const metadata = { title: "내 예약 현황" };
 
-// 「📅 내 예약 현황」(2026-10-20) — 8개 프로그램의 SNS 예약을 한 화면에(보기 전용, 취소는 각 프로그램에서).
+// 「📅 내 예약 현황」(2026-10-20) — 예약 게시 9개 프로그램 + 정기 자동 실행 7개를 한 화면에(보기 전용, 취소·변경은 각 프로그램에서).
 export default async function SchedulesPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirect=/schedules");
 
-  const schedules = await getMemberSchedules(createServiceClient(), user.id);
+  const service = createServiceClient();
+  const [schedules, recurring] = await Promise.all([getMemberSchedules(service, user.id), getMemberRecurring(service, user.id)]);
   const conflicts = schedules.filter((s) => s.conflict).length;
   const days = new Map<string, MemberSchedule[]>();
   for (const s of schedules) {
@@ -33,7 +40,7 @@ export default async function SchedulesPage() {
           <CalendarClock className="w-6 h-6 text-gold" /> 내 예약 현황
         </h1>
         <p className="text-subtext text-sm mt-1 break-keep">
-          인스타그램·쓰레드 자동화 프로그램 8개에 걸어 둔 예약 게시를 한 화면에 모았습니다. 취소·수정은 「○○에서 보기」를 눌러 그 프로그램에서 해 주세요.
+          인스타그램·쓰레드·네이버 블로그 예약 게시와, 규칙을 켜 두면 주기마다 도는 정기 자동 실행을 한 화면에 모았습니다. 취소·수정은 「○○에서 보기」를 눌러 그 프로그램에서 해 주세요.
         </p>
       </div>
 
@@ -73,7 +80,7 @@ export default async function SchedulesPage() {
                   <li key={s.key}>
                     <GlassCard className={`p-3 flex flex-wrap items-center gap-x-3 gap-y-1 ${s.conflict ? "border border-amber-500/50" : ""}`}>
                       <span className="font-bold text-white tabular-nums">{formatScheduleTime(s.scheduledAt).split(" ").pop()}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${s.platform === "instagram" ? "bg-pink-500/15 text-pink-300" : "bg-slate-500/20 text-slate-200"}`}>{PLATFORM_LABEL[s.platform]}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${BADGE[s.platform]}`}>{PLATFORM_LABEL[s.platform]}</span>
                       <span className="text-xs text-gold">{s.programName}</span>
                       {s.account && <span className="text-xs text-subtext">@{s.account}</span>}
                       {s.conflict && <span className="text-xs font-bold text-amber-400">⚠️ 30분 안 겹침</span>}
@@ -91,6 +98,33 @@ export default async function SchedulesPage() {
           ))}
         </div>
       )}
+
+      <section>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-1"><Repeat className="w-5 h-5 text-gold" /> 정기 자동 실행</h2>
+        <p className="text-subtext text-xs mb-3 break-keep">규칙을 켜 두면 정해진 주기마다 자동으로 실행되는 프로그램입니다(예약 리마인드·CRM·카카오·네이버 카페·스텝메일·상품소싱·유튜브 댓글).</p>
+        {recurring.length === 0 ? (
+          <GlassCard className="p-5 text-center text-subtext text-sm">켜 둔 정기 자동 실행이 없습니다.</GlassCard>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {recurring.map((r) => (
+              <GlassCard key={r.programSlug} className="p-4 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white text-sm">{r.programName}</span>
+                  <span className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-bold ${r.state === "paused" ? "bg-amber-500/15 text-amber-300" : "bg-emerald-500/15 text-emerald-300"}`}>
+                    {r.state === "paused" ? "⏸ 일시정지" : "● 실행 중"}
+                  </span>
+                </div>
+                <div className="text-sm text-subtext">{r.workLabel} <b className="text-white">{r.work}개</b> · 실행 방식 {r.modeLabel}</div>
+                {r.programUrl && (
+                  <Link href={r.programUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-gold hover:underline">
+                    {r.programName.replace(/ 자동화$/, "")}에서 보기 <ExternalLink className="w-3 h-3" />
+                  </Link>
+                )}
+              </GlassCard>
+            ))}
+          </div>
+        )}
+      </section>
 
       {byProgram.size > 0 && (
         <p className="text-xs text-subtext">

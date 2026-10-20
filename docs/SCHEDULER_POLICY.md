@@ -122,3 +122,5 @@ threads 기준 `memberScheduler.ts` 사본 전체(threads·threads-content-ops·
 
 
 처리 결과 5(2026-10-20, Claude Code 윈도우): 회원 실행 방식 코드 `memberScheduler.ts`를 **예약 프로그램 15개 공용 기준 코드 `member-scheduler`**(기준 `cardnews-studio/src/lib/instagram/memberScheduler.ts`)로 통일. 프로그램 값은 같은 폴더 `schedulerConfig.ts`(사이트 주소·표·토큰 앞글자·환경변수·설치 키트 여부·「남은 일」 세기·실행 주소). **새 예약 프로그램은 `memberScheduler.ts`를 복사하지 말고 공용 사본으로 등록해 `--sync`로 받고 `schedulerConfig.ts`만 만든다.** 미배포(각 프로그램 다음 배포 때).
+
+**새 예약 프로그램 체크리스트 추가 항목(2026-10-20 — 메인 사이트 「📅 내 예약 현황」)**: 회원 예약을 만드는 프로그램을 새로 만들면 루트 `lib/schedules/memberSchedules.ts`에도 한 줄 등록한다 — 한 건씩 예약(`status='scheduled'` + `scheduled_at`, 또는 `is_reserved` 방식)은 `SOURCES`, 규칙을 켜 두면 주기마다 도는 정기형은 `RECURRING`(「남은 일」 세기는 그 프로그램 `schedulerConfig.ts` `countRemainingWork`와 같은 조건). 등록하면 회원의 「내 예약 현황」과 홈 요약 한 줄에 바로 모여 보인다. 현재 등록: 예약 게시 9개(인스타 5·쓰레드 3·네이버 블로그 에이전트), 정기형 7개.

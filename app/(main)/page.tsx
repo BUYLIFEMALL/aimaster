@@ -25,7 +25,7 @@ import HeroShowcase from "@/components/home/HeroShowcase";
 import ProgramInstantSearch from "@/components/home/ProgramInstantSearch";
 import UserWorkspace, { type WorkspaceNotice } from "@/components/home/UserWorkspace";
 import ScheduleSummaryBar from "@/components/home/ScheduleSummaryBar";
-import { getMemberSchedules, summarizeSchedules, type MemberScheduleSummary } from "@/lib/schedules/memberSchedules";
+import { getMemberRecurring, getMemberSchedules, summarizeSchedules, type MemberScheduleSummary } from "@/lib/schedules/memberSchedules";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
@@ -75,7 +75,9 @@ async function getHomeData() {
     let scheduleSummary: MemberScheduleSummary | null = null;
     if (user) {
       // 「📅 내 예약 현황」 요약 — 본인 예약만, 실패해도 홈은 그대로(2026-10-20)
-      scheduleSummary = await getMemberSchedules(service, user.id).then(summarizeSchedules).catch(() => null);
+      scheduleSummary = await Promise.all([getMemberSchedules(service, user.id), getMemberRecurring(service, user.id)])
+        .then(([list, recurring]) => summarizeSchedules(list, recurring))
+        .catch(() => null);
       const { data: likedRows } = await supabase.from("program_likes").select("program_id").eq("user_id", user.id);
       likedIds = (likedRows ?? []).map((row) => row.program_id as string);
       const [{ data: profile }, { data: subs }, { data: grants }, { data: grades }] = await Promise.all([

@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// 「📅 내 예약 현황」(2026-10-20) — 8개 프로그램의 SNS 예약 게시를 회원 한 사람 기준으로 모아 본다(보기 전용).
+// 「📅 내 예약 현황」(2026-10-20) — 9개 프로그램의 예약 게시(+ 아래 정기 자동 실행 7개)를 회원 한 사람 기준으로 모아 본다(보기 전용).
 // 각 프로그램 예약 표를 서버(서비스 키)에서 읽되 반드시 user_id = 로그인한 회원으로만 거른다(회원 격리 최상위 규칙).
 // 취소는 각 프로그램에서 한다(그림 파일 정리 등 프로그램별 처리가 있음) — 여기서는 「○○에서 보기」 링크만.
 // 새 프로그램이 같은 방식(status='scheduled' + scheduled_at)으로 예약을 만들면 SOURCES에 한 줄 추가한다. 플랜 docs/PLAN_20261020_MEMBER_SCHEDULES.md
 
-export type SnsPlatform = "instagram" | "threads";
+export type SnsPlatform = "instagram" | "threads" | "naver_blog";
 
 type Source = {
   slug: string; // programs.slug — 이름·주소는 DB에서
@@ -13,6 +13,8 @@ type Source = {
   platform: SnsPlatform;
   textCols: string[]; // 앞에서부터 처음 비어 있지 않은 값을 내용으로
   accountCol?: string;
+  /** 예약 표시 방식 — 기본은 status='scheduled'. reserved는 is_reserved=true이고 아직 발행·실패 전(네이버 블로그 에이전트) */
+  mode?: "status" | "reserved";
 };
 
 const SOURCES: Source[] = [
@@ -24,6 +26,8 @@ const SOURCES: Source[] = [
   { slug: "auto-threads-posting", table: "posts", platform: "threads", textCols: ["content"] },
   { slug: "threads-affiliate-poster", table: "tap_posts", platform: "threads", textCols: ["content"] },
   { slug: "threads-content-ops", table: "tco_posts", platform: "threads", textCols: ["body"] },
+  // 2026-10-20 추가: 네이버 블로그 에이전트 — 「발행 대기열」 화면과 같은 조건(is_reserved + 예약 시각, 발행·실패 전)
+  { slug: "naver-blog-agent", table: "nba_posts", platform: "naver_blog", textCols: ["title", "content"], mode: "reserved" },
 ];
 
 /** 같은 SNS에 이 시간 안으로 예약이 겹치면 경고 */
@@ -42,7 +46,7 @@ export type MemberSchedule = {
   conflict: boolean;
 };
 
-export type MemberScheduleSummary = { count: number; next: MemberSchedule | null; conflicts: number };
+export type MemberScheduleSummary = { count: number; next: MemberSchedule | null; conflicts: number; recurring: number };
 
 function oneLine(v: unknown): string {
   return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, 80) : "";
@@ -56,14 +60,9 @@ export async function getMemberSchedules(service: SupabaseClient, userId: string
   const lists = await Promise.all(
     SOURCES.map(async (src) => {
       const cols = ["id", "scheduled_at", ...src.textCols, ...(src.accountCol ? [src.accountCol] : [])].join(", ");
-      const { data, error } = await service
-        .from(src.table)
-        .select(cols)
-        .eq("user_id", userId)
-        .eq("status", "scheduled")
-        .not("scheduled_at", "is", null)
-        .order("scheduled_at", { ascending: true })
-        .limit(PER_SOURCE_LIMIT);
+      let q = service.from(src.table).select(cols).eq("user_id", userId).not("scheduled_at", "is", null);
+      q = src.mode === "reserved" ? q.eq("is_reserved", true).not("status", "in", "(published,failed)") : q.eq("status", "scheduled");
+      const { data, error } = await q.order("scheduled_at", { ascending: true }).limit(PER_SOURCE_LIMIT);
       if (error || !data) return [];
       const meta = info.get(src.slug);
       return (data as unknown as Record<string, unknown>[]).map((row): MemberSchedule => ({
@@ -95,8 +94,8 @@ export async function getMemberSchedules(service: SupabaseClient, userId: string
   return all;
 }
 
-export function summarizeSchedules(list: MemberSchedule[]): MemberScheduleSummary {
-  return { count: list.length, next: list[0] ?? null, conflicts: list.filter((s) => s.conflict).length };
+export function summarizeSchedules(list: MemberSchedule[], recurring: MemberRecurring[] = []): MemberScheduleSummary {
+  return { count: list.length, next: list[0] ?? null, conflicts: list.filter((s) => s.conflict).length, recurring: recurring.filter((r) => r.state === "running").length };
 }
 
 /** 올해가 아닌 예약이면 연도도 보여 준다(한국 시간 기준) */
@@ -119,4 +118,87 @@ export function formatScheduleDay(iso: string): string {
   return d.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", ...(otherYear(d) ? { year: "numeric" as const } : {}), month: "long", day: "numeric", weekday: "short" });
 }
 
-export const PLATFORM_LABEL: Record<SnsPlatform, string> = { instagram: "인스타그램", threads: "쓰레드" };
+export const PLATFORM_LABEL: Record<SnsPlatform, string> = { instagram: "인스타그램", threads: "쓰레드", naver_blog: "네이버 블로그" };
+
+// ── 정기 자동 실행(2026-10-20) ─────────────────────────────────────────────
+// 규칙을 켜 두면 주기마다 도는 프로그램 7개(공용 member-scheduler 사용). 「남은 일」 세기는 각 프로그램
+// schedulerConfig.ts의 countRemainingWork와 같은 조건이다 — 그쪽을 바꾸면 여기도 맞춘다.
+type Svc = SupabaseClient;
+const countActive = (table: string, extra?: [string, unknown]) => async (svc: Svc, uid: string) => {
+  let q = svc.from(table).select("id", { count: "exact", head: true }).eq("user_id", uid).eq("is_active", true);
+  if (extra) q = q.eq(extra[0], extra[1]);
+  const { count } = await q;
+  return count ?? 0;
+};
+type Recurring = { slug: string; schedulerTable: string; workLabel: string; count: (svc: Svc, uid: string) => Promise<number> };
+const RECURRING: Recurring[] = [
+  { slug: "booking-reminder", schedulerTable: "booking_member_scheduler", workLabel: "켜진 리마인드 규칙", count: countActive("booking_reminder_rules") },
+  { slug: "crm-google-form", schedulerTable: "crm_member_scheduler", workLabel: "켜진 후속 연락 규칙", count: countActive("crm_followup_rules") },
+  { slug: "kakao-auto-posting", schedulerTable: "kakao_member_scheduler", workLabel: "예약을 켠 주제", count: countActive("kakao_topics", ["schedule_enabled", true]) },
+  { slug: "naver-cafe-poster", schedulerTable: "ncafe_member_scheduler", workLabel: "예약을 켠 글감 출처", count: countActive("ncafe_scheduled_sources", ["schedule_enabled", true]) },
+  {
+    slug: "stepmail", schedulerTable: "stepmail_member_scheduler", workLabel: "보낼 차례가 남은 캠페인",
+    count: async (svc, uid) => {
+      const { data } = await svc.from("stepmail_campaigns").select("recurrence, last_run_at").eq("user_id", uid).eq("is_active", true);
+      return ((data ?? []) as { recurrence: string; last_run_at: string | null }[]).filter((c) => !(c.recurrence === "once" && c.last_run_at)).length;
+    },
+  },
+  {
+    slug: "trending-product-finder", schedulerTable: "trend_member_scheduler", workLabel: "켜진 관심 목록·알림 상품",
+    count: async (svc, uid) => {
+      const [{ count: a }, { count: b }] = await Promise.all([
+        svc.from("trend_watchlist").select("id", { count: "exact", head: true }).eq("user_id", uid).eq("is_active", true),
+        svc.from("sourcing_saved_products").select("id", { count: "exact", head: true }).eq("user_id", uid).eq("alert_enabled", true),
+      ]);
+      return (a ?? 0) + (b ?? 0);
+    },
+  },
+  {
+    slug: "youtube-auto-reply", schedulerTable: "ytreply_member_scheduler", workLabel: "댓글 감시 켜짐",
+    count: async (svc, uid) => {
+      const { count } = await svc.from("ytreply_settings").select("user_id", { count: "exact", head: true }).eq("user_id", uid).eq("monitoring_enabled", true);
+      return count ?? 0;
+    },
+  },
+];
+
+export type MemberRecurring = {
+  programSlug: string;
+  programName: string;
+  programUrl: string | null;
+  workLabel: string;
+  work: number;
+  state: "running" | "paused";
+  modeLabel: string;
+};
+
+/** 로그인한 회원 본인의 정기 자동 실행 — 켜진 일이 있거나 일시정지한 프로그램만 */
+export async function getMemberRecurring(service: SupabaseClient, userId: string): Promise<MemberRecurring[]> {
+  const { data: programs } = await service.from("programs").select("slug, name, app_url").in("slug", RECURRING.map((r) => r.slug));
+  const info = new Map((programs ?? []).map((p) => [p.slug as string, { name: p.name as string, url: (p.app_url as string | null) ?? null }]));
+  const rows = await Promise.all(
+    RECURRING.map(async (r): Promise<MemberRecurring | null> => {
+      try {
+        const [work, { data: sched }] = await Promise.all([
+          r.count(service, userId),
+          service.from(r.schedulerTable).select("mode, paused").eq("user_id", userId).maybeSingle(),
+        ]);
+        const paused = Boolean(sched?.paused);
+        if (work === 0 && !paused) return null;
+        const meta = info.get(r.slug);
+        return {
+          programSlug: r.slug,
+          programName: meta?.name ?? r.slug,
+          programUrl: meta?.url ?? null,
+          workLabel: r.workLabel,
+          work,
+          state: paused ? "paused" : "running",
+          modeLabel: sched?.mode === "cronjob" ? "내 cron-job.org" : "AIMaster 기본",
+        };
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return rows.filter((x): x is MemberRecurring => x !== null);
+}
