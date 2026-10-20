@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 // 독립 운영 모드 전용 이메일·비밀번호 로그인/가입(Supabase Auth). 2026-10-18 강의용 설치 키트.
-export default function LoginForm({ next }: { next: string }) {
+export default function LoginForm({ next, confirmed = false }: { next: string; confirmed?: boolean }) {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  // 가입 확인 메일 링크를 다른 브라우저에서 연 경우(auth/confirm → ?confirmed=1): 인증은 끝났으니 로그인 안내
+  const [message, setMessage] = useState(confirmed ? "메일 인증이 끝났습니다. 가입한 이메일과 비밀번호로 로그인해 주세요." : "");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +22,9 @@ export default function LoginForm({ next }: { next: string }) {
     const supabase = createClient();
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
+        // 확인 메일 링크가 Supabase 기본 Site URL(localhost)이 아니라 내 사이트로 돌아오게(2026-10-20). URL Configuration 허용은 마법사 마무리 단계.
+        const emailRedirectTo = `${window.location.origin}/api/threads-content-ops/auth/confirm?next=${encodeURIComponent(next)}`;
+        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo } });
         if (error) throw error;
         if (!data.session) {
           setMessage("가입 확인 메일을 보냈습니다. 메일의 링크를 누른 뒤 로그인해 주세요. (설치자는 Supabase에서 Confirm email을 끄면 바로 로그인됩니다)");

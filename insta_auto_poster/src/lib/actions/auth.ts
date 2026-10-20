@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { authSchema } from "@/lib/validation";
-import { IS_STANDALONE } from "@/lib/deployment";
+import { IS_STANDALONE, SITE_URL } from "@/lib/deployment";
 
 export interface AuthActionState {
   error?: string;
@@ -58,7 +58,13 @@ export async function signUpAction(
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
   }
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({ email: parsed.data.email, password: parsed.data.password });
+  // 확인 메일 링크가 Supabase 기본 Site URL(localhost)이 아니라 내 사이트로 돌아오게(2026-10-20). Supabase URL Configuration에도 이 주소를 허용해야 한다(마법사 마무리 단계).
+  const emailRedirectTo = SITE_URL ? `${SITE_URL}/api/auth/confirm` : undefined;
+  const { data, error } = await supabase.auth.signUp({
+    email: parsed.data.email,
+    password: parsed.data.password,
+    options: emailRedirectTo ? { emailRedirectTo } : undefined,
+  });
   if (error) {
     return { error: /already registered/i.test(error.message) ? "이미 가입된 이메일입니다. 로그인해 주세요." : `가입하지 못했습니다: ${error.message}` };
   }

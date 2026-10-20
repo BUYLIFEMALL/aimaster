@@ -171,3 +171,10 @@
 - 동작 변경 없음(관리자가 Vercel 방식을 끈 경우의 오류 문구만 운영/키트로 나뉨). DB 변경 없음. 플랜 `cardnews-studio/docs/PLAN_20261020_MEMBER_SCHEDULER_SHARED.md`.
 - 검수: tsc·build 통과(테스트가 있는 프로그램은 테스트도), 공용 코드 점검 일치, 설치 키트 DB 대조 통과.
 - **미배포**(내부 정리): 다음 배포 때 함께, 버전 +0.01도 그때. 그 배포 때 예약 상태 화면과 회원 실행 주소 가짜 토큰 401을 확인.
+
+## 2026-10-20 — 배포판(독립 모드) 가입 확인 메일·독립 모드 판정 보강 (Claude Code 윈도우, **운영 미배포 — 다음 배포 때 함께**)
+- 증상(주인님 수강생 계정 설치 시험): ① 회원가입을 누르면 buylife.xyz로 감 ② Confirm email이 켜진 상태에서 가입 확인 메일 링크가 localhost로 감.
+- 원인: ① 윈도우 마법사가 Vercel에 `NEXT_PUBLIC_STANDALONE_MODE="﻿true"`(BOM)를 넣어 `IS_STANDALONE`이 false → 비독립 분기(AIMaster 가입 안내·buylife 로그인). 마법사는 v1.06에서 수정 ② `signUp`에 `emailRedirectTo`가 없고 메일 링크를 받을 경로도 없어 Supabase 기본 Site URL(localhost)로 감.
+- 수정: `deployment.ts` `IS_STANDALONE`을 `(… ?? "").trim() === "true"`(BOM·공백 제거, 운영은 변수 없음 → 동작 같음), 가입 시 `emailRedirectTo`=내 사이트 확인 경로, 새 경로 `/api/auth/confirm`(`src/app/api/auth/confirm/route.ts`)(독립 모드 전용, `code`·`token_hash` 처리, 실패하면 `/login?confirmed=1` 「메일 인증이 끝났습니다」 안내), `KIT/kit.json` `authRedirectPath` → 마법사 마무리에서 Supabase URL Configuration(Site URL·Redirect URLs `내주소/**`) 안내.
+- 검수: tsc 0, `test:own-meta` 통과. 운영에서는 `IS_STANDALONE` false라 새 경로·옵션이 동작하지 않음 → 급하지 않은 변경, **다음 배포자는 버전 +0.01하고 이 항목을 버전 기록에 넣을 것**. 배포판 `SNS_Auto_Posting_Kit_v1.07`부터 포함.
+

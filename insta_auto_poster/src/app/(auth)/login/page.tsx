@@ -15,7 +15,10 @@ function LoginCard() {
   const redirectTo = searchParams.get("redirect") ?? "";
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  // 가입 확인 메일 링크를 다른 브라우저에서 연 경우(/api/auth/confirm → ?confirmed=1): 인증은 끝났으니 로그인 안내
+  const [notice, setNotice] = useState<string | null>(
+    searchParams.get("confirmed") === "1" ? "메일 인증이 끝났습니다. 가입한 이메일과 비밀번호로 로그인해 주세요." : null,
+  );
   const [isPending, setIsPending] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -4,7 +4,8 @@
 //   로그인한 본인은 바로 사용하며(등급·구독·핸드폰 판정 없음) AIMaster 링크와 buylife.xyz 주소 이동을 끈다. 설치 안내: KIT/README.md.
 // NEXT_PUBLIC_* 값은 빌드할 때 박혀 들어가므로 화면 코드에서도 안전하게 쓸 수 있다.
 
-export const IS_STANDALONE = process.env.NEXT_PUBLIC_STANDALONE_MODE === "true";
+// 값 앞뒤 공백·보이지 않는 문자(BOM)는 지우고 비교한다 — 윈도우 마법사가 "﻿true"를 넣어 독립 모드가 꺼진 사례(2026-10-20 리허설)
+export const IS_STANDALONE = (process.env.NEXT_PUBLIC_STANDALONE_MODE ?? "").trim() === "true";
 
 /** 독립 운영 사이트 주소(끝 / 없이). 예: https://my-insta.vercel.app */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim().replace(/\/$/, "");

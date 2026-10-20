@@ -290,12 +290,16 @@ mark_done 8
 # (선택) Supabase 로그인 주소 설정 — kit.json authRedirectPath 가 있는 프로그램만(예: 이메일 링크·OAuth 로그인 콜백)
 AUTH_REDIRECT=$(kit x "k.authRedirectPath")
 if [ -n "$AUTH_REDIRECT" ]; then
-  say ""; say "  [마무리] Supabase 로그인 주소 설정 — URL Configuration 화면을 엽니다."
-  say "  · Site URL 칸: $SITE_URL  (클립보드에 복사해 두었습니다 → ⌘V)"
-  say "  · Redirect URLs → [Add URL]: $SITE_URL$AUTH_REDIRECT  → [Save]"
+  say ""; say "  [마무리] Supabase 로그인 주소 설정 — 가입 확인·비밀번호 메일의 링크가 localhost가 아니라 내 사이트로 오게 합니다."
+  [ "$UPDATE_MODE" = "1" ] && say "  (예전에 이미 저장했다면 그냥 Enter — 사이트 주소가 바뀌었을 때만 고치면 됩니다)"
+  say "  URL Configuration 화면을 엽니다."
+  say "  · Site URL 칸: $SITE_URL  (클립보드에 복사해 두었습니다 → ⌘V) → [Save changes]"
+  say "  · Redirect URLs → [Add URL]: $SITE_URL/**  → [Save URLs]  (이 줄은 Enter 뒤 클립보드에 복사됩니다)"
   copy_text "$SITE_URL" || true
   open_url "https://supabase.com/dashboard/project/$REF/auth/url-configuration"
-  wait_enter "두 칸을 저장했나요?"
+  wait_enter "Site URL을 저장했나요?"
+  copy_text "$SITE_URL/**" || true
+  wait_enter "Redirect URLs에 $SITE_URL/** 를 추가(⌘V)했나요?"
 fi
 
 CALLBACK_URL=""; [ -n "$CALLBACK" ] && CALLBACK_URL="$SITE_URL$CALLBACK"

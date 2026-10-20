@@ -132,6 +132,7 @@
 ### 6-3. 이미 알려진 함정 (2026-10-19 리허설 — README·스크립트에 미리 반영)
 | 단계 | 함정 | 대응 |
 |---|---|---|
+| 가입 화면(2026-10-20 주인님 수강생 계정 시험) | ① 회원가입이 buylife.xyz로 감(BOM으로 독립 모드 꺼짐 → 비독립 분기) ② Confirm email 켠 상태에서 확인 메일 링크가 **localhost**로 감(`emailRedirectTo` 없음·받는 경로 없음·Supabase Site URL 기본값) | ✅ v1.07: `IS_STANDALONE` `.trim()` 비교, 가입 `emailRedirectTo` + 독립 전용 확인 경로(INSTA `/api/auth/confirm`, Threads `/api/threads-content-ops/auth/confirm`), `kit.json` `authRedirectPath` → 마법사 마무리 URL Configuration(Site URL·`내주소/**`). 새 키트도 가입 기능이 있으면 이 3가지를 같이 넣을 것 |
 | 마법사 ⑧ Vercel 환경변수(2026-10-20 윈도우 리허설) | **윈도우 PowerShell 파이프가 값 앞에 BOM을 붙여** `NEXT_PUBLIC_STANDALONE_MODE`가 `"﻿true"`로 저장 → 독립 모드 꺼짐 → 수강생 사이트가 운영 주소로 이동 | ✅ v1.06 `Push-Env`가 BOM 없는 임시 파일을 `cmd` 입력으로 넘김(`docs/ERROR_LESSONS.md` 2026-10-20). v1.01~v1.05 윈도우 설치자는 v1.06 업데이트 모드로 해결 |
 | 마법사 ⑤·⑥ 문구(2026-10-20 리허설) | 「Email 항목 → Confirm email」이 실제 화면(맨 위 User Signups 칸)과 다름, 사이트 이름 질문에 「어떤 주소를 넣지?」, 브랜드 질문 뜻 모호 | ✅ v1.06 문구 수정(이유 한 줄·User Signups 위치·「이름만 입력(예)」·「화면 위쪽에 보일 이름」) |
 | 마법사 ②단계(2026-10-20 윈도우 리허설) | 마법사가 여는 `supabase.com/dashboard/new`는 **이미 조직이 있는 사람에게 「새 조직 만들기」 화면**을 보여 줌 — 새 조직을 만들면 무료 한도·요금이 헷갈림 | ✅ 2026-10-20 마법사가 `supabase.com/dashboard/projects`를 열고 「이미 조직이 있으면 그 조직의 [New project]」·지역 기본 Asia-Pacific(서울은 Need a specific region?)으로 안내(배포판 v1.05~), 매뉴얼·3개 키트 README 같은 문구. 무료 프로젝트는 계정당 2개 — 새 조직을 만들 필요 없음 |
@@ -171,11 +172,12 @@
 | `SNS_Auto_Posting_Kit` | **v1.04** | 2026-10-20 | 프로그램 코드는 v1.02·v1.03과 같음. 마법사 **버전 기록**(`설치결과.txt` 「버전:」, 업데이트면 이전 → 새)·업데이트 뒤 **예전 폴더 휴지통 보내기 제안**(기본 n), 포장 스크립트가 `kit.json`에 `kitVersion`·`appVersion` 기록, `00_START_HERE.md` 업데이트 안내 첫 반영. 207개 파일·비밀값·DB 대조 통과, 압축 안 마법사 문법·BOM 확인 | 실제 v1.01 설치본으로 업데이트 실시험은 대기(이 PC에 설치본 없음). 맥 실기기 시험은 하지 않기로 함(2026-10-20 주인님 결정 — 맥 마법사는 Git Bash 시험 틀·문법 검사까지) |
 | `SNS_Auto_Posting_Kit` | **v1.05** | 2026-10-20 | 마법사 ②단계 Supabase 주소 → 프로젝트 목록(새 조직 화면 문제, 윈도우 리허설 중 발견)·지역 안내 실제 화면대로, 다른 세션 커밋 포함(INSTA v1.34 로그아웃 아이콘 `342c3e23`, 예약 실행 공용화 `41c39274` — 동작 같음). 209개 파일(`schedulerConfig.ts` 2개 추가)·비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build` 두 프로그램 통과 | 이 압축의 `KIT/README.md` 업데이트 내역에는 v1.05 줄이 없음(포장 뒤 추가 — 다음 포장부터) |
 | `SNS_Auto_Posting_Kit` | **v1.06** | 2026-10-20 | **윈도우 마법사 환경변수 BOM 오류 수정**(독립 모드 꺼짐 → 운영 주소 이동), ⑤·⑥ 문구 수정. 프로그램 코드는 v1.05와 같음. 209개 파일·비밀값·DB 대조 통과 | v1.01~v1.05 윈도우 설치본은 v1.06 업데이트 모드로 고쳐짐(리허설에서 확인 예정) |
+| `SNS_Auto_Posting_Kit` | **v1.07** | 2026-10-20 | 가입 화면 오류 수정(buylife.xyz 이동·확인 메일 localhost), 마법사 마무리 URL Configuration 안내. 211개 파일·비밀값·DB 대조 통과, 두 프로그램 tsc·기존 시험 통과 | 프로그램 코드 변경은 독립 모드 전용 — 운영 미배포(다음 배포 때) |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
-| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.06` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
-| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.06` | ✅ 2026-10-20 윈도우 마법사 설치(v1.01)→업데이트(v1.06)·사이트 독립 모드 확인(Meta 연결·게시는 미시험, `REHEARSAL_LOG.md` 2차) | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
+| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.07` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
+| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.07` | ✅ 2026-10-20 윈도우 마법사 설치(v1.01)→업데이트(v1.06)·사이트 독립 모드 확인(Meta 연결·게시는 미시험, `REHEARSAL_LOG.md` 2차) | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
 
 ## 9. 관련 문서
