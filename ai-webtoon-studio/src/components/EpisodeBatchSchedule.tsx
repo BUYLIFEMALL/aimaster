@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CalendarClock, Library, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CalendarClock, Library, Loader2, RotateCcw } from "lucide-react";
 import { MAX_BATCH_EPISODES, MAX_INSTA_PHOTOS, defaultCaption, defaultPicked, episodeTimes, parseEpisode, sortEpisodes, type Episode } from "@/lib/instagram/slides";
 import { formatKst, kstLocalToIso, validateScheduleTime } from "@/lib/instagram/schedule";
 import { uploadSlides } from "@/lib/instagram/slideRender";
@@ -41,6 +41,16 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState("");
   const [results, setResults] = useState<Result[]>([]);
+  // v1.21: 실패한 회차(usable 안 순번) — 「실패한 회차만 다시 예약」에 쓴다. 파일을 다시 고르면 비운다.
+  const [failed, setFailed] = useState<number[]>([]);
+
+  // v1.21: 예약하는 동안 창을 닫거나 다른 주소로 가면 남은 회차가 예약되지 않는다 → 브라우저 「나가시겠습니까?」 확인을 띄운다.
+  useEffect(() => {
+    if (!busy) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [busy]);
 
   const usable = episodes.filter((e) => e.sources.length > 0);
   const times = episodeTimes(first, usable.length, interval);
@@ -64,14 +74,19 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
     }
     setEpisodes(sortEpisodes(list));
     setSkipped(bad);
+    setFailed([]);
     setConfirmed(false);
   }
 
-  async function scheduleAll() {
+  /** only를 주면 그 회차(usable 순번)만 예약한다 — 「실패한 회차만 다시 예약」. 시각은 원래 계획 그대로. */
+  async function scheduleAll(only?: number[]) {
     const out: Result[] = [];
+    const nextFailed: number[] = [];
     setResults([]);
-    for (let i = 0; i < usable.length; i++) {
+    const order = only ?? usable.map((_, i) => i);
+    for (const i of order) {
       const ep = usable[i];
+      if (!ep) continue;
       const label = `${i + 1}/${usable.length}회차 「${ep.title}」`;
       try {
         const picked = defaultPicked(ep.sources);
@@ -87,9 +102,11 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
         out.push({ title: ep.title, ok: true, text: `${formatKst(data.scheduledAt)} 예약 (${paths.length}장)` });
       } catch (e) {
         out.push({ title: ep.title, ok: false, text: e instanceof Error ? e.message : "예약하지 못했습니다." });
+        nextFailed.push(i);
       }
       setResults([...out]);
     }
+    setFailed(nextFailed);
     setBusy("");
     setConfirmed(false);
     onScheduled();
@@ -151,12 +168,19 @@ export function EpisodeBatchSchedule({ username, pendingCount, disabled, onSched
               </button>
               {busy && <span className="text-slate-400">{busy}</span>}
             </div>
+            {busy && <p className="font-bold text-amber-300" role="status">⚠️ 예약이 끝날 때까지 이 창을 닫거나 다른 화면으로 옮기지 마세요 — 회차마다 그림을 올린 뒤 예약하므로, 도중에 닫으면 남은 회차는 예약되지 않습니다.</p>}
           </>
         )}
         {results.length > 0 && (
           <ul className="space-y-0.5" role="status" aria-label="회차 예약 결과">
             {results.map((r, i) => <li key={i} className={r.ok ? "text-emerald-300" : "text-red-300"}>{r.ok ? "✓" : "✗"} {r.title} — {r.text}</li>)}
           </ul>
+        )}
+        {failed.length > 0 && !busy && (
+          <button type="button" onClick={() => void scheduleAll(failed)} disabled={!!disabled}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#232b3e] bg-[#181d2a] px-3 py-1.5 text-xs font-bold text-slate-100 disabled:opacity-50">
+            <RotateCcw className="h-3.5 w-3.5" /> 실패한 {failed.length}개 회차만 다시 예약 (성공한 회차는 그대로)
+          </button>
         )}
       </div>
     </details>
