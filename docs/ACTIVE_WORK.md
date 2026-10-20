@@ -18,4 +18,3 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `youtube-viral-studio/` · `youtube-channel-consultant/` | Claude Code(윈도우) | 2026-10-20 | 병합 C(CONSULTANT → VIRAL FINDER) 1·2단계 완료(v1.21, 이름 YOUTUBE 트렌드 분석), 3단계(옛 주소·카탈로그) 주인님 확인 대기 — `youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md` |

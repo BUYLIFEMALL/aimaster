@@ -164,3 +164,6 @@
 - 대시보드: 「📊 채널·키워드 진단」 카드 2개(채널 분석·키워드 분석), 황금 카드 이름 「황금·공략 채널 발굴」, 연결 상태 문구(발굴·진단, AI 키에 Claude 포함).
 - 매뉴얼 `/guide`: 「📊 채널·키워드 진단 사용법」 절(채널 분석·키워드 분석·AI 리포트·인기 점수), 팁 2개·FAQ 4개(CONSULTANT 매뉴얼에서), **주의 문구 「즐겨찾기는 이 브라우저에만 저장」 → 실제(계정 저장·30일 삭제)로 정정**.
 - DB `programs.name`·소개는 3단계(카탈로그 정리)에서 바꿈.
+
+## 2026-10-20 병합 C 3단계 완료 — 카탈로그 「YOUTUBE 트렌드 분석」 (Claude Code 윈도우)
+- DB 이름·소개 갱신, CONSULTANT 노출 중지·옛 주소 이동, **공용 기준 코드 `youtube-data-client`·`youtube-golden-engine`(+테스트)의 기준이 이 폴더**(`src/lib/youtube/{youtubeData,goldenEngine}.ts`, `tests/`) — 고치면 `node scripts/check-shared-modules.mjs --sync`. 상세 플랜 §8.

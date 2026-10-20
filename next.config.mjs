@@ -72,6 +72,8 @@ const nextConfig = {
       { source: "/programs/cardnews-studio", destination: "/programs/auto-instagram-posting", permanent: false },
       // 2026-10-20 INSTA DM답변 자동화는 INSTA 댓글·DM 자동화 안으로 병합(카탈로그 노출 중지) — 옛 상세 주소·북마크는 합친 프로그램 상세로
       { source: "/programs/instagram-dm-reply", destination: "/programs/instagram-comment-reply", permanent: false },
+      // 2026-10-20 YOUTUBE CHANNEL CONSULTANT는 YOUTUBE 트렌드 분석(youtube-viral-studio) 안으로 병합(카탈로그 노출 중지)
+      { source: "/programs/youtube-channel-consultant", destination: "/programs/youtube-viral-studio", permanent: false },
       {
         source: '/stepmail',
         destination: 'https://stepmail.buylife.xyz',

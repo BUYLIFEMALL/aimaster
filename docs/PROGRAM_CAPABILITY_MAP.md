@@ -63,10 +63,10 @@
 | 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.15 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.71 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.04 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
-| 47 | YOUTUBE VIRAL FINDER | `youtube-viral-studio` | 유튜브 | v1.18 | 운영 | 조회수가 터진 쇼츠·소형 황금 채널·급상승 영상을 찾아 벤치마킹하는 유튜브 도구 |
+| 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.21 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
 | 48 | 플레이리스트 채널 제작 자동화 | `playlist-channel-studio` | 유튜브 | v1.14 | 운영 | 장르만 고르면 플레이리스트 채널용 제목·Suno 프롬프트·가사·설명·썸네일을 만드는 도구 |
 | 49 | AI 썸네일 마스터 자동화 | `thumbnail-master` | 유튜브 | v1.06 | 운영 | 영상 주제와 시청 타겟으로 A/B 전략과 문구가 들어간 유튜브 썸네일 2종을 만드는 도구 |
-| 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.09 | 운영 | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
+| 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.10 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
 | 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.16 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
 | 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.20 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
@@ -161,8 +161,8 @@
 | 유튜브 지표(VPH·구독자 대비 배수) | `youtube-viral-studio`, `shorts-viral-studio` | |
 | 나노바나나 등급별 모델 목록(공용 기준 코드 `gemini-image-models`) | 기준 `ai-image-studio/lib/providers/nanoBananaModels.ts` → 사본 7곳 | 새 이미지 기능은 이 목록을 사본으로 쓴다. 프로그램별 차이는 호출하는 쪽에서 덮어써 보완 |
 | Gemini 이미지 생성 호출(공용 기준 코드 `gemini-image-client`) | 기준 `ai-image-studio/lib/providers/geminiImage.ts` → 사본 30곳(`docs/SHARED_FEATURE_MAP.md` §3) | 새 이미지 기능은 이 기준 파일을 사본으로 가져다 쓰고, 프롬프트·모델·화질·온도만 프로그램에서 정한다 |
-| YouTube 읽기 호출·오류 안내·할당량(공용 기준 코드 `youtube-data-client`) | 기준 `youtube-channel-consultant/src/lib/youtube/youtubeData.ts` → 사본 `youtube-viral-studio`, `shorts-viral-studio`, `ai-auto-blog`, `tistory-auto-blog`, `naver-blog-agent`, `threads-content-ops`, `trending-product-finder` | 새 유튜브 기능은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_FEATURE_MAP.md` §1) |
-| 황금·공략 채널 찾기 엔진(공용 기준 코드 `youtube-golden-engine`) | 기준 `youtube-channel-consultant/src/lib/youtube/goldenEngine.ts` → 사본 `youtube-viral-studio` | 새 유튜브 프로그램은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_MODULES.md`) |
+| YouTube 읽기 호출·오류 안내·할당량(공용 기준 코드 `youtube-data-client`) | 기준 `youtube-viral-studio/src/lib/youtube/youtubeData.ts`(2026-10-20 병합 C로 이동) → 사본, `shorts-viral-studio`, `ai-auto-blog`, `tistory-auto-blog`, `naver-blog-agent`, `threads-content-ops`, `trending-product-finder` | 새 유튜브 기능은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_FEATURE_MAP.md` §1) |
+| 황금·공략 채널 찾기 엔진(공용 기준 코드 `youtube-golden-engine`) | 기준 `youtube-viral-studio/src/lib/youtube/goldenEngine.ts`(2026-10-20 병합 C로 이동, 사본 없음) | 새 유튜브 프로그램은 이 기준 파일을 사본으로 가져다 쓴다(`docs/SHARED_MODULES.md`) |
 | SerpApi 구글 결과 분석 | `competitor-analysis`, `longtail-keyword-expander` | |
 
 ## 3. 분야 묶음 — 겹치는 프로그램과 장점 합치기 아이디어
@@ -172,7 +172,7 @@
 | 키워드·검색 분석 | blog-keyword(한 화면 다각도) · longtail-keyword-expander(계층 확장·작업 지시문) · competitor-analysis(구글 경쟁사) · trending-product-finder(쇼핑 소싱) · blog-workroom 키워드·트렌드 | 네이버(검색광고 실측) + 구글(SerpApi) + 데이터랩 급상승을 한 리포트로, 결과를 글쓰기 도구로 바로 넘기기 |
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
 | Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply(댓글·DM 응대 — 2026-10-20 instagram-dm-reply 병합) | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
-| 유튜브 | youtube-viral-studio(떡상 발굴) · youtube-channel-consultant(채널 진단) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(A/B 썸네일) · seo-thumbnail-pro(메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
+| 유튜브 | youtube-viral-studio(YOUTUBE 트렌드 분석 — 떡상 발굴 + 채널·키워드 진단, 2026-10-20 youtube-channel-consultant 병합) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(A/B 썸네일) · seo-thumbnail-pro(메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
 | 음악 | music-automation(Suno 실제 생성) · suno-music-studio(정밀 기획) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
@@ -691,7 +691,10 @@
 
 ### 유튜브
 
-#### YOUTUBE VIRAL FINDER (`youtube-viral-studio`)
+#### YOUTUBE 트렌드 분석 (`youtube-viral-studio`) — 옛 이름 YOUTUBE VIRAL FINDER
+- **2026-10-20 v1.20~v1.21 병합 C(YOUTUBE CHANNEL CONSULTANT 흡수)**: 채널 분석(`/channel-analysis`, 인기 점수·업로드 주기 차트)·키워드 분석(`/keyword-analysis`, 점유율·게시 시기)·AI 리포트(경쟁 전략·성장 과정·채널 진단, `/api/ai/analyze`)·JSON/CSV 내보내기가 들어옴. 진단 코드는 `src/lib/consultant/youtube/`(이름 겹침 분리). 메뉴 「🔥 트렌드 발굴 / 📊 채널·키워드 진단」, 공략 채널은 「황금·공략 채널 발굴」 하나, 이름 「YOUTUBE 트렌드 분석」, 공지 띠. 공용 기준 코드 2개의 **기준**이 이 폴더로 이동. 권한·요금 그대로, 회원 본인 키. 옛 주소 https://youtube-channel-consultant.buylife.xyz 는 이동·API 전달.
+- **현재 사용 순서**: 1 키 등록 → 2 트렌드 발굴(떡상 쇼츠·급상승·황금·공략 채널·원본 찾기) → 3 채널·키워드 진단 → 4 즐겨찾기·CSV·AI 리포트
+- **단점·한계(합친 뒤)**: YouTube API 일일 할당량 · 채널·키워드 분석 결과는 저장 안 함(내보내기·즐겨찾기로 보관) · AI 리포트는 별도 AI 키
 - 주소·폴더: https://youtube-viral-studio.buylife.xyz · `youtube-viral-studio/` · v1.17 (유튜브 다크 콘솔 — 스튜디오 변형) · 황금 채널 계산은 공용 기준 코드 `youtube-golden-engine` 사본(2026-10-17, `docs/SHARED_MODULES.md`)
 - **화면(v1.13)**: 대시보드(기능 바로가기·키 상태·무료 한도·즐겨찾기 수, API 호출 없음) · 휴대폰 ☰ 메뉴 · 매뉴얼에 등급 기준표
 - **차별점**: 조회수가 터진 유튜브 영상과 채널을 찾아 벤치마킹하도록 돕는 떡상 영상 발굴 도구입니다.
@@ -723,6 +726,7 @@
 - **키·계정·주의**: 회원 본인의 Google Gemini API 키로 동작합니다. 이미지 안 글자는 AI가 그리므로 맞춤법과 모양을 확인한 뒤 사용하세요.
 
 #### YOUTUBE CHANNEL CONSULTANT (`youtube-channel-consultant`)
+- **병합됨 → `youtube-viral-studio`(YOUTUBE 트렌드 분석, 2026-10-20)**: 모든 기능이 합친 앱으로 이동, 카탈로그 노출 중지, 옛 주소는 이동·API 전달(v1.11). 아래 카드는 병합 전 기록. 분석 `docs/analysis-youtube-consolidation-20261020/REPORT.md`.
 - 주소·폴더: https://youtube-channel-consultant.buylife.xyz · `youtube-channel-consultant/` · v1.08 (유튜브 다크 콘솔 — 스튜디오 변형) · 공략 채널 계산은 공용 기준 코드 `youtube-golden-engine`의 **기준**(2026-10-17, `docs/SHARED_MODULES.md`)
 - **화면(v1.07)**: 유튜브 다크 통일(VIRAL FINDER·댓글자동화와 같은 디자인) · 숫자 읽는 법이 있는 그림 매뉴얼 신설
 - **차별점**: 유튜브 채널과 키워드를 분석해 성장 인사이트와 공략할 채널을 찾아 주는 채널 컨설턴트입니다.

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 C 완료: 「YOUTUBE 트렌드 분석」 (youtube-viral-studio v1.21, youtube-channel-consultant v1.11)
+- 3단계: 옛 CONSULTANT 주소 이동·API 전달, DB 백업 후 이름·소개 갱신·CONSULTANT 노출 중지, 메인 상세 이동, 공용 기준 코드 기준 위치 VIRAL로 이동, 역량 지도·공용 문서·DESIGN.md. 권한 이전 불필요(148명 모두 겹침). 상세 [플랜 §8](../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md).
+- 유튜브 다음 후보: 병합 D(썸네일 프로 → 썸네일 마스터)·E(플레이리스트 2개) — [분석 보고서](analysis-youtube-consolidation-20261020/REPORT.md).
+
+https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 C 2단계 (youtube-viral-studio v1.21 「YOUTUBE 트렌드 분석」)
 - 앱 이름 「YOUTUBE 트렌드 분석」(주인님 확정), 대시보드 「📊 채널·키워드 진단」 카드 2개, 매뉴얼에 진단 사용법·팁·FAQ 4개 합침, 즐겨찾기 주의 문구 정정. 커밋 `dead6874`, 배포 Ready, DB v1.21, 크롬 대시보드 확인.
 - 다음 첫 단계: 3단계(주인님 확인 후) — [플랜 §3·§8](../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md).

@@ -129,14 +129,14 @@ const MODULES = [
   },
   {
     id: "youtube-golden-engine",
-    source: "youtube-channel-consultant/src/lib/youtube/goldenEngine.ts",
-    copies: ["youtube-viral-studio/src/lib/youtube/goldenEngine.ts"],
+    // 2026-10-20 병합 C: 기준을 youtube-channel-consultant → youtube-viral-studio(YOUTUBE 트렌드 분석)로 이동(옛 앱은 주소 전달만)
+    source: "youtube-viral-studio/src/lib/youtube/goldenEngine.ts",
+    copies: [],
   },
   {
     id: "youtube-data-client",
-    source: "youtube-channel-consultant/src/lib/youtube/youtubeData.ts",
+    source: "youtube-viral-studio/src/lib/youtube/youtubeData.ts", // 2026-10-20 병합 C로 기준 이동
     copies: [
-      "youtube-viral-studio/src/lib/youtube/youtubeData.ts",
       "shorts-viral-studio/src/lib/youtube/youtubeData.ts",
       // 2단계(2026-10-17): 폴더 구조가 달라 공용 테스트 파일은 넣지 않고 각 프로그램 기존 테스트로 확인
       "ai-auto-blog/utils/ai/youtubeData.ts",
@@ -148,8 +148,8 @@ const MODULES = [
   },
   {
     id: "youtube-data-client-test",
-    source: "youtube-channel-consultant/tests/youtubeData.test.mjs",
-    copies: ["youtube-viral-studio/tests/youtubeData.test.mjs", "shorts-viral-studio/tests/youtubeData.test.mjs"],
+    source: "youtube-viral-studio/tests/youtubeData.test.mjs", // 2026-10-20 병합 C로 기준 이동
+    copies: ["shorts-viral-studio/tests/youtubeData.test.mjs"],
   },
   {
     // 이미지 생성 호출(엔드포인트·대기·이미지 받아오기). 프롬프트·모델·화질·온도는 각 프로그램 값 그대로(2026-10-17)
@@ -265,8 +265,8 @@ const MODULES = [
   },
   {
     id: "youtube-golden-engine-test",
-    source: "youtube-channel-consultant/tests/goldenEngine.test.mjs",
-    copies: ["youtube-viral-studio/tests/goldenEngine.test.mjs"],
+    source: "youtube-viral-studio/tests/goldenEngine.test.mjs", // 2026-10-20 병합 C로 기준 이동
+    copies: [],
   },
 ];
 

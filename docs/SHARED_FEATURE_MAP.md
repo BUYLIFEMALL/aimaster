@@ -20,8 +20,8 @@
 
 | 프로그램 | 파일 | 상태 | 비고 |
 |---|---|---|---|
-| youtube-channel-consultant | `src/lib/youtube/youtubeData.ts` (+ `tests/youtubeData.test.mjs`) | 🟢 기준 | `client.ts` `call()`이 위임 (v1.09) |
-| youtube-viral-studio | `src/lib/youtube/youtubeData.ts` | 🔵 사본 | `client.ts`·`trendingVideos.ts`·`viralShorts.ts`·`sourceFinder.ts`가 위임, 캐시 재사용 시간 유지 (v1.18) |
+| youtube-channel-consultant | — | ⚪ 병합됨 | 2026-10-20 YOUTUBE 트렌드 분석으로 병합, 옛 주소 전달만(기준은 아래 youtube-viral-studio로 이동) |
+| youtube-viral-studio | `src/lib/youtube/youtubeData.ts` (+ `tests/youtubeData.test.mjs`) | 🟢 기준 | 2026-10-20 병합 C로 기준 이동. `client.ts`·`trendingVideos.ts`·`viralShorts.ts`·`sourceFinder.ts`와 옮겨 온 진단 코드 `lib/consultant/youtube/client.ts`가 위임 (v1.21) |
 | shorts-viral-studio | `src/lib/youtube/youtubeData.ts` | 🔵 사본 | `api.ts` `ytFetch()`가 위임, 오류 종류(kind) 변환 (v1.10) |
 | ai-auto-blog | `utils/ai/youtubeData.ts` | 🔵 사본 | `utils/ai/youtubeShorts.ts`가 위임 (v1.68, 2026-10-17 2단계) |
 | tistory-auto-blog | `utils/ai/youtubeData.ts` | 🔵 사본 | `utils/ai/youtubeShorts.ts` (ai-auto-blog와 같은 내용)가 위임 (v1.75, 2026-10-17 2단계) |
@@ -36,8 +36,8 @@
 
 | 프로그램 | 파일 | 상태 | 비고 |
 |---|---|---|---|
-| youtube-channel-consultant | `src/lib/youtube/goldenEngine.ts` (+ `tests/goldenEngine.test.mjs`) | 🟢 기준 | 「공략 채널 찾기」 (v1.08~) |
-| youtube-viral-studio | `src/lib/youtube/goldenEngine.ts` | 🔵 사본 | 「황금 채널 발굴」 (v1.17~) |
+| youtube-channel-consultant | — | ⚪ 병합됨 | 2026-10-20 YOUTUBE 트렌드 분석으로 병합 |
+| youtube-viral-studio | `src/lib/youtube/goldenEngine.ts` (+ `tests/goldenEngine.test.mjs`) | 🟢 기준 | 「황금·공략 채널 발굴」 하나로 (2026-10-20 병합 C로 기준 이동, v1.21) |
 
 ## 3. AI 이미지 생성 호출 — 공용 모듈 `gemini-image-client` (2026-10-17 1단계 완료, 모델 기준은 ai-image-studio)
 
@@ -137,6 +137,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-20 | 병합 C: 유튜브 조회·황금 엔진 기준을 youtube-channel-consultant → youtube-viral-studio로 이동 | Claude Code(윈도우) |
 | 2026-10-20 | 「9. 프로그램 공지 띠」(`program-notice-banner`, 사본 5곳)·「10. 텔레그램 승인 봇 연동」(공용화 후보, allowed_updates 함정) 등록 | Claude Code(윈도우) |
 | 2026-10-20 | `openai-request-params` 사본 7곳 추가(미배포), youtube-channel-consultant 제외·shorts-viral-studio 해당 없음 | Claude Code(윈도우) |
 | 2026-10-20 | 「8. OpenAI 모델별 요청 규칙」 `openai-request-params` 등록 — 기준 naver-blog-seo-studio v1.77, 사본 threads-affiliate-poster v1.68, 바꿀 후보 9곳 | Claude Code(윈도우) |
