@@ -1,6 +1,6 @@
 # AIMaster 타로점 (`tarot/`) 개선 인수인계 — 2026-10-20 (Claude Code 윈도우)
 
-- 버전: v1.20 → v1.26 · 서비스: https://tarot-reading.buylife.xyz
+- 버전: v1.20 → v1.27 · 서비스: https://tarot-reading.buylife.xyz
 - 세션 전체 정리(4개 프로그램 공통 규칙·대응표·검수·비용): [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
 ## 한 일
@@ -20,7 +20,7 @@
 |---|---|---|
 | 화면 | 저장된 리딩(`/result?rid=`)으로 카드 앞면 상태 다크 확인 — 비용 없음 | 중간 |
 | 기능 | 질문이 미리 채워져 넘어온 경우 추천 스프레드(예: 마음 상태 → 「관계 심층」)를 함께 제안 | 낮음 |
-| 기능(안정성) | 리딩 API가 화면에서 보낸 모델 이름을 그대로 OpenAI에 보냄 → `OPENAI_MODEL_OPTIONS` 목록(+옛 이름 변환)에 없는 값은 기본 모델로 바꾸는 허용 목록 검사 추가(v1.26 후속) | 중간 |
+| 기능(안정성) | ~~리딩 API 모델 허용 목록 검사~~ → ✅ v1.27 완료 | 완료 |
 | 연계 | 리딩 저장 시 넘어온 곳(`from`)도 함께 저장해 보관함에서 「성격 진단에서 시작」 표시 | 낮음 |
 
 ## 다음 첫 단계

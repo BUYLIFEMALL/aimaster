@@ -2,6 +2,11 @@
 
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
+## 2026-10-20 v1.27 — 리딩 API 모델 허용 목록 검사 (Claude Code 윈도우, 추가개선 제안 1-1)
+- `app/api/generate-reading/route.ts`: 화면에서 보낸 모델 이름을 옛 이름 변환 뒤 `OPENAI_MODEL_OPTIONS`(+ 기본 `gpt-4o-mini`)에 있는지 확인하고, 없으면 OpenAI 호출 전에 400 `UNSUPPORTED_MODEL`(「지원하지 않는 해석 모델입니다. 카드 뽑기 화면에서 모델을 다시 골라 주세요.」). **메뉴에 모델을 추가하면 자동으로 허용**된다.
+- **이 배포로 「이어서 보기」 공용 링크(`personality-program-links`)도 함께 나감.**
+- 검수: tsc·build, 커밋 `c982c51d`, 배포 `tarot-efl64s7w8` Ready, DB v1.27(크롬 SQL Editor, PRODUCTION). 크롬(관리자) 운영 API: 없는 모델 → 400 `UNSUPPORTED_MODEL`, 옛 이름 `gpt-5.5-sol`·메뉴 모델 `gpt-5.6-sol` → 허용 목록 통과 후 카드 정보 검사에서 400(빈 카드로 보내 OpenAI 호출 0회).
+
 ## 2026-10-20 (버전 변경 없음·미배포) — 넘어온 곳 이름을 공용 기준 코드에서 (Claude Code 윈도우)
 - 한 일: 성격·운세 4개 프로그램의 「이어서 보기」 링크 코드를 공용 기준 코드 `personality-program-links`(`programLinks.ts`, 기준 `personality-suite/src/lib/`, 사본 `mbti/lib/`·`mbti-character/lib/`·`tarot/lib/`)로 모았다 — 타로점·캐릭코드·성격코드 주소, `tarotDrawLink(질문, from)`(300자 제한), `typeResultLink(주소, 유형, 지표, from)`(0~100 정수), 넘어온 곳 이름 `FROM_LABELS`. 이 프로그램은 `components/DrawFlow.tsx`의 `FROM_LABELS`를 공용 파일에서 가져온다(이전 v1.25 주의사항 「새 프로그램은 DrawFlow에 추가」 → 이제 기준 파일에 추가).
 - 옛 링크와 결과가 같은지 표본 3개로 대조(같음). 동작·화면 변경 없음. 검수: tsc·build(성격 진단 단위 22 포함) 통과, 공용 코드 점검 일치.

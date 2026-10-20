@@ -10,6 +10,12 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 타로점 v1.27: 리딩 API 모델 허용 목록 검사 (추가개선 제안 1-1)
+- 한 일: 메뉴에 없는 모델 이름은 OpenAI 호출 전에 400으로 막음(옛 이름은 변환 뒤 통과). 이 배포로 타로의 「이어서 보기」 공용 링크도 함께 나감.
+- 검수: tsc·build, 커밋 `c982c51d`, 배포 `tarot-efl64s7w8` Ready, DB(ref `esgxyikcnnvmlhygjkth`) tarot-reading v1.27, 크롬 운영 API 3가지(없는 모델 400·옛 이름/메뉴 모델 통과) 확인, OpenAI 호출 0회.
+- 링크: https://tarot-reading.buylife.xyz/draw
+
+
 ## 2026-10-20 Claude Code(윈도우) — 캐릭코드 v1.24: 홈 제목 줄바꿈 수정 (남은 작업 순서 진행 ⑩ — 1~10번 전체 완료)
 - 한 일: 홈 큰 제목·통계 카드 제목이 좁은 폭에서 글자 중간에 끊기던 문제 → 단어 단위 줄바꿈·중간 폭 글자 크기. 이 배포로 「이어서 보기」 공용 링크도 함께 나감.
 - 검수: tsc·build, 커밋 `0d239ca7`, 배포 `mbti-character-4t8fustga` Ready, DB(ref `esgxyikcnnvmlhygjkth`) mbti-character v1.24, 크롬 700px·390px 측정(단어 사이에서만 끊김).
