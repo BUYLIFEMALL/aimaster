@@ -166,3 +166,6 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 버전 정정: 처음 v1.15로 커밋(`b8b6ded6`)했으나 다른 세션이 4분 앞서 예약 공용 코드 수정(`630027f0`)을 v1.15로 배포해 번호가 겹쳐 v1.16으로 다시 매김. v1.16 배포에는 두 수정이 모두 들어 있다.
 - 연결 화면에 「다른 YouTube 프로그램 권한도 함께 받기」(연결 전: 체크칸, 연결 후: 「…함께 받아 다시 연결」 버튼). 켜면 `force-ssl`·`upload`·`readonly`를 `include_granted_scopes=true`로 한 번에 요청(`lib/youtube/client.ts` `getYoutubeAuthorizeUrl` 선택 인자, `ALL_YOUTUBE_SCOPES`는 `lib/youtube/memberAccount.ts`). 콜백은 공용 표 `granted_scopes`에 **Google 토큰 응답의 실제 받은 권한(`scope`)** 을 기록 → shots(업로드 권한)도 같은 공용 토큰을 쓸 수 있다. 회원이 동의 화면에서 일부를 빼면 받은 것만 기록돼 각 프로그램은 자기 표로 돌아간다. 기본(체크 안 함)은 예전과 같다.
 - 플랜 루트 `docs/PLAN_20261020_YOUTUBE_SCOPES_AND_SHOTS_FB_KEY.md`. `package.json` 1.16.0.
+
+## 2026-10-20 v1.15 — 일시정지 안전 처리·상태 줄 즉시 갱신 (Claude Code 윈도우)
+- 예약 공용 코드 보강(구글폼 CRM v1.12 등 6개와 같은 수정): ① `pauseMemberScheduler`가 일시정지를 먼저 저장하고 cron-job.org 끄기는 시도만(실패 시 「작업 끄기는 다음 호출 때 다시 시도」 안내), 회원 실행 주소가 `skipPausedMember`로 일시정지 회원을 건너뛰고 작업 끄기를 다시 시도 ② 상태 줄이 서버 값 변화를 따라감(`useEffect`). 커밋 `630027f0`, DB 버전 크롬 SQL Editor, 배포 `youtube-auto-reply-b4ves98m3` Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401.

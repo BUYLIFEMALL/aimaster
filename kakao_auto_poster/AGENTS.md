@@ -248,3 +248,6 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 ## 2026-10-20 v1.24 — 회원 연동 정보 공용 저장 ⑤단계 카카오 (Claude Code 윈도우)
 - 카카오 로그인 콜백이 `user_kakao_accounts`와 공용 표 `member_platform_accounts`(platform `kakao`, 권한 `talk_message`, 갱신 토큰·만료, `app_ref`=회원 `kakao_rest_api_key`)에 함께 저장. 토큰을 쓰는 `getValidKakaoAccessToken`과 설정·리포트 화면은 `src/lib/kakao/memberAccount.ts` `getKakaoAccount` — 권한 + 갱신 토큰 + 재연결 필요 아님 + **공용 계정의 앱이 지금 등록한 REST API 키와 같음** → 없으면 `user_kakao_accounts`. 갱신은 읽은 곳에 기록(카카오가 새 갱신 토큰을 주면 그것도), 해제는 공용 행도 삭제(설정 안내 문구).
 - 지금은 카카오 로그인을 쓰는 프로그램이 이것 하나라 동작 변화는 없고, 메인 「내 연동 정보」 표시와 다음 프로그램 재사용이 목적. 공용 부품 사본 `src/lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020220000_member_integrations_v1_24.sql`. `package.json` 1.24.0.
+
+## 2026-10-20 v1.25 — 일시정지 안전 처리·상태 줄 즉시 갱신 (Claude Code 윈도우)
+- 예약 공용 코드 보강(구글폼 CRM v1.12 등 6개와 같은 수정): ① `pauseMemberScheduler`가 일시정지를 먼저 저장하고 cron-job.org 끄기는 시도만(실패 시 「작업 끄기는 다음 호출 때 다시 시도」 안내), 회원 실행 주소가 `skipPausedMember`로 일시정지 회원을 건너뛰고 작업 끄기를 다시 시도 ② 상태 줄이 서버 값 변화를 따라감(`useEffect`). 커밋 `630027f0`, DB 버전 크롬 SQL Editor, 배포 `kakaoautoposter-qqse0ttuv` Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401.
