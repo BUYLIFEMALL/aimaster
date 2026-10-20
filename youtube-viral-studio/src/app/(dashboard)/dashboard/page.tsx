@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Flame, Sparkles, TrendingUp, Link2, Bookmark, KeyRound, BookOpen } from "lucide-react";
+import { Flame, Sparkles, TrendingUp, Link2, Bookmark, KeyRound, BookOpen, BarChart3, Search } from "lucide-react";
 import { requireProgramAccess } from "@/lib/access";
 import { getRegisteredApiKeys } from "@/lib/apiKeys";
 import { FavoriteCounts } from "@/components/dashboard/FavoriteCounts";
@@ -23,7 +23,7 @@ const FEATURES = [
     href: "/golden-channels",
     icon: Sparkles,
     tone: "text-yt-warn",
-    title: "황금 채널 발굴",
+    title: "황금·공략 채널 발굴",
     desc: "소형 채널인데 영상당 평균 조회수가 높은 벤치마킹 채널을 찾습니다.",
     metric: "평균 조회수 ÷ 구독자",
   },
@@ -47,16 +47,36 @@ const FEATURES = [
   },
 ];
 
+// 2026-10-20 병합 C: YOUTUBE CHANNEL CONSULTANT에서 옮겨 온 진단 기능
+const DIAGNOSE = [
+  {
+    href: "/channel-analysis",
+    icon: BarChart3,
+    tone: "text-yt-success",
+    title: "채널 분석",
+    desc: "채널 주소·@핸들로 구독자·조회수·업로드 주기와 최근 영상 인기 점수를 차트로 진단합니다.",
+    metric: "인기 점수 · 업로드 주기",
+  },
+  {
+    href: "/keyword-analysis",
+    icon: Search,
+    tone: "text-yt-violet",
+    title: "키워드 분석",
+    desc: "키워드로 검색된 영상의 조회·반응, 채널 점유율, 게시 시기를 분석해 시장을 봅니다.",
+    metric: "채널 점유율 · 게시 시기",
+  },
+];
+
 export default async function DashboardPage() {
   const user = await requireProgramAccess();
   const keys = await getRegisteredApiKeys(user.id);
 
   const connections = [
-    { label: "YouTube Data API", note: "필수 · 모든 발굴 기능", ok: !!keys.youtube_api_key?.registered },
+    { label: "YouTube Data API", note: "필수 · 모든 발굴·진단 기능", ok: !!keys.youtube_api_key?.registered },
     {
-      label: "AI 키 (Gemini 또는 OpenAI)",
-      note: "선택 · 대본 분석",
-      ok: !!keys.gemini?.registered || !!keys.openai?.registered,
+      label: "AI 키 (Gemini·OpenAI·Claude)",
+      note: "선택 · 대본 분석·AI 리포트",
+      ok: !!keys.gemini?.registered || !!keys.openai?.registered || !!keys.anthropic?.registered,
     },
   ];
   const ready = connections[0].ok;
@@ -67,7 +87,7 @@ export default async function DashboardPage() {
       <div className="overflow-hidden rounded-2xl border border-yt-border bg-gradient-to-r from-[#2a0000] via-yt-surface to-yt-surface p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <span className="yt-chip mb-3 bg-yt-red/15 text-yt-danger">▶ YOUTUBE VIRAL FINDER</span>
+            <span className="yt-chip mb-3 bg-yt-red/15 text-yt-danger">▶ YOUTUBE 트렌드 분석</span>
             <h1 className="text-2xl font-bold tracking-tight text-yt-text md:text-3xl">알고리즘이 고른 영상, 먼저 찾아내세요</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-yt-muted">
               작은 채널에서 터진 쇼츠, 지금 급상승 중인 영상, 따라 할 만한 황금 채널, 쇼츠의 원본 영상까지 — 회원님 본인
@@ -104,6 +124,27 @@ export default async function DashboardPage() {
             </Link>
           );
         })}
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm font-bold text-yt-text">📊 채널·키워드 진단</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {DIAGNOSE.map((f) => {
+            const Icon = f.icon;
+            return (
+              <Link
+                key={f.href}
+                href={f.href}
+                className="group flex flex-col rounded-xl border border-yt-border bg-yt-surface p-4 transition-colors hover:border-yt-red hover:bg-yt-raised"
+              >
+                <Icon size={22} className={f.tone} />
+                <p className="mt-3 text-base font-bold text-yt-text">{f.title}</p>
+                <p className="mt-1 flex-1 text-xs leading-relaxed text-yt-muted">{f.desc}</p>
+                <span className="yt-chip mt-3 self-start text-[11px]">📐 {f.metric}</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
