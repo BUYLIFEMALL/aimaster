@@ -162,6 +162,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 연결 콜백이 `ytreply_accounts`와 공용 표 `member_platform_accounts`(platform `youtube`, 권한 `youtube.force-ssl`, 갱신 토큰, `app_ref`=회원 `google_client_id`)에 함께 저장. 읽는 곳(영상 동기화·댓글 동기화·답글 게시·대시보드·연결 상태)은 `lib/youtube/memberAccount.ts` `getYtReplyAccount` — 채널 관리 권한 + 갱신 토큰 있음 + 재연결 필요 아님 + **공용 계정의 앱이 지금 등록한 Client ID와 같음**(갱신 토큰은 발급 앱으로만 쓸 수 있음) → 없으면 `ytreply_accounts`. 접근 토큰 갱신·재연결 표시는 읽은 곳에 기록, 해제는 공용 행도 삭제(설정 안내 문구). 매일 연결 점검·30일 정리 cron은 그대로 `ytreply_accounts`만 본다.
 - shots(업로드 권한)와 권한이 달라 서로의 공용 토큰은 쓰지 않는다(권한 합치지 않음). 공용 부품 사본 `lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020200000_member_integrations_v1_14.sql`. `package.json` 1.14.0. 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP5_YT_KAKAO_NAVER.md`.
 
-## 2026-10-20 v1.15 — YouTube 연결 하나로 합치기 (Claude Code 윈도우)
+## 2026-10-20 v1.16 — YouTube 연결 하나로 합치기 (Claude Code 윈도우)
+- 버전 정정: 처음 v1.15로 커밋(`b8b6ded6`)했으나 다른 세션이 4분 앞서 예약 공용 코드 수정(`630027f0`)을 v1.15로 배포해 번호가 겹쳐 v1.16으로 다시 매김. v1.16 배포에는 두 수정이 모두 들어 있다.
 - 연결 화면에 「다른 YouTube 프로그램 권한도 함께 받기」(연결 전: 체크칸, 연결 후: 「…함께 받아 다시 연결」 버튼). 켜면 `force-ssl`·`upload`·`readonly`를 `include_granted_scopes=true`로 한 번에 요청(`lib/youtube/client.ts` `getYoutubeAuthorizeUrl` 선택 인자, `ALL_YOUTUBE_SCOPES`는 `lib/youtube/memberAccount.ts`). 콜백은 공용 표 `granted_scopes`에 **Google 토큰 응답의 실제 받은 권한(`scope`)** 을 기록 → shots(업로드 권한)도 같은 공용 토큰을 쓸 수 있다. 회원이 동의 화면에서 일부를 빼면 받은 것만 기록돼 각 프로그램은 자기 표로 돌아간다. 기본(체크 안 함)은 예전과 같다.
-- 플랜 루트 `docs/PLAN_20261020_YOUTUBE_SCOPES_AND_SHOTS_FB_KEY.md`. `package.json` 1.15.0.
+- 플랜 루트 `docs/PLAN_20261020_YOUTUBE_SCOPES_AND_SHOTS_FB_KEY.md`. `package.json` 1.16.0.
