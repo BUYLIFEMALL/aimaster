@@ -89,7 +89,30 @@ function Find-OldInstall {
   return $dirs | ForEach-Object { $_.FullName } | Where-Object { $_ -ne $ProgramDir -and (Same-Program $_) -and (Is-Installed $_) } |
     Sort-Object { (Get-Item -LiteralPath (Join-Path $_ ".env.local")).LastWriteTime } -Descending | Select-Object -First 1
 }
+# 버전 표시(설치결과.txt): 배포판 번호·프로그램 버전 — 포장 스크립트가 kit.json 에 적은 값, 옛 배포판은 00_START_HERE.md·version.ts 에서 읽음
+function Version-Info($dir) {
+  $kitV = ""; $appV = ""
+  $k = Join-Path $dir "KIT\kit.json"
+  if (Test-Path -LiteralPath $k) { try { $j = Get-Content -LiteralPath $k -Raw -Encoding UTF8 | ConvertFrom-Json; $kitV = "$($j.kitVersion)"; $appV = "$($j.appVersion)" } catch { } }
+  if (-not $kitV) {
+    $s = Join-Path (Split-Path $dir -Parent) "00_START_HERE.md"
+    if (Test-Path -LiteralPath $s) { $m = Select-String -LiteralPath $s -Pattern "배포판 (v\d+\.\d{2})" -Encoding UTF8 | Select-Object -First 1; if ($m) { $kitV = $m.Matches[0].Groups[1].Value } }
+  }
+  if (-not $appV) {
+    foreach ($r in "lib\version.ts", "src\lib\version.ts") {
+      $f = Join-Path $dir $r
+      if (Test-Path -LiteralPath $f) { $m = Select-String -LiteralPath $f -Pattern 'APP_VERSION\s*=\s*["''](v\d+\.\d{2})' | Select-Object -First 1; if ($m) { $appV = $m.Matches[0].Groups[1].Value; break } }
+    }
+  }
+  $text = if ($kitV) { "배포판 $kitV" } else { "배포판 번호 모름" }
+  if ($appV) { $text += " (프로그램 $appV)" }
+  return $text
+}
+$UpdateFrom = $null
+$OldVersion = ""
 function Start-Update($from) {
+  $script:UpdateFrom = $from
+  $script:OldVersion = Version-Info $from
   Copy-Item -LiteralPath (Join-Path $from ".env.local") -Destination $EnvFile -Force
   $vercelDir = Join-Path $from ".vercel"
   if (Test-Path -LiteralPath $vercelDir) { Copy-Item -LiteralPath $vercelDir -Destination $ProgramDir -Recurse -Force }
@@ -100,7 +123,11 @@ function Start-Update($from) {
 
 if ((Is-Installed $ProgramDir) -and (Done 8)) {
   $upd = Ask "이 폴더는 설치를 마친 폴더입니다. 지금 코드로 내 사이트를 다시 올릴까요? (y=업데이트 / n=처음부터 다시 설치)" "y"
-  if ($upd -eq "y") { $UpdateMode = $true; Remove-Item $ProgressFile -Force; foreach ($n in 2, 3, 5, 6) { MarkDone $n } }
+  if ($upd -eq "y") {
+    $UpdateMode = $true; Remove-Item $ProgressFile -Force; foreach ($n in 2, 3, 5, 6) { MarkDone $n }
+    $prev = Join-Path $ProgramDir "설치결과.txt"
+    if (Test-Path -LiteralPath $prev) { $line = Get-Content -LiteralPath $prev -Encoding UTF8 | Where-Object { $_ -like "버전: *" } | Select-Object -First 1; if ($line) { $OldVersion = (($line -replace "^버전: ", "") -split " → ")[-1] } }
+  }
   else { Remove-Item $ProgressFile -Force }
 } elseif (Test-Path $ProgressFile) {
   $again = Ask "지난번에 하던 설치가 있습니다. 이어서 할까요? (y=이어서 / n=처음부터)" "y"
@@ -315,10 +342,13 @@ if ($KitInfo.authRedirectPath) {
 $callback = if ($KitInfo.callbackPath) { "$siteUrl$($KitInfo.callbackPath)" } else { "" }
 $callbackLabel = if ($KitInfo.callbackLabel) { $KitInfo.callbackLabel } else { "플랫폼 앱 콜백 주소" }
 $nextStep = if ($KitInfo.nextStep) { $KitInfo.nextStep } else { "KIT\README.md 를 이어서 진행하세요." }
+$NewVersion = Version-Info $ProgramDir
+$versionLine = if ($UpdateMode -and $OldVersion) { "$OldVersion → $NewVersion" } else { $NewVersion }
 $result = @(
   "$($KitInfo.title) — $(if ($UpdateMode) { '업데이트' } else { '설치' }) 결과 ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))",
   "",
   "내 사이트: $siteUrl",
+  "버전: $versionLine",
   $(if ($callback) { "${callbackLabel}: $callback" }),
   "Supabase 프로젝트: https://supabase.com/dashboard/project/$ref",
   "",
@@ -338,6 +368,25 @@ Say "╚════════════════════════
 Say "내 사이트: $siteUrl"
 if ($callback) { if (Copy-Text $callback) { Say "${callbackLabel}(클립보드에 복사됨): $callback" } else { Say "${callbackLabel}: $callback" } }
 Say "다음 단계: $nextStep"
+Say "버전: $versionLine"
 Say "이 내용은 프로그램 폴더의 「설치결과.txt」에도 저장했습니다."
+
+# 업데이트 뒤 예전 폴더 정리 제안 — 키가 든 .env.local 이 남아 있으므로. 수강생이 y 한 경우에만 휴지통으로(바로 지우지 않음)
+if ($UpdateMode -and $UpdateFrom -and (Test-Path -LiteralPath $UpdateFrom)) {
+  $oldFull = (Resolve-Path -LiteralPath $UpdateFrom).Path.TrimEnd("\")
+  $holdsCurrent = ($oldFull -ieq $ProgramDir) -or $ProgramDir.StartsWith("$oldFull\", [StringComparison]::OrdinalIgnoreCase)
+  if (-not $holdsCurrent -and (Same-Program $oldFull)) {
+    Say ""
+    Say "  예전 폴더에는 키가 든 .env.local 이 남아 있습니다(설정은 이 폴더로 복사했으니 지워도 됩니다): $oldFull"
+    $del = Ask "예전 폴더를 휴지통으로 보낼까요? (y=보내기 / n=남겨 두기)" "n"
+    if ($del -eq "y") {
+      try {
+        Add-Type -AssemblyName Microsoft.VisualBasic
+        [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($oldFull, [Microsoft.VisualBasic.FileIO.UIOption]::OnlyErrorDialogs, [Microsoft.VisualBasic.FileIO.RecycleOption]::SendToRecycleBin)
+        Ok "예전 폴더를 휴지통으로 보냈습니다. 키가 남지 않도록 휴지통도 비워 주세요."
+      } catch { Warn "지우지 못했습니다($($_.Exception.Message)). 직접 지워 주세요: $oldFull" }
+    } else { Say "  남겨 둡니다. 나중에 직접 지우세요(폴더째 남에게 보내지 마세요)." }
+  }
+}
 OpenUrl $siteUrl
 Read-Host "  Enter를 누르면 창을 닫습니다" | Out-Null

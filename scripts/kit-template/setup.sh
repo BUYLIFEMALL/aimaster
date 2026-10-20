@@ -85,7 +85,23 @@ find_old_install() {
   done
   echo "$best"
 }
+# 버전 표시(설치결과.txt): 배포판 번호·프로그램 버전 — 포장 스크립트가 kit.json 에 적은 값, 옛 배포판은 00_START_HERE.md·version.ts 에서 읽음
+version_info() {
+  local dir="$1" kv av f
+  kv=$(node -e "try{console.log(require(process.argv[1]).kitVersion||'')}catch(e){console.log('')}" "$dir/KIT/kit.json" 2>/dev/null)
+  av=$(node -e "try{console.log(require(process.argv[1]).appVersion||'')}catch(e){console.log('')}" "$dir/KIT/kit.json" 2>/dev/null)
+  [ -z "$kv" ] && [ -f "$(dirname "$dir")/00_START_HERE.md" ] && kv=$(grep -oE "배포판 v[0-9]+\.[0-9]{2}" "$(dirname "$dir")/00_START_HERE.md" | head -1 | sed 's/배포판 //')
+  if [ -z "$av" ]; then for f in "$dir/lib/version.ts" "$dir/src/lib/version.ts"; do
+    [ -f "$f" ] && av=$(grep -oE "APP_VERSION *= *[\"'][^\"']+" "$f" | head -1 | grep -oE "v[0-9]+\.[0-9]{2}") && [ -n "$av" ] && break
+  done; fi
+  if [ -n "$kv" ]; then printf "배포판 %s" "$kv"; else printf "배포판 번호 모름"; fi
+  [ -n "$av" ] && printf " (프로그램 %s)" "$av"
+  echo
+}
+UPDATE_FROM=""
+OLD_VERSION=""
 start_update() {
+  UPDATE_FROM="$1"; OLD_VERSION=$(version_info "$1")
   cp "$1/.env.local" "$ENV_FILE"
   [ -d "$1/.vercel" ] && cp -R "$1/.vercel" "$PROGRAM_DIR/"
   rm -f "$PROGRESS_FILE"; for n in 2 3 5 6; do mark_done $n; done
@@ -94,7 +110,10 @@ start_update() {
 if is_installed "$PROGRAM_DIR" && done_step 8; then
   UPD=$(ask "이 폴더는 설치를 마친 폴더입니다. 지금 코드로 내 사이트를 다시 올릴까요? (y=업데이트 / n=처음부터 다시 설치)" "y")
   rm -f "$PROGRESS_FILE"
-  if [ "$UPD" = "y" ]; then UPDATE_MODE=1; for n in 2 3 5 6; do mark_done $n; done; fi
+  if [ "$UPD" = "y" ]; then
+    UPDATE_MODE=1; for n in 2 3 5 6; do mark_done $n; done
+    [ -f "$PROGRAM_DIR/설치결과.txt" ] && OLD_VERSION=$(grep -m1 "^버전: " "$PROGRAM_DIR/설치결과.txt" | sed -e 's/^버전: //' -e 's/.* → //')
+  fi
 elif [ -f "$PROGRESS_FILE" ]; then
   AGAIN=$(ask "지난번에 하던 설치가 있습니다. 이어서 할까요? (y=이어서 / n=처음부터)" "y")
   [ "$AGAIN" = "y" ] || rm -f "$PROGRESS_FILE"
@@ -278,9 +297,12 @@ if [ -n "$AUTH_REDIRECT" ]; then
 fi
 
 CALLBACK_URL=""; [ -n "$CALLBACK" ] && CALLBACK_URL="$SITE_URL$CALLBACK"
+NEW_VERSION=$(version_info "$PROGRAM_DIR")
+if [ "$UPDATE_MODE" = "1" ] && [ -n "$OLD_VERSION" ]; then VERSION_LINE="$OLD_VERSION → $NEW_VERSION"; else VERSION_LINE="$NEW_VERSION"; fi
 {
   echo "$TITLE — $([ "$UPDATE_MODE" = "1" ] && echo 업데이트 || echo 설치) 결과 ($(date '+%Y-%m-%d %H:%M'))"; echo
   echo "내 사이트: $SITE_URL"
+  echo "버전: $VERSION_LINE"
   [ -n "$CALLBACK_URL" ] && echo "$CALLBACK_LABEL: $CALLBACK_URL"
   echo "Supabase 프로젝트: https://supabase.com/dashboard/project/$REF"; echo
   echo "다음 단계: $NEXT_STEP"
@@ -297,6 +319,22 @@ say "╚════════════════════════
 say "내 사이트: $SITE_URL"
 if [ -n "$CALLBACK_URL" ]; then if copy_text "$CALLBACK_URL"; then say "$CALLBACK_LABEL(클립보드에 복사됨): $CALLBACK_URL"; else say "$CALLBACK_LABEL: $CALLBACK_URL"; fi; fi
 say "다음 단계: $NEXT_STEP"
+say "버전: $VERSION_LINE"
 say "이 내용은 프로그램 폴더의 「설치결과.txt」에도 저장했습니다."
+
+# 업데이트 뒤 예전 폴더 정리 제안 — 키가 든 .env.local 이 남아 있으므로. 수강생이 y 한 경우에만 휴지통(~/.Trash)으로(바로 지우지 않음)
+if [ "$UPDATE_MODE" = "1" ] && [ -n "$UPDATE_FROM" ] && [ -d "$UPDATE_FROM" ]; then
+  OLD_FULL="$(cd "$UPDATE_FROM" && pwd)"
+  case "$PROGRAM_DIR/" in "$OLD_FULL/"*) HOLDS_CURRENT=1;; *) HOLDS_CURRENT=0;; esac
+  if [ "$HOLDS_CURRENT" = "0" ] && same_program "$OLD_FULL"; then
+    echo; say "  예전 폴더에는 키가 든 .env.local 이 남아 있습니다(설정은 이 폴더로 복사했으니 지워도 됩니다): $OLD_FULL"
+    DEL=$(ask "예전 폴더를 휴지통으로 보낼까요? (y=보내기 / n=남겨 두기)" "n")
+    if [ "$DEL" = "y" ]; then
+      if [ -d "$HOME/.Trash" ] && mv "$OLD_FULL" "$HOME/.Trash/$(basename "$OLD_FULL")-$(date +%Y%m%d%H%M%S)" 2>/dev/null; then
+        ok "예전 폴더를 휴지통으로 보냈습니다. 키가 남지 않도록 휴지통도 비워 주세요."
+      else warn "휴지통으로 보내지 못했습니다. 직접 지워 주세요: $OLD_FULL"; fi
+    else say "  남겨 둡니다. 나중에 직접 지우세요(폴더째 남에게 보내지 마세요)."; fi
+  fi
+fi
 open_url "$SITE_URL"
 pause_exit 0

@@ -101,7 +101,28 @@ def build_schema(program, kit, dst):
     io.open(target, "w", encoding="utf-8", newline="\n").write("\n".join(out))
 
 
-def copy_program(program, kit, dst_root):
+def app_version(prog_dir):
+    """프로그램 화면 버전(lib/version.ts 또는 src/lib/version.ts 의 APP_VERSION)."""
+    for rel in ("lib/version.ts", "src/lib/version.ts"):
+        f = os.path.join(prog_dir, rel)
+        if os.path.exists(f):
+            m = re.search(r"APP_VERSION\s*=\s*[\"'](v\d+\.\d{2})[\"']", io.open(f, encoding="utf-8").read())
+            if m:
+                return m.group(1)
+    return ""
+
+
+def stamp_versions(dst, kit_version):
+    """압축 안 KIT/kit.json 에 배포판 번호·프로그램 버전을 적는다 — 마법사가 설치결과.txt 에 기록(업데이트 모드는 이전→새 번호)."""
+    path = os.path.join(dst, "KIT", "kit.json")
+    data = json.load(io.open(path, encoding="utf-8"))
+    if kit_version:
+        data["kitVersion"] = kit_version
+    data["appVersion"] = app_version(dst)
+    io.open(path, "w", encoding="utf-8", newline="\n").write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+
+
+def copy_program(program, kit, dst_root, kit_version=""):
     src = os.path.join(ROOT, program)
     dst = os.path.join(dst_root, program)
     skip_top = ALWAYS_SKIP_TOP | set(kit.get("exclude", []))
@@ -124,6 +145,7 @@ def copy_program(program, kit, dst_root):
     if not kit.get("checkTable"):
         print(f"[주의] {program}: kit.json 에 checkTable 이 없어 패키지 설치마법사가 profiles 표로 DB 실행을 확인합니다.")
     build_schema(program, kit, dst)
+    stamp_versions(dst, kit_version)
     io.open(os.path.join(dst, "README.md"), "w", encoding="utf-8", newline="\n").write(
         f"# {kit.get('title', program)}\n\n"
         "## 설치는 더블클릭 한 번 — 패키지 설치마법사\n\n"
@@ -309,7 +331,7 @@ def main():
         shutil.rmtree(stage)
     os.makedirs(stage)
     for program, kit in kits:
-        copy_program(program, kit, stage)
+        copy_program(program, kit, stage, args.version)
     io.open(os.path.join(stage, "00_START_HERE.md"), "w", encoding="utf-8", newline="\n").write(start_here(args.name, kits, args.version))
 
     problems = scan_secrets(stage)

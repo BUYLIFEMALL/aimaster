@@ -65,6 +65,8 @@
 - 시작할 때 같은 프로그램(`kit.json` `shortName` 같음)이 **설치를 마친 폴더**(`.env.local`에 `VERCEL_PROJECT_NAME`)를 자동으로 찾는다 — 범위: 이 폴더의 상위 폴더 형제, 그 위 폴더의 자식·손자(예: `D:\work\Kit_v1.01\insta_auto_poster` ↔ `D:\work\Kit_v1.02\insta_auto_poster`). 여럿이면 `.env.local`이 가장 최근인 곳. 못 찾으면 예전 폴더 경로를 한 번 묻고, 처음 설치는 Enter로 넘어간다.
 - 업데이트를 고르면 예전 `.env.local`·`.vercel`을 복사하고 ②③⑤⑥을 끝난 것으로 표시 → ① Node 확인 → ④ **확인만**(`checkTable` 200이면 통과 + `KIT/upgrade-*.sql` 목록 안내, 없으면 **설치 SQL 전체를 다시 돌리지 않고** 「업데이트 내역」의 SQL만 안내·재확인) → ⑦ 빌드 → ⑧ 같은 Vercel 프로젝트에 환경변수·배포. 끝 화면·`설치결과.txt` 제목이 「업데이트」.
 - 설치를 마친 **같은 폴더**에서 다시 실행하면 「지금 코드로 다시 올릴까요?」(y=업데이트 / n=처음부터).
+- **버전 기록(v1.04~)**: 포장 스크립트가 압축 안 `KIT/kit.json`에 `kitVersion`(배포판 번호)·`appVersion`(프로그램 `APP_VERSION`)을 적고, 마법사가 `설치결과.txt`·끝 화면에 「버전: 배포판 vX.YY (프로그램 vA.BB)」, 업데이트면 「이전 → 새」를 적는다. 옛 배포판(값 없음)은 상위 `00_START_HERE.md`의 「배포판 vX.YY」·`version.ts`에서 읽고, 같은 폴더 재실행은 이전 `설치결과.txt`의 「버전:」 줄에서 읽는다.
+- **예전 폴더 정리(v1.04~)**: 업데이트(다른 폴더에서 가져온 경우)가 끝나면 「예전 폴더를 휴지통으로 보낼까요?」(기본 **n**). y일 때만 **휴지통으로**(윈도우 `SendToRecycleBin`, 맥 `~/.Trash`로 이동 — 바로 지우지 않음). 지금 폴더이거나 지금 폴더를 품은 폴더·다른 프로그램 폴더(`shortName` 다름)는 대상이 아니다. 프로그램 폴더만 보내고 상위 묶음 폴더는 남긴다.
 - 그래서 **DB 변경이 있는 배포판은 반드시 `KIT/upgrade-<날짜>-<내용>.sql`과 `KIT/README.md` 「업데이트 내역」 표에 SQL 실행 여부를 적는다**(마법사는 기존 DB에 `schema.sql`을 다시 돌리지 않음).
 
 **② 꼭 지킬 것**
@@ -162,11 +164,12 @@
 | `SNS_Auto_Posting_Kit` | **v1.01** | 2026-10-20 | Threads 콘텐츠 운영 + INSTA 포스팅 — 패키지 설치마법사, INSTA 예약 방식(운영 Vercel/배포판 cron-job.org) 반영, 202개 파일·비밀값 검사 통과 | 번호 규칙 첫 배포판. 이전 날짜 이름 압축은 시험판 |
 | `SNS_Auto_Posting_Kit` | **v1.02** | 2026-10-20 | INSTA v1.26→v1.33(내 이미지 직접 첨부·여러 장 한 번에·예약 안정화), Threads 운영 v2.09→v2.14(예약 안정화). 두 `KIT/README.md`에 「업데이트 내역」 표 신설, INSTA 안내서 5장에 직접 첨부 설명. 207개 파일·비밀값 검사 통과, 짧은 경로 독립 모드 `npm ci`+`npm run build` 두 프로그램 통과 | DB(SQL) 작업 없음(v1.01 설치자는 새 코드 재배포만). 실제 수강생 계정 설치·게시는 주인님 시험 대기 |
 | `SNS_Auto_Posting_Kit` | **v1.03** | 2026-10-20 | 프로그램 코드는 v1.02와 같음(INSTA v1.33·Threads 운영 v2.14). **패키지 설치마법사 업데이트 모드**(§2-2 ①-2) + 포장 스크립트 **DB 대조** 첫 적용, 두 `KIT/README.md` 업데이트 방법·v1.03 줄. 207개 파일·비밀값 검사·DB 대조 통과, 압축 안 `setup.ps1` BOM·문법 0 | 업데이트 모드는 v1.03 마법사부터(v1.01·v1.02 설치자가 v1.03 폴더에서 실행하면 동작). `00_START_HERE.md`의 업데이트 안내 한 줄은 다음 포장(v1.04)부터 |
+| `SNS_Auto_Posting_Kit` | **v1.04** | 2026-10-20 | 프로그램 코드는 v1.02·v1.03과 같음. 마법사 **버전 기록**(`설치결과.txt` 「버전:」, 업데이트면 이전 → 새)·업데이트 뒤 **예전 폴더 휴지통 보내기 제안**(기본 n), 포장 스크립트가 `kit.json`에 `kitVersion`·`appVersion` 기록, `00_START_HERE.md` 업데이트 안내 첫 반영. 207개 파일·비밀값·DB 대조 통과, 압축 안 마법사 문법·BOM 확인 | 실제 v1.01 설치본으로 업데이트 실시험은 대기(이 PC에 설치본 없음) |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
-| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.03` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
-| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.03` | ⚪ 대기 | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
+| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.04` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
+| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.04` | ⚪ 대기 | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
 
 ## 9. 관련 문서
