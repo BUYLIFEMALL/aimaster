@@ -1,5 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getKakaoAccount } from "@/lib/kakao/memberAccount";
+import { resolveApiKey as resolveKakaoKey } from "@/lib/apiKeys";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { KakaoAccountSection } from "@/components/settings/KakaoAccountSection";
@@ -72,7 +74,7 @@ export default async function SettingsPage({
   const [{ data: keys }, { data: kakaoAccount }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
     await Promise.all([
       supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
-      supabase.from("user_kakao_accounts").select("nickname").eq("user_id", user.id).maybeSingle(),
+      (async () => ({ data: await getKakaoAccount(supabase, user.id, await resolveKakaoKey(supabase, user.id, "kakao_rest_api_key")).then((a) => (a ? { nickname: a.nickname } : null)) }))(),
       supabase
         .from("user_smtp_accounts")
         // 다른 프로그램에서 이미 여러 개(예: Gmail+네이버) 등록해둔 경우를 대비해 배열로

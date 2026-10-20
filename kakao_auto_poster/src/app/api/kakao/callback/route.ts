@@ -1,3 +1,4 @@
+import { saveSharedKakaoAccount } from "@/lib/kakao/memberAccount";
 import { NextRequest, NextResponse } from "next/server";
 import { KAKAO_REDIRECT_FOR, KAKAO_REDIRECT_NEW, OLD_HOST, SITE_ORIGIN } from "@/lib/oauthRedirect";
 import { createClient } from "@/lib/supabase/server";
@@ -81,6 +82,18 @@ export async function GET(request: NextRequest) {
     );
 
     if (error) throw new Error(error.message);
+
+    // v1.24: 공용 연결 계정에도 저장(이중 기록)
+    await saveSharedKakaoAccount({
+      userId: user.id,
+      kakaoUserId: String(profile.id),
+      nickname: profile.properties?.nickname ?? null,
+      accessToken: token.access_token,
+      refreshToken: token.refresh_token,
+      tokenExpiresAt,
+      refreshTokenExpiresAt,
+      restApiKey: credentials.restApiKey,
+    });
 
     return NextResponse.redirect(`${siteUrl}/settings?kakao_connected=1`);
   } catch {

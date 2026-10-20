@@ -3,6 +3,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { refreshAccessToken } from "@/lib/kakao/client";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { updateMemberAccountToken } from "@/lib/memberIntegrations";
+import { getKakaoAccount } from "@/lib/kakao/memberAccount";
 
 type SupabaseLike = {
   from: (table: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -53,14 +56,11 @@ export async function getValidKakaoAccessToken(
   userId: string,
   credentials: KakaoAppCredentials | null,
 ): Promise<string | null> {
-  const { data: account } = await supabase
-    .from("user_kakao_accounts")
-    .select("access_token, refresh_token, token_expires_at")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.24: 공용 카카오 계정(같은 카카오 앱·나에게 보내기 권한) → 없으면 user_kakao_accounts
+  const account = await getKakaoAccount(supabase, userId, credentials?.restApiKey ?? null);
 
   if (!account) return null;
-  const row = account as KakaoAccountRow;
+  const row: KakaoAccountRow & { shared_id: string | null } = account;
 
   const expiresAt = new Date(row.token_expires_at).getTime();
   if (expiresAt - Date.now() > EXPIRY_BUFFER_MS) {
@@ -74,6 +74,16 @@ export async function getValidKakaoAccessToken(
   const refreshTokenExpiresAt = refreshed.refresh_token_expires_in
     ? new Date(Date.now() + refreshed.refresh_token_expires_in * 1000).toISOString()
     : undefined;
+
+  // v1.24: 공용 계정에서 읽은 토큰이면 공용 표를 갱신(카카오는 갱신 토큰도 바뀌어 올 수 있음)
+  if (row.shared_id) {
+    await updateMemberAccountToken(createAdminClient(), userId, row.shared_id, {
+      accessToken: refreshed.access_token,
+      tokenExpiresAt,
+      refreshToken: refreshed.refresh_token ?? null,
+    });
+    return refreshed.access_token;
+  }
 
   await supabase
     .from("user_kakao_accounts")

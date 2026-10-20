@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { getKakaoAccount } from "@/lib/kakao/memberAccount";
+import { resolveApiKey as resolveKakaoKey } from "@/lib/apiKeys";
 import { SendKakaoButton } from "@/components/reports/SendKakaoButton";
 import { ReportEditor } from "@/components/reports/ReportEditor";
 import { KakaoShareButtons } from "@/components/reports/KakaoShareButtons";
@@ -39,7 +41,7 @@ export default async function ReportDetailPage({
     supabase.from("kakao_topics").select("topic_name").eq("id", report.topic_id).maybeSingle(),
     supabase.from("profiles").select("phone").eq("id", user.id).maybeSingle(),
     supabase.from("user_solapi_accounts").select("kakao_pf_id").eq("user_id", user.id).maybeSingle(),
-    supabase.from("user_kakao_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+    (async () => ({ data: await getKakaoAccount(supabase, user.id, await resolveKakaoKey(supabase, user.id, "kakao_rest_api_key")).then((a) => (a ? { nickname: a.nickname } : null)) }))(),
   ]);
 
   // 카카오 로그인(무료) 또는 SOLAPI(카카오 채널) 둘 중 하나만 연동돼 있어도 발송 가능하다 —

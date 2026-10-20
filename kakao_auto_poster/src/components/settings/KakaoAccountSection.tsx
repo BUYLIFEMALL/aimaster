@@ -54,6 +54,7 @@ export function KakaoAccountSection({ account, showNewCallback = false }: { acco
       {account ? (
         <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <p className="text-sm text-green-600">✅ {account.nickname ?? "카카오 계정"}으로 연동되어 있어요.</p>
+          <p className="text-xs text-gray-500">연동을 해제하면 이 계정을 함께 쓰는 다른 카카오 프로그램에서도 해제됩니다.</p>
           <Button type="button" variant="ghost" className="text-red-600 hover:bg-red-50" onClick={handleDisconnect} disabled={isDisconnecting}>
             {isDisconnecting ? "해제 중..." : "연동 해제"}
           </Button>

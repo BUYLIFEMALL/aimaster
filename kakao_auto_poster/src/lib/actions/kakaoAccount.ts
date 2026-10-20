@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { deleteSharedKakaoAccount } from "@/lib/kakao/memberAccount";
 import { requireProgramAccess } from "@/lib/access";
 import { getKakaoAuthorizeUrl } from "@/lib/kakao/client";
 import { KAKAO_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
@@ -41,6 +42,8 @@ export async function disconnectKakaoAccountAction() {
   const supabase = await createClient();
 
   await supabase.from("user_kakao_accounts").delete().eq("user_id", user.id);
+  // v1.24: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedKakaoAccount(user.id);
 
   revalidatePath("/settings");
 }
