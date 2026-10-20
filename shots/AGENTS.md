@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.27` (`package.json` 1.27.0, `version.ts` v1.27, DB `programs` v1.27 — 2026-10-21)
+> - **버전**: `v1.28` (`package.json` 1.28.0, `version.ts` v1.28, DB `programs` v1.28 — 2026-10-21)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -95,3 +95,9 @@
 - 배경음악(`src/lib/actions/music.ts`): `persistBgmAudio`를 서버 관리자 키 저장(경로 `<회원 id>/<영상 id>-<uuid>.mp3`)·1회 재시도로 바꾸고, **실패하면 Suno 임시 주소를 저장하지 않는다**(예전엔 조용히 임시 주소 저장 → 며칠 뒤 404, 운영 2건). 일부만 저장되면 저장분을 지우고 `processing`으로 둬 10초 자동 확인이 다시 시도. 트랙 삭제도 관리자 키로 본인 폴더 파일만.
 - 음성 다시 쓰기(`src/app/api/render/tts/route.ts`): 요청에 `videoId`를 받아 본인 영상인지 확인 → (모델·목소리·빠르기·대사) 해시로 `shots-bgm/<회원>/<영상>/voice/<해시>.mp3`를 먼저 찾고 있으면 OpenAI 없이 돌려줌(`X-Voice-Cache: hit`), 없으면 만들고 보관(`miss`). 30일 정리(`/api/cron/cleanup-videos`)가 보관 음성도 지움.
 - 검수: tsc·build, 운영 Ready, DB v1.27. 크롬 관리자 같은 영상 2회: 1회째 `miss`×6·67초 → 2회째 `hit`×6(OpenAI 0회)·34초, 길이 46.8초 같음, 보관 음성 6개·영상 파일 최신 1개. 배경음악 보관은 Suno 유료 생성이 필요해 실시험 안 함(코드·빌드만). 시험 비용 TTS 6회(약 10원).
+
+## 2026-10-21 v1.28 — 유튜브 올리기 공개 범위·예약 공개 (Claude Code 윈도우, 부계정)
+- 예전엔 항상 「공개」로 바로 올라갔다. 업로드 화면(`src/components/candidates/PostingSection.tsx`)에 공개 범위(**비공개 기본**·일부 공개·공개) + 「정한 시각에 자동 공개(예약)」 체크·날짜 시각 입력, 버튼 문구 「유튜브에 예약 올리기」.
+- 서버(`src/lib/actions/youtube.ts` `postToYoutubeAction`): 값 검사(예약은 15분 뒤~6개월 안), 업로드 방식은 그대로 서버가 저장소 영상을 받아 올림(영상이 저장소에 있어 4.5MB 한도 문제 없음 — 브라우저 직접 업로드는 이득이 적어 하지 않음).
+- 공용 기준 `youtube-upload-client`(`src/lib/youtube/client.ts`) `uploadYoutubeVideo`에 선택값 `publishAt` 추가(있으면 privacy를 private로) → `--sync`로 원스톱 사본 반영(원스톱은 이 함수를 안 써서 동작 같음, 미배포).
+- 검수: tsc(두 프로그램)·build·공용 점검, 운영 Ready, DB v1.28, 크롬 화면에서 선택 칸·예약 입력·버튼 문구 확인. 실제 업로드는 외부 게시라 미시험(관리자 Shots 유튜브 연결 「재연동」 필요 상태).

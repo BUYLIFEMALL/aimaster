@@ -145,7 +145,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 |---|---|---|---|
 | shorts-onestop-studio | `src/lib/render/mp4Encoder.ts` (+ 그리기 `export.ts`·`scene.ts`) | 🟢 기준 | v1.20, 정보 카드형 쇼츠 |
 | shots | `src/lib/render/mp4Encoder.ts` (+ 그리기 `story.ts`) | 🔵 사본 | v1.24~v1.26, 이미지 스토리(느린 확대·노란 자막) — 본인 OpenAI 음성 `/api/render/tts`, 4Mbps |
-| playlist-channel-studio(영상 만들기) | — | ⚪ 후보 | 같은 방식의 옛 코드(소리 인코딩 빠짐 문제)를 이 모듈로 바꿀 수 있음 |
+| playlist-channel-studio(영상 만들기) | `src/lib/render/video-exporter.ts`(자체) | ⛔ 대상 아님 | 2026-10-21 확인: 소리 빠짐은 2026-10-16 이미 수정됨. 수십 분~1시간 영상이라 디스크 직접 쓰기·조금씩 소리 넣기가 필요 — 전체를 메모리에 올리는 이 모듈로 바꾸면 나빠짐(1시간 소리만 약 1.4GB). 주인님 확인 「3번 제외」 |
 
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
