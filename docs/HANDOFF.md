@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 블로그 통합 BLC-00 운영 실검수 완료(Codex 환경 접속 제한 대신 수행)
+- 테스트 계정 실제 로그인·크롬: ① 신규 원고 `prepare` 기본값 ✅ ② 기존 원고 19건 저장 모드 보존 ✅(옛 무설정 `publish` 11·저장 `prepare` 8) ③ 회원 설정 변경·저장·원복 ✅. v2.00 본문 정리(`
+`·`# 제목` 제거)도 실생성으로 확인. 발행 전송·최종 발행 0회, 생성 1회+이미지 1장(본인 키).
+- 결과 파일: `naver-blog-agent/docs/BLC00_LIVE_CHECK_20261020.md`. Codex의 미커밋 작업목록·0단계 문서는 건드리지 않음 → **작업목록(`docs/BLOG_CONSOLIDATION_TASKS.md`) BLC-00 상태 갱신은 Codex가 반영**, 다음은 BLC-01 플랜.
+- 링크: https://naver-blog-agent.buylife.xyz
+
 <!-- BLOG_CONSOLIDATION_STAGE0_20261020 -->
 ### 2026-10-20 운영 검수 재개 시도 — Codex
 - 14:49 KST 주인님이 Edge 실행을 확인한 뒤 창 목록 조회를 다시 시도했으나 같은 Orca 실행 정보 접근 거부(`CreateFile 0x5`)로 실패. 창이 떠 있어도 현재 세션 제어 접근은 차단됨. 실행 권한이 허용된 세션에서 재개 필요, 운영 실검수/발행/데이터 변경 없음.
