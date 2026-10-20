@@ -250,3 +250,10 @@ ai-influencer-studio/
 - 검수: 네 프로그램 tsc·테스트(카드뉴스 52·웹툰 18·인플루언서 18·4컷 52)·build 통과, `check-shared-modules.mjs` 일치, 훅 앞 이른 return 없음 확인. **화면 실검수는 다음 배포 때**(미배포).
 - **미배포**(내부 정리 — 공용 기준 코드 배포 등급): 다음 배포 때 함께 나가며 버전 +0.01도 그때. 그 배포 때 「⏰ 예약 발행」 줄·게시 기록 「예약 취소」 화면을 크롬으로 한 번 확인할 것.
 - 2026-10-20 추가: 공용 `insta-member-scheduler`를 예약 프로그램 15개 공용 **`member-scheduler`**로 넓혔다. `schedulerConfig.ts`에 `SCHEDULER_IS_STANDALONE`(false)·`countRemainingWork`(남은 예약 게시 수) 추가, 기준 `memberScheduler.ts`는 상대 경로(`./cronJobOrg`·`./schedulerConfig`)로 부름. 동작 같음·미배포. 플랜 `cardnews-studio/docs/PLAN_20261020_MEMBER_SCHEDULER_SHARED.md`.
+
+## 2026-10-20 v1.19 — 결과 화면 맨 위 「⏰ 인스타 예약 n건 대기」 + 대기 목록 예약 취소 (Claude Code 윈도우, 남은 작업 ⑨)
+- 문제: 게시 기록·예약은 사진을 만든 결과 화면(게시 패널) 안에서만 보여, 새로 들어오거나 다른 작업 중에는 지난 예약을 알 수 없었음.
+- 수정: `src/components/ScheduledSummary.tsx` 새로 — 결과 화면(`ImageDisplay`) 맨 위에 대기 예약이 있을 때만 「⏰ 인스타 예약 n건 대기 · 다음 게시 …」 + 「대기 목록 보기」(시각·제목·예약 취소, 공용 `postsClient` 취소 훅). 게시 패널이 기록을 다시 불러올 때 `aif-insta-posts-changed` 신호를 보내 이 줄도 갱신. 참고: 웹툰 `ScheduledSummary`(v1.17). DB 변경 없음.
+- **이 배포로 미배포 공용 정리 3건도 함께 나감**(게시 처리·예약 API 5개, 예약 화면 동작, 예약 실행 방식).
+- 검수: tsc·시험 18·build, 커밋 `6ed583a8`, 배포 `ai-influencer-studio-liuouabpa` Ready, DB v1.19(크롬 SQL Editor, PRODUCTION). 운영 예약 실행 주소 3개 401, 크롬(관리자) 제목 v1.19·화면 정상·예약 상태 API 200(`platform`)·게시 기록 API 200, 대기 0건이라 요약 줄은 숨김(정상). **대기 예약이 있을 때의 줄 표시·취소는 미시험**(실제 인스타 예약을 만들어야 해서 하지 않음).
+- 남은 제안: 작업 히스토리 DB 저장(현재 브라우저 저장, DB 추가라 승인 필요), 「하루 일과 자동 예약」.
