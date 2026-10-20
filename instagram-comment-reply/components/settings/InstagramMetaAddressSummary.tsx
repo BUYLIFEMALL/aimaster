@@ -31,9 +31,11 @@ export function InstagramMetaAddressSummary({ webhookUrl }: { webhookUrl?: strin
         </li>
         {webhookUrl && (
           <li className="space-y-1.5">
-            <p className="font-semibold">{no()} 같은 화면의 웹훅 구성 단계 › 콜백 URL (주소 1개만 등록)</p>
+            <p className="font-semibold">{no()} (DM 답변을 쓸 때) 같은 화면의 웹훅 구성 단계 › 콜백 URL (주소 1개만 등록)</p>
             <CopyAddress value={webhookUrl} />
-            <p className="text-ig-muted">확인 토큰과 구독할 항목은 아래 &quot;🔌 DM 웹훅 설정&quot;에 있습니다.</p>
+            <p className="text-ig-muted">
+              확인 토큰과 구독할 항목(messages)은 <a href="/dm/settings" className="font-semibold text-ig-link underline">DM 답변 설정 › 🔌 DM 웹훅 설정</a>에 있습니다.
+            </p>
           </li>
         )}
         <li className="space-y-1">

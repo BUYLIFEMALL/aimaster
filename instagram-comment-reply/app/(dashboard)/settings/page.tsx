@@ -21,7 +21,7 @@ import {
 import type { ApiKeyProvider } from "@/types/database.types";
 import { CopyAddress } from "@/components/settings/CopyAddress";
 import { InstagramMetaAddressSummary } from "@/components/settings/InstagramMetaAddressSummary";
-import { INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import { INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD, SITE_ORIGIN } from "@/lib/oauthRedirect";
 
 export const dynamic = "force-dynamic";
 
@@ -85,7 +85,7 @@ export default async function SettingsPage() {
         />
 
         <div className="space-y-5">
-          <InstagramMetaAddressSummary />
+          <InstagramMetaAddressSummary webhookUrl={`${SITE_ORIGIN}/api/instagram/dm-webhook/${user.id}`} />
 
           {/* 📸 Instagram 계정 연결 그룹 */}
           <div className="space-y-4 rounded-2xl border border-ig-border bg-ig-surface p-4 shadow-sm">

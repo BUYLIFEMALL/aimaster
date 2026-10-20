@@ -1,8 +1,6 @@
 import { StudioHeader } from "@/components/dm/ui/StudioHeader";
 import { requireProgramAccess } from "@/lib/dmApp/access";
 import { createClient } from "@/lib/supabase/server";
-import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
-import { ApiKeyRow } from "@/components/dm/settings/ApiKeyRow";
 import { ReplySettingsForm } from "@/components/dm/settings/ReplySettingsForm";
 import { BotEnabledForm } from "@/components/dm/settings/BotEnabledForm";
 import { AutoApproveSettingsForm } from "@/components/dm/settings/AutoApproveSettingsForm";
@@ -19,15 +17,9 @@ import {
   REPLY_MODEL_PROVIDER_SHORT_LABELS,
   getReplyModelProvider,
 } from "@/lib/ai/models";
-import type { ApiKeyProvider } from "@/types/database.types";
-import { CopyAddress } from "@/components/dm/settings/CopyAddress";
-import { InstagramMetaAddressSummary } from "@/components/dm/settings/InstagramMetaAddressSummary";
-import { INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD, SITE_ORIGIN } from "@/lib/dmApp/oauthRedirect";
+import { SITE_ORIGIN } from "@/lib/dmApp/oauthRedirect";
 
 export const dynamic = "force-dynamic";
-
-const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
-const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini"];
 
 // platform_guides.id — 이 프로그램이 실제로 쓰는 Meta 앱(댓글·DM 자동화)/AI/텔레그램에
 // 해당하는 매뉴얼만 골랐다(2026-09-13, 플랫폼 표준 "API키등록·플랫폼연동 페이지" 규칙).
@@ -39,13 +31,6 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
 ];
 
-const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string }>> = {
-  meta_app_id: { url: "https://developers.facebook.com/apps", label: "Meta App Dashboard에서 발급받기" },
-  meta_app_secret: { url: "https://developers.facebook.com/apps", label: "Meta App Dashboard에서 발급받기" },
-  openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
-  anthropic: { url: "https://console.anthropic.com/settings/keys", label: "Anthropic Claude 키 발급받기" },
-  gemini: { url: "https://aistudio.google.com/apikey", label: "Google Gemini 키 발급받기" },
-};
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
@@ -79,77 +64,45 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <StudioHeader
-        icon="🔑"
-        title="API키등록·플랫폼연동"
-        description="인스타그램 계정 연결과 답장 생성 AI는 서로 다른 키를 씁니다 — 아래에서 순서대로 등록해주세요. 모두 회원님 본인 키만 쓰며, 앱(관리자) 공용 키로 대신 동작하지 않습니다."
+        icon="💌"
+        title="DM 답변 설정"
+        description="DM 웹훅 등록·봇 켜기·답장 방식·텔레그램 DM 봇을 정합니다. Meta 앱 키·AI 키·인스타그램 연결은 「API키등록·플랫폼연동」 한 곳에서 등록합니다."
       />
 
-      <InstagramMetaAddressSummary webhookUrl={webhookCallbackUrl} />
-
+      {/* 2026-10-20 v1.24: 병합 후 키·인스타 연결은 「API키등록·플랫폼연동」 한 곳 — 여기는 상태만 보여 준다 */}
       <section className="space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6">
-        <div>
-          <h2 className="text-lg font-bold text-ig-text">📸 Instagram 계정 연결</h2>
-          <p className="text-xs text-ig-muted">Meta App 키 등록과 OAuth 연결까지 — 인스타그램 비즈니스 계정을 이 프로그램에 붙이는 단계입니다.</p>
-        </div>
-        <div className="space-y-2 text-sm text-ig-muted">
-          <p>INSTA 댓글·DM 자동화에는 본인의 Instagram 앱 ID / Instagram 앱 시크릿 코드가 필요합니다.</p>
-          <p className="font-semibold text-ig-text">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
-          <p>
-            Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로
-            등록해주셔야 합니다. 또한 그 앱의 "역할" 메뉴에서 본인 인스타그램 계정을
-            테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
-          </p>
-          <p className="font-semibold text-ig-text">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
-          <p>① 기존 주소</p>
-          <CopyAddress value={INSTAGRAM_REDIRECT_OLD()} />
-          {INSTAGRAM_REDIRECT_OLD() !== INSTAGRAM_REDIRECT_NEW && (
-            <>
-              <p>② 새 주소</p>
-              <CopyAddress value={INSTAGRAM_REDIRECT_NEW} />
-              <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
-            </>
-          )}
-          <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
-        </div>
-
-        {/* 2026-10-16: 시험 계정에서 Facebook 앱 ID를 넣어 Instagram 로그인이 "Invalid platform app"로 실패한 사례 — 값 위치 안내 */}
-
-        <div className="space-y-2 rounded-lg border border-ig-warn/40 bg-ig-warn/10 px-4 py-3 text-sm leading-relaxed text-ig-warn">
-
-          <p className="font-semibold">⚠️ &quot;Instagram 앱 ID&quot;는 앱 화면 맨 위의 &quot;앱 ID&quot;(Facebook 앱 ID)와 다른 값입니다.</p>
-
-          <p>Meta 앱 대시보드 › <b>이용 사례</b> › <b>맞춤 설정</b> › (Instagram API) › <b>Instagram 로그인이 포함된 API 설정</b> 화면 맨 위의 <b>Instagram 앱 ID</b>와 <b>Instagram 앱 시크릿 코드</b>(표시 버튼)를 넣어주세요.</p><p>새 콜백 주소는 같은 화면의 &quot;4. Instagram 비즈니스 로그인 설정&quot;에 추가합니다.</p><p>맨 위 앱 ID를 넣으면 연결할 때 Instagram 화면에 &quot;Invalid platform app&quot; 오류가 납니다.</p>
-
-        </div>
-
-        <div className="space-y-3">
-          {META_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              helpUrl={HELP_LINKS[provider]?.url}
-              helpLabel={HELP_LINKS[provider]?.label}
-            />
+        <h2 className="text-lg font-bold text-ig-text">🔗 DM 답변 연결 상태</h2>
+        <ul className="space-y-2 text-sm">
+          {[
+            { label: "Meta 앱 키 (Instagram 앱 ID·시크릿)", ok: keyMap.has("meta_app_id") && keyMap.has("meta_app_secret") },
+            {
+              label: connectionStatus.connected
+                ? `인스타그램 DM 권한 연결 (@${connectionStatus.username ?? "내 계정"})`
+                : "인스타그램 DM 권한 연결 (「DM 답변도 사용」 체크 후 연결)",
+              ok: connectionStatus.connected && !connectionStatus.needsReconnect,
+            },
+            {
+              label: `AI 키 — ${activeModelOption?.shortLabel ?? activeModel} (${REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]})`,
+              ok: keyMap.has(activeProvider),
+            },
+          ].map((row) => (
+            <li key={row.label} className="flex items-center justify-between gap-3 rounded-lg bg-ig-raised px-3 py-2.5">
+              <span className="min-w-0 text-ig-text">{row.label}</span>
+              <span className={`shrink-0 text-xs font-bold ${row.ok ? "text-ig-success" : "text-ig-warn"}`}>
+                {row.ok ? "✅ 완료" : "⚠️ 필요"}
+              </span>
+            </li>
           ))}
-        </div>
-
-        <div className="border-t border-ig-border pt-4">
-          {/* 2026-10-20 병합 B: 인스타 연결은 「API키등록·플랫폼연동」에서 한 번(「DM 답변도 사용」 체크) — 댓글·DM 함께 */}
-          <div className="space-y-2 text-sm">
-            <p className={connectionStatus.connected && !connectionStatus.needsReconnect ? "text-ig-success" : "text-ig-muted"}>
-              {connectionStatus.connected && !connectionStatus.needsReconnect
-                ? `✅ DM 답변용으로 @${connectionStatus.username ?? "내 계정"} 연결됨`
-                : connectionStatus.needsReconnect
-                  ? "⚠️ 인스타그램 연결이 만료되었습니다. 다시 연결해 주세요."
-                  : "DM 답변용 인스타그램 연결이 아직 없습니다."}
-            </p>
-            <a href="/settings" className="inline-block rounded-lg bg-ig-primary px-4 py-2 text-xs font-bold text-white hover:bg-ig-primary-hover">
-              「API키등록·플랫폼연동」에서 연결하기 (「DM 답변도 사용」 체크)
-            </a>
-          </div>
-        </div>
+        </ul>
+        {connectionStatus.needsReconnect && (
+          <p className="text-sm text-ig-warn">⚠️ 인스타그램 연결이 만료되었습니다. 다시 연결해 주세요.</p>
+        )}
+        <a href="/settings" className="inline-block rounded-lg bg-ig-primary px-4 py-2 text-xs font-bold text-white hover:bg-ig-primary-hover">
+          🔑 API키등록·플랫폼연동에서 등록·연결하기
+        </a>
+        <p className="text-xs text-ig-muted">
+          키와 인스타그램 연결은 댓글·DM이 함께 씁니다. 한 번 등록하면 두 기능 모두에 적용돼요.
+        </p>
       </section>
 
       <section className="space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6">
@@ -160,40 +113,6 @@ export default async function SettingsPage() {
       <section className="space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6">
         <h2 className="text-lg font-bold text-ig-text">🤖 봇 활성화</h2>
         <BotEnabledForm enabled={settings?.bot_enabled ?? false} startedAt={settings?.bot_started_at ?? null} />
-      </section>
-
-      <section className="space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6">
-        <div>
-          <h2 className="text-lg font-bold text-ig-text">🤖 AI 답장 생성 키</h2>
-          <p className="text-xs text-ig-muted">답장 초안을 만드는 AI 모델의 API 키 등록입니다 — 인스타그램 연결과는 별개의 키입니다.</p>
-        </div>
-        <p className="text-sm text-ig-muted">
-          아래 "답장 기본 설정"에서 고른 모델의 provider 키 하나만 등록되어 있으면 됩니다(세 개 다
-          등록할 필요 없음).
-        </p>
-
-        <div className="space-y-1 rounded-xl border border-ig-primary/30 bg-ig-primary/10 px-4 py-3 text-sm text-ig-primary">
-          <p>
-            🎯 현재 답장 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
-          </p>
-          <p>
-            사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {AI_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              helpUrl={HELP_LINKS[provider]?.url}
-              helpLabel={HELP_LINKS[provider]?.label}
-              isActive={provider === activeProvider}
-            />
-          ))}
-        </div>
       </section>
 
       <section className="space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6">

@@ -41,9 +41,10 @@ export function WebhookSetupInfo({ callbackUrl, verifyToken }: { callbackUrl: st
         구독해주세요.
       </p>
       <CopyRow label="콜백 URL (Callback URL)" value={callbackUrl} />
-      <p className="rounded-lg border border-ig-warn/40 bg-ig-warn/10 px-3 py-2 text-xs text-ig-warn">
-        예전에 <code>instagram-dm-reply.vercel.app</code> 주소로 등록하셨다면 위 새 주소로 바꿔주세요. 지금 바꿔도 바로 정상
-        동작하며, 기존 주소는 곧 정리될 예정입니다.
+      <p className="rounded-lg border border-ig-warn/40 bg-ig-warn/10 px-3 py-2 text-xs leading-relaxed text-ig-warn">
+        예전 「INSTA DM답변 자동화」(instagram-dm-reply) 주소로 웹훅을 등록하셨다면, Meta 앱의 Webhooks 화면에서
+        <b> 콜백 URL과 확인 토큰 두 값 모두</b> 위·아래의 새 값으로 바꿔 [확인 및 저장]을 눌러 주세요. 프로그램이 합쳐지면서
+        확인 토큰도 바뀌었습니다(옛 주소로 오는 DM은 당분간 자동으로 넘겨받습니다).
       </p>
       <CopyRow label="확인 토큰 (Verify Token)" value={verifyToken} />
     </div>
