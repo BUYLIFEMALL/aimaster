@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 세션 인수인계: 엔진 공유 2번 진행 중(Shots 브라우저에서 만들기)
+
+- 주인님 지시로 토큰 소진 전 인수인계. **이어받을 곳: [`docs/HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md`](HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md) §0 「다음 순서」 1번부터.**
+- 끝낸 것: 플랜(주인님 승인, 버킷 `shots-videos` 저장안 선택) `shots/docs/PLAN_20261021_BROWSER_RENDER.md`, 공용 인코더 기준 파일 `shorts-onestop-studio/src/lib/render/mp4Encoder.ts`(tsc 통과, 아직 미연결·미등록·미배포 — 운영 영향 없음).
+- 세션 전체 결과(유튜브 병합 C·D·E, 옛 앱 5개 백업·정리, 원스톱 v1.19 유튜브 업로드 실업로드 성공)와 주인님 협조 필요 항목은 같은 문서 §1~§2.
+
+https://shots.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 쇼츠 원스톱 v1.19 「유튜브에 바로 올리기」(엔진 공유 1번)
 
 - 유튜브 보류 F 「엔진 공유」 1번. 렌더 화면 ⑥에서 브라우저 MP4를 내 채널에 바로 올림(공개 범위·예약 공개·카테고리·올린 기록). 서버는 업로드 주소만 발급, 영상은 브라우저→유튜브 직접(4.5MB 한도·토큰 비노출). 유튜브 연결은 공용 연결 계정 재사용(연결 화면 없음).

@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `shots/` · `shorts-onestop-studio/` | Claude Code(윈도우) → 다음 계정 이어받기 | 2026-10-21 | 엔진 공유 2번 진행 중(인수인계 `docs/HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md` §0) — 다른 CLI는 이 두 폴더 작업 금지 |

@@ -75,3 +75,6 @@
 ## 2026-10-21 — 유튜브 업로드 코드 공용 기준 등록(코드만, 미배포) (Claude Code 윈도우)
 - `src/lib/youtube/client.ts`가 공용 기준 코드 **`youtube-upload-client`** 가 됨(사본: `shorts-onestop-studio/src/lib/youtube/client.ts`). 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync`로 사본에 반영하고 원스톱도 함께 시험한다.
 - 추가: `createYoutubeResumableSession()`(재개 가능 업로드 주소 — 브라우저에서 만든 영상을 직접 올릴 때). Shots는 아직 쓰지 않아 동작 같음 → 버전·배포는 다음 Shots 배포 때(`docs/SHARED_MODULES.md` 미배포 표).
+
+## 2026-10-21 — 엔진 공유 2번 「브라우저에서 만들기」 진행 중(인수인계) (Claude Code 윈도우)
+- 플랜(주인님 승인): [`docs/PLAN_20261021_BROWSER_RENDER.md`](docs/PLAN_20261021_BROWSER_RENDER.md). 코드 변경은 아직 없음. 이어받기: 루트 `docs/HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md` §0.
