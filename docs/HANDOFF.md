@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Codex(윈도우) — 블로그 BLC-01 v2.01 운영 완료
+
+- 운영 ref `esgxyikcnnvmlhygjkth`. 승인된 비공개 버킷/정책 적용, 실제 로컬 시험 회원 사진 API 9개 통과. 코드 `fc72cf45` 원격 master 반영. Vercel `dpl_URM1qZdXHmjjJSpdM19mrP4UpkGf` Ready/공식 도메인 확인, DB/manifest/라이브 ZIP v2.01 일치.
+- 회귀 140개·확장 모의 42개·타입/로컬 빌드 통과. 라이브 버전 응답·무인증 보호 5개 경로 통과, 임시 HTML 404 확인. 공용 OpenAI 사본/모델 안내 함께 배포, 다른 프로그램 미배포 항목은 유지.
+- 주인님이 직접 로그인한 운영 시험 회원 확인. 실제 로컬 회원 API → 운영 DB/운영 확장 API → Edge/네이버 비공개 사진 원고 **prepared 6/6**, 발행 시각/주소 null. 첫 시험은 등록 ID 불일치로 입력 전 실패, 기존 설정을 보존하고 실제 로그인 블로그 ID로 새 시험 성공. 준비 픽셀 캡처 실패는 트리/DB 증거로 구분. 유료 AI/최종 발행 0. BLC-01 완료, 다음 BLC-02 사진 UI 플랜(미착수). [릴리스 증거](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md).
+
+https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 E 플랜 (코드 변경 없음, 다른 CLI 이어받기 가능)
 - Youtube Playlist 영상 → 플레이리스트 채널 제작: **기준 앱을 보고서와 반대로 채널 제작 앱으로 정정**(영상 앱은 브라우저 부품 한 화면 앱이라 `/video`로 옮기기 쉬움). 권한 143명 동일, DB 이전 없음, 키 보안 문제 없음. [플랜](../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md) §7.
 

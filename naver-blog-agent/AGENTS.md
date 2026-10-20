@@ -1,12 +1,12 @@
 # 네이버 블로그 에이전트 (naver-blog-agent) — AI 에이전트 인수인계 문서
 
 > **공식 서비스 URL**: https://naver-blog-agent.buylife.xyz  
-> **현재 버전**: `v2.00` (2026-10-20)  
+> **현재 버전**: `v2.01` (2026-10-20)
 > **디자인 템플릿**: **플로우 위저드 스타일 (네이버 그린 라이트 변형)**
 
 ---
 
-> **현재 릴리스 작업:** [BLC-01 v2.01 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md). 승인된 비공개 사진 버킷·정책 적용과 실제 회원 API 검수 완료. 코드/manifest/ZIP v2.01 준비, 배포/DB 프로그램 버전/확장 실제 검수는 진행 중입니다. 공용 OpenAI 사본 미배포분과 모델 안내를 함께 포함합니다.
+> **현재 릴리스 작업:** [BLC-01 v2.01 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md). 비공개 사진 버킷·정책 적용, 실제 로컬 회원 API 9개 통과, 운영 배포 Ready와 코드/DB/manifest/다운로드 ZIP v2.01 일치 확인. 공용 OpenAI 사본과 모델 안내를 함께 배포했습니다. 운영 일반 회원·실제 확장 준비(prepared 6/6)까지 확인해 BLC-01을 완료했습니다. 준비 화면 픽셀 캡처 실패 한계는 인수인계에 기록했습니다.
 
 ## 1. 프로그램의 사용 목적 및 대상
 - **사용 목적**:
@@ -63,7 +63,9 @@ flowchart TD
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 
-- **`v2.00` (2026-10-20, 현재 버전 · Claude Code)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 문제 수정 — `src/components/layout/Sidebar.tsx` 바깥 묶음의 `justify-between` 제거, 계정 묶음 `shrink-0`(사이드바 표준, 웹툰 v1.23 등과 같은 원인). v1.99 다음 정상 순서로 v2.00(메이저 승격 아님). 확장 코드 변경 없음, 빌드 스크립트가 manifest `2.0.0`/`v2.00`·ZIP 자동 갱신.
+- **`v2.01` (2026-10-20 · Codex)**: 회원 비공개 사진 보관·최초 생성일 기준 30일 만료·짧은 서명 조회·현재 확장 실행에 한정한 다운로드 직전 갱신·구형 확장 사진 작업 차단·일일 정리 기반. 기존 공용 OpenAI 요청 규칙 사본과 모델 성격/비용/추론 안내 포함. 회귀 140개·확장 모의 42개·타입/빌드 통과, 실제 로컬 회원 사진 API 9개 통과. 운영 배포 Ready, DB/확장/ZIP 버전 일치. 사진 입력 UI/사진 글쓰기 미구현, 실제 확장 준비 6/6 완료(최종 발행 0). [릴리스 증거](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md).
+
+- **`v2.00` (2026-10-20 · Claude Code)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 문제 수정 — `src/components/layout/Sidebar.tsx` 바깥 묶음의 `justify-between` 제거, 계정 묶음 `shrink-0`(사이드바 표준, 웹툰 v1.23 등과 같은 원인). v1.99 다음 정상 순서로 v2.00(메이저 승격 아님). 확장 코드 변경 없음, 빌드 스크립트가 manifest `2.0.0`/`v2.00`·ZIP 자동 갱신.
 - **`v1.99` (2026-10-20 · Claude Code)**: 여러 기사로 만든 글감마다 내용이 가장 겹치는 기사 하나만 원문으로 보관(`pickBestArticle`). v1.98은 묶음 앞 4,000자를 모든 글감에 같이 넣어 뒤쪽 기사가 잘렸음(운영 검수에서 발견).
 - **`v1.98` (2026-10-20 · Claude Code)**: ① 수집 4종이 요약 전 원문 `source_text`(최대 4,000자)를 글감에 함께 보관 → 생성 근거 = 요약 + 원문(`buildSourceMaterial`) ② 원문 대조를 「사실 주장 문장」으로 한정(감상·추측·질문·일반론 제외) ③ 브라우저 `alert` 29곳·`confirm` 11곳을 화면 안 알림·확인 창으로 교체(`src/lib/uiDialog.ts` `notify`/`askConfirm` + `src/components/DialogHost.tsx`, 대시보드 셸에 1회). 닫기·Esc=취소. 새로 코드를 쓸 때도 `alert`/`confirm` 대신 이 두 함수를 쓴다.
 - **`v1.97` (2026-10-20 · Claude Code)**: ① 글감 근거 전달 — 생성 화면이 선택한 글감 **전체 내용**을 `sourceMaterial`로 보내고(예전엔 앞 100자만 「발행 목적」으로 감 → 사실 왜곡 원인), 기획·작성 프롬프트에 「이 자료의 사실만」 블록(`src/lib/ai/sourceGrounding.ts`) ② 원문 대조 — 같은 검수 호출에서 자료에 없는 사실 문장(`unsupported`, 최대 5개)을 받아 PASS→WARN·검수 의견에 표시(추가 AI 호출 없음) ③ 보관함 「발행 설정」에 바로/예약 발행(10분 단위, `/api/posts/[id]/publishing` 예약 저장·조회) ④ 랭킹 상태 점검 `/api/collector/ranking-health`(목록만·무료·30분 캐시) + 수집 버튼 🟢/🔴, 매일 `/api/cron/cleanup`에서도 점검 로그 ⑤ 글감 카드 「🏠 홈판형으로 바로 쓰기」(`format=homefeed`) ⑥ 생성 화면이 `/api/accounts`에서 본인 블로그 목록을 직접 불러옴.
