@@ -1549,12 +1549,12 @@ export async function deleteMediaFile(url: string): Promise<{ ok: true } | { ok:
 
 // ── 예약 발행 일시정지·재개 (v2.07, 2026-10-19) — 지침: 루트 docs/SCHEDULER_POLICY.md ──
 // 예약은 포스팅 쪽에서만 하고(scheduleDraft가 회원 cron-job.org 작업을 자동으로 켬), 회원은 보관함에서 전체 일시정지·재개만 한다.
-export async function pauseScheduledPublishing(): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function pauseScheduledPublishing(): Promise<{ ok: true; notice?: string } | { ok: false; error: string }> {
   try {
     const { user } = await authorizedUser();
-    await pauseMemberScheduler(createServiceClient(), user.id);
+    const { jobStopped } = await pauseMemberScheduler(createServiceClient(), user.id);
     revalidatePath("/threads-content-ops");
-    return { ok: true };
+    return jobStopped ? { ok: true } : { ok: true, notice: "일시정지했습니다. cron-job.org 작업 끄기는 실패해 다음 호출 때 다시 시도합니다(그동안에도 실행하지 않습니다)." };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "일시정지하지 못했습니다." };
   }

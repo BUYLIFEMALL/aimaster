@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { dispatchDueScheduledPosts } from "@/threads-content-ops/lib/scheduledDispatch";
-import { memberIdForToken, stopMemberSchedulerIfIdle } from "@/threads-content-ops/lib/memberScheduler";
+import { memberIdForToken, skipPausedMember, stopMemberSchedulerIfIdle } from "@/threads-content-ops/lib/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -18,6 +18,7 @@ async function handle(request: NextRequest) {
   const service = createServiceClient();
   const userId = token ? await memberIdForToken(service, token) : null;
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (await skipPausedMember(service, userId)) return NextResponse.json({ accepted: true, paused: true });
 
   // cron-job.org는 30초 안에 응답이 없으면 실패로 기록하고, 실패가 25번 넘으면 작업을 자동으로 끈다(무료 규칙).
   // 이미지·영상 발행은 30초를 넘길 수 있으므로 곧바로 「받았음」으로 응답하고, 발행은 응답 뒤 이어서 처리한다(waitUntil).

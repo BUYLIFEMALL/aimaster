@@ -28,8 +28,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true });
     }
     if (body.action === "pause") {
-      await pauseMemberScheduler(service, userId);
-      return NextResponse.json({ ok: true });
+      const { jobStopped } = await pauseMemberScheduler(service, userId);
+      return NextResponse.json(jobStopped ? { ok: true } : { ok: true, notice: "일시정지했습니다. cron-job.org 작업 끄기는 실패해 다음 호출 때 다시 시도합니다(그동안에도 실행하지 않습니다)." });
     }
     if (body.action === "resume") {
       const { started } = await resumeMemberScheduler(service, userId);
