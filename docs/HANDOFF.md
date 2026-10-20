@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 웹툰 v1.24 프로그램 공지 띠 + 공용 기준 코드 `program-notice-banner`
+- 주인님 결정: 웹툰에 먼저 넣어 확인 → 나머지 프로그램은 **다음에 배포할 일이 생길 때 함께 넣기**(급하지 않은 변경). 넣는 법·조건은 `docs/SHARED_MODULES.md` 「미배포 사본」 표 첫 줄.
+- 커밋 `40264500`, 배포 Ready, DB v1.24, 크롬 실화면(띠 표시·링크·닫기 기억) 확인, 시험 데이터 정리.
+
 ## 2026-10-20 Claude Code(윈도우) — 좌측 메뉴 하단 「로그아웃」 아이콘 통일(기준: ai-webtoon-studio, 문구·디자인 변경 없음)
 - 조사: 사이드바가 있는 79개 중 59개는 이미 「구분선 → 이메일 → 아이콘+로그아웃」. 이메일·로그아웃이 없는 곳은 0개. 아이콘이 없던 20개 중 이미 기호가 있는 5개(`↪`: instagram-comment-reply·instagram-dm-reply·threads-comment-reply·youtube-auto-reply·naver-blog-seo-studio, `↗`: blog-content-maker)는 제외 → **15개**에 기준과 같은 모양의 로그아웃 아이콘(인라인 SVG, 새 패키지·import 없음, 14px·글자 앞 6px)만 추가. 데스크톱·모바일 메뉴 두 곳 모두.
 - 배포 13개(버전 +0.01, DB ref `esgxyikcnnvmlhygjkth` 갱신, 모두 Ready): ai-task-planner v1.09 · booking-reminder v1.26 · crm-google-form v1.15 · document-translator v1.21 · auto-instagram-posting v1.34 · longtail-keyword-expander v1.09 · real-estate-sales v1.17 · shorts-viral-studio v1.12 · stepmail v1.26 · auto-threads-posting v1.27 · threads-affiliate-poster v1.75 · threads-easy-planner v1.46 · trending-product-finder v1.20.
