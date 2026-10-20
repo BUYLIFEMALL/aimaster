@@ -63,24 +63,32 @@ export async function buildStoryMp4(o: {
   try {
     o.onProgress({ pct: 1, status: "글꼴 준비 중…" });
     await loadFont(o.scenes.map((s) => s.narration).join(""));
-    const built: Built[] = []; const voices: VoiceClip[] = []; let t = 0;
-    for (let i = 0; i < o.scenes.length; i++) {
-      stop(); const sc = o.scenes[i];
-      o.onProgress({ pct: 2 + Math.round((i / o.scenes.length) * 14), status: `장면 ${i + 1}/${o.scenes.length} 음성·이미지 준비 중…` });
+    // 장면 이미지·음성은 동시에 준비한다(차례로 받으면 장면당 약 5~10초 — 2026-10-21 실측)
+    let done = 0;
+    o.onProgress({ pct: 2, status: `장면 음성·이미지 준비 중… (0/${o.scenes.length})` });
+    const prepared = await Promise.all(o.scenes.map(async (sc, i) => {
       const imgRes = await fetch(sc.imageUrl, { signal: o.signal }).catch(() => null);
       if (!imgRes?.ok) throw new Error(`장면 ${i + 1} 이미지를 불러오지 못했습니다. 이미지를 다시 만들어 주세요.`);
       const img = await createImageBitmap(await imgRes.blob());
-      let voice: Built["voice"] = null;
+      let audio: { src: string; dur: number } | null = null;
       if (sc.narration.trim()) {
         const blob = await tts(sc.narration, o.voice, o.speed, o.signal);
         const dur = (await decoder.decodeAudioData(await blob.arrayBuffer())).duration;
-        const src = URL.createObjectURL(blob); blobUrls.push(src);
-        voice = { at: t + LEAD, dur }; voices.push({ src, at: t + LEAD, dur });
+        const src = URL.createObjectURL(blob); blobUrls.push(src); audio = { src, dur };
       }
+      done += 1; o.onProgress({ pct: 2 + Math.round((done / o.scenes.length) * 14), status: `장면 음성·이미지 준비 중… (${done}/${o.scenes.length})` });
+      return { img, audio };
+    }));
+    stop();
+    const built: Built[] = []; const voices: VoiceClip[] = []; let t = 0;
+    o.scenes.forEach((sc, i) => {
+      const { img, audio } = prepared[i];
+      const voice = audio ? { at: t + LEAD, dur: audio.dur } : null;
+      if (audio && voice) voices.push({ src: audio.src, at: voice.at, dur: voice.dur });
       const dur = Math.max(MIN_SCENE, voice ? LEAD + voice.dur + TAIL : MIN_SCENE);
       built.push({ img, start: t, dur, voice, chunks: voice ? subtitleChunks(sc.narration, voice.at, voice.dur) : [] });
       t += dur;
-    }
+    });
     const total = t;
 
     let bgm: { src: string; volume: number } | null = null;
@@ -94,7 +102,8 @@ export async function buildStoryMp4(o: {
     stop();
 
     const blob = await encodeMp4({
-      width: W, height: H, fps: FPS, total, audio, pctFrom: 20, onProgress: o.onProgress, signal: o.signal,
+      // 느린 확대로 매 프레임이 바뀌어 8Mbps면 50초에 약 32MB(2026-10-21 실측) → 4Mbps로 저장 한도 50MB 여유
+      width: W, height: H, fps: FPS, total, audio, pctFrom: 20, videoBitrate: 4_000_000, onProgress: o.onProgress, signal: o.signal,
       drawFrame: (ctx, time) => {
         const found = built.findIndex((x) => time < x.start + x.dur); const i = found === -1 ? built.length - 1 : found; const b = built[i];
         const local = time - b.start;

@@ -51,11 +51,13 @@ export async function encodeMp4(o: {
   width: number; height: number; fps: number; total: number; audio: AudioBuffer | null;
   drawFrame: (ctx: CanvasRenderingContext2D, t: number) => Promise<void> | void;
   onProgress: (p: ExportProgress) => void; signal: AbortSignal; pctFrom?: number;
+  /** 영상 비트레이트(기본 8Mbps). 화면이 매 장면 계속 움직이면(느린 확대 등) 파일이 커지므로 낮춰서 쓴다 */
+  videoBitrate?: number;
 }): Promise<Blob> {
   assertWebCodecs();
-  const { width: W, height: H, fps: FPS, total, audio: mixed } = o;
+  const { width: W, height: H, fps: FPS, total, audio: mixed } = o; const BITRATE = o.videoBitrate ?? 8_000_000;
   const stop = () => { if (o.signal.aborted) throw new DOMException("취소", "AbortError"); };
-  const vCodec = await pick(["avc1.640028", "avc1.4d0028", "avc1.42e028"], async (codec) => (await VideoEncoder.isConfigSupported({ codec, width: W, height: H, bitrate: 8_000_000, framerate: FPS })).supported === true);
+  const vCodec = await pick(["avc1.640028", "avc1.4d0028", "avc1.42e028"], async (codec) => (await VideoEncoder.isConfigSupported({ codec, width: W, height: H, bitrate: BITRATE, framerate: FPS })).supported === true);
   if (!vCodec) throw new Error("이 컴퓨터에서 H.264 영상 인코딩을 쓸 수 없습니다. 최신 크롬·엣지에서 다시 시도해 주세요.");
   const RATE = MP4_AUDIO_RATE;
   const aCodec = mixed ? await pick([{ m: "aac" as const, c: "mp4a.40.2" }, { m: "opus" as const, c: "opus" }], async (x) => (await AudioEncoder.isConfigSupported({ codec: x.c, sampleRate: RATE, numberOfChannels: 2, bitrate: 160_000 })).supported === true) : null;
@@ -65,7 +67,7 @@ export async function encodeMp4(o: {
   const muxer = new Muxer({ target, video: { codec: "avc", width: W, height: H, frameRate: FPS }, ...(aCodec ? { audio: { codec: aCodec.m, sampleRate: RATE, numberOfChannels: 2 } } : {}), fastStart: "in-memory", firstTimestampBehavior: "offset" });
   let failed: unknown = null;
   const venc = new VideoEncoder({ output: (c, m) => muxer.addVideoChunk(c, m), error: (e) => { failed = e; } });
-  venc.configure({ codec: vCodec, width: W, height: H, bitrate: 8_000_000, framerate: FPS });
+  venc.configure({ codec: vCodec, width: W, height: H, bitrate: BITRATE, framerate: FPS });
   const aenc = aCodec ? new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: (e) => { failed = e; } }) : null;
   aenc?.configure({ codec: aCodec!.c, sampleRate: RATE, numberOfChannels: 2, bitrate: 160_000 });
 
