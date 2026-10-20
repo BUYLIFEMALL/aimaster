@@ -71,6 +71,12 @@
 - 검수: tsc 0, 시험 35/35, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.
 - 배포·검수(2026-10-20): `four-cut-comics-gmsrnixmd` Ready, DB `programs.version` v1.15. 크롬: 사이드바 v1.15, 버튼이 여는 INSTA 주소(`?caption=&hashtags=`)로 INSTA 새 글 화면의 캡션·해시태그 칸이 정확히 채워짐(`&` 포함). 크롬 확인 중 INSTA가 AI 이미지 없이는 첨부 칸을 안 보이고 제출 때 항상 AI로 덮어쓰는 문제를 발견 → 주인님 승인으로 INSTA v1.27에서 보완(아래 INSTA 기록). 4컷 화면의 버튼 클릭 자체(컷 그림이 모두 있어야 보임)는 그림 생성 비용 때문에 실화면 미검수 — 다음에 그림을 만들 때 버튼→새 탭·그림 저장·안내 확인.
 
+## 2026-10-20 v1.22 — 여러 회차 묶음 예약 직전 서버 보관함 그림 주소 새로 받기 (Claude Code 윈도우, 남은 작업 ⑦)
+- 문제: 「내 작품」 📚 여러 회차 한 번에 예약은 서버 보관함 그림 주소(1시간 서명 주소)를 화면을 열 때 한 번만 받아, 1시간 넘게 열어 둔 뒤 예약하면 그림을 만들지 못함.
+- 수정: `src/components/studio/WorksInstaSchedule.tsx` — 서버 보관함 읽기를 `loadServerWorks()`로 빼고, `scheduleAll()` 시작 때 서버 작품이 있으면 목록을 다시 받아 새 주소로 바꿈. 그사이 지워진 작품은 그 회차만 「서버 보관함에서 찾지 못했어요」 실패로 표시(나머지는 계속). 다시 받기에 실패하면 가지고 있던 주소로 시도.
+- **이 배포로 미배포 공용 정리 3건도 함께 나감**: 인스타 게시 처리·예약 API 5개(`insta-posting` 외), 예약 화면 동작(`insta-posts-client`), 예약 실행 방식(`member-scheduler`).
+- 검수: tsc·시험 52·build, 커밋 `a4b6d18b`, 배포 `four-cut-comics-izg1i9baa` Ready, DB v1.22(크롬 SQL Editor, PRODUCTION). 운영: 회원 실행 주소 가짜 토큰·Vercel 실행 주소 비밀값 없음·예약 상태 API 비로그인 모두 401. 크롬(관리자) `/works` v1.22 표시·게시 기록 「아직 기록 없음」 정상, 로그인 상태 `/api/instagram/scheduler` 200(`state: platform`, 남은 예약 0)·`/api/instagram/posts` 200. **실제 묶음 예약·만료 재현은 안 함**(서버 보관함 작품 없음, 유료 생성 필요) — 회원 사용 중 문제가 생기면 그때 확인.
+
 ## 2026-10-20 (버전 변경 없음·미배포) — 인스타 예약 화면 동작 공용화(상태 줄·게시 기록 시각·예약 취소) (Claude Code 윈도우)
 - 한 일: 인스타 예약 화면의 같은 동작을 공용 기준 코드 `insta-posts-client`(`src/lib/instagram/postsClient.ts`, 기준 `cardnews-studio`, 사본 인플루언서·웹툰·4컷)로 뺐다 — ① 「⏰ 예약 발행」 상태 줄 동작 `useInstaSchedulerStatus(주소, refreshKey)`(불러오기·일시정지/재개·다음 상태 계산) + 상태 이름·설명 `SCHEDULER_STATE_TEXT` ② 게시 기록 시각 문구 `postTimeLabel` ③ 예약 취소 훅 `useScheduledPostCancel(주소, {onCanceled, onError, onSettled})`(취소 중 다른 버튼 막기·성공 즉시 「취소」 표시) + `markCanceled`. **화면 모양(색·테마·배치)과 주소는 각 프로그램에 그대로**(상태 줄은 색 표 `STATE_TONE`/`STATE_COLOR`만 남김). 카드뉴스는 `src/lib/instagram/schedule.ts`를 새로 두어 `lib/cardnews/schedule.ts`를 다시 내보냄(공용 파일이 같은 경로로 부르도록).
 - 바뀐 화면 파일: `SchedulePublishingControl.tsx`(4곳), 게시 기록이 있는 `InstagramPublishPanel.tsx`(카드뉴스·인플루언서·웹툰) / `InstaPostHistory.tsx`(4컷). 화면 마크업·문구 변경 없음.
