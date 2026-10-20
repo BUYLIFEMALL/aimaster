@@ -2,6 +2,12 @@
 
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
+
+## 2026-10-20 Claude Code(윈도우) — 카탈로그 썸네일 6개 글자 없이 재생성 (주인님 「진행해줘」·「이것도 정상적으로」)
+- 점검: 화면 속 글자가 보이던 9개를 원본 크기로 확인 → 깨진 글자·오타·상표 6개 재생성, 정확한 글자 3개(personality-code·youtube-viral-studio·ebook-studio) 유지.
+- 재생성(관리자 본인 Gemini 키, `gemini-3-pro-image-preview` 6회, `scripts/generate-program-thumbnail.mjs` — 화면은 도형·아이콘만, 상표 없는 모니터·카메라, 소품 글씨 없음): ai-web-ui(「프톰프트」 오타·DELL) · ai-slide-builder(머그 「BUILGER」·슬라이드 오타·SAMSUNG) · crm-google-form(「CRM 심령」·「카카오로톡」) · allinone-graphic(「Grsphic」) · detail-page-12p(섹션 오타·SONY) · prompt-template-studio(팝업 글씨). 확대본(자동 저장)으로 글자·로고 없음 확인, 공개 주소 6개 200, DB `thumbnail_url` 새 `?v=`. DB 값만 바뀌어 버전 변경 없음.
+- 되돌릴 때: 이전 이미지 사본은 세션 임시 폴더에만 있으므로 필요하면 같은 스크립트로 다시 생성(옛 주소의 파일은 같은 이름으로 덮어써짐).
+- 링크: https://www.buylife.xyz/programs
 ## 2026-10-20 Claude Code(윈도우) — 예약 공용 코드: 방식이 다른 회원 토큰 호출 시 작업 끄기 15개 + 썸네일 점검 도구 (주인님 「진행해」 추가 제안 3건)
 - ① 예약: 아침의 「재개·방식 변경 겹침」은 실제 실행이 아니라 401 헛호출 문제였음(토큰 확인이 방식을 먼저 봄). `memberIdForToken`이 방식이 다르면 작업을 끄도록 수정, 닿지 않던 `skipPausedMember` 방식 조건(c69b0407) 되돌림. 운영 12개 + 인스타 기준 사본 3개, 커밋 `be5c5107`, DB·15개 순차 배포 Ready, 가짜 토큰 401. 재현 검수 통과(상품소싱 401 한 번 → 호출 없음). 버전: 예약 리마인드 v1.25·대량 메일 v1.25·CRM v1.14·유튜브 v1.18·상품소싱 v1.19·카카오 v1.27·네이버 카페 v1.27·카드뉴스 v1.30·INSTA v1.33·쇼핑제휴 v1.74·운영 자동화 v2.14·쓰레드 v1.26·인플루언서 v1.18·웹툰 v1.20·4컷 v1.21.
 - 실수 기록: 공용 코드 일괄 수정 때 다른 세션의 인스타 사본 3곳까지 고쳐졌다가(그 세션 미커밋 없음 확인) 되돌린 뒤 `--sync` 절차로 다시 맞춤. 쇼핑제휴 `AGENTS.md`는 오래된 미커밋 변경이 있어 기록을 여기에만.
