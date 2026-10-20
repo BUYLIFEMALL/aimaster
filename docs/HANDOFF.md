@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — INSTA v1.40·v1.41: 로그인 화면 다크 테마 + v1.39 관리자 실검수
+- v1.39 실검수(관리자): 카드뉴스 설정에서 「내 cron-job.org」 → `insta_member_scheduler` cronjob(옛 cns 표 그대로) → INSTA 설정에도 같은 선택 → Vercel로 되돌림(시험 전 상태).
+- v1.40(`e1c22710`): 주인님 「로그인 창도 같은 테마로」 — `(auth)` 공통 틀(밝은 격자·파랑)을 INSTA 다크 토큰으로. v1.41(`e259b5f8`): 크롬 자동 채우기 연파랑 배경을 로그인 틀 안에서만 다크로 고정. 배포 `insta-auto-poster-5num7n40o` Ready, DB v1.41, 크롬 확인.
+- 참고: 다른 프로그램 로그인 화면도 같은 밝은 공통 틀(기준 ai-auto-blog)이라 프로그램 테마와 다를 수 있음 — 프로그램별로 요청 시 같은 방식으로 적용.
+
 ## 2026-10-20 Claude Code(윈도우) — INSTA v1.39: 예약 실행 방식 설정 하나로(피드 글 + 카드뉴스)
 - 카드뉴스 API 5곳이 INSTA 예약 설정(`insta_member_scheduler`)을 쓰고, 「남은 예약」에 카드뉴스 예약 포함, INSTA 회원 실행 주소가 피드 글·카드뉴스를 함께 실행. 설정 화면 두 곳에 「하나의 설정」 안내. DB 표 변경 없음(`cns_member_scheduler`는 남겨 두고 사용 안 함).
 - 검수: tsc·build·테스트 통과, 커밋 `7d26818f`, 배포 `insta-auto-poster-ijghxsq3j` Ready, DB v1.39, 회원 실행 주소 3곳 가짜 토큰 401, 크롬(시험 회원) 카드뉴스 예약 상태 API가 INSTA 설정 값(vercel) 반환. **「내 cron-job.org」로 바꿔 실제 작업이 켜지는 흐름은 시험 회원에 cron-job.org 키가 없어 확인 못 함** — 관리자 로그인 때 확인 필요.
