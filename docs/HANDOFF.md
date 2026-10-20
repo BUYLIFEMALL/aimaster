@@ -6,6 +6,11 @@
 - 주인님 요청으로 1번 운영 확인을 재개. `computer-use`로 기존 Edge 실행 중임은 확인했으나 창 제어는 Orca runtime metadata 접근 거부(`runtime_unavailable`, `CreateFile 0x5`)로 막힘. 신규 기본값/기존 모드 보존/회원 변경 저장의 운영 실검수는 모두 미완료. 실제 발행·유료 호출·운영 데이터 변경 0. 로컬 검사를 운영 통과로 바꾸지 않음.
 - 다음 첫 단계: 운영 접속·Edge 제어 가능한 세션에서 일반 회원으로 세 항목 실검수. [상세 재개 기록](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md), [증거](../naver-blog-agent/docs/evidence/consolidation-stage0/live-recheck-attempt.json). 코드/버전/배포 변경 없음, 문서 커밋/푸시 미실행(`.git` 읽기 전용).
 
+## 2026-10-20 Claude Code(윈도우) — 배포 키트 리허설 자원 유지 결정 (주인님 「일단 놔둬, 나중에 삭제할게」)
+- 그대로 둠(삭제 금지 — 주인님이 직접 정리): Supabase `BUYLIFE-DEV`의 `kit-insta`(ref `jlkagfxweoqfqtspraje`, 무료 칸 2/2 사용 중), Vercel `dev-kit-insta`(https://dev-kit-insta.vercel.app, v1.07 배포됨), 이 PC `D:\ktr\w`(v1.01·v1.04·v1.06·v1.07 압축 해제본, 일부 `.env.local`에 Lab 키 있음).
+- 「Confirm email」은 꺼진 상태 유지. 확인 메일 실제 왕복 시험은 주인님 요청 때(켜고 → 가입 → 링크 → 끄기).
+- 주의: `BUYLIFE-DEV` 무료 프로젝트가 2개라 새 Lab 프로젝트를 만들려면 `kit-insta`부터 정리해야 함.
+
 ## 2026-10-20 Claude Code(윈도우) — 리허설 사이트에 배포판 v1.07 배포 + Supabase URL Configuration 저장 (주인님 「수정 개선된 버전으로 다시 배포」)
 - `D:\ktr\w\…_v1.07\insta_auto_poster`에 v1.06 설정·Vercel 연결 복사 → 로컬 빌드 → `vercel deploy --prod`(dev-kit-insta, Ready 30s). 확인 경로·「인증 완료」 안내 화면 확인. Supabase `kit-insta` Site URL을 localhost 기본값 → 사이트 주소, Redirect URLs `…/**` 추가.
 - 남은 확인: Confirm email을 잠시 켜고 새 이메일로 가입 → 메일 링크가 dev-kit-insta로 돌아오는지(주인님 메일 필요). 대기 중인 v1.07 마법사 창은 닫아도 됨(누르면 빌드 1회 더). Lab 자원 삭제 여부 대기. `REHEARSAL_LOG.md` R9·R10.
