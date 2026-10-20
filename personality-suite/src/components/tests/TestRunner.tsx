@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { SCALE, type ScoredResult, type Test } from "@/lib/tests/types";
@@ -40,23 +40,39 @@ export function TestRunner({ test }: { test: Test }) {
     }
   }, [router, test.id]);
 
+  // v1.25: 숫자키를 빠르게 연달아 누르면 0.16초 이동 대기 중에 들어온 답이 같은 문항을 덮어써 응답이 빠지던 문제 수정.
+  // 지금 문항 번호를 ref로 들고, 이동 대기 중에 새 답이 오면 먼저 다음 문항으로 즉시 옮긴 뒤 그 문항에 기록한다.
+  const indexRef = useRef(0);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const goTo = useCallback((i: number) => {
+    if (advanceTimer.current) { clearTimeout(advanceTimer.current); advanceTimer.current = null; }
+    const next = Math.max(0, Math.min(total - 1, i));
+    indexRef.current = next;
+    setIndex(next);
+  }, [total]);
+
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
+
   const pick = useCallback((value: number) => {
     if (busy) return;
-    const next = answers.slice();
-    next[index] = value;
-    setAnswers(next);
-    if (index < total - 1) setTimeout(() => setIndex((i) => Math.min(i + 1, total - 1)), 160);
-  }, [answers, busy, index, total]);
+    if (advanceTimer.current) goTo(indexRef.current + 1);
+    const at = indexRef.current;
+    setAnswers((prev) => { const next = prev.slice(); next[at] = value; return next; });
+    if (at < total - 1) {
+      advanceTimer.current = setTimeout(() => { advanceTimer.current = null; indexRef.current = at + 1; setIndex(at + 1); }, 160);
+    }
+  }, [busy, goTo, total]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.target instanceof HTMLElement && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
       if (e.key >= "1" && e.key <= "5") pick(Number(e.key));
-      if (e.key === "ArrowLeft") setIndex((i) => Math.max(0, i - 1));
+      if (e.key === "ArrowLeft") goTo(indexRef.current - 1);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [pick]);
+  }, [pick, goTo]);
 
   async function saveTemp() {
     const res = await fetch("/api/submit", {
@@ -101,9 +117,9 @@ export function TestRunner({ test }: { test: Test }) {
       <p className="muted runner-hint">키보드 1~5로 답하고 ←로 이전 문항으로 돌아갈 수 있어요.</p>
       {error && <p role="alert" className="error">{error}</p>}
       <div className="actions runner-nav">
-        <button type="button" onClick={() => setIndex((i) => Math.max(0, i - 1))} disabled={index === 0 || busy}><ArrowLeft size={14} />이전</button>
+        <button type="button" onClick={() => goTo(index - 1)} disabled={index === 0 || busy}><ArrowLeft size={14} />이전</button>
         {index < total - 1 ? (
-          <button type="button" onClick={() => setIndex((i) => Math.min(total - 1, i + 1))} disabled={current === null || busy}>다음<ArrowRight size={14} /></button>
+          <button type="button" onClick={() => goTo(index + 1)} disabled={current === null || busy}>다음<ArrowRight size={14} /></button>
         ) : (
           <button type="button" className="primary" disabled={!done || busy} onClick={() => submit(answers)}>
             {busy ? <><Loader2 size={14} className="ls-spin" />결과 계산 중</> : "결과 보기"}

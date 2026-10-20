@@ -92,6 +92,19 @@ try {
   assert.deepEqual(await pushed(), ["/result/r-new"]);
   pass(`제출: 답 ${big.total}개 전송 → 결과 페이지(/result/r-new)로 이동`);
 
+  // ①-2 (v1.25) 숫자키를 쉬지 않고 연달아 눌러도 답이 빠지지 않는다(예전엔 이동 대기 0.16초 사이 입력이 같은 문항을 덮어씀)
+  await page.goto(`${origin}/?view=runner&test=bigfive`);
+  await page.locator(".runner").waitFor();
+  const fastKeys = Array.from({ length: big.total }, (_, i) => String((i % 5) + 1));
+  for (const k of fastKeys) await page.keyboard.press(k, { delay: 5 });
+  await page.waitForTimeout(400);
+  assert.equal(await page.locator(".runner-bar").getAttribute("aria-valuenow"), "100", "빠르게 눌러도 모든 문항 응답");
+  await page.getByRole("button", { name: "결과 보기" }).click();
+  await page.waitForFunction(() => (window.__pushed ?? []).length > 0);
+  const fastSub = calls.filter((c) => c.path === "/api/submit").pop().body;
+  assert.deepEqual(fastSub.answers, fastKeys.map(Number), "누른 순서대로 문항마다 기록");
+  pass(`빠른 입력: 쉬지 않고 ${big.total}개 키 → 모두 순서대로 기록`);
+
   // ② 마음 상태 점검(민감): 안내 표시 → 저장하지 않고 결과만 → [내 기록에 저장]
   const wb = tests.find((t) => t.sensitive);
   assert.ok(wb, "민감 검사 존재");

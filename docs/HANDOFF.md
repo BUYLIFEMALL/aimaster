@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 성격 진단 v1.25: 숫자키 빠른 입력 시 응답 누락 버그 수정
+- 한 일: 이동 대기 0.16초 사이 입력이 같은 문항을 덮어쓰던 문제를 `indexRef`·`goTo`로 수정. 브라우저 테스트에 빠른 입력 경우 추가(수정 전 실패 → 수정 후 통과).
+- 검수: 단위 20·브라우저 7·build, 배포 `personality-suite-n1tyhk91h` Ready, DB v1.25, 운영 크롬 0.02초 간격 20개 입력 → 100%(제출 안 함).
+- 링크: https://personality-suite.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 쇼핑제휴 v1.72: 예약 일시정지 안전 처리 마지막 1개 → 운영 12개 전부 적용
 - 다른 CLI(OpenAI 요청 규칙 v1.69~v1.71)가 20분 이상 커밋이 없고 v1.71이 DB·코드에 반영된 것을 확인한 뒤 진행. 같은 수정(일시정지 먼저 저장·`skipPausedMember`·상태 줄 즉시 갱신). 커밋 `2428e00c`, DB v1.72(크롬 SQL Editor, PRODUCTION 확인), 배포 `threads-affiliate-poster-kfn6l7ixo` Ready, `/login` 200, 회원 실행 주소 가짜 토큰 401.
 - `threads-affiliate-poster/AGENTS.md`는 다른 CLI의 오래된 미커밋 변경이 있어 기록을 여기에만 남김.
