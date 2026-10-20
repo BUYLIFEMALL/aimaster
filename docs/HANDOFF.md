@@ -4,6 +4,13 @@
 
 
 
+## 2026-10-20 Claude Code(윈도우) — 배포 키트: 포장 DB 대조 + 마법사 업데이트 모드 → `SNS_Auto_Posting_Kit_v1.03` (주인님 「진행해줘」 추가 제안 ①②)
+- ① 커밋 `b7d7d614`: `scripts/make_lecture_kit.py` 포장 뒤 **DB 대조**(코드의 `.from`·`.rpc`·`storage.from`·`*BUCKET*` 상수 ↔ `KIT/schema.sql`, 없으면 포장 중단·압축 삭제) + `--check-only`. `kit.json` `schemaCheckIgnore`: SNS 두 프로그램 = 공용 연동 표 2개, 쇼핑제휴 = + `tco_threads_accounts`·`th_posts`(모두 `IS_STANDALONE` 보호 코드 확인). 예외를 빼면 손 대조와 같은 항목 검출.
+- ② `scripts/kit-template/setup.ps1`·`setup.sh` **업데이트 모드**: 같은 프로그램(`shortName`)의 설치 완료 폴더(`.env.local`에 `VERCEL_PROJECT_NAME`)를 상위 두 단계에서 자동으로 찾거나 경로 입력 → `.env.local`·`.vercel` 복사, ②③⑤⑥ 건너뜀, ④는 확인만(기존 DB에 `schema.sql` 재실행 안 함, 업그레이드 SQL 안내), ⑦⑧로 같은 Vercel 프로젝트 재배포. 같은 폴더 재실행도 「다시 올릴까요?」. 지침 §2-2 ①-2, 학생 매뉴얼 §11, 두 `KIT/README.md` 업데이트 방법.
+- 검수: 윈도우 PowerShell·Git Bash 각각 질문 자동 응답 시험 틀로 앞부분 실행 — 자동 발견(같은 상위의 다른 프로그램은 제외)·같은 폴더 재실행 y/n·발견 못 함 Enter·경로 입력·잘못된 경로 모두 기대대로. 맥 `stat -f`가 리눅스형에서 다른 뜻이라 수정 시각은 `node`로 읽음(이 문제로 처음 자동 발견 실패 → 수정 후 통과). **실제 맥·실제 Vercel 재배포는 미시험**(⑦⑧은 기존 코드 그대로).
+- 배포판 `D:\PDS\SNS_Auto_Posting_Kit_v1.03.zip`(207개 파일, 비밀값·DB 대조 통과, 프로그램 코드는 v1.02와 같음). `00_START_HERE.md` 업데이트 안내 한 줄은 스크립트에 넣어 다음 포장(v1.04)부터.
+- 남은 일: 주인님 v1.01 설치본으로 v1.03 업데이트 모드 실제 시험(맥 포함), 매뉴얼 📷 캡처.
+
 ## 2026-10-20 Claude Code(윈도우) — 메인 사이트 프로그램 카드: 마우스 올림 덮개가 배지와 겹침 수정 (주인님 「버튼이 밀리는 건 뭐지?」)
 - 증상: 카탈로그 카드에 마우스를 올리면 덮개(`components/programs/ProgramCard.tsx`, 6bfc6091에서 추가)의 맨 위 줄 「● 실시간 가동대기」·「AI LIVE PREVIEW」가 배지·좋아요·즐겨찾기·편집 줄(top-3, z-10) 밑에 깔려 「B█EST 대기」, 「AI LI」처럼 겹쳐 보임(웹 크롤링 자동화 카드에서 발견).
 - 수정: 덮개 안쪽 여백 `p-3` → `px-3 pb-3 pt-12`(그 줄을 배지 줄 아래로). 기능·문구 변경 없음. `npm run build` 통과, 푸시로 메인 사이트 자동 배포.

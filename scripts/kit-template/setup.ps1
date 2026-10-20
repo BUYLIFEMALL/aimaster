@@ -4,6 +4,7 @@
 # 지침: AIMaster docs/DISTRIBUTION_KIT_GUIDE.md §2-2(패키지 설치마법사 표준)
 # 실행: 프로그램 폴더의 「패키지설치마법사.cmd」 더블클릭 (또는 powershell -ExecutionPolicy Bypass -File KIT\setup.ps1)
 # 하는 일(8단계): ① Node.js ② Supabase 프로젝트 ③ Supabase 키(확인) ④ DB 파일 실행(자동 복사·확인) ⑤ 이메일 확인 끄기
+#   업데이트 모드: 예전 설치 폴더를 찾으면(또는 경로 입력) .env.local·.vercel 을 가져와 ②③⑤⑥을 건너뛰고 ④는 확인만, ⑦⑧로 다시 올림
 #                 ⑥ 사이트 설정 ⑦ 설치·빌드 ⑧ Vercel 배포(주소 자동 확인) → 설치결과.txt
 # 필요한 화면은 마법사가 브라우저로 열어 주고, 붙여 넣을 내용은 클립보드에 복사해 둡니다. 중간에 멈춰도 다시 실행하면 이어서 합니다.
 # 비밀번호·키는 이 컴퓨터의 .env.local 과 본인 Vercel 프로젝트에만 저장됩니다. 키는 입력할 때 화면에 보이지 않습니다.
@@ -68,9 +69,61 @@ Say "질문에 답만 하면 됩니다. 필요한 화면은 마법사가 브라�
 Say "중간에 창을 닫아도 「패키지설치마법사」을 다시 실행하면 이어서 진행합니다."
 Say "폴더: $ProgramDir"
 if (Test-Path (Join-Path $ProgramDir ".git")) { Warn "이 폴더가 Git 저장소입니다. 저장소 밖(예: D:\work\$($KitInfo.shortName))에 압축을 풀어 쓰는 것을 권장합니다." }
-if (Test-Path $ProgressFile) {
+# 업데이트 모드(2026-10-20): 예전에 설치한 내 사이트에 새 배포판 코드만 다시 올린다 — Supabase·키·DB·사이트 설정 단계는 건너뜀
+$UpdateMode = $false
+function Is-Installed($dir) {
+  $f = Join-Path $dir ".env.local"
+  return (Test-Path -LiteralPath $f) -and [bool](Select-String -LiteralPath $f -Pattern "^VERCEL_PROJECT_NAME=." -Quiet)
+}
+function Same-Program($dir) {
+  $k = Join-Path $dir "KIT\kit.json"
+  if (-not (Test-Path -LiteralPath $k)) { return $false }
+  try { return ((Get-Content -LiteralPath $k -Raw -Encoding UTF8 | ConvertFrom-Json).shortName -eq $KitInfo.shortName) } catch { return $false }
+}
+function Find-OldInstall {
+  $parent = Split-Path $ProgramDir -Parent
+  $grand = if ($parent) { Split-Path $parent -Parent } else { $null }
+  $dirs = @()
+  foreach ($r in @($parent, $grand)) { if ($r) { $dirs += @(Get-ChildItem -LiteralPath $r -Directory -ErrorAction SilentlyContinue) } }
+  if ($grand) { foreach ($d in @(Get-ChildItem -LiteralPath $grand -Directory -ErrorAction SilentlyContinue)) { $dirs += @(Get-ChildItem -LiteralPath $d.FullName -Directory -ErrorAction SilentlyContinue) } }
+  return $dirs | ForEach-Object { $_.FullName } | Where-Object { $_ -ne $ProgramDir -and (Same-Program $_) -and (Is-Installed $_) } |
+    Sort-Object { (Get-Item -LiteralPath (Join-Path $_ ".env.local")).LastWriteTime } -Descending | Select-Object -First 1
+}
+function Start-Update($from) {
+  Copy-Item -LiteralPath (Join-Path $from ".env.local") -Destination $EnvFile -Force
+  $vercelDir = Join-Path $from ".vercel"
+  if (Test-Path -LiteralPath $vercelDir) { Copy-Item -LiteralPath $vercelDir -Destination $ProgramDir -Recurse -Force }
+  if (Test-Path $ProgressFile) { Remove-Item $ProgressFile -Force }
+  foreach ($n in 2, 3, 5, 6) { MarkDone $n }
+  Ok "예전 설정(.env.local·Vercel 연결)을 가져왔습니다: $from"
+}
+
+if ((Is-Installed $ProgramDir) -and (Done 8)) {
+  $upd = Ask "이 폴더는 설치를 마친 폴더입니다. 지금 코드로 내 사이트를 다시 올릴까요? (y=업데이트 / n=처음부터 다시 설치)" "y"
+  if ($upd -eq "y") { $UpdateMode = $true; Remove-Item $ProgressFile -Force; foreach ($n in 2, 3, 5, 6) { MarkDone $n } }
+  else { Remove-Item $ProgressFile -Force }
+} elseif (Test-Path $ProgressFile) {
   $again = Ask "지난번에 하던 설치가 있습니다. 이어서 할까요? (y=이어서 / n=처음부터)" "y"
   if ($again -ne "y") { Remove-Item $ProgressFile -Force }
+} elseif (-not (Test-Path $EnvFile)) {
+  $old = Find-OldInstall
+  if ($old) {
+    Say ""
+    Say "  예전에 설치한 같은 프로그램을 찾았습니다: $old"
+    $upd = Ask "새 버전으로 업데이트할까요? 예전 사이트·DB·키를 그대로 쓰고 새 코드만 다시 올립니다 (y=업데이트 / n=새로 설치)" "y"
+    if ($upd -eq "y") { Start-Update $old; $UpdateMode = $true }
+  } else {
+    $path = Ask "예전에 이 프로그램을 설치한 적이 있으면 그 프로그램 폴더 경로를 붙여 넣으세요(업데이트 — 처음 설치면 그냥 Enter)" ""
+    $path = $path.Trim().Trim('"')
+    if ($path) {
+      if ((Test-Path -LiteralPath $path) -and (Is-Installed $path)) { Start-Update $path; $UpdateMode = $true }
+      else { Warn "그 폴더에서 설치 기록(.env.local)을 찾지 못했습니다. 처음 설치로 진행합니다." }
+    }
+  }
+}
+if ($UpdateMode) {
+  Say "  [업데이트 모드] Supabase·키·DB·사이트 설정은 그대로 두고, 설치·빌드 → 같은 Vercel 프로젝트에 다시 올리기만 합니다."
+  Say "  DB(SQL) 작업이 필요한 업데이트인지 KIT\README.md 맨 아래 「업데이트 내역」을 먼저 확인하세요."
 }
 
 # ① Node.js
@@ -144,7 +197,22 @@ Ok "Supabase 키 저장(.env.local)"
 Step 4 "DB 만들기(설치 SQL 실행)"
 $checkTable = if ($KitInfo.checkTable) { $KitInfo.checkTable } else { "profiles" }
 $tableUrl = "$sbUrl/rest/v1/$($checkTable)?select=*&limit=1"
-if ((HttpStatus $tableUrl (KeyHeaders $serviceKey)) -eq 200) { Ok "DB가 이미 준비돼 있습니다($checkTable 확인)" }
+$upgradeFiles = @(Get-ChildItem -Path (Join-Path $PSScriptRoot "upgrade-*.sql") -ErrorAction SilentlyContinue | ForEach-Object { "KIT\$($_.Name)" })
+if ((HttpStatus $tableUrl (KeyHeaders $serviceKey)) -eq 200) {
+  Ok "DB가 이미 준비돼 있습니다($checkTable 확인)"
+  if ($UpdateMode -and $upgradeFiles.Count -gt 0) { Say "  업데이트용 SQL: $($upgradeFiles -join ', ') — 「업데이트 내역」에 실행하라고 적힌 것만 SQL Editor에서 한 번 실행하세요(없으면 넘어가세요)." }
+}
+elseif ($UpdateMode) {
+  # 기존 DB에는 설치 SQL 전체를 다시 돌리지 않는다 — 업데이트 내역의 SQL만 안내
+  Warn "기존 DB에서 $checkTable 표를 찾지 못했습니다. 이번 버전은 DB 변경이 필요할 수 있습니다."
+  Say "  KIT\README.md 맨 아래 「업데이트 내역」에 적힌 SQL$(if ($upgradeFiles.Count -gt 0) { "($($upgradeFiles -join ', '))" })을 SQL Editor에서 실행하세요."
+  OpenUrl "https://supabase.com/dashboard/project/$ref/sql/new"
+  while ($true) {
+    WaitEnter "업데이트 SQL을 실행했나요?"
+    if ((HttpStatus $tableUrl (KeyHeaders $serviceKey)) -eq 200) { Ok "DB 확인($checkTable)"; break }
+    Warn "아직 $checkTable 표가 보이지 않습니다. 예전 설치와 같은 Supabase 프로젝트인지, SQL에 빨간 오류가 없는지 확인해 주세요."
+  }
+}
 else {
   $sql = Get-Content (Join-Path $PSScriptRoot "schema.sql") -Raw -Encoding UTF8
   while ($true) {
@@ -248,7 +316,7 @@ $callback = if ($KitInfo.callbackPath) { "$siteUrl$($KitInfo.callbackPath)" } el
 $callbackLabel = if ($KitInfo.callbackLabel) { $KitInfo.callbackLabel } else { "플랫폼 앱 콜백 주소" }
 $nextStep = if ($KitInfo.nextStep) { $KitInfo.nextStep } else { "KIT\README.md 를 이어서 진행하세요." }
 $result = @(
-  "$($KitInfo.title) — 설치 결과 ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))",
+  "$($KitInfo.title) — $(if ($UpdateMode) { '업데이트' } else { '설치' }) 결과 ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))",
   "",
   "내 사이트: $siteUrl",
   $(if ($callback) { "${callbackLabel}: $callback" }),
@@ -265,7 +333,7 @@ $result = @(
 
 Write-Host ""
 Say "╔══════════════════════════════════════════════╗"
-Say "   설치 완료!"
+Say "   $(if ($UpdateMode) { '업데이트 완료!' } else { '설치 완료!' })"
 Say "╚══════════════════════════════════════════════╝"
 Say "내 사이트: $siteUrl"
 if ($callback) { if (Copy-Text $callback) { Say "${callbackLabel}(클립보드에 복사됨): $callback" } else { Say "${callbackLabel}: $callback" } }

@@ -6,6 +6,7 @@
 # 실행: 프로그램 폴더의 「패키지설치마법사.command」 더블클릭 (또는 터미널에서 bash KIT/setup.sh)
 # 하는 일(8단계): ① Node.js ② Supabase 프로젝트 ③ Supabase 키(확인) ④ DB 파일 실행(자동 복사·확인) ⑤ 이메일 확인 끄기
 #                 ⑥ 사이트 설정 ⑦ 설치·빌드 ⑧ Vercel 배포(주소 자동 확인) → 설치결과.txt
+#   업데이트 모드: 예전 설치 폴더를 찾으면(또는 경로 입력) .env.local·.vercel 을 가져와 ②③⑤⑥을 건너뛰고 ④는 확인만, ⑦⑧로 다시 올림
 # 필요한 화면은 마법사가 브라우저로 열어 주고, 붙여 넣을 내용은 클립보드에 복사해 둡니다. 중간에 멈춰도 다시 실행하면 이어서 합니다.
 # 비밀번호·키는 이 컴퓨터의 .env.local 과 본인 Vercel 프로젝트에만 저장됩니다. 키는 입력할 때 화면에 보이지 않습니다.
 # =====================================================================
@@ -67,9 +68,54 @@ say "질문에 답만 하면 됩니다. 필요한 화면은 마법사가 브라�
 say "중간에 창을 닫아도 「패키지설치마법사」을 다시 실행하면 이어서 진행합니다."
 say "폴더: $PROGRAM_DIR"
 [ -d "$PROGRAM_DIR/.git" ] && warn "이 폴더가 Git 저장소입니다. 저장소 밖(예: ~/work/$SHORT)에 압축을 풀어 쓰는 것을 권장합니다."
-if [ -f "$PROGRESS_FILE" ]; then
+# 업데이트 모드(2026-10-20): 예전에 설치한 내 사이트에 새 배포판 코드만 다시 올린다 — Supabase·키·DB·사이트 설정 단계는 건너뜀
+UPDATE_MODE=0
+is_installed() { [ -f "$1/.env.local" ] && grep -qE "^VERCEL_PROJECT_NAME=." "$1/.env.local"; }
+same_program() { [ -f "$1/KIT/kit.json" ] && [ "$(node -e "try{console.log(require(process.argv[1]).shortName||'')}catch(e){console.log('')}" "$1/KIT/kit.json" 2>/dev/null)" = "$SHORT" ]; }
+find_old_install() {
+  local parent grand best="" best_t=0 d t
+  parent="$(dirname "$PROGRAM_DIR")"; grand="$(dirname "$parent")"
+  for d in "$parent"/*/ "$grand"/*/ "$grand"/*/*/; do
+    d="${d%/}"; [ -d "$d" ] || continue; [ "$d" = "$PROGRAM_DIR" ] && continue
+    if same_program "$d" && is_installed "$d"; then
+      t=$(node -e "try{console.log(Math.floor(require('fs').statSync(process.argv[1]).mtimeMs))}catch(e){console.log(0)}" "$d/.env.local" 2>/dev/null)
+      case "$t" in ''|*[!0-9]*) t=0;; esac
+      if [ -z "$best" ] || [ "$t" -gt "$best_t" ]; then best="$d"; best_t=$t; fi
+    fi
+  done
+  echo "$best"
+}
+start_update() {
+  cp "$1/.env.local" "$ENV_FILE"
+  [ -d "$1/.vercel" ] && cp -R "$1/.vercel" "$PROGRAM_DIR/"
+  rm -f "$PROGRESS_FILE"; for n in 2 3 5 6; do mark_done $n; done
+  ok "예전 설정(.env.local·Vercel 연결)을 가져왔습니다: $1"
+}
+if is_installed "$PROGRAM_DIR" && done_step 8; then
+  UPD=$(ask "이 폴더는 설치를 마친 폴더입니다. 지금 코드로 내 사이트를 다시 올릴까요? (y=업데이트 / n=처음부터 다시 설치)" "y")
+  rm -f "$PROGRESS_FILE"
+  if [ "$UPD" = "y" ]; then UPDATE_MODE=1; for n in 2 3 5 6; do mark_done $n; done; fi
+elif [ -f "$PROGRESS_FILE" ]; then
   AGAIN=$(ask "지난번에 하던 설치가 있습니다. 이어서 할까요? (y=이어서 / n=처음부터)" "y")
   [ "$AGAIN" = "y" ] || rm -f "$PROGRESS_FILE"
+elif [ ! -f "$ENV_FILE" ]; then
+  OLD=$(find_old_install)
+  if [ -n "$OLD" ]; then
+    echo; say "  예전에 설치한 같은 프로그램을 찾았습니다: $OLD"
+    UPD=$(ask "새 버전으로 업데이트할까요? 예전 사이트·DB·키를 그대로 쓰고 새 코드만 다시 올립니다 (y=업데이트 / n=새로 설치)" "y")
+    if [ "$UPD" = "y" ]; then start_update "$OLD"; UPDATE_MODE=1; fi
+  else
+    OLD=$(ask "예전에 이 프로그램을 설치한 적이 있으면 그 프로그램 폴더 경로를 붙여 넣으세요(업데이트 — 처음 설치면 그냥 Enter)" "")
+    OLD=$(printf "%s" "$OLD" | sed -e "s/^[[:space:]\"']*//" -e "s/[[:space:]\"']*\$//"); OLD="${OLD/#\~/$HOME}"
+    if [ -n "$OLD" ]; then
+      if is_installed "$OLD"; then start_update "$OLD"; UPDATE_MODE=1
+      else warn "그 폴더에서 설치 기록(.env.local)을 찾지 못했습니다. 처음 설치로 진행합니다."; fi
+    fi
+  fi
+fi
+if [ "$UPDATE_MODE" = "1" ]; then
+  say "  [업데이트 모드] Supabase·키·DB·사이트 설정은 그대로 두고, 설치·빌드 → 같은 Vercel 프로젝트에 다시 올리기만 합니다."
+  say "  DB(SQL) 작업이 필요한 업데이트인지 KIT/README.md 맨 아래 「업데이트 내역」을 먼저 확인하세요."
 fi
 step 1 "Node.js 확인"; ok "Node.js $(node -v)"
 
@@ -124,7 +170,19 @@ ok "Supabase 키 저장(.env.local)"
 # ④ DB 파일 실행
 step 4 "DB 만들기(설치 SQL 실행)"
 TABLE_URL="$SB_URL/rest/v1/$CHECK_TABLE?select=*&limit=1"
+UPGRADE_FILES=$(cd "$KIT_DIR" && ls upgrade-*.sql 2>/dev/null | sed 's#^#KIT/#' | paste -sd ',' - | sed 's/,/, /g')
 if [ "$(http_status "$TABLE_URL" "$SERVICE_KEY")" = "200" ]; then ok "DB가 이미 준비돼 있습니다($CHECK_TABLE 확인)"
+  [ "$UPDATE_MODE" = "1" ] && [ -n "$UPGRADE_FILES" ] && say "  업데이트용 SQL: $UPGRADE_FILES — 「업데이트 내역」에 실행하라고 적힌 것만 SQL Editor에서 한 번 실행하세요(없으면 넘어가세요)."
+elif [ "$UPDATE_MODE" = "1" ]; then
+  # 기존 DB에는 설치 SQL 전체를 다시 돌리지 않는다 — 업데이트 내역의 SQL만 안내
+  warn "기존 DB에서 $CHECK_TABLE 표를 찾지 못했습니다. 이번 버전은 DB 변경이 필요할 수 있습니다."
+  say "  KIT/README.md 맨 아래 「업데이트 내역」에 적힌 SQL${UPGRADE_FILES:+($UPGRADE_FILES)}을 SQL Editor에서 실행하세요."
+  open_url "https://supabase.com/dashboard/project/$REF/sql/new"
+  while true; do
+    wait_enter "업데이트 SQL을 실행했나요?"
+    [ "$(http_status "$TABLE_URL" "$SERVICE_KEY")" = "200" ] && { ok "DB 확인($CHECK_TABLE)"; break; }
+    warn "아직 $CHECK_TABLE 표가 보이지 않습니다. 예전 설치와 같은 Supabase 프로젝트인지, SQL에 빨간 오류가 없는지 확인해 주세요."
+  done
 else
   while true; do
     if copy_file "$KIT_DIR/schema.sql"; then ok "설치 SQL을 클립보드에 복사했습니다."; else warn "자동 복사에 실패했습니다. KIT/schema.sql 을 텍스트 편집기로 열어 전체 복사(⌘A, ⌘C)하세요."; fi
@@ -221,7 +279,7 @@ fi
 
 CALLBACK_URL=""; [ -n "$CALLBACK" ] && CALLBACK_URL="$SITE_URL$CALLBACK"
 {
-  echo "$TITLE — 설치 결과 ($(date '+%Y-%m-%d %H:%M'))"; echo
+  echo "$TITLE — $([ "$UPDATE_MODE" = "1" ] && echo 업데이트 || echo 설치) 결과 ($(date '+%Y-%m-%d %H:%M'))"; echo
   echo "내 사이트: $SITE_URL"
   [ -n "$CALLBACK_URL" ] && echo "$CALLBACK_LABEL: $CALLBACK_URL"
   echo "Supabase 프로젝트: https://supabase.com/dashboard/project/$REF"; echo
@@ -234,7 +292,7 @@ CALLBACK_URL=""; [ -n "$CALLBACK" ] && CALLBACK_URL="$SITE_URL$CALLBACK"
 
 echo
 say "╔══════════════════════════════════════════════╗"
-say "   설치 완료!"
+if [ "$UPDATE_MODE" = "1" ]; then say "   업데이트 완료!"; else say "   설치 완료!"; fi
 say "╚══════════════════════════════════════════════╝"
 say "내 사이트: $SITE_URL"
 if [ -n "$CALLBACK_URL" ]; then if copy_text "$CALLBACK_URL"; then say "$CALLBACK_LABEL(클립보드에 복사됨): $CALLBACK_URL"; else say "$CALLBACK_LABEL: $CALLBACK_URL"; fi; fi
