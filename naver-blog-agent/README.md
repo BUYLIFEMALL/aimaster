@@ -1,5 +1,7 @@
 # 네이버 블로그 에이전트 (Naver Blog Agent)
 
+> **BLC-02 사진 준비 UI:** [v2.02 릴리스 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC02_PHOTO_INPUT.md). 최대 6장·대표/순서/설명·제거/취소 로컬 실제 회원 검수와 회귀 158개 통과, 배포/운영 검수 진행 중. 사진으로 AI 글쓰기/원고 저장은 다음 항목입니다.
+
 > **BLC-01 v2.01 운영 완료:** [최신 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md). 승인된 비공개 Storage/정책 적용, 실제 로컬 회원 사진 API 9개 통과. 운영 배포 Ready, 앱/DB/확장/라이브 ZIP v2.01 일치. 운영 일반 회원·실제 확장 준비(prepared 6/6) 검수 완료, 최종 발행 0회. 아래 v2.00·승인 대기·미배포 기록은 이전 이력입니다.
 
 > **2026-10-20 재개 확인:** [Edge 부분 제어·Storage 승인 대기 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md). 코드 대조·회귀 시험 통과, BLC-01 운영 미완료·v2.00 유지.

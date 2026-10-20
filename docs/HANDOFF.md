@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Codex(윈도우) — 블로그 BLC-02 v2.02 릴리스 준비
+
+- 최대 6장·대표/순서/500자 설명·제거/취소·조회만 재시도하는 사진 준비 UI와 4단계 사용 안내. 기존 글 생성에 사진을 사용하지 않는 현재 범위와 화면 이탈 시 선택 초기화를 명시. BLC-03·04 미구현.
+- 운영 ref `esgxyikcnnvmlhygjkth` 기존 비공개 API만 사용, 스키마/정책/키/환경변수/권한 변경 없음. 회귀 158개·확장 모의 42개·모델/발행/브리지·정적/타입·로컬 빌드 통과. Edge 실제 로컬 회원 6장·손상/초과 거절·설명 동반 정렬·대표/취소, 516px 화면 확인.
+- v2.02 코드/ZIP 준비, 커밋·배포·운영 검수 진행 중. [BLC-02 사진 준비 UI](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC02_PHOTO_INPUT.md).
+
+https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-20 Codex(윈도우) — 블로그 BLC-01 v2.01 운영 완료
 
 - 운영 ref `esgxyikcnnvmlhygjkth`. 승인된 비공개 버킷/정책 적용, 실제 로컬 시험 회원 사진 API 9개 통과. 코드 `fc72cf45` 원격 master 반영. Vercel `dpl_URM1qZdXHmjjJSpdM19mrP4UpkGf` Ready/공식 도메인 확인, DB/manifest/라이브 ZIP v2.01 일치.

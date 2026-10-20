@@ -32,6 +32,7 @@ import {
   Settings2,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
+import PrivatePhotoInput from "@/components/PrivatePhotoInput";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import PostReviewGate from "@/components/PostReviewGate";
 import { draftImageList, mergeDraftImage, bodyImageAt, removeImageFromArticle, generatedDraftImages, pendingDraftImages, type DraftImage } from "@/lib/draftImages";
@@ -1263,6 +1264,7 @@ export default function MainPage() {
         </div>
 
         {/* 2-3. 기획 조건 직접 설정 및 미세 조정 폼 */}
+        <PrivatePhotoInput />
         <form onSubmit={handleGenerateForm} className="space-y-4">
           <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
             <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2">

@@ -1,0 +1,65 @@
+{
+  "at": "2026-10-20T13:33:39.685Z",
+  "version": "v2.02",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "steps": [
+    {
+      "name": "regression",
+      "command": "node --test --test-reporter=tap scripts/test-private-photo-input.cjs scripts/test-private-photos.cjs scripts/test-new-draft-mode.cjs scripts/test-post-review.cjs scripts/test-post-save.cjs scripts/test-queue-confirmation.cjs scripts/test-homefeed-schedule-links.cjs scripts/test-naver-ranking.cjs scripts/test-extension-results.cjs scripts/test-editor-safety.cjs tests/imageFileCheck.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "name": "extension-lifecycle",
+      "command": "node scripts/test-extension-tabs.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "extension-bridge",
+      "command": "node scripts/test-extension-bridge.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "publishing",
+      "command": "node scripts/test-naver-publishing.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "models",
+      "command": "node scripts/test-model-selection.cjs",
+      "exitCode": 0
+    },
+    {
+      "name": "lint",
+      "command": "node node_modules/eslint/bin/eslint.js src/components/PrivatePhotoInput.tsx src/lib/privatePhotoInput.ts src/lib/privatePhotoRules.ts src/app/(dashboard)/guide/page.tsx",
+      "exitCode": 0
+    },
+    {
+      "name": "typecheck",
+      "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+      "exitCode": 0
+    },
+    {
+      "name": "archive",
+      "command": "node scripts/build-extension-archive.mjs",
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "command": "node node_modules/next/dist/bin/next build",
+      "exitCode": 0
+    }
+  ],
+  "hashes": {
+    "src/lib/privatePhotoInput.ts": "05fea849e4640704a8ec3a88ec96c087c7afa111adfef756e8d13ef1ebf3652a",
+    "src/lib/privatePhotoRules.ts": "74fab8d59d6196ee6d6d8293c23dfe939f4274572fb97c84770ef12dba80694a",
+    "src/lib/privatePhotos.ts": "1e8f805a543daa34a82d2f41fbe087b2e4910ea65e3c8f6ed2efd65d1625b15b",
+    "src/lib/imageFileCheck.ts": "e1676237431ac55b3d9eb9c16c8a8c57ee60a1fa3617c124ff47fd3d36fdf7bf",
+    "src/components/PrivatePhotoInput.tsx": "865f7a286940cd3336fe06f0c5590a3ce1ff85db2bf67b43a948b968e91e5ae4",
+    "src/app/(dashboard)/page.tsx": "e387936f42c0912f5b5ad1e7d2bd6d01a417cf517a9c0642b5cc9ea18da260a4",
+    "src/app/(dashboard)/guide/page.tsx": "9befe59e9ee050911d9739f3c478f83071575405d1ee040dea3f4ce9fa50d2de",
+    "src/lib/version.ts": "634638c67bdb332aa0a70dacea9ca3a33a7f12564248632c3ecdc2bc58baf4fd",
+    "extension/manifest.json": "e6e80b732805b7a74da4554646d090fa37bb6efcae39b30babc7841d0f0c0d3f",
+    "public/downloads/naver-blog-agent-extension-latest.zip": "ad6fdbc3bbf6d65bacdb925e9802252a270a64f7a2157a7fc6717e50d7c0d875"
+  },
+  "passed": true
+}

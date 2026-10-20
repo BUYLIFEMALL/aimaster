@@ -1,10 +1,10 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import type { createAdminClient } from "@/lib/supabase/admin";
+import { MAX_PHOTO_BYTES, MAX_REVIEW_PHOTOS } from "./privatePhotoRules";
+export { MAX_PHOTO_BYTES, MAX_REVIEW_PHOTOS } from "./privatePhotoRules";
 
 export const PRIVATE_PHOTO_BUCKET = "nba-private-photos";
-export const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
-export const MAX_REVIEW_PHOTOS = 6;
 const LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
 const SIGNED_URL_SECONDS = 300;
 const PAGE_SIZE = 1000;

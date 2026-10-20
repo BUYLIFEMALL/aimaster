@@ -35,6 +35,7 @@ function loadTS(filename) {
   const req = (id) => {
     if (id === 'server-only') return {};
     if (id === '@/lib/privatePhotos') return loadTS(path.join(root, 'src/lib/privatePhotos.ts'));
+    if (id === './privatePhotoRules') return loadTS(path.join(root, 'src/lib/privatePhotoRules.ts'));
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => db };
     if (id === '@/lib/access') return { evaluateProgramAccessForUser: async () => access };
     if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));

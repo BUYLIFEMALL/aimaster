@@ -6,6 +6,8 @@
 
 ## 현재 위치와 읽는 순서
 
+**BLC-02 v2.02 릴리스 준비:** 사진 준비 UI/안내 구현, 회귀 158개·실제 로컬 회원 6장·대표/순서/설명·거절/취소 검수 통과. 배포/운영 검수 진행 중. [BLC-02 사진 준비 UI](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC02_PHOTO_INPUT.md). BLC-03·04 미착수.
+
 **최신 2026-10-20: BLC-01 운영 완료.** 승인된 비공개 버킷/정책·실제 로컬 회원 사진 API 9개·회귀 140개/확장 모의 42개 통과, 코드 `fc72cf45` 원격 반영·운영 배포 Ready·DB/확장/라이브 ZIP v2.01 일치. 실제 Edge 확장으로 사진 원고 prepared 6/6 완료, 최종 발행/유료 AI 0. 준비 픽셀 캡처 실패는 트리/DB 증거와 구분. 다음 BLC-02는 플랜부터이며 미착수. [BLC-01 v2.01 최종 결과](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md). 아래 승인 대기/v2.00/운영 미완료 기록은 이전 이력입니다.
 
 **시험 회원 로그인 확인:** `buylifemall@naver.com` 로컬 Edge 세션에서 모델 안내 표시/제공사 전환/복원 확인. 세부 모델·펼침/픽셀 검수는 브라우저 제어 제한으로 남음. 사진 인증 API·실제 Storage/확장 준비는 미실행, BLC-01 운영 저장소 승인 대기는 유지합니다. [증거·다음 단계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md).

@@ -17,6 +17,9 @@ import {
   ArrowRight,
   ShieldCheck,
   Zap,
+  ImagePlus,
+  Copy,
+  Clock,
 } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 import { RETENTION_DAYS } from "@/lib/retention";
@@ -24,6 +27,14 @@ import { RETENTION_DAYS } from "@/lib/retention";
 export default function GuidePage() {
   const currentYear = new Date().getFullYear();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [photoGuideStep, setPhotoGuideStep] = useState(0);
+  const [photoCopyNotice, setPhotoCopyNotice] = useState("");
+  const photoSteps = [
+    { title: "사진 선택", text: "콘텐츠 생성의 ‘내 사진 준비’를 펼치고 사진을 선택하거나 끌어 놓으세요.", detail: "JPEG·PNG·WebP를 한 장에 4MB 이하, 최대 6장까지 선택합니다. 읽히지 않는 파일은 안내를 확인하고 목록에서 제거해 주세요." },
+    { title: "대표와 순서", text: "원하는 사진의 ‘대표로’를 누르고 화살표로 앞뒤 순서를 정하세요.", detail: "업로드 완료 순서와 상관없이 선택한 순서와 대표 사진을 유지합니다. 대표 사진을 제거하면 남은 목록의 첫 사진이 대표가 됩니다." },
+    { title: "사진별 설명", text: "사진에 실제로 보이는 내용과 직접 경험한 사실을 설명에 적으세요.", detail: "설명은 사진 한 장당 500자까지 입력할 수 있습니다. 순서를 바꾸어도 해당 사진의 설명은 함께 이동합니다. 개인정보·타인의 얼굴은 사용 전에 확인하세요." },
+    { title: "준비 상태 확인", text: "모든 사진의 ‘준비 완료’와 보관 만료 날짜를 확인하세요.", detail: "저장 후 상태 조회만 실패했다면 ‘다시 확인’으로 조회만 재시도합니다. 새로고침·다른 화면 이동 시 현재 목록과 설명이 초기화됩니다. 지금은 사진 준비까지만 제공하며 기존 글 생성에는 아직 사용되지 않습니다." },
+  ];
 
   const toggleFaq = (idx: number) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
@@ -314,6 +325,25 @@ export default function GuidePage() {
           </div>
         </div>
       </div>
+
+      <section aria-labelledby="private-photo-guide-title" className="overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-100 bg-emerald-50 p-4 sm:px-6">
+          <h2 id="private-photo-guide-title" className="flex scroll-mt-20 items-center gap-2 text-base font-bold text-emerald-950"><ImagePlus className="h-5 w-5" aria-hidden="true" />내 사진 준비 사용법</h2>
+          <span className="inline-flex items-center gap-1 text-xs text-emerald-800"><Clock className="h-3.5 w-3.5" aria-hidden="true" />약 1분 · 사진 준비</span>
+          <Link href="/#private-photo-input" className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-bold text-white">사진 준비 화면 열기 ↗</Link>
+        </div>
+        <div className="space-y-4 p-4 sm:p-6">
+          <div className="rounded-xl bg-gradient-to-r from-emerald-700 to-teal-800 p-5 text-white"><p className="text-lg font-bold">사진은 내 계정에, 설명은 사진마다.</p><p className="mt-2 text-sm text-emerald-50">사진 최대 6장을 비공개로 준비하고 대표·순서·설명을 정리하세요. AI 이미지 생성 장수와 별개이며, 지금은 기존 글 생성에 사진이 사용되지 않습니다.</p></div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="사진 준비 단계 선택">
+            {photoSteps.map((step, index) => <button key={step.title} type="button" aria-pressed={photoGuideStep === index} onClick={() => setPhotoGuideStep(index)} className={`rounded-xl border p-3 text-left ${photoGuideStep === index ? "border-emerald-500 bg-emerald-50 text-emerald-950" : "border-slate-200 text-slate-600"}`}><span className="mb-2 block text-xs font-bold text-emerald-700">STEP {index + 1}</span><span className="text-sm font-semibold">{step.title}</span></button>)}
+          </div>
+          <div className="rounded-xl border border-slate-200 p-4" aria-live="polite"><h3 className="font-bold text-slate-900">{photoGuideStep + 1}. {photoSteps[photoGuideStep].title}</h3><p className="mt-2 text-sm text-slate-700">{photoSteps[photoGuideStep].text}</p><p className="mt-2 text-xs leading-relaxed text-slate-500">{photoSteps[photoGuideStep].detail}</p></div>
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-3"><code className="text-xs text-slate-700">JPEG / PNG / WebP · 장당 4MB 이하 · 최대 6장</code><button type="button" onClick={async () => { try { await navigator.clipboard.writeText("JPEG / PNG / WebP · 장당 4MB 이하 · 최대 6장"); setPhotoCopyNotice("사진 규격을 복사했습니다."); } catch { setPhotoCopyNotice("복사하지 못했습니다. 왼쪽 사진 규격을 직접 선택해 주세요."); } }} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold"><Copy className="h-3 w-3" aria-hidden="true" />규격 복사</button><span role="status" className="w-full text-xs text-slate-600">{photoCopyNotice}</span></div>
+          <p className="rounded-xl bg-sky-50 p-3 text-xs leading-relaxed text-sky-900">💡 설명은 사진을 먼저 선택한 뒤 적어도 됩니다. 업로드 중 순서를 바꿔도 설명은 그 사진에 그대로 연결됩니다.</p>
+          <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-950">⚠️ ‘제거’와 ‘전체 취소’는 준비 목록에서만 제외합니다. 이미 전송된 사진은 원래 등록일 기준 30일 후 정리됩니다. 화면을 이동하면 선택과 설명이 사라지므로 현재 작업 중에는 이동·새로고침에 주의하세요.</p>
+          <Link href="/settings" className="inline-flex rounded-lg border border-emerald-200 px-3 py-2 text-xs font-bold text-emerald-800">내 계정·연동 설정 열기 ↗</Link>
+        </div>
+      </section>
 
       {/* 5. 자주 묻는 질문 (FAQ) 아코디언 */}
       <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs">

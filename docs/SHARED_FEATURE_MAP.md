@@ -84,6 +84,10 @@
 | 쓸 만한 곳 | four-cut-comics(캐릭터 참고 사진이 정면·한 사람인지 생성 전 점검) · ai-influencer-studio(컷마다 같은 얼굴인지 얼굴 점 비교로 일관성 점검) · ai-webtoon-studio(캐릭터 시트 점검) · photo-remake-studio·fashion-style(업로드 사진 점검) | ⚪ 각 프로그램 `docs/IMPROVEMENTS.md`에 제안 기록 |
 | 공용화할 때 주의 | ① 라이브러리 `@mediapipe/tasks-vision` **1.0.0 고정**(버전을 올리면 wasm 파일도 함께 다시 복사) ② 모델·실행 파일 약 15MB를 각 프로그램 `public/`에 정적 배포(첫 사용 때만 내려받고 브라우저 캐시) ③ 정수리는 비율 추정이라 머리 모양에 따라 오차 — 출처 표시·직접 수정 수단을 함께 둘 것 ④ 얼굴 일관성 비교는 별도 함수가 필요(현재 미구현) | — |
 
+### 사진 파일 판독 — 공용 `image-file-check`
+
+2026-10-20 BLC-02: `portrait-photo/src/lib/imageFileCheck.ts`와 같은 테스트를 `naver-blog-agent/src/lib/imageFileCheck.ts` / `tests/imageFileCheck.test.mjs`에 기준 사본으로 등록. 브라우저에서 실제 사진을 판독하고 깨진 파일은 업로드 전에 거절합니다. 원본/다른 사본 변경 없음. 로컬 5개 판독 시험·실회원 JPEG/PNG/WebP/손상 파일 검수 통과, v2.02 배포 준비. 전체 사용처는 [공용 모듈 원장](SHARED_MODULES.md) 참조.
+
 ## 8. OpenAI 모델별 요청 규칙 — 공용 모듈 `openai-request-params` (2026-10-20 등록, 사본 8곳)
 
 OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tokens`를 거부(400)한다. **모델 목록에 새 모델을 넣었으면 `node scripts/check-openai-models.mjs`(호출 없이 목록·보낼 옵션·마지막 시험 결과) → `OPENAI_API_KEY=<본인 키> node scripts/check-openai-models.mjs --live`(시험 안 한 모델만 1회씩, 결과 `scripts/data/openai-model-check.json` + `docs/HANDOFF.md` 맨 위 한 줄 자동 기록 — `--no-handoff`로 끔, 키 오류 401이면 기록 없이 멈춤, 오류 문구의 키 조각은 가림)로 회원보다 먼저 확인한다. 커밋 직전 훅(`scripts/git-hooks/pre-commit`, 설치 `node scripts/git-hooks/install.mjs` — 윈도우 저장소에 2026-10-20 설치, `.git`을 함께 쓰는 맥미니도 적용)이 이번 커밋에 시험 안 한 모델 이름이 추가되면 경고만 띄운다(커밋은 막지 않음). 키 없이 남은 모델만 보기: `node scripts/check-openai-models.mjs --new`.** 회원이 모델을 고르는 OpenAI 호출은 요청 본문에 `...openAIGenerationParams(model, { temperature, maxTokens })`를 펼쳐 넣는다. 새 세대 모델 규칙이 바뀌면 기준 한 곳만 고친다.
