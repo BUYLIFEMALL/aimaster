@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCard } from "@/lib/cards";
-import { SPREAD_CONFIGS, normalizeOpenAIModel, type SpreadType, type SpreadPosition } from "@/lib/deck";
+import { OPENAI_MODEL_OPTIONS, SPREAD_CONFIGS, normalizeOpenAIModel, type SpreadType, type SpreadPosition } from "@/lib/deck";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 
@@ -282,6 +282,13 @@ export async function POST(request: NextRequest) {
 
   const { cards, question, spreadType = "three_cards", model } = body;
   const targetModel = model && model.trim() ? normalizeOpenAIModel(model.trim()) : MODEL_ID;
+  // v1.27: 화면 메뉴(OPENAI_MODEL_OPTIONS)에 있는 모델만 받는다 — 주소를 고쳐 엉뚱한 모델 이름을 보내도 OpenAI까지 가지 않게.
+  if (targetModel !== MODEL_ID && !OPENAI_MODEL_OPTIONS.some((o) => o.value === targetModel)) {
+    return NextResponse.json(
+      { error: "지원하지 않는 해석 모델입니다. 카드 뽑기 화면에서 모델을 다시 골라 주세요.", code: "UNSUPPORTED_MODEL" },
+      { status: 400 },
+    );
+  }
   const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
 
   if (!Array.isArray(cards) || cards.length !== config.cardCount) {
