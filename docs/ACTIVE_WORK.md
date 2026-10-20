@@ -18,4 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `instagram-comment-reply/` · `instagram-dm-reply/` | Claude Code(윈도우) | 2026-10-20 18:10 KST | 병합 B 「INSTA 댓글·DM 자동화」 진행 중 — 1단계 완료(v1.18), 2단계 다음 `instagram-comment-reply/docs/PLAN_20261020_DM_MERGE.md` |
+| `instagram-comment-reply/` · `instagram-dm-reply/` | Claude Code(윈도우) | 2026-10-20 18:10 KST | 병합 B 「INSTA 댓글·DM 자동화」 진행 중 — 1·2단계 완료(v1.18~v1.23), 3단계(옛 DM 주소 정리·카탈로그 노출 중지)는 주인님 확인 대기 `instagram-comment-reply/docs/PLAN_20261020_DM_MERGE.md` |
