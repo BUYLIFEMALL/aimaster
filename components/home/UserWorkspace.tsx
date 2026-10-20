@@ -2,19 +2,28 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Star, Clock, Play, ArrowRight, Sparkles, X, ChevronRight } from "lucide-react";
+import { Star, Clock, Play, ArrowRight, Sparkles, X, ChevronRight, Megaphone } from "lucide-react";
 import type { Program } from "@/types/database.types";
 import { getTemplateBadge } from "@/lib/templateBadge";
-import { FAVORITES_EVENT, markFavoriteSeen, readFavorites, readSeenVersions, syncFavorites, toggleFavorite } from "@/lib/favorites/client";
+import { FAVORITES_EVENT, markFavoriteSeen, readFavorites, readNoticeSeen, readSeenVersions, syncFavorites, toggleFavorite } from "@/lib/favorites/client";
+
+export interface WorkspaceNotice {
+  id: string;
+  title: string;
+  program_ids: string[];
+  created_at: string;
+}
 
 interface UserWorkspaceProps {
   programs: Program[];
+  notices?: WorkspaceNotice[];
 }
 
-export default function UserWorkspace({ programs }: UserWorkspaceProps) {
+export default function UserWorkspace({ programs, notices = [] }: UserWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<"favorites" | "recent">("favorites");
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [seenVersions, setSeenVersions] = useState<Record<string, string>>({});
+  const [noticeSeen, setNoticeSeen] = useState<Record<string, string>>({});
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -22,6 +31,7 @@ export default function UserWorkspace({ programs }: UserWorkspaceProps) {
   const loadWorkspaceData = () => {
     setFavoriteIds(readFavorites());
     setSeenVersions(readSeenVersions());
+    setNoticeSeen(readNoticeSeen());
     try {
       const recRaw = localStorage.getItem("aimaster_recent_programs");
       setRecentIds(recRaw ? JSON.parse(recRaw) : []);
@@ -60,10 +70,16 @@ export default function UserWorkspace({ programs }: UserWorkspaceProps) {
 
   // 「봤음」 기록이 없는 즐겨찾기(이 기능 전에 고정한 것)는 지금 버전을 기록 — 처음부터 모든 카드에 점이 뜨지 않게
   useEffect(() => {
-    for (const p of favoritePrograms) if (p.version && !seenVersions[p.id]) void markFavoriteSeen(p.id, p.version);
+    for (const p of favoritePrograms) if ((p.version && !seenVersions[p.id]) || !noticeSeen[p.id]) void markFavoriteSeen(p.id, p.version);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [favoriteIds.join(","), Object.keys(seenVersions).length]);
+  }, [favoriteIds.join(","), Object.keys(seenVersions).length, Object.keys(noticeSeen).length]);
   const hasNewVersion = (p: Program) => Boolean(p.version && seenVersions[p.id] && seenVersions[p.id] !== p.version);
+  // 마지막으로 본 뒤(없으면 고정한 뒤) 올라온, 이 프로그램이 연결된 가장 최근 공지(공지는 최신순)
+  const newNoticeFor = (p: Program) => {
+    const since = noticeSeen[p.id];
+    if (!since) return null;
+    return notices.find((n) => n.program_ids.includes(p.id) && new Date(n.created_at) > new Date(since)) ?? null;
+  };
   const recentPrograms = recentIds.map((id) => programMap.get(id)).filter(Boolean) as Program[];
 
   if (!isMounted) return null;
@@ -158,6 +174,21 @@ export default function UserWorkspace({ programs }: UserWorkspaceProps) {
                         <p className="text-[11px] text-subtext line-clamp-1 mt-0.5">
                           {p.short_desc || p.category?.name}
                         </p>
+                        {(() => {
+                          const notice = newNoticeFor(p);
+                          return notice ? (
+                            <Link
+                              href={`/support/notice/${notice.id}`}
+                              onClick={() => void markFavoriteSeen(p.id, p.version)}
+                              title={notice.title}
+                              className="mt-2 flex min-h-[32px] items-center gap-1.5 rounded-lg border border-sky-400/30 bg-sky-500/10 px-2 py-1 text-[11px] font-semibold text-sky-200 hover:bg-sky-500/20 transition-colors"
+                            >
+                              <Megaphone size={12} className="shrink-0" />
+                              <span className="shrink-0">새 공지</span>
+                              <span className="truncate font-normal text-sky-100/80">{notice.title}</span>
+                            </Link>
+                          ) : null;
+                        })()}
                       </div>
 
                       <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">

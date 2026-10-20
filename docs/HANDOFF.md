@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 공지에 관련 프로그램 연결 + 「내 작업대」 📢 새 공지 (주인님 「이것까지 진행해주고 개발 플랜…」)
+- 플랜: `docs/PLAN_20261020_NOTICE_PROGRAM_LINK.md`. DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor 적용): `notices.program_ids uuid[] default '{}'`(빈 값 = 사이트 전체 공지, 기존 공지 전부 해당 → 동작 변화 없음) + GIN 인덱스, `program_favorites.seen_notice_at`. 파일 `supabase/migrations/0041_notice_program_link.sql`.
+- 관리자 `/admin/notices`: 공지 창에 「관련 프로그램」 검색·체크 선택, 목록에 연결 프로그램 칩. API `app/api/admin/notices`는 실제 있는 프로그램 id만 저장(`cleanProgramIds`), PUT은 허용 칸만 받도록 바꿈(예전엔 받은 값을 그대로 저장).
+- 공지 상세 `/support/notice/[id]`: 관련 프로그램 칩(공개 프로그램만) → `/programs/<slug>`.
+- 메인 `app/(main)/page.tsx`가 프로그램이 연결된 최근 60일 공지(최대 100건)를 읽어 `UserWorkspace`에 전달 → 고정 프로그램마다 마지막으로 본 뒤(없으면 고정한 뒤) 올라온 연결 공지가 있으면 「📢 새 공지 + 제목」(누르면 그 공지). 공지·상세보기·실행 누르면 `markFavoriteSeen`이 `seen_notice_at=now()` 저장 → 사라짐. 비로그인은 브라우저 저장소 `aimaster_favorites_notice_seen`.
 
 ## 2026-10-20 Claude Code(윈도우) — 메인 사이트 「내 작업대」 즐겨찾기 DB 저장 + 새 버전 알림 점 (주인님 「진행해줘」)
 - DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor 적용): 새 표 `program_favorites`(user_id·program_id·seen_version·created_at, 기본키 (user_id, program_id), RLS 본인 행만 select/insert/update/delete 4개). 파일 `supabase/migrations/0040_program_favorites.sql`.

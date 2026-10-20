@@ -14,13 +14,24 @@ interface NoticeRow {
   is_pinned: boolean;
   is_active: boolean;
   created_at: string;
+  program_ids?: string[] | null;
+}
+
+interface ProgramOption {
+  id: string;
+  name: string;
 }
 
 interface NoticeManagerProps {
   initialNotices: NoticeRow[];
+  programs: ProgramOption[];
 }
 
-export default function NoticeManager({ initialNotices }: NoticeManagerProps) {
+export default function NoticeManager({ initialNotices, programs }: NoticeManagerProps) {
+  const programName = new Map(programs.map((p) => [p.id, p.name]));
+  // 관련 프로그램(2026-10-20): 비우면 사이트 전체 공지, 고르면 그 프로그램을 「내 작업대」에 고정한 회원에게 「📢 새 공지」 표시
+  const [formProgramIds, setFormProgramIds] = useState<string[]>([]);
+  const [programQuery, setProgramQuery] = useState("");
   const [notices, setNotices] = useState<NoticeRow[]>(initialNotices);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNotice, setEditingNotice] = useState<NoticeRow | null>(null);
@@ -37,6 +48,8 @@ export default function NoticeManager({ initialNotices }: NoticeManagerProps) {
     setFormTitle("");
     setFormContent("");
     setFormPinned(false);
+    setFormProgramIds([]);
+    setProgramQuery("");
     setError("");
     setIsModalOpen(true);
   }
@@ -46,6 +59,8 @@ export default function NoticeManager({ initialNotices }: NoticeManagerProps) {
     setFormTitle(notice.title);
     setFormContent(notice.content);
     setFormPinned(notice.is_pinned);
+    setFormProgramIds(notice.program_ids ?? []);
+    setProgramQuery("");
     setError("");
     setIsModalOpen(true);
   }
@@ -69,6 +84,7 @@ export default function NoticeManager({ initialNotices }: NoticeManagerProps) {
         title: formTitle.trim(),
         content: formContent.trim(),
         is_pinned: formPinned,
+        program_ids: formProgramIds,
       };
 
       const method = editingNotice ? "PUT" : "POST";
@@ -154,6 +170,15 @@ export default function NoticeManager({ initialNotices }: NoticeManagerProps) {
                   </div>
                   <p className="text-subtext text-sm leading-relaxed whitespace-pre-line line-clamp-2">{notice.content}</p>
                   <p className="text-subtext text-xs mt-1.5">{formatDate(notice.created_at)}</p>
+                  {(notice.program_ids?.length ?? 0) > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {notice.program_ids!.map((id) => (
+                        <span key={id} className="rounded-full border border-sky-400/30 bg-sky-500/10 px-2 py-0.5 text-[11px] font-semibold text-sky-300">
+                          {programName.get(id) ?? "삭제된 프로그램"}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <button
@@ -204,6 +229,50 @@ export default function NoticeManager({ initialNotices }: NoticeManagerProps) {
               className="input-dark w-full h-48 resize-none"
               placeholder="공지 내용을 입력하세요 (줄바꿈 그대로 반영됩니다)"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm text-subtext mb-1.5">
+              관련 프로그램 <span className="text-xs">(선택 — 비우면 사이트 전체 공지, 고르면 그 프로그램을 「내 작업대」에 고정한 회원에게 「📢 새 공지」 표시)</span>
+            </label>
+            {formProgramIds.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {formProgramIds.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setFormProgramIds((prev) => prev.filter((x) => x !== id))}
+                    className="rounded-full border border-sky-400/40 bg-sky-500/15 px-2.5 py-1 text-xs font-semibold text-sky-200 hover:bg-sky-500/25"
+                    title="선택 해제"
+                  >
+                    {programName.get(id) ?? id} ✕
+                  </button>
+                ))}
+              </div>
+            )}
+            <input
+              value={programQuery}
+              onChange={(e) => setProgramQuery(e.target.value)}
+              className="input-dark w-full"
+              placeholder="프로그램 이름으로 찾기"
+            />
+            <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-white/10">
+              {programs
+                .filter((p) => !programQuery.trim() || p.name.toLowerCase().includes(programQuery.trim().toLowerCase()))
+                .map((p) => (
+                  <label key={p.id} className="flex items-center gap-2 px-3 py-1.5 text-sm text-subtext hover:bg-white/5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formProgramIds.includes(p.id)}
+                      onChange={(e) =>
+                        setFormProgramIds((prev) => (e.target.checked ? [...prev, p.id] : prev.filter((x) => x !== p.id)))
+                      }
+                      className="w-4 h-4 accent-gold"
+                    />
+                    <span className={formProgramIds.includes(p.id) ? "text-white" : ""}>{p.name}</span>
+                  </label>
+                ))}
+            </div>
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">

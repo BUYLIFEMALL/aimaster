@@ -15,6 +15,15 @@ async function checkAdmin() {
   return profile?.is_admin ? user : null;
 }
 
+// 관련 프로그램(2026-10-20): 실제로 있는 프로그램 ID만 남긴다. 비어 있으면 사이트 전체 공지.
+async function cleanProgramIds(value: unknown): Promise<string[]> {
+  if (!Array.isArray(value)) return [];
+  const ids = [...new Set(value.filter((v): v is string => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v)))];
+  if (!ids.length) return [];
+  const { data } = await createServiceClient().from("programs").select("id").in("id", ids);
+  return (data ?? []).map((p) => p.id as string);
+}
+
 // 공지사항 전체 조회 (비활성 포함)
 export async function GET() {
   const user = await checkAdmin();
@@ -37,7 +46,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "권한 없음" }, { status: 403 });
 
   const body = await req.json();
-  const { title, content, is_pinned } = body;
+  const { title, content, is_pinned, program_ids } = body;
 
   if (!title?.trim() || !content?.trim()) {
     return NextResponse.json({ error: "제목과 내용은 필수입니다" }, { status: 400 });
@@ -50,7 +59,8 @@ export async function POST(req: NextRequest) {
       title: title.trim(),
       content: content.trim(),
       is_pinned: !!is_pinned,
-      is_active: true,
+      is_active: body.is_active === false ? false : true,
+      program_ids: await cleanProgramIds(program_ids),
     })
     .select("*")
     .single();
@@ -65,8 +75,16 @@ export async function PUT(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "권한 없음" }, { status: 403 });
 
   const body = await req.json();
-  const { id, ...updates } = body;
+  const { id } = body;
   if (!id) return NextResponse.json({ error: "id 필요" }, { status: 400 });
+
+  // 고칠 수 있는 칸만 받는다(2026-10-20)
+  const updates: Record<string, unknown> = {};
+  if (typeof body.title === "string") updates.title = body.title.trim();
+  if (typeof body.content === "string") updates.content = body.content.trim();
+  if (typeof body.is_pinned === "boolean") updates.is_pinned = body.is_pinned;
+  if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
+  if ("program_ids" in body) updates.program_ids = await cleanProgramIds(body.program_ids);
 
   const serviceClient = createServiceClient();
   const { data, error } = await serviceClient

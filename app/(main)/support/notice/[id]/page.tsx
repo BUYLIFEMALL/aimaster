@@ -23,11 +23,17 @@ export default async function NoticeDetailPage({ params }: PageProps) {
   const supabase = await createClient();
   const { data: notice } = await supabase
     .from("notices")
-    .select("id, title, content, is_pinned, created_at")
+    .select("id, title, content, is_pinned, created_at, program_ids")
     .eq("id", id)
     .single();
 
   if (!notice) notFound();
+
+  // 관련 프로그램(2026-10-20) — 공개 프로그램만 칩으로
+  const programIds = (notice.program_ids as string[] | null) ?? [];
+  const { data: relatedPrograms } = programIds.length
+    ? await supabase.from("programs").select("id, name, slug").in("id", programIds).eq("is_active", true)
+    : { data: [] as { id: string; name: string; slug: string }[] };
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -50,6 +56,20 @@ export default async function NoticeDetailPage({ params }: PageProps) {
           <span className="text-xs text-subtext">{formatDate(notice.created_at)}</span>
         </div>
         <h1 className="text-2xl font-bold text-white mb-6">{notice.title}</h1>
+        {(relatedPrograms?.length ?? 0) > 0 && (
+          <div className="mb-6 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-subtext">관련 프로그램</span>
+            {relatedPrograms!.map((p) => (
+              <Link
+                key={p.id}
+                href={`/programs/${p.slug}`}
+                className="rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-300 hover:bg-sky-500/20 transition-colors"
+              >
+                {p.name}
+              </Link>
+            ))}
+          </div>
+        )}
         <p className="text-subtext text-sm leading-relaxed whitespace-pre-line">{notice.content}</p>
       </GlassCard>
     </div>

@@ -2,10 +2,12 @@
 // 로그인한 회원: DB `program_favorites`(본인 행만, RLS)에 저장해 어느 기기·브라우저에서나 같은 목록.
 // 비로그인: 예전처럼 브라우저 저장소만. 로그인 후 첫 동기화 때 브라우저에 있던 즐겨찾기를 DB로 합친다.
 // seen_version: 마지막으로 열었을(또는 고정했을) 때의 programs.version — 내 작업대의 「새 버전」 점 판단용.
+// seen_notice_at: 그 프로그램 공지를 마지막으로 본 시각(없으면 고정한 시각) — 「📢 새 공지」 판단용.
 import { createClient } from "@/lib/supabase/client";
 
 const LOCAL_KEY = "aimaster_favorites";
 const SEEN_KEY = "aimaster_favorites_seen";
+const NOTICE_SEEN_KEY = "aimaster_favorites_notice_seen";
 export const FAVORITES_EVENT = "aimaster-favorites-changed";
 
 function read<T>(key: string, fallback: T): T {
@@ -27,6 +29,7 @@ function write(key: string, value: unknown) {
 
 export const readFavorites = (): string[] => read<string[]>(LOCAL_KEY, []);
 export const readSeenVersions = (): Record<string, string> => read<Record<string, string>>(SEEN_KEY, {});
+export const readNoticeSeen = (): Record<string, string> => read<Record<string, string>>(NOTICE_SEEN_KEY, {});
 const notify = () => window.dispatchEvent(new CustomEvent(FAVORITES_EVENT));
 
 let userIdPromise: Promise<string | null> | null = null;
@@ -51,7 +54,7 @@ export function syncFavorites(): Promise<void> {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("program_favorites")
-        .select("program_id, seen_version, created_at")
+        .select("program_id, seen_version, seen_notice_at, created_at")
         .order("created_at", { ascending: false });
       if (error || !data) return;
       const serverIds = data.map((r) => r.program_id as string);
@@ -63,8 +66,11 @@ export function syncFavorites(): Promise<void> {
       }
       const seen = readSeenVersions();
       for (const r of data) if (r.seen_version) seen[r.program_id as string] = r.seen_version as string;
+      const noticeSeen = readNoticeSeen();
+      for (const r of data) noticeSeen[r.program_id as string] = ((r.seen_notice_at ?? r.created_at) as string);
       write(LOCAL_KEY, [...localOnly, ...serverIds]);
       write(SEEN_KEY, seen);
+      write(NOTICE_SEEN_KEY, noticeSeen);
       notify();
     })().catch(() => undefined);
   }
@@ -77,6 +83,7 @@ export async function toggleFavorite(programId: string, version: string | null |
   const on = !list.includes(programId);
   write(LOCAL_KEY, on ? [programId, ...list] : list.filter((id) => id !== programId));
   if (on && version) write(SEEN_KEY, { ...readSeenVersions(), [programId]: version });
+  if (on) write(NOTICE_SEEN_KEY, { ...readNoticeSeen(), [programId]: new Date().toISOString() });
   notify();
   await syncFavorites();
   const userId = await currentUserId();
@@ -88,11 +95,19 @@ export async function toggleFavorite(programId: string, version: string | null |
   return on;
 }
 
-/** 내 작업대에서 프로그램을 열었을 때: 지금 버전을 「봤음」으로 — 새 버전 점이 사라진다. */
+/** 내 작업대에서 프로그램이나 그 공지를 열었을 때: 지금 버전·지금 시각을 「봤음」으로 — 새 버전 점과 「📢 새 공지」가 사라진다. */
 export async function markFavoriteSeen(programId: string, version: string | null | undefined) {
-  if (!version || !readFavorites().includes(programId)) return;
-  write(SEEN_KEY, { ...readSeenVersions(), [programId]: version });
+  if (!readFavorites().includes(programId)) return;
+  const now = new Date().toISOString();
+  if (version) write(SEEN_KEY, { ...readSeenVersions(), [programId]: version });
+  write(NOTICE_SEEN_KEY, { ...readNoticeSeen(), [programId]: now });
   notify();
   const userId = await currentUserId();
-  if (userId) await createClient().from("program_favorites").update({ seen_version: version }).eq("user_id", userId).eq("program_id", programId);
+  if (userId) {
+    await createClient()
+      .from("program_favorites")
+      .update(version ? { seen_version: version, seen_notice_at: now } : { seen_notice_at: now })
+      .eq("user_id", userId)
+      .eq("program_id", programId);
+  }
 }

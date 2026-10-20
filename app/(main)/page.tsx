@@ -23,7 +23,7 @@ import NoticeTabs from "@/components/home/NoticeTabs";
 import CategoryQuickBar from "@/components/home/CategoryQuickBar";
 import HeroShowcase from "@/components/home/HeroShowcase";
 import ProgramInstantSearch from "@/components/home/ProgramInstantSearch";
-import UserWorkspace from "@/components/home/UserWorkspace";
+import UserWorkspace, { type WorkspaceNotice } from "@/components/home/UserWorkspace";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
@@ -40,7 +40,7 @@ async function getHomeData() {
   try {
     const supabase = await createClient();
     const service = createServiceClient();
-    const [{ data: { user } }, { data: programs }, { data: categories }, { count: activeUserCount }] = await Promise.all([
+    const [{ data: { user } }, { data: programs }, { data: categories }, { count: activeUserCount }, { data: programNotices }] = await Promise.all([
       supabase.auth.getUser(),
       supabase
         .from("programs")
@@ -51,6 +51,15 @@ async function getHomeData() {
       // 홈페이지의 활성 사용자 수는 홍보용 고정 숫자가 아니라 실제 회원 데이터로
       // 계산한다. 정지 회원은 제외하고, 관리자 포함 전체 활성 계정을 집계한다.
       service.from("profiles").select("id", { count: "exact", head: true }).eq("is_suspended", false),
+      // 「내 작업대」 📢 새 공지용 — 프로그램이 연결된 최근 60일 공지만(2026-10-20)
+      supabase
+        .from("notices")
+        .select("id, title, program_ids, created_at")
+        .eq("is_active", true)
+        .neq("program_ids", "{}")
+        .gte("created_at", new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString())
+        .order("created_at", { ascending: false })
+        .limit(100),
     ]);
 
     // 로그인한 회원에게만 "내가 이용 가능한 프로그램 수 / 가장 빠른 만료일"을 보여준다.
@@ -123,9 +132,9 @@ async function getHomeData() {
       };
     }
 
-    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser, likedIds, loggedIn: Boolean(user) };
+    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser, likedIds, loggedIn: Boolean(user), programNotices: (programNotices ?? []) as WorkspaceNotice[] };
   } catch {
-    return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0, isAdminUser: false, likedIds: [] as string[], loggedIn: false };
+    return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0, isAdminUser: false, likedIds: [] as string[], loggedIn: false, programNotices: [] as WorkspaceNotice[] };
   }
 }
 
@@ -153,7 +162,7 @@ const FEATURES = [
 ];
 
 export default async function HomePage() {
-  const { programs, categories, accessByProgramId, userAccess, isAdminUser, likedIds, loggedIn } = await getHomeData();
+  const { programs, categories, accessByProgramId, userAccess, isAdminUser, likedIds, loggedIn, programNotices } = await getHomeData();
   const likedSet = new Set(likedIds);
   const freeProgramCount = programs.filter((p) => (p.badges ?? []).includes("free")).length;
   const paidProgramCount = programs.length - freeProgramCount;
@@ -286,7 +295,7 @@ export default async function HomePage() {
       </section>
 
       {/* 회원 맞춤형 '나만의 작업대' (즐겨찾기 ⭐ 핀 고정 & 최근 실행 퀵 액세스) */}
-      <UserWorkspace programs={programs} />
+      <UserWorkspace programs={programs} notices={programNotices} />
 
       {/* 84개 솔루션 초고속 인스턴트 검색 & 스마트 다차원 퀵 필터 */}
       <ProgramInstantSearch
