@@ -55,7 +55,7 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
   const pathname = usePathname();
 
   const content = (
-    <div className="flex h-full flex-col justify-between overflow-y-auto bg-white p-4">
+    <div className="flex h-full flex-col overflow-y-auto bg-white p-4">
       {/* 1. 상단 브랜딩 & 버전 & 다른 프로그램 보기 */}
       <div>
         <div className="mb-4 border-b border-slate-200/90 pb-4">
@@ -236,7 +236,7 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
       </div>
 
       {/* 4. 하단 고정 사용자 계정 & 로그아웃 */}
-      <div className="mt-4 border-t border-slate-200/90 pt-3">
+      <div className="mt-4 shrink-0 border-t border-slate-200/90 pt-3">
         <p
           className="truncate px-2 py-1 text-xs font-medium text-slate-500"
           title={userEmail}

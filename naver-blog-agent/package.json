@@ -1,6 +1,6 @@
 {
   "name": "naver-blog-agent",
-  "version": "1.99.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "test:queue-filter": "node --test scripts/test-queue-filter.cjs",
