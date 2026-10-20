@@ -219,7 +219,8 @@ mark_done 4
 # ⑤ 이메일 확인 끄기
 step 5 "회원가입 이메일 확인 끄기(내 사이트에 바로 가입되도록)"
 if ! done_step 5; then
-  say "  Sign In / Providers 화면을 엽니다 → Email 항목 → 「Confirm email」 끄기 → [Save]"
+  say "  가입할 때 확인 메일 없이 바로 로그인되도록 하는 설정입니다(내 사이트는 나만 쓰므로 확인 메일이 필요 없음)."
+  say "  Sign In / Providers 화면을 엽니다 → 맨 위 「User Signups」 칸의 「Confirm email」 스위치를 끄기(회색) → [Save changes]"
   open_url "https://supabase.com/dashboard/project/$REF/auth/providers"
   wait_enter "Confirm email 을 끄고 저장했나요?"; mark_done 5
 fi
@@ -229,11 +230,11 @@ ok "이메일 확인 설정"
 step 6 "내 사이트 설정"
 if ! done_step 6 || [ -z "$(env_get VERCEL_PROJECT_NAME)" ]; then
   while true; do
-    PROJECT=$(ask "사이트 이름(영문 소문자·숫자·-, 주소가 됩니다: https://이름.vercel.app)" "my-$SHORT-$((RANDOM % 900 + 100))")
+    PROJECT=$(ask "사이트 이름만 입력하세요 — 영문 소문자·숫자·- (예: my-insta → 주소 https://my-insta.vercel.app)" "my-$SHORT-$((RANDOM % 900 + 100))")
     printf "%s" "$PROJECT" | grep -Eq '^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$' && break
     warn "영문 소문자·숫자·- 만 쓸 수 있습니다(3~50자)."
   done
-  BRAND=$(ask "화면에 표시할 내 이름/브랜드(예: 홍길동 마케팅, 비우면 표시 안 함)" "")
+  BRAND=$(ask "내 사이트 화면 위쪽(메뉴 제목·브라우저 탭)에 보일 내 이름/브랜드(예: 홍길동 마케팅 — 비우면 표시 안 함)" "")
   env_set VERCEL_PROJECT_NAME "$PROJECT"; env_set NEXT_PUBLIC_SITE_URL "https://$PROJECT.vercel.app"; env_set NEXT_PUBLIC_BRAND_NAME "$BRAND"
   [ -n "$(env_get CRON_SECRET)" ] || env_set CRON_SECRET "$(node -e "console.log(require('crypto').randomBytes(24).toString('hex'))")"
   i=0

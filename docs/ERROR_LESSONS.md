@@ -1,6 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 <!-- IMAGE_SIDEBAR_LESSON_V122_20261020 -->
+## 2026-10-20 — 윈도우 PowerShell에서 `$v | npx vercel env add …`로 넣은 값 앞에 BOM이 붙어 독립 모드가 꺼짐 → 배포판 사이트가 운영 주소로 308 이동 (배포 키트 마법사 `setup.ps1`, Claude Code 윈도우 리허설)
+- 증상: 배포판 v1.01을 윈도우 마법사로 설치 → `https://dev-kit-insta.vercel.app`이 `auto-instagram-posting.buylife.xyz`로 308 이동, 마법사 ⑧ 「사이트 주소를 확인하지 못했습니다」. 로컬 `.env.local`·코드(`IS_STANDALONE` 가드)는 정상, Vercel에 환경변수 7개도 등록돼 있었음.
+- 원인: 콘솔이 UTF-8(코드페이지 65001)이면 PowerShell 5.1 파이프가 네이티브 프로그램에 **`"﻿true
+"`**(앞 BOM·끝 CRLF)을 보냄 — `-NoProfile`·`$OutputEncoding=UTF8Encoding($false)`로도 없어지지 않음. `vercel env add`(64.7.0 `readStdinText`)는 끝 줄바꿈만 지워 `"﻿true"` 저장 → `=== "true"` 실패. 브랜드·Supabase 주소 등 다른 값에도 BOM이 붙음.
+- 해결(`scripts/kit-template/setup.ps1` `Push-Env`): 값을 BOM·줄바꿈 없는 임시 파일(`UTF8Encoding($false)`)에 쓰고 `cmd /c "npx vercel env add NAME production --force < tmp"`로 넘긴 뒤 바로 삭제(명령줄 `--value`는 키가 프로세스 목록에 보여 안 씀). 맥 `printf "%s" | …`는 정상. 배포판 v1.06. 기존 윈도우 설치자는 v1.06 업데이트 모드로 다시 넣으면 고쳐짐.
+- 다음부터: PowerShell에서 네이티브 CLI에 비밀값·설정값을 넘길 때 파이프를 쓰지 말 것. 넘긴 값은 `node -e` 표준입력 출력(`JSON.stringify`)으로 바이트를 먼저 확인.
+
 ## 2026-10-20 — 폴더째 `git add <프로그램>/src`로 올리면 같은 폴더를 나중에 맡은 다른 CLI의 미커밋 변경까지 커밋·배포된다 (naver-blog-agent v2.00, Claude Code 윈도우)
 - 증상: v2.00 커밋에 제가 고치지 않은 3개 파일(Codex 「블로그 부분 통합 0단계」 진행 중 변경)이 섞여 운영에 배포됨.
 - 원인: 작업 시작 때는 작업 중 표에 다른 CLI가 없었지만 작업 도중 Codex가 같은 폴더를 등록·수정함. 커밋 직전 `docs/ACTIVE_WORK.md`·`git diff --stat` 재확인 없이 폴더째 스테이징.

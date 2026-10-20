@@ -258,7 +258,8 @@ MarkDone 4
 # ⑤ 이메일 확인 끄기
 Step 5 "회원가입 이메일 확인 끄기(내 사이트에 바로 가입되도록)"
 if (-not (Done 5)) {
-  Say "  Sign In / Providers 화면을 엽니다 → Email 항목 → 「Confirm email」 끄기 → [Save]"
+  Say "  가입할 때 확인 메일 없이 바로 로그인되도록 하는 설정입니다(내 사이트는 나만 쓰므로 확인 메일이 필요 없음)."
+  Say "  Sign In / Providers 화면을 엽니다 → 맨 위 「User Signups」 칸의 「Confirm email」 스위치를 끄기(회색) → [Save changes]"
   OpenUrl "https://supabase.com/dashboard/project/$ref/auth/providers"
   WaitEnter "Confirm email 을 끄고 저장했나요?"
   MarkDone 5
@@ -268,9 +269,9 @@ Ok "이메일 확인 설정"
 # ⑥ 사이트 설정
 Step 6 "내 사이트 설정"
 if (-not (Done 6) -or -not (EnvGet "VERCEL_PROJECT_NAME")) {
-  do { $project = Ask "사이트 이름(영문 소문자·숫자·-, 주소가 됩니다: https://이름.vercel.app)" "my-$($KitInfo.shortName)-$(Get-Random -Minimum 100 -Maximum 999)" }
+  do { $project = Ask "사이트 이름만 입력하세요 — 영문 소문자·숫자·- (예: my-insta → 주소 https://my-insta.vercel.app)" "my-$($KitInfo.shortName)-$(Get-Random -Minimum 100 -Maximum 999)" }
   until ($project -match "^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$")
-  $brand = Ask "화면에 표시할 내 이름/브랜드(예: 홍길동 마케팅, 비우면 표시 안 함)" ""
+  $brand = Ask "내 사이트 화면 위쪽(메뉴 제목·브라우저 탭)에 보일 내 이름/브랜드(예: 홍길동 마케팅 — 비우면 표시 안 함)" ""
   EnvSet "VERCEL_PROJECT_NAME" $project
   EnvSet "NEXT_PUBLIC_SITE_URL" "https://$project.vercel.app"
   EnvSet "NEXT_PUBLIC_BRAND_NAME" $brand
@@ -304,7 +305,18 @@ Native { npx --yes vercel@latest link --yes --project $project }
 if ($LASTEXITCODE -ne 0) { Warn "Vercel 프로젝트 연결 실패. 6단계 이름을 바꾸려면 .kit-progress 파일을 지우고 다시 실행하세요."; Read-Host "  Enter" | Out-Null; exit 1 }
 # 폴더가 GitHub 저장소 안이면 Vercel이 그 저장소를 자동 연결해 엉뚱한 코드가 배포될 수 있다(2026-10-19 리허설) → 연결 해제
 Native { npx --yes vercel@latest git disconnect --yes *> $null }
-function Push-Env($name) { $v = EnvGet $name; if ([string]::IsNullOrWhiteSpace($v)) { return }; Native { $v | npx --yes vercel@latest env add $name production --force *> $null }; Ok "환경변수 $name" }
+# PowerShell 파이프(`$v | npx …`)는 콘솔이 UTF-8이면 값 앞에 BOM·끝에 줄바꿈을 붙이고, vercel env add 는 끝 줄바꿈만 지워
+# "﻿true" 가 저장된다 → NEXT_PUBLIC_STANDALONE_MODE 가 "true" 가 아니게 돼 독립 모드가 꺼짐(2026-10-20 윈도우 리허설).
+# 그래서 값을 BOM·줄바꿈 없는 임시 파일에 쓰고 cmd 입력으로 넘긴 뒤 바로 지운다(명령줄 --value 는 키가 프로세스 목록에 보여 쓰지 않음).
+function Push-Env($name) {
+  $v = EnvGet $name; if ([string]::IsNullOrWhiteSpace($v)) { return }
+  $tmp = [System.IO.Path]::GetTempFileName()
+  try {
+    [System.IO.File]::WriteAllText($tmp, $v, (New-Object System.Text.UTF8Encoding $false))
+    Native { cmd /c "npx --yes vercel@latest env add $name production --force < `"$tmp`"" *> $null }
+    if ($LASTEXITCODE -ne 0) { Warn "환경변수 $name 등록 실패 — 다시 실행하면 이어서 합니다" } else { Ok "환경변수 $name" }
+  } finally { Remove-Item $tmp -Force -ErrorAction SilentlyContinue }
+}
 $envNames = @("NEXT_PUBLIC_STANDALONE_MODE","NEXT_PUBLIC_SITE_URL","NEXT_PUBLIC_BRAND_NAME","NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY","SUPABASE_SERVICE_ROLE_KEY","CRON_SECRET")
 if ($KitInfo.extraEnv) { $envNames += @($KitInfo.extraEnv | ForEach-Object { $_.name }) }
 foreach ($k in $envNames) { Push-Env $k }
