@@ -3,6 +3,7 @@
 //   node scripts/check-openai-models.mjs            모델 목록·보낼 옵션·마지막 시험 결과만 표시(호출·비용 없음)
 //   node scripts/check-openai-models.mjs --live     아직 시험하지 않은 모델만 1회씩 호출(본인 키: 환경변수 OPENAI_API_KEY)
 //   node scripts/check-openai-models.mjs --live --all   모든 모델을 다시 호출
+//   --no-handoff   --live 결과를 docs/HANDOFF.md 맨 위에 한 줄로 남기지 않음(기본은 남김 — 커밋은 실행한 사람이 직접)
 // 요청 옵션은 공용 기준 코드 openai-request-params(naver-blog-seo-studio/lib/ai/openaiRequestParams.ts)로 만든다 — 회원 요청과 같은 규칙.
 // 키는 저장·출력하지 않는다. 결과는 scripts/data/openai-model-check.json(모델·날짜·성공 여부·거부 이유)에만 남는다.
 import { execFileSync } from "node:child_process";
@@ -18,6 +19,7 @@ const stateFile = path.join(root, "scripts", "data", "openai-model-check.json");
 const args = new Set(process.argv.slice(2));
 const live = args.has("--live");
 const all = args.has("--all");
+const writeHandoff = !args.has("--no-handoff");
 
 // 1) 저장소(추적 중인 파일)에서 OpenAI 글 모델 이름 모으기 — 테스트·문서·이미지 모델·lab·분석용 폴더 제외
 const MODEL_RE = /["'`]((?:gpt-[3-9](?:\.\d+)?[a-z]?(?:-[a-z0-9.]+)*)|(?:o[1-9](?:-[a-z0-9]+)*))["'`]/g;
@@ -82,7 +84,12 @@ for (const model of targets) {
       ok = typeof data.choices?.[0]?.message?.content === "string";
       if (!ok) reason = "응답에 글이 없음";
     } else {
-      reason = String(data.error?.message ?? `HTTP ${status}`).slice(0, 200);
+      // OpenAI 오류 문구에 키 앞뒤 일부가 섞여 오므로 저장 전에 가린다
+      reason = String(data.error?.message ?? `HTTP ${status}`).replace(/sk-[A-Za-z0-9_*.-]+/g, "sk-***").slice(0, 200);
+    }
+    if (status === 401) {
+      console.error("\n키 오류(401) — 모델 문제가 아니라 키 문제라 결과를 기록하지 않고 멈춥니다. 본인 키를 확인해 주세요.");
+      process.exit(2);
     }
   } catch (error) {
     reason = error instanceof Error ? error.message : String(error);
@@ -94,6 +101,21 @@ for (const model of targets) {
 fs.mkdirSync(path.dirname(stateFile), { recursive: true });
 fs.writeFileSync(stateFile, JSON.stringify(Object.fromEntries(Object.entries(state).sort()), null, 2) + "\n");
 console.log(`\n결과 저장: scripts/data/openai-model-check.json · 실패 ${failed}개`);
+
+// 4) 다른 CLI도 바로 알 수 있게 docs/HANDOFF.md 맨 위에 결과 한 줄(파일만 고침 — 커밋은 실행한 사람이 내 줄만)
+if (writeHandoff && targets.length) {
+  const handoff = path.join(root, "docs", "HANDOFF.md");
+  const text = fs.readFileSync(handoff, "utf8");
+  const nl = text.includes("\r\n") ? "\r\n" : "\n";
+  const failures = targets.filter((model) => !state[model].ok).map((model) => `${model}(${state[model].reason.slice(0, 80)})`);
+  const kst = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 16).replace("T", " ");
+  const entry = `## ${kst} KST — OpenAI 모델 시험 호출(\`scripts/check-openai-models.mjs --live\`) 결과${nl}`
+    + `- 호출 ${targets.length}개 · 성공 ${targets.length - failed}개 · 실패 ${failed}개${failures.length ? ` — ${failures.join(", ")}` : ""}. `
+    + `상세 \`scripts/data/openai-model-check.json\`. 실패 모델은 공용 기준 코드(\`naver-blog-seo-studio/lib/ai/openaiRequestParams.ts\`) 규칙이나 각 프로그램 모델 목록을 확인.${nl}${nl}`;
+  const at = text.indexOf(nl + "## ");
+  fs.writeFileSync(handoff, at < 0 ? text + nl + entry : text.slice(0, at + nl.length) + entry + text.slice(at + nl.length));
+  console.log("docs/HANDOFF.md 맨 위에 결과 한 줄을 남겼습니다(커밋은 직접).");
+}
 if (failed) {
   console.log("실패한 모델은 기준 코드(naver-blog-seo-studio/lib/ai/openaiRequestParams.ts) 규칙을 고치거나 모델 목록에서 빼세요. 「모델이 없음」이면 이름 오타·미출시입니다.");
   process.exit(1);
