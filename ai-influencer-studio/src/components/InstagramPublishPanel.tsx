@@ -8,6 +8,7 @@ import { formatKst, kstLocalToIso } from "@/lib/instagram/schedule";
 import { SchedulePublishingControl } from "./SchedulePublishingControl";
 import type { HistoryItem } from "@/types/influencer";
 import { markCanceled, postTimeLabel, useScheduledPostCancel } from "@/lib/instagram/postsClient";
+import { INSTA_POSTS_CHANGED } from "./ScheduledSummary";
 
 // v1.14 인스타 자동 포스팅 1차(즉시 게시) — 기준: cardnews-studio InstagramPublishPanel(v1.18).
 // v1.15 2차(예약 게시·게시 기록) — 기준: cardnews-studio InstagramPublishPanel(v1.19~v1.24).
@@ -82,7 +83,11 @@ export function InstagramPublishPanel({ currentImage, caption, history, onOpenSe
     try {
       const r = await fetch("/api/instagram/posts", { cache: "no-store" });
       const d = await r.json();
-      if (r.ok) setPosts(d.posts ?? []);
+      if (r.ok) {
+        setPosts(d.posts ?? []);
+        // v1.19: 결과 화면 맨 위 「⏰ 인스타 예약 n건 대기」(ScheduledSummary)도 다시 불러오게 알린다
+        window.dispatchEvent(new Event(INSTA_POSTS_CHANGED));
+      }
     } catch {
       /* 기록을 못 불러와도 게시는 할 수 있다 */
     }

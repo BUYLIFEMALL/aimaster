@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { GenerationResult, HistoryItem } from "@/types/influencer";
 import { InstagramPublishPanel } from "./InstagramPublishPanel";
+import { ScheduledSummary } from "./ScheduledSummary";
 
 interface ImageDisplayProps {
   result: GenerationResult;
@@ -55,6 +56,7 @@ export function ImageDisplay({
     <main className="flex-1 bg-if-canvas flex flex-col h-screen overflow-hidden">
       {/* 본문 콘텐츠 스크롤 영역 */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center">
+        <ScheduledSummary />
         {result.imageUrl ? (
           <div className="w-full max-w-2xl bg-if-surface rounded-2xl border border-if-border shadow-md p-4 space-y-4">
             {/* 생성된 화보 이미지 */}
