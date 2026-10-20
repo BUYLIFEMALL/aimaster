@@ -71,6 +71,8 @@ export async function GET(request: Request) {
         published_at: row.published_at,
         post_url: row.post_url,
         error_message: row.error_message,
+        is_reserved: Boolean(row.is_reserved),
+        scheduled_at: row.scheduled_at ?? null,
         review: getPostReview(row),
         execution: publicExecution(row.research_summary),
       }));
