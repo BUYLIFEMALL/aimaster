@@ -124,3 +124,6 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 병합 E 준비 — Youtube Playlist 자동화(yt-playlist-studio)의 영상 만들기를 이 앱 안으로 (Claude Code 윈도우, 플랜 확인 대기·코드 변경 없음)
+- 플랜 겸 인수인계: [`docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md`](docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md) — 기준 앱을 보고서와 반대로 **이 앱**으로 정정(영상 앱은 브라우저 부품이라 새 화면 `/video`로 옮기기 쉬움), 권한 143명 동일·DB 이전 없음.

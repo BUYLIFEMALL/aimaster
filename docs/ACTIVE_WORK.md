@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `playlist-channel-studio/` · `yt-playlist-studio/` | Claude Code(윈도우) | 2026-10-20 | 병합 E(Playlist 영상 → 채널 제작) 분석·플랜 완료, 주인님 플랜 확인 대기 — `playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md` |

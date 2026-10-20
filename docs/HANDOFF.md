@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 E 플랜 (코드 변경 없음, 다른 CLI 이어받기 가능)
+- Youtube Playlist 영상 → 플레이리스트 채널 제작: **기준 앱을 보고서와 반대로 채널 제작 앱으로 정정**(영상 앱은 브라우저 부품 한 화면 앱이라 `/video`로 옮기기 쉬움). 권한 143명 동일, DB 이전 없음, 키 보안 문제 없음. [플랜](../playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md) §7.
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 D 완료: 「AI 썸네일·SEO 자동화」 (thumbnail-master v1.09, seo-thumbnail-pro v1.12)
 - 3단계: 옛 프로 화면 이동·키 원문 반환 API 410 차단, DB 백업 후 이름·소개 갱신·프로 노출 중지, **프로 전용 회원 5명 마스터 권한 부여(같은 사용기간)**, 메인 상세 이동, 공용 점검 사본 정리, 역량 지도·DESIGN.md. 상세 [플랜 §8](../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md).
 - 유튜브 다음 후보: 병합 E(플레이리스트 채널 제작 + Youtube Playlist 영상) — [분석 보고서](analysis-youtube-consolidation-20261020/REPORT.md).
