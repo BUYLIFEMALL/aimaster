@@ -1,5 +1,7 @@
 # 🔑 AIMaster — 39번 성격코드(MBTI) 측정기 (AGENTS.md)
 
+> 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
+
 ## 2026-10-20 v1.21 — 결과 → 캐릭코드·타로점 「이어서 보기」 (Claude Code 윈도우)
 - `app/result/[type]/page.tsx` 하단 `NextSteps` 카드: 「🎭 캐릭코드에서 내 캐릭터 보기」(`mbti-character.buylife.xyz/result/<유형>?축%&from=personality-code`, 캐릭코드는 from이 있으면 그림 자동 생성 안 함) · 「🃏 타로점에서 3장 뽑기」(유형·별칭만 담은 질문, `from=personality-code`). AI 호출 없음.
 - 성향 지표 값을 0~100으로 제한해 표시(주소로 받은 값 검증). AI 종합 성격 진단 v1.27의 16유형 결과에서 이 화면으로 들어온다.

@@ -1,5 +1,7 @@
 # AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.27)
 
+> 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
+
 ## 2026-10-20 v1.27 — 16유형 결과 → 성격코드 유형 해설로도 이어 보기 (Claude Code 윈도우)
 - 연결 카드에 「🧩 성격코드에서 유형 해설 보기」 추가(`tarotLink.ts` `personalityCodeLink()`, 캐릭코드와 같은 `?EI=&SN=&TF=&JP=&from=` 형식으로 `personality-code.buylife.xyz/result/<유형>`). 테스트 1개 추가(22개 통과). 흐름: 성격 진단 → 성격코드 → 캐릭코드 → 타로점.
 

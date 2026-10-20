@@ -1,5 +1,7 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+> 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
+
 ## 2026-10-20 v1.22 — 미드나잇 퍼플 테마로 변경 (Claude Code 윈도우, 주인님 지시)
 - 파스텔 크림 → 타로점·AI 종합 성격 진단과 같은 미스틱 미드나잇 퍼플. `app/globals.css` 토큰·클래스 색 + 17개 화면 파일 일괄 대응표(상세 `docs/DESIGN_HANDOFF.md` 맨 위). 로그인 바탕 격자·파란 버튼도 보라로, 홈 배지 버전은 `APP_VERSION`으로 자동 표시.
 - 검수 중 주의: 결과 화면을 `from` 없이 열면 기존 동작대로 회원 키로 그림이 자동 생성됨 — 390px 점검 중 `/result/ENFP`를 미리보기로 열어 관리자 키로 그림 1회가 생성됐을 수 있음(미확인).

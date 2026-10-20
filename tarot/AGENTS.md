@@ -1,5 +1,7 @@
 # AIMaster 타로점 에이전트 작업 지침 (AGENTS.md)
 
+> 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
+
 ## 2026-10-20 v1.25 — 넘어온 곳 이름에 성격코드 추가 (Claude Code 윈도우)
 - `DrawFlow.tsx` `FROM_LABELS`에 `personality-code`→성격코드. 네 프로그램(성격 진단·성격코드·캐릭코드·타로점) 연결 완료.
 

@@ -1,6 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
+## 2026-10-20 Claude Code(윈도우) — 📌 성격·운세 4개 프로그램 세션 인수인계 정리
+- 세션 전체(작업 12커밋·주의 규칙·다크 대응표·검수·비용·남은 작업·개선안): [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
+- 프로그램별: `personality-suite/`·`tarot/`·`mbti-character/`·`mbti/` 각 `docs/IMPROVEMENT_HANDOFF_20261020.md`(각 `AGENTS.md` 맨 위에서 연결).
+- 다음 우선: ① 캐릭코드 그림 자동 생성을 검사 직후로 한정(과금 안전) ② 성격코드 미드나잇 퍼플 통일.
+
 ## 2026-10-20 Claude Code(윈도우) — 캐릭코드 v1.22: 미드나잇 퍼플 테마(성격·운세 4개 프로그램 중 3개 같은 테마)
 - 한 일: 파스텔 크림 → 타로점과 같은 미드나잇 퍼플(전역 CSS 토큰 + 17개 화면 일괄 대응표, 로그인 바탕·파란 버튼 포함). 상세 `mbti-character/docs/DESIGN_HANDOFF.md`.
 - 검수: tsc·build, 배포 `mbti-character-1chof8s6y` Ready, DB mbti-character v1.22. 크롬: 홈·매뉴얼·검사·결과·설정·로그인, 390px 5개 화면 넘침 없음. 주의: 점검 중 `/result/ENFP`(from 없음) 미리보기로 관리자 키 그림 1회 자동 생성됐을 수 있음(미확인).
