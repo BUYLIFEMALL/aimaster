@@ -2,6 +2,12 @@
 
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
+## 2026-10-20 v1.26 — OpenAI에 없는 모델 6개 정리 + 옛 링크 모델 이름 자동 변환 (Claude Code 윈도우)
+- 증상: 리딩 모델 메뉴의 `gpt-5.5`/`gpt-5.4` + Luna·Sol·Terra 6개는 OpenAI에 없는 이름이라(`scripts/check-openai-models.mjs --live` 404, 2026-10-20) 회원이 고르면 「모델 없음」 오류.
+- 수정: `lib/deck.ts` `OPENAI_MODEL_OPTIONS`에서 6개 삭제 → 시험 통과 모델 `gpt-5.5`·`gpt-5.4`로 대체(메뉴 7개). 결과 화면은 주소의 `?om=` 값을 그대로 쓰므로, 예전에 저장·공유한 링크의 옛 이름은 `normalizeOpenAIModel()`(정규식 `^(gpt-5\.[45])-(sol|terra|luna)$` → 세대 기본 모델)로 바꿔 `app/api/generate-reading/route.ts`에서 호출한다. `gpt-5.6-*`·`o1`·`o3-mini`는 그대로(시험 통과).
+- 주의: 변환표를 따옴표 문자열로 쓰면 모델 점검 도구가 옛 이름을 「쓰는 모델」로 세므로 정규식으로 적었다.
+- 검수: tsc·build, `check-openai-models.mjs --new` → 「17개 모두 통과」, 변환 결과 8개 표본 확인, 커밋 `3d92d336`, 배포 `tarot-7ls7by0e6` Ready, DB `tarot-reading` v1.26(크롬 SQL Editor, PRODUCTION 확인), 운영 `/draw` 모델 메뉴 7개·`v1.26` 표시 확인. 유료 리딩 호출 0회(옛 이름 실제 호출 시험은 비용 때문에 안 함 — 변환 함수만 확인).
+
 ## 2026-10-20 v1.25 — 넘어온 곳 이름에 성격코드 추가 (Claude Code 윈도우)
 - `DrawFlow.tsx` `FROM_LABELS`에 `personality-code`→성격코드. 네 프로그램(성격 진단·성격코드·캐릭코드·타로점) 연결 완료.
 

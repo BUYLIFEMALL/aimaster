@@ -3,6 +3,13 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 타로점 v1.26: OpenAI에 없는 모델 6개 정리 (남은 작업 순서 진행 ①)
+- 한 일: `tarot/lib/deck.ts` 메뉴에서 `gpt-5.4/5.5` Luna·Sol·Terra 6개(OpenAI 404) 삭제 → `gpt-5.5`·`gpt-5.4`. 옛 저장·공유 링크(`?om=`)의 옛 이름은 리딩 API에서 `normalizeOpenAIModel()`로 자동 변환. 저장소 모델 점검 `check-openai-models.mjs --new` → 17개 모두 통과(남은 없는 모델 0개).
+- 검수: tsc·build, 커밋 `3d92d336`, 배포 `tarot-7ls7by0e6` Ready, DB(ref `esgxyikcnnvmlhygjkth`) tarot-reading v1.26, 크롬 운영 `/draw` 모델 메뉴 7개·v1.26 표시. 유료 호출 0회.
+- 남은 것: 리딩 API 모델 허용 목록 검사(제안, `tarot/docs/IMPROVEMENT_HANDOFF_20261020.md`). 다음 순서 ② 캐릭코드 그림 자동 생성 제한.
+- 링크: https://tarot-reading.buylife.xyz/draw
+
+
 
 ## 2026-10-20 Claude Code(윈도우) — 배포 키트 마법사: 버전 기록 + 예전 폴더 정리 → `SNS_Auto_Posting_Kit_v1.04` (주인님 「진행해줘」 추가 제안 ①②)
 - 포장 스크립트 `stamp_versions`: 압축 안 `KIT/kit.json`에 `kitVersion`·`appVersion`(프로그램 `version.ts`). `00_START_HERE.md` 업데이트 안내 줄 첫 반영.

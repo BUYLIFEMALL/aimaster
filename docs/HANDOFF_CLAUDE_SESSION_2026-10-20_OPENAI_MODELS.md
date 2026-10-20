@@ -95,6 +95,7 @@ https://threads-affiliate-poster.buylife.xyz
 ## 3. 남은 작업 (우선순위 순, 다음 첫 단계 포함)
 
 ### 3-1. 🔴 타로 존재하지 않는 OpenAI 모델 6개 정리 (회원 오류 가능)
+- ✅ **처리 완료(2026-10-20 Claude Code 윈도우, 타로 v1.26, 커밋 `3d92d336`)** — 메뉴에서 6개 삭제 → `gpt-5.5`·`gpt-5.4`, 옛 링크 이름은 서버 자동 변환. `check-openai-models.mjs --new` 「17개 모두 통과」. 상세 `tarot/AGENTS.md` v1.26.
 - 증상: 타로에서 회원이 GPT-5.5/5.4 Luna·Sol·Terra를 고르면 「모델 없음」 오류.
 - 다음 첫 단계: `docs/ACTIVE_WORK.md`에서 `tarot` 작업 중인지 확인(이 문서 작성 시점에는 비어 있음) → `tarot/lib/deck.ts` `OPENAI_MODEL_OPTIONS`에서 6개 삭제(필요하면 `gpt-5.5`·`gpt-5.4`로 대체) → 회원이 저장해 둔 선택값(로컬 저장·DB 등)이 6개 중 하나면 기본값으로 돌리는 처리 확인 → 버전 +0.01(코드·DB) 배포 → 크롬 확인 → `node scripts/check-openai-models.mjs --new`로 남은 모델 0개 확인.
 - 이 모델들이 온도·출력 한도를 어떻게 보내는지도 공용 기준 코드 사본으로 바꿀지 함께 검토.
