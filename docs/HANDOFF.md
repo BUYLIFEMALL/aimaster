@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — INSTA v1.39: 예약 실행 방식 설정 하나로(피드 글 + 카드뉴스)
+- 카드뉴스 API 5곳이 INSTA 예약 설정(`insta_member_scheduler`)을 쓰고, 「남은 예약」에 카드뉴스 예약 포함, INSTA 회원 실행 주소가 피드 글·카드뉴스를 함께 실행. 설정 화면 두 곳에 「하나의 설정」 안내. DB 표 변경 없음(`cns_member_scheduler`는 남겨 두고 사용 안 함).
+- 검수: tsc·build·테스트 통과, 커밋 `7d26818f`, 배포 `insta-auto-poster-ijghxsq3j` Ready, DB v1.39, 회원 실행 주소 3곳 가짜 토큰 401, 크롬(시험 회원) 카드뉴스 예약 상태 API가 INSTA 설정 값(vercel) 반환. **「내 cron-job.org」로 바꿔 실제 작업이 켜지는 흐름은 시험 회원에 cron-job.org 키가 없어 확인 못 함** — 관리자 로그인 때 확인 필요.
+- 다음: 병합 B 「INSTA 댓글·DM 자동화」.
+
 ## 2026-10-20 Claude Code(윈도우) — 병합 A 완료(3단계): 카드뉴스 노출 중지·옛 주소 INSTA로 (cardnews v1.32)
 - 주인님 승인(「병합 완료되면 노출 중지」). 운영 DB(ref `esgxyikcnnvmlhygjkth`): `cardnews-studio` `is_active=false`·한 줄 요약에 「[병합됨 → INSTA 포스팅 자동화(2026-10-20)]」·version v1.32, `auto-instagram-posting` 한 줄 요약·상세 설명(507자)·핵심 특징/사용 순서/추천 대상을 카드뉴스 포함으로 다시 씀. 바꾸기 전 값 백업 `docs/analysis-insta-consolidation-20261020/backup-programs-before-merge.json`. 카드뉴스 개별 권한 180건은 INSTA가 FREE라 옮기지 않음(구독·즐겨찾기 0건).
 - 코드(`e574afed`): 옛 카드뉴스 `next.config.ts` 화면 주소 → INSTA `/cardnews/...` 307, `/api/*` → INSTA 전달(INSTA 전용 주소도 401로 응답 확인), 메인 `next.config.mjs` `/programs/cardnews-studio` → `/programs/auto-instagram-posting`, 공용 기준 코드 4개 기준을 `insta_auto_poster/src/lib/cardnews/`로 이동, 역량 지도 「병합됨」 표시.
