@@ -16,6 +16,7 @@ import { deleteUploadedImageAction } from "@/lib/actions/upload";
 import { uploadImageDirect } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
+import { IS_STANDALONE } from "@/lib/deployment";
 import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
 import type { ImageAspectRatio, InstaTone } from "@/lib/ai/generator";
 import type { ApiKeyProvider, InstaPostType } from "@/types/database.types";
@@ -479,6 +480,13 @@ export function PostForm({
               </label>
             ))}
           </div>
+          {/* v1.37 병합 2단계: 글자가 깨지지 않는 카드뉴스는 카드뉴스 스튜디오(배경 + 한글 따로 얹기)로 안내. 직접 첨부 4장은 여기서 그대로 가능 */}
+          {postType === "card_news" && !IS_STANDALONE && (
+            <p className="mt-2 rounded-lg border border-pink-500/30 bg-pink-500/10 px-3 py-2 text-xs text-pink-200">
+              🎨 한글 문구가 깨지지 않는 4~10장 카드뉴스는{" "}
+              <a href="/cardnews/plan" className="font-bold underline">카드뉴스 스튜디오</a>에서 만들 수 있어요. 여기서는 AI 이미지 4장 또는 내 이미지 4장을 바로 올립니다.
+            </p>
+          )}
         </div>
       )}
       {isCreate && (

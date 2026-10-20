@@ -10,6 +10,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { memberSchedulerState } from "@/lib/posts/memberScheduler";
 import { SchedulePublishingControl } from "@/components/posts/SchedulePublishingControl";
+import { CardnewsPostsSection } from "@/components/cardnews/CardnewsPostsSection";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const FILTERS: Array<{ value: PostStatus | "all"; label: string }> = [
   { value: "all", label: "전체" },
@@ -117,6 +119,9 @@ export default async function PostsPage({
           </ul>
         )}
       </div>
+
+      {/* v1.37 병합 2단계: 카드뉴스 스튜디오 예약·게시 기록도 여기서(배포판에는 카드뉴스 표가 없어 숨김) */}
+      {!IS_STANDALONE && <CardnewsPostsSection />}
     </div>
   );
 }
