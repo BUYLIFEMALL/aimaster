@@ -225,7 +225,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           />
 
           {/* 슬라이드 메뉴 패널 */}
-          <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-[#161922] p-5 border-r border-[#262c3d] flex flex-col justify-between shadow-2xl">
+          <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-[#161922] p-5 border-r border-[#262c3d] flex flex-col shadow-2xl">
             <div className="overflow-y-auto">
               {renderNavLinks()}
             </div>
@@ -247,7 +247,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       )}
 
       {/* 3. 데스크톱(1440px) 좌측 고정 사이드바 */}
-      <aside className="hidden md:flex md:w-64 md:flex-col md:shrink-0 md:sticky md:top-0 md:h-screen md:justify-between bg-[#161922] border-r border-[#262c3d] p-5">
+      <aside className="hidden md:flex md:w-64 md:flex-col md:shrink-0 md:sticky md:top-0 md:h-screen bg-[#161922] border-r border-[#262c3d] p-5">
         <div className="min-h-0 overflow-y-auto pr-1">
           {renderNavLinks()}
         </div>

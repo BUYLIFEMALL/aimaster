@@ -19,8 +19,8 @@ import {
 import { APP_VERSION } from "@/lib/version";
 
 export const metadata = {
-  title: "연동 & 사용 매뉴얼 | INSTA Cardnews 자동화",
-  description: "INSTA Cardnews 자동화 프로그램의 5단계 제작 파이프라인과 인스타그램 카드뉴스 바이럴 공략 가이드북",
+  title: "카드뉴스 스튜디오 매뉴얼 | INSTA 포스팅 자동화",
+  description: "INSTA 포스팅 자동화 카드뉴스 스튜디오의 5단계 제작 파이프라인과 인스타그램 카드뉴스 바이럴 공략 가이드북",
 };
 
 export default function GuidePage() {
@@ -37,7 +37,7 @@ export default function GuidePage() {
           <div className="space-y-1.5 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-slate-100 tracking-tight">
-                INSTA Cardnews 자동화 연동 & 사용 매뉴얼
+                카드뉴스 스튜디오 사용 매뉴얼
               </h1>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-pink-500/10 text-pink-400 border border-pink-500/30">
                 {APP_VERSION}

@@ -7,7 +7,7 @@ import { Loader2, Plus, Trash2, Sparkles, BookOpen, Layers, Lightbulb, PenLine, 
 import type { ProjectSummary } from "@/lib/cardnews/types";
 import { useStudio } from "@/components/cardnews/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote } from "@/components/cardnews/studio/ui";
-import { APP_NAME, APP_VERSION } from "@/lib/version";
+import { APP_VERSION } from "@/lib/version";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -71,7 +71,7 @@ export default function DashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-100">{APP_NAME}</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-100">🎨 카드뉴스 스튜디오</h1>
               <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-pink-500/10 text-pink-400 border border-pink-500/30">
                 {APP_VERSION}
               </span>

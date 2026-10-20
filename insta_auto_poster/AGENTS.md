@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.35` (2026-10-20)
+- **현재 버전**: `v1.36` (2026-10-20)
+- **v1.36 (2026-10-20, Claude Code 윈도우) — 병합 1단계 화면 정리**: 크롬(시험 회원) 실검수에서 발견 → 카드뉴스 홈 제목이 「INSTA 포스팅 자동화」로 나오던 것을 「🎨 카드뉴스 스튜디오」로, 카드뉴스 설정 제목을 「카드뉴스 키·예약 실행 설정」으로(INSTA 「API키등록·플랫폼연동」과 구분), 카드뉴스 매뉴얼 제목의 옛 이름 정리. 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 문제(`md:justify-between`·휴대폰 펼침 메뉴 `justify-between`) 제거 — 마지막 메뉴 바로 아래로(사이드바 표준).
 - **v1.35 (2026-10-20, Claude Code 윈도우) — 🎨 카드뉴스 스튜디오 병합 1단계(INSTA Cardnews 자동화 → INSTA 포스팅 안으로)**
   - 주인님 결정: 병합 A 방향 INSTA 안으로, **FREE 유지**, 최상위 규칙 그대로(회원 본인 인스타 연동 + 본인 Gemini·OpenAI·Claude 키, 폴백 없음). 분석 `../docs/analysis-insta-consolidation-20261020/REPORT.md`, 플랜 `docs/PLAN_20261020_CARDNEWS_MERGE.md`.
   - 화면 `/cardnews`(홈)·`/cardnews/plan|copy|design|background|export|guide|settings`, 좌측 메뉴 「카드뉴스 스튜디오」 묶음(독립 모드 배포판에서는 숨김 — 배포판 DB에 카드뉴스 표 없음). 작업 상태 보관 `(dashboard)/cardnews/layout.tsx`(ProjectProvider).
