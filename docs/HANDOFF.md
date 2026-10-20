@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-10-20 Claude Code(윈도우) — 메인 사이트 「내 작업대」 즐겨찾기 DB 저장 + 새 버전 알림 점 (주인님 「진행해줘」)
+- DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor 적용): 새 표 `program_favorites`(user_id·program_id·seen_version·created_at, 기본키 (user_id, program_id), RLS 본인 행만 select/insert/update/delete 4개). 파일 `supabase/migrations/0040_program_favorites.sql`.
+- 공용 부품 `lib/favorites/client.ts`: 로그인 회원은 DB, 비로그인은 브라우저 저장소(`aimaster_favorites`·`aimaster_favorites_seen`). 페이지당 한 번 동기화(로그인 확인·DB 조회 1회)하며 브라우저에만 있던 즐겨찾기를 DB로 합침. `toggleFavorite`(고정 때 지금 버전을 seen으로)·`markFavoriteSeen`.
+- 카드 별 버튼·퀵 프리뷰 팝업·`components/home/UserWorkspace.tsx`가 모두 이 부품 사용. 내 작업대: 고정 뒤 `programs.version`이 바뀐 프로그램에 「● 새 버전 vX.YY」 표시, 상세보기·실행을 누르면 seen 갱신으로 사라짐. seen 기록이 없던 기존 즐겨찾기는 처음 볼 때 지금 버전으로 기록(일괄 점 방지). 공지 연동은 공지가 프로그램별이 아니라 이번 범위 밖.
+- 퀵 프리뷰 팝업 가운데 카드 3개 → 프로그램 핵심 특징(커밋 2ed8b268, 별도).
 ## 2026-10-20 Claude Code(윈도우) — 네이버 블로그 에이전트 v1.95: 랭킹 글감·홈판형 글·간격 예약·쇼핑 커넥트 링크 (외부 앱 분석 → 흡수)
 - 배경: 주인님 요청으로 `D:\PDS\Naver Blog AI-Setup-0.1.0.exe`(Electron+Playwright 네이버 블로그 자동발행 앱)를 정적 분석(실행 안 함) → 기존 기능과 70% 겹쳐 새 프로그램 대신 부족한 4개만 `naver-blog-agent`에 흡수(코드 미복사). 원본 이미지 재사용·ID/PW 저장·헤드리스 다계정 발행은 가져오지 않음.
 - 한 일: ① 수집 화면 연예·스포츠·경제 랭킹 버튼(네이버 비공식 JSON, 텍스트만) ② 생성 「글 구성: 홈판형 이슈글」 ③ 보관함 일괄 전송 「간격 예약 발행」(10분 단위, 저장 PUT이 `is_reserved`/`scheduled_at` 허용) ④ 쇼핑 커넥트 링크 삽입 + 대가성 문구 자동(확장 전송 때 재확인).

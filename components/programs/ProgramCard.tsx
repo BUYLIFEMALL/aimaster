@@ -12,6 +12,7 @@ import LikeButton from "@/components/programs/LikeButton";
 import QuickPreviewModal from "@/components/programs/QuickPreviewModal";
 import QuickPreviewHint from "@/components/programs/QuickPreviewHint";
 import { parseDetailSections } from "@/lib/programs/detailSections";
+import { FAVORITES_EVENT, readFavorites, syncFavorites, toggleFavorite as toggleFavoriteShared } from "@/lib/favorites/client";
 import { formatKRW } from "@/lib/utils/format";
 import { getTemplateBadge } from "@/lib/templateBadge";
 import type { Program } from "@/types/database.types";
@@ -60,54 +61,19 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
     ?.filter((p) => p.is_active)
     .sort((a, b) => a.price - b.price)[0];
 
+  // 즐겨찾기: 공용 부품 lib/favorites/client.ts(로그인 회원은 DB, 아니면 브라우저 저장소 — 2026-10-20)
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("aimaster_favorites");
-      if (raw) {
-        const list: string[] = JSON.parse(raw);
-        setIsFav(list.includes(program.id));
-      }
-    } catch {
-      // ignore
-    }
-
-    const handleFavChange = () => {
-      try {
-        const raw = localStorage.getItem("aimaster_favorites");
-        if (raw) {
-          const list: string[] = JSON.parse(raw);
-          setIsFav(list.includes(program.id));
-        } else {
-          setIsFav(false);
-        }
-      } catch {
-        // ignore
-      }
-    };
-
-    window.addEventListener("aimaster-favorites-changed", handleFavChange);
-    return () => window.removeEventListener("aimaster-favorites-changed", handleFavChange);
+    const handleFavChange = () => setIsFav(readFavorites().includes(program.id));
+    handleFavChange();
+    void syncFavorites();
+    window.addEventListener(FAVORITES_EVENT, handleFavChange);
+    return () => window.removeEventListener(FAVORITES_EVENT, handleFavChange);
   }, [program.id]);
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    try {
-      const raw = localStorage.getItem("aimaster_favorites");
-      const list: string[] = raw ? JSON.parse(raw) : [];
-      let updated: string[];
-      if (list.includes(program.id)) {
-        updated = list.filter((id) => id !== program.id);
-        setIsFav(false);
-      } else {
-        updated = [program.id, ...list.filter((id) => id !== program.id)];
-        setIsFav(true);
-      }
-      localStorage.setItem("aimaster_favorites", JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent("aimaster-favorites-changed"));
-    } catch {
-      // ignore
-    }
+    void toggleFavoriteShared(program.id, program.version);
   };
 
   const recordRecent = () => {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Star, Clock, Play, ArrowRight, Sparkles, X, ChevronRight } from "lucide-react";
 import type { Program } from "@/types/database.types";
 import { getTemplateBadge } from "@/lib/templateBadge";
+import { FAVORITES_EVENT, markFavoriteSeen, readFavorites, readSeenVersions, syncFavorites, toggleFavorite } from "@/lib/favorites/client";
 
 interface UserWorkspaceProps {
   programs: Program[];
@@ -13,15 +14,16 @@ interface UserWorkspaceProps {
 export default function UserWorkspace({ programs }: UserWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<"favorites" | "recent">("favorites");
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [seenVersions, setSeenVersions] = useState<Record<string, string>>({});
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
-  // 로컬스토리지에서 즐겨찾기 및 최근 실행 프로그램 ID 동기화
+  // 즐겨찾기는 공용 부품(lib/favorites/client.ts — 로그인 회원은 DB), 최근 실행은 브라우저 저장소
   const loadWorkspaceData = () => {
+    setFavoriteIds(readFavorites());
+    setSeenVersions(readSeenVersions());
     try {
-      const favRaw = localStorage.getItem("aimaster_favorites");
       const recRaw = localStorage.getItem("aimaster_recent_programs");
-      setFavoriteIds(favRaw ? JSON.parse(favRaw) : []);
       setRecentIds(recRaw ? JSON.parse(recRaw) : []);
     } catch {
       // ignore
@@ -31,36 +33,37 @@ export default function UserWorkspace({ programs }: UserWorkspaceProps) {
   useEffect(() => {
     setIsMounted(true);
     loadWorkspaceData();
+    void syncFavorites();
 
     // 외부 카드에서 별표 토글 또는 프로그램 실행 시 실시간 이벤트 수신
     const handleWorkspaceUpdate = () => {
       loadWorkspaceData();
     };
 
-    window.addEventListener("aimaster-favorites-changed", handleWorkspaceUpdate);
+    window.addEventListener(FAVORITES_EVENT, handleWorkspaceUpdate);
     window.addEventListener("aimaster-recent-changed", handleWorkspaceUpdate);
 
     return () => {
-      window.removeEventListener("aimaster-favorites-changed", handleWorkspaceUpdate);
+      window.removeEventListener(FAVORITES_EVENT, handleWorkspaceUpdate);
       window.removeEventListener("aimaster-recent-changed", handleWorkspaceUpdate);
     };
   }, []);
 
-  const removeFavorite = (id: string, e: React.MouseEvent) => {
+  const removeFavorite = (p: Program, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const updated = favoriteIds.filter((favId) => favId !== id);
-    setFavoriteIds(updated);
-    try {
-      localStorage.setItem("aimaster_favorites", JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent("aimaster-favorites-changed"));
-    } catch {
-      // ignore
-    }
+    void toggleFavorite(p.id, p.version);
   };
 
   const programMap = new Map(programs.map((p) => [p.id, p]));
   const favoritePrograms = favoriteIds.map((id) => programMap.get(id)).filter(Boolean) as Program[];
+
+  // 「봤음」 기록이 없는 즐겨찾기(이 기능 전에 고정한 것)는 지금 버전을 기록 — 처음부터 모든 카드에 점이 뜨지 않게
+  useEffect(() => {
+    for (const p of favoritePrograms) if (p.version && !seenVersions[p.id]) void markFavoriteSeen(p.id, p.version);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [favoriteIds.join(","), Object.keys(seenVersions).length]);
+  const hasNewVersion = (p: Program) => Boolean(p.version && seenVersions[p.id] && seenVersions[p.id] !== p.version);
   const recentPrograms = recentIds.map((id) => programMap.get(id)).filter(Boolean) as Program[];
 
   if (!isMounted) return null;
@@ -134,9 +137,15 @@ export default function UserWorkspace({ programs }: UserWorkspaceProps) {
                             <span>{badge.icon}</span>
                             <span>{badge.label}</span>
                           </span>
+                          {hasNewVersion(p) && (
+                            <span className="ml-auto mr-1 inline-flex items-center gap-1 rounded-full bg-rose-500/15 border border-rose-400/40 px-1.5 py-0.5 text-[10px] font-bold text-rose-300" title={`${seenVersions[p.id]} → ${p.version}`}>
+                              <span className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse" />
+                              새 버전 {p.version}
+                            </span>
+                          )}
                           <button
                             type="button"
-                            onClick={(e) => removeFavorite(p.id, e)}
+                            onClick={(e) => removeFavorite(p, e)}
                             title="즐겨찾기 해제"
                             className="text-white/40 hover:text-rose-400 p-0.5 rounded transition-colors"
                           >
@@ -154,12 +163,14 @@ export default function UserWorkspace({ programs }: UserWorkspaceProps) {
                       <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
                         <Link
                           href={`/programs/${p.slug}`}
+                          onClick={() => void markFavoriteSeen(p.id, p.version)}
                           className="text-[10px] text-white/60 hover:text-white transition-colors"
                         >
                           상세보기
                         </Link>
                         <a
                           href={runUrl}
+                          onClick={() => void markFavoriteSeen(p.id, p.version)}
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gold/20 hover:bg-gold text-gold hover:text-black font-bold text-[11px] transition-all cursor-pointer"
                         >
                           <Play size={10} className="fill-current" />
