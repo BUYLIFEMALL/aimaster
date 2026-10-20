@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown, Sparkles } from "lucide-react";
+import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown, Sparkles, Megaphone } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Badge from "@/components/ui/Badge";
 import CategoryManagerButton from "@/components/admin/CategoryManagerButton";
@@ -657,6 +657,15 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                                 <Sparkles size={12} />
                                 {p.badges.includes("new") ? "최신 해제" : "최신 등록"}
                               </button>
+                              {/* 이 프로그램 공지 쓰기 — 공지 창을 열고 관련 프로그램·제목을 미리 채움(2026-10-20) */}
+                              <Link
+                                href={`/admin/notices?program=${p.id}`}
+                                title="이 프로그램 공지 쓰기"
+                                className="inline-flex items-center gap-1.5 text-sm text-subtext hover:text-sky-300 hover:bg-sky-500/10 px-3 py-1.5 rounded-lg transition-colors"
+                              >
+                                <Megaphone size={13} />
+                                공지
+                              </Link>
                               <Link href={`/admin/programs/${p.id}/edit`}>
                                 <button className="inline-flex items-center gap-1.5 text-sm text-subtext hover:text-gold hover:bg-gold/10 px-3 py-1.5 rounded-lg transition-colors">
                                   <Pencil size={13} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pencil, Trash2, Plus, Megaphone, Pin } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
@@ -20,14 +20,17 @@ interface NoticeRow {
 interface ProgramOption {
   id: string;
   name: string;
+  version?: string | null;
 }
 
 interface NoticeManagerProps {
   initialNotices: NoticeRow[];
   programs: ProgramOption[];
+  /** 관리자 프로그램 목록의 「공지」 버튼으로 들어오면 그 프로그램 공지 창을 바로 연다 */
+  presetProgramId?: string;
 }
 
-export default function NoticeManager({ initialNotices, programs }: NoticeManagerProps) {
+export default function NoticeManager({ initialNotices, programs, presetProgramId }: NoticeManagerProps) {
   const programName = new Map(programs.map((p) => [p.id, p.name]));
   // 관련 프로그램(2026-10-20): 비우면 사이트 전체 공지, 고르면 그 프로그램을 「내 작업대」에 고정한 회원에게 「📢 새 공지」 표시
   const [formProgramIds, setFormProgramIds] = useState<string[]>([]);
@@ -53,6 +56,15 @@ export default function NoticeManager({ initialNotices, programs }: NoticeManage
     setError("");
     setIsModalOpen(true);
   }
+
+  useEffect(() => {
+    const preset = programs.find((p) => p.id === presetProgramId);
+    if (!preset) return;
+    openCreate();
+    setFormProgramIds([preset.id]);
+    setFormTitle(`[${preset.name}] ${preset.version ? `${preset.version} ` : ""}업데이트 안내`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetProgramId]);
 
   function openEdit(notice: NoticeRow) {
     setEditingNotice(notice);

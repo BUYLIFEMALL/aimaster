@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Play, Lock, CheckCircle2, HelpCircle, ArrowRight, BookOpen } from "lucide-react";
+import { ArrowLeft, Play, Lock, CheckCircle2, HelpCircle, ArrowRight, BookOpen, Megaphone } from "lucide-react";
+import { formatDate } from "@/lib/utils/format";
 import Link from "next/link";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import PaymentController from "@/components/payment/PaymentController";
@@ -53,6 +54,15 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
   if (!program) notFound();
   const sections = parseDetailSections(program.detail_sections);
+
+  // 이 프로그램이 연결된 최근 공지(2026-10-20, 관리자 공지의 「관련 프로그램」)
+  const { data: relatedNotices } = await supabase
+    .from("notices")
+    .select("id, title, created_at")
+    .eq("is_active", true)
+    .contains("program_ids", [program.id])
+    .order("created_at", { ascending: false })
+    .limit(5);
 
   // 필요 등급 정보 (계층적)
   const requiredGrade: MemberGrade | null = program.required_grade
@@ -324,6 +334,30 @@ export default async function ProgramDetailPage({ params }: PageProps) {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* 이 프로그램 관련 공지 — 없으면 숨김 */}
+      {(relatedNotices?.length ?? 0) > 0 && (
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            이 프로그램 <GoldGradientText>관련 공지</GoldGradientText>
+          </h2>
+          <p className="text-subtext mb-6">업데이트·점검 등 이 프로그램과 관련된 최근 소식입니다</p>
+          <ul className="space-y-2">
+            {relatedNotices!.map((n) => (
+              <li key={n.id}>
+                <Link
+                  href={`/support/notice/${n.id}`}
+                  className="glass-card flex min-h-[48px] items-center gap-3 rounded-xl border border-white/10 px-4 py-3 hover:border-sky-400/40 transition-colors"
+                >
+                  <Megaphone size={16} className="shrink-0 text-sky-300" />
+                  <span className="flex-1 truncate text-sm font-semibold text-white">{n.title}</span>
+                  <span className="shrink-0 text-xs text-subtext">{formatDate(n.created_at)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
