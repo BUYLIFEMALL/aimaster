@@ -40,3 +40,30 @@
 | T24 | 예약 방식 최종 정리(주인님 지시, 운영 원본과 같은 코드) | ✅ agy 1차안(설정 화면 주기 선택·켜기/끄기, 설치자 1명·`CRON_SECRET`) 폐기 → 운영 v2.07과 같은 **회원 전용 토큰** 방식: 설정은 cron-job.org 키 한 줄, 예약은 포스팅 쪽, 예약 시 자동 켜기·남은 예약 0건 자동 끄기, 보관함 일시정지·재개, 가입한 사람마다 각자 키. A(Vercel Pro) 스크립트는 `TCO_PLATFORM_SCHEDULER=on`도 등록. 보관함 예약 9시간 오류도 함께 수정. 리허설 DB에 `tco_member_scheduler` 생성(`KIT/schema.sql`·`upgrade-20261019-cronjob.sql` 반영). 배포 `hzdohavqd`. 실검수: 키 「등록됨」 → GPT-4o-mini 1회 생성·임시저장 → 20:25 예약(DB `11:25Z` 정상) → 작업 자동 생성(8676638)·켜짐 → 예약 취소 후 약 50초에 자동 꺼짐 | agy가 만든 예전 cron-job.org 작업(`dispatch-scheduled` 1분 호출)은 꺼 둠 — 주인님 cron-job.org 콘솔에서 삭제 가능. 실제 자동 발행은 운영에서 확인(19:34:18) | — |
 | T25 | 실행 방식 선택(주인님 지시) | ✅ 설정 「⏰ 예약 발행」에 두 선택지: **내 cron-job.org · 기본값**(배포판) / Vercel 예약 호출(Pro + `KIT/enable-vercel-cron` 실행 시 선택 가능, 아니면 회색 안내). 리허설 DB `mode` 칸(기본 cronjob) 추가, `KIT/schema.sql`·업그레이드 SQL·README 6장·스크립트 문구 갱신. 배포 `bq7doxfpr`. 크롬: 기본 cron-job.org 선택·Vercel 비활성 안내·보관함 「내 cron-job.org 대기」 확인 | 운영(AIMaster)은 같은 코드에서 기본 Vercel | — |
 | T26 | 리허설 자원 정리(2026-10-20, 주인님 결정) | ✅ Vercel `dev-threads-posting`(`prj_mdgi3…`) 삭제(CLI `vercel project rm`, 목록에서 사라짐 확인), Supabase `kit-threads`(`jehfmpqzcuwjyzqejtnq`, BUYLIFE-DEV) 삭제(크롬 설정 → Delete project, 조직 화면에 `AIMaster_dev`만 남음 확인). 무료 조직 자리 1개 확보 → INSTA 키트 리허설용 | 코드 사본 `labs/kit-threads/`는 기록으로 남김(그 안 `.env.local`의 키는 삭제된 프로젝트 것이라 무효) | — |
+
+---
+
+# 2차 리허설 — 윈도우 패키지 설치마법사 설치 → 업데이트 모드 (2026-10-20)
+
+> 진행: 주인님(수강생 역할, 키 붙여 넣기·Vercel 로그인) + Claude Code(윈도우, 폴더 준비·크롬 조작·검수·캡처). 체계: ② Lab. 운영 DB·운영 프로그램 미접촉.
+
+| 항목 | 값 |
+|---|---|
+| 폴더 | `D:\ktr\w\SNS_Auto_Posting_Kit_v1.01\insta_auto_poster`(설치) · `…_v1.06\insta_auto_poster`(업데이트), 압축은 `Expand-Archive`로 풂 |
+| Supabase | `BUYLIFE-DEV`(Free) 프로젝트 `kit-insta`, ref `jlkagfxweoqfqtspraje`, 지역 Asia-Pacific 기본 → 도쿄(ap-northeast-1) |
+| Vercel | 팀 `buylife` 프로젝트 `dev-kit-insta` → https://dev-kit-insta.vercel.app (빌드 2회: 설치 1·업데이트 1) |
+
+| # | 단계 | 결과 | 발견·조치 |
+|---|---|---|---|
+| R1 | 압축 풀기 | ✅ | Git Bash `unzip`은 한글 파일 이름 깨짐(압축의 UTF-8 표시 무시) → `Expand-Archive`로 풂. 수강생 탐색기 풀기는 정상 |
+| R2 | v1.01 마법사 ② | ✅ | 마법사가 연 `dashboard/new`가 기존 조직 계정에 「새 조직 만들기」 화면 → v1.05에서 프로젝트 목록·기존 조직 [New project] 안내로 수정. 새 프로젝트 지역 기본은 Asia-Pacific(도쿄 배정) |
+| R3 | ③ 키 · ④ DB | ✅ 주인님 키 붙여 넣기, 마법사가 `insta_member_scheduler` 확인 | — |
+| R4 | ⑤ Confirm email | ✅ 크롬에서 끔 | 주인님 「이게 무슨 말이야」 — 안내의 「Email 항목」이 실제 화면(맨 위 User Signups)과 다름 → v1.06 문구·이유 한 줄 |
+| R5 | ⑥ 사이트 이름·브랜드 | ✅ `dev-kit-insta`, 브랜드 「(Dev)INSTA자동화」 | 「어떤 주소를 넣지?」·「뭘 넣지?」 → v1.06 「이름만 입력(예)」·「화면 위쪽에 보일 이름」 |
+| R6 | ⑧ 배포 | ⚠️ Ready 42s인데 사이트가 **운영 `auto-instagram-posting.buylife.xyz`로 308** → 「사이트 주소를 확인하지 못했습니다」 | 원인: PowerShell 파이프가 `"﻿true
+"`을 보내 Vercel에 `NEXT_PUBLIC_STANDALONE_MODE="﻿true"` 저장 → 독립 모드 꺼짐. v1.06 `Push-Env` BOM 없는 임시 파일 입력으로 수정(`ERROR_LESSONS.md`). `System.Management.Automation.RemoteException` 줄은 Vercel 안내 문구가 오류처럼 보이는 것(개선 대기) |
+| R7 | v1.06 업데이트 모드 | ✅ 옆 폴더 v1.01 설치 자동 발견 → y → ②③⑤⑥ 질문 없이 빌드·재배포(Ready 36s) | 「버전: 배포판 v1.01 (프로그램 v1.26) → 배포판 v1.06 (프로그램 v1.34)」, 예전 폴더 정리 질문(n) 정상 |
+| R8 | 업데이트 뒤 사이트 | ✅ `/` → `/login` 307, `/login` 200, 제목 「INSTA 포스팅 자동화 \| (Dev)INSTA자동화」(한글 정상), `buylife.xyz` 링크 0 | **업데이트 모드가 v1.01 윈도우 설치의 BOM 오류까지 고침** 확인 |
+
+캡처(매뉴얼 반영): `img/w01-wizard-start.png` · `w02-supabase-new-project.jpg` · `w05-confirm-email-off.jpg` · `u01-update-detect.png` · `u02-update-done.png` · `u03-site-login.jpg`.
+못 한 것: Meta 앱·인스타 연결·게시(1차 리허설 Threads에서 확인한 흐름과 같음), 맥(주인님 결정으로 안 함).

@@ -6,6 +6,12 @@
 - 주인님 요청으로 1번 운영 확인을 재개. `computer-use`로 기존 Edge 실행 중임은 확인했으나 창 제어는 Orca runtime metadata 접근 거부(`runtime_unavailable`, `CreateFile 0x5`)로 막힘. 신규 기본값/기존 모드 보존/회원 변경 저장의 운영 실검수는 모두 미완료. 실제 발행·유료 호출·운영 데이터 변경 0. 로컬 검사를 운영 통과로 바꾸지 않음.
 - 다음 첫 단계: 운영 접속·Edge 제어 가능한 세션에서 일반 회원으로 세 항목 실검수. [상세 재개 기록](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md), [증거](../naver-blog-agent/docs/evidence/consolidation-stage0/live-recheck-attempt.json). 코드/버전/배포 변경 없음, 문서 커밋/푸시 미실행(`.git` 읽기 전용).
 
+## 2026-10-20 Claude Code(윈도우) — 배포 키트 윈도우 리허설: v1.01 설치 → v1.06 업데이트 모드 성공, BOM 오류 발견·수정
+- Lab `BUYLIFE-DEV` `kit-insta`(ref `jlkagfxweoqfqtspraje`)·Vercel `dev-kit-insta`(https://dev-kit-insta.vercel.app)로 주인님과 리허설. 상세 `docs/sns-kit-manual/REHEARSAL_LOG.md` 2차.
+- 발견·수정(커밋 `6c81b6b4`·`d5ead9fa`, 배포판 v1.05·v1.06): ② 새 조직 화면 → 프로젝트 목록, **윈도우 PowerShell 파이프 BOM으로 `NEXT_PUBLIC_STANDALONE_MODE="﻿true"` → 독립 모드 꺼짐·운영 주소 308**(`Push-Env` 임시 파일 입력, `ERROR_LESSONS.md`), ⑤⑥ 문구.
+- 확인: v1.06 마법사가 옆 v1.01 설치 자동 발견 → 업데이트(키·사이트 이름 질문 없음, Ready 36s) → 버전 줄 「v1.01 (v1.26) → v1.06 (v1.34)」 → 사이트 `/login` 200·브랜드 한글 정상·buylife 링크 0. 매뉴얼 📷 7곳 채움(새 캡처 6 + 1차 `t06`).
+- 비용: Vercel 빌드 2회, Supabase 0원. 남은 일: **Lab 자원(`kit-insta`·`dev-kit-insta`·`D:\ktr\w`) 삭제 여부 주인님 확인**, 매뉴얼 남은 📷 6곳, 개선 대기(배포 로그의 `RemoteException` 줄 정리).
+
 ## 2026-10-20 Claude Code(윈도우) — 배포 키트 v1.05: 마법사 Supabase 주소 수정 (윈도우 리허설 준비 중 발견)
 - 리허설 시작(`D:\ktr\w`에 v1.01·v1.04 풀고 v1.01 마법사 실행) 중 발견: 마법사 ②단계가 여는 `supabase.com/dashboard/new`가 이미 조직이 있는 계정에 「새 조직 만들기」 화면을 보여 줌. → `setup.ps1`·`setup.sh`가 `supabase.com/dashboard/projects`를 열고 「이미 조직이 있으면 그 조직의 [New project], 무료 2개까지 0원」·지역 기본 Asia-Pacific(서울은 Need a specific region?)으로 안내. 학생 매뉴얼 ②·3개 키트 README 같은 문구, 지침 §6-3 함정 표 ✅.
 - `SNS_Auto_Posting_Kit_v1.05`: 다른 세션 커밋 포함(INSTA v1.34 `342c3e23`, 예약 실행 공용화 `41c39274` — `schedulerConfig.ts` 2개 추가로 209개 파일). 비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build` 두 프로그램 통과(시험 폴더 삭제). 이 압축의 README 업데이트 내역에 v1.05 줄은 없음(포장 뒤 추가).
