@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 쇼핑제휴 v1.72: 예약 일시정지 안전 처리 마지막 1개 → 운영 12개 전부 적용
+- 다른 CLI(OpenAI 요청 규칙 v1.69~v1.71)가 20분 이상 커밋이 없고 v1.71이 DB·코드에 반영된 것을 확인한 뒤 진행. 같은 수정(일시정지 먼저 저장·`skipPausedMember`·상태 줄 즉시 갱신). 커밋 `2428e00c`, DB v1.72(크롬 SQL Editor, PRODUCTION 확인), 배포 `threads-affiliate-poster-kfn6l7ixo` Ready, `/login` 200, 회원 실행 주소 가짜 토큰 401.
+- `threads-affiliate-poster/AGENTS.md`는 다른 CLI의 오래된 미커밋 변경이 있어 기록을 여기에만 남김.
+- 링크: https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 웹툰 v1.18: Instagram 공용 계정 먼저 읽기 (주인님 「진행해줘」, 다른 세션 v1.17 끝난 뒤)
 - `ai-webtoon-studio/src/lib/instagram/memberAccount.ts`를 카드뉴스 v1.26·인플루언서 v1.16과 같은 코드로, 공용 부품 사본 등록. 테스트 18개·tsc·build, 배포 `ai-webtoon-studio-gblpamag0` Ready, DB v1.18(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor 새 탭), 크롬(관리자) 연결 상태 API `connected:true`. 이로써 Instagram 게시 프로그램 전부 공용 먼저 읽기.
 - 링크: https://ai-webtoon-automation.buylife.xyz
