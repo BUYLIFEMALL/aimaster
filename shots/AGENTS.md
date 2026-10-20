@@ -71,3 +71,7 @@
 - ② YouTube: 영상 포스팅 화면 연결 영역에 「다른 YouTube 프로그램 권한도 함께 받기」(연결 전 체크칸, 연결 후 「댓글 권한도 함께 받아 재연동」 버튼). 켜면 `force-ssl`·`upload`·`readonly`를 `include_granted_scopes=true`로 한 번에 요청(`src/lib/youtube/client.ts` 선택 인자, `ALL_YOUTUBE_SCOPES`), 콜백은 공용 표에 Google이 실제로 내준 권한(`scope`)을 기록 → 유튜브 댓글 자동화(v1.16, 같은 기능)와 한 번 연결로 같은 토큰을 쓴다.
 - ③ Facebook 앱 키: Instagram(Facebook 로그인) 연결 시작·콜백이 `src/lib/apiKeys.ts` `resolveFacebookLoginApp` — `facebook_app_id`/`secret`(INSTA 포스팅과 같은 공용 칸) 먼저, 없으면 예전 `meta_app_id`/`secret`(기존 연결·회원 그대로 동작). 설정 화면에 Facebook 앱 칸 추가·안내 문구 정정. `docs/IMPROVEMENTS.md` 2026-10-20 항목 처리됨.
 - DB 변경 없음(버전만, `supabase/migrations/20261020260000_youtube_scopes_fb_key_v1_23.sql`). 플랜 루트 `docs/PLAN_20261020_YOUTUBE_SCOPES_AND_SHOTS_FB_KEY.md`.
+
+## 2026-10-21 — 유튜브 업로드 코드 공용 기준 등록(코드만, 미배포) (Claude Code 윈도우)
+- `src/lib/youtube/client.ts`가 공용 기준 코드 **`youtube-upload-client`** 가 됨(사본: `shorts-onestop-studio/src/lib/youtube/client.ts`). 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync`로 사본에 반영하고 원스톱도 함께 시험한다.
+- 추가: `createYoutubeResumableSession()`(재개 가능 업로드 주소 — 브라우저에서 만든 영상을 직접 올릴 때). Shots는 아직 쓰지 않아 동작 같음 → 버전·배포는 다음 Shots 배포 때(`docs/SHARED_MODULES.md` 미배포 표).

@@ -87,3 +87,12 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.19 — 유튜브에 바로 올리기(엔진 공유 1번) (Claude Code 윈도우)
+- 유튜브 병합 분석 보류 F의 「엔진 공유」 1번(주인님 「진행해줘」). 플랜: [`docs/PLAN_20261021_YOUTUBE_UPLOAD.md`](docs/PLAN_20261021_YOUTUBE_UPLOAD.md).
+- 렌더 화면 **⑥ 유튜브에 올리기**(`src/components/views/YoutubeUploadCard.tsx`): 연결 채널 표시·제목(문구 후보에서 고르기)·설명란+해시태그(#Shorts 자동)·검색 태그·공개 범위(비공개 기본·일부 공개·공개)·카테고리·예약 공개(15분 뒤 이후, 그때까지 비공개)·진행 막대·올린 기록(대본 `data.youtube`, 최근 10개, 같은 대본 다시 올리기 경고).
+- 서버: `GET /api/youtube/status`(상태만, 토큰 안 보냄) · `POST /api/youtube/upload-session`(재개 가능 업로드 주소만 발급). **영상은 브라우저 → 유튜브 직접 PUT**(Vercel 4.5MB 한도·접근 토큰 비노출, 업로드 주소는 그 영상 한 개용). 요청 `Origin`을 세션 생성에 실어 구글이 이 화면 출처의 PUT을 허용.
+- 유튜브 연결 화면은 두지 않음 — 공용 연결 계정(`member_platform_accounts` platform `youtube`, 사본 `src/lib/memberIntegrations.ts`)만. 권한은 `youtube.upload`·`youtube.force-ssl`·`youtube` 중 하나(구글 `videos.insert` 허용 권한 — 유튜브 댓글 자동화 연결도 그대로 됨), `app_ref` = 회원 `google_client_id`일 때만(갱신 토큰은 발급 앱 전용). 갱신 실패면 공용 표에 「다시 연결 필요」 표시. 상태별 안내: `src/lib/youtube/account.ts` `youtubeStateMessage`.
+- 공용 기준 코드 `youtube-upload-client`: 기준 `shots/src/lib/youtube/client.ts`(+ `createYoutubeResumableSession`), 사본 `src/lib/youtube/client.ts` — 직접 고치지 말고 기준만 고친 뒤 `--sync`.
+- 매뉴얼(/guide) 업로드 안내·FAQ 2개, 메인 상세 소개(🎙️·🔑 단락 끝 문장)·사용 순서 4단계·특징 4번 문구 갱신. SQL `supabase/migrations/0023_v1_19_youtube_upload.sql`(버전만, 구조 변경 없음).
+- 검수: tsc·build·공용 점검 통과, 운영 배포 Ready, 크롬 시험 계정(연결 없음) ⑥ 안내·연결 버튼 확인. **관리자 계정 비공개 실제 업로드 시험은 주인님 확인 대기**(브라우저→유튜브 직접 PUT의 출처 허용이 실제로 되는지 이 시험에서 확정).

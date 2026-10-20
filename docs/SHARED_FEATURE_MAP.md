@@ -127,6 +127,16 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 
 공용화하면 좋은 점: 위 수정·실패 진단(`telegramDiagnosis`, instagram-comment-reply v1.22)을 한 번에 전파. 기준 후보: instagram-comment-reply `lib/telegram/client.ts` + `lib/actions/telegram.ts`의 진단 함수.
 
+## 11. 유튜브 업로드 — 공용 모듈 `youtube-upload-client` (2026-10-21 등록, 엔진 공유 1번)
+
+유튜브 연결·토큰 갱신·영상 올리기. 연결 계정은 공용 `member_platform_accounts`(platform `youtube`)에서 읽고, 갱신 토큰은 그것을 발급한 회원 본인 Google 앱(`app_ref` = `google_client_id`)으로만 쓴다. 영상이 **서버에 있으면** `uploadYoutubeVideo`(한 번에), **브라우저에서 만들어지면** `createYoutubeResumableSession`으로 주소만 받아 브라우저가 직접 PUT(Vercel 4.5MB 한도·토큰 비노출).
+
+| 프로그램 | 파일 | 상태 | 비고 |
+|---|---|---|---|
+| shots | `src/lib/youtube/client.ts` | 🟢 기준 | 서버 영상(JSON2Video 결과) 업로드 |
+| shorts-onestop-studio | `src/lib/youtube/client.ts` | 🔵 사본 | v1.19, 브라우저 MP4 → 재개 가능 업로드 |
+| playlist-channel-studio(영상 만들기) | — | ⚪ 후보 | 같은 브라우저 MP4라 그대로 붙일 수 있음 |
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |
