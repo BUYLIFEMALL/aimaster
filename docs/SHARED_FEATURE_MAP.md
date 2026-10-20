@@ -86,7 +86,7 @@
 
 ### 사진 파일 판독 — 공용 `image-file-check`
 
-2026-10-20 BLC-02: `portrait-photo/src/lib/imageFileCheck.ts`와 같은 테스트를 `naver-blog-agent/src/lib/imageFileCheck.ts` / `tests/imageFileCheck.test.mjs`에 기준 사본으로 등록. 브라우저에서 실제 사진을 판독하고 깨진 파일은 업로드 전에 거절합니다. 원본/다른 사본 변경 없음. 로컬 5개 판독 시험·실회원 JPEG/PNG/WebP/손상 파일 검수 통과, v2.02 배포 준비. 전체 사용처는 [공용 모듈 원장](SHARED_MODULES.md) 참조.
+2026-10-20 BLC-02(2026-10-21 운영 검수 완료): `portrait-photo/src/lib/imageFileCheck.ts`와 같은 테스트를 `naver-blog-agent/src/lib/imageFileCheck.ts` / `tests/imageFileCheck.test.mjs`에 기준 사본으로 등록. 브라우저에서 실제 사진을 판독하고 깨진 파일은 업로드 전에 거절합니다. 원본/다른 사본 변경 없음. 로컬 5개 판독 시험·실회원 JPEG/PNG/WebP/손상 파일 검수와 v2.02 운영 회원 사진 준비 검수 통과·배포 Ready. 다른 프로그램 재배포 불필요. 전체 사용처는 [공용 모듈 원장](SHARED_MODULES.md) 참조.
 
 ## 8. OpenAI 모델별 요청 규칙 — 공용 모듈 `openai-request-params` (2026-10-20 등록, 사본 8곳)
 

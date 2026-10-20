@@ -1,6 +1,8 @@
-# BLC-02 사진 준비 UI — v2.02 릴리스 검수
+# BLC-02 사진 준비 UI — v2.02 운영 완료
 
 2026-10-20 Codex(윈도우). BLC-01 운영 완료 후 주인님 ‘계속 작업 진행’ 요청으로 착수. 대상 AIMaster 운영 ref **`esgxyikcnnvmlhygjkth`**. [개발 계획](PLAN_20261020_BLC02_PHOTO_INPUT.md).
+
+2026-10-21 마무리: 코드 `49c6fd62` 커밋/원격 반영, 운영 배포 Ready와 실제 일반 회원 검수를 완료했습니다. 아래 사진 준비 범위만 완료이며 BLC-03·04는 미착수입니다.
 
 ## 구현·범위
 
@@ -18,7 +20,10 @@
 | 릴리스 | **158개 통과**(기존 140 + 입력 상태 13 + 공용 판독 5). 확장 수명주기 모의 42개·브리지/발행/모델 스크립트·정적 검사·타입·로컬 빌드 통과. [명령/해시](evidence/blc02-photo-input/release-checks.json) |
 | 경쟁 상황 | 겹친 6장 제한·역순 응답 중 정렬/설명/대표 유지·판독/업로드/조회 중 취소·늦은 응답·조회 재시도 업로드 0·부분 실패 차단·원래 수명 보존·미리보기 반납 |
 | 실제 로컬 회원 Edge | `buylifemall@naver.com` 실제 쿠키. PNG/JPEG/WebP 정상, 손상 PNG 업로드 전 거절, 초과 2장 제외, 6장 준비, 설명 동반 이동, 대표 교체/제거 보정, 상태 재조회, 전체 취소 0장 확인 |
-| 실제 Storage | 데스크톱 검수 후 새 파일 정확히 6개/2,137바이트(재조회 중복 없음), 좁은 화면 검수에 JPEG 1개 추가. 실제 파일 삭제 0·원래 30일 정리 유지 |
+| 실제 Storage | 데스크톱 6개/2,137바이트 + 좁은 화면 JPEG 1개 + 운영 PNG 1개 = 시험 파일 총 **8개/2,900바이트**. 재조회 중복 없음, 실제 파일 삭제 0·원래 30일 정리 유지 |
+| 실제 운영 회원 Edge | `buylifemall@naver.com`, v2.02. 네이티브 파일 선택으로 PNG 1장 준비 완료·대표·만료 날짜 확인 후 목록 전체 취소 0장. [화면](evidence/blc02-photo-input/production-member-photo.png) · [트리](evidence/blc02-photo-input/production-member-tree.txt) |
+| 운영 사용 안내·확장 | 안내 STEP 2→3→4 전환·해당 상세 표시, 사진 준비/회원 설정 직링크 확인. [안내 화면](evidence/blc02-photo-input/production-guide.png). Edge에 설치된 확장 재로드 후 v2.02 켜짐 확인 |
+| 운영 배포·보호 | `dpl_FpPfeQUEJyRfrpt2n8VzgQvFZcCR` Ready, DB/manifest/라이브 ZIP v2.02 일치(오류/경고 0), 무인증 보호 5경로 401·임시 검수 HTML 404. [운영 검사](evidence/blc02-photo-input/production-release.json) · [회원 검사 요약](evidence/blc02-photo-input/production-member-checks.json) |
 | 화면 증거 | [형식 검사](evidence/blc02-photo-input/local-validation.png) · [초과 제한](evidence/blc02-photo-input/local-limit.png) · [정렬/대표/설명](evidence/blc02-photo-input/local-reordered.png) · [트리](evidence/blc02-photo-input/local-reordered-tree.txt) · [전체 취소](evidence/blc02-photo-input/local-cleared.png) |
 | 좁은 화면 | Edge 최소 외곽 폭 **516px**, 사진 1열/안내 카드 2열·설명·버튼 확인(375px 검수 아님). [사진](evidence/blc02-photo-input/local-photo-narrow.png) · [안내](evidence/blc02-photo-input/local-guide-narrow.png). 원래 1433×1399 복원 |
 
@@ -29,11 +34,13 @@
 ## 발견·처리
 
 - **BLC-INS-06**: 업로드 후 조회 실패 재시도에 의한 중복 방지. 개발=ID/요청 안정성, 디자인=사진별 상태·조회 재확인, 신규 시스템=기존 업로드 보완. 안정성=경쟁 상황 시험/실제 파일 수 확인, 현재 적용성=에이전트 직접 적용, 편의=중복·설명 혼선 감소.
-- 해시 바로가기 제목이 좁은 화면의 고정 상단 메뉴에 가려지는 문제를 발견해 `scroll-mt-20` 수정. 최종 빌드/운영에서 확인합니다.
+- 해시 바로가기 제목이 좁은 화면의 고정 상단 메뉴에 가려지는 문제를 발견해 `scroll-mt-20` 수정·최종 빌드/운영 반영. 운영 516px 창에서 안내→`/#private-photo-input` 이동·0장 초기 상태를 트리로 확인했습니다. 마지막 재검수는 `screenshot_failed`로 픽셀 재확인이 불가능했고 접이식 클릭 효과도 확인되지 않아 **운영 좁은 화면의 가림 해소/펼침은 미검증**입니다. 로컬 좁은 화면 사진/안내와 운영 데스크톱 사진/안내 캡처 검수는 통과했습니다. [마지막 트리](evidence/blc02-photo-input/production-anchor-narrow-tree.txt). 창은 1433×1399로 복원·유지했습니다. 다음 Edge 화면 캡처 가능 시 이 항목을 먼저 재확인합니다.
 - 사진 목록/설명 새로고침 복원·비전/경험 기반 글쓰기·원고 저장/검수 지문 연결은 다음 항목입니다. 기존 도구 중단·권한/이용권 변경 없음.
 
 ## 릴리스 상태·다음 첫 단계
 
-로컬 검사 완료, 앱/manifest/ZIP v2.02 준비. 코드 커밋/푸시 → 이 프로그램만 운영 배포 → inspect Ready → DB/확장/라이브 ZIP 일치 → 실제 회원 운영 UI/매뉴얼 검수 순서입니다. 새 스키마/정책·키/환경변수·회원 권한 변경 없음. 비용 문서 2026-10-18 C2 정정(작업 단위 묶음·순차 배포) 적용. BLC-02 완료 후 BLC-03 플랜부터, 현재 미착수입니다.
+**BLC-02 사진 준비 UI 운영 완료(v2.02)**. 코드 `49c6fd62` 원격 반영, 이 프로그램만 1회 운영 배포 후 inspect Ready·DB/확장/라이브 ZIP 일치·실제 회원 운영 UI/매뉴얼 검수 완료. 배포 주소: https://naver-blog-agent-7dnly4peh-buylife.vercel.app . 운영 DB는 버전/확장 버전/다운로드 주소 메타데이터만 갱신했고 새 스키마/정책·키/환경변수·회원 권한 변경 없음. 비용 문서 2026-10-18 C2 정정(작업 단위 묶음·순차 배포) 적용. 유료 AI/최종 발행 0회, BLC-02 시험 원고 생성 0건. 목록 취소는 업로드 파일의 즉시 삭제가 아닙니다.
+
+다음 첫 단계는 위 운영 좁은 화면 바로가기 픽셀/펼침 확인 보완 후 **BLC-03 방문 메모·사진 관찰 기반 후기 작성 플랜**입니다. 회원 본인 비전 지원 모델/키·추측 금지·사실 근거 분리와 현재 준비 컴포넌트의 사진 데이터 연결부터 설계합니다. 사진 목록/설명은 메모리에만 있으며 BLC-03·04 구현 전에는 기존 글 생성에 사용되지 않습니다. 기존 도구 중단은 하지 않았습니다. 최종 문서/증거는 별도 문서 커밋으로 반영하며 이 변경에 재배포는 필요하지 않습니다.
 
 https://naver-blog-agent.buylife.xyz
