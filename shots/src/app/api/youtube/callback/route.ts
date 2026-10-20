@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
       refreshToken: token.refresh_token,
       tokenExpiresAt,
       clientId,
+      grantedScope: token.scope ?? null,
     });
 
     return NextResponse.redirect(`${siteUrl}${redirectTarget}?youtube_connected=1`);

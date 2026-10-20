@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
 import { deleteSharedYoutubeAccount, getShotsYoutubeAccount } from "@/lib/youtube/memberAccount";
+import { ALL_YOUTUBE_SCOPES } from "@/lib/youtube/memberAccount";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { buildOAuthState } from "@/lib/oauthState";
 import { suggestYoutubeCategory, generateYoutubeDescription } from "@/lib/ai/posting";
@@ -35,7 +36,8 @@ export async function connectYoutubeAction(
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값. 인증 후 원래 있던 페이지로
   // 돌아갈 수 있도록 returnTo 경로도 함께 실어 보낸다.
   const returnTo = String(formData.get("returnTo") ?? "");
-  redirect(getYoutubeAuthorizeUrl(buildOAuthState(user.id, returnTo), clientId));
+  const withShared = formData.get("withShared") === "1";
+  redirect(getYoutubeAuthorizeUrl(buildOAuthState(user.id, returnTo), clientId, withShared ? { scopes: ALL_YOUTUBE_SCOPES, includeGranted: true } : {}));
 }
 
 export async function disconnectYoutubeAction() {

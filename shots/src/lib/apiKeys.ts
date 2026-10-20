@@ -13,6 +13,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   google_client_secret: "Google OAuth Client Secret (유튜브 채널 연동)",
   meta_app_id: "Meta App ID (인스타그램 계정 연동)",
   meta_app_secret: "Meta App Secret (인스타그램 계정 연동)",
+  facebook_app_id: "Facebook 앱 ID (Facebook 페이지 방식 — INSTA 포스팅과 같은 칸)",
+  facebook_app_secret: "Facebook 앱 시크릿 (Facebook 페이지 방식 — INSTA 포스팅과 같은 칸)",
 };
 
 // 등록 폼(설정 페이지)에 노출할 프로바이더 목록. PROVIDER_LABELS에서 그대로 뽑아 쓰기 때문에
@@ -65,4 +67,24 @@ export async function getRegisteredProviders(
 export function maskApiKey(key: string): string {
   if (key.length <= 8) return "••••••••";
   return `${key.slice(0, 6)}${"•".repeat(8)}${key.slice(-4)}`;
+}
+
+/**
+ * v1.23: Instagram(Facebook 로그인) 연결에 쓸 회원 본인 앱. INSTA 포스팅과 같은 순서 —
+ * Facebook 앱 칸(facebook_app_id/secret)을 먼저, 없으면 예전 칸(meta_app_id/secret). 둘 다 회원 본인 키다.
+ */
+export async function resolveFacebookLoginApp(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+): Promise<{ appId: string | null; appSecret: string | null }> {
+  const [fbId, fbSecret] = await Promise.all([
+    resolveApiKey(supabase, userId, "facebook_app_id"),
+    resolveApiKey(supabase, userId, "facebook_app_secret"),
+  ]);
+  if (fbId) return { appId: fbId, appSecret: fbSecret };
+  const [metaId, metaSecret] = await Promise.all([
+    resolveApiKey(supabase, userId, "meta_app_id"),
+    resolveApiKey(supabase, userId, "meta_app_secret"),
+  ]);
+  return { appId: metaId, appSecret: metaSecret };
 }

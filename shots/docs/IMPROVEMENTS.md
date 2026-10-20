@@ -25,4 +25,4 @@
 
 ## 2026-10-20 (Claude Code 윈도우) — Facebook 로그인 앱 키 이름 불일치
 - 근거: INSTA 포스팅은 Facebook 로그인에 `facebook_app_id`(없으면 `meta_app_id`), 이 프로그램은 `meta_app_id`만 쓴다(`src/app/api/instagram/callback/route.ts`, `lib/actions/instagram.ts`). `meta_app_id`는 원래 Instagram 앱 칸이라 회원이 두 프로그램에 다른 값을 넣어야 할 수 있다.
-- 영향: 중간(혼동). 상태: 미처리 — 바꾸려면 설정 화면 안내·기존 연결 영향 확인 필요. 다음 첫 단계: 이 프로그램 설정 화면에 `facebook_app_id` 칸을 INSTA와 같은 순서로 읽게 바꾸는 플랜.
+- 영향: 중간(혼동). 상태: ✅ 처리(v1.23, 2026-10-20) — Facebook 앱 칸 먼저, 없으면 예전 Meta 칸. 다음 첫 단계: 이 프로그램 설정 화면에 `facebook_app_id` 칸을 INSTA와 같은 순서로 읽게 바꾸는 플랜.

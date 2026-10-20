@@ -2,7 +2,7 @@ import { saveSharedShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
-import { resolveApiKey } from "@/lib/apiKeys";
+import { resolveFacebookLoginApp } from "@/lib/apiKeys";
 import { parseOAuthState } from "@/lib/oauthState";
 import {
   exchangeInstagramCode,
@@ -44,10 +44,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
-    const appSecret = await resolveApiKey(supabase, user.id, "meta_app_secret");
+    // v1.23: Facebook 앱 칸 먼저, 없으면 예전 Meta 칸(연결 시작과 같은 순서)
+    const { appId, appSecret } = await resolveFacebookLoginApp(supabase, user.id);
     if (!appId || !appSecret) {
-      throw new Error("Meta App ID/Secret이 등록되어 있지 않습니다.");
+      throw new Error("Facebook 앱(또는 Meta App) ID/Secret이 등록되어 있지 않습니다.");
     }
 
     const shortLivedToken = await exchangeInstagramCode(code, appId, appSecret);

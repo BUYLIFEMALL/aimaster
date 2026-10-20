@@ -13,6 +13,13 @@ export const PROGRAM_SLUG = "auto-shorts-posting";
 // lib/youtube/client.ts YOUTUBE_SCOPES와 같은 목록
 export const YOUTUBE_UPLOAD_SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"];
 
+// 「다른 YouTube 프로그램 권한도 함께 받기」 — 유튜브 댓글(force-ssl)과 shots(upload·readonly)가 한 번 연결로 같은 토큰을 쓰도록
+export const ALL_YOUTUBE_SCOPES = [
+  "https://www.googleapis.com/auth/youtube.force-ssl",
+  "https://www.googleapis.com/auth/youtube.upload",
+  "https://www.googleapis.com/auth/youtube.readonly",
+];
+
 export type ShotsYoutubeAccount = {
   access_token: string;
   refresh_token: string;
@@ -54,6 +61,8 @@ export async function saveSharedYoutubeAccount(input: {
   refreshToken: string;
   tokenExpiresAt: string;
   clientId: string;
+  /** Google 토큰 응답의 실제 받은 권한(공백 구분). 없으면 이 프로그램이 요청하는 기본 권한 */
+  grantedScope?: string | null;
 }) {
   const { error } = await saveMemberAccount(createAdminClient(), {
     userId: input.userId,
@@ -63,7 +72,7 @@ export async function saveSharedYoutubeAccount(input: {
     accessToken: input.accessToken,
     refreshToken: input.refreshToken,
     tokenExpiresAt: input.tokenExpiresAt,
-    grantedScopes: YOUTUBE_UPLOAD_SCOPES,
+    grantedScopes: input.grantedScope ? input.grantedScope.split(" ").filter(Boolean) : YOUTUBE_UPLOAD_SCOPES,
     appRef: input.clientId,
     connectedVia: PROGRAM_SLUG,
   });

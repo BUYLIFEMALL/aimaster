@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.22` (`package.json` 1.22.0, `version.ts` v1.22, DB `programs` v1.22 — 2026-10-20)
+> - **버전**: `v1.23` (`package.json` 1.23.0, `version.ts` v1.23, DB `programs` v1.23 — 2026-10-20)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -66,3 +66,8 @@
 ## 2026-10-20 v1.22 — 회원 연동 정보 공용 저장 ⑤단계 YouTube (Claude Code 윈도우)
 - YouTube 연결 콜백이 `youtube_accounts`와 공용 표(platform `youtube`, 권한 `youtube.upload`+`youtube.readonly`, 갱신 토큰, `app_ref`=회원 `google_client_id`)에 함께 저장. 업로드·연결 상태 확인은 `src/lib/youtube/memberAccount.ts` `getShotsYoutubeAccount` — 업로드 권한 + 갱신 토큰 + 재연결 필요 아님 + 공용 계정의 앱이 지금 Client ID와 같음 → 없으면 `youtube_accounts`. 접근 토큰 갱신은 읽은 곳에, 갱신 실패 시 공용이면 「다시 연결 필요」 표시(자기 표엔 그 칸이 없음), 해제는 공용 행도 삭제.
 - 유튜브 댓글 자동화(채널 관리 권한)와 권한이 달라 서로의 공용 토큰은 쓰지 않는다. 백필 `supabase/migrations/20261020210000_member_integrations_v1_22.sql`.
+
+## 2026-10-20 v1.23 — YouTube 연결 하나로 합치기 + Facebook 앱 키 이름 맞추기 (Claude Code 윈도우)
+- ② YouTube: 영상 포스팅 화면 연결 영역에 「다른 YouTube 프로그램 권한도 함께 받기」(연결 전 체크칸, 연결 후 「댓글 권한도 함께 받아 재연동」 버튼). 켜면 `force-ssl`·`upload`·`readonly`를 `include_granted_scopes=true`로 한 번에 요청(`src/lib/youtube/client.ts` 선택 인자, `ALL_YOUTUBE_SCOPES`), 콜백은 공용 표에 Google이 실제로 내준 권한(`scope`)을 기록 → 유튜브 댓글 자동화(v1.16, 같은 기능)와 한 번 연결로 같은 토큰을 쓴다.
+- ③ Facebook 앱 키: Instagram(Facebook 로그인) 연결 시작·콜백이 `src/lib/apiKeys.ts` `resolveFacebookLoginApp` — `facebook_app_id`/`secret`(INSTA 포스팅과 같은 공용 칸) 먼저, 없으면 예전 `meta_app_id`/`secret`(기존 연결·회원 그대로 동작). 설정 화면에 Facebook 앱 칸 추가·안내 문구 정정. `docs/IMPROVEMENTS.md` 2026-10-20 항목 처리됨.
+- DB 변경 없음(버전만, `supabase/migrations/20261020260000_youtube_scopes_fb_key_v1_23.sql`). 플랜 루트 `docs/PLAN_20261020_YOUTUBE_SCOPES_AND_SHOTS_FB_KEY.md`.

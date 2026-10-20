@@ -53,7 +53,8 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
 ];
 
 const GOOGLE_PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret"];
-const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
+// v1.23: Facebook 앱 칸(INSTA 포스팅과 같은 공용 칸)을 먼저, 예전 Meta 칸은 비어 있어도 됨
+const META_PROVIDERS: ApiKeyProvider[] = ["facebook_app_id", "facebook_app_secret", "meta_app_id", "meta_app_secret"];
 
 export default async function SettingsPage() {
   const user = await requireUser();
@@ -144,7 +145,7 @@ export default async function SettingsPage() {
         <p className="mb-3 space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
           Meta 앱이 아직 개발(Development) 모드이기 때문에, 그 앱의 &quot;역할&quot; 메뉴에서
           테스터(tester)로 등록된 계정만 연결이 됩니다. 본인 명의로 Meta 앱을 직접 만들고
-          아래 두 값(Meta App ID/Secret)을 등록한 뒤, 그 앱의 유효한 OAuth 리디렉션 URI에
+          아래 Facebook 앱 ID/시크릿을 등록한 뒤(INSTA 포스팅에서 이미 넣었다면 「등록됨」으로 보이며 그대로 씁니다. 예전 Meta App 칸은 Facebook 앱 칸이 비어 있을 때만 쓰므로 새로 넣지 않아도 됩니다), 그 앱의 유효한 OAuth 리디렉션 URI에
           아래 콜백 주소를 추가하고, &quot;역할&quot; 메뉴에서 본인 계정을 테스터로 추가해주셔야
           연결할 수 있습니다.
         </p>

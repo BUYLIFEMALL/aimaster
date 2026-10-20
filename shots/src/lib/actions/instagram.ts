@@ -6,6 +6,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { deleteSharedInstagramAccount, getShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { resolveFacebookLoginApp } from "@/lib/apiKeys";
 import { buildOAuthState } from "@/lib/oauthState";
 import { generateInstagramCaption } from "@/lib/ai/posting";
 import { getInstagramAuthorizeUrl, publishInstagramReel } from "@/lib/instagram/client";
@@ -27,9 +28,10 @@ export async function connectInstagramAction(
 ): Promise<ConnectInstagramState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+  // v1.23: Facebook 앱 칸 먼저, 없으면 예전 Meta 칸(INSTA 포스팅과 같은 순서)
+  const { appId } = await resolveFacebookLoginApp(supabase, user.id);
   if (!appId) {
-    return { error: "설정 페이지에서 본인의 Meta App ID를 먼저 등록해주세요." };
+    return { error: "설정 페이지에서 본인의 Facebook 앱 ID(또는 Meta App ID)를 먼저 등록해주세요." };
   }
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값. 인증 후 원래 있던 페이지로
   // 돌아갈 수 있도록 returnTo 경로도 함께 실어 보낸다.

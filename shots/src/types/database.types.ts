@@ -8,7 +8,9 @@ export type ApiKeyProvider =
   | "google_client_id"
   | "google_client_secret"
   | "meta_app_id"
-  | "meta_app_secret";
+  | "meta_app_secret"
+  | "facebook_app_id"
+  | "facebook_app_secret";
 export type ShortsSourceType = "http" | "rss" | "perplexity";
 export type ShortsCandidateStatus = "collected" | "requested";
 export type ShortsVideoStatus = "script_ready" | "images_generating" | "images_ready";

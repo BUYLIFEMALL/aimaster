@@ -148,6 +148,18 @@ export function PostingSection({
                     {isConnectingYoutube ? "연결 중..." : "재연동"}
                   </button>
                 </form>
+                <form action={connectYoutubeFormAction}>
+                  <input type="hidden" name="returnTo" value={pathname} />
+                  <input type="hidden" name="withShared" value="1" />
+                  <button
+                    type="submit"
+                    disabled={isConnectingYoutube}
+                    title="유튜브 댓글 자동화까지 한 번 연결로 함께 쓰도록 권한을 함께 받아 다시 연결합니다(같은 Google 앱)"
+                    className="rounded-md border border-blue-200 bg-white px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50"
+                  >
+                    {isConnectingYoutube ? "연결 중..." : "댓글 권한도 함께 받아 재연동"}
+                  </button>
+                </form>
                 <form action={disconnectYoutubeAction}>
                   <button
                     type="submit"
@@ -171,6 +183,10 @@ export function PostingSection({
           <form action={connectYoutubeFormAction}>
             <input type="hidden" name="returnTo" value={pathname} />
             <p className="mb-3 text-sm text-neutral-600">유튜브 채널을 먼저 연결해주세요.</p>
+            <label className="mb-3 flex items-start gap-2 text-xs text-neutral-600">
+              <input type="checkbox" name="withShared" value="1" className="mt-0.5" />
+              <span>다른 YouTube 프로그램 권한도 함께 받기 — 유튜브 댓글 자동화까지 이 한 번의 연결로 함께 씁니다(같은 Google 앱 사용).</span>
+            </label>
             <Button type="submit" variant="secondary" disabled={isConnectingYoutube}>
               {isConnectingYoutube ? "연결 중..." : "채널 연결하기"}
             </Button>
