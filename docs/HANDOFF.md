@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 쇼츠 원스톱 v1.19 「유튜브에 바로 올리기」(엔진 공유 1번)
+
+- 유튜브 보류 F 「엔진 공유」 1번. 렌더 화면 ⑥에서 브라우저 MP4를 내 채널에 바로 올림(공개 범위·예약 공개·카테고리·올린 기록). 서버는 업로드 주소만 발급, 영상은 브라우저→유튜브 직접(4.5MB 한도·토큰 비노출). 유튜브 연결은 공용 연결 계정 재사용(연결 화면 없음).
+- 공용 기준 `youtube-upload-client` 등록(기준 `shots/src/lib/youtube/client.ts` + `createYoutubeResumableSession`, Shots는 미배포·동작 같음). `member-integrations` 사본에 원스톱 추가. 운영 DB `esgxyikcnnvmlhygjkth` 버전·상세 소개만 변경.
+- 커밋 `91d6853d`·`049ba426`, 배포 Ready, 크롬: 시험 계정 ⑥ 「한 번 연결」 안내 확인, 메인 상세 v1.19 문구 확인. **남은 일: 관리자 채널 비공개 실업로드 1회(주인님 확인 후) — 브라우저 직접 PUT 허용 확정.** 다음 2번: Shots에 브라우저 MP4 선택지. 인수인계 `shorts-onestop-studio/docs/PLAN_20261021_YOUTUBE_UPLOAD.md`.
+
+https://shorts-onestop-studio.buylife.xyz/render
+
 ## 2026-10-21 Claude Code(윈도우) — 사용 종료 프로그램 5개 코드 정리(백업 후 삭제)
 
 - 주인님 「백업해놓고 지워」「사용종료 하기로한 프로그램은 백업해서 하나의 폴더로 만든후 진행」. 대상: `cardnews-studio`·`instagram-dm-reply`·`youtube-channel-consultant`·`seo-thumbnail-pro`·`yt-playlist-studio`(모두 병합으로 노출 중지된 옛 앱).
