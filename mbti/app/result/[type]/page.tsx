@@ -4,11 +4,10 @@ import Link from "next/link";
 import { PERSONALITY_TYPES, ALL_TYPE_CODES } from "@/lib/types";
 import { ShareButtons } from "@/components/ShareButtons";
 import { requireProgramAccess } from "@/lib/access";
+import { CHARACTER_RESULT_URL, tarotDrawLink, typeResultLink } from "@/lib/programLinks";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://personality-code.buylife.xyz";
 // v1.21: 결과 → 캐릭코드(같은 유형 캐릭터) · AIMaster 타로점(3장 리딩)으로 이어 가기. 유형·지표 비율·질문만 보낸다.
-const CHARACTER_RESULT_URL = "https://mbti-character.buylife.xyz/result";
-const TAROT_DRAW_URL = "https://tarot-reading.buylife.xyz/draw";
 
 const DIMENSION_LABELS: Record<string, string> = {
   EI: "외향-내향",
@@ -146,14 +145,10 @@ export default async function ResultPage({
 }
 
 function NextSteps({ code, epithet, strengths }: { code: string; epithet: string; strengths: Record<string, string | undefined> }) {
-  const cp = new URLSearchParams();
-  for (const dim of Object.keys(DIMENSION_LABELS)) {
-    const v = Number(strengths[dim]);
-    if (Number.isFinite(v)) cp.set(dim, String(Math.max(0, Math.min(100, Math.round(v)))));
-  }
-  cp.set("from", "personality-code");
+  // 공용 programLinks — 지표(EI·SN·TF·JP)만 0~100으로 넘긴다
+  const characterHref = typeResultLink(CHARACTER_RESULT_URL, code, Object.fromEntries(Object.keys(DIMENSION_LABELS).map((dim) => [dim, strengths[dim]])), "personality-code");
   const question = `성격코드 ${code}(${epithet})인 나에게 지금 필요한 흐름과 조언은 무엇일까요?`;
-  const tarotHref = `${TAROT_DRAW_URL}?${new URLSearchParams({ q: question, spread: "three_cards", from: "personality-code" }).toString()}`;
+  const tarotHref = tarotDrawLink(question, "personality-code");
   return (
     <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-amber-50 p-5 mb-8">
       <h2 className="text-sm font-bold text-neutral-900 mb-1">✨ 이어서 보기</h2>
@@ -161,7 +156,7 @@ function NextSteps({ code, epithet, strengths }: { code: string; epithet: string
         같은 유형으로 다른 AIMaster 프로그램에서 이어 볼 수 있어요. 유형과 지표 비율만 넘어가며, 캐릭터 그림·타로 카드는 각 프로그램에서 직접 눌러야 만들어집니다.
       </p>
       <div className="flex flex-col sm:flex-row gap-2">
-        <a href={`${CHARACTER_RESULT_URL}/${code}?${cp.toString()}`} target="_blank" rel="noopener noreferrer"
+        <a href={characterHref} target="_blank" rel="noopener noreferrer"
           className="flex-1 text-center rounded-xl bg-neutral-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-neutral-700">
           🎭 캐릭코드에서 내 캐릭터 보기
         </a>

@@ -2,6 +2,11 @@
 
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
+## 2026-10-20 (버전 변경 없음·미배포) — 「이어서 보기」 링크를 공용 기준 코드 사본으로 (Claude Code 윈도우)
+- 한 일: 성격·운세 4개 프로그램의 「이어서 보기」 링크 코드를 공용 기준 코드 `personality-program-links`(`programLinks.ts`, 기준 `personality-suite/src/lib/`, 사본 `mbti/lib/`·`mbti-character/lib/`·`tarot/lib/`)로 모았다 — 타로점·캐릭코드·성격코드 주소, `tarotDrawLink(질문, from)`(300자 제한), `typeResultLink(주소, 유형, 지표, from)`(0~100 정수), 넘어온 곳 이름 `FROM_LABELS`. 이 프로그램은 `app/result/[type]/page.tsx` `TarotBridge`가 `tarotDrawLink`를 부른다.
+- 옛 링크와 결과가 같은지 표본 3개로 대조(같음). 동작·화면 변경 없음. 검수: tsc·build(성격 진단 단위 22 포함) 통과, 공용 코드 점검 일치.
+- **미배포**(내부 정리 — 다음 배포 때 함께, 버전 +0.01도 그때). **새 프로그램을 이 흐름에 연결할 때는 기준 `FROM_LABELS`에 이름을 넣고 `--sync`**.
+
 ## 2026-10-20 v1.23 — 그림 자동 생성을 「검사 직후」로만 제한(회원 키 과금 안전) (Claude Code 윈도우)
 - 문제: 결과 화면을 `from` 없이 열기만 하면(새로고침·뒤로 가기·북마크·공유 링크) 회원 Gemini 키로 그림이 자동 생성돼 과금됨(2026-10-20 검수 중 관리자 키로 실제 발생).
 - 수정: `components/TestFlow.tsx`가 결과로 갈 때 `&fresh=1`을 붙이고, `app/result/[type]/page.tsx`는 `autoGenerate={fresh === "1" && !from}`. `components/ResultInteractive.tsx`는 첫 렌더에서 `fresh`를 주소에서 바로 지우고(`history.replaceState`, 화면 다시 그리지 않음), 생성 성공 시 주소에 `img`를 넣어 새로고침해도 방금 만든 그림이 그대로 보임(서버 `getTrustedImageUrl`이 신뢰 저장소 주소만 받음). 버튼으로 만드는 「다시 생성」은 그대로.

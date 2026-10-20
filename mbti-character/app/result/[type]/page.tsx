@@ -4,6 +4,7 @@ import { CHARACTERS, ALL_TYPE_CODES } from "@/lib/characters";
 import { requireProgramAccess } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { ResultInteractive } from "@/components/ResultInteractive";
+import { tarotDrawLink } from "@/lib/programLinks";
 
 // 로그인 여부(쿠키)에 따라 접근을 막아야 하는 페이지라 빌드 타임에 미리 정적 생성할 수 없다
 // — generateStaticParams를 쓰지 않고 매 요청마다 동적으로 렌더링한다.
@@ -12,7 +13,6 @@ export const fetchCache = "force-no-store";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.buylife.xyz";
 // v1.21: 결과 → AIMaster 타로점 3장 리딩으로 이어 가기. 캐릭터 이름·유형만 담은 질문을 미리 채운다(카드 뽑기는 타로점에서 직접).
-const TAROT_DRAW_URL = "https://tarot-reading.buylife.xyz/draw";
 
 // 공유 링크(?img=)로 넘어온 이미지 URL이 실제로 우리 Supabase Storage 버킷 것인지 검증한다 —
 // 검증 없이 그대로 og:image에 반영하면, 조작된 img 파라미터로 임의 이미지를 우리 페이지의
@@ -89,7 +89,7 @@ export default async function ResultPage({
 
 function TarotBridge({ name, code }: { name: string; code: string }) {
   const question = `나와 닮은 캐릭터 ${name}(${code})처럼 지금의 나에게 필요한 흐름과 조언은 무엇일까요?`;
-  const href = `${TAROT_DRAW_URL}?${new URLSearchParams({ q: question, spread: "three_cards", from: "mbti-character" }).toString()}`;
+  const href = tarotDrawLink(question, "mbti-character");
   return (
     <section className="mt-8 rounded-3xl border border-violet-500/30 bg-gradient-to-br from-violet-900/30 to-amber-900/20 p-6 shadow-sm">
       <div className="flex items-start gap-3">

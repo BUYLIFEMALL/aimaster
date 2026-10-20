@@ -2,6 +2,11 @@
 
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
+## 2026-10-20 (버전 변경 없음·미배포) — 「이어서 보기」 링크를 공용 기준 코드 사본으로 (Claude Code 윈도우)
+- 한 일: 성격·운세 4개 프로그램의 「이어서 보기」 링크 코드를 공용 기준 코드 `personality-program-links`(`programLinks.ts`, 기준 `personality-suite/src/lib/`, 사본 `mbti/lib/`·`mbti-character/lib/`·`tarot/lib/`)로 모았다 — 타로점·캐릭코드·성격코드 주소, `tarotDrawLink(질문, from)`(300자 제한), `typeResultLink(주소, 유형, 지표, from)`(0~100 정수), 넘어온 곳 이름 `FROM_LABELS`. 이 프로그램은 `app/result/[type]/page.tsx` `NextSteps`가 공용 함수를 부른다(지표는 `DIMENSION_LABELS`의 4개만 넘김).
+- 옛 링크와 결과가 같은지 표본 3개로 대조(같음). 동작·화면 변경 없음. 검수: tsc·build(성격 진단 단위 22 포함) 통과, 공용 코드 점검 일치.
+- **미배포**(내부 정리 — 다음 배포 때 함께, 버전 +0.01도 그때). **새 프로그램을 이 흐름에 연결할 때는 기준 `FROM_LABELS`에 이름을 넣고 `--sync`**.
+
 ## 2026-10-20 v1.21 — 결과 → 캐릭코드·타로점 「이어서 보기」 (Claude Code 윈도우)
 - `app/result/[type]/page.tsx` 하단 `NextSteps` 카드: 「🎭 캐릭코드에서 내 캐릭터 보기」(`mbti-character.buylife.xyz/result/<유형>?축%&from=personality-code`, 캐릭코드는 from이 있으면 그림 자동 생성 안 함) · 「🃏 타로점에서 3장 뽑기」(유형·별칭만 담은 질문, `from=personality-code`). AI 호출 없음.
 - 성향 지표 값을 0~100으로 제한해 표시(주소로 받은 값 검증). AI 종합 성격 진단 v1.27의 16유형 결과에서 이 화면으로 들어온다.

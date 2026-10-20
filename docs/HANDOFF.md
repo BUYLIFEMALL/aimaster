@@ -10,6 +10,13 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 성격·운세 4개 「이어서 보기」 링크 공용화 `personality-program-links` (남은 작업 순서 진행 ⑥, 미배포)
+- 한 일: 성격 진단·성격코드·캐릭코드·타로점이 따로 만들던 다른 프로그램 링크(주소·질문·지표·넘어온 곳 이름)를 공용 기준 코드 `programLinks.ts`(기준 `personality-suite/src/lib/`)로. 옛 링크와 결과가 같음을 표본 3개로 확인.
+- 검수: 4개 tsc·build, 성격 진단 단위 22 통과, 공용 코드 점검 일치. **미배포**(다음 배포 때 함께). 상세 각 `AGENTS.md`.
+- 다음 순서 ⑦ 4컷 서버 보관함 사진 주소 1시간 만료 대응.
+- 링크: https://personality-suite.buylife.xyz · https://personality-code.buylife.xyz · https://mbti-character.buylife.xyz · https://tarot-reading.buylife.xyz
+
+
 ## 2026-10-20 Claude Code(윈도우) — 회원 예약 실행 방식 코드 15개 공용화 `member-scheduler` (남은 작업 순서 진행 ⑤, 미배포)
 - 한 일: 손 복사 사본이던 11개(`threads-content-ops`·`threads`·`insta_auto_poster`·`threads-affiliate-poster`·`booking-reminder`·`crm-google-form`·`kakao_auto_poster`·`naver-cafe-poster`·`stepmail`·`trending-product-finder`·`youtube-auto-reply`)의 `memberScheduler.ts`를 인스타 4개와 같은 공용 기준 코드로 통일(기준 `cardnews-studio`). 프로그램 값은 같은 폴더 새 `schedulerConfig.ts` — 설치 키트 여부·「남은 일」 세기도 여기로. 11개 값은 원래 파일과 자동 대조 일치.
 - 검수: 15개 tsc·build, 테스트(카드뉴스 52·인플루언서 18·웹툰 18·4컷 52·운영 자동화 32, 상품소싱·유튜브 권한 29), 공용 코드 점검, 설치 키트 DB 대조 통과. 동작·DB 변경 없음.

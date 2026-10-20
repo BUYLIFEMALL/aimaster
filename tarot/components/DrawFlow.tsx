@@ -14,6 +14,7 @@ import {
 } from "@/lib/deck";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { FROM_LABELS } from "@/lib/programLinks";
 
 const PROVIDER_LABELS = {
   gemini: "Google Gemini (AI 카드 일러스트 생성)",
@@ -55,7 +56,6 @@ export function DrawFlow({
     const sp = p.get("spread");
     if (sp && sp in SPREAD_CONFIGS) setSpreadType(sp as SpreadType);
     // 넘어온 곳 이름은 정해진 목록에서만 고른다(주소의 임의 글자를 그대로 보여 주지 않음)
-    const FROM_LABELS: Record<string, string> = { "personality-suite": "AI 종합 성격 진단", "mbti-character": "캐릭코드", "personality-code": "성격코드" };
     const from = p.get("from");
     if (from && FROM_LABELS[from]) setFromProgram(FROM_LABELS[from]);
   }, []);

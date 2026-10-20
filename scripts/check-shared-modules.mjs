@@ -56,6 +56,12 @@ const MODULES = [
     copies: ["ai-influencer-studio/src/lib/instagram/cronJobOrg.ts", "ai-webtoon-studio/src/lib/instagram/cronJobOrg.ts", "four-cut-comics/src/lib/instagram/cronJobOrg.ts"],
   },
   {
+    // 성격·운세 4개 「이어서 보기」 링크(타로점·캐릭코드·성격코드 주소, 넘어온 곳 이름) — 2026-10-20 등록
+    id: "personality-program-links",
+    source: "personality-suite/src/lib/programLinks.ts",
+    copies: ["mbti/lib/programLinks.ts", "mbti-character/lib/programLinks.ts", "tarot/lib/programLinks.ts"],
+  },
+  {
     // 인스타 예약 화면 동작(상태 줄 훅·상태 문구·게시 기록 시각 문구·예약 취소 훅) — 2026-10-20 등록. 화면 모양과 주소는 각 프로그램
     id: "insta-posts-client",
     source: "cardnews-studio/src/lib/instagram/postsClient.ts",
