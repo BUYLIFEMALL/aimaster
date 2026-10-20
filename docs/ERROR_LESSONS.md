@@ -2457,3 +2457,9 @@
 <!-- /IMAGE_STUDIO_PROMPTS_LESSON_20261020 -->
 
 - 2026-10-20 보충(예약 상태 경쟁): 같은 회원의 「재개」와 「실행 방식 변경」이 1초 안에 겹치면 서로 읽은 값이 달라 DB와 cron-job.org 작업 상태가 어긋날 수 있다(실제 발생, `docs/SCHEDULER_POLICY.md` 실검수 기록). 실행 주소에서 「지금 상태가 실행해도 되는 상태인가」를 한 번 더 확인하는 방식(skipPausedMember)이 이런 어긋남을 스스로 복구한다 — 화면 동작은 서로 빨리 누르지 않게 한 번에 하나씩 검수한다.
+
+### 2026-10-20 personality-suite v1.20 — Tailwind가 없는 프로그램에 Tailwind 클래스로 화면을 만들어 배치가 전부 깨짐 (Claude Code 윈도우)
+- **증상**: 대시보드 숫자 카드·4단계 안내가 세로로 풀리고, 자주 묻는 질문은 브라우저 기본 화살표(▸)와 직접 넣은 ▼가 질문 글 위아래로 따로 찍혀 겹쳐 보임(주인님 신고).
+- **원인**: `personality-suite`는 일반 CSS(`globals.css`)만 쓰는 프로그램인데, 디자인 리뉴얼 때 다른 프로그램처럼 `flex`·`grid-cols-4`·`bg-rose-50` 같은 Tailwind 클래스로 작성됨 → 정의가 없어 전부 무시. 빌드·타입 검사는 통과하므로 자동 검사로는 안 잡힘.
+- **해결**: 두 화면을 `globals.css`의 `ps-*` 클래스로 재작성(v1.21). FAQ는 `summary::marker`/`::-webkit-details-marker`를 숨기고 화살표 하나만 둠.
+- **다음부터 확인**: 화면을 고치기 전에 그 프로그램 `package.json`에 `tailwindcss`가 있는지 먼저 본다. 디자인 작업 뒤에는 `python scripts/check-unstyled-tailwind.py`(출력 없으면 정상) — 2026-10-20 전체 점검 결과 다른 프로그램은 0건.
