@@ -1,5 +1,6 @@
 // 공급사 REST 호출(SDK 없이). 회원 본인 키로만 호출하며 키는 로그·오류 메시지에 남기지 않는다.
 // 테스트에서 fetch를 바꿔 끼울 수 있도록 fetchImpl 을 받는다.
+import { openAIGenerationParams } from "./openaiRequestParams";
 
 export type LlmProvider = "gemini" | "openai" | "anthropic";
 
@@ -81,7 +82,7 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
         },
       ],
       // 샘플링 설정은 기존 비추론 계열(gpt-4*)에만 보낸다.
-      ...(/^gpt-4(?:[.o-]|$)/i.test(model) ? { temperature: 0.8 } : {}),
+      ...openAIGenerationParams(model, { temperature: 0.8 }),
       ...(json ? { response_format: { type: "json_object" } } : {}),
     };
   } else {

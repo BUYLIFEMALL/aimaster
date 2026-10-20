@@ -1,5 +1,6 @@
 import 'server-only'
 import type { ContentProvider } from './contentModels'
+import { openAIGenerationParams } from './openaiRequestParams'
 
 // 플랫폼별 JSON 글 생성 어댑터 — SEO 스튜디오 naver-blog-seo-studio/lib/ai/contentJson.ts와 같은 방식.
 // 회원이 고른 플랫폼의 본인 키만 받는다(운영자 키 폴백 없음).
@@ -68,7 +69,7 @@ export async function generateContentJson(params: {
         { role: 'user', content: user },
       ],
       response_format: { type: 'json_object' },
-      ...(model.startsWith('gpt-4') ? { temperature: 0.65 } : {}),
+      ...openAIGenerationParams(model, { temperature: 0.65 }),
     }),
   })
   if (!response.ok) {

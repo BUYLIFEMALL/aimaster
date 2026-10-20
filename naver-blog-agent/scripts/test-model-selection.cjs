@@ -14,6 +14,8 @@ function load() {
     if (id === '@google/generative-ai') return { GoogleGenerativeAI: class { getGenerativeModel(o) { sent.push(['gemini', o.model]); return { generateContent: async () => ({ response: { text: () => 'ok' } }) }; } } };
     if (id === 'openai') return { default: class { constructor() { this.chat = { completions: { create: async (o) => { sent.push(['openai', o.model]);openaiRequests.push(o); return { choices: [{ message: { content: 'ok' } }] }; } } }; } } };
     if (id === '@anthropic-ai/sdk') return { default: class { constructor() { this.messages = { create: async (o) => { sent.push(['anthropic', o.model]); return { content: [{ type: 'text', text: 'ok' }] }; } }; } } };
+    // 공용 기준 코드 openai-request-params(2026-10-20)는 모의 없이 실제 파일을 변환해 씀
+    if (id === './openaiRequestParams') { const m = { exports: {} }; new Function('module', 'exports', 'require', ts.transpileModule(fs.readFileSync(path.join(root, 'src/lib/ai/openaiRequestParams.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText)(m, m.exports, require); return m.exports; }
     return {};
   };
   new Function('module', 'exports', 'require', js)(module, module.exports, mockRequire);

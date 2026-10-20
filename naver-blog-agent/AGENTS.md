@@ -99,3 +99,7 @@ flowchart TD
 - **실시간 타이핑 진행도 인디케이터**: 확장이 글을 작성하는 동안 웹 대시보드에서 진행률(%)과 상태를 실시간 스낵바로 표시.
 - **가상 스마트폰 뷰어**: 네이버 블로그 앱 프레임으로 모바일에서 읽히는 형태를 미리보기 제공.
 - **에디터 자동 백업 알림 뱃지**: 로컬 스토리지에 안전하게 임시 보관 중임을 에디터 우측 상단에 인디케이터로 안내.
+
+## 2026-10-20 — OpenAI 요청 규칙 공용 기준 코드 사본 적용 (Claude Code 윈도우, **미배포 — 다음 배포 때 함께**)
+- `naver-blog-agent/src/lib/ai/openaiRequestParams.ts`는 공용 기준 코드 `openai-request-params` 사본(기준 `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts`) — **직접 고치지 않는다**. 「GPT-4 계열일 때만 온도」 분기를 `openAIGenerationParams(model, { temperature })`로 바꿈(동작 같음, 추론 모델 규칙은 기준 한 곳에서 관리).
+- 검수: tsc 0, 기존 테스트 통과. 급하지 않은 정리라 배포하지 않음(빌드 비용 규칙). **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 적을 것.** 목록: 루트 `docs/SHARED_MODULES.md` 「미배포 사본」.

@@ -1,5 +1,6 @@
 // 글 생성 공용 호출: Gemini / OpenAI(GPT) / Anthropic(Claude). 회원 본인 키를 이 브라우저에서 직접 쓴다(올인원의 기존 방식).
 // 선택한 공급사만 호출하고 다른 공급사로 몰래 바꾸지 않는다(naver-blog-agent 와 같은 원칙). 키는 오류 문구에 넣지 않는다.
+import { openAIGenerationParams } from "./openaiRequestParams";
 
 export type TextProvider = "gemini" | "openai" | "anthropic";
 
@@ -74,7 +75,7 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
         },
       ],
       // 샘플링 설정은 기존 비추론 계열(gpt-4*)에만 보낸다.
-      ...(/^gpt-4(?:[.o-]|$)/i.test(model) ? { temperature } : {}),
+      ...openAIGenerationParams(model, { temperature }),
       ...(json ? { response_format: { type: "json_object" } } : {}),
     };
   } else {

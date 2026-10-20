@@ -677,3 +677,7 @@
 - 연결 콜백 이중 기록(게시 권한, `app_ref`=회원 Threads 앱 ID), 계정 연결 해제 시 그 Threads 계정의 공용 행도 삭제(남기면 다시 가져와짐). **배포판(`IS_STANDALONE`)은 공용 표를 건드리지 않음.**
 - Meta 제거·삭제 콜백(쇼핑제휴 v1.66 처리기)은 이 프로그램 계정을 **지우지 않고 토큰만 무효화**(빈 토큰 + 만료=지금) — 지우면 cascade로 글까지 사라지므로.
 - 운영 DB: `supabase/migrations/20261020140000_member_integrations_v2_11.sql` — 공용 행 없는 회원만 백필 + 버전. 검수: tsc 0, 테스트 32/32, build.
+
+## 2026-10-20 — OpenAI 요청 규칙 공용 기준 코드 사본 적용 (Claude Code 윈도우, **미배포 — 다음 배포 때 함께**)
+- `threads-content-ops/lib/openaiRequestParams.ts`는 공용 기준 코드 `openai-request-params` 사본(기준 `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts`) — **직접 고치지 않는다**. 「GPT-4 계열일 때만 온도」 분기를 `openAIGenerationParams(model, { temperature })`로 바꿈(동작 같음, 추론 모델 규칙은 기준 한 곳에서 관리).
+- 검수: tsc 0, 기존 테스트 통과. 급하지 않은 정리라 배포하지 않음(빌드 비용 규칙). **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 적을 것.** 목록: 루트 `docs/SHARED_MODULES.md` 「미배포 사본」.

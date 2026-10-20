@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import type { AIProvider } from "@/lib/apiKeys";
+import { openAIGenerationParams } from "./openaiRequestParams";
 
 export interface AIModelConfig {
   provider: AIProvider;
@@ -87,7 +88,7 @@ export async function callAI(
       { role: "user", content: userPrompt },
     ],
     // Supply sampling settings only to the established non-reasoning family.
-    ...(/^gpt-4(?:[.o-]|$)/i.test(selectedModel) ? {temperature:0.7} : {}),
+    ...openAIGenerationParams(selectedModel, { temperature: 0.7 }),
   });
   return res.choices[0]?.message?.content || "";
 }

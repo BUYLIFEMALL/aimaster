@@ -7,6 +7,7 @@ import { withYearRule } from "./yearRule";
 import { extractJson, parsePromptsJson, promptSystem } from "@/threads-content-ops/lib/postImage";
 import { REWRITE_MODES, type EngineProvider, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import type { LengthRange } from "@/threads-content-ops/lib/productPost";
+import { openAIGenerationParams } from "./openaiRequestParams";
 
 export const HOOK_TYPES = ["자책형", "부정 명령형", "리얼 썰형", "논쟁형", "반전형"] as const;
 
@@ -136,7 +137,7 @@ async function callJson(engine: Engine, systemPrompt: string, user: string): Pro
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
       response_format: { type: "json_object" },
       // GPT-5.x/6 같은 추론 계열 모델은 temperature를 받지 않아 GPT-4 계열에만 보낸다.
-      ...(engine.model.startsWith("gpt-4") ? { temperature: 0.8 } : {}),
+      ...openAIGenerationParams(engine.model, { temperature: 0.8 }),
     }),
     cache: "no-store",
     signal: AbortSignal.timeout(80_000),
