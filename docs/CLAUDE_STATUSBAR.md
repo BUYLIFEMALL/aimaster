@@ -27,6 +27,7 @@
 2. `statusline-extra.js`를 고치면 동작을 확인한 뒤 `.good` 백업도 같이 갱신한다(고장 난 파일을 백업으로 덮지 않는다).
 3. 상태바가 "이상하다"는 말을 들으면 추측하지 말고 `last-agy-statusline.json`(Claude Code가 실제로 보낸 값)과 스크립트 출력을 대조해 보고한다. 예: 2026-10-15 오전 "100%"로 보인 것은 주간 한도가 05:00에 초기화되고 5시간 구간이 새로 시작된 정상 값이었다.
 4. 출력이 비면 Claude Code가 그 칸의 값을 보내지 않은 경우가 많다(예: 세션 첫 응답 전에는 한도 값이 없음). 스크립트를 고치기 전에 입력 JSON부터 본다.
+5. **세션 시작 직후 5h·weekly가 안 보이던 문제(2026-10-20 주인님 「상태바가 자동으로 올라오지 않아」) — 해결**: 첫 응답 전에는 Claude Code가 `rate_limits`를 보내지 않는다. `statusline-extra.js`가 한도 값을 받을 때마다 `%TEMP%/claude-statusline-last-limits.json`에 저장하고, 값이 빠지면 **초기화 시각(`resets_at`)이 안 지난** 마지막 값을 보여 준다(한도는 계정 전체 값이라 직전 세션 값과 같음, 지난 값은 버림). 윈도우 `~/.claude/statusline-extra.js`·`.good` 갱신 완료. **맥미니는 같은 수정을 따로 적용해야 함**(맥미니 `~/.claude/statusline-extra.js`에 같은 블록 — `process.env.TEMP` 대신 `os.tmpdir()` 사용 권장).
 
 ## 4. 점검 명령 (Git Bash)
 
