@@ -12,6 +12,7 @@ import type { Balloon } from "@/lib/comic/balloon";
 import { BalloonEditor } from "./BalloonEditor";
 import type { Script } from "@/lib/comic/script";
 import { composePanel, dataUrlsToZip, downloadUrl, fileToSheet, layoutPanels, shrinkForUpload, toJpeg, webtoonImages } from "@/lib/comic/draw";
+import { InstaDirectPublish } from "./InstaDirectPublish";
 import { INSTA_CARD_COUNT, continueScript, instaHandoffUrl, instaText } from "@/lib/comic/extras";
 import type { InstaCopy } from "@/lib/comic/extras";
 import { saveWork } from "@/lib/comic/gallery";
@@ -693,6 +694,8 @@ export function Studio({ userId }: { userId: string }) {
               {insta && <textarea className="cc-insta" readOnly rows={7} value={instaText(insta)} aria-label="인스타 게시 문구" />}
             </div>
           )}
+          {/* v1.17 인스타그램에 바로 게시(바둑판 1장 / 컷별 캐러셀) — 넘기기 버튼은 INSTA에서 예약·편집하려는 회원을 위해 그대로 둔다 */}
+          {allDone && <InstaDirectPublish cuts={composed as string[]} makeGrid={gridJpeg} caption={insta ? instaText(insta) : ""} />}
           {allDone && finished && (
             <div className="cc-save cc-finished">
               <b className="cc-label">완결</b>

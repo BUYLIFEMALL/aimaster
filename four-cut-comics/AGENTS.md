@@ -71,6 +71,14 @@
 - 검수: tsc 0, 시험 35/35, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.
 - 배포·검수(2026-10-20): `four-cut-comics-gmsrnixmd` Ready, DB `programs.version` v1.15. 크롬: 사이드바 v1.15, 버튼이 여는 INSTA 주소(`?caption=&hashtags=`)로 INSTA 새 글 화면의 캡션·해시태그 칸이 정확히 채워짐(`&` 포함). 크롬 확인 중 INSTA가 AI 이미지 없이는 첨부 칸을 안 보이고 제출 때 항상 AI로 덮어쓰는 문제를 발견 → 주인님 승인으로 INSTA v1.27에서 보완(아래 INSTA 기록). 4컷 화면의 버튼 클릭 자체(컷 그림이 모두 있어야 보임)는 그림 생성 비용 때문에 실화면 미검수 — 다음에 그림을 만들 때 버튼→새 탭·그림 저장·안내 확인.
 
+## 2026-10-20 v1.17 — 📤 인스타그램에 바로 게시(자동 포스팅 4단계, 즉시 게시) (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261020_INSTA_DIRECT_POST.md`. 기준: `ai-webtoon-studio` v1.15 즉시 게시 사본(연결 상태·서명 업로드·게시·임시 사진 삭제), 공용 기준 코드 `instagram-publish` 사본 추가(`scripts/check-shared-modules.mjs` 등록).
+- 화면(`src/components/studio/InstaDirectPublish.tsx`): 모든 컷이 끝나면 「인스타 게시 문구」 칸 아래 「📤 인스타그램에 바로 게시」 — ① 바둑판 합본 1장(피드) ② 컷별 캐러셀(컷 수만큼, 최대 10장). 캡션은 「인스타 문구 만들기」 결과로 채우고 고칠 수 있음(2200자). 연결은 INSTA에서 한 번 한 공용 값(`insta_accounts`), 공개 게시 확인 체크 후 게시. 기존 「INSTA로 넘기기」 두 버튼은 INSTA에서 예약·편집하려는 회원을 위해 그대로 둠.
+- 비율: 인스타 피드(4:5~1.91:1) 밖이면 **자르지 않고 흰 여백**을 붙여 맞춤(컷·말풍선 보존), 긴 변 1440px 이하(`src/lib/instagram/feed.ts` `feedPad`).
+- 서버: `src/lib/instagram/{publish,memberAccount,posting,feed}.ts`, API `/api/instagram`(연결 상태)·`/api/instagram/upload`·`/api/instagram/publish`(기존 `/api/insta`는 문구 생성이라 겹치지 않게 새 주소). 임시 사진 `insta-post-images/{userId}/fourcut-insta/{묶음}/NN.jpg` — 게시 뒤 삭제. **DB 구조 변경 없음**(버전만, `supabase/migrations/0009_version_v1_17.sql`).
+- 검수(2026-10-20): 시험 40개(새 4개)·타입·빌드 통과. 배포 `four-cut-comics-9sxmy161f` → 체크 줄 배치 수정 2번 → `four-cut-comics-qmea26oxs` Ready, DB v1.17. 비로그인 새 주소 3개 401. 크롬(시험 회원 계정 `buylifemall@naver.com`, 그림 생성 비용을 쓰지 않으려고 **이 탭의 화면 상태에 시험 대본·컷 그림(600×800)·인스타 문구를 넣어** 확인): 칸 표시·「연결됨 @계정」·형식 2개·캡션 채움·확인 전 비활성 → 업로드·게시 요청을 탭에서 가로채 실제 게시·저장 없이 확인 — 바둑판 1장 1120×1400(4:5), 컷별 4장 각 640×800(좌우 흰 여백 20px, 말풍선 보존), 흐름 순서(업로드 준비 → 올리기 → 게시 요청)와 실패 안내 표시. 로그인 상태 11장·다른 회원 폴더·웹툰 폴더 400, 업로드 경로 `내 id/fourcut-insta/묶음/01.jpg`. 검수 중 확인 체크가 문장 위에 따로 놓이는 문제(`.cc-form label` 세로 배치가 `.check`보다 우선) 발견 → 가로 배치 직접 지정해 재배포 후 확인.
+- **하지 않은 것**: 실제 인스타 게시·실제 저장소 업로드(첫 회원 사용 때 확인). 2차 예약 게시는 웹툰 v1.16 구조(표 2개, 운영 DB 승인 필요)로 다음에.
+
 ## 2026-10-20 v1.16 — 카드뉴스(컷별 4장)로 INSTA 넘기기 (Claude Code 윈도우, 주인님 지시 「추가 개선 제안 1·2」)
 - 인스타 문구 칸 **[카드뉴스(컷별 4장)로 올리기]**: INSTA 새 글을 `postType=card_news`로 열고(문구가 길어도 형식 값은 유지) 문구 복사 + 컷 4장 `4컷만화-1컷~4컷.jpg`(JPEG) 차례로 저장(0.4초 간격 — 크롬이 「여러 파일 다운로드 허용」을 한 번 물을 수 있음). INSTA 카드뉴스가 4장 고정이라 **4컷일 때만** 활성(3·6컷은 비활성 + 안내 툴팁). 컷마다 비율이 다르면 인스타가 첫 장 비율로 맞춰 자름(인스타 정책).
 - 파일: `src/lib/comic/extras.ts`(`INSTA_CARD_COUNT`, `instaHandoffUrl(…, postType)`), `Studio.tsx`(`sendCardsToInsta`), `tests/comic.test.mjs`(+1, 36/36). INSTA 짝 작업: INSTA v1.28(여러 파일 한 번에 첨부·`postType` 주소값).
