@@ -17,7 +17,7 @@ function environment(fetch) {
   const savers=new Map();
   const writePost=async(post,fields)=>{if(!savers.has(post.id))savers.set(post.id,new PostSaveClient(post,false,fetch));return savers.get(post.id).save(fields);};
   const mergePosts=(rows,removed=[])=>saved.push(mergeSavedPosts(posts,rows,removed));
-  return {saved,alerts,errors,ids,cache,env:{useCallback:fn=>fn,listEpoch:{current:0},fetch,posts,writePost,mergePosts,PostSaveClient:class extends PostSaveClient{constructor(post,create=false){super(post,create,fetch);}},mergeSavedPosts,postSaveRef:{current:null},checkedIds:['a','b'],bulkScheduleMode:'now',bulkScheduleStart:'',bulkScheduleInterval:60,buildScheduleSlots:()=>{throw new Error('예약 모드 아님');},publishVisibility:'private',visibilityLabel:'비공개',confirm:()=>true,alert:value=>alerts.push(value),savePosts:rows=>saved.push(rows),setIsBulkUpdating(){},setCheckedIds(){},
+  return {saved,alerts,errors,ids,cache,env:{useCallback:fn=>fn,listEpoch:{current:0},fetch,posts,writePost,mergePosts,PostSaveClient:class extends PostSaveClient{constructor(post,create=false){super(post,create,fetch);}},mergeSavedPosts,postSaveRef:{current:null},checkedIds:['a','b'],bulkScheduleMode:'now',bulkScheduleStart:'',bulkScheduleInterval:60,buildScheduleSlots:()=>{throw new Error('예약 모드 아님');},publishVisibility:'private',visibilityLabel:'비공개',confirm:()=>true,alert:value=>alerts.push(value),askConfirm:async()=>true,notify:value=>alerts.push(value),savePosts:rows=>saved.push(rows),setIsBulkUpdating(){},setCheckedIds(){},
     sourceEpoch:{current:1},postIdRef:{current:null},selectedBlogId:'myblog',window:{},localStorage:{getItem:key=>cache.get(key)||null,setItem:(key,value)=>cache.set(key,value)},setError:value=>errors.push(value),setCurrentPostId:value=>ids.push(value),setSavedPostCount(){},setSaveRevision(){},resolveSaveStatus:(_previous,current)=>current}};
 }
 test('single dispatch rejection never changes local status or reports registration success',async()=>{
@@ -202,7 +202,7 @@ test('rejected editor save preserves the queue row and editor buffer; modal clos
   assert.equal(await handler(queue,'handleSaveEditor',h.env)({title:'edit',content:'body',tags:[]}),false);
   assert.equal(h.saved.length,0);assert.equal(closes,0);
   const modal='src/components/BlogSmartEditorModal.tsx';
-  const base={saving:false,title:'edit',editorMode:'code',codeContent:'body',htmlContent:'',excerpt:'',tags:[],category:'category',setSaving(){},onClose:()=>closes++,alert(){}};
+  const base={saving:false,title:'edit',editorMode:'code',codeContent:'body',htmlContent:'',excerpt:'',tags:[],category:'category',setSaving(){},onClose:()=>closes++,alert(){},notify(){}};
   await handler(modal,'handleSave',{...base,onSave:async()=>false})();assert.equal(closes,0);
   await handler(modal,'handleSave',{...base,onSave:async()=>true})();assert.equal(closes,1);
 });

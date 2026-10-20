@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
+import DialogHost from "@/components/DialogHost";
 
 interface DashboardShellProps {
   userEmail: string;
@@ -31,6 +32,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
           {children}
         </main>
       </div>
+      <DialogHost />
     </div>
   );
 }

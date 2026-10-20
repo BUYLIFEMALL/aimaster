@@ -191,6 +191,8 @@ const categories = [
   assert.ok(source.includes("categories={registeredCategories}"));
 
   const managers = [mountHook(), mountHook(), mountHook()];
+  // 실제 화면처럼 처음 열릴 때의 서버 동기화가 끝난 뒤 조작한다(확인 창이 비동기라 대기 중 동기화가 끼어들지 않게).
+  await new Promise((resolve) => setTimeout(resolve, 0));
   Object.assign(context, {
     registeredCategories: categories,
     saveCategories: (updated) => {
@@ -202,7 +204,7 @@ const categories = [
   const updateCategories = evaluate("handleUpdateRegisteredCategories", context);
   const manager = {
     categories: context.registeredCategories, newCatName: "새 분류", editingName: "수정한 여행",
-    generateSlug: (name) => name.toLowerCase(), window: { confirm: () => true },
+    generateSlug: (name) => name.toLowerCase(), window: { confirm: () => true }, askConfirm: async (message) => manager.window.confirm(message),
     onUpdateCategories: updateCategories, deleted: [], errors: [],
     onCategoryDeleted: (name) => manager.deleted.push(name),
     setNewCatName: (value) => { manager.newCatName = value; },
@@ -235,10 +237,10 @@ const categories = [
 
   const selectedForDelete = manager.categories.find((item) => item.id === "custom-trip");
   manager.window.confirm = () => false;
-  evaluate("handleDeleteCategory", manager)(selectedForDelete);
+  await evaluate("handleDeleteCategory", manager)(selectedForDelete);
   assert.equal(manager.categories.length, 3, "Delete cancellation preserved");
   manager.window.confirm = () => true;
-  evaluate("handleDeleteCategory", manager)(selectedForDelete);
+  await evaluate("handleDeleteCategory", manager)(selectedForDelete);
   checkManagers();
   assert.equal(state.category, "", "Deleted selection cleared");
   assert.deepEqual(manager.deleted, ["수정한 여행"]);
@@ -258,7 +260,7 @@ const categories = [
 
   managers[0].value.saveCategories(manager.categories.slice(0, 1));
   manager.categories = managers[0].states[0];
-  evaluate("handleDeleteCategory", manager)(manager.categories[0]);
+  await evaluate("handleDeleteCategory", manager)(manager.categories[0]);
   assert.equal(managers[0].states[0].length, 1, "Last category protected");
   managers.forEach((screen) => screen.unmount());
   function checkModalPlacement(node, insideForm = false) {

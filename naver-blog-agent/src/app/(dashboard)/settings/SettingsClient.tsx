@@ -1,5 +1,6 @@
 "use client";
 
+import { notify, askConfirm } from "@/lib/uiDialog";
 import { useState } from "react";
 import Link from "next/link";
 import { APP_VERSION } from "@/lib/version";
@@ -95,7 +96,7 @@ export function SettingsClient({
   };
 
   const handleDeleteKey = async (targetProvider: string) => {
-    if (!confirm(`${targetProvider} 키를 정말 삭제하시겠습니까?`)) return;
+    if (!await askConfirm(`${targetProvider} 키를 정말 삭제하시겠습니까?`)) return;
 
     try {
       const res = await fetch("/api/keys", {
@@ -106,7 +107,7 @@ export function SettingsClient({
       if (!res.ok) throw new Error("삭제 실패");
       await fetchKeys();
     } catch (err: any) {
-      alert("키 삭제 실패: " + err.message);
+      notify("키 삭제 실패: " + err.message);
     }
   };
 
@@ -119,7 +120,7 @@ export function SettingsClient({
         setPairCode(data.pairCode);
       }
     } catch (err: any) {
-      alert("코드 발급 실패: " + err.message);
+      notify("코드 발급 실패: " + err.message);
     } finally {
       setPairLoading(false);
     }

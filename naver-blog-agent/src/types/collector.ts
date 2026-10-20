@@ -4,6 +4,7 @@ export interface BlogViralCandidate {
   source_input: string;
   title: string;
   content: string;
+  source_text?: string; // 요약 전 원문(최대 4,000자) — 생성 때 사실 근거
   category: string;
   keywords: string[];
   angle?: string;

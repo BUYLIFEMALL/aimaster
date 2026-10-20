@@ -1,5 +1,6 @@
 "use client";
 
+import { notify, askConfirm } from "@/lib/uiDialog";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
@@ -177,7 +178,7 @@ export default function QueuePage() {
     const outcomes=await Promise.allSettled(targets.map(post=>writePost(post,{category_name:"일반"})));
     const accepted=outcomes.filter((item):item is PromiseFulfilledResult<SavedPostItem>=>item.status==="fulfilled").map(item=>item.value);
     mergePosts(accepted);
-    if(accepted.length!==targets.length)alert("일부 원고의 분류를 변경하지 못했습니다. 최신 원고를 확인해 주세요.");
+    if(accepted.length!==targets.length)notify("일부 원고의 분류를 변경하지 못했습니다. 최신 원고를 확인해 주세요.");
   };
 
   const handleUpdatePostCategory = async (postId: string, newCategory: string) => {
@@ -185,7 +186,7 @@ export default function QueuePage() {
     try {
       const saved=await writePost(target,{category_name:newCategory});mergePosts([saved]);
       setViewingDetailPost(previous=>previous?.id===postId?{...previous,...saved}:previous);
-    }catch(error){alert(error instanceof Error?error.message:"원고 분류 저장 실패");}
+    }catch(error){notify(error instanceof Error?error.message:"원고 분류 저장 실패");}
   };
 
   // 8. 다중 선택 체크박스 조작
@@ -209,11 +210,11 @@ export default function QueuePage() {
   // 9. 선택 원고 카테고리 일괄 이동 (Bulk Move)
   const handleBulkMoveCategory = async () => {
     if (!bulkMoveCategory) {
-      alert("이동할 대상 카테고리를 선택해주세요.");
+      notify("이동할 대상 카테고리를 선택해주세요.");
       return;
     }
     if (checkedIds.length === 0) {
-      alert("카테고리를 이동할 원고를 1건 이상 선택해주세요.");
+      notify("카테고리를 이동할 원고를 1건 이상 선택해주세요.");
       return;
     }
 
@@ -225,12 +226,12 @@ export default function QueuePage() {
     const outcomes=await Promise.allSettled(targets.map(post=>writePost(post,{category_name:targetCat})));
     const accepted=outcomes.filter((item):item is PromiseFulfilledResult<SavedPostItem>=>item.status==="fulfilled").map(item=>item.value);
     mergePosts(accepted);
-    if(accepted.length!==targets.length)alert("일부 원고의 분류를 변경하지 못했습니다. 최신 원고를 확인해 주세요.");
+    if(accepted.length!==targets.length)notify("일부 원고의 분류를 변경하지 못했습니다. 최신 원고를 확인해 주세요.");
 
     setIsBulkUpdating(false);
     setCheckedIds([]);
     setBulkMoveCategory("");
-    alert(`선택하신 원고 ${targetIds.length}건이 "${targetCat}" 카테고리로 안전하게 이동되었습니다!`);
+    notify(`선택하신 원고 ${targetIds.length}건이 "${targetCat}" 카테고리로 안전하게 이동되었습니다!`);
   };
 
   // 10. 선택 원고 일괄 발행 큐 전송
@@ -241,13 +242,13 @@ export default function QueuePage() {
     let slots: string[] = [];
     if (bulkScheduleMode === "reserve") {
       try { slots = buildScheduleSlots(bulkScheduleStart, bulkScheduleInterval, targetIds.length); }
-      catch (error: any) { alert(error.message); return; }
+      catch (error: any) { notify(error.message); return; }
     }
     const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
     const question = bulkScheduleMode === "reserve"
       ? `선택한 원고 ${targetIds.length}건을 ${visibilityLabel}로 ${when(slots[0])}부터 ${bulkScheduleInterval}분 간격(마지막 ${when(slots[slots.length - 1])})으로 예약 발행 대기에 등록하시겠습니까?`
       : `선택한 원고 ${targetIds.length}건을 ${visibilityLabel}로 스마트에디터 ONE 작업 대기에 일괄 등록하시겠습니까?`;
-    if (!confirm(question)) {
+    if (!await askConfirm(question)) {
       return;
     }
 
@@ -262,13 +263,13 @@ export default function QueuePage() {
 
     setIsBulkUpdating(false);
     setCheckedIds([]);
-    alert(`작업 대기 등록 ${accepted.length}건 / 실패 ${targetIds.length-accepted.length}건. 실패한 원고는 보관함에서 최종 검수·발행 설정을 확인해 주세요.`);
+    notify(`작업 대기 등록 ${accepted.length}건 / 실패 ${targetIds.length-accepted.length}건. 실패한 원고는 보관함에서 최종 검수·발행 설정을 확인해 주세요.`);
   };
 
   // 11. 선택 원고 일괄 삭제
   const handleBulkDelete = async () => {
     if (checkedIds.length === 0) return;
-    if (!confirm(`선택한 원고 ${checkedIds.length}건을 보관함에서 정말 삭제하시겠습니까?`)) {
+    if (!await askConfirm(`선택한 원고 ${checkedIds.length}건을 보관함에서 정말 삭제하시겠습니까?`)) {
       return;
     }
 
@@ -282,35 +283,35 @@ export default function QueuePage() {
     mergePosts([],accepted);
     if(viewingDetailPost && accepted.includes(viewingDetailPost.id))setViewingDetailPost(null);
     setIsBulkUpdating(false);setCheckedIds([]);
-    alert(`삭제 ${accepted.length}건 / 실패 ${targetIds.length-accepted.length}건. 진행 중인 원고는 먼저 결과를 확인해 주세요.`);
+    notify(`삭제 ${accepted.length}건 / 실패 ${targetIds.length-accepted.length}건. 진행 중인 원고는 먼저 결과를 확인해 주세요.`);
   };
 
   // 즉시 발행 요청 (단일)
   const handlePublishNow = async (id: string) => {
-    if (publishVisibility === "public" && !confirm("전체공개 설정으로 전송합니다. 저장한 진행 방식이 자동 발행이면 최종 버튼까지 누릅니다. 계속하시겠습니까?")) return;
+    if (publishVisibility === "public" && !await askConfirm("전체공개 설정으로 전송합니다. 저장한 진행 방식이 자동 발행이면 최종 버튼까지 누릅니다. 계속하시겠습니까?")) return;
     try {
       const target=posts.find(post=>post.id===id);if(!target)throw new Error("원고를 다시 확인해 주세요.");
       const saved=await writePost(target,{status:"queued",publish_visibility:publishVisibility});
       mergePosts([saved]);
     }catch(err){
-      alert(err instanceof Error?err.message:"작업 대기 등록 실패");return;
+      notify(err instanceof Error?err.message:"작업 대기 등록 실패");return;
     }
 
-    alert(
+    notify(
       `크롬 확장의 작업 대기에 ${visibilityLabel}설정으로 등록되었습니다!\n크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.`
     );
   };
 
   // 단일 원고 삭제
   const handleDelete = async (id: string) => {
-    if (!confirm("이 원고를 보관함에서 삭제하시겠습니까?")) return;
+    if (!await askConfirm("이 원고를 보관함에서 삭제하시겠습니까?")) return;
     try {
       const res=await fetch(`/api/posts?id=${encodeURIComponent(id)}`,{method:"DELETE"});
       const data=await res.json();if(!res.ok || data.success!==true)throw new Error(data.error || "삭제 저장을 확인하지 못했습니다.");
       mergePosts([],[id]);
       setCheckedIds(prev=>prev.filter(item=>item!==id));
       if(viewingDetailPost?.id===id)setViewingDetailPost(null);
-    }catch(err){alert(err instanceof Error?err.message:"삭제를 확인하지 못했습니다.");}
+    }catch(err){notify(err instanceof Error?err.message:"삭제를 확인하지 못했습니다.");}
   };
 
   // 원고 복사
@@ -336,7 +337,7 @@ export default function QueuePage() {
     navigator.clipboard.writeText(full);
     setCopiedId(post.id);
     setTimeout(() => setCopiedId(null), 2000);
-    alert("원고 내용과 이미지 링크가 클립보드에 복사되었습니다!");
+    notify("원고 내용과 이미지 링크가 클립보드에 복사되었습니다!");
   };
 
   // 에디터 수정 완료 저장
@@ -353,9 +354,9 @@ export default function QueuePage() {
       const saved=await writePost(editingPost,{title:updated.title,content:updated.content,tags:updated.tags,category_name:updated.category || editingPost.category_name || "일반"});
       mergePosts([saved]);
       setEditingPost(null);
-      alert("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
+      notify("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
       return true;
-    }catch(err){alert(err instanceof Error?err.message:"서버 원고 저장 실패");return false;}
+    }catch(err){notify(err instanceof Error?err.message:"서버 원고 저장 실패");return false;}
   };
 
   // 본문 스마트 렌더링 파서

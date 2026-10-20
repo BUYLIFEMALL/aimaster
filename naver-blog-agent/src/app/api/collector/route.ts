@@ -19,6 +19,9 @@ import type { BlogViralCandidate } from "@/types/collector";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+// AI가 정리하기 전 원문을 글감에 함께 보관해 글 생성 때 사실 근거로 쓴다(회원 브라우저 보관).
+const SOURCE_TEXT_MAX = 4000;
+
 export async function POST(req: Request) {
   try {
     const access = await checkProgramAccessApi();
@@ -100,6 +103,7 @@ export async function POST(req: Request) {
         id: `viral-url-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "http",
         source_input: rawUrl,
+        source_text: rawText.slice(0, SOURCE_TEXT_MAX),
         title: d.title,
         content: d.content,
         category: d.category,
@@ -143,6 +147,7 @@ export async function POST(req: Request) {
         id: `viral-rank-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "http",
         source_input: `네이버 ${RANKING_SOURCES[kind].label}`,
+        source_text: rawText.slice(0, SOURCE_TEXT_MAX),
         title: d.title,
         content: d.content,
         category: d.category,
@@ -195,6 +200,7 @@ export async function POST(req: Request) {
         id: `viral-pplx-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "perplexity",
         source_input: rawTopic,
+        source_text: trendReport.slice(0, SOURCE_TEXT_MAX),
         title: d.title,
         content: d.content,
         category: d.category,
@@ -266,6 +272,7 @@ export async function POST(req: Request) {
         id: `viral-shorts-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "shorts",
         source_input: `https://www.youtube.com/shorts/${video.id}`,
+        source_text: [`[영상] ${String(video.title || "")}`, extraContext.description, extraContext.comments.length ? `댓글: ${extraContext.comments.join(" / ")}` : ""].filter(Boolean).join("\n").slice(0, SOURCE_TEXT_MAX),
         title: d.title,
         content: `[영상 훅 & 분석] ${analysis.hook} / ${analysis.whyViral}\n\n${d.content}`,
         category: d.category,

@@ -1,5 +1,6 @@
 "use client";
 
+import { notify, askConfirm } from "@/lib/uiDialog";
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Edit2, User, Check } from "lucide-react";
 import { useAccountsSync } from "@/hooks/useAccountsSync";
@@ -105,8 +106,8 @@ export function NaverAccountManager() {
   };
 
   // 계정 삭제
-  const handleDeleteAccount = (id: string) => {
-    if (!confirm("정말 이 계정을 삭제하시겠습니까?")) return;
+  const handleDeleteAccount = async (id: string) => {
+    if (!await askConfirm("정말 이 계정을 삭제하시겠습니까?")) return;
     const updated = accounts.filter((a) => a.id !== id);
     saveToStorage(updated);
     if (selectedAccountId === id) {
@@ -128,7 +129,7 @@ export function NaverAccountManager() {
 
   const handleSaveEditAccount = (accId: string) => {
     if (!editAccountLabel.trim() || !editAccountBlogId.trim()) {
-      alert("계정 별칭과 블로그 ID를 모두 입력해주세요.");
+      notify("계정 별칭과 블로그 ID를 모두 입력해주세요.");
       return;
     }
     const updated = accounts.map((acc) => {

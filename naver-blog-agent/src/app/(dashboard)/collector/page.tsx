@@ -1,5 +1,6 @@
 "use client";
 
+import { notify, askConfirm } from "@/lib/uiDialog";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -514,7 +515,7 @@ export default function CollectorPage() {
 
   const saveEdit = (id: string) => {
     if (!editTitle.trim()) {
-      alert("글감 제목을 입력해 주세요.");
+      notify("글감 제목을 입력해 주세요.");
       return;
     }
     const updated = candidates.map((c) =>
@@ -526,18 +527,18 @@ export default function CollectorPage() {
   };
 
   // 단일 삭제
-  const deleteCandidate = (item: BlogViralCandidate) => {
+  const deleteCandidate = async (item: BlogViralCandidate) => {
     const warning = item.is_archived
       ? `⚠️ 이 글감은 [보관] 상태로 보호 중입니다!\n정말 삭제하시겠습니까?\n("${item.title.slice(0, 30)}")`
       : `"${item.title.slice(0, 30)}" 글감을 삭제하시겠습니까?`;
-    if (!window.confirm(warning)) return;
+    if (!await askConfirm(warning)) return;
     const updated = candidates.filter((c) => c.id !== item.id);
     persistCandidates(updated);
     setCheckedIds((prev) => prev.filter((i) => i !== item.id));
   };
 
   // 일괄 삭제 (보관된 글감 보호 원칙 100% 적용)
-  const bulkDelete = (mode: "selected" | "all_unarchived") => {
+  const bulkDelete = async (mode: "selected" | "all_unarchived") => {
     if (mode === "selected") {
       if (!checkedIds.length) return;
       // 보관된 글감은 일괄 삭제 대상에서 무조건 제외
@@ -547,7 +548,7 @@ export default function CollectorPage() {
       const archivedProtectedCount = checkedIds.length - toDeleteIds.length;
 
       if (!toDeleteIds.length) {
-        alert("선택하신 글감은 모두 [보관] 상태로 보호 중입니다.\n보관된 콘텐츠는 전체 삭제 대상에서 안전하게 제외됩니다.\n삭제를 원하시면 먼저 개별 보관 해제를 진행해 주세요.");
+        notify("선택하신 글감은 모두 [보관] 상태로 보호 중입니다.\n보관된 콘텐츠는 전체 삭제 대상에서 안전하게 제외됩니다.\n삭제를 원하시면 먼저 개별 보관 해제를 진행해 주세요.");
         return;
       }
 
@@ -555,7 +556,7 @@ export default function CollectorPage() {
         ? `선택한 ${checkedIds.length}건 중 보관된 ${archivedProtectedCount}건은 안전하게 제외(보호)되고, 일반 글감 ${toDeleteIds.length}건만 삭제됩니다.\n계속 진행하시겠습니까?`
         : `선택한 글감 ${toDeleteIds.length}건을 삭제하시겠습니까?`;
 
-      if (!window.confirm(confirmMsg)) return;
+      if (!await askConfirm(confirmMsg)) return;
 
       const updated = candidates.filter((c) => !toDeleteIds.includes(c.id));
       persistCandidates(updated);
@@ -568,11 +569,11 @@ export default function CollectorPage() {
       });
     } else {
       if (!unarchivedCount) {
-        alert("정리할 수 있는 일반 글감이 없습니다. (모든 글감이 [보관] 상태로 안전하게 보호 중입니다)");
+        notify("정리할 수 있는 일반 글감이 없습니다. (모든 글감이 [보관] 상태로 안전하게 보호 중입니다)");
         return;
       }
       const archivedTotal = candidates.length - unarchivedCount;
-      if (!window.confirm(`보관된 글감(${archivedTotal}건)은 100% 안전하게 보호되며, 보관되지 않은 일반 글감 전체 ${unarchivedCount}건만 모두 삭제됩니다.\n계속 진행하시겠습니까?`)) return;
+      if (!await askConfirm(`보관된 글감(${archivedTotal}건)은 100% 안전하게 보호되며, 보관되지 않은 일반 글감 전체 ${unarchivedCount}건만 모두 삭제됩니다.\n계속 진행하시겠습니까?`)) return;
       const updated = candidates.filter((c) => Boolean(c.is_archived));
       persistCandidates(updated);
       setCheckedIds([]);

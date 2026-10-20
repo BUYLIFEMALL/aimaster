@@ -1,5 +1,6 @@
 "use client";
 
+import { notify } from "@/lib/uiDialog";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
@@ -48,6 +49,7 @@ import { CategoryManagementModal } from "@/components/collector/CategoryManageme
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import { ARTICLE_FORMATS, type ArticleFormat } from "@/lib/ai/articleFormats";
 import { MAX_SHOPPING_LINKS, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
+import { buildSourceMaterial } from "@/lib/ai/sourceGrounding";
 import {
   ENGINES,
   DEFAULT_ENGINE,
@@ -504,7 +506,7 @@ export default function MainPage() {
           writingStyle,
           articleFormat,
           // 선택한 글감의 전체 내용을 사실 근거로 함께 보낸다(앞 100자만 가던 문제 수정).
-          sourceMaterial: selectedViral?.content ? cleanCurrentYear(selectedViral.content) : undefined,
+          sourceMaterial: selectedViral?.content ? buildSourceMaterial(cleanCurrentYear(selectedViral.content), selectedViral.source_text) : undefined,
           shoppingLinks: shoppingLinksInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
@@ -676,8 +678,8 @@ export default function MainPage() {
     if(reviewBlocked || publishingBlocked || imageBusy.current!==null || loading)return;
     const finalImagesToSave = draftImageList(imagesRef.current, result.images, imagesEdited);
     const targetId = currentPostId || "post-" + Date.now();
-    if(!await savePostToStorage(targetId, result, finalImagesToSave, "queued")){alert("작업 대기 등록에 실패했습니다. 오류 안내를 확인하고 원고를 다시 검수해 주세요.");return;}
-    alert("크롬 확장의 작업 대기에 등록되었습니다. 저장한 진행 방식에 따라 준비 또는 최종 발행을 진행합니다. 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
+    if(!await savePostToStorage(targetId, result, finalImagesToSave, "queued")){notify("작업 대기 등록에 실패했습니다. 오류 안내를 확인하고 원고를 다시 검수해 주세요.");return;}
+    notify("크롬 확장의 작업 대기에 등록되었습니다. 저장한 진행 방식에 따라 준비 또는 최종 발행을 진행합니다. 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
   };
 
   const handleSaveDraft = async () => {
@@ -686,7 +688,7 @@ export default function MainPage() {
     const targetId = currentPostId || "post-" + Date.now();
     const saved=await savePostToStorage(targetId, result, finalImagesToSave, "draft");
     if(saved){setImageSaveNotice("원고와 이미지 변경을 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");setError(null);}
-    alert(saved?"서버 보관함에 원고를 저장했습니다.":"서버 저장에 실패했습니다. 화면과 로컬 원고를 유지하며 오류 안내를 확인해 주세요.");
+    notify(saved?"서버 보관함에 원고를 저장했습니다.":"서버 저장에 실패했습니다. 화면과 로컬 원고를 유지하며 오류 안내를 확인해 주세요.");
   };
 
   const copyContent = () => {
@@ -741,9 +743,9 @@ export default function MainPage() {
       }
       if(epoch!==sourceEpoch.current)return false;
       setResult(nextResult);if(updated.category)setCategory(updated.category);
-      alert("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
+      notify("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
       return true;
-    }catch(err){alert(err instanceof Error?err.message:"원고 저장 실패");return false;}
+    }catch(err){notify(err instanceof Error?err.message:"원고 저장 실패");return false;}
   };
 
   // 스마트에디터 본문 인라인 렌더링 헬퍼 (소제목 서식화 및 [IMAGE INSERT] 실제 이미지 치환)
@@ -2037,7 +2039,7 @@ export default function MainPage() {
                                 type="button"
                                 onClick={() => {
                                   navigator.clipboard.writeText(genImg.url);
-                                  alert("이미지 URL이 복사되었습니다!");
+                                  notify("이미지 URL이 복사되었습니다!");
                                 }}
                                 className="px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium flex items-center gap-1 transition-colors"
                               >
@@ -2097,7 +2099,7 @@ export default function MainPage() {
                               type="button"
                               onClick={() => {
                                 navigator.clipboard.writeText(img.prompt);
-                                alert("이미지 프롬프트가 복사되었습니다!");
+                                notify("이미지 프롬프트가 복사되었습니다!");
                               }}
                               className="text-[11px] text-neutral-600 hover:text-neutral-900 font-medium underline flex items-center gap-1"
                             >

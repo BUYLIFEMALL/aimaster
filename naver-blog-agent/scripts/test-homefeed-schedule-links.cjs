@@ -86,3 +86,12 @@ test('원문 대조: 자료에 없는 문장이 있으면 PASS를 WARN으로 낮
   assert.deepEqual(grounding.applyUnsupported('PASS', []), { status: 'PASS', note: '' });
   assert.equal(grounding.applyUnsupported('FAIL', list).status, 'FAIL');
 });
+test('글감 원문 보관: 요약 + 원문을 합치고 4,000자 이내, 원문이 없으면 요약만 / 대조는 사실 주장만', () => {
+  assert.equal(grounding.buildSourceMaterial('요약', ''), '요약');
+  const merged = grounding.buildSourceMaterial('요약', '원문 기사 본문');
+  assert.match(merged, /^요약\n\n\[원문 기사·자료\]\n원문 기사 본문$/);
+  assert.equal(grounding.buildSourceMaterial('요약', '가'.repeat(9000)).length, grounding.MAX_SOURCE_CHARS);
+  const rule = grounding.buildSourceReviewRule('자료');
+  assert.match(rule, /사실 주장/);
+  assert.match(rule, /것 같아요/);
+});

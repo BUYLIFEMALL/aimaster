@@ -1,5 +1,6 @@
 "use client";
 
+import { askConfirm } from "@/lib/uiDialog";
 import { useEffect, useId, useRef, useState } from "react";
 import { fetchNaverCategories } from "@/lib/naverExtensionClient";
 import { normalizeNaverTags, type NaverCategory, type NaverExecutionMode } from "@/lib/naverPublishing";
@@ -136,7 +137,7 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
       <p className="text-xs font-semibold text-neutral-700">자동 등록 태그 ({tags.length}/10)</p>
       <div className="flex flex-wrap gap-2">{tags.map(tag=><button type="button" key={tag} aria-label={`${tag} 태그 삭제`} disabled={Boolean(busy)} onClick={()=>{setTags(tags.filter(t=>t!==tag));setMessage("");}} className="rounded-lg border border-neutral-200 px-2 py-1 text-xs text-neutral-700">#{tag} ×</button>)}</div>
       <div className="flex gap-2"><input aria-label="네이버 태그 추가" value={tagInput} onChange={event=>setTagInput(event.target.value)} onKeyDown={event=>{if(event.key==="Enter"){event.preventDefault();addTag();}}} disabled={Boolean(busy)} placeholder="태그 입력 후 추가 또는 Enter" className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900" /><button type="button" disabled={Boolean(busy)} onClick={addTag} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-700">태그 추가</button></div>
-      <div className="flex justify-end gap-2"><button type="button" disabled={Boolean(busy)} onClick={()=>{if((dirty || pendingTag) && !confirm("변경한 설정을 먼저 복사해 보관해 주세요. 최신 설정을 다시 불러오면 현재 입력 중인 설정이 바뀝니다. 계속하시겠습니까?"))return;setReload(value=>value+1);}} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-700 disabled:opacity-50">설정 다시 불러오기</button><button type="button" disabled={!identity || Boolean(busy)} onClick={save} className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50">{busy==="save" ? "저장 중…" : "발행 설정 저장"}</button></div>
+      <div className="flex justify-end gap-2"><button type="button" disabled={Boolean(busy)} onClick={async ()=>{if((dirty || pendingTag) && !await askConfirm("변경한 설정을 먼저 복사해 보관해 주세요. 최신 설정을 다시 불러오면 현재 입력 중인 설정이 바뀝니다. 계속하시겠습니까?"))return;setReload(value=>value+1);}} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-700 disabled:opacity-50">설정 다시 불러오기</button><button type="button" disabled={!identity || Boolean(busy)} onClick={save} className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50">{busy==="save" ? "저장 중…" : "발행 설정 저장"}</button></div>
     </>}
     {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
     {(dirty || pendingTag) && <p className="text-xs text-amber-700">변경한 발행 설정을 저장한 뒤 발행 전송해 주세요.</p>}

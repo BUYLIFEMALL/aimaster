@@ -1,5 +1,6 @@
 "use client";
 
+import { askConfirm } from "@/lib/uiDialog";
 import { useState } from "react";
 import { X, Plus, Edit2, Trash2, ChevronUp, ChevronDown, Check } from "lucide-react";
 import type { CollectorCategory } from "@/types/collector";
@@ -90,13 +91,13 @@ export function CategoryManagementModal({
   };
 
   // 3. 카테고리 삭제
-  const handleDeleteCategory = (cat: CollectorCategory) => {
+  const handleDeleteCategory = async (cat: CollectorCategory) => {
     if (categories.length <= 1) {
       setErrorMsg("최소 1개 이상의 카테고리는 유지되어야 합니다.");
       return;
     }
 
-    if (!window.confirm(`"${cat.name}" 카테고리를 분류 목록에서 삭제하시겠습니까?\n기존 글감과 원고 본문은 삭제되지 않습니다.`)) {
+    if (!await askConfirm(`"${cat.name}" 카테고리를 분류 목록에서 삭제하시겠습니까?\n기존 글감과 원고 본문은 삭제되지 않습니다.`)) {
       return;
     }
 

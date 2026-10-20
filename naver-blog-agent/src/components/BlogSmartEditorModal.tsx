@@ -1,5 +1,6 @@
 "use client";
 
+import { notify } from "@/lib/uiDialog";
 import { useState, useRef, useEffect } from "react";
 import {
   SquarePen,
@@ -236,7 +237,7 @@ export default function BlogSmartEditorModal({
   const handleSave = async () => {
     if(saving)return;
     if (!title.trim()) {
-      alert("게시글 제목을 입력해주세요.");
+      notify("게시글 제목을 입력해주세요.");
       return;
     }
 

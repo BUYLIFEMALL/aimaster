@@ -22,7 +22,7 @@ const original = [{ id: "a", blog_id: "original", label: "기존 계정", catego
 const storage = new Map([["nba_accounts_local", JSON.stringify(original)], ["nba_collector_categories", '[{"id":"content","name":"공유 분류"}]']]);
 let writes = 0;
 const state = { accounts: [], newBlogId: "new-blog", newLabel: "새 계정", selectedAccountId: null, editingAccountId: null, editAccountLabel: "수정 이름", editAccountBlogId: "edited-blog" };
-const context = { ...state, confirm: () => false, alert: () => { throw Error("Unexpected validation failure"); }, localStorage: { getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => { writes++; storage.set(key, value); } } };
+const context = { ...state, confirm: () => false, alert: () => { throw Error("Unexpected validation failure"); }, askConfirm: async () => false, notify: () => { throw Error("Unexpected validation failure"); }, localStorage: { getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => { writes++; storage.set(key, value); } } };
 for (const key of Object.keys(state)) context["set" + key[0].toUpperCase() + key.slice(1)] = (value) => { state[key] = value; context[key] = value; };
 const fn = (name) => { assert.ok(declarations.has(name), name); return vm.runInNewContext(compile(`(${declarations.get(name)})`), context); };
 context.saveToStorage = fn("saveToStorage");
