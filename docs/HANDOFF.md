@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 네이버 블로그 에이전트 v1.95: 랭킹 글감·홈판형 글·간격 예약·쇼핑 커넥트 링크 (외부 앱 분석 → 흡수)
+- 배경: 주인님 요청으로 `D:\PDS\Naver Blog AI-Setup-0.1.0.exe`(Electron+Playwright 네이버 블로그 자동발행 앱)를 정적 분석(실행 안 함) → 기존 기능과 70% 겹쳐 새 프로그램 대신 부족한 4개만 `naver-blog-agent`에 흡수(코드 미복사). 원본 이미지 재사용·ID/PW 저장·헤드리스 다계정 발행은 가져오지 않음.
+- 한 일: ① 수집 화면 연예·스포츠·경제 랭킹 버튼(네이버 비공식 JSON, 텍스트만) ② 생성 「글 구성: 홈판형 이슈글」 ③ 보관함 일괄 전송 「간격 예약 발행」(10분 단위, 저장 PUT이 `is_reserved`/`scheduled_at` 허용) ④ 쇼핑 커넥트 링크 삽입 + 대가성 문구 자동(확장 전송 때 재확인).
+- 검수: tsc·build·전체 테스트 통과, 커밋 `4d29dcc7`, 배포 `naver-blog-agent-bii7slceg` Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.95·확장 검증 OK, 크롬 운영 화면 v1.95·연예 랭킹 수집 성공(글감 4건)·새 입력칸 표시. AI 호출 1회(관리자 본인 키).
+- 못 한 것: 관리자 계정에 블로그 계정이 없어 원고 생성·보관함 예약 화면 실시험 못 함 → 테스트 계정으로 확인 필요. 상세 `naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020.md`
+- 링크: https://naver-blog-agent.buylife.xyz
+
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
