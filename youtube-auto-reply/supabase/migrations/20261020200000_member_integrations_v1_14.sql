@@ -9,6 +9,7 @@ select a.user_id, 'youtube', a.channel_id, a.channel_title, a.access_token, a.re
 from public.ytreply_accounts a
 left join public.user_api_keys k on k.user_id = a.user_id and k.provider = 'google_client_id'
 where not a.needs_reconnect and coalesce(a.refresh_token, '') <> ''
+  and k.api_key is not null  -- 2026-10-20 주인님 승인: 본인 앱 키가 없는 연결(예전 공용 앱 시절)은 공용 표에서 쓸 수 없어 옮기지 않는다
   and not exists (select 1 from public.member_platform_accounts m where m.user_id = a.user_id and m.platform = 'youtube')
 on conflict (user_id, platform, external_id) do nothing;
 

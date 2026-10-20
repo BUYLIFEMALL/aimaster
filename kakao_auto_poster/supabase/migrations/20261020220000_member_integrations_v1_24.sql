@@ -10,6 +10,7 @@ from public.user_kakao_accounts a
 left join public.user_api_keys k on k.user_id = a.user_id and k.provider = 'kakao_rest_api_key'
 where coalesce(a.refresh_token, '') <> ''
   and (a.refresh_token_expires_at is null or a.refresh_token_expires_at > now())
+  and k.api_key is not null  -- 2026-10-20 주인님 승인: 본인 앱 키가 없는 연결(예전 공용 앱 시절)은 공용 표에서 쓸 수 없어 옮기지 않는다
   and not exists (select 1 from public.member_platform_accounts m where m.user_id = a.user_id and m.platform = 'kakao')
 on conflict (user_id, platform, external_id) do nothing;
 

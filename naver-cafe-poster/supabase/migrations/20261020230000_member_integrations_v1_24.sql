@@ -9,6 +9,7 @@ select a.user_id, 'naver_login', a.naver_id, a.nickname, a.access_token, a.refre
 from public.ncafe_accounts a
 left join public.user_api_keys k on k.user_id = a.user_id and k.provider = 'naver_client_id'
 where coalesce(a.refresh_token, '') <> ''
+  and k.api_key is not null  -- 2026-10-20 주인님 승인: 본인 앱 키가 없는 연결(예전 공용 앱 시절)은 공용 표에서 쓸 수 없어 옮기지 않는다
   and not exists (select 1 from public.member_platform_accounts m where m.user_id = a.user_id and m.platform = 'naver_login')
 on conflict (user_id, platform, external_id) do nothing;
 

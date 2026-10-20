@@ -2,7 +2,7 @@
 
 - 작성: 2026-10-20 Claude Code(윈도우) · 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`)
 - 근거: 루트 `CLAUDE.md` 「회원 연동 정보 공용 저장·재사용 규칙」, [`MEMBER_INTEGRATIONS.md`](MEMBER_INTEGRATIONS.md) §5, ④단계 완료 후 주인님 「진행해」
-- 상태: 플랜 보고 — 승인 후 구현
+- 상태: ✅ 5-1~5-4 완료(2026-10-20, 주인님 「진행해」·백필 「진행해줘」 — 백필은 본인 앱 키 있는 연결만으로 범위 조정 승인) — 결과는 [`MEMBER_INTEGRATIONS.md`](MEMBER_INTEGRATIONS.md) §6
 
 ## 1. 조사 결과 (코드 기준)
 | 플랫폼 | 프로그램 | 버전 | 자기 표 | 앱 키(회원 본인) | 요청 권한 | 토큰 |

@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ⑤단계: YouTube·카카오·네이버 로그인 (주인님 「진행해」·백필 「진행해줘」)
+- 한 일: 유튜브 댓글 v1.14·shots v1.22(YouTube)·카카오 포스팅 v1.24·네이버 카페 v1.24 — 연결 시 이중 기록, 공용 계정(권한 + **같은 앱(`app_ref`)** + 재연결 필요 아님) 먼저 읽기, 갱신 토큰으로 받은 새 토큰은 읽은 곳에 기록(카카오·네이버는 새 갱신 토큰도), 해제 시 공용 행 삭제. 공용 부품 사본 3개 추가(기준 변경 없음).
+- DB(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor): 백필은 본인 앱 키 있는 연결만(주인님 승인) → YouTube 1건, 카카오·네이버 0건(예전 공용 앱 시절 연결뿐), 버전 4개 반영.
+- 검수: 4개 tsc·build(유튜브 댓글 권한 테스트 PASS), 순차 배포 Ready·`/login` 200. 크롬(시험 회원): 다른 회원 공용 계정이 보이지 않음, 메인 「내 연동 정보」·카카오·네이버 설정 v1.24 정상. 관리자 화면은 로그인 전환 불가로 DB 기록 대체. 실제 업로드·답글·발송·카페 글쓰기·해제는 안 함.
+- 남은 일: 인플루언서·웹툰 Instagram 「공용 먼저」, Google 추가 권한 요청 개선(`youtube-auto-reply/docs/IMPROVEMENTS.md`), shots Facebook 앱 키 이름 불일치. 플랜 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP5_YT_KAKAO_NAVER.md`, 현황 `docs/MEMBER_INTEGRATIONS.md` §6.
+- 링크: https://youtube-auto-reply.buylife.xyz · https://shots.buylife.xyz · https://kakao-auto-posting.buylife.xyz · https://naver-cafe-poster.buylife.xyz
+
 <!-- IMAGE_STUDIO_MANUAL_MENU_20261020 -->
 ## 2026-10-20 Claude Code(윈도우) — `openai-request-params` 사본 7곳(미배포) + 모델 시험 호출 스크립트 + 모델 성격 표시(SEO 스튜디오 v1.78·쇼핑제휴 v1.69)
 - 사본 적용(동작 같음, 배포 안 함 → `docs/SHARED_MODULES.md` 「미배포 사본」): style-dna-analyzer·cardnews-studio·naver-blog-allinone·naver-blog-agent(테스트 모의 불러오기 보완)·ai-auto-blog·tistory-auto-blog·threads-content-ops. 제외: youtube-channel-consultant(테스트 구조상 import 없는 파일), 해당 없음: shorts-viral-studio. 커밋 `28e8bf33`.
