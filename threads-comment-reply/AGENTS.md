@@ -172,3 +172,7 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 토큰 자동 갱신·「다시 연결 필요」 표시: 공용 계정에서 읽은 토큰이면 공용 표에 기록(`updateMemberAccountToken`·`markMemberAccountNeedsReconnect`), 아니면 지금처럼 `th_accounts`. 매일 연결 점검 cron(`/api/cron/check-connection`, 원래 꺼져 있음)은 `th_accounts` 기준 그대로.
 - 연결 콜백: `th_accounts` + 공용 표 이중 기록(권한 4개, `app_ref`=회원 Threads 앱 ID). 연결 해제: 두 곳 모두 삭제 + 설정 화면 안내 「다른 Threads 프로그램에서도 해제」.
 - 운영 DB: `supabase/migrations/20261020110000_member_integrations_v1_13.sql` — 정상 연결만, **공용 행이 없는 회원만** 백필(원본 유지) + 버전.
+
+## 2026-10-20 v1.14 — 텔레그램 연동 확인이 메시지를 못 찾는 문제 예방 (Claude Code 윈도우)
+- 원인: 웹훅 등록 때 `allowed_updates:["callback_query"]`를 지정하면 텔레그램이 그 값을 기억해, 웹훅을 지운 뒤 `getUpdates`(값 미지정)에서도 일반 메시지를 버림 → 연동 해제 후 다시 연동하면 「메시지를 찾지 못했어요」가 반복됨(2026-10-20 instagram-comment-reply v1.21에서 실제 발생·해결). 수정: `telegram/client.ts` `findChatIdFromUpdates`가 `allowed_updates=["message"]`를 매번 지정.
+- 검수: tsc 통과, 배포·DB 버전 v1.14. 실제 텔레그램 재연동 시험은 하지 않음(회원 봇 없음).
