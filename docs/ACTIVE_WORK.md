@@ -18,4 +18,3 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| (문서·배포판만) docs/sns-kit-manual, docs/DISTRIBUTION_KIT_GUIDE.md, scripts/make_lecture_kit.py | Claude Code(윈도우) | 2026-10-20 | ② 배포판 `SNS_Auto_Posting_Kit_v1.01` 주인님 시험 대응·v1.02 준비·수강생 매뉴얼, agy 이어받기 문서 정리. Lab 리허설 자원은 2026-10-20 삭제 완료. 운영 프로그램 폴더 미접촉 |

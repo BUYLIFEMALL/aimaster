@@ -154,11 +154,12 @@
 | 묶음 | 번호 | 포장일 | 내용 | 비고 |
 |---|---|---|---|---|
 | `SNS_Auto_Posting_Kit` | **v1.01** | 2026-10-20 | Threads 콘텐츠 운영 + INSTA 포스팅 — 패키지 설치마법사, INSTA 예약 방식(운영 Vercel/배포판 cron-job.org) 반영, 202개 파일·비밀값 검사 통과 | 번호 규칙 첫 배포판. 이전 날짜 이름 압축은 시험판 |
+| `SNS_Auto_Posting_Kit` | **v1.02** | 2026-10-20 | INSTA v1.26→v1.33(내 이미지 직접 첨부·여러 장 한 번에·예약 안정화), Threads 운영 v2.09→v2.14(예약 안정화). 두 `KIT/README.md`에 「업데이트 내역」 표 신설, INSTA 안내서 5장에 직접 첨부 설명. 207개 파일·비밀값 검사 통과, 짧은 경로 독립 모드 `npm ci`+`npm run build` 두 프로그램 통과 | DB(SQL) 작업 없음(v1.01 설치자는 새 코드 재배포만). 실제 수강생 계정 설치·게시는 주인님 시험 대기 |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
-| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.01` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
-| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.01` | ⚪ 대기 | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
+| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.02` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
+| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.02` | ⚪ 대기 | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
 
 ## 9. 관련 문서

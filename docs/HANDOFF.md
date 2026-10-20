@@ -3,6 +3,11 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — SNS 배포판 `SNS_Auto_Posting_Kit_v1.02` 포장 (주인님 「진행해줘」)
+- 한 일: v1.01(INSTA v1.26·Threads 운영 v2.09) 이후 변경을 점검 — DB 변경은 버전 갱신·운영 전용 공용 표 백필뿐이라 배포판 DB 파일 수정 없음, 코드가 쓰는 표·버킷 전부 `KIT/schema.sql`에 있음, 공용 연동 표(`member_platform_accounts`·`integration_catalog`)는 `IS_STANDALONE`일 때 건너뜀 확인. INSTA `KIT/README.md` 5장에 「내 이미지로 바로 올리기(직접 첨부·여러 장 한 번에)」, 두 `KIT/README.md` 끝에 「업데이트 내역」 표 신설, 학생 매뉴얼 대상 번호 v1.02·직접 첨부 팁. `python scripts/make_lecture_kit.py --version v1.02` → `D:\PDS\SNS_Auto_Posting_Kit_v1.02.zip`(207개 파일, 비밀값 검사 통과).
+- 검수: 압축 안 버전 INSTA v1.33·Threads 운영 v2.14·`00_START_HERE.md` v1.02, `.env*`는 `.env.example`만. 짧은 경로(`D:\kt2`)에 풀어 가짜 독립 모드 환경으로 `npm ci`+`npm run build` 두 프로그램 통과(시험 폴더 삭제). 실제 Supabase·Vercel·Meta 설치와 인스타/Threads 게시는 미시험.
+- 남은 일: ① 주인님 v1.01/v1.02 실제 설치 시험 결과 → 매뉴얼 📷 자리 캡처 채우기 ② 쇼핑제휴 키트 리허설(주인님 참여). 운영 프로그램 코드·버전·배포 변경 없음. 지침 §8 번호 이력 갱신, `docs/ACTIVE_WORK.md` 줄 삭제.
+
 ## 2026-10-20 Claude Code(윈도우) — 카탈로그 썸네일 6개 글자 없이 재생성 (주인님 「진행해줘」·「이것도 정상적으로」)
 - 점검: 화면 속 글자가 보이던 9개를 원본 크기로 확인 → 깨진 글자·오타·상표 6개 재생성, 정확한 글자 3개(personality-code·youtube-viral-studio·ebook-studio) 유지.
 - 재생성(관리자 본인 Gemini 키, `gemini-3-pro-image-preview` 6회, `scripts/generate-program-thumbnail.mjs` — 화면은 도형·아이콘만, 상표 없는 모니터·카메라, 소품 글씨 없음): ai-web-ui(「프톰프트」 오타·DELL) · ai-slide-builder(머그 「BUILGER」·슬라이드 오타·SAMSUNG) · crm-google-form(「CRM 심령」·「카카오로톡」) · allinone-graphic(「Grsphic」) · detail-page-12p(섹션 오타·SONY) · prompt-template-studio(팝업 글씨). 확대본(자동 저장)으로 글자·로고 없음 확인, 공개 주소 6개 200, DB `thumbnail_url` 새 `?v=`. DB 값만 바뀌어 버전 변경 없음.
