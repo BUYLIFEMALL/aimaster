@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ④단계: Instagram 5개 프로그램 (주인님 「진행해」·백필 「진행해줘」)
+- 한 일: 공용 부품 `lib/memberIntegrations.ts` `getMemberAccount`에 `authMethod` 조건(사본 9개 동기화, Threads 4개는 재배포 안 함). INSTA v1.30·인스타 댓글 v1.17·DM v1.16·shots v1.21·카드뉴스 v1.26 — 연결 시 이중 기록, 공용 계정(로그인 방식·권한 맞는 것) 먼저 읽기, 해제 시 공용 행 삭제, 댓글·DM 토큰 갱신 공용 반영. shots는 화면에 토큰 대신 계정 이름만 넘기도록 함께 고침.
+- DB(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor): 백필 INSTA 2건 → 공용 Instagram 2건, 댓글·DM·shots 0건, 버전 5개 반영.
+- 검수: 5개 모두 tsc·build(카드뉴스 테스트 52/52), 순차 배포 Ready·`/login` 200, 크롬(관리자) 설정 화면 4곳·메인 「내 연동 정보」 정상. 실제 게시·답글·DM 발송·해제·재연결은 안 함.
+- 사고: 카드뉴스 커밋 `d06dc024`에 다른 세션이 미리 스테이징한 `threads-affiliate-poster/AGENTS.md` 6줄이 섞여 들어감(내용 손실 없음, 기록 수정 안 함). 교훈 `docs/ERROR_LESSONS.md` 맨 위 항목.
+- 남은 일: 인플루언서(다른 세션 예약 게시 끝난 뒤)·웹툰을 카드뉴스와 같은 「공용 먼저」로, shots Facebook 앱 키 이름 불일치(`shots/docs/IMPROVEMENTS.md`), ⑤ YouTube·카카오·네이버. 플랜 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP4_INSTAGRAM.md`, 현황 `docs/MEMBER_INTEGRATIONS.md` §6.
+- 링크: https://auto-instagram-posting.buylife.xyz · https://instagram-comment-reply.buylife.xyz · https://instagram-dm-reply.buylife.xyz · https://shots.buylife.xyz · https://cardnews-studio.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 인스타 자동 포스팅 확대 3단계: AI 웹툰 v1.15 컷 캐러셀 즉시 게시
 - 한 일: `ai-webtoon-studio` v1.14 → **v1.15**. STEP 4 아래 「📤 인스타그램에 게시 (컷 캐러셀)」 — 1컷 = 1장(흰 4:5 판에 컷 전체 + 대사 말풍선, 브라우저에서 JPEG), 표지+컷 최대 10장, 기본 캡션(제목·줄거리·해시태그). 공용 `instagram-publish` 사본 추가(`scripts/check-shared-modules.mjs` 등록), 연결·업로드·게시는 인플루언서 v1.14 사본. **DB 구조 변경 없음**(버전만 v1.15). 플랜 `ai-webtoon-studio/docs/PLAN_20261020_INSTA_AUTOPOST.md`, 상세 `ai-webtoon-studio/AGENTS.md` v1.15.
 - 검수: 시험 6개·타입·빌드 통과, 배포 `ai-webtoon-studio-ed1kcztkj` Ready, 비로그인 401. 크롬: 시험 원고로 패널·장 번호·기본 캡션 확인, 업로드·게시 요청을 탭에서 가로채 만들어진 JPEG 4장(1080×1350, 말풍선 줄바꿈) 확인, 로그인 상태 11장·다른 회원 폴더 400.

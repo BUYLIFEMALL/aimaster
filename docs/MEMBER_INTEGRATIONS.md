@@ -2,7 +2,7 @@
 
 - 근거: 루트 `CLAUDE.md` 최상단 「회원 연동 정보 공용 저장·재사용 규칙」, 개발 플랜 [`PLAN_20261020_MEMBER_INTEGRATIONS.md`](PLAN_20261020_MEMBER_INTEGRATIONS.md)
 - 대상: ① AIMaster 운영 공용 DB ref `esgxyikcnnvmlhygjkth` (② Lab은 해당 없음)
-- 현재 단계: **⓪~③ 완료(2026-10-20)** — Threads 4개 프로그램(threads v1.22·댓글 v1.13·쇼핑제휴 v1.66·운영 자동화 v2.11)이 이 표를 함께 쓴다. ④ Instagram부터 대기.
+- 현재 단계: **⓪~④ 완료(2026-10-20)** — Threads 4개 프로그램(threads v1.22·댓글 v1.13·쇼핑제휴 v1.66·운영 자동화 v2.11)과 Instagram 5개 프로그램(INSTA v1.30·댓글 v1.17·DM v1.16·shots v1.21·카드뉴스 v1.26)이 이 표를 함께 쓴다. 인플루언서는 다른 세션 작업 뒤, ⑤ YouTube·카카오·네이버 대기.
 
 ## 1. 저장 위치 한눈에
 | 무엇 | 어디에 | 비고 |
@@ -55,7 +55,7 @@
 | ① 공용 부품·메인 「내 연동 정보」 | ✅ 배포·검수 | 2026-10-20, 커밋 `abe0e3ed`, 배포 `aimaster-qr1exmnyd`, 크롬 실화면 + 실제 세션 REST(토큰 칸 403·화면용 칸 200·직접 저장 403) |
 | ② Threads 시범(threads → threads-comment-reply) | ✅ 배포·검수 | 2026-10-20 — threads v1.21(`b35cd3d2`, 배포 `threads-mek0znfgm`)→v1.22(`3e5595fc`, `threads-ay42ddvth`), 댓글자동화 v1.13(`threads-comment-reply-qu57ukuso`). 백필: threads 9건(만료 전 전부, `app_ref` 9건 채움), 댓글자동화 0건(3명 모두 이미 공용 행 있음 → 자기 표 토큰 계속 사용). 크롬: threads 설정·대시보드 연결 정상, 메인 「내 연동 정보」에 @계정·만료일·권한 표시, 댓글자동화 설정 연결 정상·「게시물 동기화」 3,965건 성공(대체 경로 `th_accounts`), 공용 행 변화 없음 |
 | ③ 나머지 Threads(쇼핑제휴·운영 자동화) | ✅ 배포·검수 | 2026-10-20 — 쇼핑제휴 v1.66(`fcf47acb`, `threads-affiliate-poster-gfw7rcsg0`): 공용 우선 읽기(키워드 검색만 `tap_accounts`)·이중 기록·해제·토큰 연장 기록·배포판 제외, Meta 제거·삭제 콜백이 공용 행 삭제 + 운영 자동화 토큰 무효화(행·글 보존). 운영 자동화 v2.11(`6dd54d88`, `threads-content-kcpwp2q17`): 계정 여러 개·cascade 구조라 화면 열 때 공용 계정 가져오기, 이중 기록·해제. 백필 쇼핑제휴 2건·운영 자동화 1건 → **공용 Threads 12건 = Threads 연결 회원 12명 전원**. 검수: tsc·build·운영 자동화 테스트 32/32, 콜백 잘못된 서명 400, 크롬 두 설정 화면 연결 정상, 운영 자동화 계정 중복 0 |
-| ④ Instagram(INSTA·카드뉴스·댓글·DM·shots·인플루언서·웹툰) | ⚪ | — |
+| ④ Instagram(INSTA·댓글·DM·shots·카드뉴스) | ✅ 배포·검수 | 2026-10-20 — 공용 부품 `getMemberAccount`에 `authMethod` 선택 조건(Threads 사본 4개는 반영만). INSTA v1.30(`62686273`, `insta-auto-poster-5o23oboys`)·댓글 v1.17(`4216468c`, `instagram-comment-reply-gtg47dx4s`)·DM v1.16(`f5b31d72`, `instagram-dm-reply-lsnxxk3af`)·shots v1.21(`bdf7a775`, `shots-ig4u2bs9r`)·카드뉴스 v1.26(`d06dc024`, `cardnews-studio-2qswijqar`). 백필(크롬 SQL Editor): INSTA 2건(Instagram 로그인), 댓글·DM·shots 0건(공용 행이 이미 있거나 만료) → **공용 Instagram 2건**, 앱 ID 채움, DB 버전 5개 반영. 크롬(관리자): INSTA·댓글·DM 설정 @buylife.co.kr 정상·해제 안내 문구, 카드뉴스 연결 상태 API `connected:true`, 메인 「내 연동 정보」 Instagram 표시. 인플루언서(다른 세션 예약 게시 작업 중)·웹툰(v1.15에서 인플루언서 사본으로 게시 추가됨)은 아직 `insta_accounts` 직접 읽기 |
 | ⑤ YouTube·카카오·네이버 | ⚪ | — |
 
 ## 7. 주의 (2026-10-20 ②단계에서 확인)
@@ -66,4 +66,6 @@
 - **운영 자동화는 공용 표를 직접 읽지 않는다**: 계정 여러 개 + 글이 계정 번호를 가리키는 구조라 화면을 열 때 공용 계정을 자기 표로 가져온다(`lib/threadsSharedAccounts.ts`).
 - **쇼핑제휴 키워드 검색은 자기 표만** 쓴다(`threads_keyword_search`는 선택 권한).
 - **배포판(IS_STANDALONE)**: 쇼핑제휴·운영 자동화 배포판은 공용 표를 건드리지 않는다(수강생 DB에 표 없음). Lab `labs/kit-threads` 사본에는 이번 변경을 넣지 않았다.
+- **Instagram은 로그인 방식이 맞아야 한다**(④단계): Facebook 로그인 토큰(`graph.facebook.com`, `extra.page_id`)과 Instagram 로그인 토큰(`graph.instagram.com`)은 서로 못 쓴다. 공용 행 `auth_method`로 구분 — 댓글·DM은 `instagram_login`만, shots는 `facebook_login`만, INSTA·카드뉴스는 둘 다(방식별 게시 권한 확인). 같은 Instagram 계정을 두 회원이 연결해 행이 회원마다 따로 있다(2026-10-20 관리자·시험 계정 모두 @buylife.co.kr).
+- **`insta_accounts`는 아직 없애지 않는다**: 인플루언서·웹툰이 직접 읽는다. 카드뉴스와 같은 「공용 먼저」 수정 뒤에 정리 검토.
 - 토큰 자동 갱신은 지금 댓글자동화만 한다(공용 계정을 쓸 때 공용 표 갱신). threads·쇼핑제휴·운영 자동화는 갱신 기능이 없다(기존과 같음).

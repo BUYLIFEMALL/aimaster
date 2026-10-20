@@ -4,6 +4,7 @@
 - 증상: 모델 목록에 `gpt-5.6-*`·`gpt-6-*`를 넣었는데 생성이 400. 원인: 추론 모델은 기본 온도만 받고(`temperature` 지정 거부), 출력 한도는 `max_completion_tokens`만 받는다(`max_tokens` 거부). 해결: `naver-blog-seo-studio/lib/ai/openaiModels.ts` `openAITemperature()`, `threads-affiliate-poster/src/lib/ai/generator.ts` gpt-4 계열만 `max_tokens`. 출력 한도에는 생각 단계도 포함되므로 600처럼 작게 주면 빈 응답이 날 수 있다(4000 사용).
 - 다음부터: OpenAI 모델 목록에 새 세대를 추가하면 그 모델로 실제 1회 호출해 본다. 19개 프로그램 점검 결과(2026-10-20)는 `docs/HANDOFF.md` 같은 날 항목.
 - 함께 겪은 일: `git update-index`로 내 항목만 미리 스테이징해 둔 `threads-affiliate-poster/AGENTS.md`가 1초 뒤 다른 세션의 `git commit`(카드뉴스 `d06dc024`)에 들어갔다. **부분 스테이징도 커밋 직전에, 같은 명령 줄에서 바로 커밋**한다(`git update-index … && git commit`).
+- 커밋한 쪽(회원 연동 ④단계 Claude Code 윈도우)에서 본 같은 일: 내 커밋 스크립트가 `git diff --cached --quiet`로 스테이징이 비어 있지 않음을 알고도 멈추지 않고 `git add`·`git commit`을 이어 갔다. **커밋 스크립트는 스테이징이 비어 있지 않으면 바로 멈춘다**(`git diff --cached --quiet || { echo '다른 세션 스테이징 있음'; exit 1; }`), 커밋 뒤 `git show --stat HEAD`로 내 파일만 들어갔는지 확인한다.
 
 ## 2026-10-20 — 연결 계정 행을 지우기 전에 그 행을 가리키는 외래키의 `on delete cascade`부터 확인 (Meta 삭제 콜백 · threads-content-ops, Claude Code 윈도우)
 - 증상(구현 중 발견, 배포 전): Meta 제거·삭제 콜백 대상 표에 `tco_threads_accounts`를 넣으려 했는데, 그 표를 `tco_posts`·운영 설정·글감이 `references … on delete cascade`로 가리킴 → 회원이 Meta 앱만 제거해도 직접 쓴 글이 모두 지워질 뻔했다(콜백은 원래 「회원이 쓴 글은 보존」).
