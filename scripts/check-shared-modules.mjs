@@ -12,6 +12,12 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
   {
+    // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
+    id: "browser-mp4-encoder",
+    source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",
+    copies: ["shots/src/lib/render/mp4Encoder.ts"],
+  },
+  {
     // 유튜브 연결·토큰 갱신·업로드(한 번에 올리기 + 재개 가능 업로드 주소). 2026-10-21 엔진 공유 1번 — 쇼츠 원스톱이 브라우저에서 만든 MP4를 올릴 때 사용
     id: "youtube-upload-client",
     source: "shots/src/lib/youtube/client.ts",
