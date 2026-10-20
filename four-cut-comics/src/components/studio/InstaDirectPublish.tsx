@@ -1,75 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarClock, Eye, ExternalLink, Send, X } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { MAX_INSTA_CAPTION, MAX_INSTA_PHOTOS, feedPad } from "@/lib/instagram/feed";
+import { MAX_INSTA_CAPTION, MAX_INSTA_PHOTOS } from "@/lib/instagram/feed";
+import { toFeedJpeg, uploadBlobs } from "@/lib/instagram/feedRender";
 import { formatKst, kstLocalToIso } from "@/lib/instagram/schedule";
 import { SchedulePublishingControl } from "./SchedulePublishingControl";
+import { InstaPostHistory } from "./InstaPostHistory";
 
 // v1.17 📤 인스타그램에 바로 게시(자동 포스팅 4단계, 즉시 게시) — 기준: ai-webtoon-studio v1.15 InstagramPublishPanel.
 // 형식: ① 바둑판 합본 1장(피드) ② 컷별 캐러셀(컷 하나 = 한 장). 피드 비율(4:5~1.91:1) 밖이면 자르지 않고 흰 여백을 붙인다.
 // v1.18: 예약 게시·게시 기록·예약 취소(기준 ai-webtoon-studio v1.16) + 올라갈 장 미리보기(게시와 같은 toFeedJpeg). 플랜: docs/PLAN_20261020_INSTA_SCHEDULE.md
+// v1.19: 그림 변환·올리기는 lib/instagram/feedRender.ts, 게시 기록은 InstaPostHistory로 분리(내 작품 화면과 같이 사용).
 // 인스타 연결은 INSTA 포스팅 자동화에서 한 번 한 값(공용 insta_accounts)을 그대로 쓴다. 1차 플랜: docs/PLAN_20261020_INSTA_DIRECT_POST.md
 
 interface Status { connected: boolean; username: string; expired: boolean; connectUrl: string }
-interface PostRow {
-  id: string;
-  title: string;
-  page_count: number;
-  status: "scheduled" | "publishing" | "published" | "failed" | "canceled";
-  scheduled_at: string | null;
-  published_at: string | null;
-  permalink: string | null;
-  ig_username: string | null;
-  error_message: string | null;
-  created_at: string;
-}
 const FALLBACK_CONNECT = "https://auto-instagram-posting.buylife.xyz/settings";
-const STATUS_LABEL: Record<PostRow["status"], { text: string; color: string }> = {
-  scheduled: { text: "예약됨", color: "#0284c7" },
-  publishing: { text: "게시 중", color: "#d97706" },
-  published: { text: "게시됨", color: "#059669" },
-  failed: { text: "실패", color: "#dc2626" },
-  canceled: { text: "취소", color: "#64748b" },
-};
-
-/** 기록 한 줄의 시각 문구 — 예약·취소는 예약 시각, 게시는 게시 시각 기준 */
-function postTimeLabel(p: PostRow): string {
-  if (p.status === "scheduled") return `${formatKst(p.scheduled_at)} ${p.error_message ? "다시 시도 예정" : "예약"}`;
-  if (p.status === "canceled" && p.scheduled_at) return `${formatKst(p.scheduled_at)} 예약 → 취소`;
-  if (p.published_at) return `${formatKst(p.published_at)} 게시`;
-  return `${formatKst(p.created_at)} 등록`;
-}
 
 /** 지금부터 1시간 뒤(한국 시간)를 datetime-local 기본값으로 */
 function defaultLocal(): string {
   return new Date(Date.now() + 60 * 60 * 1000 + 9 * 60 * 60 * 1000).toISOString().slice(0, 16);
-}
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("그림을 읽지 못했습니다."));
-    img.src = src;
-  });
-}
-
-/** 그림 → 피드 비율 JPEG(필요하면 흰 여백) */
-async function toFeedJpeg(src: string): Promise<Blob> {
-  const img = await loadImage(src);
-  const p = feedPad(img.naturalWidth, img.naturalHeight);
-  const canvas = document.createElement("canvas");
-  canvas.width = p.width;
-  canvas.height = p.height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("그림을 변환하지 못했습니다.");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, p.width, p.height);
-  ctx.drawImage(img, p.dx, p.dy, p.dw, p.dh);
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("그림을 변환하지 못했습니다."))), "image/jpeg", 0.9));
 }
 
 export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]; makeGrid: () => Promise<string>; caption: string }) {
@@ -82,18 +32,9 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ text: string; permalink: string } | null>(null);
-  const [posts, setPosts] = useState<PostRow[]>([]);
+  const [historyKey, setHistoryKey] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
   const [preview, setPreview] = useState<{ urls: string[]; index: number } | null>(null);
-
-  const loadPosts = useCallback(async () => {
-    try {
-      const r = await fetch("/api/instagram/posts", { cache: "no-store" });
-      const d = await r.json();
-      if (r.ok) setPosts(d.posts ?? []);
-    } catch {
-      /* 기록을 못 불러와도 게시는 할 수 있다 */
-    }
-  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -101,9 +42,8 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
       .then((r) => r.json())
       .then((d) => alive && setStatus(d))
       .catch(() => alive && setStatus({ connected: false, username: "", expired: false, connectUrl: FALLBACK_CONNECT }));
-    void loadPosts();
     return () => { alive = false; };
-  }, [loadPosts]);
+  }, []);
   // 인스타 문구를 새로 만들면 캡션 칸도 따라 바꾼다
   useEffect(() => { setText(caption); }, [caption]);
   // 형식이나 컷이 바뀌면 미리보기를 닫는다. 장을 넘길 때는 같은 그림 목록을 쓰므로, 목록이 바뀌거나 닫힐 때만 그림 주소를 지운다
@@ -115,7 +55,6 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
   const cardCount = Math.min(cuts.length, MAX_INSTA_PHOTOS);
   const count = format === "grid" ? 1 : cardCount;
   const ready = status?.connected && !status.expired;
-  const pending = posts.filter((p) => p.status === "scheduled");
 
   /** 고른 형식대로 올릴 그림들(JPEG, 필요하면 흰 여백) */
   async function makeBlobs(): Promise<Blob[]> {
@@ -137,14 +76,6 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
     }
   }
 
-  async function cancel(id: string) {
-    setError("");
-    const r = await fetch(`/api/instagram/posts?id=${id}`, { method: "DELETE" });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) setError(d.error || "예약을 취소하지 못했습니다.");
-    void loadPosts();
-  }
-
   async function publish() {
     setError(""); setDone(null);
     const scheduledAt = mode === "schedule" ? kstLocalToIso(when) : null;
@@ -153,20 +84,12 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
       setBusy("인스타용 그림 만드는 중...");
       const blobs = await makeBlobs();
       setBusy("그림 올리는 중...");
-      const up = await fetch("/api/instagram/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ count: blobs.length }) });
-      const upData = await up.json().catch(() => ({}));
-      if (!up.ok) throw new Error(upData.error || "그림을 올릴 준비를 하지 못했습니다.");
-      const uploads = upData.uploads as { path: string; token: string }[];
-      const supabase = createClient();
-      for (let i = 0; i < uploads.length; i++) {
-        const { error: e } = await supabase.storage.from("insta-post-images").uploadToSignedUrl(uploads[i].path, uploads[i].token, blobs[i], { contentType: "image/jpeg" });
-        if (e) throw new Error("그림을 올리지 못했습니다. 네트워크를 확인하고 다시 시도해주세요.");
-      }
+      const paths = await uploadBlobs(blobs);
       setBusy(mode === "now" ? "인스타그램에 게시하는 중... (최대 1~2분)" : "예약을 저장하는 중...");
       const res = await fetch(mode === "now" ? "/api/instagram/publish" : "/api/instagram/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paths: uploads.map((u) => u.path), caption: text, ...(scheduledAt ? { scheduledAt } : {}) }),
+        body: JSON.stringify({ paths, caption: text, ...(scheduledAt ? { scheduledAt } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || (mode === "now" ? "인스타그램 게시에 실패했습니다." : "예약하지 못했습니다."));
@@ -174,7 +97,7 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
         ? { text: data.alreadyPosted ? `응답이 늦었지만 @${data.username} 계정에 이미 올라간 것을 확인했어요. 다시 게시하지 않아도 됩니다.` : `${blobs.length}장을 게시했어요.`, permalink: data.permalink || "" }
         : { text: `${formatKst(data.scheduledAt)}에 @${data.username} 계정으로 게시되도록 예약했어요(예약 시각 후 5분 안에, 「내 cron-job.org」 방식은 1분 안에 올라갑니다).`, permalink: "" });
       setConfirmed(false);
-      void loadPosts();
+      setHistoryKey((k) => k + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "인스타그램 게시에 실패했습니다.");
     } finally {
@@ -229,7 +152,7 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
                 예약 날짜·시간 (한국 시간 · 10분 뒤~60일 안)
                 <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} disabled={!!busy} aria-label="예약 날짜와 시간" style={{ maxWidth: 260 }} />
               </label>
-              <SchedulePublishingControl refreshKey={pending.length} />
+              <SchedulePublishingControl refreshKey={pendingCount} />
             </>
           )}
 
@@ -255,26 +178,7 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
         </small>
       )}
 
-      {posts.length > 0 && (
-        <div style={{ borderTop: "1px solid var(--line)", paddingTop: 8 }}>
-          <b style={{ fontSize: 12 }}>최근 인스타 게시 기록 (30일)</b> {pending.length > 0 && <small style={{ color: "#0284c7" }}>· 예약 {pending.length}건 대기</small>}
-          <ul style={{ listStyle: "none", margin: "6px 0 0", padding: 0, display: "grid", gap: 4, maxHeight: 240, overflowY: "auto" }} aria-label="인스타 게시 기록">
-            {posts.map((p) => (
-              <li key={p.id} style={{ fontSize: 12, background: "#fff", border: "1px solid var(--line)", borderRadius: 8, padding: "6px 8px" }}>
-                <div className="actions" style={{ gap: 6 }}>
-                  <b style={{ color: STATUS_LABEL[p.status].color }}>{STATUS_LABEL[p.status].text}</b>
-                  <span>{postTimeLabel(p)}</span>
-                  <span className="muted">· {p.page_count}장{p.ig_username ? ` · @${p.ig_username}` : ""}</span>
-                  {p.permalink && <a href={p.permalink} target="_blank" rel="noopener noreferrer">게시물 보기</a>}
-                  {p.status === "scheduled" && <button type="button" style={{ marginLeft: "auto", padding: "2px 8px" }} onClick={() => void cancel(p.id)}><X size={12} />예약 취소</button>}
-                </div>
-                {p.title && <small className="muted" style={{ display: "block" }}>{p.title}</small>}
-                {p.error_message && <small style={{ display: "block", color: p.status === "failed" ? "#dc2626" : p.status === "scheduled" ? "#d97706" : "#64748b" }}>{p.status === "published" ? "ℹ️ " : ""}{p.error_message}</small>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <InstaPostHistory refreshKey={historyKey} onPendingChange={setPendingCount} />
     </div>
   );
 }

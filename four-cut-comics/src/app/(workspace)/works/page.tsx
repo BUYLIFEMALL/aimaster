@@ -1,5 +1,6 @@
 import { WorksList } from "@/components/studio/WorksList";
 import { ServerWorks } from "@/components/studio/ServerWorks";
+import { WorksInstaSchedule } from "@/components/studio/WorksInstaSchedule";
 import { requireProgramAccess } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,8 @@ export default async function WorksPage() {
         <h1>내 작품</h1>
         <p>완성작을 두 곳에 보관할 수 있습니다. <b>이 브라우저</b>([내 작품에 저장], 최근 20개, 서버 저장 없음)와 <b>서버 보관함</b>([서버 보관함에 저장], 선택, 다른 기기에서도 보기)입니다.</p>
       </div>
+      {/* v1.19 인스타 예약 대기·게시 기록 + 여러 회차 한 번에 예약 */}
+      <WorksInstaSchedule userId={user.id} />
       <h2 className="cc-h">이 브라우저</h2>
       <WorksList userId={user.id} />
       <div style={{ height: 28 }} />

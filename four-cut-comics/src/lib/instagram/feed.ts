@@ -26,3 +26,26 @@ export function validInstaPaths(userId: string, paths: string[]): boolean {
   const prefix = `${userId}/fourcut-insta/`;
   return paths.length >= 1 && paths.length <= MAX_INSTA_PHOTOS && paths.every((p) => p.startsWith(prefix) && !p.includes("..") && /\.jpg$/.test(p));
 }
+
+// ── v1.19 내 작품 「여러 회차 한 번에 예약」 ─────────────────────────────
+/** 한 번에 예약할 수 있는 회차 수(서버의 회원별 대기 예약 한도 20건과 같음) */
+export const MAX_BATCH_EPISODES = 20;
+
+/** 첫 회차 시각(한국 시간 「YYYY-MM-DDTHH:mm」)부터 interval일 간격으로 count개 시각(같은 형식). 웹툰 v1.17과 같은 계산 */
+export function episodeTimes(firstLocal: string, count: number, intervalDays: number): string[] {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(firstLocal);
+  if (!m || count < 1 || intervalDays < 1) return [];
+  const base = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+  return Array.from({ length: count }, (_, i) => new Date(base + i * intervalDays * 86400000).toISOString().slice(0, 16));
+}
+
+/** 예약할 작품 순서: 회차(화) 오름차순, 같은 화면 먼저 만든 것부터 */
+export function sortForBatch<T extends { episode: number; createdAt: number }>(list: T[]): T[] {
+  return [...list].sort((a, b) => (a.episode || 1) - (b.episode || 1) || a.createdAt - b.createdAt);
+}
+
+/** 회차 게시물 기본 캡션: 「제목 N화」 + 해시태그 */
+export function workCaption(title: string, episode: number): string {
+  const head = `${title.trim() || "4컷 만화"}${episode > 1 ? ` ${episode}화` : ""}`;
+  return `${head}\n\n#4컷만화 #인스타툰 #만화`.slice(0, MAX_INSTA_CAPTION);
+}

@@ -39,3 +39,6 @@ drop policy if exists fcc_member_scheduler_select_own on public.fcc_member_sched
 create policy fcc_member_scheduler_select_own on public.fcc_member_scheduler for select to authenticated using (auth.uid() = user_id);
 
 update public.programs set version = 'v1.18', updated_at = now() where slug = 'four-cut-comics';
+
+-- v1.19 (2026-10-20, 표 변경 없음: 내 작품 여러 회차 한 번에 인스타 예약·예약 대기·게시 기록)
+update public.programs set version = 'v1.19', updated_at = now() where slug = 'four-cut-comics';
