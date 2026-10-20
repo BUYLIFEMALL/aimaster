@@ -11,6 +11,9 @@ import { buildOAuthState } from "@/lib/oauthState";
 import { getYoutubeAuthorizeUrl, refreshYoutubeAccessToken } from "@/lib/youtube/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
+import { deleteSharedYoutubeAccount, getYtReplyAccount } from "@/lib/youtube/memberAccount";
 
 export interface ConnectYoutubeState {
   error?: string;
@@ -36,6 +39,8 @@ export async function disconnectYoutubeAction() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   await supabase.from("ytreply_accounts").delete().eq("user_id", user.id);
+  // v1.14: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedYoutubeAccount(user.id);
   revalidatePath("/settings");
 }
 
@@ -43,7 +48,7 @@ export async function disconnectYoutubeAction() {
 export async function getValidYoutubeAccessToken(
   supabase: SupabaseClient<Database>,
   userId: string,
-  account: { access_token: string; refresh_token: string; token_expires_at: string | null },
+  account: { access_token: string; refresh_token: string; token_expires_at: string | null; shared_id?: string | null },
   clientId: string,
   clientSecret: string,
 ): Promise<string> {
@@ -54,6 +59,14 @@ export async function getValidYoutubeAccessToken(
   try {
     const refreshed = await refreshYoutubeAccessToken(account.refresh_token, clientId, clientSecret);
     const tokenExpiresAt = new Date(Date.now() + refreshed.expires_in * 1000).toISOString();
+    // v1.14: 공용 연결 계정에서 읽은 토큰이면 공용 표를 갱신(다른 YouTube 프로그램도 새 토큰을 씀)
+    if (account.shared_id) {
+      await updateMemberAccountToken(createAdminClient(), userId, account.shared_id, {
+        accessToken: refreshed.access_token,
+        tokenExpiresAt,
+      });
+      return refreshed.access_token;
+    }
     await supabase
       .from("ytreply_accounts")
       .update({
@@ -68,7 +81,8 @@ export async function getValidYoutubeAccessToken(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.startsWith("YOUTUBE_TOKEN_EXPIRED:")) {
-      await markNeedsReconnect(supabase, userId);
+      if (account.shared_id) await markMemberAccountNeedsReconnect(createAdminClient(), userId, account.shared_id);
+      else await markNeedsReconnect(supabase, userId);
       throw new Error("YOUTUBE_RECONNECT_REQUIRED");
     }
     throw err;
@@ -89,11 +103,8 @@ export async function getPersistedConnectionFlag(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<{ connected: boolean; needsReconnect: boolean }> {
-  const { data } = await supabase
-    .from("ytreply_accounts")
-    .select("needs_reconnect")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.14: 공용 연결 계정(채널 관리 권한·같은 Google 앱) → 없으면 이 프로그램 표
+  const data = await getYtReplyAccount(supabase, userId);
   if (!data) return { connected: false, needsReconnect: false };
   return { connected: true, needsReconnect: data.needs_reconnect };
 }
@@ -108,11 +119,7 @@ export async function getYoutubeConnectionStatus(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<YoutubeConnectionStatus> {
-  const { data: account } = await supabase
-    .from("ytreply_accounts")
-    .select("access_token, refresh_token, token_expires_at, channel_title")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const account = await getYtReplyAccount(supabase, userId);
   if (!account) return { connected: false, channelTitle: null, needsReconnect: false };
 
   const clientId = await resolveApiKey(supabase, userId, "google_client_id");

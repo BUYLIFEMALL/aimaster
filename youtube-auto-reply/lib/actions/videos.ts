@@ -1,4 +1,5 @@
 "use server";
+import { getYtReplyAccount } from "@/lib/youtube/memberAccount";
 
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
@@ -22,11 +23,8 @@ export async function syncVideosAction(): Promise<SyncVideosState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: account } = await supabase
-    .from("ytreply_accounts")
-    .select("access_token, refresh_token, token_expires_at, channel_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  // v1.14: 공용 연결 계정(채널 관리 권한·같은 Google 앱) → 없으면 ytreply_accounts
+  const account = await getYtReplyAccount(supabase, user.id);
   if (!account) return { error: "유튜브 채널이 연결되어 있지 않습니다." };
 
   const clientId = await resolveApiKey(supabase, user.id, "google_client_id");

@@ -47,6 +47,7 @@ export function YoutubeConnectSection({
       {connected && !needsReconnect ? (
         <div className="space-y-3">
           <p className="text-sm text-yt-success">✅ @{channelTitle ?? "내 채널"}로 연동되어 있어요.</p>
+          <p className="text-xs text-yt-muted">연동을 해제하면 이 채널을 함께 쓰는 다른 YouTube 프로그램에서도 해제됩니다.</p>
           <form action={disconnectYoutubeAction}>
             <button type="submit" className="rounded-lg bg-yt-danger/10 px-4 py-2 text-xs font-bold text-yt-danger hover:bg-yt-danger/20">
               연동 해제

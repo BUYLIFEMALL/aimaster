@@ -1,4 +1,5 @@
 import "server-only";
+import { getYtReplyAccount } from "@/lib/youtube/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getUserApiKey } from "@/lib/apiKeys";
@@ -33,11 +34,8 @@ export async function postCommentReplyForUser(
   if (!comment) return { error: "댓글을 찾을 수 없습니다." };
   if (comment.status === "posted") return { error: "이미 게시된 답글입니다." };
 
-  const { data: account } = await supabase
-    .from("ytreply_accounts")
-    .select("access_token, refresh_token, token_expires_at")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // v1.14: 공용 연결 계정(채널 관리 권한·같은 Google 앱) → 없으면 ytreply_accounts
+  const account = await getYtReplyAccount(supabase, userId);
   if (!account) return { error: "유튜브 채널이 연결되어 있지 않습니다." };
 
   const clientId = await getUserApiKey(supabase, userId, "google_client_id");

@@ -157,3 +157,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 ## 2026-10-20 v1.13 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
 - 주인님 「순서대로 진행해줘」(남은 일 4번). 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**(예전엔 cronjob으로 남아 운영자 실행에서도 빠져 예약이 멈출 수 있었음), 「재개」가 실패하면 **일시정지 상태로 되돌림**(예전엔 화면은 일시정지·DB는 대기로 어긋남). `memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler` 두 곳, 11개 사본 같은 수정. 커밋 `ccf80d68`, DB 버전 크롬 SQL Editor로 갱신, 11개 순차 배포 모두 Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `youtube-auto-reply-f4kb8eca2`.
 - 실검수는 같은 코드인 booking-reminder에서 실패 경로 3가지를 실제로 확인(cron-job.org 하루 한도 소진 상태 이용).
+
+## 2026-10-20 v1.14 — 회원 연동 정보 공용 저장 ⑤단계 YouTube (Claude Code 윈도우)
+- 연결 콜백이 `ytreply_accounts`와 공용 표 `member_platform_accounts`(platform `youtube`, 권한 `youtube.force-ssl`, 갱신 토큰, `app_ref`=회원 `google_client_id`)에 함께 저장. 읽는 곳(영상 동기화·댓글 동기화·답글 게시·대시보드·연결 상태)은 `lib/youtube/memberAccount.ts` `getYtReplyAccount` — 채널 관리 권한 + 갱신 토큰 있음 + 재연결 필요 아님 + **공용 계정의 앱이 지금 등록한 Client ID와 같음**(갱신 토큰은 발급 앱으로만 쓸 수 있음) → 없으면 `ytreply_accounts`. 접근 토큰 갱신·재연결 표시는 읽은 곳에 기록, 해제는 공용 행도 삭제(설정 안내 문구). 매일 연결 점검·30일 정리 cron은 그대로 `ytreply_accounts`만 본다.
+- shots(업로드 권한)와 권한이 달라 서로의 공용 토큰은 쓰지 않는다(권한 합치지 않음). 공용 부품 사본 `lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020200000_member_integrations_v1_14.sql`. `package.json` 1.14.0. 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP5_YT_KAKAO_NAVER.md`.
