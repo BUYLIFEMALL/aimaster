@@ -11,6 +11,15 @@
 - 남은 것: 테스트 계정으로 홈판형 재생성 품질 비교 1회, 크롬에 열린 네이버 글쓰기 창 2개 처리(주인님 결정). 상세 `naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020.md`
 - 링크: https://naver-blog-agent.buylife.xyz
 
+<!-- BLOG_CONSOLIDATION_ANALYSIS_20261020 -->
+## 2026-10-20 Codex — 블로그 7개 비교·통합 개발 제안(분석만)
+- [전체 제안서/표](analysis-blog-consolidation-20261020/REPORT.md) · [검색 가능한 HTML](analysis-blog-consolidation-20261020/REPORT.html) · [인수인계·미작업·다음 단계](analysis-blog-consolidation-20261020/HANDOFF.md).
+- 조건부 추천: 에이전트(일반 제작), 키워드(분석), SEO(정밀 집필/리뉴얼), 티스토리(전용 입력) 4역할 유지. BLOG·올인원·작업실은 장점 이관/검수 후 독립 신규 개발 중단 후보. **실제 통합·중단·데이터/권한 변경 없음.**
+- 소스 `cde4c6fa` 기준. 에이전트 v1.96 vs 다른 CLI v1.97 진행을 구분. 모드 누락→publish 순수 함수 재현, 올인원 부분 입력 성공/키 캐시/공개 이미지/30일 증거 등 BC-01~10 기록. 기존 앱 코드/작업 중 파일 미수정.
+- 무료 검사 53개 통과(가짜 확장 46+SEO 규칙 7). tsx 검사 일부는 제한 환경 로더 오류, 실제 앱 결함 판정 아님. HTML은 보이는 Edge PC/375px/표 검색 확인. 운영 E2E·유료 생성·발행·DB 실조회 미실행.
+- 현재 `.git` 읽기 전용으로 문서 커밋/푸시 미실행. 앱 버전/배포 유지. [에이전트](https://naver-blog-agent.buylife.xyz) · [SEO](https://naver-blog-seo-studio.buylife.xyz) · 나머지 주소는 상세 인수인계에 모두 기록.
+<!-- /BLOG_CONSOLIDATION_ANALYSIS_20261020 -->
+
 ## 2026-10-20 Claude Code(윈도우) — 네이버 블로그 에이전트 v1.96·v1.97: 테스트 계정 실검수 → 예약 배지 버그 수정, 사실 왜곡 원인(글감 앞 100자만 전달) 수정·원문 대조, 단건 예약·랭킹 점검·홈판형 바로 쓰기·블로그 목록 서버 연동
 - v1.96(`e149ec46`): 목록 API가 `is_reserved`·`scheduled_at`을 빼던 버그 수정. 테스트 계정으로 홈판형+쇼핑 링크 생성(문구·링크 위치 정상), 간격 예약 2건 DB 저장·확장 처리 확인(원고가 「준비까지만」 방식이라 최종 예약 버튼 전 정지).
 - v1.97(`3d5473e8`): 위 6개. 운영 크롬 검수 통과(재생성 시 지어낸 경위 사라짐, 대조 경고 표시, 단건 예약 저장·해제). DB(ref `esgxyikcnnvmlhygjkth`) v1.97·확장 OK.
@@ -37,6 +46,13 @@
 - 링크: https://naver-blog-agent.buylife.xyz
 
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
+
+
+## 2026-10-20 Claude Code(윈도우) — 메인 사이트 「📅 내 예약 현황」: 8개 프로그램 SNS 예약 모아 보기 (추가개선 제안 3-2)
+- 한 일: 회원 메뉴 「내 예약 현황」(`/schedules`) + 홈 「내 작업대」 위 요약 한 줄. 인스타 5개·쓰레드 3개 예약 표를 회원 본인 것만 읽어 시각 순으로, 같은 SNS 30분 안 겹침 경고, 「○○에서 보기」 링크. 보기 전용(취소는 각 프로그램). 네이버 카페·카카오(정기형)는 다음 단계 후보.
+- 파일: `lib/schedules/memberSchedules.ts`(SOURCES — 새 예약 프로그램은 여기 한 줄 추가), `app/(dashboard)/schedules/page.tsx`, `components/home/ScheduleSummaryBar.tsx`, `app/(main)/page.tsx`, `components/layout/Sidebar.tsx`. 플랜 `docs/PLAN_20261020_MEMBER_SCHEDULES.md`. DB 변경 없음.
+- 검수: tsc·build. 배포·크롬 확인 결과는 아래 줄에 추가.
+- 링크: https://www.buylife.xyz/schedules
 
 
 ## 2026-10-20 Claude Code(윈도우) — 인플루언서 v1.20: 작업 히스토리를 회원 계정(DB)에 저장 (추가개선 제안 2-1, 운영 DB 새 표 승인)

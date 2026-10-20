@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Settings, KeyRound, Menu, X, LogOut, Shield } from "lucide-react";
+import { LayoutDashboard, Users, Settings, KeyRound, Menu, X, LogOut, Shield, CalendarClock } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "내 구독" },
+  { href: "/schedules", icon: CalendarClock, label: "내 예약 현황" },
   { href: "/affiliate", icon: Users, label: "어필리에이트" },
   { href: "/api-settings", icon: KeyRound, label: "API 설정" },
   { href: "/settings", icon: Settings, label: "설정" },

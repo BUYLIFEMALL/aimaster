@@ -24,6 +24,8 @@ import CategoryQuickBar from "@/components/home/CategoryQuickBar";
 import HeroShowcase from "@/components/home/HeroShowcase";
 import ProgramInstantSearch from "@/components/home/ProgramInstantSearch";
 import UserWorkspace, { type WorkspaceNotice } from "@/components/home/UserWorkspace";
+import ScheduleSummaryBar from "@/components/home/ScheduleSummaryBar";
+import { getMemberSchedules, summarizeSchedules, type MemberScheduleSummary } from "@/lib/schedules/memberSchedules";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
@@ -70,7 +72,10 @@ async function getHomeData() {
     let userAccess: UserAccessSummary | null = null;
     let isAdminUser = false;
     let likedIds: string[] = [];
+    let scheduleSummary: MemberScheduleSummary | null = null;
     if (user) {
+      // 「📅 내 예약 현황」 요약 — 본인 예약만, 실패해도 홈은 그대로(2026-10-20)
+      scheduleSummary = await getMemberSchedules(service, user.id).then(summarizeSchedules).catch(() => null);
       const { data: likedRows } = await supabase.from("program_likes").select("program_id").eq("user_id", user.id);
       likedIds = (likedRows ?? []).map((row) => row.program_id as string);
       const [{ data: profile }, { data: subs }, { data: grants }, { data: grades }] = await Promise.all([
@@ -132,9 +137,9 @@ async function getHomeData() {
       };
     }
 
-    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser, likedIds, loggedIn: Boolean(user), programNotices: (programNotices ?? []) as WorkspaceNotice[] };
+    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser, likedIds, loggedIn: Boolean(user), programNotices: (programNotices ?? []) as WorkspaceNotice[], scheduleSummary };
   } catch {
-    return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0, isAdminUser: false, likedIds: [] as string[], loggedIn: false, programNotices: [] as WorkspaceNotice[] };
+    return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0, isAdminUser: false, likedIds: [] as string[], loggedIn: false, programNotices: [] as WorkspaceNotice[], scheduleSummary: null as MemberScheduleSummary | null };
   }
 }
 
@@ -162,7 +167,7 @@ const FEATURES = [
 ];
 
 export default async function HomePage() {
-  const { programs, categories, accessByProgramId, userAccess, isAdminUser, likedIds, loggedIn, programNotices } = await getHomeData();
+  const { programs, categories, accessByProgramId, userAccess, isAdminUser, likedIds, loggedIn, programNotices, scheduleSummary } = await getHomeData();
   const likedSet = new Set(likedIds);
   const freeProgramCount = programs.filter((p) => (p.badges ?? []).includes("free")).length;
   const paidProgramCount = programs.length - freeProgramCount;
@@ -293,6 +298,9 @@ export default async function HomePage() {
           <NoticeTabs />
         </div>
       </section>
+
+      {/* 📅 내 예약 현황 요약 한 줄 — 예약이 있을 때만 */}
+      <ScheduleSummaryBar summary={scheduleSummary} />
 
       {/* 회원 맞춤형 '나만의 작업대' (즐겨찾기 ⭐ 핀 고정 & 최근 실행 퀵 액세스) */}
       <UserWorkspace programs={programs} notices={programNotices} />
