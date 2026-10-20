@@ -126,6 +126,11 @@
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
 
+## 2026-10-20 v1.80 — 상대 비용 표시 + 새 모델 커밋 알림 (Claude Code 윈도우)
+- 기준 코드에 `openAIModelCostLevel`(💰 빠름·💰💰 균형·💰💰💰 고품질)·`openAIModelBadge`(「⚡ 빠름 · 비용 💰」), 설명에 「상대 표시, 정확한 단가 아님」 + 테스트(8개). 화면 3곳 요약 줄을 배지로. 사본 8곳 동기화.
+- `scripts/check-openai-models.mjs` `--staged`·`--new` + 커밋 직전 훅(`scripts/git-hooks/`, 경고만).
+- 검수: tsc 0 · 테스트 46 통과(1 건너뜀) · build · 배포 `naver-blog-seo-studio-ahxlo439a` Ready · DB·확장 v1.80 OK · 크롬: mini 💰·4.1 💰💰·astra 💰💰💰, GPT-4.1로 되돌림(호출 없음).
+
 ## 2026-10-20 v1.79 — 모델 성격 설명 + 점검 스크립트 HANDOFF 자동 기록 (Claude Code 윈도우)
 - 기준 코드에 `openAIModelTierHint(model)` + 테스트(7개). 제목 화면 2곳·설정 화면의 「모델 성격: … ⓘ」를 `<details class="model-tier">`로 — 마우스를 올리면 `title` 말풍선, 누르면 펼침(휴대폰 대응). 사본 8곳 동기화(쇼핑제휴 v1.70 배포, 7곳 미배포 그대로·각 tsc 0).
 - `scripts/check-openai-models.mjs --live`: 결과를 `docs/HANDOFF.md` 맨 위에 한 줄 자동 기록(`--no-handoff`로 끔), 401 키 오류는 기록 없이 멈춤, 오류 문구 속 키 조각 가림(임시 저장소에서 가짜 키로 시험).

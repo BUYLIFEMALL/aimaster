@@ -54,3 +54,6 @@
 ## 이어서 — v1.79
 - 모델 성격 설명(마우스 올리기·누르기), 점검 스크립트 HANDOFF 자동 기록. 배포 `naver-blog-seo-studio-2fum2jgkn` Ready, DB·확장 v1.79 OK.
 - 남은 일: `--live` 실제 호출(주인님 본인 키).
+
+## 이어서 — v1.80
+- 상대 비용 표시(💰~💰💰💰), 새 모델 커밋 알림 훅. 배포 `naver-blog-seo-studio-ahxlo439a` Ready, DB·확장 v1.80 OK.

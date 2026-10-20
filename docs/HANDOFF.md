@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 상대 비용 표시(SEO 스튜디오 v1.80·쇼핑제휴 v1.71) + 7개 프로그램 화면 안내는 「다음에 고칠 때 함께」
+- 모델 선택 칸 「모델 성격: ⚡ 빠름 · 비용 💰 ⓘ」(💰~💰💰💰, 상대 표시·정확한 단가 아님). 공용 기준 코드 `openAIModelBadge`·`openAIModelCostLevel`, 사본 8곳 동기화. 두 프로그램 배포 Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.80·v1.71, 크롬 확인(호출 없음).
+- 주인님 결정: 나머지 7개 프로그램 화면 안내는 한꺼번에 배포하지 않고 각자 다음에 고칠 때 함께 — 붙일 파일 위치를 각 `AGENTS.md` 끝과 `docs/SHARED_FEATURE_MAP.md` §8에 기록.
+- https://naver-blog-seo-studio.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — AI 종합 성격 진단 v1.21: 타로점 「미스틱 미드나잇 퍼플」 스타일 이식 + 자주 묻는 질문 화살표 겹침 수정
 - 한 일: `personality-suite` v1.20 → **v1.21**. 색 토큰을 타로점(`tarot/app/globals.css`)과 동일하게 다크 퍼플·골드로 전면 교체(전 화면 같은 배경, 인쇄는 밝은 색 복귀). **원인 발견**: 이 프로그램은 Tailwind 미설치인데 v1.20 대시보드·매뉴얼이 Tailwind 클래스로 작성돼 배치가 무시되고 있었음 → `ps-*` 일반 CSS로 재작성. 자주 묻는 질문은 브라우저 기본 화살표를 숨기고 오른쪽 끝 금색 동그라미 화살표 하나로(주인님 신고 건). 사이드바 직접 지정 색 제거, 추이 그래프 색 조정. 기능·API 변경 없음. 상세 `personality-suite/AGENTS.md`·`docs/DESIGN_HANDOFF.md`.
 - 검수: tsc·테스트 19개·build 통과, 배포 `personality-suite-m6xwemqz6` Ready, DB(ref `esgxyikcnnvmlhygjkth`) `programs.version` v1.21. 크롬(관리자 계정): 대시보드·매뉴얼·검사 화면·FAQ 펼침 확인, 390px iframe에서 위쪽 메뉴·가로 스크롤 없음 확인.

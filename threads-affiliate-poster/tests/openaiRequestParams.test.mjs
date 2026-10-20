@@ -1,7 +1,7 @@
 // 공용 기준 코드 「openai-request-params」 테스트 — 기준 테스트(naver-blog-seo-studio/tests/openaiRequestParams.test.mjs)와 같은 내용, 이 프로그램 폴더 구조에 맞춰 경로만 다름
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isOpenAIReasoningModel, openAIGenerationParams, openAIModelNotice, openAIModelTier, openAIModelTierHint, openAIErrorReason, REASONING_MIN_COMPLETION_TOKENS } from "../src/lib/ai/openaiRequestParams.ts";
+import { isOpenAIReasoningModel, openAIGenerationParams, openAIModelNotice, openAIModelTier, openAIModelTierHint, openAIModelCostLevel, openAIModelBadge, openAIErrorReason, REASONING_MIN_COMPLETION_TOKENS } from "../src/lib/ai/openaiRequestParams.ts";
 
 const reasoning = ["gpt-5", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-6-luna", "gpt-6-astra", "o4-mini", "o3"];
 const classic = ["gpt-4o-mini", "gpt-4o", "gpt-4.1", "gpt-4.1-mini"];
@@ -40,6 +40,16 @@ test("모델 성격 설명", () => {
   assert.match(openAIModelTierHint("gpt-4.1"), /무난한/);
   assert.match(openAIModelTierHint("gpt-6-astra"), /복잡한 주제/);
   assert.equal(openAIModelTierHint("claude-opus-5"), "");
+});
+
+test("상대 비용 표시", () => {
+  assert.equal(openAIModelCostLevel("gpt-4o-mini"), "💰");
+  assert.equal(openAIModelCostLevel("gpt-4.1"), "💰💰");
+  assert.equal(openAIModelCostLevel("gpt-6-astra"), "💰💰💰");
+  assert.equal(openAIModelCostLevel("gemini-3.8-flash"), "");
+  assert.equal(openAIModelBadge("gpt-5.6-luna"), "⚡ 빠름 · 비용 💰");
+  assert.equal(openAIModelBadge("claude-opus-5"), "");
+  assert.match(openAIModelTierHint("gpt-4.1"), /상대 표시/);
 });
 
 test("OpenAI 거부 이유", async () => {

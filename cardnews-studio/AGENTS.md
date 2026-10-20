@@ -161,3 +161,4 @@
 ## 2026-10-20 v1.27 — 일시정지 안전 처리·상태 줄 즉시 갱신 (Claude Code 윈도우)
 - 예약 공용 코드 보강(구글폼 CRM v1.12 등 6개와 같은 수정): ① `pauseMemberScheduler`가 일시정지를 먼저 저장하고 cron-job.org 끄기는 시도만(실패 시 「작업 끄기는 다음 호출 때 다시 시도」 안내), 회원 실행 주소가 `skipPausedMember`로 일시정지 회원을 건너뛰고 작업 끄기를 다시 시도 ② 상태 줄이 서버 값 변화를 따라감(`useEffect`). 커밋 `0dc07e3c`, DB 버전 크롬 SQL Editor, 배포 `cardnews-studio-jpe0fbod3` Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401.
 - 이 프로그램은 일시정지가 API 주소(`/api/cardnews/scheduler`)라 응답에 `notice`를 실어 보내고, 상태 줄은 원래 `refreshKey`마다 서버에서 다시 읽어 ②는 해당 없음. 다른 CLI가 미배포로 커밋해 둔 OpenAI 요청 규칙 사본(`openaiRequestParams`)도 이 배포에 함께 나감.
+- **다음에 이 프로그램을 고칠 때 함께(주인님 결정 2026-10-20)**: 글 모델 선택 칸(`src/components/studio/ui.tsx · src/app/(dashboard)/background/page.tsx`) 아래에 모델 성격·상대 비용·GPT-5 지연 안내 붙이기 — 사본에 이미 `openAIModelBadge`·`openAIModelTierHint`·`openAIModelNotice`가 있어 화면 한두 줄만 추가. 기준 구현·방법: 루트 `docs/SHARED_FEATURE_MAP.md` §8.

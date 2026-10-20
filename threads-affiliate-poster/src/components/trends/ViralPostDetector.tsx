@@ -25,7 +25,7 @@ import { GUIDE_BASE_URL } from "@/lib/deployment";
 import { deleteMyPersonaAction, listMyPersonasAction } from "@/lib/actions/personas";
 import { resolvePersonaTone, type SavedPersona } from "@/lib/personaTone";
 import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS, PROVIDER_SHORT_LABELS } from "@/lib/ai/models";
-import { openAIModelNotice, openAIModelTier, openAIModelTierHint } from "@/lib/ai/openaiRequestParams";
+import { openAIModelBadge, openAIModelNotice, openAIModelTier, openAIModelTierHint } from "@/lib/ai/openaiRequestParams";
 import { PLATFORM_LABELS, type AffiliatePlatform, type AffiliateProduct } from "@/types/product";
 import {
   Sparkles,
@@ -951,7 +951,7 @@ export function ViralPostDetector() {
                   ))}
                 </select>
                 {openAIModelTier(aiModel) && (
-                  <details className="text-[11px] text-neutral-600"><summary title={openAIModelTierHint(aiModel)} className="w-fit cursor-help list-none font-semibold [&::-webkit-details-marker]:hidden">모델 성격: {openAIModelTier(aiModel)} ⓘ</summary><span className="mt-0.5 block">{openAIModelTierHint(aiModel)}</span></details>
+                  <details className="text-[11px] text-neutral-600"><summary title={openAIModelTierHint(aiModel)} className="w-fit cursor-help list-none font-semibold [&::-webkit-details-marker]:hidden">모델 성격: {openAIModelBadge(aiModel)} ⓘ</summary><span className="mt-0.5 block">{openAIModelTierHint(aiModel)}</span></details>
                 )}
                 {openAIModelNotice(aiModel) && (
                   <p className="text-[11px] font-semibold text-amber-700">⏳ {openAIModelNotice(aiModel)}</p>

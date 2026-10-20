@@ -26,3 +26,6 @@
 
 ## 이어서 — v1.70
 - 모델 성격 설명(마우스 올리기·누르기). 배포 `threads-affiliate-poster-7q30yno6l` Ready, DB v1.70, 크롬 확인.
+
+## 이어서 — v1.71
+- 상대 비용 표시. 배포 `threads-affiliate-poster-90ad8afiv` Ready, DB v1.71, 크롬 확인.

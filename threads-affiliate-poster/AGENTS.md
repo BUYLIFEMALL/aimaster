@@ -614,3 +614,6 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 ## 2026-10-20 v1.70 — 모델 성격 표시에 한 줄 설명 (Claude Code 윈도우)
 - 「모델 성격: … ⓘ」에 마우스를 올리면 말풍선(`title`), 누르면 펼침(`<details>`)으로 설명(공용 기준 코드 `openAIModelTierHint`, 사본 갱신). 배포 `threads-affiliate-poster-7q30yno6l` Ready · DB v1.70 · 크롬(일반 회원 세션): luna 「짧은 글·빠른 응답에 적합…」, 닫힘 17px→열림 35px, 기본 모델 GPT-4.1 유지(호출 없음).
+
+## 2026-10-20 v1.71 — 모델 선택 칸에 상대 비용 표시 (Claude Code 윈도우)
+- 「모델 성격: ⚡ 빠름 · 비용 💰 ⓘ」(공용 기준 코드 `openAIModelBadge`·`openAIModelCostLevel`, 사본 갱신). 💰=빠름·💰💰=균형·💰💰💰=고품질, 설명에 「OpenAI 모델끼리 비교한 상대 표시, 정확한 단가 아님」. 배포 `threads-affiliate-poster-90ad8afiv` Ready · DB v1.71 · 크롬: luna 💰·sol 💰💰💰·4.1 💰💰, 기본 모델 GPT-4.1 유지(호출 없음).

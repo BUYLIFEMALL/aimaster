@@ -42,12 +42,28 @@ export function openAIModelTier(model: string) {
   return "⚖️ 균형";
 }
 
+/** 상대 비용 표시(💰 적음 ~ 💰💰💰 큼). 같은 OpenAI 모델끼리 비교한 값이라 가격이 조금 바뀌어도 틀리지 않게 정확한 단가는 쓰지 않는다. */
+export function openAIModelCostLevel(model: string) {
+  const tier = openAIModelTier(model);
+  if (tier.includes("빠름")) return "💰";
+  if (tier.includes("균형")) return "💰💰";
+  if (tier.includes("고품질")) return "💰💰💰";
+  return "";
+}
+
+/** 모델 선택 칸에 한 줄로 보여 줄 「⚡ 빠름 · 비용 💰」(OpenAI 글 모델이 아니면 빈 문자열) */
+export function openAIModelBadge(model: string) {
+  const tier = openAIModelTier(model);
+  return tier ? `${tier} · 비용 ${openAIModelCostLevel(model)}` : "";
+}
+
 /** 모델 성격 표시에 마우스를 올리거나 눌렀을 때 보여 줄 한 줄 설명(해당 없으면 빈 문자열) */
 export function openAIModelTierHint(model: string) {
   const tier = openAIModelTier(model);
-  if (tier.includes("빠름")) return "짧은 글·빠른 응답에 적합하고 비용이 적습니다.";
-  if (tier.includes("고품질")) return "긴 글·복잡한 주제에 적합하지만 느리고 비용이 큽니다.";
-  if (tier.includes("균형")) return "대부분의 글에 무난한 품질과 속도입니다.";
+  const cost = " 비용은 OpenAI 모델끼리 비교한 상대 표시이며 정확한 단가가 아닙니다.";
+  if (tier.includes("빠름")) return "짧은 글·빠른 응답에 적합하고 비용이 적습니다." + cost;
+  if (tier.includes("고품질")) return "긴 글·복잡한 주제에 적합하지만 느리고 비용이 큽니다." + cost;
+  if (tier.includes("균형")) return "대부분의 글에 무난한 품질과 속도입니다." + cost;
   return "";
 }
 
