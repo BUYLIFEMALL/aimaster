@@ -1,29 +1,36 @@
 import "server-only";
 import { createHash, randomBytes } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { MEMBER_DISPATCH_PATH, deleteDispatchJob, setDispatchJobEnabled, upsertDispatchJob } from "@/lib/schedulerMember/cronJobOrg";
-import { SITE_ORIGIN } from "@/lib/oauthRedirect";
+import { deleteDispatchJob, setDispatchJobEnabled, upsertDispatchJob } from "./cronJobOrg";
+import { MEMBER_DISPATCH_PATH, PLATFORM_SCHEDULER_ENV, SCHEDULER_IS_STANDALONE, SCHEDULER_SITE_ORIGIN, SCHEDULER_TABLE, SCHEDULER_TOKEN_PREFIX, countRemainingWork } from "./schedulerConfig";
 
-// 회원별 정기 자동 실행 — 회원이 실행 방식을 고른다(v1.21, 2026-10-20 주인님 「정기형에도 적용」). 지침: 루트 docs/SCHEDULER_POLICY.md
-// 기준 구현: naver-cafe-poster/src/lib/scheduledSource/memberScheduler.ts(표·토큰·환경변수 이름과 「켜진 정기 주제」 표만 바꿈, 원 기준 threads).
-// 이 프로그램은 설치 키트(배포판) 모드가 없는 운영 전용이라 기본 방식은 항상 vercel이다.
-// · ① vercel(기본): 사이트의 Vercel 예약 호출(5분 간격, vercel.json)이 처리. 회원은 키 없이 정기 실행만 켜면 된다.
-// · ② cronjob: 회원 본인 cron-job.org API 키 → 정기 실행을 켜면 회원 cron-job.org에 5분 작업을 자동 생성·켜기(회원 전용 토큰, DB엔 해시),
-//   켜진 정기 주제가 0개면 자동 끄기.
+// 회원별 예약 실행 방식 — 회원이 실행 방식을 고른다(2026-10-19 주인님 지시). 지침: 루트 docs/SCHEDULER_POLICY.md
+// 공용 기준 코드 「member-scheduler」(2026-10-20 15개로 확대, 구 insta-member-scheduler): 기준 = cardnews-studio/src/lib/instagram/memberScheduler.ts,
+// 사본 = 인스타 3개 + threads-content-ops·threads·insta_auto_poster·threads-affiliate-poster(예약형) + booking-reminder·crm-google-form·kakao_auto_poster·
+// naver-cafe-poster·stepmail·trending-product-finder·youtube-auto-reply(정기형). 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`.
+// 프로그램마다 다른 값(사이트 주소·표·토큰 앞글자·환경변수·설치 키트 여부·「남은 일」 세기·실행 주소)은 같은 폴더 `schedulerConfig.ts`.
+// · ① vercel(운영 기본): 사이트의 Vercel 예약 호출(vercel.json)이 처리. 회원은 키 없이 예약(또는 규칙 켜기)만 하면 된다.
+// · ② cronjob: 회원 본인 cron-job.org API 키 → 남은 일이 생기면 회원 cron-job.org 작업을 자동 생성·켜기(회원 전용 토큰, DB엔 해시),
+//   남은 일이 0이면 자동 끄기.
 // · 일시정지는 두 방식 모두: 운영자 호출은 일시정지 회원을 건너뛰고, cronjob 회원은 작업도 끈다.
-// · Vercel 방식은 기본 켜짐 — 관리자가 KAKAO_PLATFORM_SCHEDULER=off로 끌 수 있다.
+// · Vercel 방식 사용 가능 여부: 운영은 기본 켜짐(관리자가 PLATFORM_SCHEDULER_ENV=off로 끌 수 있음),
+//   설치 키트(SCHEDULER_IS_STANDALONE)는 Vercel 무료가 하루 1번만 실행되므로 KIT/enable-vercel-cron(Pro)이 =on을 넣었을 때만 켜짐.
 
-export const SCHEDULER_TABLE = "kakao_member_scheduler";
+/** 회원 cron-job.org가 부를 이 사이트 주소(공식 주소 = programs.app_url) */
+const SITE_ORIGIN = SCHEDULER_SITE_ORIGIN;
+
+export { SCHEDULER_TABLE };
 export const CRONJOB_PROVIDER = "cronjob_org_api_key";
 
 export type SchedulerMode = "vercel" | "cronjob";
-/** 기본 실행 방식: 운영 전용 프로그램이라 항상 Vercel */
-export const DEFAULT_SCHEDULER_MODE: SchedulerMode = "vercel";
+/** 기본 실행 방식: AIMaster 운영은 Vercel, 설치 키트(배포판)는 cron-job.org(주인님 지시 2026-10-19 — 수강생은 대부분 Vercel 무료로 시작) */
+export const DEFAULT_SCHEDULER_MODE: SchedulerMode = SCHEDULER_IS_STANDALONE ? "cronjob" : "vercel";
 type SchedulerRow = { user_id: string; mode: SchedulerMode; active: boolean; paused: boolean };
 
 /** 사이트의 Vercel 예약 호출로 회원 예약을 처리할 수 있는가 */
 export function platformSchedulerEnabled(): boolean {
-  return process.env.KAKAO_PLATFORM_SCHEDULER?.trim().toLowerCase() !== "off";
+  const flag = process.env[PLATFORM_SCHEDULER_ENV]?.trim().toLowerCase();
+  return SCHEDULER_IS_STANDALONE ? flag === "on" : flag !== "off";
 }
 
 export function memberDispatchUrl(): string {
@@ -36,7 +43,7 @@ export function hashMemberToken(token: string): string {
 }
 
 function newMemberToken(): { token: string; hash: string } {
-  const token = `kakao_${randomBytes(32).toString("hex")}`;
+  const token = `${SCHEDULER_TOKEN_PREFIX}_${randomBytes(32).toString("hex")}`;
   return { token, hash: hashMemberToken(token) };
 }
 
@@ -57,10 +64,9 @@ export async function memberSchedulerMode(service: SupabaseClient, userId: strin
   return (await schedulerRow(service, userId))?.mode ?? DEFAULT_SCHEDULER_MODE;
 }
 
-/** 이 회원의 켜진 정기 주제 수(정기형에서 「남은 일」 = 이것). 0개면 회원 작업을 끈다. */
+/** 이 회원의 남은 일(예약형: 남은 예약 글 / 정기형: 켜진 규칙 등) — 0이면 회원 cron-job.org 작업을 끈다. 세는 방법은 schedulerConfig.ts */
 export async function remainingScheduled(service: SupabaseClient, userId: string): Promise<number> {
-  const { count } = await service.from("kakao_topics").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true).eq("schedule_enabled", true);
-  return count ?? 0;
+  return countRemainingWork(service, userId);
 }
 
 /** 행이 없으면 자리표시 해시로 만든다(형식이 달라 실행 주소 토큰으로는 절대 맞지 않음). cronjob 첫 연결 때 진짜 토큰으로 바뀐다. */
@@ -77,7 +83,7 @@ export async function membersExcludedFromPlatform(service: SupabaseClient): Prom
 }
 
 export async function memberIdForToken(service: SupabaseClient, token: string): Promise<string | null> {
-  if (!/^kakao_[0-9a-f]{64}$/.test(token)) return null;
+  if (!new RegExp(`^${SCHEDULER_TOKEN_PREFIX}_[0-9a-f]{64}$`).test(token)) return null;
   const { data } = await service.from(SCHEDULER_TABLE).select("user_id, mode").eq("token_hash", hashMemberToken(token)).maybeSingle();
   if (!data) return null;
   if (data.mode !== "cronjob") {
@@ -91,7 +97,7 @@ export async function memberIdForToken(service: SupabaseClient, token: string): 
 }
 
 /**
- * cronjob 회원이 정기 실행을 켠 직후 호출: 회원 cron-job.org 작업이 실제로 켜져 있게 만든다(cron-job.org 호출 1~2회).
+ * cronjob 회원의 예약 직후 호출: 회원 cron-job.org 작업이 실제로 켜져 있게 만든다(예약 1건당 cron-job.org 호출 1~2회).
  * DB에 켜짐으로 적혀 있어도 cron-job.org가 실패 25회 뒤 작업을 자동으로 껐을 수 있어 매번 실제 상태를 확인한다. 일시정지 중이면 켜지 않는다.
  */
 export async function ensureMemberSchedulerRunning(service: SupabaseClient, userId: string, apiKey: string): Promise<{ paused: boolean }> {
@@ -117,7 +123,7 @@ async function memberIdTokenReady(service: SupabaseClient, userId: string): Prom
   return Boolean(data?.token_hash && /^[0-9a-f]{64}$/.test(data.token_hash as string));
 }
 
-/** 정기 실행을 끄거나 회원 전용 실행이 끝날 때: 켜진 정기 주제가 없으면 작업을 끈다. 끄는 사이 새로 켜졌으면 다시 켠다. */
+/** cronjob 회원 전용 실행이 끝날 때: 남은 예약이 없으면 작업을 끈다. 끄는 사이 새 예약이 들어왔으면 다시 켠다. */
 export async function stopMemberSchedulerIfIdle(service: SupabaseClient, userId: string): Promise<boolean> {
   if ((await remainingScheduled(service, userId)) > 0) return false;
   const key = await memberCronjobKey(service, userId);
@@ -133,7 +139,7 @@ export async function stopMemberSchedulerIfIdle(service: SupabaseClient, userId:
   return true;
 }
 
-/** 실행 방식 바꾸기. cronjob으로 바꾸면 키가 있어야 하고 켜진 정기 주제가 있으면 작업을 켠다. vercel로 바꾸면 회원 작업을 끈다. */
+/** 실행 방식 바꾸기. cronjob으로 바꾸면 키가 있어야 하고 남은 예약이 있으면 작업을 켠다. vercel로 바꾸면 회원 작업을 끈다. */
 export async function setMemberSchedulerMode(service: SupabaseClient, userId: string, mode: SchedulerMode): Promise<void> {
   await ensureRow(service, userId);
   const key = await memberCronjobKey(service, userId);
@@ -152,7 +158,9 @@ export async function setMemberSchedulerMode(service: SupabaseClient, userId: st
     }
     return;
   }
-  if (!platformSchedulerEnabled()) throw new Error("이 사이트는 Vercel 예약 호출이 꺼져 있어 「내 cron-job.org」 방식만 쓸 수 있습니다.");
+  if (!platformSchedulerEnabled()) throw new Error(SCHEDULER_IS_STANDALONE
+    ? "이 사이트는 Vercel 예약 호출이 꺼져 있어 cron-job.org 방식만 쓸 수 있습니다(설치 키트: Vercel 유료(Pro)라면 KIT/enable-vercel-cron 실행)."
+    : "이 사이트는 Vercel 예약 호출이 꺼져 있어 「내 cron-job.org」 방식만 쓸 수 있습니다.");
   if (key) { try { await setDispatchJobEnabled(key, memberDispatchUrl(), false); } catch { /* 키가 무효여도 방식 변경은 진행 */ } }
   await service.from(SCHEDULER_TABLE).update({ mode: "vercel", active: false, updated_at: now() }).eq("user_id", userId);
 }

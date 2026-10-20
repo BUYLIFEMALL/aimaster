@@ -10,6 +10,13 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 회원 예약 실행 방식 코드 15개 공용화 `member-scheduler` (남은 작업 순서 진행 ⑤, 미배포)
+- 한 일: 손 복사 사본이던 11개(`threads-content-ops`·`threads`·`insta_auto_poster`·`threads-affiliate-poster`·`booking-reminder`·`crm-google-form`·`kakao_auto_poster`·`naver-cafe-poster`·`stepmail`·`trending-product-finder`·`youtube-auto-reply`)의 `memberScheduler.ts`를 인스타 4개와 같은 공용 기준 코드로 통일(기준 `cardnews-studio`). 프로그램 값은 같은 폴더 새 `schedulerConfig.ts` — 설치 키트 여부·「남은 일」 세기도 여기로. 11개 값은 원래 파일과 자동 대조 일치.
+- 검수: 15개 tsc·build, 테스트(카드뉴스 52·인플루언서 18·웹툰 18·4컷 52·운영 자동화 32, 상품소싱·유튜브 권한 29), 공용 코드 점검, 설치 키트 DB 대조 통과. 동작·DB 변경 없음.
+- **미배포**(내부 정리 — 각 프로그램 다음 배포 때, 그때 예약 상태 화면·가짜 토큰 401 확인). 쇼핑제휴 `AGENTS.md`는 다른 CLI의 미커밋 변경이 있어 기록을 여기에만 남김. 플랜 `cardnews-studio/docs/PLAN_20261020_MEMBER_SCHEDULER_SHARED.md`, 지침 `docs/SCHEDULER_POLICY.md` 처리 결과 5.
+- 다음 순서 ⑥ 성격·운세 4개 「이어서 보기」 링크 코드 공용화.
+
+
 ## 2026-10-20 Claude Code(윈도우) — 인스타 예약 화면 동작 공용화: 상태 줄·게시 기록 시각·예약 취소 (남은 작업 순서 진행 ④, 미배포)
 - 한 일: 카드뉴스·인플루언서·웹툰·4컷의 「⏰ 예약 발행」 상태 줄 동작, 게시 기록 시각 문구, 예약 취소(중복 누름 방지)를 공용 기준 코드 `insta-posts-client`(`src/lib/instagram/postsClient.ts`, 기준 카드뉴스)로. 화면 모양·색·주소는 각 프로그램 그대로(목록 전체를 빼면 큰 게시 패널까지 바뀌어 동작 부분만 공용화).
 - 검수: 네 프로그램 tsc·테스트(52·18·18·52)·build 통과, 공용 코드 점검 일치. 동작·문구·DB 변경 없음.

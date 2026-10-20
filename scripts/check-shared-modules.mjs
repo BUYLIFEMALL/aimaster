@@ -38,9 +38,16 @@ const MODULES = [
   },
   {
     // 인스타 예약 회원 실행 방식(Vercel / 내 cron-job.org·일시정지 안전 처리·실패 시 되돌리기) — 2026-10-20 등록. 프로그램 값은 각 폴더 schedulerConfig.ts
-    id: "insta-member-scheduler",
+    // 2026-10-20 인스타 4개 → 예약 프로그램 15개로 확대(구 id insta-member-scheduler). 값은 같은 폴더 schedulerConfig.ts
+    id: "member-scheduler",
     source: "cardnews-studio/src/lib/instagram/memberScheduler.ts",
-    copies: ["ai-influencer-studio/src/lib/instagram/memberScheduler.ts", "ai-webtoon-studio/src/lib/instagram/memberScheduler.ts", "four-cut-comics/src/lib/instagram/memberScheduler.ts"],
+    copies: [
+      "ai-influencer-studio/src/lib/instagram/memberScheduler.ts", "ai-webtoon-studio/src/lib/instagram/memberScheduler.ts", "four-cut-comics/src/lib/instagram/memberScheduler.ts",
+      "threads-content-ops/lib/memberScheduler.ts", "threads/src/lib/posts/memberScheduler.ts", "insta_auto_poster/src/lib/posts/memberScheduler.ts", "threads-affiliate-poster/src/lib/posts/memberScheduler.ts",
+      "booking-reminder/lib/schedulerMember/memberScheduler.ts", "crm-google-form/lib/schedulerMember/memberScheduler.ts", "kakao_auto_poster/src/lib/schedulerMember/memberScheduler.ts",
+      "naver-cafe-poster/src/lib/scheduledSource/memberScheduler.ts", "stepmail/lib/schedulerMember/memberScheduler.ts", "trending-product-finder/lib/schedulerMember/memberScheduler.ts",
+      "youtube-auto-reply/lib/schedulerMember/memberScheduler.ts",
+    ],
   },
   {
     // 인스타 예약 회원 cron-job.org 작업 만들기·켜기/끄기·지우기 — 2026-10-20 등록. 실행 주소·작업 이름은 각 폴더 schedulerConfig.ts

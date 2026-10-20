@@ -21,3 +21,13 @@ import { APP_SLUG } from "@/lib/version";
 export const SCHEDULER_PROGRAM_SLUG = APP_SLUG;
 /** 인스타 이미지 확인 함수 — 프로그램마다 파일 이름이 달라 여기서 다시 내보낸다 */
 export { MAX_INSTA_CAPTION, validInstaPaths } from "./slides";
+
+// 공용 member-scheduler(2026-10-20 15개로 확대)가 읽는 값
+import type { SupabaseClient } from "@supabase/supabase-js";
+/** 설치 키트(배포판) 모드 — 이 프로그램은 운영 전용 */
+export const SCHEDULER_IS_STANDALONE = false;
+/** 「남은 일」 = 남은 예약 게시 수(0이면 회원 cron-job.org 작업을 끈다) */
+export async function countRemainingWork(service: SupabaseClient, userId: string): Promise<number> {
+  const { count } = await service.from(SCHEDULER_POSTS_TABLE).select("id", { count: "exact", head: true }).eq("user_id", userId).eq("status", "scheduled");
+  return count ?? 0;
+}
