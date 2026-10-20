@@ -77,16 +77,16 @@ export default function GuidePage() {
     <div className="w-full space-y-10 pb-16">
       {/* 1. 가이드북 히어로 섹션 */}
       <section className="atelier-hero p-6 sm:p-10 text-center relative">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-rose-200 shadow-sm mb-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#120d24]/80 border border-purple-500/40 shadow-sm mb-4">
           <span className="text-sm">📖</span>
-          <span className="text-xs font-bold text-rose-800">
+          <span className="text-xs font-bold text-rose-200">
             캐릭코드 공식 사용 매뉴얼 & 캐릭터 도감
           </span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight mb-3">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight mb-3">
           캐릭코드 완벽 활용 가이드북
         </h1>
-        <p className="text-neutral-600 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
+        <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
           20문항의 융 심리유형 측정부터 16대 자체 제작 오리지널 캐릭터 매칭,<br className="hidden sm:inline" />
           그리고 Gemini AI 기반 고품질 일러스트 생성까지의 모든 노하우를 안내합니다.
         </p>
@@ -94,13 +94,13 @@ export default function GuidePage() {
         <div className="mt-6 flex items-center justify-center gap-3">
           <Link
             href="/test"
-            className="px-6 py-2.5 rounded-xl bg-neutral-900 text-white text-xs font-bold hover:bg-neutral-800 transition-all shadow-sm"
+            className="px-6 py-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-500 transition-all shadow-sm"
           >
             🎭 지금 바로 검사 시작하기
           </Link>
           <Link
             href="/"
-            className="px-4 py-2.5 rounded-xl bg-white text-neutral-700 text-xs font-bold border border-neutral-200 hover:bg-neutral-50 transition-all"
+            className="px-4 py-2.5 rounded-xl bg-[#120d24] text-slate-300 text-xs font-bold border border-[#2a1f4e] hover:bg-[#1c1536] transition-all"
           >
             ← 메인으로 돌아가기
           </Link>
@@ -108,81 +108,81 @@ export default function GuidePage() {
       </section>
 
       {/* 2. 4단계 프로세스 플로우 다이어그램 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-5">
+      <section className="bg-[#120d24] rounded-2xl border border-[#2a1f4e] p-6 shadow-sm space-y-5">
         <div className="flex items-center gap-2">
           <span className="text-xl">🗺️</span>
           <div>
-            <h2 className="text-base font-bold text-neutral-900">
+            <h2 className="text-base font-bold text-slate-100">
               4단계 분석 & 생성 파이프라인
             </h2>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-slate-400">
               체계적이고 과학적인 4개 축 지표와 자체 창작 캐릭터 매칭 알고리즘
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
-          <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-100 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col justify-between">
             <div>
-              <div className="text-[11px] font-extrabold text-rose-600 tracking-wider">STEP 01</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">20문항 성격검사</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
+              <div className="text-[11px] font-extrabold text-rose-400 tracking-wider">STEP 01</div>
+              <h3 className="text-sm font-bold text-slate-100 mt-1 mb-1">20문항 성격검사</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
                 4대 이분지표별 5문항씩 배정된 20개 질문에 직관적으로 응답합니다.
               </p>
             </div>
-            <div className="mt-3 text-[11px] text-rose-700/80 font-medium">⏱ 약 2분 소요</div>
+            <div className="mt-3 text-[11px] text-rose-300/80 font-medium">⏱ 약 2분 소요</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-violet-50/60 border border-violet-100 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30 flex flex-col justify-between">
             <div>
-              <div className="text-[11px] font-extrabold text-violet-600 tracking-wider">STEP 02</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">4차원 점수화</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
+              <div className="text-[11px] font-extrabold text-violet-400 tracking-wider">STEP 02</div>
+              <h3 className="text-sm font-bold text-slate-100 mt-1 mb-1">4차원 점수화</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
                 외향/내향, 감각/직관, 사고/감정, 판단/인식 4개 축의 점수 비율을 정밀 산출합니다.
               </p>
             </div>
-            <div className="mt-3 text-[11px] text-violet-700/80 font-medium">🧭 실시간 정밀 연산</div>
+            <div className="mt-3 text-[11px] text-violet-300/80 font-medium">🧭 실시간 정밀 연산</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-100 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col justify-between">
             <div>
-              <div className="text-[11px] font-extrabold text-amber-600 tracking-wider">STEP 03</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">오리지널 캐릭터</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
+              <div className="text-[11px] font-extrabold text-amber-400 tracking-wider">STEP 03</div>
+              <h3 className="text-sm font-bold text-slate-100 mt-1 mb-1">오리지널 캐릭터</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
                 산출된 16가지 유형 코드에 1:1 매핑된 자체 창작 고유 페르소나와 매칭됩니다.
               </p>
             </div>
-            <div className="mt-3 text-[11px] text-amber-700/80 font-medium">🎭 16인 독립 세계관</div>
+            <div className="mt-3 text-[11px] text-amber-300/80 font-medium">🎭 16인 독립 세계관</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col justify-between">
             <div>
-              <div className="text-[11px] font-extrabold text-emerald-600 tracking-wider">STEP 04</div>
-              <h3 className="text-sm font-bold text-neutral-900 mt-1 mb-1">AI 일러스트 & 공유</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
+              <div className="text-[11px] font-extrabold text-emerald-400 tracking-wider">STEP 04</div>
+              <h3 className="text-sm font-bold text-slate-100 mt-1 mb-1">AI 일러스트 & 공유</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
                 Gemini 2.5 Flash 엔진으로 맞춤 일러스트를 생성하고 동적 OG 카드를 공유합니다.
               </p>
             </div>
-            <div className="mt-3 text-[11px] text-emerald-700/80 font-medium">📱 카카오톡·인스타 카드</div>
+            <div className="mt-3 text-[11px] text-emerald-300/80 font-medium">📱 카카오톡·인스타 카드</div>
           </div>
         </div>
       </section>
 
       {/* 3. 16대 MBTI 오리지널 캐릭터 매트릭스 도감 표 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-4">
+      <section className="bg-[#120d24] rounded-2xl border border-[#2a1f4e] p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl">👥</span>
             <div>
-              <h2 className="text-base font-bold text-neutral-900">
+              <h2 className="text-base font-bold text-slate-100">
                 16대 오리지널 캐릭터 매트릭스 도감
               </h2>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-slate-400">
                 각 유형의 특성이 가장 잘 드러나는 독자적 역할과 대표 대사를 확인하세요.
               </p>
             </div>
           </div>
-          <span className="text-xs font-bold text-neutral-400">총 16인</span>
+          <span className="text-xs font-bold text-slate-500">총 16인</span>
         </div>
 
         <div className="overflow-x-auto">
@@ -198,24 +198,24 @@ export default function GuidePage() {
             </thead>
             <tbody>
               {charactersList.map((c) => (
-                <tr key={c.code} className="hover:bg-rose-50/20 transition-colors">
-                  <td className="font-mono font-bold text-xs text-rose-600">
+                <tr key={c.code} className="hover:bg-rose-500/20/20 transition-colors">
+                  <td className="font-mono font-bold text-xs text-rose-400">
                     {c.code}
                   </td>
                   <td>
-                    <div className="flex items-center gap-1.5 font-bold text-neutral-900">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-100">
                       <span>{c.emoji}</span>
                       <span>{c.name}</span>
                     </div>
                   </td>
-                  <td className="text-xs text-neutral-600">
+                  <td className="text-xs text-slate-400">
                     {c.role}
                   </td>
-                  <td className="text-xs italic text-neutral-700">
+                  <td className="text-xs italic text-slate-300">
                     &ldquo;{c.quote}&rdquo;
                   </td>
                   <td className="text-center">
-                    <span className="inline-block px-2 py-0.5 rounded-md bg-neutral-100 text-[11px] font-medium text-neutral-700">
+                    <span className="inline-block px-2 py-0.5 rounded-md bg-[#1c1536] text-[11px] font-medium text-slate-300">
                       {c.traits?.[0] ?? "성향 특성"}
                     </span>
                   </td>
@@ -227,14 +227,14 @@ export default function GuidePage() {
       </section>
 
       {/* 4. 캐릭터 생성 극대화 7대 황금 수칙 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-5">
+      <section className="bg-[#120d24] rounded-2xl border border-[#2a1f4e] p-6 shadow-sm space-y-5">
         <div className="flex items-center gap-2">
           <span className="text-xl">🏆</span>
           <div>
-            <h2 className="text-base font-bold text-neutral-900">
+            <h2 className="text-base font-bold text-slate-100">
               캐릭코드 분석 & 생성 극대화 7대 황금 수칙
             </h2>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-slate-400">
               가장 높은 정확도와 만족스러운 일러스트 결과를 얻기 위한 핵심 가이드
             </p>
           </div>
@@ -243,14 +243,14 @@ export default function GuidePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
           {GOLDEN_RULES.map((rule) => (
             <div key={rule.step} className="rule-card-atelier flex items-start gap-3">
-              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-100 to-indigo-100 text-rose-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-900/30 to-indigo-900/20 text-rose-300 font-extrabold text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
                 {rule.step}
               </span>
               <div>
-                <h3 className="text-xs font-bold text-neutral-900 mb-0.5">
+                <h3 className="text-xs font-bold text-slate-100 mb-0.5">
                   {rule.title}
                 </h3>
-                <p className="text-xs text-neutral-500 leading-relaxed">
+                <p className="text-xs text-slate-400 leading-relaxed">
                   {rule.desc}
                 </p>
               </div>
@@ -260,14 +260,14 @@ export default function GuidePage() {
       </section>
 
       {/* 5. 실무 FAQ 5종 아코디언 */}
-      <section className="bg-white rounded-2xl border border-[#f1ebe1] p-6 shadow-sm space-y-4">
+      <section className="bg-[#120d24] rounded-2xl border border-[#2a1f4e] p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2">
           <span className="text-xl">❓</span>
           <div>
-            <h2 className="text-base font-bold text-neutral-900">
+            <h2 className="text-base font-bold text-slate-100">
               자주 묻는 질문 (FAQ)
             </h2>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-slate-400">
               회원님들이 가장 궁금해하시는 질문과 답변입니다.
             </p>
           </div>
@@ -277,18 +277,18 @@ export default function GuidePage() {
           {FAQ_ITEMS.map((item, idx) => (
             <details
               key={idx}
-              className="faq-atelier group p-4 border border-neutral-200/80 rounded-xl [&_summary::-webkit-details-marker]:none"
+              className="faq-atelier group p-4 border border-[#2a1f4e] rounded-xl [&_summary::-webkit-details-marker]:none"
             >
-              <summary className="flex items-center justify-between cursor-pointer font-bold text-xs sm:text-sm text-neutral-800 group-open:text-rose-600 transition-colors">
+              <summary className="flex items-center justify-between cursor-pointer font-bold text-xs sm:text-sm text-slate-200 group-open:text-rose-600 transition-colors">
                 <div className="flex items-center gap-2">
                   <span className="text-rose-500 font-black">Q.</span>
                   <span>{item.q}</span>
                 </div>
-                <span className="text-neutral-400 group-open:rotate-180 transition-transform text-xs">
+                <span className="text-slate-500 group-open:rotate-180 transition-transform text-xs">
                   ▼
                 </span>
               </summary>
-              <p className="mt-3 text-xs text-neutral-600 leading-relaxed pl-6 border-l-2 border-rose-200">
+              <p className="mt-3 text-xs text-slate-400 leading-relaxed pl-6 border-l-2 border-rose-500/30">
                 {item.a}
               </p>
             </details>

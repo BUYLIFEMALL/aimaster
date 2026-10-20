@@ -1,5 +1,9 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+## 2026-10-20 v1.22 — 미드나잇 퍼플 테마로 변경 (Claude Code 윈도우, 주인님 지시)
+- 파스텔 크림 → 타로점·AI 종합 성격 진단과 같은 미스틱 미드나잇 퍼플. `app/globals.css` 토큰·클래스 색 + 17개 화면 파일 일괄 대응표(상세 `docs/DESIGN_HANDOFF.md` 맨 위). 로그인 바탕 격자·파란 버튼도 보라로, 홈 배지 버전은 `APP_VERSION`으로 자동 표시.
+- 검수 중 주의: 결과 화면을 `from` 없이 열면 기존 동작대로 회원 키로 그림이 자동 생성됨 — 390px 점검 중 `/result/ENFP`를 미리보기로 열어 관리자 키로 그림 1회가 생성됐을 수 있음(미확인).
+
 ## 2026-10-20 v1.21 — 결과 → 타로점 연결 + 다른 프로그램에서 들어오면 이미지 자동 생성 안 함 (Claude Code 윈도우)
 - 결과 화면(`app/result/[type]/page.tsx`) 아래 「🔮 타로점 3장 리딩으로 이어서 보기」(`TarotBridge`): 캐릭터 이름·유형만 담은 질문으로 `tarot-reading.buylife.xyz/draw?q=&spread=three_cards&from=mbti-character`(새 창). 카드 뽑기는 타로점에서 직접.
 - `ResultInteractive`에 `autoGenerate` 추가: 주소에 `from`이 있으면(예: AI 종합 성격 진단 v1.26에서 넘어옴) 캐릭터 그림 자동 생성을 하지 않고 버튼으로만 생성. 검사를 끝내고 들어오는 기존 흐름은 그대로 자동 생성(2026-09-14 요청 유지).

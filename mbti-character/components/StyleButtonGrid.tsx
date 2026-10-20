@@ -19,8 +19,8 @@ export function StyleButtonGrid({
           onClick={() => onSelect(s.id)}
           className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-colors ${
             selectedId === s.id
-              ? "border-neutral-900 bg-neutral-900 text-white"
-              : "border-neutral-200 text-neutral-600 hover:border-neutral-400"
+              ? "border-purple-400 bg-purple-600 text-white"
+              : "border-[#2a1f4e] text-slate-400 hover:border-purple-500/60"
           }`}
         >
           {s.label}

@@ -15,12 +15,12 @@ export function ApiKeyRequiredModal({ onClose }: ApiKeyRequiredModalProps) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-sm rounded-2xl bg-[#120d24] p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-2 text-lg font-bold text-neutral-900">API 키 등록이 필요합니다</h2>
-        <p className="mb-4 text-sm text-neutral-600 leading-relaxed">
-          AI 캐릭터 이미지를 생성하려면 본인의 <span className="font-medium text-neutral-900">Google Gemini</span>{" "}
+        <h2 className="mb-2 text-lg font-bold text-slate-100">API 키 등록이 필요합니다</h2>
+        <p className="mb-4 text-sm text-slate-400 leading-relaxed">
+          AI 캐릭터 이미지를 생성하려면 본인의 <span className="font-medium text-slate-100">Google Gemini</span>{" "}
           API 키를 먼저 등록해야 합니다. 다른 사용자의 API 키는 공유되지 않으며, 각자 본인 키로만
           이용할 수 있습니다.
         </p>
@@ -28,13 +28,13 @@ export function ApiKeyRequiredModal({ onClose }: ApiKeyRequiredModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm text-neutral-500 hover:bg-neutral-100"
+            className="px-4 py-2 rounded-xl text-sm text-slate-400 hover:bg-[#1c1536]"
           >
             닫기
           </button>
           <Link
             href="/settings"
-            className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800"
+            className="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-500"
           >
             설정하러 가기
           </Link>

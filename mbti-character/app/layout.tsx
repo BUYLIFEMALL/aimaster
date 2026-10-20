@@ -28,17 +28,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="ko">
-      <body className="min-h-screen bg-[#fefcf9] text-[#1f2937]">
+      <body className="min-h-screen bg-[#090614] text-slate-100">
         <KakaoScript />
         <div className="min-h-screen flex flex-col">
           {/* 상단 56px 반응형 아틀리에 헤더 */}
-          <header className="sticky top-0 z-50 backdrop-blur-md bg-[#fefcf9]/90 border-b border-[#f1ebe1] px-4 py-3">
+          <header className="sticky top-0 z-50 backdrop-blur-md bg-[#090614]/90 border-b border-[#2a1f4e] px-4 py-3">
             <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
               {/* 로고 & 버전 배지 & 매뉴얼 링크 */}
               <div className="flex items-center gap-3">
                 <Link href="/" className="flex items-center gap-2 group">
                   <span className="text-2xl transition-transform group-hover:scale-110">🎭</span>
-                  <span className="font-extrabold text-lg text-[#1f2937] tracking-tight group-hover:text-rose-600 transition-colors">
+                  <span className="font-extrabold text-lg text-slate-100 tracking-tight group-hover:text-rose-300 transition-colors">
                     캐릭코드
                   </span>
                 </Link>
@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 {/* 독립 가이드북 메뉴 (DESIGN.md 9번 원칙 승격) */}
                 <Link
                   href="/guide"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200/60 hover:bg-rose-100 hover:text-rose-800 transition-all shadow-sm"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-rose-300 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 hover:text-rose-200 transition-all shadow-sm"
                 >
                   <span>📖</span>
                   <span>연동 & 사용 매뉴얼</span>
@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 {/* 모바일용 매뉴얼 버튼 */}
                 <Link
                   href="/guide"
-                  className="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200/60"
+                  className="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-rose-300 bg-rose-500/10 border border-rose-500/30"
                 >
                   <span>📖</span>
                   <span>매뉴얼</span>
@@ -69,7 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
                 <a
                   href={`${MAIN_SITE_URL}/programs`}
-                  className="hidden md:inline-flex text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                  className="hidden md:inline-flex text-xs text-slate-400 hover:text-white transition-colors"
                 >
                   다른 프로그램 →
                 </a>
@@ -78,14 +78,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <div className="flex items-center gap-2 text-xs">
                     <Link
                       href="/settings"
-                      className="hidden sm:inline-flex text-neutral-600 hover:text-rose-600 font-medium"
+                      className="hidden sm:inline-flex text-slate-400 hover:text-rose-600 font-medium"
                     >
                       🔑 API키등록
                     </Link>
                     <form action={signOutAction} className="inline-block">
                       <button
                         type="submit"
-                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 transition-all"
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-[#1c1536] transition-all"
                       >
                         로그아웃
                       </button>
@@ -94,7 +94,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 ) : (
                   <Link
                     href="/login"
-                    className="px-3 py-1.5 rounded-xl bg-neutral-900 text-white text-xs font-bold hover:bg-neutral-800 transition-all shadow-sm"
+                    className="px-3 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-500 transition-all shadow-sm"
                   >
                     로그인
                   </Link>
@@ -109,14 +109,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </main>
 
           {/* 푸터 */}
-          <footer className="border-t border-[#f1ebe1] py-8 text-center text-xs text-neutral-400 bg-[#faf6f0]">
+          <footer className="border-t border-[#2a1f4e] py-8 text-center text-xs text-slate-500 bg-[#120d24]">
             <div className="max-w-3xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-neutral-600">AIMaster 캐릭코드(MBTI)</span>
+                <span className="font-bold text-slate-400">AIMaster 캐릭코드(MBTI)</span>
                 <span className="text-neutral-300">|</span>
                 <span>{APP_VERSION}</span>
               </div>
-              <p className="text-[11px] text-neutral-400">
+              <p className="text-[11px] text-slate-500">
                 16대 오리지널 캐릭터는 자체 제작 저작물이며 공식 MBTI®와 무관한 창작물입니다.
               </p>
             </div>

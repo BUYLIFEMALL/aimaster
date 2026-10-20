@@ -28,7 +28,7 @@ export function StylePreferencePicker() {
 
   return (
     <div className="mt-4">
-      <label className="text-xs font-semibold text-neutral-600 mb-1.5 block">
+      <label className="text-xs font-semibold text-slate-400 mb-1.5 block">
         🎨 생성하고 싶은 캐릭터 스타일
       </label>
       <StyleButtonGrid selectedId={styleId} onSelect={handleSelect} />

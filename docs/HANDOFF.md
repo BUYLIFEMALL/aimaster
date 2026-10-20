@@ -1,6 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
+## 2026-10-20 Claude Code(윈도우) — 캐릭코드 v1.22: 미드나잇 퍼플 테마(성격·운세 4개 프로그램 중 3개 같은 테마)
+- 한 일: 파스텔 크림 → 타로점과 같은 미드나잇 퍼플(전역 CSS 토큰 + 17개 화면 일괄 대응표, 로그인 바탕·파란 버튼 포함). 상세 `mbti-character/docs/DESIGN_HANDOFF.md`.
+- 검수: tsc·build, 배포 `mbti-character-1chof8s6y` Ready, DB mbti-character v1.22. 크롬: 홈·매뉴얼·검사·결과·설정·로그인, 390px 5개 화면 넘침 없음. 주의: 점검 중 `/result/ENFP`(from 없음) 미리보기로 관리자 키 그림 1회 자동 생성됐을 수 있음(미확인).
+- 링크: https://mbti-character.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 성격 진단 v1.27 → 성격코드 v1.21 → 캐릭코드 → 타로점 v1.25 연결(성격·운세 4개 프로그램)
 - 한 일: 성격 진단 16유형 결과에 「성격코드에서 유형 해설 보기」, 성격코드 결과에 캐릭코드·타로점 「이어서 보기」, 타로점 안내에 성격코드 추가. 성격코드 지표 값 0~100 제한. AI 호출 없음.
 - 검수: tsc 3개·성격 단위 22·build 3개, 배포(순차) `tarot-jdftm6dz1`·`mbti-g2pcfqwz1`·`personality-suite-gwzdps90t` Ready. DB(ref `esgxyikcnnvmlhygjkth`) personality-suite v1.27·personality-code v1.21·tarot-reading v1.25. 크롬: 성격 결과 → 성격코드(지표 50·60·60·50%, 이어서 보기 카드) → 타로점(질문·「성격코드」 안내) 확인.

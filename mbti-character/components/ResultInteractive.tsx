@@ -138,20 +138,20 @@ export function ResultInteractive({
             {character.code}
           </span>
         </div>
-        <div className="bg-white px-6 py-6">
-          <p className="text-center text-neutral-700 font-medium mb-4">&ldquo;{character.quote}&rdquo;</p>
-          <p className="text-sm text-neutral-500 leading-relaxed">{character.description}</p>
+        <div className="bg-[#120d24] px-6 py-6">
+          <p className="text-center text-slate-300 font-medium mb-4">&ldquo;{character.quote}&rdquo;</p>
+          <p className="text-sm text-slate-400 leading-relaxed">{character.description}</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-8">
-        <h2 className="text-sm font-bold text-neutral-900 mb-1">🎨 캐릭터 이미지</h2>
-        <p className="text-xs text-neutral-400 mb-4 leading-relaxed">
+      <div className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-8">
+        <h2 className="text-sm font-bold text-slate-100 mb-1">🎨 캐릭터 이미지</h2>
+        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
           {hasApiKey ? (
             "스타일을 바꿔서 다시 생성할 수 있어요."
           ) : (
             <>
-              <a href="/settings" className="underline hover:text-neutral-600">
+              <a href="/settings" className="underline hover:text-slate-200">
                 설정
               </a>
               에서 Gemini API 키를 등록하면 나만의 캐릭터 이미지를 만들 수 있어요.
@@ -165,27 +165,27 @@ export function ResultInteractive({
             type="button"
             onClick={handleRegenerateClick}
             disabled={loading}
-            className="px-6 py-3 rounded-2xl bg-neutral-900 text-white font-bold text-sm hover:bg-neutral-800 transition-colors disabled:opacity-50"
+            className="px-6 py-3 rounded-2xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-500 transition-colors disabled:opacity-50"
           >
             {loading ? "생성 중..." : imageUrl ? "🔄 이 스타일로 다시 생성" : "✨ AI 캐릭터 이미지 생성하기"}
           </button>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-6">
-        <h2 className="text-sm font-bold text-neutral-900 mb-4">나의 성향 지표</h2>
+      <div className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-6">
+        <h2 className="text-sm font-bold text-slate-100 mb-4">나의 성향 지표</h2>
         <div className="space-y-3">
           {Object.entries(DIMENSION_LABELS).map(([dim, label]) => {
             const raw = Number(strengths[dim] ?? 50);
             const strength = Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 50;
             return (
               <div key={dim}>
-                <div className="flex justify-between text-xs text-neutral-500 mb-1">
+                <div className="flex justify-between text-xs text-slate-400 mb-1">
                   <span>{label}</span>
                   <span>{strength}%</span>
                 </div>
-                <div className="h-2 rounded-full bg-neutral-100 overflow-hidden">
-                  <div className="h-full rounded-full bg-neutral-900" style={{ width: `${strength}%` }} />
+                <div className="h-2 rounded-full bg-[#1c1536] overflow-hidden">
+                  <div className="h-full rounded-full bg-purple-600" style={{ width: `${strength}%` }} />
                 </div>
               </div>
             );
@@ -193,11 +193,11 @@ export function ResultInteractive({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-8">
-        <h2 className="text-sm font-bold text-neutral-900 mb-3">{character.name}의 특징</h2>
+      <div className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-8">
+        <h2 className="text-sm font-bold text-slate-100 mb-3">{character.name}의 특징</h2>
         <div className="flex flex-wrap gap-2">
           {character.traits.map((t) => (
-            <span key={t} className="px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-semibold text-neutral-700">
+            <span key={t} className="px-3 py-1.5 rounded-full bg-[#1c1536] text-xs font-semibold text-slate-300">
               #{t}
             </span>
           ))}
@@ -216,7 +216,7 @@ export function ResultInteractive({
           shareDescription={character.quote}
           imageUrl={shareImageUrl}
         />
-        <Link href="/test" className="text-sm text-neutral-400 hover:text-neutral-700 underline">
+        <Link href="/test" className="text-sm text-slate-500 hover:text-white underline">
           다시 검사하기
         </Link>
       </div>

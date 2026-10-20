@@ -91,17 +91,17 @@ function TarotBridge({ name, code }: { name: string; code: string }) {
   const question = `나와 닮은 캐릭터 ${name}(${code})처럼 지금의 나에게 필요한 흐름과 조언은 무엇일까요?`;
   const href = `${TAROT_DRAW_URL}?${new URLSearchParams({ q: question, spread: "three_cards", from: "mbti-character" }).toString()}`;
   return (
-    <section className="mt-8 rounded-3xl border border-violet-200 bg-gradient-to-br from-violet-50 to-amber-50 p-6 shadow-sm">
+    <section className="mt-8 rounded-3xl border border-violet-500/30 bg-gradient-to-br from-violet-900/30 to-amber-900/20 p-6 shadow-sm">
       <div className="flex items-start gap-3">
         <span className="text-3xl">🔮</span>
         <div>
-          <h2 className="text-base font-black text-neutral-900">타로점 3장 리딩으로 이어서 보기</h2>
-          <p className="mt-1 text-xs leading-relaxed text-neutral-600">
+          <h2 className="text-base font-black text-slate-100">타로점 3장 리딩으로 이어서 보기</h2>
+          <p className="mt-1 text-xs leading-relaxed text-slate-400">
             내 캐릭터를 바탕으로 만든 질문을 AIMaster 타로점에 미리 채워 드립니다. 카드 뽑기는 타로점에서 직접 눌러야 시작됩니다.
           </p>
         </div>
       </div>
-      <p className="mt-4 rounded-2xl border border-dashed border-violet-300 bg-white/70 px-4 py-3 text-sm font-semibold text-violet-900">
+      <p className="mt-4 rounded-2xl border border-dashed border-violet-400/50 bg-[#0d0920]/70 px-4 py-3 text-sm font-semibold text-violet-200">
         “{question}”
       </p>
       <a

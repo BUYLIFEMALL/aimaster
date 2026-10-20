@@ -97,12 +97,12 @@ export function ShareButtons({
         )}
         <button
           onClick={copyLink}
-          className="px-6 py-3 rounded-2xl bg-neutral-900 text-white font-bold text-sm hover:bg-neutral-800 transition-colors"
+          className="px-6 py-3 rounded-2xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-500 transition-colors"
         >
           🔗 링크 복사
         </button>
       </div>
-      {copied && <p className="text-xs text-neutral-400">링크가 복사되었어요!</p>}
+      {copied && <p className="text-xs text-slate-500">링크가 복사되었어요!</p>}
     </div>
   );
 }

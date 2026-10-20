@@ -35,7 +35,7 @@ export function TestFlow({ questions }: { questions: Question[] }) {
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2 text-xs text-neutral-400">
+        <div className="flex items-center justify-between mb-2 text-xs text-slate-500">
           <span>
             {step + 1} / {questions.length}
           </span>
