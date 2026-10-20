@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION, APP_NAME } from "@/lib/version";
-import { ListMusic, FolderOpen, BookOpen, KeyRound, LogOut, Menu, X } from "lucide-react";
+import { ListMusic, FolderOpen, BookOpen, KeyRound, LogOut, Menu, X, Film } from "lucide-react";
 
 interface SidebarProps {
   userEmail?: string;
@@ -13,7 +13,9 @@ interface SidebarProps {
 // 공식 표준 작업 흐름 (docs/SIDEBAR_LAYOUT_STANDARD.md): 번호는 실제 사용 순서와 같다.
 const FLOW_STEPS = [
   { step: 1, href: "/studio", label: "새 플레이리스트", description: "장르 → 제목 → Suno·가사·설명·썸네일", icon: ListMusic },
-  { step: 2, href: "/projects", label: "내 프로젝트", description: "만든 플레이리스트 다시 보기·삭제", icon: FolderOpen },
+  // 2026-10-20 병합 E: Youtube Playlist 자동화의 영상 만들기(브라우저 1080p MP4)
+  { step: 2, href: "/video", label: "영상 만들기", description: "Suno 곡 → 스펙트럼·배경 → MP4", icon: Film },
+  { step: 3, href: "/projects", label: "내 프로젝트", description: "만든 플레이리스트 다시 보기·삭제", icon: FolderOpen },
 ];
 // 표준 메뉴명: 📖 연동 & 사용 매뉴얼 (최상단 메인 지침 표준)
 const UTILITY_ITEMS = [

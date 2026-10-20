@@ -127,3 +127,8 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 
 ## 2026-10-20 병합 E 준비 — Youtube Playlist 자동화(yt-playlist-studio)의 영상 만들기를 이 앱 안으로 (Claude Code 윈도우, 플랜 확인 대기·코드 변경 없음)
 - 플랜 겸 인수인계: [`docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md`](docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md) — 기준 앱을 보고서와 반대로 **이 앱**으로 정정(영상 앱은 브라우저 부품이라 새 화면 `/video`로 옮기기 쉬움), 권한 143명 동일·DB 이전 없음.
+
+## 2026-10-20 v1.15 — 병합 E 1단계: 영상 만들기 이식 (Claude Code 윈도우)
+- Youtube Playlist 자동화(yt-playlist-studio)의 영상 부품을 이 앱으로(스크립트 방식, 플랜 §3): `components/video/{MediaCenter,EditorStudio,ExportStudio,HelpModal,PlaylistGuideView,ReferenceNotePanel}.tsx`, `types/playlist.ts`, `data/presets.ts`, `lib/render/*`(브라우저 GPU MP4), `lib/referenceNote.ts`, API `/api/generate-bg`(키 함수만 `getUserApiKey(userId, "gemini")`로). 라이브러리 `mp4-muxer`·`gifenc`·`gifuct-js` 추가.
+- 새 화면 `/video`(「영상 만들기」, `components/video/VideoStudio.tsx`): 영상 앱 `PlaylistStudioApp`에서 자체 사이드바·키 입력창을 빼고 위쪽 탭(① 음악·배경 → ② 편집·미리보기 → ③ MP4 내보내기 → 📖 사용법), 키는 [API키등록·플랫폼연동]. 좌측 메뉴 ① 새 플레이리스트 → ② 영상 만들기 → ③ 내 프로젝트. `.custom-scrollbar` CSS, 공지 띠(dark).
+- 검수: tsc, build(`/video`·`/api/generate-bg`), 테스트 20개, 공용 코드 점검.
