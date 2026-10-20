@@ -25,6 +25,7 @@ import { GUIDE_BASE_URL } from "@/lib/deployment";
 import { deleteMyPersonaAction, listMyPersonasAction } from "@/lib/actions/personas";
 import { resolvePersonaTone, type SavedPersona } from "@/lib/personaTone";
 import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS, PROVIDER_SHORT_LABELS } from "@/lib/ai/models";
+import { openAIModelNotice } from "@/lib/ai/openaiRequestParams";
 import { PLATFORM_LABELS, type AffiliatePlatform, type AffiliateProduct } from "@/types/product";
 import {
   Sparkles,
@@ -949,6 +950,9 @@ export function ViralPostDetector() {
                     </option>
                   ))}
                 </select>
+                {openAIModelNotice(aiModel) && (
+                  <p className="text-[11px] font-semibold text-amber-700">⏳ {openAIModelNotice(aiModel)}</p>
+                )}
               </div>
             </div>
 

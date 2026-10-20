@@ -39,3 +39,7 @@
 ## 이어서 — v1.76
 - #18 수정(상태 안내 초기값 비움·있을 때만 표시). 배포 `naver-blog-seo-studio-lrsl9fczp` Ready, DB·확장 v1.76 OK, 크롬 확인.
 - 남은 일: #17 SNS 연계, GPT-5 계열 글 생성 전체 시험, 일반 회원 계정 검수.
+
+## 이어서 — v1.77
+- 모델별 요청 규칙을 공용 기준 코드 `openai-request-params`로 만들고(이 프로그램이 기준), 쇼핑제휴 v1.68에 사본 적용. GPT-5·GPT-6 선택 시 응답 지연 안내. 배포 `naver-blog-seo-studio-2l39mi5xn` Ready, DB·확장 v1.77 OK, 크롬 확인.
+- 다음: 바꿀 후보 9곳은 그 프로그램을 고칠 때 사본으로 교체(루트 `docs/SHARED_FEATURE_MAP.md` §8).

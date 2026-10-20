@@ -126,6 +126,11 @@
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
 
+## 2026-10-20 v1.77 — 공용 기준 코드 `openai-request-params`의 기준 + GPT-5·GPT-6 응답 지연 안내 (Claude Code 윈도우)
+- 기준 `lib/ai/openaiRequestParams.ts`(+ `tests/openaiRequestParams.test.mjs`, `npm run test:openai-params`): `openAIGenerationParams(model, { temperature, maxTokens })`(추론 모델은 온도 제외·`max_completion_tokens` 최소 4000), `isOpenAIReasoningModel`, `openAIModelNotice`, `openAIErrorReason`. v1.75의 `openaiModels.ts` `openAITemperature`·`openAIErrorReason`은 지우고 OpenAI 호출 6곳이 기준 코드를 씀(동작 같음). **이 파일을 고치면 사본(threads-affiliate-poster)도 함께 — 루트 `docs/SHARED_MODULES.md`·`SHARED_FEATURE_MAP.md` §8.**
+- 화면: 제목 화면 본문 생성 모델(2곳)·설정 「OpenAI 콘텐츠 생성모델」에서 GPT-5·GPT-6 계열이면 `.model-notice` 안내.
+- 검수: tsc 0 · 테스트 43 통과(1 건너뜀) · build · 배포 `naver-blog-seo-studio-2l39mi5xn` Ready · DB·확장 v1.77 OK · 크롬: v1.77, 안내 표시, `gpt-5.6-luna` 경험 질문 200·5개, 모델 선택 GPT-4.1로 되돌림.
+
 ## 2026-10-20 v1.76 — 대시보드 상태 안내 초기값 수정 (Claude Code 윈도우)
 - 원장 #18: `useStudio.ts` `message` 초기값을 빈 문자열로, `StudioPage.tsx`는 안내가 있을 때만 `.workspace-notice` 표시. 기록이 있어도 「아직 생성된 블로그(원문)이 없습니다.」가 보이던 문제.
 - 버전 v1.76(코드·manifest 1.76.0·ZIP·DB, `20261020160000_bump_version_v1_76.sql`, ref `esgxyikcnnvmlhygjkth`), `check-extension-release` OK. 검수: tsc 0 · 테스트 39 통과(1 건너뜀) · build · 배포 `naver-blog-seo-studio-lrsl9fczp` Ready · 크롬: v1.76, 목록 2건일 때 안내 상자 없음.

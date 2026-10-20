@@ -72,13 +72,3 @@ test("여러 단어 키워드: 단어가 모두 있으면 포함으로 판정 (v
   const missing = runQualityChecks({ title: "서울 여행 코스 추천, 주말에 가볍게 다녀오기 좋은 다섯 곳", body, keywords: ["서울 근교 캠핑"], imageCount: 1 });
   assert.equal(status(missing, "title-keyword"), "warn", "단어 하나라도 빠지면 경고");
 });
-
-test("OpenAI 온도: GPT-5·GPT-6·o 계열은 빼고 보냄 (v1.75 원장 #14)", async () => {
-  const { openAITemperature, openAIErrorReason } = await import("../lib/ai/openaiModels.ts");
-  assert.deepEqual(openAITemperature("gpt-4o-mini", 0.65), { temperature: 0.65 });
-  assert.deepEqual(openAITemperature("gpt-4.1", 0.8), { temperature: 0.8 });
-  for (const model of ["gpt-5", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-6-astra", "o4-mini"]) assert.deepEqual(openAITemperature(model, 0.65), {}, model);
-  const reason = await openAIErrorReason(new Response(JSON.stringify({ error: { message: "Unsupported value: 'temperature'" } }), { status: 400 }));
-  assert.equal(reason, " — OpenAI 안내: Unsupported value: 'temperature'");
-  assert.equal(await openAIErrorReason(new Response("not json", { status: 500 })), "");
-});

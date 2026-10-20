@@ -1,7 +1,7 @@
 import "server-only";
 import { resolveContentModel, type ContentProvider } from "./contentModels";
 import { generateContentJson } from "./contentJson";
-import { openAIErrorReason, openAITemperature } from "./openaiModels";
+import { openAIErrorReason, openAIGenerationParams } from "./openaiRequestParams";
 import { getExplicitYears, getKoreaToday } from "./freshness";
 import type { SeoPersona } from "./personas";
 
@@ -68,7 +68,7 @@ async function requestDraftJson(apiKey: string, provider: ContentProvider, model
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages, response_format: { type: "json_object" }, ...openAITemperature(model, 0.65) }),
+    body: JSON.stringify({ model, messages, response_format: { type: "json_object" }, ...openAIGenerationParams(model, { temperature: 0.65 }) }),
   });
   if (!response.ok) throw new Error(`AI 글 생성 요청이 실패했습니다. (${response.status})${await openAIErrorReason(response)}`);
   const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };

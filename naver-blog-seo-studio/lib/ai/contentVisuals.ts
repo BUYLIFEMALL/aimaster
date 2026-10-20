@@ -1,5 +1,5 @@
 import "server-only";
-import { openAITemperature } from "./openaiModels";
+import { openAIGenerationParams } from "./openaiRequestParams";
 
 export const CONTENT_IMAGE_SLOTS = ["content-1", "content-2", "content-3"] as const;
 export type ContentImageSlot = typeof CONTENT_IMAGE_SLOTS[number];
@@ -45,7 +45,7 @@ export async function selectContentVisuals(params: { apiKey: string; topic: stri
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${params.apiKey}` },
     body: JSON.stringify({
       model: params.model,
-      ...openAITemperature(params.model, 0.25),
+      ...openAIGenerationParams(params.model, { temperature: 0.25 }),
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: `You are a Korean blog visual editor. Return JSON only. Choose exactly ${params.count} different complete sentences from the supplied body. Each must be a meaningful, visually depictable key sentence, preferably from different sections. Copy the sentence exactly. For each, create one detailed English prompt for a single photorealistic 16:9 editorial scene that expresses only that sentence. Korean/East Asian people by default where people are appropriate. No text, logo, watermark, collage, split screen, infographic, illustration, or made-up facts. Format: {"visuals":[{"sentence":"...","prompt":"..."}]}` },

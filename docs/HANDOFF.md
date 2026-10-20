@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- IMAGE_STUDIO_MANUAL_MENU_20261020 -->
+## 2026-10-20 Codex — AI 이미지 스튜디오 v1.19 메뉴 이동
+- 사용 매뉴얼을 API키등록·플랫폼연동 바로 위로 이동. 빌드 통과.
+- [세부 결과·다음 작업](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_MANUAL_MENU.md), [프로그램](https://ai-image-studio.buylife.xyz/settings).
+- 다음 요청: 상황별 등록 프롬프트 영문 상세 보강(별도 작업으로 이어서 진행).
+<!-- /IMAGE_STUDIO_MANUAL_MENU_20261020 -->
+
+## 2026-10-20 Claude Code(윈도우) — 공용 기준 코드 `openai-request-params` 등록(SEO 스튜디오 v1.77 기준·쇼핑제휴 v1.68 사본) + GPT-5·GPT-6 응답 지연 안내
+- OpenAI 추론 모델 규칙(온도 제외·`max_completion_tokens`)을 기준 `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts` 한 곳으로. 등록: `scripts/check-shared-modules.mjs`(검사 OK — `--sync`는 다른 세션 모듈까지 덮어쓸 수 있어 쓰지 않고 직접 복사), `docs/SHARED_MODULES.md` 표, `docs/SHARED_FEATURE_MAP.md` §8(이미 정상인 바꿀 후보 9곳은 그 프로그램을 고칠 때 교체).
+- 두 프로그램 순차 배포 Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.77·v1.68, SEO 확장 OK. 크롬: 두 화면 안내 표시, `gpt-5.6-luna` 호출 각 1회 성공, 모델 선택 원래대로.
+- https://naver-blog-seo-studio.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 회원 연동 정보 공용 저장 ④단계: Instagram 5개 프로그램 (주인님 「진행해」·백필 「진행해줘」)
 - 한 일: 공용 부품 `lib/memberIntegrations.ts` `getMemberAccount`에 `authMethod` 조건(사본 9개 동기화, Threads 4개는 재배포 안 함). INSTA v1.30·인스타 댓글 v1.17·DM v1.16·shots v1.21·카드뉴스 v1.26 — 연결 시 이중 기록, 공용 계정(로그인 방식·권한 맞는 것) 먼저 읽기, 해제 시 공용 행 삭제, 댓글·DM 토큰 갱신 공용 반영. shots는 화면에 토큰 대신 계정 이름만 넘기도록 함께 고침.
 - DB(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor): 백필 INSTA 2건 → 공용 Instagram 2건, 댓글·DM·shots 0건, 버전 5개 반영.

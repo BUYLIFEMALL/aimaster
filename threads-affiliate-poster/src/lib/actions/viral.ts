@@ -10,6 +10,7 @@ import { publishPost } from "@/lib/posts/publish-core";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS } from "@/lib/ai/models";
+import { openAIGenerationParams } from "@/lib/ai/openaiRequestParams";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
 import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
@@ -635,11 +636,11 @@ RULES:
       }
 
       const openai = new OpenAI({ apiKey: openAiKey });
-      // Reasoning models (o-series, GPT-5.x, GPT-6) only accept the default temperature.
+      // 추론 모델(o·GPT-5.x·GPT-6)은 기본 온도만 받음 — 공용 기준 코드 openai-request-params(v1.68)
       const completion = await openai.chat.completions.create({
         model,
         messages: [{ role: "user", content: prompt }],
-        ...(model.startsWith("gpt-4") ? { temperature: 0.8 } : {}),
+        ...openAIGenerationParams(model, { temperature: 0.8 }),
       });
 
       bodyText = completion.choices[0]?.message?.content?.trim() || "";

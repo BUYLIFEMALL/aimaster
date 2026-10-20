@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { getUserOpenAIContentModel, openAIErrorReason, openAITemperature } from "@/lib/ai/openaiModels";
+import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { openAIErrorReason, openAIGenerationParams } from "@/lib/ai/openaiRequestParams";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model,
-        ...openAITemperature(model, 0.35),
+        ...openAIGenerationParams(model, { temperature: 0.35 }),
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: "네이버 블로그 SEO 분석가입니다. 입력 글에서 확인 가능한 내용만 분석하세요. 사실을 추가하거나 검색량·순위를 추측하지 마세요. JSON 형식 {\"topic\":\"...\",\"coreKeywords\":[\"...\"],\"relatedKeywords\":[\"...\"],\"searchIntent\":\"...\",\"targetReader\":\"...\",\"strengths\":[\"...\"],\"improvements\":[\"...\"],\"suggestedTitle\":\"...\",\"outline\":[\"...\"]}로만 답하세요." },

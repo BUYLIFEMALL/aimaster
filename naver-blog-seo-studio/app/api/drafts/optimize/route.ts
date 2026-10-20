@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
-import { getUserOpenAIContentModel, openAIErrorReason, openAITemperature } from "@/lib/ai/openaiModels";
+import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { openAIErrorReason, openAIGenerationParams } from "@/lib/ai/openaiRequestParams";
 import { resolveSeoPersona } from "@/lib/ai/personas";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model,
-        ...openAITemperature(model, 0.55),
+        ...openAIGenerationParams(model, { temperature: 0.55 }),
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: `네이버 블로그 SEO 편집자입니다. 기존 글의 핵심 의미와 사실은 유지하면서 제목과 본문을 자연스럽게 개선하세요. 선택한 글쓰기 페르소나는 '${persona.name}'이며, 다음 톤을 반영합니다: ${persona.toneDescription} 키워드 과다 반복, 허위 과장, 확인되지 않은 사실, 사실처럼 보이는 가짜 체험담은 피하세요. JSON 형식 {\"title\":\"...\",\"body\":\"...\",\"improvements\":[\"...\"]}로만 답하세요.` },

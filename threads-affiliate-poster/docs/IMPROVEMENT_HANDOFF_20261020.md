@@ -14,3 +14,6 @@
 - 원클릭 「글 & 이미지 생성」·예약 발행 경로는 같은 함수를 쓰지만 이미지 비용 때문에 따로 시험하지 않음.
 - 일반 회원 계정 검수 미실시.
 - 다음: 모델별 요청 규칙 공용 기준 코드 검토(원장 맨 아래 ① 로직).
+
+## 이어서 — v1.68
+- `src/lib/ai/openaiRequestParams.ts`는 공용 기준 코드 사본(기준 naver-blog-seo-studio) — 직접 고치지 않음. 글 모델 선택 칸 응답 지연 안내. 배포 `threads-affiliate-poster-reqa8hqmk` Ready, DB v1.68, 크롬 489자 생성 확인.

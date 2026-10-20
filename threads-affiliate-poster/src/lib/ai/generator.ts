@@ -13,6 +13,7 @@ import {
 } from "./models";
 import { getNanoBananaConfig, type NanoBananaModelType } from "./nanoBananaModels";
 import { generateGeminiImage } from "./geminiImage";
+import { openAIGenerationParams } from "./openaiRequestParams";
 
 export type ThreadsTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는" | string;
 
@@ -172,16 +173,14 @@ export async function generatePostContent(
   } else {
     // OpenAI
     const openai = new OpenAI({ apiKey });
-    const isGpt4 = selectedModel.startsWith("gpt-4");
     const completion = await openai.chat.completions.create({
       model: selectedModel,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      // GPT-5.x·GPT-6·o 계열(추론 모델)은 max_tokens를 거부(400)하고 max_completion_tokens만 받는다.
-      // 이 한도에는 생각 단계도 포함돼 600이면 빈 응답이 날 수 있어 넉넉히 준다(v1.67).
-      ...(isGpt4 ? { max_tokens: 600, temperature: 0.8 } : { max_completion_tokens: 4000 }),
+      // 모델별 규칙(추론 모델은 온도 제외·max_completion_tokens)은 공용 기준 코드 openai-request-params가 처리(v1.68)
+      ...openAIGenerationParams(selectedModel, { temperature: 0.8, maxTokens: 600 }),
     });
     rawContent = completion.choices[0]?.message?.content?.trim() || "";
   }

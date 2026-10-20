@@ -83,6 +83,16 @@
 | 쓸 만한 곳 | four-cut-comics(캐릭터 참고 사진이 정면·한 사람인지 생성 전 점검) · ai-influencer-studio(컷마다 같은 얼굴인지 얼굴 점 비교로 일관성 점검) · ai-webtoon-studio(캐릭터 시트 점검) · photo-remake-studio·fashion-style(업로드 사진 점검) | ⚪ 각 프로그램 `docs/IMPROVEMENTS.md`에 제안 기록 |
 | 공용화할 때 주의 | ① 라이브러리 `@mediapipe/tasks-vision` **1.0.0 고정**(버전을 올리면 wasm 파일도 함께 다시 복사) ② 모델·실행 파일 약 15MB를 각 프로그램 `public/`에 정적 배포(첫 사용 때만 내려받고 브라우저 캐시) ③ 정수리는 비율 추정이라 머리 모양에 따라 오차 — 출처 표시·직접 수정 수단을 함께 둘 것 ④ 얼굴 일관성 비교는 별도 함수가 필요(현재 미구현) | — |
 
+## 8. OpenAI 모델별 요청 규칙 — 공용 모듈 `openai-request-params` (2026-10-20 등록, 사본 1곳)
+
+OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tokens`를 거부(400)한다. 회원이 모델을 고르는 OpenAI 호출은 요청 본문에 `...openAIGenerationParams(model, { temperature, maxTokens })`를 펼쳐 넣는다. 새 세대 모델 규칙이 바뀌면 기준 한 곳만 고친다.
+
+| 구분 | 위치 · 내용 | 상태 |
+|---|---|---|
+| 기준 | `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts` (+ `tests/openaiRequestParams.test.mjs`) | 🟢 기준(v1.77) |
+| 사본 | `threads-affiliate-poster/src/lib/ai/openaiRequestParams.ts` | 🟢 적용(v1.68) |
+| 바꿀 후보(지금은 각자 `gpt-4` 계열일 때만 온도를 넣는 방어 코드로 정상 동작 — 그 프로그램을 다음에 고칠 때 사본으로 교체) | style-dna-analyzer `src/lib/ai/llm.ts` · youtube-channel-consultant `src/lib/ai/llm.ts` · naver-blog-allinone `src/lib/blog/llm.ts` · naver-blog-agent `src/lib/ai/models.ts` · ai-auto-blog·tistory-auto-blog `utils/ai/contentJson.ts` · threads-content-ops `lib/attention.ts` · cardnews-studio·shorts-viral-studio LLM 호출(2026-10-20 점검: 온도·`max_tokens` 문제 없음) | ⚪ 대기 |
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |
@@ -98,6 +108,7 @@
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-20 | 「8. OpenAI 모델별 요청 규칙」 `openai-request-params` 등록 — 기준 naver-blog-seo-studio v1.77, 사본 threads-affiliate-poster v1.68, 바꿀 후보 9곳 | Claude Code(윈도우) |
 | 2026-10-19 | 「7. 브라우저 안 얼굴 인식」 공용화 후보 등록(기준 후보 portrait-photo v1.27, 사본 없음) | Claude Code(윈도우) |
 | 2026-10-18 | threads-affiliate-poster `imageGenerator.ts`(다중 엔진 생성기) Gemini 부분 사본 적용 — 이미지 공용화 대상 모두 완료 | Claude Code(윈도우) |
 | 2026-10-18 | 이미지 5묶음 Imagen 교체분 5곳 사본 적용(오류마다 다른 모델로 재요청하던 2곳 정리) | Claude Code(윈도우) |

@@ -24,6 +24,7 @@ import {
   DEFAULT_AI_MODELS,
   PROVIDER_SHORT_LABELS,
 } from "@/lib/ai/models";
+import { openAIModelNotice } from "@/lib/ai/openaiRequestParams";
 import {
   type ImageProvider,
   IMAGE_PROVIDERS,
@@ -1011,6 +1012,9 @@ export function ProductPostForm({
                 </option>
               ))}
             </select>
+            {openAIModelNotice(aiModel) && (
+              <p className="text-[11px] font-semibold text-amber-700">⏳ {openAIModelNotice(aiModel)}</p>
+            )}
           </div>
         </div>
 

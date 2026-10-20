@@ -12,6 +12,13 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
   {
+    // OpenAI 모델별 요청 규칙(추론 모델 GPT-5·GPT-6·o는 temperature 제외·max_completion_tokens) + 모델 안내·거부 이유 문구. 2026-10-20
+    // 테스트 기준 naver-blog-seo-studio/tests/openaiRequestParams.test.mjs — 폴더 구조가 달라 사본 테스트는 경로만 다른 자체 파일
+    id: "openai-request-params",
+    source: "naver-blog-seo-studio/lib/ai/openaiRequestParams.ts",
+    copies: ["threads-affiliate-poster/src/lib/ai/openaiRequestParams.ts"],
+  },
+  {
     // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
     id: "member-integrations",
     source: "lib/memberIntegrations.ts",

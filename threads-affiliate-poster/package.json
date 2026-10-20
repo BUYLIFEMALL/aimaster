@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:naver-key": "node scripts/test-naver-own-key.cjs"
+    "test:naver-key": "node scripts/test-naver-own-key.cjs",
+    "test:openai-params": "node --test tests/openaiRequestParams.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

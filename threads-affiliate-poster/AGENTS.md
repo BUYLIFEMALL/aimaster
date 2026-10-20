@@ -603,3 +603,8 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 수정: `src/lib/ai/generator.ts` OpenAI 호출에서 `gpt-4` 계열만 `max_tokens: 600`·`temperature: 0.8`, 그 밖(추론 모델)은 `max_completion_tokens: 4000`(생각 단계도 한도에 포함돼 600이면 빈 응답 위험). 같은 폴더의 다른 OpenAI 호출(`viral.ts` 2곳·`productAnalyzer.ts`)은 고정 모델이거나 이미 온도만 조건부라 해당 없음.
 - 검수: tsc 0, `test:naver-key` 통과, build, 배포 `threads-affiliate-poster-mgsqzhmd0` Ready, DB v1.67(ref `esgxyikcnnvmlhygjkth`, `supabase/migrations/20261020170000_bump_version_v1_67.sql`). 크롬(관리자): v1.67 표시, 같은 상품·`gpt-5.6-luna`로 「AI 글만 다시 생성」 → 오류 없이 490자 생성·제휴 고지 포함(저장 안 함), 화면 기본 모델은 GPT-4.1로 되돌림. 비용: 관리자 본인 OpenAI 키 실패 1회 + 성공 1회.
 - 함께 나감: 다른 세션의 공용 사본 `src/lib/memberIntegrations.ts`(④단계 `authMethod` 선택 인자, 커밋 `62686273`, 기존 동작 같음).
+
+## 2026-10-20 v1.68 — OpenAI 모델별 요청 규칙을 공용 기준 코드로 + GPT-5·GPT-6 응답 지연 안내 (Claude Code 윈도우)
+- 공용 기준 코드 `openai-request-params` 사본 `src/lib/ai/openaiRequestParams.ts`(기준 `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts`, **직접 고치지 않음**). `generator.ts`(v1.67 임시 분기 → `openAIGenerationParams(selectedModel, { temperature: 0.8, maxTokens: 600 })`)·`actions/viral.ts`(벤치마킹 캡션 온도) 적용. 동작은 v1.67과 같음.
+- 화면: 새 글 작성·떡상 탐지기의 글 모델 선택 칸 아래에 GPT-5·GPT-6 계열이면 「⏳ … 응답이 조금 느릴 수 있습니다」(`openAIModelNotice`).
+- 테스트 `npm run test:openai-params`(기준 테스트와 같은 내용, 경로만 `src/lib`). 검수: tsc 0 · test:naver-key · 5개 통과 · build · 배포 `threads-affiliate-poster-reqa8hqmk` Ready · DB v1.68 · 크롬: v1.68, 안내 표시, `gpt-5.6-luna` 글 489자 생성, 기본 모델 GPT-4.1로 되돌림.

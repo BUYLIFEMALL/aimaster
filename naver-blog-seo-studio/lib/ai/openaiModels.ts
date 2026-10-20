@@ -20,26 +20,6 @@ export function resolveOpenAIContentModel(value: unknown): OpenAIContentModel {
   return isOpenAIContentModel(value) ? value : DEFAULT_OPENAI_CONTENT_MODEL;
 }
 
-// v1.75 GPT-5·GPT-6·o 계열(추론 모델)은 temperature 지정을 거부(400)하므로 이 모델들에는 온도를 빼고 보냅니다.
-export function supportsCustomTemperature(model: string) {
-  return !/^(gpt-5|gpt-6|o\d)/.test(model);
-}
-
-export function openAITemperature(model: string, temperature: number) {
-  return supportsCustomTemperature(model) ? { temperature } : {};
-}
-
-// OpenAI 오류 응답의 거부 이유(error.message)를 화면 안내에 덧붙일 짧은 문구로 만듭니다.
-export async function openAIErrorReason(response: Response) {
-  try {
-    const data = await response.json() as { error?: { message?: unknown } };
-    const message = typeof data.error?.message === "string" ? data.error.message.trim() : "";
-    return message ? ` — OpenAI 안내: ${message.slice(0, 200)}` : "";
-  } catch {
-    return "";
-  }
-}
-
 export function getUserOpenAIContentModel(userMetadata: Record<string, unknown> | null | undefined) {
   return resolveOpenAIContentModel(userMetadata?.naver_blog_seo_openai_model);
 }

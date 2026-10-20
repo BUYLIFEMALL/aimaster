@@ -3,7 +3,8 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 import { purgeExpiredTitleRecommendations } from "@/lib/draftRetention";
-import { getUserOpenAIContentModel, openAIErrorReason, openAITemperature } from "@/lib/ai/openaiModels";
+import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { openAIErrorReason, openAIGenerationParams } from "@/lib/ai/openaiRequestParams";
 import { getExplicitYears, getKoreaToday, hasUnrequestedYear } from "@/lib/ai/freshness";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model,
-        ...openAITemperature(model, 0.8),
+        ...openAIGenerationParams(model, { temperature: 0.8 }),
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: `네이버 블로그 SEO 편집자입니다. 오늘은 한국 기준 ${today}입니다. 검색 의도와 클릭 가능성을 고려한 한국어 제목 후보 8개를 JSON으로 반환하세요. 형식은 {"titles":[{"title":"제목","intent":"검색 의도"}]} 입니다.
