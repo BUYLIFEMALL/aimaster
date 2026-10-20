@@ -258,13 +258,13 @@ export function ResultInteractive({
           onClick={() => setZoomedCard(null)}
         >
           <div
-            className="relative max-w-sm w-full bg-neutral-900 border border-amber-400/40 rounded-3xl p-5 shadow-2xl flex flex-col items-center gap-4 text-white"
+            className="relative max-w-sm w-full bg-[#120d24] border border-amber-400/40 rounded-3xl p-5 shadow-2xl flex flex-col items-center gap-4 text-white"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setZoomedCard(null)}
-              className="absolute top-4 right-4 text-neutral-400 hover:text-white text-sm bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 text-slate-500 hover:text-white text-sm bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
             >
               ✕
             </button>
@@ -292,7 +292,7 @@ export function ResultInteractive({
 
             <div className="text-center">
               <h3 className="text-lg font-black text-amber-300">{zoomedCard.cardNameKo}</h3>
-              <p className="text-xs text-neutral-400 mb-2">{zoomedCard.cardNameEn}</p>
+              <p className="text-xs text-slate-500 mb-2">{zoomedCard.cardNameEn}</p>
               <p className="text-xs text-neutral-300 leading-relaxed max-w-xs">{zoomedCard.meaning}</p>
             </div>
           </div>
@@ -300,7 +300,7 @@ export function ResultInteractive({
       )}
 
       {/* 스프레드 & 화풍 정보 배지 및 인터랙티브 안내 */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 bg-neutral-900 text-white rounded-2xl px-5 py-3 shadow-md">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 bg-[#1c1536] text-white rounded-2xl px-5 py-3 shadow-md border border-[#2a1f4e]">
         <div className="flex items-center gap-2">
           <span className="text-sm font-black">{spreadConfig.title}</span>
           <span className="text-xs bg-white/20 px-2.5 py-0.5 rounded-full font-bold">
@@ -313,9 +313,9 @@ export function ResultInteractive({
       </div>
 
       {question && (
-        <div className="rounded-2xl bg-indigo-50 border border-indigo-100 px-5 py-4 mb-4">
+        <div className="rounded-2xl bg-[#120d24] border border-[#2a1f4e] px-5 py-4 mb-4">
           <p className="text-xs text-indigo-400 font-bold mb-1">오늘의 질문 / 고민</p>
-          <p className="text-sm text-indigo-900 font-medium">{question}</p>
+          <p className="text-sm text-indigo-200 font-medium">{question}</p>
         </div>
       )}
 
@@ -346,7 +346,7 @@ export function ResultInteractive({
 
       {savedToDb && (
         <div className="mb-4 text-center">
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/40 px-3 py-1 rounded-full">
             ✅ 이 타로 리딩은 회원님의 개인 보관함(/history)에 자동 저장되었습니다.
           </span>
         </div>
@@ -387,16 +387,16 @@ export function ResultInteractive({
               key={`${drawn.cardId}-${drawn.position}`}
               className={`rounded-2xl overflow-hidden flex flex-col shadow-sm transition-all duration-700 ${
                 imageUrl
-                  ? "bg-gradient-to-b from-purple-50/90 via-white to-amber-50/40 border-2 border-amber-400/70 shadow-lg shadow-purple-500/10 scale-[1.01]"
+                  ? "bg-gradient-to-b from-purple-900/40 via-[#120d24] to-amber-900/20 border-2 border-amber-400/70 shadow-lg shadow-purple-500/10 scale-[1.01]"
                   : isLoading
-                  ? "bg-white border-2 border-purple-300 shadow-md"
-                  : "bg-white border border-neutral-200 hover:border-purple-300 hover:shadow-md"
+                  ? "bg-[#120d24] border-2 border-purple-400 shadow-md"
+                  : "bg-[#120d24] border border-[#2a1f4e] hover:border-purple-400 hover:shadow-md"
               }`}
             >
               <div className="px-3 pt-3 text-center flex items-center justify-between">
                 <span
                   className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                    imageUrl ? "bg-amber-400 text-neutral-950 shadow-sm" : "bg-neutral-900 text-white"
+                    imageUrl ? "bg-amber-400 text-neutral-950 shadow-sm" : "bg-[#1c1536] text-white border border-[#3e2e70]"
                   }`}
                 >
                   {posLabel}
@@ -405,14 +405,14 @@ export function ResultInteractive({
                   <span
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       drawn.orientation === "upright"
-                        ? "bg-amber-100 text-amber-800 border border-amber-300"
-                        : "bg-slate-100 text-slate-700 border border-slate-300"
+                        ? "bg-amber-500/15 text-amber-300 border border-amber-500/40"
+                        : "bg-[#1c1536] text-slate-300 border border-[#3e2e70]"
                     }`}
                   >
                     {drawn.orientation === "upright" ? "정방향" : "역방향"}
                   </span>
                 ) : (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 animate-pulse">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/40 animate-pulse">
                     ❓ 대기중
                   </span>
                 )}
@@ -471,22 +471,22 @@ export function ResultInteractive({
                 {/* 카드 하단 데이터 (카드를 뽑으면 전개되는 세부 해설) */}
                 {imageUrl ? (
                   <div className="w-full text-center animate-in fade-in zoom-in-95 duration-500">
-                    <p className="text-sm font-black text-neutral-900 flex items-center justify-center gap-1">
+                    <p className="text-sm font-black text-slate-100 flex items-center justify-center gap-1">
                       <span>✨</span> {card.nameKo}
                     </p>
-                    <p className="text-[11px] font-medium text-purple-700/80 mb-2">{card.nameEn}</p>
-                    <p className="text-xs text-neutral-700 leading-relaxed text-center bg-white/80 p-3 rounded-xl border border-amber-300/60 shadow-inner">
+                    <p className="text-[11px] font-medium text-purple-300/80 mb-2">{card.nameEn}</p>
+                    <p className="text-xs text-slate-300 leading-relaxed text-center bg-[#0d0920]/80 p-3 rounded-xl border border-amber-300/60 shadow-inner">
                       {meaning}
                     </p>
                   </div>
                 ) : isLoading ? (
-                  <div className="w-full text-center py-3 px-2 bg-purple-50/60 rounded-xl border border-purple-100 flex flex-col items-center gap-1.5">
+                  <div className="w-full text-center py-3 px-2 bg-purple-500/10 rounded-xl border border-purple-500/30 flex flex-col items-center gap-1.5">
                     <div className="flex items-center gap-1 text-sm text-purple-600 animate-pulse">
                       <span>🔮</span>
                       <span>✨</span>
                       <span>🌙</span>
                     </div>
-                    <p className="text-[11px] font-bold text-purple-900 animate-pulse">
+                    <p className="text-[11px] font-bold text-purple-200 animate-pulse">
                       운명의 메시지를 읽어오는 중...
                     </p>
                     <p className="text-[10px] text-purple-500">
@@ -496,13 +496,13 @@ export function ResultInteractive({
                 ) : (
                   <div
                     onClick={handleCardClick}
-                    className="w-full text-center py-3 px-2 bg-neutral-50 rounded-xl border border-neutral-200/80 flex flex-col items-center gap-1.5 group cursor-pointer hover:bg-purple-50/50 hover:border-purple-200 transition-colors"
+                    className="w-full text-center py-3 px-2 bg-[#0d0920] rounded-xl border border-[#2a1f4e] flex flex-col items-center gap-1.5 group cursor-pointer hover:bg-purple-500/10 hover:border-purple-200 transition-colors"
                   >
                     <div className="flex items-center gap-1.5 text-xs text-amber-500 group-hover:scale-110 transition-transform duration-300">
                       <span className="animate-bounce">🔮</span>
-                      <span className="font-bold text-[11px] text-neutral-700">무엇이 숨겨져 있을까요?</span>
+                      <span className="font-bold text-[11px] text-slate-300">무엇이 숨겨져 있을까요?</span>
                     </div>
-                    <p className="text-[10px] text-neutral-400 leading-snug">
+                    <p className="text-[10px] text-slate-500 leading-snug">
                       상단 카드를 클릭하면 일러스트와 함께 카드 해설이 완성됩니다.
                     </p>
                   </div>
@@ -516,11 +516,11 @@ export function ResultInteractive({
       </div>
 
       {!hasGeminiKey && (
-        <p className="text-center text-xs text-neutral-400 mb-8">
+        <p className="text-center text-xs text-slate-500 mb-8">
           <button
             type="button"
             onClick={() => setModalProvider("Google Gemini")}
-            className="underline font-bold hover:text-neutral-600"
+            className="underline font-bold hover:text-slate-300"
           >
             Gemini API 키를 등록
           </button>
@@ -529,11 +529,11 @@ export function ResultInteractive({
       )}
 
       {/* AI 종합 해석 박스 (모든 카드 뽑기 완료 후 표시) */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-8 shadow-sm">
+      <div className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-8 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-neutral-900">✍️ AI 종합 심층 해석</h2>
+          <h2 className="text-sm font-bold text-slate-100">✍️ AI 종합 심층 해석</h2>
           {hasGeminiKey && !allCardsRevealed && (
-            <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 animate-pulse">
+            <span className="text-[11px] font-bold text-purple-300 bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-500/40 animate-pulse">
               남은 카드 {remainingCardCount}장 대기중
             </span>
           )}
@@ -541,8 +541,8 @@ export function ResultInteractive({
 
         {hasOpenaiKey ? (
           !allCardsRevealed ? (
-            <div className="rounded-xl bg-gradient-to-r from-purple-50/80 to-indigo-50/80 border border-purple-100 p-4 text-center">
-              <p className="text-xs font-bold text-purple-900 mb-1 flex items-center justify-center gap-1.5">
+            <div className="rounded-xl bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 p-4 text-center">
+              <p className="text-xs font-bold text-purple-200 mb-1 flex items-center justify-center gap-1.5">
                 <span className="text-base animate-bounce">🔮</span>
                 모든 카드를 뽑으면 AI 심층 종합 해석이 시작됩니다!
               </p>
@@ -553,7 +553,7 @@ export function ResultInteractive({
           ) : readingLoading ? (
             <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
               <span className="text-3xl animate-spin inline-block mb-1">🔮</span>
-              <p className="text-xs font-bold text-neutral-800 animate-pulse">
+              <p className="text-xs font-bold text-slate-200 animate-pulse">
                 모든 카드를 뽑았습니다! AI가 카드의 기운을 종합하여 심층 해석을 작성하고 있습니다... (최대 45초)
               </p>
             </div>
@@ -566,7 +566,7 @@ export function ResultInteractive({
                   hasStartedReading.current = false;
                   generateReading();
                 }}
-                className="text-xs font-bold px-3 py-1.5 bg-purple-100 text-purple-800 rounded-xl hover:bg-purple-200 transition-colors shadow-sm"
+                className="text-xs font-bold px-3 py-1.5 bg-purple-600 text-white rounded-xl hover:bg-purple-500 transition-colors shadow-sm"
               >
                 🔄 AI 심층 해석 다시 시도하기
               </button>
@@ -574,24 +574,24 @@ export function ResultInteractive({
           ) : reading ? (
             <div className="space-y-3">
               {reading.split(/\n{2,}/).map((para, i) => (
-                <p key={i} className="text-sm text-neutral-700 leading-relaxed">
+                <p key={i} className="text-sm text-slate-300 leading-relaxed">
                   {para}
                 </p>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-neutral-400">잠시 후 해석이 표시됩니다.</p>
+            <p className="text-xs text-slate-500">잠시 후 해석이 표시됩니다.</p>
           )
         ) : (
           <div>
-            <p className="text-xs text-neutral-500 leading-relaxed mb-3">
+            <p className="text-xs text-slate-400 leading-relaxed mb-3">
               각 카드의 기본 의미는 카드 아래에서 확인할 수 있습니다. 질문과 카드 전체를 종합한
               AI 심층 타로 리딩을 경험하려면 OpenAI API 키를 등록해주세요.
             </p>
             <button
               type="button"
               onClick={() => setModalProvider("OpenAI")}
-              className="text-xs font-semibold text-neutral-900 underline"
+              className="text-xs font-semibold text-slate-100 underline"
             >
               🔑 OpenAI 키 등록하고 AI 종합 해석 보기
             </button>
@@ -607,11 +607,11 @@ export function ResultInteractive({
           imageUrl={shareImageUrl}
         />
         <div className="flex items-center gap-4 text-xs font-medium">
-          <Link href="/history" className="text-purple-700 font-bold hover:underline">
+          <Link href="/history" className="text-purple-300 font-bold hover:underline">
             📖 내 타로 보관함 바로가기
           </Link>
 
-          <Link href="/draw" className="text-neutral-400 hover:text-neutral-700 underline">
+          <Link href="/draw" className="text-slate-500 hover:text-slate-200 underline">
             다시 카드 뽑기
           </Link>
         </div>
