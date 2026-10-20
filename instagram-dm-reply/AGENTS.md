@@ -180,3 +180,8 @@ threads-comment-reply에서 "봇이 방금 단 답글을 새 댓글로 착각해
 ## 2026-10-20 v1.16 — 회원 연동 정보 공용 저장 ④단계 Instagram (Claude Code 윈도우)
 - 연결 콜백이 `dm_accounts`와 공용 표 `member_platform_accounts`(platform `instagram`, `auth_method=instagram_login`, DM 권한)에 함께 저장. 읽는 곳(DM 처리·답장 발송·대시보드·연결 상태)은 `lib/instagram/memberAccount.ts` `getDmAccount` — DM 권한 + Instagram 로그인 방식 + 재연결 필요 아님 공용 계정 → 없으면 `dm_accounts`. 토큰 갱신·재연결 표시는 읽은 곳에 기록, 해제는 공용 행도 삭제(설정 안내 문구). 웹훅은 주소의 회원 번호로 찾으므로 표와 무관, 매일 연결 점검 cron은 그대로 `dm_accounts`만 본다.
 - 공용 부품 사본 `lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020170000_member_integrations_v1_16.sql`(공용 행 없는 회원만). 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP4_INSTAGRAM.md`.
+
+## 2026-10-20 v1.17 — 병합됨 → INSTA 댓글·DM 자동화(instagram-comment-reply) (Claude Code 윈도우)
+- 병합 B 3단계(주인님 승인). DM 기능 전체가 `instagram-comment-reply` 안 `/dm/*`로 들어감(v1.18~v1.23). 이 앱은 **옛 주소 전달만** 한다(`next.config.mjs`): 화면 `/`·`/dashboard`→`/dm`, `/conversations/*`·`/history`·`/settings`·`/guide`→`/dm/...`, `/login`→합친 앱 `/login`. API는 합친 앱으로 전달(rewrite): `/api/instagram/dm-webhook/*`(회원 Meta 앱 DM 웹훅, 같은 경로·서명은 회원 앱 시크릿이라 그대로 동작), `/api/instagram/callback`, `/api/telegram/webhook/*`→`/api/dm/telegram/webhook/*`, `/api/telegram/migrate-webhooks`·`/api/cron/check-connection`→`/api/dm/...`.
+- 주의: 텔레그램 웹훅 비밀값·Meta 웹훅 확인 토큰은 합친 앱 `CRON_SECRET` 기준 → 옛 앱 기준으로 등록된 것은 다시 등록해야 함(관리자 텔레그램 DM 봇은 2026-10-20 재연동 완료). Vercel 프로젝트·도메인은 지우지 않음. 카탈로그 노출 중지(`is_active=false`), 메인 상세 `/programs/instagram-dm-reply` → `/programs/instagram-comment-reply`.
+- 플랜: `../instagram-comment-reply/docs/PLAN_20261020_DM_MERGE.md`
