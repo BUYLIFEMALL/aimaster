@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { KeyRound, X, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import { AppSettings, saveStoredSettings } from "@/lib/storage";
+import { ScheduleSettings } from "./ScheduleSettings";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -82,7 +83,7 @@ export function SettingsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="w-full max-w-lg bg-[#121620] rounded-2xl shadow-2xl border border-[#232b3e] overflow-hidden flex flex-col">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#121620] rounded-2xl shadow-2xl border border-[#232b3e] flex flex-col">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#232b3e] bg-[#181d2a]">
           <div className="flex items-center gap-2.5">
@@ -181,6 +182,9 @@ export function SettingsModal({
             </select>
           </div>
         </div>
+
+        {/* ⏰ 예약 발행(v1.16) — 실행 방식 선택 + cron-job.org 키 한 줄(지침 docs/SCHEDULER_POLICY.md) */}
+        <ScheduleSettings />
 
         {/* Modal Footer */}
         <div className="flex items-center justify-end gap-2 px-6 py-3.5 border-t border-[#232b3e] bg-[#181d2a]">

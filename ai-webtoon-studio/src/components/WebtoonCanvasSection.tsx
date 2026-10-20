@@ -446,8 +446,8 @@ export function WebtoonCanvasSection({
         </div>
       )}
 
-      {/* v1.15 인스타그램에 바로 게시(자동 포스팅 1차) — 컷 하나 = 캐러셀 한 장 */}
-      <InstagramPublishPanel project={project} />
+      {/* v1.15 인스타그램에 바로 게시(1차) · v1.16 예약 게시·게시 기록·장 미리보기(2차) — 컷 하나 = 캐러셀 한 장 */}
+      <InstagramPublishPanel project={project} onOpenSettings={onOpenSettings} />
 
       {/* Prev Step Button */}
       <div className="flex items-center justify-start pt-4">

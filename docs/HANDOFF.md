@@ -1,6 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- IMAGE_STUDIO_MANUAL_MENU_20261020 -->
+## 2026-10-20 Claude Code(윈도우) — AI 웹툰 v1.16 인스타 예약 게시·게시 기록·장 미리보기 (v1.15 추가개선 제안 ①②)
+- 한 일: `ai-webtoon-studio` v1.15 → **v1.16**. 게시 칸에 「지금 게시 / 예약 게시」·실행 상태 줄·최근 30일 게시 기록(예약 취소)·「올라갈 장 미리보기」(게시와 같은 그리기 함수), 제목 아이콘 겹침 정리, 설정 창 아래 「⏰ 예약 발행」(Vercel 기본 / 내 cron-job.org + 공용 키). 기준: 인플루언서 v1.15 사본. 플랜 `ai-webtoon-studio/docs/PLAN_20261020_INSTA_SCHEDULE.md`, 상세 `ai-webtoon-studio/AGENTS.md` v1.16.
+- 운영 변경(주인님 지시 — 제안 ① 붙여넣기 = 표 추가 승인): DB ref `esgxyikcnnvmlhygjkth` 표 `wts_insta_posts`·`wts_member_scheduler` + version v1.16(크롬 SQL Editor), Vercel `ai-webtoon-studio` 환경변수 `CRON_SECRET` 추가, `vercel.json` 새로 만들어 crons 5분.
+- 검수: 시험 15개·타입·빌드 통과, 배포 `ai-webtoon-studio-gwivarlv1` Ready, 새 주소 비로그인·잘못된 토큰 401, Vercel 예약 호출 200. 크롬: 미리보기 넘김, 예약 1건 등록 → DB·저장소 3장(1080×1350) → 취소·사진 삭제, 설정 창 「⏰ 예약 발행」.
+- 못 한 것: 실제 인스타 게시·「내 cron-job.org」 전환. 작은 문구 1건(설정 창 「결과 화면」 → 「STEP 4」) 다음 배포 때.
+- 다음 첫 단계: 인스타 확대 4단계 **AI 4컷 만화(`four-cut-comics`) 직접 게시** — 웹툰 `slides.ts`의 판 만들기 재사용 검토.
+- 링크: https://ai-webtoon-automation.buylife.xyz
+
 ## 2026-10-20 Codex — AI 이미지 스튜디오 v1.19 메뉴 이동
 - 사용 매뉴얼을 API키등록·플랫폼연동 바로 위로 이동. 빌드·프로덕션 배포 READY·DB v1.19·실제 Edge 관리자 화면 순서 확인 완료(구현 bcbb7e18).
 - [세부 결과·다음 작업](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_MANUAL_MENU.md), [프로그램](https://ai-image-studio.buylife.xyz/settings).
