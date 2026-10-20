@@ -48,7 +48,8 @@ export default function GuidePage() {
           <a href="#options">③ 옵션 설명</a>
           <a href="#edit">④ 수정·버전</a>
           <a href="#tips">⑤ 잘 나오는 요령</a>
-          <a href="#faq">⑥ 막힐 때(FAQ)</a>
+          <a href="#seo">⑥ SEO 전략</a>
+          <a href="#faq">⑦ 막힐 때(FAQ)</a>
         </nav>
 
         <section id="key" className="card">
