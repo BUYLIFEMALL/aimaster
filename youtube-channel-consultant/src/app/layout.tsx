@@ -1,19 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
+// 2026-10-21 사용 종료(병합) — 이 앱은 옛 주소 전달만 한다. 원래 코드: D:\Antigravity\AIMaster_backup\retired-programs\ · git 태그 backup/old-apps-20261021
+export const metadata = { title: "YOUTUBE CHANNEL CONSULTANT → YOUTUBE 트렌드 분석" };
 
-export const metadata: Metadata = {
-  title: "YOUTUBE CHANNEL CONSULTANT - AIMaster",
-  description: "유튜브 채널 지표 진단과 키워드 검색 결과 분석으로 성장 인사이트를 찾는 채널 컨설턴트(AI 분석·공략 채널 찾기 포함)",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-yt-bg text-yt-text">{children}</body>
+    <html lang="ko">
+      <body style={{ margin: 0, background: "#0f0f12", color: "#f1f1f1", fontFamily: "system-ui, sans-serif" }}>{children}</body>
     </html>
   );
 }

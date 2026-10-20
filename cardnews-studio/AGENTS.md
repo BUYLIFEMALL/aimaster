@@ -181,3 +181,7 @@
 - 검수: 네 프로그램 tsc·테스트(카드뉴스 52·웹툰 18·인플루언서 18·4컷 52)·build 통과, `check-shared-modules.mjs` 일치, 훅 앞 이른 return 없음 확인. **화면 실검수는 다음 배포 때**(미배포).
 - **미배포**(내부 정리 — 공용 기준 코드 배포 등급): 다음 배포 때 함께 나가며 버전 +0.01도 그때. 그 배포 때 「⏰ 예약 발행」 줄·게시 기록 「예약 취소」 화면을 크롬으로 한 번 확인할 것.
 - 2026-10-20 추가: 공용 `insta-member-scheduler`를 예약 프로그램 15개 공용 **`member-scheduler`**로 넓혔다. `schedulerConfig.ts`에 `SCHEDULER_IS_STANDALONE`(false)·`countRemainingWork`(남은 예약 게시 수) 추가, 기준 `memberScheduler.ts`는 상대 경로(`./cronJobOrg`·`./schedulerConfig`)로 부름. 동작 같음·미배포. 플랜 `cardnews-studio/docs/PLAN_20261020_MEMBER_SCHEDULER_SHARED.md`.
+
+## 2026-10-21 코드 정리(사용 종료) — 백업 후 삭제 (Claude Code 윈도우)
+- 주인님 「백업해놓고 지워」「사용종료 하기로한 프로그램은 백업해서 하나의 폴더로 만든후 진행」. **정리 직전 소스 전체 백업: `D:\Antigravity\AIMaster_backup\retired-programs\<이 폴더>\`**(색인 README) · git 태그 **`backup/old-apps-20261021`**(원격에도 있음, `git checkout backup/old-apps-20261021 -- <폴더>`로 복원) · 압축 `D:\Antigravity\AIMaster_backup\old-apps-20261021.zip`.
+- 이 폴더에는 **옛 주소 전달 설정(`next.config`)·안내 화면 1개(layout·page)·빌드 설정·문서·DB 마이그레이션(`supabase/`)만** 남김. 화면·부품·로직·테스트·미들웨어는 삭제(썸네일 프로는 키 차단 API 410만 유지). 로컬 빌드 통과 확인. 운영 배포·Vercel 프로젝트·도메인·DB 표는 그대로(재배포 안 함). 공용 점검 스크립트의 이 폴더 사본 등록 제거.

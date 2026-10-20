@@ -122,3 +122,7 @@ vercel deploy --prod --yes --scope buylife
 ## 2026-10-20 v1.11 — 병합됨 → YOUTUBE 트렌드 분석(youtube-viral-studio) (Claude Code 윈도우)
 - 병합 C 3단계(주인님 승인). 채널 분석·키워드 분석·공략 채널·AI 리포트가 `youtube-viral-studio`(이름 「YOUTUBE 트렌드 분석」) 안으로 들어감(v1.20~v1.21). 이 앱은 **옛 주소 전달만**(`next.config.ts`): 화면 `/`·`/dashboard`·`/channel-analysis`·`/keyword-analysis`·`/golden-channels`·`/settings`·`/guide`·`/login` → 합친 앱 같은 경로, `/api/*` → 합친 앱 같은 경로(rewrite). 외부 등록 주소(OAuth·웹훅) 없음. Vercel 프로젝트·도메인은 지우지 않음. 카탈로그 노출 중지.
 - 공용 기준 코드(`youtube-data-client`·`youtube-golden-engine`)의 기준 위치는 `youtube-viral-studio`로 이동(이 폴더 파일은 더 이상 기준 아님).
+
+## 2026-10-21 코드 정리(사용 종료) — 백업 후 삭제 (Claude Code 윈도우)
+- 주인님 「백업해놓고 지워」「사용종료 하기로한 프로그램은 백업해서 하나의 폴더로 만든후 진행」. **정리 직전 소스 전체 백업: `D:\Antigravity\AIMaster_backup\retired-programs\<이 폴더>\`**(색인 README) · git 태그 **`backup/old-apps-20261021`**(원격에도 있음, `git checkout backup/old-apps-20261021 -- <폴더>`로 복원) · 압축 `D:\Antigravity\AIMaster_backup\old-apps-20261021.zip`.
+- 이 폴더에는 **옛 주소 전달 설정(`next.config`)·안내 화면 1개(layout·page)·빌드 설정·문서·DB 마이그레이션(`supabase/`)만** 남김. 화면·부품·로직·테스트·미들웨어는 삭제(썸네일 프로는 키 차단 API 410만 유지). 로컬 빌드 통과 확인. 운영 배포·Vercel 프로젝트·도메인·DB 표는 그대로(재배포 안 함). 공용 점검 스크립트의 이 폴더 사본 등록 제거.

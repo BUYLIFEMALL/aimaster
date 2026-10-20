@@ -1,13 +1,11 @@
-import { requireProgramAccess } from "@/lib/access";
-import Workspace from "@/components/Workspace";
-
-// 권한 확인 결과가 정적으로 캐시되지 않게 선언 (CLAUDE.md 핵심 원칙 6)
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-export default async function Page() {
-  // 로그인 검증 및 프로그램 이용 권한 확인 (비로그인은 https://buylife.xyz/login 으로 자동 리다이렉트)
-  const user = await requireProgramAccess();
-
-  return <Workspace userEmail={user.email ?? "회원"} />;
+// 2026-10-21 사용 종료(병합) 안내 — 주소 이동은 next.config의 redirects가 먼저 처리한다.
+export default function MovedPage() {
+  return (
+    <main style={{ maxWidth: 560, margin: "80px auto", padding: "0 16px", lineHeight: 1.7 }}>
+      <h1 style={{ fontSize: 22 }}>「AI 유튜브 썸네일 프로」은(는) 「AI 썸네일·SEO 자동화」으로 합쳐졌습니다.</h1>
+      <p>
+        <a href="https://thumbnail-master.buylife.xyz/seo" style={{ color: "#7dd3fc" }}>https://thumbnail-master.buylife.xyz/seo</a> 에서 같은 기능을 이용해 주세요.
+      </p>
+    </main>
+  );
 }

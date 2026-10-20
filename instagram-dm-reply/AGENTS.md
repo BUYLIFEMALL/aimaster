@@ -185,3 +185,7 @@ threads-comment-reply에서 "봇이 방금 단 답글을 새 댓글로 착각해
 - 병합 B 3단계(주인님 승인). DM 기능 전체가 `instagram-comment-reply` 안 `/dm/*`로 들어감(v1.18~v1.23). 이 앱은 **옛 주소 전달만** 한다(`next.config.mjs`): 화면 `/`·`/dashboard`→`/dm`, `/conversations/*`·`/history`·`/settings`·`/guide`→`/dm/...`, `/login`→합친 앱 `/login`. API는 합친 앱으로 전달(rewrite): `/api/instagram/dm-webhook/*`(회원 Meta 앱 DM 웹훅, 같은 경로·서명은 회원 앱 시크릿이라 그대로 동작), `/api/instagram/callback`, `/api/telegram/webhook/*`→`/api/dm/telegram/webhook/*`, `/api/telegram/migrate-webhooks`·`/api/cron/check-connection`→`/api/dm/...`.
 - 주의: 텔레그램 웹훅 비밀값·Meta 웹훅 확인 토큰은 합친 앱 `CRON_SECRET` 기준 → 옛 앱 기준으로 등록된 것은 다시 등록해야 함(관리자 텔레그램 DM 봇은 2026-10-20 재연동 완료). Vercel 프로젝트·도메인은 지우지 않음. 카탈로그 노출 중지(`is_active=false`), 메인 상세 `/programs/instagram-dm-reply` → `/programs/instagram-comment-reply`.
 - 플랜: `../instagram-comment-reply/docs/PLAN_20261020_DM_MERGE.md`
+
+## 2026-10-21 코드 정리(사용 종료) — 백업 후 삭제 (Claude Code 윈도우)
+- 주인님 「백업해놓고 지워」「사용종료 하기로한 프로그램은 백업해서 하나의 폴더로 만든후 진행」. **정리 직전 소스 전체 백업: `D:\Antigravity\AIMaster_backup\retired-programs\<이 폴더>\`**(색인 README) · git 태그 **`backup/old-apps-20261021`**(원격에도 있음, `git checkout backup/old-apps-20261021 -- <폴더>`로 복원) · 압축 `D:\Antigravity\AIMaster_backup\old-apps-20261021.zip`.
+- 이 폴더에는 **옛 주소 전달 설정(`next.config`)·안내 화면 1개(layout·page)·빌드 설정·문서·DB 마이그레이션(`supabase/`)만** 남김. 화면·부품·로직·테스트·미들웨어는 삭제(썸네일 프로는 키 차단 API 410만 유지). 로컬 빌드 통과 확인. 운영 배포·Vercel 프로젝트·도메인·DB 표는 그대로(재배포 안 함). 공용 점검 스크립트의 이 폴더 사본 등록 제거.

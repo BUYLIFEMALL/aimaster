@@ -124,3 +124,7 @@
 ## 2026-10-20 v1.12 — 병합됨 → AI 썸네일·SEO 자동화(thumbnail-master) (Claude Code 윈도우)
 - 병합 D 3단계(주인님 승인). SEO 전략(제목·설명·해시태그·스튜디오 태그·고정 댓글)이 `thumbnail-master` `/seo`로 이동(서버 API, v1.08~v1.09). 이 앱은 **화면 이동만**: `/`→`thumbnail-master.buylife.xyz/seo`, `/login`→합친 앱 `/login`(`next.config.ts`).
 - **`/api/user/key`는 410으로 막음** — 회원 Gemini 키 원문을 브라우저로 돌려주던 API(권한 확인도 없었음). 전달(rewrite)하지 않음. Vercel 프로젝트·도메인은 지우지 않음. 카탈로그 노출 중지.
+
+## 2026-10-21 코드 정리(사용 종료) — 백업 후 삭제 (Claude Code 윈도우)
+- 주인님 「백업해놓고 지워」「사용종료 하기로한 프로그램은 백업해서 하나의 폴더로 만든후 진행」. **정리 직전 소스 전체 백업: `D:\Antigravity\AIMaster_backup\retired-programs\<이 폴더>\`**(색인 README) · git 태그 **`backup/old-apps-20261021`**(원격에도 있음, `git checkout backup/old-apps-20261021 -- <폴더>`로 복원) · 압축 `D:\Antigravity\AIMaster_backup\old-apps-20261021.zip`.
+- 이 폴더에는 **옛 주소 전달 설정(`next.config`)·안내 화면 1개(layout·page)·빌드 설정·문서·DB 마이그레이션(`supabase/`)만** 남김. 화면·부품·로직·테스트·미들웨어는 삭제(썸네일 프로는 키 차단 API 410만 유지). 로컬 빌드 통과 확인. 운영 배포·Vercel 프로젝트·도메인·DB 표는 그대로(재배포 안 함). 공용 점검 스크립트의 이 폴더 사본 등록 제거.

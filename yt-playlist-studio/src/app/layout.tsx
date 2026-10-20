@@ -1,22 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { APP_NAME, APP_VERSION } from "@/lib/version";
+// 2026-10-21 사용 종료(병합) — 이 앱은 옛 주소 전달만 한다. 원래 코드: D:\Antigravity\AIMaster_backup\retired-programs\ · git 태그 backup/old-apps-20261021
+export const metadata = { title: "Youtube Playlist 자동화 → YOUTUBE 플레이리스트 자동화" };
 
-export const metadata: Metadata = {
-  title: `${APP_NAME} (${APP_VERSION}) - AIMaster`,
-  description: "YouTube 감성 음악 플레이리스트 및 실시간 오디오 스펙트럼 1080p MP4 제작 자동화",
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased overflow-hidden">
-        {children}
-      </body>
+      <body style={{ margin: 0, background: "#0f0f12", color: "#f1f1f1", fontFamily: "system-ui, sans-serif" }}>{children}</body>
     </html>
   );
 }

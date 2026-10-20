@@ -1,19 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
+// 2026-10-21 사용 종료(병합) — 이 앱은 옛 주소 전달만 한다. 원래 코드: D:\Antigravity\AIMaster_backup\retired-programs\ · git 태그 backup/old-apps-20261021
+export const metadata = { title: "INSTA DM답변 자동화 → INSTA 댓글·DM 자동화" };
 
-export const metadata: Metadata = {
-  title: "INSTA DM답변 자동화",
-  description: "인스타그램 DM으로 온 문의를 AI가 읽고 자연스러운 답장 초안을 만들어, 검토 후(또는 자동으로) 발송해드립니다.",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className="antialiased bg-ig-bg text-ig-text min-h-screen">{children}</body>
+      <body style={{ margin: 0, background: "#0f0f12", color: "#f1f1f1", fontFamily: "system-ui, sans-serif" }}>{children}</body>
     </html>
   );
 }

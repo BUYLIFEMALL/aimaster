@@ -1,20 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
+// 2026-10-21 사용 종료(병합) — 이 앱은 옛 주소 전달만 한다. 원래 코드: D:\Antigravity\AIMaster_backup\retired-programs\ · git 태그 backup/old-apps-20261021
+export const metadata = { title: "INSTA Cardnews 자동화 → INSTA 포스팅 자동화" };
 
-export const metadata: Metadata = {
-  title: "INSTA Cardnews 자동화 | AIMaster",
-  description: "주제만 넣으면 AI가 인스타 최적화 문구와 고화질 배경, 타이포그래피, 피드 캡션과 해시태그까지 완성하는 올인원 스튜디오",
-};
-
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#0d0f17] text-slate-100">{children}</body>
+    <html lang="ko">
+      <body style={{ margin: 0, background: "#0f0f12", color: "#f1f1f1", fontFamily: "system-ui, sans-serif" }}>{children}</body>
     </html>
   );
 }
