@@ -40,7 +40,7 @@ export async function connectTelegramAction(
     return {
       error:
         // 2026-10-20 v1.19: 어느 봇의 토큰인지 함께 알려 준다(봇이 여러 개일 때 다른 봇에 메시지를 보내는 실수 방지)
-        `아직 봇에게 보낸 메시지를 찾지 못했어요. ${await botNameHint(botToken)}텔레그램에서 그 봇 대화창을 열고 아무 메시지나 보낸 뒤 바로 다시 「연동 확인하기」를 눌러 주세요.`,
+        `아직 봇에게 보낸 메시지를 찾지 못했어요. ${await botNameHint(botToken)}텔레그램에서 그 봇 대화창을 열고 아무 메시지나 보낸 뒤 바로 다시 「연동 확인하기」를 눌러 주세요.${await telegramDiagnosis(botToken)}`,
     };
   }
 
@@ -143,6 +143,31 @@ async function botNameHint(botToken: string): Promise<string> {
     const res = await fetch(`https://api.telegram.org/bot${botToken}/getMe`, { cache: "no-store" });
     const me = (await res.json()) as { result?: { username?: string } };
     return me?.result?.username ? `입력한 토큰의 봇은 @${me.result.username} 입니다. ` : "";
+  } catch {
+    return "";
+  }
+}
+
+// 2026-10-20 v1.22: 연동 확인 실패 원인을 찾기 위한 진단(메시지 내용은 보여 주지 않고 개수·종류·웹훅 상태만).
+async function telegramDiagnosis(botToken: string): Promise<string> {
+  try {
+    const base = `https://api.telegram.org/bot${botToken}`;
+    const info = (await (await fetch(`${base}/getWebhookInfo`, { cache: "no-store" })).json()) as {
+      result?: { url?: string; pending_update_count?: number; last_error_message?: string };
+    };
+    // allowed_updates=[] → 모든 종류를 받도록 다시 지정하고, 어떤 종류의 알림이 쌓였는지 본다.
+    const upd = (await (
+      await fetch(`${base}/getUpdates?limit=20&allowed_updates=${encodeURIComponent("[]")}`, { cache: "no-store" })
+    ).json()) as { ok?: boolean; description?: string; result?: Record<string, { chat?: { type?: string } }>[] };
+    const kinds = (upd.result ?? []).map((u) => {
+      const k = Object.keys(u).find((key) => key !== "update_id") ?? "?";
+      const chatType = u[k]?.chat?.type;
+      return chatType ? `${k}(${chatType})` : k;
+    });
+    const hook = info.result?.url ? `웹훅 걸림(${new URL(info.result.url).host})` : "웹훅 없음";
+    const err = info.result?.last_error_message ? `, 웹훅 오류: ${info.result.last_error_message}` : "";
+    const got = upd.ok === false ? `조회 실패: ${upd.description ?? "알 수 없음"}` : `받은 알림 ${kinds.length}개${kinds.length ? ` [${kinds.join(", ")}]` : ""}`;
+    return ` [진단: ${hook}, 대기 ${info.result?.pending_update_count ?? 0}개${err}, ${got}]`;
   } catch {
     return "";
   }

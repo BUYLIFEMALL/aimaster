@@ -179,6 +179,10 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - 주인님 DM 봇 재연동 중 「메시지를 찾지 못했어요」가 반복(봇 2개 — 댓글 `@aimaster_insta_bot`, DM `@aimaster_insta_dm_bot`). 원인 후보: 다른 봇 토큰 입력 / 옛 웹훅이 걸린 동안 보낸 메시지가 옛 앱으로 감. 실패 안내에 「입력한 토큰의 봇은 @○○ 입니다」(getMe)를 붙여 어느 봇에 메시지를 보내야 하는지 바로 보이게(`lib/actions/telegram.ts`·`lib/dmApp/actions/telegram.ts`의 `botNameHint`).
 - Meta DM 웹훅 새 주소 등록 확인: 2026-10-20 Meta 확인 요청 GET `/api/instagram/dm-webhook/<관리자>` 200(주인님이 콜백 URL·인증 토큰 교체 후 확인 및 저장).
 
+## 2026-10-20 v1.22 — 텔레그램 연동 실패 안내에 진단 정보 표시 (Claude Code 윈도우)
+- v1.21 뒤에도 DM 봇이 「메시지를 찾지 못했어요」라서, 실패 안내 끝에 `[진단: 웹훅 걸림/없음(주소), 대기 수, 웹훅 오류, 받은 알림 개수·종류(채팅 종류)]`를 붙임(`telegramDiagnosis`, `lib/actions/telegram.ts`·`lib/dmApp/actions/telegram.ts`). 메시지 내용은 보여 주지 않음.
+- 다음 첫 단계: 주인님 화면의 진단 문구로 원인 판단(웹훅이 다른 주소에 다시 걸림 → 다른 서비스가 봇 사용 중 / 받은 알림 0개 → 다른 곳이 getUpdates로 먼저 가져감 / message(group) → 그룹에서 보냄).
+
 ## 2026-10-20 v1.21 — 텔레그램 연동 확인이 메시지를 못 찾던 문제 수정 (Claude Code 윈도우)
 - 증상: DM 봇(@aimaster_insta_dm_bot)에 말을 걸어도 「연동 확인하기」가 계속 「메시지를 찾지 못했어요」.
 - 원인: 웹훅 등록 때 `allowed_updates: ["callback_query"]`로 지정하면 텔레그램이 그 값을 기억해, `deleteWebhook` 뒤 `getUpdates`(값 미지정)에서도 일반 메시지를 버림. 옛 DM 앱이 이 봇에 웹훅을 걸었던 상태였음.
