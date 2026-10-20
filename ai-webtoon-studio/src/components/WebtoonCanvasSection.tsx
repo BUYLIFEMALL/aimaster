@@ -16,6 +16,7 @@ import {
 import { CutScene, WebtoonProject } from "@/lib/types";
 import { generateCoverImage, generateCutImage } from "@/lib/imageGen";
 import { mergeAndDownloadLongScrollJpg, downloadAllImagesAsZip } from "@/lib/canvasMerge";
+import { InstagramPublishPanel } from "./InstagramPublishPanel";
 
 interface WebtoonCanvasSectionProps {
   project: WebtoonProject;
@@ -444,6 +445,9 @@ export function WebtoonCanvasSection({
           })}
         </div>
       )}
+
+      {/* v1.15 인스타그램에 바로 게시(자동 포스팅 1차) — 컷 하나 = 캐러셀 한 장 */}
+      <InstagramPublishPanel project={project} />
 
       {/* Prev Step Button */}
       <div className="flex items-center justify-start pt-4">

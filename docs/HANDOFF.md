@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 인스타 자동 포스팅 확대 3단계: AI 웹툰 v1.15 컷 캐러셀 즉시 게시
+- 한 일: `ai-webtoon-studio` v1.14 → **v1.15**. STEP 4 아래 「📤 인스타그램에 게시 (컷 캐러셀)」 — 1컷 = 1장(흰 4:5 판에 컷 전체 + 대사 말풍선, 브라우저에서 JPEG), 표지+컷 최대 10장, 기본 캡션(제목·줄거리·해시태그). 공용 `instagram-publish` 사본 추가(`scripts/check-shared-modules.mjs` 등록), 연결·업로드·게시는 인플루언서 v1.14 사본. **DB 구조 변경 없음**(버전만 v1.15). 플랜 `ai-webtoon-studio/docs/PLAN_20261020_INSTA_AUTOPOST.md`, 상세 `ai-webtoon-studio/AGENTS.md` v1.15.
+- 검수: 시험 6개·타입·빌드 통과, 배포 `ai-webtoon-studio-ed1kcztkj` Ready, 비로그인 401. 크롬: 시험 원고로 패널·장 번호·기본 캡션 확인, 업로드·게시 요청을 탭에서 가로채 만들어진 JPEG 4장(1080×1350, 말풍선 줄바꿈) 확인, 로그인 상태 11장·다른 회원 폴더 400.
+- 못 한 것: 실제 인스타 게시·실제 저장소 업로드(첫 회원 사용 때), 2차 예약 게시(운영 DB 표 추가 승인 필요).
+- 다음 첫 단계: 인스타 확대 4단계 **AI 4컷 만화(`four-cut-comics`) 직접 게시** — 웹툰 `slides.ts`의 판 만들기 재사용 검토.
+- 링크: https://ai-webtoon-automation.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — Threads 쇼핑제휴 v1.67: GPT-5·GPT-6 모델 글 생성 400(`max_tokens`) 수정
 - 바로 아래 항목의 점검에서 찾은 미수정 건 처리. 다른 세션 ④단계 작업 목록에 이 폴더가 없고 공용 사본 동기화가 커밋(`62686273`)된 것을 확인한 뒤 시작.
 - 운영 v1.66에서 `gpt-5.6-luna`로 재현(`400 Unsupported parameter: max_tokens`) → `threads-affiliate-poster/src/lib/ai/generator.ts` 추론 모델은 `max_completion_tokens: 4000` → 배포 `threads-affiliate-poster-mgsqzhmd0` Ready, DB v1.67(ref `esgxyikcnnvmlhygjkth`), 크롬 재시험 490자 생성 성공. 다른 세션의 공용 사본(`authMethod` 선택 인자)도 함께 배포됨.

@@ -21,7 +21,7 @@ const MODULES = [
     // 인스타그램 게시(피드 1장·캐러셀 2~10장) — 회원 본인 연결값(insta_accounts, 한 번 연결해 여러 프로그램이 함께 사용). 2026-10-19
     id: "instagram-publish",
     source: "insta_auto_poster/src/lib/instagram/publish.ts",
-    copies: ["cardnews-studio/src/lib/instagram/publish.ts", "ai-influencer-studio/src/lib/instagram/publish.ts"],
+    copies: ["cardnews-studio/src/lib/instagram/publish.ts", "ai-influencer-studio/src/lib/instagram/publish.ts", "ai-webtoon-studio/src/lib/instagram/publish.ts"],
   },
   {
     // 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(리디렉트마다 재검사, DNS 바꿔치기 방지) — 2026-10-19 기준 등록

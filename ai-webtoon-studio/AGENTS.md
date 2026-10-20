@@ -58,7 +58,14 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.14` (2026-10-18)
+- **현재 버전**: `v1.15` (2026-10-20)
+- **v1.15 (2026-10-20, Claude Code 윈도우) — 📤 인스타그램에 바로 게시(자동 포스팅 1차: 즉시 게시)**:
+  - STEP 4 화면 아래 「📤 인스타그램에 게시 (컷 캐러셀)」 — **1컷 = 캐러셀 1장**: 흰 4:5 판(1080×1350)에 컷 그림 전체 + 아래 대사 말풍선(최대 3줄, 넘치면 …)을 브라우저에서 그려 JPEG로 올림. 표지(넣기로 했을 때) + 그림 있는 컷을 원고 순서대로 최대 10장, 눌러서 빼기/넣기. 기본 캡션 = 제목·줄거리·해시태그(고칠 수 있음), 공개 게시 확인 체크 후 게시.
+  - 긴 세로 원고를 잘라 올리는 방식은 컷·말풍선이 장 경계에서 잘려 채택하지 않음(플랜 `docs/PLAN_20261020_INSTA_AUTOPOST.md` 2절).
+  - 인스타 연결은 INSTA에서 한 번 한 공용 값(`insta_accounts`) 재사용, 없으면 「INSTA에서 연결하기」. 게시 코드는 공용 기준 코드 `instagram-publish` 사본(`src/lib/instagram/publish.ts`), 연결값·게시·임시 사진 삭제는 `ai-influencer-studio` v1.14 사본.
+  - 새 파일: `src/lib/instagram/{publish,memberAccount,posting,slides}.ts`, `src/app/api/instagram/{route,upload/route,publish/route}.ts`, `src/components/InstagramPublishPanel.tsx`, `tests/slides.test.mjs`(6개), `package.json` `test` 명령. 임시 사진 `insta-post-images/{userId}/webtoon-insta/{묶음}/NN.jpg` — 게시 뒤 삭제. **DB 구조 변경 없음**(버전만).
+  - 검수: 시험 6개·타입·빌드 통과, 배포 `ai-webtoon-studio-ed1kcztkj` Ready, DB v1.15. 비로그인 새 주소 3개 401. 크롬(관리자 계정, https://ai-webtoon-automation.buylife.xyz): 사이드바 v1.15, 패널 「연결됨 @계정」, 브라우저에만 넣은 시험 원고(표지·가로 컷·긴 대사 세로 컷·대사 없는 컷)로 장 4개 번호·기본 캡션 확인 → **업로드·게시 요청을 이 탭에서 가로채** 실제 게시·저장 없이 만들어진 JPEG 4장 확인(모두 1080×1350, 컷 전체 보임, 말풍선 3줄 줄바꿈 정상), 흐름 순서(업로드 준비 → 4장 올리기 → 게시 요청)와 실패 안내 표시 확인. 로그인 상태 11장 요청 400·다른 회원 폴더 400·빈 목록 400, 업로드 경로 `내 id/webtoon-insta/묶음/01.jpg`. 시험 원고는 지움(원래 없음).
+  - **하지 않은 것**: 실제 인스타 게시·실제 저장소 업로드(첫 회원 사용 때 확인). 2차 예약 게시는 인플루언서 v1.15 구조(표 추가 승인 필요)로 다음에.
 - **v1.14 (2026-10-18, Antigravity CLI)**:
   - **크리에이티브 아틀리에 스타일 (웹툰 스튜디오 다크 변형)** 전면 적용 (`globals.css`, `layout.tsx`, `Header.tsx`, `Sidebar.tsx`, `StudioWorkspace.tsx`, STEP 1~4 및 `SettingsModal`).
   - 모바일(375px) 상단 헤더 및 슬라이드 오버레이 드로어 메뉴 구축 완료.
