@@ -2555,3 +2555,8 @@
 - 2026-10-20 정정(예약 상태 경쟁): 위 「재개·방식 변경이 겹치면 DB와 작업 상태가 어긋남」의 실제 영향은 **실행이 아니라 401 헛호출**이다 — 회원 토큰 확인이 방식을 먼저 본다. 교훈: **보강 코드를 넣기 전에 그 상황이 지금 코드에서 실제로 어떻게 처리되는지 재현으로 먼저 확인한다**(이번엔 재현 없이 「건너뛰기」 조건을 넣었다가 닿지 않는 코드였음을 배포 뒤 재현에서 알게 됨). 또 공용 코드를 찾는 grep은 등록된 사본(인스타 3개처럼 다른 세션이 새로 만든 것)까지 잡을 수 있으니, 고치기 전에 대상 파일 목록을 확인하고 기준 코드 사본은 `--sync` 절차로 맞춘다.
 
 - **2026-10-21 브라우저에서 만든 영상을 유튜브에 올릴 때(쇼츠 원스톱 v1.19)** — 증상 걱정: Vercel 함수 요청 4.5MB 한도로 MP4를 서버로 보낼 수 없음. 해결: 서버가 `uploadType=resumable` 세션을 만들 때 요청 화면의 `Origin` 헤더를 함께 보내면, 받은 업로드 주소로 브라우저가 직접 PUT 해도 구글이 허용한다(실업로드 16.8MB 성공). 접근 토큰은 브라우저로 보내지 않는다. 위치 `shots/src/lib/youtube/client.ts` `createYoutubeResumableSession`(공용 `youtube-upload-client`). 다음부터: 브라우저 영상 업로드는 이 함수를 쓰고, `videos.insert`는 `youtube.upload`·`youtube.force-ssl`·`youtube` 중 하나면 된다.
+
+### 2026-10-21 Shots v1.24 — Supabase 버킷 100MB 만들기 거절(EntityTooLarge)
+- 증상: Storage API로 `file_size_limit: 104857600` 버킷을 만들자 `413 Payload too large`. 원인: 프로젝트 전체 업로드 한도(요금제)가 버킷 한도보다 작으면 거절. 해결: 50MB(52428800)로 생성(`shots/supabase/migrations/20261021120000_shots_videos_bucket_v1_24.sql`). 다음부터: 버킷 한도는 50MB 이하로 잡고, 화면에서도 같은 한도를 미리 검사.
+### 2026-10-21 Shots v1.26 — OpenAI `gpt-4o-mini-tts` 가끔 한 요청만 60~90초 지연
+- 증상: 6장면 동시 요청 중 5개는 4~5초, 1개만 89초(성공). 서버 제한 90초에 닿으면 영상 전체 실패. 해결: 브라우저 요청마다 30초 제한 + 1번 다시 시도, 서버는 `AbortSignal.any([req.signal, timeout])`로 브라우저가 끊으면 OpenAI 요청도 멈춤(`shots/src/lib/render/story.ts`·`src/app/api/render/tts/route.ts`). 다음부터: 유료 생성 API를 여러 개 동시에 부를 때 요청마다 제한 시간·재시도 1회를 둔다.

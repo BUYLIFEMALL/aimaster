@@ -137,6 +137,16 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | shorts-onestop-studio | `src/lib/youtube/client.ts` | 🔵 사본 | v1.19, 브라우저 MP4 → 재개 가능 업로드 |
 | playlist-channel-studio(영상 만들기) | — | ⚪ 후보 | 같은 브라우저 MP4라 그대로 붙일 수 있음 |
 
+## 12. 브라우저 MP4 만들기 — 공용 모듈 `browser-mp4-encoder` (2026-10-21 등록, 엔진 공유 2번)
+
+영상 합성을 서버가 아니라 회원 브라우저(WebCodecs)에서 해 합성 요금·서버 시간이 없다. 공용은 인코딩·MP4 묶기·소리 섞기까지이고, 장면을 어떻게 그릴지(`drawFrame`)·어떤 소리를 넣을지는 각 프로그램이 정한다. 완성 MP4를 서버에 보낼 때는 Vercel 4.5MB 한도 때문에 저장소 서명 업로드 주소로 브라우저가 직접 올린다(Shots `shots-videos`).
+
+| 프로그램 | 파일 | 상태 | 비고 |
+|---|---|---|---|
+| shorts-onestop-studio | `src/lib/render/mp4Encoder.ts` (+ 그리기 `export.ts`·`scene.ts`) | 🟢 기준 | v1.20, 정보 카드형 쇼츠 |
+| shots | `src/lib/render/mp4Encoder.ts` (+ 그리기 `story.ts`) | 🔵 사본 | v1.24~v1.26, 이미지 스토리(느린 확대·노란 자막) — 본인 OpenAI 음성 `/api/render/tts`, 4Mbps |
+| playlist-channel-studio(영상 만들기) | — | ⚪ 후보 | 같은 방식의 옛 코드(소리 인코딩 빠짐 문제)를 이 모듈로 바꿀 수 있음 |
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |

@@ -26,3 +26,9 @@
 ## 2026-10-20 (Claude Code 윈도우) — Facebook 로그인 앱 키 이름 불일치
 - 근거: INSTA 포스팅은 Facebook 로그인에 `facebook_app_id`(없으면 `meta_app_id`), 이 프로그램은 `meta_app_id`만 쓴다(`src/app/api/instagram/callback/route.ts`, `lib/actions/instagram.ts`). `meta_app_id`는 원래 Instagram 앱 칸이라 회원이 두 프로그램에 다른 값을 넣어야 할 수 있다.
 - 영향: 중간(혼동). 상태: ✅ 처리(v1.23, 2026-10-20) — Facebook 앱 칸 먼저, 없으면 예전 Meta 칸. 다음 첫 단계: 이 프로그램 설정 화면에 `facebook_app_id` 칸을 INSTA와 같은 순서로 읽게 바꾸는 플랜.
+
+## 2026-10-21 (Claude Code 윈도우) — 브라우저에서 만들기 뒤 남은 개선
+- **Suno 배경음악 주소 만료**(로직, 높음): `shorts_bgm_tracks.audio_url`이 `tempfile.aiquickdraw.com` 임시 주소라 운영 2건 모두 404(2026-10-21 확인). 브라우저 만들기는 음악 없이 만들고 경고, JSON2Video 합성은 실패할 수 있음. 제안: 음악 생성 완료 때 파일을 저장소(`shots-bgm`)로 옮겨 저장. 상태: 미착수.
+- **음성 지연**(로직, 중간): `gpt-4o-mini-tts`가 가끔 한 장면만 60~90초 늦음 → v1.26에서 30초 제한·1회 재시도로 보완. 계속되면 `tts-1`로 다시 시도하는 안 검토. 상태: 보완됨, 관찰.
+- **장면 음성 다시 쓰기**(편의, 중간): 다시 만들 때마다 음성 6회를 새로 만든다(약 10원). 대사가 안 바뀐 장면은 음성을 저장소에 두고 재사용하면 비용·시간 절약. 상태: 제안.
+- **연계**: 원스톱처럼 렌더 화면에서 바로 「유튜브에 올리기」(브라우저 직접 PUT, `createYoutubeResumableSession`)를 붙이면 서버가 영상을 다시 받지 않아도 됨. 상태: 제안.

@@ -5,11 +5,11 @@
 > 앞 구간(인스타 병합) 상세: [`HANDOFF_CLAUDE_SESSION_2026-10-20_INSTA.md`](HANDOFF_CLAUDE_SESSION_2026-10-20_INSTA.md). 유튜브 분석·결과: [`analysis-youtube-consolidation-20261020/REPORT.md`](analysis-youtube-consolidation-20261020/REPORT.md) §6.
 
 ## 0. 지금 멈춘 곳 (가장 먼저 읽기)
-**진행 중: 엔진 공유 2번 — YOUTUBE Shots에 「브라우저에서 만들기(무료)」 (Shots v1.24 예정, 원스톱 v1.20 예정)**
+**✅ 완료(2026-10-21): 엔진 공유 2번 — YOUTUBE Shots에 「브라우저에서 만들기(무료)」 (Shots v1.24 예정, 원스톱 v1.20 예정)**
 - 플랜(주인님 승인): [`shots/docs/PLAN_20261021_BROWSER_RENDER.md`](../shots/docs/PLAN_20261021_BROWSER_RENDER.md). 주인님 결정: **완성 MP4를 저장소 새 버킷 `shots-videos`에 저장(추천안 선택, 30일 자동 삭제)** — 버킷 생성 DB 변경 승인됨.
 - 왜: Shots 영상 6개(회원 2명) 중 완성 1개, JSON2Video 키 등록 회원 1명 vs OpenAI 키 27명. JSON2Video가 합성+ElevenLabs 음성+자막을 다 맡아 대부분 회원이 합성 단계에서 막힘.
 - **끝낸 것**: 공용 인코더 기준 파일 `shorts-onestop-studio/src/lib/render/mp4Encoder.ts` 작성(`mixVoiceAndBgm`·`encodeMp4`·`assertWebCodecs`, 원스톱 `export.ts`에서 대본과 무관한 부분을 옮긴 것). tsc 통과. **아직 어디에도 연결 안 함·공용 점검 미등록·배포 안 함**(운영 영향 없음).
-- **진행(2026-10-21 부계정 `rainbowi77777` 세션)**: 1~3번 완료 — 커밋 `4efd603a`(export.ts 공용 인코더 사용·Shots 사본·`mp4-muxer`) · `0cd3ef3a`(원스톱 v1.20 배포 Ready·DB v1.20, 다시 만들기 58.20초·1080×1920·16.8MB 기준과 같음). **다음은 4번부터.**
+- **진행(2026-10-21 부계정 `rainbowi77777` 세션)**: 1~3번 완료 — 커밋 `4efd603a`(export.ts 공용 인코더 사용·Shots 사본·`mp4-muxer`) · `0cd3ef3a`(원스톱 v1.20 배포 Ready·DB v1.20, 다시 만들기 58.20초·1080×1920·16.8MB 기준과 같음). → 이어서 4~9번도 완료(Shots v1.24~v1.26, 커밋 `45411889` `25bec078` `abee1e85`, 버킷 `shots-videos`·Shots `CRON_SECRET` 주인님 승인). **엔진 공유 2번 끝** — 결과는 `shots/AGENTS.md` v1.24~v1.26, 남은 일은 루트 `docs/HANDOFF.md` 맨 위.
 - **다음 순서**
   1. 원스톱 `src/lib/render/export.ts`를 `mp4Encoder.ts` 사용으로 바꾸기: `mixAudio` → `mixVoiceAndBgm({ total, voices, bgm: bgm && urls[bgm.path] ? { src: urls[bgm.path], volume: bgm.volume } : null, onStatus })`, 프레임 루프 → `encodeMp4({ width: W, height: H, fps: FPS, total, audio, pctFrom: 5, drawFrame: async (ctx, t) => { /* 기존 영상 sync + renderFrame */ } })`. `localVideos`·`syncVideo`·`seekVideo`·`touched` 정리(finally)는 export.ts에 남긴다. 진행률·문구가 예전과 같은지 확인.
   2. `scripts/check-shared-modules.mjs`에 `browser-mp4-encoder`(기준 `shorts-onestop-studio/src/lib/render/mp4Encoder.ts`, 사본 `shots/src/lib/render/mp4Encoder.ts`) 등록 → `--sync`. Shots `package.json`에 `mp4-muxer`(^5.2.2) 추가.

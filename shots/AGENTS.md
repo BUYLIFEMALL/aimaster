@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.23` (`package.json` 1.23.0, `version.ts` v1.23, DB `programs` v1.23 — 2026-10-20)
+> - **버전**: `v1.26` (`package.json` 1.26.0, `version.ts` v1.26, DB `programs` v1.26 — 2026-10-21)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -77,4 +77,15 @@
 - 추가: `createYoutubeResumableSession()`(재개 가능 업로드 주소 — 브라우저에서 만든 영상을 직접 올릴 때). Shots는 아직 쓰지 않아 동작 같음 → 버전·배포는 다음 Shots 배포 때(`docs/SHARED_MODULES.md` 미배포 표).
 
 ## 2026-10-21 — 엔진 공유 2번 「브라우저에서 만들기」 진행 중(인수인계) (Claude Code 윈도우)
-- 플랜(주인님 승인): [`docs/PLAN_20261021_BROWSER_RENDER.md`](docs/PLAN_20261021_BROWSER_RENDER.md). 코드 변경은 아직 없음. 이어받기: 루트 `docs/HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md` §0.
+- 플랜(주인님 승인): [`docs/PLAN_20261021_BROWSER_RENDER.md`](docs/PLAN_20261021_BROWSER_RENDER.md). → 아래 v1.24~v1.26에서 완료.
+
+## 2026-10-21 v1.24~v1.26 — 「브라우저에서 만들기(무료)」 (엔진 공유 2번 완료) (Claude Code 윈도우, 부계정)
+- 렌더 화면(`src/components/candidates/RenderSection.tsx`)에 방식 선택: **① 브라우저에서 만들기(기본)** / ② 고급 합성(JSON2Video, 예전 그대로). ①은 `BrowserRenderPanel.tsx` — 목소리 6종(`src/lib/render/voices.ts`)·말 빠르기·진행 막대·멈추기·경고.
+- 흐름(`src/lib/render/story.ts` `buildStoryMp4`): 장면 이미지 받기 + 본인 OpenAI 음성(`POST /api/render/tts`, `gpt-4o-mini-tts`, 오디오 바이트 바로 응답·저장 없음)을 **장면 동시 준비** → 장면 길이 = 0.3초 + 음성 + 0.5초(최소 3초) → 배경음악(선택 트랙 `audio_url`, 못 받으면 음악 없이 + 경고) → 공용 **`browser-mp4-encoder`**(`src/lib/render/mp4Encoder.ts` 사본 — 직접 고치지 말 것)로 1080×1920·30fps·**4Mbps** MP4. 화면: 이미지 cover + 느린 확대(8%) + 장면 바뀔 때 0.3초 겹침, 자막 = JSON2Video 설정과 같은 모양(Noto Sans KR 900·80px·`#FFD200`·검은 테두리 6·가운데·2어절씩 글자 수 비례).
+- 저장(`src/lib/actions/browserRender.ts`): 서버가 버킷 **`shots-videos`**(공개 읽기·50MB·mp4만) 일회용 서명 업로드 주소 발급 → 브라우저가 직접 업로드(Vercel 4.5MB 한도 회피) → 경로 `<회원 id>/<영상 id>/<시각>.mp4` 확인 후 같은 폴더의 이전 파일 삭제·`rendered_video_url`·`render_status=ready` 저장 → 기존 유튜브(서버가 주소에서 받아 업로드)·인스타(공개 주소 전달) 게시 코드 변경 없음.
+- 30일 정리: `GET /api/cron/cleanup-videos`(`vercel.json` 매일 18:30 UTC, `CRON_SECRET` — 2026-10-21 주인님 승인으로 Shots 프로젝트에 새로 등록). 30일 지난 파일 삭제 + 그 주소를 쓰던 영상의 완성 상태 비움. `?dry=1` 미리보기.
+- 음성 경로 보안: 같은 출처(`Origin` = 호스트)만, `checkProgramAccessApi`, 본인 OpenAI 키만(없으면 400 `no_key`). 운영 확인: 다른 출처 403·비로그인 401·정리 경로 비밀값 없이 401.
+- v1.25: 장면 동시 준비(차례로 받으면 장면당 5~10초)·4Mbps(8Mbps는 50초에 31.7MB → 19MB). v1.26: 음성 요청 30초 제한 + 1번 다시 시도(가끔 한 장면만 60~90초 늦음 — 실측 89초), 서버는 브라우저가 끊으면 OpenAI 요청도 중단(60초 제한).
+- 매뉴얼 5단계·FAQ(JSON2Video 없이 만들기) 갱신, 스크립트 화면 「키 등록 필요」 목록에서 JSON2Video 제외. 메인 상세 소개 🎞️·🔑 단락·특징 4번 갱신(453자).
+- 검수: tsc·build·공용 점검, 운영 Ready(v1.24·v1.25·v1.26). 크롬 관리자 영상 「마케팅, AI 없인 못 살겠더라」 3회: 49.4초·31.7MB(v1.24) → 46.4초·19.0MB(v1.25, 이전 파일 자동 삭제 확인) → 50.7초(v1.26, 40초 안에 완성). 자막 위치·모양, 소리(음성 구간만 소리·여백 무음) 확인. 시험 비용: OpenAI TTS 18회(약 30원, 관리자 본인 키).
+- 남은 일: 시험 계정 로그인 상태로 권한·회원 분리 화면 확인(주인님 로그인 필요), 실제 유튜브·인스타 게시는 외부 게시라 미시험(관리자 Shots 유튜브 연결은 「재연동」 필요 상태). SQL: `supabase/migrations/20261021120000_shots_videos_bucket_v1_24.sql`·`20261021130000_version_v1_25.sql`·`20261021140000_version_v1_26.sql`.

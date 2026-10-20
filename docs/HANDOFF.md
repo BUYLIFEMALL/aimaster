@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 엔진 공유 2번 완료: Shots 「브라우저에서 만들기(무료)」 v1.24~v1.26 · 원스톱 v1.20
+
+- 원스톱 MP4 인코더를 공용 기준 **`browser-mp4-encoder`**(`shorts-onestop-studio/src/lib/render/mp4Encoder.ts`, 사본 `shots/src/lib/render/mp4Encoder.ts`)로 분리 — 원스톱 v1.20 다시 만들기 결과 같음(58.20초·1080×1920·16.8MB).
+- Shots 렌더 화면에 ① 브라우저에서 만들기(기본, 본인 OpenAI 음성 + 장면 이미지 + 노란 자막 + 배경음악) / ② JSON2Video. 완성 MP4는 새 버킷 `shots-videos`(운영 ref `esgxyikcnnvmlhygjkth`, 공개·50MB·mp4, 주인님 승인)에 브라우저가 직접 올리고, 다시 만들면 이전 파일 삭제, 30일 정리 `/api/cron/cleanup-videos`(Shots에 `CRON_SECRET` 새로 등록 — 주인님 승인). 기존 유튜브·인스타 게시 코드 그대로.
+- 검수: tsc·build·공용 점검, 운영 Ready, 크롬 관리자 실시험 3회(46~51초, 19MB, 40초 안에 완성, 자막·소리 확인), 보안 403/401 확인. 시험 비용 OpenAI TTS 18회(약 30원).
+- 커밋 `4efd603a` `0cd3ef3a` `45411889` `25bec078` `abee1e85` 외 문서. 남은 일: 시험 계정으로 권한 화면 확인, 실제 게시 미시험(관리자 Shots 유튜브 「재연동」 필요), Suno 음악 주소 만료 문제(`shots/docs/IMPROVEMENTS.md`). 원스톱은 `videoBitrate` 추가분 미배포(동작 같음).
+- 상세: [`shots/AGENTS.md`](../shots/AGENTS.md) v1.24~v1.26 · [`docs/HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md`](HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md) §0
+
+https://shots.buylife.xyz
+
+https://shorts-onestop-studio.buylife.xyz/render
+
 ## 2026-10-21 Codex(윈도우) — 블로그 BLC-03 v2.03 운영 배포·회원 로그인 대기
 
 - 사진 관찰과 회원 방문 메모·설명을 분리해 후기 초안을 만들고 문단 근거·확인 필요·복사를 제공합니다. 기존 일반 글 생성/원고 저장/발행은 유지하며 사진 후기 저장·보관함·확장 연결은 BLC-04 미구현입니다.
