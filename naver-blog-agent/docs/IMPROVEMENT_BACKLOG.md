@@ -29,3 +29,6 @@
 - [ ] 홈판형 글 원문 근거 대조 단계(사실 왜곡 표시)
 - [ ] 생성 화면 블로그 목록을 서버에서 직접 불러오기·계정 변경 시 캐시 비우기
 - [ ] `alert`/`confirm`을 화면 안 알림으로 교체
+
+## 2026-10-20 v1.97 승인됨·미착수 (Claude Code, 사용 한도로 중단)
+- 플랜 [`PLAN_20261020_SOURCE_GROUNDING_SCHEDULE_UX.md`](PLAN_20261020_SOURCE_GROUNDING_SCHEDULE_UX.md) 6개 모두 주인님 승인. 코드 변경 없음. 다음 첫 단계: `page.tsx` `applyViralCandidate`가 글감 전체 내용을 `sourceMaterial`로 생성 요청에 싣도록 → `pipeline.ts` 기획·작성·검수 프롬프트에 근거 블록 추가.
