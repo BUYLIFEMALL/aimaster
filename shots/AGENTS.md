@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.21` (`package.json` 1.21.0, `version.ts` v1.21, DB `programs` v1.21 — 2026-10-20)
+> - **버전**: `v1.22` (`package.json` 1.22.0, `version.ts` v1.22, DB `programs` v1.22 — 2026-10-20)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -62,3 +62,7 @@
 - 함께 고침: 화면 컴포넌트(`PostingSection`)에 계정 전체(토큰 포함)를 넘기던 것을 표시용 `ig_username`만 넘기도록 줄임.
 - 남은 점: INSTA는 Facebook 로그인에 `facebook_app_id`(없으면 `meta_app_id`)를 쓰는데 이 프로그램은 `meta_app_id`만 쓴다 — 기존 동작이라 그대로 두고 `docs/IMPROVEMENTS.md`에 기록.
 - 공용 부품 사본 `src/lib/memberIntegrations.ts`. 백필 `supabase/migrations/20261020180000_member_integrations_v1_21.sql`. 플랜 루트 `docs/PLAN_20261020_MEMBER_INTEGRATIONS_STEP4_INSTAGRAM.md`.
+
+## 2026-10-20 v1.22 — 회원 연동 정보 공용 저장 ⑤단계 YouTube (Claude Code 윈도우)
+- YouTube 연결 콜백이 `youtube_accounts`와 공용 표(platform `youtube`, 권한 `youtube.upload`+`youtube.readonly`, 갱신 토큰, `app_ref`=회원 `google_client_id`)에 함께 저장. 업로드·연결 상태 확인은 `src/lib/youtube/memberAccount.ts` `getShotsYoutubeAccount` — 업로드 권한 + 갱신 토큰 + 재연결 필요 아님 + 공용 계정의 앱이 지금 Client ID와 같음 → 없으면 `youtube_accounts`. 접근 토큰 갱신은 읽은 곳에, 갱신 실패 시 공용이면 「다시 연결 필요」 표시(자기 표엔 그 칸이 없음), 해제는 공용 행도 삭제.
+- 유튜브 댓글 자동화(채널 관리 권한)와 권한이 달라 서로의 공용 토큰은 쓰지 않는다. 백필 `supabase/migrations/20261020210000_member_integrations_v1_22.sql`.

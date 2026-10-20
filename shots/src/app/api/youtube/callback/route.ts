@@ -1,3 +1,4 @@
+import { saveSharedYoutubeAccount } from "@/lib/youtube/memberAccount";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
@@ -71,6 +72,17 @@ export async function GET(request: NextRequest) {
     if (error) {
       throw new Error(error.message);
     }
+
+    // v1.22: 공용 연결 계정에도 저장(이중 기록)
+    await saveSharedYoutubeAccount({
+      userId: user.id,
+      channelId: channel.channelId,
+      channelTitle: channel.channelTitle ?? null,
+      accessToken: token.access_token,
+      refreshToken: token.refresh_token,
+      tokenExpiresAt,
+      clientId,
+    });
 
     return NextResponse.redirect(`${siteUrl}${redirectTarget}?youtube_connected=1`);
   } catch {
