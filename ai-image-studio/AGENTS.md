@@ -1,7 +1,7 @@
 # AI 이미지 스튜디오 (ai-image-studio) — AI 에이전트 인수인계 문서 (AGENTS.md)
 
 > **공식 서비스 URL**: [https://ai-image-studio.buylife.xyz](https://ai-image-studio.buylife.xyz)  
-> **현재 버전**: `v1.20` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
+> **현재 버전**: `v1.21` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
 > **상위 지침**: 루트 [`../AGENTS.md`](../AGENTS.md) 및 [`../DESIGN.md`](../DESIGN.md), [`../docs/IMAGE_PROMPT_RULES.md`](../docs/IMAGE_PROMPT_RULES.md)
 
 ---
@@ -165,3 +165,8 @@
 - 16개 화풍별 10개 본문을 직접 다시 작성. 제목·분류·순서 보존, 기본 예시 JSON을 초기 등록/작업실에서 함께 사용.
 - 원문 백업·원문 일치 조건이 있는 일괄 DB 교체/복구 자료·문구 검사 4개·권한 검사·빌드. 유료 이미지 생성 미실시.
 - [계획](docs/PLAN_20261020_ENGLISH_PROMPTS.md) · [작업 결과/운영 증거/남은 일](docs/IMPROVEMENT_HANDOFF_20261020_ENGLISH_PROMPTS.md).
+
+## 2026-10-20 v1.21 — 회원별 커스텀 화풍 프롬프트 (Codex 윈도우)
+- 기본 예시를 개인 사본으로 만들어 저장·수정·삭제·복사·작업실에서 그대로 사용. 공통 원본은 관리자만 관리합니다. 개인 전용 DB/RLS·30일 만료·자동 정리, 원본 삭제 시 사본 보존.
+- 로컬 API/DB 검사 18개·기존 검사 16개·권한 검사·빌드·보이는 Edge 가상 회원 2명(1440/375) 통과. 실제 SSO/운영 검수와 구분합니다.
+- [개발 계획](docs/PLAN_20261020_CUSTOM_STYLE_PROMPTS.md) · [상세 인수인계/운영 증거/남은 일](docs/IMPROVEMENT_HANDOFF_20261020_CUSTOM_STYLE_PROMPTS.md).

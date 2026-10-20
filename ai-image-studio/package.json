@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test:access": "node scripts/test-access.cjs",
+    "test:custom-prompts": "node --test tests/customStylePrompts.test.mjs tests/customPromptApi.test.mjs",
+    "test:custom-prompts:browser": "node tests/customPromptBrowser.mjs",
     "test:gemini-image": "node --test tests/geminiImage.test.mjs tests/nanoBananaModels.test.mjs"
   },
   "dependencies": {
@@ -22,12 +24,15 @@
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.20",
+    "esbuild": "0.28.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
+    "playwright": "1.58.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"

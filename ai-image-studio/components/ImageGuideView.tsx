@@ -133,6 +133,27 @@ export function ImageGuideView() {
         </div>
       </div>
 
+      <section id="custom-prompts" className="scroll-mt-28 space-y-4 rounded-2xl border border-emerald-500/25 bg-zinc-900/70 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><p className="text-xs font-bold text-emerald-400">📝 나만의 화풍 프롬프트 · 약 1분</p>
+            <h2 className="mt-1 text-xl font-bold text-white">기본 예시를 나만의 이미지 표현으로 바꾸기</h2></div>
+          <Link href="/prompts" className="rounded-xl border border-emerald-500/30 px-4 py-2 text-sm font-bold text-emerald-300">프롬프트 게시판 열기</Link>
+        </div>
+        <p className="text-sm leading-relaxed text-zinc-400">기본 예시에서 개인 사본을 만들면 본인만 볼 수 있습니다. 장소·인물·구도·빛·색감을 바꿔 다음 작업에도 불러오세요.</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["STEP 1", "📚", "기본 예시 선택", "게시판의 ‘기본 예시’에서 원하는 화풍과 상황을 찾습니다."],
+            ["STEP 2", "✏️", "나만의 버전 만들기", "버튼을 누른 뒤 이름·화풍·상황 묘사를 원하는 내용으로 수정합니다."],
+            ["STEP 3", "🔒", "내 보관함에 저장", "저장하면 ‘나만의 프롬프트’에 본인 사본이 표시됩니다. 원본은 유지됩니다."],
+            ["STEP 4", "🎨", "작업실에서 사용", "불러온 내용을 그대로 Step 2에 보내거나, 본인 OpenAI 키로 AI 추가 보강합니다."],
+          ].map(([step, icon, title, description]) => <div key={step} className="rounded-xl border border-zinc-700 bg-zinc-950 p-4">
+            <p className="text-xs font-bold text-emerald-400">{step} {icon}</p><h3 className="mt-2 text-sm font-bold text-white">{title}</h3><p className="mt-2 text-xs leading-relaxed text-zinc-400">{description}</p>
+          </div>)}
+        </div>
+        <p className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-relaxed text-zinc-300">💡 본문에 대상·행동·배경·구도·빛·질감을 적으면 상황이 더 명확해집니다. ‘AI 보강 없이 그대로 Step 2에 사용’은 프롬프트를 바꾸지 않으며 별도 텍스트 AI 호출도 하지 않습니다. 실제 이미지 생성은 선택한 모델의 본인 키로 진행됩니다.</p>
+        <p className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-xs leading-relaxed text-zinc-300">⚠️ 개인 사본은 최초 저장일부터 30일 후 자동 삭제됩니다. 수정해도 기한은 연장되지 않으므로 필요한 내용은 만료 전에 복사해두세요. 기본 예시는 이 보관 기한과 별개로 계속 제공됩니다.</p>
+      </section>
+
       {/* 5-Step Pipeline */}
       <div className="space-y-6">
         <div className="border-b border-zinc-800 pb-3 flex items-center justify-between">

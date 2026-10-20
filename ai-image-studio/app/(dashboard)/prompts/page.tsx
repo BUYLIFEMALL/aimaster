@@ -1,23 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { 
-  Plus, Edit2, Trash2, Tag, Search, Filter, RefreshCw, 
-  Check, AlertCircle, FileText, Wand2, Sparkles, Layers, X 
-} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { Plus, Edit2, Trash2, Search, RefreshCw, Copy, Check, Wand2, Sparkles, X } from "lucide-react";
+import type { CustomStylePrompt } from "@/lib/prompts/customStylePrompts";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 interface PromptItem {
-  id: string;
-  style_id: string;
-  label: string;
-  prompt: string;
-  display_order: number;
-  created_at: string;
+  id: string; style_id: string; label: string; prompt: string; display_order: number; created_at: string;
+  source_prompt_id?: string | null; expires_at?: string;
 }
-
+type Scope = "defaults" | "personal";
+type Editor = { target: Scope; item?: PromptItem; source?: PromptItem };
 const PRESET_STYLES = [
   { id: "all", name: "전체 화풍 보기" },
   { id: "photorealistic", name: "실사 포토리얼리즘" },
@@ -37,457 +33,197 @@ const PRESET_STYLES = [
   { id: "dark_fantasy", name: "다크 판타지" },
   { id: "minimal_flat", name: "미니멀 플랫 아트" },
 ];
+const button = "inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-200 hover:border-amber-500/60 hover:text-amber-300 disabled:opacity-40 disabled:cursor-not-allowed";
+const input = "w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none";
+
+function Modal({ title, blocked, onClose, children }: { title: string; blocked: boolean; onClose: () => void; children: React.ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => { const dialog = ref.current; dialog?.showModal(); return () => dialog?.close(); }, []);
+  return (
+    <dialog ref={ref} aria-label={title} onCancel={event => { event.preventDefault(); if (!blocked) onClose(); }}
+      className="m-auto w-[calc(100%_-_2rem)] max-w-3xl max-h-[90dvh] overflow-y-auto rounded-2xl border border-zinc-700 bg-zinc-900 p-5 text-zinc-100 shadow-2xl backdrop:bg-black/70">
+      <div className="mb-5 flex items-start justify-between gap-3 border-b border-zinc-800 pb-3">
+        <h2 className="font-bold text-white">{title}</h2>
+        <button type="button" disabled={blocked} onClick={onClose} className={button} aria-label="닫기"><X className="h-4 w-4" /></button>
+      </div>
+      {children}
+    </dialog>
+  );
+}
 
 export default function PromptsManagementPage() {
-  const [prompts, setPrompts] = useState<PromptItem[]>([]);
+  const [defaults, setDefaults] = useState<PromptItem[]>([]);
+  const [personal, setPersonal] = useState<CustomStylePrompt[]>([]);
+  const [scope, setScope] = useState<Scope>("defaults");
+  const [canEditDefaults, setCanEditDefaults] = useState(false);
   const [loading, setLoading] = useState(true);
-  // 공유 추천 프롬프트는 관리자만 바꿀 수 있다(서버가 canEdit로 알려준다).
-  const [canEdit, setCanEdit] = useState(false);
+  const [personalReady, setPersonalReady] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const [personalError, setPersonalError] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const [editor, setEditor] = useState<Editor | null>(null);
+  const [draft, setDraft] = useState({ style_id: "photorealistic", label: "", prompt: "", display_order: 0 });
+  const [formError, setFormError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [deleting, setDeleting] = useState<{ item: PromptItem; target: Scope } | null>(null);
+  const [copiedId, setCopiedId] = useState("");
+  const refreshId = useRef(0);
 
-  // Modal states
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPrompt, setEditingPrompt] = useState<PromptItem | null>(null);
+  const refresh = useCallback(async () => {
+    const requestId = ++refreshId.current;
+    setLoading(true); setLoadError(""); setPersonalError("");
+    const results = await Promise.allSettled([
+      fetch("/api/prompts", { cache: "no-store" }).then(async response => ({ ok: response.ok, data: await response.json() })),
+      fetch("/api/prompts/custom", { cache: "no-store" }).then(async response => ({ ok: response.ok, data: await response.json() })),
+    ]);
+    if (requestId !== refreshId.current) return;
+    const [base, own] = results;
+    if (base.status === "fulfilled" && base.value.ok) {
+      setDefaults(base.value.data.prompts ?? []); setCanEditDefaults(Boolean(base.value.data.canEdit));
+    } else { setDefaults([]); setCanEditDefaults(false); setLoadError(base.status === "fulfilled" ? base.value.data.error : "기본 예시를 불러오지 못했습니다."); }
+    if (own.status === "fulfilled" && own.value.ok) {
+      setPersonal(own.value.data.prompts ?? []); setPersonalReady(true);
+    } else { setPersonal([]); setPersonalReady(false); setPersonalError(own.status === "fulfilled" ? own.value.data.error : "개인 프롬프트를 불러오지 못했습니다."); }
+    setLoading(false);
+  }, []);
+  useEffect(() => { void refresh(); return () => { refreshId.current++; }; }, [refresh]);
 
-  // Form states
-  const [formStyleId, setFormStyleId] = useState("photorealistic");
-  const [formLabel, setFormLabel] = useState("");
-  const [formPrompt, setFormPrompt] = useState("");
-  const [formOrder, setFormOrder] = useState(0);
-  const [saving, setSaving] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const openEditor = (target: Scope, item?: PromptItem, source?: PromptItem) => {
+    setEditor({ target, item, source }); setFormError("");
+    const initial = item ?? source;
+    setDraft({ style_id: initial?.style_id ?? (selectedStyle === "all" ? "photorealistic" : selectedStyle),
+      label: item?.label ?? (source ? `#나만의 ${source.label.replace(/^#/, "")}` : ""),
+      prompt: initial?.prompt ?? "", display_order: initial?.display_order ?? 0 });
+  };
 
-  // Delete modal state
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const fetchPrompts = async () => {
-    setLoading(true);
+  const save = async (event: React.FormEvent) => {
+    event.preventDefault(); if (!editor || busy) return;
+    setBusy(true); setFormError("");
     try {
-      const url = selectedStyle && selectedStyle !== "all" 
-        ? `/api/prompts?style_id=${selectedStyle}` 
-        : `/api/prompts`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (res.ok) {
-        setPrompts(data.prompts || []);
-        setCanEdit(Boolean(data.canEdit));
-      } else {
-        console.error("Fetch prompts error:", data.error);
-      }
-    } catch (err) {
-      console.error("Failed to load prompts:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPrompts();
-  }, [selectedStyle]);
-
-  const openCreateModal = () => {
-    setEditingPrompt(null);
-    setFormStyleId(selectedStyle === "all" ? "photorealistic" : selectedStyle);
-    setFormLabel("");
-    setFormPrompt("");
-    setFormOrder(0);
-    setErrorMsg(null);
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (item: PromptItem) => {
-    setEditingPrompt(item);
-    setFormStyleId(item.style_id);
-    setFormLabel(item.label);
-    setFormPrompt(item.prompt);
-    setFormOrder(item.display_order || 0);
-    setErrorMsg(null);
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formLabel.trim() || !formPrompt.trim()) {
-      setErrorMsg("태그 이름과 프롬프트 아이디어 문장을 모두 입력해주세요.");
-      return;
-    }
-
-    setSaving(true);
-    setErrorMsg(null);
-
-    try {
-      const isEdit = !!editingPrompt;
-      const method = isEdit ? "PUT" : "POST";
-      const payload = {
-        id: editingPrompt?.id,
-        style_id: formStyleId,
-        label: formLabel.startsWith("#") ? formLabel : `#${formLabel}`,
-        prompt: formPrompt,
-        display_order: formOrder,
-      };
-
-      const res = await fetch("/api/prompts", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      const response = await fetch(editor.target === "personal" ? "/api/prompts/custom" : "/api/prompts", {
+        method: editor.item ? "PUT" : "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...draft, id: editor.item?.id, source_prompt_id: editor.source?.id }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "저장에 실패했습니다.");
-      }
-
-      setIsModalOpen(false);
-      fetchPrompts();
-    } catch (err: any) {
-      setErrorMsg(err.message || "오류가 발생했습니다.");
-    } finally {
-      setSaving(false);
-    }
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || "저장하지 못했습니다.");
+      setScope(editor.target); setSelectedStyle(draft.style_id); setSearch(""); setEditor(null); await refresh();
+    } catch (error) { setFormError(error instanceof Error ? error.message : "저장 중 오류가 발생했습니다."); }
+    finally { setBusy(false); }
   };
-
-  const handleDelete = async (id: string) => {
+  const remove = async () => {
+    if (!deleting || busy) return; setBusy(true); setFormError("");
     try {
-      const res = await fetch(`/api/prompts?id=${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setPrompts((prev) => prev.filter((p) => p.id !== id));
-        setDeletingId(null);
-      } else {
-        const data = await res.json();
-        alert(`삭제 실패: ${data.error}`);
-      }
-    } catch (err) {
-      alert("삭제 중 오류가 발생했습니다.");
-    }
+      const url = deleting.target === "personal" ? "/api/prompts/custom" : "/api/prompts";
+      const response = await fetch(`${url}?id=${encodeURIComponent(deleting.item.id)}`, { method: "DELETE" });
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || "삭제하지 못했습니다.");
+      setDeleting(null); await refresh();
+    } catch (error) { setFormError(error instanceof Error ? error.message : "삭제 중 오류가 발생했습니다."); }
+    finally { setBusy(false); }
   };
-
-  const handleSeedData = async () => {
-    if (!confirm("기본 16개 화풍 x 10개 (총 160개)의 초기 추천 프롬프트 데이터셋을 DB에 주입하시겠습니까?")) return;
-    setLoading(true);
+  const copy = async (item: PromptItem) => {
+    try { await navigator.clipboard.writeText(item.prompt); setCopiedId(item.id); }
+    catch { setLoadError("복사하지 못했습니다. 전문을 펼쳐 직접 복사해주세요."); }
+  };
+  const seed = async () => {
+    if (!confirm("기본 예시 160개를 추가 등록합니다. 기존 예시가 있으면 중복될 수 있습니다. 계속하시겠습니까?")) return;
+    setBusy(true);
     try {
-      const res = await fetch("/api/prompts/seed", { method: "POST" });
-      const data = await res.json();
-      if (res.ok) {
-        alert(`성공적으로 ${data.count}개 초기 프롬프트 데이터가 주입되었습니다!`);
-        fetchPrompts();
-      } else {
-        alert(`시드 주입 실패: ${data.error}`);
-      }
-    } catch (err) {
-      alert("시드 처리 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
+      const response = await fetch("/api/prompts/seed", { method: "POST" });
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || "초기 등록에 실패했습니다.");
+      await refresh();
+    } catch (error) { setLoadError(error instanceof Error ? error.message : "초기 등록 중 오류가 발생했습니다."); }
+    finally { setBusy(false); }
   };
 
-  const filteredPrompts = prompts.filter((p) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return p.label.toLowerCase().includes(q) || p.prompt.toLowerCase().includes(q);
-  });
-
-  const getStyleName = (id: string) => {
-    const s = PRESET_STYLES.find((st) => st.id === id);
-    return s ? s.name : id;
-  };
+  const active = scope === "personal" ? personal : defaults;
+  const visible = active.filter(item => (selectedStyle === "all" || item.style_id === selectedStyle) &&
+    `${item.label} ${item.prompt}`.toLowerCase().includes(search.trim().toLowerCase()));
+  const styleName = (id: string) => PRESET_STYLES.find(item => item.id === id)?.name ?? id;
+  const original = editor?.source ?? defaults.find(item => item.id === editor?.item?.source_prompt_id);
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header Banner */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-zinc-800 bg-zinc-900/90 p-6 backdrop-blur-xl shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shrink-0">
-            <Wand2 className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
-              화풍 프롬프트 게시판 관리
-            </h1>
-            <p className="text-xs text-zinc-400 mt-1">
-              16가지 화풍별 추천 아이디어 태그 및 프롬프트 예시입니다. 등록·수정·삭제는 관리자만 할 수 있습니다.
-            </p>
-          </div>
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-5 sm:flex-row sm:items-center">
+        <div className="flex items-start gap-3">
+          <Wand2 className="mt-1 h-7 w-7 shrink-0 text-amber-400" />
+          <div><h1 className="text-xl font-bold text-white">화풍 프롬프트 게시판</h1>
+            <p className="mt-1 text-sm text-zinc-400">16가지 화풍의 기본 예시를 바탕으로 나만의 프롬프트를 만들어보세요.</p></div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          {canEdit && (
-          <button
-            type="button"
-            onClick={handleSeedData}
-            className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-colors"
-            title="기본 160개 프롬프트 데이터셋 DB 주입"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-            초기 160개 주입
-          </button>
-          )}
-          <button
-            type="button"
-            onClick={fetchPrompts}
-            className="flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-300 hover:border-zinc-700 hover:text-white transition-colors"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-amber-400" : ""}`} />
-            새로고침
-          </button>
-          {canEdit && (
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-zinc-950 hover:bg-amber-400 transition-colors shadow-md shadow-amber-500/20"
-          >
-            <Plus className="h-4 w-4 stroke-[3]" />
-            새 예시 프롬프트 등록
-          </button>
-          )}
-        </div>
+        <button type="button" onClick={() => void refresh()} disabled={loading || busy} className={button}><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />새로고침</button>
       </div>
 
-      {/* Style Filter Tabs & Search */}
-      <div className="space-y-4">
-        {/* Horizontal Filter Chips */}
-        <div className="flex flex-wrap gap-2 pb-1">
-          {PRESET_STYLES.map((st) => {
-            const isSelected = selectedStyle === st.id;
-            const count = st.id === "all" 
-              ? prompts.length 
-              : prompts.filter((p) => p.style_id === st.id).length;
-            return (
-              <button
-                key={st.id}
-                type="button"
-                onClick={() => setSelectedStyle(st.id)}
-                className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
-                  isSelected
-                    ? "border-amber-500 bg-amber-500/10 text-amber-300 font-bold shadow-sm shadow-amber-500/10"
-                    : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                }`}
-              >
-                <span>{st.name}</span>
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold ${
-                  isSelected ? "bg-amber-500/20 text-amber-300" : "bg-zinc-800 text-zinc-400"
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="태그 라벨 또는 프롬프트 검색..."
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 pl-9 pr-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-          />
-        </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <button type="button" aria-pressed={scope === "defaults"} onClick={() => { setScope("defaults"); setSearch(""); }}
+          className={`rounded-xl border p-4 text-left ${scope === "defaults" ? "border-amber-500 bg-amber-500/10" : "border-zinc-800 bg-zinc-900"}`}>
+          <span className="font-bold text-amber-300">기본 예시 · {defaults.length}개</span><span className="mt-1 block text-xs text-zinc-400">마음에 드는 예시에서 ‘나만의 버전 만들기’를 누르세요.</span>
+        </button>
+        <button type="button" aria-pressed={scope === "personal"} onClick={() => { setScope("personal"); setSearch(""); }}
+          className={`rounded-xl border p-4 text-left ${scope === "personal" ? "border-amber-500 bg-amber-500/10" : "border-zinc-800 bg-zinc-900"}`}>
+          <span className="font-bold text-amber-300">나만의 프롬프트 · {personal.length}개</span><span className="mt-1 block text-xs text-zinc-400">본인만 볼 수 있는 커스텀 프롬프트 보관함입니다.</span>
+        </button>
+      </div>
+      <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm leading-relaxed text-zinc-300">
+        {scope === "personal" ? "개인 프롬프트는 최초 저장일부터 30일 후 자동 삭제됩니다. 수정해도 기한은 늘어나지 않습니다. 필요한 내용은 만료 전에 복사해두세요." : "기본 예시는 그대로 보존됩니다. ‘나만의 버전 만들기’로 제목·화풍·상황 묘사를 수정해 저장하면 본인 보관함에만 반영됩니다."}
+        <Link href="/guide#custom-prompts" className="ml-2 inline-block font-semibold text-amber-300 underline">사용 방법</Link>
+      </div>
+      {(loadError || personalError) && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{loadError || personalError}</p>}
+      {canEditDefaults && scope === "defaults" && <div className="flex flex-wrap gap-2">
+        <button type="button" className={button} disabled={busy} onClick={() => openEditor("defaults")}><Plus className="h-4 w-4" />기본 예시 등록 (관리자)</button>
+        <button type="button" className={button} disabled={busy} onClick={() => void seed()}><Sparkles className="h-4 w-4" />초기 160개 추가 (관리자)</button>
+      </div>}
+      <div className="flex flex-wrap gap-2">
+        {PRESET_STYLES.map(style => <button key={style.id} type="button" aria-pressed={selectedStyle === style.id} onClick={() => setSelectedStyle(style.id)}
+          className={`${button} ${selectedStyle === style.id ? "border-amber-500 bg-amber-500/10 text-amber-300" : ""}`}>
+          {style.name}<span className="rounded bg-zinc-800 px-1.5">{style.id === "all" ? active.length : active.filter(item => item.style_id === style.id).length}</span>
+        </button>)}
+      </div>
+      <label className="relative block"><span className="sr-only">프롬프트 검색</span><Search className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+        <input value={search} onChange={event => setSearch(event.target.value)} placeholder="태그 또는 프롬프트 검색" className={`${input} pl-10`} />
+      </label>
+      <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/80">
+        <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-xs text-zinc-300">
+          <thead className="border-b border-zinc-800 bg-zinc-950 text-zinc-400"><tr>
+            <th className="w-36 p-4">화풍</th><th className="w-44 p-4">프롬프트 이름</th><th className="p-4">프롬프트 내용</th><th className="w-52 p-4">활용·관리</th>
+          </tr></thead>
+          <tbody className="divide-y divide-zinc-800">
+            {loading ? <tr><td colSpan={4} className="p-8 text-center">프롬프트를 불러오는 중입니다...</td></tr> : visible.length === 0 ?
+              <tr><td colSpan={4} className="p-8 text-center">{search || selectedStyle !== "all" ? "조건에 맞는 프롬프트가 없습니다." : scope === "personal" ? "아직 개인 프롬프트가 없습니다. 기본 예시에서 ‘나만의 버전 만들기’를 눌러보세요." : "등록된 기본 예시가 없습니다."}</td></tr> :
+              visible.map(item => <tr key={item.id} className="align-top hover:bg-zinc-800/30">
+                <td className="p-4 text-amber-300">{styleName(item.style_id)}</td>
+                <td className="p-4 font-bold text-amber-300">{item.label}{item.expires_at && <span className="mt-2 block text-[11px] font-normal text-zinc-400">{new Date(item.expires_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })} 삭제 예정</span>}</td>
+                <td className="p-4 leading-relaxed"><details><summary className="cursor-pointer"><span className="line-clamp-3">{item.prompt}</span><span className="mt-1 inline-block text-amber-400">전문 펼치기</span></summary><p className="mt-3 whitespace-pre-wrap break-words">{item.prompt}</p></details></td>
+                <td className="space-y-2 p-4"><button type="button" className={button} onClick={() => void copy(item)}>{copiedId === item.id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}{copiedId === item.id ? "복사됨" : "복사"}</button>
+                  {scope === "defaults" ? <button type="button" disabled={!personalReady || busy} className={`${button} w-full border-amber-500/40 text-amber-300`} onClick={() => openEditor("personal", undefined, item)}><Plus className="h-3.5 w-3.5" />나만의 버전 만들기</button> :
+                    <Link href={`/dashboard?customPrompt=${encodeURIComponent(item.id)}`} className={`${button} w-full border-amber-500/40 text-amber-300`}>작업실에서 사용</Link>}
+                  {(scope === "personal" || canEditDefaults) && <div className="flex flex-wrap gap-2">
+                    <button type="button" className={button} disabled={busy} onClick={() => openEditor(scope, item)}><Edit2 className="h-3.5 w-3.5" />{scope === "personal" ? "수정" : "원본 수정"}</button>
+                    <button type="button" className={button} disabled={busy} onClick={() => { setFormError(""); setDeleting({ item, target: scope }); }}><Trash2 className="h-3.5 w-3.5" />{scope === "personal" ? "삭제" : "원본 삭제"}</button>
+                  </div>}
+                </td>
+              </tr>)}
+          </tbody>
+        </table></div>
       </div>
 
-      {/* Prompts Table / Board View */}
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 overflow-hidden backdrop-blur-xl shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-zinc-300">
-            <thead className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-400 uppercase font-semibold">
-              <tr>
-                <th className="px-4 py-3.5 w-36">화풍 카테고리</th>
-                <th className="px-4 py-3.5 w-44">추천 태그 (#)</th>
-                <th className="px-4 py-3.5">아이디어 프롬프트 전문</th>
-                <th className="px-4 py-3.5 w-24 text-center">정렬 순서</th>
-                <th className="px-4 py-3.5 w-28 text-center">관리</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800/60">
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-zinc-500">
-                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-amber-400" />
-                    프롬프트 데이터 로딩 중...
-                  </td>
-                </tr>
-              ) : filteredPrompts.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-zinc-500">
-                    <FileText className="h-8 w-8 mx-auto mb-2 opacity-40 text-zinc-400" />
-                    등록된 화풍 프롬프트가 없습니다. 상단 "+ 새 예시 프롬프트 등록" 버튼으로 추가해보세요!
-                  </td>
-                </tr>
-              ) : (
-                filteredPrompts.map((item) => (
-                  <tr key={item.id} className="hover:bg-zinc-800/40 transition-colors">
-                    <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1 text-xs font-semibold text-amber-400">
-                        {getStyleName(item.style_id)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 font-bold text-amber-300">
-                      {item.label}
-                    </td>
-                    <td className="px-4 py-3.5 text-zinc-200 font-medium leading-relaxed">
-                      {item.prompt}
-                    </td>
-                    <td className="px-4 py-3.5 text-center text-zinc-400 font-mono">
-                      {item.display_order ?? 0}
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {canEdit && (<>
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(item)}
-                          className="rounded-lg border border-zinc-800 bg-zinc-950 p-1.5 text-zinc-400 hover:border-amber-500/50 hover:text-amber-400 transition-colors"
-                          title="수정"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeletingId(item.id)}
-                          className="rounded-lg border border-zinc-800 bg-zinc-950 p-1.5 text-zinc-400 hover:border-red-500/50 hover:text-red-400 transition-colors"
-                          title="삭제"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                        </>)}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Add / Edit Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Tag className="h-4 w-4 text-amber-400" />
-                {editingPrompt ? "화풍 프롬프트 수정" : "새 화풍 프롬프트 등록"}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="text-zinc-400 hover:text-white transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSave} className="space-y-4">
-              {errorMsg && (
-                <div className="flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-xs text-red-400">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>{errorMsg}</span>
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300">적용 화풍 카테고리</label>
-                <select
-                  value={formStyleId}
-                  onChange={(e) => setFormStyleId(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-white focus:border-amber-500 focus:outline-none"
-                >
-                  {PRESET_STYLES.filter((s) => s.id !== "all").map((st) => (
-                    <option key={st.id} value={st.id}>
-                      {st.name} ({st.id})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300">태그 버튼 명칭 (#)</label>
-                <input
-                  type="text"
-                  value={formLabel}
-                  onChange={(e) => setFormLabel(e.target.value)}
-                  placeholder="예: #한옥카페 인물"
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300">아이디어 프롬프트 상세 문장 (한글)</label>
-                <textarea
-                  value={formPrompt}
-                  onChange={(e) => setFormPrompt(e.target.value)}
-                  placeholder="예: 서울 경복궁 한옥 카페에서 노트북으로 작업 중인 한복을 입은 20대 한국 여성, 따뜻한 오후 햇살"
-                  rows={4}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-xs text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300">정렬 순서 (숫자 작을수록 상단)</label>
-                <input
-                  type="number"
-                  value={formOrder}
-                  onChange={(e) => setFormOrder(Number(e.target.value))}
-                  className="w-24 rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-white focus:border-amber-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-zinc-950 hover:bg-amber-400 disabled:opacity-50 transition-colors"
-                >
-                  {saving && <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
-                  {editingPrompt ? "수정 완료" : "등록 저장"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deletingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-              프롬프트 삭제 확인
-            </h3>
-            <p className="text-xs text-zinc-300 leading-relaxed">
-              정말로 이 추천 프롬프트 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-            </p>
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setDeletingId(null)}
-                className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-white"
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(deletingId)}
-                className="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-500"
-              >
-                삭제하기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {editor && <Modal title={editor.target === "personal" ? (editor.item ? "나만의 프롬프트 수정" : "나만의 버전 만들기") : "기본 예시 관리 (관리자)"} blocked={busy} onClose={() => setEditor(null)}>
+        <form onSubmit={save} className="space-y-4">
+          <p className="text-sm text-zinc-400">{editor.target === "personal" ? "변경한 내용은 본인 보관함에만 저장됩니다. 처음 저장한 날부터 30일간 보관됩니다." : "기본 예시는 모든 회원에게 보입니다. 개인 수정본은 ‘나만의 버전 만들기’를 이용하세요."}</p>
+          <div className="grid gap-4 sm:grid-cols-2"><label className="space-y-2 text-sm">프롬프트 이름<input aria-label="프롬프트 이름" autoFocus required maxLength={120} value={draft.label} onChange={event => setDraft({ ...draft, label: event.target.value })} className={input} /></label>
+            <label className="space-y-2 text-sm">화풍<select aria-label="화풍" value={draft.style_id} onChange={event => setDraft({ ...draft, style_id: event.target.value })} className={input}>{PRESET_STYLES.filter(style => style.id !== "all").map(style => <option key={style.id} value={style.id}>{style.name}</option>)}</select></label></div>
+          <label className="block space-y-2 text-sm">프롬프트 본문<textarea aria-label="프롬프트 본문" required maxLength={20000} rows={10} value={draft.prompt} onChange={event => setDraft({ ...draft, prompt: event.target.value })} className={`${input} leading-relaxed`} /></label>
+          <div className="flex flex-wrap items-center justify-between gap-3"><label className="flex items-center gap-2 text-xs">정렬 순서<input aria-label="정렬 순서" type="number" min={0} max={9999} required value={draft.display_order} onChange={event => setDraft({ ...draft, display_order: Number(event.target.value) })} className={`${input} max-w-24`} /></label>
+            <span className="text-xs text-zinc-400">{draft.prompt.length.toLocaleString()} / 20,000자</span></div>
+          {original && editor.target === "personal" && <details className="rounded-xl border border-zinc-700 p-3 text-xs"><summary className="cursor-pointer text-amber-300">기본 원문 참고 · {original.label}</summary><p className="mt-3 whitespace-pre-wrap leading-relaxed text-zinc-400">{original.prompt}</p>
+            <button type="button" className={`${button} mt-3`} onClick={() => setDraft({ ...draft, prompt: original.prompt })}>원문을 편집창에 불러오기</button></details>}
+          {formError && <p role="alert" className="text-sm text-red-300">{formError}</p>}
+          <div className="flex justify-end gap-2 border-t border-zinc-800 pt-4"><button type="button" disabled={busy} className={button} onClick={() => setEditor(null)}>취소</button><button type="submit" disabled={busy} className={`${button} border-amber-500 bg-amber-500/10 text-amber-300`}>{busy ? "저장 중..." : editor.target === "personal" ? "내 보관함에 저장" : "기본 예시 저장"}</button></div>
+        </form>
+      </Modal>}
+      {deleting && <Modal title="프롬프트 삭제 확인" blocked={busy} onClose={() => setDeleting(null)}>
+        <p className="text-sm leading-relaxed">{deleting.item.label}을 삭제하시겠습니까? {deleting.target === "personal" ? "본인 사본만 삭제되며 기본 예시는 그대로 남습니다." : "모든 회원이 보는 기본 예시가 삭제됩니다. 이미 저장한 개인 사본은 보존됩니다."}</p>
+        {formError && <p role="alert" className="mt-3 text-sm text-red-300">{formError}</p>}
+        <div className="mt-5 flex justify-end gap-2"><button type="button" disabled={busy} className={button} onClick={() => setDeleting(null)}>취소</button><button type="button" disabled={busy} onClick={() => void remove()} className={`${button} border-red-500/40 text-red-300`}>{busy ? "삭제 중..." : "삭제하기"}</button></div>
+      </Modal>}
     </div>
   );
 }

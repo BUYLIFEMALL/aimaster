@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import STYLE_PRESET_PROMPTS from "@/lib/prompts/stylePresetPrompts.json";
+import type { CustomStylePrompt } from "@/lib/prompts/customStylePrompts";
 import { 
   Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, 
   Camera, Box, Palette, Layers, Zap, Tag, RotateCcw,
@@ -12,6 +13,7 @@ import {
 
 interface Step1PromptEnhancerProps {
   onApplyPrompt: (prompt: string, negativePrompt?: string) => void;
+  initialCustomPrompt?: CustomStylePrompt | null;
 }
 
 const PRESET_STYLES = [
@@ -41,7 +43,7 @@ const STYLE_QUICK_TAGS_MAP = STYLE_PRESET_PROMPTS.reduce<
   return styles;
 }, {});
 
-export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps) {
+export function Step1PromptEnhancer({ onApplyPrompt, initialCustomPrompt }: Step1PromptEnhancerProps) {
   const [idea, setIdea] = useState("");
   const [selectedPreset, setSelectedPreset] = useState("photorealistic");
   const [loading, setLoading] = useState(false);
@@ -54,24 +56,29 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
 
   const [copied, setCopied] = useState(false);
   const [dbPrompts, setDbPrompts] = useState<Array<{ label: string; prompt: string }>>([]);
+  const [personalPrompts, setPersonalPrompts] = useState<CustomStylePrompt[]>([]);
+  const [personalError, setPersonalError] = useState("");
 
   useEffect(() => {
-    async function loadDbPrompts() {
-      try {
-        const res = await fetch(`/api/prompts?style_id=${selectedPreset}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.prompts && data.prompts.length > 0) {
-            setDbPrompts(data.prompts.map((p: any) => ({ label: p.label, prompt: p.prompt })));
-            return;
-          }
-        }
-      } catch (err) {
-        // Fallback to static map
-      }
-      setDbPrompts([]);
-    }
-    loadDbPrompts();
+    if (!initialCustomPrompt) return;
+    setSelectedPreset(initialCustomPrompt.style_id);
+    setIdea(initialCustomPrompt.prompt);
+    setResult(null);
+    setError(null);
+  }, [initialCustomPrompt]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setDbPrompts([]); setPersonalPrompts([]); setPersonalError("");
+    fetch(`/api/prompts?style_id=${selectedPreset}`, { signal: controller.signal, cache: "no-store" })
+      .then(async response => response.ok ? response.json() : null)
+      .then(data => { if (!controller.signal.aborted) setDbPrompts(data?.prompts ?? []); })
+      .catch(() => { /* The public editorial defaults remain available on a read failure. */ });
+    fetch(`/api/prompts/custom?style_id=${selectedPreset}`, { signal: controller.signal, cache: "no-store" })
+      .then(async response => { const data = await response.json(); if (!response.ok) throw new Error(data.error || "개인 프롬프트를 불러오지 못했습니다."); return data; })
+      .then(data => { if (!controller.signal.aborted) setPersonalPrompts(data.prompts ?? []); })
+      .catch(error => { if (!controller.signal.aborted) setPersonalError(error.message || "개인 프롬프트를 불러오지 못했습니다."); });
+    return () => controller.abort();
   }, [selectedPreset]);
 
   const activeStyleInfo = PRESET_STYLES.find((s) => s.id === selectedPreset) || PRESET_STYLES[0];
@@ -112,6 +119,7 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
 
   const handleSelectQuickTag = (tagPrompt: string) => {
     setIdea(tagPrompt);
+    setResult(null);
   };
 
   return (
@@ -218,6 +226,15 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
         </div>
       </div>
 
+      <div className="space-y-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+        <p className="text-xs font-bold text-emerald-300">나만의 {activeStyleInfo.name} 프롬프트</p>
+        {personalError ? <p role="status" className="text-xs text-zinc-400">{personalError}</p> : personalPrompts.length === 0 ?
+          <p className="text-xs text-zinc-400">저장한 개인 프롬프트가 없습니다. <Link href="/prompts" className="text-emerald-300 underline">게시판에서 만들기</Link></p> :
+          <div className="flex flex-wrap gap-2">{personalPrompts.map(item => <button key={item.id} type="button"
+            onClick={() => handleSelectQuickTag(item.prompt)} className="rounded-lg border border-emerald-500/30 bg-zinc-950 px-3 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/10">{item.label}</button>)}</div>}
+        <p className="text-[11px] text-zinc-500">본인에게만 보이며 처음 저장한 날부터 30일간 사용할 수 있습니다.</p>
+      </div>
+
       <div className="space-y-4">
         <textarea
           value={idea}
@@ -228,6 +245,10 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
         />
 
         <div className="flex flex-wrap items-center justify-between gap-3">
+          <button type="button" disabled={!idea.trim() || loading} onClick={() => onApplyPrompt(idea.trim(), "")}
+            className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40">
+            AI 보강 없이 그대로 Step 2에 사용
+          </button>
           {(() => {
             const hasContent = Boolean(idea.trim() || result);
             return (

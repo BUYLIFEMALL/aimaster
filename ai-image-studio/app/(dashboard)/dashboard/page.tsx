@@ -6,11 +6,26 @@ import { Step1PromptEnhancer } from "@/components/Step1PromptEnhancer";
 import { Step2PlatformGenerator } from "@/components/Step2PlatformGenerator";
 import { GuideModal } from "@/components/GuideModal";
 import { PageHeaderLogo } from "@/components/PageHeaderLogo";
+import type { CustomStylePrompt } from "@/lib/prompts/customStylePrompts";
 
 function DashboardContent() {
   const searchParams = useSearchParams();
   const [step2Prompt, setStep2Prompt] = useState("");
   const [step2NegativePrompt, setStep2NegativePrompt] = useState("");
+  const [customPrompt, setCustomPrompt] = useState<CustomStylePrompt | null>(null);
+  const [customError, setCustomError] = useState("");
+  const customPromptId = searchParams.get("customPrompt");
+
+  useEffect(() => {
+    setCustomPrompt(null); setCustomError("");
+    if (!customPromptId) return;
+    const controller = new AbortController();
+    fetch(`/api/prompts/custom?id=${encodeURIComponent(customPromptId)}`, { signal: controller.signal, cache: "no-store" })
+      .then(async response => { const data = await response.json(); if (!response.ok) throw new Error(data.error || "내 프롬프트를 불러오지 못했습니다."); return data; })
+      .then(data => { if (!controller.signal.aborted) setCustomPrompt(data.prompt); })
+      .catch(error => { if (!controller.signal.aborted) setCustomError(error.message || "내 프롬프트를 불러오지 못했습니다."); });
+    return () => controller.abort();
+  }, [customPromptId]);
 
   useEffect(() => {
     const initialPromptParam = searchParams.get("prompt");
@@ -25,7 +40,7 @@ function DashboardContent() {
 
   const handleApplyPrompt = (prompt: string, negativePrompt?: string) => {
     setStep2Prompt(prompt);
-    if (negativePrompt) setStep2NegativePrompt(negativePrompt);
+    setStep2NegativePrompt(negativePrompt ?? "");
 
     const step2Element = document.getElementById("step2-container");
     if (step2Element) {
@@ -51,7 +66,9 @@ function DashboardContent() {
       </div>
 
       {/* Step 1: AI Prompt Enhancer */}
-      <Step1PromptEnhancer onApplyPrompt={handleApplyPrompt} />
+      {customError && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{customError}</p>}
+      {customPrompt && <p role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-300">{customPrompt.label}을 불러왔습니다. 내용을 확인한 뒤 그대로 사용하거나 AI로 추가 보강할 수 있습니다.</p>}
+      <Step1PromptEnhancer key={customPromptId || "default"} onApplyPrompt={handleApplyPrompt} initialCustomPrompt={customPrompt} />
 
       {/* Step 2: Multi-Platform Generator */}
       <Step2PlatformGenerator

@@ -36,11 +36,11 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
   useEffect(() => {
     if (initialPrompt) {
       setPrompt(initialPrompt);
+      setNegativePrompt(initialNegativePrompt);
       setHighlightFlash(true);
       const timer = setTimeout(() => setHighlightFlash(false), 3500);
       return () => clearTimeout(timer);
     }
-    if (initialNegativePrompt) setNegativePrompt(initialNegativePrompt);
   }, [initialPrompt, initialNegativePrompt]);
 
   useEffect(() => {
