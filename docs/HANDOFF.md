@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로 (웹툰·전자책·감성 글귀·블로그 올인원)
+- 원인: 사이드바 바깥 묶음의 `justify-between`이 계정을 화면 맨 아래로 밀어냄(사이드바 표준 위반). 빼고 계정 묶음에 `shrink-0`.
+- 웹툰 `ai-webtoon-studio` v1.23(`351f241c`)·`ebook-studio` v1.11(`6a20091e`)·`emotion-writer` v1.16(`d1ce8960`)·`naver-blog-allinone` v1.50(`bb40a125`, 확장 manifest·ZIP·DB extension_version 함께, `check-extension-release` OK). 모두 배포 Ready·DB 버전 갱신·크롬 화면 확인.
+- **남음: `naver-blog-agent/src/components/layout/Sidebar.tsx`도 같은 코드** — 다른 세션이 v1.98 작업 중이라 손대지 않음. 그 작업이 끝난 뒤 같은 방식으로 수정.
+
 ## 2026-10-20 Claude Code(윈도우) — 네이버 블로그 에이전트 v1.98·v1.99: 글감 원문 보관(글감별 기사 선택)·원문 대조 좁히기·브라우저 alert/confirm 40곳을 화면 안 알림으로 교체
 - 커밋 `96c85140`·`510e3e8d`, 배포 Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.99·확장 OK. 크롬: 화면 안 확인 창·취소 동작, 랭킹 글감 4개가 각자 기사 원문 보관 확인.
 - 다른 CLI 참고: 이 프로그램에서 새 코드는 `alert`/`confirm` 대신 `src/lib/uiDialog.ts`의 `notify`/`askConfirm`을 쓴다(브라우저 창은 화면·자동 검수를 멈춤).
