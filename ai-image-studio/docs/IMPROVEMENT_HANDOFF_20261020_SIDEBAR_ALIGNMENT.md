@@ -24,7 +24,13 @@
 - 새 기능 제안 없음. 향후 화면 승인 시 PC/모바일을 함께 대조하고 계정 위치를 실제 좌표로 확인하는 점을 공통 아이디어 원장에 기록합니다. 기존 프로그램 전체를 일괄 변경하지 않습니다.
 
 ## 운영 결과
-커밋·푸시·배포·버전 DB 일치·실제 Edge 화면 확인 결과를 이어서 기록합니다. DB 구조·환경변수·키는 변경하지 않습니다.
+- 구현 커밋 `98ecdfa9`를 origin/master에 푸시했습니다.
+- 프로덕션 배포 `dpl_8anrkCFujg2LUcxMMj1crMHWc2Nt` READY, 정식 도메인 연결 완료. [배포 상세](https://vercel.com/buylife/ai-image-studio/8anrkCFujg2LUcxMMj1crMHWc2Nt).
+- 운영 DB ref `esgxyikcnnvmlhygjkth`의 `programs.version`만 v1.21 → v1.22로 갱신했습니다. 코드와 DB 일치. 실행 SQL: `docs/releases/20261020_program_v122.sql`. DB 스키마·환경변수·키는 변경하지 않았습니다.
+- 실제 로그인된 Edge 관리자 세션에서 운영 작업실의 새 제목/버전 배지·아이콘 메뉴·도움말/설정·계정 밀착을 화면과 접근성 트리로 확인했습니다. 프롬프트 메뉴 클릭 후 운영 `/prompts` 도착, 기본 예시 160개·개인 탭·v1.22 확인. 저장·삭제·로그아웃·유료 생성은 누르지 않았습니다.
+- 운영 모바일 보기는 DevTools Responsive 375×812 설정을 읽었지만 다른 창이 화면을 가려 픽셀 검수로 인정하지 않습니다. 모바일 동작/가로 넘침/접힘·펼침·Escape·이동 후 닫힘은 앞서 보이는 Edge 로컬 실제 Sidebar 375×812 및 767/768px 검사로 확인한 범위입니다. 다음 화면 검수 시 운영 모바일을 추가 확인하면 됩니다.
+- HTTP: `/login` 200, 공개 `/guide` 200, 비로그인 `/dashboard` 307 로그인 이동. 해당 배포 `vercel logs --level error --since 15m --no-follow` 조회에서 기록 없음(이 짧은 구간의 오류 로그 점검이며 지속 모니터링을 의미하지 않음).
+- 유료 AI 호출 0. 기존 v1.21 일반 회원 실제 저장/수정/삭제 미검수는 그대로 남깁니다. 운영 확인 요약: `docs/evidence/sidebar-v122/production-verification.json`.
 
 ## 링크
 - https://ai-image-studio.buylife.xyz/dashboard

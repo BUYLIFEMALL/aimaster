@@ -9,6 +9,7 @@
 ## 2026-10-20 Codex(윈도우) — 이미지 스튜디오 v1.22 메뉴 레이아웃 정렬
 - 주인님이 제시한 문서 챗봇 화면 기준: 제목/버전·다른 프로그램 보기·아이콘 작업 3개·도움말/설정·계정 밀착. 모바일 접는 메뉴/Escape/활성 표시 포함. 번호형 메뉴는 해당 앱의 명시적 예외.
 - 빌드·보이는 Edge 로컬 가상 회원 1440/375·낮은 높이·767/768 전환 통과. 운영 결과는 [상세 인수인계](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_SIDEBAR_ALIGNMENT.md)에 기록.
+- 구현 `98ecdfa9` 푸시·프로덕션 `dpl_8anrkCFujg2LUcxMMj1crMHWc2Nt` READY·코드/DB v1.22. 실제 Edge 관리자 작업실 화면/프롬프트 메뉴 이동 확인. 운영 모바일은 가림 창으로 픽셀 미검수(로컬 실제 Sidebar 375px 검수 통과). 유료 호출 0.
 - [작업실](https://ai-image-studio.buylife.xyz/dashboard) · [프롬프트](https://ai-image-studio.buylife.xyz/prompts). 기존 개인 프롬프트 일반 회원 실세션 검수는 별도 미완료 항목 유지.
 <!-- /IMAGE_SIDEBAR_V122_20261020 -->
 
