@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { pauseScheduledPublishing, resumeScheduledPublishing } from "@/lib/actions/scheduler";
 import type { MemberSchedulerState } from "@/lib/scheduledSource/memberScheduler";
 
@@ -17,6 +17,8 @@ const STATE_TEXT: Record<MemberSchedulerState["state"], { label: string; tone: s
 
 export function SchedulePublishingControl({ initial }: { initial: MemberSchedulerState }) {
   const [state, setState] = useState(initial.state);
+  // 2026-10-20: 규칙·예약을 켜고 끄면 화면이 서버 값을 다시 받는다 — 실행 상태도 따라 바꾼다(예전엔 새로고침 전까지 「대기」로 남음).
+  useEffect(() => { setState(initial.state); }, [initial.state]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const info = STATE_TEXT[state];
@@ -29,7 +31,7 @@ export function SchedulePublishingControl({ initial }: { initial: MemberSchedule
     if (!result.ok) { setMessage(result.error); return; }
     if (pause) setState("paused");
     else setState(initial.mode === "vercel" ? (initial.platformAvailable ? "platform" : "platform-off") : ("started" in result && result.started ? "running" : "idle"));
-    setMessage(pause ? "정기 자동 실행을 일시정지했습니다." : "정기 자동 실행을 재개했습니다.");
+    setMessage(pause ? (("notice" in result && result.notice) || "정기 자동 실행을 일시정지했습니다.") : "정기 자동 실행을 재개했습니다.");
   }
 
   return <div className="mb-4 flex flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
