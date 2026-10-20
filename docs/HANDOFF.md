@@ -1,6 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
+
+## 2026-10-20 Claude Code(윈도우) — 예약 공용 코드: 방식이 다른 회원 토큰 호출 시 작업 끄기 15개 + 썸네일 점검 도구 (주인님 「진행해」 추가 제안 3건)
+- ① 예약: 아침의 「재개·방식 변경 겹침」은 실제 실행이 아니라 401 헛호출 문제였음(토큰 확인이 방식을 먼저 봄). `memberIdForToken`이 방식이 다르면 작업을 끄도록 수정, 닿지 않던 `skipPausedMember` 방식 조건(c69b0407) 되돌림. 운영 12개 + 인스타 기준 사본 3개, 커밋 `be5c5107`, DB·15개 순차 배포 Ready, 가짜 토큰 401. 재현 검수 통과(상품소싱 401 한 번 → 호출 없음). 버전: 예약 리마인드 v1.25·대량 메일 v1.25·CRM v1.14·유튜브 v1.18·상품소싱 v1.19·카카오 v1.27·네이버 카페 v1.27·카드뉴스 v1.30·INSTA v1.33·쇼핑제휴 v1.74·운영 자동화 v2.14·쓰레드 v1.26·인플루언서 v1.18·웹툰 v1.20·4컷 v1.21.
+- 실수 기록: 공용 코드 일괄 수정 때 다른 세션의 인스타 사본 3곳까지 고쳐졌다가(그 세션 미커밋 없음 확인) 되돌린 뒤 `--sync` 절차로 다시 맞춤. 쇼핑제휴 `AGENTS.md`는 오래된 미커밋 변경이 있어 기록을 여기에만.
+- ② 썸네일 모아 보기 `scripts/thumbnail-contact-sheet.mjs`: 84개 모두 실사, **화면 속 글자 9개**(ai-slide-builder·ai-web-ui·allinone-graphic·crm-google-form·detail-page-12p·ebook-studio·personality-code·prompt-template-studio·youtube-viral-studio) 주인님 확인 대기. ③ 생성 직후 확대본 6장 자동 저장 `scripts/thumbnail-zoom-tiles.mjs`(커밋 `a369cd06`).
 ## 2026-10-20 Claude Code(윈도우) — 📌 성격·운세 4개 프로그램 세션 인수인계 정리
 - 세션 전체(작업 12커밋·주의 규칙·다크 대응표·검수·비용·남은 작업·개선안): [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 - 프로그램별: `personality-suite/`·`tarot/`·`mbti-character/`·`mbti/` 각 `docs/IMPROVEMENT_HANDOFF_20261020.md`(각 `AGENTS.md` 맨 위에서 연결).

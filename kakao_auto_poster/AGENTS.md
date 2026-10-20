@@ -251,3 +251,7 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 
 ## 2026-10-20 v1.25 — 일시정지 안전 처리·상태 줄 즉시 갱신 (Claude Code 윈도우)
 - 예약 공용 코드 보강(구글폼 CRM v1.12 등 6개와 같은 수정): ① `pauseMemberScheduler`가 일시정지를 먼저 저장하고 cron-job.org 끄기는 시도만(실패 시 「작업 끄기는 다음 호출 때 다시 시도」 안내), 회원 실행 주소가 `skipPausedMember`로 일시정지 회원을 건너뛰고 작업 끄기를 다시 시도 ② 상태 줄이 서버 값 변화를 따라감(`useEffect`). 커밋 `630027f0`, DB 버전 크롬 SQL Editor, 배포 `kakaoautoposter-qqse0ttuv` Ready·`/login` 정상·회원 실행 주소 가짜 토큰 401.
+
+## 2026-10-20 v1.27 — 방식이 다른 회원 토큰 호출 시 cron-job.org 작업 끄기 (Claude Code 윈도우)
+- 회원 토큰 확인(`memberIdForToken`)에서 토큰은 맞지만 실행 방식이 「내 cron-job.org」가 아니면 지금처럼 401을 돌려주되 **cron-job.org 작업을 끄고 `active: false`로 정리**(재개·방식 변경이 겹쳐 작업이 켜진 채 남으면 5분마다 401 헛호출이 이어지던 문제). 직전 배포(c69b0407)의 `skipPausedMember` 방식 조건은 토큰 확인이 먼저 401로 걸러 닿지 않는 코드였으므로 일시정지만 보는 원래 조건으로 되돌림. 커밋 `be5c5107`, DB 버전 크롬 SQL Editor, 15개 순차 배포 Ready·가짜 토큰 401.
+- 재현 검수(상품소싱, 관리자): 작업을 켠 뒤 DB 방식만 Vercel로 → 11:00 회원 실행 401 + 작업 꺼짐(`active: false`) → 11:05~11:34 호출 없음. 시험 전 상태로 복귀.

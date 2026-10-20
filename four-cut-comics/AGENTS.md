@@ -108,3 +108,8 @@
 - 인스타 문구 칸 **[카드뉴스(컷별 4장)로 올리기]**: INSTA 새 글을 `postType=card_news`로 열고(문구가 길어도 형식 값은 유지) 문구 복사 + 컷 4장 `4컷만화-1컷~4컷.jpg`(JPEG) 차례로 저장(0.4초 간격 — 크롬이 「여러 파일 다운로드 허용」을 한 번 물을 수 있음). INSTA 카드뉴스가 4장 고정이라 **4컷일 때만** 활성(3·6컷은 비활성 + 안내 툴팁). 컷마다 비율이 다르면 인스타가 첫 장 비율로 맞춰 자름(인스타 정책).
 - 파일: `src/lib/comic/extras.ts`(`INSTA_CARD_COUNT`, `instaHandoffUrl(…, postType)`), `Studio.tsx`(`sendCardsToInsta`), `tests/comic.test.mjs`(+1, 36/36). INSTA 짝 작업: INSTA v1.28(여러 파일 한 번에 첨부·`postType` 주소값).
 - 배포·검수(2026-10-20): `four-cut-comics-2axnxq2dy` Ready, DB v1.16, 크롬 사이드바 v1.16. 버튼이 여는 카드뉴스 주소로 INSTA v1.28에서 4장 첨부·임시저장까지 확인(INSTA 기록 참고). 4컷 화면의 버튼 클릭 자체는 컷 그림 생성 비용 때문에 미검수(v1.15 버튼과 함께 다음 그림 생성 때 확인).
+
+## 2026-10-20 v1.21 — 방식이 다른 회원 토큰 호출 시 cron-job.org 작업 끄기 (Claude Code 윈도우)
+- 회원 토큰 확인(`memberIdForToken`)에서 토큰은 맞지만 실행 방식이 「내 cron-job.org」가 아니면 지금처럼 401을 돌려주되 **cron-job.org 작업을 끄고 `active: false`로 정리**(재개·방식 변경이 겹쳐 작업이 켜진 채 남으면 5분마다 401 헛호출이 이어지던 문제). 직전 배포(c69b0407)의 `skipPausedMember` 방식 조건은 토큰 확인이 먼저 401로 걸러 닿지 않는 코드였으므로 일시정지만 보는 원래 조건으로 되돌림. 커밋 `be5c5107`, DB 버전 크롬 SQL Editor, 15개 순차 배포 Ready·가짜 토큰 401.
+- 재현 검수(상품소싱, 관리자): 작업을 켠 뒤 DB 방식만 Vercel로 → 11:00 회원 실행 401 + 작업 꺼짐(`active: false`) → 11:05~11:34 호출 없음. 시험 전 상태로 복귀.
+- 인스타 공용 기준 코드(`insta-member-scheduler`, 기준 cardnews-studio) 사본 — `node scripts/check-shared-modules.mjs --sync`로 반영.

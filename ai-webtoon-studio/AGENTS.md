@@ -149,3 +149,8 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - **일시정지 안전 처리 누락 보강**: v1.16 예약은 인플루언서 v1.15(그 수정 전 카드뉴스 사본)를 복사해 빠져 있었다 → 공용 사본으로 `pauseMemberScheduler`·`skipPausedMember` 반영, 회원 실행 주소가 일시정지·비cronjob 회원을 건너뜀, 일시정지 응답 `notice`·상태 줄 표시.
 - 게시 칸 기록 「예약 취소」 중복 누름 방지.
 - 검수(2026-10-20): 4개 모두 타입 검사·시험·빌드 통과, 순차 배포 Ready(카드뉴스 `cardnews-studio-73dn1lu4s`·인플루언서 `ai-influencer-studio-ohxzut5xz`·웹툰 `ai-webtoon-studio-85kgtktv9`·4컷 `four-cut-comics-74d8ph7yq`), DB 버전 4개 갱신(크롬 SQL Editor). 회원 실행 주소 가짜 토큰·설정 주소 비로그인 모두 401. 관리자 계정으로 인플루언서·웹툰·4컷 일시정지 경로 실행: 실행 중 → 일시정지(200) → 「일시정지됨」 → 재개(200) → 원래대로(Vercel 방식이라 cron-job.org 호출 없음). Vercel 5분 예약 호출 10:40 카드뉴스·인플루언서·웹툰·4컷 모두 200.
+
+## 2026-10-20 v1.20 — 방식이 다른 회원 토큰 호출 시 cron-job.org 작업 끄기 (Claude Code 윈도우)
+- 회원 토큰 확인(`memberIdForToken`)에서 토큰은 맞지만 실행 방식이 「내 cron-job.org」가 아니면 지금처럼 401을 돌려주되 **cron-job.org 작업을 끄고 `active: false`로 정리**(재개·방식 변경이 겹쳐 작업이 켜진 채 남으면 5분마다 401 헛호출이 이어지던 문제). 직전 배포(c69b0407)의 `skipPausedMember` 방식 조건은 토큰 확인이 먼저 401로 걸러 닿지 않는 코드였으므로 일시정지만 보는 원래 조건으로 되돌림. 커밋 `be5c5107`, DB 버전 크롬 SQL Editor, 15개 순차 배포 Ready·가짜 토큰 401.
+- 재현 검수(상품소싱, 관리자): 작업을 켠 뒤 DB 방식만 Vercel로 → 11:00 회원 실행 401 + 작업 꺼짐(`active: false`) → 11:05~11:34 호출 없음. 시험 전 상태로 복귀.
+- 인스타 공용 기준 코드(`insta-member-scheduler`, 기준 cardnews-studio) 사본 — `node scripts/check-shared-modules.mjs --sync`로 반영.

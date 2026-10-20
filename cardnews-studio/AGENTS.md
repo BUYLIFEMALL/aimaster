@@ -168,3 +168,7 @@
 - `memberScheduler.ts`·`cronJobOrg.ts`의 프로그램 값을 `src/lib/instagram/schedulerConfig.ts`로 옮김(동작 같음). 환경변수는 `process.env[PLATFORM_SCHEDULER_ENV]`(이름 `CNS_PLATFORM_SCHEDULER` 그대로), 토큰 검사는 `^cns_` 그대로.
 - 게시 기록 「예약 취소」: 누르는 즉시 버튼을 막고(「취소하는 중...」) 성공하면 바로 「취소」로 바꿈 — 목록 갱신이 늦어 다시 누르면 「이미 끝난 예약」 오류가 나던 문제(4컷 v1.19 검수 중 발견).
 - 검수(2026-10-20): 4개 모두 타입 검사·시험·빌드 통과, 순차 배포 Ready(카드뉴스 `cardnews-studio-73dn1lu4s`·인플루언서 `ai-influencer-studio-ohxzut5xz`·웹툰 `ai-webtoon-studio-85kgtktv9`·4컷 `four-cut-comics-74d8ph7yq`), DB 버전 4개 갱신(크롬 SQL Editor). 회원 실행 주소 가짜 토큰·설정 주소 비로그인 모두 401. 관리자 계정으로 인플루언서·웹툰·4컷 일시정지 경로 실행: 실행 중 → 일시정지(200) → 「일시정지됨」 → 재개(200) → 원래대로(Vercel 방식이라 cron-job.org 호출 없음). Vercel 5분 예약 호출 10:40 카드뉴스·인플루언서·웹툰·4컷 모두 200. 카드뉴스 화면의 취소 버튼은 4컷과 같은 수정이라 별도 실검수 없음(예약 기록 없음).
+
+## 2026-10-20 v1.30 — 방식이 다른 회원 토큰 호출 시 cron-job.org 작업 끄기 (Claude Code 윈도우)
+- 회원 토큰 확인(`memberIdForToken`)에서 토큰은 맞지만 실행 방식이 「내 cron-job.org」가 아니면 지금처럼 401을 돌려주되 **cron-job.org 작업을 끄고 `active: false`로 정리**(재개·방식 변경이 겹쳐 작업이 켜진 채 남으면 5분마다 401 헛호출이 이어지던 문제). 직전 배포(c69b0407)의 `skipPausedMember` 방식 조건은 토큰 확인이 먼저 401로 걸러 닿지 않는 코드였으므로 일시정지만 보는 원래 조건으로 되돌림. 커밋 `be5c5107`, DB 버전 크롬 SQL Editor, 15개 순차 배포 Ready·가짜 토큰 401.
+- 재현 검수(상품소싱, 관리자): 작업을 켠 뒤 DB 방식만 Vercel로 → 11:00 회원 실행 401 + 작업 꺼짐(`active: false`) → 11:05~11:34 호출 없음. 시험 전 상태로 복귀.
