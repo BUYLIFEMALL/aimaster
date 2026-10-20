@@ -47,4 +47,11 @@
 - https://ai-image-studio.buylife.xyz/guide#custom-prompts
 
 ## 운영 결과
-커밋·DB 적용·정리 작업·배포·비로그인 차단·실세션 확인 결과를 이어서 기록합니다.
+- 구현 커밋 `f9aa7ebd`를 `origin/master`에 푸시했습니다. 프로그램 코드와 운영 `programs.version`은 모두 **v1.21**입니다.
+- 승인 범위 SQL을 운영 프로젝트 `esgxyikcnnvmlhygjkth`에 `image_studio_custom_style_prompts` 마이그레이션으로 적용했습니다. 전용 테이블 RLS 활성, 소유자 정책 4개, 익명 SELECT 불가, 일반 회원의 정리 함수 실행 불가를 확인했습니다. 기본 예시 160개 유지.
+- 운영 DB에서 실제 일반 회원 역할과 회원별 인증 claim을 바꿔 RLS를 점검했습니다. 본인 삽입·조회·수정 성공, 다른 회원 조회 0·수정 0·삭제 0, 보관 기간 정확히 30일을 확인했습니다. **실제 브라우저 로그인 시험과는 다릅니다.** 임시 사본만 사용한 트랜잭션을 ROLLBACK했으며 잔여 시험 자료는 0건입니다. 기존 회원 자료·계정·키는 변경하지 않았습니다.
+- 자동 정리: `ais-custom-prompts-retention-30d`, cron jobid 5, 매분 실행. `2026-10-20 10:02` 및 `10:03` 한국 시간 실행 이력이 모두 `succeeded`입니다. 최초 저장 30일 뒤 조회/사용을 막고, 정리 작업이 만료 자료를 삭제합니다.
+- 프로덕션 배포 `dpl_9udFTa6VKNPH8w4fQWoP97j6MTro` **READY**, 정식 주소 연결 완료. [배포 상세](https://vercel.com/buylife/ai-image-studio/9udFTa6VKNPH8w4fQWoP97j6MTro).
+- 배포 후 비로그인 `/api/prompts/custom` GET·POST·PUT·DELETE 모두 401, 기존 `/api/prompts` 401, `/prompts`는 로그인으로 307, 공개 `/guide`는 200이며 새 개인 프롬프트 안내가 포함됩니다.
+- 실제 Edge에서 공개 매뉴얼의 개인 프롬프트 4단계 안내와 30일 경고를 확인했습니다. **일반 회원 실세션을 통한 운영 게시판 저장·수정·삭제는 로그인 세션 만료로 미검수**입니다. 비밀번호를 입력하거나 관리자 매직링크로 대신 로그인하지 않았습니다. 다음 CLI는 주인님이 직접 로그인한 일반 시험 계정 `buylifemall@naver.com`으로 위 흐름을 검수하고 시험용 개인 사본만 삭제합니다. 유료 AI 보강/이미지 생성은 누르지 않습니다.
+- 운영 확인 요약: `docs/evidence/custom-prompts-v121/production-verification.json`. 실제 SSO 미검수 사항을 로컬 가상 회원 검수 결과와 구분해 두었습니다. 파일 내보내기/가져오기와 기존 AI 보강의 화풍별 부정 문구 개선은 제안 상태입니다.

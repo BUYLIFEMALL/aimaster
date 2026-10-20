@@ -10,6 +10,8 @@
 ## 2026-10-20 Codex(윈도우) — AI 이미지 스튜디오 v1.21 개인 화풍 프롬프트
 - 기본 160개에서 회원별 개인 버전 만들기·수정·삭제·복사·작업실 불러오기/원문 그대로 사용. 원본은 관리자만 관리. 전용 owner-only DB·생성일 기준 30일 정리.
 - 계획 후 주인님 「진행해줘」 승인 범위. 로컬 DB/API 18개·기존 16개·권한·빌드·보이는 Edge 가상 회원 2명(1440/375) 통과.
+- 구현 `f9aa7ebd` 푸시, 운영 DB/RLS 적용·매분 정리 작업 실행 성공, 프로덕션 `dpl_9udFTa6VKNPH8w4fQWoP97j6MTro` READY, 코드/DB v1.21. 운영 SQL 회원별 격리 시험은 ROLLBACK했고 잔여 시험 자료 0건. 비로그인 4개 메서드 401, 공개 매뉴얼 200.
+- 남음: Edge 일반 회원 실제 SSO 저장·수정·삭제 검수(세션 만료). 주인님 직접 로그인 후 이어서 확인합니다. 로컬 가상 회원 검수로 대체 완료라고 표기하지 않습니다. 유료 호출 0.
 - [작업 결과·운영 증거·미작업](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_CUSTOM_STYLE_PROMPTS.md) · [프로그램](https://ai-image-studio.buylife.xyz/prompts).
 <!-- /CUSTOM_STYLE_PROMPTS_HANDOFF_20261020 -->
 
