@@ -278,6 +278,8 @@ warm bokeh lights]. 16:9 aspect ratio. No visible text, logos, or watermarks in 
 7. **(2026-10-16 주인님 지시) 썸네일은 상위 이미지 모델을 써도 된다** — 스크립트 기본 후보에 `gemini-3-pro-image-preview`(상위)가 먼저 있다. 비용 최소화 지침의 예외다.
 8. **화면 속 글자 확인(2026-10-16 사례)**: 휴대폰·노트북 화면을 묘사하면 모델이 가짜 한글 문구(깨진 글자)를 그려 넣는 일이 있다. 화면 내용은 "abstract shapes, blank colorful cards, absolutely no letters, no words, no numbers, no characters of any language on the screen"처럼 **도형만** 지정하고, 생성 후 이미지를 열어 글자가 보이면 바로 다시 만든다(`shorts-onestop-studio` 첫 결과에서 발생 → 위 문구로 재생성해 해결).
 
+9. **글자·상표가 숨어 생기는 곳(2026-10-20 사례 4건)**: 화면 문구만 막아도 아래에서 가짜 글씨·로고가 생긴다 — 생성 후 **잘라서 확대해** 확인한다(`sharp`로 해당 부분 extract). ① 오디오 노브 아래 이름표 → "no knobs with labels, no tick marks with numbers" ② 앨범·카드 타일 아래 캡션 → "no captions or labels under the squares" ③ 슬레이트(클래퍼보드) 칸·책상 위 종이 → "plain matte black board, no writing area" + "no papers or documents" ④ 모니터 테두리 상표(LG 등)·렌즈 눈금 → "generic unbranded display, plain bezel, no logo" + 렌즈 같은 소품은 빼기. 적용: 무한루프 영상·AI 마스터링·플레이리스트 채널·시네마틱 스토리보드 썸네일 교체(3D·일러스트 → 실사).
+
 ---
 
 ## 14. 공용 `user_api_keys`에 새 provider 추가할 때 체크 제약도 같이 넓힐 것

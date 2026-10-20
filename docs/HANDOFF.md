@@ -1,6 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- CUSTOM_STYLE_PROMPTS_HANDOFF_20261020 -->
+
+## 2026-10-20 Claude Code(윈도우) — 카탈로그 썸네일 4개 실사로 교체 (주인님 「사실적인 느낌으로 다시」)
+- 대상(3D·일러스트 → `PLATFORM_PATTERNS.md` §13 실사 템플릿, `scripts/generate-program-thumbnail.mjs`, 관리자 본인 Gemini 키·상위 모델 `gemini-3-pro-image-preview` — 썸네일 예외 규정): 무한루프 영상자동화(`infinite-loop-video`, 1회) · AI 마스터링 스튜디오(`ai-mastering-studio`, 2회 — 노브 이름표 글씨로 재생성) · 플레이리스트 채널 제작 자동화(`playlist-channel-studio`, 2회 — 타일 캡션 글씨) · 시네마틱 스토리보드 자동화(`cinematic-storyboard-studio`, 3회 — 슬레이트·종이 글씨, 모니터 상표). 총 8회 호출.
+- 검수: 매번 이미지를 열고 의심 부분을 잘라 확대해 글자·로고 없음 확인, 공개 주소 4개 200(image/jpeg), `programs.thumbnail_url` 새 `?v=` 반영. DB 값만 바뀐 작업이라 버전 변경 없음(원칙 22).
+- 옛 썸네일 주소(되돌릴 때): infinite-loop-video `…thumbnail.jpg?v=1791808971447`, ai-mastering-studio `…thumbnail.png?v=1791833097219`(png 파일은 Storage에 남아 있음), playlist-channel-studio `…thumbnail.png?v=1791830320371`(png 남아 있음), cinematic-storyboard-studio `…thumbnail.jpg?v=1791828363065`(같은 파일 이름이라 덮어씀).
+- 새로 알게 된 것: 글자가 숨어 생기는 곳 4가지 → `PLATFORM_PATTERNS.md` §13 9번.
+- 링크: https://www.buylife.xyz/programs
 ## 2026-10-20 Claude Code(윈도우) — 성격 진단 v1.24 → 타로점 v1.21 연결 (결과에서 3장 리딩으로 이어 보기)
 - 한 일: 성격 진단 결과 화면에 「🔮 타로점 3장 리딩으로 이어서 보기」(점수 없이 유형·영역 이름만 담은 질문을 `?q=`로 전달), 타로점 카드 뽑기 화면이 `?q=&spread=&from=`을 미리 채움. 타로점 질문 입력란이 흰 바탕+흰 글자로 안 보이던 기존 버그도 수정.
 - 검수: 성격 tsc·테스트 20·build, 타로 tsc·build. 배포 `tarot-eh2gvtwqr`·`personality-suite-l5hgjm7eh` Ready(순차). DB(ref `esgxyikcnnvmlhygjkth`) personality-suite v1.24, tarot-reading v1.21. 크롬: 결과 카드 클릭 → 새 탭 타로점에 질문·3장 스프레드·안내 띠 확인, 비로그인 시 로그인 뒤 같은 주소 유지(curl). 카드 뽑기·AI 호출은 하지 않음(비용 없음).
