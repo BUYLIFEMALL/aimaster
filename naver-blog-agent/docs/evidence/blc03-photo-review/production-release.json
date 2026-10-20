@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-20T17:42:56.757Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v2.03",
+  "codeCommit": "1812bf7f",
+  "deploymentId": "dpl_5LXFFLqas2kyfer2VD8SEjXPVpfd",
+  "deployment": "https://naver-blog-agent-2b71w0srg-buylife.vercel.app",
+  "readyVerified": true,
+  "extensionReleaseCheck": "DB v2.03 / ext v2.03 / zip v2.03; failures=0 warnings=0",
+  "checks": [
+    {
+      "name": "version",
+      "status": 200,
+      "latest": "v2.03",
+      "pass": true
+    },
+    {
+      "name": "/api/photo-review",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "/api/photos",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "/api/photos/resolve",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "/api/extension/photos",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "/api/extension/task",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "cron-auth",
+      "status": 401,
+      "pass": true
+    },
+    {
+      "name": "temporary-helper-absent",
+      "status": 404,
+      "pass": true
+    }
+  ],
+  "passed": true
+}

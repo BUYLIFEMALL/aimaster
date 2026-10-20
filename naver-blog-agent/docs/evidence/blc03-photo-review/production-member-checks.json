@@ -1,0 +1,32 @@
+{
+  "at": "2026-10-20T17:44:00Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v2.03",
+  "codeCommit": "1812bf7f",
+  "deploymentId": "dpl_5LXFFLqas2kyfer2VD8SEjXPVpfd",
+  "browser": "visible Microsoft Edge window 2884854",
+  "state": "awaiting actual member login after authentication was not retained",
+  "observed": [
+    "native UI Automation ExpandCollapsePattern expanded existing photo preparation and revealed file selector",
+    "516px collapsed photo preparation title was visible below fixed header",
+    "temporary topmost window resolved terminal occlusion",
+    "native browser refresh on current app tab redirected to login",
+    "test member email filled; password not entered or read"
+  ],
+  "member": "buylifemall@naver.com",
+  "pending": [
+    "actual member photo review generation with gpt-4o-mini (one generation, at most two API calls)",
+    "observation and member note evidence inspection",
+    "copy with warnings and input change invalidation",
+    "production guide and narrow layout inspection"
+  ],
+  "paidAiCalls": 0,
+  "newPhotoUploads": 0,
+  "draftWrites": 0,
+  "finalPublications": 0,
+  "memberKeyReadOrFallback": "none; live request not executed",
+  "dbChanges": "program version and extension metadata only",
+  "windowAtHandoff": "normal 1433x1399 window; temporary always-on-top disabled; existing Naver prepared tabs preserved",
+  "localServer": "stopped",
+  "complete": false
+}

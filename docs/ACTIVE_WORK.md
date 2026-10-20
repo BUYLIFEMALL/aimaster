@@ -18,5 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `naver-blog-agent/` | Codex(윈도우) | 2026-10-21 | BLC-03 사진·방문 메모 기반 후기 초안·근거 구분·실회원 검수 |
+| `naver-blog-agent/` | Codex(윈도우) | 2026-10-21 | BLC-03 v2.03 운영 배포·버전 일치 완료, Edge 기존 로그인 세션 미확인으로 실제 회원 후기 검수 로그인 대기(1812bf7f) |
 | `shots/` · `shorts-onestop-studio/` | Claude Code(윈도우) → 다음 계정 이어받기 | 2026-10-21 | 엔진 공유 2번 진행 중(인수인계 `docs/HANDOFF_CLAUDE_SESSION_2026-10-21_YOUTUBE.md` §0) — 다른 CLI는 이 두 폴더 작업 금지 |
