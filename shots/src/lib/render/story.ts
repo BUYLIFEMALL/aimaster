@@ -32,10 +32,15 @@ async function loadFont(text: string): Promise<void> {
   await document.fonts.load(`900 80px "Noto Sans KR"`, text).catch(() => []);
 }
 
+// gpt-4o-mini-tts가 가끔 한 장면만 60~90초씩 늦게 답한다(2026-10-21 실측, 나머지는 4~5초) → 30초에 끊고 한 번 더 요청
 async function tts(text: string, voice: TtsVoice, speed: number, signal: AbortSignal): Promise<Blob> {
-  const res = await fetch("/api/render/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, voice, speed }), signal });
-  if (!res.ok) throw new Error(((await res.json().catch(() => null)) as { error?: string } | null)?.error ?? "음성을 만들지 못했습니다.");
-  return res.blob();
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch("/api/render/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, voice, speed }), signal: AbortSignal.any([signal, AbortSignal.timeout(30_000)]) })
+      .catch((e: unknown) => { if (signal.aborted || attempt >= 2) throw signal.aborted ? e : new Error("음성 생성이 늦어지고 있습니다. 잠시 후 다시 시도해 주세요."); return null; });
+    if (!res) continue;
+    if (!res.ok) throw new Error(((await res.json().catch(() => null)) as { error?: string } | null)?.error ?? "음성을 만들지 못했습니다.");
+    return res.blob();
+  }
 }
 
 function drawCover(ctx: CanvasRenderingContext2D, img: ImageBitmap, zoom: number, alpha = 1) {

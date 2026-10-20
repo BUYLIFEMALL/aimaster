@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   if (!key) return NextResponse.json({ error: "OpenAI API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요.", code: "no_key" }, { status: 400 });
 
   const res = await fetch("https://api.openai.com/v1/audio/speech", {
-    method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, cache: "no-store", signal: AbortSignal.timeout(90_000),
+    method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, cache: "no-store", signal: AbortSignal.any([req.signal, AbortSignal.timeout(60_000)]), // 브라우저가 끊으면 함께 멈춤
     body: JSON.stringify({ model: MODEL, voice, input: text, response_format: "mp3", speed, instructions: "밝고 또렷한 한국어 쇼츠 내레이션처럼 읽어 주세요." }),
   }).catch(() => null);
   if (!res) return NextResponse.json({ error: "음성 생성이 늦어지고 있습니다. 다시 시도해 주세요." }, { status: 504 });
