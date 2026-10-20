@@ -16,6 +16,13 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 웹툰 v1.22·4컷 v1.23: 여러 회차 한 번에 예약 — 회차별 캡션 미리보기·수정 (추가개선 제안 2-2)
+- 한 일: 회차 목록 줄마다 「✏️ 캡션」 → 자동 캡션을 펼쳐 고치기, 글자 수(2200) 표시·초과 시 예약 버튼 막기, 「자동 캡션으로 되돌리기」. 웹툰 `EpisodeBatchSchedule.tsx`, 4컷 `WorksInstaSchedule.tsx`. DB 변경 없음.
+- 검수: tsc·시험(웹툰 18·4컷 52)·build, 커밋 `088367ba`, 배포 웹툰 `qkpj6wnuw`·4컷 `8belqftpt` Ready, DB(ref `esgxyikcnnvmlhygjkth`) 웹툰 v1.22·4컷 v1.23, 크롬 4컷 `/works` v1.23 표시. **캡션 칸 화면 실검수는 못 함**(관리자 크롬에서 4컷 인스타 연결이 안 보여 묶음 예약 칸이 나오지 않음, 사용량 한도로 중단) — 다음 세션이 확인.
+- 남은 제안(주인님 결정 필요): 2-1 인플루언서 히스토리 DB 저장(운영 DB 새 표 승인), 3-2 인스타 예약 현황 한 화면(위치 결정). 각 프로그램 AGENTS.md 기록은 다음 세션에서 보완.
+- 링크: https://ai-webtoon-automation.buylife.xyz · https://four-cut-comics.buylife.xyz/works
+
+
 ## 2026-10-20 Claude Code(윈도우) — 타로점 v1.27: 리딩 API 모델 허용 목록 검사 (추가개선 제안 1-1)
 - 한 일: 메뉴에 없는 모델 이름은 OpenAI 호출 전에 400으로 막음(옛 이름은 변환 뒤 통과). 이 배포로 타로의 「이어서 보기」 공용 링크도 함께 나감.
 - 검수: tsc·build, 커밋 `c982c51d`, 배포 `tarot-efl64s7w8` Ready, DB(ref `esgxyikcnnvmlhygjkth`) tarot-reading v1.27, 크롬 운영 API 3가지(없는 모델 400·옛 이름/메뉴 모델 통과) 확인, OpenAI 호출 0회.
