@@ -142,15 +142,20 @@ export const OPENAI_MODEL_OPTIONS = [
   { value: "gpt-5.6-sol", label: "GPT-5.6 Sol (최고 품질 · 가장 똑똑한 타로 리딩 - 추천)" },
   { value: "gpt-5.6-terra", label: "GPT-5.6 Terra (균형형 · 자연스러운 심층 해석)" },
   { value: "gpt-5.6-luna", label: "GPT-5.6 Luna (가성비 · 신속한 타로 해석)" },
-  { value: "gpt-5.5-sol", label: "GPT-5.5 Sol (고성능 심층 리딩)" },
-  { value: "gpt-5.5-terra", label: "GPT-5.5 Terra (자연스러운 균형 해석)" },
-  { value: "gpt-5.5-luna", label: "GPT-5.5 Luna (신속한 타로 해석)" },
-  { value: "gpt-5.4-sol", label: "GPT-5.4 Sol (안정적인 고품질 리딩)" },
-  { value: "gpt-5.4-terra", label: "GPT-5.4 Terra (균형형 타로 해석)" },
-  { value: "gpt-5.4-luna", label: "GPT-5.4 Luna (가성비 타로 해석)" },
+  { value: "gpt-5.5", label: "GPT-5.5 (고성능 심층 리딩)" },
+  { value: "gpt-5.4", label: "GPT-5.4 (안정적인 고품질 리딩)" },
   { value: "o3-mini", label: "OpenAI o3-Mini (추론 특화 AI - 명쾌한 논리 리딩)" },
   { value: "o1", label: "OpenAI o1 (최고 수준 심층 추론 AI)" },
 ] as const;
+
+// 2026-10-20: OpenAI에 없는 모델 이름(gpt-5.5/5.4의 luna·sol·terra)을 메뉴에서 뺐다.
+// 예전 저장·공유 링크(?om=)에 남은 옛 이름은 같은 세대의 기본 모델로 바꿔 「모델 없음」 오류를 막는다.
+// (따옴표 문자열로 적지 않는 이유: scripts/check-openai-models.mjs가 옛 이름을 「쓰는 모델」로 세지 않게)
+const RETIRED_OPENAI_MODEL = /^(gpt-5\.[45])-(sol|terra|luna)$/;
+
+export function normalizeOpenAIModel(model: string): string {
+  return model.replace(RETIRED_OPENAI_MODEL, "$1");
+}
 
 export type SpreadPosition =
   | "advice"

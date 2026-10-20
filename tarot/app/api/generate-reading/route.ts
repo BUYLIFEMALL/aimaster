@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCard } from "@/lib/cards";
-import { SPREAD_CONFIGS, type SpreadType, type SpreadPosition } from "@/lib/deck";
+import { SPREAD_CONFIGS, normalizeOpenAIModel, type SpreadType, type SpreadPosition } from "@/lib/deck";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 
@@ -281,7 +281,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { cards, question, spreadType = "three_cards", model } = body;
-  const targetModel = model && model.trim() ? model.trim() : MODEL_ID;
+  const targetModel = model && model.trim() ? normalizeOpenAIModel(model.trim()) : MODEL_ID;
   const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
 
   if (!Array.isArray(cards) || cards.length !== config.cardCount) {
