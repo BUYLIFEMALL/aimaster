@@ -86,7 +86,15 @@ export async function membersExcludedFromPlatform(service: SupabaseClient): Prom
 export async function memberIdForToken(service: SupabaseClient, token: string): Promise<string | null> {
   if (!/^trend_[0-9a-f]{64}$/.test(token)) return null;
   const { data } = await service.from(SCHEDULER_TABLE).select("user_id, mode").eq("token_hash", hashMemberToken(token)).maybeSingle();
-  return data?.mode === "cronjob" ? (data.user_id as string) : null;
+  if (!data) return null;
+  if (data.mode !== "cronjob") {
+    // 2026-10-20: 방식이 바뀐 뒤에도 cron-job.org 작업이 켜진 채 남은 경우(재개·방식 변경이 겹침) — 실행은 하지 않고(401) 작업을 꺼서 헛호출을 멈춘다.
+    const key = await memberCronjobKey(service, data.user_id as string);
+    if (key) await setDispatchJobEnabled(key, memberDispatchUrl(), false).catch(() => undefined);
+    await service.from(SCHEDULER_TABLE).update({ active: false, updated_at: now() }).eq("user_id", data.user_id);
+    return null;
+  }
+  return data.user_id as string;
 }
 
 /**
@@ -171,10 +179,9 @@ export async function pauseMemberScheduler(service: SupabaseClient, userId: stri
   }
 }
 
-/** 회원 실행 주소용: 일시정지된 회원이거나 실행 방식이 「내 cron-job.org」가 아닌 회원이면 true(실행하지 않음). 작업 끄기에 실패했거나 재개·방식 변경이 겹쳐 작업이 켜진 채 남았을 수 있으니 여기서 다시 끈다(2026-10-20). */
+/** 회원 실행 주소용: 일시정지된 회원이면 true(실행하지 않음). 일시정지 때 작업 끄기에 실패했을 수 있으니 여기서 다시 끈다. 방식이 「내 cron-job.org」가 아닌 회원은 memberIdForToken이 먼저 거른다. */
 export async function skipPausedMember(service: SupabaseClient, userId: string): Promise<boolean> {
-  const row = await schedulerRow(service, userId);
-  if (!row || (!row.paused && row.mode === "cronjob")) return false;
+  if (!(await schedulerRow(service, userId))?.paused) return false;
   const key = await memberCronjobKey(service, userId);
   if (key) await setDispatchJobEnabled(key, memberDispatchUrl(), false).catch(() => undefined);
   return true;
