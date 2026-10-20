@@ -45,7 +45,8 @@
 - 포장 스크립트 `stamp_versions`: 압축 안 `KIT/kit.json`에 `kitVersion`·`appVersion`(프로그램 `version.ts`). `00_START_HERE.md` 업데이트 안내 줄 첫 반영.
 - 마법사(`setup.ps1`·`setup.sh`): `설치결과.txt`·끝 화면 「버전: 배포판 vX.YY (프로그램 vA.BB)」, 업데이트면 「이전 → 새」(옛 배포판은 `00_START_HERE.md`·`version.ts`, 같은 폴더 재실행은 이전 `설치결과.txt`에서 읽음). 업데이트 뒤 「예전 폴더를 휴지통으로 보낼까요?」(기본 n, 윈도우 휴지통·맥 `~/.Trash` 이동, 지금 폴더·그 상위·다른 프로그램은 제외).
 - 검수: PowerShell·Git Bash 시험 틀 — v1.01(값 없음)→v1.04 버전 줄, 지우기 n(남김)/y(프로그램 폴더만 휴지통, 상위 묶음 폴더 남음), 같은 폴더 재실행 v1.03→v1.04. 시험 중 응답 전달 방식 문제는 시험 틀 쪽이었음(마법사 코드 정상). 압축 `D:\PDS\SNS_Auto_Posting_Kit_v1.04.zip`(207개, 비밀값·DB 대조 통과), 압축 안 `setup.ps1` 문법 0·BOM, `setup.sh` 문법 OK.
-- **못 한 것**: v1.01 설치본으로 실제 업데이트 시험·맥 실기기·매뉴얼 📷 캡처 — 이 PC에 설치본(`설치결과.txt`·`.kit-progress`)이 없음(D:·사용자 폴더 검색). 주인님 설치본이 있는 PC/맥미니에서 v1.04 폴더를 옆에 풀고 마법사 실행 → 결과 화면 캡처를 `docs/sns-kit-manual/img/`에 받아 채우기.
+- **맥 실기기 시험은 하지 않음(2026-10-20 주인님 결정 「맥미니에서는 테스트 안 할게」)** — `setup.sh`는 Git Bash 시험 틀·문법 검사까지만 확인된 상태로 둔다.
+- **못 한 것**: v1.01 설치본으로 실제 업데이트 시험(윈도우)·매뉴얼 📷 캡처 — 이 PC에 설치본(`설치결과.txt`·`.kit-progress`)이 없음(D:·사용자 폴더 검색). 주인님 설치본이 있는 PC/맥미니에서 v1.04 폴더를 옆에 풀고 마법사 실행 → 결과 화면 캡처를 `docs/sns-kit-manual/img/`에 받아 채우기.
 
 ## 2026-10-20 Claude Code(윈도우) — 배포 키트: 포장 DB 대조 + 마법사 업데이트 모드 → `SNS_Auto_Posting_Kit_v1.03` (주인님 「진행해줘」 추가 제안 ①②)
 - ① 커밋 `b7d7d614`: `scripts/make_lecture_kit.py` 포장 뒤 **DB 대조**(코드의 `.from`·`.rpc`·`storage.from`·`*BUCKET*` 상수 ↔ `KIT/schema.sql`, 없으면 포장 중단·압축 삭제) + `--check-only`. `kit.json` `schemaCheckIgnore`: SNS 두 프로그램 = 공용 연동 표 2개, 쇼핑제휴 = + `tco_threads_accounts`·`th_posts`(모두 `IS_STANDALONE` 보호 코드 확인). 예외를 빼면 손 대조와 같은 항목 검출.
