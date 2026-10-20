@@ -321,3 +321,15 @@ test("캐릭코드 연결(v1.26): 16유형 결과만 /result/<유형코드>?축�
     else assert.equal(link, null, t.id);
   }
 });
+
+test("성격코드 연결(v1.27): 16유형만 personality-code /result/<유형>?축%&from=, 다른 검사는 없음", async () => {
+  const { personalityCodeLink, characterLink } = await import("../src/lib/tarotLink.ts");
+  for (const t of ALL_TESTS) {
+    const r = scoreTest(t, all(t.questions.length, 2));
+    const link = personalityCodeLink(r);
+    if (r.kind !== "type16") { assert.equal(link, null, t.id); continue; }
+    const u = new URL(link);
+    assert.equal(u.host, "personality-code.buylife.xyz");
+    assert.equal(u.search, new URL(characterLink(r)).search, "캐릭코드와 같은 값");
+  }
+});

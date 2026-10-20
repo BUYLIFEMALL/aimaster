@@ -6,6 +6,9 @@ import { ShareButtons } from "@/components/ShareButtons";
 import { requireProgramAccess } from "@/lib/access";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://personality-code.buylife.xyz";
+// v1.21: 결과 → 캐릭코드(같은 유형 캐릭터) · AIMaster 타로점(3장 리딩)으로 이어 가기. 유형·지표 비율·질문만 보낸다.
+const CHARACTER_RESULT_URL = "https://mbti-character.buylife.xyz/result";
+const TAROT_DRAW_URL = "https://tarot-reading.buylife.xyz/draw";
 
 const DIMENSION_LABELS: Record<string, string> = {
   EI: "외향-내향",
@@ -88,7 +91,8 @@ export default async function ResultPage({
         <h2 className="text-sm font-bold text-neutral-900 mb-4">나의 성향 지표</h2>
         <div className="space-y-3">
           {Object.entries(DIMENSION_LABELS).map(([dim, label]) => {
-            const strength = Number(strengths[dim] ?? 50);
+            const raw = Number(strengths[dim] ?? 50);
+            const strength = Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 50;
             return (
               <div key={dim}>
                 <div className="flex justify-between text-xs text-neutral-500 mb-1">
@@ -121,6 +125,8 @@ export default async function ResultPage({
         </div>
       </div>
 
+      <NextSteps code={type.code} epithet={type.epithet} strengths={strengths} />
+
       <div className="flex flex-col items-center gap-4">
         <ShareButtons
           shareUrl={shareUrl}
@@ -134,6 +140,35 @@ export default async function ResultPage({
         >
           다시 검사하기
         </Link>
+      </div>
+    </div>
+  );
+}
+
+function NextSteps({ code, epithet, strengths }: { code: string; epithet: string; strengths: Record<string, string | undefined> }) {
+  const cp = new URLSearchParams();
+  for (const dim of Object.keys(DIMENSION_LABELS)) {
+    const v = Number(strengths[dim]);
+    if (Number.isFinite(v)) cp.set(dim, String(Math.max(0, Math.min(100, Math.round(v)))));
+  }
+  cp.set("from", "personality-code");
+  const question = `성격코드 ${code}(${epithet})인 나에게 지금 필요한 흐름과 조언은 무엇일까요?`;
+  const tarotHref = `${TAROT_DRAW_URL}?${new URLSearchParams({ q: question, spread: "three_cards", from: "personality-code" }).toString()}`;
+  return (
+    <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-amber-50 p-5 mb-8">
+      <h2 className="text-sm font-bold text-neutral-900 mb-1">✨ 이어서 보기</h2>
+      <p className="text-xs text-neutral-500 mb-4 leading-relaxed">
+        같은 유형으로 다른 AIMaster 프로그램에서 이어 볼 수 있어요. 유형과 지표 비율만 넘어가며, 캐릭터 그림·타로 카드는 각 프로그램에서 직접 눌러야 만들어집니다.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <a href={`${CHARACTER_RESULT_URL}/${code}?${cp.toString()}`} target="_blank" rel="noopener noreferrer"
+          className="flex-1 text-center rounded-xl bg-neutral-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-neutral-700">
+          🎭 캐릭코드에서 내 캐릭터 보기
+        </a>
+        <a href={tarotHref} target="_blank" rel="noopener noreferrer"
+          className="flex-1 text-center rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-violet-700">
+          🃏 타로점에서 3장 뽑기
+        </a>
       </div>
     </div>
   );

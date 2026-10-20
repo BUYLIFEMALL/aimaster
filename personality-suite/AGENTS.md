@@ -1,4 +1,7 @@
-# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.26)
+# AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.27)
+
+## 2026-10-20 v1.27 — 16유형 결과 → 성격코드 유형 해설로도 이어 보기 (Claude Code 윈도우)
+- 연결 카드에 「🧩 성격코드에서 유형 해설 보기」 추가(`tarotLink.ts` `personalityCodeLink()`, 캐릭코드와 같은 `?EI=&SN=&TF=&JP=&from=` 형식으로 `personality-code.buylife.xyz/result/<유형>`). 테스트 1개 추가(22개 통과). 흐름: 성격 진단 → 성격코드 → 캐릭코드 → 타로점.
 
 ## 2026-10-20 v1.26 — 16유형 결과 → 캐릭코드 캐릭터로 이어 보기 (Claude Code 윈도우)
 - 결과의 연결 카드가 16유형이면 「캐릭코드 · 타로점으로 이어서 보기」로 바뀌고 「🎭 캐릭코드에서 나와 닮은 캐릭터 보기」 버튼 추가 → `https://mbti-character.buylife.xyz/result/<유형>?EI=&SN=&TF=&JP=&from=personality-suite`(`tarotLink.ts` `characterLink()`). 축별 우세 비율(50~100, 캐릭코드와 같은 형식)만 보내 캐릭코드 「나의 성향 지표」가 실제 값으로 나옴. 마음 상태 등 민감 검사 점수는 보내지 않음.

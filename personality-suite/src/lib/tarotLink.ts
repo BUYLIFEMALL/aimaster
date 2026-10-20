@@ -38,3 +38,11 @@ export function characterLink(result: ScoredResult): string | null {
   p.set("from", "personality-suite");
   return `${CHARACTER_RESULT_URL}/${result.code}?${p.toString()}`;
 }
+
+// v1.27: 16유형 결과 → 성격코드(personality-code)의 같은 유형 해설로 이어 가기(캐릭코드와 같은 주소 형식).
+export const PERSONALITY_CODE_RESULT_URL = "https://personality-code.buylife.xyz/result";
+
+export function personalityCodeLink(result: ScoredResult): string | null {
+  const c = characterLink(result);
+  return c ? c.replace(CHARACTER_RESULT_URL, PERSONALITY_CODE_RESULT_URL) : null;
+}
