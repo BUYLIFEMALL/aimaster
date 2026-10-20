@@ -10,6 +10,7 @@ import Badge from "@/components/ui/Badge";
 import GoldButton from "@/components/ui/GoldButton";
 import LikeButton from "@/components/programs/LikeButton";
 import QuickPreviewModal from "@/components/programs/QuickPreviewModal";
+import QuickPreviewHint from "@/components/programs/QuickPreviewHint";
 import { formatKRW } from "@/lib/utils/format";
 import { getTemplateBadge } from "@/lib/templateBadge";
 import type { Program } from "@/types/database.types";
@@ -180,8 +181,9 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                     <Eye size={13} className="text-slate-950" />
                     <span>퀵 프리뷰</span>
                   </button>
-                  <span className="text-[11px] font-bold text-white/95 text-center px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm border border-white/10 drop-shadow-md">
-                    {microPreviewLabel}
+                  {/* 2026-10-20: 템플릿 종류별 고정 문구 대신 이 프로그램의 한 줄 요약(없으면 기존 문구) */}
+                  <span className="max-w-[90%] line-clamp-2 text-[11px] font-bold text-white/95 text-center px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm border border-white/10 drop-shadow-md">
+                    {program.short_desc || microPreviewLabel}
                   </span>
                 </div>
 
@@ -330,6 +332,8 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
         </div>
       </div>
       </GlassCard>
+
+      <QuickPreviewHint />
 
       {/* 👁️ 마이크로 퀵 프리뷰 모달 팝업 */}
       <QuickPreviewModal
