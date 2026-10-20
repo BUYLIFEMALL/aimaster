@@ -21,16 +21,18 @@ function getEnv(name: string): string {
   return value;
 }
 
-export function getYoutubeAuthorizeUrl(state: string, clientId: string, redirectUri: string): string {
+export function getYoutubeAuthorizeUrl(state: string, clientId: string, redirectUri: string, opts: { scopes?: string[]; includeGranted?: boolean } = {}): string {
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: YOUTUBE_SCOPES,
+    // v1.15: 「다른 YouTube 프로그램 권한도 함께 받기」를 켜면 여러 권한을 한 번에 요청(Google 추가 권한 요청)
+    scope: opts.scopes?.join(" ") ?? YOUTUBE_SCOPES,
     access_type: "offline",
     prompt: "consent",
     state,
   });
+  if (opts.includeGranted) params.set("include_granted_scopes", "true");
   return `${AUTHORIZE_BASE}?${params.toString()}`;
 }
 

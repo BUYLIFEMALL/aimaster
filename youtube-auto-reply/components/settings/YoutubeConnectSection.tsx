@@ -53,6 +53,18 @@ export function YoutubeConnectSection({
               연동 해제
             </button>
           </form>
+          <form onSubmit={handleConnect} className="space-y-1">
+            <input type="hidden" name="returnTo" value={pathname} />
+            <input type="hidden" name="withShared" value="1" />
+            <button
+              type="submit"
+              disabled={isPending}
+              className="rounded-lg border border-yt-border bg-yt-surface px-4 py-2 text-xs font-bold text-yt-text hover:bg-yt-hover disabled:opacity-60"
+            >
+              {isPending ? "연결 중..." : "다른 YouTube 프로그램 권한도 함께 받아 다시 연결"}
+            </button>
+            <p className="text-xs text-yt-muted">쇼츠 업로드 프로그램(shots)까지 한 번 연결로 함께 쓰려면 눌러 주세요(같은 Google 앱 사용).</p>
+          </form>
           {showNewCallback && (
             <form onSubmit={handleConnect} className="space-y-2">
               <input type="hidden" name="returnTo" value={pathname} />
@@ -76,6 +88,10 @@ export function YoutubeConnectSection({
             위 Google OAuth Client ID/Secret을 먼저 등록한 뒤 연결해주세요. 연결 시 구글 동의 화면에서
             댓글 읽기/답글 권한(youtube.force-ssl)에 동의하셔야 합니다.
           </p>
+          <label className="flex items-start gap-2 text-xs text-yt-muted">
+            <input type="checkbox" name="withShared" value="1" className="mt-0.5" />
+            <span>다른 YouTube 프로그램 권한도 함께 받기 — 쇼츠 업로드(shots)까지 이 한 번의 연결로 함께 씁니다(같은 Google 앱 사용).</span>
+          </label>
           <button
             type="submit"
             disabled={isPending}

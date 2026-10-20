@@ -14,6 +14,7 @@ import type { Database } from "@/types/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
 import { deleteSharedYoutubeAccount, getYtReplyAccount } from "@/lib/youtube/memberAccount";
+import { ALL_YOUTUBE_SCOPES } from "@/lib/youtube/memberAccount";
 
 export interface ConnectYoutubeState {
   error?: string;
@@ -32,7 +33,8 @@ export async function connectYoutubeAction(
   const returnTo = String(formData.get("returnTo") ?? "");
   // 기본은 회원 앱에 예전부터 등록된 옛 콜백, [새 주소로 연결]을 누르면 새 콜백으로 인증한다(두 주소 동시 지원)
   const callbackMode: CallbackMode = formData.get("callback") === "new" ? "new" : "old";
-  redirect(getYoutubeAuthorizeUrl(buildOAuthState(user.id, returnTo), clientId, YOUTUBE_REDIRECT_FOR(callbackMode)));
+  const withShared = formData.get("withShared") === "1";
+  redirect(getYoutubeAuthorizeUrl(buildOAuthState(user.id, returnTo), clientId, YOUTUBE_REDIRECT_FOR(callbackMode), withShared ? { scopes: ALL_YOUTUBE_SCOPES, includeGranted: true } : {}));
 }
 
 export async function disconnectYoutubeAction() {
