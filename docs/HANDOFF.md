@@ -6,6 +6,10 @@
 - 주인님 요청으로 1번 운영 확인을 재개. `computer-use`로 기존 Edge 실행 중임은 확인했으나 창 제어는 Orca runtime metadata 접근 거부(`runtime_unavailable`, `CreateFile 0x5`)로 막힘. 신규 기본값/기존 모드 보존/회원 변경 저장의 운영 실검수는 모두 미완료. 실제 발행·유료 호출·운영 데이터 변경 0. 로컬 검사를 운영 통과로 바꾸지 않음.
 - 다음 첫 단계: 운영 접속·Edge 제어 가능한 세션에서 일반 회원으로 세 항목 실검수. [상세 재개 기록](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md), [증거](../naver-blog-agent/docs/evidence/consolidation-stage0/live-recheck-attempt.json). 코드/버전/배포 변경 없음, 문서 커밋/푸시 미실행(`.git` 읽기 전용).
 
+## 2026-10-20 Claude Code(윈도우) — 리허설 사이트에 배포판 v1.07 배포 + Supabase URL Configuration 저장 (주인님 「수정 개선된 버전으로 다시 배포」)
+- `D:\ktr\w\…_v1.07\insta_auto_poster`에 v1.06 설정·Vercel 연결 복사 → 로컬 빌드 → `vercel deploy --prod`(dev-kit-insta, Ready 30s). 확인 경로·「인증 완료」 안내 화면 확인. Supabase `kit-insta` Site URL을 localhost 기본값 → 사이트 주소, Redirect URLs `…/**` 추가.
+- 남은 확인: Confirm email을 잠시 켜고 새 이메일로 가입 → 메일 링크가 dev-kit-insta로 돌아오는지(주인님 메일 필요). 대기 중인 v1.07 마법사 창은 닫아도 됨(누르면 빌드 1회 더). Lab 자원 삭제 여부 대기. `REHEARSAL_LOG.md` R9·R10.
+
 ## 2026-10-20 Claude Code(윈도우) — 배포판 가입 화면 오류 수정(buylife.xyz 이동·확인 메일 localhost) → `SNS_Auto_Posting_Kit_v1.07`
 - 주인님 수강생 계정 시험에서 발견. 원인 ① BOM으로 독립 모드 꺼짐 → 비독립 가입 분기 ② `signUp`에 `emailRedirectTo` 없음·받는 경로 없음 → Supabase 기본 Site URL(localhost).
 - 수정(INSTA·Threads 운영, 독립 모드 전용 — **운영 미배포, 다음 배포 때 버전 +0.01**): `IS_STANDALONE` `.trim()` 비교, 가입 `emailRedirectTo` + 확인 경로(`/api/auth/confirm`·`/api/threads-content-ops/auth/confirm`), `kit.json` `authRedirectPath` → 마법사 마무리 URL Configuration(Site URL·`내주소/**`, 업데이트 모드는 「이미 했으면 Enter」). 각 `AGENTS.md`·`KIT/README.md` 업데이트 내역·지침 함정 표 기록.

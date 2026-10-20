@@ -67,3 +67,6 @@
 
 캡처(매뉴얼 반영): `img/w01-wizard-start.png` · `w02-supabase-new-project.jpg` · `w05-confirm-email-off.jpg` · `u01-update-detect.png` · `u02-update-done.png` · `u03-site-login.jpg`.
 못 한 것: Meta 앱·인스타 연결·게시(1차 리허설 Threads에서 확인한 흐름과 같음), 맥(주인님 결정으로 안 함).
+| R9 | v1.07 배포(주인님 「수정 버전으로 다시 배포」) | ✅ v1.06 폴더의 `.env.local`·`.vercel`을 v1.07로 복사(업데이트 모드와 같은 동작) → 로컬 `npm ci`·`build`(`/api/auth/confirm` 포함) → `vercel deploy --prod` Ready 30s | `/api/auth/confirm` 307 → `/login?confirmed=1`, 화면에 「메일 인증이 끝났습니다…」 안내(`img/u04-login-confirmed.jpg`) |
+| R10 | Supabase URL Configuration | ✅ Site URL `http://localhost:3000`(기본값 — 확인 메일 localhost의 원인) → `https://dev-kit-insta.vercel.app`, Redirect URLs `https://dev-kit-insta.vercel.app/**` 추가 | `img/w09-url-configuration.jpg`. 확인 메일 실제 왕복(Confirm email 잠시 켜고 가입 → 링크 클릭)은 주인님 메일 필요 — 대기 |
+
