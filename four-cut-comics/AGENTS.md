@@ -71,6 +71,17 @@
 - 검수: tsc 0, 시험 35/35, 빌드. 배포·크롬 확인 결과는 아래 줄에 추가.
 - 배포·검수(2026-10-20): `four-cut-comics-gmsrnixmd` Ready, DB `programs.version` v1.15. 크롬: 사이드바 v1.15, 버튼이 여는 INSTA 주소(`?caption=&hashtags=`)로 INSTA 새 글 화면의 캡션·해시태그 칸이 정확히 채워짐(`&` 포함). 크롬 확인 중 INSTA가 AI 이미지 없이는 첨부 칸을 안 보이고 제출 때 항상 AI로 덮어쓰는 문제를 발견 → 주인님 승인으로 INSTA v1.27에서 보완(아래 INSTA 기록). 4컷 화면의 버튼 클릭 자체(컷 그림이 모두 있어야 보임)는 그림 생성 비용 때문에 실화면 미검수 — 다음에 그림을 만들 때 버튼→새 탭·그림 저장·안내 확인.
 
+## 2026-10-20 v1.18 — ⏰ 인스타 예약 게시·게시 기록 + 올라갈 장 미리보기 (Claude Code 윈도우, v1.17 추가개선 제안 ①②)
+- 플랜 `docs/PLAN_20261020_INSTA_SCHEDULE.md`. 기준: `ai-webtoon-studio` v1.16 사본(원본 카드뉴스 v1.19·v1.24 + 실패 시 되돌리기). 지침: 루트 `docs/SCHEDULER_POLICY.md`.
+- 게시 칸(`InstaDirectPublish.tsx`): 「지금 게시 / 예약 게시」, 예약 날짜·시간(한국 시간 10분 뒤~60일), 실행 상태 줄(`SchedulePublishingControl.tsx` — 일시정지·재개·실행 방식 바꾸기 → /settings), 「최근 인스타 게시 기록(30일)」(예약됨·게시 중·게시됨·실패·취소, 게시물 보기, 예약 취소). 즉시 게시도 기록, 일시 오류 때 이미 올라갔는지 확인해 중복 게시 방지.
+- **올라갈 장 미리보기**: 게시와 같은 `toFeedJpeg`(흰 여백 포함)로 그려 ‹ › 로 넘겨 봄. 형식·컷이 바뀌면 닫고, 그림 주소는 목록이 바뀌거나 닫힐 때만 정리(넘겨도 그림 유지).
+- 설정(/settings): 「API키등록·플랫폼연동」 아래 「⏰ 예약 발행」(`components/workspace/ScheduleSettings.tsx`, 웹툰 사본을 밝은 테마 `card`·`chip`으로) — Vercel 기본 / 내 cron-job.org + 공용 키 한 줄. 머리글 안내도 「인스타 게시·예약」 기준으로 고침.
+- 서버: `src/lib/instagram/{schedule,cronJobOrg,memberScheduler}.ts`(웹툰 사본, 접두어 `fcc_`, 사이트 주소 four-cut-comics.buylife.xyz), `posting.ts`(기록·예약 실행·30일 정리·30분 멈춤·24시간 지연 미게시·1회 재시도 전 중복 확인), API `/api/instagram/{posts,dispatch,dispatch-member,scheduler}` + `publish` 기록 추가. `vercel.json` crons 5분.
+- 운영 DB(ref `esgxyikcnnvmlhygjkth`, 승인): 표 `fcc_insta_posts`·`fcc_member_scheduler`(RLS 본인 읽기만, 쓰기는 서버만), version v1.18 — `supabase/migrations/0010_insta_schedule_v1_18.sql`. 운영 Vercel `CRON_SECRET` 추가, `FCC_PLATFORM_SCHEDULER` 없음(= 켜짐).
+- 웹툰의 「여러 회차 한 번에 예약」은 4컷에 회차 파일(JSON) 저장이 없어 이번 범위에서 뺌.
+- 검수(2026-10-20): 시험 49개(예약 9개 추가)·타입·빌드 통과. 배포 `four-cut-comics-oht0onhpd` → 저장 버튼 줄바꿈 수정 `four-cut-comics-4f6slfxuo` Ready. 비로그인 새 주소 8개·잘못된 회원 토큰·잘못된 비밀값 401. 크롬(관리자 계정, 탭 화면 상태에 시험 컷 600×800 4장 넣어 확인): /settings 「⏰ 예약 발행」(Vercel 기본, 공용 cron-job.org 키 「등록됨」), 컷별 캐러셀 미리보기 2/4장 넘김(640×800 흰 여백), **예약 1건 실제 등록** → 「예약됨 11:06 · 4장」 → DB `scheduled`·11:06 KST=02:06 UTC·저장소 4장 모두 640×800 → 예약 취소 → 「취소」·사진 4장 삭제(저장소 400)·상태 줄 대기 0건(조금 늦게 갱신). 저장 버튼 「저/장」 두 줄 문제 찾아 고쳐 재배포 후 한 줄 확인. 취소된 시험 기록 1건(관리자 본인)은 30일 뒤 자동 삭제.
+- **하지 않은 것**: 실제 인스타 게시(예약 실행 포함), 「내 cron-job.org」 전환(관리자 하루 호출 한도 보호).
+
 ## 2026-10-20 v1.17 — 📤 인스타그램에 바로 게시(자동 포스팅 4단계, 즉시 게시) (Claude Code 윈도우)
 - 플랜 `docs/PLAN_20261020_INSTA_DIRECT_POST.md`. 기준: `ai-webtoon-studio` v1.15 즉시 게시 사본(연결 상태·서명 업로드·게시·임시 사진 삭제), 공용 기준 코드 `instagram-publish` 사본 추가(`scripts/check-shared-modules.mjs` 등록).
 - 화면(`src/components/studio/InstaDirectPublish.tsx`): 모든 컷이 끝나면 「인스타 게시 문구」 칸 아래 「📤 인스타그램에 바로 게시」 — ① 바둑판 합본 1장(피드) ② 컷별 캐러셀(컷 수만큼, 최대 10장). 캡션은 「인스타 문구 만들기」 결과로 채우고 고칠 수 있음(2200자). 연결은 INSTA에서 한 번 한 공용 값(`insta_accounts`), 공개 게시 확인 체크 후 게시. 기존 「INSTA로 넘기기」 두 버튼은 INSTA에서 예약·편집하려는 회원을 위해 그대로 둠.
