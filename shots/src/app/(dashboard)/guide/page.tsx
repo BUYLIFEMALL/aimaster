@@ -60,14 +60,18 @@ export default function GuidePage() {
     },
     {
       step: "05",
-      title: "Full HD 렌더링 & 업로드",
-      desc: "Remotion 모션 그래픽스 엔진으로 영상 씬, BGM, 자막을 1080x1920 해상도로 무손실 합성한 뒤 유튜브 쇼츠·인스타 릴스로 즉시 배포합니다.",
+      title: "영상 만들기 & 업로드",
+      desc: "① 브라우저에서 만들기(무료 기본): 본인 OpenAI 키로 장면 내레이션을 만들고 이미지·노란 자막·배경음악과 함께 이 브라우저 안에서 1080×1920 MP4로 합칩니다(영상 1편 음성 약 10원). ② 고급 합성: 본인 JSON2Video 키·ElevenLabs 음성. 완성 영상은 유튜브 쇼츠·인스타 릴스로 바로 올립니다.",
       icon: <UploadCloud className="w-5 h-5 text-purple-400" />,
-      badge: "Remotion & YouTube API",
+      badge: "Browser MP4 & YouTube API",
     },
   ];
 
   const FAQS = [
+    {
+      q: "JSON2Video 키가 없어도 영상을 만들 수 있나요?",
+      a: "네. 영상 편집 화면의 「최종 영상 만들기」에서 ① 브라우저에서 만들기(기본)를 고르면 OpenAI 키 하나로 만들 수 있습니다. 장면마다 내레이션 음성을 만들고(영상 1편 약 10원) 이 브라우저 안에서 MP4로 합쳐 저장하므로 영상 합성 요금이 없습니다. 만드는 동안(1~3분) 탭을 열어 두세요. 완성 영상은 30일 동안 보관된 뒤 자동으로 지워지니, 그 전에 유튜브·인스타에 올리거나 내려받아 두세요.",
+    },
     {
       q: "유튜브 쇼츠 자동화는 어떤 AI 모델들을 사용하나요?",
       a: "트렌드 및 팩트 기반 검색에는 Perplexity Sonar, 스크립트 및 훅 기획에는 OpenAI GPT-4o, 9:16 세로 씬 이미지 생성에는 Gemini Nano-Banana 2.1, 배경음악 작곡에는 Suno AI 모델을 유기적으로 결합하여 최상의 숏폼 퀄리티를 구현합니다.",

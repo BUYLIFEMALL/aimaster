@@ -11,7 +11,8 @@ import { PostingSection } from "@/components/candidates/PostingSection";
 import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["gemini", "openai", "suno", "json2video"];
+// JSON2Video는 「② 고급 합성」을 고를 때만 필요(2026-10-21 브라우저에서 만들기 기본)
+const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["gemini", "openai", "suno"];
 
 export default async function ScriptDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: videoId } = await params;
@@ -71,7 +72,13 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
         <BgmSection video={video} tracks={bgmTracks ?? []} />
       </div>
       <div className="mt-6">
-        <RenderSection video={video} defaultVoiceId={renderSettings?.elevenlabs_voice_id ?? null} />
+        <RenderSection
+          video={video}
+          defaultVoiceId={renderSettings?.elevenlabs_voice_id ?? null}
+          scenes={(segments ?? []).map((s) => ({ narration: s.narration, imageUrl: s.image_url ?? "" }))}
+          bgmUrl={(bgmTracks ?? []).find((t) => t.id === video.bgm_selected_track_id)?.audio_url ?? null}
+          hasOpenAiKey={registeredProviders.has("openai")}
+        />
       </div>
       <div className="mt-6">
         <PostingSection

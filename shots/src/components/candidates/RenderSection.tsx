@@ -11,13 +11,17 @@ import {
   type CheckRenderState,
 } from "@/lib/actions/render";
 import type { Database } from "@/types/database.types";
+import { BrowserRenderPanel } from "@/components/candidates/BrowserRenderPanel";
+import type { StoryScene } from "@/lib/render/story";
 
 type Video = Database["public"]["Tables"]["shorts_videos"]["Row"];
 
 const initialRequestState: RequestRenderState = {};
 const POLL_INTERVAL_MS = 10000;
 
-export function RenderSection({ video, defaultVoiceId }: { video: Video; defaultVoiceId: string | null }) {
+export function RenderSection({ video, defaultVoiceId, scenes, bgmUrl, hasOpenAiKey }: {
+  video: Video; defaultVoiceId: string | null; scenes: StoryScene[]; bgmUrl: string | null; hasOpenAiKey: boolean;
+}) {
   const router = useRouter();
   const [requestState, requestAction, isRequesting] = useActionState(
     requestRenderAction,
@@ -26,6 +30,7 @@ export function RenderSection({ video, defaultVoiceId }: { video: Video; default
   const [isPending, startTransition] = useTransition();
   const [checkError, setCheckError] = useState<string | null>(null);
   const [voiceId, setVoiceId] = useState(defaultVoiceId ?? "");
+  const [mode, setMode] = useState<"browser" | "j2v">("browser");
 
   useEffect(() => {
     if (video.render_status !== "rendering") return;
@@ -45,13 +50,41 @@ export function RenderSection({ video, defaultVoiceId }: { video: Video; default
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <h2 className="mb-1 text-lg font-medium text-neutral-900">최종 영상 렌더링 (JSON2Video)</h2>
-      <p className="mb-4 text-sm text-neutral-600">
-        위에서 만든 6장면(이미지+대사)과 선택한 배경음악을 하나의 쇼츠 영상으로 합칩니다. 대사는
-        ElevenLabs 음성으로 자동 더빙되고, 자막도 자동으로 생성됩니다.
+      <h2 className="mb-1 text-lg font-medium text-neutral-900">최종 영상 만들기</h2>
+      <p className="mb-3 text-sm text-neutral-600">
+        위에서 만든 장면(이미지+대사)과 선택한 배경음악을 하나의 쇼츠 영상으로 합칩니다. 만드는 방식을 고르세요.
       </p>
+      {video.render_status !== "rendering" && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {([["browser", "① 브라우저에서 만들기 (무료·OpenAI 음성)"], ["j2v", "② 고급 합성 (JSON2Video·ElevenLabs)"]] as const).map(([m, label]) => (
+            <button key={m} type="button" onClick={() => setMode(m)}
+              className={`rounded-full border px-4 py-1.5 text-sm ${mode === m ? "border-red-600 bg-red-600 text-white" : "border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {(!video.render_status || video.render_status === "failed") && (
+      {mode === "browser" && video.render_status !== "rendering" && (
+        <div className="space-y-4">
+          {video.render_status === "ready" && video.rendered_video_url && (
+            <div className="space-y-2">
+              <video controls src={video.rendered_video_url} className="max-h-[70vh] w-full rounded-lg bg-black" />
+              <a href={video.rendered_video_url} download target="_blank" rel="noreferrer"
+                className="inline-block rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700">영상 다운로드</a>
+            </div>
+          )}
+          <BrowserRenderPanel videoId={video.id} scenes={scenes} bgmUrl={bgmUrl} hasOpenAiKey={hasOpenAiKey} />
+        </div>
+      )}
+
+      {mode === "j2v" && video.render_status !== "rendering" && (
+        <p className="mb-4 text-sm text-neutral-600">
+          본인 JSON2Video 키·크레딧으로 합성합니다. 대사는 ElevenLabs 음성으로 자동 더빙되고, 자막도 자동으로 생성됩니다.
+        </p>
+      )}
+
+      {mode === "j2v" && (!video.render_status || video.render_status === "failed") && (
         <form action={requestAction} className="space-y-3">
           <input type="hidden" name="videoId" value={video.id} />
           <div>
@@ -85,7 +118,7 @@ export function RenderSection({ video, defaultVoiceId }: { video: Video; default
         </div>
       )}
 
-      {video.render_status === "ready" && video.rendered_video_url && (
+      {mode === "j2v" && video.render_status === "ready" && video.rendered_video_url && (
         <div className="space-y-3">
           <video controls src={video.rendered_video_url} className="max-h-[70vh] w-full rounded-lg bg-black" />
           <div className="flex items-center gap-2">
