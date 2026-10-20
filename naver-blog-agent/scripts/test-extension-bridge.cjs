@@ -33,6 +33,8 @@ function loadTS(filename) {
   const module = { exports: {} };
   const js = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const req = (id) => {
+    if (id === 'server-only') return {};
+    if (id === '@/lib/privatePhotos') return loadTS(path.join(root, 'src/lib/privatePhotos.ts'));
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => db };
     if (id === '@/lib/access') return { evaluateProgramAccessForUser: async () => access };
     if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));

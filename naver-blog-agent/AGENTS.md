@@ -6,6 +6,8 @@
 
 ---
 
+> **현재 릴리스 작업:** [BLC-01 v2.01 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md). 승인된 비공개 사진 버킷·정책 적용과 실제 회원 API 검수 완료. 코드/manifest/ZIP v2.01 준비, 배포/DB 프로그램 버전/확장 실제 검수는 진행 중입니다. 공용 OpenAI 사본 미배포분과 모델 안내를 함께 포함합니다.
+
 ## 1. 프로그램의 사용 목적 및 대상
 - **사용 목적**:
   - 네이버 블로그 포스팅의 3단계 워크플로우(실시간 떡상 콘텐츠 수집 → 5단계 AI 원고/이미지 생성 → 콘텐츠 보관함 & 스마트에디터 ONE 크롬 확장 자동 발행)를 자동화하여 안전하고 신속한 블로그 운영 지원.
@@ -112,6 +114,8 @@ flowchart TD
 - **에디터 자동 백업 알림 뱃지**: 로컬 스토리지에 안전하게 임시 보관 중임을 에디터 우측 상단에 인디케이터로 안내.
 
 ## 2026-10-20 — OpenAI 요청 규칙 공용 기준 코드 사본 적용 (Claude Code 윈도우, **미배포 — 다음 배포 때 함께**)
+
+> Codex 후속 로컬 반영: 아래 ‘다음 수정 때 모델 안내’ 지시를 `src/app/(dashboard)/page.tsx`에 연결했습니다. 타입·로컬 빌드·회귀 140개 통과, 일반 회원 화면 검수/운영 배포는 대기입니다. 기존 공용 사본은 변경하지 않았습니다. [현재 검수/인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md). 운영 v2.00 유지, 다음 실제 배포 때 버전 동기화합니다.
 - `naver-blog-agent/src/lib/ai/openaiRequestParams.ts`는 공용 기준 코드 `openai-request-params` 사본(기준 `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts`) — **직접 고치지 않는다**. 「GPT-4 계열일 때만 온도」 분기를 `openAIGenerationParams(model, { temperature })`로 바꿈(동작 같음, 추론 모델 규칙은 기준 한 곳에서 관리).
 - 검수: tsc 0, 기존 테스트 통과. 급하지 않은 정리라 배포하지 않음(빌드 비용 규칙). **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 적을 것.** 목록: 루트 `docs/SHARED_MODULES.md` 「미배포 사본」.
 - **다음에 이 프로그램을 고칠 때 함께(주인님 결정 2026-10-20)**: 글 모델 선택 칸(`src/app/(dashboard)/page.tsx`) 아래에 모델 성격·상대 비용·GPT-5 지연 안내 붙이기 — 사본에 이미 `openAIModelBadge`·`openAIModelTierHint`·`openAIModelNotice`가 있어 화면 한두 줄만 추가. 기준 구현·방법: 루트 `docs/SHARED_FEATURE_MAP.md` §8.

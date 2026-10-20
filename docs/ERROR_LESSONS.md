@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — Orca의 아래 방향 키 이름은 `Down` (Codex, 블로그 로컬 회원 검수)
+
+- 증상: `orca computer press-key --key ArrowDown`이 `Unsupported key: ArrowDown`으로 거부됐습니다.
+- 원인: 브라우저 DOM 키 이름과 Orca 데스크톱 명령의 키 이름이 다릅니다.
+- 해결: 같은 드롭다운에서 `--key Down` → `--key Return`으로 GPT-6 Luna 선택을 실제 모델 표시/화면으로 확인했습니다.
+- 다음부터: 키 이름 오류는 CLI 도움말/지원 이름을 확인해 고치고, 입력 수락만으로 성공 처리하지 말고 선택값을 읽어 검증합니다. `window_not_focused`와 다른 오류입니다.
+
 <!-- IMAGE_SIDEBAR_LESSON_V122_20261020 -->
 ## 2026-10-20 — 윈도우 PowerShell에서 `$v | npx vercel env add …`로 넣은 값 앞에 BOM이 붙어 독립 모드가 꺼짐 → 배포판 사이트가 운영 주소로 308 이동 (배포 키트 마법사 `setup.ps1`, Claude Code 윈도우 리허설)
 - 증상: 배포판 v1.01을 윈도우 마법사로 설치 → `https://dev-kit-insta.vercel.app`이 `auto-instagram-posting.buylife.xyz`로 308 이동, 마법사 ⑧ 「사이트 주소를 확인하지 못했습니다」. 로컬 `.env.local`·코드(`IS_STANDALONE` 가드)는 정상, Vercel에 환경변수 7개도 등록돼 있었음.

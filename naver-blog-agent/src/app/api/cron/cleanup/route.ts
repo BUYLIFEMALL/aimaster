@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RETENTION_DAYS, retentionCutoff } from "@/lib/retention";
 import { checkRankingHealth } from "@/lib/naverRanking";
+import { cleanupPrivatePhotos, PrivatePhotoError } from "@/lib/privatePhotos";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -30,16 +31,26 @@ export async function GET(request: NextRequest) {
 
     const dryRun = request.nextUrl.searchParams.get("dry") === "1";
     const cutoff = retentionCutoff();
+    const admin = createAdminClient() as any;
+    // 새 사진은 옛 콘텐츠 유예와 관계없이 원래 업로드일부터 30일을 적용한다.
+    let privatePhotos: Awaited<ReturnType<typeof cleanupPrivatePhotos>> | { error: string };
+    try { privatePhotos = await cleanupPrivatePhotos(admin, dryRun); }
+    catch (error) {
+      // 새 버킷 장애가 기존 원고·이미지 정리까지 막지는 않지만 실패 상태는 드러낸다.
+      privatePhotos = { error: error instanceof PrivatePhotoError ? error.message : "비공개 사진 정리를 완료하지 못했습니다." };
+    }
+    const privatePhotosFailed = "error" in privatePhotos;
 
     if (!cutoff) {
       return NextResponse.json({
+        success: !privatePhotosFailed,
         retentionDays: RETENTION_DAYS,
         note: "정책 시작 후 30일 유예 기간이 진행 중이므로 만료 대상이 없습니다.",
         dryRun,
-      });
+        privatePhotos,
+      }, { status: privatePhotosFailed ? 503 : 200 });
     }
 
-    const admin = createAdminClient() as any;
     let expiredPostsCount = 0;
     let removedPostsCount = 0;
     let expiredImagesCount = 0;
@@ -109,7 +120,7 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json({
-      success: true,
+      success: !privatePhotosFailed,
       retentionDays: RETENTION_DAYS,
       cutoff: cutoff.toISOString(),
       expiredPosts: expiredPostsCount,
@@ -117,8 +128,9 @@ export async function GET(request: NextRequest) {
       expiredImages: expiredImagesCount,
       removedImages: removedImagesCount,
       dryRun,
+      privatePhotos,
       rankingHealth,
-    });
+    }, { status: privatePhotosFailed ? 503 : 200 });
   } catch (err: any) {
     console.error("Cron Cleanup Error:", err);
     return NextResponse.json({ error: err.message || "정리 작업 중 오류 발생" }, { status: 500 });

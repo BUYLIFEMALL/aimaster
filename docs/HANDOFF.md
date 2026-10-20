@@ -1,9 +1,38 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Codex — 블로그 BLC-01 승인된 Storage 적용·v2.01 릴리스 배포 준비
+
+- [릴리스 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md): 운영 ref `esgxyikcnnvmlhygjkth`, 비공개 버킷/제한 정책 적용, 실제 익명 업로드 403·dry 삭제 0·시험 회원 사진 API 9개 통과. CLI 파일은 MCP 원격 migration 실제 버전 `20261020093222`와 정렬.
+- v2.01 코드·manifest/ZIP 동기화, 타입·빌드·회귀 140개·확장 42개/브리지/발행 설정·공용 사본 점검 통과. 임시 회원 검수 HTML 제거. 다음은 본인 파일 커밋/푸시→기존 프로젝트 1회 배포→DB/라이브 ZIP 동기화→운영 회원/확장 준비 검수. BLC-01 전체 완료는 아직 아님. 유료 AI/최종 발행 0, 시험 사진 1장.
+
+https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 병합 B 1단계: DM 답변을 INSTA 댓글자동화 안으로 (instagram-comment-reply v1.18)
 - DM 화면 5개 `/dm/*`, 좌측 메뉴 「💬 DM 답변」, 이름 「INSTA 댓글·DM 자동화」(앱 안), DM 전용 코드 `lib/dmApp/`·`components/dm/`, DB 형식에 `dm_*` 표. Meta DM 웹훅 주소 그대로, DM 텔레그램 웹훅 `/api/dm/telegram/webhook/[userId]`. **연결 한 번**: 「DM 답변도 사용」(기본 켬)으로 메시지 권한 함께 요청 → 허락되면 `dm_accounts`도 저장. 해제 시 DM 계정도 삭제. 플랜 `instagram-comment-reply/docs/PLAN_20261020_DM_MERGE.md`.
 - 검수: tsc·build, 공용 코드 점검 일치, 커밋 `f9392323`, 배포 `instagram-comment-reply-g6g06ighg` Ready, DB v1.18, DM 텔레그램·이전 주소 무인증 401, 실제 회원 DM 웹훅 서명 없음 401, 크롬(관리자) DM 5화면·댓글 6화면 200, DM 홈에 기존 DM 계정 표시, 설정 「(댓글·DM)」 표시. **실제 인스타 재연결(권한 동의)·DM 수신/발송은 시험 안 함**. 기존 DM 연결(관리자 텔레그램 DM 봇·Meta DM 웹훅 주소)은 새 주소로 다시 등록 필요.
 - 다음: 2단계(대시보드·기록 하나로, DM 홈의 「댓글자동화와 함께」 홍보 띠 정리), 3단계(주인님 확인).
+
+## 2026-10-20 Codex — 블로그 모델 안내의 로컬 시험 회원 실화면 검수 완료
+
+- [실제 회원 화면·최신 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md): 로컬 `buylifemall@naver.com`, 안내 펼침·GPT-6 Luna 세부 선택·빠름/상대 비용·추론 지연·캡처 가독성 확인. 기존 제공사 전환/복원과 합쳐 동반 안내 로컬 검수 완료. 설정 저장 없이 새로 고침으로 저장된 GPT-4.1 복원 확인. 재로그인 필요 없음.
+- 키보드/캡처는 이번에는 동작했지만 중간 Home 포커스 오류도 있어 환경 완전 복구로 보고하지 않음. 사진 인증 API/Storage·확장 준비는 미검수, 운영 ref `esgxyikcnnvmlhygjkth`의 버킷 1개/차단 정책 1개 승인 대기. v2.00·미배포, 이번 콘텐츠/스키마/Storage 쓰기·유료 호출·발행 0, 기록 미커밋/미푸시.
+
+https://naver-blog-agent.buylife.xyz
+
+## 2026-10-20 Codex — 블로그 시험 회원 로컬 로그인 확인·모델 안내 일부 실검수
+
+- [최신 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md): 주인님 직접 로그인한 `buylifemall@naver.com`의 로컬 Edge 대시보드/생성 화면 확인. OpenAI 안내 표시→Claude 전환 시 숨김→GPT 복귀 시 복원 확인. 기본 설정 저장·AI 생성/발행 없음.
+- 상세 펼침·개별 모델 전환은 반영 미확인, 후속 화면 캡처 실패. 인증 사진 API·Storage/확장 준비는 미검수. 로그인 대기는 해소, 운영 ref `esgxyikcnnvmlhygjkth`의 버킷 1개/제한 정책 1개 명시적 승인 대기는 유지. v2.00·미배포·이번 콘텐츠/스키마/Storage 쓰기 0. 로컬 `http://127.0.0.1:4321` 유지. 변경/증거 미커밋·미푸시.
+
+https://naver-blog-agent.buylife.xyz
+
+## 2026-10-20 Codex — 블로그 BLC-01 동반 모델 안내 로컬 구현·빌드 통과
+
+- [최신 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md): 프로그램 AGENTS가 다음 수정 때 요구한 모델 성격·상대 비용·추론 지연 안내를 글 모델 선택 칸에 연결. 기존 공용 함수만 호출, 사본/모델/API는 유지. 타입 검사·로컬 프로덕션 빌드·회귀 140개 통과, 무인증 HTTP 5개 401.
+- 로컬 `http://127.0.0.1:4321`(실행 세션 55844) 준비. 지정 일반 회원 직접 로그인과 비공개 버킷 1개/차단 정책 1개 추가 승인 답변 대기. Edge visible이어도 키보드 포커스 오류 유지, RDP 최소화 확정 원인으로 보지 않음. 직접 새 Edge 실행은 자동 검토 `blocked by policy`, 메뉴 새 창도 상태 변경으로 미생성.
+- 운영 DB ref `esgxyikcnnvmlhygjkth`, v2.00·미배포·이번 DB/Storage 쓰기/유료 호출/발행 0. 코드/문서 미커밋/미푸시. 다음은 답변 후 화면/Storage 검수·버전/ZIP/DB 동기화·한 번 배포. BLC-02 미착수.
+
+https://naver-blog-agent.buylife.xyz
 
 ## 2026-10-20 Claude Code(윈도우) — INSTA v1.40·v1.41: 로그인 화면 다크 테마 + v1.39 관리자 실검수
 - v1.39 실검수(관리자): 카드뉴스 설정에서 「내 cron-job.org」 → `insta_member_scheduler` cronjob(옛 cns 표 그대로) → INSTA 설정에도 같은 선택 → Vercel로 되돌림(시험 전 상태).
@@ -15,11 +44,33 @@
 - 검수: tsc·build·테스트 통과, 커밋 `7d26818f`, 배포 `insta-auto-poster-ijghxsq3j` Ready, DB v1.39, 회원 실행 주소 3곳 가짜 토큰 401, 크롬(시험 회원) 카드뉴스 예약 상태 API가 INSTA 설정 값(vercel) 반환. **「내 cron-job.org」로 바꿔 실제 작업이 켜지는 흐름은 시험 회원에 cron-job.org 키가 없어 확인 못 함** — 관리자 로그인 때 확인 필요.
 - 다음: 병합 B 「INSTA 댓글·DM 자동화」.
 
+## 2026-10-20 Codex — Edge 키보드 거부 원인 경로 확인·RDP 대조 대기
+
+- [읽기 전용 진단](EDGE_FOCUS_DIAGNOSIS_20261020.md): 키보드 실패 시 Windows 활성 창 핸들 0. RDP 세션 2·Default 데스크톱, Edge/Orca/검사 프로세스 상승 여부 같음. Orca runtime의 활성 창 검사와 복원 후 500ms 오류 경로 확인. `danger-full-access` 부족으로 단정하지 않음.
+- RDP 클라이언트 창의 최소화/화면 전환이 유력하지만 사용자 대조 미완료. 원격 창을 표시한 채 Edge 클릭 요청. 간헐적 `ok:true`/synthetic input을 실제 키 입력 복구로 보지 않음. 제품/설정/권한/DB 변경·발행·배포 없음, 진단 기록 미커밋/미푸시. BLC-01 후속 환경 조사이며 다음은 표시 상태 대조/실제 키보드 결과 확인.
+
+https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 병합 A 완료(3단계): 카드뉴스 노출 중지·옛 주소 INSTA로 (cardnews v1.32)
 - 주인님 승인(「병합 완료되면 노출 중지」). 운영 DB(ref `esgxyikcnnvmlhygjkth`): `cardnews-studio` `is_active=false`·한 줄 요약에 「[병합됨 → INSTA 포스팅 자동화(2026-10-20)]」·version v1.32, `auto-instagram-posting` 한 줄 요약·상세 설명(507자)·핵심 특징/사용 순서/추천 대상을 카드뉴스 포함으로 다시 씀. 바꾸기 전 값 백업 `docs/analysis-insta-consolidation-20261020/backup-programs-before-merge.json`. 카드뉴스 개별 권한 180건은 INSTA가 FREE라 옮기지 않음(구독·즐겨찾기 0건).
 - 코드(`e574afed`): 옛 카드뉴스 `next.config.ts` 화면 주소 → INSTA `/cardnews/...` 307, `/api/*` → INSTA 전달(INSTA 전용 주소도 401로 응답 확인), 메인 `next.config.mjs` `/programs/cardnews-studio` → `/programs/auto-instagram-posting`, 공용 기준 코드 4개 기준을 `insta_auto_poster/src/lib/cardnews/`로 이동, 역량 지도 「병합됨」 표시.
 - 검수: 카드뉴스 배포 `cardnews-studio-3y18s2gq7`·메인 자동 배포 Ready, 크롬에서 옛 상세 주소 → INSTA 상세(새 소개 문구), 카탈로그·홈에 「INSTA Cardnews」 없음.
 - 남음: 예약 실행 방식 설정 INSTA·카드뉴스 두 개(표 이전 필요, 선택 개선), **다음 작업 병합 B 「INSTA 댓글·DM 자동화」**.
+
+## 2026-10-20 Codex — Edge 재시험: 메뉴 클릭·매뉴얼 이동 성공
+
+- [블로그 BLC-01 재시험 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md): 대시보드 → 매뉴얼 메뉴 클릭 → `/guide` 실제 페이지, FAQ 펼치기까지 후속 상태로 확인. 접근성 클릭·이동 가능, 키보드 `window_not_focused` 유지. 현재 관리자 세션이며 일반 회원 사진/확장 검수는 아님.
+- 운영 ref `esgxyikcnnvmlhygjkth`의 사진 버킷/정책 명시적 승인 대기, DB/Storage 쓰기·발행·배포·버전 변경 없음. BLC-01 운영 미완료, 다음은 승인된 Storage 적용/검증과 지정 시험 회원 로그인. Edge는 매뉴얼 화면에 유지. 이번 재시험 기록 미커밋/미푸시.
+
+https://naver-blog-agent.buylife.xyz
+
+## 2026-10-20 Codex(윈도우) — 블로그 BLC-01 재개 사전 확인·승인/Edge 포커스 대기
+
+- [재개 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md). 사진 소스 9개 해시 일치, 140개 시험·확장 42개·브리지/발행 설정·타입 검사 통과. 운영 DB ref `esgxyikcnnvmlhygjkth` 읽기 확인: v2.00, 새 사진 버킷/정책 없음, Storage RLS 활성.
+- 이전 Orca 접근 거부는 재발하지 않음. Edge 창 조회·트리·캡처·새 탭/주소 설정 확인, 키보드는 `window_not_focused`로 실제 페이지 이동/회원/확장 검수 미확인. 주인님 직접 Edge 포그라운드 전환 요청. 별도 창 실행은 자동 검토 `blocked by policy`, 우회하지 않음.
+- [구체 Storage 변경안](../naver-blog-agent/docs/BLC01_STORAGE_CHANGE_PROPOSAL.md)의 버킷 1개+제한 정책 1개 승인을 질문한 상태. 승인 후 적용/검증·최신 버전 +0.01·ZIP/DB 동기화·한 번 배포·회원/확장 준비 검수 순서. 이번 DB/Storage 쓰기·유료 AI·최종 발행·배포 0, 커밋/푸시 없음, 기존 변경 보존. BLC-02 미착수.
+
+https://naver-blog-agent.buylife.xyz
 
 ## 2026-10-20 Claude Code(윈도우) — 병합 A 2단계: INSTA 보관함 하나로 (INSTA v1.37·v1.38)
 - v1.37(`30c9c802`): 「게시글 관리」 아래 「🎨 카드뉴스 예약·게시 기록」(회원 본인 최근 30건·예약 취소), 새 글에서 「카드뉴스(캐러셀 4장)」 선택 시 카드뉴스 스튜디오 안내(AI 4장·직접 첨부·4컷 넘기기 그대로). v1.38(`93874b30`): 다크 바탕에 묻히던 화면 제목 6곳 글자색. 화면 전체 색 정리는 `insta_auto_poster/docs/IMPROVEMENTS.md`(디자인 담당).
@@ -31,6 +82,16 @@
 - 한 일: 카드뉴스 화면 7개 → INSTA `/cardnews/*`, API 13개+프로젝트·템플릿·키 API는 주소 그대로, 좌측 메뉴 「카드뉴스 스튜디오」 묶음, 권한 INSTA(FREE) 기준, 카드뉴스 예약 자동 실행을 INSTA로(옛 카드뉴스 cron 제거 v1.31), 테스트 52개 이식(`npm run test:cardnews`), 공용 기준 코드 사본 7개 등록. v1.36: 카드뉴스 홈·설정·매뉴얼 제목 정리, INSTA 좌측 메뉴 계정 위치(사이드바 표준).
 - 검수: tsc·build·테스트 통과, 커밋 `97b56ba4`·`5876884d`, 배포 INSTA `insta-auto-poster-9xm4q658n`·카드뉴스 `cardnews-studio-r6748yipv` Ready, DB v1.36·v1.31, 예약 실행 주소 3개 무인증 401, 크롬(시험 회원) `/cardnews` 홈·기획 실화면·카드뉴스 7화면·INSTA 6화면 200·기존 프로젝트 1건 표시. AI 생성·인스타 게시는 시험하지 않음(비용·실게시).
 - 다음: 2단계(INSTA 게시물 목록에 카드뉴스 예약 함께 표시, AI 이미지 카드뉴스 4장 → 스튜디오 일원화) → 3단계(옛 cardnews 주소 이동·카탈로그 「병합됨」·기준 위치 이동, 주인님 확인 후) → 병합 B.
+
+## 2026-10-20 Codex — 블로그 병합 담당 인수 / BLC-00 운영 완료·BLC-01 로컬 구현
+
+- 주인님 지정으로 블로그 병합 전체 담당은 **Codex**. Claude `7320615a`의 일반 회원 실검수 결과 인수, BLC-00 완료/작업표 갱신. 기존 코드/검수 기록 보존.
+- BLC-01: 본인 비공개 사진 저장·조회·원래 업로드일부터 30일 정리·확장 선점 전 서명/다운로드 직전 현재 실행 한정 갱신 구현. **로컬 140개(사진 17개 포함)+확장 시나리오 42개+별도 스크립트 2개·타입·빌드 통과**, 빌드 후 무인증 HTTP 5경로 401. 실제 Storage·유료 AI·최종 발행 0회.
+- **미완료**: 비공개 버킷/제한 정책 각 1개 운영 적용 승인·실제 RLS 검증·버전/확장 ZIP/DB 동기화·커밋/푸시·배포·일반 회원 Edge/확장 검수. 운영 v2.00 유지, 로컬 변경 미배포. 사진 입력 UI/글쓰기는 BLC-02~04로 미구현이며 어느 기존 도구도 중단하지 않음.
+- 세션 제한: `.git` 읽기 전용, Edge 제어는 Orca runtime 파일 접근 거부 0x5로 2회 실패. 주인님에게 Orca **설정 검색「새 채팅의 권한」→「전체 액세스」→같은 폴더에서 새 Codex 채팅**으로 재시험 안내. 새 채팅에만 적용된다는 설치 코드 확인. 에이전트 권한 상승/Orca 재시작 없음.
+- 다음 첫 단계: [BLC-01 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLC01_PRIVATE_PHOTOS.md)·[Storage 변경안(미적용)](../naver-blog-agent/docs/BLC01_STORAGE_CHANGE_PROPOSAL.md)·[순차 작업표](BLOG_CONSOLIDATION_TASKS.md) 확인 → 새 세션 Edge 연결/구체적 승인 확인 → BLC-01 운영 검증까지 완료 후 BLC-02.
+
+https://naver-blog-agent.buylife.xyz
 
 ## 2026-10-20 Claude Code(윈도우) — 블로그 통합 BLC-00 운영 실검수 완료(Codex 환경 접속 제한 대신 수행)
 - 테스트 계정 실제 로그인·크롬: ① 신규 원고 `prepare` 기본값 ✅ ② 기존 원고 19건 저장 모드 보존 ✅(옛 무설정 `publish` 11·저장 `prepare` 8) ③ 회원 설정 변경·저장·원복 ✅. v2.00 본문 정리(`

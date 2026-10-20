@@ -39,6 +39,7 @@ function harness() {
     const filename=path.join(root,rel),module={exports:{}};
     const js=ts.transpileModule(fs.readFileSync(filename,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
     const req=id=>{
+      if(id==='server-only')return {};
       if(id==='next/server')return {NextResponse:{json:(body,init)=>({body,status:init?.status || 200,headers:init?.headers})}};
       if(id==='@/lib/supabase/admin')return {createAdminClient:()=>admin};
       if(id==='@/lib/access')return {checkProgramAccessApi:async()=>access?{allowed:true,userId:'owner'}:{allowed:false,error:'로그인 필요',status:401},evaluateProgramAccessForUser:async()=>access?{allowed:true}:{allowed:false,error:'로그인 필요',status:403}};

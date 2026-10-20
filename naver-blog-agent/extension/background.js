@@ -76,7 +76,8 @@ async function api(route, body = {}, override) {
   const c = override || (await stored()).connection;
   switch (route) {
     case '/pair': { const d = await web('/api/extension/auth', {code:body.code, deviceName:'Chrome'}); return {token:d.token, label:'네이버 블로그', blogId:body.blogId, platform:'naver'}; }
-    case '/poll': return web('/api/extension/task', {blogId:c.blogId,supportsPrepare:true,supportsRuns:true}, c.token);
+    case '/poll': return web('/api/extension/task', {blogId:c.blogId,supportsPrepare:true,supportsRuns:true,supportsPrivatePhotos:true}, c.token);
+    case '/photo': return web('/api/extension/photos', body, c.token);
     case '/result': {
       const success=Boolean(body.result?.published);
       const prepared=body.result?.prepared===true;
@@ -128,7 +129,13 @@ async function checkUpdate() {
 async function loadAsset(task, index) {
   const asset = task.payload.assets?.[index];
   if (!asset || !/^https:\/\//i.test(asset.url)) throw new Error('이미지 주소가 올바르지 않습니다.');
-  const response = await fetch(asset.url, {signal:AbortSignal.timeout(30000)});
+  let url = asset.url;
+  if (asset.storagePath) {
+    const fresh = await api('/photo', {taskId:task.id,runId:task.runId,storagePath:asset.storagePath});
+    url = fresh.photo?.preview?.url;
+    if (typeof url !== 'string' || !/^https:\/\//i.test(url)) throw new Error('사진 임시 주소를 확인하지 못했습니다.');
+  }
+  const response = await fetch(url, {signal:AbortSignal.timeout(30000),...(asset.storagePath?{cache:'no-store'}:{})});
   if (!response.ok) throw new Error('이미지를 가져오지 못했습니다. ('+response.status+')');
   const blob = await response.blob(); const bytes = new Uint8Array(await blob.arrayBuffer()); let binary = '';
   for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));

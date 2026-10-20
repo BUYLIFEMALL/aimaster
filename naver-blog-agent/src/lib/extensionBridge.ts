@@ -28,6 +28,7 @@ export async function authenticateExtension(
 export interface BridgeAsset {
   url: string;
   name: string;
+  storagePath?: string;
 }
 
 export interface BridgePayload {

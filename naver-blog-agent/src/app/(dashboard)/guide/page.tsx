@@ -272,7 +272,7 @@ export default function GuidePage() {
             <div className="space-y-1">
               <h4 className="text-xs font-black text-slate-900">발행 전 준비까지만 모드 권장</h4>
               <p className="text-xs text-slate-600 font-normal leading-relaxed">
-                확장이 본문과 이미지를 입력한 후 최종 발행 직전에 멈추도록 설정하고, 네이버 화면에서 직접 확인 후 발행을 누르세요.
+                새로 만드는 원고는 ‘발행 전 준비까지만’으로 시작합니다. 확장이 본문과 이미지를 입력하면 네이버 화면에서 직접 확인 후 발행을 누르세요. 기존 원고의 진행 방식은 유지되며, 자동 발행을 원하면 해당 원고의 발행 설정에서 직접 선택해 저장할 수 있습니다.
               </p>
             </div>
           </div>

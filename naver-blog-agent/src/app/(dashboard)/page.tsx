@@ -50,6 +50,7 @@ import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone
 import { ARTICLE_FORMATS, type ArticleFormat } from "@/lib/ai/articleFormats";
 import { MAX_SHOPPING_LINKS, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
 import { buildSourceMaterial } from "@/lib/ai/sourceGrounding";
+import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from "@/lib/ai/openaiRequestParams";
 import {
   ENGINES,
   DEFAULT_ENGINE,
@@ -1547,6 +1548,18 @@ export default function MainPage() {
                       ))}
                     </select>
                   </label>
+
+                  {engine.provider === "openai" && openAIModelBadge(engine.model) && (
+                    <details className="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-700">
+                      <summary className="cursor-pointer font-semibold" title={openAIModelTierHint(engine.model)}>
+                        모델 성격: {openAIModelBadge(engine.model)} ⓘ
+                      </summary>
+                      <p className="mt-2 leading-relaxed">{openAIModelTierHint(engine.model)}</p>
+                    </details>
+                  )}
+                  {engine.provider === "openai" && openAIModelNotice(engine.model) && (
+                    <p className="text-xs leading-relaxed text-neutral-600">{openAIModelNotice(engine.model)}</p>
+                  )}
 
                   {!engineKeyReady && (
                     <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">

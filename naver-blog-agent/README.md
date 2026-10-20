@@ -1,7 +1,15 @@
 # 네이버 블로그 에이전트 (Naver Blog Agent)
 
+> **BLC-01 승인 후 릴리스 진행:** [v2.01 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RELEASE.md). 비공개 Storage/정책 적용·실제 회원 사진 API 9개 통과, v2.01 코드/ZIP·로컬 검사 준비 완료. 배포·확장 실제 검수는 진행 중입니다.
+
+> **2026-10-20 재개 확인:** [Edge 부분 제어·Storage 승인 대기 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_RESUME.md). 코드 대조·회귀 시험 통과, BLC-01 운영 미완료·v2.00 유지.
+
+> **부분 통합 담당: Codex(2026-10-20 주인님 지정)**. [순차 작업목록 BLC-00~15](../docs/BLOG_CONSOLIDATION_TASKS.md). BLC-00 안전장치 운영 검수 완료. BLC-01 사진 비공개 보관 기반은 로컬 구현/검수 통과·운영 미적용입니다. [최신 인수인계](docs/IMPROVEMENT_HANDOFF_20261020_BLC01_PRIVATE_PHOTOS.md) · [플랜](docs/PLAN_20261020_BLC01_PRIVATE_PHOTOS.md) · [운영 저장소·권한 변경안(미승인/미적용)](docs/BLC01_STORAGE_CHANGE_PROPOSAL.md).
+
+> **2026-10-20 부분 통합 0단계**: 새 원고 준비 모드 초기화 3개 파일이 다른 CLI 커밋 `9e3bb9ea`에 함께 반영됐습니다. 기존 원고 설정은 유지합니다. [순차 실행 계획](docs/PLAN_20261020_BLOG_CONSOLIDATION_STAGE0.md) · [0단계 이력](docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md). 운영 검수는 Claude `7320615a` 결과를 인수해 완료했습니다. 사진 UI/글쓰기 이관·기존 도구 중단은 아직 하지 않았습니다.
+
 > **공식 서비스 URL**: https://naver-blog-agent.buylife.xyz  
-> **현재 버전**: `v1.99` (2026-10-20)  
+> **현재 운영 버전**: `v2.00` (2026-10-20, BLC-01 로컬 코드는 미배포)
 > **디자인 템플릿**: **플로우 위저드 스타일 (네이버 그린 라이트 변형)**
 
 크롬 확장 프로그램과 5단계 멀티 AI 에이전트로 네이버 블로그 글의 기획·작성·윤문·스마트에디터 ONE 안전 자동 발행을 지원하는 올인원 에이전트 프로그램입니다.
