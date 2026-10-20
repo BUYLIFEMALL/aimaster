@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { X, Play, ExternalLink, Sparkles, CheckCircle2, ShieldCheck, Star } from "lucide-react";
 import { formatKRW } from "@/lib/utils/format";
+import { parseDetailSections } from "@/lib/programs/detailSections";
 import { getTemplateBadge } from "@/lib/templateBadge";
 import Badge from "@/components/ui/Badge";
 import GoldButton from "@/components/ui/GoldButton";
@@ -34,6 +35,7 @@ export default function QuickPreviewModal({
     ?.filter((p) => p.is_active)
     .sort((a, b) => a.price - b.price)[0];
   const isFree = resolvedBadges.includes("free");
+  const features = parseDetailSections(program.detail_sections).features.slice(0, 3);
 
   // ESC 키로 닫기
   useEffect(() => {
@@ -120,6 +122,20 @@ export default function QuickPreviewModal({
           )}
 
           {/* 핵심 특징 3대 포인트 */}
+          {/* 2026-10-20: 이 프로그램의 핵심 특징 3개(detail_sections). 없으면 아래 공통 카드 3개 */}
+          {features.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {features.map((f) => (
+                <div key={f.title} className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-start gap-2.5">
+                  <span className="text-base leading-none shrink-0 mt-0.5">{f.icon || "✨"}</span>
+                  <div>
+                    <div className="text-xs font-bold text-white">{f.title}</div>
+                    <div className="text-[11px] text-white/60 line-clamp-2">{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-start gap-2.5">
               <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
@@ -143,6 +159,7 @@ export default function QuickPreviewModal({
               </div>
             </div>
           </div>
+          )}
 
           {/* 가격 & 액션 버튼 */}
           <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
