@@ -23,7 +23,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [accountRes, settingsRes, keysRes, telegramRes, pendingRes, weekRes, totalRes, monitoredRes, recentRes] =
+  const [accountRes, settingsRes, keysRes, telegramRes, pendingRes, weekRes, totalRes, monitoredRes, recentRes, dmAccountRes, dmPendingRes, dmTelegramRes] =
     await Promise.all([
       getCommentAccount(supabase, user.id).then((data) => ({ data })),
       supabase
@@ -67,6 +67,19 @@ export default async function DashboardPage() {
         .eq("status", "pending_review")
         .order("fetched_at", { ascending: false })
         .limit(3),
+      // 2026-10-20 병합 B 2단계: DM 답변 상태도 함께
+      supabase.from("dm_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+      supabase
+        .from("dm_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "pending_review"),
+      supabase
+        .from("user_telegram_links")
+        .select("bot_username")
+        .eq("user_id", user.id)
+        .eq("program_slug", "instagram-dm-reply")
+        .maybeSingle(),
     ]);
 
   const account = accountRes.data;
@@ -76,6 +89,7 @@ export default async function DashboardPage() {
   const modelLabel = REPLY_MODEL_OPTIONS.find((o) => o.value === replyModel)?.shortLabel ?? replyModel;
   const intervalLabel = MONITORING_INTERVAL_OPTIONS.find((o) => o.value === settings?.monitoring_interval_minutes)?.label;
   const pending = pendingRes.count ?? 0;
+  const dmPending = dmPendingRes.count ?? 0;
 
   const connections = [
     {
@@ -93,7 +107,13 @@ export default async function DashboardPage() {
       ok: providers.has(getReplyModelProvider(replyModel)),
       detail: providers.has(getReplyModelProvider(replyModel)) ? "등록됨" : "미등록",
     },
-    { label: "텔레그램 승인 알림", ok: !!telegramRes.data, detail: telegramRes.data ? "연결됨" : "선택 사항" },
+    { label: "텔레그램 댓글 알림", ok: !!telegramRes.data, detail: telegramRes.data ? "연결됨" : "선택 사항" },
+    {
+      label: "DM 답변 (메시지 권한)",
+      ok: !!dmAccountRes.data,
+      detail: dmAccountRes.data ? "사용 중" : "「DM 답변도 사용」으로 연결하면 켜져요",
+    },
+    { label: "텔레그램 DM 알림", ok: !!dmTelegramRes.data, detail: dmTelegramRes.data ? "연결됨" : "선택 사항" },
     {
       label: "예약 모니터링",
       ok: !!settings?.monitoring_enabled,
@@ -105,10 +125,13 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-6xl">
       <StudioHeader
         title="계정 대시보드"
-        description="새 댓글에 AI가 답글 초안을 만들어 두면, 확인하고 「답변승인」을 눌러 인스타그램에 게시합니다."
+        description="새 댓글과 DM에 AI가 답변 초안을 만들어 두면, 확인하고 「답변승인」을 눌러 인스타그램에 게시·발송합니다."
       >
         <Link href="/comments" className="ig-btn-primary">
           💬 댓글 검토하기{pending > 0 ? ` (${pending})` : ""}
+        </Link>
+        <Link href="/dm/conversations" className="ig-btn">
+          💌 DM 검토하기{dmPending > 0 ? ` (${dmPending})` : ""}
         </Link>
         <Link href="/guide" className="ig-btn">
           📖 매뉴얼
@@ -133,8 +156,9 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard label="검토 대기 댓글" value={pending} hint="승인해야 게시돼요" accent={pending > 0} />
+        <StatCard label="검토 대기 DM" value={dmPending} hint="승인해야 발송돼요" accent={dmPending > 0} />
         <StatCard label="최근 7일 게시" value={weekRes.count ?? 0} />
         <StatCard label="총 게시한 답글" value={totalRes.count ?? 0} />
         <StatCard label="모니터링 중인 게시물" value={monitoredRes.count ?? 0} />

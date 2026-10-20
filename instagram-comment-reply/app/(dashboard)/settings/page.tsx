@@ -81,7 +81,7 @@ export default async function SettingsPage() {
         <StudioHeader
           icon="🔑"
           title="API키등록·플랫폼연동"
-          description="INSTA 댓글자동화는 본인의 Meta 앱(인스타그램 연동)과 AI 키(답글 생성)를 각각 연동해서 사용합니다. 앱(관리자) 공용 키로 대신 동작하지 않습니다."
+          description="INSTA 댓글·DM 자동화는 본인의 Meta 앱(인스타그램 연동)과 AI 키(답글 생성)를 각각 연동해서 사용합니다. 앱(관리자) 공용 키로 대신 동작하지 않습니다."
         />
 
         <div className="space-y-5">

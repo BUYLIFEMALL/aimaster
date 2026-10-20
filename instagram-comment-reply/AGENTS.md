@@ -179,6 +179,14 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - 주인님 DM 봇 재연동 중 「메시지를 찾지 못했어요」가 반복(봇 2개 — 댓글 `@aimaster_insta_bot`, DM `@aimaster_insta_dm_bot`). 원인 후보: 다른 봇 토큰 입력 / 옛 웹훅이 걸린 동안 보낸 메시지가 옛 앱으로 감. 실패 안내에 「입력한 토큰의 봇은 @○○ 입니다」(getMe)를 붙여 어느 봇에 메시지를 보내야 하는지 바로 보이게(`lib/actions/telegram.ts`·`lib/dmApp/actions/telegram.ts`의 `botNameHint`).
 - Meta DM 웹훅 새 주소 등록 확인: 2026-10-20 Meta 확인 요청 GET `/api/instagram/dm-webhook/<관리자>` 200(주인님이 콜백 URL·인증 토큰 교체 후 확인 및 저장).
 
+## 2026-10-20 v1.23 — 병합 B 2단계: 대시보드·기록 하나로, 이름 통일 (Claude Code 윈도우)
+- 대시보드(`/dashboard`): 「검토 대기 DM」 카드, 「💌 DM 검토하기(n)」 버튼, 연결 상태에 「DM 답변(메시지 권한)」·「텔레그램 DM 알림」 추가(`dm_accounts`·`dm_messages`·`user_telegram_links` program_slug=instagram-dm-reply 조회).
+- 기록: `components/HistoryTabs.tsx` — `/history`(댓글 답글)와 `/dm/history`(DM 답장)를 탭으로 오감.
+- DM 홈·DM 매뉴얼의 「INSTA 댓글자동화와 함께 쓰면…」 외부 홍보 카드 → 같은 프로그램 안 댓글 메뉴 안내로 교체, FAQ 문구 수정.
+- 회원에게 보이는 옛 이름(로그인 화면·브라우저 제목·권한 오류·연결 끊김 알림·텔레그램 연동 완료 메시지 등 10곳)을 「INSTA 댓글·DM 자동화」로 통일.
+- 텔레그램 DM 봇 재연동은 v1.21 수정 후 성공(2026-10-20 18:56, 관리자) — 1단계 남은 재등록 항목 완료.
+- 다음 첫 단계: 병합 B 3단계(주인님 확인 필요) — 옛 `instagram-dm-reply` 주소 이동·API 전달, 카탈로그 DM 노출 중지, DB 이름·소개 다시 쓰기, 역량 지도.
+
 ## 2026-10-20 v1.22 — 텔레그램 연동 실패 안내에 진단 정보 표시 (Claude Code 윈도우)
 - v1.21 뒤에도 DM 봇이 「메시지를 찾지 못했어요」라서, 실패 안내 끝에 `[진단: 웹훅 걸림/없음(주소), 대기 수, 웹훅 오류, 받은 알림 개수·종류(채팅 종류)]`를 붙임(`telegramDiagnosis`, `lib/actions/telegram.ts`·`lib/dmApp/actions/telegram.ts`). 메시지 내용은 보여 주지 않음.
 - 다음 첫 단계: 주인님 화면의 진단 문구로 원인 판단(웹훅이 다른 주소에 다시 걸림 → 다른 서비스가 봇 사용 중 / 받은 알림 0개 → 다른 곳이 getUpdates로 먼저 가져감 / message(group) → 그룹에서 보냄).

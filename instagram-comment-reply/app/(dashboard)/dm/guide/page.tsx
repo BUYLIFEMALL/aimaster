@@ -32,8 +32,8 @@ const FAQ = [
     a: "Instagram 앱 ID 칸에 Facebook 앱 ID를 넣었거나 자릿수가 빠진 경우예요. Meta 앱의 「Instagram 로그인이 포함된 API 설정」 맨 위의 Instagram 앱 ID(15~16자리)를 넣어 주세요.",
   },
   {
-    q: "INSTA 댓글자동화와 어떻게 함께 쓰나요?",
-    a: "두 프로그램은 동일한 Meta 개발자 앱(Instagram 앱 ID)을 공유할 수 있습니다. 피드/릴스에 달린 댓글 문의는 'INSTA 댓글자동화'로 즉시 대응하고, 댓글에서 'DM 확인해 주세요'라고 유입된 고객은 'INSTA DM답변 자동화'로 자연스럽게 구매/상담 링크를 안내해 드리는 옴니채널 연계가 가능합니다.",
+    q: "댓글 답글 기능과 어떻게 함께 쓰나요?",
+    a: "INSTA 댓글·DM 자동화 한 프로그램 안에서 인스타 계정 연결 한 번(「DM 답변도 사용」 켬)으로 댓글과 DM을 함께 처리합니다. 피드/릴스 댓글 문의는 댓글 메뉴에서 즉시 대응하고, 댓글에서 'DM 확인해 주세요'로 유입된 고객은 DM 메뉴에서 구매/상담 링크를 안내할 수 있습니다.",
   },
 ];
 
@@ -160,24 +160,19 @@ export default async function GuidePage() {
         </div>
       </section>
 
-      {/* INSTA 댓글자동화 연계 안내 */}
+      {/* 2026-10-20 병합 B 2단계: 댓글 기능은 같은 프로그램 안에 있음 */}
       <section className="ig-card border-l-4 border-l-ig-primary">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="flex items-center gap-1.5 text-sm font-bold text-ig-text">
-              <span>💬</span> INSTA 댓글자동화와 함께 사용하기
+              <span>💬</span> 댓글 자동 답글도 같은 프로그램에서
             </h3>
             <p className="mt-1 text-xs text-ig-muted">
-              피드 댓글과 다이렉트 메시지를 함께 자동화하여 인스타그램 유입 고객을 놓치지 않고 전환하세요.
+              피드 댓글과 다이렉트 메시지를 한 프로그램에서 함께 자동화합니다. 왼쪽 메뉴 「STEP 1·2」에서 댓글을 관리하세요.
             </p>
           </div>
-          <a
-            href="https://instagram-comment-reply.buylife.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ig-btn-primary shrink-0 px-4 py-2 text-xs"
-          >
-            INSTA 댓글자동화 바로가기 ↗
+          <a href="/media" className="ig-btn-primary shrink-0 px-4 py-2 text-xs">
+            게시물 관리로 가기 →
           </a>
         </div>
       </section>

@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/dmApp/access";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { StudioHeader, StatCard, Avatar } from "@/components/dm/ui/StudioHeader";
+import { HistoryTabs } from "@/components/HistoryTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,7 @@ export default async function HistoryPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <StudioHeader icon="📊" title="발송 이력" description="지금까지 실제로 인스타그램 DM으로 발송된 답장입니다." />
+      <HistoryTabs active="dm" />
 
       <div className="mb-6 grid grid-cols-3 gap-3">
         <StatCard label="총 발송한 답장" value={postedTotal ?? 0} />

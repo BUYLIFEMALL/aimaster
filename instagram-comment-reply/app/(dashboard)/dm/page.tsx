@@ -246,33 +246,14 @@ export default async function DashboardPage() {
         </ol>
       </div>
 
-      {/* INSTA 댓글자동화 연계 시너지 카드 */}
-      <div className="mt-6 rounded-2xl border border-ig-border bg-gradient-to-br from-ig-surface via-ig-surface to-blue-50/40 p-5 shadow-xs">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3.5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-ig-primary/10 text-2xl">
-              💬
-            </span>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-ig-text">INSTA 댓글자동화와 함께 쓰면 더욱 효과적이에요</h3>
-                <span className="rounded-full bg-ig-primary/10 px-2 py-0.5 text-[10px] font-bold text-ig-primary">
-                  옴니채널 연계
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-ig-muted">
-                댓글에서 &ldquo;DM 확인해 주세요!&rdquo; 요청이 오면 DM답변 자동화로 즉각 연결되어 고객 전환율을 극대화합니다.
-                동일한 Meta 개발자 앱(Instagram 앱 ID)을 공유하여 간편하게 연동할 수 있습니다.
-              </p>
-            </div>
-          </div>
-          <a
-            href="https://instagram-comment-reply.buylife.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ig-btn shrink-0 text-xs font-semibold text-ig-primary hover:border-ig-primary"
-          >
-            INSTA 댓글자동화 바로가기 ↗
+      {/* 2026-10-20 병합 B 2단계: 같은 프로그램 안 댓글 메뉴 안내(예전 외부 홍보 카드 대체) */}
+      <div className="mt-6 rounded-2xl border border-ig-border bg-ig-surface p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-ig-muted">
+            💬 댓글에서 &ldquo;DM 확인해 주세요&rdquo;로 유입된 고객도 같은 계정 연결 하나로 함께 응대합니다.
+          </p>
+          <a href="/comments" className="ig-btn shrink-0 text-xs font-semibold">
+            댓글 검토로 가기 →
           </a>
         </div>
       </div>

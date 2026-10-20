@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { StudioHeader, StatCard, Avatar } from "@/components/ui/StudioHeader";
 import { IgLogo } from "@/components/ui/IgLogo";
+import { HistoryTabs } from "@/components/HistoryTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +52,7 @@ export default async function HistoryPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <StudioHeader icon="📊" title="답글 이력" description="지금까지 실제로 인스타그램에 게시된 답글입니다." />
+      <HistoryTabs active="comment" />
 
       <div className="mb-6 grid grid-cols-3 gap-3">
         <StatCard label="총 게시한 답글" value={postedTotal ?? 0} />
