@@ -237,6 +237,18 @@ export async function postToYoutubeAction(
   if (!videoId) return { error: "videoId가 없습니다." };
   if (!categoryId) return { error: "카테고리를 선택해주세요." };
   if (!description) return { error: "설명을 먼저 생성하거나 입력해주세요." };
+  // v1.28: 공개 범위(비공개 기본)·예약 공개(15분 뒤~6개월 안, 그때까지 비공개)
+  const privacyRaw = String(formData.get("privacyStatus") ?? "private");
+  const privacyStatus = (["private", "unlisted", "public"] as const).find((p) => p === privacyRaw) ?? "private";
+  const publishAtRaw = String(formData.get("publishAt") ?? "").trim();
+  let publishAt: string | null = null;
+  if (publishAtRaw) {
+    const at = new Date(publishAtRaw);
+    if (Number.isNaN(at.getTime())) return { error: "예약 공개 시각이 올바르지 않습니다." };
+    if (at.getTime() < Date.now() + 15 * 60_000) return { error: "예약 공개는 지금부터 15분 뒤 이후로 정해 주세요." };
+    if (at.getTime() > Date.now() + 180 * 86_400_000) return { error: "예약 공개는 6개월 안으로 정해 주세요." };
+    publishAt = at.toISOString();
+  }
 
   const supabase = await createClient();
 
@@ -279,7 +291,8 @@ export async function postToYoutubeAction(
       title: video.title,
       description,
       categoryId,
-      privacyStatus: "public",
+      privacyStatus,
+      publishAt,
     });
 
     await supabase

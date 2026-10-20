@@ -124,6 +124,8 @@ export interface UploadYoutubeVideoInput {
   description: string;
   categoryId: string;
   privacyStatus?: "public" | "unlisted" | "private";
+  /** 예약 공개 시각(ISO). 있으면 유튜브 규칙에 따라 privacyStatus는 private로 보낸다(2026-10-21 Shots v1.28) */
+  publishAt?: string | null;
 }
 
 export interface UploadYoutubeVideoResult {
@@ -140,7 +142,8 @@ export async function uploadYoutubeVideo(input: UploadYoutubeVideoInput): Promis
       categoryId: input.categoryId,
     },
     status: {
-      privacyStatus: input.privacyStatus ?? "public",
+      privacyStatus: input.publishAt ? "private" : (input.privacyStatus ?? "public"),
+      ...(input.publishAt ? { publishAt: input.publishAt } : {}),
       selfDeclaredMadeForKids: false,
     },
   };

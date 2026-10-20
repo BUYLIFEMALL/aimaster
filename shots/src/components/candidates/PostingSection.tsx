@@ -95,6 +95,11 @@ export function PostingSection({
   const [categoryId, setCategoryId] = useState(
     suggestState.categoryId ?? video.youtube_category_id ?? "",
   );
+  // v1.28: 공개 범위(비공개 기본 — 확인 뒤 유튜브 스튜디오에서 직접 공개)·예약 공개
+  const [privacy, setPrivacy] = useState<"private" | "unlisted" | "public">("private");
+  const [scheduleOn, setScheduleOn] = useState(false);
+  const [scheduleAt, setScheduleAt] = useState("");
+  const publishAtIso = scheduleOn && scheduleAt ? new Date(scheduleAt).toISOString() : "";
 
   const [descriptionState, generateDescriptionAction, isGeneratingDescription] = useActionState(
     generateYoutubeDescriptionAction,
@@ -283,6 +288,27 @@ export function PostingSection({
                 <input type="hidden" name="videoId" value={video.id} />
                 <input type="hidden" name="categoryId" value={suggestState.categoryId ?? categoryId} />
                 <input type="hidden" name="description" value={descriptionState.description ?? description} />
+                <input type="hidden" name="privacyStatus" value={privacy} />
+                <input type="hidden" name="publishAt" value={publishAtIso} />
+                <div className="mb-3 space-y-2">
+                  <label className="block text-xs text-neutral-500">
+                    공개 범위
+                    <select value={privacy} onChange={(e) => setPrivacy(e.target.value as typeof privacy)} disabled={scheduleOn}
+                      className="mt-1 block w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">
+                      <option value="private">비공개(나만 보기 — 확인 뒤 직접 공개)</option>
+                      <option value="unlisted">일부 공개(링크가 있는 사람만)</option>
+                      <option value="public">공개(바로 모두에게)</option>
+                    </select>
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-neutral-700">
+                    <input type="checkbox" checked={scheduleOn} onChange={(e) => setScheduleOn(e.target.checked)} />
+                    정한 시각에 자동 공개(예약 — 그때까지 비공개)
+                  </label>
+                  {scheduleOn && (
+                    <input type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)}
+                      className="block w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900" />
+                  )}
+                </div>
                 <Button
                   type="submit"
                   disabled={
@@ -290,10 +316,11 @@ export function PostingSection({
                     isPostingYoutube ||
                     youtubeNeedsReconnect ||
                     !(suggestState.categoryId ?? categoryId) ||
-                    !(descriptionState.description ?? description)
+                    !(descriptionState.description ?? description) ||
+                    (scheduleOn && !scheduleAt)
                   }
                 >
-                  {isPostingYoutube ? "업로드 중..." : "유튜브에 올리기"}
+                  {isPostingYoutube ? "업로드 중..." : scheduleOn ? "유튜브에 예약 올리기" : "유튜브에 올리기"}
                 </Button>
               </form>
             )}
