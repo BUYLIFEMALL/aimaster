@@ -3,6 +3,8 @@
 //   node scripts/check-openai-models.mjs            모델 목록·보낼 옵션·마지막 시험 결과만 표시(호출·비용 없음)
 //   node scripts/check-openai-models.mjs --live     아직 시험하지 않은 모델만 1회씩 호출(본인 키: 환경변수 OPENAI_API_KEY)
 //   node scripts/check-openai-models.mjs --live --all   모든 모델을 다시 호출
+//   node scripts/check-openai-models.mjs --new      시험 안 했거나 실패한 모델만 짧게(키·비용 없음, 있으면 종료 코드 1)
+//   node scripts/check-openai-models.mjs --staged   커밋 직전 훅용 — 이번 커밋에 추가된 새 모델만 경고(커밋은 막지 않음)
 //   --no-handoff   --live 결과를 docs/HANDOFF.md 맨 위에 한 줄로 남기지 않음(기본은 남김 — 커밋은 실행한 사람이 직접)
 // 요청 옵션은 공용 기준 코드 openai-request-params(naver-blog-seo-studio/lib/ai/openaiRequestParams.ts)로 만든다 — 회원 요청과 같은 규칙.
 // 키는 저장·출력하지 않는다. 결과는 scripts/data/openai-model-check.json(모델·날짜·성공 여부·거부 이유)에만 남는다.
@@ -23,8 +25,37 @@ const writeHandoff = !args.has("--no-handoff");
 
 // 1) 저장소(추적 중인 파일)에서 OpenAI 글 모델 이름 모으기 — 테스트·문서·이미지 모델·lab·분석용 폴더 제외
 const MODEL_RE = /["'`]((?:gpt-[3-9](?:\.\d+)?[a-z]?(?:-[a-z0-9.]+)*)|(?:o[1-9](?:-[a-z0-9]+)*))["'`]/g;
+const isProgramFile = (f) => f && /\.(ts|tsx|js|mjs)$/.test(f) && !/(^|\/)(tests?|scripts|docs|labs|scratch|node_modules|\.next|public|KIT|clone-kit)\//.test(f) && !/\.test\.|\.spec\./.test(f) && !f.startsWith(".") && f.includes("/");
+const isTextModel = (model) => !/image|tts|whisper|embedding|audio|realtime|transcribe|dall/.test(model);
+const readState = () => { try { return fs.existsSync(stateFile) ? JSON.parse(fs.readFileSync(stateFile, "utf8")) : {}; } catch { return {}; } };
+
+// --staged: 커밋 직전 훅(scripts/git-hooks/pre-commit)용. 이번 커밋에서 「추가된 줄」의 새 모델만 보고 경고만 한다 — 절대 커밋을 막지 않는다.
+if (args.has("--staged")) {
+  try {
+    const diff = execFileSync("git", ["diff", "--cached", "-U0", "--no-color", "--", "*.ts", "*.tsx", "*.js", "*.mjs"], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+    const state = readState();
+    const found = new Map(); // model -> Set(file)
+    let file = "";
+    for (const line of diff.split("\n")) {
+      if (line.startsWith("+++ ")) { file = line.slice(4).replace(/^b\//, ""); continue; }
+      if (!line.startsWith("+") || !isProgramFile(file)) continue;
+      for (const m of line.matchAll(MODEL_RE)) {
+        if (!isTextModel(m[1]) || state[m[1]]?.ok) continue;
+        if (!found.has(m[1])) found.set(m[1], new Set());
+        found.get(m[1]).add(file);
+      }
+    }
+    if (found.size) {
+      console.log(`\n⚠ 시험 안 한 OpenAI 모델 ${found.size}개가 이번 커밋에 추가됐습니다(커밋은 그대로 진행됩니다):`);
+      for (const [model, where] of found) console.log(`   - ${model}  (${[...where].slice(0, 3).join(", ")})`);
+      console.log("   회원보다 먼저 확인하려면: OPENAI_API_KEY=<본인 키> node scripts/check-openai-models.mjs --live\n");
+    }
+  } catch { /* 훅은 어떤 경우에도 커밋을 막지 않는다 */ }
+  process.exit(0);
+}
+
 const files = execFileSync("git", ["ls-files", "--", "*.ts", "*.tsx", "*.js", "*.mjs"], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 })
-  .split("\n").filter((f) => f && !/(^|\/)(tests?|scripts|docs|labs|scratch|node_modules|\.next|public|KIT|clone-kit)\//.test(f) && !/\.test\.|\.spec\./.test(f) && !f.startsWith(".") && f.includes("/"));
+  .split("\n").filter(isProgramFile);
 const models = new Map(); // model -> Set(program)
 for (const file of files) {
   let text;
@@ -32,14 +63,24 @@ for (const file of files) {
   if (!/openai|gpt-/i.test(text)) continue;
   for (const m of text.matchAll(MODEL_RE)) {
     const model = m[1];
-    if (/image|tts|whisper|embedding|audio|realtime|transcribe|dall/.test(model)) continue;
+    if (!isTextModel(model)) continue;
     if (!models.has(model)) models.set(model, new Set());
     models.get(model).add(file.split("/")[0]);
   }
 }
 
-const state = fs.existsSync(stateFile) ? JSON.parse(fs.readFileSync(stateFile, "utf8")) : {};
+const state = readState();
 const sorted = [...models.keys()].sort();
+
+// --new: 시험 안 했거나 실패한 모델만 짧게(키·비용 없음). 있으면 종료 코드 1
+if (args.has("--new")) {
+  const untested = sorted.filter((model) => !state[model]?.ok);
+  if (!untested.length) { console.log(`OpenAI 글 모델 ${sorted.length}개 모두 시험 통과 기록이 있습니다.`); process.exit(0); }
+  console.log(`시험 안 했거나 실패한 OpenAI 모델 ${untested.length}개 (전체 ${sorted.length}개):`);
+  for (const model of untested) console.log(`   - ${model}${state[model] ? ` (실패 ${state[model].checkedAt.slice(0, 10)}: ${state[model].reason})` : ""}  · ${[...models.get(model)].slice(0, 4).join(", ")}`);
+  console.log("확인: OPENAI_API_KEY=<본인 키> node scripts/check-openai-models.mjs --live");
+  process.exit(1);
+}
 
 // 2) 표시
 console.log(`OpenAI 글 모델 ${sorted.length}개 (프로그램 코드에서 찾음)\n`);

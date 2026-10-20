@@ -85,7 +85,7 @@
 
 ## 8. OpenAI 모델별 요청 규칙 — 공용 모듈 `openai-request-params` (2026-10-20 등록, 사본 8곳)
 
-OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tokens`를 거부(400)한다. **모델 목록에 새 모델을 넣었으면 `node scripts/check-openai-models.mjs`(호출 없이 목록·보낼 옵션·마지막 시험 결과) → `OPENAI_API_KEY=<본인 키> node scripts/check-openai-models.mjs --live`(시험 안 한 모델만 1회씩, 결과 `scripts/data/openai-model-check.json` + `docs/HANDOFF.md` 맨 위 한 줄 자동 기록 — `--no-handoff`로 끔, 키 오류 401이면 기록 없이 멈춤, 오류 문구의 키 조각은 가림)로 회원보다 먼저 확인한다.** 회원이 모델을 고르는 OpenAI 호출은 요청 본문에 `...openAIGenerationParams(model, { temperature, maxTokens })`를 펼쳐 넣는다. 새 세대 모델 규칙이 바뀌면 기준 한 곳만 고친다.
+OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tokens`를 거부(400)한다. **모델 목록에 새 모델을 넣었으면 `node scripts/check-openai-models.mjs`(호출 없이 목록·보낼 옵션·마지막 시험 결과) → `OPENAI_API_KEY=<본인 키> node scripts/check-openai-models.mjs --live`(시험 안 한 모델만 1회씩, 결과 `scripts/data/openai-model-check.json` + `docs/HANDOFF.md` 맨 위 한 줄 자동 기록 — `--no-handoff`로 끔, 키 오류 401이면 기록 없이 멈춤, 오류 문구의 키 조각은 가림)로 회원보다 먼저 확인한다. 커밋 직전 훅(`scripts/git-hooks/pre-commit`, 설치 `node scripts/git-hooks/install.mjs` — 윈도우 저장소에 2026-10-20 설치, `.git`을 함께 쓰는 맥미니도 적용)이 이번 커밋에 시험 안 한 모델 이름이 추가되면 경고만 띄운다(커밋은 막지 않음). 키 없이 남은 모델만 보기: `node scripts/check-openai-models.mjs --new`.** 회원이 모델을 고르는 OpenAI 호출은 요청 본문에 `...openAIGenerationParams(model, { temperature, maxTokens })`를 펼쳐 넣는다. 새 세대 모델 규칙이 바뀌면 기준 한 곳만 고친다.
 
 | 구분 | 위치 · 내용 | 상태 |
 |---|---|---|
