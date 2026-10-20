@@ -293,3 +293,12 @@ test('reopening an unchanged editable revision after metadata CAS conflict reset
   await assert.rejects(()=>q.write(old,{content:'buffer'}),/변경/);
   handler(queue,'openEditor',q.env)(q.public());assert.equal((await q.write(q.opened,{content:'buffer'})).content,'buffer');
 });
+
+test('successful queue editing refreshes the open detail snapshot used by the review gate',async()=>{
+  const accepted={id:UUID,title:'edited',content:'new body',tags:[],images:[],save_revision:'new',status:'draft'};
+  const h=environment(async()=>({ok:true,status:200,json:async()=>({success:true,post:accepted})}));
+  let detail={...accepted,content:'old body',save_revision:'old'};
+  Object.assign(h.env,{editingPost:detail,setEditingPost(){},setViewingDetailPost:update=>{detail=update(detail);}});
+  assert.equal(await handler(queue,'handleSaveEditor',h.env)({title:'edited',content:'new body',tags:[]}),true);
+  assert.equal(detail.content,'new body');assert.equal(detail.save_revision,'new');
+});

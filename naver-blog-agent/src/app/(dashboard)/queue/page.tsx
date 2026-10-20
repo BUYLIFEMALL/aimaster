@@ -359,6 +359,7 @@ export default function QueuePage() {
     try {
       const saved=await writePost(editingPost,{title:updated.title,content:updated.content,tags:updated.tags,category_name:updated.category || editingPost.category_name || "일반"});
       mergePosts([saved]);
+      setViewingDetailPost(previous => previous?.id === saved.id ? saved : previous);
       setEditingPost(null);
       notify("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
       return true;
