@@ -110,7 +110,7 @@ export default async function DashboardPage() {
         <Link href="/dm/conversations" className="ig-btn-primary">
           💬 DM 검토하기{pendingRows.length > 0 ? ` (${pendingRows.length})` : ""}
         </Link>
-        <Link href="/dm/guide" className="ig-btn">
+        <Link href="/guide" className="ig-btn">
           📖 매뉴얼
         </Link>
       </StudioHeader>

@@ -25,7 +25,6 @@ const DM_ITEMS: NavItem[] = [
   { href: "/dm/conversations", icon: "💌", label: "DM 검토/발송", description: "AI 답장 초안 검토 후 발송" },
   { href: "/dm/history", icon: "🗂️", label: "DM 이력" },
   { href: "/dm/settings", icon: "⚙️", label: "DM 답변 설정" },
-  { href: "/dm/guide", icon: "📘", label: "DM 매뉴얼" },
 ];
 
 const UTILITY_ITEMS: NavItem[] = [
