@@ -82,6 +82,13 @@
 - 남은 일: GPT-5 계열 생성 400(온도 지정 추정, 원장 #14), 휴대폰 목록 가로 넘침(#15), 일반 회원 계정 화면 검수. 인수인계 `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261020.md`.
 - 링크: https://naver-blog-seo-studio.buylife.xyz
 
+## 2026-10-20 Claude Code(윈도우) — 예약 공용 코드 일시정지 안전 처리·상태 줄 즉시 갱신 6개 + 상품소싱 상태 줄 나눔 (주인님 「추가 개선 제안도 진행해줘」)
+- 버전·배포(한 개씩 순차, 모두 Ready): 구글폼 CRM v1.12 `pbaafxmac` · 상품소싱 v1.17 `lemp3p0c6` · 예약 리마인드 v1.23 `4npm8u0xs` · 대량 메일 v1.23 `7afkc500t` · INSTA v1.31 `lkzejhqj4` · 쓰레드 v1.24 `3zrwinmny`. 커밋 `c380e793`, DB 버전 크롬 SQL Editor(6행). `/login` 200·회원 실행 주소 가짜 토큰 401(6개).
+- 내용: ① 일시정지 먼저 저장 + 회원 실행 주소가 일시정지 회원 건너뜀·작업 끄기 재시도 ② 상태 줄이 서버 값 변화를 따라감 ③ 상품소싱 「관심 목록 a개 · 상품 알림 b개」. 제안 ④(핸드폰 미등록 회원 안내)는 이미 프로그램 진입 시 메인 사이트 핸드폰 등록 화면으로 보내고 있어 작업 없음.
+- 크롬: 상품소싱 상태 줄 새 문구·v1.17 확인(시험 회원 0/0 = DB 일치). **미확인**: ①·② 화면 확인은 관리자(본인 cron-job.org 키) 로그인이 필요 — 검수 시점 크롬이 시험 회원으로 로그인돼 있었음.
+- **남은 일**: 같은 수정을 다른 CLI 작업이 끝난 뒤 6개에 적용 — youtube-auto-reply·kakao_auto_poster·naver-cafe-poster(회원 연동 정보 ⑤단계), cardnews-studio·threads-affiliate-poster·threads-content-ops(OpenAI 호출 설정 미커밋 변경). 스크립트 사본: 이 6개는 `memberScheduler.ts` 일시정지 함수·회원 실행 주소 모양이 같으므로 같은 치환으로 적용 가능.
+- 링크: https://trending-product-finder.buylife.xyz/watchlist
+
 ## 2026-10-20 Claude Code(윈도우) — 예약 실검수 마무리: 운영자 09시 실행 + 「내 cron-job.org」 성공 경로 3개 (주인님 「진행해줘」, 코드 변경 없음)
 - 운영자 실행: 구글폼 CRM `/api/cron/followup` 09:00 KST **200**. 상품소싱 09시 리포트 5개 실행(나머지 3개는 핸드폰 미등록 회원 2명이라 권한 확인에서 정상 제외).
 - cron-job.org 하루 한도는 09:06 KST 이전에 풀려 있었음(UTC 0시 초기화로 보임).

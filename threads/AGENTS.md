@@ -132,3 +132,7 @@
 ## 2026-10-20 v1.23 — 예약 공용 코드 「실패 시 상태 되돌리기」 (Claude Code 윈도우)
 - 주인님 「순서대로 진행해줘」(남은 일 4번 마지막). 다른 11개 프로그램과 같은 수정: 「내 cron-job.org」로 바꿀 때 cron-job.org 작업 켜기가 실패하면(하루 호출 한도 초과·키 오류) **이전 방식으로 되돌림**, 「재개」가 실패하면 **일시정지 상태로 되돌림**(`src/lib/posts/memberScheduler.ts`의 `setMemberSchedulerMode`·`resumeMemberScheduler`). 다른 세션(회원 연동 정보 ②단계 v1.22)이 끝나고 미커밋 변경이 없음을 확인한 뒤 작업.
 - 커밋 `497f7e7c`, DB 버전 크롬 SQL Editor로 v1.23, 배포 `threads-o66bilp7g` Ready, `/login` 200, `/api/posts/dispatch-member` 가짜 토큰 401. 실패 경로 실검수는 같은 코드인 booking-reminder에서 확인(2026-10-20).
+
+## 2026-10-20 v1.24 — 일시정지 안전 처리·상태 줄 즉시 갱신 (Claude Code 윈도우)
+- 예약 공용 코드 보강(주인님 「추가 개선 제안도 진행해줘」): ① `pauseMemberScheduler`가 **일시정지를 먼저 저장**하고 cron-job.org 끄기는 시도만 — 실패하면(하루 한도 등) 오류 대신 「일시정지했습니다. 작업 끄기는 다음 호출 때 다시 시도합니다」 안내(`pauseScheduledPublishing`의 `notice`). 대신 회원 실행 주소가 새 `skipPausedMember`로 **일시정지된 회원이면 실행하지 않고** 작업 끄기를 다시 시도(예전엔 회원 실행 주소가 일시정지를 확인하지 않아, 「먼저 저장」만 바꾸면 발송이 나갈 수 있었음). ② `SchedulePublishingControl`이 서버 값이 바뀌면 실행 상태도 따라 바꿈(`useEffect`) — 예전엔 규칙·예약을 켜서 작업이 켜져도 새로고침 전까지 「대기」로 남음. 커밋 `c380e793`, DB 버전 크롬 SQL Editor, 6개 순차 배포 Ready·`/login` 200·회원 실행 주소 가짜 토큰 401. 이 프로그램 배포 `threads-3zrwinmny`.
+- 미확인: 일시정지 실패 경로·상태 줄 즉시 갱신의 크롬 실검수 — 본인 cron-job.org 키가 있는 관리자 로그인이 필요(검수 시점 크롬이 시험 회원으로 로그인돼 있었음). 다음 첫 단계: 관리자로 「내 cron-job.org」 → 규칙/예약 켜기 직후 상태 줄이 새로고침 없이 「실행 중」이 되는지 확인 → Vercel 복귀.
