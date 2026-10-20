@@ -31,16 +31,16 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
-      <h1 className="text-xl font-black text-neutral-900 mb-2">API키등록·플랫폼연동</h1>
-      <p className="text-sm text-neutral-500 mb-8 leading-relaxed">
+      <h1 className="text-xl font-black text-slate-100 mb-2">API키등록·플랫폼연동</h1>
+      <p className="text-sm text-slate-400 mb-8 leading-relaxed">
         AI 카드 일러스트 생성(Gemini)과 AI 타로 해석 생성(OpenAI)에 필요한 본인의 API 키를
         등록해주세요. 등록한 키는 이 계정에만 저장되고, 생성 비용은 본인 키로만 청구됩니다.
       </p>
 
-      <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 mb-6">
+      <section className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-6">
         <div className="mb-4">
-          <h2 className="text-sm font-bold text-neutral-900">🎨 AI 카드 일러스트 · 해석 생성</h2>
-          <p className="text-xs text-neutral-500">
+          <h2 className="text-sm font-bold text-slate-100">🎨 AI 카드 일러스트 · 해석 생성</h2>
+          <p className="text-xs text-slate-400">
             결과 화면에서 뽑힌 카드 3장마다 Gemini(나노바나나)가 새 일러스트를 그려주고,
             OpenAI가 질문과 카드 조합에 맞춘 타로 해석을 써드립니다. 둘 중 하나만 등록해도
             등록한 기능은 바로 이용할 수 있어요.
@@ -58,10 +58,10 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+      <section className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5">
         <div className="mb-4">
-          <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
-          <p className="text-xs text-neutral-500">
+          <h2 className="text-sm font-bold text-slate-100">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-slate-400">
             API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할 수 있습니다.
           </p>
         </div>

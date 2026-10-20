@@ -39,15 +39,15 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
 
   if (readings.length === 0) {
     return (
-      <div className="text-center py-16 px-4 bg-white rounded-2xl border border-neutral-200">
+      <div className="text-center py-16 px-4 bg-[#120d24] rounded-2xl border border-[#2a1f4e]">
         <div className="text-5xl mb-4">🔮</div>
-        <h3 className="text-lg font-bold text-neutral-900 mb-2">저장된 타로 리딩이 없습니다</h3>
-        <p className="text-xs text-neutral-500 mb-6">
+        <h3 className="text-lg font-bold text-slate-100 mb-2">저장된 타로 리딩이 없습니다</h3>
+        <p className="text-xs text-slate-400 mb-6">
           마음 속 고민을 담아 나만의 AI 타로 카드를 뽑아보세요!
         </p>
         <Link
           href="/draw"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 text-white font-bold text-sm hover:bg-neutral-800 transition-all"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-500 transition-all"
         >
           🃏 카드 뽑으러 가기
         </Link>
@@ -64,13 +64,13 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
           onClick={() => setZoomedCard(null)}
         >
           <div
-            className="relative max-w-sm w-full bg-neutral-900 border border-amber-400/40 rounded-3xl p-5 shadow-2xl flex flex-col items-center gap-4 text-white"
+            className="relative max-w-sm w-full bg-[#120d24] border border-amber-400/40 rounded-3xl p-5 shadow-2xl flex flex-col items-center gap-4 text-white"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setZoomedCard(null)}
-              className="absolute top-4 right-4 text-neutral-400 hover:text-white text-sm bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 text-slate-500 hover:text-white text-sm bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
             >
               ✕
             </button>
@@ -98,7 +98,7 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
 
             <div className="text-center">
               <h3 className="text-lg font-black text-amber-300">{zoomedCard.cardNameKo}</h3>
-              <p className="text-xs text-neutral-400 mb-2">{zoomedCard.cardNameEn}</p>
+              <p className="text-xs text-slate-500 mb-2">{zoomedCard.cardNameEn}</p>
               {zoomedCard.meaning && (
                 <p className="text-xs text-neutral-300 leading-relaxed max-w-xs">{zoomedCard.meaning}</p>
               )}
@@ -121,22 +121,22 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
         return (
           <div
             key={item.id}
-            className="rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm transition-all"
+            className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] overflow-hidden shadow-sm transition-all"
           >
             {/* 상단 카드 헤더 */}
-            <div className="w-full flex flex-wrap items-center justify-between gap-3 hover:bg-neutral-50 transition-colors">
+            <div className="w-full flex flex-wrap items-center justify-between gap-3 hover:bg-[#1c1536] transition-colors">
               <button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : item.id)}
                 className="flex-1 min-w-0 text-left p-5"
               >
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-xs font-bold bg-neutral-900 text-white px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-bold bg-purple-600 text-white px-2.5 py-0.5 rounded-full">
                     {config.badge}
                   </span>
-                  <span className="text-xs text-neutral-400">{dateStr}</span>
+                  <span className="text-xs text-slate-500">{dateStr}</span>
                 </div>
-                <h3 className="font-bold text-sm text-neutral-900 truncate">
+                <h3 className="font-bold text-sm text-slate-100 truncate">
                   {item.question ? `"${item.question}"` : config.title}
                 </h3>
               </button>
@@ -148,7 +148,7 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
                 <button
                   type="button"
                   onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                  className="text-xs font-bold text-neutral-500"
+                  className="text-xs font-bold text-slate-400"
                 >
                   {isExpanded ? "접기 ▲" : "상세보기 ▼"}
                 </button>
@@ -160,7 +160,7 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
                 ResultInteractive의 gridColsClass 로직 그대로 맞췄다(2026-09-19,
                 사용자 지적: "최초 생성시 보여지는 크기로 보여지게 해줘"). */}
             {isExpanded && (
-              <div className="p-5 pt-0 border-t border-neutral-100 bg-neutral-50/50">
+              <div className="p-5 pt-0 border-t border-[#2a1f4e] bg-[#0d0920]/60">
                 {/* 뽑힌 카드 썸네일 리스트 */}
                 <div
                   className={`grid gap-4 my-4 ${
@@ -180,9 +180,9 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
                     return (
                       <div
                         key={idx}
-                        className="rounded-xl border border-neutral-200 bg-white p-3 text-center shadow-sm"
+                        className="rounded-xl border border-[#2a1f4e] bg-[#120d24] p-3 text-center shadow-sm"
                       >
-                        <span className="inline-block text-[11px] font-bold bg-neutral-100 text-neutral-700 px-2.5 py-1 rounded-full mb-2">
+                        <span className="inline-block text-[11px] font-bold bg-[#1c1536] text-slate-300 px-2.5 py-1 rounded-full mb-2">
                           {posLabel}
                         </span>
                         <div
@@ -219,10 +219,10 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
                             <span className="text-3xl">🔮</span>
                           )}
                         </div>
-                        <p className="text-sm font-black text-neutral-900 line-clamp-1">
+                        <p className="text-sm font-black text-slate-100 line-clamp-1">
                           {c.nameKo || c.cardId}
                         </p>
-                        <span className="text-xs text-neutral-500 font-medium">
+                        <span className="text-xs text-slate-400 font-medium">
                           {c.orientation === "upright" ? "정방향" : "역방향"}
                         </span>
                       </div>
@@ -232,9 +232,9 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
 
                 {/* AI 종합 해석 영역 */}
                 {item.ai_reading && (
-                  <div className="mt-4 rounded-xl bg-white border border-neutral-200 p-5">
-                    <h4 className="text-sm font-bold text-neutral-900 mb-3">✍️ AI 종합 해석</h4>
-                    <div className="space-y-3 text-sm text-neutral-700 leading-relaxed">
+                  <div className="mt-4 rounded-xl bg-[#120d24] border border-[#2a1f4e] p-5">
+                    <h4 className="text-sm font-bold text-slate-100 mb-3">✍️ AI 종합 해석</h4>
+                    <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
                       {item.ai_reading.split(/\n{2,}/).map((para, i) => (
                         <p key={i}>{para}</p>
                       ))}

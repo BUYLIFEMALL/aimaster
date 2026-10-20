@@ -19,7 +19,7 @@ function SaveButton() {
     <button
       type="submit"
       disabled={pending}
-      className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50"
+      className="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-500 transition-colors disabled:opacity-50"
     >
       {pending ? "저장 중..." : "저장"}
     </button>
@@ -37,15 +37,15 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
   const showForm = !maskedValue || isEditing;
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="rounded-xl border border-[#2a1f4e] bg-[#120d24] p-4">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-neutral-900">{label}</p>
+        <p className="text-sm font-medium text-slate-100">{label}</p>
         {maskedValue && !isEditing && (
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-xs text-emerald-600 hover:underline"
+              className="text-xs text-emerald-400 hover:underline"
             >
               수정
             </button>
@@ -66,21 +66,21 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
             name="apiKey"
             type="password"
             placeholder={maskedValue ? `새 키 입력 (현재: ${maskedValue})` : "API 키 입력"}
-            className="min-w-[220px] flex-1 px-3 py-2 rounded-xl border border-neutral-200 text-sm"
+            className="min-w-[220px] flex-1 px-3 py-2 rounded-xl border border-[#3e2e70] bg-[#0d0920] text-slate-100 placeholder:text-slate-500 text-sm"
           />
           <SaveButton />
           {maskedValue && (
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 rounded-xl border border-neutral-200 text-neutral-600 text-sm font-semibold hover:bg-neutral-50 transition-colors"
+              className="px-4 py-2 rounded-xl border border-[#2a1f4e] text-slate-400 text-sm font-semibold hover:bg-[#1c1536] transition-colors"
             >
               취소
             </button>
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-neutral-500">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-sm text-slate-400">{maskedValue} · 등록됨</p>
       )}
       {state.error && <p className="mt-1 text-xs text-red-500">{state.error}</p>}
       {state.success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}

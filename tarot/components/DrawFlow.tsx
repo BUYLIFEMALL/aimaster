@@ -77,15 +77,15 @@ export function DrawFlow({
       {/* 타이틀 및 헤더 */}
       <div className="text-center mb-8">
         <div className="text-5xl mb-3">🔮</div>
-        <h1 className="text-2xl font-black text-neutral-900 mb-2">AIMaster 타로점 리딩</h1>
-        <p className="text-sm text-neutral-500 leading-relaxed">
+        <h1 className="text-2xl font-black text-slate-100 mb-2">AIMaster 타로점 리딩</h1>
+        <p className="text-sm text-slate-400 leading-relaxed">
           고민의 깊이와 목적에 맞는 스프레드와 마음이 끌리는 아트 스타일을 선택해보세요.
         </p>
       </div>
 
       {/* 1. 스프레드 라인업 선택 */}
       <div className="mb-8">
-        <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
           STEP 1. 타로 스프레드 선택
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -99,26 +99,26 @@ export function DrawFlow({
                 onClick={() => setSpreadType(st)}
                 className={`text-left p-4 rounded-2xl border-2 transition-all ${
                   isSelected
-                    ? "border-neutral-900 bg-neutral-900 text-white shadow-lg scale-[1.01]"
-                    : "border-neutral-200 bg-white text-neutral-800 hover:border-neutral-300"
+                    ? "border-purple-500 bg-purple-600/25 text-white shadow-lg shadow-purple-900/40 scale-[1.01]"
+                    : "border-[#2a1f4e] bg-[#120d24] text-slate-200 hover:border-purple-500/60 hover:bg-[#1c1536]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <span
                     className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                      isSelected ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-700"
+                      isSelected ? "bg-white/20 text-white" : "bg-[#1c1536] text-slate-300"
                     }`}
                   >
                     {config.badge}
                   </span>
-                  <span className={`text-xs ${isSelected ? "text-neutral-300" : "text-neutral-400"}`}>
+                  <span className={`text-xs ${isSelected ? "text-purple-100" : "text-slate-500"}`}>
                     {config.cardCount}장
                   </span>
                 </div>
                 <h3 className="font-bold text-sm mb-1">{config.title}</h3>
                 <p
                   className={`text-xs leading-relaxed whitespace-pre-line ${
-                    isSelected ? "text-neutral-300" : "text-neutral-500"
+                    isSelected ? "text-purple-100" : "text-slate-400"
                   }`}
                 >
                   {config.subtitle}
@@ -131,7 +131,7 @@ export function DrawFlow({
 
       {/* 2. 타로 일러스트 아트 스타일 선택 */}
       <div className="mb-8">
-        <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
           STEP 2. AI 타로 카드 화풍(아트 스타일) 선택
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -145,8 +145,8 @@ export function DrawFlow({
                 onClick={() => setCardStyle(cs)}
                 className={`text-left p-3 rounded-xl border-2 transition-all ${
                   isSelected
-                    ? "border-purple-700 bg-purple-950 text-white shadow-md ring-2 ring-purple-500/20"
-                    : "border-neutral-200 bg-white text-neutral-800 hover:border-neutral-300"
+                    ? "border-purple-500 bg-purple-600/25 text-white shadow-md ring-2 ring-purple-500/30"
+                    : "border-[#2a1f4e] bg-[#120d24] text-slate-200 hover:border-purple-500/60 hover:bg-[#1c1536]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -155,7 +155,7 @@ export function DrawFlow({
                 <h4 className="font-bold text-xs mb-0.5">{style.name}</h4>
                 <p
                   className={`text-[11px] leading-tight line-clamp-1 ${
-                    isSelected ? "text-purple-200" : "text-neutral-400"
+                    isSelected ? "text-purple-200" : "text-slate-500"
                   }`}
                 >
                   {style.description}
@@ -167,19 +167,19 @@ export function DrawFlow({
       </div>
 
       {/* 🤖 AI 모델 선택 드롭다운 UI */}
-      <div className="mb-8 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-        <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+      <div className="mb-8 rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-4">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
           ⚙️ AI 모델 선택 (옵션)
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
               🎨 Gemini 카드 그림 모델
             </label>
             <select
               value={geminiModel}
               onChange={(e) => setGeminiModel(e.target.value)}
-              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-800"
+              className="w-full rounded-xl border border-[#3e2e70] bg-[#0d0920] px-3 py-2 text-xs font-medium text-slate-100"
             >
               {GEMINI_MODEL_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -190,13 +190,13 @@ export function DrawFlow({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
               ✍️ OpenAI 심층 해석 모델
             </label>
             <select
               value={openaiModel}
               onChange={(e) => setOpenaiModel(e.target.value)}
-              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-800"
+              className="w-full rounded-xl border border-[#3e2e70] bg-[#0d0920] px-3 py-2 text-xs font-medium text-slate-100"
             >
               {OPENAI_MODEL_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -215,7 +215,7 @@ export function DrawFlow({
             🧭 {fromProgram} 결과에서 이어 왔습니다. 질문이 미리 채워져 있으며, 자유롭게 고친 뒤 카드를 뽑으세요.
           </p>
         )}
-        <label htmlFor="question" className="mb-2 block text-xs font-bold text-neutral-500 uppercase tracking-wider">
+        <label htmlFor="question" className="mb-2 block text-xs font-bold text-slate-400 uppercase tracking-wider">
           STEP 3. 고민 및 질문 입력 (선택)
         </label>
         <textarea
@@ -227,7 +227,7 @@ export function DrawFlow({
           placeholder="예) 조만간 새로운 프로젝트를 시작하려는데 어떤 마음가짐으로 임하면 좋을까요?"
           className="w-full px-4 py-3 rounded-2xl border border-[#2a1f4e] bg-[#0d0920] text-slate-100 placeholder:text-slate-500 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/40"
         />
-        <p className="mt-1 text-right text-[11px] text-neutral-400">{question.length}/300</p>
+        <p className="mt-1 text-right text-[11px] text-slate-500">{question.length}/300</p>
       </div>
 
       {/* 카드 뽑기 연출 및 버튼 */}
@@ -251,7 +251,7 @@ export function DrawFlow({
           type="button"
           onClick={handleDraw}
           disabled={isShuffling}
-          className="w-full max-w-sm px-8 py-4 rounded-2xl bg-neutral-900 text-white font-bold text-lg hover:bg-neutral-800 transition-all shadow-xl disabled:opacity-60 whitespace-pre-line leading-snug text-center"
+          className="w-full max-w-sm px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-violet-700 text-white font-bold text-lg hover:from-purple-500 hover:to-violet-600 shadow-purple-900/50 transition-all shadow-xl disabled:opacity-60 whitespace-pre-line leading-snug text-center"
         >
           {isShuffling
             ? "카드를 신비롭게 섞는 중..."
@@ -260,24 +260,24 @@ export function DrawFlow({
       </div>
 
       {/* 🔑 맨 하단: API 키 등록 및 안내 섹션 */}
-      <div className="rounded-2xl border border-purple-200 bg-purple-50/50 p-5 shadow-sm">
+      <div className="rounded-2xl border border-purple-500/30 bg-[#120d24] p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <span className="text-lg">🔑</span>
-            <h2 className="text-sm font-bold text-neutral-900">
+            <h2 className="text-sm font-bold text-slate-100">
               AI 타로 카드 생성 & 심층 해석용 API 키 설정
             </h2>
           </div>
           <button
             type="button"
             onClick={() => setShowApiKeySection(!showApiKeySection)}
-            className="text-xs font-semibold text-purple-700 hover:underline"
+            className="text-xs font-semibold text-purple-300 hover:underline"
           >
             {showApiKeySection ? "접기 ▲" : "등록/수정 열기 ▼"}
           </button>
         </div>
 
-        <p className="text-xs text-neutral-600 leading-relaxed mb-4">
+        <p className="text-xs text-slate-400 leading-relaxed mb-4">
           세상에 단 하나뿐인 <strong>AI 타로 카드 일러스트 생성(Google Gemini)</strong>과{" "}
           <strong>AI 종합 심층 해석(OpenAI)</strong>을 받기 위해선 회원 본인의 API 키 등록이 필요합니다.
           <br />
@@ -308,7 +308,7 @@ export function DrawFlow({
 
         {/* API 키 인라인 등록 폼 및 발급 매뉴얼 (토글) */}
         {showApiKeySection && (
-          <div className="space-y-4 pt-3 border-t border-purple-100">
+          <div className="space-y-4 pt-3 border-t border-purple-500/20">
             <div className="space-y-3">
               <ApiKeyRow
                 provider="gemini"
@@ -322,8 +322,8 @@ export function DrawFlow({
               />
             </div>
 
-            <div className="rounded-xl bg-white p-4 border border-purple-100">
-              <p className="text-xs font-bold text-neutral-900 mb-2">📖 키 발급 방법 (팝업 매뉴얼 열기)</p>
+            <div className="rounded-xl bg-[#0d0920] p-4 border border-purple-500/30">
+              <p className="text-xs font-bold text-slate-100 mb-2">📖 키 발급 방법 (팝업 매뉴얼 열기)</p>
               <div className="flex flex-wrap gap-2">
                 {GUIDE_LINKS.map((guide) => (
                   <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />

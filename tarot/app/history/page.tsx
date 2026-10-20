@@ -78,14 +78,14 @@ export default async function HistoryPage({
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-black text-neutral-900 mb-1">📖 내 타로 보관함</h1>
-          <p className="text-xs text-neutral-400">
+          <h1 className="text-2xl font-black text-slate-100 mb-1">📖 내 타로 보관함</h1>
+          <p className="text-xs text-slate-500">
             회원님이 이전에 뽑았던 타로 카드와 AI 종합 심층 해석 보관 기록입니다.
           </p>
         </div>
         <Link
           href="/draw"
-          className="px-4 py-2 rounded-xl bg-neutral-900 text-white font-bold text-xs hover:bg-neutral-800 transition-colors shadow-sm"
+          className="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs hover:bg-purple-500 transition-colors shadow-sm"
         >
           🔮 새 카드 뽑기
         </Link>
@@ -97,8 +97,8 @@ export default async function HistoryPage({
           href="/history?page=1"
           className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
             !activeSpread
-              ? "bg-neutral-900 text-white border-neutral-900"
-              : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+              ? "bg-purple-600/30 text-white border-purple-500"
+              : "bg-[#120d24] text-slate-400 border-[#2a1f4e] hover:border-purple-500/60"
           }`}
         >
           전체 ({totalAllCount})
@@ -113,8 +113,8 @@ export default async function HistoryPage({
               href={`/history?spread=${type}&page=1`}
               className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                 activeSpread === type
-                  ? "bg-neutral-900 text-white border-neutral-900"
-                  : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+                  ? "bg-purple-600/30 text-white border-purple-500"
+                  : "bg-[#120d24] text-slate-400 border-[#2a1f4e] hover:border-purple-500/60"
               }`}
             >
               {config.badge} ({spreadCount})
@@ -137,13 +137,13 @@ export default async function HistoryPage({
             aria-disabled={page <= 1}
             className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${
               page <= 1
-                ? "pointer-events-none opacity-40 border-neutral-200 text-neutral-400"
-                : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+                ? "pointer-events-none opacity-40 border-[#2a1f4e] text-slate-500"
+                : "border-[#3e2e70] text-slate-300 hover:bg-[#1c1536]"
             }`}
           >
             ← 이전
           </Link>
-          <span className="text-xs font-bold text-neutral-500">
+          <span className="text-xs font-bold text-slate-400">
             {page} / {totalPages} 페이지
           </span>
           <Link
@@ -151,8 +151,8 @@ export default async function HistoryPage({
             aria-disabled={page >= totalPages}
             className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${
               page >= totalPages
-                ? "pointer-events-none opacity-40 border-neutral-200 text-neutral-400"
-                : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+                ? "pointer-events-none opacity-40 border-[#2a1f4e] text-slate-500"
+                : "border-[#3e2e70] text-slate-300 hover:bg-[#1c1536]"
             }`}
           >
             다음 →
