@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- CUSTOM_STYLE_PROMPTS_HANDOFF_20261020 -->
+## 2026-10-20 Claude Code(윈도우) — AI 종합 성격 진단 v1.23: 공유 PNG 테마 통일 + 「균형 구간」 표시
+- 한 일: 결과 공유 이미지를 미드나잇 퍼플·골드로, 결과 막대에 40~60% 금색 띠와 「⚖️ 균형 구간」 안내. 상세 `personality-suite/AGENTS.md` v1.23.
+- 검수: tsc·테스트 19·build, 배포 `personality-suite-llwe58g8x` Ready, DB v1.23, 크롬에서 검사 1회 응답 후 결과·공유 이미지 확인. 발견 버그(빠른 숫자키 입력 시 응답 누락)는 `personality-suite/docs/IMPROVEMENTS.md`에 기록.
+- 다음: 같은 세션에서 성격진단 → 타로점 연결 기능, Tailwind 점검 진행 중.
+- 링크: https://personality-suite.buylife.xyz
+
+## 2026-10-20 Codex(윈도우) — AI 이미지 스튜디오 v1.21 개인 화풍 프롬프트
+- 기본 160개에서 회원별 개인 버전 만들기·수정·삭제·복사·작업실 불러오기/원문 그대로 사용. 원본은 관리자만 관리. 전용 owner-only DB·생성일 기준 30일 정리.
+- 계획 후 주인님 「진행해줘」 승인 범위. 로컬 DB/API 18개·기존 16개·권한·빌드·보이는 Edge 가상 회원 2명(1440/375) 통과.
+- [작업 결과·운영 증거·미작업](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_CUSTOM_STYLE_PROMPTS.md) · [프로그램](https://ai-image-studio.buylife.xyz/prompts).
+<!-- /CUSTOM_STYLE_PROMPTS_HANDOFF_20261020 -->
+
 ## 2026-10-20 Claude Code(윈도우) — AI 종합 성격 진단 v1.22: 좌측 메뉴를 AI 이미지 스튜디오 배치로
 - 한 일: 매뉴얼을 「가이드」 배지 금색 카드로, 구분선 아래 🔑 API키등록, 계정·로그아웃은 데스크톱 사이드바 맨 아래(주인님 스크린샷 지시 — 사이드바 표준의 「메뉴 바로 아래」 기본값보다 우선, `personality-suite/AGENTS.md` v1.22에 근거 기록).
 - 검수: tsc·테스트 19개·build, 배포 `personality-suite-7asclss04` Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.22, 크롬에서 대시보드·매뉴얼 활성 상태 확인.

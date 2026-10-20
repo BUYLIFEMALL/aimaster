@@ -93,12 +93,18 @@ export function ResultView({ id, testId, result, analysis: initial = null, creat
         <section className="card">
           <h2>네 가지 기준별 성향</h2>
           <div className="bars">
+            {/* 금색 띠 = 균형 구간(40~60%, 채점의 borderline 기준과 같음) */}
+            <div className="bar-row bar-legend" aria-hidden="true">
+              <span />
+              <span className="bar-legend-mid">▼ ⚖️ 균형 구간 (40~60%)</span>
+              <span />
+            </div>
             {result.axes.map((a) => (
               <div key={a.axis} className="bar-row">
                 <span className="bar-l">{a.poles[0]}</span>
-                <div className="bar"><i style={{ width: `${a.firstPct}%` }} /><em style={{ left: "50%" }} /></div>
+                <div className="bar"><b className="bar-band" /><i style={{ width: `${a.firstPct}%` }} /><em style={{ left: "50%" }} /></div>
                 <span className="bar-r">{a.poles[1]}</span>
-                <small>{a.chosen} 우세 · {a.poles[0]} {a.firstPct}%{a.borderline ? " · 경계" : ""}</small>
+                <small>{a.chosen} 우세 · {a.poles[0]} {a.firstPct}%{a.borderline ? " · ⚖️ 균형 구간(양쪽 성향을 함께 씀)" : ""}</small>
               </div>
             ))}
           </div>
