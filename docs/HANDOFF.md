@@ -15,6 +15,7 @@
 - 증상: 카탈로그 카드에 마우스를 올리면 덮개(`components/programs/ProgramCard.tsx`, 6bfc6091에서 추가)의 맨 위 줄 「● 실시간 가동대기」·「AI LIVE PREVIEW」가 배지·좋아요·즐겨찾기·편집 줄(top-3, z-10) 밑에 깔려 「B█EST 대기」, 「AI LI」처럼 겹쳐 보임(웹 크롤링 자동화 카드에서 발견).
 - 수정: 덮개 안쪽 여백 `p-3` → `px-3 pb-3 pt-12`(그 줄을 배지 줄 아래로). 기능·문구 변경 없음. `npm run build` 통과, 푸시로 메인 사이트 자동 배포.
 - 링크: https://www.buylife.xyz/programs
+- 후속(주인님 제안 채택): 덮개 맨 위 장식 문구 「● 실시간 가동대기」·「AI LIVE PREVIEW」 삭제(실제 상태와 연결되지 않아 동작 중인 것처럼 오해 소지). 휴대폰(마우스 올림 없음)용 퀵 프리뷰 눈 아이콘 버튼을 카드 아래 버튼 줄에 `md:hidden`으로 추가(같은 팝업).
 ## 2026-10-20 Claude Code(윈도우) — SNS 배포판 `SNS_Auto_Posting_Kit_v1.02` 포장 (주인님 「진행해줘」)
 - 한 일: v1.01(INSTA v1.26·Threads 운영 v2.09) 이후 변경을 점검 — DB 변경은 버전 갱신·운영 전용 공용 표 백필뿐이라 배포판 DB 파일 수정 없음, 코드가 쓰는 표·버킷 전부 `KIT/schema.sql`에 있음, 공용 연동 표(`member_platform_accounts`·`integration_catalog`)는 `IS_STANDALONE`일 때 건너뜀 확인. INSTA `KIT/README.md` 5장에 「내 이미지로 바로 올리기(직접 첨부·여러 장 한 번에)」, 두 `KIT/README.md` 끝에 「업데이트 내역」 표 신설, 학생 매뉴얼 대상 번호 v1.02·직접 첨부 팁. `python scripts/make_lecture_kit.py --version v1.02` → `D:\PDS\SNS_Auto_Posting_Kit_v1.02.zip`(207개 파일, 비밀값 검사 통과).
 - 검수: 압축 안 버전 INSTA v1.33·Threads 운영 v2.14·`00_START_HERE.md` v1.02, `.env*`는 `.env.example`만. 짧은 경로(`D:\kt2`)에 풀어 가짜 독립 모드 환경으로 `npm ci`+`npm run build` 두 프로그램 통과(시험 폴더 삭제). 실제 Supabase·Vercel·Meta 설치와 인스타/Threads 게시는 미시험.

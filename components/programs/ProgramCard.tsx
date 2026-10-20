@@ -166,17 +166,6 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                   isHovered ? "opacity-100" : "opacity-0"
                 }`}
               >
-                {/* 상단 펄스 바 & 실시간 인디케이터 */}
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-[10px] font-bold text-emerald-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    <span>실시간 가동대기</span>
-                  </span>
-                  <span className="text-[10px] font-mono tracking-wider text-amber-400/90 font-bold bg-black/60 px-1.5 py-0.5 rounded border border-amber-400/20">
-                    AI LIVE PREVIEW
-                  </span>
-                </div>
-
                 {/* 중앙 퀵 프리뷰 액션 버튼 & 핵심 가동 기능 텍스트 */}
                 <div className="flex flex-col items-center justify-center gap-1.5 my-auto pointer-events-auto">
                   <button
@@ -293,6 +282,16 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
             )}
           </div>
           <div className="flex items-center gap-2">
+            {/* 휴대폰(마우스 올림 없음)용 퀵 프리뷰 — 덮개 버튼과 같은 팝업(2026-10-20) */}
+            <button
+              type="button"
+              onClick={() => setIsQuickPreviewOpen(true)}
+              aria-label="퀵 프리뷰"
+              title="퀵 프리뷰"
+              className="md:hidden p-2 rounded-xl bg-black/40 border border-gold/40 text-gold hover:bg-gold hover:text-black transition-colors cursor-pointer"
+            >
+              <Eye size={14} />
+            </button>
             {hasAccess && program.app_url ? (
               <a href={program.app_url} onClick={recordRecent} className="block">
                 <button
