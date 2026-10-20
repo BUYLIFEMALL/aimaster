@@ -51,7 +51,7 @@
 | 단계 | 마법사가 하는 일 | 내가 할 일 |
 |---|---|---|
 | ① Node.js | 설치돼 있는지 확인(윈도우는 없으면 자동 설치 제안) | 설치 후 마법사 다시 실행 |
-| ② Supabase 프로젝트 | 새 프로젝트 화면 열기 | 이름·DB 비밀번호(Generate 후 메모)·지역 **Northeast Asia (Seoul)** → 생성 → **주소창 주소 붙여넣기** |
+| ② Supabase 프로젝트 | 프로젝트 목록 열기(이미 조직이 있으면 그 조직의 [New project] — 새 조직 만들지 않기) | 이름·DB 비밀번호(Generate 후 메모)·지역 **Asia-Pacific**(서울은 Need a specific region?) → 생성 → **주소창 주소 붙여넣기** |
 | ③ Supabase 키 | API Keys 화면 열기, **맞는 키인지 자동 확인** | Publishable key → Secret key 순서로 붙여넣기(화면에 안 보임) |
 | ④ DB 만들기 | 설치 SQL을 **클립보드에 복사**하고 SQL Editor 열기, 끝나면 **성공 여부 자동 확인** | 빈 칸 클릭 → 붙여넣기 → [Run] |
 | ⑤ 이메일 확인 끄기 | Sign In / Providers 화면 열기 | Email → **Confirm email 끄기** → Save |

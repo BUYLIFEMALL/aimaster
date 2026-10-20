@@ -63,8 +63,9 @@
 - 설치 후 **마법사 창을 닫고 다시 더블클릭**합니다.
 
 ### ② Supabase 프로젝트 만들기
-- 마법사가 Supabase **새 프로젝트** 화면을 엽니다(처음이면 가입).
-- 입력: **Project name** 아무 이름 · **Database Password** → [Generate] 후 메모장에 저장 · **Region** → **Northeast Asia (Seoul)** (안 보이면 「Need a specific region?」)
+- 마법사가 Supabase **프로젝트 목록** 화면을 엽니다(v1.05부터). 처음이면 가입 → 조직(Organization) 하나 만들기(플랜 **Free**).
+- **이미 조직이 있으면 새 조직을 만들지 마세요** — 그 조직에서 **[New project]**. 무료 프로젝트는 계정당 2개까지 0원입니다.
+- 입력: **Project name** 아무 이름 · **Database password** → [Generate a password] 후 메모장에 저장 · **Region** → 기본 **Asia-Pacific** 그대로(서울로 하려면 「Need a specific region?」 → Seoul) · 나머지 칸은 그대로
 - [Create new project] → 1~2분 뒤 프로젝트 화면이 열리면 **브라우저 주소창 주소 전체를 복사**해 마법사에 붙여 넣습니다. 📷
 - ⚠ 「연결되지 않습니다」 → 프로젝트가 아직 만들어지는 중입니다. 1분 뒤 다시 붙여 넣으세요.
 

@@ -6,6 +6,11 @@
 - 주인님 요청으로 1번 운영 확인을 재개. `computer-use`로 기존 Edge 실행 중임은 확인했으나 창 제어는 Orca runtime metadata 접근 거부(`runtime_unavailable`, `CreateFile 0x5`)로 막힘. 신규 기본값/기존 모드 보존/회원 변경 저장의 운영 실검수는 모두 미완료. 실제 발행·유료 호출·운영 데이터 변경 0. 로컬 검사를 운영 통과로 바꾸지 않음.
 - 다음 첫 단계: 운영 접속·Edge 제어 가능한 세션에서 일반 회원으로 세 항목 실검수. [상세 재개 기록](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261020_BLOG_CONSOLIDATION_STAGE0.md), [증거](../naver-blog-agent/docs/evidence/consolidation-stage0/live-recheck-attempt.json). 코드/버전/배포 변경 없음, 문서 커밋/푸시 미실행(`.git` 읽기 전용).
 
+## 2026-10-20 Claude Code(윈도우) — 배포 키트 v1.05: 마법사 Supabase 주소 수정 (윈도우 리허설 준비 중 발견)
+- 리허설 시작(`D:\ktr\w`에 v1.01·v1.04 풀고 v1.01 마법사 실행) 중 발견: 마법사 ②단계가 여는 `supabase.com/dashboard/new`가 이미 조직이 있는 계정에 「새 조직 만들기」 화면을 보여 줌. → `setup.ps1`·`setup.sh`가 `supabase.com/dashboard/projects`를 열고 「이미 조직이 있으면 그 조직의 [New project], 무료 2개까지 0원」·지역 기본 Asia-Pacific(서울은 Need a specific region?)으로 안내. 학생 매뉴얼 ②·3개 키트 README 같은 문구, 지침 §6-3 함정 표 ✅.
+- `SNS_Auto_Posting_Kit_v1.05`: 다른 세션 커밋 포함(INSTA v1.34 `342c3e23`, 예약 실행 공용화 `41c39274` — `schedulerConfig.ts` 2개 추가로 209개 파일). 비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build` 두 프로그램 통과(시험 폴더 삭제). 이 압축의 README 업데이트 내역에 v1.05 줄은 없음(포장 뒤 추가).
+- 리허설 상태: Lab Supabase `kit-insta`·Vercel `dev-kit-insta` **미생성(비용 0)**, v1.01 마법사 창 ②단계 대기. 주인님 「진행해」 뒤 → `BUYLIFE-DEV`(무료)에 `kit-insta` 생성 → 주인님이 키 붙여 넣기·Vercel 로그인 → 설치 완료 → v1.05 폴더(`D:\ktr\w`에 풀기)에서 업데이트 모드 → 캡처 → 자원 삭제 여쭘.
+
 ## 2026-10-20 Codex — 블로그 부분 통합·독립 유지 방향 승인 / 0단계 안전장치
 - 주인님이 7개 비교 제안의 순차 진행 승인. 에이전트(올인원 사진→BLOG 수집/편집 흡수), SEO(작업실 정밀 집필 흡수), 키워드·티스토리 독립 유지. 기존 프로그램/권한/데이터는 기능 이관 검수 전 유지. [실행 계획](../naver-blog-agent/docs/PLAN_20261020_BLOG_CONSOLIDATION_STAGE0.md).
 - 먼저 새 원고의 prepare 초기화를 생성 API와 최초 저장 복구에 반영. 기존 원고의 publish/prepare/옛 기본값 보존. 런타임 3개 파일은 아래 Claude 기록대로 `9e3bb9ea`/v2.00 배포에 함께 포함됨. Codex가 커밋/배포/DB 변경한 것은 아니며 같은 변경을 다시 배포하지 않음.

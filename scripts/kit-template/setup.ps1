@@ -174,10 +174,11 @@ Ok "Node.js $nodeVersion"
 Step 2 "Supabase(DB) 프로젝트 만들기"
 $sbUrl = EnvGet "NEXT_PUBLIC_SUPABASE_URL"
 if (-not (Done 2) -or -not $sbUrl) {
-  Say "  브라우저에서 Supabase 새 프로젝트 화면을 엽니다(처음이면 GitHub 또는 이메일로 무료 가입)."
-  Say "  · Project name: 아무 이름 · Database Password: [Generate] 후 메모장에 저장 · Region: Northeast Asia (Seoul)"
-  Say "  · [Create new project] → 1~2분 기다리면 프로젝트 화면이 열립니다."
-  OpenUrl "https://supabase.com/dashboard/new"
+  Say "  브라우저에서 Supabase 프로젝트 목록을 엽니다(처음이면 GitHub 또는 이메일로 무료 가입 → 조직(Organization) 하나 만들기, 플랜은 Free)."
+  Say "  · 이미 조직이 있으면 새 조직을 만들지 말고 그 조직에서 [New project] — 무료 프로젝트는 계정당 2개까지 0원입니다."
+  Say "  · Project name: 아무 이름 · Database password: [Generate a password] 후 메모장에 저장 · Region: Asia-Pacific(그대로) — 서울로 하려면 [Need a specific region?] → Seoul"
+  Say "  · 나머지는 그대로 두고 [Create new project] → 1~2분 기다리면 프로젝트 화면이 열립니다."
+  OpenUrl "https://supabase.com/dashboard/projects"
   while ($true) {
     $raw = Ask "프로젝트 화면의 브라우저 주소창 주소를 복사해 붙여 넣으세요(또는 Project URL https://xxxx.supabase.co)" ""
     if ($raw -match "supabase\.com/dashboard/project/([a-z0-9]{20})") { $ref = $Matches[1] }
