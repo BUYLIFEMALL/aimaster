@@ -2,7 +2,7 @@
 
 - 근거: 루트 `CLAUDE.md` 최상단 「회원 연동 정보 공용 저장·재사용 규칙」, 개발 플랜 [`PLAN_20261020_MEMBER_INTEGRATIONS.md`](PLAN_20261020_MEMBER_INTEGRATIONS.md)
 - 대상: ① AIMaster 운영 공용 DB ref `esgxyikcnnvmlhygjkth` (② Lab은 해당 없음)
-- 현재 단계: **⓪~④ 완료(2026-10-20)** — Threads 4개 프로그램(threads v1.22·댓글 v1.13·쇼핑제휴 v1.66·운영 자동화 v2.11)과 Instagram 5개 프로그램(INSTA v1.30·댓글 v1.17·DM v1.16·shots v1.21·카드뉴스 v1.26), YouTube 2개(유튜브 댓글 v1.14·shots v1.22), 카카오(카카오 포스팅 v1.24), 네이버 로그인(네이버 카페 v1.24)이 이 표를 함께 쓴다(⓪~⑤ 완료, 2026-10-20). 인플루언서 v1.16도 Instagram 공용 먼저 읽기 적용(2026-10-20, `ai-influencer-studio-k93ebvizw`, 시험 회원 연결 상태 API `connected:true`). 남은 것: 웹툰(다른 세션 v1.17 작업 중 — 끝난 뒤 같은 수정).
+- 현재 단계: **⓪~④ 완료(2026-10-20)** — Threads 4개 프로그램(threads v1.22·댓글 v1.13·쇼핑제휴 v1.66·운영 자동화 v2.11)과 Instagram 5개 프로그램(INSTA v1.30·댓글 v1.17·DM v1.16·shots v1.21·카드뉴스 v1.26), YouTube 2개(유튜브 댓글 v1.14·shots v1.22), 카카오(카카오 포스팅 v1.24), 네이버 로그인(네이버 카페 v1.24)이 이 표를 함께 쓴다(⓪~⑤ 완료, 2026-10-20). 인플루언서 v1.16도 Instagram 공용 먼저 읽기 적용(2026-10-20, `ai-influencer-studio-k93ebvizw`, 시험 회원 연결 상태 API `connected:true`). 웹툰 v1.18도 같은 수정(2026-10-20, `ai-webtoon-studio-gblpamag0`, 관리자 연결 상태 API `connected:true`) → **Instagram 게시 프로그램 전부 공용 먼저 읽기 완료.** `insta_accounts`는 INSTA의 자기 표·대체 경로로 계속 쓴다.
 
 ## 1. 저장 위치 한눈에
 | 무엇 | 어디에 | 비고 |

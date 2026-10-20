@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 웹툰 v1.18: Instagram 공용 계정 먼저 읽기 (주인님 「진행해줘」, 다른 세션 v1.17 끝난 뒤)
+- `ai-webtoon-studio/src/lib/instagram/memberAccount.ts`를 카드뉴스 v1.26·인플루언서 v1.16과 같은 코드로, 공용 부품 사본 등록. 테스트 18개·tsc·build, 배포 `ai-webtoon-studio-gblpamag0` Ready, DB v1.18(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor 새 탭), 크롬(관리자) 연결 상태 API `connected:true`. 이로써 Instagram 게시 프로그램 전부 공용 먼저 읽기.
+- 링크: https://ai-webtoon-automation.buylife.xyz
+
 <!-- CUSTOM_STYLE_PROMPTS_HANDOFF_20261020 -->
 
 
