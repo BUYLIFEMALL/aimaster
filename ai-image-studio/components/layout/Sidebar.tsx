@@ -1,185 +1,118 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BookOpen, FilePenLine, Images, KeyRound, LogOut, Menu, Palette, X } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
-const FLOW_STEPS = [
-  {
-    step: 1,
-    href: "/dashboard",
-    icon: "🎨",
-    label: "이미지 생성 작업실",
-    description: "AI 프롬프트 최적화 & 이미지 생성",
-  },
-  {
-    step: 2,
-    href: "/gallery",
-    icon: "🖼️",
-    label: "작업 결과 갤러리",
-    description: "생성 이력 확인 및 고화질 다운로드",
-  },
+const MAIN_ITEMS = [
+  { href: "/dashboard", icon: Palette, label: "이미지 생성 작업실", description: "AI 프롬프트 최적화 & 이미지 생성" },
+  { href: "/gallery", icon: Images, label: "작업 결과 갤러리", description: "생성 이력 확인 및 고화질 다운로드" },
+  { href: "/prompts", icon: FilePenLine, label: "화풍 프롬프트 게시판", description: "기본 예시와 나만의 프롬프트" },
 ];
-
 const UTILITY_ITEMS = [
-  { href: "/prompts", icon: "📝", label: "화풍 프롬프트 관리" },
-  { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
+  { href: "/guide", icon: BookOpen, label: "연동 & 사용 매뉴얼" },
+  { href: "/settings", icon: KeyRound, label: "API키등록·플랫폼연동" },
 ];
 
-export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
+function BrandMark() {
+  return (
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20">
+      <Palette size={18} aria-hidden="true" />
+    </span>
+  );
+}
+
+function Version() {
+  return <span className="mt-0.5 inline-flex rounded-full border border-amber-500/20 bg-amber-500/10 px-1.5 text-[10px] font-medium text-amber-300">{APP_VERSION}</span>;
+}
+
+function NavBody({ userEmail, onNavigate }: { userEmail: string; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const active = (href: string) => pathname === href || pathname?.startsWith(`${href}/`);
 
   return (
-    <aside className="flex w-full flex-col border-b border-zinc-800/80 bg-[#09090b] p-4 md:w-64 border-r shrink-0 md:sticky md:top-0 md:h-screen selection:bg-amber-500/30">
-      <div className="md:min-h-0 md:overflow-y-auto space-y-4">
-        {/* Brand Header */}
-        <div className="px-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-zinc-950 font-black text-sm shadow-md shadow-amber-500/20">
-              🎨
-            </span>
-            <span className="text-base font-bold text-white tracking-tight">AI 이미지 스튜디오</span>
-          </div>
-          <div className="flex items-center justify-between mt-1 px-0.5">
-            <span className="text-[11px] font-mono text-zinc-500">{APP_VERSION}</span>
-            <a
-              href="https://www.buylife.xyz/programs"
-              className="text-[11px] text-zinc-400 hover:text-amber-400 transition-colors"
-            >
-              ← 다른 프로그램
-            </a>
-          </div>
+    <div className="min-h-0 overflow-y-auto p-3">
+      <nav aria-label="이미지 스튜디오 메뉴">
+        <p className="mb-2 px-2 text-[11px] font-medium tracking-wider text-zinc-500">이미지 작업</p>
+        <div className="space-y-1">
+          {MAIN_ITEMS.map(({ href, icon: Icon, label, description }) => (
+            <Link key={href} href={href} onClick={onNavigate} aria-current={active(href) ? "page" : undefined}
+              className={`block rounded-xl border px-3 py-2.5 transition-colors ${active(href) ? "border-amber-500/30 bg-amber-500/10" : "border-transparent hover:bg-zinc-900"}`}>
+              <p className={`flex items-center gap-2 text-sm font-bold ${active(href) ? "text-amber-200" : "text-zinc-300"}`}>
+                <Icon size={15} className={`shrink-0 ${active(href) ? "text-amber-300" : "text-zinc-400"}`} aria-hidden="true" />
+                {label}
+              </p>
+              <p className="mt-0.5 pl-6 text-[11px] leading-snug text-zinc-500">{description}</p>
+            </Link>
+          ))}
         </div>
-
-        {/* Pipeline Navigation */}
-        <nav className="relative flex flex-col pt-1">
-          {FLOW_STEPS.map((item, idx) => {
-            const isActive = pathname?.startsWith(item.href);
-            const isLast = idx === FLOW_STEPS.length - 1;
-            return (
-              <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-2.5">
-                {/* 스텝 번호 + 연결선 */}
-                <div className="flex flex-col items-center">
-                  <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-all ${
-                      isActive
-                        ? "bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/30"
-                        : "bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:bg-zinc-800 group-hover:text-zinc-200"
-                    }`}
-                  >
-                    {item.step}
-                  </span>
-                  {!isLast && <span className="mt-1 w-px flex-1 bg-zinc-800" />}
-                </div>
-
-                {/* 라벨 + 설명 */}
-                <div
-                  className={`min-w-0 flex-1 rounded-xl px-2.5 py-1.5 transition-all ${
-                    isActive
-                      ? "bg-amber-500/10 border border-amber-500/30 text-amber-400"
-                      : "text-zinc-300 hover:bg-zinc-900/60"
-                  }`}
-                >
-                  <p className={`text-xs font-bold ${isActive ? "text-amber-400" : "text-zinc-200"}`}>
-                    {item.icon} {item.label}
-                  </p>
-                  <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1">{item.description}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* 화풍 프롬프트 게시판 관리 Section */}
-        <div className="border-t border-zinc-800/80 pt-3 space-y-1">
-          <p className="px-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
-            프롬프트 데이터 관리
-          </p>
-          <Link
-            href="/prompts"
-            className={`group flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition-all ${
-              pathname?.startsWith("/prompts")
-                ? "bg-amber-500/10 border border-amber-500/40 text-amber-300 shadow-md shadow-amber-500/10"
-                : "bg-zinc-900/40 border border-zinc-800/80 text-zinc-300 hover:border-amber-500/30 hover:bg-zinc-900 hover:text-amber-300"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-sm">📝</span>
-              <div>
-                <p className="text-xs font-bold text-zinc-200 group-hover:text-amber-300 transition-colors">
-                  화풍 프롬프트 게시판
-                </p>
-                <p className="text-[10px] text-zinc-500 font-normal">
-                  예시 프롬프트 추가·수정
-                </p>
-              </div>
-            </div>
-            <span className="rounded bg-zinc-800 text-zinc-400 px-1.5 py-0.5 text-[10px] font-bold border border-zinc-700">
-              관리
-            </span>
-          </Link>
+        <div className="mt-3 space-y-1 border-t border-zinc-800/80 pt-3">
+          <p className="mb-1.5 px-2 text-[11px] font-medium tracking-wider text-zinc-500">도움말 & 설정</p>
+          {UTILITY_ITEMS.map(({ href, icon: Icon, label }) => (
+            <Link key={href} href={href} onClick={onNavigate} aria-current={active(href) ? "page" : undefined}
+              className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${active(href) ? "border-amber-500/30 bg-amber-500/10 text-amber-200" : "border-transparent text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"}`}>
+              <Icon size={16} className="shrink-0" aria-hidden="true" />
+              <span>{label}</span>
+            </Link>
+          ))}
         </div>
-
-        {/* 📖 연동 & 사용 매뉴얼 Banner Button */}
-        <div className="px-1">
-          <Link
-            href="/guide"
-            className={`group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
-              pathname === "/guide"
-                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-lg shadow-amber-500/10"
-                : "bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/25 text-amber-300/90 hover:border-amber-500/50 hover:bg-amber-500/15 hover:text-amber-200"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-base group-hover:scale-110 transition-transform">📖</span>
-              <div>
-                <p className="font-bold">연동 & 사용 매뉴얼</p>
-                <p className="text-[10px] text-amber-400/70 font-normal">5단계 제작 & 프롬프트 팁</p>
-              </div>
-            </div>
-            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">
-              가이드
-            </span>
-          </Link>
-        </div>
-
-        {/* API키등록·플랫폼연동 Block */}
-        <div className="border-t border-zinc-800/80 pt-3">
-          {UTILITY_ITEMS.filter((item) => item.href !== "/prompts").map((item) => {
-            const isActive = pathname?.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
-                  isActive
-                    ? "bg-amber-500/10 text-amber-400 font-bold border border-amber-500/30"
-                    : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
-                }`}
-              >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* User Session Footer */}
-      <div className="mt-auto shrink-0 border-t border-zinc-800/80 pt-3">
-        <p className="mb-2 truncate px-2 text-[11px] font-medium text-zinc-400 font-mono">
-          {userEmail || "세션 연결됨"}
-        </p>
+      </nav>
+      {/* 계정은 마지막 메뉴 바로 아래에 두고 화면 맨 아래로 밀지 않습니다. */}
+      <div className="mt-3 space-y-1 border-t border-zinc-800/80 pt-3">
+        <p className="truncate px-3 py-1.5 text-xs text-zinc-500" title={userEmail}>{userEmail || "로그인 계정"}</p>
         <form action={signOutAction}>
-          <button
-            type="submit"
-            className="block w-full rounded-lg px-2 py-1.5 text-left text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
-          >
-            로그아웃
+          <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-200">
+            <LogOut size={16} aria-hidden="true" />
+            <span>로그아웃</span>
           </button>
         </form>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
+  const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const close = () => setOpen(false);
+
+  return (
+    <>
+      <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-zinc-800/80 bg-[#09090b] md:sticky md:top-0 md:flex">
+        <div className="shrink-0 border-b border-zinc-800/80 p-5">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <BrandMark />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold leading-snug text-white">AI 이미지 스튜디오</p>
+              <Version />
+            </div>
+          </Link>
+          <a href="https://www.buylife.xyz/programs" className="mt-2.5 block text-xs text-zinc-400 transition-colors hover:text-zinc-200">← 다른 프로그램 보기</a>
+        </div>
+        <NavBody userEmail={userEmail} />
+      </aside>
+
+      <div className="sticky top-0 z-40 border-b border-zinc-800/80 bg-[#09090b] md:hidden"
+        onKeyDown={(event) => { if (event.key === "Escape" && open) { close(); toggle.current?.focus(); } }}>
+        <div className="flex h-14 items-center justify-between gap-2 px-4">
+          <Link href="/dashboard" onClick={close} className="flex min-w-0 items-center gap-2">
+            <BrandMark />
+            <span className="truncate text-sm font-bold text-white">AI 이미지 스튜디오</span>
+            <Version />
+          </Link>
+          <button ref={toggle} type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} aria-controls="image-studio-mobile-menu"
+            onClick={() => setOpen(value => !value)} className="shrink-0 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900">
+            {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          </button>
+        </div>
+        <div id="image-studio-mobile-menu" hidden={!open} className="max-h-[calc(100dvh-56px)] overflow-y-auto">
+          <a href="https://www.buylife.xyz/programs" className="mx-5 mt-3 block text-xs text-zinc-400 hover:text-zinc-200">← 다른 프로그램 보기</a>
+          <NavBody userEmail={userEmail} onNavigate={close} />
+        </div>
+      </div>
+    </>
   );
 }

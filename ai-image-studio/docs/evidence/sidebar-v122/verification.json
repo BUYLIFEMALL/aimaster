@@ -1,0 +1,19 @@
+{
+  "browser": "visible Microsoft Edge",
+  "mode": "local real Sidebar with simulated member authentication",
+  "version": "v1.22",
+  "checks": [
+    {
+      "desktop": "1440x1000; header/version/separate catalog link, five destinations, active state, compact footer",
+      "spacing": {
+        "gap": 25,
+        "emailBottom": 546.625,
+        "viewportHeight": 1000
+      }
+    },
+    "1440x450: navigation scroll keeps logout reachable",
+    "375x812: full-width content, collapsed menu, matching order, Escape restores focus, navigation closes menu",
+    "767/768px breakpoint checked"
+  ],
+  "paidCalls": 0
+}

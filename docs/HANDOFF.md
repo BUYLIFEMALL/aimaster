@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- IMAGE_SIDEBAR_V122_20261020 -->
+## 2026-10-20 Codex(윈도우) — 이미지 스튜디오 v1.22 메뉴 레이아웃 정렬
+- 주인님이 제시한 문서 챗봇 화면 기준: 제목/버전·다른 프로그램 보기·아이콘 작업 3개·도움말/설정·계정 밀착. 모바일 접는 메뉴/Escape/활성 표시 포함. 번호형 메뉴는 해당 앱의 명시적 예외.
+- 빌드·보이는 Edge 로컬 가상 회원 1440/375·낮은 높이·767/768 전환 통과. 운영 결과는 [상세 인수인계](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_SIDEBAR_ALIGNMENT.md)에 기록.
+- [작업실](https://ai-image-studio.buylife.xyz/dashboard) · [프롬프트](https://ai-image-studio.buylife.xyz/prompts). 기존 개인 프롬프트 일반 회원 실세션 검수는 별도 미완료 항목 유지.
+<!-- /IMAGE_SIDEBAR_V122_20261020 -->
+
 ## 2026-10-20 Claude Code(윈도우) — 세션 인수인계: 인스타 자동 포스팅 확대·예약 공용화 (다른 CLI 이어받기용)
 - **이어받기 문서: `docs/HANDOFF_CLAUDE_SESSION_2026-10-20_INSTA_AUTOPOST.md`** — 이 세션 작업 12건(인플루언서 v1.14~v1.17·웹툰 v1.15~v1.19·4컷 v1.15~v1.20·카드뉴스 v1.29·INSTA v1.27~v1.28), 인스타 5개 프로그램 즉시+예약 게시 완료 현황, 공통 구조, 못 한 검수(실제 인스타 게시 미검증 등), 남은 작업 우선순위, 주인님 직접 할 일, 주의사항.
 - 다음 첫 단계(추천): 예약 게시 처리 코드(`posting.ts`·예약 API 4개) 공용화 2단계 플랜 — 4개 `posting.ts` 차이 비교부터.

@@ -78,3 +78,8 @@
 - native dialog로 키보드 초점과 Esc 처리, 입력칸 접근성 이름/길이 제한, 저장 중 중복 클릭 차단. 375px 편집창은 화면 안에서 스크롤되며 표는 가로 넘김. 메뉴 전체 배치는 이번에 변경하지 않음.
 - 매뉴얼 /guide#custom-prompts에 4단계 시각 카드·바로가기·30일 안내.
 - 보이는 Edge 가상 회원 2명 1440/375 검수 증거는 docs/evidence/custom-prompts-v121/. 실제 운영 회원 실세션 검수 상태는 IMPROVEMENT_HANDOFF_20261020_CUSTOM_STYLE_PROMPTS.md에 별도 기록.
+
+
+## 2026-10-20 v1.22 — 문서 챗봇 기준 메뉴 레이아웃 (Codex)
+- 제목/버전·카탈로그 링크·아이콘 작업 메뉴·도움말 및 설정·계정 밀착으로 정렬. 주인님 제시 화면에 따라 번호형 메뉴의 해당 앱 예외로 적용. 모바일 접는 메뉴/Escape/활성 표시를 함께 반영.
+- 빌드·보이는 Edge 1440/375·낮은 높이·767/768 전환 검사 통과. [계획](PLAN_20261020_SIDEBAR_ALIGNMENT.md) · [운영 결과/인수인계](IMPROVEMENT_HANDOFF_20261020_SIDEBAR_ALIGNMENT.md).

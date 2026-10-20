@@ -1,7 +1,7 @@
 # 이미지 자동화 (AI Image Studio / ai-image-studio)
 
 > **공식 서비스 URL**: [https://ai-image-studio.buylife.xyz](https://ai-image-studio.buylife.xyz)  
-> **현재 버전**: `v1.21` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
+> **현재 버전**: `v1.22` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
 > **담당 CLI**: Antigravity CLI (agy) / Claude Code / Codex 공통
 
 AIMaster 플랫폼의 **AI 이미지 자동화 레퍼런스(기준) 프로그램**인 **AI Image Studio**입니다.  
@@ -89,3 +89,8 @@ AIMaster 플랫폼의 **AI 이미지 자동화 레퍼런스(기준) 프로그램
 - 기본 예시를 개인 사본으로 만들어 저장·수정·삭제·복사·작업실에서 그대로 사용. 공통 원본은 관리자만 관리합니다. 개인 전용 DB/RLS·30일 만료·자동 정리, 원본 삭제 시 사본 보존.
 - 로컬 API/DB 검사 18개·기존 검사 16개·권한 검사·빌드·보이는 Edge 가상 회원 2명(1440/375) 통과. 실제 SSO/운영 검수와 구분합니다.
 - [개발 계획](docs/PLAN_20261020_CUSTOM_STYLE_PROMPTS.md) · [상세 인수인계/운영 증거/남은 일](docs/IMPROVEMENT_HANDOFF_20261020_CUSTOM_STYLE_PROMPTS.md).
+
+
+## 2026-10-20 v1.22 — 문서 챗봇 기준 메뉴 레이아웃 (Codex)
+- 제목/버전·카탈로그 링크·아이콘 작업 메뉴·도움말 및 설정·계정 밀착으로 정렬. 주인님 제시 화면에 따라 번호형 메뉴의 해당 앱 예외로 적용. 모바일 접는 메뉴/Escape/활성 표시를 함께 반영.
+- 빌드·보이는 Edge 1440/375·낮은 높이·767/768 전환 검사 통과. [계획](docs/PLAN_20261020_SIDEBAR_ALIGNMENT.md) · [운영 결과/인수인계](docs/IMPROVEMENT_HANDOFF_20261020_SIDEBAR_ALIGNMENT.md).
