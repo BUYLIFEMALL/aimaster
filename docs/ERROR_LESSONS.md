@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — 배포 주소 앞부분이 Vercel 프로젝트 이름과 다를 수 있다 → `grep -o "https://<프로젝트>-…"`로 뽑은 주소가 비어 `vercel inspect --wait`가 10분 멈춤 (seo-thumbnail-pro v1.12, Claude Code 윈도우)
+- 증상: `seo-thumbnail-pro` 배포는 Ready인데 확인 명령이 시간 초과. 실제 배포 주소는 `seo-thumbnail-61axtjztp-buylife.vercel.app`(프로젝트 이름이 길면 Vercel이 앞부분을 줄임, `kakao_auto_poster`도 `kakaoautoposter-…`).
+- 다음부터: 주소를 뽑을 때 `grep -o "https://[a-z0-9_-]*-buylife.vercel.app" | head -1`처럼 넓게 잡고, 빈 값이면 `vercel inspect`를 부르지 않는다(`[ -n "$U" ] && …`). 막히면 `npx vercel ls --scope buylife`로 상태를 직접 본다. 메인 redirect 확인은 빌드 직후 잠깐 404가 날 수 있으니 1분 뒤 `?x=임의값`으로 다시 확인.
+
 ## 2026-10-20 — 두 앱을 하나로 합치면 `CRON_SECRET`에서 만든 비밀값(OAuth state·텔레그램 웹훅 비밀값·Meta 웹훅 확인 토큰)이 바뀐다 → 기존 등록은 다시 해야 함 (병합 B instagram-dm-reply → instagram-comment-reply, Claude Code 윈도우)
 - 증상: 합친 뒤 관리자 DM 텔레그램 봇·Meta DM 웹훅이 새 앱에서 인증 실패할 수 있음. 옛 주소로 오는 요청을 rewrite로 넘겨도 **비밀값 검사는 새 앱 `CRON_SECRET` 기준**이라 통과 못 함(Meta DM 웹훅 POST는 회원 앱 시크릿 서명이라 그대로 동작, 확인 토큰 재검증만 실패).
 - 해결: 병합 플랜에 「옛 앱 기준으로 등록된 연결 목록(텔레그램 웹훅·Meta 웹훅·OAuth 콜백) → 새 값으로 재등록」을 단계로 넣고, 회원 화면·매뉴얼에 「콜백 URL과 확인 토큰 **둘 다** 바꾸세요」를 안내(instagram-comment-reply v1.24 `WebhookSetupInfo`·`/guide`).
