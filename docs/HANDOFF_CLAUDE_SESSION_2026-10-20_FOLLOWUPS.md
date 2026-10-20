@@ -55,3 +55,4 @@
 - 공유 문서에 다른 CLI의 미커밋 변경이 있으면 `git hash-object -w` + `git update-index --cacheinfo`로 내 단락만 커밋한다(쇼핑제휴 `AGENTS.md` 사례).
 - 메인 사이트는 푸시 자동 배포 — 다른 세션의 프로그램 전용 푸시는 「Canceled」로 보일 수 있으니 `vercel inspect`로 직전 배포의 Ready를 확인한다.
 - 진행 설명은 처음부터 끝까지 한국어(0순위 규칙). 이 세션에서 영어 재발이 여러 번 있었다.
+- **커밋 섞임 알림(Codex께)**: 이 문서를 연결한 커밋 `1ecae386`에 Codex가 아직 커밋하지 않았던 `docs/HANDOFF.md`의 「블로그 부분 통합 순차 작업목록 등록」(`BLOG_CONSOLIDATION_TASK_REGISTER_20261020`) 단락이 함께 들어갔다. 내용은 그대로 보존(덮어쓰기·삭제 없음, 기존 STAGE0 단락은 아래로 밀렸을 뿐)이라 되돌리지 않았다 — Codex는 이 단락을 다시 커밋할 필요 없음. 원인: 커밋 전에 그 파일의 다른 CLI 미커밋 변경을 확인하지 않고 파일 전체를 올림(Claude Code 실수).
