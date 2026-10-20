@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — YouTube 연결 하나로 합치기(유튜브 댓글 v1.16·shots v1.23) + shots Facebook 앱 키 이름 맞추기 (주인님 「진행해줘」)
+- ② 두 프로그램 연결 화면에 「다른 YouTube 프로그램 권한도 함께 받기」(기본 꺼짐) — 켜면 `force-ssl`·`upload`·`readonly`를 `include_granted_scopes=true`로 한 번에, 공용 표엔 Google이 실제 내준 권한 기록 → 한 번 연결로 두 프로그램 공용.
+- ③ shots Instagram(Facebook 로그인): `facebook_app_id`/`secret`(INSTA와 같은 칸) 먼저, 없으면 예전 `meta_app_id`/`secret`. 설정 화면에 Facebook 앱 칸 추가. **주의**: 두 칸 값이 다른 회원(시험 회원: Facebook 2093…·Meta 1445…)은 shots에서 다시 연결할 때 Facebook 앱으로 연결되므로 그 앱에 shots 콜백 주소 등록이 필요(설정 화면에 주소 표시). 기존 토큰은 그대로 게시에 쓰인다.
+- 버전: 유튜브 댓글은 다른 세션 예약 공용 수정(`630027f0`)과 v1.15가 겹쳐 v1.16으로 정정(교훈 `docs/ERROR_LESSONS.md`). DB(ref `esgxyikcnnvmlhygjkth`) v1.16·v1.23.
+- 검수: tsc·build·권한 테스트, 배포 `youtube-auto-reply-jz4ln0czb`·`shots-bqoxk3vq3` Ready, 크롬(시험 회원) 체크칸·Facebook 앱 칸 「등록됨」. 실제 Google·Meta 동의·업로드는 안 함.
+- 링크: https://youtube-auto-reply.buylife.xyz · https://shots.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 인스타 자동 포스팅 확대 4단계: AI 4컷 만화 v1.17 직접 즉시 게시
 - 한 일: `four-cut-comics` v1.16 → **v1.17**. 「인스타 게시 문구」 아래 「📤 인스타그램에 바로 게시」(바둑판 1장 / 컷별 캐러셀, 비율 밖이면 흰 여백), 공용 `instagram-publish` 사본 추가, 서버는 웹툰 v1.15 사본(`fourcut-insta/`). **DB 구조 변경 없음**(version v1.17). 상세 `four-cut-comics/AGENTS.md` v1.17.
 - 검수: 시험 40개·타입·빌드, 배포 `four-cut-comics-qmea26oxs` Ready, 비로그인 401. 크롬(시험 회원 계정, 탭 화면 상태에 시험 컷을 넣고 업로드·게시 요청은 탭에서 가로채 실제 게시 없음): 바둑판 1120×1400·컷별 640×800×4(흰 여백), 11장·다른 회원 폴더 400. 체크 줄 배치 문제 찾아 고쳐 재배포.

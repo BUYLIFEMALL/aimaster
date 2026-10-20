@@ -2,7 +2,7 @@
 
 - 작성: 2026-10-20 Claude Code(윈도우) · 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`)
 - 근거: 회원 연동 정보 공용 저장 ⑤단계 남은 일 2·3번(주인님 지시), [`MEMBER_INTEGRATIONS.md`](MEMBER_INTEGRATIONS.md) §7
-- 상태: 플랜 보고 — 승인 후 구현
+- 상태: ✅ 완료(2026-10-20, 주인님 「진행해줘」) — 유튜브 댓글 v1.16(v1.15에서 번호 정정, 배포 `youtube-auto-reply-jz4ln0czb`)·shots v1.23(`shots-bqoxk3vq3`)
 
 ## ② YouTube 연결 하나로 합치기 (유튜브 댓글 v1.15 → shots 다음 버전)
 **문제**: 유튜브 댓글은 `youtube.force-ssl`, shots는 `youtube.upload`+`youtube.readonly`만 받아서, 같은 Google 앱·같은 채널인데도 서로의 공용 토큰을 쓰지 못한다(권한을 합쳐 기록하지 않는 규칙).

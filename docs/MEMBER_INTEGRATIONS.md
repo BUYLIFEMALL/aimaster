@@ -67,6 +67,6 @@
 - **쇼핑제휴 키워드 검색은 자기 표만** 쓴다(`threads_keyword_search`는 선택 권한).
 - **배포판(IS_STANDALONE)**: 쇼핑제휴·운영 자동화 배포판은 공용 표를 건드리지 않는다(수강생 DB에 표 없음). Lab `labs/kit-threads` 사본에는 이번 변경을 넣지 않았다.
 - **Instagram은 로그인 방식이 맞아야 한다**(④단계): Facebook 로그인 토큰(`graph.facebook.com`, `extra.page_id`)과 Instagram 로그인 토큰(`graph.instagram.com`)은 서로 못 쓴다. 공용 행 `auth_method`로 구분 — 댓글·DM은 `instagram_login`만, shots는 `facebook_login`만, INSTA·카드뉴스는 둘 다(방식별 게시 권한 확인). 같은 Instagram 계정을 두 회원이 연결해 행이 회원마다 따로 있다(2026-10-20 관리자·시험 계정 모두 @buylife.co.kr).
-- **갱신 토큰 플랫폼(YouTube·카카오·네이버)은 앱이 같아야 한다**(⑤단계): 갱신 토큰은 발급한 앱(Client ID·REST API 키)으로만 쓸 수 있어 `app_ref` 비교 후 사용. 회원이 앱 키를 바꾸면 자기 표로 돌아간다. YouTube는 유튜브 댓글(`force-ssl`)·shots(`upload`+`readonly`) 권한이 달라 서로의 공용 토큰을 쓰지 않는다 — Google 「추가 권한 요청(include_granted_scopes)」으로 한 번에 받는 개선은 `youtube-auto-reply/docs/IMPROVEMENTS.md`.
+- **갱신 토큰 플랫폼(YouTube·카카오·네이버)은 앱이 같아야 한다**(⑤단계): 갱신 토큰은 발급한 앱(Client ID·REST API 키)으로만 쓸 수 있어 `app_ref` 비교 후 사용. 회원이 앱 키를 바꾸면 자기 표로 돌아간다. YouTube는 유튜브 댓글(`force-ssl`)·shots(`upload`+`readonly`) 권한이 달라 서로의 공용 토큰을 쓰지 않는다 — → **2026-10-20 적용**: 유튜브 댓글 v1.16·shots v1.23 연결 화면의 「다른 YouTube 프로그램 권한도 함께 받기」(Google `include_granted_scopes`)로 세 권한을 한 번에 받고, 공용 표에 Google이 실제로 내준 권한을 기록 → 두 프로그램이 같은 공용 토큰을 쓴다(기본은 꺼짐).
 - **`insta_accounts`는 아직 없애지 않는다**: 인플루언서·웹툰이 직접 읽는다. 카드뉴스와 같은 「공용 먼저」 수정 뒤에 정리 검토.
 - 토큰 자동 갱신은 지금 댓글자동화만 한다(공용 계정을 쓸 때 공용 표 갱신). threads·쇼핑제휴·운영 자동화는 갱신 기능이 없다(기존과 같음).
