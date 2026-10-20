@@ -1,7 +1,7 @@
 # 네이버 블로그 에이전트(naver-blog-agent) 개선사항 및 추가 고도화 제안
 
 - **프로그램명**: 네이버 블로그 에이전트 (`naver-blog-agent`)
-- **현재 버전**: `v1.97`
+- **현재 버전**: `v1.99`
 - **배포 URL**: https://naver-blog-agent.buylife.xyz
 - **작업 일시**: 2026-10-18
 

@@ -1,7 +1,7 @@
 # 네이버 블로그 에이전트 (naver-blog-agent) — AI 에이전트 인수인계 문서
 
 > **공식 서비스 URL**: https://naver-blog-agent.buylife.xyz  
-> **현재 버전**: `v1.97` (2026-10-20)  
+> **현재 버전**: `v1.99` (2026-10-20)  
 > **디자인 템플릿**: **플로우 위저드 스타일 (네이버 그린 라이트 변형)**
 
 ---
@@ -61,7 +61,9 @@ flowchart TD
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 
-- **`v1.97` (2026-10-20, 현재 버전 · Claude Code)**: ① 글감 근거 전달 — 생성 화면이 선택한 글감 **전체 내용**을 `sourceMaterial`로 보내고(예전엔 앞 100자만 「발행 목적」으로 감 → 사실 왜곡 원인), 기획·작성 프롬프트에 「이 자료의 사실만」 블록(`src/lib/ai/sourceGrounding.ts`) ② 원문 대조 — 같은 검수 호출에서 자료에 없는 사실 문장(`unsupported`, 최대 5개)을 받아 PASS→WARN·검수 의견에 표시(추가 AI 호출 없음) ③ 보관함 「발행 설정」에 바로/예약 발행(10분 단위, `/api/posts/[id]/publishing` 예약 저장·조회) ④ 랭킹 상태 점검 `/api/collector/ranking-health`(목록만·무료·30분 캐시) + 수집 버튼 🟢/🔴, 매일 `/api/cron/cleanup`에서도 점검 로그 ⑤ 글감 카드 「🏠 홈판형으로 바로 쓰기」(`format=homefeed`) ⑥ 생성 화면이 `/api/accounts`에서 본인 블로그 목록을 직접 불러옴.
+- **`v1.99` (2026-10-20, 현재 버전 · Claude Code)**: 여러 기사로 만든 글감마다 내용이 가장 겹치는 기사 하나만 원문으로 보관(`pickBestArticle`). v1.98은 묶음 앞 4,000자를 모든 글감에 같이 넣어 뒤쪽 기사가 잘렸음(운영 검수에서 발견).
+- **`v1.98` (2026-10-20 · Claude Code)**: ① 수집 4종이 요약 전 원문 `source_text`(최대 4,000자)를 글감에 함께 보관 → 생성 근거 = 요약 + 원문(`buildSourceMaterial`) ② 원문 대조를 「사실 주장 문장」으로 한정(감상·추측·질문·일반론 제외) ③ 브라우저 `alert` 29곳·`confirm` 11곳을 화면 안 알림·확인 창으로 교체(`src/lib/uiDialog.ts` `notify`/`askConfirm` + `src/components/DialogHost.tsx`, 대시보드 셸에 1회). 닫기·Esc=취소. 새로 코드를 쓸 때도 `alert`/`confirm` 대신 이 두 함수를 쓴다.
+- **`v1.97` (2026-10-20 · Claude Code)**: ① 글감 근거 전달 — 생성 화면이 선택한 글감 **전체 내용**을 `sourceMaterial`로 보내고(예전엔 앞 100자만 「발행 목적」으로 감 → 사실 왜곡 원인), 기획·작성 프롬프트에 「이 자료의 사실만」 블록(`src/lib/ai/sourceGrounding.ts`) ② 원문 대조 — 같은 검수 호출에서 자료에 없는 사실 문장(`unsupported`, 최대 5개)을 받아 PASS→WARN·검수 의견에 표시(추가 AI 호출 없음) ③ 보관함 「발행 설정」에 바로/예약 발행(10분 단위, `/api/posts/[id]/publishing` 예약 저장·조회) ④ 랭킹 상태 점검 `/api/collector/ranking-health`(목록만·무료·30분 캐시) + 수집 버튼 🟢/🔴, 매일 `/api/cron/cleanup`에서도 점검 로그 ⑤ 글감 카드 「🏠 홈판형으로 바로 쓰기」(`format=homefeed`) ⑥ 생성 화면이 `/api/accounts`에서 본인 블로그 목록을 직접 불러옴.
 - **`v1.96` (2026-10-20 · Claude Code)**: 원고 목록 API가 `is_reserved`·`scheduled_at`을 내보내도록 수정(v1.95 ⏰ 예약 배지가 새로고침 뒤 사라지던 버그). 테스트 계정 실검수 결과·발견(홈판형 사실 왜곡, 생성 화면 블로그 목록 로컬 캐시 의존)은 `docs/IMPROVEMENT_HANDOFF_20261020.md`.
 - **`v1.95` (2026-10-20 · Claude Code)**:
   - **네이버 랭킹 글감**: 수집 화면 URL 탭에 「연예 많이 본 뉴스·스포츠 인기 뉴스·경제 최신 뉴스」 버튼(`src/lib/naverRanking.ts`, `api/collector` `action:"ranking"`). 상위 기사 5건 본문만 읽고 기사 이미지는 쓰지 않음. 연예·스포츠는 네이버 화면용 **비공식** JSON(`api-gw.entertain.naver.com`, `api-gw.sports.naver.com`)이라 바뀌면 안내 오류로 분리.
