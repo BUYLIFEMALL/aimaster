@@ -148,3 +148,6 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 병합 C 준비 — YOUTUBE CHANNEL CONSULTANT를 이 앱 안으로 (Claude Code 윈도우, 플랜 확인 대기·코드 변경 없음)
+- 플랜 겸 인수인계: [`docs/PLAN_20261020_MERGE_C_CONSULTANT.md`](docs/PLAN_20261020_MERGE_C_CONSULTANT.md) — 조사 결과(옮길 파일 18개, 이름 충돌 `lib/youtube/{client,metrics,types}`, 공용 기준 코드 기준 위치, 권한 148명 모두 겹침), 3단계, 다음 첫 단계.

@@ -115,3 +115,6 @@ vercel deploy --prod --yes --scope buylife
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 병합 C 예정 — YOUTUBE VIRAL FINDER(youtube-viral-studio) 안으로 (Claude Code 윈도우, 플랜 확인 대기)
+- 플랜 겸 인수인계: [`../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md`](../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md). 이 폴더는 3단계 전까지 그대로 운영. 공용 기준 코드(`youtube-data-client`·`youtube-golden-engine`)의 기준이 여기 있으니 병합 중 이 폴더 기준 파일을 고치면 `--sync` 필수.

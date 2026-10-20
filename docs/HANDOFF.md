@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 분석 + 병합 C 플랜 (코드 변경 없음, 다른 CLI 이어받기 가능)
+- 유튜브 관련 10개 분석: [`analysis-youtube-consolidation-20261020/REPORT.md`](analysis-youtube-consolidation-20261020/REPORT.md) (표 페이지 https://claude.ai/artifact/7Ad6WiRz8ykhuXTZ9PYCqx). 추천: 병합 C(VIRAL FINDER+CONSULTANT)·D(썸네일 프로→마스터)·E(플레이리스트 2개), 보류 F(Shots↔원스톱), 독립 2개.
+- 주인님 「병합 C 이것부터 하자」 → 조사·플랜 완료: [`../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md`](../youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md). **다음 첫 단계: 주인님 플랜 확인 → 1단계(CONSULTANT 전용 파일 18개 이식, `lib/youtube` 이름 충돌 3개는 `lib/consultant/youtube/`로).** 권한 148명 모두 겹쳐 이전 불필요, 외부 등록 주소 없음.
+
+https://youtube-viral-studio.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 세션 마감: 개발 문서 전체 갱신·인수인계
 - [세션 인수인계](HANDOFF_CLAUDE_SESSION_2026-10-20_INSTA.md) 신설(공지 연결·좌측 메뉴·병합 A·B·텔레그램·공지 띠·v1.24 전부, 주의사항 7개, 남은 일). INSTA 댓글·DM 폴더 `README.md`·`AGENTS.md` 맨 앞 7대 항목, `docs/IMPROVEMENT_HANDOFF_20261020.md`·`IMPROVEMENT_BACKLOG.md`(신설)·`IMPROVEMENTS.md`.
 - 공통 문서: 역량 지도(목록 표 버전 5곳·카드 5개), 공용 기능 지도 9절(공지 띠)·10절(텔레그램 연동), `ERROR_LESSONS.md` 6건, 아이디어 표 5건.
