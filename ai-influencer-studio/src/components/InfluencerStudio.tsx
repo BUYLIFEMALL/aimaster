@@ -13,7 +13,45 @@ interface InfluencerStudioProps {
   userEmail?: string | null;
 }
 
-const LOCAL_STORAGE_KEY = "ai_influencer_history_v1";
+const LOCAL_STORAGE_KEY = "ai_influencer_history_v1"; // v1.20부터는 예전 브라우저 히스토리를 계정으로 옮길 때만 읽는다
+
+// v1.20 작업 히스토리는 회원 계정(/api/history)에 저장 — 다른 PC·브라우저에서도 보인다(최근 30개, 30일 보관).
+const formatHistoryTime = (iso: string) =>
+  new Date(iso).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+
+/** 저장용으로 긴 변 1440px JPEG로 줄인다(원본 PNG base64는 서버 요청 한도를 넘을 수 있음) */
+function toHistoryJpeg(src: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const scale = Math.min(1, 1440 / Math.max(img.naturalWidth, img.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { reject(new Error("이미지를 줄이지 못했습니다.")); return; }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => reject(new Error("이미지를 읽지 못했습니다."));
+    img.src = src;
+  });
+}
+
+type ServerHistory = { id: string; createdAt: string; imageUrl: string; captions: string[]; config: InfluencerConfig; summary: string };
+const fromServer = (h: ServerHistory): HistoryItem => ({ id: h.id, timestamp: formatHistoryTime(h.createdAt), imageUrl: h.imageUrl, captions: h.captions ?? [], config: h.config, summary: h.summary });
+
+async function postHistory(imageSrc: string, captions: string[], config: InfluencerConfig, summary: string): Promise<HistoryItem | null> {
+  const image = await toHistoryJpeg(imageSrc);
+  // 사진 데이터(얼굴·장소·상품 사진, 직전 결과)는 보내지 않는다 — 글자 설정만 저장(서버도 한 번 더 뺀다)
+  const { personImage: _p, placeImage: _l, productImages: _i, lastResultImage: _r, ...textConfig } = config ?? ({} as InfluencerConfig);
+  void _p; void _l; void _i; void _r;
+  const res = await fetch("/api/history", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image, captions, config: textConfig, summary }) });
+  if (!res.ok) return null;
+  const d = await res.json();
+  return d.item ? fromServer(d.item) : null;
+}
 
 export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
   // 인플루언서 설정 기본값 (기본 선택은 아무것도 안 되어 있는 값)
@@ -65,14 +103,30 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
   useEffect(() => {
     checkApiKeyStatus();
 
-    try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (saved) {
-        setHistoryItems(JSON.parse(saved));
+    void (async () => {
+      const load = async () => {
+        const res = await fetch("/api/history", { cache: "no-store" });
+        if (!res.ok) return;
+        const d = await res.json();
+        setHistoryItems(((d.items ?? []) as ServerHistory[]).map(fromServer));
+      };
+      try {
+        await load();
+        // 예전 브라우저 히스토리가 남아 있으면 오래된 것부터 계정으로 옮기고 브라우저에서 지운다
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const local = saved ? (JSON.parse(saved) as HistoryItem[]) : [];
+        if (local.length) {
+          let moved = 0;
+          for (const item of [...local].reverse()) {
+            if (item?.imageUrl && (await postHistory(item.imageUrl, item.captions ?? [], item.config, item.summary ?? "").catch(() => null))) moved++;
+          }
+          if (moved === local.length) localStorage.removeItem(LOCAL_STORAGE_KEY);
+          await load();
+        }
+      } catch (e) {
+        console.warn("히스토리 로드 실패:", e);
       }
-    } catch (e) {
-      console.warn("히스토리 로드 실패:", e);
-    }
+    })();
   }, []);
 
   // 컨트롤 패널 내 스텝 스크롤 위치 감지 (사이드바 활성화 동기화)
@@ -154,13 +208,11 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
       summary: `${usedConfig.age}세 ${usedConfig.ethnicity === "kr" ? "한국인" : "모델"} · ${usedConfig.location.slice(0, 15)}`,
     };
 
-    const updated = [newItem, ...historyItems.slice(0, 29)];
-    setHistoryItems(updated);
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-    } catch (e) {
-      console.warn("히스토리 저장 실패:", e);
-    }
+    // 화면에는 바로 보이고, 계정 저장이 끝나면 서버 값(id·보기 주소)으로 바꾼다
+    setHistoryItems((cur) => [newItem, ...cur.slice(0, 29)]);
+    void postHistory(imageUrl, captions, usedConfig, newItem.summary)
+      .then((saved) => { if (saved) setHistoryItems((cur) => cur.map((h) => (h.id === newItem.id ? saved : h))); })
+      .catch((e) => console.warn("히스토리 저장 실패:", e));
   };
 
   // 히스토리 항목 선택
@@ -177,9 +229,8 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
 
   // 히스토리 삭제
   const handleDeleteHistoryItem = (id: string) => {
-    const updated = historyItems.filter((item) => item.id !== id);
-    setHistoryItems(updated);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    setHistoryItems((cur) => cur.filter((item) => item.id !== id));
+    if (!id.startsWith("hist_")) void fetch(`/api/history?id=${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => undefined);
   };
 
   // 히스토리 전체 비우기
@@ -187,6 +238,7 @@ export function InfluencerStudio({ userEmail }: InfluencerStudioProps) {
     if (confirm("모든 작업 히스토리를 삭제하시겠습니까?")) {
       setHistoryItems([]);
       localStorage.removeItem(LOCAL_STORAGE_KEY);
+      void fetch("/api/history?all=1", { method: "DELETE" }).catch(() => undefined);
     }
   };
 
