@@ -1,5 +1,16 @@
 # AIMaster 프로그램 아이디어·개선 검토 원장
 
+<!-- IMAGE_STUDIO_PROMPTS_IDEAS_20261020 -->
+## 2026-10-20 AI 이미지 스튜디오 프롬프트 보강 중 발견한 개선안(구현 전)
+
+| ID | 측면 | 개선안·필요 이유 | 안정성/적용 가능성/편의 | 상태 |
+|---|---|---|---|---|
+| IMG-PROMPT-STYLE-01 | 개발·유지보수 | AI 최적화 API의 부정 문구를 선택 화풍에 맞게 분리. 애니/3D 선택에도 no anime/no 3D render가 들어갈 수 있는 기존 시스템 예시의 충돌 방지 | 문자열 정책으로 검사 가능 / 기존 API에 적용 가능 / 원하는 화풍 유지 | 제안, API 동작 이번 미수정 |
+| IMG-PROMPT-BOARD-02 | 디자인 | 장문 예시에 전문 펼침·복사·짧은 미리보기 제공. 160개 상세 문구의 긴 표를 더 쉽게 탐색 | 조회·표시 중심 / 기존 게시판에 적용 가능 / 재사용과 비교가 편리 | 제안 |
+
+근거·후속 절차: [프로그램 인수인계](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_ENGLISH_PROMPTS.md).
+<!-- /IMAGE_STUDIO_PROMPTS_IDEAS_20261020 -->
+
 <!-- DETAILED_PROGRAM_REVIEW_INDEX_20261019 -->
 ## 프로그램별 상세 개선표 — 작업 전에 함께 확인
 

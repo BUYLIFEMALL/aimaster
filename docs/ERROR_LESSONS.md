@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+<!-- IMAGE_STUDIO_PROMPTS_LESSON_20261020 -->
+## 2026-10-20 — 운영 예시만 바꾸면 기본값/초기 등록에서 옛 문구가 다시 나타남
+- 증상: 화풍 예시가 DB·초기 등록 API·작업실 내장 목록 세 곳에 중복되어 일부만 고치면 상황별 문구가 서로 달라집니다.
+- 원인: 초기 데이터와 조회 실패 시 쓰는 기본 예시가 각 파일에 독립 선언되어 있었습니다.
+- 해결: ai-image-studio/lib/prompts/stylePresetPrompts.json을 해당 프로그램의 기본 예시 원본으로 쓰고 seed API/Step1PromptEnhancer가 함께 읽도록 했습니다. 운영 DB 관리자 편집 내용은 계속 우선합니다.
+- 다음부터: 초기 등록·기본값·운영 행을 함께 대조하고, 관리자 공통 예시와 회원별 생성물을 구분합니다. DB 본문 교체는 원문·ID·분류·제목·순서 일치 조건과 전체 취소 검사를 넣어 동시 편집을 보존합니다.
+<!-- /IMAGE_STUDIO_PROMPTS_LESSON_20261020 -->
+
 ## 2026-10-20 — GPT-5·GPT-6(추론 모델)은 `temperature` 지정과 `max_tokens`를 거부(400)한다 + 공유 스테이징에 미리 올린 파일은 다른 세션 커밋에 섞인다 (SEO 스튜디오 v1.75·쇼핑제휴 v1.67, Claude Code 윈도우)
 - 증상: 모델 목록에 `gpt-5.6-*`·`gpt-6-*`를 넣었는데 생성이 400. 원인: 추론 모델은 기본 온도만 받고(`temperature` 지정 거부), 출력 한도는 `max_completion_tokens`만 받는다(`max_tokens` 거부). 해결: `naver-blog-seo-studio/lib/ai/openaiModels.ts` `openAITemperature()`, `threads-affiliate-poster/src/lib/ai/generator.ts` gpt-4 계열만 `max_tokens`. 출력 한도에는 생각 단계도 포함되므로 600처럼 작게 주면 빈 응답이 날 수 있다(4000 사용).
 - 다음부터: OpenAI 모델 목록에 새 세대를 추가하면 `node scripts/check-openai-models.mjs --live`(본인 키 환경변수)로 실제 1회 호출해 본다. 19개 프로그램 점검 결과(2026-10-20)는 `docs/HANDOFF.md` 같은 날 항목.

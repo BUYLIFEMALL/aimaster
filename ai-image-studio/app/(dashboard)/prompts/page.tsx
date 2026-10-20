@@ -164,13 +164,13 @@ export default function PromptsManagementPage() {
   };
 
   const handleSeedData = async () => {
-    if (!confirm("기본 13개 화풍 x 10개 (총 130개)의 초기 추천 프롬프트 데이터셋을 DB에 주입하시겠습니까?")) return;
+    if (!confirm("기본 16개 화풍 x 10개 (총 160개)의 초기 추천 프롬프트 데이터셋을 DB에 주입하시겠습니까?")) return;
     setLoading(true);
     try {
       const res = await fetch("/api/prompts/seed", { method: "POST" });
       const data = await res.json();
       if (res.ok) {
-        alert(`성공적으로 130개 초기 프롬프트 데이터가 주입되었습니다!`);
+        alert(`성공적으로 ${data.count}개 초기 프롬프트 데이터가 주입되었습니다!`);
         fetchPrompts();
       } else {
         alert(`시드 주입 실패: ${data.error}`);
@@ -206,7 +206,7 @@ export default function PromptsManagementPage() {
               화풍 프롬프트 게시판 관리
             </h1>
             <p className="text-xs text-zinc-400 mt-1">
-              13가지 화풍별 추천 아이디어 태그 및 프롬프트 예시입니다. 등록·수정·삭제는 관리자만 할 수 있습니다.
+              16가지 화풍별 추천 아이디어 태그 및 프롬프트 예시입니다. 등록·수정·삭제는 관리자만 할 수 있습니다.
             </p>
           </div>
         </div>
@@ -217,10 +217,10 @@ export default function PromptsManagementPage() {
             type="button"
             onClick={handleSeedData}
             className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-colors"
-            title="기본 130개 프롬프트 데이터셋 DB 주입"
+            title="기본 160개 프롬프트 데이터셋 DB 주입"
           >
             <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-            초기 130개 주입
+            초기 160개 주입
           </button>
           )}
           <button

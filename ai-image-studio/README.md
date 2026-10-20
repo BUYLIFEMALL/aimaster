@@ -1,7 +1,7 @@
 # 이미지 자동화 (AI Image Studio / ai-image-studio)
 
 > **공식 서비스 URL**: [https://ai-image-studio.buylife.xyz](https://ai-image-studio.buylife.xyz)  
-> **현재 버전**: `v1.19` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
+> **현재 버전**: `v1.20` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
 > **담당 CLI**: Antigravity CLI (agy) / Claude Code / Codex 공통
 
 AIMaster 플랫폼의 **AI 이미지 자동화 레퍼런스(기준) 프로그램**인 **AI Image Studio**입니다.  
@@ -79,3 +79,8 @@ AIMaster 플랫폼의 **AI 이미지 자동화 레퍼런스(기준) 프로그램
 
 ## 2026-10-20 v1.19
 사용 매뉴얼 배너 위치를 API키등록 메뉴 바로 위로 변경했습니다. [작업 결과·검수·남은 일](docs/IMPROVEMENT_HANDOFF_20261020_MANUAL_MENU.md).
+
+## 2026-10-20 v1.20 — 상황별 영문 프롬프트 160개 상세 보강 (Codex)
+- 16개 화풍별 10개 본문을 직접 다시 작성. 제목·분류·순서 보존, 기본 예시 JSON을 초기 등록/작업실에서 함께 사용.
+- 원문 백업·원문 일치 조건이 있는 일괄 DB 교체/복구 자료·문구 검사 4개·권한 검사·빌드. 유료 이미지 생성 미실시.
+- [계획](docs/PLAN_20261020_ENGLISH_PROMPTS.md) · [작업 결과/운영 증거/남은 일](docs/IMPROVEMENT_HANDOFF_20261020_ENGLISH_PROMPTS.md).

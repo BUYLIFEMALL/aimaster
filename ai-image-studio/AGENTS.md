@@ -1,7 +1,7 @@
 # AI 이미지 스튜디오 (ai-image-studio) — AI 에이전트 인수인계 문서 (AGENTS.md)
 
 > **공식 서비스 URL**: [https://ai-image-studio.buylife.xyz](https://ai-image-studio.buylife.xyz)  
-> **현재 버전**: `v1.19` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
+> **현재 버전**: `v1.20` (크리에이티브 아틀리에 럭셔리 다크 스타일 템플릿)
 > **상위 지침**: 루트 [`../AGENTS.md`](../AGENTS.md) 및 [`../DESIGN.md`](../DESIGN.md), [`../docs/IMAGE_PROMPT_RULES.md`](../docs/IMAGE_PROMPT_RULES.md)
 
 ---
@@ -160,3 +160,8 @@
 ## 2026-10-20 v1.19 — 사용 매뉴얼 메뉴 위치 변경 (Codex)
 - 기존 상단 매뉴얼 배너를 화풍 프롬프트 게시판 아래, API키등록·플랫폼연동 바로 위로 이동했습니다. 디자인과 /guide 이동은 같습니다.
 - 계획·검수·운영 결과: [인수인계](docs/IMPROVEMENT_HANDOFF_20261020_MANUAL_MENU.md).
+
+## 2026-10-20 v1.20 — 상황별 영문 프롬프트 160개 상세 보강 (Codex)
+- 16개 화풍별 10개 본문을 직접 다시 작성. 제목·분류·순서 보존, 기본 예시 JSON을 초기 등록/작업실에서 함께 사용.
+- 원문 백업·원문 일치 조건이 있는 일괄 DB 교체/복구 자료·문구 검사 4개·권한 검사·빌드. 유료 이미지 생성 미실시.
+- [계획](docs/PLAN_20261020_ENGLISH_PROMPTS.md) · [작업 결과/운영 증거/남은 일](docs/IMPROVEMENT_HANDOFF_20261020_ENGLISH_PROMPTS.md).

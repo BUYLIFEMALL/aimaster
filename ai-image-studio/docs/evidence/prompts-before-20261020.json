@@ -1,0 +1,1282 @@
+[
+  {
+    "id": "c41b2873-1a6a-425d-bbc1-db76805d69c0",
+    "style_id": "3d_digital",
+    "label": "#3D 마케팅 아이콘",
+    "prompt": "혁신적인 스마트폰과 신용카드가 떠있는 3D 미니멀 클레이 아트 마케팅 아이콘 세트",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "9d65fc0c-a42f-45f1-adf7-5045bff74b4e",
+    "style_id": "3d_digital",
+    "label": "#픽사풍 귀여운 캐릭터",
+    "prompt": "동글동글한 안경을 쓴 귀여운 3D 토끼 탐정 캐릭터, Pixar 애니메이션 렌더링",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "f6f2a4bb-50f5-4806-b4fc-8c924fd93e9c",
+    "style_id": "3d_digital",
+    "label": "#미래지향 3D 오브젝트",
+    "prompt": "투명한 글래스모피즘 큐브와 입체 가상화폐 3D 디스플레이 렌더",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "00606cc6-9d5c-447a-83a3-04ec07424cba",
+    "style_id": "3d_digital",
+    "label": "#3D 장난감 로봇",
+    "prompt": "귀여운 등불을 든 미니멀 3D 차콜 장난감 로봇 캐릭터",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "abf4a7cc-b4cf-421a-a814-ee905c077b69",
+    "style_id": "3d_digital",
+    "label": "#입체 퐁퐁이 아일랜드",
+    "prompt": "구름 위에 떠있는 아기자기한 3D 장난감 마을과 무지개 동산",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "4b4e39e0-d315-4547-af1a-b47b5f946ca7",
+    "style_id": "3d_digital",
+    "label": "#3D 금융 백그라운드",
+    "prompt": "파스텔 톤 동전과 황금 열쇠가 날아다니는 금융 앱 3D 일러스트",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "310a1af6-5014-4dbe-b619-68d08d0ffe58",
+    "style_id": "3d_digital",
+    "label": "#3D 귀여운 디저트",
+    "prompt": "딸기 생크림 케이크와 알록달록 마카롱이 떠있는 3D 렌더링",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5e9a46bd-a181-4bba-af6c-509bf455434e",
+    "style_id": "3d_digital",
+    "label": "#3D 우주선 비행",
+    "prompt": "알록달록한 아기 우주선이 반짝이는 별들 사이를 누비는 3D 그래픽",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "0750877a-17c1-4986-9cd9-a8e9751c111d",
+    "style_id": "3d_digital",
+    "label": "#3D 스마트 홈",
+    "prompt": "미니멀 아이콘 형태의 스마트 TV와 온도조절기가 조화를 이루는 3D 아트",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "ca7b6f05-cc51-4658-85b2-057c42dcfefe",
+    "style_id": "3d_digital",
+    "label": "#3D 동물 동화 캐릭터",
+    "prompt": "책 읽는 귀여운 3D 아기 곰돌이 캐릭터, 부드러운 3D 질감",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "9d44489f-1c56-4b34-8d0c-4978353e3564",
+    "style_id": "architectural",
+    "label": "#건축 인테리어",
+    "prompt": "통창 너머로 숲이 펼쳐지는 미니멀 우드 앤 콘크리트 고급 거실 인테리어 디자인",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "6b4d6462-6a9d-4775-9963-f11da40638de",
+    "style_id": "architectural",
+    "label": "#모던 단독주택 외관",
+    "prompt": "ArchDaily 잡지 커버 스타일, 자연광과 노출 콘크리트 조화의 미니멀 모던 주택",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "0223ff68-74cd-4bdc-a3b6-e9ffc82d9ef6",
+    "style_id": "architectural",
+    "label": "#호텔 리조트 수영장",
+    "prompt": "발리 리조트풍 인피니티 풀과 해질녘 오렌지빛 라이팅 디자인 공간",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "018bf7f4-e67e-4acd-8199-e93c34238739",
+    "style_id": "architectural",
+    "label": "#북유럽 미니멀 주방",
+    "prompt": "대리석 아일랜드 식탁과 따뜻한 펜던트 조명이 돋보이는 모던 키친",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "2c71eaab-52e1-4738-b5e6-ce5baf7e1596",
+    "style_id": "architectural",
+    "label": "#공중정원 온실 스튜디오",
+    "prompt": "유리 온실 구조 속 수목이 가득한 생태 친화적 건축 오피스",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "7dcf79b9-0f93-4405-a685-f0ead908ac66",
+    "style_id": "architectural",
+    "label": "#자연광 테라스 서재",
+    "prompt": "나무 서가와 편안한 1인용 소파가 자연광을 받으며 놓인 서재",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "65a8a2ae-3b96-490b-889d-94b3bc116457",
+    "style_id": "architectural",
+    "label": "#도심 펜트하우스 야경",
+    "prompt": "통유리창으로 도심 야경이 한눈에 들어오는 고급 펜트하우스 침실",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d0d06b7b-1442-4aa3-b371-73f5a7b35caf",
+    "style_id": "architectural",
+    "label": "#일본식 미니멀 중정",
+    "prompt": "단풍나무와 자갈 정원이 바라보이는 정갈한 지다미 스타일 한옥/와시츠",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "1f11d79a-7b30-4899-87ea-de3e488bd93a",
+    "style_id": "architectural",
+    "label": "#미래형 갤러리 미술관",
+    "prompt": "곡선형 콘크리트 벽면과 천장 천창 라이팅이 예술적인 현대 미술관",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5e60c4a3-15ae-48f5-9910-e30da062dc13",
+    "style_id": "architectural",
+    "label": "#스파 바이오필릭 바스",
+    "prompt": "자연 석재 욕조와 대나무 숲 뷰가 차분함을 주는 바이오필릭 욕실",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "641ea392-db1b-4e8b-bb11-86d0029c9358",
+    "style_id": "artistic_editorial",
+    "label": "#패션 룩북 화보",
+    "prompt": "모던한 미니멀 백그라운드 스튜디오에서 봄 신상 트렌치코트를 입은 모델의 패션 잡지 화보",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "f4ac7152-caf0-4913-be6a-3e886cc3a77f",
+    "style_id": "artistic_editorial",
+    "label": "#보그 흑백 세련미",
+    "prompt": "Vogue 룩북 스타일, 드라마틱한 음영 대비가 돋보이는 모던 하이패션 포즈의 여성 모델",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "2bf6c708-d597-434b-a19e-d0411212eadd",
+    "style_id": "artistic_editorial",
+    "label": "#하이엔드 주얼리 컷",
+    "prompt": "고급스러운 아크릴 무대 위 다이아몬드 목걸이와 패션 잡지 커버컷 조명 연출",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "eca1fe3c-a80e-48c5-90db-ac8aea31a53a",
+    "style_id": "artistic_editorial",
+    "label": "#네온 스트리트 패션",
+    "prompt": "밤거리 도심 속 힙한 스트릿웨어와 선글라스를 착용한 모델의 감성 화보",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "53497bf6-6e4c-4435-b5f4-ed71a227a65b",
+    "style_id": "artistic_editorial",
+    "label": "#미니멀 린넨 패션",
+    "prompt": "베이지 린넨 수트를 입은 한국 남성 모델의 차분하고 감성적인 인물 스냅",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "a519a53f-5706-4de8-94a8-833a2e1d888f",
+    "style_id": "artistic_editorial",
+    "label": "#레트로 엘레강스",
+    "prompt": "70년대 클래식 무드의 드레스를 입은 모델과 레트로 가구 조화",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "6c669f96-be99-40d7-ac9a-b0eb33c753d6",
+    "style_id": "artistic_editorial",
+    "label": "#컬러 블록 에디토리얼",
+    "prompt": "강렬한 레드와 블루 배경이 대조를 이루는 아방가르드 패션 화보",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e72ca925-4ff6-475d-9b93-c71b9711cb66",
+    "style_id": "artistic_editorial",
+    "label": "#하이패션 뷰티 포트레이트",
+    "prompt": "글로시한 입술과 매끈한 피부 디테일이 강조된 뷰티 매거진 커버 컷",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "c8e7d4be-cc8b-4f9a-b489-bf73c90af3c7",
+    "style_id": "artistic_editorial",
+    "label": "#스튜디오 그림자 예술",
+    "prompt": "블라인드 사이로 새어 나오는 슬릿 조명과 인물의 감각적인 실루엣",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "7d9eee68-2aaa-486a-9021-aa982bc9a58e",
+    "style_id": "artistic_editorial",
+    "label": "#실크 드레스 댄스",
+    "prompt": "바람에 흩날리는 붉은 실크 드레스를 입고 무용하는 모델의 역동적인 컷",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "a1f3c08e-ad5b-4bcb-9227-0b1aeb35317c",
+    "style_id": "cinematic_film",
+    "label": "#35mm 빈티지 카페",
+    "prompt": "80년대 골목길 카페 야외 테라스에서 커피를 마시는 감성적인 빈티지 인물 컷",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b79ce6eb-d885-48af-a7c7-4a16db6af79a",
+    "style_id": "cinematic_film",
+    "label": "#레트로 야간 스냅",
+    "prompt": "Kodak Portra 400 필름 특유의 따뜻한 입자와 비 오는 밤 도쿄 골목 네온 스냅",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "46674f35-9ab4-4218-9838-6d5833494a67",
+    "style_id": "cinematic_film",
+    "label": "#여름 바다 필름 감성",
+    "prompt": "햇빛이 수면에 반사되는 청량한 여름 바닷가와 90년대 필름 카메라 질감",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e322df32-015b-4574-838d-0a0898d9ade4",
+    "style_id": "cinematic_film",
+    "label": "#레트로 올드카 여행",
+    "prompt": "노을빛 사막 도로 위에 멈춰선 클래식 올드카와 여행자의 필름 사진",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b9c72d7f-23a5-43a4-a51f-63df71e3811c",
+    "style_id": "cinematic_film",
+    "label": "#70년대 아날로그 레코드",
+    "prompt": "아날로그 LP판을 들고 미소 짓는 뮤지션의 따스한 35mm 레트로 컷",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "385656e9-b1f3-4899-8c4d-bf5c9d2b5627",
+    "style_id": "cinematic_film",
+    "label": "#필름 빛갈라짐 인물",
+    "prompt": "숲속 틈새 햇살 아래 눈을 감은 인물의 오렌지빛 필름 플레어",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "eb04fc01-8dc9-4a6d-b7bf-ba9f91078448",
+    "style_id": "cinematic_film",
+    "label": "#레트로 레스토랑 데이트",
+    "prompt": "네온 글라스와 빈티지 소파가 어우러진 80년대 레스토랑의 인물 사진",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b20fa867-9018-4cb9-af00-0282a71e2542",
+    "style_id": "cinematic_film",
+    "label": "#아날로그 기차 창가",
+    "prompt": "달리는 기차 창가 밖 들판을 바라보는 인물의 아련한 필름 감성",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d2afdc9c-790b-46f6-aecb-c3fc195142fe",
+    "style_id": "cinematic_film",
+    "label": "#35mm 흑백 포토",
+    "prompt": "강렬한 그레인과 거친 질감이 살이있는 빈티지 흑백 스트리트 포토",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "a80ff641-9731-4c04-90b0-331c27e319af",
+    "style_id": "cinematic_film",
+    "label": "#레트로 레코드 샵",
+    "prompt": "수많은 레코드판이 꽂힌 아날로그 상점에서 음악을 듣는 인물 컷",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "99f91134-f1f0-4030-99c8-68c6af7f8332",
+    "style_id": "claymation",
+    "label": "#지점토 귀여운 공룡",
+    "prompt": "손맛 느껴지는 울퉁불퉁 지점토 질감의 알록달록 아기 공룡 스톱모션 인형",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "8be7758a-eef7-4b24-ae88-487cb90d8c9b",
+    "style_id": "claymation",
+    "label": "#클레이 베이커리 빵",
+    "prompt": "따뜻한 오븐 속 귀여운 표정이 그려진 클레이 빵과 미니어처 주방",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "1b555397-e419-4ee0-a3e5-9609ec107a38",
+    "style_id": "claymation",
+    "label": "#클레이 아기자기 마을",
+    "prompt": "아기자기한 클레이 스톱모션 미니어처 마을과 알록달록 자동차",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "43235fa1-f0dc-48c2-9960-53a106ea8593",
+    "style_id": "claymation",
+    "label": "#지점토 우주 비행사",
+    "prompt": "둥글둥글한 지점토 우주복을 입은 아기 우주 비행사 인형",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "c807d772-9949-4f83-8553-34f8267328e9",
+    "style_id": "claymation",
+    "label": "#클레이 펭귄 가족",
+    "prompt": "남극 얼음판 위에서 옹기종기 모여있는 클레이 펭귄 캐릭터들",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "6ecdb220-25a2-4e7d-be6f-d83712d0e14a",
+    "style_id": "claymation",
+    "label": "#클레이 햄버거 세트",
+    "prompt": "미니어처 지점토 치즈버거와 감자튀김 스톱모션 푸드 소품",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "7324f70f-2e93-4bf3-a40e-b32e02426d48",
+    "style_id": "claymation",
+    "label": "#클레이 숲속 버섯 집",
+    "prompt": "알록달록한 지점토 버섯 지붕 집과 클레이 아기 요정",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "307d87da-dd5a-416e-a195-bc927fe04ca8",
+    "style_id": "claymation",
+    "label": "#클레이 몬스터 밴드",
+    "prompt": "기타와 드럼을 연주하는 귀여운 클레이 몬스터 음악 밴드",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d2048047-dc70-4f53-922c-f924b8108ba2",
+    "style_id": "claymation",
+    "label": "#클레이 해적선 항해",
+    "prompt": "아기자기한 지점토 장난감 해적선과 손맛 넘치는 바다 파도",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "0a0ed913-7e54-425a-a96d-b92af956738f",
+    "style_id": "claymation",
+    "label": "#클레이 크리스마스 트리",
+    "prompt": "반짝이는 방울과 눈사람 지점토 인형이 달린 트리 스톱모션",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "6905c1f1-6915-4374-b230-a87138609ff9",
+    "style_id": "cyberpunk_neon",
+    "label": "#사이버펑크 서울야경",
+    "prompt": "네온사인 가득한 비 내리는 사이버펑크 서울 야경 속 트렌디한 한국 여성의 몽환적인 포트레이트",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e62d2210-1e44-44a2-a032-ee6775c2d0f2",
+    "style_id": "cyberpunk_neon",
+    "label": "#네온 라이더 스피드",
+    "prompt": "미래도시 네온 고속도로를 질주하는 사이버펑크 오토바이 라이더와 청색/자홍색 이펙트",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e1c60dab-3e11-4634-9e6b-19dbfaa1a0ea",
+    "style_id": "cyberpunk_neon",
+    "label": "#미래형 해커 로봇",
+    "prompt": "신비로운 홀로그램 인터페이스를 조작하는 미래형 안드로이드 해커",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5a1364c2-24be-4136-9659-8b7be6e9bee5",
+    "style_id": "cyberpunk_neon",
+    "label": "#사이버펑크 차이나타운",
+    "prompt": "붉은 네온 등불과 한자가 반짝이는 미래 도시 골목의 고양이 포트레이트",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5c05884e-74b2-43ae-bf6f-525011c34404",
+    "style_id": "cyberpunk_neon",
+    "label": "#네온 고글 사이보그",
+    "prompt": "투명 네온 고글을 쓰고 사이버네틱 임플란트를 이식한 힙합 아티스트",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "4394375f-e956-416e-8061-6d14f886d942",
+    "style_id": "cyberpunk_neon",
+    "label": "#미래형 메카 기체",
+    "prompt": "안개 속 웅장하게 서 있는 거대 사이버펑크 전투 메카 로봇",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "c2322464-a0d1-4130-84c6-0b7212452931",
+    "style_id": "cyberpunk_neon",
+    "label": "#사이버펑크 술집 야경",
+    "prompt": "네온 조명 아래 홀로그램 술잔을 기울이는 사막의 여전사",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "9ca22641-6969-4937-ae17-8aa918fa5fbd",
+    "style_id": "cyberpunk_neon",
+    "label": "#네온 비행 자동차",
+    "prompt": "초고층 빌딩 숲 사이를 누비는 붉은색 광원의 비행 자동차",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e40db6cc-6723-4743-a910-065ac20fd20b",
+    "style_id": "cyberpunk_neon",
+    "label": "#사이버펑크 브릿지",
+    "prompt": "자홍빛 안개 속에 휩싸인 미래 도시의 아치형 네온 대교",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5f4b4498-3dda-4e31-bab1-9c73f68389ea",
+    "style_id": "cyberpunk_neon",
+    "label": "#네온 닌자 아웃라인",
+    "prompt": "빛나는 사쿠라 네온 검을 든 스텔스 사이버 닌자",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b8356550-a199-45a3-92f2-259777536b4a",
+    "style_id": "dark_fantasy",
+    "label": "#다크판타지 웅장함",
+    "prompt": "어둡고 신비로운 고성 타워 위에서 붉은 마법 룬을 시전하는 검은 로브의 마법사",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "eed056d3-717a-4a1d-94c7-a0c85843e1f2",
+    "style_id": "dark_fantasy",
+    "label": "#심연의 고딕 기사",
+    "prompt": "자색 안개 가득한 폐허 성당 앞 거대한 대검을 든 고딕 다크 판타지 기사",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e0e75294-075c-4b58-aaaa-2373a215cc02",
+    "style_id": "dark_fantasy",
+    "label": "#용의 둥지 수호자",
+    "prompt": "용암이 흐르는 어두운 동굴 속 붉은 눈의 용과 고대 성물",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "63b5d900-e150-4646-bc6b-5408b2fb7aa9",
+    "style_id": "dark_fantasy",
+    "label": "#해골 왕좌 군주",
+    "prompt": "해골과 뼈로 조각된 고딕 왕좌에 앉아있는 안개 속 불사의 왕",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "99eab7b5-214c-440b-8753-644fc0ccf5a9",
+    "style_id": "dark_fantasy",
+    "label": "#저주받은 숲 요정",
+    "prompt": "이끼 낀 거대한 고목과 신비로운 푸른 빛버섯이 자라는 잔혹 동화 숲",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "8aae1b0e-a514-4c90-b435-fedc2b86c343",
+    "style_id": "dark_fantasy",
+    "label": "#타락한 천사의 날개",
+    "prompt": "붉은 핏빛 달 아래 흑색 날개를 펼치고 있는 타락 천사",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b4509b8b-35bc-4b8a-aa16-18b1bf6436fb",
+    "style_id": "dark_fantasy",
+    "label": "#네크로맨서 소환",
+    "prompt": "어두운 지하 묘지에서 푸른 영혼의 불꽃을 소환하는 주술사",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "577bf949-9103-4449-92b8-a00a19b6b8ee",
+    "style_id": "dark_fantasy",
+    "label": "#고딕 뱀파이어 성",
+    "prompt": "벼락이 치는 암벽 산 정상 위에 솟아있는 장엄한 고딕 뱀파이어 성",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "ffe42506-cf80-483e-ad91-d686ca19ff0c",
+    "style_id": "dark_fantasy",
+    "label": "#마법 연금술 랩",
+    "prompt": "보랏빛 물약이 끓고 고대 마도서가 넘겨지는 비밀 연금술사의 방",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "07c0a3a1-9eb3-4872-8ddc-844a063b024a",
+    "style_id": "dark_fantasy",
+    "label": "#룬 문자 마법검",
+    "prompt": "차가운 서리가 내린 검신 위에 룬 문자가 빛나는 신화 속의 검",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "c5ebca80-9a0b-4212-96ce-76678d0d85f8",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 숲속 신비로운 정령",
+    "prompt": "Studio Ghibli anime style, Miyazaki Hayao aesthetic, a young Korean girl meeting small glowing forest spirits under a massive ancient mossy tree, hand-drawn watercolor background, lush green hills, fluffy summer cumulus clouds, nostalgic warm sunlight, gentle anime cel shading, peaceful atmosphere, masterpiece",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d387ad60-25d4-4c85-b807-d54f290d7de8",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 구름 언덕 자전거",
+    "prompt": "Studio Ghibli style anime screenshot, a young Korean boy riding a bicycle down a grassy coastal hill under a bright blue sky filled with giant fluffy white clouds, hand-drawn watercolor scenery, nostalgic summer breeze",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "71ae4adf-ac16-4d44-b9f6-0b85c872be73",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 기차 창가 노을",
+    "prompt": "Studio Ghibli aesthetic, a young girl sitting by the window of an analog countryside train bathed in warm golden sunset light, waving curtains, painterly Ghibli watercolor background, peaceful anime moment",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "01dfae8a-5e0a-4248-bdd6-ed37f31834b2",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 비 오는 날 찻집",
+    "prompt": "Studio Ghibli anime style, a cozy wooden teahouse on a rainy afternoon, a cat resting on the porch next to steaming tea, soft rain haze, lush green garden background, Miyazaki Hayao atmosphere",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "dcd0a49f-1270-44ed-9d82-fc1c23762aa6",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 바닷가 전철역",
+    "prompt": "Studio Ghibli style, an oceanfront train platform with railway tracks submerging into crystal clear blue water, fluffy summer clouds, nostalgic painterly anime watercolor scenery",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "7a9494f7-62b2-4ca1-9fd5-bffaeb365335",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 하늘을 나는 여객선",
+    "prompt": "Studio Ghibli animation aesthetic, a majestic vintage steampunk airship floating smoothly above a sea of white cumulus clouds, warm sunset light, hand-drawn Ghibli painterly background",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "15fb739d-1be8-41e6-b6f7-0db5d35f3ae9",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 비밀의 들꽃 정원",
+    "prompt": "Studio Ghibli style, a secret wildflower garden drenched in soft morning sunlight, an antique music box on a wooden bench, nostalgic watercolor anime atmosphere",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "42a967ac-e136-49fb-8d86-5d5c2aff6c9a",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 숲속 작은 베이커리",
+    "prompt": "Studio Ghibli aesthetic, a cozy bakery hidden inside a forest tree trunk, freshly baked bread on display, warm lantern glow, Ghibli painterly watercolor art",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "118fcb96-7c11-4fe9-81f1-3ab08951819b",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 은하수 밤하늘 캠핑",
+    "prompt": "Studio Ghibli style, a small glowing tent beside a crackling campfire under a vast starry night sky with a milky way galaxy, Ghibli painterly anime background",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b98f48f1-3077-49ad-8035-e795eb357702",
+    "style_id": "ghibli_anime",
+    "label": "#지브리 바람 불어오는 언덕",
+    "prompt": "Studio Ghibli anime style, a Korean boy and girl holding their hats on a breezy grassy hill overlooking a quiet ocean town, fluffy white clouds, Miyazaki Hayao masterpiece",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "cb398442-894a-4c77-9031-c0aa2ac87298",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 도심 혜성 야경",
+    "prompt": "Makoto Shinkai aesthetic, Kyoto Animation style, highly detailed 2D Japanese anime, a young Korean couple on a skyscraper rooftop watching a brilliant dual comet splitting across a deep twilight night sky, dramatic lens flare, vibrant saturated colors, crisp line art, beautiful volumetric sky, cinematic framing, anime screencap, masterpiece",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e5fa206b-7c08-4dbd-90c0-87137f42ccd0",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 비 내리는 신호등",
+    "prompt": "Makoto Shinkai style, a young Korean girl holding a transparent umbrella at a rain-soaked crosswalk at dusk, wet street reflecting orange traffic lights, dramatic rim light, crisp 2D anime line art, cinematic anime screenshot",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "c3d24c6f-8cfb-48ee-ac9c-00abf6f1f3c2",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 여름 바닷가 둑길",
+    "prompt": "Kyoto Animation style, a high school student riding a scooter along a sea wall road under a brilliant blue sky with towering cumulus clouds, glistening ocean water, vibrant 2D Japanese anime aesthetic",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "1764a8bf-cb96-4fa6-b82a-5d4ad29d8662",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 밤하늘 축제 등불",
+    "prompt": "Makoto Shinkai style, a festival street lined with glowing paper lanterns, a realistic 2D anime girl smiling shyly under glowing warm light, crisp line art, dramatic anime lighting",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "20de6d00-116c-4fe5-97ae-819a3063b6c1",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 벚꽃 날리는 학교",
+    "prompt": "Kyoto Animation aesthetic, cherry blossom petals blowing through the air outside a high school gate, two students looking at each other, soft pastel light, pristine 2D Japanese anime screencap",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "f8954704-9d73-4151-b6e5-91e54bbde754",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 심야 카페 창가",
+    "prompt": "Makoto Shinkai style, a young person listening to music with headphones by a rain-streaked glass window of a late-night cafe, city lights bokeh background, crisp anime line art",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d290a153-42bc-4581-93c6-db80e7df33b3",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 사이버 SF 닌자",
+    "prompt": "High dynamic Japanese 2D action anime, a futuristic cyberpunk ninja leaping between neon-lit skyscrapers at night, glowing blue blade energy, dynamic action perspective, anime movie screencap",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5af560fc-4bd3-48ce-ac52-f1b3c28fa69d",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 해질녘 옥상 노을",
+    "prompt": "Makoto Shinkai aesthetic, a student leaning on a school rooftop fence facing a fiery orange and purple sunset sky, wind blowing hair, dramatic volumetric lens flare, 2D anime masterpiece",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b87ac2df-1900-4872-bda1-07494debf363",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 별빛 가득한 산 정상",
+    "prompt": "Kyoto Animation style, a breathtaking starry night sky filled with milky way stars above a quiet mountain peak, two silhouette figures stargazing, vivid anime color grading",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "caaa21b1-ef90-4557-8551-f52637d5e3f3",
+    "style_id": "japanese_anime",
+    "label": "#극장판 애니 미스터리 환상 도서관",
+    "prompt": "Makoto Shinkai style, a grand mystical library with towering wooden bookshelves and geometric light beams piercing through dust motes, 2D Japanese anime movie atmosphere",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "6a56f62d-e3a3-4d14-a476-1f0bc2990c17",
+    "style_id": "minimal_flat",
+    "label": "#미니멀 여행 포스터",
+    "prompt": "제주 돌하르방과 조용한 해변을 감각적인 컬러 블록으로 표현한 모던 아트 포스터",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "252d63f2-57b7-45f2-8e04-a8cb170ad70c",
+    "style_id": "minimal_flat",
+    "label": "#플랫 팝아트 인물",
+    "prompt": "강렬한 비비드 컬러와 단순한 기하학 도형으로 디자인된 인물 포스터",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "57aa9c53-a5d9-4ddc-b1d4-c870404e9731",
+    "style_id": "minimal_flat",
+    "label": "#모던 미드센추리 가구",
+    "prompt": "60년대 미드센추리 모던 가구와 플랫 그래픽 일러스트",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "396e2ac9-b8fe-44f5-9ea2-32800fc18462",
+    "style_id": "minimal_flat",
+    "label": "#음악 바이닐 그래픽",
+    "prompt": "LP 플레이어와 턴테이블이 강렬한 컬러 콘트라스트로 표현된 플랫 그래픽",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "56e780d5-f959-4e7f-882b-7c01407a872f",
+    "style_id": "minimal_flat",
+    "label": "#커피 모노톤 일러스트",
+    "prompt": "모노톤 브라운 톤의 그래픽 도형으로 구성된 모던 커피 브랜딩 포스터",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "97a88c3d-88c6-4435-b530-26080bb9b72b",
+    "style_id": "minimal_flat",
+    "label": "#시티 브리즈 플랫",
+    "prompt": "선글라스를 끼고 야자수 도로를 달리는 자동차의 모던 미니멀 플랫 아트",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "1724a9f1-56ae-4637-a556-158aa6c6cf18",
+    "style_id": "minimal_flat",
+    "label": "#스마트 파이낸스 일러스트",
+    "prompt": "파스텔 계열의 평면 기하학 도형으로 구성된 스마트 금융 아트",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "44ad7a8b-30c7-47f6-a0dc-5cecef365516",
+    "style_id": "minimal_flat",
+    "label": "#네이처 가드닝 아트",
+    "prompt": "가위와 화분이 아기자기한 벡터 평면으로 배치된 모던 가드닝 포스터",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "a32341cd-5650-4a55-8702-69d4a83bfeee",
+    "style_id": "minimal_flat",
+    "label": "#스페이스 우주 플랫",
+    "prompt": "신비로운 원형 행성들과 은하수가 단순한 선과 색면으로 구성된 우주 아트",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "620e1261-3106-4123-9ce4-9680a2132e8d",
+    "style_id": "minimal_flat",
+    "label": "#북커버 미니멀 그래픽",
+    "prompt": "세련된 타이포그래피와 대담한 비대칭 컬러 면 분할로 이루어진 책 커버 디자인",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "01a5cb71-34ef-482a-8d5f-34c4fcffd07e",
+    "style_id": "oriental_ink",
+    "label": "#수묵 한복 포트레이트",
+    "prompt": "은은한 수묵 먹선과 한지 질감 속 아련한 분위기의 한복 입은 선비와 매화 가지",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "2db63418-e270-4b46-975c-2c7bc64db01c",
+    "style_id": "oriental_ink",
+    "label": "#경복궁 수묵 산수화",
+    "prompt": "안개 낀 아침 삼각산과 경복궁 대웅전이 먹선의 짙고 옅음으로 그려진 동양 수묵화",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5248cf05-eaee-4f36-9601-f063318cf99f",
+    "style_id": "oriental_ink",
+    "label": "#달빛 매화 대나무",
+    "prompt": "둥근 은달빛 아래 대나무 잎과 흰 매화가 번진 조선 전통 수묵 채색화",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "1f28fb4a-3c68-4902-b8e3-7b67e518a565",
+    "style_id": "oriental_ink",
+    "label": "#수묵 호랑이 기상",
+    "prompt": "용맹한 기세로 호효하는 호랑이의 기품 있는 먹선 수묵 드로잉",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "983e0065-b38d-4536-9ace-2d4d4c9fcf86",
+    "style_id": "oriental_ink",
+    "label": "#한옥과 소나무 산수",
+    "prompt": "구름에 휩싸인 소나무 언덕 위 아담한 한옥 기와집의 은은한 수묵화",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "330a8bf8-5485-44dc-aef8-1e7e099d37ec",
+    "style_id": "oriental_ink",
+    "label": "#수묵 연꽃 금붕어",
+    "prompt": "맑은 묵향 연못 속에 유유히 헤엄치는 붉은 금붕어와 연꽃 수묵 채색",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "572a2fdc-59bc-4ae8-85a3-80f7253751e0",
+    "style_id": "oriental_ink",
+    "label": "#풍류 가야금 선비",
+    "prompt": "계곡 정자 아래 가야금을 연주하는 선비의 운치 있는 동양화",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "92f86b48-36fe-4528-9650-e1ddae9ab3f1",
+    "style_id": "oriental_ink",
+    "label": "#수묵 학과 일출",
+    "prompt": "붉은 아침 해를 향해 날아오르는 두루미(학)의 고결한 먹선 붓터치",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "a09a3411-40d0-49ec-95dc-5e057353d833",
+    "style_id": "oriental_ink",
+    "label": "#비 내리는 한양 수묵",
+    "prompt": "먹구름 낀 옛 한양 거리를 삿갓을 쓰고 걷는 나그네의 수묵 감성",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "eb5346de-50ba-494d-9e57-1fe0acb63371",
+    "style_id": "oriental_ink",
+    "label": "#수묵 산사 안개",
+    "prompt": "겹겹이 싸인 청산 속 고즈넉한 산사의 종소리가 느껴지는 수묵 진경산수화",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "661ad416-a9ad-4fba-b48d-615ae1e5b82a",
+    "style_id": "photorealistic",
+    "label": "#한옥카페 인물",
+    "prompt": "Create a sense of adventure, courage, and realism with - the landscape of a traditional Hanok cafe in Gyeongbokgung, Seoul, where a young 20s realistic Korean woman works peacefully on her laptop in modern Korean fashion, golden hour sunlight streaming at a 45-degree angle creating realistic penumbra shadows, shot on Sony A7R IV with a 50mm prime lens, f/2.0, 1/400s, ISO 200, white balance 5600K, shallow depth of field, focus plane on main subject, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture, physically correct shadows, contact shadows, plausible reflections, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "61ebf3af-3d5a-4aeb-ba89-3dcd8f457d33",
+    "style_id": "photorealistic",
+    "label": "#제주 감성 풍경",
+    "prompt": "Create a sense of adventure, courage, and realism with - the landscape of an ocean-view traditional stone cottage on a coastal hill in Jeju Island during a dramatic dusk sunset, glowing orange and pink horizon, shot on Sony A7R IV with a 35mm prime lens, f/2.8, 1/250s, ISO 100, white balance 5800K, deep focus for landscapes, focus plane on foreground cottage, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth with foreground, midground, and background, golden hour sunlight, soft directional key at 45 degrees, realistic penumbra shadows, gentle aerial haze, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, accurate scale and perspective, high micro-contrast, natural atmospheric depth, realistic material roughness, physically correct shadows, contact shadows, plausible reflections, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "ee3a3d78-b029-4adc-b1f9-ba2b89af128d",
+    "style_id": "photorealistic",
+    "label": "#스튜디오 인물 컷",
+    "prompt": "Create a sense of adventure, courage, and realism with - the portrait of a sophisticated 20s realistic Korean male model posing in a high-end fashion studio, diffused daylight through windows and controlled fill light color-balanced to 5600K, shot on Sony A7R IV with an 85mm portrait prime lens, f/1.8, 1/500s, ISO 100, white balance 5400K, shallow depth of field, focus plane on main subject eyes, subtle optical vignetting, tripod-level horizon, cinematic framing, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture, physically correct shadows, contact shadows, plausible reflections, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "3ca31fd4-9b27-44e0-afd1-4bf339908fba",
+    "style_id": "photorealistic",
+    "label": "#비오는 서울야경",
+    "prompt": "Create a sense of adventure, courage, and realism with - the cityscape of a rain-soaked Gangnam avenue in Seoul at night, reflecting vibrant traffic lights and neon storefronts, realistic Korean people holding umbrellas crossing the street, shot on Sony A7R IV with a 50mm prime lens, f/2.0, 1/160s, ISO 800, white balance 4200K, focus plane on main subject, visible practical lights and signs, mixed color temperatures from 3200K to 5600K, controlled specular highlights, realistic low-light exposure, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness, physically correct shadows, plausible reflections and refractions, real-world surface microtexture, realistic motion blur, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "942ad398-3e82-44d6-84d2-f6b5a9a283be",
+    "style_id": "photorealistic",
+    "label": "#봄날 벚꽃 피크닉",
+    "prompt": "Create a sense of adventure, courage, and realism with - the landscape of a blooming cherry blossom park along the Han River in Seoul, a young realistic Korean couple laughing on a picnic mat surrounded by falling pink petals, golden hour sunlight, soft directional key at 45 degrees, realistic penumbra shadows, gentle aerial haze, shot on Sony A7R IV with an 85mm prime lens, f/2.0, 1/640s, ISO 100, white balance 5600K, shallow depth of field, focus plane on couple, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness, physically correct shadows, contact shadows, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "097e12ce-4b62-42ed-8f04-731af23eec27",
+    "style_id": "photorealistic",
+    "label": "#커피 브루잉 디테일",
+    "prompt": "Create a sense of adventure, courage, and realism with - the close-up macro view of hand-pour drip coffee dripping into a glass server, steam rising softly, diffused daylight through windows, color-balanced to 5600K, shot on Sony A7R IV with a 90mm macro lens, f/2.8, 1/320s, ISO 200, white balance 5500K, shallow depth of field, focus plane on coffee drop, subtle optical vignetting, tripod-level horizon, cinematic framing, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture, physically correct shadows, contact shadows, plausible reflections and refractions, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d4815749-128a-42b4-bfc5-1326827c607a",
+    "style_id": "photorealistic",
+    "label": "#모던 럭셔리 세단",
+    "prompt": "Create a sense of adventure, courage, and realism with - the side profile shot of a sleek black luxury sports sedan accelerating through a dark modern tunnel, glowing headlight trails, visible practical lights and signs, mixed color temperatures from 3200K to 5600K, controlled specular highlights, realistic low-light exposure, shot on Sony A7R IV with a 35mm prime lens, f/2.8, 1/200s, ISO 400, white balance 4800K, focus plane on car body, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture, physically correct shadows, plausible reflections, realistic motion blur, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "0bc5ac82-5535-44a5-8548-094479a1ab8d",
+    "style_id": "photorealistic",
+    "label": "#가을 산책길 인물",
+    "prompt": "Create a sense of adventure, courage, and realism with - the portrait of a realistic Korean woman in a stylish brown trench coat walking through a golden autumn forest path, fallen maple leaves on ground, golden hour sunlight, soft directional key at 45 degrees, realistic penumbra shadows, gentle aerial haze, shot on Sony A7R IV with a 50mm prime lens, f/1.8, 1/400s, ISO 100, white balance 5400K, shallow depth of field, focus plane on woman, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness, physically correct shadows, contact shadows, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "655c82c4-ad29-4362-80e8-c7aee78e6d54",
+    "style_id": "photorealistic",
+    "label": "#럭셔리 워치 화보",
+    "prompt": "Create a sense of adventure, courage, and realism with - the studio macro product shot of a silver mechanical luxury watch resting on a matte black acrylic surface, intricate gear mechanism detail, diffused daylight and controlled fluorescent fill light color-balanced to 5600K, shot on Sony A7R IV with a 90mm macro lens, f/4.0, 1/250s, ISO 100, white balance 5600K, focus plane on watch dial, subtle optical vignetting, tripod-level horizon, cinematic framing, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture, physically correct shadows, contact shadows, plausible reflections, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "fcd93d9b-945b-40dd-b643-33b357829f2b",
+    "style_id": "photorealistic",
+    "label": "#해질녘 파도 서핑",
+    "prompt": "Create a sense of adventure, courage, and realism with - the action photographic shot of a athletic realistic Korean surfer carving through a cresting ocean wave during a pink dusk sunset, golden hour sunlight, soft directional key at 45 degrees, realistic penumbra shadows, gentle aerial haze, water spray droplets, shot on Sony A7R IV with a 85mm telephoto prime lens, f/2.8, 1/1000s, ISO 200, white balance 6000K, focus plane on surfer, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness, physically correct shadows, plausible reflections and refractions, realistic motion blur, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "7f66a4c6-1222-4a55-9f28-8838b74b5550",
+    "style_id": "pixar_3d",
+    "label": "#픽사 아기 용 탐험가",
+    "prompt": "Adorable 3D Pixar animation style baby dragon holding a glowing magical lantern exploring a whimsical crystal cave, expressive big eyes, soft volumetric studio lighting, smooth 3D render, Pixar character design, Octane Render, 8k",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "7ac4bdfc-a9fe-46a4-b4b4-7bf67affa807",
+    "style_id": "pixar_3d",
+    "label": "#픽사 요리사 햄스터",
+    "prompt": "Cute 3D Pixar style hamster chef wearing a white toque hat decorating a chocolate cake, fluffy fur microtexture, warm kitchen lighting, Disney Pixar aesthetic, highly detailed",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d66aaf98-c73f-49b2-96d5-274f92590875",
+    "style_id": "pixar_3d",
+    "label": "#픽사 안경 낀 토끼 학자",
+    "prompt": "Charming 3D Pixar animation character of a fluffy rabbit scholar wearing oversized round glasses studying an antique spellbook, soft vibrant lighting, Cinema 4D 3D render",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "a052f024-d782-4db1-93b1-9c9ec172460d",
+    "style_id": "pixar_3d",
+    "label": "#픽사 장난감 우주 비행사",
+    "prompt": "Playful 3D Pixar toy astronaut robot riding a colorful toy rocket ship through a galaxy of floating stars, vibrant pastel colors, Pixar 3D digital art",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "ad20fca2-cb73-451e-be02-64e7e722d3bf",
+    "style_id": "pixar_3d",
+    "label": "#픽사 꼬마 마법사",
+    "prompt": "Adorable 3D Pixar little wizard kid casting a rainbow sparkle spell from a magical star wand, big cute eyes, smooth plastic and fabric textures, 3D animated film screenshot",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "ca56332b-19d5-46ac-bde9-1ff83f9e4f33",
+    "style_id": "pixar_3d",
+    "label": "#픽사 고양이 디저트 카페",
+    "prompt": "Charming 3D Pixar style cat running a pastel dessert bakery shop filled with floating colorful macarons, cozy volumetric lighting, Pixar aesthetic",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5a71f30b-216b-4e2f-9580-20fe89cde352",
+    "style_id": "pixar_3d",
+    "label": "#픽사 수중 스쿠버 아기 곰",
+    "prompt": "Cute 3D Pixar baby bear wearing a glass underwater scuba helmet waving to vibrant cartoon fish underwater, bright ocean volumetric light, 3D render",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "ade5f93f-9b30-4771-bac9-71f7a8187438",
+    "style_id": "pixar_3d",
+    "label": "#픽사 로봇 가드너",
+    "prompt": "Warmhearted 3D Pixar style little gardener robot watering a small glowing plant sprout, soft metallic microtexture, whimsical Pixar storybook render",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "7fce30a1-7676-4802-91a0-ce8b32dc87e4",
+    "style_id": "pixar_3d",
+    "label": "#픽사 드림 오두막집",
+    "prompt": "Whimsical 3D Pixar style toy wooden cottage floating on soft puffy clouds, pastel rainbow background, magical Pixar environment design, 8k 3D digital art",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "a8917f73-3188-435b-ae76-d5e8134073bd",
+    "style_id": "pixar_3d",
+    "label": "#픽사 펭귄 바이올리니스트",
+    "prompt": "Cute 3D Pixar penguin wearing a tiny black tuxedo playing a wooden violin passionately, theatrical spotlight, Pixar 3D animation masterpiece",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "561c822b-923a-4b65-8444-30c2c69af168",
+    "style_id": "vector_illustration",
+    "label": "#벡터 제품 일러스트",
+    "prompt": "친환경 오가닉 코스메틱 화장품 병과 나뭇잎 요소가 조화로운 벡터 평면 일러스트레이션",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "66ae2b1e-2d58-4466-bac5-5a5be10c8a2d",
+    "style_id": "vector_illustration",
+    "label": "#IT 스타트업 캐릭터",
+    "prompt": "노트북으로 코딩 중인 젊은 개발자 팀, 선명한 아웃라인과 모던 벡터 스타일",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "8981669c-380a-4dd1-bcba-375f02fe6db9",
+    "style_id": "vector_illustration",
+    "label": "#도시 생활 플랫 카드",
+    "prompt": "커피를 들고 도심 공원을 산책하는 사람들의 세련된 flat vector 그래픽",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b58293d0-7bea-4e95-abe3-c404494fb98c",
+    "style_id": "vector_illustration",
+    "label": "#여행 가방 벡터 아트",
+    "prompt": "세계 명소 라벨이 붙은 빈티지 여행 가방과 항공기 벡터 아이콘",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "98b7db93-c2ff-48f4-b146-5380b972e15e",
+    "style_id": "vector_illustration",
+    "label": "#헬스 피트니스 벡터",
+    "prompt": "아령을 들고 운동하는 사람들의 밝고 건강한 평면 벡터 일러스트",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "98b5419e-4e5a-4d57-911f-d0cbc6e3309e",
+    "style_id": "vector_illustration",
+    "label": "#스마트시티 벡터",
+    "prompt": "자율주행 차와 태양광 판넬이 어우러진 친환경 스마트시티 벡터 포스터",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "da7da803-4cb6-4efc-a3de-54a9da195b04",
+    "style_id": "vector_illustration",
+    "label": "#배달 라이더 벡터",
+    "prompt": "오토바이를 타고 도시를 달리는 친근한 캐릭터 벡터 일러스트",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "21137dc6-42b0-43e6-b6d8-636d64a90f2c",
+    "style_id": "vector_illustration",
+    "label": "#커피 브루잉 플랫아트",
+    "prompt": "원두와 드립포트가 정갈하게 배치된 모던 카페 벡터 그래픽",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "8b1cffc9-2492-4121-8f1b-3f607e386e8a",
+    "style_id": "vector_illustration",
+    "label": "#음악 바이닐 벡터 아트",
+    "prompt": "LP판과 헤드폰이 아날로그 감성으로 배치된 팝아트 벡터",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "0cd52c92-2d0d-47b0-85f3-8120341d0c3c",
+    "style_id": "vector_illustration",
+    "label": "#에코 그린 벡터",
+    "prompt": "지구를 품고 있는 나무와 나뭇잎들의 심플한 환경 캠페인 벡터",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "32c324c9-7ff7-497c-9ddb-76eca5dd2afc",
+    "style_id": "watercolor_pastel",
+    "label": "#수채화 파스텔 동화",
+    "prompt": "해질녘 분홍빛 노을 하늘 아래 동화 속 작은 목조 오두막과 꽃밭 풍경",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "3a7aefd0-1efd-4b76-a27c-02ea6a6b4798",
+    "style_id": "watercolor_pastel",
+    "label": "#수채화 고양이 감성",
+    "prompt": "창가 햇살 아래 졸고 있는 몽환적인 털 질감의 수채화 고양이 일러스트",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "6d6076e8-5ae5-45b0-9552-31be846904cb",
+    "style_id": "watercolor_pastel",
+    "label": "#파스텔 봄날 꽃길",
+    "prompt": "벚꽃잎이 날리는 시골 오솔길을 자전거로 달리는 아이의 맑은 수채화",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "8dc97008-81db-49a7-9f72-97c187e7fa9c",
+    "style_id": "watercolor_pastel",
+    "label": "#파스텔 유니콘 꿈",
+    "prompt": "민트빛 하늘 속 은은한 수채화 물감이 번진 몽환적인 유니콘 동화",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "5384aa0c-5256-4675-a5d2-d113d013bcd0",
+    "style_id": "watercolor_pastel",
+    "label": "#수채화 수국 정원",
+    "prompt": "보랏빛 수국 꽃잎에 물방울이 촉촉히 맺힌 투명한 수채화 화법",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "e67929e5-a0c5-4659-a066-4da68a588f51",
+    "style_id": "watercolor_pastel",
+    "label": "#파스텔 바닷가 마을",
+    "prompt": "에메랄드 빛 바다와 알록달록한 파스텔 지붕이 어우러진 해안 마을",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "328dd00d-534f-41b3-9efb-5df6eaa8e038",
+    "style_id": "watercolor_pastel",
+    "label": "#수채화 커피 한 잔",
+    "prompt": "김이 모락모락 나는 따뜻한 찻잔과 수채화 기법의 브런치 풍경",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "4f370933-76f5-4613-a721-4f6e3a2fa31f",
+    "style_id": "watercolor_pastel",
+    "label": "#파스텔 밤하늘 은하수",
+    "prompt": "밤하늘 가득 반짝이는 파스텔 오로라와 은하수 아래 캠핑 텐트",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "4e9aeb3c-b9d7-4e23-bc84-55f0137f4578",
+    "style_id": "watercolor_pastel",
+    "label": "#수채화 아기 사슴",
+    "prompt": "숲속 들꽃 사이를 누비는 아기 사슴의 부드럽고 따스한 수채화",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b6bfccdc-a8b0-44a7-ad09-ee65697af846",
+    "style_id": "watercolor_pastel",
+    "label": "#파스텔 빗방울 우산",
+    "prompt": "노란 우산을 쓴 소녀의 따스하고 감성적인 비 오는 날 수채화",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "149e3c8e-8e6f-4a33-8044-18d6577fde47",
+    "style_id": "webtoon_lineart",
+    "label": "#웹툰 주인공 액션",
+    "prompt": "강렬한 먹선 아웃라인과 셀 셰이딩이 돋보이는 한국 판타지 웹툰 주인공 소환 씬",
+    "display_order": 1,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "ffd1a744-aaee-4709-be16-0fefdfd429ec",
+    "style_id": "webtoon_lineart",
+    "label": "#학원물 웹툰 로맨스",
+    "prompt": "학교 복도 창가 햇살 아래 서로 바라보는 고등학생 남녀 웹툰 명장면",
+    "display_order": 2,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "300b8a82-0b3d-4a44-9182-637707fdab07",
+    "style_id": "webtoon_lineart",
+    "label": "#도시 몬스터 웹툰",
+    "prompt": "서울 강남역 한복판에 나타난 거대 몬스터와 이에 맞서는 웹툰 히어로",
+    "display_order": 3,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "b2fc1540-207e-44cc-8a0b-c61016fe0927",
+    "style_id": "webtoon_lineart",
+    "label": "#무협 웹툰 검사",
+    "prompt": "바람에 도포 자락이 날리는 조선 판타지 무협 웹툰의 검객",
+    "display_order": 4,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "d69f987f-2781-49fc-bf70-f551177fed30",
+    "style_id": "webtoon_lineart",
+    "label": "#사이버 헌터 웹툰",
+    "prompt": "게이트가 열린 현대 도시에서 각성한 S급 헌터의 웹툰 일러스트",
+    "display_order": 5,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "fdff3bdc-a146-4d2c-ab73-7716ae221568",
+    "style_id": "webtoon_lineart",
+    "label": "#로맨스 판타지 영애",
+    "prompt": "화려한 영애 드레스를 입은 로맨스 판타지 웹툰 여주인공",
+    "display_order": 6,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "c5b695f7-4611-4fab-bd6a-02791867e514",
+    "style_id": "webtoon_lineart",
+    "label": "#음식 웹툰 먹방",
+    "prompt": "김이 모락모락 나는 떡볶이와 튀김이 먹음직스럽게 그려진 웹툰 컷",
+    "display_order": 7,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "8448bf17-36b3-4ba8-add4-b936fc23fc2c",
+    "style_id": "webtoon_lineart",
+    "label": "#스포츠 웹툰 슬램",
+    "prompt": "농구 코트 위에서 역동적으로 슛을 던지는 스포츠 웹툰 명장면",
+    "display_order": 8,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "2b46e126-7946-4d03-bd3b-c64908942c3d",
+    "style_id": "webtoon_lineart",
+    "label": "#일상 인디 웹툰",
+    "prompt": "자취방에서 반려묘와 누워있는 소소한 일상 한국 웹툰 일러스트",
+    "display_order": 9,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  },
+  {
+    "id": "4fe0c653-2f08-473c-b172-3023c3238bd0",
+    "style_id": "webtoon_lineart",
+    "label": "#스릴러 웹툰 인물",
+    "prompt": "어두운 조명 속 차가운 눈빛을 한 추리 웹툰 주인공 포트레이트",
+    "display_order": 10,
+    "created_at": "2026-10-09 03:52:55.021591+00"
+  }
+]
