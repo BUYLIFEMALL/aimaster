@@ -64,6 +64,7 @@ export async function GET(request: Request) {
         content: row.content || "",
         tags: Array.isArray(row.tags) ? row.tags : [],
         images: Array.isArray(row.images) ? row.images : [],
+        photo_review: row.research_summary?.photo_review,
         status: row.status || "draft",
         created_at: row.created_at,
         updated_at: row.updated_at,

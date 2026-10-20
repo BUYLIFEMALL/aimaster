@@ -6,6 +6,9 @@ import { validateReservation } from "./scheduleSlots";
 import { newNaverDraftSummary } from "./naverPublishing";
 import { SAVE_CONFLICT, SAVE_UPGRADE, savedPost, postSaveRevision, saveFingerprint, saveReceipt, saveUuid, withSaveReceipt } from "./postSaveProtocol";
 
+import { validatePrivatePhotoPost } from "./privatePhotoPost";
+import { PrivatePhotoError } from "./privatePhotos";
+
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {status, headers: {"Cache-Control": "no-store"}});
 const conflict = () => reply({error: SAVE_CONFLICT, code: "SAVE_CONFLICT"}, 409);
 const accepted = (row: any, replayed = false) => reply({success: true, post: {...savedPost(row), review: getPostReview(row)}, replayed});
@@ -47,9 +50,17 @@ export async function handlePostSave(admin: any, userId: string, payload: Record
   }
   if (current?.status === "publishing" && ((updates.status !== undefined && updates.status !== current.status) || [payload.publish_visibility, payload.post_url, payload.error_message].some(value => value !== undefined))) return conflict();
   if (current && ["queued", "publishing"].includes(current.status) && changesAuthoring(current, updates)) return reply({error: "대기·입력 중인 원고는 변경할 수 없습니다. 대기를 취소한 뒤 저장해 주세요."}, 409);
+  let privatePhoto: Awaited<ReturnType<typeof validatePrivatePhotoPost>> = {};
+  if (payload.photo_review !== undefined || payload.images !== undefined || payload.content !== undefined || updates.status === "queued") {
+    try { privatePhoto = await validatePrivatePhotoPost(admin, userId, payload, current); }
+    catch (error) { return reply({error: error instanceof PrivatePhotoError ? error.message : "사진 원고를 확인하지 못했습니다. 다시 저장해 주세요."}, error instanceof PrivatePhotoError ? error.status : 503); }
+    if (privatePhoto.images) updates.images = privatePhoto.images;
+  }
   if (updates.status === "queued" && !getPostReview({...current, ...updates}).allowed) return reply({error: "저장한 최종 원고를 직접 검수한 뒤 전송해 주세요."}, 422);
   updates.updated_at = nextTimestamp(current?.updated_at);
-  updates.research_summary = withSaveReceipt(current ? current.research_summary : newNaverDraftSummary(updates.blog_id), payload.save_request_id, fingerprint);
+  const summary = current ? current.research_summary : newNaverDraftSummary(updates.blog_id);
+  updates.research_summary = withSaveReceipt(privatePhoto.photoReview ? {...summary, photo_review: privatePhoto.photoReview} : summary, payload.save_request_id, fingerprint);
+  if (!current && privatePhoto.createdAt) updates.created_at = privatePhoto.createdAt;
 
   let query;
   if (current) {

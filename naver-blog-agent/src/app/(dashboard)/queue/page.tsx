@@ -30,6 +30,11 @@ import {
 } from "lucide-react";
 import ExecutionProgress from "@/components/ExecutionProgress";
 import type { ExecutionStatus } from "@/lib/executionStatus";
+import { cacheablePosts } from "@/lib/postCache";
+import SavedPhotoReview from "@/components/SavedPhotoReview";
+import { readPhotoReview } from "@/lib/photoReviewPost";
+import type { PhotoReviewResult } from "@/lib/photoReview";
+import { generatedDraftImages, type DraftImage } from "@/lib/draftImages";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import { bodyImageAt } from "@/lib/draftImages";
@@ -51,7 +56,8 @@ interface SavedPostItem {
   content: string;
   excerpt?: string;
   tags?: string[];
-  images?: { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[];
+  images?: DraftImage[];
+  photo_review?: PhotoReviewResult;
   status: "draft" | "queued" | "publishing" | "prepared" | "published" | "failed";
   created_at: string;
   updated_at?: string;
@@ -107,7 +113,7 @@ export default function QueuePage() {
         if(epoch!==listEpoch.current)return;
         if (Array.isArray(data?.posts)) {
           setPosts(data.posts);
-          localStorage.setItem("nba_saved_posts", JSON.stringify(data.posts));
+          localStorage.setItem("nba_saved_posts", JSON.stringify(cacheablePosts(data.posts)));
           setIsLoading(false);
           return;
         }
@@ -123,7 +129,7 @@ export default function QueuePage() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setPosts(parsed);
+          setPosts(cacheablePosts(parsed));
           setIsLoading(false);
           return;
         }
@@ -149,7 +155,7 @@ export default function QueuePage() {
     listEpoch.current++;setIsLoading(false);
     setPosts(current=>mergeSavedPosts(current,accepted,removed));
   };
-  useEffect(()=>{if(!isLoading){try{localStorage.setItem("nba_saved_posts",JSON.stringify(posts));}catch{/* The server remains the source of saved drafts. */}}},[posts,isLoading]);
+  useEffect(()=>{if(!isLoading){try{localStorage.setItem("nba_saved_posts",JSON.stringify(cacheablePosts(posts)));}catch{/* The server remains the source of saved drafts. */}}},[posts,isLoading]);
   const writePost = async (post: SavedPostItem, fields: Record<string,unknown>) => {
     let saver=savers.current.get(post.id);
     if(saver?.pending && post.save_revision!==saver.pending.body.expected_revision){
@@ -1218,6 +1224,8 @@ export default function QueuePage() {
               }} />
               <PostReviewGate key={viewingDetailPost.id} postId={viewingDetailPost.id} snapshot={postReviewSnapshot(viewingDetailPost)} onBlockingChange={setReviewBlocked} />
 
+              <SavedPhotoReview images={viewingDetailPost.images || []} review={readPhotoReview(viewingDetailPost.photo_review)} />
+
               {/* 대표 썸네일 */}
               {viewingDetailPost.images?.find(image=>image.type==="thumbnail")?.url && (
                 <figure className="rounded-2xl overflow-hidden border border-neutral-200 bg-white shadow-xs">
@@ -1304,7 +1312,8 @@ export default function QueuePage() {
           tags={editingPost.tags || []}
           category={editingPost.category_name || "일반"}
           categories={categories}
-          generatedImages={editingPost.images || []}
+          privatePhotos={editingPost.images?.some(image=>image.storagePath)}
+          generatedImages={generatedDraftImages(editingPost.images || [])}
           onSave={handleSaveEditor}
         />
       )}

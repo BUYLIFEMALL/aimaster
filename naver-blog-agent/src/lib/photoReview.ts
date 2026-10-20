@@ -35,11 +35,21 @@ export const photoDraftSchema = z.object({
   paragraphs: z.array(z.object({ text: z.string().trim().min(1).max(1500), evidence: z.array(z.string().max(100)).min(1).max(7) })).min(1).max(8),
   confirm: z.array(z.string().trim().min(1).max(300)).max(10),
 });
-export type PhotoReviewResult = z.infer<typeof photoDraftSchema> & z.infer<typeof observationsSchema> & {
-  place: string; visitNotes: string;
-  photos: PhotoReviewInput["photos"]; coverId: string;
-  engine: PhotoReviewInput["engine"]; warning: string;
-};
+export const photoReviewResultSchema = photoDraftSchema.extend({
+  ...observationsSchema.shape,
+  place: z.string().trim().min(1).max(120), visitNotes: z.string().trim().max(4000),
+  photos: photoReviewInputSchema.shape.photos, coverId: z.string().uuid(),
+  engine: photoReviewInputSchema.shape.engine, warning: z.string().max(500),
+}).superRefine((value, ctx) => {
+  const ids = value.photos.map(photo => photo.id);
+  if (new Set(ids).size !== ids.length || new Set(value.photos.map(photo => photo.storagePath)).size !== ids.length
+    || !ids.includes(value.coverId) || value.observations.length !== ids.length
+    || value.observations.some((item, index) => item.id !== ids[index])
+    || value.paragraphs.some(item => item.evidence.some(id => id !== "member-notes" && !ids.includes(id)))) {
+    ctx.addIssue({ code: "custom", message: "사진과 근거의 연결을 확인해 주세요." });
+  }
+});
+export type PhotoReviewResult = z.infer<typeof photoReviewResultSchema>;
 
 /** 화면 입력의 동일성만 비교한다. 사진 바이트/서명 주소/키는 포함하지 않는다. */
 export const photoReviewRevision = (input: PhotoReviewInput) => JSON.stringify(input);

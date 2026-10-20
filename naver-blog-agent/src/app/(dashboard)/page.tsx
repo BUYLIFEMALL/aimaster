@@ -1,6 +1,6 @@
 "use client";
 
-import { notify } from "@/lib/uiDialog";
+import { notify, askConfirm } from "@/lib/uiDialog";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
@@ -32,6 +32,10 @@ import {
   Settings2,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
+import { cacheablePosts } from "@/lib/postCache";
+import SavedPhotoReview from "@/components/SavedPhotoReview";
+import { photoReviewPost, readPhotoReview } from "@/lib/photoReviewPost";
+import type { PhotoReviewResult } from "@/lib/photoReview";
 import PrivatePhotoInput from "@/components/PrivatePhotoInput";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import PostReviewGate from "@/components/PostReviewGate";
@@ -137,6 +141,7 @@ export default function MainPage() {
   const [currentPostId, setCurrentPostId] = useState<string | null>(null);
   const [publishingBlocked, setPublishingBlocked] = useState(false);
   const [reviewBlocked,setReviewBlocked]=useState(true);
+  const [historyPosts, setHistoryPosts] = useState<any[]>([]);
   const [savedPostCount, setSavedPostCount] = useState<number>(0);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -281,7 +286,7 @@ export default function MainPage() {
       .then((data) => {
         if (data?.posts && Array.isArray(data.posts)) {
           setSavedPostCount(data.posts.length);
-          localStorage.setItem("nba_saved_posts", JSON.stringify(data.posts));
+          localStorage.setItem("nba_saved_posts", JSON.stringify(cacheablePosts(data.posts)));
         } else {
           const savedPosts = localStorage.getItem("nba_saved_posts");
           if (savedPosts) {
@@ -323,6 +328,17 @@ export default function MainPage() {
     }
   };
 
+  useEffect(() => {
+    if (!isHistoryModalOpen) return;
+    const controller = new AbortController();
+    fetch("/api/posts", {cache:"no-store",signal:controller.signal}).then(async response => {
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.posts)) throw new Error("보관함 조회 실패");
+      if (!controller.signal.aborted) { setHistoryPosts(data.posts); setSavedPostCount(data.posts.length); }
+    }).catch(() => { if (!controller.signal.aborted) { setHistoryPosts([]); setError("서버 보관함을 확인하지 못했습니다. 연결을 확인한 뒤 다시 열어 주세요."); } });
+    return () => controller.abort();
+  }, [isHistoryModalOpen]);
+
   // 로컬 및 Supabase 서버 DB에 원고 영구 저장 및 갱신 헬퍼
   const savePostToStorage = async (
     postId: string,
@@ -342,12 +358,14 @@ export default function MainPage() {
       excerpt: targetResult.excerpt || "",
       tags: targetResult.tags,
       images: finalImages,
+      ...(targetResult.photoReview ? {photo_review: targetResult.photoReview} : {}),
       status,
       created_at: new Date().toISOString(),
     };
 
     // Queue state is visible only after the server accepted the reviewed content.
     let serverPost:any=null;
+    const isNewSave = !postSaveRef.current?.revision;
     try {
       if(!postSaveRef.current || postSaveRef.current.id!==postId){
         const id=/^[0-9a-f-]{36}$/i.test(postId)?postId:crypto.randomUUID();
@@ -359,11 +377,12 @@ export default function MainPage() {
       serverPost=await postSaveRef.current.save(fields);
       if(epoch!==sourceEpoch.current)return false;
       setSaveRevision(serverPost.save_revision);
+      if (serverPost.images?.some((image: DraftImage) => image.storagePath)) { imagesRef.current=serverPost.images; setResult(previous=>previous ? {...previous,images:serverPost.images} : previous); }
       if(epoch===sourceEpoch.current){postIdRef.current=serverPost.id;if(serverPost.id!==postId)setCurrentPostId(serverPost.id);}
     }catch(err){if(epoch!==sourceEpoch.current)return false;setError(err instanceof Error?err.message:"서버 저장 실패");}
     if(status==="queued" && !serverPost)return false;
     if(!serverPost){
-      try{localStorage.setItem(`nba_unsaved_post_${postId}`,JSON.stringify({...postItem,id:postId}));}catch{}
+      if (!targetResult.photoReview && !finalImages.some((image: DraftImage) => image.storagePath)) { try{localStorage.setItem(`nba_unsaved_post_${postId}`,JSON.stringify({...postItem,id:postId}));}catch{} }
       return false;
     }
 
@@ -371,8 +390,8 @@ export default function MainPage() {
     try {
       const existing: any[] = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
       const updatedList=mergeSavedPosts(Array.isArray(existing)?existing:[],[serverPost]);
-      localStorage.setItem("nba_saved_posts", JSON.stringify(updatedList));
-      setSavedPostCount(updatedList.length);
+      localStorage.setItem("nba_saved_posts", JSON.stringify(cacheablePosts(updatedList)));
+      if (isNewSave) setSavedPostCount(count => count + 1);
     } catch (err) {
       console.warn("로컬 원고 캐시 실패:", err);
     }
@@ -386,7 +405,7 @@ export default function MainPage() {
     setLoading(false);setImageGenerating(null);setSingleGeneratingIndex(null);
     postIdRef.current=post.id;
     postSaveRef.current=new PostSaveClient(post);setSaveRevision(post.save_revision);
-    setImagesEdited(!post.images?.length || post.images.some((image:any)=>image.url));
+    setImagesEdited(!post.images?.length || post.images.some((image:any)=>image.url || image.storagePath));
     imagesRef.current=post.images || [];
     setImageSaveNotice(null);
     setCurrentPostId(post.id);
@@ -398,6 +417,7 @@ export default function MainPage() {
       tags: post.tags || [],
       category: post.category_name,
       images: post.images || [],
+      photoReview: readPhotoReview(post.photo_review),
       stepsLog: [
         { step: "보관함 로드", status: "done", message: "저장된 원고 데이터를 성공적으로 복원했습니다." },
       ],
@@ -410,6 +430,23 @@ export default function MainPage() {
       const el = document.getElementById("result-section");
       if (el) el.scrollIntoView({ behavior: "smooth" });
     }, 100);
+  };
+
+  const handleContinuePhotoReview = async (review: PhotoReviewResult) => {
+    if (loading || imageBusy.current !== null || postSaveRef.current?.busy || isEditorOpen) return {opened:false,saved:false};
+    if (!selectedBlogId || !accounts.some(account => account.blog_id === selectedBlogId)) { notify("아래 발행할 블로그를 먼저 선택해 주세요."); return {opened:false,saved:false}; }
+    if (postSaveRef.current?.needsSaveRecovery) { notify("현재 원고의 보관함 저장으로 저장 결과를 먼저 확인해 주세요."); return {opened:false,saved:false}; }
+    if (result && !await askConfirm("현재 원고 대신 새 사진 원고를 엽니다. 저장하지 않은 현재 편집 내용은 사라집니다. 계속할까요?")) return {opened:false,saved:false};
+    if (loading || imageBusy.current !== null || postSaveRef.current?.busy || isEditorOpen) return {opened:false,saved:false};
+    sourceEpoch.current++;
+    const next = photoReviewPost(review, category || "일반");
+    const id = crypto.randomUUID();
+    postIdRef.current=id; postSaveRef.current=new PostSaveClient({id},true); editorSaveRef.current=null;
+    setCurrentPostId(id); setSaveRevision(undefined); setReviewBlocked(true); setPublishingBlocked(true);
+    imagesRef.current=next.images; setImagesEdited(true); setGeneratedImages([]); setImageSaveNotice(null); setError(null); setResult(next);
+    const saved = await savePostToStorage(id, next, next.images);
+    document.getElementById("result-section")?.scrollIntoView({behavior:"smooth"});
+    return {opened:true,saved:Boolean(saved)};
   };
 
   const handleSelectBlogAccount = (blogId: string) => {
@@ -541,7 +578,7 @@ export default function MainPage() {
         try {
           const old=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
           const cache=mergeSavedPosts(Array.isArray(old)?old:[],[data.post]);
-          localStorage.setItem("nba_saved_posts",JSON.stringify(cache));setSavedPostCount(cache.length);
+          localStorage.setItem("nba_saved_posts",JSON.stringify(cacheablePosts(cache)));setSavedPostCount(count => count + 1);
         }catch{/* The server draft remains saved when the optional browser cache fails. */}
       }
       if(data.saveError)setError(data.saveError);
@@ -592,7 +629,7 @@ export default function MainPage() {
       setSaveRevision(post.save_revision);
       try {
         const cached=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-        localStorage.setItem("nba_saved_posts",JSON.stringify(mergeSavedPosts(cached,[post])));
+        localStorage.setItem("nba_saved_posts",JSON.stringify(cacheablePosts(mergeSavedPosts(cached,[post]))));
       }catch{/* Server storage remains authoritative when the optional cache fails. */}
       if(epoch===sourceEpoch.current)setImageSaveNotice("이미지 변경을 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
       return true;
@@ -738,7 +775,7 @@ export default function MainPage() {
         postSaveRef.current?.adopt(post,expected);setSaveRevision(post.save_revision);
         try {
           const cached=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-          localStorage.setItem("nba_saved_posts",JSON.stringify(mergeSavedPosts(cached,[post])));
+          localStorage.setItem("nba_saved_posts",JSON.stringify(cacheablePosts(mergeSavedPosts(cached,[post]))));
         }catch{/* Server save is complete even when browser caching fails. */}
       }else if(!await savePostToStorage(currentPostId || "post-"+Date.now(),nextResult,draftImageList(imagesRef.current,nextResult.images || [],imagesEdited),"draft")){
         throw new Error("서버 저장에 실패했습니다. 편집 내용을 보존한 채 다시 저장해 주세요.");
@@ -1264,7 +1301,7 @@ export default function MainPage() {
         </div>
 
         {/* 2-3. 기획 조건 직접 설정 및 미세 조정 폼 */}
-        <PrivatePhotoInput engine={engine} onEngineChange={setEngine} preferredTone={preferredTone} targetLength={targetCharCount} configuredProviders={configuredProviders} />
+        <PrivatePhotoInput engine={engine} onEngineChange={setEngine} preferredTone={preferredTone} targetLength={targetCharCount} configuredProviders={configuredProviders} onContinue={handleContinuePhotoReview} blocked={loading || imageGenerating!==null || singleGeneratingIndex!==null || isEditorOpen} />
         <form onSubmit={handleGenerateForm} className="space-y-4">
           <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
             <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
@@ -1811,10 +1848,12 @@ export default function MainPage() {
               setResult(prev => prev ? { ...prev, tags } : prev);
               try {
                 const cache = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-                if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(mergeSavedPosts(cache,[post])));
+                if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(cacheablePosts(mergeSavedPosts(cache,[post]))));
               } catch { /* Server settings remain saved if the browser cache is unavailable. */ }
             }} />
             <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:result.images})} onBlockingChange={setReviewBlocked} />
+
+            <SavedPhotoReview images={result.images} review={result.photoReview} />
 
             {/* 5단계 에이전트 단계별 실행 내역 요약 박스 */}
             <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">
@@ -1939,7 +1978,7 @@ export default function MainPage() {
             </div>
 
             {/* AI 이미지 생성 & 갤러리 섹션 */}
-            {result.images && result.images.length > 0 && (
+            {result.images && result.images.length > 0 && !result.images.some(image=>image.storagePath) && (
               <div className="p-5 rounded-2xl bg-neutral-50/80 border border-neutral-200 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/60 pb-3">
                   <div className="space-y-0.5">
@@ -2230,6 +2269,7 @@ export default function MainPage() {
           tags={result.tags}
           category={result.category}
           categories={registeredCategories}
+          privatePhotos={result.images.some(image=>image.storagePath)}
           generatedImages={generatedImages}
           activeImageModel={imageSettings.model}
           onSave={handleSaveEditedContent}
@@ -2272,10 +2312,7 @@ export default function MainPage() {
 
             <div className="p-5 overflow-y-auto space-y-3 flex-1 divide-y divide-neutral-100">
               {(() => {
-                let savedList: any[] = [];
-                try {
-                  savedList = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-                } catch {}
+                const savedList = historyPosts;
 
                 if (!Array.isArray(savedList) || savedList.length === 0) {
                   return (

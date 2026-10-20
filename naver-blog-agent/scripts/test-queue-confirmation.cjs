@@ -5,6 +5,7 @@ const shared=fs.readFileSync(path.join(__dirname,'test-post-review.cjs'),'utf8')
 const harness=new Function('require','__dirname',shared+';return harness;')(require,__dirname)();
 const {PostSaveClient,mergeSavedPosts}=harness.load('lib/postSaveClient.ts');
 function handler(file,name,environment) {
+  environment.cacheablePosts=harness.load("lib/postCache.ts").cacheablePosts;
   const ast=ts.createSourceFile(file,(process.env.NBA_QUEUE_BASELINE&&file==='src/app/(dashboard)/queue/page.tsx')?require('node:child_process').execFileSync('git',['show',process.env.NBA_QUEUE_BASELINE+':naver-blog-agent/'+file],{encoding:'utf8'}):fs.readFileSync(path.join(root,file),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
   let arrow;function visit(node){if(ts.isVariableDeclaration(node) && node.name.getText(ast)===name)arrow=node.initializer;ts.forEachChild(node,visit);}visit(ast);assert.ok(arrow,name);
   const code=ts.transpileModule('const actual='+arrow.getText(ast),{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText;
@@ -158,7 +159,7 @@ test('1-5 cuts survive real save/list/load callbacks and keep extension asset co
     assert.equal(imageCalls,count);assert.equal(row.images.length,count);assert.equal(row.images.filter(image=>image.url).length,count);
     assert.deepEqual(db.writes.filter(write=>write.table==='nba_posts').map(write=>write.patch.images.length),Array(count).fill(count));
     const listed=(await route.GET({url:'https://test/api/posts'})).body.posts[0];
-    Object.assign(h.env,{setLoading(){},setSelectedBlogId(){},setIsHistoryModalOpen(){},setTimeout(){}});
+    Object.assign(h.env,{setLoading(){},setSelectedBlogId(){},setIsHistoryModalOpen(){},setTimeout(){},readPhotoReview:harness.load("lib/photoReviewPost.ts").readPhotoReview});
     handler(main,'handleLoadSavedPost',h.env)(listed);
     assert.equal(h.shown.at(-1).length,count);assert.deepEqual(h.env.imagesRef.current,row.images);
     const payload=db.load('lib/extensionBridge.ts').buildBridgePayload(row);
@@ -249,10 +250,10 @@ test('an older open queue editor cannot borrow the newer saver revision from ano
 });
 test('open editor buffer survives parent refresh and reinitializes only after close and reopen',()=>{
   const initialized={current:false},values=[];
-  const env={initialized,isOpen:true,initialTitle:'first',initialExcerpt:'excerpt',initialTags:['tag'],initialCategory:'category',initialContent:'first body',generatedImages:[],convertTextToEditorHtml:value=>value};
-  for(const name of ['setTitle','setExcerpt','setTags','setCategory','setCodeContent','setHtmlContent'])env[name]=value=>values.push([name,value]);
-  const file='src/components/BlogSmartEditorModal.tsx';effect(file,'initialized.current',env)();assert.equal(values.length,6);
-  env.initialContent='refreshed body';effect(file,'initialized.current',env)();assert.equal(values.length,6);
+  const env={initialized,isOpen:true,privatePhotos:false,initialTitle:'first',initialExcerpt:'excerpt',initialTags:['tag'],initialCategory:'category',initialContent:'first body',generatedImages:[],convertTextToEditorHtml:value=>value};
+  for(const name of ['setEditorMode','setTitle','setExcerpt','setTags','setCategory','setCodeContent','setHtmlContent'])env[name]=value=>values.push([name,value]);
+  const file='src/components/BlogSmartEditorModal.tsx';effect(file,'initialized.current',env)();assert.equal(values.length,7);
+  env.initialContent='refreshed body';effect(file,'initialized.current',env)();assert.equal(values.length,7);
   env.isOpen=false;effect(file,'initialized.current',env)();env.isOpen=true;effect(file,'initialized.current',env)();assert.deepEqual(values.at(-1),['setHtmlContent','refreshed body']);
 });
 test('settings follow a clean same-page save but preserve dirty settings after the source changes',()=>{

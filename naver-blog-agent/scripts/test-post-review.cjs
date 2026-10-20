@@ -59,7 +59,7 @@ function harness() {
     db.nba_posts.push(row);return row;
   }
   const context={params:Promise.resolve({id:ID})};const request=(body,token='token')=>({url:'https://test/api',headers:{get:()=>`Bearer ${token}`},json:async()=>body.id?{save_request_id:require('node:crypto').randomUUID(),expected_revision:db.nba_posts.find(row=>row.id===body.id)?load('lib/postSaveProtocol.ts').postSaveRevision(db.nba_posts.find(row=>row.id===body.id)):undefined,...body}:body});
-  return {db,writes,reads,review,seed,generated,load,context,request,get input(){return input;},deny(){access=false;},fail(value){failure=value;},race(fn){race=fn;}};
+  return {admin,db,writes,reads,review,seed,generated,load,context,request,get input(){return input;},deny(){access=false;},fail(value){failure=value;},race(fn){race=fn;}};
 }
 test('manual review requires auth, owner, explicit confirmation and current fingerprint',async()=>{
   const h=harness(),row=h.seed(),r=h.load('app/api/posts/[id]/review/route.ts');

@@ -34,7 +34,7 @@ export default function PrivatePhotoInput(options: PhotoReviewOptions) {
       <div className="space-y-4 border-t border-emerald-100 p-4 sm:p-5">
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-950">
           <strong>사진을 준비하고 아래 ‘사진 후기 초안 만들기’로 이어가세요.</strong> 일반 글 생성 버튼에는 사진이 사용되지 않습니다.
-          선택한 사진·설명·후기 초안은 이 화면에서만 유지되며, 새로고침하거나 다른 화면으로 이동하면 초기화됩니다.
+          저장 전 사진 선택·설명·후기 초안은 이 화면에서만 유지됩니다. 초안을 만든 뒤 ‘원고로 저장·이어서 편집’을 눌러 보관함에 저장하세요.
         </div>
         <ol className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4" aria-label="사진 준비 순서">
           {["사진 선택", "대표·순서 정리", "사진 설명", "준비 상태 확인"].map((label, index) => (

@@ -5,17 +5,21 @@ import Link from "next/link";
 import { Copy, Loader2, NotebookPen } from "lucide-react";
 import type { PreparedPhotoSet } from "@/lib/privatePhotoInput";
 import { PhotoReviewClient } from "@/lib/photoReviewClient";
-import { MAX_REVIEW_TOTAL_BYTES, photoReviewPlainText, photoReviewRevision, supportsPhotoReview, type PhotoReviewInput } from "@/lib/photoReview";
+import { MAX_REVIEW_TOTAL_BYTES, photoReviewPlainText, photoReviewRevision, supportsPhotoReview, type PhotoReviewInput, type PhotoReviewResult } from "@/lib/photoReview";
 import { ENGINES, type EngineProvider } from "@/lib/ai/contentModels";
 import type { WritingTone } from "@/lib/ai/writingStyles";
 
 export type PhotoReviewOptions = {
   engine: { provider: EngineProvider; model: string };
   onEngineChange: (engine: { provider: EngineProvider; model: string }) => void;
+  onContinue: (review: PhotoReviewResult) => Promise<{ opened: boolean; saved: boolean }>;
+  blocked: boolean;
   preferredTone: WritingTone; targetLength: number; configuredProviders: string[];
 };
 
-export default function PhotoReviewDraft({ prepared, engine, onEngineChange, preferredTone, targetLength, configuredProviders }: PhotoReviewOptions & { prepared: PreparedPhotoSet | null }) {
+export default function PhotoReviewDraft({ prepared, engine, onEngineChange, onContinue, blocked, preferredTone, targetLength, configuredProviders }: PhotoReviewOptions & { prepared: PreparedPhotoSet | null }) {
+  const [openedResult, setOpenedResult] = useState<PhotoReviewResult | null>(null);
+  const [continuing, setContinuing] = useState(false);
   const [place, setPlace] = useState("");
   const [visitNotes, setVisitNotes] = useState("");
   const [copyNotice, setCopyNotice] = useState("");
@@ -38,7 +42,7 @@ export default function PhotoReviewDraft({ prepared, engine, onEngineChange, pre
 
   return <section aria-labelledby="photo-review-heading" className="space-y-4 rounded-xl border border-emerald-200 bg-white p-4">
     <h3 id="photo-review-heading" className="flex items-center gap-2 text-sm font-bold text-emerald-950"><NotebookPen className="h-4 w-4" aria-hidden="true" />사진과 방문 메모로 후기 초안</h3>
-    <p className="text-xs leading-relaxed text-slate-600">사진에서 보이는 내용과 본인이 적은 경험을 나눠 초안을 만듭니다. 현재 화면에서 확인·복사할 수 있으며, 보관함 저장·원고 편집·확장 전송은 다음 단계에서 제공됩니다. 이동·새로고침하면 사진 선택·메모·초안이 사라집니다.</p>
+    <p className="text-xs leading-relaxed text-slate-600">사진에서 보이는 내용과 본인이 적은 경험을 나눠 초안을 만듭니다. 초안을 확인한 뒤 ‘원고로 저장·이어서 편집’으로 기존 편집·검수·확장 준비를 이어가세요. 저장 전 이동·새로고침하면 사진 선택·메모·초안이 사라집니다.</p>
     <label className="block text-xs font-semibold text-slate-700">장소 또는 후기 주제
       <input value={place} onChange={event => setPlace(event.target.value)} maxLength={120} placeholder="예: 직접 방문한 카페 이름" className="mt-1 w-full rounded-lg border border-slate-200 p-3 text-sm" />
     </label>
@@ -58,14 +62,19 @@ export default function PhotoReviewDraft({ prepared, engine, onEngineChange, pre
     {!prepared && <p className="text-xs text-slate-600">위 사진을 모두 준비 완료로 만든 뒤 실행해 주세요. 사진은 장당 4MB·합계 12MB 이하입니다.</p>}
     {tooLarge && <p className="text-xs text-rose-700">사진 합계가 12MB를 넘었습니다. 작은 사진으로 바꾸거나 준비 목록에서 일부를 제외해 주세요.</p>}
     <div className="flex flex-wrap items-center gap-2">
-      <button type="button" disabled={!input || !current || pending} onClick={() => { setCopyNotice(""); void client.run(); }} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white disabled:opacity-40">{pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}{pending ? "사진 관찰·후기 작성 중" : "사진 후기 초안 만들기"}</button>
+      <button type="button" disabled={!input || !current || pending || continuing || blocked} onClick={() => { setCopyNotice(""); void client.run(); }} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white disabled:opacity-40">{pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}{pending ? "사진 관찰·후기 작성 중" : "사진 후기 초안 만들기"}</button>
       {pending && <button type="button" onClick={client.cancel} className="rounded-lg border border-slate-200 px-3 py-3 text-xs">요청 중단</button>}
       <Link href="/guide#photo-review-guide-title" className="text-xs text-emerald-800 underline">사진 후기 사용법</Link>
     </div>
     <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-950">⚠️ 사진으로 맛·가격·실제 방문을 증명할 수 없습니다. AI가 추측할 수 있으므로 원본·본인 메모를 직접 대조해 주세요. 중단해도 이미 진행한 AI 호출은 비용이 발생할 수 있으며 자동 재시도하지 않습니다.</p>
     <div role="status" aria-live="polite" className="text-xs leading-relaxed text-rose-700">{current ? state.error : ""}</div>
     {result && <div className="space-y-4 border-t border-emerald-100 pt-4">
-      <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-amber-800">직접 검수가 필요한 초안 · 서버 미저장</p><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(photoReviewPlainText(result)); setCopyNotice("초안과 확인할 내용을 복사했습니다."); } catch { setCopyNotice("복사하지 못했습니다. 아래 초안을 직접 선택해 주세요."); } }} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs"><Copy className="h-3 w-3" aria-hidden="true" />초안 복사</button></div>
+      <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-amber-800">직접 검수가 필요한 초안 · 아래 버튼으로 저장</p><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(photoReviewPlainText(result)); setCopyNotice("초안과 확인할 내용을 복사했습니다."); } catch { setCopyNotice("복사하지 못했습니다. 아래 초안을 직접 선택해 주세요."); } }} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs"><Copy className="h-3 w-3" aria-hidden="true" />초안 복사</button></div>
+      <button type="button" disabled={continuing || blocked || openedResult === result} onClick={async () => {
+        setContinuing(true);
+        try { const outcome = await onContinue(result); if (outcome.opened) setOpenedResult(result); setCopyNotice(outcome.saved ? "새 사진 원고를 저장했습니다. 아래 원고 영역에서 편집·직접 검수해 주세요." : outcome.opened ? "아래 원고의 보관함 저장으로 다시 확인해 주세요. 같은 원고 ID로 재시도하며 새 원고를 복제하지 않습니다." : "원고를 열지 않았습니다. 안내를 확인해 주세요."); }
+        finally { setContinuing(false); }
+      }} className="rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white disabled:opacity-40">{continuing ? "원고 저장 중" : openedResult === result ? "아래 원고에서 편집·저장 이어가기" : "원고로 저장·이어서 편집"}</button>
       <p role="status" className="text-xs text-slate-600">{copyNotice}</p>
       <h4 className="text-base font-bold text-slate-900">{result.title}</h4>
       {result.paragraphs.map((paragraph, index) => <div key={index}><p className="whitespace-pre-wrap break-words text-sm leading-7 text-slate-800">{paragraph.text}</p><p className="mt-1 text-[11px] text-slate-500">근거: {paragraph.evidence.map(id => id === "member-notes" ? "회원 메모·사진 설명" : `사진 ${result.photos.findIndex(photo => photo.id === id) + 1} 관찰`).join(" · ")}</p></div>)}

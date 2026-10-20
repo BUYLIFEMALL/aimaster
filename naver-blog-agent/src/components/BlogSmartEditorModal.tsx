@@ -34,6 +34,7 @@ interface BlogSmartEditorModalProps {
   categories?: { id: string; name: string }[];
   generatedImages: { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[];
   activeImageModel?: string;
+  privatePhotos?: boolean;
   onSave: (updated: {
     title: string;
     content: string;
@@ -121,6 +122,7 @@ export default function BlogSmartEditorModal({
   categories = [],
   generatedImages,
   activeImageModel,
+  privatePhotos = false,
   onSave,
 }: BlogSmartEditorModalProps) {
   const [title, setTitle] = useState(initialTitle);
@@ -147,6 +149,7 @@ export default function BlogSmartEditorModal({
     if (!isOpen) { initialized.current=false; return; }
     if (!initialized.current) {
       initialized.current=true;
+      setEditorMode(privatePhotos ? "code" : "visual");
       setTitle(initialTitle);
       setExcerpt(initialExcerpt);
       setTags([...initialTags]);
@@ -156,7 +159,7 @@ export default function BlogSmartEditorModal({
       const converted = convertTextToEditorHtml(initialContent, generatedImages);
       setHtmlContent(converted);
     }
-  }, [isOpen, initialTitle, initialContent, initialExcerpt, initialTags, initialCategory, generatedImages]);
+  }, [isOpen, initialTitle, initialContent, initialExcerpt, initialTags, initialCategory, generatedImages, privatePhotos]);
 
   const [saving, setSaving] = useState(false);
   if (!isOpen) return null;
@@ -177,7 +180,7 @@ export default function BlogSmartEditorModal({
 
   // 모드 전환 핸들러
   const switchToVisual = () => {
-    if (editorMode === "code") {
+    if (!privatePhotos && editorMode === "code") {
       // 코드 내용을 HTML로 변환하여 비주얼 에디터에 주입
       const converted = convertTextToEditorHtml(codeContent, generatedImages);
       setHtmlContent(converted);
@@ -448,6 +451,7 @@ export default function BlogSmartEditorModal({
                 <button
                   type="button"
                   onClick={switchToVisual}
+                  disabled={privatePhotos}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
                     editorMode === "visual"
                       ? "bg-white text-emerald-700 shadow-2xs"
@@ -471,6 +475,8 @@ export default function BlogSmartEditorModal({
                 </button>
               </div>
             </div>
+
+            {privatePhotos && <p className="bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-950">내 사진 원고는 원본 텍스트로 편집합니다. [IMAGE INSERT - …]는 본문 사진 위치이므로 유지해 주세요. 사진은 미리보기에서 확인하고 임시 사진 주소를 본문에 붙이지 마세요.</p>}
 
             {/* 1) 비주얼 모드 (RichTextEditor) */}
             {editorMode === "visual" && (

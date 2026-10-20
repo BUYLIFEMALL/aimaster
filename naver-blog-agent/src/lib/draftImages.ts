@@ -1,11 +1,12 @@
-export interface DraftImage { url?: string; type: "thumbnail" | "body"; caption: string; prompt: string }
+export interface DraftImage { url?: string; type: "thumbnail" | "body"; caption: string; prompt: string;
+  id?: string; storagePath?: string; createdAt?: string; expiresAt?: string }
 
 export function generatedDraftImages<T extends DraftImage>(images: T[]): (T & { url: string })[] {
   return images.filter((image): image is T & { url: string } => typeof image.url === "string" && Boolean(image.url));
 }
 
 export function pendingDraftImages<T extends DraftImage>(images: T[]): T[] {
-  return images.filter(image => !image.url);
+  return images.filter(image => !image.url && !image.storagePath);
 }
 
 export function draftImageList<T>(generated: T[], planned: T[], edited: boolean): T[] {

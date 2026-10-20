@@ -11,11 +11,11 @@ const fields = ["blog_id", "category_name", "title", "content", "tags", "images"
 export function postSaveRevision(row: any) {
   return hash({ ...Object.fromEntries(fields.map(key => [key, row[key] ?? null])),
     requestId: record(record(row.research_summary).draft_save).requestId ?? null,
-    publishing: record(row.research_summary).naver_publishing ?? null });
+    publishing: record(row.research_summary).naver_publishing ?? null, ...(record(row.research_summary).photo_review ? {photoReview: record(row.research_summary).photo_review} : {}) });
 }
-export const savedPost = (row: any) => ({ ...publicPost(row), save_revision: postSaveRevision(row) });
+export const savedPost = (row: any) => ({ ...publicPost(row), photo_review: record(row.research_summary).photo_review, save_revision: postSaveRevision(row) });
 export function saveFingerprint(method: string, payload: Record<string, any>) {
-  return hash({method, id: payload.id, create: payload.create === true, expected_revision: payload.expected_revision,
+  return hash({method, photo_review: payload.photo_review, id: payload.id, create: payload.create === true, expected_revision: payload.expected_revision,
     ...Object.fromEntries(fields.filter(key => payload[key] !== undefined).map(key => [key, payload[key]]))});
 }
 export function saveReceipt(row: any, requestId: unknown, fingerprint: string): "same" | "changed" | null {

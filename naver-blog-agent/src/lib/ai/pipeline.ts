@@ -6,6 +6,8 @@ import { buildFormatResearchRule, buildFormatWriterRule, isArticleFormat, type A
 import { applyShoppingLinks } from "@/lib/shoppingLinks";
 import { applyUnsupported, buildSourceBlock, buildSourceReviewRule, filterUnsupported, normalizeSourceMaterial, readUnsupported } from "./sourceGrounding";
 import { cleanGeneratedBody } from "./bodyCleanup";
+import type { DraftImage } from "@/lib/draftImages";
+import type { PhotoReviewResult } from "@/lib/photoReview";
 
 import { sanitizeYear, sanitizeBodyYear } from "@/lib/yearPolicy";
 
@@ -54,11 +56,8 @@ export interface PipelineResult {
   charCount?: number;
   reviewStatus?: "PASS" | "WARN" | "FAIL" | "UNKNOWN"; // 저장 글을 불러온 경우에는 없음
   reviewNote?: string;
-  images: {
-    type: "thumbnail" | "body";
-    prompt: string;
-    caption: string;
-  }[];
+  images: DraftImage[];
+  photoReview?: PhotoReviewResult;
   stepsLog: {
     step: string;
     status: "done" | "warn";
