@@ -18,4 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `thumbnail-master/` · `seo-thumbnail-pro/` | Claude Code(윈도우) | 2026-10-20 | 병합 D 1단계 완료(마스터 v1.08, /seo), 크롬 시험(로그인 대기) → 2단계(이름 미정·매뉴얼) 다음 — `thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md` |
+| `thumbnail-master/` · `seo-thumbnail-pro/` | Claude Code(윈도우) | 2026-10-20 | 병합 D 1·2단계 완료(v1.09 「AI 썸네일·SEO 자동화」), 3단계(옛 주소·카탈로그·5명 권한) 주인님 확인 대기 — `thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md` |

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 D 2단계 (thumbnail-master v1.09 「AI 썸네일·SEO 자동화」)
+- 크롬 검수: `/seo` 3전략 생성 성공(관리자 본인 Gemini 텍스트 1회), 「이 전략으로 썸네일 만들기」로 새 프로젝트 생성·주제 채워짐. 이름 「AI 썸네일·SEO 자동화」(주인님 확정), 매뉴얼 ⑥ SEO 전략·FAQ 2개·바로가기. 커밋 `fd7d750c`·`dbe916c7`, 배포 Ready, DB v1.09.
+- 다음 첫 단계: 3단계(주인님 확인 후) — [플랜 §3·§8](../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md).
+
+https://thumbnail-master.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 유튜브 병합 D 1단계 (thumbnail-master v1.08)
 - 썸네일 프로의 SEO 전략(제목·설명·해시태그·스튜디오 태그·고정 댓글)을 마스터 서버 API `/api/seo/strategy`·화면 `/seo`로 이식, 「이 전략으로 썸네일 만들기」로 프로젝트 생성 연결. 키는 서버에서만(프로의 키 원문 브라우저 전달 방식 미이식). 역분석·공지 띠는 미적용(이유: 플랜 §8). 커밋 `b817c38e`, 배포 Ready, DB v1.08. 크롬 실제 생성 시험은 썸네일 마스터 로그인 필요(주인님).
 - 다음 첫 단계: 로그인 후 `/seo`에서 1회 생성 시험 → 2단계(이름 주인님 확인·매뉴얼). [플랜](../thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md)
