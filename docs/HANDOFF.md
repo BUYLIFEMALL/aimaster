@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 병합 A 2단계: INSTA 보관함 하나로 (INSTA v1.37·v1.38)
+- v1.37(`30c9c802`): 「게시글 관리」 아래 「🎨 카드뉴스 예약·게시 기록」(회원 본인 최근 30건·예약 취소), 새 글에서 「카드뉴스(캐러셀 4장)」 선택 시 카드뉴스 스튜디오 안내(AI 4장·직접 첨부·4컷 넘기기 그대로). v1.38(`93874b30`): 다크 바탕에 묻히던 화면 제목 6곳 글자색. 화면 전체 색 정리는 `insta_auto_poster/docs/IMPROVEMENTS.md`(디자인 담당).
+- 검수: tsc·build·테스트 52 통과, 배포 `insta-auto-poster-fgcgg7d85` Ready, DB v1.38, 크롬(시험 회원) 게시글 관리 기록 칸·새 글 안내 띠 확인. 시험 회원은 카드뉴스 게시 기록 0건이라 기록 목록·예약 취소 동작은 화면에서 못 봄(같은 API·공용 취소 부품 사용).
+- 남음: 예약 실행 방식 설정이 INSTA·카드뉴스 둘로 나뉨(표 이전 필요), 3단계(옛 cardnews 주소·카탈로그 「병합됨」, 주인님 확인), 병합 B.
+
 ## 2026-10-20 Claude Code(윈도우) — 병합 A 1단계: 카드뉴스 스튜디오를 INSTA 포스팅 안으로 (INSTA v1.35·v1.36, cardnews v1.31)
 - 주인님 결정: INSTA 안으로·FREE 유지·최상위 규칙(본인 계정·본인 키) 그대로, 병합 B 이름 「INSTA 댓글·DM 자동화」, 순서 A → B. 분석 `docs/analysis-insta-consolidation-20261020/REPORT.md`, 플랜 `insta_auto_poster/docs/PLAN_20261020_CARDNEWS_MERGE.md`.
 - 한 일: 카드뉴스 화면 7개 → INSTA `/cardnews/*`, API 13개+프로젝트·템플릿·키 API는 주소 그대로, 좌측 메뉴 「카드뉴스 스튜디오」 묶음, 권한 INSTA(FREE) 기준, 카드뉴스 예약 자동 실행을 INSTA로(옛 카드뉴스 cron 제거 v1.31), 테스트 52개 이식(`npm run test:cardnews`), 공용 기준 코드 사본 7개 등록. v1.36: 카드뉴스 홈·설정·매뉴얼 제목 정리, INSTA 좌측 메뉴 계정 위치(사이드바 표준).
