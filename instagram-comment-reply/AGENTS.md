@@ -174,3 +174,7 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - API: Meta DM 웹훅 `/api/instagram/dm-webhook/[userId]`(주소 그대로), DM 텔레그램 봇 웹훅 `/api/dm/telegram/webhook/[userId]`(댓글 봇과 분리, `user_telegram_links.program_slug='instagram-dm-reply'` 행 그대로), `/api/dm/telegram/migrate-webhooks`, `/api/dm/cron/check-connection`(자동 실행은 계속 꺼 둠). DM 웹훅·텔레그램 주소 기준 도메인은 이 앱(`lib/dmApp/oauthRedirect.ts`), 비밀값은 이 앱 `CRON_SECRET` 기준 → **기존 DM 연결(관리자 텔레그램 DM 봇, 관리자·시험 Meta DM 웹훅)은 한 번 다시 등록 필요**.
 - **연결 한 번**: 설정 「계정 연결하기」에 「DM 답변도 사용」(기본 켬) → 메시지 권한(`instagram_business_manage_messages`)도 요청(`getInstagramAuthorizeUrl(..., withMessages)`), 콜백이 허락된 권한(`permissions`)에 메시지 권한이 있으면 `dm_accounts`에도 같은 토큰 저장 + 공용 표 권한 합쳐 기록. 이미 연결된 회원은 「💬 DM 답변도 쓰도록 다시 연결」. 연결 해제 시 `dm_accounts`도 삭제. DM 설정의 옛 DM 전용 연결 버튼은 안내로 교체.
 - 남은 단계: 2단계(대시보드·기록 하나로), 3단계(옛 DM 주소 이동·카탈로그 DM 노출 중지·이름/소개 변경, 주인님 확인).
+
+## 2026-10-20 v1.19 — 텔레그램 연동 실패 안내에 봇 이름 (Claude Code 윈도우)
+- 주인님 DM 봇 재연동 중 「메시지를 찾지 못했어요」가 반복(봇 2개 — 댓글 `@aimaster_insta_bot`, DM `@aimaster_insta_dm_bot`). 원인 후보: 다른 봇 토큰 입력 / 옛 웹훅이 걸린 동안 보낸 메시지가 옛 앱으로 감. 실패 안내에 「입력한 토큰의 봇은 @○○ 입니다」(getMe)를 붙여 어느 봇에 메시지를 보내야 하는지 바로 보이게(`lib/actions/telegram.ts`·`lib/dmApp/actions/telegram.ts`의 `botNameHint`).
+- Meta DM 웹훅 새 주소 등록 확인: 2026-10-20 Meta 확인 요청 GET `/api/instagram/dm-webhook/<관리자>` 200(주인님이 콜백 URL·인증 토큰 교체 후 확인 및 저장).
