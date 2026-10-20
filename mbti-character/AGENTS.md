@@ -2,6 +2,11 @@
 
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
+## 2026-10-20 v1.23 — 그림 자동 생성을 「검사 직후」로만 제한(회원 키 과금 안전) (Claude Code 윈도우)
+- 문제: 결과 화면을 `from` 없이 열기만 하면(새로고침·뒤로 가기·북마크·공유 링크) 회원 Gemini 키로 그림이 자동 생성돼 과금됨(2026-10-20 검수 중 관리자 키로 실제 발생).
+- 수정: `components/TestFlow.tsx`가 결과로 갈 때 `&fresh=1`을 붙이고, `app/result/[type]/page.tsx`는 `autoGenerate={fresh === "1" && !from}`. `components/ResultInteractive.tsx`는 첫 렌더에서 `fresh`를 주소에서 바로 지우고(`history.replaceState`, 화면 다시 그리지 않음), 생성 성공 시 주소에 `img`를 넣어 새로고침해도 방금 만든 그림이 그대로 보임(서버 `getTrustedImageUrl`이 신뢰 저장소 주소만 받음). 버튼으로 만드는 「다시 생성」은 그대로.
+- 검수: tsc·build, 커밋 `4736e0b6`(다른 세션 푸시와 동시라 원격에 함께 반영됨), 배포 `mbti-character-56vz6q4m1` Ready, DB `mbti-character` v1.23(크롬 SQL Editor, PRODUCTION 확인). 크롬(관리자, Gemini 키 있음): `/result/ENFP?EI=60&SN=55&TF=70&JP=65`(fresh 없음) 9초 동안 `generate-character-image` 요청 0회, 「AI 캐릭터 이미지 생성하기」 버튼만 표시, `v1.23` 표시. **검사 끝 → 자동 생성 경로(fresh=1)는 유료라 운영에서 실호출 안 함**(코드로만 확인) — 회원 사용 중 오류가 나면 그때 확인.
+
 ## 2026-10-20 v1.22 — 미드나잇 퍼플 테마로 변경 (Claude Code 윈도우, 주인님 지시)
 - 파스텔 크림 → 타로점·AI 종합 성격 진단과 같은 미스틱 미드나잇 퍼플. `app/globals.css` 토큰·클래스 색 + 17개 화면 파일 일괄 대응표(상세 `docs/DESIGN_HANDOFF.md` 맨 위). 로그인 바탕 격자·파란 버튼도 보라로, 홈 배지 버전은 `APP_VERSION`으로 자동 표시.
 - 검수 중 주의: 결과 화면을 `from` 없이 열면 기존 동작대로 회원 키로 그림이 자동 생성됨 — 390px 점검 중 `/result/ENFP`를 미리보기로 열어 관리자 키로 그림 1회가 생성됐을 수 있음(미확인).

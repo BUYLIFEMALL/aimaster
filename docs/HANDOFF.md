@@ -10,6 +10,13 @@
 <!-- IMAGE_SIDEBAR_V122_20261020 -->
 
 
+## 2026-10-20 Claude Code(윈도우) — 캐릭코드 v1.23: 그림 자동 생성을 검사 직후로만 제한 (남은 작업 순서 진행 ②)
+- 한 일: 결과 화면을 새로고침·뒤로 가기·공유 링크로 열어도 회원 Gemini 키로 그림이 자동 생성되던 과금 위험 제거. 검사 화면이 `?fresh=1`을 붙이고, 결과 화면은 이 표시가 있을 때만 자동 생성 + 즉시 주소에서 지움, 생성한 그림은 주소 `img`로 유지.
+- 검수: tsc·build, 커밋 `4736e0b6`, 배포 `mbti-character-56vz6q4m1` Ready, DB(ref `esgxyikcnnvmlhygjkth`) mbti-character v1.23, 크롬(관리자) fresh 없는 결과 주소 → 생성 요청 0회·버튼만 표시. 검사 직후 자동 생성 경로는 유료라 실호출 안 함(코드 확인).
+- 상세: `mbti-character/AGENTS.md` v1.23. 다음 순서 ③ 인스타 예약 게시 처리 코드 공용화 2단계(플랜 먼저).
+- 링크: https://mbti-character.buylife.xyz
+
+
 ## 2026-10-20 Claude Code(윈도우) — 타로점 v1.26: OpenAI에 없는 모델 6개 정리 (남은 작업 순서 진행 ①)
 - 한 일: `tarot/lib/deck.ts` 메뉴에서 `gpt-5.4/5.5` Luna·Sol·Terra 6개(OpenAI 404) 삭제 → `gpt-5.5`·`gpt-5.4`. 옛 저장·공유 링크(`?om=`)의 옛 이름은 리딩 API에서 `normalizeOpenAIModel()`로 자동 변환. 저장소 모델 점검 `check-openai-models.mjs --new` → 17개 모두 통과(남은 없는 모델 0개).
 - 검수: tsc·build, 커밋 `3d92d336`, 배포 `tarot-7ls7by0e6` Ready, DB(ref `esgxyikcnnvmlhygjkth`) tarot-reading v1.26, 크롬 운영 `/draw` 모델 메뉴 7개·v1.26 표시. 유료 호출 0회.
