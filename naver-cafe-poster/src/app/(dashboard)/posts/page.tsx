@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getNaverAccount } from "@/lib/naver/memberAccount";
+import { resolveApiKey as resolveNaverKey } from "@/lib/apiKeys";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
@@ -42,7 +44,7 @@ export default async function PostsPage({
 
   const [{ data: posts }, { data: account }] = await Promise.all([
     query,
-    supabase.from("ncafe_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+    (async () => ({ data: await getNaverAccount(supabase, user.id, await resolveNaverKey(supabase, user.id, "naver_client_id")).then((a) => (a ? { naver_id: a.naver_id, nickname: a.nickname } : null)) }))(),
   ]);
   const hasNaverAccount = Boolean(account);
 

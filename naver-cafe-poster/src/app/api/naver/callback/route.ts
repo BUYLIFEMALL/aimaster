@@ -1,3 +1,4 @@
+import { saveSharedNaverAccount } from "@/lib/naver/memberAccount";
 import { NextRequest, NextResponse } from "next/server";
 import { SITE_ORIGIN } from "@/lib/oauthRedirect";
 import { createClient } from "@/lib/supabase/server";
@@ -73,6 +74,17 @@ export async function GET(request: NextRequest) {
     if (error) {
       throw new Error(error.message);
     }
+
+    // v1.24: 공용 연결 계정에도 저장(이중 기록)
+    await saveSharedNaverAccount({
+      userId: user.id,
+      naverId: profile.id,
+      nickname: profile.nickname ?? null,
+      accessToken: token.access_token,
+      refreshToken: token.refresh_token ?? null,
+      tokenExpiresAt,
+      clientId: credentials.clientId,
+    });
 
     return NextResponse.redirect(`${siteUrl}/settings?connected=1`);
   } catch {

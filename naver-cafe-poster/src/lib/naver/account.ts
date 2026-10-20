@@ -3,6 +3,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { refreshNaverToken } from "@/lib/naver/client";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { updateMemberAccountToken } from "@/lib/memberIntegrations";
+import { getNaverAccount } from "@/lib/naver/memberAccount";
 
 // 회원 세션이 있는 서버 액션(lib/actions/posts.ts)과, 세션이 없는 예약 자동화 크론
 // (app/api/cron/generate-and-post/route.ts, admin 클라이언트) 양쪽에서 "네이버 계정
@@ -54,9 +57,8 @@ export async function getNaverAccountOrError(
   userId: string,
   credentials: NaverAppCredentials | null,
 ) {
-  const { data, error } = await supabase.from("ncafe_accounts").select("*").eq("user_id", userId).maybeSingle();
-
-  if (error) throw new Error(error.message);
+  // v1.24: 공용 네이버 로그인 계정(같은 네이버 앱) → 없으면 ncafe_accounts
+  const data = await getNaverAccount(supabase, userId, credentials?.clientId ?? null);
   if (!data) throw new Error("먼저 네이버 계정을 연결해주세요.");
 
   const expiresAt = data.token_expires_at ? new Date(data.token_expires_at).getTime() : 0;
@@ -102,6 +104,22 @@ export async function getNaverAccountOrError(
   const tokenExpiresAt = Number.isFinite(expiresInSeconds)
     ? new Date(Date.now() + expiresInSeconds * 1000).toISOString()
     : null;
+
+  // v1.24: 공용 계정에서 읽은 토큰이면 공용 표를 갱신(다른 네이버 프로그램도 새 토큰을 씀)
+  if (data.shared_id) {
+    const { error: sharedError } = await updateMemberAccountToken(createAdminClient(), userId, data.shared_id, {
+      accessToken: refreshed.access_token,
+      tokenExpiresAt,
+      refreshToken: refreshed.refresh_token ?? null,
+    });
+    if (sharedError) throw new Error(sharedError);
+    return {
+      ...data,
+      access_token: refreshed.access_token,
+      refresh_token: refreshed.refresh_token ?? data.refresh_token,
+      token_expires_at: tokenExpiresAt,
+    };
+  }
 
   const { error: updateError } = await supabase
     .from("ncafe_accounts")

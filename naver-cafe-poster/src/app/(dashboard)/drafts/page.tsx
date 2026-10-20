@@ -1,5 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getNaverAccount } from "@/lib/naver/memberAccount";
+import { resolveApiKey as resolveNaverKey } from "@/lib/apiKeys";
 import { DraftComposerSection } from "@/components/posts/DraftComposerSection";
 import { DraftList } from "@/components/posts/DraftList";
 
@@ -14,7 +16,7 @@ export default async function DraftsPage({
 
   const [{ data: account }, { data: targets }, { data: drafts }, { data: categories }, { data: candidates }] =
     await Promise.all([
-      supabase.from("ncafe_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+      (async () => ({ data: await getNaverAccount(supabase, user.id, await resolveNaverKey(supabase, user.id, "naver_client_id")).then((a) => (a ? { naver_id: a.naver_id, nickname: a.nickname } : null)) }))(),
       supabase
         .from("ncafe_targets")
         .select("*")

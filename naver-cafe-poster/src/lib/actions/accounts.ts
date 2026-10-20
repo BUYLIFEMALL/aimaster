@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { deleteSharedNaverAccount } from "@/lib/naver/memberAccount";
 import { requireProgramAccess } from "@/lib/access";
 import { getNaverAuthorizeUrl } from "@/lib/naver/client";
 import { NAVER_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
@@ -40,6 +41,8 @@ export async function disconnectNaverAccountAction() {
   const supabase = await createClient();
 
   await supabase.from("ncafe_accounts").delete().eq("user_id", user.id);
+  // v1.24: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedNaverAccount(user.id);
 
   revalidatePath("/settings");
 }

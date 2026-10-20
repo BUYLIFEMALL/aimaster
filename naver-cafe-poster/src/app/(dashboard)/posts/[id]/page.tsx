@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getNaverAccount } from "@/lib/naver/memberAccount";
+import { resolveApiKey as resolveNaverKey } from "@/lib/apiKeys";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { deletePostAction, deployDraftAction } from "@/lib/actions/posts";
@@ -20,7 +22,7 @@ export default async function PostDetailPage({
 
   const [{ data: post }, { data: account }] = await Promise.all([
     supabase.from("ncafe_posts").select("*, target:ncafe_targets(label)").eq("id", id).eq("user_id", user.id).maybeSingle(),
-    supabase.from("ncafe_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+    (async () => ({ data: await getNaverAccount(supabase, user.id, await resolveNaverKey(supabase, user.id, "naver_client_id")).then((a) => (a ? { naver_id: a.naver_id, nickname: a.nickname } : null)) }))(),
   ]);
 
   if (!post) notFound();

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getNaverAccount } from "@/lib/naver/memberAccount";
+import { resolveApiKey as resolveNaverKey } from "@/lib/apiKeys";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import type { PostStatus } from "@/types/post";
@@ -28,7 +30,7 @@ export default async function DashboardPage() {
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase.from("ncafe_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    (async () => ({ data: await getNaverAccount(supabase, user.id, await resolveNaverKey(supabase, user.id, "naver_client_id")).then((a) => (a ? { naver_id: a.naver_id, nickname: a.nickname } : null)) }))(),
     supabase.from("ncafe_targets").select("id", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("programs").select("description, short_desc").eq("slug", "naver-cafe-poster").maybeSingle(),
   ]);

@@ -1,5 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getNaverAccount } from "@/lib/naver/memberAccount";
+import { resolveApiKey as resolveNaverKey } from "@/lib/apiKeys";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { CafeTargetManager } from "@/components/settings/CafeTargetManager";
@@ -44,7 +46,7 @@ export default async function SettingsPage({
 
   const [{ data: keys }, { data: account }, { data: targets }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
-    supabase.from("ncafe_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    (async () => ({ data: await getNaverAccount(supabase, user.id, await resolveNaverKey(supabase, user.id, "naver_client_id")).then((a) => (a ? { naver_id: a.naver_id, nickname: a.nickname } : null)) }))(),
     supabase.from("ncafe_targets").select("*").eq("user_id", user.id).order("created_at", { ascending: true }),
   ]);
 
@@ -153,6 +155,7 @@ export default async function SettingsPage({
               <p className="mt-1 text-lg font-medium text-neutral-900">
                 {account.nickname ?? account.naver_id}
               </p>
+              <p className="mt-1 text-xs text-neutral-500">연결을 해제하면 이 계정을 함께 쓰는 다른 네이버 프로그램에서도 해제됩니다.</p>
               <form action={disconnectNaverAccountAction} className="mt-4">
                 <Button type="submit" variant="danger">
                   연결 해제
