@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 병합 A 1단계: 카드뉴스 스튜디오를 INSTA 포스팅 안으로 (INSTA v1.35·v1.36, cardnews v1.31)
+- 주인님 결정: INSTA 안으로·FREE 유지·최상위 규칙(본인 계정·본인 키) 그대로, 병합 B 이름 「INSTA 댓글·DM 자동화」, 순서 A → B. 분석 `docs/analysis-insta-consolidation-20261020/REPORT.md`, 플랜 `insta_auto_poster/docs/PLAN_20261020_CARDNEWS_MERGE.md`.
+- 한 일: 카드뉴스 화면 7개 → INSTA `/cardnews/*`, API 13개+프로젝트·템플릿·키 API는 주소 그대로, 좌측 메뉴 「카드뉴스 스튜디오」 묶음, 권한 INSTA(FREE) 기준, 카드뉴스 예약 자동 실행을 INSTA로(옛 카드뉴스 cron 제거 v1.31), 테스트 52개 이식(`npm run test:cardnews`), 공용 기준 코드 사본 7개 등록. v1.36: 카드뉴스 홈·설정·매뉴얼 제목 정리, INSTA 좌측 메뉴 계정 위치(사이드바 표준).
+- 검수: tsc·build·테스트 통과, 커밋 `97b56ba4`·`5876884d`, 배포 INSTA `insta-auto-poster-9xm4q658n`·카드뉴스 `cardnews-studio-r6748yipv` Ready, DB v1.36·v1.31, 예약 실행 주소 3개 무인증 401, 크롬(시험 회원) `/cardnews` 홈·기획 실화면·카드뉴스 7화면·INSTA 6화면 200·기존 프로젝트 1건 표시. AI 생성·인스타 게시는 시험하지 않음(비용·실게시).
+- 다음: 2단계(INSTA 게시물 목록에 카드뉴스 예약 함께 표시, AI 이미지 카드뉴스 4장 → 스튜디오 일원화) → 3단계(옛 cardnews 주소 이동·카탈로그 「병합됨」·기준 위치 이동, 주인님 확인 후) → 병합 B.
+
 ## 2026-10-20 Claude Code(윈도우) — 블로그 통합 BLC-00 운영 실검수 완료(Codex 환경 접속 제한 대신 수행)
 - 테스트 계정 실제 로그인·크롬: ① 신규 원고 `prepare` 기본값 ✅ ② 기존 원고 19건 저장 모드 보존 ✅(옛 무설정 `publish` 11·저장 `prepare` 8) ③ 회원 설정 변경·저장·원복 ✅. v2.00 본문 정리(`
 `·`# 제목` 제거)도 실생성으로 확인. 발행 전송·최종 발행 0회, 생성 1회+이미지 1장(본인 키).
