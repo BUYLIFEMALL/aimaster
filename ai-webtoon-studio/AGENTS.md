@@ -140,3 +140,6 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 4개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-20 v1.18 — 회원 연동 정보 공용 저장: Instagram 공용 계정 먼저 읽기 (Claude Code 윈도우)
+- `src/lib/instagram/memberAccount.ts` `getMemberInstagramAccount`가 공용 표 `member_platform_accounts`(platform `instagram`)를 먼저 보고, 로그인 방식에 맞는 게시 권한이 있고 재연결 필요가 아니면 그것을, 아니면 지금처럼 INSTA의 `insta_accounts`를 쓴다(카드뉴스 v1.26·인플루언서 v1.16과 같은 코드). 연결 화면이 없어 쓰기·해제 코드는 없음. 공용 부품 사본 `src/lib/memberIntegrations.ts`(`scripts/check-shared-modules.mjs` 등록). 테스트 18개 통과. 루트 `docs/MEMBER_INTEGRATIONS.md` §6.
