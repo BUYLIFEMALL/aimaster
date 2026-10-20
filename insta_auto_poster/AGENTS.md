@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.40` (2026-10-20)
+- **현재 버전**: `v1.41` (2026-10-20)
+- **v1.41 (2026-10-20, Claude Code 윈도우)**: 로그인 화면에서 크롬 자동 채우기가 입력칸을 연한 파랑으로 덮어쓰던 것을 다크로 고정(`globals.css` `.auth-dark input:-webkit-autofill`, 로그인 틀에만 적용).
 - **v1.40 (2026-10-20, Claude Code 윈도우) — 로그인 화면 INSTA 다크 테마**: 주인님 지시 「로그인 창도 같은 테마로 맞춰」. `(auth)/layout.tsx`·`login`·`signup`의 공통 틀(밝은 격자 + 파란 `#005acc`)을 INSTA 토큰(바탕 `#0d0f17`·카드 `#161922`·보더 `#262c3d`·분홍~보라 그라디언트 버튼, 분홍 격자)으로. 화면 구성·문구·동작은 그대로.
 - **v1.39 관리자 실검수(2026-10-20 크롬, 관리자 로그인)**: 카드뉴스 설정에서 「내 cron-job.org」 선택 → `insta_member_scheduler.mode = cronjob`(옛 `cns_member_scheduler`는 그대로) → INSTA 설정 화면에도 같은 선택 표시 → INSTA 설정에서 Vercel로 되돌림 → `mode = vercel`(시험 전 상태). 남은 예약 0건이라 cron-job.org 작업은 꺼진 채 유지(정상, 예약 생기면 켜짐 — 실제 켜짐은 예약 게시가 필요해 미시험).
 - **v1.39 (2026-10-20, Claude Code 윈도우) — 예약 실행 방식 설정 하나로(피드 글 + 카드뉴스)**: 카드뉴스 API 5곳(`/api/cardnews/instagram/dispatch`·`dispatch-member`·`posts`, `/api/cardnews/scheduler`, `/api/settings/api-keys`)이 카드뉴스용 예약 설정(`cns_member_scheduler`) 대신 INSTA 설정(`@/lib/posts/memberScheduler` → `insta_member_scheduler`)을 씀. `schedulerConfig.ts` 「남은 예약」에 `cns_insta_posts`도 포함(0이면 cron-job.org 작업 끔), INSTA 회원 실행 주소 `/api/posts/dispatch-member`가 피드 글과 카드뉴스 예약을 함께 실행(옛 카드뉴스 회원 실행 주소도 INSTA 토큰으로 두 가지 모두 실행). 화면: INSTA 설정 「⏰ 예약 발행」·카드뉴스 설정에 「하나의 설정」 안내. 배포판(독립 모드)은 카드뉴스 표가 없어 기존과 같음. DB 표 변경 없음 — `cns_member_scheduler`는 지우지 않고 사용 안 함(관리자 1행, vercel 방식). `src/lib/cardnews/instagram/memberScheduler.ts`·`cronJobOrg.ts`·`schedulerConfig.ts`는 INSTA 화면에서 쓰지 않지만 공용 기준 코드(`member-scheduler`·`insta-cronjob-org`)의 기준 파일이라 남김.

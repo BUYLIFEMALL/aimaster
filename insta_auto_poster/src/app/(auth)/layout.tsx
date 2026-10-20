@@ -3,7 +3,7 @@ import { BRAND_NAME, IS_STANDALONE } from "@/lib/deployment";
 // 격자 배경 + 프로그램 이름 + 안내 문구. v1.40: INSTA 다크 테마(바탕 #0d0f17·카드 #161922·분홍~보라)로 맞춤(주인님 지시 「로그인 창도 같은 테마로」). 카드(로그인 폼)는 각 페이지가 그린다.
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12" style={{
+    <div className="auth-dark flex min-h-screen flex-col items-center justify-center px-4 py-12" style={{
         backgroundColor: "#0d0f17",
         backgroundImage:
           "linear-gradient(to right, rgba(236, 72, 153, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(236, 72, 153, 0.05) 1px, transparent 1px), radial-gradient(circle at 50% 50%, transparent 20%, #0d0f17 95%)",
