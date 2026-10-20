@@ -50,12 +50,18 @@ function putVideo(url: string, blob: Blob, onPct: (n: number) => void): Promise<
 
 export async function uploadToYoutube(o: {
   blob: Blob; title: string; description: string; tags: string; privacy: YoutubeUpload["privacy"]; categoryId: string;
-  publishAt: string | null; channel: string | null; onPct: (n: number) => void;
+  publishAt: string | null; channel: string | null; onPct: (n: number) => void; projectId?: string | null; batch?: boolean;
 }): Promise<YoutubeUpload> {
   const tags = o.tags.split(/\s*,\s*/).filter(Boolean);
   const { uploadUrl } = await api<{ uploadUrl: string }>("/api/youtube/upload-session", {
     body: { title: o.title, description: o.description, tags, privacy: o.privacy, categoryId: o.categoryId, publishAt: o.publishAt, size: o.blob.size },
   });
   const videoId = await putVideo(uploadUrl, o.blob, o.onPct);
+  void logBrowserUsage({ action: "youtube_uploaded", projectId: o.projectId ?? null, youtubeVideoId: videoId, batch: !!o.batch });
   return { videoId, url: `https://youtube.com/shorts/${videoId}`, title: o.title, privacy: o.publishAt ? "private" : o.privacy, publishAt: o.publishAt, channel: o.channel, uploadedAt: new Date().toISOString() };
+}
+
+/** v1.22 브라우저 동작 사용 기록(/api/usage) — 실패해도 무시 */
+export function logBrowserUsage(b: { action: "mp4_made" | "youtube_uploaded"; projectId?: string | null; youtubeVideoId?: string; seconds?: number; batch?: boolean }): Promise<void> {
+  return api("/api/usage", { body: b }).then(() => undefined, () => undefined);
 }

@@ -5,6 +5,7 @@ import { generateJson } from "@/lib/ai";
 import { narrationBudget, scriptPrompt } from "@/lib/prompts";
 import { clampCards, isFormat, isTone, normalizeScript, type ShortsScript } from "@/lib/script";
 import { UserError } from "@/lib/errors";
+import { recordUsage } from "@/lib/usage";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       if (!best || Math.abs(chars(script) - budget) < Math.abs(chars(best) - budget)) best = script;
       if (!budget || chars(best) <= budget * 1.2) break;
     }
-    if (best) return json({ script: best });
+    if (best) { await recordUsage(g.userId, "script_created", { cards: best.cards.length }); return json({ script: best }); }
     throw new UserError(502, "AI가 대본을 완성하지 못했습니다. 카드 수를 줄이거나 다른 모델로 다시 시도해 주세요.");
   } catch (e) { return fail(e); }
 }

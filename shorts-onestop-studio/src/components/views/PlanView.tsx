@@ -8,7 +8,7 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, type 
 import { MAX_PLAN_TOPICS, STAGES, UPLOAD_TIMES, sortEntries, type PlanData, type PlanEntry, type Stage } from "@/lib/plan";
 import { fillBackgrounds, makeVoices, prepareMedia } from "@/lib/pipeline";
 import { exportMp4 } from "@/lib/render/export";
-import { DAILY_UPLOAD_LIMIT, isQuotaMessage, planSlotIso, uploadDefaults, uploadToYoutube } from "@/lib/youtube/browserUpload";
+import { DAILY_UPLOAD_LIMIT, isQuotaMessage, logBrowserUsage, planSlotIso, uploadDefaults, uploadToYoutube } from "@/lib/youtube/browserUpload";
 
 type Steps = { bg: boolean; voice: boolean; mp4: boolean; yt: boolean };
 /** 이 항목에 아직 남은 단계가 있는가 */
@@ -117,12 +117,13 @@ export function PlanView() {
           const ac = new AbortController(); abortRef.current = ac;
           const blob = await exportMp4({ script: s2, media: m.media, audioUrls: m.audioUrls, signal: ac.signal, onProgress: (pr) => setBusy(`MP4 ${pr.pct}% … ${tag}`) });
           setFiles((fs) => [...fs, { name: fileName(e.title), url: URL.createObjectURL(blob), mb: Math.round((blob.size / 1048576) * 10) / 10 }]);
+          void logBrowserUsage({ action: "mp4_made", projectId: pid, batch: true });
           set({ done: { ...e.done, mp4: true } }); await persist();
           // v1.21 일정 시각으로 비공개 예약 업로드(지난 일정은 예약 없이 비공개)
           if (wantYt && !stopRef.current) {
             const d = uploadDefaults(s2); const publishAt = planSlotIso(e.date, e.time);
             try {
-              const rec = await uploadToYoutube({ blob, ...d, privacy: "private", categoryId: "22", publishAt, channel, onPct: (n) => setBusy(`유튜브로 보내는 중 ${n}% … ${tag}`) });
+              const rec = await uploadToYoutube({ blob, ...d, privacy: "private", categoryId: "22", publishAt, channel, onPct: (n) => setBusy(`유튜브로 보내는 중 ${n}% … ${tag}`), projectId: pid, batch: true });
               await store({ ...s2, youtube: [rec, ...(s2.youtube ?? [])].slice(0, 10) });
               set({ done: { ...e.done, yt: rec.videoId } }); await persist(); uploaded++;
               if (!publishAt) ytNotes.push(`「${e.title}」은 일정(${e.date} ${e.time})이 지나 예약 없이 비공개로 올렸습니다`);

@@ -59,7 +59,7 @@ export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploade
     try {
       const publishAt = form.schedule && form.publishAt ? new Date(form.publishAt).toISOString() : null;
       if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
-      const rec = await uploadToYoutube({ blob, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, channel: status?.channelTitle ?? null, onPct: setPct });
+      const rec = await uploadToYoutube({ blob, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, channel: status?.channelTitle ?? null, onPct: setPct, projectId });
       await onUploaded(rec);
       setMsg({ text: publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`, ok: true });
     } catch (e) {

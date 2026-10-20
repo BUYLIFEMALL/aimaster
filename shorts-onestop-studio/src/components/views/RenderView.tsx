@@ -13,6 +13,7 @@ import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } 
 import { exportMp4, type ExportProgress } from "@/lib/render/export";
 import { measureAudio as measure } from "@/lib/pipeline";
 import { YoutubeUploadCard } from "@/components/views/YoutubeUploadCard";
+import { logBrowserUsage } from "@/lib/youtube/browserUpload";
 import type { YoutubeUpload } from "@/lib/script";
 
 const label = (s: ShortsScript, i: number) => (i === 0 ? "인트로" : i === s.cards.length + 1 ? "아웃트로" : `카드 ${i}`);
@@ -116,6 +117,7 @@ export function RenderView() {
     const ac = new AbortController(); abort.current = ac; const started = performance.now();
     try {
       const blob = await exportMp4({ script, media: media.resolve, audioUrls: audio.urls, signal: ac.signal, onProgress: setExp });
+      void logBrowserUsage({ action: "mp4_made", projectId: item?.id ?? null });
       const name = `${(item?.title || script.intro.title || "shorts").replace(/[\\/:*?"<>|]/g, "").slice(0, 40).trim() || "shorts"}.mp4`;
       setFile({ url: URL.createObjectURL(blob), name, mb: Math.round((blob.size / 1048576) * 10) / 10, blob });
       setMsg({ text: `MP4를 만들었습니다(${Math.round((performance.now() - started) / 1000)}초 걸림). [MP4 내려받기]로 저장하거나 ⑥에서 유튜브에 바로 올리세요.`, ok: true });
