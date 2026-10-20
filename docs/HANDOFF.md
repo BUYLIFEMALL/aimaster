@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 세션 종합 인수인계: 회원 연동 정보 공용 저장 ⓪~⑤ 완료 + 후속 (주인님 「인수인계 파일로 남겨놔」)
+- **먼저 읽을 문서: [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_MEMBER_INTEGRATIONS.md`](HANDOFF_CLAUDE_SESSION_2026-10-20_MEMBER_INTEGRATIONS.md)** — 만든 구조·플랫폼별 조건·프로그램별 버전/배포·운영 DB 백필 결과·부수 작업(문자 인증·SMTP·보조 계정 종료·부동산 키)·남은 일·주의점 8가지·검수 방법·링크.
+- 남은 일: 주인님 이메일 찾기 문자 재시험, 크롬 Supabase 탭 2개 닫기. 개발 남은 일 없음(선택 개선은 문서 §4).
+- 기준 구조 문서: `docs/MEMBER_INTEGRATIONS.md`(§6 현황·§7 주의).
+
 ## 2026-10-20 Claude Code(윈도우) — 세션 인수인계: SEO 스튜디오 v1.74~v1.80 · OpenAI 모델 규칙 공용화 · 모델 점검 도구
 - **전체 정리 문서: [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_OPENAI_MODELS.md`](HANDOFF_CLAUDE_SESSION_2026-10-20_OPENAI_MODELS.md)** — 한 일·커밋·남은 일(다음 첫 단계)·주의사항.
 - 남은 일 1순위: **타로 `tarot/lib/deck.ts`의 존재하지 않는 OpenAI 모델 6개(`gpt-5.4/5.5-luna/sol/terra`) 정리**(회원이 고르면 「모델 없음」 오류). 그다음 미배포 사본 7곳은 각 프로그램 다음 배포 때 함께(화면 안내 포함).
