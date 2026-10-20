@@ -57,7 +57,7 @@ export function CardnewsPostsSection() {
   return (
     <section className="mt-8">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-neutral-900">
+        <h2 className="text-lg font-semibold text-slate-100">
           🎨 카드뉴스 예약·게시 기록 {pending > 0 && <span className="text-sm font-medium text-sky-400">(예약 {pending}건 대기)</span>}
         </h2>
         <Link href="/cardnews" className="text-xs font-medium text-pink-400 hover:underline">

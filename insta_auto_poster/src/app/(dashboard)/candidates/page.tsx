@@ -56,7 +56,7 @@ export default async function CandidatesPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-neutral-900">게시글 주제 수집</h1>
+        <h1 className="text-2xl font-semibold text-slate-100">게시글 주제 수집</h1>
         <Link href="/posts/new" className="text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:underline">
           수집 없이 바로 글쓰기 →
         </Link>

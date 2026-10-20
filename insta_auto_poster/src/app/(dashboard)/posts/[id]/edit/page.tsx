@@ -40,7 +40,7 @@ export default async function PostEditPage({
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="mb-6 text-2xl font-semibold text-neutral-900">게시글 수정</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-slate-100">게시글 수정</h1>
 
       <div className="mb-8">
         <h2 className="mb-3 text-sm font-medium text-neutral-700">

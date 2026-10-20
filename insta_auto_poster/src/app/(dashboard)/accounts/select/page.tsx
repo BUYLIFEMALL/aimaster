@@ -28,7 +28,7 @@ export default async function SelectInstagramAccountPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">연결할 인스타그램 계정 선택</h1>
+      <h1 className="mb-2 text-2xl font-semibold text-slate-100">연결할 인스타그램 계정 선택</h1>
       <p className="mb-6 text-sm text-neutral-600">
         Facebook 계정에서 관리 중인 페이지 중, 인스타그램 비즈니스 계정이 연결된 페이지 목록입니다.
         게시글을 올릴 계정을 선택해주세요.

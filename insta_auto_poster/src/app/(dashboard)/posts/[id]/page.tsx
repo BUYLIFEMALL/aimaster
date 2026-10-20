@@ -56,7 +56,7 @@ export default async function PostDetailPage({
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-neutral-900">
+        <h1 className="text-2xl font-semibold text-slate-100">
           게시글 결과 <span className="text-sm font-normal text-neutral-400">({post.post_type === "card_news" ? "카드뉴스" : "피드"})</span>
         </h1>
         <StatusBadge status={post.status} />

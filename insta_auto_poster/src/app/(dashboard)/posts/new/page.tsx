@@ -55,7 +55,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="mb-6 text-2xl font-semibold text-neutral-900">새 게시글 작성</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-slate-100">새 게시글 작성</h1>
       <PostForm
         action={createPostAction}
         submitLabel="게시물 생성하기"
