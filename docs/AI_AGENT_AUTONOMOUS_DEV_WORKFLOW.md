@@ -224,6 +224,7 @@ Claude Code도 Codex(Orca)와 같은 방식으로, 주인님이 로그인해 둔
 **8-1-2. 에이전트(CLI)별로 브라우저를 나눠 쓴다 (2026-10-14 주인님 지시, 2026-10-16 개정: Claude 계정은 메인 하나)**
 
 - **2026-10-16 개정(주인님 지시): Claude 계정은 메인 `buylifemall@gmail.com` 하나만 쓴다. 보조 `buylifemall1@gmail.com`(`.claude-account2`)은 사용 중단.** 지금 한 PC에서 브라우저를 나눠 쓰는 대상은 Claude Code(크롬)·Antigravity(엣지)·Codex(엣지)다.
+- **2026-10-21 추가(주인님 지시)**: 메인 계정 사용량 소진으로 새 부계정 `rainbowi77777@gmail.com`(Claude Pro, 윈도우 기본 설정 폴더 `~/.claude`)으로 Claude Code 작업을 이어 간다. 메인 사용량이 초기화되면 다시 메인 계정으로 작업한다. 브라우저 규칙은 그대로 Claude Code=크롬이다. 상세: 루트 `CLAUDE.md` 핵심 원칙 18.
 - 예전 배경(기록): 한 PC에서 Claude 계정 2개를 썼다 — 메인 `buylifemall@gmail.com`(설정 폴더 `C:UsersAdministrator.claude`)과 보조 `buylifemall1@gmail.com`(설정 폴더 `C:UsersAdministrator.claude-account2`).
 - **에이전트별 브라우저 지정 (주인님 확정)**:
 
