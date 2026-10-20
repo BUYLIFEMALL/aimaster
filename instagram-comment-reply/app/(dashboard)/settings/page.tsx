@@ -189,7 +189,10 @@ export default async function SettingsPage() {
       </section>
 
       <section className="glass-card space-y-4 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-ig-text">📨 텔레그램 알림 연동</h2>
+        <h2 className="text-lg font-bold text-ig-text">📨 텔레그램 알림 연동 <span className="ml-1 rounded-full bg-sky-500/15 px-2 py-0.5 align-middle text-xs font-bold text-sky-600">💬 댓글 전용 봇</span></h2>
+        <p className="rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs text-ig-text">
+          여기에는 <b>댓글 답글 승인용 봇</b>을 넣으세요. DM 답장 승인용 봇은 「💬 DM 답변 → DM 답변 설정」에 <b>다른 봇</b>으로 따로 넣습니다.
+        </p>
         <p className="text-sm text-ig-muted">
           인스타그램 계정 연결이 끊어지면 매일 자동 점검 후 텔레그램으로 알려드려요. 또한 새
           댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께 보내드리고,

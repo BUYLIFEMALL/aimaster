@@ -178,3 +178,6 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 ## 2026-10-20 v1.19 — 텔레그램 연동 실패 안내에 봇 이름 (Claude Code 윈도우)
 - 주인님 DM 봇 재연동 중 「메시지를 찾지 못했어요」가 반복(봇 2개 — 댓글 `@aimaster_insta_bot`, DM `@aimaster_insta_dm_bot`). 원인 후보: 다른 봇 토큰 입력 / 옛 웹훅이 걸린 동안 보낸 메시지가 옛 앱으로 감. 실패 안내에 「입력한 토큰의 봇은 @○○ 입니다」(getMe)를 붙여 어느 봇에 메시지를 보내야 하는지 바로 보이게(`lib/actions/telegram.ts`·`lib/dmApp/actions/telegram.ts`의 `botNameHint`).
 - Meta DM 웹훅 새 주소 등록 확인: 2026-10-20 Meta 확인 요청 GET `/api/instagram/dm-webhook/<관리자>` 200(주인님이 콜백 URL·인증 토큰 교체 후 확인 및 저장).
+
+## 2026-10-20 v1.20 — 텔레그램 칸에 댓글·DM 봇 구분 표시 (Claude Code 윈도우)
+- 주인님 요청: 텔레그램 알림 연동 제목에 「💬 댓글 전용 봇」(API키등록·플랫폼연동)·「💌 DM 전용 봇」(DM 답변 설정) 배지와 「서로 다른 봇이어야 함(봇 하나에 연결 주소 하나)」 안내.
