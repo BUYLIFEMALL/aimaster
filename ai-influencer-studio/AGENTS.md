@@ -257,3 +257,10 @@ ai-influencer-studio/
 - **이 배포로 미배포 공용 정리 3건도 함께 나감**(게시 처리·예약 API 5개, 예약 화면 동작, 예약 실행 방식).
 - 검수: tsc·시험 18·build, 커밋 `6ed583a8`, 배포 `ai-influencer-studio-liuouabpa` Ready, DB v1.19(크롬 SQL Editor, PRODUCTION). 운영 예약 실행 주소 3개 401, 크롬(관리자) 제목 v1.19·화면 정상·예약 상태 API 200(`platform`)·게시 기록 API 200, 대기 0건이라 요약 줄은 숨김(정상). **대기 예약이 있을 때의 줄 표시·취소는 미시험**(실제 인스타 예약을 만들어야 해서 하지 않음).
 - 남은 제안: 작업 히스토리 DB 저장(현재 브라우저 저장, DB 추가라 승인 필요), 「하루 일과 자동 예약」.
+
+## 2026-10-20 v1.20 — 작업 히스토리를 회원 계정(DB)에 저장 (Claude Code 윈도우, 추가개선 제안 2-1, 주인님 운영 DB 새 표 승인)
+- 문제: 히스토리가 브라우저 localStorage에만 있어 다른 PC·브라우저에서 안 보이고, 원본 이미지(base64)를 담아 저장 공간이 차면 실패.
+- 구조: 표 `aif_history`(id·user_id·image_path·captions jsonb·config jsonb·summary·created_at, RLS 본인 읽기만, 쓰기는 서버만) + **비공개** 버킷 `aif-history`(`{userId}/history/{id}.jpg`, 보기는 1시간 서명 주소). SQL `supabase/migrations/20261020300000_history_v1_20.sql`, 플랜 `docs/PLAN_20261020_HISTORY_DB.md`.
+- API `src/app/api/history/route.ts`: GET(최근 30개, 30일 지난 것·30개 초과분은 이때 파일과 함께 삭제), POST(JPEG base64 3MB 이하, 사진 데이터 키 `personImage`·`placeImage`·`productImages`·`lastResultImage` 제거, 30개 초과 정리), DELETE(`?id=` / `?all=1`).
+- 화면 `src/components/InfluencerStudio.tsx`: 열 때 서버에서 불러오고, 예전 브라우저 히스토리는 오래된 것부터 계정으로 옮긴 뒤 모두 성공하면 브라우저에서 지움. 저장은 화면에 바로 보이고 긴 변 1440px JPEG로 줄여 서버 저장 후 서버 값으로 교체. **불러오기 때 직접 올린 사진은 복원되지 않음**(얼굴 사진을 서버에 남기지 않기 위함).
+- 검수: tsc·시험 18·build, 커밋 `16500d3b`, 운영 DB(ref `esgxyikcnnvmlhygjkth`) 표·비공개 버킷·version v1.20(크롬 SQL Editor — 「파괴적 작업」 경고는 새 표의 `drop policy if exists`라 지워지는 것 없음 확인 후 실행), 배포 `ai-influencer-studio-exks34d1k` Ready, 비로그인 `/api/history` 401. 크롬(관리자) 운영 API: 작은 시험 이미지 저장 200 → 목록에 있음·사진 키 제거·글자 설정 유지·서명 주소 200 image/jpeg → 삭제 → 목록 0, SQL로 버킷 파일 0·행 0 확인. 유료 생성 0회. **다른 PC에서 같은 계정으로 보이는지·예전 브라우저 히스토리 자동 이전은 실제 데이터가 없어 미시험.**
