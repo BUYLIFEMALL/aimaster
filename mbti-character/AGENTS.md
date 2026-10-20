@@ -1,5 +1,11 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+## 2026-10-20 v1.21 — 결과 → 타로점 연결 + 다른 프로그램에서 들어오면 이미지 자동 생성 안 함 (Claude Code 윈도우)
+- 결과 화면(`app/result/[type]/page.tsx`) 아래 「🔮 타로점 3장 리딩으로 이어서 보기」(`TarotBridge`): 캐릭터 이름·유형만 담은 질문으로 `tarot-reading.buylife.xyz/draw?q=&spread=three_cards&from=mbti-character`(새 창). 카드 뽑기는 타로점에서 직접.
+- `ResultInteractive`에 `autoGenerate` 추가: 주소에 `from`이 있으면(예: AI 종합 성격 진단 v1.26에서 넘어옴) 캐릭터 그림 자동 생성을 하지 않고 버튼으로만 생성. 검사를 끝내고 들어오는 기존 흐름은 그대로 자동 생성(2026-09-14 요청 유지).
+- 성향 지표 값은 0~100으로 제한해 표시.
+- 검수 메모: 이 변경 전 검수 중 링크로 들어갔을 때 관리자 계정 키로 캐릭터 그림 1장이 자동 생성됨(이 문제를 발견해 고친 계기).
+
 이 문서는 **캐릭코드(mbti-character)** 프로젝트에서 AI Agent(Claude Code 등)가 협업할 때
 준수해야 할 필수 가이드라인입니다.
 

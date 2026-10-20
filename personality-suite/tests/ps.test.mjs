@@ -306,3 +306,18 @@ test("타로점 연결(v1.24): 질문 문장에 점수 숫자를 넣지 않고, 
     assert.equal(u.searchParams.get("q"), q);
   }
 });
+
+test("캐릭코드 연결(v1.26): 16유형 결과만 /result/<유형코드>?축별 우세%&from= 로, 다른 검사는 연결 없음", async () => {
+  const { characterLink } = await import("../src/lib/tarotLink.ts");
+  for (const t of ALL_TESTS) {
+    const r = scoreTest(t, all(t.questions.length, 4));
+    const link = characterLink(r);
+    if (r.kind === "type16") {
+      const u = new URL(link);
+      assert.match(u.pathname, /^\/result\/[EI][SN][TF][JP]$/, t.id);
+      assert.equal(u.searchParams.get("from"), "personality-suite");
+      for (const ax of ["EI", "SN", "TF", "JP"]) { const v = Number(u.searchParams.get(ax)); assert.ok(v >= 50 && v <= 100, `${t.id} ${ax}=${v}`); }
+    }
+    else assert.equal(link, null, t.id);
+  }
+});

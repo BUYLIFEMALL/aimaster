@@ -54,7 +54,10 @@ export function DrawFlow({
     if (q) setQuestion(q.slice(0, 300));
     const sp = p.get("spread");
     if (sp && sp in SPREAD_CONFIGS) setSpreadType(sp as SpreadType);
-    if (p.get("from") === "personality-suite") setFromProgram("AI 종합 성격 진단");
+    // 넘어온 곳 이름은 정해진 목록에서만 고른다(주소의 임의 글자를 그대로 보여 주지 않음)
+    const FROM_LABELS: Record<string, string> = { "personality-suite": "AI 종합 성격 진단", "mbti-character": "캐릭코드" };
+    const from = p.get("from");
+    if (from && FROM_LABELS[from]) setFromProgram(FROM_LABELS[from]);
   }, []);
 
   function handleDraw() {

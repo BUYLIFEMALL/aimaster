@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 성격 진단 v1.26 → 캐릭코드 v1.21 → 타로점 v1.23 흐름 연결
+- 한 일: 성격 진단 16유형 결과에 「캐릭코드에서 나와 닮은 캐릭터 보기」(유형+축별 우세 % 전달), 캐릭코드 결과에 「타로점 3장 리딩으로 이어서 보기」, 타로점 안내에 캐릭코드 추가. 캐릭코드는 다른 프로그램 링크로 들어오면 그림 자동 생성 안 함(회원 키 예고 없는 과금 방지).
+- 검수: 성격 단위 21·build, 캐릭코드·타로 tsc·build, 배포(순차) `tarot-gtdpthkic`·`mbti-character-a2nb89cdg`·`personality-suite-pmi0emjtq` Ready. DB(ref `esgxyikcnnvmlhygjkth`) personality-suite v1.26·mbti-character v1.21·tarot-reading v1.23. 크롬: 성격 결과 → 캐릭코드(지표 50·60·60·50%, 그림 생성 호출 0회) → 타로점(질문·「캐릭코드」 안내) 끝까지 확인. 수정 전 1회 검수에서 관리자 키로 캐릭터 그림 1장 자동 생성됨(Gemini 이미지 1회).
+- 링크: https://personality-suite.buylife.xyz · https://mbti-character.buylife.xyz · https://tarot-reading.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 타로점 v1.22: 카드 뽑기·보관함·설정 화면 다크 테마 통일
 - 한 일: 다크 바탕 위에 흰 카드·안 보이는 제목으로 남아 있던 카드 뽑기·보관함·설정·키 안내 창을 다크 토큰으로 변경(대응표 `tarot/AGENTS.md` v1.22). 결과·로그인 화면은 남음(비용 없이 확인할 리딩이 없어 기록만).
 - 검수: tsc·build, 배포 `tarot-hq6qzjry3` Ready, DB(ref `esgxyikcnnvmlhygjkth`) tarot-reading v1.22, 크롬에서 카드 뽑기(위·아래)·보관함·설정 확인.

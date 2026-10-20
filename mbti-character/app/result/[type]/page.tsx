@@ -11,6 +11,8 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.buylife.xyz";
+// v1.21: 결과 → AIMaster 타로점 3장 리딩으로 이어 가기. 캐릭터 이름·유형만 담은 질문을 미리 채운다(카드 뽑기는 타로점에서 직접).
+const TAROT_DRAW_URL = "https://tarot-reading.buylife.xyz/draw";
 
 // 공유 링크(?img=)로 넘어온 이미지 URL이 실제로 우리 Supabase Storage 버킷 것인지 검증한다 —
 // 검증 없이 그대로 og:image에 반영하면, 조작된 img 파라미터로 임의 이미지를 우리 페이지의
@@ -78,7 +80,38 @@ export default async function ResultPage({
         shareUrlBase={shareUrlBase}
         fallbackOgImageUrl={fallbackOgImageUrl}
         strengths={strengths}
+        autoGenerate={!strengths.from}
       />
+      <TarotBridge name={character.name} code={character.code} />
     </div>
+  );
+}
+
+function TarotBridge({ name, code }: { name: string; code: string }) {
+  const question = `나와 닮은 캐릭터 ${name}(${code})처럼 지금의 나에게 필요한 흐름과 조언은 무엇일까요?`;
+  const href = `${TAROT_DRAW_URL}?${new URLSearchParams({ q: question, spread: "three_cards", from: "mbti-character" }).toString()}`;
+  return (
+    <section className="mt-8 rounded-3xl border border-violet-200 bg-gradient-to-br from-violet-50 to-amber-50 p-6 shadow-sm">
+      <div className="flex items-start gap-3">
+        <span className="text-3xl">🔮</span>
+        <div>
+          <h2 className="text-base font-black text-neutral-900">타로점 3장 리딩으로 이어서 보기</h2>
+          <p className="mt-1 text-xs leading-relaxed text-neutral-600">
+            내 캐릭터를 바탕으로 만든 질문을 AIMaster 타로점에 미리 채워 드립니다. 카드 뽑기는 타로점에서 직접 눌러야 시작됩니다.
+          </p>
+        </div>
+      </div>
+      <p className="mt-4 rounded-2xl border border-dashed border-violet-300 bg-white/70 px-4 py-3 text-sm font-semibold text-violet-900">
+        “{question}”
+      </p>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-violet-700"
+      >
+        🃏 타로점에서 3장 뽑기 (새 창)
+      </a>
+    </section>
   );
 }

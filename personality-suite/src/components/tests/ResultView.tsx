@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Image as ImageIcon, Loader2, Printer, Save, Sparkles, Trash2 } from "lucide-react";
 import { downloadCanvas, renderShareCard } from "@/lib/shareImage";
-import { tarotLink, tarotQuestion } from "@/lib/tarotLink";
+import { characterLink, tarotLink, tarotQuestion } from "@/lib/tarotLink";
 import { buildReport, compareResults } from "@/lib/tests/report";
 import { getTest } from "@/lib/tests/registry";
 import { CRISIS_NOTICE } from "@/lib/tests/content/careTests";
@@ -198,12 +198,17 @@ export function ResultView({ id, testId, result, analysis: initial = null, creat
         <div className="tarot-bridge-head">
           <span className="ps-icon gold">🔮</span>
           <div>
-            <h2>타로점 3장 리딩으로 이어서 보기</h2>
-            <p className="muted">이 결과를 바탕으로 만든 질문을 AIMaster 타로점에 미리 채워 드립니다. 점수는 보내지 않으며, 카드 뽑기는 타로점에서 직접 눌러야 시작됩니다.</p>
+            <h2>{characterLink(result) ? "캐릭코드 · 타로점으로 이어서 보기" : "타로점 3장 리딩으로 이어서 보기"}</h2>
+            <p className="muted">이 결과를 바탕으로 만든 질문을 AIMaster 타로점에 미리 채워 드립니다. 점수는 보내지 않으며, 카드 뽑기는 타로점에서 직접 눌러야 시작됩니다.{characterLink(result) ? " 16유형 결과는 캐릭코드에서 나와 닮은 캐릭터도 볼 수 있어요(캐릭코드에는 유형과 네 가지 지표 비율만 보내며, 캐릭터 그림은 캐릭코드에서 직접 눌러야 만들어집니다)." : ""}</p>
           </div>
         </div>
         <p className="tarot-bridge-q">“{tarotQuestion(result, report, sensitive)}”</p>
-        <a className="ps-btn ps-btn-ghost" href={tarotLink(tarotQuestion(result, report, sensitive))} target="_blank" rel="noopener noreferrer">🃏 타로점에서 3장 뽑기 (새 창)</a>
+        <div className="ps-hero-actions" style={{ marginTop: 0 }}>
+          {characterLink(result) && (
+            <a className="ps-btn ps-btn-primary" href={characterLink(result)!} target="_blank" rel="noopener noreferrer">🎭 캐릭코드에서 나와 닮은 캐릭터 보기 (새 창)</a>
+          )}
+          <a className="ps-btn ps-btn-ghost" href={tarotLink(tarotQuestion(result, report, sensitive))} target="_blank" rel="noopener noreferrer">🃏 타로점에서 3장 뽑기 (새 창)</a>
+        </div>
       </section>
 
       <div className="actions no-print">

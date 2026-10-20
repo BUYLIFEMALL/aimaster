@@ -30,6 +30,7 @@ export function ResultInteractive({
   shareUrlBase,
   fallbackOgImageUrl,
   strengths,
+  autoGenerate = true,
 }: {
   character: Character;
   hasApiKey: boolean;
@@ -37,6 +38,8 @@ export function ResultInteractive({
   shareUrlBase: string;
   fallbackOgImageUrl: string;
   strengths: Record<string, string | undefined>;
+  /** v1.21: 다른 프로그램 링크(?from=)로 들어오면 false — 회원 키로 이미지가 예고 없이 생성되지 않게 버튼으로만 생성 */
+  autoGenerate?: boolean;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl);
   const [loading, setLoading] = useState(false);
@@ -80,7 +83,7 @@ export function ResultInteractive({
   // 경우가 아니라면), API 키가 등록돼 있으면 곧바로 자동 생성한다 — 버튼을 눌러야만
   // 생성되던 방식에서 "결과가 곧 캐릭터 이미지"가 되도록 바꾼 것(2026-09-14 요청).
   useEffect(() => {
-    if (!initialImageUrl && hasApiKey) {
+    if (!initialImageUrl && hasApiKey && autoGenerate) {
       generate(styleId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -173,7 +176,8 @@ export function ResultInteractive({
         <h2 className="text-sm font-bold text-neutral-900 mb-4">나의 성향 지표</h2>
         <div className="space-y-3">
           {Object.entries(DIMENSION_LABELS).map(([dim, label]) => {
-            const strength = Number(strengths[dim] ?? 50);
+            const raw = Number(strengths[dim] ?? 50);
+            const strength = Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 50;
             return (
               <div key={dim}>
                 <div className="flex justify-between text-xs text-neutral-500 mb-1">

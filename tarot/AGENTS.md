@@ -1,5 +1,8 @@
 # AIMaster 타로점 에이전트 작업 지침 (AGENTS.md)
 
+## 2026-10-20 v1.23 — 넘어온 곳 이름에 캐릭코드 추가 (Claude Code 윈도우)
+- `DrawFlow.tsx`의 `?from=` 안내를 정해진 목록(`personality-suite`→AI 종합 성격 진단, `mbti-character`→캐릭코드)에서만 고르도록 정리. 흐름: 성격 진단 → 캐릭코드 → 타로점.
+
 ## 2026-10-20 v1.22 — 카드 뽑기·보관함·설정 화면을 다크 테마로 통일 (Claude Code 윈도우)
 - 원인: 화면 바탕은 v1.20부터 다크(#090614)인데, 카드 뽑기(`DrawFlow.tsx`)·보관함(`app/history`, `HistoryList.tsx`)·설정(`app/settings`, `ApiKeyRow`, `ApiKeyRequiredModal`, `GuideLinkButton`)이 밝은 테마 클래스(`bg-white`, `text-neutral-900`, `bg-neutral-900` 버튼)로 남아 흰 카드가 떠 보이고 제목 글자가 거의 안 보였음.
 - 대응표: 흰 카드→`bg-[#120d24]`, 회색 테두리→`border-[#2a1f4e]`, 검정 버튼→보라(`bg-purple-600`/그라데이션), 선택 카드→보라 테두리+`bg-purple-600/25`, 어두운 글자→`text-slate-100~500`, 입력칸→`bg-[#0d0920]`.
