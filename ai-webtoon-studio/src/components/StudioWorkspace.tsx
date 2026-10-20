@@ -23,6 +23,7 @@ import {
 import { WebtoonProject } from "@/lib/types";
 import { mergeAndDownloadLongScrollJpg, downloadAllImagesAsZip } from "@/lib/canvasMerge";
 import { APP_NAME } from "@/lib/version";
+import { ProgramNoticeBanner } from "@/components/ProgramNoticeBanner";
 
 interface StudioWorkspaceProps {
   userEmail: string;
@@ -166,6 +167,8 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
 
         {/* 본문 메인 컨텐츠 */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* v1.24 메인 사이트 공지 중 이 프로그램이 연결된 최근 공지 1건 */}
+          <ProgramNoticeBanner programSlug="ai-webtoon-studio" />
           {/* STEP 1: 기획 & 시놉시스 */}
           {/* v1.17 인스타 예약 대기 요약 — 컷이 없는 새 원고에서도 지난 예약을 알아볼 수 있게 */}
           {activeTab === "concept" && (

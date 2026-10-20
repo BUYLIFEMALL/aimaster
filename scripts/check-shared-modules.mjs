@@ -68,6 +68,12 @@ const MODULES = [
     copies: ["ai-influencer-studio/src/lib/instagram/postsClient.ts", "ai-webtoon-studio/src/lib/instagram/postsClient.ts", "four-cut-comics/src/lib/instagram/postsClient.ts"],
   },
   {
+    // 프로그램 공지 띠(메인 공지의 「관련 프로그램」 → 작업 화면 맨 위 최근 공지 1건) — 2026-10-20 등록. 다른 프로그램은 다음 배포 때 사본 추가
+    id: "program-notice-banner",
+    source: "ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx",
+    copies: [],
+  },
+  {
     // 인스타 게시 처리(즉시·예약 실행 공통 publishPaths, 게시 기록, 30일 정리) — 2026-10-20 2단계 등록(기준 웹툰, 카드뉴스는 구조가 달라 제외). 프로그램 값은 각 폴더 schedulerConfig.ts
     id: "insta-posting",
     source: "ai-webtoon-studio/src/lib/instagram/posting.ts",
