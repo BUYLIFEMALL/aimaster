@@ -164,9 +164,10 @@ export async function pauseMemberScheduler(service: SupabaseClient, userId: stri
   }
 }
 
-/** 회원 실행 주소용: 일시정지된 회원이면 true(실행하지 않음). 일시정지 때 작업 끄기에 실패했을 수 있으니 여기서 다시 끈다. */
+/** 회원 실행 주소용: 일시정지된 회원이거나 실행 방식이 「내 cron-job.org」가 아닌 회원이면 true(실행하지 않음). 작업 끄기에 실패했거나 재개·방식 변경이 겹쳐 작업이 켜진 채 남았을 수 있으니 여기서 다시 끈다(2026-10-20). */
 export async function skipPausedMember(service: SupabaseClient, userId: string): Promise<boolean> {
-  if (!(await schedulerRow(service, userId))?.paused) return false;
+  const row = await schedulerRow(service, userId);
+  if (!row || (!row.paused && row.mode === "cronjob")) return false;
   const key = await memberCronjobKey(service, userId);
   if (key) await setDispatchJobEnabled(key, memberDispatchUrl(), false).catch(() => undefined);
   return true;
