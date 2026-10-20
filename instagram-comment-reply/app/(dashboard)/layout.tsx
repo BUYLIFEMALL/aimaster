@@ -25,7 +25,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Sidebar userEmail={user.email ?? ""} pendingCount={pendingCount ?? 0} />
       <main className="min-w-0 flex-1 bg-ig-bg p-4 md:p-8">
         <div className="mb-4">
-          <ProgramNoticeBanner programSlug="instagram-comment-reply" tone="light" />
+          <ProgramNoticeBanner programSlug="instagram-comment-reply" tone="dark" />
         </div>
         {needsReconnect && (
           <Link

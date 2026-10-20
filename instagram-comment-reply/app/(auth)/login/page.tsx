@@ -91,7 +91,7 @@ function LoginCard() {
                 required
                 autoComplete="email"
                 placeholder="developer@example.com"
-                className="w-full rounded-xl border border-ig-border bg-ig-surface py-3 pl-10 pr-4 text-sm text-ig-text placeholder:text-ig-muted transition-all focus:border-[#0095f6] focus:outline-none focus:ring-1 focus:ring-[#0095f6]/20"
+                className="w-full rounded-xl border border-ig-border bg-ig-surface py-3 pl-10 pr-4 text-sm text-ig-text placeholder:text-ig-muted transition-all focus:border-[#ec4899] focus:outline-none focus:ring-1 focus:ring-[#ec4899]/20"
               />
             </div>
           </div>
@@ -122,7 +122,7 @@ function LoginCard() {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-ig-border bg-ig-surface py-3 pl-10 pr-4 text-sm text-ig-text placeholder:text-ig-muted transition-all focus:border-[#0095f6] focus:outline-none focus:ring-1 focus:ring-[#0095f6]/20"
+                className="w-full rounded-xl border border-ig-border bg-ig-surface py-3 pl-10 pr-4 text-sm text-ig-text placeholder:text-ig-muted transition-all focus:border-[#ec4899] focus:outline-none focus:ring-1 focus:ring-[#ec4899]/20"
               />
             </div>
           </div>

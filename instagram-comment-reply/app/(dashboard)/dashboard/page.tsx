@@ -5,18 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
-import { StudioHeader, StatCard, Avatar } from "@/components/ui/StudioHeader";
-import { IgLogo } from "@/components/ui/IgLogo";
+import { Avatar } from "@/components/ui/StudioHeader";
+import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-
-const FLOW = [
-  { icon: "🔑", title: "계정·AI 연결", desc: "Meta 앱 + 인스타 계정 + AI 키", href: "/settings" },
-  { icon: "🖼️", title: "게시물 고르기", desc: "동기화 후 답글 달 게시물 선택", href: "/media" },
-  { icon: "🤖", title: "AI 답글 초안", desc: "새 댓글마다 초안 자동 작성", href: "/comments" },
-  { icon: "✅", title: "검토 후 게시", desc: "웹 또는 텔레그램에서 승인", href: "/comments" },
-];
 
 export default async function DashboardPage() {
   const user = await requireProgramAccess();
@@ -121,57 +114,103 @@ export default async function DashboardPage() {
     },
   ];
 
+  // 2026-10-20 v1.24: INSTA 포스팅 자동화 대시보드와 같은 배치(머리 카드 → 소개 → 단계 카드 → 상태 숫자 → 목록)
+  const stepCards = [
+    { href: "/settings", title: "1. 계정·키 연결", desc: "Meta 앱·AI 키·인스타 연결", icon: "🔑", highlight: false },
+    { href: "/comments", title: "2. 댓글 답글", desc: "AI 초안 검토 후 게시", icon: "💬", highlight: false },
+    { href: "/dm/conversations", title: "3. DM 답장", desc: "AI 초안 검토 후 발송", icon: "💌", highlight: false },
+    { href: "/guide", title: "4. 사용 매뉴얼", desc: "5단계 가이드 & 자주 묻는 질문", icon: "📖", highlight: true },
+  ];
+  const stats = [
+    { label: "검토 대기 댓글", value: pending, tone: "bg-pink-500/15 text-pink-300 border-pink-500/30", href: "/comments" },
+    { label: "검토 대기 DM", value: dmPending, tone: "bg-purple-500/15 text-purple-300 border-purple-500/30", href: "/dm/conversations" },
+    { label: "최근 7일 게시", value: weekRes.count ?? 0, tone: "bg-sky-500/15 text-sky-300 border-sky-500/30", href: "/history" },
+    { label: "총 게시한 답글", value: totalRes.count ?? 0, tone: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", href: "/history" },
+    { label: "모니터링 게시물", value: monitoredRes.count ?? 0, tone: "bg-amber-500/15 text-amber-300 border-amber-500/30", href: "/media" },
+  ];
+
   return (
-    <div className="mx-auto max-w-6xl">
-      <StudioHeader
-        title="계정 대시보드"
-        description="새 댓글과 DM에 AI가 답변 초안을 만들어 두면, 확인하고 「답변승인」을 눌러 인스타그램에 게시·발송합니다."
-      >
-        <Link href="/comments" className="ig-btn-primary">
-          💬 댓글 검토하기{pending > 0 ? ` (${pending})` : ""}
-        </Link>
-        <Link href="/dm/conversations" className="ig-btn">
-          💌 DM 검토하기{dmPending > 0 ? ` (${dmPending})` : ""}
-        </Link>
-        <Link href="/guide" className="ig-btn">
-          📖 매뉴얼
-        </Link>
-      </StudioHeader>
-
-      {/* 계정 배너 */}
-      <div className="mb-6 flex items-center gap-4 rounded-xl border border-ig-border bg-gradient-to-r from-[#fdf2f8] via-ig-surface to-ig-surface p-5">
-        <IgLogo size={40} />
-        <div className="min-w-0 flex-1">
-          <p className="text-xs text-ig-muted">연결된 인스타 계정</p>
-          <p className="truncate text-lg font-bold text-ig-text">{account ? `@${account.username}` : "아직 연결된 계정이 없어요"}</p>
-          <p className="text-xs text-ig-muted">
-            {settings?.last_run_at ? `마지막 댓글 확인 ${formatDateTimeKo(settings.last_run_at)}` : "아직 댓글을 확인한 적이 없어요"}
-            {settings?.auto_approve && " · ⚡ 자동 게시 켜짐"}
-          </p>
+    <div className="mx-auto max-w-5xl space-y-5">
+      {/* 머리 카드 */}
+      <div className="flex flex-col gap-4 rounded-2xl border border-ig-border bg-ig-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="flex flex-wrap items-center gap-2 text-2xl font-extrabold text-ig-text">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-lg">💬</span>
+            대시보드
+            <span className="rounded-full border border-pink-500/30 bg-pink-500/10 px-2 py-0.5 text-xs font-bold text-pink-400">{APP_VERSION}</span>
+          </h1>
+          <p className="mt-1 text-sm text-ig-muted">인스타그램 댓글과 DM에 AI 답변 초안을 만들고, 검토·승인 현황을 한눈에 관리합니다.</p>
         </div>
-        {!account && (
-          <Link href="/settings" className="ig-btn-primary shrink-0">
-            계정 연결
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Link href="/comments" className="rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:opacity-90">
+            💬 댓글 검토하기{pending > 0 ? ` (${pending})` : ""}
           </Link>
-        )}
+          <Link href="/dm/conversations" className="rounded-xl border border-ig-border bg-ig-bg px-4 py-2 text-sm font-bold text-ig-text hover:bg-ig-raised">
+            💌 DM 검토하기{dmPending > 0 ? ` (${dmPending})` : ""}
+          </Link>
+        </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <StatCard label="검토 대기 댓글" value={pending} hint="승인해야 게시돼요" accent={pending > 0} />
-        <StatCard label="검토 대기 DM" value={dmPending} hint="승인해야 발송돼요" accent={dmPending > 0} />
-        <StatCard label="최근 7일 게시" value={weekRes.count ?? 0} />
-        <StatCard label="총 게시한 답글" value={totalRes.count ?? 0} />
-        <StatCard label="모니터링 중인 게시물" value={monitoredRes.count ?? 0} />
+      {/* 소개 카드 */}
+      <div className="space-y-1.5 rounded-2xl border border-ig-border bg-ig-surface p-5 text-sm leading-relaxed text-ig-text">
+        <p>💬 인스타 계정 연결 한 번으로 게시물 댓글과 DM 문의를 한 곳에서 응대하는 INSTA 댓글·DM 자동화입니다.</p>
+        <p>✍️ 새 댓글마다 다른 답글 초안(링크 포함)을, 새 DM에는 문의에 맞는 답장 초안을 AI가 만들어 둡니다.</p>
+        <p>✅ 웹 화면이나 텔레그램에서 「답변승인」을 눌러야 게시·발송되고, 자동 게시·발송은 위험 안내에 동의해야 켜집니다.</p>
+        <p className="text-ig-muted">
+          🔗 연결된 인스타 계정: <b className="text-ig-text">{account ? `@${account.username}` : "아직 없음"}</b>
+          {settings?.last_run_at ? ` · 마지막 댓글 확인 ${formatDateTimeKo(settings.last_run_at)}` : " · 아직 댓글을 확인한 적이 없어요"}
+          {settings?.auto_approve && " · ⚡ 자동 게시 켜짐"}
+        </p>
+        <p className="text-ig-muted">🔑 회원 본인의 Meta 앱·인스타그램 계정과 AI 키를 등록해 사용합니다.</p>
       </div>
 
-      <div className="mb-6 grid gap-6 lg:grid-cols-5">
-        <div className="ig-card lg:col-span-3">
-          <h2 className="ig-section-title">🕒 검토를 기다리는 댓글</h2>
-          {(recentRes.data ?? []).length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-4xl">💬</p>
-              <p className="mt-2 text-sm text-ig-muted">지금은 검토할 댓글이 없어요.</p>
+      {/* 단계 카드 */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {stepCards.map((c) => (
+          <Link
+            key={c.href}
+            href={c.href}
+            className={`rounded-xl border p-4 transition-colors ${
+              c.highlight
+                ? "border-pink-500/40 bg-gradient-to-br from-pink-500/15 to-purple-600/10 hover:border-pink-400"
+                : "border-ig-border bg-ig-surface hover:border-slate-500"
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className={`text-sm font-bold ${c.highlight ? "text-pink-300" : "text-ig-text"}`}>{c.title}</span>
+              <span>{c.icon}</span>
             </div>
+            <p className={`mt-1 text-xs ${c.highlight ? "text-pink-300/80" : "text-ig-muted"}`}>{c.desc}</p>
+          </Link>
+        ))}
+      </div>
+
+      {/* 상태 숫자 */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {stats.map((st) => (
+          <Link key={st.label} href={st.href} className="rounded-xl border border-ig-border bg-ig-surface p-4 hover:border-slate-500">
+            <p className="text-2xl font-extrabold text-ig-text">{st.value}</p>
+            <span className={`mt-2 inline-block rounded-full border px-2 py-0.5 text-[11px] font-bold ${st.tone}`}>{st.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-5">
+        <div className="rounded-2xl border border-ig-border bg-ig-surface p-5 lg:col-span-3">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-bold text-ig-text">
+              🕒 검토를 기다리는 댓글 <span className="ml-1 rounded-full bg-ig-raised px-2 py-0.5 text-xs text-ig-muted">{pending}건</span>
+            </h2>
+            <Link href="/comments" className="text-sm font-semibold text-pink-400 hover:underline">
+              전체 보기 →
+            </Link>
+          </div>
+          {(recentRes.data ?? []).length === 0 ? (
+            <p className="py-8 text-center text-sm text-ig-muted">
+              지금은 검토할 댓글이 없어요.
+              <br />
+              DM 대기는 {dmPending}건입니다.
+            </p>
           ) : (
             <ul className="space-y-4">
               {(recentRes.data ?? []).map((c) => (
@@ -188,15 +227,10 @@ export default async function DashboardPage() {
               ))}
             </ul>
           )}
-          {pending > 0 && (
-            <Link href="/comments" className="mt-4 inline-block text-sm font-semibold text-ig-link hover:underline">
-              모두 보기 →
-            </Link>
-          )}
         </div>
 
-        <div className="ig-card lg:col-span-2">
-          <h2 className="ig-section-title">🔌 연결 상태</h2>
+        <div className="rounded-2xl border border-ig-border bg-ig-surface p-5 lg:col-span-2">
+          <h2 className="mb-3 text-base font-bold text-ig-text">🔌 연결 상태</h2>
           <ul className="space-y-2">
             {connections.map((c) => (
               <li key={c.label} className="flex items-center justify-between gap-2 rounded-lg bg-ig-raised px-3 py-2.5 text-sm">
@@ -208,32 +242,10 @@ export default async function DashboardPage() {
               </li>
             ))}
           </ul>
-          <Link href="/settings" className="ig-btn mt-3 w-full">
+          <Link href="/settings" className="mt-3 block rounded-xl border border-ig-border bg-ig-bg px-4 py-2 text-center text-sm font-bold text-ig-text hover:bg-ig-raised">
             🔑 연결 설정
           </Link>
         </div>
-      </div>
-
-      <div className="ig-card">
-        <h2 className="ig-section-title">🧭 이렇게 동작해요</h2>
-        <ol className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {FLOW.map((s, i) => (
-            <li key={s.title} className="relative">
-              <Link
-                href={s.href}
-                className="flex h-full flex-col rounded-xl border border-ig-border bg-ig-raised p-3 transition-colors hover:border-ig-muted"
-              >
-                <span className="text-[11px] font-bold text-ig-text">STEP {i + 1}</span>
-                <span className="mt-1 text-2xl">{s.icon}</span>
-                <span className="mt-1 text-sm font-bold text-ig-text">{s.title}</span>
-                <span className="text-xs text-ig-muted">{s.desc}</span>
-              </Link>
-              {i < FLOW.length - 1 && (
-                <span className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-ig-muted md:block">›</span>
-              )}
-            </li>
-          ))}
-        </ol>
       </div>
     </div>
   );

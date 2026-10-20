@@ -1,11 +1,11 @@
 import { IgLogo } from "@/components/ui/IgLogo";
 
-// 로그인·회원가입 화면 — 프로그램 전 화면과 같은 인스타 라이트 배경(DESIGN.md 원칙 13).
+// 로그인·회원가입 화면 — 프로그램 전 화면과 같은 인스타 다크 스튜디오 배경(DESIGN.md 원칙 13, v1.24).
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="flex min-h-screen flex-col items-center justify-center px-4 py-12"
-      style={{ backgroundColor: "#fafafa", backgroundImage: "radial-gradient(circle at 50% 0%, rgba(214,41,118,0.08), transparent 55%)" }}
+      style={{ backgroundColor: "#0d0f17", backgroundImage: "radial-gradient(circle at 50% 0%, rgba(236,72,153,0.14), transparent 55%)" }}
     >
       <div className="w-full max-w-[440px]">
         <div className="mb-8 flex flex-col items-center text-center">

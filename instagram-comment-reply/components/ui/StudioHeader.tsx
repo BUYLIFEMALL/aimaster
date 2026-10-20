@@ -53,7 +53,7 @@ export function Avatar({ name, size = 36 }: { name: string | null; size?: number
   return (
     <span aria-hidden="true" className="ig-gradient inline-flex shrink-0 rounded-full p-[2px]">
       <span
-        className="inline-flex items-center justify-center rounded-full border-2 border-white font-bold text-white"
+        className="inline-flex items-center justify-center rounded-full border-2 border-ig-surface font-bold text-white"
         style={{ width: size - 4, height: size - 4, fontSize: size * 0.4, backgroundColor: `hsl(${hue} 55% 45%)` }}
       >
         {label}

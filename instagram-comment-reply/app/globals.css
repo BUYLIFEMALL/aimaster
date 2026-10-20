@@ -9,7 +9,7 @@
   .input-sm {
     @apply w-full rounded-lg border border-ig-border bg-ig-surface px-3 py-2 text-sm text-ig-text placeholder:text-ig-muted focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ig-primary;
   }
-  /* 인스타식 알약(Pill) 버튼 — 주 버튼은 인스타 파랑 + 흰 글자 */
+  /* 알약(Pill) 버튼 — 주 버튼은 핑크 강조 + 흰 글자(INSTA 포스팅과 같은 톤, v1.24) */
   .ig-btn-primary {
     @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-ig-primary px-5 text-sm font-bold text-white transition-colors hover:bg-ig-primary-hover disabled:opacity-50;
   }
@@ -28,9 +28,9 @@
 }
 
 :root {
-  --background: #fafafa;
-  --foreground: #262626;
-  color-scheme: light;
+  --background: #0d0f17;
+  --foreground: #f1f5f9;
+  color-scheme: dark;
 }
 
 body {

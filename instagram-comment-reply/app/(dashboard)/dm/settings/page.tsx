@@ -127,7 +127,7 @@ export default async function SettingsPage() {
       </section>
 
       <section className="space-y-4 rounded-2xl border border-ig-border bg-ig-surface p-6">
-        <h2 className="text-lg font-bold text-ig-text">📨 텔레그램 알림 연동 <span className="ml-1 rounded-full bg-pink-500/15 px-2 py-0.5 align-middle text-xs font-bold text-pink-500">💌 DM 전용 봇</span></h2>
+        <h2 className="text-lg font-bold text-ig-text">📨 텔레그램 알림 연동 <span className="ml-1 rounded-full bg-pink-500/15 px-2 py-0.5 align-middle text-xs font-bold text-pink-300">💌 DM 전용 봇</span></h2>
         <p className="rounded-lg border border-pink-500/30 bg-pink-500/10 px-3 py-2 text-xs text-ig-text">
           여기에는 <b>DM 답장 승인용 봇</b>을 넣으세요. 댓글 알림 봇과는 <b>다른 봇</b>이어야 합니다(텔레그램 봇 하나에는 연결 주소를 하나만 걸 수 있어요).
           댓글용 봇은 「API키등록·플랫폼연동」의 텔레그램 칸에 넣습니다.

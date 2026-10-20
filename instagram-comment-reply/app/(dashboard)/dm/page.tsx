@@ -115,7 +115,7 @@ export default async function DashboardPage() {
         </Link>
       </StudioHeader>
 
-      <div className="mb-6 flex items-center gap-4 rounded-xl border border-ig-border bg-gradient-to-r from-[#fdf2f8] via-ig-surface to-ig-surface p-5">
+      <div className="mb-6 flex items-center gap-4 rounded-xl border border-ig-border bg-gradient-to-r from-ig-primary/15 via-ig-surface to-ig-surface p-5">
         <IgLogo size={40} />
         <div className="min-w-0 flex-1">
           <p className="text-xs text-ig-muted">연결된 인스타 계정</p>
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
 
       {/* 4시간 이내 기한 임박 긴급 배너 */}
       {urgent.length > 0 && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ig-danger/30 bg-gradient-to-r from-red-50 to-amber-50 p-4 text-ig-text shadow-xs">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ig-danger/30 bg-gradient-to-r from-ig-danger/15 to-ig-warn/10 p-4 text-ig-text shadow-xs">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ig-danger/15 text-xl text-ig-danger">
               ⚠️
