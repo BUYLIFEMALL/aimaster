@@ -85,7 +85,7 @@ export function Sidebar({
   userEmail,
 }: SidebarProps) {
   const content = (
-    <div className="flex h-full flex-col justify-between overflow-y-auto p-4 bg-[#121620] text-slate-200">
+    <div className="flex h-full flex-col overflow-y-auto p-4 bg-[#121620] text-slate-200">
       <div className="space-y-4">
         {/* 1. 상단 로고 & 프로그램 정보 */}
         <div className="border-b border-[#232b3e] pb-3">
@@ -309,7 +309,7 @@ export function Sidebar({
       </div>
 
       {/* 4. 하단 고정 사용자 계정 & 로그아웃 */}
-      <div className="mt-4 border-t border-[#232b3e] pt-3">
+      <div className="mt-4 shrink-0 border-t border-[#232b3e] pt-3">
         <p
           className="truncate px-2 py-1 text-xs font-medium text-slate-400"
           title={userEmail}
