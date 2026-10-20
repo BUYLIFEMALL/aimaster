@@ -1,6 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- IMAGE_STUDIO_MANUAL_MENU_20261020 -->
+## 2026-10-20 Claude Code(윈도우) — `openai-request-params` 사본 7곳(미배포) + 모델 시험 호출 스크립트 + 모델 성격 표시(SEO 스튜디오 v1.78·쇼핑제휴 v1.69)
+- 사본 적용(동작 같음, 배포 안 함 → `docs/SHARED_MODULES.md` 「미배포 사본」): style-dna-analyzer·cardnews-studio·naver-blog-allinone·naver-blog-agent(테스트 모의 불러오기 보완)·ai-auto-blog·tistory-auto-blog·threads-content-ops. 제외: youtube-channel-consultant(테스트 구조상 import 없는 파일), 해당 없음: shorts-viral-studio. 커밋 `28e8bf33`.
+- `scripts/check-openai-models.mjs`: 프로그램 코드에서 OpenAI 글 모델 23개 수집·보낼 옵션 표시, `--live`(본인 `OPENAI_API_KEY`)로 시험 안 한 모델만 1회 호출 → `scripts/data/openai-model-check.json`. **아직 `--live` 미실행(키 필요).** 커밋 `deec0eb1`.
+- 모델 성격 표시 `openAIModelTier`(⚡/⚖️/💎) — 두 프로그램 배포 Ready, DB(ref `esgxyikcnnvmlhygjkth`) v1.78·v1.69, 크롬 확인(호출 없음).
+- 남은 일: 일반 회원 계정 검수(주인님이 크롬에서 `buylifemall@naver.com` 로그인 필요).
+- https://naver-blog-seo-studio.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — AI 웹툰 v1.16 인스타 예약 게시·게시 기록·장 미리보기 (v1.15 추가개선 제안 ①②)
 - 한 일: `ai-webtoon-studio` v1.15 → **v1.16**. 게시 칸에 「지금 게시 / 예약 게시」·실행 상태 줄·최근 30일 게시 기록(예약 취소)·「올라갈 장 미리보기」(게시와 같은 그리기 함수), 제목 아이콘 겹침 정리, 설정 창 아래 「⏰ 예약 발행」(Vercel 기본 / 내 cron-job.org + 공용 키). 기준: 인플루언서 v1.15 사본. 플랜 `ai-webtoon-studio/docs/PLAN_20261020_INSTA_SCHEDULE.md`, 상세 `ai-webtoon-studio/AGENTS.md` v1.16.
 - 운영 변경(주인님 지시 — 제안 ① 붙여넣기 = 표 추가 승인): DB ref `esgxyikcnnvmlhygjkth` 표 `wts_insta_posts`·`wts_member_scheduler` + version v1.16(크롬 SQL Editor), Vercel `ai-webtoon-studio` 환경변수 `CRON_SECRET` 추가, `vercel.json` 새로 만들어 crons 5분.
@@ -10654,3 +10661,10 @@ A안(새 프로그램 대신 기존 `shorts-viral-studio` 완성·출시)을 마
 - 원인: `codex-statusbar/src/run.mjs`가 상태바 전체를 ANSI 179 단색으로 덮어씀. `src/format.mjs`의 `colorFooter()`로 모델명·effort 베이지, 5h·weekly 분홍, context 살구색, 구분자 회색 적용(Claude 팔레트와 동일). 폭 조절 후 색상을 붙여 공백·커서·입력 색상 보존.
 - 검수: 자동 검사 18개·빌드·본인 계정 한도 읽기·npm 실행기 연결·`codex.cmd --version` 통과. 실제 가시적 Orca 검수 터미널에서 색상과 카운트다운 확인(`codex-statusbar/.local/v105-terminal-screen.png`, git 제외). AI 요청 없음.
 - 이 PC 로컬 실행기 적용 완료. 새 Codex 실행부터 적용, 기존 사용자 세션 유지. Vercel·DB 배포 대상 아님. 상세: [README](../codex-statusbar/README.md), [시작 지침](CODEX_STATUSBAR_STARTUP.md).
+
+<!-- IMAGE_STUDIO_PROMPTS_HANDOFF_20261020 -->
+## 2026-10-20 Codex — AI 이미지 스튜디오 v1.20 상황별 영문 예시 160개
+- 16개 화풍·각 10개 본문을 개별 상세 보강. 코드 기본값/초기 등록 동일 원본, 기존 ID·제목·분류·순서 유지.
+- 문구 검사 4개·기존 권한 검사·빌드 통과. 원문 비교/전체 취소가 가능한 DB 교체와 복구 자료 준비. 유료 이미지 생성 없음.
+- [인수인계·완료 증거·미작업](../ai-image-studio/docs/IMPROVEMENT_HANDOFF_20261020_ENGLISH_PROMPTS.md) · [프로그램](https://ai-image-studio.buylife.xyz/prompts).
+<!-- /IMAGE_STUDIO_PROMPTS_HANDOFF_20261020 -->

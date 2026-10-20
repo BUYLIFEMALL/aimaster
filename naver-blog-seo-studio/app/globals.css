@@ -496,4 +496,5 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 @media (max-width: 680px) { .quality-check-list { grid-template-columns: 1fr; } .quality-panel .card-head { flex-direction: column; gap: 8px; } }
 
 /* v1.77 GPT-5·GPT-6 계열 선택 시 「응답이 조금 느릴 수 있음」 안내 */
+.model-tier { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
 .model-notice { display: block; margin-top: 4px; color: #a16207; font-size: 12px; }

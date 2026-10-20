@@ -43,3 +43,7 @@
 ## 이어서 — v1.77
 - 모델별 요청 규칙을 공용 기준 코드 `openai-request-params`로 만들고(이 프로그램이 기준), 쇼핑제휴 v1.68에 사본 적용. GPT-5·GPT-6 선택 시 응답 지연 안내. 배포 `naver-blog-seo-studio-2l39mi5xn` Ready, DB·확장 v1.77 OK, 크롬 확인.
 - 다음: 바꿀 후보 9곳은 그 프로그램을 고칠 때 사본으로 교체(루트 `docs/SHARED_FEATURE_MAP.md` §8).
+
+## 이어서 — v1.78
+- 모델 성격 표시(`openAIModelTier`), 모델 시험 호출 스크립트 `scripts/check-openai-models.mjs`. 배포 `naver-blog-seo-studio-gi3hpdd52` Ready, DB·확장 v1.78 OK.
+- 남은 일: `--live` 실제 호출(주인님 본인 키 필요), 일반 회원 계정 검수(주인님 로그인 필요).

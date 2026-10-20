@@ -33,6 +33,15 @@ export function openAIModelNotice(model: string) {
   return isOpenAIReasoningModel(model) ? "GPT-5·GPT-6 계열은 생각하는 단계가 있어 응답이 조금 느릴 수 있습니다." : "";
 }
 
+/** 모델 선택 칸 옆에 붙일 성격 표시(OpenAI 글 모델이 아니면 빈 문자열). 이름 규칙 기준이라 새 계열이 나오면 여기만 고친다. */
+export function openAIModelTier(model: string) {
+  const name = model.trim().toLowerCase();
+  if (!/^(gpt-|o\d)/.test(name)) return "";
+  if (/(mini|nano|luna)/.test(name)) return "⚡ 빠름";
+  if (/(sol|astra|pro)/.test(name) || /^(gpt-5|o\d)$/.test(name)) return "💎 고품질";
+  return "⚖️ 균형";
+}
+
 /** OpenAI 오류 응답의 거부 이유(error.message)를 화면 안내에 덧붙일 짧은 문구로 만든다(읽지 못하면 빈 문자열). */
 export async function openAIErrorReason(response: Response) {
   try {

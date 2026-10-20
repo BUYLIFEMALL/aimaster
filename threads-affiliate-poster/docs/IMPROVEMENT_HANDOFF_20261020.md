@@ -17,3 +17,6 @@
 
 ## 이어서 — v1.68
 - `src/lib/ai/openaiRequestParams.ts`는 공용 기준 코드 사본(기준 naver-blog-seo-studio) — 직접 고치지 않음. 글 모델 선택 칸 응답 지연 안내. 배포 `threads-affiliate-poster-reqa8hqmk` Ready, DB v1.68, 크롬 489자 생성 확인.
+
+## 이어서 — v1.69
+- 글 모델 선택 칸 성격 표시. 배포 `threads-affiliate-poster-ewejj63fv` Ready, DB v1.69, 크롬 확인.

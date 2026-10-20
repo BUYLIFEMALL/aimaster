@@ -4,7 +4,7 @@
 import { SEO_PERSONAS } from "@/lib/ai/personas";
 import { GEMINI_IMAGE_MODELS, type GeminiImageModel } from "@/lib/ai/geminiModels";
 import { getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
-import { openAIModelNotice } from "@/lib/ai/openaiRequestParams";
+import { openAIModelNotice, openAIModelTier } from "@/lib/ai/openaiRequestParams";
 import { strategies } from "./shared";
 import type { Studio } from "./useStudio";
 
@@ -76,7 +76,7 @@ export function TitleView({ s }: { s: Studio }) {
         <select id="content-model-selector" value={contentModel} onChange={(event) => setContentModel(event.target.value)} disabled={pending || imagePending}>
           {getContentModels(contentProvider).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
-        <small>선택한 모델로 완성형 블로그(원문)을 생성합니다.</small>{openAIModelNotice(contentModel) && <small className="model-notice">{openAIModelNotice(contentModel)}</small>}
+        <small>선택한 모델로 완성형 블로그(원문)을 생성합니다.</small>{openAIModelTier(contentModel) && <small className="model-tier">모델 성격: {openAIModelTier(contentModel)}</small>}{openAIModelNotice(contentModel) && <small className="model-notice">{openAIModelNotice(contentModel)}</small>}
       </div>
     </div>
   </section>
@@ -102,7 +102,7 @@ export function TitleView({ s }: { s: Studio }) {
           </div>
           <div className="content-generation-models">
             <div className="field"><label htmlFor="legacy-content-provider-selector">본문 생성 AI 모델</label><select id="legacy-content-provider-selector" value={contentProvider} onChange={(event) => { const provider = event.target.value as ContentProvider; setContentProvider(provider); setContentModel(getDefaultContentModel(provider)); }} disabled={pending || imagePending}><option value="openai">OpenAI</option><option value="anthropic">Anthropic Claude</option><option value="gemini">Google Gemini</option></select><small>선택한 플랫폼에 등록한 본인 API 키만 사용합니다.</small></div>
-            <div className="field"><label htmlFor="legacy-content-model-selector">본문 생성 모델</label><select id="legacy-content-model-selector" value={contentModel} onChange={(event) => setContentModel(event.target.value)} disabled={pending || imagePending}>{getContentModels(contentProvider).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><small>선택한 모델로 완성형 블로그(원문)을 생성합니다.</small>{openAIModelNotice(contentModel) && <small className="model-notice">{openAIModelNotice(contentModel)}</small>}</div>
+            <div className="field"><label htmlFor="legacy-content-model-selector">본문 생성 모델</label><select id="legacy-content-model-selector" value={contentModel} onChange={(event) => setContentModel(event.target.value)} disabled={pending || imagePending}>{getContentModels(contentProvider).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><small>선택한 모델로 완성형 블로그(원문)을 생성합니다.</small>{openAIModelTier(contentModel) && <small className="model-tier">모델 성격: {openAIModelTier(contentModel)}</small>}{openAIModelNotice(contentModel) && <small className="model-notice">{openAIModelNotice(contentModel)}</small>}</div>
           </div>
         </section>}</section>
   );

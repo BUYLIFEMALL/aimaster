@@ -126,6 +126,11 @@
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
 
+## 2026-10-20 v1.78 — 모델 성격 표시 (Claude Code 윈도우)
+- 기준 코드에 `openAIModelTier(model)`(⚡ 빠름: mini·nano·luna / 💎 고품질: sol·astra·pro·gpt-5·o1·o3 / ⚖️ 균형: 그 밖, OpenAI 글 모델이 아니면 빈 값) + 테스트. 제목 화면 2곳·설정 화면 모델 선택 칸 아래 「모델 성격: …」(`.model-tier`). 사본 8곳에도 복사(쇼핑제휴 v1.69 배포, 나머지 7곳 미배포 목록 그대로).
+- 같은 날 `scripts/check-openai-models.mjs`(모델 목록 수집·보낼 옵션 표시, `--live`로 시험 안 한 모델만 1회 호출) 추가.
+- 검수: tsc 0 · 테스트 44 통과(1 건너뜀) · build · 배포 `naver-blog-seo-studio-gi3hpdd52` Ready · DB·확장 v1.78 OK · 크롬: mini ⚡·4.1 ⚖️·sol 💎·luna ⚡ + 안내, GPT-4.1로 되돌림(호출 없음).
+
 ## 2026-10-20 v1.77 — 공용 기준 코드 `openai-request-params`의 기준 + GPT-5·GPT-6 응답 지연 안내 (Claude Code 윈도우)
 - 기준 `lib/ai/openaiRequestParams.ts`(+ `tests/openaiRequestParams.test.mjs`, `npm run test:openai-params`): `openAIGenerationParams(model, { temperature, maxTokens })`(추론 모델은 온도 제외·`max_completion_tokens` 최소 4000), `isOpenAIReasoningModel`, `openAIModelNotice`, `openAIErrorReason`. v1.75의 `openaiModels.ts` `openAITemperature`·`openAIErrorReason`은 지우고 OpenAI 호출 6곳이 기준 코드를 씀(동작 같음). **이 파일을 고치면 사본(threads-affiliate-poster)도 함께 — 루트 `docs/SHARED_MODULES.md`·`SHARED_FEATURE_MAP.md` §8.**
 - 화면: 제목 화면 본문 생성 모델(2곳)·설정 「OpenAI 콘텐츠 생성모델」에서 GPT-5·GPT-6 계열이면 `.model-notice` 안내.
