@@ -2,7 +2,7 @@
 
 - 근거: 루트 `CLAUDE.md` 최상단 「회원 연동 정보 공용 저장·재사용 규칙」, 개발 플랜 [`PLAN_20261020_MEMBER_INTEGRATIONS.md`](PLAN_20261020_MEMBER_INTEGRATIONS.md)
 - 대상: ① AIMaster 운영 공용 DB ref `esgxyikcnnvmlhygjkth` (② Lab은 해당 없음)
-- 현재 단계: **⓪~④ 완료(2026-10-20)** — Threads 4개 프로그램(threads v1.22·댓글 v1.13·쇼핑제휴 v1.66·운영 자동화 v2.11)과 Instagram 5개 프로그램(INSTA v1.30·댓글 v1.17·DM v1.16·shots v1.21·카드뉴스 v1.26), YouTube 2개(유튜브 댓글 v1.14·shots v1.22), 카카오(카카오 포스팅 v1.24), 네이버 로그인(네이버 카페 v1.24)이 이 표를 함께 쓴다(⓪~⑤ 완료, 2026-10-20). 남은 것: 인플루언서·웹툰의 Instagram 「공용 먼저」 읽기.
+- 현재 단계: **⓪~④ 완료(2026-10-20)** — Threads 4개 프로그램(threads v1.22·댓글 v1.13·쇼핑제휴 v1.66·운영 자동화 v2.11)과 Instagram 5개 프로그램(INSTA v1.30·댓글 v1.17·DM v1.16·shots v1.21·카드뉴스 v1.26), YouTube 2개(유튜브 댓글 v1.14·shots v1.22), 카카오(카카오 포스팅 v1.24), 네이버 로그인(네이버 카페 v1.24)이 이 표를 함께 쓴다(⓪~⑤ 완료, 2026-10-20). 인플루언서 v1.16도 Instagram 공용 먼저 읽기 적용(2026-10-20, `ai-influencer-studio-k93ebvizw`, 시험 회원 연결 상태 API `connected:true`). 남은 것: 웹툰(다른 세션 v1.17 작업 중 — 끝난 뒤 같은 수정).
 
 ## 1. 저장 위치 한눈에
 | 무엇 | 어디에 | 비고 |

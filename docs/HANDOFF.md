@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 인플루언서 v1.16: Instagram 공용 계정 먼저 읽기 (주인님 남은 일 1번)
+- `ai-influencer-studio/src/lib/instagram/memberAccount.ts`를 카드뉴스 v1.26과 같은 코드로(공용 표 → 없으면 `insta_accounts`), 공용 부품 사본 등록. 테스트 18개·tsc·build, 배포 `ai-influencer-studio-k93ebvizw` Ready, DB v1.16(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor), 크롬(시험 회원) 연결 상태 API `connected:true`·@buylife.co.kr.
+- 남은 일: **웹툰은 다른 세션이 v1.17 작업 중(ACTIVE_WORK)** — 끝나면 같은 파일 한 개만 바꾸면 된다(`ai-webtoon-studio/src/lib/instagram/memberAccount.ts` + `scripts/check-shared-modules.mjs` 사본 등록 + 버전).
+- 링크: https://ai-influencer.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 일반 회원 검수 완료 + 점검 스크립트 HANDOFF 자동 기록 + 모델 성격 설명(SEO 스튜디오 v1.79·쇼핑제휴 v1.70)
 - 일반 회원(`buylifemall@naver.com`, 주인님 로그인) 검수: 두 프로그램 정상, 시험 계정 본인 키 `gpt-5.6-luna` 각 1회 성공. 커밋 `f2523dae`.
 - `scripts/check-openai-models.mjs --live` 결과가 이 문서 맨 위에 자동으로 한 줄 남음(`--no-handoff`로 끔). 401 키 오류는 기록 없이 멈추고, 오류 문구의 키 조각은 가림. **실제 `--live`는 아직 미실행(주인님 본인 키 필요).** 커밋 `12207bc8`.
