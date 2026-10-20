@@ -4,7 +4,7 @@
 
 - 유튜브 보류 F 「엔진 공유」 1번. 렌더 화면 ⑥에서 브라우저 MP4를 내 채널에 바로 올림(공개 범위·예약 공개·카테고리·올린 기록). 서버는 업로드 주소만 발급, 영상은 브라우저→유튜브 직접(4.5MB 한도·토큰 비노출). 유튜브 연결은 공용 연결 계정 재사용(연결 화면 없음).
 - 공용 기준 `youtube-upload-client` 등록(기준 `shots/src/lib/youtube/client.ts` + `createYoutubeResumableSession`, Shots는 미배포·동작 같음). `member-integrations` 사본에 원스톱 추가. 운영 DB `esgxyikcnnvmlhygjkth` 버전·상세 소개만 변경.
-- 커밋 `91d6853d`·`049ba426`, 배포 Ready, 크롬: 시험 계정 ⑥ 「한 번 연결」 안내 확인, 메인 상세 v1.19 문구 확인. **남은 일: 관리자 채널 비공개 실업로드 1회(주인님 확인 후) — 브라우저 직접 PUT 허용 확정.** 다음 2번: Shots에 브라우저 MP4 선택지. 인수인계 `shorts-onestop-studio/docs/PLAN_20261021_YOUTUBE_UPLOAD.md`.
+- 커밋 `91d6853d`·`049ba426`, 배포 Ready, 크롬: 시험 계정 ⑥ 「한 번 연결」 안내 확인, 메인 상세 v1.19 문구 확인. 관리자 계정 비공개 실업로드 완료(2026-10-21): 58.2초·16.8MB MP4 → 「공동구매 아카데미」 비공개, 영상 ID `hdPuSpoz1eY`, 진행률 표시·대본 기록 저장(DB 확인)·유튜브 「비공개 동영상」 확인. 서버가 세션 생성에 `Origin`을 실으면 브라우저 직접 PUT이 허용됨을 확정. 공용 연결 계정이 `youtube.force-ssl`만 있어도 업로드됨 확인. **시험 영상은 주인님이 유튜브 스튜디오에서 삭제.** 다음 2번: Shots에 브라우저 MP4 선택지. 인수인계 `shorts-onestop-studio/docs/PLAN_20261021_YOUTUBE_UPLOAD.md`.
 
 https://shorts-onestop-studio.buylife.xyz/render
 

@@ -95,4 +95,4 @@
 - 유튜브 연결 화면은 두지 않음 — 공용 연결 계정(`member_platform_accounts` platform `youtube`, 사본 `src/lib/memberIntegrations.ts`)만. 권한은 `youtube.upload`·`youtube.force-ssl`·`youtube` 중 하나(구글 `videos.insert` 허용 권한 — 유튜브 댓글 자동화 연결도 그대로 됨), `app_ref` = 회원 `google_client_id`일 때만(갱신 토큰은 발급 앱 전용). 갱신 실패면 공용 표에 「다시 연결 필요」 표시. 상태별 안내: `src/lib/youtube/account.ts` `youtubeStateMessage`.
 - 공용 기준 코드 `youtube-upload-client`: 기준 `shots/src/lib/youtube/client.ts`(+ `createYoutubeResumableSession`), 사본 `src/lib/youtube/client.ts` — 직접 고치지 말고 기준만 고친 뒤 `--sync`.
 - 매뉴얼(/guide) 업로드 안내·FAQ 2개, 메인 상세 소개(🎙️·🔑 단락 끝 문장)·사용 순서 4단계·특징 4번 문구 갱신. SQL `supabase/migrations/0023_v1_19_youtube_upload.sql`(버전만, 구조 변경 없음).
-- 검수: tsc·build·공용 점검 통과, 운영 배포 Ready, 크롬 시험 계정(연결 없음) ⑥ 안내·연결 버튼 확인. **관리자 계정 비공개 실제 업로드 시험은 주인님 확인 대기**(브라우저→유튜브 직접 PUT의 출처 허용이 실제로 되는지 이 시험에서 확정).
+- 검수: tsc·build·공용 점검 통과, 운영 배포 Ready, 크롬 시험 계정(연결 없음) ⑥ 안내·연결 버튼 확인. 관리자 계정 비공개 실업로드 완료(2026-10-21): 58.2초·16.8MB MP4 → 「공동구매 아카데미」 비공개, 영상 ID `hdPuSpoz1eY`, 진행률 표시·대본 기록 저장(DB 확인)·유튜브 「비공개 동영상」 확인. 서버가 세션 생성에 `Origin`을 실으면 브라우저 직접 PUT이 허용됨을 확정. 공용 연결 계정이 `youtube.force-ssl`만 있어도 업로드됨 확인. **시험 영상은 주인님이 유튜브 스튜디오에서 삭제.**

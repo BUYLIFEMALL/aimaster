@@ -61,5 +61,5 @@
 유튜브 관련 10개 → **7개**. 보류 F(Shots ↔ 쇼츠 원스톱 「기능 나눠 쓰기」)와 독립 2개(쇼츠 떡상 분석·대본, 유튜브 댓글자동화)는 그대로. 각 병합 플랜 겸 인수인계: `youtube-viral-studio/docs/PLAN_20261020_MERGE_C_CONSULTANT.md`, `thumbnail-master/docs/PLAN_20261020_MERGE_D_SEO_PRO.md`, `playlist-channel-studio/docs/PLAN_20261020_MERGE_E_PLAYLIST_VIDEO.md`.
 
 ### 2026-10-21 보류 F 「엔진 공유」 진행
-- **1번 완료 — 쇼츠 원스톱 v1.19 「유튜브에 바로 올리기」**: Shots 업로드 코드를 공용 기준 `youtube-upload-client`로 등록해 사본 사용, 공용 연결 계정 재사용, 브라우저 MP4를 브라우저가 유튜브로 직접 올림(서버 요금·용량 한도 없음). 플랜·인수인계: `shorts-onestop-studio/docs/PLAN_20261021_YOUTUBE_UPLOAD.md`. 관리자 채널 비공개 실업로드 시험은 주인님 확인 대기.
+- **1번 완료 — 쇼츠 원스톱 v1.19 「유튜브에 바로 올리기」**: Shots 업로드 코드를 공용 기준 `youtube-upload-client`로 등록해 사본 사용, 공용 연결 계정 재사용, 브라우저 MP4를 브라우저가 유튜브로 직접 올림(서버 요금·용량 한도 없음). 플랜·인수인계: `shorts-onestop-studio/docs/PLAN_20261021_YOUTUBE_UPLOAD.md`. 관리자 채널 비공개 실업로드 성공(영상 `hdPuSpoz1eY`, 2026-10-21).
 - **2번 대기 — Shots에 「브라우저에서 만들기」**: 원스톱 `lib/render/export.ts`(MP4 묶기)를 가져오고 Shots 장면 형식(이미지 스토리+음악)에 맞춘 그리기 함수가 필요.
