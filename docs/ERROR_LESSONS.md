@@ -1,5 +1,34 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-20 — 두 앱을 하나로 합치면 `CRON_SECRET`에서 만든 비밀값(OAuth state·텔레그램 웹훅 비밀값·Meta 웹훅 확인 토큰)이 바뀐다 → 기존 등록은 다시 해야 함 (병합 B instagram-dm-reply → instagram-comment-reply, Claude Code 윈도우)
+- 증상: 합친 뒤 관리자 DM 텔레그램 봇·Meta DM 웹훅이 새 앱에서 인증 실패할 수 있음. 옛 주소로 오는 요청을 rewrite로 넘겨도 **비밀값 검사는 새 앱 `CRON_SECRET` 기준**이라 통과 못 함(Meta DM 웹훅 POST는 회원 앱 시크릿 서명이라 그대로 동작, 확인 토큰 재검증만 실패).
+- 해결: 병합 플랜에 「옛 앱 기준으로 등록된 연결 목록(텔레그램 웹훅·Meta 웹훅·OAuth 콜백) → 새 값으로 재등록」을 단계로 넣고, 회원 화면·매뉴얼에 「콜백 URL과 확인 토큰 **둘 다** 바꾸세요」를 안내(instagram-comment-reply v1.24 `WebhookSetupInfo`·`/guide`).
+- 다음부터 확인: 병합 전 두 앱의 비밀값 파생 함수(`computeWebhookSecret`·`computeInstagramVerifyToken`·OAuth state)를 찾아, 어떤 외부 등록이 영향을 받는지 표로 만든다. 병합 후 옛 앱은 화면 redirect + API rewrite만 남기고 Vercel 프로젝트·도메인은 지우지 않는다(카드뉴스 v1.32·DM v1.17 `next.config`).
+
+## 2026-10-20 — 공용 부품을 DB 형식 정의(`Database` 타입)를 쓰는 프로그램에 복사하면 그 표가 정의에 없어서 `never` 타입 오류 (program-notice-banner 사본 5곳, Claude Code 윈도우)
+- 증상: 웹툰(형식 정의 없음)에서는 통과한 `ProgramNoticeBanner`가 다른 5개 프로그램에서 `Property 'id' does not exist on type 'never'`.
+- 원인: 그 프로그램들의 `createClient<Database>()`에 `programs`·`notices` 표가 없음.
+- 해결: 사본이 아니라 **기준 코드**에서 `createClient() as unknown as SupabaseClient`(형식 정의 없는 조회)로 바꾸고 `--sync`. 실행 동작은 같음.
+- 다음부터 확인: 공용 부품을 새 프로그램에 넣을 때 그 프로그램 폴더에서 `npx tsc --noEmit`을 먼저 돌린다. 다른 프로그램의 표를 읽는 공용 부품은 처음부터 형식 정의 없이 조회한다.
+
+## 2026-10-20 — 밝은 테마를 어두운 테마로 바꿀 때는 색상 토큰만 바꾸면 대부분 끝나지만, 직접 적은 색이 남아 글자가 안 보인다 (instagram-comment-reply v1.24, Claude Code 윈도우)
+- 방법: 화면 코드가 `ig-*` 같은 토큰만 쓰면 `tailwind.config.ts` 값만 바꿔 전 화면이 바뀜(+ `globals.css` `color-scheme: dark`, 로그인 화면 배경).
+- 함정: `text-sky-600`·`from-red-50`·`#fafafa`·`border-white`처럼 직접 적은 색, 공지 띠 `tone="light"`. 찾기: `grep -rnoE "(bg|text|border|from|via|to)-(white|black|gray|slate|sky|blue|pink|red|amber)-[0-9]+|#[0-9a-fA-F]{6}" app components`.
+- 다음부터 확인: 테마를 바꾼 뒤 대시보드·검토 화면·설정·매뉴얼·로그인을 크롬으로 열어 글자 대비를 본다. 새 화면은 토큰이나 300~400 계열 밝은 강조색만 쓴다.
+
+## 2026-10-20 — 「다음 배포 때 함께 넣기」로 정한 공용 변경을 같은 날 다른 작업으로 배포하면서 빠뜨림 (program-notice-banner, Claude Code 윈도우)
+- 증상: 공지 띠를 「다음 배포 때」로 정해 두고, 같은 날 INSTA 댓글·DM·threads 댓글·유튜브·카카오·INSTA 포스팅을 배포하면서 넣지 않아 다시 배포함(빌드 비용 2배).
+- 다음부터 확인: **어떤 프로그램이든 배포 직전에 `docs/SHARED_MODULES.md`의 「미배포 사본」 목록과 그 프로그램 `AGENTS.md`의 「(미배포)」 표시를 확인**하고, 해당하면 같은 배포에 넣는다(텔레그램 수정 5개 프로그램도 같은 방식으로 표시해 둠).
+
+## 2026-10-20 — 메인 사이트 redirect를 추가하고 배포가 Ready인데 처음 확인 때 404 (메인 `/programs/instagram-dm-reply`, Claude Code 윈도우)
+- 원인: 이전에 받아 둔 응답(캐시)이 나옴. 몇 분 뒤·주소에 `?t=임의값`을 붙이자 307로 정상.
+- 다음부터 확인: redirect 검수는 `curl -s -o /dev/null -w "%{http_code} %{redirect_url}" "<주소>?t=$RANDOM"`처럼 캐시를 피해 확인하고, `vercel inspect`의 Aliases에 운영 도메인이 붙었는지 본다.
+
+## 2026-10-20 — (윈도우 CLI 작업 팁) Git Bash heredoc 안의 따옴표·윈도우 줄바꿈(CRLF) 때문에 편집 스크립트가 통째로 실행되지 않거나 일치 실패 (Claude Code 윈도우)
+- 증상: `python - <<'PYEOF'` 안에 `'`가 섞인 긴 문자열 → `unexpected EOF`(아무것도 실행 안 됨). CRLF 파일에 `
+` 기준 문자열 바꾸기 → 0건 일치.
+- 해결: 긴 편집 스크립트는 scratchpad에 파일로 저장해 실행하고, 읽을 때 CRLF를 LF로 바꿨다가 저장할 때 원래대로 되돌린다. 실행 전·후 `git diff --stat`으로 실제 바뀐 파일을 확인한다(일부만 적용된 상태로 다시 돌리면 중복 삽입될 수 있음).
+
 ## 2026-10-20 — 텔레그램 웹훅에 `allowed_updates:["callback_query"]`를 걸었던 봇은 웹훅을 지운 뒤에도 `getUpdates`가 일반 메시지를 버린다 → 연동 확인이 「메시지를 찾지 못했어요」만 반복 (instagram-comment-reply v1.21, Claude Code 윈도우)
 - 증상: 봇 토큰이 맞고(getMe로 봇 이름 확인) 봇 1:1 대화창에 메시지를 보냈는데도 연동 확인이 계속 실패. Vercel 로그상 다른 서비스가 메시지를 가져간 흔적도 없음.
 - 원인: `setWebhook`의 `allowed_updates`는 텔레그램이 봇 설정으로 **기억**한다. `deleteWebhook` 뒤 `getUpdates`를 `allowed_updates` 없이 부르면 이전 값(버튼 알림만)이 그대로 적용돼 `message`가 만들어지는 순간 버려진다. 연동 → 해제 → 재연동, 또는 웹훅을 걸었던 봇을 다른 프로그램에서 재사용할 때 발생.

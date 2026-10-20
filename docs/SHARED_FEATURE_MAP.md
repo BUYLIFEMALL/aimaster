@@ -96,6 +96,32 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | **화면 안내 붙일 곳(주인님 결정 2026-10-20: 한꺼번에 배포하지 않고 각 프로그램을 다른 이유로 고칠 때 함께)** — 모델 선택 칸 아래에 「모델 성격: {openAIModelBadge(model)} ⓘ」(`<details>`+`title`=`openAIModelTierHint`) + `openAIModelNotice` 한 줄. 기준 구현: naver-blog-seo-studio `components/studio/TitleView.tsx`, threads-affiliate-poster `src/components/posts/ProductPostForm.tsx` | style-dna-analyzer `src/app/(dashboard)/analyze/page.tsx · test/page.tsx` · cardnews-studio `src/components/studio/ui.tsx · src/app/(dashboard)/background/page.tsx` · naver-blog-allinone `src/components/blog/ModelSettingsCard.tsx` · naver-blog-agent `src/app/(dashboard)/page.tsx` · ai-auto-blog `app/write/ai-form/page.tsx` · tistory-auto-blog `app/write/ai-form/page.tsx` · threads-content-ops `app/threads-content-ops/AttentionComposer.tsx` | ⚪ 대기 |
 | 제외 | youtube-channel-consultant `src/lib/ai/llm.ts` — 테스트가 이 파일을 Node로 바로 불러오도록 import 없이 만든 구조라, 사본을 넣으려면 tsconfig(`.ts` 확장자 import)까지 바꿔야 함. 기존 `gpt-4` 방어 코드로 정상 동작 · shorts-viral-studio — OpenAI에 온도를 보내지 않아 해당 없음 | ⚪ 해당 없음 |
 
+## 9. 프로그램 공지 띠 — 공용 모듈 `program-notice-banner` (2026-10-20 등록)
+
+메인 사이트 관리자가 공지의 「관련 프로그램」에 고른 프로그램 작업 화면 맨 위에 최근 공지 1건(30일 이내)을 띄운다. 호출 `<ProgramNoticeBanner programSlug="…" tone="dark|light" />`(화면 밝기에 맞게). 사본 추가는 `scripts/check-shared-modules.mjs`의 `copies`에 경로 → `--sync` → 레이아웃 `<main>` 맨 위. 필요: `lucide-react`, `@/lib/supabase/client`의 `createClient`. DB 형식 정의(`Database`)에 `programs`·`notices`가 없는 프로그램에서도 타입 검사가 통과하도록 기준 코드는 형식 정의 없이 조회한다(2026-10-20).
+
+| 프로그램 | 파일 | 상태 | 비고 |
+|---|---|---|---|
+| ai-webtoon-studio | `src/components/ProgramNoticeBanner.tsx` | 🟢 기준 | v1.24 첫 적용(형식 보완은 다음 배포 때) |
+| instagram-comment-reply | `components/ProgramNoticeBanner.tsx` | 🔵 사본 | v1.24, dark |
+| threads-comment-reply | `components/ProgramNoticeBanner.tsx` | 🔵 사본 | v1.15, dark |
+| youtube-auto-reply | `components/ProgramNoticeBanner.tsx` | 🔵 사본 | v1.20, dark |
+| kakao_auto_poster | `src/components/ProgramNoticeBanner.tsx` | 🔵 사본 | v1.29, light |
+| insta_auto_poster | `src/components/ProgramNoticeBanner.tsx` | 🔵 사본 | v1.42, dark |
+| 나머지 웹 서브프로그램 | — | ⚪ 다음 배포 때 | `docs/SHARED_MODULES.md` 미배포 목록 |
+
+## 10. 텔레그램 승인 봇 연동(`lib/telegram/client.ts`) — 공용화 후보 (2026-10-20 등록)
+
+같은 구조의 파일이 9개 프로그램에 각자 복사돼 있다(공용 점검 스크립트 미등록). 연동 확인 `findChatIdFromUpdates`는 `deleteWebhook` → `getUpdates` 순서이며, **`getUpdates`에 `allowed_updates=["message"]`를 꼭 지정**해야 한다(웹훅에 `["callback_query"]`를 걸었던 봇은 텔레그램이 그 값을 기억해 일반 메시지를 버림 — `docs/ERROR_LESSONS.md` 2026-10-20). 봇 하나에는 웹훅 하나만 걸리므로 한 프로그램에 승인 기능이 둘이면 봇도 둘(예: INSTA 댓글·DM의 댓글 봇·DM 봇, `user_telegram_links.program_slug`로 구분).
+
+| 프로그램 | 웹훅 사용 | allowed_updates 수정 |
+|---|---|---|
+| instagram-comment-reply(댓글 `lib/telegram/`·DM `lib/dmApp/telegram/`) | 예(버튼) | ✅ v1.21, 실패 진단 v1.22 |
+| threads-comment-reply · youtube-auto-reply · kakao_auto_poster | 예(버튼) | ✅ v1.14 · v1.19 · v1.28 배포 |
+| booking-reminder · crm-google-form · longtail-keyword-expander · real_estate_sales · trending-product-finder | 아니오(알림만) | 🟡 코드 반영, 다음 배포 때 |
+
+공용화하면 좋은 점: 위 수정·실패 진단(`telegramDiagnosis`, instagram-comment-reply v1.22)을 한 번에 전파. 기준 후보: instagram-comment-reply `lib/telegram/client.ts` + `lib/actions/telegram.ts`의 진단 함수.
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |
@@ -111,6 +137,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 
 | 날짜 | 내용 | 작업 |
 |---|---|---|
+| 2026-10-20 | 「9. 프로그램 공지 띠」(`program-notice-banner`, 사본 5곳)·「10. 텔레그램 승인 봇 연동」(공용화 후보, allowed_updates 함정) 등록 | Claude Code(윈도우) |
 | 2026-10-20 | `openai-request-params` 사본 7곳 추가(미배포), youtube-channel-consultant 제외·shorts-viral-studio 해당 없음 | Claude Code(윈도우) |
 | 2026-10-20 | 「8. OpenAI 모델별 요청 규칙」 `openai-request-params` 등록 — 기준 naver-blog-seo-studio v1.77, 사본 threads-affiliate-poster v1.68, 바꿀 후보 9곳 | Claude Code(윈도우) |
 | 2026-10-19 | 「7. 브라우저 안 얼굴 인식」 공용화 후보 등록(기준 후보 portrait-photo v1.27, 사본 없음) | Claude Code(윈도우) |

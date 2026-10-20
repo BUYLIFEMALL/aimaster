@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 세션 마감: 개발 문서 전체 갱신·인수인계
+- [세션 인수인계](HANDOFF_CLAUDE_SESSION_2026-10-20_INSTA.md) 신설(공지 연결·좌측 메뉴·병합 A·B·텔레그램·공지 띠·v1.24 전부, 주의사항 7개, 남은 일). INSTA 댓글·DM 폴더 `README.md`·`AGENTS.md` 맨 앞 7대 항목, `docs/IMPROVEMENT_HANDOFF_20261020.md`·`IMPROVEMENT_BACKLOG.md`(신설)·`IMPROVEMENTS.md`.
+- 공통 문서: 역량 지도(목록 표 버전 5곳·카드 5개), 공용 기능 지도 9절(공지 띠)·10절(텔레그램 연동), `ERROR_LESSONS.md` 6건, 아이디어 표 5건.
+
 ## 2026-10-20 Claude Code(윈도우) — INSTA 댓글·DM v1.24: DM 설정 값 정리·매뉴얼 통합·INSTA 포스팅 템플릿 + 공지 띠 5개 프로그램
 - 공지 띠(`program-notice-banner`) 사본 5개 추가·배포: INSTA 댓글·DM v1.24, threads 댓글 v1.15, 유튜브 자동답글 v1.20, 카카오 v1.29, INSTA 포스팅 v1.42(기준 코드에 형식 정의 없는 조회로 수정, 웹툰은 다음 배포 때).
 - INSTA 댓글·DM v1.24: `/dm/settings` 병합 후 값 정리(키·연결은 API키등록 한 곳, 웹훅 확인 토큰 변경 안내), `/guide` 댓글·DM 통합 초보자 매뉴얼(`/dm/guide` 이동), INSTA 포스팅과 같은 「플로우 위저드 스타일 (인스타 바이럴 변형)」 다크 템플릿(색상 토큰·좌측 메뉴·대시보드). 검수: 크롬 데스크톱·390px. 상세 `instagram-comment-reply/AGENTS.md`·`docs/DESIGN_HANDOFF.md`.

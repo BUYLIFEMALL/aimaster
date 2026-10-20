@@ -1,9 +1,25 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **인스타그램 댓글자동화(instagram-comment-reply)** 프로젝트에서 AI Agent(Claude Code
+이 문서는 **INSTA 댓글·DM 자동화(instagram-comment-reply, 2026-10-20 DM답변 자동화 병합)** 프로젝트에서 AI Agent(Claude Code
 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 
 ---
+
+## 📌 7대 핵심 항목 (2026-10-20 병합 B 완료 · v1.24 기준 — 다른 CLI는 여기부터 읽는다)
+
+> 2026-10-20 「INSTA DM답변 자동화」(`instagram-dm-reply`)가 이 프로그램 안으로 병합되어 **「INSTA 댓글·DM 자동화」**가 되었다. 아래 이전 기록(Phase 표·버전별 항목)은 댓글 전용 시절 내용이 섞여 있으니, 현재 상태는 이 절과 맨 아래 v1.18~v1.24 항목을 기준으로 한다. 세션 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md)
+
+1. **사용 목적·대상** — 인스타 비즈니스·크리에이터 계정 운영자(쇼핑몰·셀러·브랜드)가 게시물 **댓글**과 **DM 문의**에 빠르게 응대하도록, AI가 답변 초안을 만들고 사람이 「답변승인」으로 게시·발송한다. 인스타 연결 한 번(「DM 답변도 사용」)으로 둘 다 쓴다.
+2. **기술 스택·스킬** — Next.js 14 App Router · TypeScript · Tailwind v3(`ig-*` 색상 토큰) · Supabase 공용 DB(`@supabase/ssr`, RLS) · Instagram API with Instagram Login(OAuth, 회원 본인 Meta 앱) · Meta 웹훅(DM 실시간 수신, 서명 검증) · OpenAI/Anthropic/Gemini(회원 본인 키) · 텔레그램 Bot API(승인 버튼 웹훅) · 공용 기준 코드(`memberIntegrations`·`program-notice-banner`, `scripts/check-shared-modules.mjs`).
+3. **핵심 기능·구조·장단점**
+   - 댓글: `/media`(동기화·대상 선택) → 예약 모니터링 또는 수동 확인 → `/comments`(초안 검토·승인 게시) → `/history`. 표 `ig_accounts`·`ig_media`·`ig_comments`·`ig_settings`. 게시물별 최근 20개.
+   - DM: Meta 웹훅 `/api/instagram/dm-webhook/[userId]`(echo 필터·서명 검증) → `lib/dm/process` 초안 → `/dm/conversations` 검토·발송(첫 답장 전 자동 응답 고지, 24시간 창). 표 `dm_accounts`·`dm_settings`·`dm_conversations`·`dm_messages`. DM 전용 코드 `lib/dmApp/`·`components/dm/`.
+   - 연결: 콜백 `/api/instagram/callback`이 메시지 권한이 있으면 `dm_accounts`·공용 `member_platform_accounts`에도 저장. 텔레그램은 댓글 봇(`program_slug=instagram-comment-reply`, `/api/telegram/webhook`)·DM 봇(`program_slug=instagram-dm-reply`, `/api/dm/telegram/webhook`) **봇 2개**.
+   - 장점: 연결 한 번에 댓글·DM, 승인 후 게시(자동은 동의 후), 텔레그램 승인, 무리 없는 처리량. 단점: 전문 계정 전용, DM 24시간 제한, Meta 앱에 메시지 권한·웹훅을 회원이 직접 등록, 텔레그램 봇 2개 필요, 실제 고객 DM 왕복 시험은 아직 안 함.
+4. **현재 버전·변경 히스토리** — **v1.24**. v1.18 DM 화면·기능 이식 / v1.19~v1.22 텔레그램 연동(봇 이름 표시·봇 구분 배지·`allowed_updates` 수정·실패 진단) / v1.23 대시보드·기록 통합·이름 통일 / v1.24 DM 설정 값 정리·통합 매뉴얼·플로우 위저드 스타일(다크)·공지 띠. 옛 `instagram-dm-reply` v1.17은 화면 이동·API 전달만.
+5. **남은 작업·백로그** — [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md): 실제 DM 왕복 시험, 다크 전환 후 댓글·DM 검토·로그인 화면 대비 점검, 옛 instagram-dm-reply 폴더 코드 정리 시점 결정, 텔레그램 연동 공용화.
+6. **연계·병합 아이디어** — INSTA 포스팅(같은 템플릿·같은 Meta 앱)에서 게시한 글의 댓글을 바로 모니터링 대상으로 / threads·유튜브 댓글자동화와 「통합 댓글 받은편지함」 / 텔레그램 승인 봇 연동 공용 모듈(`docs/SHARED_FEATURE_MAP.md` 10절).
+7. **UI/UX 개선안** — 디자인 「플로우 위저드 스타일 (인스타 바이럴 변형)」(`docs/DESIGN_HANDOFF.md`). 제안: 댓글 검토 카드에 게시물 썸네일, 대시보드에 DM 대기 목록도 함께, 휴대폰에서 검토 카드 한 손 조작(버튼 하단 고정).
 
 ## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
 
