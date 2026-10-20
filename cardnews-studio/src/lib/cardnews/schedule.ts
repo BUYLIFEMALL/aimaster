@@ -1,4 +1,4 @@
-// 인스타 예약 게시(v1.19) 시각 검사 — 순수 함수(자동 검사용). 예약은 10분 뒤 ~ 60일 안.
+// 인스타 예약 게시 시각 검사 — 순수 함수(자동 검사용, 카드뉴스 v1.19 시작). 공용 기준 코드 「insta-schedule-time」(2026-10-20, 기준 = cardnews-studio/src/lib/cardnews/schedule.ts, 사본 = 인플루언서·웹툰·4컷 src/lib/instagram/schedule.ts). 예약은 10분 뒤 ~ 60일 안.
 export const MIN_LEAD_MS = 10 * 60 * 1000;
 export const MAX_AHEAD_MS = 60 * 24 * 60 * 60 * 1000;
 export const MAX_PENDING_PER_USER = 20;

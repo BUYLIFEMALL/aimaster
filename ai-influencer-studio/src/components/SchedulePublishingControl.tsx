@@ -44,7 +44,7 @@ export function SchedulePublishingControl({ refreshKey = 0, onOpenSettings }: { 
     if (!res.ok) { setMessage(data.error || "처리하지 못했습니다."); return; }
     const next: StateKey = pause ? "paused" : info.mode === "vercel" ? (info.platformAvailable ? "platform" : "platform-off") : data.started ? "running" : "idle";
     setInfo({ ...info, state: next });
-    setMessage(pause ? "예약 게시를 일시정지했습니다." : "예약 게시를 재개했습니다.");
+    setMessage(pause ? (data.notice || "예약 게시를 일시정지했습니다.") : "예약 게시를 재개했습니다.");
   }
 
   return (

@@ -226,3 +226,9 @@ ai-influencer-studio/
 
 ## 2026-10-20 v1.16 — 회원 연동 정보 공용 저장: Instagram 공용 계정 먼저 읽기 (Claude Code 윈도우)
 - `src/lib/instagram/memberAccount.ts` `getMemberInstagramAccount`가 공용 표 `member_platform_accounts`(platform `instagram`)를 먼저 보고, 로그인 방식에 맞는 게시 권한이 있고 재연결 필요가 아니면 그것을, 아니면 지금처럼 INSTA의 `insta_accounts`를 쓴다(카드뉴스 v1.26과 같은 코드). 연결 화면이 없어 쓰기·해제 코드는 없음. 공용 부품 사본 `src/lib/memberIntegrations.ts`(`scripts/check-shared-modules.mjs` 등록). 테스트 18개 통과. 루트 `docs/MEMBER_INTEGRATIONS.md` §6.
+
+## 2026-10-20 v1.17 — 인스타 예약 서버 코드 공용 사본 전환 · 일시정지 안전 처리 보강 · 예약 취소 중복 누름 방지 (Claude Code 윈도우)
+- 공용 기준 코드 등록(2026-10-20): `insta-schedule-time`(schedule.ts)·`insta-member-scheduler`(memberScheduler.ts)·`insta-cronjob-org`(cronJobOrg.ts) — 기준 = `cardnews-studio`, 사본 = 인플루언서·웹툰·4컷. 프로그램마다 다른 값(사이트 주소·표 이름·토큰 앞글자·환경변수 이름·실행 주소·작업 이름)은 각 폴더 `src/lib/instagram/schedulerConfig.ts`(공용 아님). 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`.
+- **일시정지 안전 처리 누락 보강**: v1.15 예약은 카드뉴스 v1.24를 그 수정 전에 복사해 「운영 12개 전부 적용」(`docs/SCHEDULER_POLICY.md` 처리 결과 2)에서 빠져 있었다 → 공용 사본으로 `pauseMemberScheduler`(일시정지 먼저 저장, cron-job.org 끄기 실패 시 `jobStopped: false`)·`skipPausedMember` 반영, 회원 실행 주소 `/api/instagram/dispatch-member`가 일시정지·비cronjob 회원을 건너뜀, 일시정지 응답에 끄기 실패 안내(`notice`), 상태 줄이 그 안내 표시.
+- 게시 칸 기록 「예약 취소」 중복 누름 방지(누르는 즉시 막고 성공하면 바로 「취소」).
+- 검수(2026-10-20): 4개 모두 타입 검사·시험·빌드 통과, 순차 배포 Ready(카드뉴스 `cardnews-studio-73dn1lu4s`·인플루언서 `ai-influencer-studio-ohxzut5xz`·웹툰 `ai-webtoon-studio-85kgtktv9`·4컷 `four-cut-comics-74d8ph7yq`), DB 버전 4개 갱신(크롬 SQL Editor). 회원 실행 주소 가짜 토큰·설정 주소 비로그인 모두 401. 관리자 계정으로 인플루언서·웹툰·4컷 일시정지 경로 실행: 실행 중 → 일시정지(200) → 「일시정지됨」 → 재개(200) → 원래대로(Vercel 방식이라 cron-job.org 호출 없음). Vercel 5분 예약 호출 10:40 카드뉴스·인플루언서·웹툰·4컷 모두 200.

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchDuePosts } from "@/lib/instagram/posting";
-import { memberIdForToken, stopMemberSchedulerIfIdle } from "@/lib/instagram/memberScheduler";
+import { memberIdForToken, skipPausedMember, stopMemberSchedulerIfIdle } from "@/lib/instagram/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,6 +17,8 @@ async function handle(request: NextRequest) {
   const service = createAdminClient() as unknown as SupabaseClient;
   const userId = token ? await memberIdForToken(service, token) : null;
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // 2026-10-20 일시정지 안전 처리(카드뉴스·운영 12개와 같음): 일시정지했거나 「내 cron-job.org」 방식이 아닌 회원은 실행하지 않고 작업 끄기를 다시 시도
+  if (await skipPausedMember(service, userId)) return NextResponse.json({ accepted: true, paused: true });
 
   after(async () => {
     try {

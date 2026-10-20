@@ -31,6 +31,24 @@ const MODULES = [
     copies: ["cardnews-studio/src/lib/instagram/publish.ts", "ai-influencer-studio/src/lib/instagram/publish.ts", "ai-webtoon-studio/src/lib/instagram/publish.ts", "four-cut-comics/src/lib/instagram/publish.ts"],
   },
   {
+    // 인스타 예약 게시 시각 검사(10분 뒤~60일·24시간 지연·일시 오류 판정·중복 확인·한국 시간) — 2026-10-20 등록
+    id: "insta-schedule-time",
+    source: "cardnews-studio/src/lib/cardnews/schedule.ts",
+    copies: ["ai-influencer-studio/src/lib/instagram/schedule.ts", "ai-webtoon-studio/src/lib/instagram/schedule.ts", "four-cut-comics/src/lib/instagram/schedule.ts"],
+  },
+  {
+    // 인스타 예약 회원 실행 방식(Vercel / 내 cron-job.org·일시정지 안전 처리·실패 시 되돌리기) — 2026-10-20 등록. 프로그램 값은 각 폴더 schedulerConfig.ts
+    id: "insta-member-scheduler",
+    source: "cardnews-studio/src/lib/instagram/memberScheduler.ts",
+    copies: ["ai-influencer-studio/src/lib/instagram/memberScheduler.ts", "ai-webtoon-studio/src/lib/instagram/memberScheduler.ts", "four-cut-comics/src/lib/instagram/memberScheduler.ts"],
+  },
+  {
+    // 인스타 예약 회원 cron-job.org 작업 만들기·켜기/끄기·지우기 — 2026-10-20 등록. 실행 주소·작업 이름은 각 폴더 schedulerConfig.ts
+    id: "insta-cronjob-org",
+    source: "cardnews-studio/src/lib/instagram/cronJobOrg.ts",
+    copies: ["ai-influencer-studio/src/lib/instagram/cronJobOrg.ts", "ai-webtoon-studio/src/lib/instagram/cronJobOrg.ts", "four-cut-comics/src/lib/instagram/cronJobOrg.ts"],
+  },
+  {
     // 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(리디렉트마다 재검사, DNS 바꿔치기 방지) — 2026-10-19 기준 등록
     id: "safe-fetch",
     source: "ghost-scraper/src/lib/safeFetch.ts",

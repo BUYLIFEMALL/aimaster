@@ -1,11 +1,11 @@
-// cron-job.org REST API(https://docs.cron-job.org/rest-api.html) — 회원 본인 cron-job.org 계정으로 예약 발행 실행(2026-10-20, v1.24).
+// cron-job.org REST API(https://docs.cron-job.org/rest-api.html) — 회원 본인 cron-job.org 계정으로 예약 발행 실행(카드뉴스 v1.24 시작).
 // 지침: 루트 docs/SCHEDULER_POLICY.md. 회원이 본인 API 키를 넣으면 1분마다 "회원 전용 실행 주소"를 부르는 작업을 그 계정에 만든다.
-// 머리글에는 회원 전용 토큰을 넣는다(사이트 비밀값 CRON_SECRET은 절대 넣지 않는다). 기준 구현: threads/src/lib/posts/cronJobOrg.ts(이 파일은 그 사본에 주소·작업 이름만 바꿈).
+// 머리글에는 회원 전용 토큰을 넣는다(사이트 비밀값 CRON_SECRET은 절대 넣지 않는다). 공용 기준 코드 「insta-cronjob-org」(2026-10-20, 기준 = cardnews-studio). 실행 주소·작업 이름은 `schedulerConfig.ts`. 원래 기준: threads/src/lib/posts/cronJobOrg.ts
 // 하루 호출 한도가 100회(기본)라 화면을 열 때 자동으로 부르지 않고, 버튼을 누를 때만 부른다.
 
 const API_BASE = "https://api.cron-job.org";
-export const MEMBER_DISPATCH_PATH = "/api/cardnews/instagram/dispatch-member";
-export const CRON_JOB_TITLE = "AIMaster INSTA 카드뉴스 예약 게시(1분)";
+import { CRON_JOB_TITLE, MEMBER_DISPATCH_PATH } from "./schedulerConfig";
+export { MEMBER_DISPATCH_PATH };
 
 export type CronJobSummary = {
   jobId: number;

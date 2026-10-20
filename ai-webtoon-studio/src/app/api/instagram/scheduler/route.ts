@@ -40,8 +40,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true });
     }
     if (body.action === "pause") {
-      await pauseMemberScheduler(service, userId);
-      return NextResponse.json({ ok: true });
+      // 2026-10-20 일시정지 안전 처리: 일시정지는 먼저 저장되고, cron-job.org 끄기만 실패하면 안내(다음 호출 때 다시 시도)
+      const { jobStopped } = await pauseMemberScheduler(service, userId);
+      return NextResponse.json(jobStopped ? { ok: true } : { ok: true, notice: "일시정지했습니다. cron-job.org 작업 끄기는 실패해 다음 호출 때 다시 시도합니다(그동안에도 실행하지 않습니다)." });
     }
     if (body.action === "resume") {
       const { started } = await resumeMemberScheduler(service, userId);

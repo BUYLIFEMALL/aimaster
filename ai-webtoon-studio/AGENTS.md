@@ -58,7 +58,7 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.17` (2026-10-20)
+- **현재 버전**: `v1.19` (2026-10-20 — v1.18 회원 연동 정보 공용 저장, v1.19 예약 서버 코드 공용 사본·일시정지 안전 처리, 아래 기록 참고)
 - **v1.17 (2026-10-20, Claude Code 윈도우) — 📚 회차 묶음 예약 · ⏰ 예약 대기 요약 (v1.16 추가개선 제안 진행)**:
   - **회차 묶음 예약**(`src/components/EpisodeBatchSchedule.tsx`): 게시 칸 안 「📚 여러 회차 한 번에 예약 (연재용)」 — 「프로젝트 저장(JSON)」 파일 여러 개를 골라 파일 이름 숫자 순서(1화 < 2화 < 10화)로, 첫 회차 시각부터 매일·3일·매주·2주 간격으로 한 번에 예약. 회차마다 표지+컷 앞 10장 = 게시물 1개, 캡션은 회차 제목·줄거리·해시태그. 그림이 없는 회차는 「건너뜀」 표시. 보내기 전에 화면에서 대기 한도(20건)·첫/마지막 회차 시각(10분 뒤~60일)을 검사해 경고하고 버튼을 막음(서버 검사는 그대로). 회차별 성공/실패 결과 표시.
   - **그리기·올리기 분리**(`src/lib/instagram/slideRender.ts`): v1.15의 `renderSlide`를 그대로 옮기고 `uploadSlides`(그리기 → 서명 업로드 주소 → 업로드)를 만들어 게시 칸·회차 묶음이 같은 코드 사용.
@@ -143,3 +143,9 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 ## 2026-10-20 v1.18 — 회원 연동 정보 공용 저장: Instagram 공용 계정 먼저 읽기 (Claude Code 윈도우)
 - `src/lib/instagram/memberAccount.ts` `getMemberInstagramAccount`가 공용 표 `member_platform_accounts`(platform `instagram`)를 먼저 보고, 로그인 방식에 맞는 게시 권한이 있고 재연결 필요가 아니면 그것을, 아니면 지금처럼 INSTA의 `insta_accounts`를 쓴다(카드뉴스 v1.26·인플루언서 v1.16과 같은 코드). 연결 화면이 없어 쓰기·해제 코드는 없음. 공용 부품 사본 `src/lib/memberIntegrations.ts`(`scripts/check-shared-modules.mjs` 등록). 테스트 18개 통과. 루트 `docs/MEMBER_INTEGRATIONS.md` §6.
+
+## 2026-10-20 v1.19 — 인스타 예약 서버 코드 공용 사본 전환 · 일시정지 안전 처리 보강 · 예약 취소 중복 누름 방지 (Claude Code 윈도우)
+- 공용 기준 코드 등록(2026-10-20): `insta-schedule-time`(schedule.ts)·`insta-member-scheduler`(memberScheduler.ts)·`insta-cronjob-org`(cronJobOrg.ts) — 기준 = `cardnews-studio`, 사본 = 인플루언서·웹툰·4컷. 프로그램마다 다른 값(사이트 주소·표 이름·토큰 앞글자·환경변수 이름·실행 주소·작업 이름)은 각 폴더 `src/lib/instagram/schedulerConfig.ts`(공용 아님). 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`.
+- **일시정지 안전 처리 누락 보강**: v1.16 예약은 인플루언서 v1.15(그 수정 전 카드뉴스 사본)를 복사해 빠져 있었다 → 공용 사본으로 `pauseMemberScheduler`·`skipPausedMember` 반영, 회원 실행 주소가 일시정지·비cronjob 회원을 건너뜀, 일시정지 응답 `notice`·상태 줄 표시.
+- 게시 칸 기록 「예약 취소」 중복 누름 방지.
+- 검수(2026-10-20): 4개 모두 타입 검사·시험·빌드 통과, 순차 배포 Ready(카드뉴스 `cardnews-studio-73dn1lu4s`·인플루언서 `ai-influencer-studio-ohxzut5xz`·웹툰 `ai-webtoon-studio-85kgtktv9`·4컷 `four-cut-comics-74d8ph7yq`), DB 버전 4개 갱신(크롬 SQL Editor). 회원 실행 주소 가짜 토큰·설정 주소 비로그인 모두 401. 관리자 계정으로 인플루언서·웹툰·4컷 일시정지 경로 실행: 실행 중 → 일시정지(200) → 「일시정지됨」 → 재개(200) → 원래대로(Vercel 방식이라 cron-job.org 호출 없음). Vercel 5분 예약 호출 10:40 카드뉴스·인플루언서·웹툰·4컷 모두 200.

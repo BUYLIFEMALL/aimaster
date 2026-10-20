@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-20 Claude Code(윈도우) — 인스타 예약 서버 코드 공용 기준 코드화 + 일시정지 안전 처리 누락 3개 보강 + 예약 취소 중복 누름 방지
+- 한 일: 카드뉴스 기준으로 `memberScheduler.ts`·`cronJobOrg.ts`·`schedule.ts`를 공용 기준 코드 3개로 등록(`insta-member-scheduler`·`insta-cronjob-org`·`insta-schedule-time`), 프로그램 값은 각 `schedulerConfig.ts`. 인플루언서·웹툰·4컷에 **빠져 있던 일시정지 안전 처리** 반영(사본 + 회원 실행 주소 `skipPausedMember` + 일시정지 응답 `notice`). 카드뉴스·인플루언서·웹툰 게시 기록 「예약 취소」 중복 누름 방지. **DB 구조 변경 없음**.
+- 버전·배포: cardnews-studio v1.29(`cardnews-studio-73dn1lu4s`)·ai-influencer-studio v1.17(`ai-influencer-studio-ohxzut5xz`)·ai-webtoon-studio v1.19(`ai-webtoon-studio-85kgtktv9`)·four-cut-comics v1.20(`four-cut-comics-74d8ph7yq`) 순차 배포 Ready, DB 버전 4개.
+- 검수: 4개 타입·시험·빌드, 가짜 토큰·비로그인 401, 관리자 일시정지 경로 3개(실행 중 → 일시정지 → 재개 → 원래대로), Vercel 예약 호출 200. 기록: 각 `AGENTS.md`, `docs/SHARED_MODULES.md`, `docs/SCHEDULER_POLICY.md` 처리 결과 3, `docs/ERROR_LESSONS.md`.
+- 못 한 것: 「내 cron-job.org」 방식의 실제 작업 끄기 실패 재현(다른 프로그램에서 이미 실검수된 같은 코드), 카드뉴스 화면 취소 버튼 실클릭(예약 기록 없음).
+- 다음 후보: `posting.ts`·예약 API 4개 공용화(카드뉴스 구조 차이로 이번 범위 밖).
+
 ## 2026-10-20 Claude Code(윈도우) — 성격 진단 v1.26 → 캐릭코드 v1.21 → 타로점 v1.23 흐름 연결
 - 한 일: 성격 진단 16유형 결과에 「캐릭코드에서 나와 닮은 캐릭터 보기」(유형+축별 우세 % 전달), 캐릭코드 결과에 「타로점 3장 리딩으로 이어서 보기」, 타로점 안내에 캐릭코드 추가. 캐릭코드는 다른 프로그램 링크로 들어오면 그림 자동 생성 안 함(회원 키 예고 없는 과금 방지).
 - 검수: 성격 단위 21·build, 캐릭코드·타로 tsc·build, 배포(순차) `tarot-gtdpthkic`·`mbti-character-a2nb89cdg`·`personality-suite-pmi0emjtq` Ready. DB(ref `esgxyikcnnvmlhygjkth`) personality-suite v1.26·mbti-character v1.21·tarot-reading v1.23. 크롬: 성격 결과 → 캐릭코드(지표 50·60·60·50%, 그림 생성 호출 0회) → 타로점(질문·「캐릭코드」 안내) 끝까지 확인. 수정 전 1회 검수에서 관리자 키로 캐릭터 그림 1장 자동 생성됨(Gemini 이미지 1회).

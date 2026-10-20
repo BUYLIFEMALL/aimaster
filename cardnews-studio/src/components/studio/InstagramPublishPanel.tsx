@@ -65,6 +65,8 @@ export function InstagramPublishPanel() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
+  // 2026-10-20 예약 취소 중복 누름 방지(4컷 v1.19에서 발견): 취소 중인 줄은 버튼을 막고, 성공하면 다시 불러오기 전에 바로 「취소」로 바꾼다
+  const [canceling, setCanceling] = useState<string | null>(null);
 
   const loadPosts = useCallback(async () => {
     if (!projectId) return setPosts([]);
@@ -143,11 +145,18 @@ export function InstagramPublishPanel() {
   }
 
   async function cancel(id: string) {
+    if (canceling) return;
     setError(null);
-    const r = await fetch(`/api/cardnews/instagram/posts?id=${id}`, { method: "DELETE" });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) setError(d.error || "예약을 취소하지 못했습니다.");
-    void loadPosts();
+    setCanceling(id);
+    try {
+      const r = await fetch(`/api/cardnews/instagram/posts?id=${id}`, { method: "DELETE" });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) setError(d.error || "예약을 취소하지 못했습니다.");
+      else setPosts((cur) => cur.map((p) => (p.id === id ? { ...p, status: "canceled" } : p)));
+    } finally {
+      setCanceling(null);
+      void loadPosts();
+    }
   }
 
   return (
@@ -223,7 +232,7 @@ export function InstagramPublishPanel() {
                 {p.status === "scheduled" && p.error_message && <span className="w-full text-amber-300">{p.error_message}</span>}
                 {p.status === "published" && p.error_message && <span className="w-full text-slate-400">ℹ️ {p.error_message}</span>}
                 {p.status === "scheduled" && (
-                  <button type="button" onClick={() => void cancel(p.id)} className={`${BTN_GHOST} ml-auto px-2 py-1 text-[11px]`}><X className="h-3 w-3" /> 예약 취소</button>
+                  <button type="button" disabled={!!canceling} onClick={() => void cancel(p.id)} className={`${BTN_GHOST} ml-auto px-2 py-1 text-[11px]`}><X className="h-3 w-3" /> {canceling === p.id ? "취소하는 중..." : "예약 취소"}</button>
                 )}
               </li>
             ))}

@@ -1,21 +1,22 @@
 import "server-only";
 import { createHash, randomBytes } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { MEMBER_DISPATCH_PATH, deleteDispatchJob, setDispatchJobEnabled, upsertDispatchJob } from "@/lib/instagram/cronJobOrg";
+import { deleteDispatchJob, setDispatchJobEnabled, upsertDispatchJob } from "@/lib/instagram/cronJobOrg";
+import { MEMBER_DISPATCH_PATH, PLATFORM_SCHEDULER_ENV, SCHEDULER_POSTS_TABLE, SCHEDULER_SITE_ORIGIN, SCHEDULER_TABLE, SCHEDULER_TOKEN_PREFIX } from "@/lib/instagram/schedulerConfig";
 
-// 회원별 인스타 예약 게시 실행 — 회원이 실행 방식을 고른다(v1.24, 2026-10-20 — 2026-10-19 주인님 지시). 지침: 루트 docs/SCHEDULER_POLICY.md
-// 기준 구현: threads/src/lib/posts/memberScheduler.ts(표·글 표·토큰·환경변수·사이트 주소만 이 프로그램에 맞춤).
+// 회원별 인스타 예약 게시 실행 — 회원이 실행 방식을 고른다(카드뉴스 v1.24 시작, 2026-10-19 주인님 지시). 지침: 루트 docs/SCHEDULER_POLICY.md
+// 공용 기준 코드 「insta-member-scheduler」(2026-10-20): 기준 = cardnews-studio, 사본 = 인플루언서·웹툰·4컷. 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`. 프로그램마다 다른 값은 `schedulerConfig.ts`. 원래 기준: threads/src/lib/posts/memberScheduler.ts
 
 /** 회원 cron-job.org가 부를 이 사이트 주소(공식 주소 = programs.app_url) */
-const SITE_ORIGIN = "https://cardnews-studio.buylife.xyz";
+const SITE_ORIGIN = SCHEDULER_SITE_ORIGIN;
 // 이 프로그램은 설치 키트(배포판) 모드가 없는 운영 전용이라 기본 방식은 항상 vercel이다.
 // · ① vercel(기본): 사이트의 Vercel 예약 호출(5분 간격, vercel.json)이 처리. 회원은 키 없이 예약만 하면 된다.
 // · ② cronjob: 회원 본인 cron-job.org API 키 → 예약하면 회원 cron-job.org에 1분 작업을 자동 생성·켜기(회원 전용 토큰, DB엔 해시),
 //   남은 예약이 0건이면 자동 끄기.
 // · 일시정지는 두 방식 모두: 운영자 호출은 일시정지 회원을 건너뛰고, cronjob 회원은 작업도 끈다.
-// · Vercel 방식은 기본 켜짐 — 관리자가 CNS_PLATFORM_SCHEDULER=off로 끌 수 있다.
+// · Vercel 방식은 기본 켜짐 — 관리자가 환경변수(PLATFORM_SCHEDULER_ENV, 예: CNS_PLATFORM_SCHEDULER)=off로 끌 수 있다.
 
-export const SCHEDULER_TABLE = "cns_member_scheduler";
+export { SCHEDULER_TABLE };
 export const CRONJOB_PROVIDER = "cronjob_org_api_key";
 
 export type SchedulerMode = "vercel" | "cronjob";
@@ -25,7 +26,7 @@ type SchedulerRow = { user_id: string; mode: SchedulerMode; active: boolean; pau
 
 /** 사이트의 Vercel 예약 호출로 회원 예약을 처리할 수 있는가 */
 export function platformSchedulerEnabled(): boolean {
-  return process.env.CNS_PLATFORM_SCHEDULER?.trim().toLowerCase() !== "off";
+  return process.env[PLATFORM_SCHEDULER_ENV]?.trim().toLowerCase() !== "off";
 }
 
 export function memberDispatchUrl(): string {
@@ -38,7 +39,7 @@ export function hashMemberToken(token: string): string {
 }
 
 function newMemberToken(): { token: string; hash: string } {
-  const token = `cns_${randomBytes(32).toString("hex")}`;
+  const token = `${SCHEDULER_TOKEN_PREFIX}_${randomBytes(32).toString("hex")}`;
   return { token, hash: hashMemberToken(token) };
 }
 
@@ -60,7 +61,7 @@ export async function memberSchedulerMode(service: SupabaseClient, userId: strin
 }
 
 async function remainingScheduled(service: SupabaseClient, userId: string): Promise<number> {
-  const { count } = await service.from("cns_insta_posts").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("status", "scheduled");
+  const { count } = await service.from(SCHEDULER_POSTS_TABLE).select("id", { count: "exact", head: true }).eq("user_id", userId).eq("status", "scheduled");
   return count ?? 0;
 }
 
@@ -78,7 +79,7 @@ export async function membersExcludedFromPlatform(service: SupabaseClient): Prom
 }
 
 export async function memberIdForToken(service: SupabaseClient, token: string): Promise<string | null> {
-  if (!/^cns_[0-9a-f]{64}$/.test(token)) return null;
+  if (!new RegExp(`^${SCHEDULER_TOKEN_PREFIX}_[0-9a-f]{64}$`).test(token)) return null;
   const { data } = await service.from(SCHEDULER_TABLE).select("user_id, mode").eq("token_hash", hashMemberToken(token)).maybeSingle();
   return data?.mode === "cronjob" ? (data.user_id as string) : null;
 }

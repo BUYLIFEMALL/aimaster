@@ -84,6 +84,8 @@ export function InstagramPublishPanel({ currentImage, caption, history, onOpenSe
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ text: string; permalink: string } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
+  // 2026-10-20 예약 취소 중복 누름 방지(4컷 v1.19에서 발견): 취소 중인 줄은 버튼을 막고, 성공하면 다시 불러오기 전에 바로 「취소」로 바꾼다
+  const [canceling, setCanceling] = useState<string | null>(null);
 
   const loadPosts = useCallback(async () => {
     try {
@@ -154,11 +156,18 @@ export function InstagramPublishPanel({ currentImage, caption, history, onOpenSe
   }
 
   async function cancel(id: string) {
+    if (canceling) return;
     setError("");
-    const r = await fetch(`/api/instagram/posts?id=${id}`, { method: "DELETE" });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) setError(d.error || "예약을 취소하지 못했습니다.");
-    void loadPosts();
+    setCanceling(id);
+    try {
+      const r = await fetch(`/api/instagram/posts?id=${id}`, { method: "DELETE" });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) setError(d.error || "예약을 취소하지 못했습니다.");
+      else setPosts((cur) => cur.map((p) => (p.id === id ? { ...p, status: "canceled" } : p)));
+    } finally {
+      setCanceling(null);
+      void loadPosts();
+    }
   }
 
   const ready = status?.connected && !status.expired;
@@ -272,7 +281,7 @@ export function InstagramPublishPanel({ currentImage, caption, history, onOpenSe
                 <span className="text-if-muted">· {p.page_count}장{p.ig_username ? ` · @${p.ig_username}` : ""}</span>
                 {p.permalink && <a href={p.permalink} target="_blank" rel="noopener noreferrer" className="font-bold text-pink-400 underline">게시물 보기</a>}
                 {p.status === "scheduled" && (
-                  <button type="button" onClick={() => void cancel(p.id)} className="ml-auto inline-flex items-center gap-0.5 rounded-md border border-if-border px-1.5 py-0.5 text-if-muted hover:text-if-text"><X className="w-3 h-3" /> 예약 취소</button>
+                  <button type="button" disabled={!!canceling} onClick={() => void cancel(p.id)} className="ml-auto inline-flex items-center gap-0.5 rounded-md border border-if-border px-1.5 py-0.5 text-if-muted hover:text-if-text"><X className="w-3 h-3" /> {canceling === p.id ? "취소하는 중..." : "예약 취소"}</button>
                 )}
                 {p.title && <span className="w-full truncate text-if-muted">{p.title}</span>}
                 {p.status === "failed" && p.error_message && <span className="w-full text-red-300">{p.error_message}</span>}
