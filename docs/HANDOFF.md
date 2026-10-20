@@ -7,10 +7,23 @@
 - 한 일: `scripts/check-unstyled-tailwind.py`(Tailwind 없는 Next/React 프로그램에서 CSS에 정의 안 된 Tailwind 모양 클래스를 셈) 추가·실행. 예전 성격 진단 v1.20 대시보드로 검증(256건 검출) → 현재 저장소 전체 0건. 처음 단순 검색에서 잡힌 21개 폴더는 `grid-side` 같은 자체 CSS 이름 오탐이었음. 교훈은 `docs/ERROR_LESSONS.md`(다른 세션 커밋 `71f87d44`에 함께 들어감).
 - 코드 변경·배포 없음.
 
+## 2026-10-20 Claude Code(윈도우) — AI 4컷 만화 v1.18 인스타 예약 게시·게시 기록·장 미리보기 (v1.17 추가개선 제안 ①②)
+- 한 일: `four-cut-comics` v1.17 → **v1.18**. 「📤 인스타그램에 바로 게시」에 지금/예약 전환·실행 상태 줄·최근 30일 게시 기록(예약 취소)·「올라갈 장 미리보기」, /settings 아래 「⏰ 예약 발행」. 기준: 웹툰 v1.16 사본. 플랜 `four-cut-comics/docs/PLAN_20261020_INSTA_SCHEDULE.md`, 상세 `four-cut-comics/AGENTS.md` v1.18.
+- 운영 변경(주인님 지시 — 제안 ①은 표 추가 승인 포함): DB ref `esgxyikcnnvmlhygjkth` 표 `fcc_insta_posts`·`fcc_member_scheduler` + version v1.18(크롬 SQL Editor), Vercel `four-cut-comics` `CRON_SECRET` 추가, `vercel.json` crons 5분.
+- 검수: 시험 49개·타입·빌드, 배포 `four-cut-comics-4f6slfxuo` Ready, 새 주소 비로그인·잘못된 토큰 401. 크롬(관리자): 설정 「⏰ 예약 발행」, 미리보기 넘김, 예약 1건 등록 → DB·저장소 4장 → 취소·사진 삭제. 저장 버튼 두 줄 문제 고쳐 재배포.
+- 못 한 것: 실제 인스타 게시·「내 cron-job.org」 전환.
+- 인스타 자동 포스팅 확대(인플루언서·웹툰·4컷) 즉시+예약 게시 모두 완료. 다음 후보: 예약 서버 코드 공용 기준 코드화(사본 4벌).
+- 정리 부탁: 이 작업 중 셸 실수로 `C:\Program Files\Git\tmp_fc.sql`(표 생성 SQL 사본, 비밀값 없음)이 생겼고 안전 장치 때문에 지우지 못함 → 주인님이 지워 주세요. Supabase 탭 하나(조직 프로젝트 목록 화면)는 「페이지를 떠나시겠습니까」 창 때문에 그대로 둠.
+- 링크: https://four-cut-comics.buylife.xyz
+
 ## 2026-10-20 Claude Code(윈도우) — 예약 일시정지 안전 처리 관리자 실검수 완료 (주인님 관리자 로그인)
 - 관리자 크롬 실검수(2026-10-20 09:45~10:06, 주인님 관리자 로그인 후, 실제 발송 없음): ① 상품소싱 상태 줄 「관심 목록 0개 · 상품 알림 5개」 = DB 일치 ② 구글폼 CRM 「내 cron-job.org」에서 채널 끈 시험 규칙 추가 → 새로고침 없이 상태 줄 「대기」→「실행 중 · 켜진 규칙 1개」, 재개·규칙 끄기 때도 즉시 바뀜 ③ 일시정지 정상 경로(DB paused·작업 꺼짐) ④ **작업 끄기 실패 재현**(상품소싱): 작업은 켠 채 DB만 `paused: true` → 09:55 회원 실행 200(실행 없이 건너뜀 + 작업 끄기) → 10:00·10:05 호출 없음(작업 꺼짐 확인). 두 프로그램 모두 시험 전 상태(Vercel·일시정지 아님·CRM 규칙 0)로 복귀.
 - 발견(미수정): 재개와 방식 변경이 동시에 처리되면 방식은 Vercel인데 작업이 켜진 채 남을 수 있음 → 보강안 `skipPausedMember`에 `mode !== "cronjob"`도 포함(`docs/SCHEDULER_POLICY.md`). 쇼핑제휴 적용 때 함께 검토.
 - 링크: https://crm-google-form.buylife.xyz/sources · https://trending-product-finder.buylife.xyz/watchlist
+## 2026-10-20 10:08 KST — OpenAI 모델 시험 호출(`scripts/check-openai-models.mjs --live`) 결과
+- 호출 23개 · 성공 17개 · 실패 6개 — gpt-5.4-luna(The model `gpt-5.4-luna` does not exist or you do not have access to it.), gpt-5.4-sol(The model `gpt-5.4-sol` does not exist or you do not have access to it.), gpt-5.4-terra(The model `gpt-5.4-terra` does not exist or you do not have access to it.), gpt-5.5-luna(The model `gpt-5.5-luna` does not exist or you do not have access to it.), gpt-5.5-sol(The model `gpt-5.5-sol` does not exist or you do not have access to it.), gpt-5.5-terra(The model `gpt-5.5-terra` does not exist or you do not have access to it.). 상세 `scripts/data/openai-model-check.json`. 실패 모델은 공용 기준 코드(`naver-blog-seo-studio/lib/ai/openaiRequestParams.ts`) 규칙이나 각 프로그램 모델 목록을 확인.
+- **분석(Claude Code 윈도우)**: 실패 6개(`gpt-5.4-luna/sol/terra`·`gpt-5.5-luna/sol/terra`)는 모두 **404 「모델 없음」 = 존재하지 않는 모델 이름**이고, 쓰는 곳은 `tarot/lib/deck.ts` `OPENAI_MODEL_OPTIONS` 한 곳뿐. 기본값(첫 항목 `gpt-5.6-sol`)은 정상이라, 회원이 이 6개를 직접 고를 때만 오류. 같은 계열 `gpt-5.4`·`gpt-5.5`(접미사 없음)는 정상. **할 일(타로 작업 중인 세션 또는 다음 작업자)**: 목록에서 6개를 빼고(필요하면 `gpt-5.5`·`gpt-5.4`로 대체) 버전 +0.01 배포, 저장된 회원 선택값이 6개 중 하나면 기본값으로 바꾸는 처리 확인. tarot 폴더는 다른 세션 작업 중이라 손대지 않음.
+
 ## 2026-10-20 Claude Code(윈도우) — 카탈로그 썸네일 4개 실사로 교체 (주인님 「사실적인 느낌으로 다시」)
 - 대상(3D·일러스트 → `PLATFORM_PATTERNS.md` §13 실사 템플릿, `scripts/generate-program-thumbnail.mjs`, 관리자 본인 Gemini 키·상위 모델 `gemini-3-pro-image-preview` — 썸네일 예외 규정): 무한루프 영상자동화(`infinite-loop-video`, 1회) · AI 마스터링 스튜디오(`ai-mastering-studio`, 2회 — 노브 이름표 글씨로 재생성) · 플레이리스트 채널 제작 자동화(`playlist-channel-studio`, 2회 — 타일 캡션 글씨) · 시네마틱 스토리보드 자동화(`cinematic-storyboard-studio`, 3회 — 슬레이트·종이 글씨, 모니터 상표). 총 8회 호출.
 - 검수: 매번 이미지를 열고 의심 부분을 잘라 확대해 글자·로고 없음 확인, 공개 주소 4개 200(image/jpeg), `programs.thumbnail_url` 새 `?v=` 반영. DB 값만 바뀐 작업이라 버전 변경 없음(원칙 22).
