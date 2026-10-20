@@ -4,7 +4,7 @@ export function parseReferenceNote(raw: string, ownerId: string, now = Date.now(
   if (!ownerId) throw Error('로그인 계정을 확인해주세요.');
   if (raw.length > 8192) throw Error('참고 메모가 너무 깁니다. 다시 복사해주세요.');
   let value: Record<string, unknown>;
-  try { value = JSON.parse(raw); } catch { throw Error('Viral Finder에서 복사한 참고 메모를 붙여넣어주세요.'); }
+  try { value = JSON.parse(raw); } catch { throw Error('YOUTUBE 트렌드 분석에서 복사한 참고 메모를 붙여넣어주세요.'); }
   if (!value || value.format !== 'aimaster-youtube-reference' || value.version !== 1) throw Error('지원하지 않는 참고 메모입니다.');
   if (value.ownerId !== ownerId) throw Error('현재 로그인한 본인 계정에서 복사한 메모만 사용할 수 있습니다.');
   const created = typeof value.createdAt === 'string' ? Date.parse(value.createdAt) : NaN;

@@ -132,3 +132,8 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - Youtube Playlist 자동화(yt-playlist-studio)의 영상 부품을 이 앱으로(스크립트 방식, 플랜 §3): `components/video/{MediaCenter,EditorStudio,ExportStudio,HelpModal,PlaylistGuideView,ReferenceNotePanel}.tsx`, `types/playlist.ts`, `data/presets.ts`, `lib/render/*`(브라우저 GPU MP4), `lib/referenceNote.ts`, API `/api/generate-bg`(키 함수만 `getUserApiKey(userId, "gemini")`로). 라이브러리 `mp4-muxer`·`gifenc`·`gifuct-js` 추가.
 - 새 화면 `/video`(「영상 만들기」, `components/video/VideoStudio.tsx`): 영상 앱 `PlaylistStudioApp`에서 자체 사이드바·키 입력창을 빼고 위쪽 탭(① 음악·배경 → ② 편집·미리보기 → ③ MP4 내보내기 → 📖 사용법), 키는 [API키등록·플랫폼연동]. 좌측 메뉴 ① 새 플레이리스트 → ② 영상 만들기 → ③ 내 프로젝트. `.custom-scrollbar` CSS, 공지 띠(dark).
 - 검수: tsc, build(`/video`·`/api/generate-bg`), 테스트 20개, 공용 코드 점검.
+
+## 2026-10-20 v1.16 — 병합 E 2단계: 이름 「YOUTUBE 플레이리스트 자동화」·매뉴얼 (Claude Code 윈도우)
+- 주인님 「YOUTUBE 플레이리스트 자동화 로 하자」 → `APP_NAME`(메뉴·로그인)·브라우저 제목·매뉴얼 하단 이름 변경, slug·주소(`playlist-maker.buylife.xyz`) 그대로.
+- 매뉴얼 `/guide`: 단계 카드 「06 영상 만들기 — 스펙트럼·배경 → 1080p MP4」, FAQ Q1(영상 만들기 사용법)·Q2(옛 Youtube Playlist 회원) 추가, 기존 질문 Q3~Q6으로.
+- 영상 부품의 「Viral Finder」 문구 → 「YOUTUBE 트렌드 분석」(병합 C 이름 변경 반영): `components/video/{ReferenceNotePanel,PlaylistGuideView}.tsx`, `lib/referenceNote.ts`.
