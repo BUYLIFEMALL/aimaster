@@ -4,7 +4,7 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.29` (`package.json` 1.29.0, `version.ts` v1.29, DB `programs` v1.29 — 2026-10-21)
+> - **버전**: `v1.30` (`package.json` 1.30.0, `version.ts` v1.30, DB `programs` v1.30 — 2026-10-21)
 > - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
 
 ---
@@ -106,4 +106,10 @@
 - 플랜(주인님 승인): [`docs/PLAN_20261021_YOUTUBE_CONNECT_HISTORY.md`](docs/PLAN_20261021_YOUTUBE_CONNECT_HISTORY.md). 계기: 「유투브 연동 버튼이 없어 어디서 하는거야」.
 - 공용 화면 조각 `src/components/youtube/YoutubeConnectCard.tsx`: 상태(✅ 연결됨·채널 이름 / ⚠️ 만료 / ⚪ 미연결) + 「채널 연결하기」·「다시 연결하기」·「연결 해제」 + 「댓글 자동화 권한도 함께 받기」. 넣은 곳: 설정 「📺 YouTube 연동」 맨 위(돌아올 곳 `/settings`), 영상 화면 업로드 칸(알약 버튼·만료 안내·미연결 폼을 대체), 영상 포스팅 `/videos` 맨 위 1번(영상별 칸은 `showConnectCard={false}`). 연결 해제는 `/settings`도 새로 고침. `/videos` 빈 목록 안내의 옛 버튼 이름 「쇼츠생성하기」 → 「최종 영상 만들기」.
 - 검수: tsc·build, 운영 Ready, DB v1.29. 크롬 관리자: 세 화면 카드 「✅ 연결됨 — BUYLIFE ACADEMY…」, 설정의 「다시 연결하기」 → 구글 계정 선택 화면(state에 `/settings`), 계정은 고르지 않고 돌아와 연결 유지 확인.
+
+## 2026-10-21 v1.30 — 유튜브 업로드 기록·한 번 더 올리기 (Claude Code 윈도우, 부계정)
+- DB(주인님 승인, 크롬 Supabase SQL 편집기에서 실행): `shorts_videos.youtube_uploads jsonb not null default '[]'` + 이미 올린 2건을 첫 기록으로 옮김(`supabase/migrations/20261021180000_youtube_uploads_v1_30.sql`). 옮긴 기록의 시각은 비움 — **이 표의 `updated_at`은 수정해도 갱신되지 않아**(트리거 없음) 실제 업로드 시각이 아님. 오늘 시험 영상 `2EgI3UR8eOw`는 알려진 값(비공개·예약 2027-03-15 09:00)으로 채움.
+- 업로드(`postToYoutubeAction`)가 {videoId, url, privacy, publishAt, at}를 앞에 붙여 최근 10개 저장. `youtube_video_id`·`youtube_video_url`은 「가장 최근 업로드」로 유지(인스타·다른 화면 호환).
+- 화면(`PostingSection`): 예전엔 한 번 올리면 「업로드 영상보기」 링크만 남아 다시 올릴 수 없었음 → 「올린 기록 (N)」 목록(영상 링크·공개 범위 또는 예약 시각·올린 시각) + 「이미 N번 올렸습니다」 경고 + 「유튜브에 한 번 더 (예약) 올리기」.
+- 검수: tsc·build, 운영 Ready, DB v1.30, 크롬 관리자 화면에서 기록 1건·경고·버튼 확인. 실제 재업로드는 외부 게시라 미시험.
 

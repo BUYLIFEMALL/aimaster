@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — Shots v1.29~v1.30: 유튜브 연결 카드·업로드 기록
+
+- 주인님 「유투브 연동 버튼이 없어 어디서 하는거야」 → 플랜 승인(`shots/docs/PLAN_20261021_YOUTUBE_CONNECT_HISTORY.md`).
+- v1.29: `YoutubeConnectCard`(상태 크게 + 채널 연결하기·다시 연결하기·연결 해제)를 설정·영상·영상 포스팅 화면에. 크롬 확인(다시 연결하기 → 구글 계정 선택, 돌아올 곳 `/settings`).
+- v1.30: 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 `shorts_videos.youtube_uploads` 추가(주인님 승인, 크롬 SQL 편집기 실행) → 올린 기록 최근 10개 + 「한 번 더 올리기」. 화면 확인, 실제 재업로드 미시험.
+- 발견: `shorts_videos.updated_at`이 갱신되지 않음(트리거 없음) — `shots/docs/IMPROVEMENTS.md` 검토 대기. 커밋 `e46891cf` `69435779` `22911072` 외 문서.
+
+https://shots.buylife.xyz
+
 ## 2026-10-21 Codex — 블로그 병합 BLC-04 v2.04 운영 반영, 로그인 후 실회원 검수 대기
 
 사진 후기→기존 편집·저장·직접 검수·대기열 연결, 사진 ID/대표/순서/원래 만료·근거 보존과 공용 브라우저 캐시 제외. 코드 `4b3f84b6` 푸시, 회귀 184개·확장 모의 42개·타입/빌드 통과. 배포 `dpl_D4WuPEPdeJzoK5nNF4ggbnj4wtrd` Ready, DB/확장/라이브 ZIP v2.04 실패/경고 0. 운영 DB ref `esgxyikcnnvmlhygjkth` 프로그램 버전 메타데이터만 변경. 추가 AI·사진 업로드·새 원고·최종 발행 0. Edge 제어는 가능하나 새로고침 후 로그인 화면으로 이동해 실제 지정 회원 저장/편집/재열기/검수 해제/확장 prepare는 대기이며 전체 완료 아님. 비밀번호는 주인님 입력 원칙에 따라 현재 보이는 Edge 로그인을 요청했습니다. BLC-INS-08에 쿠키 갱신 가능성(원인 미확정)을 기록했고 인증 변경/우회는 하지 않았습니다.
