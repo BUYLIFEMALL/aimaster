@@ -59,6 +59,10 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 - **현재 버전**: `v1.19` (2026-10-20 — v1.18 회원 연동 정보 공용 저장, v1.19 예약 서버 코드 공용 사본·일시정지 안전 처리, 아래 기록 참고)
+- **v1.21 (2026-10-20, Claude Code 윈도우, 남은 작업 ⑧) — 📚 회차 묶음 예약 중 창 닫힘 경고·안내 + 실패한 회차만 다시 예약**
+  - `src/components/EpisodeBatchSchedule.tsx`: 예약하는 동안(`busy`) `beforeunload`로 브라우저 「사이트에서 나가시겠습니까?」 확인, 진행 중 「⚠️ 예약이 끝날 때까지 이 창을 닫거나 다른 화면으로 옮기지 마세요」 안내. 실패한 회차 순번을 기억해 「실패한 n개 회차만 다시 예약 (성공한 회차는 그대로)」 버튼 — 원래 계획 시각으로 다시 시도. 파일을 다시 고르면 비움. 이미 닫힌 창의 진행 상태는 브라우저가 기억하지 못해 같은 화면 안에서만 이어서 할 수 있음.
+  - **이 배포로 미배포 공용 정리 3건도 함께 나감**(게시 처리·예약 API 5개, 예약 화면 동작, 예약 실행 방식).
+  - 검수: tsc·시험 18·build, 커밋 `07986cc9`, 배포 `ai-webtoon-studio-4kgou7eow` Ready, DB v1.21(크롬 SQL Editor, PRODUCTION). 운영 예약 실행 주소 3개(가짜 토큰·비밀값 없음·비로그인) 401, 크롬(관리자) 홈 `v1.21`, 로그인 상태 예약 상태 API 200(`platform`)·게시 기록 API 200. **묶음 예약 화면(프로젝트 파일 필요)·실제 예약은 미시험**(코드 확인만).
 - **2026-10-20 (버전 변경 없음·미배포) — 예약 실행 방식 공용 코드 15개로 확대**
   2026-10-20 추가: 공용 `insta-member-scheduler`를 예약 프로그램 15개 공용 **`member-scheduler`**로 넓혔다. `schedulerConfig.ts`에 `SCHEDULER_IS_STANDALONE`(false)·`countRemainingWork`(남은 예약 게시 수) 추가, 기준 `memberScheduler.ts`는 상대 경로(`./cronJobOrg`·`./schedulerConfig`)로 부름. 동작 같음·미배포. 플랜 `cardnews-studio/docs/PLAN_20261020_MEMBER_SCHEDULER_SHARED.md`.
 - **2026-10-20 (버전 변경 없음·미배포) — 인스타 예약 화면 동작 공용화(상태 줄·게시 기록 시각·예약 취소) (Claude Code 윈도우)**
