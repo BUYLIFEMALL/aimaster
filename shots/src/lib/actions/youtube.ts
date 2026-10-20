@@ -47,6 +47,7 @@ export async function disconnectYoutubeAction() {
   // v1.22: 공용 YouTube 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
   await deleteSharedYoutubeAccount(user.id);
   revalidatePath("/scripts");
+  revalidatePath("/settings");
 }
 
 /** access_token 만료 임박/만료 시 refresh_token으로 갱신하고 DB에 반영한다. refresh_token 자체가 무효면 재연결이 필요하다는 에러를 던진다. */

@@ -84,6 +84,7 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
         <PostingSection
           video={video}
           youtubeConnected={youtubeStatus.connected}
+          youtubeChannelTitle={youtubeStatus.channelTitle}
           youtubeNeedsReconnect={youtubeStatus.needsReconnect}
           instagramAccount={instagramAccount ?? null}
         />

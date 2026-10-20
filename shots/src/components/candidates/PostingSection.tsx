@@ -3,17 +3,15 @@
 import { useActionState, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { YoutubeConnectCard } from "@/components/youtube/YoutubeConnectCard";
 import { Textarea } from "@/components/ui/Textarea";
 import { clsx } from "@/lib/clsx";
 import { YOUTUBE_CATEGORY_OPTIONS } from "@/lib/youtubeCategories";
 import {
-  connectYoutubeAction,
-  disconnectYoutubeAction,
   suggestYoutubeCategoryAction,
   generateYoutubeDescriptionAction,
   saveYoutubeDescriptionAction,
   postToYoutubeAction,
-  type ConnectYoutubeState,
   type SuggestCategoryState,
   type GenerateDescriptionState,
   type SaveDescriptionState,
@@ -35,7 +33,6 @@ import type { Database } from "@/types/database.types";
 type Video = Database["public"]["Tables"]["shorts_videos"]["Row"];
 type InstagramAccount = Database["public"]["Tables"]["instagram_accounts"]["Row"];
 
-const initialConnectYoutubeState: ConnectYoutubeState = {};
 const initialConnectInstagramState: ConnectInstagramState = {};
 const initialSuggestState: SuggestCategoryState = {};
 const initialGenerateDescriptionState: GenerateDescriptionState = {};
@@ -69,21 +66,22 @@ function StatusBadge({ status }: { status: string | null }) {
 export function PostingSection({
   video,
   youtubeConnected,
+  youtubeChannelTitle,
   youtubeNeedsReconnect,
   instagramAccount,
+  showConnectCard = true,
 }: {
   video: Video;
   youtubeConnected: boolean;
+  youtubeChannelTitle: string | null;
   youtubeNeedsReconnect: boolean;
   instagramAccount: Pick<InstagramAccount, "ig_username"> | null;
+  /** 영상 목록(/videos)처럼 칸이 여러 개면 화면 위에 카드를 한 번만 두고 여기선 숨긴다 */
+  showConnectCard?: boolean;
 }) {
   const canPost = video.render_status === "ready" && !!video.rendered_video_url;
   const pathname = usePathname();
 
-  const [connectYoutubeState, connectYoutubeFormAction, isConnectingYoutube] = useActionState(
-    connectYoutubeAction,
-    initialConnectYoutubeState,
-  );
   const [suggestState, suggestAction, isSuggesting] = useActionState(
     suggestYoutubeCategoryAction,
     initialSuggestState,
@@ -138,67 +136,15 @@ export function PostingSection({
           <h2 className="text-lg font-medium text-neutral-900">유튜브 쇼츠 업로드</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <StatusBadge status={video.youtube_status} />
-            {youtubeConnected && (
-              <>
-                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
-                  연동중
-                </span>
-                <form action={connectYoutubeFormAction}>
-                  <input type="hidden" name="returnTo" value={pathname} />
-                  <button
-                    type="submit"
-                    disabled={isConnectingYoutube}
-                    className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
-                  >
-                    {isConnectingYoutube ? "연결 중..." : "재연동"}
-                  </button>
-                </form>
-                <form action={connectYoutubeFormAction}>
-                  <input type="hidden" name="returnTo" value={pathname} />
-                  <input type="hidden" name="withShared" value="1" />
-                  <button
-                    type="submit"
-                    disabled={isConnectingYoutube}
-                    title="유튜브 댓글 자동화까지 한 번 연결로 함께 쓰도록 권한을 함께 받아 다시 연결합니다(같은 Google 앱)"
-                    className="rounded-md border border-blue-200 bg-white px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50"
-                  >
-                    {isConnectingYoutube ? "연결 중..." : "댓글 권한도 함께 받아 재연동"}
-                  </button>
-                </form>
-                <form action={disconnectYoutubeAction}>
-                  <button
-                    type="submit"
-                    className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
-                  >
-                    연동해제
-                  </button>
-                </form>
-              </>
-            )}
           </div>
         </div>
 
-        {youtubeNeedsReconnect && (
-          <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs font-medium text-amber-800">
-            ⚠️ 유튜브 연결이 만료되었습니다. 위 &ldquo;재연동&rdquo; 버튼을 눌러 다시 연결해주세요.
-          </p>
-        )}
+        {showConnectCard && <div className="mb-4">
+          <YoutubeConnectCard connected={youtubeConnected} channelTitle={youtubeChannelTitle} needsReconnect={youtubeNeedsReconnect} returnTo={pathname} />
+        </div>}
 
         {!youtubeConnected ? (
-          <form action={connectYoutubeFormAction}>
-            <input type="hidden" name="returnTo" value={pathname} />
-            <p className="mb-3 text-sm text-neutral-600">유튜브 채널을 먼저 연결해주세요.</p>
-            <label className="mb-3 flex items-start gap-2 text-xs text-neutral-600">
-              <input type="checkbox" name="withShared" value="1" className="mt-0.5" />
-              <span>다른 YouTube 프로그램 권한도 함께 받기 — 유튜브 댓글 자동화까지 이 한 번의 연결로 함께 씁니다(같은 Google 앱 사용).</span>
-            </label>
-            <Button type="submit" variant="secondary" disabled={isConnectingYoutube}>
-              {isConnectingYoutube ? "연결 중..." : "채널 연결하기"}
-            </Button>
-            {connectYoutubeState.error && (
-              <p className="mt-2 text-sm text-red-600">{connectYoutubeState.error}</p>
-            )}
-          </form>
+          <p className="text-sm text-neutral-500">{showConnectCard ? "위 카드에서" : "화면 맨 위에서"} 유튜브 채널을 먼저 연결해 주세요.</p>
         ) : (
           <div className="space-y-4">
             <div>

@@ -4,6 +4,8 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { VoiceIdSettings } from "@/components/settings/VoiceIdSettings";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { YoutubeConnectCard } from "@/components/youtube/YoutubeConnectCard";
+import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002";
@@ -59,6 +61,7 @@ const META_PROVIDERS: ApiKeyProvider[] = ["facebook_app_id", "facebook_app_secre
 export default async function SettingsPage() {
   const user = await requireUser();
   const supabase = await createClient();
+  const youtubeStatus = await getYoutubeConnectionStatus(supabase, user.id);
 
   const [{ data: keys }, { data: renderSettings }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
@@ -115,6 +118,10 @@ export default async function SettingsPage() {
         <div className="mb-3">
           <h2 className="text-sm font-bold text-neutral-900">📺 YouTube 연동(Google Cloud)</h2>
           <p className="text-xs text-neutral-500">완성 영상을 유튜브 채널에 업로드하기 위한 OAuth 연동</p>
+        </div>
+        <div className="mb-4">
+          <YoutubeConnectCard connected={youtubeStatus.connected} channelTitle={youtubeStatus.channelTitle} needsReconnect={youtubeStatus.needsReconnect} returnTo="/settings" />
+          <p className="mt-2 text-xs text-neutral-500">처음이라면 아래 Google OAuth Client ID·Secret을 먼저 등록한 뒤 「채널 연결하기」를 눌러 주세요.</p>
         </div>
         <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs font-medium text-amber-800">
           ⚠️ Google Cloud Console에서 반드시 <strong>YouTube Data API v3</strong>를 먼저 활성화 해주세요.

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getShotsInstagramAccount } from "@/lib/instagram/memberAccount";
 import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { PostingSection } from "@/components/candidates/PostingSection";
+import { YoutubeConnectCard } from "@/components/youtube/YoutubeConnectCard";
 
 export default async function VideosPage() {
   const user = await requireUser();
@@ -30,10 +31,14 @@ export default async function VideosPage() {
         </p>
       </div>
 
+      <div className="mb-6">
+        <YoutubeConnectCard connected={youtubeStatus.connected} channelTitle={youtubeStatus.channelTitle} needsReconnect={youtubeStatus.needsReconnect} returnTo="/videos" />
+      </div>
+
       {!videos || videos.length === 0 ? (
         <div className="rounded-lg border border-neutral-200 bg-white p-6 text-center text-sm text-neutral-500">
           아직 제작이 완료된 쇼츠가 없습니다. &ldquo;영상스크립트 생성&rdquo; 결과 페이지 하단의
-          &ldquo;쇼츠생성하기&rdquo;에서 만들어보세요.
+          &ldquo;최종 영상 만들기&rdquo;에서 만들어보세요.
         </div>
       ) : (
         <ul className="space-y-8">
@@ -70,7 +75,9 @@ export default async function VideosPage() {
                 <PostingSection
                   video={v}
                   youtubeConnected={youtubeStatus.connected}
+                  youtubeChannelTitle={youtubeStatus.channelTitle}
                   youtubeNeedsReconnect={youtubeStatus.needsReconnect}
+                  showConnectCard={false}
                   instagramAccount={instagramAccount ?? null}
                 />
               </div>
