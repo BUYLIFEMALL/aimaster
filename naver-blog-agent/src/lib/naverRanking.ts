@@ -108,3 +108,19 @@ export async function fetchRankingArticles(kind: RankingKind, limit = 5, fetchTe
   if (!articles.length) throw new Error(`${RANKING_SOURCES[kind].label}를 불러오지 못했습니다. 잠시 뒤 다시 시도하거나 URL 수집을 이용해 주세요.`);
   return articles;
 }
+
+export interface RankingHealth { kind: RankingKind; ok: boolean; count: number; error?: string }
+
+/** 랭킹 목록만 읽어 정상 여부를 확인한다(기사 본문·AI 호출 없음, 무료). */
+export async function checkRankingHealth(fetchText: FetchText = defaultFetchText): Promise<RankingHealth[]> {
+  const kinds: RankingKind[] = ["entertainment", "sports", "economy"];
+  return Promise.all(kinds.map(async (kind) => {
+    try {
+      const raw = await fetchText(RANKING_SOURCES[kind].listUrl);
+      const count = kind === "economy" ? parseEconomyLinks(raw).length : parseRankingList(kind, JSON.parse(raw)).length;
+      return count > 0 ? { kind, ok: true, count } : { kind, ok: false, count, error: "기사 목록이 비어 있습니다." };
+    } catch (error) {
+      return { kind, ok: false, count: 0, error: error instanceof Error ? error.message : "확인 실패" };
+    }
+  }));
+}

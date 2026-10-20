@@ -175,6 +175,16 @@ export default function MainPage() {
         }
       } catch {}
     }
+    // 서버의 본인 블로그 목록이 기준이다. 브라우저 캐시는 서버를 못 읽을 때만 쓴다(다른 계정 목록이 남지 않게).
+    fetch("/api/accounts", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data || !Array.isArray(data.accounts)) return;
+        setAccounts(data.accounts);
+        setSelectedBlogId((prev) => (data.accounts.some((acc: any) => acc.blog_id === prev) ? prev : data.accounts[0]?.blog_id || ""));
+        try { localStorage.setItem("nba_accounts_local", JSON.stringify(data.accounts)); } catch {}
+      })
+      .catch(() => {});
 
     // 수집된 글감 로드 및 URL 쿼리 파라미터 연동
     try {
@@ -190,6 +200,7 @@ export default function MainPage() {
             const viralId = params.get("viralId");
             const paramTopic = params.get("topic");
             const paramCategory = params.get("category");
+            if (params.get("format") === "homefeed") setArticleFormat("homefeed");
 
             if (viralId) {
               const matched = parsedViral.find((c) => c.id === viralId);
@@ -492,6 +503,8 @@ export default function MainPage() {
           preferredTone: params.overrideTone,
           writingStyle,
           articleFormat,
+          // 선택한 글감의 전체 내용을 사실 근거로 함께 보낸다(앞 100자만 가던 문제 수정).
+          sourceMaterial: selectedViral?.content ? cleanCurrentYear(selectedViral.content) : undefined,
           shoppingLinks: shoppingLinksInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!

@@ -68,3 +68,21 @@ test('예약 저장 검사: 끄기는 시각 없이, 켜기는 미래 10분 단�
   assert.match(slots.validateReservation(true, '2026-10-20T03:10:00Z', now), /20분 이후/);
   assert.match(slots.validateReservation('yes', null, now), /형식/);
 });
+
+const grounding = load('src/lib/ai/sourceGrounding.ts');
+test('글감 근거: 자료가 없으면 아무 것도 붙이지 않고, 있으면 사실은 자료에서만 쓰라고 지시', () => {
+  assert.equal(grounding.buildSourceBlock(''), '');
+  assert.equal(grounding.buildSourceReviewRule(''), '');
+  assert.match(grounding.buildSourceBlock('솔비가 결혼을 발표했다.'), /근거 자료[\s\S]*솔비가 결혼을 발표했다[\s\S]*지어내지 말고/);
+  assert.equal(grounding.normalizeSourceMaterial('가'.repeat(5000)).length, grounding.MAX_SOURCE_CHARS);
+  assert.equal(grounding.normalizeSourceMaterial(123), '');
+});
+test('원문 대조: 자료에 없는 문장이 있으면 PASS를 WARN으로 낮추고 문장을 의견에 표시', () => {
+  const list = grounding.readUnsupported(['지인의 소개로 만났다.', '', 3, '짧']);
+  assert.deepEqual(list, ['지인의 소개로 만났다.']);
+  const r = grounding.applyUnsupported('PASS', list);
+  assert.equal(r.status, 'WARN');
+  assert.match(r.note, /근거 자료에 없는 사실 문장 1개[\s\S]*지인의 소개/);
+  assert.deepEqual(grounding.applyUnsupported('PASS', []), { status: 'PASS', note: '' });
+  assert.equal(grounding.applyUnsupported('FAIL', list).status, 'FAIL');
+});

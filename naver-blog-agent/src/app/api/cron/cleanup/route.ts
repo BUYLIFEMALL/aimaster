@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RETENTION_DAYS, retentionCutoff } from "@/lib/retention";
+import { checkRankingHealth } from "@/lib/naverRanking";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -99,6 +100,10 @@ export async function GET(request: NextRequest) {
       console.warn("storage images cleanup error:", e);
     }
 
+    // 매일 정리 때 랭킹 글감 주소(네이버 비공식)도 함께 점검한다. 실패해도 정리 결과에는 영향 없음.
+    const rankingHealth = await checkRankingHealth().catch(() => []);
+    for (const item of rankingHealth.filter((h) => !h.ok)) console.error(`[Ranking Health] ${item.kind} 점검 실패: ${item.error}`);
+
     console.log(
       `[Cleanup Cron] cutoff: ${cutoff.toISOString()}, expiredPosts: ${expiredPostsCount}, removedPosts: ${removedPostsCount}, expiredImages: ${expiredImagesCount}, removedImages: ${removedImagesCount} (dryRun: ${dryRun})`
     );
@@ -112,6 +117,7 @@ export async function GET(request: NextRequest) {
       expiredImages: expiredImagesCount,
       removedImages: removedImagesCount,
       dryRun,
+      rankingHealth,
     });
   } catch (err: any) {
     console.error("Cron Cleanup Error:", err);

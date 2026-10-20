@@ -21,6 +21,8 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
   const [identity, setIdentity] = useState<{userId: string; blogId: string} | null>(null);
   const [category, setCategory] = useState<NaverCategory | null>(null);
   const [executionMode,setExecutionMode]=useState<NaverExecutionMode>("publish");
+  const [reserved,setReserved]=useState(false);
+  const [reserveAt,setReserveAt]=useState("");
   const [categories, setCategories] = useState<NaverCategory[]>([]);
   const [defaultCategory, setDefaultCategory] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -30,7 +32,7 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [savedForm, setSavedForm] = useState<string | null>(null);
-  const form = JSON.stringify({category,tags,setDefault,executionMode});
+  const form = JSON.stringify({category,tags,setDefault,executionMode,reserved,reserveAt:reserved?reserveAt:""});
   const dirty = savedForm !== null && form !== savedForm;
   const pendingTag = Boolean(tagInput.trim());
   useEffect(() => {
@@ -60,7 +62,9 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
           setIdentity({userId:data.userId,blogId:data.blogId}); setCategory(data.category);
           setDefaultCategory(data.defaultCategory); setTags(data.tags);setTagInput("");setSetDefault(false);
           setExecutionMode(data.executionMode);
-          setSavedForm(JSON.stringify({category:data.category,tags:data.tags,setDefault:false,executionMode:data.executionMode}));
+          const at=data.reserved && data.scheduledAt ? toLocalInput(data.scheduledAt) : "";
+          setReserved(Boolean(data.reserved)); setReserveAt(at);
+          setSavedForm(JSON.stringify({category:data.category,tags:data.tags,setDefault:false,executionMode:data.executionMode,reserved:Boolean(data.reserved),reserveAt:at}));
         }
       } catch (err) { if (!cancelled) setError(err instanceof Error ? err.message : "발행 설정을 확인해 주세요."); }
       finally { if (!cancelled) setBusy(null); }
@@ -90,12 +94,14 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
       if (tagInput.trim()) throw new Error("입력 중인 태그를 먼저 추가해 주세요.");
       if(!saver.current)throw new Error("최신 원고의 발행 설정을 다시 열어 주세요.");
       const expected=saver.current.revision;
-      const post=await saver.current.save({category,tags,setDefault,executionMode});
+      if (reserved && !reserveAt) throw new Error("예약 날짜와 시각을 선택해 주세요.");
+      const reservation={enabled:reserved,at:reserved?new Date(reserveAt).toISOString():null};
+      const post=await saver.current.save({category,tags,setDefault,executionMode,reservation});
       const data={tags:post.tags,executionMode};
       if (!mounted.current) return;
-      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags,post,expected); setMessage("진행 방식·카테고리·태그를 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.");
+      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags,post,expected); setMessage(`진행 방식·카테고리·태그${reserved?"·예약":""}를 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.`);
       if (setDefault) setDefaultCategory(category?.name || "");
-      setSetDefault(false); setSavedForm(JSON.stringify({category,tags:data.tags,setDefault:false,executionMode:data.executionMode}));
+      setSetDefault(false); setSavedForm(JSON.stringify({category,tags:data.tags,setDefault:false,executionMode:data.executionMode,reserved,reserveAt:reserved?reserveAt:""}));
     } catch (err) { if (mounted.current) setError(err instanceof Error ? err.message : "발행 설정 저장 실패"); }
     finally { if (mounted.current) setBusy(null); }
   }
@@ -113,6 +119,13 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
         <option value="publish">최종 발행까지 자동 진행</option>
       </select>
       <p className="text-xs text-neutral-600">{executionMode==="prepare" ? "본문·이미지·카테고리·태그·공개 범위·예약 설정까지 준비한 뒤 멈춥니다. 최신 확장이 필요합니다. 열린 원고를 확인하고 직접 최종 발행해 주세요." : "기존 자동 발행 방식입니다. 전송하면 확장이 최종 발행 버튼까지 누릅니다."}</p>
+      <p className="text-xs font-semibold text-neutral-700">발행 시각</p>
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="발행 시각">
+        <label className="flex items-center gap-1 text-xs text-neutral-700"><input type="radio" name={`${id}-when`} checked={!reserved} disabled={Boolean(busy)} onChange={()=>{setReserved(false);setMessage("");}} />바로 발행</label>
+        <label className="flex items-center gap-1 text-xs text-neutral-700"><input type="radio" name={`${id}-when`} checked={reserved} disabled={Boolean(busy)} onChange={()=>{setReserved(true);setMessage("");}} />예약 발행</label>
+        {reserved && <input type="datetime-local" step={600} aria-label="예약 날짜와 시각" value={reserveAt} disabled={Boolean(busy)} onChange={event=>{setReserveAt(event.target.value);setMessage("");}} className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900" />}
+      </div>
+      {reserved && <p className="text-xs text-neutral-500">네이버 예약은 10분 단위이며 지금부터 20분 이후로 정해 주세요(예: 14:10, 14:20).</p>}
       <label htmlFor={`${id}-category`} className="block text-xs font-semibold text-neutral-700">네이버 발행 카테고리</label>
       <select id={`${id}-category`} value={category?.id || ""} disabled={Boolean(busy)} onChange={event => { setCategory(categories.find(c=>c.id===event.target.value) || null); setSetDefault(false); setMessage(""); }} className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">
         <option value="">{defaultCategory ? `블로그 기본값 사용: ${defaultCategory}` : "네이버에서 현재 선택된 카테고리 유지"}</option>
@@ -129,4 +142,12 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
     {(dirty || pendingTag) && <p className="text-xs text-amber-700">변경한 발행 설정을 저장한 뒤 발행 전송해 주세요.</p>}
     {message && <p role="status" className="text-xs text-emerald-700">{message}</p>}
   </section>;
+}
+
+/** ISO 시각을 datetime-local 입력값(내 컴퓨터 시간)으로 바꾼다. */
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }

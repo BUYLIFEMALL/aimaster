@@ -293,6 +293,18 @@ export default function CollectorPage() {
     }
   };
 
+  // 랭킹 주소 상태(서버 30분 보관, 무료 점검). 실패한 랭킹 버튼에 빨간 점을 보여 준다.
+  const [rankingHealth, setRankingHealth] = useState<Record<string, { ok: boolean; error?: string }>>({});
+  useEffect(() => {
+    fetch("/api/collector/ranking-health", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data || !Array.isArray(data.health)) return;
+        setRankingHealth(Object.fromEntries(data.health.map((h: { kind: string; ok: boolean; error?: string }) => [h.kind, { ok: h.ok, error: h.error }])));
+      })
+      .catch(() => {});
+  }, []);
+
   // 네이버 연예·스포츠·경제 랭킹 글감 수집 실행
   const handleCollectRanking = async (kind: "entertainment" | "sports" | "economy", label: string) => {
     if (collecting) return;
@@ -572,8 +584,8 @@ export default function CollectorPage() {
   };
 
   // 이 글감으로 자동 생성기 이동
-  const handleUseCandidate = (item: BlogViralCandidate) => {
-    router.push(`/?viralId=${item.id}&topic=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category)}`);
+  const handleUseCandidate = (item: BlogViralCandidate, format?: "homefeed") => {
+    router.push(`/?viralId=${item.id}&topic=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category)}${format ? `&format=${format}` : ""}`);
   };
 
   if (!mounted) {
@@ -833,6 +845,13 @@ export default function CollectorPage() {
                   >
                     <span aria-hidden>{icon}</span>
                     {label}
+                    {rankingHealth[kind] && (
+                      <span
+                        title={rankingHealth[kind].ok ? "랭킹 정상" : `점검 필요: ${rankingHealth[kind].error || "불러오지 못함"} — URL 수집을 이용해 주세요`}
+                        aria-label={rankingHealth[kind].ok ? "랭킹 정상" : "랭킹 점검 필요"}
+                        className={`ml-1 inline-block h-2 w-2 rounded-full ${rankingHealth[kind].ok ? "bg-emerald-500" : "bg-rose-500"}`}
+                      />
+                    )}
                   </button>
                 ))}
               </div>
@@ -1432,15 +1451,24 @@ export default function CollectorPage() {
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleUseCandidate(item)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-neutral-800 transition-all"
-                    >
-                      <PenLine size={14} />
-                      ✍️ 이 글감으로 블로그 글 생성
-                      <ChevronRight size={13} />
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleUseCandidate(item, "homefeed")}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-all"
+                      >
+                        🏠 홈판형으로 바로 쓰기
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUseCandidate(item)}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-neutral-800 transition-all"
+                      >
+                        <PenLine size={14} />
+                        ✍️ 이 글감으로 블로그 글 생성
+                        <ChevronRight size={13} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

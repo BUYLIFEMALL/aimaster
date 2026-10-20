@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isWritingTone, isWritingStyle } from "@/lib/ai/writingStyles";
 import { isArticleFormat } from "@/lib/ai/articleFormats";
 import { normalizeShoppingLinks } from "@/lib/shoppingLinks";
+import { normalizeSourceMaterial } from "@/lib/ai/sourceGrounding";
 import { reviewFingerprint, withPostReview } from "@/lib/postReview";
 import { savedPost } from "@/lib/postSaveProtocol";
 
@@ -78,6 +79,7 @@ export async function POST(req: Request) {
       writingStyle,
       articleFormat: body.articleFormat,
       shoppingLinks: shopping.links,
+      sourceMaterial: normalizeSourceMaterial(body.sourceMaterial),
       persona,
       targetLength: typeof targetLength === "number" ? targetLength : undefined,
       imageCount:body.imageCount ?? 2,

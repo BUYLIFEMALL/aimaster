@@ -58,3 +58,13 @@ if (process.env.LIVE === '1') {
     });
   }
 }
+
+test('랭킹 점검: 목록만 읽어 정상/실패를 나눈다(본문 미호출)', async () => {
+  const called = [];
+  const health = await r.checkRankingHealth(async (url) => { called.push(url); if (url.includes('sports')) throw new Error('403'); return fixtures[url]; });
+  const by = Object.fromEntries(health.map(h => [h.kind, h]));
+  assert.equal(by.entertainment.ok, true); assert.equal(by.entertainment.count, 2);
+  assert.equal(by.sports.ok, false); assert.match(by.sports.error, /403/);
+  assert.equal(by.economy.ok, true);
+  assert.equal(called.length, 3, '목록 주소 3개만 호출');
+});

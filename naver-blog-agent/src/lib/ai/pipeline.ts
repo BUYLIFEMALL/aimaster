@@ -4,6 +4,7 @@ import { buildHumanizerPrompt, applyHumanizerEdits } from "@/lib/humanizer";
 import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle, type WritingTone, type WritingStyle } from "./writingStyles";
 import { buildFormatResearchRule, buildFormatWriterRule, isArticleFormat, type ArticleFormat } from "./articleFormats";
 import { applyShoppingLinks } from "@/lib/shoppingLinks";
+import { applyUnsupported, buildSourceBlock, buildSourceReviewRule, normalizeSourceMaterial, readUnsupported } from "./sourceGrounding";
 
 import { sanitizeYear, sanitizeBodyYear } from "@/lib/yearPolicy";
 
@@ -25,6 +26,7 @@ export interface PipelineInput {
   writingStyle?: WritingStyle;
   articleFormat?: ArticleFormat; // 기본 standard
   shoppingLinks?: string[]; // 검증된 네이버 쇼핑 커넥트 링크(최대 5개)
+  sourceMaterial?: string; // 선택한 글감 전체 내용(사실 근거, 최대 4,000자)
   recentTitles?: string[]; // 중복 방지용
   imageCount?: number; // 썸네일 포함 1~5장
   targetLength?: number; // 목표 글자수 (1 ~ 4000자, 기본 2000자)
@@ -75,6 +77,8 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
   const writingStyle = isWritingStyle(input.writingStyle) ? input.writingStyle : "default";
   const writingStylePrompt = buildWritingStylePrompt(preferredTone, writingStyle);
   const articleFormat: ArticleFormat = isArticleFormat(input.articleFormat) ? input.articleFormat : "standard";
+  const sourceMaterial = normalizeSourceMaterial(sanitizeBodyYear(input.sourceMaterial ?? "", currentYear));
+  const sourceBlock = buildSourceBlock(sourceMaterial);
 
   // [1단계 안전망: 입력단 과거 연도 자동 정제]
   const cleanTopic = sanitizeYear(input.topic, currentYear);
@@ -113,7 +117,7 @@ ${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 
 - 목표 글자수: 공백 포함 약 ${targetLength}자
 - 최근 발행 글 목록 (소재 중복 절대 금지):
 ${recentTitles.slice(0, 10).map((t) => "- " + t).join("\n") || "(없음)"}
-${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}
+${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}${sourceBlock}
 
 반드시 아래 JSON 형식으로만 응답해:
 {
@@ -201,7 +205,7 @@ ${persona ? `작성자 캐릭터: ${persona.name} (${persona.badge})` : ""}
 ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}: ${s.keyPoints.join(", ")}`).join("\n")}
 
 위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.
-검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.`;
+검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.${sourceBlock}`;
 
   const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}${buildFormatWriterRule(articleFormat)}\n\n${writingStylePrompt}`, writerUserPrompt);
   const draftArticle = sanitizeBodyYear(writerRaw.trim(), currentYear);
@@ -281,8 +285,9 @@ ${humanizedArticle}
 {
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
   "reviewStatus": "PASS | WARN | FAIL 중 하나",
-  "reviewNote": "검수 의견 (${currentYear}년 최신성, 문체, 키워드 반영 여부 포함)"
-}`;
+  "reviewNote": "검수 의견 (${currentYear}년 최신성, 문체, 키워드 반영 여부 포함)"${sourceMaterial ? `,
+  "unsupported": ["근거 자료에 없는 사실 문장(본문 그대로, 없으면 빈 배열)"]` : ""}
+}${buildSourceReviewRule(sourceMaterial)}`;
 
   const reviewerRaw = await callAI(aiConfig, `${reviewerSystemPrompt}\n\n${writingStylePrompt}\n선택된 말끝과 문체의 적용 여부도 검수 의견에 포함한다.`, reviewerUserPrompt);
   // 파싱 실패를 PASS로 간주하지 않는다. 읽지 못하면 UNKNOWN으로 남기고 경고한다.
@@ -291,11 +296,14 @@ ${humanizedArticle}
   let reviewStatus: NonNullable<PipelineResult["reviewStatus"]> =
     parsedStatus === "PASS" || parsedStatus === "WARN" || parsedStatus === "FAIL" ? parsedStatus : "UNKNOWN";
   if (reviewStatus === "PASS" && !lengthOk) reviewStatus = "WARN";
+  // 근거 자료가 있을 때만 원문 대조 결과를 반영한다(추가 AI 호출 없이 같은 검수 응답 사용).
+  const grounding = applyUnsupported(reviewStatus, sourceMaterial ? readUnsupported((reviewerData as { unsupported?: unknown } | null)?.unsupported) : []);
+  reviewStatus = grounding.status;
   const reviewerTags = Array.isArray(reviewerData?.tags)
     ? (reviewerData!.tags as unknown[]).filter((t): t is string => typeof t === "string" && t.trim().length > 0)
     : [];
   const tags = reviewerTags.length > 0 ? reviewerTags : [category, "블로그정보", "꿀팁", "생활정보", "최신정보"];
-  const reviewNote = [typeof reviewerData?.reviewNote === "string" ? reviewerData.reviewNote : "", lengthNote].filter(Boolean).join(" / ");
+  const reviewNote = [grounding.note, typeof reviewerData?.reviewNote === "string" ? reviewerData.reviewNote : "", lengthNote].filter(Boolean).join(" / ");
 
   stepsLog.push({
     step: "4. Reviewer Agent",
