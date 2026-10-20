@@ -90,6 +90,7 @@ export interface Database {
           instagram_status: PostStatus | null;
           instagram_post_url: string | null;
           instagram_caption: string | null;
+          youtube_uploads: Json;
           created_at: string;
           updated_at: string;
         };
@@ -117,6 +118,7 @@ export interface Database {
           instagram_status?: PostStatus | null;
           instagram_post_url?: string | null;
           instagram_caption?: string | null;
+          youtube_uploads?: Json;
           created_at?: string;
           updated_at?: string;
         };
@@ -144,6 +146,7 @@ export interface Database {
           instagram_status?: PostStatus | null;
           instagram_post_url?: string | null;
           instagram_caption?: string | null;
+          youtube_uploads?: Json;
           created_at?: string;
           updated_at?: string;
         };

@@ -33,6 +33,10 @@ import type { Database } from "@/types/database.types";
 type Video = Database["public"]["Tables"]["shorts_videos"]["Row"];
 type InstagramAccount = Database["public"]["Tables"]["instagram_accounts"]["Row"];
 
+
+// v1.30 올린 기록(shorts_videos.youtube_uploads, 최근 10개)
+interface YoutubeUpload { videoId: string; url: string; privacy: string | null; publishAt: string | null; at: string | null }
+const PRIVACY_LABEL: Record<string, string> = { private: "비공개", unlisted: "일부 공개", public: "공개" };
 const initialConnectInstagramState: ConnectInstagramState = {};
 const initialSuggestState: SuggestCategoryState = {};
 const initialGenerateDescriptionState: GenerateDescriptionState = {};
@@ -80,6 +84,7 @@ export function PostingSection({
   showConnectCard?: boolean;
 }) {
   const canPost = video.render_status === "ready" && !!video.rendered_video_url;
+  const uploads = (Array.isArray(video.youtube_uploads) ? video.youtube_uploads : []) as unknown as YoutubeUpload[];
   const pathname = usePathname();
 
   const [suggestState, suggestAction, isSuggesting] = useActionState(
@@ -220,16 +225,23 @@ export function PostingSection({
 
             {!canPost && <p className="text-sm text-neutral-500">먼저 영상 생성을 완료해주세요.</p>}
 
-            {video.youtube_status === "posted" && video.youtube_video_url ? (
-              <a
-                href={video.youtube_video_url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-block rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
-              >
-                업로드 영상보기
-              </a>
-            ) : (
+            {uploads.length > 0 && (
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+                <p className="mb-2 text-xs font-semibold text-neutral-700">올린 기록 ({uploads.length})</p>
+                <ul className="space-y-1">
+                  {uploads.map((u) => (
+                    <li key={u.videoId} className="flex flex-wrap items-center gap-2 text-xs text-neutral-600">
+                      <a href={u.url} target="_blank" rel="noreferrer" className="font-medium text-blue-700 hover:underline">{u.videoId}</a>
+                      <span>{u.publishAt ? `예약 ${new Date(u.publishAt).toLocaleString("ko-KR")}` : PRIVACY_LABEL[u.privacy ?? ""] ?? "공개 범위 기록 없음"}</span>
+                      {u.at && <span className="text-neutral-400">· {new Date(u.at).toLocaleString("ko-KR")} 올림</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {uploads.length > 0 && (
+              <p className="text-xs text-amber-700">⚠️ 이 영상은 이미 {uploads.length}번 올렸습니다. 아래 버튼을 누르면 유튜브에 새 영상으로 하나 더 올라갑니다.</p>
+            )}
               <form action={postYoutubeAction}>
                 <input type="hidden" name="videoId" value={video.id} />
                 <input type="hidden" name="categoryId" value={suggestState.categoryId ?? categoryId} />
@@ -266,10 +278,9 @@ export function PostingSection({
                     (scheduleOn && !scheduleAt)
                   }
                 >
-                  {isPostingYoutube ? "업로드 중..." : scheduleOn ? "유튜브에 예약 올리기" : "유튜브에 올리기"}
+                  {isPostingYoutube ? "업로드 중..." : `유튜브에 ${uploads.length > 0 ? "한 번 더 " : ""}${scheduleOn ? "예약 " : ""}올리기`}
                 </Button>
               </form>
-            )}
             {postYoutubeState.error && <p className="text-sm text-red-600">{postYoutubeState.error}</p>}
           </div>
         )}

@@ -255,7 +255,7 @@ export async function postToYoutubeAction(
 
   const { data: video } = await supabase
     .from("shorts_videos")
-    .select("id, title, rendered_video_url, render_status")
+    .select("id, title, rendered_video_url, render_status, youtube_uploads")
     .eq("user_id", user.id)
     .eq("id", videoId)
     .single();
@@ -302,6 +302,11 @@ export async function postToYoutubeAction(
         youtube_status: "posted",
         youtube_video_id: result.videoId,
         youtube_video_url: result.videoUrl,
+        // v1.30: 올린 기록(최근 10개, 새 것이 앞). 위 두 칸은 「가장 최근 업로드」로 유지
+        youtube_uploads: [
+          { videoId: result.videoId, url: result.videoUrl, privacy: publishAt ? "private" : privacyStatus, publishAt, at: new Date().toISOString() },
+          ...(Array.isArray(video.youtube_uploads) ? video.youtube_uploads : []),
+        ].slice(0, 10),
         youtube_category_id: categoryId,
       })
       .eq("id", videoId);
