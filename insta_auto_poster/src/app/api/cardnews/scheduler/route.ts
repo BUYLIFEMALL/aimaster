@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { authorize } from "@/lib/cardnews/apiGuard";
 import { createAdminClient } from "@/lib/cardnews/supabase/admin";
-import { memberSchedulerState, pauseMemberScheduler, resumeMemberScheduler, setMemberSchedulerMode } from "@/lib/cardnews/instagram/memberScheduler";
+import { memberSchedulerState, pauseMemberScheduler, resumeMemberScheduler, setMemberSchedulerMode } from "@/lib/posts/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";

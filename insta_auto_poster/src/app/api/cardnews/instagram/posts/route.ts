@@ -5,7 +5,7 @@ import { getMemberInstagramAccount, INSTA_CONNECT_URL } from "@/lib/cardnews/ins
 import { insertPost, ownProjectId, removeImages, validPaths } from "@/lib/cardnews/instagram/posts";
 import { MAX_PENDING_PER_USER, validateScheduleTime } from "@/lib/cardnews/schedule";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled } from "@/lib/cardnews/instagram/memberScheduler";
+import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled } from "@/lib/posts/memberScheduler";
 
 /**
  * 예약 전 확인(v1.24): 회원이 고른 실행 방식이 준비됐는가. 「내 cron-job.org」면 본인 키를 돌려준다(예약 뒤 작업을 켜는 데 씀).

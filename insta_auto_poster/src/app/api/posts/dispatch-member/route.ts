@@ -2,6 +2,8 @@ import { NextRequest, NextResponse, after } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchMemberScheduledPosts } from "@/lib/posts/dispatch";
+import { dispatchDuePosts as dispatchCardnewsPosts } from "@/lib/cardnews/instagram/posts";
+import { IS_STANDALONE } from "@/lib/deployment";
 import { memberIdForToken, skipPausedMember, stopMemberSchedulerIfIdle } from "@/lib/posts/memberScheduler";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +24,8 @@ async function handle(request: NextRequest) {
   after(async () => {
     try {
       await dispatchMemberScheduledPosts(userId);
+      // v1.39: 카드뉴스 스튜디오 예약도 같은 회원 설정(한 개의 cron-job.org 작업)으로 실행. 배포판에는 카드뉴스 표가 없음
+      if (!IS_STANDALONE) await dispatchCardnewsPosts(10, { userId });
       await stopMemberSchedulerIfIdle(service, userId);
     } catch (error) {
       console.error("[dispatch-member]", error instanceof Error ? error.message : error);

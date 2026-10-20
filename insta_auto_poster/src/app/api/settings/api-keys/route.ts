@@ -3,7 +3,7 @@ import { checkProgramAccessApi } from "@/lib/cardnews/access";
 import { getRegisteredApiKeys, type SettingsKeyProvider, ALL_PROVIDERS } from "@/lib/cardnews/apiKeys";
 import { createAdminClient } from "@/lib/cardnews/supabase/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberSchedulerMode, removeMemberScheduler } from "@/lib/cardnews/instagram/memberScheduler";
+import { CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberSchedulerMode, removeMemberScheduler } from "@/lib/posts/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";

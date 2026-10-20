@@ -351,6 +351,7 @@ export default async function SettingsPage({
                 ? "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「내 cron-job.org」(무료 — 아래에 키만 등록)이고, Vercel 유료(Pro)라면 「Vercel 예약 호출」을 켜고 고를 수 있습니다."
                 : "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요."}{" "}
               예약은 게시글 작성·수정 화면에서 하고, 즉시 게시는 방식과 상관없이 됩니다.
+              {!IS_STANDALONE && " 카드뉴스 스튜디오 예약도 이 설정 하나로 함께 실행됩니다."}
             </p>
           </div>
           <SchedulerModePicker initialMode={scheduler.mode} defaultMode={scheduler.defaultMode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />

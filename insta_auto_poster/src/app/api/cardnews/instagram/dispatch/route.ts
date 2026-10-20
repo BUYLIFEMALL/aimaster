@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cleanupOldPosts, dispatchDuePosts } from "@/lib/cardnews/instagram/posts";
 import { createAdminClient } from "@/lib/cardnews/supabase/admin";
-import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/cardnews/instagram/memberScheduler";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/posts/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";

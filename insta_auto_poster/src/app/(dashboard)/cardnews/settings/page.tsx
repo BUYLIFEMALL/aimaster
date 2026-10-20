@@ -209,7 +209,7 @@ export default function SettingsPage() {
         <div>
           <h2 className="text-base font-bold text-slate-100">⏰ 예약 발행</h2>
           <p className="mt-1 text-xs text-slate-400">
-            인스타 예약 게시를 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약은 카드뉴스의 「인스타그램 게시」에서 합니다.
+            인스타 예약 게시를 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약은 카드뉴스의 「인스타그램 게시」에서 합니다. <b className="text-pink-300">이 설정은 피드 글(「API키등록·플랫폼연동」의 예약 발행)과 같은 하나의 설정</b>이라, 어느 쪽에서 바꿔도 피드 글과 카드뉴스 예약이 함께 그 방식으로 실행됩니다.
           </p>
         </div>
         <SchedulerModePicker hasKey={Boolean(keys.cronjob_org_api_key?.registered)} />

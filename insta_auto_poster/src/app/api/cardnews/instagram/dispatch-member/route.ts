@@ -2,7 +2,8 @@ import { NextRequest, NextResponse, after } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/cardnews/supabase/admin";
 import { dispatchDuePosts } from "@/lib/cardnews/instagram/posts";
-import { memberIdForToken, skipPausedMember, stopMemberSchedulerIfIdle } from "@/lib/cardnews/instagram/memberScheduler";
+import { memberIdForToken, skipPausedMember, stopMemberSchedulerIfIdle } from "@/lib/posts/memberScheduler";
+import { dispatchMemberScheduledPosts } from "@/lib/posts/dispatch";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -21,6 +22,8 @@ async function handle(request: NextRequest) {
 
   after(async () => {
     try {
+      // v1.39: 예약 실행 설정을 INSTA 하나로 합침 — INSTA 회원 토큰으로 피드 글·카드뉴스 예약을 함께 실행(옛 주소 호환)
+      await dispatchMemberScheduledPosts(userId);
       await dispatchDuePosts(10, { userId });
       await stopMemberSchedulerIfIdle(service, userId);
     } catch (error) {

@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.38` (2026-10-20)
+- **현재 버전**: `v1.39` (2026-10-20)
+- **v1.39 (2026-10-20, Claude Code 윈도우) — 예약 실행 방식 설정 하나로(피드 글 + 카드뉴스)**: 카드뉴스 API 5곳(`/api/cardnews/instagram/dispatch`·`dispatch-member`·`posts`, `/api/cardnews/scheduler`, `/api/settings/api-keys`)이 카드뉴스용 예약 설정(`cns_member_scheduler`) 대신 INSTA 설정(`@/lib/posts/memberScheduler` → `insta_member_scheduler`)을 씀. `schedulerConfig.ts` 「남은 예약」에 `cns_insta_posts`도 포함(0이면 cron-job.org 작업 끔), INSTA 회원 실행 주소 `/api/posts/dispatch-member`가 피드 글과 카드뉴스 예약을 함께 실행(옛 카드뉴스 회원 실행 주소도 INSTA 토큰으로 두 가지 모두 실행). 화면: INSTA 설정 「⏰ 예약 발행」·카드뉴스 설정에 「하나의 설정」 안내. 배포판(독립 모드)은 카드뉴스 표가 없어 기존과 같음. DB 표 변경 없음 — `cns_member_scheduler`는 지우지 않고 사용 안 함(관리자 1행, vercel 방식). `src/lib/cardnews/instagram/memberScheduler.ts`·`cronJobOrg.ts`·`schedulerConfig.ts`는 INSTA 화면에서 쓰지 않지만 공용 기준 코드(`member-scheduler`·`insta-cronjob-org`)의 기준 파일이라 남김.
 - **v1.38 (2026-10-20, Claude Code 윈도우)**: 다크 바탕에 묻히던 화면 제목 6곳(게시글 관리·새 글·수정·상세·주제 수집·계정 선택 + 카드뉴스 기록 칸 제목)을 밝은 글자(`text-slate-100`)로. 라벨·흰 상자 등 화면 전체 색 정리는 `docs/IMPROVEMENTS.md` 2026-10-20 항목(디자인 담당).
 - **v1.37 (2026-10-20, Claude Code 윈도우) — 병합 2단계: 보관함 하나로·카드뉴스 안내**: 「게시글 관리」(`/posts`) 아래에 「🎨 카드뉴스 예약·게시 기록」 칸(`src/components/cardnews/CardnewsPostsSection.tsx`, 카드뉴스 API `/api/cardnews/instagram/posts` 회원 본인 최근 30건·예약 취소 — 공용 `postsClient` 사용). 새 글 화면에서 「카드뉴스(캐러셀 4장)」를 고르면 「한글이 깨지지 않는 4~10장 카드뉴스는 카드뉴스 스튜디오에서」 안내(직접 첨부·AI 4장은 그대로 — 4컷 만화 넘기기 `postType=card_news` 호환). 배포판(독립 모드)은 둘 다 숨김. 남은 것: 예약 실행 방식 설정이 INSTA(`insta_member_scheduler`)·카드뉴스(`cns_member_scheduler`) 둘로 나뉨 — 통합은 표 이전이 필요해 3단계 이후 검토.
 - **v1.36 (2026-10-20, Claude Code 윈도우) — 병합 1단계 화면 정리**: 크롬(시험 회원) 실검수에서 발견 → 카드뉴스 홈 제목이 「INSTA 포스팅 자동화」로 나오던 것을 「🎨 카드뉴스 스튜디오」로, 카드뉴스 설정 제목을 「카드뉴스 키·예약 실행 설정」으로(INSTA 「API키등록·플랫폼연동」과 구분), 카드뉴스 매뉴얼 제목의 옛 이름 정리. 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 문제(`md:justify-between`·휴대폰 펼침 메뉴 `justify-between`) 제거 — 마지막 메뉴 바로 아래로(사이드바 표준).
