@@ -48,10 +48,11 @@ export function PendingReviewList({
 }) {
   if (items.length === 0) return <>{empty}</>;
   return (
-    <ul className="space-y-4">
+    // 휴대폰(767px 이하)에서는 손가락으로 누르기 쉽게 항목 높이를 키운다(최소 44px). 데스크톱은 예전 간격 그대로.
+    <ul className="space-y-1 md:space-y-4">
       {items.map((item) => (
         <li key={item.id}>
-          <Link href={item.href} className={`-mx-2 flex gap-3 rounded-lg px-2 py-1 ${classes.hover}`}>
+          <Link href={item.href} className={`-mx-2 flex min-h-[44px] items-start gap-3 rounded-lg px-2 py-3 md:min-h-0 md:py-1 ${classes.hover}`}>
             <Avatar name={item.avatarName} size={32} />
             <div className="min-w-0 flex-1">
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">

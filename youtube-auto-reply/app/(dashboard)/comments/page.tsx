@@ -5,7 +5,11 @@ import { CommentReviewItem } from "@/components/comments/CommentReviewItem";
 import { SettingsSummary } from "@/components/comments/SettingsSummary";
 import { StudioHeader } from "@/components/ui/StudioHeader";
 import { HashHighlight } from "@/components/HashHighlight";
+import { ReviewGroupHeader } from "@/components/ReviewGroupHeader";
 import { LoadErrorNotice } from "@/components/ui/LoadErrorNotice";
+
+// 공용 기준 코드 `review-group-header` 묶음 머리 색
+const HEADER_CLASSES = { border: "border-yt-border", text: "text-yt-text", muted: "text-yt-muted" };
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // 신규 댓글마다 AI 초안 생성이 걸려 다소 시간이 걸릴 수 있음
@@ -33,9 +37,11 @@ export default async function CommentsPage() {
   const videoIds = Array.from(new Set((comments ?? []).map((c) => c.video_id)));
   // No UUID sentinel: an empty feed needs no video lookup. Scope title reads to this member too.
   const { data: videos } = videoIds.length > 0
-    ? await supabase.from("ytreply_videos").select("id, title").eq("user_id", user.id).in("id", videoIds)
+    ? await supabase.from("ytreply_videos").select("id, title, thumbnail_url, youtube_video_id").eq("user_id", user.id).in("id", videoIds)
     : { data: [] };
   const titleByVideoId = new Map((videos ?? []).map((v) => [v.id, v.title]));
+  // 묶음 머리 썸네일·유튜브 원본 링크
+  const videoById = new Map((videos ?? []).map((v) => [v.id, v]));
 
   const groupedByVideo = new Map<string, typeof comments>();
   for (const c of comments ?? []) {
@@ -85,11 +91,16 @@ export default async function CommentsPage() {
             {Array.from(groupedByVideo.entries()).map(([videoId, videoComments]) => (
               // v1.22: 대시보드 「검토를 기다리는 댓글」에서 #video-<id>로 바로 이동(고정 머리말에 가리지 않게 scroll-mt)
               <section key={videoId} id={`video-${videoId}`} className="yt-card scroll-mt-80 py-3">
-                <h2 className="flex items-center gap-2 border-b border-yt-border pb-3 text-sm font-bold text-yt-text">
-                  <span className="rounded bg-yt-red px-1.5 py-0.5 text-[10px] text-white">▶</span>
-                  <span className="truncate">{titleByVideoId.get(videoId) ?? "(삭제된 영상)"}</span>
-                  <span className="ml-auto shrink-0 text-xs font-normal text-yt-muted">댓글 {(videoComments ?? []).length}개</span>
-                </h2>
+                <ReviewGroupHeader
+                  classes={HEADER_CLASSES}
+                  icon={<span className="rounded bg-yt-red px-1.5 py-0.5 text-[10px] text-white">▶</span>}
+                  title={titleByVideoId.get(videoId) ?? "(삭제된 영상)"}
+                  countLabel={`댓글 ${(videoComments ?? []).length}개`}
+                  thumbUrl={videoById.get(videoId)?.thumbnail_url}
+                  thumbHref={videoById.get(videoId) ? `https://www.youtube.com/watch?v=${videoById.get(videoId)!.youtube_video_id}` : null}
+                  thumbTitle="유튜브에서 영상 보기"
+                  thumbShape="wide"
+                />
                 <div className="divide-y divide-yt-border">
                   {(videoComments ?? []).map((c) => (
                     <CommentReviewItem key={c.id} comment={c} />
