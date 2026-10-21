@@ -12,7 +12,7 @@ const PLATFORM_FAKED = [
 ];
 const APP_FAKED = new Set(["next/cache", "@/lib/access", "@/lib/supabase/server", "@/lib/supabase/admin", "@/lib/programAccess"]);
 // 진짜 코드로 읽는 "@/" 모듈(시험 대상)
-const REAL = [/^@\/lib\/comments\/(instagram|threads|youtube)Post$/, /^@\/lib\/dmApp\/dm\/post$/, /^@\/lib\/inbox\/load$/];
+const REAL = [/^@\/lib\/comments\/(instagram|threads|youtube)Post$/, /^@\/lib\/dmApp\/dm\/post$/, /^@\/lib\/inbox\/load$/, /^@\/lib\/weekChart\/bucket$/];
 
 export async function resolve(specifier, context, nextResolve) {
   if (specifier === "server-only") return { url: EMPTY, shortCircuit: true };

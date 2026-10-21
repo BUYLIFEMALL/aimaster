@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccess } from "@/lib/programAccess";
+import { bucketByKstDay, kstDayRange, kstTodayStartIso, weekStartIso, type DayCount } from "@/lib/weekChart/bucket";
 
 // 통합 받은편지함 — 세 댓글 프로그램(INSTA 댓글·DM, 쓰레드, 유튜브)의 「검토 대기」 항목을 회원 본인 것만 모은다.
 // 서비스 롤로 읽되 모든 조회에 user_id 필터. 원래 프로그램 이용 권한이 있는 플랫폼만 모은다
@@ -219,11 +220,7 @@ async function loadInboxUncached(userId: string, access: InboxAccess): Promise<I
   });
 }
 
-/** 한국 시간 오늘 0시(UTC ISO) */
-export function kstTodayStartIso(now = Date.now()): string {
-  const kst = new Date(now + 9 * 60 * 60 * 1000);
-  return new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate()) - 9 * 60 * 60 * 1000).toISOString();
-}
+export { kstTodayStartIso, bucketByKstDay, type DayCount } from "@/lib/weekChart/bucket";
 
 export type TodayReplied = { total: number } & Partial<Record<InboxPlatform, number>>;
 
@@ -258,54 +255,112 @@ export async function loadTodayReplied(userId: string, access: InboxAccess): Pro
   return result;
 }
 
-const KST_MS = 9 * 60 * 60 * 1000;
-const WEEKDAY = ["일", "월", "화", "수", "목", "금", "토"];
 
-export type DayCount = { key: string; label: string; weekday: string; count: number };
-
-/** 게시 시각 목록을 한국 시간 날짜별로 센다 — 오늘 포함 최근 7일, 오래된 날부터. 범위 밖 시각은 버린다. */
-export function bucketByKstDay(timestamps: string[], now = Date.now()): DayCount[] {
-  const todayStart = new Date(kstTodayStartIso(now)).getTime();
-  const days: DayCount[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const kst = new Date(todayStart - i * DAY_MS + KST_MS);
-    days.push({
-      key: kst.toISOString().slice(0, 10),
-      label: `${kst.getUTCMonth() + 1}/${kst.getUTCDate()}`,
-      weekday: WEEKDAY[kst.getUTCDay()],
-      count: 0,
-    });
-  }
-  const index = new Map(days.map((d, i) => [d.key, i]));
-  for (const t of timestamps) {
-    const i = index.get(new Date(new Date(t).getTime() + KST_MS).toISOString().slice(0, 10));
-    if (i !== undefined) days[i].count++;
-  }
-  return days;
-}
+const REPLY_TABLE: Record<InboxPlatform, "ig_comments" | "dm_messages" | "th_comments" | "ytreply_comments"> = {
+  ig_comment: "ig_comments",
+  ig_dm: "dm_messages",
+  threads: "th_comments",
+  youtube: "ytreply_comments",
+};
+const ALL_PLATFORMS = Object.keys(REPLY_TABLE) as InboxPlatform[];
 
 /**
  * v1.06 「최근 7일 응대」 — 한국 시간 6일 전 0시 이후 게시·발송(status=posted)된 본인 항목의 처리 시각을 모아 날짜별로 센다.
  * 「오늘 답함」과 같은 기준(권한 있는 플랫폼, 건너뛰기 제외). 표마다 최대 5,000건.
+ * v1.07: 플랫폼 이름을 묶음(series)으로 넘겨 막대를 플랫폼별 색으로 쌓는다.
  */
 export async function loadWeekReplied(userId: string, access: InboxAccess): Promise<DayCount[]> {
   const admin = createAdminClient();
   const now = Date.now();
-  const since = new Date(new Date(kstTodayStartIso(now)).getTime() - 6 * DAY_MS).toISOString();
-  const tables = (["ig_comments", "dm_messages", "th_comments", "ytreply_comments"] as const).filter((t) =>
-    access[t === "th_comments" ? "threads" : t === "ytreply_comments" ? "youtube" : "instagram"],
-  );
+  const since = weekStartIso(now);
   const lists = await Promise.all(
-    tables.map(async (table) => {
+    ALL_PLATFORMS.filter((p) => access[PLATFORM_SOURCE[p]]).map(async (p) => {
       const { data } = await admin
-        .from(table)
+        .from(REPLY_TABLE[p])
         .select("replied_at")
         .eq("user_id", userId)
         .eq("status", "posted")
         .gte("replied_at", since)
         .limit(5000);
-      return (data ?? []).map((r) => r.replied_at).filter((t): t is string => !!t);
+      return (data ?? []).filter((r) => !!r.replied_at).map((r) => ({ at: r.replied_at as string, series: p }));
     }),
   );
   return bucketByKstDay(lists.flat(), now);
+}
+
+export type RepliedItem = {
+  platform: InboxPlatform;
+  id: string;
+  authorLabel: string;
+  /** 실제로 게시·발송한 답장 앞부분 */
+  reply: string;
+  at: string;
+  sourceHref: string;
+};
+
+const DAY_LIST_LIMIT = 50;
+const REPLY_PREVIEW = 80;
+
+/**
+ * v1.07 그래프 막대를 눌렀을 때 — 한국 시간 그날 게시·발송한 본인 항목(권한 있는 플랫폼, 플랫폼마다 최근 50건).
+ * 날짜 형식이 아니거나 최근 7일 밖이면 빈 목록.
+ */
+export async function loadDayReplied(userId: string, access: InboxAccess, dayKey: string): Promise<RepliedItem[]> {
+  const range = kstDayRange(dayKey);
+  if (!range || range.from < weekStartIso() || range.from > kstTodayStartIso()) return [];
+  const admin = createAdminClient();
+  const cut = (t: string | null) => {
+    const s = (t ?? "").replace(/\s+/g, " ").trim();
+    return s.length > REPLY_PREVIEW ? `${s.slice(0, REPLY_PREVIEW)}…` : s;
+  };
+  const day = (table: (typeof REPLY_TABLE)[InboxPlatform], cols: string) =>
+    admin
+      .from(table)
+      .select(cols)
+      .eq("user_id", userId)
+      .eq("status", "posted")
+      .gte("replied_at", range.from)
+      .lt("replied_at", range.to)
+      .order("replied_at", { ascending: false })
+      .limit(DAY_LIST_LIMIT);
+  const items: RepliedItem[] = [];
+
+  await Promise.all([
+    (async () => {
+      if (!access.instagram) return;
+      const { data } = await day("ig_comments", "id, media_id, author_username, generated_reply, replied_at");
+      for (const r of (data ?? []) as unknown as { id: string; media_id: string; author_username: string | null; generated_reply: string | null; replied_at: string }[]) {
+        items.push({ platform: "ig_comment", id: r.id, authorLabel: r.author_username ? `@${r.author_username}` : "익명", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.instagram.url}/comments#media-${r.media_id}` });
+      }
+    })(),
+    (async () => {
+      if (!access.instagram) return;
+      const { data } = await day("dm_messages", "id, conversation_id, generated_reply, replied_at");
+      const rows = (data ?? []) as unknown as { id: string; conversation_id: string; generated_reply: string | null; replied_at: string }[];
+      if (!rows.length) return;
+      const ids = Array.from(new Set(rows.map((r) => r.conversation_id)));
+      const { data: convs } = await admin.from("dm_conversations").select("id, customer_username").eq("user_id", userId).in("id", ids);
+      const byId = new Map((convs ?? []).map((c) => [c.id, c.customer_username as string | null]));
+      for (const r of rows) {
+        const name = byId.get(r.conversation_id);
+        items.push({ platform: "ig_dm", id: r.id, authorLabel: name ? `@${name}` : "고객", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.instagram.url}/dm/conversations#conv-${r.conversation_id}` });
+      }
+    })(),
+    (async () => {
+      if (!access.threads) return;
+      const { data } = await day("th_comments", "id, post_id, author_username, generated_reply, replied_at");
+      for (const r of (data ?? []) as unknown as { id: string; post_id: string; author_username: string | null; generated_reply: string | null; replied_at: string }[]) {
+        items.push({ platform: "threads", id: r.id, authorLabel: r.author_username ? `@${r.author_username}` : "익명", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.threads.url}/comments#post-${r.post_id}` });
+      }
+    })(),
+    (async () => {
+      if (!access.youtube) return;
+      const { data } = await day("ytreply_comments", "id, video_id, author_display_name, generated_reply, replied_at");
+      for (const r of (data ?? []) as unknown as { id: string; video_id: string; author_display_name: string | null; generated_reply: string | null; replied_at: string }[]) {
+        items.push({ platform: "youtube", id: r.id, authorLabel: r.author_display_name ?? "익명", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.youtube.url}/comments#video-${r.video_id}` });
+      }
+    })(),
+  ]);
+
+  return items.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
 }

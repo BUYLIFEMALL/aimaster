@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { loadSourceAccess, PLATFORM_SOURCE, SOURCE_PROGRAMS, type InboxPlatform } from "@/lib/inbox/load";
+import { loadDayReplied, loadSourceAccess, PLATFORM_SOURCE, SOURCE_PROGRAMS, type InboxPlatform, type RepliedItem } from "@/lib/inbox/load";
 import { postCommentReplyForUser as postInstagramComment } from "@/lib/comments/instagramPost";
 import { postCommentReplyForUser as postThreadsComment } from "@/lib/comments/threadsPost";
 import { postCommentReplyForUser as postYoutubeComment } from "@/lib/comments/youtubePost";
@@ -95,4 +95,15 @@ export async function unskipInboxItemAction(platform: InboxPlatform, id: string)
   if (error || !data?.length) return { error: "되돌리지 못했습니다. 이미 다른 화면에서 처리됐을 수 있어요." };
   revalidatePath("/inbox");
   return { success: true };
+}
+
+/** v1.07 그래프 막대를 눌렀을 때 그날 답한 목록 — 읽기 전용, 받은편지함 권한 + 원래 프로그램 권한 있는 플랫폼만. */
+export async function loadDayRepliedAction(dayKey: string): Promise<{ items?: RepliedItem[]; error?: string }> {
+  const user = await requireProgramAccess();
+  const access = await loadSourceAccess(user.id);
+  try {
+    return { items: await loadDayReplied(user.id, access, String(dayKey)) };
+  } catch {
+    return { error: "그날 목록을 불러오지 못했습니다. 잠시 후 다시 눌러 주세요." };
+  }
 }

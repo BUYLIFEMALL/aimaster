@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { loadInbox, loadSourceAccess, loadTodayReplied, loadWeekReplied, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
 import { InboxList } from "@/components/inbox/InboxList";
-import { WeekChart } from "@/components/inbox/WeekChart";
+import { WeekPanel } from "@/components/inbox/WeekPanel";
 import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -53,8 +53,8 @@ export default async function InboxPage({ searchParams }: { searchParams: { p?: 
         </div>
       </div>
 
-      {/* v1.06: 최근 7일(한국 시간) 응대 건수 — 「오늘 답함」과 같은 기준 */}
-      <WeekChart days={week} />
+      {/* v1.06: 최근 7일(한국 시간) 응대 건수 — 「오늘 답함」과 같은 기준. v1.07: 플랫폼별 쌓기 + 막대 누르면 그날 목록 */}
+      <WeekPanel days={week} />
 
       {noAccess.length > 0 && (
         <div className="rounded-xl border border-ig-border bg-ig-surface p-4 text-xs leading-relaxed text-ig-muted">

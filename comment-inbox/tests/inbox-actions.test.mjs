@@ -124,3 +124,31 @@ test("최근 7일 응대: 한국 시간 날짜로 나누고 범위 밖은 버린
   assert.deepEqual(days.map((d) => d.count), [1, 0, 0, 0, 0, 1, 2]);
   assert.equal(days[6].weekday, "목");
 });
+
+test("v1.07 플랫폼별 쌓기: 묶음 이름별로 세고, 묶음 없는 시각은 합계에만 넣는다", async () => {
+  const { bucketByKstDay } = await import("../lib/weekChart/bucket.ts");
+  const now = Date.UTC(2026, 9, 21, 16, 30); // 한국 22일 01:30
+  const days = bucketByKstDay(
+    [
+      { at: "2026-10-21T15:10:00.000Z", series: "ig_comment" },
+      { at: "2026-10-21T15:20:00.000Z", series: "ig_comment" },
+      { at: "2026-10-21T15:30:00.000Z", series: "youtube" },
+      "2026-10-21T15:40:00.000Z",
+      { at: "2026-10-14T00:00:00.000Z", series: "threads" }, // 범위 밖
+    ],
+    now,
+  );
+  assert.equal(days[6].count, 4);
+  assert.deepEqual(days[6].bySeries, { ig_comment: 2, youtube: 1 });
+  assert.equal(days.reduce((s, d) => s + (d.bySeries.threads ?? 0), 0), 0);
+});
+
+test("v1.07 막대 누르기: 한국 시간 하루 범위, 잘못된 날짜·7일 밖은 빈 목록", async () => {
+  const { kstDayRange } = await import("../lib/weekChart/bucket.ts");
+  assert.deepEqual(kstDayRange("2026-10-22"), { from: "2026-10-21T15:00:00.000Z", to: "2026-10-22T15:00:00.000Z" });
+  assert.equal(kstDayRange("10/22"), null);
+  assert.equal(kstDayRange("2026-10-22' or 1=1"), null);
+  const { loadDayRepliedAction } = await import("../lib/actions/inbox.ts");
+  const r = await loadDayRepliedAction("2020-01-01");
+  assert.deepEqual(r, { items: [] });
+});
