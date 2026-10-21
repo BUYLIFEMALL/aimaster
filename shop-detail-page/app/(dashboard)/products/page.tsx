@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { CommerceUsageGuide } from "@/components/guide/CommerceUsageGuide";
 import { imageSrc } from "@/lib/imageSrc";
+import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 import { isInRetentionGrace, RETENTION_DAYS, RETENTION_GRACE_END_LABEL } from "@/lib/retention";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ const STATUS_LABELS: Record<string, string> = {
   draft: "임시저장",
   analyzing: "AI 분석중",
   analyzed: "소구점 분석완료",
-  generating: "15단 생성중",
+  generating: "섹션 생성중",
   completed: "상세페이지 완성",
   error: "오류",
 };
@@ -33,7 +34,7 @@ export default async function ProductsPage() {
   const [{ data: products }, { data: program }] = await Promise.all([
     supabase
       .from("shop_products")
-      .select("id, product_label, name, category, source_image_url, status, created_at")
+      .select("id, product_label, name, category, source_image_url, status, created_at, layout_preset")
       .order("created_at", { ascending: false }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as unknown as { from: (table: string) => any })
@@ -54,11 +55,11 @@ export default async function ProductsPage() {
               내 상품 상세페이지 관리
             </h1>
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200/80">
-              15-Section Studio
+              15 · 12 · 9단 Studio
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500">
-            상품 사진 1장으로 Gemini AI가 15단 고해상도 상세페이지를 제작하고 롱 이미지로 병합합니다.
+            상품 사진 1장으로 Gemini AI가 15섹션·쿠팡 12단·스마트스토어 9단 상세페이지를 제작하고 롱 이미지로 병합합니다.
           </p>
           <p className="mt-1 text-[11px] sm:text-xs text-slate-400">
             🗓️ 상품·생성 이미지는 만든 날로부터 {RETENTION_DAYS}일 뒤 자동으로 삭제됩니다. 필요한 결과는 긴 이미지로 내려받아 보관해 주세요.
@@ -66,13 +67,22 @@ export default async function ProductsPage() {
           </p>
         </div>
 
-        <Link
-          href="/products/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <span className="text-base leading-none">+</span>
-          <span>새 상품 분석하기</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/products/import"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-700 transition-all"
+          >
+            <span>📦</span>
+            <span>12단 자료 가져오기</span>
+          </Link>
+          <Link
+            href="/products/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <span className="text-base leading-none">+</span>
+            <span>새 상품 분석하기</span>
+          </Link>
+        </div>
       </div>
 
       {/* 프로그램 공식 소개 박스 */}
@@ -102,7 +112,7 @@ export default async function ProductsPage() {
               총 {products?.length ?? 0}개
             </span>
           </div>
-          <span className="text-xs text-slate-400">카드를 클릭하면 15개 섹션 이미지를 확인·병합할 수 있습니다.</span>
+          <span className="text-xs text-slate-400">카드를 클릭하면 섹션 이미지를 확인·병합할 수 있습니다.</span>
         </div>
 
         {/* 비어있을 때 (Empty State) */}
@@ -113,7 +123,7 @@ export default async function ProductsPage() {
             </div>
             <h3 className="text-base font-bold text-slate-900 mb-1">아직 등록된 상세페이지가 없습니다</h3>
             <p className="text-xs text-slate-500 mb-6 max-w-sm mx-auto leading-relaxed">
-              판매할 상품의 대표 사진을 등록해보세요. Gemini AI가 15개 핵심 섹션을 분석하여 고품질 상세페이지를 제작해 드립니다.
+              판매할 상품의 대표 사진을 등록해보세요. Gemini AI가 상품을 분석해 15섹션·쿠팡 12단·스마트스토어 9단 중 고른 규격으로 상세페이지를 제작해 드립니다.
             </p>
             <Link
               href="/products/new"
@@ -174,7 +184,7 @@ export default async function ProductsPage() {
                 </p>
 
                 <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                  <span>15개 섹션 이미지</span>
+                  <span>{LAYOUT_PRESETS[toLayoutPreset(p.layout_preset)].label}</span>
                   <span className="text-blue-600 font-bold group-hover:translate-x-0.5 transition-transform">
                     상세보기 →
                   </span>

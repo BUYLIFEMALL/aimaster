@@ -36,7 +36,7 @@ export default async function NewProductPage() {
           </span>
         </div>
         <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-          대표 사진을 업로드하면 Gemini AI가 특장점·타겟고객·스펙·감성톤을 정밀 분석하여 15개 섹션의 최적화된 상세페이지를 기획합니다.
+          대표 사진을 업로드하면 Gemini AI가 특장점·타겟고객·스펙·감성톤을 정밀 분석하고, 고른 규격(15섹션·쿠팡 12단·스마트스토어 9단)에 맞춰 상세페이지를 기획합니다.
         </p>
       </div>
 

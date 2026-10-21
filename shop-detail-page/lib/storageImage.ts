@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { SHOP_IMAGE_BUCKET, storagePathFromUrl } from "@/lib/imageSrc";
 
 /**
- * 저장된 이미지 주소를 base64로 읽는다(Gemini inlineData·긴 PNG 합치기용).
+ * 저장된 이미지(v1.16부터 사양서 PDF 포함) 주소를 base64로 읽는다(Gemini inlineData·긴 PNG 합치기용).
  * v1.15부터 버킷이 비공개라 공개 주소로 fetch할 수 없으므로, 우리 버킷 이미지는 요청 세션
  * 클라이언트(RLS: 본인 폴더만 읽기)로 직접 내려받는다. 다른 회원 경로는 RLS가 막는다.
  */

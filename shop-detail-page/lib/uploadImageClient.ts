@@ -83,3 +83,38 @@ export async function uploadCustomSectionImage(
   const { data } = supabase.storage.from("shop-detail-images").getPublicUrl(path);
   return { url: data.publicUrl };
 }
+
+const MAX_SPEC_DOC_SIZE = 10 * 1024 * 1024;
+
+/**
+ * v1.16: 상품 사양서 PDF를 본인 폴더(`<회원id>/products/docs/`)에 올린다. 서버 액션 본문 한도(1MB)를
+ * 넘기 쉬워 이미지와 같은 방식으로 브라우저가 직접 올리고, 분석 때 서버가 내려받아 Gemini에 문서로 넘긴다.
+ * 30일 정리 작업이 상품에 연결되지 않은 이 폴더 파일을 함께 지운다.
+ */
+export async function uploadSpecDocument(file: File): Promise<UploadImageDirectResult> {
+  if (file.type !== "application/pdf") {
+    return { error: "PDF 파일만 올릴 수 있습니다. TXT·MD는 내용이 바로 입력칸에 들어갑니다." };
+  }
+  if (file.size > MAX_SPEC_DOC_SIZE) {
+    return { error: "사양서 PDF는 10MB 이하만 올릴 수 있습니다." };
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "로그인이 필요합니다." };
+  }
+
+  const path = `${user.id}/products/docs/${crypto.randomUUID()}.pdf`;
+  const { error } = await supabase.storage
+    .from("shop-detail-images")
+    .upload(path, file, { contentType: "application/pdf", upsert: false });
+  if (error) {
+    return { error: error.message };
+  }
+
+  const { data } = supabase.storage.from("shop-detail-images").getPublicUrl(path);
+  return { url: data.publicUrl };
+}

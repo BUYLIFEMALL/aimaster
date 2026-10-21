@@ -1,12 +1,6 @@
-import { requireProgramAccess } from "@/lib/access";
-import { DetailPageApp } from "@/components/DetailPageApp";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-export default async function GuideRoutePage() {
-  const user = await requireProgramAccess();
-
-  // defaultTab="guide"로 열리도록 지원
-  return <DetailPageApp userEmail={user?.email} initialTab="guide" />;
+// v1.10(2026-10-21, 이커머스 병합 E1): 상세페이지 자동화로 합쳐져 사용 안내는 첫 화면(이동 안내)으로 보낸다.
+export default function GuideRoutePage() {
+  redirect("/");
 }

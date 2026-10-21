@@ -71,6 +71,7 @@ export interface Database {
           reference_image_urls: string[];
           image_generation_notes: string | null;
           default_image_model: string;
+          layout_preset: string;
           status: ProductStatus;
           language: string;
           currency: string;
@@ -99,6 +100,7 @@ export interface Database {
           reference_image_urls?: string[];
           image_generation_notes?: string | null;
           default_image_model?: string;
+          layout_preset?: string;
           status?: ProductStatus;
           language?: string;
           currency?: string;
@@ -127,6 +129,7 @@ export interface Database {
           reference_image_urls?: string[];
           image_generation_notes?: string | null;
           default_image_model?: string;
+          layout_preset?: string;
           status?: ProductStatus;
           language?: string;
           currency?: string;
@@ -141,6 +144,7 @@ export interface Database {
           user_id: string | null;
           section_key: string;
           section_order: number;
+          layout_preset: string;
           section_name: string;
           prompt_template: string;
           korean_guide: string;
@@ -154,6 +158,7 @@ export interface Database {
           user_id?: string | null;
           section_key: string;
           section_order: number;
+          layout_preset?: string;
           section_name: string;
           prompt_template: string;
           korean_guide?: string;
@@ -167,6 +172,7 @@ export interface Database {
           user_id?: string | null;
           section_key?: string;
           section_order?: number;
+          layout_preset?: string;
           section_name?: string;
           prompt_template?: string;
           korean_guide?: string;

@@ -12,6 +12,7 @@ import { downloadImageAsBase64 } from "@/lib/storageImage";
 import { buildProductAnalysisPrompt, type RawProductAnalysis } from "@/lib/ai/productAnalysisPrompt";
 import { flattenProductAnalysis, type FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
 import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
+import { toLayoutPreset } from "@/lib/layoutPresets";
 
 export interface AnalyzeProductState {
   error?: string;
@@ -37,6 +38,9 @@ export async function analyzeProductAction(formData: FormData): Promise<AnalyzeP
     .filter(Boolean)
     .slice(0, MAX_REFERENCE_IMAGES);
 
+  const specDocumentUrl = String(formData.get("specDocumentUrl") ?? "").trim();
+  const productNameHint = String(formData.get("productNameHint") ?? "").trim();
+
   if (!sourceImageUrl) {
     return { error: "먼저 대표이미지를 업로드해주세요." };
   }
@@ -49,7 +53,16 @@ export async function analyzeProductAction(formData: FormData): Promise<AnalyzeP
   try {
     const allImageUrls = [sourceImageUrl, ...referenceImageUrls];
     const images = await Promise.all(allImageUrls.map((url) => downloadImageAsBase64(supabase, url)));
-    const prompt = buildProductAnalysisPrompt(sourceText || null, images.length);
+    const imageCount = images.length;
+    if (specDocumentUrl) {
+      // 사양서 PDF도 같은 inlineData 조각으로 넘긴다(Gemini는 application/pdf를 문서로 읽음).
+      const doc = await downloadImageAsBase64(supabase, specDocumentUrl);
+      images.push({ base64: doc.base64, mimeType: "application/pdf" });
+    }
+    const prompt = buildProductAnalysisPrompt(sourceText || null, imageCount, {
+      hasSpecDocument: Boolean(specDocumentUrl),
+      productNameHint,
+    });
     const text = await analyzeProductWithGemini({ prompt, images, apiKey });
     const raw = parseJsonFromModelText<RawProductAnalysis>(text);
     return { data: flattenProductAnalysis(raw) };
@@ -109,6 +122,7 @@ export async function createProductAction(formData: FormData) {
       reference_image_urls: referenceImageUrls,
       image_generation_notes: String(formData.get("imageGenerationNotes") ?? "").trim() || null,
       default_image_model: defaultImageModel,
+      layout_preset: toLayoutPreset(formData.get("layoutPreset")),
       status: "analyzed",
     })
     .select("id")
@@ -119,4 +133,74 @@ export async function createProductAction(formData: FormData) {
   }
 
   redirect(`/products/${data.id}`);
+}
+
+export interface ImportLegacyProductInput {
+  title: string;
+  productName: string;
+  originalPrice?: number | null;
+  salePrice?: number | null;
+  description?: string;
+  targetAudience?: string;
+  toneAndManner?: string;
+  specDocContent?: string;
+  platform: "coupang" | "smartstore";
+  sourceImageUrl: string;
+}
+
+export interface ImportLegacyProductResult {
+  error?: string;
+  productId?: string;
+  templates?: { id: string; section_key: string; section_order: number }[];
+}
+
+/**
+ * v1.16(이커머스 병합 E1): AI 12단 상세페이지(detail-page-12p)의 JSON 백업 한 프로젝트를 상품으로 만든다.
+ * 12단은 결과를 브라우저에만 저장했으므로, 회원이 12단 화면에서 내려받은 백업 파일을 여기서 올린다.
+ * 이미지는 브라우저가 본인 폴더에 먼저 올리고(uploadImageDirect), 장면 이미지는 반환된 템플릿에
+ * addCustomSectionImageAction으로 붙인다. AI 호출 없음.
+ */
+export async function importLegacyProductAction(input: ImportLegacyProductInput): Promise<ImportLegacyProductResult> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  if (!input.sourceImageUrl?.trim()) {
+    return { error: "대표이미지가 없습니다." };
+  }
+  const layoutPreset = input.platform === "smartstore" ? "smartstore9" : "coupang12";
+  const clip = (v: string | undefined, max: number) => (v ?? "").trim().slice(0, max) || null;
+  const num = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.round(v) : null);
+
+  const { data, error } = await supabase
+    .from("shop_products")
+    .insert({
+      user_id: user.id,
+      product_label: clip(input.title, 200),
+      name: clip(input.productName, 200),
+      price: num(input.originalPrice),
+      sale_price: num(input.salePrice),
+      key_features: clip(input.description, 4000),
+      specs: clip(input.specDocContent, 8000),
+      target_customer: clip(input.targetAudience, 1000),
+      mood_keywords: input.toneAndManner?.trim() ? [input.toneAndManner.trim().slice(0, 100)] : [],
+      source_image_url: input.sourceImageUrl.trim(),
+      reference_image_urls: [],
+      layout_preset: layoutPreset,
+      status: "analyzed",
+    })
+    .select("id")
+    .single();
+  if (error || !data) {
+    return { error: error?.message ?? "상품 저장에 실패했습니다." };
+  }
+
+  const { data: templates } = await supabase
+    .from("shop_prompt_templates")
+    .select("id, section_key, section_order")
+    .is("user_id", null)
+    .eq("layout_preset", layoutPreset)
+    .eq("is_active", true)
+    .order("section_order", { ascending: true });
+
+  return { productId: data.id, templates: templates ?? [] };
 }

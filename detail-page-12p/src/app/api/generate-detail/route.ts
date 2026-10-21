@@ -1,43 +1,12 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
-import { getUserGeminiApiKey } from "@/lib/apiKeys";
-import { generateDetailPageScenes } from "@/lib/detailEngine";
-import { ProductInputData } from "@/types/detail";
 
-export const maxDuration = 60; // 60초 타임아웃
-
-export async function POST(req: Request) {
-  const auth = await checkProgramAccessApi();
-  if (!auth.allowed || !auth.user) {
-    return NextResponse.json({ error: auth.error || "로그인이 필요합니다." }, { status: auth.status || 401 });
-  }
-
-  // 최상위 절대 규칙: 본인 API 키 사용
-  const userApiKey = await getUserGeminiApiKey(auth.user.id);
-  if (!userApiKey) {
-    return NextResponse.json(
-      {
-        error: "본인의 Gemini API 키가 등록되지 않았습니다. 좌측 메뉴의 '🔑 API키등록·플랫폼연동'에서 본인 API 키를 먼저 등록해주세요.",
-        needApiKey: true,
-      },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const inputData: ProductInputData = await req.json();
-
-    if (!inputData.productName || !inputData.productName.trim()) {
-      return NextResponse.json({ error: "제품명을 입력해주세요." }, { status: 400 });
-    }
-
-    const scenes = await generateDetailPageScenes(userApiKey, inputData);
-    return NextResponse.json({ success: true, scenes });
-  } catch (err: any) {
-    console.error("[generate-detail] Error:", err);
-    return NextResponse.json(
-      { error: err.message || "상세페이지 기획 생성 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  // v1.10(2026-10-21, 이커머스 병합 E1): 상세페이지 자동화(shop-detail-page)로 합쳐져 생성 기능을 닫는다(410).
+  return NextResponse.json(
+    {
+      error: "AI 12단 상세페이지는 「상세페이지 자동화」로 합쳐졌습니다. https://shop-detail-page.buylife.xyz 에서 쿠팡 12단·스마트스토어 9단으로 만들어 주세요.",
+      movedTo: "https://shop-detail-page.buylife.xyz",
+    },
+    { status: 410 },
+  );
 }

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SectionImageGrid } from "@/components/products/SectionImageGrid";
 import type { ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
+import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ const STATUS_LABELS: Record<string, string> = {
   draft: "임시저장",
   analyzing: "AI 분석중",
   analyzed: "소구점 분석완료",
-  generating: "15단 생성중",
+  generating: "섹션 생성중",
   completed: "상세페이지 완성",
   error: "오류",
 };
@@ -45,6 +46,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     .select("id, section_key, section_name, section_order")
     .or(`user_id.eq.${user.id},user_id.is.null`)
     .eq("is_active", true)
+    .eq("layout_preset", product.layout_preset ?? "shop15")
     .order("section_order", { ascending: true });
 
   const { data: images } = await supabase
@@ -52,6 +54,8 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     .select("section_key, image_url, image_urls")
     .eq("product_id", product.id)
     .eq("language", product.language);
+
+  const preset = LAYOUT_PRESETS[toLayoutPreset(product.layout_preset)];
 
   const initialImages: Record<string, { url: string; history: string[] }> = {};
   for (const img of images ?? []) {
@@ -114,13 +118,13 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg">🎨</span>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">15단 상세페이지 섹션 스튜디오</h2>
+              <h2 className="text-lg font-black text-slate-900 tracking-tight">{preset.label} 섹션 스튜디오</h2>
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                15 SECTIONS
+                {(templates ?? []).length} SECTIONS
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              헤더부터 최종 CTA까지 15개 섹션을 생성하고, 마음에 들지 않는 섹션은 개별 재생성하거나 직접 업로드할 수 있습니다.
+              {preset.description}. 마음에 들지 않는 섹션은 개별 재생성하거나 직접 업로드할 수 있습니다.
             </p>
           </div>
         </div>

@@ -158,6 +158,7 @@ export function SectionImageGrid({
 
   const doneCount = Object.values(states).filter((s) => s.status === "done").length;
   const hasAnyImage = doneCount > 0;
+  const [showPhonePreview, setShowPhonePreview] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -239,7 +240,7 @@ export function SectionImageGrid({
             ) : (
               <>
                 <span>🎨</span>
-                <span>15개 섹션 전체 자동 생성</span>
+                <span>{templates.length}개 섹션 전체 자동 생성</span>
               </>
             )}
           </button>
@@ -271,7 +272,37 @@ export function SectionImageGrid({
         </div>
       </div>
 
-      {/* 15개 섹션 세로 한 줄 나열 (실제 상세페이지 레이아웃과 동일) */}
+      {/* v1.16(12단에서 옮김): 실제 쇼핑 앱처럼 휴대폰 화면에서 스크롤해 보는 미리보기 */}
+      {hasAnyImage && (
+        <div className="flex justify-center mt-4">
+          <button
+            type="button"
+            onClick={() => setShowPhonePreview((v) => !v)}
+            className="text-xs font-bold px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:text-blue-700"
+          >
+            {showPhonePreview ? "✕ 모바일 미리보기 닫기" : "📱 모바일 미리보기"}
+          </button>
+        </div>
+      )}
+      {showPhonePreview && (
+        <div className="flex justify-center">
+          <div className="w-[300px] sm:w-[360px] max-w-full rounded-[2.5rem] border-[10px] border-slate-900 bg-slate-900 shadow-xl overflow-hidden">
+            <div className="h-5 flex justify-center items-center">
+              <div className="w-16 h-1.5 rounded-full bg-slate-700" />
+            </div>
+            <div className="h-[560px] sm:h-[680px] overflow-y-auto bg-white rounded-b-[1.8rem]">
+              {templates.map((t) =>
+                states[t.section_key]?.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={t.section_key} src={imageSrc(states[t.section_key].url)} alt={t.section_name} className="block w-full" />
+                ) : null,
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 섹션 세로 한 줄 나열 (실제 상세페이지 레이아웃과 동일) */}
       <div className="flex flex-col gap-4 max-w-lg mx-auto mt-6">
         {templates.map((t) => {
           const state = states[t.section_key];
@@ -390,7 +421,7 @@ export function SectionImageGrid({
             className="flex items-center justify-center gap-2 w-full text-center text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 px-6 py-4 rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-[1.01] active:scale-[0.99]"
           >
             <span className="text-lg">📥</span>
-            <span>선택한 이미지로 최종 15단 상세페이지 세로 롱 이미지 병합 & 다운로드</span>
+            <span>선택한 이미지로 최종 {templates.length}단 상세페이지 세로 롱 이미지(860px) 병합 & 다운로드</span>
           </a>
         </div>
       )}

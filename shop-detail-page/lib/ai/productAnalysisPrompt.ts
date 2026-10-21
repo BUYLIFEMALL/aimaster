@@ -42,11 +42,23 @@ const FEW_SHOT_EXAMPLE = `{
   }
 }`;
 
-export function buildProductAnalysisPrompt(sourceText: string | null, imageCount: number): string {
-  const imageNote =
+export function buildProductAnalysisPrompt(
+  sourceText: string | null,
+  imageCount: number,
+  options: { hasSpecDocument?: boolean; productNameHint?: string } = {},
+): string {
+  let imageNote =
     imageCount > 1
       ? `상품 이미지 ${imageCount}장(대표이미지 1장 + 참고이미지 ${imageCount - 1}장)이 함께 제공된다. 모든 이미지를 종합해서 분석하라.`
       : `상품 이미지가 제공된다.`;
+  // v1.16(이커머스 병합 E1, 12단에서 옮김): 사양서 PDF·판매자가 아는 상품명을 근거로 쓰게 한다.
+  if (options.hasSpecDocument) {
+    imageNote += ` 상품 사양서(PDF)도 함께 제공된다. 소재·치수·용량·인증 등 수치와 사실은 사양서에 적힌 값을 우선 사용하라.`;
+  }
+  if (options.productNameHint?.trim()) {
+    imageNote += ` 판매자가 알려준 상품명은 "${options.productNameHint.trim()}"이다.`;
+  }
+  imageNote += ` 이미지·사양서·원본 정보로 확인할 수 없는 인증·수상·수치는 지어내지 말고 "확인 필요"로 적어라.`;
 
   if (sourceText && sourceText.trim()) {
     return `${imageNote} 이미지와 아래 상품 원본 정보를 함께 분석하여 아래 예시처럼 깊고 구체적으로 빠짐없이 정리하라. JSON만 출력하고 다른 설명은 출력하지 마라.

@@ -1,7 +1,7 @@
 # AI 12단 상세페이지 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI 12단 상세페이지 자동화 (`detail-page-12p`)  
-> **현재 버전**: `v1.05` (2026-10-17 갱신)  
+> **현재 버전**: `v1.10` (2026-10-21, 상세페이지 자동화로 병합 — 이동 안내만)  
 > **공식 도메인**: `https://detail-12p.buylife.xyz`  
 > **카탈로그 슬러그**: `detail-page-12p`  
 > **배지**: `['new']` — 운영 DB `programs.badges` 기준(2026-10-21 확인). FREE 배지가 없으므로 구독 또는 일반 등급 이상 + 관리자가 부여한 사용기간이 있어야 이용 가능(예전 표기 `['free','new']`는 DB와 달라 정정)
@@ -134,3 +134,9 @@ detail-page-12p/
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.10 — 상세페이지 자동화(15p)로 병합, 이동 안내만 남김 (Claude Code 맥미니, 보조 계정 · 배포 대기)
+- 근거: [`../docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](../docs/analysis-ecommerce-consolidation-20261021/REPORT.md) 묶음 E1(주인님 승인). 쿠팡 12단·스마트스토어 9단·사양서 분석·모바일 미리보기는 `shop-detail-page` v1.16으로 옮김.
+- 첫 화면(`src/app/page.tsx`)을 `components/MovedNotice.tsx`로 교체: 이 주소 브라우저 저장소(`aimaster_detail_12p_projects_v2`)의 12단 자료를 JSON으로 내려받는 버튼 + 15p `/products/import` 링크. 카탈로그에서 숨겨도(`is_active=false`) 자료를 받을 수 있게 **로그인만 확인**(권한 판정 없음 — 생성 기능이 없으므로). `/guide`는 첫 화면으로.
+- 생성 API(`auto-search`·`generate-detail`·`generate-image`)는 410 + 이동 주소. `user-key`는 그대로. 기존 화면 컴포넌트(`DetailPageApp` 등)는 되돌리기용으로 남김(쓰이지 않음).
+- 옛 주소 `https://detail-12p.buylife.xyz`는 지우지 않음. 배포 순서·검수: `../shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` E1 절.

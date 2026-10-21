@@ -27,5 +27,23 @@
 - D-48-01 중 「같은 섹션 동시 생성 시 이력 덮어쓰기」는 남음(읽기 직후 upsert라 창이 짧음). 필요하면 DB 함수로 원자적 추가(스키마 변경 승인 필요).
 - 2026-11-21 이후 첫 실행에서 9월 자료(상품 4·파일 약 103)가 지워진다 — 정상.
 
+---
+
+# E1 · v1.16 (12단 → 15p) — 윈도우 CLI 다음 첫 단계
+
+> E0(v1.15) 배포·검수를 끝낸 뒤 진행. 순서 중요: **마이그레이션이 배포보다 먼저**(v1.16 코드가 `layout_preset` 칸을 읽음 — 없으면 상품 화면 섹션이 비어 보임). 마이그레이션은 기본값이 있는 칸 추가 + 행 추가라 v1.15 코드에는 영향 없음.
+
+1. 마이그레이션 `supabase/migrations/20261021_layout_presets_v1_16.sql` 적용 → 확인: `select layout_preset, count(*) from shop_prompt_templates where user_id is null group by 1;` → shop15 15 · coupang12 12 · smartstore9 9.
+2. `cd shop-detail-page && npm run build && vercel deploy --prod --yes` → Ready.
+3. `cd detail-page-12p && npm run build && vercel deploy --prod --yes` → Ready(이동 안내 화면 v1.10).
+4. SQL `docs/analysis-ecommerce-consolidation-20261021/E1_grant_and_hide_12p.sql` 0→1→2→3→4 순서(권한 연장 4명, 12단 `is_active=false`, 두 앱 DB 버전).
+5. 크롬 검수(시험 계정, **AI 생성 버튼 누르지 않음 — 비용 0**):
+   - 15p 새 상품 화면: 6번 규격 3개 카드·「📄 사양서 불러오기」 버튼, TXT 파일 선택 시 원본 정보 칸에 내용이 들어가는지.
+   - 15p 목록: 「📦 12단 자료 가져오기」 → `/products/import` 화면.
+   - 12단 `https://detail-12p.buylife.xyz`: 이동 안내 화면·백업 버튼(자료 없으면 안내 문구)·「상세페이지 자동화 열기」 링크.
+   - 12단 생성 API가 410: `curl -s -X POST https://detail-12p.buylife.xyz/api/generate-detail` (로그인 없이도 410).
+   - 휴대폰 폭(390px)에서 규격 카드가 1열로.
+6. 실제 생성 확인이 필요하면(쿠팡 12단 섹션 1장) **비용을 주인님께 먼저 알린 뒤** 가장 저렴한 이미지 모델로 1장만.
+
 ## 배포 결과
 (윈도우 CLI가 기록)

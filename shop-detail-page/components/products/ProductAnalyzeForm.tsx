@@ -1,12 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { uploadImageDirect } from "@/lib/uploadImageClient";
+import { uploadImageDirect, uploadSpecDocument } from "@/lib/uploadImageClient";
 import { analyzeProductAction, createProductAction } from "@/lib/actions/products";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
+import { DEFAULT_LAYOUT_PRESET, LAYOUT_PRESETS, type LayoutPreset } from "@/lib/layoutPresets";
 
 const MAX_REFERENCE_IMAGES = 10;
 
@@ -28,6 +29,7 @@ const EMPTY_FIELDS: FlatProductAnalysis = {
 export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const referenceInputRef = useRef<HTMLInputElement>(null);
+  const specDocInputRef = useRef<HTMLInputElement>(null);
 
   const [productLabel, setProductLabel] = useState("");
   const [sourceImageUrl, setSourceImageUrl] = useState<string | null>(null);
@@ -37,6 +39,9 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
   const [price, setPrice] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [defaultImageModel, setDefaultImageModel] = useState<ImageModelKey>(DEFAULT_IMAGE_MODEL);
+  const [layoutPreset, setLayoutPreset] = useState<LayoutPreset>(DEFAULT_LAYOUT_PRESET);
+  const [specDocument, setSpecDocument] = useState<{ name: string; url: string } | null>(null);
+  const [isUploadingSpecDoc, setIsUploadingSpecDoc] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingReference, setIsUploadingReference] = useState(false);
@@ -95,6 +100,30 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
     }
   }
 
+  // v1.16(12단에서 옮김): TXT·MD는 내용을 원본 정보 칸에 붙이고, PDF는 본인 폴더에 올려 분석 때 문서로 넘긴다.
+  async function handleSpecDocChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    try {
+      if (/\.(txt|md)$/i.test(file.name) || file.type.startsWith("text/")) {
+        const text = (await file.text()).trim();
+        if (text) setSourceText((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text));
+        return;
+      }
+      setIsUploadingSpecDoc(true);
+      const result = await uploadSpecDocument(file);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      if (result.url) setSpecDocument({ name: file.name, url: result.url });
+    } finally {
+      setIsUploadingSpecDoc(false);
+      e.target.value = "";
+    }
+  }
+
   function removeReferenceImage(url: string) {
     setReferenceImageUrls((prev) => prev.filter((u) => u !== url));
   }
@@ -111,6 +140,8 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
       formData.set("sourceImageUrl", sourceImageUrl);
       for (const url of referenceImageUrls) formData.append("referenceImageUrls", url);
       formData.set("sourceText", sourceText);
+      if (specDocument) formData.set("specDocumentUrl", specDocument.url);
+      formData.set("productNameHint", productLabel);
       const result = await analyzeProductAction(formData);
 
       if (result.needsApiKey) {
@@ -271,6 +302,32 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
           value={sourceText}
           onChange={(e) => setSourceText(e.target.value)}
         />
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            ref={specDocInputRef}
+            type="file"
+            accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown"
+            className="hidden"
+            onChange={handleSpecDocChange}
+          />
+          <button
+            type="button"
+            onClick={() => specDocInputRef.current?.click()}
+            disabled={isUploadingSpecDoc}
+            className="text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-white disabled:opacity-50"
+          >
+            {isUploadingSpecDoc ? "사양서 올리는 중..." : "📄 사양서 불러오기 (PDF · TXT · MD)"}
+          </button>
+          {specDocument && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1">
+              📎 {specDocument.name}
+              <button type="button" onClick={() => setSpecDocument(null)} className="text-slate-400 hover:text-rose-500" aria-label="사양서 빼기">
+                ✕
+              </button>
+            </span>
+          )}
+          <span className="text-[11px] text-slate-400">PDF는 분석 때 AI가 문서 그대로 읽고, TXT·MD는 위 칸에 내용이 들어갑니다.</span>
+        </div>
 
         <button
           type="button"
@@ -309,6 +366,11 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
             </span>
           )}
         </div>
+        {analyzed && (
+          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+            ⚠️ AI가 사진·사양서로 <b>추정</b>한 내용입니다. 스펙·인증·가격·효능 표현은 실제 상품 정보와 꼭 맞춰 고친 뒤 저장해 주세요.
+          </p>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -470,9 +532,34 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
       </div>
 
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-3">
-        <h2 className="text-sm sm:text-base font-bold text-slate-900">6. 상세페이지 이미지 생성 모델</h2>
+        <h2 className="text-sm sm:text-base font-bold text-slate-900">6. 상세페이지 규격</h2>
+        <p className="text-xs text-slate-500">판매할 마켓에 맞춰 섹션 구성을 고르세요. 저장한 뒤에는 바꿀 수 없습니다.</p>
+        <input type="hidden" name="layoutPreset" value={layoutPreset} />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {(Object.keys(LAYOUT_PRESETS) as LayoutPreset[]).map((key) => {
+            const p = LAYOUT_PRESETS[key];
+            const active = layoutPreset === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setLayoutPreset(key)}
+                className={`text-left rounded-xl border p-3 transition-all ${
+                  active ? "border-blue-500 bg-blue-50/60 shadow-xs" : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className={`text-sm font-bold ${active ? "text-blue-700" : "text-slate-800"}`}>{p.label}</div>
+                <div className="text-[11px] text-slate-500 mt-1 leading-snug">{p.description}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-3">
+        <h2 className="text-sm sm:text-base font-bold text-slate-900">7. 상세페이지 이미지 생성 모델</h2>
         <p className="text-xs text-slate-500">
-          15개 섹션 이미지를 생성할 때 기본으로 사용할 나노바나나 엔진 모델을 선택하세요.
+          섹션 이미지를 생성할 때 기본으로 사용할 나노바나나 엔진 모델을 선택하세요.
         </p>
         <input type="hidden" name="defaultImageModel" value={defaultImageModel} />
         <div className="flex rounded-xl border border-slate-200 overflow-hidden text-xs w-fit bg-slate-50 p-1 gap-1">
@@ -499,7 +586,7 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
         disabled={!sourceImageUrl || isSaving}
         className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold py-3.5 px-6 rounded-xl shadow-md shadow-blue-500/25 transition-all text-sm sm:text-base"
       >
-        {isSaving ? "상세페이지 프로젝트 저장 중..." : "✓ 상품정보 저장 후 15단 상세페이지 만들기"}
+        {isSaving ? "상세페이지 프로젝트 저장 중..." : `✓ 상품정보 저장 후 ${LAYOUT_PRESETS[layoutPreset].short} 상세페이지 만들기`}
       </button>
     </form>
   );
