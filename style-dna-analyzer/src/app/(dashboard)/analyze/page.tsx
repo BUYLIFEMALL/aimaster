@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Loader2,
@@ -173,6 +173,33 @@ export default function AnalyzePage() {
     ? "bg-[#0b1329] border-slate-800 text-slate-100"
     : "bg-white border-slate-200/90 text-slate-900 shadow-xs";
 
+  // AI 리버스 프롬프트의 「스타일 정밀 분석으로 보내기」로 넘어온 원본(?src=서명 주소)을 고른 이미지처럼 넣는다(v1.25).
+  // 우리 Supabase 저장소의 리버스 프롬프트 임시 버킷 서명 주소만 받는다. 브라우저에서 받아 기존 pick 흐름을 그대로 탄다.
+  useEffect(() => {
+    const src = new URLSearchParams(window.location.search).get("src");
+    if (!src) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    let ok = false;
+    try {
+      const u = new URL(src);
+      const own = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://invalid.local");
+      ok = u.protocol === "https:" && u.host === own.host && u.pathname.startsWith("/storage/v1/object/sign/reverse-prompt-tmp/");
+    } catch { ok = false; }
+    if (!ok) { setError({ message: "가져올 수 없는 이미지 주소입니다. AI 리버스 프롬프트에서 다시 보내 주세요." }); return; }
+    (async () => {
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        if (!res.ok || !blob.type.startsWith("image/")) throw new Error();
+        const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "png";
+        await pick(new File([blob], `reverse-prompt-source.${ext}`, { type: blob.type }));
+      } catch {
+        setError({ message: "이미지를 불러오지 못했습니다(주소는 10분 뒤 만료됩니다). AI 리버스 프롬프트에서 다시 보내 주세요." });
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className={`transition-colors duration-200 ${containerTheme}`}>
       <HelpGuideModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
@@ -205,6 +232,18 @@ export default function AnalyzePage() {
               <FlaskConical className="h-3.5 w-3.5 text-cyan-600" />
               <span>3단계 결과 테스트</span>
             </Link>
+          )}
+          {record?.imageUrl && (
+            <a
+              href={`https://reverse-prompt.buylife.xyz/analyze?src=${encodeURIComponent(record.imageUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="같은 이미지를 Midjourney·Flux·DALL·E 등 다른 도구 문법의 프롬프트로 바꿉니다(AI 리버스 프롬프트)"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition shadow-2xs"
+            >
+              <span aria-hidden>🔁</span>
+              <span>다른 도구 문법으로 바꾸기</span>
+            </a>
           )}
 
           <button

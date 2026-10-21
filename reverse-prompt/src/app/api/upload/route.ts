@@ -37,6 +37,17 @@ export async function POST(request: NextRequest) {
   return json({ path, token: data.token, media: det.media, mime: det.mime });
 }
 
+/** 본인 임시 파일의 짧은 서명 주소(10분) — 「스타일 정밀 분석으로 보내기」용(v1.11). 파일이 1시간 정리로 지워졌으면 404 */
+export async function GET(request: NextRequest) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return json({ error: access.error }, access.status);
+  const path = request.nextUrl.searchParams.get("path");
+  if (!isOwnTempPath(access.user.id, path)) return json({ error: "파일이 올바르지 않습니다." }, 400);
+  const { data, error } = await createAdminClient().storage.from(BUCKET).createSignedUrl(path, 600);
+  if (error || !data?.signedUrl) return json({ error: "원본 파일이 정리되어 보낼 수 없습니다. 이미지를 다시 올려 주세요.", expired: true }, 404);
+  return json({ url: data.signedUrl });
+}
+
 /** 임시 파일 즉시 삭제(본인 파일만) */
 export async function DELETE(request: NextRequest) {
   const access = await checkProgramAccessApi();

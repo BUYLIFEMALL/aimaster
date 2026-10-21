@@ -126,3 +126,8 @@
 - 원인: 새 이미지 없이 다시 분석하면 화면이 원본 **주소**(`record.imageUrl`)를 보내는데 `api/analyze`는 data URL만 받아 항상 실패했다(v1.23 이전부터).
 - 수정: 화면은 새 이미지가 없으면 `sourceId`(기록 id)를 보내고, 서버는 본인 기록인지 확인한 뒤 비공개 저장소에서 원본을 읽어 분석(새 기록으로 저장 — 기존 동작과 같음). 원본이 30일 정리로 지워졌으면 「다시 올려 주세요」 안내.
 - 검수: tsc·`npm test` 23개·build, 배포 Ready, DB v1.24. 크롬(관리자 계정 — 그때 크롬이 관리자로 로그인돼 있었음, 본인 키) 시험 이미지 분석 1회 → 그 기록으로 변형 모드 다시 분석 1회 성공(`gemini-3.5-flash-lite`, 팔레트 5색·서명 주소), 시험 기록 2개 삭제.
+
+## 2026-10-21 v1.25 — AI 리버스 프롬프트와 서로 연결 (Claude Code 윈도우)
+- 주인님 결정 A안(두 프로그램 유지 + 연결). 분석 화면 상단(「3단계 결과 테스트」 옆)에 「🔁 다른 도구 문법으로 바꾸기」 → 새 창 `reverse-prompt.buylife.xyz/analyze?src=<원본 서명 주소>`(Midjourney·Flux·DALL·E 등 도구 문법 프롬프트).
+- 받기: `/analyze?src=` — 우리 Supabase 저장소의 `reverse-prompt-tmp` 서명 주소만 받아 브라우저에서 내려받아 기존 `pick` 흐름으로 넣음(10분 만료 안내).
+- 검수: tsc·`npm test` 23개·build, 배포 Ready, DB v1.25(기록 `supabase/migrations/20261021_v1_25_version.sql`). 양방향 실제 흐름은 `reverse-prompt/AGENTS.md` v1.11 기록 참고.

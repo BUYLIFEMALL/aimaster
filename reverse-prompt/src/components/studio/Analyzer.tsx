@@ -150,6 +150,45 @@ export function Analyzer({ historyId }: { historyId?: string }) {
     void makeThumb(f, det.media, url).then((t) => { thumbRef.current = t; });
   }
 
+  // 이미지 스타일 분석기의 「다른 도구 문법으로 바꾸기」로 넘어온 원본(?src=서명 주소)을 파일을 고른 것처럼 넣는다(v1.11).
+  // 우리 Supabase 저장소의 스타일 분석기 원본 버킷 서명 주소만 받는다. 브라우저에서 받아 기존 업로드 흐름을 그대로 탄다.
+  useEffect(() => {
+    const src = new URLSearchParams(window.location.search).get("src");
+    if (!src) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    let ok = false;
+    try {
+      const u = new URL(src);
+      const own = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://invalid.local");
+      ok = u.protocol === "https:" && u.host === own.host && u.pathname.startsWith("/storage/v1/object/sign/style-dna-images/");
+    } catch { ok = false; }
+    if (!ok) { setError("가져올 수 없는 이미지 주소입니다. 이미지 스타일 분석기에서 다시 보내 주세요."); return; }
+    (async () => {
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        if (!res.ok || !blob.type.startsWith("image/")) throw new Error();
+        const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "webp";
+        pick(new File([blob], `style-dna-source.${ext}`, { type: blob.type }));
+        setNotice("이미지 스타일 분석기에서 보낸 원본을 넣었습니다. 대상 도구를 고르고 [분석 시작]을 누르세요.");
+      } catch {
+        setError("이미지를 불러오지 못했습니다(주소가 만료됐을 수 있습니다). 이미지 스타일 분석기에서 다시 보내 주세요.");
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 「스타일 정밀 분석으로 보내기」: 지금 올린 원본(임시 파일)의 10분짜리 서명 주소로 이미지 스타일 분석기를 연다(v1.11)
+  async function sendToStyleDna() {
+    const p = pathRef.current;
+    if (!p) return;
+    const win = window.open("about:blank", "_blank");
+    const r = await api<{ url: string }>(`/api/upload?path=${encodeURIComponent(p)}`, { cache: "no-store" });
+    if (!r.ok) { win?.close(); setError(r.error); return; }
+    const target = `https://style-dna-analyzer.buylife.xyz/analyze?src=${encodeURIComponent(r.data.url)}`;
+    if (win) win.location.href = target; else window.location.href = target;
+  }
+
   // Ctrl+V 이미지 붙여넣기
   useEffect(() => {
     const h = (e: ClipboardEvent) => {
@@ -396,6 +435,12 @@ export function Analyzer({ historyId }: { historyId?: string }) {
                   <textarea aria-label="부정 프롬프트 편집" rows={2} value={negEdit} onChange={(e) => setNegEdit(e.target.value)} />
                 </label>
                 {isMj && <div className="rp-cmd"><small>Midjourney 전체 명령어</small><code>{main}</code></div>}
+                {path && (
+                  <div className="rp-cmd">
+                    <small>색 팔레트·복제/변형 강도·시험 생성까지 더 깊게 보고 싶다면</small>
+                    <button type="button" onClick={() => void sendToStyleDna()}>🎨 스타일 정밀 분석으로 보내기(이미지 스타일 분석기)</button>
+                  </div>
+                )}
               </>
             )}
             <div className="actions">

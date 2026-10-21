@@ -80,3 +80,11 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.11 — 이미지 스타일 분석기와 서로 연결 + 30일 자동 삭제 + 버전 맞추기 (Claude Code 윈도우)
+- 근거: [이미지 카테고리 분석 §7](../docs/analysis-image-consolidation-20261021/REPORT.md) — 주인님 결정 A안(두 프로그램 유지 + 연결·보강). 리버스 프롬프트 = 매체 3종·도구 9종의 「넓은」 변환, 스타일 분석기 = 이미지 스타일의 「깊은」 분석.
+- **보내기**: 이미지 결과에 「🎨 스타일 정밀 분석으로 보내기」(이번 작업에서 올린 원본이 있을 때만 — 기록에서 다시 연 결과는 원본이 없어 숨김). `GET /api/upload?path=`가 본인 임시 파일의 10분 서명 주소를 주고, 새 창으로 `style-dna-analyzer.buylife.xyz/analyze?src=`를 연다.
+- **받기**: `/analyze?src=` — 우리 Supabase 저장소의 `style-dna-images` 서명 주소만 받아 브라우저에서 내려받아 파일을 고른 것처럼(`pick`) 넣음(기존 업로드 흐름 그대로).
+- **30일 정리**: `src/app/api/cron/cleanup`(Vercel cron 매일 03:00 KST, `Bearer CRON_SECRET`, 비밀값 비면 거부) — 생성일 30일 지난 기록(즐겨찾기 포함) 삭제 + 모든 회원 폴더의 1시간 지난 임시 파일 정리(예전엔 다음 업로드 때만 정리). 환경변수 `CRON_SECRET` 추가(Sensitive, 임의값).
+- **버전**: DB가 v1.03에 머물러 있던 것을 코드와 함께 v1.11로(기록 `supabase/migrations/20261021_v1_11_version_sync.sql`), package.json 1.11.0.
+- 검수: tsc·`npm test` 15개·build, 배포 Ready, 정리 주소 비밀값 없음 401. 크롬(관리자 계정 — 그때 크롬 로그인 계정, 본인 키)으로 시험 이미지 분석 1회 → 보내기 → 스타일 분석기에 원본 들어옴 → 그쪽 분석 1회 → 「다른 도구 문법으로 바꾸기」 → 리버스 프롬프트에 원본 들어옴(안내 문구) 양방향 확인. 시험 기록 2개 삭제.
