@@ -38,6 +38,15 @@ const MODULES = [
     ],
   },
   {
+    // 검토 화면 게시물·영상 「묶음 머리」(썸네일 또는 아이콘·제목·건수). 2026-10-21
+    id: "review-group-header",
+    source: "instagram-comment-reply/components/ReviewGroupHeader.tsx",
+    copies: [
+      "threads-comment-reply/components/ReviewGroupHeader.tsx",
+      "youtube-auto-reply/components/ReviewGroupHeader.tsx",
+    ],
+  },
+  {
     // 주소 #id 묶음을 잠깐 테두리로 강조(대시보드에서 검토 화면으로 넘어왔을 때). 2026-10-21
     id: "hash-highlight",
     source: "instagram-comment-reply/components/HashHighlight.tsx",
