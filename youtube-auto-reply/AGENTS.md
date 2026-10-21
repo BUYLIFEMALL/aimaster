@@ -234,3 +234,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 
 ## 2026-10-22 미배포 공용 변경 안내
 - **미배포 공용 변경 안내(2026-10-22, Claude Code 윈도우) — 다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나감**: 공용 기준 코드 사본 `components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx`·`lib/weekChart/bucket.ts`(문구 선택 항목·썸네일·`publicImageUrl`)이 저장소에서 바뀌었지만 이 프로그램 화면·동작은 같다(기본값 그대로). 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 배포 뒤 이 줄을 「배포됨(버전)」으로 바꾼다. 목록: 루트 `docs/SHARED_MODULES.md`.
+
+## 2026-10-22 ⏸ 보류 — 7일 그래프 글자 크게 (주인님 지시: 「놔뒀다가 다음에 수정할때 그때 같이 빌드」)
+- 무엇: 공용 그래프 사본 `components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx` 글자 한 단계씩 크게(제목 14→16px, 합계 12→14px, 막대 위 건수 11→14px, 날짜·요일 10→12px, 흐린 글자 투명도 60→80%, 그날 목록도 한 단계씩). 커밋 `9479f0bc`로 저장소에는 이미 반영됨.
+- **이 프로그램 단독 배포는 하지 않는다.** 다음에 이 프로그램을 다른 이유로 수정해 배포할 때 **함께 빌드**되며, 그때 버전 +0.01·DB 버전 갱신·크롬에서 그래프 글자 크기 확인 후 이 항목을 「배포됨(버전)」으로 바꾼다. 쓰레드 쇼핑제휴(v1.79)에는 이미 배포됨.

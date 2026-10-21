@@ -184,3 +184,7 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 기획 단계(`activeTab === "concept"`)의 예약 요약 아래(`src/components/StudioWorkspace.tsx`)에 접힌 한 줄 「📊 최근 7일 게시 n건 · 그래프 보기」 → 펼치면 날짜별 그래프 + 막대 누르면 그날 게시한 글(캡션 앞부분·인스타 바로가기).
 - 공용 기준 코드 사본(직접 고치지 말 것): `src/components/weekChart/InstaWeekPosts.tsx`(기준 insta_auto_poster)·`WeekReplyPanel.tsx`·`WeekReplyChart.tsx`·`src/lib/weekChart/bucket.ts`(기준 comment-inbox). 데이터는 기존 `/api/instagram/posts`(본인 최근 30건, 공용 `insta-posts-route` — 응답에 `caption` 추가). 게시 완료 뒤 이미지를 지우는 표라 썸네일은 없음.
 - 검수: tsc·build, 커밋 `4ae8a4b9`·`3e7ecf43`·`bf0b8479`, 배포 `ai-webtoon-studio-p3adgzpfw`(v1.25) → `ai-webtoon-studio-4dzj067l9`(v1.26) READY, DB 반영, 크롬(시험 회원)에서 버전·접힌 한 줄·펼치기·막대 누르기 「이날 게시한 글이 없어요」. 게시 기록 0건이라 높이 있는 막대는 미확인. 비용: Vercel 빌드 2회(썸네일 바로잡기 다시 배포 1회 포함).
+
+## 2026-10-22 ⏸ 보류 — 7일 그래프 글자 크게 (주인님 지시: 「놔뒀다가 다음에 수정할때 그때 같이 빌드」)
+- 무엇: 공용 그래프 사본 `src/components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx` 글자 한 단계씩 크게(제목 14→16px, 합계 12→14px, 막대 위 건수 11→14px, 날짜·요일 10→12px, 흐린 글자 투명도 60→80%, 그날 목록도 한 단계씩). 커밋 `9479f0bc`로 저장소에는 이미 반영됨.
+- **이 프로그램 단독 배포는 하지 않는다.** 다음에 이 프로그램을 다른 이유로 수정해 배포할 때 **함께 빌드**되며, 그때 버전 +0.01·DB 버전 갱신·크롬에서 그래프 글자 크기 확인 후 이 항목을 「배포됨(버전)」으로 바꾼다. 쓰레드 쇼핑제휴(v1.79)에는 이미 배포됨.
