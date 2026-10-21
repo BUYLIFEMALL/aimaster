@@ -4,13 +4,14 @@
 // 웹에서 "티스토리 입력기로 보내기"를 누르면 이 작업기가 10초마다 서버의 자동 입력 대기 글을 가져가(POST /api/extension/task)
 // 티스토리 글쓰기 화면을 새로 열고 제목·본문·이미지·카테고리·태그·발행 설정까지 스스로 입력한다. 사이드패널은 상태를 보여주고 중지만 한다.
 // 마지막 "저장·발행" 버튼은 누르지 않는다 — 회원이 내용을 확인하고 직접 누른다.
-importScripts("tistory-core.js", "tistory-engine.js", "tistory-adapter.js");
+importScripts("tistory-core.js", "tistory-engine.js", "tistory-publication.js", "tistory-adapter.js");
 
 const BASE = "https://tistory-auto-blog.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const KEY = {
   token: "tistoryAutoBlogToken",
   blogName: "tistoryBlogName", // 내 티스토리 블로그 이름(myblog.tistory.com 의 myblog)
   active: "tistoryActiveTask", // 지금 입력 중인 작업(작업기가 재시작되면 이 기록으로 중단을 알 수 있다)
+  publication: "tistoryPublicationRun", // IDs only; title/body/private URL stay behind the member/30-day server gate.
   pending: "tistoryPendingResult", // 서버가 저장을 확인해 줄 때까지 보관하는 결과
   state: "tistoryTaskState", // 사이드패널에 보여줄 진행 상태
   notify: "tistoryNotify", // 작업이 끝나면 크롬 알림(기본 켜짐, false면 끔)
@@ -116,18 +117,45 @@ async function precheckImages(blocks, onProgress) {
 // 입력이 끝나면(발행 직전 준비 완료·입력 완료·실패) 크롬 알림으로 알려 준다. 알림을 누르면 그 티스토리 글쓰기 탭으로 이동한다. 사용자가 중지한 경우는 알리지 않는다.
 async function notifyOutcome({ outcome, title, message, tabId }) {
   try {
-    if (!chrome.notifications || !["publish_ready", "completed", "failed"].includes(outcome)) return;
+    if (!chrome.notifications || !["published", "publish_ready", "completed", "failed"].includes(outcome)) return;
     if ((await get(KEY.notify))[KEY.notify] === false) return;
-    const heading = outcome === "publish_ready" ? "발행 직전 준비 완료" : outcome === "completed" ? "티스토리 입력 완료" : "티스토리 입력 중단";
-    const body = outcome === "publish_ready"
+    const heading = outcome === "published" ? "실제 발행 완료" : outcome === "publish_ready" ? "발행 직전 준비 완료" : outcome === "completed" ? "티스토리 입력 완료" : "티스토리 입력 중단";
+    const body = outcome === "published" ? `「${title}」 실제 게시 URL과 발행 시각을 웹 원고 기록에 저장했습니다.` : outcome === "publish_ready"
       ? `「${title}」 입력이 끝났습니다. 내용을 확인하고 티스토리의 마지막 저장·발행 버튼만 직접 누르세요.`
       : outcome === "completed"
         ? `「${title}」 본문 입력은 끝났습니다. 카테고리·태그·발행 설정을 확인하고 직접 발행해 주세요.`
         : `「${title}」 ${String(message || "").slice(0, 120)}`;
     const id = `tistory-${outcome}-${Date.now()}`;
-    await chrome.notifications.create(id, { type: "basic", iconUrl: "icons/icon128.png", title: `티스토리 입력기 · ${heading}`, message: body, priority: 2, requireInteraction: outcome !== "failed" });
+    await chrome.notifications.create(id, { type: "basic", iconUrl: "icons/icon128.png", title: `티스토리 포스팅 자동화 · ${heading}`, message: body, priority: 2, requireInteraction: outcome !== "failed" });
     if (tabId != null) await set({ [KEY.notifyTab]: { id, tabId } });
   } catch { /* 알림 실패는 작업 결과에 영향이 없다 */ }
+}
+
+async function publicationApi(active, action, details = {}) {
+  const token = (await get(KEY.token))[KEY.token];
+  const response = await web(`/api/extension/posts/${encodeURIComponent(active.id)}/auto-publish`, { method: "POST", token, body: { action, runId: active.runId, ...details } });
+  if (!response.ok || !response.data.publication) throw new Error(response.data.error || "발행 기록을 확인하지 못했습니다. 재발행하지 마세요.");
+  return response.data;
+}
+let reconciling = false;
+async function reconcilePublication() {
+  if (currentTask !== null || reconciling) throw new Error("진행 중인 작업이 끝난 뒤 결과를 확인하세요.");
+  reconciling = true;
+  let adapter;
+  try {
+    const active = (await get(KEY.publication))[KEY.publication];
+    if (!active) throw new Error("확인할 자동 발행 실행이 없습니다.");
+    let receipt = await publicationApi(active, "status");
+    if (receipt.publication.state !== "published") {
+      if (!["publishing", "uncertain"].includes(receipt.publication.state)) throw new Error("최종 발행을 시작하지 않은 원고입니다. 원고 상태를 확인하세요.");
+      adapter = self.TistoryAdapter.createTistoryAdapter({ chrome, TaskError, sleep });
+      adapter.state.tabId = active.tabId; adapter.state.blogName = receipt.publication.blogName;
+      const url = await adapter.publicationResult(receipt.title, active.platformPostId);
+      receipt = await publicationApi(active, "published", { url });
+    }
+    await setState({ final: true, outcome: "published", stage: "published", message: "실제 발행 완료 · 웹 원고 기록의 게시 URL/발행 시각을 확인했습니다." });
+    return { ok: true, url: receipt.publication.url };
+  } finally { reconciling = false; if (adapter) await adapter.cleanup(); }
 }
 
 // ---- 작업 실행 ----
@@ -138,7 +166,8 @@ async function runTask(task) {
   cancelRequested = false;
   superseded = false;
   const runId = task.runId || "";
-  await set({ [KEY.active]: { id: task.id, runId, title: task.title, startedAt: Date.now(), stage: "preparing" } });
+  let armAttempted = false;
+  await set({ [KEY.active]: { id: task.id, runId, title: task.title, startedAt: Date.now(), stage: "preparing", automatic: Boolean(task.automatic) } });
   // 실행 임대: 입력하는 동안 45초마다 서버에 "살아 있음"을 알린다. 서버가 이 실행이 더는 유효하지 않다고(409) 답하면 입력을 중지한다.
   const heartbeat = runId ? setInterval(() => run(async () => {
     const token = (await get(KEY.token))[KEY.token];
@@ -158,8 +187,9 @@ async function runTask(task) {
     if (!blogName) throw new TaskError("BLOG_NAME_MISSING", "티스토리 블로그 이름이 설정되지 않았습니다. 사이드패널에서 내 블로그 이름을 먼저 저장해주세요.");
     const originalBlocks = Array.isArray(task.blocks) ? task.blocks : [];
     const blocks = await precheckImages(originalBlocks, (n, total) => { if (cancelRequested) return; run(() => setState({ stage: "preparing", message: `이미지 ${n}/${total}장을 확인하는 중...` })); });
+    if (task.automatic && blocks.some(block => block.type === "image" && block.skip)) throw new TaskError("IMAGE_MISSING", "원고 이미지를 모두 불러오지 못해 자동 발행을 중지했습니다. 이미지가 빠진 글을 발행하지 않습니다.");
     if (cancelRequested) throw new TaskError("CANCELLED", "사용자가 입력을 중지했습니다.");
-    const result = await runInputTask({
+    let result = await runInputTask({
       task: { ...task, blocks }, adapter, blogName,
       progress: (stage, message, extra) => {
         run(async () => {
@@ -172,6 +202,32 @@ async function runTask(task) {
       isCancelled: () => cancelRequested,
       sleep,
     });
+    if (task.automatic) {
+      if (!result.settingsApplied || result.imageSkipped || task.publish?.timing !== "now") throw new TaskError("SETTINGS_FAILED", "전체 내용과 즉시 발행 설정을 확인하지 못해 최종 발행하지 않았습니다.");
+      await adapter.ensureAlive();
+      if (cancelRequested) throw new TaskError("CANCELLED", "사용자가 자동 포스팅을 중지했습니다.");
+      const snapshot = await adapter.publicationSnapshot();
+      const matched = Core.matchTextBlocks(blocks, snapshot.body);
+      if (Core.normalize(snapshot.title) !== Core.normalize(task.title) || matched.bodyEmpty || matched.matched !== matched.total || snapshot.imageCount !== result.imageCount) throw new TaskError("FINAL_CHECK_FAILED", "발행 설정 뒤 원고 내용이 달라져 최종 발행하지 않습니다.");
+      for (const block of blocks) if (block.type === "html" && !await adapter.keepsStructure(block.html)) throw new TaskError("STRUCTURE_LOST", "발행 설정 뒤 본문 구조를 확인하지 못했습니다.");
+      const active = { id: task.id, runId, tabId: adapter.state.tabId };
+      await set({ [KEY.publication]: active });
+      if (!(await adapter.finalPublication(snapshot, task.publish, runId)).ok) throw new TaskError("FINAL_CHECK_FAILED", "발행 직전 원고/공개 범위/현재 발행을 확인하지 못했습니다.");
+      await adapter.watchPublication(async platformPostId => {
+        const stored = (await get(KEY.publication))[KEY.publication];
+        if (stored?.id === task.id && stored.runId === runId) await set({ [KEY.publication]: { ...stored, platformPostId } });
+      });
+      // Persist before requesting arm. Lost ACK never permits another final click.
+      armAttempted = true;
+      await set({ [KEY.active]: { ...active, automatic: true, stage: "arming" } });
+      await publicationApi(active, "arm", { blogName });
+      await setState({ stage: "publishing", message: "마지막 발행을 1회 진행하고 실제 게시 결과를 확인합니다." });
+      if (cancelRequested) throw new TaskError("CANCELLED", "최종 발행 전에 중지 요청이 도착했습니다. 결과만 확인합니다.");
+      if (!(await adapter.finalPublication(snapshot, task.publish, runId, true)).clicked) throw new TaskError("FINAL_CHECK_FAILED", "최종 원고/설정을 확인하지 못했습니다. 다시 발행하지 않습니다.");
+      const url = await adapter.publicationResult(task.title);
+      await publicationApi(active, "published", { url });
+      result = { ...result, status: "published", message: "실제 발행 완료 · 게시 URL과 발행 시각을 웹 원고 기록에 저장했습니다." };
+    }
     await setState({ final: true, outcome: result.status, stage: result.status, message: result.message, warnings: result.warnings || [], imageCount: result.imageCount });
     await setBadge(result.status === "publish_ready" ? "준비" : "완료", result.status === "publish_ready" ? "#16a34a" : "#2563eb");
     await notifyOutcome({ outcome: result.status, title: task.title, message: result.message, tabId: adapter.state.tabId });
@@ -179,6 +235,14 @@ async function runTask(task) {
     const code = error instanceof TaskError ? error.code : "INPUT_FAILED";
     const message = error instanceof TaskError ? error.message : Core.formatBrowserError(error, "티스토리 편집기 입력");
     const stopped = superseded && code === "CANCELLED";
+    if (task.automatic) {
+      await publicationApi({ id: task.id, runId }, armAttempted ? "uncertain" : "failed", { error: message }).catch(() => {});
+      if (armAttempted) {
+        await setState({ final: true, outcome: "uncertain", stage: "uncertain", message: "발행 결과가 불확실합니다. 다시 발행하지 말고 마지막 발행 결과만 확인하세요." });
+        await setBadge("확인", "#d97706");
+        return;
+      }
+    }
     await reportStatus(task.id, "failed", `[${code}] ${message}`, runId); // 대체된 실행의 보고는 서버가 거절(409)하고 확장은 보관을 끝낸다
     await setState({ final: true, outcome: code === "CANCELLED" ? "cancelled" : "failed", stage: "failed", message: stopped ? "웹에서 이 글이 다시 보내졌거나 이 실행이 끝난 것으로 처리되어 입력을 중지했습니다. 티스토리 화면의 내용을 확인한 뒤 필요하면 다시 보내주세요." : message });
     await setBadge(code === "CANCELLED" ? "" : "실패", "#dc2626");
@@ -193,6 +257,11 @@ async function runTask(task) {
 
 // 작업 도중 작업기가 재시작된 경우: 입력 중이던 글은 "중단"으로 보고한다. 자동으로 다시 입력하지 않는다(중복 입력 방지).
 async function recoverInterrupted(active) {
+  if (active.automatic) {
+    const previous = (await get(KEY.publication))[KEY.publication];
+    if (active.stage === "arming" && previous) { try { await reconcilePublication(); } finally { await chrome.storage.local.remove(KEY.active); } return; }
+    await publicationApi(active, "failed", { error: "입력 중 작업기가 다시 시작됐습니다. 최종 발행은 재실행하지 않습니다." }).catch(() => {});
+  }
   if (active.stage === "settings" || active.stage === "publish_ready" || active.stage === "completed") {
     await chrome.storage.local.remove(KEY.active); // 입력은 이미 검증·보고됨
     return;
@@ -203,16 +272,18 @@ async function recoverInterrupted(active) {
 }
 
 async function pump() {
-  if (busy) return;
+  if (busy || reconciling) return;
   busy = true;
   try {
     const stored = await get([KEY.token, KEY.blogName, KEY.active]);
     const token = stored[KEY.token];
     if (!token) return;
+    const oldState = (await get(KEY.state))[KEY.state];
+    if (oldState?.updatedAt < Date.now() - 30 * 86400000) await chrome.storage.local.remove(KEY.state);
     await flushPending();
     if (stored[KEY.active] && currentTask === null) { await recoverInterrupted(stored[KEY.active]); }
     if (!Core.normalizeBlogName(stored[KEY.blogName])) return; // 블로그 이름 없이는 자동 입력을 가져가지 않는다(가져가면 실패로 끝난다)
-    const { ok, status, data } = await web("/api/extension/task", { method: "POST", token, body: {} });
+    const { ok, status, data } = await web("/api/extension/task", { method: "POST", token, body: { supportsAutoPublish: true } });
     if (!ok) { if (status !== 401) await setState({ connection: `서버 연결 확인 실패 (${status})` }); return; }
     if (data.task) await runTask(data.task);
   } catch { /* 네트워크 오류 — 다음 주기에 다시 */ } finally { busy = false; }
@@ -265,6 +336,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       const stored = (await get(KEY.topics))[KEY.topics];
       return { topics: Array.isArray(stored?.names) ? stored.names : [], at: stored?.at || 0 };
     }
+    if (message.type === "reconcilePublication") return await reconcilePublication();
     if (message.type === "ackBadge") { await setBadge("", "#000000"); return { ok: true }; }
     if (message.type === "pump") { run(pump); return { ok: true }; }
     throw new Error("지원하지 않는 요청");

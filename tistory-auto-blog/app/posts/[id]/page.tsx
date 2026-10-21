@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import { getErrorMessage } from '@/utils/errorMessage'
+import AutoPublishPanel from '@/blog/components/AutoPublishPanel'
 import TistoryPublishPanel from '@/blog/components/TistoryPublishPanel'
 import { DEFAULT_TISTORY_PUBLISH, type TistoryPublish } from '@/blog/utils/tistoryPublish'
 
@@ -75,6 +76,7 @@ interface Post {
   published_at: string
   reading_minutes: number
   author_id: number
+  tistory_publish?: { automation?: { mode?: string } }
 }
 
 /* ------------------------------------------------------------------ */
@@ -126,6 +128,7 @@ export default function PostDetailPage() {
   const [copied, setCopied] = useState(false)
   const [compressing, setCompressing] = useState(false)
   // 티스토리 입력기로 보내기(티스토리 크롬 확장 목록에 올리기, 2026-10-01)
+  const [autoQueued, setAutoQueued] = useState(false)
   const [handoffState, setHandoffState] = useState<'idle' | 'sending' | 'sent'>('idle')
   // 발행 설정(v1.58): 카테고리·공개 범위·댓글·홈주제·발행 시점. 글과 함께 확장으로 보낸다.
   const [publish, setPublish] = useState<TistoryPublish>(DEFAULT_TISTORY_PUBLISH)
@@ -384,7 +387,7 @@ export default function PostDetailPage() {
       {/* =================== HEADER =================== */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
-          <Link href={getBlogBasePath() || '/'} className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">티스토리(원문)생성 자동화</Link>
+          <Link href={getBlogBasePath() || '/'} className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">티스토리 포스팅 자동화</Link>
 
           <div className="flex items-center gap-3 flex-shrink-0">
             <a
@@ -407,7 +410,7 @@ export default function PostDetailPage() {
               </>
             ) : (
               <>
-                <Link href="/login" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">로그인</Link>
+                <Link href={`/auth?redirect=${encodeURIComponent(`/posts/${postId}`)}`} className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">로그인</Link>
                 <Link href="/register" className="text-sm font-semibold text-white bg-zinc-900 hover:bg-zinc-800 px-4 py-2 rounded-lg no-underline transition-colors">가입하기</Link>
               </>
             )}
@@ -565,7 +568,7 @@ export default function PostDetailPage() {
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
                 <button
-                  disabled={handoffState === 'sending'}
+                  disabled={handoffState === 'sending' || autoQueued || Boolean(post.tistory_publish?.automation)}
                   onClick={async () => {
                     setHandoffState('sending')
                     try {
@@ -614,7 +617,8 @@ export default function PostDetailPage() {
               </div>
             </div>
             {/* 발행 설정(카테고리·공개 범위·댓글·홈주제·발행 시점): 버튼 줄과 분리해 전체 폭으로 펼친다 */}
-            <TistoryPublishPanel value={publish} onChange={setPublish} disabled={handoffState === 'sending'} />
+            <TistoryPublishPanel value={publish} onChange={setPublish} disabled={handoffState === 'sending' || autoQueued || Boolean(post.tistory_publish?.automation)} />
+            <AutoPublishPanel key={post.id} postId={post.id} publish={publish} initial={post.tistory_publish} onQueued={() => setAutoQueued(true)} />
             </div>
 
             {/* Category tags */}

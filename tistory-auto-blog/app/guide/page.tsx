@@ -1,5 +1,6 @@
 'use client'
 
+import AutoPublishGuide from '@/blog/components/AutoPublishGuide'
 import { useState } from 'react'
 import Link from 'next/link'
 import { APP_VERSION } from '@/utils/version'
@@ -77,7 +78,7 @@ const PIPELINE_STEPS: StepCard[] = [
     details: [
       '글 보기 화면에서 카테고리, 공개 범위, 댓글 허용, 홈주제, 발행 시점 선택',
       '"티스토리 입력기로 보내기" 클릭 ➔ 확장이 30분 이내에 자동 입력 실행',
-      '최종 저장 및 발행 버튼은 회원이 직접 확인 후 클릭 (계정 안전 보장)',
+      '자동 포스팅은 마지막 발행·실제 URL 기록까지 진행. 입력 준비 조작은 마지막 버튼을 직접 누름',
     ],
   },
 ]
@@ -94,7 +95,7 @@ const FAQ_LIST: FaqItem[] = [
   },
   {
     q: '티스토리 글쓰기 진입 시 "저장된 글이 있습니다. 이어서 작성하시겠습니까?" 창이 뜨면 어떻게 되나요?',
-    a: '티스토리 자동화 확장에 내장된 "대화상자 자동 가드(Dialog Guard)"가 브라우저 confirm 창을 감지하여 자동으로 "취소"를 누르고 깨끗한 새 글 상태로 입력을 시작합니다. 과거 임시저장 글로 인해 서식이 뒤섞이는 현상을 완벽히 방지합니다.',
+    a: '티스토리 포스팅 자동화 확장에 내장된 "대화상자 자동 가드(Dialog Guard)"가 브라우저 confirm 창을 감지하여 자동으로 "취소"를 누르고 깨끗한 새 글 상태로 입력을 시작합니다. 과거 임시저장 글로 인해 서식이 뒤섞이는 현상을 완벽히 방지합니다.',
   },
   {
     q: '보호글(비밀번호 설정) 발행은 왜 지원하지 않나요?',
@@ -123,7 +124,7 @@ export default function GuidePage() {
           <span>{APP_VERSION}</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          티스토리(원문)생성 자동화 완벽 가이드북
+          티스토리 포스팅 자동화 완벽 가이드북
         </h1>
         <p className="mt-2.5 text-sm sm:text-base text-slate-500 max-w-2xl mx-auto">
           트렌드·쇼츠 주제 발굴부터 AI 원문 고품질 생성, 전용 크롬 확장을 통한 티스토리 에디터 1-Click 자동 입력까지
@@ -147,6 +148,7 @@ export default function GuidePage() {
         </div>
       </div>
 
+      <AutoPublishGuide />
       {/* 5단계 시각적 파이프라인 다이어그램 */}
       <section className="mb-14">
         <div className="mb-6 flex items-center justify-between border-b border-slate-200 pb-3">

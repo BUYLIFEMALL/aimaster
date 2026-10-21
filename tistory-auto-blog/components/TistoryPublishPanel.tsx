@@ -148,7 +148,7 @@ export default function TistoryPublishPanel({ value, onChange, disabled }: { val
         )}
       </div>
       <p className="mt-2 text-[11px] leading-4 text-slate-500">
-        보호글(비밀번호)은 자동 입력에서 지원하지 않습니다. 필요하면 티스토리에서 직접 보호로 바꿔 주세요. 마지막 저장·발행 버튼도 직접 누릅니다.
+        보호글(비밀번호)은 자동 입력에서 지원하지 않습니다. 필요하면 티스토리에서 직접 보호로 바꿔 주세요. 입력 준비는 마지막 저장·발행 버튼을 직접 누릅니다. 자동 포스팅은 현재 공개·비공개 설정의 최종 발행까지 진행합니다.
       </p>
       {message && <p className="mt-1 text-[11px] leading-4 text-slate-600">{message}</p>}
     </details>

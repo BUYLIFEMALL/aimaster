@@ -145,8 +145,8 @@
       if (tags.length) registeredTags = (await adapter.addTags(tags))?.registered || tags.length;
       // 태그 반영 뒤 한 번 더 저장 원본을 맞춘다.
       await syncAll();
-      const applied = await adapter.applyPublish(publish);
-      await report("publish_ready", "");
+      const applied = await adapter.applyPublish(publish, Boolean(task.automatic));
+      if (!task.automatic) await report("publish_ready", "");
       const visibility = applied?.visibility || (publish.visibility === "private" ? "비공개" : "공개");
       const timing = applied?.timing || (publish.timing === "reserve" ? "예약" : "현재");
       return { ...summary, status: "publish_ready", settingsApplied: true, category: publish.category, tagCount: registeredTags, message: `발행 직전 준비가 끝났습니다(${visibility}·${timing} 발행${registeredTags ? `, 태그 ${registeredTags}개` : ""}). 내용을 확인한 뒤 티스토리의 마지막 저장·발행 버튼만 직접 누르세요.` };

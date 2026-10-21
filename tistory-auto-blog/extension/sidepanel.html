@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>티스토리(원문) 입력기</title>
+  <title>티스토리 포스팅 자동화</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main>
     <header>
       <span class="eyebrow">AIMaster · <span id="extensionVersion">-</span></span>
-      <h1 style="font-size:clamp(18px, 6vw, 24px);white-space:nowrap">티스토리(원문) 입력기</h1>
-      <p>티스토리(원문)에서 "티스토리 입력기로 보내기"를 누르면 이 확장이 티스토리 글쓰기 화면을 열어 사람처럼 입력하고 발행 직전까지 준비합니다. 마지막 저장·발행은 직접 누릅니다.</p>
+      <h1 style="font-size:clamp(18px, 6vw, 24px);white-space:nowrap">티스토리 포스팅 자동화</h1>
+      <p>웹에서 자동 포스팅을 선택하면 새 글쓰기 탭에서 입력·마지막 발행·실제 URL 기록까지 진행합니다. 입력 준비로 보내기는 발행 직전까지만 준비합니다.</p>
     </header>
     <div id="updateBanner" class="card" hidden style="border:1px solid #fca5a5;background:#fef2f2">
       <strong>새 버전이 나왔습니다</strong>
@@ -21,7 +21,7 @@
 
     <section class="card">
       <h2>계정 연결</h2>
-      <p class="hint"><a href="https://tistory-auto-blog.buylife.xyz/settings" target="_blank" rel="noreferrer">티스토리 자동화 설정</a>에서 발급한 연동 토큰을 붙여넣으세요.</p>
+      <p class="hint"><a href="https://tistory-auto-blog.buylife.xyz/settings" target="_blank" rel="noreferrer">티스토리 포스팅 자동화 설정</a>에서 발급한 연동 토큰을 붙여넣으세요.</p>
       <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="pat_... 토큰 붙여넣기" />
       <div class="connection-actions">
         <button id="link" type="button">티스토리 연결</button>
@@ -50,6 +50,8 @@
       <button id="cancelTask" class="secondary" type="button" hidden>입력 중지</button>
       <p class="hint">입력 중에는 티스토리 탭을 닫거나 글쓰기 화면을 직접 만지지 마세요. 이 패널을 닫아도 작업은 계속되며, 사람처럼 한 글자씩 입력해 글 길이에 따라 5~10분 정도 걸립니다.</p>
     </section>
+
+    <section class="card"><h2>자동 발행 결과 확인</h2><p class="hint">최종 발행은 다시 누르지 않고 마지막 실행의 실제 게시 URL/제목과 서버 기록만 확인합니다.</p><button id="reconcilePublication" class="secondary" type="button">마지막 발행 결과만 다시 확인</button><p id="publicationMessage" class="status"></p><a id="publicationLink" hidden target="_blank" rel="noreferrer">실제 발행된 글 열기 ↗</a></section>
 
     <!-- 관리자 계정으로 연결했을 때만 보인다(개발·오류 진단용). 일반 회원 화면에는 나타나지 않는다. -->
     <section class="card" id="inspectCard" hidden>

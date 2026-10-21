@@ -29,6 +29,10 @@ function makeAdapter(options = {}) {
     async applyPublish(publish) { calls.push(`publish:${publish.visibility}`); return { visibility: '공개', timing: '현재' }; },
     async readCategories() { calls.push('readCategories'); if (options.categoriesError) throw options.categoriesError; return ['경제 이야기', '일상']; },
     async closeTab() { calls.push('closeTab'); },
+    async publicationSnapshot() { calls.push('snapshot'); return { ...draft, structure: [] }; },
+    async finalPublication(snapshot, publish, runId, final = false) { calls.push(final ? 'final:click' : 'final:check'); return { ok: true, clicked: final }; },
+    async watchPublication() { calls.push('watch'); },
+    async publicationResult() { calls.push('result'); return 'https://myblog.tistory.com/123'; },
     async cleanup() {},
   };
   return adapter;
@@ -284,4 +288,46 @@ test('topics: the stored real home-topic list is returned only to the site and o
   assert.deepEqual(w.adapter.calls, []);
   const empty = loadWorker({ storage: base });
   assert.deepEqual(JSON.parse(JSON.stringify(await empty.send({ type: 'topics' }, siteSender))), { topics: [], at: 0 });
+});
+
+function publicationRoutes({ lostArm = false, initial = 'queued' } = {}) {
+  let state = initial;
+  return request => {
+    if(request.path.endsWith('/input-result'))return ack(request);
+    const action=request.body.action;
+    if(action==='arm'){state='publishing';if(lostArm)throw Error('lost ACK');}
+    else if(action==='published')state='published';
+    else if(action==='uncertain')state='uncertain';
+    else if(action==='failed')state='failed';
+    return { status:200,body:{publication:{mode:'auto',state,blogName:'myblog',...(state==='published'?{url:'https://myblog.tistory.com/123'}:{})},title:'제목입니다'} };
+  };
+}
+test('automatic publication waits for arm ACK then clicks once and records the actual URL',async()=>{
+  const w=loadWorker({storage:base,routes:{'/api/extension/task':servesOnce(task({automatic:true})), '/api/extension/posts/':publicationRoutes()}});
+  await w.send({type:'pump'});assert.ok(await w.settled(()=>w.store.tistoryTaskState?.final));
+  assert.equal(w.store.tistoryTaskState.outcome,'published');
+  assert.equal(w.adapter.calls.filter(c=>c==='final:click').length,1);
+  assert.deepEqual(w.requests.filter(r=>r.path.endsWith('/auto-publish')).map(r=>r.body.action),['arm','published']);
+  assert.deepEqual(Object.keys(w.store.tistoryPublicationRun).sort(),['id','runId','tabId']);
+  assert.deepEqual(resultCalls(w),['completed']);
+});
+test('lost arm acknowledgement preserves uncertainty and never clicks or re-arms',async()=>{
+  const w=loadWorker({storage:base,routes:{'/api/extension/task':servesOnce(task({automatic:true})), '/api/extension/posts/':publicationRoutes({lostArm:true})}});
+  await w.send({type:'pump'});assert.ok(await w.settled(()=>w.store.tistoryTaskState?.final));
+  assert.equal(w.store.tistoryTaskState.outcome,'uncertain');
+  assert.equal(w.adapter.calls.filter(c=>c==='final:click').length,0);
+  assert.deepEqual(w.requests.filter(r=>r.path.endsWith('/auto-publish')).map(r=>r.body.action),['arm','uncertain']);
+});
+test('automatic publication refuses missing images before opening any editor',async()=>{
+  const w=loadWorker({storage:base,routes:{'/api/extension/task':servesOnce(task({automatic:true,blocks:[{type:'text',text:'합성 원고'},{type:'image',url:'https://x/missing.png'}]})), '/api/extension/posts/':publicationRoutes()}});
+  await w.send({type:'pump'});assert.ok(await w.settled(()=>w.store.tistoryTaskState?.final));
+  assert.equal(w.store.tistoryTaskState.outcome,'failed');assert.ok(!w.adapter.calls.includes('prepare'));
+  assert.equal(w.adapter.calls.filter(c=>c==='final:click').length,0);
+});
+test('restart after arm only reads/records result and never repeats input or final click',async()=>{
+  const active={id:11,runId:'run-aaa',tabId:77};
+  const w=loadWorker({storage:{...base,tistoryActiveTask:{...active,automatic:true,stage:'arming'},tistoryPublicationRun:active},routes:{'/api/extension/posts/':publicationRoutes({initial:'uncertain'}),'/api/extension/task':{status:200,body:{task:null}}}});
+  await w.send({type:'pump'});assert.ok(await w.settled(()=>w.store.tistoryTaskState?.outcome==='published'));
+  assert.deepEqual(w.requests.filter(r=>r.path.endsWith('/auto-publish')).map(r=>r.body.action),['status','published']);
+  assert.ok(!w.adapter.calls.includes('prepare') && !w.adapter.calls.includes('final:click'));
 });

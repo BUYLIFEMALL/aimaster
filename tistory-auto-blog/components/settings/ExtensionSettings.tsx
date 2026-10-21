@@ -86,12 +86,12 @@ export function ExtensionSettings() {
   return (
     <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 space-y-4">
       <div>
-        <h2 className="text-sm font-bold text-zinc-900">🧩 티스토리 입력 확장 프로그램 · {EXTENSION_VERSION}</h2>
+        <h2 className="text-sm font-bold text-zinc-900">🧩 티스토리 포스팅 자동화 확장 프로그램 · {EXTENSION_VERSION}</h2>
         <p className="mt-1 text-xs leading-5 text-zinc-500">
           글 보기 화면에서 &quot;티스토리 입력기로 보내기&quot;를 누르면, 확장 프로그램이 <strong className="text-zinc-700">보낸 뒤 30분 안에 자동으로</strong> 티스토리 글쓰기 화면을 새로 열어
           제목·본문·이미지를 순서대로 사람처럼 한 글자씩 입력하고, BLOG에서 정한 카테고리·태그·공개 범위·댓글·홈주제·발행 시점까지 적용해 발행 직전 상태로 준비합니다.
           이미지는 티스토리에 파일로 직접 올라가서 보관 기간이 지나도 티스토리 글에서는 사라지지 않습니다.
-          <strong className="text-zinc-700"> 마지막 &quot;발행&quot; 버튼은 내용을 확인한 뒤 직접 눌러 주세요.</strong>
+          <strong className="text-zinc-700"> 자동 포스팅을 선택하면 현재 공개·비공개 설정으로 마지막 발행과 실제 URL 기록까지 진행합니다. 입력기로 보내기는 발행 직전까지만 준비하며 마지막 버튼은 직접 누릅니다.</strong>
         </p>
       </div>
 

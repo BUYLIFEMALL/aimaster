@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+import { publicationOf, retentionCutoff } from '@/blog/utils/autoPublication'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
@@ -69,6 +71,8 @@ export async function GET(
         reading_minutes,
         published_at,
         created_at,
+        tistory_publish,
+        tistory_run_id,
         tistory_authors (
           id,
           name,
@@ -85,13 +89,14 @@ export async function GET(
       `)
       .eq('id', postId)
       .eq('user_id', access.user.id)
+      .gte('created_at', retentionCutoff())
       .single()
 
     if (error || !post) {
       return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, data: post })
+    return NextResponse.json({ success: true, data: post }, { headers: { 'Cache-Control': 'private, no-store, max-age=0' } })
   } catch (err) {
     return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: getErrorMessage(err) }, { status: 500 })
   }
@@ -126,7 +131,8 @@ export async function PUT(
     // 1. 기존 DB의 포스트 데이터 조용히 가져오기
     const { data: existingPost, error: fetchErr } = await supabase
       .from('tistory_posts')
-      .select('content, user_id')
+      .select('content,user_id,tistory_publish,created_at')
+      .eq('user_id', access.user.id)
       .eq('id', postId)
       .single()
 
@@ -138,6 +144,8 @@ export async function PUT(
     if (existingPost.user_id !== access.user.id) {
       return NextResponse.json({ error: '본인이 작성한 게시글만 수정할 수 있습니다.' }, { status: 403 })
     }
+
+    if (publicationOf(existingPost.tistory_publish)) return NextResponse.json({ error: '자동 포스팅 실행 원고는 수정할 수 없습니다. 결과 확인 후 새 원고로 복제해 주세요.' }, { status: 409 })
 
     // 2. V8 정규식 백트래킹이 전면 방지되는 비-정규식 Pure String 파서로 원본 이미지 바이너리 추출
     const existingImages = extractBase64ImagesPureString(existingPost.content || '')
@@ -165,9 +173,12 @@ export async function PUT(
         title: title.trim(),
         excerpt: excerpt ? excerpt.trim() : '',
         content: finalHtml,
+        tistory_publish: { ...(existingPost.tistory_publish || {}), _revision: randomUUID() },
       })
       .eq('id', postId)
       .eq('user_id', access.user.id)
+      .is('tistory_publish->automation->>mode', null)
+      .gte('created_at', retentionCutoff())
       .select('id, title, excerpt')
       .single()
 
@@ -178,7 +189,7 @@ export async function PUT(
 
     // ★ 카테고리 매핑 업데이트 (기존 매핑 삭제 후 신규 매핑 등록)
     if (categoryId !== undefined && categoryId !== null) {
-      await supabase.from('tistory_post_categories').delete().eq('post_id', postId)
+      await supabase.from('tistory_post_categories').delete().eq('post_id', postId).eq('user_id', access.user.id)
       if (Number(categoryId) > 0) {
         const { error: catErr } = await supabase
           .from('tistory_post_categories')
@@ -226,7 +237,8 @@ export async function DELETE(
     // 0. 본인 게시글인지 확인(티스토리 글은 전부 user_id가 있다)
     const { data: targetPost } = await supabase
       .from('tistory_posts')
-      .select('user_id')
+      .select('user_id,tistory_publish')
+      .eq('user_id', access.user.id)
       .eq('id', postId)
       .maybeSingle()
 
@@ -234,17 +246,18 @@ export async function DELETE(
       return NextResponse.json({ error: '본인이 작성한 게시글만 삭제할 수 있습니다.' }, { status: 403 })
     }
 
-    // 1. 연관 카테고리 매핑 삭제
-    await supabase.from('tistory_post_categories').delete().eq('post_id', postId)
+    if (publicationOf(targetPost.tistory_publish)) return NextResponse.json({ error: '자동 포스팅 실행/발행 기록은 삭제하지 않습니다. 결과를 먼저 확인해 주세요.' }, { status: 409 })
 
-    // 2. 게시글 본체 삭제
-    const { error } = await supabase.from('tistory_posts').delete().eq('id', postId).eq('user_id', access.user.id)
+    // 본체의 조건부 삭제가 성공한 뒤 연관 항목을 정리한다. 선점과 경합하면 원고/연관 항목 모두 보존한다.
+    const { data: deleted, error } = await supabase.from('tistory_posts').delete().eq('id', postId).eq('user_id', access.user.id).is('tistory_publish->automation->>mode', null).select('id').maybeSingle()
+    if (!error && !deleted) return NextResponse.json({ error: '원고 상태가 바뀌었습니다. 다시 확인해 주세요.' }, { status: 409 })
 
     if (error) {
       console.error('[Post Delete API Error]:', error)
       return NextResponse.json({ error: '게시글 삭제 중 오류가 발생했습니다.', details: error }, { status: 500 })
     }
 
+    await supabase.from('tistory_post_categories').delete().eq('post_id', postId).eq('user_id', access.user.id)
     return NextResponse.json({
       success: true,
       message: '게시글이 성공적으로 삭제되었습니다.',

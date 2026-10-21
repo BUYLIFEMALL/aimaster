@@ -1,3 +1,4 @@
+import { publicationOf } from '@/blog/utils/autoPublication'
 import { verifyExtensionToken } from '@/blog/utils/extensionAuth'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { ALLOWED_PREVIOUS, isInputStatus, leaseExpiry, type InputStatus } from '@/blog/utils/extensionTask'
@@ -27,7 +28,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const supabase = createAdminClient()
     const { data: current, error: readError } = await supabase
       .from('tistory_posts')
-      .select('id, tistory_input_status, tistory_run_id')
+      .select('id, tistory_input_status, tistory_run_id, tistory_publish')
       .eq('id', postId)
       .eq('user_id', user.userId)
       .not('extension_handoff_at', 'is', null)
@@ -40,6 +41,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (runId && current.tistory_run_id !== runId) {
       return privateJson({ error: '이 보고는 이미 끝났거나 대체된 실행의 결과입니다. 웹에서 글이 다시 보내졌을 수 있습니다.', superseded: true }, { status: 409 })
     }
+    const auto = publicationOf(current.tistory_publish)
+    if (auto && (!runId || ['publishing', 'uncertain', 'published'].includes(String(auto.state)))) return privateJson({ error: '자동 발행 실행의 결과는 발행 기록으로 확인합니다.' }, { status: 409 })
     const previous = (current.tistory_input_status ?? null) as InputStatus | null
     if (previous === status) return privateJson({ success: true, persisted: true, postId, status, runId: current.tistory_run_id ?? null, unchanged: true, result: { id: postId, tistory_input_status: status } })
     if (!ALLOWED_PREVIOUS[status].includes(previous)) {
@@ -60,6 +63,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       .eq('id', postId)
       .eq('user_id', user.userId)
       .not('extension_handoff_at', 'is', null)
+    update = runId ? update.eq('tistory_run_id', runId) : (current.tistory_run_id ? update.eq('tistory_run_id', current.tistory_run_id) : update.is('tistory_run_id', null))
     // 읽은 뒤 다른 곳에서 상태가 바뀌었다면 덮어쓰지 않는다.
     update = previous === null ? update.is('tistory_input_status', null) : update.eq('tistory_input_status', previous)
     const { data: saved, error: writeError } = await update.select('id, tistory_input_status').maybeSingle()

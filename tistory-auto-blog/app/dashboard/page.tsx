@@ -90,7 +90,7 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">대시보드</h1>
             <p className="mt-1 text-xs sm:text-sm text-slate-500">
-              티스토리(원문) 자동 포스팅 진행 현황과 주요 지표를 확인하세요.
+              티스토리 포스팅 자동화 진행 현황과 주요 지표를 확인하세요.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -171,7 +171,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <span>🚀</span>
-              <span>티스토리 자동화 3대 핵심 작업 순서</span>
+              <span>티스토리 포스팅 자동화 3대 핵심 작업 순서</span>
             </h2>
             <Link href="/guide" className="text-xs font-bold text-orange-600 hover:text-orange-700">
               상세 매뉴얼 보기 →

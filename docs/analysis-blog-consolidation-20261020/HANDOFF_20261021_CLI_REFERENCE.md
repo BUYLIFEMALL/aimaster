@@ -70,3 +70,9 @@ https://tistory-auto-blog.buylife.xyz
 SEO v1.83 운영 완료. [프로그램별 최종 인수인계/검수 범위](../../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md). 코드 a2fe43f9·Ready·DB/확장/ZIP 일치. 지정 회원 실제 비공개 텍스트 최종 발행 1건·실제 URL/시각 DB·결과 재확인·웹 기록/재열기, 별도 웹 전송/확장 미리보기·안내/복사/516px 완료. 이미지 포함 실제 발행·전체공개·예약 미시험, AI 0. 다음은 티스토리 자동 발행/URL 기록을 끝낸 뒤 에이전트 실제 발행 검수. 기존 비교 당시 SEO/티스토리 수동 마지막 단계 기록은 당시 이력이고 SEO는 이 항목이 최신이다. BLC-07~15와 역할/권한 병합은 잔여 유지.
 
 https://naver-blog-seo-studio.buylife.xyz
+
+<!-- TISTORY_AUTO_PUBLISH_PENDING_20261021 -->
+## 티스토리 자동 포스팅 후속 현황 — 2026-10-21
+
+주인님 확정 이름 **티스토리 포스팅 자동화**. 운영 목록 name 변경, 웹/확장 v1.83 구현·ZIP·152개 로컬 테스트/타입/빌드 통과. 원고 지문/ACK/1회 발행/URL·시각/결과만 복구를 연결했으나 **실제 입력·최종 발행·배포는 대기**. 현재 AIMaster 웹 로그인 만료로 원고 전송401이며, 일반 회원 올바른 로그인 화면을 열어 둠. `/login` 잘못된 링크는 소스 수정. 다음 CLI는 [전용 인수인계](../../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md)에서 본인 합성 원고13/사전 입력 검수·배포·최종 비공개1건/URL 기록 순서를 이어갑니다. DB ref `esgxyikcnnvmlhygjkth` 이름 메타데이터만 영구 변경, CAS 임시 변경은 롤백, 스키마0·AI0·실제발행0. SEO 완료와 남은 에이전트/BLC 단계는 유지합니다.
+<!-- /TISTORY_AUTO_PUBLISH_PENDING_20261021 -->

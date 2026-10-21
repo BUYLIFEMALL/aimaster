@@ -13,7 +13,7 @@ function loadTs(file, mockRequire, sandbox = {}) {
   const source = fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8');
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const module = { exports: {} };
-  vm.runInNewContext(output, { exports: module.exports, module, console: { error() {} }, require: mockRequire, Headers, Date, Promise, globalThis: { crypto: require('node:crypto').webcrypto }, ...sandbox });
+  vm.runInNewContext(output, { exports: module.exports, module, console: { error() {} }, require: mockRequire, Headers, URL, Date, Promise, globalThis: { crypto: require('node:crypto').webcrypto }, ...sandbox });
   return module.exports;
 }
 
@@ -26,11 +26,11 @@ function harness(route, { user = { userId: 'member-a', email: 'a@test', name: 'A
       let op = 'select', values = null, limitN = null, orderBy = null;
       const q = {
         select() { return q; },
-        eq(key, value) { filters.push((row) => row[key] === value); return q; },
-        in(key, list) { filters.push((row) => list.includes(row[key] ?? null)); return q; },
-        is(key, value) { filters.push((row) => (row[key] ?? null) === value); return q; },
-        gte(key, value) { filters.push((row) => row[key] != null && row[key] >= value); return q; },
-        not(key, operator, value) { assert.equal(operator, 'is'); filters.push((row) => (row[key] ?? null) !== value); return q; },
+        eq(key, value) { filters.push((row) => key.split(/->>?/).reduce((value, part) => value?.[part], row) === value); return q; },
+        in(key, list) { filters.push((row) => list.includes(key.split(/->>?/).reduce((value, part) => value?.[part], row) ?? null)); return q; },
+        is(key, value) { filters.push((row) => (key.split(/->>?/).reduce((value, part) => value?.[part], row) ?? null) === value); return q; },
+        gte(key, value) { filters.push((row) => key.split(/->>?/).reduce((value, part) => value?.[part], row) != null && key.split(/->>?/).reduce((value, part) => value?.[part], row) >= value); return q; },
+        not(key, operator, value) { assert.equal(operator, 'is'); filters.push((row) => (key.split(/->>?/).reduce((value, part) => value?.[part], row) ?? null) !== value); return q; },
         order(key, { ascending }) { orderBy = [key, ascending]; return q; },
         limit(n) { limitN = n; return q; },
         update(data) { op = 'update'; values = data; return q; },
@@ -61,7 +61,10 @@ function harness(route, { user = { userId: 'member-a', email: 'a@test', name: 'A
   });
   const taskModule = loadTs('utils/extensionTask.ts', () => { throw Error('no imports expected'); });
   const publishModule = loadTs('utils/tistoryPublish.ts', () => { throw Error('no imports expected'); });
+  const autoModule = loadTs('utils/autoPublication.ts', name => require(name));
   const mockRequire = (name) => {
+    if (name === 'node:crypto') return require(name);
+    if (name.endsWith('/autoPublication')) return autoModule;
     if (name === 'next/server') return { NextResponse: { json: (body, init) => Response.json(body, init) } };
     if (name.endsWith('/extensionAuth')) return { verifyExtensionToken: async () => user };
     if (name.endsWith('/supabase/admin')) return { createAdminClient: () => client };
@@ -84,7 +87,7 @@ const publishDefaultRoute = 'app/api/posts/tistory-publish-default/route.ts';
 const RUN_A = '11111111-1111-4111-8111-111111111111';
 const RUN_B = '22222222-2222-4222-8222-222222222222';
 const future = (ms) => new Date(Date.now() + ms).toISOString();
-const post = (extra = {}) => ({ id: 1, user_id: 'member-a', title: 'T', content: 'C', extension_handoff_at: iso(2 * MINUTE), tistory_input_status: null, tistory_input_completed_at: null, tistory_input_error: null, ...extra });
+const post = (extra = {}) => ({ id: 1, user_id: 'member-a', title: 'T', content: 'C', created_at: iso(0), extension_handoff_at: iso(2 * MINUTE), tistory_input_status: null, tistory_input_completed_at: null, tistory_input_error: null, ...extra });
 const req = (body) => new Request('https://test.invalid/api', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}) });
 const ctx = (id) => ({ params: Promise.resolve({ id: String(id) }) });
 
@@ -295,7 +298,7 @@ test('handoff: the publish settings are saved with the post, a send without them
   const h = harness(handoffRoute, { posts: [post()] });
   const publish = { category: '경제 이야기', visibility: 'private', comment: 'deny', topic: '경제', timing: 'now' };
   assert.equal((await h.handlers.POST(jsonReq({ publish }), ctx(1))).status, 200);
-  assert.deepEqual(plain(h.rows.tistory_posts[0].tistory_publish), { category: '경제 이야기', visibility: 'private', comment: 'deny', topic: '경제', timing: 'now', reserveDate: '', reserveTime: '' });
+  assert.deepEqual(plain(loadTs('utils/tistoryPublish.ts', () => {}).readTistoryPublish(h.rows.tistory_posts[0].tistory_publish)), { category: '경제 이야기', visibility: 'private', comment: 'deny', topic: '경제', timing: 'now', reserveDate: '', reserveTime: '' });
   assert.equal((await h.handlers.POST(req(), ctx(1))).status, 200);
   assert.equal(h.rows.tistory_posts[0].tistory_publish.category, '경제 이야기', 'no publish key keeps the settings');
 });
@@ -391,4 +394,76 @@ test('verifyExtensionToken reads is_admin from the profile and treats anything b
   const request = new Request('https://test.invalid', { headers: { authorization: 'Bearer pat_x' } });
   assert.equal((await load('u1').verifyExtensionToken(request)).isAdmin, true);
   assert.equal((await load('u2').verifyExtensionToken(request)).isAdmin, false);
+});
+// ---- v1.83: actual publication state is separate from input preparation ----
+const autoRoute = 'app/api/extension/posts/[id]/auto-publish/route.ts';
+const autoRules = loadTs('utils/autoPublication.ts', name => require(name));
+const autoRow = (extra = {}) => {
+  const row = post({ tistory_run_id: RUN_A, tistory_input_status: 'completed', tistory_publish: { category: '', visibility: 'private', comment: 'allow', topic: '', timing: 'now', reserveDate: '', reserveTime: '' }, ...extra });
+  row.tistory_publish.automation = { mode: 'auto', state: 'queued', fingerprint: autoRules.publicationFingerprint(row) };
+  return row;
+};
+const autoReq = (action, extra = {}) => req({ action, runId: RUN_A, ...extra });
+test('automatic handoff locks source and cannot be resent even when lease expires', async () => {
+  const h = harness(handoffRoute, { posts: [post()] });
+  assert.equal((await h.handlers.POST(req({ mode: 'auto', publish: { visibility: 'private', timing: 'now' } }), ctx(1))).status, 200);
+  assert.equal(h.rows.tistory_posts[0].tistory_publish.automation.state, 'queued');
+  assert.equal((await h.handlers.POST(req(), ctx(1))).status, 409);
+  const reserved = harness(handoffRoute, { posts: [post()] });
+  assert.equal((await reserved.handlers.POST(req({ mode: 'auto', publish: { timing: 'reserve', reserveDate: FUTURE_DATE(), reserveTime: '12:00' } }), ctx(1))).status, 400);
+});
+test('old worker cannot consume automatic jobs; capable workers claim exactly once', async () => {
+  const h = harness(taskRoute, { posts: [autoRow({ tistory_run_id: null, tistory_input_status: null })] });
+  assert.equal((await (await h.handlers.POST(req())).json()).task, null);
+  const responses = await Promise.all([h.handlers.POST(req({ supportsAutoPublish: true })), h.handlers.POST(req({ supportsAutoPublish: true }))]);
+  const jobs = await Promise.all(responses.map(r => r.json()));
+  assert.equal(jobs.filter(r => r.task?.automatic).length, 1);
+});
+test('arm is a conditional one-time permission, fingerprint survives JSON key order', async () => {
+  const row = autoRow(); const first = autoRules.publicationFingerprint(row);
+  row.tistory_publish = Object.fromEntries(Object.entries(row.tistory_publish).reverse());
+  assert.equal(autoRules.publicationFingerprint(row), first);
+  const h = harness(autoRoute, { posts: [row] });
+  const responses = await Promise.all([h.handlers.POST(autoReq('arm', { blogName: 'myblog' }), ctx(1)), h.handlers.POST(autoReq('arm', { blogName: 'myblog' }), ctx(1))]);
+  assert.deepEqual(responses.map(r => r.status).sort(), [200, 409]);
+});
+test('foreign, expired, stale run and modified content never arm', async () => {
+  for (const [patch, expected] of [[{ user_id: 'other' },404],[{ created_at: iso(31*86400000) },404],[{ tistory_run_id: RUN_B },409],[{ tistory_input_status: 'in_progress' },409]]) {
+    const h = harness(autoRoute, { posts: [autoRow(patch)] });
+    assert.equal((await h.handlers.POST(autoReq('arm', { blogName:'myblog' }), ctx(1))).status, expected);
+    assert.equal(h.calls.writes.length, 0);
+  }
+  const row = autoRow(); row.content += ' changed'; const h = harness(autoRoute, { posts: [row] });
+  assert.equal((await h.handlers.POST(autoReq('arm', { blogName:'myblog' }), ctx(1))).status, 409);
+});
+test('only confirmed same-blog receipt is saved, repeated success preserves timestamp', async () => {
+  const h = harness(autoRoute, { posts: [autoRow()] });
+  assert.equal((await h.handlers.POST(autoReq('published', { url:'https://myblog.tistory.com/123' }), ctx(1))).status, 409);
+  assert.equal((await h.handlers.POST(autoReq('arm', { blogName:'myblog' }), ctx(1))).status, 200);
+  for(const url of ['https://other.tistory.com/123','https://myblog.tistory.com/manage/posts','https://myblog.tistory.com.evil.test/123','http://myblog.tistory.com/123']) assert.equal((await h.handlers.POST(autoReq('published',{url}),ctx(1))).status,409);
+  const first = await (await h.handlers.POST(autoReq('published',{url:'https://myblog.tistory.com/123'}),ctx(1))).json();
+  const second = await (await h.handlers.POST(autoReq('published',{url:'https://myblog.tistory.com/123'}),ctx(1))).json();
+  assert.equal(first.publication.publishedAt,second.publication.publishedAt);
+  assert.equal(first.publication.state,'published');
+});
+test('uncertain publication can record result but cannot arm or downgrade to failure',async()=>{
+  const h=harness(autoRoute,{posts:[autoRow()]});
+  await h.handlers.POST(autoReq('arm',{blogName:'myblog'}),ctx(1));
+  await h.handlers.POST(autoReq('uncertain',{error:'lost receipt'}),ctx(1));
+  assert.equal((await h.handlers.POST(autoReq('arm',{blogName:'myblog'}),ctx(1))).status,409);
+  assert.equal((await h.handlers.POST(autoReq('failed'),ctx(1))).status,409);
+  assert.equal((await h.handlers.POST(autoReq('published',{url:'https://myblog.tistory.com/123'}),ctx(1))).status,200);
+});
+test('late legacy input reports cannot overwrite publishing or published automation',async()=>{
+  const row=autoRow();row.tistory_publish.automation.state='published';
+  for(const runId of [undefined,RUN_A]){
+    const h=harness(resultRoute,{posts:[row]});
+    assert.equal((await h.handlers.POST(req({status:'failed',runId}),ctx(1))).status,409);
+    assert.equal(h.calls.writes.length,0);
+  }
+});
+test('handoff detects a revision changed between source read and conditional update',async()=>{
+  const h=harness(handoffRoute,{posts:[post()],beforeWrite:rows=>{rows.tistory_posts[0].tistory_publish={_revision:'new-save'};}});
+  const response=await h.handlers.POST(req({mode:'auto',publish:{visibility:'private'}}),ctx(1));
+  assert.ok(response.status>=400);assert.equal(h.calls.writes[0].matched,0);
 });

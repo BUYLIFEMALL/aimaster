@@ -1,3 +1,4 @@
+import { publicationOf, retentionCutoff } from '@/blog/utils/autoPublication'
 import { verifyExtensionToken } from '@/blog/utils/extensionAuth'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { htmlToInputBlocks } from '@/blog/utils/extensionContent'
@@ -25,29 +26,35 @@ async function claimTask(request: Request) {
 
   const supabase = createAdminClient()
   const cutoff = autoStartCutoff()
+  const capabilities = await request.json().catch(() => ({}))
+  const supportsAuto = capabilities?.supportsAutoPublish === true
 
-  const { data: candidate, error: findError } = await supabase
+  let candidates = supabase
     .from('tistory_posts')
     .select('id')
     .eq('user_id', user.userId)
     .is('tistory_input_status', null)
     .gte('extension_handoff_at', cutoff)
+    .gte('created_at', retentionCutoff())
     .order('extension_handoff_at', { ascending: true })
     .limit(1)
-    .maybeSingle()
+  if (!supportsAuto) candidates = candidates.is('tistory_publish->automation->>mode', null)
+  const { data: candidate, error: findError } = await candidates.maybeSingle()
   if (findError) return privateJson({ error: '자동 입력 작업을 확인하지 못했습니다.' }, { status: 503 })
   if (!candidate) return privateJson({ task: null })
 
   const runId = newRunId()
-  const { data: claimed, error: claimError } = await supabase
+  let claim = supabase
     .from('tistory_posts')
     .update({ tistory_input_status: 'in_progress', tistory_input_completed_at: null, tistory_input_error: null, tistory_run_id: runId, tistory_lease_expires_at: leaseExpiry() })
     .eq('id', candidate.id)
     .eq('user_id', user.userId)
     .is('tistory_input_status', null)
     .gte('extension_handoff_at', cutoff)
+    .gte('created_at', retentionCutoff())
     .select('id, title, content, extension_handoff_at, tistory_publish')
-    .maybeSingle()
+  if (!supportsAuto) claim = claim.is('tistory_publish->automation->>mode', null)
+  const { data: claimed, error: claimError } = await claim.maybeSingle()
   if (claimError) return privateJson({ error: '자동 입력 작업을 가져가지 못했습니다.' }, { status: 503 })
   if (!claimed) return privateJson({ task: null }) // 다른 확장이 먼저 가져감
 
@@ -61,6 +68,7 @@ async function claimTask(request: Request) {
       handoffAt: claimed.extension_handoff_at,
       blocks,
       tags,
+      automatic: publicationOf(claimed.tistory_publish)?.state === 'queued',
       publish: readTistoryPublish(claimed.tistory_publish), // 회원이 BLOG에서 정한 카테고리·공개 범위·댓글·홈주제·발행 시점(없으면 기본값)
     },
   })

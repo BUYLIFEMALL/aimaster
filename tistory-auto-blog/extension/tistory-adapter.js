@@ -10,6 +10,7 @@
 //  - 최종 저장·발행 버튼(#publish-btn)은 찾지도 누르지도 않는다(§20 규칙 4).
 (function (root) {
   const Core = root.TistoryCore || (typeof require !== "undefined" ? require("./tistory-core.js") : null);
+  const Publication = root.TistoryPublication || (typeof require !== "undefined" ? require("./tistory-publication.js") : null);
   const TYPE_MIN_MS = 70;
   const TYPE_MAX_MS = 170;
   const THINK_CHANCE = 0.04;
@@ -869,8 +870,10 @@
       } catch { return false; }
     }
 
+    const publicationAdapter = Publication.createAdapter({ chrome, state, TaskError, sleep, attachDebugger });
     // ---- adapter 인터페이스 ----
     return {
+      ...publicationAdapter,
       state,
       ownEditorUrl: (url) => Core.isOwnEditorUrl(url, state.blogName),
       setStatus(handler) { state.say = typeof handler === "function" ? handler : () => {}; },
@@ -953,11 +956,11 @@
       async addTags(tags) { return addTistoryTags(state.tabId, state.bodyFrame, tags); },
 
       // 발행 설정(공개 범위·댓글·홈주제·발행 시점). 기본값이면 발행 설정창을 열지 않는다. 최종 발행 버튼은 누르지 않는다.
-      async applyPublish(publish) {
+      async applyPublish(publish, automatic = false) {
         const settings = { visibility: publish.visibility, password: "", comment: publish.comment, topic: publish.topic || "", timing: publish.timing, reserveDate: publish.reserveDate || "", reserveTime: publish.reserveTime || "" };
-        if (!Core.needsPublishDialog(settings)) return { skipped: true, visibility: "공개", timing: "현재" };
+        if (!automatic && !Core.needsPublishDialog(settings)) return { skipped: true, visibility: "공개", timing: "현재" };
         await openPublishSettings(state.tabId);
-        if (settings.topic && settings.visibility === "public" && settings.comment === "allow" && settings.timing === "now") {
+        if (!automatic && settings.topic && settings.visibility === "public" && settings.comment === "allow" && settings.timing === "now") {
           // 티스토리는 직전 글의 비공개 선택을 발행창에 유지할 수 있으므로, 홈주제만 고르지 않고 공개 범위도 실제 포인터 클릭으로 확정한다.
           await ensureTistoryPublicWithTrustedClick(state.tabId);
           await applyTistoryTopicWithTrustedClicks(state.tabId, settings.topic);
@@ -990,7 +993,7 @@
         state.tabId = null;
       },
 
-      async cleanup() { if (state.tabId != null) { try { await chrome.debugger.detach({ tabId: state.tabId }); } catch { /* 붙어 있지 않음 */ } } },
+      async cleanup() { await publicationAdapter.stopPublicationWatch(); if (state.tabId != null) { try { await chrome.debugger.detach({ tabId: state.tabId }); } catch { /* 붙어 있지 않음 */ } } },
     };
   }
 

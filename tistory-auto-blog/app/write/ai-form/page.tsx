@@ -2,6 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
+import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from '@/blog/utils/ai/openaiRequestParams'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
@@ -526,6 +527,7 @@ function AiFormPageInner() {
                   ))}
                 </select>
                 <p className="text-[11px] text-slate-500">선택한 모델로 완성형 블로그(원문)를 생성합니다.</p>
+                {contentProvider === 'openai' && <div className="text-xs text-slate-600"><details title={openAIModelTierHint(contentModel)}><summary>모델 성격: {openAIModelBadge(contentModel)} ⓘ</summary><p>{openAIModelTierHint(contentModel)}</p></details><p>{openAIModelNotice(contentModel)}</p></div>}
               </div>
             </div>
           </section>

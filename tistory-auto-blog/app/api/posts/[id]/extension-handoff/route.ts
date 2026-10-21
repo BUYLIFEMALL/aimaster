@@ -1,8 +1,10 @@
+import { randomUUID } from 'node:crypto'
+import { publicationOf, publicationFingerprint, retentionCutoff } from '@/blog/utils/autoPublication'
 import { NextResponse } from 'next/server'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { AUTO_START_WINDOW_MS, isRunActive } from '@/blog/utils/extensionTask'
-import { parseTistoryPublish, type TistoryPublish } from '@/blog/utils/tistoryPublish'
+import { parseTistoryPublish, readTistoryPublish, type TistoryPublish } from '@/blog/utils/tistoryPublish'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -29,19 +31,26 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const supabase = createAdminClient()
   const { data: current, error: readError } = await supabase
     .from('tistory_posts')
-    .select('id, tistory_input_status, extension_handoff_at, tistory_lease_expires_at')
+    .select('id,title,content,created_at,tistory_publish,tistory_run_id,tistory_input_status,extension_handoff_at,tistory_lease_expires_at')
     .eq('id', postId)
     .eq('user_id', access.user.id)
     .maybeSingle()
   if (readError) return NextResponse.json({ error: '티스토리 입력기로 보내기에 실패했습니다.' }, { status: 500 })
   if (!current) return NextResponse.json({ error: '본인이 작성한 글만 보낼 수 있습니다.' }, { status: 403 })
 
+  if (publicationOf(current.tistory_publish)) return NextResponse.json({ error: '자동 포스팅 실행 원고는 재전송하지 않습니다. 결과를 확인하거나 새 원고로 복제하세요.' }, { status: 409 })
+  if (!current.created_at || current.created_at < retentionCutoff()) return NextResponse.json({ error: '보관 기간이 지난 원고입니다.' }, { status: 404 })
+  const selected = 'tistory_publish' in publishUpdate ? publishUpdate.tistory_publish : readTistoryPublish(current.tistory_publish)
+  const automatic = body?.mode === 'auto'
+  if (automatic && selected.timing !== 'now') return NextResponse.json({ error: '자동 포스팅은 현재 발행을 선택해 주세요. 예약 설정은 입력 준비로 보낼 수 있습니다.' }, { status: 400 })
+  const storedPublish = { ...selected, _revision: randomUUID(), ...(automatic ? { automation: { mode: 'auto', state: 'queued', requestedAt: new Date().toISOString(), fingerprint: publicationFingerprint({ ...current, tistory_publish: selected }) } } : {}) }
+
   // 살아 있는 실행(임대가 남은 입력 중)이 있으면 덮어쓰지 않는다. 임대가 끝난 실행(PC 꺼짐·확장 종료)은 다시 보낼 수 있다.
   if (isRunActive(current)) {
     return NextResponse.json({ error: '이 글은 지금 티스토리 입력이 진행 중입니다. 입력이 끝난 뒤 다시 보내주세요.' }, { status: 409 })
   }
 
-  const { data, error } = await supabase
+  let update = supabase
     .from('tistory_posts')
     .update({
       extension_handoff_at: new Date().toISOString(),
@@ -50,11 +59,15 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       tistory_input_error: null,
       tistory_run_id: null,
       tistory_lease_expires_at: null,
-      ...publishUpdate,
+      tistory_publish: storedPublish,
     })
     .eq('id', postId)
     .eq('user_id', access.user.id)
-    .select('id, extension_handoff_at')
+    .is('tistory_publish->automation->>mode', null)
+    .gte('created_at', retentionCutoff())
+  update = current.tistory_publish?._revision ? update.eq('tistory_publish->>_revision', current.tistory_publish._revision) : update.is('tistory_publish->>_revision', null)
+  update = current.tistory_run_id ? update.eq('tistory_run_id', current.tistory_run_id) : update.is('tistory_run_id', null)
+  const { data, error } = await update.select('id, extension_handoff_at')
     .maybeSingle()
   if (error) return NextResponse.json({ error: '티스토리 입력기로 보내기에 실패했습니다.' }, { status: 500 })
   if (!data) return NextResponse.json({ error: '본인이 작성한 글만 보낼 수 있습니다.' }, { status: 403 })

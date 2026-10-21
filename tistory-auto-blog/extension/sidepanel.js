@@ -231,7 +231,7 @@ chrome.storage.local.get(STORAGE_KEY).then((stored) => { snapshots = Array.isArr
 restoreConnection();
 
 // ---- 진행 상태 카드 ----
-const STAGE_LABEL = { preparing: "준비 중", typing: "입력 중", image: "이미지 올리는 중", verifying: "확인 중", settings: "발행 설정 중", completed: "입력 완료", publish_ready: "발행 직전 준비 완료", failed: "실패" };
+const STAGE_LABEL = { publishing: "실제 발행 결과 확인 중", published: "실제 발행 완료", uncertain: "발행 결과 불확실 · 재발행 금지", preparing: "준비 중", typing: "입력 중", image: "이미지 올리는 중", verifying: "확인 중", settings: "발행 설정 중", completed: "입력 완료", publish_ready: "발행 직전 준비 완료", failed: "실패" };
 async function renderTask() {
   const stored = await chrome.storage.local.get([TASK_STATE_KEY, "tistoryActiveTask", "tistoryPendingResult"]);
   const state = stored[TASK_STATE_KEY];
@@ -289,3 +289,14 @@ chrome.storage.onChanged.addListener((changes, area) => {
 loadBlogName().catch(() => {});
 renderTask().catch(() => {});
 chrome.runtime.sendMessage({ type: "status" }).catch(() => {});
+
+$("reconcilePublication").addEventListener("click", async () => {
+  $("reconcilePublication").disabled = true;
+  try {
+    const result = await chrome.runtime.sendMessage({ type: "reconcilePublication" });
+    if (!result?.ok) throw new Error(result?.error || "결과를 확인하지 못했습니다.");
+    $("publicationMessage").textContent = "실제 게시 URL과 서버 발행 기록을 확인했습니다. 새 글을 발행하지 않았습니다.";
+    if (/^https:\/\/[a-z0-9-]+\.tistory\.com\/(?:[1-9]\d*|entry\/[^/?#]+)$/.test(result.url || "")) { $("publicationLink").href = result.url; $("publicationLink").hidden = false; }
+  } catch (error) { $("publicationMessage").textContent = error.message; }
+  finally { $("reconcilePublication").disabled = false; }
+});
