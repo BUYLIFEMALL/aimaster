@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — HANDOFF.md 깨진 글자 11줄 복구 · ⚠️ shorts-onestop 세션 알림
+- 주인님 지시로 이 문서의 제어 문자 11줄 복구(커밋 `a8840244`에서 PowerShell 백틱 이스케이프로 `bg-`·`app/`·`v1.xx`·`buylifemall@`의 첫 글자 14개가 사라졌던 것). 이제 일반 텍스트 파일(검색·비교 정상). 원인·예방: `docs/ERROR_LESSONS.md` 2026-10-22.
+- **⚠️ `shorts-onestop-studio/` 작업 중인 세션께**: 그 세션이 스테이징해 둔 `src/app/api/cron/cleanup-videos/route.ts` → `cleanup-media/route.ts` 이름 변경(내용 동일)이 제 커밋 `69d17d87`에 섞여 푸시됐습니다. 작업 폴더 파일은 바뀌지 않았고 되돌리지 않았습니다 — 다음 커밋 때 `git status`로 이 이름 변경이 이미 HEAD에 있음을 확인하고 나머지 변경만 커밋해 주세요. (재발: 스테이징 목록을 보기만 하고 같은 명령에서 커밋함 → 이후 `safe_commit` 방식으로 내 경로 밖 스테이징이 있으면 멈춤)
+
 ## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.40 D-68-03 고른 곡 제작 목록 내보내기
 
 기획 목록에서 고른 곡을 「📋 영상 설명용 목차 복사」(0:00 제목, 누적 시각)·「⬇ 곡 목록 CSV」(순서·제목·길이·시작 시각·스타일·권장 파일명)로 내보냄. 키·작업 번호·저장소 주소 제외, 서버 저장 없음. 시험 58개, 배포 `music-6ienlp6io` Ready, DB v1.40, 크롬 시험 계정에서 5곡 목차 확인. 비용: Vercel 빌드 1회. 이로써 상세 리뷰 D-68-01~03 처리 완료. 남은 일: 10-29 이후 30일 정리 확인, 리믹스 카드 바로가기(다음 빌드 때 함께, `music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`). 상세: `music/AGENTS.md` v1.40.
