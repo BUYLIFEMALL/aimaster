@@ -39,6 +39,10 @@ https://tistory-auto-blog.buylife.xyz
 - 비용: Vercel 빌드 4회(순차), 유료 AI 0회.
 - 못 한 것: 시험 계정 화면·실제 생성(비용). 상세: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 「배포 결과」, `trending-product-finder/AGENTS.md` 맨 아래.
 - 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz
+## 2026-10-22 Claude Code(윈도우) — 7일 그래프 글자 크게 (쓰레드 쇼핑제휴 v1.79)
+- 주인님 요청. 공용 그래프·그날 목록 기준 파일 글자 한 단계씩 크게(날짜 10→12px, 건수 11→14px, 제목 14→16px, 흐린 글자 더 진하게) → 사본 8곳 동기화. 쇼핑제휴만 배포(`threads-affiliate-poster-r7tkatxv1` READY·DB v1.79·크롬 확인), 나머지 7곳은 다음 배포 때 함께. 커밋 `9479f0bc`. 비용: Vercel 빌드 1회.
+- 프로그램: https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 카드뉴스·AI 인플루언서·웹툰 「최근 7일 게시」 그래프 · 그날 목록 썸네일 · 미배포 공용 변경 안내 (INSTA 포스팅 v1.46 · AI 인플루언서 v1.23 · 웹툰 v1.26 · 쇼핑제휴 v1.78)
 - 새 공용 기준 코드 `insta-week-posts`(기준 INSTA 포스팅): 기존 본인 게시 기록 API로 그래프 + 그날 게시 글. 카드뉴스 홈(펼침)·AI 인플루언서·웹툰(접힌 한 줄). **네컷은 Tailwind가 없어 미적용**(`four-cut-comics/docs/IMPROVEMENTS.md`).
 - 썸네일: 공용 `publicImageUrl` + 그날 목록 48px 썸네일(안 열리면 숨김). 피드·쇼핑제휴만 표시 — 카드뉴스·AI 인플루언서·웹툰·네컷은 게시 직후 저장소 이미지를 지워 썸네일 없음(처음 배포 뒤 발견해 바로잡고 다시 배포).

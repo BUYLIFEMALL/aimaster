@@ -20,3 +20,7 @@
 ## v1.78 — 그날 목록 썸네일 (Claude Code 윈도우, 같은 날)
 - `src/lib/actions/weekPosts.ts`가 `image_url`(쉼표로 이어진 공개 주소)의 첫 장을 썸네일로(`publicImageUrl`, 실제 주소 200 확인). 커밋 `3e7ecf43`, 배포 `threads-affiliate-poster-lkwr1fvyn` READY, DB v1.78. 비용: Vercel 빌드 1회.
 - 미배포(다음 배포 때 함께): 공용 그날 목록의 「이미지가 안 열리면 썸네일 숨김」(커밋 `bf0b8479`).
+
+## v1.79 — 7일 그래프 글자 크게 (Claude Code 윈도우, 같은 날)
+- 주인님 「글자가 잘 안보여 조금 더 키워줘」. 공용 기준 `comment-inbox/components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx`에서 제목 14→16px, 합계 줄 12→14px, 막대 위 건수 11→14px, 날짜·요일 10→12px, 흐린 글자 투명도 60→80%, 그날 목록 글자도 한 단계씩. 커밋 `9479f0bc`, 배포 `threads-affiliate-poster-r7tkatxv1` READY, DB v1.79, 크롬에서 실제 글자 크기 확인. 비용: Vercel 빌드 1회.
+- 같은 사본을 쓰는 받은편지함·세 댓글 프로그램·INSTA 포스팅·AI 인플루언서·웹툰은 저장소에만 반영(미배포) — 다음 배포 때 함께 나감.
