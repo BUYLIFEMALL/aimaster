@@ -304,3 +304,8 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 
 ## 2026-10-21 — 텔레그램 연동 공용 모듈 `telegram-bot-client` (Claude Code 윈도우, 부계정)
 - 이 프로그램의 텔레그램 `client.ts`는 공용 사본(직접 고치지 말 것 — 기준 `instagram-comment-reply/lib/telegram/client.ts`만 고치고 `--sync`). 운영 배포 v1.21(미배포였던 연동 확인 `allowed_updates` 수정·공용 사본 함께, 크롬 관리자 첫 화면 확인 · 회원 실행 경로 가짜 토큰 401).
+
+## 2026-10-21 v1.22 — 구형 Gemini 모델 교체 (Claude Code 맥미니, 보조 계정 · 미배포)
+- 주인님 지시: 「상품소싱의 gemini-2.0-flash 두 곳을 최신 모델로」. `lib/ai/opportunity.ts`(유망 이유 설명)·`lib/ai/translateKeyword.ts`(알리 검색어 영어 번역)의 `gemini-2.0-flash` → **`gemini-3.5-flash`**(저장소 최신 정식 글 모델, `shop-detail-page` 상품 분석과 같음). 키를 주소(`?key=`)가 아니라 머리글 `x-goog-api-key`로 보냄(로그에 키가 남지 않게). 프롬프트·온도·JSON 응답 형식·`gpt-4o-mini`(OpenAI 쪽)는 그대로.
+- 검수(맥미니): tsc 0. 무료 단위 테스트 `reportTrend`·`loadErrors`·`retention` 통과, `sourcingResults`는 맥에서 윈도우용 `esbuild`를 못 읽는 환경 문제로 실행 불가(앱 결함 아님 — 윈도우에서 `npm run test:trend`). 실제 Gemini 호출 시험은 하지 않음(비용 0).
+- **윈도우 CLI 다음 첫 단계**: `cd trending-product-finder && npm run test:trend && npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.22', updated_at=now() where slug='trending-product-finder';` → 크롬 화면 왼쪽 위 v1.22 확인. 실제 생성 확인이 필요하면 가장 저렴한 경로(키워드 1개 리포트 1회, 회원 본인 Gemini 키)로 비용을 먼저 알린 뒤 진행.
