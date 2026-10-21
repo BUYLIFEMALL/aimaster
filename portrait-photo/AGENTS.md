@@ -1,4 +1,4 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.29)
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.30)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
 
@@ -155,6 +155,13 @@
 - **수정**: `post.ts` `localDateStamp(d)`(회원 PC 현지 날짜 `YYYY-MM-DD`) → `Studio.tsx` 4곳(증명사진 ZIP·인물사진 ZIP·프로필 세트 ZIP·규격 저장 JPG)·`HistoryList.tsx` 1곳 교체. 서버 저장 시각(`apiKeys.ts`·`saved.ts`)은 비교용이라 그대로.
 - **검수**: 단위 26/26(오전 8시 30분 → 같은 날짜 — 옛 방식이면 10-18로 실패), tsc 0, 빌드, 브라우저 13/13(크롬 포그라운드, 저장 이름 `…-2026-10-19.jpg`), Vercel Ready(`portrait-photo-l4gq06cdh`), DB v1.28, 메인 크롬 운영 화면 v1.28 표시. AI 비용 없음.
 
+## 2026-10-21 v1.30 — 결과 배경 밝기 전환 · 단계 칩 이동 · 안 쓰는 CSS 정리 (Claude Code 윈도우)
+- **결과 무대 배경**: 생성 결과 제목 줄에 「배경」 동그라미 4개(기본 격자·흰색·회색·검정). 사진 가장자리·머리카락 경계를 밝은/어두운 바탕에서 확인하는 용도. 선택은 이 브라우저에만 기억(`localStorage` `portrait-photo:stage-bg`, 못 쓰면 기본값). CSS `.st-stage.bg-white|bg-gray|bg-black`.
+- **단계 칩**: 「1 사진·2 목적·옵션·3 만들기·4 저장·규격」을 버튼으로 바꿔 누르면 해당 영역으로 부드럽게 이동(`goToArea`, 4번은 저장 버튼 줄이 없으면 결과 상자로). 구역 id `st-sec-N`·`st-purposes`·`st-result`·`st-save`.
+- **CSS 정리**: 옛 성격 검사 화면에서 넘어온 안 쓰는 규칙(runner·scale-btn·bar-row·trend·weight-row·care-notice 등 24개 클래스)을 `globals.css`에서 지움. 쓰이는 `a.project-card`·`.bars`·`.bar`와 인쇄 규칙(안 쓰는 선택자만 뺌)은 남김. 가이드 `gd-*` 3개는 혹시 몰라 유지.
+- **검수**: 단위 31/31, tsc, 빌드, Vercel Ready, DB v1.30. 운영(메인 크롬·일반 회원): 검정 선택 → 무대 `rgb(0,0,0)`·저장 확인 → 새로고침 뒤에도 유지 → 맨 아래에서 「3 만들기」 → 결과 상자가 화면 위(12px), 「1 사진」 → 사진 구역(0px), 390px iframe 가로 넘침 없음. 시험 뒤 배경 기본값으로 되돌림. 비용: Vercel 빌드 1회, AI 0회.
+- 남은 백로그(비용 승인·실제 휴대폰·AGY 담당·별도 플랜 필요): `docs/IMPROVEMENT_BACKLOG.md`. 커밋 `1943d4e5`.
+
 ## 2026-10-19 v1.29 — 깨진 사진 안내(공용 `image-file-check` 기준) · 꺼진 [만들기] 이유 한 줄 (Claude Code 윈도우)
 - **공용 기준 코드 신설**: `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — 올린 사진을 브라우저 안에서 실제로 풀어 보고(서버 전송 없음) 깨졌으면 「사진을 읽지 못했어요…」. `createImageBitmap` 실패 시 `Image`로 한 번 더 확인해 둘 다 실패할 때만 실패(정상 사진 오판 방지), 확인 수단이 없는 환경은 통과. **이 파일이 기준** — 다른 이미지 프로그램은 사본(`docs/SHARED_MODULES.md` `image-file-check`). 플랜 `docs/PLAN_20261019_IMAGE_FILE_CHECK_SHARED.md`.
 - **적용**: `onPick`에서 `splitReadableImages` — 모두 깨졌으면 안내하고 받지 않음, 일부만 깨졌으면 빼고 「읽지 못한 사진 n장(이름)은 뺐습니다」.
@@ -165,7 +172,7 @@
 1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
 2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.
 3. **핵심 기능·구조·장단점**: 목적 프리셋 5종 + 조명·카메라·배경·포즈·복장·피부·필름·보정 4종, 후보 1~4장·격자/확대 비교, 원본 비교 슬라이더, 규격 21종 저장·머리 비율 검사·자르기 영역 조정·얼굴 위치 직접 지정, 일괄 6장·ZIP. 장점: 원본 서버 미저장·본인 키·공식 출처로 확인한 규격. 단점: 머리 비율을 모델이 잘 못 따름(50~56%), `Studio.tsx` 한 파일이 큼(890줄), 안 쓰는 CSS 잔존, 실제 휴대폰 터치 미검수.
-4. **버전**: v1.29(운영). 이력은 위 각 절.
+4. **버전**: v1.30(운영). 이력은 위 각 절.
 5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
 6. **연계·아이디어**: 결과 사진을 AI 이미지 자동화 배경 교체·명함/이력서 프로그램으로 넘기기 등 — `docs/IMPROVEMENTS.md` 3절.
 7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 무대 배경 밝기 전환(흰/회색/검정), 라이트 테마 토글 — `docs/IMPROVEMENTS.md` 2절.
