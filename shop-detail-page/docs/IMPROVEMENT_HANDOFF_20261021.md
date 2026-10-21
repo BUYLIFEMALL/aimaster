@@ -85,3 +85,12 @@
 1. SQL `supabase/migrations/20261022_promo_templates_v1_18.sql`(시스템 템플릿 2행 문구 + `programs.version` v1.18, 운영 ① ref `esgxyikcnnvmlhygjkth`).
 2. `shop-detail-page` 배포(`npx tsc --noEmit`·`npm run build` 후).
 3. 크롬: 상품 화면 대기 섹션 「✨ 생성 · 약 $0.10」 버튼, 좌측 메뉴 「섹션 이미지 생성 및 롱 이미지 병합」「Gemini 상세페이지 생성 엔진」. 생성 버튼은 누르지 않는다(비용).
+
+# v1.19 (2026-10-22, 제안 1~3 구현) — 윈도우 CLI 다음 첫 단계
+v1.18이 아직 배포 전이면 v1.18·v1.19를 **배포 1회**로 함께 내보낸다.
+1. SQL `supabase/migrations/20261022_promo_templates_v1_18.sql`(아직이면) → `supabase/migrations/20261022_append_section_image_v1_19.sql`(섹션 이력 원자적 추가 함수 + `programs.version` v1.19). 운영 ① ref `esgxyikcnnvmlhygjkth`. 확인 select에서 `prosecdef = false`(security invoker).
+2. `shop-detail-page` 배포(`npx tsc --noEmit`·`npm run build` 후). 함수 적용 전에 배포돼도 코드는 예전 방식으로 동작한다.
+3. 크롬(무료 확인만): `/guide` 「🧱 규격·섹션 구성 가이드」 탭 맨 위 규격 카드 3개, STEP 03 모델 카드 단가($0.134·$0.101과 규격별 합계), STEP 04 「② HTML 상세페이지로 내보내기」 카드, FAQ 7개 / `/products/new?from=sourcing&name=시험상품&source=원본 링크: https://example.com` 상품명·원본 정보 채움 + 초록 안내 띠 / 상품 화면 대기 섹션 「✨ 생성」. 생성·분석 버튼은 누르지 않는다(비용).
+4. 같은 날 상품소싱 `trending-product-finder` v1.23도 배포(순차, 앞 배포 Ready 확인 후): 소싱 결과·⭐ 관심 상품의 「📄 상세페이지」 링크가 위 주소로 새 창 열림.
+- 남은 일: 같은 섹션 동시 생성 2회 실제 재현은 이미지 2장 비용(약 280원)이 들어 하지 않음 — 필요하면 비용 고지 후 진행.
+

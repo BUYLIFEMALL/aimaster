@@ -210,3 +210,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - **근거 없는 혜택 문구 차단(S-22-03)**: `lib/actions/images.ts` `NO_PRICE_PROMOTION_GUIDE` — 할인가가 비어 있으면 모든 템플릿(시스템·회원, 전 규격)에 「가격·할인·특가·한정·이벤트·사은품 문구 금지」를 붙임. 마이그레이션 `supabase/migrations/20261022_promo_templates_v1_18.sql` — 쿠팡 12단 `cp_promotion`·9단 `ss_hook_promo` 시스템 행의 「한정 혜택 강조」「런칭 특가 허용」 지시 제거 + `programs.version` v1.18.
 - 검수(맥미니): tsc 0. AI 호출 0.
 - **윈도우 CLI 다음 첫 단계**: ① `20261022_promo_templates_v1_18.sql` 적용(옛 코드 영향 없음) → ② `shop-detail-page` 배포 → ③ 크롬에서 상품 화면 대기 섹션의 「✨ 생성」 버튼·좌측 메뉴 문구 확인(생성 버튼은 누르지 않음).
+
+## 2026-10-22 v1.19 — 이력 원자적 추가·사용 안내 3규격 기준·상품소싱 연결 (Claude Code 맥미니 · 배포 대기, v1.18 미배포분 포함)
+- **이력 덮어쓰기 방지(D-48-01 남은 부분)**: 새 DB 함수 `shop_append_section_image`(`supabase/migrations/20261022_append_section_image_v1_19.sql`, `security invoker` — 회원 본인 RLS 그대로, `user_id = auth.uid()` 고정)가 `insert … on conflict do update set image_urls = 기존 || 새것` 한 문장으로 붙인다. 전에는 읽은 뒤 upsert라 같은 섹션을 두 창에서 동시에 만들면 한쪽 이력(비용 낸 이미지)이 사라질 수 있었다. `lib/actions/images.ts` `appendSectionImage()`를 AI 생성·직접등록 두 곳이 같이 쓰고, 함수가 아직 없는 DB(`PGRST202`·`42883`)에서는 예전 방식으로 동작(배포 순서가 바뀌어도 생성이 멈추지 않음). `types/database.types.ts` `Functions`에 타입 추가.
+- **사용 안내(/guide)**: 15섹션 고정 문구 → 15섹션·쿠팡 12단·스마트스토어 9단 기준. 규격 탭 맨 위에 규격 3종 카드(`lib/layoutPresets.ts` 값 그대로), 모델 단가는 `IMAGE_MODEL_COST_USD`에서 읽어 규격별 합계 표시(예전 「Gemini 2.5 Flash 장당 $0.038」 등 옛 값 제거), 「✨ 생성」 버튼·모바일 미리보기·HTML 내보내기(비용 10원 안팎·저장 안 됨) 설명, FAQ 2개(규격 고르기·롱 이미지와 HTML 차이) 추가.
+- **상품소싱 연결**: `/products/new?from=sourcing&name=…&source=…`이면 상품명(≤100자)·원본 정보(≤1000자)를 채우고 안내 띠를 보여 준다(`ProductAnalyzeForm` `initialLabel`·`initialSourceText`). 가격은 받지 않음(도매가가 할인가로 오해되면 혜택 문구가 생김), 사진은 회원이 직접. 보내는 쪽: `trending-product-finder` v1.23 `lib/shopDetailLink.ts`.
+- 검수(맥미니): tsc 0, `next lint`(바뀐 파일) 0. AI 호출 0, 비용 0.
+- **윈도우 CLI 다음 첫 단계**: v1.18이 아직 배포 전이면 한 번에 — ① SQL `20261022_promo_templates_v1_18.sql`(이미 적용했으면 건너뜀) → ② SQL `20261022_append_section_image_v1_19.sql` → ③ `shop-detail-page` 배포 1회(v1.19) → ④ 크롬 확인(생성 버튼은 누르지 않음): `/guide` 규격 카드·단가, `/products/new?from=sourcing&name=시험상품&source=원본 링크: https://example.com` 미리 채움, 대기 섹션 「✨ 생성」 버튼.

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { deleteSavedProductAction, updateSavedProductAlertAction, type SavedProductEntry } from "@/lib/actions/savedProducts";
 import { ALERT_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { ALERT_CHANNEL_OPTIONS, type AlertChannel } from "@/lib/constants";
+import { shopDetailPageUrl } from "@/lib/shopDetailLink";
 
 interface SavedProductsPanelProps {
   products: SavedProductEntry[];
@@ -109,9 +110,20 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
         <p className="text-sm font-bold tabular-nums text-mx-text">
           {product.lastPriceKrw != null ? `${product.lastPriceKrw.toLocaleString()}원` : "가격정보없음"}
         </p>
-        <a href={product.detailUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-mx-link hover:underline">
-          🔗 상품 보기
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href={shopDetailPageUrl(product)}
+            target="_blank"
+            rel="noreferrer"
+            title="AI 상세페이지 자동화에서 이 상품의 상세페이지를 만듭니다 (새 창)"
+            className="text-xs font-semibold text-mx-link hover:underline"
+          >
+            📄 상세페이지 만들기
+          </a>
+          <a href={product.detailUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-mx-link hover:underline">
+            🔗 상품 보기
+          </a>
+        </div>
       </div>
 
       {/* 예약(모니터링) ON/OFF — 삭제하지 않고도 추적만 켜고 끌 수 있다 */}

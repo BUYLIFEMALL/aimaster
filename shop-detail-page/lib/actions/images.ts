@@ -33,6 +33,61 @@ const KOREAN_DEFAULT_PEOPLE_GUIDE =
 const NO_PRICE_PROMOTION_GUIDE =
   "\n\nNo price or promotion information was provided for this product. Do NOT render any price, discount, percentage off, 'sale', '특가', '런칭 특가', '한정', 'limited quantity/time', countdown, event, coupon, free gift or giveaway wording. Use the product name and its real features as the headline instead.";
 
+/**
+ * v1.19(D-48-01): 섹션 이력 뒤에 새 이미지를 붙이고 활성 이미지로 지정한다.
+ * DB 함수가 한 문장으로 붙이므로 같은 섹션을 동시에 만들어도 이력이 덮어써지지 않는다.
+ * 함수가 아직 적용되지 않은 DB에서는 예전 방식(읽은 뒤 upsert)으로 동작한다.
+ */
+async function appendSectionImage(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  args: {
+    productId: string;
+    templateId: string;
+    sectionKey: string;
+    sectionOrder: number;
+    language: string;
+    imageUrl: string;
+    promptUsed?: string;
+  },
+): Promise<{ error?: string }> {
+  const { error: rpcError } = await supabase.rpc("shop_append_section_image", {
+    p_product_id: args.productId,
+    p_template_id: args.templateId,
+    p_section_key: args.sectionKey,
+    p_section_order: args.sectionOrder,
+    p_language: args.language,
+    p_image_url: args.imageUrl,
+    p_prompt_used: args.promptUsed ?? null,
+  });
+  if (!rpcError) return {};
+  if (rpcError.code !== "PGRST202" && rpcError.code !== "42883") return { error: rpcError.message };
+
+  const { data: existing } = await supabase
+    .from("shop_product_images")
+    .select("image_urls")
+    .eq("product_id", args.productId)
+    .eq("section_key", args.sectionKey)
+    .eq("language", args.language)
+    .maybeSingle();
+
+  const { error: upsertError } = await supabase.from("shop_product_images").upsert(
+    {
+      product_id: args.productId,
+      user_id: userId,
+      template_id: args.templateId,
+      section_key: args.sectionKey,
+      section_order: args.sectionOrder,
+      language: args.language,
+      ...(args.promptUsed ? { prompt_used: args.promptUsed } : {}),
+      image_url: args.imageUrl,
+      image_urls: [...(existing?.image_urls ?? []), args.imageUrl],
+    },
+    { onConflict: "product_id,section_key,language" },
+  );
+  return upsertError ? { error: upsertError.message } : {};
+}
+
 /** n8n #1(이미지생성) 대응: 템플릿 1개 분량의 섹션 이미지를 생성해 Storage에 올리고 DB에 반영한다. */
 export async function generateSectionImageAction(
   productId: string,
@@ -102,34 +157,19 @@ export async function generateSectionImageAction(
     const { data: publicUrlData } = supabase.storage.from("shop-detail-images").getPublicUrl(path);
     const imageUrl = publicUrlData.publicUrl;
 
-    const { data: existing } = await supabase
-      .from("shop_product_images")
-      .select("image_urls")
-      .eq("product_id", productId)
-      .eq("section_key", template.section_key)
-      .eq("language", product.language)
-      .maybeSingle();
-
-    const history = [...(existing?.image_urls ?? []), imageUrl];
-
-    const { error: upsertError } = await supabase.from("shop_product_images").upsert(
-      {
-        product_id: productId,
-        user_id: user.id,
-        template_id: template.id,
-        section_key: template.section_key,
-        section_order: template.section_order,
-        language: product.language,
-        prompt_used: finalPrompt,
-        image_url: imageUrl,
-        image_urls: history,
-      },
-      { onConflict: "product_id,section_key,language" },
-    );
+    const { error: upsertError } = await appendSectionImage(supabase, user.id, {
+      productId,
+      templateId: template.id,
+      sectionKey: template.section_key,
+      sectionOrder: template.section_order,
+      language: product.language,
+      imageUrl,
+      promptUsed: finalPrompt,
+    });
     if (upsertError) {
       // 업로드는 됐는데 DB 반영이 실패하면 파일만 남으므로 지운다(D-48-01 고아 파일).
       await supabase.storage.from("shop-detail-images").remove([path]);
-      return { error: `이미지 정보 저장 실패: ${upsertError.message}` };
+      return { error: `이미지 정보 저장 실패: ${upsertError}` };
     }
 
     return { url: imageUrl, sectionKey: template.section_key };
@@ -168,31 +208,16 @@ export async function addCustomSectionImageAction(
     return { error: "프롬프트 템플릿을 찾을 수 없습니다." };
   }
 
-  const { data: existing } = await supabase
-    .from("shop_product_images")
-    .select("image_urls")
-    .eq("product_id", productId)
-    .eq("section_key", template.section_key)
-    .eq("language", product.language)
-    .maybeSingle();
-
-  const history = [...(existing?.image_urls ?? []), imageUrl];
-
-  const { error: upsertError } = await supabase.from("shop_product_images").upsert(
-    {
-      product_id: productId,
-      user_id: user.id,
-      template_id: template.id,
-      section_key: template.section_key,
-      section_order: template.section_order,
-      language: product.language,
-      image_url: imageUrl,
-      image_urls: history,
-    },
-    { onConflict: "product_id,section_key,language" },
-  );
+  const { error: upsertError } = await appendSectionImage(supabase, user.id, {
+    productId,
+    templateId: template.id,
+    sectionKey: template.section_key,
+    sectionOrder: template.section_order,
+    language: product.language,
+    imageUrl,
+  });
   if (upsertError) {
-    return { error: `이미지 정보 저장 실패: ${upsertError.message}` };
+    return { error: `이미지 정보 저장 실패: ${upsertError}` };
   }
 
   return { url: imageUrl, sectionKey: template.section_key };

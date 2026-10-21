@@ -26,15 +26,23 @@ const EMPTY_FIELDS: FlatProductAnalysis = {
   layoutDensity: "",
 };
 
-export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) {
+export function ProductAnalyzeForm({
+  hasGeminiKey,
+  initialLabel = "",
+  initialSourceText = "",
+}: {
+  hasGeminiKey: boolean;
+  initialLabel?: string;
+  initialSourceText?: string;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const referenceInputRef = useRef<HTMLInputElement>(null);
   const specDocInputRef = useRef<HTMLInputElement>(null);
 
-  const [productLabel, setProductLabel] = useState("");
+  const [productLabel, setProductLabel] = useState(initialLabel);
   const [sourceImageUrl, setSourceImageUrl] = useState<string | null>(null);
   const [referenceImageUrls, setReferenceImageUrls] = useState<string[]>([]);
-  const [sourceText, setSourceText] = useState("");
+  const [sourceText, setSourceText] = useState(initialSourceText);
   const [fields, setFields] = useState<FlatProductAnalysis>(EMPTY_FIELDS);
   const [price, setPrice] = useState("");
   const [salePrice, setSalePrice] = useState("");

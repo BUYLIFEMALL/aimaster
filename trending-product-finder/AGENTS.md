@@ -317,3 +317,11 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 커밋 `c6c7046e`(gemini-3.5-flash 교체)와 미배포였던 텔레그램 공용 사본 `linkButton`이 함께 나감. `npm run test:trend` 11개 통과·`npm run build` 통과 → 배포 `trending-product-finder-fkh69bgjk` Ready → DB `programs.version='v1.22'`(서버 키) → 크롬 대시보드 왼쪽 위 v1.22 확인(관리자 로그인 상태).
 - 실제 Gemini 호출 시험은 하지 않음(비용 0, 주인님 지시). 비용: Vercel 빌드 1회.
 - 다음: 회원이 리포트를 돌릴 때 유망 이유·영어 번역이 정상인지 오류 기록 확인(`loadErrors`).
+
+## 2026-10-22 v1.23 — 소싱 상품으로 상세페이지 만들기 연결 (Claude Code 맥미니 · 배포 대기)
+- 주인님 지시(shop-detail-page 추가 개선 제안 3 「진행해」). Phase 9(다른 프로그램 연계 보류, 2026-09-02)와 별개로, 이번 연결은 주인님이 직접 지시한 것이다.
+- `lib/shopDetailLink.ts` `shopDetailPageUrl()` → `https://shop-detail-page.buylife.xyz/products/new?from=sourcing&name=…&source=…`(상품명 ≤100자, 원본 판매처·상품명·링크 ≤1000자). **도매가는 넘기지 않음**(상세페이지에서 할인가로 오해되면 근거 없는 혜택 문구가 생김), 사진도 회원이 직접 올림. 로그인은 `.buylife.xyz` 공용 쿠키라 그대로 이어짐.
+- 버튼: `components/sourcing/SourcingResults.tsx` 결과 줄 「📄 상세페이지」(줄은 `flex-wrap`으로 좁은 화면에서 버튼이 다음 줄로), `components/sourcing/SavedProductsPanel.tsx` 「📄 상세페이지 만들기」. 둘 다 새 창.
+- 검수(맥미니): tsc 0, eslint(바뀐 파일) 0. 검색·발송·AI 호출 0, 비용 0.
+- **윈도우 CLI 다음 첫 단계**: `shop-detail-page` v1.19 배포가 Ready가 된 뒤(받는 쪽 먼저) → `npm run test:trend && npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.23', updated_at=now() where slug='trending-product-finder';` → 크롬 `/sourcing`의 ⭐ 관심 상품 카드 「📄 상세페이지 만들기」가 상세페이지 새 상품 화면(상품명·원본 정보 채움)을 새 창으로 여는지 확인(검색 버튼은 누르지 않아도 관심 상품으로 확인 가능). 375px 폭에서 소싱 결과 줄 버튼이 잘리지 않는지.
+

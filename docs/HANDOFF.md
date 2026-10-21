@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.19 · 상품소싱 v1.23 (배포 대기)
+- 주인님 「진행해」(v1.18 보고의 추가 개선 제안 1~3). ① 같은 섹션 동시 생성 시 이력 덮어쓰기 → DB 함수 `shop_append_section_image`(security invoker, 함수 없으면 예전 방식) ② 사용 안내 15섹션 고정·옛 단가 → 3규격·현재 단가·HTML 내보내기 설명 ③ 상품소싱 소싱 결과·관심 상품 「📄 상세페이지」 → 새 상품 화면 미리 채움(도매가·사진 제외). tsc·lint 0, AI 호출·비용 0.
+- **윈도우 CLI 다음 첫 단계**(v1.18이 아직이면 함께 배포 1회): SQL `shop-detail-page/supabase/migrations/20261022_promo_templates_v1_18.sql` → `20261022_append_section_image_v1_19.sql`(운영 ref `esgxyikcnnvmlhygjkth`) → `shop-detail-page` 배포 → Ready 뒤 `trending-product-finder` 배포 + `programs.version` v1.23 → 크롬 무료 확인(절차: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 맨 아래 v1.19, `trending-product-finder/AGENTS.md` v1.23). 생성 버튼은 누르지 않음.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz/sourcing
+
 ## 2026-10-22 Claude Code(윈도우) — 결정: Supabase 업로드 한도 50MB 유지(지출 상한 때문)
 
 대시보드 Storage 설정 확인 결과 50MB는 지출 상한(spend cap) 때문에 걸린 최대치 — 올리려면 상한을 꺼야 함(공용 프로젝트 전체 추가 요금 위험). 주인님 결정 A: **상한·한도 그대로**, 설정 변경 없음. 4분 20초 넘는 곡의 WAV는 음악(SUNO) v1.41 「임시 보관」 안내로 회원이 14일 안에 직접 내려받음. 다른 프로그램도 50MB 넘는 파일은 저장소에 못 올린다는 전제로 설계(`docs/ERROR_LESSONS.md`).

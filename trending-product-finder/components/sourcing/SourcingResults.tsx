@@ -2,6 +2,7 @@
 // v1.10: SourcingCalculator에서 분리 — 검색결과 위 도구(CSV 다운로드·프로모션 필터)와 채널별 검색결과 목록. 화면은 이전과 같다.
 import { matchedPromoKeyword } from "@/lib/promoKeywords";
 import type { NormalizedProduct, Platform, PlatformResult } from "@/lib/sourcingResults";
+import { shopDetailPageUrl } from "@/lib/shopDetailLink";
 
 interface ToolsProps {
   keyword: string;
@@ -112,13 +113,13 @@ export function PlatformResultList({ label, result, promoFilterEnabled, promoFil
           return (
             <div
               key={prod.key}
-              className={`flex w-full items-center gap-3 rounded-xl border p-3 ${
+              className={`flex w-full flex-wrap items-center gap-3 rounded-xl border p-3 ${
                 isSelected ? "border-mx-primary/40 bg-mx-primary/10" : "border-mx-border bg-mx-raised"
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {prod.imageUrl && <img src={prod.imageUrl} alt={prod.title} className="h-14 w-14 rounded object-cover" />}
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 basis-48">
                 <p className="truncate text-sm text-mx-text">
                   {promoKeyword && (
                     <span className="mr-1 shrink-0 rounded-full bg-mx-danger/10 px-2 py-0.5 text-[10px] font-bold text-mx-danger">
@@ -142,6 +143,16 @@ export function PlatformResultList({ label, result, promoFilterEnabled, promoFil
                   🔗 상품 링크
                 </a>
               )}
+              {/* v1.23: 이 상품으로 AI 상세페이지 자동화의 새 상품 화면을 연다(상품명·원본 정보만 전달). */}
+              <a
+                href={shopDetailPageUrl(prod)}
+                target="_blank"
+                rel="noreferrer"
+                title="AI 상세페이지 자동화에서 이 상품의 상세페이지를 만듭니다 (새 창)"
+                className="shrink-0 rounded-lg border border-mx-primary/40 bg-mx-surface px-3 py-1.5 text-xs font-bold text-mx-link hover:bg-mx-primary/10"
+              >
+                📄 상세페이지
+              </a>
               <button
                 type="button"
                 onClick={() => onSave(prod)}

@@ -257,7 +257,20 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      shop_append_section_image: {
+        Args: {
+          p_product_id: string;
+          p_template_id: string;
+          p_section_key: string;
+          p_section_order: number;
+          p_language: string;
+          p_image_url: string;
+          p_prompt_used?: string | null;
+        };
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

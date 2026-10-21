@@ -6,10 +6,24 @@ import { ProductAnalyzeForm } from "@/components/products/ProductAnalyzeForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewProductPage() {
+// v1.19: 상품소싱 자동화(trending-product-finder)의 「📄 상세페이지 만들기」가 상품 이름·원본 정보를 주소로 넘긴다.
+// 가격(도매가)은 받지 않는다 — 할인가로 오해되면 혜택 문구가 생길 수 있어서다. 사진은 회원이 직접 올린다.
+function firstParam(value: string | string[] | undefined, max: number): string {
+  const v = Array.isArray(value) ? value[0] : value;
+  return (v ?? "").trim().slice(0, max);
+}
+
+export default async function NewProductPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   const registeredProviders = await getRegisteredProviders(supabase, user.id);
+  const fromSourcing = firstParam(searchParams.from, 20) === "sourcing";
+  const initialLabel = fromSourcing ? firstParam(searchParams.name, 100) : "";
+  const initialSourceText = fromSourcing ? firstParam(searchParams.source, 1000) : "";
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-10">
@@ -40,7 +54,20 @@ export default async function NewProductPage() {
         </p>
       </div>
 
-      <ProductAnalyzeForm hasGeminiKey={registeredProviders.has("gemini")} />
+      {fromSourcing && (
+        <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-xs text-emerald-900 leading-relaxed">
+          <p className="font-bold">🔎 상품소싱 자동화에서 가져온 상품입니다.</p>
+          <p className="mt-0.5 text-emerald-800">
+            상품명과 원본 정보를 채워 두었습니다. 대표 사진은 판매 권한이 있는 사진으로 직접 올려 주세요. 판매가·할인가도 직접 입력합니다.
+          </p>
+        </div>
+      )}
+
+      <ProductAnalyzeForm
+        hasGeminiKey={registeredProviders.has("gemini")}
+        initialLabel={initialLabel}
+        initialSourceText={initialSourceText}
+      />
     </div>
   );
 }

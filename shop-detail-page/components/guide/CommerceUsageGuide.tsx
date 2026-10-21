@@ -20,6 +20,11 @@ import {
   UploadCloud,
   BadgeCheck,
 } from "lucide-react";
+import { LAYOUT_PRESETS, type LayoutPreset } from "@/lib/layoutPresets";
+import { IMAGE_MODEL_OPTIONS, IMAGE_MODEL_COST_USD } from "@/lib/ai/imageModels";
+
+// v1.19: 규격·단가는 실제 코드 값을 그대로 보여 준다(안내 문구가 실제와 어긋나지 않게).
+const PRESET_KEYS = Object.keys(LAYOUT_PRESETS) as LayoutPreset[];
 
 
 // 탭 정의
@@ -188,7 +193,7 @@ export function CommerceUsageGuide() {
                 </span>
               </div>
               <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium">
-                대표 상품 사진 1장으로 기획·카피라이팅 작성부터 15개 섹션 고해상도 생성 및 세로 롱 이미지 병합까지 완벽 가이드
+                대표 상품 사진 1장으로 기획·카피 작성부터 15섹션·쿠팡 12단·스마트스토어 9단 이미지 생성, 세로 롱 이미지·HTML 상세페이지 내보내기까지
               </p>
             </div>
           </div>
@@ -229,7 +234,7 @@ export function CommerceUsageGuide() {
             }`}
           >
             <Palette size={14} />
-            <span>🧱 15대 필수 섹션 상세 가이드</span>
+            <span>🧱 규격·섹션 구성 가이드</span>
           </button>
 
           <button
@@ -326,7 +331,7 @@ export function CommerceUsageGuide() {
                     <span>대표 이미지 업로드 (필수 · 1장)</span>
                   </h4>
                   <ul className="text-[11px] text-slate-600 space-y-1 list-disc list-inside">
-                    <li><strong>핵심 소스</strong>: 이후 생성되는 15개 섹션의 합성 기준이 되는 가장 중요한 사진입니다.</li>
+                    <li><strong>핵심 소스</strong>: 이후 생성되는 모든 섹션 이미지의 합성 기준이 되는 가장 중요한 사진입니다.</li>
                     <li><strong>권장 규격</strong>: 배경이 깔끔하게 제거된 <strong>누끼컷(투명 PNG)</strong> 또는 <strong>단색/흰색 배경의 1:1 정방형 고화질 컷</strong>.</li>
                     <li><strong>주의점</strong>: 그림자가 너무 짙거나 상품의 일부가 잘린 사진은 피해주세요.</li>
                   </ul>
@@ -386,34 +391,35 @@ export function CommerceUsageGuide() {
             </div>
           </div>
 
-          {/* STEP 03: 15단 섹션 스튜디오 및 모델별 생성 */}
+          {/* STEP 03: 섹션 스튜디오 및 모델별 생성 */}
           <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-2xs hover:border-blue-300 transition-all">
             <div className="flex items-center gap-2.5 mb-3">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-pink-50 text-pink-600 border border-pink-200 font-mono text-xs font-black">
                 03
               </span>
               <span className="text-xs font-black text-pink-600 uppercase tracking-wider">STEP 03</span>
-              <h3 className="text-base font-bold text-slate-900">15단 섹션 스튜디오 — 생성, 재생성, 직접등록</h3>
+              <h3 className="text-base font-bold text-slate-900">섹션 스튜디오 — 생성, 재생성, 직접등록</h3>
             </div>
 
             <div className="space-y-3.5 text-xs text-slate-600">
               <p className="leading-relaxed">
-                상품 등록이 완료되면 **15단 섹션 스튜디오**로 자동 이동합니다. 여기서 실제 쇼핑몰 상세페이지 레이아웃과 동일하게 01번부터 15번까지 섹션 카드들이 세로로 정렬됩니다.
+                상품 등록이 완료되면 <strong>섹션 스튜디오</strong>로 자동 이동합니다. 상품을 등록할 때 고른 규격대로 섹션 카드가 01번부터 차례로 세로 정렬됩니다.
               </p>
 
               {/* 모델 비교 카드 */}
               <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
                 <p className="font-bold text-slate-800 mb-2">⚙️ 2가지 AI 이미지 생성 모델 선택 가이드:</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
-                  <div className="bg-white p-3 rounded-lg border border-slate-200">
-                    <p className="font-bold text-blue-700 mb-0.5">Gemini 2.5 Flash (기본 권장 · 초고속 가성비)</p>
-                    <p className="text-slate-500">장당 약 $0.038 (15장 전체 생성 시 약 $0.57). 빠른 속도와 감각적인 비주얼 렌더링에 적합합니다.</p>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-slate-200">
-                    <p className="font-bold text-purple-700 mb-0.5">Gemini 2.5 Pro (최고 화질 · 정밀 텍스트)</p>
-                    <p className="text-slate-500">장당 약 $0.075 (15장 전체 생성 시 약 $1.13). 정교한 텍스트 묘사나 복잡한 디테일 표현에 강력합니다.</p>
-                  </div>
+                  {IMAGE_MODEL_OPTIONS.map((opt) => (
+                    <div key={opt.value} className="bg-white p-3 rounded-lg border border-slate-200">
+                      <p className="font-bold text-blue-700 mb-0.5">{opt.label}</p>
+                      <p className="text-slate-500">
+                        {`장당 약 $${IMAGE_MODEL_COST_USD[opt.value].toFixed(3)} · 15섹션 약 $${(IMAGE_MODEL_COST_USD[opt.value] * 15).toFixed(2)} · 12단 약 $${(IMAGE_MODEL_COST_USD[opt.value] * 12).toFixed(2)} · 9단 약 $${(IMAGE_MODEL_COST_USD[opt.value] * 9).toFixed(2)}`}
+                      </p>
+                    </div>
+                  ))}
                 </div>
+                <p className="mt-2 text-[10px] text-slate-400">Google 요금표(2K 이미지 1장) 기준 추정치이며 회원 본인 Gemini 키로 청구됩니다. 요금은 바뀔 수 있습니다.</p>
               </div>
 
               {/* 3가지 조작 방식 */}
@@ -424,17 +430,17 @@ export function CommerceUsageGuide() {
                     <span>1. 전체 일괄 자동 생성</span>
                   </p>
                   <p className="text-slate-600 leading-relaxed">
-                    상단 <span className="font-semibold text-blue-700">[15개 섹션 전체 자동 생성]</span> 버튼을 누르면 1번부터 15번까지 순차적으로 전자동 합성됩니다.
+                    상단 <span className="font-semibold text-blue-700">[○개 섹션 전체 자동 생성]</span> 버튼을 누르면 규격의 모든 섹션을 01번부터 차례로 만듭니다.
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl bg-indigo-50/50 border border-indigo-200">
                   <p className="font-bold text-indigo-900 mb-1 flex items-center gap-1.5">
                     <RefreshCw size={13} className="text-indigo-600" />
-                    <span>2. 개별 섹션 재생성</span>
+                    <span>2. 한 섹션만 생성·재생성</span>
                   </p>
                   <p className="text-slate-600 leading-relaxed">
-                    특정 섹션만 마음에 들지 않을 경우 해당 섹션 카드의 <span className="font-semibold text-indigo-700">[🔄 재생성]</span> 버튼을 눌러 그 섹션만 다시 만듭니다.
+                    아직 안 만든 섹션은 카드의 <span className="font-semibold text-indigo-700">[✨ 생성]</span>, 마음에 들지 않는 섹션은 <span className="font-semibold text-indigo-700">[🔄 재생성]</span>으로 그 섹션 1장만 만듭니다. 버튼에 1장 예상 비용이 표시됩니다.
                   </p>
                 </div>
 
@@ -463,21 +469,32 @@ export function CommerceUsageGuide() {
                 04
               </span>
               <span className="text-xs font-black text-emerald-600 uppercase tracking-wider">STEP 04</span>
-              <h3 className="text-base font-bold text-slate-900">최종 15단 세로 롱 이미지 병합 및 마켓 등록</h3>
+              <h3 className="text-base font-bold text-slate-900">세로 롱 이미지·HTML 내보내기 및 마켓 등록</h3>
             </div>
 
             <div className="space-y-3 text-xs text-slate-600">
               <p className="leading-relaxed">
-                섹션 생성이 1개 이상 완료되면 화면 하단에 **고정형(Sticky) 병합 다운로드 바**가 활성화됩니다.
+                섹션 이미지가 1장 이상 준비되면 두 가지 방법으로 내보낼 수 있습니다. 내보내기 전에 <strong>📱 모바일 미리보기</strong>로 휴대폰 화면에서 어떻게 보이는지 먼저 확인해 보세요.
               </p>
 
               <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/40 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-emerald-900 text-sm">
                   <Download size={16} className="text-emerald-600" />
-                  <span>[최종 15단 상세페이지 세로 롱 이미지 병합 & 다운로드] 클릭</span>
+                  <span>① 세로 롱 이미지(860px PNG) 병합 & 다운로드</span>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
-                  서버에서 Canvas / Sharp 초고속 이미지 프로세싱 엔진이 가동되어, 01번부터 15번까지의 선택된 이미지를 오차 없이 완벽한 단일 세로 롱 이미지(PNG)로 병합하여 즉시 다운로드해 드립니다.
+                  화면 하단 고정 버튼을 누르면 각 섹션에서 선택한 이미지를 860px 너비로 맞춰 한 장의 세로 롱 이미지(PNG)로 합쳐 내려받습니다. AI 호출이 없어 비용이 들지 않습니다.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-blue-100 bg-blue-50/40 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-blue-900 text-sm">
+                  <span>🧾</span>
+                  <span>② HTML 상세페이지로 내보내기</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  쿠팡·스마트스토어·프리미엄 스타일 중 하나를 고르면 섹션 이미지와 상품 정보로 글자를 고칠 수 있는 HTML 상세페이지를 씁니다.
+                  이미지는 860px로 줄여 파일 안에 넣으므로 HTML 파일 하나만 내려받으면 됩니다. Gemini 글 생성 1회(회원 본인 키, 10원 안팎)가 들고 1~2분 걸립니다. 결과는 저장되지 않으니 만든 뒤 바로 내려받아 주세요.
                 </p>
               </div>
 
@@ -500,16 +517,33 @@ export function CommerceUsageGuide() {
         </div>
       )}
 
-      {/* [탭 2] 15대 필수 섹션 상세 가이드 */}
+      {/* [탭 2] 규격·섹션 구성 가이드 */}
       {activeTab === "sections" && (
         <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {PRESET_KEYS.map((key) => (
+              <div key={key} className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <p className="text-sm font-black text-slate-900">{LAYOUT_PRESETS[key].label}</p>
+                  <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                    {LAYOUT_PRESETS[key].sections}장
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">{LAYOUT_PRESETS[key].description}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-slate-500 px-1">
+            규격은 새 상품을 등록할 때 고릅니다. 쿠팡 12단·스마트스토어 9단의 섹션 이름과 순서는 상품 화면의 섹션 카드에서 확인할 수 있고, 아래는 기본 15섹션의 섹션별 전략입니다.
+          </p>
+
           <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80 text-xs text-blue-900">
             <p className="font-bold mb-1 flex items-center gap-1.5">
               <BadgeCheck size={16} className="text-blue-600" />
-              <span>네이버 스마트스토어 & 쿠팡 상위 1% 전환율 공식 기반 15개 섹션</span>
+              <span>기본 15섹션 — 섹션별 전략</span>
             </p>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              소비자의 구매 심리 흐름(주의 ➔ 흥미 ➔ 공감 ➔ 신뢰 ➔ 욕구 ➔ 확신 ➔ 결제)에 완벽히 맞추어 설계된 15대 필수 섹션입니다. 각 섹션을 클릭하면 상세 전략을 확인할 수 있습니다.
+              소비자의 구매 심리 흐름(주의 ➔ 흥미 ➔ 공감 ➔ 신뢰 ➔ 욕구 ➔ 확신 ➔ 결제)에 완벽히 맞추어 설계된 15개 섹션입니다. 각 섹션을 클릭하면 상세 전략을 확인할 수 있습니다.
             </p>
           </div>
 
@@ -595,7 +629,7 @@ export function CommerceUsageGuide() {
               <div className="p-3.5 rounded-xl bg-white border border-amber-200/60">
                 <p className="font-bold text-slate-900 mb-1">🎨 3. 마음에 드는 섹션만 부분 재생성으로 비용 절약</p>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
-                  15장을 전부 다시 생성할 필요가 없습니다. 01번 인트로 헤더나 07번 비포애프터처럼 감성이 중요한 섹션만 골라 [🔄 재생성]을 누르면 불필요한 API 비용을 90% 이상 절감할 수 있습니다.
+                  전체를 다시 생성할 필요가 없습니다. 01번 인트로 헤더처럼 감성이 중요한 섹션만 골라 [🔄 재생성]을 누르면 불필요한 API 비용을 90% 이상 절감할 수 있습니다.
                 </p>
               </div>
 
@@ -616,7 +650,7 @@ export function CommerceUsageGuide() {
                 a: "이 프로그램은 회원 본인의 Google Gemini API 키로 동작합니다. 좌측 메뉴의 [API키등록·플랫폼연동] 메뉴로 이동하신 후, 본인의 Gemini API 키를 등록해 주세요. 키는 Google AI Studio에서 무료로 즉시 발급받으실 수 있습니다.",
               },
               {
-                q: "Q. 15개 섹션 중 일부 섹션만 원하는 사진으로 바꿀 수 있나요?",
+                q: "Q. 일부 섹션만 원하는 사진으로 바꿀 수 있나요?",
                 a: "네, 가능합니다! 각 섹션 카드 하단의 [+ 직접등록] 버튼을 누르시면, AI 생성 이미지 대신 본인이 직접 촬영하거나 포토샵 등으로 제작한 실물 이미지를 업로드하여 해당 섹션을 즉시 교체할 수 있습니다.",
               },
               {
@@ -624,12 +658,20 @@ export function CommerceUsageGuide() {
                 a: "이커머스 표준에 최적화된 860px 너비로 합성되어 스마트스토어, 쿠팡 윙, 11번가, 카페24 등에 업로드 시 깨짐이나 리사이징 왜곡 없이 선명하게 표시됩니다.",
               },
               {
+                q: "Q. 15섹션·쿠팡 12단·스마트스토어 9단은 어떻게 고르나요?",
+                a: "새 상품을 등록할 때 규격을 고릅니다. 정보가 많은 상품은 15섹션, 쿠팡 로켓배송처럼 가격·스펙 비교가 중요한 상품은 쿠팡 12단, 감성·후기 중심의 스마트스토어 상품은 9단이 맞습니다. 할인가를 비워 두면 AI가 특가·한정 같은 혜택 문구를 지어내지 않습니다.",
+              },
+              {
+                q: "Q. 세로 롱 이미지와 HTML 내보내기는 무엇이 다른가요?",
+                a: "세로 롱 이미지는 섹션 이미지를 한 장으로 합친 PNG라 어느 쇼핑몰에나 바로 올릴 수 있고 비용이 없습니다. HTML은 글자를 나중에 고칠 수 있고 검색에 글자가 노출되는 장점이 있으며, Gemini 글 생성 1회 비용이 듭니다.",
+              },
+              {
                 q: "Q. 과거에 생성했던 다른 버전의 이미지를 다시 선택할 수 있나요?",
                 a: "네, 각 섹션 카드의 하단 'VERSIONS' 썸네일 바를 보시면 과거에 생성했던 이미지 히스토리가 모두 저장되어 있습니다. 원하는 버전의 썸네일을 클릭하시면 즉시 해당 버전이 활성화(선택)됩니다.",
               },
               {
                 q: "Q. AI 이미지 생성 비용은 얼마 정도 발생하나요?",
-                a: "본인 Google 계정의 무료 티어(Free Tier) 범위 내에서는 비용이 발생하지 않습니다. 유료 과금 기준으로도 Gemini 2.5 Flash 모델 사용 시 15개 섹션 전체를 생성하는 데 약 $0.57(한화 약 700원 수준)로 디자이너 외주 비용(건당 20~50만 원) 대비 99% 이상 절감됩니다.",
+                a: `회원 본인 Gemini 키로 청구됩니다. Google 요금표(2K 1장) 기준 Nanobanana2는 장당 약 $${IMAGE_MODEL_COST_USD.nanobanana2.toFixed(3)}, Pro는 약 $${IMAGE_MODEL_COST_USD.nanobananaPro.toFixed(3)}입니다. Nanobanana2로 쿠팡 12단 전체를 만들면 약 $${(IMAGE_MODEL_COST_USD.nanobanana2 * 12).toFixed(2)}입니다. 무료 사용량은 계정·모델마다 다르니 Google AI Studio에서 확인해 주세요. 섹션별 [✨ 생성]·[🔄 재생성]으로 필요한 장만 만들면 비용을 줄일 수 있습니다.`,
               },
             ].map((faq, idx) => {
               const isOpen = openFaq === idx;
