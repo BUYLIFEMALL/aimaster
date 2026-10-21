@@ -26,6 +26,8 @@
 > **★★★ 연동 & 사용 매뉴얼 개발·운영 지침 준수 (2026-10-20 주인님 지시 — agy 제정, 모든 신규 개발·업그레이드 레퍼런스, Claude Code도 동일 적용)**
 > 새 프로그램을 개발하거나 기존 프로그램을 업그레이드·리뉴얼할 때 **연동 가이드·사용 매뉴얼은 [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](docs/MANUAL_AND_INTEGRATION_GUIDELINES.md)의 「8대 매뉴얼 템플릿 스타일」과 「Step 1~4 시각화 카드 규격」을 따른다** — 단순 텍스트 나열 금지, ① 헤더 메타데이터 바(아이콘·소요시간·콘솔 직링크) ② 개요 히어로 카드 ③ 4단계 시각 카드 ④ 상세 단계(코드·1초 복사) ⑤ 💡 팁 배너 ⑥ ⚠️ 함정 방지 배너 ⑦ 콘솔 직링크 버튼. 작성 후 실제 브라우저 화면 검수(**Claude Code는 메인 크롬**, agy·Codex는 Edge — 핵심 원칙 13·18). 배포 키트(수강생 설치 매뉴얼)는 별도 지침 [`docs/DISTRIBUTION_KIT_GUIDE.md`](docs/DISTRIBUTION_KIT_GUIDE.md).
 
+> **★★★ 프로그램 비교 분석 매뉴얼 (2026-10-21 주인님 지시, 모든 CLI 공통)** — 카테고리·프로그램을 비교해 합칠 것/남길 것을 정할 때는 [`docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md`](docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md)의 순서(1단계 수집 스크립트 `node scripts/analyze-category.mjs "<카테고리>"` → 2단계 코드 9항목 확인 → 3단계 판단 기준 → 정해진 표 3개 출력)와 보고서 양식을 그대로 따른다. 분석 단계에서는 코드·DB를 바꾸지 않고, 병합은 주인님 결정 뒤 묶음마다 매뉴얼 §6 절차로 진행한다. 기준 사례: `docs/analysis-scraping-consolidation-20261021/REPORT.md`.
+
 > **★★★ 외부 개발 스킬 운영 — 전체 묶음 설치·작업별 선택 사용 (2026-10-19 주인님 확정, 모든 CLI 공통)**
 > `mattpocock-skills`는 필요한 스킬만 현재 작업에 맞춰 사용한다. **주인님의 지시와 AIMaster 최상위 지침을 우선하며**, 설치를 제품 변경·설정 초기화·권한 확대의 승인으로 해석하지 않는다. 작업 전 플랜·개인 계정/API·운영/Lab 분리·공동 작업·검수/인수인계 규칙을 유지한다. 외부 스킬 선택 전 [선택 사용 지침](docs/EXTERNAL_SKILLS_POLICY.md)을 읽고 적용 범위와 충돌을 확인한다. 전체 스킬을 매 작업에 일괄 실행하지 않는다. 설치 상태는 CLI/계정별로 확인하며 다른 CLI에도 설치됐다고 가정하지 않는다.
 <!-- /SELECTIVE_EXTERNAL_SKILLS_20261019 -->

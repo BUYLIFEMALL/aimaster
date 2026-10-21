@@ -1,6 +1,7 @@
 # 「데이터수집|기획」 카테고리 병합 분석 (2026-10-21 Claude Code 윈도우, 부계정)
 
 > 주인님 지시: 「프로그램별 로직·기능·장단점을 자세히 분석하고, 중복되는 것은 합치되 단점은 빼고 장점은 더하고, 독립으로 남길 것은 이유와 함께 표로」.
+> 분석 방법·출력 양식은 기준 매뉴얼 [`docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md`](../PROGRAM_COMPARISON_ANALYSIS_GUIDE.md)로 정리됨(이 보고서가 기준 사례). 1단계 자료: `node scripts/analyze-category.mjs "scraping&plan"`.
 > 대상 운영 ① AIMaster, DB ref `esgxyikcnnvmlhygjkth`(읽기 전용 집계). 코드·DB 변경 없음 — 분석만. 근거: 각 폴더 코드(규모·저장 위치·AI 호출·키 처리), `docs/PROGRAM_CAPABILITY_MAP.md` 카드, 운영 DB 권한·사용 기록.
 
 ## 1. 프로그램별 분석 (12개)

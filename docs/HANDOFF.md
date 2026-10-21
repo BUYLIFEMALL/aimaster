@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 프로그램 비교 분석 매뉴얼(기준 파일) + 수집 스크립트
+
+- 주인님 지시: 오늘 데이터수집|기획 분석 방법·출력 방식을 모든 CLI가 쓰는 기준 매뉴얼로. **[`docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md`](PROGRAM_COMPARISON_ANALYSIS_GUIDE.md)** — 시작 전 확인 → 1단계 `node scripts/analyze-category.mjs "<카테고리>"`(운영 DB·코드 읽기 전용 수집: 권한·사용 기록·저장 위치·AI 모델·키 처리) → 2단계 코드 9항목 → 3단계 판단 기준(합칠 조건·기준 앱 순서·단점 해결표·독립 조건·우선순위) → 보고서 표 3개·채팅 보고 양식 → 결정 뒤 병합 절차 9단계.
+- 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`에 안내 한 줄. 스크립트는 오늘 카테고리로 실행해 수동 결과와 같음 확인(slug 상수 이름 `APP_SLUG` 등도 찾도록 보강).
+- 다른 CLI 첫 단계: 매뉴얼 §1 확인 후 스크립트 실행.
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 「데이터수집|기획」 카테고리 병합 분석(코드 변경 없음)
 
 - 12개 프로그램 로직·저장·AI·키·장단점 분석 → 4묶음 병합안(12 → 8): A 웹 수집(Website Scraper → 웹 크롤링), B 글쓰기(페르소나 문체 → AI 글쓰기 에디터), C 프롬프트(템플릿 → AI Prompt), D 웹 UI(AI 웹 UI → UI Canvas). 독립 4개: 랜딩페이지 기획·슬라이드·마크다운·시네마틱 스토리보드(카테고리 이동 제안).
