@@ -1,6 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이커머스 병합 E0·E1·E2 운영 적용(AI 상세페이지 자동화 v1.17, 12단 v1.10·자동생성기 v1.21 숨김) · 상품소싱 v1.22 배포
+- 순서: E1 마이그레이션(칸 추가) → 15p v1.17 배포 → E0 비공개 버킷 마이그레이션 → 12단·자동생성기 배포 → E1·E2 SQL. 코드가 이미 v1.17이라 15p 빌드를 1회로 줄였고, 「E0 마이그레이션은 배포 뒤·E1 마이그레이션은 배포 앞」 조건은 지킴. DB는 운영 ① ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor.
+- 확인: 템플릿 15·12·9, 버킷 비공개, 권한 연장 4명 처리, 숨김·버전·새 이름, 410·401·유예 응답, 옛 공개 주소 차단, 크롬(관리자 로그인)으로 이미지·내보내기·규격·이동 안내·공개 상세. shop-detail-page에 `CRON_SECRET` 추가.
+- 상품소싱 v1.22(`c6c7046e`) 테스트 11개·빌드 통과 → 배포·DB·화면 v1.22. 생성 버튼은 누르지 않음.
+- 비용: Vercel 빌드 4회(순차), 유료 AI 0회.
+- 못 한 것: 시험 계정 화면·실제 생성(비용). 상세: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 「배포 결과」, `trending-product-finder/AGENTS.md` 맨 아래.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 통합 받은편지함 v1.07(7일 그래프 플랫폼별 쌓기·막대 누르면 그날 목록) · 같은 그래프를 공용 기준 코드로 세 댓글 프로그램 대시보드에 (INSTA v1.34·쓰레드 v1.23·유튜브 v1.28)
 - `comment-inbox` v1.07: 플랫폼별 색 쌓기·범례, 막대 누르면 그날 게시·발송한 목록(권한·user_id·7일 범위 제한, 플랫폼마다 50건). 시험 40개. 배포 `comment-inbox-hn6evggjp` READY·DB v1.07·크롬(오늘 막대 클릭·400px) 확인. 커밋 `1b91c98f`.
 - 새 공용 기준 코드 `week-reply-bucket`·`week-reply-chart`(기준 comment-inbox) → 세 댓글 프로그램 대시보드 통계 카드 아래 그래프. 커밋 `8dd8b1d2`·버전 수정 `de75a1e6`, 세 곳 배포 READY·DB 반영·크롬에서 버전·그래프·400px 확인.

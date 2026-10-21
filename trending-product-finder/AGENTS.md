@@ -312,3 +312,8 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 
 ## 2026-10-21 — 미배포 공용 코드 변경 안내: `telegram-bot-client` 사본에 `linkButton` (Claude Code 윈도우)
 - 사본 `lib/telegram/client.ts`의 `sendTelegramMessageWithButtons`에 선택 항목 `linkButton`(승인 버튼 줄 아래 링크 버튼 한 줄)이 추가됨(커밋 `802e89c8`). 이 프로그램은 넘기지 않으므로 **동작 같음**(tsc 오류 0 확인). 급하지 않은 변경이라 따로 배포하지 않았고, **다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나간다**. 사본은 직접 고치지 않는다 — 기준 `instagram-comment-reply/lib/telegram/client.ts`를 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 미배포 목록: 루트 `docs/SHARED_MODULES.md`.
+
+## 2026-10-22 v1.22 운영 배포 (Claude Code 윈도우)
+- 커밋 `c6c7046e`(gemini-3.5-flash 교체)와 미배포였던 텔레그램 공용 사본 `linkButton`이 함께 나감. `npm run test:trend` 11개 통과·`npm run build` 통과 → 배포 `trending-product-finder-fkh69bgjk` Ready → DB `programs.version='v1.22'`(서버 키) → 크롬 대시보드 왼쪽 위 v1.22 확인(관리자 로그인 상태).
+- 실제 Gemini 호출 시험은 하지 않음(비용 0, 주인님 지시). 비용: Vercel 빌드 1회.
+- 다음: 회원이 리포트를 돌릴 때 유망 이유·영어 번역이 정상인지 오류 기록 확인(`loadErrors`).

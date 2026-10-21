@@ -59,4 +59,13 @@
 6. 마무리: 역량 지도·보고서 §6은 맥미니가 갱신함. 결과를 루트 `docs/HANDOFF.md`와 이 문서 「배포 결과」에 기록, `DESIGN.md` 해당 프로그램 상태 확인.
 
 ## 배포 결과
-(윈도우 CLI가 기록)
+### 2026-10-22 Claude Code(윈도우, 메인 계정) — E0·E1·E2 한 번에 적용
+- **순서(두 조건을 모두 지키며 15p 빌드를 1회로 줄임)**: 코드가 이미 HEAD(v1.17)에 E0~E2가 모두 들어 있어, ① E1 마이그레이션 `20261021_layout_presets_v1_16.sql`(칸·행 추가, 옛 코드 영향 없음) → ② shop-detail-page v1.17 배포 → ③ E0 마이그레이션 `20261021_private_bucket_v1_15.sql`(배포 뒤) → ④ detail-page-12p v1.10·auto-detail-page v1.21 배포 → ⑤ `E1_grant_and_hide_12p.sql` → ⑥ `E2_hide_auto_detail_and_catalog.sql`. DB 작업은 모두 운영 ① ref `esgxyikcnnvmlhygjkth`, 주인님 크롬 SQL Editor(파일을 클립보드로 붙여 넣고 글자 수 대조 후 실행).
+- 배포(모두 Ready): `shop-detail-page-kh9whxyb3`, `detail-page-12p-d94rdq3jr`, `auto-detail-page-3ms78mvlc`. 로컬 `npm run build` 3곳 통과 후 배포. 별칭 `shop-page-seven.vercel.app`은 건드리지 않음.
+- 환경변수: shop-detail-page Production에 `CRON_SECRET`이 없어 루트 `.env.local`과 같은 값으로 추가(값 미출력).
+- DB 확인: 규격별 기본 템플릿 shop15 15 · coupang12 12 · smartstore9 9 / 버킷 `shop-detail-images` public=false / 권한 연장 대상 4명 → 0명(15p 만료 2026-10-16 → 12단 만료일) / 12단 `is_active=false` v1.10 / 자동생성기 `is_active=false` v1.21 / 15p 「AI 상세페이지 자동화」 v1.17 활성·설명 교체(원문 백업 `backup-programs-before-merge-e.json`).
+- 운영 확인: 12단 `POST /api/generate-detail` 410, 자동생성기 `POST /api/generate` 410, 정리 작업 비밀값 없이 401·비밀값으로 `{"skipped":"grace","graceEnd":"2026-11-21T00:00:00+09:00","retentionDays":30}`, DB에 저장된 옛 공개 이미지 주소 400(차단).
+- 크롬(메인 크롬, **관리자 계정으로 로그인돼 있어 관리자 화면으로 검수** — 시험 계정 전환은 주인님 몫, 시험 계정은 15p 상품 0개): 목록 v1.17·「12단 자료 가져오기」·30일 안내 / 관리자 8월 상품 상세에서 이미지가 `/api/image` 서명 경로로 표시(깨진 이미지 0) / HTML 내보내기 패널 3개 카드 / 새 상품 화면 규격 3개·「사양서 불러오기」 / 12단·자동생성기 이동 안내 화면 / 공개 상세 `https://www.buylife.xyz/programs/shop-detail-page` 새 이름·5단락·카드.
+- 비용: Vercel 빌드 3회(이 묶음) — 생성 버튼은 누르지 않아 AI 호출 0회.
+- 못 한 것: 시험 계정 로그인 상태 화면, 「긴 이미지 내려받기」 실제 내려받기, 휴대폰 폭 규격 카드 1열, 실제 섹션 생성·HTML 생성(비용 — 주인님 승인 시 1회).
+- 다음: 2026-11-21 이후 첫 정리 작업 실행(9월 자료 삭제 — 정상) Vercel 기록 확인.
