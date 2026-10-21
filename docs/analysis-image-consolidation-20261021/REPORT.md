@@ -241,3 +241,4 @@
 |---|---|---|---|
 | W1 이미지 스튜디오 11개 모델 연결 | ✅ 2026-10-22 `lib/providers/index.ts`에 `ideogram`·`recraft` → `ReplicateAdapter` 등록, 재발 방지 시험 추가 | ai-image-studio v1.25 | 배포 Ready·DB v1.25. 실제 호출: 요청이 Replicate까지 도달(이전엔 서버 오류), 시험 계정 Replicate 키 401 → 주인님 키 재등록 후 **Ideogram v3 Turbo 1장 생성 성공**(1024×1024, 글자 정확, 약 $0.03) |
 | W2 웹툰 회원 키 브라우저 저장 제거(다른 카테고리) | ✅ 2026-10-22 AI 호출을 서버 경로(`/api/ai/text`·`/api/ai/image`)로, 키 경로는 `hasKey`만, 옛 브라우저 키 삭제, 정적 시험 4개 | ai-webtoon-studio v1.27 | 배포 Ready·DB v1.27, 로그인 없는 호출 401, 크롬(시험 회원) 옛 키 삭제·`hasKey:true` 확인. 실제 생성 1회 미확인(비용 승인 밖). 인수인계 `ai-webtoon-studio/docs/IMPROVEMENT_HANDOFF_20261022_KEY_SERVER.md`. 같은 패턴 남은 곳: `ebook-studio`(미처리)·`naver-blog-allinone`(Codex 영역) |
+| W3 시네마틱 스토리보드 30일 정리 + 동시 렌더 | ✅ 2026-10-22 cron(03:00 KST, 폴더째 삭제)·`CRON_SECRET` 등록, 렌더 선점(유료 생성 전 409)·새 이름 저장·조건부 반영 | cinematic-storyboard-studio v1.10 | 배포 Ready·DB v1.10, 정리 401/200(대상 0)·렌더 비로그인 401·크롬 v1.10. 실제 동시 렌더 재현은 비용 때문에 생략(정적 시험) |

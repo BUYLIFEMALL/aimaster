@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import tsx --test tests/storyboard.test.mjs tests/access.test.mjs"
+    "test": "node --import tsx --test tests/storyboard.test.mjs tests/access.test.mjs tests/renderCleanup.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.28.0",

@@ -63,6 +63,11 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W3: 시네마틱 스토리보드 v1.10(30일 자동 삭제 + 동시 렌더 덮어쓰기 방지) · W1 실제 생성 확인
+- W3: cron `/api/cron/cleanup`(매일 03:00 KST, 생성일 30일, 폴더째 삭제)·`CRON_SECRET` 등록, 렌더 선점(`claimProject`)으로 두 번째 동시 렌더는 유료 생성 전 409, 결과는 새 파일 이름 + 조건부 반영. 배포 `cinematic-storyboard-studio-ow3kgjmgf`·DB v1.10, 정리 401/200·렌더 비로그인 401·크롬 v1.10. 상세 `cinematic-storyboard-studio/AGENTS.md` v1.10.
+- W1 보완: 주인님이 시험 계정 Replicate 키 재등록 → Ideogram v3 Turbo 1장 생성 성공(약 $0.03).
+- 비용: Vercel 빌드 1회, Replicate 1장. 다음: W4 패션스타일(preview 모델 교체·옷장 30일 만료). 보고서 §8-7.
+- 프로그램: https://cinematic-storyboard-studio.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W1·W2: 이미지 스튜디오 v1.25(Ideogram·Recraft 11개 모델 연결) · AI 웹툰 v1.27(회원 키 브라우저 저장 제거)
 - W1 `ai-image-studio` v1.25: `lib/providers/index.ts`에 `ideogram`·`recraft` → `ReplicateAdapter`(빠져서 11개 모델 오류였음), 재발 방지 시험. 배포 `ai-image-studio-kkrhcnqm4`·DB v1.25. 크롬(시험 회원) Ideogram v3 Turbo 1회 → Replicate까지 도달했으나 **시험 계정 Replicate 키 401(만료/무효)** → 생성·비용 0. 유효 키로 1장 재확인 필요.
 - W2 `ai-webtoon-studio` v1.27: AI 호출을 서버 경로로, 키 경로는 `hasKey`만, 옛 브라우저 키 삭제. 배포 `ai-webtoon-studio-pvxt536dl`·DB v1.27, 크롬 확인. **필독 인수인계** `ai-webtoon-studio/docs/IMPROVEMENT_HANDOFF_20261022_KEY_SERVER.md`. 같은 패턴 남은 곳: `ebook-studio`(미처리), `naver-blog-allinone` 설정 창(Codex 영역). 교훈 `docs/ERROR_LESSONS.md` 2026-10-22.

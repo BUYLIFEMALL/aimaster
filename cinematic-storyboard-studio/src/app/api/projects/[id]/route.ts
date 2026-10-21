@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAccess } from "@/lib/routeGuard";
-import { getOwnedProject, paths, removeFiles, signedUrl } from "@/lib/projects";
+import { getOwnedProject, removeProjectFolder, signedUrl } from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -40,7 +40,8 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   const p = await getOwnedProject(a.user.id, id);
   if (!p) return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다." }, { status: 404 });
-  await removeFiles([paths.ref(a.user.id, id), paths.master(a.user.id, id)]);
+  // 폴더째 비운다(v1.10 — 렌더마다 이름이 다른 마스터 파일까지)
+  await removeProjectFolder(a.user.id, id);
   const { error } = await createAdminClient().from("storyboard_projects").delete().eq("id", id).eq("user_id", a.user.id);
   if (error) return NextResponse.json({ error: "삭제하지 못했습니다." }, { status: 500 });
   return NextResponse.json({ success: true });

@@ -109,3 +109,10 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 ## 2026-10-21 Claude Code(윈도우) — 카테고리 이동(DB 값만)
 - 주인님 결정(데이터수집|기획 병합 분석 보고서 §5)으로 `programs.category_id`를 「데이터수집|기획」 → 「이미지」(`b5cec438-a6cc-43e5-83bc-59368f8a2c4d`)로 바꿈. 코드·버전 변경 없음(v1.09 유지, 원칙 22: DB 값만 바꾼 작업은 버전을 올리지 않음).
 - 백업: `D:\Antigravity\AIMaster_backup\category-move-20261021\cinematic-storyboard-studio_before.json`. 확인: 메인 「이미지」 카테고리에 노출, 「데이터수집|기획」에서 빠짐(크롬).
+
+## 2026-10-22 v1.10 — 30일 자동 삭제 cron + 동시 렌더 덮어쓰기 방지 (Claude Code 윈도우, 이미지 재비교 W3)
+- **30일 자동 삭제**(최상위 규칙 — 그동안 30개 상한만 있었음): `src/app/api/cron/cleanup/route.ts`(생성일 30일 지난 `storyboard_projects` → 프로젝트 폴더 파일 먼저, 행 다음), `vercel.json` cron `0 18 * * *`(03:00 KST), `CRON_SECRET` Production 등록(루트 `.env.local`과 같은 값, 비어 있으면 401).
+- **동시 렌더(D-02-01)**: ① 렌더 시작 때 `claimProject`(읽은 `updated_at`이 그대로일 때만 새로 찍음)로 선점 → 같은 프로젝트에 동시에 들어온 두 번째 렌더는 **유료 생성 전에 409**. ② 결과는 매번 새 이름 `master-<시각>.jpg`로 올리고, 선점 값이 그대로일 때만 DB 반영(중간에 다시 분석 등으로 바뀌면 새 파일을 지우고 409). ③ 성공하면 옛 마스터 파일 삭제. 공용 함수 `src/lib/projects.ts`의 `newMasterPath`·`claimProject`·`removeProjectFolder`.
+- 프로젝트 삭제도 `removeProjectFolder`로 폴더째 비움(이름이 바뀐 마스터까지). 마스터 파일을 쓰는 곳은 모두 `master_path` 값을 읽어 이름 변경 영향 없음.
+- 검수: tsc 0, 시험 18개(새 `tests/renderCleanup.test.mjs` 3개 — 선점이 유료 생성보다 먼저·조건부 저장·정리 비밀값/생성일/예약), build, 배포 `cinematic-storyboard-studio-ow3kgjmgf` Ready, DB v1.10. 정리 작업 비밀값 없이 401·비밀값으로 200(30일 지난 프로젝트 0개라 지운 것 0), 로그인 없는 렌더 401, 크롬(시험 회원) v1.10·목록 API 200.
+- 미확인(비용): 실제 동시 렌더 재현(유료 생성 2회 필요) — 정적 시험으로 순서만 검증. D-02-02(프로젝트·참조·마스터 만료 함께 추적)는 폴더째 삭제로 대부분 해소.

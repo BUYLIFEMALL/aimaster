@@ -24,6 +24,34 @@ export interface ProjectRow {
 const refPath = (userId: string, id: string) => `${userId}/${id}/ref.jpg`;
 const masterPath = (userId: string, id: string) => `${userId}/${id}/master.jpg`;
 export const paths = { ref: refPath, master: masterPath };
+// v1.10: 렌더 결과는 매번 새 이름으로 올린다 — 동시에 끝난 옛 결과가 같은 파일을 덮어쓰지 않게(D-02-01)
+export const newMasterPath = (userId: string, id: string) => `${userId}/${id}/master-${Date.now()}.jpg`;
+
+/** 프로젝트 폴더(<user>/<project>/) 안의 파일을 모두 지운다 — 삭제·30일 정리용(이름이 바뀐 옛 마스터까지) */
+export async function removeProjectFolder(userId: string, id: string): Promise<number> {
+  const store = createAdminClient().storage.from(BUCKET);
+  const { data } = await store.list(`${userId}/${id}`, { limit: 100 });
+  const names = (data ?? []).filter((f) => f.id).map((f) => `${userId}/${id}/${f.name}`);
+  if (names.length) await store.remove(names);
+  return names.length;
+}
+
+/**
+ * 렌더 선점(v1.10, D-02-01): 읽은 뒤 바뀌지 않았을 때만 updated_at을 새로 찍는다.
+ * 같은 프로젝트에 동시에 들어온 두 번째 렌더는 여기서 null을 받아 유료 생성 전에 멈춘다. 성공하면 새 updated_at을 돌려준다.
+ */
+export async function claimProject(userId: string, id: string, expectedUpdatedAt: string): Promise<string | null> {
+  const stamp = new Date().toISOString();
+  const { data } = await createAdminClient()
+    .from("storyboard_projects")
+    .update({ updated_at: stamp })
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("updated_at", expectedUpdatedAt)
+    .select("updated_at")
+    .maybeSingle();
+  return data ? (data.updated_at as string) : null;
+}
 
 export const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
