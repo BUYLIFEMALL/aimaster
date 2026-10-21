@@ -394,7 +394,7 @@ POST 콜백을 보낸다. 이 라우트는:
 
 ## 2026-10-22 v1.41 — 저장 실패 원인(프로젝트 업로드 한도 50MB) · 임시 보관 표시를 12트랙·Suno 커버·영상까지 (Claude Code 윈도우)
 - **원인 확인**: 운영 Supabase 프로젝트 전체 업로드 한도가 **50MB**(버킷 `music-audio` 한도 200MB보다 먼저 걸림). 시험 계정 폴더에 시험 파일 45MB 성공·60MB/100MB `413 The object exceeded the maximum allowed size`(시험 파일은 바로 삭제). WAV는 약 11.5MB/분이라 **약 4분 20초보다 긴 곡의 WAV는 항상 저장 실패 → Suno 임시 주소로 남음**(운영 사례: 2026-08-15 8분 곡 WAV, 임시 주소 이미 만료 404). MP3·12트랙·영상(약 8MB)은 영향 없음.
-- **근본 해결(승인 대기)**: Supabase 대시보드 Storage 설정의 프로젝트 업로드 한도 상향(예: 200MB, 버킷 한도와 맞춤). 같은 DB를 쓰는 모든 프로그램에 적용되는 설정이라 주인님 승인 필요 — 건드리지 않음.
+- **근본 해결 검토 → 유지 결정(2026-10-22)**: 대시보드 Storage 설정 확인 결과 50MB는 **지출 상한(spend cap) 때문의 최대치**(「Reduced max upload file size limit due to spend cap」, 상한을 끄면 500GB까지). 상한은 공용 프로젝트 전체의 추가 요금 안전장치라 주인님 결정 A로 **한도 50MB·상한 유지**, 설정 변경 없음. 개별 한도가 없는 저장소 16개(대부분 이미지)도 그대로 50MB가 실질 한도.
 - 코드: `lib/actions/storageRestore.ts` 실패 이유 구분(만료 404/403/410 · 크기 초과 413 · 그 밖) → 크기 초과면 「50MB를 넘어 저장할 수 없음 — 임시 주소 만료 전(약 14일) 직접 내려받기」. 종류 추가 `stems`(12트랙 jsonb, `stem-<key>.mp3`)·`media`(Suno 커버 `suno-cover-<i>`·영상 `suno-video.mp4`, `lib/mediaSync.ts`와 같은 경로). 화면: 12트랙 묶음(`TrackCard.tsx`), Suno 커버 패널·뮤직비디오(`SunoMedia.tsx`)에 `TemporaryStorageNotice`.
 - 검수: tsc·lint·테스트 58·build, 배포 `music-ms761y9qa` Ready, DB v1.41. 크롬 시험 계정: 12트랙 리드 보컬 주소를 실제 Suno 임시 주소로 → 안내·버튼 → 다시 저장(원래 경로 `stem-vocal.mp3`), 영상 주소를 없는 임시 주소로 → 「이미 만료」 안내 → 원래대로 되돌림. 크기 초과 안내는 50MB 넘는 임시 파일이 없어 화면 시험 못 함(413 판별은 위 업로드 시험 오류 값 기준). 비용: Vercel 빌드 1회.
 

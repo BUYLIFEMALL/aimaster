@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 결정: Supabase 업로드 한도 50MB 유지(지출 상한 때문)
+
+대시보드 Storage 설정 확인 결과 50MB는 지출 상한(spend cap) 때문에 걸린 최대치 — 올리려면 상한을 꺼야 함(공용 프로젝트 전체 추가 요금 위험). 주인님 결정 A: **상한·한도 그대로**, 설정 변경 없음. 4분 20초 넘는 곡의 WAV는 음악(SUNO) v1.41 「임시 보관」 안내로 회원이 14일 안에 직접 내려받음. 다른 프로그램도 50MB 넘는 파일은 저장소에 못 올린다는 전제로 설계(`docs/ERROR_LESSONS.md`).
+
 ## 2026-10-22 Claude Code(윈도우) — 좁은 칸 버튼·문구 줄바꿈/잘림 전수 점검(코드 수정 없음)
 - 주인님 「다른 서브프로그램 카드들도 같은 문제 있는지 점검」. 정적 검사 54곳 → HIGH 34(데스크톱에서도 약 10: threads 계열 ApiKeyRow 3·메인 관리자 등급 이동 모달·ai-audio-analyzer·ai-prompt-studio·ai-webtoon-studio·ai-image-studio 헤더), MEDIUM 7, LOW 10, 해당 없음 3. 설정 화면 `ApiKeyRow`·`CronjobKeyRow` 24곳이 최다(사본이 15종이라 파일마다 클래스 4개 추가 필요). 수치는 코드 추정, 브라우저 실측 아님.
 - 보고서·수정 플랜(주인님 승인 대기): `docs/UI_WRAP_AUDIT_20261022.md`. 다음 첫 단계: 승인되면 ① 데스크톱 HIGH 묶음부터 크롬 실측 → 수정.

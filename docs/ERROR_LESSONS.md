@@ -10,7 +10,7 @@
 ## 2026-10-22 — Supabase 저장소 업로드가 50MB에서 413으로 거절된다 — 버킷 한도(200MB)보다 프로젝트 전체 업로드 한도(50MB)가 먼저 걸림 (music-automation v1.41, Claude Code 윈도우)
 - 증상: 4분 20초 넘는 곡의 WAV가 저장소 복사에 실패해 Suno 임시 주소(약 14일 뒤 만료)로 남았다. 코드가 실패하면 원래 주소를 그대로 쓰는 방식이라 오류 없이 「완료」로 보였다.
 - 확인: 시험 파일 45MB 성공, 60MB·100MB `413 The object exceeded the maximum allowed size`(운영 ref `esgxyikcnnvmlhygjkth`, 2026-10-22).
-- 해결: 화면에 「임시 보관」 표시와 「다시 저장」 버튼, 크기 초과 안내(`music/lib/actions/storageRestore.ts`). 근본 해결은 대시보드 Storage 설정의 업로드 한도 상향 — 공용 DB 설정이라 주인님 승인 필요(2026-10-22 대기).
+- 해결: 화면에 「임시 보관」 표시와 「다시 저장」 버튼, 크기 초과 안내(`music/lib/actions/storageRestore.ts`). **50MB는 지출 상한(spend cap) 때문에 걸린 최대치**다 — 대시보드 Storage 설정에 「Reduced max upload file size limit due to spend cap」 안내, 상한을 꺼야 50MB 넘게 올릴 수 있음(500GB까지). 지출 상한은 공용 프로젝트 전체의 추가 요금 안전장치라 주인님 결정으로 **유지(2026-10-22, 한도 50MB 그대로)** — 큰 파일은 「임시 보관」 안내로 회원이 직접 내려받게 함.
 - 다음부터 확인: 큰 파일(영상·WAV·원본 이미지 묶음)을 저장소에 올리는 프로그램은 50MB 한도를 전제로 설계하고, 업로드 실패를 외부 주소로 조용히 덮지 말 것.
 
 ## 2026-10-22 — 문서를 스크립트로 고칠 때 `\0`·`\t`·`\b`·`\f`가 제어 문자로 바뀌어 파일이 「바이너리」가 됨 (threads-affiliate-poster/AGENTS.md, Claude Code 윈도우)
