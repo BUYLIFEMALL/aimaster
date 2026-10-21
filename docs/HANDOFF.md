@@ -8,6 +8,13 @@
 - 비용: Vercel 빌드 4회(순차), 유료 AI 0회.
 - 못 한 것: 시험 계정 화면·실제 생성(비용). 상세: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 「배포 결과」, `trending-product-finder/AGENTS.md` 맨 아래.
 - 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz
+## 2026-10-22 Claude Code(윈도우) — 그날 목록에 원래 댓글(받은편지함 v1.08) · 세 댓글 대시보드 막대 누르면 그날 목록(INSTA v1.35·쓰레드 v1.24·유튜브 v1.29) · 자동 게시 2곳 7일 게시 그래프(쇼핑제휴 v1.76·INSTA 포스팅 v1.43)
+- 새 공용 기준 코드 `week-reply-panel`(그래프+그날 목록, 서버 동작·색은 각 프로그램) + `bucket.ts`에 `weekDayRange`·`previewText`, 차트에 `noun`. 받은편지함 시험 42개. 커밋 `472abe68`(4곳)·`10835a02`(자동 게시 2곳).
+- 배포 6곳 모두 READY·DB 버전 반영·크롬에서 버전·막대 누르기(서버 왕복)·400px 확인. 비용: Vercel 빌드 6회, 유료 AI 0회.
+- 한계: 자동 게시 2곳은 게시 시각 칸이 없어 published 글의 `updated_at`으로 셈(게시 뒤 수정하면 수정일로 이동) — `published_at` 칸 추가는 DB 구조 변경이라 주인님 확인 대기. 응대·게시 기록 0건이라 높이 있는 막대·목록 항목은 미확인. 차트 `noun` 변경은 받은편지함·세 댓글 프로그램 미배포(동작 같음).
+- 쇼핑제휴 기록은 `AGENTS.md`에 다른 작업자 미커밋 변경이 있어 `threads-affiliate-poster/docs/IMPROVEMENT_HANDOFF_20261022.md`에 남김.
+- 프로그램: https://comment-inbox.buylife.xyz · https://instagram-comment-reply.buylife.xyz · https://threads-comment-reply.buylife.xyz · https://youtube-auto-reply.buylife.xyz · https://threads-affiliate-poster.buylife.xyz · https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 통합 받은편지함 v1.07(7일 그래프 플랫폼별 쌓기·막대 누르면 그날 목록) · 같은 그래프를 공용 기준 코드로 세 댓글 프로그램 대시보드에 (INSTA v1.34·쓰레드 v1.23·유튜브 v1.28)
 - `comment-inbox` v1.07: 플랫폼별 색 쌓기·범례, 막대 누르면 그날 게시·발송한 목록(권한·user_id·7일 범위 제한, 플랫폼마다 50건). 시험 40개. 배포 `comment-inbox-hn6evggjp` READY·DB v1.07·크롬(오늘 막대 클릭·400px) 확인. 커밋 `1b91c98f`.
 - 새 공용 기준 코드 `week-reply-bucket`·`week-reply-chart`(기준 comment-inbox) → 세 댓글 프로그램 대시보드 통계 카드 아래 그래프. 커밋 `8dd8b1d2`·버전 수정 `de75a1e6`, 세 곳 배포 READY·DB 반영·크롬에서 버전·그래프·400px 확인.

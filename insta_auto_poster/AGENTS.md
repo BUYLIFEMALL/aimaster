@@ -197,3 +197,8 @@
 
 ## 2026-10-20 v1.42 — 프로그램 공지 띠 추가 (Claude Code 윈도우)
 - 공용 기준 코드 `program-notice-banner`(기준 `ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx`) 사본을 받아 대시보드 레이아웃 `<main>` 맨 위에 표시. 메인 사이트 공지의 「관련 프로그램」에 이 프로그램이 있으면 최근 공지 1건(30일 이내), 「닫기」는 브라우저에 기억. 사본은 직접 고치지 않고 기준 수정 후 `node scripts/check-shared-modules.mjs --sync`.
+
+## 2026-10-22 v1.43 — 대시보드에 「📊 최근 7일 게시」 그래프 (Claude Code 윈도우)
+- 상태 카운터 아래에 공용 기준 코드 `week-reply-chart` 사본(`src/components/weekChart/WeekReplyChart.tsx`·`src/lib/weekChart/bucket.ts`, 기준 comment-inbox — 직접 고치지 말 것). 대시보드가 이미 읽는 본인 `insta_posts` 중 status=published 글을 한국 시간 날짜별로 셈(추가 조회 없음).
+- **한계**: 게시 시각 전용 칸이 없어 `updated_at`(수정 때 트리거로 자동 갱신)을 게시 시각으로 씀 → 게시 뒤 그 글을 다시 수정하면 수정한 날로 옮겨 셈. 정확히 하려면 `published_at` 칸 추가(DB 구조 변경, 사전 승인 필요). 카드뉴스(`cardnews`)의 게시는 다른 표라 아직 세지 않음.
+- 검수: tsc·build(종료 코드 0), 커밋 `10835a02`, 배포 `insta-auto-poster-gk2g71uq4` READY, DB(`auto-instagram-posting`) v1.43, 크롬에서 v1.43·그래프·「아직 게시 기록이 없어요」, 400px 넘침 없음. 비용: Vercel 빌드 1회.

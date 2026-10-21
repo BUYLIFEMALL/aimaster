@@ -218,3 +218,8 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 통계 카드 아래에 그래프: 회원 세션(RLS)으로 user_id·status=posted·replied_at ≥ 한국 시간 6일 전 0시(최대 5,000건)를 읽어 한국 시간 날짜별로 셈 — 한 가지 색, `th_comments`. 기록이 없으면 「아직 응대 기록이 없어요」.
 - 공용 기준 코드 사본(직접 고치지 말 것): `lib/weekChart/bucket.ts`(`week-reply-bucket`)·`components/weekChart/WeekReplyChart.tsx`(`week-reply-chart`), 기준은 `comment-inbox`. 고칠 때는 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.
 - 검수: tsc·build, 커밋 `8dd8b1d2`(+ 버전 수정 `de75a1e6`), 배포 6caj3es2k → gy85krz05 READY, DB v1.23, 크롬 대시보드에서 v1.23·그래프·합계 0건 확인, 400px 가로 넘침 없음(385=385). 기록 0건이라 높이 있는 막대는 미확인. 비용: Vercel 빌드 2회(버전 표시 실수로 다시 배포 1회 포함).
+
+## 2026-10-22 v1.24 — 대시보드 그래프 막대를 누르면 그날 답한 목록(원래 댓글 + 보낸 답글) (Claude Code 윈도우)
+- 공용 기준 코드 `week-reply-panel` 사본 `components/weekChart/WeekReplyPanel.tsx`(직접 고치지 말 것, 기준 comment-inbox) + 이 프로그램 서버 동작 `lib/actions/weekReplies.ts` `loadWeekDayRepliesAction`: 이용 권한 확인 → 회원 세션(RLS)·user_id·status=posted·한국 시간 그날 범위(최근 7일 안만, `weekDayRange`)·최근 50건, 원래 댓글·답글 앞 80자(`previewText`). `th_comments`, 항목을 누르면 `/history`.
+- 검수: tsc·build, 커밋 `472abe68`, 배포 `threads-comment-reply-g9lyp7etv` READY, DB v1.24, 크롬 대시보드에서 v1.24·막대 7개·오늘 막대 누르면 「이날은 게시·발송한 답장이 없어요」(서버 왕복·오류 없음). 기록 0건이라 목록 항목 모양은 미확인. 비용: Vercel 빌드 1회.
+- 같은 날 그래프 사본에 `noun` 선택 항목 추가(커밋 `10835a02`, 동작 같음) — **다음 배포 때 함께 나감**.
