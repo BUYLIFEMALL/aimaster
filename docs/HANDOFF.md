@@ -138,6 +138,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L3: 「🔁 형식 바꾸기」 연결 (변환 스튜디오 v1.10 · 인물사진 v1.32 · 4컷 v1.26)
+- 변환 스튜디오가 바나나·인물사진·4컷 버킷 서명 주소를 받음(`src/lib/importSource.ts`), 인물사진·4컷 서버 보관함에 버튼. 배포 3건 Ready·DB 반영, 크롬에서 시험 그림 받기 확인 후 삭제. 이미지 스튜디오 쪽은 다른 세션(`shorts-onestop-studio` 뒤 `ai-image-studio` 예정) 작업이 끝난 뒤.
+- 비용: Vercel 빌드 3회, AI 0원. 다음: L4 인물사진 ↔ 패션스타일 ↔ 바나나 연결.
+- 프로그램: https://image-convert-studio.buylife.xyz · https://portrait-photo.buylife.xyz · https://four-cut-comics.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L2: 이미지 스타일 분석기 v1.26 「🎨 이미지 스튜디오에서 생성」
 - 마스터 프롬프트(EN) 옆 링크 → 이미지 스튜디오 `?prompt=`(기존 기능, 이미지 스튜디오 코드는 그대로). 배포 `style-dna-analyzer-jth7zwk2n`·DB v1.26, 시험 25개, 크롬에서 409자 프롬프트가 2단계 칸에 채워짐 확인(생성 안 누름). 자리 표시 처리 개선 후보 `style-dna-analyzer/docs/IMPROVEMENTS.md`.
 - 비용: Vercel 빌드 1회. 다음: L3 이미지 스튜디오·인물사진·4컷 → 변환 스튜디오 「형식 바꾸기」.

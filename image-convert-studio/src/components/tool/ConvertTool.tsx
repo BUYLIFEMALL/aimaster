@@ -16,6 +16,7 @@ import {
 } from "@/lib/imageTools/formats";
 import { fmt } from "@/lib/i18n";
 import { Dropzone } from "./Dropzone";
+import { importSourceOf } from "@/lib/importSource";
 import { useLang } from "./LangProvider";
 
 type Status = "idle" | "working" | "done" | "error";
@@ -84,30 +85,25 @@ export function ConvertTool() {
   const addFiles = (files: File[]) =>
     setItems((list) => [...list, ...files.map((file) => ({ id: String(nextId++), file, url: URL.createObjectURL(file), selected: false, status: "idle" as Status }))]);
 
-  // 바나나 캔버스 「형식 바꾸기」로 넘어온 결과(?src=서명 주소)를 목록에 넣는다(v1.09).
-  // 우리 Supabase 저장소의 바나나 캔버스 결과 서명 주소만 받는다(다른 주소는 무시). 처리는 지금처럼 브라우저 안에서만.
+  // 다른 프로그램 「형식 바꾸기」로 넘어온 결과(?src=서명 주소)를 목록에 넣는다(v1.09 바나나 캔버스, v1.10 AI 인물사진·AI 4컷 만화).
+  // 허용 버킷은 lib/importSource.ts. 처리는 지금처럼 브라우저 안에서만.
   const [importNote, setImportNote] = useState("");
   useEffect(() => {
     const src = new URLSearchParams(window.location.search).get("src");
     if (!src) return;
     window.history.replaceState(null, "", window.location.pathname);
-    let ok = false;
-    try {
-      const u = new URL(src);
-      const own = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://invalid.local");
-      ok = u.protocol === "https:" && u.host === own.host && u.pathname.startsWith("/storage/v1/object/sign/banana-canvas-files/");
-    } catch { ok = false; }
-    if (!ok) { setImportNote("가져올 수 없는 이미지 주소입니다. 바나나 캔버스 결과의 「형식 바꾸기」로 다시 열어 주세요."); return; }
+    const from = importSourceOf(src, process.env.NEXT_PUBLIC_SUPABASE_URL);
+    if (!from) { setImportNote("가져올 수 없는 이미지 주소입니다. 보낸 프로그램 결과의 「형식 바꾸기」로 다시 열어 주세요."); return; }
     (async () => {
       try {
         const res = await fetch(src);
         const blob = await res.blob();
         if (!res.ok || !blob.type.startsWith("image/")) throw new Error();
         const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "png";
-        addFiles([new File([blob], `banana-canvas-result.${ext}`, { type: blob.type })]);
-        setImportNote("바나나 캔버스 결과를 목록에 넣었습니다. 형식과 크기를 고른 뒤 변환하세요.");
+        addFiles([new File([blob], `${from.replace(/\s+/g, "-")}-result.${ext}`, { type: blob.type })]);
+        setImportNote(`${from} 결과를 목록에 넣었습니다. 형식과 크기를 고른 뒤 변환하세요.`);
       } catch {
-        setImportNote("이미지를 불러오지 못했습니다(주소가 1시간 뒤 만료됩니다). 바나나 캔버스에서 다시 「형식 바꾸기」를 눌러 주세요.");
+        setImportNote(`이미지를 불러오지 못했습니다(주소가 1시간 뒤 만료됩니다). ${from}에서 다시 「형식 바꾸기」를 눌러 주세요.`);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

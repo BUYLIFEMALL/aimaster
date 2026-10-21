@@ -79,6 +79,8 @@ export function ServerWorks() {
               <small className="muted">{w.panelCount}컷 · {w.aspect} · {fmt(w.createdAt)}{w.expiresAt ? ` · ${fmt(w.expiresAt)}까지 보관` : " · 직접 지울 때까지"}</small>
               <div className="actions">
                 <button type="button" onClick={() => download(w)} disabled={!w.url}><Download size={14} />다운로드</button>
+                {/* v1.26: 서버 보관 작품을 이미지 변환 스튜디오로(서명 주소 1시간, 변환은 브라우저 안에서) */}
+                {w.url && <a className="button" href={`https://image-convert-studio.buylife.xyz/convert?src=${encodeURIComponent(w.url)}`} target="_blank" rel="noopener noreferrer" title="WebP·PNG·JPEG·AVIF 형식·크기 바꾸기(이미지 변환 스튜디오)">🔁 형식 바꾸기</a>}
                 <button type="button" onClick={() => setOpen(open === w.id ? null : w.id)} aria-expanded={open === w.id}><FileText size={14} />대본</button>
                 {confirm === w.id
                   ? <button type="button" className="danger" onClick={() => remove(w.id)}><Trash2 size={14} />정말 삭제</button>

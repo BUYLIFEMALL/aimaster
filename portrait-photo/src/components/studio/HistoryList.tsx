@@ -119,6 +119,8 @@ export function HistoryList({ userId }: { userId: string }) {
                   <small className="muted">{it.expiresAt ? `${new Date(it.expiresAt).toLocaleDateString("ko-KR")}에 자동 삭제` : "30일 안에 자동 삭제"}</small>
                   <div className="actions">
                     {it.url && <a className="button" href={it.url} download={`인물사진-보관-${it.id.slice(0, 8)}.jpg`} target="_blank" rel="noopener noreferrer"><Download size={13} />저장</a>}
+                    {/* v1.32: 서버 보관 사진을 이미지 변환 스튜디오로(서명 주소 1시간, 변환은 브라우저 안에서) */}
+                    {it.url && <a className="button" href={`https://image-convert-studio.buylife.xyz/convert?src=${encodeURIComponent(it.url)}`} target="_blank" rel="noopener noreferrer" title="WebP·PNG·JPEG·AVIF 형식·크기 바꾸기(이미지 변환 스튜디오)">🔁 형식 바꾸기</a>}
                     <button type="button" onClick={() => removeSaved(it.id)} aria-label="보관 사진 삭제"><Trash2 size={13} /></button>
                   </div>
                 </div>

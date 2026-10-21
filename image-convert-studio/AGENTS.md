@@ -109,3 +109,8 @@
 ## 2026-10-21 v1.09 — 바나나 캔버스 「형식 바꾸기」로 넘어온 이미지 자동 추가 (Claude Code 윈도우)
 - `/convert?src=<서명 주소>`: 우리 Supabase 저장소의 바나나 캔버스 결과 서명 주소(`/storage/v1/object/sign/banana-canvas-files/`)만 받아 브라우저에서 내려받아 목록에 넣음(다른 주소는 무시, 처리는 지금처럼 브라우저 안에서만). 받은 뒤 주소창에서 `?src=` 제거, 안내 문구 표시. 서명 주소는 1시간 뒤 만료 → 안내.
 - 검수: tsc·`npm test` 21개·build, 배포 Ready, DB v1.09(package.json 1.07.0 → 1.09.0으로 어긋남도 맞춤). 크롬에서 바나나 캔버스 이미지 주소로 열어 목록 자동 추가·안내 확인.
+
+## 2026-10-22 v1.10 — 「형식 바꾸기」 받는 곳 확대: AI 인물사진·AI 4컷 만화 (Claude Code 윈도우, 이미지 재비교 L3)
+- 새 `src/lib/importSource.ts`(`IMPORT_SOURCES`·`importSourceOf`): `?src=`는 우리 Supabase의 `banana-canvas-files`·`portrait-photo-files`·`four-cut-comics-files` **서명 주소만** 받음(공개 주소·다른 버킷·다른 호스트·http는 거부). `ConvertTool`의 안내·파일 이름이 보낸 프로그램 이름을 따름. 이미지는 지금처럼 브라우저 안에서만 처리.
+- 검수: 시험 23개(새 `tests/importSource.test.mjs` 2개), build, 배포 `image-convert-studio-losm32qsc` Ready, DB v1.10. 크롬: 인물사진 버킷 시험 그림(320×240, DB 행 없음)의 서명 주소로 열기 → 「AI 인물사진 결과를 목록에 넣었습니다」·목록에 들어옴 → 시험 그림 삭제.
+- 남은 일: 이미지 스튜디오(`ai-image-generations`) 결과 받기는 다른 세션의 이미지 스튜디오 작업이 끝난 뒤 보내는 버튼과 함께 추가.

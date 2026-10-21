@@ -152,3 +152,7 @@
 - 새 `src/app/api/cron/cleanup/route.ts`: 버킷 `four-cut-comics-files`의 회원 폴더(UUID 이름, 1,000개씩 최대 10쪽)를 돌며 `purgeExpiredSaved(userId)`(새로 내보낸 함수 — 기존 `liveIndex`의 만료 판정·삭제를 그대로 씀, v1.24의 30일 상한 포함)로 만료 작품을 지움. `vercel.json`에 `0 18 * * *`(03:00 KST) 추가, 기존 5분 게시 예약은 그대로. 예전엔 그 회원이 목록을 열거나 저장할 때만 지워졌음.
 - 검수: tsc 0, 시험 56개(새 `tests/cleanup.test.mjs` 3개), build, 배포 `four-cut-comics-ebmvdchoz` Ready, DB v1.25. 비밀값 없이 호출 401.
 - **주의**: 이 프로젝트의 `CRON_SECRET`은 루트 `.env.local`과 **다른 값**(Sensitive, 2026-10-20 등록)이라 루트 값으로 손 호출하면 401 — 기존 `/api/instagram/dispatch`도 같은 결과로 코드 문제 아님을 확인. Vercel 예약은 프로젝트 값을 자동으로 붙이므로 정상 실행 예상. **남은 일: 첫 실행(03:00 KST) Vercel 기록 확인.**
+
+## 2026-10-22 v1.26 — 서버 보관함 「🔁 형식 바꾸기」 (Claude Code 윈도우, 이미지 재비교 L3)
+- `ServerWorks.tsx` 서버 보관 작품의 [다운로드] 옆에 `https://image-convert-studio.buylife.xyz/convert?src=<서명 주소>` 링크(서명 1시간). 브라우저 「내 작품」은 주소가 없어 제외. 받는 쪽 변환 스튜디오 v1.10.
+- 검수: 시험 56개, build, 배포 `four-cut-comics-4hgjhd854` Ready, DB v1.26. 받기 흐름은 같은 코드로 인물사진 시험 그림 확인.
