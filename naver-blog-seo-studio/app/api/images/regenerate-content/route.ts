@@ -1,3 +1,4 @@
+import { draftReport, draftLocked, nextDraftReport, writableDraft } from "@/lib/draftWriteGuard";
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
@@ -34,6 +35,8 @@ export async function POST(request: Request) {
   const current = contentImages.find((image) => image.slot === slot);
   if (!current?.sentence || !current.prompt) return NextResponse.json({ error: "이 이미지의 기준 문장을 찾지 못했습니다. 본문 이미지를 다시 생성해주세요." }, { status: 400 });
 
+  const publicationReport = draftReport(draft.seo_report);
+  if (draftLocked(publicationReport)) return NextResponse.json({ error: "자동 발행을 시작한 원고의 이미지는 바꿀 수 없습니다." }, { status: 409 });
   try {
     const image = await generateNanoBananaImage({
       apiKey,
@@ -51,10 +54,10 @@ export async function POST(request: Request) {
 
     const replacement: ContentVisual = { ...current, path, mimeType: image.mimeType, model: image.model };
     const updatedImages = contentImages.map((item) => item.slot === slot ? replacement : item);
-    const { error: updateError } = await supabase.from("naver_blog_seo_drafts")
-      .update({ seo_report: { ...report, contentImages: updatedImages } })
-      .eq("id", draftId).eq("user_id", access.user.id);
-    if (updateError) {
+    const { data: saved, error: updateError } = await writableDraft(supabase.from("naver_blog_seo_drafts")
+      .update({ seo_report: nextDraftReport(report, { contentImages: updatedImages }), updated_at: new Date().toISOString() })
+      .eq("id", draftId).eq("user_id", access.user.id), publicationReport).select("id").maybeSingle();
+    if (updateError || !saved) {
       await supabase.storage.from("naver-blog-seo-images").remove([path]);
       throw new Error("새 본문 이미지 정보를 저장하지 못했습니다.");
     }

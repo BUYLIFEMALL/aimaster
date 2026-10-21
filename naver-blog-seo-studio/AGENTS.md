@@ -1,5 +1,7 @@
 # 네이버 블로그 SEO 스튜디오 개발 지침
 
+> **자동 포스팅 v1.81 구현/검수 중:** [플랜](docs/PLAN_20261021_AUTO_PUBLISH.md). 새 전용 탭·실행 선점/원고 지문·최종 발행/URL 기록·결과 불확실 시 재클릭 차단을 추가합니다. 배포·실제 회원 비공개 발행 검수 완료 전 전체 완료로 표시하지 않습니다. 기존 입력 전용 조작은 유지합니다.
+
 > **2026-10-21 블로그 병합 재비교:** 기존 7개 비교표·최신 코드/운영 메타데이터를 대조해 SEO v1.80 독립 유지+검증된 확장 엔진 기준/사본 공유를 추천했습니다. SEO 권한 234명, 사용 기록 0이라 실제 이용 빈도 판단 불가. SEO/티스토리는 현재 마지막 발행 수동으로 새 자동 포스팅 완성 기준의 추가 구현 대상입니다. 이번 제품 코드·DB 쓰기·권한·버전·배포 변경 없음, 유료 호출/최종 발행 0. [근거·남은 단계](docs/IMPROVEMENT_HANDOFF_20261021_COMPARISON.md).
 
 ## 프로그램 버전 관리
@@ -22,7 +24,7 @@
 
 - 기존 `naver-blog-auto-poster_app` 및 `naver-blog-auto-poster_web`과 코드·프로그램 slug·이용권한을 공유하지 않습니다.
 - 이 프로그램은 AI 콘텐츠 기획·생성·검수 도구입니다.
-- 네이버 최종 발행 버튼을 자동으로 누르지 않습니다.
+- 입력 전용 조작은 마지막 발행을 직접 누릅니다. 별도 자동 포스팅 조작은 대상/공개 범위 확인 후 실제 발행·결과 기록까지 진행합니다.
 - 계정 정지 위험이 있는 대량 댓글·공감·이웃추가·무인 포스팅은 구현하지 않습니다.
 
 ## 개발 규칙
@@ -55,7 +57,7 @@
 
 ## 카테고리 기능 (2026-10-12, v1.62, Claude Code — 주인님 요청: 다른 블로그 자동화(올인원·ai-auto-blog)의 카테고리를 확장)
 - **생성 기록 분류(보관함 분류)**: 회원별 목록 `naver_blog_seo_categories`(RLS owner-only), API `GET/PUT /api/categories`(목록 전체 교체). 글에는 분류 **id**만 `naver_blog_seo_drafts.category_id`로 저장(이름을 바꿔도 유지, 지우면 '미분류'). 글 이동·네이버 카테고리 변경은 `PATCH /api/drafts/[draftId]/category`(본문·이미지는 건드리지 않음). 화면: 결과 화면 [Chrome 확장 전송] 위 `DraftCategoryPanel`, 생성 기록 화면의 카테고리 칩 필터·분류 이동 셀렉트·[카테고리 관리] 모달(`components/categories/*`). 목록이 비어 있으면 기본 6개(생활/살림꿀팁 등)를 보여 주고 처음 편집할 때 저장된다. 복제하면 분류도 복사된다.
-- **네이버 발행 카테고리**: 웹에서 [카테고리 불러오기] → 확장이 새 탭에서 발행 설정창만 열어 실제 카테고리(번호·이름)를 읽고 닫는다 → 목록에서 선택 → `naver_blog_seo_drafts.naver_category`(`{id,name}`)에 저장. 기본값은 마지막으로 쓴 카테고리(브라우저 localStorage `naver_blog_seo_naver_category_last_v1`)를 새 글에 자동 선택. 확장은 입력 뒤 발행 설정에서 **번호+이름이 정확히 같을 때만** 그 카테고리를 선택하고(`naver-category-page.js`의 `categorySelect`, ai-auto-blog가 실제 화면에서 확인한 셀렉터 `categoryItemText_<번호>`), 웹에서 고른 값이 없으면 기존 방식(사이드패널 '카테고리명' 입력)을 그대로 쓴다. 최종 발행은 누르지 않는다.
+- **네이버 발행 카테고리**: 웹에서 [카테고리 불러오기] → 확장이 새 탭에서 발행 설정창만 열어 실제 카테고리(번호·이름)를 읽고 닫는다 → 목록에서 선택 → `naver_blog_seo_drafts.naver_category`(`{id,name}`)에 저장. 기본값은 마지막으로 쓴 카테고리(브라우저 localStorage `naver_blog_seo_naver_category_last_v1`)를 새 글에 자동 선택. 확장은 입력 뒤 발행 설정에서 **번호+이름이 정확히 같을 때만** 그 카테고리를 선택하고(`naver-category-page.js`의 `categorySelect`, ai-auto-blog가 실제 화면에서 확인한 셀렉터 `categoryItemText_<번호>`), 웹에서 고른 값이 없으면 기존 방식(사이드패널 '카테고리명' 입력)을 그대로 쓴다. 입력 전용 조작은 최종 발행을 누르지 않으며, 자동 포스팅 조작의 최종 발행은 별도 검증/실행 경로를 따른다.
 - **확장 v1.62**: `web-bridge.js`(content script, 이 사이트 출처만, ping·categories 요청만 전달), `background.js`(서비스 워커가 카테고리 읽기 — 사이트 화면에서 온 요청만 허용), `naver-category-page.js`(네이버 화면 안 명령), 사이드패널이 `/api/extension/drafts/library` 응답의 `naver_category`를 사용. manifest에 content_scripts 추가(새 권한 없음). 옛 확장(v1.61 이하)은 [카테고리 불러오기]에서 버전을 확인해 "ZIP 덮어쓰기" 안내를 보여 준다.
 - **미검증**: 실제 네이버 발행 설정창에서 목록 읽기·선택(주인님 PC 확인 필요). 테스트 `npm run test:categories`.
 - v1.63 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.

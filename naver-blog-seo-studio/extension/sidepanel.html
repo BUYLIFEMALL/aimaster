@@ -57,6 +57,16 @@
         <button id="fill" class="primary">네이버 편집기로 입력</button>
       </div>
     </section>
+    <section class="card" aria-labelledby="auto-publish-title">
+      <h2 id="auto-publish-title">자동 포스팅</h2>
+      <p class="hint">선택한 원고를 새 글쓰기 탭에 입력하고, 전체 내용과 공개 범위를 확인한 뒤 마지막 발행까지 자동으로 진행합니다. 기존 준비 탭은 사용하지 않습니다.</p>
+      <label for="publishBlogId">실제 블로그 ID</label><input id="publishBlogId" placeholder="블로그 주소의 ID (로그인 ID와 다를 수 있음)">
+      <label for="publishVisibility">공개 범위</label><select id="publishVisibility"><option value="private">비공개</option><option value="public">전체공개</option></select>
+      <button id="autoPublish" class="primary">선택한 원고 자동 포스팅 시작</button>
+      <button id="reconcilePublish" class="secondary">발행 결과만 다시 확인</button>
+      <a id="publishResultLink" hidden target="_blank" rel="noreferrer">실제 발행된 글 열기 ↗</a>
+      <p class="hint">발행 결과가 불확실하면 다시 발행하지 않습니다. 결과 확인만 실행하세요. 실행을 시작한 원고는 수정·삭제 대신 새 원고로 복제할 수 있습니다.</p>
+    </section>
     <section class="card">
       <h2>카테고리·태그 설정</h2>
       <p class="hint">저장한 카테고리·태그는 콘텐츠 입력 완료 후 자동으로 설정합니다. 이 버튼은 자동 입력이 실패했을 때 다시 실행하는 용도이며, 네이버의 마지막 발행 버튼은 직접 누릅니다.</p>
@@ -85,5 +95,7 @@
   </main>
   <script src="naver-category-page.js"></script>
   <script src="sidepanel.js"></script>
+  <script src="auto-publish-page.js"></script>
+  <script src="auto-publish.js"></script>
 </body>
 </html>

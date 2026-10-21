@@ -1,3 +1,4 @@
+import AutoPublishGuide from "@/components/AutoPublishGuide";
 import { requireProgramAccess } from "@/lib/access";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 
@@ -10,13 +11,13 @@ const STEPS = [
   { icon: "🧩", title: "확장 설치·토큰", desc: "SEO Studio 확장 ZIP을 받아 압축 해제 → chrome://extensions 개발자 모드 → 압축해제된 확장 프로그램을 로드 → 토큰 붙여넣기", href: "/settings#platform", time: "5분" },
   { icon: "🔎", title: "제목 추천", desc: "주제와 핵심 키워드를 넣으면 검색 의도에 맞는 제목 후보를 만들어 줘요. 마음에 드는 제목을 고릅니다.", href: "/dashboard#title", time: "1분" },
   { icon: "📝", title: "새 글 만들기", desc: "작성 전략·말투·AI 모델을 고르고 블로그(원문)와 대표·본문 이미지를 만듭니다. 블록 단위로 고칠 수 있어요.", href: "/dashboard#new-draft", time: "2~3분" },
-  { icon: "🚀", title: "네이버에 입력", desc: "네이버 글쓰기 화면을 연 뒤 확장에서 실행하면 제목·본문·이미지·카테고리·태그가 입력돼요. 발행은 직접 누릅니다.", href: "/dashboard#history", time: "1분" },
+  { icon: "🚀", title: "네이버에 입력", desc: "확장에서 원고·실제 블로그 ID·공개 범위를 확인하고 자동 포스팅을 실행하면 실제 발행과 결과 기록까지 이어집니다. 입력만 하는 조작도 유지됩니다.", href: "/dashboard#history", time: "1분" },
 ];
 
 const FAQ = [
   {
     q: "네이버에 자동으로 발행되나요?",
-    a: "아니요. 확장은 글쓰기 화면에 제목·본문·이미지와 발행 설정(카테고리·태그)까지만 입력합니다. 최종 「발행」 버튼은 내용을 확인한 뒤 직접 눌러 주세요.",
+    a: "네. 확장의 「선택한 원고 자동 포스팅 시작」은 새 전용 탭에서 입력·설정·최종 발행·게시 URL 기록까지 진행합니다. 공개 범위를 먼저 확인하세요. 기존 「네이버 편집기로 입력」은 입력 전용이며 마지막 발행은 직접 합니다.",
   },
   {
     q: "확장을 설치했는데 동작하지 않아요.",
@@ -66,7 +67,8 @@ export default async function GuidePage() {
           </p>
         </div>
 
-        <section className="card">
+        <AutoPublishGuide />
+          <section className="card">
           <h2 className="card-title">🧭 사용 순서</h2>
           <ol className="guide-steps">
             {STEPS.map((step, index) => (

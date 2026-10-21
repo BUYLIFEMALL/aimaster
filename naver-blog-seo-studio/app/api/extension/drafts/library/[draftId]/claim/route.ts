@@ -11,7 +11,7 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   const { draftId } = await context.params;
   const { data, error } = await createServiceClient().from("naver_blog_seo_drafts")
     .update({ extension_imported_at: new Date().toISOString() })
-    .eq("id", draftId).eq("user_id", user.userId).not("extension_handoff_at", "is", null)
+    .eq("id", draftId).eq("user_id", user.userId).is("seo_report->autoPublish->>runId", null).gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()).not("extension_handoff_at", "is", null)
     .select("id").maybeSingle();
   if (error) return NextResponse.json({ error: "확장 불러오기 상태 저장에 실패했습니다." }, { status: 500 });
   if (!data) return NextResponse.json({ error: "불러올 수 없는 초안입니다." }, { status: 404 });

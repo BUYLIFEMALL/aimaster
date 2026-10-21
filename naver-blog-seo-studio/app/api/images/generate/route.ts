@@ -1,3 +1,4 @@
+import { draftReport, draftLocked, nextDraftReport, writableDraft } from "@/lib/draftWriteGuard";
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
@@ -21,20 +22,22 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "나노바나나 이미지 생성을 위해 Gemini API 키를 먼저 등록해주세요." }, { status: 400 });
   try {
     const { data: draft, error: draftError } = await supabase.from("naver_blog_seo_drafts")
-      .select("id, image_path")
+      .select("id, image_path, seo_report")
       .eq("id", draftId).eq("user_id", access.user.id)
       .maybeSingle();
     if (draftError || !draft) return NextResponse.json({ error: "이미지를 저장할 내 초안을 찾지 못했습니다." }, { status: 404 });
+    const report = draftReport(draft.seo_report);
+    if (draftLocked(report)) return NextResponse.json({ error: "자동 발행을 시작한 원고의 이미지는 바꿀 수 없습니다." }, { status: 409 });
     const image = await generateNanoBananaImage({ apiKey, topic, title: input?.title, keywords: input?.keywords, model: resolveGeminiImageModel(input?.model) });
     const extension = image.mimeType === "image/jpeg" ? "jpg" : "png";
     const imagePath = `${access.user.id}/${draftId}/${Date.now()}.${extension}`;
     const bytes = Uint8Array.from(Buffer.from(image.base64, "base64"));
     const { error: uploadError } = await supabase.storage.from("naver-blog-seo-images").upload(imagePath, bytes, { contentType: image.mimeType, upsert: false });
     if (uploadError) return NextResponse.json({ error: "생성한 대표 이미지를 저장하지 못했습니다." }, { status: 500 });
-    const { error: updateError } = await supabase.from("naver_blog_seo_drafts")
-      .update({ image_path: imagePath, image_model: image.model, image_mime_type: image.mimeType, image_created_at: new Date().toISOString() })
-      .eq("id", draftId).eq("user_id", access.user.id);
-    if (updateError) {
+    const { data: saved, error: updateError } = await writableDraft(supabase.from("naver_blog_seo_drafts")
+      .update({ image_path: imagePath, image_model: image.model, image_mime_type: image.mimeType, image_created_at: new Date().toISOString(), seo_report: nextDraftReport(report), updated_at: new Date().toISOString() })
+      .eq("id", draftId).eq("user_id", access.user.id), report).select("id").maybeSingle();
+    if (updateError || !saved) {
       await supabase.storage.from("naver-blog-seo-images").remove([imagePath]);
       return NextResponse.json({ error: "대표 이미지 정보를 초안에 저장하지 못했습니다." }, { status: 500 });
     }

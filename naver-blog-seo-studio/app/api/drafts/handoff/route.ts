@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const { data, error } = await supabase.from("naver_blog_seo_drafts")
     .update({ extension_handoff_at: new Date().toISOString(), extension_imported_at: null })
-    .eq("id", draftId).eq("user_id", access.user.id)
+    .eq("id", draftId).eq("user_id", access.user.id).is("seo_report->autoPublish->>runId", null).gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString())
     .select("id, title, extension_handoff_at").maybeSingle();
   if (error) return NextResponse.json({ error: "확장 프로그램 전송 준비에 실패했습니다." }, { status: 500 });
   if (!data) return NextResponse.json({ error: "본인 초안을 찾지 못했습니다." }, { status: 404 });

@@ -1,3 +1,5 @@
+let seoPublication = null;
+let seoAutoBusy = false;
 "use strict";
 
 const BASE = "https://naver-blog-seo-studio.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
@@ -254,6 +256,7 @@ async function loadSelectedWebDraft() {
 }
 
 async function reportWebDraftInputResult(status, details = {}) {
+  if (seoAutoBusy) return;
   if (!activeWebDraftId) return;
   const token = await getToken();
   if (!token) return;
@@ -351,6 +354,7 @@ async function typeContentBlocks(tabId, blocks, coverDataUrl, contentImages) {
 async function getToken() { return (await chrome.storage.local.get(KEY))[KEY] || ""; }
 
 async function getNaverBlogTab() {
+  if (seoAutoBusy && seoPublication?.tabId) return chrome.tabs.get(seoPublication.tabId);
   const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
   return tabs.find((candidate) => candidate.active) || tabs[0] || null;
 }
@@ -505,6 +509,7 @@ async function fillPublishInfoIntoNaver() {
 }
 
 async function preparePublishSettingsAfterContentInput(paragraphCount, inputSummary) {
+  if (seoAutoBusy && seoPublication?.runId) return finishAutoPublication();
   await reportWebDraftInputResult("completed", { paragraphCount }).catch(() => {});
   const category = $("publishCategory").value.trim();
   const tags = $("publishTags").value.trim();
@@ -570,6 +575,11 @@ function formatBrowserError(error, context = "작업") {
 }
 
 async function debuggerCommand(tabId, method, params = {}) {
+  if (seoAutoBusy && seoPublication?.tabId === tabId) {
+    const tab = await chrome.tabs.get(tabId);
+    const url = new URL(tab.url || "https://invalid.invalid");
+    if (url.origin !== "https://blog.naver.com" || url.pathname.split("/")[1] !== seoPublication.blogId) throw new Error("자동 포스팅 대상 탭이 바뀌어 입력을 중지했습니다.");
+  }
   return chrome.debugger.sendCommand({ tabId }, method, params);
 }
 
@@ -865,7 +875,8 @@ $("link").addEventListener("click", async () => {
   $("status").textContent = result.ok ? `연결됨: ${result.email}` : `오류: ${result.error}`;
 });
 
-async function fillDraftIntoNaver() {
+async function fillDraftIntoNaver(options = {}) {
+  const automatic = options?.auto === true;
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;
   try {
@@ -874,13 +885,13 @@ async function fillDraftIntoNaver() {
     const imageDataUrl = activeWebDraftCoverDataUrl;
     if (!activeWebDraftId || !title || !body) return ($("generateStatus").textContent = "웹에서 전송한 콘텐츠를 먼저 불러오세요.");
     const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
-    const tab = tabs.find((candidate) => candidate.active) || tabs[0];
+    const tab = automatic ? await chrome.tabs.get(seoPublication.tabId) : tabs.find((candidate) => candidate.active) || tabs[0];
     if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 열어주세요.");
     await chrome.windows.update(tab.windowId, { focused: true });
     await chrome.tabs.update(tab.id, { active: true });
     await sleep(350);
     const titleFocus = await focusNaverEditor(tab.id, "title");
-    if (!titleFocus.ok) return ($("generateStatus").textContent = "제목 입력 요소를 찾지 못했습니다. 네이버 글쓰기 화면을 새로 연 뒤 다시 시도하세요.");
+    if (!titleFocus.ok) throw new Error("제목 입력 요소를 찾지 못했습니다. 네이버 글쓰기 화면을 새로 연 뒤 다시 시도하세요.");
     await reportWebDraftInputResult("in_progress").catch(() => {});
     if (attachedTabId === null) {
       await chrome.debugger.attach({ tabId: tab.id }, "1.3");
@@ -957,7 +968,7 @@ async function fillDraftIntoNaver() {
       await insertImageIntoNaverEditor(tab.id, imageDataUrl);
     }
     const bodyFocus = imageDataUrl ? { ok: true } : await focusNaverEditor(tab.id, "body");
-    if (!bodyFocus.ok) return ($("generateStatus").textContent = "본문 문단 입력 요소를 찾지 못했습니다. 네이버 글쓰기 본문을 클릭한 뒤 다시 시도하세요.");
+    if (!bodyFocus.ok) throw new Error("본문 문단 입력 요소를 찾지 못했습니다. 네이버 글쓰기 본문을 확인해 주세요.");
     if (!imageDataUrl && attachedTabId === null) {
       await chrome.debugger.attach({ tabId: tab.id }, "1.3");
       attachedTabId = tab.id;
@@ -973,6 +984,7 @@ async function fillDraftIntoNaver() {
       ].filter(Boolean).join(", ");
       $("generateStatus").textContent = `입력 결과 확인 실패: ${details || "실제 편집기 내용을 읽지 못했습니다."} 구조 분석을 실행해 주세요.`;
       await reportWebDraftInputResult("failed", { error: details || "입력 결과 확인에 실패했습니다." }).catch(() => {});
+      if (automatic) throw new Error(details || "입력 결과 확인에 실패했습니다.");
       return;
     }
     if (attachedTabId !== null) {
@@ -984,6 +996,7 @@ async function fillDraftIntoNaver() {
       "네이버 편집기 입력 및 결과 확인 완료.",
     );
   } catch (error) {
+    if (automatic) throw error;
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
     await reportWebDraftInputResult("failed", { error: error instanceof Error ? error.message : String(error) }).catch(() => {});
   } finally {
@@ -1061,7 +1074,7 @@ $("inspect").addEventListener("click", async () => {
   $("inspectStatus").textContent = "분석 중...";
   try {
     const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
-    const tab = tabs.find((candidate) => candidate.active) || tabs[0];
+    const tab = automatic ? await chrome.tabs.get(seoPublication.tabId) : tabs.find((candidate) => candidate.active) || tabs[0];
     if (!tab?.id) throw new Error("네이버 블로그 탭을 찾지 못했습니다.");
     await chrome.windows.update(tab.windowId, { focused: true });
     await chrome.tabs.update(tab.id, { active: true });

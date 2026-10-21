@@ -11,7 +11,7 @@ function readStudioSource() {
   return [readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8"), ...parts].join("\n");
 }
 
-const chromePath = process.env.CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+const chromePath = process.env.EDGE_PATH || "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
 let browser;
 
 const editorMarkup = `
@@ -93,7 +93,7 @@ async function cdpType(page, text) {
 }
 
 before(async () => {
-  browser = await chromium.launch({ executablePath: chromePath, headless: true, args: ["--disable-gpu"] });
+  browser = await chromium.launch({ executablePath: chromePath, headless: false, args: ["--disable-gpu"] });
 });
 
 after(async () => {
@@ -216,7 +216,7 @@ test("places category and recommendation labels beside their publish inputs", ()
   assert.match(styles, /\.publish-actions\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });
 
-test("automates only the publish-settings opening step and leaves final publishing to the user", () => {
+test("legacy preparation opens settings without clicking the final publish button", () => {
   const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
   const script = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   assert.match(panel, /카테고리·태그 다시 입력/);

@@ -1,3 +1,4 @@
+import { draftReport, draftLocked, nextDraftReport, writableDraft } from "@/lib/draftWriteGuard";
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
@@ -32,6 +33,8 @@ export async function POST(request: Request) {
     .select("id, topic, title, body, keywords, seo_report")
     .eq("id", draftId).eq("user_id", access.user.id).maybeSingle();
   if (draftError || !draft) return NextResponse.json({ error: "본문 이미지를 저장할 내 초안을 찾지 못했습니다." }, { status: 404 });
+  const publicationReport = draftReport(draft.seo_report);
+  if (draftLocked(publicationReport)) return NextResponse.json({ error: "자동 발행을 시작한 원고의 이미지는 바꿀 수 없습니다." }, { status: 409 });
   try {
     const visuals = await selectContentVisuals({ apiKey: openaiKey, topic: draft.topic, title: draft.title, body: draft.body, count, model: resolveOpenAIContentModel(access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined) });
     const imageModel = resolveGeminiImageModel(input?.model);
@@ -48,8 +51,11 @@ export async function POST(request: Request) {
     }
     const report: SeoReport = typeof draft.seo_report === "object" && draft.seo_report !== null ? draft.seo_report as SeoReport : {};
     const previous = Array.isArray(report.contentImages) ? report.contentImages as ContentVisual[] : [];
-    const { error: updateError } = await supabase.from("naver_blog_seo_drafts").update({ seo_report: { ...report, contentImages: generated } }).eq("id", draftId).eq("user_id", access.user.id);
-    if (updateError) throw new Error("본문 이미지 정보를 초안에 저장하지 못했습니다.");
+    const { data: saved, error: updateError } = await writableDraft(supabase.from("naver_blog_seo_drafts").update({ seo_report: nextDraftReport(report, { contentImages: generated }), updated_at: new Date().toISOString() }).eq("id", draftId).eq("user_id", access.user.id), publicationReport).select("id").maybeSingle();
+    if (updateError || !saved) {
+      await supabase.storage.from("naver-blog-seo-images").remove(generated.map(item => item.path).filter((path): path is string => Boolean(path)));
+      throw new Error("원고가 변경되거나 자동 발행이 시작되어 새 이미지를 적용하지 않았습니다.");
+    }
     const stalePaths = previous.map((item) => item.path).filter((path): path is string => Boolean(path));
     if (stalePaths.length) await supabase.storage.from("naver-blog-seo-images").remove(stalePaths);
     console.info("[generate-content-images] completed", { draftId, count: generated.length });

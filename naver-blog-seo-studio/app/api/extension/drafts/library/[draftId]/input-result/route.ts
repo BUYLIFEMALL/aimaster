@@ -17,8 +17,8 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   const error = input?.error?.trim().slice(0, 500) || null;
   const completedAt = status === "completed" || status === "publish_ready" ? new Date().toISOString() : null;
   const { data, error: updateError } = await createServiceClient().from("naver_blog_seo_drafts")
-    .update({ naver_input_status: status, naver_input_completed_at: completedAt, naver_input_error: error })
-    .eq("id", draftId).eq("user_id", user.userId).not("extension_handoff_at", "is", null)
+    .update({ naver_input_status: status === "publish_ready" ? "completed" : status, naver_input_completed_at: completedAt, naver_input_error: error })
+    .eq("id", draftId).eq("user_id", user.userId).is("seo_report->autoPublish->>runId", null).gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()).not("extension_handoff_at", "is", null)
     .select("id, naver_input_status, naver_input_completed_at").maybeSingle();
   if (updateError) return NextResponse.json({ error: "입력 결과 기록에 실패했습니다." }, { status: 500 });
   if (!data) return NextResponse.json({ error: "기록할 수 있는 내 전송 초안을 찾지 못했습니다." }, { status: 404 });

@@ -1,3 +1,4 @@
+import { draftReport, draftLocked, nextDraftReport, writableDraft } from "@/lib/draftWriteGuard";
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { readNaverCategory } from "@/lib/naverCategory";
@@ -32,8 +33,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   if (Object.keys(update).length === 0) return NextResponse.json({ error: "바꿀 항목이 없습니다." }, { status: 400 });
 
   const supabase = await createClient();
-  const { data, error } = await supabase.from("naver_blog_seo_drafts")
-    .update(update).eq("id", draftId).eq("user_id", access.user.id)
+  const { data: original } = await supabase.from("naver_blog_seo_drafts").select("seo_report").eq("id", draftId).eq("user_id", access.user.id).maybeSingle();
+  if (!original) return NextResponse.json({ error: "본인 초안을 찾지 못했습니다." }, { status: 404 });
+  const report = draftReport(original.seo_report);
+  if (draftLocked(report)) return NextResponse.json({ error: "자동 발행이 시작된 원고의 발행 대상은 바꿀 수 없습니다." }, { status: 409 });
+  const { data, error } = await writableDraft(supabase.from("naver_blog_seo_drafts")
+    .update({ ...update, seo_report: nextDraftReport(report), updated_at: new Date().toISOString() }).eq("id", draftId).eq("user_id", access.user.id), report)
     .select("id, category_id, naver_category").maybeSingle();
   if (error) return NextResponse.json({ error: "카테고리를 바꾸지 못했습니다." }, { status: 500 });
   if (!data) return NextResponse.json({ error: "본인 초안을 찾지 못했습니다." }, { status: 404 });
