@@ -138,6 +138,7 @@ export default function BlogSmartEditorModal({
   const [htmlContent, setHtmlContent] = useState("");
   // 코드 에디터 원본 텍스트 콘텐츠
   const [codeContent, setCodeContent] = useState("");
+  const visualChanged = useRef(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showLinkPopover, setShowLinkPopover] = useState(false);
@@ -155,6 +156,7 @@ export default function BlogSmartEditorModal({
       setTags([...initialTags]);
       setCategory(initialCategory || "일반");
       setCodeContent(initialContent);
+      visualChanged.current = false;
 
       const converted = convertTextToEditorHtml(initialContent, generatedImages);
       setHtmlContent(converted);
@@ -184,15 +186,25 @@ export default function BlogSmartEditorModal({
       // 코드 내용을 HTML로 변환하여 비주얼 에디터에 주입
       const converted = convertTextToEditorHtml(codeContent, generatedImages);
       setHtmlContent(converted);
+      visualChanged.current = false;
       setEditorMode("visual");
     }
   };
 
   const switchToCode = () => {
     if (editorMode === "visual") {
-      // HTML 내용을 줄글/텍스트로 보존
+      // 비주얼에서 수정한 HTML을 이어 준다. 미편집 왕복은 원래 텍스트/이미지 위치를 보존한다.
+      if (visualChanged.current) {
+        setCodeContent(htmlContent);
+        visualChanged.current = false;
+      }
       setEditorMode("code");
     }
+  };
+
+  const handleVisualChange = (html: string) => {
+    setHtmlContent(html);
+    visualChanged.current = true;
   };
 
   // 코드 모드 서식 삽입 도구
@@ -477,13 +489,14 @@ export default function BlogSmartEditorModal({
             </div>
 
             {privatePhotos && <p className="bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-950">내 사진 원고는 원본 텍스트로 편집합니다. [IMAGE INSERT - …]는 본문 사진 위치이므로 유지해 주세요. 사진은 미리보기에서 확인하고 임시 사진 주소를 본문에 붙이지 마세요.</p>}
+            {!privatePhotos && editorMode === "code" && <p className="bg-sky-50 p-3 text-xs leading-relaxed text-sky-950">비주얼에서 수정한 내용은 HTML 서식으로 이어집니다. 링크·이미지 태그와 순서를 확인하고, 저장한 원고를 다시 열어 검수해 주세요.</p>}
 
             {/* 1) 비주얼 모드 (RichTextEditor) */}
             {editorMode === "visual" && (
               <div className="p-2 sm:p-3">
                 <RichTextEditor
                   value={htmlContent}
-                  onChange={setHtmlContent}
+                  onChange={handleVisualChange}
                   placeholder="스마트에디터 ONE에 맞춘 원고를 자유롭게 수정하세요..."
                   activeImageModel={activeImageModel}
                   className="border-0 shadow-none rounded-none"

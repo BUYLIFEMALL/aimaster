@@ -99,6 +99,7 @@ export default function MainPage() {
     count: 2,
   });
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [autoGenerateImages, setAutoGenerateImages] = useState(true);
   const [preferencesSaving, setPreferencesSaving] = useState(false);
   const [preferencesNotice, setPreferencesNotice] = useState<string | null>(null);
   const [savedPreferences, setSavedPreferences] = useState<string | null>(null);
@@ -588,7 +589,7 @@ export default function MainPage() {
       }, 150);
 
       // ★ [본문 + 이미지 원클릭 동시 생성]: 본문 작성이 완료되면 곧바로 추천 이미지 컷 자동 생성 연동!
-      if (data.result && Array.isArray(data.result.images) && data.result.images.length > 0) {
+      if (autoGenerateImages && data.result && Array.isArray(data.result.images) && data.result.images.length > 0) {
         imagesRef.current=data.result.images;
         await generateImagesFor(data.result,postIdRef.current || newPostId,epoch);
       }
@@ -1605,7 +1606,7 @@ export default function MainPage() {
                       <span className="hidden font-normal text-neutral-500 sm:inline text-xs">(NanoBanana · GPT Image · FLUX · Z-Image)</span>
                     </p>
                     <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
-                      하단 결과의 파란색 [AI 이미지 생성]에 적용
+                      자동 생성 선택 또는 결과의 이미지 생성 버튼에 적용
                     </span>
                   </div>
 
@@ -1690,6 +1691,11 @@ export default function MainPage() {
                   <p className="text-[11px] text-neutral-500">
                     💡 사람이 등장할 경우 항상 한국인/동아시아인으로 생성하며, 이미지 내 글자·워터마크를 넣지 않고 깔끔한 실사로 만듭니다.
                   </p>
+
+                  <label id="image-generation-choice" className="flex cursor-pointer items-start gap-2 rounded-xl border border-sky-200 bg-sky-50 p-3 text-xs text-sky-950">
+                    <input type="checkbox" aria-label="이번 원고 이미지도 생성" checked={autoGenerateImages} disabled={loading || imageGenerating !== null || singleGeneratingIndex !== null} onChange={event => setAutoGenerateImages(event.target.checked)} className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span><span className="block font-bold">이번 원고 이미지도 생성</span><span className="mt-1 block leading-relaxed">해제하면 글만 생성·저장하고, 이미지는 나중에 선택해 생성합니다. 글과 이미지에는 각각 선택 모델의 API 비용이 들며, 이 선택은 이번 화면에만 적용됩니다.</span></span>
+                  </label>
 
                   {!imageKeyReady && (
                     <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">

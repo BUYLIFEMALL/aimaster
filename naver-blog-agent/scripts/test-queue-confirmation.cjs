@@ -192,7 +192,7 @@ test('image persistence sends only ID/images and reports rejected ACK without fa
 test('generation automatically starts images with the returned server ID instead of the previous render ID',async()=>{
   const result={title:'new',content:'body',tags:[],category:'category',images:rules.buildImagePlan('new','category',[],3)};
   const h=imageEnvironment(async()=>({ok:true,json:async()=>({saved:true,postId:UUID,post:{id:UUID,save_revision:'generated'},result})})),starts=[];
-  Object.assign(h.env,{preferencesLoaded:true,setLoading(){},setResult(){},setPreferencesNotice(){},setSavedPostCount(){},cleanCurrentYear:value=>value || '',writingStyle:'default',articleFormat:'standard',shoppingLinksInput:'',targetCharCount:2000,engine:{provider:'openai'},selectedViral:null,document:{},setTimeout(){},generateImagesFor:async(...args)=>starts.push(args),savePostToStorage:async()=>{throw Error('duplicate save');}});
+  Object.assign(h.env,{preferencesLoaded:true,autoGenerateImages:true,setLoading(){},setResult(){},setPreferencesNotice(){},setSavedPostCount(){},cleanCurrentYear:value=>value || '',writingStyle:'default',articleFormat:'standard',shoppingLinksInput:'',targetCharCount:2000,engine:{provider:'openai'},selectedViral:null,document:{},setTimeout(){},generateImagesFor:async(...args)=>starts.push(args),savePostToStorage:async()=>{throw Error('duplicate save');}});
   h.env.currentPostId='old-server-id';h.env.postIdRef.current='old-server-id';
   await handler(main,'executeGeneration',h.env)({overrideCategory:'category'});
   assert.equal(starts.length,1);assert.equal(starts[0][1],UUID);
@@ -250,7 +250,7 @@ test('an older open queue editor cannot borrow the newer saver revision from ano
 });
 test('open editor buffer survives parent refresh and reinitializes only after close and reopen',()=>{
   const initialized={current:false},values=[];
-  const env={initialized,isOpen:true,privatePhotos:false,initialTitle:'first',initialExcerpt:'excerpt',initialTags:['tag'],initialCategory:'category',initialContent:'first body',generatedImages:[],convertTextToEditorHtml:value=>value};
+  const env={initialized,visualChanged:{current:false},isOpen:true,privatePhotos:false,initialTitle:'first',initialExcerpt:'excerpt',initialTags:['tag'],initialCategory:'category',initialContent:'first body',generatedImages:[],convertTextToEditorHtml:value=>value};
   for(const name of ['setEditorMode','setTitle','setExcerpt','setTags','setCategory','setCodeContent','setHtmlContent'])env[name]=value=>values.push([name,value]);
   const file='src/components/BlogSmartEditorModal.tsx';effect(file,'initialized.current',env)();assert.equal(values.length,7);
   env.initialContent='refreshed body';effect(file,'initialized.current',env)();assert.equal(values.length,7);
