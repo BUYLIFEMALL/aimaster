@@ -1,5 +1,9 @@
 # 블로그 7개 분석·통합 제안 인수인계
 
+## 2026-10-21 최신 재비교
+
+기존 7개 비교표·최신 코드/운영 메타데이터를 대조해 SEO v1.80 독립 유지+검증된 확장 엔진 기준/사본 공유를 추천했습니다. SEO 권한 234명, 사용 기록 0이라 실제 이용 빈도 판단 불가. SEO/티스토리는 현재 마지막 발행 수동으로 새 자동 포스팅 완성 기준의 추가 구현 대상입니다. 이번 제품 코드·DB 쓰기·권한·버전·배포 변경 없음, 유료 호출/최종 발행 0. DB ref `esgxyikcnnvmlhygjkth` 읽기·현재 소스 확인. SEO 무료 기존 시험 47개 중 46통과/1건너뜀, Edge 일반 회원 안내 v1.80 확인, 7개 모두 usage_logs 0. [최신 비교표](REPORT.md#seo-recompare-20261021) · [프로그램 인수인계](../../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261021_COMPARISON.md). 아래 최초 분석은 당시 이력입니다.
+
 - 작성: Codex(윈도우), 2026-10-20. 대상은 AIMaster **운영**. DB ref `esgxyikcnnvmlhygjkth`(이번 쓰기/실조회 없음).
 - [전체 제안서](REPORT.md) · [표 검색 가능한 HTML](REPORT.html) · [분석 계획](PLAN.md).
 

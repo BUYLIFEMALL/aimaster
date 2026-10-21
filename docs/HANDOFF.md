@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- SEO_COMPARE_HANDOFF_20261021 -->
+## 2026-10-21 Codex — BLC-06 종료 후 SEO 블로그 스튜디오 재비교
+
+기존 7개 비교표·최신 코드/운영 메타데이터를 대조해 SEO v1.80 독립 유지+검증된 확장 엔진 기준/사본 공유를 추천했습니다. SEO 권한 234명, 사용 기록 0이라 실제 이용 빈도 판단 불가. SEO/티스토리는 현재 마지막 발행 수동으로 새 자동 포스팅 완성 기준의 추가 구현 대상입니다. 이번 제품 코드·DB 쓰기·권한·버전·배포 변경 없음, 유료 호출/최종 발행 0. 운영 DB ref `esgxyikcnnvmlhygjkth` 읽기만. [최신 비교표](analysis-blog-consolidation-20261020/REPORT.md#seo-recompare-20261021) · [프로그램 인수인계](../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261021_COMPARISON.md). 기존 7개→4역할 조건부 추천 유지, 작업실 기능 이관은 제안이며 SEO에 전부 구현된 것으로 간주하지 않습니다. 다음 첫 단계는 BLC-07 플랜에 확장 자동 포스팅/결과 확인 기준을 넣는 것입니다.
+
+https://naver-blog-seo-studio.buylife.xyz
+<!-- /SEO_COMPARE_HANDOFF_20261021 -->
+
 <!-- BLC06_HANDOFF_20261021 -->
 ## 2026-10-21 Codex — BLC-06 v2.08 운영 확인·블로그 자동 포스팅 완성 지침 반영
 
