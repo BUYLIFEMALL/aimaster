@@ -84,7 +84,7 @@ export async function saveSunoRemixResult(
 
   const extending = await maybeAutoExtendRemix(supabase, remix, variants);
   if (!extending) {
-    await supabase.from("music_track_remixes").update({ status: "completed" }).eq("id", remix.id);
+    await supabase.from("music_track_remixes").update({ status: "completed", error_message: null }).eq("id", remix.id);
   }
 
   return { savedCount: variants.length, stillExtending: extending };
@@ -137,7 +137,7 @@ async function maybeAutoExtendRemix(
 
     await supabase
       .from("music_track_remixes")
-      .update({ task_id: taskId, status: "generating", extend_hop_count: remix.extend_hop_count + 1 })
+      .update({ task_id: taskId, status: "generating", error_message: null, extend_hop_count: remix.extend_hop_count + 1 })
       .eq("id", remix.id);
     return true;
   } catch (err) {

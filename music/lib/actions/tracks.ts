@@ -4,16 +4,19 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { generateLyrics, generateInstrumentalPrompt, generateStyleAndExclude } from "@/lib/ai/musicPrompts";
+import { generateLyrics, generateInstrumentalPrompt, generateStyleAndExclude, generateExtendLyrics } from "@/lib/ai/musicPrompts";
 import {
   requestSunoGeneration,
   requestSunoExtend,
-  buildExtendDirection,
   checkSunoGenerationStatus,
   toSunoVocalGender,
   DEFAULT_SUNO_MODEL,
+  isSunoModel,
+  clampVariety,
+  clampWeight,
 } from "@/lib/ai/suno";
 import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
+import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
 import type { TrackMode, TrackStatus, VocalGender } from "@/types/database.types";
 
 export interface GenerateTracksState {
@@ -54,6 +57,14 @@ export interface GenerateTracksOptions {
   instruments?: string[];
   vocalTone?: string[];
   tempo?: string[];
+  // 2026-10-21 sunoapi.org V6 대응(docs/SUNOAPI_REFERENCE.md): 모델(V6·V6_WILD·V6_MINI)과 결과 다양성(0~4)·가중치(0~1).
+  model?: string;
+  variety?: number;
+  styleWeight?: number;
+  weirdnessConstraint?: number;
+  // 정밀 기획 스튜디오에서 넘어온 곡(병합 M1): GPT로 다시 쓰지 않고 기획의 스타일·제외 스타일과 이 가사(연주곡은
+  // BGM 설명)를 그대로 Suno에 보낸다. 곡 수 1, 태그 덧입히기·성별 변경에 따른 스타일 재생성 없음, OpenAI 키 불필요.
+  fixedPrompt?: string;
 }
 
 export async function generateTracksAction(
@@ -65,7 +76,16 @@ export async function generateTracksAction(
   if (modes.length === 0) {
     return { error: "생성할 버전을 하나 이상 선택해주세요." };
   }
-  const clampedCount = Math.min(Math.max(Math.round(options.count ?? 1) || 1, 1), MAX_GENERATE_COUNT);
+  const fixedPrompt = options.fixedPrompt?.trim() || undefined;
+  const clampedCount = fixedPrompt
+    ? 1
+    : Math.min(Math.max(Math.round(options.count ?? 1) || 1, 1), MAX_GENERATE_COUNT);
+  const sunoModel = isSunoModel(options.model) ? options.model : DEFAULT_SUNO_MODEL;
+  const sunoTuning = {
+    variety: clampVariety(options.variety),
+    styleWeight: clampWeight(options.styleWeight),
+    weirdnessConstraint: clampWeight(options.weirdnessConstraint),
+  };
 
   const supabase = await createClient();
 
@@ -78,7 +98,7 @@ export async function generateTracksAction(
   if (planningError || !planning) {
     return { error: "기획을 찾을 수 없습니다." };
   }
-  if (!planning.title || !planning.style_description || !planning.exclude_styles) {
+  if (!planning.title || !planning.style_description || (!fixedPrompt && !planning.exclude_styles)) {
     return { error: "기획이 아직 완료되지 않았습니다(스타일/제목 생성 실패). 기획을 다시 시도해주세요." };
   }
 
@@ -93,10 +113,11 @@ export async function generateTracksAction(
   const instruments = options.instruments?.length ? options.instruments : undefined;
   const vocalTone = options.vocalTone?.length ? options.vocalTone : undefined;
   const tempo = options.tempo?.length ? options.tempo : undefined;
-  const hasTagOverride = Boolean(genre || mood || instruments || vocalTone || tempo);
+  const hasTagOverride = !fixedPrompt && Boolean(genre || mood || instruments || vocalTone || tempo);
 
-  const openaiKey = await resolveApiKey(supabase, user.id, "openai");
-  if (!openaiKey) return { needsApiKey: "openai" };
+  // 정밀 기획 곡(fixedPrompt)은 GPT를 부르지 않으므로 OpenAI 키가 없어도 된다.
+  const openaiKey = (fixedPrompt ? "" : await resolveApiKey(supabase, user.id, "openai")) ?? "";
+  if (!fixedPrompt && !openaiKey) return { needsApiKey: "openai" };
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
   if (!sunoKey) return { needsApiKey: "suno" };
 
@@ -109,11 +130,11 @@ export async function generateTracksAction(
       // 인스트루멘탈판은 기획의 스타일(보컬 묘사가 섞여 있을 수 있음)을 그대로 재사용하지 않고
       // 매번 보컬 없는 스타일을 새로 만든다. 장르/무드/악기/보컬톤/템포 태그를 추가했을 때도
       // 마찬가지로 새 스타일이 필요하다.
-      const needsFreshStyle = mode === "instrumental" || modeGenderChanged || hasTagOverride;
+      const needsFreshStyle = !fixedPrompt && (mode === "instrumental" || modeGenderChanged || hasTagOverride);
 
       for (let i = 0; i < clampedCount; i++) {
         let styleDescription = planning.style_description;
-        let excludeStyles = planning.exclude_styles;
+        let excludeStyles = planning.exclude_styles ?? "";
 
         if (i > 0 || needsFreshStyle) {
           const styleResult = await generateStyleAndExclude(
@@ -138,8 +159,9 @@ export async function generateTracksAction(
           excludeStyles = withInstrumentalExcludes(excludeStyles);
         }
 
-        const promptText =
-          mode === "vocal"
+        const promptText = fixedPrompt
+          ? fixedPrompt
+          : mode === "vocal"
             ? await generateLyrics(
                 {
                   title: planning.title,
@@ -169,7 +191,7 @@ export async function generateTracksAction(
             // 사용자가 나중에 수정할 수 있어서, 카드에 정확한 라벨("보컬버전(여성)" 등)을 보여주려면
             // 생성 당시 값을 트랙 자신에 스냅샷해야 한다(style_description과 동일한 이유).
             vocal_gender: mode === "vocal" ? modeVocalGender : null,
-            suno_model: DEFAULT_SUNO_MODEL,
+            suno_model: sunoModel,
             status: "generating",
           })
           .select("id")
@@ -186,6 +208,8 @@ export async function generateTracksAction(
             excludeStyles,
             instrumental: mode === "instrumental",
             vocalGender: toSunoVocalGender(modeVocalGender),
+            model: sunoModel,
+            ...sunoTuning,
           },
           sunoKey,
         );
@@ -442,8 +466,24 @@ export async function extendTrackAction(variantId: string): Promise<ExtendTrackS
 
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
   if (!sunoKey) return { needsApiKey: "suno" };
+  // 2026-10-21 sunoapi.org 문서: 연장의 prompt는 「가사」로 불린다 → 보컬판은 이어 부를 새 가사 구간을 회원 본인 OpenAI 키로 만든다.
+  const isVocal = original.mode === "vocal";
+  const openaiKey = isVocal ? await resolveApiKey(supabase, user.id, "openai") : null;
+  if (isVocal && !openaiKey) return { needsApiKey: "openai" };
 
   try {
+    const extendLyrics =
+      isVocal && openaiKey
+        ? await generateExtendLyrics(
+            {
+              title: original.title,
+              lyrics: original.prompt_text,
+              lang: planning?.lang ?? "한국어",
+              styleDescription: original.style_description ?? "",
+            },
+            openaiKey,
+          )
+        : undefined;
     const { data: newTrack, error: insertError } = await supabase
       .from("music_tracks")
       .insert({
@@ -476,7 +516,8 @@ export async function extendTrackAction(variantId: string): Promise<ExtendTrackS
         styleDescription: original.style_description ?? "",
         excludeStyles: original.exclude_styles ?? undefined,
         instrumental: original.mode === "instrumental",
-        prompt: original.mode === "vocal" ? buildExtendDirection(planning?.lang ?? "한국어") : undefined,
+        prompt: extendLyrics,
+        sourceTaskId: original.task_id ?? undefined,
         vocalGender: toSunoVocalGender(original.vocal_gender),
         model: original.suno_model,
       },
@@ -541,7 +582,17 @@ export async function syncTrackStatusAction(trackId: string): Promise<SyncTrackS
       return { status: "failed" };
     }
 
-    const { savedCount } = await saveSunoTrackResult(supabase, track, result.tracks);
+    // 웹훅이 같은 곡을 저장하는 중이면 겹쳐 저장하지 않는다(lib/syncLock.ts).
+    if (!(await claimSyncLock(supabase, "music_tracks", track.id))) {
+      return { status: "generating" };
+    }
+    let savedCount = 0;
+    try {
+      ({ savedCount } = await saveSunoTrackResult(supabase, track, result.tracks));
+    } catch (err) {
+      await releaseSyncLock(supabase, "music_tracks", track.id);
+      throw err;
+    }
     if (savedCount === 0) {
       await markTrackFailed(supabase, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
       revalidatePath(`/plannings/${track.planning_id}`);

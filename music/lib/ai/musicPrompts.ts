@@ -350,3 +350,23 @@ export async function generateAlbumCoverPrompt(
   const userPrompt = `제목: ${input.title}\n스타일: ${input.styleDescription}\n가사/설명:\n${input.lyricsOrDescription.slice(0, 1500)}`;
   return callOpenAiText(ALBUM_COVER_SYSTEM_PROMPT, userPrompt, apiKey, { model: "gpt-4o-mini", temperature: 0.9 });
 }
+
+// 2026-10-21(docs/SUNOAPI_REFERENCE.md §5): sunoapi.org 곡 연장(/generate/extend)의 prompt·lyrics는 이제 「가사」로
+// 불린다. 예전처럼 "Continue this song…" 같은 영어 지시문을 넣으면 그 문장이 노래로 불릴 수 있어서, 원곡에 이어
+// 붙일 새 가사 구간을 따로 만든다.
+const EXTEND_LYRICS_SYSTEM_PROMPT = `너는 작사가다. 이미 완성된 노래의 가사를 받으면, 그 노래 뒤에 자연스럽게 이어 붙일
+새 가사 구간만 쓴다.
+
+[반드시 지킬 것]
+1. 원곡과 같은 이야기·감정·말투·언어로 쓴다. 원곡 가사를 그대로 반복하지 않는다(후렴의 핵심 구절 한두 줄은 변형해 다시 써도 된다).
+2. Suno 구간 태그를 쓴다. 보통 [Bridge] → [Final Chorus] → [Outro] 순서로 12~24줄.
+3. 설명·주석·제목 없이 가사만 출력한다.`;
+
+/** 곡 연장용 새 가사 구간(원곡 뒤에 이어 부를 부분)을 만든다. */
+export async function generateExtendLyrics(
+  input: { title: string; lyrics: string; lang: string; styleDescription: string },
+  apiKey: string,
+): Promise<string> {
+  const userPrompt = `# 요청\n제목: ${input.title}\n언어 설정: ${input.lang}\n곡 스타일: ${input.styleDescription}\n\n# 원곡 가사\n${input.lyrics.slice(0, 4000)}`;
+  return callOpenAiText(EXTEND_LYRICS_SYSTEM_PROMPT, userPrompt, apiKey, { model: "gpt-4o-mini", maxTokens: 900 });
+}

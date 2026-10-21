@@ -38,6 +38,12 @@ UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), �
 
 https://ui-canvas.buylife.xyz
 
+## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1 3단계: 음악(SUNO)자동화 v1.19 (「Suno로 생성」 + sunoapi.org V6 최신화)
+
+기본 모델 V5_5(지원 종료) → V6, V6·Wild·Mini 선택, 결과 다양성(variety), 연장 prompt를 새 가사 구간으로(문서상 가사로 불림), MR `taskId` 필수, 웹훅 15초 대응(잠금 + 즉시 200 + `waitUntil`), 상태 조회 두 표기, 응답 코드 한국어 안내. 정밀 기획 곡 편집기에 「Suno로 생성」(GPT 재작성 없이 그대로 → 트랙 관리로). 배포 Ready·DB v1.19, 화면·키 없음 안내·남은 데이터 0 확인. **Suno 실제 생성·웹훅·연장·MR은 시험 계정 sunoapi.org 키 등록 대기(주인님이 직접 등록 — 운영 사이트 키 입력은 에이전트가 하지 않음).** 상세 `music/AGENTS.md` v1.19, 문서 `music/docs/SUNOAPI_REFERENCE.md`.
+
+https://music-automation.buylife.xyz/studio
+
 ## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1 2단계: 음악(SUNO)자동화 v1.18 (정밀 기획 스튜디오 화면)
 
 옛 Suno 음악기획 화면을 `/studio`로 옮김(빌더·앨범·프리셋 461·탐색·댄스·보관함), 보관함·내 Style은 서버 표 자동 저장, 초안은 브라우저. 크롬 일반 회원으로 곡 기획 생성 1회(`gemini-3.5-flash-lite`)·화면 보관 → 서버 저장 → 새로고침 유지 확인. sunoapi.org 최신 문서 정리 `music/docs/SUNOAPI_REFERENCE.md`(V5_5 지원 종료·V6 기본 등). 상세 `music/AGENTS.md` v1.18. 다음: 3단계 「Suno로 생성」+ V6 최신화 — 시험 계정 sunoapi.org 키 등록 필요(주인님).

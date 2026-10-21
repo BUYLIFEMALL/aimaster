@@ -130,7 +130,7 @@ export async function saveSunoTrackResult(
   if (variants.length === 0) return { savedCount: 0 };
 
   await supabase.from("music_track_variants").insert(variants);
-  await supabase.from("music_tracks").update({ status: "completed" }).eq("id", track.id);
+  await supabase.from("music_tracks").update({ status: "completed", error_message: null }).eq("id", track.id);
   await syncPlanningStatus(supabase, track.planning_id);
 
   return { savedCount: variants.length };

@@ -39,6 +39,9 @@ export function GenerateTracksPanel({
   const [vocalGender, setVocalGender] = useState<VocalGender | "">(planningVocalGender ?? "");
   const [lang, setLang] = useState(planningLang);
   const [count, setCount] = useState(1);
+  // 2026-10-21 sunoapi.org V6(docs/SUNOAPI_REFERENCE.md): 모델과 결과 다양성 선택.
+  const [sunoModel, setSunoModel] = useState("V6");
+  const [variety, setVariety] = useState("");
   const [genreTags, setGenreTags] = useState<string[]>([]);
   const [moodTags, setMoodTags] = useState<string[]>([]);
   const [instrumentTags, setInstrumentTags] = useState<string[]>([]);
@@ -86,6 +89,8 @@ export function GenerateTracksPanel({
         instruments: instrumentTags,
         vocalTone: vocalToneTags,
         tempo: tempoTags,
+        model: sunoModel,
+        variety: variety === "" ? undefined : Number(variety),
       });
       if (result.needsApiKey) {
         setMissingProvider(result.needsApiKey);
@@ -212,6 +217,32 @@ export function GenerateTracksPanel({
                   {n}곡 세트
                 </option>
               ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-zinc-400 mb-1">Suno 엔진</label>
+            <select
+              value={sunoModel}
+              onChange={(e) => setSunoModel(e.target.value)}
+              className="input text-xs py-1.5 font-bold"
+            >
+              <option value="V6">V6 (기본·권장)</option>
+              <option value="V6_WILD">V6 Wild — 더 실험적</option>
+              <option value="V6_MINI">V6 Mini — 가볍고 빠름</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-zinc-400 mb-1">결과 다양성</label>
+            <select
+              value={variety}
+              onChange={(e) => setVariety(e.target.value)}
+              className="input text-xs py-1.5 font-bold"
+            >
+              <option value="">기본(보통)</option>
+              <option value="0">끔 — 기획에 가장 충실</option>
+              <option value="2">높음</option>
+              <option value="3">대담</option>
+              <option value="4">최대</option>
             </select>
           </div>
         </div>

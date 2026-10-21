@@ -7,6 +7,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { generateRemixStyle } from "@/lib/ai/musicPrompts";
 import { requestSunoRemix, toSunoVocalGender, DEFAULT_SUNO_MODEL, checkSunoGenerationStatus } from "@/lib/ai/suno";
 import { saveSunoRemixResult, markRemixFailed } from "@/lib/remixSync";
+import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
 import type { RemixStatus, VocalGender } from "@/types/database.types";
 
 export interface CreateRemixState {
@@ -309,7 +310,16 @@ export async function syncRemixStatusAction(remixId: string): Promise<SyncRemixS
       return { status: "failed" };
     }
 
-    const { savedCount, stillExtending } = await saveSunoRemixResult(supabase, remix, result.tracks);
+    // 웹훅이 같은 리믹스를 저장하는 중이면 겹쳐 저장하지 않는다(lib/syncLock.ts).
+    if (!(await claimSyncLock(supabase, "music_track_remixes", remix.id))) return { status: "generating" };
+    let saved: Awaited<ReturnType<typeof saveSunoRemixResult>>;
+    try {
+      saved = await saveSunoRemixResult(supabase, remix, result.tracks);
+    } catch (err) {
+      await releaseSyncLock(supabase, "music_track_remixes", remix.id);
+      throw err;
+    }
+    const { savedCount, stillExtending } = saved;
     if (savedCount === 0) {
       await markRemixFailed(supabase, remix, "Suno가 오디오 URL을 반환하지 않았습니다.");
       revalidatePath("/remix");

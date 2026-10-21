@@ -1150,3 +1150,23 @@
     font-size: 12px;
   }
 }
+
+/* 「Suno로 생성」 묶음 (2026-10-21 병합 M1 3단계) */
+.suno-studio .send-to-suno {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-glow);
+  border-radius: 14px;
+  background: var(--brand-subtle);
+}
+.suno-studio .send-to-suno select {
+  background: var(--surface-card);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.suno-studio .send-to-suno .actions {
+  margin: 10px 0 6px;
+}

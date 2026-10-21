@@ -38,6 +38,16 @@ export async function createMrAction(variantId: string): Promise<CreateMrState> 
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
   if (!sunoKey) return { needsApiKey: "suno" };
 
+  // 2026-10-21 sunoapi.org 문서: 기존 곡을 분리할 때 원곡 작업 ID(taskId)와 audioId가 둘 다 필수다.
+  const { data: track } = await supabase
+    .from("music_tracks")
+    .select("planning_id, task_id")
+    .eq("id", variant.track_id)
+    .single();
+  if (!track?.task_id) {
+    return { error: "원곡의 Suno 작업 ID가 없어서 MR을 만들 수 없습니다." };
+  }
+
   try {
     const { data: mr, error: insertError } = await supabase
       .from("music_track_mr")
@@ -48,14 +58,11 @@ export async function createMrAction(variantId: string): Promise<CreateMrState> 
       return { error: insertError?.message ?? "MR 요청 저장에 실패했습니다." };
     }
 
-    const taskId = await requestSunoVocalRemoval({ audioId: variant.suno_audio_id }, sunoKey);
+    const taskId = await requestSunoVocalRemoval(
+      { audioId: variant.suno_audio_id, sourceTaskId: track.task_id },
+      sunoKey,
+    );
     await supabase.from("music_track_mr").update({ task_id: taskId }).eq("id", mr.id);
-
-    const { data: track } = await supabase
-      .from("music_tracks")
-      .select("planning_id")
-      .eq("id", variant.track_id)
-      .single();
 
     await logProgramUsage({ userId: user.id, action: "create_mr", metadata: { variantId } });
     if (track) revalidatePath(`/plannings/${track.planning_id}`);

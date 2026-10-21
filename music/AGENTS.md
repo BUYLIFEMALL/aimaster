@@ -246,3 +246,13 @@ POST 콜백을 보낸다. 이 라우트는:
 - **저장**: 작성 중 초안은 이 브라우저(localStorage), **보관함·내 Style은 서버 표**(`music_studio_projects`·`music_studio_styles`)에 자동 저장(`lib/studio/library.ts` 바뀐 항목만 골라 0.8초 뒤 `POST /api/studio/library`, 2MB 단위로 나눔). 옛 백업 JSON 가져오기 → 서버로 올라감(uuid가 아닌 옛 ID는 새로 바꿈). 보관함 기획은 수정 30일 뒤 자동 삭제(화면에 안내).
 - 검수: 테스트 51·tsc·lint·build, 배포 Ready(비용: Vercel 빌드 1회), DB v1.18. 크롬 일반 회원: 사이드바 메뉴·버전, 좁은 화면(500px)에서 빌더 표시, **곡 기획 생성 1회 성공**(`gemini-3.5-flash-lite` 1회, 6.2초, 제목·Style·가사 54줄), 보관함 API 저장·조회·삭제·잘못된 ID 400, **화면 「현재 작업 보관」 → 서버 자동 저장 → 새로고침 뒤 보관함에 그대로**. 시험 항목 「검수용 화면 저장 시험」은 3단계 시험용으로 남김. 데스크톱 폭 화면은 크롬 창 크기를 바꿀 수 없어 미확인.
 - sunoapi.org 최신 문서 정리: [docs/SUNOAPI_REFERENCE.md](docs/SUNOAPI_REFERENCE.md) — V5_5 지원 종료·V6 기본, 연장 prompt=가사, MR `taskId` 필수, 웹훅 15초·중복 안전, 새 파라미터 `variety` 등. **3단계에서 반영 예정.**
+
+## 2026-10-21 v1.19 — 음악 병합 M1 3단계: 「Suno로 생성」 + sunoapi.org V6 최신화 (Claude Code 윈도우)
+- 근거 문서: [docs/SUNOAPI_REFERENCE.md](docs/SUNOAPI_REFERENCE.md)(주인님 지시: sunoapi.org 문서 기준으로 엔드포인트·모델 호출·스키마 최신화, V6 확장 기능 참고).
+- **모델**: 기본 `V5_5`(지원 종료) → **`V6`**, `SUNO_MODELS`(V6·V6_WILD·V6_MINI). 「음악 생성」 패널과 정밀 기획 모두 엔진 선택. 연장은 원곡 `suno_model` 그대로(문서: 원곡과 같은 모델). 사이드바·목록의 「v4 ~ v6」 문구를 「V6 엔진」으로 정정.
+- **새 선택값**: `variety`(결과 다양성 0~4), `styleWeight`·`weirdnessConstraint`(0~1, 코드 준비·화면은 다양성만). 모델별 글자 수 한도로 prompt·style·negativeTags 자름. 응답 코드별 한국어 안내(`sunoStatusHint`: 401·405·413·429 크레딧 부족·430·455).
+- **곡 연장**: 문서상 연장 `prompt`는 이제 「가사」 → 영어 지시문(`buildExtendDirection`, 사용 중지) 대신 `generateExtendLyrics()`(회원 본인 OpenAI 키, gpt-4o-mini)로 이어 부를 새 가사 구간([Bridge]·[Final Chorus]·[Outro])을 만들어 보냄 + 원곡 `taskId`. 보컬판 연장은 OpenAI 키가 필요해짐.
+- **MR**: 문서상 필수인 원곡 `taskId`를 함께 보냄(`mr.ts`).
+- **웹훅**: 15초 응답 한도·중복 콜백 대응 — 행 잠금(`lib/syncLock.ts`, `error_message='__syncing__'`, 5분 지나면 다시 차지 가능) 뒤 즉시 200, 저장(커버 생성·파일 복사)은 `waitUntil`(@vercel/functions)로 뒤에서. 회원의 「상태 확인」 버튼도 같은 잠금. 상태 조회는 snake_case·camelCase 둘 다 읽음.
+- **「Suno로 생성」**: 정밀 기획 곡 편집기(빌더·보관함·앨범 곡 공통, `components/studio/SendToSuno.tsx`)에서 모델·다양성 고르고 보내면 `sendStudioTrackToSunoAction`(`lib/actions/studioSuno.ts`)이 기획 1건을 만들고 `generateTracksAction`의 `fixedPrompt` 경로로 **GPT 재작성 없이** 제목·Style·제외 스타일·가사 그대로 생성 → 결과는 「음악 생성 · 트랙 관리」(연장·MR·WAV·리믹스)로 이어짐. 실패하면 방금 만든 기획을 지움. 보컬 설정의 여성/남성은 성별로, 혼성은 기록만.
+- 검수: tsc·lint·테스트 51·build, 배포 Ready(비용: Vercel 빌드 1회), DB v1.19. 크롬 일반 회원: 정밀 기획에 「Suno로 생성」 묶음(모델 3·다양성 5) 표시, 빈 곡일 때 버튼 꺼짐, 채운 뒤 누르면 Suno 키 없음 안내 + 남은 기획·트랙 0건. **Suno 실제 생성·웹훅 저장·연장·MR은 시험 계정에 sunoapi.org 키가 없어 미검수**(주인님 등록 대기, 승인된 실제 생성 1회 남음).

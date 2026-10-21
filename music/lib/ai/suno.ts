@@ -5,7 +5,52 @@ import type { VocalGender } from "@/types/database.types";
 const SUNO_CALLBACK_ORIGIN = "https://music-automation.buylife.xyz";
 
 const SUNO_BASE = "https://api.sunoapi.org";
-export const DEFAULT_SUNO_MODEL = "V5_5";
+// 2026-10-21 sunoapi.org 최신 문서(docs/SUNOAPI_REFERENCE.md §1): V6 계열이 현재 모델, V5_5 이하는 지원 종료(하위 호환).
+// 곡 연장은 원곡과 같은 모델이어야 해서 연장 요청에는 원곡의 suno_model을 그대로 넘긴다.
+export const SUNO_MODELS = [
+  { id: "V6", label: "V6 (기본·권장)", description: "표현력, 자연스러운 보컬, 풍부한 디테일" },
+  { id: "V6_WILD", label: "V6 Wild", description: "더 대담하고 실험적인 표현" },
+  { id: "V6_MINI", label: "V6 Mini", description: "가볍고 빠름, 품질과 속도의 균형" },
+] as const;
+export type SunoModel = (typeof SUNO_MODELS)[number]["id"];
+export const DEFAULT_SUNO_MODEL: SunoModel = "V6";
+export function isSunoModel(v: unknown): v is SunoModel {
+  return SUNO_MODELS.some((m) => m.id === v);
+}
+
+/** 결과 다양성(variety, 0~4 정수, 문서 기본 1)과 가중치(0~1, 소수 둘째 자리)를 문서 범위로 맞춘다. */
+export function clampVariety(v: unknown): number | undefined {
+  const n = typeof v === "number" ? Math.round(v) : NaN;
+  return Number.isFinite(n) ? Math.min(4, Math.max(0, n)) : undefined;
+}
+export function clampWeight(v: unknown): number | undefined {
+  const n = typeof v === "number" ? v : NaN;
+  return Number.isFinite(n) ? Math.round(Math.min(1, Math.max(0, n)) * 100) / 100 : undefined;
+}
+
+/** 모델별 글자 수 한도(문서 §1). 넘기면 413/400으로 거절되므로 보내기 전에 자른다. */
+function limitsFor(model: string) {
+  return model === "V4" ? { prompt: 3000, style: 200, negative: 1000 } : { prompt: 5000, style: 1000, negative: 1000 };
+}
+
+/** sunoapi.org 응답 코드(문서 §4)를 회원이 알아볼 수 있는 한국어 안내로 바꾼다. */
+export function sunoStatusHint(status: number): string {
+  switch (status) {
+    case 401:
+      return " Suno API 키를 확인해 주세요(설정 > API 키 등록).";
+    case 405:
+    case 430:
+      return " 요청이 너무 잦습니다. 잠시 뒤 다시 시도해 주세요.";
+    case 413:
+      return " 가사나 스타일이 너무 깁니다. 줄여서 다시 시도해 주세요.";
+    case 429:
+      return " sunoapi.org 크레딧이 부족합니다. sunoapi.org에서 충전해 주세요.";
+    case 455:
+      return " sunoapi.org가 점검 중입니다. 잠시 뒤 다시 시도해 주세요.";
+    default:
+      return "";
+  }
+}
 
 /** "혼성"/미지정은 Suno API의 vocalGender 파라미터가 지원하지 않으므로 undefined로 둔다. */
 export function toSunoVocalGender(gender: VocalGender | null): "m" | "f" | undefined {
@@ -41,6 +86,10 @@ export interface RequestSunoGenerationInput {
   // 성별 묘사만으로는 가끔 반영이 안 되는 문제가 있어서, 있으면 이 파라미터도 같이 보내
   // 이중으로 보장한다(docs.sunoapi.org 확인, 2026-08-15). "혼성"이거나 미지정이면 보내지 않는다.
   vocalGender?: "m" | "f";
+  // 2026-10-21 문서의 custom 모드 선택값(§2): 결과 다양성 0~4, 스타일 준수·실험성 가중치 0~1.
+  variety?: number;
+  styleWeight?: number;
+  weirdnessConstraint?: number;
 }
 
 /**
@@ -58,25 +107,35 @@ export async function requestSunoGeneration(input: RequestSunoGenerationInput, a
   // 주소)을 써야 한다. threads/insta_auto_poster의 OAuth 콜백과 동일한 구분 원칙.
   const siteUrl = SUNO_CALLBACK_ORIGIN;
 
+  const model = input.model ?? DEFAULT_SUNO_MODEL;
+  const limit = limitsFor(model);
+  const variety = clampVariety(input.variety);
+  const styleWeight = clampWeight(input.styleWeight);
+  const weirdness = clampWeight(input.weirdnessConstraint);
   const response = await fetch(`${SUNO_BASE}/api/v1/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      prompt: input.prompt,
-      style: input.styleDescription,
+      // custom 모드의 prompt는 그대로 가사로 불린다(연주곡은 BGM 설명). 문서상 lyrics가 있으면 lyrics가 우선이지만,
+      // prompt만으로 모든 모델에서 같게 동작해 기존처럼 prompt 하나로 보낸다. 모델별 글자 수 한도에 맞춰 자른다.
+      prompt: input.prompt.slice(0, limit.prompt),
+      style: input.styleDescription.slice(0, limit.style),
       title: input.title.slice(0, 80),
       customMode: true,
       instrumental: input.instrumental,
-      model: input.model ?? DEFAULT_SUNO_MODEL,
-      negativeTags: input.excludeStyles,
+      model,
+      negativeTags: input.excludeStyles.slice(0, limit.negative),
       ...(input.vocalGender ? { vocalGender: input.vocalGender } : {}),
+      ...(variety != null ? { variety } : {}),
+      ...(styleWeight != null ? { styleWeight } : {}),
+      ...(weirdness != null ? { weirdnessConstraint: weirdness } : {}),
       callBackUrl: `${siteUrl}/api/webhooks/suno`,
     }),
   });
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno 생성 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
@@ -93,11 +152,10 @@ export interface RequestSunoExtendInput {
   styleDescription: string;
   excludeStyles?: string;
   instrumental: boolean;
-  // /generate의 prompt(가사 전문)와 필드명은 같지만 의미가 다르다 — extend의 prompt는
-  // "Description of how the music should be extended"(문서 예시: "Extend the music with
-  // more relaxing notes")다. 원곡 가사를 그대로 다시 넣으면 안 된다 — buildExtendDirection()로
-  // 만든 "이어붙이는 방향" 설명 문장을 넣을 것.
+  // 2026-10-21 문서 갱신: extend의 prompt·lyrics는 이제 이어 붙일 구간의 「가사」로 불린다(예전 문서는 "연장 방향 설명"이었다).
+  // 그래서 영어 지시문이 아니라 generateExtendLyrics()로 만든 새 가사 구간을 넣는다. 연주곡이면 보내지 않는다.
   prompt?: string;
+  sourceTaskId?: string; // 원곡 생성 작업 ID(문서상 선택값 — 함께 보내면 원곡을 정확히 가리킨다)
   vocalGender?: "m" | "f";
   model?: string;
 }
@@ -110,6 +168,7 @@ export interface RequestSunoExtendInput {
  * "가사는 동일할텐데?"라고 지적해서 재확인 후 발견) — 원곡 가사를 그대로 보내면 Suno가
  * 이미 있는 내용을 반복하거나 요청 의도를 오해할 수 있다.
  */
+/** @deprecated 2026-10-21부터 연장 prompt는 가사로 불린다 — generateExtendLyrics()를 쓴다. 쓰는 곳 없음(이력 보존용). */
 export function buildExtendDirection(lang: string): string {
   return `Continue this song naturally into a new section (an additional verse, bridge, or outro) that fits the same story, emotion, and musical style as before, written in ${lang}. Do not repeat the existing lyrics verbatim.`;
 }
@@ -132,15 +191,16 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      defaultParamFlag: true,
+      defaultParamFlag: true, // 2026-10-21 문서에는 없지만 예전 실험(위 주석)에서 있어야 안정적이었다. 모르는 항목은 무시된다.
       audioId: input.audioId,
+      ...(input.sourceTaskId ? { taskId: input.sourceTaskId } : {}),
       continueAt: input.continueAt,
-      style: input.styleDescription,
-      title: input.title.slice(0, 80),
+      style: input.styleDescription.slice(0, 1000),
+      title: input.title.slice(0, 100),
       instrumental: input.instrumental,
-      ...(input.instrumental ? {} : { prompt: input.prompt }),
-      ...(input.excludeStyles ? { negativeTags: input.excludeStyles } : {}),
-      ...(input.vocalGender ? { vocalGender: input.vocalGender } : {}),
+      ...(input.instrumental || !input.prompt ? {} : { prompt: input.prompt.slice(0, 5000) }),
+      ...(input.excludeStyles ? { negativeTags: input.excludeStyles.slice(0, 1000) } : {}),
+      ...(input.vocalGender && !input.instrumental ? { vocalGender: input.vocalGender } : {}),
       model: input.model ?? DEFAULT_SUNO_MODEL,
       callBackUrl: `${siteUrl}/api/webhooks/suno`,
     }),
@@ -148,7 +208,7 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno 연장 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno 연장 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
@@ -211,7 +271,7 @@ export async function requestSunoRemix(input: RequestSunoRemixInput, apiKey: str
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno 리믹스 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno 리믹스 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
@@ -223,6 +283,8 @@ export async function requestSunoRemix(input: RequestSunoRemixInput, apiKey: str
 
 export interface RequestSunoVocalRemovalInput {
   audioId: string; // 보컬/반주 분리할 오디오의 Suno ID (music_track_variants.suno_audio_id)
+  // 2026-10-21 문서: 기존 Suno 곡을 쓸 때 taskId와 audioId가 「둘 다 필수」다(예전 코드는 audioId만 보냈다).
+  sourceTaskId: string; // 원곡 생성 작업 ID (music_tracks.task_id)
 }
 
 /**
@@ -242,6 +304,7 @@ export async function requestSunoVocalRemoval(input: RequestSunoVocalRemovalInpu
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
+      taskId: input.sourceTaskId,
       audioId: input.audioId,
       type: "separate_vocal",
       callBackUrl: `${siteUrl}/api/webhooks/suno-vocal-removal`,
@@ -250,7 +313,7 @@ export async function requestSunoVocalRemoval(input: RequestSunoVocalRemovalInpu
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno MR 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno MR 생성 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
@@ -305,7 +368,7 @@ export async function requestSunoWavConversion(input: RequestSunoWavConversionIn
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno WAV 변환 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno WAV 변환 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
@@ -350,7 +413,7 @@ export async function checkSunoWavConversionStatus(taskId: string, apiKey: strin
   });
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno WAV 상태 조회에 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno WAV 상태 조회에 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as {
@@ -396,7 +459,7 @@ export interface SunoCallbackPayload {
   code: number;
   msg?: string;
   data?: {
-    callbackType?: "text" | "first" | "complete";
+    callbackType?: "text" | "first" | "complete" | "error";
     task_id?: string;
     data?: SunoCallbackItem[];
   };
@@ -421,7 +484,7 @@ export async function checkSunoGenerationStatus(taskId: string, apiKey: string):
   });
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno 상태 조회에 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno 상태 조회에 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as {
@@ -430,11 +493,15 @@ export async function checkSunoGenerationStatus(taskId: string, apiKey: string):
       status?: string;
       errorMessage?: string;
       response?: {
+        // 문서는 snake_case(audio_url…), 예전 실제 응답은 camelCase(audioUrl…) — 둘 다 읽는다(2026-10-21).
         sunoData?: {
           id?: string;
           audioUrl?: string;
+          audio_url?: string;
           streamAudioUrl?: string;
+          stream_audio_url?: string;
           imageUrl?: string;
+          image_url?: string;
           title?: string;
           duration?: number;
         }[];
@@ -448,9 +515,9 @@ export async function checkSunoGenerationStatus(taskId: string, apiKey: string):
     const sunoData = data.data?.response?.sunoData ?? [];
     const tracks: SunoCallbackItem[] = sunoData.map((t) => ({
       id: t.id,
-      audio_url: t.audioUrl,
-      stream_audio_url: t.streamAudioUrl,
-      image_url: t.imageUrl,
+      audio_url: t.audioUrl ?? t.audio_url,
+      stream_audio_url: t.streamAudioUrl ?? t.stream_audio_url,
+      image_url: t.imageUrl ?? t.image_url,
       title: t.title,
       duration: t.duration,
     }));
@@ -482,7 +549,7 @@ export async function checkSunoCredits(apiKey: string): Promise<number> {
   });
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Suno 크레딧 조회에 실패했습니다. (${response.status}) ${errorBody}`);
+    throw new Error(`Suno 크레딧 조회에 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
   }
 
   const data = (await response.json()) as { code: number; msg?: string; data?: number };

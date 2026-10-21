@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
 import { saveSunoRemixResult, markRemixFailed } from "@/lib/remixSync";
 import type { SunoCallbackPayload } from "@/lib/ai/suno";
+import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
 
 export const dynamic = "force-dynamic";
+// 응답은 바로 보내고 저장(커버 생성·파일 복사)은 waitUntil로 뒤에서 한다 — 그 뒤처리에 쓸 시간.
+export const maxDuration = 300;
 
 /**
  * n8n(Make.com) 시나리오 02 대응: Suno가 곡 생성을 마치면 이 URL로 콜백을 보낸다.
@@ -24,6 +28,11 @@ export const dynamic = "force-dynamic";
  * 이 웹훅은 로컬 개발 환경(localhost)이나 네트워크 문제로 도달하지 못할 수 있다 — 그 경우를
  * 대비해 lib/actions/tracks.ts의 syncTrackStatusAction()으로 사용자가 직접 "상태 확인"
  * 버튼을 눌러 record-info 폴링으로 같은 저장 로직(lib/trackSync.ts)을 수동 실행할 수 있다.
+ *
+ * 2026-10-21(docs/SUNOAPI_REFERENCE.md §3): sunoapi.org는 15초 안에 200을 못 받으면 같은 콜백을 다시
+ * 보내고, 정상일 때도 중복으로 올 수 있다. 저장(앨범 커버 생성·파일 복사)이 15초를 넘길 수 있어
+ * ① 행 잠금(lib/syncLock.ts)을 먼저 차지한 요청만 처리하고 ② 200을 바로 돌려준 뒤 waitUntil로 저장한다.
+ * 겹쳐 처리되면 곡이 두 번 저장되고 회원 키로 커버 생성이 두 번 과금될 수 있었다.
  */
 export async function POST(request: NextRequest) {
   let payload: SunoCallbackPayload;
@@ -63,11 +72,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    const items = payload.data?.data ?? [];
-    const { savedCount } = await saveSunoTrackResult(admin, track, items);
-    if (savedCount === 0) {
-      await markTrackFailed(admin, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
+    if (!(await claimSyncLock(admin, "music_tracks", track.id))) {
+      return NextResponse.json({ ok: true, ignored: "already processing" });
     }
+    const items = payload.data?.data ?? [];
+    waitUntil(
+      (async () => {
+        try {
+          const { savedCount } = await saveSunoTrackResult(admin, track, items);
+          if (savedCount === 0) {
+            await markTrackFailed(admin, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
+          }
+        } catch (err) {
+          console.error("Suno 곡 저장 실패:", err);
+          await releaseSyncLock(admin, "music_tracks", track.id);
+        }
+      })(),
+    );
     return NextResponse.json({ ok: true });
   }
 
@@ -92,11 +113,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const items = payload.data?.data ?? [];
-  const { savedCount } = await saveSunoRemixResult(admin, remix, items);
-  if (savedCount === 0) {
-    await markRemixFailed(admin, remix, "Suno가 오디오 URL을 반환하지 않았습니다.");
+  if (!(await claimSyncLock(admin, "music_track_remixes", remix.id))) {
+    return NextResponse.json({ ok: true, ignored: "already processing" });
   }
+  const items = payload.data?.data ?? [];
+  waitUntil(
+    (async () => {
+      try {
+        const { savedCount } = await saveSunoRemixResult(admin, remix, items);
+        if (savedCount === 0) {
+          await markRemixFailed(admin, remix, "Suno가 오디오 URL을 반환하지 않았습니다.");
+        }
+      } catch (err) {
+        console.error("Suno 리믹스 저장 실패:", err);
+        await releaseSyncLock(admin, "music_track_remixes", remix.id);
+      }
+    })(),
+  );
 
   return NextResponse.json({ ok: true });
 }

@@ -4,6 +4,7 @@ import type { Track } from "@/lib/studio/config";
 import { useRef } from "react";
 import { SECTION_TAGS, insertSection } from "@/lib/studio/catalog";
 import { styleIssues } from "@/lib/studio/validation";
+import { SendToSuno } from "./SendToSuno";
 export function downloadFile(
   text: string,
   filename: string,
@@ -310,6 +311,9 @@ export function TrackEditor({
           </button>
         )}
       </div>
+      {(track.title.trim() || track.style.trim() || track.lyrics.trim()) && (
+        <SendToSuno track={track} instrumental={instrumental} />
+      )}
       {(track.title.trim() || track.style.trim() || track.lyrics.trim()) && (
         // 플로팅 복사 바(v1.11): Suno 창을 옆에 띄워 둔 채 스크롤 없이 차례로 복사·붙여넣기
         <div className="quick-copy-bar" role="toolbar" aria-label="Suno에 붙여 넣을 항목 빠른 복사">
