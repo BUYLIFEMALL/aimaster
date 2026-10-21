@@ -535,6 +535,39 @@ export async function checkSunoGenerationStatus(taskId: string, apiKey: string):
 }
 
 /**
+ * Suno `/api/v1/generate/get-timestamped-lyrics` — 곡의 단어별 시작·끝 시간(콜백 없이 즉시 응답, 2026-10-21 V6 1차 기능).
+ * 단어 안에 줄바꿈과 [Verse 1] 같은 구간 표시가 섞여 온다 — lib/sunoAlign.ts가 줄 단위로 묶는다. 연주곡은 가사가 없다.
+ */
+export async function requestSunoTimestampedLyrics(
+  input: { sourceTaskId: string; audioId: string },
+  apiKey: string,
+): Promise<{ word: string; startS: number; endS: number; success?: boolean }[]> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+  const response = await fetch(`${SUNO_BASE}/api/v1/generate/get-timestamped-lyrics`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ taskId: input.sourceTaskId, audioId: input.audioId }),
+    signal: AbortSignal.timeout(30_000),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno 시간 가사 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody.slice(0, 200)}`);
+  }
+  const data = (await response.json()) as {
+    code: number;
+    msg?: string;
+    data?: { alignedWords?: { word: string; startS: number; endS: number; success?: boolean }[] };
+  };
+  if (data.code !== 200) {
+    throw new Error(`Suno 시간 가사 요청이 실패했습니다:${sunoStatusHint(data.code)} ${data.msg ?? "알 수 없는 오류"}`);
+  }
+  return data.data?.alignedWords ?? [];
+}
+
+/**
  * Suno `/api/v1/generate/credit` — 본인 Suno API 키에 남은 크레딧(정수)을 조회한다.
  * 실제 생성 요청과 무관한 단순 조회라 곡 생성 흐름과 완전히 분리해서 설정 페이지에서만 쓴다.
  * (docs.sunoapi.org 확인 완료, 2026-08-17)

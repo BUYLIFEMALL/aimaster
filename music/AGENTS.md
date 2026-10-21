@@ -275,3 +275,8 @@ POST 콜백을 보낸다. 이 라우트는:
 - `components/plannings/TrackCard.tsx`: 보컬 곡의 Suno 번호가 있는 변주마다 AI 가사영상 자동화로 넘기는 새 창 링크(`https://lyric-video-studio.buylife.xyz/source?suno=<변주 id>`). 그쪽이 회원 본인 행만 읽어 음악·커버(서명 주소)·제목과 **Suno 시간 가사**(본인 Suno 키, `get-timestamped-lyrics`)를 자동으로 넣는다. 이 앱의 DB·저장소·Suno 호출은 바꾸지 않음.
 - 제안서 `docs/PLAN_20261021_SUNO_V6_FEATURES.md` 1순위 「타임스탬프 가사」를 이 앱에 만들 때는 `lyric-video-studio/src/lib/sunoAlign.ts`(단어 → 줄 변환, 시험 3개)를 기준으로 쓰면 된다(응답 단어 안에 `\n`·`[Verse 1]`가 섞여 옴).
 - 검수: tsc·build, 배포 Ready, DB v1.22, 크롬 일반 회원 곡 화면에 링크 2개·새 창·주소 확인, 링크로 연 가사영상에서 21줄 자동.
+
+## 2026-10-21 v1.23 — Suno V6 1차 ①: 타임스탬프 가사(LRC·SRT) (Claude Code 윈도우)
+- 제안서 [docs/PLAN_20261021_SUNO_V6_FEATURES.md](docs/PLAN_20261021_SUNO_V6_FEATURES.md) ①. (참고: 같은 날 다른 세션이 v1.22로 곡 카드에 「가사 영상 만들기 →」(lyric-video-studio 연결)을 넣음 — 그대로 둠.)
+- `lib/ai/suno.ts` `requestSunoTimestampedLyrics`(`/generate/get-timestamped-lyrics`, 즉시 응답), `lib/sunoAlign.ts`(**사본** — 원본 `lyric-video-studio/src/lib/sunoAlign.ts`, 실제 응답으로 검증된 줄 묶기), `lib/lyricsFormat.ts`(LRC·SRT), `lib/actions/timedLyrics.ts`(본인 Suno 키, DB 저장 없음, 사용 기록), 곡 카드 보컬판 「🎤 가사 타이밍(LRC·SRT)」(`components/plannings/TimedLyricsButton.tsx`: 줄별 시각 미리보기 + LRC·SRT 내려받기). 시험 `tests/lyricsFormat.test.mjs` 2개.
+- 검수: 테스트 53·tsc·lint·build, 배포 Ready(비용 Vercel 빌드 1회), DB v1.23. 크롬 일반 회원 시험 곡 「빗속의 다짐」 **실제 호출 1회(승인)** → 21줄, 0:10~2:29 시각, 구간 표시 제거 확인. 내려받기 버튼은 파일 저장이라 누르지 않음(형식은 단위 시험).

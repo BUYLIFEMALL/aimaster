@@ -25,6 +25,7 @@ import {
 } from "@/lib/constants";
 import type { TrackMode, TrackStatus, VocalGender, MrStatus, WavStatus } from "@/types/database.types";
 import { RetentionBadge } from "@/components/RetentionBadge";
+import { TimedLyricsButton } from "./TimedLyricsButton";
 
 export interface MrResult {
   id: string;
@@ -369,6 +370,7 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                           <span>가사 영상 만들기 →</span>
                         </a>
                       )}
+                      {track.mode === "vocal" && <TimedLyricsButton variantId={variant.id} title={track.title} />}
                       {!latestMr && (
                         <button
                           type="button"
