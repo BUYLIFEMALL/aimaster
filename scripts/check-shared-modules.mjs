@@ -38,6 +38,114 @@ const MODULES = [
     ],
   },
   {
+    // 통합 받은편지함(comment-inbox) 승인 게시 — instagram-comment-reply 게시 함수(2026-10-21)
+    id: "instagram-reply-post",
+    source: "instagram-comment-reply/lib/comments/post.ts",
+    copies: ["comment-inbox/lib/comments/instagramPost.ts"],
+  },
+  {
+    // instagram-comment-reply memberAccount — 받은편지함 게시 사본(2026-10-21)
+    id: "instagram-reply-memberaccount",
+    source: "instagram-comment-reply/lib/instagram/memberAccount.ts",
+    copies: ["comment-inbox/lib/instagram/memberAccount.ts"],
+  },
+  {
+    // instagram-comment-reply client — 받은편지함 게시 사본(2026-10-21)
+    id: "instagram-reply-client",
+    source: "instagram-comment-reply/lib/instagram/client.ts",
+    copies: ["comment-inbox/lib/instagram/client.ts"],
+  },
+  {
+    // instagram-comment-reply token — 받은편지함 게시 사본(2026-10-21)
+    id: "instagram-reply-token",
+    source: "instagram-comment-reply/lib/instagram/token.ts",
+    copies: ["comment-inbox/lib/instagram/token.ts"],
+  },
+  {
+    // 통합 받은편지함(comment-inbox) 승인 게시 — instagram-comment-reply 게시 함수(2026-10-21)
+    id: "instagram-dm-reply-post",
+    source: "instagram-comment-reply/lib/dmApp/dm/post.ts",
+    copies: ["comment-inbox/lib/dmApp/dm/post.ts"],
+  },
+  {
+    // instagram-comment-reply memberAccount — 받은편지함 게시 사본(2026-10-21)
+    id: "instagram-dm-reply-memberaccount",
+    source: "instagram-comment-reply/lib/dmApp/instagram/memberAccount.ts",
+    copies: ["comment-inbox/lib/dmApp/instagram/memberAccount.ts"],
+  },
+  {
+    // instagram-comment-reply client — 받은편지함 게시 사본(2026-10-21)
+    id: "instagram-dm-reply-client",
+    source: "instagram-comment-reply/lib/dmApp/instagram/client.ts",
+    copies: ["comment-inbox/lib/dmApp/instagram/client.ts"],
+  },
+  {
+    // instagram-comment-reply token — 받은편지함 게시 사본(2026-10-21)
+    id: "instagram-dm-reply-token",
+    source: "instagram-comment-reply/lib/dmApp/instagram/token.ts",
+    copies: ["comment-inbox/lib/dmApp/instagram/token.ts"],
+  },
+  {
+    // 통합 받은편지함(comment-inbox) 승인 게시 — threads-comment-reply 게시 함수(2026-10-21)
+    id: "threads-reply-post",
+    source: "threads-comment-reply/lib/comments/post.ts",
+    copies: ["comment-inbox/lib/comments/threadsPost.ts"],
+  },
+  {
+    // threads-comment-reply memberAccount — 받은편지함 게시 사본(2026-10-21)
+    id: "threads-reply-memberaccount",
+    source: "threads-comment-reply/lib/threads/memberAccount.ts",
+    copies: ["comment-inbox/lib/threads/memberAccount.ts"],
+  },
+  {
+    // threads-comment-reply client — 받은편지함 게시 사본(2026-10-21)
+    id: "threads-reply-client",
+    source: "threads-comment-reply/lib/threads/client.ts",
+    copies: ["comment-inbox/lib/threads/client.ts"],
+  },
+  {
+    // threads-comment-reply token — 받은편지함 게시 사본(2026-10-21)
+    id: "threads-reply-token",
+    source: "threads-comment-reply/lib/threads/token.ts",
+    copies: ["comment-inbox/lib/threads/token.ts"],
+  },
+  {
+    // 통합 받은편지함(comment-inbox) 승인 게시 — youtube-auto-reply 게시 함수(2026-10-21)
+    id: "youtube-reply-post",
+    source: "youtube-auto-reply/lib/comments/post.ts",
+    copies: ["comment-inbox/lib/comments/youtubePost.ts"],
+  },
+  {
+    // youtube-auto-reply memberAccount — 받은편지함 게시 사본(2026-10-21)
+    id: "youtube-reply-memberaccount",
+    source: "youtube-auto-reply/lib/youtube/memberAccount.ts",
+    copies: ["comment-inbox/lib/youtube/memberAccount.ts"],
+  },
+  {
+    // youtube-auto-reply client — 받은편지함 게시 사본(2026-10-21)
+    id: "youtube-reply-client",
+    source: "youtube-auto-reply/lib/youtube/client.ts",
+    copies: ["comment-inbox/lib/youtube/client.ts"],
+  },
+  {
+    // youtube-auto-reply token — 받은편지함 게시 사본(2026-10-21)
+    id: "youtube-reply-token",
+    source: "youtube-auto-reply/lib/youtube/token.ts",
+    copies: ["comment-inbox/lib/youtube/token.ts"],
+  },
+  {
+    // 키 이름표(apiKeys.ts가 다시 내보냄) — 받은편지함 사본(2026-10-21)
+    id: "ytreply-api-key-labels",
+    source: "youtube-auto-reply/lib/apiKeyLabels.ts",
+    copies: ["comment-inbox/lib/apiKeyLabels.ts"],
+  },
+  {
+    // 회원 본인 키 조회(유튜브 토큰 갱신에 필요) — 받은편지함 사본(2026-10-21)
+    id: "ytreply-api-keys",
+    source: "youtube-auto-reply/lib/apiKeys.ts",
+    copies: ["comment-inbox/lib/apiKeys.ts"],
+  },
+  {
     // 검토 화면 게시물·영상 「묶음 머리」(썸네일 또는 아이콘·제목·건수). 2026-10-21
     id: "review-group-header",
     source: "instagram-comment-reply/components/ReviewGroupHeader.tsx",
@@ -90,7 +198,7 @@ const MODULES = [
     // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
     id: "member-integrations",
     source: "lib/memberIntegrations.ts",
-    copies: ["threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts", "insta_auto_poster/src/lib/memberIntegrations.ts", "instagram-comment-reply/lib/memberIntegrations.ts", "shots/src/lib/memberIntegrations.ts", "youtube-auto-reply/lib/memberIntegrations.ts", "kakao_auto_poster/src/lib/memberIntegrations.ts", "naver-cafe-poster/src/lib/memberIntegrations.ts", "ai-influencer-studio/src/lib/memberIntegrations.ts", "ai-webtoon-studio/src/lib/memberIntegrations.ts", "shorts-onestop-studio/src/lib/memberIntegrations.ts", "lyric-video-studio/src/lib/memberIntegrations.ts", "playlist-channel-studio/src/lib/memberIntegrations.ts"],
+    copies: ["comment-inbox/lib/memberIntegrations.ts", "threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts", "insta_auto_poster/src/lib/memberIntegrations.ts", "instagram-comment-reply/lib/memberIntegrations.ts", "shots/src/lib/memberIntegrations.ts", "youtube-auto-reply/lib/memberIntegrations.ts", "kakao_auto_poster/src/lib/memberIntegrations.ts", "naver-cafe-poster/src/lib/memberIntegrations.ts", "ai-influencer-studio/src/lib/memberIntegrations.ts", "ai-webtoon-studio/src/lib/memberIntegrations.ts", "shorts-onestop-studio/src/lib/memberIntegrations.ts", "lyric-video-studio/src/lib/memberIntegrations.ts", "playlist-channel-studio/src/lib/memberIntegrations.ts"],
   },
   {
     // 인스타그램 게시(피드 1장·캐러셀 2~10장) — 회원 본인 연결값(insta_accounts, 한 번 연결해 여러 프로그램이 함께 사용). 2026-10-19
@@ -138,7 +246,7 @@ const MODULES = [
     // 프로그램 공지 띠(메인 공지의 「관련 프로그램」 → 작업 화면 맨 위 최근 공지 1건) — 2026-10-20 등록. 다른 프로그램은 다음 배포 때 사본 추가
     id: "program-notice-banner",
     source: "ai-webtoon-studio/src/components/ProgramNoticeBanner.tsx",
-    copies: [
+    copies: ["comment-inbox/components/ProgramNoticeBanner.tsx", 
       "instagram-comment-reply/components/ProgramNoticeBanner.tsx",
       "threads-comment-reply/components/ProgramNoticeBanner.tsx",
       "youtube-auto-reply/components/ProgramNoticeBanner.tsx",
