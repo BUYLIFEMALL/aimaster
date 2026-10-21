@@ -1,5 +1,14 @@
 # GEMINI.md
 
+<!-- CLI_BROWSER_RULE_20261021 -->
+> **★★★ CLI별 브라우저 고정 규칙 (2026-10-21 주인님 재지시 — 모든 CLI·모든 장비 공통, 맨 위 고정)**
+> | CLI | 쓰는 브라우저 | 쓰지 않는 브라우저 |
+> |---|---|---|
+> | **Claude Code** | **크롬(Chrome) 기본 프로필의 실제 창만** (claude-in-chrome) | 엣지, 헤드리스 Chrome(`agent-browser`), Playwright 자동화 브라우저, gstack `/browse` 검수 |
+> | **Antigravity(`agy`)·Codex** | **Microsoft 엣지(Edge) 실제 창만** (포그라운드, `headless: false`) | 크롬 |
+> 각 CLI는 자기 브라우저만 조작하고 다른 CLI의 브라우저·창·탭은 건드리지 않는다. Claude Code는 작업 시작 때 `list_connected_browsers`로 메인 크롬(윈도우 deviceId `3208dd7d-d933-4487-a96f-61fbf8cf69dd`)이 `inUse`인지 확인하고, 아니면 `select_browser`로 고른다 — 엣지나 다른 장비(`osPlatform`이 다른 항목)의 브라우저는 고르지 않는다. 장비가 달라도 규칙은 같다(그 장비의 크롬 = Claude Code, 그 장비의 엣지 = agy·Codex). 세부·deviceId 표: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 8-1-2, `CLAUDE.md` 핵심 원칙 18.
+
+
 <!-- COMPARISON_REFERENCE_20261021 -->
 > **★★★ 프로그램 비교 분석·산출물 공통 레퍼런스 (2026-10-21 주인님 지시)**
 > **프로그램 비교·병합·독립 유지 분석은 [프로그램 비교 분석 매뉴얼](docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md), 특히 §8의 분석법·완료 조건·산출물 작성법을 따른다.** 기존 보고서 검색→운영 메타데이터 읽기→실제 코드/화면 대조→프로그램 분석·병합 방향·독립 유지 표→근거/HTML→CLI 인수인계 순서로 남긴다. 구현·모의 검사·실제 회원/외부 동작·추천을 구분하고, 같은 결과물 구조가 재현되게 생성 명령·기준 커밋·한계·남은 작업을 기록한다. [블로그 사례 공통 인수인계](docs/analysis-blog-consolidation-20261020/HANDOFF_20261021_CLI_REFERENCE.md)를 레퍼런스로 참고한다.

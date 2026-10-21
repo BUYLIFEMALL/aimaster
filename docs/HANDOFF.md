@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — CLI별 브라우저 고정 규칙을 지침 맨 위에 명시
+
+주인님 지시로 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위에 같은 표를 넣었습니다: **Claude Code = 크롬 실제 창만**(엣지·헤드리스·Playwright 금지), **agy·Codex = 엣지 실제 창만**(크롬 금지). 기존 원칙 18·8-1-2 내용과 같고, 흩어져 있던 규칙을 맨 위에 모은 것입니다. 같은 날 점검: Claude Code 로그인 `buylifemall@gmail.com`, Git/GitHub `BUYLIFEMALL`, 메인 크롬(`3208dd7d…`) `inUse`·탐색·캡처 정상. 코드·배포 변경 없음. 남은 일: 연결된 윈도우 `Browser 2`·`Browser 3`의 정체(엣지 여부)를 8-1-2 deviceId 표에 보완.
+
 <!-- COMPARISON_REFERENCE_HANDOFF_20261021 -->
 ## 2026-10-21 Codex — 블로그 결과물 공동 인계·분석/산출물 레퍼런스 확정
 
