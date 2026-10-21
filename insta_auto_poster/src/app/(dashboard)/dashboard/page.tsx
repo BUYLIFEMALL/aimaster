@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { WeekReplyPanel } from "@/components/weekChart/WeekReplyPanel";
 import { loadWeekDayPostsAction } from "@/lib/actions/weekPosts";
-import { bucketByKstDay } from "@/lib/weekChart/bucket";
+import { INSTA_SERIES, loadInstaWeek } from "@/lib/instaWeek";
 import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { APP_VERSION } from "@/lib/version";
@@ -19,7 +19,7 @@ const WEEK_POST_LABELS = {
   noun: "게시",
   list: "게시한 글 목록",
   empty: "이날 게시한 글이 없어요.",
-  more: "최근 {n}건까지 보여요. 나머지는 게시글 목록에서 확인해 주세요.",
+  more: "묶음마다 최근 {n}건까지 보여요. 나머지는 각 프로그램 게시 기록에서 확인해 주세요.",
   replyIcon: "📝",
 };
 
@@ -59,7 +59,8 @@ export default async function DashboardPage() {
 
   // v1.43: 최근 7일(한국 시간) 게시 건수 — 공용 기준 코드 `week-reply-chart`(통합 받은편지함·댓글 프로그램과 같은 그래프).
   // 2026-10-22부터 게시한 시각(published_at, 게시 완료 때 기록·기존 글은 그때의 updated_at으로 채움)을 쓴다. 비어 있으면 updated_at.
-  const weekDays = bucketByKstDay((posts ?? []).filter((p) => p.status === "published").map((p) => p.published_at ?? p.updated_at));
+  // v1.44: 피드뿐 아니라 카드뉴스·AI 인플루언서·웹툰·네컷의 인스타 게시도 묶음별 색으로 함께 쌓는다(회원 본인 행만).
+  const weekDays = await loadInstaWeek(user.id);
 
   const upcoming = (posts ?? [])
     .filter((p) => p.status === "scheduled")
@@ -191,7 +192,7 @@ export default async function DashboardPage() {
 
       {/* v1.43: 최근 7일 게시 그래프 */}
       <div className="rounded-2xl border border-[#262c3d] bg-[#161922] p-5 text-slate-100 shadow-xs">
-        <WeekReplyPanel days={weekDays} loadDay={loadWeekDayPostsAction} classes={WEEK_PANEL_CLASSES} labels={WEEK_POST_LABELS} />
+        <WeekReplyPanel days={weekDays} series={INSTA_SERIES} loadDay={loadWeekDayPostsAction} classes={WEEK_PANEL_CLASSES} labels={WEEK_POST_LABELS} />
       </div>
 
       {/* 6. 다가오는 예약 게시 목록 */}
