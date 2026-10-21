@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { getValidYoutubeAccessToken } from "@/lib/actions/youtube";
+import { getValidYoutubeAccessToken } from "@/lib/youtube/token";
 import { getYoutubeChannelInfo, listUploadedVideos } from "@/lib/youtube/client";
 import { normalizeUrl } from "@/lib/normalizeUrl";
 

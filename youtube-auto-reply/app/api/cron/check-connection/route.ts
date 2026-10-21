@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserApiKey } from "@/lib/apiKeys";
-import { getValidYoutubeAccessToken } from "@/lib/actions/youtube";
+import { getValidYoutubeAccessToken } from "@/lib/youtube/token";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 
 export const dynamic = "force-dynamic";

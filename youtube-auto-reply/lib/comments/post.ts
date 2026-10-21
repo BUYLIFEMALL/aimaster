@@ -3,7 +3,7 @@ import { getYtReplyAccount } from "@/lib/youtube/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getUserApiKey } from "@/lib/apiKeys";
-import { getValidYoutubeAccessToken } from "@/lib/actions/youtube";
+import { getValidYoutubeAccessToken } from "@/lib/youtube/token";
 import { postCommentReply } from "@/lib/youtube/client";
 
 export interface PostCommentReplyResult {
