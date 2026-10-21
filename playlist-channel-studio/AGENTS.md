@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.24** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.25** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -200,3 +200,7 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 올릴 채널(IMP-PLS-013): `src/lib/youtube/account.ts`에 `listYoutubeChannels`(회원 본인 채널만, 기본 표시→**연결한 순서 `created_at`** — 토큰 갱신 때 바뀌는 `updated_at`으로 정렬하면 다시 열 때마다 기본 채널이 뒤바뀌어 배포 후 바로 고침)·`load(userId, accountId)`. `/api/youtube/status?account=`·업로드 주소·썸네일 API가 `accountId`를 받음(회원 본인 채널 안에서만 찾음, 공용 사본 `memberIntegrations.ts`는 그대로). 카드: 채널 2개 이상이면 「✅ 올릴 채널」 선택 칸, 바꾸면 상태 다시 확인, 업로드·썸네일 지정에 같은 채널.
 - 검수: tsc, 배포 Ready 2회(정렬 수정 포함), DB v1.24. 크롬(관리자 계정): 곡 3개 넣고 셋째곡을 맨 위로 끌기 → 「셋째곡·첫째곡·둘째곡」. 내보내기 화면 선택 칸 2개(공동구매 아카데미 / BUYLIFE ACADEMY…) 전환 → 상태 ok, 다른 채널 조회 뒤에도 순서·기본 채널 그대로. 실제 업로드는 v1.22에서 확인해 이번엔 하지 않음. 비용: Vercel 빌드 2회.
 
+## 2026-10-21 v1.25 — 휴대폰 폭 곡 목록 이름 두 줄 (Claude Code 윈도우)
+- 주인님 제안 2번(「위·아래 버튼으로도 순서 바꾸기」) 확인 결과: **▲▼ 버튼(`moveTrack`)은 이미 있었음**(지난 보고의 제안이 잘못됨). 크롬에서 ▼·▲ 동작과 390px 폭에서 28×28px 버튼 표시를 확인.
+- 대신 찾은 문제: 390px 폭에서 곡 이름이 「아주…」로 잘리고 「재생 시간: 00:01」이 세 줄로 갈라져 어떤 곡인지 알기 어려움 → `MediaCenter.tsx` 곡 줄: 휴대폰 폭에서 번호 칸 숨김, 이름 두 줄(`line-clamp-2`), 시간은 숫자만. 데스크톱은 그대로.
+- 검수: tsc·시험 23개, 배포 Ready, DB v1.25, 크롬 390px 화면에서 이름 두 줄·버튼 표시 확인. 비용: Vercel 빌드 1회.

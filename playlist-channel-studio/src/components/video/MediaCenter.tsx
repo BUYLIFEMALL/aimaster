@@ -337,17 +337,18 @@ export function MediaCenter({
                     onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
                     className={`p-3.5 flex items-center justify-between hover:bg-[#212121] transition-colors ${dragIdx === idx ? "opacity-40" : ""} ${overIdx === idx && dragIdx !== null && dragIdx !== idx ? "bg-[#2a1515] outline outline-1 outline-[#ff0000]/60" : ""}`}
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1 pr-4">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 pr-2 sm:pr-4">
                       <GripVertical className="w-4 h-4 shrink-0 text-[#555] cursor-grab active:cursor-grabbing" aria-label="끌어서 순서 바꾸기" />
-                      <span className="w-6 text-center text-xs font-mono font-bold text-[#777777]">
+                      {/* v1.25 휴대폰 폭에서는 번호 칸을 숨기고 곡 이름을 두 줄까지 보여 준다(이름이 「아주…」로 잘려 어떤 곡인지 알 수 없었음) */}
+                      <span className="hidden sm:inline w-6 text-center text-xs font-mono font-bold text-[#777777]">
                         {(idx + 1).toString().padStart(2, '0')}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white truncate">
+                        <p className="text-xs font-bold text-white line-clamp-2 break-all sm:truncate sm:break-normal">
                           {track.name}
                         </p>
                         <p className="text-[10px] text-[#aaaaaa] mt-0.5 font-mono">
-                          재생 시간: {formatTime(track.duration)}
+                          <span className="hidden sm:inline">재생 시간: </span>{formatTime(track.duration)}
                           {track.lyrics?.length ? <span className="ml-2 text-cyan-300">· 가사 {track.lyrics.length}줄</span> : null}
                         </p>
                       </div>
