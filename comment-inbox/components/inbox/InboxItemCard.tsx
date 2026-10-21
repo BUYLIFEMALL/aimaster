@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { approveInboxItemAction, skipInboxItemAction } from "@/lib/actions/inbox";
 import { Avatar } from "@/components/ui/StudioHeader";
 import { formatDateTimeKo } from "@/lib/formatDate";
@@ -48,6 +48,10 @@ export const InboxItemCard = forwardRef<InboxItemHandle, Props>(function InboxIt
   const [text, setText] = useState(item.draft ?? "");
   const [busy, setBusy] = useState<"post" | "skip" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // v1.03 휴대폰: 접힌 카드를 왼쪽으로 밀면 건너뛰기(100px 넘게 밀어야 동작, 세로 스크롤과 구분)
+  const SWIPE_SKIP_PX = 100;
+  const swipe = useRef<{ x: number; y: number; horizontal: boolean | null } | null>(null);
+  const [dragX, setDragX] = useState(0);
   const chip = PLATFORM_CHIP[item.platform];
   const dmExpired = item.platform === "ig_dm" && item.dmLeftMs == null;
 
@@ -79,10 +83,37 @@ export const InboxItemCard = forwardRef<InboxItemHandle, Props>(function InboxIt
   }));
 
   return (
+    <div className="relative">
+      {dragX < 0 && (
+        <div className="absolute inset-0 flex items-center justify-end rounded-2xl bg-ig-danger/15 pr-5 text-xs font-bold text-ig-danger">
+          {dragX <= -SWIPE_SKIP_PX ? "놓으면 건너뛰기" : "← 밀어서 건너뛰기"}
+        </div>
+      )}
     <article
       onClick={onFocus}
+      onTouchStart={(e) => {
+        if (open || busy) return;
+        const t = e.touches[0];
+        swipe.current = { x: t.clientX, y: t.clientY, horizontal: null };
+      }}
+      onTouchMove={(e) => {
+        const s = swipe.current;
+        if (!s) return;
+        const t = e.touches[0];
+        const dx = t.clientX - s.x;
+        const dy = t.clientY - s.y;
+        if (s.horizontal === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) s.horizontal = Math.abs(dx) > Math.abs(dy);
+        if (s.horizontal) setDragX(Math.min(0, dx));
+      }}
+      onTouchEnd={() => {
+        const passed = dragX <= -SWIPE_SKIP_PX;
+        swipe.current = null;
+        setDragX(0);
+        if (passed) void run("skip");
+      }}
+      style={dragX ? { transform: `translateX(${dragX}px)` } : undefined}
       data-inbox-card
-      className={`ig-card scroll-mt-24 p-4 transition-shadow ${focused ? "ring-2 ring-pink-500/60" : ""}`}
+      className={`ig-card relative scroll-mt-24 p-4 ${dragX ? "" : "transition-transform"} ${focused ? "ring-2 ring-pink-500/60" : ""}`}
     >
       <div className="flex gap-3">
         <Avatar name={item.avatarName} size={36} />
@@ -183,5 +214,6 @@ export const InboxItemCard = forwardRef<InboxItemHandle, Props>(function InboxIt
         </a>
       </div>
     </article>
+    </div>
   );
 });
