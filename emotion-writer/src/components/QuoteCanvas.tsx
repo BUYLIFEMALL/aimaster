@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { renderQuote, canvasBlob } from "@/lib/studio/render";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
-import { Download, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { instaPostLink, instaRatioOk } from "@/lib/instaHandoff";
 
 export function QuoteCanvas({
   image,
@@ -85,6 +87,32 @@ export function QuoteCanvas({
     }
   }
 
+  // v1.17: INSTA 포스팅으로 보내기 — INSTA 「직접 첨부」와 같은 본인 폴더에 JPG로 올린 뒤 새 글 화면을 연다
+  async function sendToInsta() {
+    if (!canvas.current || !ready || busy || saving || !instaRatioOk(ratio)) return;
+    setSaving(true);
+    setNotice("");
+    const win = window.open("about:blank", "_blank");
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("로그인이 필요합니다. 다시 로그인해 주세요.");
+      const blob = await canvasBlob(canvas.current, "jpeg");
+      const path = `${user.id}/${crypto.randomUUID()}.jpg`;
+      const { error } = await supabase.storage.from("insta-post-images").upload(path, blob, { contentType: "image/jpeg", upsert: false });
+      if (error) throw new Error(`이미지를 올리지 못했습니다: ${error.message}`);
+      const url = supabase.storage.from("insta-post-images").getPublicUrl(path).data.publicUrl;
+      const target = instaPostLink(url, quote);
+      if (win) win.location.href = target; else window.location.href = target;
+      setNotice("INSTA 포스팅 새 글 화면을 열었습니다. 내용을 확인하고 저장하거나 게시하세요.");
+    } catch (e) {
+      win?.close();
+      setNotice(e instanceof Error ? e.message : "인스타로 보내지 못했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <>
       <div
@@ -152,7 +180,19 @@ export function QuoteCanvas({
           <Download size={16} />
           <span>JPG 저장</span>
         </button>
+        <button
+          className="flex items-center justify-center gap-2"
+          disabled={!ready || busy || saving || !instaRatioOk(ratio)}
+          onClick={() => void sendToInsta()}
+          title={instaRatioOk(ratio) ? "INSTA 포스팅 새 글로 보내기(이미지 + 글귀 캡션)" : "인스타 피드는 1:1 비율만 올릴 수 있어요"}
+        >
+          <Send size={16} />
+          <span>인스타에 올리기</span>
+        </button>
       </div>
+      {!instaRatioOk(ratio) && ready && (
+        <p className="status-note centered">인스타에 올리려면 비율을 1:1로 바꿔 주세요(인스타 피드는 9:16·3:4 세로 비율을 받지 않습니다).</p>
+      )}
 
       {notice && (
         <p role="status" className="status-note centered">

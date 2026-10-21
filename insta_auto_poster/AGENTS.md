@@ -249,3 +249,7 @@
 
 ## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - src/components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+## 2026-10-22 v1.47 — 다른 프로그램이 넘긴 첨부 이미지 받기(감성 글귀 이미지) (Claude Code 윈도우, 이미지 재비교 L6)
+- `posts/new?imageUrl=`: 새 `src/lib/importImage.ts`(`acceptImportImage`)가 서버 페이지에서 **로그인한 회원 본인 폴더**(`insta-post-images/<본인 ID>/<이름>.jpg|png|webp`, 쿼리 없는 우리 Supabase 공개 주소)인지 검사 → `PostForm`의 새 `initialImageUrl`로 첫 슬라이드에 넣음. 캡션은 기존 `?caption=`. 캡션 + 이미지가 있으면 기존 「AI 없이 그대로 저장」(`readyWithoutAi`) 경로.
+- 검수: tsc 0, 새 `npm run test:import` 2개·기존 `test:cardnews` 52개, build, 배포 `insta-auto-poster-mzzxbulqe` Ready(운영 `auto-instagram-posting.buylife.xyz`), DB v1.47. 크롬(시험 회원): 본인 폴더 시험 그림(1080×1080) + 캡션으로 새 글 화면 → 첫 슬라이드·캡션 채워짐 확인, [게시물 생성하기]는 안 누름, 시험 그림 삭제.

@@ -69,6 +69,8 @@ interface PostFormProps {
   initialPostType?: InstaPostType;
   initialCaption?: string;
   initialHashtags?: string[];
+  /** v1.47: 다른 프로그램이 넘긴 첨부 이미지(서버 페이지가 본인 폴더인지 검사함) — 첫 슬라이드로 넣는다 */
+  initialImageUrl?: string;
   initialScheduledAtLocal?: string;
   initialPublishMode?: PublishMode;
   hasInstagramAccount: boolean;
@@ -88,6 +90,7 @@ export function PostForm({
   initialPostType = "feed",
   initialCaption = "",
   initialHashtags = [],
+  initialImageUrl,
   initialScheduledAtLocal = "",
   initialPublishMode = "draft",
   hasInstagramAccount,
@@ -156,7 +159,9 @@ export function PostForm({
   const [geminiApiKey, setGeminiApiKey] = useState("");
 
   // 카드뉴스는 4개, 피드는 1개 슬라이드를 관리한다 (insta_post_slides 1행 = 1슬라이드와 동일 개념).
-  const [slides, setSlides] = useState<SlideDraft[]>([]);
+  const [slides, setSlides] = useState<SlideDraft[]>(
+    initialImageUrl ? [{ imagePrompt: "", imageUrl: initialImageUrl, imageUrls: [initialImageUrl] }] : [],
+  );
   const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
   const [, startRegenerating] = useTransition();
 

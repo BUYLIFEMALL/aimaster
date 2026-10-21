@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:own-meta": "node scripts/test-own-meta-app.cjs",
+    "test:import": "node --import tsx --test tests/importImage.test.mjs",
     "test:cardnews": "node --import tsx --test tests/cardnews/cardnews.test.mjs tests/cardnews/access.test.mjs tests/cardnews/remake.test.mjs tests/cardnews/imageFileCheck.test.mjs tests/cardnews/schedule.test.mjs"
   },
   "dependencies": {

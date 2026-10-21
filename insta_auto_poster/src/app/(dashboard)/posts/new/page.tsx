@@ -4,6 +4,7 @@ import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import { PostForm } from "@/components/posts/PostForm";
 import { createPostAction } from "@/lib/actions/posts";
 import { getRegisteredProviders } from "@/lib/apiKeys";
+import { acceptImportImage } from "@/lib/importImage";
 
 // "즉시 게시" 선택 시 이 페이지의 서버 액션(createPostAction)이 publishPost()까지 호출한다.
 // 카드뉴스(캐러셀, 최대 4장)는 이미지마다 컨테이너 생성+FINISHED 대기를 반복해 기본 실행
@@ -19,6 +20,8 @@ interface NewPostPageProps {
     hashtags?: string;
     // v1.28: 다른 프로그램(4컷 만화)에서 카드뉴스로 넘길 때 형식을 미리 고른다
     postType?: string;
+    // v1.47: 감성 글귀 이미지 「인스타에 올리기」 — 회원 본인 폴더(insta-post-images/<본인>/)에 올린 첨부 이미지
+    imageUrl?: string;
   }>;
 }
 
@@ -49,6 +52,8 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     }
   }
 
+  const importedImageUrl = acceptImportImage(sp.imageUrl, user.id, process.env.NEXT_PUBLIC_SUPABASE_URL);
+
   const account = await getInstaAccountForUser(supabase, user.id);
 
   const registeredProviders = await getRegisteredProviders(supabase, user.id);
@@ -67,6 +72,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         initialKeywords={loadedKeywords}
         initialCaption={loadedCaption}
         initialHashtags={loadedHashtags}
+        initialImageUrl={importedImageUrl ?? undefined}
       />
     </div>
   );

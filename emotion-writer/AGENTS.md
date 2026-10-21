@@ -113,3 +113,9 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-22 v1.17 — 「인스타에 올리기」 → INSTA 포스팅 새 글 (Claude Code 윈도우, 이미지 재비교 L6)
+- `QuoteCanvas.tsx` [JPG 저장] 옆 버튼: 완성 이미지를 JPG로 만들어 브라우저에서 **INSTA 「직접 첨부」와 같은 위치**(공개 버킷 `insta-post-images/<본인 ID>/<uuid>.jpg`, 버킷 RLS가 본인 폴더만 허용)에 올린 뒤 `https://auto-instagram-posting.buylife.xyz/posts/new?imageUrl=&caption=<글귀>&postType=feed`를 새 창으로 엶. 새 버킷·DB 변경·서버 경로 없음(처음 계획한 임시 버킷 대신 기존 위치 재사용).
+- 인스타 피드 비율(4:5~1.91:1) 때문에 **1:1에서만** 누를 수 있음 — 9:16·3:4는 「1:1로 바꿔 주세요」 안내. 주소 함수 `src/lib/instaHandoff.ts`.
+- 검수: tsc 0, 시험 22개(새 `tests/instaHandoff.test.mjs`), build, 배포 `emotion-writer-rgtkgnhhg` Ready, DB v1.17. 받는 쪽은 시험 그림으로 크롬 확인(아래 INSTA v1.47). 버튼에서 실제 업로드는 글귀·배경 생성이 필요해 이번엔 생략 — INSTA 직접 첨부(`uploadImageDirect`)와 같은 업로드 방식.
+- 알아 둘 점: 보낸 뒤 INSTA에서 게시하지 않으면 이미지가 버킷에 남음(INSTA 직접 첨부와 같은 동작) — INSTA 쪽 미사용 첨부 정리는 별도 검토 후보.

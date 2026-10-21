@@ -156,6 +156,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L6: 감성 글귀 → INSTA 포스팅 새 글 (감성 글귀 v1.17 · INSTA v1.47)
+- 감성 글귀 「인스타에 올리기」(1:1만 — 피드 비율): 완성 JPG를 INSTA 직접 첨부와 같은 `insta-post-images/<본인>/`에 올리고 INSTA 새 글(`?imageUrl=&caption=`)로. INSTA는 본인 폴더 이미지만 첫 슬라이드로 받음. 처음 계획한 임시 버킷 대신 기존 위치를 써 **DB 변경 없음**. 배포 2건 Ready·DB 반영, 크롬 확인·시험 그림 삭제.
+- 비용: Vercel 빌드 2회, AI 0원. **L 단계(L2~L6) 완료** — 남은 L1(받기 검사 공용화 검토)·이미지 스튜디오 쪽 연결(다른 세션 뒤). 다음: F 단계.
+- 프로그램: https://emotion-writer.buylife.xyz · https://auto-instagram-posting.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L5: 바나나 → 시네마틱 스토리보드 (스토리보드 v1.11 · 바나나 v1.17)
 - 바나나 결과에 「🎬 스토리보드로」, 스토리보드가 `?src=`(바나나 서명 주소)를 참고 이미지로 받음. 배포 2건 Ready·DB 반영, 크롬 확인·시험 그림 삭제. 이미지 스튜디오 쪽은 다른 세션 작업 뒤.
 - 비용: Vercel 빌드 2회, AI 0원. 다음: L6 감성 글귀 → INSTA 포스팅(임시 업로드 경로 필요).
