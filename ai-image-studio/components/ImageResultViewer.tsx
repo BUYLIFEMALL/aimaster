@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Copy, Check, Maximize2, X, Sparkles } from "lucide-react";
+import { Download, Copy, Check, Maximize2, X, Sparkles, Wand2 } from "lucide-react";
+import { bananaEditUrl } from "@/lib/bananaLink";
 
 interface ImageResultViewerProps {
   imageUrl: string;
@@ -69,6 +70,18 @@ export function ImageResultViewer({
             <Download className="h-3.5 w-3.5" />
             이미지 다운로드
           </button>
+          {bananaEditUrl(imageUrl) && (
+            <a
+              href={bananaEditUrl(imageUrl)!}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs font-bold text-zinc-950 bg-amber-400 hover:bg-amber-300 px-3.5 py-1.5 rounded-lg transition-colors shadow-sm"
+              title="바나나 캔버스에서 이 이미지를 원본으로 편집합니다"
+            >
+              <Wand2 className="h-3.5 w-3.5" />
+              바나나 캔버스로 보내 편집
+            </a>
+          )}
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 {
   "name": "image-convert-studio",
-  "version": "1.07.0",
+  "version": "1.09.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

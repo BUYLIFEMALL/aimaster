@@ -183,3 +183,7 @@
 - 운영 DB: 버킷 `public=false`, `programs.version='v1.23'`(기록 `supabase/migrations/20261021_v1_23_private_bucket.sql`, 서버 키 스크립트로 적용).
 - 검수: tsc·build·시험 34개 통과, 배포 Ready, 정리 주소 비밀값 없음 401, 옛 공개 주소 400·서명 주소 200, 크롬 일반 회원 갤러리 기존 3장 + 새 1장 모두 서명 주소로 표시·다운로드 방식(fetch→blob) 200. 새 저장 경로 확인용 생성 1회(`gemini-3.1-flash-lite-image` 1K, 시험 계정 본인 키, 약 $0.034).
 - 남은 일: 정상 비밀값으로 cron 실제 실행은 첫 예약 실행(다음 날 03:00 KST) 뒤 Vercel 로그로 확인. 미사용 표 `user_image_generations`(0012)·함수(0014)는 그대로 둠(정리 여부는 다음 작업). 회원이 밖에 붙여 둔 옛 공개 이미지 링크는 열리지 않음(승인된 영향).
+
+## 2026-10-21 v1.24 — 「바나나 캔버스로 보내 편집」 버튼 (Claude Code 윈도우)
+- `lib/bananaLink.ts`: 결과 주소가 우리 저장소(`ai-image-generations`) 서명 주소일 때만 `https://banana-canvas.buylife.xyz/studio?import=<서명 주소>` 링크를 만듦(공급사 주소로 남은 옛 기록은 버튼 없음). 결과 화면(`ImageResultViewer`)·갤러리 카드(🍌)·크게 보기 창에 새 창 링크. 바나나 캔버스 `api/import`가 본인 폴더만 받아 원본으로 넣음(banana-canvas v1.14).
+- 검수: tsc·시험 34개·build, 배포 Ready, DB v1.24. 크롬(관리자 계정, 본인 키) 1장 생성(`gemini-3.1-flash-lite-image`) → 갤러리 🍌 링크 → 바나나 캔버스 원본으로 들어옴 확인.

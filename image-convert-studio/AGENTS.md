@@ -105,3 +105,7 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.09 — 바나나 캔버스 「형식 바꾸기」로 넘어온 이미지 자동 추가 (Claude Code 윈도우)
+- `/convert?src=<서명 주소>`: 우리 Supabase 저장소의 바나나 캔버스 결과 서명 주소(`/storage/v1/object/sign/banana-canvas-files/`)만 받아 브라우저에서 내려받아 목록에 넣음(다른 주소는 무시, 처리는 지금처럼 브라우저 안에서만). 받은 뒤 주소창에서 `?src=` 제거, 안내 문구 표시. 서명 주소는 1시간 뒤 만료 → 안내.
+- 검수: tsc·`npm test` 21개·build, 배포 Ready, DB v1.09(package.json 1.07.0 → 1.09.0으로 어긋남도 맞춤). 크롬에서 바나나 캔버스 이미지 주소로 열어 목록 자동 추가·안내 확인.

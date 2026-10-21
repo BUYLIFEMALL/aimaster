@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { bananaEditUrl } from "@/lib/bananaLink";
 import {
   History,
   Image as ImageIcon,
@@ -507,6 +508,18 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     >
                       <Download className="h-5 w-5" />
                     </button>
+                    {bananaEditUrl(item.image_url) && (
+                      <a
+                        href={bananaEditUrl(item.image_url)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-3 rounded-xl bg-zinc-950/90 text-white hover:bg-amber-400 hover:text-zinc-950 transition-colors border border-zinc-700"
+                        title="바나나 캔버스로 보내 편집"
+                        aria-label="바나나 캔버스로 보내 편집"
+                      >
+                        <span aria-hidden className="block h-5 w-5 text-center leading-5">🍌</span>
+                      </a>
+                    )}
                     <button
                       onClick={() => handleDelete(item.id)}
                       disabled={deletingId === item.id}
@@ -666,6 +679,18 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     <Download className="h-4 w-4" />
                     <span>다운로드</span>
                   </button>
+
+                  {bananaEditUrl(activeModalItem.image_url) && (
+                    <a
+                      href={bananaEditUrl(activeModalItem.image_url)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-bold transition-colors border border-zinc-700 mt-1"
+                    >
+                      <span aria-hidden>🍌</span>
+                      <span>바나나 캔버스로 보내 편집</span>
+                    </a>
+                  )}
 
                   <button
                     onClick={() => handleUsePrompt(activeModalItem.prompt)}
