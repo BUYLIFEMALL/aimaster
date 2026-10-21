@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — UI Canvas v1.13: AI 컴포넌트 캔버스에 놓기·함수 이름
+
+병합 D 후속 2번. 저장한 AI 컴포넌트 [캔버스에 놓기] → 미리보기 상자, 코드 내보내기 때 import + 사용. 함수 이름 규칙 보완. 커밋 `1aebb14f`, 배포 Ready, DB v1.13, 크롬 검수 통과. 비용: Vercel 빌드 1회. 다음: 후속 3번(AI 랜딩페이지 → UI Canvas 보내기). 상세 `ui-canvas/AGENTS.md` v1.13.
+
+https://ui-canvas.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 새 프로그램 AI 가사영상 자동화 v1.01 공개 (`lyric-video-studio`)
 
 Lyricbi 분석(같은 날 보고서) 후 주인님 결정(새 프로그램·이 이름·1차부터·권한 부여 방식·2차에 음악(SUNO) 곡 카드 링크)대로 만들었습니다. 4단계(음악·가사 넣기 → 스페이스바 탭 싱크 → 가로 6·세로 4 프리셋·강조 7종 → 브라우저 1080p MP4) + 보관함(가사 시간표·디자인만, 30일 삭제). API 키 없음, 유료 호출 0회(썸네일 이미지 1회만). 운영 DB `esgxyikcnnvmlhygjkth`에 승인 후 크롬 SQL Editor로 적용: 프로그램 등록(음악·NEW·v1.01)·요금제 3·VIP 자동 부여 체크(권한 141건)·새 표 `lyric_video_items`(RLS 본인만)·`pg_cron` 30일 삭제. 공용 `browser-mp4-encoder` 사본 등록. 검수: 시험 6개·tsc·build 통과, 메인 크롬 일반 회원으로 운영 주소 흐름(메뉴 이동 후 상태 유지·가로 MP4 1920×1080 소리 포함·저장·다시 열기)·390px iframe. 다음 첫 단계: 2차(음악(SUNO) 곡 가져오기 + 시간 가사, `music/` 곡 카드 링크) — **`music/`은 2026-10-21 다른 Claude 세션이 음악 병합 M1 작업 중(ACTIVE_WORK)이라 그 작업이 끝난 뒤 시작**. 문서 `lyric-video-studio/AGENTS.md`, 플랜 `lyric-video-studio/docs/PLAN_20261021_V1_01.md`.

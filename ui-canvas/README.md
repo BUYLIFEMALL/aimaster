@@ -1,7 +1,7 @@
 # 🎨 UI Canvas 자동화 (ui-canvas)
 
 > **공식 서비스 URL**: https://ui-canvas.buylife.xyz  
-> **현재 버전**: `v1.12` (2026-10-21 반응형 코드 내보내기 추가 · 병합 D — 🧩 컴포넌트 갤러리·React + Tailwind 코드 내보내기·AI 컴포넌트 보관, 상세는 `AGENTS.md`)  
+> **현재 버전**: `v1.13` (2026-10-21 AI 컴포넌트 캔버스에 놓기·반응형 코드 내보내기 추가 · 병합 D — 🧩 컴포넌트 갤러리·React + Tailwind 코드 내보내기·AI 컴포넌트 보관, 상세는 `AGENTS.md`)  
 > **디자인 템플릿**: 크리에이티브 아틀리에 스타일 (`Creative Atelier Style — Canvas Pro Edition`)
 
 ---

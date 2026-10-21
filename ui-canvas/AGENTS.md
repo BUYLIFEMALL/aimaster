@@ -1,12 +1,20 @@
 # 🎨 UI Canvas 자동화 (ui-canvas) — AI 에이전트 인수인계서
 
 > **공식 서비스 URL**: https://ui-canvas.buylife.xyz  
-> **현재 버전**: `v1.12` (크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션, 2026-10-21 병합 D 갤러리·코드 내보내기 + 반응형 코드)  
+> **현재 버전**: `v1.13` (크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션, 2026-10-21 병합 D 갤러리·코드 내보내기 + 반응형 코드)  
 > **최근 갱신일**: 2026-10-19  
 > **표준 템플릿**: 크리에이티브 아틀리에 스타일 (`Creative Atelier Style — Canvas Pro Edition`, 딥 미드나잇 다크 네이비 `#0c0f17` + 슬레이트 다크 서피스 `#131824` + 일렉트릭 시안 블루 `#06b6d4` & 아티스틱 바이올렛 `#8b5cf6`)  
 > **참고 기준 문서**: 루트 `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`
 
 ---
+
+## 2026-10-21 Claude Code(윈도우) — 저장한 AI 컴포넌트를 캔버스에 놓기·코드 함수 이름 보완 (v1.13)
+- [</> 코드] → 「저장한 AI 컴포넌트」에 [캔버스에 놓기]: 보이는 화면 가운데에 「🧩 AI 컴포넌트」 상자(Misc, `props.snippetId`)를 놓는다. 코드 내보내기 때 그 자리에 `import 이름 from "./이름"` + `<이름 />`이 들어가고, 받기 파일 이름도 같은 이름(`snippetComponentName`: 코드의 export default 이름 → 없으면 제목). 저장한 컴포넌트를 지우면 상자는 설명 글로 내보낸다.
+- **미리보기 한계(보안)**: AI가 만든 코드를 회원 브라우저에서 실행하지 않으려고, 캔버스에서는 실제 화면 대신 제목 상자로만 보여 준다.
+- 함수 이름: 영문이 3자 미만이면 `CanvasScreen`, 아니면 영문 + `Screen`(이미 Screen·Page·View·Component로 끝나면 그대로).
+- 검수: 테스트 19개 → 배포 Ready → 크롬(일반 회원) 시험 프로젝트에서 놓기·import·`<CouponCard />`·함수 이름 `CanvasScreen`·자동 저장 뒤 상자+snippets 유지 확인, 시험 프로젝트 삭제. 비용: Vercel 빌드 1회, AI 호출 0회.
+- 커밋 `1aebb14f`, DB `programs.version=v1.13`.
+
 
 ## 2026-10-21 Claude Code(윈도우) — 반응형 코드 내보내기 (v1.12)
 - [</> 코드] 창에 「배치 방식」: **반응형(flex, 기본)** / 캔버스 그대로(절대 위치). 플랜 `docs/PLAN_20261021_CODE_EXPORT_FOLLOWUPS.md` 1번.
