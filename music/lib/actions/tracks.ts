@@ -434,9 +434,11 @@ export interface ExtendTrackState {
   needsApiKey?: string; // "suno"
 }
 
-// 연장은 원곡 끝에서 몇 초 앞선 지점부터 이어붙여야 한다(Suno 요구사항: continueAt이 0보다
-// 크고 전체 길이보다 작아야 함). 너무 끝쪽이면 오차로 범위를 벗어날 수 있어 3초 여유를 둔다.
-const EXTEND_TAIL_MARGIN_SECONDS = 3;
+// 연장은 원곡 끝에서 앞선 지점부터 이어붙여야 한다(Suno 요구사항: continueAt이 0보다 크고 전체 길이보다 작아야 함).
+// 2026-10-21 v1.30: 끝 3초 전(페이드아웃 구간)에서 이으면 V6가 "extending lyrics are empty, too short, or malformed"로
+// 매번 실패했다(4회). 같은 가사·같은 곡으로 곡 끝 30초 전(151/181초)에서 이으니 성공(2곡 223·234초) → 30초 여유를 둔다.
+// 1분 미만 곡은 절반 지점에서 잇는다.
+const EXTEND_TAIL_MARGIN_SECONDS = 30;
 const EXTEND_FALLBACK_DURATION_SECONDS = 180;
 
 /**
@@ -522,7 +524,10 @@ export async function extendTrackAction(variantId: string): Promise<ExtendTrackS
     }
 
     const baseDuration = variant.duration_seconds ?? EXTEND_FALLBACK_DURATION_SECONDS;
-    const continueAt = Math.max(1, baseDuration - EXTEND_TAIL_MARGIN_SECONDS);
+    const continueAt =
+      baseDuration > EXTEND_TAIL_MARGIN_SECONDS * 2
+        ? Math.round(baseDuration - EXTEND_TAIL_MARGIN_SECONDS)
+        : Math.max(1, Math.round(baseDuration / 2));
 
     const taskId = await requestSunoExtend(
       {

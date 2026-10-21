@@ -191,7 +191,7 @@ export function MusicUsageGuide() {
                 <span className="text-base mb-1 block">⏩</span>
                 <p className="font-bold text-white mb-1">곡 연장 (Extend)</p>
                 <p className="text-zinc-400 leading-relaxed">
-                  원하는 초(초 단위 지정) 지점부터 자연스럽게 다음 파트를 이어서 작곡·연장합니다.
+                  곡 끝 30초 전 지점부터 AI가 만든 새 가사(브릿지·마지막 후렴·아웃트로)로 다음 파트를 이어서 작곡·연장합니다.
                 </p>
               </div>
               <div className="p-3.5 rounded-xl bg-[#181822] border border-[#272736]">

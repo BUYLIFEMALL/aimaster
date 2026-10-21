@@ -3,24 +3,16 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { SunoUsageGuide } from "@/components/guide/SunoUsageGuide";
-import type { PlanningStatus } from "@/types/database.types";
 import { RetentionNotice } from "@/components/RetentionBadge";
+import { PlanningListWithPicker } from "@/components/plannings/PlanningListWithPicker";
 
 export const dynamic = "force-dynamic";
-
-const STATUS_BADGE: Record<PlanningStatus, { label: string; className: string }> = {
-  draft: { label: "초안", className: "bg-[#20202e] text-zinc-400 border border-[#2b2b3d]" },
-  planned: { label: "기획 완료", className: "bg-blue-500/15 text-blue-400 border border-blue-500/30" },
-  generating: { label: "생성 중...", className: "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse" },
-  completed: { label: "완료", className: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" },
-  error: { label: "오류", className: "bg-rose-500/15 text-rose-400 border border-rose-500/30" },
-};
 
 export default async function PlanningsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: plannings }, { data: program }] = await Promise.all([
+  const [{ data: plannings }, { data: program }, { data: doneTracks }] = await Promise.all([
     supabase
       .from("music_plannings")
       .select("id, title, song_description, status, created_at")
@@ -32,7 +24,19 @@ export default async function PlanningsPage() {
       .select("description, short_desc")
       .eq("slug", "music-automation")
       .maybeSingle() as Promise<{ data: { description: string | null; short_desc: string | null } | null }>,
+    // v1.30 기획별 완성 곡(곡마다 첫 변주) — 여러 기획을 골라 플레이리스트로 넘길 때 쓴다. 관계가 2개라 !track_id 지정
+    supabase
+      .from("music_tracks")
+      .select("planning_id, created_at, music_track_variants!track_id(id)")
+      .eq("user_id", user.id)
+      .eq("status", "completed")
+      .order("created_at", { ascending: true }),
   ]);
+  const songsByPlanning = new Map<string, string[]>();
+  for (const t of (doneTracks ?? []) as unknown as { planning_id: string; music_track_variants: { id: string }[] }[]) {
+    const first = t.music_track_variants?.[0]?.id;
+    if (first) songsByPlanning.set(t.planning_id, [...(songsByPlanning.get(t.planning_id) ?? []), first]);
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
@@ -93,39 +97,7 @@ export default async function PlanningsPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
-          {plannings.map((planning) => {
-            const badge = STATUS_BADGE[planning.status];
-            return (
-              <Link
-                key={planning.id}
-                href={`/plannings/${planning.id}`}
-                className="group relative block rounded-2xl border border-[#272732] bg-[#14141b] p-4 sm:p-5 shadow-lg shadow-black/30 hover:border-orange-500/50 hover:bg-[#181824] transition-all duration-200 overflow-hidden"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-bold text-sm sm:text-base text-zinc-100 group-hover:text-orange-400 transition-colors truncate">
-                        {planning.title ?? "(제목 생성 전)"}
-                      </p>
-                    </div>
-                    <p className="text-xs text-zinc-400 truncate leading-relaxed">
-                      {planning.song_description}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
-                      {badge.label}
-                    </span>
-                    <span className="text-zinc-600 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all text-xs font-bold">
-                      →
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        <PlanningListWithPicker plannings={plannings.map((p) => ({ ...p, songIds: songsByPlanning.get(p.id) ?? [] }))} />
       )}
     </div>
   );
