@@ -127,6 +127,10 @@ export default async function DashboardPage() {
         <Link href="/guide" className="th-btn">
           📖 매뉴얼
         </Link>
+        {/* v1.21: 인스타·유튜브 댓글까지 한곳에서 — AI 댓글·DM 통합 받은편지함(comment-inbox) */}
+        <a href="https://comment-inbox.buylife.xyz" target="_blank" rel="noreferrer" className="th-btn">
+          📥 통합 받은편지함에서 보기 ↗
+        </a>
       </StudioHeader>
 
       {/* 계정 배너 */}

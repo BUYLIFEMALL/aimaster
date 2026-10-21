@@ -55,12 +55,27 @@ export async function postDmReplyForUser(
     .eq("user_id", userId)
     .maybeSingle();
 
+  // 2026-10-21 이중 게시 방지: 실제 게시 직전에 replied_at을 「처리 중 표시」로 조건부 선점한다.
+  // 웹 화면·텔레그램·자동 게시·통합 받은편지함(comment-inbox)이 같은 항목을 동시에 승인해도 선점에 성공한 한 요청만 게시한다.
+  // 성공하면 status=posted·replied_at=게시 시각, 실패하면 표시를 지워 다시 시도할 수 있다. 2분 넘은 표시는 멈춘 요청으로 보고 다시 선점을 허용한다.
+  const claimCutoff = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+  const { data: claimed } = await supabase
+    .from("dm_messages")
+    .update({ replied_at: new Date().toISOString() })
+    .eq("id", messageId)
+    .eq("user_id", userId)
+    .neq("status", "posted")
+    .or(`replied_at.is.null,replied_at.lt.${claimCutoff}`)
+    .select("id");
+  if (!claimed?.length) return { error: "다른 화면에서 이미 처리 중이거나 처리된 답장입니다. 잠시 후 새로고침해주세요." };
+
   try {
     const accessToken = await getValidInstagramAccessToken(supabase, userId, account);
 
     if (!conversation.disclosure_sent_at) {
       const disclosureText = settings?.disclosure_message?.trim();
       if (!disclosureText) {
+        await supabase.from("dm_messages").update({ replied_at: null }).eq("id", messageId); // 선점 해제(아직 아무것도 보내지 않음)
         return { error: "고지 문구가 설정되어 있지 않습니다. 설정 페이지에서 자동 응답 고지 문구를 먼저 등록해주세요." };
       }
       await sendInstagramDirectMessage(accessToken, account.instagram_user_id, conversation.ig_scoped_id, disclosureText);
@@ -85,7 +100,7 @@ export async function postDmReplyForUser(
     return { success: true };
   } catch (err) {
     const message2 = err instanceof Error ? err.message : "DM 발송 중 오류가 발생했습니다.";
-    await supabase.from("dm_messages").update({ status: "failed" }).eq("id", messageId);
+    await supabase.from("dm_messages").update({ status: "failed", replied_at: null }).eq("id", messageId);
     if (message2 === "INSTAGRAM_RECONNECT_REQUIRED") {
       return { error: "인스타그램 계정 연결이 만료되었습니다. 설정 페이지에서 다시 연결해주세요." };
     }

@@ -192,6 +192,15 @@ export default async function DashboardPage() {
           <Link href="/dm/conversations" className="rounded-xl border border-ig-border bg-ig-bg px-4 py-2 text-sm font-bold text-ig-text hover:bg-ig-raised">
             💌 DM 검토하기{dmPending > 0 ? ` (${dmPending})` : ""}
           </Link>
+          {/* v1.32: 쓰레드·유튜브 댓글까지 한곳에서 — AI 댓글·DM 통합 받은편지함(comment-inbox) */}
+          <a
+            href="https://comment-inbox.buylife.xyz"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-xl border border-ig-border bg-ig-bg px-4 py-2 text-sm font-bold text-ig-text hover:bg-ig-raised"
+          >
+            📥 통합 받은편지함에서 보기 ↗
+          </a>
         </div>
       </div>
 

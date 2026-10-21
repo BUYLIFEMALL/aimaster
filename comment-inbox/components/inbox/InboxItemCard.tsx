@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { approveInboxItemAction, skipInboxItemAction } from "@/lib/actions/inbox";
 import { Avatar } from "@/components/ui/StudioHeader";
 import { formatDateTimeKo } from "@/lib/formatDate";
@@ -29,9 +28,23 @@ function DmWindowBadge({ leftMs }: { leftMs: number | null | undefined }) {
   );
 }
 
-export function InboxItemCard({ item }: { item: InboxItem }) {
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
+/** 목록(InboxList)이 키보드 단축키로 부르는 동작 */
+export type InboxItemHandle = { approve: () => void; skip: () => void };
+
+type Props = {
+  item: InboxItem;
+  open: boolean;
+  focused: boolean;
+  onOpenChange: (open: boolean) => void;
+  onFocus: () => void;
+  /** 승인·건너뛰기에 성공했을 때(목록이 새로고침하고 다음 항목을 펼친다) */
+  onDone: () => void;
+};
+
+export const InboxItemCard = forwardRef<InboxItemHandle, Props>(function InboxItemCard(
+  { item, open, focused, onOpenChange, onFocus, onDone },
+  ref,
+) {
   const [text, setText] = useState(item.draft ?? "");
   const [busy, setBusy] = useState<"post" | "skip" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -39,12 +52,18 @@ export function InboxItemCard({ item }: { item: InboxItem }) {
   const dmExpired = item.platform === "ig_dm" && item.dmLeftMs == null;
 
   async function run(kind: "post" | "skip") {
+    if (busy) return;
+    if (kind === "post" && !text.trim()) {
+      onOpenChange(true);
+      setError("보낼 내용을 입력해주세요.");
+      return;
+    }
     setError(null);
     setBusy(kind);
     try {
       const result = kind === "post" ? await approveInboxItemAction(item.platform, item.id, text) : await skipInboxItemAction(item.platform, item.id);
       if (result.error) setError(result.error);
-      else router.refresh();
+      else onDone();
     } catch (err) {
       // 배포 직후처럼 이전 빌드 화면이면 서버 동작 호출이 실패할 수 있어 새로고침을 안내한다(원래 프로그램과 같은 처리)
       setError(err instanceof Error ? `${err.message} (페이지를 새로고침한 뒤 다시 시도해주세요)` : "처리하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.");
@@ -53,8 +72,18 @@ export function InboxItemCard({ item }: { item: InboxItem }) {
     }
   }
 
+  // 단축키 A(승인)는 펼쳐서 초안을 본 뒤에만 — 펼치지 않은 항목은 먼저 펼친다(실제 공개 게시라 내용을 보지 않고 보내지 않게)
+  useImperativeHandle(ref, () => ({
+    approve: () => (open ? void run("post") : onOpenChange(true)),
+    skip: () => void run("skip"),
+  }));
+
   return (
-    <article className="ig-card p-4">
+    <article
+      onClick={onFocus}
+      data-inbox-card
+      className={`ig-card scroll-mt-24 p-4 transition-shadow ${focused ? "ring-2 ring-pink-500/60" : ""}`}
+    >
       <div className="flex gap-3">
         <Avatar name={item.avatarName} size={36} />
         <div className="min-w-0 flex-1">
@@ -80,19 +109,27 @@ export function InboxItemCard({ item }: { item: InboxItem }) {
       {open && (
         <div className="mt-3 space-y-2 border-t border-ig-border pt-3">
           <label className="block text-xs font-semibold text-ig-muted">
-            {item.platform === "ig_dm" ? "보낼 DM 답장" : "게시할 답글"} (AI 초안 — 고쳐서 보낼 수 있어요)
+            {item.platform === "ig_dm" ? "보낼 DM 답장" : "게시할 답글"} (AI 초안 — 고쳐서 보낼 수 있어요 · Ctrl+Enter 승인)
           </label>
           <textarea
             value={text}
+            autoFocus
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                void run("post");
+              } else if (e.key === "Escape") {
+                // 입력칸에서 빠져나와 J/K·A·S 단축키를 다시 쓸 수 있게
+                (e.target as HTMLTextAreaElement).blur();
+              }
+            }}
             rows={4}
             className="w-full rounded-xl border border-ig-border bg-ig-bg p-3 text-sm text-ig-text placeholder:text-ig-muted focus:border-[#ec4899] focus:outline-none focus:ring-1 focus:ring-[#ec4899]/20"
             placeholder={item.draft ? "" : "AI 초안이 없어요. 직접 입력해주세요."}
           />
           {dmExpired && (
-            <p className="text-[11px] text-ig-warn">
-              고객의 마지막 메시지로부터 24시간이 지나 인스타그램 정책상 일반 답장을 보낼 수 없을 수 있어요.
-            </p>
+            <p className="text-[11px] text-ig-warn">고객의 마지막 메시지로부터 24시간이 지나 인스타그램 정책상 일반 답장을 보낼 수 없을 수 있어요.</p>
           )}
         </div>
       )}
@@ -112,7 +149,7 @@ export function InboxItemCard({ item }: { item: InboxItem }) {
             </button>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
               disabled={busy !== null}
               className="min-h-[40px] rounded-xl border border-ig-border bg-ig-bg px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-ig-raised"
             >
@@ -122,7 +159,7 @@ export function InboxItemCard({ item }: { item: InboxItem }) {
         ) : (
           <button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={() => onOpenChange(true)}
             className="min-h-[40px] rounded-xl bg-ig-primary px-4 py-2 text-sm font-bold text-white hover:bg-ig-primary-hover"
           >
             ✍️ 답장 쓰기
@@ -147,4 +184,4 @@ export function InboxItemCard({ item }: { item: InboxItem }) {
       </div>
     </article>
   );
-}
+});

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { loadInbox, loadSourceAccess, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
-import { InboxItemCard } from "@/components/inbox/InboxItemCard";
+import { InboxList } from "@/components/inbox/InboxList";
 import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -70,11 +70,7 @@ export default async function InboxPage({ searchParams }: { searchParams: { p?: 
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {items.map((item) => (
-            <InboxItemCard key={`${item.platform}-${item.id}`} item={item} />
-          ))}
-        </div>
+        <InboxList items={items} />
       )}
     </div>
   );

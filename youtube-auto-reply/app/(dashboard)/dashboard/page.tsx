@@ -123,6 +123,10 @@ export default async function DashboardPage() {
         <Link href="/guide" className="yt-btn">
           📖 매뉴얼
         </Link>
+        {/* v1.26: 인스타·쓰레드 댓글까지 한곳에서 — AI 댓글·DM 통합 받은편지함(comment-inbox) */}
+        <a href="https://comment-inbox.buylife.xyz" target="_blank" rel="noreferrer" className="yt-btn">
+          📥 통합 받은편지함에서 보기 ↗
+        </a>
       </StudioHeader>
 
       {/* 채널 배너 */}
