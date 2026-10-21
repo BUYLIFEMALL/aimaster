@@ -3,6 +3,7 @@
 import React from "react";
 import type { AnalysisRecord, Fact } from "@/lib/dna/types";
 import { CopyButton } from "./ui";
+import { imageStudioLink } from "@/lib/dna/studioLink";
 
 interface StudioReportViewProps {
   record: AnalysisRecord;
@@ -139,7 +140,21 @@ export function StudioReportView({ record, isDark = false }: StudioReportViewPro
               </span>
             )}
           </div>
-          <CopyButton text={r.masterPromptEn} />
+          <div className="flex items-center gap-2">
+            {imageStudioLink(r.masterPromptEn) && (
+              <a
+                href={imageStudioLink(r.masterPromptEn)!}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="이 프롬프트를 AI 이미지 스튜디오 프롬프트 칸에 채워 엽니다 — 엔진·모델을 고른 뒤 직접 [생성]을 누르세요"
+                className="inline-flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[11px] font-bold text-amber-300 hover:bg-amber-500/20 transition"
+              >
+                <span aria-hidden>🎨</span>
+                <span>이미지 스튜디오에서 생성</span>
+              </a>
+            )}
+            <CopyButton text={r.masterPromptEn} />
+          </div>
         </div>
         <p className="p-4 text-xs font-mono leading-relaxed whitespace-pre-wrap select-all text-slate-200">
           {r.masterPromptEn}

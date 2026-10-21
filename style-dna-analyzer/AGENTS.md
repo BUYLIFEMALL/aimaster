@@ -131,3 +131,8 @@
 - 주인님 결정 A안(두 프로그램 유지 + 연결). 분석 화면 상단(「3단계 결과 테스트」 옆)에 「🔁 다른 도구 문법으로 바꾸기」 → 새 창 `reverse-prompt.buylife.xyz/analyze?src=<원본 서명 주소>`(Midjourney·Flux·DALL·E 등 도구 문법 프롬프트).
 - 받기: `/analyze?src=` — 우리 Supabase 저장소의 `reverse-prompt-tmp` 서명 주소만 받아 브라우저에서 내려받아 기존 `pick` 흐름으로 넣음(10분 만료 안내).
 - 검수: tsc·`npm test` 23개·build, 배포 Ready, DB v1.25(기록 `supabase/migrations/20261021_v1_25_version.sql`). 양방향 실제 흐름은 `reverse-prompt/AGENTS.md` v1.11 기록 참고.
+
+## 2026-10-22 v1.26 — 「🎨 이미지 스튜디오에서 생성」 연결 (Claude Code 윈도우, 이미지 재비교 L2)
+- 분석 결과의 마스터 프롬프트(EN) 복사 버튼 옆에 링크 추가(`src/components/dna/StudioReportView.tsx`) → `https://ai-image-studio.buylife.xyz/dashboard?prompt=<프롬프트>`. 이미지 스튜디오는 이미 `?prompt=`를 받아 2단계 칸만 채움(자동 생성 없음 — 엔진·모델을 고르고 회원이 [생성]). 글자만 넘김(이미지·키 없음). 주소 함수 `src/lib/dna/studioLink.ts`(6,000자 넘으면 링크 숨김).
+- 검수: tsc 0, 시험 25개(새 `tests/studioLink.test.mjs` 2개), build, 배포 `style-dna-analyzer-jth7zwk2n` Ready, DB v1.26. 크롬(시험 회원): 보관함 기록 열기 → 버튼 표시(409자) → 이미지 스튜디오 2단계 칸에 409자 그대로 채워짐. 생성은 누르지 않음(비용 0). 이미지 스튜디오 코드는 바꾸지 않음.
+- 개선 후보(미구현): 넘어간 프롬프트에 `[INSERT SUBJECT HERE]`·`[첨부 이미지]` 자리 표시가 남아 이미지 스튜디오에서 회원이 직접 고쳐야 함, 원본 이미지는 함께 넘어가지 않음 → 「주제 입력 후 보내기」 또는 이미지 스튜디오의 참고 이미지 받기를 다음 단계로 검토.

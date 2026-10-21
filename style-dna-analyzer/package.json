@@ -1,13 +1,13 @@
 {
   "name": "style-dna-analyzer",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src",
-    "test": "node --import tsx --test tests/dna.test.mjs tests/access.test.mjs"
+    "test": "node --import tsx --test tests/dna.test.mjs tests/access.test.mjs tests/studioLink.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

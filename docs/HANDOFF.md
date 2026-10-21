@@ -135,6 +135,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L2: 이미지 스타일 분석기 v1.26 「🎨 이미지 스튜디오에서 생성」
+- 마스터 프롬프트(EN) 옆 링크 → 이미지 스튜디오 `?prompt=`(기존 기능, 이미지 스튜디오 코드는 그대로). 배포 `style-dna-analyzer-jth7zwk2n`·DB v1.26, 시험 25개, 크롬에서 409자 프롬프트가 2단계 칸에 채워짐 확인(생성 안 누름). 자리 표시 처리 개선 후보 `style-dna-analyzer/docs/IMPROVEMENTS.md`.
+- 비용: Vercel 빌드 1회. 다음: L3 이미지 스튜디오·인물사진·4컷 → 변환 스튜디오 「형식 바꾸기」.
+- 프로그램: https://style-dna-analyzer.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — AI 4컷 만화 v1.25 서버 보관함 매일 정리 cron
 - 회원 폴더를 돌며 만료 작품(30일 상한 포함) 삭제, 매일 03:00 KST. 배포 `four-cut-comics-ebmvdchoz`·DB v1.25, 시험 56개. 프로젝트 `CRON_SECRET`이 루트 값과 달라 손 호출은 401(기존 게시 예약도 동일) → **첫 실행 Vercel 기록 확인 필요**. 상세 `four-cut-comics/AGENTS.md` v1.25.
 - 비용: Vercel 빌드 1회. 다음: L2 스타일 분석기 → 이미지 스튜디오 「이 프롬프트로 생성」.
