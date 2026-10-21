@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- BLC06_HANDOFF_20261021 -->
+## 2026-10-21 Codex — BLC-06 v2.08 운영 확인·블로그 자동 포스팅 완성 지침 반영
+
+BLC-06 v2.08 편집 상태 보존·이미지 생성 선택 운영 확인. 코드 8c3b1f39 푸시·배포 Ready·DB/설치 확장/라이브 ZIP 일치. 회귀 202개·확장 모의 42개·타입/빌드, 실제 회원 원문 보존/H1·링크 왕복·저장/재열기·출처 불변·이미지 선택·4단계/복사·516px 확인. 추가 AI/이미지 호출 0·최종 발행 0. 다음은 주인님 요청 SEO 블로그 스튜디오 비교이며 BLC-07 즉시 착수 아님. [프로그램 인수인계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261021_BLC06_EDITOR.md). 운영 DB ref `esgxyikcnnvmlhygjkth` 버전 메타데이터만 갱신, 스키마·권한·회원 기본 설정 변경 없음.
+
+주인님 지시로 루트 AGENTS/CLAUDE/GEMINI와 비교 매뉴얼에 [블로그·티스토리 확장 자동 포스팅 완성 기준](BLOG_AUTOMATION_COMPLETION_POLICY.md)을 반영했습니다. 기준 등록과 기능 구현 완료를 구분하며 실제 발행 미검수 단계는 그대로 남깁니다.
+
+https://naver-blog-agent.buylife.xyz
+<!-- /BLC06_HANDOFF_20261021 -->
+
 <!-- BLC05_HANDOFF_20261021 -->
 ## 2026-10-21 Codex — 블로그 BLC-05 v2.07 자료 수집·출처 연결 운영 확인
 

@@ -302,3 +302,9 @@ https://naver-blog-agent.buylife.xyz
 
 https://ai-auto-blog.buylife.xyz
 <!-- /BLC05_RESULT_20261021 -->
+
+<!-- BLC06_RESULT_20261021 -->
+## 2026-10-21 BLC-06 반영 결과
+
+BLC-06 v2.08 편집 상태 보존·이미지 생성 선택 운영 확인. 코드 8c3b1f39 푸시·배포 Ready·DB/설치 확장/라이브 ZIP 일치. 회귀 202개·확장 모의 42개·타입/빌드, 실제 회원 원문 보존/H1·링크 왕복·저장/재열기·출처 불변·이미지 선택·4단계/복사·516px 확인. 추가 AI/이미지 호출 0·최종 발행 0. 다음은 주인님 요청 SEO 블로그 스튜디오 비교이며 BLC-07 즉시 착수 아님. [근거](../../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261021_BLC06_EDITOR.md). BLOG 전체 편집기 복제 대신 동일 Tiptap 조작을 대조해 실제 모드 전환 버그와 이미지 실행 선택만 보완했습니다. BLOG 서비스/권한과 인증 피드는 그대로 유지합니다. 새 [자동 포스팅 완성 기준](../BLOG_AUTOMATION_COMPLETION_POLICY.md)에 따라 확장 전달·입력·실제 발행의 차이를 후속 SEO 비교에서도 명시합니다.
+<!-- /BLC06_RESULT_20261021 -->
