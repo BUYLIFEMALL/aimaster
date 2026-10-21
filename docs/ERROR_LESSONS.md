@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — Supabase 저장소 업로드가 50MB에서 413으로 거절된다 — 버킷 한도(200MB)보다 프로젝트 전체 업로드 한도(50MB)가 먼저 걸림 (music-automation v1.41, Claude Code 윈도우)
+- 증상: 4분 20초 넘는 곡의 WAV가 저장소 복사에 실패해 Suno 임시 주소(약 14일 뒤 만료)로 남았다. 코드가 실패하면 원래 주소를 그대로 쓰는 방식이라 오류 없이 「완료」로 보였다.
+- 확인: 시험 파일 45MB 성공, 60MB·100MB `413 The object exceeded the maximum allowed size`(운영 ref `esgxyikcnnvmlhygjkth`, 2026-10-22).
+- 해결: 화면에 「임시 보관」 표시와 「다시 저장」 버튼, 크기 초과 안내(`music/lib/actions/storageRestore.ts`). 근본 해결은 대시보드 Storage 설정의 업로드 한도 상향 — 공용 DB 설정이라 주인님 승인 필요(2026-10-22 대기).
+- 다음부터 확인: 큰 파일(영상·WAV·원본 이미지 묶음)을 저장소에 올리는 프로그램은 50MB 한도를 전제로 설계하고, 업로드 실패를 외부 주소로 조용히 덮지 말 것.
+
 ## 2026-10-22 — 문서를 스크립트로 고칠 때 `\0`·`\t`·`\b`·`\f`가 제어 문자로 바뀌어 파일이 「바이너리」가 됨 (threads-affiliate-poster/AGENTS.md, Claude Code 윈도우)
 - 증상: `grep`이 「Binary file matches」만 내고, `git diff`가 내용 대신 바이너리로 보며 줄바꿈 정리를 건너뜀 → 줄바꿈만 다른 371줄 미커밋 변경이 이틀 넘게 남음. 본문에는 `Cron(<NUL> 18 * * *)`, `<탭>ap_posts`, `<백스페이스>g-white`, `<폼피드>ileInputRef`처럼 첫 글자가 사라진 곳 5군데.
 - 원인: 예전에 누군가 JS·셸 문자열 안에 `\0 18`·`\tap_posts`·`\bg-`·`\fileInput`을 그대로 넣어 이스케이프 문자로 해석됨.

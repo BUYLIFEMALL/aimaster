@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.41 저장 실패 원인 확인(업로드 한도 50MB) · 임시 보관 표시 확대
+
+**원인**: 운영 Supabase 프로젝트 업로드 한도 50MB(시험 45MB 성공·60MB 413) → 4분 20초 넘는 곡의 WAV는 항상 Suno 임시 주소로 남음. **승인 대기: 대시보드 Storage 업로드 한도 상향(공용 DB 설정)**. 코드: 크기 초과 안내, 「임시 보관」 표시·다시 저장을 12트랙·Suno 커버·영상까지. 크롬 시험 계정에서 저장·만료 안내 확인 후 원래대로 되돌림. 배포 `music-ms761y9qa` Ready, DB v1.41. 비용: Vercel 빌드 1회. 교훈: `docs/ERROR_LESSONS.md` 맨 위.
+
+https://music-automation.buylife.xyz
+
+## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.24 AI 이미지·음성 30일 자동 삭제(영상 포함, 배경음악 제외)
+- 정리 작업 `/api/cron/cleanup-media`(매일 03:30 KST), 지워진 파일은 음성·배경 화면에 「30일 지나 삭제됨 — 다시 만들기」. 배포 Ready·DB v1.24·크롬 표시 확인(시험 대본 임시 변경 후 복원). 비용: 빌드 1회.
+- 다음: v1.25 영상 길이 선택 + 「모두 영상으로 만들면 약 $X」. 상세 `shorts-onestop-studio/AGENTS.md` v1.24.
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 메인 사이트 프로그램 카드 하단(가격·버튼) 줄바꿈 수정
 - 증상: 카탈로그 3열 카드(폭 약 330px)에서 「무료 (회원 전용)」·「무료 이용하기」·「자세히 보기」 글자가 두 줄로 밀려 하단이 찌그러짐(주인님 스크린샷).
 - 수정 `components/programs/ProgramCard.tsx`: ① 무료 표시를 「무료」(굵게) + 「회원 전용」(작게) 두 줄로 의도적으로 나눔 ② 가격 영역 `min-w-0 whitespace-nowrap`, 버튼 묶음 `shrink-0 whitespace-nowrap` ③ 월 가격 글자 `text-lg → text-base` ④ 「자세히 보기」 `px-4 → px-3`. 기능·링크·판정 변경 없음, 버전 없음(메인 사이트).

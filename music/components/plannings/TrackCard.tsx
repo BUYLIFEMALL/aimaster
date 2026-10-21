@@ -513,6 +513,7 @@ export function TrackCard({
                   {latestStem?.status === "completed" && latestStem.stems && (
                     <div className="space-y-1.5 pt-1 border-t border-[#2a2a3c]">
                       <p className="text-[11px] font-bold text-zinc-300">🎚️ 악기별 트랙 {Object.keys(latestStem.stems).length}개</p>
+                      <TemporaryStorageNotice kind="stems" id={latestStem.id} urls={Object.values(latestStem.stems)} />
                       {SUNO_STEM_LABELS.filter((s) => latestStem.stems?.[s.key]).map((s) => (
                         <div key={s.key} className="flex items-center gap-2">
                           <span className="w-20 shrink-0 text-[11px] text-zinc-400">{s.label}</span>

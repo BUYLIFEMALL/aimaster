@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { applySunoCoverAction, requestSunoCoverAction, requestSunoVideoAction, syncMediaAction, type MediaState } from "@/lib/actions/media";
+import { TemporaryStorageNotice } from "@/components/StorageNotice";
 
 // Suno 커버 이미지·뮤직비디오(2026-10-21 Suno V6 3차 ⑦⑧). 커버는 곡(트랙) 단위·곡당 1번, 영상은 변주(곡 1개)마다.
 export interface MediaItem {
@@ -66,6 +67,7 @@ export function SunoCoverPanel({ trackId, media }: { trackId: string; media: Med
       </div>
       {!latest && <p className="text-zinc-500">곡 하나당 한 번만 받을 수 있습니다. 본인 sunoapi.org 크레딧이 사용되며, 기존 자동 커버는 그대로 있습니다.</p>}
       {latest?.status === "failed" && <p className="text-rose-300">⚠️ {latest.error_message ?? "Suno 커버를 만들지 못했습니다."}</p>}
+      {latest?.status === "completed" && <TemporaryStorageNotice kind="media" id={latest.id} urls={latest.urls} />}
       {latest?.status === "completed" && (
         <div className="flex flex-wrap gap-3">
           {latest.urls.map((url, i) => (
@@ -137,6 +139,7 @@ export function SunoVideoButton({ variantId, media }: { variantId: string; media
         <div className="basis-full space-y-1">
           <p className="text-[11px] font-bold text-zinc-300">🎬 Suno 뮤직비디오</p>
           <video controls preload="none" src={latest.urls[0]} className="w-full rounded-lg" />
+          <TemporaryStorageNotice kind="media" id={latest.id} urls={latest.urls} />
           <a href={latest.urls[0]} download className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
             ⬇ MP4 내려받기
           </a>
