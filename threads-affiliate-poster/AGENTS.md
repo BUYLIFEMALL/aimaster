@@ -526,7 +526,7 @@ vercel deploy --prod --yes
   - Threads API 심사 전에는 개발자 테스터 등록 계정 위주 연동
 
 ### 4) 현재 버전 및 변경 히스토리
-- **현재 버전**: `v1.61` (DB 및 UI 일치)
+- **현재 버전**: `v1.79` (2026-10-22, DB 및 UI 일치) — v1.62 이후 기록은 이 문서 맨 아래 날짜별 항목
 - **히스토리**:
   - `v1.57 ~ v1.60`: 공용 이미지 기준 코드 동기화 및 타임아웃 이중 과금 방지
   - `v1.61`: 구글 AI 스튜디오 사용량 안내 정정 및 **스레드 바이럴 스튜디오 다크 콘솔 스타일 전면 리뉴얼 완결**
@@ -622,3 +622,8 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 한 일: `src/lib/posts/memberScheduler.ts`를 **공용 기준 코드 `member-scheduler`의 사본**으로 바꿨다(기준 `cardnews-studio/src/lib/instagram/memberScheduler.ts`, 예약 프로그램 15개 공용). 이 프로그램만의 값(사이트 주소·실행 방식 표 `tap_member_scheduler`·토큰 앞글자 `tap`·환경변수 `TAP_PLATFORM_SCHEDULER`·설치 키트 여부·「남은 일」= 예약 글 수)은 같은 폴더 새 `schedulerConfig.ts`로 옮겼다(원래 값과 자동 대조 일치). **앞으로 `memberScheduler.ts`는 직접 고치지 말고** 기준만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.
 - 동작 변경 없음. tsc·build 통과, 설치 키트 DB 대조 통과. 플랜 `cardnews-studio/docs/PLAN_20261020_MEMBER_SCHEDULER_SHARED.md`.
 - **미배포**(주인님 결정: 이 프로그램을 다음에 배포할 때 함께 반영) — 그 배포 때 버전 +0.01, 예약 상태 화면과 회원 실행 주소 가짜 토큰 401을 확인할 것.
+
+## 2026-10-22 v1.76~v1.79 — 대시보드 「📊 최근 7일 게시」 그래프·게시 시각 칸·그날 게시 글·글자 크게 (Claude Code 윈도우)
+- v1.76: 상태 통계 아래 7일 게시 그래프(공용 기준 코드 `week-reply-chart` 사본, 기준 comment-inbox). v1.77: **`tap_posts.published_at` 칸 추가**(주인님 승인, 운영 DB 적용 — 기존 게시 10건은 그때의 `updated_at`으로 채우고 트리거를 잠깐 꺼 `updated_at` 유지), 게시 완료 때 기록(칸이 없는 DB면 빼고 다시 저장), 막대 누르면 그날 게시한 글(`src/lib/actions/weekPosts.ts`, 공용 `week-reply-panel`). v1.78: 그날 목록 썸네일(`image_url` 첫 장). v1.79: 그래프 글자 한 단계씩 크게(주인님 요청).
+- 상세·검수·배포 주소: [`docs/IMPROVEMENT_HANDOFF_20261022.md`](docs/IMPROVEMENT_HANDOFF_20261022.md). 미배포(다음 배포 때 함께): 공용 그날 목록의 「이미지가 안 열리면 썸네일 숨김」.
+- 같은 날 이 문서 정리: 2026-10-20부터 남아 있던 미커밋 변경 371줄은 줄바꿈 차이뿐(내용 0줄)이라 버림, 예전 스크립트가 ` `·`	`·``·``를 제어 문자로 바꿔 깨졌던 글자 5곳(396·397·374·375·383줄 부근 `0 18 * * *`·`tap_posts`·`threads-affiliate-poster/`·`bg-…`·`fileInputRef`) 복구(커밋 `05d616c6`). 이제 일반 텍스트 파일로 검색·비교가 됨.
