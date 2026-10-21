@@ -50,6 +50,10 @@ async function seoAutoPublishPage(command, args = {}) {
   }
   if (command === "final") {
     // Only a final action inside this editor's open publish settings is valid.
+    if (typeof args.body !== "string" || !Number.isInteger(args.imageCount)
+      || titleText !== text(args.title) || body !== text(args.body) || images.length !== args.imageCount) {
+      return { ok: false, reason: "발행 설정 중 제목·본문·사진이 바뀌었습니다. 최종 발행하지 않습니다." };
+    }
     const label = exact(visibilityName);
     const reserve = exact("예약");
     const buttons = [...document.querySelectorAll('button[data-testid="seOnePublishBtn"],button[data-click-area="tpb*i.publish"]')].filter(visible);

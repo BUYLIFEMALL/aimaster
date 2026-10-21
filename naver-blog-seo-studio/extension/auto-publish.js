@@ -48,7 +48,7 @@ async function finishAutoPublication() {
   await publicationApi("arm");
   seoPublication.state = "publishing";
   await persistPublication();
-  if (!(await publicationPage("final")).clicked) throw new Error("최종 발행 버튼 결과가 불확실합니다. 다시 클릭하지 않습니다.");
+  if (!(await publicationPage("final", expected)).clicked) throw new Error("최종 발행 직전 원고/버튼 확인을 통과하지 못했습니다. 다시 클릭하지 않고 결과를 확인합니다.");
   await reconcileAutoPublication();
 }
 async function reconcileAutoPublication() {

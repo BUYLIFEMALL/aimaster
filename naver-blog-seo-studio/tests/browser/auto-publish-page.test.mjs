@@ -28,10 +28,10 @@ test("whole text order, extra text and image count are checked", async () => {
 });
 test("selected visibility is required and final click occurs at most once", async () => {
   const page = await pageWith(editor("시험", "본문") + '<label for="private">비공개</label><input id="private" type="radio" name="v"><label for="public">전체공개</label><input id="public" type="radio" name="v" checked><button data-testid="seOnePublishBtn" onclick="window.finalClicks=(window.finalClicks||0)+1">발행</button>');
-  assert.equal((await command(page, "final", { visibility: "private", runId: "run1" })).ok, false);
+  assert.equal((await command(page, "final", { title: "시험", body: "본문", imageCount: 0, visibility: "private", runId: "run1" })).ok, false);
   assert.equal((await command(page, "settings", { visibility: "private" })).ok, true);
-  assert.equal((await command(page, "final", { visibility: "private", runId: "run1" })).clicked, true);
-  assert.equal((await command(page, "final", { visibility: "private", runId: "run1" })).ok, false);
+  assert.equal((await command(page, "final", { title: "시험", body: "본문", imageCount: 0, visibility: "private", runId: "run1" })).clicked, true);
+  assert.equal((await command(page, "final", { title: "시험", body: "본문", imageCount: 0, visibility: "private", runId: "run1" })).ok, false);
   assert.equal(await page.evaluate(() => window.finalClicks), 1); await page.close();
 });
 test("posted URL and exact viewer title must agree; editor is never a result", async () => {
@@ -43,4 +43,11 @@ test("posted URL and exact viewer title must agree; editor is never a result", a
   ]) {
     const page = await pageWith(markup, url); assert.equal((await command(page, "published", { title: "시험" })).complete, expected); await page.close();
   }
+});
+test("content changed in editor after settings cannot reach the final click", async () => {
+  const page = await pageWith(editor("시험", "설정 도중 바뀐 본문") + '<label for="private">비공개</label><input id="private" type="radio" checked><button data-testid="seOnePublishBtn" onclick="window.finalClicks=1">발행</button>');
+  const result = await command(page, "final", { title: "시험", body: "검수했던 본문", imageCount: 0, visibility: "private", runId: "run1" });
+  assert.equal(result.ok, false);
+  assert.equal(await page.evaluate(() => window.finalClicks || 0), 0);
+  await page.close();
 });
