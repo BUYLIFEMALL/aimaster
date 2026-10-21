@@ -131,9 +131,9 @@ kbd{font:11px ui-monospace,monospace;padding:1px 6px;border:1px solid var(--line
 .now-lyric{min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 16px;border-radius:14px;background:linear-gradient(135deg,var(--brand-soft),transparent);border:1px solid var(--brand-line);font-size:20px;font-weight:700;white-space:pre-line}
 .sync-actions{display:flex;flex-wrap:wrap;gap:8px}.sync-actions .tap{flex:1 1 280px;min-height:56px;font-size:14px;white-space:normal}.sync-actions .tap small{color:inherit;opacity:.8}
 .sync-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:60vh;overflow:auto}
-.sync-list li{display:grid;grid-template-columns:28px 92px 64px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.sync-list li{display:grid;grid-template-columns:28px 92px 64px 92px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
 .sync-list li.cursor{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}.sync-list li.live{background:var(--brand-soft)}
-.sync-list .num{font-size:11px;color:var(--muted);text-align:right}.sync-list input{padding:6px 8px}.sync-list .time{text-align:center}
+.sync-list .num{font-size:11px;color:var(--muted);text-align:right}.sync-list .time.end{color:var(--muted)}.sync-list input{padding:6px 8px}.sync-list .time{text-align:center}
 .nudge,.row-actions{display:flex;gap:4px}.nudge button,.row-actions button{padding:5px 9px;min-width:30px}
 
 /* 디자인 */
@@ -167,8 +167,8 @@ a.node{display:block}a.node:hover{border-color:var(--brand-line)}
 @media(max-width:767px){
   .field-grid.two,.guide-table{grid-template-columns:1fr}.color-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sync-console{position:static}.sync-list{max-height:none}
-  .sync-list li{grid-template-columns:24px 82px minmax(0,1fr);grid-template-areas:"num time nudge" "text text text" "act act act"}
-  .sync-list .num{grid-area:num}.sync-list .time{grid-area:time}.sync-list .nudge{grid-area:nudge;justify-content:flex-end}.sync-list .text{grid-area:text}.sync-list .row-actions{grid-area:act;justify-content:flex-end}
+  .sync-list li{grid-template-columns:24px 82px 82px minmax(0,1fr);grid-template-areas:"num time end nudge" "text text text text" "act act act act"}
+  .sync-list .num{grid-area:num}.sync-list .time{grid-area:time}.sync-list .time.end{grid-area:end}.sync-list .nudge{grid-area:nudge;justify-content:flex-end}.sync-list .text{grid-area:text}.sync-list .row-actions{grid-area:act;justify-content:flex-end}
   .stage-frame.landscape{max-width:100%}.ellipsis{max-width:200px}.guide-meta .button{margin-left:0}
   .nudge button,.row-actions button{min-width:44px;min-height:40px}
 }

@@ -1,5 +1,5 @@
 "use client";
-import { ArrayBufferTarget, Muxer } from "mp4-muxer";
+import { ArrayBufferTarget, FileSystemWritableFileStreamTarget, Muxer } from "mp4-muxer";
 
 // 공용 기준 코드 `browser-mp4-encoder`(2026-10-21 엔진 공유 2번) — 기준: shorts-onestop-studio/src/lib/render/mp4Encoder.ts.
 // 사본은 글자 그대로 쓴다(scripts/check-shared-modules.mjs). 화면을 어떻게 그릴지(drawFrame)와 어떤 소리를 넣을지는 각 프로그램이 정한다.
@@ -46,14 +46,34 @@ export async function mixVoiceAndBgm(o: { total: number; voices: VoiceClip[]; bg
   return ctx.startRendering();
 }
 
-/** drawFrame으로 한 장씩 그려 MP4로 묶는다. 진행률은 pctFrom~97%, 마지막 98%에 파일로 묶는다 */
-export async function encodeMp4(o: {
+export interface EncodeOptions {
   width: number; height: number; fps: number; total: number; audio: AudioBuffer | null;
   drawFrame: (ctx: CanvasRenderingContext2D, t: number) => Promise<void> | void;
   onProgress: (p: ExportProgress) => void; signal: AbortSignal; pctFrom?: number;
   /** 영상 비트레이트(기본 8Mbps). 화면이 매 장면 계속 움직이면(느린 확대 등) 파일이 커지므로 낮춰서 쓴다 */
   videoBitrate?: number;
-}): Promise<Blob> {
+}
+
+/** drawFrame으로 한 장씩 그려 MP4로 묶는다(결과를 메모리에 모아 Blob으로). 진행률은 pctFrom~97%, 마지막 98%에 파일로 묶는다 */
+export async function encodeMp4(o: EncodeOptions): Promise<Blob> {
+  const target = new ArrayBufferTarget();
+  await encodeInto(o, target, "in-memory");
+  return new Blob([target.buffer], { type: "video/mp4" });
+}
+
+/** 긴 영상용: 회원이 고른 파일(크롬·엣지 showSaveFilePicker의 쓰기 스트림)에 조금씩 바로 쓴다 — 메모리에 영상 전체를 모으지 않는다.
+ *  끝나면 스트림을 닫고, 실패·취소하면 스트림을 버려 반쯤 쓴 파일이 남지 않게 한다. (2026-10-21 lyric-video-studio에서 추가) */
+export async function encodeMp4ToFile(o: EncodeOptions & { stream: FileSystemWritableFileStream }): Promise<void> {
+  try {
+    await encodeInto(o, new FileSystemWritableFileStreamTarget(o.stream), false);
+    await o.stream.close();
+  } catch (e) {
+    await o.stream.abort().catch(() => undefined);
+    throw e;
+  }
+}
+
+async function encodeInto(o: EncodeOptions, target: ArrayBufferTarget | FileSystemWritableFileStreamTarget, fastStart: "in-memory" | false): Promise<void> {
   assertWebCodecs();
   const { width: W, height: H, fps: FPS, total, audio: mixed } = o; const BITRATE = o.videoBitrate ?? 8_000_000;
   const stop = () => { if (o.signal.aborted) throw new DOMException("취소", "AbortError"); };
@@ -63,8 +83,7 @@ export async function encodeMp4(o: {
   const aCodec = mixed ? await pick([{ m: "aac" as const, c: "mp4a.40.2" }, { m: "opus" as const, c: "opus" }], async (x) => (await AudioEncoder.isConfigSupported({ codec: x.c, sampleRate: RATE, numberOfChannels: 2, bitrate: 160_000 })).supported === true) : null;
   if (mixed && !aCodec) throw new Error("이 컴퓨터에서 소리 인코딩을 쓸 수 없습니다. 최신 크롬·엣지에서 다시 시도해 주세요.");
 
-  const target = new ArrayBufferTarget();
-  const muxer = new Muxer({ target, video: { codec: "avc", width: W, height: H, frameRate: FPS }, ...(aCodec ? { audio: { codec: aCodec.m, sampleRate: RATE, numberOfChannels: 2 } } : {}), fastStart: "in-memory", firstTimestampBehavior: "offset" });
+  const muxer = new Muxer({ target, video: { codec: "avc", width: W, height: H, frameRate: FPS }, ...(aCodec ? { audio: { codec: aCodec.m, sampleRate: RATE, numberOfChannels: 2 } } : {}), fastStart, firstTimestampBehavior: "offset" });
   let failed: unknown = null;
   const venc = new VideoEncoder({ output: (c, m) => muxer.addVideoChunk(c, m), error: (e) => { failed = e; } });
   venc.configure({ codec: vCodec, width: W, height: H, bitrate: BITRATE, framerate: FPS });
@@ -98,7 +117,6 @@ export async function encodeMp4(o: {
     await venc.flush(); if (aenc) await aenc.flush();
     if (failed) throw failed;
     muxer.finalize();
-    return new Blob([target.buffer], { type: "video/mp4" });
   } finally {
     if (venc.state !== "closed") venc.close();
     if (aenc && aenc.state !== "closed") aenc.close();

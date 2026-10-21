@@ -101,6 +101,13 @@ export function stampLine(lines: LyricLine[], i: number, t: number): LyricLine[]
   return next;
 }
 
+/** i번째 줄을 t초에 끝낸다(다음 줄 시작보다 이르면 그 사이는 간주). 시작이 없는 줄이나 시작보다 이른 시각은 무시 */
+export function endLine(lines: LyricLine[], i: number, t: number): LyricLine[] {
+  const l = lines[i];
+  if (!l || !isSynced(l) || t <= l.start + 0.05) return lines;
+  return lines.map((x, k) => (k === i ? { ...x, end: +t.toFixed(2) } : x));
+}
+
 /** 줄 시작을 지운다(탭 싱크 되돌리기) */
 export function clearFrom(lines: LyricLine[], i: number): LyricLine[] {
   return lines.map((l, k) => (k >= i ? { ...l, start: -1, end: -1 } : k === i - 1 ? { ...l, end: l.start + LAST_LINE_SECONDS } : l));

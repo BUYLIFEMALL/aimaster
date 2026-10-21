@@ -66,6 +66,7 @@
 |---|---|---|
 | 2026-10-21 `telegram-bot-client` 등록(10곳 손 복사본을 기준 하나로, 동작 같음 — 주석·줄 모양만 다름) | `instagram-comment-reply`·`threads-comment-reply`·`youtube-auto-reply`·`kakao_auto_poster` | tsc 통과, 공용 점검 일치. ✅ 알림 전용 5곳은 2026-10-21 배포됨(booking-reminder v1.27·crm-google-form v1.16·longtail-keyword-expander v1.10·real_estate_sales v1.18·trending-product-finder v1.21 — 미배포였던 `allowed_updates` 연동 확인 수정도 함께) |
 | 2026-10-21 `youtube-upload-client` `uploadYoutubeVideo`에 선택값 `publishAt` 추가(Shots v1.28 예약 공개, 원스톱은 이 함수 미사용 — 동작 같음) | (없음) | ✅ 원스톱 v1.21(2026-10-21)로 배포됨 |
+| 2026-10-21 `browser-mp4-encoder`에 `encodeMp4ToFile`(고른 파일에 조금씩 바로 쓰기, `FileSystemWritableFileStreamTarget`) 추가 — 공통 부분을 내부 `encodeInto`로 묶었고 기존 `encodeMp4`는 모양·동작 같음(급하지 않은 변경) | `shorts-onestop-studio`·`shots` 사본은 저장소에만 반영, 다음 배포 때 함께 | ✅ `lyric-video-studio` v1.02로 배포됨(사용처). 원스톱·Shots는 tsc 통과, 미배포 |
 | 2026-10-21 `browser-mp4-encoder`에 선택값 `videoBitrate` 추가(기본 8Mbps 그대로 — 원스톱 동작 같음) | (없음) | ✅ 원스톱 v1.21(2026-10-21)로 배포됨. Shots v1.25도 배포됨(4Mbps 사용) |
 | 2026-10-21 `youtube-upload-client` 등록 + `createYoutubeResumableSession` 추가(Shots는 미사용 — 동작 같음) | (없음) | ✅ Shots v1.24(2026-10-21)로 배포됨 |
 | 2026-10-20 카드뉴스 스튜디오 INSTA 병합 3단계: `insta-schedule-time`·`member-scheduler`·`insta-cronjob-org`·`insta-posts-client` 기준을 `cardnews-studio` → `insta_auto_poster/src/lib/cardnews/` 로 이동(내용 같음, 옛 카드뉴스 파일은 사본) | (없음) | 옛 cardnews-studio 앱은 화면 이동·API 전달만 하므로 사본은 다음 배포 때 그대로 |

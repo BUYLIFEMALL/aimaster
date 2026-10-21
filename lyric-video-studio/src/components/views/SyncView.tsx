@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { StudioBar, Transport, usePlayhead } from "@/components/studio/parts";
-import { clearFrom, formatTime, isSynced, lineAt, newId, parseTime, shiftAll, stampLine, timeline, toSrt, type LyricLine } from "@/lib/lyrics";
+import { clearFrom, endLine, formatTime, isSynced, lineAt, newId, parseTime, shiftAll, stampLine, timeline, toSrt, type LyricLine } from "@/lib/lyrics";
 
 const DELAYS = [0, 0.1, 0.2, 0.3];
 
@@ -23,6 +23,15 @@ export function SyncView() {
     s.setLines((prev) => stampLine(prev, cursor, at));
     setCursor((c) => c + 1);
   }
+  /** 지금 부르는 줄(없으면 방금 시작을 찍은 줄)을 지금 시각에 끝낸다 — 다음 줄까지는 간주로 그려진다 */
+  function endNow() {
+    if (!s.player || !s.audio) return;
+    const at = Math.max(0, s.player.currentTime - delay);
+    const live = lineAt(tl, at);
+    const id = live.index >= 0 && !live.gap ? tl[live.index].id : s.lines[cursor - 1]?.id;
+    const i = s.lines.findIndex((l) => l.id === id);
+    if (i >= 0) s.setLines((prev) => endLine(prev, i, at));
+  }
   function undo() {
     if (cursor <= 0) return;
     const back = cursor - 1;
@@ -37,14 +46,15 @@ export function SyncView() {
     s.player.currentTime = 0; s.player.play().catch(() => undefined);
   }
 
-  // 스페이스바 = 지금 줄 시작, 백스페이스 = 한 줄 되돌리기 (글자 입력 칸에서는 동작하지 않음)
-  const keys = useRef({ stamp, undo }); keys.current = { stamp, undo };
+  // 스페이스바 = 지금 줄 시작, 엔터 = 지금 줄 끝, 백스페이스 = 한 줄 되돌리기 (글자 입력 칸에서는 동작하지 않음)
+  const keys = useRef({ stamp, undo, endNow }); keys.current = { stamp, undo, endNow };
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable)) return;
       if (e.code === "Space") { e.preventDefault(); keys.current.stamp(); }
       else if (e.code === "Backspace") { e.preventDefault(); keys.current.undo(); }
+      else if (e.code === "Enter" || e.code === "NumpadEnter") { e.preventDefault(); keys.current.endNow(); }
     };
     window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h);
   }, []);
@@ -53,13 +63,22 @@ export function SyncView() {
   const edit = (i: number, patch: Partial<LyricLine>) => s.setLines((prev) => prev.map((l, k) => (k === i ? { ...l, ...patch } : l)));
   const nudge = (i: number, dt: number) => s.setLines((prev) => prev.map((l, k) => {
     if (k === i && isSynced(l)) return { ...l, start: Math.max(0, +(l.start + dt).toFixed(2)) };
-    if (k === i - 1 && isSynced(l) && isSynced(prev[i])) return { ...l, end: Math.max(l.start + 0.1, +(prev[i].start + dt).toFixed(2)) };
+    if (k === i - 1 && isSynced(l) && isSynced(prev[i]) && Math.abs(l.end - prev[i].start) < 0.011) return { ...l, end: Math.max(l.start + 0.1, +(prev[i].start + dt).toFixed(2)) };
     return l;
   }));
   const setStart = (i: number, raw: string) => {
     const v = raw.trim() === "" ? -1 : parseTime(raw.length <= 5 && !raw.includes(":") ? `0:${raw}` : raw);
     if (raw.trim() !== "" && !Number.isFinite(v)) return;
     s.setLines((prev) => (v < 0 ? clearFrom(prev, i).map((l, k) => (k > i ? prev[k] : l)) : stampLine(prev, i, v)));
+  };
+  const setEnd = (i: number, raw: string) => {
+    const l = s.lines[i]; if (!l || !isSynced(l)) return;
+    if (raw.trim() === "") { // 비우면 다음 줄 시작까지(자동)
+      const next = s.lines.slice(i + 1).find(isSynced);
+      s.setLines((prev) => prev.map((x, k) => (k === i ? { ...x, end: next ? next.start : -1 } : x))); return;
+    }
+    const v = parseTime(raw.length <= 5 && !raw.includes(":") ? `0:${raw}` : raw);
+    if (Number.isFinite(v)) s.setLines((prev) => endLine(prev, i, v));
   };
   const insertAfter = (i: number) => s.setLines((prev) => [...prev.slice(0, i + 1), { id: newId(), start: -1, end: -1, text: "새 줄" }, ...prev.slice(i + 1)]);
   const remove = (i: number) => { s.setLines((prev) => prev.filter((_, k) => k !== i)); if (cursor > i) setCursor((c) => c - 1); };
@@ -74,7 +93,7 @@ export function SyncView() {
   return (
     <div className="stack">
       <StudioBar />
-      <div className="page-heading"><p className="eyebrow">STEP 2</p><h1>⏱️ 가사 싱크</h1><p>노래를 틀어 두고 각 줄이 시작될 때 <kbd>스페이스바</kbd>(또는 아래 큰 버튼)를 누르면 시간이 찍힙니다. 틀리면 <kbd>백스페이스</kbd>로 한 줄 되돌립니다.</p></div>
+      <div className="page-heading"><p className="eyebrow">STEP 2</p><h1>⏱️ 가사 싱크</h1><p>노래를 틀어 두고 각 줄이 시작될 때 <kbd>스페이스바</kbd>(또는 아래 큰 버튼)를 누르면 시간이 찍힙니다. 줄이 끝나고 간주가 길면 <kbd>엔터</kbd>로 그 줄의 끝을 찍습니다. 틀리면 <kbd>백스페이스</kbd>로 한 줄 되돌립니다.</p></div>
       {!s.audio && <div className="notice warning">음악 파일이 없습니다. <Link href="/source" className="subtle-link">1단계에서 음악을 넣어 주세요.</Link> 시간은 직접 적어 넣을 수도 있습니다.</div>}
       <section className="card stack sync-console">
         <Transport />
@@ -83,6 +102,7 @@ export function SyncView() {
           <button type="button" className="primary tap" onClick={stamp} disabled={!s.audio || done}>
             {done ? "✓ 모든 줄을 맞췄습니다" : <>⏎ 지금 「{s.lines[cursor]?.text.split("\n")[0].slice(0, 24)}」 시작 <small>(스페이스바)</small></>}
           </button>
+          <button type="button" onClick={endNow} disabled={!s.audio || cursor === 0}>⏹ 지금 줄 끝 <small>(엔터)</small></button>
           <button type="button" onClick={undo} disabled={cursor === 0}>↩ 한 줄 되돌리기</button>
           <button type="button" onClick={restart} disabled={!s.audio}>▶ 처음부터 맞추기</button>
         </div>
@@ -105,6 +125,7 @@ export function SyncView() {
                 <span className="num">{i + 1}</span>
                 <input className="time mono" aria-label={`${i + 1}번째 줄 시작 시각`} defaultValue={isSynced(l) ? formatTime(l.start) : ""} key={`${l.id}:${l.start}`} placeholder="--:--" onBlur={(e) => setStart(i, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
                 <span className="nudge"><button type="button" aria-label="0.1초 앞당기기" onClick={() => nudge(i, -0.1)} disabled={!isSynced(l)}>−</button><button type="button" aria-label="0.1초 늦추기" onClick={() => nudge(i, 0.1)} disabled={!isSynced(l)}>+</button></span>
+                <input className="time end mono" aria-label={`${i + 1}번째 줄 끝 시각`} title="비우면 다음 줄 시작까지" defaultValue={isSynced(l) && l.end > l.start ? formatTime(l.end) : ""} key={`${l.id}:e:${l.end}`} placeholder="끝(자동)" disabled={!isSynced(l)} onBlur={(e) => setEnd(i, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
                 <input className="text" aria-label={`${i + 1}번째 줄 가사`} value={l.text} onChange={(e) => edit(i, { text: e.target.value })} />
                 <span className="row-actions">
                   <button type="button" aria-label="이 줄부터 듣기" onClick={() => seekTo(l)} disabled={!isSynced(l) || !s.audio}>▶</button>
