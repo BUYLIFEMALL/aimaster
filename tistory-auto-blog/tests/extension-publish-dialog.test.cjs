@@ -6,7 +6,7 @@ const { TaskError } = require('../extension/tistory-engine.js');
 
 // 어댑터가 티스토리 발행 설정창에 주입하는 함수를 작은 가짜 화면(공개 범위·댓글·홈주제·발행 시점)에서 실제로 실행한다.
 // 실제 티스토리가 아니므로 선택자·타이밍은 검증하지 못하지만, "이름 비교·오류 전달·최종 발행 미접근" 같은 규칙은 확인한다.
-function fakeDialog({ topics = ['일상', 'IT 인터넷', '경제'], comments = ['댓글 허용', '댓글 비허용'] } = {}) {
+function fakeDialog({ topics = ['일상', 'IT 인터넷', '경제'], comments = ['댓글 허용', '댓글 비허용'], nestedOptions = false, privateDatesAbsent = false } = {}) {
   const state = { visibility: null, comment: '댓글 허용', topic: '', timing: '현재', clicked: [], openList: null };
   const rect = () => ({ left: 0, top: 0, width: 10, height: 10 });
   const base = (extra) => ({ getClientRects: () => [{}], getBoundingClientRect: rect, dispatchEvent(event) { if (event.type === 'click') this.onClick?.(); return true; }, children: [], classList: { contains: () => false }, scrollIntoView() {}, ...extra });
@@ -16,7 +16,7 @@ function fakeDialog({ topics = ['일상', 'IT 인터넷', '경제'], comments = 
     return node;
   });
   const radioLabels = new Map(radios.map((r) => [r.id, base({ textContent: r.textContent })]));
-  const optionNodes = (names, pick) => names.map((name) => { const node = base({ textContent: name, children: [] }); node.onClick = () => { pick(name); state.openList = null; }; return node; });
+  const optionNodes = (names, pick) => names.map((name) => { const node = base({ textContent: name, children: [] }); node.onClick = () => { pick(name); state.openList = null; }; if (nestedOptions) node.children = [base({ textContent: name, onClick: node.onClick })]; return node; });
   const commentButton = base({ textContent: '댓글 허용' });
   const topicButton = base({ textContent: '선택 안 함' });
   commentButton.onClick = () => { state.openList = optionNodes(comments, (name) => { state.comment = name; commentButton.textContent = name; }); };
@@ -24,11 +24,11 @@ function fakeDialog({ topics = ['일상', 'IT 인터넷', '경제'], comments = 
   const nowButton = base({ textContent: '현재', classList: { contains: (name) => name === 'on' && state.timing === '현재' } });
   nowButton.onClick = () => { state.timing = '현재'; };
   const root = base({
-    querySelectorAll: (selector) => (selector === "input[name='basicSet'][type='radio']" ? radios : selector === 'button.mce-btn-type1.select_btn' ? [commentButton, topicButton] : selector === 'button.btn_date' ? [nowButton] : []),
+    querySelectorAll: (selector) => (selector === "input[name='basicSet'][type='radio']" ? radios : selector === 'button.mce-btn-type1.select_btn' ? [commentButton, topicButton] : selector === 'button.btn_date' ? (privateDatesAbsent && state.visibility === '비공개' ? [] : [nowButton]) : []),
     querySelector: (selector) => { const match = /^label\[for='(.+)'\]$/.exec(selector); return match ? radioLabels.get(match[1]) : null; },
   });
   const document = {
-    querySelectorAll: (selector) => (/editor_layer/.test(selector) ? [root] : /listbox/.test(selector) ? (state.openList ? [base({ querySelectorAll: () => state.openList })] : []) : []),
+    querySelectorAll: (selector) => (/editor_layer/.test(selector) ? [root] : /listbox/.test(selector) ? (state.openList ? [base({ querySelectorAll: (selector) => nestedOptions && /span/.test(selector) ? state.openList.flatMap(n => [n, ...n.children]) : state.openList })] : []) : []),
     querySelector: () => null,
   };
   const sandbox = { document, window: {}, getComputedStyle: () => ({ visibility: 'visible' }), MouseEvent: class { constructor(type) { this.type = type; } }, Event: class { constructor(type) { this.type = type; } }, HTMLInputElement: { prototype: {} }, setTimeout, Math, String, Array, Set, Error, Boolean, Number };
@@ -109,4 +109,16 @@ test('no topic requested: nothing is captured and no handler call happens', asyn
   adapter.setTopicsHandler(() => { called = true; });
   await adapter.applyPublish(publish({ topic: '' }));
   assert.equal(called, false);
+});
+
+// 2026-10-21 own live Tistory dialog: menuitems wrap text in a span; private hides date buttons.
+test('live nested menuitem spans preserve exact comment selection',async()=>{
+ const dialog=fakeDialog({nestedOptions:true});
+ await adapterOn(dialog).applyPublish(publish({comment:'deny'}));
+ assert.equal(dialog.state.comment,'댓글 비허용');
+});
+test('live private immediate dialog has no date buttons; reservation remains rejected',async()=>{
+ const dialog=fakeDialog({privateDatesAbsent:true});
+ assert.equal((await adapterOn(dialog).applyPublish(publish())).timing,'현재');
+ await assert.rejects(()=>adapterOn(dialog).applyPublish(publish({timing:'reserve'})),/예약 발행 선택 항목/);
 });

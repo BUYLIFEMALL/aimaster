@@ -557,7 +557,7 @@
             const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
             const key = (value) => String(value || "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
             const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
-            const matches = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])]
+            const matches = [...(list?.querySelectorAll("button, [role='option'], [role='menuitem'], a, li, div, span") || [])]
               .filter((node) => visible(node) && key(node.textContent) === key(name))
               .filter((node) => ![...node.children].some((child) => key(child.textContent) === key(name)));
             if (matches.length !== 1) return null;
@@ -638,7 +638,7 @@
             await click(button);
             const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
             const wanted = key(label);
-            const candidates = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])].filter((node) => visible(node) && nodeText(node));
+            const candidates = [...(list?.querySelectorAll("button, [role='option'], [role='menuitem'], a, li, div, span") || [])].filter((node) => visible(node) && nodeText(node));
             if (capture) topicNames = [...new Set(candidates.filter((node) => node.children.length === 0).map(nodeText))].filter((value) => value !== "선택 안 함" && value !== "더보기");
             const matches = candidates
               .filter((node) => key(nodeText(node)) === wanted)
@@ -655,9 +655,13 @@
 
           const timingLabel = requested.timing === "now" ? "현재" : "예약";
           const timingButton = [...root.querySelectorAll("button.btn_date")].find((button) => nodeText(button) === timingLabel);
-          if (!timingButton) throw new Error(`${timingLabel} 발행 선택 항목을 찾지 못했습니다.`);
-          await click(timingButton);
-          if (!timingButton.classList.contains("on")) throw new Error(`${timingLabel} 발행 적용을 확인하지 못했습니다.`);
+          // The live private new-post dialog omits scheduling controls entirely.
+          const privateNow = requested.visibility === "private" && requested.timing === "now" && root.querySelectorAll("button.btn_date").length === 0;
+          if (!timingButton && !privateNow) throw new Error(`${timingLabel} 발행 선택 항목을 찾지 못했습니다.`);
+          if (timingButton) {
+            await click(timingButton);
+            if (!timingButton.classList.contains("on")) throw new Error(`${timingLabel} 발행 적용을 확인하지 못했습니다.`);
+          }
 
           if (requested.timing === "reserve") {
             const targetDate = new Date(`${requested.reserveDate}T00:00:00`);

@@ -45,8 +45,10 @@
     const current = [...dialog.querySelectorAll("button.btn_date")].find(e => norm(e.textContent) === "현재");
     const selects = [...dialog.querySelectorAll("button.mce-btn-type1.select_btn")].filter(visible);
     const comment = args.publish.comment === "deny" ? "댓글 비허용" : "댓글 허용";
-    if (!radio?.checked || args.publish.timing !== "now" || !current?.classList.contains("on") || !norm(selects[0]?.textContent).includes(comment)) return { ok: false };
     const buttons = [...dialog.querySelectorAll("#publish-btn")].filter(visible);
+    const privateNow = args.publish.visibility === "private" && dialog.querySelectorAll("button.btn_date").length === 0
+      && buttons.length === 1 && norm(buttons[0].textContent) === "비공개 저장";
+    if (!radio?.checked || args.publish.timing !== "now" || (!current?.classList.contains("on") && !privateNow) || !norm(selects[0]?.textContent).includes(comment)) return { ok: false };
     if (buttons.length !== 1 || buttons[0].disabled || !args.runId || globalThis.__tistoryFinalRun) return { ok: false };
     if (command === "check") return { ok: true };
     if (command !== "final") return { ok: false };

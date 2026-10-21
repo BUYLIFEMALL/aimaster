@@ -143,3 +143,9 @@
 
 프로그램 이름은 주인님 최종 지시 **티스토리 포스팅 자동화**. 목록 name 변경 완료, 웹/확장 이름과 자동 발행 v1.83은 소스/ZIP/로컬 검증 완료·미배포. 테스트152·타입/빌드 통과, 실제 최종발행0/AI0. 현재 웹 재로그인 후 실제 입력부터 재개해야 하며 완료/이관 운영으로 집계하지 않습니다. [현재 증거·다음 첫 단계](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md). SEO 운영 완료 유지 → 티스토리 사이클 종료 → 에이전트 실제 발행 검수 순서입니다.
 <!-- /TISTORY_AUTO_PUBLISH_PROGRESS_20261021 -->
+
+<!-- TISTORY_AUTO_PUBLISH_PROGRESS_20261022 -->
+## 2026-10-22 티스토리 재개 상태
+
+실제 웹 전송/빈 편집기 입력·서식/저장 원본 대조→DB completed 확인. 댓글 메뉴/비공개 날짜 구조 보완 후155개 로컬 검사 통과. **수정 후 실제 설정 검수·최종 발행·프로덕션 배포는 대기**이며 완료 집계 금지. 현재 웹 로그아웃/확장 미연결, 본인 재로그인 및 토큰 재연결이 다음 첫 단계입니다. [최신 상태](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_AUTO_PUBLISH_CONTINUE.md). SEO 완료→티스토리 종료→에이전트 실제 발행 순서 유지.
+<!-- /TISTORY_AUTO_PUBLISH_PROGRESS_20261022 -->

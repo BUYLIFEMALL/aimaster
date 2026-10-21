@@ -60,3 +60,15 @@ test('read-only own-manager receipt handles a custom domain without extra host p
  assert.equal((await step(page,'published',{title,postId:'124'})).ok,false);
  assert.equal((await step(page,'final')).ok,false);await page.close();
 });
+
+test('live private save dialog without date buttons supports now only and keeps public guarded',async()=>{
+ const page=await pageWith(markup.replace('<button class="btn_date on">현재</button>','').replace('>발행</button>','>비공개 저장</button>'));
+ const {snapshot}=await step(page,'snapshot');
+ assert.equal((await step(page,'final',{snapshot,publish:{...settings,timing:'reserve'}})).ok,false);
+ assert.equal((await step(page,'final',{snapshot})).clicked,true);
+ assert.equal(await page.evaluate(()=>window.finalClicks),1);await page.close();
+ const publicPage=await pageWith(markup.replace('<button class="btn_date on">현재</button>',''));
+ await publicPage.evaluate(()=>{document.querySelector('#private').checked=false;document.querySelector('#public').checked=true;});
+ const next=await step(publicPage,'snapshot');
+ assert.equal((await step(publicPage,'final',{snapshot:next.snapshot,publish:{...settings,visibility:'public'}})).ok,false);await publicPage.close();
+});
