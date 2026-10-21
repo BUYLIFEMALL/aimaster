@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 좁은 칸 버튼·문구 줄바꿈/잘림 전수 점검(코드 수정 없음)
+- 주인님 「다른 서브프로그램 카드들도 같은 문제 있는지 점검」. 정적 검사 54곳 → HIGH 34(데스크톱에서도 약 10: threads 계열 ApiKeyRow 3·메인 관리자 등급 이동 모달·ai-audio-analyzer·ai-prompt-studio·ai-webtoon-studio·ai-image-studio 헤더), MEDIUM 7, LOW 10, 해당 없음 3. 설정 화면 `ApiKeyRow`·`CronjobKeyRow` 24곳이 최다(사본이 15종이라 파일마다 클래스 4개 추가 필요). 수치는 코드 추정, 브라우저 실측 아님.
+- 보고서·수정 플랜(주인님 승인 대기): `docs/UI_WRAP_AUDIT_20261022.md`. 다음 첫 단계: 승인되면 ① 데스크톱 HIGH 묶음부터 크롬 실측 → 수정.
+
 ## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.25 AI 영상 길이 선택·전체 영상 합계 금액
 - 「장면 길이에 맞춤」(기본, 반복 재생 방지)·5·8·10초 고정, 장면 버튼 「AI 영상 8초 $0.80」, 「모두 영상으로 만들면 약 $X」. 배포 Ready·DB v1.25·크롬 확인. 비용: 빌드 1회. 다음: v1.26 본인 목소리 복제(ElevenLabs).
 - 교훈: 공유 저장소에서 `git mv` 금지(공용 스테이징 오염, `docs/ERROR_LESSONS.md` 맨 위).
