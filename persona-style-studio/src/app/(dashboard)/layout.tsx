@@ -1,19 +1,9 @@
-import { requireProgramAccess } from "@/lib/access";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { MovedNotice } from "@/components/MovedNotice";
 
-// 권한 확인 결과가 정적으로 캐시되지 않게 두 줄을 세트로 선언한다(CLAUDE.md 멀티테넌시 원칙 1).
+// 2026-10-21 병합 B(v1.09): 모든 화면(작업실·매뉴얼·설정)은 AI 글쓰기 에디터로 옮겨졌다는 안내만 보여 준다.
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireProgramAccess();
-
-  return (
-    <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-900 antialiased md:flex-row">
-      <Sidebar userEmail={user.email} />
-      <main className="min-w-0 flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-[1600px] p-4 sm:p-6">{children}</div>
-      </main>
-    </div>
-  );
+export default function DashboardLayout() {
+  return <MovedNotice />;
 }

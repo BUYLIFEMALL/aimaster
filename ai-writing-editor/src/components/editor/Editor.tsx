@@ -9,7 +9,8 @@ import Image from "@tiptap/extension-image";
 import { TextStyle, Color } from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
-import { ArrowLeft, Check, ClipboardCopy, Download, FileText, Loader2, Wand2 } from "lucide-react";
+import { ArrowLeft, Check, ClipboardCopy, Download, FileText, Loader2, SlidersHorizontal, Wand2 } from "lucide-react";
+import type { EqValues, Persona } from "@/lib/persona/types";
 import { FORMATS, LIMITS, type ActionId, type ContentType, type FormatId, type Source, type Suggestion } from "@/lib/we/types";
 import { deriveTitle } from "@/lib/we/util";
 import { findText, rangeText, splitParagraphs } from "@/lib/we/pmText";
@@ -17,6 +18,7 @@ import { BubbleToolbar } from "./BubbleToolbar";
 import { ImageMenu } from "./ImageMenu";
 import { RichToolbar } from "./RichToolbar";
 import { SuggestionPanel } from "./SuggestionPanel";
+import { StylePanel, type StyleRunResult, type StyleScope } from "./StylePanel";
 import { isImageFile, uploadImage } from "./imageUpload";
 
 type SaveState = "saved" | "dirty" | "saving" | "error";
@@ -62,7 +64,9 @@ export function Editor({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [save, setSave] = useState<SaveState>("saved");
-  const [panelOpen, setPanelOpen] = useState(false);
+  // 오른쪽 패널: 글 분석 또는 문체 바꾸기(한 번에 하나)
+  const [panel, setPanel] = useState<"none" | "analysis" | "style">("none");
+  const styleTarget = useRef<{ from: number; to: number; text: string; all: boolean; result: string } | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [note, setNote] = useState("");
@@ -122,6 +126,7 @@ export function Editor({
     selector: ({ editor: e }) => ({
       chars: e ? e.getText({ blockSeparator: BLOCK }).replace(/\s/g, "").length : 0,
       empty: e ? e.isEmpty : true,
+      selChars: e && !e.state.selection.empty ? rangeText(e.state.doc, e.state.selection.from, e.state.selection.to).trim().length : 0,
     }),
   });
 
@@ -200,8 +205,8 @@ export function Editor({
   const analyze = useCallback(async () => {
     if (!editor) return;
     const body = editor.getText({ blockSeparator: BLOCK });
-    if (body.trim().length < 20) { setPanelOpen(true); setSuggestions([]); setNote("분석하려면 글이 20자 이상이어야 합니다."); return; }
-    setPanelOpen(true); setAnalyzing(true); setError(null); setNote("");
+    if (body.trim().length < 20) { setPanel("analysis"); setSuggestions([]); setNote("분석하려면 글이 20자 이상이어야 합니다."); return; }
+    setPanel("analysis"); setAnalyzing(true); setError(null); setNote("");
     try {
       const res = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: body }) });
       const data = await res.json().catch(() => ({}));
@@ -264,6 +269,43 @@ export function Editor({
     editor.chain().focus().setTextSelection(r).scrollIntoView().run();
   }
 
+  // ---- 문체 바꾸기(병합 B) ----
+  // 선택 부분은 일반 텍스트, 글 전체는 마크다운(제목·목록·표 서식 유지)으로 보내고, 적용할 때 그 사이 본문이 바뀌었는지 다시 확인한다.
+  async function runStyle(scope: StyleScope, values: EqValues, persona: Persona | null): Promise<StyleRunResult> {
+    if (!editor) return { error: "에디터가 아직 준비되지 않았습니다." };
+    const { from, to, empty } = editor.state.selection;
+    const all = scope === "all" || empty;
+    const text = all ? editor.getMarkdown() : rangeText(editor.state.doc, from, to);
+    if (!text.trim()) return { error: "바꿀 글이 없습니다." };
+    styleTarget.current = null;
+    try {
+      const res = await fetch("/api/style-rewrite", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, values, persona }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || typeof data.text !== "string") return { error: data.error ?? "문체를 바꾸지 못했습니다.", needKey: !!data.needKey };
+      styleTarget.current = { from, to, text, all, result: data.text };
+      return { text: data.text };
+    } catch {
+      return { error: "서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요." };
+    }
+  }
+
+  function applyStyle(): boolean {
+    const t = styleTarget.current;
+    if (!editor || !t) return false;
+    if (t.all) {
+      if (editor.getMarkdown() !== t.text) return false;
+      const blocks = editor.markdown?.parse(t.result)?.content ?? [];
+      editor.chain().focus().insertContentAt({ from: 0, to: editor.state.doc.content.size }, blocks.length ? blocks : [{ type: "paragraph", content: [{ type: "text", text: t.result }] }]).run();
+    } else {
+      const cur = editor.state.doc;
+      const target = rangeText(cur, t.from, Math.min(t.to, cur.content.size)) === t.text ? { from: t.from, to: t.to } : findText(cur, t.text, t.from);
+      if (!target) return false;
+      editor.chain().focus().insertContentAt(target, toNodes(editor, t.result)).run();
+    }
+    styleTarget.current = null;
+    return true;
+  }
+
   // ---- 복사·내보내기 ----
   async function copyRich() {
     if (!editor) return;
@@ -289,7 +331,7 @@ export function Editor({
   const hasText = !(stats?.empty ?? true);
 
   return (
-    <div className={`we-editor ${panelOpen ? "with-panel" : ""}`}>
+    <div className={`we-editor ${panel !== "none" ? "with-panel" : ""}`}>
       <div className="we-main">
         <div className="we-bar">
           <a href="/dashboard" className="button"><ArrowLeft size={13} />새 글·홈</a>
@@ -309,6 +351,9 @@ export function Editor({
           <button type="button" disabled={!hasText} onClick={() => editor && download(`${safeName}.txt`, editor.getText({ blockSeparator: BLOCK }), "text/plain;charset=utf-8")}><Download size={13} />.txt</button>
           <button type="button" className="primary" disabled={analyzing || !hasText} onClick={() => void analyze()}>
             {analyzing ? <Loader2 size={13} className="we-spin" /> : <Wand2 size={13} />}글 분석
+          </button>
+          <button type="button" className="primary" aria-pressed={panel === "style"} disabled={!hasText} onClick={() => setPanel((p) => (p === "style" ? "none" : "style"))} title="슬라이더·프리셋·페르소나로 선택한 부분이나 글 전체의 말투를 바꿉니다">
+            <SlidersHorizontal size={13} />문체 바꾸기
           </button>
           <span className="muted we-chars">{(stats?.chars ?? 0).toLocaleString("ko-KR")}자(공백 제외)</span>
         </div>
@@ -340,6 +385,7 @@ export function Editor({
                   busy={busy}
                   onAction={(a) => void rewrite({ action: a })}
                   onInstruction={(t) => void rewrite({ instruction: t })}
+                  onStyle={() => setPanel("style")}
                 />
                 <ImageMenu editor={editor} />
               </>
@@ -353,7 +399,16 @@ export function Editor({
           </details>
         )}
       </div>
-      {panelOpen && (
+      {panel === "style" && (
+        <StylePanel
+          selectionChars={stats?.selChars ?? 0}
+          totalChars={stats?.chars ?? 0}
+          onRun={runStyle}
+          onApply={applyStyle}
+          onClose={() => setPanel("none")}
+        />
+      )}
+      {panel === "analysis" && (
         <SuggestionPanel
           suggestions={suggestions}
           analyzing={analyzing}
@@ -363,7 +418,7 @@ export function Editor({
           onApplyAll={applyMany}
           onDismiss={(s) => setSuggestions((cur) => cur.filter((x) => x.originalText !== s.originalText))}
           onLocate={locate}
-          onClose={() => setPanelOpen(false)}
+          onClose={() => setPanel("none")}
           onRerun={() => void analyze()}
         />
       )}

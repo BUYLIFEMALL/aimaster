@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 페르소나 문체 자동화 / `persona-style-studio` |
-| 현재 버전 | **v1.08** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.09 — 사용 종료(2026-10-21 병합 B)**: AI 글쓰기 에디터 「🎚️ 문체 바꾸기」로 옮겨짐. 화면은 안내만, API 410, 카탈로그 숨김(`is_active=false`) |
 | 라이브 | https://persona-style-studio.buylife.xyz (옛 `persona-style-studio.vercel.app` 유지) |
 | 적용 디자인 템플릿 | **포커스 스튜디오 스타일 (Focus Studio Style · 문체 변환 스튜디오)** |
 | 인수인계 문서 | [로그인 플랜](docs/PLAN_20261017_LOGIN_RENEWAL.md) · [로그인 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [가이드 플랜](docs/PLAN_20261016_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) |
@@ -92,3 +92,9 @@ tests/persona.test.mjs · access.test.mjs   `npm test` 14개 통과
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 Claude Code(윈도우) — 병합 B: AI 글쓰기 에디터로 흡수, 사용 종료 (v1.09)
+- 기능(슬라이더 5·프리셋 8·페르소나 10·나만의 페르소나)은 `ai-writing-editor` v1.11 「🎚️ 문체 바꾸기」로 옮김(프롬프트 `src/lib/persona/*` 그대로 복사, 표 `persona_style_personas` 재사용).
+- 이 앱: `/`·`(dashboard)` 전 화면 → `components/MovedNotice.tsx`, `/api/{rewrite,persona-generate,personas,drafts,user-key}` → 410. 옛 작업 화면 부품(`components/studio/*`)은 쓰이지 않지만 지우지 않고 남김.
+- DB: `programs` v1.09·`is_active=false`. 페르소나·초안 표는 0건이라 옮길 데이터 없음. 권한 175명은 에디터 권한 이미 보유(24명 기간 연장). 백업 `D:\Antigravity\AIMaster_backup\merge-b-20261021`.
+- 확인: 첫 화면·로그인 `/studio` 안내, `/api/rewrite` 410, 카탈로그 미노출.

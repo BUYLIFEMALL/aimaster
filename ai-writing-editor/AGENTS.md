@@ -1,8 +1,8 @@
 # 🖋️ AI 글쓰기 에디터 자동화 (ai-writing-editor) — AI 에이전트 인수인계서
 
 > **공식 서비스 URL**: https://ai-writing-editor.buylife.xyz  
-> **현재 버전**: `v1.10` (포커스 스튜디오 스타일 — 글쓰기 에디터 에디션)  
-> **최근 갱신일**: 2026-10-19  
+> **현재 버전**: `v1.11` (포커스 스튜디오 스타일 — 글쓰기 에디터 에디션, 2026-10-21 병합 B로 「🎚️ 문체 바꾸기」 추가)  
+> **최근 갱신일**: 2026-10-21  
 > **표준 템플릿**: 포커스 스튜디오 스타일 (`Focus Studio Theme`, 크림 페이퍼 `#fdfbf7` + 딥 인디고 `#4f46e5` + 로열 바이올렛 `#8b5cf6`)  
 > **참고 기준 문서**: 루트 `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`
 
@@ -102,7 +102,12 @@
   - 모바일 반응형 셸 미디어 쿼리 버그 수정 (Claude Code).
 - **`v1.07` (2026-10-16)**:
   - Supabase DB 연결 환경변수 하위 호환성 표준화 적용.
-- **`v1.10` (2026-10-19, 현재 버전 - Antigravity CLI)**:
+- **`v1.11` (2026-10-21, 현재 버전 - Claude Code) — 병합 B: 페르소나 문체 자동화 흡수**:
+  - 에디터 상단 [문체 바꾸기]·선택 툴바 [🎚️ 문체] → 오른쪽 패널 `components/editor/StylePanel.tsx`(글 분석 패널과 번갈아 열림). 범위(선택 부분/글 전체 — 전체는 마크다운으로 보내 제목·목록·표 유지), 기본 페르소나 10 + 나만의 페르소나(AI 채우기·저장·삭제), 프리셋 8, 가로 슬라이더 5, 미리보기 → [본문에 적용](적용 직전 본문이 바뀌었는지 다시 확인, Ctrl+Z 가능).
+  - API: `/api/style-rewrite`(8,000자 한도, `maxOutputTokens` 16384, `maxDuration` 120), `/api/personas`(표 `persona_style_personas` 재사용·`user_id` 직접 필터·100개 한도), `/api/persona-generate`. 모두 `guardAi`(권한 + 회원 본인 Gemini 키, 폴백 없음). 프롬프트 `src/lib/persona/*`는 옛 앱에서 그대로 옮김.
+  - 권한: 페르소나 권한 175명 전원 이미 보유, 기간이 더 짧던 24명만 페르소나 기간으로 연장(백업 `D:AntigravityAIMaster_backupmerge-b-20261021`). FREE 배지 없음 유지(주인님 결정). 플랜 `docs/PLAN_20261021_MERGE_B_PERSONA_STYLE.md`.
+  - 검수(크롬, 관리자): 글 전체(알렉스)·선택 문단(조이) 적용, 나만의 페르소나 AI 채우기·저장·삭제, 390px iframe 가로 넘침 없음. Gemini 호출 3회.
+- **`v1.10` (2026-10-19 - Antigravity CLI)**:
   - **포커스 스튜디오 테마 (`Focus Studio Theme`) 전면 리뉴얼**:
     - 소프트 크림(`#fdfbf7`), 퓨어 화이트, 딥 인디고(`#4f46e5`), 로열 바이올렛(`#8b5cf6`) 기반 무결성 디자인 토큰 구축.
     - 대시보드 웰컴 히어로 배너, 3대 기능 지표 카드, 시작 패널 인터페이스 고도화.

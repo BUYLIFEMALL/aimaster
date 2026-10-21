@@ -10,12 +10,13 @@ import { ACTIONS, LIMITS, type ActionId } from "@/lib/we/types";
  * 버튼을 눌러도 에디터 선택이 풀리지 않도록 mousedown을 막고, 지시문 입력칸만 포커스를 받는다.
  */
 export function BubbleToolbar({
-  editor, busy, onAction, onInstruction,
+  editor, busy, onAction, onInstruction, onStyle,
 }: {
   editor: Editor;
   busy: boolean;
   onAction: (a: ActionId) => void;
   onInstruction: (text: string) => void;
+  onStyle?: () => void;
 }) {
   const [custom, setCustom] = useState(false);
   const [text, setText] = useState("");
@@ -46,6 +47,7 @@ export function BubbleToolbar({
           <button key={a.id} type="button" disabled={busy} onClick={() => onAction(a.id)}>{a.label}</button>
         ))}
         <button type="button" aria-pressed={custom} disabled={busy} onClick={() => setCustom((v) => !v)}>직접 지시</button>
+        {onStyle && <button type="button" disabled={busy} title="선택한 부분을 페르소나·슬라이더로 문체 바꾸기" onClick={onStyle}>🎚️ 문체</button>}
         {busy && <Loader2 size={14} className="we-spin" aria-label="수정 중" />}
         {custom && (
           <form className="we-toolbar-custom" onSubmit={(e) => { e.preventDefault(); submit(); }}>

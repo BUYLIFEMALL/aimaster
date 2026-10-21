@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 병합 B 완료: 페르소나 문체 → AI 글쓰기 에디터 「🎚️ 문체 바꾸기」
+
+- ai-writing-editor v1.11(에디터 상단 [문체 바꾸기]·선택 툴바 [🎚️ 문체] → 오른쪽 패널: 범위 선택 부분/글 전체, 기본 페르소나 10·나만의 페르소나(AI 채우기·저장), 프리셋 8, 슬라이더 5, 미리보기 후 적용. API `/api/style-rewrite`·`/api/personas`·`/api/persona-generate`, 회원 본인 Gemini 키), persona-style-studio v1.09(안내 화면·API 410·카탈로그 숨김). FREE 배지 없음 유지(주인님 결정).
+- 운영 DB(`esgxyikcnnvmlhygjkth`): 에디터 권한 24명 기간 연장(175명 모두 기존 보유), 버전·숨김·상세 소개(496자 6단락)·핵심 특징·사용 순서. 백업 `D:\Antigravity\AIMaster_backup\merge-b-20261021`. 기록 `ai-writing-editor/supabase/migrations/0004_merge_b_v1_11.sql`.
+- 크롬 검수(관리자): 글 전체(알렉스)·선택 문단(조이) 적용, 나만의 페르소나 AI 채우기·저장·삭제, 390px 넘침 없음, 옛 앱 안내·410, 메인 상세 v1.11. Gemini 3회. 유튜브 시험 영상 3편은 주인님이 삭제 완료.
+- 다음: 시네마틱 스토리보드 카테고리 → 「이미지」(DB 한 칸) → 병합 C(프롬프트 템플릿 → AI Prompt, 새 표 승인) → 병합 D. 남은 개선: `ai-writing-editor/docs/IMPROVEMENTS.md` 2026-10-21 표.
+
+https://ai-writing-editor.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 병합 A 완료: Website Scraper → 웹 크롤링 「🔎 한 페이지 분석」
 
 - web-crawler-saas v1.09(새 메뉴 `/inspect`: 7탭·영역 선택·AI 목록 표(서버 본인 키 4사)·CSV·ZIP + 미배포였던 30일 삭제, `CRON_SECRET` 새 등록 — 주인님 승인), website-scraper v1.13(안내 화면·API 410·카탈로그 숨김). 운영 DB 권한 6명 기간 연장(백업 저장소 밖 `AIMaster_backup/merge-a-20261021`).
