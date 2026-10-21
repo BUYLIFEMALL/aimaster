@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- COMPARISON_REFERENCE_HANDOFF_20261021 -->
+## 2026-10-21 Codex — 블로그 결과물 공동 인계·분석/산출물 레퍼런스 확정
+
+주인님 요청으로 [공통 인수인계](analysis-blog-consolidation-20261020/HANDOFF_20261021_CLI_REFERENCE.md)에 BLC 완료·SEO 재비교·기준 커밋/배포·미완료·재개 시 보존사항·다음 첫 단계를 묶었습니다. [비교 분석 매뉴얼 §8](PROGRAM_COMPARISON_ANALYSIS_GUIDE.md#8-정밀-재비교산출물-작성-레퍼런스-2026-10-21)에 분석 순서/완료 조건·증거 수준·표/HTML/근거 JSON/인계 작성법·재생성 명령을 등록하고 AGENTS/CLAUDE/GEMINI 공통 진입점에서 연결했습니다. 제품/엔진 선정 기준과 CLI별 브라우저를 구분했습니다. 문서만 변경, 이번 DB 접근/제품 코드/버전/배포·유료 호출 0. 운영 대상 ref `esgxyikcnnvmlhygjkth`의 직전 검수 이력을 연결했으며 새 운영 검수로 집계하지 않습니다.
+
+**후속 우선순위 변경(주인님 최신 지시):** 자동 포스팅 완성부터 진행합니다. SEO→티스토리→에이전트 실제 발행 검수를 한 프로그램씩 순차 진행하며, 최종 자동 발행·발행 URL/결과 저장·중복 방지가 완료 기준입니다. 기존 BLC-07 우선 안내는 이 최신 지시에 따라 재조정합니다.
+
+https://naver-blog-seo-studio.buylife.xyz
+<!-- /COMPARISON_REFERENCE_HANDOFF_20261021 -->
+
 <!-- SEO_COMPARE_HANDOFF_20261021 -->
 ## 2026-10-21 Codex — BLC-06 종료 후 SEO 블로그 스튜디오 재비교
 
