@@ -235,14 +235,18 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
 
 
         {/* Price + CTA */}
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
-          <div>
+        {/* 좁은 카드(약 330px)에서도 글자가 줄바꿈되지 않게 가격은 두 줄 고정·버튼은 nowrap (2026-10-22) */}
+        <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-white/10">
+          <div className="min-w-0 whitespace-nowrap">
             {resolvedBadges.includes("free") ? (
-              <span className="text-emerald-400 font-bold text-base">무료 (회원 전용)</span>
+              <div className="flex flex-col leading-tight">
+                <span className="text-emerald-400 font-bold text-base">무료</span>
+                <span className="text-emerald-400/70 text-[11px] font-medium">회원 전용</span>
+              </div>
             ) : minPrice ? (
               <>
                 <span className="text-xs text-subtext">월 </span>
-                <span className="text-gold font-bold text-lg">
+                <span className="text-gold font-bold text-base">
                   {formatKRW(minPrice.price)}
                 </span>
                 <span className="text-xs text-subtext"> ~</span>
@@ -251,7 +255,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
               <span className="text-subtext text-sm">가격 문의</span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2 whitespace-nowrap">
             {/* 휴대폰(마우스 올림 없음)용 퀵 프리뷰 — 덮개 버튼과 같은 팝업(2026-10-20) */}
             <button
               type="button"
@@ -294,7 +298,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
               </Link>
             )}
             <Link href={"/programs/" + program.slug} onClick={recordRecent}>
-              <GoldButton size="sm">자세히 보기</GoldButton>
+              <GoldButton size="sm" className="px-3 whitespace-nowrap">자세히 보기</GoldButton>
             </Link>
           </div>
         </div>

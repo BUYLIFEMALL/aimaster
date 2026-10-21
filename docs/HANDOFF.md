@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 메인 사이트 프로그램 카드 하단(가격·버튼) 줄바꿈 수정
+- 증상: 카탈로그 3열 카드(폭 약 330px)에서 「무료 (회원 전용)」·「무료 이용하기」·「자세히 보기」 글자가 두 줄로 밀려 하단이 찌그러짐(주인님 스크린샷).
+- 수정 `components/programs/ProgramCard.tsx`: ① 무료 표시를 「무료」(굵게) + 「회원 전용」(작게) 두 줄로 의도적으로 나눔 ② 가격 영역 `min-w-0 whitespace-nowrap`, 버튼 묶음 `shrink-0 whitespace-nowrap` ③ 월 가격 글자 `text-lg → text-base` ④ 「자세히 보기」 `px-4 → px-3`. 기능·링크·판정 변경 없음, 버전 없음(메인 사이트).
+- 주의: 카드 하단에 버튼·문구를 더 넣으면 330px 폭에서 다시 넘칠 수 있음 — 추가할 때는 카드 3열 화면에서 줄바꿈 여부를 먼저 확인. 배포는 GitHub 푸시 자동 빌드(Vercel 빌드 1회).
+
+https://www.buylife.xyz/programs
+
 ## 2026-10-22 Claude Code(윈도우) — HANDOFF.md 깨진 글자 11줄 복구 · ⚠️ shorts-onestop 세션 알림
 - 주인님 지시로 이 문서의 제어 문자 11줄 복구(커밋 `a8840244`에서 PowerShell 백틱 이스케이프로 `bg-`·`app/`·`v1.xx`·`buylifemall@`의 첫 글자 14개가 사라졌던 것). 이제 일반 텍스트 파일(검색·비교 정상). 원인·예방: `docs/ERROR_LESSONS.md` 2026-10-22.
 - **⚠️ `shorts-onestop-studio/` 작업 중인 세션께**: 그 세션이 스테이징해 둔 `src/app/api/cron/cleanup-videos/route.ts` → `cleanup-media/route.ts` 이름 변경(내용 동일)이 제 커밋 `69d17d87`에 섞여 푸시됐습니다. 작업 폴더 파일은 바뀌지 않았고 되돌리지 않았습니다 — 다음 커밋 때 `git status`로 이 이름 변경이 이미 HEAD에 있음을 확인하고 나머지 변경만 커밋해 주세요. (재발: 스테이징 목록을 보기만 하고 같은 명령에서 커밋함 → 이후 `safe_commit` 방식으로 내 경로 밖 스테이징이 있으면 멈춤)
