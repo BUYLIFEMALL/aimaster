@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(맥미니, 보조 계정) — 「이커머스」 카테고리 병합 분석 + 개발 플랜 (5개 → 3개, 분석만·주인님 결정 대기)
+
+비교 분석 매뉴얼대로 5개(+기획 폴더 `coupang/`·`sourcing/`) 코드·운영 DB(ref `esgxyikcnnvmlhygjkth`, 읽기만) 확인. 결론: **E0. 상세페이지 자동화(15p) 안전 보강 선행**(Storage `shop-detail-images` 공개 → 비공개·30일 삭제 없음), **E1. 12단 → 15p**(마켓 규격 12단·9단 프리셋·상품명 채우기·사양서 분석·모바일 미리보기 이관, 12단의 브라우저 전용 저장 단점 해소, 12단만 권한 있는 4명 부여), **E2. 자동생성기 v1 → 15p 「HTML 내보내기」**(저장 0건, 보류 가능). 독립: GIF 자동화·상품소싱 자동화. `sourcing/` 기획은 만든다면 상품소싱 안 메뉴로 추천. 코드·DB·배포 변경 없음. 보고서: [`docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](analysis-ecommerce-consolidation-20261021/REPORT.md) §5 결정 6건 대기. 다음 첫 단계: 결정 받으면 E0 플랜(맥미니 코드·tsc → 윈도우 빌드·배포·DB).
+
+https://shop-detail-page.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 「이미지」 카테고리 병합 분석 (11개 → 9개, 분석만·주인님 결정 대기)
 
 비교 분석 매뉴얼(`docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md`)대로 11개 코드 9항목 확인. 결론: **A. 포토 리메이크 → 바나나 캔버스**(복원·컬러화·업스케일·합성 거의 동일, 브라우저 저장 단점 해소), **B. 올인원 그래픽 → 바나나 캔버스 「템플릿 그래픽」**(대안: 이미지 스튜디오 탭), 나머지 8개 독립. 함께 발견한 보강 과제: 이미지 스튜디오 결과 버킷·스타일 분석기 원본 버킷이 공개, 이미지 스튜디오 30일 삭제가 cron 없이 갤러리 열람 때 실행, 여러 앱 30일 삭제 cron 없음. 결정 대기: 묶음·순서, 바나나 캔버스 FREE 유지, 보안 보강 선행 여부, 스타일 분석기 ↔ `reverse-prompt` 카테고리 간 분석. 코드·DB 변경 없음. 보고서 `docs/analysis-image-consolidation-20261021/REPORT.md`.
