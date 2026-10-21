@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.19** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.20** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -162,3 +162,10 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 서버: `src/lib/sunoTracks.ts` + `/api/suno/tracks`(목록·?variant=)·`/api/suno/timed-lyrics`(같은 출처만) — 모두 `requireAccess()`, 조회는 회원 `user_id`로만. 관계가 2개라 `music_track_variants!music_track_variants_track_id_fkey` 지정.
 - **공용 기준 코드 `suno-timed-lyrics` 등록**: 사본 `src/lib/sunoAlign.ts`(기준 `lyric-video-studio/src/lib/sunoAlign.ts`, 직접 고치지 말고 `--sync`).
 - 검수: tsc·시험 23개·build, 배포 Ready, DB v1.19. 크롬 운영(일반 회원): 패널에 「빗속의 다짐 · 보컬」 변주 2개 → 변주 1 시간 가사와 함께 추가(「곡 1개 … 시간 가사 1곡」, 목록 01 「가사 21줄」, 패널 「✓ 가사 받음」) → 시간 가사 끄고 변주 2 추가(목록 02 가사 없음). 편집 미리보기 가사 표시는 배경이 있어야 들어가 이번엔 생략(가사 형식은 v1.17과 같음). 비용: Suno 시간 가사 조회 1회(시험 계정 본인 키), Vercel 빌드 1회.
+
+## 2026-10-21 v1.20 — Suno 커버 배경·한 번에 고르기·음악에서 넘겨받기 (Claude Code 윈도우)
+- 플랜: [`docs/PLAN_20261021_V1_20_SUNO_COVER_SELECT.md`](docs/PLAN_20261021_V1_20_SUNO_COVER_SELECT.md)(v1.19 추가개선 1·2·3). 짝 작업: 음악(SUNO) 자동화 v1.26.
+- ① 커버 배경: `/api/suno/tracks?variant=`가 커버 서명 주소도 돌려줌(`sunoTracks.ts`). 정사각 커버를 늘이면 찌그러지므로 브라우저에서 **흐린 확대 커버 + 가운데 원본 커버** 1920×1080 JPG를 만들어 배경으로(`coverBackdrop`). 「배경이 없으면 첫 곡 커버를 배경으로」(기본 켬) + 곡 줄마다 「🖼 배경으로」.
+- ② 「전체 선택」「보컬만」「연주곡만」「선택 해제」(최대 20곡).
+- ③ `/video?suno=id1,id2…`로 들어오면 패널을 펼치고 그 곡들을 **미리 선택만**(Suno 조회 비용 때문에 자동 추가 안 함), 주소에서 값 지움.
+- 검수: tsc·시험 23개·build, 배포 Ready, DB v1.20. 크롬 운영(일반 회원): 음악 곡 화면 버튼 주소로 진입 → 안내·변주 1 미리 선택 → 선택 해제(0)·보컬만(2) → 시간 가사 끄고 추가 → 「배경은 「빗속의 다짐」 커버로 만들었습니다」, 배경 1920×1080 → 편집 스튜디오 입장, 미리보기에 커버 배경·스펙트럼. 비용: Vercel 빌드 1회, Suno·AI 0회.

@@ -52,24 +52,24 @@ export async function listSunoTracks(userId: string): Promise<SunoTrack[]> {
   }).filter((t) => t.variants.length > 0);
 }
 
-type VariantRow = { id: string; suno_audio_id: string | null; audio_url: string; music_tracks: { title: string; task_id: string | null; mode: string } | null };
+type VariantRow = { id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null; music_tracks: { title: string; task_id: string | null; mode: string } | null };
 
 async function ownVariant(userId: string, variantId: string): Promise<VariantRow> {
   const { data, error } = await createAdminClient()
     .from("music_track_variants")
-    .select("id, suno_audio_id, audio_url, music_tracks!music_track_variants_track_id_fkey(title, task_id, mode)")
+    .select("id, suno_audio_id, audio_url, image_url, music_tracks!music_track_variants_track_id_fkey(title, task_id, mode)")
     .eq("id", variantId).eq("user_id", userId).maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new SunoError(404, "곡을 찾지 못했습니다. 음악(SUNO) 자동화에서 내가 만든 곡만 가져올 수 있습니다.");
   return data as unknown as VariantRow;
 }
 
-/** 변주 하나의 음악 서명 주소 */
+/** 변주 하나의 음악·커버 서명 주소(v1.20 커버 추가 — 플레이리스트 배경 만들기) */
 export async function getSunoVariant(userId: string, variantId: string) {
   const v = await ownVariant(userId, variantId);
   const audioUrl = await signed(v.audio_url);
   if (!audioUrl) throw new SunoError(410, "이 곡의 음악 파일을 찾지 못했습니다. 보관 기간이 지나 지워졌을 수 있습니다.");
-  return { id: v.id, title: v.music_tracks?.title ?? "", audioUrl };
+  return { id: v.id, title: v.music_tracks?.title ?? "", audioUrl, coverUrl: await signed(v.image_url) };
 }
 
 /** 회원 본인 Suno 키로 시간 가사를 받아 줄 시간표로 바꾼다 */

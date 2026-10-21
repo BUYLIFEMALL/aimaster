@@ -272,7 +272,7 @@ export function MediaCenter({
           </div>
 
           {/* v1.19 음악(SUNO) 자동화 곡 여러 개 + 시간 가사 가져오기 */}
-          <SunoImportPanel setTracks={setTracks} />
+          <SunoImportPanel setTracks={setTracks} hasBg={!!bgMedia} setBgMedia={setBgMedia} />
 
           {/* 오디오 파일 드롭존 */}
           <div

@@ -50,6 +50,12 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
       ),
     );
 
+  // 완성 곡마다 첫 변주(최대 20곡) — 플레이리스트 「Suno 곡 가져오기」가 미리 선택해 둔다
+  const playlistIds = trackList
+    .filter((t) => t.status === "completed" && t.music_track_variants.length > 0)
+    .map((t) => t.music_track_variants[0].id)
+    .slice(0, 20);
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
       <AutoRefresh enabled={hasGeneratingTrack} />
@@ -67,6 +73,19 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
         planningVocalGender={planningData.vocal_gender}
         planningLang={planningData.lang}
       />
+
+      {playlistIds.length > 0 && (
+        // v1.26 이 기획의 완성 곡(곡마다 첫 변주)을 YOUTUBE 플레이리스트 자동화로 넘긴다 — 그쪽은 미리 선택만 하고 회원이 「선택한 곡 추가」
+        <a
+          href={`https://playlist-channel-studio.buylife.xyz/video?suno=${playlistIds.join(",")}`}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-red-500/30 bg-red-950/30 px-4 py-3 text-sm font-bold text-red-100 hover:border-red-400/60 hover:bg-red-900/30 transition-all"
+        >
+          <span>🎞️ 이 기획의 완성 곡 {playlistIds.length}개로 플레이리스트 영상 만들기 →</span>
+          <span className="text-xs font-normal text-red-200/70">YOUTUBE 플레이리스트 자동화 · 새 창</span>
+        </a>
+      )}
 
       {trackList.length > 0 && (
         <div className="space-y-4">
