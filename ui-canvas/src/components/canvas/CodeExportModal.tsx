@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { Copy, Download, Trash2, X } from "lucide-react";
 import type { CanvasComponent, CanvasSize, Snippet } from "@/lib/canvas/types";
-import { generateTsx } from "@/lib/canvas/codegen";
+import { generateTsx, type CodeLayout } from "@/lib/canvas/codegen";
 
 // 「</> 코드」 창(2026-10-21 병합 D): 캔버스 화면 → React + Tailwind TSX, 갤러리에서 저장한 AI 컴포넌트 보기·복사·삭제.
 interface Props {
@@ -28,7 +28,8 @@ function saveFile(filename: string, text: string) {
 export function CodeExportModal({ projectId, name, dark, canvas, components, snippets, onSnippets, onClose, say }: Props) {
   const [tab, setTab] = useState<"screen" | "saved">("screen");
   const [openId, setOpenId] = useState<string | null>(snippets[0]?.id ?? null);
-  const code = useMemo(() => generateTsx(components, canvas, { name, dark }), [components, canvas, name, dark]);
+  const [layout, setLayout] = useState<CodeLayout>("responsive");
+  const code = useMemo(() => generateTsx(components, canvas, { name, dark, layout }), [components, canvas, name, dark, layout]);
   const fileBase = (name || "design").replace(/[\\/:*?"<>|]/g, "_");
 
   const copy = async (text: string) => {
@@ -60,14 +61,21 @@ export function CodeExportModal({ projectId, name, dark, canvas, components, sni
 
         {tab === "screen" ? (
           <>
+            <div className="uc-layout-pick" role="radiogroup" aria-label="배치 방식">
+              <span>배치 방식</span>
+              <button type="button" role="radio" aria-checked={layout === "responsive"} aria-pressed={layout === "responsive"} onClick={() => setLayout("responsive")}>반응형 (flex)</button>
+              <button type="button" role="radio" aria-checked={layout === "absolute"} aria-pressed={layout === "absolute"} onClick={() => setLayout("absolute")}>캔버스 그대로 (절대 위치)</button>
+            </div>
             <p className="uc-code-note">
-              캔버스 컴포넌트 {components.length}개를 React + Tailwind CSS 컴포넌트 한 파일로 만들었습니다. 위치·크기는 캔버스 그대로(절대 위치)이고,
-              아이콘은 <code>lucide-react</code>를 씁니다. 실제 서비스에 넣을 때는 flex·grid로 바꿔 반응형으로 다듬으세요.
+              캔버스 컴포넌트 {components.length}개를 React + Tailwind CSS 컴포넌트 한 파일로 만들었습니다. 아이콘은 <code>lucide-react</code>를 씁니다.{" "}
+              {layout === "responsive"
+                ? "세로 위치가 겹치는 컴포넌트를 한 줄로 묶어, 휴대폰 폭에서는 세로로 쌓이고 넓은 화면에서는 캔버스 크기를 따릅니다."
+                : "위치·크기가 캔버스와 똑같습니다(절대 위치). 화면 폭이 바뀌면 그대로 잘리거나 넘칠 수 있습니다."}
             </p>
             <pre className="uc-code" aria-label="생성된 코드">{code}</pre>
             <div className="actions">
               <button type="button" className="primary" onClick={() => copy(code)}><Copy size={14} />코드 복사</button>
-              <button type="button" onClick={() => { saveFile(`${fileBase}.tsx`, code); say(".tsx 파일로 저장했습니다."); }}><Download size={14} />.tsx 파일로 받기</button>
+              <button type="button" onClick={() => { saveFile(`${fileBase}${layout === "responsive" ? "" : "-absolute"}.tsx`, code); say(".tsx 파일로 저장했습니다."); }}><Download size={14} />.tsx 파일로 받기</button>
             </div>
           </>
         ) : snippets.length === 0 ? (

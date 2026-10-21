@@ -657,7 +657,7 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
               <li><b>되돌리기:</b> Ctrl+Z / Ctrl+Shift+Z, 복제 Ctrl+D, 삭제 Delete.</li>
               <li><b>AI:</b> [이미지로 만들기]는 UI 스크린샷을 분석해 컴포넌트와 명세를 만듭니다. [명세] 탭의 [AI로 내용 채우기]는 현재 캔버스를 보고 명세를 작성합니다. 본인 Gemini 키가 필요합니다.</li>
               <li><b>저장:</b> 변경하면 자동으로 저장됩니다. JSON·PNG로 내보낼 수도 있습니다.</li>
-              <li><b>코드:</b> 위쪽 [{"</>"} 코드]로 이 화면을 React + Tailwind 코드로 복사하거나 .tsx로 받고, 갤러리에서 저장한 AI 컴포넌트도 다시 봅니다.</li>
+              <li><b>코드:</b> 위쪽 [{"</>"} 코드]로 이 화면을 React + Tailwind 코드로 복사하거나 .tsx로 받습니다. [반응형]은 휴대폰에서 세로로 쌓이고, [캔버스 그대로]는 위치가 똑같습니다. 갤러리에서 저장한 AI 컴포넌트도 여기서 봅니다.</li>
             </ul>
             <div className="actions"><a className="button primary" href="/guide" target="_blank" rel="noopener">그림·단계별 상세 매뉴얼 열기</a></div>
           </div>

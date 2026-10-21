@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import ts from "typescript";
 import { makeComponent, groupComponents } from "../src/lib/canvas/model.ts";
 import { COMPONENT_TYPES } from "../src/lib/canvas/types.ts";
-import { generateTsx, componentName } from "../src/lib/canvas/codegen.ts";
+import { generateTsx, componentName, rowsOf } from "../src/lib/canvas/codegen.ts";
 import { sanitizeDoc, sanitizeSnippets, MAX_SNIPPETS } from "../src/lib/projects.ts";
 
 function syntaxErrors(code) {
@@ -23,6 +23,23 @@ test("코드 내보내기: 모든 컴포넌트 종류가 문법 오류 없는 TS
   assert.match(code, /export default function MyLanding\(\)/);
   assert.match(code, /absolute left-\[\d+px\] top-\[\d+px\] w-\[200px\] h-\[100px\]/);
   assert.match(code, /from "lucide-react"/);
+
+  const responsive = generateTsx(grouped, { width: 1440, height: 900 }, { name: "My Landing", dark: false, layout: "responsive" });
+  assert.deepEqual(syntaxErrors(responsive), []);
+  assert.doesNotMatch(responsive, /absolute left-\[/);
+  assert.match(responsive, /flex flex-wrap items-start gap-x-\[\d+px\]/);
+  assert.match(responsive, /w-full md:w-\[200px\] h-\[100px\]/);
+  assert.match(responsive, /max-w-\[1440px\]/);
+});
+
+test("반응형 줄 묶기: 세로가 겹치면 한 줄, 줄 안은 왼쪽부터", () => {
+  const a = makeComponent("Button", { x: 300, y: 10 }, { width: 100, height: 40 }, []);
+  const b = makeComponent("Button", { x: 10, y: 30 }, { width: 100, height: 40 }, [a]);
+  const c = makeComponent("Text", { x: 10, y: 200 }, { width: 100, height: 40 }, [a, b]);
+  const rows = rowsOf([c, a, b]);
+  assert.equal(rows.length, 2);
+  assert.deepEqual(rows[0].map((x) => x.id), [b.id, a.id]);
+  assert.deepEqual(rows[1].map((x) => x.id), [c.id]);
 });
 
 test("코드 내보내기: 따옴표·중괄호가 든 글자도 안전하게 들어간다", () => {

@@ -67,6 +67,11 @@ function body(c: CanvasComponent, all: CanvasComponent[], icons: Set<string>, d:
       return `<div${styleAttr(inner)} />`;
     case "Group": {
       const kids = all.filter((k) => k.parentId === c.id);
+      if (currentLayout === "responsive") {
+        const { height: _h, ...rest } = inner;
+        void _h;
+        return `<div${styleAttr({ ...rest, display: "block", height: "auto", minHeight: "100%" })}>\n${responsiveBlock(kids, all, icons, d + 1, { x: 0, y: 0 })}\n${pad(d)}</div>`;
+      }
       return `<div${styleAttr({ ...inner, display: "block", position: "relative" })}>\n${kids.map((k) => placed(k, all, icons, d + 1)).join("\n")}\n${pad(d)}</div>`;
     }
     case "Image": {
@@ -150,11 +155,52 @@ function body(c: CanvasComponent, all: CanvasComponent[], icons: Set<string>, d:
   }
 }
 
+export type CodeLayout = "absolute" | "responsive";
+// 그룹 안 자식을 어떤 배치로 그릴지(generateTsx가 정한다)
+let currentLayout: CodeLayout = "absolute";
+
+const labelOf = (c: CanvasComponent) => (c.name ? ` {/* ${String(c.name).replace(/\*\//g, "* /")} */}` : "");
+
 /** 위치·크기를 Tailwind 임의값으로 감싼 한 줄 */
 function placed(c: CanvasComponent, all: CanvasComponent[], icons: Set<string>, d: number): string {
   const cls = `absolute left-[${num(c.position.x)}px] top-[${num(c.position.y)}px] w-[${Math.max(1, num(c.size.width))}px] h-[${Math.max(1, num(c.size.height))}px]`;
-  const label = c.name ? ` {/* ${String(c.name).replace(/\*\//g, "* /")} */}` : "";
-  return `${pad(d)}<div className="${cls}">${label}\n${pad(d + 1)}${body(c, all, icons, d + 1)}\n${pad(d)}</div>`;
+  return `${pad(d)}<div className="${cls}">${labelOf(c)}\n${pad(d + 1)}${body(c, all, icons, d + 1)}\n${pad(d)}</div>`;
+}
+
+/** 세로 위치가 겹치는 컴포넌트를 한 줄로 묶고, 줄 안은 왼쪽부터 정렬한다 */
+export function rowsOf(list: CanvasComponent[]): CanvasComponent[][] {
+  const rows: { bottom: number; items: CanvasComponent[] }[] = [];
+  for (const c of [...list].sort((a, b) => a.position.y - b.position.y || a.position.x - b.position.x)) {
+    const row = rows[rows.length - 1];
+    if (row && c.position.y < row.bottom) {
+      row.items.push(c);
+      row.bottom = Math.max(row.bottom, c.position.y + c.size.height);
+    } else {
+      rows.push({ bottom: c.position.y + c.size.height, items: [c] });
+    }
+  }
+  return rows.map((r) => r.items.sort((a, b) => a.position.x - b.position.x));
+}
+
+/** 반응형: 줄마다 flex-wrap, 휴대폰 폭은 세로로 쌓이고(w-full) 넓은 화면은 캔버스 크기(md:w-[..]) */
+function responsiveBlock(list: CanvasComponent[], all: CanvasComponent[], icons: Set<string>, d: number, origin: { x: number; y: number }): string {
+  let prevBottom = origin.y;
+  return rowsOf(list).map((row) => {
+    const top = Math.min(...row.map((c) => c.position.y));
+    const mt = Math.max(0, num(top - prevBottom));
+    prevBottom = Math.max(...row.map((c) => c.position.y + c.size.height));
+    const gaps = row.slice(1).map((c, i) => c.position.x - (row[i].position.x + row[i].size.width)).filter((g) => g > 0);
+    const gap = gaps.length ? Math.min(64, num(gaps.reduce((a, g) => a + g, 0) / gaps.length)) : 16;
+    const pl = Math.max(0, num(row[0].position.x - origin.x));
+    const items = row.map((c) => {
+      const h = Math.max(1, num(c.size.height));
+      // 그룹은 휴대폰 폭에서 안쪽이 세로로 쌓여 길어지므로 고정 높이 대신 최소 높이
+      const cls = `w-full md:w-[${Math.max(1, num(c.size.width))}px] ${c.type === "Group" ? `md:min-h-[${h}px]` : `h-[${h}px]`} shrink-0`;
+      return `${pad(d + 1)}<div className="${cls}">${labelOf(c)}\n${pad(d + 2)}${body(c, all, icons, d + 2)}\n${pad(d + 1)}</div>`;
+    }).join("\n");
+    const rowCls = `flex flex-wrap items-start gap-x-[${gap}px] gap-y-4${mt ? ` mt-[${mt}px]` : ""}${pl ? ` md:pl-[${pl}px]` : ""}`;
+    return `${pad(d)}<div className="${rowCls}">\n${items}\n${pad(d)}</div>`;
+  }).join("\n");
 }
 
 export function componentName(raw: string): string {
@@ -163,22 +209,33 @@ export function componentName(raw: string): string {
 }
 
 /** 캔버스 전체를 React + Tailwind TSX 한 파일로 만든다. */
-export function generateTsx(components: CanvasComponent[], canvas: CanvasSize, opts: { name: string; dark: boolean }): string {
+export function generateTsx(components: CanvasComponent[], canvas: CanvasSize, opts: { name: string; dark: boolean; layout?: CodeLayout }): string {
+  const layout: CodeLayout = opts.layout ?? "absolute";
+  currentLayout = layout;
   const icons = new Set<string>();
   const top = components.filter((c) => !c.parentId || !components.some((p) => p.id === c.parentId));
-  const children = top.map((c) => placed(c, components, icons, 3)).join("\n");
+  const theme = opts.dark ? "bg-slate-900 text-slate-100" : "bg-white text-slate-900";
+  const children = layout === "responsive"
+    ? responsiveBlock(top, components, icons, 3, { x: 0, y: 0 })
+    : top.map((c) => placed(c, components, icons, 3)).join("\n");
+  currentLayout = "absolute";
   const fn = componentName(opts.name);
   const header = [
     `// ${opts.name || "제목 없는 디자인"} — UI Canvas 자동화에서 내보낸 React + Tailwind CSS 코드 (${new Date().getFullYear()}년)`,
-    "// 위치·크기는 캔버스 그대로(절대 위치)입니다. 실제 서비스에 넣을 때는 flex·grid로 바꿔 반응형으로 다듬으세요.",
+    layout === "responsive"
+      ? "// 반응형 배치: 세로 위치가 겹치는 컴포넌트를 한 줄(flex-wrap)로 묶었습니다. 휴대폰 폭에서는 세로로 쌓이고, 768px 이상에서는 캔버스 크기를 따릅니다."
+      : "// 위치·크기는 캔버스 그대로(절대 위치)입니다. 실제 서비스에 넣을 때는 [반응형] 내보내기를 쓰거나 flex·grid로 다듬으세요.",
     icons.size ? `import { ${[...icons].sort().join(", ")} } from "lucide-react";` : "",
   ].filter(Boolean).join("\n");
+  const frame = layout === "responsive"
+    ? `<div className="mx-auto w-full max-w-[${num(canvas.width)}px] ${theme} p-4 md:p-0">`
+    : `<div className="relative mx-auto ${theme} w-[${num(canvas.width)}px] h-[${num(canvas.height)}px]">`;
   return `${header}
 
 export default function ${fn}() {
   return (
     <div className="w-full overflow-auto">
-      <div className="relative mx-auto ${opts.dark ? "bg-slate-900 text-slate-100" : "bg-white text-slate-900"} w-[${num(canvas.width)}px] h-[${num(canvas.height)}px]">
+      ${frame}
 ${children || "        {/* 캔버스가 비어 있습니다 */}"}
       </div>
     </div>
