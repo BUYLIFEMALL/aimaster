@@ -187,3 +187,7 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 주인님 지시(INSTA 댓글·DM v1.26 보고의 추가개선 제안 3번 — 나중에 「통합 댓글 받은편지함」으로 묶기 쉽게). `app/(dashboard)/dashboard/page.tsx`: 「🕒 검토를 기다리는 댓글」 제목 옆에 `{pending}건`, 「전체 보기 →」를 제목 줄 오른쪽 위로 옮겨 항상 표시(대기 0건이면 사라지던 목록 아래 「모두 보기」 제거). 목록 항목·서버 로직은 그대로.
 - 같은 배포에 2026-10-21 저장소에만 반영돼 있던 텔레그램 공용 사본(`telegram-bot-client`, 동작 같음)도 함께 나감.
 - 검수: tsc 0, `npm run build`, 배포 `threads-comment-reply-nyn9t7chb` Ready, DB v1.16, 메인 크롬(일반 회원) 대시보드 v1.16·「0건」·「전체 보기 →」 확인. 비용: Vercel 빌드 1회, AI 0회. 커밋 `b635fad5`.
+
+## 2026-10-21 v1.17 — 대시보드 댓글 항목 글 앞부분 · 게시물 묶음 바로가기 (Claude Code 윈도우)
+- 주인님 지시(INSTA v1.27 보고 추가개선 제안 1·2번, 세 댓글 프로그램 동작 통일). `app/(dashboard)/dashboard/page.tsx`: 검토 대기 댓글 조회에 `post_id`, `th_posts.text`(user_id 필터)로 항목 아래 「🧵 글 앞부분」(쓰레드 글은 썸네일 칸이 없어 글로 대신), 항목 전체가 `/comments#post-<id>` 링크. `app/(dashboard)/comments/page.tsx`: 게시물 묶음 `<section>`에 `id="post-<id>"`+`scroll-mt-80`.
+- 검수: tsc 0, build, 배포 `threads-comment-reply-o3bw0hfdr` Ready, DB v1.17, 크롬(일반 회원) 대시보드 v1.17·댓글 화면 200. **대기 댓글 0건이라 글 앞부분·이동은 실제 데이터로 미확인.** 비용: Vercel 빌드 1회. 커밋 `856c680d`.
