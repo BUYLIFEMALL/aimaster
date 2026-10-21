@@ -77,8 +77,8 @@ export async function makeVoices(s: ShortsScript, onScene?: (k: number, total: n
   for (let k = 0; k < todo.length; k++) {
     onScene?.(k + 1, todo.length);
     const text = vs[todo[k]].text;
-    const r = await api<{ path: string; src: string }>("/api/ai/tts", { body: { text, settings: normalizeAudio(next.audio) } });
-    next = withVoice(next, todo[k], { path: r.path, dur: await measureAudio(r.src), text });
+    const r = await api<{ path: string; src: string; words?: number[] | null }>("/api/ai/tts", { body: { text, settings: normalizeAudio(next.audio) } });
+    next = withVoice(next, todo[k], { path: r.path, dur: await measureAudio(r.src), text, ...(r.words?.length ? { words: r.words } : {}) });
   }
   return next;
 }

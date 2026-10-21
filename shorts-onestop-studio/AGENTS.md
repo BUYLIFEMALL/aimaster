@@ -145,3 +145,11 @@
 - **운영 DB 수정(주인님 승인)**: `user_api_keys_provider_check`에 `fal`·`elevenlabs`가 없어 v1.23부터 fal 키 저장이 실패하던 상태 → 크롬 SQL 편집기로 두 이름만 추가(`supabase/migrations/0030_v1_26_elevenlabs_voice.sql`에 실행 SQL 기록). 확인 중 운영 DB가 `Prefer: tx=rollback`을 지원하지 않아 생긴 가짜 키 2건은 즉시 삭제.
 - 검수: tsc·node --test 10개·build, 배포 Ready, DB v1.26, 로그인 없이 401. 크롬 시험 회원(주인님이 새 Replicate·fal·ElevenLabs 키 등록): **v1.23 Replicate Seedance 1 Lite 5초 실생성**(5.04초 11.3MB, 약 1분) · **fal Seedance 1.5 Pro 5초 실생성**(5.04초 5.2MB, 약 1분) · **ElevenLabs 복제**(대본의 AI 내레이션 4개를 이은 27초 샘플 → 「시험용 AI 목소리」 생성·자동 선택) → 인트로 내레이션 재생성 5.7초(48자). 시험 대본 음성 설정은 저장하지 않음.
 - 비용: Vercel 빌드 1회, Replicate 약 $0.18, fal 약 $0.25, ElevenLabs 48자(Starter 크레딧 안).
+
+## 2026-10-22 v1.27 — 단어 단위 자막(말하는 순간에 맞춤) (Claude Code 윈도우)
+- 장면 음성 `Voice.words` = 대본 낱말(공백 기준)마다 음성 속 시작 시각(초). 자막 그리기(`scene.ts drawCaption`)는 words가 있고 내레이션이 같으면 조각 첫 낱말 시각에 표시, 없으면 기존 글자 수 비율 근사(이전 음성 그대로 동작).
+- 시각 얻기: ElevenLabs는 `/with-timestamps`(글자 시각, 추가 요금 없음) → `startsFromChars`, OpenAI·Gemini 음성은 회원 OpenAI 키가 있으면 Whisper(`whisper-1`, 낱말 시각, 1분 약 $0.006) → `startsFromWords`(받아쓴 글자는 버리고 글자 수 비율로 대본 낱말에 맞춤 — 자막 글자는 항상 대본 그대로). Whisper 실패·키 없음이면 생략(음성 만들기는 성공). 자막 끄면 Whisper 안 부름.
+- 순수 함수 `src/lib/voice.ts`(`tokensOf`·`startsFromChars`·`startsFromWords`·`timedCaptionChunks`) 시험 3개 추가(총 13개).
+- 검수: tsc·node --test 13개·build, 배포 Ready, DB v1.27, 크롬 시험 회원: ElevenLabs(복제 목소리) 인트로 → words 12개(0~4.52초/5.29초), OpenAI 인트로 → Whisper words 12개(0~5.84초/6.86초), 저장 후 대본 음성 설정을 원래(OpenAI·코랄·1.05배)로 복원.
+- 비용: Vercel 빌드 1회(승인 4회 중 4회째), OpenAI 음성+Whisper 약 $0.01, ElevenLabs 약 50자(크레딧).
+- 미확인: 미리보기·MP4에서 자막 전환 순간을 눈으로 대조하지는 않음(데이터·함수 시험으로 확인).

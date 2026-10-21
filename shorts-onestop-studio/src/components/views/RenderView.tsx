@@ -99,9 +99,9 @@ export function RenderView() {
 
   async function makeVoice(i: number, s: ShortsScript): Promise<ShortsScript> {
     const text = sceneVoices(s)[i].text;
-    const r = await api<{ path: string; src: string }>("/api/ai/tts", { body: { text, settings: normalizeAudio(s.audio) } });
+    const r = await api<{ path: string; src: string; words?: number[] | null }>("/api/ai/tts", { body: { text, settings: normalizeAudio(s.audio) } });
     const dur = await measure(r.src);
-    return setVoice(s, i, { path: r.path, dur, text });
+    return setVoice(s, i, { path: r.path, dur, text, ...(r.words?.length ? { words: r.words } : {}) }); // v1.27 낱말 시각 → 말하는 순간에 자막
   }
   async function makeAll(onlyMissing: boolean) {
     if (!script) return;

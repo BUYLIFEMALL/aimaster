@@ -108,3 +108,30 @@ test("v1.26 ElevenLabs 음성 설정", () => {
   assert.ok(isElevenVoiceId("21m00Tcm4TlvDq8ikWAM"));
   assert.ok(!isElevenVoiceId("../x"));
 });
+
+// v1.27 단어 단위 자막 — 시각 맞추기(유료 호출 없음)
+import { startsFromChars, startsFromWords, timedCaptionChunks, tokensOf, captionChunks } from "../src/lib/voice.ts";
+test("v1.27 ElevenLabs 글자 시각 → 대본 낱말 시각", () => {
+  const text = "물을 마시면 군것질이 줄어요.";
+  const chars = [...text]; const starts = chars.map((_, i) => i * 0.1);
+  assert.deepEqual(startsFromChars(text, chars, starts), [0, 0.3, 0.7, 1.2]);
+  assert.equal(startsFromChars(text, [], []), null);
+});
+test("v1.27 Whisper 낱말 → 대본 낱말 시각(받아쓴 글자가 달라도 비율로 맞춤)", () => {
+  const text = "하루 2리터 물이 AI 시대 건강 비결";
+  const w = [{ word: "하루", start: 0 }, { word: "이리터", start: 0.5 }, { word: "물이", start: 1.2 }, { word: "에이아이", start: 1.6 }, { word: "시대", start: 2.4 }, { word: "건강", start: 2.9 }, { word: "비결", start: 3.4 }];
+  const s = startsFromWords(text, w)!;
+  assert.equal(s.length, tokensOf(text).length);
+  assert.equal(s[0], 0);
+  for (let i = 1; i < s.length; i++) assert.ok(s[i] >= s[i - 1]); // 시각은 줄어들지 않음
+  assert.ok(s[s.length - 1] > 2.5 && s[s.length - 1] <= 3.4);
+});
+test("v1.27 시각 있는 자막 조각: 나누는 규칙은 기존과 같고 시작 시각은 첫 낱말", () => {
+  const text = "배가 고플 때 사실은 목이 마른 신호일 수 있어요. 그때 물을 마시면 군것질이 줄어들죠.";
+  const starts = tokensOf(text).map((_, i) => i * 0.5);
+  const timed = timedCaptionChunks(text, starts)!;
+  assert.deepEqual(timed.map((c) => c.text), captionChunks(text));
+  assert.equal(timed[0].start, 0);
+  assert.ok(timed[1].start > 0);
+  assert.equal(timedCaptionChunks(text, [1, 2]), null); // 낱말 수가 다르면 사용 안 함
+});

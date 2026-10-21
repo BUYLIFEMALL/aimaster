@@ -52,3 +52,59 @@ export function captionChunks(text: string, maxLen = 16): string[] {
   if (cur) out.push(cur);
   return out;
 }
+
+// ── v1.27 단어 단위 자막 ─────────────────────────────────
+// 자막 글자는 항상 원래 대본(내레이션) 그대로 쓰고, 시각만 음성에 맞춘다(받아쓴 글자의 숫자·영문 표기 오류가 화면에 나오지 않게).
+// words[i] = 대본을 공백으로 나눈 i번째 낱말이 음성에서 시작하는 시각(초, 음성 파일 기준).
+export const tokensOf = (text: string) => text.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+const letters = (s: string) => s.replace(/[\s.,!?…。·~'"“”‘’()\[\]{}:;\-]/g, "");
+
+/** ElevenLabs 글자 정렬(입력 글자 그대로, 글자마다 시작 시각) → 낱말 시작 시각 */
+export function startsFromChars(text: string, chars: string[], starts: number[]): number[] | null {
+  const norm = text.replace(/\s+/g, " ").trim();
+  if (!chars.length || chars.length !== starts.length) return null;
+  const toks = tokensOf(norm); const out: number[] = []; let pos = 0;
+  for (const t of toks) {
+    const at = norm.indexOf(t, pos); if (at < 0) return null; pos = at + t.length;
+    const k = chars.length === norm.length ? at : Math.min(chars.length - 1, Math.round((at / Math.max(1, norm.length)) * chars.length));
+    out.push(Math.max(0, Number(starts[k]) || 0));
+  }
+  return monotone(out);
+}
+
+/** Whisper 낱말(받아쓴 글자·시작 시각) → 대본 낱말 시작 시각. 글자 수 비율로 위치를 맞춰 보간한다(받아쓴 글자가 대본과 조금 달라도 동작) */
+export function startsFromWords(text: string, words: { word: string; start: number }[]): number[] | null {
+  const ws = words.filter((w) => Number.isFinite(w.start) && letters(w.word).length > 0);
+  if (!ws.length) return null;
+  const wTotal = ws.reduce((n, w) => n + letters(w.word).length, 0);
+  const anchors: { r: number; t: number }[] = []; let acc = 0;
+  for (const w of ws) { anchors.push({ r: acc / wTotal, t: w.start }); acc += letters(w.word).length; }
+  const toks = tokensOf(text); const tTotal = toks.reduce((n, t) => n + letters(t).length, 0) || 1;
+  const out: number[] = []; acc = 0;
+  for (const t of toks) {
+    const r = acc / tTotal; acc += letters(t).length;
+    let j = 0; while (j + 1 < anchors.length && anchors[j + 1].r <= r) j++;
+    const a = anchors[j], b = anchors[j + 1];
+    out.push(b && b.r > a.r ? a.t + ((r - a.r) / (b.r - a.r)) * (b.t - a.t) : a.t);
+  }
+  return monotone(out);
+}
+
+function monotone(xs: number[]): number[] {
+  const out: number[] = []; let last = 0;
+  for (const x of xs) { last = Math.max(last, Math.round(x * 100) / 100); out.push(last); }
+  return out;
+}
+
+/** 자막 조각 + 조각이 시작하는 시각(첫 낱말의 시각). 나누는 규칙은 captionChunks와 같다 */
+export function timedCaptionChunks(text: string, starts: number[], maxLen = 16): { text: string; start: number }[] | null {
+  const toks = tokensOf(text); if (toks.length !== starts.length || !toks.length) return null;
+  const out: { text: string; start: number }[] = []; let cur = "", curStart = 0;
+  toks.forEach((w, i) => {
+    const cand = cur ? `${cur} ${w}` : w;
+    if (cand.length > maxLen && cur) { out.push({ text: cur, start: curStart }); cur = w; curStart = starts[i]; } else { if (!cur) curStart = starts[i]; cur = cand; }
+    if (/[.!?…。]$/.test(cur)) { out.push({ text: cur, start: curStart }); cur = ""; }
+  });
+  if (cur) out.push({ text: cur, start: curStart });
+  return out;
+}

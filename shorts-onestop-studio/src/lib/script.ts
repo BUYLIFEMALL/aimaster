@@ -32,7 +32,8 @@ export const MIN_CARDS = 3, MAX_CARDS = 8;
 export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "ai"; src: string; thumb?: string; path?: string; credit?: string; pageUrl?: string; prompt?: string; stockId?: string; model?: string; poster?: Bg; videoJob?: import("@/lib/videoModels").VideoJob }
 export interface Backdrop { mode: "theme" | "global" | "scene"; global?: Bg; dim: number; style: string; character: string; provider?: "pexels" | "pixabay"; media?: "image" | "video"; hints?: { query: string; prompt: string }[] }
 /** 장면 내레이션 음성(P5): 저장소 경로·재생 길이(초)·만들 때의 내레이션(바뀌면 다시 만들어야 함) */
-export interface Voice { path: string; dur: number; text: string }
+/** words(v1.27): 대본 낱말(공백 기준)마다 음성 속 시작 시각(초) — 있으면 자막을 말하는 순간에 맞춘다 */
+export interface Voice { path: string; dur: number; text: string; words?: number[] }
 export interface Scene { title: string; desc: string; narration: string; tag?: string; bg?: Bg; voice?: Voice }
 export interface ShortsScript {
   topic: string;

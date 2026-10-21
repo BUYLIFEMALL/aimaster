@@ -2,7 +2,7 @@
 // 순수 캔버스 그리기 — 참고 원본의 영상 합성 라이브러리(Remotion)를 쓰지 않고 새로 만들었다.
 // 둥근 사각형 그리기는 yt-playlist-studio/src/lib/render/color-utils.ts의 drawRoundRect 패턴을 따랐다.
 import { normalizeBackdrop, sceneVoices, type Bg, type ShortsScript } from "@/lib/script";
-import { captionChunks, normalizeAudio } from "@/lib/voice";
+import { captionChunks, normalizeAudio, timedCaptionChunks } from "@/lib/voice";
 
 export const W = 1080, H = 1920, FPS = 30;
 
@@ -71,15 +71,23 @@ export function timeline(s: ShortsScript): { segs: Segment[]; total: number } {
   return { segs, total: Math.round(t * 100) / 100 };
 }
 
-/** 자막: 내레이션 조각을 글자 수 비율로 목소리 길이에 나눠 배치(정확한 단어 시각이 없는 TTS용 근사) */
+/** 자막: 낱말 시각이 있으면 그 시각에, 없으면 내레이션 조각을 글자 수 비율로 목소리 길이에 나눠 배치(근사) */
 function drawCaption(ctx: CanvasRenderingContext2D, s: ShortsScript, seg: Segment, u: number, accent: string, final: boolean) {
   const a = normalizeAudio(s.audio); if (!a.captions.on) return;
   if (final && a.captions.voiceOnly && !seg.voiceDur) return; // MP4: 소리 없는 장면에 자막만 떠 있지 않게
   const text = seg.kind === "intro" ? s.intro.narration : seg.kind === "outro" ? s.outro.narration : s.cards[seg.index]?.narration;
   if (!text) return;
-  const chunks = captionChunks(text); const span = seg.voiceDur ?? Math.max(0.5, seg.dur - 0.6); const t0 = seg.voiceDur ? LEAD : 0.3;
-  const total = chunks.reduce((n, c) => n + c.length, 0) || 1; let acc = 0; let cur = "";
-  for (const c of chunks) { const st = t0 + (acc / total) * span; acc += c.length; const en = t0 + (acc / total) * span; if (u >= st && u < en) { cur = c; break; } }
+  let cur = "";
+  // v1.27: 음성에 낱말 시각(words)이 있고 지금 내레이션과 같은 글이면 그 시각에 맞춘다(말하는 순간에 자막). 없으면 글자 수 비율 근사
+  const vs = sceneVoices(s); const v = seg.kind === "intro" ? vs[0]?.voice : seg.kind === "outro" ? vs[vs.length - 1]?.voice : vs[seg.index + 1]?.voice;
+  const timed = v?.words && seg.voiceDur && v.text.trim() === text.trim() ? timedCaptionChunks(text, v.words) : null;
+  if (timed) {
+    for (let k = 0; k < timed.length; k++) { const st = LEAD + timed[k].start; const en = k + 1 < timed.length ? LEAD + timed[k + 1].start : LEAD + (seg.voiceDur ?? 0) + 0.2; if (u >= st && u < en) { cur = timed[k].text; break; } }
+  } else {
+    const chunks = captionChunks(text); const span = seg.voiceDur ?? Math.max(0.5, seg.dur - 0.6); const t0 = seg.voiceDur ? LEAD : 0.3;
+    const total = chunks.reduce((n, c) => n + c.length, 0) || 1; let acc = 0;
+    for (const c of chunks) { const st = t0 + (acc / total) * span; acc += c.length; const en = t0 + (acc / total) * span; if (u >= st && u < en) { cur = c; break; } }
+  }
   if (!cur) return;
   const px = Math.round(58 * a.captions.size), y = H - a.captions.y;
   ctx.save(); ctx.font = `800 ${px}px "Noto Sans KR", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
