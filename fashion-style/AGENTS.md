@@ -103,3 +103,8 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-22 v1.11 — Pro 글 모델 정식 교체 + 옷장·룩 30일 만료 (Claude Code 윈도우, 이미지 재비교 W4)
+- **Pro 글 모델**: `gemini-3-pro-preview`(미리보기 — 예고 없이 종료될 수 있음) → **`gemini-3.8-flash`**(정식, `ai-auto-blog` 모델 표 lifecycle stable·「최신 Flash」). 쓰이는 곳: 코디 추천·뷰티 분석. 모델을 쓸 수 없으면 기존처럼 standard로 자동 폴백(`withModelFallback`). standard(`gemini-2.5-flash`)·이미지 모델은 그대로.
+- **30일 만료(D-57-01)**: 새 `src/lib/look/retention.ts`(`isExpired`·`keepFirstSavedAt`). `storage.ts`의 `loadWardrobe`·`loadLooks`가 처음 저장한 지 30일 지난 옷장 아이템·룩을 불러올 때 지움, `saveWardrobeItem`은 고쳐 저장해도 처음 시각(`addedAt`)을 유지(예전엔 저장할 때마다 `Date.now()`로 기한이 늘어남). 시각 없는 옛 자료는 지우지 않고 다음 저장부터 셈. 매뉴얼 「사진 보관·개인정보」에 30일 안내 추가.
+- 검수: tsc 0, 시험 17개(새 `tests/retention.test.mjs` 5개), build, 배포 `fashion-style-87tkzve5n` Ready, DB v1.11. 실제 호출(승인 1회): 시험 계정 본인 키로 `gemini-3.8-flash` 모델 조회 200(「Gemini 3.8 Flash」)·짧은 생성 200(21토큰, 1원 미만) — 폴백 없이 모델 자체를 직접 확인. 화면 흐름(사진 올리기 → 추천)은 이번에 생략.

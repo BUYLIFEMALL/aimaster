@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.25 AI 영상 길이 선택·전체 영상 합계 금액
+- 「장면 길이에 맞춤」(기본, 반복 재생 방지)·5·8·10초 고정, 장면 버튼 「AI 영상 8초 $0.80」, 「모두 영상으로 만들면 약 $X」. 배포 Ready·DB v1.25·크롬 확인. 비용: 빌드 1회. 다음: v1.26 본인 목소리 복제(ElevenLabs).
+- 교훈: 공유 저장소에서 `git mv` 금지(공용 스테이징 오염, `docs/ERROR_LESSONS.md` 맨 위).
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.42 기획 상세·리믹스 결과에도 곡 목록 내보내기
 
 「📋 영상 설명용 목차 복사」·「⬇ 곡 목록 CSV」를 공용 컴포넌트(`music/components/SongListExport.tsx`)로 만들어 기획 목록·기획 상세·리믹스 원곡 화면이 함께 씀. 크롬 시험 계정에서 세 화면 목차 확인. 배포 `music-oz0lwcx28` Ready, DB v1.42. 비용: Vercel 빌드 1회. 참고: 직전 커밋 `652b186b`에 다른 세션(AI 쇼츠 원스톱 v1.24) HANDOFF 항목이 함께 들어감(내용 그대로, 되돌리지 않음). 남은 일: **업로드 한도 상향 승인 대기**, 10-29 이후 30일 정리 확인, 리믹스 카드 바로가기(다음 빌드 때 함께). 상세: `music/AGENTS.md` v1.42.
@@ -92,6 +97,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W4: AI 패션스타일 v1.11(Pro 글 모델 정식 교체 + 옷장·룩 30일 만료)
+- Pro 글 모델 `gemini-3-pro-preview` → `gemini-3.8-flash`(정식), 옷장·룩은 불러올 때 30일 지난 것 삭제·고쳐 저장해도 처음 시각 유지(D-57-01), 매뉴얼 안내. 배포 `fashion-style-87tkzve5n`·DB v1.11, 시험 17개, 시험 계정 키로 모델 조회·짧은 생성 200(1원 미만). 상세 `fashion-style/AGENTS.md` v1.11.
+- 비용: Vercel 빌드 1회, Gemini 21토큰. 다음: W5 AI 4컷 만화(`gemini-flash-lite-latest` 고정·보관함 날짜 만료). 보고서 §8-7.
+- 프로그램: https://fashion-style.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W3: 시네마틱 스토리보드 v1.10(30일 자동 삭제 + 동시 렌더 덮어쓰기 방지) · W1 실제 생성 확인
 - W3: cron `/api/cron/cleanup`(매일 03:00 KST, 생성일 30일, 폴더째 삭제)·`CRON_SECRET` 등록, 렌더 선점(`claimProject`)으로 두 번째 동시 렌더는 유료 생성 전 409, 결과는 새 파일 이름 + 조건부 반영. 배포 `cinematic-storyboard-studio-ow3kgjmgf`·DB v1.10, 정리 401/200·렌더 비로그인 401·크롬 v1.10. 상세 `cinematic-storyboard-studio/AGENTS.md` v1.10.
 - W1 보완: 주인님이 시험 계정 Replicate 키 재등록 → Ideogram v3 Turbo 1장 생성 성공(약 $0.03).

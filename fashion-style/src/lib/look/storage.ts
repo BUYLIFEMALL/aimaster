@@ -1,6 +1,7 @@
 "use client";
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import { DEFAULT_SETTINGS, type ClothingItem, type ImageState, type UserSettings } from "./types";
+import { isExpired, keepFirstSavedAt } from "./retention";
 
 export interface SavedLook { id: string; createdAt: number; image: ImageState }
 
@@ -26,12 +27,20 @@ export function openStore(userId: string): Promise<LookStore> {
 }
 
 export async function loadWardrobe(db: LookStore): Promise<ClothingItem[]> {
-  const rows = await db.getAll("wardrobe");
+  // 처음 저장한 지 30일이 지난 옷은 불러올 때 지운다(v1.11)
+  const all = await db.getAll("wardrobe");
+  const rows = [];
+  for (const r of all) {
+    if (isExpired(r.addedAt)) await db.delete("wardrobe", r.id);
+    else rows.push(r);
+  }
   return rows.sort((a, b) => a.addedAt - b.addedAt).map(({ addedAt: _a, ...item }) => { void _a; return item; });
 }
 
 export async function saveWardrobeItem(db: LookStore, item: ClothingItem): Promise<void> {
-  await db.put("wardrobe", { ...item, addedAt: Date.now() });
+  // 옷 정보를 고쳐 저장해도 처음 저장 시각을 유지한다(보관 기한이 늘어나지 않게, D-57-01)
+  const prev = await db.get("wardrobe", item.id);
+  await db.put("wardrobe", { ...item, addedAt: keepFirstSavedAt(prev?.addedAt) });
 }
 
 export async function deleteWardrobeItem(db: LookStore, id: string): Promise<void> {
@@ -39,7 +48,13 @@ export async function deleteWardrobeItem(db: LookStore, id: string): Promise<voi
 }
 
 export async function loadLooks(db: LookStore): Promise<SavedLook[]> {
-  return (await db.getAll("looks")).sort((a, b) => b.createdAt - a.createdAt);
+  // 만든 지 30일이 지난 룩은 불러올 때 지운다(v1.11)
+  const kept: SavedLook[] = [];
+  for (const l of await db.getAll("looks")) {
+    if (isExpired(l.createdAt)) await db.delete("looks", l.id);
+    else kept.push(l);
+  }
+  return kept.sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function saveLook(db: LookStore, look: SavedLook): Promise<void> {
