@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.20** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.21** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -169,3 +169,10 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - ② 「전체 선택」「보컬만」「연주곡만」「선택 해제」(최대 20곡).
 - ③ `/video?suno=id1,id2…`로 들어오면 패널을 펼치고 그 곡들을 **미리 선택만**(Suno 조회 비용 때문에 자동 추가 안 함), 주소에서 값 지움.
 - 검수: tsc·시험 23개·build, 배포 Ready, DB v1.20. 크롬 운영(일반 회원): 음악 곡 화면 버튼 주소로 진입 → 안내·변주 1 미리 선택 → 선택 해제(0)·보컬만(2) → 시간 가사 끄고 추가 → 「배경은 「빗속의 다짐」 커버로 만들었습니다」, 배경 1920×1080 → 편집 스튜디오 입장, 미리보기에 커버 배경·스펙트럼. 비용: Vercel 빌드 1회, Suno·AI 0회.
+
+## 2026-10-21 v1.21 — MP4 결과에 GIF 스티커 (IMP-PLS-008, Claude Code 윈도우)
+- 플랜: [`docs/PLAN_20261021_V1_21_GIF_STICKER.md`](docs/PLAN_20261021_V1_21_GIF_STICKER.md). 원인: `gifUrl`이 미디어 센터·편집 미리보기에만 넘어가고 `ExportStudio`·`exportVideoMp4`에는 전달되지 않음.
+- 수정: `VideoStudio` → `ExportStudio` → `exportVideoMp4(…, gifUrl)`(마지막 선택 인자). 새 `src/lib/render/gif-frames.ts` — `ImageDecoder`로 장면(최대 300)·표시 시간을 나눠 시각에 맞춰 반복, 없는 브라우저는 첫 장면 고정. 위치·크기(1080p 기준 150px×크기%)·투명도·그림자·가운데는 미리보기와 같고 720p는 비율로 줄임. 로고 다음, 확대·흔들림 안에서 그림.
+- 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.21. 크롬 운영(일반 회원): 0.5초마다 빨강↔초록인 2장면 GIF + 2초 무음으로 1080p MP4(저장 위치는 브라우저 내부 저장소, 끝난 뒤 삭제) → 0.25초 빨강 5,550점·0.75초 초록 5,550점·1.25초 빨강 5,550점(반복 확인).
+- 같은 날 확인(코드 변경 없음): v1.19~v1.20의 Suno 시간 가사가 편집 미리보기에 실제로 표시됨 — 재생 약 15초에 「번진 불빛들을 세어 봤어」 강조 + 다음 줄 흐리게(Suno 시간 가사 조회 1회, 시험 계정 본인 키).
+- 비용: Vercel 빌드 1회, Suno 조회 1회(가사 표시 확인), AI 0회.

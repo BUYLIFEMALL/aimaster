@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.21: MP4에 GIF 스티커 + Suno 가사 표시 확인
+
+① 확인만(코드 변경 없음): Suno 시간 가사가 편집 미리보기에 실제로 표시됨(재생 약 15초 「번진 불빛들을 세어 봤어」). ② IMP-PLS-008: GIF가 내보내기에 전달되지 않던 것을 `ExportStudio`→`exportVideoMp4(…, gifUrl)`로 연결, `src/lib/render/gif-frames.ts`(ImageDecoder 장면 분해·반복). 크롬 일반 회원으로 빨강↔초록 GIF MP4 → 0.25초 빨강·0.75초 초록·1.25초 빨강 확인. 배포 Ready, DB v1.21. 비용: Vercel 빌드 1회, Suno 조회 1회.
+
+https://playlist-channel-studio.buylife.xyz/video
+
 ## 2026-10-21 Claude Code(윈도우) — INSTA 댓글·DM v1.29: 공용 기준 코드 pending-review-list·hash-highlight 도입
 
 대시보드 검토 대기 목록을 공용 부품으로(이 프로그램이 기준), 대시보드에서 넘어간 묶음을 2초 강조. 쓰레드·유튜브에 사본 동기화(각 배포에서 적용). 커밋 `aa745410`, 배포 Ready, DB v1.29, 크롬에서 강조 켜짐·꺼짐 확인. 비용: Vercel 빌드 1회.

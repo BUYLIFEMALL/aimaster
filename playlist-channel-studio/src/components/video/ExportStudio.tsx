@@ -18,6 +18,7 @@ interface ExportStudioProps {
   tracks: Track[];
   bgMedia: { type: 'image' | 'video'; url: string } | null;
   logoUrl: string | null;
+  gifUrl: string | null;
   settings: StudioSettings;
   exportSettings: ExportSettings;
   setExportSettings: React.Dispatch<React.SetStateAction<ExportSettings>>;
@@ -32,6 +33,7 @@ export function ExportStudio({
   tracks,
   bgMedia,
   logoUrl,
+  gifUrl,
   settings,
   exportSettings,
   setExportSettings,
@@ -89,7 +91,8 @@ export function ExportStudio({
         (p: RenderProgress) => {
           setExportProgress(p.progress);
           setStatusText(p.status);
-        }
+        },
+        gifUrl
       );
 
       if (blob) {

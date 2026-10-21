@@ -16,7 +16,7 @@
 | IMP-PLS-006 | 기능/품질 | MP4 내보내기의 스펙트럼이 실제 소리가 아니라 sin/cos로 만든 가짜 값(`dummyFreq`) — 미리보기(실제 분석)와 결과가 다름. 디코딩한 소리에서 프레임마다 FFT로 계산(가사영상 `lyric-video-studio/src/lib/render/spectrum.ts` 방식) 권장 | P2 (높음) | **완료 (v1.18)** — 브라우저 분석기와 같은 계산(`audio-spectrum.ts`) + 저음 효과·밝기·필터도 결과에 반영 | 2026-10-21 (Claude Code) | `src/lib/render/video-exporter.ts`·`audio-spectrum.ts` |
 | IMP-PLS-009 | 기능/연계 | 음악(SUNO) 자동화 곡 여러 개 + Suno 시간 가사 가져오기 | P2 | **완료 (v1.19)** | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx`·`sunoTracks.ts`·`/api/suno/*` |
 | IMP-PLS-010 | 편의성 | Suno 곡 패널에서 곡 커버를 배경 후보로 바로 쓰기(곡 하나짜리 플레이리스트·첫 곡 커버) | P3 | **완료 (v1.20)** — 흐린 확대 커버 + 가운데 원본 1920×1080, 자동·곡별 버튼 | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx`·`MediaCenter.tsx` |
-| IMP-PLS-008 | 기능 | MP4 결과에 GIF 스티커가 빠짐(미리보기에만 있음). 움직이는 GIF는 프레임 분해(ImageDecoder)가 필요해 별도 작업 | P3 | 제안/대기 | 2026-10-21 (Claude Code) | `video-exporter.ts`·`ExportStudio.tsx` |
+| IMP-PLS-008 | 기능 | MP4 결과에 GIF 스티커가 빠짐(미리보기에만 있음). 움직이는 GIF는 프레임 분해(ImageDecoder)가 필요해 별도 작업 | P3 | **완료 (v1.21)** — ImageDecoder로 장면 분해, 미리보기와 같은 배치 | 2026-10-21 (Claude Code) | `video-exporter.ts`·`ExportStudio.tsx` |
 | IMP-PLS-007 | 기능 | 영상 만들기 곡별 가사 층 + 세로 9:16 | P2 | **완료 (v1.17)** | 2026-10-21 (Claude Code) | `lyrics-layer.ts`·`MediaCenter.tsx`·`EditorStudio.tsx`·`ExportStudio.tsx`·`video-exporter.ts` |
 | IMP-PLS-005 | 편의성 | 썸네일 Canvas 편집기에서 자주 쓰는 한글 감성 폰트 즐겨찾기(Pin) 기능 | P3 (보통) | 제안/대기 | 2026-10-16 (agy) | `src/components/studio/ThumbnailTab.tsx` |
 

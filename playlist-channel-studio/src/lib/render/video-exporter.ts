@@ -10,6 +10,7 @@ import {
 import { ParticleSystem } from './particle-system';
 import { drawCover, drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
 import { bassLevelOf, createSpectrumReader } from './audio-spectrum';
+import { loadGifSticker } from './gif-frames';
 
 export interface RenderProgress {
   progress: number; // 0 to 100
@@ -24,7 +25,8 @@ export async function exportVideoMp4(
   logoImg: HTMLImageElement | null,
   settings: StudioSettings,
   exportSettings: ExportSettings,
-  onProgress: (p: RenderProgress) => void
+  onProgress: (p: RenderProgress) => void,
+  gifUrl: string | null = null // v1.21 GIF 스티커(미리보기에만 있던 것)
 ): Promise<Blob | null> {
   if (tracks.length === 0) {
     throw new Error('렌더링할 오디오 트랙이 없습니다.');
@@ -200,6 +202,9 @@ export async function exportVideoMp4(
 
   // v1.18 (IMP-PLS-006) 스펙트럼·저음 효과를 실제 소리로 — 미리보기 분석기와 같은 계산(예전엔 sin/cos 가짜 값)
   const frequencyAt = createSpectrumReader(passes, fps);
+  // v1.21 (IMP-PLS-008) GIF 스티커 — 장면을 미리 나눠 두고 시각에 맞춰 그린다(미리보기와 같은 위치·크기·투명도·그림자)
+  const gif = gifUrl ? await loadGifSticker(gifUrl).catch(() => null) : null;
+  const unit = Math.min(width, height) / 1080; // 미리보기 캔버스가 1080p 기준이라 720p는 비율로 줄인다
   for (let frameIdx = 0; frameIdx < totalVideoFrames; frameIdx++) {
     if (encoderError) throw encoderError;
 
@@ -282,6 +287,17 @@ export async function exportVideoMp4(
       ctx.drawImage(logoImg, lX, lY, lSize, lSize);
       ctx.restore();
     }
+    if (gif) {
+      ctx.save();
+      ctx.globalAlpha = settings.gifOpacity / 100;
+      const gSize = (settings.gifSize / 100) * 150 * unit;
+      const gX = settings.gifCentered ? (width - gSize) / 2 : (settings.gifX / 100) * width;
+      const gY = settings.gifCentered ? (height - gSize) / 2 : (settings.gifY / 100) * height;
+      if (settings.gifShadowEnabled) { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = settings.gifShadowSize * unit; }
+      ctx.drawImage(gif.frameAt(timeMs), gX, gY, gSize, gSize);
+      ctx.restore();
+    }
+
     ctx.restore(); // 확대·흔들림 끝
 
     // Encode video frame
@@ -308,6 +324,7 @@ export async function exportVideoMp4(
   // Flush encoders
   onProgress({ progress: 96, currentSecond: Math.round(totalDuration), totalSeconds: Math.round(totalDuration), status: '인코딩 마무리 및 파일 패키징 중...' });
   encodeAudioUntil(totalAudioFrames); // 남은 소리
+  gif?.close();
   await videoEncoder.flush();
   videoEncoder.close();
   await audioEncoder.flush();

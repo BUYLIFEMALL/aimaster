@@ -101,6 +101,7 @@ export function VideoStudio({ userId }: { userId: string }) {
             tracks={tracks}
             bgMedia={bgMedia}
             logoUrl={logoUrl}
+            gifUrl={gifUrl}
             settings={settings}
             exportSettings={exportSettings}
             setExportSettings={setExportSettings}
