@@ -56,6 +56,10 @@ UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), �
 
 https://ui-canvas.buylife.xyz
 
+## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1: Suno V6 실제 생성 검수 완료
+
+시험 계정 본인 sunoapi.org 키로 정밀 기획 「Suno로 생성」(V6) 1회: 기획 가사 그대로 전송, 웹훅 잠금 뒤 뒤처리 저장, 곡 2개(181초·177초)·커버·재생 확인. M1 전체 완료(연장·MR 실호출만 미검수). 다음 순서(주인님 지시): 옛 앱 코드 삭제(백업·태그) → music-audio 서명 주소 → 기존 곡 30일 삭제 → V6 추가 기능. 상세 `music/AGENTS.md`.
+
 ## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1 4단계 완료: Suno 음악기획 → 음악(SUNO)자동화 (6개 → 5개)
 
 옛 Suno 음악기획(v1.12)은 이동 안내 + 「내 기획 JSON 내려받기」만 남김(로그인만 확인), 옛 API 410, 카탈로그 노출 중지, 메인 `/programs/suno-music-studio` → `/programs/music-automation`. 권한 144명 전원 이미 음악(SUNO) 보유(1명 기간 연장). 음악(SUNO) 소개 글(475자)·특징·사용 순서·추천 대상을 병합 기능으로 갱신. 백업 `docs/analysis-music-consolidation-20261021/backup-programs-before-merge-m1.json`. **남은 것: Suno 실제 생성 1회 검수 — 시험 계정 sunoapi.org 키 등록 대기(주인님 직접).** 옛 앱 코드 삭제는 백업·태그·승인 뒤.
