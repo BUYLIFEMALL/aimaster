@@ -216,3 +216,14 @@ sunoapi `get-timestamped-lyrics`의 단어별 시각(`alignedWords`, 단어 안�
 | `youtube-auto-reply` | 댓글(영상 썸네일 wide) | `/comments#video-<id>` | `#ff0033` |
 
 2026-10-21 추가: 검토 화면 묶음 머리 `review-group-header`(같은 기준 폴더), 목록 항목은 휴대폰에서 44px 이상. 새 응대형 프로그램(검토 후 게시)을 만들면 이 세 부품을 사본으로 받고, 검토 화면 묶음 `<section>`에 `id` + `scroll-mt-80`을 단다. 다음 단계 아이디어: 통합 받은편지함([`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md)).
+
+## 15. 댓글·DM 승인 게시 묶음 — 통합 받은편지함 `comment-inbox` (2026-10-21 등록)
+
+| 플랫폼 | 기준(원래 프로그램) | 받은편지함 사본 |
+|---|---|---|
+| 인스타 댓글 | `instagram-comment-reply/lib/comments/post.ts` + `lib/instagram/{memberAccount,client,token}.ts` | `comment-inbox/lib/comments/instagramPost.ts` + 같은 경로 |
+| 인스타 DM | `instagram-comment-reply/lib/dmApp/dm/post.ts` + `lib/dmApp/instagram/{memberAccount,client,token}.ts` | 같은 경로 |
+| 쓰레드 댓글 | `threads-comment-reply/lib/comments/post.ts` + `lib/threads/{memberAccount,client,token}.ts` | `comment-inbox/lib/comments/threadsPost.ts` + 같은 경로 |
+| 유튜브 댓글 | `youtube-auto-reply/lib/comments/post.ts` + `lib/youtube/{memberAccount,client,token}.ts` + `lib/apiKeys.ts`·`lib/apiKeyLabels.ts` | `comment-inbox/lib/comments/youtubePost.ts` + 같은 경로 |
+
+토큰 갱신(`getValid…AccessToken`·`markNeedsReconnect`)은 `"use server"` 연결 파일에 있으면 화면에서 부를 수 있는 서버 동작으로 노출될 수 있고 연결·권한 코드와 섞여 재사용이 안 되므로 `token.ts`(server-only)로 둔다(2026-10-21). 새 응대형 프로그램을 받은편지함에 붙일 때도 같은 묶음 구조로 등록한다. 플랜: [`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md).

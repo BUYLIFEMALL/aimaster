@@ -207,3 +207,8 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 ## 2026-10-21 v1.24 — 공용 `review-group-header` 사본(영상 썸네일 추가) · 휴대폰 목록 누르는 영역 확대 (Claude Code 윈도우)
 - 댓글 검토 화면 묶음 머리를 공용 부품 `components/ReviewGroupHeader.tsx`(사본 — 기준 `instagram-comment-reply/components/`만 고치고 `--sync`)로. 영상 조회에 `thumbnail_url, youtube_video_id`를 더해 **영상 썸네일(16:10, 누르면 유튜브 원본 새 창)** 표시, 썸네일이 없으면 예전 ▶ 표시. 대시보드 목록(`PendingReviewList` 사본)은 휴대폰에서 항목 44px 이상. `package.json` 1.24.0.
 - 검수: tsc 0, build, 배포 `youtube-auto-reply-rjt238hfu` READY, DB v1.24, 크롬(일반 회원) 대시보드 v1.24·댓글 화면 200. 대기 0건이라 썸네일 그림은 미확인. 비용: Vercel 빌드 1회. 커밋 `c59129f8`.
+
+## 2026-10-21 v1.25 — 토큰 갱신 코드 분리(동작 같음) + 게시 묶음 공용 기준 코드 등록 (Claude Code 윈도우)
+- 통합 받은편지함(`comment-inbox`) 2단계 준비. `getValid…AccessToken`·`markNeedsReconnect`를 `"use server"` 연결 파일에서 `lib/youtube/token.ts`로 그대로 옮기고(원래 함수와 글자까지 같음 확인) 쓰는 곳의 가져오기 경로만 바꿈. 덤: 연결 파일에서 내보내던 토큰 함수가 화면에서 부를 수 있는 서버 동작으로 노출될 여지도 없어짐.
+- **이 프로그램의 게시 묶음(`lib/comments/post.ts`·계정 읽기·API 호출·토큰)은 이제 공용 기준 코드**(사본: `comment-inbox/`) — 고치면 `node scripts/check-shared-modules.mjs --sync` 후 받은편지함도 함께 배포. 등록부: `docs/SHARED_MODULES.md`·`docs/SHARED_FEATURE_MAP.md` 15절.
+- 검수: tsc·build, 배포 `youtube-auto-reply-d04h1u291` READY, DB v1.25, `/login` 200·연결 점검 실행 주소 무인증 401. 비용: Vercel 빌드 1회. 커밋 `26eecc96`.

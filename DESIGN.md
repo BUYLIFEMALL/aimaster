@@ -233,6 +233,7 @@
 | 83 | AI 포토 리메이크 자동화 | `photo-remake-studio` | **크리에이티브 아틀리에 스타일 — 포토 리메이크 옵시디언 변형** | 다크(옵시디언 딥블랙 `#090a0f` + 리메이크 앰버 `#f59e0b`·에메랄드 `#10b981`) | ✅ 1차 작업완료 (`v1.09`, 포토 리메이크 옵시디언 변형) | [`photo-remake-studio/docs/DESIGN_HANDOFF.md`](photo-remake-studio/docs/DESIGN_HANDOFF.md) · [`photo-remake-studio/docs/IMPROVEMENTS.md`](photo-remake-studio/docs/IMPROVEMENTS.md) |
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | **포커스 스튜디오 스타일 — 미드나잇 챗 콘솔 변형** | 다크(미드나잇 `#0d0f17` + 인디고→스카이 포인트) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일 — 미드나잇 챗 콘솔 변형) | [`ai-doc-chatbot/docs/DESIGN_HANDOFF.md`](ai-doc-chatbot/docs/DESIGN_HANDOFF.md) |
 | 85 | AI 가사영상 자동화 | `lyric-video-studio` | **플로우 위저드 스타일 — 리릭 스테이지 바이올렛 변형** | 다크(`#0b1020` + 바이올렛 `#7c3aed`) / 라이트 전환 | ✅ 1차 작업완료 (`v1.04`, 플로우 위저드 스타일 — 리릭 스테이지 바이올렛 변형) | [`lyric-video-studio/docs/DESIGN_HANDOFF.md`](lyric-video-studio/docs/DESIGN_HANDOFF.md) |
+| 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | **플로우 위저드 스타일 (인스타 바이럴 변형)** — 받은편지함용 축소(INSTA 댓글·DM v1.24와 같은 팔레트) | 다크(`#0d0f17` + 핑크→보라 그라디언트, `ig-*` 토큰) | ✅ 1차 작업완료 (`v1.01`, 신규 · 크롬 데스크톱·400px 검수 2026-10-21) | [`comment-inbox/docs/DESIGN_HANDOFF.md`](comment-inbox/docs/DESIGN_HANDOFF.md) |
 
 ---
 

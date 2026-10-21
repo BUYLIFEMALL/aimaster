@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 신규 AI 댓글·DM 통합 받은편지함(comment-inbox) v1.01 + 원래 댓글 프로그램 3개 토큰 코드 분리
+
+주인님 결정(새 프로그램·이름·2단계까지)으로 신규 배포. 인스타 댓글·DM·쓰레드·유튜브 댓글의 검토 대기 항목을 급한 순으로 모아 고쳐서 바로 승인·게시. 게시는 원래 프로그램과 같은 코드(공용 기준 코드 사본 17개), 권한 두 겹(받은편지함 + 원래 프로그램). 원래 프로그램 정리: INSTA v1.31·쓰레드 v1.20·유튜브 v1.25(토큰 갱신 `token.ts` 분리, 동작 같음). DB(운영): programs·요금제 3단계·VIP 연결(142명 자동 부여)·썸네일. Vercel 새 프로젝트·환경변수 4개·도메인. 첫 배포 프레임워크 미지정 실패 → `vercel.json` 수정(ERROR_LESSONS). 검수: 빌드·화면·400px. **실제 공개 게시는 미실행(대기 0건, 주인님 승인 후)**. 상세 `comment-inbox/AGENTS.md`. 비용: Vercel 빌드 5회(1회 실패 포함), 이미지 2회.
+
+https://comment-inbox.buylife.xyz
+
+https://www.buylife.xyz/programs/comment-inbox
+
 ## 2026-10-21 Claude Code(윈도우) — 음악(SUNO) v1.30 곡 연장(V6) 실패 해결
 
 원인: 이어 붙일 지점(continueAt)이 곡 끝 3초 전(페이드아웃)이라 V6가 "extending lyrics are empty, too short, or malformed"로 매번 실패(v1.25 4회). 같은 곡·같은 가사로 곡 끝 30초 전(151/181초)에 시험 1회(승인) → 성공 2곡(223·234초). 코드 `music/lib/actions/tracks.ts`를 곡 끝 30초 전(1분 미만 곡은 절반 지점)으로 고치고, 가이드 문구를 실제 동작대로 정정. 배포 Ready, DB v1.30, 크롬 화면 확인. 시험은 API 직접 호출이라 앱에는 저장 안 됨 — 앱 버튼으로 하는 연장은 회원이 다음에 쓸 때 확인 필요. 비용: Suno 연장 1회, Vercel 빌드 1회. 다음: Suno 커버·뮤직비디오 → 보컬/반주 추가·매시업. 상세 `music/AGENTS.md` v1.30.
