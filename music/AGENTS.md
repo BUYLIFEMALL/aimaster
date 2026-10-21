@@ -287,3 +287,10 @@ POST 콜백을 보낸다. 이 라우트는:
 - MR 웹훅(`app/api/webhooks/suno-vocal-removal`): 행의 type으로 분기 — split_stem이면 12개 파일을 `{user}/{variant}/stem-<key>.mp3`로 복사해 `stems`에 저장. 곡 웹훅과 같이 **잠금(`syncLock` 표에 `music_track_mr` 추가) → 즉시 200 → waitUntil**(12개 복사가 15초를 넘으므로). 기존 MR(보컬/반주)도 같은 방식.
 - 곡 카드: 「🎚️ 악기별 12트랙 분리 (50크레딧)」(같은 곡 재요청도 매번 과금 — 버튼 설명), 진행/실패 안내, 완료 시 트랙별 재생(preload none)·⬇ 내려받기. 서명 주소·30일 정리에 stems 포함.
 - 검수: tsc·lint·테스트 53·build, 배포 Ready(비용 Vercel 빌드 1회), DB v1.24. **실제 호출 1회(승인, 50크레딧)** 시험 곡 「빗속의 다짐」 곡 #1 → 약 3분 반 뒤 콜백, 잠금 뒤 저장, 12트랙 모두 저장, 화면 「악기별 트랙 12개」·서명 주소 재생 확인(앞 3개 181초).
+
+## 2026-10-21 v1.25 — 곡 연장·기존 MR 실제 호출 시험 (Claude Code 윈도우)
+- **MR(보컬 제거, separate_vocal) 성공**: 시험 곡 #2, 약 60초 뒤 콜백 → 잠금 뒤 저장, 반주·보컬 파일 생성(10크레딧).
+- **⚠️ 곡 연장(V6) 실패 — 미해결**: 시험 곡 #1(181초, `continueAt` 178)로 4회 시도 모두 Suno가 `GENERATE_AUDIO_FAILED` "Task failed - credits refunded. Possible causes: the extending lyrics are empty, too short, or malformed. Please check the lyrics field and retry."(크레딧 환불). `record-info`의 `param`으로 실제 요청 확인: 가사 196~227자([Bridge]·[Final Chorus]·[Outro]) 전달됨.
+  - 시도한 수정(모두 유지 — 문서와 일치): ① `prompt`와 함께 `lyrics` 칸에도 같은 가사(문서상 V6는 lyrics 우선) ② 줄 끝 공백·빈 줄 정리 ③ V6 연장에서 문서에 없는 `defaultParamFlag` 제외(옛 V5_5 곡 연장은 유지). 넷 다 같은 오류.
+  - 남은 의심: `continueAt`이 곡 끝 3초 전(EXTEND_TAIL_MARGIN 3초)이라 V6에서 「이어 부를 구간이 너무 짧다」로 판정될 가능성, 또는 연장 가사 분량 하한. **다음 첫 단계**: continueAt을 곡 끝 30초 전쯤으로 앞당겨 1회 시험(실패 시 환불), 그래도 실패하면 sunoapi.org 지원에 문의. **회원 영향: 지금 V6 곡 연장은 실패(크레딧 환불)** — 화면에 Suno 오류 원문이 표시됨.
+- 비용: Vercel 빌드 3회, gpt-4o-mini 4회(연장 가사), Suno 연장 4회(전부 환불), MR 10크레딧.

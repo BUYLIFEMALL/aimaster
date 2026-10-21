@@ -191,14 +191,30 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      defaultParamFlag: true, // 2026-10-21 문서에는 없지만 예전 실험(위 주석)에서 있어야 안정적이었다. 모르는 항목은 무시된다.
+      // 2026-10-21: 최신 문서에 없는 defaultParamFlag는 V6 연장에서 빼 본다(있으면 V6가 우리 가사를 읽지 않는 것으로 의심 —
+      // 3회 연속 "extending lyrics are empty…" 실패). 예전 V5_5 곡 연장은 원곡 모델로 가므로 그때만 남긴다.
+      ...(input.model && !input.model.startsWith("V6") ? { defaultParamFlag: true } : {}),
       audioId: input.audioId,
       ...(input.sourceTaskId ? { taskId: input.sourceTaskId } : {}),
       continueAt: input.continueAt,
       style: input.styleDescription.slice(0, 1000),
       title: input.title.slice(0, 100),
       instrumental: input.instrumental,
-      ...(input.instrumental || !input.prompt ? {} : { prompt: input.prompt.slice(0, 5000) }),
+      // 2026-10-21 실제 호출: V6 연장에서 prompt만 보내면 "extending lyrics are empty… check the lyrics field"로 실패(크레딧 환불).
+      // V6 계열은 lyrics 칸을 읽으므로 같은 가사를 prompt·lyrics 둘 다에 넣는다(옛 모델은 prompt를 읽음).
+      ...(input.instrumental || !input.prompt
+        ? {}
+        : (() => {
+            // GPT가 줄 끝에 공백 두 칸(마크다운 줄바꿈)을 붙여 「malformed」로 거절되는 것을 막는다(2026-10-21 실호출 원인 조사).
+            const lyrics = input.prompt
+              .split("\n")
+              .map((l) => l.trimEnd())
+              .join("\n")
+              .replace(/\n{3,}/g, "\n\n")
+              .trim()
+              .slice(0, 5000);
+            return { prompt: lyrics, lyrics };
+          })()),
       ...(input.excludeStyles ? { negativeTags: input.excludeStyles.slice(0, 1000) } : {}),
       ...(input.vocalGender && !input.instrumental ? { vocalGender: input.vocalGender } : {}),
       model: input.model ?? DEFAULT_SUNO_MODEL,
