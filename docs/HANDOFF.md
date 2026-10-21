@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 음악 카테고리 병합·독립 분석 (분석만, 코드·DB 변경 없음)
+
+음악 6개(+ 이미 병합된 비공개 `yt-playlist-studio`)를 매뉴얼 §3 9항목으로 코드 확인. **결론: 6개 → 5개 — 병합 M1 「Suno 음악기획 자동화 → 음악(SUNO)자동화」 1묶음, 뮤직비디오·LP 턴테이블·AI 마스터링·AI Audio분석은 독립 유지(음원 넘기기 연결·공용 측정/렌더 부품 제안).** 분리할 프로그램 없음. 병합과 별개 급한 결함: AI Audio분석 API 이용 권한 미확인(F-013)·4.5MB 초과 업로드 실패(F-014), `music-audio` 공개 버킷+30일 삭제 없음. 보고서 [docs/analysis-music-consolidation-20261021/REPORT.md](analysis-music-consolidation-20261021/REPORT.md). **주인님 결정 대기**(§5 6개 항목). 다음 첫 단계: 결정 후 M1 플랜 또는 오디오 분석기 결함 수정.
+
 ## 2026-10-21 Claude Code(윈도우) — Lyricbi(리릭비) 분석: 새 웹 프로그램 추천 (분석만, 코드·DB 변경 없음)
 
 `D:\PDS\Program_dev\Lyricbi-Setup-1.9.0.exe`(Electron + Remotion 가사 영상 앱, AI 없음)를 실행하지 않고 풀어서 분석했고, 음악·영상 계열 기존 7개와 비교했습니다. **결론: 새 프로그램 「AI 리릭비디오 자동화」(`lyric-video-studio`, 가칭) + 공용 `browser-mp4-encoder` 사본 + 음악(SUNO) 자동화 곡 가져오기(Suno 시간 가사 `get-timestamped-lyrics`, 공식 문서만 확인·미호출).** 저장소에 `.srt`·노래방·시간 가사 처리 코드가 0건이고, `playlist-channel-studio`는 가로 전용·글자 없음·이미 커서 확장을 비추천했습니다. 보고서 [docs/analysis-lyricbi-20261021/REPORT.md](analysis-lyricbi-20261021/REPORT.md), 근거 JSON 같은 폴더 `evidence/`. **주인님 결정 대기**(방향·이름·1차 범위·배지·SUNO 연결 링크). 다음 첫 단계: 결정 후 `lyric-video-studio/docs/PLAN_*` 개발 플랜 작성.
