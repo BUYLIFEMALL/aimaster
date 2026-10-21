@@ -5,10 +5,16 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateRemixStyle } from "@/lib/ai/musicPrompts";
-import { requestSunoRemix, toSunoVocalGender, DEFAULT_SUNO_MODEL, checkSunoGenerationStatus } from "@/lib/ai/suno";
+import {
+  requestSunoRemix,
+  requestSunoRemixMode,
+  toSunoVocalGender,
+  DEFAULT_SUNO_MODEL,
+  checkSunoGenerationStatus,
+} from "@/lib/ai/suno";
 import { saveSunoRemixResult, markRemixFailed } from "@/lib/remixSync";
 import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
-import type { RemixStatus, VocalGender } from "@/types/database.types";
+import type { RemixMode, RemixStatus, VocalGender } from "@/types/database.types";
 import { signStorageUrl, SUNO_FETCH_TTL_SECONDS } from "@/lib/storageSign";
 
 export interface CreateRemixState {
@@ -83,7 +89,6 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
 
   const sourceTitle = String(formData.get("sourceTitle") ?? "").trim() || null;
   const lyrics = String(formData.get("lyrics") ?? "").trim() || null;
-  const instrumental = formData.get("instrumental") === "on";
   const vocalGenderRaw = String(formData.get("vocalGender") ?? "").trim();
   const vocalGender = (vocalGenderRaw || null) as VocalGender | null;
   const lang = String(formData.get("lang") ?? "").trim() || "한국어";
@@ -92,8 +97,16 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
   const audioWeight = clamp01(formData.get("audioWeight"));
   const clampedCount = Math.min(Math.max(Math.round(Number(formData.get("count")) || 1), 1), MAX_REMIX_COUNT);
 
+  const modeRaw = String(formData.get("mode") ?? "cover");
+  const mode: RemixMode = (REMIX_MODES as readonly string[]).includes(modeRaw) ? (modeRaw as RemixMode) : "cover";
+  // 반주 추가는 결과가 원곡 목소리 + 새 반주라 「연주곡」 선택이 의미 없다. 보컬 추가·매시업은 노래로 만든다.
+  const instrumental = mode === "cover" && formData.get("instrumental") === "on";
   const sourceIdInput = String(formData.get("sourceId") ?? "").trim() || null;
   const sourceVariantId = String(formData.get("sourceVariantId") ?? "").trim() || null;
+  const sourceMrId = String(formData.get("sourceMrId") ?? "").trim() || null;
+  const mrPart = String(formData.get("mrPart") ?? "") === "vocal" ? "vocal" : "instrumental";
+  const secondVariantId = String(formData.get("secondVariantId") ?? "").trim() || null;
+  if (mode === "mashup" && !secondVariantId) return { error: "매시업할 두 번째 곡을 골라주세요." };
   let sourceAudioUrl: string;
   let resolvedSourceTitle = sourceTitle;
   let durationSeconds = DEFAULT_REMIX_DURATION_SECONDS;
@@ -111,28 +124,40 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
     sourceAudioUrl = existingSource.audio_url;
     resolvedSourceTitle = existingSource.title;
   } else if (sourceVariantId) {
-    const { data: variant } = await supabase
-      .from("music_track_variants")
-      .select("id, audio_url, track_id, duration_seconds")
-      .eq("id", sourceVariantId)
+    const resolved = await sourceFromVariant(supabase, user.id, sourceVariantId, resolvedSourceTitle);
+    if ("error" in resolved) return { error: resolved.error };
+    sourceRowId = resolved.id;
+    sourceAudioUrl = resolved.audioUrl;
+    resolvedSourceTitle = resolved.title;
+    durationSeconds = clampDuration(resolved.durationSeconds);
+  } else if (sourceMrId) {
+    // 곡 카드 MR 결과의 「이 반주로 보컬 추가」·「이 보컬로 반주 추가」 — 분리된 파일을 원곡으로 등록한다(kind 'mr').
+    const { data: mr } = await supabase
+      .from("music_track_mr")
+      .select("id, variant_id, status, instrumental_url, vocal_url")
+      .eq("id", sourceMrId)
       .eq("user_id", user.id)
       .maybeSingle();
-    if (!variant) return { error: "리믹스할 원곡을 찾을 수 없습니다." };
-    sourceAudioUrl = variant.audio_url;
-    durationSeconds = clampDuration(variant.duration_seconds);
-
-    if (!resolvedSourceTitle) {
+    const mrUrl = mrPart === "vocal" ? mr?.vocal_url : mr?.instrumental_url;
+    if (!mr || mr.status !== "completed" || !mrUrl) return { error: "MR 결과 파일을 찾을 수 없습니다." };
+    const { data: variant } = await supabase
+      .from("music_track_variants")
+      .select("track_id, duration_seconds")
+      .eq("id", mr.variant_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!resolvedSourceTitle && variant) {
       const { data: track } = await supabase.from("music_tracks").select("title").eq("id", variant.track_id).maybeSingle();
-      resolvedSourceTitle = track?.title ?? null;
+      resolvedSourceTitle = `${track?.title ?? "제목 없음"} (${mrPart === "vocal" ? "보컬" : "반주"})`;
     }
-
-    // 같은 트랙으로 이미 만든 소스 그룹이 있으면 재사용 — 없으면 새로 만든다.
+    durationSeconds = clampDuration(variant?.duration_seconds);
+    sourceAudioUrl = mrUrl;
     const { data: reusedSource } = await supabase
       .from("music_remix_sources")
       .select("id")
       .eq("user_id", user.id)
-      .eq("track_id", variant.track_id)
-      .eq("kind", "track")
+      .eq("kind", "mr")
+      .eq("audio_url", mrUrl)
       .maybeSingle();
     if (reusedSource) {
       sourceRowId = reusedSource.id;
@@ -141,10 +166,10 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
         .from("music_remix_sources")
         .insert({
           user_id: user.id,
-          kind: "track",
-          track_id: variant.track_id,
+          kind: "mr",
+          track_id: variant?.track_id ?? null,
           title: resolvedSourceTitle ?? "제목 없음",
-          audio_url: sourceAudioUrl,
+          audio_url: mrUrl,
         })
         .select("id")
         .single();
@@ -195,6 +220,14 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
   if (!sunoKey) return { needsApiKey: "suno" };
 
+  let second: { id: string; audioUrl: string } | null = null;
+  if (mode === "mashup" && secondVariantId) {
+    const resolved = await sourceFromVariant(supabase, user.id, secondVariantId, null);
+    if ("error" in resolved) return { error: resolved.error };
+    if (resolved.audioUrl === sourceAudioUrl) return { error: "매시업은 서로 다른 두 곡을 골라주세요." };
+    second = { id: resolved.id, audioUrl: resolved.audioUrl };
+  }
+
   try {
     const usedStyles: string[] = [];
 
@@ -218,17 +251,21 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
           source_audio_url: sourceAudioUrl,
           source_title: resolvedSourceTitle,
           desired_feel: desiredFeel,
-          lyrics: instrumental ? null : lyrics,
+          lyrics: instrumental || mode === "add_instrumental" ? null : lyrics,
           style_description: styleResult.styleDescription,
           style_weight: styleWeight,
           weirdness_constraint: weirdnessConstraint,
           audio_weight: audioWeight,
-          vocal_gender: instrumental ? null : vocalGender,
+          vocal_gender: instrumental || mode === "add_instrumental" ? null : vocalGender,
           suno_model: DEFAULT_SUNO_MODEL,
           status: "generating",
-          target_duration_seconds: durationSeconds,
+          // 자동 연장(lib/remixSync.ts)은 스타일 커버에서만 — 다른 방식은 목표 길이를 비워 연장하지 않는다.
+          target_duration_seconds: mode === "cover" ? durationSeconds : null,
           instrumental,
           lang,
+          mode,
+          second_source_id: second?.id ?? null,
+          second_source_audio_url: second?.audioUrl ?? null,
         })
         .select("id")
         .single();
@@ -238,21 +275,49 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
 
       // music-audio는 비공개 저장소라 Suno 서버가 원곡을 받아 갈 수 있게 24시간짜리 서명 주소로 넘긴다(lib/storageSign.ts).
       const sunoFetchUrl = await signStorageUrl(sourceAudioUrl, SUNO_FETCH_TTL_SECONDS);
-      const taskId = await requestSunoRemix(
-        {
-          uploadUrl: sunoFetchUrl,
-          title: `${resolvedSourceTitle ?? "리믹스"} Remix`,
-          styleDescription: styleResult.styleDescription,
-          prompt: instrumental ? undefined : buildRemixPrompt(lyrics, lang, vocalGender),
-          instrumental,
-          styleWeight: styleWeight ?? undefined,
-          weirdnessConstraint: weirdnessConstraint ?? undefined,
-          audioWeight: audioWeight ?? undefined,
-          vocalGender: instrumental ? undefined : toSunoVocalGender(vocalGender),
-          durationSeconds,
-        },
-        sunoKey,
-      );
+      let taskId: string;
+      try {
+        if (mode === "cover") {
+          taskId = await requestSunoRemix(
+            {
+              uploadUrl: sunoFetchUrl,
+              title: `${resolvedSourceTitle ?? "리믹스"} Remix`,
+              styleDescription: styleResult.styleDescription,
+              prompt: instrumental ? undefined : buildRemixPrompt(lyrics, lang, vocalGender),
+              instrumental,
+              styleWeight: styleWeight ?? undefined,
+              weirdnessConstraint: weirdnessConstraint ?? undefined,
+              audioWeight: audioWeight ?? undefined,
+              vocalGender: instrumental ? undefined : toSunoVocalGender(vocalGender),
+              durationSeconds,
+            },
+            sunoKey,
+          );
+        } else {
+          const uploadUrls = [sunoFetchUrl];
+          if (second) uploadUrls.push(await signStorageUrl(second.audioUrl, SUNO_FETCH_TTL_SECONDS));
+          taskId = await requestSunoRemixMode(
+            {
+              mode,
+              uploadUrls,
+              title: `${resolvedSourceTitle ?? "리믹스"} ${REMIX_TITLE_SUFFIX[mode]}`,
+              style: styleResult.styleDescription,
+              lyrics: mode === "add_instrumental" ? undefined : (lyrics ?? undefined),
+              prompt: mode === "add_instrumental" ? undefined : buildDefaultRemixPrompt(lang, vocalGender),
+              styleWeight: styleWeight ?? undefined,
+              weirdnessConstraint: weirdnessConstraint ?? undefined,
+              audioWeight: audioWeight ?? undefined,
+              vocalGender: mode === "add_instrumental" ? undefined : toSunoVocalGender(vocalGender),
+              durationSeconds: mode === "mashup" ? durationSeconds : undefined,
+            },
+            sunoKey,
+          );
+        }
+      } catch (err) {
+        // 요청이 거절되면 「생성 중」으로 남지 않게 실패로 표시한다(크레딧은 나가지 않음).
+        await markRemixFailed(supabase, remix, err instanceof Error ? err.message : "Suno 요청이 실패했습니다.");
+        throw err;
+      }
 
       await supabase.from("music_track_remixes").update({ task_id: taskId }).eq("id", remix.id);
     }
@@ -260,7 +325,7 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
     await logProgramUsage({
       userId: user.id,
       action: "create_remix",
-      metadata: { count: clampedCount, sourceVariantId, instrumental },
+      metadata: { count: clampedCount, sourceVariantId, instrumental, mode },
     });
 
     revalidatePath("/remix");
@@ -269,6 +334,55 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
   } catch (err) {
     return { error: err instanceof Error ? err.message : "리믹스 요청 중 오류가 발생했습니다." };
   }
+}
+
+const REMIX_MODES = ["cover", "add_vocals", "add_instrumental", "mashup"] as const;
+const REMIX_TITLE_SUFFIX: Record<Exclude<RemixMode, "cover">, string> = {
+  add_vocals: "Vocal",
+  add_instrumental: "Band",
+  mashup: "Mashup",
+};
+
+type ServerSupabase = Awaited<ReturnType<typeof createClient>>;
+
+/** 내 곡 변주 → 그 곡의 리믹스 원곡 그룹(kind 'track', 곡마다 하나를 재사용 — 「원곡 → 리믹스 목록」 구조 유지). */
+async function sourceFromVariant(
+  supabase: ServerSupabase,
+  userId: string,
+  variantId: string,
+  titleOverride: string | null,
+): Promise<{ id: string; audioUrl: string; title: string | null; durationSeconds: number | null } | { error: string }> {
+  const { data: variant } = await supabase
+    .from("music_track_variants")
+    .select("id, audio_url, track_id, duration_seconds")
+    .eq("id", variantId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!variant) return { error: "리믹스할 원곡을 찾을 수 없습니다." };
+
+  let title = titleOverride;
+  if (!title) {
+    const { data: track } = await supabase.from("music_tracks").select("title").eq("id", variant.track_id).maybeSingle();
+    title = track?.title ?? null;
+  }
+
+  const { data: reusedSource } = await supabase
+    .from("music_remix_sources")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("track_id", variant.track_id)
+    .eq("kind", "track")
+    .maybeSingle();
+  if (reusedSource) {
+    return { id: reusedSource.id, audioUrl: variant.audio_url, title, durationSeconds: variant.duration_seconds };
+  }
+  const { data: newSource, error } = await supabase
+    .from("music_remix_sources")
+    .insert({ user_id: userId, kind: "track", track_id: variant.track_id, title: title ?? "제목 없음", audio_url: variant.audio_url })
+    .select("id")
+    .single();
+  if (error || !newSource) return { error: error?.message ?? "리믹스 원본 생성에 실패했습니다." };
+  return { id: newSource.id, audioUrl: variant.audio_url, title, durationSeconds: variant.duration_seconds };
 }
 
 function clamp01(value: FormDataEntryValue | null): number | null {

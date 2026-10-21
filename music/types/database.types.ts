@@ -19,6 +19,7 @@ export type VocalGender = "여성" | "남성" | "혼성";
 export type MrStatus = "generating" | "completed" | "failed";
 export type WavStatus = "generating" | "completed" | "failed";
 export type RemixStatus = "generating" | "completed" | "failed";
+export type RemixMode = "cover" | "add_vocals" | "add_instrumental" | "mashup";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -348,7 +349,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          kind: "track" | "upload";
+          kind: "track" | "upload" | "mr";
           track_id: string | null;
           title: string;
           audio_url: string;
@@ -357,7 +358,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          kind: "track" | "upload";
+          kind: "track" | "upload" | "mr";
           track_id?: string | null;
           title: string;
           audio_url: string;
@@ -366,7 +367,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
-          kind?: "track" | "upload";
+          kind?: "track" | "upload" | "mr";
           track_id?: string | null;
           title?: string;
           audio_url?: string;
@@ -396,6 +397,9 @@ export interface Database {
           extend_hop_count: number;
           instrumental: boolean;
           lang: string;
+          mode: RemixMode;
+          second_source_id: string | null;
+          second_source_audio_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -420,6 +424,9 @@ export interface Database {
           extend_hop_count?: number;
           instrumental?: boolean;
           lang?: string;
+          mode?: RemixMode;
+          second_source_id?: string | null;
+          second_source_audio_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -444,6 +451,9 @@ export interface Database {
           extend_hop_count?: number;
           instrumental?: boolean;
           lang?: string;
+          mode?: RemixMode;
+          second_source_id?: string | null;
+          second_source_audio_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };

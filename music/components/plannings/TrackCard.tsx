@@ -540,6 +540,23 @@ export function TrackCard({
                     <div className="space-y-1.5 pt-1 border-t border-[#2a2a3c]">
                       <p className="text-[11px] font-bold text-zinc-300">🎧 분리된 MR (보컬 제거 반주)</p>
                       <audio controls src={latestMr.instrumental_url} className="w-full" />
+                      {/* 2026-10-21 V6 3차 ⑤: 분리된 파일로 바로 보컬 추가·반주 추가(음악 Remix 스튜디오) */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 pt-0.5">
+                        <a
+                          href={`/remix/new?fromMrId=${latestMr.id}&part=instrumental&mode=add_vocals`}
+                          className="text-[11px] font-bold text-orange-400 hover:text-orange-300"
+                        >
+                          🎤 이 반주로 보컬 추가 →
+                        </a>
+                        {latestMr.vocal_url && (
+                          <a
+                            href={`/remix/new?fromMrId=${latestMr.id}&part=vocal&mode=add_instrumental`}
+                            className="text-[11px] font-bold text-orange-400 hover:text-orange-300"
+                          >
+                            🎹 이 보컬로 반주 추가 →
+                          </a>
+                        )}
+                      </div>
                     </div>
                   )}
                   {latestWav?.status === "generating" && (

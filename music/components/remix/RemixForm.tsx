@@ -5,19 +5,43 @@ import { useRouter } from "next/navigation";
 import { createRemixAction } from "@/lib/actions/remix";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { VOCAL_GENDER_OPTIONS, LANG_OPTIONS } from "@/lib/constants";
-import type { VocalGender } from "@/types/database.types";
+import type { RemixMode, VocalGender } from "@/types/database.types";
 
 const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno" };
 const COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1); // 1~10
+
+// 2026-10-21 Suno V6 3차 ⑤⑥: 같은 화면에서 방식 4가지를 고른다.
+export const REMIX_MODE_OPTIONS: { value: RemixMode; icon: string; label: string; hint: string }[] = [
+  { value: "cover", icon: "🎨", label: "스타일 커버", hint: "원곡을 새 장르·분위기로 다시 만듭니다." },
+  { value: "add_vocals", icon: "🎤", label: "보컬 추가", hint: "연주곡·MR 반주 위에 AI 보컬을 입힙니다." },
+  { value: "add_instrumental", icon: "🎹", label: "반주 추가", hint: "목소리·멜로디 녹음에 어울리는 반주를 붙입니다." },
+  { value: "mashup", icon: "🔀", label: "매시업", hint: "두 곡을 섞어 새 곡을 만듭니다." },
+];
 
 interface RemixSource {
   title: string;
   variantId?: string;
   sourceId?: string;
+  mrId?: string;
+  mrPart?: "instrumental" | "vocal";
 }
 
-export function RemixForm({ source }: { source: RemixSource | null }) {
+export interface MashupCandidate {
+  variantId: string;
+  label: string;
+}
+
+export function RemixForm({
+  source,
+  initialMode = "cover",
+  mashupCandidates = [],
+}: {
+  source: RemixSource | null;
+  initialMode?: RemixMode;
+  mashupCandidates?: MashupCandidate[];
+}) {
   const router = useRouter();
+  const [mode, setMode] = useState<RemixMode>(initialMode);
   const [instrumental, setInstrumental] = useState(false);
   const [vocalGender, setVocalGender] = useState<VocalGender | "">("");
   const [lang, setLang] = useState("한국어");
@@ -70,6 +94,11 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
             <p className="text-sm font-bold text-white">{source.title}</p>
             {source.sourceId ? (
               <input type="hidden" name="sourceId" value={source.sourceId} />
+            ) : source.mrId ? (
+              <>
+                <input type="hidden" name="sourceMrId" value={source.mrId} />
+                <input type="hidden" name="mrPart" value={source.mrPart ?? "instrumental"} />
+              </>
             ) : (
               <input type="hidden" name="sourceVariantId" value={source.variantId} />
             )}
@@ -101,8 +130,56 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
         )}
 
         <div>
+          <p className="block text-xs font-bold text-zinc-300 mb-1.5">리믹스 방식</p>
+          <input type="hidden" name="mode" value={mode} />
+          <div className="grid grid-cols-2 gap-2">
+            {REMIX_MODE_OPTIONS.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setMode(m.value)}
+                aria-pressed={mode === m.value}
+                className={`rounded-xl border p-3 text-left transition-colors ${
+                  mode === m.value
+                    ? "border-orange-500/60 bg-orange-500/10"
+                    : "border-[#272738] bg-[#1a1926] hover:border-orange-500/30"
+                }`}
+              >
+                <p className="text-xs font-bold text-white">
+                  {m.icon} {m.label}
+                </p>
+                <p className="mt-0.5 text-[11px] text-zinc-400 leading-snug">{m.hint}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {mode === "mashup" && (
+          <div>
+            <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+              섞을 두 번째 곡 <span className="text-orange-400">*</span>
+            </label>
+            {mashupCandidates.length > 0 ? (
+              <select name="secondVariantId" required defaultValue="" className="input text-xs">
+                <option value="" disabled>
+                  내 곡에서 고르기
+                </option>
+                {mashupCandidates.map((c) => (
+                  <option key={c.variantId} value={c.variantId}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-[11px] text-zinc-400">완성된 내 곡이 있어야 두 번째 곡을 고를 수 있습니다.</p>
+            )}
+          </div>
+        )}
+
+        <div>
           <label className="block text-xs font-bold text-zinc-300 mb-1.5">
-            원하는 리믹스 스타일 & 분위기 <span className="text-orange-400">*</span>
+            {mode === "cover" ? "원하는 리믹스 스타일 & 분위기" : mode === "add_instrumental" ? "원하는 반주 스타일 & 악기" : "원하는 스타일 & 분위기"}{" "}
+            <span className="text-orange-400">*</span>
           </label>
           <textarea
             name="desiredFeel"
@@ -113,7 +190,8 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
           />
         </div>
 
-        {/* 인스트루멘탈 BGM 토글 */}
+        {/* 인스트루멘탈 BGM 토글 — 스타일 커버에서만 */}
+        {mode === "cover" && (
         <div className="rounded-xl border border-[#272738] bg-[#1a1926] p-4 flex items-center justify-between">
           <div>
             <p className="text-xs font-bold text-zinc-200">인스트루멘탈(BGM)으로 만들기</p>
@@ -130,8 +208,9 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
             <div className="w-11 h-6 bg-[#2b2b3b] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-orange-500 peer-checked:to-amber-500"></div>
           </label>
         </div>
+        )}
 
-        {!instrumental && (
+        {!(mode === "cover" && instrumental) && mode !== "add_instrumental" && (
           <div className="space-y-4 rounded-xl border border-[#272738] bg-[#1a1926] p-4">
             <div>
               <label className="block text-xs font-bold text-zinc-300 mb-1.5">

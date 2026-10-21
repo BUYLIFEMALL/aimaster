@@ -446,6 +446,97 @@ export async function requestSunoRemix(input: RequestSunoRemixInput, apiKey: str
   return data.data.taskId;
 }
 
+export type SunoRemixMode = "add_vocals" | "add_instrumental" | "mashup";
+
+const REMIX_MODE_PATH: Record<SunoRemixMode, string> = {
+  add_vocals: "/api/v1/generate/add-vocals",
+  add_instrumental: "/api/v1/generate/add-instrumental",
+  mashup: "/api/v1/generate/mashup",
+};
+const REMIX_MODE_LABEL: Record<SunoRemixMode, string> = {
+  add_vocals: "보컬 추가",
+  add_instrumental: "반주 추가",
+  mashup: "매시업",
+};
+// 보컬·반주 추가는 negativeTags가 필수다(docs.sunoapi.org 2026-10-21). 회원이 따로 정하지 않으면 품질 저하 요소만 뺀다.
+const DEFAULT_NEGATIVE_TAGS = "Low quality, Distorted, Noise";
+
+export interface RequestSunoRemixModeInput {
+  mode: SunoRemixMode;
+  uploadUrls: string[]; // 보컬·반주 추가는 1개, 매시업은 2개(공개로 받을 수 있는 주소 — 서명 주소)
+  title: string;
+  style: string; // 반주 추가는 tags 칸으로 보낸다
+  lyrics?: string; // 가사(없으면 prompt로 분위기 지시만)
+  prompt?: string;
+  negativeTags?: string;
+  vocalGender?: "m" | "f";
+  styleWeight?: number;
+  weirdnessConstraint?: number;
+  audioWeight?: number;
+  model?: string;
+  durationSeconds?: number; // 매시업만(10~360초)
+}
+
+/**
+ * Suno V6 3차 ⑤⑥(2026-10-21): 보컬 추가(`/generate/add-vocals`)·반주 추가(`/generate/add-instrumental`)·
+ * 매시업(`/generate/mashup`). 세 기능 모두 콜백이 곡 생성과 같은 형식(text→first→complete)이라
+ * 리믹스와 같이 /api/webhooks/suno가 task_id로 music_track_remixes를 찾아 저장한다.
+ */
+export async function requestSunoRemixMode(input: RequestSunoRemixModeInput, apiKey: string): Promise<string> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+  const label = REMIX_MODE_LABEL[input.mode];
+  const style = input.style.slice(0, 1000);
+  const common = {
+    title: input.title.slice(0, 80),
+    model: input.model ?? DEFAULT_SUNO_MODEL,
+    ...(input.lyrics ? { lyrics: input.lyrics.slice(0, 5000) } : {}),
+    ...(input.vocalGender ? { vocalGender: input.vocalGender } : {}),
+    ...(input.styleWeight != null ? { styleWeight: input.styleWeight } : {}),
+    ...(input.weirdnessConstraint != null ? { weirdnessConstraint: input.weirdnessConstraint } : {}),
+    ...(input.audioWeight != null ? { audioWeight: input.audioWeight } : {}),
+    callBackUrl: `${SUNO_CALLBACK_ORIGIN}/api/webhooks/suno`,
+  };
+  const negativeTags = (input.negativeTags?.trim() || DEFAULT_NEGATIVE_TAGS).slice(0, 1000);
+  let body: Record<string, unknown>;
+  if (input.mode === "mashup") {
+    if (input.uploadUrls.length !== 2) throw new Error("매시업은 원곡 2곡이 필요합니다.");
+    body = {
+      ...common,
+      uploadUrlList: input.uploadUrls,
+      style,
+      ...(input.prompt && !input.lyrics ? { prompt: input.prompt.slice(0, 5000) } : {}),
+      ...(input.durationSeconds ? { duration: input.durationSeconds } : {}),
+    };
+  } else if (input.mode === "add_vocals") {
+    body = {
+      ...common,
+      uploadUrl: input.uploadUrls[0],
+      style,
+      negativeTags,
+      ...(input.prompt && !input.lyrics ? { prompt: input.prompt.slice(0, 5000) } : {}),
+    };
+  } else {
+    body = { ...common, uploadUrl: input.uploadUrls[0], tags: style, negativeTags };
+  }
+
+  const response = await fetch(`${SUNO_BASE}${REMIX_MODE_PATH[input.mode]}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno ${label} 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
+  }
+  const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
+  if (data.code !== 200 || !data.data?.taskId) {
+    throw new Error(`Suno ${label} 요청이 실패했습니다: ${data.msg ?? "알 수 없는 오류"}${sunoStatusHint(data.code)}`);
+  }
+  return data.data.taskId;
+}
+
 export interface RequestSunoVocalRemovalInput {
   audioId: string; // 보컬/반주 분리할 오디오의 Suno ID (music_track_variants.suno_audio_id)
   // 2026-10-21 문서: 기존 Suno 곡을 쓸 때 taskId와 audioId가 「둘 다 필수」다(예전 코드는 audioId만 보냈다).

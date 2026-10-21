@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { syncRemixStatusAction, deleteRemixAction } from "@/lib/actions/remix";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
-import type { RemixStatus } from "@/types/database.types";
+import type { RemixMode, RemixStatus } from "@/types/database.types";
 import { RetentionBadge } from "@/components/RetentionBadge";
+import { REMIX_MODE_OPTIONS } from "@/components/remix/RemixForm";
 
 export interface RemixVariant {
   id: string;
@@ -25,6 +26,7 @@ export interface RemixCardData {
   created_at: string;
   target_duration_seconds: number | null;
   extend_hop_count: number;
+  mode?: RemixMode; // 2026-10-21 V6 3차 — 예전 행은 cover
   music_track_remix_variants: RemixVariant[];
 }
 
@@ -56,6 +58,7 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const modeOption = REMIX_MODE_OPTIONS.find((m) => m.value === (remix.mode ?? "cover"));
 
   async function handleSyncStatus() {
     setSyncError(null);
@@ -101,8 +104,11 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
       <div className="rounded-2xl border border-[#272732] bg-[#14141b] p-5 shadow-lg shadow-black/40 hover:border-[#383848] transition-colors relative">
         <div className="flex items-center justify-between mb-3 gap-2">
           <p className="font-bold text-white text-base flex items-center gap-2 truncate">
-            <span>🎛️</span>
-            <span className="truncate">{remix.source_title ? `"${remix.source_title}" 리믹스` : "리믹스"}</span>
+            <span>{modeOption?.icon ?? "🎛️"}</span>
+            <span className="truncate">
+              {remix.source_title ? `"${remix.source_title}" ` : ""}
+              {modeOption && remix.mode !== "cover" ? modeOption.label : "리믹스"}
+            </span>
           </p>
           <span className="flex items-center gap-1.5 shrink-0">
             {remix.status !== "generating" && <RetentionBadge createdAt={remix.created_at} />}
