@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getValidThreadsAccessToken } from "@/lib/actions/threads";
+import { getValidThreadsAccessToken } from "@/lib/threads/token";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 
 export const dynamic = "force-dynamic";

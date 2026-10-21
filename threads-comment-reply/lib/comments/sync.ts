@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { getReplyAccount } from "@/lib/threads/memberAccount";
-import { getValidThreadsAccessToken } from "@/lib/actions/threads";
+import { getValidThreadsAccessToken } from "@/lib/threads/token";
 import { listRecentThreadsComments } from "@/lib/threads/client";
 import { generateCommentReply } from "@/lib/ai/reply";
 import { getReplyModelProvider } from "@/lib/ai/models";

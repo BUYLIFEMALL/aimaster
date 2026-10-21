@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getReplyAccount } from "@/lib/threads/memberAccount";
-import { getValidThreadsAccessToken } from "@/lib/actions/threads";
+import { getValidThreadsAccessToken } from "@/lib/threads/token";
 import { listThreadsPosts } from "@/lib/threads/client";
 import { normalizeUrl } from "@/lib/normalizeUrl";
 
