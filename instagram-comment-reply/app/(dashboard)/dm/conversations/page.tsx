@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ConversationReviewItem } from "@/components/dm/conversations/ConversationReviewItem";
 import { SettingsSummary } from "@/components/dm/conversations/SettingsSummary";
 import { StudioHeader, Avatar } from "@/components/dm/ui/StudioHeader";
+import { HashHighlight } from "@/components/HashHighlight";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +88,8 @@ export default async function ConversationsPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
+      {/* v1.29: 대시보드에서 #conv-<id>로 넘어오면 그 대화 묶음을 잠깐 강조 */}
+      <HashHighlight color="#ec4899" />
       {/* 스크롤해도 화면 상단에 계속 보이도록 목록과 분리한 고정 머리말 */}
       <div className="sticky top-[64px] z-10 -mx-4 bg-ig-bg px-4 pb-4 pt-1 md:top-0 md:-mx-8 md:px-8">
         <StudioHeader

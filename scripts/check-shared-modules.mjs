@@ -29,6 +29,24 @@ const MODULES = [
     ],
   },
   {
+    // 대시보드 「검토를 기다리는 ○○」 목록(작성자·시각·배지·본문·글 앞부분·썸네일, 누르면 검토 화면 묶음으로). 2026-10-21 세 댓글 프로그램 통일
+    id: "pending-review-list",
+    source: "instagram-comment-reply/components/PendingReviewList.tsx",
+    copies: [
+      "threads-comment-reply/components/PendingReviewList.tsx",
+      "youtube-auto-reply/components/PendingReviewList.tsx",
+    ],
+  },
+  {
+    // 주소 #id 묶음을 잠깐 테두리로 강조(대시보드에서 검토 화면으로 넘어왔을 때). 2026-10-21
+    id: "hash-highlight",
+    source: "instagram-comment-reply/components/HashHighlight.tsx",
+    copies: [
+      "threads-comment-reply/components/HashHighlight.tsx",
+      "youtube-auto-reply/components/HashHighlight.tsx",
+    ],
+  },
+  {
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
     id: "browser-mp4-encoder",
     source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",

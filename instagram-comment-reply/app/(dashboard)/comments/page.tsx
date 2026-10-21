@@ -4,6 +4,7 @@ import { SyncCommentsButton } from "@/components/comments/SyncCommentsButton";
 import { CommentReviewItem } from "@/components/comments/CommentReviewItem";
 import { SettingsSummary } from "@/components/comments/SettingsSummary";
 import { StudioHeader } from "@/components/ui/StudioHeader";
+import { HashHighlight } from "@/components/HashHighlight";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // 신규 댓글마다 AI 초안 생성이 걸려 다소 시간이 걸릴 수 있음
@@ -44,6 +45,8 @@ export default async function CommentsPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
+      {/* v1.29: 대시보드에서 #media-<id>로 넘어오면 그 게시물 묶음을 잠깐 강조 */}
+      <HashHighlight color="#ec4899" />
       {/* 스크롤해도 화면 상단에 계속 보이도록 댓글 목록과 분리한 고정 헤더 */}
       <div className="sticky top-[64px] z-10 -mx-4 bg-ig-bg px-4 pb-4 pt-1 md:top-0 md:-mx-8 md:px-8">
         <StudioHeader

@@ -5,8 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
-import { Avatar } from "@/components/ui/StudioHeader";
+import { PendingReviewList } from "@/components/PendingReviewList";
 import { APP_VERSION } from "@/lib/version";
+
+// v1.29: 공용 기준 코드 `pending-review-list` 목록 색(인스타 다크)
+const LIST_CLASSES = { text: "text-ig-text", muted: "text-ig-muted", hover: "hover:bg-ig-raised" };
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -247,33 +250,20 @@ export default async function DashboardPage() {
               전체 보기 →
             </Link>
           </div>
-          {(recentRes.data ?? []).length === 0 ? (
-            <p className="py-8 text-center text-sm text-ig-muted">지금은 검토할 댓글이 없어요.</p>
-          ) : (
-            <ul className="space-y-4">
-              {(recentRes.data ?? []).map((c) => {
-                const thumb = thumbByMediaId.get(c.media_id);
-                return (
-                  <li key={c.id}>
-                    <Link href={`/comments#media-${c.media_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-ig-raised">
-                      <Avatar name={c.author_username} size={32} />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs">
-                          <span className="font-semibold text-ig-text">{c.author_username ? `@${c.author_username}` : "익명"}</span>
-                          <span className="ml-2 text-ig-muted">{formatDateTimeKo(c.fetched_at)}</span>
-                        </p>
-                        <p className="mt-0.5 line-clamp-2 break-words text-sm text-ig-text">{c.comment_text}</p>
-                      </div>
-                      {thumb && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={thumb} alt="게시물 썸네일" className="h-10 w-10 shrink-0 rounded-md object-cover" />
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <PendingReviewList
+            classes={LIST_CLASSES}
+            empty={<p className="py-8 text-center text-sm text-ig-muted">지금은 검토할 댓글이 없어요.</p>}
+            items={(recentRes.data ?? []).map((c) => ({
+              id: c.id,
+              href: `/comments#media-${c.media_id}`,
+              avatarName: c.author_username,
+              authorLabel: c.author_username ? `@${c.author_username}` : "익명",
+              at: c.fetched_at,
+              text: c.comment_text,
+              thumbUrl: thumbByMediaId.get(c.media_id),
+              thumbAlt: "게시물 썸네일",
+            }))}
+          />
         </div>
 
         <div className="rounded-2xl border border-ig-border bg-ig-surface p-5">
@@ -285,40 +275,35 @@ export default async function DashboardPage() {
               전체 보기 →
             </Link>
           </div>
-          {dmRecent.length === 0 ? (
-            <p className="py-8 text-center text-sm text-ig-muted">
-              {dmAccountRes.data ? "지금은 검토할 DM이 없어요." : "DM 답변을 켜면 새 DM이 여기에 보여요."}
-            </p>
-          ) : (
-            <ul className="space-y-4">
-              {dmRecent.map(({ message: m, conv, left }) => {
-                const name = conv?.customer_username;
-                const hours = left === null ? 0 : Math.floor(left / 3_600_000);
-                const mins = left === null ? 0 : Math.floor((left % 3_600_000) / 60_000);
-                return (
-                  <li key={m.id}>
-                    <Link href={`/dm/conversations#conv-${m.conversation_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-ig-raised">
-                      <Avatar name={name ?? null} size={32} />
-                      <div className="min-w-0 flex-1">
-                        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-                          <span className="font-semibold text-ig-text">{name ? `@${name}` : "고객"}</span>
-                          <span className="text-ig-muted">{formatDateTimeKo(m.created_at)}</span>
-                          {left === null ? (
-                            <span className="rounded-full bg-ig-danger/10 px-2 py-0.5 font-bold text-ig-danger">⚠️ 답장 시간 만료</span>
-                          ) : (
-                            <span className={`rounded-full px-2 py-0.5 font-semibold ${left < 4 * 3_600_000 ? "bg-ig-warn/10 text-ig-warn" : "bg-ig-success/10 text-ig-success"}`}>
-                              ⏳ {hours}시간 {mins}분 남음
-                            </span>
-                          )}
-                        </p>
-                        <p className="mt-0.5 line-clamp-2 break-words text-sm text-ig-text">{m.message_text}</p>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <PendingReviewList
+            classes={LIST_CLASSES}
+            empty={
+              <p className="py-8 text-center text-sm text-ig-muted">
+                {dmAccountRes.data ? "지금은 검토할 DM이 없어요." : "DM 답변을 켜면 새 DM이 여기에 보여요."}
+              </p>
+            }
+            items={dmRecent.map(({ message: m, conv, left }) => {
+              const name = conv?.customer_username;
+              const hours = left === null ? 0 : Math.floor(left / 3_600_000);
+              const mins = left === null ? 0 : Math.floor((left % 3_600_000) / 60_000);
+              return {
+                id: m.id,
+                href: `/dm/conversations#conv-${m.conversation_id}`,
+                avatarName: name ?? null,
+                authorLabel: name ? `@${name}` : "고객",
+                at: m.created_at,
+                text: m.message_text,
+                meta:
+                  left === null ? (
+                    <span className="rounded-full bg-ig-danger/10 px-2 py-0.5 font-bold text-ig-danger">⚠️ 답장 시간 만료</span>
+                  ) : (
+                    <span className={`rounded-full px-2 py-0.5 font-semibold ${left < 4 * 3_600_000 ? "bg-ig-warn/10 text-ig-warn" : "bg-ig-success/10 text-ig-success"}`}>
+                      ⏳ {hours}시간 {mins}분 남음
+                    </span>
+                  ),
+              };
+            })}
+          />
         </div>
         </div>
 
