@@ -1,0 +1,46 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { checkProgramAccessApi } from "@/lib/access";
+import { checkProgramAccess } from "@/lib/programAccess";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { sanitizeStoredPlan } from "@/lib/lpa/plan";
+import { planToCanvasDoc } from "@/lib/lpa/toCanvas";
+
+// 「🧩 UI Canvas로 보내 다듬기」(2026-10-21 v1.11): 기획안을 UI Canvas 자동화의 새 프로젝트로 만든다.
+// 프로그램끼리 서로 호출하지 않고 공용 DB 표 ui_canvas_projects에 회원 본인 user_id로 한 행만 추가한다(서비스 롤 → user_id 직접 지정).
+// UI Canvas 이용 권한과 프로젝트 100개 한도는 UI Canvas와 같은 규칙으로 여기서도 확인한다.
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+const NO_STORE = { "Cache-Control": "private, no-store" };
+const UI_CANVAS_URL = "https://ui-canvas.buylife.xyz";
+const MAX_CANVAS_PROJECTS = 100;
+
+type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+export async function POST(request: NextRequest) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status, headers: NO_STORE });
+
+  const body = (await request.json().catch(() => null)) as { name?: unknown; plan?: unknown } | null;
+  const plan = sanitizeStoredPlan(body?.plan);
+  if (!plan) return NextResponse.json({ error: "보낼 기획안이 없습니다. 먼저 기획안을 만들어 주세요." }, { status: 400, headers: NO_STORE });
+
+  const admin = createAdminClient();
+  const canvasAccess = await checkProgramAccess(admin as unknown as SupabaseLike, access.user.id, "ui-canvas");
+  if (!canvasAccess.allowed) {
+    return NextResponse.json({ error: "UI Canvas 자동화 이용 권한이 없습니다. 메인 사이트에서 이용 권한을 확인해 주세요." }, { status: 403, headers: NO_STORE });
+  }
+  const { count } = await admin.from("ui_canvas_projects").select("id", { count: "exact", head: true }).eq("user_id", access.user.id);
+  if ((count ?? 0) >= MAX_CANVAS_PROJECTS) {
+    return NextResponse.json({ error: "UI Canvas 프로젝트가 100개라 더 만들 수 없습니다. UI Canvas에서 쓰지 않는 프로젝트를 지운 뒤 다시 보내 주세요." }, { status: 409, headers: NO_STORE });
+  }
+
+  const doc = planToCanvasDoc(plan);
+  const name = (typeof body?.name === "string" && body.name.trim() ? `${body.name.trim()} (랜딩 기획)` : `${plan.projectInfo.topic} (랜딩 기획)`).replace(/\s+/g, " ").slice(0, 80);
+  const { data, error } = await admin
+    .from("ui_canvas_projects")
+    .insert({ user_id: access.user.id, name, doc, component_count: doc.components.length })
+    .select("id")
+    .single();
+  if (error || !data) return NextResponse.json({ error: "UI Canvas 프로젝트를 만들지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 500, headers: NO_STORE });
+  return NextResponse.json({ url: `${UI_CANVAS_URL}/editor/${data.id}`, components: doc.components.length }, { status: 201, headers: NO_STORE });
+}

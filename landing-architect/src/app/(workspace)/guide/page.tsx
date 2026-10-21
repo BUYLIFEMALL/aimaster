@@ -306,6 +306,13 @@ export default function GuidePage() {
           </details>
 
           <details style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px 16px" }}>
+            <summary style={{ fontWeight: 600, color: "#0f172a", cursor: "pointer" }}>Q. 기획안 화면을 직접 끌어다 놓으며 다듬고 싶어요.</summary>
+            <p style={{ margin: "10px 0 0", fontSize: "13px", color: "#475569", lineHeight: 1.6 }}>
+              기획안 위쪽의 <b>[🧩 UI Canvas로 보내 다듬기]</b>를 누르면 헤드라인·설명·CTA 버튼·섹션이 <b>UI Canvas 자동화</b>의 새 프로젝트로 배치되어 새 창으로 열립니다. AI를 쓰지 않아 키 사용량이 들지 않으며, UI Canvas 이용 권한이 있어야 합니다. 다듬은 화면은 UI Canvas에서 이미지·React 코드로 내보낼 수 있습니다.
+            </p>
+          </details>
+
+          <details style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px 16px" }}>
             <summary style={{ fontWeight: 600, color: "#0f172a", cursor: "pointer" }}>Q. Unsplash나 Pexels 고화질 이미지를 넣고 싶어요.</summary>
             <p style={{ margin: "10px 0 0", fontSize: "13px", color: "#475569", lineHeight: 1.6 }}>
               기본값은 무료 임의 사진(Picsum)입니다. [API키등록·플랫폼연동] 메뉴에서 Unsplash 또는 Pexels API 키를 등록하시면 기획안의 키워드에 딱 맞는 고화질 상업용 이미지가 자동으로 삽입됩니다.

@@ -40,6 +40,26 @@ export function Workspace({ projectId, initialName, initialDoc, initialUpdatedAt
   const [html, setHtml] = useState(() => fallbackPicsum(initialDoc.html)); // 이전 버전(v1.01~02)에서 저장한 loremflickr 주소도 열 때 대체
   const [busy, setBusy] = useState<Busy>("");
   const [error, setError] = useState("");
+  const [sendingCanvas, setSendingCanvas] = useState(false);
+
+  // 「🧩 UI Canvas로 보내 다듬기」(2026-10-21 v1.11): 기획안을 UI Canvas 새 프로젝트로 만들고 새 창에서 연다(AI 호출 없음)
+  const sendToCanvas = async () => {
+    if (!plan) return;
+    setSendingCanvas(true);
+    setError("");
+    const win = window.open("about:blank", "_blank"); // 팝업 차단을 피하려고 누른 순간 창을 연다
+    try {
+      const res = await fetch("/api/canvas-export", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, plan }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.error ?? "UI Canvas로 보내지 못했습니다.");
+      if (win) win.location.href = data.url; else window.location.assign(data.url);
+    } catch (e) {
+      win?.close();
+      setError(e instanceof Error ? e.message : "UI Canvas로 보내지 못했습니다.");
+    } finally {
+      setSendingCanvas(false);
+    }
+  };
   const [needKey, setNeedKey] = useState(false);
   const [notice, setNotice] = useState("");
   const [device, setDevice] = useState<Device>("desktop");
@@ -244,6 +264,9 @@ export function Workspace({ projectId, initialName, initialDoc, initialUpdatedAt
               <button type="button" onClick={() => copy("json", planJson)}>{copied === "json" ? <Check size={14} /> : <ClipboardCopy size={14} />}JSON 복사</button>
               <button type="button" onClick={() => copy("md", planToMarkdown(plan))}>{copied === "md" ? <Check size={14} /> : <ClipboardCopy size={14} />}Markdown 복사</button>
               <button type="button" onClick={() => download("landing-plan.json", planJson, "application/json")}><Download size={14} />JSON 저장</button>
+              <button type="button" disabled={sendingCanvas} onClick={sendToCanvas} title="기획안을 UI Canvas 자동화의 새 프로젝트로 보내 화면을 직접 다듬습니다">
+                {sendingCanvas ? <RefreshCw size={14} /> : <span aria-hidden>🧩</span>}UI Canvas로 보내 다듬기
+              </button>
             </div>
           </div>
           <div className="lp-summary">
