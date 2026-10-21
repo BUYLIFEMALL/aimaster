@@ -182,3 +182,8 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 
 ## 2026-10-21 — 텔레그램 연동 공용 모듈 `telegram-bot-client` (Claude Code 윈도우, 부계정)
 - 이 프로그램의 텔레그램 `client.ts`는 공용 사본(직접 고치지 말 것 — 기준 `instagram-comment-reply/lib/telegram/client.ts`만 고치고 `--sync`). 동작 같음 — 다음 배포 때 버전 +0.01과 함께 나감.
+
+## 2026-10-21 v1.16 — 대시보드 검토 대기 목록 형식을 INSTA와 맞춤 (Claude Code 윈도우)
+- 주인님 지시(INSTA 댓글·DM v1.26 보고의 추가개선 제안 3번 — 나중에 「통합 댓글 받은편지함」으로 묶기 쉽게). `app/(dashboard)/dashboard/page.tsx`: 「🕒 검토를 기다리는 댓글」 제목 옆에 `{pending}건`, 「전체 보기 →」를 제목 줄 오른쪽 위로 옮겨 항상 표시(대기 0건이면 사라지던 목록 아래 「모두 보기」 제거). 목록 항목·서버 로직은 그대로.
+- 같은 배포에 2026-10-21 저장소에만 반영돼 있던 텔레그램 공용 사본(`telegram-bot-client`, 동작 같음)도 함께 나감.
+- 검수: tsc 0, `npm run build`, 배포 `threads-comment-reply-nyn9t7chb` Ready, DB v1.16, 메인 크롬(일반 회원) 대시보드 v1.16·「0건」·「전체 보기 →」 확인. 비용: Vercel 빌드 1회, AI 0회. 커밋 `b635fad5`.
