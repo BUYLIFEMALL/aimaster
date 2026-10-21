@@ -143,7 +143,15 @@ export default async function DashboardPage() {
 
       <div className="mb-6 grid gap-6 lg:grid-cols-5">
         <div className="th-card lg:col-span-3">
-          <h2 className="th-section-title">🕒 검토를 기다리는 댓글</h2>
+          {/* v1.16: INSTA 댓글·DM 대시보드와 같은 형식(제목 옆 건수 + 오른쪽 위 전체 보기) */}
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-base font-bold text-th-text">
+              🕒 검토를 기다리는 댓글 <span className="ml-1 rounded-full bg-th-raised px-2 py-0.5 text-xs text-th-muted">{pending}건</span>
+            </h2>
+            <Link href="/comments" className="shrink-0 text-sm font-semibold text-th-link hover:underline">
+              전체 보기 →
+            </Link>
+          </div>
           {(recentRes.data ?? []).length === 0 ? (
             <div className="py-8 text-center">
               <p className="text-4xl">💬</p>
@@ -164,11 +172,6 @@ export default async function DashboardPage() {
                 </li>
               ))}
             </ul>
-          )}
-          {pending > 0 && (
-            <Link href="/comments" className="mt-4 inline-block text-sm font-semibold text-th-link hover:underline">
-              모두 보기 →
-            </Link>
           )}
         </div>
 
