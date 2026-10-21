@@ -35,7 +35,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
                 padding: "1px 6px",
                 borderRadius: "9999px",
                 letterSpacing: "0.02em"
-              }}>v1.10</span>
+              }}>{APP_VERSION}</span>
             </div>
             <small style={{ color: "#64748b", fontSize: "11px", fontWeight: 500 }}>FLOW WIZARD EDITION</small>
           </div>
