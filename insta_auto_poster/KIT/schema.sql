@@ -269,3 +269,6 @@ create table if not exists public.insta_member_scheduler (
 alter table public.insta_member_scheduler enable row level security;
 drop policy if exists insta_member_scheduler_select_own on public.insta_member_scheduler;
 create policy insta_member_scheduler_select_own on public.insta_member_scheduler for select to authenticated using (auth.uid() = user_id);
+
+-- 2026-10-22 게시한 시각 칸(대시보드 「최근 7일 게시」 그래프 기준). 다시 실행해도 안전.
+alter table public.insta_posts add column if not exists published_at timestamptz;

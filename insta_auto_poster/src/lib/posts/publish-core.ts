@@ -61,17 +61,22 @@ export async function publishPost(params: PublishPostParams): Promise<PublishPos
         ? await publishInstagramPost({ graphBase, accessToken, igUserId, imageUrl: imageUrls[0], caption: finalCaption })
         : await publishInstagramCarousel({ graphBase, accessToken, igUserId, imageUrls, caption: finalCaption });
 
-    await supabase
+    const done = {
+      status: "published" as const,
+      ig_media_id: mediaId,
+      ig_permalink: permalink,
+      error_message: null,
+    };
+    // 2026-10-22 게시한 시각(대시보드 7일 그래프 기준). 설치 키트 DB에 published_at 칸이 아직 없으면(업그레이드 SQL 전)
+    // 칸을 빼고 다시 저장한다 — 실제로 게시된 글이 「게시 중」 상태로 멈추지 않게.
+    const { error: doneError } = await supabase
       .from("insta_posts")
-      .update({
-        status: "published",
-        published_at: new Date().toISOString(), // 2026-10-22 게시한 시각(대시보드 7일 그래프 기준)
-        ig_media_id: mediaId,
-        ig_permalink: permalink,
-        error_message: null,
-      })
+      .update({ ...done, published_at: new Date().toISOString() })
       .eq("id", postId)
       .eq("user_id", userId);
+    if (doneError && /published_at/.test(doneError.message ?? "")) {
+      await supabase.from("insta_posts").update(done).eq("id", postId).eq("user_id", userId);
+    }
 
     return { success: true };
   } catch (error) {

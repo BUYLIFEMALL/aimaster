@@ -12,6 +12,7 @@
 | `KIT/PLATFORMS.md` | 플랫폼별 가입·API 키 발급 상세(Meta·Instagram·OpenAI·Gemini 등) |
 | `KIT/schema.sql` | 새 Supabase DB에 한 번 붙여넣는 전체 구조(패키지 설치마법사가 자동 복사) |
 | `KIT/upgrade-20261019-cronjob.sql` | 2026-10-19 이전 설치자만: 예약 방식 선택용 DB 추가 |
+| `KIT/upgrade-20261022-published-at.sql` | 2026-10-22 이전 설치자만: 게시한 시각 칸 추가(대시보드 「최근 7일 게시」 그래프). 안 해도 게시는 정상, 그래프만 수정 시각 기준 |
 | `KIT/enable-vercel-cron.ps1` / `.sh` | (선택) Vercel 유료(Pro)에서 Vercel 예약 호출 켜기 |
 | `KIT/env.example` | 설정값(환경변수) 목록과 설명 |
 | `패키지설치마법사.cmd` / `.command` | **패키지 설치마법사** 실행 파일(윈도우 / 맥 — 더블클릭) |
