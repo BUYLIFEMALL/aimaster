@@ -113,3 +113,11 @@
 - `style-dna-analyzer/src/lib/ai/openaiRequestParams.ts`는 공용 기준 코드 `openai-request-params` 사본(기준 `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts`) — **직접 고치지 않는다**. 「GPT-4 계열일 때만 온도」 분기를 `openAIGenerationParams(model, { temperature })`로 바꿈(동작 같음, 추론 모델 규칙은 기준 한 곳에서 관리).
 - 검수: tsc 0, 기존 테스트 통과. 급하지 않은 정리라 배포하지 않음(빌드 비용 규칙). **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 적을 것.** 목록: 루트 `docs/SHARED_MODULES.md` 「미배포 사본」.
 - **다음에 이 프로그램을 고칠 때 함께(주인님 결정 2026-10-20)**: 글 모델 선택 칸(`src/app/(dashboard)/analyze/page.tsx · test/page.tsx`) 아래에 모델 성격·상대 비용·GPT-5 지연 안내 붙이기 — 사본에 이미 `openAIModelBadge`·`openAIModelTierHint`·`openAIModelNotice`가 있어 화면 한두 줄만 추가. 기준 구현·방법: 루트 `docs/SHARED_FEATURE_MAP.md` §8.
+
+## 2026-10-21 v1.23 — 원본 이미지 저장소 비공개 + 30일 정리 cron (Claude Code 윈도우)
+- 배경: 이미지 카테고리 병합 분석([보고서](../docs/analysis-image-consolidation-20261021/REPORT.md))에서 원본 버킷 `style-dna-images`가 공개(주소만 알면 누구나 열림)이고 30일 삭제가 없다는 점 발견 → 주인님 결정으로 병합보다 먼저 보강.
+- 코드: `src/lib/dna/records.ts` 공개 주소 함수 제거 → `signImagePaths`(서명 6시간)·`toSignedRecord`. 화면으로 나가는 응답 4곳(목록·상세·분석·보정)만 서명 주소를 붙이고, 서버 안에서만 쓰는 `toRecord`(보정 전 읽기·시험 생성)는 주소 없이. 정리 `src/app/api/cron/cleanup`(Vercel cron 매일 03:00 KST, `Bearer CRON_SECRET`, 비밀값 비면 거부, 생성일 30일 지난 분석 → 원본 파일 먼저 삭제 후 행 삭제).
+- 환경변수 추가(승인): `CRON_SECRET`(Production, Sensitive, 임의값·출력 안 함). `vercel.json`에 crons 추가.
+- 운영 DB: 버킷 `public=false`, `programs.version='v1.23'`(기록 `supabase/migrations/20261021_v1_23_private_bucket.sql`).
+- 검수: tsc·`npm test` 23개·build, 배포 Ready, 정리 주소 비밀값 없음 401, 옛 공개 주소 400·서명 주소 200, 크롬 일반 회원 보관함 2건 서명 주소 표시·상세 API 200. 새 분석(유료 AI)은 실행하지 않음.
+- 참고: `node --test tests/*.test.mjs`로 직접 돌리면 `@/lib` 별칭을 못 풀어 dna 시험이 실패한다 — 반드시 `npm test`(tsx 로더).

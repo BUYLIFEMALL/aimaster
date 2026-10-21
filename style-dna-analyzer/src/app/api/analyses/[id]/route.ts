@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authorize } from "@/lib/dna/apiGuard";
-import { BUCKET, toRecord, UUID_RE } from "@/lib/dna/records";
+import { BUCKET, toSignedRecord, UUID_RE } from "@/lib/dna/records";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,7 +17,7 @@ export async function GET(_req: Request, ctx: Ctx) {
   const supabase = await createClient();
   const { data } = await supabase.from("sda_analyses").select("*").eq("id", id).eq("user_id", gate.auth.user.id).maybeSingle();
   if (!data) return NextResponse.json({ error: "분석 기록을 찾을 수 없습니다." }, { status: 404 });
-  return NextResponse.json({ record: toRecord(data) });
+  return NextResponse.json({ record: await toSignedRecord(data) });
 }
 
 /** 기록과 저장된 원본 이미지를 함께 삭제한다(본인 폴더의 파일만). */

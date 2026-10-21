@@ -7,7 +7,7 @@ import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildAnalysisSystem, buildAnalysisUser, parseAnalysis } from "@/lib/ai/dnaPrompts";
 import { paletteFromRgba } from "@/lib/dna/palette";
 import { nearestAspectRatio, type DnaMode, type TargetImageModel } from "@/lib/dna/types";
-import { BUCKET, MAX_ANALYSES, toRecord } from "@/lib/dna/records";
+import { BUCKET, MAX_ANALYSES, toSignedRecord } from "@/lib/dna/records";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
       await admin.storage.from(BUCKET).remove([path]);
       return NextResponse.json({ error: "분석 결과를 저장하지 못했습니다." }, { status: 500 });
     }
-    return NextResponse.json({ record: toRecord(data) });
+    return NextResponse.json({ record: await toSignedRecord(data) });
   } catch (err) {
     console.error("style-dna analyze error:", err instanceof Error ? err.message.slice(0, 200) : "unknown");
     return NextResponse.json({ error: "분석 중 오류가 발생했습니다. 잠시 뒤 다시 시도해주세요." }, { status: 500 });

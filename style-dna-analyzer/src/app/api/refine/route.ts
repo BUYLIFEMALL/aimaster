@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { authorize, parseEngine, requireOwnKey } from "@/lib/dna/apiGuard";
 import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildRefineSystem, buildRefineUser, parseRefine } from "@/lib/ai/dnaPrompts";
-import { toRecord, UUID_RE } from "@/lib/dna/records";
+import { toRecord, toSignedRecord, UUID_RE } from "@/lib/dna/records";
 import { createClient } from "@/lib/supabase/server";
 import type { TargetImageModel } from "@/lib/dna/types";
 
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       .select("*")
       .single();
     if (error || !data) return NextResponse.json({ error: "보정 결과를 저장하지 못했습니다." }, { status: 500 });
-    return NextResponse.json({ record: toRecord(data) });
+    return NextResponse.json({ record: await toSignedRecord(data) });
   } catch (err) {
     console.error("style-dna refine error:", err instanceof Error ? err.message.slice(0, 200) : "unknown");
     return NextResponse.json({ error: "보정 중 오류가 발생했습니다. 잠시 뒤 다시 시도해주세요." }, { status: 500 });
