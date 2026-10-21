@@ -3,12 +3,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { StudioBar, Transport, usePlayhead } from "@/components/studio/parts";
+import { Waveform } from "@/components/studio/Waveform";
+import { useConfirm } from "@/components/ui/Confirm";
 import { clearFrom, endLine, formatTime, isSynced, lineAt, newId, parseTime, shiftAll, stampLine, timeline, toSrt, type LyricLine } from "@/lib/lyrics";
 
 const DELAYS = [0, 0.1, 0.2, 0.3];
 
 export function SyncView() {
   const s = useStudio();
+  const ask = useConfirm();
   const { t, playing } = usePlayhead();
   const [cursor, setCursor] = useState(() => Math.max(0, s.lines.findIndex((l) => !isSynced(l))));
   const [delay, setDelay] = useState(0.1);
@@ -39,9 +42,9 @@ export function SyncView() {
     setCursor(back);
     if (s.player) s.player.currentTime = Math.max(0, s.player.currentTime - 2);
   }
-  function restart() {
+  async function restart() {
     if (!s.player || !s.audio) return;
-    if (s.lines.some(isSynced) && !confirm("맞춰 둔 시간을 모두 지우고 처음부터 다시 맞출까요?")) return;
+    if (s.lines.some(isSynced) && !(await ask("맞춰 둔 시간을 모두 지우고 처음부터 다시 맞출까요?", { ok: "처음부터", danger: true }))) return;
     s.setLines((prev) => clearFrom(prev, 0)); setCursor(0);
     s.player.currentTime = 0; s.player.play().catch(() => undefined);
   }
@@ -52,6 +55,7 @@ export function SyncView() {
     const h = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable)) return;
+      if (document.querySelector("[role=alertdialog]")) return; // 확인 상자가 떠 있으면 단축키 멈춤
       if (e.code === "Space") { e.preventDefault(); keys.current.stamp(); }
       else if (e.code === "Backspace") { e.preventDefault(); keys.current.undo(); }
       else if (e.code === "Enter" || e.code === "NumpadEnter") { e.preventDefault(); keys.current.endNow(); }
@@ -97,6 +101,7 @@ export function SyncView() {
       {!s.audio && <div className="notice warning">음악 파일이 없습니다. <Link href="/source" className="subtle-link">1단계에서 음악을 넣어 주세요.</Link> 시간은 직접 적어 넣을 수도 있습니다.</div>}
       <section className="card stack sync-console">
         <Transport />
+        <Waveform />
         <div className="now-lyric" aria-live="polite">{nowLine ? nowLine.text : playing ? "♪" : "재생하면 지금 부르는 줄이 여기 보입니다"}</div>
         <div className="sync-actions">
           <button type="button" className="primary tap" onClick={stamp} disabled={!s.audio || done}>
@@ -104,7 +109,7 @@ export function SyncView() {
           </button>
           <button type="button" onClick={endNow} disabled={!s.audio || cursor === 0}>⏹ 지금 줄 끝 <small>(엔터)</small></button>
           <button type="button" onClick={undo} disabled={cursor === 0}>↩ 한 줄 되돌리기</button>
-          <button type="button" onClick={restart} disabled={!s.audio}>▶ 처음부터 맞추기</button>
+          <button type="button" onClick={() => void restart()} disabled={!s.audio}>▶ 처음부터 맞추기</button>
         </div>
         <div className="row" style={{ fontSize: 12 }}>
           <span className="muted">손 반응 보정</span>

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseLyrics, parseTime, stampLine, endLine, timeline, lineAt, toSrt, shiftAll, clearFrom } from "../src/lib/lyrics.ts";
+import { parseLyrics, parseTime, stampLine, endLine, moveStart, timeline, lineAt, toSrt, shiftAll, clearFrom } from "../src/lib/lyrics.ts";
 
 test("시간 표기 여러 형식", () => {
   assert.equal(parseTime("00:00:01,500"), 1.5);
@@ -52,6 +52,17 @@ test("줄 끝을 따로 찍으면 다음 줄 전까지 간주가 된다", () => 
   assert.deepEqual(lineAt(tl, 5), { index: 0, gap: true });
   assert.deepEqual(lineAt(tl, 8.5), { index: 1, gap: false });
   assert.equal(endLine(lines, 0, 0.5)[0].end, 3, "시작보다 이른 끝은 무시");
+});
+
+test("파형 끌기: 앞뒤 줄을 넘지 않고, 맞닿은 앞 줄 끝은 함께 움직임", () => {
+  let { lines } = parseLyrics("가\n나\n다");
+  lines = stampLine(lines, 0, 1); lines = stampLine(lines, 1, 4); lines = stampLine(lines, 2, 7);
+  let m = moveStart(lines, 1, 5);
+  assert.equal(m[1].start, 5); assert.equal(m[0].end, 5, "맞닿은 앞 줄 끝도 이동");
+  m = moveStart(lines, 1, 9); assert.equal(m[1].start, 6.9, "다음 줄 직전까지만");
+  m = moveStart(lines, 1, 0); assert.equal(m[1].start, 1.1, "앞 줄 직후까지만");
+  const gap = endLine(lines, 0, 2);
+  m = moveStart(gap, 1, 3.5); assert.equal(m[0].end, 2, "따로 찍은 끝은 그대로");
 });
 
 test("시간 밀기·srt 내보내기 왕복", () => {

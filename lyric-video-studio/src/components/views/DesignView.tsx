@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { Preview, StudioBar, Transport } from "@/components/studio/parts";
+import { PresetThumb } from "@/components/studio/PresetThumb";
 import { FONT_IDS, FONTS, HIGHLIGHTS, presetsFor, SPECTRUMS, type Aspect, type Design } from "@/lib/design";
 import { allSynced } from "@/lib/lyrics";
 
@@ -36,11 +37,10 @@ export function DesignView() {
             <div className="panel-label" style={{ marginTop: 14 }}>프리셋</div>
             <div className="preset-grid">
               {presetsFor(d.aspect).map((p) => (
-                <button key={p.id} type="button" className={`preset ${d.presetId === p.id ? "on" : ""}`} onClick={() => s.applyPreset(p)}
-                  style={{ background: `linear-gradient(135deg, ${p.design.bg1}, ${p.design.bg2})`, color: p.design.text }}>
-                  <span className="preset-accent" style={{ background: p.design.accent }} />
-                  <strong style={{ fontFamily: `"${FONTS[p.design.font].family}"` }}>{p.name}</strong>
-                  <small style={{ color: p.design.text, opacity: 0.75 }}>{p.desc}</small>
+                <button key={p.id} type="button" className={`preset ${d.presetId === p.id ? "on" : ""}`} onClick={() => s.applyPreset(p)} aria-pressed={d.presetId === p.id}>
+                  <PresetThumb preset={p} />
+                  <strong>{p.name}</strong>
+                  <small>{p.desc}</small>
                 </button>
               ))}
             </div>

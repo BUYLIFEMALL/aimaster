@@ -108,6 +108,22 @@ export function endLine(lines: LyricLine[], i: number, t: number): LyricLine[] {
   return lines.map((x, k) => (k === i ? { ...x, end: +t.toFixed(2) } : x));
 }
 
+/** 파형에서 끌어 i번째 줄 시작을 t초로 옮긴다 — 앞뒤 줄 시작을 넘지 않고(0.1초 간격), 앞 줄 끝이 맞닿아 있으면 함께 옮긴다 */
+export function moveStart(lines: LyricLine[], i: number, t: number): LyricLine[] {
+  const l = lines[i];
+  if (!l || !isSynced(l)) return lines;
+  let p = -1, n = -1;
+  for (let k = i - 1; k >= 0; k--) if (isSynced(lines[k])) { p = k; break; }
+  for (let k = i + 1; k < lines.length; k++) if (isSynced(lines[k])) { n = k; break; }
+  const lo = p >= 0 ? lines[p].start + 0.1 : 0, hi = n >= 0 ? lines[n].start - 0.1 : Infinity;
+  const nt = +Math.min(hi, Math.max(lo, t)).toFixed(2);
+  return lines.map((x, k) => {
+    if (k === i) return { ...x, start: nt, end: x.end > nt + 0.1 ? x.end : n >= 0 ? lines[n].start : nt + LAST_LINE_SECONDS };
+    if (k === p && Math.abs(x.end - l.start) < 0.011) return { ...x, end: nt };
+    return x;
+  });
+}
+
 /** 줄 시작을 지운다(탭 싱크 되돌리기) */
 export function clearFrom(lines: LyricLine[], i: number): LyricLine[] {
   return lines.map((l, k) => (k >= i ? { ...l, start: -1, end: -1 } : k === i - 1 ? { ...l, end: l.start + LAST_LINE_SECONDS } : l));

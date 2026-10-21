@@ -3,23 +3,25 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, timeAgo, toMsg, type Msg } from "@/components/ui/api";
 import { Message } from "@/components/ui/Message";
+import { useConfirm } from "@/components/ui/Confirm";
 import { useStudio, type SavedItem } from "@/components/studio/StudioContext";
 
 export function LibraryView() {
   const { open, dirty, projectId } = useStudio();
   const router = useRouter();
+  const ask = useConfirm();
   const [items, setItems] = useState<SavedItem[] | null>(null), [msg, setMsg] = useState<Msg>(null), [busy, setBusy] = useState("");
   const load = () => api<{ items: SavedItem[] }>("/api/items?kind=project").then((r) => setItems(r.items)).catch((e) => { setItems([]); setMsg(toMsg(e)); });
   useEffect(() => { void load(); }, []);
 
   async function remove(it: SavedItem) {
-    if (!confirm(`「${it.title}」을 지울까요? 되돌릴 수 없습니다.`)) return;
+    if (!(await ask(`「${it.title}」을 지울까요? 되돌릴 수 없습니다.`, { ok: "삭제", danger: true }))) return;
     setBusy(it.id); setMsg(null);
     try { await api(`/api/items?id=${it.id}`, { method: "DELETE" }); setItems((p) => (p ?? []).filter((x) => x.id !== it.id)); setMsg({ text: "지웠습니다.", ok: true }); }
     catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
-  function openItem(it: SavedItem) {
-    if (dirty && it.id !== projectId && !confirm("저장하지 않은 작업이 있습니다. 이 작업을 열까요?")) return;
+  async function openItem(it: SavedItem) {
+    if (dirty && it.id !== projectId && !(await ask("저장하지 않은 작업이 있습니다. 이 작업을 열까요?", { ok: "열기" }))) return;
     open(it); router.push("/source");
   }
 
@@ -39,7 +41,7 @@ export function LibraryView() {
                   <small>{it.data.artist || "아티스트 없음"} · 가사 {it.data.lines?.length ?? 0}줄 · {it.data.design?.aspect === "portrait" ? "세로" : "가로"} · 음악 {it.data.audioName || "-"} · {timeAgo(it.updated_at)} 수정</small>
                 </span>
                 <span className="actions" style={{ flexShrink: 0 }}>
-                  <button type="button" className="primary" onClick={() => openItem(it)}>열기</button>
+                  <button type="button" className="primary" onClick={() => void openItem(it)}>열기</button>
                   <button type="button" className="danger" onClick={() => void remove(it)} disabled={busy === it.id}>{busy === it.id ? "지우는 중…" : "삭제"}</button>
                 </span>
               </div>

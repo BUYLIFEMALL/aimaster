@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { FileDrop, StudioBar } from "@/components/studio/parts";
 import { Message } from "@/components/ui/Message";
+import { useConfirm } from "@/components/ui/Confirm";
 import type { Msg } from "@/components/ui/api";
 import { allSynced, formatTime, isSynced, parseLyrics, type ParseResult } from "@/lib/lyrics";
 
@@ -11,6 +12,7 @@ const SOURCE_LABEL: Record<ParseResult["source"], string> = { srt: "자막 파�
 
 export function SourceView() {
   const s = useStudio();
+  const ask = useConfirm();
   const [text, setText] = useState(""), [msg, setMsg] = useState<Msg>(null), [lyricMsg, setLyricMsg] = useState<Msg>(null);
   const synced = s.lines.filter(isSynced).length;
 
@@ -25,9 +27,9 @@ export function SourceView() {
     if (!/^image\//.test(f.type)) { setMsg({ text: "이미지 파일(jpg·png·webp)을 넣어 주세요." }); return; }
     try { await s.loadCover(f); } catch (e) { setMsg({ text: e instanceof Error ? e.message : "이미지를 읽지 못했습니다." }); }
   }
-  function apply(raw: string, name = "") {
+  async function apply(raw: string, name = "") {
     const replace = s.lines.length > 0;
-    if (replace && !confirm("지금 가사를 새 가사로 바꿀까요? 맞춰 둔 시간도 바뀝니다.")) return;
+    if (replace && !(await ask("지금 가사를 새 가사로 바꿀까요? 맞춰 둔 시간도 바뀝니다.", { ok: "바꾸기" }))) return;
     const r = parseLyrics(raw, name);
     if (!r.lines.length) { setLyricMsg({ text: "가사를 한 줄도 읽지 못했습니다. 파일이 비어 있거나 형식이 다릅니다." }); return; }
     s.setLines(r.lines);
@@ -39,7 +41,7 @@ export function SourceView() {
     const buf = await f.arrayBuffer();
     let raw = new TextDecoder("utf-8").decode(buf);
     if (raw.includes("�")) { try { raw = new TextDecoder("euc-kr").decode(buf); } catch { /* 그대로 */ } } // 메모장 옛 저장(ANSI) 대비
-    apply(raw, f.name);
+    await apply(raw, f.name);
   }
 
   return (
@@ -63,7 +65,7 @@ export function SourceView() {
           <h2>가사</h2>
           <FileDrop accept=".srt,.lrc,.txt,text/plain" label="📄 가사 파일 넣기" hint=".srt(자막) · .lrc(가사 시간) · .txt(가사 글)" onFile={(f) => void onLyricFile(f)} />
           <label>또는 가사 붙여넣기<textarea rows={9} value={text} onChange={(e) => setText(e.target.value)} placeholder={"한 줄에 한 소절씩 적어 주세요.\n빈 줄은 무시합니다.\n시간이 붙은 .srt·.lrc 내용을 붙여넣어도 됩니다."} /></label>
-          <div className="actions"><button type="button" onClick={() => apply(text)} disabled={!text.trim()}>가사 적용</button></div>
+          <div className="actions"><button type="button" onClick={() => void apply(text)} disabled={!text.trim()}>가사 적용</button></div>
           <Message msg={lyricMsg} />
           {s.lines.length > 0 && (
             <div className="notice">

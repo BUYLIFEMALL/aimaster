@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Hero } from "@/components/ui/Hero";
+import { useConfirm } from "@/components/ui/Confirm";
 import { api, timeAgo, toMsg, type Msg } from "@/components/ui/api";
 import { Message } from "@/components/ui/Message";
 import { STEPS } from "@/components/layout/Sidebar";
@@ -11,15 +12,16 @@ import { useStudio, type SavedItem } from "@/components/studio/StudioContext";
 export function DashboardView() {
   const { open, reset, dirty } = useStudio();
   const router = useRouter();
+  const ask = useConfirm();
   const [items, setItems] = useState<SavedItem[] | null>(null), [msg, setMsg] = useState<Msg>(null);
   useEffect(() => { api<{ items: SavedItem[] }>("/api/items?kind=project").then((r) => setItems(r.items.slice(0, 4))).catch((e) => { setItems([]); setMsg(toMsg(e)); }); }, []);
-  const startNew = () => { if (dirty && !confirm("저장하지 않은 작업이 있습니다. 새로 시작할까요?")) return; reset(); router.push("/source"); };
+  const startNew = async () => { if (dirty && !(await ask("저장하지 않은 작업이 있습니다. 새로 시작할까요?", { ok: "새로 시작" }))) return; reset(); router.push("/source"); };
   return (
     <div className="stack">
       <Hero eyebrow="AI 가사영상 자동화" title="음악과 가사로 가사가 흐르는 영상을 만듭니다" emoji="🎤"
         desc="음악 파일과 가사만 있으면 시간을 맞추고, 디자인을 골라, 유튜브용 가로 영상이나 쇼츠용 세로 영상 MP4를 브라우저에서 바로 만듭니다. 설치가 필요 없고 파일은 서버로 올라가지 않습니다."
         meta={["⏱️ 한 곡 약 10~15분", "🖥️ 크롬·엣지 권장", "🔑 API 키 필요 없음"]}>
-        <button type="button" className="button solid" onClick={startNew}>＋ 새 가사 영상 만들기</button>
+        <button type="button" className="button solid" onClick={() => void startNew()}>＋ 새 가사 영상 만들기</button>
         <Link className="button" href="/guide">📖 사용 매뉴얼</Link>
       </Hero>
       <section className="card">
@@ -40,7 +42,7 @@ export function DashboardView() {
         ) : (
           <div className="list">
             {items.map((it) => (
-              <button key={it.id} type="button" className="list-item" onClick={() => { if (dirty && !confirm("저장하지 않은 작업이 있습니다. 이 작업을 열까요?")) return; open(it); router.push("/source"); }}>
+              <button key={it.id} type="button" className="list-item" onClick={async () => { if (dirty && !(await ask("저장하지 않은 작업이 있습니다. 이 작업을 열까요?", { ok: "열기" }))) return; open(it); router.push("/source"); }}>
                 <span><strong>{it.title}</strong><small>{it.data.artist || "아티스트 없음"} · 가사 {it.data.lines?.length ?? 0}줄 · {it.data.design?.aspect === "portrait" ? "세로" : "가로"}</small></span>
                 <small>{timeAgo(it.updated_at)}</small>
               </button>
