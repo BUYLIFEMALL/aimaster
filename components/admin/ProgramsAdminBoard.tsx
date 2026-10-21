@@ -204,6 +204,14 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     await applyUpdate([p.id], { badges: nextBadges });
   };
 
+  // 목록의 배지 칩을 누르면 그 배지만 해제한다(「최신 해제」와 같은 방식, 2026-10-22).
+  // FREE·프리미엄은 회원 이용 권한·결제에 바로 영향을 주므로 한 번 확인한다.
+  const handleRemoveBadge = async (p: ProgramRow, badge: BadgeValue) => {
+    const label = BADGE_OPTIONS.find((o) => o.value === badge)?.label ?? badge;
+    if ((badge === "free" || badge === "premium") && !confirm(`「${p.name}」의 ${label} 배지를 해제할까요?\n회원 이용 권한에 바로 반영됩니다.`)) return;
+    await applyUpdate([p.id], { badges: p.badges.filter((b) => b !== badge) as Program["badges"] });
+  };
+
   // 카테고리 블록 자체의 위/아래 순서(메인 /programs 페이지 노출 순서)를 바꾼다.
   // 카테고리 필터가 걸려 있으면(하나만 보이는 상태) 헷갈리므로 "전체 카테고리"일 때만 노출한다.
   //
@@ -616,7 +624,18 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                                 );
                               })()}
                               {p.badges.map((b) => (
-                                <Badge key={b} variant={b} className="text-[11px] px-1.5 py-0.5" />
+                                <button
+                                  key={b}
+                                  type="button"
+                                  onClick={() => handleRemoveBadge(p, b)}
+                                  title={`클릭하면 ${BADGE_OPTIONS.find((o) => o.value === b)?.label ?? b} 배지 해제`}
+                                  className="group relative inline-flex cursor-pointer rounded-full transition-opacity hover:opacity-70"
+                                >
+                                  <Badge variant={b} className="text-[11px] px-1.5 py-0.5 group-hover:line-through" />
+                                  <span className="pointer-events-none absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white ring-1 ring-white/40 group-hover:flex">
+                                    ×
+                                  </span>
+                                </button>
                               ))}
                               <span className="inline-flex items-center gap-1 text-[11px] text-rose-300" title="회원 추천(♥) 투표 수">♥ {p.like_count ?? 0}</span>
                             </div>
