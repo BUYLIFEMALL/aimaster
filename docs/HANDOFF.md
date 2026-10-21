@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 유튜브 댓글 v1.23 + 공용 기준 코드 pending-review-list·hash-highlight 등록 완료 + 통합 받은편지함 플랜
+
+유튜브도 공용 목록·강조 사본 적용(빨간색 2초 강조 확인). 세 댓글 프로그램(INSTA v1.29·쓰레드 v1.18·유튜브 v1.23) 모두 같은 부품 사용 — 기준 `instagram-comment-reply/components/`, 등록 `scripts/check-shared-modules.mjs`·`docs/SHARED_MODULES.md`·`docs/SHARED_FEATURE_MAP.md` 14절. 통합 받은편지함은 플랜만: `docs/PLAN_20261021_UNIFIED_COMMENT_INBOX.md`(추천 새 프로그램 1단계, 주인님 결정 대기). 비용: Vercel 빌드 3회(세 프로그램), AI 0회.
+
+https://youtube-auto-reply.buylife.xyz
+
+https://instagram-comment-reply.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 쓰레드 댓글 자동화 v1.18: 공용 목록·강조 부품 사본 적용
 
 대시보드 목록을 공용 `pending-review-list` 사본으로, 댓글 검토 화면에 `hash-highlight`(흰색 2초 강조). 모양·동작 같음. 커밋 `f66b6407`, 배포 Ready, DB v1.18, 크롬 강조 확인. 비용: Vercel 빌드 1회.

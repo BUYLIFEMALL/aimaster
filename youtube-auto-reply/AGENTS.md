@@ -199,3 +199,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 ## 2026-10-21 v1.22 — 대시보드 댓글 항목 영상 썸네일 · 영상 묶음 바로가기 (Claude Code 윈도우)
 - 주인님 지시(INSTA v1.27 보고 추가개선 제안 1·2번, 세 댓글 프로그램 동작 통일 — INSTA v1.28·쓰레드 v1.17과 같은 형식). `app/(dashboard)/dashboard/page.tsx`: 검토 대기 댓글 조회에 `video_id`, `ytreply_videos.thumbnail_url`(user_id 필터, 빈 목록이면 조회 생략 — 댓글 화면과 같은 방식) 16:10 썸네일, 항목 전체가 `/comments#video-<id>` 링크. `app/(dashboard)/comments/page.tsx`: 영상 묶음 `<section>`에 `id="video-<id>"`+`scroll-mt-80`. `package.json` 1.22.0.
 - 검수: tsc 0, build, 배포 `youtube-auto-reply-p9snxg1y6` Ready, DB v1.22, 크롬(일반 회원) 대시보드 v1.22·댓글 화면 200. **대기 댓글 0건이라 썸네일·이동은 실제 데이터로 미확인.** 비용: Vercel 빌드 1회. 커밋 `077d81c8`. `docs/evidence/*.json` 미커밋 변경은 다른 CLI 것이라 건드리지 않음.
+
+## 2026-10-21 v1.23 — 공용 기준 코드 `pending-review-list`·`hash-highlight` 사본 적용 (Claude Code 윈도우)
+- 대시보드 「검토를 기다리는 댓글」 목록을 공용 부품 `components/PendingReviewList.tsx`로(영상 썸네일 `thumbShape="wide"`), 댓글 검토 화면에 `components/HashHighlight.tsx`(`#video-<id>`로 넘어온 묶음을 빨간색 2초 강조). **두 파일은 사본 — 직접 고치지 말고 기준 `instagram-comment-reply/components/`만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 색은 대시보드 `LIST_CLASSES`(yt 토큰). 모양·동작은 v1.22와 같음. `package.json` 1.23.0.
+- 검수: tsc 0, build, 배포 `youtube-auto-reply-kfi23xlr0` Ready, DB v1.23, 크롬(일반 회원) 대시보드 v1.23 빈 상태 정상, 댓글 화면 시험 칸 # 이동 → `rgb(255,0,51)` 테두리 켜짐·2.2초 뒤 꺼짐(시험 칸 즉시 삭제). 비용: Vercel 빌드 1회. 커밋 `d96623b7`. `docs/evidence/*.json` 미커밋 변경은 다른 CLI 것.

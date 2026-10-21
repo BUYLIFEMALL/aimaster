@@ -295,3 +295,5 @@
 |---|---|---|---|---|
 | 기존 JSON 상태/원고 지문·CAS·중복 발행 방지·실제 URL/시각·복구, 원래 30일 유지. 실제 Naver 입력 구조와 웹 이미지 필수 오류 수정 | 기존 입력 전용과 자동 포스팅 구분, 비공개 기본·전체 미리보기·서버 실제 발행 기록·4단계 안내 | 완전 신규 시스템이 아닌 기존 발행 자동화의 마지막 단계 완성 | 안정성: 65개 중64통과/1기존skip·실제 비공개 발행/결과 재확인. 적용성: SEO 본인 확장/원고·기존 DB 사용. 편의: 마지막 수동 클릭 없이 실제 URL까지 제공 | SEO v1.83 운영 완료, a2fe43f9·Ready·DB/확장/ZIP 일치. 실제1건/AI0. 이미지 실발행·공개/예약 미시험. 공용 엔진 정식 등록/티스토리/에이전트 실제 검수는 별도 잔여. 다음 티스토리 단일 플랜. [인수인계](../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md) · https://naver-blog-seo-studio.buylife.xyz |
 <!-- /SEO_AUTO_PUBLISH_RESULT_20261021 -->
+
+- 2026-10-21 IDEA-INBOX-01 보완(Claude Code 윈도우): 세 대시보드 목록·이동·강조를 공용 기준 코드 `pending-review-list`·`hash-highlight`로 묶음(INSTA v1.29·쓰레드 v1.18·유튜브 v1.23 배포). 위치·단계·이름 후보 플랜 [`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md) — 추천 새 프로그램 1단계(읽기 + 원래 프로그램으로 이동). 상태: 주인님 결정 대기.
