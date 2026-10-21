@@ -2,7 +2,7 @@ import "server-only";
 import { getCommentAccount } from "@/lib/instagram/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
-import { getValidInstagramAccessToken } from "@/lib/actions/instagram";
+import { getValidInstagramAccessToken } from "@/lib/instagram/token";
 import { postInstagramCommentReply } from "@/lib/instagram/client";
 
 export interface PostCommentReplyResult {

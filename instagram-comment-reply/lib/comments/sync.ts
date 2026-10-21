@@ -3,7 +3,7 @@ import { getCommentAccount } from "@/lib/instagram/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getUserApiKey } from "@/lib/apiKeys";
-import { getValidInstagramAccessToken } from "@/lib/actions/instagram";
+import { getValidInstagramAccessToken } from "@/lib/instagram/token";
 import { listRecentInstagramComments } from "@/lib/instagram/client";
 import { generateCommentReply } from "@/lib/ai/reply";
 import { getReplyModelProvider } from "@/lib/ai/models";

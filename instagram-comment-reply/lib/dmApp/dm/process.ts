@@ -3,7 +3,7 @@ import { getDmAccount } from "@/lib/dmApp/instagram/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { getUserApiKey } from "@/lib/apiKeys";
-import { getValidInstagramAccessToken } from "@/lib/dmApp/actions/instagram";
+import { getValidInstagramAccessToken } from "@/lib/dmApp/instagram/token";
 import { getInstagramParticipantUsername } from "@/lib/dmApp/instagram/client";
 import { generateDmReply } from "@/lib/dmApp/ai/reply";
 import { getTonePresetInstruction } from "@/lib/dmApp/tonePresets";

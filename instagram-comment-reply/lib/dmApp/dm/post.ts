@@ -2,7 +2,7 @@ import "server-only";
 import { getDmAccount } from "@/lib/dmApp/instagram/memberAccount";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
-import { getValidInstagramAccessToken } from "@/lib/dmApp/actions/instagram";
+import { getValidInstagramAccessToken } from "@/lib/dmApp/instagram/token";
 import { sendInstagramDirectMessage } from "@/lib/dmApp/instagram/client";
 
 export interface PostDmReplyResult {

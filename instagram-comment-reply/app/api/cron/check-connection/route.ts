@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getValidInstagramAccessToken } from "@/lib/actions/instagram";
+import { getValidInstagramAccessToken } from "@/lib/instagram/token";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 
 export const dynamic = "force-dynamic";

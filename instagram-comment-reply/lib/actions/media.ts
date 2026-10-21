@@ -4,7 +4,7 @@ import { getCommentAccount } from "@/lib/instagram/memberAccount";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { getValidInstagramAccessToken } from "@/lib/actions/instagram";
+import { getValidInstagramAccessToken } from "@/lib/instagram/token";
 import { listInstagramMedia } from "@/lib/instagram/client";
 import { normalizeUrl } from "@/lib/normalizeUrl";
 import type { SupabaseClient } from "@supabase/supabase-js";
