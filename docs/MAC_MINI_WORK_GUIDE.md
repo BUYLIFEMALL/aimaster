@@ -119,13 +119,14 @@ export AIM=/Volumes/gt1_mega/Antigravity/AIMaster
 aim-check() {
   [ -d "$AIM" ] || { echo "❌ 공유 폴더 미연결 — Finder ⌘K로 연결"; return 1; }
   cd "$AIM" || return 1
-  [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$AIM" ] || { echo "❌ 공유 폴더 저장소가 아님"; return 1; }
+  [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$(pwd -P)" ] || { echo "❌ 공유 폴더 저장소가 아님"; return 1; }
   echo "✅ 공유 폴더: $AIM"
 }
 alias aclaude='aim-check && claude'
 alias acodex='aim-check && codex -C "$AIM"'
 alias aagy='aim-check && agy'
 ```
+- (2026-10-21 실측) 실제 마운트 이름이 `GT1_MEGA`(대문자)라 `git rev-parse --show-toplevel`이 `$AIM`과 글자가 달라 비교가 실패했다 → `pwd -P`와 비교하도록 고쳤다. 맥미니 `~/.zshrc`에 등록 완료(Claude Code 맥미니).
 - 저장 후 `source ~/.zshrc`. 이후 `aclaude`·`acodex`·`aagy` 한 단어로 연결 확인 → 위치 확인 → 실행. Codex 상태바 실행기(`docs/CODEX_STATUSBAR_STARTUP.md` macOS 항목)가 `~/.zshrc`에 있으면 그 아래에 둔다.
 
 ### 6-5. 실행 후 지킬 것 (요약)
