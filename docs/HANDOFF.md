@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 병합 D 완료: AI 웹 UI → UI Canvas 「🧩 컴포넌트 갤러리」
+
+UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), 편집기 [</> 코드]로 캔버스 → React + Tailwind TSX 내보내기, AI 컴포넌트를 프로젝트 `doc.snippets`에 보관(DB 표 변경 없음, 편집기 자동 저장이 보존). 옛 앱 v1.06 안내·410·숨김. 권한: 없던 32명 = 골드 등급 → 주인님 결정으로 골드 등급 표에 UI Canvas 체크(143→175명, 운영 DB `esgxyikcnnvmlhygjkth`). 커밋 `809264a7`·`10f9667d`·`aaaf9908`, 두 앱 배포 Ready, 일반 회원 계정 크롬 검수 통과. 병합 A~D 모두 완료. 상세 `ui-canvas/AGENTS.md` v1.11.
+
+https://ui-canvas.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — AI Audio분석 v1.11: API 이용 권한 확인·4.5MB 넘는 파일 업로드
 
 음악 병합 결정 5번(병합보다 먼저). ① 화면·모든 API에 공용 권한 판정(정지→관리자→핸드폰→FREE→구독→등급+기간) 적용, 옛 판정 사본 교체(F-013). ② 서버는 회원 본인 키 + 사이트 Origin으로 Gemini Files API 세션만 시작하고, 브라우저가 키 없는 올림 주소로 파일을 직접 올림 → 분석은 파일 주소로, 끝나면 Google 쪽 파일 삭제(F-014). 100MB로 화면·가이드 통일. 서버 경유 4MB 조각 방식은 Google 조각 단위 8MB라 실패 → `docs/ERROR_LESSONS.md` 2026-10-21. 배포 Ready·DB v1.11, 크롬 일반 회원 계정으로 7.45MB 음성 WAV 실제 분석 성공(Gemini 1회). 상세 `ai-audio-analyzer/AGENTS.md` v1.11. 다음: 음악 병합 M1 플랜.

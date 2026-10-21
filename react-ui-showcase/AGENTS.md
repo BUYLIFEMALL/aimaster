@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-21 Claude Code(윈도우) — 병합 D: UI Canvas로 이전 (v1.06)
+- 이 앱의 기능(컴포넌트 갤러리·인터랙티브 데모·TSX 코드·AI 컴포넌트 생성)은 **UI Canvas 자동화 「🧩 컴포넌트 갤러리」**(https://ui-canvas.buylife.xyz/gallery)로 옮겼습니다. 상세 `ui-canvas/AGENTS.md` v1.11.
+- `src/app/page.tsx` → 이전 안내 화면(저장 데이터가 없어 옮기기 없음), `/api/generate` → 410. 옛 부품 코드(`components/showcase`·`components/ui`)는 지우지 않고 남겨 둠.
+- DB: `programs` `ai-web-ui` → `version=v1.06`, `is_active=false`(카탈로그 숨김). 권한 회원은 골드 등급 표 체크로 모두 UI Canvas 권한 보유. 주소는 유지합니다.
+- 검수: 옛 주소 안내 화면·`/api/generate` 410 확인(2026-10-21 메인 크롬). 커밋 `809264a7`.
+
+
 ## 1. 프로그램 사용 목적 및 대상
 - **사용 목적**: 현대적인 프론트엔드 웹 애플리케이션 개발에 필수적인 12대 핵심 UI 컴포넌트 갤러리와 10종 인터랙티브 실전 데모, 단일 파일 클린 TSX 소스 코드 라이브러리를 제공하고, 회원 본인의 Google Gemini API 키로 자연어 프롬프트를 입력받아 프로덕션 준비 완료 리액트 컴포넌트를 즉시 빌드해 주는 올인원 웹 UI 자동화 스튜디오.
 - **주요 대상**:

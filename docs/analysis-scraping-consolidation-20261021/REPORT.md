@@ -59,5 +59,5 @@
 | 카테고리 이동 | ✅ 2026-10-21 시네마틱 스토리보드 「데이터수집|기획」 → 「이미지」 | DB `programs.category_id`만(버전 그대로 v1.09) | 백업 `D:\Antigravity\AIMaster_backup\category-move-20261021` |
 | B 글쓰기 | ✅ 2026-10-21 페르소나 문체 → AI 글쓰기 에디터 「🎚️ 문체 바꾸기」 | ai-writing-editor v1.11 · persona-style-studio v1.09(안내·숨김) | 권한 175명 모두 기존 보유(24명 기간 연장), FREE 배지 없음 유지, 회원 데이터 0건. 상세 `ai-writing-editor/AGENTS.md` v1.11 |
 | C 프롬프트 | ✅ 2026-10-21 프롬프트 템플릿 → AI Prompt 「📁 내 템플릿 보관함」 | ai-prompt-studio v1.07 · prompt-template-studio v1.06(안내·옮기기·숨김) | 새 표 `ai_prompt_templates`(회원별 RLS, 30일 삭제 대상 아님 — 회원이 만든 보관함). 권한 변경 없음. 상세 `ai-prompt-studio/AGENTS.md` v1.07 |
-| D | 대기 | — | D(AI 웹 UI → UI Canvas) |
+| D 웹 UI | ✅ 2026-10-21 AI 웹 UI → UI Canvas 「🧩 컴포넌트 갤러리」 + React·Tailwind 코드 내보내기 + AI 컴포넌트 프로젝트 보관 | ui-canvas v1.11 · ai-web-ui(react-ui-showcase) v1.06(안내·숨김) | 권한: 없던 32명 = 골드 등급 → 주인님 결정으로 골드 등급 표에 UI Canvas 체크(143→175명). Tailwind는 갤러리 화면에만 격리. 상세 `ui-canvas/AGENTS.md` v1.11 |
 

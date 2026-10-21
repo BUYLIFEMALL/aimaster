@@ -1,12 +1,24 @@
 # 🎨 UI Canvas 자동화 (ui-canvas) — AI 에이전트 인수인계서
 
 > **공식 서비스 URL**: https://ui-canvas.buylife.xyz  
-> **현재 버전**: `v1.10` (크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션)  
+> **현재 버전**: `v1.11` (크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션, 2026-10-21 병합 D 🧩 컴포넌트 갤러리·React 코드 내보내기)  
 > **최근 갱신일**: 2026-10-19  
 > **표준 템플릿**: 크리에이티브 아틀리에 스타일 (`Creative Atelier Style — Canvas Pro Edition`, 딥 미드나잇 다크 네이비 `#0c0f17` + 슬레이트 다크 서피스 `#131824` + 일렉트릭 시안 블루 `#06b6d4` & 아티스틱 바이올렛 `#8b5cf6`)  
 > **참고 기준 문서**: 루트 `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`
 
 ---
+
+## 2026-10-21 Claude Code(윈도우) — 병합 D: AI 웹 UI 제작 자동화 → 「🧩 컴포넌트 갤러리」·React 코드 내보내기·AI 컴포넌트 보관 (v1.11)
+- **플랜**: [docs/PLAN_20261021_MERGE_D_WEB_UI.md](docs/PLAN_20261021_MERGE_D_WEB_UI.md) · 근거 루트 `docs/analysis-scraping-consolidation-20261021/REPORT.md` §2 D.
+- **🧩 컴포넌트 갤러리** `/gallery`(`?tab=gallery|demos|code|ai`): 옛 앱(`react-ui-showcase`)의 12종 갤러리·10종 데모·TSX 코드 라이브러리·AI 생성기를 `src/components/gallery/*`, `src/lib/gallery/*`로 옮김. 좌측 메뉴 항목 추가.
+- **스타일 격리(중요)**: UI Canvas는 Tailwind가 없고 `globals.css`가 `button`·`input`·`label`·`h1` 태그에 직접 스타일을 준다. 그래서 Tailwind 4.3.3을 **갤러리 화면에서만**(`app/(workspace)/gallery/gallery.css`) preflight 없이·`source(none)` + `@source components/gallery`·`important`로 불러오고, `.gallery-scope` 안에서만 태그 스타일을 리셋하고 옛 앱의 다크 덮어쓰기를 범위 한정으로 옮겼다. 빌드 결과 공통 CSS에는 Tailwind 클래스가 0개(갤러리 전용 CSS 파일로 분리). 포털로 뜨는 `gallery/ui/Modal`은 루트에 `gallery-scope` 클래스를 붙였다. 밝은 회색 배경(`bg-slate-100/200`)은 글자가 밝아지므로 다크 값으로 덮어써 두었다.
+- **</> 코드 내보내기(신규)**: 편집기 상단 [</> 코드] → `src/lib/canvas/codegen.ts`가 캔버스를 React + Tailwind TSX 한 파일로(위치·크기 Tailwind 임의값, 모양은 `style`, 아이콘 lucide-react). 그리는 방식은 `ComponentView.tsx`와 같게 유지해야 한다(한쪽을 바꾸면 같이). 테스트 `tests/codegen.test.mjs`가 모든 컴포넌트 종류 출력을 TypeScript로 문법 검사.
+- **AI 컴포넌트 보관(신규)**: 생성 결과 아래 [캔버스 프로젝트에 저장](기존 또는 새 프로젝트) → 프로젝트 문서 `doc.snippets`(최대 50개·코드 6만 자, DB 표 변경 없음). `/api/projects/[id]/snippets`(추가·삭제)는 `updated_at`을 바꾸지 않아 열린 편집기와 충돌하지 않고, 편집기 자동 저장(`PUT`)은 `snippets`를 보내지 않으므로 서버가 기존 값을 보존한다. 편집기 [</> 코드] → 「저장한 AI 컴포넌트」에서 복사·.tsx·삭제.
+- **AI 생성 API** `/api/ai/component`: 권한 + 회원 본인 Gemini 키만(옛 앱이 받던 브라우저 키 전달 제거), 캐시 방지 두 줄, 기준 연도 동적 주입.
+- **DB(운영 `esgxyikcnnvmlhygjkth`)**: AI 웹 UI 권한 175명 중 UI Canvas 권한이 없던 32명 = 모두 골드 등급 자동 부여분 → 주인님 결정으로 **골드 등급 표에 UI Canvas 체크**(트리거로 골드 32명 180일 자동 부여, 143 → 175명). 버전 v1.11, 상세 소개·한 줄 요약·핵심 특징 3·4번·사용 순서 4번 갱신. 기록 `supabase/migrations/20261021_merge_d_v1_11.sql`, 백업 `D:\Antigravity\AIMaster_backup\merge-d-20261021\`.
+- **검수(2026-10-21, 일반 회원 `buylifemall@naver.com`, 메인 크롬)**: 테스트 17개·타입·빌드 통과 → 배포 Ready → 갤러리 4탭·데모 창·코드 창 정상(보조 버튼 흰색 문제 발견 → 수정 재배포), AI 생성 1회(쿠폰 카드) → 새 프로젝트 저장 → 편집기에서 버튼 그리기·자동 저장 뒤에도 snippets 유지(서버 조회) → [</> 코드] 두 탭 정상, 기존 편집기 화면 변화 없음, 390px iframe 가로 넘침 없음, 공개 상세 페이지 단락 확인. 시험 프로젝트 삭제(회원 기존 프로젝트는 그대로). Gemini Flash 1회(회원 본인 키).
+- 커밋 `809264a7`·`10f9667d`·`aaaf9908`, 배포 https://ui-canvas.buylife.xyz
+
 
 ## 1. 프로그램 사용 목적 및 대상
 
