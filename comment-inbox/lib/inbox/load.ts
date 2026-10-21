@@ -218,3 +218,42 @@ async function loadInboxUncached(userId: string, access: InboxAccess): Promise<I
     return ra !== rb ? ra - rb : ta - tb;
   });
 }
+
+/** 한국 시간 오늘 0시(UTC ISO) */
+export function kstTodayStartIso(now = Date.now()): string {
+  const kst = new Date(now + 9 * 60 * 60 * 1000);
+  return new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate()) - 9 * 60 * 60 * 1000).toISOString();
+}
+
+export type TodayReplied = { total: number } & Partial<Record<InboxPlatform, number>>;
+
+/**
+ * v1.05 「오늘 답한 건수」 — 한국 시간 오늘 0시 이후 게시·발송(status=posted, replied_at)된 본인 항목 수.
+ * 건너뛴 항목은 처리 시각이 기록되지 않아 세지 않는다. 권한 있는 플랫폼만.
+ */
+export async function loadTodayReplied(userId: string, access: InboxAccess): Promise<TodayReplied> {
+  const admin = createAdminClient();
+  const since = kstTodayStartIso();
+  const targets: [InboxPlatform, "ig_comments" | "dm_messages" | "th_comments" | "ytreply_comments"][] = [
+    ["ig_comment", "ig_comments"],
+    ["ig_dm", "dm_messages"],
+    ["threads", "th_comments"],
+    ["youtube", "ytreply_comments"],
+  ];
+  const result: TodayReplied = { total: 0 };
+  await Promise.all(
+    targets
+      .filter(([p]) => access[PLATFORM_SOURCE[p]])
+      .map(async ([p, table]) => {
+        const { count } = await admin
+          .from(table)
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", userId)
+          .eq("status", "posted")
+          .gte("replied_at", since);
+        result[p] = count ?? 0;
+        result.total += count ?? 0;
+      }),
+  );
+  return result;
+}

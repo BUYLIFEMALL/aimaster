@@ -99,3 +99,10 @@ test("되돌리기: 다른 회원 항목·권한 없는 플랫폼은 거절", as
   assert.ok((await unskipInboxItemAction("threads", "t1")).error);
   assert.equal(tables.th_comments[0].status, "skipped");
 });
+
+test("오늘 답한 건수의 기준 시각: 한국 시간 오늘 0시", async () => {
+  const { kstTodayStartIso } = await import("../lib/inbox/load.ts");
+  assert.equal(kstTodayStartIso(Date.UTC(2026, 9, 21, 16, 30)), "2026-10-21T15:00:00.000Z"); // 한국 22일 01:30
+  assert.equal(kstTodayStartIso(Date.UTC(2026, 9, 21, 14, 59)), "2026-10-20T15:00:00.000Z"); // 한국 21일 23:59
+  assert.equal(kstTodayStartIso(Date.UTC(2026, 9, 21, 15, 0)), "2026-10-21T15:00:00.000Z"); // 한국 22일 00:00
+});

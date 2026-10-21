@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
-import { loadInbox, loadSourceAccess, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
+import { loadInbox, loadSourceAccess, loadTodayReplied, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
 import { InboxList } from "@/components/inbox/InboxList";
 import { APP_VERSION } from "@/lib/version";
 
@@ -12,7 +12,7 @@ const FILTER_KEYS: InboxPlatform[] = ["ig_dm", "ig_comment", "threads", "youtube
 export default async function InboxPage({ searchParams }: { searchParams: { p?: string } }) {
   const user = await requireProgramAccess();
   const access = await loadSourceAccess(user.id);
-  const all = await loadInbox(user.id, access);
+  const [all, today] = await Promise.all([loadInbox(user.id, access), loadTodayReplied(user.id, access)]);
   const filter = FILTER_KEYS.includes(searchParams.p as InboxPlatform) ? (searchParams.p as InboxPlatform) : null;
   const items = filter ? all.filter((i) => i.platform === filter) : all;
   const noAccess = (Object.keys(SOURCE_PROGRAMS) as SourceKey[]).filter((k) => !access[k]);
@@ -36,6 +36,14 @@ export default async function InboxPage({ searchParams }: { searchParams: { p?: 
           <div className="rounded-xl border border-ig-border bg-ig-bg px-4 py-2">
             <p className="text-xl font-extrabold text-ig-text">{all.length}</p>
             <p className="text-[11px] text-ig-muted">검토 대기</p>
+          </div>
+          {/* v1.05: 한국 시간 오늘 0시 이후 게시·발송한 건수(권한 있는 플랫폼, 건너뛰기 제외) */}
+          <div
+            className="rounded-xl border border-ig-success/30 bg-ig-success/10 px-4 py-2"
+            title={(Object.keys(PLATFORM_LABEL) as InboxPlatform[]).filter((p) => today[p] !== undefined).map((p) => `${PLATFORM_LABEL[p]} ${today[p]}`).join(" · ")}
+          >
+            <p className="text-xl font-extrabold text-ig-success">{today.total}</p>
+            <p className="text-[11px] text-ig-muted">오늘 답함</p>
           </div>
           <div className="rounded-xl border border-ig-warn/30 bg-ig-warn/10 px-4 py-2">
             <p className="text-xl font-extrabold text-ig-warn">{urgentDm}</p>
