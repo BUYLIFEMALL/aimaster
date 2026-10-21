@@ -149,3 +149,9 @@
 
 실제 웹 전송/빈 편집기 입력·서식/저장 원본 대조→DB completed 확인. 댓글 메뉴/비공개 날짜 구조 보완 후155개 로컬 검사 통과. **수정 후 실제 설정 검수·최종 발행·프로덕션 배포는 대기**이며 완료 집계 금지. 현재 웹 로그아웃/확장 미연결, 본인 재로그인 및 토큰 재연결이 다음 첫 단계입니다. [최신 상태](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_AUTO_PUBLISH_CONTINUE.md). SEO 완료→티스토리 종료→에이전트 실제 발행 순서 유지.
 <!-- /TISTORY_AUTO_PUBLISH_PROGRESS_20261022 -->
+
+<!-- TISTORY_NAME_DONE_20261022 -->
+## 티스토리 명칭 운영 반영 완료 / 자동 발행 후보 v1.84
+
+2026-10-22 명칭 v1.83 Ready/Edge 새 이름·라이브 ZIP 확인 완료. 실제 최종발행 기능은 master v1.84로 보존한 별도 미배포 후보입니다. 입력 설정 보완은 본인 재전송 run30c55e1c publish_ready/오류null로 확인했습니다. 다음은 v1.84 최종발행/URL·시각/복구 검수이며, SEO 완료→티스토리 완료→에이전트 순서를 유지합니다. [운영/후보 구분](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md).
+<!-- /TISTORY_NAME_DONE_20261022 -->

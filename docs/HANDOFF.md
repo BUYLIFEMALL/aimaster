@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- TISTORY_NAME_RELEASE_20261022 -->
+## 2026-10-22 Codex — 티스토리 포스팅 자동화 이름 운영 반영 완료(v1.83)
+
+사용자 화면의 옛 이름이 남아 있던 원인은 소스만 바꾸고 운영 배포하지 않은 상태였습니다. 자동 발행 도입 전 기반의 명칭 유지보수 브랜치 `release/tistory-name-v183-20261022`/`8589073f`를 별도 작업트리에서 배포했습니다. **v1.83 Ready**(`dpl_XNn3nGXS8ie45DQXvyDhda5YfGC5`), 공식 alias·DB 프로그램/확장 버전·라이브 ZIP 새 이름/v1.83·Edge 일반 회원 탭/헤더/메뉴 이름을 확인했습니다. 타입/로컬 webpack 빌드 및 운영 Turbopack 빌드 성공. 운영 DB ref `esgxyikcnnvmlhygjkth` 해당 프로그램 이름/버전 메타데이터만 변경, 키/권한/스키마0·AI0·최종발행0·운영 빌드1회.
+
+master의 자동 최종 발행 추가분은 **후속 v1.84 미배포**로 보존하고 ZIP/manifest 버전도 분리했습니다. 이 master를 운영 v1.83 소스로 오인하지 마세요. 사본 OpenAI 요청 파라미터는 운영 포함, 모델 안내 UI는 차기 후보입니다. 재연결한 본인 확장의 합성 원고13/run30c55e1c는 실제 publish_ready/오류null 확인(최종 발행 아님). 다음은 v1.84 실제 비공개 최종발행/URL·시각 검수 사이클입니다.
+
+[완료 증거·운영 소스·다음 단계](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md)
+
+https://tistory-auto-blog.buylife.xyz
+<!-- /TISTORY_NAME_RELEASE_20261022 -->
+
+
 ## 2026-10-22 Claude Code(윈도우) — 외부 `shorts-auto`·`15_cardnews` 설치·비교 분석, 「기능만 흡수」 확정 · 원스톱 쇼츠 AI 동영상 장면 플랜(승인 대기)
 - 설치: `D:\PDS\Program_dev\shorts-auto`(저장소 밖). Python 3.12로 실행, pytest 164/167(실패 3개는 맥 경로 검사), vitest 17/17, 메인 크롬 `localhost:5173` 확인. 유료 호출·Higgsfield 설정 등록 안 함, 비용 0원.
 - 결정(주인님 확정): 새 프로그램 없음. 묶음 ① 쇼츠 제작 고급화 → `shorts-onestop-studio`(AI 동영상 장면·본인 목소리·단어 자막), 묶음 ② 인스타 레퍼런스 분석 → `auto-instagram-posting`(대기). 라이선스 없음 → 코드·프롬프트 미사용.

@@ -104,3 +104,7 @@
 - 2026-10-20 `program-notice-banner` 주의: 부품이 Tailwind 클래스로 꾸며져 있어 **Tailwind를 쓰지 않는 프로그램(예: `thumbnail-master`)에는 그대로 넣으면 모양이 깨짐** — 그런 프로그램은 그 앱 CSS로 감싼 별도 버전을 만들지 판단(지금은 미적용).
 - 2026-10-20 병합 D: `seo-thumbnail-pro`(옛 앱, 화면 이동만)를 `image-file-check`·`image-file-check-test`·`gemini-image-client`·`gemini-image-models` 사본 목록에서 제외(파일은 폴더에 남음, 더 이상 동기화 안 함).
 - 2026-10-20 병합 E: `yt-playlist-studio`(옛 앱, 주소 전달만)를 `gemini-image-client`·`gemini-image-models` 사본 목록에서 제외. `playlist-channel-studio`에 `program-notice-banner` 사본 추가(v1.15).
+
+<!-- TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->
+2026-10-22 `tistory-auto-blog`의 `openai-request-params` 사본+호출 수정은 명칭 v1.83/8589073f 배포에 포함됐습니다(Ready, 직접 사본 수정 없음). 기존 미배포 이력 중 티스토리 **요청 파라미터 사본**은 반영 완료이며 모델 안내 UI는 v1.84 미배포 후보로 구분합니다. 다른 대상은 이 기록으로 배포 완료 처리하지 않습니다. [운영 증거/한계](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md).
+<!-- /TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->

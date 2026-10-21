@@ -227,3 +227,7 @@ sunoapi `get-timestamped-lyrics`의 단어별 시각(`alignedWords`, 단어 안�
 | 유튜브 댓글 | `youtube-auto-reply/lib/comments/post.ts` + `lib/youtube/{memberAccount,client,token}.ts` + `lib/apiKeys.ts`·`lib/apiKeyLabels.ts` | `comment-inbox/lib/comments/youtubePost.ts` + 같은 경로 |
 
 토큰 갱신(`getValid…AccessToken`·`markNeedsReconnect`)은 `"use server"` 연결 파일에 있으면 화면에서 부를 수 있는 서버 동작으로 노출될 수 있고 연결·권한 코드와 섞여 재사용이 안 되므로 `token.ts`(server-only)로 둔다(2026-10-21). 새 응대형 프로그램을 받은편지함에 붙일 때도 같은 묶음 구조로 등록한다. **게시 묶음을 고친 뒤에는 `cd comment-inbox && npm test`(이중 게시 방지 시험 26개, 가짜 DB·플랫폼)로 확인한다(2026-10-21).** 플랜: [`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md).
+
+<!-- TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->
+2026-10-22 티스토리 `openai-request-params` 사본/`contentJson.ts` 호출은 명칭 v1.83 유지보수 배포8589073f에 포함됐습니다(Ready·타입/로컬/운영 빌드, 유료AI0). 위 미배포 목록 중 **티스토리 사본 엔진만 운영 반영**으로 갱신합니다. 모델 성격/비용 안내 UI는 master v1.84 후보에 있고 아직 운영 미배포입니다. 다른 프로그램 상태는 유지합니다. [근거](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md).
+<!-- /TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->

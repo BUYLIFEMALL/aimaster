@@ -1,0 +1,13 @@
+{
+  "baseCommit": "58789eac208ecd569f6c948c2cdfc0b311351bcd",
+  "releaseBranch": "release/tistory-name-v183-20261022",
+  "version": "v1.83",
+  "name": "티스토리 포스팅 자동화",
+  "typecheckExitCode": 0,
+  "localBuildExitCode": 0,
+  "localCompiler": "webpack; isolated worktree uses existing node_modules junction; production uses normal project build",
+  "automaticPublishFeatureIncluded": false,
+  "paidAiCalls": 0,
+  "zipSha256": "445d65cc2e302f43ac6ef6fc1b30de28d0cfa3585df8ed620650959e3d6b0b2e",
+  "openAISharedCopySha256": "3f0114fda7435a697ec4461333108dfc7e2717052735cf2047f096f8e2b7b95c"
+}

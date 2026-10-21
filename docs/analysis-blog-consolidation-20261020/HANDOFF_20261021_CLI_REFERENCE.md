@@ -82,3 +82,9 @@ https://naver-blog-seo-studio.buylife.xyz
 
 이름 **티스토리 포스팅 자동화** 유지. 실제 지정 회원 웹 전송→빈 TinyMCE 입력/서식·저장 원본 대조·DB completed까지 확인했습니다. 댓글 메뉴/비공개 날짜 구조 보완은 테스트3개 실패→수정 후155개/타입/빌드 통과, 수정 후 실제 설정 완료는 아직 확인하지 못했습니다. 실제 최종발행0·미배포·운영v1.82. 현재 웹 로그아웃/자체 확장 미연결이므로 본인 웹 재로그인·토큰 연결→실제 설정 검수→v1.83 묶음 배포/최종발행·URL 확인을 이어갑니다. [전용 최신 인수인계](../../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_AUTO_PUBLISH_CONTINUE.md).
 <!-- /TISTORY_INPUT_FIX_20261022 -->
+
+<!-- TISTORY_NAME_PROD_20261022 -->
+## 티스토리 명칭 운영 완료(2026-10-22)
+
+**티스토리 포스팅 자동화 v1.83**은 기존 입력 기반의 명칭 유지보수 릴리스입니다(8589073f, Ready·Edge 새 이름/ZIP/DB 일치). 자동 최종 발행 구현은 master **v1.84 미배포**로 보존했습니다. 이전 문서의 v1.83 자동 발행은 당시 개발 후보 표기이며 운영 발행 완료로 해석하지 않습니다. 본인 원고13/run30c55e1c 실제 publish_ready 확인, 다음은 v1.84 새 원고 비공개 최종발행/URL 기록 검수입니다. [최신 운영 인수인계](../../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md).
+<!-- /TISTORY_NAME_PROD_20261022 -->
