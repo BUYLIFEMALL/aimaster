@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 외부 `shorts-auto`·`15_cardnews` 설치·비교 분석, 「기능만 흡수」 확정 · 원스톱 쇼츠 AI 동영상 장면 플랜(승인 대기)
+- 설치: `D:\PDS\Program_dev\shorts-auto`(저장소 밖). Python 3.12로 실행, pytest 164/167(실패 3개는 맥 경로 검사), vitest 17/17, 메인 크롬 `localhost:5173` 확인. 유료 호출·Higgsfield 설정 등록 안 함, 비용 0원.
+- 결정(주인님 확정): 새 프로그램 없음. 묶음 ① 쇼츠 제작 고급화 → `shorts-onestop-studio`(AI 동영상 장면·본인 목소리·단어 자막), 묶음 ② 인스타 레퍼런스 분석 → `auto-instagram-posting`(대기). 라이선스 없음 → 코드·프롬프트 미사용.
+- 문서: `docs/analysis-shorts-auto-20261022/REPORT.md`, `shorts-onestop-studio/docs/PLAN_20261022_AI_VIDEO_SCENES.md`, 아이디어 표 IDEA-SHORTS-AUTO-01.
+- 다음 첫 단계: 플랜 A단계(v1.23) 승인·시험 비용(fal 5초×2 약 $0.5) 승인 → 구현. 코드 변경 없음.
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
 ## 2026-10-22 Claude Code(윈도우) — 이커머스 병합 E0·E1·E2 운영 적용(AI 상세페이지 자동화 v1.17, 12단 v1.10·자동생성기 v1.21 숨김) · 상품소싱 v1.22 배포
 - 순서: E1 마이그레이션(칸 추가) → 15p v1.17 배포 → E0 비공개 버킷 마이그레이션 → 12단·자동생성기 배포 → E1·E2 SQL. 코드가 이미 v1.17이라 15p 빌드를 1회로 줄였고, 「E0 마이그레이션은 배포 뒤·E1 마이그레이션은 배포 앞」 조건은 지킴. DB는 운영 ① ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor.
