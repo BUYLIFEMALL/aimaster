@@ -270,3 +270,8 @@ POST 콜백을 보낸다. 이 라우트는:
 - **환경변수 추가(승인)**: `CRON_SECRET`(music Production, Sensitive, 무작위 생성·출력 안 함).
 - 화면: 곡·리믹스 카드에 「🗓️ 자동 삭제 D-n」(3일 이하 빨강), 곡 목록·곡 상세·리믹스 목록 위 안내(`components/RetentionBadge.tsx`).
 - 검수: tsc·lint·build, 배포 Ready(비용 Vercel 빌드 1회), DB v1.21, 정리 주소 비밀값 없음·틀림 401, 크롬 일반 회원 D-30·안내 표시. **정상 비밀값 실행은 값을 출력하지 않아 직접 시험 못 함 — 첫 실제 삭제는 2026-10-29 03:00 KST 실행분부터. 그날 이후 Vercel cron 로그와 DB 건수로 확인 필요.**
+
+## 2026-10-21 v1.22 — 곡 카드 「🎬 가사 영상 만들기 →」 (Claude Code 윈도우)
+- `components/plannings/TrackCard.tsx`: 보컬 곡의 Suno 번호가 있는 변주마다 AI 가사영상 자동화로 넘기는 새 창 링크(`https://lyric-video-studio.buylife.xyz/source?suno=<변주 id>`). 그쪽이 회원 본인 행만 읽어 음악·커버(서명 주소)·제목과 **Suno 시간 가사**(본인 Suno 키, `get-timestamped-lyrics`)를 자동으로 넣는다. 이 앱의 DB·저장소·Suno 호출은 바꾸지 않음.
+- 제안서 `docs/PLAN_20261021_SUNO_V6_FEATURES.md` 1순위 「타임스탬프 가사」를 이 앱에 만들 때는 `lyric-video-studio/src/lib/sunoAlign.ts`(단어 → 줄 변환, 시험 3개)를 기준으로 쓰면 된다(응답 단어 안에 `\n`·`[Verse 1]`가 섞여 옴).
+- 검수: tsc·build, 배포 Ready, DB v1.22, 크롬 일반 회원 곡 화면에 링크 2개·새 창·주소 확인, 링크로 연 가사영상에서 21줄 자동.

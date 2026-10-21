@@ -1,7 +1,7 @@
 # AI 가사영상 자동화 (`lyric-video-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`를 먼저 읽는다. 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
-> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.04**
+> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.05**
 > 출발점: 외부 상용 앱 Lyricbi 1.9.0 분석([`docs/analysis-lyricbi-20261021/REPORT.md`](../docs/analysis-lyricbi-20261021/REPORT.md)) — **코드는 옮기지 않고** 기능·흐름만 참고해 새로 만들었다.
 
 ## 1. 사용 목적과 대상
@@ -21,7 +21,7 @@
 | 화면 | 파일 | 내용 |
 |---|---|---|
 | 대시보드 | `src/components/views/DashboardView.tsx` | 4단계 흐름, 최근 작업 4개 |
-| 1 음악·가사 넣기 | `SourceView.tsx` | 음악(디코딩 48kHz)·커버·제목·아티스트, 가사 `.srt`/`.lrc`/`.txt`·붙여넣기(UTF-8 실패 시 EUC-KR 재시도) |
+| 1 음악·가사 넣기 | `SourceView.tsx` + `studio/SunoImportCard.tsx` | **음악(SUNO) 자동화 곡 가져오기**(v1.05: 내 완성 보컬 곡 목록 `/api/suno/tracks`, 변주 선택 → 1시간 서명 주소로 음악·커버 받아 `loadAudio`·`loadCover`, 제목, 회원 본인 Suno 키로 시간 가사 `/api/suno/timed-lyrics` → `lib/sunoAlign.ts`가 단어 시각을 줄 시간표로; 실패하면 구간 표시 뺀 가사 글. `/source?suno=<변주 id>`로 자동 실행 — 음악 곡 카드 링크), 음악(디코딩 48kHz)·커버·제목·아티스트, 가사 `.srt`/`.lrc`/`.txt`·붙여넣기(UTF-8 실패 시 EUC-KR 재시도) |
 | 2 가사 싱크 | `SyncView.tsx` + `studio/Waveform.tsx` | 곡 파형(전체/20초 확대) 위 줄 구간·번호 표시 — 번호를 끌면 그 줄 시작 이동(`moveStart`, 앞뒤 줄을 넘지 않음), 빈 곳을 누르면 그 위치로 이동.  스페이스바 탭 싱크(엔터 = 지금 줄 끝, 백스페이스 되돌리기), 줄별 끝 시각 칸(비우면 다음 줄 시작까지), 손 반응 보정 0~0.3초, 줄별 ±0.1초·시간 직접 입력·문구 수정·줄 추가/삭제, 전체 ±0.5초, `.srt` 받기 |
 | 3 디자인 | `DesignView.tsx` + `studio/PresetThumb.tsx` | 프리셋 카드마다 지금 곡으로 그린 실제 미리보기(`drawFrame`), 가로 6·세로 4 프리셋, 배치 2, 현재 줄 강조 7, 서체 6, 색 4, 스펙트럼 4, 움직이는 빛, 표시 토글 |
 | 4 MP4 내보내기 | `ExportView.tsx` | 준비 점검 4개, 24/30fps, 진행률·취소, 결과 재생·내려받기(서버에 남지 않음). 크롬·엣지는 「💾 파일로 바로 저장」(공용 엔진 `encodeMp4ToFile`, 30분까지, 8분 넘는 곡은 기본 켜짐) |
@@ -33,11 +33,12 @@
 - 상태: `src/components/studio/StudioContext.tsx`가 작업 화면 전체를 감싼다. **메뉴는 반드시 `next/link`** — `<a href>`로 바꾸면 페이지가 새로 열려 넣은 음악이 사라진다.
 - 가사 처리: `src/lib/lyrics.ts`(형식 오류에 너그러운 `.srt`, 다중 시간표 `.lrc`, `stampLine`·`clearFrom`·`timeline`·`lineAt`·`toSrt`). 시험 `npm test`(6개).
 - 장점: 설치·키 불필요, 파일이 서버로 가지 않음, 미리보기 = 결과, 20초 1080p를 약 6초에 생성(이 PC 실측).
-- 단점·한계: 음악·커버는 저장 안 됨(다시 열면 다시 선택), 기본 방식 12분·파일로 바로 저장 30분 제한(디코딩한 소리가 메모리에 있어야 함), 휴대폰·사파리는 인코딩·파일 저장 미지원일 수 있음, 노래방 발음 표기·LP·플레이리스트 없음.
+- 단점·한계: Suno 시간 가사는 Suno가 정렬한 결과라 반복 후렴 등에서 한두 줄 어긋날 수 있음(싱크 화면에서 고침). 음악·커버는 저장 안 됨(다시 열면 다시 선택), 기본 방식 12분·파일로 바로 저장 30분 제한(디코딩한 소리가 메모리에 있어야 함), 휴대폰·사파리는 인코딩·파일 저장 미지원일 수 있음, 노래방 발음 표기·LP·플레이리스트 없음.
 
 ## 4. 버전·변경 기록
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.05 | 2026-10-21 | 2차: 음악(SUNO) 자동화 곡 가져오기 + Suno 시간 가사 자동(`src/lib/suno.ts`·`sunoAlign.ts`, API 2개, 시험 11개). `music/` v1.22 곡 카드 「🎬 가사 영상 만들기 →」. 플랜 `docs/PLAN_20261021_V1_05_SUNO.md` |
 | v1.04 | 2026-10-21 | 추가개선 3-a: 유튜브 바로 올리기(원스톱 v1.19~v1.21 구현을 가져옴, 공용 사본 2개 등록) |
 | v1.03 | 2026-10-21 | 추가개선 2: 파형 위 줄 시작 끌기(`Waveform.tsx`·`moveStart`, 시험 8개), 프리셋 카드 실제 미리보기(`PresetThumb.tsx`), 화면 안 확인 상자 6곳(`Confirm.tsx`) |
 | v1.02 | 2026-10-21 | 추가개선 1: 줄 끝 시각 따로 정하기(끝 칸·엔터 키·간주), 앞 줄과 맞닿은 끝만 ±0.1초에 따라 움직임. 「파일로 바로 저장」 — 공용 엔진 기준 코드에 `encodeMp4ToFile` 추가(기존 `encodeMp4` 동작 같음), 길이 한도 30분. 플랜 `docs/PLAN_20261021_V1_02_TO_V1_04.md` |
@@ -45,7 +46,8 @@
 
 ## 5. 남은 작업
 - 백로그: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · 개선 제안: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md)
-- **2차(주인님 승인됨)**: 음악(SUNO) 자동화 곡 가져오기 + sunoapi `get-timestamped-lyrics`로 시간 가사 자동, `music/` 곡 카드 「가사 영상 만들기 →」 링크, 노래방 로마자 발음 표기, LP판.
+- **2차 남은 것**: 노래방 로마자 발음 표기, LP판(곡 가져오기·시간 가사·곡 카드 링크는 v1.05 완료).
+- **주의(시간 가사)**: `music_tracks`↔`music_track_variants` 관계가 2개(연장 원곡)라 조회 때 `music_track_variants!music_track_variants_track_id_fkey`로 지정. 저장소 `music-audio`는 비공개(music v1.20) — 음악·커버는 서버에서 서명 주소로만. 음악 v1.21의 30일 자동 삭제로 지워진 곡은 410 안내.
 - 3차: 플레이리스트(여러 곡·앨범 카드·챕터), Pexels(본인 키, 공용 연동 항목), 로고·프레임, 선택 AI(제목·설명).
 
 ## 6. 다른 프로그램과의 연계 아이디어

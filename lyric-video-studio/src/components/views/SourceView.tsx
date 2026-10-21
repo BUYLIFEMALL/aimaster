@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { FileDrop, StudioBar } from "@/components/studio/parts";
+import { SunoImportCard } from "@/components/studio/SunoImportCard";
 import { Message } from "@/components/ui/Message";
 import { useConfirm } from "@/components/ui/Confirm";
 import type { Msg } from "@/components/ui/api";
@@ -15,6 +16,11 @@ export function SourceView() {
   const ask = useConfirm();
   const [text, setText] = useState(""), [msg, setMsg] = useState<Msg>(null), [lyricMsg, setLyricMsg] = useState<Msg>(null);
   const synced = s.lines.filter(isSynced).length;
+  const [autoSuno, setAutoSuno] = useState<string | null>(null);
+  useEffect(() => { // 음악(SUNO) 자동화 곡 카드에서 ?suno=<변주 id>로 들어온 경우 한 번만 가져오고 주소에서 지운다
+    const id = new URLSearchParams(window.location.search).get("suno");
+    if (id && /^[0-9a-f-]{36}$/i.test(id)) { setAutoSuno(id); window.history.replaceState(null, "", "/source"); }
+  }, []);
 
   async function onAudio(f: File) {
     setMsg(null);
@@ -48,6 +54,7 @@ export function SourceView() {
     <div className="stack">
       <StudioBar />
       <div className="page-heading"><p className="eyebrow">STEP 1</p><h1>🎵 음악·가사 넣기</h1><p>음악 파일과 가사를 넣습니다. 파일은 이 컴퓨터 브라우저에서만 쓰이고 서버로 올라가지 않습니다.</p></div>
+      <SunoImportCard autoVariant={autoSuno} />
       <div className="grid2">
         <section className="card stack">
           <h2>음악 · 커버</h2>

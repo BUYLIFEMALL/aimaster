@@ -50,7 +50,7 @@ export function DashboardView() {
           </div>
         )}
       </section>
-      <div className="avatar-tip"><div className="avatar">💡</div><div><strong>Suno로 만든 곡이라면</strong><p className="muted" style={{ fontSize: 12 }}>다음 업데이트에서 음악(SUNO) 자동화의 곡을 바로 불러와 가사 시간까지 자동으로 맞추는 기능을 추가할 예정입니다. 지금은 가사를 붙여넣고 「가사 싱크」에서 탭으로 맞춰 주세요.</p></div></div>
+      <div className="avatar-tip"><div className="avatar">💡</div><div><strong>Suno로 만든 곡이라면</strong><p className="muted" style={{ fontSize: 12 }}>「음악·가사 넣기」 맨 위 「음악(SUNO) 자동화 곡 가져오기」에서 곡을 고르면 음악·커버·제목이 들어가고, Suno가 기록한 단어별 시각으로 가사 시간도 자동으로 맞춰집니다(본인 Suno 키 사용). 음악(SUNO) 자동화 곡 카드의 「가사 영상 만들기 →」로 바로 들어와도 됩니다.</p></div></div>
     </div>
   );
 }

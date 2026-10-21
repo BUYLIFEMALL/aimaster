@@ -2580,3 +2580,5 @@
 - 증상: 6장면 동시 요청 중 5개는 4~5초, 1개만 89초(성공). 서버 제한 90초에 닿으면 영상 전체 실패. 해결: 브라우저 요청마다 30초 제한 + 1번 다시 시도, 서버는 `AbortSignal.any([req.signal, timeout])`로 브라우저가 끊으면 OpenAI 요청도 멈춤(`shots/src/lib/render/story.ts`·`src/app/api/render/tts/route.ts`). 다음부터: 유료 생성 API를 여러 개 동시에 부를 때 요청마다 제한 시간·재시도 1회를 둔다.
 ### 2026-10-21 메인 사이트 — 카테고리 slug에 `&`가 있으면 카테고리 페이지 404
 - 증상: 「데이터수집|기획」(slug `scraping&plan`)만 `/programs/category/…`가 404. 원인: 주소의 `&`가 `%26`으로 넘어와 `params.slug`가 인코딩된 채 DB와 비교됨. 해결: 페이지에서 `decodeURIComponent` 후 조회, 링크 4곳(`app/(main)/page.tsx`·`app/(main)/programs/page.tsx`·카테고리 페이지 검색 경로·`components/programs/CategoryNav.tsx`)은 `encodeURIComponent`로 생성. 다음부터: 주소에 쓰는 slug는 영문 소문자·숫자·하이픈만 쓰고, 동적 경로 값은 항상 디코딩해서 조회한다.
+
+- 2026-10-21 lyric-video-studio v1.05: Supabase 조회 `music_tracks?select=...,music_track_variants(...)`가 PGRST201 「more than one relationship」로 실패 → 원인: 연장 원곡 칼럼(`extended_from_variant_id`) 때문에 두 표 사이 관계가 2개 → 해결: `music_track_variants!music_track_variants_track_id_fkey(...)`처럼 관계 이름을 지정(`lyric-video-studio/src/lib/suno.ts`) → 다음부터: 다른 프로그램에서 남의 표를 끼워 조회할 때 관계가 하나인지 먼저 확인.

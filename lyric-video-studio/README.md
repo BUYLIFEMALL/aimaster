@@ -1,4 +1,4 @@
-# AI 가사영상 자동화 (`lyric-video-studio`) v1.01
+# AI 가사영상 자동화 (`lyric-video-studio`) v1.05
 
 https://lyric-video-studio.buylife.xyz
 
@@ -9,7 +9,7 @@ https://lyric-video-studio.buylife.xyz
 | 1. 목적·대상 | AI 곡·자작곡·커버곡에 가사를 입혀 영상으로 만드는 회원, 음악 채널 운영자 |
 | 2. 기술 | Next.js 16 · Canvas 2D · 공용 `browser-mp4-encoder` 사본(WebCodecs + mp4-muxer) · Supabase(로그인·보관함) |
 | 3. 기능 | 음악·가사 넣기(.srt/.lrc/붙여넣기) → 탭 싱크 → 프리셋·강조 7종·서체 6종 → 1080p MP4. 보관함 30일 |
-| 4. 버전 | v1.01 (2026-10-21) 첫 공개 |
+| 4. 버전 | v1.05 (2026-10-21) 음악(SUNO) 곡 가져오기·시간 가사 자동 — 이력은 `AGENTS.md` 4절 |
 | 5. 남은 일 | 2차: Suno 곡·시간 가사 자동, 노래방 발음, LP / 3차: 플레이리스트, Pexels — [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) |
 | 6. 연계 | 음악(SUNO) 자동화 곡 가져오기, 플레이리스트 영상에 가사 층 |
 | 7. UI 개선안 | 미리보기에서 가사 위치 끌기, 파형 위 시간 맞추기 |

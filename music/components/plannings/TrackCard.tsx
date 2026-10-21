@@ -357,6 +357,18 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                         <span>🎛️</span>
                         <span>리믹스하기</span>
                       </Link>
+                      {track.mode === "vocal" && (
+                        // v1.22 AI 가사영상 자동화로 이 변주를 넘긴다 — 음악·커버·Suno 시간 가사를 그쪽에서 자동으로 가져온다
+                        <a
+                          href={`https://lyric-video-studio.buylife.xyz/source?suno=${variant.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-1.5 rounded-full text-xs font-bold border border-violet-500/40 bg-violet-950/40 text-violet-200 hover:text-white hover:border-violet-400/60 hover:bg-violet-900/40 transition-all flex items-center gap-1"
+                        >
+                          <span>🎬</span>
+                          <span>가사 영상 만들기 →</span>
+                        </a>
+                      )}
                       {!latestMr && (
                         <button
                           type="button"

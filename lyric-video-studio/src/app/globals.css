@@ -175,3 +175,4 @@ a.node{display:block}a.node:hover{border-color:var(--brand-line)}
   .stage-frame.landscape{max-width:100%}.ellipsis{max-width:200px}.guide-meta .button{margin-left:0}
   .nudge button,.row-actions button{min-width:44px;min-height:40px}
 }
+.suno-list .list-item{flex-wrap:wrap}.suno-list .list-item>span:last-child{flex-wrap:wrap}.suno-list .list-item small{display:inline}

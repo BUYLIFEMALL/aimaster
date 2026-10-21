@@ -44,6 +44,7 @@ export function GuideView() {
       <section className="card stack">
         <h2>Step 1. 음악·가사 넣기</h2>
         <ol className="guide-list">
+          <li><strong>Suno로 만든 곡이라면</strong> 맨 위 「🎼 음악(SUNO) 자동화 곡 가져오기」에서 곡의 변주를 누르세요. 음악·커버·제목이 들어가고, Suno가 기록한 단어별 시각으로 <strong>가사 시간까지 자동으로</strong> 맞춰집니다(본인 Suno API 키로 곡마다 1번 조회). 받지 못하면 가사 글만 넣어 드리니 2단계에서 맞춰 주세요. 음악(SUNO) 자동화 곡 카드의 「🎬 가사 영상 만들기 →」를 눌러 바로 들어와도 됩니다.</li>
           <li><strong>음악 파일</strong>을 끌어다 놓습니다(mp3·wav·m4a·ogg·flac, 12분 이하 권장). 파일 이름이 곡 제목 칸에 자동으로 들어갑니다.</li>
           <li><strong>앨범 커버</strong>는 선택입니다. 없으면 강조색과 제목 첫 글자로 앨범 아트를 만들어 줍니다.</li>
           <li><strong>가사</strong>는 세 가지 방법 중 하나로 넣습니다.
