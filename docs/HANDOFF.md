@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 비공개 프로그램 16개 → 병합 대상 정리표
+- 주인님 질문 「비공개 처리된 프로그램들 어디로 병합됐는지 정리」. 운영 DB `is_active=false` 16개 중 14개는 병합(웹 크롤링·글쓰기 에디터·AI Prompt·UI Canvas·바나나 캔버스 2·상세페이지 2·INSTA 포스팅·INSTA 댓글·DM·YOUTUBE 트렌드·썸네일·SEO·플레이리스트·음악 SUNO), 2개(네이버 블로그 App·Web)는 병합 아님 — 관리자 전용 공개 전. 표: `docs/HIDDEN_PROGRAMS_MERGE_MAP_20261022.md`. 비용 없음(DB 읽기·저장소 조회만).
+
 ## 2026-10-22 Claude Code(윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정 B안 실행 (데스크톱 HIGH 6개 프로그램 배포 + 15개 코드만)
 - 주인님 B안 승인. 커밋 `f0871e568`: 코드 24곳(API 키 한 줄 14·개별 화면 10) + 버전 6 + AGENTS. 배포·DB: auto-threads-posting v1.28, threads-affiliate-poster v1.80, threads-comment-reply v1.25, ai-audio-analyzer v1.12, ai-prompt-studio v1.09, ai-webtoon-studio v1.28(6개 모두 `vercel inspect` Ready, DB 6건 갱신) + 메인 관리자 등급 이동 모달(푸시 자동 빌드 Ready).
 - 크롬(시험 계정): 댓글자동화 설정 API 키 5줄 버튼 한 줄·잘림 0(데스크톱·390px), 댓글자동화·웹툰 대시보드 「최근 7일」 그래프 정상(다른 세션이 부탁한 weekChart 사본 동반 배포 확인 → 두 AGENTS.md 「⏸ 보류」에 ✅ 표시). 미확인: AI Audio 문서 탭·AI Prompt 결과 바·웹툰 콘티 머리·관리자 모달(결과 생성에 유료 호출 필요 또는 관리자 조작 필요).
