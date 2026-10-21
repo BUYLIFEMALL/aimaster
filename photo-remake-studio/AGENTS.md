@@ -110,3 +110,11 @@ F-006(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+
+## 2026-10-21 v1.11 — 바나나 캔버스로 병합(이동 안내만 남김) (Claude Code 윈도우)
+- 근거: [이미지 카테고리 병합 분석](../docs/analysis-image-consolidation-20261021/REPORT.md) 묶음 A(주인님 결정). 복원·컬러화·실제 확대·사물별 지시 합성·원본 비교 슬라이더는 **바나나 캔버스 v1.12**(`banana-canvas/AGENTS.md`)로 옮김.
+- 이 앱: `/studio`·`/compose` → `MovedNotice`(바나나 캔버스 해당 카드로 이동), `/history`(브라우저 보관함 내려받기)는 유지. 작업 영역은 로그인만 확인(`requireUser` — 카탈로그에서 숨겨 프로그램 권한 판정이 막히므로). `/api/remake`·`/api/suggest` → 410(이동 주소 안내). 사이드바는 「바나나 캔버스로 이동」·「내 보관함」 두 칸.
+- 쓰지 않게 된 코드(`src/components/Studio.tsx`·`src/lib/remake/*`·`src/lib/gemini.ts` 생성 함수)는 사용 종료 코드 정리 규칙(백업 폴더 `D:\Antigravity\AIMaster_backup\retired-programs\` + git 태그 뒤)에 따라 아직 지우지 않음. 시험 23개는 그 코드로 계속 통과.
+- 운영 DB: `is_active=false`·`version='v1.11'`(기록 `supabase/migrations/20261021_v1_11_merged_into_banana.sql`). 권한 회원 148명 모두 바나나 캔버스 권한 기존 보유.
+- 검수: tsc·`npm test` 23개·build, 배포 Ready, `/api/remake` 410, 크롬 일반 회원 안내 화면·보관함 v1.11, 메인 사이트 상세 404(카탈로그 제외).

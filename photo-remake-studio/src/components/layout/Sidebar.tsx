@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { BookOpen, KeyRound, LogOut, Menu, X, WandSparkles } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
-const steps = [{ href: "/studio", name: "사진 복원", detail: "손상 복원 · 컬러화 · 확대" }, { href: "/compose", name: "사물 합성", detail: "사물 추가 · 장면 연출" }, { href: "/history", name: "내 보관함", detail: "완성 사진 · 파일 저장" }];
+const steps = [{ href: "/studio", name: "바나나 캔버스로 이동", detail: "복원 · 합성이 옮겨 갔습니다" }, { href: "/history", name: "내 보관함", detail: "이 브라우저의 완성 사진" }];
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
   const [open, setOpen] = useState(false), [error, setError] = useState("");
   async function logout() { try { const r = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); if (!r.ok) throw new Error(); window.location.assign("/login"); } catch { setError("로그아웃하지 못했습니다. 다시 시도해 주세요."); } }
