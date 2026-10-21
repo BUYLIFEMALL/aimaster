@@ -2588,3 +2588,5 @@
 - 증상: 「데이터수집|기획」(slug `scraping&plan`)만 `/programs/category/…`가 404. 원인: 주소의 `&`가 `%26`으로 넘어와 `params.slug`가 인코딩된 채 DB와 비교됨. 해결: 페이지에서 `decodeURIComponent` 후 조회, 링크 4곳(`app/(main)/page.tsx`·`app/(main)/programs/page.tsx`·카테고리 페이지 검색 경로·`components/programs/CategoryNav.tsx`)은 `encodeURIComponent`로 생성. 다음부터: 주소에 쓰는 slug는 영문 소문자·숫자·하이픈만 쓰고, 동적 경로 값은 항상 디코딩해서 조회한다.
 
 - 2026-10-21 lyric-video-studio v1.05: Supabase 조회 `music_tracks?select=...,music_track_variants(...)`가 PGRST201 「more than one relationship」로 실패 → 원인: 연장 원곡 칼럼(`extended_from_variant_id`) 때문에 두 표 사이 관계가 2개 → 해결: `music_track_variants!music_track_variants_track_id_fkey(...)`처럼 관계 이름을 지정(`lyric-video-studio/src/lib/suno.ts`) → 다음부터: 다른 프로그램에서 남의 표를 끼워 조회할 때 관계가 하나인지 먼저 확인.
+
+- 2026-10-21 music v1.30(Claude Code 윈도우): 같은 폴더를 다른 세션이 작업 중이 아님을 확인하고 시작했는데, 배포~커밋 사이(약 3분)에 다른 세션이 같은 폴더 파일 2개를 고쳐 `git add music`으로 함께 커밋됨(441212cf, 그 세션도 같은 v1.30 번호를 씀) → 원인: 폴더 단위 `git add <폴더>` → 해결: 되돌리지 않고 인수인계에 기록(그 세션 수정은 v1.31로 배포) → 다음부터: **커밋 직전 `git status`로 내 파일 목록과 대조하고 `git add`는 내가 만든·고친 파일 경로만 하나씩** 지정(폴더 통째 금지).
