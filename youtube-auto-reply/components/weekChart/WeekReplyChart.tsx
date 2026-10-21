@@ -14,12 +14,15 @@ export function WeekReplyChart({
   title = "📊 최근 7일 응대",
   selectedKey = null,
   onSelect,
+  noun = "응대",
 }: {
   days: DayCount[];
   series?: ChartSeries[];
   title?: string;
   selectedKey?: string | null;
   onSelect?: (key: string) => void;
+  /** 흐름 문장에 쓰는 말(기본 「응대」, 자동 게시 프로그램은 「게시」) */
+  noun?: string;
 }) {
   const max = Math.max(1, ...days.map((d) => d.count));
   const total = days.reduce((s, d) => s + d.count, 0);
@@ -27,7 +30,7 @@ export function WeekReplyChart({
   // 앞 3일과 뒤 3일(오늘 포함)을 비교해 흐름 한 줄
   const before = sum(days.slice(0, 3));
   const after = sum(days.slice(4));
-  const trend = total === 0 ? "아직 응대 기록이 없어요" : after > before ? "📈 응대가 늘고 있어요" : after < before ? "📉 응대가 줄고 있어요" : "➖ 비슷하게 응대하고 있어요";
+  const trend = total === 0 ? `아직 ${noun} 기록이 없어요` : after > before ? `📈 ${noun}가 늘고 있어요` : after < before ? `📉 ${noun}가 줄고 있어요` : `➖ 비슷하게 ${noun}하고 있어요`;
   // 7일 동안 한 번이라도 나온 묶음만 범례에 보인다
   const shown = series.filter((s) => days.some((d) => (d.bySeries[s.key] ?? 0) > 0));
   const describe = (d: DayCount) =>

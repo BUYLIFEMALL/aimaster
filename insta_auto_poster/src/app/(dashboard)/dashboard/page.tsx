@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
+import { WeekReplyChart } from "@/components/weekChart/WeekReplyChart";
+import { bucketByKstDay } from "@/lib/weekChart/bucket";
 import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { APP_VERSION } from "@/lib/version";
@@ -42,6 +44,10 @@ export default async function DashboardPage() {
   for (const post of posts ?? []) {
     counts[post.status] += 1;
   }
+
+  // v1.43: 최근 7일(한국 시간) 게시 건수 — 공용 기준 코드 `week-reply-chart`(통합 받은편지함·댓글 프로그램과 같은 그래프).
+  // 게시 시각 전용 칸이 없어, 게시 완료(published) 글의 마지막 수정 시각(updated_at, 수정 때 자동 갱신)을 게시 시각으로 쓴다.
+  const weekDays = bucketByKstDay((posts ?? []).filter((p) => p.status === "published").map((p) => p.updated_at));
 
   const upcoming = (posts ?? [])
     .filter((p) => p.status === "scheduled")
@@ -169,6 +175,11 @@ export default async function DashboardPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* v1.43: 최근 7일 게시 그래프 */}
+      <div className="rounded-2xl border border-[#262c3d] bg-[#161922] p-5 text-slate-100 shadow-xs">
+        <WeekReplyChart days={weekDays} title="📊 최근 7일 게시" noun="게시" />
       </div>
 
       {/* 6. 다가오는 예약 게시 목록 */}

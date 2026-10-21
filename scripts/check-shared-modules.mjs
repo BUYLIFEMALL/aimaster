@@ -42,13 +42,13 @@ const MODULES = [
     // 최근 7일 응대 그래프 — 날짜 나누기(한국 시간 7칸, 플랫폼별 묶음). 2026-10-22 받은편지함 v1.07에서 만들어 세 댓글 프로그램 대시보드에 공유
     id: "week-reply-bucket",
     source: "comment-inbox/lib/weekChart/bucket.ts",
-    copies: ["instagram-comment-reply/lib/weekChart/bucket.ts", "threads-comment-reply/lib/weekChart/bucket.ts", "youtube-auto-reply/lib/weekChart/bucket.ts"],
+    copies: ["instagram-comment-reply/lib/weekChart/bucket.ts", "threads-comment-reply/lib/weekChart/bucket.ts", "youtube-auto-reply/lib/weekChart/bucket.ts", "threads-affiliate-poster/src/lib/weekChart/bucket.ts", "insta_auto_poster/src/lib/weekChart/bucket.ts"],
   },
   {
     // 최근 7일 응대 막대그래프 컴포넌트(CSS 막대, 플랫폼별 쌓기·막대 고르기는 선택). 카드 테두리는 부르는 쪽이 감싼다
     id: "week-reply-chart",
     source: "comment-inbox/components/weekChart/WeekReplyChart.tsx",
-    copies: ["instagram-comment-reply/components/weekChart/WeekReplyChart.tsx", "threads-comment-reply/components/weekChart/WeekReplyChart.tsx", "youtube-auto-reply/components/weekChart/WeekReplyChart.tsx"],
+    copies: ["instagram-comment-reply/components/weekChart/WeekReplyChart.tsx", "threads-comment-reply/components/weekChart/WeekReplyChart.tsx", "youtube-auto-reply/components/weekChart/WeekReplyChart.tsx", "threads-affiliate-poster/src/components/weekChart/WeekReplyChart.tsx", "insta_auto_poster/src/components/weekChart/WeekReplyChart.tsx"],
   },
   {
     // 최근 7일 응대 그래프 + 막대 누르면 그날 답한 목록(원래 댓글·답장 앞부분). 서버 동작·테마 색은 부르는 쪽이 넘김. 2026-10-22 받은편지함 v1.08
