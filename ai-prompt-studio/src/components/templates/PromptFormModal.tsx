@@ -257,13 +257,13 @@ export function PromptFormModal({
 
           {/* 프롬프트 템플릿 본문 */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5 whitespace-nowrap">
                 프롬프트 템플릿 본문 <span className="text-rose-500">*</span>
               </label>
 
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-slate-400 font-mono">
+              <div className="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
+                <span className="hidden sm:inline text-[10px] text-slate-400 font-mono">
                   {"{{변수명}} 형식으로 작성"}
                 </span>
                 <button

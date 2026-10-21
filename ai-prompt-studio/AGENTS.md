@@ -120,3 +120,6 @@ ai-prompt-studio/
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-22 v1.09 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우)
+- **v1.09 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 결과 액션 바(설정 수정·MD 저장·복사)가 768~1024px에서 꺾이던 것 수정 — 가로 배치를 `lg`부터, 버튼 묶음 `shrink-0 flex-wrap whitespace-nowrap`(`src/components/ResultSection.tsx`), 템플릿 만들기 모달의 본문 머리 버튼 줄도 휴대폰에서 다음 줄로 내려가게(`src/components/templates/PromptFormModal.tsx`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.

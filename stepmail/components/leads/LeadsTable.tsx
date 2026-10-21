@@ -57,9 +57,9 @@ export function LeadsTable({ leads }: { leads: LeadRowData[] }) {
   return (
     <div className="space-y-2">
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-2">
-          <p className="text-xs font-bold text-blue-700">{selectedIds.size.toLocaleString()}건 선택됨</p>
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-2">
+          <p className="text-xs font-bold text-blue-700 whitespace-nowrap">{selectedIds.size.toLocaleString()}건 선택됨</p>
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-3 whitespace-nowrap">
           <button
             type="button"
             onClick={handleBulkExclude}
@@ -69,8 +69,8 @@ export function LeadsTable({ leads }: { leads: LeadRowData[] }) {
             {isExcluding ? "변경 중..." : "일괄 발송제외"}
           </button>
           {confirmingDelete ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-red-600">정말 삭제할까요? 되돌릴 수 없습니다.</span>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span className="text-xs text-red-600 whitespace-normal">정말 삭제할까요? 되돌릴 수 없습니다.</span>
               <button
                 type="button"
                 onClick={handleDeleteSelected}

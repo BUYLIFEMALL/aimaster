@@ -23,8 +23,8 @@ export function Header({
   return (
     <header className="sticky top-0 z-30 bg-if-surface/95 backdrop-blur-md border-b border-if-border px-4 lg:px-6 py-3 flex items-center justify-between shadow-xs">
       {/* 좌측 로고 & 타이틀 */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center text-white shadow-sm shadow-pink-500/20">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center text-white shadow-sm shadow-pink-500/20">
           <Sparkles className="w-5 h-5 animate-pulse" />
         </div>
         <div>
@@ -43,7 +43,7 @@ export function Header({
       </div>
 
       {/* 우측 도구 및 계정 메뉴 */}
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2 whitespace-nowrap">
         {/* 히스토리 버튼 */}
         <button
           onClick={onOpenHistory}
@@ -80,7 +80,8 @@ export function Header({
           title="본인 Google Gemini API 키 설정"
         >
           <Key className="w-3.5 h-3.5" />
-          <span>{hasApiKey ? "API 키 연동됨" : "API 키 등록 필요"}</span>
+          <span className="hidden sm:inline">{hasApiKey ? "API 키 연동됨" : "API 키 등록 필요"}</span>
+          <span className="sm:hidden">API 키</span>
         </button>
 
         {/* 메인 사이트 이동 */}

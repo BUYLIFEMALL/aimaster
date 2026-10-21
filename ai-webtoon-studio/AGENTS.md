@@ -58,6 +58,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+
+- **v1.28 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 콘티 결과 머리(「컷별 카드 뷰」·「텍스트 원문 뷰」 전환)가 lg 좁은 폭·휴대폰에서 꺾이던 것 수정(`src/components/ScriptEditorSection.tsx`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
 - **현재 버전**: `v1.19` (2026-10-20 — v1.18 회원 연동 정보 공용 저장, v1.19 예약 서버 코드 공용 사본·일시정지 안전 처리, 아래 기록 참고)
 - **v1.24 (2026-10-20, Claude Code 윈도우) — 📢 프로그램 공지 띠(공용 기준 코드 첫 적용)**
   - 메인 사이트 관리자가 공지의 「관련 프로그램」에 웹툰을 고르면 작업 화면(`StudioWorkspace` `<main>`) 맨 위에 최근 공지 1건(30일 이내)이 뜸 → 누르면 메인 공지 상세(새 탭), ✕는 공지별로 이 브라우저에 기억. `src/components/ProgramNoticeBanner.tsx`(공용 기준 `program-notice-banner`, 공개 읽기만, `tone` dark/light). 다른 프로그램은 다음 배포 때 사본으로 넣음(`docs/SHARED_MODULES.md` 미배포 표).

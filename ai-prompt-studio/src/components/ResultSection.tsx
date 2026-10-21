@@ -83,8 +83,8 @@ export function ResultSection({
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* 상단 액션 바 */}
-      <div className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-        <div>
+      <div className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-2xs">
+        <div className="min-w-0">
           <span className="text-[10px] font-bold text-violet-600 uppercase tracking-wider">
             STEP 3. 메타 프롬프트 완성
           </span>
@@ -93,7 +93,7 @@ export function ResultSection({
           </h2>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 whitespace-nowrap">
           <button
             type="button"
             onClick={onBackToEdit}

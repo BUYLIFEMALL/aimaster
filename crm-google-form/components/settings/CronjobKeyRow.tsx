@@ -40,10 +40,10 @@ export function CronjobKeyRow({ label, maskedValue }: CronjobKeyRowProps) {
 
   return (
     <div className="rounded-xl border border-mx-border bg-mx-raised p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-mx-text">{label}</p>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-mx-text min-w-0">{label}</p>
         {maskedValue && !isEditing && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
             <button
               type="button"
               onClick={() => setIsEditing(true)}

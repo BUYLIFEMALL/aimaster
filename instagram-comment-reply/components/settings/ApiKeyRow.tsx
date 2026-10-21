@@ -59,17 +59,17 @@ export function ApiKeyRow({
         isActive ? "border-ig-primary/30 bg-ig-primary/10" : "border-ig-border bg-ig-raised"
       }`}
     >
-      <div className="mb-2 flex items-center justify-between">
-        <p className="flex items-center gap-2 text-sm font-semibold text-ig-text">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-sm font-semibold text-ig-text min-w-0">
           {label}
           {isActive && (
-            <span className="rounded-full bg-ig-primary px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-ig-primary px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap">
               지금 사용 중
             </span>
           )}
         </p>
         {maskedValue && !isEditing && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
             <button
               type="button"
               onClick={() => setIsEditing(true)}

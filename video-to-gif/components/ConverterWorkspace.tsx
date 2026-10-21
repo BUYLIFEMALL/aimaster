@@ -618,11 +618,11 @@ export default function ConverterWorkspace() {
               />
             </div>
 
-            <div className="mt-4 flex items-center justify-between">
-              <div className="text-xs text-gray-300">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+              <div className="text-xs text-gray-300 whitespace-nowrap">
                 결과 용량: <span className="font-bold text-emerald-400">{formatBytes(previewJob.outputSize ?? 0)}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
                 <button
                   onClick={() => setPreviewJob(null)}
                   className="rounded-xl border border-[#30363d] px-4 py-2 text-xs font-semibold text-gray-300 hover:bg-[#1f2937]"

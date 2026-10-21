@@ -30,8 +30,8 @@ export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({ componentId, o
   return (
     <Modal isOpen={!!componentId} onClose={onClose} title={`${item.name} TSX 소스 코드`}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap p-1 bg-slate-100 rounded-lg">
             <button
               onClick={() => setActiveTab('component')}
               className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
@@ -53,7 +53,7 @@ export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({ componentId, o
           <Button
             variant="outline"
             onClick={handleCopy}
-            className="!px-3 !py-1 text-xs flex items-center gap-1.5"
+            className="!px-3 !py-1 text-xs flex shrink-0 items-center gap-1.5 whitespace-nowrap ml-auto"
           >
             {copied ? (
               <>

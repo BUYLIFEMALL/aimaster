@@ -159,11 +159,11 @@ export default function AddMembersToGradeModal({
         </div>
 
         {/* 모달 푸터 버튼 */}
-        <div className="flex items-center justify-between pt-4 mt-4 border-t border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-3 pt-4 mt-4 border-t border-white/10">
           <span className="text-xs text-subtext">
             선택한 회원이 즉시 <span className="text-gold font-medium">[{targetGrade.name}]</span> 등급으로 이동됩니다.
           </span>
-          <div className="flex gap-2">
+          <div className="ml-auto flex shrink-0 gap-2 whitespace-nowrap">
             <GoldButton variant="ghost" size="sm" onClick={onClose} disabled={saving}>
               취소
             </GoldButton>

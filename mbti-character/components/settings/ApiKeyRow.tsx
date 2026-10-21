@@ -38,10 +38,10 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
 
   return (
     <div className="rounded-xl border border-[#2a1f4e] bg-[#120d24] p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-100">{label}</p>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-slate-100 min-w-0">{label}</p>
         {maskedValue && !isEditing && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
             <button
               type="button"
               onClick={() => setIsEditing(true)}

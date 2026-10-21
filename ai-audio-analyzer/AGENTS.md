@@ -94,6 +94,8 @@
 ---
 
 ## 6. 버전 및 DB 이력
+
+- **v1.12 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 문서 탭 머리(「자동 생성된 마크다운 비즈니스 문서」+형식 전환 버튼)가 640~1280px에서 버튼 글자가 꺾이던 것 수정 — 가로 배치를 `xl`부터, 버튼 묶음 `shrink-0 flex-wrap whitespace-nowrap`(`src/components/studio/SpeechReportView.tsx`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
 - `v1.10` (2026-10-19):
   - 사이버 네온 다크 콘솔 스타일 전면 리뉴얼 (오디오 인텔리전스 랩 에디션)
   - 독립 비주얼 가이드북 (`/guide`) 신설

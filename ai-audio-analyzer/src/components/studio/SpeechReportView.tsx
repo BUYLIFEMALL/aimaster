@@ -429,8 +429,8 @@ ${data.overallInsights}
       {activeTab === "document" && (
         <div className="space-y-6">
           <div className="bg-[#0a0e19] p-5 rounded-2xl border border-[#1a2333] shadow-md space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#1a2333]">
-              <div className="space-y-1">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-3 border-b border-[#1a2333]">
+              <div className="min-w-0 space-y-1">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <FileText className="text-[#00f0ff] w-4 h-4" />
                   <span>자동 생성된 마크다운 비즈니스 문서</span>
@@ -440,7 +440,7 @@ ${data.overallInsights}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 flex-wrap items-center gap-2 whitespace-nowrap">
                 <div className="bg-[#060911] p-1 rounded-xl border border-[#1a2333] flex items-center gap-1 text-xs font-bold">
                   <button
                     type="button"

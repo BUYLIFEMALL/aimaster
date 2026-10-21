@@ -28,8 +28,8 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: 
 
   return (
     <div className="rounded-xl border border-[#262c3d] bg-[#0d0f17] p-3.5">
-      <div className="mb-2 flex items-center justify-between">
-        <div>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-200">{label}</p>
           {helpUrl && !maskedValue && (
             <a
@@ -43,7 +43,7 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: 
           )}
         </div>
         {maskedValue && !isEditing && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
             <button
               type="button"
               onClick={() => setIsEditing(true)}

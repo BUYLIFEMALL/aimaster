@@ -198,13 +198,13 @@ export function ScriptEditorSection({
         {/* Right 7 Cols: 콘티 결과 뷰어 & 에디터 */}
         <div className="lg:col-span-7 bg-[#121620] rounded-2xl border border-[#232b3e] p-6 space-y-4 shadow-sm">
           {/* Header & View Mode Switcher */}
-          <div className="flex items-center justify-between border-b border-[#232b3e] pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-2 border-b border-[#232b3e] pb-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-white">
+              <span className="text-xs font-black text-white whitespace-nowrap">
                 콘티 결과 ({project.cuts?.length || 0}컷 생성됨)
               </span>
             </div>
-            <div className="flex items-center gap-1 bg-[#0a0d14] p-1 rounded-lg border border-[#232b3e] text-[11px] font-bold">
+            <div className="ml-auto flex shrink-0 items-center gap-1 whitespace-nowrap bg-[#0a0d14] p-1 rounded-lg border border-[#232b3e] text-[11px] font-bold">
               <button
                 type="button"
                 onClick={() => setViewMode("cards")}

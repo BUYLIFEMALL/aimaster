@@ -51,6 +51,8 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 
+- **v1.28 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 설정 화면 API 키 한 줄의 「수정」·「삭제」가 긴 안내 문구 옆에서 「수/정」으로 꺾이던 것 수정(`src/components/settings/ApiKeyRow.tsx` 머리줄 `gap-3`, 라벨 `min-w-0`, 버튼 묶음 `shrink-0 whitespace-nowrap`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
+
 ### `v1.22` (2026-10-20) - Claude Code (윈도우) — 공용 부품 정정(권한 합치기 제거)
 - 공용 부품 사본 `src/lib/memberIntegrations.ts`를 기준과 동기화: 연결 저장 때 이전 권한과 합치지 않고 **이번 연결에서 요청한 권한만** 기록. 이 프로그램(게시 권한)이 다시 연결해 공용 토큰을 바꾸면 댓글자동화는 권한 부족으로 자기 표 토큰을 쓰게 됨(새 토큰에 댓글 권한이 있다고 보장 못 함). 운영 DB 버전만: `supabase/migrations/20261020120000_member_integrations_v1_22.sql`.
 
