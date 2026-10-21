@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         .eq("is_hidden", false),
       supabase
         .from("ig_comments")
-        .select("id, author_username, comment_text, fetched_at")
+        .select("id, media_id, author_username, comment_text, fetched_at")
         .eq("user_id", user.id)
         .eq("status", "pending_review")
         .order("fetched_at", { ascending: false })
@@ -95,7 +95,15 @@ export default async function DashboardPage() {
     .select("id, customer_username, last_inbound_at")
     .eq("user_id", user.id)
     .in("id", dmConversationIds.length > 0 ? dmConversationIds : ["__none__"]);
-  const dmConversationById = new Map((dmConversations ?? []).map((c) => [c.id, c]));
+  // v1.28: 검토 대기 댓글의 게시물 썸네일(어느 게시물의 댓글인지 바로 보이게)
+  const recentMediaIds = Array.from(new Set((recentRes.data ?? []).map((c) => c.media_id)));
+  const { data: recentMedia } = await supabase
+    .from("ig_media")
+    .select("id, thumbnail_url")
+    .eq("user_id", user.id)
+    .in("id", recentMediaIds.length > 0 ? recentMediaIds : ["__none__"]);
+  const thumbByMediaId = new Map((recentMedia ?? []).map((m) => [m.id, m.thumbnail_url]));
+  const dmConversationById =new Map((dmConversations ?? []).map((c) => [c.id, c]));
   // v1.27: 고객의 마지막 메시지로부터 24시간 답장 가능(DM 검토 화면 getWindowBadge와 같은 계산). 만료되면 null
   const remainingMs = (lastInboundAt?: string | null) => {
     if (!lastInboundAt) return null;
@@ -243,18 +251,27 @@ export default async function DashboardPage() {
             <p className="py-8 text-center text-sm text-ig-muted">지금은 검토할 댓글이 없어요.</p>
           ) : (
             <ul className="space-y-4">
-              {(recentRes.data ?? []).map((c) => (
-                <li key={c.id} className="flex gap-3">
-                  <Avatar name={c.author_username} size={32} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs">
-                      <span className="font-semibold text-ig-text">{c.author_username ? `@${c.author_username}` : "익명"}</span>
-                      <span className="ml-2 text-ig-muted">{formatDateTimeKo(c.fetched_at)}</span>
-                    </p>
-                    <p className="mt-0.5 line-clamp-2 break-words text-sm text-ig-text">{c.comment_text}</p>
-                  </div>
-                </li>
-              ))}
+              {(recentRes.data ?? []).map((c) => {
+                const thumb = thumbByMediaId.get(c.media_id);
+                return (
+                  <li key={c.id}>
+                    <Link href={`/comments#media-${c.media_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-ig-raised">
+                      <Avatar name={c.author_username} size={32} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs">
+                          <span className="font-semibold text-ig-text">{c.author_username ? `@${c.author_username}` : "익명"}</span>
+                          <span className="ml-2 text-ig-muted">{formatDateTimeKo(c.fetched_at)}</span>
+                        </p>
+                        <p className="mt-0.5 line-clamp-2 break-words text-sm text-ig-text">{c.comment_text}</p>
+                      </div>
+                      {thumb && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={thumb} alt="게시물 썸네일" className="h-10 w-10 shrink-0 rounded-md object-cover" />
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
