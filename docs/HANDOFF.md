@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — AI 가사영상 자동화 v1.02: 줄 끝 시각·파일로 바로 저장(공용 MP4 엔진 `encodeMp4ToFile`)
+
+추가개선 1. ① 싱크 목록에 「끝」 칸(비우면 다음 줄 시작까지)과 탭 싱크 중 `엔터` = 지금 줄 끝 → 다음 줄 전까지 간주(앞 줄 흐림). 앞 줄 끝은 맞닿아 있을 때만 ±0.1초에 따라 움직임. ② 공용 엔진 기준 코드(`shorts-onestop-studio/src/lib/render/mp4Encoder.ts`)에 `encodeMp4ToFile` 추가(고른 파일에 조금씩 씀, 내부 `encodeInto`로 정리, **기존 `encodeMp4` 동작 같음**) → `--sync`로 Shots·가사영상 사본. 가사영상 내보내기에 「💾 파일로 바로 저장」(크롬·엣지, 8분 넘는 곡 기본, 30분까지). 원스톱·Shots는 tsc만 통과·**미배포**(SHARED_MODULES 미배포 표). 검수: 시험 7개, 로컬 실제 키(2.27~4.82초 끝 유지), OPFS 쓰기 대상으로 20초 1080p 정상 MP4(영상+소리), 기존 방식 내보내기 정상, 운영 일반 회원 화면에서 끝 칸 입력·저장, 390px. DB `programs.version` v1.02. 커밋 `c35d2474`. 다음: 추가개선 2(v1.03).
+
+https://lyric-video-studio.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 병합 D 후속 3건 완료: 반응형 코드·AI 컴포넌트 놓기·랜딩 → UI Canvas
 
 ① UI Canvas v1.12 반응형(flex) 코드 내보내기 ② v1.13 저장한 AI 컴포넌트 캔버스에 놓기·함수 이름 보완 ③ AI 랜딩페이지 기획 v1.11 「🧩 UI Canvas로 보내 다듬기」(AI 없이 규칙 변환, 공용 표 `ui_canvas_projects`에 본인 행 추가, UI Canvas 권한·100개 한도 확인) + 메뉴 버전 글자 고정 버그 수정. 모두 배포 Ready·크롬 검수(일반 회원)·시험 데이터 삭제. 이번 묶음 비용: Vercel 빌드 4회, AI 호출 0회. 같은 날 「비용 사전 보고 의무」를 루트 `CLAUDE.md`에 추가. 상세 `landing-architect/AGENTS.md` v1.11, `ui-canvas/AGENTS.md` v1.12·v1.13.
