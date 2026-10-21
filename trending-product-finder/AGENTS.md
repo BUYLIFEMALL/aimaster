@@ -309,3 +309,6 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 주인님 지시: 「상품소싱의 gemini-2.0-flash 두 곳을 최신 모델로」. `lib/ai/opportunity.ts`(유망 이유 설명)·`lib/ai/translateKeyword.ts`(알리 검색어 영어 번역)의 `gemini-2.0-flash` → **`gemini-3.5-flash`**(저장소 최신 정식 글 모델, `shop-detail-page` 상품 분석과 같음). 키를 주소(`?key=`)가 아니라 머리글 `x-goog-api-key`로 보냄(로그에 키가 남지 않게). 프롬프트·온도·JSON 응답 형식·`gpt-4o-mini`(OpenAI 쪽)는 그대로.
 - 검수(맥미니): tsc 0. 무료 단위 테스트 `reportTrend`·`loadErrors`·`retention` 통과, `sourcingResults`는 맥에서 윈도우용 `esbuild`를 못 읽는 환경 문제로 실행 불가(앱 결함 아님 — 윈도우에서 `npm run test:trend`). 실제 Gemini 호출 시험은 하지 않음(비용 0).
 - **윈도우 CLI 다음 첫 단계**: `cd trending-product-finder && npm run test:trend && npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.22', updated_at=now() where slug='trending-product-finder';` → 크롬 화면 왼쪽 위 v1.22 확인. 실제 생성 확인이 필요하면 가장 저렴한 경로(키워드 1개 리포트 1회, 회원 본인 Gemini 키)로 비용을 먼저 알린 뒤 진행.
+
+## 2026-10-21 — 미배포 공용 코드 변경 안내: `telegram-bot-client` 사본에 `linkButton` (Claude Code 윈도우)
+- 사본 `lib/telegram/client.ts`의 `sendTelegramMessageWithButtons`에 선택 항목 `linkButton`(승인 버튼 줄 아래 링크 버튼 한 줄)이 추가됨(커밋 `802e89c8`). 이 프로그램은 넘기지 않으므로 **동작 같음**(tsc 오류 0 확인). 급하지 않은 변경이라 따로 배포하지 않았고, **다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나간다**. 사본은 직접 고치지 않는다 — 기준 `instagram-comment-reply/lib/telegram/client.ts`를 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 미배포 목록: 루트 `docs/SHARED_MODULES.md`.

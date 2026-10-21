@@ -51,3 +51,6 @@
 
 ## 2026-10-21 — 텔레그램 연동 공용 모듈 `telegram-bot-client` (Claude Code 윈도우, 부계정)
 - 이 프로그램의 텔레그램 `client.ts`는 공용 사본(직접 고치지 말 것 — 기준 `instagram-comment-reply/lib/telegram/client.ts`만 고치고 `--sync`). 운영 배포 v1.18(미배포였던 연동 확인 `allowed_updates` 수정·공용 사본 함께, 크롬 관리자 첫 화면 확인).
+
+## 2026-10-21 — 미배포 공용 코드 변경 안내: `telegram-bot-client` 사본에 `linkButton` (Claude Code 윈도우)
+- 사본 `src/lib/telegram/client.ts`의 `sendTelegramMessageWithButtons`에 선택 항목 `linkButton`(승인 버튼 줄 아래 링크 버튼 한 줄)이 추가됨(커밋 `802e89c8`). 이 프로그램은 넘기지 않으므로 **동작 같음**(tsc 오류 0 확인). 급하지 않은 변경이라 따로 배포하지 않았고, **다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나간다**. 사본은 직접 고치지 않는다 — 기준 `instagram-comment-reply/lib/telegram/client.ts`를 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 미배포 목록: 루트 `docs/SHARED_MODULES.md`.
