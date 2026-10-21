@@ -32,10 +32,10 @@ export default function AuthForm() {
 
   return (
     <div className="w-full max-w-[440px] px-4">
-      {/* BLOG(원문)생성 자동화 로고 영역 */}
+      {/* 블로그 포스팅 자동화 로고 영역 */}
       <div className="flex flex-col items-center mb-8 text-center">
         <Link href="/" className="text-3xl font-extrabold tracking-tight text-[#005acc] mb-1 font-sans no-underline">
-          BLOG(원문)생성 자동화
+          블로그 포스팅 자동화
         </Link>
         <p className="text-sm font-medium text-zinc-500">
           AIMaster 계정(이메일·비밀번호)으로 로그인하세요.

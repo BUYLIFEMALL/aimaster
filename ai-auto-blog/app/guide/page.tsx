@@ -68,7 +68,7 @@ export default function GuidePage() {
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
-            BLOG(원문)생성 자동화 마스터 가이드
+            블로그 포스팅 자동화 마스터 가이드
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mb-6 leading-relaxed">
             최신 트렌드 글감 발굴부터 멀티 AI 본문 작성, 나노바나나 고화질 삽화 자동 삽입, Tiptap 리치 에디터 검수 및 크롬 확장 프로그램 연동까지 블로그 자동화의 모든 과정을 완벽히 마스터하세요.
@@ -324,7 +324,7 @@ export default function GuidePage() {
             <span>❓ 자주 묻는 질문 (FAQ)</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            BLOG 원문 생성 자동화 이용 중 가장 많이 문의하시는 질문과 답변입니다.
+            블로그 포스팅 자동화 이용 중 가장 많이 문의하시는 질문과 답변입니다.
           </p>
         </div>
 

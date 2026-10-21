@@ -722,3 +722,12 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - `ai-auto-blog/utils/ai/openaiRequestParams.ts`는 공용 기준 코드 `openai-request-params` 사본(기준 `naver-blog-seo-studio/lib/ai/openaiRequestParams.ts`) — **직접 고치지 않는다**. 「GPT-4 계열일 때만 온도」 분기를 `openAIGenerationParams(model, { temperature })`로 바꿈(동작 같음, 추론 모델 규칙은 기준 한 곳에서 관리).
 - 검수: tsc 0, 기존 테스트 통과. 급하지 않은 정리라 배포하지 않음(빌드 비용 규칙). **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 버전 기록에 이 항목을 적을 것.** 목록: 루트 `docs/SHARED_MODULES.md` 「미배포 사본」.
 - **다음에 이 프로그램을 고칠 때 함께(주인님 결정 2026-10-20)**: 글 모델 선택 칸(`app/write/ai-form/page.tsx`) 아래에 모델 성격·상대 비용·GPT-5 지연 안내 붙이기 — 사본에 이미 `openAIModelBadge`·`openAIModelTierHint`·`openAIModelNotice`가 있어 화면 한두 줄만 추가. 기준 구현·방법: 루트 `docs/SHARED_FEATURE_MAP.md` §8.
+
+## 2026-10-21 v1.76 — 프로그램 이름 「블로그 포스팅 자동화」 + 확장 이름 「블로그 포스팅 네이버 입력기」 (Claude Code 윈도우, 주인님 지시)
+- 주인님 지시: 「BLOG 원문 자동화 > 블로그 포스팅 자동화로 수정」 → 「크롬확장 프로그램도 수정해주고 다시 배포」.
+- 웹: 좌측 메뉴·모바일 상단 바(「BLOG 원문 자동화」), 탭 제목·로그인·인증 완료·가이드·글 화면·안내/개인정보 문서 화면(「BLOG(원문)생성 자동화」)을 모두 「블로그 포스팅 자동화」로. 메뉴 제목이 단어 중간에서 줄이 바뀌어 `break-keep` + 버전 배지 `shrink-0`.
+- 확장: 이름 「블로그 포스팅 네이버 입력기 · AIMaster」, 툴팁·창 제목·사이드패널 제목 「블로그 포스팅 네이버 입력기」, 설명·안내 문구의 프로그램 이름 교체. 동작 코드 변경 없음.
+- DB: `programs.name` 「BLOG(원문)생성 자동화」→「블로그 포스팅 자동화」, `version`·`extension_version` v1.76(이전 extension_version은 v1.74로 하나 뒤처져 있었음), 기록 `supabase/migrations/20261021_rename_v1_76.sql`.
+- 함께 배포된 것: 2026-10-20 미배포로 남아 있던 공용 사본 `utils/ai/openaiRequestParams.ts`(`openai-request-params`, 동작 같음)가 이번 v1.76 배포에 포함됨.
+- 검수: test:extension 74·security 39·extension-api 38, build(prebuild로 manifest·ZIP v1.76), 배포 Ready 2회(메뉴 줄바꿈 수정 포함), `check-extension-release ai-auto-blog` OK, 라이브 ZIP 안 이름·제목 확인, 크롬 탭 제목·메뉴 「블로그 포스팅 / 자동화」·v1.76. 비용: Vercel 빌드 2회.
+- **회원 안내**: 설치된 확장은 자동으로 바뀌지 않는다 → ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → `chrome://extensions` 새로고침(이름이 바뀐 것으로 보임). 지난 기록 문서(AGENTS 위쪽·docs 안 옛 문서)의 옛 이름은 기록이라 그대로 둠.

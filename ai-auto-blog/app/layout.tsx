@@ -10,7 +10,7 @@ const sans = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'BLOG(원문)생성 자동화',
+  title: '블로그 포스팅 자동화',
   description: '주제와 참고링크만 제시하면 검색엔진에 최적화된 고품질 기술 블로그 글을 자동으로 생성해 주는 AI 개발자 플랫폼',
 }
 

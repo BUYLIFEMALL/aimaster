@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "BLOG(원문) 네이버 입력기 · AIMaster",
-  "version": "1.75.0",
-  "version_name": "v1.75",
-  "description": "BLOG(원문)생성 자동화에서 보낸 글을 네이버 블로그 글쓰기 화면에 사람처럼 입력하는 확장 프로그램",
+  "name": "블로그 포스팅 네이버 입력기 · AIMaster",
+  "version": "1.76.0",
+  "version_name": "v1.76",
+  "description": "블로그 포스팅 자동화에서 보낸 글을 네이버 블로그 글쓰기 화면에 사람처럼 입력하는 확장 프로그램",
   "minimum_chrome_version": "120",
   "permissions": [
     "sidePanel",
@@ -40,7 +40,7 @@
     "default_path": "sidepanel.html"
   },
   "action": {
-    "default_title": "BLOG(원문) 네이버 입력기",
+    "default_title": "블로그 포스팅 네이버 입력기",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"

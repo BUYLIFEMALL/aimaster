@@ -68,10 +68,10 @@ export default function BlogSidebar() {
         {/* 헤더 & 로고 & 버전 */}
         <div className="mb-4 md:mb-6 px-2">
           <div className="flex items-center justify-between">
-            <Link href="/" onClick={closeMobile} className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <span>✍️ BLOG 원문 자동화</span>
+            <Link href="/" onClick={closeMobile} className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 break-keep">
+              <span>✍️ 블로그 포스팅 자동화</span>
             </Link>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
+            <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
               {APP_VERSION}
             </span>
           </div>
@@ -201,7 +201,7 @@ export default function BlogSidebar() {
       <header className="flex h-14 w-full items-center justify-between border-b border-slate-200 bg-white px-4 md:hidden sticky top-0 z-40">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-base">✍️</span>
-          <span className="text-sm font-bold text-slate-900">BLOG 원문 자동화</span>
+          <span className="text-sm font-bold text-slate-900">블로그 포스팅 자동화</span>
           <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">
             {APP_VERSION}
           </span>
