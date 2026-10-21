@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — Lyricbi(리릭비) 분석: 새 웹 프로그램 추천 (분석만, 코드·DB 변경 없음)
+
+`D:\PDS\Program_dev\Lyricbi-Setup-1.9.0.exe`(Electron + Remotion 가사 영상 앱, AI 없음)를 실행하지 않고 풀어서 분석했고, 음악·영상 계열 기존 7개와 비교했습니다. **결론: 새 프로그램 「AI 리릭비디오 자동화」(`lyric-video-studio`, 가칭) + 공용 `browser-mp4-encoder` 사본 + 음악(SUNO) 자동화 곡 가져오기(Suno 시간 가사 `get-timestamped-lyrics`, 공식 문서만 확인·미호출).** 저장소에 `.srt`·노래방·시간 가사 처리 코드가 0건이고, `playlist-channel-studio`는 가로 전용·글자 없음·이미 커서 확장을 비추천했습니다. 보고서 [docs/analysis-lyricbi-20261021/REPORT.md](analysis-lyricbi-20261021/REPORT.md), 근거 JSON 같은 폴더 `evidence/`. **주인님 결정 대기**(방향·이름·1차 범위·배지·SUNO 연결 링크). 다음 첫 단계: 결정 후 `lyric-video-studio/docs/PLAN_*` 개발 플랜 작성.
+
 ## 2026-10-21 Claude Code(윈도우) — AI 글쓰기 에디터 v1.12: AI Prompt 「📁 내 템플릿」 불러오기
 
 AI Prompt 추가개선 제안 3(다른 프로그램 연계). 글쓰기 에디터 홈에서 내 템플릿을 골라 {{변수}}만 채워 요청 칸에 넣음(AI 호출 없음). 공용 표 `ai_prompt_templates`를 이 앱 서버가 본인 `user_id`로 읽기만 함(프로그램끼리 호출 없음, DB 변경 없음). 요청 칸 한도 2,000→6,000자. 커밋 `b7626062`, 배포 Ready, DB v1.12, 일반 회원 계정 크롬 검수 통과. 블로그 프로그램 연계는 Codex 블로그 통합 뒤 같은 방식으로 가능(제안만 기록). 상세 `ai-writing-editor/AGENTS.md` v1.12.
