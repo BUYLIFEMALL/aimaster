@@ -11,6 +11,7 @@ import { APP_VERSION } from "@/lib/version";
 const FLOW_STEPS = [
   { step: 1, href: "/jobs/new", icon: "➕", label: "새 작업 만들기", description: "주소 + 수집할 항목 입력" },
   { step: 2, href: "/jobs", icon: "📋", label: "작업 목록", description: "진행 상황 확인 + 엑셀 받기" },
+  { step: 3, href: "/inspect", icon: "🔎", label: "한 페이지 분석", description: "7탭 해부·영역 선택·AI 목록 표" },
 ];
 
 // "/jobs"는 "/jobs/new"의 앞부분이라 그대로 startsWith로 비교하면 두 메뉴가 함께 선택돼 보인다.

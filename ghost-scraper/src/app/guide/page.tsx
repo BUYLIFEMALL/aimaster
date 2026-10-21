@@ -1,11 +1,6 @@
-import { requireProgramAccess } from "@/lib/access";
-import { GuideShell } from "@/components/guide/GuideShell";
+import { MovedNotice } from "@/components/MovedNotice";
 
-// 권한 확인 결과가 정적으로 캐시되지 않게 선언 (CLAUDE.md 핵심 원칙 6)
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-export default async function GuidePage() {
-  const user = await requireProgramAccess();
-  return <GuideShell userEmail={user.email ?? "회원"} />;
+// 2026-10-21 병합 A(v1.13): 웹 크롤링 자동화 「한 페이지 분석」으로 이동 안내만 한다.
+export default function Page() {
+  return <MovedNotice />;
 }
