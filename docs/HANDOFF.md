@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 메인 사이트: 「데이터수집|기획」 카테고리 404 수정
+
+- 원인: 카테고리 slug `scraping&plan`의 `&`가 주소에서 `%26`으로 넘어와 DB 조회 실패. 카테고리 페이지에서 디코딩 후 조회, 링크 4곳 `encodeURIComponent`(커밋 `2004305c`, GitHub 푸시 자동 배포 Ready). DB 변경 없음.
+- 확인: 크롬 관리자 — 카테고리 버튼·목록 「전체 보기」로 「데이터수집|기획」(12개) 정상, 메인 홈 카테고리 링크 14개 모두 200. 교훈 `docs/ERROR_LESSONS.md` 2026-10-21.
+
+https://www.buylife.xyz/programs/category/scraping%26plan
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 사용 기록 남기기: Shots v1.31 · 원스톱 v1.22
 
 - 보류 F 재판단용 `usage_logs` 기록(DB 변경 없음). Shots 5개 동작, 원스톱 3개 동작(브라우저 동작은 `POST /api/usage`). 두 프로그램 운영 Ready·DB 버전, 크롬 실기록 각 1행 확인(비용 0원), 원스톱 기록 경로 400/401 확인.
