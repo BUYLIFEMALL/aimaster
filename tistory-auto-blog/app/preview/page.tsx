@@ -11,7 +11,7 @@ export default function PreviewPage() {
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto flex min-h-screen max-w-[1600px]">
         <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white p-5 lg:flex lg:flex-col">
-          <div className="border-b border-slate-100 pb-5"><p className="text-lg font-black tracking-tight">티스토리(원문)생성 자동화</p><p className="mt-1 text-xs font-bold text-slate-400">v1.01 · 미리보기</p></div>
+          <div className="border-b border-slate-100 pb-5"><p className="text-lg font-black tracking-tight">티스토리 포스팅 자동화</p><p className="mt-1 text-xs font-bold text-slate-400">v1.01 · 미리보기</p></div>
           <nav className="mt-5 space-y-2"><div className="flex items-center gap-3 rounded-xl bg-indigo-50 px-3 py-2.5 text-sm font-bold text-indigo-700"><LayoutDashboard size={17} /> 대시보드</div>{steps.map(([num, label, description, Icon]) => <div className="flex gap-3 rounded-xl px-2 py-2" key={num}><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-extrabold text-slate-500">{num}</span><div><p className="flex items-center gap-1.5 text-sm font-bold"><Icon size={15} />{label}</p><p className="mt-1 text-xs leading-5 text-slate-500">{description}</p></div></div>)}</nav>
           <div className="mt-auto border-t border-slate-100 pt-4"><div className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-semibold text-slate-600"><KeyRound size={16} />API키등록·플랫폼연동</div></div>
         </aside>

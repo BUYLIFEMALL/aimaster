@@ -32,14 +32,14 @@ export default function AuthForm() {
 
   return (
     <div className="w-full max-w-[440px] px-4">
-      {/* 티스토리(원문)생성 자동화 로고 영역 */}
+      {/* 티스토리 포스팅 자동화 로고 영역 */}
       <div className="flex flex-col items-center mb-8 text-center">
         <Link href="/" className="inline-flex items-center gap-2 mb-2 no-underline">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 text-white font-black text-xl shadow-xs">
             T
           </div>
           <span className="text-2xl font-extrabold tracking-tight text-slate-900 font-sans">
-            티스토리 자동화
+            티스토리 포스팅 자동화
           </span>
         </Link>
         <p className="text-xs sm:text-sm font-medium text-slate-500">

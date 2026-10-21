@@ -125,7 +125,7 @@ async function notifyOutcome({ outcome, title, message, tabId }) {
         ? `「${title}」 본문 입력은 끝났습니다. 카테고리·태그·발행 설정을 확인하고 직접 발행해 주세요.`
         : `「${title}」 ${String(message || "").slice(0, 120)}`;
     const id = `tistory-${outcome}-${Date.now()}`;
-    await chrome.notifications.create(id, { type: "basic", iconUrl: "icons/icon128.png", title: `티스토리 입력기 · ${heading}`, message: body, priority: 2, requireInteraction: outcome !== "failed" });
+    await chrome.notifications.create(id, { type: "basic", iconUrl: "icons/icon128.png", title: `티스토리 포스팅 자동화 · ${heading}`, message: body, priority: 2, requireInteraction: outcome !== "failed" });
     if (tabId != null) await set({ [KEY.notifyTab]: { id, tabId } });
   } catch { /* 알림 실패는 작업 결과에 영향이 없다 */ }
 }

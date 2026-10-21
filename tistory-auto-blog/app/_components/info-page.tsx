@@ -13,7 +13,7 @@ export default function InfoPage({ title, children }: InfoPageProps) {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
           <Link href="/" className="text-xl font-black text-indigo-600 tracking-tight flex-shrink-0 no-underline">
-            티스토리(원문)생성 자동화
+            티스토리 포스팅 자동화
           </Link>
           <div className="flex items-center gap-4">
             <a href={`${MAIN_SITE_URL}/programs`} className="text-sm font-medium text-zinc-500 hover:text-zinc-900 no-underline transition-colors">

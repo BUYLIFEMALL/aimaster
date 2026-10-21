@@ -53,7 +53,7 @@ export default function BlogShell({ children }: { children: React.ReactNode }) {
     if (pathname.startsWith('/posts')) return '게시글 상세 및 티스토리 전송'
     if (pathname.startsWith('/settings')) return 'API키 & 플랫폼 연동'
     if (pathname.startsWith('/guide')) return '연동 & 사용 매뉴얼'
-    return '티스토리 자동화'
+    return '티스토리 포스팅 자동화'
   }
 
   if (showSidebar) {
@@ -66,7 +66,7 @@ export default function BlogShell({ children }: { children: React.ReactNode }) {
               T
             </div>
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-slate-900 leading-tight">티스토리 자동화</span>
+              <span className="text-xs font-bold text-slate-900 leading-tight">티스토리 포스팅 자동화</span>
               <span className="text-[10px] font-semibold text-orange-600">{getPageTitle()}</span>
             </div>
           </Link>

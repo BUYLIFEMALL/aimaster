@@ -79,7 +79,7 @@ export default function BlogSidebar({ onNavigate }: BlogSidebarProps) {
             </div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-base font-bold text-slate-900 tracking-tight">
-                티스토리 원문생성
+                티스토리 포스팅 자동화
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="inline-flex items-center rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700 ring-1 ring-inset ring-orange-600/20">
