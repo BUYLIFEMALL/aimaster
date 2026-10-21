@@ -54,7 +54,7 @@ const MODULES = [
     // 최근 7일 응대 그래프 + 막대 누르면 그날 답한 목록(원래 댓글·답장 앞부분). 서버 동작·테마 색은 부르는 쪽이 넘김. 2026-10-22 받은편지함 v1.08
     id: "week-reply-panel",
     source: "comment-inbox/components/weekChart/WeekReplyPanel.tsx",
-    copies: ["instagram-comment-reply/components/weekChart/WeekReplyPanel.tsx", "threads-comment-reply/components/weekChart/WeekReplyPanel.tsx", "youtube-auto-reply/components/weekChart/WeekReplyPanel.tsx"],
+    copies: ["instagram-comment-reply/components/weekChart/WeekReplyPanel.tsx", "threads-comment-reply/components/weekChart/WeekReplyPanel.tsx", "youtube-auto-reply/components/weekChart/WeekReplyPanel.tsx", "threads-affiliate-poster/src/components/weekChart/WeekReplyPanel.tsx", "insta_auto_poster/src/components/weekChart/WeekReplyPanel.tsx"],
   },
   {
     // 통합 받은편지함(comment-inbox) 승인 게시 — instagram-comment-reply 게시 함수(2026-10-21)

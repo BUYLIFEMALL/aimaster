@@ -12,7 +12,8 @@ export type DayReplyItem = {
   /** 플랫폼 표시(예: 「📸 인스타 댓글」) — 한 플랫폼만 쓰는 프로그램은 비워 둔다 */
   tag?: string;
   color?: string;
-  author: string;
+  /** 작성자(게시 프로그램처럼 없으면 비워 둔다) */
+  author?: string;
   at: string;
   /** 상대가 남긴 원래 댓글·메시지 앞부분 */
   comment?: string | null;
@@ -24,6 +25,18 @@ export type DayReplyItem = {
 export type DayReplyResult = { items?: DayReplyItem[]; error?: string };
 
 export type PanelClasses = { border: string; item: string; muted: string; danger: string };
+
+/** 문구(기본값은 댓글 응대용). 게시 프로그램은 「게시한 글」 문구로 바꿔 쓴다 */
+export type PanelLabels = { title?: string; noun?: string; list?: string; empty?: string; more?: string; replyIcon?: string };
+
+const DEFAULT_LABELS = {
+  title: "📊 최근 7일 응대",
+  noun: "응대",
+  list: "답한 목록",
+  empty: "이날은 게시·발송한 답장이 없어요.",
+  more: "플랫폼마다 최근 {n}건까지 보여요. 나머지는 답변 기록에서 확인해 주세요.",
+  replyIcon: "↪",
+};
 
 /** 한국 시간 「오전 9:05」 */
 function kstTime(iso: string): string {
@@ -38,13 +51,16 @@ export function WeekReplyPanel({
   loadDay,
   classes,
   perPlatformLimit = 50,
+  labels,
 }: {
   days: DayCount[];
   series?: ChartSeries[];
   loadDay: (dayKey: string) => Promise<DayReplyResult>;
   classes: PanelClasses;
   perPlatformLimit?: number;
+  labels?: PanelLabels;
 }) {
+  const L = { ...DEFAULT_LABELS, ...labels };
   const [selected, setSelected] = useState<string | null>(null);
   const [items, setItems] = useState<DayReplyItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -76,12 +92,20 @@ export function WeekReplyPanel({
 
   return (
     <div>
-      <WeekReplyChart days={days} series={series} selectedKey={selected} onSelect={select} />
+      <WeekReplyChart
+        days={days}
+        series={series}
+        selectedKey={selected}
+        onSelect={select}
+        title={L.title}
+        noun={L.noun}
+        selectHint={`막대를 누르면 그날 ${L.list}을 볼 수 있어요.`}
+      />
       {day && (
         <div className={`mt-4 border-t pt-4 ${classes.border}`}>
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-xs font-bold">
-              {day.label}({day.weekday}) 답한 목록 <span className={`font-normal ${classes.muted}`}>{day.count}건</span>
+              {day.label}({day.weekday}) {L.list} <span className={`font-normal ${classes.muted}`}>{day.count}건</span>
             </p>
             <button type="button" onClick={() => select(day.key)} className={`text-[11px] hover:underline ${classes.muted}`}>
               닫기 ✕
@@ -92,7 +116,7 @@ export function WeekReplyPanel({
           ) : error ? (
             <p className={`py-3 text-xs ${classes.danger}`}>{error}</p>
           ) : items && items.length === 0 ? (
-            <p className={`py-3 text-xs ${classes.muted}`}>이날은 게시·발송한 답장이 없어요.</p>
+            <p className={`py-3 text-xs ${classes.muted}`}>{L.empty}</p>
           ) : (
             <ul className="max-h-96 space-y-2 overflow-y-auto pr-1">
               {items?.map((it) => {
@@ -101,11 +125,11 @@ export function WeekReplyPanel({
                     <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] ${classes.muted}`}>
                       {it.color && <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: it.color }} />}
                       {it.tag && <span>{it.tag}</span>}
-                      <span className="font-semibold opacity-100">{it.author}</span>
+                      {it.author && <span className="font-semibold opacity-100">{it.author}</span>}
                       <span>{kstTime(it.at)}</span>
                     </div>
                     {it.comment && <p className={`mt-1 break-words text-xs leading-relaxed ${classes.muted}`}>💬 {it.comment}</p>}
-                    <p className="mt-1 break-words text-xs leading-relaxed">↪ {it.reply || "(내용 없음)"}</p>
+                    <p className="mt-1 break-words text-xs leading-relaxed">{L.replyIcon} {it.reply || "(내용 없음)"}</p>
                   </>
                 );
                 return (
@@ -123,7 +147,7 @@ export function WeekReplyPanel({
             </ul>
           )}
           {items && items.length > 0 && items.length < day.count && (
-            <p className={`mt-2 text-[11px] ${classes.muted}`}>플랫폼마다 최근 {perPlatformLimit}건까지 보여요. 나머지는 답변 기록에서 확인해 주세요.</p>
+            <p className={`mt-2 text-[11px] ${classes.muted}`}>{L.more.replace("{n}", String(perPlatformLimit))}</p>
           )}
         </div>
       )}

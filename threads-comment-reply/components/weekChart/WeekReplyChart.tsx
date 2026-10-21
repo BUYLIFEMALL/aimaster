@@ -15,6 +15,7 @@ export function WeekReplyChart({
   selectedKey = null,
   onSelect,
   noun = "응대",
+  selectHint = "막대를 누르면 그날 답한 목록을 볼 수 있어요.",
 }: {
   days: DayCount[];
   series?: ChartSeries[];
@@ -23,6 +24,8 @@ export function WeekReplyChart({
   onSelect?: (key: string) => void;
   /** 흐름 문장에 쓰는 말(기본 「응대」, 자동 게시 프로그램은 「게시」) */
   noun?: string;
+  /** 막대를 고를 수 있을 때 그래프 아래 안내 */
+  selectHint?: string;
 }) {
   const max = Math.max(1, ...days.map((d) => d.count));
   const total = days.reduce((s, d) => s + d.count, 0);
@@ -113,7 +116,7 @@ export function WeekReplyChart({
           ))}
         </div>
       )}
-      {onSelect && total > 0 && <p className="mt-2 text-[11px] opacity-60">막대를 누르면 그날 답한 목록을 볼 수 있어요.</p>}
+      {onSelect && total > 0 && <p className="mt-2 text-[11px] opacity-60">{selectHint}</p>}
     </div>
   );
 }

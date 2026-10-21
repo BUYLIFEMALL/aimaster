@@ -4,11 +4,23 @@ import { createClient } from "@/lib/supabase/server";
 import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
-import { WeekReplyChart } from "@/components/weekChart/WeekReplyChart";
+import { WeekReplyPanel } from "@/components/weekChart/WeekReplyPanel";
+import { loadWeekDayPostsAction } from "@/lib/actions/weekPosts";
 import { bucketByKstDay } from "@/lib/weekChart/bucket";
 import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import type { PostStatus } from "@/types/post";
+
+// 2026-10-22: 막대 누르면 그날 게시한 글 목록(공용 기준 코드 `week-reply-panel`) 색·문구
+const WEEK_PANEL_CLASSES = { border: "border-neutral-800", item: "bg-[#161616]", muted: "text-neutral-400", danger: "text-red-400" };
+const WEEK_POST_LABELS = {
+  title: "📊 최근 7일 게시",
+  noun: "게시",
+  list: "게시한 글 목록",
+  empty: "이날 게시한 글이 없어요.",
+  more: "최근 {n}건까지 보여요. 나머지는 게시글 목록에서 확인해 주세요.",
+  replyIcon: "📝",
+};
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -209,7 +221,7 @@ export default async function DashboardPage() {
 
       {/* v1.76: 최근 7일 게시 그래프 */}
       <div className="rounded-2xl border border-neutral-800 bg-[#1f1f1f] p-5 text-white">
-        <WeekReplyChart days={weekDays} title="📊 최근 7일 게시" noun="게시" />
+        <WeekReplyPanel days={weekDays} loadDay={loadWeekDayPostsAction} classes={WEEK_PANEL_CLASSES} labels={WEEK_POST_LABELS} />
       </div>
 
       {/* 다가오는 예약 게시 목록 */}
