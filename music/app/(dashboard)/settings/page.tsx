@@ -18,9 +18,9 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 
 const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[] }[] = [
   {
-    title: "🤖 텍스트/이미지 생성 AI (OpenAI & Gemini)",
-    description: "곡 기획(장르/제목/가사)에는 OpenAI가 필수이며, 앨범 커버 생성에는 Gemini가 선택사항으로 쓰입니다.",
-    providers: ["openai", "gemini"],
+    title: "🤖 텍스트/이미지 생성 AI (OpenAI · Gemini · Claude)",
+    description: "빠른 기획·자동 가사(음악 생성)에는 OpenAI가 필수입니다. 정밀 기획 스튜디오는 세 AI 중 고른 하나의 키만 있으면 되고, 앨범 커버 생성에는 Gemini가 선택사항으로 쓰입니다.",
+    providers: ["openai", "gemini", "anthropic"],
   },
   {
     title: "🎵 음악 생성 엔진 (Suno AI)",

@@ -228,3 +228,14 @@ POST 콜백을 보낸다. 이 라우트는:
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.17 — 음악 병합 M1 1단계: 정밀 기획 엔진·DB (Claude Code 윈도우)
+- 플랜: [docs/PLAN_20261021_MERGE_M1_SUNO_STUDIO.md](docs/PLAN_20261021_MERGE_M1_SUNO_STUDIO.md) · 분석: [../docs/analysis-music-consolidation-20261021/REPORT.md](../docs/analysis-music-consolidation-20261021/REPORT.md). Suno 음악기획 자동화(`suno-music-studio`)를 이 앱으로 합치는 4단계 중 1단계(화면은 2단계).
+- **엔진 이관**: `suno-music-studio/src/lib/studio/*`(설정·카탈로그 461 프리셋·빌더·워크플로·검증·웹 검색·대표곡·프롬프트·AI 3사 `callModel`, 메타데이터 JSON 4개)를 `lib/studio/`로 그대로 복사(원본과 같은 파일, 이 앱에서 고쳐 쓰기 시작). 테스트 `tests/*.test.mjs` 51개(옛 앱 권한 사본 테스트 2개 제외) — `npm test`(`node --import tsx --test`), `tsx` 개발 의존성 추가.
+- **API**: `app/api/studio/generate`(곡·앨범·제안 생성)·`app/api/studio/search`(탐색·웹 검색 출처·대표곡) — `lib/studioApiGuard.ts`(이용 권한·다른 사이트 요청 차단·본문 48KB·`private, no-store`·공급사 오류 원문 숨김) + 회원 본인 키(`resolveApiKey`, 폴백 없음).
+- **키**: 설정 화면에 Claude(`anthropic`) 키 칸, 저장 허용 목록에 `anthropic` 추가, 키 이름표 문구 정리.
+- **DB(승인)**: `supabase/migrations/0013_studio_tables_storage_listing.sql` — 새 표 `music_studio_styles`(내 Style, 자동 삭제 없음)·`music_studio_projects`(곡·앨범 기획, 수정 30일 뒤 안 보이고 `pg_cron` `music-studio-projects-retention-30d` 매시 17분 삭제), 회원별 RLS. **`music-audio` 저장소 조회 정책을 본인 폴더로 좁힘**(`music_audio_select_public` → `music_audio_select_own`) — 공개 키로 다른 회원 파일 목록을 훑어볼 수 없게(주인님 결정). 공개 주소 재생·다운로드·기존 공유 링크는 그대로.
+- `tsconfig.json`에 `"target": "ES2017"`(옮긴 코드의 `Set` 반복 문법). 타입 검사 결과 캐시(`tsconfig.tsbuildinfo`)가 옛 설정을 기억해 같은 오류가 계속 나면 그 파일을 지우고 다시 검사.
+- 검수: 테스트 51 통과·tsc·lint·build, Vercel 프로덕션 Ready, 운영 DB(크롬 SQL 편집기) 적용 후 확인 쿼리로 표 2·정책·버전 v1.17·예약 작업 확인. 공개 키 목록 조회 0개·기존 곡 공개 주소 HEAD 200. 크롬(일반 회원) 설정 화면 Claude 칸·버전 v1.17, `/api/studio/*`가 권한 통과 뒤 입력 검사 400·`no-store`. **AI 실제 생성은 2단계 화면과 함께 시험**.
+- 주의: 시험 계정에 **Suno 키가 등록돼 있지 않음** — 3단계 Suno 실제 생성 시험 전에 주인님이 시험 계정에 본인 Suno 키 등록 필요.
+- 기존 곡(`music_tracks`·Storage)의 30일 자동 삭제는 이번 범위에서 제외(주인님 결정 2026-10-21).
