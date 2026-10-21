@@ -5,7 +5,7 @@
 
 ---
 
-## 📌 7대 핵심 항목 (2026-10-20 병합 B 완료 · v1.28 기준 — 다른 CLI는 여기부터 읽는다)
+## 📌 7대 핵심 항목 (2026-10-20 병합 B 완료 · v1.29 기준 — 다른 CLI는 여기부터 읽는다)
 
 > 2026-10-20 「INSTA DM답변 자동화」(`instagram-dm-reply`)가 이 프로그램 안으로 병합되어 **「INSTA 댓글·DM 자동화」**가 되었다. 아래 이전 기록(Phase 표·버전별 항목)은 댓글 전용 시절 내용이 섞여 있으니, 현재 상태는 이 절과 맨 아래 v1.18~v1.24 항목을 기준으로 한다. 세션 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md)
 
@@ -16,7 +16,7 @@
    - DM: Meta 웹훅 `/api/instagram/dm-webhook/[userId]`(echo 필터·서명 검증) → `lib/dm/process` 초안 → `/dm/conversations` 검토·발송(첫 답장 전 자동 응답 고지, 24시간 창). 표 `dm_accounts`·`dm_settings`·`dm_conversations`·`dm_messages`. DM 전용 코드 `lib/dmApp/`·`components/dm/`.
    - 연결: 콜백 `/api/instagram/callback`이 메시지 권한이 있으면 `dm_accounts`·공용 `member_platform_accounts`에도 저장. 텔레그램은 댓글 봇(`program_slug=instagram-comment-reply`, `/api/telegram/webhook`)·DM 봇(`program_slug=instagram-dm-reply`, `/api/dm/telegram/webhook`) **봇 2개**.
    - 장점: 연결 한 번에 댓글·DM, 승인 후 게시(자동은 동의 후), 텔레그램 승인, 무리 없는 처리량. 단점: 전문 계정 전용, DM 24시간 제한, Meta 앱에 메시지 권한·웹훅을 회원이 직접 등록, 텔레그램 봇 2개 필요, 실제 고객 DM 왕복 시험은 아직 안 함.
-4. **현재 버전·변경 히스토리** — **v1.28**. v1.28(2026-10-21) 대시보드 「검토를 기다리는 댓글」 항목 오른쪽에 게시물 썸네일, 누르면 `/comments#media-<게시물id>`(댓글 검토 화면 게시물 묶음)로 이동 — DM 목록과 같은 동작. v1.27(2026-10-21) 대시보드 「검토를 기다리는 DM」을 대화별 1건으로 묶어 24시간 답장 가능 시간 배지(4시간 미만 경고색·만료 빨강)와 함께 남은 시간이 적은 순(만료는 맨 뒤)으로 3건, 누르면 `/dm/conversations#conv-<대화id>`로 바로 이동. v1.26(2026-10-21) 댓글 검토 화면의 게시물 묶음 머리에 게시물 썸네일(`ig_media.thumbnail_url`, 누르면 인스타 원본 `permalink` 새 창, 없으면 🖼️) · 대시보드 왼쪽 열 댓글 목록 아래에 「💌 검토를 기다리는 DM」 최근 3건(`dm_messages` direction=in·pending_review + `dm_conversations.customer_username`, DM 미사용이면 켜는 안내). v1.25(2026-10-21) 다크 전환 뒤 4개 화면 점검: `/dm/history`·`/history` 선택 탭이 글자색(`bg-ig-text`)을 바탕으로 써서 밝은 알약으로 보이던 것을 `bg-ig-primary text-white`로 수정(나머지 화면·검토 카드는 밝은 색 없음). v1.18 DM 화면·기능 이식 / v1.19~v1.22 텔레그램 연동(봇 이름 표시·봇 구분 배지·`allowed_updates` 수정·실패 진단) / v1.23 대시보드·기록 통합·이름 통일 / v1.24 DM 설정 값 정리·통합 매뉴얼·플로우 위저드 스타일(다크)·공지 띠. 옛 `instagram-dm-reply` v1.17은 화면 이동·API 전달만.
+4. **현재 버전·변경 히스토리** — **v1.29**. v1.29(2026-10-21) 대시보드 두 목록을 공용 기준 코드 `pending-review-list`(`components/PendingReviewList.tsx`, 이 프로그램이 기준)로 바꾸고, 대시보드에서 넘어간 묶음을 2초 강조하는 `hash-highlight`(`components/HashHighlight.tsx`, 기준)를 댓글·DM 검토 화면에 넣음. v1.28(2026-10-21) 대시보드 「검토를 기다리는 댓글」 항목 오른쪽에 게시물 썸네일, 누르면 `/comments#media-<게시물id>`(댓글 검토 화면 게시물 묶음)로 이동 — DM 목록과 같은 동작. v1.27(2026-10-21) 대시보드 「검토를 기다리는 DM」을 대화별 1건으로 묶어 24시간 답장 가능 시간 배지(4시간 미만 경고색·만료 빨강)와 함께 남은 시간이 적은 순(만료는 맨 뒤)으로 3건, 누르면 `/dm/conversations#conv-<대화id>`로 바로 이동. v1.26(2026-10-21) 댓글 검토 화면의 게시물 묶음 머리에 게시물 썸네일(`ig_media.thumbnail_url`, 누르면 인스타 원본 `permalink` 새 창, 없으면 🖼️) · 대시보드 왼쪽 열 댓글 목록 아래에 「💌 검토를 기다리는 DM」 최근 3건(`dm_messages` direction=in·pending_review + `dm_conversations.customer_username`, DM 미사용이면 켜는 안내). v1.25(2026-10-21) 다크 전환 뒤 4개 화면 점검: `/dm/history`·`/history` 선택 탭이 글자색(`bg-ig-text`)을 바탕으로 써서 밝은 알약으로 보이던 것을 `bg-ig-primary text-white`로 수정(나머지 화면·검토 카드는 밝은 색 없음). v1.18 DM 화면·기능 이식 / v1.19~v1.22 텔레그램 연동(봇 이름 표시·봇 구분 배지·`allowed_updates` 수정·실패 진단) / v1.23 대시보드·기록 통합·이름 통일 / v1.24 DM 설정 값 정리·통합 매뉴얼·플로우 위저드 스타일(다크)·공지 띠. 옛 `instagram-dm-reply` v1.17은 화면 이동·API 전달만.
 5. **남은 작업·백로그** — [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md): 실제 DM 왕복 시험, 다크 전환 후 댓글·DM 검토·로그인 화면 대비 점검, 옛 instagram-dm-reply 폴더 코드 정리 시점 결정, 텔레그램 연동 공용화.
 6. **연계·병합 아이디어** — INSTA 포스팅(같은 템플릿·같은 Meta 앱)에서 게시한 글의 댓글을 바로 모니터링 대상으로 / threads·유튜브 댓글자동화와 「통합 댓글 받은편지함」 / 텔레그램 승인 봇 연동 공용 모듈(`docs/SHARED_FEATURE_MAP.md` 10절).
 7. **UI/UX 개선안** — 디자인 「플로우 위저드 스타일 (인스타 바이럴 변형)」(`docs/DESIGN_HANDOFF.md`). 제안(썸네일·DM 대기 목록은 v1.26 완료): 휴대폰에서 검토 카드 한 손 조작(버튼 하단 고정).
@@ -243,3 +243,8 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 ## 2026-10-21 v1.28 — 대시보드 댓글 항목 썸네일 · 게시물 묶음 바로가기 (Claude Code 윈도우)
 - 주인님 지시(v1.27 보고 추가개선 제안 1·2번). `app/(dashboard)/dashboard/page.tsx`: 검토 대기 댓글 조회에 `media_id`, `ig_media.thumbnail_url`(user_id 필터) 40px 썸네일, 항목 전체가 `/comments#media-<id>` 링크. `app/(dashboard)/comments/page.tsx`: 게시물 묶음 `<section>`에 `id="media-<id>"`+`scroll-mt-80`. 같은 형식을 쓰레드 v1.17·유튜브 v1.22에도 적용.
 - 검수: tsc 0, build, 배포 `instagram-comment-reply-dt7ta1v0m` Ready, DB v1.28, 크롬(일반 회원) 대시보드 v1.28 정상. **대기 댓글 0건이라 썸네일·이동은 실제 데이터로 미확인.** 비용: Vercel 빌드 1회. 커밋 `a68fb4ff`.
+
+## 2026-10-21 v1.29 — 공용 기준 코드 `pending-review-list`·`hash-highlight` 도입 (Claude Code 윈도우)
+- 주인님 지시(v1.28 보고 추가개선 제안 1·2번). **이 프로그램이 두 공용 코드의 기준**: `components/PendingReviewList.tsx`(대시보드 검토 대기 목록 — 항목 배열 + 프로그램 색 `classes`), `components/HashHighlight.tsx`(주소 #id 묶음을 `color`로 2초 테두리 강조, hashchange도 처리). 사본은 `threads-comment-reply`·`youtube-auto-reply` 같은 경로 — **기준만 고치고 `node scripts/check-shared-modules.mjs --sync`**(등록: 스크립트·`docs/SHARED_MODULES.md`).
+- 대시보드 댓글·DM 목록을 공용 부품으로 교체(모양·동작 같음, `LIST_CLASSES` ig 색). 댓글 검토(`#media-`)·DM 검토(`#conv-`) 화면에 `<HashHighlight color="#ec4899" />`.
+- 검수: tsc 0, build, 배포 `instagram-comment-reply-3dpnktdri` Ready, DB v1.29, 크롬(일반 회원) 대시보드 v1.29·두 목록 빈 상태 정상, 댓글 화면에서 시험 칸을 만들어 # 이동 → 분홍 테두리 켜짐(`rgb(236, 72, 153) 0 0 0 2px`) → 2.2초 뒤 꺼짐 확인(시험 칸 즉시 삭제). 비용: Vercel 빌드 1회. 커밋 `aa745410`.
