@@ -6,10 +6,17 @@ import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from 
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { PendingReviewList } from "@/components/PendingReviewList";
+import { WeekReplyChart } from "@/components/weekChart/WeekReplyChart";
+import { bucketByKstDay, weekStartIso } from "@/lib/weekChart/bucket";
 import { APP_VERSION } from "@/lib/version";
 
 // v1.29: 공용 기준 코드 `pending-review-list` 목록 색(인스타 다크)
 const LIST_CLASSES = { text: "text-ig-text", muted: "text-ig-muted", hover: "hover:bg-ig-raised" };
+
+const WEEK_SERIES = [
+  { key: "comment", label: "📸 댓글 답글", color: "#ec4899" },
+  { key: "dm", label: "💌 DM 답장", color: "#a855f7" },
+];
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -173,6 +180,17 @@ export default async function DashboardPage() {
     { label: "모니터링 게시물", value: monitoredRes.count ?? 0, tone: "bg-amber-500/15 text-amber-300 border-amber-500/30", href: "/media" },
   ];
 
+  // v1.34: 공용 기준 코드 `week-reply-chart` — 최근 7일(한국 시간) 게시한 댓글 답글·발송한 DM 답장(회원 본인 행만, RLS)
+  const weekSince = weekStartIso();
+  const [weekCommentRes, weekDmRes] = await Promise.all([
+    supabase.from("ig_comments").select("replied_at").eq("user_id", user.id).eq("status", "posted").gte("replied_at", weekSince).limit(5000),
+    supabase.from("dm_messages").select("replied_at").eq("user_id", user.id).eq("status", "posted").gte("replied_at", weekSince).limit(5000),
+  ]);
+  const weekDays = bucketByKstDay([
+    ...(weekCommentRes.data ?? []).filter((r) => r.replied_at).map((r) => ({ at: r.replied_at as string, series: "comment" })),
+    ...(weekDmRes.data ?? []).filter((r) => r.replied_at).map((r) => ({ at: r.replied_at as string, series: "dm" })),
+  ]);
+
   return (
     <div className="mx-auto max-w-5xl space-y-5">
       {/* 머리 카드 */}
@@ -246,6 +264,11 @@ export default async function DashboardPage() {
             <span className={`mt-2 inline-block rounded-full border px-2 py-0.5 text-[11px] font-bold ${st.tone}`}>{st.label}</span>
           </Link>
         ))}
+      </div>
+
+      {/* v1.34: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프) */}
+      <div className="rounded-2xl border border-ig-border bg-ig-surface p-5 text-ig-text">
+        <WeekReplyChart days={weekDays} series={WEEK_SERIES} />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-5">

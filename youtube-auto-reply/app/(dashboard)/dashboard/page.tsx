@@ -7,6 +7,8 @@ import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { StudioHeader, StatCard } from "@/components/ui/StudioHeader";
 import { PendingReviewList } from "@/components/PendingReviewList";
+import { WeekReplyChart } from "@/components/weekChart/WeekReplyChart";
+import { bucketByKstDay, weekStartIso } from "@/lib/weekChart/bucket";
 import { YtLogo } from "@/components/ui/YtLogo";
 
 // v1.23: 공용 기준 코드 `pending-review-list` 목록 색
@@ -111,6 +113,10 @@ export default async function DashboardPage() {
     },
   ];
 
+  // v1.28: 공용 기준 코드 `week-reply-chart` — 최근 7일(한국 시간) 게시한 답글(회원 본인 행만, RLS)
+  const { data: weekRows } = await supabase.from("ytreply_comments").select("replied_at").eq("user_id", user.id).eq("status", "posted").gte("replied_at", weekStartIso()).limit(5000);
+  const weekDays = bucketByKstDay((weekRows ?? []).filter((r) => r.replied_at).map((r) => r.replied_at as string));
+
   return (
     <div className="mx-auto max-w-6xl">
       <StudioHeader
@@ -152,6 +158,11 @@ export default async function DashboardPage() {
         <StatCard label="최근 7일 게시" value={weekRes.count ?? 0} />
         <StatCard label="총 게시한 답글" value={totalRes.count ?? 0} />
         <StatCard label="모니터링 중인 영상" value={monitoredRes.count ?? 0} />
+      </div>
+
+      {/* v1.28: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프) */}
+      <div className="yt-card text-yt-text mb-6">
+        <WeekReplyChart days={weekDays} />
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-5">
