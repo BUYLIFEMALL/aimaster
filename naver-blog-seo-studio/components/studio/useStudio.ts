@@ -7,7 +7,7 @@ import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
 import { DEFAULT_GEMINI_IMAGE_MODEL, type GeminiImageModel } from "@/lib/ai/geminiModels";
 import { DEFAULT_OPENAI_CONTENT_MODEL } from "@/lib/ai/openaiModels";
 import { getContentModels, type ContentProvider } from "@/lib/ai/contentModels";
-import { strategies, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
+import { strategies, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, missingBlockImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
 
 export function useStudio() {
   const [strategy, setStrategy] = useState(strategies[0][0]);
@@ -433,9 +433,8 @@ export function useStudio() {
 
   async function sendDraftToExtension() {
     if (!extensionDraftId) return setHandoffMessage("생성 기록에서 블로그(원문)을 먼저 선택해주세요.");
-    if (currentDraft && (!currentDraft.image_path || contentImages.length < contentImageCount)) {
-      const missing = [!currentDraft.image_path ? "대표 이미지" : null, contentImages.length < contentImageCount ? `본문 이미지 ${contentImageCount}장` : null].filter(Boolean).join(" · ");
-      return setHandoffMessage(`${missing}이 준비되지 않아 전송하지 않았습니다. 새 글 만들기에서 이미지를 생성한 뒤 다시 전송해주세요.`);
+    if (currentDraft && missingBlockImages(currentDraft, contentBlocks, contentImages).length) {
+      return setHandoffMessage("전송 대상으로 선택한 이미지가 준비되지 않았습니다. 이미지를 생성하거나 해당 이미지 블록을 전송 제외한 뒤 다시 전송해주세요.");
     }
     if (currentDraft && !(await saveCurrentDraft(true))) return;
     setHandoffPending(true);

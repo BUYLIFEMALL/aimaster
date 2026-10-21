@@ -251,7 +251,7 @@ async function loadSelectedWebDraft() {
   $("webDraftStatus").textContent = storedImageLoaded
     ? `콘텐츠와 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}를 불러왔습니다. 미리보기에서 확인한 뒤 네이버 글쓰기 화면에 입력하세요.`
     : imageCount === 0
-      ? "이 콘텐츠에는 저장된 이미지가 없습니다. 웹에서 대표 이미지와 본문 이미지를 생성한 뒤 다시 전송해주세요."
+      ? "이미지 없는 텍스트 원고를 불러왔습니다. 미리보기에서 확인한 뒤 입력 또는 자동 포스팅을 진행하세요."
       : `이미지 ${imageCount}장을 불러오지 못했습니다. 확장 프로그램을 최신 버전으로 업데이트한 뒤 다시 시도해주세요.`;
 }
 
@@ -1074,7 +1074,7 @@ $("inspect").addEventListener("click", async () => {
   $("inspectStatus").textContent = "분석 중...";
   try {
     const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
-    const tab = automatic ? await chrome.tabs.get(seoPublication.tabId) : tabs.find((candidate) => candidate.active) || tabs[0];
+    const tab = tabs.find((candidate) => candidate.active) || tabs[0];
     if (!tab?.id) throw new Error("네이버 블로그 탭을 찾지 못했습니다.");
     await chrome.windows.update(tab.windowId, { focused: true });
     await chrome.tabs.update(tab.id, { active: true });

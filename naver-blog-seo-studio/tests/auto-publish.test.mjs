@@ -105,3 +105,20 @@ test("stale preview cannot claim a newer server draft", async () => {
   assert.equal((await s.call("claim", { blogId: "my_blog", visibility: "private", fingerprint })).status, 409);
   assert.equal(s.store.updates, 0);
 });
+const studio = moduleAt("../components/studio/shared.ts");
+test("handoff checks selected image blocks and permits text or excluded images", () => {
+  const draft = { image_path: null };
+  const body = { id: "t", type: "text", text: "합성 원고" };
+  assert.equal(studio.missingBlockImages(draft, [body], []).length, 0);
+  const cover = { id: "cover", type: "image", slot: "cover" };
+  const content = { id: "c1", type: "image", slot: "content-1" };
+  assert.equal(studio.missingBlockImages(draft, [cover, body, content], []).length, 2);
+  assert.equal(studio.missingBlockImages({ image_path: "own/cover.png" }, [cover, body, content], [{ slot: "content-1", path: "own/content.png" }]).length, 0);
+  assert.equal(studio.missingBlockImages(draft, [body], [{ slot: "content-1", path: "own/excluded.png" }]).length, 0);
+});
+test("SEO explanation hides publication metadata without stripping result from draft", () => {
+  const report = { intent: "검색 의도", saveRevision: "rev", autoPublish: { runId: "run", state: "published" }, contentBlocks: [{ type: "text" }] };
+  const draft = studio.withoutContentImages({ seo_report: report });
+  assert.deepEqual(JSON.parse(JSON.stringify(studio.reportEntries(draft.seo_report))), [["intent", "검색 의도"]]);
+  assert.equal(draft.seo_report.autoPublish.state, "published");
+});

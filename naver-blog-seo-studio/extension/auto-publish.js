@@ -90,6 +90,7 @@ async function startAutoPublication() {
     seoPublication.tabId = tab.id;
     await persistPublication();
     let empty = false;
+    $("generateStatus").textContent = "새 전용 탭에서 빈 편집기를 확인 중입니다. 네이버의 이어서 작성 창이 있으면 새 글로 진행할지 확인해 주세요.";
     for (let attempt = 0; attempt < 60; attempt++) {
       await sleep(1000);
       if ((await publicationPage("empty").catch(() => null))?.ok) { empty = true; break; }

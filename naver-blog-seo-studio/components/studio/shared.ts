@@ -89,6 +89,15 @@ export function withoutContentImages(draft: DraftRecord): DraftRecord {
   return { ...draft, seo_report: report as Record<string, string> };
 }
 
+export function missingBlockImages(draft: DraftRecord, blocks: ContentBlock[], images: ContentImage[]) {
+  return blocks.filter((block) => block.type === "image" && (block.slot === "cover"
+    ? !draft.image_path : !images.some((image) => image.slot === block.slot && image.path)));
+}
+
+export function reportEntries(report: DraftRecord["seo_report"]) {
+  return Object.entries(report ?? {}).filter(([key, value]) => key !== "saveRevision" && typeof value === "string");
+}
+
 export type RecommendedTitle = { title: string; intent?: string };
 
 export type ContentAnalysis = {

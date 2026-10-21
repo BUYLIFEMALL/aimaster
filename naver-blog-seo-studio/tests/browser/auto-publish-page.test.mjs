@@ -51,3 +51,22 @@ test("content changed in editor after settings cannot reach the final click", as
   assert.equal(await page.evaluate(() => window.finalClicks || 0), 0);
   await page.close();
 });
+
+test("Naver empty zero-width caret is accepted; visible restore dialog blocks it", async () => {
+  const page = await pageWith(editor('<span class="se-placeholder">제목</span>\u200b', '\u200b'));
+  assert.equal((await command(page, "empty")).ok, true);
+  await page.evaluate(() => { const dialog = document.createElement('div'); dialog.className = 'se-popup'; dialog.textContent = '작성 중인 글이 있습니다. 이어서 작성하시겠습니까?'; document.body.append(dialog); });
+  assert.equal((await command(page, "empty")).ok, false);
+  await page.close();
+});
+
+test("real Naver detached input editor is recognized with title plus toolbar/container", async () => {
+  const markup = '<div class="se-container"><div class="se-toolbar"></div>' + editor().replace(' contenteditable="true"', '') + '</div><div contenteditable="true"></div>';
+  const page = await pageWith(markup);
+  assert.equal((await command(page, "empty")).ok, true);
+  await page.close();
+  const viewer = await pageWith('<div class="se-title-text">시험</div>', 'https://blog.naver.com/my_blog/224123456789');
+  assert.equal((await command(viewer, 'empty')).ok, false);
+  assert.equal((await command(viewer, 'published', { title: '시험' })).complete, true);
+  await viewer.close();
+});

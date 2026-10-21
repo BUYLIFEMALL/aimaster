@@ -2,7 +2,7 @@
 // naver-blog-agent editor's verified pattern; this is not a shared-module copy.
 async function seoAutoPublishPage(command, args = {}) {
   const visible = el => Boolean(el && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden");
-  const text = value => String(value || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+  const text = value => String(value || "").replace(/[\u200b\u200c\u200d\ufeff]/g, "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
   const read = el => {
     if (!el) return "";
     const copy = el.cloneNode(true);
@@ -14,7 +14,8 @@ async function seoAutoPublishPage(command, args = {}) {
   const images = [...document.querySelectorAll(".se-component.se-image,.se-component-image")];
   const here = new URL(location.href);
   const targetBlog = here.hostname === "blog.naver.com" && here.pathname.split("/")[1] === args.blogId;
-  const editing = Boolean(document.querySelector(".se-documentTitle [contenteditable='true'],.se-title-text[contenteditable='true']"));
+  const editing = Boolean(document.querySelector(".se-documentTitle [contenteditable='true'],.se-title-text[contenteditable='true']")
+    || (title && document.querySelector(".se-container") && document.querySelector(".se-toolbar") && /\/postwrite$/.test(here.pathname)));
   if (command === "published") {
     const direct = targetBlog && /^\d{6,20}$/.test(here.pathname.split("/")[2] || "");
     const legacy = here.hostname === "blog.naver.com" && here.pathname === "/PostView.naver" && here.searchParams.get("blogId") === args.blogId && /^\d{6,20}$/.test(here.searchParams.get("logNo") || "");
@@ -24,7 +25,11 @@ async function seoAutoPublishPage(command, args = {}) {
   if (!targetBlog || !editing) return { ok: false, reason: "대상 블로그의 새 글쓰기 편집기가 아닙니다." };
   const body = text(paragraphs.map(read).join(" "));
   const titleText = read(title);
-  if (command === "empty") return { ok: !titleText && !body && images.length === 0, reason: "새 빈 편집기인지 확인해 주세요." };
+  if (command === "empty") {
+    const restore = [...document.querySelectorAll(".se-popup,.se-popup-container,[role='dialog']")]
+      .some(el => visible(el) && /이어서 작성|작성 중인 글/.test(el.textContent || ""));
+    return { ok: !restore && !titleText && !body && images.length === 0, reason: restore ? "네이버의 이어서 작성 창을 확인해 주세요. 기존 원고를 복원한 상태에서는 자동 발행하지 않습니다." : "새 빈 편집기인지 확인해 주세요." };
+  }
   if (command === "verify") return {
     ok: titleText === text(args.title) && body === text(args.body) && images.length === args.imageCount,
     titleMatched: titleText === text(args.title), bodyMatched: body === text(args.body), imageCount: images.length,
