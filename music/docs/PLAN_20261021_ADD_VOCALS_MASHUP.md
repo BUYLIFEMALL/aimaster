@@ -1,6 +1,6 @@
 # 개발 플랜 — Suno V6 3차 ⑤⑥: 보컬 추가 · 반주 추가 · 매시업 (v1.34 예정)
 
-> 2026-10-21 Claude Code(윈도우). 제안서 [PLAN_20261021_SUNO_V6_FEATURES.md](PLAN_20261021_SUNO_V6_FEATURES.md) ⑤⑥. 주인님 승인 대기.
+> 2026-10-21 Claude Code(윈도우). 제안서 [PLAN_20261021_SUNO_V6_FEATURES.md](PLAN_20261021_SUNO_V6_FEATURES.md) ⑤⑥. **✅ 승인·구현(v1.34)·실호출 3회 검수 완료(2026-10-22), 후속 수정 v1.35.**
 
 ## 문서 확인 내용 (docs.sunoapi.org, 2026-10-21)
 | 기능 | 주소 | 필수 | 하는 일 |

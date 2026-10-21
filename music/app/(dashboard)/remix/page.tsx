@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 interface SourceRow {
   id: string;
-  kind: "track" | "upload";
+  kind: "track" | "upload" | "mr";
   title: string;
   created_at: string;
 }
@@ -141,7 +141,7 @@ export default async function RemixSourcesPage() {
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-xl bg-[#1c1c28] border border-[#2b2b3b] flex items-center justify-center text-2xl shrink-0 group-hover:border-orange-500/30 transition-colors">
-                    {source.kind === "track" ? "🎵" : "📤"}
+                    {source.kind === "track" ? "🎵" : source.kind === "mr" ? "🎚️" : "📤"}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
@@ -150,7 +150,7 @@ export default async function RemixSourcesPage() {
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#20202e] text-zinc-400 border border-[#2a2a3c]">
-                      {source.kind === "track" ? "기존 곡" : "업로드 음원"}
+                      {source.kind === "track" ? "기존 곡" : source.kind === "mr" ? "MR 분리 음원" : "업로드 음원"}
                     </span>
                     <span className="text-[11px] text-zinc-400">
                       리믹스 {summary?.count ?? 0}개

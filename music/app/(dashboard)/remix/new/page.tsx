@@ -25,6 +25,7 @@ export default async function NewRemixPage({
   const supabase = await createClient();
 
   let source: RemixSource | null = null;
+  let sourceTrackId: string | null = null; // 매시업 후보에서 같은 곡의 다른 변주까지 뺀다(서버가 같은 곡을 거절함).
   const initialMode: RemixMode = MODES.includes(searchParams.mode as RemixMode) ? (searchParams.mode as RemixMode) : "cover";
 
   if (searchParams.fromMrId) {
@@ -64,6 +65,7 @@ export default async function NewRemixPage({
     if (variant) {
       const { data: track } = await supabase.from("music_tracks").select("title").eq("id", variant.track_id).maybeSingle();
       source = { variantId: variant.id, title: track?.title ?? "제목 없음" };
+      sourceTrackId = variant.track_id;
     }
   }
 
@@ -81,14 +83,14 @@ export default async function NewRemixPage({
   const titleById = new Map((tracks ?? []).map((t) => [t.id, t.title ?? "제목 없음"]));
   const countByTrack = new Map<string, number>();
   const mashupCandidates: MashupCandidate[] = (variants ?? [])
+    .filter((v) => v.track_id !== sourceTrackId)
     .map((v) => {
       const n = (countByTrack.get(v.track_id) ?? 0) + 1;
       countByTrack.set(v.track_id, n);
       const sec = v.duration_seconds ?? 0;
       const len = sec ? ` · ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}` : "";
       return { variantId: v.id, label: `${titleById.get(v.track_id) ?? "제목 없음"} (${n})${len}` };
-    })
-    .filter((c) => c.variantId !== source?.variantId);
+    });
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12">

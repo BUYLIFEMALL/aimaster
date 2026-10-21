@@ -50,7 +50,7 @@ export default async function RemixSourceDetailPage({ params }: PageProps) {
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">
-              {source.kind === "track" ? "🎵 기존 트랙 기반" : "📤 업로드 원곡"}
+              {source.kind === "track" ? "🎵 기존 트랙 기반" : source.kind === "mr" ? "🎚️ MR 분리 음원" : "📤 업로드 원곡"}
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white truncate">{source.title}</h1>

@@ -128,7 +128,7 @@ POST 콜백을 보낸다. 이 라우트는:
 | 3 | MR(보컬제거) 만들기 — `createMrAction()`, Suno `/vocal-removal/generate`(`type: separate_vocal`), 전용 웹훅 라우트 | ✅ 구현 완료 |
 | 3 | WAV 변환 — `createWavAction()`/`syncWavStatusAction()`, Suno `/wav/generate` + `/wav/record-info` 폴링, 전용 웹훅 라우트 | ✅ 구현 완료 |
 | 3 | Suno API 크레딧 조회 — `checkSunoCreditsAction()`, `/settings` 페이지 하단, GET `/api/v1/generate/credit` | ✅ 구현 완료 (2026-08-17) |
-| 3 | 악기별 Stem 분리(`split_stem`), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사 등 | ⏳ 예정 |
+| 3 | 악기별 Stem 분리(`split_stem`), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사 등 | ✅ 구현 완료(v1.23 가사·v1.24 12트랙·v1.34 보컬/반주 추가·매시업) |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 사용자와 합의함. 새 Phase를 시작할 때는
 이 표를 갱신할 것.
@@ -354,3 +354,11 @@ POST 콜백을 보낸다. 이 라우트는:
 - 검수: tsc·lint·테스트 55·build, 배포 Ready, DB v1.33. 정리 작업의 실제 삭제는 첫 실행(2026-10-29 03:00 KST 이후) 때 확인 필요.
 - 비용: Vercel 빌드 1회.
 - **2026-10-21 영상 재시도 성공(승인 1회)**: 크롬이 관리자 로그인이라, 시험 계정 본인 키로 `/mp4/generate` 직접 1회 + 시험 계정 결과 행(`music_track_media`)을 미리 만들어 실제 웹훅 경로로 확인. 약 5분 뒤 Suno `SUCCESS` → `/api/webhooks/suno-media`가 우리 저장소 `{user}/{variant}/suno-video.mp4`(MP4 8.3MB)로 복사·완료 저장. 서명 주소 200, 공개 주소 400(비공개 유지). **곡 카드 화면 재생은 시험 계정 로그인 때 확인 필요.** (첫 1회는 Suno 서버 오류였음)
+
+## 2026-10-21~22 v1.34~v1.35 — Suno V6 3차 ⑤⑥: 보컬 추가 · 반주 추가 · 매시업 (Claude Code 윈도우)
+- 플랜 [docs/PLAN_20261021_ADD_VOCALS_MASHUP.md](docs/PLAN_20261021_ADD_VOCALS_MASHUP.md). sunoapi.org `add-vocals`(`uploadUrl`·`style`·`negativeTags`, 선택 `lyrics`·`vocalGender`·`audioWeight` 등)·`add-instrumental`(`uploadUrl`·`tags`·`negativeTags`)·`mashup`(`uploadUrlList` 2개·`model`, 선택 `style`·`duration` 10~360초). 콜백은 곡 생성과 같은 형식이라 기존 `/api/webhooks/suno`가 task_id로 `music_track_remixes`를 찾아 저장.
+- **DB(승인)** `supabase/migrations/0019_remix_modes.sql`: `music_track_remixes.mode`(cover 기본·add_vocals·add_instrumental·mashup)·`second_source_id`(`on delete set null`)·`second_source_audio_url`, `music_remix_sources.kind`에 `mr` 추가. 기존 리믹스 6건 모두 cover.
+- 코드: `lib/ai/suno.ts` `requestSunoRemixMode`(세 방식 하나로, 제목 80자·가사 5000자, 가사가 없을 때만 prompt), `lib/actions/remix.ts`(방식·MR 원곡·두 번째 곡, 곡별 원곡 그룹 재사용 `sourceFromVariant`, 같은 곡 매시업 거절, 자동 연장은 cover만), 화면 `components/remix/RemixForm.tsx`(방식 4개 버튼, 매시업 두 번째 곡 선택, 반주 추가는 가사·보컬 칸 숨김), `app/(dashboard)/remix/new/page.tsx`(`fromMrId`·`part`·`mode`), 곡 카드 MR 결과 아래 「🎤 이 반주로 보컬 추가 →」·「🎹 이 보컬로 반주 추가 →」, 결과 카드 제목에 방식 표시.
+- **v1.35(검수 중 발견 2건)**: 리믹스 목록·원곡 화면에서 MR에서 가져온 원곡이 「업로드 원곡」으로 보이던 것 → 「🎚️ MR 분리 음원」. 매시업 두 번째 곡 후보에 원곡과 같은 곡의 다른 변주가 남아 고르면 거절되던 것 → 같은 곡 변주 전부 제외.
+- 검수: tsc·lint·테스트 55·build, 배포 v1.34 `music-17ojqvwkp`·v1.35 `music-27h01bym4` Ready, DB v1.35. **실제 호출 3회(승인, 크롬 시험 계정 본인 키)**: ① 보컬 추가(「빗속의 다짐」 MR 반주, 여성) 약 1분 뒤 176·176초 ② 반주 추가(같은 MR 보컬) 178·177초 ③ 매시업(빗속의 다짐 두 곡) 177·177초 — 모두 우리 저장소 저장·서명 주소로 재생 정보 확인, `record-info`로 요청 값(`V6`, `uploadUrl`/`uploadUrlList` 서명 주소, `vocalGender f`, `tags`, `duration 177`, 제목 뒤 Vocal/Band/Mashup) 확인. 같은 로그인으로 곡 카드 **Suno 뮤직비디오 재생 확인**(3:03, 412×732, 서명 주소). 소리 품질은 주인님 귀로 확인 필요.
+- 비용: Vercel 빌드 2회, Suno 3회 + gpt-4o-mini 3회(스타일 문장, 시험 계정 본인 키).
