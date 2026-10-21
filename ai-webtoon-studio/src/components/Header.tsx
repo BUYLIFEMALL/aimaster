@@ -5,10 +5,10 @@ import {
   Download,
   FileArchive,
 } from "lucide-react";
-import { AppSettings } from "@/lib/storage";
 
 interface HeaderProps {
-  settings: AppSettings;
+  /** 회원 본인 Gemini 키 등록 여부(v1.27 — 키 원문은 서버에만) */
+  hasApiKey: boolean;
   onDownloadZip: () => void;
   onDownloadMergedJpg: () => void;
   onOpenMobileNav?: () => void;
@@ -16,13 +16,11 @@ interface HeaderProps {
 }
 
 export function Header({
-  settings,
+  hasApiKey,
   onDownloadZip,
   onDownloadMergedJpg,
   onOpenMobileNav,
 }: HeaderProps) {
-  const hasApiKey = Boolean(settings.geminiApiKey);
-
   return (
     <header className="bg-[#121620] border-b border-[#232b3e] shadow-sm sticky top-0 z-10">
       {/* Top Main Bar */}

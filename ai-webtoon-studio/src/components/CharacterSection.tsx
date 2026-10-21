@@ -19,7 +19,8 @@ import { generateCharacterSheetImage } from "@/lib/imageGen";
 interface CharacterSectionProps {
   project: WebtoonProject;
   onChangeProject: (updated: Partial<WebtoonProject>) => void;
-  apiKey: string;
+  /** 회원 본인 Gemini 키 등록 여부(키 원문은 서버에만 — v1.27) */
+  hasKey: boolean;
   onOpenSettings: () => void;
   onNextStep: () => void;
   onPrevStep: () => void;
@@ -28,7 +29,7 @@ interface CharacterSectionProps {
 export function CharacterSection({
   project,
   onChangeProject,
-  apiKey,
+  hasKey,
   onOpenSettings,
   onNextStep,
   onPrevStep,
@@ -76,7 +77,7 @@ export function CharacterSection({
 
   // 1. 캐릭터 묘사 AI 확장 마법봉
   const handleExpandCharacter = async () => {
-    if (!apiKey) {
+    if (!hasKey) {
       alert("캐릭터 묘사 확장을 위해 먼저 [API키등록·플랫폼연동]에서 Gemini API 키를 등록해주세요.");
       onOpenSettings();
       return;
@@ -85,7 +86,6 @@ export function CharacterSection({
     setIsExpanding(true);
     try {
       const expanded = await expandCharacterAI(
-        apiKey,
         activeChar.name,
         activeChar.description,
         project.artStyle
@@ -104,7 +104,6 @@ export function CharacterSection({
     try {
       let fallbackReason = "";
       const sheetUrl = await generateCharacterSheetImage(
-        apiKey,
         activeChar,
         project.artStyle,
         (reason) => { fallbackReason = reason; }

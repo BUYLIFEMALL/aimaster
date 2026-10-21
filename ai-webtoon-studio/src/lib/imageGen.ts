@@ -1,10 +1,8 @@
 import { ArtStyle, CharacterInfo, CutScene, WebtoonProject } from "./types";
 import { ART_STYLE_PROMPT_MAP } from "./gemini";
-import { generateGeminiImage } from "./geminiImage";
 
 // 1. 캐릭터 시트 이미지 생성 (턴어라운드 모델 시트)
 export async function generateCharacterSheetImage(
-  apiKey: string,
   character: CharacterInfo,
   artStyle: ArtStyle,
   onFallback?: (reason: string) => void
@@ -12,12 +10,11 @@ export async function generateCharacterSheetImage(
   const styleInfo = ART_STYLE_PROMPT_MAP[artStyle];
   const prompt = `character design sheet, model sheet turnaround, front view, side view, and facial expressions of ${character.name}, ${character.description}, on clean solid neutral studio background, concept art, character turnaround sheet, ${styleInfo.enTag}`;
 
-  return await requestImageGeneration(apiKey, prompt, { width: 1024, height: 768 }, onFallback);
+  return await requestImageGeneration(prompt, { width: 1024, height: 768 }, onFallback);
 }
 
 // 2. 메인 표지 이미지 생성
 export async function generateCoverImage(
-  apiKey: string,
   project: WebtoonProject,
   onFallback?: (reason: string) => void
 ): Promise<string> {
@@ -26,12 +23,11 @@ export async function generateCoverImage(
 
   const prompt = `epic main title cover illustration for Korean webtoon series titled "${project.title}", key visual featuring main characters (${charDetails}), cinematic lighting, dramatic hero shot, title artwork aesthetic, ${project.synopsis}, masterpiece, highest quality, ${styleInfo.enTag}`;
 
-  return await requestImageGeneration(apiKey, prompt, { width: 768, height: 1024 }, onFallback);
+  return await requestImageGeneration(prompt, { width: 768, height: 1024 }, onFallback);
 }
 
 // 3. 개별 컷 이미지 생성
 export async function generateCutImage(
-  apiKey: string,
   cut: CutScene,
   project: WebtoonProject,
   onFallback?: (reason: string) => void
@@ -40,12 +36,11 @@ export async function generateCutImage(
   const prompt = `${cut.prompt}, ${cut.cameraAngle}, ${cut.description}, ${styleInfo.enTag}, 8k comic artwork, masterpiece`;
 
   // 세로 스크롤 레이아웃에 최적화된 종횡비 (3:4 또는 1:1)
-  return await requestImageGeneration(apiKey, prompt, { width: 768, height: 1024 }, onFallback);
+  return await requestImageGeneration(prompt, { width: 768, height: 1024 }, onFallback);
 }
 
 // 실제 이미지 생성 API 요청 함수
 async function requestImageGeneration(
-  apiKey: string,
   prompt: string,
   dimensions: { width: number; height: number },
   onFallback?: (reason: string) => void
@@ -53,28 +48,22 @@ async function requestImageGeneration(
   // 1. Gemini 이미지 모델 시도 (사용자 본인 키가 있을 때)
   // [이미지 모델 교체 2026-10-17] 종료된 Imagen 3(predict) → gemini-nano-banana-2.1(generateContent), 기준: ai-image-studio v1.11.
   // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
-  // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
-  // 키는 주소가 아니라 머리글로 보낸다. 브라우저 실행이라 함수 한도와 무관 → 시간 제한 120초, 유료 생성이라 재시도 없음(이중 과금 방지).
-  // 실패하면(키·한도·시간 초과 등) 기존처럼 아래 무료 렌더러로 넘어간다. 모델·비율·화질·프롬프트는 그대로.
-  if (apiKey) {
-    try {
-      const image = await generateGeminiImage({
-        apiKey,
-        modelName: "gemini-nano-banana-2.1",
-        prompt,
-        aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4",
-        imageSize: "1K",
-        timeoutMs: 120_000,
-        retries: 0,
-      });
-      return `data:${image.mimeType || "image/png"};base64,${image.base64}`;
-    } catch (e) {
-      const reason = e instanceof Error ? e.message : "알 수 없는 오류";
-      console.warn("Gemini image generation failed, falling back to high-res comic generator:", reason);
-      onFallback?.(reason); // 2026-10-18: 대체 그림을 쓰는 원인을 화면에 알린다
-    }
-  } else {
-    onFallback?.("Gemini API 키가 등록되지 않았습니다. [API키등록·플랫폼연동]에서 본인 키를 등록하면 Gemini로 그립니다.");
+  // 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio), v1.27부터 서버 경로에서 사용.
+  // v1.27: 서버(/api/ai/image)가 회원 본인 키로 Gemini를 부른다(키를 브라우저에 두지 않음). 모델·비율·화질·시간 제한·재시도 없음은 예전과 같고,
+  // 키가 없거나 실패하면(한도·시간 초과 등) 기존처럼 아래 무료 렌더러로 넘어가며 원인을 화면에 알린다.
+  try {
+    const res = await fetch("/api/ai/image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4" }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && typeof data?.dataUrl === "string") return data.dataUrl;
+    onFallback?.(data?.error || `HTTP ${res.status}`);
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : "알 수 없는 오류";
+    console.warn("Gemini image generation failed, falling back to high-res comic generator:", reason);
+    onFallback?.(reason);
   }
 
   // 2. Pollinations / Flux Webtoon 전용 고화질 다이렉트 렌더러

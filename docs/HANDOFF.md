@@ -31,6 +31,11 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W1·W2: 이미지 스튜디오 v1.25(Ideogram·Recraft 11개 모델 연결) · AI 웹툰 v1.27(회원 키 브라우저 저장 제거)
+- W1 `ai-image-studio` v1.25: `lib/providers/index.ts`에 `ideogram`·`recraft` → `ReplicateAdapter`(빠져서 11개 모델 오류였음), 재발 방지 시험. 배포 `ai-image-studio-kkrhcnqm4`·DB v1.25. 크롬(시험 회원) Ideogram v3 Turbo 1회 → Replicate까지 도달했으나 **시험 계정 Replicate 키 401(만료/무효)** → 생성·비용 0. 유효 키로 1장 재확인 필요.
+- W2 `ai-webtoon-studio` v1.27: AI 호출을 서버 경로로, 키 경로는 `hasKey`만, 옛 브라우저 키 삭제. 배포 `ai-webtoon-studio-pvxt536dl`·DB v1.27, 크롬 확인. **필독 인수인계** `ai-webtoon-studio/docs/IMPROVEMENT_HANDOFF_20261022_KEY_SERVER.md`. 같은 패턴 남은 곳: `ebook-studio`(미처리), `naver-blog-allinone` 설정 창(Codex 영역). 교훈 `docs/ERROR_LESSONS.md` 2026-10-22.
+- 비용: Vercel 빌드 2회, 유료 AI 0원(401 거절). 다음: W3 시네마틱 스토리보드 30일 정리. 보고서 §8-7.
+- 프로그램: https://ai-image-studio.buylife.xyz · https://ai-webtoon-automation.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 카테고리 간 분석 C1(4컷 ↔ 웹툰)·C2(감성 글귀 ↔ INSTA 카드뉴스) (분석만, 주인님 결정 대기)
 - 결론: **둘 다 병합하지 않음**. C1은 인스타 분야 분석(2026-10-20) 「독립 유지(엔진만 공유)」 판단 그대로(재검토 조건 미도달), C2는 출력(1장 감성 글귀 vs 4~10장 정보 카드+게시)·사용자가 달라 독립 + 장점 교환.
 - 플랜 추가: W2 웹툰 키 localStorage 저장 제거(최상위 규칙), L6 감성 글귀 → INSTA 포스팅 보내기, F6 카드뉴스 배경에 Pixabay·Pexels 무료 사진 검색, S1 캐릭터 일관성 공용 코드 검토.

@@ -21,7 +21,8 @@ import { InstagramPublishPanel } from "./InstagramPublishPanel";
 interface WebtoonCanvasSectionProps {
   project: WebtoonProject;
   onChangeProject: (updated: Partial<WebtoonProject>) => void;
-  apiKey: string;
+  /** 회원 본인 Gemini 키 등록 여부(키 원문은 서버에만 — v1.27) */
+  hasKey: boolean;
   onOpenSettings: () => void;
   onPrevStep: () => void;
 }
@@ -29,7 +30,7 @@ interface WebtoonCanvasSectionProps {
 export function WebtoonCanvasSection({
   project,
   onChangeProject,
-  apiKey,
+  hasKey,
   onOpenSettings,
   onPrevStep,
 }: WebtoonCanvasSectionProps) {
@@ -43,7 +44,7 @@ export function WebtoonCanvasSection({
     setIsCoverGenerating(true);
     try {
       let fallbackReason = "";
-      const coverUrl = await generateCoverImage(apiKey, project, (reason) => { fallbackReason = reason; });
+      const coverUrl = await generateCoverImage(project, (reason) => { fallbackReason = reason; });
       onChangeProject({ coverImageUrl: coverUrl });
       if (fallbackReason) alert(`AI(Gemini) 그림 생성에 실패해 무료 대체 그림을 넣었습니다. 원인: ${fallbackReason}`);
     } catch (e: any) {
@@ -58,7 +59,7 @@ export function WebtoonCanvasSection({
     setGeneratingCutIndices((prev) => [...prev, cut.cutIndex]);
     try {
       let fallbackReason = "";
-      const imgUrl = await generateCutImage(apiKey, cut, project, (reason) => { fallbackReason = reason; });
+      const imgUrl = await generateCutImage(cut, project, (reason) => { fallbackReason = reason; });
       const updatedCuts = [...(project.cuts || [])];
       updatedCuts[index] = { ...cut, imageUrl: imgUrl, isGenerating: false };
       onChangeProject({ cuts: updatedCuts });
@@ -86,7 +87,7 @@ export function WebtoonCanvasSection({
     if (project.includeCover && !project.coverImageUrl) {
       try {
         setIsCoverGenerating(true);
-        const cover = await generateCoverImage(apiKey, project, onFallback);
+        const cover = await generateCoverImage(project, onFallback);
         onChangeProject({ coverImageUrl: cover });
       } catch (err) {
         console.warn("Cover generation error in batch:", err);
@@ -102,7 +103,7 @@ export function WebtoonCanvasSection({
       setGeneratingCutIndices((prev) => [...prev, cut.cutIndex]);
 
       try {
-        const imgUrl = await generateCutImage(apiKey, cut, project, onFallback);
+        const imgUrl = await generateCutImage(cut, project, onFallback);
         currentCuts[i] = { ...cut, imageUrl: imgUrl };
         onChangeProject({ cuts: [...currentCuts] });
       } catch (err) {

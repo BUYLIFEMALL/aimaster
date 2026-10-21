@@ -9,16 +9,22 @@ interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   settings: AppSettings;
+  hasKey: boolean;
   onSaveSettings: (newSettings: AppSettings) => void;
+  onKeySaved: () => void;
 }
 
 export function SettingsModal({
   isOpen,
   onClose,
   settings,
+  hasKey,
   onSaveSettings,
+  onKeySaved,
 }: SettingsModalProps) {
-  const [geminiApiKey, setGeminiApiKey] = useState(settings.geminiApiKey || "");
+  // 키 입력칸은 비워 두고(원문은 서버에만), 새 키를 넣을 때만 서버로 보낸다(v1.27)
+  const [keyInput, setKeyInput] = useState("");
+  const [saving, setSaving] = useState(false);
   const [textModel, setTextModel] = useState(settings.textModel || "gemini-2.5-flash");
   const [imageModel, setImageModel] = useState(settings.imageModel || "nano-banana-2");
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
@@ -27,7 +33,7 @@ export function SettingsModal({
   if (!isOpen) return null;
 
   const handleTestKey = async () => {
-    if (!geminiApiKey.trim()) {
+    if (!keyInput.trim()) {
       setTestStatus("error");
       setTestMessage("API 키를 먼저 입력해주세요.");
       return;
@@ -37,18 +43,16 @@ export function SettingsModal({
     setTestMessage("Gemini API 연결 테스트 중...");
 
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey.trim()}`;
-      const res = await fetch(url, {
+      // 키 확인은 서버가 한다(키를 브라우저에서 Google로 직접 보내지 않음, 저장하지 않음)
+      const res = await fetch("/api/user/key", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: "ping" }] }],
-        }),
+        body: JSON.stringify({ apiKey: keyInput.trim(), test: true }),
       });
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData?.error?.message || `HTTP ${res.status}`);
+        throw new Error(errorData?.error || `HTTP ${res.status}`);
       }
 
       setTestStatus("success");
@@ -59,23 +63,35 @@ export function SettingsModal({
     }
   };
 
-  const handleSave = () => {
-    const trimmedKey = geminiApiKey.trim();
-    const updated: AppSettings = {
-      geminiApiKey: trimmedKey,
-      textModel,
-      imageModel,
-    };
+  const handleSave = async () => {
+    const trimmedKey = keyInput.trim();
+    // 모델 선택만 이 브라우저에 저장(키는 저장하지 않음)
+    const updated: AppSettings = { textModel, imageModel };
     saveStoredSettings(updated);
     onSaveSettings(updated);
 
-    // 서버 DB(user_api_keys)에도 비동기 동기화
+    // 새 키를 입력했으면 서버 DB(user_api_keys, 회원 본인)에만 저장
     if (trimmedKey) {
-      fetch("/api/user/key", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey: trimmedKey }),
-      }).catch((e) => console.warn("Failed to sync key to server:", e));
+      setSaving(true);
+      try {
+        const res = await fetch("/api/user/key", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ apiKey: trimmedKey }),
+        });
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData?.error || `HTTP ${res.status}`);
+        }
+        onKeySaved();
+        setKeyInput("");
+      } catch (e: any) {
+        setTestStatus("error");
+        setTestMessage(`키 저장에 실패했습니다: ${e.message || "알 수 없는 오류"}`);
+        return;
+      } finally {
+        setSaving(false);
+      }
     }
 
     onClose();
@@ -113,7 +129,7 @@ export function SettingsModal({
               <span>최상위 절대 불변 규칙 안내</span>
             </div>
             <p className="text-[11px] text-amber-200/90 leading-relaxed font-medium">
-              모든 사용자는 본인의 Google Gemini API 키를 직접 연동하여 사용합니다. 입력하신 키는 서버에 저장되지 않고 오직 회원님의 브라우저(localStorage)에만 안전하게 보관됩니다.
+              모든 사용자는 본인의 Google Gemini API 키를 직접 연동하여 사용합니다. 입력하신 키는 회원님 본인 계정의 서버 저장소(다른 AIMaster 프로그램과 공용)에만 보관되고, 브라우저에는 남기지 않습니다. AI 호출도 서버가 본인 키로 대신 합니다.
             </p>
           </div>
 
@@ -125,9 +141,9 @@ export function SettingsModal({
             <div className="flex gap-2">
               <input
                 type="password"
-                value={geminiApiKey}
-                onChange={(e) => setGeminiApiKey(e.target.value)}
-                placeholder="AIzaSy..."
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value)}
+                placeholder={hasKey ? "등록됨 — 바꿀 때만 새 키 입력" : "AIzaSy..."}
                 className="flex-1 px-3 py-2 border border-[#232b3e] rounded-xl focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-[#0a0d14] text-slate-100 placeholder:text-slate-500 font-mono text-xs"
               />
               <button
@@ -197,10 +213,11 @@ export function SettingsModal({
           </button>
           <button
             type="button"
-            onClick={handleSave}
-            className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition shadow-xs cursor-pointer"
+            onClick={() => void handleSave()}
+            disabled={saving}
+            className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold rounded-xl transition shadow-xs cursor-pointer"
           >
-            설정 저장하기
+            {saving ? "저장 중..." : "설정 저장하기"}
           </button>
         </div>
       </div>

@@ -5,7 +5,6 @@ const SETTINGS_KEY = "ai_webtoon_studio_settings_v1";
 const PROJECT_KEY = "ai_webtoon_studio_project_v1";
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  geminiApiKey: "",
   textModel: "gemini-2.5-flash",
   imageModel: "nano-banana-2",
 };
@@ -39,7 +38,13 @@ export function getStoredSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return DEFAULT_SETTINGS;
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    // v1.27: 예전 버전이 저장한 회원 키 원문을 이 브라우저에서 지운다(키는 서버에만 둔다).
+    if (parsed && typeof parsed === "object" && "geminiApiKey" in parsed) {
+      delete parsed.geminiApiKey;
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(parsed));
+    }
+    return { ...DEFAULT_SETTINGS, ...parsed };
   } catch (e) {
     console.warn("Failed to load settings:", e);
     return DEFAULT_SETTINGS;

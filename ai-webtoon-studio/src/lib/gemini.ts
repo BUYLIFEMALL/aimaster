@@ -59,16 +59,13 @@ export const BALLOON_STYLE_LABEL_MAP: Record<BalloonStyle, string> = {
   action_spike: "강렬한 액션형 (외침·충격)",
 };
 
-const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 
 // 1. 시놉시스 마법봉 확장
 export async function expandSynopsisAI(
-  apiKey: string,
   title: string,
   synopsisDraft: string,
   artStyle: ArtStyle
 ): Promise<string> {
-  if (!apiKey) throw new Error("Gemini API 키가 등록되지 않았습니다.");
 
   const currentYear = new Date().getFullYear();
   const styleLabel = ART_STYLE_PROMPT_MAP[artStyle].label;
@@ -85,18 +82,16 @@ export async function expandSynopsisAI(
 - 세계관 설정, 주인공의 핵심 목표, 긴장감 넘치는 사건의 시작이 명확하게 드러나야 합니다.
 - 불필요한 서두나 사족 없이 완성된 시놉시스 본문만 300자 내외로 출력하세요.`;
 
-  const response = await callGeminiText(apiKey, prompt);
+  const response = await callGeminiText(prompt);
   return response.trim();
 }
 
 // 2. 캐릭터 묘사 마법봉 확장
 export async function expandCharacterAI(
-  apiKey: string,
   charName: string,
   charDraft: string,
   artStyle: ArtStyle
 ): Promise<string> {
-  if (!apiKey) throw new Error("Gemini API 키가 등록되지 않았습니다.");
 
   const currentYear = new Date().getFullYear();
   const styleLabel = ART_STYLE_PROMPT_MAP[artStyle].label;
@@ -113,16 +108,14 @@ export async function expandCharacterAI(
 - 다른 컷에서도 동일인물로 인식될 수 있도록 고유의 시각적 특징(머리색, 복장, 악세서리 등)을 2~3줄로 명확히 작성하세요.
 - 설명글 없이 완성된 외형 묘사 텍스트만 출력하세요.`;
 
-  const response = await callGeminiText(apiKey, prompt);
+  const response = await callGeminiText(prompt);
   return response.trim();
 }
 
 // 3. 컷별 시나리오 콘티 생성기
 export async function generateStoryboardAI(
-  apiKey: string,
   project: WebtoonProject
 ): Promise<{ scriptText: string; cuts: CutScene[] }> {
-  if (!apiKey) throw new Error("Gemini API 키가 등록되지 않았습니다.");
 
   const currentYear = new Date().getFullYear();
   const styleInfo = ART_STYLE_PROMPT_MAP[project.artStyle];
@@ -162,7 +155,7 @@ JSON 형식:
   ]
 }`;
 
-  const response = await callGeminiText(apiKey, prompt);
+  const response = await callGeminiText(prompt);
   
   // JSON 파싱
   let parsed: { summary?: string; cuts?: any[] };
@@ -203,32 +196,15 @@ JSON 형식:
   return { scriptText, cuts };
 }
 
-// Gemini 공통 호출 함수
-async function callGeminiText(apiKey: string, prompt: string): Promise<string> {
-  const url = `${GEMINI_API_ENDPOINT}/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-  const res = await fetch(url, {
+// Gemini 공통 호출 함수 — v1.27부터 브라우저는 프롬프트만 서버(/api/ai/text)로 보내고, 서버가 회원 본인 키로 부른다(키를 브라우저에 두지 않음).
+async function callGeminiText(prompt: string): Promise<string> {
+  const res = await fetch("/api/ai/text", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 4096,
-      },
-    }),
+    body: JSON.stringify({ prompt }),
   });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    const msg = errorData?.error?.message || `HTTP ${res.status}`;
-    throw new Error(`Gemini API 오류: ${msg}`);
-  }
-
-  const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) {
-    throw new Error("Gemini API로부터 응답 텍스트를 받지 못했습니다.");
-  }
-  return text;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+  if (!data?.text) throw new Error("Gemini API로부터 응답 텍스트를 받지 못했습니다.");
+  return data.text as string;
 }

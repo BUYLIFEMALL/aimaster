@@ -18,7 +18,8 @@ import { generateStoryboardAI } from "@/lib/gemini";
 interface ScriptEditorSectionProps {
   project: WebtoonProject;
   onChangeProject: (updated: Partial<WebtoonProject>) => void;
-  apiKey: string;
+  /** 회원 본인 Gemini 키 등록 여부(키 원문은 서버에만 — v1.27) */
+  hasKey: boolean;
   onOpenSettings: () => void;
   onNextStep: () => void;
   onPrevStep: () => void;
@@ -27,7 +28,7 @@ interface ScriptEditorSectionProps {
 export function ScriptEditorSection({
   project,
   onChangeProject,
-  apiKey,
+  hasKey,
   onOpenSettings,
   onNextStep,
   onPrevStep,
@@ -36,7 +37,7 @@ export function ScriptEditorSection({
   const [viewMode, setViewMode] = useState<"cards" | "raw">("cards");
 
   const handleGenerateScript = async () => {
-    if (!apiKey) {
+    if (!hasKey) {
       alert("시나리오 콘티 생성을 위해 먼저 [API키등록·플랫폼연동]에서 Gemini API 키를 등록해주세요.");
       onOpenSettings();
       return;
@@ -44,7 +45,7 @@ export function ScriptEditorSection({
 
     setIsGeneratingScript(true);
     try {
-      const { scriptText, cuts } = await generateStoryboardAI(apiKey, project);
+      const { scriptText, cuts } = await generateStoryboardAI(project);
       onChangeProject({
         scriptText,
         cuts,

@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — 「키 등록 정보 불러오기」 API가 회원 키 원문을 브라우저로 내려주고 화면이 localStorage에 저장·브라우저가 Gemini를 직접 호출(`?key=` 주소) (ai-webtoon-studio v1.27, Claude Code 윈도우)
+- 증상: 코드 확인 중 발견(사고 보고 없음). `GET /api/user/key` → `{ key: api_key }`, 화면이 `ai_webtoon_studio_settings_v1`에 `geminiApiKey` 저장, 글 생성은 `generativelanguage…?key=…`로 브라우저 직접 호출. 설정 창 안내는 「서버에 저장 안 하고 브라우저에만」으로 실제와 반대. 키 경로는 로그인만 확인(프로그램 권한 없음).
+- 원인: 처음에 「브라우저에서만 쓰는 도구」로 만든 뒤, 공용 `user_api_keys` 연동을 붙이면서 서버 값을 브라우저로 내려보내는 쉬운 길을 택함.
+- 해결: AI 호출을 서버 경로(`/api/ai/text`·`/api/ai/image`)로 옮겨 `checkProgramAccessApi()` + 서버에서 본인 키 + 머리글 전송, 키 경로는 `{ hasKey }`만, 옛 브라우저 키는 첫 접속 때 삭제, 정적 시험 `tests/keyNotInBrowser.test.mjs`. 상세 `ai-webtoon-studio/docs/IMPROVEMENT_HANDOFF_20261022_KEY_SERVER.md`.
+- 다음부터 확인: `grep -rn "json({ *key: *data?.api_key" --include=*.ts`, `localStorage.setItem(…ApiKey…)`, 화면 코드의 `generativelanguage…?key=` — 2026-10-22 기준 남은 곳 `ebook-studio`(미처리), `naver-blog-allinone` 설정 창 키 확인(블로그 담당 Codex).
+
 ## 2026-10-22 — 서명 없는 외부 콜백(sunoapi.org)의 본문을 그대로 저장하면 작업 번호만 아는 사람이 가짜 결과·가짜 실패를 넣을 수 있다 (music-automation v1.37, Claude Code 윈도우)
 - 증상: 웹훅이 콜백 본문의 `code`·결과 주소를 믿고 저장했다(실제 공격은 확인 안 됨, 상세 리뷰 D-68-01).
 - 해결: 콜백은 「끝났다는 신호」로만 쓰고, 회원 본인 키로 제공자 상태 조회(record-info)를 다시 해서 그 결과만 저장(`music/lib/sunoVerify.ts`, 웹훅 4개). 조회가 아직 진행 중이면 잠금만 풀고 아무것도 바꾸지 않는다.

@@ -16,7 +16,6 @@ import {
   DEFAULT_SETTINGS,
   DEFAULT_PROJECT,
   getStoredSettings,
-  saveStoredSettings,
   getStoredProject,
   saveStoredProject,
   exportProjectToJson,
@@ -36,6 +35,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [hasKey, setHasKey] = useState(false);
   const [project, setProject] = useState<WebtoonProject>(DEFAULT_PROJECT);
 
   const importFileRef = useRef<HTMLInputElement>(null);
@@ -46,21 +46,11 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
     setSettings(localSettings);
     setProject(getStoredProject());
 
-    // 로컬 스토리지에 API 키가 없으면 서버 DB(user_api_keys)에서 불러오기
-    if (!localSettings.geminiApiKey) {
-      fetch("/api/user/key")
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data?.key) {
-            setSettings((prev) => {
-              const updated = { ...prev, geminiApiKey: data.key };
-              saveStoredSettings(updated);
-              return updated;
-            });
-          }
-        })
-        .catch(() => {});
-    }
+    // 키 등록 여부만 서버에 묻는다(v1.27 — 키 원문은 브라우저로 받지 않고, AI 호출은 서버가 본인 키로 한다)
+    fetch("/api/user/key")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setHasKey(Boolean(data?.hasKey)))
+      .catch(() => {});
 
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
@@ -159,7 +149,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
       <div className="flex flex-1 flex-col min-w-0">
         {/* 상단 헤더 */}
         <Header
-          settings={settings}
+          hasApiKey={hasKey}
           onDownloadZip={handleHeaderDownloadZip}
           onDownloadMergedJpg={handleHeaderDownloadMergedJpg}
           onOpenMobileNav={() => setIsMobileNavOpen(true)}
@@ -195,7 +185,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
             <ProjectSection
               project={project}
               onChangeProject={handleUpdateProject}
-              apiKey={settings.geminiApiKey}
+              hasKey={hasKey}
               onOpenSettings={() => setIsSettingsOpen(true)}
               onNextStep={() => setActiveTab("character")}
               onExportProject={handleExportProject}
@@ -208,7 +198,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
             <CharacterSection
               project={project}
               onChangeProject={handleUpdateProject}
-              apiKey={settings.geminiApiKey}
+              hasKey={hasKey}
               onOpenSettings={() => setIsSettingsOpen(true)}
               onNextStep={() => setActiveTab("script")}
               onPrevStep={() => setActiveTab("concept")}
@@ -220,7 +210,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
             <ScriptEditorSection
               project={project}
               onChangeProject={handleUpdateProject}
-              apiKey={settings.geminiApiKey}
+              hasKey={hasKey}
               onOpenSettings={() => setIsSettingsOpen(true)}
               onNextStep={() => setActiveTab("canvas")}
               onPrevStep={() => setActiveTab("character")}
@@ -232,7 +222,7 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
             <WebtoonCanvasSection
               project={project}
               onChangeProject={handleUpdateProject}
-              apiKey={settings.geminiApiKey}
+              hasKey={hasKey}
               onOpenSettings={() => setIsSettingsOpen(true)}
               onPrevStep={() => setActiveTab("script")}
             />
@@ -261,7 +251,9 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
+        hasKey={hasKey}
         onSaveSettings={setSettings}
+        onKeySaved={() => setHasKey(true)}
       />
     </div>
   );

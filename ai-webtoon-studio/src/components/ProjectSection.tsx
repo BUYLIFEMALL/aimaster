@@ -18,7 +18,8 @@ import { expandSynopsisAI } from "@/lib/gemini";
 interface ProjectSectionProps {
   project: WebtoonProject;
   onChangeProject: (updated: Partial<WebtoonProject>) => void;
-  apiKey: string;
+  /** 회원 본인 Gemini 키 등록 여부(키 원문은 서버에만 — v1.27) */
+  hasKey: boolean;
   onOpenSettings: () => void;
   onNextStep: () => void;
   onExportProject: () => void;
@@ -28,7 +29,7 @@ interface ProjectSectionProps {
 export function ProjectSection({
   project,
   onChangeProject,
-  apiKey,
+  hasKey,
   onOpenSettings,
   onNextStep,
   onExportProject,
@@ -37,7 +38,7 @@ export function ProjectSection({
   const [isExpandingSynopsis, setIsExpandingSynopsis] = useState(false);
 
   const handleExpandSynopsis = async () => {
-    if (!apiKey) {
+    if (!hasKey) {
       alert("시놉시스 확장을 위해 먼저 [API키등록·플랫폼연동]에서 Gemini API 키를 등록해주세요.");
       onOpenSettings();
       return;
@@ -46,7 +47,6 @@ export function ProjectSection({
     setIsExpandingSynopsis(true);
     try {
       const expanded = await expandSynopsisAI(
-        apiKey,
         project.title,
         project.synopsis,
         project.artStyle
