@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { SunoUsageGuide } from "@/components/guide/SunoUsageGuide";
 import { RetentionNotice } from "@/components/RetentionBadge";
-import { PlanningListWithPicker } from "@/components/plannings/PlanningListWithPicker";
+import { PlanningListWithPicker, type PickerSong } from "@/components/plannings/PlanningListWithPicker";
 
 export const dynamic = "force-dynamic";
 
@@ -27,15 +27,19 @@ export default async function PlanningsPage() {
     // v1.30 기획별 완성 곡(곡마다 첫 변주) — 여러 기획을 골라 플레이리스트로 넘길 때 쓴다. 관계가 2개라 !track_id 지정
     supabase
       .from("music_tracks")
-      .select("planning_id, created_at, music_track_variants!track_id(id)")
+      .select("planning_id, created_at, title, mode, style_description, music_track_variants!track_id(id, duration_seconds)")
       .eq("user_id", user.id)
       .eq("status", "completed")
       .order("created_at", { ascending: true }),
   ]);
-  const songsByPlanning = new Map<string, string[]>();
-  for (const t of (doneTracks ?? []) as unknown as { planning_id: string; music_track_variants: { id: string }[] }[]) {
-    const first = t.music_track_variants?.[0]?.id;
-    if (first) songsByPlanning.set(t.planning_id, [...(songsByPlanning.get(t.planning_id) ?? []), first]);
+  // v1.40(D-68-03): 제작 목록 내보내기에 쓰도록 제목·버전·길이·스타일도 함께 넘긴다.
+  const songsByPlanning = new Map<string, PickerSong[]>();
+  type DoneTrack = { planning_id: string; title: string | null; mode: string; style_description: string | null; music_track_variants: { id: string; duration_seconds: number | null }[] };
+  for (const t of (doneTracks ?? []) as unknown as DoneTrack[]) {
+    const first = t.music_track_variants?.[0];
+    if (!first) continue;
+    const song: PickerSong = { id: first.id, title: t.title ?? "제목 없음", mode: t.mode, durationSeconds: first.duration_seconds, style: t.style_description };
+    songsByPlanning.set(t.planning_id, [...(songsByPlanning.get(t.planning_id) ?? []), song]);
   }
 
   return (
@@ -97,7 +101,7 @@ export default async function PlanningsPage() {
           </Link>
         </div>
       ) : (
-        <PlanningListWithPicker plannings={plannings.map((p) => ({ ...p, songIds: songsByPlanning.get(p.id) ?? [] }))} />
+        <PlanningListWithPicker plannings={plannings.map((p) => ({ ...p, songs: songsByPlanning.get(p.id) ?? [] }))} />
       )}
     </div>
   );
