@@ -63,12 +63,21 @@ export default async function DashboardPage() {
         .eq("is_hidden", false),
       supabase
         .from("th_comments")
-        .select("id, author_username, comment_text, fetched_at")
+        .select("id, post_id, author_username, comment_text, fetched_at")
         .eq("user_id", user.id)
         .eq("status", "pending_review")
         .order("fetched_at", { ascending: false })
         .limit(3),
     ]);
+
+  // v1.17: 검토 대기 댓글이 달린 글 앞부분(쓰레드 글은 썸네일이 없어 글로 표시)
+  const recentPostIds = Array.from(new Set((recentRes.data ?? []).map((c) => c.post_id)));
+  const { data: recentPosts } = await supabase
+    .from("th_posts")
+    .select("id, text")
+    .eq("user_id", user.id)
+    .in("id", recentPostIds.length > 0 ? recentPostIds : ["__none__"]);
+  const textByPostId = new Map((recentPosts ?? []).map((p) => [p.id, p.text]));
 
   const account = accountRes.data;
   const settings = settingsRes.data;
@@ -160,15 +169,18 @@ export default async function DashboardPage() {
           ) : (
             <ul className="space-y-4">
               {(recentRes.data ?? []).map((c) => (
-                <li key={c.id} className="flex gap-3">
-                  <Avatar name={c.author_username} size={32} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs">
-                      <span className="font-semibold text-th-text">{c.author_username ? `@${c.author_username}` : "익명"}</span>
-                      <span className="ml-2 text-th-muted">{formatDateTimeKo(c.fetched_at)}</span>
-                    </p>
-                    <p className="mt-0.5 line-clamp-2 break-words text-sm text-th-text">{c.comment_text}</p>
-                  </div>
+                <li key={c.id}>
+                  <Link href={`/comments#post-${c.post_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-th-raised">
+                    <Avatar name={c.author_username} size={32} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs">
+                        <span className="font-semibold text-th-text">{c.author_username ? `@${c.author_username}` : "익명"}</span>
+                        <span className="ml-2 text-th-muted">{formatDateTimeKo(c.fetched_at)}</span>
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 break-words text-sm text-th-text">{c.comment_text}</p>
+                      <p className="mt-1 truncate text-[11px] text-th-muted">🧵 {textByPostId.get(c.post_id) || "(삭제된 글)"}</p>
+                    </div>
+                  </Link>
                 </li>
               ))}
             </ul>

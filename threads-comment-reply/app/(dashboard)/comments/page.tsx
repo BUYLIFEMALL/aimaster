@@ -75,7 +75,8 @@ export default async function CommentsPage() {
         ) : (
           <div className="space-y-6">
             {Array.from(groupedByMedia.entries()).map(([mediaId, mediaComments]) => (
-              <section key={mediaId} className="th-card py-3">
+              // v1.17: 대시보드 「검토를 기다리는 댓글」에서 #post-<id>로 바로 이동(고정 머리말에 가리지 않게 scroll-mt)
+              <section key={mediaId} id={`post-${mediaId}`} className="th-card scroll-mt-80 py-3">
                 <h2 className="flex items-center gap-2 border-b border-th-border pb-3 text-sm font-bold text-th-text">
                   <span>🧵</span>
                   <span className="truncate">{captionByMediaId.get(mediaId) || "(삭제된 게시물)"}</span>
