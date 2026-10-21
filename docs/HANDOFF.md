@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 이미지 보안 보강: 공개 버킷 2개 비공개 + 30일 정리 cron (병합 A 전 선행)
+
+주인님 결정으로 이미지 병합보다 먼저. **AI 이미지 스튜디오 v1.23**: 결과 버킷 `ai-image-generations` 비공개, 기록에 `image_path`·화면은 서명 주소(24시간), 갤러리 열람 때 전체 회원분을 지우던 정리를 `/api/cron/cleanup`(매일 03:00 KST)으로. **이미지 스타일 분석기 v1.23**: 원본 버킷 `style-dna-images` 비공개, 서명 주소(6시간), 생성일 30일 정리 cron. 두 프로젝트에 `CRON_SECRET` 추가(Sensitive). 운영 DB(`esgxyikcnnvmlhygjkth`) 버킷 2개 `public=false`·버전 v1.23. 검수: 옛 공개 주소 400·서명 200, 크롬 일반 회원 화면 정상, 정리 주소 비밀값 없음 401. **cron 첫 실제 실행은 다음 03:00 KST — Vercel 로그 확인 필요.** 비용: Vercel 빌드 2회, Gemini 이미지 1장(시험 계정 본인 키, 약 $0.034). 다음: 병합 A(포토 리메이크 → 바나나 캔버스). 보고서 `docs/analysis-image-consolidation-20261021/REPORT.md` §6.
+
+https://ai-image-studio.buylife.xyz
+https://style-dna-analyzer.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.25 휴대폰 폭 곡 이름 두 줄
 
 - 곡 ▲▼ 버튼은 이미 있었음(제안 정정). 390px 폭에서 곡 이름이 잘리던 문제만 고침(번호 칸 숨김·이름 두 줄·시간 숫자만). 배포 Ready·DB v1.25, 크롬 좁은 화면 확인. 비용: Vercel 빌드 1회.
