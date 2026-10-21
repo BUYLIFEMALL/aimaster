@@ -1,7 +1,7 @@
 # 🖋️ AI 글쓰기 에디터 자동화 (ai-writing-editor)
 
 > **공식 서비스 URL**: https://ai-writing-editor.buylife.xyz  
-> **현재 버전**: `v1.10` (포커스 스튜디오 스타일 — 글쓰기 에디터 에디션)  
+> **현재 버전**: `v1.12` (2026-10-21 「📁 내 템플릿 불러오기」 — AI Prompt 보관함 연계, 상세는 `AGENTS.md`)  
 > **디자인 템플릿**: 포커스 스튜디오 스타일 (`Focus Studio Theme`)
 
 ---

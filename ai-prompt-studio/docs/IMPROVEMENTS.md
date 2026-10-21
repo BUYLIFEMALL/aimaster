@@ -29,3 +29,4 @@
 - [ ] (제안) 보관함 템플릿을 팀·다른 회원과 공유하는 기능은 회원 데이터 격리 원칙 때문에 하지 않음 — 대신 백업 파일(.json) 내보내기로 공유. 검토 대기.
 - 상세: [IMPROVEMENT_HANDOFF_20261021_MERGE_C.md](IMPROVEMENT_HANDOFF_20261021_MERGE_C.md)
 - [x] (2026-10-21 v1.08) 결과 화면에서 저장할 때 바뀌는 부분을 {{변수}}로 자동 제안 — 완료, 상세 `AGENTS.md` v1.08.
+- [x] (2026-10-21) 다른 프로그램 연계 1호: AI 글쓰기 에디터 v1.12가 내 템플릿을 불러와 씀(읽기 전용, 표는 이 앱이 주인). 표 구조(`ai_prompt_templates` 열 이름)를 바꾸면 `ai-writing-editor/src/app/api/prompt-templates/route.ts`도 함께 고칠 것.

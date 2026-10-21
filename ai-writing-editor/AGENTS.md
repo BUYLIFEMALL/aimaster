@@ -1,12 +1,18 @@
 # 🖋️ AI 글쓰기 에디터 자동화 (ai-writing-editor) — AI 에이전트 인수인계서
 
 > **공식 서비스 URL**: https://ai-writing-editor.buylife.xyz  
-> **현재 버전**: `v1.11` (포커스 스튜디오 스타일 — 글쓰기 에디터 에디션, 2026-10-21 병합 B로 「🎚️ 문체 바꾸기」 추가)  
+> **현재 버전**: `v1.12` (포커스 스튜디오 스타일 — 글쓰기 에디터 에디션, 2026-10-21 병합 B 「🎚️ 문체 바꾸기」 + 「📁 내 템플릿 불러오기」)  
 > **최근 갱신일**: 2026-10-21  
 > **표준 템플릿**: 포커스 스튜디오 스타일 (`Focus Studio Theme`, 크림 페이퍼 `#fdfbf7` + 딥 인디고 `#4f46e5` + 로열 바이올렛 `#8b5cf6`)  
 > **참고 기준 문서**: 루트 `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`
 
 ---
+
+## 2026-10-21 Claude Code(윈도우) — 「📁 내 템플릿 불러오기」: AI Prompt 보관함 연계 (v1.12)
+- **무엇**: 홈 「새 글 생성」의 「주제 또는 요청」 위에 「📁 내 템플릿 불러오기」를 넣었습니다. AI Prompt 자동화 「📁 내 템플릿 보관함」(표 `ai_prompt_templates`)에 저장한 템플릿을 검색·선택하고, `{{변수}}` 칸에 값을 넣으면(AI 호출 없음) 완성 문장이 요청 칸에 들어갑니다. 플랜: [docs/PLAN_20261021_LOAD_PROMPT_TEMPLATES.md](docs/PLAN_20261021_LOAD_PROMPT_TEMPLATES.md).
+- **코드**: `src/app/api/prompt-templates/route.ts`(GET, 이 프로그램 권한 + 서비스 롤 + `user_id` 필터, 읽기 전용·캐시 방지 두 줄), `src/components/editor/TemplatePicker.tsx`, `StartPanel` 연결, `LIMITS.prompt` 2,000 → 6,000자(템플릿 본문이 길어서, 서버도 같은 값 사용), 매뉴얼 한 줄. 프로그램끼리 서로 호출하지 않고 공용 DB 표를 직접 읽습니다. 템플릿 만들기·고치기는 AI Prompt에서만 합니다.
+- **검수(2026-10-21, 일반 회원 `buylifemall@naver.com`, 메인 크롬)**: 타입 검사·기존 테스트 17개·빌드 통과 → 배포 Ready → AI Prompt에서 저장한 템플릿(변수 6개)이 목록에 보임 → 6개 값 입력 → 요청 칸에 705자, 남은 `{{ }}` 없음. 390px iframe: 가로 넘침 없음, 목록 정상. 초안 생성은 기존 기능이라 비용 절감으로 생략(유료 호출 0회). 시험 템플릿 삭제.
+- 커밋 `b7626062`, 배포 https://ai-writing-editor-m1ldsuxhr-buylife.vercel.app → https://ai-writing-editor.buylife.xyz , DB `programs.version=v1.12`(`supabase/migrations/0005_v1_12_load_prompt_templates.sql`).
 
 ## 1. 프로그램 사용 목적 및 대상
 
