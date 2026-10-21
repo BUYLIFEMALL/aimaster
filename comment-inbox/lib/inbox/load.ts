@@ -257,3 +257,55 @@ export async function loadTodayReplied(userId: string, access: InboxAccess): Pro
   );
   return result;
 }
+
+const KST_MS = 9 * 60 * 60 * 1000;
+const WEEKDAY = ["일", "월", "화", "수", "목", "금", "토"];
+
+export type DayCount = { key: string; label: string; weekday: string; count: number };
+
+/** 게시 시각 목록을 한국 시간 날짜별로 센다 — 오늘 포함 최근 7일, 오래된 날부터. 범위 밖 시각은 버린다. */
+export function bucketByKstDay(timestamps: string[], now = Date.now()): DayCount[] {
+  const todayStart = new Date(kstTodayStartIso(now)).getTime();
+  const days: DayCount[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const kst = new Date(todayStart - i * DAY_MS + KST_MS);
+    days.push({
+      key: kst.toISOString().slice(0, 10),
+      label: `${kst.getUTCMonth() + 1}/${kst.getUTCDate()}`,
+      weekday: WEEKDAY[kst.getUTCDay()],
+      count: 0,
+    });
+  }
+  const index = new Map(days.map((d, i) => [d.key, i]));
+  for (const t of timestamps) {
+    const i = index.get(new Date(new Date(t).getTime() + KST_MS).toISOString().slice(0, 10));
+    if (i !== undefined) days[i].count++;
+  }
+  return days;
+}
+
+/**
+ * v1.06 「최근 7일 응대」 — 한국 시간 6일 전 0시 이후 게시·발송(status=posted)된 본인 항목의 처리 시각을 모아 날짜별로 센다.
+ * 「오늘 답함」과 같은 기준(권한 있는 플랫폼, 건너뛰기 제외). 표마다 최대 5,000건.
+ */
+export async function loadWeekReplied(userId: string, access: InboxAccess): Promise<DayCount[]> {
+  const admin = createAdminClient();
+  const now = Date.now();
+  const since = new Date(new Date(kstTodayStartIso(now)).getTime() - 6 * DAY_MS).toISOString();
+  const tables = (["ig_comments", "dm_messages", "th_comments", "ytreply_comments"] as const).filter((t) =>
+    access[t === "th_comments" ? "threads" : t === "ytreply_comments" ? "youtube" : "instagram"],
+  );
+  const lists = await Promise.all(
+    tables.map(async (table) => {
+      const { data } = await admin
+        .from(table)
+        .select("replied_at")
+        .eq("user_id", userId)
+        .eq("status", "posted")
+        .gte("replied_at", since)
+        .limit(5000);
+      return (data ?? []).map((r) => r.replied_at).filter((t): t is string => !!t);
+    }),
+  );
+  return bucketByKstDay(lists.flat(), now);
+}

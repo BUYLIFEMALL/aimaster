@@ -106,3 +106,21 @@ test("오늘 답한 건수의 기준 시각: 한국 시간 오늘 0시", async (
   assert.equal(kstTodayStartIso(Date.UTC(2026, 9, 21, 14, 59)), "2026-10-20T15:00:00.000Z"); // 한국 21일 23:59
   assert.equal(kstTodayStartIso(Date.UTC(2026, 9, 21, 15, 0)), "2026-10-21T15:00:00.000Z"); // 한국 22일 00:00
 });
+
+test("최근 7일 응대: 한국 시간 날짜로 나누고 범위 밖은 버린다", async () => {
+  const { bucketByKstDay } = await import("../lib/inbox/load.ts");
+  const now = Date.UTC(2026, 9, 21, 16, 30); // 한국 22일 01:30 → 16~22일
+  const days = bucketByKstDay(
+    [
+      "2026-10-21T15:00:00.000Z", // 한국 22일 00:00 → 오늘
+      "2026-10-21T14:59:59.000Z", // 한국 21일 23:59 → 어제
+      "2026-10-15T15:00:00.000Z", // 한국 16일 00:00 → 첫날
+      "2026-10-15T14:59:59.000Z", // 한국 15일 → 범위 밖
+      "2026-10-21T16:00:00.000Z",
+    ],
+    now,
+  );
+  assert.deepEqual(days.map((d) => d.label), ["10/16", "10/17", "10/18", "10/19", "10/20", "10/21", "10/22"]);
+  assert.deepEqual(days.map((d) => d.count), [1, 0, 0, 0, 0, 1, 2]);
+  assert.equal(days[6].weekday, "목");
+});

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
-import { loadInbox, loadSourceAccess, loadTodayReplied, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
+import { loadInbox, loadSourceAccess, loadTodayReplied, loadWeekReplied, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
 import { InboxList } from "@/components/inbox/InboxList";
+import { WeekChart } from "@/components/inbox/WeekChart";
 import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ const FILTER_KEYS: InboxPlatform[] = ["ig_dm", "ig_comment", "threads", "youtube
 export default async function InboxPage({ searchParams }: { searchParams: { p?: string } }) {
   const user = await requireProgramAccess();
   const access = await loadSourceAccess(user.id);
-  const [all, today] = await Promise.all([loadInbox(user.id, access), loadTodayReplied(user.id, access)]);
+  const [all, today, week] = await Promise.all([loadInbox(user.id, access), loadTodayReplied(user.id, access), loadWeekReplied(user.id, access)]);
   const filter = FILTER_KEYS.includes(searchParams.p as InboxPlatform) ? (searchParams.p as InboxPlatform) : null;
   const items = filter ? all.filter((i) => i.platform === filter) : all;
   const noAccess = (Object.keys(SOURCE_PROGRAMS) as SourceKey[]).filter((k) => !access[k]);
@@ -51,6 +52,9 @@ export default async function InboxPage({ searchParams }: { searchParams: { p?: 
           </div>
         </div>
       </div>
+
+      {/* v1.06: 최근 7일(한국 시간) 응대 건수 — 「오늘 답함」과 같은 기준 */}
+      <WeekChart days={week} />
 
       {noAccess.length > 0 && (
         <div className="rounded-xl border border-ig-border bg-ig-surface p-4 text-xs leading-relaxed text-ig-muted">
