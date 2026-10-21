@@ -1,13 +1,15 @@
 import { checkProgramAccessApi, getUserApiKey } from "@/lib/access";
 import { getProviderAdapter, PROVIDERS_REGISTRY } from "@/lib/providers";
 import { createAdminClient } from "@/lib/supabase/server";
+import { BUCKET, signPaths } from "@/lib/imageStorage";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 const AI_IMAGE_STUDIO_PROGRAM_ID = "26b9f0b2-b48b-4f9d-b751-ecb88e98e95e";
 
-async function uploadToStorage(supabaseAdmin: any, userId: string, originalUrl: string): Promise<string> {
+// 비공개 저장소에 올리고 파일 경로를 돌려준다(실패하면 null — 공급사 주소를 그대로 쓴다). v1.23
+async function uploadToStorage(supabaseAdmin: any, userId: string, originalUrl: string): Promise<string | null> {
   try {
     let buffer: Buffer;
     let contentType = "image/png";
@@ -18,11 +20,11 @@ async function uploadToStorage(supabaseAdmin: any, userId: string, originalUrl: 
         contentType = matches[1];
         buffer = Buffer.from(matches[2], "base64");
       } else {
-        return originalUrl;
+        return null;
       }
     } else {
       const res = await fetch(originalUrl, { signal: AbortSignal.timeout(20000) });
-      if (!res.ok) return originalUrl;
+      if (!res.ok) return null;
       const arrayBuffer = await res.arrayBuffer();
       buffer = Buffer.from(arrayBuffer);
       const headersContentType = res.headers.get("content-type");
@@ -35,19 +37,18 @@ async function uploadToStorage(supabaseAdmin: any, userId: string, originalUrl: 
     const fileName = `${userId}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
 
     const { error: uploadErr } = await supabaseAdmin.storage
-      .from("ai-image-generations")
+      .from(BUCKET)
       .upload(fileName, buffer, { contentType, upsert: true });
 
     if (uploadErr) {
       console.warn("Storage upload failed, fallback to original URL:", uploadErr);
-      return originalUrl;
+      return null;
     }
 
-    const { data } = supabaseAdmin.storage.from("ai-image-generations").getPublicUrl(fileName);
-    return data.publicUrl || originalUrl;
+    return fileName;
   } catch (err) {
     console.warn("Failed to upload generated image to Supabase storage:", err);
-    return originalUrl;
+    return null;
   }
 }
 
@@ -90,9 +91,11 @@ export async function POST(req: Request) {
         apiKey
       });
 
-      // Upload image to permanent Supabase Storage bucket so URLs never expire
-      const permanentUrl = await uploadToStorage(supabaseAdmin, user.id, rawResult.imageUrl);
-      const result = { ...rawResult, imageUrl: permanentUrl };
+      // 비공개 저장소에 보관하고 화면에는 서명 주소를 준다(기록에는 경로만)
+      const imagePath = await uploadToStorage(supabaseAdmin, user.id, rawResult.imageUrl);
+      const signed = imagePath ? await signPaths(supabaseAdmin, [imagePath]) : {};
+      const displayUrl = (imagePath && signed[imagePath]) || rawResult.imageUrl;
+      const result = { ...rawResult, imageUrl: displayUrl };
 
       results.push(result);
 
@@ -107,7 +110,7 @@ export async function POST(req: Request) {
           prompt,
           enhanced_prompt: result.revisedPrompt || prompt,
           options: options || {},
-          image_url: permanentUrl
+          ...(imagePath ? { image_path: imagePath } : { image_url: rawResult.imageUrl })
         }
       });
 

@@ -1,5 +1,6 @@
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/server";
+import { BUCKET, storagePathOf } from "@/lib/imageStorage";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -86,13 +87,11 @@ async function processDelete(req: Request) {
 
   // Remove storage files in batch
   const filesToDelete = matchedTargets
-    .map((t) => t.metadata?.image_url)
-    .filter((url): url is string => Boolean(url && url.includes("/ai-image-generations/")))
-    .map((url) => url.split("/ai-image-generations/").pop())
-    .filter((fn): fn is string => Boolean(fn));
+    .map((t) => storagePathOf(t.metadata))
+    .filter((fn): fn is string => Boolean(fn && fn.startsWith(`${user.id}/`)));
 
   if (filesToDelete.length > 0) {
-    await supabaseAdmin.storage.from("ai-image-generations").remove(filesToDelete);
+    await supabaseAdmin.storage.from(BUCKET).remove(filesToDelete);
   }
 
   // Remove DB records

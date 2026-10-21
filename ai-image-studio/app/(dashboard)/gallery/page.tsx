@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { displayUrlOf, signPaths, storagePathOf } from "@/lib/imageStorage";
 import { requireProgramAccess } from "@/lib/access";
 import { GuideModal } from "@/components/GuideModal";
 import { GalleryClient } from "@/components/GalleryClient";
@@ -14,40 +15,16 @@ export default async function GalleryPage() {
   const { user } = await requireProgramAccess();
   const supabaseAdmin = createAdminClient();
 
-  // Auto cleanup image generations older than 30 days (DB + Storage)
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  
-  const { data: oldLogs } = await supabaseAdmin
-    .from("usage_logs")
-    .select("metadata")
-    .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID)
-    .lt("created_at", thirtyDaysAgo);
-
-  if (oldLogs && oldLogs.length > 0) {
-    const filesToDelete = oldLogs
-      .map((l) => l.metadata?.image_url)
-      .filter((url): url is string => Boolean(url && url.includes("/ai-image-generations/")))
-      .map((url) => url.split("/ai-image-generations/").pop())
-      .filter((fn): fn is string => Boolean(fn));
-
-    if (filesToDelete.length > 0) {
-      await supabaseAdmin.storage.from("ai-image-generations").remove(filesToDelete);
-    }
-  }
-
-  await supabaseAdmin
-    .from("usage_logs")
-    .delete()
-    .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID)
-    .lt("created_at", thirtyDaysAgo);
-
+  // 30일 지난 기록 정리는 /api/cron/cleanup(Vercel cron)이 한다(v1.23 — 예전엔 아무 회원이 이 화면을 열 때 전체 회원분을 지웠다).
   const { data: logs } = await supabaseAdmin
     .from("usage_logs")
     .select("*")
     .eq("user_id", user.id)
     .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID)
+    .gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
     .order("created_at", { ascending: false });
 
+  const signed = await signPaths(supabaseAdmin, (logs || []).map((l) => storagePathOf(l.metadata)).filter((p): p is string => !!p));
   const items = (logs || [])
     .map((log) => ({
       id: log.id,
@@ -55,7 +32,7 @@ export default async function GalleryPage() {
       model: log.metadata?.model || "flux-2-dev",
       prompt: log.metadata?.prompt || "",
       enhanced_prompt: log.metadata?.enhanced_prompt || "",
-      image_url: log.metadata?.image_url || "",
+      image_url: displayUrlOf(log.metadata, signed),
       created_at: log.created_at
     }))
     .filter((item) => Boolean(item.image_url));

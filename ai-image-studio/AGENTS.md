@@ -22,7 +22,7 @@
   - **Multi-Provider Adapter Pattern**: `lib/providers/registry.ts` 기반 스키마 선언 및 `lib/providers/adapters/*.ts` (Gemini, OpenAI, Replicate) 격리 구현.
   - **Dynamic OpenAPI Schema Form Renderer**: `components/OptionFormRenderer.tsx`를 통해 Replicate 모델의 슬라이더, 셀렉트, 텍스트박스 동적 UI 렌더링.
   - **최상위 회원 키 원칙**: `lib/access.ts` 및 `lib/userKeys.ts`를 통해 타인 키 폴백 없이 로그인 회원 본인이 등록한 API 키(`user_api_keys`)만 격리 조회 및 사용.
-- **데이터베이스 & 스토리지**: Supabase Auth (SSO `.buylife.xyz` 세션 쿠키), PostgreSQL DB, Supabase Storage (`generated-images` 버킷).
+- **데이터베이스 & 스토리지**: Supabase Auth (SSO `.buylife.xyz` 세션 쿠키), PostgreSQL DB, Supabase Storage (`ai-image-generations` 버킷 — v1.23부터 비공개·서명 주소).
 - **인증 화면 규격**: 루트 공식 표준(`threads-comment-reply/app/(auth)` 기준) 로그인/회원가입 2버튼 알약 탭 토글 바 및 24px 격자 모눈 배경 적용.
 
 ---
@@ -175,3 +175,11 @@
 ## 2026-10-20 v1.22 — 문서 챗봇 기준 메뉴 레이아웃 (Codex)
 - 제목/버전·카탈로그 링크·아이콘 작업 메뉴·도움말 및 설정·계정 밀착으로 정렬. 주인님 제시 화면에 따라 번호형 메뉴의 해당 앱 예외로 적용. 모바일 접는 메뉴/Escape/활성 표시를 함께 반영.
 - 빌드·보이는 Edge 1440/375·낮은 높이·767/768 전환 검사 통과. [계획](docs/PLAN_20261020_SIDEBAR_ALIGNMENT.md) · [운영 결과/인수인계](docs/IMPROVEMENT_HANDOFF_20261020_SIDEBAR_ALIGNMENT.md).
+
+## 2026-10-21 v1.23 — 생성 이미지 저장소 비공개 + 30일 정리 cron (Claude Code 윈도우)
+- 배경: 이미지 카테고리 병합 분석([보고서](../docs/analysis-image-consolidation-20261021/REPORT.md))에서 결과 버킷 `ai-image-generations`가 공개(주소만 알면 누구나 열림)이고, 30일 삭제가 cron 없이 **아무 회원이 갤러리를 열 때 전체 회원분을 지우는** 방식이라는 점을 발견 → 주인님 결정으로 병합보다 먼저 보강.
+- 코드: `lib/imageStorage.ts`(경로 추출·서명 주소 24시간). 생성(`app/api/generate`)은 기록에 `image_path`만 남기고 응답은 서명 주소(업로드 실패 시만 공급사 주소를 `image_url`로). 갤러리는 30일 이내 본인 기록만, 서명 주소로 표시(옛 기록은 공개 주소에서 경로 추출). 삭제 API는 본인 폴더 경로만 지움. 정리는 `app/api/cron/cleanup`(Vercel cron 매일 03:00 KST, `Authorization: Bearer CRON_SECRET`, 비밀값 비면 거부) — 파일 먼저 지우고 기록 삭제, 500건씩 최대 20회.
+- 환경변수 추가(승인): `CRON_SECRET`(Production, Sensitive, 임의값·출력 안 함). `vercel.json` 새로 만듦(framework nextjs + crons).
+- 운영 DB: 버킷 `public=false`, `programs.version='v1.23'`(기록 `supabase/migrations/20261021_v1_23_private_bucket.sql`, 서버 키 스크립트로 적용).
+- 검수: tsc·build·시험 34개 통과, 배포 Ready, 정리 주소 비밀값 없음 401, 옛 공개 주소 400·서명 주소 200, 크롬 일반 회원 갤러리 기존 3장 + 새 1장 모두 서명 주소로 표시·다운로드 방식(fetch→blob) 200. 새 저장 경로 확인용 생성 1회(`gemini-3.1-flash-lite-image` 1K, 시험 계정 본인 키, 약 $0.034).
+- 남은 일: 정상 비밀값으로 cron 실제 실행은 첫 예약 실행(다음 날 03:00 KST) 뒤 Vercel 로그로 확인. 미사용 표 `user_image_generations`(0012)·함수(0014)는 그대로 둠(정리 여부는 다음 작업). 회원이 밖에 붙여 둔 옛 공개 이미지 링크는 열리지 않음(승인된 영향).
