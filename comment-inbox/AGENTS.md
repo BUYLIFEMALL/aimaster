@@ -13,14 +13,14 @@ https://comment-inbox.buylife.xyz
    - 화면: `/inbox`(필터 `?p=ig_dm|ig_comment|threads|youtube`, `components/inbox/InboxItemCard.tsx` — 플랫폼 칩·DM 남은 시간·썸네일·「답장 쓰기」·승인·건너뛰기·원래 프로그램 링크 `#media-`/`#conv-`/`#post-`/`#video-`), `/guide`(매뉴얼), 좌측 메뉴(플랫폼별 건수, 휴대폰 ☰), 로그인·회원가입, 공지 띠.
    - 승인: `lib/actions/inbox.ts` — 받은편지함 권한 + **그 플랫폼 원래 프로그램 권한**을 둘 다 확인한 뒤 원래 프로그램과 같은 게시 함수 사본 호출(`lib/comments/instagramPost.ts`·`threadsPost.ts`·`youtubePost.ts`·`lib/dmApp/dm/post.ts`). 건너뛰기는 `pending_review`인 본인 행만 `skipped`.
    - 장점: 창 전환 없이 응대, 급한 순, 원래 프로그램·텔레그램과 상태 공유(이중 게시 없음), 별도 키 등록 없음. 단점: 새 댓글 수집·AI 초안은 원래 프로그램이 해야 나타남, 플랫폼당 100건, 실제 공개 게시 실검수 전.
-4. **현재 버전·변경 히스토리** — **v1.03**(2026-10-21) 「?」 단축키 도움말 창, 휴대폰에서 접힌 카드를 왼쪽으로 100px 넘게 밀면 건너뛰기 / v1.02(2026-10-21) 처리 후 다음 항목 자동 펼침·키보드 단축키(J/K·↑↓ 이동, Enter 펼치기, A 승인(펼친 항목만, 아니면 먼저 펼침), S 건너뛰기, 입력칸 Ctrl+Enter 승인·Esc 빠져나오기), 게시 묶음 사본에 이중 게시 방지(처리 중 선점) 반영 / v1.01 신규: 1단계(모아 보기·이동) + 2단계(바로 승인·게시).
+4. **현재 버전·변경 히스토리** — **v1.04**(2026-10-21) 건너뛰기 후 5초 「되돌리기」(본인 skipped 항목만 검토 대기로) / v1.03(2026-10-21) 「?」 단축키 도움말 창, 휴대폰에서 접힌 카드를 왼쪽으로 100px 넘게 밀면 건너뛰기 / v1.02(2026-10-21) 처리 후 다음 항목 자동 펼침·키보드 단축키(J/K·↑↓ 이동, Enter 펼치기, A 승인(펼친 항목만, 아니면 먼저 펼침), S 건너뛰기, 입력칸 Ctrl+Enter 승인·Esc 빠져나오기), 게시 묶음 사본에 이중 게시 방지(처리 중 선점) 반영 / v1.01 신규: 1단계(모아 보기·이동) + 2단계(바로 승인·게시).
 5. **남은 작업·백로그** — [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
 6. **연계·병합 아이디어** — 카카오 채널 댓글 등 다른 「검토 후 게시」 프로그램을 같은 방식(게시 묶음 공용 사본)으로 추가, 원래 프로그램 대시보드에 「받은편지함에서 한 번에 보기」 링크.
-7. **UI/UX 개선안** — 여러 항목 한 번에 승인(실제 공개 게시라 사전 승인 필요), 건너뛰기 되돌리기(잠깐 동안 취소), 플랫폼별 색 구분 강화.
+7. **UI/UX 개선안** — 여러 항목 한 번에 승인(실제 공개 게시라 사전 승인 필요), 플랫폼별 색 구분 강화, 처리한 개수 오늘 통계.
 
 ## ⚠️ 꼭 지킬 것
 
-- **게시 묶음을 고치면 반드시 `cd comment-inbox && npm test`** — 공용 게시 함수 4개(사본)를 가짜 DB·가짜 플랫폼으로 돌리는 이중 게시 방지 시험 26개(`tests/double-post.test.mjs`, 추가 패키지 없음, Node 24 내장). 원래 프로그램의 기준 파일을 고친 뒤 `--sync` 하고 여기서 시험. 게시 함수가 새 모듈을 가져오면 `tests/fakes/loader.mjs`에 가짜를 추가해야 시험이 돈다.
+- **게시 묶음을 고치면 `node scripts/check-shared-modules.mjs --sync`가 이 폴더의 사본을 바꾸는 순간 시험을 자동으로 돌리고, 실패하면 「문제」로 보고한다(2026-10-21). 직접 돌릴 때는 `cd comment-inbox && npm test` 또는 원래 프로그램 폴더에서 `npm run test:reply-post`, 점검 스크립트 `--test`.** 기존 설명: — 공용 게시 함수 4개(사본)를 가짜 DB·가짜 플랫폼으로 돌리는 이중 게시 방지 시험 26개(`tests/double-post.test.mjs`, 추가 패키지 없음, Node 24 내장). 원래 프로그램의 기준 파일을 고친 뒤 `--sync` 하고 여기서 시험. 게시 함수가 새 모듈을 가져오면 `tests/fakes/loader.mjs`에 가짜를 추가해야 시험이 돈다.
 - **새 응대 채널 붙이는 법**(2026-10-21 조사: 지금 「검토 대기 → 승인 게시」 흐름이 있는 프로그램은 이 세 댓글 프로그램뿐, 카카오(`kakao_auto_poster`)는 뉴스레터 발송이고 카카오 채널은 고객 대화 읽기·답장 공개 API가 없어 대상 아님): ① 원래 프로그램이 `status='pending_review'`·`generated_reply`·`replied_at`·`user_id` 표를 갖고, 게시 함수(`post.ts`)가 같은 `replied_at` 선점을 쓰게 한다 ② 게시 묶음(post·memberAccount·client·token)을 `scripts/check-shared-modules.mjs`에 등록하고 사본을 이 폴더에 `--sync` ③ `lib/inbox/load.ts`의 `SOURCE_PROGRAMS`·`PLATFORM_*`·조회 묶음, `lib/actions/inbox.ts`의 `TABLE`·승인 분기, 카드 칩·좌측 메뉴 필터에 추가 ④ `types/database.types.ts`에 표 형식 추가 ⑤ `tests/double-post.test.mjs`의 `PLATFORMS`에 한 줄 추가.
 
 - **게시 묶음은 사본이다 — 직접 고치지 않는다.** 아래 파일은 원래 프로그램의 기준 파일 사본이며 기준만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`:
@@ -54,3 +54,9 @@ https://comment-inbox.buylife.xyz
 - 화면: `InboxList` 「?」(또는 「? 단축키 전체」 버튼) 도움말 창·Esc 닫기, 휴대폰 안내 줄. `InboxItemCard` 접힌 카드 터치 밀기(세로 스크롤과 구분, 100px 넘게 밀면 건너뛰기, 뒤에 「놓으면 건너뛰기」 표시).
 - 검수: tsc·시험 26·build, 배포 `comment-inbox-99fpzgush` READY, DB v1.03, 크롬 `/inbox` v1.03. 대기 0건이라 도움말 창·밀기는 실제 항목으로 미확인. 비용: Vercel 빌드 1회. 커밋 `f3127568`(시험)·`74720335`(화면).
 - **사고 기록**: 시험 커밋 `f3127568`에 다른 세션이 미리 스테이징한 `lyric-video-studio`·`playlist-channel-studio` 썸네일 추천 파일 6개가 함께 들어가 푸시됨(내용 그대로, 강제 푸시 안 함, 세 세션에 메시지로 안내). 이후 「스테이징 목록이 내 경로뿐일 때만 커밋」 확인 장치로 커밋.
+
+### 2026-10-21 v1.04 — 건너뛰기 되돌리기 + 시험 자동 실행 연결 (Claude Code 윈도우)
+- `lib/actions/inbox.ts` `unskipInboxItemAction`: 권한 두 겹 확인 후 본인·`status='skipped'` 행만 `pending_review`로(게시된 항목은 건드리지 않음). `InboxList`: 건너뛰기 성공 → 아래쪽 「⏭ 건너뛰었어요 — 작성자 · ↩ 되돌리기」 5초. 마지막 항목을 건너뛰어도 알림이 남도록 빈 상태 카드도 `InboxList`가 그림(화면에서 `empty`로 넘김) — 덤으로 빈 상태에서도 「?」 도움말이 열림.
+- 시험 자동 실행: `scripts/check-shared-modules.mjs`가 `comment-inbox/lib/` 사본을 `--sync`로 바꾸면 `npm test`를 돌려 실패 시 `FAIL 시험:` + 문제 1건(종료 코드 1), `--test`로 강제 실행. 원래 프로그램 3곳 `package.json`에 `test:reply-post`. 검증: 쓰레드 기준 게시 함수를 이중 게시 방지 이전 버전으로 바꿔 `--sync` → 시험 자동 실행·2개 실패 보고 → 복원 후 26개 통과(파일 내용 변경 없음).
+- 검수: tsc·시험 26·build, 배포 `comment-inbox-jqxr8h9vh` READY, DB v1.04, 크롬에서 「?」 도움말 창 열림(표 8줄)·Esc 닫힘 실제 확인. 되돌리기 알림은 대기 0건이라 실제 항목으로 미확인. 비용: Vercel 빌드 1회. 커밋 `3fd312c2`(시험 연결)·`df825e8f`(되돌리기).
+- 네이버 블로그·카페 「댓글 응대」: 해당 기능이 아직 없어 작업 없음 — 생기면 위 「새 응대 채널 붙이는 법」대로.
