@@ -235,9 +235,9 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
 
 
         {/* Price + CTA */}
-        {/* 좁은 카드(약 330px)에서도 글자가 줄바꿈되지 않게 가격은 두 줄 고정·버튼은 nowrap (2026-10-22) */}
-        <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-white/10">
-          <div className="min-w-0 whitespace-nowrap">
+        {/* 좁은 카드(약 330px)에서도 글자가 꺾이거나 잘리지 않게: 가격·버튼은 nowrap+shrink-0, 한 줄에 안 들어가면(휴대폰+긴 버튼) 버튼 묶음만 다음 줄 오른쪽으로 (2026-10-22) */}
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-3 mt-auto pt-4 border-t border-white/10">
+          <div className="shrink-0 whitespace-nowrap">
             {resolvedBadges.includes("free") ? (
               <div className="flex flex-col leading-tight">
                 <span className="text-emerald-400 font-bold text-base">무료</span>
@@ -255,7 +255,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
               <span className="text-subtext text-sm">가격 문의</span>
             )}
           </div>
-          <div className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+          <div className="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
             {/* 휴대폰(마우스 올림 없음)용 퀵 프리뷰 — 덮개 버튼과 같은 팝업(2026-10-20) */}
             <button
               type="button"
