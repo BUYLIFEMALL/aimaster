@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PlanningStatus } from "@/types/database.types";
-import { buildChapters, buildCsv, type ExportSong } from "@/lib/songListExport";
+import type { ExportSong } from "@/lib/songListExport";
+import { SongListExport } from "@/components/SongListExport";
 
 // v1.30 기획 목록에서 여러 기획의 완성 곡(곡마다 첫 변주)을 골라 YOUTUBE 플레이리스트 자동화로 넘긴다.
 // 기획 상세의 「플레이리스트 영상 만들기 →」(v1.26)와 같은 주소 형식 — 그쪽은 미리 선택만 하고 회원이 「선택한 곡 추가」(최대 20곡).
@@ -36,7 +37,6 @@ const STATUS_BADGE: Record<PlanningStatus, { label: string; className: string }>
 
 export function PlanningListWithPicker({ plannings }: { plannings: PlanningRow[] }) {
   const [picked, setPicked] = useState<string[]>([]); // 고른 순서대로
-  const [copied, setCopied] = useState(false);
   // v1.40(D-68-03): 고른 순서대로 곡을 모아 플레이리스트로 넘기고, 같은 목록을 CSV·목차로도 내보낸다.
   const exportSongs: (ExportSong & { id: string })[] = plannings
     .filter((p) => picked.includes(p.id))
@@ -45,26 +45,6 @@ export function PlanningListWithPicker({ plannings }: { plannings: PlanningRow[]
   const songIds = exportSongs.map((s) => s.id);
   const sending = songIds.slice(0, MAX_SONGS);
   const withSongs = plannings.filter((p) => p.songs.length > 0).length;
-
-  function downloadCsv() {
-    const blob = new Blob([buildCsv(exportSongs)], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `곡목록-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  async function copyChapters() {
-    try {
-      await navigator.clipboard.writeText(buildChapters(exportSongs));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  }
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
 
   return (
@@ -119,22 +99,7 @@ export function PlanningListWithPicker({ plannings }: { plannings: PlanningRow[]
           </span>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setPicked([])} className="text-[11px] text-zinc-400 hover:text-white">선택 해제</button>
-            <button
-              type="button"
-              onClick={copyChapters}
-              title="「0:00 곡 제목」 목차 — 유튜브 설명란에 붙여 넣기"
-              className="rounded-full border border-red-500/40 px-3 py-2 text-[11px] font-bold text-red-100 hover:bg-red-500/10"
-            >
-              {copied ? "✅ 복사됨" : "📋 영상 설명용 목차 복사"}
-            </button>
-            <button
-              type="button"
-              onClick={downloadCsv}
-              title="순서·제목·길이·시작 시각·스타일·권장 파일명(CSV, 엑셀에서 열림)"
-              className="rounded-full border border-red-500/40 px-3 py-2 text-[11px] font-bold text-red-100 hover:bg-red-500/10"
-            >
-              ⬇ 곡 목록 CSV
-            </button>
+            <SongListExport songs={exportSongs} className="border-red-500/40 text-red-100 hover:bg-red-500/10" />
             <a
               href={`${PLAYLIST_URL}?suno=${sending.join(",")}`}
               target="_blank"

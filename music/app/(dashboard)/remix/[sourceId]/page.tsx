@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { RemixCard, type RemixCardData } from "@/components/remix/RemixCard";
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { withSignedStorageUrls } from "@/lib/storageSign";
+import { SongListExport } from "@/components/SongListExport";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,24 @@ export default async function RemixSourceDetailPage({ params }: PageProps) {
   const remixList = await withSignedStorageUrls((remixes ?? []) as unknown as RemixCardData[]);
   const hasGenerating = remixList.some((r) => r.status === "generating");
 
+  // v1.42(D-68-03): 완성 리믹스의 최신 결과(카드에 보이는 묶음, 오래된 순)를 목차·CSV로 내보낸다
+  const MODE_NAME: Record<string, string> = { cover: "리믹스", add_vocals: "보컬 추가", add_instrumental: "반주 추가", mashup: "매시업" };
+  const exportSongs = [...remixList]
+    .filter((r) => r.status === "completed" && r.music_track_remix_variants.length > 0)
+    .reverse()
+    .flatMap((r) => {
+      const latest = Math.max(...r.music_track_remix_variants.map((v) => new Date(v.created_at).getTime()));
+      const batch = r.music_track_remix_variants.filter((v) => latest - new Date(v.created_at).getTime() < 2000);
+      const row = r as RemixCardData & { instrumental?: boolean };
+      return batch.map((v, i) => ({
+        planningTitle: source.title,
+        title: `${source.title} ${MODE_NAME[r.mode ?? "cover"] ?? "리믹스"} #${i + 1}`,
+        mode: row.instrumental ? "instrumental" : "vocal",
+        durationSeconds: v.duration_seconds,
+        style: r.style_description,
+      }));
+    });
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
       <AutoRefresh enabled={hasGenerating} />
@@ -54,6 +73,15 @@ export default async function RemixSourceDetailPage({ params }: PageProps) {
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white truncate">{source.title}</h1>
+          {exportSongs.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <SongListExport
+                songs={exportSongs}
+                fileLabel={`${source.title} 리믹스`}
+                className="border-[#2d2d3e] text-zinc-300 hover:border-orange-500/40 hover:text-orange-300"
+              />
+            </div>
+          )}
         </div>
 
         <Link

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.42 기획 상세·리믹스 결과에도 곡 목록 내보내기
+
+「📋 영상 설명용 목차 복사」·「⬇ 곡 목록 CSV」를 공용 컴포넌트(`music/components/SongListExport.tsx`)로 만들어 기획 목록·기획 상세·리믹스 원곡 화면이 함께 씀. 크롬 시험 계정에서 세 화면 목차 확인. 배포 `music-oz0lwcx28` Ready, DB v1.42. 비용: Vercel 빌드 1회. 참고: 직전 커밋 `652b186b`에 다른 세션(AI 쇼츠 원스톱 v1.24) HANDOFF 항목이 함께 들어감(내용 그대로, 되돌리지 않음). 남은 일: **업로드 한도 상향 승인 대기**, 10-29 이후 30일 정리 확인, 리믹스 카드 바로가기(다음 빌드 때 함께). 상세: `music/AGENTS.md` v1.42.
+
+https://music-automation.buylife.xyz/plannings
+
 ## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.41 저장 실패 원인 확인(업로드 한도 50MB) · 임시 보관 표시 확대
 
 **원인**: 운영 Supabase 프로젝트 업로드 한도 50MB(시험 45MB 성공·60MB 413) → 4분 20초 넘는 곡의 WAV는 항상 Suno 임시 주소로 남음. **승인 대기: 대시보드 Storage 업로드 한도 상향(공용 DB 설정)**. 코드: 크기 초과 안내, 「임시 보관」 표시·다시 저장을 12트랙·Suno 커버·영상까지. 크롬 시험 계정에서 저장·만료 안내 확인 후 원래대로 되돌림. 배포 `music-ms761y9qa` Ready, DB v1.41. 비용: Vercel 빌드 1회. 교훈: `docs/ERROR_LESSONS.md` 맨 위.

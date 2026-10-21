@@ -8,6 +8,7 @@ import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { PlanningHeaderCard, type PlanningHeaderData } from "@/components/plannings/PlanningHeaderCard";
 import { withSignedStorageUrls } from "@/lib/storageSign";
 import { RetentionNotice } from "@/components/RetentionBadge";
+import { SongListExport } from "@/components/SongListExport";
 
 export const dynamic = "force-dynamic";
 // 최대 10곡 대량생성 시 GPT 스타일/가사 호출이 순차로 여러 번 도는 generateTracksAction이
@@ -67,6 +68,16 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
     .filter((t) => t.status === "completed" && t.music_track_variants.length > 0)
     .map((t) => t.music_track_variants[0].id)
     .slice(0, 20);
+  // v1.42(D-68-03): 같은 곡 묶음(완성 곡마다 첫 변주, 개수 제한 없음)을 목차·CSV로 내보낸다
+  const exportSongs = trackList
+    .filter((t) => t.status === "completed" && t.music_track_variants.length > 0)
+    .map((t) => ({
+      planningTitle: planningData.title ?? "제목 없음",
+      title: t.title ?? "제목 없음",
+      mode: t.mode,
+      durationSeconds: t.music_track_variants[0].duration_seconds,
+      style: (t as TrackCardData & { style_description?: string | null }).style_description ?? null,
+    }));
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
@@ -98,6 +109,16 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
           <span>🎞️ 이 기획의 완성 곡 {playlistIds.length}개로 플레이리스트 영상 만들기 →</span>
           <span className="text-xs font-normal text-red-200/70">YOUTUBE 플레이리스트 자동화 · 새 창</span>
         </a>
+      )}
+      {exportSongs.length > 0 && (
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <span className="text-[11px] text-zinc-500">완성 곡 {exportSongs.length}개 내보내기</span>
+          <SongListExport
+            songs={exportSongs}
+            fileLabel={planningData.title ?? "곡목록"}
+            className="border-[#2d2d3e] text-zinc-300 hover:border-orange-500/40 hover:text-orange-300"
+          />
+        </div>
       )}
 
       {trackList.length > 0 && (
