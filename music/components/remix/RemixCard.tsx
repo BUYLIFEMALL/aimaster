@@ -7,6 +7,7 @@ import { ImageLightbox } from "@/components/plannings/ImageLightbox";
 import type { RemixMode, RemixStatus } from "@/types/database.types";
 import { RetentionBadge } from "@/components/RetentionBadge";
 import { REMIX_MODE_OPTIONS } from "@/components/remix/RemixForm";
+import { TemporaryStorageNotice } from "@/components/StorageNotice";
 
 export interface RemixVariant {
   id: string;
@@ -184,6 +185,7 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
                   />
                 )}
                 <audio controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
+                <TemporaryStorageNotice kind="remix_variant" id={variant.id} urls={[variant.audio_url, variant.image_url]} />
               </div>
             ))}
           </div>

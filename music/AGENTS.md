@@ -380,3 +380,9 @@ POST 콜백을 보낸다. 이 라우트는:
 - `app/(dashboard)/remix/new/page.tsx`: 「섞을 두 번째 곡」 후보 이름 뒤에 만든 날짜·시각(한국 시간, `10/22 02:29`)을 붙여 같은 제목 곡 구분.
 - 검수: tsc·lint·테스트 55·build, 배포 `music-2yzmt4hln` Ready, DB v1.38, 크롬 시험 계정에서 후보 8개 모두 날짜 표시 확인. 비용: Vercel 빌드 1회.
 - **리믹스 카드 「가사 영상·플레이리스트」 바로가기는 보류**: 두 프로그램(`lyric-video-studio/src/lib/suno.ts`, `playlist-channel-studio/src/lib/sunoTracks.ts`)이 `music_track_variants`만 읽어, 리믹스 결과(`music_track_remix_variants`)를 넘기면 찾지 못한다. 두 프로그램도 고쳐야 하는 일이라(배포 2회 추가) 별도 플랜으로 진행.
+
+## 2026-10-22 v1.39 — D-68-02: 「Suno 생성 완료」와 「내 보관함 저장 완료」 구분 (Claude Code 윈도우)
+- 원인: `persistSunoAssetToStorage`(`lib/trackSync.ts`)는 우리 저장소 복사에 실패하면 **Suno 임시 주소를 그대로 저장**하고 화면은 「완료」로 보였다(임시 주소는 약 14일 뒤 만료). 운영 DB 조회(2026-10-22): 곡 변주 118·리믹스 변주 22·MR 2는 모두 우리 저장소, **WAV 2개 중 1개(다른 회원)가 임시 주소**. 2곡 중 1곡만 도착한 완료 곡은 0/59.
+- 수정(DB 변경 없음): 화면 컴포넌트 `components/StorageNotice.tsx`(`isTemporaryUrl` — 우리 저장소 주소는 `/storage/v1/object/`를 포함), 곡 변주·MR·WAV(곡 카드)와 리믹스 결과(리믹스 카드)가 임시 주소면 「⚠️ 임시 보관 …(약 14일 뒤 만료)」 + 「📥 내 보관함에 다시 저장」. 서버 액션 `lib/actions/storageRestore.ts` `restoreToStorageAction(kind, id)`: 회원 본인 행만, 임시 주소인 칸만 다시 받아 저장(실패를 임시 주소로 덮지 않음), 만료면 「다시 만들어 주세요」. 저장 경로는 곡/변주/리믹스 폴더 안이라 30일 정리 대상 그대로.
+- 범위 밖(다음): 악기별 12트랙(`stems` jsonb)·Suno 커버·영상(`music_track_media.urls`)은 이번에 표시하지 않음. 저장 실패 자체의 원인(대용량 WAV 복사 시간 등) 조사도 남음.
+- 검수: tsc·lint·테스트 55·build, 배포 `music-9j7cnnka1` Ready, DB v1.39. 크롬 시험 계정: WAV 주소를 실제 Suno 임시 주소로 잠시 바꿈 → 안내·버튼 1개 표시 → 누르니 원래 경로로 다시 저장(33.9MB, 주소 원래와 같음), 안내 사라짐. 없는 임시 주소로 바꿈 → 「이미 만료돼 받을 수 없었습니다. 다시 만들어 주세요」, 주소 그대로 → 원래 주소로 되돌림. 다른 회원의 실제 사례는 건드리지 않음(그 회원 화면에 안내·버튼이 보임). 비용: Vercel 빌드 1회.

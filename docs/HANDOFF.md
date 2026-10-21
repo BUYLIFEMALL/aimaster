@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.39 D-68-02 「생성 완료」와 「내 보관함 저장 완료」 구분
+
+우리 저장소 복사가 실패하면 Suno 임시 주소(약 14일 뒤 만료)가 조용히 저장되던 결과에 「⚠️ 임시 보관」 표시 + 「📥 내 보관함에 다시 저장」(곡 변주·리믹스·MR·WAV, DB 변경 없음). 운영 사례 1건(다른 회원 WAV, 건드리지 않음). 크롬 시험 계정에서 저장 성공·만료 안내 모두 확인 후 원래 주소로 되돌림. 배포 `music-9j7cnnka1` Ready, DB v1.39. 비용: Vercel 빌드 1회. 다음: D-68-03, 12트랙·커버·영상 표시, 10-29 이후 30일 정리 확인. 상세: `music/AGENTS.md` v1.39.
+
+https://music-automation.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 대기 작업 등록: 음악(SUNO) 리믹스 카드 → 가사 영상·플레이리스트 바로가기 (다음 빌드 때 함께)
 
 주인님 지시: 따로 배포하지 않고 **`music`·`lyric-video-studio`·`playlist-channel-studio` 중 어느 것을 다음에 다른 작업으로 빌드하든 그때 그 프로그램 몫을 함께 넣고 시험**. 두 프로그램이 `music_track_variants`만 읽어 리믹스 결과(`music_track_remix_variants`)를 찾지 못하므로 `?remix=` 읽기를 먼저 넣고, 음악(SUNO) 리믹스 카드 링크는 두 프로그램 배포 뒤에 켠다. 플랜·시험용 리믹스 번호: `music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`. 각 프로그램 `docs/IMPROVEMENTS.md`에 대기 항목 등록. 코드·배포 변경 없음.

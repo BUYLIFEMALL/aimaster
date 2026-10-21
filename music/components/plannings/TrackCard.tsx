@@ -28,6 +28,7 @@ import { RetentionBadge } from "@/components/RetentionBadge";
 import { TimedLyricsButton } from "./TimedLyricsButton";
 import { PersonaButton } from "./PersonaButton";
 import { ReplaceSectionButton } from "./ReplaceSectionButton";
+import { TemporaryStorageNotice } from "@/components/StorageNotice";
 import { SunoCoverPanel, SunoVideoButton, type MediaItem } from "./SunoMedia";
 import { fmtTime } from "@/lib/replaceRange";
 
@@ -387,6 +388,7 @@ export function TrackCard({
                     />
                   )}
                   <audio id={`audio-${variant.id}`} controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
+                  <TemporaryStorageNotice kind="variant" id={variant.id} urls={[variant.audio_url, variant.image_url]} />
                   {variant.suno_audio_id && (
                     <div className="flex flex-wrap gap-2 pt-1">
                       <button
@@ -540,6 +542,7 @@ export function TrackCard({
                     <div className="space-y-1.5 pt-1 border-t border-[#2a2a3c]">
                       <p className="text-[11px] font-bold text-zinc-300">🎧 분리된 MR (보컬 제거 반주)</p>
                       <audio controls src={latestMr.instrumental_url} className="w-full" />
+                      <TemporaryStorageNotice kind="mr" id={latestMr.id} urls={[latestMr.instrumental_url, latestMr.vocal_url]} />
                       {/* 2026-10-21 V6 3차 ⑤: 분리된 파일로 바로 보컬 추가·반주 추가(음악 Remix 스튜디오) */}
                       <div className="flex flex-wrap gap-x-4 gap-y-1 pt-0.5">
                         <a
@@ -575,6 +578,9 @@ export function TrackCard({
                     <p className="text-[11px] text-rose-400 bg-rose-950/30 border border-rose-500/20 rounded-lg p-2">
                       ⚠️ {latestWav.error_message ?? "WAV 변환에 실패했습니다."}
                     </p>
+                  )}
+                  {latestWav?.status === "completed" && latestWav.wav_url && (
+                    <TemporaryStorageNotice kind="wav" id={latestWav.id} urls={[latestWav.wav_url]} />
                   )}
                   {latestWav?.status === "completed" && latestWav.wav_url && (
                     <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#2a2a3c]">
