@@ -189,3 +189,9 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 
 ## 2026-10-21 — 텔레그램 연동 공용 모듈 `telegram-bot-client` (Claude Code 윈도우, 부계정)
 - 이 프로그램의 텔레그램 `client.ts`는 공용 사본(직접 고치지 말 것 — 기준 `instagram-comment-reply/lib/telegram/client.ts`만 고치고 `--sync`). 동작 같음 — 다음 배포 때 버전 +0.01과 함께 나감.
+
+## 2026-10-21 v1.21 — 대시보드 검토 대기 목록 형식을 INSTA와 맞춤 (Claude Code 윈도우)
+- 주인님 지시(INSTA 댓글·DM v1.26 보고의 추가개선 제안 3번 — 나중에 「통합 댓글 받은편지함」으로 묶기 쉽게). `app/(dashboard)/dashboard/page.tsx`: 「🕒 검토를 기다리는 댓글」 제목 옆에 `{pending}건`, 「전체 보기 →」를 제목 줄 오른쪽 위로 옮겨 항상 표시(대기 0건이면 사라지던 목록 아래 「모두 보기」 제거). 목록 항목·서버 로직은 그대로. `package.json` 버전이 1.18.0에 머물러 있어 1.21.0으로 맞춤.
+- 같은 배포에 저장소에만 반영돼 있던 공용 사본 2개(예약 `member-scheduler` 사본 전환, 텔레그램 `telegram-bot-client`)도 함께 나감 — 둘 다 동작 같음.
+- 검수: tsc 0, `npm run build`, 배포 `youtube-auto-reply-lyon4v0rf` Ready, DB v1.21, 회원 실행 주소 `/api/cron/dispatch-member` 가짜 토큰 401·`/login` 200, 메인 크롬(일반 회원) 대시보드 v1.21·「0건」·「전체 보기 →」, 설정 화면 예약 상태 줄(「AIMaster 기본(Vercel) 실행 중 · 모니터링 꺼짐」)·예약 발행 구역 정상. 비용: Vercel 빌드 1회, AI 0회. 커밋 `bb422f1d`.
+- `docs/evidence/permissions.json`·`runtime-local.json`의 미커밋 변경은 다른 CLI 것이라 건드리지 않음.
