@@ -8,6 +8,7 @@ import { CharacterSection } from "@/components/CharacterSection";
 import { ScriptEditorSection } from "@/components/ScriptEditorSection";
 import { WebtoonCanvasSection } from "@/components/WebtoonCanvasSection";
 import { ScheduledSummary } from "@/components/ScheduledSummary";
+import { InstaWeekPosts } from "@/components/weekChart/InstaWeekPosts";
 import { GuideSection } from "@/components/GuideSection";
 import { SettingsModal } from "@/components/SettingsModal";
 import {
@@ -178,6 +179,15 @@ export default function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
                 // 게시 칸은 페이지 맨 아래라 위쪽 맞춤이 안 되고, 부드러운 이동은 다시 그려지는 중에 끊긴다 → 바로 이동해 칸 아래쪽(게시 기록)을 화면 아래에 맞춘다
                 setTimeout(() => document.getElementById("insta-publish")?.scrollIntoView({ block: "end" }), 400);
               }}
+            />
+          )}
+
+          {/* 2026-10-22 최근 7일 게시(공용 기준 코드 `insta-week-posts`, 접힌 한 줄 → 펼치기) */}
+          {activeTab === "concept" && (
+            <InstaWeekPosts
+              postsUrl="/api/instagram/posts"
+              cardClassName="rounded-2xl border border-[#232b3e] bg-[#121620] px-4 py-3 text-slate-100"
+              classes={{ border: "border-[#232b3e]", item: "bg-[#0a0d14]", muted: "text-slate-400", danger: "text-red-400" }}
             />
           )}
 

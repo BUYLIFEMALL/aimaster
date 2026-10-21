@@ -25,7 +25,7 @@ async function checkScheduleReady(userId: string): Promise<{ error?: string; cro
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, project_id, title, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
+const COLUMNS = "id, project_id, title, caption, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
 
 /** GET — 내 인스타 게시 기록(최근 30일, 최신순 30건). ?projectId= 이면 그 카드뉴스 기록만 */
 export async function GET(request: Request) {

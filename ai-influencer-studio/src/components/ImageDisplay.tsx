@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import type { GenerationResult, HistoryItem } from "@/types/influencer";
 import { InstagramPublishPanel } from "./InstagramPublishPanel";
-import { ScheduledSummary } from "./ScheduledSummary";
+import { INSTA_POSTS_CHANGED, ScheduledSummary } from "./ScheduledSummary";
+import { InstaWeekPosts } from "@/components/weekChart/InstaWeekPosts";
 import { RoutineSchedulePanel } from "./RoutineSchedulePanel";
 
 interface ImageDisplayProps {
@@ -61,6 +62,13 @@ export function ImageDisplay({
       {/* 본문 콘텐츠 스크롤 영역 */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center">
         <ScheduledSummary />
+        {/* 2026-10-22 최근 7일 게시(공용 기준 코드 `insta-week-posts`, 접힌 한 줄 → 펼치기) */}
+        <InstaWeekPosts
+          postsUrl="/api/instagram/posts"
+          refreshEvent={INSTA_POSTS_CHANGED}
+          cardClassName="w-full max-w-2xl mb-4 rounded-2xl border border-if-border bg-if-surface px-4 py-3 text-if-text"
+          classes={{ border: "border-if-border", item: "bg-if-raised", muted: "text-if-muted", danger: "text-red-400" }}
+        />
         {routineScheduleEnabled && <RoutineSchedulePanel history={history} />}
         {result.imageUrl ? (
           <div className="w-full max-w-2xl bg-if-surface rounded-2xl border border-if-border shadow-md p-4 space-y-4">

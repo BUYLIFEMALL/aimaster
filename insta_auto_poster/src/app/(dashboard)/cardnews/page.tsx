@@ -8,6 +8,7 @@ import type { ProjectSummary } from "@/lib/cardnews/types";
 import { useStudio } from "@/components/cardnews/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote } from "@/components/cardnews/studio/ui";
 import { APP_VERSION } from "@/lib/version";
+import { InstaWeekPosts } from "@/components/weekChart/InstaWeekPosts";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -95,6 +96,14 @@ export default function DashboardPage() {
           </div>
         )}
       </Card>
+
+      {/* v1.45 카드뉴스 최근 7일 게시(공용 기준 코드 `insta-week-posts`, 본인 카드뉴스 게시 기록 최근 30건) */}
+      <InstaWeekPosts
+        postsUrl="/api/cardnews/instagram/posts"
+        defaultOpen
+        cardClassName="rounded-2xl border border-[#262c3d] bg-[#161922] p-5 text-slate-100"
+        classes={{ border: "border-[#262c3d]", item: "bg-[#11141c]", muted: "text-slate-400", danger: "text-red-400" }}
+      />
 
       {/* 2. 5단계 카드뉴스 제작 가이드 바 */}
       <Card className="border-[#262c3d]">
