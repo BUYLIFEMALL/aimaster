@@ -367,3 +367,4 @@ POST 콜백을 보낸다. 이 라우트는:
 - 리믹스 목록(`app/(dashboard)/remix/page.tsx`): 매시업을 두 번째 원곡(`second_source_id`) 묶음에도 함께 센다 → 두 번째 곡 묶음이 「리믹스 0개」로 보이던 문제 해결. 원곡 화면(`remix/[sourceId]`)도 `source_id` 또는 `second_source_id`가 그 원곡인 리믹스를 모두 보여 줌(같은 매시업이 두 곡 화면 모두에 나옴).
 - 가이드(`components/guide/MusicUsageGuide.tsx` STEP 04): 리믹스 방식 4가지 카드 + 곡 카드 MR 바로가기 설명, 「좌측 3단계」→「좌측 4단계」(사이드바 순서와 맞춤).
 - 검수: tsc·lint·테스트 55·build, 배포 `music-osypvg3pk` Ready·운영 주소 연결, DB v1.36. **크롬 화면 확인은 크롬 로그인이 풀려 대기**(주인님 재로그인 후). 비용: Vercel 빌드 1회.
+- **2026-10-22 v1.36 화면 확인·곡 연장 앱 버튼 실사용 확인(승인 1회)**: 크롬 시험 계정에서 리믹스 목록의 매시업 두 번째 곡 묶음이 「리믹스 1개」, 그 화면에 「"빗속의 다짐" 매시업」·재생기 2개. 가이드(관리자 계정) STEP 04 문구 확인. **「곡 연장하기」(원곡 #1 181초, 변주 `4fd131ed`)를 앱 버튼으로 1회** → `record-info`의 요청 값 `continueAt 151`(끝 30초 전)·새 가사(Bridge·Final Chorus·Outro)가 `prompt`와 `lyrics`에 함께·`V6` → 약 2분 뒤 Suno `SUCCESS`, 우리 DB 완료, 2곡 222초·219초, 화면 「🔁 연장본」 재생 정보 정상. **v1.25 곡 연장 실패 문제는 앱 경로까지 해결 확인.** 비용: Suno 연장 1회 + gpt-4o-mini 1회(시험 계정 본인 키).

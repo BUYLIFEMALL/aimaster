@@ -64,7 +64,7 @@ https://tistory-auto-blog.buylife.xyz
 
 ## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.34~v1.35 보컬 추가·반주 추가·매시업 실제 시험 완료
 
-리믹스 스튜디오 방식 4가지(스타일 커버·🎤 보컬 추가·🎹 반주 추가·🔀 매시업, sunoapi.org add-vocals·add-instrumental·mashup)와 곡 카드 MR 결과 바로가기. DB(승인) `0019_remix_modes.sql`(ref `esgxyikcnnvmlhygjkth`). 크롬 시험 계정 본인 키로 실제 호출 3회 모두 성공(각 2곡, 176~178초, 우리 저장소·서명 주소 재생, record-info 요청 값 확인), 같은 로그인으로 Suno 뮤직비디오 재생 확인. 검수 중 발견 2건(MR 원곡 표시·매시업 같은 곡 후보)을 v1.35로 수정·배포(`music-27h01bym4` Ready, DB v1.35). 비용: Vercel 빌드 2회, Suno 3회 + gpt-4o-mini 3회. **v1.36(같은 날)**: 가이드에 리믹스 방식 4가지·MR 바로가기 설명, 매시업을 두 번째 곡 묶음에도 표시(배포 `music-osypvg3pk` Ready, DB v1.36, 크롬 화면 확인은 재로그인 대기). 남은 일: 곡 연장 앱 버튼 실사용 확인, 2026-10-29 03:00 KST 이후 30일 정리 실행 확인. 상세: `music/AGENTS.md` v1.34~v1.35, `music/docs/IMPROVEMENTS.md`.
+리믹스 스튜디오 방식 4가지(스타일 커버·🎤 보컬 추가·🎹 반주 추가·🔀 매시업, sunoapi.org add-vocals·add-instrumental·mashup)와 곡 카드 MR 결과 바로가기. DB(승인) `0019_remix_modes.sql`(ref `esgxyikcnnvmlhygjkth`). 크롬 시험 계정 본인 키로 실제 호출 3회 모두 성공(각 2곡, 176~178초, 우리 저장소·서명 주소 재생, record-info 요청 값 확인), 같은 로그인으로 Suno 뮤직비디오 재생 확인. 검수 중 발견 2건(MR 원곡 표시·매시업 같은 곡 후보)을 v1.35로 수정·배포(`music-27h01bym4` Ready, DB v1.35). 비용: Vercel 빌드 2회, Suno 3회 + gpt-4o-mini 3회. **v1.36(같은 날)**: 가이드에 리믹스 방식 4가지·MR 바로가기 설명, 매시업을 두 번째 곡 묶음에도 표시(배포 `music-osypvg3pk` Ready, DB v1.36, 크롬 화면 확인 완료). **곡 연장 앱 버튼 실사용 성공**(continueAt 151, 222·219초, Suno 1회 + gpt-4o-mini 1회, 시험 계정 키). 남은 일: 2026-10-29 03:00 KST 이후 30일 정리 실행 확인. 상세: `music/AGENTS.md` v1.34~v1.35, `music/docs/IMPROVEMENTS.md`.
 
 https://music-automation.buylife.xyz/remix
 
