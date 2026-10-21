@@ -3,7 +3,9 @@ import { waitUntil } from "@vercel/functions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
 import { saveSunoRemixResult, markRemixFailed } from "@/lib/remixSync";
-import type { SunoCallbackPayload } from "@/lib/ai/suno";
+import { checkSunoGenerationStatus, type SunoCallbackPayload, type SunoPollResult } from "@/lib/ai/suno";
+import { getUserApiKey } from "@/lib/apiKeys";
+import { waitForSettled } from "@/lib/sunoVerify";
 import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +35,11 @@ export const maxDuration = 300;
  * 보내고, 정상일 때도 중복으로 올 수 있다. 저장(앨범 커버 생성·파일 복사)이 15초를 넘길 수 있어
  * ① 행 잠금(lib/syncLock.ts)을 먼저 차지한 요청만 처리하고 ② 200을 바로 돌려준 뒤 waitUntil로 저장한다.
  * 겹쳐 처리되면 곡이 두 번 저장되고 회원 키로 커버 생성이 두 번 과금될 수 있었다.
+ *
+ * 2026-10-22(D-68-01 콜백 신뢰 확인): 콜백에는 서명이 없어 작업 번호만 알면 가짜 결과·가짜 실패를 보낼 수 있다.
+ * 그래서 콜백 본문(code·음원 주소)은 쓰지 않고 「끝났다」는 신호로만 받는다. 저장·실패 판정은 회원 본인 Suno 키로
+ * record-info를 다시 조회한 결과로만 한다(lib/sunoVerify.ts). 조회가 아직 진행 중이면 잠금만 풀고 기다린다 —
+ * 회원의 「상태 확인」 버튼이나 다음 콜백이 다시 처리한다.
  */
 export async function POST(request: NextRequest) {
   let payload: SunoCallbackPayload;
@@ -66,22 +73,22 @@ export async function POST(request: NextRequest) {
       // 이미 처리된 콜백(중복 전송) — 무시한다.
       return NextResponse.json({ ok: true, ignored: "already processed" });
     }
-
-    if (payload.code !== 200) {
-      await markTrackFailed(admin, track, payload.msg ?? "알 수 없는 오류");
-      return NextResponse.json({ ok: true });
-    }
-
     if (!(await claimSyncLock(admin, "music_tracks", track.id))) {
       return NextResponse.json({ ok: true, ignored: "already processing" });
     }
-    const items = payload.data?.data ?? [];
     waitUntil(
       (async () => {
         try {
-          const { savedCount } = await saveSunoTrackResult(admin, track, items);
-          if (savedCount === 0) {
-            await markTrackFailed(admin, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
+          const result = await verifiedResult(admin, track.user_id, taskId);
+          if (!result || result.state === "processing") {
+            await releaseSyncLock(admin, "music_tracks", track.id);
+          } else if (result.state === "failed") {
+            await markTrackFailed(admin, track, result.error);
+          } else {
+            const { savedCount } = await saveSunoTrackResult(admin, track, result.tracks);
+            if (savedCount === 0) {
+              await markTrackFailed(admin, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
+            }
           }
         } catch (err) {
           console.error("Suno 곡 저장 실패:", err);
@@ -107,22 +114,22 @@ export async function POST(request: NextRequest) {
   if (remix.status !== "generating") {
     return NextResponse.json({ ok: true, ignored: "already processed" });
   }
-
-  if (payload.code !== 200) {
-    await markRemixFailed(admin, remix, payload.msg ?? "알 수 없는 오류");
-    return NextResponse.json({ ok: true });
-  }
-
   if (!(await claimSyncLock(admin, "music_track_remixes", remix.id))) {
     return NextResponse.json({ ok: true, ignored: "already processing" });
   }
-  const items = payload.data?.data ?? [];
   waitUntil(
     (async () => {
       try {
-        const { savedCount } = await saveSunoRemixResult(admin, remix, items);
-        if (savedCount === 0) {
-          await markRemixFailed(admin, remix, "Suno가 오디오 URL을 반환하지 않았습니다.");
+        const result = await verifiedResult(admin, remix.user_id, taskId);
+        if (!result || result.state === "processing") {
+          await releaseSyncLock(admin, "music_track_remixes", remix.id);
+        } else if (result.state === "failed") {
+          await markRemixFailed(admin, remix, result.error);
+        } else {
+          const { savedCount } = await saveSunoRemixResult(admin, remix, result.tracks);
+          if (savedCount === 0) {
+            await markRemixFailed(admin, remix, "Suno가 오디오 URL을 반환하지 않았습니다.");
+          }
         }
       } catch (err) {
         console.error("Suno 리믹스 저장 실패:", err);
@@ -132,4 +139,18 @@ export async function POST(request: NextRequest) {
   );
 
   return NextResponse.json({ ok: true });
+}
+
+/** 회원 본인 Suno 키로 결과를 다시 조회한다. 키가 없으면(지웠으면) null — 아무것도 바꾸지 않는다. */
+async function verifiedResult(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  taskId: string,
+): Promise<SunoPollResult | null> {
+  const sunoKey = await getUserApiKey(admin, userId, "suno");
+  if (!sunoKey) return null;
+  return waitForSettled(
+    () => checkSunoGenerationStatus(taskId, sunoKey),
+    (r) => r.state === "processing",
+  );
 }

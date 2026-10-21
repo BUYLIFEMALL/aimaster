@@ -614,6 +614,42 @@ export interface SunoVocalRemovalCallbackPayload {
   };
 }
 
+export type SunoVocalRemovalPollResult =
+  | { state: "processing" }
+  | { state: "ready"; info: Record<string, string | undefined> }
+  | { state: "failed"; error: string };
+
+/**
+ * `GET /api/v1/vocal-removal/record-info` — 콜백을 그대로 믿지 않고 회원 키로 결과를 다시 받는다(2026-10-22).
+ * 실제 응답(2026-10-22 확인): successFlag "SUCCESS", response에 vocalUrl·instrumentalUrl·backingVocalsUrl… 낙타 표기.
+ * 콜백(vocal_removal_info)과 같은 밑줄 표기(vocal_url·backing_vocals_url…)로 바꿔 돌려준다.
+ */
+export async function checkSunoVocalRemovalStatus(taskId: string, apiKey: string): Promise<SunoVocalRemovalPollResult> {
+  const response = await fetch(`${SUNO_BASE}/api/v1/vocal-removal/record-info?taskId=${encodeURIComponent(taskId)}`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`Suno 분리 상태 조회에 실패했습니다. (${response.status})${sunoStatusHint(response.status)}`);
+  }
+  const data = (await response.json()) as {
+    data?: { successFlag?: string; errorMessage?: string | null; response?: Record<string, unknown> };
+  };
+  const flag = String(data.data?.successFlag ?? "");
+  if (flag === "SUCCESS") {
+    const info: Record<string, string | undefined> = {};
+    for (const [key, value] of Object.entries(data.data?.response ?? {})) {
+      if (!key.endsWith("Url") || typeof value !== "string" || !value) continue;
+      info[`${key.slice(0, -3).replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)}_url`] = value;
+    }
+    return { state: "ready", info };
+  }
+  if (/FAILED|EXCEPTION/.test(flag)) {
+    return { state: "failed", error: data.data?.errorMessage || `분리 실패 (${flag})` };
+  }
+  return { state: "processing" };
+}
+
 export interface RequestSunoWavConversionInput {
   sourceTaskId: string; // 원곡 생성 당시의 taskId (music_tracks.task_id)
   audioId: string; // 변환할 특정 오디오의 Suno ID (music_track_variants.suno_audio_id)
@@ -666,11 +702,6 @@ export interface SunoWavCallbackPayload {
     audioWavUrl?: string;
     response?: { audioWavUrl?: string };
   };
-}
-
-/** 문서와 실제 응답이 달랐던 이력이 있어(위 주석 참고) 여러 경로를 순서대로 확인한다. */
-export function extractSunoWavUrl(payload: SunoWavCallbackPayload): string | undefined {
-  return payload.data?.audioWavUrl || payload.data?.response?.audioWavUrl;
 }
 
 export type SunoWavPollResult =

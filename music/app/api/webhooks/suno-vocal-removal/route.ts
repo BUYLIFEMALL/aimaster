@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { persistSunoAssetToStorage } from "@/lib/trackSync";
-import { SUNO_STEMS, type SunoVocalRemovalCallbackPayload } from "@/lib/ai/suno";
+import { SUNO_STEMS, checkSunoVocalRemovalStatus, type SunoVocalRemovalCallbackPayload } from "@/lib/ai/suno";
+import { getUserApiKey } from "@/lib/apiKeys";
+import { waitForSettled } from "@/lib/sunoVerify";
 import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +24,9 @@ export const maxDuration = 300;
  * 2026-10-21 V6 1차 ②: type=split_stem(악기별 최대 12트랙)도 이 라우트로 온다 — instrumental_url 없이
  * vocal_url·drums_url… 이 오므로 행의 type으로 나눠 처리하고, 결과는 stems(jsonb)에 저장한다.
  * 곡 웹훅과 같이 잠금(lib/syncLock.ts) → 즉시 200 → waitUntil 저장(중복 콜백·15초 한도 대응).
+ *
+ * 2026-10-22(D-68-01 콜백 신뢰 확인): 콜백 본문의 성공·실패·파일 주소는 쓰지 않고, 회원 본인 Suno 키로
+ * /vocal-removal/record-info를 다시 조회한 결과로만 저장·실패 처리한다(lib/sunoVerify.ts).
  */
 export async function POST(request: NextRequest) {
   let payload: SunoVocalRemovalCallbackPayload;
@@ -51,24 +56,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, ignored: "already processed" });
   }
 
-  if (payload.code !== 200) {
-    await admin
-      .from("music_track_mr")
-      .update({ status: "failed", error_message: payload.msg ?? "알 수 없는 오류" })
-      .eq("id", mr.id);
-    return NextResponse.json({ ok: true });
-  }
-
-  const info = payload.data?.vocal_removal_info ?? {};
   const isStems = (mr as { type?: string }).type === "split_stem";
-
-  if (!isStems && !info.instrumental_url) {
-    await admin
-      .from("music_track_mr")
-      .update({ status: "failed", error_message: "Suno가 반주(MR) URL을 반환하지 않았습니다." })
-      .eq("id", mr.id);
-    return NextResponse.json({ ok: true });
-  }
 
   if (!(await claimSyncLock(admin, "music_track_mr", mr.id))) {
     return NextResponse.json({ ok: true, ignored: "already processing" });
@@ -77,6 +65,30 @@ export async function POST(request: NextRequest) {
   waitUntil(
     (async () => {
       try {
+        const sunoKey = await getUserApiKey(admin, mr.user_id, "suno");
+        const result = sunoKey
+          ? await waitForSettled(
+              () => checkSunoVocalRemovalStatus(taskId, sunoKey),
+              (r) => r.state === "processing",
+            )
+          : null;
+        if (!result || result.state === "processing") {
+          await releaseSyncLock(admin, "music_track_mr", mr.id);
+          return;
+        }
+        if (result.state === "failed") {
+          await admin.from("music_track_mr").update({ status: "failed", error_message: result.error }).eq("id", mr.id);
+          return;
+        }
+        const info = result.info;
+        if (!isStems && !info.instrumental_url) {
+          await admin
+            .from("music_track_mr")
+            .update({ status: "failed", error_message: "Suno가 반주(MR) URL을 반환하지 않았습니다." })
+            .eq("id", mr.id);
+          return;
+        }
+
         if (isStems) {
           const stems: Record<string, string> = {};
           for (const { key } of SUNO_STEMS) {
