@@ -4,7 +4,7 @@
 
 https://comment-inbox.buylife.xyz
 
-- 현재 버전: **v1.04** (2026-10-21 건너뛰기 되돌리기 / 자동 시험 `npm test`, 공용 점검 `--sync` 때 자동 실행)
+- 현재 버전: **v1.05** (2026-10-21 오늘 답한 건수 / 자동 시험 37개 `npm test`)
 - 구조·핵심 항목 7가지·꼭 지킬 것: [`AGENTS.md`](AGENTS.md)
 - 개발 플랜: [`docs/PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](docs/PLAN_20261021_UNIFIED_COMMENT_INBOX.md)
 - 개선 원장·백로그·디자인: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) · [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)

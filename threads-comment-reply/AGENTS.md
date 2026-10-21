@@ -209,3 +209,7 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - **이중 게시 방지**: 공용 기준 게시 함수 `lib/comments/post.ts`에서 실제 게시 직전(`try` 앞)에 `replied_at`을 「처리 중 표시」로 조건부 선점(`status <> posted` 그리고 `replied_at`이 비었거나 2분 넘음 → 성공한 한 요청만 게시). 웹 승인·텔레그램 승인·자동 게시·통합 받은편지함이 동시에 와도 한 번만 게시. 실패하면 `status=failed, replied_at=null`로 표시 해제(DM은 고지 문구 미설정 조기 종료에서도 해제). DB 구조 변경 없음 — `replied_at`은 이력·통계 화면에서 `status=posted`와 함께만 읽혀 검토 대기 행에 남아도 화면 영향 없음(확인). 조건 문법은 없는 id로 운영 DB에 시험해 4개 표 모두 200·0행.
 - **연계**: 대시보드 머리(📖 매뉴얼 옆)에 「📥 통합 받은편지함에서 보기 ↗」(https://comment-inbox.buylife.xyz , 새 창).
 - 검수: tsc·build, 배포 `threads-comment-reply-5lrpfkjdd` READY, DB v1.21, 크롬 대시보드 새 버전·링크(새 창) 확인. 실제 동시 승인 시험은 대기 0건이라 미실행. 비용: Vercel 빌드 1회. 커밋 `77d2b9c8`.
+
+## 2026-10-21 v1.22 — 텔레그램 승인 알림에 「📥 통합 받은편지함에서 보기」 링크 버튼 (Claude Code 윈도우)
+- 공용 기준 `telegram-bot-client`(기준 `instagram-comment-reply/lib/telegram/client.ts`)의 `sendTelegramMessageWithButtons`에 선택 항목 `linkButton`(승인 버튼 줄 아래 URL 버튼 한 줄, 없으면 예전과 같음)을 추가하고 `lib/comments/sync.ts`(`?p=threads`)에서 받은편지함 주소를 넘김. 버튼을 눌러 처리하면 기존처럼 버튼 전체가 지워짐(링크 포함).
+- 검수: tsc·build, 배포 `threads-comment-reply-fk6nqrhgu` READY, DB v1.22, `/login` 200. 실제 텔레그램 알림은 새 댓글이 들어와야 나가서 미확인. 비용: Vercel 빌드 1회. 커밋 `802e89c8`.
