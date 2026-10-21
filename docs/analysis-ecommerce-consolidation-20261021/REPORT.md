@@ -70,7 +70,17 @@
 6. `sourcing/` 기획을 나중에 만든다면 상품소싱 자동화 안의 메뉴로 만들지.
 
 ## 6. 진행 결과
-(결정 후 묶음별로 추가)
+주인님 결정(2026-10-21): 「E0부터 E2까지 순서대로」, 기존 자료 30일 유예. 맥미니가 코드·문서·tsc·커밋, 배포·DB·화면 검수는 윈도우 CLI(각 단계 절차: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md`).
+
+| 묶음 | 결과 | 버전 | 커밋 | 남은 일(윈도우) |
+|---|---|---|---|---|
+| E0 안전 보강 | 버킷 비공개(`/api/image` 서명 주소, 서버 `download()`), 30일 정리 예약(9월 자료 2026-11-21까지 유예), 키 머리글, 고아 파일 정리 | shop-detail-page v1.15 | `0eba4e0f` | 배포 → 마이그레이션 `20261021_private_bucket_v1_15.sql` → `CRON_SECRET` 확인 → 화면 검수 |
+| E1 12단 → 15p | 쿠팡 12단·스토어 9단 규격(템플릿 21행), 사양서 PDF 분석, 모바일 미리보기, 12단 JSON 가져오기 / 12단은 이동 안내 + 백업 | shop-detail-page v1.16 · detail-page-12p v1.10 | `6961fc0a` | 마이그레이션 `20261021_layout_presets_v1_16.sql` → 두 앱 배포 → `E1_grant_and_hide_12p.sql`(권한 연장 4명·숨김) |
+| E2 자동생성기 → 15p | HTML 내보내기(템플릿 3종, Gemini 텍스트 1회, 지어낸 후기·수치·스크립트 제거) / 자동생성기는 이동 안내 | shop-detail-page v1.17 · auto-detail-page v1.21 | (이 커밋) | 두 앱 배포 → `E2_hide_auto_detail_and_catalog.sql`(숨김·설명) |
+| 별도 | 상품소싱 구형 모델 교체 | trending-product-finder v1.22 | `c6c7046e` | 배포·DB 버전 |
+
+- 계획과 달라진 점: E2의 Puppeteer 서버 PNG는 15p 긴 PNG가 있어 옮기지 않음, HTML 작성 AI는 Claude 선택 대신 15p가 쓰는 Gemini로 통일, 12단의 「사진 없이 상품명만으로 만들기」와 장면 카피는 옮기지 않음(15p는 실제 사진 기준·글자는 이미지 안).
+- 맥미니 검수 범위: tsc 0(세 앱), 무료 로직 시험(저장 주소 해석 117/117, 정리 대상 모의 집계, 12단 가져오기 판단, HTML 정리 함수). 빌드·배포·실제 화면·실제 AI 생성은 미검수.
 
 ## 7. 분석 중 발견한 개선 제안
 - 공용 스크립트 `scripts/analyze-category.mjs`의 `findFolder()`가 폴더 정리 중인 파일(`existsSync` 뒤 읽기 실패)에서 멈춘다 → 파일 읽기를 `try/catch`로 감싸 건너뛰게(작은 수정, 스크립트 작성 CLI와 협의).

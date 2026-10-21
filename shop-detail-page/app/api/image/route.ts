@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { SHOP_IMAGE_BUCKET } from "@/lib/imageSrc";
 
@@ -28,6 +29,22 @@ export async function GET(request: NextRequest) {
   }
   if (!path.startsWith(`${user.id}/`)) {
     return NextResponse.json({ error: "본인 이미지만 볼 수 있습니다." }, { status: 403 });
+  }
+
+  // v1.17: ?w=860 이면 서명 주소로 보내지 않고 줄인 JPEG를 같은 주소에서 바로 돌려준다
+  // (HTML 내보내기에서 브라우저가 이미지를 HTML 안에 넣을 때 교차 출처 제한·응답 크기 한도를 피하려는 것).
+  if (request.nextUrl.searchParams.get("w") === "860") {
+    const { data: file, error: dlError } = await supabase.storage.from(SHOP_IMAGE_BUCKET).download(path);
+    if (dlError || !file) {
+      return NextResponse.json({ error: "이미지를 찾을 수 없습니다." }, { status: 404 });
+    }
+    const jpeg = await sharp(Buffer.from(await file.arrayBuffer()))
+      .resize({ width: 860, withoutEnlargement: true })
+      .jpeg({ quality: 85 })
+      .toBuffer();
+    return new NextResponse(new Uint8Array(jpeg), {
+      headers: { "Content-Type": "image/jpeg", "Cache-Control": "private, max-age=3000" },
+    });
   }
 
   const { data, error } = await supabase.storage

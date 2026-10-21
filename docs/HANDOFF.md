@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(맥미니, 보조 계정) — 이커머스 병합 E0~E2 코드 완료 (5개 → 3개) · 윈도우 배포 대기
+
+주인님 승인 「E0부터 E2까지 순서대로」. 대상 ① 운영, DB ref `esgxyikcnnvmlhygjkth`(맥미니는 읽기만). **E0** `shop-detail-page` v1.15(`0eba4e0f`): 회원 이미지 버킷 비공개 + `/api/image` 서명 주소, 30일 자동 정리(9월 자료는 2026-11-21까지 유예 — 주인님 결정). **E1** v1.16 + `detail-page-12p` v1.10(`6961fc0a`): 쿠팡 12단·스마트스토어 9단 규격, 사양서 PDF 분석, 모바일 미리보기, 12단 JSON 가져오기 / 12단은 이동 안내 + 백업만. **E2** v1.17 + `auto-detail-page` v1.21: HTML 상세페이지 내보내기(지어낸 후기·수치·스크립트 제거) / 자동생성기는 이동 안내. 별도: `trending-product-finder` v1.22(`c6c7046e`, gemini-2.0-flash → 3.5-flash). 맥미니 검수: tsc 0·무료 로직 시험, AI 호출 0. **윈도우 CLI 다음 첫 단계**: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` E0 → E1 → E2 순서(마이그레이션·배포 순서 주의), SQL `docs/analysis-ecommerce-consolidation-20261021/E1_*.sql`·`E2_*.sql`. 보고서 §6: [`docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](analysis-ecommerce-consolidation-20261021/REPORT.md). 남은 결정: 통합 프로그램 이름, 실제 생성 시험 비용 승인.
+
+https://shop-detail-page.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.26·가사영상 v1.09 「AI 썸네일·SEO 자동화」 썸네일 고르기
 
 - 두 프로그램 유튜브 카드에서 `thumbnail-master`가 만든 내 썸네일(회원 본인 행만, 비공개 버킷 서명 주소 1시간)을 골라 1280×720으로 맞춰 지정. 배포 Ready·DB 반영, 시험 회원 API 200·빈 목록 확인. 두 테스트 계정 모두 만든 썸네일 그림이 0개라 그림이 있는 화면 확인은 남음. 비용: Vercel 빌드 2회, AI 호출 없음.

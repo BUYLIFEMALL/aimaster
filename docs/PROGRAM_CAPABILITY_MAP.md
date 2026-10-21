@@ -88,11 +88,11 @@
 | 69 | 감성 글귀 이미지 | `emotion-writer` | 이미지 | v1.14 | 운영 | AI 감성 글귀와 배경 사진을 합성해 카톡·SNS 공유용 카드 이미지를 만드는 스튜디오 |
 | 70 | AI 올인원 그래픽 자동화 | `allinone-graphic` | 이미지 | v1.08 | 운영 | 19개 직군 123종 템플릿으로 상업용 이미지를 만들고 브러시로 부분 수정·확장하는 그래픽 도구 |
 | 71 | AI 포토 리메이크 자동화 | `photo-remake-studio` | 이미지 | v1.10 | 운영 | 오래된 사진을 복원·컬러화·확대하고 사물을 자연스럽게 합성하는 포토 리메이크 스튜디오 |
-| 72 | 상품소싱 자동화 | `trending-product-finder` | 이커머스 | v1.14 | 운영 | 네이버 쇼핑·검색 데이터로 관심은 오르고 경쟁은 적은 소싱 상품을 찾아 주는 도구 |
+| 72 | 상품소싱 자동화 | `trending-product-finder` | 이커머스 | v1.22 | 운영 | 네이버 쇼핑·검색 데이터로 관심은 오르고 경쟁은 적은 소싱 상품을 찾아 주는 도구 |
 | 73 | 상세페이지 GIF 자동화 | `video-to-gif` | 이커머스 | v1.05 | 운영 | 상세페이지용 동영상을 8MB 이하 고품질 GIF로 일괄 변환하는 브라우저 도구 |
-| 74 | 상세페이지 자동화(15p) | `shop-detail-page` | 이커머스 | v1.14 | 운영 | 상품 사진과 정보로 상세페이지 섹션 이미지 15장을 만들어 한 장으로 합치는 도구 |
-| 75 | 상세페이지 자동생성기 v1 | `auto-detail-page` | 이커머스 | v1.13 | 운영 | 제품 이미지와 정보로 쿠팡·스마트스토어용 HTML 상세페이지를 AI가 완성하는 도구 |
-| 76 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 이커머스 | v1.09 | 운영 | 상품명만으로 스펙을 채우고 쿠팡 12단·스마트스토어 9단 860px 통이미지 상세페이지를 만드는 도구 |
+| 74 | 상세페이지 자동화(15p) | `shop-detail-page` | 이커머스 | v1.17 | 운영 | 상품 사진·사양서 분석으로 15섹션·쿠팡 12단·스마트스토어 9단 상세페이지 이미지와 HTML을 만드는 도구 (2026-10-21 12단·자동생성기 v1 병합) |
+| 75 | 상세페이지 자동생성기 v1 | `auto-detail-page` | 이커머스 | v1.21 | 병합됨 → `shop-detail-page`(2026-10-21) | 제품 이미지와 정보로 쿠팡·스마트스토어용 HTML 상세페이지를 AI가 완성하는 도구 |
+| 76 | AI 12단 상세페이지 자동화 | `detail-page-12p` | 이커머스 | v1.10 | 병합됨 → `shop-detail-page`(2026-10-21) | 상품명만으로 스펙을 채우고 쿠팡 12단·스마트스토어 9단 860px 통이미지 상세페이지를 만드는 도구 |
 | 77 | INSTA 포스팅 자동화 | `auto-instagram-posting` | 인스타 | v1.42 | 운영 | 주제 수집부터 피드 글·글자 깨짐 없는 카드뉴스 제작, 인스타 예약·즉시 게시까지 한 곳에서 하는 도구(2026-10-20 카드뉴스 스튜디오 병합) |
 | 78 | AI 인플루언서 자동화 | `ai-influencer-studio` | 인스타 | v1.15 | 운영 | 가상 인플루언서의 하루 화보와 인스타 캡션 3종을 같은 얼굴로 만드는 인플루언서 스튜디오 |
 | 79 | INSTA 댓글·DM 자동화 | `instagram-comment-reply` | 인스타 | v1.24 | 운영 | 인스타 게시물 댓글과 DM 문의에 AI가 답변 초안을 만들어 검토 후 게시·발송하는 도구(2026-10-20 instagram-dm-reply 병합) |
@@ -178,7 +178,7 @@
 | 음악 | music-automation(정밀 기획 + Suno V6 실제 생성, 2026-10-21 suno-music-studio 병합) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
-| 상세페이지 | detail-page-12p(상품명만으로 12단) · shop-detail-page(사진 분석 15섹션) · auto-detail-page(HTML) | 사진 분석 + 스펙 자동 채우기 + 이미지형·HTML형 동시 출력 |
+| 상세페이지 | shop-detail-page(사진·사양서 분석 → 15섹션·쿠팡 12단·스토어 9단 이미지 + HTML 내보내기, 2026-10-21 detail-page-12p·auto-detail-page 병합) | 사진 분석 + 스펙 자동 채우기 + 이미지형·HTML형 동시 출력 |
 | 고객 응대·CRM | stepmail(스텝 메일) · booking-reminder(예약 리마인드) · crm-google-form(신청 접수) · kakao-auto-posting(뉴스레터) | 한 고객 명부로 메일·문자·알림톡·카톡 채널 발송을 통합 |
 | 문서·기획 도구 | ai-doc-chatbot · ai-writing-editor · persona-style-studio · markdown-studio · document-translator · ebook-studio · ai-slide-builder · landing-architect · ui-canvas · ai-web-ui · file-merge · web-crawler-saas · website-scraper | 수집(스크래퍼) → 정리(에디터·번역) → 출판(전자책·슬라이드·랜딩)으로 이어지는 문서 파이프라인 |
 | 프롬프트 | ai-prompt-studio(설계) · prompt-template-studio(보관·실행) · reverse-prompt · style-dna-analyzer | 설계한 프롬프트를 템플릿 보관함에 바로 저장·실행 |
@@ -1005,6 +1005,7 @@
 ### 이커머스
 
 #### 상품소싱 자동화 (`trending-product-finder`)
+- **2026-10-21 v1.22**: 구형 `gemini-2.0-flash` 2곳 → `gemini-3.5-flash`, 키 머리글 전송.
 - 주소·폴더: https://trending-product-finder.buylife.xyz · `trending-product-finder/` · v1.08 (스마트 매트릭스 다크, 배포 대기)
 - **화면(v1.08)**: 대시보드 기회 키워드 TOP 5·연결 상태 · 리포트 키워드 매트릭스 표(기회점수 순·🌏 소싱 바로가기) · 숫자 읽는 법이 있는 그림 매뉴얼
 - **차별점**: 관심도는 오르는데 경쟁은 적은 상품을 네이버 데이터로 찾아 소싱 기회를 추천하는 상품 발굴 도구입니다.
@@ -1026,6 +1027,7 @@
 - **키·계정·주의**: API 키가 필요 없습니다. 변환은 내 브라우저 안에서만 이뤄져 영상이 서버로 올라가지 않고, 처음 한 번 변환 엔진(약 25~30MB)을 내려받으며 속도는 기기 성능에 따라 다릅니다.
 
 #### 상세페이지 자동화(15p) (`shop-detail-page`)
+- **2026-10-21 v1.15~v1.17 이커머스 병합(E0~E2)**: 저장소 비공개(`/api/image` 서명 주소)·30일 자동 정리(9월 이전 자료 2026-11-21까지 유예), 12단에서 쿠팡 12단·스마트스토어 9단 규격·사양서 PDF 분석·모바일 미리보기·12단 JSON 가져오기, 자동생성기 v1에서 HTML 상세페이지 내보내기(쿠팡·스마트스토어·프리미엄, 스크립트·지어낸 후기 없음). 보고서 `docs/analysis-ecommerce-consolidation-20261021/REPORT.md`.
 - 주소·폴더: https://shop-detail-page.vercel.app · `shop-detail-page/` · v1.05
 - **차별점**: 상품 사진 한 장으로 상세페이지 섹션 이미지 15장을 만들고, 긴 상세페이지 한 장으로 합쳐 주는 상세페이지 이미지 생성기입니다.
 - **기능**: 상품 사진(과 설명)을 올리면 Gemini가 상품명·카테고리·핵심 특징·스펙·사용법·타겟 고객·디자인 톤을 분석해 입력칸을 채우고, 확인·수정한 뒤 저장합니다. / 헤더·핵심 특징·스펙·사용법·비포애프터·라이프스타일·인증·FAQ·리뷰·배송·CTA 등 15개 섹션을 원본 사진을 바탕으로 한 장씩 만들고, 마음에 들지 않는 섹션만 다시 만듭니다. / 완성된 섹션을 순서대로 세로로 이어 붙인 긴 상세페이지 PNG 한 장으로 내려받습니다.
@@ -1036,6 +1038,7 @@
 - **키·계정·주의**: 회원 본인의 Gemini API 키를 사용합니다. 인증·리뷰·효능 같은 내용은 실제 사실과 맞는지 꼭 확인한 뒤 판매에 쓰세요.
 
 #### 상세페이지 자동생성기 v1 (`auto-detail-page`)
+- **병합됨 → `shop-detail-page`(2026-10-21, v1.21)**: HTML 상세페이지는 15p 「🧾 HTML 상세페이지로 내보내기」로. 이 앱은 이동 안내만(주소 유지, 생성 API 410).
 - 주소·폴더: https://shop-page-seven.vercel.app · `auto-detail-page/` · v1.06
 - **차별점**: 제품 이미지와 정보만 넣으면 쿠팡·스마트스토어에 바로 올릴 HTML 상세페이지를 AI가 완성해 주는 상세페이지 생성기입니다.
 - **기능**: 쿠팡·스마트스토어·프리미엄 3가지 템플릿 중에서 고르고, 제품 이미지·설명·셀링포인트·스펙·신뢰 데이터·구매 보장 정보를 입력하면 Claude가 상세페이지를 만듭니다. / 제품 사진이 부족하면 나노바나나(Gemini)·FLUX·GPT Image로 이미지를 추가로 만들어 넣습니다. / 만든 상세페이지는 저장해 미리보기로 확인하고, HTML 파일이나 긴 이미지(PNG)로 내려받아 쇼핑몰에 올립니다.
@@ -1046,6 +1049,7 @@
 - **키·계정·주의**: Claude와 이미지 생성 AI 모두 회원 본인의 API 키를 사용합니다. 상품 정보·인증·효능 표현은 실제와 맞는지 꼭 확인하세요.
 
 #### AI 12단 상세페이지 자동화 (`detail-page-12p`)
+- **병합됨 → `shop-detail-page`(2026-10-21, v1.10)**: 12단·9단 규격·사양서 분석·모바일 미리보기는 15p로. 이 앱은 이동 안내 + 브라우저에 남은 12단 자료 JSON 백업만(주소 유지, 생성 API 410).
 - 주소·폴더: https://detail-12p.buylife.xyz · `detail-page-12p/` · v1.03
 - **차별점**: 상품명 하나로 스펙을 자동으로 채우고, 쿠팡 12단·스마트스토어 9단 규격의 860px 통이미지 상세페이지를 완성하는 스튜디오입니다.
 - **기능**: 상품명을 넣으면 핵심 사양 4종·타겟 고객·할인율·후킹 카피 3개가 자동으로 채워지고, PDF·TXT·MD 사양서나 제품 사진을 분석시켜 정확도를 높일 수 있습니다. / 쿠팡 로켓배송형 12단(이벤트 배너·공감 카피·핵심 사양·기능·라이프스타일·비교·디테일·사용법·추천 대상·구성품·FAQ)과 스마트스토어 감성 후기형 9단 중에서 고릅니다. / 표준·초고해상도 렌더링으로 장면 이미지를 만들고, 스마트폰 화면 미리보기로 확인한 뒤 860px 세로 통이미지 한 장으로 내려받습니다.

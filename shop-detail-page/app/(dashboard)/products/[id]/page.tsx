@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SectionImageGrid } from "@/components/products/SectionImageGrid";
+import { HtmlExportPanel } from "@/components/products/HtmlExportPanel";
 import type { ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
 import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
@@ -136,6 +137,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           initialImages={initialImages}
           initialModel={product.default_image_model as ImageModelKey}
         />
+        <HtmlExportPanel productId={product.id} />
       </div>
     </div>
   );

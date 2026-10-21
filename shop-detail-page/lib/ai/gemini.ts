@@ -54,6 +54,21 @@ export async function analyzeProductWithGemini(params: {
   return text;
 }
 
+/** v1.17(이커머스 병합 E2): HTML 상세페이지 작성 — 텍스트 프롬프트만 보내고 텍스트 응답을 받는다(이미지 생성 아님). */
+export async function generateTextWithGemini(params: { prompt: string; apiKey: string }): Promise<string> {
+  const json = await callGemini(
+    ANALYSIS_MODEL,
+    { contents: [{ parts: [{ text: params.prompt }] }], generationConfig: { temperature: 0.6, maxOutputTokens: 32768 } },
+    params.apiKey,
+  );
+  const parts: (GeminiPart & { thought?: boolean })[] = json?.candidates?.[0]?.content?.parts ?? [];
+  const text = parts.filter((p) => p.text && !p.thought).map((p) => p.text).join("");
+  if (!text) {
+    throw new Error("AI 응답에서 HTML을 찾지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+  }
+  return text;
+}
+
 /** 섹션 이미지 생성: 완성 프롬프트 + 원본이미지(base64)를 선택한 나노바나나 모델에 image-to-image로 요청. */
 export async function generateSectionImageWithGemini(params: {
   prompt: string;

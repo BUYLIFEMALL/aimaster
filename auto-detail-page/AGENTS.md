@@ -122,3 +122,8 @@ auto-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - **버전 3중 동기화**: `package.json` (`1.20.0`), `lib/version.ts` (`v1.20`), Supabase DB `programs` (`v1.20`) 동기화 완료.
 - **검수 및 배포**: 로컬 Next.js 14 빌드 통과, Vercel 프로덕션 배포 완료 (`https://auto-detail-page.buylife.xyz`), Microsoft Edge 전용 포그라운드(headless: false) 7종 캡처 검수 및 10분간 화면 유지 세션 가동 완료.
 - **서브문서 완비**: `PLAN_20261019_DESIGN_RENEWAL.md`, `DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `IMPROVEMENT_HANDOFF_20261019.md` 작성.
+
+## 2026-10-21 v1.21 — 상세페이지 자동화(15p)로 병합, 이동 안내만 남김 (Claude Code 맥미니, 보조 계정 · 배포 대기)
+- 근거: [`../docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](../docs/analysis-ecommerce-consolidation-20261021/REPORT.md) 묶음 E2(주인님 승인). HTML 상세페이지(쿠팡·스마트스토어·프리미엄)는 `shop-detail-page` v1.17 「🧾 HTML 상세페이지로 내보내기」로 옮김(지어낸 후기·판매 수치·JavaScript 지시는 버림).
+- 첫 화면 `app/page.tsx` → 이동 안내(저장된 `detail_pages` 0건이라 옮길 자료 없음). `/guide`·`/settings`·`/preview/[id]` → 첫 화면으로. API `generate`·`generate-image`·`export-image`·`page/[id]` → 410 + 이동 주소. 기존 컴포넌트(`ProductForm` 등)·`lib/`는 되돌리기용으로 남김(쓰이지 않음).
+- 주소 `https://auto-detail-page.buylife.xyz`·`shop-page-seven.vercel.app`는 지우지 않음. 배포 순서: `../shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` E2 절.
