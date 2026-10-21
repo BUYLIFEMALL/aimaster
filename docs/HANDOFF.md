@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 유튜브 댓글 v1.24: 공용 묶음 머리(영상 썸네일) · 휴대폰 목록 누르는 영역 확대 — 세 댓글 프로그램 공용 부품 3종 완료
+
+검토 화면 묶음 머리를 공용 `review-group-header` 사본으로(영상 썸네일·유튜브 원본 링크 추가), 대시보드 목록 휴대폰 항목 44px 이상. 이로써 INSTA v1.30·쓰레드 v1.19·유튜브 v1.24가 공용 부품 3종(`pending-review-list`·`hash-highlight`·`review-group-header`, 기준 `instagram-comment-reply/components/`)을 함께 씀. 커밋 `c59129f8`, 배포 READY, DB v1.24. 비용: 이번 묶음 Vercel 빌드 3회.
+
+https://youtube-auto-reply.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 쓰레드 댓글 자동화 v1.19: 공용 묶음 머리 사본 · 휴대폰 목록 누르는 영역 확대
 
 검토 화면 묶음 머리를 공용 `review-group-header` 사본으로, 대시보드 목록 휴대폰 항목 44px 이상. 커밋 `0a87abd7`, 배포 `yao6oyhsm` READY(첫 배포 명령 미시작 → 재실행), DB v1.19, 크롬 확인. 비용: Vercel 빌드 1회.

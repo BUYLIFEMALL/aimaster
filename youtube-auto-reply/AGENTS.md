@@ -203,3 +203,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 ## 2026-10-21 v1.23 — 공용 기준 코드 `pending-review-list`·`hash-highlight` 사본 적용 (Claude Code 윈도우)
 - 대시보드 「검토를 기다리는 댓글」 목록을 공용 부품 `components/PendingReviewList.tsx`로(영상 썸네일 `thumbShape="wide"`), 댓글 검토 화면에 `components/HashHighlight.tsx`(`#video-<id>`로 넘어온 묶음을 빨간색 2초 강조). **두 파일은 사본 — 직접 고치지 말고 기준 `instagram-comment-reply/components/`만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 색은 대시보드 `LIST_CLASSES`(yt 토큰). 모양·동작은 v1.22와 같음. `package.json` 1.23.0.
 - 검수: tsc 0, build, 배포 `youtube-auto-reply-kfi23xlr0` Ready, DB v1.23, 크롬(일반 회원) 대시보드 v1.23 빈 상태 정상, 댓글 화면 시험 칸 # 이동 → `rgb(255,0,51)` 테두리 켜짐·2.2초 뒤 꺼짐(시험 칸 즉시 삭제). 비용: Vercel 빌드 1회. 커밋 `d96623b7`. `docs/evidence/*.json` 미커밋 변경은 다른 CLI 것.
+
+## 2026-10-21 v1.24 — 공용 `review-group-header` 사본(영상 썸네일 추가) · 휴대폰 목록 누르는 영역 확대 (Claude Code 윈도우)
+- 댓글 검토 화면 묶음 머리를 공용 부품 `components/ReviewGroupHeader.tsx`(사본 — 기준 `instagram-comment-reply/components/`만 고치고 `--sync`)로. 영상 조회에 `thumbnail_url, youtube_video_id`를 더해 **영상 썸네일(16:10, 누르면 유튜브 원본 새 창)** 표시, 썸네일이 없으면 예전 ▶ 표시. 대시보드 목록(`PendingReviewList` 사본)은 휴대폰에서 항목 44px 이상. `package.json` 1.24.0.
+- 검수: tsc 0, build, 배포 `youtube-auto-reply-rjt238hfu` READY, DB v1.24, 크롬(일반 회원) 대시보드 v1.24·댓글 화면 200. 대기 0건이라 썸네일 그림은 미확인. 비용: Vercel 빌드 1회. 커밋 `c59129f8`.

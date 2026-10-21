@@ -215,4 +215,4 @@ sunoapi `get-timestamped-lyrics`의 단어별 시각(`alignedWords`, 단어 안�
 | `threads-comment-reply` | 댓글(🧵 글 앞부분) | `/comments#post-<id>` | `#f5f5f5` |
 | `youtube-auto-reply` | 댓글(영상 썸네일 wide) | `/comments#video-<id>` | `#ff0033` |
 
-새 응대형 프로그램(검토 후 게시)을 만들면 이 두 부품을 사본으로 받고, 검토 화면 묶음 `<section>`에 `id` + `scroll-mt-80`을 단다. 다음 단계 아이디어: 통합 받은편지함([`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md)).
+2026-10-21 추가: 검토 화면 묶음 머리 `review-group-header`(같은 기준 폴더), 목록 항목은 휴대폰에서 44px 이상. 새 응대형 프로그램(검토 후 게시)을 만들면 이 세 부품을 사본으로 받고, 검토 화면 묶음 `<section>`에 `id` + `scroll-mt-80`을 단다. 다음 단계 아이디어: 통합 받은편지함([`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md)).
