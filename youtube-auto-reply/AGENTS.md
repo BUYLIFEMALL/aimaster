@@ -195,3 +195,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 같은 배포에 저장소에만 반영돼 있던 공용 사본 2개(예약 `member-scheduler` 사본 전환, 텔레그램 `telegram-bot-client`)도 함께 나감 — 둘 다 동작 같음.
 - 검수: tsc 0, `npm run build`, 배포 `youtube-auto-reply-lyon4v0rf` Ready, DB v1.21, 회원 실행 주소 `/api/cron/dispatch-member` 가짜 토큰 401·`/login` 200, 메인 크롬(일반 회원) 대시보드 v1.21·「0건」·「전체 보기 →」, 설정 화면 예약 상태 줄(「AIMaster 기본(Vercel) 실행 중 · 모니터링 꺼짐」)·예약 발행 구역 정상. 비용: Vercel 빌드 1회, AI 0회. 커밋 `bb422f1d`.
 - `docs/evidence/permissions.json`·`runtime-local.json`의 미커밋 변경은 다른 CLI 것이라 건드리지 않음.
+
+## 2026-10-21 v1.22 — 대시보드 댓글 항목 영상 썸네일 · 영상 묶음 바로가기 (Claude Code 윈도우)
+- 주인님 지시(INSTA v1.27 보고 추가개선 제안 1·2번, 세 댓글 프로그램 동작 통일 — INSTA v1.28·쓰레드 v1.17과 같은 형식). `app/(dashboard)/dashboard/page.tsx`: 검토 대기 댓글 조회에 `video_id`, `ytreply_videos.thumbnail_url`(user_id 필터, 빈 목록이면 조회 생략 — 댓글 화면과 같은 방식) 16:10 썸네일, 항목 전체가 `/comments#video-<id>` 링크. `app/(dashboard)/comments/page.tsx`: 영상 묶음 `<section>`에 `id="video-<id>"`+`scroll-mt-80`. `package.json` 1.22.0.
+- 검수: tsc 0, build, 배포 `youtube-auto-reply-p9snxg1y6` Ready, DB v1.22, 크롬(일반 회원) 대시보드 v1.22·댓글 화면 200. **대기 댓글 0건이라 썸네일·이동은 실제 데이터로 미확인.** 비용: Vercel 빌드 1회. 커밋 `077d81c8`. `docs/evidence/*.json` 미커밋 변경은 다른 CLI 것이라 건드리지 않음.
