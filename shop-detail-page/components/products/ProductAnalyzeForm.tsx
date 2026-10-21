@@ -30,10 +30,12 @@ export function ProductAnalyzeForm({
   hasGeminiKey,
   initialLabel = "",
   initialSourceText = "",
+  initialPrice = "",
 }: {
   hasGeminiKey: boolean;
   initialLabel?: string;
   initialSourceText?: string;
+  initialPrice?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const referenceInputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +46,7 @@ export function ProductAnalyzeForm({
   const [referenceImageUrls, setReferenceImageUrls] = useState<string[]>([]);
   const [sourceText, setSourceText] = useState(initialSourceText);
   const [fields, setFields] = useState<FlatProductAnalysis>(EMPTY_FIELDS);
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(initialPrice);
   const [salePrice, setSalePrice] = useState("");
   const [defaultImageModel, setDefaultImageModel] = useState<ImageModelKey>(DEFAULT_IMAGE_MODEL);
   const [layoutPreset, setLayoutPreset] = useState<LayoutPreset>(DEFAULT_LAYOUT_PRESET);

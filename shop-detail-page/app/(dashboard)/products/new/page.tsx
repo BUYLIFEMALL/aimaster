@@ -7,7 +7,8 @@ import { ProductAnalyzeForm } from "@/components/products/ProductAnalyzeForm";
 export const dynamic = "force-dynamic";
 
 // v1.19: 상품소싱 자동화(trending-product-finder)의 「📄 상세페이지 만들기」가 상품 이름·원본 정보를 주소로 넘긴다.
-// 가격(도매가)은 받지 않는다 — 할인가로 오해되면 혜택 문구가 생길 수 있어서다. 사진은 회원이 직접 올린다.
+// 도매가는 받지 않는다 — 할인가로 오해되면 혜택 문구가 생길 수 있어서다. 사진은 회원이 직접 올린다.
+// 회원이 마진 계산기에서 고른 추천판매가(price)는 선택으로 받아 「정상가」 칸에만 넣는다 — 할인가가 비어 있으면 이미지에 가격·특가 문구가 들어가지 않는다.
 function firstParam(value: string | string[] | undefined, max: number): string {
   const v = Array.isArray(value) ? value[0] : value;
   return (v ?? "").trim().slice(0, max);
@@ -24,6 +25,8 @@ export default async function NewProductPage({
   const fromSourcing = firstParam(searchParams.from, 20) === "sourcing";
   const initialLabel = fromSourcing ? firstParam(searchParams.name, 100) : "";
   const initialSourceText = fromSourcing ? firstParam(searchParams.source, 1000) : "";
+  const priceParam = fromSourcing ? firstParam(searchParams.price, 12) : "";
+  const initialPrice = /^[1-9][0-9]{0,8}$/.test(priceParam) ? priceParam : "";
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-10">
@@ -58,7 +61,9 @@ export default async function NewProductPage({
         <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-xs text-emerald-900 leading-relaxed">
           <p className="font-bold">🔎 상품소싱 자동화에서 가져온 상품입니다.</p>
           <p className="mt-0.5 text-emerald-800">
-            상품명과 원본 정보를 채워 두었습니다. 대표 사진은 판매 권한이 있는 사진으로 직접 올려 주세요. 판매가·할인가도 직접 입력합니다.
+            상품명과 원본 정보를 채워 두었습니다
+            {initialPrice ? `(추천판매가 ${Number(initialPrice).toLocaleString()}원은 「정상가」 칸에 넣었습니다)` : ""}. 대표 사진은 판매 권한이 있는 사진으로 직접 올려 주세요.
+            할인가는 실제로 할인할 때만 입력하세요 — 비워 두면 이미지에 특가·할인 문구가 들어가지 않습니다.
           </p>
         </div>
       )}
@@ -67,6 +72,7 @@ export default async function NewProductPage({
         hasGeminiKey={registeredProviders.has("gemini")}
         initialLabel={initialLabel}
         initialSourceText={initialSourceText}
+        initialPrice={initialPrice}
       />
     </div>
   );

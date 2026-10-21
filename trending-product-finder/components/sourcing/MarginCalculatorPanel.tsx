@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { shopDetailPageUrl } from "@/lib/shopDetailLink";
 // v1.10: SourcingCalculator에서 분리 — 💰 마진 계산기(입력칸 + 영수증 형태 결과). 화면·계산식은 이전과 같다.
 import { calcMargin, MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
 import { defaultsFor, isDomesticPlatform, platformLabel, type Platform } from "@/lib/sourcingResults";
@@ -53,11 +55,22 @@ interface Props {
   selectedTitle: string | null;
   selectedImage: string | null;
   selectedPlatform: Platform | null;
+  selectedDetailUrl: string;
   onReset: () => void;
 }
 
-export function MarginCalculatorPanel({ form, onChange, selectedTitle, selectedImage, selectedPlatform, onReset }: Props) {
+export function MarginCalculatorPanel({
+  form,
+  onChange,
+  selectedTitle,
+  selectedImage,
+  selectedPlatform,
+  selectedDetailUrl,
+  onReset,
+}: Props) {
   const marginResult = marginOf(form);
+  // v1.23(추가): 선택 기능 — 추천판매가를 상세페이지 「정상가」로 함께 넘길지(할인가로는 넘기지 않음).
+  const [passPrice, setPassPrice] = useState(true);
   const isDomestic = isDomesticPlatform(selectedPlatform);
   const activeDefaults = defaultsFor(selectedPlatform);
   const num = (v: string) => Number(v) || 0;
@@ -92,6 +105,29 @@ export function MarginCalculatorPanel({ form, onChange, selectedTitle, selectedI
             <p className="truncate text-xs text-mx-text">{selectedTitle}</p>
             <p className="text-[11px] text-mx-muted">{platformLabel(selectedPlatform)}</p>
           </div>
+        </div>
+      )}
+
+      {selectedTitle && selectedPlatform && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-mx-primary/30 bg-mx-primary/5 p-3">
+          <label className="flex items-center gap-2 text-xs text-mx-text">
+            <input type="checkbox" checked={passPrice} onChange={(e) => setPassPrice(e.target.checked)} />
+            <span>
+              추천판매가 {num(form.sellingPrice).toLocaleString()}원을 상세페이지 「정상가」로 함께 넘기기
+              <span className="block text-[11px] text-mx-muted">할인가로는 넘기지 않아 이미지에 특가·할인 문구가 생기지 않습니다.</span>
+            </span>
+          </label>
+          <a
+            href={shopDetailPageUrl(
+              { title: selectedTitle, platform: selectedPlatform, detailUrl: selectedDetailUrl },
+              passPrice ? num(form.sellingPrice) : undefined,
+            )}
+            target="_blank"
+            rel="noreferrer"
+            className="shrink-0 rounded-lg bg-mx-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-[#1d4ed8]"
+          >
+            📄 상세페이지 만들기
+          </a>
         </div>
       )}
 

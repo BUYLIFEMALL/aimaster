@@ -30,8 +30,60 @@ const PRESET_KEYS = Object.keys(LAYOUT_PRESETS) as LayoutPreset[];
 // 탭 정의
 type GuideTab = "steps" | "sections" | "faq";
 
+// v1.19: 쿠팡 12단·스마트스토어 9단 섹션별 전략 — 섹션 이름·순서는 DB 시스템 템플릿(20261021_layout_presets_v1_16.sql)과 같다.
+type SectionGuide = { num: string; name: string; tag: string; icon: string; desc: string; strategy: string; check: string };
+
+const SECTIONS_COUPANG12_DETAIL: SectionGuide[] = [
+  { num: "01", name: "프로모션 배너", tag: "첫 화면", icon: "🏷️", desc: "상품명과 실제 가격 정보로 여는 상단 배너",
+    strategy: "할인가를 입력했을 때만 가격을 크게 보여 주고 정상가는 취소선으로 둡니다. 할인가가 비어 있으면 가격·특가·한정 문구 없이 상품명과 핵심 장점을 헤드라인으로 씁니다.",
+    check: "실제 진행 중인 혜택만 표기 · 상품 대표컷 크게" },
+  { num: "02", name: "메인 후킹(공감)", tag: "공감", icon: "💬", desc: "고객이 겪는 불편을 한 문장으로 짚기",
+    strategy: "「이런 적 있으시죠?」처럼 타깃 고객의 실제 불편을 먼저 꺼내 스크롤을 멈추게 합니다.", check: "고민 상황 연출컷 + 짧은 질문형 카피" },
+  { num: "03", name: "대표컷 & 핵심 스펙", tag: "한눈 요약", icon: "📋", desc: "크기·용량·소재 등 핵심 수치 3~4개",
+    strategy: "쿠팡 고객은 비교 구매가 많아 스펙을 앞쪽에 둡니다. 입력한 스펙만 쓰고 수치를 지어내지 않습니다.", check: "정면 대표컷 + 아이콘형 스펙 3~4칸" },
+  { num: "04", name: "특장점 01 (소재·성분)", tag: "신뢰", icon: "🧪", desc: "무엇으로 만들었는지",
+    strategy: "소재·성분이 주는 이점을 고객 언어로 풀어 씁니다(예: 「통기성 좋은 메쉬」).", check: "소재 근접컷 + 한 줄 이점" },
+  { num: "05", name: "특장점 02 (기능·편의)", tag: "편의", icon: "⚙️", desc: "쓰기 편한 이유",
+    strategy: "버튼 하나·세척 쉬움처럼 일상에서 체감되는 편의를 보여 줍니다.", check: "사용 장면 + 기능 표시 화살표" },
+  { num: "06", name: "특장점 03 (디자인·디테일)", tag: "디자인", icon: "🎨", desc: "모양·색상·마감",
+    strategy: "색상 옵션과 마감 품질을 보여 주어 「싸 보이지 않을까」 하는 걱정을 줄입니다.", check: "색상별 나열컷 · 마감 디테일" },
+  { num: "07", name: "라이프스타일 컷", tag: "상상", icon: "🏡", desc: "실제 생활 속 사용 모습",
+    strategy: "집·사무실·야외 등 타깃 고객이 쓰는 장소를 보여 주어 구매 후 모습을 떠올리게 합니다.", check: "한국인 모델·생활 공간 연출" },
+  { num: "08", name: "비교 우위", tag: "비교", icon: "⚖️", desc: "일반 제품과 무엇이 다른지",
+    strategy: "특정 경쟁사 이름 없이 「일반 제품 vs 이 상품」 표로 차이를 보여 줍니다. 확인되지 않은 수치는 쓰지 않습니다.", check: "2열 비교표 · 체크 아이콘" },
+  { num: "09", name: "초근접 디테일", tag: "품질", icon: "🔍", desc: "박음질·버튼·표면을 가까이",
+    strategy: "확대컷으로 실물 품질을 보여 주어 반품 걱정을 줄입니다.", check: "매크로 근접컷 2~3장" },
+  { num: "10", name: "실전 활용 팁", tag: "사용법", icon: "💡", desc: "이렇게 쓰면 더 좋아요",
+    strategy: "입력한 사용법을 2~3단계로 나눠 처음 쓰는 고객도 바로 따라 하게 합니다.", check: "번호 붙은 단계 그림" },
+  { num: "11", name: "추천 고객 체크리스트", tag: "확신", icon: "✅", desc: "이런 분께 추천합니다",
+    strategy: "타깃 고객 3~4유형을 체크리스트로 보여 주어 「나에게 맞다」는 확신을 줍니다.", check: "체크박스 목록 + 인물 아이콘" },
+  { num: "12", name: "구성품 · 배송/FAQ 안심", tag: "마무리", icon: "📦", desc: "무엇이 오는지, 자주 묻는 질문",
+    strategy: "구성품을 한 장에 펼쳐 보여 주고 배송·교환 질문에 미리 답해 문의를 줄입니다.", check: "구성품 플랫레이 + Q&A 2~3개" },
+];
+
+const SECTIONS_SMARTSTORE9_DETAIL: SectionGuide[] = [
+  { num: "01", name: "메인 후킹 & 프로모션", tag: "감성 첫인상", icon: "🌿", desc: "감성 헤드카피 한 줄",
+    strategy: "분위기 있는 대표컷과 감성 카피로 시작합니다. 할인가를 입력했을 때만 짧은 가격 문구 1줄을 더하고, 비어 있으면 가격·특가 문구를 넣지 않습니다.", check: "여백 많은 대표컷 · 감성 카피 1줄" },
+  { num: "02", name: "대표 비주얼 & 브랜드 스토리", tag: "스토리", icon: "📖", desc: "왜 이 상품을 만들었는지",
+    strategy: "브랜드의 출발점이나 만든 이유를 짧게 들려주어 스마트스토어 고객이 중시하는 신뢰와 호감을 쌓습니다.", check: "브랜드 무드컷 + 2~3줄 이야기" },
+  { num: "03", name: "특장점 01 (핵심 소재·기능)", tag: "핵심", icon: "💎", desc: "가장 중요한 장점 하나",
+    strategy: "가장 큰 장점 하나만 깊게 보여 줍니다. 여러 개를 나열하지 않습니다.", check: "근접컷 + 큰 제목 1줄" },
+  { num: "04", name: "특장점 02 (편의·디자인)", tag: "편의", icon: "🪄", desc: "쓰기 편하고 예쁜 이유",
+    strategy: "일상에서 느끼는 편리함과 디자인을 함께 보여 줍니다.", check: "사용 장면 · 색상 옵션" },
+  { num: "05", name: "라이프스타일 감성 연출", tag: "공감", icon: "☕", desc: "이 상품이 있는 하루",
+    strategy: "후기를 지어내지 않고, 상품이 놓인 생활 장면으로 「갖고 싶다」는 감정을 만듭니다.", check: "한국인 모델·따뜻한 조명" },
+  { num: "06", name: "비교 우위 팩트체크", tag: "근거", icon: "📏", desc: "확인된 사실로 비교",
+    strategy: "입력한 스펙·소재처럼 확인된 사실만으로 일반 제품과 비교합니다. 인증·수상·판매량은 근거가 있을 때만 씁니다.", check: "팩트 표 · 출처 있는 수치만" },
+  { num: "07", name: "초근접 퀄리티 디테일", tag: "품질", icon: "🔎", desc: "가까이 볼수록 좋은 품질",
+    strategy: "질감·마감을 확대해 사진으로만 보는 온라인 구매의 불안을 줄입니다.", check: "매크로 컷 2장" },
+  { num: "08", name: "추천 고객 체크리스트", tag: "확신", icon: "🙋", desc: "이런 분께 잘 맞아요",
+    strategy: "타깃 고객 유형을 부드러운 말투의 체크리스트로 정리합니다.", check: "체크 목록 3~4개" },
+  { num: "09", name: "구성품 · 구매 안내/FAQ", tag: "안심", icon: "🎁", desc: "구성품과 자주 묻는 질문",
+    strategy: "구성품·배송·교환 안내를 정리해 구매 직전 망설임을 줄입니다.", check: "구성품 컷 + Q&A" },
+];
+
 // 15개 섹션 상세 정보
-const SECTIONS_15P_DETAIL = [
+const SECTIONS_15P_DETAIL: SectionGuide[] = [
   {
     num: "01",
     name: "인트로 헤더",
@@ -163,15 +215,31 @@ const SECTIONS_15P_DETAIL = [
     name: "구매전환 CTA",
     tag: "최종 행동",
     icon: "🛒",
-    desc: "오늘만 한정 혜택, 즉시 구매 유도 피날레",
-    strategy: "오늘 주문 시 사은품 증정, 무료배송, 한정 수량 할인 등 긴급성(Urgency)을 부여해 결제를 촉진합니다.",
-    check: "한정 혜택 배너 + 시선 집중 구매 버튼 유도",
+    desc: "구매 이유를 한 번 더 정리하는 마지막 행동 유도",
+    strategy: "핵심 장점을 한 줄로 다시 정리하고 구매 버튼으로 시선을 모읍니다. 무료배송·사은품·할인은 실제로 진행 중일 때만 쓰고(할인가를 비우면 AI가 혜택 문구를 넣지 않습니다), 근거 없는 「한정 수량」으로 재촉하지 않습니다.",
+    check: "핵심 장점 요약 + 시선 집중 구매 버튼"
   },
 ];
+
+const SECTION_GUIDES: Record<LayoutPreset, { intro: string; sections: SectionGuide[] }> = {
+  shop15: {
+    intro: "소비자의 구매 심리 흐름(주의 ➔ 흥미 ➔ 공감 ➔ 신뢰 ➔ 욕구 ➔ 확신 ➔ 결제)에 맞춘 15개 섹션입니다. 정보가 많은 상품에 맞습니다.",
+    sections: SECTIONS_15P_DETAIL,
+  },
+  coupang12: {
+    intro: "비교 구매가 많은 쿠팡 고객에 맞춰 스펙과 특장점을 앞쪽에, 구성품·FAQ를 마지막에 둔 12단입니다.",
+    sections: SECTIONS_COUPANG12_DETAIL,
+  },
+  smartstore9: {
+    intro: "브랜드 신뢰와 감성을 중시하는 스마트스토어 고객에 맞춰 스토리와 생활 장면을 앞세운 9단입니다.",
+    sections: SECTIONS_SMARTSTORE9_DETAIL,
+  },
+};
 
 export function CommerceUsageGuide() {
   const [activeTab, setActiveTab] = useState<GuideTab>("steps");
   const [expandedSection, setExpandedSection] = useState<string | null>("01");
+  const [guidePreset, setGuidePreset] = useState<LayoutPreset>("shop15");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
@@ -521,34 +589,48 @@ export function CommerceUsageGuide() {
       {activeTab === "sections" && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {PRESET_KEYS.map((key) => (
-              <div key={key} className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <p className="text-sm font-black text-slate-900">{LAYOUT_PRESETS[key].label}</p>
-                  <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                    {LAYOUT_PRESETS[key].sections}장
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-600 leading-relaxed">{LAYOUT_PRESETS[key].description}</p>
-              </div>
-            ))}
+            {PRESET_KEYS.map((key) => {
+              const active = guidePreset === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setGuidePreset(key);
+                    setExpandedSection("01");
+                  }}
+                  aria-pressed={active}
+                  className={`p-4 rounded-2xl text-left border shadow-2xs transition-all ${
+                    active ? "bg-blue-50 border-blue-400 ring-1 ring-blue-400/30" : "bg-white border-slate-200/90 hover:border-blue-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-sm font-black text-slate-900">{LAYOUT_PRESETS[key].label}</p>
+                    <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      {LAYOUT_PRESETS[key].sections}장
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">{LAYOUT_PRESETS[key].description}</p>
+                </button>
+              );
+            })}
           </div>
           <p className="text-[11px] text-slate-500 px-1">
-            규격은 새 상품을 등록할 때 고릅니다. 쿠팡 12단·스마트스토어 9단의 섹션 이름과 순서는 상품 화면의 섹션 카드에서 확인할 수 있고, 아래는 기본 15섹션의 섹션별 전략입니다.
+            규격은 새 상품을 등록할 때 고릅니다. 위 카드를 누르면 그 규격의 섹션별 전략을 아래에서 볼 수 있습니다.
           </p>
 
           <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80 text-xs text-blue-900">
             <p className="font-bold mb-1 flex items-center gap-1.5">
               <BadgeCheck size={16} className="text-blue-600" />
-              <span>기본 15섹션 — 섹션별 전략</span>
+              <span>{LAYOUT_PRESETS[guidePreset].label} — 섹션별 전략</span>
             </p>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              소비자의 구매 심리 흐름(주의 ➔ 흥미 ➔ 공감 ➔ 신뢰 ➔ 욕구 ➔ 확신 ➔ 결제)에 완벽히 맞추어 설계된 15개 섹션입니다. 각 섹션을 클릭하면 상세 전략을 확인할 수 있습니다.
+              {SECTION_GUIDES[guidePreset].intro} 각 섹션을 누르면 상세 전략을 확인할 수 있습니다.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {SECTIONS_15P_DETAIL.map((sec) => {
+            {SECTION_GUIDES[guidePreset].sections.map((sec) => {
               const isExpanded = expandedSection === sec.num;
               return (
                 <div

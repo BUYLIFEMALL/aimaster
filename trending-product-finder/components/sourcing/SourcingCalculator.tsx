@@ -49,6 +49,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
+  const [selectedDetailUrl, setSelectedDetailUrl] = useState("");
   // 계산기 입력값 — 상품을 고르면 원가/추천판매가를 자동으로 채우고, 나머지 값은 계속 자유롭게 조정 가능.
   const [form, setForm] = useState<MarginForm>(INITIAL_MARGIN_FORM);
 
@@ -84,6 +85,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
     setSelectedTitle(product.title);
     setSelectedImage(product.imageUrl || null);
     setSelectedPlatform(product.platform);
+    setSelectedDetailUrl(product.detailUrl);
     // 이전에 직접 수정했던 값이 남아있지 않도록, 상품을 새로 선택할 때마다
     // 나머지 비용 항목도 전부 (선택한 상품의 채널에 맞는) 기본값으로 되돌려서 다시 채운다.
     setForm((prev) => ({
@@ -122,6 +124,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
     setSelectedTitle(null);
     setSelectedImage(null);
     setSelectedPlatform(null);
+    setSelectedDetailUrl("");
     setForm((prev) => ({ ...prev, sourcePrice: "", sellingPrice: "" }));
   }
 
@@ -230,6 +233,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         selectedTitle={selectedTitle}
         selectedImage={selectedImage}
         selectedPlatform={selectedPlatform}
+        selectedDetailUrl={selectedDetailUrl}
         onReset={handleReset}
       />
     </div>

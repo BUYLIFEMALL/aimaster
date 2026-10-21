@@ -322,6 +322,7 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 주인님 지시(shop-detail-page 추가 개선 제안 3 「진행해」). Phase 9(다른 프로그램 연계 보류, 2026-09-02)와 별개로, 이번 연결은 주인님이 직접 지시한 것이다.
 - `lib/shopDetailLink.ts` `shopDetailPageUrl()` → `https://shop-detail-page.buylife.xyz/products/new?from=sourcing&name=…&source=…`(상품명 ≤100자, 원본 판매처·상품명·링크 ≤1000자). **도매가는 넘기지 않음**(상세페이지에서 할인가로 오해되면 근거 없는 혜택 문구가 생김), 사진도 회원이 직접 올림. 로그인은 `.buylife.xyz` 공용 쿠키라 그대로 이어짐.
 - 버튼: `components/sourcing/SourcingResults.tsx` 결과 줄 「📄 상세페이지」(줄은 `flex-wrap`으로 좁은 화면에서 버튼이 다음 줄로), `components/sourcing/SavedProductsPanel.tsx` 「📄 상세페이지 만들기」. 둘 다 새 창.
+- **추가(같은 v1.23)**: 💰 마진 계산기에서 상품을 고르면 「📄 상세페이지 만들기」 + 체크칸 「추천판매가 N원을 상세페이지 「정상가」로 함께 넘기기」(기본 켜짐) — `shopDetailPageUrl(product, sellingPriceKrw)`가 `price`를 붙임. 할인가로는 넘기지 않음. `SourcingCalculator`가 선택 상품 `detailUrl`을 패널에 넘김.
 - 검수(맥미니): tsc 0, eslint(바뀐 파일) 0. 검색·발송·AI 호출 0, 비용 0.
 - **윈도우 CLI 다음 첫 단계**: `shop-detail-page` v1.19 배포가 Ready가 된 뒤(받는 쪽 먼저) → `npm run test:trend && npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.23', updated_at=now() where slug='trending-product-finder';` → 크롬 `/sourcing`의 ⭐ 관심 상품 카드 「📄 상세페이지 만들기」가 상세페이지 새 상품 화면(상품명·원본 정보 채움)을 새 창으로 여는지 확인(검색 버튼은 누르지 않아도 관심 상품으로 확인 가능). 375px 폭에서 소싱 결과 줄 버튼이 잘리지 않는지.
 
