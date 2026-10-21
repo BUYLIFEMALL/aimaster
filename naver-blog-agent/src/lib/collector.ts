@@ -275,7 +275,7 @@ function getPerplexitySystemPrompt(): string {
 를 꼼꼼하게 정리해서 알려주세요. 확인되지 않은 허위 사실을 지어내지 마세요.`;
 }
 
-export async function searchPerplexityTrending(topic: string, apiKey: string): Promise<string> {
+export async function searchPerplexityTrending(topic: string, apiKey: string): Promise<{text: string; citations: string[]}> {
   const response = await fetch("https://api.perplexity.ai/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
@@ -299,10 +299,10 @@ export async function searchPerplexityTrending(topic: string, apiKey: string): P
     }
     throw new Error(`Perplexity 검색 요청이 실패했습니다. (${response.status})`);
   }
-  const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
+  const data = (await response.json()) as { choices?: { message?: { content?: string } }[]; citations?: unknown[] };
   const content = data.choices?.[0]?.message?.content?.trim();
   if (!content) throw new Error("Perplexity가 빈 응답을 반환했습니다. 다른 주제로 다시 시도해 주세요.");
-  return content;
+  return {text: content, citations: (data.citations || []).filter((url): url is string => typeof url === "string").slice(0, 10)};
 }
 
 // ---------------------------------------------------------------------------

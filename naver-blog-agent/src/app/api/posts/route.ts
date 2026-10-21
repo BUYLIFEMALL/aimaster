@@ -1,3 +1,4 @@
+import { validSource } from "@/lib/sourceBundle";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccessApi } from "@/lib/access";
@@ -56,7 +57,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      const posts = (data || []).map((row: any) => ({
+      const posts = (data || []).filter((row: any) => !row.research_summary?.source_bundle || validSource(row.research_summary.source_bundle, user.id)).map((row: any) => ({
         id: row.id,
         blog_id: row.blog_id || "myblog_sample",
         category_name: row.category_name || "일반",
@@ -65,6 +66,7 @@ export async function GET(request: Request) {
         tags: Array.isArray(row.tags) ? row.tags : [],
         images: Array.isArray(row.images) ? row.images : [],
         photo_review: row.research_summary?.photo_review,
+        source_bundle: row.research_summary?.source_bundle,
         status: row.status || "draft",
         created_at: row.created_at,
         updated_at: row.updated_at,

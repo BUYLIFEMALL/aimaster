@@ -40,15 +40,23 @@ export async function GET(request: NextRequest) {
       privatePhotos = { error: error instanceof PrivatePhotoError ? error.message : "비공개 사진 정리를 완료하지 못했습니다." };
     }
     const privatePhotosFailed = "error" in privatePhotos;
+    // 새 자료는 보관 여부와 관계없이 원래 수집일부터 만료. DB count/delete 오류도 실패로 표시한다.
+    const sourceNow = new Date().toISOString();
+    const sourceQuery = dryRun ? admin.from("nba_collected_materials").select("id", {count: "exact", head: true}).lte("expires_at", sourceNow)
+      : admin.from("nba_collected_materials").delete({count: "exact"}).lte("expires_at", sourceNow);
+    const {count: sourceCount, error: sourceError} = await sourceQuery;
+    const sourceMaterials = sourceError ? {error: "만료 글감 정리를 완료하지 못했습니다."} : {count: sourceCount || 0, dryRun};
+    const cleanupFailed = privatePhotosFailed || Boolean(sourceError);
 
     if (!cutoff) {
       return NextResponse.json({
-        success: !privatePhotosFailed,
+        success: !cleanupFailed,
         retentionDays: RETENTION_DAYS,
         note: "정책 시작 후 30일 유예 기간이 진행 중이므로 만료 대상이 없습니다.",
         dryRun,
         privatePhotos,
-      }, { status: privatePhotosFailed ? 503 : 200 });
+        sourceMaterials,
+      }, { status: cleanupFailed ? 503 : 200 });
     }
 
     let expiredPostsCount = 0;
@@ -120,7 +128,7 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json({
-      success: !privatePhotosFailed,
+      success: !cleanupFailed,
       retentionDays: RETENTION_DAYS,
       cutoff: cutoff.toISOString(),
       expiredPosts: expiredPostsCount,
@@ -129,8 +137,9 @@ export async function GET(request: NextRequest) {
       removedImages: removedImagesCount,
       dryRun,
       privatePhotos,
+      sourceMaterials,
       rankingHealth,
-    }, { status: privatePhotosFailed ? 503 : 200 });
+    }, { status: cleanupFailed ? 503 : 200 });
   } catch (err: any) {
     console.error("Cron Cleanup Error:", err);
     return NextResponse.json({ error: err.message || "정리 작업 중 오류 발생" }, { status: 500 });

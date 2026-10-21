@@ -31,6 +31,8 @@ import {
 import ExecutionProgress from "@/components/ExecutionProgress";
 import type { ExecutionStatus } from "@/lib/executionStatus";
 import { cacheablePosts } from "@/lib/postCache";
+import SourceEvidence from "@/components/SourceEvidence";
+import type { SourceBundle } from "@/lib/sourceBundle";
 import SavedPhotoReview from "@/components/SavedPhotoReview";
 import { readPhotoReview } from "@/lib/photoReviewPost";
 import type { PhotoReviewResult } from "@/lib/photoReview";
@@ -58,6 +60,7 @@ interface SavedPostItem {
   tags?: string[];
   images?: DraftImage[];
   photo_review?: PhotoReviewResult;
+  source_bundle?: SourceBundle;
   status: "draft" | "queued" | "publishing" | "prepared" | "published" | "failed";
   created_at: string;
   updated_at?: string;
@@ -1225,6 +1228,7 @@ export default function QueuePage() {
               }} />
               <PostReviewGate key={viewingDetailPost.id} postId={viewingDetailPost.id} snapshot={postReviewSnapshot(viewingDetailPost)} onBlockingChange={setReviewBlocked} />
 
+              <SourceEvidence source={viewingDetailPost.source_bundle} />
               <SavedPhotoReview images={viewingDetailPost.images || []} review={readPhotoReview(viewingDetailPost.photo_review)} />
 
               {/* 대표 썸네일 */}

@@ -24,6 +24,7 @@ import {
 import { APP_VERSION } from "@/lib/version";
 import { RETENTION_DAYS } from "@/lib/retention";
 import PhotoReviewGuide from "@/components/PhotoReviewGuide";
+import SourceCollectionGuide from "@/components/SourceCollectionGuide";
 
 export default function GuidePage() {
   const currentYear = new Date().getFullYear();
@@ -348,6 +349,7 @@ export default function GuidePage() {
 
       {/* 5. 자주 묻는 질문 (FAQ) 아코디언 */}
       <PhotoReviewGuide />
+      <SourceCollectionGuide />
       <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs">
         <div className="flex items-center gap-2 mb-4">
           <HelpCircle className="h-5 w-5 text-indigo-600" />

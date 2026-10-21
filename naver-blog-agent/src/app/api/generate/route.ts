@@ -10,6 +10,7 @@ import { normalizeSourceMaterial } from "@/lib/ai/sourceGrounding";
 import { reviewFingerprint, withPostReview } from "@/lib/postReview";
 import { savedPost } from "@/lib/postSaveProtocol";
 import { newNaverDraftSummary } from "@/lib/naverPublishing";
+import { loadCollected, SourceError } from "@/lib/collectedMaterials";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -49,6 +50,9 @@ export async function POST(req: Request) {
 
     if(body.imageCount !== undefined && (!Number.isInteger(body.imageCount) || body.imageCount < 1 || body.imageCount > 5))return NextResponse.json({error:"이미지 장수는 1~5장으로 선택해 주세요."},{status:400});
 
+    const admin=createAdminClient() as any;
+    const source = body.source_id ? await loadCollected(admin, user.id, body.source_id) : undefined;
+    if (!source && body.sourceMaterial) return NextResponse.json({error: "서버 글감 목록에서 자료를 다시 선택해 주세요. 이전 브라우저 자료는 자동 이관하지 않습니다."}, {status: 409});
     const targetProvider = body.engine?.provider || provider;
     if(targetProvider && !["openai","anthropic","gemini"].includes(targetProvider))return NextResponse.json({error:"지원하는 AI 공급사를 선택해 주세요."},{status:400});
     // 1. 사용자 AI 키 조회
@@ -63,7 +67,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const admin=createAdminClient() as any;
     const {data:account,error:accountError}=await admin.from("nba_accounts").select("id").eq("user_id",user.id).eq("blog_id",blogId).maybeSingle();
     if(accountError)return NextResponse.json({error:"블로그 계정을 확인하지 못했습니다."},{status:503});
     if(!account)return NextResponse.json({error:"본인 블로그 계정을 먼저 등록해 주세요."},{status:400});
@@ -80,7 +83,7 @@ export async function POST(req: Request) {
       writingStyle,
       articleFormat: body.articleFormat,
       shoppingLinks: shopping.links,
-      sourceMaterial: normalizeSourceMaterial(body.sourceMaterial),
+      sourceMaterial: source ? normalizeSourceMaterial(source.material) : undefined,
       persona,
       targetLength: typeof targetLength === "number" ? targetLength : undefined,
       imageCount:body.imageCount ?? 2,
@@ -92,8 +95,10 @@ export async function POST(req: Request) {
       },
     });
 
-    const row={user_id:user.id,blog_id:blogId,category_name:result.category,title:result.title,content:result.content,tags:result.tags,images:result.images,status:"draft"};
-    const summary=withPostReview(newNaverDraftSummary(blogId),{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
+    if (source && Date.parse(source.bundle.expiresAt) <= Date.now()) throw new SourceError("생성 중 근거 자료가 만료됐습니다. 원고를 저장하지 않았습니다.", 410);
+    if (source) result.sourceBundle = source.bundle;
+    const row={user_id:user.id,blog_id:blogId,category_name:result.category,title:result.title,content:result.content,tags:result.tags,images:result.images,status:"draft", ...(source ? {created_at: source.bundle.collectedAt} : {})};
+    const summary=withPostReview({...newNaverDraftSummary(blogId), ...(source ? {source_bundle: source.bundle} : {})},{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
     let post:any=null,saveError:unknown=null;
     try {const saved=await admin.from("nba_posts").insert({...row,research_summary:summary}).select("*").single();post=saved.data;saveError=saved.error;}
     catch {saveError=true;}
@@ -110,7 +115,7 @@ export async function POST(req: Request) {
     console.error("Generate error:", error);
     return NextResponse.json(
       { error: error?.message || "글 생성 중 오류가 발생했습니다." },
-      { status: 500 }
+      { status: error instanceof SourceError ? error.status : 500 }
     );
   }
 }

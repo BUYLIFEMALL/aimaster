@@ -1,0 +1,69 @@
+{
+  "at": "2026-10-21T02:58:05.204Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v2.06",
+  "steps": [
+    {
+      "name": "regression",
+      "exitCode": 0
+    },
+    {
+      "name": "extension-lifecycle",
+      "exitCode": 0
+    },
+    {
+      "name": "extension-bridge",
+      "exitCode": 0
+    },
+    {
+      "name": "publishing",
+      "exitCode": 0
+    },
+    {
+      "name": "models",
+      "exitCode": 0
+    },
+    {
+      "name": "lint",
+      "exitCode": 0
+    },
+    {
+      "name": "typecheck",
+      "exitCode": 0
+    },
+    {
+      "name": "archive",
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "exitCode": 0
+    }
+  ],
+  "hashes": {
+    "src/app/(dashboard)/collector/page.tsx": "a06aeae25a55349d02e881471234ec39f064fdbaa38229c50cb0dd9089b56ba0",
+    "src/app/(dashboard)/guide/page.tsx": "efe7659d197e94b84527af387573b67a6f84215f75e21b8aaf11ac80c1ba79b5",
+    "src/app/(dashboard)/page.tsx": "f6518e60667595c2dcc38869f508916b4e2aac27736b1b88cb2314155b23a5ca",
+    "src/app/(dashboard)/queue/page.tsx": "f945647c75ad8c25aae20c45f9f198d15e90cbe57d80a1274d435cd96e7cd28c",
+    "src/app/api/collector/route.ts": "084a90d13542844f6dc02fd77c5939a23170988f7307efdba12cf1d4ca495832",
+    "src/app/api/cron/cleanup/route.ts": "dc049ab45ce51a810f49d87c4815b533421b147f109e8b3f334ed732f1c3c356",
+    "src/app/api/extension/task/route.ts": "50dee061bd97eb663360a87f901caaf7178c0b9941c45dfb874e8448baab9502",
+    "src/app/api/generate/route.ts": "f0a50bc6e69845a4ef8cbd7fe520749fc7e84a0cdd70c0f6ead323334d2821a3",
+    "src/app/api/posts/route.ts": "3bfe01ed048c92801efbf55daff34aefdcb1d4977dfa1873cddfa4212cd79578",
+    "src/lib/ai/pipeline.ts": "a226861963e8263aa2a7a98044edb5210e9aeb631e889ac2b4835bb82c62d9b6",
+    "src/lib/ai/sourceGrounding.ts": "3742b13caf7adb83007e28c4d714748585e2cd6530f18f6472d982650860d8d9",
+    "src/lib/collector.ts": "c483ed4ca639b14a90c712535808861aef5439c4bb6469c4942a6ab13ad94eb4",
+    "src/lib/postCache.ts": "c4f246e7f9d0f8816c3a02175f96563a6912b55cdf9ff0319d4d497f0da1d861",
+    "src/lib/postSaveHandler.ts": "5f203b614181736c39ff4e0289c706114acea8d128677efc707d34e370a52b63",
+    "src/lib/postSaveProtocol.ts": "d5623463ab553cb7300fb72c96430ffae038b0d6e791ef9646c219c00619489b",
+    "src/lib/version.ts": "a80861c5dac4e31b3dc1aa54060f43711fa80fae13816c0fbfd14dd5a1a0d669",
+    "src/types/collector.ts": "8d5c54af9d86db6dc8f989818c321cc5b1202e6c983e7eeb1797a7464fd8a448",
+    "src/components/SourceCollectionGuide.tsx": "5409ae846d75375476513a491bf7d848e377db8a86307a79d523395195ebb915",
+    "src/components/SourceEvidence.tsx": "27508efe5a5d626020cef920ff8a803c284c7dd2e1875d7cf9ef2e1d6b210bd6",
+    "src/lib/collectedMaterials.ts": "3877be73c9d5f2443c9edd80a540253b897a65a7bc72f4864eb53d84947be8ec",
+    "src/lib/sourceBundle.ts": "6959822356a0ba3bc96244d39c3c004b44d67743ccabacb1467d7bc046eb915b",
+    "src/lib/rss.ts": "4eca76331ea503fbc7f287426d44d68ffc4f08a1b4f2f1cc43a1bb479dc5e49a",
+    "src/app/api/collector/materials/route.ts": "23fbb53d3df40418398d4220d31f9959519149b60d303457d07f07ef44ed9c5b"
+  },
+  "passed": true
+}

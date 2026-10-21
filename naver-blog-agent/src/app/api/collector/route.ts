@@ -15,12 +15,16 @@ import {
 } from "@/lib/collector";
 import { fetchRankingArticles, isRankingKind, RANKING_SOURCES } from "@/lib/naverRanking";
 import { articleSourceText, pickBestArticle } from "@/lib/ai/sourceGrounding";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { saveCollected, SourceError } from "@/lib/collectedMaterials";
+import { readFeed } from "@/lib/rss";
 import type { BlogViralCandidate } from "@/types/collector";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 export const fetchCache = "force-no-store";
 
-// AI가 정리하기 전 원문을 글감에 함께 보관해 글 생성 때 사실 근거로 쓴다(회원 브라우저 보관).
+// AI가 정리하기 전 원문을 회원 서버 글감에 함께 보관해 글 생성 때 사실 근거로 쓴다.
 const SOURCE_TEXT_MAX = 4000;
 
 export async function POST(req: Request) {
@@ -30,6 +34,10 @@ export async function POST(req: Request) {
     const user = { id: access.userId };
     const body = await req.json();
     const { action } = body;
+    const collected = async (candidates: BlogViralCandidate[], extra = {}) => {
+      const saved = await saveCollected(createAdminClient(), user.id, candidates);
+      return NextResponse.json({success: true, candidates: saved, count: saved.length, ...extra}, {headers: {"Cache-Control": "no-store"}});
+    };
 
     // 공통 AI 키 조회 (OpenAI, Gemini, Anthropic)
     const [openaiKey, geminiKey, anthropicKey] = await Promise.all([
@@ -39,6 +47,22 @@ export async function POST(req: Request) {
     ]);
     const aiKeys = { openai: openaiKey, gemini: geminiKey, anthropic: anthropicKey };
     const hasAnyAiKey = Boolean(openaiKey || geminiKey || anthropicKey);
+
+    // 공개 RSS/Atom: 추가 계정·API 연결 없이 기존 본인 AI 키로 정리한다.
+    if (action === "rss") {
+      if (!hasAnyAiKey) return NextResponse.json({error: "글감을 정리할 본인 AI 키를 등록해 주세요.", needKey: true}, {status: 400});
+      if (typeof body.url !== "string" || body.url.length > 2000) return NextResponse.json({error: "피드 주소를 확인해 주세요."}, {status: 400});
+      const feed = await fetchPublicHtml(body.url.trim());
+      const articles = readFeed(feed.html, feed.finalUrl);
+      const rawText = articles.map((item, i) => `[피드 ${i + 1}] ${item.title}\n${item.text}\n출처: ${item.url}`).join("\n\n");
+      const drafts = await structureBlogCandidates({rawText, maxItems: Math.min(articles.length, 4), aiKeys, targetCategory: typeof body.targetCategory === "string" ? body.targetCategory.trim().slice(0, 100) : undefined});
+      const candidates: BlogViralCandidate[] = drafts.map(draft => {
+        const article = pickBestArticle(`${draft.title} ${draft.content}`, articles);
+        return {id: "pending", method: "rss", source_input: feed.finalUrl, source_urls: article ? [article.url, feed.finalUrl] : [feed.finalUrl, ...articles.map(item => item.url)],
+          source_text: articleSourceText(article, rawText), ...draft, status: "ready", created_at: new Date().toISOString()};
+      });
+      return await collected(candidates);
+    }
 
     // 1. URL 스크랩 글감 수집
     if (action === "url") {
@@ -106,6 +130,7 @@ export async function POST(req: Request) {
         id: `viral-url-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "http",
         source_input: rawUrl,
+        source_urls: sourceArticles.length ? (pickBestArticle(`${d.title} ${d.content}`, sourceArticles) ? [pickBestArticle(`${d.title} ${d.content}`, sourceArticles)!.url] : sourceArticles.map(article => article.url)) : [listing.finalUrl],
         source_text: articleSourceText(pickBestArticle(`${d.title} ${d.content}`, sourceArticles), rawText),
         title: d.title,
         content: d.content,
@@ -116,7 +141,7 @@ export async function POST(req: Request) {
         created_at: new Date(now - index * 1000).toISOString(),
       }));
 
-      return NextResponse.json({ success: true, candidates, count: candidates.length });
+      return await collected(candidates);
     }
 
     // 1-1. 네이버 연예·스포츠·경제 랭킹 글감 (기사 이미지는 쓰지 않고 텍스트만 정리)
@@ -150,6 +175,7 @@ export async function POST(req: Request) {
         id: `viral-rank-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "http",
         source_input: `네이버 ${RANKING_SOURCES[kind].label}`,
+        source_urls: pickBestArticle(`${d.title} ${d.content}`, articles) ? [pickBestArticle(`${d.title} ${d.content}`, articles)!.url] : articles.map(article => article.url),
         source_text: articleSourceText(pickBestArticle(`${d.title} ${d.content}`, articles), rawText),
         title: d.title,
         content: d.content,
@@ -160,7 +186,7 @@ export async function POST(req: Request) {
         created_at: new Date(now - index * 1000).toISOString(),
       }));
 
-      return NextResponse.json({ success: true, candidates, count: candidates.length });
+      return await collected(candidates);
     }
 
     // 2. Perplexity 실시간 화제 트렌드 검색
@@ -193,7 +219,7 @@ export async function POST(req: Request) {
 
       const trendReport = await searchPerplexityTrending(rawTopic, perplexityKey);
       const drafts = await structureBlogCandidates({
-        rawText: trendReport,
+        rawText: trendReport.text,
         maxItems: 4,
         aiKeys,
         targetCategory: targetCategory ? String(targetCategory).trim() : undefined,
@@ -203,7 +229,8 @@ export async function POST(req: Request) {
         id: `viral-pplx-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "perplexity",
         source_input: rawTopic,
-        source_text: trendReport.slice(0, SOURCE_TEXT_MAX),
+        source_text: trendReport.text.slice(0, SOURCE_TEXT_MAX),
+        source_urls: trendReport.citations,
         title: d.title,
         content: d.content,
         category: d.category,
@@ -213,7 +240,7 @@ export async function POST(req: Request) {
         created_at: new Date(now - index * 1000).toISOString(),
       }));
 
-      return NextResponse.json({ success: true, candidates, count: candidates.length });
+      return await collected(candidates);
     }
 
     // 3. 유튜브 쇼츠 검색
@@ -275,6 +302,7 @@ export async function POST(req: Request) {
         id: `viral-shorts-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
         method: "shorts",
         source_input: `https://www.youtube.com/shorts/${video.id}`,
+        source_urls: [`https://www.youtube.com/shorts/${video.id}`],
         source_text: [`[영상] ${String(video.title || "")}`, extraContext.description, extraContext.comments.length ? `댓글: ${extraContext.comments.join(" / ")}` : ""].filter(Boolean).join("\n").slice(0, SOURCE_TEXT_MAX),
         title: d.title,
         content: `[영상 훅 & 분석] ${analysis.hook} / ${analysis.whyViral}\n\n${d.content}`,
@@ -285,18 +313,12 @@ export async function POST(req: Request) {
         created_at: new Date(now - index * 1000).toISOString(),
       }));
 
-      return NextResponse.json({
-        success: true,
-        candidates,
-        count: candidates.length,
-        hook: analysis.hook,
-        whyViral: analysis.whyViral,
-      });
+      return await collected(candidates, {hook: analysis.hook, whyViral: analysis.whyViral});
     }
 
     return NextResponse.json({ error: "알 수 없는 요청입니다." }, { status: 400 });
   } catch (err: any) {
     console.error("Collector API error:", err);
-    return NextResponse.json({ error: err.message || "글감 수집 중 오류가 발생했습니다." }, { status: 500 });
+    return NextResponse.json({ error: err.message || "글감 수집 중 오류가 발생했습니다." }, { status: err instanceof SourceError ? err.status : 500 });
   }
 }

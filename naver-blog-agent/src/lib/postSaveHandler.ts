@@ -8,6 +8,7 @@ import { SAVE_CONFLICT, SAVE_UPGRADE, savedPost, postSaveRevision, saveFingerpri
 
 import { validatePrivatePhotoPost } from "./privatePhotoPost";
 import { PrivatePhotoError } from "./privatePhotos";
+import { validateSourcePost, SourceError } from "./collectedMaterials";
 
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {status, headers: {"Cache-Control": "no-store"}});
 const conflict = () => reply({error: SAVE_CONFLICT, code: "SAVE_CONFLICT"}, 409);
@@ -56,11 +57,15 @@ export async function handlePostSave(admin: any, userId: string, payload: Record
     catch (error) { return reply({error: error instanceof PrivatePhotoError ? error.message : "사진 원고를 확인하지 못했습니다. 다시 저장해 주세요."}, error instanceof PrivatePhotoError ? error.status : 503); }
     if (privatePhoto.images) updates.images = privatePhoto.images;
   }
+  let sourceBundle;
+  try { sourceBundle = await validateSourcePost(admin, userId, payload, current); }
+  catch (error) {return reply({error: error instanceof SourceError ? error.message : "원고의 출처를 확인하지 못했습니다."}, error instanceof SourceError ? error.status : 503);}
   if (updates.status === "queued" && !getPostReview({...current, ...updates}).allowed) return reply({error: "저장한 최종 원고를 직접 검수한 뒤 전송해 주세요."}, 422);
   updates.updated_at = nextTimestamp(current?.updated_at);
   const summary = current ? current.research_summary : newNaverDraftSummary(updates.blog_id);
-  updates.research_summary = withSaveReceipt(privatePhoto.photoReview ? {...summary, photo_review: privatePhoto.photoReview} : summary, payload.save_request_id, fingerprint);
-  if (!current && privatePhoto.createdAt) updates.created_at = privatePhoto.createdAt;
+  updates.research_summary = withSaveReceipt({...summary, ...(privatePhoto.photoReview ? {photo_review: privatePhoto.photoReview} : {}), ...(sourceBundle ? {source_bundle: sourceBundle} : {})}, payload.save_request_id, fingerprint);
+  const originalDates = [privatePhoto.createdAt, sourceBundle?.collectedAt].filter((date): date is string => Boolean(date)).sort();
+  if (!current && originalDates.length) updates.created_at = originalDates[0];
 
   let query;
   if (current) {

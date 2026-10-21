@@ -33,9 +33,9 @@ function harness() {
       state.reads.push(table);
       const rows = state.rows.filter(row => filters.every(([key, value, operator]) => operator === 'lt' ? row[key] < value : row[key] === value));
       if (patch && table === 'nba_posts') { state.writes.push({ patch, ids: rows.map(row => row.id) }); rows.forEach(row => Object.assign(row, patch)); }
-      return { data: table === 'nba_posts' ? structuredClone(rows) : [], error: null };
+      return { data: table === 'nba_posts' ? structuredClone(rows) : [], count: 0, error: table === 'nba_collected_materials' && state.sourceError ? {message:'mock source cleanup failed'} : null };
     };
-    const query = { select() { return query; }, eq(key, value) { filters.push([key, value]); return query; }, lt(key, value) { filters.push([key, value, 'lt']); return query; }, update(value) { patch = value; return query; }, order() { return query; }, limit() { return query; },
+    const query = { select() { return query; }, delete() { return query; }, lte(key,value) { filters.push([key,value,'lt']); return query; }, eq(key, value) { filters.push([key, value]); return query; }, lt(key, value) { filters.push([key, value, 'lt']); return query; }, update(value) { patch = value; return query; }, order() { return query; }, limit() { return query; },
       async maybeSingle() { return table === 'nba_posts' ? { data: run().data[0] || null, error: state.readError ? {} : null } : { data: { default_category: '일상' }, error: null }; }, then(resolve, reject) { return Promise.resolve(run()).then(resolve, reject); } }; return query;
   } };
   function load(file) {
@@ -263,4 +263,13 @@ test('새 사진 정리 오류도 기존 원고 정리를 막지 않고 Cron은 
     assert.equal(result.status, 503); assert.equal(result.body.success, false); assert.ok(result.body.privatePhotos.error);
     assert.ok(h.state.reads.includes('nba_posts')); assert.equal(h.state.removed.length, 0);
   } finally { previous === undefined ? delete process.env.CRON_SECRET : process.env.CRON_SECRET = previous; }
+});
+
+test('새 글감 정리 실패도 성공으로 숨기지 않으며 dry 모드가 유지된다', async () => {
+  const h=harness();h.state.sourceError=true;
+  const previous=process.env.CRON_SECRET;process.env.CRON_SECRET='mock-cron';
+  try {
+    const result=await h.load('app/api/cron/cleanup/route.ts').GET({headers:{get:()=> 'Bearer mock-cron'},nextUrl:new URL('https://test/api/cron/cleanup?dry=1')});
+    assert.equal(result.status,503);assert.equal(result.body.success,false);assert.ok(result.body.sourceMaterials.error);assert.equal(result.body.dryRun,true);assert.equal(h.state.removed.length,0);
+  } finally {previous===undefined?delete process.env.CRON_SECRET:process.env.CRON_SECRET=previous;}
 });

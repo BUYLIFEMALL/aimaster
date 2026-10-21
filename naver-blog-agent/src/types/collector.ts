@@ -1,6 +1,11 @@
+import type { SourceBundle } from "@/lib/sourceBundle";
+
 export interface BlogViralCandidate {
   id: string;
-  method: "http" | "perplexity" | "shorts";
+  method: "http" | "rss" | "perplexity" | "shorts";
+  source?: SourceBundle;
+  source_urls?: string[];
+  revision?: string;
   source_input: string;
   title: string;
   content: string;

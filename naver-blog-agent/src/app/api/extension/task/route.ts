@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticateExtension, buildBridgePayload } from "@/lib/extensionBridge";
+import { validSource } from "@/lib/sourceBundle";
 import { getPostReview } from "@/lib/postReview";
 import { PrivatePhotoError, resolvePrivatePostPhotos } from "@/lib/privatePhotos";
 import { connectionOwner, newExecution, OWNER_PATH, publicExecution, readExecution, withExecution } from "@/lib/executionRuns";
@@ -44,6 +45,7 @@ export async function POST(req: Request) {
     if (!posts || posts.length === 0) return reply({ task: null });
 
     const row = posts[0];
+    if (row.research_summary?.source_bundle && !validSource(row.research_summary.source_bundle, userId)) return reply({error: "원고의 근거 자료가 만료됐습니다. 새로 수집한 자료로 작성해 주세요."}, {status: 410});
     const hasPrivatePhotos = Array.isArray(row.images) && row.images.some((image: any) => image && typeof image === "object" && "storagePath" in image);
     if (hasPrivatePhotos && (body.supportsPrivatePhotos !== true || body.supportsRuns !== true)) {
       return reply({ error: "비공개 사진을 지원하는 최신 확장으로 업데이트해 주세요." }, { status: 409 });

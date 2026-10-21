@@ -1,7 +1,7 @@
 "use client";
 
 import { notify, askConfirm } from "@/lib/uiDialog";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -28,11 +28,11 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import type { BlogViralCandidate, ShortVideo, ShortsOrder, CollectorCategory } from "@/types/collector";
-import { INITIAL_SAMPLE_CANDIDATES } from "@/types/collector";
+import SourceEvidence from "@/components/SourceEvidence";
 import { useContentCategories } from "@/hooks/useContentCategories";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
-import { retentionDaysLeft, retentionDeleteAt, isRetentionExpired } from "@/lib/retention";
+import { retentionDaysLeft, retentionDeleteAt } from "@/lib/retention";
 
 const STATUS_MAP: Record<string, { label: string; tone: string }> = {
   ready: { label: "사용 가능", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
@@ -82,8 +82,10 @@ export default function CollectorPage() {
   const [bulkMoveCategory, setBulkMoveCategory] = useState<string>("");
 
   // 수집 탭 및 입력값
-  const [activeTab, setActiveTab] = useState<"url" | "perplexity" | "shorts">("url");
+  const [activeTab, setActiveTab] = useState<"url" | "rss" | "perplexity" | "shorts">("url");
   const [urlInput, setUrlInput] = useState("");
+  const [rssInput, setRssInput] = useState("");
+  const editBusy = useRef(false);
   const [topicInput, setTopicInput] = useState("");
 
   // 쇼츠 검색 필터 및 결과
@@ -106,54 +108,36 @@ export default function CollectorPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [checkedIds, setCheckedIds] = useState<string[]>([]);
 
-  // 1. LocalStorage 로드 (글감 및 카테고리)
+  // 서버 ACK만 목록에 반영한다. 소유자가 없는 과거 공용 캐시는 자동 이관하지 않는다.
   useEffect(() => {
-    // 1-2. 글감 로드 (보관 여부 is_archived 하위 호환 마이그레이션 포함)
-    try {
-      const saved = localStorage.getItem("nba_viral_candidates");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const migrated: BlogViralCandidate[] = parsed.map((item) => {
-            let status = item.status;
-            let is_archived = Boolean(item.is_archived);
-            if (status === "archived") {
-              status = "ready";
-              is_archived = true;
-            }
-            return {
-              ...item,
-              status: status === "used" ? "used" : "ready",
-              is_archived,
-            };
-          });
-          const activeCandidates = migrated.filter((item) => {
-            if (item.is_archived) return true;
-            return !isRetentionExpired(item.created_at);
-          });
-          setCandidates(activeCandidates);
-          localStorage.setItem("nba_viral_candidates", JSON.stringify(activeCandidates));
-          setMounted(true);
-          return;
-        }
-      }
-      setCandidates(INITIAL_SAMPLE_CANDIDATES);
-      localStorage.setItem("nba_viral_candidates", JSON.stringify(INITIAL_SAMPLE_CANDIDATES));
-    } catch {
-      setCandidates(INITIAL_SAMPLE_CANDIDATES);
-    } finally {
-      setMounted(true);
-    }
+    const controller = new AbortController();
+    fetch("/api/collector/materials", {cache: "no-store", signal: controller.signal})
+      .then(async response => {const data = await response.json(); if (!response.ok) throw new Error(data.error); return data;})
+      .then(data => setCandidates(data.candidates))
+      .catch(error => {if (!controller.signal.aborted) setMessage({type: "error", text: error.message});})
+      .finally(() => {if (!controller.signal.aborted) setMounted(true);});
+    return () => controller.abort();
   }, []);
 
-  // 2. 글감 저장 헬퍼
-  const persistCandidates = (updated: BlogViralCandidate[]) => {
-    setCandidates(updated);
+  const persistCandidates = async (updated: BlogViralCandidate[]) => {
+    if (editBusy.current) return false;
+    editBusy.current = true;
+    setBusy(true);
     try {
-      localStorage.setItem("nba_viral_candidates", JSON.stringify(updated));
-    } catch (e) {
-      console.error("Failed to save candidates to local storage:", e);
-    }
+      const changes = candidates.flatMap<Record<string, unknown>>(previous => {
+        const next = updated.find(item => item.id === previous.id);
+        if (!next) return [{id: previous.id, revision: previous.revision, delete: true}];
+        const fields = {title: next.title, content: next.content, category: next.category, status: next.status === "used" ? "used" : "ready", is_archived: Boolean(next.is_archived)};
+        const old = {title: previous.title, content: previous.content, category: previous.category, status: previous.status === "used" ? "used" : "ready", is_archived: Boolean(previous.is_archived)};
+        return JSON.stringify(fields) === JSON.stringify(old) ? [] : [{id: previous.id, revision: previous.revision, fields}];
+      });
+      const response = await fetch("/api/collector/materials", changes.length ? {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({changes})} : {cache: "no-store"});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "글감 저장을 확인하지 못했습니다.");
+      setCandidates(data.candidates);
+      return true;
+    } catch (error) {setMessage({type: "error", text: error instanceof Error ? error.message : "글감 저장 오류"}); return false;}
+    finally {editBusy.current = false; setBusy(false);}
   };
 
   // 3. 카테고리 저장 헬퍼
@@ -162,11 +146,11 @@ export default function CollectorPage() {
   };
 
   // 4. 카테고리 삭제 시 기존 글감 미분류 전환
-  const handleCategoryDeleted = (deletedName: string) => {
+  const handleCategoryDeleted = async (deletedName: string) => {
     const updated = candidates.map((c) =>
       c.category === deletedName ? { ...c, category: "미분류" } : c
     );
-    persistCandidates(updated);
+    if (!await persistCandidates(updated)) return;
     setMessage({
       type: "success",
       text: `"${deletedName}" 카테고리가 삭제되었으며, 기존 글감은 '미분류'로 안전하게 재분류되었습니다.`,
@@ -226,12 +210,12 @@ export default function CollectorPage() {
   };
 
   // 특정 글감 1건의 카테고리 변경
-  const handleMoveSingleCandidate = (candidateId: string, newCategory: string) => {
+  const handleMoveSingleCandidate = async (candidateId: string, newCategory: string) => {
     if (!newCategory) return;
     const updated = candidates.map((c) =>
       c.id === candidateId ? { ...c, category: newCategory } : c
     );
-    persistCandidates(updated);
+    if (!await persistCandidates(updated)) return;
     setMessage({
       type: "success",
       text: `글감 카테고리를 "${newCategory}"(으)로 변경했습니다.`,
@@ -239,12 +223,12 @@ export default function CollectorPage() {
   };
 
   // 선택한 글감 일괄 카테고리 이동
-  const handleBulkMoveCategory = () => {
+  const handleBulkMoveCategory = async () => {
     if (!checkedIds.length || !bulkMoveCategory) return;
     const updated = candidates.map((c) =>
       checkedIds.includes(c.id) ? { ...c, category: bulkMoveCategory } : c
     );
-    persistCandidates(updated);
+    if (!await persistCandidates(updated)) return;
     const count = checkedIds.length;
     setCheckedIds([]);
     setMessage({
@@ -281,7 +265,7 @@ export default function CollectorPage() {
         is_archived: false,
       }));
       const updated = [...newItems, ...candidates];
-      persistCandidates(updated);
+      if (!await persistCandidates(updated)) return;
       setUrlInput("");
       setMessage({
         type: "success",
@@ -292,6 +276,20 @@ export default function CollectorPage() {
     } finally {
       setCollecting(false);
     }
+  };
+
+  const handleCollectRss = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!rssInput.trim() || collecting) return;
+    setCollecting(true); setMessage(null);
+    try {
+      const response = await fetch("/api/collector", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({action: "rss", url: rssInput.trim(), targetCategory: collectCategory || undefined})});
+      const data = await response.json();
+      if (!response.ok) {setMessage({type: "error", text: data.error || "피드 수집 실패", needKey: data.needKey}); return;}
+      if (!await persistCandidates([...data.candidates, ...candidates])) return;
+      setMessage({type: "success", text: `피드 글감 ${data.count}건을 서버에 저장했습니다. 원문과 출처를 확인해 주세요.`});
+    } catch {setMessage({type: "error", text: "피드 수집 결과를 확인하지 못했습니다. 목록을 다시 확인해 주세요."});}
+    finally {setCollecting(false);}
   };
 
   // 랭킹 주소 상태(서버 30분 보관, 무료 점검). 실패한 랭킹 버튼에 빨간 점을 보여 준다.
@@ -332,7 +330,7 @@ export default function CollectorPage() {
         status: "ready" as const,
         is_archived: false,
       }));
-      persistCandidates([...newItems, ...candidates]);
+      if (!await persistCandidates([...newItems, ...candidates])) return;
       setMessage({
         type: "success",
         text: `네이버 ${label} 상위 기사로 블로그 글감 ${newItems.length}건을 만들었습니다. (카테고리: ${collectCategory || "AI 자동 판정"})`,
@@ -372,7 +370,7 @@ export default function CollectorPage() {
         is_archived: false,
       }));
       const updated = [...newItems, ...candidates];
-      persistCandidates(updated);
+      if (!await persistCandidates(updated)) return;
       setTopicInput("");
       setMessage({
         type: "success",
@@ -454,7 +452,7 @@ export default function CollectorPage() {
         is_archived: false,
       }));
       const updated = [...newItems, ...candidates];
-      persistCandidates(updated);
+      if (!await persistCandidates(updated)) return;
       setMessage({
         type: "success",
         text: `"${video.title.slice(0, 30)}..." 쇼츠에서 떡상 블로그 글감 ${newItems.length}건을 생성했습니다! (카테고리: ${collectCategory || "AI 자동 판정"})`,
@@ -467,23 +465,23 @@ export default function CollectorPage() {
   };
 
   // 1) 사용 상태 토글 (ready ↔ used: 보관 여부와 100% 무관하게 독립 동작)
-  const toggleCandidateStatus = (id: string) => {
+  const toggleCandidateStatus = async (id: string) => {
     const updated = candidates.map((c) => {
       if (c.id !== id) return c;
       const nextStatus: "ready" | "used" = c.status === "used" ? "ready" : "used";
       return { ...c, status: nextStatus };
     });
-    persistCandidates(updated);
+    if (!await persistCandidates(updated)) return;
   };
 
   // 2) 보관 상태 토글 (is_archived: 사용 상태와 100% 무관하게 독립 동작, 전체 삭제 보호용)
-  const toggleCandidateArchive = (id: string) => {
+  const toggleCandidateArchive = async (id: string) => {
     const updated = candidates.map((c) => {
       if (c.id !== id) return c;
       const nextArchived = !c.is_archived;
       return { ...c, is_archived: nextArchived };
     });
-    persistCandidates(updated);
+    if (!await persistCandidates(updated)) return;
     const target = candidates.find((c) => c.id === id);
     if (target) {
       const willBeArchived = !target.is_archived;
@@ -513,7 +511,7 @@ export default function CollectorPage() {
     setEditContent("");
   };
 
-  const saveEdit = (id: string) => {
+  const saveEdit = async (id: string) => {
     if (!editTitle.trim()) {
       notify("글감 제목을 입력해 주세요.");
       return;
@@ -521,7 +519,7 @@ export default function CollectorPage() {
     const updated = candidates.map((c) =>
       c.id === id ? { ...c, title: editTitle.trim(), content: editContent.trim() } : c
     );
-    persistCandidates(updated);
+    if (!await persistCandidates(updated)) return;
     setEditingId(null);
     setMessage({ type: "success", text: "글감 정보가 수정되었습니다." });
   };
@@ -533,7 +531,7 @@ export default function CollectorPage() {
       : `"${item.title.slice(0, 30)}" 글감을 삭제하시겠습니까?`;
     if (!await askConfirm(warning)) return;
     const updated = candidates.filter((c) => c.id !== item.id);
-    persistCandidates(updated);
+    if (!await persistCandidates(updated)) return;
     setCheckedIds((prev) => prev.filter((i) => i !== item.id));
   };
 
@@ -559,7 +557,7 @@ export default function CollectorPage() {
       if (!await askConfirm(confirmMsg)) return;
 
       const updated = candidates.filter((c) => !toDeleteIds.includes(c.id));
-      persistCandidates(updated);
+      if (!await persistCandidates(updated)) return;
       setCheckedIds([]);
       setMessage({
         type: "success",
@@ -575,7 +573,7 @@ export default function CollectorPage() {
       const archivedTotal = candidates.length - unarchivedCount;
       if (!await askConfirm(`보관된 글감(${archivedTotal}건)은 100% 안전하게 보호되며, 보관되지 않은 일반 글감 전체 ${unarchivedCount}건만 모두 삭제됩니다.\n계속 진행하시겠습니까?`)) return;
       const updated = candidates.filter((c) => Boolean(c.is_archived));
-      persistCandidates(updated);
+      if (!await persistCandidates(updated)) return;
       setCheckedIds([]);
       setMessage({
         type: "success",
@@ -586,7 +584,7 @@ export default function CollectorPage() {
 
   // 이 글감으로 자동 생성기 이동
   const handleUseCandidate = (item: BlogViralCandidate, format?: "homefeed") => {
-    router.push(`/?viralId=${item.id}&topic=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category)}${format ? `&format=${format}` : ""}`);
+    router.push(`/?viralId=${item.id}${format ? `&format=${format}` : ""}`);
   };
 
   if (!mounted) {
@@ -650,6 +648,7 @@ export default function CollectorPage() {
 
       {/* 2-2. 30일 보관 정책 안내 공지 배너 */}
       <ContentRetentionNotice />
+      <p className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950">글감은 본인 서버 목록에 저장되며 수집일부터 30일 후 정리됩니다. 보관·편집·원고 작성은 기간을 늘리지 않습니다. 과거 브라우저 공용 목록은 소유자를 확인할 수 없어 자동 이관하지 않습니다. 최근 최대 500건을 표시합니다.</p>
 
       {/* 메시지 알림 바 */}
       {message && (
@@ -759,7 +758,8 @@ export default function CollectorPage() {
 
         {/* 탭 버튼들 */}
         <div className="flex flex-wrap gap-2 border-b border-neutral-200 pb-3">
-          <button
+          <button type="button" onClick={() => setActiveTab("rss")} aria-pressed={activeTab === "rss"} className={`rounded-lg px-4 py-2 text-sm font-bold ${activeTab === "rss" ? "bg-rose-600 text-white" : "bg-neutral-100 text-neutral-700"}`}>RSS/Atom 피드</button>
+            <button
             type="button"
             onClick={() => setActiveTab("url")}
             className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
@@ -798,6 +798,8 @@ export default function CollectorPage() {
         </div>
 
         {/* 탭 1: URL 수집 */}
+        {activeTab === "rss" && <form onSubmit={handleCollectRss} className="mt-4 space-y-3"><label className="block text-sm font-semibold" htmlFor="public-rss-url">공개 RSS/Atom 피드 주소</label><input id="public-rss-url" type="url" required maxLength={2000} value={rssInput} onChange={event => setRssInput(event.target.value)} placeholder="https://사이트/피드.xml" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"/><p className="text-xs text-neutral-500">본문이 있는 공개 항목 최대 5개를 읽고 본인 AI 키로 정리합니다. 로그인 피드·NewsBlur 계정은 연결하지 않습니다.</p><button disabled={collecting || busy} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">{collecting ? "피드 수집 중…" : "피드 글감 수집"}</button></form>}
+
         {activeTab === "url" && (
           <form onSubmit={handleCollectUrl} className="mt-4 space-y-3">
             <p className="text-xs text-neutral-600 leading-relaxed">
@@ -1401,6 +1403,8 @@ export default function CollectorPage() {
                       <span className="truncate">{item.source_input}</span>
                     )}
                   </div>
+
+                  <SourceEvidence source={item.source} />
 
                   {/* 하단 액션 버튼 그룹 */}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3">

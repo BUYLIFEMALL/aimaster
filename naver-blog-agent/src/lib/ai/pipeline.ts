@@ -8,6 +8,7 @@ import { applyUnsupported, buildSourceBlock, buildSourceReviewRule, filterUnsupp
 import { cleanGeneratedBody } from "./bodyCleanup";
 import type { DraftImage } from "@/lib/draftImages";
 import type { PhotoReviewResult } from "@/lib/photoReview";
+import type { SourceBundle } from "@/lib/sourceBundle";
 
 import { sanitizeYear, sanitizeBodyYear } from "@/lib/yearPolicy";
 
@@ -58,6 +59,7 @@ export interface PipelineResult {
   reviewNote?: string;
   images: DraftImage[];
   photoReview?: PhotoReviewResult;
+  sourceBundle?: SourceBundle;
   stepsLog: {
     step: string;
     status: "done" | "warn";

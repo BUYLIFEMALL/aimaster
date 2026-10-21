@@ -54,7 +54,7 @@ import { CategoryManagementModal } from "@/components/collector/CategoryManageme
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import { ARTICLE_FORMATS, type ArticleFormat } from "@/lib/ai/articleFormats";
 import { MAX_SHOPPING_LINKS, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
-import { buildSourceMaterial } from "@/lib/ai/sourceGrounding";
+import SourceEvidence from "@/components/SourceEvidence";
 import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from "@/lib/ai/openaiRequestParams";
 import {
   ENGINES,
@@ -195,35 +195,21 @@ export default function MainPage() {
       })
       .catch(() => {});
 
-    // 수집된 글감 로드 및 URL 쿼리 파라미터 연동
-    try {
-      const savedViral = localStorage.getItem("nba_viral_candidates");
-      if (savedViral) {
-        const parsedViral: BlogViralCandidate[] = JSON.parse(savedViral);
-        if (Array.isArray(parsedViral)) {
-          setViralCandidates(parsedViral);
-
-          // URL 파라미터(?viralId=...&topic=...&category=...) 확인
-          if (typeof window !== "undefined") {
-            const params = new URLSearchParams(window.location.search);
-            const viralId = params.get("viralId");
-            const paramTopic = params.get("topic");
-            const paramCategory = params.get("category");
-            if (params.get("format") === "homefeed") setArticleFormat("homefeed");
-
-            if (viralId) {
-              const matched = parsedViral.find((c) => c.id === viralId);
-              if (matched) {
-                applyViralCandidate(matched);
-              }
-            } else if (paramTopic) {
-              setTopic(cleanCurrentYear(decodeURIComponent(paramTopic)));
-              if (paramCategory) setCategory(decodeURIComponent(paramCategory));
-            }
-          }
+    // 회원 서버 목록만 사용한다. 출처와 주제는 URL에 복제하지 않는다.
+    fetch("/api/collector/materials", {cache: "no-store"})
+      .then(async response => {const data = await response.json(); if (!response.ok) throw new Error(data.error); return data;})
+      .then(data => {
+        const list: BlogViralCandidate[] = data.candidates || [];
+        setViralCandidates(list);
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("format") === "homefeed") setArticleFormat("homefeed");
+        const id = params.get("viralId");
+        if (id) {
+          const candidate = list.find(item => item.id === id);
+          if (candidate) applyViralCandidate(candidate);
+          else setError("선택한 글감을 찾지 못했습니다. 본인 서버 목록에서 유효한 자료를 다시 선택해 주세요.");
         }
-      }
-    } catch {}
+      }).catch(error => setError(error.message || "글감 목록을 불러오지 못했습니다."));
 
     // 등록된 AI 및 이미지 키 목록 불러오기
     fetch("/api/keys")
@@ -359,6 +345,7 @@ export default function MainPage() {
       tags: targetResult.tags,
       images: finalImages,
       ...(targetResult.photoReview ? {photo_review: targetResult.photoReview} : {}),
+      ...(targetResult.sourceBundle ? {source_id: targetResult.sourceBundle.id} : {}),
       status,
       created_at: new Date().toISOString(),
     };
@@ -382,7 +369,7 @@ export default function MainPage() {
     }catch(err){if(epoch!==sourceEpoch.current)return false;setError(err instanceof Error?err.message:"서버 저장 실패");}
     if(status==="queued" && !serverPost)return false;
     if(!serverPost){
-      if (!targetResult.photoReview && !finalImages.some((image: DraftImage) => image.storagePath)) { try{localStorage.setItem(`nba_unsaved_post_${postId}`,JSON.stringify({...postItem,id:postId}));}catch{} }
+      if (!targetResult.photoReview && !targetResult.sourceBundle && !finalImages.some((image: DraftImage) => image.storagePath)) { try{localStorage.setItem(`nba_unsaved_post_${postId}`,JSON.stringify({...postItem,id:postId}));}catch{} }
       return false;
     }
 
@@ -418,6 +405,7 @@ export default function MainPage() {
       category: post.category_name,
       images: post.images || [],
       photoReview: readPhotoReview(post.photo_review),
+      sourceBundle: post.source_bundle,
       stepsLog: [
         { step: "보관함 로드", status: "done", message: "저장된 원고 데이터를 성공적으로 복원했습니다." },
       ],
@@ -545,7 +533,7 @@ export default function MainPage() {
           writingStyle,
           articleFormat,
           // 선택한 글감의 전체 내용을 사실 근거로 함께 보낸다(앞 100자만 가던 문제 수정).
-          sourceMaterial: selectedViral?.content ? buildSourceMaterial(cleanCurrentYear(selectedViral.content), selectedViral.source_text) : undefined,
+          source_id: selectedViral?.id,
           shoppingLinks: shoppingLinksInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
@@ -583,20 +571,14 @@ export default function MainPage() {
       }
       if(data.saveError)setError(data.saveError);
 
-      // 글 생성이 완료되면 해당 글감을 사용 완료(used) 상태로 업데이트
-      if (selectedViral) {
+      // 생성 원고 저장 ACK 뒤에만 사용 표시. 원본/수명은 수정하지 않는다.
+      if (selectedViral && data.saved) {
         try {
-          const saved = localStorage.getItem("nba_viral_candidates");
-          if (saved) {
-            const list: BlogViralCandidate[] = JSON.parse(saved);
-            const updated = list.map((c) =>
-              c.id === selectedViral.id ? { ...c, status: "used" as const } : c
-            );
-            localStorage.setItem("nba_viral_candidates", JSON.stringify(updated));
-            setViralCandidates(updated);
-            setSelectedViral((prev) => (prev ? { ...prev, status: "used" } : null));
-          }
-        } catch {}
+          const response = await fetch("/api/collector/materials", {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({changes: [{id: selectedViral.id, revision: selectedViral.revision, fields: {title: selectedViral.title, content: selectedViral.content, category: selectedViral.category, status: "used", is_archived: Boolean(selectedViral.is_archived)}}]})});
+          const updated = await response.json();
+          if (response.ok) {setViralCandidates(updated.candidates); setSelectedViral(updated.candidates.find((candidate: BlogViralCandidate) => candidate.id === selectedViral.id) || null);}
+          else setError("원고는 저장됐지만 글감 사용 표시를 확인하지 못했습니다. 목록을 다시 확인해 주세요.");
+        } catch {setError("원고는 저장됐지만 글감 사용 표시를 확인하지 못했습니다.");}
       }
 
       // 결과 화면으로 부드럽게 스크롤 이동
@@ -1011,7 +993,7 @@ export default function MainPage() {
                   </span>
                   {selectedViral.status === "used" && (
                     <span className="rounded bg-sky-50 text-sky-700 px-1.5 py-0.5 text-[10px] font-medium">
-                      발행 완료됨
+                      사용 완료
                     </span>
                   )}
                 </div>
@@ -1054,7 +1036,7 @@ export default function MainPage() {
                   </option>
                   {viralCandidates.map((c) => (
                     <option key={c.id} value={c.id}>
-                      [{c.category}] {c.title} ({c.status === "used" ? "발행완료" : "사용가능"})
+                      [{c.category}] {c.title} ({c.status === "used" ? "사용완료" : "사용가능"})
                     </option>
                   ))}
                 </select>
@@ -1078,6 +1060,7 @@ export default function MainPage() {
               )}
             </div>
           )}
+          <SourceEvidence source={selectedViral?.source} />
         </div>
 
         {/* 2-1. [글의 화자(페르소나) 원클릭 선택] 섹션 */}
@@ -1853,6 +1836,7 @@ export default function MainPage() {
             }} />
             <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:result.images})} onBlockingChange={setReviewBlocked} />
 
+            <SourceEvidence source={result.sourceBundle} />
             <SavedPhotoReview images={result.images} review={result.photoReview} />
 
             {/* 5단계 에이전트 단계별 실행 내역 요약 박스 */}
