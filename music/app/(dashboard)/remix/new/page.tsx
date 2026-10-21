@@ -72,7 +72,7 @@ export default async function NewRemixPage({
   // 매시업 두 번째 곡 후보: 내 완성 곡 변주(최근 60개).
   const { data: variants } = await supabase
     .from("music_track_variants")
-    .select("id, track_id, duration_seconds")
+    .select("id, track_id, duration_seconds, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(60);
@@ -89,7 +89,10 @@ export default async function NewRemixPage({
       countByTrack.set(v.track_id, n);
       const sec = v.duration_seconds ?? 0;
       const len = sec ? ` · ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}` : "";
-      return { variantId: v.id, label: `${titleById.get(v.track_id) ?? "제목 없음"} (${n})${len}` };
+      // 같은 제목 곡이 많으면 구분이 어려워 만든 날짜·시각(한국 시간)을 붙인다.
+      const made = new Date(new Date(v.created_at).getTime() + 9 * 3600 * 1000).toISOString();
+      const when = ` · ${made.slice(5, 7)}/${made.slice(8, 10)} ${made.slice(11, 16)}`;
+      return { variantId: v.id, label: `${titleById.get(v.track_id) ?? "제목 없음"} (${n})${len}${when}` };
     });
 
   return (

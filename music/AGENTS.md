@@ -374,3 +374,9 @@ POST 콜백을 보낸다. 이 라우트는:
 - 수정: 웹훅 4개(`/api/webhooks/suno` 곡·리믹스, `suno-vocal-removal` MR·12트랙, `suno-media` 커버·영상, `suno-wav`)가 콜백을 「끝났다는 신호」로만 받고, **회원 본인 Suno 키로 record-info를 다시 조회한 결과로만** 저장·실패 처리. 조회가 아직 진행 중이면 잠금만 풀고 아무것도 바꾸지 않음(회원 「상태 확인」 버튼이나 다음 콜백이 처리). 공용 도우미 `lib/sunoVerify.ts` `waitForSettled`(4번·5초 간격, WAV는 2번·3초 — WAV 웹훅은 잠금 없이 응답 전에 처리하므로 15초 안). 새 함수 `checkSunoVocalRemovalStatus`(`/vocal-removal/record-info`, 낙타 표기 `backingVocalsUrl` → 콜백과 같은 `backing_vocals_url`로 변환). 쓰이지 않게 된 `extractSunoWavUrl` 삭제. 회원 키가 없으면(지웠으면) 아무것도 바꾸지 않음.
 - 검수: tsc·lint·테스트 55·build, 배포 `music-owpcfw9uv` Ready, DB v1.37. **운영 가짜 콜백 시험**: 시험 계정에 화면에 안 보이는 시험 리믹스 행(원곡 없음, 가짜 작업 번호)을 만들어 가짜 성공 콜백(가짜 음원 주소) → 25초 뒤 그대로 「생성 중」·결과 0개·잠금 풀림, 가짜 실패 콜백 → 그대로 「생성 중」. 시험 행은 삭제. 새 MR 조회 함수를 시험 계정 실제 작업으로 확인: 12트랙 12/12, 보컬·반주 2/2 칸 채움, 곡 조회 매시업 2곡. **진짜 콜백으로 저장되는 끝단 흐름은 유료 생성이 필요해 다음 실제 생성 때 확인**(조회 함수는 회원 「상태 확인」 버튼에서 이미 쓰던 것).
 - 비용: Vercel 빌드 1회. Suno 생성 호출 없음(상태 조회만).
+- **2026-10-22 v1.37 진짜 콜백 끝단 확인(승인 WAV 1회)**: 크롬 시험 계정에서 「WAV 고음질」(빗속의 다짐 #2) 1회 → 새 WAV 웹훅 경로(회원 키 `/wav/record-info` 재조회)로 완료·우리 저장소 저장. WAV 상태 확인 버튼(`syncWavStatusAction`)은 누르지 않았고 화면 자동 새로고침은 화면만 다시 그리므로 웹훅으로 저장된 것. 비용: Suno WAV 1회.
+
+## 2026-10-22 v1.38 — 매시업 후보에 만든 날짜·시각 표시 (Claude Code 윈도우)
+- `app/(dashboard)/remix/new/page.tsx`: 「섞을 두 번째 곡」 후보 이름 뒤에 만든 날짜·시각(한국 시간, `10/22 02:29`)을 붙여 같은 제목 곡 구분.
+- 검수: tsc·lint·테스트 55·build, 배포 `music-2yzmt4hln` Ready, DB v1.38, 크롬 시험 계정에서 후보 8개 모두 날짜 표시 확인. 비용: Vercel 빌드 1회.
+- **리믹스 카드 「가사 영상·플레이리스트」 바로가기는 보류**: 두 프로그램(`lyric-video-studio/src/lib/suno.ts`, `playlist-channel-studio/src/lib/sunoTracks.ts`)이 `music_track_variants`만 읽어, 리믹스 결과(`music_track_remix_variants`)를 넘기면 찾지 못한다. 두 프로그램도 고쳐야 하는 일이라(배포 2회 추가) 별도 플랜으로 진행.

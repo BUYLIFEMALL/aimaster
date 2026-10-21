@@ -2,7 +2,7 @@
 
 ## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.37 Suno 콜백 신뢰 확인(D-68-01)
 
-웹훅 4개(곡·리믹스, MR·12트랙, 커버·영상, WAV)가 콜백 본문 대신 회원 본인 Suno 키로 record-info를 다시 조회한 결과로만 저장·실패 처리(`music/lib/sunoVerify.ts`). 운영에서 가짜 성공·실패 콜백이 막히는 것을 확인(시험 행 만들고 지움), 새 MR 조회 함수 실제 작업으로 12/12·2/2 확인. 배포 `music-owpcfw9uv` Ready, DB v1.37. 비용: Vercel 빌드 1회. 남은 일: 다음 실제 생성 때 진짜 콜백 저장 확인(특히 WAV), D-68-02·03, 10-29 이후 30일 정리 확인. 상세: `music/AGENTS.md` v1.37.
+웹훅 4개(곡·리믹스, MR·12트랙, 커버·영상, WAV)가 콜백 본문 대신 회원 본인 Suno 키로 record-info를 다시 조회한 결과로만 저장·실패 처리(`music/lib/sunoVerify.ts`). 운영에서 가짜 성공·실패 콜백이 막히는 것을 확인(시험 행 만들고 지움), 새 MR 조회 함수 실제 작업으로 12/12·2/2 확인. 배포 `music-owpcfw9uv` Ready, DB v1.37. 비용: Vercel 빌드 1회. **같은 날 WAV 1회(승인)로 진짜 콜백 저장 확인 완료. v1.38 매시업 후보 날짜 표시(`music-2yzmt4hln` Ready, DB v1.38).** 남은 일: 리믹스 카드 가사 영상·플레이리스트 바로가기(두 프로그램도 수정 필요 — 별도 플랜), D-68-02·03, 10-29 이후 30일 정리 확인. 상세: `music/AGENTS.md` v1.37.
 
 https://music-automation.buylife.xyz
 
