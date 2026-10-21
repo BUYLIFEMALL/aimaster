@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — AI Audio분석 v1.11: API 이용 권한 확인·4.5MB 넘는 파일 업로드
+
+음악 병합 결정 5번(병합보다 먼저). ① 화면·모든 API에 공용 권한 판정(정지→관리자→핸드폰→FREE→구독→등급+기간) 적용, 옛 판정 사본 교체(F-013). ② 서버는 회원 본인 키 + 사이트 Origin으로 Gemini Files API 세션만 시작하고, 브라우저가 키 없는 올림 주소로 파일을 직접 올림 → 분석은 파일 주소로, 끝나면 Google 쪽 파일 삭제(F-014). 100MB로 화면·가이드 통일. 서버 경유 4MB 조각 방식은 Google 조각 단위 8MB라 실패 → `docs/ERROR_LESSONS.md` 2026-10-21. 배포 Ready·DB v1.11, 크롬 일반 회원 계정으로 7.45MB 음성 WAV 실제 분석 성공(Gemini 1회). 상세 `ai-audio-analyzer/AGENTS.md` v1.11. 다음: 음악 병합 M1 플랜.
+
+https://audio.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 음악 카테고리 병합·독립 분석 (분석만, 코드·DB 변경 없음)
 
 음악 6개(+ 이미 병합된 비공개 `yt-playlist-studio`)를 매뉴얼 §3 9항목으로 코드 확인. **결론: 6개 → 5개 — 병합 M1 「Suno 음악기획 자동화 → 음악(SUNO)자동화」 1묶음, 뮤직비디오·LP 턴테이블·AI 마스터링·AI Audio분석은 독립 유지(음원 넘기기 연결·공용 측정/렌더 부품 제안).** 분리할 프로그램 없음. 병합과 별개 급한 결함: AI Audio분석 API 이용 권한 미확인(F-013)·4.5MB 초과 업로드 실패(F-014), `music-audio` 공개 버킷+30일 삭제 없음. 보고서 [docs/analysis-music-consolidation-20261021/REPORT.md](analysis-music-consolidation-20261021/REPORT.md). **주인님 결정 대기**(§5 6개 항목). 다음 첫 단계: 결정 후 M1 플랜 또는 오디오 분석기 결함 수정.

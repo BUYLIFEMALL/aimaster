@@ -11,6 +11,59 @@ import GuideModal from "@/components/guide/GuideModal";
 import { AnalysisMode, AnalysisResult } from "@/lib/types";
 import { APP_VERSION } from "@/lib/version";
 
+/** Google 올림 주소로 파일을 직접 올리고(진행률 표시용으로 XHR 사용) 완성된 파일 정보를 돌려준다. */
+function uploadToGoogle(
+  uploadUrl: string,
+  file: File,
+  onProgress: (pct: number) => void,
+): Promise<{ name: string; uri: string; mimeType?: string }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", uploadUrl);
+    xhr.setRequestHeader("X-Goog-Upload-Command", "upload, finalize");
+    xhr.setRequestHeader("X-Goog-Upload-Offset", "0");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300 && data.file?.name && data.file?.uri) resolve(data.file);
+        else reject(new Error(`upload ${xhr.status}`));
+      } catch {
+        reject(new Error(`upload ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error("network"));
+    xhr.send(file);
+  });
+}
+
+const AUDIO_MIME_BY_EXT: Record<string, string> = {
+  mp3: "audio/mp3",
+  wav: "audio/wav",
+  m4a: "audio/mp4",
+  aac: "audio/aac",
+  flac: "audio/flac",
+  ogg: "audio/ogg",
+  wma: "audio/x-ms-wma",
+};
+
+function guessAudioMime(name: string): string {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  return AUDIO_MIME_BY_EXT[ext] ?? "audio/mp3";
+}
+
+/** 서버가 JSON이 아닌 오류(예: 413)를 돌려줘도 안내 문구를 만들 수 있게 읽는다. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function readJson(res: Response): Promise<any> {
+  try {
+    return await res.json();
+  } catch {
+    return { error: `서버 응답을 읽지 못했습니다(${res.status}). 잠시 뒤 다시 시도해 주세요.` };
+  }
+}
+
 interface AudioAnalyzerAppProps {
   initialUserEmail?: string | null;
 }
@@ -19,6 +72,7 @@ export default function AudioAnalyzerApp({ initialUserEmail }: AudioAnalyzerAppP
   const [userEmail] = useState<string | null>(initialUserEmail || null);
   const [selectedMode, setSelectedMode] = useState<AnalysisMode>("auto");
   const [loading, setLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,18 +90,47 @@ export default function AudioAnalyzerApp({ initialUserEmail }: AudioAnalyzerAppP
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("mode", mode);
-      if (context) formData.append("context", context);
-      if (specialRequest) formData.append("specialRequest", specialRequest);
+      // 1. 회원 본인 Gemini 파일 저장소에 올린다(우리 서버 본문 한도 4.5MB 회피).
+      const mimeType = file.type || guessAudioMime(file.name);
+      setLoadingText("오디오 파일 올리는 중... 0%");
+      const startRes = await fetch("/api/upload/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: file.name, mimeType, size: file.size }),
+      });
+      const startData = await readJson(startRes);
+      if (!startRes.ok) {
+        if (startData.needKey) setIsApiKeyOpen(true);
+        throw new Error(startData.error || "파일 올리기를 시작하지 못했습니다.");
+      }
 
+      // 서버를 거치지 않고 Google 올림 주소로 직접 한 번에 올린다(키는 주소에 없음).
+      let uploaded: { name: string; uri: string; mimeType?: string } | null = null;
+      try {
+        uploaded = await uploadToGoogle(startData.uploadUrl, file, (pct) =>
+          setLoadingText(`오디오 파일 올리는 중... ${pct}%`),
+        );
+      } catch {
+        throw new Error("오디오 파일을 올리지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.");
+      }
+      if (!uploaded) throw new Error("파일을 올리지 못했습니다. 다시 시도해 주세요.");
+
+      // 2. 올린 파일 주소로 분석한다.
+      setLoadingText("AI 멀티모달 분석 엔진 가동 중 (길이에 따라 수십 초~몇 분)...");
       const res = await fetch("/api/analyze", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: uploaded.name,
+          fileUri: uploaded.uri,
+          mimeType: uploaded.mimeType || mimeType,
+          mode,
+          context,
+          specialRequest,
+        }),
       });
 
-      const data = await res.json();
+      const data = await readJson(res);
 
       if (!res.ok) {
         if (data.needKey) {
@@ -66,6 +149,7 @@ export default function AudioAnalyzerApp({ initialUserEmail }: AudioAnalyzerAppP
       alert(msg);
     } finally {
       setLoading(false);
+      setLoadingText("");
     }
   };
 
@@ -226,6 +310,7 @@ export default function AudioAnalyzerApp({ initialUserEmail }: AudioAnalyzerAppP
                 <AudioUploader
                   onAnalyze={handleAnalyze}
                   loading={loading}
+                  loadingText={loadingText}
                   selectedMode={selectedMode}
                   onSelectMode={setSelectedMode}
                 />

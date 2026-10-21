@@ -23,3 +23,8 @@
 완료한 것: 분석/근거/수정 방향/검수 기준/협업 연결 문서. 미완료한 것: 제시된 수정·실제 회원/유료 API/렌더 검수·운영 배포.
 
 https://audio.buylife.xyz
+
+## 2026-10-21 처리 결과 (Claude Code 윈도우, v1.11)
+- **F-013 완료**: 화면·`api/analyze`·`api/user-key`·`api/upload/start`에 공용 판정(`checkProgramAccessApi`) 적용, 판정 사본을 최신으로 교체.
+- **F-014 완료**: 브라우저 → Gemini Files API 직접 업로드(서버는 키로 세션만 시작), 분석은 파일 주소로. 서버에서 크기(100MB)·MIME(audio/*)·모드·문장 길이(2,000자) 검증. 실제 7.45MB 파일 분석 성공(크롬, 일반 회원). 상세 `AGENTS.md` v1.11.
+- F-019(lint)는 미처리.

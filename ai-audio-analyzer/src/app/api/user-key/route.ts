@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey, saveUserGeminiApiKey } from "@/lib/apiKeys";
 import { GoogleGenAI } from "@google/genai";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user) {
-    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.json({ error: access.error }, { status: access.status });
   }
+  const user = access.user;
 
   const key = await getUserGeminiApiKey(user.id);
   if (!key) {
@@ -22,10 +26,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.json({ error: access.error }, { status: access.status });
   }
+  const user = access.user;
 
   try {
     const { apiKey } = await req.json();

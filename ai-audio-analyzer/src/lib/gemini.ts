@@ -257,7 +257,7 @@ export const MUSIC_SCHEMA = {
 
 export async function detectAudioType(
   apiKey: string,
-  base64Data: string,
+  fileUri: string,
   mimeType: string
 ): Promise<"speech" | "music"> {
   const ai = new GoogleGenAI({ apiKey });
@@ -265,7 +265,7 @@ export async function detectAudioType(
     model: "gemini-2.5-flash",
     contents: {
       parts: [
-        { inlineData: { data: base64Data, mimeType } },
+        { fileData: { fileUri, mimeType } },
         {
           text: "Analyze the audio signal. Is it primarily speech/dialogue/spoken-word or music/instrumental/song? Respond with exactly one word: 'speech' or 'music'.",
         },
@@ -279,7 +279,7 @@ export async function detectAudioType(
 
 export async function analyzeSpeech(
   apiKey: string,
-  base64Data: string,
+  fileUri: string,
   mimeType: string,
   context?: string,
   specialRequest?: string
@@ -305,7 +305,7 @@ ${koreaNowRule()}
     model: "gemini-2.5-flash",
     contents: {
       parts: [
-        { inlineData: { data: base64Data, mimeType } },
+        { fileData: { fileUri, mimeType } },
         { text: prompt },
       ],
     },
@@ -321,7 +321,7 @@ ${koreaNowRule()}
 
 export async function analyzeMusic(
   apiKey: string,
-  base64Data: string,
+  fileUri: string,
   mimeType: string,
   context?: string,
   specialRequest?: string
@@ -370,7 +370,7 @@ ${koreaNowRule()}
     model: "gemini-2.5-flash",
     contents: {
       parts: [
-        { inlineData: { data: base64Data, mimeType } },
+        { fileData: { fileUri, mimeType } },
         { text: prompt },
       ],
     },

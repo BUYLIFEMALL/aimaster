@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-21 — Gemini Files API 이어 올리기(resumable)는 조각 단위가 8MB라 Vercel 함수(본문 4.5MB 한도)를 거쳐 조각으로 보낼 수 없다 → 서버는 세션만 시작하고 브라우저가 직접 올림, 세션 시작 때 `Origin` 머리글 필수 (ai-audio-analyzer v1.11, Claude Code 윈도우)
+- 증상: 4MB 조각을 서버로 보내 Google에 이어 붙이자 400 「The client sent 4194304 bytes, which is not a multiple of the 8388608 byte chunk granularity」. 그다음 브라우저가 올림 주소로 직접 보내자 `TypeError: Failed to fetch`(CORS 차단).
+- 원인: ① Google 이어 올리기는 마지막이 아닌 조각을 8MB 배수로 요구 ② 올림 주소에 대한 브라우저 직접 요청(CORS)은 **세션을 시작한 요청에 `Origin` 머리글이 있었을 때만** 허용된다.
+- 해결: 서버(`api/upload/start`)가 회원 본인 키 + 요청의 `Origin`(허용 목록 검사)을 넣어 세션을 시작하고 키 없는 올림 주소만 돌려줌 → 브라우저가 XHR로 파일 전체를 `X-Goog-Upload-Command: upload, finalize`로 한 번에 올림 → 분석 API는 `fileUri`만 받음(`ai-audio-analyzer/src/lib/geminiFiles.ts`). 1KB 파일 → 7.45MB 실제 분석까지 크롬에서 확인.
+- 다음부터: 큰 파일을 Gemini에 보내는 기능은 처음부터 이 방식으로 만든다. 올림 주소는 Google 주소인지 검사하고, 분석 뒤 `DELETE files/{name}`(실패해도 48시간 뒤 자동 삭제).
+
 ## 2026-10-20 — 배포 주소 앞부분이 Vercel 프로젝트 이름과 다를 수 있다 → `grep -o "https://<프로젝트>-…"`로 뽑은 주소가 비어 `vercel inspect --wait`가 10분 멈춤 (seo-thumbnail-pro v1.12, Claude Code 윈도우)
 - 증상: `seo-thumbnail-pro` 배포는 Ready인데 확인 명령이 시간 초과. 실제 배포 주소는 `seo-thumbnail-61axtjztp-buylife.vercel.app`(프로젝트 이름이 길면 Vercel이 앞부분을 줄임, `kakao_auto_poster`도 `kakaoautoposter-…`).
 - 다음부터: 주소를 뽑을 때 `grep -o "https://[a-z0-9_-]*-buylife.vercel.app" | head -1`처럼 넓게 잡고, 빈 값이면 `vercel inspect`를 부르지 않는다(`[ -n "$U" ] && …`). 막히면 `npx vercel ls --scope buylife`로 상태를 직접 본다. 메인 redirect 확인은 빌드 직후 잠깐 404가 날 수 있으니 1분 뒤 `?x=임의값`으로 다시 확인.

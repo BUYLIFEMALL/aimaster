@@ -104,3 +104,10 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.11 — API 이용 권한 확인(F-013)·4.5MB 넘는 파일 업로드(F-014) (Claude Code 윈도우)
+- 플랜: [docs/PLAN_20261021_ACCESS_AND_LARGE_UPLOAD.md](docs/PLAN_20261021_ACCESS_AND_LARGE_UPLOAD.md) (음악 병합 분석 결정 5번 — 병합 M1보다 먼저).
+- **권한**: `src/lib/programAccess.ts`를 최신 공용 판정 사본(`ai-mastering-studio`와 같은 파일, 루트 `lib/access/checkProgramAccess.ts` 규칙: 정지 → 관리자 → 핸드폰 → FREE → 구독 → 등급+기간)으로 교체하고 `src/lib/access.ts`(`getProgramAccess`·`checkProgramAccessApi`) 추가. 첫 화면(핸드폰 없으면 메인 설정으로), `api/analyze`·`api/user-key`·`api/upload/start` 모두 권한 확인 + `dynamic`·`fetchCache`. 옛 판정의 무기한 권한(만료일 비어 있음) 차단 버그도 사라짐.
+- **큰 파일**: `api/upload/start`가 회원 본인 키로 Gemini Files API 이어 올리기 세션을 시작(요청 사이트 주소 Origin을 Google에 함께 전달 — 이것이 있어야 브라우저 직접 업로드가 CORS로 허용됨)하고 키 없는 올림 주소만 돌려줌 → 브라우저가 그 주소로 파일을 직접 올림(진행률 표시) → `api/analyze`는 파일 주소(`fileUri`)만 JSON으로 받아 `fileData`로 분석, 끝나면 Google 쪽 파일 삭제 요청. 한도 100MB로 화면·가이드 통일, 분석 시간 제한 300초. 서버를 거쳐 4MB 조각으로 보내는 방식은 Google 조각 단위가 8MB라 실패해 버림(`docs/ERROR_LESSONS.md` 2026-10-21).
+- 검수: tsc·build, Vercel 프로덕션 배포 Ready, DB `programs.version = v1.11`. 크롬(일반 회원 계정)에서 7.45MB 한국어 음성 WAV를 「음성·회의록」 모드로 실제 분석 성공(화자 2명·00:41·결정·질문·받아쓰기 표시, Gemini 2.5 Flash 1회 호출). 권한 없는 회원의 차단은 FREE 배지라 실제 시험 대상이 없어 코드 확인으로 대신함. Google 쪽 파일 삭제는 코드상 요청만 확인(실제 삭제 여부 미확인, 실패해도 48시간 뒤 자동 삭제).
+- 남은 일: auto 모드가 판별·분석으로 두 번 호출(비용 2배, D-71-02), `next lint` 실패(F-019), m4a 등 형식별 MIME 확인.

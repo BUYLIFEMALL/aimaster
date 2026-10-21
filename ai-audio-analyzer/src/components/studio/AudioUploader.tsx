@@ -8,6 +8,8 @@ import { AnalysisMode } from "@/lib/types";
 interface AudioUploaderProps {
   onAnalyze: (file: File, mode: AnalysisMode, context: string, specialRequest: string) => void;
   loading: boolean;
+  /** 진행 중 버튼에 보여 줄 문구(파일 올리기 진행률 등). */
+  loadingText?: string;
   selectedMode: AnalysisMode;
   onSelectMode: (mode: AnalysisMode) => void;
 }
@@ -15,6 +17,7 @@ interface AudioUploaderProps {
 export default function AudioUploader({
   onAnalyze,
   loading,
+  loadingText,
   selectedMode,
   onSelectMode,
 }: AudioUploaderProps) {
@@ -33,8 +36,8 @@ export default function AudioUploader({
       return;
     }
 
-    if (file.size > 25 * 1024 * 1024) {
-      setError("오디오 파일 크기는 25MB 이하를 권장합니다.");
+    if (file.size > 100 * 1024 * 1024) {
+      setError("오디오 파일은 100MB 이하만 분석할 수 있습니다.");
       return;
     }
 
@@ -176,7 +179,7 @@ export default function AudioUploader({
             <span className="bg-slate-800/80 px-2 py-0.5 rounded text-slate-300">WAV</span>
             <span className="bg-slate-800/80 px-2 py-0.5 rounded text-slate-300">M4A</span>
             <span className="bg-slate-800/80 px-2 py-0.5 rounded text-slate-300">FLAC</span>
-            <span className="text-slate-500">최대 25MB</span>
+            <span className="text-slate-500">최대 100MB</span>
           </div>
         </div>
       ) : (
@@ -250,7 +253,7 @@ export default function AudioUploader({
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin text-white" />
-            <span>AI 멀티모달 분석 엔진 가동 중 (수 초 소요)...</span>
+            <span>{loadingText || "AI 멀티모달 분석 엔진 가동 중..."}</span>
           </>
         ) : (
           <>
