@@ -50,7 +50,7 @@ export interface Suggestion {
 export interface Source { uri: string; title: string }
 
 export const LIMITS = {
-  prompt: 2000,
+  prompt: 6000,
   reference: 30_000,
   document: 60_000,
   /** HTML로 저장하는 본문의 최대 길이(서식·이미지 주소 태그 포함) */

@@ -34,7 +34,7 @@ const WORKFLOW_STEPS = [
   {
     step: "02",
     title: "AI 초안 고속 생성",
-    desc: "회원 본인의 Gemini 키로 10~40초 만에 구조화된 고품질 초안을 작성하며, 참고 파일(.txt, .md) 문맥을 반영합니다.",
+    desc: "회원 본인의 Gemini 키로 10~40초 만에 구조화된 고품질 초안을 작성하며, 참고 파일(.txt, .md) 문맥을 반영합니다. AI Prompt 자동화 「📁 내 템플릿」에 저장한 프롬프트도 [📁 내 템플릿 불러오기]로 변수만 채워 바로 넣을 수 있습니다.",
     tag: "Gemini Synthesis",
     color: "#7c3aed",
   },

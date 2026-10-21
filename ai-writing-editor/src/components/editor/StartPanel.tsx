@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { FileUp, Globe, Loader2, PenLine, ScanSearch, X } from "lucide-react";
 import { FORMATS, LENGTHS, LIMITS, TONES, type FormatId, type LengthId, type ToneId } from "@/lib/we/types";
 import { deriveTitle, isTextFileName } from "@/lib/we/util";
+import { TemplatePicker } from "./TemplatePicker";
 
 type Mode = "generate" | "analyze";
 interface Problem { message: string; needKey?: boolean }
@@ -104,6 +105,7 @@ export function StartPanel() {
       <form onSubmit={submit} className="stack" style={{ marginTop: 16 }}>
         {mode === "generate" ? (
           <>
+            <TemplatePicker maxLength={LIMITS.prompt} onInsert={(text) => { setPrompt(text); setProblem(null); }} />
             <label>주제 또는 요청
               <textarea
                 aria-label="주제 또는 요청"
