@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 관리자 프로그램 목록: 배지 칩 클릭으로 그 배지 해제
+- 주인님 지시: 「최신 해제」처럼 BEST·추천 등 배지를 클릭하면 사라지게. `components/admin/ProgramsAdminBoard.tsx` `handleRemoveBadge`: 목록의 배지 칩을 버튼으로(마우스 올리면 취소선·× 표시·「클릭하면 ○○ 배지 해제」), 기존 `applyUpdate`로 `programs.badges`에서 그 배지만 뺌. **FREE·프리미엄은 회원 이용 권한·결제에 바로 영향 → 해제 전 확인 창**, 나머지는 바로 해제. 다시 붙이기는 기존처럼 「최신 등록」(NEW)·일괄 뱃지 적용·편집 화면.
+- 검수: tsc 0, 커밋 `59fe1d270` → 메인 자동 빌드 `aimaster-harx37hfo` Ready. **관리자 화면 미확인** — 크롬이 시험 회원으로 로그인돼 `/admin` 접근 불가(관리자 비밀번호 입력 금지). 주인님 관리자 로그인 후 칩 클릭 확인 필요.
+- 비용: 메인 사이트 Vercel 빌드 1회(주인님 승인).
+
+https://www.buylife.xyz/admin/programs
+
 ## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.26 본인 목소리 복제(ElevenLabs) · fal·Replicate·ElevenLabs 실제 유료 시험 성공 · 운영 키 허용 목록에 fal·elevenlabs 추가
 - 한 일: ElevenLabs 다국어 v2·Flash 음성, 회원 계정 목소리 목록, 「내 목소리 복제하기」(동의 필수, 샘플 미보관), 설정·연결 확인·매뉴얼. 운영 DB `user_api_keys_provider_check`에 fal·elevenlabs 추가(승인, 실행 SQL 기록).
 - 시험(시험 회원 키, 주인님 등록): Replicate Seedance 1 Lite 5초·fal Seedance 1.5 Pro 5초 실생성(각 약 1분), ElevenLabs 복제 → 인트로 재생성 5.7초. 비용: 빌드 1회, 약 $0.43 + ElevenLabs 48자.
