@@ -59,7 +59,7 @@ export function SourceView() {
         <section className="card stack">
           <h2>음악 · 커버</h2>
           <FileDrop accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" label={s.audioBusy || "🎧 음악 파일 (필수)"} hint="mp3·wav·m4a·ogg·flac — 끌어다 놓거나 눌러서 고르기" current={s.audio ? `${s.audio.name} · ${formatTime(s.audio.buffer.duration, false)}` : undefined} onFile={(f) => void onAudio(f)} />
-          {!s.audio && s.savedNames.audioName && <div className="notice warning">저장된 작업입니다. 음악 파일 「{s.savedNames.audioName}」을 다시 넣어 주세요.</div>}
+          {!s.audio && s.savedNames.audioName && !s.audioBusy && <div className="notice warning">{s.restoreNote || `저장된 작업입니다. 음악 파일 「${s.savedNames.audioName}」을 다시 넣어 주세요.`}</div>}
           <FileDrop accept="image/*" label="🖼️ 앨범 커버 (선택)" hint="jpg·png·webp — 없으면 색과 제목 첫 글자로 만듭니다" current={s.cover?.name} onFile={(f) => void onCover(f)} />
           {s.cover && <div className="row"><img src={s.cover.url} alt="커버 미리보기" className="cover-thumb" /><button type="button" className="link-button" onClick={s.clearCover}>커버 빼기</button></div>}
           <Message msg={msg} />

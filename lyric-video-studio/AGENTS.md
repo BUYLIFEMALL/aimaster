@@ -1,7 +1,7 @@
 # AI 가사영상 자동화 (`lyric-video-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`를 먼저 읽는다. 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
-> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.05**
+> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.06**
 > 출발점: 외부 상용 앱 Lyricbi 1.9.0 분석([`docs/analysis-lyricbi-20261021/REPORT.md`](../docs/analysis-lyricbi-20261021/REPORT.md)) — **코드는 옮기지 않고** 기능·흐름만 참고해 새로 만들었다.
 
 ## 1. 사용 목적과 대상
@@ -33,11 +33,12 @@
 - 상태: `src/components/studio/StudioContext.tsx`가 작업 화면 전체를 감싼다. **메뉴는 반드시 `next/link`** — `<a href>`로 바꾸면 페이지가 새로 열려 넣은 음악이 사라진다.
 - 가사 처리: `src/lib/lyrics.ts`(형식 오류에 너그러운 `.srt`, 다중 시간표 `.lrc`, `stampLine`·`clearFrom`·`timeline`·`lineAt`·`toSrt`). 시험 `npm test`(6개).
 - 장점: 설치·키 불필요, 파일이 서버로 가지 않음, 미리보기 = 결과, 20초 1080p를 약 6초에 생성(이 PC 실측).
-- 단점·한계: Suno 시간 가사는 Suno가 정렬한 결과라 반복 후렴 등에서 한두 줄 어긋날 수 있음(싱크 화면에서 고침). 음악·커버는 저장 안 됨(다시 열면 다시 선택), 기본 방식 12분·파일로 바로 저장 30분 제한(디코딩한 소리가 메모리에 있어야 함), 휴대폰·사파리는 인코딩·파일 저장 미지원일 수 있음, 노래방 발음 표기·LP·플레이리스트 없음.
+- 단점·한계: Suno 곡이 아닌 음악·커버는 저장 안 됨(다시 선택 — Suno 곡은 v1.06부터 다시 열 때 자동으로 받음). Suno 시간 가사는 Suno가 정렬한 결과라 반복 후렴 등에서 한두 줄 어긋날 수 있음(싱크 화면에서 고침). 음악·커버는 저장 안 됨(다시 열면 다시 선택), 기본 방식 12분·파일로 바로 저장 30분 제한(디코딩한 소리가 메모리에 있어야 함), 휴대폰·사파리는 인코딩·파일 저장 미지원일 수 있음, 노래방 발음 표기·LP·플레이리스트 없음.
 
 ## 4. 버전·변경 기록
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.06 | 2026-10-21 | Suno 곡 작업을 저장하면 변주 번호(`sunoVariantId`)도 남겨, 보관함에서 다시 열 때 음악·커버를 자동으로 다시 받음(`lib/sunoClient.ts`, Suno 조회 없음). 곡 목록에 보관함 저장 변주 「✓ 보관함」(누르면 그 작업 열기)·이번 접속에서 받은 변주 「✓ 받음」(재조회 없음). 플랜 `docs/PLAN_20261021_V1_06_SUNO_RESTORE.md` |
 | v1.05 | 2026-10-21 | 2차: 음악(SUNO) 자동화 곡 가져오기 + Suno 시간 가사 자동(`src/lib/suno.ts`·`sunoAlign.ts`, API 2개, 시험 11개). `music/` v1.22 곡 카드 「🎬 가사 영상 만들기 →」. 플랜 `docs/PLAN_20261021_V1_05_SUNO.md` |
 | v1.04 | 2026-10-21 | 추가개선 3-a: 유튜브 바로 올리기(원스톱 v1.19~v1.21 구현을 가져옴, 공용 사본 2개 등록) |
 | v1.03 | 2026-10-21 | 추가개선 2: 파형 위 줄 시작 끌기(`Waveform.tsx`·`moveStart`, 시험 8개), 프리셋 카드 실제 미리보기(`PresetThumb.tsx`), 화면 안 확인 상자 6곳(`Confirm.tsx`) |

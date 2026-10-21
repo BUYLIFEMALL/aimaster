@@ -64,7 +64,7 @@ export function Preview({ maxWidth }: { maxWidth?: number }) {
 
 /** 단계 화면 위쪽: 프로젝트 이름·저장 상태·저장 버튼 */
 export function StudioBar() {
-  const { title, dirty, projectId, save, audio, savedNames } = useStudio();
+  const { title, dirty, projectId, save, audio, savedNames, audioBusy, sunoVariantId } = useStudio();
   const [busy, setBusy] = useState(false), [msg, setMsg] = useState<Msg>(null);
   async function onSave() {
     setBusy(true); setMsg(null);
@@ -76,7 +76,9 @@ export function StudioBar() {
       <div className="row" style={{ gap: 8, minWidth: 0 }}>
         <strong className="ellipsis">🎵 {title || "새 가사 영상"}</strong>
         <span className={`badge ${dirty ? "" : "brand"}`}>{dirty ? "저장 안 됨" : projectId ? "저장됨" : "새 작업"}</span>
-        {!audio && savedNames.audioName && <span className="badge warn">음악 「{savedNames.audioName}」 다시 선택 필요</span>}
+        {!audio && audioBusy && <span className="badge">⏳ {audioBusy}</span>}
+        {!audio && savedNames.audioName && !audioBusy && <span className="badge warn">음악 「{savedNames.audioName}」 다시 선택 필요</span>}
+        {audio && sunoVariantId && <span className="badge brand">🎼 Suno 곡</span>}
       </div>
       <button type="button" onClick={() => void onSave()} disabled={busy}><Save size={14} />{busy ? "저장 중…" : "💾 저장"}</button>
       {msg && <div style={{ flexBasis: "100%" }}><Message msg={msg} /></div>}
