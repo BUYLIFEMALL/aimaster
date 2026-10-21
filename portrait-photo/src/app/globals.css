@@ -114,59 +114,13 @@ small{font-size:11px}
 .lp-alert button{border:0;background:transparent;padding:4px;color:#991b1b}
 
 
-/* ---- 검사 진행 · 결과 ---- */
-.test-group{margin-bottom:28px}
-.test-group h2{margin-bottom:2px}
+/* ---- 공통 남은 것(2026-10-21 v1.30: 옛 성격 검사 화면용 CSS — runner·scale-btn·bar-row·trend·weight 등 — 은 안 쓰여 정리) ---- */
 a.project-card{color:inherit}
-.runner{max-width:720px;margin:0 auto}
-.runner-top{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted)}
-.runner-bar{flex:1;height:8px;border-radius:99px;background:#eef0f4;overflow:hidden}
-.runner-bar i{display:block;height:100%;background:var(--brand);transition:width .2s}
-.runner-q{margin:26px 0 22px;font-size:18px;font-weight:700;line-height:1.55;min-height:3.2em}
-.runner-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.scale-btn{flex-direction:column;gap:4px;padding:14px 6px;border-radius:12px;font-size:12px;min-height:84px}
-.scale-btn b{font-size:18px}
-.scale-btn span{font-weight:500;font-size:11px;line-height:1.35;text-align:center}
-.scale-btn.on{background:#eef2ff;border-color:var(--brand);color:#3730a3}
-.runner-hint{margin-top:14px;font-size:11px}
-.runner-nav{margin-top:18px;justify-content:space-between}
-.result-head h1{margin:6px 0 8px;font-size:28px}
-.result-tag{color:#3730a3;font-weight:700;margin:6px 0}
 .bars{display:flex;flex-direction:column;gap:14px;margin-top:14px}
-.bar-row{display:grid;grid-template-columns:28px 1fr 28px;gap:10px;align-items:center}
-.bar-row small{grid-column:1/-1;margin-top:-4px;padding-left:38px}
-.bar-row.single{grid-template-columns:110px 1fr;}
-.bar-row.single small{grid-column:2}
-.bar-name{font-size:12px;font-weight:700}
-.bar-l,.bar-r{font-weight:800;font-size:13px;text-align:center;color:#3730a3}
 .bar{position:relative;height:12px;border-radius:99px;background:#eef0f4;overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,#818cf8,var(--brand))}
 .bar em{position:absolute;top:-2px;bottom:-2px;width:2px;background:#94a3b8}
-.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
-.cols h2,.cols h3{margin-bottom:8px}
-.head-row{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
-.analysis{margin-top:18px;display:flex;flex-direction:column;gap:14px}
-.analysis h3{font-size:14px;margin-top:6px}
-@media(max-width:767px){
-  .runner-scale{grid-template-columns:1fr}
-  .scale-btn{flex-direction:row;justify-content:flex-start;min-height:0;padding:11px 14px}
-  .scale-btn span{text-align:left;font-size:12px}
-  .bar-row.single{grid-template-columns:90px 1fr}
-}
-.care-notice{border-color:#c7d2fe;background:#f5f7ff;margin-bottom:14px}
-.care-notice strong{display:block;margin-bottom:4px}
-.care-notice .gd-list{margin-top:8px}
-.trend h3{font-size:14px;margin:6px 0}
-.trend svg{width:100%;max-width:640px;height:auto}
-.trend-legend{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:#475569}
-.trend-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
-@media print{.desktop-sidebar,.mobile-sidebar,.no-print,.head-row button,.runner-nav{display:none!important}.app-shell{display:block}.workspace-content{max-width:none;padding:0}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
-.weight-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:8px}
-.weight-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;border-bottom:1px solid #f1f5f9;font-weight:400}
-.weight-row:last-child{border-bottom:0}
-.weight-row span{display:flex;flex-direction:column;min-width:0}
-.weight-row b{font-size:13px}
-.weight-row select{width:96px;flex-shrink:0}
+@media print{.desktop-sidebar,.mobile-sidebar{display:none!important}.app-shell{display:block}.workspace-content{max-width:none;padding:0}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
 
 /* ---- 인물사진 스튜디오 ---- */
 .studio{display:flex;flex-direction:column;gap:14px}
@@ -396,6 +350,17 @@ input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--bran
 .st-steps li.on{border-color:var(--amber);color:var(--foreground);box-shadow:0 0 0 3px #f6c1771f}
 .st-steps li.on span{background:var(--amber);color:#1a1205}
 .st-steps li.done{color:var(--brand)}
+/* v1.30: 단계 칩을 누르면 그 영역으로 이동 */
+.st-steps li button{all:unset;display:flex;align-items:center;gap:8px;cursor:pointer;border-radius:999px}
+.st-steps li button:focus-visible{outline:2px solid var(--brand);outline-offset:4px}
+.st-steps li:hover{border-color:var(--brand)}
+/* v1.30: 결과 무대 배경 밝기(흰·회색·검정) — 기본은 위의 격자 무늬 */
+.st-stage.bg-white{background:#ffffff;background-image:none}
+.st-stage.bg-gray{background:#9ca3af;background-image:none}
+.st-stage.bg-black{background:#000000;background-image:none}
+.st-stage-bg{display:inline-flex;gap:4px;align-items:center;font-size:11px;color:var(--muted)}
+.st-stage-bg button{width:22px;height:22px;padding:0;border-radius:50%;border:1px solid var(--line);cursor:pointer}
+.st-stage-bg button[aria-pressed=true]{outline:2px solid var(--brand);outline-offset:2px}
 .st-steps li.done span{background:#7cc4fa26;color:var(--brand)}
 /* 매뉴얼 기존 요소 */
 .gd-lead,.gd-step p,.gd-cards p,.gd-table span,.gd-faq p{color:#b8bec8}

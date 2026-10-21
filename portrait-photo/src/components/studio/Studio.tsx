@@ -29,9 +29,25 @@ const OUTFIT_CATS = [
   { id: "editorial", label: "화보" }, { id: "cozy", label: "편안한" },
 ] as const;
 
+// v1.30: 결과 무대 배경 밝기(사진 가장자리·머리카락 경계를 밝은/어두운 바탕에서 확인)
+const STAGE_BGS = [
+  { id: "grid", label: "기본(격자)", swatch: "repeating-conic-gradient(#3a3f4b 0 25%, #2a2e38 0 50%) 0 0/8px 8px" },
+  { id: "white", label: "흰색", swatch: "#ffffff" },
+  { id: "gray", label: "회색", swatch: "#9ca3af" },
+  { id: "black", label: "검정", swatch: "#000000" },
+] as const;
+type StageBg = (typeof STAGE_BGS)[number]["id"];
+const STAGE_BG_KEY = "portrait-photo:stage-bg";
+
+/** v1.30: 단계 칩 → 해당 영역으로 부드럽게 이동(첫 번째 id가 없으면 다음 id) */
+function goToArea(...ids: string[]) {
+  const el = ids.map((id) => document.getElementById(id)).find(Boolean);
+  el?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function Section({ n, title, sub, children }: { n?: number; title: string; sub?: string; children: React.ReactNode }) {
   return (
-    <section className="card st-sec">
+    <section className="card st-sec" id={n !== undefined ? `st-sec-${n}` : undefined}>
       <div className="st-sec-head">{n !== undefined && <span className="gd-num">{n}</span>}<h2>{title}</h2></div>
       {sub && <p className="muted">{sub}</p>}
       {children}
@@ -106,6 +122,18 @@ export function Studio({ userId }: { userId: string }) {
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
   const [cmpPos, setCmpPos] = useState(50);
+  // v1.30: 결과 무대 배경(이 브라우저에만 기억 — 저장소를 못 쓰면 기본값)
+  const [stageBg, setStageBg] = useState<StageBg>("grid");
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(STAGE_BG_KEY);
+      if (v && STAGE_BGS.some((b) => b.id === v)) setStageBg(v as StageBg);
+    } catch { /* 저장소를 못 쓰면 기본값 */ }
+  }, []);
+  const changeStageBg = (v: StageBg) => {
+    setStageBg(v);
+    try { localStorage.setItem(STAGE_BG_KEY, v); } catch { /* 무시 */ }
+  };
   const result = results[active] ?? null;
   const sourceIdx = sources[active] ?? 0;
   const comparePreview = previews[sourceIdx] ?? previewUrl;
@@ -668,13 +696,13 @@ export function Studio({ userId }: { userId: string }) {
       </div>
 
       <ol className="st-steps" aria-label="진행 단계">
-        <li className={previewUrl ? "done" : "on"}><span>1</span>사진</li>
-        <li className={previewUrl && !shown && !busy ? "on" : shown ? "done" : ""}><span>2</span>목적·옵션</li>
-        <li className={busy ? "on" : shown ? "done" : ""}><span>3</span>만들기</li>
-        <li className={shown && !busy ? "on" : ""}><span>4</span>저장·규격</li>
+        <li className={previewUrl ? "done" : "on"}><button type="button" onClick={() => goToArea("st-sec-1")} title="사진 올리기로 이동"><span>1</span>사진</button></li>
+        <li className={previewUrl && !shown && !busy ? "on" : shown ? "done" : ""}><button type="button" onClick={() => goToArea("st-purposes")} title="목적·옵션으로 이동"><span>2</span>목적·옵션</button></li>
+        <li className={busy ? "on" : shown ? "done" : ""}><button type="button" onClick={() => goToArea("st-result")} title="생성 결과로 이동"><span>3</span>만들기</button></li>
+        <li className={shown && !busy ? "on" : ""}><button type="button" onClick={() => goToArea("st-save", "st-result")} title="저장·규격으로 이동"><span>4</span>저장·규격</button></li>
       </ol>
 
-      <div className="purposes" role="tablist" aria-label="촬영 목적">
+      <div className="purposes" id="st-purposes" role="tablist" aria-label="촬영 목적">
         {PURPOSES.map((p) => (
           <button key={p.id} type="button" role="tab" aria-selected={purposeId === p.id} className={purposeId === p.id ? "purpose on" : "purpose"} onClick={() => applyPurpose(p)}>
             <span className="purpose-icon">{p.icon}</span>
@@ -756,10 +784,16 @@ export function Studio({ userId }: { userId: string }) {
         </div>
 
         <div className="st-col st-center">
-          <section className="card st-result">
+          <section className="card st-result" id="st-result">
             <div className="st-result-head">
               <h2><Sparkles size={16} /> 생성 결과</h2>
               <span className="muted">{model === "pro" ? "Pro" : "Flash"} · {resolution} · {aspect}{count > 1 ? ` · ${count}장` : ""}</span>
+              <span className="st-stage-bg" role="group" aria-label="결과 배경 밝기">
+                배경
+                {STAGE_BGS.map((b) => (
+                  <button key={b.id} type="button" aria-pressed={stageBg === b.id} title={b.label} aria-label={`배경 ${b.label}`} style={{ background: b.swatch }} onClick={() => changeStageBg(b.id)} />
+                ))}
+              </span>
             </div>
             {cropOpen && shown && (() => {
               const pr = sizePresetById(sizeId);
@@ -799,7 +833,7 @@ export function Studio({ userId }: { userId: string }) {
                 ))}
               </div>
             )}
-            <div className="st-stage" style={{ aspectRatio: aspect.replace(":", " / "), display: ((grid || zoomOn) && results.length > 1) || cropOpen ? "none" : undefined }}>
+            <div className={stageBg === "grid" ? "st-stage" : `st-stage bg-${stageBg}`} style={{ aspectRatio: aspect.replace(":", " / "), display: ((grid || zoomOn) && results.length > 1) || cropOpen ? "none" : undefined }}>
               {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>{progress || "보통 10~40초가 걸립니다."}</small>
                 <button type="button" onClick={() => abortRef.current?.abort()}>취소</button></div>}
               {shown ? (
@@ -969,7 +1003,7 @@ export function Studio({ userId }: { userId: string }) {
               </p>
             )}
             {shown && (
-              <div className="actions st-save">
+              <div className="actions st-save" id="st-save">
                 {batchMode && results.length > 1 && sizePresetById(sizeId).headRange && (
                   <button type="button" onClick={() => (autoConfirm ? void autoCropBatch() : setAutoConfirm(true))} disabled={!!saving || autoBusy}
                     title="사진마다 머리 비율을 AI로 검사하고 작게 나온 사진은 자동으로 확대 자르기를 지정합니다">
