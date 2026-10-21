@@ -371,8 +371,8 @@ vercel deploy --prod --yes
    - **조치 사항**:
      - src/components/posts/ProductPostForm.tsx:
        - STEP 3의 최종 발행 방식 버튼 순서 재배치: [📁 💾 임시저장하기]를 왼쪽 첫 번째로, [🚀 ⚡ 즉시 Threads에 포스팅하기]를 오른쪽 두 번째로 배치.
-       - 왼쪽 [임시저장하기] 버튼을 기본 주 버튼(Primary: g-neutral-900 text-white) 및 기본값 배지 부여로 시각적 기본값 지정.
-       - 오른쪽 [즉시 Threads에 포스팅하기] 버튼은 보조 버튼(Secondary: g-white text-neutral-900 border-2 border-neutral-300)으로 배치.
+       - 왼쪽 [임시저장하기] 버튼을 기본 주 버튼(Primary: bg-neutral-900 text-white) 및 기본값 배지 부여로 시각적 기본값 지정.
+       - 오른쪽 [즉시 Threads에 포스팅하기] 버튼은 보조 버튼(Secondary: bg-white text-neutral-900 border-2 border-neutral-300)으로 배치.
        - 안내 문구 순서 통일 ("임시저장 또는 즉시 포스팅").
 
 30. **불필요한 중복 이미지 추가/삭제 관리 박스 제거 및 캐러셀 UI 일원화 (2026-10-05, v1.44)**:
@@ -380,7 +380,7 @@ vercel deploy --prod --yes
    - **조치 사항**:
      - src/components/posts/ProductPostForm.tsx:
        - 상단 중복 박스("사용자 이미지 추가 및 삭제 관리", 파일 첨부 버튼, 웹 URL 입력창) 완전 제거.
-       - ileInputRef를 hidden으로 배치하여 캐러셀의 [➕ 이미지 추가] 카드 및 빈 상태의 [📂 내 PC에서 이미지 파일 추가] 버튼과 직결.
+       - fileInputRef를 hidden으로 배치하여 캐러셀의 [➕ 이미지 추가] 카드 및 빈 상태의 [📂 내 PC에서 이미지 파일 추가] 버튼과 직결.
        - 캐러셀 헤더 우측에 [🗑️ 전체 이미지 삭제] 버튼을 단정하게 통합 배치.
        - 이미지가 없을 때도 점선 카드 내에 명확한 추가 버튼 제공.
 
@@ -393,8 +393,8 @@ vercel deploy --prod --yes
        - src/components/posts/PostMediaViewer.tsx: 상세 페이지에서 이미지와 비디오가 섞여 있어도 슬라이드로 자연스럽게 전환·재생·확대 지원.
      - **30일 자동 삭제 (Auto Cleanup)**:
        - src/lib/mediaRetention.ts: 보관 기간 30일(MEDIA_RETENTION_DAYS = 30) 상수 및 컷오프 계산, 버킷 경로 추출 유틸 구현.
-       - src/app/api/cron/cleanup-media/route.ts: Vercel Cron(  18 * * * = 매일 KST 03:00) 연동 자동 정리 엔드포인트 구현 (30일 지난 	ap_posts 및 post-images 스토리지 파일 자동 영구 삭제).
-       - 	hreads-affiliate-poster/vercel.json: /api/cron/cleanup-media 및 /api/posts/dispatch-scheduled 크론 등록.
+       - src/app/api/cron/cleanup-media/route.ts: Vercel Cron(0 18 * * * = 매일 KST 03:00) 연동 자동 정리 엔드포인트 구현 (30일 지난 tap_posts 및 post-images 스토리지 파일 자동 영구 삭제).
+       - threads-affiliate-poster/vercel.json: /api/cron/cleanup-media 및 /api/posts/dispatch-scheduled 크론 등록.
      - **사용자 수동 삭제 (Manual Cleanup)**:
        - src/lib/actions/posts.ts:
          - deleteMediaFileAction: 작성 폼에서 개별 ✕ 삭제 또는 전체 미디어 삭제 시 본인이 업로드한 Storage 파일까지 즉시 삭제 연동.
