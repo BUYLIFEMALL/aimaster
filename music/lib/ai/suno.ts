@@ -285,7 +285,25 @@ export interface RequestSunoVocalRemovalInput {
   audioId: string; // 보컬/반주 분리할 오디오의 Suno ID (music_track_variants.suno_audio_id)
   // 2026-10-21 문서: 기존 Suno 곡을 쓸 때 taskId와 audioId가 「둘 다 필수」다(예전 코드는 audioId만 보냈다).
   sourceTaskId: string; // 원곡 생성 작업 ID (music_tracks.task_id)
+  // 2026-10-21 V6 1차 ②: separate_vocal(MR, 10크레딧) | split_stem(악기별 최대 12트랙, 50크레딧 — 다시 요청해도 매번 과금).
+  type?: "separate_vocal" | "split_stem";
 }
+
+/** split_stem 콜백의 vocal_removal_info 항목 이름(문서 2026-10-21)과 화면 이름표. */
+export const SUNO_STEMS = [
+  { key: "vocal", label: "리드 보컬" },
+  { key: "backing_vocals", label: "백보컬" },
+  { key: "drums", label: "드럼" },
+  { key: "bass", label: "베이스" },
+  { key: "guitar", label: "기타" },
+  { key: "keyboard", label: "키보드" },
+  { key: "percussion", label: "퍼커션" },
+  { key: "strings", label: "현악기" },
+  { key: "synth", label: "신스" },
+  { key: "fx", label: "효과음(FX)" },
+  { key: "brass", label: "금관악기" },
+  { key: "woodwinds", label: "목관악기" },
+] as const;
 
 /**
  * Suno `/api/v1/vocal-removal/generate` — "MR(보컬제거) 만들기". type을 지정 안 하면
@@ -306,7 +324,7 @@ export async function requestSunoVocalRemoval(input: RequestSunoVocalRemovalInpu
     body: JSON.stringify({
       taskId: input.sourceTaskId,
       audioId: input.audioId,
-      type: "separate_vocal",
+      type: input.type ?? "separate_vocal",
       callBackUrl: `${siteUrl}/api/webhooks/suno-vocal-removal`,
     }),
   });
@@ -330,10 +348,12 @@ export interface SunoVocalRemovalCallbackPayload {
   msg?: string;
   data?: {
     task_id?: string;
+    // separate_vocal: instrumental_url·vocal_url / split_stem: vocal_url·backing_vocals_url·drums_url … (SUNO_STEMS의 key + "_url")
     vocal_removal_info?: {
       vocal_url?: string;
       instrumental_url?: string;
       origin_url?: string;
+      [stemUrl: string]: string | undefined;
     };
   };
 }

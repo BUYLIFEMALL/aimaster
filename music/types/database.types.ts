@@ -199,6 +199,8 @@ export interface Database {
           instrumental_url: string | null;
           vocal_url: string | null;
           error_message: string | null;
+          type: "separate_vocal" | "split_stem";
+          stems: Record<string, string> | null;
           created_at: string;
           updated_at: string;
         };
@@ -211,6 +213,8 @@ export interface Database {
           instrumental_url?: string | null;
           vocal_url?: string | null;
           error_message?: string | null;
+          type?: "separate_vocal" | "split_stem";
+          stems?: Record<string, string> | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -223,6 +227,8 @@ export interface Database {
           instrumental_url?: string | null;
           vocal_url?: string | null;
           error_message?: string | null;
+          type?: "separate_vocal" | "split_stem";
+          stems?: Record<string, string> | null;
           created_at?: string;
           updated_at?: string;
         };

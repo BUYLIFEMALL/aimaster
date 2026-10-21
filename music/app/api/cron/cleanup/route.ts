@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
   // 1) 곡(트랙): 음원·커버·MR·WAV 파일 → 트랙 행(변형·MR·WAV는 함께 지워짐)
   const { data: tracks } = await db
     .from("music_tracks")
-    .select("id, music_track_variants!track_id(audio_url, image_url, music_track_mr(instrumental_url, vocal_url), music_track_wav(wav_url))")
+    .select("id, music_track_variants!track_id(audio_url, image_url, music_track_mr(instrumental_url, vocal_url, stems), music_track_wav(wav_url))")
     .lte("created_at", iso)
     .neq("status", "generating")
     .limit(BATCH);
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     for (const t of tracks)
       for (const v of t.music_track_variants ?? []) {
         urls.push(v.audio_url, v.image_url);
-        for (const m of v.music_track_mr ?? []) urls.push(m.instrumental_url, m.vocal_url);
+        for (const m of v.music_track_mr ?? []) urls.push(m.instrumental_url, m.vocal_url, ...Object.values(m.stems ?? {}));
         for (const w of v.music_track_wav ?? []) urls.push(w.wav_url);
       }
     result.files += await removeFiles(db, urls);

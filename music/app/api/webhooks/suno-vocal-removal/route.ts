@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { persistSunoAssetToStorage } from "@/lib/trackSync";
-import type { SunoVocalRemovalCallbackPayload } from "@/lib/ai/suno";
+import { SUNO_STEMS, type SunoVocalRemovalCallbackPayload } from "@/lib/ai/suno";
+import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
 
 export const dynamic = "force-dynamic";
+// 12트랙 파일 복사는 15초(sunoapi.org 콜백 응답 한도)를 넘길 수 있어 응답 뒤 waitUntil로 저장한다.
+export const maxDuration = 300;
 
 /**
  * "MR(보컬제거) 만들기" 전용 웹훅 — Suno `/vocal-removal/generate`가 완료되면 이 URL로
@@ -14,6 +18,10 @@ export const dynamic = "force-dynamic";
  *
  * Suno 문서상 이 결과 URL은 14일만 유효하다고 명시돼 있어서, 콜백을 받는 즉시 우리
  * Storage(music-audio)로 다운로드해 영구 저장한다.
+ *
+ * 2026-10-21 V6 1차 ②: type=split_stem(악기별 최대 12트랙)도 이 라우트로 온다 — instrumental_url 없이
+ * vocal_url·drums_url… 이 오므로 행의 type으로 나눠 처리하고, 결과는 stems(jsonb)에 저장한다.
+ * 곡 웹훅과 같이 잠금(lib/syncLock.ts) → 즉시 200 → waitUntil 저장(중복 콜백·15초 한도 대응).
  */
 export async function POST(request: NextRequest) {
   let payload: SunoVocalRemovalCallbackPayload;
@@ -32,7 +40,7 @@ export async function POST(request: NextRequest) {
 
   const { data: mr } = await admin
     .from("music_track_mr")
-    .select("id, user_id, variant_id, status")
+    .select("id, user_id, variant_id, status, type")
     .eq("task_id", taskId)
     .maybeSingle();
 
@@ -51,8 +59,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const info = payload.data?.vocal_removal_info;
-  if (!info?.instrumental_url) {
+  const info = payload.data?.vocal_removal_info ?? {};
+  const isStems = (mr as { type?: string }).type === "split_stem";
+
+  if (!isStems && !info.instrumental_url) {
     await admin
       .from("music_track_mr")
       .update({ status: "failed", error_message: "Suno가 반주(MR) URL을 반환하지 않았습니다." })
@@ -60,20 +70,51 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const instrumentalUrl = await persistSunoAssetToStorage(
-    admin,
-    `${mr.user_id}/${mr.variant_id}/mr-instrumental.mp3`,
-    info.instrumental_url,
-    "audio/mpeg",
-  );
-  const vocalUrl = info.vocal_url
-    ? await persistSunoAssetToStorage(admin, `${mr.user_id}/${mr.variant_id}/mr-vocal.mp3`, info.vocal_url, "audio/mpeg")
-    : null;
+  if (!(await claimSyncLock(admin, "music_track_mr", mr.id))) {
+    return NextResponse.json({ ok: true, ignored: "already processing" });
+  }
 
-  await admin
-    .from("music_track_mr")
-    .update({ status: "completed", instrumental_url: instrumentalUrl, vocal_url: vocalUrl })
-    .eq("id", mr.id);
+  waitUntil(
+    (async () => {
+      try {
+        if (isStems) {
+          const stems: Record<string, string> = {};
+          for (const { key } of SUNO_STEMS) {
+            const src = info[`${key}_url`];
+            if (!src) continue;
+            stems[key] = await persistSunoAssetToStorage(admin, `${mr.user_id}/${mr.variant_id}/stem-${key}.mp3`, src, "audio/mpeg");
+          }
+          await admin
+            .from("music_track_mr")
+            .update(
+              Object.keys(stems).length
+                ? { status: "completed", stems, error_message: null }
+                : { status: "failed", error_message: "Suno가 악기별 트랙 주소를 반환하지 않았습니다." },
+            )
+            .eq("id", mr.id);
+          return;
+        }
+
+        const instrumentalUrl = await persistSunoAssetToStorage(
+          admin,
+          `${mr.user_id}/${mr.variant_id}/mr-instrumental.mp3`,
+          info.instrumental_url!,
+          "audio/mpeg",
+        );
+        const vocalUrl = info.vocal_url
+          ? await persistSunoAssetToStorage(admin, `${mr.user_id}/${mr.variant_id}/mr-vocal.mp3`, info.vocal_url, "audio/mpeg")
+          : null;
+
+        await admin
+          .from("music_track_mr")
+          .update({ status: "completed", instrumental_url: instrumentalUrl, vocal_url: vocalUrl, error_message: null })
+          .eq("id", mr.id);
+      } catch (err) {
+        console.error("Suno 분리 결과 저장 실패:", err);
+        await releaseSyncLock(admin, "music_track_mr", mr.id);
+      }
+    })(),
+  );
 
   return NextResponse.json({ ok: true });
 }

@@ -96,6 +96,12 @@ UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), �
 
 https://ui-canvas.buylife.xyz
 
+## 2026-10-21 Claude Code(윈도우) — 음악(SUNO)자동화 v1.23~v1.24: Suno V6 1차(타임스탬프 가사·악기별 12트랙 분리)
+
+① v1.23 곡 카드 「🎤 가사 타이밍(LRC·SRT)」 — Suno 단어별 시간 → 줄 시간표·자막 내려받기(`lib/sunoAlign.ts`는 lyric-video-studio 원본 사본, DB 변경 없음), 실제 호출 1회 21줄 확인. ② v1.24 「🎚️ 악기별 12트랙 분리(50크레딧)」 — MR 표에 `type`·`stems` 추가(승인), MR 웹훅 잠금+뒤처리, 실제 호출 1회 12트랙 저장·재생 확인. 제안서 2·3차(페르소나·구간 재생성·보컬/반주 추가 등)는 `music/docs/PLAN_20261021_SUNO_V6_FEATURES.md`. 상세 `music/AGENTS.md`.
+
+https://music-automation.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 음악(SUNO)자동화 v1.21: 기존 곡 30일 자동 삭제(7일 유예)
 
 생성 30일 지난 곡·음원·커버·MR·WAV·리믹스를 매일 03:00 KST 정리(`music/app/api/cron/cleanup`, Vercel cron, `CRON_SECRET` 추가 — 주인님 승인). 이미 30일 지난 곡(33/58, 회원 5명)은 **2026-10-28까지 유예**, 카드 「자동 삭제 D-n」·목록 안내. **확인 필요: 2026-10-29 03:00 첫 실제 삭제 뒤 Vercel cron 로그·DB 건수.** 다음: V6 추가 기능. 상세 `music/AGENTS.md` v1.21.

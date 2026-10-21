@@ -18,7 +18,11 @@ export interface CreateMrState {
  * Suno 문서에 없어서(웹훅 전용) 로컬 개발 환경에서는 결과를 확인할 수 없다 — 배포
  * 환경에서만 실제로 완료 처리된다.
  */
-export async function createMrAction(variantId: string): Promise<CreateMrState> {
+// 2026-10-21 V6 1차 ②: type="split_stem"이면 악기별 최대 12트랙 분리(50크레딧, 같은 곡을 다시 요청해도 매번 과금).
+export async function createMrAction(
+  variantId: string,
+  type: "separate_vocal" | "split_stem" = "separate_vocal",
+): Promise<CreateMrState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
@@ -51,7 +55,7 @@ export async function createMrAction(variantId: string): Promise<CreateMrState> 
   try {
     const { data: mr, error: insertError } = await supabase
       .from("music_track_mr")
-      .insert({ variant_id: variant.id, user_id: user.id, status: "generating" })
+      .insert({ variant_id: variant.id, user_id: user.id, status: "generating", type })
       .select("id")
       .single();
     if (insertError || !mr) {
@@ -59,12 +63,12 @@ export async function createMrAction(variantId: string): Promise<CreateMrState> 
     }
 
     const taskId = await requestSunoVocalRemoval(
-      { audioId: variant.suno_audio_id, sourceTaskId: track.task_id },
+      { audioId: variant.suno_audio_id, sourceTaskId: track.task_id, type },
       sunoKey,
     );
     await supabase.from("music_track_mr").update({ task_id: taskId }).eq("id", mr.id);
 
-    await logProgramUsage({ userId: user.id, action: "create_mr", metadata: { variantId } });
+    await logProgramUsage({ userId: user.id, action: type === "split_stem" ? "split_stems" : "create_mr", metadata: { variantId } });
     if (track) revalidatePath(`/plannings/${track.planning_id}`);
     return {};
   } catch (err) {

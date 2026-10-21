@@ -27,12 +27,31 @@ import type { TrackMode, TrackStatus, VocalGender, MrStatus, WavStatus } from "@
 import { RetentionBadge } from "@/components/RetentionBadge";
 import { TimedLyricsButton } from "./TimedLyricsButton";
 
+// 악기별 분리 트랙 이름표(lib/ai/suno.ts SUNO_STEMS와 같은 순서 — 서버 전용 파일이라 여기 따로 둔다).
+const SUNO_STEM_LABELS = [
+  { key: "vocal", label: "리드 보컬" },
+  { key: "backing_vocals", label: "백보컬" },
+  { key: "drums", label: "드럼" },
+  { key: "bass", label: "베이스" },
+  { key: "guitar", label: "기타" },
+  { key: "keyboard", label: "키보드" },
+  { key: "percussion", label: "퍼커션" },
+  { key: "strings", label: "현악기" },
+  { key: "synth", label: "신스" },
+  { key: "fx", label: "효과음(FX)" },
+  { key: "brass", label: "금관악기" },
+  { key: "woodwinds", label: "목관악기" },
+];
+
 export interface MrResult {
   id: string;
   status: MrStatus;
   instrumental_url: string | null;
   vocal_url: string | null;
   error_message: string | null;
+  // 2026-10-21 V6 1차 ②: separate_vocal(MR) | split_stem(악기별 12트랙). 예전 행은 type이 없을 수 있다.
+  type?: "separate_vocal" | "split_stem" | null;
+  stems?: Record<string, string> | null;
 }
 
 export interface WavResult {
@@ -111,6 +130,7 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const [extendingVariantId, setExtendingVariantId] = useState<string | null>(null);
   const [extendError, setExtendError] = useState<string | null>(null);
   const [mrPendingVariantId, setMrPendingVariantId] = useState<string | null>(null);
+  const [mrPendingType, setMrPendingType] = useState<"separate_vocal" | "split_stem">("separate_vocal");
   const [mrError, setMrError] = useState<string | null>(null);
   const [wavPendingVariantId, setWavPendingVariantId] = useState<string | null>(null);
   const [wavSyncingId, setWavSyncingId] = useState<string | null>(null);
@@ -158,11 +178,12 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
    * 이 기능은 Suno에 상태 조회 API가 없어서(웹훅 전용) 로컬 개발 환경에서는 결과를 확인할
    * 수 없다 — 배포 환경에서 웹훅이 도착하면 AutoRefresh가 자동으로 화면을 갱신한다.
    */
-  async function handleCreateMr(variantId: string) {
+  async function handleCreateMr(variantId: string, type: "separate_vocal" | "split_stem" = "separate_vocal") {
     setMrError(null);
     setMrPendingVariantId(variantId);
+    setMrPendingType(type);
     try {
-      const result = await createMrAction(variantId);
+      const result = await createMrAction(variantId, type);
       if (result.needsApiKey) {
         setMissingProvider(result.needsApiKey);
       } else if (result.error) {
@@ -318,8 +339,10 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
         {track.music_track_variants.length > 0 && (
           <div className="grid gap-4 sm:grid-cols-2 mb-5">
             {track.music_track_variants.map((variant, index) => {
-              const latestMr =
-                variant.music_track_mr.length > 0 ? variant.music_track_mr[variant.music_track_mr.length - 1] : null;
+              const mrRows = variant.music_track_mr.filter((m) => m.type !== "split_stem");
+              const stemRows = variant.music_track_mr.filter((m) => m.type === "split_stem");
+              const latestMr = mrRows.length > 0 ? mrRows[mrRows.length - 1] : null;
+              const latestStem = stemRows.length > 0 ? stemRows[stemRows.length - 1] : null;
               const latestWav =
                 variant.music_track_wav.length > 0 ? variant.music_track_wav[variant.music_track_wav.length - 1] : null;
               return (
@@ -379,7 +402,7 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                           className="px-3 py-1.5 rounded-full text-xs font-bold border border-[#2d2d3e] bg-[#20202e] text-zinc-300 hover:text-white hover:border-orange-500/40 hover:bg-[#28283a] disabled:opacity-50 transition-all flex items-center gap-1"
                         >
                           <span>🎧</span>
-                          <span>{mrPendingVariantId === variant.id ? "MR 분리 중..." : "MR(보컬제거)"}</span>
+                          <span>{mrPendingVariantId === variant.id && mrPendingType === "separate_vocal" ? "MR 분리 중..." : "MR(보컬제거)"}</span>
                         </button>
                       )}
                       {latestMr?.status === "failed" && (
@@ -415,6 +438,52 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                           <span>WAV 다시 시도</span>
                         </button>
                       )}
+                      {(!latestStem || latestStem.status === "failed") && (
+                        <button
+                          type="button"
+                          onClick={() => handleCreateMr(variant.id, "split_stem")}
+                          disabled={mrPendingVariantId !== null}
+                          title="보컬·드럼·베이스·기타 등 최대 12개 트랙으로 나눕니다. sunoapi.org 50크레딧이 들고, 같은 곡을 다시 요청해도 매번 차감됩니다."
+                          className="px-3 py-1.5 rounded-full text-xs font-bold border border-[#2d2d3e] bg-[#20202e] text-zinc-300 hover:text-white hover:border-orange-500/40 hover:bg-[#28283a] disabled:opacity-50 transition-all flex items-center gap-1"
+                        >
+                          <span>🎚️</span>
+                          <span>
+                            {mrPendingVariantId === variant.id && mrPendingType === "split_stem"
+                              ? "분리 요청 중..."
+                              : latestStem?.status === "failed"
+                                ? "악기별 분리 다시 시도"
+                                : "악기별 12트랙 분리 (50크레딧)"}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {latestStem?.status === "generating" && (
+                    <p className="text-[11px] text-amber-400 bg-amber-950/30 border border-amber-500/20 rounded-lg p-2">
+                      🎚️ 악기별 분리 진행 중... (보통 1~3분, 완료 시 자동 반영됩니다)
+                    </p>
+                  )}
+                  {latestStem?.status === "failed" && (
+                    <p className="text-[11px] text-rose-400 bg-rose-950/30 border border-rose-500/20 rounded-lg p-2">
+                      ⚠️ {latestStem.error_message ?? "악기별 분리에 실패했습니다."}
+                    </p>
+                  )}
+                  {latestStem?.status === "completed" && latestStem.stems && (
+                    <div className="space-y-1.5 pt-1 border-t border-[#2a2a3c]">
+                      <p className="text-[11px] font-bold text-zinc-300">🎚️ 악기별 트랙 {Object.keys(latestStem.stems).length}개</p>
+                      {SUNO_STEM_LABELS.filter((s) => latestStem.stems?.[s.key]).map((s) => (
+                        <div key={s.key} className="flex items-center gap-2">
+                          <span className="w-20 shrink-0 text-[11px] text-zinc-400">{s.label}</span>
+                          <audio controls preload="none" src={latestStem.stems![s.key]} className="h-8 w-full" />
+                          <a
+                            href={latestStem.stems![s.key]}
+                            download
+                            className="shrink-0 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"
+                          >
+                            ⬇
+                          </a>
+                        </div>
+                      ))}
                     </div>
                   )}
                   {latestMr?.status === "generating" && (

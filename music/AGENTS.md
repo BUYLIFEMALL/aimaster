@@ -280,3 +280,10 @@ POST 콜백을 보낸다. 이 라우트는:
 - 제안서 [docs/PLAN_20261021_SUNO_V6_FEATURES.md](docs/PLAN_20261021_SUNO_V6_FEATURES.md) ①. (참고: 같은 날 다른 세션이 v1.22로 곡 카드에 「가사 영상 만들기 →」(lyric-video-studio 연결)을 넣음 — 그대로 둠.)
 - `lib/ai/suno.ts` `requestSunoTimestampedLyrics`(`/generate/get-timestamped-lyrics`, 즉시 응답), `lib/sunoAlign.ts`(**사본** — 원본 `lyric-video-studio/src/lib/sunoAlign.ts`, 실제 응답으로 검증된 줄 묶기), `lib/lyricsFormat.ts`(LRC·SRT), `lib/actions/timedLyrics.ts`(본인 Suno 키, DB 저장 없음, 사용 기록), 곡 카드 보컬판 「🎤 가사 타이밍(LRC·SRT)」(`components/plannings/TimedLyricsButton.tsx`: 줄별 시각 미리보기 + LRC·SRT 내려받기). 시험 `tests/lyricsFormat.test.mjs` 2개.
 - 검수: 테스트 53·tsc·lint·build, 배포 Ready(비용 Vercel 빌드 1회), DB v1.23. 크롬 일반 회원 시험 곡 「빗속의 다짐」 **실제 호출 1회(승인)** → 21줄, 0:10~2:29 시각, 구간 표시 제거 확인. 내려받기 버튼은 파일 저장이라 누르지 않음(형식은 단위 시험).
+
+## 2026-10-21 v1.24 — Suno V6 1차 ②: 악기별 12트랙 분리 (Claude Code 윈도우)
+- **DB(승인)** `supabase/migrations/0015_track_mr_stems.sql`: `music_track_mr`에 `type`(`separate_vocal` 기본 | `split_stem`)·`stems`(jsonb) 추가(크롬 SQL 편집기 적용·확인), `types/database.types.ts` 반영.
+- `lib/ai/suno.ts` `SUNO_STEMS`(12개: vocal·backing_vocals·drums·bass·guitar·keyboard·percussion·strings·synth·fx·brass·woodwinds — 콜백 `<key>_url`), `requestSunoVocalRemoval({type})`. `lib/actions/mr.ts` `createMrAction(variantId, type)`.
+- MR 웹훅(`app/api/webhooks/suno-vocal-removal`): 행의 type으로 분기 — split_stem이면 12개 파일을 `{user}/{variant}/stem-<key>.mp3`로 복사해 `stems`에 저장. 곡 웹훅과 같이 **잠금(`syncLock` 표에 `music_track_mr` 추가) → 즉시 200 → waitUntil**(12개 복사가 15초를 넘으므로). 기존 MR(보컬/반주)도 같은 방식.
+- 곡 카드: 「🎚️ 악기별 12트랙 분리 (50크레딧)」(같은 곡 재요청도 매번 과금 — 버튼 설명), 진행/실패 안내, 완료 시 트랙별 재생(preload none)·⬇ 내려받기. 서명 주소·30일 정리에 stems 포함.
+- 검수: tsc·lint·테스트 53·build, 배포 Ready(비용 Vercel 빌드 1회), DB v1.24. **실제 호출 1회(승인, 50크레딧)** 시험 곡 「빗속의 다짐」 곡 #1 → 약 3분 반 뒤 콜백, 잠금 뒤 저장, 12트랙 모두 저장, 화면 「악기별 트랙 12개」·서명 주소 재생 확인(앞 3개 181초).
