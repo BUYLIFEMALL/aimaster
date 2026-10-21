@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.22** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.23** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -188,3 +188,8 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 6초 시험음 + 「업로드 시험 (비공개)」 배경으로 1080p MP4(0.6MB, 저장 위치는 브라우저 내부 저장소, 끝난 뒤 삭제) → 「📁 저장한 MP4 고르기」 → 제목 「[시험] 플레이리스트 업로드 확인 (비공개)」·비공개·음악 → 「유튜브에 비공개로 올렸습니다」, 영상 https://youtu.be/mPwlsDllUgk . 설명란 챕터 `00:00 업로드 시험음` 확인.
 - 비용: 없음(회원 Google 앱 유튜브 무료 한도 1,600단위). 시험 영상 삭제는 주인님이 유튜브 스튜디오에서(에이전트는 삭제하지 않음).
 - 참고: 관리자 계정에 기본(is_default) 유튜브 채널이 2개라 가장 최근 갱신된 채널이 쓰인다(`getMemberAccount` 정렬). 채널을 고르는 화면은 아직 없음 — 개선 제안 IMP-PLS-013.
+
+## 2026-10-21 v1.23 — 배경 그림으로 유튜브 썸네일 (Claude Code 윈도우)
+- 플랜: [`docs/PLAN_20261021_V1_23_THUMBNAIL.md`](docs/PLAN_20261021_V1_23_THUMBNAIL.md). 주인님 선택: 「YOUTUBE 썸네일 자동화와 연결」을 플레이리스트 안에서 바로(AI 비용 없음).
+- 유튜브 카드(가로 영상·배경이 그림일 때): 배경을 1280×720 JPG(2MB 이하, 가운데 잘라 맞춤)로 만들어 미리보기·「⬇ 썸네일 내려받기」, 「🖼 올릴 때 배경 그림을 썸네일로 지정」(기본 켬). 업로드가 끝나면 `/api/youtube/thumbnail`(같은 출처·`requireAccess`·`decodeImage` 2MB) → 이 앱 전용 `src/lib/youtube/thumbnail.ts`(`thumbnails.set`, 공용 기준 코드는 고치지 않음). 403이면 「맞춤 썸네일 사용 인증(전화 인증) 필요 — 내려받아 스튜디오에서 넣기」 안내. 세로(쇼츠)는 지정하지 않음.
+- 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.23. 크롬(시험 계정): `/api/youtube/thumbnail` 409(유튜브 미연결 — 다른 회원 채널로 대신하지 않음)·잘못된 영상 번호 400. **관리자 채널에서 실제 썸네일 지정은 주인님 관리자 로그인 뒤 확인 예정**(앞서 올린 비공개 시험 영상 mPwlsDllUgk 대상). 비용: Vercel 빌드 1회.

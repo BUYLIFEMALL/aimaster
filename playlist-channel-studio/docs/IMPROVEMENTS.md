@@ -16,6 +16,7 @@
 | IMP-PLS-006 | 기능/품질 | MP4 내보내기의 스펙트럼이 실제 소리가 아니라 sin/cos로 만든 가짜 값(`dummyFreq`) — 미리보기(실제 분석)와 결과가 다름. 디코딩한 소리에서 프레임마다 FFT로 계산(가사영상 `lyric-video-studio/src/lib/render/spectrum.ts` 방식) 권장 | P2 (높음) | **완료 (v1.18)** — 브라우저 분석기와 같은 계산(`audio-spectrum.ts`) + 저음 효과·밝기·필터도 결과에 반영 | 2026-10-21 (Claude Code) | `src/lib/render/video-exporter.ts`·`audio-spectrum.ts` |
 | IMP-PLS-011 | 기능/연계 | 커버 배경 「앨범 커버」 스타일(제목·채널명) | P3 | **완료 (v1.22)** | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx` |
 | IMP-PLS-012 | 연계 | 완성 MP4 유튜브 바로 올리기(공용 유튜브 연결·챕터 설명) | P2 | **완료 (v1.22)**, 실제 업로드 확인(관리자 채널 비공개 1편, https://youtu.be/mPwlsDllUgk) | 2026-10-21 (Claude Code) | `YoutubeUploadCard.tsx`·`/api/youtube/*` |
+| IMP-PLS-014 | 연계 | 배경(앨범 커버) 그림 → 유튜브 썸네일 1280×720 내려받기·업로드 때 자동 지정 | P2 | **완료 (v1.23)**, 실제 지정은 관리자 채널 확인 대기 | 2026-10-21 (Claude Code) | `YoutubeUploadCard.tsx`·`/api/youtube/thumbnail`·`lib/youtube/thumbnail.ts` |
 | IMP-PLS-013 | 기능 | 유튜브 채널이 여러 개 연결된 회원은 올릴 채널을 고를 수 없음(기본 표시가 2개면 최근 갱신 채널). 카드에 채널 선택 | P3 | 제안/대기 | 2026-10-21 (Claude Code) | `youtube/account.ts`·`YoutubeUploadCard.tsx`(공용 `memberIntegrations` 선택 인자 필요 여부 검토) |
 | IMP-PLS-009 | 기능/연계 | 음악(SUNO) 자동화 곡 여러 개 + Suno 시간 가사 가져오기 | P2 | **완료 (v1.19)** | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx`·`sunoTracks.ts`·`/api/suno/*` |
 | IMP-PLS-010 | 편의성 | Suno 곡 패널에서 곡 커버를 배경 후보로 바로 쓰기(곡 하나짜리 플레이리스트·첫 곡 커버) | P3 | **완료 (v1.20)** — 흐린 확대 커버 + 가운데 원본 1920×1080, 자동·곡별 버튼 | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx`·`MediaCenter.tsx` |

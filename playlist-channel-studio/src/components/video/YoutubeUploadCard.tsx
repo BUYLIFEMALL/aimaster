@@ -54,13 +54,36 @@ function putVideo(url: string, blob: Blob, onPct: (n: number) => void): Promise<
   });
 }
 
-export function YoutubeUploadCard({ tracks, portrait, blob, disabled }: { tracks: Track[]; portrait: boolean; blob: Blob | null; disabled: boolean }) {
+/** v1.23 배경 그림 → 유튜브 썸네일(1280×720 JPG, 2MB 이하). 비율이 다르면 가운데를 잘라 맞춘다 */
+async function makeThumbnail(bgUrl: string): Promise<{ url: string; dataUrl: string; size: number }> {
+  const img = await createImageBitmap(await (await fetch(bgUrl)).blob());
+  const c = document.createElement("canvas"); c.width = 1280; c.height = 720;
+  const g = c.getContext("2d")!;
+  const sc = Math.max(1280 / img.width, 720 / img.height), w = img.width * sc, h = img.height * sc;
+  g.drawImage(img, (1280 - w) / 2, (720 - h) / 2, w, h);
+  for (const q of [0.9, 0.8, 0.7]) {
+    const blob = await new Promise<Blob | null>((ok) => c.toBlob(ok, "image/jpeg", q));
+    if (blob && blob.size <= 2 * 1024 * 1024) {
+      const dataUrl = await new Promise<string>((ok) => { const r = new FileReader(); r.onload = () => ok(String(r.result)); r.readAsDataURL(blob); });
+      return { url: URL.createObjectURL(blob), dataUrl, size: blob.size };
+    }
+  }
+  throw new Error("썸네일이 2MB를 넘어 만들지 못했습니다.");
+}
+
+export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }: { tracks: Track[]; portrait: boolean; blob: Blob | null; disabled: boolean; bgMedia: { type: "image" | "video"; url: string } | null }) {
   const [status, setStatus] = useState<Status | null>(null), [statusError, setStatusError] = useState("");
   const [form, setForm] = useState(() => ({ ...defaults(tracks, portrait), privacy: "private" as Privacy, categoryId: "10", schedule: false, publishAt: "" }));
   const [picked, setPicked] = useState<File | null>(null);
   const [pct, setPct] = useState<number | null>(null), [msg, setMsg] = useState<{ text: string; ok?: boolean } | null>(null), [done, setDone] = useState<Done[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
   const video = blob ?? picked;
+  const [thumb, setThumb] = useState<{ url: string; dataUrl: string; size: number } | null>(null), [useThumb, setUseThumb] = useState(true);
+  useEffect(() => { // v1.23 배경이 그림이면 썸네일을 미리 만들어 둔다(영상 배경은 대상 아님)
+    let alive = true; setThumb(null);
+    if (bgMedia?.type === "image") void makeThumbnail(bgMedia.url).then((t) => { if (alive) setThumb(t); }).catch(() => {});
+    return () => { alive = false; };
+  }, [bgMedia?.type, bgMedia?.url]);
 
   async function check() {
     setStatus(null); setStatusError("");
@@ -88,7 +111,15 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled }: { tracks
       const videoId = await putVideo(data.uploadUrl, video, setPct);
       const url = portrait ? `https://youtube.com/shorts/${videoId}` : `https://youtu.be/${videoId}`;
       setDone((d) => [{ videoId, url, title: form.title, label: publishAt ? `${new Date(publishAt).toLocaleString("ko-KR")} 예약 공개` : LABEL[form.privacy] }, ...d]);
-      setMsg({ ok: true, text: publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.` });
+      let thumbNote = "";
+      if (useThumb && thumb && !portrait) { // v1.23 쇼츠(세로)는 유튜브가 앱에서만 썸네일을 바꾸게 해 지정하지 않는다
+        try {
+          const r = await fetch("/api/youtube/thumbnail", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId, image: thumb.dataUrl }) });
+          const d = await r.json().catch(() => ({}));
+          thumbNote = r.ok ? " 썸네일도 배경 그림으로 지정했습니다." : ` 썸네일은 지정하지 못했습니다: ${d.error ?? r.status}`;
+        } catch { thumbNote = " 썸네일은 지정하지 못했습니다(연결 오류). 썸네일을 내려받아 유튜브 스튜디오에서 넣어 주세요."; }
+      }
+      setMsg({ ok: true, text: (publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`) + thumbNote });
     } catch (e) {
       setMsg({ text: e instanceof Error ? e.message : "유튜브에 올리지 못했습니다." });
     } finally { setPct(null); }
@@ -129,6 +160,16 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled }: { tracks
             <label className="block text-[11px] text-[#ccc] space-y-1">공개 범위<select className={input} value={form.privacy} disabled={form.schedule} onChange={(e) => setForm({ ...form, privacy: e.target.value as Privacy })}>{PRIVACY.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
             <label className="block text-[11px] text-[#ccc] space-y-1">카테고리<select className={input} value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>{CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
           </div>
+          {bgMedia?.type === "image" && !portrait && (
+            <div className="flex flex-wrap items-center gap-3 bg-[#121212] rounded-xl p-2">
+              {thumb ? <img src={thumb.url} alt="썸네일 미리보기" className="w-40 rounded-lg" /> : <span className="text-[11px] text-[#aaa]">썸네일을 만드는 중…</span>}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-[11px] text-[#ddd]"><input type="checkbox" checked={useThumb} onChange={(e) => setUseThumb(e.target.checked)} />🖼 올릴 때 배경 그림을 썸네일로 지정</label>
+                <div className="text-[10px] text-[#888]">1280×720 JPG{thumb ? ` · ${(thumb.size / 1024).toFixed(0)}KB` : ""} · 채널이 맞춤 썸네일 사용 인증(전화 인증)이 돼 있어야 지정됩니다</div>
+                {thumb && <a href={thumb.url} download="playlist-thumbnail.jpg" className="inline-block text-[11px] px-2 py-1 rounded-lg border border-[#333] text-white hover:border-[#555]">⬇ 썸네일 내려받기</a>}
+              </div>
+            </div>
+          )}
           <label className="flex items-center gap-2 text-[11px] text-[#ddd]"><input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} />정한 시각에 자동 공개(예약 — 그때까지 비공개)</label>
           {form.schedule && <label className="block text-[11px] text-[#ccc] space-y-1">공개 시각<input className={input} type="datetime-local" value={form.publishAt} onChange={(e) => setForm({ ...form, publishAt: e.target.value })} /></label>}
           {pct !== null && (
