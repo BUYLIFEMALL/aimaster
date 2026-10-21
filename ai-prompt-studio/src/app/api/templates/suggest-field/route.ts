@@ -27,12 +27,53 @@ export async function POST(req: Request) {
 
   try {
     const { field, title, description, content, category } = (await req.json()) as {
-      field: "title" | "description" | "content";
+      field: "title" | "description" | "content" | "variables";
       title?: string;
       description?: string;
       content?: string;
       category?: string;
     };
+
+    // 2026-10-21 v1.08: 본문에서 바뀌는 부분을 찾아 「원래 문구 → 변수 이름」 목록만 돌려준다(본문은 화면에서 문구를 정확히 찾아 바꾼다).
+    if (field === "variables") {
+      if (!content?.trim()) return NextResponse.json({ success: true, suggestions: [] });
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: `아래 프롬프트를 다시 쓰기 쉬운 템플릿으로 만들려고 합니다.
+쓸 때마다 바뀔 만한 구체적인 값(주제·상품명·대상 독자·어조·분량·날짜·숫자·지역·브랜드명 등)을 최대 8개 찾아 주세요.
+- original: 프롬프트 본문에 실제로 들어 있는 문구를 글자 그대로(띄어쓰기·문장부호 포함) 짧게 적습니다. 문장 전체가 아니라 바뀌는 값만 적습니다.
+- name: 그 값을 나타내는 짧은 한국어 변수 이름(띄어쓰기 대신 밑줄, 예: 상품명, 대상_독자, 어조).
+- 역할·형식·규칙처럼 매번 같은 지시문은 고르지 않습니다.
+JSON 배열만 출력하세요. 예: [{"name":"상품명","original":"딥슬립 코치"}]
+
+[프롬프트 본문]
+${content.slice(0, 12000)}`,
+        config: { temperature: 0.2, responseMimeType: "application/json" },
+      });
+      let raw: unknown = [];
+      try {
+        raw = JSON.parse(response.text || "[]");
+      } catch {
+        raw = [];
+      }
+      const seenNames = new Set<string>();
+      const seenOriginals = new Set<string>();
+      const suggestions = (Array.isArray(raw) ? raw : [])
+        .map((r) => ({
+          name: String((r as { name?: unknown })?.name ?? "").trim().replace(/\s+/g, "_").replace(/[{}]/g, "").slice(0, 30),
+          original: String((r as { original?: unknown })?.original ?? "").trim().slice(0, 200),
+        }))
+        .filter((s) => {
+          if (!s.name || s.original.length < 2 || !content.includes(s.original)) return false;
+          if (seenNames.has(s.name) || seenOriginals.has(s.original)) return false;
+          seenNames.add(s.name);
+          seenOriginals.add(s.original);
+          return true;
+        })
+        .slice(0, 8);
+      return NextResponse.json({ success: true, suggestions });
+    }
 
     const currentYear = new Date().getFullYear();
     const context = `

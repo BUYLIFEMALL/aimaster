@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   Sparkles,
@@ -21,6 +21,22 @@ interface PromptFormModalProps {
     field: "title" | "description" | "content",
     context: { title?: string; description?: string; content?: string; category?: string }
   ) => Promise<string>;
+  /** 본문에서 바뀌는 부분을 찾아 「원래 문구 → 변수 이름」 목록을 받는다(2026-10-21 v1.08) */
+  onSuggestVariables?: (content: string) => Promise<VariableSuggestion[]>;
+  /** 결과 화면에서 넘어온 초안이면 열릴 때 한 번 자동으로 변수를 제안한다 */
+  autoSuggestVariables?: boolean;
+}
+
+export interface VariableSuggestion {
+  name: string;
+  original: string;
+}
+
+/** 고른 문구를 {{변수}}로 바꾼다. 긴 문구부터 바꿔 짧은 문구가 긴 문구 일부를 먼저 바꾸지 않게 한다. */
+function applyVariables(text: string, picks: VariableSuggestion[]): string {
+  return [...picks]
+    .sort((a, b) => b.original.length - a.original.length)
+    .reduce((acc, s) => acc.split(s.original).join(`{{${s.name}}}`), text);
 }
 
 export function PromptFormModal({
@@ -30,12 +46,47 @@ export function PromptFormModal({
   editPrompt,
   categories,
   onCallSuggest,
+  onSuggestVariables,
+  autoSuggestVariables = false,
 }: PromptFormModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Business");
   const [loadingField, setLoadingField] = useState<string | null>(null);
+  const [varSuggestions, setVarSuggestions] = useState<(VariableSuggestion & { checked: boolean })[] | null>(null);
+  const [varMessage, setVarMessage] = useState("");
+  const autoRanFor = useRef<PromptTemplate | null>(null);
+
+  const handleSuggestVariables = async (text: string) => {
+    if (!onSuggestVariables || !text.trim()) return;
+    try {
+      setLoadingField("variables");
+      setVarMessage("");
+      const list = await onSuggestVariables(text);
+      setVarSuggestions(list.map((s) => ({ ...s, checked: true })));
+      if (list.length === 0) setVarMessage("바꿔 쓸 만한 부분을 찾지 못했습니다. 필요한 곳에 직접 {{변수명}}을 넣어 주세요.");
+    } catch (err: any) {
+      setVarMessage(err.message || "변수 찾기에 실패했습니다. 직접 {{변수명}}을 넣어 주세요.");
+    } finally {
+      setLoadingField(null);
+    }
+  };
+
+  // 결과 화면에서 넘어온 초안(아직 저장 전 · 변수 0개)이면 열릴 때 한 번만 자동 제안
+  useEffect(() => {
+    if (!isOpen || !autoSuggestVariables || !editPrompt || editPrompt.id) return;
+    if (autoRanFor.current === editPrompt) return;
+    autoRanFor.current = editPrompt;
+    if (extractVariables(editPrompt.content).length === 0) void handleSuggestVariables(editPrompt.content);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, autoSuggestVariables, editPrompt]);
+
+  const applyPickedVariables = () => {
+    if (!varSuggestions) return;
+    setContent((prev) => applyVariables(prev, varSuggestions.filter((s) => s.checked)));
+    setVarSuggestions(null);
+  };
 
   // 수정 모드 진입 시 기존 값 주입
   useEffect(() => {
@@ -50,6 +101,8 @@ export function PromptFormModal({
       setContent("");
       setCategory(categories[0] || "Business");
     }
+    setVarSuggestions(null);
+    setVarMessage("");
   }, [editPrompt, isOpen, categories]);
 
   if (!isOpen) return null;
@@ -227,8 +280,73 @@ export function PromptFormModal({
                   )}
                   <span>AI 제안</span>
                 </button>
+                {onSuggestVariables && (
+                  <button
+                    type="button"
+                    disabled={loadingField !== null || !content.trim()}
+                    onClick={() => handleSuggestVariables(content)}
+                    className="flex items-center gap-1 text-[11px] font-bold text-violet-700 hover:text-violet-800 bg-violet-50 hover:bg-violet-100 px-2 py-0.5 rounded-md transition-colors disabled:opacity-50 cursor-pointer"
+                    title="본문에서 쓸 때마다 바뀌는 부분을 찾아 {{변수}}로 바꾸자고 제안"
+                  >
+                    {loadingField === "variables" ? <Loader2 size={11} className="animate-spin" /> : <span>🪄</span>}
+                    <span>변수 찾기</span>
+                  </button>
+                )}
               </div>
             </div>
+
+            {/* 🪄 변수 제안 (2026-10-21 v1.08) */}
+            {loadingField === "variables" && (
+              <div className="flex items-center gap-2 p-3 rounded-xl border border-violet-200 bg-violet-50 text-[11px] font-bold text-violet-800">
+                <Loader2 size={13} className="animate-spin" />
+                AI가 쓸 때마다 바뀌는 부분을 찾고 있습니다…
+              </div>
+            )}
+            {varSuggestions && varSuggestions.length > 0 && (
+              <div className="p-3.5 rounded-xl border border-violet-200 bg-violet-50 space-y-2">
+                <p className="text-[11px] font-bold text-violet-900">
+                  🪄 바뀌는 부분을 {"{{변수}}"}로 바꾸면 다음부터 값만 넣어 바로 실행할 수 있습니다. 바꿀 것만 골라 주세요.
+                </p>
+                <ul className="space-y-1">
+                  {varSuggestions.map((s, i) => (
+                    <li key={s.name}>
+                      <label className="flex items-start gap-2 text-xs text-slate-800 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={s.checked}
+                          onChange={(e) =>
+                            setVarSuggestions((prev) => prev && prev.map((p, j) => (j === i ? { ...p, checked: e.target.checked } : p)))
+                          }
+                          className="mt-0.5 accent-violet-600"
+                        />
+                        <span className="min-w-0">
+                          <code className="font-mono font-bold text-violet-700">{`{{${s.name}}}`}</code>
+                          <span className="text-slate-500"> ← “{s.original}”</span>
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVarSuggestions(null)}
+                    className="px-3 py-1.5 rounded-lg border border-violet-200 bg-white text-[11px] font-bold text-violet-700 hover:bg-violet-100 cursor-pointer"
+                  >
+                    그대로 둘게요
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!varSuggestions.some((s) => s.checked)}
+                    onClick={applyPickedVariables}
+                    className="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold disabled:opacity-50 cursor-pointer"
+                  >
+                    선택한 것 변수로 바꾸기
+                  </button>
+                </div>
+              </div>
+            )}
+            {varMessage && <p className="text-[11px] text-slate-500">{varMessage}</p>}
 
             <textarea
               required

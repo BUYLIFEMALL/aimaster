@@ -227,7 +227,7 @@ export function ResultSection({
           >
             📁 내 템플릿으로 저장
           </button>
-          <p className="text-[11px] text-violet-800">완성한 프롬프트를 보관함에 저장합니다. 바꿔 쓸 부분을 {"{{변수}}"}로 고쳐 두면 다음부터 값만 넣어 바로 실행할 수 있습니다.</p>
+          <p className="text-[11px] text-violet-800">완성한 프롬프트를 보관함에 저장합니다. 저장 창이 열리면 AI가 바뀌는 부분을 찾아 {"{{변수}}"}로 바꾸자고 제안합니다 — 골라서 바꾸면 다음부터 값만 넣어 바로 실행할 수 있습니다.</p>
         </div>
       )}
 

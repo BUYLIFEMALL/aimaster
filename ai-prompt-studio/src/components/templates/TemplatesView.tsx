@@ -5,7 +5,7 @@
 // 보관함이 비어 있으면 예제를 보여 주고, 예제를 편집해 저장하면 내 템플릿으로 새로 저장된다.
 import { useEffect, useMemo, useState } from "react";
 import { PromptLibrary } from "./PromptLibrary";
-import { PromptFormModal } from "./PromptFormModal";
+import { PromptFormModal, type VariableSuggestion } from "./PromptFormModal";
 import { PromptExecuteModal } from "./PromptExecuteModal";
 import { BackupModal } from "./BackupModal";
 import { PromptTemplate } from "@/types/template";
@@ -44,6 +44,7 @@ export function TemplatesView({
 
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editPrompt, setEditPrompt] = useState<PromptTemplate | null>(null);
+  const [fromDraft, setFromDraft] = useState(false);
   const [executeModalOpen, setExecuteModalOpen] = useState(false);
   const [executingPrompt, setExecutingPrompt] = useState<PromptTemplate | null>(null);
   const [backupModalOpen, setBackupModalOpen] = useState(false);
@@ -58,6 +59,7 @@ export function TemplatesView({
   useEffect(() => {
     if (draft) {
       setEditPrompt(draft);
+      setFromDraft(true);
       setFormModalOpen(true);
       onDraftConsumed();
     }
@@ -142,8 +144,8 @@ export function TemplatesView({
         onAddCategory={(c) => { setExtraCategories((cur) => (cur.includes(c) ? cur : [...cur, c])); setActiveCategory(c); }}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onOpenCreate={() => { setEditPrompt(null); setFormModalOpen(true); }}
-        onEditPrompt={(p) => { setEditPrompt(p); setFormModalOpen(true); }}
+        onOpenCreate={() => { setEditPrompt(null); setFromDraft(false); setFormModalOpen(true); }}
+        onEditPrompt={(p) => { setEditPrompt(p); setFromDraft(false); setFormModalOpen(true); }}
         onDeletePrompt={(id) => void handleDeletePrompt(id)}
         onExecutePrompt={(p) => { setExecutingPrompt(p); setExecuteModalOpen(true); }}
       />
@@ -161,6 +163,8 @@ export function TemplatesView({
         editPrompt={editPrompt}
         categories={categories}
         onCallSuggest={(field, context) => post<{ text: string }>("/api/templates/suggest-field", { field, ...context }).then((d) => d.text)}
+        onSuggestVariables={(content) => post<{ suggestions: VariableSuggestion[] }>("/api/templates/suggest-field", { field: "variables", content }).then((d) => d.suggestions ?? [])}
+        autoSuggestVariables={fromDraft}
       />
       <PromptExecuteModal
         isOpen={executeModalOpen}
