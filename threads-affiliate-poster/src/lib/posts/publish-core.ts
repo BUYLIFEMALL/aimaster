@@ -66,6 +66,7 @@ export async function publishPost(params: PublishPostParams): Promise<PublishPos
       .from("tap_posts")
       .update({
         status: "published",
+        published_at: new Date().toISOString(), // 2026-10-22 게시한 시각(대시보드 7일 그래프 기준)
         threads_post_id: threadsPostId,
         threads_permalink: permalink,
         error_message: null,

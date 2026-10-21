@@ -35,6 +35,7 @@ export interface Database {
           video_url: string | null;
           status: PostStatus;
           scheduled_at: string | null;
+          published_at: string | null;
           threads_post_id: string | null;
           threads_permalink: string | null;
           error_message: string | null;
@@ -50,6 +51,7 @@ export interface Database {
           video_url?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
+          published_at?: string | null;
           threads_post_id?: string | null;
           threads_permalink?: string | null;
           error_message?: string | null;
@@ -65,6 +67,7 @@ export interface Database {
           video_url?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
+          published_at?: string | null;
           threads_post_id?: string | null;
           threads_permalink?: string | null;
           error_message?: string | null;

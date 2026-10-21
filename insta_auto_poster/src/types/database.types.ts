@@ -24,6 +24,7 @@ export interface Database {
           cover_image_url: string | null;
           status: PostStatus;
           scheduled_at: string | null;
+          published_at: string | null;
           ig_media_id: string | null;
           ig_permalink: string | null;
           error_message: string | null;
@@ -40,6 +41,7 @@ export interface Database {
           cover_image_url?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
+          published_at?: string | null;
           ig_media_id?: string | null;
           ig_permalink?: string | null;
           error_message?: string | null;
@@ -56,6 +58,7 @@ export interface Database {
           cover_image_url?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
+          published_at?: string | null;
           ig_media_id?: string | null;
           ig_permalink?: string | null;
           error_message?: string | null;

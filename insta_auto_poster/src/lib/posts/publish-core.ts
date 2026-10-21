@@ -65,6 +65,7 @@ export async function publishPost(params: PublishPostParams): Promise<PublishPos
       .from("insta_posts")
       .update({
         status: "published",
+        published_at: new Date().toISOString(), // 2026-10-22 게시한 시각(대시보드 7일 그래프 기준)
         ig_media_id: mediaId,
         ig_permalink: permalink,
         error_message: null,

@@ -46,8 +46,8 @@ export default async function DashboardPage() {
   }
 
   // v1.76: 최근 7일(한국 시간) 게시 건수 — 공용 기준 코드 `week-reply-chart`(통합 받은편지함·댓글 프로그램과 같은 그래프).
-  // 게시 시각 전용 칸이 없어, 게시 완료(published) 글의 마지막 수정 시각(updated_at, 수정 때 자동 갱신)을 게시 시각으로 쓴다.
-  const weekDays = bucketByKstDay((posts ?? []).filter((p) => p.status === "published").map((p) => p.updated_at));
+  // 2026-10-22부터 게시한 시각(published_at, 게시 완료 때 기록·기존 글은 그때의 updated_at으로 채움)을 쓴다. 비어 있으면 updated_at.
+  const weekDays = bucketByKstDay((posts ?? []).filter((p) => p.status === "published").map((p) => p.published_at ?? p.updated_at));
 
   const upcoming = (posts ?? [])
     .filter((p) => p.status === "scheduled")
