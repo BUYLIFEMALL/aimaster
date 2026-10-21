@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — Pixabay 이미지 주소 형식이 `cdn.pixabay.com/photo/…` → `pixabay.com/get/<토큰>.jpg`로 바뀌어, 옛 형식만 허용하던 감성 글귀의 사진 검색 결과가 모두 걸러짐(「검색 결과가 없습니다」) (emotion-writer v1.19, Claude Code 윈도우)
+- 증상: 「nature」 같은 흔한 검색어도 0장. API 자체는 200·500건 정상.
+- 원인: 외부 서비스 응답 주소 형식 변경 + 코드의 엄격한 호스트·경로 허용 목록(`allowedPhotoUrl`).
+- 해결: 허용 목록에 `pixabay.com` + `/get/` 추가(사칭·포트·인증정보 거부 유지), 시험 추가. 영상 쪽 `videoParse.ts` 3곳은 이미 `pixabay.com`을 허용해 해당 없음.
+- 다음부터 확인: 외부 이미지 주소 허용 목록이 있는 기능은 「검색 결과 0건」 신고가 오면 실제 API 응답의 주소 호스트·경로부터 대조. 무료 키라도 시험 계정 키로 직접 한 번 불러 보면 바로 보인다.
+
 ## 2026-10-22 — 운영 user_api_keys 허용 목록에 fal·elevenlabs가 없었다(저장소 마이그레이션 0013 미반영) · 운영 DB는 `Prefer: tx=rollback`을 지원하지 않는다 (AI 쇼츠 원스톱 v1.26)
 - 증상: v1.23에서 설정 화면에 fal 칸을 만들었지만 운영 DB 제약(`user_api_keys_provider_check`)에 `fal`이 없어 저장이 실패하는 상태였다. 저장소 `supabase/migrations/0013_update_user_api_keys_provider_check.sql`(fal 포함)을 보고 반영됐다고 잘못 판단함.
 - 해결: 주인님 승인 후 크롬 Supabase SQL 편집기에서 현재 정의를 읽어 `fal`·`elevenlabs`만 앞에 붙여 다시 만듦(`shorts-onestop-studio/supabase/migrations/0030_v1_26_elevenlabs_voice.sql`).

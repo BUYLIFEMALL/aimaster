@@ -27,6 +27,9 @@ test("image downloader rejects internal hosts, impersonated CDN names, credentia
     "https://user:pass@cdn.pixabay.com/photo/a.jpg",
     "https://cdn.pixabay.com/api/a.jpg",
     "https://images.pexels.com/photos/a.svg",
+    "https://pixabay.com/api/a.jpg",
+    "https://pixabay.com.evil.test/get/a.jpg",
+    "https://evilpixabay.com/get/a.jpg",
   ]) {
     assert.throws(() => allowedPhotoUrl(url));
   }
@@ -36,6 +39,8 @@ test("image downloader rejects internal hosts, impersonated CDN names, credentia
     ).hostname,
     "images.pexels.com",
   );
+  // v1.18: Pixabay 새 주소 형식(pixabay.com/get/<토큰>.jpg)도 허용
+  assert.equal(allowedPhotoUrl("https://pixabay.com/get/g0abc_123.jpg").hostname, "pixabay.com");
   await assert.rejects(
     photoDataUrl(
       "https://images.pexels.com/photos/1/test.jpeg",

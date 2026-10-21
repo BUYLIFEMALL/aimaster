@@ -119,3 +119,12 @@
 - 인스타 피드 비율(4:5~1.91:1) 때문에 **1:1에서만** 누를 수 있음 — 9:16·3:4는 「1:1로 바꿔 주세요」 안내. 주소 함수 `src/lib/instaHandoff.ts`.
 - 검수: tsc 0, 시험 22개(새 `tests/instaHandoff.test.mjs`), build, 배포 `emotion-writer-rgtkgnhhg` Ready, DB v1.17. 받는 쪽은 시험 그림으로 크롬 확인(아래 INSTA v1.47). 버튼에서 실제 업로드는 글귀·배경 생성이 필요해 이번엔 생략 — INSTA 직접 첨부(`uploadImageDirect`)와 같은 업로드 방식.
 - 알아 둘 점: 보낸 뒤 INSTA에서 게시하지 않으면 이미지가 버킷에 남음(INSTA 직접 첨부와 같은 동작) — INSTA 쪽 미사용 첨부 정리는 별도 검토 후보.
+
+## 2026-10-22 v1.18 — 「📐 다른 크기로 받기」 (Claude Code 윈도우, 이미지 재비교 F1·D-62-03)
+- 완성 화면에 채널 크기 버튼 5개: 인스타 1:1(1080×1080)·4:5(1080×1350)·스토리/릴스 9:16(1080×1920)·3:4(1080×1440)·가로 공유 1.91:1(1200×628). 같은 글귀·배경·디자인을 AI 재호출 없이 다시 그려 JPG로 저장(`src/lib/studio/channels.ts`, `render.ts`의 새 `renderQuoteAt` — 기존 `renderQuote`도 이것을 씀). 배경은 꽉 채워 자르고 글귀는 높이 70% 안으로 자동 축소(기존 `drawQuote`).
+- 검수: 시험 24개(새 `tests/channels.test.mjs`), build, 배포 Ready, DB v1.18.
+
+## 2026-10-22 v1.19 — Pixabay 사진 검색 결과가 0장이던 버그 수정 (Claude Code 윈도우, F1 검수 중 발견)
+- 원인: Pixabay가 큰·중간 이미지 주소를 `pixabay.com/get/<토큰>.jpg`로 주도록 바뀌었는데 `allowedPhotoUrl`이 `cdn.pixabay.com/photo/`만 허용 → 검색 결과 12장이 모두 걸러져 「검색 결과가 없습니다」(Pixabay 배경 기능 전체가 멈춘 상태). 실제 API 응답·내려받기(200 JPEG)로 확인.
+- 수정: `src/lib/studio/validation.ts`에 `pixabay.com` + `/get/` 경로 허용 추가(사칭 호스트·포트·인증정보 거부 검사는 그대로, `tests/studio.test.mjs`에 허용·거부 사례 추가). 배포 `emotion-writer-on94quxjg` Ready, DB v1.19.
+- 크롬(시험 회원, AI 비용 0): 글귀 직접 입력 → Pixabay 검색 12장 → 배경 선택 → 완성 → 「인스타 세로 4:5」·「가로 1.91:1」 결과 1080×1350·1200×628 JPG 생성 확인(다운로드는 페이지 안에서 가로채 실제 저장 안 함).

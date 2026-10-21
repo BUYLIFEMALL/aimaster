@@ -98,6 +98,8 @@ export function allowedPhotoUrl(value: unknown): URL {
     !(
       (url.hostname === "cdn.pixabay.com" &&
         url.pathname.startsWith("/photo/")) ||
+      // v1.18: Pixabay가 큰·중간 이미지를 pixabay.com/get/<토큰>.jpg 형식으로 주도록 바뀜(2026-10-22 확인) — 예전 형식만 허용해 검색 결과가 모두 걸러지던 문제 수정
+      (url.hostname === "pixabay.com" && url.pathname.startsWith("/get/")) ||
       (url.hostname === "images.pexels.com" &&
         url.pathname.startsWith("/photos/"))
     ) ||

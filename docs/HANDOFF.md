@@ -157,6 +157,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 F1: 감성 글귀 v1.18 「다른 크기로 받기」 + v1.19 Pixabay 검색 0건 버그 수정
+- F1: 인스타 1:1·4:5, 스토리 9:16, 3:4, 가로 1.91:1로 AI 재호출 없이 다시 배치해 JPG 저장. 검수 중 **Pixabay 주소 형식 변경(`pixabay.com/get/`)으로 사진 검색이 늘 0장이던 버그**를 발견해 허용 목록 수정(v1.19). 크롬에서 검색 12장·결과 크기 확인. 교훈 `docs/ERROR_LESSONS.md`.
+- 비용: Vercel 빌드 2회, AI 0원. 다음: F2 바나나 「내 작업 레시피」·8컷 컷별 다시 만들기.
+- 프로그램: https://emotion-writer.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L6: 감성 글귀 → INSTA 포스팅 새 글 (감성 글귀 v1.17 · INSTA v1.47)
 - 감성 글귀 「인스타에 올리기」(1:1만 — 피드 비율): 완성 JPG를 INSTA 직접 첨부와 같은 `insta-post-images/<본인>/`에 올리고 INSTA 새 글(`?imageUrl=&caption=`)로. INSTA는 본인 폴더 이미지만 첫 슬라이드로 받음. 처음 계획한 임시 버킷 대신 기존 위치를 써 **DB 변경 없음**. 배포 2건 Ready·DB 반영, 크롬 확인·시험 그림 삭제.
 - 비용: Vercel 빌드 2회, AI 0원. **L 단계(L2~L6) 완료** — 남은 L1(받기 검사 공용화 검토)·이미지 스튜디오 쪽 연결(다른 세션 뒤). 다음: F 단계.

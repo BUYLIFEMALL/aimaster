@@ -91,6 +91,17 @@ export async function renderQuote(
   ratio: Ratio,
   design: Design,
 ) {
+  return renderQuoteAt(canvas, imageUrl, quote, ratioSize(ratio), design);
+}
+
+/** 크기를 직접 받아 그린다(v1.18 「다른 크기로 받기」 — renderQuote도 이 함수를 쓴다) */
+export async function renderQuoteAt(
+  canvas: HTMLCanvasElement,
+  imageUrl: string,
+  quote: string,
+  size: { width: number; height: number },
+  design: Design,
+) {
   if (!FONTS.some((f) => f.id === design.font))
     throw new Error("지원하는 글꼴을 선택해 주세요.");
   // Fonts ship with this app: wait for the exact Korean face before drawing or exporting.
@@ -108,7 +119,6 @@ export async function renderQuote(
     img.onerror = () => reject(new Error("배경 이미지를 불러오지 못했습니다."));
     img.src = imageUrl;
   });
-  const size = ratioSize(ratio);
   canvas.width = size.width;
   canvas.height = size.height;
   const ctx = canvas.getContext("2d");

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { renderQuote, canvasBlob } from "@/lib/studio/render";
+import { renderQuote, renderQuoteAt, canvasBlob } from "@/lib/studio/render";
+import { CHANNEL_SIZES, channelFileName, type ChannelSize } from "@/lib/studio/channels";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
 import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -82,6 +83,29 @@ export function QuoteCanvas({
       setNotice(
         e instanceof Error ? e.message : "이미지를 저장하지 못했습니다.",
       );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // v1.18: 같은 글귀·배경·디자인을 다른 채널 크기로 다시 그려 JPG로 받는다(AI 재호출 없음)
+  async function downloadChannel(c: ChannelSize) {
+    if (!ready || busy || saving) return;
+    setSaving(true);
+    setNotice("");
+    try {
+      const draft = document.createElement("canvas");
+      await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, design);
+      const blob = await canvasBlob(draft, "jpeg");
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = channelFileName(c);
+      anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setNotice(`${c.label}(${c.width}×${c.height}) 크기로 다시 배치해 저장했습니다.`);
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "다른 크기로 만들지 못했습니다.");
     } finally {
       setSaving(false);
     }
@@ -192,6 +216,26 @@ export function QuoteCanvas({
       </div>
       {!instaRatioOk(ratio) && ready && (
         <p className="status-note centered">인스타에 올리려면 비율을 1:1로 바꿔 주세요(인스타 피드는 9:16·3:4 세로 비율을 받지 않습니다).</p>
+      )}
+
+      {ready && (
+        <div className="mt-3 space-y-2">
+          <p className="text-xs font-semibold text-slate-400 text-center">📐 다른 크기로 받기 — 같은 글귀를 채널 규격에 맞게 다시 배치(AI 비용 없음)</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {CHANNEL_SIZES.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                className="text-xs px-3 py-1.5"
+                disabled={busy || saving}
+                onClick={() => void downloadChannel(c)}
+                title={`${c.width}×${c.height} JPG로 저장`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {notice && (
