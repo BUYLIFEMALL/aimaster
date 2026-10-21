@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --import ./tests/fakes/register.mjs --test tests/double-post.test.mjs"
+    "test": "node --import ./tests/fakes/register.mjs --test tests/double-post.test.mjs tests/inbox-actions.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
