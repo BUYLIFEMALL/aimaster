@@ -192,4 +192,4 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 ## 2026-10-21 v1.23 — 배경 그림으로 유튜브 썸네일 (Claude Code 윈도우)
 - 플랜: [`docs/PLAN_20261021_V1_23_THUMBNAIL.md`](docs/PLAN_20261021_V1_23_THUMBNAIL.md). 주인님 선택: 「YOUTUBE 썸네일 자동화와 연결」을 플레이리스트 안에서 바로(AI 비용 없음).
 - 유튜브 카드(가로 영상·배경이 그림일 때): 배경을 1280×720 JPG(2MB 이하, 가운데 잘라 맞춤)로 만들어 미리보기·「⬇ 썸네일 내려받기」, 「🖼 올릴 때 배경 그림을 썸네일로 지정」(기본 켬). 업로드가 끝나면 `/api/youtube/thumbnail`(같은 출처·`requireAccess`·`decodeImage` 2MB) → 이 앱 전용 `src/lib/youtube/thumbnail.ts`(`thumbnails.set`, 공용 기준 코드는 고치지 않음). 403이면 「맞춤 썸네일 사용 인증(전화 인증) 필요 — 내려받아 스튜디오에서 넣기」 안내. 세로(쇼츠)는 지정하지 않음.
-- 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.23. 크롬(시험 계정): `/api/youtube/thumbnail` 409(유튜브 미연결 — 다른 회원 채널로 대신하지 않음)·잘못된 영상 번호 400. **관리자 채널에서 실제 썸네일 지정은 주인님 관리자 로그인 뒤 확인 예정**(앞서 올린 비공개 시험 영상 mPwlsDllUgk 대상). 비용: Vercel 빌드 1회.
+- 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.23. 크롬(시험 계정): `/api/youtube/thumbnail` 409(유튜브 미연결 — 다른 회원 채널로 대신하지 않음)·잘못된 영상 번호 400. 관리자 계정(주인님 로그인): 카드에 썸네일 미리보기 1280×720·38KB·지정 체크(기본 켬)·내려받기 표시, 같은 그림으로 비공개 시험 영상 mPwlsDllUgk에 `/api/youtube/thumbnail` → **200 ok**(실제 지정 확인, 유튜브 한도 50단위·비용 없음). 비용: Vercel 빌드 1회.

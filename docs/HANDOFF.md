@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.23: 배경 그림(앨범 커버) → 유튜브 썸네일
+
+주인님 선택 「플레이리스트 안에서 바로」. 유튜브 카드에 배경 그림 1280×720 JPG 미리보기·내려받기·「올릴 때 썸네일로 지정」(기본 켬), 업로드 뒤 `/api/youtube/thumbnail`(이 앱 전용 `lib/youtube/thumbnail.ts`, 공용 기준 코드 변경 없음). 크롬: 시험 계정 409(대신 처리 없음)·잘못된 번호 400, 관리자 계정 미리보기 표시 + 비공개 시험 영상 mPwlsDllUgk에 실제 지정 200 ok. 배포 Ready, DB v1.23, 커밋 `43049b51`. 비용: Vercel 빌드 1회. 남은 일: 음악 기획 목록 여러 기획 곡 넘기기(다른 세션 v1.29 작업 끝난 뒤).
+
+https://playlist-channel-studio.buylife.xyz/video
+
 ## 2026-10-21 Claude Code(윈도우) — 음악(SUNO) v1.29 구간 다시 만들기
 
 곡 카드 「✂️ 구간 다시 만들기」(sunoapi.org `/generate/replace-section`, 10초 이상·곡 길이 절반 이하, 재생 위치로 시작·끝 찍기, 구간 가사·전체 가사, 페르소나 선택). 결과는 새 트랙 「✂️ 구간 수정본(0:10~0:30)」으로 쌓이고 원곡 보존, 커버는 원곡 것 재사용(이미지 비용 0). DB(승인) `music_tracks` 칸 3개, 운영 ref `esgxyikcnnvmlhygjkth`. 실제 호출 1회(승인) 성공 — 0:10~0:30, 181초 2곡, Suno 기록에 구간·바뀐 가사 전달 확인, 크롬 시험 계정 재생 확인. 배포 Ready, DB v1.29. 비용: Vercel 빌드 1회, Suno 구간 다시 만들기 1회. 남음: 곡 연장 V6 실패(v1.25) → 다음 작업, 이후 Suno 커버·뮤직비디오 → 보컬/반주 추가·매시업. 상세 `music/AGENTS.md` v1.29, 플랜 `music/docs/PLAN_20261021_REPLACE_SECTION.md`.
