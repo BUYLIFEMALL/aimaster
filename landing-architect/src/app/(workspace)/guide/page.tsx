@@ -308,7 +308,7 @@ export default function GuidePage() {
           <details style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px 16px" }}>
             <summary style={{ fontWeight: 600, color: "#0f172a", cursor: "pointer" }}>Q. 기획안 화면을 직접 끌어다 놓으며 다듬고 싶어요.</summary>
             <p style={{ margin: "10px 0 0", fontSize: "13px", color: "#475569", lineHeight: 1.6 }}>
-              기획안 위쪽의 <b>[🧩 UI Canvas로 보내 다듬기]</b>를 누르면 헤드라인·설명·CTA 버튼·섹션이 <b>UI Canvas 자동화</b>의 새 프로젝트로 배치되어 새 창으로 열립니다. AI를 쓰지 않아 키 사용량이 들지 않으며, UI Canvas 이용 권한이 있어야 합니다. 다듬은 화면은 UI Canvas에서 이미지·React 코드로 내보낼 수 있습니다.
+              기획안 위쪽의 <b>[🧩 UI Canvas로 보내 다듬기]</b>를 누르면 헤드라인·설명·CTA 버튼·섹션이 <b>UI Canvas 자동화</b>의 새 프로젝트로 배치되어 새 창으로 열립니다. 기획안의 이미지 에셋은 임시 사진으로 함께 배치되고(오른쪽 [속성]에서 실제 이미지로 바꿀 수 있습니다), 내용이 있는 서브 페이지는 각각 별도 프로젝트로 만들어집니다. AI를 쓰지 않아 키 사용량이 들지 않으며, UI Canvas 이용 권한이 있어야 합니다. 다듬은 화면은 UI Canvas에서 이미지·React 코드로 내보낼 수 있습니다.
             </p>
           </details>
 

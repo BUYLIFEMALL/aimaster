@@ -3,7 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { checkProgramAccess } from "@/lib/programAccess";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sanitizeStoredPlan } from "@/lib/lpa/plan";
-import { planToCanvasDoc } from "@/lib/lpa/toCanvas";
+import { planToCanvasDoc, sendableSubPages, subPageToCanvasDoc } from "@/lib/lpa/toCanvas";
 
 // 「🧩 UI Canvas로 보내 다듬기」(2026-10-21 v1.11): 기획안을 UI Canvas 자동화의 새 프로젝트로 만든다.
 // 프로그램끼리 서로 호출하지 않고 공용 DB 표 ui_canvas_projects에 회원 본인 user_id로 한 행만 추가한다(서비스 롤 → user_id 직접 지정).
@@ -29,18 +29,30 @@ export async function POST(request: NextRequest) {
   if (!canvasAccess.allowed) {
     return NextResponse.json({ error: "UI Canvas 자동화 이용 권한이 없습니다. 메인 사이트에서 이용 권한을 확인해 주세요." }, { status: 403, headers: NO_STORE });
   }
+  // v1.12: 메인 페이지 + 내용이 있는 서브 페이지(각각 별도 프로젝트 — UI Canvas는 프로젝트당 캔버스 1장)
+  const base = (typeof body?.name === "string" && body.name.trim() ? body.name.trim() : plan.projectInfo.topic).replace(/\s+/g, " ");
+  const rows = [
+    { name: `${base} (랜딩 기획)`.slice(0, 80), doc: planToCanvasDoc(plan) },
+    ...sendableSubPages(plan).map((p) => ({ name: `${base} (랜딩 기획) 서브: ${p.title}`.slice(0, 80), doc: subPageToCanvasDoc(plan, p) })),
+  ];
+
   const { count } = await admin.from("ui_canvas_projects").select("id", { count: "exact", head: true }).eq("user_id", access.user.id);
-  if ((count ?? 0) >= MAX_CANVAS_PROJECTS) {
-    return NextResponse.json({ error: "UI Canvas 프로젝트가 100개라 더 만들 수 없습니다. UI Canvas에서 쓰지 않는 프로젝트를 지운 뒤 다시 보내 주세요." }, { status: 409, headers: NO_STORE });
+  const room = MAX_CANVAS_PROJECTS - (count ?? 0);
+  if (room < rows.length) {
+    return NextResponse.json(
+      { error: `UI Canvas 프로젝트는 100개까지라 ${rows.length}개(메인 1 + 서브 ${rows.length - 1})를 더 만들 수 없습니다(남은 자리 ${Math.max(0, room)}개). UI Canvas에서 쓰지 않는 프로젝트를 지운 뒤 다시 보내 주세요.` },
+      { status: 409, headers: NO_STORE },
+    );
   }
 
-  const doc = planToCanvasDoc(plan);
-  const name = (typeof body?.name === "string" && body.name.trim() ? `${body.name.trim()} (랜딩 기획)` : `${plan.projectInfo.topic} (랜딩 기획)`).replace(/\s+/g, " ").slice(0, 80);
   const { data, error } = await admin
     .from("ui_canvas_projects")
-    .insert({ user_id: access.user.id, name, doc, component_count: doc.components.length })
-    .select("id")
-    .single();
-  if (error || !data) return NextResponse.json({ error: "UI Canvas 프로젝트를 만들지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 500, headers: NO_STORE });
-  return NextResponse.json({ url: `${UI_CANVAS_URL}/editor/${data.id}`, components: doc.components.length }, { status: 201, headers: NO_STORE });
+    .insert(rows.map((r) => ({ user_id: access.user.id, name: r.name, doc: r.doc, component_count: r.doc.components.length })))
+    .select("id, name");
+  if (error || !data?.length) return NextResponse.json({ error: "UI Canvas 프로젝트를 만들지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 500, headers: NO_STORE });
+  const main = data.find((d) => d.name === rows[0].name) ?? data[0];
+  return NextResponse.json(
+    { url: `${UI_CANVAS_URL}/editor/${main.id}`, created: data.length, subPages: data.length - 1, components: rows[0].doc.components.length },
+    { status: 201, headers: NO_STORE },
+  );
 }
