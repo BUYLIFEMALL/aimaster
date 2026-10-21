@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { storageKey } from "@/lib/studio/storage";
+// 옛 앱이 브라우저에 기획을 저장하던 키(옛 src/lib/studio/storage.ts와 같은 형식, 2026-10-21 코드 정리로 이 파일로 옮김).
+const storageKey = (userId: string) => `aimaster:suno-music-studio:v1:${userId}`;
 
 // 2026-10-21 음악 병합 M1: 「Suno 음악기획 자동화」는 음악(SUNO)자동화의 「정밀 기획 스튜디오」로 옮겼다.
 // 옛 앱은 기획을 이 브라우저(localStorage)에만 저장했으므로, 회원이 그 자료를 JSON으로 받아 새 화면의
