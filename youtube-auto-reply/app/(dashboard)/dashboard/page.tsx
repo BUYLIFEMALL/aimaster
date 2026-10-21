@@ -62,7 +62,7 @@ export default async function DashboardPage() {
         .eq("is_hidden", false),
       supabase
         .from("ytreply_comments")
-        .select("id, author_display_name, comment_text, fetched_at")
+        .select("id, video_id, author_display_name, comment_text, fetched_at")
         .eq("user_id", user.id)
         .eq("status", "pending_review")
         .order("fetched_at", { ascending: false })
@@ -76,6 +76,12 @@ export default async function DashboardPage() {
   const modelLabel = REPLY_MODEL_OPTIONS.find((o) => o.value === replyModel)?.shortLabel ?? replyModel;
   const intervalLabel = MONITORING_INTERVAL_OPTIONS.find((o) => o.value === settings?.monitoring_interval_minutes)?.label;
   const pending = pendingRes.count ?? 0;
+  // v1.22: 검토 대기 댓글이 달린 영상 썸네일(댓글 검토 화면처럼 빈 목록이면 조회 생략, 본인 영상만)
+  const recentVideoIds = Array.from(new Set((recentRes.data ?? []).map((c) => c.video_id)));
+  const { data: recentVideos } = recentVideoIds.length > 0
+    ? await supabase.from("ytreply_videos").select("id, thumbnail_url").eq("user_id", user.id).in("id", recentVideoIds)
+    : { data: [] };
+  const thumbByVideoId = new Map((recentVideos ?? []).map((v) => [v.id, v.thumbnail_url]));
 
   const connections = [
     {
@@ -158,18 +164,27 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <ul className="space-y-4">
-              {(recentRes.data ?? []).map((c) => (
-                <li key={c.id} className="flex gap-3">
-                  <Avatar name={c.author_display_name} size={32} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs">
-                      <span className="font-semibold text-yt-text">{c.author_display_name ?? "익명"}</span>
-                      <span className="ml-2 text-yt-muted">{formatDateTimeKo(c.fetched_at)}</span>
-                    </p>
-                    <p className="mt-0.5 line-clamp-2 break-words text-sm text-yt-text">{c.comment_text}</p>
-                  </div>
-                </li>
-              ))}
+              {(recentRes.data ?? []).map((c) => {
+                const thumb = thumbByVideoId.get(c.video_id);
+                return (
+                  <li key={c.id}>
+                    <Link href={`/comments#video-${c.video_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-yt-raised">
+                      <Avatar name={c.author_display_name} size={32} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs">
+                          <span className="font-semibold text-yt-text">{c.author_display_name ?? "익명"}</span>
+                          <span className="ml-2 text-yt-muted">{formatDateTimeKo(c.fetched_at)}</span>
+                        </p>
+                        <p className="mt-0.5 line-clamp-2 break-words text-sm text-yt-text">{c.comment_text}</p>
+                      </div>
+                      {thumb && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={thumb} alt="영상 썸네일" className="h-10 w-16 shrink-0 rounded-md object-cover" />
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

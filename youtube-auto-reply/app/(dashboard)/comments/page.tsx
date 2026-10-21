@@ -80,7 +80,8 @@ export default async function CommentsPage() {
         ) : (
           <div className="space-y-6">
             {Array.from(groupedByVideo.entries()).map(([videoId, videoComments]) => (
-              <section key={videoId} className="yt-card py-3">
+              // v1.22: 대시보드 「검토를 기다리는 댓글」에서 #video-<id>로 바로 이동(고정 머리말에 가리지 않게 scroll-mt)
+              <section key={videoId} id={`video-${videoId}`} className="yt-card scroll-mt-80 py-3">
                 <h2 className="flex items-center gap-2 border-b border-yt-border pb-3 text-sm font-bold text-yt-text">
                   <span className="rounded bg-yt-red px-1.5 py-0.5 text-[10px] text-white">▶</span>
                   <span className="truncate">{titleByVideoId.get(videoId) ?? "(삭제된 영상)"}</span>
