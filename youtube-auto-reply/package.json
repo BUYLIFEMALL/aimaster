@@ -10,7 +10,8 @@
     "test:permissions": "node tests/permissions.cjs",
     "test:runtime": "node tests/runtime.mjs",
     "test:fixtures": "node tests/fixtures.mjs",
-    "build:verify": "node tests/local.mjs build"
+    "build:verify": "node tests/local.mjs build",
+    "test:reply-post": "npm --prefix ../comment-inbox test"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

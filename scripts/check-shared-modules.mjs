@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { spawnSync } from "node:child_process";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")), "..");
 
@@ -441,8 +442,13 @@ const MODULES = [
 ];
 
 const sync = process.argv.includes("--sync");
+const forceTest = process.argv.includes("--test");
 const hash = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex").slice(0, 12);
 let bad = 0;
+// 2026-10-21: 사본이 있는 폴더 중 자동 시험이 있는 곳 — 그 사본이 동기화되면(또는 --test) 시험을 돌린다.
+// comment-inbox: 댓글·DM 게시 묶음(이중 게시 방지) 시험 26개(가짜 DB·플랫폼, tests/double-post.test.mjs).
+const COPY_TEST_DIRS = ["comment-inbox"];
+const testDirsToRun = new Set(forceTest ? COPY_TEST_DIRS : []);
 
 for (const m of MODULES) {
   const src = path.join(root, m.source);
@@ -461,6 +467,8 @@ for (const m of MODULES) {
       fs.mkdirSync(path.dirname(dst), { recursive: true });
       fs.copyFileSync(src, dst);
       console.log(`SYNCED   ${m.id}: ${c} ← ${m.source}`);
+      const testDir = COPY_TEST_DIRS.find((d) => c.startsWith(`${d}/lib/`));
+      if (testDir) testDirsToRun.add(testDir);
     } else {
       console.log(`DIFF     ${m.id}: ${c} (기준 ${m.source} 과 다름 — 기준을 먼저 고치고 --sync)`);
       bad++;
@@ -566,8 +574,24 @@ for (const dir of programDirs) {
 }
 console.log(`이미지 호출 ${timeChecked}곳 시간 검사(직접 확인 ${timeUnknown}곳)`);
 
+// 동기화된 사본 폴더의 자동 시험(게시 묶음을 고치면 이중 게시 방지 시험이 함께 돈다)
+for (const dir of testDirsToRun) {
+  const r = spawnSync("npm", ["test"], { cwd: path.join(root, dir), shell: true, encoding: "utf8" });
+  const out = `${r.stdout ?? ""}${r.stderr ?? ""}`;
+  const pass = out.match(/ℹ pass (\d+)/)?.[1] ?? "?";
+  const fail = out.match(/ℹ fail (\d+)/)?.[1] ?? "?";
+  if (r.status === 0) {
+    console.log(`OK       시험: ${dir} npm test (통과 ${pass}, 실패 ${fail})`);
+  } else {
+    console.log(`FAIL     시험: ${dir} npm test (통과 ${pass}, 실패 ${fail}) — 실패한 항목:`);
+    const failed = [...new Set(out.split("\n").filter((l) => l.startsWith("✖") && !l.includes("failing tests")).map((l) => l.replace(/\s*\([\d.]+ms\)$/, "")))];
+    for (const line of failed.slice(0, 10)) console.log(`         ${line}`);
+    bad++;
+  }
+}
+
 if (bad) {
-  console.log(`\n${bad}건 문제(사본 불일치·시간 초과)`);
+  console.log(`\n${bad}건 문제(사본 불일치·시간 초과·시험 실패)`);
   process.exit(1);
 }
 console.log("\n모든 사본이 기준과 같고, 이미지 호출 시간이 300초 안입니다.");
