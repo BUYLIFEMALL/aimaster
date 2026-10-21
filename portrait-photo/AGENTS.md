@@ -182,3 +182,8 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-22 v1.31 — 서버 보관함 매일 정리 cron + 보관 기간 30일 상한 (Claude Code 윈도우, 이미지 재비교 W7)
+- **보관 기간(최상위 규칙 30일)**: 선택지 `[0(직접 삭제할 때까지), 7, 30, 90]` → **`[7, 30]`**, 새 순수 파일 `src/lib/retention.ts`(`normalizeRetention`·`expiresAtFor` 30일 상한·`effectiveExpiry`·`createdCutoff`, `saved.ts`가 다시 내보냄). 옛 무기한·90일 사진도 「만든 날 + 30일」에 만료(정리 조건 `expires_at < 지금 OR created_at < 30일 전` — `expiredFilter`), 목록에도 실제 만료일 표시. 화면 선택지·브라우저에 저장된 옛 0·90 값은 30일로, 목록 문구 「직접 삭제할 때까지 보관」 → 「30일 안에 자동 삭제」.
+- **매일 정리**: 새 `src/app/api/cron/cleanup/route.ts`(모든 회원의 만료 사진을 저장소·표에서 삭제, 200개씩 최대 10회), `vercel.json` cron `0 18 * * *`(03:00 KST), `CRON_SECRET` Production 등록. 예전엔 그 회원이 목록을 열거나 저장할 때만 지워져 접속하지 않는 회원 사진이 남았음(목록·저장 때 정리도 같은 조건으로 그대로 둠).
+- 검수: tsc 0, 시험 35개(새 `tests/retention.test.mjs` 4개), build, 배포 `portrait-photo-e4p7xow2z` Ready, DB v1.31. 배포 전 운영 조회: 서버 보관 사진 0장(지울 것 없음)·새 `.or()` 조건 오류 없음. 정리 작업 비밀값 없이 401·비밀값으로 `{"ok":true,"rows":0}`. 크롬(시험 회원) v1.31, 서버 보관을 잠깐 켜서 선택지 「7일·30일」만 확인 후 다시 끔.

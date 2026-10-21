@@ -135,6 +135,11 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W7: AI 인물사진 v1.31(서버 보관함 매일 정리 + 보관 기간 30일 상한) · W 단계 완료
+- 보관 기간 선택지 무기한·90일 제거(7·30일), 옛 사진도 만든 날 + 30일로 만료, 매일 03시 전체 회원 정리 cron·`CRON_SECRET` 등록. 배포 `portrait-photo-e4p7xow2z`·DB v1.31, 시험 35개, 정리 401/200, 크롬 선택지 확인. 상세 `portrait-photo/AGENTS.md` v1.31.
+- **W1~W7 모두 완료**(이미지 스튜디오 v1.25·웹툰 v1.27·스토리보드 v1.10·패션 v1.11·4컷 v1.24·바나나 v1.15·인물사진 v1.31). 다음: L 단계(프로그램 사이 연결) — 보고서 §8-4 L1~L6.
+- 비용: Vercel 빌드 1회, AI 0원.
+- 프로그램: https://portrait-photo.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W6: AI 바나나 캔버스 v1.15(이미지 모델 목록을 기준에서 가져오기)
 - 모델 이름을 공용 사본 `nanoBananaModels.ts`(기준 ai-image-studio)에서 가져오게 `src/lib/imageModelChain.ts` 추가. 빠른 등급이 실패하면 4배 비싼 Pro 대신 nano-banana-2.1로 넘어가게. 프롬프트·화면 그대로. 배포 `banana-canvas-n47a6tz2m`·DB v1.15, 시험 19개. 상세 `banana-canvas/AGENTS.md` v1.15.
 - 비용: Vercel 빌드 1회, AI 0원. 다음: W7 AI 인물사진 서버 보관함 정리 cron. 보고서 §8-7.

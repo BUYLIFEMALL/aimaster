@@ -160,7 +160,7 @@ export function Studio({ userId }: { userId: string }) {
     try {
       setServerSave(localStorage.getItem("portrait-photo:server-save") === "1");
       const r = Number(localStorage.getItem("portrait-photo:retention"));
-      if ([0, 7, 30, 90].includes(r) && localStorage.getItem("portrait-photo:retention") !== null) setRetention(r);
+      if ([7, 30].includes(r) && localStorage.getItem("portrait-photo:retention") !== null) setRetention(r); // v1.31: 옛 0·90 값은 기본 30일
     } catch { /* 무시 */ }
   }, []);
   function changeRetention(days: number) {
@@ -689,7 +689,7 @@ export function Studio({ userId }: { userId: string }) {
         {serverSave && (
           <label className="slider st-retention"><span>보관 기간</span>
             <select value={retention} onChange={(e) => changeRetention(Number(e.target.value))} aria-label="서버 보관 기간">
-              <option value={7}>7일 후 자동 삭제</option><option value={30}>30일 후 자동 삭제</option><option value={90}>90일 후 자동 삭제</option><option value={0}>직접 삭제할 때까지</option>
+              <option value={7}>7일 후 자동 삭제</option><option value={30}>30일 후 자동 삭제</option>
             </select><b />
           </label>
         )}

@@ -9,28 +9,28 @@ export const MAX_SAVED = 30;
 /** 업로드 base64 한도(클라이언트가 JPEG ≤2048px로 줄여 보낸다). Vercel 본문 4.5MB 이하 */
 export const MAX_SAVED_B64 = 3_000_000;
 export const SIGNED_URL_SECONDS = 3600;
-/** 보관 기간(일). 0 = 직접 삭제할 때까지 */
-export const RETENTION_DAYS = [0, 7, 30, 90] as const;
-export function normalizeRetention(v: unknown): number {
-  return typeof v === "number" && (RETENTION_DAYS as readonly number[]).includes(v) ? v : 30;
-}
-export function expiresAtFor(days: number, now: Date = new Date()): string | null {
-  return days > 0 ? new Date(now.getTime() + days * 86_400_000).toISOString() : null;
-}
+/** 보관 기간 계산은 retention.ts(v1.31 — 최대 30일, 시험 가능한 순수 함수) */
+import { createdCutoff, effectiveExpiry, expiresAtFor, normalizeRetention } from "./retention";
+export { RETENTION_DAYS, normalizeRetention, expiresAtFor } from "./retention";
 
 export interface SavedRow { id: string; path: string; purpose_label: string; aspect: string; model: string; bytes: number; created_at: string; expires_at: string | null }
 export interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string; expiresAt: string | null }
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
-/** 보관 기간이 지난 사진을 저장소와 목록에서 지운다(목록·저장 때마다 실행) */
+/** 만료 조건(v1.31): 저장한 만료일이 지났거나, 만든 지 30일이 지남(옛 무기한·90일 포함) */
+export function expiredFilter(now: Date = new Date()): string {
+  return `expires_at.lt.${now.toISOString()},created_at.lt.${createdCutoff(now)}`;
+}
+
+/** 보관 기간이 지난 사진을 저장소와 목록에서 지운다(목록·저장 때 그 회원 것, 매일 정리 작업은 전체 — api/cron/cleanup) */
 export async function purgeExpired(userId: string): Promise<number> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("portrait_photo_saved")
     .select("id, path")
     .eq("user_id", userId)
-    .lt("expires_at", new Date().toISOString())
+    .or(expiredFilter())
     .limit(200);
   const rows = (data ?? []) as { id: string; path: string }[];
   if (rows.length === 0) return 0;
@@ -53,7 +53,7 @@ export async function listSaved(userId: string): Promise<SavedItem[]> {
   const { data: signed } = await admin.storage.from(BUCKET).createSignedUrls(rows.map((r) => r.path), SIGNED_URL_SECONDS);
   const urlByPath = new Map<string, string | null>((signed ?? []).map((s) => [s.path ?? "", s.signedUrl ?? null]));
   return rows.map((r) => ({
-    id: r.id, url: urlByPath.get(r.path) ?? null, purposeLabel: r.purpose_label, aspect: r.aspect, model: r.model, bytes: r.bytes, createdAt: r.created_at, expiresAt: r.expires_at,
+    id: r.id, url: urlByPath.get(r.path) ?? null, purposeLabel: r.purpose_label, aspect: r.aspect, model: r.model, bytes: r.bytes, createdAt: r.created_at, expiresAt: effectiveExpiry(r.created_at, r.expires_at),
   }));
 }
 
