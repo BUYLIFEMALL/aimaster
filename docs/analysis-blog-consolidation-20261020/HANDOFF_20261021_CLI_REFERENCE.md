@@ -63,3 +63,10 @@ https://naver-blog-agent.buylife.xyz
 https://naver-blog-seo-studio.buylife.xyz
 
 https://tistory-auto-blog.buylife.xyz
+
+
+## SEO 자동 포스팅 후속 종료 (2026-10-21)
+
+SEO v1.83 운영 완료. [프로그램별 최종 인수인계/검수 범위](../../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md). 코드 a2fe43f9·Ready·DB/확장/ZIP 일치. 지정 회원 실제 비공개 텍스트 최종 발행 1건·실제 URL/시각 DB·결과 재확인·웹 기록/재열기, 별도 웹 전송/확장 미리보기·안내/복사/516px 완료. 이미지 포함 실제 발행·전체공개·예약 미시험, AI 0. 다음은 티스토리 자동 발행/URL 기록을 끝낸 뒤 에이전트 실제 발행 검수. 기존 비교 당시 SEO/티스토리 수동 마지막 단계 기록은 당시 이력이고 SEO는 이 항목이 최신이다. BLC-07~15와 역할/권한 병합은 잔여 유지.
+
+https://naver-blog-seo-studio.buylife.xyz

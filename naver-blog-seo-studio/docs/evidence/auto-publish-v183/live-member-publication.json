@@ -39,9 +39,35 @@
   "schemaChanges": 0,
   "existingPreparedTabs": "not selected for automatic entry/final publishing",
   "temporaryDiagnostics": "Removed before archive; adapter empty command read-only verified on own new editor. Reload failure recovered by loading same own folder; token connection preserved.",
-  "remaining": [
-    "Production v1.83 web handoff and history/reopen verification",
-    "manual guide/copy/narrow viewport verification",
-    "release version match and handoff/commit"
-  ]
+  "remaining": [],
+  "completedAt": "2026-10-21T09:54:13.156666+00:00",
+  "postDeployment": {
+    "webVersion": "v1.83",
+    "historyPublishedAndSameUrl": true,
+    "publishedDraftReopenedWithoutReactError": true,
+    "webTextHandoff": {
+      "draftId": "c5b26fcd-40f1-4641-a717-41c60b1b3219",
+      "handoffAt": "2026-10-21T09:49:40.582Z",
+      "ownerUiSaveAndHandoff": true,
+      "extensionLibraryAndWholePreview": true,
+      "additionalFinalPublication": false
+    },
+    "guide": {
+      "stepsInteracted": [
+        2,
+        3,
+        4
+      ],
+      "step4ContentVerified": true,
+      "copyNoticeAndOwnClipboardVerified": true,
+      "width": 516,
+      "height": 1100,
+      "restored": {
+        "width": 1433,
+        "height": 1399,
+        "topmost": false
+      }
+    },
+    "release": "Ready/official alias/DB/installed/manifest/live ZIP v1.83"
+  }
 }

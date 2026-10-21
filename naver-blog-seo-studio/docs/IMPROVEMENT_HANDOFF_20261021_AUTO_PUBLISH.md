@@ -2,7 +2,7 @@
 
 2026-10-21 Codex(윈도우) · AIMaster 운영 · DB ref `esgxyikcnnvmlhygjkth`.
 
-**현재: v1.83 확장의 실제 비공개 발행 1건·결과 기록 확인. 운영 v1.83 웹 배포와 전송/기록/안내 마무리 중. 아래 v1.81 표는 당시 이력이며 최신 상태는 끝의 v1.83 항목 참조.** 주인님 최신 지시 순서는 SEO→티스토리→에이전트 실제 발행 검수다. SEO 작업을 마치기 전 다른 프로그램의 구현을 시작하지 않는다.
+**현재: SEO v1.83 자동 포스팅 운영 검수 완료. 아래 v1.81 표는 당시 이력이며 최신 결과는 문서 마지막의 v1.83 종료 항목 참조.** 주인님 최신 지시 순서는 SEO→티스토리→에이전트 실제 발행 검수다. SEO 작업을 마치기 전 다른 프로그램의 구현을 시작하지 않는다.
 
 [개발 플랜](PLAN_20261021_AUTO_PUBLISH.md) · [분석/산출물 공통 레퍼런스](../../docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md) · [공통 인수인계](../../docs/analysis-blog-consolidation-20261020/HANDOFF_20261021_CLI_REFERENCE.md).
 
@@ -63,3 +63,16 @@ https://naver-blog-seo-studio.buylife.xyz
 - AI/이미지 유료 호출 0, 실제 최종 발행 총 1. DB ref `esgxyikcnnvmlhygjkth`, 스키마/RLS/환경변수 변경 없음.
 
 [실제 회원 검수 메타데이터](evidence/auto-publish-v183/live-member-publication.json) · [로컬 검사](evidence/auto-publish-v183/local-checks.json). 다음: v1.83 배포 Ready/DB 메타데이터·ZIP 일치→실제 웹 텍스트 전송·생성 기록 재열기/결과→안내/복사/좁은 화면→문서 종료.
+
+
+## v1.83 종료 — 2026-10-21 18:53 KST
+
+코드 `a2fe43f9` origin/master 푸시. 배포 `dpl_3X4mNRdiSx47iYsTpnafx64VP4Tb`, https://naver-blog-seo-studio-a4glfjyzx-buylife.vercel.app Ready·공식 buylife 별칭 확인. 그 뒤 운영 programs.version/extension_version v1.82→v1.83만 갱신. 설치 확장/manifest/운영 ZIP/DB 검사 실패 0·경고 0. [운영 증거](evidence/auto-publish-v183/production-release.json).
+
+운영 v1.83 지정 일반 회원에서 생성 기록의 실제 발행 완료/실제 URL·시각을 확인하고 발행 원고 재열기 성공. 별도 본인 합성 원고 `c5b26fcd-40f1-4641-a717-41c60b1b3219`는 실제 웹 저장→확장 전송 성공(09:49:40.582Z), 확장 목록/제목·세 문단 전체 미리보기 성공, 최종 발행은 추가하지 않았다. 앞의 실제 비공개 발행은 SQL로 준비한 별도 합성 원고이며 웹 전송까지 한 실행으로 실제 발행한 시험과 구분한다. 실제 최종 발행 총 1건, 유료 AI/이미지 호출 총 0.
+
+안내 2/3/4단계 전환·4단계 본문, 규칙 복사 알림/본인 복사 값 대조·클립보드 비움, 실제 516×1100 화면 가독성 검수. [좁은 화면](evidence/auto-publish-v183/guide-mobile.png). 브라우저는 1433×1399·항상 위 아님으로 복원. 토큰/원문/네이버 게시 화면 캡처는 저장소에 넣지 않았다.
+
+**한계와 다음 작업:** SEO 즉시 비공개 텍스트 발행과 결과 기록을 검증했다. 이미지 포함 실제 최종 발행·전체공개/예약은 미시험이며 이미지 검수는 모의 회귀와 구분한다. SEO는 이번에 예약 기능을 추가하지 않았다. 기존 회원 GET의 public/max-age=0 헤더 관찰은 별도 점검 후보이며 교차 회원 노출을 입증한 기록이 아니다. 일반적인 BLC-07~15와 역할/권한 병합은 완료하지 않았다. 다음 첫 단계는 ACTIVE_WORK 확인 후 티스토리의 최신 코드/인수인계·확장 발행/결과 경로 비교와 단일 작업 플랜이다. 그 뒤 에이전트 실제 발행 검수를 한다.
+
+https://naver-blog-seo-studio.buylife.xyz
