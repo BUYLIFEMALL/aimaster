@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { SunoUsageGuide } from "@/components/guide/SunoUsageGuide";
 import type { RemixStatus } from "@/types/database.types";
+import { withSignedStorageUrls } from "@/lib/storageSign";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,8 @@ export default async function RemixSourcesPage() {
   ]);
 
   const sourceList = (sources ?? []) as SourceRow[];
-  const remixList = (remixes ?? []) as unknown as RemixSummaryRow[];
+  // 비공개 저장소: 대표 커버 이미지를 서명 주소로(lib/storageSign.ts).
+  const remixList = await withSignedStorageUrls((remixes ?? []) as unknown as RemixSummaryRow[]);
 
   // 소스별로 리믹스 개수/최신 상태/대표 이미지를 집계한다.
   const summaryBySource = new Map<

@@ -71,6 +71,10 @@ UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), �
 
 https://ui-canvas.buylife.xyz
 
+## 2026-10-21 Claude Code(윈도우) — 음악(SUNO)자동화 v1.20: music-audio 비공개 + 서명 주소 / 옛 Suno 음악기획 코드 삭제
+
+① 옛 `suno-music-studio` 코드 삭제(백업 `D:\Antigravity\AIMaster_backupetired-programs\suno-music-studio\` 141개 + 태그 `backup/suno-music-studio-20261021`, 안내·로그인·410만 남김, 재배포 안 함). ② `music-audio` 저장소 `public=false`, 화면은 1시간 서명 주소·Suno 리믹스 원곡은 24시간(`music/lib/storageSign.ts`). 옛 공개 링크는 400. **다른 프로그램이 음악(SUNO) 곡을 쓰려면 서버에서 서명 주소를 만들어야 함**(lyric-video-studio 2차 연결 담당 세션 참고). 다음: 기존 곡 30일 삭제 → V6 추가 기능.
+
 ## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1: Suno V6 실제 생성 검수 완료
 
 시험 계정 본인 sunoapi.org 키로 정밀 기획 「Suno로 생성」(V6) 1회: 기획 가사 그대로 전송, 웹훅 잠금 뒤 뒤처리 저장, 곡 2개(181초·177초)·커버·재생 확인. M1 전체 완료(연장·MR 실호출만 미검수). 다음 순서(주인님 지시): 옛 앱 코드 삭제(백업·태그) → music-audio 서명 주소 → 기존 곡 30일 삭제 → V6 추가 기능. 상세 `music/AGENTS.md`.

@@ -6,6 +6,7 @@ import { GenerateTracksPanel } from "@/components/plannings/GenerateTracksPanel"
 import { TrackCard, type TrackCardData } from "@/components/plannings/TrackCard";
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { PlanningHeaderCard, type PlanningHeaderData } from "@/components/plannings/PlanningHeaderCard";
+import { withSignedStorageUrls } from "@/lib/storageSign";
 
 export const dynamic = "force-dynamic";
 // 최대 10곡 대량생성 시 GPT 스타일/가사 호출이 순차로 여러 번 도는 generateTracksAction이
@@ -38,7 +39,8 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  const trackList = (tracks ?? []) as unknown as TrackCardData[];
+  // music-audio는 비공개 저장소라 화면에 넘기기 전에 음원·커버·MR·WAV 주소를 1시간짜리 서명 주소로 바꾼다(lib/storageSign.ts).
+  const trackList = await withSignedStorageUrls((tracks ?? []) as unknown as TrackCardData[]);
   const hasGeneratingTrack =
     trackList.some((t) => t.status === "generating") ||
     trackList.some((t) =>

@@ -4,6 +4,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { RemixCard, type RemixCardData } from "@/components/remix/RemixCard";
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
+import { withSignedStorageUrls } from "@/lib/storageSign";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,8 @@ export default async function RemixSourceDetailPage({ params }: PageProps) {
     .eq("source_id", source.id)
     .order("created_at", { ascending: false });
 
-  const remixList = (remixes ?? []) as unknown as RemixCardData[];
+  // 비공개 저장소: 리믹스 음원·커버를 서명 주소로(lib/storageSign.ts).
+  const remixList = await withSignedStorageUrls((remixes ?? []) as unknown as RemixCardData[]);
   const hasGenerating = remixList.some((r) => r.status === "generating");
 
   return (

@@ -257,3 +257,9 @@ POST 콜백을 보낸다. 이 라우트는:
 - **「Suno로 생성」**: 정밀 기획 곡 편집기(빌더·보관함·앨범 곡 공통, `components/studio/SendToSuno.tsx`)에서 모델·다양성 고르고 보내면 `sendStudioTrackToSunoAction`(`lib/actions/studioSuno.ts`)이 기획 1건을 만들고 `generateTracksAction`의 `fixedPrompt` 경로로 **GPT 재작성 없이** 제목·Style·제외 스타일·가사 그대로 생성 → 결과는 「음악 생성 · 트랙 관리」(연장·MR·WAV·리믹스)로 이어짐. 실패하면 방금 만든 기획을 지움. 보컬 설정의 여성/남성은 성별로, 혼성은 기록만.
 - 검수: tsc·lint·테스트 51·build, 배포 Ready(비용: Vercel 빌드 1회), DB v1.19. 크롬 일반 회원: 정밀 기획에 「Suno로 생성」 묶음(모델 3·다양성 5) 표시, 빈 곡일 때 버튼 꺼짐, 채운 뒤 누르면 Suno 키 없음 안내 + 남은 기획·트랙 0건. **Suno 실제 생성·웹훅 저장·연장·MR은 시험 계정에 sunoapi.org 키가 없어 미검수**(주인님 등록 대기, 승인된 실제 생성 1회 남음).
 - **2026-10-21 Suno 실제 생성 검수 완료(승인 1회)**: 크롬 일반 회원(시험 계정 본인 sunoapi.org 키)으로 정밀 기획 빌더 → 「Suno로 생성」(V6, 다양성 기본). DB: 트랙 `suno_model=V6`, 기획 가사 그대로(`[Verse 1]`…), 약 60초에 웹훅 도착 → 잠금(`__syncing__`) 상태로 뒤에서 저장 → 약 90초에 `completed`·잠금 해제, 곡 2개 **181초·177초**(문서의 「duration 기본 20초」는 이 경로에선 해당 없음), 음원 우리 저장소 저장, 커버 생성. 트랙 관리 화면에서 두 오디오 모두 재생 준비 완료(readyState 4, 오류 없음). 비용: Suno 1회(2곡) + 커버(gpt-4o-mini 1 + gemini-3-pro-image 1장). 곡 연장·MR은 아직 실호출 미검수(크레딧 절약, 필요 시 1회씩).
+
+## 2026-10-21 v1.20 — `music-audio` 저장소 비공개 + 서명 주소 (Claude Code 윈도우, 주인님 결정)
+- 저장소 `music-audio`를 `public=false`로 전환(`supabase/migrations/0014_music_audio_private.sql`, 크롬 SQL 편집기). 1단계(v1.17)에서 이미 「파일 목록 훑어보기」 조회 정책을 본인 폴더로 좁혔고, 이번에 **개별 파일 공개 주소도 막음**.
+- `lib/storageSign.ts`: DB에는 공개 주소 형식을 그대로 두고 「파일 위치」로만 씀. 서버 페이지(`plannings/[id]`·`remix`·`remix/[sourceId]`)가 회원 본인 행을 넘기기 직전 그 안의 저장소 주소를 **1시간짜리 서명 주소**로 바꿈(`withSignedStorageUrls`, 관리자 키로 일괄 서명). Suno 리믹스 원곡(`uploadUrl`)은 Suno 서버가 받아 가도록 **24시간짜리**(`remix.ts`).
+- 검수: 배포 Ready(비용 Vercel 빌드 1회), 크롬 일반 회원 트랙 화면 음원 2·커버 2가 `/object/sign/` 주소로 재생·표시, 전환 뒤에도 동일, 가장 오래된 곡의 옛 공개 주소 HEAD **400**.
+- 영향·주의: 회원이 밖에 붙여 둔 옛 공개 링크는 열리지 않음(승인된 영향). 생성 중 자동 새로고침 때 서명 주소가 바뀌어 재생 중인 곡이 다시 로드될 수 있음(생성 중일 때만). **다른 프로그램이 음악(SUNO) 곡을 쓰려면(예: lyric-video-studio 2차 연결) 공개 주소가 아니라 서버에서 서명 주소를 만들어야 함.** 리믹스 실제 호출은 미검수(크레딧).

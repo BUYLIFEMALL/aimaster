@@ -9,6 +9,7 @@ import { requestSunoRemix, toSunoVocalGender, DEFAULT_SUNO_MODEL, checkSunoGener
 import { saveSunoRemixResult, markRemixFailed } from "@/lib/remixSync";
 import { claimSyncLock, releaseSyncLock } from "@/lib/syncLock";
 import type { RemixStatus, VocalGender } from "@/types/database.types";
+import { signStorageUrl, SUNO_FETCH_TTL_SECONDS } from "@/lib/storageSign";
 
 export interface CreateRemixState {
   error?: string;
@@ -235,9 +236,11 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
         return { error: insertError?.message ?? "리믹스 요청 저장에 실패했습니다." };
       }
 
+      // music-audio는 비공개 저장소라 Suno 서버가 원곡을 받아 갈 수 있게 24시간짜리 서명 주소로 넘긴다(lib/storageSign.ts).
+      const sunoFetchUrl = await signStorageUrl(sourceAudioUrl, SUNO_FETCH_TTL_SECONDS);
       const taskId = await requestSunoRemix(
         {
-          uploadUrl: sourceAudioUrl,
+          uploadUrl: sunoFetchUrl,
           title: `${resolvedSourceTitle ?? "리믹스"} Remix`,
           styleDescription: styleResult.styleDescription,
           prompt: instrumental ? undefined : buildRemixPrompt(lyrics, lang, vocalGender),
