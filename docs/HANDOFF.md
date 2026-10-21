@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.26·가사영상 v1.08~v1.09 관리자 화면 확인 완료
+
+- 관리자 계정에서 가사영상 「올릴 채널」 2개 선택·전환, 두 프로그램 썸네일 고르기(1280×720·171KB) 확인. 확인용 썸네일 1장은 주인님 승인으로 관리자 본인 Gemini 키로 생성(`gemini-3-pro-image` 1회 + 전략 글 1회, 약 $0.14). 「AI 썸네일·SEO 자동화」의 생성 버튼은 A·B 2장을 한 번에 만든다는 점 참고.
+
+https://playlist-channel-studio.buylife.xyz
+
+https://lyric-video-studio.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 받은편지함 v1.03: 이중 게시 방지 자동 시험 26개 · ? 도움말 · 밀어서 건너뛰기 / 새 응대 채널 조사
 
 `comment-inbox` `npm test`: 공용 게시 함수 4개를 가짜 DB·플랫폼으로 돌리는 시험 26개 통과(이전 버전에서는 2개 실패 — 시험이 문제를 잡음 확인). 화면: ? 단축키 도움말 창, 휴대폰 접힌 카드 왼쪽 밀기 → 건너뛰기. 배포 READY·DB v1.03. 새 채널: 검토 후 게시 흐름은 세 댓글 프로그램뿐, 카카오는 뉴스레터·대화 API 없음 → 붙이는 법만 `comment-inbox/AGENTS.md`에 정리. **사고**: 시험 커밋 `f3127568`에 다른 세션의 lyric-video-studio·playlist-channel-studio 파일 6개가 섞여 푸시(내용 그대로, 세 세션에 안내, ERROR_LESSONS 기록). 비용: Vercel 빌드 1회.
