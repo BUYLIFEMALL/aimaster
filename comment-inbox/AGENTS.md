@@ -13,10 +13,10 @@ https://comment-inbox.buylife.xyz
    - 화면: `/inbox`(필터 `?p=ig_dm|ig_comment|threads|youtube`, `components/inbox/InboxItemCard.tsx` — 플랫폼 칩·DM 남은 시간·썸네일·「답장 쓰기」·승인·건너뛰기·원래 프로그램 링크 `#media-`/`#conv-`/`#post-`/`#video-`), `/guide`(매뉴얼), 좌측 메뉴(플랫폼별 건수, 휴대폰 ☰), 로그인·회원가입, 공지 띠.
    - 승인: `lib/actions/inbox.ts` — 받은편지함 권한 + **그 플랫폼 원래 프로그램 권한**을 둘 다 확인한 뒤 원래 프로그램과 같은 게시 함수 사본 호출(`lib/comments/instagramPost.ts`·`threadsPost.ts`·`youtubePost.ts`·`lib/dmApp/dm/post.ts`). 건너뛰기는 `pending_review`인 본인 행만 `skipped`.
    - 장점: 창 전환 없이 응대, 급한 순, 원래 프로그램·텔레그램과 상태 공유(이중 게시 없음), 별도 키 등록 없음. 단점: 새 댓글 수집·AI 초안은 원래 프로그램이 해야 나타남, 플랫폼당 100건, 실제 공개 게시 실검수 전.
-4. **현재 버전·변경 히스토리** — **v1.01**(2026-10-21) 신규: 1단계(모아 보기·이동) + 2단계(받은편지함에서 바로 승인·게시).
+4. **현재 버전·변경 히스토리** — **v1.02**(2026-10-21) 처리 후 다음 항목 자동 펼침·키보드 단축키(J/K·↑↓ 이동, Enter 펼치기, A 승인(펼친 항목만, 아니면 먼저 펼침), S 건너뛰기, 입력칸 Ctrl+Enter 승인·Esc 빠져나오기), 게시 묶음 사본에 이중 게시 방지(처리 중 선점) 반영 / v1.01 신규: 1단계(모아 보기·이동) + 2단계(바로 승인·게시).
 5. **남은 작업·백로그** — [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
 6. **연계·병합 아이디어** — 카카오 채널 댓글 등 다른 「검토 후 게시」 프로그램을 같은 방식(게시 묶음 공용 사본)으로 추가, 원래 프로그램 대시보드에 「받은편지함에서 한 번에 보기」 링크.
-7. **UI/UX 개선안** — 여러 항목 한 번에 승인(실제 공개 게시라 사전 승인 필요), 키보드 단축키(J/K 이동·A 승인), 처리 후 다음 항목 자동 펼침.
+7. **UI/UX 개선안** — 여러 항목 한 번에 승인(실제 공개 게시라 사전 승인 필요), 단축키 도움말 팝업(?), 휴대폰에서 좌우로 밀어 건너뛰기.
 
 ## ⚠️ 꼭 지킬 것
 
@@ -40,3 +40,8 @@ https://comment-inbox.buylife.xyz
 - Vercel: 프로젝트 `comment-inbox`(팀 buylife), 환경변수 4개(Supabase 주소·공개 키·서버 키·메인 사이트 주소, 운영·미리보기), 도메인 `comment-inbox.buylife.xyz`. 첫 배포는 프레임워크 미지정으로 실패 → `vercel.json` 수정 후 `comment-inbox-d253c54tm` READY. 새 도메인 인증서가 퍼지는 몇 분 동안 간헐적 SSL 실패 후 안정.
 - 검수: tsc·build, 크롬(관리자 계정으로 로그인돼 있던 상태) `/inbox`·필터·`/guide` 정상, 400px 가로 넘침 없음·☰. 대기 0건이라 카드·승인 흐름은 실제 데이터로 미확인. **실제 공개 게시 미실행.**
 - 비용: Vercel 빌드 원래 프로그램 3회 + 받은편지함 2회(1회 실패), 이미지 생성 2회.
+
+### 2026-10-21 v1.02 — 단축키·자동 펼침 + 이중 게시 방지 반영 (Claude Code 윈도우)
+- `components/inbox/InboxList.tsx`(새): 포커스·펼침 관리, 처리(승인·건너뛰기) 성공 → `router.refresh()` 뒤 같은 자리(다음 항목) 자동 펼침·스크롤, 키보드 J/K·↑↓·Enter·A·S(입력칸에서는 꺼짐). `InboxItemCard`를 제어형(`open`·`focused`·`onDone`) + `forwardRef` 동작(approve·skip)으로. A는 펼친 항목만 승인(펼치지 않았으면 먼저 펼침 — 내용을 보지 않고 공개 게시하지 않게). 입력칸 Ctrl+Enter 승인, Esc 빠져나오기.
+- 게시 묶음 사본 4개에 원래 프로그램과 같은 이중 게시 방지(`replied_at` 선점) 반영(`--sync`).
+- 검수: tsc·build, 배포 `comment-inbox-n1t1i5bku` READY, DB v1.02, 크롬 `/inbox` v1.02. 대기 0건이라 단축키·자동 펼침은 실제 항목으로 미확인. 비용: Vercel 빌드 1회. 커밋 `77d2b9c8`.

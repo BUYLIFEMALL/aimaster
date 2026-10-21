@@ -212,3 +212,8 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 통합 받은편지함(`comment-inbox`) 2단계 준비. `getValid…AccessToken`·`markNeedsReconnect`를 `"use server"` 연결 파일에서 `lib/youtube/token.ts`로 그대로 옮기고(원래 함수와 글자까지 같음 확인) 쓰는 곳의 가져오기 경로만 바꿈. 덤: 연결 파일에서 내보내던 토큰 함수가 화면에서 부를 수 있는 서버 동작으로 노출될 여지도 없어짐.
 - **이 프로그램의 게시 묶음(`lib/comments/post.ts`·계정 읽기·API 호출·토큰)은 이제 공용 기준 코드**(사본: `comment-inbox/`) — 고치면 `node scripts/check-shared-modules.mjs --sync` 후 받은편지함도 함께 배포. 등록부: `docs/SHARED_MODULES.md`·`docs/SHARED_FEATURE_MAP.md` 15절.
 - 검수: tsc·build, 배포 `youtube-auto-reply-d04h1u291` READY, DB v1.25, `/login` 200·연결 점검 실행 주소 무인증 401. 비용: Vercel 빌드 1회. 커밋 `26eecc96`.
+
+## 2026-10-21 v1.26 — 이중 게시 방지(처리 중 선점) · 통합 받은편지함 링크 (Claude Code 윈도우)
+- **이중 게시 방지**: 공용 기준 게시 함수 `lib/comments/post.ts`에서 실제 게시 직전(`try` 앞)에 `replied_at`을 「처리 중 표시」로 조건부 선점(`status <> posted` 그리고 `replied_at`이 비었거나 2분 넘음 → 성공한 한 요청만 게시). 웹 승인·텔레그램 승인·자동 게시·통합 받은편지함이 동시에 와도 한 번만 게시. 실패하면 `status=failed, replied_at=null`로 표시 해제(DM은 고지 문구 미설정 조기 종료에서도 해제). DB 구조 변경 없음 — `replied_at`은 이력·통계 화면에서 `status=posted`와 함께만 읽혀 검토 대기 행에 남아도 화면 영향 없음(확인). 조건 문법은 없는 id로 운영 DB에 시험해 4개 표 모두 200·0행.
+- **연계**: 대시보드 머리(📖 매뉴얼 옆)에 「📥 통합 받은편지함에서 보기 ↗」(https://comment-inbox.buylife.xyz , 새 창).
+- 검수: tsc·build, 배포 `youtube-auto-reply-az81848ua` READY, DB v1.26, 크롬 대시보드 새 버전·링크(새 창) 확인. 실제 동시 승인 시험은 대기 0건이라 미실행. 비용: Vercel 빌드 1회. 커밋 `77d2b9c8`.

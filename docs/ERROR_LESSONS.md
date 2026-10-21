@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-21 — 「이미 게시됨」 확인 후 게시하는 코드는 동시에 두 번 승인하면 둘 다 게시된다 → 게시 직전에 조건부 수정으로 선점 (댓글 프로그램 3개·통합 받은편지함, Claude Code 윈도우)
+- 증상(잠재): `select status` → `posted`가 아니면 게시 → `update status=posted` 순서라, 웹 화면·텔레그램·받은편지함이 같은 항목을 거의 동시에 승인하면 둘 다 확인을 통과해 같은 답글이 두 번 올라갈 수 있음.
+- 해결: 실제 게시 직전 `update … set replied_at=now() where id=… and user_id=… and status<>'posted' and (replied_at is null or replied_at < now()-2분) returning id` — 행이 돌아온 요청만 게시, 실패 시 `replied_at=null`. 새 상태값(구조 변경) 없이 기존 칸 재사용. 위치: 각 원래 프로그램 `lib/comments/post.ts`·INSTA `lib/dmApp/dm/post.ts`(공용 기준, 사본 `comment-inbox`).
+- 다음부터: 「확인 → 외부 호출 → 상태 변경」 순서의 결제·게시·발송 코드는 확인 단계를 조건부 수정(선점)으로 만든다. 선점 표시를 쓰는 칸을 다른 화면이 어떤 조건으로 읽는지 먼저 확인한다.
+
 ## 2026-10-21 — `vercel project add`로 만든 새 프로젝트는 프레임워크가 비어 첫 배포가 `No Output Directory named "public"`로 실패 + 새 도메인은 인증서가 퍼지는 몇 분 동안 간헐적 SSL 실패 (comment-inbox v1.01, Claude Code 윈도우)
 - 증상: `vercel project add <이름>` → `vercel link` → `vercel deploy --prod`가 빌드는 끝났는데 `[STATIC_BUILD_NO_OUT_DIR]`로 오류. 도메인 추가 직후 curl이 `000`(schannel handshake 실패)과 정상 응답을 번갈아 냄.
 - 원인: CLI로 만든 프로젝트는 프레임워크 프리셋이 「Other」라 Next.js 결과물 위치를 모름. 새 도메인 인증서는 엣지 서버마다 퍼지는 데 몇 분 걸림.
