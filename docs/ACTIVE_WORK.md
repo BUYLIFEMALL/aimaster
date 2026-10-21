@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `shop-detail-page/` · `detail-page-12p/` · `auto-detail-page/` | Claude Code(맥미니, 보조 계정) | 2026-10-21 | 이커머스 병합 E0(15p 비공개 저장소·30일 정리) → E1(12단 → 15p) → E2(자동생성기 → 15p HTML 내보내기). 보고서 `docs/analysis-ecommerce-consolidation-20261021/REPORT.md` |
