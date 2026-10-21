@@ -119,7 +119,8 @@ export default async function ConversationsPage() {
               const conv = conversationMap.get(conversationId);
               const username = conv?.customer_username;
               return (
-                <section key={conversationId} className="ig-card py-3">
+                // v1.27: 대시보드 「검토를 기다리는 DM」에서 #conv-<id>로 바로 이동(고정 머리말에 가리지 않게 scroll-mt)
+                <section key={conversationId} id={`conv-${conversationId}`} className="ig-card scroll-mt-80 py-3">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ig-border pb-3">
                     <h2 className="flex items-center gap-2 text-sm font-bold text-ig-text">
                       <Avatar name={username ?? null} size={30} />

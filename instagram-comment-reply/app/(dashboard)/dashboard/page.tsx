@@ -73,7 +73,7 @@ export default async function DashboardPage() {
         .eq("user_id", user.id)
         .eq("program_slug", "instagram-dm-reply")
         .maybeSingle(),
-      // v1.26: 검토를 기다리는 DM 최근 3건(대화 검토 화면과 같은 조건)
+      // v1.26: 검토를 기다리는 DM(대화 검토 화면과 같은 조건). v1.27: 급한 대화를 고르려고 넉넉히 가져온다
       supabase
         .from("dm_messages")
         .select("id, conversation_id, message_text, created_at")
@@ -81,17 +81,32 @@ export default async function DashboardPage() {
         .eq("direction", "in")
         .eq("status", "pending_review")
         .order("created_at", { ascending: false })
-        .limit(3),
+        .limit(50),
     ]);
 
-  const dmRecent = dmRecentRes.data ?? [];
-  const dmConversationIds = Array.from(new Set(dmRecent.map((m) => m.conversation_id)));
+  // 대화마다 가장 최근 대기 메시지 1건만
+  const dmLatestByConversation = new Map<string, NonNullable<typeof dmRecentRes.data>[number]>();
+  for (const m of dmRecentRes.data ?? []) {
+    if (!dmLatestByConversation.has(m.conversation_id)) dmLatestByConversation.set(m.conversation_id, m);
+  }
+  const dmConversationIds = Array.from(dmLatestByConversation.keys());
   const { data: dmConversations } = await supabase
     .from("dm_conversations")
-    .select("id, customer_username")
+    .select("id, customer_username, last_inbound_at")
     .eq("user_id", user.id)
     .in("id", dmConversationIds.length > 0 ? dmConversationIds : ["__none__"]);
-  const dmNameById = new Map((dmConversations ?? []).map((c) => [c.id, c.customer_username]));
+  const dmConversationById = new Map((dmConversations ?? []).map((c) => [c.id, c]));
+  // v1.27: 고객의 마지막 메시지로부터 24시간 답장 가능(DM 검토 화면 getWindowBadge와 같은 계산). 만료되면 null
+  const remainingMs = (lastInboundAt?: string | null) => {
+    if (!lastInboundAt) return null;
+    const left = new Date(lastInboundAt).getTime() + 24 * 60 * 60 * 1000 - Date.now();
+    return left > 0 ? left : null;
+  };
+  // 남은 시간이 적은 대화부터, 만료된 대화는 맨 뒤
+  const dmRecent = dmConversationIds
+    .map((id) => ({ message: dmLatestByConversation.get(id)!, conv: dmConversationById.get(id), left: remainingMs(dmConversationById.get(id)?.last_inbound_at) }))
+    .sort((a, b) => (a.left ?? Infinity) - (b.left ?? Infinity))
+    .slice(0, 3);
 
   const account = accountRes.data;
   const settings = settingsRes.data;
@@ -259,18 +274,29 @@ export default async function DashboardPage() {
             </p>
           ) : (
             <ul className="space-y-4">
-              {dmRecent.map((m) => {
-                const name = dmNameById.get(m.conversation_id);
+              {dmRecent.map(({ message: m, conv, left }) => {
+                const name = conv?.customer_username;
+                const hours = left === null ? 0 : Math.floor(left / 3_600_000);
+                const mins = left === null ? 0 : Math.floor((left % 3_600_000) / 60_000);
                 return (
-                  <li key={m.id} className="flex gap-3">
-                    <Avatar name={name ?? null} size={32} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs">
-                        <span className="font-semibold text-ig-text">{name ? `@${name}` : "고객"}</span>
-                        <span className="ml-2 text-ig-muted">{formatDateTimeKo(m.created_at)}</span>
-                      </p>
-                      <p className="mt-0.5 line-clamp-2 break-words text-sm text-ig-text">{m.message_text}</p>
-                    </div>
+                  <li key={m.id}>
+                    <Link href={`/dm/conversations#conv-${m.conversation_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-ig-raised">
+                      <Avatar name={name ?? null} size={32} />
+                      <div className="min-w-0 flex-1">
+                        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                          <span className="font-semibold text-ig-text">{name ? `@${name}` : "고객"}</span>
+                          <span className="text-ig-muted">{formatDateTimeKo(m.created_at)}</span>
+                          {left === null ? (
+                            <span className="rounded-full bg-ig-danger/10 px-2 py-0.5 font-bold text-ig-danger">⚠️ 답장 시간 만료</span>
+                          ) : (
+                            <span className={`rounded-full px-2 py-0.5 font-semibold ${left < 4 * 3_600_000 ? "bg-ig-warn/10 text-ig-warn" : "bg-ig-success/10 text-ig-success"}`}>
+                              ⏳ {hours}시간 {mins}분 남음
+                            </span>
+                          )}
+                        </p>
+                        <p className="mt-0.5 line-clamp-2 break-words text-sm text-ig-text">{m.message_text}</p>
+                      </div>
+                    </Link>
                   </li>
                 );
               })}
