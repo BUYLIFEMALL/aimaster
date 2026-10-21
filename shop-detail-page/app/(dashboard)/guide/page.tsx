@@ -20,7 +20,7 @@ export default async function GuidePage() {
           <div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <span>📖</span>
-              <span>상세페이지 자동화 연동 & 사용 안내</span>
+              <span>AI 상세페이지 자동화 연동 & 사용 안내</span>
             </h1>
             <p className="mt-1 text-xs text-slate-500">
               15개 섹션 AI 맞춤 생성 파이프라인 및 고전환율 스마트스토어·쿠팡 상세페이지 제작 가이드북입니다.

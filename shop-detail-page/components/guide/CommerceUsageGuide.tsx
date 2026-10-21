@@ -181,7 +181,7 @@ export function CommerceUsageGuide() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                  AI 15단 상세페이지 자동화 실전 매뉴얼
+                  AI 상세페이지 자동화 실전 매뉴얼
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-blue-600 text-white shadow-xs">
                   PRO SELLER

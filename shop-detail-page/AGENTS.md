@@ -196,6 +196,8 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 하지 않은 것: 사진 없이 상품명만으로 상품 만들기(12단은 가능했으나 이 앱은 실제 상품 사진을 기준으로 이미지를 만드는 구조라 유지), 12단 장면 카피 이관.
 
 ## 2026-10-21 v1.17 — 이커머스 병합 E2: HTML 상세페이지 내보내기 (자동생성기 v1에서 이관, Claude Code 맥미니 · 배포 대기)
+
+- **이름 변경(2026-10-22 주인님 확정)**: 「상세페이지 자동화(15p)」 → **「AI 상세페이지 자동화」**. 화면(사이드바·로그인·탭 제목·사용 안내·권한 오류 문구)과 12단·자동생성기 이동 안내 문구를 함께 바꿨고, 같은 v1.17 배포에 포함한다(버전 추가 상승 없음). DB `programs.name`은 `E2_hide_auto_detail_and_catalog.sql`에 들어 있다.
 - 상품 화면 아래 `components/products/HtmlExportPanel.tsx` 「🧾 HTML 상세페이지로 내보내기」: 쿠팡·스마트스토어·프리미엄 스타일 중 고르면 `POST /api/products/[id]/export-html`이 이미 만든 섹션 이미지 + 상품 정보로 HTML을 작성(**Gemini 텍스트 1회** `gemini-3.5-flash`, 이미지 생성 없음, `lib/ai/htmlDetailPrompt.ts`).
 - 서버는 `[IMAGE_N]` 자리와 `/api/image` 주소만 돌려주고(응답 한도 4.5MB), 브라우저가 `/api/image?…&w=860`(서버가 sharp로 860px JPEG로 줄여 같은 주소에서 보냄 — 교차 출처 제한 회피)을 받아 HTML 안에 넣은 뒤 파일로 내려받음. 결과는 서버에 저장하지 않음. 미리보기는 `sandbox` iframe(스크립트 실행 안 함, D-49-01).
 - 자동생성기 프롬프트에서 **버린 것**: 판매량·만족도·후기·재구매율을 「AI 추정값」으로 채우고 후기를 「자동 생성」하던 지시(허위 광고 위험) → 정보가 없으면 그 블록을 빼도록. 카운트다운·카운트업 JavaScript → 정적 HTML/CSS만(모델이 넣어도 `sanitizeGeneratedHtml`이 `<script>`·`on*` 속성 제거). Claude 키 필수 → 이 앱의 Gemini 키. Puppeteer 서버 PNG는 옮기지 않음(이 앱의 긴 PNG 내보내기가 있음).

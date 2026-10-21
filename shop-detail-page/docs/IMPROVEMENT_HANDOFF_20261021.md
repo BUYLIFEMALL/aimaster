@@ -53,7 +53,7 @@
 
 1. `cd shop-detail-page && npm run build && vercel deploy --prod --yes` → Ready.
 2. `cd auto-detail-page && npm run build && vercel deploy --prod --yes` → Ready(이동 안내 v1.21). 프로덕션 별칭 `shop-page-seven.vercel.app`은 건드리지 않음(auto-detail-page/AGENTS.md §3).
-3. SQL `docs/analysis-ecommerce-consolidation-20261021/E2_hide_auto_detail_and_catalog.sql`(자동생성기 숨김·버전·15p 설명). 공개 상세 `https://www.buylife.xyz/programs/shop-detail-page` 단락 모양 확인.
+3. SQL `docs/analysis-ecommerce-consolidation-20261021/E2_hide_auto_detail_and_catalog.sql`(자동생성기 숨김·버전·15p 이름 「AI 상세페이지 자동화」·설명). 공개 상세 `https://www.buylife.xyz/programs/shop-detail-page` 단락 모양 확인.
 4. 크롬 검수(시험 계정): 15p 상품 화면 아래 HTML 내보내기 패널(템플릿 3개 카드·안내 문구), 자동생성기 첫 화면 이동 안내, `curl -s -X POST https://auto-detail-page.buylife.xyz/api/generate` → 410.
 5. **실제 HTML 생성 1회는 비용이 듭니다(Gemini 텍스트 1회, 회원 본인 키 — 수 원~수십 원 수준).** 주인님께 먼저 알리고 승인 시, 섹션 이미지가 있는 시험 상품에서 1회만 → 미리보기·파일 내려받기·이미지가 들어갔는지 확인.
 6. 마무리: 역량 지도·보고서 §6은 맥미니가 갱신함. 결과를 루트 `docs/HANDOFF.md`와 이 문서 「배포 결과」에 기록, `DESIGN.md` 해당 프로그램 상태 확인.

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { APP_VERSION } from "@/lib/version";
 
-// v1.10(2026-10-21, 이커머스 병합 E1): 이 프로그램은 「상세페이지 자동화(15p)」로 합쳐졌다.
+// v1.10(2026-10-21, 이커머스 병합 E1): 이 프로그램은 「AI 상세페이지 자동화」로 합쳐졌다.
 // 12단 결과는 이 주소의 브라우저 저장소(localStorage)에만 있으므로, 여기서 백업 파일을 내려받아
 // 15p 「12단 자료 가져오기」에 올리게 한다. 저장 키는 DetailPageApp.tsx의 STORAGE_KEY와 같다.
 const STORAGE_KEY = "aimaster_detail_12p_projects_v2";
@@ -46,9 +46,9 @@ export function MovedNotice({ userEmail }: { userEmail?: string | null }) {
       <div className="w-full max-w-xl bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 space-y-5">
         <div className="text-center space-y-2">
           <div className="text-4xl">📦</div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900">AI 12단 상세페이지가 「상세페이지 자동화」로 합쳐졌습니다</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900">AI 12단 상세페이지가 「AI 상세페이지 자동화」로 합쳐졌습니다</h1>
           <p className="text-sm text-slate-600 leading-relaxed">
-            쿠팡 12단·스마트스토어 9단 규격, 사양서 분석, 모바일 미리보기를 이제 상세페이지 자동화에서 쓰실 수 있습니다.
+            쿠팡 12단·스마트스토어 9단 규격, 사양서 분석, 모바일 미리보기를 이제 AI 상세페이지 자동화에서 쓰실 수 있습니다.
             새로 만든 결과는 브라우저가 아니라 서버에 안전하게 보관됩니다.
           </p>
           <p className="text-[11px] text-slate-400">{APP_VERSION}{userEmail ? ` · ${userEmail}` : ""}</p>
@@ -77,13 +77,13 @@ export function MovedNotice({ userEmail }: { userEmail?: string | null }) {
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-          <h2 className="text-sm font-bold text-slate-900">2. 상세페이지 자동화에서 가져오기</h2>
+          <h2 className="text-sm font-bold text-slate-900">2. AI 상세페이지 자동화에서 가져오기</h2>
           <p className="text-xs text-slate-600">받은 파일을 「12단 자료 가져오기」 화면에 올리면 상품과 장면 이미지가 옮겨집니다(요금 없음).</p>
           <a
             href={TARGET_URL}
             className="block w-full text-center text-sm font-bold text-blue-700 bg-white border border-blue-200 hover:border-blue-400 rounded-xl py-2.5"
           >
-            상세페이지 자동화 열기 →
+            AI 상세페이지 자동화 열기 →
           </a>
         </div>
       </div>

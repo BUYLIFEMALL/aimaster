@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST() {
   return NextResponse.json(
     {
-      error: "상세페이지 자동생성기 v1은 「상세페이지 자동화」로 합쳐졌습니다. https://shop-detail-page.buylife.xyz 상품 화면의 「HTML 상세페이지로 내보내기」를 이용해 주세요.",
+      error: "상세페이지 자동생성기 v1은 「AI 상세페이지 자동화」로 합쳐졌습니다. https://shop-detail-page.buylife.xyz 상품 화면의 「HTML 상세페이지로 내보내기」를 이용해 주세요.",
       movedTo: "https://shop-detail-page.buylife.xyz",
     },
     { status: 410 },

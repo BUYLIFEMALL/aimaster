@@ -67,7 +67,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             <ShoppingBag size={15} />
           </span>
           <div>
-            <span className="text-sm font-black text-slate-900 tracking-tight">상세페이지 자동화</span>
+            <span className="text-sm font-black text-slate-900 tracking-tight">AI 상세페이지 자동화</span>
             <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-200">
               {APP_VERSION}
             </span>
@@ -97,7 +97,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white text-xs font-black shadow-sm shadow-blue-500/25">
                   <ShoppingBag size={15} />
                 </span>
-                <span className="text-sm font-black text-slate-900 tracking-tight">상세페이지 자동화</span>
+                <span className="text-sm font-black text-slate-900 tracking-tight">AI 상세페이지 자동화</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-200/80">
                 {APP_VERSION}
