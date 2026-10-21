@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 쓰레드 쇼핑제휴 AGENTS.md 정리(주인님 「니가 진행해 — 먼저 문제없는지 확인」)
+- 2026-10-20부터 남아 있던 미커밋 변경 371줄 = 줄바꿈 차이뿐(줄바꿈·끝 공백 무시하면 0줄) 확인 후 버림. 파일에 깨진 제어 문자 5곳(NUL·탭·백스페이스·폼피드) 복구 → 일반 텍스트 파일로(커밋 `05d616c6`), 현재 버전 v1.61 → v1.79와 오늘 기록 본문에 옮김(커밋 `6e952194`). 원인과 점검 명령은 `docs/ERROR_LESSONS.md`. 비용 없음.
+
 ## 2026-10-22 Claude Code(윈도우) — 배포판 `SNS_Auto_Posting_Kit_v1.08` 포장 · 텔레그램 링크 버튼 앱 확인
 - `D:PDSAIMater_KITSNS_Auto_Posting_Kit_v1.08.zip`(299개 파일): INSTA v1.46 기능(7일 게시 그래프·게시 시각 칸·저장 보완)·업그레이드 SQL `upgrade-20261022-published-at.sql`. 비밀값·DB 대조·짧은 경로 독립 모드 `npm ci`+`build` 통과. 공지 띠를 배포판에서 숨김(INSTA `layout.tsx`, 운영 미배포), 카드뉴스·공지 표를 `kit.json` 예외로. 비용 없음.
 - 텔레그램: 주인님 앱 화면으로 받은편지함 링크 버튼 표시 확인 완료(`comment-inbox/AGENTS.md`).
