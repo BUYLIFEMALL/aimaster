@@ -5,6 +5,10 @@ import { CommentReviewItem } from "@/components/comments/CommentReviewItem";
 import { SettingsSummary } from "@/components/comments/SettingsSummary";
 import { StudioHeader } from "@/components/ui/StudioHeader";
 import { HashHighlight } from "@/components/HashHighlight";
+import { ReviewGroupHeader } from "@/components/ReviewGroupHeader";
+
+// 공용 기준 코드 `review-group-header` 묶음 머리 색
+const HEADER_CLASSES = { border: "border-th-border", text: "text-th-text", muted: "text-th-muted" };
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // 신규 댓글마다 AI 초안 생성이 걸려 다소 시간이 걸릴 수 있음
@@ -80,11 +84,12 @@ export default async function CommentsPage() {
             {Array.from(groupedByMedia.entries()).map(([mediaId, mediaComments]) => (
               // v1.17: 대시보드 「검토를 기다리는 댓글」에서 #post-<id>로 바로 이동(고정 머리말에 가리지 않게 scroll-mt)
               <section key={mediaId} id={`post-${mediaId}`} className="th-card scroll-mt-80 py-3">
-                <h2 className="flex items-center gap-2 border-b border-th-border pb-3 text-sm font-bold text-th-text">
-                  <span>🧵</span>
-                  <span className="truncate">{captionByMediaId.get(mediaId) || "(삭제된 게시물)"}</span>
-                  <span className="ml-auto shrink-0 text-xs font-normal text-th-muted">댓글 {(mediaComments ?? []).length}개</span>
-                </h2>
+                <ReviewGroupHeader
+                  classes={HEADER_CLASSES}
+                  icon={<span>🧵</span>}
+                  title={captionByMediaId.get(mediaId) || "(삭제된 게시물)"}
+                  countLabel={`댓글 ${(mediaComments ?? []).length}개`}
+                />
                 <div className="divide-y divide-th-border">
                   {(mediaComments ?? []).map((c) => (
                     <CommentReviewItem
