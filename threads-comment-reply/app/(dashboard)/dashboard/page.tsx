@@ -7,12 +7,16 @@ import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { StudioHeader, StatCard } from "@/components/ui/StudioHeader";
 import { PendingReviewList } from "@/components/PendingReviewList";
-import { WeekReplyChart } from "@/components/weekChart/WeekReplyChart";
+import { WeekReplyPanel } from "@/components/weekChart/WeekReplyPanel";
+import { loadWeekDayRepliesAction } from "@/lib/actions/weekReplies";
 import { bucketByKstDay, weekStartIso } from "@/lib/weekChart/bucket";
 import { ThLogo } from "@/components/ui/ThLogo";
 
 // v1.18: 공용 기준 코드 `pending-review-list` 목록 색
 const LIST_CLASSES = { text: "text-th-text", muted: "text-th-muted", hover: "hover:bg-th-raised" };
+
+// v1.24: 막대 누르면 그날 답한 목록(공용 기준 코드 `week-reply-panel`) 색
+const WEEK_PANEL_CLASSES = { border: "border-th-border", item: "bg-th-raised", muted: "text-th-muted", danger: "text-red-400" };
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -164,9 +168,9 @@ export default async function DashboardPage() {
         <StatCard label="모니터링 중인 게시물" value={monitoredRes.count ?? 0} />
       </div>
 
-      {/* v1.23: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프) */}
+      {/* v1.23: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프, v1.24: 막대 누르면 그날 목록) */}
       <div className="th-card text-th-text mb-6">
-        <WeekReplyChart days={weekDays} />
+        <WeekReplyPanel days={weekDays} loadDay={loadWeekDayRepliesAction} classes={WEEK_PANEL_CLASSES} />
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-5">

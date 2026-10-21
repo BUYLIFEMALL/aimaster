@@ -6,7 +6,8 @@ import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from 
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { PendingReviewList } from "@/components/PendingReviewList";
-import { WeekReplyChart } from "@/components/weekChart/WeekReplyChart";
+import { WeekReplyPanel } from "@/components/weekChart/WeekReplyPanel";
+import { loadWeekDayRepliesAction } from "@/lib/actions/weekReplies";
 import { bucketByKstDay, weekStartIso } from "@/lib/weekChart/bucket";
 import { APP_VERSION } from "@/lib/version";
 
@@ -17,6 +18,9 @@ const WEEK_SERIES = [
   { key: "comment", label: "📸 댓글 답글", color: "#ec4899" },
   { key: "dm", label: "💌 DM 답장", color: "#a855f7" },
 ];
+
+// v1.35: 막대 누르면 그날 답한 목록(공용 기준 코드 `week-reply-panel`) 색
+const WEEK_PANEL_CLASSES = { border: "border-ig-border", item: "bg-ig-raised", muted: "text-ig-muted", danger: "text-red-400" };
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -266,9 +270,9 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* v1.34: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프) */}
+      {/* v1.34: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프, v1.35: 막대 누르면 그날 목록) */}
       <div className="rounded-2xl border border-ig-border bg-ig-surface p-5 text-ig-text">
-        <WeekReplyChart days={weekDays} series={WEEK_SERIES} />
+        <WeekReplyPanel days={weekDays} series={WEEK_SERIES} loadDay={loadWeekDayRepliesAction} classes={WEEK_PANEL_CLASSES} />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-5">

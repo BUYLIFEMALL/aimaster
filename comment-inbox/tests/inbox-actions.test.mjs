@@ -152,3 +152,37 @@ test("v1.07 막대 누르기: 한국 시간 하루 범위, 잘못된 날짜·7�
   const r = await loadDayRepliedAction("2020-01-01");
   assert.deepEqual(r, { items: [] });
 });
+
+test("v1.08 그날 목록: 본인·게시된 항목만, 원래 댓글·메시지와 답장 앞부분, 최근 것부터", async () => {
+  const { kstTodayStartIso } = await import("../lib/weekChart/bucket.ts");
+  const { loadDayRepliedAction } = await import("../lib/actions/inbox.ts");
+  const start = new Date(kstTodayStartIso()).getTime();
+  const at = (min) => new Date(start + min * 60_000).toISOString();
+  const today = new Date(start + 9 * 3_600_000).toISOString().slice(0, 10);
+  tables.ig_comments.push(
+    { id: "p1", user_id: USER, status: "posted", media_id: "m1", author_username: "kim", comment_text: "가격이 얼마예요?", generated_reply: "DM으로 안내드릴게요", replied_at: at(1) },
+    { id: "p2", user_id: "other", status: "posted", media_id: "m1", author_username: "x", comment_text: "남의 것", generated_reply: "남의 답", replied_at: at(2) },
+    { id: "p3", user_id: USER, status: "skipped", media_id: "m1", author_username: "y", comment_text: "건너뜀", generated_reply: "", replied_at: null },
+  );
+  tables.dm_messages.push({ id: "d2", user_id: USER, status: "posted", conversation_id: "conv-1", message_text: "예약 가능한가요", generated_reply: "네 가능합니다", replied_at: at(3) });
+  tables.dm_conversations[0].customer_username = "lee";
+  const r = await loadDayRepliedAction(today);
+  assert.deepEqual(
+    r.items.map((i) => [i.platform, i.authorLabel, i.comment, i.reply]),
+    [
+      ["ig_dm", "@lee", "예약 가능한가요", "네 가능합니다"],
+      ["ig_comment", "@kim", "가격이 얼마예요?", "DM으로 안내드릴게요"],
+    ],
+  );
+});
+
+test("v1.08 공용 도움 함수: 7일 안 날짜만 하루 범위, 앞부분 자르기", async () => {
+  const { weekDayRange, previewText } = await import("../lib/weekChart/bucket.ts");
+  const now = Date.UTC(2026, 9, 21, 16, 30); // 한국 22일 01:30 → 16~22일
+  assert.equal(weekDayRange("2026-10-15", now), null);
+  assert.equal(weekDayRange("2026-10-23", now), null);
+  assert.deepEqual(weekDayRange("2026-10-16", now), { from: "2026-10-15T15:00:00.000Z", to: "2026-10-16T15:00:00.000Z" });
+  assert.equal(previewText("  가\n나  "), "가 나");
+  assert.equal(previewText("가".repeat(81)), "가".repeat(80) + "…");
+  assert.equal(previewText(null), "");
+});

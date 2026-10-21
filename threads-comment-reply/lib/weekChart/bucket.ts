@@ -63,3 +63,16 @@ export function bucketByKstDay(entries: (string | { at: string; series?: string 
   }
   return days;
 }
+
+/** 막대를 눌렀을 때 쓰는 하루 범위 — 최근 7일(오늘 포함) 안의 날짜만, 아니면 null */
+export function weekDayRange(dayKey: string, now = Date.now()): { from: string; to: string } | null {
+  const range = kstDayRange(dayKey);
+  if (!range || range.from < weekStartIso(now) || range.from > kstTodayStartIso(now)) return null;
+  return range;
+}
+
+/** 목록에 보일 앞부분(공백 정리, 기본 80자) */
+export function previewText(text: string | null | undefined, max = 80): string {
+  const s = (text ?? "").replace(/\s+/g, " ").trim();
+  return s.length > max ? `${s.slice(0, max)}…` : s;
+}

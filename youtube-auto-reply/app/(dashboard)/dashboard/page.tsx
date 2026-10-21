@@ -7,12 +7,16 @@ import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { StudioHeader, StatCard } from "@/components/ui/StudioHeader";
 import { PendingReviewList } from "@/components/PendingReviewList";
-import { WeekReplyChart } from "@/components/weekChart/WeekReplyChart";
+import { WeekReplyPanel } from "@/components/weekChart/WeekReplyPanel";
+import { loadWeekDayRepliesAction } from "@/lib/actions/weekReplies";
 import { bucketByKstDay, weekStartIso } from "@/lib/weekChart/bucket";
 import { YtLogo } from "@/components/ui/YtLogo";
 
 // v1.23: 공용 기준 코드 `pending-review-list` 목록 색
 const LIST_CLASSES = { text: "text-yt-text", muted: "text-yt-muted", hover: "hover:bg-yt-raised" };
+
+// v1.29: 막대 누르면 그날 답한 목록(공용 기준 코드 `week-reply-panel`) 색
+const WEEK_PANEL_CLASSES = { border: "border-yt-border", item: "bg-yt-raised", muted: "text-yt-muted", danger: "text-red-400" };
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -160,9 +164,9 @@ export default async function DashboardPage() {
         <StatCard label="모니터링 중인 영상" value={monitoredRes.count ?? 0} />
       </div>
 
-      {/* v1.28: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프) */}
+      {/* v1.28: 최근 7일 응대 그래프(공용 기준 코드 — 통합 받은편지함과 같은 그래프, v1.29: 막대 누르면 그날 목록) */}
       <div className="yt-card text-yt-text mb-6">
-        <WeekReplyChart days={weekDays} />
+        <WeekReplyPanel days={weekDays} loadDay={loadWeekDayRepliesAction} classes={WEEK_PANEL_CLASSES} />
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-5">

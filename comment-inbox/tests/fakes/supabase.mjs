@@ -1,4 +1,4 @@
-// 메모리 가짜 Supabase — 게시 함수가 쓰는 만큼만(select·update·eq·neq·or·maybeSingle).
+// 메모리 가짜 Supabase — 게시 함수·그날 목록이 쓰는 만큼만(select·update·eq·neq·gte·lt·in·or·order·limit·maybeSingle).
 // 한 요청의 조건 확인과 값 변경은 한 번에(중간에 다른 요청이 끼지 않게) 처리해 DB의 행 단위 원자성과 같게 동작한다.
 export function createFakeSupabase(tables) {
   return { from: (name) => new Query(tables, name) };
@@ -31,6 +31,26 @@ class Query {
     this.filters.push((r) => r[col] !== val);
     return this;
   }
+  gte(col, val) {
+    this.filters.push((r) => r[col] != null && r[col] >= val);
+    return this;
+  }
+  lt(col, val) {
+    this.filters.push((r) => r[col] != null && r[col] < val);
+    return this;
+  }
+  in(col, vals) {
+    this.filters.push((r) => vals.includes(r[col]));
+    return this;
+  }
+  order(col, { ascending = true } = {}) {
+    this.sort = [col, ascending];
+    return this;
+  }
+  limit(n) {
+    this.max = n;
+    return this;
+  }
   // PostgREST or 문법 중 게시 함수가 쓰는 것만: "칸.is.null,칸.lt.값"
   or(expr) {
     const parts = expr.split(",");
@@ -58,6 +78,11 @@ class Query {
       for (const r of rows) Object.assign(r, this.values);
       return { data: this.returning ? rows.map((r) => ({ id: r.id })) : null, error: null };
     }
+    if (this.sort) {
+      const [col, asc] = this.sort;
+      rows.sort((a, b) => (a[col] < b[col] ? -1 : a[col] > b[col] ? 1 : 0) * (asc ? 1 : -1));
+    }
+    if (this.max != null) rows.splice(this.max);
     if (this.single) return { data: rows[0] ? { ...rows[0] } : null, error: null };
     return { data: rows.map((r) => ({ ...r })), error: null };
   }

@@ -292,6 +292,8 @@ export type RepliedItem = {
   platform: InboxPlatform;
   id: string;
   authorLabel: string;
+  /** v1.08 상대가 남긴 원래 댓글·메시지 앞부분 */
+  comment: string;
   /** 실제로 게시·발송한 답장 앞부분 */
   reply: string;
   at: string;
@@ -302,7 +304,7 @@ const DAY_LIST_LIMIT = 50;
 const REPLY_PREVIEW = 80;
 
 /**
- * v1.07 그래프 막대를 눌렀을 때 — 한국 시간 그날 게시·발송한 본인 항목(권한 있는 플랫폼, 플랫폼마다 최근 50건).
+ * v1.07 그래프 막대를 눌렀을 때(v1.08: 상대 원래 댓글·메시지 앞부분도) — 한국 시간 그날 게시·발송한 본인 항목(권한 있는 플랫폼, 플랫폼마다 최근 50건).
  * 날짜 형식이 아니거나 최근 7일 밖이면 빈 목록.
  */
 export async function loadDayReplied(userId: string, access: InboxAccess, dayKey: string): Promise<RepliedItem[]> {
@@ -328,36 +330,36 @@ export async function loadDayReplied(userId: string, access: InboxAccess, dayKey
   await Promise.all([
     (async () => {
       if (!access.instagram) return;
-      const { data } = await day("ig_comments", "id, media_id, author_username, generated_reply, replied_at");
-      for (const r of (data ?? []) as unknown as { id: string; media_id: string; author_username: string | null; generated_reply: string | null; replied_at: string }[]) {
-        items.push({ platform: "ig_comment", id: r.id, authorLabel: r.author_username ? `@${r.author_username}` : "익명", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.instagram.url}/comments#media-${r.media_id}` });
+      const { data } = await day("ig_comments", "id, media_id, author_username, comment_text, generated_reply, replied_at");
+      for (const r of (data ?? []) as unknown as { id: string; media_id: string; author_username: string | null; comment_text: string | null; generated_reply: string | null; replied_at: string }[]) {
+        items.push({ platform: "ig_comment", id: r.id, authorLabel: r.author_username ? `@${r.author_username}` : "익명", comment: cut(r.comment_text), reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.instagram.url}/comments#media-${r.media_id}` });
       }
     })(),
     (async () => {
       if (!access.instagram) return;
-      const { data } = await day("dm_messages", "id, conversation_id, generated_reply, replied_at");
-      const rows = (data ?? []) as unknown as { id: string; conversation_id: string; generated_reply: string | null; replied_at: string }[];
+      const { data } = await day("dm_messages", "id, conversation_id, message_text, generated_reply, replied_at");
+      const rows = (data ?? []) as unknown as { id: string; conversation_id: string; message_text: string | null; generated_reply: string | null; replied_at: string }[];
       if (!rows.length) return;
       const ids = Array.from(new Set(rows.map((r) => r.conversation_id)));
       const { data: convs } = await admin.from("dm_conversations").select("id, customer_username").eq("user_id", userId).in("id", ids);
       const byId = new Map((convs ?? []).map((c) => [c.id, c.customer_username as string | null]));
       for (const r of rows) {
         const name = byId.get(r.conversation_id);
-        items.push({ platform: "ig_dm", id: r.id, authorLabel: name ? `@${name}` : "고객", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.instagram.url}/dm/conversations#conv-${r.conversation_id}` });
+        items.push({ platform: "ig_dm", id: r.id, authorLabel: name ? `@${name}` : "고객", comment: cut(r.message_text), reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.instagram.url}/dm/conversations#conv-${r.conversation_id}` });
       }
     })(),
     (async () => {
       if (!access.threads) return;
-      const { data } = await day("th_comments", "id, post_id, author_username, generated_reply, replied_at");
-      for (const r of (data ?? []) as unknown as { id: string; post_id: string; author_username: string | null; generated_reply: string | null; replied_at: string }[]) {
-        items.push({ platform: "threads", id: r.id, authorLabel: r.author_username ? `@${r.author_username}` : "익명", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.threads.url}/comments#post-${r.post_id}` });
+      const { data } = await day("th_comments", "id, post_id, author_username, comment_text, generated_reply, replied_at");
+      for (const r of (data ?? []) as unknown as { id: string; post_id: string; author_username: string | null; comment_text: string | null; generated_reply: string | null; replied_at: string }[]) {
+        items.push({ platform: "threads", id: r.id, authorLabel: r.author_username ? `@${r.author_username}` : "익명", comment: cut(r.comment_text), reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.threads.url}/comments#post-${r.post_id}` });
       }
     })(),
     (async () => {
       if (!access.youtube) return;
-      const { data } = await day("ytreply_comments", "id, video_id, author_display_name, generated_reply, replied_at");
-      for (const r of (data ?? []) as unknown as { id: string; video_id: string; author_display_name: string | null; generated_reply: string | null; replied_at: string }[]) {
-        items.push({ platform: "youtube", id: r.id, authorLabel: r.author_display_name ?? "익명", reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.youtube.url}/comments#video-${r.video_id}` });
+      const { data } = await day("ytreply_comments", "id, video_id, author_display_name, comment_text, generated_reply, replied_at");
+      for (const r of (data ?? []) as unknown as { id: string; video_id: string; author_display_name: string | null; comment_text: string | null; generated_reply: string | null; replied_at: string }[]) {
+        items.push({ platform: "youtube", id: r.id, authorLabel: r.author_display_name ?? "익명", comment: cut(r.comment_text), reply: cut(r.generated_reply), at: r.replied_at, sourceHref: `${SOURCE_PROGRAMS.youtube.url}/comments#video-${r.video_id}` });
       }
     })(),
   ]);
