@@ -1,6 +1,6 @@
 # AIMaster 프로그램 아이디어·개선 검토 원장
 <!-- LYRICBI_ANALYSIS_20261021 -->
-2026-10-21 Claude Code(윈도우) **IDEA-LYRIC-01 가사 영상(리릭비디오) 새 프로그램 — 검토 대기(주인님 결정 대기)**. 근거: 외부 상용 앱 Lyricbi 1.9.0 정적 분석 + 저장소 `.srt`·노래방·시간 가사 코드 0건([분석 보고서](analysis-lyricbi-20261021/REPORT.md)). 개발=공용 `browser-mp4-encoder` 사본·Canvas 그리기(Remotion 미사용)·`lyric_projects` 회원별 RLS 1개, 디자인=가로/세로 프리셋·현재 줄 강조·탭 싱크 편집기, 기존에 없던 시스템=음악(SUNO) 자동화 곡의 `task_id`·`suno_audio_id`로 Suno 단어별 시간 가사를 받아 「곡 생성 → 가사 영상」 무입력 연결. 채택 기준: ①안정적 자동화=브라우저 렌더·기존 인코더 검증됨, 시간 가사 호출은 미검증 ②현재 적용성=음악(SUNO) 자동화 저장값 그대로 사용 가능 ③사용자 편의=`.srt` 직접 제작 불필요. 비용/위험=서버 렌더 0, Suno 시간 가사 크레딧 단가 미확인. 중복=`playlist-channel-studio` 영상(가사 없음)과 일부 겹침 → 독립 추천. 다음 단계: 주인님 방향·이름 결정 후 개발 플랜.
+2026-10-21 Claude Code(윈도우) **IDEA-LYRIC-01 가사 영상(리릭비디오) 새 프로그램 — 채택(2026-10-21 주인님 결정) · 1차 구현·운영 공개 완료(`lyric-video-studio` v1.01, 검수 증거 `lyric-video-studio/docs/DESIGN_HANDOFF.md`) · 2차(Suno 시간 가사·`music/` 곡 카드 링크) 대기 — `music/`은 다른 세션 병합 작업 중이라 끝난 뒤 진행**. 근거: 외부 상용 앱 Lyricbi 1.9.0 정적 분석 + 저장소 `.srt`·노래방·시간 가사 코드 0건([분석 보고서](analysis-lyricbi-20261021/REPORT.md)). 개발=공용 `browser-mp4-encoder` 사본·Canvas 그리기(Remotion 미사용)·`lyric_projects` 회원별 RLS 1개, 디자인=가로/세로 프리셋·현재 줄 강조·탭 싱크 편집기, 기존에 없던 시스템=음악(SUNO) 자동화 곡의 `task_id`·`suno_audio_id`로 Suno 단어별 시간 가사를 받아 「곡 생성 → 가사 영상」 무입력 연결. 채택 기준: ①안정적 자동화=브라우저 렌더·기존 인코더 검증됨, 시간 가사 호출은 미검증 ②현재 적용성=음악(SUNO) 자동화 저장값 그대로 사용 가능 ③사용자 편의=`.srt` 직접 제작 불필요. 비용/위험=서버 렌더 0, Suno 시간 가사 크레딧 단가 미확인. 중복=`playlist-channel-studio` 영상(가사 없음)과 일부 겹침 → 독립 추천. 다음 단계: 주인님 방향·이름 결정 후 개발 플랜.
 <!-- /LYRICBI_ANALYSIS_20261021 -->
 
 

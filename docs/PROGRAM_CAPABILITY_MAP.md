@@ -101,6 +101,7 @@
 | 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.32 | **병합됨 → auto-instagram-posting(2026-10-20), 노출 중지** | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | 유튜브 | v1.20 | 공개(new) | 주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다. |
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.06 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
+| 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.01 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
 
 ## 0. 이 문서를 쓰는 방법
 1. **새 프로그램 기획 전**: §3 분야 묶음에서 비슷한 프로그램을 찾고, §4 카드의 장점·단점을 읽는다. 「기존 A의 장점 + B의 장점 − A·B의 단점」으로 기획안을 쓰고, 보고할 때 어떤 프로그램에서 무엇을 가져왔는지 밝힌다.
@@ -143,7 +144,7 @@
 | 엑셀·CSV 읽기/쓰기·원본 서식 유지 | `file-merge/src/lib/files/{sheetio,table,styled}.ts` | ExcelJS 100만 칸 한도 |
 | 텍스트 인코딩 자동 판별(CP949/UTF-8)·문장 경계 나누기 | `file-merge/src/lib/files/text.ts` | |
 | 브라우저 영상 처리(ffmpeg.wasm) | `video-to-gif`, `infinite-loop-video` | 서버 전송 없음 |
-| 브라우저 MP4 렌더링(WebCodecs+mp4-muxer) | `playlist-channel-studio`(`src/lib/render/`, 2026-10-20 yt-playlist-studio에서 이동), `vinyl-lp-studio` | |
+| 브라우저 MP4 렌더링(WebCodecs+mp4-muxer) | `playlist-channel-studio`(`src/lib/render/`, 2026-10-20 yt-playlist-studio에서 이동), `vinyl-lp-studio`, 공용 `browser-mp4-encoder` 사본: `shots`·`lyric-video-studio` | |
 | 브라우저 오디오 처리(Web Audio) | `ai-mastering-studio`, `music-player` | |
 | PPTX 생성 | `ai-slide-builder`(pptxgenjs) | |
 | DOCX·EPUB·PDF·HTML 내보내기 | `document-translator`(DOCX), `ebook-studio`(EPUB·PDF·HTML), `markdown-studio`(PDF·DOCX·ZIP) | |
@@ -173,7 +174,7 @@
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
 | Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply(댓글·DM 응대 — 2026-10-20 instagram-dm-reply 병합) | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
 | 유튜브 | youtube-viral-studio(YOUTUBE 트렌드 분석 — 떡상 발굴 + 채널·키워드 진단, 2026-10-20 youtube-channel-consultant 병합) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(AI 썸네일·SEO 자동화 — A/B 썸네일 + SEO 전략, 2026-10-20 seo-thumbnail-pro 병합) · (병합됨: seo-thumbnail-pro 메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
-| 음악 | music-automation(Suno 실제 생성) · suno-music-studio(정밀 기획) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
+| 음악 | music-automation(Suno 실제 생성) · suno-music-studio(정밀 기획) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
 | 상세페이지 | detail-page-12p(상품명만으로 12단) · shop-detail-page(사진 분석 15섹션) · auto-detail-page(HTML) | 사진 분석 + 스펙 자동 채우기 + 이미지형·HTML형 동시 출력 |
@@ -858,6 +859,16 @@
 - **활용 용도**: 음원을 발매하는 음악가(음원 홍보 영상·앨범 아트까지 해결) · 플레이리스트·로파이 채널 운영자(분위기 있는 배경·반복 사용 가능) · 질감까지 신경 쓰는 분(아날로그 감성 연출·세밀한 설정)
 - **단점·한계**: 영상 변환이 기기 성능에 좌우 · 정사각형 아트 위주
 - **키·계정·주의**: 이미지 생성에는 회원 본인의 Gemini API 키를 사용합니다. 영상 변환은 내 브라우저에서 처리되어 기기 성능에 따라 시간이 다릅니다.
+
+#### AI 가사영상 자동화 (`lyric-video-studio`)
+- 주소·폴더: https://lyric-video-studio.buylife.xyz · `lyric-video-studio/` · v1.01 (2026-10-21 새 프로그램, 외부 앱 Lyricbi 분석 후 새로 설계 — `docs/analysis-lyricbi-20261021/REPORT.md`)
+- **차별점**: 음악과 가사만으로 「지금 부르는 줄」이 강조되며 흐르는 가사 영상을 설치·API 키 없이 브라우저에서 만드는 유일한 프로그램. 시간 없는 가사는 스페이스바 탭 싱크로 맞춘다.
+- **기능**: 음악·커버·제목, 가사 `.srt`·`.lrc`·붙여넣기(형식 오류에 너그러움) / 탭 싱크(손 반응 보정·줄별 ±0.1초·`.srt` 받기) / 가로 6·세로 4 프리셋, 현재 줄 강조 7종(노래방 채움·형광펜·밑줄 긋기 등), 서체 6종, 스펙트럼 3종 / 1080p MP4(공용 `browser-mp4-encoder` 사본) / 보관함(가사 시간표·디자인만, 30일 삭제)
+- **장점**: 설치·키 불필요(파일 서버 전송 없음) · 미리보기와 결과가 같은 그리기 함수 · 20초 1080p 약 6초 생성(실측) · 세로 쇼츠 지원
+- **사용 순서**: 1 음악·가사 넣기 → 2 가사 싱크 → 3 디자인 → 4 MP4 내보내기
+- **활용 용도**: AI로 곡을 만드는 분(Suno 곡을 가사 영상으로) · 자작곡·커버곡 업로더(자막 프로그램 없이 탭으로 시간) · 음악 채널 운영자(같은 톤 프리셋)
+- **단점·한계**: 음악·커버는 저장 안 됨(다시 선택) · 12분 이하 · 휴대폰·사파리 인코딩 미지원 가능 · 노래방 발음·LP·플레이리스트는 2·3차
+- **키·계정·주의**: 1차는 API 키가 필요 없습니다. 2차에 회원 본인 Suno 키로 시간 가사를 받아오는 기능을 더할 예정입니다.
 
 #### Youtube Playlist 자동화 (`yt-playlist-studio`)
 - **병합됨 → `playlist-channel-studio`(YOUTUBE 플레이리스트 자동화, 2026-10-20)**: 영상 기능 전체가 합친 앱 `/video`로 이동, 카탈로그(음악 분야) 노출 중지, 옛 주소는 이동·API 전달(v1.15). 아래 카드는 병합 전 기록.

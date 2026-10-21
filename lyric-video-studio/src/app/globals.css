@@ -1,5 +1,5 @@
 /* AI 가사영상 자동화 — docs/PROGRAM_DESIGN_STANDARD.md 적용
-   템플릿: 「리릭 스테이지 다크 스타일」(플로우 위저드 4단계 + 크리에이티브 아틀리에 미리보기). 미디어 프로그램이라 다크 기본, 라이트 전환 지원. */
+   템플릿: 「플로우 위저드 스타일 — 리릭 스테이지 바이올렛 변형」(4단계 흐름 + 아틀리에식 미리보기). 미디어 프로그램이라 다크 기본, 라이트 전환 지원. */
 :root{
   --bg:#0b1020;--surface:#141b2d;--surface-2:#1a2337;--line:#273249;--line-strong:#34415e;
   --fg:#eef2f8;--muted:#94a3b8;--brand:#a78bfa;--brand-strong:#7c3aed;--brand-soft:rgba(167,139,250,.13);--brand-line:rgba(167,139,250,.35);

@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-21 — 새 프로그램을 다른 프로그램 폴더에서 복사할 때 `.env.local`은 복사하지 말 것(그 프로젝트의 Vercel 토큰만 들어 있음), `next dev`는 `AGENTS.md`를 자동으로 만든다, Supabase SQL Editor 화면에서는 로컬 주소 `fetch`가 막힌다 (lyric-video-studio v1.01, Claude Code 윈도우)
+- 증상: ① `shorts-onestop-studio/.env.local`을 복사했더니 내용은 그 프로젝트의 `VERCEL_OIDC_TOKEN` 하나뿐(Supabase 값 없음) ② 커밋 목록에 직접 만들지 않은 `AGENTS.md`가 들어감 ③ SQL Editor 탭에서 `fetch("http://127.0.0.1:…")`로 SQL을 받아오려 하자 `Failed to fetch`.
+- 원인: ① 각 폴더 `.env.local`은 `vercel link`가 만든 그 프로젝트 전용 파일 ② Next 16 `next dev`가 Next.js 안내 블록이 든 `AGENTS.md`를 만든다 ③ Supabase 대시보드의 보안 정책(CSP)이 다른 주소 요청을 막음.
+- 해결: ① 복사본 삭제 후 `vercel link --yes --project <이름> --scope buylife` → 환경변수는 루트 `.env.local` 값으로 `vercel env add … production`(값 출력 없이) ② 그 블록을 프로그램 `AGENTS.md` 끝에 남기고 위에 인수인계 7대 항목을 씀 ③ SQL을 문자열로 만들어 `monaco.editor.getModels()[0].setValue(sql)`로 직접 넣음(10KB 이하면 충분).
+- 다음부터: 새 프로그램 뼈대 복사 목록에서 `.env.local`·`.vercel`을 뺀다. 브라우저 안 영상 기능 시험은 스크립트 클릭으로는 `play()`가 자동 재생 차단(NotAllowedError)되니 실제 클릭·키 입력으로 한다.
+
 ## 2026-10-21 — Gemini Files API 이어 올리기(resumable)는 조각 단위가 8MB라 Vercel 함수(본문 4.5MB 한도)를 거쳐 조각으로 보낼 수 없다 → 서버는 세션만 시작하고 브라우저가 직접 올림, 세션 시작 때 `Origin` 머리글 필수 (ai-audio-analyzer v1.11, Claude Code 윈도우)
 - 증상: 4MB 조각을 서버로 보내 Google에 이어 붙이자 400 「The client sent 4194304 bytes, which is not a multiple of the 8388608 byte chunk granularity」. 그다음 브라우저가 올림 주소로 직접 보내자 `TypeError: Failed to fetch`(CORS 차단).
 - 원인: ① Google 이어 올리기는 마지막이 아닌 조각을 8MB 배수로 요구 ② 올림 주소에 대한 브라우저 직접 요청(CORS)은 **세션을 시작한 요청에 `Origin` 머리글이 있었을 때만** 허용된다.

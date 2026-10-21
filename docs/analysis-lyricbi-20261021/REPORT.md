@@ -5,6 +5,8 @@
 > **코드·DB 변경 없음 — 분석만.** 원본 EXE는 실행하지 않았고 파일 내용만 살펴봤습니다(REA 지침 §2).
 > **근거 출처**: 설치 파일 정적 분석(아래 §0), 저장소 소스 코드, `node scripts/analyze-category.mjs --slugs …`(운영 DB 읽기), sunoapi 공식 문서 1건. 근거 요약 JSON: [`evidence/lyricbi-static-analysis.json`](evidence/lyricbi-static-analysis.json).
 
+> **진행 결과(2026-10-21 같은 날)**: 주인님 결정 — 새 프로그램, 이름 「AI 가사영상 자동화」(`lyric-video-studio`), 1차부터, 권한 부여 방식, 2차에 음악(SUNO) 곡 카드 링크. **1차 v1.01 운영 공개 완료** → https://lyric-video-studio.buylife.xyz · 인수인계 [`lyric-video-studio/AGENTS.md`](../../lyric-video-studio/AGENTS.md)
+
 ## 결론 (먼저)
 
 **새 웹 프로그램 1개를 만들고(가칭 「AI 리릭비디오 자동화」 `lyric-video-studio`), 기존 프로그램 3개에서 검증된 엔진을 사본으로 가져오며, 음악(SUNO) 자동화와는 「곡 가져오기」로 잇는 방식을 추천합니다.** 기존 프로그램 하나에 통째로 넣는 확장은 추천하지 않습니다.
