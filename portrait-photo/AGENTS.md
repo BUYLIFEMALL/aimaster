@@ -191,3 +191,7 @@
 ## 2026-10-22 v1.32 — 서버 보관함 「🔁 형식 바꾸기」 (Claude Code 윈도우, 이미지 재비교 L3)
 - `HistoryList.tsx` 서버 보관 사진의 [저장] 옆에 `https://image-convert-studio.buylife.xyz/convert?src=<서명 주소>` 링크(서명 1시간). 방금 만든 결과(브라우저 안 데이터)는 주소로 넘길 수 없어 서버 보관 사진에만. 받는 쪽 변환 스튜디오 v1.10.
 - 검수: 시험 35개, build, 배포 `portrait-photo-hwbkummkx` Ready, DB v1.32. 받기 흐름은 시험 그림으로 크롬 확인(시험 계정 보관함이 비어 버튼 자체는 화면에서 못 봄).
+
+## 2026-10-22 v1.33 — 서버 보관함 「👗 이 사진으로 코디」·「🍌 바나나로 편집」 (Claude Code 윈도우, 이미지 재비교 L4)
+- `HistoryList.tsx` 서버 보관 사진에 AI 패션스타일(`/studio?src=`)·AI 바나나 캔버스(`/studio?import=`) 링크(서명 1시간). 받는 쪽이 버킷(바나나는 본인 폴더까지)을 검사.
+- 검수: 시험 35개, build, 배포 `portrait-photo-d91agj3kp` Ready, DB v1.33. 받는 두 흐름은 시험 그림으로 크롬 확인(시험 계정 보관함이 비어 버튼 자체는 화면에서 못 봄).

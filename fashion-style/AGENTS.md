@@ -108,3 +108,7 @@
 - **Pro 글 모델**: `gemini-3-pro-preview`(미리보기 — 예고 없이 종료될 수 있음) → **`gemini-3.8-flash`**(정식, `ai-auto-blog` 모델 표 lifecycle stable·「최신 Flash」). 쓰이는 곳: 코디 추천·뷰티 분석. 모델을 쓸 수 없으면 기존처럼 standard로 자동 폴백(`withModelFallback`). standard(`gemini-2.5-flash`)·이미지 모델은 그대로.
 - **30일 만료(D-57-01)**: 새 `src/lib/look/retention.ts`(`isExpired`·`keepFirstSavedAt`). `storage.ts`의 `loadWardrobe`·`loadLooks`가 처음 저장한 지 30일 지난 옷장 아이템·룩을 불러올 때 지움, `saveWardrobeItem`은 고쳐 저장해도 처음 시각(`addedAt`)을 유지(예전엔 저장할 때마다 `Date.now()`로 기한이 늘어남). 시각 없는 옛 자료는 지우지 않고 다음 저장부터 셈. 매뉴얼 「사진 보관·개인정보」에 30일 안내 추가.
 - 검수: tsc 0, 시험 17개(새 `tests/retention.test.mjs` 5개), build, 배포 `fashion-style-87tkzve5n` Ready, DB v1.11. 실제 호출(승인 1회): 시험 계정 본인 키로 `gemini-3.8-flash` 모델 조회 200(「Gemini 3.8 Flash」)·짧은 생성 200(21토큰, 1원 미만) — 폴백 없이 모델 자체를 직접 확인. 화면 흐름(사진 올리기 → 추천)은 이번에 생략.
+
+## 2026-10-22 v1.12 — AI 인물사진 「이 사진으로 코디」 받기 (Claude Code 윈도우, 이미지 재비교 L4)
+- `/studio?src=<인물사진 서명 주소>`: 새 `src/lib/look/importSource.ts`(`portrait-photo-files` 서명 주소만), `Studio.tsx`가 저장소 준비(`ready`) 뒤 브라우저에서 받아 둔 뒤 **사진 사용 동의가 있으면 바로, 없으면 동의 체크 순간** 기존 `loadPortrait`로 넣음. 안내 상자(`role=status`) 추가. 사진은 서버로 보내지 않음.
+- 검수: 시험 18개(새 `tests/importSource.test.mjs`), build, 배포 `fashion-style-fub7bwp9r` Ready, DB v1.12. 크롬(시험 회원): 시험 그림 받기 → 「동의에 체크하면 바로 들어갑니다」 안내까지 확인. **동의 체크는 회원 본인 절차라 대신 누르지 않음** — 동의 후 들어가는 부분은 기존 `loadPortrait` 경로.

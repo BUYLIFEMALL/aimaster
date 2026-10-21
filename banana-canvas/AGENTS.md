@@ -155,3 +155,7 @@
 - 바꾸지 않은 것: 프롬프트·작업 종류·화면(이미지 규칙: 연동 부분만). `gemini.ts`는 `IMAGE_MODELS`를 그대로 다시 내보내 다른 코드 영향 없음.
 - 백로그 「`ai-image-studio` 연동」 체크 보정(v1.14에서 `?import=`로 구현됨).
 - 검수: tsc 0, 시험 19개(새 `tests/imageModelChain.test.mjs` 3개), 공용 사본 일치 OK, build, 배포 `banana-canvas-n47a6tz2m` Ready, DB v1.15, 크롬 v1.15·기록 API 200. 실제 이미지 생성 시험은 하지 않음(처음 모델 동일·대체 순서만 변경, 이미지 규칙상 오류 시에만 시험).
+
+## 2026-10-22 v1.16 — AI 인물사진 받기 + 증명사진 「국가 규격은 AI 인물사진」 안내 (Claude Code 윈도우, 이미지 재비교 L4)
+- `api/import` 허용 버킷에 `portrait-photo-files` 추가(본인 폴더·서명 주소·리다이렉트 금지 검사는 그대로), 오류 문구 일반화. 빠른 작업 카드 증명사진 버튼 아래 `.bc-hint`로 「여권·비자·운전면허 등 국가별 규격(21종)·머리 비율 검사는 AI 인물사진」 링크.
+- 검수: 시험 20개(새 `tests/importRoute.test.mjs`), build, 배포 `banana-canvas-3qce9pbme` Ready, DB v1.16. 크롬(시험 회원): 인물사진 버킷 시험 그림(본인 폴더) `?import=` → 원본 이미지 320×240로 들어옴, 안내 문구 표시. 시험 그림·입력 사본 2장 삭제.

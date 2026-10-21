@@ -144,6 +144,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L4: 인물사진 → 패션스타일·바나나 연결 (바나나 v1.16 · 패션 v1.12 · 인물사진 v1.33)
+- 인물사진 서버 보관함에 「👗 이 사진으로 코디」·「🍌 바나나로 편집」, 패션스타일은 `?src=` 받기(사진 사용 동의 후 넣음), 바나나는 받기 허용에 인물사진 버킷·증명사진 아래 국가 규격 안내. 배포 3건 Ready·DB 반영, 크롬에서 두 흐름 확인·시험 흔적 삭제. 상세 각 `AGENTS.md`.
+- 비용: Vercel 빌드 3회, AI 0원. 다음: L5 이미지 스튜디오·바나나 → 스토리보드(이미지 스튜디오 쪽은 다른 세션 뒤), L6 감성 글귀 → INSTA.
+- 프로그램: https://portrait-photo.buylife.xyz · https://fashion-style.buylife.xyz · https://banana-canvas.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L3: 「🔁 형식 바꾸기」 연결 (변환 스튜디오 v1.10 · 인물사진 v1.32 · 4컷 v1.26)
 - 변환 스튜디오가 바나나·인물사진·4컷 버킷 서명 주소를 받음(`src/lib/importSource.ts`), 인물사진·4컷 서버 보관함에 버튼. 배포 3건 Ready·DB 반영, 크롬에서 시험 그림 받기 확인 후 삭제. 이미지 스튜디오 쪽은 다른 세션(`shorts-onestop-studio` 뒤 `ai-image-studio` 예정) 작업이 끝난 뒤.
 - 비용: Vercel 빌드 3회, AI 0원. 다음: L4 인물사진 ↔ 패션스타일 ↔ 바나나 연결.

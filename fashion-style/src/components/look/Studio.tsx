@@ -13,6 +13,7 @@ import {
   deleteLook, deleteWardrobeItem, loadLooks, loadSettings, loadWardrobe, MAX_WARDROBE, openStore, saveLook, saveSettings, saveWardrobeItem,
   type LookStore, type SavedLook,
 } from "@/lib/look/storage";
+import { acceptsPortraitImport } from "@/lib/look/importSource";
 import {
   DEFAULT_SETTINGS, type AISuggestion, type BeautyAdvice, type BeautyType, type ClothingItem, type ImageState, type SuggestionKind, type UserSettings,
 } from "@/lib/look/types";
@@ -38,6 +39,9 @@ export function Studio({ userId }: { userId: string }) {
   const [activeSituation, setActiveSituation] = useState("");
   const [busy, setBusy] = useState<Busy>(NOT_BUSY);
   const [error, setError] = useState<string | null>(null);
+  // AI 인물사진에서 넘어온 사진(v1.12): 사진 사용 동의 전이면 기다렸다가 동의하는 순간 넣는다
+  const [pendingImport, setPendingImport] = useState<Blob | null>(null);
+  const [importNote, setImportNote] = useState<string | null>(null);
   const [needKey, setNeedKey] = useState(false);
   const [beauty, setBeauty] = useState<BeautyAdvice | null>(null);
   const [beautyOpen, setBeautyOpen] = useState(false);
@@ -107,6 +111,39 @@ export function Studio({ userId }: { userId: string }) {
       setOutfits([]); setAccessories([]); setBeauty(null); setCompare(false); setApplied(null);
     } catch (e) { handleFail(e); }
   }, [handleFail]);
+
+  // ---- AI 인물사진 「이 사진으로 코디」(?src=서명 주소) 받기 — v1.12 ----
+  useEffect(() => {
+    if (!ready) return;
+    const src = new URLSearchParams(window.location.search).get("src");
+    if (!src) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    if (!acceptsPortraitImport(src, process.env.NEXT_PUBLIC_SUPABASE_URL)) {
+      setImportNote("가져올 수 없는 사진 주소입니다. AI 인물사진 서버 보관함의 「이 사진으로 코디」로 다시 열어 주세요.");
+      return;
+    }
+    (async () => {
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        if (!res.ok || !blob.type.startsWith("image/")) throw new Error();
+        setPendingImport(blob);
+      } catch {
+        setImportNote("사진을 불러오지 못했습니다(주소는 1시간 뒤 만료됩니다). AI 인물사진에서 다시 보내 주세요.");
+      }
+    })();
+  }, [ready]);
+
+  useEffect(() => {
+    if (!pendingImport) return;
+    if (!settings.consent) {
+      setImportNote("AI 인물사진에서 보낸 사진이 준비됐습니다. 아래 「사진 사용 동의」에 체크하면 바로 들어갑니다.");
+      return;
+    }
+    const blob = pendingImport;
+    setPendingImport(null);
+    void loadPortrait(blob).then(() => setImportNote("AI 인물사진에서 보낸 사진을 넣었습니다. 상황을 고르고 코디를 추천받으세요."));
+  }, [pendingImport, settings.consent, loadPortrait]);
 
   // ---- 옷장 ----
   const addToWardrobe = useCallback(async (images: { img: ImageState; fallbackName: string }[]) => {
@@ -401,6 +438,13 @@ export function Studio({ userId }: { userId: string }) {
             </select>
           </label>
           <p className="muted">{t.costNote}</p>
+        </div>
+      )}
+
+      {importNote && (
+        <div className="ls-alert" role="status">
+          <span>{importNote}</span>
+          <button type="button" aria-label={t.close} onClick={() => setImportNote(null)}><X size={14} /></button>
         </div>
       )}
 

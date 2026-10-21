@@ -151,7 +151,7 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
     })();
   }, [fromId, fromIndex]);
 
-  // 다른 프로그램(AI 이미지 스튜디오)에서 「바나나 캔버스로 보내 편집」으로 들어온 경우(v1.14)
+  // 다른 프로그램(AI 이미지 스튜디오 v1.14, AI 인물사진 v1.16)에서 「바나나 캔버스로 보내 편집」으로 들어온 경우
   useEffect(() => {
     if (!importUrl) return;
     (async () => {
@@ -359,6 +359,9 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
               <button type="button" disabled={disabled || noBase} onClick={() => void run("floorplan", { aspect: planAspect })}>🏠 평면도를 3D로<small>비율 {planAspect}</small></button>
             </div>
             <AspectPick value={planAspect} onChange={(a) => setPlanAspect(a as Aspect)} options={["4:3", "16:9", "1:1"]} />
+            {/* v1.16: 증명사진은 한 번 변환만 — 국가별 규격·머리 비율 검사는 전문 프로그램으로 안내 */}
+            <p className="bc-hint">🆔 여권·비자·운전면허 등 <b>국가별 규격(21종)과 머리 비율 검사</b>가 필요하면{" "}
+              <a href="https://portrait-photo.buylife.xyz/studio" target="_blank" rel="noopener noreferrer">AI 인물사진</a>에서 만드세요.</p>
             <input value={inpaintNote} maxLength={300} onChange={(e) => setInpaintNote(e.target.value)} placeholder="부분 수정 지시 (선택, 예: 칠한 곳에 커피잔 추가) — 비우면 지우기" disabled={disabled || noBase} aria-label="부분 수정 지시" />
             <div className="bc-btns">
               <AspectPick value={expandAspect} onChange={(a) => setExpandAspect(a as Aspect)} options={["16:9", "9:16", "1:1", "4:3", "3:4"]} />
