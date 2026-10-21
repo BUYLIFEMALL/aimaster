@@ -17,7 +17,12 @@
   },
   "schemaCheckIgnore": [
     "member_platform_accounts",
-    "integration_catalog"
+    "integration_catalog",
+    "cns_projects",
+    "cns_templates",
+    "cns_insta_posts",
+    "cardnews-images",
+    "notices"
   ],
   "schema": {
     "mode": "static"

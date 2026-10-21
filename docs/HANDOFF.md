@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 배포판 `SNS_Auto_Posting_Kit_v1.08` 포장 · 텔레그램 링크 버튼 앱 확인
+- `D:PDSAIMater_KITSNS_Auto_Posting_Kit_v1.08.zip`(299개 파일): INSTA v1.46 기능(7일 게시 그래프·게시 시각 칸·저장 보완)·업그레이드 SQL `upgrade-20261022-published-at.sql`. 비밀값·DB 대조·짧은 경로 독립 모드 `npm ci`+`build` 통과. 공지 띠를 배포판에서 숨김(INSTA `layout.tsx`, 운영 미배포), 카드뉴스·공지 표를 `kit.json` 예외로. 비용 없음.
+- 텔레그램: 주인님 앱 화면으로 받은편지함 링크 버튼 표시 확인 완료(`comment-inbox/AGENTS.md`).
+- 남은 일: 실제 수강생 계정 설치·게시 시험, 배포판 `/cardnews` 직접 입력 처리(검토 대기), 시험 폴더 `D:kt8`(가짜 설정값·node_modules) 삭제는 주인님 몫.
+
 ## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.23 AI 동영상 장면(기본 Gemini Omni Flash, 선택 fal·Replicate, 단가 표시)
 - 한 일: 장면 사진 → 5초 AI 영상(다음 장면과 이어 붙이기), 모델 선택칸·버튼에 장면당 단가, 제출/15초 확인/새로고침 이어받기, 만드는 중 잠금, 영상 30일 자동 삭제(`/api/cron/cleanup-videos`), 설정에 fal·Replicate 키, 매뉴얼 갱신, fal 매뉴얼 게시글 신규(`platform_guides` f5f46fea…).
 - 운영 변경: 버킷 `shorts-onestop-studio` video/mp4 추가·30MB, Vercel `CRON_SECRET` 추가, DB `programs.version` v1.23. 배포 3회 Ready.

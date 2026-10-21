@@ -226,3 +226,8 @@
 ## 2026-10-22 ⏸ 보류 — 7일 그래프 글자 크게 (주인님 지시: 「놔뒀다가 다음에 수정할때 그때 같이 빌드」)
 - 무엇: 공용 그래프 사본 `src/components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx` 글자 한 단계씩 크게(제목 14→16px, 합계 12→14px, 막대 위 건수 11→14px, 날짜·요일 10→12px, 흐린 글자 투명도 60→80%, 그날 목록도 한 단계씩). 커밋 `9479f0bc`로 저장소에는 이미 반영됨.
 - **이 프로그램 단독 배포는 하지 않는다.** 다음에 이 프로그램을 다른 이유로 수정해 배포할 때 **함께 빌드**되며, 그때 버전 +0.01·DB 버전 갱신·크롬에서 그래프 글자 크기 확인 후 이 항목을 「배포됨(버전)」으로 바꾼다. 쓰레드 쇼핑제휴(v1.79)에는 이미 배포됨.
+
+## 2026-10-22 — 배포판 `SNS_Auto_Posting_Kit_v1.08` 포장 (Claude Code 윈도우)
+- `python scripts/make_lecture_kit.py --version v1.08 --out D:PDSAIMater_KIT` → 299개 파일, 비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build` 통과.
+- 포장 전 DB 대조가 카드뉴스 병합(`cns_*`·`cardnews-images`)·공지 띠(`notices`)를 잡음 → 카드뉴스는 독립 모드에서 이미 건너뜀(메뉴·게시글 관리 칸·예약 실행·남은 예약 세기·7일 그래프)이라 `KIT/kit.json` `schemaCheckIgnore`에 등록. **공지 띠는 독립 모드 처리가 없어** `src/app/(dashboard)/layout.tsx`에서 `!IS_STANDALONE`일 때만 그리게 함(운영 동작 같음 — **미배포, 다음 배포 때 함께**). `KIT/README.md` 업데이트 내역 v1.08 줄(포장 전에 넣음).
+- 카드뉴스 화면 주소(`/cardnews`)는 배포판에서 메뉴로 갈 수 없지만 주소를 직접 치면 열림(표가 없어 목록이 비거나 오류) — 검토 대기(`docs/IMPROVEMENTS.md`).

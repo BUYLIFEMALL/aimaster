@@ -174,11 +174,12 @@
 | `SNS_Auto_Posting_Kit` | **v1.05** | 2026-10-20 | 마법사 ②단계 Supabase 주소 → 프로젝트 목록(새 조직 화면 문제, 윈도우 리허설 중 발견)·지역 안내 실제 화면대로, 다른 세션 커밋 포함(INSTA v1.34 로그아웃 아이콘 `342c3e23`, 예약 실행 공용화 `41c39274` — 동작 같음). 209개 파일(`schedulerConfig.ts` 2개 추가)·비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build` 두 프로그램 통과 | 이 압축의 `KIT/README.md` 업데이트 내역에는 v1.05 줄이 없음(포장 뒤 추가 — 다음 포장부터) |
 | `SNS_Auto_Posting_Kit` | **v1.06** | 2026-10-20 | **윈도우 마법사 환경변수 BOM 오류 수정**(독립 모드 꺼짐 → 운영 주소 이동), ⑤·⑥ 문구 수정. 프로그램 코드는 v1.05와 같음. 209개 파일·비밀값·DB 대조 통과 | v1.01~v1.05 윈도우 설치본은 v1.06 업데이트 모드로 고쳐짐(리허설에서 확인 예정) |
 | `SNS_Auto_Posting_Kit` | **v1.07** | 2026-10-20 | 가입 화면 오류 수정(buylife.xyz 이동·확인 메일 localhost), 마법사 마무리 URL Configuration 안내. 211개 파일·비밀값·DB 대조 통과, 두 프로그램 tsc·기존 시험 통과 | 프로그램 코드 변경은 독립 모드 전용 — 운영 미배포(다음 배포 때) |
+| `SNS_Auto_Posting_Kit` | **v1.08** | 2026-10-22 | INSTA v1.34→v1.46(7일 게시 그래프·그날 게시 글, 게시 시각 칸 `published_at` + 칸 없는 DB 대비 저장 보완, 화면 정리), Threads 운영 v2.14(같음). 카드뉴스 병합 코드·공지 띠는 배포판에서 숨김 — 공지 띠를 독립 모드에서 그리지 않게 `(dashboard)/layout.tsx` 수정, `kit.json` `schemaCheckIgnore`에 `cns_projects`·`cns_templates`·`cns_insta_posts`·`cardnews-images`·`notices`. 299개 파일·비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build`(INSTA) 통과. 출력 `D:PDSAIMater_KIT\x60 | v1.07 이하 설치자는 `KIT/upgrade-20261022-published-at.sql` 권장(안 해도 게시 정상). 실제 수강생 계정 설치·게시는 미시험 |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
-| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.07` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
-| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.07` | ✅ 2026-10-20 윈도우 마법사 설치(v1.01)→업데이트(v1.06)·사이트 독립 모드 확인(Meta 연결·게시는 미시험, `REHEARSAL_LOG.md` 2차) | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
+| `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.08` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
+| `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.08` | ✅ 2026-10-20 윈도우 마법사 설치(v1.01)→업데이트(v1.06)·사이트 독립 모드 확인(Meta 연결·게시는 미시험, `REHEARSAL_LOG.md` 2차) | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
 
 ## 9. 관련 문서
