@@ -21,6 +21,11 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 카테고리 재비교·작업 플랜 (분석만, 주인님 결정 대기)
+- 결론: 병합 뒤 9개는 **더 합칠 것 없음(9개 유지)**. 대신 W(버그·규칙 미충족 7건) → L(프로그램 사이 연결 5건) → F(기능 추가 5건) 순서 플랜. 카테고리 간 후보 C1(4컷 ↔ 웹툰)·C2(감성 글귀 ↔ 카드뉴스)는 별도 분석 제안.
+- 새로 확인한 문제(코드 근거): 이미지 스튜디오 Ideogram·Recraft 11개 모델 호출 담당 누락(`lib/providers/index.ts`), 스토리보드 30일 정리 없음, 패션스타일 `gemini-3-pro-preview`·옷장 날짜 만료 없음, 4컷 `gemini-flash-lite-latest`, 바나나 이미지 모델 목록이 기준과 다름. **다른 카테고리 `ai-webtoon-studio`가 회원 Gemini 키 원문을 localStorage에 저장**(`StudioWorkspace.tsx:49-57`).
+- 운영 버킷 7개 모두 비공개(02:34 조회). 코드·DB 변경 없음. 아이디어 표는 다른 CLI 미커밋 변경이 있어 결정 뒤 등록.
+- 보고서: `docs/analysis-image-consolidation-20261021/REPORT.md` §8. 다음 첫 단계: 주인님 결정(§8-6) 뒤 W1(ai-image-studio v1.25)부터.
 ## 2026-10-22 Claude Code(윈도우) — 이커머스 병합 E0·E1·E2 운영 적용(AI 상세페이지 자동화 v1.17, 12단 v1.10·자동생성기 v1.21 숨김) · 상품소싱 v1.22 배포
 - 순서: E1 마이그레이션(칸 추가) → 15p v1.17 배포 → E0 비공개 버킷 마이그레이션 → 12단·자동생성기 배포 → E1·E2 SQL. 코드가 이미 v1.17이라 15p 빌드를 1회로 줄였고, 「E0 마이그레이션은 배포 뒤·E1 마이그레이션은 배포 앞」 조건은 지킴. DB는 운영 ① ref `esgxyikcnnvmlhygjkth`, 크롬 SQL Editor.
 - 확인: 템플릿 15·12·9, 버킷 비공개, 권한 연장 4명 처리, 숨김·버전·새 이름, 410·401·유예 응답, 옛 공개 주소 차단, 크롬(관리자 로그인)으로 이미지·내보내기·규격·이동 안내·공개 상세. shop-detail-page에 `CRON_SECRET` 추가.
