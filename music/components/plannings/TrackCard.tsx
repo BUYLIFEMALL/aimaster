@@ -26,6 +26,7 @@ import {
 import type { TrackMode, TrackStatus, VocalGender, MrStatus, WavStatus } from "@/types/database.types";
 import { RetentionBadge } from "@/components/RetentionBadge";
 import { TimedLyricsButton } from "./TimedLyricsButton";
+import { PersonaButton } from "./PersonaButton";
 
 // 악기별 분리 트랙 이름표(lib/ai/suno.ts SUNO_STEMS와 같은 순서 — 서버 전용 파일이라 여기 따로 둔다).
 const SUNO_STEM_LABELS = [
@@ -109,7 +110,15 @@ function trackTitleLabel(track: Pick<TrackCardData, "mode" | "vocal_gender" | "e
 }
 
 /** planningLang: 기획의 언어 — 트랙 자신은 언어를 따로 저장하지 않아서 기본값으로 쓴다. */
-export function TrackCard({ track, planningLang }: { track: TrackCardData; planningLang: string }) {
+export function TrackCard({
+  track,
+  planningLang,
+  personaByVariant = {},
+}: {
+  track: TrackCardData;
+  planningLang: string;
+  personaByVariant?: Record<string, string>;
+}) {
   const router = useRouter();
   const [lyrics, setLyrics] = useState(track.prompt_text);
   const [vocalGender, setVocalGender] = useState<VocalGender | "">(track.vocal_gender ?? "");
@@ -394,6 +403,14 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                         </a>
                       )}
                       {track.mode === "vocal" && <TimedLyricsButton variantId={variant.id} title={track.title} />}
+                      {track.mode === "vocal" && (
+                        <PersonaButton
+                          variantId={variant.id}
+                          title={track.title}
+                          durationSeconds={variant.duration_seconds}
+                          savedName={personaByVariant[variant.id] ?? null}
+                        />
+                      )}
                       {!latestMr && (
                         <button
                           type="button"

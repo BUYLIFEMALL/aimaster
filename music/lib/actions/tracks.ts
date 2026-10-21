@@ -65,6 +65,8 @@ export interface GenerateTracksOptions {
   // 정밀 기획 스튜디오에서 넘어온 곡(병합 M1): GPT로 다시 쓰지 않고 기획의 스타일·제외 스타일과 이 가사(연주곡은
   // BGM 설명)를 그대로 Suno에 보낸다. 곡 수 1, 태그 덧입히기·성별 변경에 따른 스타일 재생성 없음, OpenAI 키 불필요.
   fixedPrompt?: string;
+  // 2026-10-21 V6 2차 ③: 내 페르소나(music_personas.id). 보컬판에만 적용(목소리·스타일 유지).
+  personaId?: string | null;
 }
 
 export async function generateTracksAction(
@@ -98,7 +100,20 @@ export async function generateTracksAction(
   if (planningError || !planning) {
     return { error: "기획을 찾을 수 없습니다." };
   }
-  if (!planning.title || !planning.style_description || (!fixedPrompt && !planning.exclude_styles)) {
+
+  let sunoPersonaId: string | undefined;
+  if (options.personaId) {
+    const { data: persona } = await supabase
+      .from("music_personas")
+      .select("suno_persona_id")
+      .eq("id", options.personaId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!persona) return { error: "선택한 페르소나를 찾을 수 없습니다. 목록을 새로고침해 주세요." };
+    sunoPersonaId = persona.suno_persona_id;
+  }
+  // 제외 스타일은 GPT 기획이 채우기 전까지 null이다. 정밀 기획에서 보낸 기획은 의도적으로 ""(제외 없음)일 수 있어 null만 미완료로 본다(v1.28).
+  if (!planning.title || !planning.style_description || (!fixedPrompt && planning.exclude_styles == null)) {
     return { error: "기획이 아직 완료되지 않았습니다(스타일/제목 생성 실패). 기획을 다시 시도해주세요." };
   }
 
@@ -210,6 +225,7 @@ export async function generateTracksAction(
             vocalGender: toSunoVocalGender(modeVocalGender),
             model: sunoModel,
             ...sunoTuning,
+            ...(mode === "vocal" && sunoPersonaId ? { personaId: sunoPersonaId } : {}),
           },
           sunoKey,
         );

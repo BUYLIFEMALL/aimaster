@@ -20,6 +20,7 @@ export interface SendStudioTrackInput {
   instrumental: boolean;
   model?: string;
   variety?: number;
+  personaId?: string | null;
 }
 
 export interface SendStudioTrackState {
@@ -82,6 +83,7 @@ export async function sendStudioTrackToSunoAction(input: SendStudioTrackInput): 
     fixedPrompt,
     model,
     variety: input.variety,
+    personaId: input.personaId,
     vocalGender,
   });
   if (result.error || result.needsApiKey) {

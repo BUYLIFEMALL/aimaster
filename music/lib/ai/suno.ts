@@ -90,6 +90,8 @@ export interface RequestSunoGenerationInput {
   variety?: number;
   styleWeight?: number;
   weirdnessConstraint?: number;
+  // 2026-10-21 V6 2차 ③: 내 페르소나(같은 목소리·스타일)로 만들기 — personaModel=style_persona(V5·V5_5·V6 계열).
+  personaId?: string;
 }
 
 /**
@@ -129,6 +131,7 @@ export async function requestSunoGeneration(input: RequestSunoGenerationInput, a
       ...(variety != null ? { variety } : {}),
       ...(styleWeight != null ? { styleWeight } : {}),
       ...(weirdness != null ? { weirdnessConstraint: weirdness } : {}),
+      ...(input.personaId ? { personaId: input.personaId, personaModel: "style_persona" } : {}),
       callBackUrl: `${siteUrl}/api/webhooks/suno`,
     }),
   });
@@ -601,6 +604,42 @@ export async function requestSunoTimestampedLyrics(
     throw new Error(`Suno 시간 가사 요청이 실패했습니다:${sunoStatusHint(data.code)} ${data.msg ?? "알 수 없는 오류"}`);
   }
   return data.data?.alignedWords ?? [];
+}
+
+/**
+ * Suno `/api/v1/generate/generate-persona` — 완성된 곡(taskId+audioId)의 목소리·스타일을 페르소나로 만든다(콜백 없이 즉시 personaId).
+ * 분석 구간 vocalStart~vocalEnd는 10~30초. 같은 오디오로는 한 번만 만들 수 있다(409). V4 이상 곡만. (2026-10-21 V6 2차 ③)
+ */
+export async function requestSunoPersona(
+  input: { sourceTaskId: string; audioId: string; name: string; description: string; style?: string; vocalStart?: number; vocalEnd?: number },
+  apiKey: string,
+): Promise<string> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+  const response = await fetch(`${SUNO_BASE}/api/v1/generate/generate-persona`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      taskId: input.sourceTaskId,
+      audioId: input.audioId,
+      name: input.name.slice(0, 80),
+      description: input.description.slice(0, 1000),
+      ...(input.style ? { style: input.style.slice(0, 200) } : {}),
+      ...(input.vocalStart != null && input.vocalEnd != null ? { vocalStart: input.vocalStart, vocalEnd: input.vocalEnd } : {}),
+    }),
+    signal: AbortSignal.timeout(60_000),
+    cache: "no-store",
+  });
+  const body = (await response.json().catch(() => null)) as { code?: number; msg?: string; data?: { personaId?: string } } | null;
+  if (body?.code === 409 || response.status === 409) {
+    throw new Error("이 곡으로는 이미 페르소나를 만들었습니다(곡 하나당 한 번만 가능). 내 페르소나 목록에서 고르거나 다른 곡으로 만들어 주세요.");
+  }
+  if (!response.ok || body?.code !== 200 || !body.data?.personaId) {
+    const code = body?.code ?? response.status;
+    throw new Error(`Suno 페르소나 생성이 실패했습니다. (${code})${sunoStatusHint(code)} ${body?.msg ?? ""}`.trim());
+  }
+  return body.data.personaId;
 }
 
 /**

@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Track } from "@/lib/studio/config";
 import { sendStudioTrackToSunoAction } from "@/lib/actions/studioSuno";
+import { listPersonasAction, type PersonaOption } from "@/lib/actions/personas";
 
 // 정밀 기획 → Suno 실제 생성(2026-10-21 병합 M1 3단계). 곡 편집기(빌더·보관함·앨범 곡) 아래에 붙는다.
 // 기획한 제목·Style·가사를 GPT로 다시 쓰지 않고 그대로 보내고, 결과는 「음악 생성 · 트랙 관리」에서 이어진다.
@@ -26,6 +27,14 @@ export function SendToSuno({ track, instrumental }: { track: Track; instrumental
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [planningId, setPlanningId] = useState<string | null>(null);
+  const [personas, setPersonas] = useState<PersonaOption[]>([]);
+  const [personaId, setPersonaId] = useState("");
+
+  // 내 페르소나(V6 2차 ③) — 보컬 곡일 때만 고를 수 있다
+  useEffect(() => {
+    if (instrumental) return;
+    listPersonasAction().then(setPersonas).catch(() => setPersonas([]));
+  }, [instrumental]);
 
   const ready = track.title.trim() && track.style.trim() && (instrumental || track.lyrics.trim());
 
@@ -44,6 +53,7 @@ export function SendToSuno({ track, instrumental }: { track: Track; instrumental
         instrumental,
         model,
         variety: variety === "" ? undefined : Number(variety),
+        personaId: instrumental ? null : personaId || null,
       });
       if (res.needsApiKey) setMessage(`${res.needsApiKey === "suno" ? "Suno(sunoapi.org)" : res.needsApiKey} API 키를 [API 키 등록 · 플랫폼 연동]에서 먼저 등록해 주세요.`);
       else if (res.error) setMessage(res.error);
@@ -76,6 +86,16 @@ export function SendToSuno({ track, instrumental }: { track: Track; instrumental
             </option>
           ))}
         </select>
+        {!instrumental && personas.length > 0 && (
+          <select value={personaId} onChange={(e) => setPersonaId(e.target.value)} disabled={busy} aria-label="내 페르소나">
+            <option value="">페르소나 사용 안 함</option>
+            {personas.map((p) => (
+              <option key={p.id} value={p.id}>
+                🧑‍🎤 {p.name}
+              </option>
+            ))}
+          </select>
+        )}
         <button className="primary" disabled={busy || !ready} onClick={send}>
           {busy ? "요청 중..." : "Suno로 생성"}
         </button>

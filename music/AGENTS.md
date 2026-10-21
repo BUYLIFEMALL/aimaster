@@ -298,3 +298,18 @@ POST 콜백을 보낸다. 이 라우트는:
 ## 2026-10-21 v1.26 — 기획 상세 「🎞️ 플레이리스트 영상 만들기 →」 (Claude Code 윈도우)
 - `app/(dashboard)/plannings/[id]/page.tsx`: 완성 곡마다 첫 변주 번호(최대 20)를 `https://playlist-channel-studio.buylife.xyz/video?suno=id1,id2…`로 넘기는 새 창 링크. 플레이리스트(v1.20)는 그 곡들을 미리 선택만 하고 회원이 「선택한 곡 추가」(시간 가사·커버 배경은 그쪽 옵션). 이 앱 DB·Suno 호출 변경 없음.
 - 검수: tsc·build, 배포 Ready, DB v1.26, 크롬 일반 회원 「빗속의 다짐」 기획 화면에 「완성 곡 1개로 플레이리스트 영상 만들기 →」(새 창, 주소 확인) → 플레이리스트에서 미리 선택 확인.
+
+## 2026-10-21 v1.27 — Suno V6 2차 ③: 페르소나(같은 목소리로 새 곡) (Claude Code 윈도우)
+- 제안서 [docs/PLAN_20261021_SUNO_V6_FEATURES.md](docs/PLAN_20261021_SUNO_V6_FEATURES.md) ③. (v1.26은 같은 날 다른 세션의 「플레이리스트 영상 만들기」 링크 — 그대로 둠.)
+- **DB(승인)** `supabase/migrations/0016_music_personas.sql`: 새 표 `music_personas`(Suno 페르소나 ID·이름·설명·스타일·원곡 변주 `on delete set null`·원곡 제목, 회원별 RLS, anon 권한 없음). 회원 설정 성격이라 **30일 자동 삭제 대상 아님**(원곡이 지워져도 Suno 페르소나 ID는 계속 쓸 수 있음). 크롬 SQL 편집기로 적용.
+- `lib/ai/suno.ts` `requestSunoPersona`(`/generate/generate-persona`, 콜백 없이 즉시 `personaId`, 구간 10~30초, 곡 하나당 1번 — 409를 한국어 안내로), 곡 생성에 `personaId` + `personaModel: "style_persona"`.
+- `lib/actions/personas.ts`(만들기·목록·내 목록에서 지우기 — sunoapi.org에 페르소나 삭제 API가 없어 Suno 쪽은 남음), `generateTracksAction` 옵션 `personaId`(우리 표 id → 본인 행 확인 → **보컬판에만** 적용).
+- 화면: 곡 카드(보컬) 「🧑‍🎤 이 목소리 페르소나로 저장」(`components/plannings/PersonaButton.tsx`: 이름·설명·30초 구간 선택, 이미 만든 곡은 「페르소나 저장됨: 이름」), 생성 패널 「🧑‍🎤 내 페르소나 (보컬판)」, 정밀 기획 「Suno로 생성」에도 페르소나 선택(보컬 곡만).
+- 검수: tsc·lint·테스트 53·build, 배포 Ready, DB v1.27. **실제 호출(승인 2회)**: 시험 곡 「빗속의 다짐」 #1로 페르소나 생성 성공(행 저장·버튼이 「저장됨」으로 바뀜) → 그 페르소나로 보컬 곡 생성 → 약 2분 뒤 완료 2곡(205초·211초), sunoapi.org `record-info`의 요청 값에 `model V6`·`personaModel style_persona`·저장한 페르소나 ID가 그대로 들어간 것 확인, 화면 서명 주소 재생 확인. 소리(목소리 유사도)는 사람이 들어 판단할 부분이라 주인님 확인 필요.
+
+## 2026-10-21 v1.28 — 정밀 기획에서 보낸 기획도 「음악 생성」 패널로 다시 만들기 (Claude Code 윈도우)
+- 결함(v1.19부터): 정밀 기획 「Suno로 생성」이 만든 기획은 제외 스타일이 `""`(제외 없음)인데, 생성 패널의 「기획 완료」 검사가 빈 값을 미완료로 보고 항상 「기획이 아직 완료되지 않았습니다」로 막았다(Suno 호출 전이라 비용 없음). 페르소나 시험 중 발견.
+- 수정 `lib/actions/tracks.ts`: 제외 스타일이 `null`(GPT 기획이 아직 안 채움)일 때만 미완료로 본다. 빠른 기획의 실패 판정은 그대로.
+- 검수: tsc·lint·build, 배포 Ready, DB v1.28, 크롬 일반 회원 같은 기획에서 패널 생성 성공(위 페르소나 곡).
+- 비용(v1.27~v1.28): Vercel 빌드 2회, Suno 페르소나 1회 + 곡 생성 1회(2곡), 보컬 가사·커버(gpt-4o-mini·gemini-3-pro-image 1장, 기존 생성 경로 그대로).
+- **다음 순서**: ④ 구간 다시 만들기(`/generate/replace-section`) → Suno 커버·뮤직비디오 → 보컬/반주 추가·매시업. 곡 연장 V6 실패(v1.25)는 여전히 미해결.

@@ -189,6 +189,38 @@ export interface Database {
         };
         Relationships: [];
       };
+      music_personas: {
+        Row: {
+          id: string;
+          user_id: string;
+          suno_persona_id: string;
+          name: string;
+          description: string;
+          style: string | null;
+          source_variant_id: string | null;
+          source_title: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          suno_persona_id: string;
+          name: string;
+          description?: string;
+          style?: string | null;
+          source_variant_id?: string | null;
+          source_title?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string;
+          style?: string | null;
+          source_variant_id?: string | null;
+          source_title?: string | null;
+        };
+        Relationships: [];
+      };
       music_track_mr: {
         Row: {
           id: string;

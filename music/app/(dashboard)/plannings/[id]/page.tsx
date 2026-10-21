@@ -40,6 +40,17 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
+  // 내 페르소나(2026-10-21 V6 2차 ③): 생성 패널 선택 목록 + 이미 페르소나를 만든 곡 표시
+  const { data: personaRows } = await supabase
+    .from("music_personas")
+    .select("id, name, source_variant_id")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  const personas = (personaRows ?? []) as { id: string; name: string; source_variant_id: string | null }[];
+  const personaByVariant: Record<string, string> = {};
+  for (const p of personas) if (p.source_variant_id) personaByVariant[p.source_variant_id] = p.name;
+
   // music-audio는 비공개 저장소라 화면에 넘기기 전에 음원·커버·MR·WAV 주소를 1시간짜리 서명 주소로 바꾼다(lib/storageSign.ts).
   const trackList = await withSignedStorageUrls((tracks ?? []) as unknown as TrackCardData[]);
   const hasGeneratingTrack =
@@ -72,6 +83,7 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
         planningId={planningData.id}
         planningVocalGender={planningData.vocal_gender}
         planningLang={planningData.lang}
+        personas={personas}
       />
 
       {playlistIds.length > 0 && (
@@ -90,7 +102,7 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
       {trackList.length > 0 && (
         <div className="space-y-4">
           {trackList.map((track) => (
-            <TrackCard key={track.id} track={track} planningLang={planningData.lang} />
+            <TrackCard key={track.id} track={track} planningLang={planningData.lang} personaByVariant={personaByVariant} />
           ))}
         </div>
       )}

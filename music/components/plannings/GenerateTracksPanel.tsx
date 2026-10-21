@@ -28,10 +28,12 @@ export function GenerateTracksPanel({
   planningId,
   planningVocalGender,
   planningLang,
+  personas = [],
 }: {
   planningId: string;
   planningVocalGender: VocalGender | null;
   planningLang: string;
+  personas?: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [vocal, setVocal] = useState(false);
@@ -42,6 +44,7 @@ export function GenerateTracksPanel({
   // 2026-10-21 sunoapi.org V6(docs/SUNOAPI_REFERENCE.md): 모델과 결과 다양성 선택.
   const [sunoModel, setSunoModel] = useState("V6");
   const [variety, setVariety] = useState("");
+  const [personaId, setPersonaId] = useState("");
   const [genreTags, setGenreTags] = useState<string[]>([]);
   const [moodTags, setMoodTags] = useState<string[]>([]);
   const [instrumentTags, setInstrumentTags] = useState<string[]>([]);
@@ -91,6 +94,7 @@ export function GenerateTracksPanel({
         tempo: tempoTags,
         model: sunoModel,
         variety: variety === "" ? undefined : Number(variety),
+        personaId: personaId || null,
       });
       if (result.needsApiKey) {
         setMissingProvider(result.needsApiKey);
@@ -245,6 +249,23 @@ export function GenerateTracksPanel({
               <option value="4">최대</option>
             </select>
           </div>
+          {personas.length > 0 && (
+            <div>
+              <label className="block text-[11px] font-bold text-zinc-400 mb-1">🧑‍🎤 내 페르소나 (보컬판)</label>
+              <select
+                value={personaId}
+                onChange={(e) => setPersonaId(e.target.value)}
+                className="input text-xs py-1.5 font-bold"
+              >
+                <option value="">사용 안 함</option>
+                {personas.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {/* 세부 스타일 칩 토글 버튼 */}
