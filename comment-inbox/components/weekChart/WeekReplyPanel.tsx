@@ -106,32 +106,32 @@ export function WeekReplyPanel({
       {day && (
         <div className={`mt-4 border-t pt-4 ${classes.border}`}>
           <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="text-xs font-bold">
+            <p className="text-sm font-bold">
               {day.label}({day.weekday}) {L.list} <span className={`font-normal ${classes.muted}`}>{day.count}건</span>
             </p>
-            <button type="button" onClick={() => select(day.key)} className={`text-[11px] hover:underline ${classes.muted}`}>
+            <button type="button" onClick={() => select(day.key)} className={`text-xs hover:underline ${classes.muted}`}>
               닫기 ✕
             </button>
           </div>
           {pending || (!items && !error) ? (
-            <p className={`py-3 text-xs ${classes.muted}`}>불러오는 중…</p>
+            <p className={`py-3 text-sm ${classes.muted}`}>불러오는 중…</p>
           ) : error ? (
-            <p className={`py-3 text-xs ${classes.danger}`}>{error}</p>
+            <p className={`py-3 text-sm ${classes.danger}`}>{error}</p>
           ) : items && items.length === 0 ? (
-            <p className={`py-3 text-xs ${classes.muted}`}>{L.empty}</p>
+            <p className={`py-3 text-sm ${classes.muted}`}>{L.empty}</p>
           ) : (
             <ul className="max-h-96 space-y-2 overflow-y-auto pr-1">
               {items?.map((it) => {
                 const text = (
                   <div className="min-w-0 flex-1">
-                    <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] ${classes.muted}`}>
+                    <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs ${classes.muted}`}>
                       {it.color && <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: it.color }} />}
                       {it.tag && <span>{it.tag}</span>}
                       {it.author && <span className="font-semibold opacity-100">{it.author}</span>}
                       <span>{kstTime(it.at)}</span>
                     </div>
-                    {it.comment && <p className={`mt-1 break-words text-xs leading-relaxed ${classes.muted}`}>💬 {it.comment}</p>}
-                    <p className="mt-1 break-words text-xs leading-relaxed">{L.replyIcon} {it.reply || "(내용 없음)"}</p>
+                    {it.comment && <p className={`mt-1 break-words text-sm leading-relaxed ${classes.muted}`}>💬 {it.comment}</p>}
+                    <p className="mt-1 break-words text-sm leading-relaxed">{L.replyIcon} {it.reply || "(내용 없음)"}</p>
                   </div>
                 );
                 const body = (
@@ -166,7 +166,7 @@ export function WeekReplyPanel({
             </ul>
           )}
           {items && items.length > 0 && items.length < day.count && (
-            <p className={`mt-2 text-[11px] ${classes.muted}`}>{L.more.replace("{n}", String(perPlatformLimit))}</p>
+            <p className={`mt-2 text-xs ${classes.muted}`}>{L.more.replace("{n}", String(perPlatformLimit))}</p>
           )}
         </div>
       )}

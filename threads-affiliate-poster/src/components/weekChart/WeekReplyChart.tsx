@@ -43,8 +43,8 @@ export function WeekReplyChart({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-bold">{title}</h2>
-        <p className="text-xs opacity-70">
+        <h2 className="text-base font-bold">{title}</h2>
+        <p className="text-sm opacity-80">
           합계 <span className="font-bold opacity-100">{total}</span>건 · {trend}
         </p>
       </div>
@@ -57,7 +57,7 @@ export function WeekReplyChart({
           const rest = d.count - parts.reduce((s, p) => s + p.n, 0);
           const bar = (
             <>
-              <span className={`text-[11px] font-bold ${today || selected ? "text-pink-400" : "opacity-60"}`}>{d.count}</span>
+              <span className={`text-sm font-bold ${today || selected ? "text-pink-400" : "opacity-80"}`}>{d.count}</span>
               <div
                 className={`flex w-full max-w-[40px] flex-col-reverse overflow-hidden rounded-t-md ${selected ? "ring-2 ring-pink-400 ring-offset-1 ring-offset-transparent" : ""}`}
                 style={{ height: `${height}%` }}
@@ -98,7 +98,7 @@ export function WeekReplyChart({
         {days.map((d, i) => (
           <p
             key={d.key}
-            className={`flex-1 text-center text-[10px] leading-tight ${i === days.length - 1 || selectedKey === d.key ? "font-bold text-pink-400" : "opacity-60"}`}
+            className={`flex-1 text-center text-xs leading-snug ${i === days.length - 1 || selectedKey === d.key ? "font-bold text-pink-400" : "opacity-80"}`}
           >
             {i === days.length - 1 ? "오늘" : d.label}
             <br />
@@ -107,7 +107,7 @@ export function WeekReplyChart({
         ))}
       </div>
       {shown.length > 1 && (
-        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] opacity-80">
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs opacity-90">
           {shown.map((s) => (
             <span key={s.key} className="inline-flex items-center gap-1">
               <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: s.color }} />
@@ -116,7 +116,7 @@ export function WeekReplyChart({
           ))}
         </div>
       )}
-      {onSelect && total > 0 && <p className="mt-2 text-[11px] opacity-60">{selectHint}</p>}
+      {onSelect && total > 0 && <p className="mt-2 text-xs opacity-75">{selectHint}</p>}
     </div>
   );
 }
