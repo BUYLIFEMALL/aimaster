@@ -186,3 +186,14 @@ test("v1.08 공용 도움 함수: 7일 안 날짜만 하루 범위, 앞부분 �
   assert.equal(previewText("가".repeat(81)), "가".repeat(80) + "…");
   assert.equal(previewText(null), "");
 });
+
+test("썸네일 주소: 전체 주소·쉼표 여러 주소·저장소 경로·빈 값", async () => {
+  const { publicImageUrl } = await import("../lib/weekChart/bucket.ts");
+  const prev = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://x.supabase.co/";
+  assert.equal(publicImageUrl("https://a/1.jpg,https://a/2.jpg", "b"), "https://a/1.jpg");
+  assert.equal(publicImageUrl(["u1/insta/01 a.jpg", "u1/2.jpg"], "insta-post-images"), "https://x.supabase.co/storage/v1/object/public/insta-post-images/u1/insta/01%20a.jpg");
+  assert.equal(publicImageUrl(null, "b"), null);
+  assert.equal(publicImageUrl([], "b"), null);
+  process.env.NEXT_PUBLIC_SUPABASE_URL = prev;
+});

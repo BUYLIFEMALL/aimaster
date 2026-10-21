@@ -20,6 +20,8 @@ export type DayReplyItem = {
   /** 실제로 게시·발송한 답장 앞부분 */
   reply: string;
   href?: string | null;
+  /** 게시 이미지 작은 썸네일(공개 주소) */
+  thumbUrl?: string | null;
 };
 
 export type DayReplyResult = { items?: DayReplyItem[]; error?: string };
@@ -120,8 +122,8 @@ export function WeekReplyPanel({
           ) : (
             <ul className="max-h-96 space-y-2 overflow-y-auto pr-1">
               {items?.map((it) => {
-                const body = (
-                  <>
+                const text = (
+                  <div className="min-w-0 flex-1">
                     <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] ${classes.muted}`}>
                       {it.color && <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: it.color }} />}
                       {it.tag && <span>{it.tag}</span>}
@@ -130,7 +132,16 @@ export function WeekReplyPanel({
                     </div>
                     {it.comment && <p className={`mt-1 break-words text-xs leading-relaxed ${classes.muted}`}>💬 {it.comment}</p>}
                     <p className="mt-1 break-words text-xs leading-relaxed">{L.replyIcon} {it.reply || "(내용 없음)"}</p>
-                  </>
+                  </div>
+                );
+                const body = (
+                  <div className="flex items-start gap-3">
+                    {it.thumbUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={it.thumbUrl} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-md object-cover" />
+                    )}
+                    {text}
+                  </div>
                 );
                 return (
                   <li key={it.key}>

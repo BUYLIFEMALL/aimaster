@@ -5,7 +5,7 @@
 // 새 서버 기능 없이, 이미 있는 본인 게시 기록 API(최근 30건)를 화면에서 한 번 불러 날짜별로 센다. 테마 색은 부르는 쪽이 넘긴다.
 import { useCallback, useEffect, useState } from "react";
 import { WeekReplyPanel, type DayReplyItem, type PanelClasses } from "@/components/weekChart/WeekReplyPanel";
-import { bucketByKstDay, previewText, weekDayRange, type DayCount } from "@/lib/weekChart/bucket";
+import { bucketByKstDay, previewText, publicImageUrl, weekDayRange, type DayCount } from "@/lib/weekChart/bucket";
 
 type PostRow = {
   id: string;
@@ -32,6 +32,7 @@ export function InstaWeekPosts({
   cardClassName,
   defaultOpen = false,
   refreshEvent,
+  imageBucket = "insta-post-images",
 }: {
   /** 본인 게시 기록 API(GET → { posts: PostRow[] }, 최근 30건) */
   postsUrl: string;
@@ -42,6 +43,8 @@ export function InstaWeekPosts({
   defaultOpen?: boolean;
   /** 게시·예약 뒤 다시 불러올 브라우저 이벤트 이름 */
   refreshEvent?: string;
+  /** 게시 이미지가 저장된 공개 저장소(썸네일용) */
+  imageBucket?: string;
 }) {
   const [rows, setRows] = useState<PostRow[] | null>(null);
   const [open, setOpen] = useState(defaultOpen);
@@ -82,6 +85,7 @@ export function InstaWeekPosts({
           at: r.published_at as string,
           reply: previewText(r.caption || r.title),
           href: r.permalink ?? null,
+          thumbUrl: publicImageUrl(r.image_paths, imageBucket),
         })),
     };
   }

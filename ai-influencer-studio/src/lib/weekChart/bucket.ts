@@ -76,3 +76,16 @@ export function previewText(text: string | null | undefined, max = 80): string {
   const s = (text ?? "").replace(/\s+/g, " ").trim();
   return s.length > max ? `${s.slice(0, max)}…` : s;
 }
+
+/**
+ * 그날 목록 썸네일 주소 — 이미 전체 주소면 그대로(쉼표로 이어진 여러 주소면 첫 번째), 저장소 안 경로면 공개 저장소 주소로.
+ * 배열이면 첫 장. 값이 없거나 Supabase 주소를 모르면 null.
+ */
+export function publicImageUrl(value: string | string[] | null | undefined, bucket: string): string | null {
+  const first = (Array.isArray(value) ? value[0] : value?.split(",")[0])?.trim();
+  if (!first) return null;
+  if (/^https?:\/\//.test(first)) return first;
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base) return null;
+  return `${base.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/${first.split("/").map(encodeURIComponent).join("/")}`;
+}

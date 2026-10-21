@@ -4,7 +4,7 @@
 // 읽기 전용: 이용 권한 확인 → 회원 세션(RLS) + user_id 필터, 게시한 시각(published_at)이 한국 시간 그날 범위(최근 7일 안만), 최근 50건.
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { previewText, weekDayRange } from "@/lib/weekChart/bucket";
+import { previewText, publicImageUrl, weekDayRange } from "@/lib/weekChart/bucket";
 import type { DayReplyResult } from "@/components/weekChart/WeekReplyPanel";
 
 const LIMIT = 50;
@@ -16,7 +16,7 @@ export async function loadWeekDayPostsAction(dayKey: string): Promise<DayReplyRe
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tap_posts")
-    .select("id, content, threads_permalink, published_at")
+    .select("id, content, threads_permalink, image_url, published_at")
     .eq("user_id", user.id)
     .eq("status", "published")
     .gte("published_at", range.from)
@@ -31,6 +31,7 @@ export async function loadWeekDayPostsAction(dayKey: string): Promise<DayReplyRe
       at: r.published_at as string,
       reply: previewText(r.content),
       href: r.threads_permalink ?? "/posts",
+      thumbUrl: publicImageUrl(r.image_url, "post-images"),
     })),
   };
 }
