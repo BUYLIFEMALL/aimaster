@@ -1,7 +1,7 @@
 # AI 랜딩페이지 기획 자동화 (landing-architect)
 
 > **공식 프로덕션 URL**: [https://landing-architect.buylife.xyz](https://landing-architect.buylife.xyz)  
-> **현재 버전**: `v1.12` (2026-10-21 🧩 UI Canvas로 보내 다듬기 — 서브 페이지·이미지 함께, 상세는 `AGENTS.md`)  
+> **현재 버전**: `v1.13` (2026-10-21 🧩 UI Canvas로 보내 다듬기 — 서브 페이지·이미지(본인 키면 실제 사진) 함께, 상세는 `AGENTS.md`)  
 > **최신 갱신일**: 2026-10-19
 
 ---

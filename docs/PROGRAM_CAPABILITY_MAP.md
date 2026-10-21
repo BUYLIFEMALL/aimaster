@@ -36,7 +36,7 @@
 | 17 | Website Scraper | `website-scraper` | 데이터수집|기획 | v1.12 | 운영 | 웹사이트 주소로 본문·표·이미지를 모으고 AI로 반복 목록을 표로 정리하는 스크래퍼 |
 | 18 | 시네마틱 스토리보드 자동화 | `cinematic-storyboard-studio` | 이미지(2026-10-21 이동) | v1.09 | 운영 | 이미지 한 장으로 영화 같은 9컷 스토리보드와 영상 AI용 프롬프트를 만드는 도구 |
 | 19 | 페르소나 문체 자동화 | `persona-style-studio` | 데이터수집|기획 | v1.09 | 병합됨 → ai-writing-editor(2026-10-21) | 슬라이더와 캐릭터 페르소나로 내 글의 문체를 원하는 느낌으로 다시 써 주는 글쓰기 도구 |
-| 20 | AI 랜딩페이지 기획 자동화 | `landing-architect` | 데이터수집|기획 | v1.12 | 운영 | 주제·타겟·목표만 넣으면 랜딩페이지 기획안과 바로 보는 HTML 프로토타입을 만드는 도구 |
+| 20 | AI 랜딩페이지 기획 자동화 | `landing-architect` | 데이터수집|기획 | v1.13 | 운영 | 주제·타겟·목표만 넣으면 랜딩페이지 기획안과 바로 보는 HTML 프로토타입을 만드는 도구 |
 | 21 | UI Canvas 자동화 | `ui-canvas` | 데이터수집|기획 | v1.13 | 운영 | UI를 드래그로 설계하고 스크린샷 복원·컴포넌트 갤러리·React 코드 내보내기까지 하는 캔버스(2026-10-21 병합 D) |
 | 22 | 웹 크롤링 자동화 | `web-crawler-saas` | 데이터수집|기획 | v1.08 | 운영 | 주소와 모을 항목만 알려 주면 AI가 사이트 구조를 찾아 데이터를 엑셀로 정리하는 크롤러 |
 | 23 | AI Prompt 자동화 | `ai-prompt-studio` | 데이터수집|기획 | v1.08 | 운영 | 거친 아이디어를 ChatGPT·Claude·Gemini에 바로 쓰는 완성형 프롬프트로 설계하는 스튜디오 |
@@ -406,7 +406,8 @@
 - **키·계정·주의**: 회원 본인의 Google Gemini API 키로 동작합니다. 바뀐 글의 사실관계는 원문과 같은지 직접 확인하세요.
 
 #### AI 랜딩페이지 기획 자동화 (`landing-architect`)
-- 주소·폴더: https://landing-architect.buylife.xyz · `landing-architect/` · v1.12
+- 주소·폴더: https://landing-architect.buylife.xyz · `landing-architect/` · v1.13
+- **2026-10-21 v1.13**: UI Canvas로 보낼 때 회원 본인 Unsplash·Pexels·Pixabay 키가 있으면 키워드에 맞는 실제 사진을 넣음.
 - **2026-10-21 v1.12**: UI Canvas로 보낼 때 서브 페이지(각각 별도 프로젝트)와 이미지 에셋(임시 사진)도 함께 배치.
 - **2026-10-21 v1.11**: 기획안을 [🧩 UI Canvas로 보내 다듬기]로 UI Canvas 새 프로젝트에 배치(AI 없이, 회원 본인 공용 표 행). 재사용 부품: 다른 프로그램 → UI Canvas 프로젝트 만들기 패턴 `landing-architect/src/app/api/canvas-export/route.ts`.
 - **차별점**: 주제·타겟·목표 세 가지만 넣으면 랜딩페이지 기획안부터 바로 열어 보는 HTML 프로토타입까지 만들어 주는 기획 도구입니다.

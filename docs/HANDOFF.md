@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — AI 랜딩페이지 기획 v1.13: UI Canvas로 보낼 때 실제 사진
+
+이미지 소스가 Unsplash·Pexels·Pixabay이고 회원 본인 키가 있으면 키워드에 맞는 실제 사진(프로토타입과 같은 `resolveImages`), 없거나 실패하면 임시 사진으로 보내고 결과를 안내. 한도 확인 뒤에 사진 검색. 커밋 `ab8a84d7`, 배포 Ready, DB v1.13, 크롬 검수(Pixabay 2장) 통과·시험 데이터 삭제. 비용: Vercel 빌드 1회, Pixabay 검색 2회(회원 키·무료), AI 0회. 상세 `landing-architect/AGENTS.md` v1.13.
+
+https://landing-architect.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — AI 가사영상 자동화 v1.04: 만든 MP4를 내 유튜브에 바로 올리기
 
 추가개선 3-a. 원스톱(v1.19~v1.21)의 유튜브 올리기를 가져옴: 공용 사본 `youtube/client.ts`(youtube-upload-client)·`memberIntegrations.ts`(member-integrations) 등록, `account.ts`·`/api/youtube/status`·`/api/youtube/upload-session`(카테고리 음악 10 추가) 복사, 화면 `studio/YoutubeUploadCard.tsx`(기본 비공개·예약 공개, 제목 「아티스트 - 곡 (Lyrics)」·설명 가사 전문·세로 #Shorts, 「파일로 바로 저장」은 저장한 MP4 골라 올리기). 다른 유튜브 프로그램에서 연결한 공용 계정 + 회원 본인 Google 앱만 사용. 검수: tsc·시험 8개·빌드, 운영 일반 회원(유튜브 미연결)으로 MP4 생성 후 카드에 연결 안내·연결 프로그램 버튼 2개, 업로드 주소 요청 409 거절 확인. **실제 업로드는 미검수**(시험 계정 유튜브 미연결 — 연결된 회원 계정으로 비공개 1회 확인 필요). DB v1.04. 커밋 `640f1cae`. 다음: 추가개선 3-b 플레이리스트 가사 층 + 세로.
