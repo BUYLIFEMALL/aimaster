@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-21 — sunoapi.org V6 곡 연장이 "extending lyrics are empty, too short, or malformed"로 계속 실패(크레딧 환불) — 가사가 아니라 이어 붙일 지점 문제였다 (music-automation v1.25→v1.30, Claude Code 윈도우)
+- 증상: 가사 200자 안팎·구간 표시 정상인데 4회 연속 같은 오류. 가사 칸(lyrics) 추가·줄 끝 공백 정리·defaultParamFlag 제외 모두 효과 없음.
+- 원인: `continueAt`을 곡 끝 3초 전(178/181초, 페이드아웃 구간)으로 보냈다. 같은 요청에서 지점만 곡 끝 30초 전(151초)으로 바꾸자 성공.
+- 해결: `music/lib/actions/tracks.ts` 곡 끝 30초 전(1분 미만 곡은 절반 지점).
+- 다음부터: 외부 API 오류 문구가 가리키는 칸(여기선 lyrics)만 의심하지 말고, 함께 보낸 다른 값(지점·길이)을 하나씩 바꿔 본다. 같은 요청을 다시 보내 볼 때는 `record-info`의 `param`을 그대로 가져와 한 값만 바꾸면 비교가 정확하다.
+
 ## 2026-10-21 — Supabase SQL 편집기 탭이 「저장 안 한 내용」 때문에 닫히지 않음(확인 창이 크롬 제어를 멈춤) + 크롬 로그인 계정이 바뀌어 회원 곡 화면이 404 (music-automation v1.27~v1.29, Claude Code 윈도우)
 - 증상 ① 크롬 SQL 편집기에서 `monaco…setValue()`로 SQL을 넣고 실행한 탭은 「Unsaved edits」 상태로 남아, 주인님이 닫거나 에이전트가 이동·닫기를 하면 「사이트에서 나가시겠습니까?」 확인 창이 걸린다. 이 창이 떠 있는 동안 claude-in-chrome 도구가 시간 초과·「Couldn't determine which page」로 멈췄다.
 - 해결 ①: SQL 실행 → 결과 확인 → **Save 버튼(Ctrl+S)으로 저장한 뒤** `tabs_close_mcp`로 닫는다(확인 창 없이 닫힘). 이미 걸린 탭은 그 탭의 확인 창에서 「나가기」, 안 보이면 크롬 작업 관리자(Shift+Esc) → 그 탭 「프로세스 종료」.
