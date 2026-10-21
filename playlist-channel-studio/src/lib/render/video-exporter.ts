@@ -9,6 +9,7 @@ import {
 } from './canvas-visualizer';
 import { ParticleSystem } from './particle-system';
 import { drawCover, drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
+import { bassLevelOf, createSpectrumReader } from './audio-spectrum';
 
 export interface RenderProgress {
   progress: number; // 0 to 100
@@ -169,10 +170,6 @@ export async function exportVideoMp4(
 
   const particleSystem = new ParticleSystem();
 
-  // Create an AnalyserNode for audio visualization frames
-  const offlineAnalyser = audioCtx.createAnalyser();
-  offlineAnalyser.fftSize = 256;
-  const freqData = new Uint8Array(offlineAnalyser.frequencyBinCount);
 
   // 소리: 디코딩한 트랙을 순서대로(반복 횟수만큼) 이어 붙여 0.5초 단위로 인코딩한다.
   // 2026-10-16 수정 — 예전에는 AudioEncoder를 설정만 하고 데이터를 넣지 않아 완성 MP4가 무음이었다.
@@ -201,7 +198,8 @@ export async function exportVideoMp4(
   // Synthesize and encode frames
   onProgress({ progress: 25, currentSecond: 0, totalSeconds: Math.round(totalDuration), status: '비디오 프레임 렌더링 중...' });
 
-  const dummyFreq = new Uint8Array(128);
+  // v1.18 (IMP-PLS-006) 스펙트럼·저음 효과를 실제 소리로 — 미리보기 분석기와 같은 계산(예전엔 sin/cos 가짜 값)
+  const frequencyAt = createSpectrumReader(passes, fps);
   for (let frameIdx = 0; frameIdx < totalVideoFrames; frameIdx++) {
     if (encoderError) throw encoderError;
 
@@ -209,25 +207,42 @@ export async function exportVideoMp4(
     const timeMs = currentTimeSec * 1000;
     encodeAudioUntil(Math.floor((currentTimeSec + 1) * sampleRate)); // 소리를 영상보다 1초 앞서 넣는다
 
-    // Simulate frequency oscillation for visualization
-    for (let f = 0; f < dummyFreq.length; f++) {
-      dummyFreq[f] = Math.round(
-        Math.abs(Math.sin(currentTimeSec * 4 + f * 0.15)) * 180 +
-        Math.abs(Math.cos(currentTimeSec * 2.5 + f * 0.08)) * 60
-      );
+    const freqData = frequencyAt(currentTimeSec);
+    const bassLevel = bassLevelOf(freqData);
+
+    // 저음 확대 맥동·흔들림(미리보기 EditorStudio와 같은 조건)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, width, height);
+    ctx.save();
+    let scale = 1;
+    if (settings.zoomPulse && bassLevel > 80) scale = 1 + (bassLevel / 255) * 0.04;
+    let shakeX = 0, shakeY = 0;
+    if (settings.shakeEnabled && bassLevel > 70) {
+      const p = (settings.shakeIntensity / 100) * 12;
+      shakeX = (Math.random() - 0.5) * p; shakeY = (Math.random() - 0.5) * p;
     }
+    ctx.translate(width / 2 + shakeX, height / 2 + shakeY);
+    ctx.scale(scale, scale);
+    ctx.translate(-width / 2, -height / 2);
 
     // Clear
     ctx.fillStyle = '#0f172a';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw background
+    // Draw background (밝기 + 저음에 반응하는 필터)
     if (bgImg) {
       ctx.save();
-      const filterStr = getFilterString(settings.filterType, settings.filterIntensity, 120);
-      if (filterStr) ctx.filter = filterStr;
+      const filterStr = getFilterString(settings.filterType, settings.filterIntensity, bassLevel);
+      ctx.filter = `brightness(${settings.brightness}%) ${filterStr}`.trim();
       if (portrait) drawCover(ctx, bgImg, width, height); else ctx.drawImage(bgImg, 0, 0, width, height);
       ctx.restore();
+    }
+
+    // Strobe
+    if (settings.strobeFlash && bassLevel > 160) {
+      const strobeA = ((bassLevel - 160) / 95) * (settings.strobeIntensity / 100) * 0.8;
+      ctx.fillStyle = `rgba(255, 255, 255, ${strobeA})`;
+      ctx.fillRect(0, 0, width, height);
     }
 
     // FX: Vignette, FilmGrain, LightLeaks
@@ -242,7 +257,7 @@ export async function exportVideoMp4(
     }
 
     // Visualizer
-    drawSpectrumVisualizer(ctx, width, height, dummyFreq, settings, timeMs);
+    drawSpectrumVisualizer(ctx, width, height, freqData, settings, timeMs);
 
     // Particles
     particleSystem.updateAndDraw(ctx, width, height, settings, timeMs);
@@ -267,6 +282,7 @@ export async function exportVideoMp4(
       ctx.drawImage(logoImg, lX, lY, lSize, lSize);
       ctx.restore();
     }
+    ctx.restore(); // 확대·흔들림 끝
 
     // Encode video frame
     const videoFrame = new VideoFrame(renderCanvas, {

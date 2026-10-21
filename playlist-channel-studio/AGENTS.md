@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.17** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.18** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -148,3 +148,10 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 검수: tsc·시험 20개·build, 로컬 임시 화면(커밋 전 삭제·로그인 예외 원복)에서 곡 2개+가사(자동 짝 .srt·버튼 .lrc) → 세로 미리보기 실제 재생 가사 표시 → 세로 MP4(저장 위치를 OPFS로 바꿔 끼워 시험) 1080×1920·12.01초·영상+소리, 1.5초·7.5초 장면에 곡별 가사 확인. 운영 화면 확인은 배포 후 아래.
 - 발견(미처리): MP4 내보내기의 스펙트럼이 실제 소리가 아니라 계산한 가짜 값(`dummyFreq`) — `docs/IMPROVEMENTS.md` IMP-PLS-006.
 
+
+## 2026-10-21 v1.18 — MP4 스펙트럼·저음 효과를 실제 소리로 (IMP-PLS-006, Claude Code 윈도우)
+- 주인님 지시: 「플레이리스트 MP4의 스펙트럼이 실제 소리가 아니라 계산으로 만든 가짜 값입니다 … 수정 보완해줘」.
+- 원인: `video-exporter.ts`가 sin/cos로 만든 `dummyFreq`를 그렸고, 만들어 두고 쓰지 않던 분석기(`offlineAnalyser`)만 있었다. 미리보기(`EditorStudio.tsx`)는 브라우저 분석기(AnalyserNode fftSize 256)로 실제 소리를 그려 **미리보기와 결과가 달랐다**.
+- 수정: 새 `src/lib/render/audio-spectrum.ts` — 디코딩한 곡(반복 순서 그대로)에서 프레임 시각의 마지막 256샘플을 브라우저 분석기와 **같은 계산**(블랙만 창 → FFT ÷N → 시간 평활 → -100~-30dB를 0~255)으로 128칸 세기로 만든다. 미리보기는 약 60번/초 평활하므로 내보내기는 프레임 속도에 맞춰 평활 계수 0.8^(60/fps). 시험 3개(`tests/audio-spectrum.test.mjs`: 3kHz → 16번 칸, 무음 0, 저음 세기, 둘째 곡 읽기).
+- 보완(미리보기에는 있고 결과에는 없던 것): **저음 반응 확대 맥동·흔들림·스트로브**, 배경 **밝기**, 필터의 저음 반응(고정값 120 → 실제 저음) — 미리보기와 같은 조건·순서. GIF 스티커는 결과에 아직 없음(IMP-PLS-008).
+- 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.18. 크롬 운영 화면(일반 회원)에서 6초 시험 소리(무음 2초 → 80Hz 2초 → 3kHz 2초)로 1080p MP4 생성(저장 위치를 브라우저 내부 저장소로 바꿔 끼움 — 회원 PC에 파일 안 남김, 끝난 뒤 삭제) → 1초 장면 바닥선만(밝은 점 512), 3초 왼쪽 끝 막대(평균 가로 59/640), 5초 16번 칸 근처 막대(180/640). 비용: Vercel 빌드 1회, AI 0회.
