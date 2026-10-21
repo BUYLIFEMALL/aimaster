@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Codex — 블로그 병합 BLC-04 v2.05 운영 완료·실제 네이버 prepared 8/8
+
+사진 후기→기존 편집/저장·최종 검수·대기열·실제 확장 준비 연결 완료. 코드 `4b3f84b6`/`342eef52` 푸시, 배포 `dpl_4tTvkJM3gJC1Uo78y7UCb7AKCGy3` Ready·DB/확장/설치/라이브 ZIP v2.05 일치. 회귀 185개·확장 모의 42개·타입/빌드 통과. 지정 회원 사진 2장/763바이트 후기 1회(2 API)·저장/편집/재열기·재조회 지문 불변·수정 후 STALE/다시 직접 검수·**실제 prepared 8/8**·516px 안내/사진 검수 완료, 최종 발행 0. 운영 DB ref `esgxyikcnnvmlhygjkth` 프로그램 버전 메타데이터 및 이번 새 본인 합성 시험 원고 대상만 변경, 계정/기존 원고/준비 탭 보존. 새 원고 1건·queued/publishing 0, 원래 30일 만료 유지.
+
+[프로그램 최종 인수인계·해석 정정·다음 단계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261021_BLC04_PHOTO_SAVE.md) · [플랜](../naver-blog-agent/docs/PLAN_20261021_BLC04_PHOTO_SAVE.md) · [실회원 메타데이터](../naver-blog-agent/docs/evidence/blc04-photo-save/member-live.json). 로그인·초기 폴링 지연 후 복구를 구분해 기록했습니다. 상세창이 열린 모의 조건을 일반 UI 오류로 오판한 설명은 정정(추가 보호 반영으로 배포 총 2회). 원본 사진 AI 활용 표시(BLC-INS-09)·세션 갱신(BLC-INS-08)·폴링 지연은 후속 검토이며 이번에 엔진/인증을 바꾸지 않았습니다. 다음은 **BLC-05 BLOG→에이전트 자료 수집 경로/출처 비교 플랜**, 아직 미착수. 새 비교 분석 기준 문서를 먼저 읽습니다.
+
+[네이버 블로그 에이전트](https://naver-blog-agent.buylife.xyz)
+
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 프로그램 비교 분석 매뉴얼(기준 파일) + 수집 스크립트
 
 - 주인님 지시: 오늘 데이터수집|기획 분석 방법·출력 방식을 모든 CLI가 쓰는 기준 매뉴얼로. **[`docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md`](PROGRAM_COMPARISON_ANALYSIS_GUIDE.md)** — 시작 전 확인 → 1단계 `node scripts/analyze-category.mjs "<카테고리>"`(운영 DB·코드 읽기 전용 수집: 권한·사용 기록·저장 위치·AI 모델·키 처리) → 2단계 코드 9항목 → 3단계 판단 기준(합칠 조건·기준 앱 순서·단점 해결표·독립 조건·우선순위) → 보고서 표 3개·채팅 보고 양식 → 결정 뒤 병합 절차 9단계.
@@ -56,15 +65,6 @@ https://shorts-onestop-studio.buylife.xyz/plan
 - 발견: `shorts_videos.updated_at`이 갱신되지 않음(트리거 없음) — `shots/docs/IMPROVEMENTS.md` 검토 대기. 커밋 `e46891cf` `69435779` `22911072` 외 문서.
 
 https://shots.buylife.xyz
-
-## 2026-10-21 Codex — 블로그 병합 BLC-04 v2.04 운영 반영, 로그인 후 실회원 검수 대기
-
-사진 후기→기존 편집·저장·직접 검수·대기열 연결, 사진 ID/대표/순서/원래 만료·근거 보존과 공용 브라우저 캐시 제외. 코드 `4b3f84b6` 푸시, 회귀 184개·확장 모의 42개·타입/빌드 통과. 배포 `dpl_D4WuPEPdeJzoK5nNF4ggbnj4wtrd` Ready, DB/확장/라이브 ZIP v2.04 실패/경고 0. 운영 DB ref `esgxyikcnnvmlhygjkth` 프로그램 버전 메타데이터만 변경. 추가 AI·사진 업로드·새 원고·최종 발행 0. Edge 제어는 가능하나 새로고침 후 로그인 화면으로 이동해 실제 지정 회원 저장/편집/재열기/검수 해제/확장 prepare는 대기이며 전체 완료 아님. 비밀번호는 주인님 입력 원칙에 따라 현재 보이는 Edge 로그인을 요청했습니다. BLC-INS-08에 쿠키 갱신 가능성(원인 미확정)을 기록했고 인증 변경/우회는 하지 않았습니다.
-
-[프로그램 인수인계·다음 첫 단계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261021_BLC04_PHOTO_SAVE.md) · [플랜](../naver-blog-agent/docs/PLAN_20261021_BLC04_PHOTO_SAVE.md). 로그인 복구 후 재배포 없이 실제 검수부터 이어갑니다. BLC-05 미착수, 다른 CLI 파일/스테이징 보존.
-
-[네이버 블로그 에이전트](https://naver-blog-agent.buylife.xyz)
-
 
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — Shots v1.27~v1.28: 배경음악 보관·음성 다시 쓰기·유튜브 공개 범위/예약
 
