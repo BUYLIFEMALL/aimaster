@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { persistSunoAssetToStorage } from "@/lib/trackSync";
+import { translateSunoErrorMessage } from "@/lib/ai/suno";
 
 // Suno 커버 이미지·뮤직비디오 결과 저장(2026-10-21 Suno V6 3차 ⑦⑧). 웹훅(/api/webhooks/suno-media)과
 // 수동 「상태 확인」(lib/actions/media.ts)이 함께 쓴다. Suno 쪽 파일은 14~15일 뒤 사라져 우리 저장소로 복사한다.
@@ -32,5 +33,5 @@ export async function saveMediaResult(db: Db, row: MediaRow, sourceUrls: string[
 }
 
 export async function markMediaFailed(db: Db, id: string, message: string) {
-  await db.from("music_track_media").update({ status: "failed", error_message: message }).eq("id", id);
+  await db.from("music_track_media").update({ status: "failed", error_message: translateSunoErrorMessage(message) }).eq("id", id);
 }

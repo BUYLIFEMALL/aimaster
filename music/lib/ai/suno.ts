@@ -72,6 +72,16 @@ export function translateSunoErrorMessage(raw: string): string {
   if (/file fetch failed/i.test(raw)) {
     return `원본 곡을 아직 Suno 서버에서 찾지 못했습니다(방금 생성된 곡이면 1~2분 정도 기다렸다가 다시 연장을 시도해주세요). 원본 오류: ${raw}`;
   }
+  // 2026-10-21: Suno 영어 실패 문구를 한국어 안내로(원문은 뒤에 남김)
+  if (/internal error/i.test(raw)) {
+    return `Suno 서버 내부 오류로 실패했습니다. 크레딧은 환불되니 잠시 뒤 다시 시도해 주세요. (원문: ${raw})`;
+  }
+  if (/extending lyrics are empty|lyrics field/i.test(raw)) {
+    return `Suno가 이어 부를 가사를 받아들이지 못했습니다. 크레딧은 환불되니 다시 시도해 주세요. (원문: ${raw})`;
+  }
+  if (/credits refunded/i.test(raw)) {
+    return `Suno 작업이 실패했습니다. 크레딧은 환불됩니다. (원문: ${raw})`;
+  }
   return raw;
 }
 

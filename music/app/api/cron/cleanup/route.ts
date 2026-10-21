@@ -29,6 +29,23 @@ async function removeFiles(db: Db, urls: unknown[]): Promise<number> {
   return paths.length;
 }
 
+// 곡·변주 폴더({user}/{track id}/, {user}/{variant id}/)에 남은 파일을 모두 지운다(2026-10-21).
+// 행이 가리키지 않게 된 파일(예: 「이 커버로 바꾸기」로 바뀐 예전 cover.jpg)도 함께 정리하기 위해서다.
+// 폴더 이름이 곡·변주의 고유 번호라 다른 곡의 파일을 지우지 않는다.
+async function removeFolders(db: Db, prefixes: string[]): Promise<number> {
+  let count = 0;
+  for (const prefix of prefixes) {
+    const { data } = await db.storage.from(BUCKET).list(prefix, { limit: 1000 });
+    const paths = (data ?? []).filter((f: { id: string | null }) => f.id).map((f: { name: string }) => `${prefix}/${f.name}`);
+    if (paths.length) {
+      const { error } = await db.storage.from(BUCKET).remove(paths);
+      if (error) throw new Error(`storage remove failed: ${error.message}`);
+      count += paths.length;
+    }
+  }
+  return count;
+}
+
 export async function GET(request: NextRequest) {
   // 비밀값이 비어 있으면 「Bearer undefined」로 통과되는 사고를 막는다(docs/ERROR_LESSONS.md 2026-10-20).
   const secret = process.env.CRON_SECRET?.trim();
@@ -46,7 +63,7 @@ export async function GET(request: NextRequest) {
   const { data: tracks } = await db
     .from("music_tracks")
     .select(
-      "id, music_track_media(urls), music_track_variants!track_id(audio_url, image_url, music_track_mr(instrumental_url, vocal_url, stems), music_track_wav(wav_url))",
+      "id, user_id, music_track_media(urls), music_track_variants!track_id(id, audio_url, image_url, music_track_mr(instrumental_url, vocal_url, stems), music_track_wav(wav_url))",
     )
     .lte("created_at", iso)
     .neq("status", "generating")
@@ -63,6 +80,12 @@ export async function GET(request: NextRequest) {
       }
     }
     result.files += await removeFiles(db, urls);
+    const folders: string[] = [];
+    for (const t of tracks) {
+      folders.push(`${t.user_id}/${t.id}`);
+      for (const v of t.music_track_variants ?? []) folders.push(`${t.user_id}/${v.id}`);
+    }
+    result.files += await removeFolders(db, folders);
     const { error } = await db.from("music_tracks").delete().in("id", tracks.map((t: { id: string }) => t.id));
     if (error) throw new Error(`track delete failed: ${error.message}`);
     result.tracks = tracks.length;

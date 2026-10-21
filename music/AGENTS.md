@@ -346,3 +346,10 @@ POST 콜백을 보낸다. 이 라우트는:
 - 검수: tsc·lint·테스트 55·build, 배포 Ready(v1.31·v1.32), DB v1.32. **실제 호출(승인 2회)**, 크롬 시험 계정 「빗속의 다짐」 원곡: ① 커버 — 약 2분 뒤 2장 저장, 화면 표시, 두 번째 커버로 바꾸기 → 변주 2개 모두 `suno-cover-1.png`(원래 `cover.jpg`) ② 영상 — 약 11분 뒤 Suno가 `GENERATE_MP4_FAILED`(500 「Internal Error, Please try again later.」)로 실패 알림 → 우리 쪽 정상 수신·실패 저장(크레딧 환불 대상). **영상 성공 경로(파일 복사·재생)는 아직 미검수** — 재시도는 주인님 승인 대기.
 - 알려진 한계: 커버를 바꾸면 이전 커버 파일(`cover.jpg`)은 어디서도 가리키지 않게 되어 30일 정리에서 지워지지 않는다(용량 작음). 구간 수정본(v1.29)이 원곡 커버 파일을 같이 쓰므로, 원곡이 먼저 30일 정리되면 수정본 커버가 빈칸이 될 수 있다 → `docs/IMPROVEMENTS.md`.
 - 비용: Vercel 빌드 2회, Suno 커버 1회·영상 1회(실패).
+
+## 2026-10-21 v1.33 — 작은 개선 3가지 (Claude Code 윈도우)
+- **Suno 실패 문구 한국어화**: `translateSunoErrorMessage`(`lib/ai/suno.ts`)에 「Internal Error」·「extending lyrics are empty / lyrics field」·「credits refunded」 안내 추가(원문은 괄호로 유지). 곡·리믹스 실패(기존)와 커버·영상 실패(`lib/mediaSync.ts` `markMediaFailed`)에 적용. ※ `suno.ts`가 `server-only`를 불러와 단위 시험 파일로는 검사 불가 — 실제 실패 행으로 확인.
+- **30일 정리 폴더 삭제**: `app/api/cron/cleanup` — 곡 삭제 때 `{user}/{track id}/`·`{user}/{variant id}/` 폴더 안 파일을 모두 지움(행이 가리키지 않게 된 예전 커버 등). 저장 경로 규칙상 이 두 폴더는 그 곡·변주 전용이다(리믹스는 `remix/`, 올린 원곡은 `remix-sources/`).
+- **구간 수정본 커버 복사**: `lib/trackSync.ts` `copyCoverToTrack` — 원곡 커버를 수정본 폴더로 저장소 복사(실패하면 원래 주소). 폴더 삭제로 원곡이 먼저 지워져도 수정본 커버 유지.
+- 검수: tsc·lint·테스트 55·build, 배포 Ready, DB v1.33. 정리 작업의 실제 삭제는 첫 실행(2026-10-29 03:00 KST 이후) 때 확인 필요.
+- 비용: Vercel 빌드 1회.

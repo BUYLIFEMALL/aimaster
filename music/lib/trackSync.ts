@@ -44,6 +44,21 @@ export async function persistSunoAssetToStorage(
 }
 
 /**
+ * 구간 수정본(v1.29)이 원곡 커버를 쓸 때, 원곡 폴더 파일을 수정본 폴더로 복사한다(2026-10-21).
+ * 30일 정리가 곡 폴더째 지우므로(app/api/cron/cleanup) 원곡이 먼저 지워져도 수정본 커버가 남게 한다. 실패하면 원래 주소를 그대로 쓴다.
+ */
+async function copyCoverToTrack(supabase: SupabaseLike, sourceUrl: string, track: TrackForSync): Promise<string> {
+  const prefix = `${(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "")}/storage/v1/object/public/music-audio/`;
+  if (!sourceUrl.startsWith(prefix)) return sourceUrl;
+  const from = decodeURIComponent(sourceUrl.slice(prefix.length).split("?")[0]);
+  const ext = from.split(".").pop() || "jpg";
+  const to = `${track.user_id}/${track.id}/cover.${ext}`;
+  const { error } = await supabase.storage.from("music-audio").copy(from, to);
+  if (error) return sourceUrl;
+  return supabase.storage.from("music-audio").getPublicUrl(to).data.publicUrl;
+}
+
+/**
  * 곡 분위기/가사에 맞는 고퀄리티 앨범 커버를 나노바나나로 만들어 Storage에 저장하고 URL을
  * 반환한다. Suno가 자체적으로 주는 커버는 화질/퀄리티가 낮아서(사용자 피드백, 2026-08-15)
  * 이 커버로 대체한다. 본인 OpenAI/Gemini 키가 둘 다 없거나 생성이 실패하면 null을 반환하고
@@ -111,7 +126,7 @@ export async function saveSunoTrackResult(
       .select("image_url")
       .eq("id", track.replaced_from_variant_id)
       .maybeSingle();
-    customCoverUrl = source?.image_url ?? null;
+    customCoverUrl = source?.image_url ? await copyCoverToTrack(supabase, source.image_url, track) : null;
   } else {
     customCoverUrl = await tryGenerateHighQualityCover(supabase, track);
   }
