@@ -13,7 +13,7 @@ export function HistoryTabs({ active }: { active: "comment" | "dm" }) {
           key={t.key}
           href={t.href}
           className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-            active === t.key ? "bg-ig-text text-ig-surface" : "text-ig-muted hover:text-ig-text"
+            active === t.key ? "bg-ig-primary text-white" : "text-ig-muted hover:text-ig-text"
           }`}
         >
           {t.label}
