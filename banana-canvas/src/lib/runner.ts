@@ -121,7 +121,7 @@ export async function runTask(apiKey: string, userId: string, p: RunParams): Pro
   for (const s of sources) parts.push({ image: { mime: mimeOf(s.path), data: s.bytes } });
   if (mask) parts.push({ image: { mime: mimeOf(mask.path), data: mask.bytes } });
   parts.push({ text: task.prompt });
-  const r = await imageModel(apiKey, parts, { model: p.model, aspect: task.aspect, modalities: task.modalities, deadline });
+  const r = await imageModel(apiKey, parts, { model: p.model, aspect: task.aspect, modalities: task.modalities, deadline, imageSize: task.imageSize });
   let img = r.images[r.images.length - 1];
   let bytes = img.bytes, mime = img.mime, warning: string | undefined;
 

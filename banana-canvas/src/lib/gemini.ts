@@ -96,7 +96,7 @@ const IMAGE_CALL_MAX_MS = 120_000;
 export async function imageModel(
   apiKey: string,
   parts: Part[],
-  opts: { model: ModelLevel; aspect?: Aspect; modalities: "image" | "image_text"; deadline?: number },
+  opts: { model: ModelLevel; aspect?: Aspect; modalities: "image" | "image_text"; deadline?: number; imageSize?: "1K" | "2K" | "4K" },
 ): Promise<ImageResult> {
   let last: AiError | null = null;
   for (const model of IMAGE_MODELS[opts.model]) {
@@ -108,6 +108,8 @@ export async function imageModel(
         modelName: model,
         parts: parts.map(toApi),
         aspectRatio: opts.aspect,
+        // 해상도는 Pro 등급 모델에만(빠른 모델은 1K 고정) — 템플릿 그래픽(v1.13)
+        imageSize: opts.imageSize && opts.imageSize !== "1K" && !model.includes("lite") ? opts.imageSize : undefined,
         responseModalities: opts.modalities === "image" ? ["IMAGE"] : ["IMAGE", "TEXT"],
         timeoutMs,
         retries: 0,

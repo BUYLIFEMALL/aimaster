@@ -142,3 +142,38 @@ test("v1.12 합성 소스별 지시·배경: 지시가 없으면 기존 프롬�
   assert.match(t.prompt, /BACKGROUND \(KEEP\)/);
   assert.doesNotMatch(t.prompt, /BACKGROUND GENERATION/);
 });
+
+test("v1.13 템플릿 그래픽: 123종·없는 칸/화풍/언어는 버림·서버 조립", async () => {
+  const { GRAPHIC_TEMPLATES } = await import("../src/lib/bnc/graphicTemplates.ts");
+  assert.equal(GRAPHIC_TEMPLATES.length, 123);
+  assert.equal(new Set(GRAPHIC_TEMPLATES.map((t) => t.id)).size, 123);
+  assert.match(missingInput(cleanParams({ kind: "graphic" })), /템플릿/);
+  const p = cleanParams({ kind: "graphic", templateId: "dev-ui", fields: { app_type: "피트니스 앱", hack: "x" }, preset: "nope", languages: ["한국어", "클링온"], imageSize: "8K" });
+  assert.equal(missingInput(p), null);
+  assert.deepEqual(Object.keys(p.fields), ["app_type"]);
+  assert.equal(p.preset, undefined);
+  assert.deepEqual(p.languages, ["한국어"]);
+  assert.equal(p.imageSize, "1K");
+  const t = buildTask(p, { bgEmpty: false });
+  assert.equal(t.needs.base, false);
+  assert.match(t.prompt, /피트니스 앱/);
+  assert.doesNotMatch(t.prompt, /\{\{/);
+  assert.match(t.prompt, /Style: Vector illustration, flat/);
+  assert.match(t.prompt, /written in: 한국어/);
+  const withRef = buildTask(cleanParams({ kind: "graphic", templateId: "dev-ui", base: "x", maintainSubject: false, imageSize: "4K" }), { bgEmpty: false });
+  assert.match(withRef.prompt, /style, vibe, or composition reference/);
+  assert.equal(withRef.imageSize, "4K");
+});
+
+test("v1.13 비율 확장·부분 수정", () => {
+  assert.match(missingInput(cleanParams({ kind: "expand", base: "x" })), /비율/);
+  assert.match(missingInput(cleanParams({ kind: "expand", base: "x", aspect: "original" })), /비율/);
+  const e = buildTask(cleanParams({ kind: "expand", base: "x", aspect: "16:9" }), { bgEmpty: false });
+  assert.match(e.prompt, /Keep every part of the original image/);
+  assert.match(e.prompt, /Target Aspect Ratio: 16:9/);
+  const del = buildTask(cleanParams({ kind: "inpaint", base: "x", mask: "m" }), { bgEmpty: false });
+  assert.equal(del.title, "부분 삭제");
+  const ed = buildTask(cleanParams({ kind: "inpaint", base: "x", mask: "m", prompt: "커피잔 추가" }), { bgEmpty: false });
+  assert.equal(ed.title, "부분 수정");
+  assert.match(ed.prompt, /ADD the requested object/);
+});

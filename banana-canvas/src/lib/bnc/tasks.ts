@@ -1,8 +1,9 @@
-import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, Kind, ModelLevel, RunParams, Upscale } from "./types";
+import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, ImageSize, Kind, ModelLevel, RunParams, Upscale } from "./types";
+import { GRAPHIC_LANGUAGES, GRAPHIC_STYLES, templateById } from "./graphicTemplates";
 import { ASPECTS, KINDS, MAX_SOURCES } from "./types";
 import { PROCESSES, STYLES, categoryById, processById, styleById } from "./styles";
 import {
-  BGREMOVE_PROMPT, IDPHOTO_PROMPT, INPAINT_PROMPT, KOREAN_PEOPLE_RULE, comicPrompt, floorplanPrompt, lifeAlbumPrompt, restorePrompt, synthesisPrompt,
+  BGREMOVE_PROMPT, IDPHOTO_PROMPT, INPAINT_PROMPT, KOREAN_PEOPLE_RULE, comicPrompt, expandPrompt, floorplanPrompt, graphicPrompt, inpaintEditPrompt, lifeAlbumPrompt, restorePrompt, synthesisPrompt,
 } from "./prompts";
 
 export interface Task {
@@ -16,6 +17,8 @@ export interface Task {
   upscale: Upscale;
   /** 예상 이미지 생성 건수(본인 키 사용량 안내용) */
   estimate: number;
+  /** 해상도(Pro 모델에만 전달) */
+  imageSize?: ImageSize;
 }
 
 export interface TaskCtx { bgEmpty: boolean }
@@ -55,12 +58,29 @@ export function cleanParams(raw: unknown): RunParams | null {
     colorize: r.colorize !== false,
     sourceNotes: (Array.isArray(r.sourceNotes) ? r.sourceNotes : []).slice(0, sources.length).map((n) => text(n, 300)),
     background: r.background === "keep" || r.background === "change" ? r.background : "auto",
+    ...graphicParams(r),
+  };
+}
+
+/** 템플릿 그래픽 입력 정리: 템플릿에 있는 칸·목록에 있는 화풍·언어만 받는다 */
+function graphicParams(r: Record<string, unknown>): Partial<RunParams> {
+  const tpl = templateById(r.templateId);
+  const raw = (r.fields && typeof r.fields === "object" ? r.fields : {}) as Record<string, unknown>;
+  const fields: Record<string, string> = {};
+  for (const f of tpl?.fields ?? []) { const v = text(raw[f.id], 300); if (v) fields[f.id] = v; }
+  return {
+    templateId: tpl?.id,
+    fields,
+    preset: GRAPHIC_STYLES.some((s) => s.value === r.preset) ? (r.preset as string) : undefined,
+    languages: (Array.isArray(r.languages) ? r.languages : []).filter((l): l is string => GRAPHIC_LANGUAGES.includes(l as string)).slice(0, 4),
+    imageSize: (["1K", "2K", "4K"].includes(String(r.imageSize)) ? r.imageSize : "1K") as ImageSize,
+    maintainSubject: r.maintainSubject !== false,
   };
 }
 
 /** 필요한 입력이 빠졌으면 사용자에게 보여줄 한국어 안내를 돌려준다 */
 export function missingInput(p: RunParams): string | null {
-  const needsBase = p.kind !== "generate" && p.kind !== "recipe" && p.kind !== "story";
+  const needsBase = p.kind !== "generate" && p.kind !== "recipe" && p.kind !== "story" && p.kind !== "graphic";
   if (needsBase && !p.base) return "원본 이미지를 먼저 올려 주세요.";
   switch (p.kind) {
     case "generate": return p.prompt ? null : "생성할 이미지의 아이디어를 입력해 주세요.";
@@ -72,6 +92,8 @@ export function missingInput(p: RunParams): string | null {
     case "lifealbum": return p.age ? null : "사진 속 인물의 현재 나이를 입력해 주세요.";
     case "story": return p.prompt ? null : "스토리 아이디어를 입력해 주세요.";
     case "recipe": return p.prompt ? null : "요리 이름을 입력해 주세요.";
+    case "graphic": return p.templateId ? null : "템플릿을 먼저 골라 주세요.";
+    case "expand": return p.aspect && p.aspect !== "original" ? null : "확장할 비율을 골라 주세요.";
     default: return null;
   }
 }
@@ -111,7 +133,18 @@ export function buildTask(p: RunParams, ctx: TaskCtx): Task {
     case "bgremove":
       return { ...base, title: "배경 제거", modalities: "image", prompt: BGREMOVE_PROMPT, post: "chromakey" };
     case "inpaint":
-      return { ...base, title: "부분 삭제", needs: { base: true, sources: false, mask: true }, modalities: "image", prompt: INPAINT_PROMPT };
+      return p.prompt
+        ? { ...base, title: "부분 수정", needs: { base: true, sources: false, mask: true }, modalities: "image", prompt: inpaintEditPrompt(p.prompt) }
+        : { ...base, title: "부분 삭제", needs: { base: true, sources: false, mask: true }, modalities: "image", prompt: INPAINT_PROMPT };
+    case "graphic": {
+      const tpl = templateById(p.templateId)!;
+      return {
+        ...base, title: tpl.title, needs: { base: false, sources: false, mask: false }, modalities: "image", aspect: aspect ?? "1:1", imageSize: p.imageSize,
+        prompt: graphicPrompt(tpl, p.fields ?? {}, { preset: p.preset, languages: p.languages ?? [], extra: p.prompt ?? "", hasReference: !!p.base, maintainSubject: p.maintainSubject !== false }),
+      };
+    }
+    case "expand":
+      return { ...base, title: `비율 확장 ${p.aspect}`, modalities: "image", aspect, prompt: expandPrompt(p.aspect, p.prompt ?? "") };
     case "idphoto":
       return { ...base, title: "증명사진", modalities: "image", prompt: IDPHOTO_PROMPT, aspect: "3:4" };
     case "floorplan":

@@ -773,3 +773,8 @@ button[aria-pressed=true] {
 .bc-compare-slider input{width:100%;accent-color:var(--brand);min-height:24px}
 .bc-notes{display:flex;flex-direction:column;gap:6px}
 .bc-notes small{font-weight:400;color:var(--muted)}
+
+/* v1.13 올인원 그래픽 병합: 템플릿 그래픽 자동 입력 접기 */
+.bc-graphic-more{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:8px}
+.bc-graphic-more summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px}
+.bc-graphic-more[open] summary{margin-bottom:4px}

@@ -1,4 +1,5 @@
 import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, SynthBackground, Upscale } from "./types";
+import type { GraphicTemplate } from "./graphicTemplates";
 import { MATERIALS, categoryById } from "./styles";
 
 /** 모든 AI 프롬프트는 당해 연도 기준(CLAUDE.md 핵심 원칙 8) */
@@ -259,3 +260,41 @@ Analyze the provided image of a food dish. Identify the name of the dish as spec
 - Do NOT include any extra explanations. The response must be ONLY the name of the dish. Example: if the image is of macarons, output "마카롱".`;
 
 export type { Aspect };
+
+
+/** 템플릿 그래픽(올인원 그래픽 v1.08의 조립 방식을 서버로 옮김, v1.13): 템플릿 문장 + 입력값 + 화풍 + 글자 언어 + 추가 요청 */
+export function graphicPrompt(
+  tpl: GraphicTemplate, fields: Record<string, string>,
+  o: { preset?: string; languages: string[]; extra: string; hasReference: boolean; maintainSubject: boolean },
+): string {
+  let assembled = tpl.template;
+  for (const f of tpl.fields) assembled = assembled.split(`{{${f.id}}}`).join(fields[f.id] || f.defaultValue || f.placeholder?.replace(/^예:\s*/, "") || f.label);
+  const parts = [assembled, `Style: ${o.preset || tpl.defaultStyle}`];
+  if (o.languages.length) parts.push(`Any text in the image must be written in: ${o.languages.join(", ")}. Render text clearly and spell it correctly.`);
+  if (o.extra.trim()) parts.push(`Additional details: <user-request>${o.extra.trim().replace(/[<>]/g, " ")}</user-request>`);
+  const ref = !o.hasReference ? "" : o.maintainSubject
+    ? "Instruction: Use the attached image as a direct reference. Maintain the exact physical appearance, facial features, and identity of the subject in it.\n\n"
+    : "Instruction: Use the attached image primarily for style, vibe, or composition reference. You do not need to strictly maintain the subject's identity.\n\n";
+  return `${ref}${yearGuard()}\n${parts.join(". ")}\n\n${KOREAN_PEOPLE_RULE}`;
+}
+
+/** 부분 수정(칠한 곳을 바꾸거나 추가) — 올인원 그래픽 인페인팅 지시를 옮김, v1.13. 지시가 없으면 INPAINT_PROMPT(지우기)를 쓴다. */
+export function inpaintEditPrompt(request: string): string {
+  return `[System Instruction for In-painting]
+You are an expert image editor. You will receive the original image, then a mask image. Perform the edit STRICTLY within the masked area.
+[Mask Definitions]
+- White pixels: the ACTIVE EDITING ZONE. You MUST change the content here.
+- Black pixels: the PROTECTED ZONE. Do NOT change this area.
+[Action Rules]
+1. Focus ONLY on the white mask area and blend the result seamlessly with the surrounding pixels.
+2. If the user asks to replace or change an object: replace what is in the masked area; if it is empty, ADD the requested object there.
+3. If the user asks to remove, fill the mask with the surrounding background.
+4. Output only the final, single image.
+User request: <user-request>${request.replace(/[<>]/g, " ")}</user-request>`;
+}
+
+/** 비율 확장(아웃페인팅) — 원본 내용은 그대로 두고 주변만 그려 넣는다(v1.13) */
+export function expandPrompt(aspect: AspectOrOriginal | undefined, request: string): string {
+  const extra = request.trim() ? `\nFor the newly painted areas: <user-request>${request.trim().replace(/[<>]/g, " ")}</user-request>` : "";
+  return `Keep every part of the original image exactly as it is (subjects, faces, text, colors and position). Only paint new surrounding areas so the scene naturally continues.${extra}${aspectAppendix(aspect)}`;
+}

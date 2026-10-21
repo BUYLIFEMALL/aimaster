@@ -7,6 +7,7 @@ import { ASPECTS, BUCKET, KIND_LABEL, MAX_SOURCES } from "@/lib/bnc/types";
 import { CATEGORIES, PROCESSES, STYLES } from "@/lib/bnc/styles";
 import { ACCEPT_ATTR, FORMAT_HELP, detectImage, sizeError } from "@/lib/bnc/paths";
 import { MaskEditor } from "./MaskEditor";
+import { GraphicCard } from "./GraphicCard";
 import { checkImageFile } from "@/lib/imageFileCheck";
 
 interface Img { path: string; url: string; name: string }
@@ -116,6 +117,9 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
   const [resultBase, setResultBase] = useState<string | null>(null);
   // 빠른 작업 / 스페셜
   const [planAspect, setPlanAspect] = useState<Aspect>("4:3");
+  // 부분 수정 지시·비율 확장(올인원 그래픽에서 옮김, v1.13)
+  const [inpaintNote, setInpaintNote] = useState("");
+  const [expandAspect, setExpandAspect] = useState<Aspect>("16:9");
   const [age, setAge] = useState("");
   const [albumAspect, setAlbumAspect] = useState<Aspect>("16:9");
   const [comicStyle, setComicStyle] = useState<ComicStyle>("noir");
@@ -225,7 +229,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
     const m = await uploadFile(new File([mask], "mask.png", { type: "image/png" }));
     if (!m) { setBusy(""); return; }
     setBusy("");
-    await run("inpaint", { mask: m.path });
+    await run("inpaint", { mask: m.path, prompt: inpaintNote });
     setMaskMode(false);
     dropTemp(m.path);
   }
@@ -257,6 +261,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
       <nav className="bc-nav-chips" aria-label="작업 바로가기">
         <a href="#source">🖼️ 원본</a>
         <a href="#card-generate">✨ 생성</a>
+        <a href="#card-graphic">📐 템플릿 그래픽</a>
         <a href="#card-quick">⚡ 빠른 작업</a>
         <a href="#card-story">🎞️ 스토리·레시피</a>
         <a href="#card-restore">🕰️ 옛 사진 복원</a>
@@ -321,14 +326,21 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
             </div>
           </Card>
 
+          <GraphicCard disabled={disabled} hasBase={!noBase} onRun={(extra) => void run("graphic", extra)} onError={fail} />
+
           <Card id="card-quick" icon="⚡" title="빠른 작업" hint="버튼 한 번으로 끝나는 변환입니다." needsImage locked={noBase}>
             <div className="bc-quick">
               <button type="button" disabled={disabled || noBase} onClick={() => void run("bgremove")}>✂️ 배경 제거<small>투명 PNG</small></button>
-              <button type="button" disabled={disabled || noBase} onClick={() => setMaskMode(true)}>🎨 부분 삭제<small>브러시로 칠해 지우기</small></button>
+              <button type="button" disabled={disabled || noBase} onClick={() => setMaskMode(true)}>🎨 {inpaintNote.trim() ? "부분 수정" : "부분 삭제"}<small>{inpaintNote.trim() ? "칠한 곳을 지시대로 바꾸기" : "브러시로 칠해 지우기"}</small></button>
               <button type="button" disabled={disabled || noBase} onClick={() => void run("idphoto")}>🆔 증명사진 변환<small>정장·흰 배경·3:4</small></button>
               <button type="button" disabled={disabled || noBase} onClick={() => void run("floorplan", { aspect: planAspect })}>🏠 평면도를 3D로<small>비율 {planAspect}</small></button>
             </div>
             <AspectPick value={planAspect} onChange={(a) => setPlanAspect(a as Aspect)} options={["4:3", "16:9", "1:1"]} />
+            <input value={inpaintNote} maxLength={300} onChange={(e) => setInpaintNote(e.target.value)} placeholder="부분 수정 지시 (선택, 예: 칠한 곳에 커피잔 추가) — 비우면 지우기" disabled={disabled || noBase} aria-label="부분 수정 지시" />
+            <div className="bc-btns">
+              <AspectPick value={expandAspect} onChange={(a) => setExpandAspect(a as Aspect)} options={["16:9", "9:16", "1:1", "4:3", "3:4"]} />
+              <button type="button" disabled={disabled || noBase} onClick={() => void run("expand", { aspect: expandAspect })}>↔️ 비율 확장</button>
+            </div>
           </Card>
 
           <Card id="card-story" icon="🎞️" title="연속 스토리 · 이미지 레시피" hint="글자 없이 이미지로만 이야기하거나, 요리 과정을 단계별 사진으로 만듭니다.">
