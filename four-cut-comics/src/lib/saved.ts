@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { addToIndex, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "@/lib/comic/savedIndex";
+import { addToIndex, effectiveExpiry, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "@/lib/comic/savedIndex";
 import type { SavedMeta } from "@/lib/comic/savedIndex";
 import type { Script } from "@/lib/comic/script";
 
@@ -47,7 +47,8 @@ export async function listSaved(userId: string): Promise<SavedItem[]> {
   if (!list.length) return [];
   const { data } = await createAdminClient().storage.from(BUCKET).createSignedUrls(list.map((m) => imagePath(userId, m.id)), SIGNED_URL_SECONDS);
   const urlByPath = new Map<string, string | null>((data ?? []).map((s) => [s.path ?? "", s.signedUrl ?? null]));
-  return list.map((m) => ({ ...m, url: urlByPath.get(imagePath(userId, m.id)) ?? null }));
+  // 화면에는 실제 만료일(저장된 값과 만든 날 + 30일 중 빠른 쪽)을 보여 준다(v1.24 — 옛 90일·무기한 항목 포함)
+  return list.map((m) => ({ ...m, expiresAt: new Date(effectiveExpiry(m)).toISOString(), url: urlByPath.get(imagePath(userId, m.id)) ?? null }));
 }
 
 export async function saveComic(userId: string, o: {

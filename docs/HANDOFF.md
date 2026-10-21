@@ -114,6 +114,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W5: AI 4컷 만화 v1.24(글 모델 별칭 고정 + 보관함 30일 일관화)
+- 글 모델 `gemini-flash-lite-latest` → `gemini-3.5-flash-lite`. 브라우저 「내 작품」 30일 만료(D-58-01). **서버 보관함에 「직접 지울 때까지」·90일 선택지가 있던 최상위 규칙 위반을 발견해 7·30일만 남기고 옛 항목도 만든 날 + 30일로 만료**. 미배포 공용 사본 2건 함께 배포. 배포 `four-cut-comics-kvp0hh7zi`·DB v1.24, 시험 53개, 모델 생성 200. 상세 `four-cut-comics/AGENTS.md` v1.24.
+- 비용: Vercel 빌드 1회(+ 배포를 만들지 못한 첫 시도), Gemini 9토큰. 다음: W6 바나나 캔버스 이미지 모델 목록을 기준에 맞춤. 보고서 §8-7.
+- 프로그램: https://four-cut-comics.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W4: AI 패션스타일 v1.11(Pro 글 모델 정식 교체 + 옷장·룩 30일 만료)
 - Pro 글 모델 `gemini-3-pro-preview` → `gemini-3.8-flash`(정식), 옷장·룩은 불러올 때 30일 지난 것 삭제·고쳐 저장해도 처음 시각 유지(D-57-01), 매뉴얼 안내. 배포 `fashion-style-87tkzve5n`·DB v1.11, 시험 17개, 시험 계정 키로 모델 조회·짧은 생성 200(1원 미만). 상세 `fashion-style/AGENTS.md` v1.11.
 - 비용: Vercel 빌드 1회, Gemini 21토큰. 다음: W5 AI 4컷 만화(`gemini-flash-lite-latest` 고정·보관함 날짜 만료). 보고서 §8-7.

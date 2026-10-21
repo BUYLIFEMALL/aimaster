@@ -13,20 +13,31 @@ export interface SavedMeta {
   script: Script;
   bytes: number;
   createdAt: string; // ISO
-  expiresAt: string | null; // ISO, null = 직접 지울 때까지
+  expiresAt: string | null; // ISO. v1.24부터 최대 만든 날 + 30일(옛 null·90일 항목도 30일로 계산 — splitExpired)
 }
 
 export const MAX_SAVED = 30;
 /** 보관 기간(일). 0 = 직접 삭제할 때까지 */
-export const RETENTION_DAYS = [0, 7, 30, 90] as const;
+// v1.24: 회원 생성 데이터 30일 규칙 — 「직접 지울 때까지(0)」·90일 선택지를 없앰
+export const RETENTION_DAYS = [7, 30] as const;
+export const MAX_RETENTION_DAYS = 30;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function isSavedId(v: unknown): v is string { return typeof v === "string" && UUID.test(v); }
 export function normalizeRetention(v: unknown): number {
   return typeof v === "number" && (RETENTION_DAYS as readonly number[]).includes(v) ? v : 30;
 }
-export function expiresAtFor(days: number, now: Date = new Date()): string | null {
-  return days > 0 ? new Date(now.getTime() + days * 86_400_000).toISOString() : null;
+export function expiresAtFor(days: number, now: Date = new Date()): string {
+  const d = days > 0 && days <= MAX_RETENTION_DAYS ? days : MAX_RETENTION_DAYS;
+  return new Date(now.getTime() + d * 86_400_000).toISOString();
+}
+
+/** 실제 만료 시각: 저장된 만료일과 「만든 날 + 30일」 중 빠른 쪽(옛 null·90일 항목도 30일을 넘지 않게) */
+export function effectiveExpiry(m: Pick<SavedMeta, "createdAt" | "expiresAt">): number {
+  const cap = new Date(m.createdAt).getTime() + MAX_RETENTION_DAYS * 86_400_000;
+  const own = m.expiresAt ? new Date(m.expiresAt).getTime() : Number.POSITIVE_INFINITY;
+  const c = Number.isFinite(cap) ? cap : Number.POSITIVE_INFINITY;
+  return Math.min(Number.isNaN(own) ? Number.POSITIVE_INFINITY : own, c);
 }
 
 /** 저장소에서 읽은 index.json을 검증한다(깨진 항목은 버림) */
@@ -41,7 +52,7 @@ export function parseIndex(raw: unknown): SavedMeta[] {
 /** 만료된 항목과 남길 항목을 나눈다 */
 export function splitExpired(list: SavedMeta[], now: Date = new Date()): { keep: SavedMeta[]; expired: SavedMeta[] } {
   const t = now.getTime();
-  const expired = list.filter((m) => m.expiresAt && new Date(m.expiresAt).getTime() <= t);
+  const expired = list.filter((m) => effectiveExpiry(m) <= t);
   return { keep: list.filter((m) => !expired.includes(m)), expired };
 }
 

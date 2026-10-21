@@ -215,10 +215,10 @@ test("만화 합치기: 같은 너비로 세로 배치·높이 한도 축소", (
 
 test("내 작품: 최신순 최대 20개, 넘친 것은 오래된 것부터 삭제", () => {
   const list = Array.from({ length: 23 }, (_, i) => ({ id: "w" + i, createdAt: i }));
-  const r = trimWorks(list);
+  const r = trimWorks(list, MAX_WORKS, 100); // v1.24: 날짜 만료가 생겨 기준 시각을 작품 시각과 같은 시점으로 준다
   assert.equal(MAX_WORKS, 20); assert.equal(r.keep.length, 20); assert.equal(r.keep[0].id, "w22");
   assert.deepEqual(r.drop.sort(), ["w0", "w1", "w2"]);
-  assert.deepEqual(trimWorks([{ id: "a", createdAt: 1 }]).drop, []);
+  assert.deepEqual(trimWorks([{ id: "a", createdAt: 1 }], MAX_WORKS, 100).drop, []);
 });
 
 test("프롬프트: 한국 시간 기준 현재 월을 함께 알린다", () => {
@@ -257,8 +257,9 @@ test("서버 보관함 목록(index.json) 계산", () => {
   const id = (n) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
   const meta = (n, extra = {}) => ({ id: id(n), title: "t" + n, episode: 1, panelCount: 4, aspect: "1:1", styleId: "pencil", script: script(), bytes: 1, createdAt: new Date(2026, 9, 1, 0, n).toISOString(), expiresAt: null, ...extra });
   assert.ok(isSavedId(id(1))); assert.equal(isSavedId("../x"), false);
-  assert.equal(normalizeRetention(7), 7); assert.equal(normalizeRetention(5), 30); assert.equal(normalizeRetention("0"), 30);
-  assert.equal(expiresAtFor(0), null); assert.equal(expiresAtFor(1, new Date("2026-10-01T00:00:00Z")), "2026-10-02T00:00:00.000Z");
+  assert.equal(normalizeRetention(7), 7); assert.equal(normalizeRetention(5), 30); assert.equal(normalizeRetention("0"), 30); assert.equal(normalizeRetention(0), 30); assert.equal(normalizeRetention(90), 30);
+  // v1.24: 0(직접 지울 때까지)·90일은 없어지고 30일을 넘지 않는다
+  assert.equal(expiresAtFor(0, new Date("2026-10-01T00:00:00Z")), "2026-10-31T00:00:00.000Z"); assert.equal(expiresAtFor(90, new Date("2026-10-01T00:00:00Z")), "2026-10-31T00:00:00.000Z"); assert.equal(expiresAtFor(1, new Date("2026-10-01T00:00:00Z")), "2026-10-02T00:00:00.000Z");
   assert.equal(parseIndex([meta(1), { id: "bad" }, null]).length, 1); assert.deepEqual(parseIndex("x"), []);
   const now = new Date("2026-10-10T00:00:00Z");
   const s = splitExpired([meta(1, { expiresAt: "2026-10-09T00:00:00Z" }), meta(2, { expiresAt: "2026-10-11T00:00:00Z" }), meta(3)], now);
@@ -369,4 +370,27 @@ test("v1.16 카드뉴스로 넘기기: postType=card_news를 싣고, 문구가 �
   assert.deepEqual(long, { url: `${INSTA_NEW_POST_URL}?postType=card_news`, prefilled: false });
   assert.equal(new URL(instaHandoffUrl(c).url).searchParams.get("postType"), null, "피드는 형식 값 없음");
   assert.equal(INSTA_CARD_COUNT, 4);
+});
+
+test("v1.24 보관 30일 일관화: 브라우저 내 작품·서버 보관함·글 모델 고정", async () => {
+  const { effectiveExpiry, RETENTION_DAYS } = await import("../src/lib/comic/savedIndex.ts");
+  const { WORK_RETENTION_MS } = await import("../src/lib/comic/extras.ts");
+  const DAY = 86_400_000;
+  const now = Date.UTC(2026, 9, 22);
+  // 브라우저 내 작품: 30일 지난 것은 개수와 상관없이 뺀다
+  const r = trimWorks([{ id: "old", createdAt: now - 31 * DAY }, { id: "new", createdAt: now - DAY }], 20, now);
+  assert.deepEqual(r.keep.map((w) => w.id), ["new"]); assert.deepEqual(r.drop, ["old"]);
+  assert.equal(WORK_RETENTION_MS, 30 * DAY);
+  assert.deepEqual(trimWorks([{ id: "edge", createdAt: now - 30 * DAY }], 20, now).drop, []);
+  // 서버 보관함: 선택지는 7·30일, 옛 무기한(null)·90일 항목도 만든 날 + 30일에 만료
+  assert.deepEqual([...RETENTION_DAYS], [7, 30]);
+  const created = new Date(now - 31 * DAY).toISOString();
+  assert.ok(effectiveExpiry({ createdAt: created, expiresAt: null }) <= now);
+  assert.ok(effectiveExpiry({ createdAt: created, expiresAt: new Date(now + 59 * DAY).toISOString() }) <= now);
+  assert.equal(splitExpired([{ id: "x", title: "t", episode: 1, panelCount: 4, aspect: "1:1", styleId: "pencil", script: { characters: [], panels: [] }, bytes: 1, createdAt: created, expiresAt: null }], new Date(now)).expired.length, 1);
+  // 글 모델은 별칭이 아니라 고정 이름
+  const { readFileSync } = await import("node:fs");
+  const g = readFileSync(new URL("../src/lib/gemini.ts", import.meta.url), "utf8");
+  assert.match(g, /export const TEXT_MODEL = "gemini-3\.5-flash-lite";/);
+  assert.doesNotMatch(g.replace(/\/\/.*$/gm, ""), /-latest"/);
 });

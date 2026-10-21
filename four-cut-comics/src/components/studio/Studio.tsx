@@ -304,7 +304,7 @@ export function Studio({ userId }: { userId: string }) {
         image, title: titleOf(), episode, panelCount: count, aspect, styleId, script, retentionDays: retention,
       });
       setServerSavedEpisode(episode);
-      setNotice(`서버 보관함에 저장했습니다(${episode}화, ${retention ? `${retention}일 보관` : "직접 지울 때까지"}).${r.dropped ? ` 30개를 넘어 가장 오래된 작품 ${r.dropped}개를 지웠습니다.` : ""}`);
+      setNotice(`서버 보관함에 저장했습니다(${episode}화, ${retention}일 보관).${r.dropped ? ` 30개를 넘어 가장 오래된 작품 ${r.dropped}개를 지웠습니다.` : ""}`);
     } catch (e) { fail(e, "서버 보관함에 저장하지 못했습니다."); }
     finally { setBusy(""); }
   }
@@ -674,7 +674,7 @@ export function Studio({ userId }: { userId: string }) {
                 <button type="button" onClick={saveToServer} disabled={!!busy || serverSavedEpisode === episode}><CloudUpload size={14} />{busy === "server" ? "올리는 중..." : serverSavedEpisode === episode ? "서버 보관함에 저장됨" : "서버 보관함에 저장"}</button>
                 <label className="cc-inline">보관 기간
                   <select value={retention} onChange={(e) => setRetention(Number(e.target.value))}>
-                    {RETENTION_DAYS.map((d) => <option key={d} value={d}>{d ? `${d}일` : "직접 지울 때까지"}</option>)}
+                    {RETENTION_DAYS.map((d) => <option key={d} value={d}>{`${d}일`}</option>)}
                   </select>
                 </label>
               </div>

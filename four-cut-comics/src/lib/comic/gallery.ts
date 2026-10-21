@@ -1,4 +1,4 @@
-// [내 작품] — 완성작을 이 브라우저의 IndexedDB에 회원별로 최근 MAX_WORKS개 보관한다(서버 저장 없음).
+// [내 작품] — 완성작을 이 브라우저의 IndexedDB에 회원별로 최근 MAX_WORKS개, 만든 날로부터 30일까지 보관한다(서버 저장 없음).
 import { MAX_WORKS, trimWorks } from "./extras";
 import type { Script } from "./script";
 
@@ -41,7 +41,14 @@ export async function listWorks(userId: string): Promise<Work[]> {
       req.onsuccess = () => resolve(req.result as Work[]);
       req.onerror = () => reject(new Error("작품 목록을 읽지 못했습니다."));
     });
-    return trimWorks(all, Number.MAX_SAFE_INTEGER).keep;
+    // 30일 지난 작품은 목록에서 빼고 이 브라우저에서도 지운다(v1.24)
+    const { keep, drop } = trimWorks(all, Number.MAX_SAFE_INTEGER);
+    if (drop.length) {
+      const tx = db.transaction(STORE, "readwrite");
+      drop.forEach((id) => tx.objectStore(STORE).delete(id));
+      await done(tx);
+    }
+    return keep;
   } finally { db.close(); }
 }
 

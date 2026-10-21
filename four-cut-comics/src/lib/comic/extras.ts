@@ -162,8 +162,14 @@ export function splitRanges(rects: StackRect[], totalHeight: number, maxHeight: 
 
 export const MAX_WORKS = 20;
 
-/** 내 작품 목록: 최신순으로 정렬해 최대 max개만 남기고, 넘친 항목의 id를 돌려준다(오래된 것부터 삭제) */
-export function trimWorks<T extends { id: string; createdAt: number }>(list: T[], max = MAX_WORKS): { keep: T[]; drop: string[] } {
-  const sorted = [...list].sort((a, b) => b.createdAt - a.createdAt);
-  return { keep: sorted.slice(0, max), drop: sorted.slice(max).map((w) => w.id) };
+export const WORK_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
+/**
+ * 내 작품 목록: 만든 지 30일이 지난 것은 빼고(v1.24, D-58-01 — 이어서 만들기·열기도 이 목록만 씀),
+ * 최신순으로 최대 max개만 남긴다. 뺀 항목의 id를 돌려준다(호출 쪽이 저장소에서 지움).
+ */
+export function trimWorks<T extends { id: string; createdAt: number }>(list: T[], max = MAX_WORKS, now: number = Date.now()): { keep: T[]; drop: string[] } {
+  const expired = (w: T) => Number.isFinite(w.createdAt) && now - w.createdAt > WORK_RETENTION_MS;
+  const live = list.filter((w) => !expired(w)).sort((a, b) => b.createdAt - a.createdAt);
+  return { keep: live.slice(0, max), drop: [...list.filter(expired).map((w) => w.id), ...live.slice(max).map((w) => w.id)] };
 }

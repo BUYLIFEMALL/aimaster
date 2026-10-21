@@ -3,7 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 
 // 모델명은 자주 바뀌므로 한곳에서 관리한다(이미지 모델 후보는 lib/comic/options.ts).
-export const TEXT_MODEL = "gemini-flash-lite-latest";
+// v1.24: 별칭(gemini-flash-lite-latest — 가리키는 모델이 예고 없이 바뀜) → 고정 정식 이름
+export const TEXT_MODEL = "gemini-3.5-flash-lite";
 
 export type AiErrorCode = "key" | "quota" | "timeout" | "safety" | "noimage" | "model" | "badjson" | "unknown";
 export class AiError extends Error {

@@ -137,5 +137,13 @@
 - 인스타 공용 기준 코드(`insta-member-scheduler`, 기준 cardnews-studio) 사본 — `node scripts/check-shared-modules.mjs --sync`로 반영.
 
 ## 2026-10-22 미배포 공용 변경 안내
-- **미배포 공용 변경 안내(2026-10-22, Claude Code 윈도우) — 다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나감**: 공용 기준 코드 사본 `src/app/api/instagram/posts/route.ts`(공용 `insta-posts-route`: 게시 기록 응답에 `caption` 칸 추가)이 저장소에서 바뀌었지만 이 프로그램 화면·동작은 같다(기본값 그대로). 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 배포 뒤 이 줄을 「배포됨(버전)」으로 바꾼다. 목록: 루트 `docs/SHARED_MODULES.md`.
+- **[배포됨 v1.24, 2026-10-22]** 미배포 공용 변경 안내(2026-10-22, Claude Code 윈도우) — 다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나감: 공용 기준 코드 사본 `src/app/api/instagram/posts/route.ts`(공용 `insta-posts-route`: 게시 기록 응답에 `caption` 칸 추가)이 저장소에서 바뀌었지만 이 프로그램 화면·동작은 같다(기본값 그대로). 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 배포 뒤 이 줄을 「배포됨(버전)」으로 바꾼다. 목록: 루트 `docs/SHARED_MODULES.md`.
 - 같은 날 「최근 7일 게시」 그래프는 이 프로그램에 붙이지 않았다: 화면이 Tailwind 없이 일반 CSS(전역 버튼 모양)라 공용 그래프 컴포넌트(Tailwind 클래스)가 깨진다. 붙이려면 이 프로그램용 CSS 버전이 필요 — `docs/IMPROVEMENTS.md`에 기록.
+
+## 2026-10-22 v1.24 — 글 모델 별칭 고정 + 보관함 30일 일관화 (Claude Code 윈도우, 이미지 재비교 W5)
+- **글 모델**: `TEXT_MODEL` `gemini-flash-lite-latest`(별칭 — 가리키는 모델이 예고 없이 바뀜) → **`gemini-3.5-flash-lite`**(고정 정식, 저장소 다수 사용).
+- **브라우저 「내 작품」(D-58-01)**: `trimWorks`가 만든 지 30일 지난 작품을 개수와 상관없이 뺌(`WORK_RETENTION_MS`), `listWorks`가 뺀 작품을 IndexedDB에서도 지움 → 이어서 만들기·열기도 이 목록만 쓰므로 같은 기준.
+- **서버 보관함(새로 발견한 최상위 규칙 위반)**: 보관 기간 선택지 `[0(직접 지울 때까지), 7, 30, 90]` → **`[7, 30]`**. `expiresAtFor`는 30일을 넘지 않고, `effectiveExpiry`로 옛 무기한·90일 항목도 「만든 날 + 30일」에 만료(`splitExpired`), 목록 화면에도 실제 만료일 표시. 매뉴얼·저장 안내 문구 수정.
+- 함께 나간 미배포 공용 사본: 인스타 게시 처리·예약 API 5개 사본 전환(2026-10-20), 게시 기록 응답 `caption` 칸(2026-10-22) — 화면·동작 변화 없음, 공용 사본 일치 확인.
+- 검수: tsc 0, 시험 53개(기존 시험은 지우지 않고 새 규칙에 맞게 기대값만 수정 + 새 시험 1개), build, 배포 `four-cut-comics-kvp0hh7zi` Ready(첫 배포 명령은 배포를 만들지 못해 다시 실행 — 빌드 1회분), DB v1.24. 실제 호출(승인 1회): 시험 계정 본인 키로 `gemini-3.5-flash-lite` 조회 200·짧은 생성 「OK」(9토큰). 크롬(시험 회원) v1.24·서버 보관함 API 200.
+- 남은 일: 서버 보관함 만료는 여전히 목록·저장 때 정리(cron 없음) — 접속하지 않는 회원 자료는 다음 접속 때 지워짐. 필요하면 W7(인물사진)과 같은 방식으로 cron 추가.
