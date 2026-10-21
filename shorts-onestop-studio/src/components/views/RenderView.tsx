@@ -82,7 +82,7 @@ export function RenderView() {
   }
   async function makeAll(onlyMissing: boolean) {
     if (!script) return;
-    let next = script; const vs = sceneVoices(next); const idx = vs.map((v, i) => i).filter((i) => !onlyMissing || !vs[i].voice);
+    let next = script; const vs = sceneVoices(next); const idx = vs.map((v, i) => i).filter((i) => !onlyMissing || !vs[i].voice || audio.gone.has(vs[i].voice!.path)); // v1.24: 30일 정리로 지워진 음성도 다시 만든다
     if (!idx.length) { setMsg({ text: "모든 장면에 지금 내레이션과 같은 음성이 있습니다.", ok: true }); return; }
     setMsg(null); setPlaying(false);
     try {
@@ -183,7 +183,7 @@ export function RenderView() {
                   <div key={i} className="list-item">
                     <div style={{ minWidth: 0 }}><strong>{label(script, i)}</strong><small style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.text}</small></div>
                     <div className="actions" style={{ flexShrink: 0 }}>
-                      {v.voice ? <span className="badge brand">✅ {v.voice.dur.toFixed(1)}초</span> : raw[i] ? <span className="badge">⚠️ 내레이션 바뀜</span> : <span className="badge">음성 없음</span>}
+                      {v.voice && audio.gone.has(v.voice.path) ? <span className="badge" title="만든 지 30일이 지나 자동 삭제되었습니다">🗑️ 30일 지나 삭제됨</span> : v.voice ? <span className="badge brand">✅ {v.voice.dur.toFixed(1)}초</span> : raw[i] ? <span className="badge">⚠️ 내레이션 바뀜</span> : <span className="badge">음성 없음</span>}
                       {v.voice && <button type="button" aria-label="듣기" onClick={() => playOne(v.voice)}><Play size={13} /></button>}
                       <button type="button" disabled={!!busy} onClick={() => void remake(i)}><Mic size={13} />{v.voice ? "다시" : "만들기"}</button>
                     </div>

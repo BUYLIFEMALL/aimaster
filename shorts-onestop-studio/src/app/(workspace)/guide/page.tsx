@@ -155,6 +155,7 @@ export default function GuidePage() {
             <div className="list-item"><div><strong>「유튜브 채널이 아직 연결되지 않았습니다」라고 나와요</strong><small>이 프로그램은 유튜브 연결 화면이 따로 없습니다. 「유튜브 댓글 자동화」 또는 「YOUTUBE Shots 자동화」에서 본인 Google 앱(Client ID·Secret)으로 채널을 한 번 연결한 뒤 ⑥에서 [다시 확인]을 눌러 주세요. 「영상 올리기 권한이 없습니다」면 Shots에서 「다른 YouTube 프로그램 권한도 함께 받기」를 켜고 다시 연결하면 됩니다.</small></div></div>
             <div className="list-item"><div><strong>유튜브에 하루 몇 편까지 올릴 수 있나요?</strong><small>유튜브 무료 할당량(하루 10,000단위) 기준 업로드 1회가 약 1,600단위라 하루 약 6편입니다. 한도를 넘으면 다음 날 다시 올려 주세요. 처음 올리는 채널은 유튜브가 처리하는 데 몇 분 걸릴 수 있습니다.</small></div></div>
             <div className="list-item"><div><strong>AI 영상이 「결제가 연결된 키에서만 됩니다」라고 나와요</strong><small>Gemini 영상 모델은 무료 등급 키로는 쓸 수 없습니다. Google AI Studio에서 결제(유료 등급)를 연결하거나, Replicate·fal 키를 등록해 다른 영상 모델을 골라 주세요. 실패한 영상은 자동으로 다시 보내지 않습니다(이중 요금 방지).</small></div></div>
+            <div className="list-item"><div><strong>「30일 지나 삭제됨」이라고 나와요</strong><small>AI로 만든 배경 이미지·내레이션 음성·AI 영상은 만든 날로부터 30일이 지나면 자동으로 지워집니다(회원 데이터 보호 규칙). 대본은 그대로 남으니, 음성은 [음성 없는 장면 모두 만들기]로, 배경은 다시 만들거나 골라 주세요. 직접 올린 배경음악은 지우지 않습니다.</small></div></div>
             <div className="list-item"><div><strong>스토리가 자연스럽지 않아요</strong><small>구성을 「스토리」로 두고, 설정에서 상위 모델(Gemini 3.8 Flash · Claude Sonnet 5.5 등)을 고르면 흐름이 더 매끄럽습니다.</small></div></div>
           </div>
         </section>

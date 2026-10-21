@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
   "crons": [
-    { "path": "/api/cron/cleanup-videos", "schedule": "30 18 * * *" }
+    { "path": "/api/cron/cleanup-media", "schedule": "30 18 * * *" }
   ]
 }

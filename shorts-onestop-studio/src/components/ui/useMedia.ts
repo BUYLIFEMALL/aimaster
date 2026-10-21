@@ -17,6 +17,8 @@ export function useMedia(script: ShortsScript | null | undefined) {
   const [signed, setSigned] = useState<Record<string, string>>({});
   const [tick, setTick] = useState(0);
   const asked = useRef(new Set<string>()); // 같은 경로를 반복 요청하지 않는다(실패해도 무한 재요청 방지)
+  // v1.24: 서명을 요청했는데 주소가 오지 않은 파일 = 30일 정리 등으로 지워진 파일
+  const [gone, setGone] = useState<Set<string>>(new Set());
 
   // AI 이미지 경로 → 서명 주소
   // v1.23: AI 영상의 첫 화면 사진(poster)도 썸네일·이어 붙이기용으로 서명 주소를 받는다
@@ -27,7 +29,11 @@ export function useMedia(script: ShortsScript | null | undefined) {
     if (!need.length) return;
     need.forEach((p) => asked.current.add(p));
     fetch("/api/media/sign", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths: need }) })
-      .then((r) => r.json()).then((d) => { if (d.urls && Object.keys(d.urls).length) setSigned((s) => ({ ...s, ...d.urls })); }).catch(() => undefined);
+      .then((r) => r.json()).then((d) => {
+        if (!d.urls) return; // 요청 자체가 실패하면 지워졌다고 판단하지 않는다
+        if (Object.keys(d.urls).length) setSigned((s) => ({ ...s, ...d.urls }));
+        const miss = need.length <= 60 ? need.filter((p) => !d.urls[p]) : []; if (miss.length)  /* 서명 API는 한 번에 60개까지 */ setGone((g) => new Set([...g, ...miss]));
+      }).catch(() => undefined);
   }, [pathKey, signed]);
 
   // Pixabay 사진·영상: 저장된 번호로 새 주소를 받는다(임시 주소 만료 대응). 받기 전에는 저장된 주소를 그대로 시도
@@ -70,5 +76,5 @@ export function useMedia(script: ShortsScript | null | undefined) {
     return pe instanceof HTMLImageElement && pe.complete && pe.naturalWidth > 0 ? pe : null;
   }, [srcOf]);
 
-  return { resolve, srcOf, tick };
+  return { resolve, srcOf, tick, gone };
 }

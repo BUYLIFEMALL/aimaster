@@ -210,7 +210,7 @@ export function DesignView() {
 
   const rows = script ? (bd.mode === "global" ? [-1] : Array.from({ length: script.cards.length + 2 }, (_, i) => i)) : [];
   const thumbOf = (b?: Bg): string => (b ? (b.source === "ai" && b.type === "video" ? (b.poster ? thumbOf(b.poster) : "") : b.source === "ai" ? media.srcOf(b) : b.type === "image" ? media.srcOf(b) : b.thumb || b.src) : "");
-  const bgLabel = (b: Bg) => b.videoJob ? `⏳ AI 영상 만드는 중… (${findVideoModel(b.videoJob.model)?.name ?? ""} · ${new Date(b.videoJob.startedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })} 시작)`
+  const bgLabel = (b: Bg) => b.path && media.gone.has(b.path) ? `🗑️ 만든 지 30일이 지나 파일이 삭제되었습니다 — 다시 만들거나 골라 주세요` : b.videoJob ? `⏳ AI 영상 만드는 중… (${findVideoModel(b.videoJob.model)?.name ?? ""} · ${new Date(b.videoJob.startedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })} 시작)`
     : b.source === "ai" && b.type === "video" ? `🎬 AI 영상 · ${findVideoModel(b.model)?.name ?? ""}` : b.source === "ai" ? "🎨 AI 이미지" : `${b.type === "video" ? "🎬" : "🖼️"} ${b.credit ?? b.source}`;
   const oneCost = sceneCost(vm, linkNext && vm.endFrame);
 

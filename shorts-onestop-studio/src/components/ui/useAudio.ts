@@ -10,6 +10,8 @@ export function useAudio(script: ShortsScript | null | undefined) {
   const els = useRef(new Map<string, HTMLAudioElement>());
   const [urls, setUrls] = useState<Record<string, string>>({});
   const asked = useRef(new Set<string>());
+  // v1.24: 서명을 요청했는데 주소가 오지 않은 파일 = 30일 정리 등으로 지워진 파일(다시 만들어야 함)
+  const [gone, setGone] = useState<Set<string>>(new Set());
 
   const paths = script ? [...sceneVoices(script).map((v) => v.voice?.path), normalizeAudio(script.audio).bgm?.path].filter((p): p is string => !!p) : [];
   const key = paths.slice().sort().join("|");
@@ -18,7 +20,11 @@ export function useAudio(script: ShortsScript | null | undefined) {
     if (!need.length) return;
     need.forEach((p) => asked.current.add(p));
     fetch("/api/media/sign", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths: need }) })
-      .then((r) => r.json()).then((d) => { if (d.urls && Object.keys(d.urls).length) setUrls((u) => ({ ...u, ...d.urls })); }).catch(() => undefined);
+      .then((r) => r.json()).then((d) => {
+        if (!d.urls) return; // 요청 자체가 실패하면 지워졌다고 판단하지 않는다
+        if (Object.keys(d.urls).length) setUrls((u) => ({ ...u, ...d.urls }));
+        const miss = need.length <= 60 ? need.filter((p) => !d.urls[p]) : []; if (miss.length)  /* 서명 API는 한 번에 60개까지 */ setGone((g) => new Set([...g, ...miss]));
+      }).catch(() => undefined);
   }, [key, urls]);
 
   const el = useCallback((path: string, loop = false) => {
@@ -57,5 +63,5 @@ export function useAudio(script: ShortsScript | null | undefined) {
   }, [script, el]);
 
   useEffect(() => () => { els.current.forEach((a) => a.pause()); }, []);
-  return { sync, stopAll, urls };
+  return { sync, stopAll, urls, gone };
 }
