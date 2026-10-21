@@ -1,6 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 통합 받은편지함 v1.07(7일 그래프 플랫폼별 쌓기·막대 누르면 그날 목록) · 같은 그래프를 공용 기준 코드로 세 댓글 프로그램 대시보드에 (INSTA v1.34·쓰레드 v1.23·유튜브 v1.28)
+- `comment-inbox` v1.07: 플랫폼별 색 쌓기·범례, 막대 누르면 그날 게시·발송한 목록(권한·user_id·7일 범위 제한, 플랫폼마다 50건). 시험 40개. 배포 `comment-inbox-hn6evggjp` READY·DB v1.07·크롬(오늘 막대 클릭·400px) 확인. 커밋 `1b91c98f`.
+- 새 공용 기준 코드 `week-reply-bucket`·`week-reply-chart`(기준 comment-inbox) → 세 댓글 프로그램 대시보드 통계 카드 아래 그래프. 커밋 `8dd8b1d2`·버전 수정 `de75a1e6`, 세 곳 배포 READY·DB 반영·크롬에서 버전·그래프·400px 확인.
+- 실수: 버전 바꾸기가 주석을 바꿔 첫 배포 화면 버전이 이전 값 → 고쳐 다시 배포(`docs/ERROR_LESSONS.md` 2026-10-22). 비용: Vercel 빌드 7회(받은편지함 1 + 댓글 3곳 3 + 다시 배포 3), 유료 AI 0회.
+- 못 한 것: 응대 기록 0건이라 쌓인 막대·그날 목록 항목 모양은 실제 데이터로 미확인. 지난 텔레그램 시험 메시지(번호 5) 앱 화면 확인은 주인님 대기.
+- 다음 첫 단계: `comment-inbox/docs/IMPROVEMENT_BACKLOG.md` 남은 항목. 그래프를 고칠 때는 기준(comment-inbox)만 고치고 `--sync`.
+- 프로그램: https://comment-inbox.buylife.xyz · https://instagram-comment-reply.buylife.xyz · https://threads-comment-reply.buylife.xyz · https://youtube-auto-reply.buylife.xyz
+
 ## 2026-10-22 Codex — 티스토리 실제 입력 후 설정 오류 보완·155개 검사, 실발행/배포 대기
 
 **티스토리 포스팅 자동화** v1.83 검수 중. 21일 재로그인 후 실제 웹 전송→본인 새 빈 TinyMCE 입력→본문/저장 원본 의미 구조 대조·DB completed 확인. 댓글 메뉴 선택 오류와 비공개 날짜 버튼 부재를 재현 테스트3개로 확인하고 수정, 대상16개/전체155개·타입/빌드 통과, 린트 오류0/기존 경고9. 실제 수정 후 설정 완료/최종 발행은 미확인, 운영 버전/확장 DB v1.82·미배포·최종발행0·AI0. 진단 파일 ZIP 미포함 및 모듈 소스 일치 확인.

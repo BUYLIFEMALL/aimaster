@@ -221,3 +221,8 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 ## 2026-10-21 v1.27 — 텔레그램 승인 알림에 「📥 통합 받은편지함에서 보기」 링크 버튼 (Claude Code 윈도우)
 - 공용 기준 `telegram-bot-client`(기준 `instagram-comment-reply/lib/telegram/client.ts`)의 `sendTelegramMessageWithButtons`에 선택 항목 `linkButton`(승인 버튼 줄 아래 URL 버튼 한 줄, 없으면 예전과 같음)을 추가하고 `lib/comments/sync.ts`(`?p=youtube`)에서 받은편지함 주소를 넘김. 버튼을 눌러 처리하면 기존처럼 버튼 전체가 지워짐(링크 포함).
 - 검수: tsc·build, 배포 `youtube-auto-reply-cbnn6nw5a` READY, DB v1.27, `/login` 200. 실제 텔레그램 알림은 새 댓글이 들어와야 나가서 미확인. 비용: Vercel 빌드 1회. 커밋 `802e89c8`.
+
+## 2026-10-22 v1.28 — 대시보드에 「📊 최근 7일 응대」 그래프(통합 받은편지함과 같은 공용 기준 코드) (Claude Code 윈도우)
+- 통계 카드 아래에 그래프: 회원 세션(RLS)으로 user_id·status=posted·replied_at ≥ 한국 시간 6일 전 0시(최대 5,000건)를 읽어 한국 시간 날짜별로 셈 — 한 가지 색, `ytreply_comments`. 기록이 없으면 「아직 응대 기록이 없어요」.
+- 공용 기준 코드 사본(직접 고치지 말 것): `lib/weekChart/bucket.ts`(`week-reply-bucket`)·`components/weekChart/WeekReplyChart.tsx`(`week-reply-chart`), 기준은 `comment-inbox`. 고칠 때는 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.
+- 검수: tsc·build, 커밋 `8dd8b1d2`(+ 버전 수정 `de75a1e6`), 배포 evpjb05nh → f8p694kf4 READY, DB v1.28, 크롬 대시보드에서 v1.28·그래프·합계 0건 확인, 400px 가로 넘침 없음(385=385). 기록 0건이라 높이 있는 막대는 미확인. 비용: Vercel 빌드 2회(버전 표시 실수로 다시 배포 1회 포함).
