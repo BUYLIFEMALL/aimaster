@@ -239,3 +239,10 @@ POST 콜백을 보낸다. 이 라우트는:
 - 검수: 테스트 51 통과·tsc·lint·build, Vercel 프로덕션 Ready, 운영 DB(크롬 SQL 편집기) 적용 후 확인 쿼리로 표 2·정책·버전 v1.17·예약 작업 확인. 공개 키 목록 조회 0개·기존 곡 공개 주소 HEAD 200. 크롬(일반 회원) 설정 화면 Claude 칸·버전 v1.17, `/api/studio/*`가 권한 통과 뒤 입력 검사 400·`no-store`. **AI 실제 생성은 2단계 화면과 함께 시험**.
 - 주의: 시험 계정에 **Suno 키가 등록돼 있지 않음** — 3단계 Suno 실제 생성 시험 전에 주인님이 시험 계정에 본인 Suno 키 등록 필요.
 - 기존 곡(`music_tracks`·Storage)의 30일 자동 삭제는 이번 범위에서 제외(주인님 결정 2026-10-21).
+
+## 2026-10-21 v1.18 — 음악 병합 M1 2단계: 정밀 기획 스튜디오 화면 (Claude Code 윈도우)
+- 새 화면 `/studio`(사이드바 1단계 「🎚️ 정밀 기획 스튜디오」, 기존 「음악 기획」은 「빠른 음악 기획」으로 2단계): 옛 `suno-music-studio` 화면 부품 15개를 `components/studio/`로 옮김(빌더·앨범 3~12곡·프리셋 461·탐색·댄스 200·보관함·스튜디오 매뉴얼). 옛 사이드바 대신 위쪽 구역 탭 `StudioTabs.tsx`. 화면 안 이동 주소 `/?section=` → `/studio?section=`.
+- CSS: 옛 `globals.css`를 `.suno-studio` 범위로 자동 변환한 `app/(dashboard)/studio/studio.css`(다른 화면과 클래스 충돌 없음) + 탭·여백 추가. `lucide-react` 의존성 추가.
+- **저장**: 작성 중 초안은 이 브라우저(localStorage), **보관함·내 Style은 서버 표**(`music_studio_projects`·`music_studio_styles`)에 자동 저장(`lib/studio/library.ts` 바뀐 항목만 골라 0.8초 뒤 `POST /api/studio/library`, 2MB 단위로 나눔). 옛 백업 JSON 가져오기 → 서버로 올라감(uuid가 아닌 옛 ID는 새로 바꿈). 보관함 기획은 수정 30일 뒤 자동 삭제(화면에 안내).
+- 검수: 테스트 51·tsc·lint·build, 배포 Ready(비용: Vercel 빌드 1회), DB v1.18. 크롬 일반 회원: 사이드바 메뉴·버전, 좁은 화면(500px)에서 빌더 표시, **곡 기획 생성 1회 성공**(`gemini-3.5-flash-lite` 1회, 6.2초, 제목·Style·가사 54줄), 보관함 API 저장·조회·삭제·잘못된 ID 400, **화면 「현재 작업 보관」 → 서버 자동 저장 → 새로고침 뒤 보관함에 그대로**. 시험 항목 「검수용 화면 저장 시험」은 3단계 시험용으로 남김. 데스크톱 폭 화면은 크롬 창 크기를 바꿀 수 없어 미확인.
+- sunoapi.org 최신 문서 정리: [docs/SUNOAPI_REFERENCE.md](docs/SUNOAPI_REFERENCE.md) — V5_5 지원 종료·V6 기본, 연장 prompt=가사, MR `taskId` 필수, 웹훅 15초·중복 안전, 새 파라미터 `variety` 등. **3단계에서 반영 예정.**

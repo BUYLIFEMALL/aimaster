@@ -13,6 +13,7 @@ const privateHeaders = { "Cache-Control": "private, no-store" };
 export async function guarded(
   request: Request,
   run: (userId: string, body: Record<string, unknown>) => Promise<unknown>,
+  maxBytes = 48_000,
 ) {
   try {
     const access = await checkProgramAccessApi();
@@ -26,7 +27,7 @@ export async function guarded(
       );
     }
     const raw = request.method === "GET" ? "{}" : await request.text();
-    if (raw.length > 48_000) throw new AppError("요청이 너무 큽니다.", 413);
+    if (raw.length > maxBytes) throw new AppError("요청이 너무 큽니다.", 413);
     let body: Record<string, unknown>;
     try {
       body = JSON.parse(raw);

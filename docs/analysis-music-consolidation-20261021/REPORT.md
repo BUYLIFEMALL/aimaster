@@ -90,4 +90,5 @@
 |---|---|---|
 | 1 | AI Audio분석 F-013·F-014 (v1.11) | ✅ 완료 — 권한 확인 + 브라우저 → Gemini 직접 업로드, 7.45MB 실제 분석 성공. [AGENTS.md v1.11](../../ai-audio-analyzer/AGENTS.md) |
 | 2 | 병합 M1 1단계 엔진·DB (음악(SUNO) v1.17) | ✅ 완료 — 엔진·테스트 51·API 2·Claude 키·새 표 2(30일 삭제 예약)·`music-audio` 목록 차단. [music/AGENTS.md v1.17](../../music/AGENTS.md) |
-| 3 | M1 2단계 정밀 기획 화면 (v1.18) | 다음 |
+| 3 | M1 2단계 정밀 기획 화면 (음악(SUNO) v1.18) | ✅ 완료 — `/studio` 화면·보관함 서버 저장·곡 기획 생성 실검수. [music/AGENTS.md v1.18](../../music/AGENTS.md) |
+| 4 | M1 3단계 Suno로 생성 + sunoapi.org 최신화(V6) (v1.19) | 다음 |

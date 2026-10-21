@@ -10,20 +10,27 @@ import { APP_VERSION } from "@/lib/version";
 const FLOW_STEPS = [
   {
     step: 1,
-    href: "/plannings/new",
-    icon: "🎼",
-    label: "음악 기획",
-    description: "주제·분위기로 스타일·제목·가사 완성",
+    href: "/studio",
+    icon: "🎚️",
+    label: "정밀 기획 스튜디오",
+    description: "프리셋 461·보컬/랩 설정·앨범 3~12곡 설계",
   },
   {
     step: 2,
+    href: "/plannings/new",
+    icon: "🎼",
+    label: "빠른 음악 기획",
+    description: "곡 설명만으로 스타일·제목·가사 자동 완성",
+  },
+  {
+    step: 3,
     href: "/plannings",
     icon: "🎵",
     label: "음악 생성 · 트랙 관리",
     description: "Suno AI 생성, 연장·MR·WAV 변환",
   },
   {
-    step: 3,
+    step: 4,
     href: "/remix",
     icon: "🎛️",
     label: "음악 Remix 스튜디오",
