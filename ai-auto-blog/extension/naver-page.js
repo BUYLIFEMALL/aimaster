@@ -7,7 +7,7 @@
 // (모든 프레임에서 바꾸는 명령을 돌리면 같은 동작이 여러 번 실행된다 — v1.27 추천 링크 4번 입력 사고).
 // 셀렉터는 naver-blog-agent(v1.60~)와 기존 BLOG 확장이 실제 네이버 화면에서 확인한 것만 쓴다.
 async function blogEditorCommand(command, args = {}) {
-  const build = "20261010.1";
+  const build = "20261021.1";
   let step = "start";
   try {
     const visible = (el) => Boolean(el && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden");
@@ -83,11 +83,13 @@ async function blogEditorCommand(command, args = {}) {
       const hasText = comps.some((el) => el.matches(".se-text") && normalize(readText(el)));
       const hasOther = comps.some((el) => !el.matches(".se-text"));
       if (title && (paragraphs.length || insertionReady)) {
+        const popup = blockingPopup();
         return {
           status: "valid",
           build,
           hasContent: Boolean(normalize(readText(title)) || hasText || hasOther),
-          dialogOpen: Boolean(blockingPopup()),
+          dialogOpen: Boolean(popup),
+          dialogLabel: popup ? popupLabel(popup) : "", // v1.77 닫지 못한 창 이름을 오류 문구에 보여 주기 위해
           reason: `글쓰기 화면 확인 · ${build}`,
         };
       }
@@ -104,6 +106,20 @@ async function blogEditorCommand(command, args = {}) {
         if (!visible(cancel) || cancel.textContent.trim() !== "취소") return { ok: false, error: "임시글 이어쓰기 창의 취소 버튼을 확인하지 못했습니다. Chrome에서 취소해 주세요." };
         cancel.click();
         return { ok: true, dismissed: true };
+      }
+      // v1.77 그 밖의 안내·이벤트 창(2026-10-21 실제 화면: 안내 팝업 때문에 5분 대기 뒤 중단) — 취소 버튼이 없는 알림 창만
+      // 닫기(X)·「닫기」류 버튼, 또는 버튼이 「확인」 하나뿐일 때 그 버튼으로 닫는다. 취소 버튼이 있는 확인 창은 무엇을 확정하는지 알 수 없어
+      // 건드리지 않는다(입력 준비가 잠시 뒤 창 이름과 함께 멈춘다).
+      const CLOSE_TEXT = /^(닫기|다시 보지 않기|오늘 하루 보지 않기|하루 동안 보지 않기|다음에 보기|나중에 하기|나중에)$/;
+      for (const dialog of [...document.querySelectorAll(".se-popup-container")].filter((el) => visible(el) && el.querySelector(".se-popup-title, .se-popup-alert-text"))) {
+        if (dialog.querySelector("button.se-popup-button-cancel")) continue;
+        const buttons = [...dialog.querySelectorAll("button")].filter(visible);
+        const close = dialog.querySelector("button.se-popup-close-button, button[aria-label*='닫기']")
+          || buttons.find((button) => CLOSE_TEXT.test(button.textContent.trim()))
+          || (buttons.length === 1 && buttons[0].textContent.trim() === "확인" ? buttons[0] : null);
+        if (!visible(close)) continue;
+        close.click();
+        return { ok: true, dismissed: true, closedPopup: popupLabel(dialog) };
       }
       return { ok: true, dismissed: false };
     }

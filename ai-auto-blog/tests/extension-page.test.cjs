@@ -137,3 +137,49 @@ test('categorySelect picks by id and only when the name still matches', async ()
   const sameName = await categoryRun('categorySelect', { id: '99', name: '일상' }, [['15', '일상'], ['16', '일상']]);
   assert.equal(sameName.result.ok, false, 'a name alone never selects a category: the id must exist');
 });
+
+// ---- v1.77 dismissResume: 안내·이벤트 창 닫기 ----
+function popupRun(popups) {
+  const make = (p) => {
+    const buttons = (p.buttons || []).map((b) => ({ textContent: b.text, getClientRects: () => [{}], clicked: false, click() { this.clicked = true; }, className: b.className || '', ariaLabel: b.aria || '' }));
+    const node = {
+      getClientRects: () => [{}], className: 'se-popup-container',
+      querySelector(selector) {
+        if (/se-popup-title/.test(selector) && /se-popup-alert-text/.test(selector)) return p.title || p.message ? { textContent: p.title || p.message } : null;
+        if (selector === '.se-popup-title') return p.title ? { textContent: p.title } : null;
+        if (selector === '.se-popup-alert-text') return p.message ? { textContent: p.message } : null;
+        if (selector === 'button.se-popup-button-cancel') return buttons.find((b) => b.className.includes('se-popup-button-cancel')) || null;
+        if (/se-popup-close-button/.test(selector)) return buttons.find((b) => b.className.includes('se-popup-close-button') || b.ariaLabel.includes('닫기')) || null;
+        return null;
+      },
+      querySelectorAll: (selector) => (selector === 'button' ? buttons : []),
+    };
+    return { node, buttons };
+  };
+  const built = popups.map(make);
+  return { built, result: run('dismissResume', {}, { '.se-popup-container': built.map((b) => b.node) }) };
+}
+
+test('closes an info popup with its X button and reports its name', async () => {
+  const { built, result } = popupRun([{ title: '새로워진 기능 안내', buttons: [{ text: '', className: 'se-popup-close-button' }, { text: '자세히 보기' }] }]);
+  const r = await result;
+  assert.equal(r.dismissed, true); assert.equal(r.closedPopup, '새로워진 기능 안내'); assert.equal(built[0].buttons[0].clicked, true); assert.equal(built[0].buttons[1].clicked, false);
+});
+
+test('closes with a 「다시 보지 않기」 button or a lone 「확인」 button', async () => {
+  const a = popupRun([{ title: '이벤트', buttons: [{ text: '자세히 보기' }, { text: '다시 보지 않기' }] }]);
+  assert.equal((await a.result).dismissed, true); assert.equal(a.built[0].buttons[1].clicked, true); assert.equal(a.built[0].buttons[0].clicked, false);
+  const b = popupRun([{ message: '새 기능이 추가되었습니다.', buttons: [{ text: '확인' }] }]);
+  assert.equal((await b.result).dismissed, true); assert.equal(b.built[0].buttons[0].clicked, true);
+});
+
+test('never touches a confirm popup that has a cancel button (unknown action)', async () => {
+  const { built, result } = popupRun([{ title: '발행하시겠습니까?', buttons: [{ text: '취소', className: 'se-popup-button-cancel' }, { text: '확인' }] }]);
+  const r = await result;
+  assert.equal(r.dismissed, false); assert.ok(built[0].buttons.every((b) => !b.clicked));
+});
+
+test('a popup with several unknown buttons and no close button is left alone', async () => {
+  const { built, result } = popupRun([{ title: '설문', buttons: [{ text: '참여하기' }, { text: '확인' }] }]);
+  assert.equal((await result).dismissed, false); assert.ok(built[0].buttons.every((b) => !b.clicked));
+});

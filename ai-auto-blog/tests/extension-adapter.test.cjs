@@ -236,3 +236,24 @@ test('a failed category selection becomes CATEGORY_FAILED with the reason and th
   await assert.rejects(() => s.adapter.applyCategory({ id: '9', name: '없음' }), (error) => error.code === 'CATEGORY_FAILED' && /일상, 여행/.test(error.message));
   await assert.rejects(() => s.adapter.readCategories(), (error) => error.code === 'CATEGORY_LIST_FAILED');
 });
+
+// ---- v1.77 안내·이벤트 창 (2026-10-21 실제 화면: 네이버 안내 팝업 때문에 5분 기다린 뒤 중단) ----
+test('an info popup that the page closes is followed by normal preparation', async () => {
+  let closed = false;
+  const frame = (command) => {
+    if (command === 'dismissResume') { if (!closed) { closed = true; return { ok: true, dismissed: true, closedPopup: '새 기능 안내' }; } return { ok: true, dismissed: false }; }
+    if (command === 'inspect') return closed ? { status: 'valid', hasContent: false, dialogOpen: false } : { status: 'valid', hasContent: false, dialogOpen: true, dialogLabel: '새 기능 안내' };
+    return { ok: true };
+  };
+  const s = setup({ frames: { 0: frame } });
+  await s.adapter.prepareEditor({ blogId: 'myblog' });
+  assert.ok(closed);
+});
+
+test('a popup that cannot be closed stops within 15 seconds and names the popup (not after 5 minutes)', async () => {
+  const frame = (command) => (command === 'inspect' ? { status: 'valid', hasContent: false, dialogOpen: true, dialogLabel: '이벤트 안내' } : { ok: true, dismissed: false });
+  const s = setup({ frames: { 0: frame } });
+  const messages = [];
+  await assert.rejects(() => s.adapter.prepareEditor({ blogId: 'myblog', progress: (m) => messages.push(m) }), (error) => error.code === 'EDITOR_POPUP' && /이벤트 안내/.test(error.message) && /입력한 내용 없음/.test(error.message));
+  assert.ok(messages.some((m) => /안내 창 「이벤트 안내」/.test(m)));
+});

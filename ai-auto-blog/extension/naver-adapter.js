@@ -14,6 +14,7 @@
   const THINK_MAX_MS = 700;
   const LOGIN_WAIT_MS = 5 * 60 * 1000;
   const IMAGE_WAIT_MS = 20000;
+  const POPUP_WAIT_MS = 15000;
   const tagKey = (value) => String(value || "").normalize("NFC").replace(/[#\s​﻿]/gu, "");
 
   function createNaverAdapter({ chrome, pageFn, TaskError, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)), random = Math.random, now = Date.now, loginWaitMs = LOGIN_WAIT_MS }) {
@@ -147,6 +148,7 @@
 
         const deadline = now() + loginWaitMs;
         let stableSince = 0;
+        let popupSince = 0; // v1.77 닫지 못한 안내 창이 계속 떠 있으면 5분을 기다리지 않고 창 이름과 함께 멈춘다
         let lastMessage = "";
         const say = (message) => { if (message !== lastMessage) { lastMessage = message; progress(message); } };
         while (now() < deadline) {
@@ -173,14 +175,24 @@
             // 취소 버튼 클릭은 임시 저장 복원 창을 닫는 동작이라 단일 프레임이 보이는 한 곳에서만 일어난다(보이는 창만 처리됨).
             dismissed = dialogs.some((entry) => entry.result?.dismissed);
           } catch (error) { if (error instanceof TaskError) throw error; }
-          if (dismissed) { stableSince = 0; await sleep(500); continue; }
+          if (dismissed) { stableSince = 0; popupSince = 0; await sleep(500); continue; }
           const inspection = await inspectTab();
           if (inspection.status === "security_check") { stableSince = 0; say(inspection.reason); await sleep(1000); continue; }
           if (inspection.status === "expired") { stableSince = 0; say(inspection.reason); await sleep(1000); continue; }
           if (inspection.status === "account_mismatch") throw new TaskError("ACCOUNT_MISMATCH", `${inspection.reason} (연결한 블로그 ID: ${blogId})`);
           if (inspection.status === "valid") {
             if (inspection.hasContent) throw new TaskError("EDITOR_NOT_EMPTY", "새 글쓰기 화면에 이전 내용이 남아 있어 입력하지 않았습니다. 임시글 이어쓰기를 취소하고 빈 화면에서 다시 보내주세요.");
-            if (inspection.dialogOpen) { stableSince = 0; await sleep(500); continue; }
+            if (inspection.dialogOpen) {
+              stableSince = 0;
+              if (!popupSince) popupSince = now();
+              if (now() - popupSince >= POPUP_WAIT_MS) {
+                const label = inspection.dialogLabel ? ` 「${inspection.dialogLabel}」` : "";
+                throw new TaskError("EDITOR_POPUP", `네이버 글쓰기 화면에 안내 창${label}이 열려 있어 입력을 시작하지 못했습니다(입력한 내용 없음). 그 창을 닫은 뒤 BLOG에서 다시 보내주세요.`);
+              }
+              say(`네이버 안내 창${inspection.dialogLabel ? ` 「${inspection.dialogLabel}」` : ""}이 열려 있습니다. 창을 닫으면 이어서 입력합니다.`);
+              await sleep(500); continue;
+            }
+            popupSince = 0;
             // 임시글 복원 창이 첫 확인 뒤에 나타날 수 있어, 빈 편집기가 2초 이상 안정적으로 보일 때만 받아들인다.
             if (!stableSince) stableSince = now();
             if (now() - stableSince >= 2000) { state.editorFrame = inspection.frameId; return; }

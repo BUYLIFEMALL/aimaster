@@ -731,3 +731,12 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - 함께 배포된 것: 2026-10-20 미배포로 남아 있던 공용 사본 `utils/ai/openaiRequestParams.ts`(`openai-request-params`, 동작 같음)가 이번 v1.76 배포에 포함됨.
 - 검수: test:extension 74·security 39·extension-api 38, build(prebuild로 manifest·ZIP v1.76), 배포 Ready 2회(메뉴 줄바꿈 수정 포함), `check-extension-release ai-auto-blog` OK, 라이브 ZIP 안 이름·제목 확인, 크롬 탭 제목·메뉴 「블로그 포스팅 / 자동화」·v1.76. 비용: Vercel 빌드 2회.
 - **회원 안내**: 설치된 확장은 자동으로 바뀌지 않는다 → ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → `chrome://extensions` 새로고침(이름이 바뀐 것으로 보임). 지난 기록 문서(AGENTS 위쪽·docs 안 옛 문서)의 옛 이름은 기록이라 그대로 둠.
+
+## 2026-10-21 v1.77 — 네이버 안내·이벤트 팝업 때문에 자동 입력이 멈추던 문제 수정 (Claude Code 윈도우)
+- **증상**: 시험 회원이 확장으로 보낸 글 109·117번이 `[TAB_CLOSED]`로 실패. 같은 글을 다시 대기로 돌려 재현하니 확장이 글을 가져가 네이버 글쓰기 탭을 열었지만 5분 뒤 `[EDITOR_PREPARATION_FAILED]`. 주인님 확인: 그 탭에 **네이버 안내·이벤트 팝업**이 떠 있었음(앞의 TAB_CLOSED는 기다리던 탭을 닫은 것). 어제(110번)까지는 정상 → 네이버가 새 안내 창을 띄우기 시작한 것으로 판단.
+- **원인**: 준비 단계(`naver-adapter.js` `prepareEditor`)는 입력을 막는 팝업(`.se-popup-container` + 제목/안내 문구)이 있으면 닫힐 때까지 기다리는데, 자동으로 닫는 창은 「작성 중인 글이 있습니다」(임시글 이어쓰기) 하나뿐이라 새 안내 창 앞에서 5분 대기 후 중단.
+- **수정**: ① `naver-page.js` `dismissResume`이 취소 버튼이 **없는** 안내·이벤트 창을 닫기(X: `.se-popup-close-button`·`aria-label*=닫기`) → 「닫기·다시 보지 않기·오늘 하루 보지 않기·다음에 보기·나중에」 버튼 → 버튼이 「확인」 하나뿐이면 그 버튼 순으로 눌러 닫음. 취소 버튼이 있는 확인 창은 무엇을 확정하는지 몰라 건드리지 않음 ② `inspect`가 열린 창 이름(`dialogLabel`)을 돌려주고, 어댑터는 닫지 못한 창이 **15초**(`POPUP_WAIT_MS`) 넘게 남으면 `[EDITOR_POPUP] 네이버 글쓰기 화면에 안내 창 「이름」이 열려 있어…`로 바로 멈춤(진행 중엔 사이드패널에 창 이름 표시). 페이지 빌드 표시 `20261021.1`.
+- **검수**: `test:extension` 80개(안내 창 닫은 뒤 정상 진행, 닫지 못하면 15초 안에 창 이름과 함께 중지, X·「다시 보지 않기」·단독 「확인」으로 닫기, 취소 있는 확인 창·알 수 없는 버튼만 있는 창은 손대지 않음 — 가짜 화면), `test:extension-api` 38·`test:security` 39, build(prebuild로 manifest·ZIP v1.77), 배포 Ready, DB `version`·`extension_version` v1.77, `check-extension-release` OK, 운영 ZIP 안 새 코드 포함 확인. 비용: Vercel 빌드 1회.
+- **미검증**: 실제 네이버 안내 창의 버튼 모양(닫기 버튼 클래스·글자). 네이버 사이트는 Claude 브라우저 도구에서 안전 제한으로 열 수 없어 실제 창을 보지 못함 → 회원이 v1.77 ZIP으로 업데이트한 뒤 다시 보내면 ① 창이 자동으로 닫히고 입력이 이어지거나 ② 15초 안에 `[EDITOR_POPUP] … 「창 이름」`으로 멈춤(이 경우 창 이름으로 닫기 규칙 보강).
+- **회원 안내**: ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → `chrome://extensions` 새로고침 → BLOG에서 다시 보내기.
+- 이번 재현 때 주인님 지시 범위에서 시험 회원 글 117번을 「대기」로 되돌려 확장이 다시 가져가게 함(입력 시작 전 준비 단계에서 멈춰 네이버에는 아무것도 입력되지 않음, 지금 상태 `failed`).
