@@ -5,8 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
-import { StudioHeader, StatCard, Avatar } from "@/components/ui/StudioHeader";
+import { StudioHeader, StatCard } from "@/components/ui/StudioHeader";
+import { PendingReviewList } from "@/components/PendingReviewList";
 import { YtLogo } from "@/components/ui/YtLogo";
+
+// v1.23: 공용 기준 코드 `pending-review-list` 목록 색
+const LIST_CLASSES = { text: "text-yt-text", muted: "text-yt-muted", hover: "hover:bg-yt-raised" };
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -157,36 +161,26 @@ export default async function DashboardPage() {
               전체 보기 →
             </Link>
           </div>
-          {(recentRes.data ?? []).length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-4xl">💬</p>
-              <p className="mt-2 text-sm text-yt-muted">지금은 검토할 댓글이 없어요.</p>
-            </div>
-          ) : (
-            <ul className="space-y-4">
-              {(recentRes.data ?? []).map((c) => {
-                const thumb = thumbByVideoId.get(c.video_id);
-                return (
-                  <li key={c.id}>
-                    <Link href={`/comments#video-${c.video_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-yt-raised">
-                      <Avatar name={c.author_display_name} size={32} />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs">
-                          <span className="font-semibold text-yt-text">{c.author_display_name ?? "익명"}</span>
-                          <span className="ml-2 text-yt-muted">{formatDateTimeKo(c.fetched_at)}</span>
-                        </p>
-                        <p className="mt-0.5 line-clamp-2 break-words text-sm text-yt-text">{c.comment_text}</p>
-                      </div>
-                      {thumb && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={thumb} alt="영상 썸네일" className="h-10 w-16 shrink-0 rounded-md object-cover" />
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <PendingReviewList
+            classes={LIST_CLASSES}
+            empty={
+              <div className="py-8 text-center">
+                <p className="text-4xl">💬</p>
+                <p className="mt-2 text-sm text-yt-muted">지금은 검토할 댓글이 없어요.</p>
+              </div>
+            }
+            items={(recentRes.data ?? []).map((c) => ({
+              id: c.id,
+              href: `/comments#video-${c.video_id}`,
+              avatarName: c.author_display_name,
+              authorLabel: c.author_display_name ?? "익명",
+              at: c.fetched_at,
+              text: c.comment_text,
+              thumbUrl: thumbByVideoId.get(c.video_id),
+              thumbAlt: "영상 썸네일",
+              thumbShape: "wide",
+            }))}
+          />
         </div>
 
         <div className="yt-card lg:col-span-2">
