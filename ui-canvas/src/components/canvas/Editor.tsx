@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ArrowLeft, Code2, Component, Download, FileJson, FileText, FolderOpen, Group, HelpCircle, ImagePlus, Layers, Moon, Redo2, Sun, Ungroup, Undo2, X,
 } from "lucide-react";
-import type { CanvasComponent, CanvasSize, ComponentType, DesignSpec, ProjectDoc } from "@/lib/canvas/types";
+import type { CanvasComponent, CanvasSize, ComponentType, DesignSpec, ProjectDoc, Snippet } from "@/lib/canvas/types";
 import { CANVAS_PRESETS } from "@/lib/canvas/types";
 import { PRESETS } from "@/lib/canvas/constants";
 import {
@@ -409,6 +409,26 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
     }
   };
 
+  // 저장한 AI 컴포넌트를 캔버스에 미리보기 상자로 놓는다(코드 내보내기 때 그 자리에 import 된다). 2026-10-21 v1.13
+  const placeSnippet = (s: Snippet) => {
+    const sc = scrollRef.current;
+    const w = Math.min(360, canvas.width - 20), h = 180;
+    const cx = sc ? (sc.scrollLeft + sc.clientWidth / 2) / zoom : canvas.width / 2;
+    const cy = sc ? (sc.scrollTop + sc.clientHeight / 2) / zoom : canvas.height / 2;
+    const base = makeComponent("Misc", { x: Math.max(0, Math.min(canvas.width - w, cx - w / 2)), y: Math.max(0, Math.min(canvas.height - h, cy - h / 2)) }, { width: w, height: h }, components);
+    const comp: CanvasComponent = {
+      ...base,
+      name: `AI_${s.title}`.slice(0, 40),
+      description: s.title,
+      props: { ...base.props, snippetId: s.id },
+      styles: { ...base.styles, backgroundColor: "rgba(6,182,212,0.12)", borderColor: "#06b6d4", color: "#0e7490" },
+    };
+    change((prev) => [...prev, comp]);
+    setSelected([comp.id]);
+    setCodeOpen(false);
+    say(`「${s.title}」을 캔버스에 놓았습니다. 코드 내보내기 때 이 자리에 해당 컴포넌트가 들어갑니다.`);
+  };
+
   // ---------- AI ----------
   const aiFill = async () => {
     if (!components.length) { say("AI 제안을 받으려면 캔버스에 컴포넌트를 하나 이상 추가해 주세요.", "error"); return; }
@@ -668,6 +688,7 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
         <CodeExportModal
           projectId={projectId} name={name} dark={dark} canvas={canvas} components={components}
           snippets={snippets} onSnippets={setSnippets} onClose={() => setCodeOpen(false)} say={say}
+          onPlace={placeSnippet}
         />
       )}
 

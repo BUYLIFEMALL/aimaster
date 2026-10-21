@@ -1,8 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Copy, Download, Trash2, X } from "lucide-react";
+import { Copy, Download, LayoutTemplate, Trash2, X } from "lucide-react";
 import type { CanvasComponent, CanvasSize, Snippet } from "@/lib/canvas/types";
-import { generateTsx, type CodeLayout } from "@/lib/canvas/codegen";
+import { generateTsx, snippetComponentName, type CodeLayout } from "@/lib/canvas/codegen";
 
 // 「</> 코드」 창(2026-10-21 병합 D): 캔버스 화면 → React + Tailwind TSX, 갤러리에서 저장한 AI 컴포넌트 보기·복사·삭제.
 interface Props {
@@ -15,6 +15,8 @@ interface Props {
   onSnippets: (list: Snippet[]) => void;
   onClose: () => void;
   say: (text: string, kind?: "ok" | "error") => void;
+  /** 저장한 AI 컴포넌트를 캔버스에 미리보기 상자로 놓는다(v1.13) */
+  onPlace: (s: Snippet) => void;
 }
 
 function saveFile(filename: string, text: string) {
@@ -25,11 +27,11 @@ function saveFile(filename: string, text: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function CodeExportModal({ projectId, name, dark, canvas, components, snippets, onSnippets, onClose, say }: Props) {
+export function CodeExportModal({ projectId, name, dark, canvas, components, snippets, onSnippets, onClose, say, onPlace }: Props) {
   const [tab, setTab] = useState<"screen" | "saved">("screen");
   const [openId, setOpenId] = useState<string | null>(snippets[0]?.id ?? null);
   const [layout, setLayout] = useState<CodeLayout>("responsive");
-  const code = useMemo(() => generateTsx(components, canvas, { name, dark, layout }), [components, canvas, name, dark, layout]);
+  const code = useMemo(() => generateTsx(components, canvas, { name, dark, layout, snippets }), [components, canvas, name, dark, layout, snippets]);
   const fileBase = (name || "design").replace(/[\\/:*?"<>|]/g, "_");
 
   const copy = async (text: string) => {
@@ -101,7 +103,8 @@ export function CodeExportModal({ projectId, name, dark, canvas, components, sni
                 <pre className="uc-code">{opened.code}</pre>
                 <div className="actions">
                   <button type="button" className="primary" onClick={() => copy(opened.code)}><Copy size={14} />코드 복사</button>
-                  <button type="button" onClick={() => saveFile(`${opened.title.replace(/[\\/:*?"<>|]/g, "_")}.tsx`, opened.code)}><Download size={14} />.tsx 받기</button>
+                  <button type="button" onClick={() => onPlace(opened)} title="캔버스에 미리보기 상자로 놓고, 코드 내보내기 때 이 자리에 넣습니다"><LayoutTemplate size={14} />캔버스에 놓기</button>
+                  <button type="button" onClick={() => saveFile(`${snippetComponentName(opened)}.tsx`, opened.code)}><Download size={14} />{snippetComponentName(opened)}.tsx 받기</button>
                   <button type="button" onClick={() => void remove(opened)}><Trash2 size={14} />삭제</button>
                 </div>
               </div>

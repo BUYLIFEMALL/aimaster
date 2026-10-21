@@ -2,7 +2,7 @@
 // 캔버스 화면 → React + Tailwind TSX 한 파일(2026-10-21 병합 D, 「</> 코드」 내보내기).
 // 위치·크기는 Tailwind 임의값(absolute left-[..] top-[..] w-[..] h-[..]), 모양은 캔버스와 같은 값을 style로 옮긴다.
 // 그리는 방식은 components/canvas/ComponentView.tsx와 같게 맞춘다(캔버스에서 바꾸면 여기도 같이 고친다).
-import type { CanvasComponent, CanvasSize } from "./types";
+import type { CanvasComponent, CanvasSize, Snippet } from "./types";
 
 const CUSTOM_STYLE_KEYS = new Set(["barColor"]);
 const LUCIDE: Record<string, string> = {
@@ -148,16 +148,26 @@ function body(c: CanvasComponent, all: CanvasComponent[], icons: Set<string>, d:
       const dia = Math.round(Math.min(c.size.width, c.size.height) * 0.7);
       return `<div${styleAttr(inner)}><div${styleAttr({ width: dia, height: dia, borderRadius: "50%", background: stops ? `conic-gradient(${stops})` : "#e2e8f0" })} /></div>`;
     }
-    case "Misc":
+    case "Misc": {
+      // 캔버스에 놓은 저장 AI 컴포넌트(props.snippetId) → 그 컴포넌트를 import 해서 그 자리에 넣는다
+      const s = p.snippetId ? currentSnippets.find((x) => x.id === p.snippetId) : undefined;
+      if (s) {
+        const name = snippetComponentName(s);
+        snippetImports.set(name, s.title);
+        return `<div className="h-full w-full overflow-auto"><${name} /></div>`;
+      }
       return `<div${styleAttr({ ...inner, padding: 8, textAlign: "center", wordBreak: "break-word" })}>${txt(c.description || "")}</div>`;
+    }
     default:
       return `{/* 지원하지 않는 컴포넌트: ${String(c.type)} */}`;
   }
 }
 
 export type CodeLayout = "absolute" | "responsive";
-// 그룹 안 자식을 어떤 배치로 그릴지(generateTsx가 정한다)
+// 그룹 안 자식을 어떤 배치로 그릴지, 캔버스에 놓은 AI 컴포넌트 목록(generateTsx가 정한다)
 let currentLayout: CodeLayout = "absolute";
+let currentSnippets: Snippet[] = [];
+const snippetImports = new Map<string, string>();
 
 const labelOf = (c: CanvasComponent) => (c.name ? ` {/* ${String(c.name).replace(/\*\//g, "* /")} */}` : "");
 
@@ -203,15 +213,28 @@ function responsiveBlock(list: CanvasComponent[], all: CanvasComponent[], icons:
   }).join("\n");
 }
 
-export function componentName(raw: string): string {
-  const ascii = raw.replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join("");
-  return /^[A-Z]/.test(ascii) ? ascii.slice(0, 40) : "CanvasScreen";
+/** 코드 함수 이름: 영문이 3자 이상이면 영문 + Screen(이미 Screen·Page·View로 끝나면 그대로), 아니면 CanvasScreen (2026-10-21 v1.13) */
+export function componentName(raw: string, suffix = "Screen"): string {
+  const ascii = raw.replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join("").slice(0, 40);
+  if (ascii.length < 3 || !/^[A-Z]/.test(ascii)) return `Canvas${suffix}`;
+  return /(Screen|Page|View|Component)$/.test(ascii) ? ascii : `${ascii}${suffix}`;
+}
+
+/** 저장한 AI 컴포넌트의 함수 이름: 코드의 export default 이름 → 없으면 제목 기준 */
+export function snippetComponentName(s: Snippet): string {
+  const m = s.code.match(/export\s+default\s+(?:function\s+)?([A-Z][A-Za-z0-9_]*)/);
+  return m ? m[1] : componentName(s.title, "Component");
 }
 
 /** 캔버스 전체를 React + Tailwind TSX 한 파일로 만든다. */
-export function generateTsx(components: CanvasComponent[], canvas: CanvasSize, opts: { name: string; dark: boolean; layout?: CodeLayout }): string {
+export function generateTsx(
+  components: CanvasComponent[], canvas: CanvasSize,
+  opts: { name: string; dark: boolean; layout?: CodeLayout; snippets?: Snippet[] },
+): string {
   const layout: CodeLayout = opts.layout ?? "absolute";
   currentLayout = layout;
+  currentSnippets = opts.snippets ?? [];
+  snippetImports.clear();
   const icons = new Set<string>();
   const top = components.filter((c) => !c.parentId || !components.some((p) => p.id === c.parentId));
   const theme = opts.dark ? "bg-slate-900 text-slate-100" : "bg-white text-slate-900";
@@ -219,13 +242,16 @@ export function generateTsx(components: CanvasComponent[], canvas: CanvasSize, o
     ? responsiveBlock(top, components, icons, 3, { x: 0, y: 0 })
     : top.map((c) => placed(c, components, icons, 3)).join("\n");
   currentLayout = "absolute";
+  currentSnippets = [];
   const fn = componentName(opts.name);
+  const snippetLines = [...snippetImports].map(([name, title]) => `import ${name} from "./${name}"; // 저장한 AI 컴포넌트 「${title.replace(/[\r\n]/g, " ")}」 — [저장한 AI 컴포넌트] 탭에서 ${name}.tsx로 받아 같은 폴더에 두세요`);
   const header = [
     `// ${opts.name || "제목 없는 디자인"} — UI Canvas 자동화에서 내보낸 React + Tailwind CSS 코드 (${new Date().getFullYear()}년)`,
     layout === "responsive"
       ? "// 반응형 배치: 세로 위치가 겹치는 컴포넌트를 한 줄(flex-wrap)로 묶었습니다. 휴대폰 폭에서는 세로로 쌓이고, 768px 이상에서는 캔버스 크기를 따릅니다."
       : "// 위치·크기는 캔버스 그대로(절대 위치)입니다. 실제 서비스에 넣을 때는 [반응형] 내보내기를 쓰거나 flex·grid로 다듬으세요.",
     icons.size ? `import { ${[...icons].sort().join(", ")} } from "lucide-react";` : "",
+    ...snippetLines,
   ].filter(Boolean).join("\n");
   const frame = layout === "responsive"
     ? `<div className="mx-auto w-full max-w-[${num(canvas.width)}px] ${theme} p-4 md:p-0">`

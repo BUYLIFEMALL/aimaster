@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import ts from "typescript";
 import { makeComponent, groupComponents } from "../src/lib/canvas/model.ts";
 import { COMPONENT_TYPES } from "../src/lib/canvas/types.ts";
-import { generateTsx, componentName, rowsOf } from "../src/lib/canvas/codegen.ts";
+import { generateTsx, componentName, rowsOf, snippetComponentName } from "../src/lib/canvas/codegen.ts";
 import { sanitizeDoc, sanitizeSnippets, MAX_SNIPPETS } from "../src/lib/projects.ts";
 
 function syntaxErrors(code) {
@@ -20,7 +20,7 @@ test("코드 내보내기: 모든 컴포넌트 종류가 문법 오류 없는 TS
   const grouped = groupComponents(list, ids).components;
   const code = generateTsx(grouped, { width: 1440, height: 900 }, { name: "My Landing 화면", dark: false });
   assert.deepEqual(syntaxErrors(code), []);
-  assert.match(code, /export default function MyLanding\(\)/);
+  assert.match(code, /export default function MyLandingScreen\(\)/);
   assert.match(code, /absolute left-\[\d+px\] top-\[\d+px\] w-\[200px\] h-\[100px\]/);
   assert.match(code, /from "lucide-react"/);
 
@@ -53,7 +53,9 @@ test("코드 내보내기: 따옴표·중괄호가 든 글자도 안전하게 �
 
 test("컴포넌트 이름: 영문이 없으면 기본 이름", () => {
   assert.equal(componentName("내 화면"), "CanvasScreen");
-  assert.equal(componentName("login page v2"), "LoginPageV2");
+  assert.equal(componentName("AI 컴포넌트 — 쿠폰"), "CanvasScreen");
+  assert.equal(componentName("login page"), "LoginPage");
+  assert.equal(componentName("My Landing"), "MyLandingScreen");
 });
 
 test("저장한 AI 컴포넌트: 빈 코드는 버리고 개수를 제한한다", () => {
@@ -67,4 +69,19 @@ test("프로젝트 문서: snippets를 보내지 않으면 문서에 칸이 생�
   const base = { components: [], spec: {}, canvas: { width: 800, height: 600 }, dark: false };
   assert.equal(sanitizeDoc(base).snippets, undefined);
   assert.equal(sanitizeDoc({ ...base, snippets: [{ title: "a", code: "x" }] }).snippets.length, 1);
+});
+
+test("캔버스에 놓은 AI 컴포넌트: import와 그 자리 사용, 지운 컴포넌트는 설명으로", () => {
+  const box = makeComponent("Misc", { x: 10, y: 10 }, { width: 300, height: 160 }, []);
+  box.props.snippetId = "snip-1234";
+  box.description = "쿠폰 카드";
+  const snippets = [{ id: "snip-1234", title: "쿠폰 카드", prompt: "", code: "export default function CouponCard() { return null; }", createdAt: new Date().toISOString() }];
+  const code = generateTsx([box], { width: 800, height: 600 }, { name: "Promo", dark: false, layout: "responsive", snippets });
+  assert.deepEqual(syntaxErrors(code), []);
+  assert.ok(code.includes('import CouponCard from "./CouponCard";'));
+  assert.ok(code.includes("<CouponCard />"));
+  assert.equal(snippetComponentName({ title: "쿠폰 카드", code: "const X = () => null;" }), "CanvasComponent");
+  const orphan = generateTsx([box], { width: 800, height: 600 }, { name: "Promo", dark: false });
+  assert.doesNotMatch(orphan, /import CouponCard/);
+  assert.match(orphan, /쿠폰 카드/);
 });

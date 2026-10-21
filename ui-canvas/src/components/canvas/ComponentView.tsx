@@ -318,6 +318,16 @@ export function ComponentView({ component, all, selectedIds, editing, textRef, o
       );
     }
     case "Misc":
+      // 캔버스에 놓은 저장 AI 컴포넌트(v1.13): 생성 코드는 실행하지 않고 제목 상자로만 보여 준다(코드 내보내기 때 이 자리에 import)
+      if (props.snippetId) {
+        return (
+          <div style={{ ...inner, flexDirection: "column", gap: 6, padding: 12, textAlign: "center", wordBreak: "break-word" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 9999, background: "#06b6d4", color: "#fff" }}>🧩 AI 컴포넌트</span>
+            <strong style={{ fontSize: 15 }}>{component.description || "AI 컴포넌트"}</strong>
+            <span style={{ fontSize: 11, opacity: 0.8 }}>코드 내보내기 때 이 자리에 들어갑니다</span>
+          </div>
+        );
+      }
       return <div style={{ ...inner, padding: 8, textAlign: "center", wordBreak: "break-word" }}>{component.description || "설명을 입력하세요..."}</div>;
     default:
       return <div style={{ color: "#dc2626" }}>알 수 없는 컴포넌트</div>;
