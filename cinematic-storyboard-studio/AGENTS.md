@@ -116,3 +116,8 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 - 프로젝트 삭제도 `removeProjectFolder`로 폴더째 비움(이름이 바뀐 마스터까지). 마스터 파일을 쓰는 곳은 모두 `master_path` 값을 읽어 이름 변경 영향 없음.
 - 검수: tsc 0, 시험 18개(새 `tests/renderCleanup.test.mjs` 3개 — 선점이 유료 생성보다 먼저·조건부 저장·정리 비밀값/생성일/예약), build, 배포 `cinematic-storyboard-studio-ow3kgjmgf` Ready, DB v1.10. 정리 작업 비밀값 없이 401·비밀값으로 200(30일 지난 프로젝트 0개라 지운 것 0), 로그인 없는 렌더 401, 크롬(시험 회원) v1.10·목록 API 200.
 - 미확인(비용): 실제 동시 렌더 재현(유료 생성 2회 필요) — 정적 시험으로 순서만 검증. D-02-02(프로젝트·참조·마스터 만료 함께 추적)는 폴더째 삭제로 대부분 해소.
+
+## 2026-10-22 v1.11 — AI 바나나 캔버스 결과를 참고 이미지로 받기 (Claude Code 윈도우, 이미지 재비교 L5)
+- `/studio?src=<바나나 서명 주소>`: 새 `src/lib/importSource.ts`(`banana-canvas-files` 서명 주소만), `StudioWorkspace.tsx`가 브라우저에서 받아 직접 고른 파일과 같은 `pickFile`로 미리보기에 넣음(서버 업로드는 지금처럼 [스토리보드 생성] 때). 성공 안내(`role=status`). 서버 코드 변경 없음.
+- 검수: 시험 19개(새 `tests/importSource.test.mjs`), build, 배포 `cinematic-storyboard-studio-o8wyi0zvi` Ready, DB v1.11. 크롬(시험 회원): 바나나 버킷 시험 그림 → 참고 이미지로 들어옴·안내 표시, 생성은 안 누름, 시험 그림 삭제.
+- 남은 일: AI 이미지 스튜디오 결과 받기는 다른 세션의 이미지 스튜디오 작업 뒤 `IMPORT_SOURCES`에 `ai-image-generations` 추가 + 보내는 버튼.

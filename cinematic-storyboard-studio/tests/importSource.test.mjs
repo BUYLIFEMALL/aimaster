@@ -1,0 +1,13 @@
+// v1.11 바나나 결과 → 스토리보드 참고 이미지 받기 판단(무료 시험)
+import test from "node:test";
+import assert from "node:assert/strict";
+import { importSourceOf } from "../src/lib/importSource.ts";
+
+const SB = "https://esgxyikcnnvmlhygjkth.supabase.co";
+test("바나나 버킷 서명 주소만 받는다", () => {
+  assert.equal(importSourceOf(`${SB}/storage/v1/object/sign/banana-canvas-files/u/out/a.png?token=t`, SB), "AI 바나나 캔버스");
+  assert.equal(importSourceOf(`${SB}/storage/v1/object/sign/portrait-photo-files/u/a.jpg?token=t`, SB), null);
+  assert.equal(importSourceOf(`${SB}/storage/v1/object/public/banana-canvas-files/u/a.png`, SB), null);
+  assert.equal(importSourceOf("https://evil.example.com/storage/v1/object/sign/banana-canvas-files/a.png", SB), null);
+  assert.equal(importSourceOf("x", SB), null);
+});

@@ -12,6 +12,8 @@ import { checkImageFile } from "@/lib/imageFileCheck";
 
 // 이미지 변환 스튜디오(브라우저 처리)로 결과를 넘겨 형식·크기를 바꾼다(v1.14)
 const CONVERT_URL = "https://image-convert-studio.buylife.xyz/convert";
+// v1.17: 결과를 시네마틱 스토리보드 참고 이미지로(받는 쪽이 banana-canvas-files 서명 주소만 받음)
+const STORYBOARD_URL = "https://cinematic-storyboard-studio.buylife.xyz/studio";
 
 interface Img { path: string; url: string; name: string }
 interface Out { path: string; url: string | null; w: number; h: number; text?: string; mime?: string }
@@ -517,6 +519,7 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
                           <button type="button" onClick={() => setZoom(o.url)}><Maximize2 size={13} />크게 보기{o.w ? ` (${o.w}×${o.h})` : ""}</button>
                           <button type="button" onClick={() => useAsBase(o)}><RefreshCw size={13} />이 결과로 계속 편집</button>
                           <a className="button" href={`${CONVERT_URL}?src=${encodeURIComponent(o.url)}`} target="_blank" rel="noopener noreferrer">🔁 형식 바꾸기(WebP·PNG·JPG)</a>
+                          <a className="button" href={`${STORYBOARD_URL}?src=${encodeURIComponent(o.url)}`} target="_blank" rel="noopener noreferrer" title="이 결과로 9컷 영화 스토리보드·영상 프롬프트 만들기(시네마틱 스토리보드)">🎬 스토리보드로</a>
                         </div>
                       )}
                     </figure>

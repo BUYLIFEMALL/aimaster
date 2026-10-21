@@ -6,6 +6,7 @@ import { AlertTriangle, Check, Clapperboard, Copy, Download, ImagePlus, KeyRound
 import { DURATION_OPTIONS, type Analysis, type DialogueMode, type EngineId, type Lang, type VideoPrompts } from "@/lib/storyboard/types";
 import { safeName } from "@/lib/storyboard/plan";
 import { STRINGS } from "./i18n";
+import { importSourceOf } from "@/lib/importSource";
 import { SplitEditor } from "./SplitEditor";
 
 type Step = "upload" | "analyze" | "render" | "prompts" | null;
@@ -70,6 +71,7 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
   const [project, setProject] = useState<Project | null>(null);
   const [step, setStep] = useState<Step>(null);
   const [error, setError] = useState<string | null>(null);
+  const [importNote, setImportNote] = useState<string | null>(null);
   const [needKey, setNeedKey] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [duration, setDuration] = useState<number>(10);
@@ -98,6 +100,28 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
   useEffect(() => {
     if (projectId) void loadProject(projectId);
   }, [projectId, loadProject]);
+
+  // 다른 프로그램(AI 바나나 캔버스) 결과를 참고 이미지로 받기(?src=서명 주소, v1.11) — 직접 고른 파일과 같은 pickFile 흐름
+  useEffect(() => {
+    const src = new URLSearchParams(window.location.search).get("src");
+    if (!src) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    const from = importSourceOf(src, process.env.NEXT_PUBLIC_SUPABASE_URL);
+    if (!from) { setError("가져올 수 없는 이미지 주소입니다. 보낸 프로그램에서 다시 「스토리보드로」를 눌러 주세요."); return; }
+    (async () => {
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        if (!res.ok || !blob.type.startsWith("image/")) throw new Error();
+        const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "png";
+        await pickFile(new File([blob], `reference.${ext}`, { type: blob.type }));
+        setImportNote(`${from} 결과를 참고 이미지로 넣었습니다. 주제를 적고 스토리보드를 만들어 보세요.`);
+      } catch {
+        setError(`이미지를 불러오지 못했습니다(주소는 1시간 뒤 만료됩니다). ${from}에서 다시 보내 주세요.`);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function fail(r: ApiRes<unknown>) {
     if (r.data.needKey) setNeedKey(true);
@@ -238,6 +262,12 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
           </div>
         </div>
       </div>
+
+      {importNote && !error && (
+        <div role="status" className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+          {importNote}
+        </div>
+      )}
 
       {error && (
         <div role="alert" className="flex items-start justify-between gap-3 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">

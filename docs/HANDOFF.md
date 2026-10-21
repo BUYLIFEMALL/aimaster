@@ -151,6 +151,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L5: 바나나 → 시네마틱 스토리보드 (스토리보드 v1.11 · 바나나 v1.17)
+- 바나나 결과에 「🎬 스토리보드로」, 스토리보드가 `?src=`(바나나 서명 주소)를 참고 이미지로 받음. 배포 2건 Ready·DB 반영, 크롬 확인·시험 그림 삭제. 이미지 스튜디오 쪽은 다른 세션 작업 뒤.
+- 비용: Vercel 빌드 2회, AI 0원. 다음: L6 감성 글귀 → INSTA 포스팅(임시 업로드 경로 필요).
+- 프로그램: https://cinematic-storyboard-studio.buylife.xyz · https://banana-canvas.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 L4: 인물사진 → 패션스타일·바나나 연결 (바나나 v1.16 · 패션 v1.12 · 인물사진 v1.33)
 - 인물사진 서버 보관함에 「👗 이 사진으로 코디」·「🍌 바나나로 편집」, 패션스타일은 `?src=` 받기(사진 사용 동의 후 넣음), 바나나는 받기 허용에 인물사진 버킷·증명사진 아래 국가 규격 안내. 배포 3건 Ready·DB 반영, 크롬에서 두 흐름 확인·시험 흔적 삭제. 상세 각 `AGENTS.md`.
 - 비용: Vercel 빌드 3회, AI 0원. 다음: L5 이미지 스튜디오·바나나 → 스토리보드(이미지 스튜디오 쪽은 다른 세션 뒤), L6 감성 글귀 → INSTA.
