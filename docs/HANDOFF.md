@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ⏸ 게시 뒤 썸네일용 이미지 1장 남기기도 다음 빌드 때 함께 (주인님 지시)
+- 게시 성공 때 첫 장 이미지만 남기고(30일 정리가 지움) 그날 게시 목록 썸네일을 되살리기. 대상: `ai-webtoon-studio`(공용 `insta-posting` 기준) → `--sync`로 `ai-influencer-studio`·`four-cut-comics`, `insta_auto_poster`(카드뉴스 `posts.ts`·`InstaWeekPosts`·`instaWeek.ts`). 방법·검수: 웹툰·AI 인플루언서·INSTA 포스팅 `AGENTS.md` 2026-10-22 「⏸ 대기」. 네컷 폴더 문서는 다른 세션 작업 중이라 적지 않음.
+
 ## 2026-10-22 Claude Code(윈도우) — ⏸ 「최근 7일 게시 완료만」 조회는 다음 빌드 때 함께 (주인님 지시)
 - 「📊 최근 7일 게시」 그래프가 게시 기록 API 최근 30건만 세는 한계. 따로 빌드하지 않고, 아래 프로그램을 다음에 수정·배포할 때 같이 진행: 기록 API에 `?week=1`(게시 완료·`published_at` 최근 7일·최대 500건) 추가 → 공용 `InstaWeekPosts`가 그 주소로 부름.
 - 대상: `ai-webtoon-studio`(공용 `insta-posts-route` 기준) → `--sync`로 `ai-influencer-studio`·`four-cut-comics` 사본, `insta_auto_poster`(카드뉴스 기록 API, `InstaWeekPosts` 기준). 구현 방법·검수: 웹툰·AI 인플루언서·INSTA 포스팅 `AGENTS.md` 2026-10-22 「⏸ 대기」 항목. **네컷은 지금 다른 세션이 작업 중이라 그 폴더 문서에는 적지 않음** — 네컷을 맡는 작업자는 이 항목과 `docs/SHARED_MODULES.md` `insta-week-posts` 줄을 보면 됨.

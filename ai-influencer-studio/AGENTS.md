@@ -286,3 +286,9 @@ ai-influencer-studio/
   - 왜: 「📊 최근 7일 게시」 그래프(공용 `insta-week-posts`)가 게시 기록 API의 최근 30건(생성 순)만 받아서 세므로, 일주일에 30건 넘게 만들거나 예약이 많은 회원은 그래프·그날 목록이 덜 나온다.
   - 할 일: `src/app/api/instagram/posts/route.ts`의 GET에 `?week=1`을 받으면 `status=published`·`published_at` ≥ 한국 시간 6일 전 0시(`weekStartIso()`, `lib/weekChart/bucket.ts`)·`order(published_at desc)`·`limit(500)`로 돌려주게 추가(기존 응답은 그대로 — 예약 요약·기록 화면이 계속 씀). 그다음 공용 기준 `insta_auto_poster/src/components/weekChart/InstaWeekPosts.tsx`가 `postsUrl + "?week=1"`로 부르게 바꾸고 `node scripts/check-shared-modules.mjs --sync`. 이 파일은 공용 `insta-posts-route` **사본**이라 직접 고치지 말고 기준(`ai-webtoon-studio`)을 고친 뒤 `--sync`.
   - 검수: 그래프 합계가 DB의 최근 7일 게시 완료 수와 같은지(30건 넘는 시험 데이터는 만들지 않고 쿼리 조건으로 확인), 막대 누르기·예약 요약 줄이 그대로인지. 배포 뒤 이 항목을 「배포됨(버전)」으로 바꾼다.
+
+## 2026-10-22 ⏸ 대기 — 게시 뒤 썸네일용 이미지 1장 남기기
+- **⏸ 다음 빌드 때 함께 — 게시 뒤 썸네일용 이미지 1장 남기기(2026-10-22 주인님 지시: 따로 빌드하지 않고 다음 수정·배포 때 같이)**
+  - 왜: 그날 게시 목록(공용 `week-reply-panel`)에 썸네일을 보이고 싶은데, `src/lib/instagram/posting.ts`가 게시 완료(즉시·예약·이미 올라감 확인) 직후 `removeImages(post.image_paths)`로 저장소 파일을 **모두** 지워서 지금은 썸네일이 없음(2026-10-22 v1.46에서 썸네일을 뺀 이유).
+  - 할 일: 게시 **성공** 때만 첫 장(`image_paths[0]`)은 남기고 나머지만 지움(실패·취소는 지금처럼 전부 삭제). 남긴 장은 기존 30일 정리(`cleanupOldPosts` — 생성 30일 뒤 행과 이미지 삭제)가 그대로 지우므로 별도 정리 불필요. 그다음 ① 게시 기록 API가 `image_paths`를 돌려주고 ② 공용 `InstaWeekPosts`(기준 `insta_auto_poster`)에 `thumbUrl: publicImageUrl(r.image_paths, imageBucket)`와 `imageBucket` 항목을 되살리고 ③ INSTA 대시보드 `src/lib/instaWeek.ts`의 카드뉴스·AI 인플루언서·웹툰·네컷 `image` 칸을 `image_paths`로(카드뉴스 저장소 `cardnews-images`, 나머지 `insta-post-images`). 되돌릴 코드는 커밋 `3e7ecf43`(썸네일 추가)·`bf0b8479`(뺌)에 있음. 공용 `insta-posting` **사본** — 기준(`ai-webtoon-studio`)을 고친 뒤 `--sync`. 즉시 게시 경로 `src/app/api/instagram/publish/route.ts`도 확인.
+  - 검수: 게시 완료 행의 첫 장 주소가 200으로 열리는지 실제로 확인(2026-10-22 교훈 — 주소가 404면 깨진 그림), 30일 정리 뒤 남은 장도 지워지는지 코드로 확인. 배포 뒤 이 항목을 「배포됨(버전)」으로.
