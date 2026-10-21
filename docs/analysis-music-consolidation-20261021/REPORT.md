@@ -92,4 +92,7 @@
 | 2 | 병합 M1 1단계 엔진·DB (음악(SUNO) v1.17) | ✅ 완료 — 엔진·테스트 51·API 2·Claude 키·새 표 2(30일 삭제 예약)·`music-audio` 목록 차단. [music/AGENTS.md v1.17](../../music/AGENTS.md) |
 | 3 | M1 2단계 정밀 기획 화면 (음악(SUNO) v1.18) | ✅ 완료 — `/studio` 화면·보관함 서버 저장·곡 기획 생성 실검수. [music/AGENTS.md v1.18](../../music/AGENTS.md) |
 | 4 | M1 3단계 Suno로 생성 + sunoapi.org 최신화(V6) (음악(SUNO) v1.19) | ✅ 코드·배포 완료, **Suno 실제 생성 검수는 시험 계정 키 등록 대기**. [music/AGENTS.md v1.19](../../music/AGENTS.md) |
-| 5 | M1 4단계 옛 앱 정리(이동 안내·JSON 내려받기·권한·카탈로그) | 다음 |
+| 5 | M1 4단계 옛 앱 정리 (Suno 음악기획 v1.12) | ✅ 완료 — 이동 안내 + 브라우저 기획 JSON 내려받기, 옛 API 410, 권한 144명 대조(전원 보유·1명 기간 연장), 카탈로그 노출 중지, 음악(SUNO) 소개 글·특징·사용 순서·추천 대상 갱신, 메인 상세 주소 전달. 백업 `backup-programs-before-merge-m1.json` |
+| 남음 | Suno 실제 생성 1회 검수(승인분) | ⏳ 시험 계정 sunoapi.org 키 등록 대기(주인님 직접 등록) |
+
+**결과: 음악 카테고리 공개 프로그램 6개 → 5개.**

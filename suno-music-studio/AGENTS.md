@@ -46,3 +46,9 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.12 — 음악(SUNO)자동화로 병합(음악 병합 M1 4단계, Claude Code 윈도우)
+- **이 앱은 더 이상 개발하지 않는다.** 기획 엔진(`src/lib/studio/*`)·화면 부품·테스트는 `music/`(음악(SUNO)자동화, slug `music-automation`)의 「정밀 기획 스튜디오」(`/studio`)로 옮겼다(v1.17~v1.19). 분석 [`../docs/analysis-music-consolidation-20261021/REPORT.md`](../docs/analysis-music-consolidation-20261021/REPORT.md), 플랜 [`../music/docs/PLAN_20261021_MERGE_M1_SUNO_STUDIO.md`](../music/docs/PLAN_20261021_MERGE_M1_SUNO_STUDIO.md).
+- 이 주소(https://suno-music-studio.buylife.xyz)는 지우지 않고 **이동 안내 화면**만 남김: 로그인만 확인(카탈로그에서 내려 권한 판정이 막히므로), 이 브라우저에 남은 기획(보관함·내 Style 개수)을 보여 주고 「내 기획 JSON 내려받기」 → 새 화면 「JSON 가져오기」로 계정에 저장(`src/components/MovedNotice.tsx`). `/settings`는 안내 화면으로, 옛 API(`/api/generate`·`search`·`keys`)는 410 + 새 주소 안내.
+- DB: `is_active=false`, `version v1.12`(`supabase/migrations/20261021_merged_into_music_automation_v1_12.sql`), 권한 회원 144명은 전원 이미 음악(SUNO) 권한 보유, 1명은 사용기간이 더 길어 음악(SUNO) 기간을 늘림. 메인 `/programs/suno-music-studio` → `/programs/music-automation`.
+- 옛 화면 코드(`src/components/*`, `src/lib/studio/*`)는 남겨 둠. 지울 때는 메모리 규칙대로 `D:\Antigravity\AIMaster_backup\retired-programs\` 백업 + git 태그 뒤에(삭제는 주인님 승인).

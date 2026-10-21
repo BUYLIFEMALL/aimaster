@@ -44,6 +44,12 @@ UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), �
 
 https://ui-canvas.buylife.xyz
 
+## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1 4단계 완료: Suno 음악기획 → 음악(SUNO)자동화 (6개 → 5개)
+
+옛 Suno 음악기획(v1.12)은 이동 안내 + 「내 기획 JSON 내려받기」만 남김(로그인만 확인), 옛 API 410, 카탈로그 노출 중지, 메인 `/programs/suno-music-studio` → `/programs/music-automation`. 권한 144명 전원 이미 음악(SUNO) 보유(1명 기간 연장). 음악(SUNO) 소개 글(475자)·특징·사용 순서·추천 대상을 병합 기능으로 갱신. 백업 `docs/analysis-music-consolidation-20261021/backup-programs-before-merge-m1.json`. **남은 것: Suno 실제 생성 1회 검수 — 시험 계정 sunoapi.org 키 등록 대기(주인님 직접).** 옛 앱 코드 삭제는 백업·태그·승인 뒤.
+
+https://music-automation.buylife.xyz/studio
+
 ## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1 3단계: 음악(SUNO)자동화 v1.19 (「Suno로 생성」 + sunoapi.org V6 최신화)
 
 기본 모델 V5_5(지원 종료) → V6, V6·Wild·Mini 선택, 결과 다양성(variety), 연장 prompt를 새 가사 구간으로(문서상 가사로 불림), MR `taskId` 필수, 웹훅 15초 대응(잠금 + 즉시 200 + `waitUntil`), 상태 조회 두 표기, 응답 코드 한국어 안내. 정밀 기획 곡 편집기에 「Suno로 생성」(GPT 재작성 없이 그대로 → 트랙 관리로). 배포 Ready·DB v1.19, 화면·키 없음 안내·남은 데이터 0 확인. **Suno 실제 생성·웹훅·연장·MR은 시험 계정 sunoapi.org 키 등록 대기(주인님이 직접 등록 — 운영 사이트 키 입력은 에이전트가 하지 않음).** 상세 `music/AGENTS.md` v1.19, 문서 `music/docs/SUNOAPI_REFERENCE.md`.

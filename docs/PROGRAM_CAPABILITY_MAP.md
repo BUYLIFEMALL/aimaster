@@ -71,10 +71,10 @@
 | 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.28 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
 | 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.20 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 54 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 유튜브 | v1.12 | **병합됨 → thumbnail-master(2026-10-20), 노출 중지** | 대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구 |
-| 55 | Suno 음악기획 자동화 | `suno-music-studio` | 음악 | v1.09 | 운영 | 음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구 |
+| 55 | Suno 음악기획 자동화 | `suno-music-studio` | 음악 | v1.12 | **병합됨 → music-automation(2026-10-21), 노출 중지** | 음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구 |
 | 56 | AI 마스터링 스튜디오 | `ai-mastering-studio` | 음악 | v1.04 | 운영 | WAV 음원을 브라우저에서 마스터링하고 원하는 소리를 적으면 AI가 설정값을 제안하는 도구 |
 | 57 | 뮤직비디오 자동화 | `music-video-studio` | 음악 | v1.10 | 운영 | 주제·장르로 가사와 스토리보드를 만들고 장면 이미지·Veo 영상까지 만드는 뮤직비디오 도구 |
-| 58 | 음악(SUNO)자동화 | `music-automation` | 음악 | v1.19 | 운영(병합 M1 진행 중: Suno 음악기획 흡수) | 곡 설명만 적으면 AI가 기획하고 Suno로 보컬·연주곡 실제 음악까지 만들어 보관하는 도구 |
+| 58 | 음악(SUNO)자동화 | `music-automation` | 음악 | v1.19 | 운영(2026-10-21 Suno 음악기획 병합) | 프리셋 461개로 곡·앨범을 정밀 기획하고 Suno V6로 실제 음악까지 만들어 보관하는 음악 자동화 |
 | 59 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 음악 | v1.12 | 운영 | 나만의 LP·CD 앨범 아트를 만들고 돌아가는 턴테이블 MP4·GIF 영상으로 완성하는 도구 |
 | 60 | Youtube Playlist 자동화 | `yt-playlist-studio` | 음악 | v1.15 | **병합됨 → playlist-channel-studio(2026-10-20), 노출 중지** | 음악에 반응하는 스펙트럼·파티클·AI 배경으로 1080p 유튜브 플레이리스트 영상을 만드는 도구 |
 | 61 | AI Audio분석 자동화 | `ai-audio-analyzer` | 음악 | v1.11 | 운영 | 음성·음악 파일로 회의록·화자 분석, Suno 역설계 프롬프트, 음향 진단을 만드는 오디오 분석실 |
@@ -174,7 +174,7 @@
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
 | Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply(댓글·DM 응대 — 2026-10-20 instagram-dm-reply 병합) | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
 | 유튜브 | youtube-viral-studio(YOUTUBE 트렌드 분석 — 떡상 발굴 + 채널·키워드 진단, 2026-10-20 youtube-channel-consultant 병합) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(AI 썸네일·SEO 자동화 — A/B 썸네일 + SEO 전략, 2026-10-20 seo-thumbnail-pro 병합) · (병합됨: seo-thumbnail-pro 메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
-| 음악 | music-automation(Suno 실제 생성) · suno-music-studio(정밀 기획) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
+| 음악 | music-automation(정밀 기획 + Suno V6 실제 생성, 2026-10-21 suno-music-studio 병합) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
 | 상세페이지 | detail-page-12p(상품명만으로 12단) · shop-detail-page(사진 분석 15섹션) · auto-detail-page(HTML) | 사진 분석 + 스펙 자동 채우기 + 이미지형·HTML형 동시 출력 |
@@ -812,8 +812,9 @@
 
 ### 음악
 
-#### Suno 음악기획 자동화 (`suno-music-studio`)
-- 주소·폴더: https://suno-music-studio.buylife.xyz · `suno-music-studio/` · v1.09
+#### Suno 음악기획 자동화 (`suno-music-studio`) — **병합됨 → music-automation(2026-10-21)**
+- **2026-10-21 음악 병합 M1**: 기획 엔진·화면 전부를 음악(SUNO)자동화 「정밀 기획 스튜디오」(`/studio`)로 옮김(보관함·내 Style은 서버 저장, 「Suno로 생성」 추가). 이 주소는 이동 안내 + 브라우저에 남은 기획 JSON 내려받기만 남김, 옛 API 410, 카탈로그 노출 중지, 메인 `/programs/suno-music-studio` → `/programs/music-automation`. 분석: `docs/analysis-music-consolidation-20261021/REPORT.md`.
+- 주소·폴더: https://suno-music-studio.buylife.xyz · `suno-music-studio/` · v1.12
 - **차별점**: 음악 스타일·가사·앨범을 AI와 함께 설계해, Suno에 바로 붙여 넣을 자료로 정리해 주는 음악 기획 도구입니다.
 - **기능**: 461개 프리셋, 200개 댄스 조합, 243개 스타일 그룹, 13개 시대, 태그 조합으로 곡의 방향을 잡고, 세부 보컬·랩 캐스팅·고음 억제까지 조절해 마음에 드는 설정은 「내 Style」로 저장합니다. / 제목·Style·가사를 원하는 부분만 골라 생성하고, 가사 커서 위치에 구간을 끼워 넣습니다. 직접 쓴 원고는 다시 생성해도 보존됩니다. / 3~12곡 앨범을 기획해 곡 순서와 가사를 차례로 완성하고, 작업은 회원별로 보관하며 TXT·JSON으로 백업합니다.
 - **장점**: 방대한 프리셋(461개 프리셋·200개 댄스 조합·243개 스타일 그룹으로 방향을 잡습니다) · 부분 생성(제목·Style·가사를 원하는 부분만 만들고 끼워 넣습니다) · 앨범 기획(3~12곡 앨범의 순서와 가사를 차례로 완성합니다) · 내 Style 저장(마음에 드는 설정을 저장해 다시 씁니다)
@@ -843,13 +844,14 @@
 - **키·계정·주의**: 모든 AI 호출은 회원 본인의 Gemini API 키로 이뤄집니다. 영상은 길이만큼 본인 계정에 요금이 청구되므로, 만들기 전에 예상 비용을 먼저 안내합니다.
 
 #### 음악(SUNO)자동화 (`music-automation`)
-- 주소·폴더: https://music-rho-virid-22.vercel.app · `music/` · v1.05
+- **2026-10-21 v1.17~v1.19 병합 M1(Suno 음악기획 흡수)**: 「🎚️ 정밀 기획 스튜디오」(`/studio`) — 프리셋 461·댄스 200·보컬/랩 캐스팅·부분 생성·앨범 3~12곡·음악 탐색(웹 검색 출처)·AI 3사 선택, 보관함·내 Style 서버 저장(30일 삭제). 곡 편집기 「Suno로 생성」으로 기획 그대로 생성. sunoapi.org 최신화: 기본 V6(+Wild·Mini 선택), 결과 다양성, 연장은 새 가사 구간, MR taskId, 웹훅 15초 대응(잠금+waitUntil). 문서 `music/docs/SUNOAPI_REFERENCE.md`. **Suno 실제 생성 시험은 시험 계정 키 등록 대기.**
+- 주소·폴더: https://music-automation.buylife.xyz · `music/` · v1.19
 - **차별점**: 곡 설명만 적으면 AI가 곡을 기획하고, Suno로 실제 음악 파일까지 만들어 보관해 주는 음악 생성 자동화입니다.
 - **기능**: 주제·분위기, 보컬 성별(선택), 언어를 넣으면 AI가 장르 스타일과 제외할 스타일, 「한글 제목(English Title)」 형식의 제목과 설명을 기획합니다. / 보컬 버전과 연주곡 버전을 골라 생성하면 보컬은 AI가 가사 전체를 쓰고, 연주곡은 배경음악 프롬프트를 만들어 Suno에 요청합니다. 완성되면 음악과 커버 이미지가 내 보관함에 저장됩니다. / 보컬 곡의 가사를 직접 고친 뒤 [수정해서 재생성]을 누르면 스타일·제목은 그대로 두고 새 가사로 다시 만들며, 이전 결과도 남습니다.
 - **장점**: 곡 기획(주제·분위기로 장르 스타일·제목·설명을 기획합니다) · 보컬·연주곡(보컬은 가사를 쓰고 연주곡은 배경음악 프롬프트를 만듭니다) · 실제 음악 생성(Suno로 음악과 커버 이미지를 만들어 보관합니다) · 가사 수정 재생성(가사를 고쳐 같은 스타일로 다시 만듭니다)
 - **사용 순서**: 1 곡 설명 입력 → 2 기획 확인 → 3 버전 선택·생성 → 4 보관함
 - **활용 용도**: 음악 지식 없이 곡이 필요한 분(작곡 몰라도 완성곡·보컬·연주곡 선택) · 영상 배경음악이 필요한 유튜버(저작권 고민 감소·영상 분위기 맞춤) · 가사를 다듬고 싶은 창작자(부분 수정 재생성·버전별 보관)
-- **단점·한계**: Suno API 키·요금이 필요 · 기획 옵션은 Suno 기획 도구보다 단순
+- **단점·한계**: sunoapi.org 키·크레딧이 필요 · 메뉴가 많아 처음엔 정밀/빠른 기획 중 고르기 어려울 수 있음 · 기존 곡(트랙·음원)은 아직 30일 자동 삭제 대상 아님(주인님 결정으로 제외)
 - **키·계정·주의**: 회원 본인의 AI API 키와 Suno API 키를 사용합니다. 곡 생성 비용은 본인 Suno 계정에 청구되고, 만든 음악의 이용 조건은 Suno 정책을 따릅니다.
 
 #### LP 턴테이블 자동화 (`vinyl-lp-studio`)

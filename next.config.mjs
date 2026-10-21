@@ -78,6 +78,8 @@ const nextConfig = {
       { source: "/programs/seo-thumbnail-pro", destination: "/programs/thumbnail-master", permanent: false },
       // 2026-10-20 Youtube Playlist 자동화는 YOUTUBE 플레이리스트 자동화(playlist-channel-studio) 「영상 만들기」로 병합(카탈로그 노출 중지)
       { source: "/programs/yt-playlist-studio", destination: "/programs/playlist-channel-studio", permanent: false },
+      // 2026-10-21 Suno 음악기획 자동화는 음악(SUNO)자동화(music-automation) 「정밀 기획 스튜디오」로 병합(카탈로그 노출 중지, 음악 병합 M1)
+      { source: "/programs/suno-music-studio", destination: "/programs/music-automation", permanent: false },
       {
         source: '/stepmail',
         destination: 'https://stepmail.buylife.xyz',
