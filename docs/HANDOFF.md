@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+<!-- BLC05_HANDOFF_20261021 -->
+## 2026-10-21 Codex — 블로그 BLC-05 v2.07 자료 수집·출처 연결 운영 확인
+
+공개 RSS/Atom·회원별 서버 글감·원고의 원문/출처/수명 연결을 구현했습니다. 코드 `fc3a4421`(v2.06)·`0081219a`(공개 IP 오차 수정 v2.07) 푸시, 최신 배포 `dpl_GUZGHbBMEMCs1HW6MDauHGDgJPp6` Ready·DB/manifest/설치 확장/라이브 ZIP v2.07 일치. 회귀 195개·확장 모의 42개·타입/빌드·실제 DB 소유권/만료/원자적 충돌 검증 통과. 지정 회원 Edge에서 공개 피드 글감 4건·원고 1건·보관/편집/재열기·출처 지문/원래 만료 보존·수정 후 STALE·4단계/복사/실제 516px 검수 완료. 최종 발행 0, 새 원고 draft·대기/입력 0. 자동 이미지 1장 요청은 Replicate 인증/모델 권한 오류로 결과 0, 재시도 없음. BLOG 인증 피드·계정/권한은 원본 유지하며 이전하지 않았습니다. 다음 BLC-06은 현재 편집기와 BLOG의 부족한 조작만 비교하는 플랜부터입니다.
+
+운영 DB ref `esgxyikcnnvmlhygjkth`: 새 회원 소유 글감 표/RLS·한정 수정 함수/30일 정리 및 버전 메타데이터. 기존 계정/권한/키/프로그램 종료 변경 없음. [증거·실패·남은 범위·다음 첫 단계](../naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261021_BLC05_SOURCE_MATERIALS.md).
+
+https://naver-blog-agent.buylife.xyz
+<!-- /BLC05_HANDOFF_20261021 -->
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 시네마틱 스토리보드 카테고리 → 「이미지」
 
 - 운영 DB(`esgxyikcnnvmlhygjkth`) `programs.category_id`만 변경(버전 v1.09 그대로). 백업 `D:\Antigravity\AIMaster_backup\category-move-20261021`. 크롬: 「이미지」 목록 노출·「데이터수집|기획」 미노출 확인. 다음: 병합 C(프롬프트 템플릿 → AI Prompt).

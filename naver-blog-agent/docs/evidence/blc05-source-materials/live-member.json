@@ -1,0 +1,64 @@
+{
+  "at": "2026-10-21T03:32:33.018262+00:00",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v2.07",
+  "browser": "Microsoft Edge, visible",
+  "pid": 17488,
+  "hwnd": 2884854,
+  "successfulFeedCollections": 1,
+  "feed": "https://www.nasa.gov/feed/",
+  "sourcesSaved": 4,
+  "sourceId": "4a9dfdae-95c3-4657-a9db-2c786219bed7",
+  "sourceOwnerVerified": true,
+  "sourceArchivedAndEditedInMemberUI": true,
+  "postId": "77a327ee-d953-4953-af2b-f471216ec9c0",
+  "originalCollectedAt": "2026-10-21T03:10:42.535Z",
+  "originalExpiresAt": "2026-11-20T03:10:42.535Z",
+  "sourceAndPostProvenanceMd5": "0bc1a6963e98034f00ec61cd73f7cd99",
+  "memberUiPostSaveEditAndReopen": true,
+  "visibleSourceDatesVerified": true,
+  "visibleSourceDisclaimerVerified": true,
+  "editedReviewState": "STALE",
+  "aiReviewStatus": "WARN",
+  "postStatus": "draft",
+  "logicalTextAICalls": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "candidateStructure": 1,
+    "pipeline": 4
+  },
+  "imageRequest": {
+    "model": "prunaai/z-image-turbo",
+    "attempts": 1,
+    "results": 0,
+    "error": "Replicate API key or model access permission; exact cause unconfirmed",
+    "retried": false
+  },
+  "providerBillingNotQueried": true,
+  "memberPostsBefore": 23,
+  "memberPostsAfter": 24,
+  "queuedOrPublishingAfter": 0,
+  "publishedAt": null,
+  "postUrl": null,
+  "finalPublications": 0,
+  "preferenceHashBeforeAndAfter": "872848afbc431c8625a8c9d53a3981be",
+  "installedExtension": "v2.07",
+  "otherNaverTabsPreserved": true,
+  "mobileWindow": {
+    "actualWidth": 516,
+    "actualHeight": 1100,
+    "nativeBoundsVerified": true
+  },
+  "restoredWindow": {
+    "width": 1433,
+    "height": 1399,
+    "topmost": false
+  },
+  "limitations": [
+    "NewsBlur authenticated feeds remain in BLOG",
+    "No successful generated image; permission failure preserved draft",
+    "RSS text is bounded and references require direct comparison",
+    "No 375px verification",
+    "Authorized production Cron invocation not performed; SQL transaction and mocked handler checked"
+  ]
+}

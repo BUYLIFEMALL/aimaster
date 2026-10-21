@@ -1,17 +1,17 @@
 {
-  "at": "2026-10-21T03:03:26.120Z",
+  "at": "2026-10-21T03:10:43.473Z",
   "projectRef": "esgxyikcnnvmlhygjkth",
-  "version": "v2.06",
-  "codeCommit": "fc3a4421",
-  "deploymentId": "dpl_4HAF9CEsuJiEEv1eJjNN9YB4jYhN",
-  "deployment": "https://naver-blog-agent-mga7e5feu-buylife.vercel.app",
+  "version": "v2.07",
+  "codeCommit": "0081219a",
+  "deploymentId": "dpl_GUZGHbBMEMCs1HW6MDauHGDgJPp6",
+  "deployment": "https://naver-blog-agent-lwq2jf8zv-buylife.vercel.app",
   "readyVerified": true,
-  "extensionReleaseCheck": "DB v2.06 / ext v2.06 / zip v2.06; failures=0 warnings=0",
+  "extensionReleaseCheck": "DB v2.07 / ext v2.07 / zip v2.07; failures=0 warnings=0",
   "checks": [
     {
       "name": "version",
       "status": 200,
-      "latest": "v2.06",
+      "latest": "v2.07",
       "pass": true
     },
     {
