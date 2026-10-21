@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [accountRes, settingsRes, keysRes, telegramRes, pendingRes, weekRes, totalRes, monitoredRes, recentRes, dmAccountRes, dmPendingRes, dmTelegramRes] =
+  const [accountRes, settingsRes, keysRes, telegramRes, pendingRes, weekRes, totalRes, monitoredRes, recentRes, dmAccountRes, dmPendingRes, dmTelegramRes, dmRecentRes] =
     await Promise.all([
       getCommentAccount(supabase, user.id).then((data) => ({ data })),
       supabase
@@ -73,7 +73,25 @@ export default async function DashboardPage() {
         .eq("user_id", user.id)
         .eq("program_slug", "instagram-dm-reply")
         .maybeSingle(),
+      // v1.26: 검토를 기다리는 DM 최근 3건(대화 검토 화면과 같은 조건)
+      supabase
+        .from("dm_messages")
+        .select("id, conversation_id, message_text, created_at")
+        .eq("user_id", user.id)
+        .eq("direction", "in")
+        .eq("status", "pending_review")
+        .order("created_at", { ascending: false })
+        .limit(3),
     ]);
+
+  const dmRecent = dmRecentRes.data ?? [];
+  const dmConversationIds = Array.from(new Set(dmRecent.map((m) => m.conversation_id)));
+  const { data: dmConversations } = await supabase
+    .from("dm_conversations")
+    .select("id, customer_username")
+    .eq("user_id", user.id)
+    .in("id", dmConversationIds.length > 0 ? dmConversationIds : ["__none__"]);
+  const dmNameById = new Map((dmConversations ?? []).map((c) => [c.id, c.customer_username]));
 
   const account = accountRes.data;
   const settings = settingsRes.data;
@@ -196,7 +214,8 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-5">
-        <div className="rounded-2xl border border-ig-border bg-ig-surface p-5 lg:col-span-3">
+        <div className="space-y-5 lg:col-span-3">
+        <div className="rounded-2xl border border-ig-border bg-ig-surface p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-base font-bold text-ig-text">
               🕒 검토를 기다리는 댓글 <span className="ml-1 rounded-full bg-ig-raised px-2 py-0.5 text-xs text-ig-muted">{pending}건</span>
@@ -206,11 +225,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
           {(recentRes.data ?? []).length === 0 ? (
-            <p className="py-8 text-center text-sm text-ig-muted">
-              지금은 검토할 댓글이 없어요.
-              <br />
-              DM 대기는 {dmPending}건입니다.
-            </p>
+            <p className="py-8 text-center text-sm text-ig-muted">지금은 검토할 댓글이 없어요.</p>
           ) : (
             <ul className="space-y-4">
               {(recentRes.data ?? []).map((c) => (
@@ -227,6 +242,41 @@ export default async function DashboardPage() {
               ))}
             </ul>
           )}
+        </div>
+
+        <div className="rounded-2xl border border-ig-border bg-ig-surface p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-bold text-ig-text">
+              💌 검토를 기다리는 DM <span className="ml-1 rounded-full bg-ig-raised px-2 py-0.5 text-xs text-ig-muted">{dmPending}건</span>
+            </h2>
+            <Link href="/dm/conversations" className="text-sm font-semibold text-pink-400 hover:underline">
+              전체 보기 →
+            </Link>
+          </div>
+          {dmRecent.length === 0 ? (
+            <p className="py-8 text-center text-sm text-ig-muted">
+              {dmAccountRes.data ? "지금은 검토할 DM이 없어요." : "DM 답변을 켜면 새 DM이 여기에 보여요."}
+            </p>
+          ) : (
+            <ul className="space-y-4">
+              {dmRecent.map((m) => {
+                const name = dmNameById.get(m.conversation_id);
+                return (
+                  <li key={m.id} className="flex gap-3">
+                    <Avatar name={name ?? null} size={32} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs">
+                        <span className="font-semibold text-ig-text">{name ? `@${name}` : "고객"}</span>
+                        <span className="ml-2 text-ig-muted">{formatDateTimeKo(m.created_at)}</span>
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 break-words text-sm text-ig-text">{m.message_text}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
         </div>
 
         <div className="rounded-2xl border border-ig-border bg-ig-surface p-5 lg:col-span-2">

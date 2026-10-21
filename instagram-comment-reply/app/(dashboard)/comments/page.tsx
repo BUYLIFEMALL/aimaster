@@ -29,9 +29,11 @@ export default async function CommentsPage() {
   const mediaIds = Array.from(new Set((comments ?? []).map((c) => c.media_id)));
   const { data: mediaList } = await supabase
     .from("ig_media")
-    .select("id, caption")
+    .select("id, caption, thumbnail_url, permalink")
     .in("id", mediaIds.length > 0 ? mediaIds : ["__none__"]);
   const captionByMediaId = new Map((mediaList ?? []).map((m) => [m.id, m.caption]));
+  // v1.26: 어느 게시물의 댓글인지 한눈에 보이도록 게시물 썸네일(내 저장소로 옮긴 주소)·원본 링크
+  const mediaById = new Map((mediaList ?? []).map((m) => [m.id, m]));
 
   const groupedByMedia = new Map<string, typeof comments>();
   for (const c of comments ?? []) {
@@ -77,7 +79,20 @@ export default async function CommentsPage() {
             {Array.from(groupedByMedia.entries()).map(([mediaId, mediaComments]) => (
               <section key={mediaId} className="ig-card py-3">
                 <h2 className="flex items-center gap-2 border-b border-ig-border pb-3 text-sm font-bold text-ig-text">
-                  <span>🖼️</span>
+                  {mediaById.get(mediaId)?.thumbnail_url ? (
+                    <a
+                      href={mediaById.get(mediaId)?.permalink ?? undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="인스타그램에서 게시물 보기"
+                      className="shrink-0"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mediaById.get(mediaId)!.thumbnail_url!} alt="게시물 썸네일" className="h-10 w-10 rounded-lg object-cover" />
+                    </a>
+                  ) : (
+                    <span>🖼️</span>
+                  )}
                   <span className="truncate">{captionByMediaId.get(mediaId) || "(삭제된 게시물)"}</span>
                   <span className="ml-auto shrink-0 text-xs font-normal text-ig-muted">댓글 {(mediaComments ?? []).length}개</span>
                 </h2>
