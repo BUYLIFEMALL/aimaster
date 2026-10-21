@@ -36,10 +36,42 @@ async function googleKeys(userId: string): Promise<{ clientId: string | null; cl
 
 type Ready = { account: MemberAccount; clientId: string; clientSecret: string };
 
-async function load(userId: string): Promise<{ status: YoutubeState; ready?: Ready }> {
-  const r = await getMemberAccount(createAdminClient(), userId, "youtube");
-  if (r.status === "not_connected") return { status: { state: "not_connected", channelTitle: null } };
-  const account = r.account;
+// v1.24 채널이 여러 개 연결된 회원이 올릴 채널을 고른다(IMP-PLS-013). 공용 사본 memberIntegrations는 「기본 1개」만 돌려주므로
+// 이 앱에서 회원 본인(user_id) 채널 목록·고른 채널을 직접 읽는다 — 다른 회원 채널 번호는 찾지 못한다.
+const ACCOUNT_COLS = "id, platform, external_id, username, access_token, refresh_token, token_expires_at, granted_scopes, auth_method, app_ref, extra, needs_reconnect, connected_via";
+type AccountRow = { id: string; external_id: string; username: string | null; access_token: string; refresh_token: string | null; token_expires_at: string | null; granted_scopes: string[] | null; auth_method: string | null; app_ref: string | null; extra: Record<string, unknown> | null; needs_reconnect: boolean; connected_via: string | null };
+const rowToAccount = (r: AccountRow): MemberAccount => ({
+  id: r.id, platform: "youtube", externalId: r.external_id, username: r.username, accessToken: r.access_token, refreshToken: r.refresh_token,
+  tokenExpiresAt: r.token_expires_at, grantedScopes: r.granted_scopes ?? [], authMethod: r.auth_method, appRef: r.app_ref, extra: r.extra ?? {},
+  needsReconnect: r.needs_reconnect, connectedVia: r.connected_via,
+});
+
+export type YoutubeChannel = { id: string; title: string; canUpload: boolean };
+
+/** 회원 본인의 연결된 유튜브 채널(기본 표시·연결한 순서). 토큰 갱신 때 바뀌는 updated_at으로 정렬하면 다시 열 때마다 기본 채널이 뒤바뀌므로 created_at으로 고정 */
+export async function listYoutubeChannels(userId: string): Promise<YoutubeChannel[]> {
+  const { data } = await createAdminClient()
+    .from("member_platform_accounts")
+    .select("id, username, granted_scopes, needs_reconnect")
+    .eq("user_id", userId).eq("platform", "youtube")
+    .order("is_default", { ascending: false }).order("created_at", { ascending: true });
+  return ((data ?? []) as { id: string; username: string | null; granted_scopes: string[] | null; needs_reconnect: boolean }[]).map((r) => ({
+    id: r.id, title: r.username ?? "이름 없는 채널", canUpload: (r.granted_scopes ?? []).some((s) => UPLOAD_SCOPES.includes(s)) && !r.needs_reconnect,
+  }));
+}
+
+async function load(userId: string, accountId?: string | null): Promise<{ status: YoutubeState; ready?: Ready }> {
+  let account: MemberAccount;
+  if (accountId) {
+    const { data } = await createAdminClient().from("member_platform_accounts").select(ACCOUNT_COLS)
+      .eq("id", accountId).eq("user_id", userId).eq("platform", "youtube").maybeSingle();
+    if (!data) return { status: { state: "not_connected", channelTitle: null } };
+    account = rowToAccount(data as unknown as AccountRow);
+  } else {
+    const r = await getMemberAccount(createAdminClient(), userId, "youtube");
+    if (r.status === "not_connected") return { status: { state: "not_connected", channelTitle: null } };
+    account = r.account;
+  }
   const channelTitle = account.username;
   if (!account.grantedScopes.some((s) => UPLOAD_SCOPES.includes(s))) return { status: { state: "no_scope", channelTitle } };
   if (account.needsReconnect || !account.refreshToken) return { status: { state: "reconnect", channelTitle } };
@@ -70,15 +102,15 @@ async function accessToken(userId: string, x: Ready): Promise<string | "reconnec
 }
 
 /** 화면 표시용 상태 — 토큰이 살아 있는지도 확인한다(테스트 상태 Google 앱은 갱신 토큰이 7일 뒤 만료) */
-export async function youtubeStatus(userId: string): Promise<YoutubeState> {
-  const { status, ready } = await load(userId);
+export async function youtubeStatus(userId: string, accountId?: string | null): Promise<YoutubeState> {
+  const { status, ready } = await load(userId, accountId);
   if (!ready) return status;
   return (await accessToken(userId, ready)) === "reconnect" ? { state: "reconnect", channelTitle: status.channelTitle } : status;
 }
 
 /** 업로드용 접근 토큰. 쓸 수 없으면 상태를 돌려준다 */
-export async function youtubeUploadToken(userId: string): Promise<{ token: string } | { status: YoutubeState }> {
-  const { status, ready } = await load(userId);
+export async function youtubeUploadToken(userId: string, accountId?: string | null): Promise<{ token: string } | { status: YoutubeState }> {
+  const { status, ready } = await load(userId, accountId);
   if (!ready) return { status };
   const token = await accessToken(userId, ready);
   return token === "reconnect" ? { status: { state: "reconnect", channelTitle: status.channelTitle } } : { token };

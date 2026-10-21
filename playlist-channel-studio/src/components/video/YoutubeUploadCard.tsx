@@ -9,7 +9,7 @@ import type { Track } from "@/types/playlist";
 // 서버는 업로드 주소만 만들고(/api/youtube/upload-session) 영상은 이 브라우저가 유튜브로 바로 보낸다(서버 요금·4.5MB 한도 없음).
 // 유튜브 API 한도: 회원 Google 앱 하루 10,000단위, 업로드 1회 1,600단위 → 하루 약 6편.
 type Privacy = "private" | "unlisted" | "public";
-type Status = { state: "ok" | "not_connected" | "no_scope" | "no_keys" | "other_app" | "reconnect"; channelTitle: string | null; message: string; connectPrograms: { name: string; url: string }[] };
+type Status = { state: "ok" | "not_connected" | "no_scope" | "no_keys" | "other_app" | "reconnect"; channelTitle: string | null; message: string; connectPrograms: { name: string; url: string }[]; channels?: { id: string; title: string; canUpload: boolean }[]; accountId?: string | null };
 type Done = { videoId: string; url: string; title: string; label: string };
 const PRIVACY: { id: Privacy; name: string }[] = [
   { id: "private", name: "비공개(나만 보기 — 확인 뒤 직접 공개)" },
@@ -85,10 +85,10 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
     return () => { alive = false; };
   }, [bgMedia?.type, bgMedia?.url]);
 
-  async function check() {
+  async function check(account: string | null = status?.accountId ?? null) { // v1.24 채널이 여럿이면 고른 채널 상태
     setStatus(null); setStatusError("");
     try {
-      const res = await fetch("/api/youtube/status", { cache: "no-store" });
+      const res = await fetch(`/api/youtube/status${account ? `?account=${account}` : ""}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.error) throw new Error(data.error ?? `연결 상태를 확인하지 못했습니다(${res.status}).`);
       setStatus(data as Status);
@@ -104,7 +104,7 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
       if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
       const res = await fetch("/api/youtube/upload-session", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: form.title, description: form.description, tags: form.tags.split(/\s*,\s*/).filter(Boolean), privacy: form.privacy, categoryId: form.categoryId, publishAt, size: video.size }),
+        body: JSON.stringify({ title: form.title, description: form.description, tags: form.tags.split(/\s*,\s*/).filter(Boolean), privacy: form.privacy, categoryId: form.categoryId, publishAt, size: video.size, accountId: status?.accountId ?? null }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.uploadUrl) { if (data.youtubeState) void check(); throw new Error(data.error ?? `업로드를 준비하지 못했습니다(${res.status}).`); }
@@ -114,7 +114,7 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
       let thumbNote = "";
       if (useThumb && thumb && !portrait) { // v1.23 쇼츠(세로)는 유튜브가 앱에서만 썸네일을 바꾸게 해 지정하지 않는다
         try {
-          const r = await fetch("/api/youtube/thumbnail", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId, image: thumb.dataUrl }) });
+          const r = await fetch("/api/youtube/thumbnail", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId, image: thumb.dataUrl, accountId: status?.accountId ?? null }) });
           const d = await r.json().catch(() => ({}));
           thumbNote = r.ok ? " 썸네일도 배경 그림으로 지정했습니다." : ` 썸네일은 지정하지 못했습니다: ${d.error ?? r.status}`;
         } catch { thumbNote = " 썸네일은 지정하지 못했습니다(연결 오류). 썸네일을 내려받아 유튜브 스튜디오에서 넣어 주세요."; }
@@ -134,7 +134,16 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
       {msg && <div role="status" className={`text-xs rounded-xl px-3 py-2 ${msg.ok ? "bg-[#12301c] text-green-300" : "bg-[#3a2a12] text-amber-200"}`}>{msg.text}</div>}
       {statusError && <div className="text-xs text-red-400">{statusError}</div>}
       {!status && !statusError ? <div className="text-xs text-[#aaa] flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" />유튜브 연결을 확인하는 중…</div> : status && (ok ? (
-        <div className="flex items-center justify-between gap-2"><span className="text-xs text-green-300 font-bold">✅ 연결된 채널: {status.channelTitle ?? "내 채널"}</span><button type="button" onClick={() => void check()} className="text-[11px] text-[#aaa] hover:text-white inline-flex items-center gap-1"><RefreshCw className="w-3 h-3" />다시 확인</button></div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {(status.channels?.length ?? 0) > 1 ? (
+            <label className="flex items-center gap-2 text-xs text-green-300 font-bold">✅ 올릴 채널
+              <select value={status.accountId ?? ""} disabled={pct !== null} onChange={(e) => void check(e.target.value)} className="bg-[#121212] border border-[#333] rounded-lg px-2 py-1 text-xs text-white">
+                {status.channels!.map((c) => <option key={c.id} value={c.id}>{c.title}{c.canUpload ? "" : " (다시 연결 필요)"}</option>)}
+              </select>
+            </label>
+          ) : <span className="text-xs text-green-300 font-bold">✅ 연결된 채널: {status.channelTitle ?? "내 채널"}</span>}
+          <button type="button" onClick={() => void check()} className="text-[11px] text-[#aaa] hover:text-white inline-flex items-center gap-1"><RefreshCw className="w-3 h-3" />다시 확인</button>
+        </div>
       ) : (
         <div className="space-y-2">
           <div className="text-xs text-amber-200">⚠️ {status.message}</div>

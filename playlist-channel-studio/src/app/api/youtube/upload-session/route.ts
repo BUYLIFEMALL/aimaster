@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
       publishAt = d.toISOString();
     }
 
-    const t = await youtubeUploadToken(g.user.id);
+    const accountId = typeof b.accountId === "string" && /^[0-9a-f-]{36}$/i.test(b.accountId) ? b.accountId : null; // v1.24 고른 채널(회원 본인 채널만)
+    const t = await youtubeUploadToken(g.user.id, accountId);
     if ("status" in t) return bad(youtubeStateMessage(t.status.state), 409, { youtubeState: t.status.state });
 
     const uploadUrl = await createYoutubeResumableSession({

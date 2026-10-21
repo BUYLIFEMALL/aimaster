@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.23** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.24** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -193,3 +193,10 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 플랜: [`docs/PLAN_20261021_V1_23_THUMBNAIL.md`](docs/PLAN_20261021_V1_23_THUMBNAIL.md). 주인님 선택: 「YOUTUBE 썸네일 자동화와 연결」을 플레이리스트 안에서 바로(AI 비용 없음).
 - 유튜브 카드(가로 영상·배경이 그림일 때): 배경을 1280×720 JPG(2MB 이하, 가운데 잘라 맞춤)로 만들어 미리보기·「⬇ 썸네일 내려받기」, 「🖼 올릴 때 배경 그림을 썸네일로 지정」(기본 켬). 업로드가 끝나면 `/api/youtube/thumbnail`(같은 출처·`requireAccess`·`decodeImage` 2MB) → 이 앱 전용 `src/lib/youtube/thumbnail.ts`(`thumbnails.set`, 공용 기준 코드는 고치지 않음). 403이면 「맞춤 썸네일 사용 인증(전화 인증) 필요 — 내려받아 스튜디오에서 넣기」 안내. 세로(쇼츠)는 지정하지 않음.
 - 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.23. 크롬(시험 계정): `/api/youtube/thumbnail` 409(유튜브 미연결 — 다른 회원 채널로 대신하지 않음)·잘못된 영상 번호 400. 관리자 계정(주인님 로그인): 카드에 썸네일 미리보기 1280×720·38KB·지정 체크(기본 켬)·내려받기 표시, 같은 그림으로 비공개 시험 영상 mPwlsDllUgk에 `/api/youtube/thumbnail` → **200 ok**(실제 지정 확인, 유튜브 한도 50단위·비용 없음). 비용: Vercel 빌드 1회.
+
+## 2026-10-21 v1.24 — 곡 끌어서 순서 바꾸기·올릴 채널 고르기 (Claude Code 윈도우)
+- 플랜: [`docs/PLAN_20261021_V1_24_DRAG_CHANNEL.md`](docs/PLAN_20261021_V1_24_DRAG_CHANNEL.md).
+- 곡 목록(`MediaCenter.tsx`): 줄마다 손잡이(⋮⋮)·`draggable`로 끌어서 순서 변경(넘겨받은 Suno 곡·올린 파일 모두). 파일 끌어놓기와 섞이지 않게 곡을 끄는 중일 때만 반응.
+- 올릴 채널(IMP-PLS-013): `src/lib/youtube/account.ts`에 `listYoutubeChannels`(회원 본인 채널만, 기본 표시→**연결한 순서 `created_at`** — 토큰 갱신 때 바뀌는 `updated_at`으로 정렬하면 다시 열 때마다 기본 채널이 뒤바뀌어 배포 후 바로 고침)·`load(userId, accountId)`. `/api/youtube/status?account=`·업로드 주소·썸네일 API가 `accountId`를 받음(회원 본인 채널 안에서만 찾음, 공용 사본 `memberIntegrations.ts`는 그대로). 카드: 채널 2개 이상이면 「✅ 올릴 채널」 선택 칸, 바꾸면 상태 다시 확인, 업로드·썸네일 지정에 같은 채널.
+- 검수: tsc, 배포 Ready 2회(정렬 수정 포함), DB v1.24. 크롬(관리자 계정): 곡 3개 넣고 셋째곡을 맨 위로 끌기 → 「셋째곡·첫째곡·둘째곡」. 내보내기 화면 선택 칸 2개(공동구매 아카데미 / BUYLIFE ACADEMY…) 전환 → 상태 ok, 다른 채널 조회 뒤에도 순서·기본 채널 그대로. 실제 업로드는 v1.22에서 확인해 이번엔 하지 않음. 비용: Vercel 빌드 2회.
+

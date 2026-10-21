@@ -17,7 +17,8 @@ import {
   ArrowRight,
   ShieldAlert,
   Loader2,
-  Wand2
+  Wand2,
+  GripVertical
 } from "lucide-react";
 import { Track, ExportSettings } from "@/types/playlist";
 import { isSynced, parseLyrics, type LyricLine } from "@/lib/lyrics";
@@ -121,6 +122,13 @@ export function MediaCenter({
     }
 
     setTracks((prev) => [...prev, ...newTracks]);
+  };
+
+  // v1.24 끌어서 순서 바꾸기(같은 목록 안의 줄만 — 파일 끌어다 놓기와 섞이지 않게 drag 중인 줄 번호가 있을 때만 처리)
+  const [dragIdx, setDragIdx] = useState<number | null>(null), [overIdx, setOverIdx] = useState<number | null>(null);
+  const dropTrack = (to: number) => {
+    if (dragIdx === null || dragIdx === to) return;
+    setTracks((prev) => { const copy = [...prev]; const [moved] = copy.splice(dragIdx, 1); copy.splice(to, 0, moved); return copy; });
   };
 
   // Move track up/down
@@ -322,9 +330,15 @@ export function MediaCenter({
                 {tracks.map((track, idx) => (
                   <div
                     key={track.id}
-                    className="p-3.5 flex items-center justify-between hover:bg-[#212121] transition-colors"
+                    draggable
+                    onDragStart={(e) => { setDragIdx(idx); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", track.id); }}
+                    onDragOver={(e) => { if (dragIdx === null) return; e.preventDefault(); e.dataTransfer.dropEffect = "move"; setOverIdx(idx); }}
+                    onDrop={(e) => { if (dragIdx === null) return; e.preventDefault(); e.stopPropagation(); dropTrack(idx); setDragIdx(null); setOverIdx(null); }}
+                    onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                    className={`p-3.5 flex items-center justify-between hover:bg-[#212121] transition-colors ${dragIdx === idx ? "opacity-40" : ""} ${overIdx === idx && dragIdx !== null && dragIdx !== idx ? "bg-[#2a1515] outline outline-1 outline-[#ff0000]/60" : ""}`}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1 pr-4">
+                      <GripVertical className="w-4 h-4 shrink-0 text-[#555] cursor-grab active:cursor-grabbing" aria-label="끌어서 순서 바꾸기" />
                       <span className="w-6 text-center text-xs font-mono font-bold text-[#777777]">
                         {(idx + 1).toString().padStart(2, '0')}
                       </span>

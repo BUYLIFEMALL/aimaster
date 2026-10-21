@@ -15,13 +15,14 @@ export async function POST(request: NextRequest) {
   if (request.headers.get("origin") !== request.nextUrl.origin) return bad("요청 출처를 확인할 수 없습니다.", 403);
   const g = await requireAccess(); if (g.error) return g.error;
   try {
-    const b = (await request.json().catch(() => ({}))) as { videoId?: unknown; image?: unknown };
+    const b = (await request.json().catch(() => ({}))) as { videoId?: unknown; image?: unknown; accountId?: unknown };
     const videoId = String(b.videoId ?? "");
     if (!/^[A-Za-z0-9_-]{6,20}$/.test(videoId)) return bad("영상 번호가 올바르지 않습니다.");
     const jpeg = decodeImage(b.image, 2 * 1024 * 1024);
     if (!jpeg) return bad("썸네일 그림이 없거나 2MB를 넘습니다.");
 
-    const t = await youtubeUploadToken(g.user.id);
+    const accountId = typeof b.accountId === "string" && /^[0-9a-f-]{36}$/i.test(b.accountId) ? b.accountId : null; // v1.24 올린 채널과 같은 채널
+    const t = await youtubeUploadToken(g.user.id, accountId);
     if ("status" in t) return bad(youtubeStateMessage(t.status.state), 409);
     await setYoutubeThumbnail(t.token, videoId, jpeg);
     return NextResponse.json({ ok: true }, { headers: NO_STORE });

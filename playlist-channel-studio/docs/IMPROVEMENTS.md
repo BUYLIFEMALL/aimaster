@@ -17,7 +17,7 @@
 | IMP-PLS-011 | 기능/연계 | 커버 배경 「앨범 커버」 스타일(제목·채널명) | P3 | **완료 (v1.22)** | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx` |
 | IMP-PLS-012 | 연계 | 완성 MP4 유튜브 바로 올리기(공용 유튜브 연결·챕터 설명) | P2 | **완료 (v1.22)**, 실제 업로드 확인(관리자 채널 비공개 1편, https://youtu.be/mPwlsDllUgk) | 2026-10-21 (Claude Code) | `YoutubeUploadCard.tsx`·`/api/youtube/*` |
 | IMP-PLS-014 | 연계 | 배경(앨범 커버) 그림 → 유튜브 썸네일 1280×720 내려받기·업로드 때 자동 지정 | P2 | **완료 (v1.23)**, 관리자 채널 비공개 시험 영상에 실제 지정 200 ok | 2026-10-21 (Claude Code) | `YoutubeUploadCard.tsx`·`/api/youtube/thumbnail`·`lib/youtube/thumbnail.ts` |
-| IMP-PLS-013 | 기능 | 유튜브 채널이 여러 개 연결된 회원은 올릴 채널을 고를 수 없음(기본 표시가 2개면 최근 갱신 채널). 카드에 채널 선택 | P3 | 제안/대기 | 2026-10-21 (Claude Code) | `youtube/account.ts`·`YoutubeUploadCard.tsx`(공용 `memberIntegrations` 선택 인자 필요 여부 검토) |
+| IMP-PLS-013 | 기능 | 유튜브 채널이 여러 개 연결된 회원은 올릴 채널을 고를 수 없음(기본 표시가 2개면 최근 갱신 채널). 카드에 채널 선택 | P3 | **완료 (v1.24)**, 관리자 2채널 선택·전환 확인 | 2026-10-21 (Claude Code) | `youtube/account.ts`·`YoutubeUploadCard.tsx`(공용 `memberIntegrations` 선택 인자 필요 여부 검토) |
 | IMP-PLS-009 | 기능/연계 | 음악(SUNO) 자동화 곡 여러 개 + Suno 시간 가사 가져오기 | P2 | **완료 (v1.19)** | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx`·`sunoTracks.ts`·`/api/suno/*` |
 | IMP-PLS-010 | 편의성 | Suno 곡 패널에서 곡 커버를 배경 후보로 바로 쓰기(곡 하나짜리 플레이리스트·첫 곡 커버) | P3 | **완료 (v1.20)** — 흐린 확대 커버 + 가운데 원본 1920×1080, 자동·곡별 버튼 | 2026-10-21 (Claude Code) | `SunoImportPanel.tsx`·`MediaCenter.tsx` |
 | IMP-PLS-008 | 기능 | MP4 결과에 GIF 스티커가 빠짐(미리보기에만 있음). 움직이는 GIF는 프레임 분해(ImageDecoder)가 필요해 별도 작업 | P3 | **완료 (v1.21)** — ImageDecoder로 장면 분해, 미리보기와 같은 배치 | 2026-10-21 (Claude Code) | `video-exporter.ts`·`ExportStudio.tsx` |
