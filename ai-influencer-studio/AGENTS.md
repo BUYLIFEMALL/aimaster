@@ -292,3 +292,6 @@ ai-influencer-studio/
   - 왜: 그날 게시 목록(공용 `week-reply-panel`)에 썸네일을 보이고 싶은데, `src/lib/instagram/posting.ts`가 게시 완료(즉시·예약·이미 올라감 확인) 직후 `removeImages(post.image_paths)`로 저장소 파일을 **모두** 지워서 지금은 썸네일이 없음(2026-10-22 v1.46에서 썸네일을 뺀 이유).
   - 할 일: 게시 **성공** 때만 첫 장(`image_paths[0]`)은 남기고 나머지만 지움(실패·취소는 지금처럼 전부 삭제). 남긴 장은 기존 30일 정리(`cleanupOldPosts` — 생성 30일 뒤 행과 이미지 삭제)가 그대로 지우므로 별도 정리 불필요. 그다음 ① 게시 기록 API가 `image_paths`를 돌려주고 ② 공용 `InstaWeekPosts`(기준 `insta_auto_poster`)에 `thumbUrl: publicImageUrl(r.image_paths, imageBucket)`와 `imageBucket` 항목을 되살리고 ③ INSTA 대시보드 `src/lib/instaWeek.ts`의 카드뉴스·AI 인플루언서·웹툰·네컷 `image` 칸을 `image_paths`로(카드뉴스 저장소 `cardnews-images`, 나머지 `insta-post-images`). 되돌릴 코드는 커밋 `3e7ecf43`(썸네일 추가)·`bf0b8479`(뺌)에 있음. 공용 `insta-posting` **사본** — 기준(`ai-webtoon-studio`)을 고친 뒤 `--sync`. 즉시 게시 경로 `src/app/api/instagram/publish/route.ts`도 확인.
   - 검수: 게시 완료 행의 첫 장 주소가 200으로 열리는지 실제로 확인(2026-10-22 교훈 — 주소가 404면 깨진 그림), 30일 정리 뒤 남은 장도 지워지는지 코드로 확인. 배포 뒤 이 항목을 「배포됨(버전)」으로.
+
+## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+- src/components/Header.tsx(휴대폰에서 「API 키」로 줄여 표시, 오른쪽 묶음 shrink-0): 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.

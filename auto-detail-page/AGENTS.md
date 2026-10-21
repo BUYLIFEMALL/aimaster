@@ -127,3 +127,6 @@ auto-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 근거: [`../docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](../docs/analysis-ecommerce-consolidation-20261021/REPORT.md) 묶음 E2(주인님 승인). HTML 상세페이지(쿠팡·스마트스토어·프리미엄)는 `shop-detail-page` v1.17 「🧾 HTML 상세페이지로 내보내기」로 옮김(지어낸 후기·판매 수치·JavaScript 지시는 버림).
 - 첫 화면 `app/page.tsx` → 이동 안내(저장된 `detail_pages` 0건이라 옮길 자료 없음). `/guide`·`/settings`·`/preview/[id]` → 첫 화면으로. API `generate`·`generate-image`·`export-image`·`page/[id]` → 410 + 이동 주소. 기존 컴포넌트(`ProductForm` 등)·`lib/`는 되돌리기용으로 남김(쓰이지 않음).
 - 주소 `https://auto-detail-page.buylife.xyz`·`shop-page-seven.vercel.app`는 지우지 않음. 배포 순서: `../shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` E2 절.
+
+## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+- components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.

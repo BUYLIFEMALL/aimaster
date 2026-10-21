@@ -48,7 +48,38 @@
 | LOW 10곳 | `ai-image-studio/app/guide/page.tsx:17`, `app/(main)/page.tsx:326`, `app/admin/programs/page.tsx:24`, `components/admin/CategoryManagerButton.tsx:202`, `components/guides/GuideHub.tsx:341`, `components/home/UserWorkspace.tsx:91·194·256`, `naver-blog-allinone/…/LibrarySection.tsx:153`, `style-dna-analyzer/…/dashboard/page.tsx:113` | 폭 여유 | LOW | 그대로 |
 | FALSE/N/A | `detail-page-12p/…/ProductInputForm.tsx:211`(같은 줄 아님), `allinone-graphic/…/AllInOneGraphicApp.tsx:683`(현재 미표시), `scratch/…/Header.tsx:46`(미배포) | — | — | 없음 |
 
-## 수정 플랜(주인님 승인 대기)
+## 실행 결과 (2026-10-22, 주인님 B안 승인 — 데스크톱 HIGH만 지금 배포, 나머지는 코드만)
+커밋 `f0871e568`(코드 24 + 버전 6 + AGENTS 6). 기능·문구 변경 없음(AI 인플루언서 헤더만 휴대폰에서 「API 키」로 줄여 표시). 로컬 `tsc` 8개 프로그램 오류 0.
+
+### 지금 배포함 (7)
+| 프로그램 | 버전 | 배포 | 확인 |
+|---|---|---|---|
+| `threads/` (`auto-threads-posting`) | v1.28 | `threads-e0rlfeslb` Ready | DB v1.28 |
+| `threads-affiliate-poster/` | v1.80 | `threads-affiliate-poster-l5g96xvja` Ready | DB v1.80 |
+| `threads-comment-reply/` | v1.25 | `threads-comment-reply-s1qsfy78u` Ready | DB v1.25, 크롬(시험 계정) 설정 화면 API 키 5줄 버튼 한 줄·잘림 0(데스크톱 698px·390px iframe), 사이드바 v1.25, 대시보드 7일 그래프 정상 |
+| `ai-audio-analyzer/` | v1.12 | `ai-audio-analyzer-mwd5l66fc` Ready | DB v1.12. 문서 탭은 분석 결과가 있어야 보여 화면 미확인(유료 호출 필요) |
+| `ai-prompt-studio/` | v1.09 | `ai-prompt-studio-2dbl0wmva` Ready | DB v1.09. 결과 바는 생성 결과가 있어야 보여 화면 미확인(유료 호출 필요) |
+| `ai-webtoon-studio/` | v1.28 | `ai-webtoon-studio-bdm7en4mj` Ready | DB v1.28, 사이드바 v1.28, 대시보드 7일 그래프 정상. 콘티 결과 머리는 콘티가 있어야 보여 미확인 |
+| 메인 관리자 등급 이동 모달 | (메인, 버전 없음) | `aimaster-duqiiqj09`(푸시 자동 빌드) Ready | 화면 미확인(관리자 회원 선택 필요) |
+- 함께 나간 다른 세션 변경: `threads-comment-reply`·`ai-webtoon-studio`에 저장소에만 있던 공용 「최근 7일」 그래프 글자 크게(`weekChart` 사본) — 각 `AGENTS.md` 「⏸ 보류」 항목에 「✅ 배포됨」 표시.
+
+### 코드만 반영, 아직 배포 안 함 — 그 프로그램을 다음에 배포할 때 함께 나감(그때 버전 +0.01)
+`stepmail/`(ApiKeyRow·LeadsTable), `kakao_auto_poster/`, `booking-reminder/`(CronjobKeyRow), `insta_auto_poster/`, `crm-google-form/`(CronjobKeyRow), `instagram-comment-reply/`, `music/`, `tarot/`, `mbti-character/`, `real_estate_sales/`, `auto-detail-page/`, `ai-influencer-studio/`(Header), `react-ui-showcase/`·`ui-canvas/`(CodeViewerModal), `video-to-gif/`(미리보기 하단).
+
+### 이번에 건너뜀 — 다른 CLI 작업 중이라 손대지 않음(그 작업이 끝난 뒤 같은 방식으로 처리)
+- 작업 중 표: `ai-image-studio/`(헤더 HIGH)·`shots/`(ApiKeyRow)·`tistory-auto-blog/`(ApiKeyRow·수정 화면)
+- 다른 세션 미커밋 변경: `naver-cafe-poster/`·`trending-product-finder/`·`youtube-auto-reply/`·`longtail-keyword-expander/`·`shop-detail-page/`·`ai-auto-blog/`(ApiKeyRow·수정 화면·문단 이미지 줄)·`web-crawler/`·`competitor-analysis/`·`naver-blog-agent/`(이미지 컷 줄·편집기 모드 전환)
+- 은퇴: `allinone-graphic/`
+
+### 비용 리포트
+| 항목 | 횟수 | 계정 | 승인 범위 |
+|---|---|---|---|
+| Vercel 프로덕션 빌드(서브프로그램 CLI 배포) | 6 | Vercel 팀 `buylife` | B안 6~8회 안 |
+| 메인 사이트 GitHub 푸시 자동 빌드(`f0871e568`) | 1 | Vercel 팀 `buylife` | B안 안 |
+| 유료 AI 호출 | 0 | — | — |
+합계 빌드 7회. 문서만 바꾼 푸시(`a32e08131`·`efe20cd89` 등)는 메인 빌드 건너뜀(취소 상태, 비용 없음).
+
+## 수정 플랜(주인님 승인 대기 → 2026-10-22 B안 승인·실행, 위 「실행 결과」)
 - 범위: HIGH 34 + MEDIUM 7 = 약 30개 프로그램(+메인 사이트 관리자 모달 1곳). 기능·문구 변경 없이 클래스만 추가.
 - 순서(묶음별, 묶음마다 크롬 데스크톱·390px 확인 → 커밋): ① 데스크톱에서도 꺾이는 곳(threads 계열 3, 메인 관리자 모달, ai-audio-analyzer, ai-prompt-studio, ai-webtoon-studio, ai-image-studio 헤더) ② 나머지 `ApiKeyRow`·`CronjobKeyRow` ③ 휴대폰 전용 HIGH·MEDIUM.
 - 배포 비용: 프로그램마다 Vercel 빌드 1회(약 30회). 급한 버그가 아니라 화면 정돈이므로, `CLAUDE.md` 배포 비용 규칙대로 **코드만 반영해 두고 각 프로그램을 다음에 배포할 때 함께 내보내는 방식**도 가능(이 경우 버전은 그 배포 때 +0.01).

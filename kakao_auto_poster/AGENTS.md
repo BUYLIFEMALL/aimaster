@@ -274,3 +274,6 @@ Vercel 프로덕션 환경변수를 직접 조회해서 확인한 결과다 — 
 
 ## 2026-10-21 — 미배포 공용 코드 변경 안내: `telegram-bot-client` 사본에 `linkButton` (Claude Code 윈도우)
 - 사본 `src/lib/telegram/client.ts`의 `sendTelegramMessageWithButtons`에 선택 항목 `linkButton`(승인 버튼 줄 아래 링크 버튼 한 줄)이 추가됨(커밋 `802e89c8`). 이 프로그램은 넘기지 않으므로 **동작 같음**(tsc 오류 0 확인). 급하지 않은 변경이라 따로 배포하지 않았고, **다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나간다**. 사본은 직접 고치지 않는다 — 기준 `instagram-comment-reply/lib/telegram/client.ts`를 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 미배포 목록: 루트 `docs/SHARED_MODULES.md`.
+
+## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+- src/components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.

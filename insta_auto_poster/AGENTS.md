@@ -246,3 +246,6 @@
 
 ## 2026-10-22 ⏸ 대기 — 배포판에서 `/cardnews` 주소 직접 입력 시 대시보드로
 - **다음 INSTA 배포 때 함께(2026-10-22 주인님 지시)**. 배포판(독립 모드)은 카드뉴스 표가 없고 메뉴도 숨기지만 주소를 직접 치면 카드뉴스 화면이 열려 목록이 비거나 API 오류. 할 일: `src/app/(dashboard)/cardnews/layout.tsx`(서버 컴포넌트로 감싸거나 새 서버 레이아웃)에서 `IS_STANDALONE`이면 `redirect("/dashboard")`. 운영(`IS_STANDALONE` false)은 동작 같음. 검수: 독립 모드 로컬 빌드에서 `/cardnews` → `/dashboard`로 이동, 운영은 카드뉴스 홈 그대로. 그다음 배포판을 다시 포장할 때(v1.09) 함께 들어감. 상세: `docs/IMPROVEMENTS.md` 2026-10-22.
+
+## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+- src/components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.

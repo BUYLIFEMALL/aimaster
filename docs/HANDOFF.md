@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정 B안 실행 (데스크톱 HIGH 6개 프로그램 배포 + 15개 코드만)
+- 주인님 B안 승인. 커밋 `f0871e568`: 코드 24곳(API 키 한 줄 14·개별 화면 10) + 버전 6 + AGENTS. 배포·DB: auto-threads-posting v1.28, threads-affiliate-poster v1.80, threads-comment-reply v1.25, ai-audio-analyzer v1.12, ai-prompt-studio v1.09, ai-webtoon-studio v1.28(6개 모두 `vercel inspect` Ready, DB 6건 갱신) + 메인 관리자 등급 이동 모달(푸시 자동 빌드 Ready).
+- 크롬(시험 계정): 댓글자동화 설정 API 키 5줄 버튼 한 줄·잘림 0(데스크톱·390px), 댓글자동화·웹툰 대시보드 「최근 7일」 그래프 정상(다른 세션이 부탁한 weekChart 사본 동반 배포 확인 → 두 AGENTS.md 「⏸ 보류」에 ✅ 표시). 미확인: AI Audio 문서 탭·AI Prompt 결과 바·웹툰 콘티 머리·관리자 모달(결과 생성에 유료 호출 필요 또는 관리자 조작 필요).
+- **코드만·미배포 15곳**(각 AGENTS.md 끝 「⏸ 미배포」): stepmail·kakao_auto_poster·booking-reminder·insta_auto_poster·crm-google-form·instagram-comment-reply·music·tarot·mbti-character·real_estate_sales·auto-detail-page·ai-influencer-studio·react-ui-showcase·ui-canvas·video-to-gif — 다음 배포 때 함께, 그때 버전 +0.01.
+- **건너뜀(다른 CLI 작업 중)**: ai-image-studio·shots·tistory-auto-blog(작업 중 표), naver-cafe-poster·trending-product-finder·youtube-auto-reply·longtail-keyword-expander·shop-detail-page·ai-auto-blog·web-crawler·competitor-analysis·naver-blog-agent(미커밋 변경). 그 작업이 끝나면 같은 방식으로 처리.
+- 비용 리포트: Vercel 빌드 7회(서브프로그램 6 + 메인 자동 1, 승인 범위 6~8회 안), 유료 AI 호출 0. 상세: `docs/UI_WRAP_AUDIT_20261022.md` 「실행 결과」.
+
 ## 2026-10-22 Claude Code(윈도우) — ⏸ 배포판 `/cardnews` 처리도 다음 INSTA 배포 때 함께 · 「좁은 칸 버튼」 세션께 알림
 - 주인님 지시로 INSTA 포스팅 배포판 `/cardnews` 직접 입력 → 대시보드 이동은 다음 INSTA 배포 때 함께(방법: `insta_auto_poster/AGENTS.md` 2026-10-22 「⏸ 대기」).
 - **⚠️ 「좁은 칸 버튼 줄바꿈 수정」 세션께**: 그 세션이 배포할 `threads-affiliate-poster`·`threads-comment-reply`·`instagram-comment-reply`·`insta_auto_poster`·`ai-influencer-studio`·`ai-webtoon-studio`에는 제가 저장소에만 반영해 둔 공용 그래프 사본 변경(`components/weekChart`·`lib/weekChart` — 글자 크게, 문구 선택 항목, 썸네일 숨김 등, 동작·화면 거의 같음)이 함께 나갑니다. 배포 뒤 각 대시보드의 「📊 최근 7일」 그래프가 정상인지 한 번 봐 주시고, 각 `AGENTS.md`의 「⏸ 보류 — 7일 그래프 글자 크게」 항목을 「배포됨(버전)」으로 바꿔 주세요. 쇼핑제휴는 v1.79가 이미 이 글자 크기로 배포돼 있습니다.
