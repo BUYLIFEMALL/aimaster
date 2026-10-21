@@ -27,6 +27,11 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 카테고리 간 분석 C1(4컷 ↔ 웹툰)·C2(감성 글귀 ↔ INSTA 카드뉴스) (분석만, 주인님 결정 대기)
+- 결론: **둘 다 병합하지 않음**. C1은 인스타 분야 분석(2026-10-20) 「독립 유지(엔진만 공유)」 판단 그대로(재검토 조건 미도달), C2는 출력(1장 감성 글귀 vs 4~10장 정보 카드+게시)·사용자가 달라 독립 + 장점 교환.
+- 플랜 추가: W2 웹툰 키 localStorage 저장 제거(최상위 규칙), L6 감성 글귀 → INSTA 포스팅 보내기, F6 카드뉴스 배경에 Pixabay·Pexels 무료 사진 검색, S1 캐릭터 일관성 공용 코드 검토.
+- 정정: §8에서 C1을 새 후보로 적었으나 인스타 분석이 이미 판단해 둔 것이었음(보고서 §9 머리말).
+- 보고서: `docs/analysis-image-consolidation-20261021/REPORT.md` §9. 코드·DB 변경 없음. 다음 첫 단계: 주인님 결정(§8-6·§9-4) 뒤 W1부터.
 ## 2026-10-22 Claude Code(윈도우) — 이미지 카테고리 재비교·작업 플랜 (분석만, 주인님 결정 대기)
 - 결론: 병합 뒤 9개는 **더 합칠 것 없음(9개 유지)**. 대신 W(버그·규칙 미충족 7건) → L(프로그램 사이 연결 5건) → F(기능 추가 5건) 순서 플랜. 카테고리 간 후보 C1(4컷 ↔ 웹툰)·C2(감성 글귀 ↔ 카드뉴스)는 별도 분석 제안.
 - 새로 확인한 문제(코드 근거): 이미지 스튜디오 Ideogram·Recraft 11개 모델 호출 담당 누락(`lib/providers/index.ts`), 스토리보드 30일 정리 없음, 패션스타일 `gemini-3-pro-preview`·옷장 날짜 만료 없음, 4컷 `gemini-flash-lite-latest`, 바나나 이미지 모델 목록이 기준과 다름. **다른 카테고리 `ai-webtoon-studio`가 회원 Gemini 키 원문을 localStorage에 저장**(`StudioWorkspace.tsx:49-57`).
