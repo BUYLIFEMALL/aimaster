@@ -21,6 +21,7 @@ interface ResultSectionProps {
   isRefining: boolean;
   onRestart: () => void;
   onBackToEdit: () => void;
+  onSaveTemplate?: () => void;
 }
 
 export function ResultSection({
@@ -29,6 +30,7 @@ export function ResultSection({
   isRefining,
   onRestart,
   onBackToEdit,
+  onSaveTemplate,
 }: ResultSectionProps) {
   const [copied, setCopied] = useState(false);
   const [feedbackInput, setFeedbackInput] = useState("");
@@ -214,6 +216,20 @@ export function ResultSection({
           </button>
         </div>
       </div>
+
+      {/* 📁 내 템플릿으로 저장 (2026-10-21 병합 C) — {{변수}}를 넣어 두면 보관함에서 값만 바꿔 다시 실행 */}
+      {onSaveTemplate && (
+        <div className="flex flex-col items-center gap-1 rounded-2xl border border-violet-200 bg-violet-50 p-4 text-center">
+          <button
+            type="button"
+            onClick={onSaveTemplate}
+            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-xs transition-all"
+          >
+            📁 내 템플릿으로 저장
+          </button>
+          <p className="text-[11px] text-violet-800">완성한 프롬프트를 보관함에 저장합니다. 바꿔 쓸 부분을 {"{{변수}}"}로 고쳐 두면 다음부터 값만 넣어 바로 실행할 수 있습니다.</p>
+        </div>
+      )}
 
       {/* 새 프롬프트 작성하기 */}
       <div className="flex justify-center pt-2">

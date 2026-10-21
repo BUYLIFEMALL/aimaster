@@ -9,6 +9,7 @@ import {
   FileCheck2,
   KeyRound,
   BookOpen,
+  FolderOpen,
   LogOut,
   Menu,
   X,
@@ -17,8 +18,8 @@ import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { PromptMode } from "@/types/prompt";
 
 interface SidebarProps {
-  currentTab: "mode" | "build" | "result" | "guide";
-  setTab: (tab: "mode" | "build" | "result" | "guide") => void;
+  currentTab: "mode" | "build" | "result" | "guide" | "templates";
+  setTab: (tab: "mode" | "build" | "result" | "guide" | "templates") => void;
   selectedMode: PromptMode;
   hasResult: boolean;
   onOpenApiKey: () => void;
@@ -62,7 +63,7 @@ export function Sidebar({
 }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleStepClick = (tabId: "mode" | "build" | "result" | "guide") => {
+  const handleStepClick = (tabId: "mode" | "build" | "result" | "guide" | "templates") => {
     setTab(tabId);
     setMobileOpen(false);
   };
@@ -168,6 +169,18 @@ export function Sidebar({
             );
           })}
         </div>
+
+        {/* 📁 내 템플릿 보관함 (2026-10-21 병합 C — 옛 AI 프롬프트 템플릿 자동화) */}
+        <button
+          type="button"
+          onClick={() => handleStepClick("templates")}
+          className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all text-left cursor-pointer ${
+            currentTab === "templates" ? "bg-violet-600 text-white shadow-xs" : "text-neutral-700 hover:bg-neutral-100"
+          }`}
+        >
+          <FolderOpen size={14} className={currentTab === "templates" ? "text-white" : "text-violet-600"} />
+          <span>📁 내 템플릿 보관함</span>
+        </button>
 
         {/* 4. 구분선 아래: 연동 및 유틸리티 */}
         <div className="border-t border-neutral-200 pt-2.5 space-y-1">

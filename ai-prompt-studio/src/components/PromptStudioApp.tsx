@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Sidebar } from "./Sidebar";
 import { IntroSection } from "./IntroSection";
 import { StepBuilder } from "./StepBuilder";
@@ -8,13 +8,16 @@ import { ResultSection } from "./ResultSection";
 import { ApiKeyModal } from "./ApiKeyModal";
 import { HelpModal } from "./HelpModal";
 import { PromptGuideView } from "./PromptGuideView";
+import { TemplatesView } from "./templates/TemplatesView";
+import type { PromptTemplate } from "@/types/template";
+import { extractVariables } from "@/types/template";
 import { PromptFormData, PromptMode, GeneratedPromptResult, MagicStrategyType } from "@/types/prompt";
 import { PromptPreset } from "@/data/presets";
 import { SuggestType } from "@/lib/prompt-engine";
 
 interface PromptStudioAppProps {
   userEmail?: string | null;
-  initialTab?: "mode" | "build" | "result" | "guide";
+  initialTab?: "mode" | "build" | "result" | "guide" | "templates";
 }
 
 const DEFAULT_FORM_STATE: PromptFormData = {
@@ -29,7 +32,7 @@ const DEFAULT_FORM_STATE: PromptFormData = {
 };
 
 export function PromptStudioApp({ userEmail, initialTab = "mode" }: PromptStudioAppProps) {
-  const [currentTab, setCurrentTab] = useState<"mode" | "build" | "result" | "guide">(initialTab);
+  const [currentTab, setCurrentTab] = useState<"mode" | "build" | "result" | "guide" | "templates">(initialTab);
   const [formData, setFormData] = useState<PromptFormData>(DEFAULT_FORM_STATE);
   const [result, setResult] = useState<GeneratedPromptResult | null>(null);
 
@@ -42,12 +45,17 @@ export function PromptStudioApp({ userEmail, initialTab = "mode" }: PromptStudio
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [maskedKey, setMaskedKey] = useState<string | null>(null);
 
+  // 📁 내 템플릿 보관함(2026-10-21 병합 C): 결과 화면에서 저장할 초안
+  const [templateDraft, setTemplateDraft] = useState<PromptTemplate | null>(null);
+  const openApiKeyModal = useCallback(() => setApiKeyModalOpen(true), []);
+  const clearTemplateDraft = useCallback(() => setTemplateDraft(null), []);
+
   // 초기 API 키 확인 및 URL 쿼리 파라미터 확인
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get("tab");
-      if (tabParam === "guide" || tabParam === "mode" || tabParam === "build" || tabParam === "result") {
+      if (tabParam === "guide" || tabParam === "templates" || tabParam === "mode" || tabParam === "build" || tabParam === "result") {
         setCurrentTab(tabParam as any);
       }
     }
@@ -208,6 +216,22 @@ export function PromptStudioApp({ userEmail, initialTab = "mode" }: PromptStudio
     }
   };
 
+  // 결과 화면 「📁 내 템플릿으로 저장」: 완성 프롬프트를 새 템플릿 초안으로 넘기고 보관함 편집 창을 연다
+  const handleSaveAsTemplate = () => {
+    if (!result) return;
+    const content = result.generatedPrompt;
+    setTemplateDraft({
+      id: "",
+      title: formData.goal.trim().slice(0, 60) || "새 프롬프트 템플릿",
+      description: `AI Prompt ${formData.mode} 모드로 설계한 프롬프트`,
+      content,
+      category: "Personal",
+      variables: extractVariables(content),
+      createdAt: Date.now(),
+    });
+    setCurrentTab("templates");
+  };
+
   const handleRestart = () => {
     setFormData(DEFAULT_FORM_STATE);
     setResult(null);
@@ -235,6 +259,10 @@ export function PromptStudioApp({ userEmail, initialTab = "mode" }: PromptStudio
               onGoToStudio={() => setCurrentTab("mode")}
               onOpenApiKey={() => setApiKeyModalOpen(true)}
             />
+          )}
+
+          {currentTab === "templates" && (
+            <TemplatesView draft={templateDraft} onDraftConsumed={clearTemplateDraft} onNeedApiKey={openApiKeyModal} />
           )}
 
           {currentTab === "mode" && (
@@ -265,6 +293,7 @@ export function PromptStudioApp({ userEmail, initialTab = "mode" }: PromptStudio
               isRefining={isRefining}
               onRestart={handleRestart}
               onBackToEdit={() => setCurrentTab("build")}
+              onSaveTemplate={handleSaveAsTemplate}
             />
           )}
         </div>
