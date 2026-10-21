@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — UI Canvas v1.12: 반응형(flex) 코드 내보내기
+
+병합 D 후속 1번. [</> 코드]에 배치 방식 선택(반응형 기본 / 캔버스 그대로). 세로가 겹치는 컴포넌트를 한 줄 flex-wrap으로 묶고 휴대폰은 세로 쌓임. 커밋 `dff735d7`, 배포 Ready, DB v1.12, 크롬 검수 통과. 비용: Vercel 빌드 1회. 다음: 후속 2번(AI 컴포넌트 캔버스에 놓기·함수 이름). 상세 `ui-canvas/AGENTS.md` v1.12.
+
+https://ui-canvas.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 병합 D 완료: AI 웹 UI → UI Canvas 「🧩 컴포넌트 갤러리」
 
 UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), 편집기 [</> 코드]로 캔버스 → React + Tailwind TSX 내보내기, AI 컴포넌트를 프로젝트 `doc.snippets`에 보관(DB 표 변경 없음, 편집기 자동 저장이 보존). 옛 앱 v1.06 안내·410·숨김. 권한: 없던 32명 = 골드 등급 → 주인님 결정으로 골드 등급 표에 UI Canvas 체크(143→175명, 운영 DB `esgxyikcnnvmlhygjkth`). 커밋 `809264a7`·`10f9667d`·`aaaf9908`, 두 앱 배포 Ready, 일반 회원 계정 크롬 검수 통과. 병합 A~D 모두 완료. 상세 `ui-canvas/AGENTS.md` v1.11.

@@ -1,12 +1,19 @@
 # 🎨 UI Canvas 자동화 (ui-canvas) — AI 에이전트 인수인계서
 
 > **공식 서비스 URL**: https://ui-canvas.buylife.xyz  
-> **현재 버전**: `v1.11` (크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션, 2026-10-21 병합 D 🧩 컴포넌트 갤러리·React 코드 내보내기)  
+> **현재 버전**: `v1.12` (크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션, 2026-10-21 병합 D 갤러리·코드 내보내기 + 반응형 코드)  
 > **최근 갱신일**: 2026-10-19  
 > **표준 템플릿**: 크리에이티브 아틀리에 스타일 (`Creative Atelier Style — Canvas Pro Edition`, 딥 미드나잇 다크 네이비 `#0c0f17` + 슬레이트 다크 서피스 `#131824` + 일렉트릭 시안 블루 `#06b6d4` & 아티스틱 바이올렛 `#8b5cf6`)  
 > **참고 기준 문서**: 루트 `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`
 
 ---
+
+## 2026-10-21 Claude Code(윈도우) — 반응형 코드 내보내기 (v1.12)
+- [</> 코드] 창에 「배치 방식」: **반응형(flex, 기본)** / 캔버스 그대로(절대 위치). 플랜 `docs/PLAN_20261021_CODE_EXPORT_FOLLOWUPS.md` 1번.
+- 반응형은 `codegen.ts`의 `rowsOf`(세로가 겹치면 한 줄, 줄 안은 왼쪽부터) + `responsiveBlock`(줄마다 `flex flex-wrap`, 간격·여백은 캔버스 실제 값, 휴대폰은 `w-full`로 세로 쌓임, 768px 이상은 `md:w-[..px]`). 그룹은 안에서 같은 규칙, 그룹 높이는 `md:min-h`.
+- 검수: 테스트 18개(반응형 문법·줄 묶기 2개 추가) → 배포 Ready → 크롬(일반 회원): 시험 프로젝트(제목·버튼 2개·입력)에서 반응형 3줄(버튼 2개 한 줄, 간격 20px) 확인, 「캔버스 그대로」 전환 시 절대 위치 4개 확인, 500px 창에서 코드 창 정상. 비용: Vercel 빌드 1회, AI 호출 0회.
+- 커밋 `dff735d7`, DB `programs.version=v1.12`.
+
 
 ## 2026-10-21 Claude Code(윈도우) — 병합 D: AI 웹 UI 제작 자동화 → 「🧩 컴포넌트 갤러리」·React 코드 내보내기·AI 컴포넌트 보관 (v1.11)
 - **플랜**: [docs/PLAN_20261021_MERGE_D_WEB_UI.md](docs/PLAN_20261021_MERGE_D_WEB_UI.md) · 근거 루트 `docs/analysis-scraping-consolidation-20261021/REPORT.md` §2 D.
