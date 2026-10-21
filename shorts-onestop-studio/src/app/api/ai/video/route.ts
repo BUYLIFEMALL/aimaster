@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       if (!key) throw new UserError(400, `${PROVIDER_NAME[model.provider]} 키가 없어 진행 상황을 확인할 수 없습니다. API키등록·플랫폼연동에서 본인 키를 등록해 주세요.`, { needKey: true });
       const r = await checkVideo({ userId: g.userId, key, job });
       if (r.state === "running") return json({ state: "running" });
-      await recordUsage(g.userId, "video_made", { provider: model.provider, model: model.id, withEnd: job.withEnd });
+      await recordUsage(g.userId, "video_made", { provider: model.provider, model: model.id, withEnd: job.withEnd, seconds: job.seconds ?? 5 });
       return json({ state: "done", path: r.path, src: (await signPaths(g.userId, [r.path]))[r.path] });
     }
 
@@ -38,10 +38,12 @@ export async function POST(request: NextRequest) {
     if (endUrl !== undefined && !isFrameUrl(endUrl, host)) throw new UserError(400, "다음 장면 사진을 끝 화면으로 쓸 수 없습니다. 다음 장면에 사진 배경을 넣거나 「이어지게」를 꺼 주세요.");
     const key = (await getUserApiKeys(g.userId, [model.provider]))[model.provider];
     if (!key) throw new UserError(400, `${model.name}은(는) 본인 ${PROVIDER_NAME[model.provider]} 키가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요.`, { needKey: true });
+    const seconds = Number(g.body.seconds ?? 5);
+    if (!model.durations.includes(seconds)) throw new UserError(400, `${model.name}은(는) ${model.durations.join("·")}초 영상만 만들 수 있습니다.`);
     const prompt = motionPrompt(String(g.body.prompt ?? ""), !!endUrl && model.endFrame);
-    const r = await submitVideo({ userId: g.userId, key, model, prompt, startUrl: g.body.startUrl, endUrl: model.endFrame ? endUrl : undefined });
+    const r = await submitVideo({ userId: g.userId, key, model, prompt, startUrl: g.body.startUrl, endUrl: model.endFrame ? endUrl : undefined, seconds });
     if ("path" in r) {
-      await recordUsage(g.userId, "video_made", { provider: model.provider, model: model.id, withEnd: !!endUrl });
+      await recordUsage(g.userId, "video_made", { provider: model.provider, model: model.id, withEnd: !!endUrl, seconds });
       return json({ state: "done", path: r.path, src: (await signPaths(g.userId, [r.path]))[r.path] });
     }
     return json({ state: "running", job: r.job });

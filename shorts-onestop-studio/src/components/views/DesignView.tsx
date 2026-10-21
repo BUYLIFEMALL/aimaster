@@ -10,7 +10,7 @@ import { useMedia } from "@/components/ui/useMedia";
 import { pickStock as bestStock } from "@/lib/pipeline";
 import { IMAGE_STYLES, normalizeBackdrop, type Backdrop, type Bg, type ShortsScript } from "@/lib/script";
 import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } from "@/lib/render/scene";
-import { DEFAULT_VIDEO_MODEL, findVideoModel, PROVIDER_NAME, priceLabel, sceneCost, VIDEO_MODELS, VIDEO_SECONDS, wonLabel, type VideoJob } from "@/lib/videoModels";
+import { DEFAULT_VIDEO_MODEL, findVideoModel, LENGTH_CHOICES, pickSeconds, PROVIDER_NAME, priceLabel, sceneCost, VIDEO_MODELS, wonLabel, type VideoJob } from "@/lib/videoModels";
 
 type StockItem = { id: string; type: "image" | "video"; src: string; thumb: string; credit: string; pageUrl: string };
 const IMG_MODELS = [{ id: "gemini-3.1-flash-lite-image", name: "Nano Banana · 가벼운 모델 (기본)" }, { id: "gemini-nano-banana-2.1", name: "Nano Banana 2 · 균형형" }];
@@ -35,6 +35,7 @@ export function DesignView() {
   const [imgModel, setImgModel] = useState(IMG_MODELS[0].id);
   const [vidModel, setVidModel] = useState(DEFAULT_VIDEO_MODEL);
   const [linkNext, setLinkNext] = useState(true);
+  const [lenChoice, setLenChoice] = useState<"fit" | number>("fit"); // v1.25 영상 길이: 장면에 맞춤(기본) 또는 5·8·10초
   const [keyOk, setKeyOk] = useState<Record<string, boolean>>({});
   const scriptRef = useRef<ShortsScript | null>(null); scriptRef.current = script;
   const itemRef = useRef<Item<ShortsScript> | null>(null); itemRef.current = item;
@@ -144,6 +145,11 @@ export function DesignView() {
   const frameOf = (b?: Bg) => (!b ? "" : b.type === "image" ? media.srcOf(b) : b.poster ? media.srcOf(b.poster) : "");
   const vm = findVideoModel(vidModel) ?? VIDEO_MODELS[0];
   const nextIdx = (i: number) => (script && i >= 0 && i <= script.cards.length ? i + 1 : -2);
+  // v1.25 장면 길이(음성이 있으면 음성 길이 기준) → 만들 영상 길이(초)·예상 금액
+  const segDur = (i: number) => (script && i >= 0 ? timeline(script).segs[i]?.dur : undefined);
+  const secOf = (i: number) => pickSeconds(vm, lenChoice, segDur(i));
+  const withEndOf = (i: number) => !!(script && linkNext && vm.endFrame && nextIdx(i) >= 0 && frameOf(getBg(script, nextIdx(i))));
+  const costOf = (i: number) => sceneCost(vm, withEndOf(i), secOf(i));
 
   async function persist(next: ShortsScript) {
     const it = itemRef.current; if (!it) return;
@@ -159,7 +165,7 @@ export function DesignView() {
     const n = nextIdx(i); const end = linkNext && vm.endFrame && n >= 0 ? frameOf(getBg(script, n)) : "";
     setBusy(`${label(script, i)} AI 영상 작업을 보내는 중…`); setMsg(null); setActive(i);
     try {
-      const r = await api<{ state: string; job?: VideoJob; path?: string }>("/api/ai/video", { body: { action: "submit", model: vm.id, prompt: hint(i).prompt, startUrl: start, endUrl: end || undefined } });
+      const r = await api<{ state: string; job?: VideoJob; path?: string }>("/api/ai/video", { body: { action: "submit", model: vm.id, prompt: hint(i).prompt, startUrl: start, endUrl: end || undefined, seconds: secOf(i) } });
       const cur = scriptRef.current ?? script; const base = getBg(cur, i) ?? b;
       const next = r.path ? setBg(cur, i, { type: "video", source: "ai", src: "", path: r.path, prompt: hint(i).prompt, model: vm.id, poster: base.type === "image" ? base : base.poster })
         : setBg(cur, i, { ...base, videoJob: r.job });
@@ -212,7 +218,9 @@ export function DesignView() {
   const thumbOf = (b?: Bg): string => (b ? (b.source === "ai" && b.type === "video" ? (b.poster ? thumbOf(b.poster) : "") : b.source === "ai" ? media.srcOf(b) : b.type === "image" ? media.srcOf(b) : b.thumb || b.src) : "");
   const bgLabel = (b: Bg) => b.path && media.gone.has(b.path) ? `🗑️ 만든 지 30일이 지나 파일이 삭제되었습니다 — 다시 만들거나 골라 주세요` : b.videoJob ? `⏳ AI 영상 만드는 중… (${findVideoModel(b.videoJob.model)?.name ?? ""} · ${new Date(b.videoJob.startedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })} 시작)`
     : b.source === "ai" && b.type === "video" ? `🎬 AI 영상 · ${findVideoModel(b.model)?.name ?? ""}` : b.source === "ai" ? "🎨 AI 이미지" : `${b.type === "video" ? "🎬" : "🖼️"} ${b.credit ?? b.source}`;
-  const oneCost = sceneCost(vm, linkNext && vm.endFrame);
+  // v1.25 「모두 영상으로 만들면」 합계: 사진 배경이 있고 아직 AI 영상이 아닌(만드는 중도 아닌) 장면
+  const videoTargets = rows.filter((i) => i >= 0 && script && frameOf(getBg(script, i)) && !(getBg(script, i)?.source === "ai" && getBg(script, i)?.type === "video") && !getBg(script, i)?.videoJob);
+  const allCost = Math.round(videoTargets.reduce((sum, i) => sum + costOf(i), 0) * 100) / 100;
 
   return (
     <>
@@ -241,10 +249,11 @@ export function DesignView() {
                     <label>🎭 같은 인물 유지(선택)<input value={bd.character} maxLength={300} onChange={(e) => setBd({ character: e.target.value })} placeholder="예: 30대 한국인 여성, 단발머리, 베이지 니트" /></label>
                   </div>
                   <div className="field-grid">
-                    <label>🎬 AI 영상 모델 · 생성 단가<select value={vidModel} onChange={(e) => setVidModel(e.target.value)}>{VIDEO_MODELS.map((m) => <option key={m.id} value={m.id}>{m.name} — {priceLabel(m, linkNext && m.endFrame)} · {m.note}{keyOk[m.provider] ? "" : ` (${PROVIDER_NAME[m.provider]} 키 미등록)`}</option>)}</select></label>
+                    <label>🎬 AI 영상 모델 · 생성 단가<select value={vidModel} onChange={(e) => { setVidModel(e.target.value); const m = findVideoModel(e.target.value); if (m && typeof lenChoice === "number" && !m.durations.includes(lenChoice)) setLenChoice("fit"); }}>{VIDEO_MODELS.map((m) => <option key={m.id} value={m.id}>{m.name} — {priceLabel(m, linkNext && m.endFrame)} · {m.note}{keyOk[m.provider] ? "" : ` (${PROVIDER_NAME[m.provider]} 키 미등록)`}</option>)}</select></label>
+                    <label>⏱️ 영상 길이<select value={String(lenChoice)} onChange={(e) => setLenChoice(e.target.value === "fit" ? "fit" : Number(e.target.value))}><option value="fit">장면 길이에 맞춤 (반복 재생 없음 · 권장)</option>{LENGTH_CHOICES.filter((s) => vm.durations.includes(s)).map((s) => <option key={s} value={s}>{s}초 고정</option>)}</select></label>
                     <label className="row" style={{ gap: 8, fontWeight: 500, alignSelf: "end" }}><input type="checkbox" checked={linkNext} onChange={(e) => setLinkNext(e.target.checked)} />다음 장면과 이어지게(다음 장면 사진을 끝 화면으로)</label>
                   </div>
-                  <small className="muted">🎬 AI 영상: 장면 사진을 첫 화면으로 {VIDEO_SECONDS}초 영상을 만듭니다. 지금 모델로 장면 1개 약 ${oneCost.toFixed(2)}({wonLabel(oneCost)}) — 본인 {PROVIDER_NAME[vm.provider]} 계정에 청구되며 실제 금액은 업체 가격표 기준입니다. 실패해도 자동으로 다시 보내지 않으니 직접 다시 눌러 주세요.</small>
+                  <small className="muted">🎬 AI 영상: 장면 사진을 첫 화면으로 영상을 만듭니다({vm.name}은 {vm.durations.join("·")}초). 「장면 길이에 맞춤」은 장면보다 길거나 같은 가장 짧은 길이를 골라 반복 재생을 막습니다. 버튼의 금액은 그 장면 기준이며 본인 {PROVIDER_NAME[vm.provider]} 계정에 청구되고, 실제 금액은 업체 가격표 기준입니다. 실패해도 자동으로 다시 보내지 않으니 직접 다시 눌러 주세요.</small>
                   <div className="actions">
                     <button className="primary" disabled={!!busy} onClick={() => void makeHints()}><Wand2 size={14} />AI로 장면 설명 만들기</button>
                     <button disabled={!!busy} onClick={() => void fillAllStock()}><Sparkles size={14} />스톡으로 모두 채우기</button>
@@ -256,6 +265,7 @@ export function DesignView() {
               {bd.mode !== "theme" && (
                 <section className="card stack">
                   <h2>② 장면별 배경</h2>
+                  {videoTargets.length > 0 && <div className="notice" style={{ fontSize: 13 }}>💰 사진 배경 장면 {videoTargets.length}개를 모두 {vm.name}(으)로 영상으로 만들면 <strong>약 ${allCost.toFixed(2)}</strong>({wonLabel(allCost)})입니다. 비용을 아끼려면 강조할 장면만 [AI 영상]을 눌러 주세요.</div>}
                   {rows.map((i) => {
                     const b = getBg(script, i); const th = thumbOf(b);
                     return (
@@ -264,7 +274,7 @@ export function DesignView() {
                         <div className="stack" style={{ gap: 6, minWidth: 0 }}>
                           <div className="row"><input value={hint(i).query} placeholder="스톡 검색어(영어 권장) 예: morning coffee" onChange={(e) => setHint(i, { query: e.target.value })} style={{ flex: 1 }} /><button type="button" disabled={!!busy} onClick={(e) => { e.stopPropagation(); void search(i); }}><Search size={13} />검색</button></div>
                           <div className="row"><input value={hint(i).prompt} placeholder="AI 이미지 설명(영어 권장)" onChange={(e) => setHint(i, { prompt: e.target.value })} style={{ flex: "1 1 180px", minWidth: 0 }} /><button type="button" disabled={!!busy} onClick={(e) => { e.stopPropagation(); void aiImage(i); }}><Sparkles size={13} />AI 이미지</button>
-                            {i >= 0 && <button type="button" disabled={!!busy || !!b?.videoJob || !frameOf(b)} title={frameOf(b) ? `${vm.name} · 약 $${oneCost.toFixed(2)}` : "사진 배경이 있어야 영상으로 만들 수 있어요"} onClick={(e) => { e.stopPropagation(); void aiVideo(i); }}><Clapperboard size={13} />AI 영상 ${oneCost.toFixed(2)}</button>}
+                            {i >= 0 && <button type="button" disabled={!!busy || !!b?.videoJob || !frameOf(b)} title={frameOf(b) ? `${vm.name} · ${secOf(i)}초 · 약 $${costOf(i).toFixed(2)}${withEndOf(i) ? " · 다음 장면과 이어 붙임" : ""}` : "사진 배경이 있어야 영상으로 만들 수 있어요"} onClick={(e) => { e.stopPropagation(); void aiVideo(i); }}><Clapperboard size={13} />AI 영상 {secOf(i)}초 ${costOf(i).toFixed(2)}</button>}
                             {b?.poster && !b.videoJob && <button type="button" title="AI 영상을 지우고 처음 사진으로" aria-label="처음 사진으로 되돌리기" onClick={(e) => { e.stopPropagation(); backToPhoto(i); }}><RotateCcw size={13} /></button>}
                             {b && !b.videoJob && <button type="button" className="danger" onClick={(e) => { e.stopPropagation(); update((s) => setBg(s, i, undefined)); }}><Trash2 size={13} /></button>}</div>
                           {b && <small className="muted">{bgLabel(b)}</small>}

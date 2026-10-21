@@ -132,3 +132,8 @@
 - 검수: tsc·node --test 8개·build, 배포 Ready, DB v1.24, 새 주소 401·옛 주소 404, Supabase 서명 API가 없는 파일에 `signedURL: null` 확인, 크롬 시험 회원 대본 카드 3에 없는 경로를 잠시 넣어 두 화면 표시 확인 후 백업으로 복원. 비용: Vercel 빌드 1회, AI 0원.
 - 미확인: 실제 삭제는 첫 파일이 30일 되는 2026-11-15 무렵부터(프로그램 시작 10-16) — 그 뒤 Vercel 로그에서 `removed` 숫자 확인.
 
+## 2026-10-22 v1.25 — AI 영상 길이 선택 + 「모두 영상으로 만들면 약 $X」 합계 (Claude Code 윈도우)
+- `videoModels.ts`: 모델별 허용 길이 `durations`(Gemini Omni·Seedance·Kling O3 5·8·10초, Kling v2.1 5·10초), `pickSeconds`(「장면 길이에 맞춤」= 장면보다 길거나 같은 가장 짧은 길이, 넘으면 최대 / 고정 길이는 가장 가까운 허용 값), `sceneCost(m, withEnd, seconds)`. 서버는 `seconds`가 허용 값인지 검사 후 업체에 전달(Gemini는 지시문 「About N seconds」, fal `duration` 문자열, Replicate 숫자), 작업·사용 기록에 `seconds`.
+- 배경 화면: ⏱️ 영상 길이(장면에 맞춤 기본·5·8·10초 고정, 모델을 바꿔 못 받는 길이면 맞춤으로), 장면 버튼 「AI 영상 8초 $0.80」(이어 붙임 여부는 마우스 올림 안내), ② 위 「사진 배경 장면 N개를 모두 ○○로 영상으로 만들면 약 $X(원)」. 일괄 생성 버튼은 비용 때문에 만들지 않음.
+- 검수: tsc·node --test 9개·build, 배포 Ready, DB v1.25, 크롬(좁은 폭) 시험 회원 대본에서 맞춤 8초 $0.80·5초 고정 $0.50·합계 변화 확인. 비용: 빌드 1회, AI 0원.
+- 미확인: Gemini Omni가 「About N seconds」 지시대로 8·10초를 만드는지(v1.23 시험의 5초 요청은 5.0초) — Omni는 출력 길이만큼 청구되므로 금액은 실제 길이 기준.

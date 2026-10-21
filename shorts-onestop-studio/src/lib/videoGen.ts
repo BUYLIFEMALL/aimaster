@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AiError } from "@/lib/ai";
 import { UserError } from "@/lib/errors";
 import { BUCKET } from "@/lib/media";
-import { VIDEO_SECONDS, type VideoJob, type VideoModel } from "@/lib/videoModels";
+import type { VideoJob, VideoModel } from "@/lib/videoModels";
 import { falState, findGeminiVideo, geminiState, isHost, isJobId, replicateOutputUrl, replicateState } from "@/lib/videoParse";
 
 const GEMINI = "https://generativelanguage.googleapis.com/v1beta";
@@ -81,16 +81,16 @@ async function geminiVideoBytes(json: unknown, key: string): Promise<Buffer | nu
 }
 
 // ── 제출 ─────────────────────────────────────────────
-export async function submitVideo(o: { userId: string; key: string; model: VideoModel; prompt: string; startUrl: string; endUrl?: string }): Promise<SubmitResult> {
+export async function submitVideo(o: { userId: string; key: string; model: VideoModel; prompt: string; startUrl: string; endUrl?: string; seconds: number }): Promise<SubmitResult> {
   const withEnd = !!o.endUrl && o.model.endFrame;
   const startedAt = new Date().toISOString();
-  const base = { provider: o.model.provider, model: o.model.id, withEnd, startedAt };
+  const base = { provider: o.model.provider, model: o.model.id, withEnd, startedAt, seconds: o.seconds };
 
   if (o.model.provider === "gemini") {
     const frames = [await fetchFrame(o.startUrl), ...(withEnd ? [await fetchFrame(o.endUrl!)] : [])];
     const body = (background: boolean) => JSON.stringify({
       model: o.model.id,
-      input: [...frames.map((f) => ({ type: "image", data: f.data, mime_type: f.mime })), { type: "text", text: `${o.prompt} About ${VIDEO_SECONDS} seconds long.` }],
+      input: [...frames.map((f) => ({ type: "image", data: f.data, mime_type: f.mime })), { type: "text", text: `${o.prompt} About ${o.seconds} seconds long.` }],
       response_format: { type: "video", aspect_ratio: "9:16", resolution: "720p" },
       ...(background ? { background: true, store: true } : {}),
     });
@@ -113,7 +113,7 @@ export async function submitVideo(o: { userId: string; key: string; model: Video
 
   if (o.model.provider === "fal") {
     const isSeedance = o.model.id.includes("seedance");
-    const input: Record<string, unknown> = { prompt: o.prompt, image_url: o.startUrl, duration: String(VIDEO_SECONDS), generate_audio: false };
+    const input: Record<string, unknown> = { prompt: o.prompt, image_url: o.startUrl, duration: String(o.seconds), generate_audio: false };
     if (withEnd) input.end_image_url = o.endUrl;
     if (isSeedance) Object.assign(input, { resolution: "720p", aspect_ratio: "9:16" });
     const res = await fetch(`https://queue.fal.run/${o.model.id}`, { method: "POST", headers: { Authorization: `Key ${o.key}`, "Content-Type": "application/json" }, body: JSON.stringify(input), cache: "no-store", signal: AbortSignal.timeout(60_000) });
@@ -126,8 +126,8 @@ export async function submitVideo(o: { userId: string; key: string; model: Video
   // replicate
   const isKling = o.model.id.includes("kling");
   const input: Record<string, unknown> = isKling
-    ? { prompt: o.prompt, start_image: o.startUrl, duration: VIDEO_SECONDS, mode: withEnd ? "pro" : "standard", ...(withEnd ? { end_image: o.endUrl } : {}) }
-    : { prompt: o.prompt, image: o.startUrl, duration: VIDEO_SECONDS, resolution: "720p", camera_fixed: false, ...(withEnd ? { last_frame_image: o.endUrl } : {}) };
+    ? { prompt: o.prompt, start_image: o.startUrl, duration: o.seconds, mode: withEnd ? "pro" : "standard", ...(withEnd ? { end_image: o.endUrl } : {}) }
+    : { prompt: o.prompt, image: o.startUrl, duration: o.seconds, resolution: "720p", camera_fixed: false, ...(withEnd ? { last_frame_image: o.endUrl } : {}) };
   const res = await fetch(`https://api.replicate.com/v1/models/${o.model.id}/predictions`, { method: "POST", headers: { Authorization: `Bearer ${o.key}`, "Content-Type": "application/json" }, body: JSON.stringify({ input }), cache: "no-store", signal: AbortSignal.timeout(60_000) });
   if (!res.ok) await providerError("replicate", res);
   const json = (await res.json()) as { id?: string };

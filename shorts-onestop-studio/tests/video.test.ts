@@ -1,7 +1,7 @@
 // v1.23 AI 동영상 — 순수 함수 시험(유료 호출 없음). 실행: node --test tests/ (Node 24 TypeScript 바로 실행)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_VIDEO_MODEL, findVideoModel, motionPrompt, priceLabel, sceneCost, VIDEO_MODELS, wonLabel } from "../src/lib/videoModels.ts";
+import { DEFAULT_VIDEO_MODEL, findVideoModel, motionPrompt, pickSeconds, priceLabel, sceneCost, VIDEO_MODELS, wonLabel } from "../src/lib/videoModels.ts";
 import { falState, findGeminiVideo, geminiState, isFrameUrl, isHost, isJobId, replicateOutputUrl, replicateState } from "../src/lib/videoParse.ts";
 
 test("기본 모델은 Gemini(회원이 이미 가진 키)", () => {
@@ -20,6 +20,22 @@ test("장면 비용·단가 표시", () => {
   assert.equal(sceneCost(kling, false), 0.25);
   assert.equal(sceneCost(kling, true), 0.45); // 끝 화면은 pro 단가
   assert.equal(wonLabel(0.5), "약 700원");
+});
+
+test("v1.25 영상 길이: 장면에 맞춤·고정·모델 제한", () => {
+  const gem = findVideoModel(DEFAULT_VIDEO_MODEL)!;
+  const kling21 = findVideoModel("kwaivgi/kling-v2.1")!;
+  assert.equal(pickSeconds(gem, "fit", 4.2), 5);
+  assert.equal(pickSeconds(gem, "fit", 5.03), 5); // 0.05초 여유
+  assert.equal(pickSeconds(gem, "fit", 6.5), 8);
+  assert.equal(pickSeconds(gem, "fit", 9.1), 10);
+  assert.equal(pickSeconds(gem, "fit", 14), 10); // 최대보다 길면 최대(그 뒤는 반복)
+  assert.equal(pickSeconds(gem, "fit", undefined), 5);
+  assert.equal(pickSeconds(kling21, "fit", 6.5), 10); // 5·10초만
+  assert.equal(pickSeconds(kling21, 8), 10); // 못 받는 길이는 가장 가까운 값(8 → 10이 5보다 가까움)
+  assert.equal(pickSeconds(gem, 8), 8);
+  assert.equal(sceneCost(gem, false, 8), 0.8);
+  assert.equal(sceneCost(kling21, true, 10), 0.9);
 });
 
 test("움직임 지시문: 이어 붙이기 여부·글자 금지", () => {

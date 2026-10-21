@@ -13,20 +13,25 @@ export interface VideoModel {
   perSecEnd?: number;
   /** 끝 화면(다음 장면과 이어 붙이기) 지원 */
   endFrame: boolean;
+  /** v1.25 고를 수 있는 영상 길이(초). 업체 문서 기준: Seedance 4~12초, Kling O3 3~15초, Kling v2.1 5·10초.
+   *  Gemini Omni는 길이 칸이 없어 지시문으로 요청(실제 길이는 시험으로 확인) */
+  durations: readonly number[];
   note: string;
 }
 
+/** 기본 영상 길이(초) — 장면 길이를 모를 때 */
 export const VIDEO_SECONDS = 5;
+export const LENGTH_CHOICES = [5, 8, 10] as const;
 
 /** 업체에서 만드는 중인 영상 작업(대본 배경에 저장 → 새로고침 뒤에도 이어서 확인) */
-export interface VideoJob { provider: VideoProvider; model: string; id: string; statusUrl?: string; responseUrl?: string; withEnd: boolean; startedAt: string }
+export interface VideoJob { provider: VideoProvider; model: string; id: string; statusUrl?: string; responseUrl?: string; withEnd: boolean; startedAt: string; seconds?: number }
 
 export const VIDEO_MODELS: readonly VideoModel[] = [
-  { id: "gemini-omni-1.1-flash", provider: "gemini", name: "Gemini Omni Flash", perSec: 0.1, endFrame: true, note: "기본 · 구글 키 그대로(결제 연결된 키 필요) · 720p" },
-  { id: "bytedance/seedance-1-lite", provider: "replicate", name: "Seedance 1 Lite (Replicate)", perSec: 0.036, endFrame: true, note: "가장 저렴 · 720p" },
-  { id: "kwaivgi/kling-v2.1", provider: "replicate", name: "Kling v2.1 (Replicate)", perSec: 0.05, perSecEnd: 0.09, endFrame: true, note: "720p · 이어 붙이면 1080p(pro) 단가" },
-  { id: "fal-ai/bytedance/seedance/v1.5/pro/image-to-video", provider: "fal", name: "Seedance 1.5 Pro (fal)", perSec: 0.05, endFrame: true, note: "가성비 · 720p" },
-  { id: "fal-ai/kling-video/o3/standard/image-to-video", provider: "fal", name: "Kling O3 Standard (fal)", perSec: 0.14, endFrame: true, note: "고품질" },
+  { id: "gemini-omni-1.1-flash", provider: "gemini", name: "Gemini Omni Flash", perSec: 0.1, endFrame: true, durations: [5, 8, 10], note: "기본 · 구글 키 그대로(결제 연결된 키 필요) · 720p" },
+  { id: "bytedance/seedance-1-lite", provider: "replicate", name: "Seedance 1 Lite (Replicate)", perSec: 0.036, endFrame: true, durations: [5, 8, 10], note: "가장 저렴 · 720p" },
+  { id: "kwaivgi/kling-v2.1", provider: "replicate", name: "Kling v2.1 (Replicate)", perSec: 0.05, perSecEnd: 0.09, endFrame: true, durations: [5, 10], note: "720p · 이어 붙이면 1080p(pro) 단가" },
+  { id: "fal-ai/bytedance/seedance/v1.5/pro/image-to-video", provider: "fal", name: "Seedance 1.5 Pro (fal)", perSec: 0.05, endFrame: true, durations: [5, 8, 10], note: "가성비 · 720p" },
+  { id: "fal-ai/kling-video/o3/standard/image-to-video", provider: "fal", name: "Kling O3 Standard (fal)", perSec: 0.14, endFrame: true, durations: [5, 8, 10], note: "고품질" },
 ];
 
 export const DEFAULT_VIDEO_MODEL = VIDEO_MODELS[0].id;
@@ -36,10 +41,18 @@ export function findVideoModel(id: unknown): VideoModel | undefined {
   return VIDEO_MODELS.find((m) => m.id === id);
 }
 
-/** 장면 1개(VIDEO_SECONDS초) 예상 비용(USD) */
-export function sceneCost(m: VideoModel, withEnd: boolean): number {
+/** 장면 1개 예상 비용(USD). seconds를 안 주면 기본 5초 */
+export function sceneCost(m: VideoModel, withEnd: boolean, seconds: number = VIDEO_SECONDS): number {
   const rate = withEnd && m.perSecEnd ? m.perSecEnd : m.perSec;
-  return Math.round(rate * VIDEO_SECONDS * 1000) / 1000;
+  return Math.round(rate * seconds * 1000) / 1000;
+}
+
+/** 영상 길이 고르기: choice가 숫자면 그 길이(모델이 못 받으면 가장 가까운 길이), "fit"이면 장면 길이보다 길거나 같은 가장 짧은 길이(없으면 최대) — 반복 재생 방지 */
+export function pickSeconds(m: VideoModel, choice: "fit" | number, sceneSec?: number): number {
+  const ds = [...m.durations].sort((a, b) => a - b);
+  if (choice !== "fit") return ds.reduce((best, d) => (Math.abs(d - choice) < Math.abs(best - choice) ? d : best), ds[0]);
+  const need = Number.isFinite(sceneSec) && (sceneSec ?? 0) > 0 ? (sceneSec as number) : VIDEO_SECONDS;
+  return ds.find((d) => d >= need - 0.05) ?? ds[ds.length - 1];
 }
 
 /** 화면 표시용 「초당 $0.036 · 5초 약 $0.18」 */
