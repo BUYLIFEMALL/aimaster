@@ -51,7 +51,10 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.41` (2026-10-20)
+- **현재 버전**: `v1.44` (2026-10-22)
+- **v1.44 (2026-10-22, Claude Code 윈도우)**: 「📊 최근 7일 게시」 그래프에 피드·카드뉴스·AI 인플루언서·웹툰·네컷의 인스타 게시를 묶음별 색으로 함께 쌓고, 막대를 누르면 그날 게시한 글 목록(캡션 앞부분·인스타 게시물 바로가기). 게시 시각 칸 `insta_posts.published_at` 추가(운영 DB 적용, 기존 게시 3건은 그때의 `updated_at`으로 채움).
+- **v1.43 (2026-10-22)**: 대시보드 「📊 최근 7일 게시」 그래프(공용 기준 코드 `week-reply-chart`).
+- **v1.42 (2026-10-20)**: 프로그램 공지 띠.
 - **v1.41 (2026-10-20, Claude Code 윈도우)**: 로그인 화면에서 크롬 자동 채우기가 입력칸을 연한 파랑으로 덮어쓰던 것을 다크로 고정(`globals.css` `.auth-dark input:-webkit-autofill`, 로그인 틀에만 적용).
 - **v1.40 (2026-10-20, Claude Code 윈도우) — 로그인 화면 INSTA 다크 테마**: 주인님 지시 「로그인 창도 같은 테마로 맞춰」. `(auth)/layout.tsx`·`login`·`signup`의 공통 틀(밝은 격자 + 파란 `#005acc`)을 INSTA 토큰(바탕 `#0d0f17`·카드 `#161922`·보더 `#262c3d`·분홍~보라 그라디언트 버튼, 분홍 격자)으로. 화면 구성·문구·동작은 그대로.
 - **v1.39 관리자 실검수(2026-10-20 크롬, 관리자 로그인)**: 카드뉴스 설정에서 「내 cron-job.org」 선택 → `insta_member_scheduler.mode = cronjob`(옛 `cns_member_scheduler`는 그대로) → INSTA 설정 화면에도 같은 선택 표시 → INSTA 설정에서 Vercel로 되돌림 → `mode = vercel`(시험 전 상태). 남은 예약 0건이라 cron-job.org 작업은 꺼진 채 유지(정상, 예약 생기면 켜짐 — 실제 켜짐은 예약 게시가 필요해 미시험).
@@ -202,3 +205,11 @@
 - 상태 카운터 아래에 공용 기준 코드 `week-reply-chart` 사본(`src/components/weekChart/WeekReplyChart.tsx`·`src/lib/weekChart/bucket.ts`, 기준 comment-inbox — 직접 고치지 말 것). 대시보드가 이미 읽는 본인 `insta_posts` 중 status=published 글을 한국 시간 날짜별로 셈(추가 조회 없음).
 - **한계**: 게시 시각 전용 칸이 없어 `updated_at`(수정 때 트리거로 자동 갱신)을 게시 시각으로 씀 → 게시 뒤 그 글을 다시 수정하면 수정한 날로 옮겨 셈. 정확히 하려면 `published_at` 칸 추가(DB 구조 변경, 사전 승인 필요). 카드뉴스(`cardnews`)의 게시는 다른 표라 아직 세지 않음.
 - 검수: tsc·build(종료 코드 0), 커밋 `10835a02`, 배포 `insta-auto-poster-gk2g71uq4` READY, DB(`auto-instagram-posting`) v1.43, 크롬에서 v1.43·그래프·「아직 게시 기록이 없어요」, 400px 넘침 없음. 비용: Vercel 빌드 1회.
+
+## 2026-10-22 v1.44 — 게시 시각 칸 · 막대 누르면 그날 게시한 글 · 인스타 게시 전체 쌓기 (Claude Code 윈도우)
+- **DB(주인님 승인, 운영 `esgxyikcnnvmlhygjkth`)**: `insta_posts.published_at timestamptz` 추가. 기존 게시 3건은 그때의 `updated_at`으로 채움 — 채우는 동안 `insta_posts_set_updated_at` 트리거를 잠깐 꺼 `updated_at`은 그대로(검증: 게시 3 = 채움 3 = 「게시 시각 = 수정 시각」 3). 크롬 SQL 편집기에서 한 트랜잭션으로 실행, 기록 `supabase/migrations/20261022100000_insta_posts_published_at.sql`. 형식 정의 `src/types/database.types.ts`에 칸 추가.
+- 게시 완료 때 기록: `src/lib/posts/publish-core.ts` `published_at: new Date().toISOString()`.
+- 그래프: `src/lib/instaWeek.ts`(새 파일) — 피드 `insta_posts`·카드뉴스 `cns_insta_posts`·AI 인플루언서 `aif_insta_posts`·웹툰 `wts_insta_posts`·네컷 `fcc_insta_posts`(모두 같은 공용 DB, 회원 본인 읽기 RLS + user_id 필터)에서 게시 완료·`published_at` 최근 7일을 묶음별 색으로 셈(`loadInstaWeek`), 막대 누르면 그날 목록(`loadInstaDay`, 묶음마다 최근 50건, 캡션 앞 80자, 인스타 게시물 주소). 배포판(독립 모드)은 다른 표가 없어 피드만. 다른 프로그램 표는 이 프로그램 형식 정의에 없어 조회만 형식 검사 밖(`Loose`).
+- 화면: 공용 기준 코드 `week-reply-panel` 사본 `src/components/weekChart/WeekReplyPanel.tsx` + 서버 동작 `src/lib/actions/weekPosts.ts` `loadWeekDayPostsAction`(이용 권한 확인 → 7일 안 날짜만). 문구는 `labels`로 「게시한 글 목록」.
+- 검수: tsc·build(종료 코드 0)·`test:own-meta` 통과. 커밋 `622694bc`(칸)·`b0a779f0`(그날 목록)·`173db0d8`(쌓기·버전), 배포 `insta-auto-poster-e5n2o8g7g` READY, DB v1.44, 크롬(관리자)에서 v1.44·막대 7개·누르면 「이날 게시한 글이 없어요」 오류 없음·400px 넘침 없음. 다섯 표 모두 같은 칸으로 조회 200 확인(서비스 키 읽기). **관리자 계정 최근 7일 게시가 0건이라 쌓인 막대·목록 항목 모양은 실제 데이터로 미확인.** 비용: Vercel 빌드 1회.
+- 미배포(다음 배포 때 함께): 그래프 막대의 숨겨진 설명 문구를 「그날 목록 보기」로(커밋 `6c2d922d`).

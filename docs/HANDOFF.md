@@ -8,6 +8,13 @@
 - 비용: Vercel 빌드 4회(순차), 유료 AI 0회.
 - 못 한 것: 시험 계정 화면·실제 생성(비용). 상세: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 「배포 결과」, `trending-product-finder/AGENTS.md` 맨 아래.
 - 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz
+## 2026-10-22 Claude Code(윈도우) — 자동 게시 2곳 게시 시각 칸(DB, 주인님 승인) · 막대 누르면 그날 게시한 글 · INSTA 포스팅 인스타 게시 전체 쌓기 (쇼핑제휴 v1.77 · INSTA 포스팅 v1.44)
+- **운영 DB `esgxyikcnnvmlhygjkth`**: `tap_posts`·`insta_posts`에 `published_at` 추가(주인님 승인, 크롬 SQL 편집기·한 트랜잭션). 기존 게시 10·3건은 그때의 `updated_at`으로 채우고 트리거를 잠깐 꺼 `updated_at`은 그대로(검증 일치). 마이그레이션 기록은 두 프로그램 `supabase/migrations/20261022100000_*`.
+- 게시 완료 때 `published_at` 기록, 그래프는 그 칸 기준. 막대 누르면 그날 게시한 글(공용 `week-reply-panel`에 문구 `labels` 추가). INSTA 포스팅은 피드·카드뉴스·AI 인플루언서·웹툰·네컷 게시 표(`insta_posts`·`cns_`·`aif_`·`wts_`·`fcc_insta_posts`)를 묶음별 색으로 쌓음(`src/lib/instaWeek.ts`, 배포판은 피드만).
+- 커밋 `622694bc`·`b0a779f0`·`173db0d8`·`6c2d922d`(막대 설명 문구, 미배포). 배포 2곳 READY·DB 버전·크롬(버전·막대 누르기·400px) 확인, 다섯 표 조회 200 확인. 비용: Vercel 빌드 2회, 유료 AI 0회.
+- 못 한 것: 관리자 최근 7일 게시 0건이라 쌓인 막대·목록 항목 모양 미확인. 공용 그래프 문구 변경은 받은편지함·세 댓글 프로그램 미배포(동작 같음). 쇼핑제휴 `AGENTS.md`는 다른 작업자 미커밋 변경이 있어 `threads-affiliate-poster/docs/IMPROVEMENT_HANDOFF_20261022.md`에 기록.
+- 프로그램: https://threads-affiliate-poster.buylife.xyz · https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 그날 목록에 원래 댓글(받은편지함 v1.08) · 세 댓글 대시보드 막대 누르면 그날 목록(INSTA v1.35·쓰레드 v1.24·유튜브 v1.29) · 자동 게시 2곳 7일 게시 그래프(쇼핑제휴 v1.76·INSTA 포스팅 v1.43)
 - 새 공용 기준 코드 `week-reply-panel`(그래프+그날 목록, 서버 동작·색은 각 프로그램) + `bucket.ts`에 `weekDayRange`·`previewText`, 차트에 `noun`. 받은편지함 시험 42개. 커밋 `472abe68`(4곳)·`10835a02`(자동 게시 2곳).
 - 배포 6곳 모두 READY·DB 버전 반영·크롬에서 버전·막대 누르기(서버 왕복)·400px 확인. 비용: Vercel 빌드 6회, 유료 AI 0회.
