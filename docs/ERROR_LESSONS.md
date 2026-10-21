@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — 운영 user_api_keys 허용 목록에 fal·elevenlabs가 없었다(저장소 마이그레이션 0013 미반영) · 운영 DB는 `Prefer: tx=rollback`을 지원하지 않는다 (AI 쇼츠 원스톱 v1.26)
+- 증상: v1.23에서 설정 화면에 fal 칸을 만들었지만 운영 DB 제약(`user_api_keys_provider_check`)에 `fal`이 없어 저장이 실패하는 상태였다. 저장소 `supabase/migrations/0013_update_user_api_keys_provider_check.sql`(fal 포함)을 보고 반영됐다고 잘못 판단함.
+- 해결: 주인님 승인 후 크롬 Supabase SQL 편집기에서 현재 정의를 읽어 `fal`·`elevenlabs`만 앞에 붙여 다시 만듦(`shorts-onestop-studio/supabase/migrations/0030_v1_26_elevenlabs_voice.sql`).
+- 사고: 허용 여부를 「되돌리기 삽입」(`Prefer: tx=rollback`)으로 확인하려 했으나 운영 PostgREST가 이 옵션을 무시해 **가짜 키 2건이 실제로 저장**됨 → 즉시 삭제.
+- 다음부터: ① 새 키 이름을 쓰는 프로그램은 운영 제약 정의를 **SQL 편집기 `pg_get_constraintdef`로 직접 확인**(저장소 마이그레이션 파일은 근거가 안 됨) ② 운영 DB에 「시험 삽입」을 하지 않는다 — 꼭 필요하면 바로 지울 조건(고유 값)으로 넣고 삭제까지 한 번에. ③ SQL 편집기(Monaco)는 괄호·따옴표를 자동으로 닫아 `[...]`가 든 문장 끝에 군더더기가 붙으니 실행 전 끝부분을 확인한다.
+
 ## 2026-10-22 — 공유 저장소에서 `git mv`를 쓰면 이름 변경이 공용 스테이징에 올라가 다른 CLI 커밋에 섞인다 (AI 쇼츠 원스톱 v1.24)
 - 증상: `git mv …/cleanup-videos …/cleanup-media` 직후 다른 CLI의 문서 커밋(`169d17d8`)이 그 이름 변경(R100, 옛 내용)을 함께 담아 감. 같은 시기 음악 커밋(`652b186b`)도 `docs/HANDOFF.md` 전체를 커밋하며 내 미커밋 항목을 포함. 최종 내용은 맞았지만 이력이 섞임.
 - 원인: `git mv`는 작업 파일만이 아니라 공용 인덱스(스테이징)에도 바로 기록한다. 임시 인덱스 커밋 규칙을 써도 그 전에 공용 인덱스가 오염됨.

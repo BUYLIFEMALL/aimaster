@@ -14,15 +14,26 @@ function wav(pcm: Buffer, rate = 24000): Buffer {
   return Buffer.concat([h, pcm]);
 }
 function err(provider: TtsProvider, status: number): never {
-  const who = provider === "openai" ? "OpenAI" : "Gemini";
+  const who = provider === "openai" ? "OpenAI" : provider === "elevenlabs" ? "ElevenLabs" : "Gemini";
   if (status === 401 || status === 403) throw new AiError(400, "key", `본인 ${who} API 키와 음성 모델 사용 권한을 확인해 주세요.`);
-  if (status === 429) throw new AiError(429, "quota", `본인 ${who} 계정의 사용 한도·결제 설정을 확인해 주세요.`);
-  if (status === 404) throw new AiError(422, "model", `선택한 ${who} 음성 모델을 쓸 수 없습니다. 다른 모델을 골라 주세요.`);
+  if (status === 429 || (provider === "elevenlabs" && status === 402)) throw new AiError(429, "quota", `본인 ${who} 계정의 사용 한도·결제 설정을 확인해 주세요.`);
+  if (status === 404) throw new AiError(422, "model", provider === "elevenlabs" ? "선택한 ElevenLabs 목소리를 찾지 못했습니다. 목소리 목록을 새로 불러와 다시 골라 주세요." : `선택한 ${who} 음성 모델을 쓸 수 없습니다. 다른 모델을 골라 주세요.`);
   throw new AiError(502, "provider", `${who} 음성을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.`);
 }
 
 export async function synthesize(o: { provider: TtsProvider; key: string; model: string; voice: string; text: string; speed: number; tone: string }): Promise<{ bytes: Buffer; mime: string }> {
   const text = o.text.slice(0, 1000);
+  if (o.provider === "elevenlabs") {
+    // v1.26 회원 ElevenLabs 계정의 목소리(복제한 내 목소리 포함). 말투 지시(tone)는 이 API에 없어 쓰지 않는다
+    if (!/^[A-Za-z0-9]{10,40}$/.test(o.voice)) throw new UserError(400, "ElevenLabs 목소리를 먼저 골라 주세요(목소리 목록 불러오기).");
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${o.voice}?output_format=mp3_44100_128`, {
+      method: "POST", headers: { "xi-api-key": o.key, "Content-Type": "application/json" }, cache: "no-store", signal: AbortSignal.timeout(90_000),
+      body: JSON.stringify({ text, model_id: o.model, voice_settings: { stability: 0.5, similarity_boost: 0.8, speed: Math.min(1.2, Math.max(0.7, o.speed)) } }),
+    }).catch(() => null);
+    if (!res) throw new AiError(504, "timeout", "음성 생성이 늦어지고 있습니다. 다시 시도해 주세요.");
+    if (!res.ok) err("elevenlabs", res.status);
+    return { bytes: Buffer.from(await res.arrayBuffer()), mime: "audio/mpeg" };
+  }
   if (o.provider === "openai") {
     const res = await fetch("https://api.openai.com/v1/audio/speech", {
       method: "POST", headers: { Authorization: `Bearer ${o.key}`, "Content-Type": "application/json" }, cache: "no-store", signal: AbortSignal.timeout(90_000),

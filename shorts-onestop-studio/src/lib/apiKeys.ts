@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // 최상위 규칙: 키는 회원 본인 것만 쓴다. 키가 없으면 null — 운영자·다른 회원 키로 대신 처리하지 않는다.
 // provider 이름은 다른 프로그램과 같은 공용 이름(user_api_keys 제약에 있는 값)만 쓴다.
 // 텍스트 AI 3종 + 스톡(pexels·pixabay, P4) + AI 동영상 선택 업체(fal·replicate, v1.23). 음성 등은 해당 단계에서 추가한다.
-export const KEY_PROVIDERS = ["gemini", "openai", "anthropic", "pexels", "pixabay", "fal", "replicate"] as const;
+export const KEY_PROVIDERS = ["gemini", "openai", "anthropic", "pexels", "pixabay", "fal", "replicate", "elevenlabs"] as const; // v1.26 elevenlabs(본인 목소리 복제)
 export type KeyProvider = (typeof KEY_PROVIDERS)[number];
 
 export function isKeyProvider(v: unknown): v is KeyProvider {

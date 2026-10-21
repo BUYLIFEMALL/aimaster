@@ -94,3 +94,17 @@ test("작업 번호 형식", () => {
   assert.ok(!isJobId("a b"));
   assert.ok(!isJobId(""));
 });
+
+// v1.26 ElevenLabs 목소리 설정 정리(목소리 번호 보존·빠르기 0.7~1.2)
+import { normalizeAudio, isElevenVoiceId } from "../src/lib/voice.ts";
+test("v1.26 ElevenLabs 음성 설정", () => {
+  const a = normalizeAudio({ model: "eleven_multilingual_v2", voice: "21m00Tcm4TlvDq8ikWAM", speed: 1.5 } as never);
+  assert.equal(a.provider, "elevenlabs");
+  assert.equal(a.voice, "21m00Tcm4TlvDq8ikWAM");
+  assert.equal(a.speed, 1.2);
+  assert.equal(normalizeAudio({ model: "eleven_flash_v2_5", voice: "nova" } as never).voice, ""); // OpenAI 목소리 이름은 버림
+  assert.equal(normalizeAudio({ model: "eleven_flash_v2_5" } as never).speed, 1);
+  assert.equal(normalizeAudio({ model: "gpt-4o-mini-tts", voice: "nova", speed: 1.4 } as never).voice, "nova"); // 기존 동작 유지
+  assert.ok(isElevenVoiceId("21m00Tcm4TlvDq8ikWAM"));
+  assert.ok(!isElevenVoiceId("../x"));
+});

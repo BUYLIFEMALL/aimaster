@@ -8,4 +8,5 @@ export const GUIDES = {
   pixabay: `${BASE}/c315c6d7-4187-446a-86da-5c37d4274d54`,
   replicate: `${BASE}/78a00b16-eef5-42be-810b-80c513d57ab4`,
   fal: `${BASE}/f5f46fea-6eb4-4886-a006-e89c486cc2f8`,
+  elevenlabs: `${BASE}/9457687a-75ed-40d8-bc4a-9415173eba70`,
 } as const;

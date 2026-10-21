@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.26 본인 목소리 복제(ElevenLabs) · fal·Replicate·ElevenLabs 실제 유료 시험 성공 · 운영 키 허용 목록에 fal·elevenlabs 추가
+- 한 일: ElevenLabs 다국어 v2·Flash 음성, 회원 계정 목소리 목록, 「내 목소리 복제하기」(동의 필수, 샘플 미보관), 설정·연결 확인·매뉴얼. 운영 DB `user_api_keys_provider_check`에 fal·elevenlabs 추가(승인, 실행 SQL 기록).
+- 시험(시험 회원 키, 주인님 등록): Replicate Seedance 1 Lite 5초·fal Seedance 1.5 Pro 5초 실생성(각 약 1분), ElevenLabs 복제 → 인트로 재생성 5.7초. 비용: 빌드 1회, 약 $0.43 + ElevenLabs 48자.
+- 교훈: 저장소 마이그레이션 ≠ 운영 반영, 운영 DB는 `tx=rollback` 미지원(`docs/ERROR_LESSONS.md`). 다음: v1.27 단어 단위 자막(빌드 승인 4회 중 마지막).
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 비공개 프로그램 16개 → 병합 대상 정리표
 - 주인님 질문 「비공개 처리된 프로그램들 어디로 병합됐는지 정리」. 운영 DB `is_active=false` 16개 중 14개는 병합(웹 크롤링·글쓰기 에디터·AI Prompt·UI Canvas·바나나 캔버스 2·상세페이지 2·INSTA 포스팅·INSTA 댓글·DM·YOUTUBE 트렌드·썸네일·SEO·플레이리스트·음악 SUNO), 2개(네이버 블로그 App·Web)는 병합 아님 — 관리자 전용 공개 전. 표: `docs/HIDDEN_PROGRAMS_MERGE_MAP_20261022.md`. 비용 없음(DB 읽기·저장소 조회만).
 

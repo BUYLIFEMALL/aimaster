@@ -137,3 +137,11 @@
 - 배경 화면: ⏱️ 영상 길이(장면에 맞춤 기본·5·8·10초 고정, 모델을 바꿔 못 받는 길이면 맞춤으로), 장면 버튼 「AI 영상 8초 $0.80」(이어 붙임 여부는 마우스 올림 안내), ② 위 「사진 배경 장면 N개를 모두 ○○로 영상으로 만들면 약 $X(원)」. 일괄 생성 버튼은 비용 때문에 만들지 않음.
 - 검수: tsc·node --test 9개·build, 배포 Ready, DB v1.25, 크롬(좁은 폭) 시험 회원 대본에서 맞춤 8초 $0.80·5초 고정 $0.50·합계 변화 확인. 비용: 빌드 1회, AI 0원.
 - 미확인: Gemini Omni가 「About N seconds」 지시대로 8·10초를 만드는지(v1.23 시험의 5초 요청은 5.0초) — Omni는 출력 길이만큼 청구되므로 금액은 실제 길이 기준.
+
+## 2026-10-22 v1.26 — 본인 목소리 복제(ElevenLabs) (Claude Code 윈도우)
+- 음성 모델에 ElevenLabs 다국어 v2(`eleven_multilingual_v2`)·Flash v2.5 추가(`src/lib/voice.ts`, 목소리 번호는 회원 계정에서 불러와 고정 목록 없음, 빠르기 0.7~1.2). 합성 `src/lib/tts.ts`(`POST /v1/text-to-speech/{voice_id}`, `xi-api-key`, mp3).
+- `/api/voice/elevenlabs`: GET 회원 계정 목소리 목록(복제한 목소리 앞, 🎙️ 표시), POST 복제(`/v1/voices/add`, 이름·샘플 4MB 이하·동의 `consent=yes` 필수, 샘플은 우리 서버에 보관하지 않음). 음성 화면에 「🎙️ 내 목소리 복제하기」 칸.
+- 키: `elevenlabs`를 설정 화면·연결 확인(`/v1/models`, 무료)·매뉴얼(메인 사이트 기존 게시글 9457687a) 연결.
+- **운영 DB 수정(주인님 승인)**: `user_api_keys_provider_check`에 `fal`·`elevenlabs`가 없어 v1.23부터 fal 키 저장이 실패하던 상태 → 크롬 SQL 편집기로 두 이름만 추가(`supabase/migrations/0030_v1_26_elevenlabs_voice.sql`에 실행 SQL 기록). 확인 중 운영 DB가 `Prefer: tx=rollback`을 지원하지 않아 생긴 가짜 키 2건은 즉시 삭제.
+- 검수: tsc·node --test 10개·build, 배포 Ready, DB v1.26, 로그인 없이 401. 크롬 시험 회원(주인님이 새 Replicate·fal·ElevenLabs 키 등록): **v1.23 Replicate Seedance 1 Lite 5초 실생성**(5.04초 11.3MB, 약 1분) · **fal Seedance 1.5 Pro 5초 실생성**(5.04초 5.2MB, 약 1분) · **ElevenLabs 복제**(대본의 AI 내레이션 4개를 이은 27초 샘플 → 「시험용 AI 목소리」 생성·자동 선택) → 인트로 내레이션 재생성 5.7초(48자). 시험 대본 음성 설정은 저장하지 않음.
+- 비용: Vercel 빌드 1회, Replicate 약 $0.18, fal 약 $0.25, ElevenLabs 48자(Starter 크레딧 안).

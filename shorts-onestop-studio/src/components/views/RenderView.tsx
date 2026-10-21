@@ -35,6 +35,14 @@ export function RenderView() {
   const media = useMedia(script); const audio = useAudio(script);
   const a = useMemo(() => normalizeAudio(script?.audio), [script]);
   const tl = useMemo(() => (script ? timeline(script) : null), [script]);
+  // v1.26 ElevenLabs 목소리(회원 계정 목록, 복제한 내 목소리가 앞) + 내 목소리 복제
+  const [elVoices, setElVoices] = useState<{ id: string; name: string; mine: boolean }[] | null>(null);
+  const [clone, setClone] = useState<{ name: string; file: File | null; consent: boolean }>({ name: "내 목소리", file: null, consent: false });
+  const loadElVoices = useCallback(async () => {
+    try { setElVoices((await api<{ voices: { id: string; name: string; mine: boolean }[] }>("/api/voice/elevenlabs")).voices); }
+    catch (e) { setElVoices([]); setMsg(toMsg(e)); }
+  }, []);
+  useEffect(() => { if (a.provider === "elevenlabs" && elVoices === null) void loadElVoices(); }, [a.provider, elVoices, loadElVoices]);
 
   const open = useCallback(async (id: string) => {
     try {
@@ -73,6 +81,21 @@ export function RenderView() {
     return () => { cancelAnimationFrame(raf); audio.stopAll(); };
   }, [playing, tl, draw, audio]);
   function seek(v: number) { tRef.current = v; setT(v); draw(v); if (playing) audio.sync(v, true); }
+
+  async function cloneVoice() {
+    if (!clone.file) { setMsg({ text: "목소리 샘플 파일(10초~1분)을 골라 주세요." }); return; }
+    if (!clone.consent) { setMsg({ text: "본인 목소리이거나 사용 동의를 받은 목소리인지 확인 칸을 체크해 주세요." }); return; }
+    setBusy("내 목소리를 복제하는 중… (보통 10~30초)"); setMsg(null);
+    try {
+      const fd = new FormData(); fd.append("name", clone.name); fd.append("file", clone.file); fd.append("consent", "yes");
+      const res = await fetch("/api/voice/elevenlabs", { method: "POST", body: fd });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error ?? "목소리를 복제하지 못했습니다.");
+      setElVoices((v) => [d.voice, ...(v ?? []).filter((x) => x.id !== d.voice.id)]);
+      setA({ voice: d.voice.id }); setClone((c) => ({ ...c, file: null }));
+      setMsg({ text: `「${d.voice.name}」 목소리를 만들어 골랐습니다.${d.requiresVerification ? " ElevenLabs에서 본인 확인이 필요하다고 알려 왔습니다 — ElevenLabs 사이트에서 확인해 주세요." : ""} [음성 없는 장면 모두 만들기] 또는 [전부 다시 만들기]로 내레이션을 바꿔 보세요.`, ok: true });
+    } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
+  }
 
   async function makeVoice(i: number, s: ShortsScript): Promise<ShortsScript> {
     const text = sceneVoices(s)[i].text;
@@ -168,11 +191,25 @@ export function RenderView() {
               <section className="card stack">
                 <div className="row" style={{ justifyContent: "space-between" }}><h2>🎙️ ① 내레이션 음성 <small>{ready}/{vs.length} 준비</small></h2>{dirty && <span className="badge brand">저장 안 됨</span>}</div>
                 <div className="field-grid">
-                  <label>음성 모델<select value={a.model} onChange={(e) => { const m = TTS_MODELS.find((x) => x.id === e.target.value)!; setA({ model: m.id, provider: m.provider, voice: TTS_VOICES[m.provider][0].id }); }}>{TTS_MODELS.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
-                  <label>목소리<select value={a.voice} onChange={(e) => setA({ voice: e.target.value })}>{TTS_VOICES[a.provider].map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
-                  <label>말 빠르기 ({a.speed.toFixed(2)}배){a.provider === "openai" ? <input type="range" min={0.8} max={1.4} step={0.05} value={a.speed} onChange={(e) => setA({ speed: Number(e.target.value) })} /> : <small className="muted" style={{ display: "block", marginTop: 8 }}>Gemini는 말투 지시로 조절</small>}</label>
+                  <label>음성 모델<select value={a.model} onChange={(e) => { const m = TTS_MODELS.find((x) => x.id === e.target.value)!; setA({ model: m.id, provider: m.provider, voice: m.provider === "elevenlabs" ? (a.provider === "elevenlabs" ? a.voice : elVoices?.[0]?.id ?? "") : TTS_VOICES[m.provider][0].id, ...(m.provider === "elevenlabs" ? { speed: 1 } : {}) }); }}>{TTS_MODELS.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
+                  {a.provider === "elevenlabs"
+                    ? <label>목소리(내 ElevenLabs 계정)<select value={a.voice} onChange={(e) => setA({ voice: e.target.value })}><option value="">{elVoices === null ? "불러오는 중…" : elVoices.length ? "목소리를 골라 주세요" : "목소리 없음 — 아래에서 복제하세요"}</option>{(elVoices ?? []).map((v) => <option key={v.id} value={v.id}>{v.mine ? "🎙️ " : ""}{v.name}</option>)}</select></label>
+                    : <label>목소리<select value={a.voice} onChange={(e) => setA({ voice: e.target.value })}>{TTS_VOICES[a.provider].map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>}
+                  <label>말 빠르기 ({a.speed.toFixed(2)}배){a.provider === "openai" ? <input type="range" min={0.8} max={1.4} step={0.05} value={a.speed} onChange={(e) => setA({ speed: Number(e.target.value) })} /> : a.provider === "elevenlabs" ? <input type="range" min={0.7} max={1.2} step={0.05} value={a.speed} onChange={(e) => setA({ speed: Number(e.target.value) })} /> : <small className="muted" style={{ display: "block", marginTop: 8 }}>Gemini는 말투 지시로 조절</small>}</label>
                 </div>
-                {a.model !== "tts-1" && <label>말투 지시(선택)<input value={a.tone} maxLength={200} onChange={(e) => setA({ tone: e.target.value })} placeholder="예: 차분하고 신뢰감 있게, 끝을 또렷하게" /></label>}
+                {a.provider === "elevenlabs" && (
+                  <div className="notice" style={{ display: "grid", gap: 8 }}>
+                    <strong>🎙️ 내 목소리 복제하기 (ElevenLabs)</strong>
+                    <small className="muted">잡음 없는 10초~1분 음성 파일(mp3·m4a·wav, 4MB 이하)을 올리면 내 ElevenLabs 계정에 목소리가 만들어집니다. 목소리 복제는 ElevenLabs 유료 요금제(Starter 이상)에서만 되며, 파일은 이 사이트에 보관하지 않고 ElevenLabs로만 보냅니다.</small>
+                    <div className="field-grid">
+                      <label>목소리 이름<input value={clone.name} maxLength={40} onChange={(e) => setClone({ ...clone, name: e.target.value })} /></label>
+                      <label>샘플 파일<input type="file" accept="audio/*" onChange={(e) => setClone({ ...clone, file: e.target.files?.[0] ?? null })} /></label>
+                    </div>
+                    <label className="row" style={{ gap: 8, fontWeight: 500 }}><input type="checkbox" checked={clone.consent} onChange={(e) => setClone({ ...clone, consent: e.target.checked })} />본인 목소리이거나, 목소리 주인에게 복제·사용 동의를 받았습니다</label>
+                    <div className="actions"><button disabled={!!busy || !clone.file || !clone.consent} onClick={() => void cloneVoice()}><Mic size={14} />내 목소리 복제하기</button><button type="button" disabled={!!busy} onClick={() => void loadElVoices()}><RotateCcw size={14} />목소리 목록 새로 불러오기</button></div>
+                  </div>
+                )}
+                {a.model !== "tts-1" && a.provider !== "elevenlabs" && <label>말투 지시(선택)<input value={a.tone} maxLength={200} onChange={(e) => setA({ tone: e.target.value })} placeholder="예: 차분하고 신뢰감 있게, 끝을 또렷하게" /></label>}
                 <div className="actions">
                   <button className="primary" disabled={!!busy} onClick={() => void makeAll(true)}><Mic size={14} />음성 없는 장면 모두 만들기</button>
                   <button disabled={!!busy} onClick={() => void makeAll(false)}><RotateCcw size={14} />전부 다시 만들기</button>
