@@ -86,3 +86,5 @@
 - 공용 스크립트 `scripts/analyze-category.mjs`의 `findFolder()`가 폴더 정리 중인 파일(`existsSync` 뒤 읽기 실패)에서 멈춘다 → 파일 읽기를 `try/catch`로 감싸 건너뛰게(작은 수정, 스크립트 작성 CLI와 협의).
 - `detail-page-12p/AGENTS.md` 배지 표기(`free`)와 운영 DB(`new`) 불일치 정정.
 - `trending-product-finder`의 `gemini-2.0-flash` 사용처 2곳 최신 모델 교체 점검.
+
+**2026-10-22 실제 생성 시험(맥미니, 시험 계정, 약 150원)**: 분석·쿠팡 12단 섹션 이미지 1장·HTML 내보내기·모바일 미리보기 모두 정상. 개선점 S-22-01~04(`shop-detail-page/docs/IMPROVEMENTS.md` §3). 상세: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 끝.
