@@ -1,4 +1,5 @@
-// v1.23 AI 동영상 — 업체 응답 해석·주소 검사(다른 모듈을 불러오지 않는 순수 파일, tests/videoParse.test.ts).
+// [공용 기준 코드 `ai-video-client` — 기준: ai-image-studio/lib/video/videoParse.ts, 사본은 --sync로만]
+// AI 동영상 — 업체 응답 해석·주소 검사(다른 모듈을 불러오지 않는 순수 파일).
 
 export type JobState = "running" | "done" | "failed";
 
@@ -48,13 +49,13 @@ export function isHost(url: unknown, hosts: readonly string[]): url is string {
   try { const u = new URL(url); return u.protocol === "https:" && hosts.includes(u.hostname); } catch { return false; }
 }
 
-/** 시작·끝 화면으로 받아도 되는 주소: 우리 저장소 서명 주소, Pexels·Pixabay 이미지 */
+/** 시작·끝 화면으로 받아도 되는 주소: 우리 저장소(서명 주소·공개 버킷 주소), Pexels·Pixabay 이미지 */
 export function isFrameUrl(url: unknown, supabaseHost: string): url is string {
   if (typeof url !== "string") return false;
   try {
     const u = new URL(url);
     if (u.protocol !== "https:") return false;
-    if (u.hostname === supabaseHost) return u.pathname.startsWith("/storage/v1/object/sign/");
+    if (u.hostname === supabaseHost) return u.pathname.startsWith("/storage/v1/object/sign/") || u.pathname.startsWith("/storage/v1/object/public/");
     return u.hostname === "images.pexels.com" || u.hostname === "pixabay.com" || u.hostname === "cdn.pixabay.com";
   } catch { return false; }
 }

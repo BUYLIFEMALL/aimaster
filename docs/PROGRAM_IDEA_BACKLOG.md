@@ -2,6 +2,7 @@
 <!-- SHORTS_AUTO_ANALYSIS_20261022 -->
 2026-10-22 Claude Code(윈도우) **IDEA-SHORTS-AUTO-01 외부 무료배포 `shorts-auto`·`15_cardnews` — 「독립 프로그램 없이 기능만 흡수」 채택(2026-10-22 주인님 확정)**. 근거: 설치·시험(pytest 164/167, vitest 17/17, 메인 크롬 실행)·코드 정적 읽기, 라이선스 없음 → 코드·프롬프트 미사용([분석 보고서](analysis-shorts-auto-20261022/REPORT.md)). **묶음 ① 쇼츠 제작 고급화 → `shorts-onestop-studio`** — 개발=장면 `Bg`에 AI 동영상(fal 대기열 제출·조회, 첫·끝 프레임 이어 붙이기)·ElevenLabs 본인 목소리 복제·단어 단위 자막, 디자인=장면 카드 「AI 영상으로」·예상 비용·진행 상태, 기존에 없던 시스템=AIMaster 최초의 「움직이는 AI 장면」 쇼츠(지금은 정지 이미지·스톡만). 채택 기준: ①안정적 자동화=브라우저 MP4가 이미 영상 배경 지원, fal 영상 호출은 미검증 ②현재 적용성=DB 표 변경 없이 대본 JSON에 추가 ③사용자 편의=편집 없이 움직이는 쇼츠. 비용/위험=회원 6장면 약 $1.6~$3.4, 이중 과금 방지(자동 재시도 없음). 상태: [개발 플랜](../shorts-onestop-studio/docs/PLAN_20261022_AI_VIDEO_SCENES.md) 승인 대기. **묶음 ② 인스타 레퍼런스 분석 → `auto-instagram-posting`** — 개발=릴스·계정 수집(회원 본인 Apify 토큰)·이미지 글자 읽기, 디자인=재해석 관점 3개 카드, 신규 시스템=경쟁 카드뉴스 역분석(기존 수집은 URL·RSS·트렌드뿐). 채택 기준: 안정성=인스타 수집 약관 회색 지대(본인 책임 안내)/적용성=기존 카드뉴스 스튜디오에 연결/편의=소재 고갈 해소. 상태: 검토 대기(① 완료 뒤 플랜). 중복 확인: 분석·대본은 `shorts-viral-studio`가 이미 우위라 흡수하지 않음.
 2026-10-22 진행: **묶음 ① A단계 완료(`shorts-onestop-studio` v1.23)** — 기본 Gemini Omni Flash(Veo 3.1 미리보기 종료 대응)·선택 fal·Replicate·단가 표시, 시험 회원 Gemini 실생성 확인(약 $1.0, 2회). B 목소리 복제·C 단어 자막 대기, fal·Replicate 실생성 미검증.
+2026-10-22 진행: **엔진 공유 완료** — AI 영상 호출을 `ai-image-studio/lib/video/` 공용 기준 코드(`ai-video-*`)로 등록, Shots v1.32 「장면 AI 영상」 배포(Replicate 실생성 성공, 이어 붙이기는 Seedance Lite가 E006 거절 — 원인 확인 대기). 원스톱 사본 전환은 다음 배포 때.
 <!-- /SHORTS_AUTO_ANALYSIS_20261022 -->
 
 <!-- LYRICBI_ANALYSIS_20261021 -->

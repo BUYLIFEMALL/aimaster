@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 영상 호출 공용 기준 코드 `ai-video-*`(기준 ai-image-studio) + Shots v1.32 장면 AI 영상 (빌드 1회 — Shots만)
+- 기준 `ai-image-studio/lib/video/`(모델·해석·업체 호출), 사본 원스톱 `src/lib/`·Shots `src/lib/video/`. 원스톱 `videoGen.ts`는 공용 사용으로 전환(동작 같음) — **원스톱·ai-image-studio 미배포(다음 배포 때)**, `docs/SHARED_MODULES.md` 미배포 표.
+- Shots: 장면 카드 「🎬 장면 AI 영상」, `/api/video/scene`, 저장 `shots-videos/<회원>/<영상>-scenes/<장면>.mp4`(표 변경 없음), 브라우저 만들기에 영상 장면. 배포 Ready·DB v1.32. 크롬 시험 회원: Replicate 이어 붙이기 E006 거절 → 끝 화면 없이 성공. 비용: 빌드 1회, 약 $0.28(시험 회원 키).
+- 남은 일: Seedance 1 Lite 이어 붙이기 거절 원인, 장면 카드 선택칸 글자 색, 영상 장면이 든 MP4 실측(`shots/docs/IMPROVEMENTS.md`).
+- 프로그램: https://shots.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.27 단어 단위 자막(말하는 순간에 맞춤) · 묶음 ① 모두 완료
 - 음성 낱말 시각(ElevenLabs 글자 시각 / OpenAI Whisper) → 자막 조각을 첫 낱말 시각에 표시, 자막 글자는 대본 그대로. 크롬 시험 회원으로 두 경로 모두 words 12개 저장 확인 후 설정 복원. 비용: 빌드 1회, 약 $0.01.
 - 오늘 v1.24~v1.27 순서대로 완료(빌드 4회 = 승인 범위). 다음(승인 대기): 영상 호출 코드를 ai-image-studio 영상 기준 코드로 올리고 Shots에 「AI 영상 장면」 사본 적용.

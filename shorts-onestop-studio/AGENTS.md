@@ -153,3 +153,7 @@
 - 검수: tsc·node --test 13개·build, 배포 Ready, DB v1.27, 크롬 시험 회원: ElevenLabs(복제 목소리) 인트로 → words 12개(0~4.52초/5.29초), OpenAI 인트로 → Whisper words 12개(0~5.84초/6.86초), 저장 후 대본 음성 설정을 원래(OpenAI·코랄·1.05배)로 복원.
 - 비용: Vercel 빌드 1회(승인 4회 중 4회째), OpenAI 음성+Whisper 약 $0.01, ElevenLabs 약 50자(크레딧).
 - 미확인: 미리보기·MP4에서 자막 전환 순간을 눈으로 대조하지는 않음(데이터·함수 시험으로 확인).
+
+## 2026-10-22 — AI 영상 호출을 공용 기준 코드로 전환(코드만, 미배포) (Claude Code 윈도우)
+- `src/lib/videoModels.ts`·`videoParse.ts`·`videoProviders.ts`(신규)는 이제 공용 `ai-video-*` 사본(기준 `ai-image-studio/lib/video/`) — 직접 고치지 말 것. `src/lib/videoGen.ts`는 공용 `submitVideoJob`·`checkVideoJob`을 부르고 `VideoGenError`를 원스톱 `AiError`/`UserError`로 바꾼 뒤 회원 폴더에 저장하는 얇은 연결 코드. 장면 사진 주소 검사가 공개 버킷 주소도 받도록 넓어짐(원스톱 동작 영향 없음).
+- 검수: tsc·`npm test` 13개·build 통과, 동작 같음 → **다음 원스톱 배포 때 함께**(버전 +0.01도 그때). 주인님 결정(빌드 1회 — Shots만).

@@ -13,6 +13,7 @@ import {
 } from "@/lib/actions/scripts";
 import { NANO_BANANA_MODEL_OPTIONS } from "@/lib/ai/nanoBananaModels";
 import type { Database } from "@/types/database.types";
+import { SceneVideoBox } from "@/components/candidates/SceneVideoBox";
 
 type Segment = Database["public"]["Tables"]["shorts_video_segments"]["Row"];
 
@@ -20,7 +21,7 @@ const initialSaveState: SaveSegmentState = {};
 const initialRegenerateState: RegenerateImageState = {};
 const initialSelectState: SelectImageState = {};
 
-export function SegmentCard({ videoId, segment }: { videoId: string; segment: Segment }) {
+export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextImage = false, keyProviders = [] }: { videoId: string; segment: Segment; sceneVideoUrl?: string | null; hasNextImage?: boolean; keyProviders?: string[] }) {
   const [saveState, saveAction, isSaving] = useActionState(saveSegmentAction, initialSaveState);
   const [regenState, regenAction, isRegenerating] = useActionState(
     regenerateSegmentImageAction,
@@ -149,6 +150,8 @@ export function SegmentCard({ videoId, segment }: { videoId: string; segment: Se
           {selectState.error && <p className="mt-1 text-xs text-red-600">{selectState.error}</p>}
         </div>
       )}
+
+      <SceneVideoBox videoId={videoId} segmentId={segment.id} hasImage={!!segment.image_url} hasNextImage={hasNextImage} initialUrl={sceneVideoUrl} keyProviders={keyProviders} />
 
       {lightboxUrl && (
         <div

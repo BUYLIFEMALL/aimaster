@@ -26,7 +26,7 @@ const STATUS_LABELS: Record<ShortsVideoStatus, string> = {
 const initialSaveState: SaveScriptEditsState = {};
 const initialImagesState: GenerateImagesState = {};
 
-export function ScriptEditor({ video, segments }: { video: Video; segments: Segment[] }) {
+export function ScriptEditor({ video, segments, sceneVideos = {}, keyProviders = [] }: { video: Video; segments: Segment[]; sceneVideos?: Record<string, string>; keyProviders?: string[] }) {
   const [saveState, saveAction, isSaving] = useActionState(saveScriptEditsAction, initialSaveState);
   const [imagesState, imagesAction, isGeneratingImages] = useActionState(
     generateSegmentImagesAction,
@@ -75,7 +75,7 @@ export function ScriptEditor({ video, segments }: { video: Video; segments: Segm
           장면별 대사 · 이미지 프롬프트 · 이미지 (5초 × {segments.length}장면)
         </p>
         {segments.map((seg) => (
-          <SegmentCard key={seg.id} videoId={video.id} segment={seg} />
+          <SegmentCard key={seg.id} videoId={video.id} segment={seg} sceneVideoUrl={sceneVideos[seg.id] ?? null} hasNextImage={!!segments.find((x) => x.segment_index === seg.segment_index + 1)?.image_url} keyProviders={keyProviders} />
         ))}
       </div>
 

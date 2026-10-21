@@ -189,6 +189,24 @@ const MODULES = [
     ],
   },
   {
+    // AI 동영상(장면 사진 → 5~10초 영상, 회원 본인 키): 모델·단가·길이 목록. 2026-10-22 원스톱 v1.23~v1.25에서 만들어 ai-image-studio를 기준으로 등록, Shots에 사본
+    id: "ai-video-models",
+    source: "ai-image-studio/lib/video/videoModels.ts",
+    copies: ["shorts-onestop-studio/src/lib/videoModels.ts", "shots/src/lib/video/videoModels.ts"],
+  },
+  {
+    // AI 동영상: 업체 응답 해석·키를 보낼 주소 검사·장면 사진 주소 검사(순수 함수)
+    id: "ai-video-parse",
+    source: "ai-image-studio/lib/video/videoParse.ts",
+    copies: ["shorts-onestop-studio/src/lib/videoParse.ts", "shots/src/lib/video/videoParse.ts"],
+  },
+  {
+    // AI 동영상: Gemini Omni Flash·fal·Replicate 제출·상태 확인·영상 받기(VideoGenError — 각 프로그램이 자기 오류·저장소로 바꿈)
+    id: "ai-video-providers",
+    source: "ai-image-studio/lib/video/videoProviders.ts",
+    copies: ["shorts-onestop-studio/src/lib/videoProviders.ts", "shots/src/lib/video/videoProviders.ts"],
+  },
+  {
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
     id: "browser-mp4-encoder",
     source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",

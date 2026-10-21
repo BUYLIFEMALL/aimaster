@@ -1,4 +1,6 @@
-// v1.23 AI 동영상 장면 — 모델·단가 목록(화면·서버 공용, 다른 모듈을 불러오지 않는 순수 파일: tests/videoModels.test.ts가 바로 읽는다).
+// [공용 기준 코드 `ai-video-client` — 기준: ai-image-studio/lib/video/, 사본: shorts-onestop-studio/src/lib/·shots/src/lib/video/. 사본은 직접 고치지 말고
+//  기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 처음 만든 곳: AI 쇼츠 원스톱 v1.23~v1.25(2026-10-22)]
+// AI 동영상 — 모델·단가·길이 목록(화면·서버 공용, 다른 모듈을 불러오지 않는 순수 파일: 원스톱 tests/video.test.ts가 바로 읽는다).
 // 기본은 회원이 이미 등록한 Gemini 키(주인님 지시 2026-10-22), fal·Replicate는 회원이 키를 등록하면 고를 수 있다.
 // 단가는 2026-10-22 각 공식 가격표에서 확인한 값(Gemini API 가격 페이지 · fal.ai/pricing · replicate.com 모델 페이지).
 // 가격이 바뀌면 이 표만 고친다. 화면에는 「약」으로 표시하고 실제 청구는 회원 계정 기준이라고 안내한다.

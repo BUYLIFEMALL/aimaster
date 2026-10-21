@@ -121,3 +121,13 @@
 - 기존 `logProgramUsage`(`src/lib/access.ts`, 관리자 키·실패해도 계속)를 성공 지점 5곳에서 부름: `script_created`(스크립트 생성) · `video_browser`(브라우저 만들기 저장) · `video_j2v`(JSON2Video 합성 요청) · `youtube_uploaded`(+ `youtubeVideoId`·`scheduled`) · `instagram_posted`. 메타데이터는 ID만.
 - 검수: tsc·build, 운영 Ready, DB v1.31. 크롬 관리자 브라우저 만들기 1회(보관 음성 hit×6, 비용 0원) → `usage_logs` `video_browser` 1행 확인.
 
+## 2026-10-22 v1.32 — 장면 AI 영상(공용 기준 코드 `ai-video-*` 사본) (Claude Code 윈도우)
+- 출처: 외부 `shorts-auto` 분석 묶음 ① 「엔진 공유」 — 원스톱 v1.23~v1.25에서 만든 AI 영상 호출을 `ai-image-studio/lib/video/`를 기준으로 공용화하고 이 프로그램에 사본(`src/lib/video/videoModels.ts`·`videoParse.ts`·`videoProviders.ts` — 직접 수정 금지, `--sync`).
+- 스크립트 화면 장면 카드 아래 「🎬 장면 AI 영상」(`src/components/candidates/SceneVideoBox.tsx`): 모델(기본 Gemini Omni Flash, Replicate·fal 선택, 단가 표시·키 미등록 표시)·길이(모델 허용 5·8·10초)·「다음 장면과 이어지게」·금액 버튼. 진행 작업 번호는 이 브라우저 `localStorage`(`shots-scene-job:<장면 id>`)에 기억 → 새로고침해도 15초마다 이어서 확인, 자동 다시 보내기 없음. 완성되면 미리보기 + 「영상 지우기(이미지로 되돌리기)」.
+- API `POST /api/video/scene`(같은 출처·`checkProgramAccessApi`·본인 키): submit/check/delete. 시작·끝 사진은 화면 값이 아니라 서버가 DB에서 본인 장면·다음 장면 선택 이미지를 읽음. 사용 기록 `video_scene`.
+- 저장: **표 구조 변경 없음** — 공개 버킷 `shots-videos`의 `<회원>/<영상>-scenes/<장면 id>.mp4`(`src/lib/video/sceneVideo.ts`, 덮어쓰기). 완성 영상 폴더와 분리돼 「브라우저에서 만들기」 이전 파일 정리에 지워지지 않고, 30일 정리 작업(`/api/cron/cleanup-videos`)은 함께 지움. 화면 주소는 `?v=저장 시각`.
+- 「브라우저에서 만들기」(`src/lib/render/story.ts`): 장면에 영상이 있으면 프레임마다 그 시점으로 옮겨 그림(장면이 더 길면 반복), 못 받으면 경고 후 이미지.
+- 키: 키 종류에 `fal`·`replicate` 추가(설정 화면 자동 노출, 운영 허용 목록은 원스톱 v1.26 작업에서 추가됨). 매뉴얼 FAQ 「장면을 움직이는 영상으로」.
+- 검수: tsc·build·공용 점검, 배포 Ready(빌드 1회, 원스톱·ai-image-studio는 미배포 — 주인님 결정), DB v1.32, 다른 출처 403·비로그인 401. 크롬 시험 회원: 주제 수집(HTTP) → 스크립트 → 장면 1·2 이미지(NanoBanana Lite 1K) → 장면 1 Replicate Seedance 1 Lite 5초: **이어 붙이기(끝 화면=장면 2)는 Replicate가 E006 「입력 거절」(4.6초, 요금 없음으로 판단)**, 끝 화면 없이 다시 보내 성공(약 1분, 10.7MB, 공개 주소 200), 새로고침 뒤 미리보기·지우기 버튼 확인.
+- 미확인: 「브라우저에서 만들기」에 영상 장면을 넣은 실제 MP4(장면 6개 이미지가 모두 있어야 함 — 시험 영상은 2개만), Gemini·fal 경로의 Shots 실생성.
+- 비용: Vercel 빌드 1회, OpenAI(주제·스크립트) 약 $0.02, Gemini 이미지 2장 약 $0.08, Replicate 성공 1회 약 $0.18(실패 1회는 요금 없음으로 판단) — 시험 회원 본인 키.

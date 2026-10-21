@@ -194,3 +194,6 @@
 - 재발 방지 시험 `tests/providerAdapters.test.mjs`(`npm run test:providers`): 목록의 모든 공급자에 호출 담당이 있는지 대조 — 수정 전 코드에서는 「호출 담당 없음: ideogram, recraft」로 실패함을 확인.
 - 검수: 시험 15개(providers+gemini-image)·화풍 18개 통과, tsc 0, build, 배포 `ai-image-studio-kkrhcnqm4` Ready, DB v1.25. 크롬(시험 회원 계정) Ideogram v3 Turbo 1장 시도 → 서버 오류 없이 **Replicate까지 요청 도달**, Replicate가 401(시험 계정에 등록된 Replicate 키 만료/무효)로 거절 → 생성·비용 없음. **실제 1장 생성 확인은 유효한 Replicate 키로 다시 해야 함**(관리자 로그인 또는 시험 계정 키 재등록). → **2026-10-22 주인님이 시험 계정 Replicate 키 재등록 후 재시험: Ideogram v3 Turbo 1장 생성 성공**(1024×1024, 「HELLO TEST」 글자 정확, 비공개 버킷 서명 주소 표시, 바나나로 보내기 버튼 표시, 비용 약 $0.03). Recraft는 같은 경로라 실호출 생략.
 - 그대로 둔 것: 쓰지 않는 `adapters/fal.ts`, 목록에 없는 `adapters/stability.ts`(import만) — 동작 영향 없음, 정리는 별도 판단.
+
+## 2026-10-22 — AI 동영상 공용 기준 코드 `ai-video-*` 등록(코드만, 미배포) (Claude Code 윈도우)
+- `lib/video/videoModels.ts`·`videoParse.ts`·`videoProviders.ts`가 기준(사본: `shorts-onestop-studio/src/lib/`·`shots/src/lib/video/`). 이 프로그램 화면에서는 아직 쓰지 않아 동작 변화 없음 → 다음 배포 때 함께 나가며 버전도 그때. **영상 모델·업체 주소가 바뀌면 여기를 먼저 고치고 `node scripts/check-shared-modules.mjs --sync`**(이미지 모델과 같은 원칙). 상세 `docs/SHARED_MODULES.md`.

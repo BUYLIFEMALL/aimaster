@@ -15,6 +15,9 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   meta_app_secret: "Meta App Secret (인스타그램 계정 연동)",
   facebook_app_id: "Facebook 앱 ID (Facebook 페이지 방식 — INSTA 포스팅과 같은 칸)",
   facebook_app_secret: "Facebook 앱 시크릿 (Facebook 페이지 방식 — INSTA 포스팅과 같은 칸)",
+  // v1.32 장면 AI 영상(선택 — 기본은 Gemini 키). 다른 프로그램(AI 쇼츠 원스톱)과 같은 공용 칸
+  fal: "fal (장면 AI 영상 · 선택)",
+  replicate: "Replicate (장면 AI 영상 · 선택, 가장 저렴)",
 };
 
 // 등록 폼(설정 페이지)에 노출할 프로바이더 목록. PROVIDER_LABELS에서 그대로 뽑아 쓰기 때문에
@@ -22,7 +25,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
 export const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as ApiKeyProvider[];
 
 // 설정 페이지에서 그룹으로 나눠 보여주기 위한 목록.
-export const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "suno", "json2video"];
+export const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "suno", "json2video", "fal", "replicate"];
 
 export async function getUserApiKey(
   supabase: SupabaseClient<Database>,

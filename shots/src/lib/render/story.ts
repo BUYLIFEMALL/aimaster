@@ -8,8 +8,9 @@ const W = 1080, H = 1920, FPS = 30;
 const LEAD = 0.3, TAIL = 0.5, MIN_SCENE = 3; // 장면 길이 = 앞 여백 + 음성 + 뒤 여백(최소 3초)
 const FONT_CSS = "https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@900&display=swap";
 
-export interface StoryScene { narration: string; imageUrl: string }
-interface Built { img: ImageBitmap; start: number; dur: number; voice: { at: number; dur: number } | null; chunks: { text: string; from: number; to: number }[] }
+/** videoUrl(v1.32): 장면 AI 영상(공개 주소) — 있으면 이 장면은 이미지 대신 영상 프레임을 그린다 */
+export interface StoryScene { narration: string; imageUrl: string; videoUrl?: string | null }
+interface Built { img: ImageBitmap; video: HTMLVideoElement | null; start: number; dur: number; voice: { at: number; dur: number } | null; chunks: { text: string; from: number; to: number }[] }
 
 /** 음성 길이에 맞춰 내레이션을 2어절씩 나눠 보여 줄 시각을 정한다(글자 수에 비례). 마지막 한 어절은 앞 줄에 붙인다 */
 export function subtitleChunks(text: string, at: number, dur: number): { text: string; from: number; to: number }[] {
@@ -43,9 +44,25 @@ async function tts(videoId: string, text: string, voice: TtsVoice, speed: number
   }
 }
 
-function drawCover(ctx: CanvasRenderingContext2D, img: ImageBitmap, zoom: number, alpha = 1) {
-  const s = Math.max(W / img.width, H / img.height) * zoom; const w = img.width * s, h = img.height * s;
+function drawCover(ctx: CanvasRenderingContext2D, img: ImageBitmap | HTMLVideoElement, zoom: number, alpha = 1) {
+  const iw = img instanceof HTMLVideoElement ? img.videoWidth : img.width, ih = img instanceof HTMLVideoElement ? img.videoHeight : img.height;
+  if (!iw || !ih) return;
+  const s = Math.max(W / iw, H / ih) * zoom; const w = iw * s, h = ih * s;
   ctx.globalAlpha = alpha; ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h); ctx.globalAlpha = 1;
+}
+
+/** 장면 영상: 공개 주소를 받아 프레임 단위로 위치를 옮겨 그린다(못 받으면 null → 이미지로) */
+async function loadVideo(url: string, signal: AbortSignal): Promise<HTMLVideoElement | null> {
+  const res = await fetch(url, { signal }).catch(() => null);
+  if (!res?.ok) return null;
+  const v = document.createElement("video"); v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = URL.createObjectURL(await res.blob());
+  const ok = await new Promise<boolean>((done) => { const to = setTimeout(() => done(false), 20000); v.onloadeddata = () => { clearTimeout(to); done(true); }; v.onerror = () => { clearTimeout(to); done(false); }; });
+  return ok ? v : null;
+}
+function seekTo(v: HTMLVideoElement, t: number): Promise<void> {
+  const d = v.duration || 0; const target = d ? t % d : 0;
+  if (Math.abs(v.currentTime - target) < 0.5 / FPS) return Promise.resolve();
+  return new Promise((res) => { const done = () => { clearTimeout(to); v.removeEventListener("seeked", done); res(); }; const to = setTimeout(done, 3000); v.addEventListener("seeked", done); v.currentTime = target; });
 }
 
 function drawSubtitle(ctx: CanvasRenderingContext2D, text: string) {
@@ -75,6 +92,9 @@ export async function buildStoryMp4(o: {
       const imgRes = await fetch(sc.imageUrl, { signal: o.signal }).catch(() => null);
       if (!imgRes?.ok) throw new Error(`장면 ${i + 1} 이미지를 불러오지 못했습니다. 이미지를 다시 만들어 주세요.`);
       const img = await createImageBitmap(await imgRes.blob());
+      const video = sc.videoUrl ? await loadVideo(sc.videoUrl, o.signal) : null;
+      if (video) blobUrls.push(video.src);
+      if (sc.videoUrl && !video) warnings.push(`장면 ${i + 1} AI 영상을 불러오지 못해 이미지로 만들었습니다.`);
       let audio: { src: string; dur: number } | null = null;
       if (sc.narration.trim()) {
         const blob = await tts(o.videoId, sc.narration, o.voice, o.speed, o.signal);
@@ -82,16 +102,16 @@ export async function buildStoryMp4(o: {
         const src = URL.createObjectURL(blob); blobUrls.push(src); audio = { src, dur };
       }
       done += 1; o.onProgress({ pct: 2 + Math.round((done / o.scenes.length) * 14), status: `장면 음성·이미지 준비 중… (${done}/${o.scenes.length})` });
-      return { img, audio };
+      return { img, video, audio };
     }));
     stop();
     const built: Built[] = []; const voices: VoiceClip[] = []; let t = 0;
     o.scenes.forEach((sc, i) => {
-      const { img, audio } = prepared[i];
+      const { img, video, audio } = prepared[i];
       const voice = audio ? { at: t + LEAD, dur: audio.dur } : null;
       if (audio && voice) voices.push({ src: audio.src, at: voice.at, dur: voice.dur });
       const dur = Math.max(MIN_SCENE, voice ? LEAD + voice.dur + TAIL : MIN_SCENE);
-      built.push({ img, start: t, dur, voice, chunks: voice ? subtitleChunks(sc.narration, voice.at, voice.dur) : [] });
+      built.push({ img, video, start: t, dur, voice, chunks: voice ? subtitleChunks(sc.narration, voice.at, voice.dur) : [] });
       t += dur;
     });
     const total = t;
@@ -109,11 +129,12 @@ export async function buildStoryMp4(o: {
     const blob = await encodeMp4({
       // 느린 확대로 매 프레임이 바뀌어 8Mbps면 50초에 약 32MB(2026-10-21 실측) → 4Mbps로 저장 한도 50MB 여유
       width: W, height: H, fps: FPS, total, audio, pctFrom: 20, videoBitrate: 4_000_000, onProgress: o.onProgress, signal: o.signal,
-      drawFrame: (ctx, time) => {
+      drawFrame: async (ctx, time) => {
         const found = built.findIndex((x) => time < x.start + x.dur); const i = found === -1 ? built.length - 1 : found; const b = built[i];
         const local = time - b.start;
         ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
-        drawCover(ctx, b.img, 1 + 0.08 * (local / b.dur)); // 느린 확대
+        if (b.video) { await seekTo(b.video, local); drawCover(ctx, b.video, 1); } // AI 영상 장면(영상보다 길면 처음부터 반복)
+        else drawCover(ctx, b.img, 1 + 0.08 * (local / b.dur)); // 느린 확대
         const prev = built[i - 1]; if (prev && local < 0.3) drawCover(ctx, prev.img, 1.08, 1 - local / 0.3); // 0.3초 겹쳐 바뀜
         const c = b.chunks.find((x) => time >= x.from && time < x.to); if (c) drawSubtitle(ctx, c.text);
       },
