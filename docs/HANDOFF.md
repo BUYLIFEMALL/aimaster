@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.43 기획 상세에서 곡마다 넣을 버전 고르기
+
+기획 상세에 「#1 · #2 · 빼기」 고르기(`music/components/plannings/PlanningExportPicker.tsx`) → 고른 결과로 플레이리스트 링크·목차·CSV. 크롬 시험 계정에서 확인. 배포 `music-q6h59rgx0` Ready, DB v1.43. 비용: Vercel 빌드 1회. ⚠️ 다른 세션(버튼 줄바꿈 수정 B안)이 `music/`를 작업 중이라 그 세션의 미커밋 `music/components/settings/ApiKeyRow.tsx`(CSS 3줄)가 v1.43 배포에 함께 들어감 — 되돌리지 않았고 커밋은 그 세션 몫. 이 세션은 음악 폴더 작업을 여기서 멈춤.
+
+https://music-automation.buylife.xyz/plannings
+
 ## 2026-10-22 Claude Code(윈도우) — ⏸ 게시 뒤 썸네일용 이미지 1장 남기기도 다음 빌드 때 함께 (주인님 지시)
 - 게시 성공 때 첫 장 이미지만 남기고(30일 정리가 지움) 그날 게시 목록 썸네일을 되살리기. 대상: `ai-webtoon-studio`(공용 `insta-posting` 기준) → `--sync`로 `ai-influencer-studio`·`four-cut-comics`, `insta_auto_poster`(카드뉴스 `posts.ts`·`InstaWeekPosts`·`instaWeek.ts`). 방법·검수: 웹툰·AI 인플루언서·INSTA 포스팅 `AGENTS.md` 2026-10-22 「⏸ 대기」. 네컷 폴더 문서는 다른 세션 작업 중이라 적지 않음.
 

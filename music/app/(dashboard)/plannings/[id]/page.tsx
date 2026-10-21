@@ -8,7 +8,8 @@ import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { PlanningHeaderCard, type PlanningHeaderData } from "@/components/plannings/PlanningHeaderCard";
 import { withSignedStorageUrls } from "@/lib/storageSign";
 import { RetentionNotice } from "@/components/RetentionBadge";
-import { SongListExport } from "@/components/SongListExport";
+import { PlanningExportPicker, type ExportTrack } from "@/components/plannings/PlanningExportPicker";
+import { fmtTime } from "@/lib/replaceRange";
 
 export const dynamic = "force-dynamic";
 // 최대 10곡 대량생성 시 GPT 스타일/가사 호출이 순차로 여러 번 도는 generateTracksAction이
@@ -63,21 +64,24 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
       ),
     );
 
-  // 완성 곡마다 첫 변주(최대 20곡) — 플레이리스트 「Suno 곡 가져오기」가 미리 선택해 둔다
-  const playlistIds = trackList
+  // v1.43: 완성 곡마다 넣을 버전을 화면에서 골라 플레이리스트(v1.26)·목차·CSV(v1.42)로 넘긴다(기본 #1)
+  const exportTracks: ExportTrack[] = trackList
     .filter((t) => t.status === "completed" && t.music_track_variants.length > 0)
-    .map((t) => t.music_track_variants[0].id)
-    .slice(0, 20);
-  // v1.42(D-68-03): 같은 곡 묶음(완성 곡마다 첫 변주, 개수 제한 없음)을 목차·CSV로 내보낸다
-  const exportSongs = trackList
-    .filter((t) => t.status === "completed" && t.music_track_variants.length > 0)
-    .map((t) => ({
-      planningTitle: planningData.title ?? "제목 없음",
-      title: t.title ?? "제목 없음",
-      mode: t.mode,
-      durationSeconds: t.music_track_variants[0].duration_seconds,
-      style: (t as TrackCardData & { style_description?: string | null }).style_description ?? null,
-    }));
+    .map((t) => {
+      const kind = t.extended_from_variant_id
+        ? "🔁 연장본 · "
+        : t.replaced_from_variant_id
+          ? `✂️ 구간 수정본(${fmtTime(Number(t.replace_start_s))}~${fmtTime(Number(t.replace_end_s))}) · `
+          : "";
+      return {
+        id: t.id,
+        label: `${kind}${t.title ?? "제목 없음"}`,
+        title: t.title ?? "제목 없음",
+        mode: t.mode,
+        style: (t as TrackCardData & { style_description?: string | null }).style_description ?? null,
+        variants: t.music_track_variants.map((v) => ({ id: v.id, durationSeconds: v.duration_seconds })),
+      };
+    });
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
@@ -98,28 +102,7 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
         personas={personas}
       />
 
-      {playlistIds.length > 0 && (
-        // v1.26 이 기획의 완성 곡(곡마다 첫 변주)을 YOUTUBE 플레이리스트 자동화로 넘긴다 — 그쪽은 미리 선택만 하고 회원이 「선택한 곡 추가」
-        <a
-          href={`https://playlist-channel-studio.buylife.xyz/video?suno=${playlistIds.join(",")}`}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-red-500/30 bg-red-950/30 px-4 py-3 text-sm font-bold text-red-100 hover:border-red-400/60 hover:bg-red-900/30 transition-all"
-        >
-          <span>🎞️ 이 기획의 완성 곡 {playlistIds.length}개로 플레이리스트 영상 만들기 →</span>
-          <span className="text-xs font-normal text-red-200/70">YOUTUBE 플레이리스트 자동화 · 새 창</span>
-        </a>
-      )}
-      {exportSongs.length > 0 && (
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <span className="text-[11px] text-zinc-500">완성 곡 {exportSongs.length}개 내보내기</span>
-          <SongListExport
-            songs={exportSongs}
-            fileLabel={planningData.title ?? "곡목록"}
-            className="border-[#2d2d3e] text-zinc-300 hover:border-orange-500/40 hover:text-orange-300"
-          />
-        </div>
-      )}
+      <PlanningExportPicker planningTitle={planningData.title ?? "곡목록"} tracks={exportTracks} />
 
       {trackList.length > 0 && (
         <div className="space-y-4">
