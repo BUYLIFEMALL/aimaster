@@ -1,7 +1,7 @@
 # AI 랜딩페이지 기획 자동화 (landing-architect) — 인수인계 및 작업 지침
 
 > **공식 서비스 URL**: https://landing-architect.buylife.xyz  
-> **현재 버전**: `v1.10` (플로우 위저드 스타일 — 단계별 랜딩페이지 기획 에디션)  
+> **현재 버전**: `v1.11` (플로우 위저드 스타일 — 단계별 랜딩페이지 기획 에디션, 2026-10-21 🧩 UI Canvas로 보내 다듬기)  
 > **작업 일자**: 2026-10-19  
 > **작업 에이전트**: Antigravity CLI (Windows)
 
@@ -65,6 +65,14 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
+
+### v1.11 (2026-10-21) — 「🧩 UI Canvas로 보내 다듬기」 (Claude Code 윈도우)
+- 기획안 영역 버튼 [🧩 UI Canvas로 보내 다듬기] → `POST /api/canvas-export` → `src/lib/lpa/toCanvas.ts`가 AI 없이 규칙으로 변환(헤드라인·서브 헤드라인·CTA 버튼·메인 섹션마다 상자+제목+설명, 디자인 시스템 색, 1440 폭) → 공용 표 `ui_canvas_projects`에 회원 본인 `user_id`로 새 프로젝트 1개 → UI Canvas 편집기를 새 창으로 연다(누른 순간 창을 열어 팝업 차단 회피). 플랜 `docs/PLAN_20261021_SEND_TO_UI_CANVAS.md`.
+- 안전: 이 프로그램 권한 + **UI Canvas 이용 권한**(`checkProgramAccess(..., "ui-canvas")`) + UI Canvas 프로젝트 100개 한도를 확인. 프로그램끼리 서로 호출하지 않고 공용 DB 표에 본인 행만 추가. 문서 모양은 `ui-canvas/src/lib/canvas/types.ts` ProjectDoc과 같아야 한다(UI Canvas 쪽 모양이 바뀌면 `toCanvas.ts`도 같이).
+- 함께 고침: 좌측 메뉴 버전이 `v1.10`으로 글자 고정돼 있던 것을 `APP_VERSION`으로.
+- 검수(2026-10-21, 일반 회원, 메인 크롬): 변환 문서가 UI Canvas `sanitizeDoc` 검증 통과(로컬 1회) → 배포 Ready → 시험 기획안 프로젝트에서 버튼 → 새 창이 UI Canvas 편집기로 이동, 컴포넌트 13개·명세 자동 채움·색 반영 확인 → 메뉴 v1.11 확인 → 시험 프로젝트 2개 삭제. 비용: Vercel 빌드 2회(기능·메뉴 버전 수정), AI 0회.
+- 커밋 `48fb4c62`·`1912cece`, DB `programs.version=v1.11`.
+
 
 ### v1.10 (2026-10-19) — 플로우 위저드 스타일 테마 리뉴얼 (Antigravity CLI)
 - **디자인 전면 개편**:

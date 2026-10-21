@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 병합 D 후속 3건 완료: 반응형 코드·AI 컴포넌트 놓기·랜딩 → UI Canvas
+
+① UI Canvas v1.12 반응형(flex) 코드 내보내기 ② v1.13 저장한 AI 컴포넌트 캔버스에 놓기·함수 이름 보완 ③ AI 랜딩페이지 기획 v1.11 「🧩 UI Canvas로 보내 다듬기」(AI 없이 규칙 변환, 공용 표 `ui_canvas_projects`에 본인 행 추가, UI Canvas 권한·100개 한도 확인) + 메뉴 버전 글자 고정 버그 수정. 모두 배포 Ready·크롬 검수(일반 회원)·시험 데이터 삭제. 이번 묶음 비용: Vercel 빌드 4회, AI 호출 0회. 같은 날 「비용 사전 보고 의무」를 루트 `CLAUDE.md`에 추가. 상세 `landing-architect/AGENTS.md` v1.11, `ui-canvas/AGENTS.md` v1.12·v1.13.
+
+https://landing-architect.buylife.xyz
+
+https://ui-canvas.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — UI Canvas v1.13: AI 컴포넌트 캔버스에 놓기·함수 이름
 
 병합 D 후속 2번. 저장한 AI 컴포넌트 [캔버스에 놓기] → 미리보기 상자, 코드 내보내기 때 import + 사용. 함수 이름 규칙 보완. 커밋 `1aebb14f`, 배포 Ready, DB v1.13, 크롬 검수 통과. 비용: Vercel 빌드 1회. 다음: 후속 3번(AI 랜딩페이지 → UI Canvas 보내기). 상세 `ui-canvas/AGENTS.md` v1.13.
