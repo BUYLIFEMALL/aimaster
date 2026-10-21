@@ -50,3 +50,8 @@
 .gallery-scope .bg-cyan-50 { background-color: #0b2530 !important; border-color: #155e75 !important; }
 .gallery-scope :is(.text-cyan-900, .text-cyan-800) { color: #a5f3fc !important; }
 .gallery-scope input.bg-white, .gallery-scope select.bg-white, .gallery-scope textarea { background-color: #0f1420 !important; color: #f8fafc !important; }
+/* 밝은 회색 배경(보조 버튼·카테고리 태그·탭 바탕)은 글자가 밝게 바뀌므로 어두운 회색으로 맞춘다 */
+.gallery-scope .bg-slate-100 { background-color: #1e293b !important; }
+.gallery-scope .bg-slate-200 { background-color: #273449 !important; }
+.gallery-scope :is(.hover\:bg-slate-100, .hover\:bg-slate-50):hover { background-color: #182030 !important; }
+.gallery-scope .hover\:bg-slate-200:hover { background-color: #2d3a52 !important; }
