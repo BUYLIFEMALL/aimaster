@@ -41,6 +41,12 @@ const MODULES = [
     copies: ["playlist-channel-studio/src/lib/lyrics.ts"],
   },
   {
+    // Suno 시간 가사(get-timestamped-lyrics의 alignedWords) → 줄 단위 가사 시간표. 2026-10-21 등록 — 가사영상 곡 가져오기·플레이리스트 여러 곡 가져오기
+    id: "suno-timed-lyrics",
+    source: "lyric-video-studio/src/lib/sunoAlign.ts",
+    copies: ["playlist-channel-studio/src/lib/sunoAlign.ts"],
+  },
+  {
     // 유튜브 연결·토큰 갱신·업로드(한 번에 올리기 + 재개 가능 업로드 주소). 2026-10-21 엔진 공유 1번 — 쇼츠 원스톱이 브라우저에서 만든 MP4를 올릴 때 사용
     id: "youtube-upload-client",
     source: "shots/src/lib/youtube/client.ts",

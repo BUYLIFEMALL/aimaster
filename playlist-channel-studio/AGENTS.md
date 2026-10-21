@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.18** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.19** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -155,3 +155,10 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 수정: 새 `src/lib/render/audio-spectrum.ts` — 디코딩한 곡(반복 순서 그대로)에서 프레임 시각의 마지막 256샘플을 브라우저 분석기와 **같은 계산**(블랙만 창 → FFT ÷N → 시간 평활 → -100~-30dB를 0~255)으로 128칸 세기로 만든다. 미리보기는 약 60번/초 평활하므로 내보내기는 프레임 속도에 맞춰 평활 계수 0.8^(60/fps). 시험 3개(`tests/audio-spectrum.test.mjs`: 3kHz → 16번 칸, 무음 0, 저음 세기, 둘째 곡 읽기).
 - 보완(미리보기에는 있고 결과에는 없던 것): **저음 반응 확대 맥동·흔들림·스트로브**, 배경 **밝기**, 필터의 저음 반응(고정값 120 → 실제 저음) — 미리보기와 같은 조건·순서. GIF 스티커는 결과에 아직 없음(IMP-PLS-008).
 - 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.18. 크롬 운영 화면(일반 회원)에서 6초 시험 소리(무음 2초 → 80Hz 2초 → 3kHz 2초)로 1080p MP4 생성(저장 위치를 브라우저 내부 저장소로 바꿔 끼움 — 회원 PC에 파일 안 남김, 끝난 뒤 삭제) → 1초 장면 바닥선만(밝은 점 512), 3초 왼쪽 끝 막대(평균 가로 59/640), 5초 16번 칸 근처 막대(180/640). 비용: Vercel 빌드 1회, AI 0회.
+
+## 2026-10-21 v1.19 — 음악(SUNO) 자동화 곡 여러 개 + 시간 가사 가져오기 (Claude Code 윈도우)
+- 플랜: [`docs/PLAN_20261021_V1_19_SUNO_IMPORT.md`](docs/PLAN_20261021_V1_19_SUNO_IMPORT.md)(가사영상 v1.06 추가개선 3).
+- 미디어 센터 음악 드롭존 위 `components/video/SunoImportPanel.tsx`: 회원 본인의 완성된 곡(보컬·연주곡, 최근 40곡) 변주를 체크해 「선택한 곡 추가」(최대 20곡/회) → 비공개 저장소 1시간 서명 주소로 음악을 받아 곡 목록 끝에 추가. 「Suno 시간 가사도 받기」를 켜면 보컬 곡마다 본인 Suno 키로 1번씩 받아 곡의 가사 층(v1.17)에 바로 연결(이번 접속에서 받은 곡은 재조회 없음, 누르기 전에 조회 횟수 표시). 실패·키 없음이면 곡만 추가하고 이유·키 등록 링크.
+- 서버: `src/lib/sunoTracks.ts` + `/api/suno/tracks`(목록·?variant=)·`/api/suno/timed-lyrics`(같은 출처만) — 모두 `requireAccess()`, 조회는 회원 `user_id`로만. 관계가 2개라 `music_track_variants!music_track_variants_track_id_fkey` 지정.
+- **공용 기준 코드 `suno-timed-lyrics` 등록**: 사본 `src/lib/sunoAlign.ts`(기준 `lyric-video-studio/src/lib/sunoAlign.ts`, 직접 고치지 말고 `--sync`).
+- 검수: tsc·시험 23개·build, 배포 Ready, DB v1.19. 크롬 운영(일반 회원): 패널에 「빗속의 다짐 · 보컬」 변주 2개 → 변주 1 시간 가사와 함께 추가(「곡 1개 … 시간 가사 1곡」, 목록 01 「가사 21줄」, 패널 「✓ 가사 받음」) → 시간 가사 끄고 변주 2 추가(목록 02 가사 없음). 편집 미리보기 가사 표시는 배경이 있어야 들어가 이번엔 생략(가사 형식은 v1.17과 같음). 비용: Suno 시간 가사 조회 1회(시험 계정 본인 키), Vercel 빌드 1회.

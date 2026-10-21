@@ -195,3 +195,14 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | lyric-video-studio | `src/lib/lyrics.ts` (+ `tests/lyrics.test.ts` 8개) | 🟢 기준 | v1.01~v1.04 |
 | playlist-channel-studio | `src/lib/lyrics.ts` | 🔵 사본 | v1.17 영상 만들기 곡별 가사 층(`lib/render/lyrics-layer.ts`) |
 
+### 13-1. Suno 시간 가사 → 줄 시간표 — 공용 모듈 `suno-timed-lyrics` (2026-10-21 등록)
+
+sunoapi `get-timestamped-lyrics`의 단어별 시각(`alignedWords`, 단어 안에 `
+`·`[Verse 1]`가 섞여 옴)을 줄 단위 시간표로 바꾼다. 호출(회원 본인 Suno 키·회원 `user_id`로 거른 곡 조회)은 각 프로그램 서버 코드가 한다(가사영상 `src/lib/suno.ts`, 플레이리스트 `src/lib/sunoTracks.ts`).
+
+| 프로그램 | 파일 | 상태 | 비고 |
+|---|---|---|---|
+| lyric-video-studio | `src/lib/sunoAlign.ts` (+ `tests/sunoAlign.test.ts` 3개) | 🟢 기준 | v1.05 곡 가져오기 |
+| playlist-channel-studio | `src/lib/sunoAlign.ts` | 🔵 사본 | v1.19 여러 곡 가져오기 |
+| (후보) music-automation | — | ⚪ | Suno V6 제안서 1순위 「타임스탬프 가사」를 만들 때 사본으로 |
+

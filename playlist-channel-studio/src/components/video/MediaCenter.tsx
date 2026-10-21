@@ -1,6 +1,7 @@
 "use client";
 
 import { ReferenceNotePanel } from "./ReferenceNotePanel";
+import { SunoImportPanel } from "./SunoImportPanel";
 import { useState, useRef } from "react";
 import {
   Upload,
@@ -269,6 +270,9 @@ export function MediaCenter({
               )}
             </div>
           </div>
+
+          {/* v1.19 음악(SUNO) 자동화 곡 여러 개 + 시간 가사 가져오기 */}
+          <SunoImportPanel setTracks={setTracks} />
 
           {/* 오디오 파일 드롭존 */}
           <div
