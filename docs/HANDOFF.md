@@ -1,6 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 <!-- SEO_AUTO_PUBLISH_20261021 -->
+## 2026-10-21 Claude Code(윈도우) — INSTA 댓글·DM v1.28: 대시보드 댓글 항목 썸네일·게시물 묶음 바로가기
+
+대시보드 검토 대기 댓글에 게시물 썸네일, 누르면 댓글 검토 화면의 그 게시물 묶음으로 이동(DM 목록과 같은 동작). 커밋 `a68fb4ff`, 배포 Ready, DB v1.28, 크롬 확인(대기 0건이라 썸네일·이동은 미확인). 비용: Vercel 빌드 1회. 다음: 쓰레드 v1.17·유튜브 v1.22 같은 형식.
+
+https://instagram-comment-reply.buylife.xyz
+
 ## 2026-10-21 Codex(윈도우) — SEO v1.83 실제 비공개 자동 포스팅·결과 기록 완료
 
 새 전용 탭·원고 지문/조건부 선점·서버 arm 뒤 마지막 발행 1회·URL/제목 검증·불확실 시 재발행 차단/결과 재조회. 실제 Naver의 별도 입력 구조와 텍스트 웹 전송 오류를 실세션에서 재현해 보완. 코드 `a2fe43f9` 푸시·운영 Ready·DB/설치 확장/라이브 ZIP v1.83 일치(ref `esgxyikcnnvmlhygjkth`, 스키마/RLS/환경변수 변경 없음). 회귀 65개 중64통과/1기존 건너뜀·타입/빌드 통과. Edge 일반 회원 비공개 최종 발행 1건·실제 URL/시각 DB 저장·재조회/웹 기록/재열기, 별도 웹 원고 전송→확장 미리보기·안내/복사/516px 완료. AI 0. 이미지 포함 실제 발행/전체공개/예약 미시험. 기존 Naver 준비 탭은 자동 입력/발행 대상으로 쓰지 않음. 다음은 **티스토리→에이전트 실제 발행 검수** 순차 진행. [최종 인수인계/검수 구분](../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md).
@@ -152,7 +158,8 @@ https://music-automation.buylife.xyz
 
 ## 2026-10-21 Claude Code(윈도우) — 음악(SUNO)자동화 v1.20: music-audio 비공개 + 서명 주소 / 옛 Suno 음악기획 코드 삭제
 
-① 옛 `suno-music-studio` 코드 삭제(백업 `D:\Antigravity\AIMaster_backupetired-programs\suno-music-studio\` 141개 + 태그 `backup/suno-music-studio-20261021`, 안내·로그인·410만 남김, 재배포 안 함). ② `music-audio` 저장소 `public=false`, 화면은 1시간 서명 주소·Suno 리믹스 원곡은 24시간(`music/lib/storageSign.ts`). 옛 공개 링크는 400. **다른 프로그램이 음악(SUNO) 곡을 쓰려면 서버에서 서명 주소를 만들어야 함**(lyric-video-studio 2차 연결 담당 세션 참고). 다음: 기존 곡 30일 삭제 → V6 추가 기능.
+① 옛 `suno-music-studio` 코드 삭제(백업 `D:\Antigravity\AIMaster_backup
+etired-programs\suno-music-studio\` 141개 + 태그 `backup/suno-music-studio-20261021`, 안내·로그인·410만 남김, 재배포 안 함). ② `music-audio` 저장소 `public=false`, 화면은 1시간 서명 주소·Suno 리믹스 원곡은 24시간(`music/lib/storageSign.ts`). 옛 공개 링크는 400. **다른 프로그램이 음악(SUNO) 곡을 쓰려면 서버에서 서명 주소를 만들어야 함**(lyric-video-studio 2차 연결 담당 세션 참고). 다음: 기존 곡 30일 삭제 → V6 추가 기능.
 
 ## 2026-10-21 Claude Code(윈도우) — 음악 병합 M1: Suno V6 실제 생성 검수 완료
 
