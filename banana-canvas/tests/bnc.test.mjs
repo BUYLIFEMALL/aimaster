@@ -111,3 +111,34 @@ test("paths: 이미지 판별·크기·소유 경로", () => {
   assert.equal(isUuid(FID), true);
   assert.equal(fileBase("내 사진 (1).png"), "내-사진-1");
 });
+
+test("v1.12 옛 사진 복원: 원본 필요·확대 후처리·구도 유지 지시", () => {
+  assert.match(missingInput(cleanParams({ kind: "restore" })), /원본 이미지/);
+  const p = cleanParams({ kind: "restore", base: "x", upscale: 4, repair: false });
+  assert.equal(p.repair, false);
+  assert.equal(p.colorize, true);
+  assert.equal(missingInput(p), null);
+  const t = buildTask(p, { bgEmpty: false });
+  assert.equal(t.post, "upscale");
+  assert.equal(t.upscale, 4);
+  assert.match(t.prompt, /EXACT original framing/);
+  assert.match(t.prompt, /do not perform unnecessary retouching/);
+  assert.match(t.prompt, /Colorize/);
+  const plain = buildTask(cleanParams({ kind: "restore", base: "x", aspect: "16:9" }), { bgEmpty: false });
+  assert.equal(plain.post, "none");
+  assert.match(plain.prompt, /aspect ratio 16:9/);
+});
+
+test("v1.12 합성 소스별 지시·배경: 지시가 없으면 기존 프롬프트 그대로", () => {
+  const base = cleanParams({ kind: "synthesis", base: "x", sources: ["a", "b"], prompt: "입혀줘" });
+  assert.equal(base.background, "auto");
+  assert.deepEqual(base.sourceNotes, []);
+  assert.equal(synthesisPrompt("입혀줘", false, "original"), synthesisPrompt("입혀줘", false, "original", ["", ""], "auto"));
+  const p = cleanParams({ kind: "synthesis", base: "x", sources: ["a", "b"], prompt: "입혀줘", sourceNotes: ["오른손에 <들기>", "", "넘침"], background: "keep" });
+  assert.equal(p.sourceNotes.length, 2);
+  const t = buildTask(p, { bgEmpty: true });
+  assert.match(t.prompt, /PER-SOURCE INSTRUCTIONS/);
+  assert.match(t.prompt, /Source 1: <user-request>오른손에  들기 <\/user-request>/);
+  assert.match(t.prompt, /BACKGROUND \(KEEP\)/);
+  assert.doesNotMatch(t.prompt, /BACKGROUND GENERATION/);
+});

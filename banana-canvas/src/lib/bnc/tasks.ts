@@ -2,7 +2,7 @@ import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, Kind, ModelLevel,
 import { ASPECTS, KINDS, MAX_SOURCES } from "./types";
 import { PROCESSES, STYLES, categoryById, processById, styleById } from "./styles";
 import {
-  BGREMOVE_PROMPT, IDPHOTO_PROMPT, INPAINT_PROMPT, KOREAN_PEOPLE_RULE, comicPrompt, floorplanPrompt, lifeAlbumPrompt, synthesisPrompt,
+  BGREMOVE_PROMPT, IDPHOTO_PROMPT, INPAINT_PROMPT, KOREAN_PEOPLE_RULE, comicPrompt, floorplanPrompt, lifeAlbumPrompt, restorePrompt, synthesisPrompt,
 } from "./prompts";
 
 export interface Task {
@@ -51,6 +51,10 @@ export function cleanParams(raw: unknown): RunParams | null {
     comicStyle: (["noir", "webtoon", "american"].includes(String(r.comicStyle)) ? r.comicStyle : "noir") as ComicStyle,
     comicLang: (r.comicLang === "en" ? "en" : "ko") as ComicLang,
     comicText: text(r.comicText, 300),
+    repair: r.repair !== false,
+    colorize: r.colorize !== false,
+    sourceNotes: (Array.isArray(r.sourceNotes) ? r.sourceNotes : []).slice(0, sources.length).map((n) => text(n, 300)),
+    background: r.background === "keep" || r.background === "change" ? r.background : "auto",
   };
 }
 
@@ -99,7 +103,11 @@ export function buildTask(p: RunParams, ctx: TaskCtx): Task {
       return { ...base, title: style?.name ?? selected.map((x) => x.name).join("·") ?? "편집", prompt: prompt + aspectAppendix2(p.aspect), post: up ? "upscale" : "none", upscale: up, aspect };
     }
     case "synthesis":
-      return { ...base, title: "이미지 합성", needs: { base: true, sources: true, mask: false }, prompt: synthesisPrompt(p.prompt!, ctx.bgEmpty, p.aspect), aspect };
+      return { ...base, title: "이미지 합성", needs: { base: true, sources: true, mask: false }, prompt: synthesisPrompt(p.prompt!, ctx.bgEmpty, p.aspect, p.sourceNotes, p.background), aspect };
+    case "restore": {
+      const up: Upscale = p.upscale === 4 ? 4 : p.upscale === 2 ? 2 : 0;
+      return { ...base, title: "옛 사진 복원", modalities: "image", prompt: restorePrompt({ repair: p.repair !== false, colorize: p.colorize !== false, upscale: up, aspect: p.aspect, request: p.prompt ?? "" }), post: up ? "upscale" : "none", upscale: up, aspect };
+    }
     case "bgremove":
       return { ...base, title: "배경 제거", modalities: "image", prompt: BGREMOVE_PROMPT, post: "chromakey" };
     case "inpaint":

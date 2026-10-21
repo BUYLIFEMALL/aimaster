@@ -51,7 +51,12 @@ export async function POST(request: NextRequest) {
       if (parts.length < 2) return json({ error: "합성 소스 이미지를 먼저 추가해 주세요." }, 400);
       const aspect: AspectOrOriginal = b.aspect === "original" ? "original" : ASPECTS.includes(b.aspect as Aspect) ? (b.aspect as Aspect) : "original";
       const bg = await isBackgroundEmpty(base.image!.data);
-      parts.push({ text: suggestSynthesisPrompt(bg, aspect) });
+      const notes = (Array.isArray(b.sourceNotes) ? b.sourceNotes : []).slice(0, parts.length - 1).map((n) => text(n, 300));
+      // 소스별 지시·배경 선택을 제안에도 반영(포토 리메이크에서 옮김, v1.12)
+      const prefs = notes.some(Boolean) ? `\n\n[PER-SOURCE PREFERENCES] Mention each source by order (첫 번째 소스, 두 번째 소스...) and respect these preferences: ${notes.map((n, i) => `${i + 1}: ${n || "미지정"}`).join(" / ")}` : "";
+      const bgPref = b.background === "keep" ? "\n[BACKGROUND PREFERENCE] Keep the original background; never suggest a different place."
+        : b.background === "change" ? "\n[BACKGROUND PREFERENCE] Suggest a suitable new background." : "";
+      parts.push({ text: suggestSynthesisPrompt(bg, aspect) + prefs + bgPref });
       return json({ text: await textModel(apiKey, parts, { temperature: 0.7 }) });
     }
     if (type === "story" || type === "recipe") {

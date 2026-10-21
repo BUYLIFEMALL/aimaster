@@ -759,3 +759,17 @@ button[aria-pressed=true] {
     display: none;
   }
 }
+
+/* v1.12 포토 리메이크 병합: 원본·완성 비교 슬라이더, 합성 소스별 지시 */
+.bc-compare-wrap{display:flex;flex-direction:column;gap:6px}
+.bc-compare{position:relative;width:100%;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--stage);min-height:160px}
+.bc-compare img,.bc-compare-before img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.bc-compare-before{position:absolute;inset:0}
+.bc-compare-before img{background:var(--stage)}
+.bc-compare-label{position:absolute;top:8px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(0,0,0,.55);color:#fff;pointer-events:none}
+.bc-compare-label.left{left:8px}.bc-compare-label.right{right:8px}
+.bc-compare-divider{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--brand);pointer-events:none}
+.bc-compare-slider{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+.bc-compare-slider input{width:100%;accent-color:var(--brand);min-height:24px}
+.bc-notes{display:flex;flex-direction:column;gap:6px}
+.bc-notes small{font-weight:400;color:var(--muted)}

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, ImagePlus, Loader2, Maximize2, Plus, RefreshCw, Sparkles, Star, Trash2, Wand2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, Kind, ModelLevel } from "@/lib/bnc/types";
+import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, Kind, ModelLevel, SynthBackground } from "@/lib/bnc/types";
 import { ASPECTS, BUCKET, KIND_LABEL, MAX_SOURCES } from "@/lib/bnc/types";
 import { CATEGORIES, PROCESSES, STYLES } from "@/lib/bnc/styles";
 import { ACCEPT_ATTR, FORMAT_HELP, detectImage, sizeError } from "@/lib/bnc/paths";
@@ -45,6 +45,28 @@ function AspectPick({ value, onChange, withOriginal, options }: { value: AspectO
   );
 }
 
+/** 원본과 결과를 겹쳐 슬라이더로 비교(포토 리메이크에서 옮김, v1.12). 비율이 달라도 두 이미지를 같은 틀 안에 맞춰 보여 준다. */
+function Compare({ before, after, w, h }: { before: string; after: string; w: number; h: number }) {
+  const [pos, setPos] = useState(50);
+  return (
+    <div className="bc-compare-wrap">
+      <div className="bc-compare" style={{ aspectRatio: w && h ? `${w} / ${h}` : undefined }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={after} alt="완성 이미지" />
+        <div className="bc-compare-before" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={before} alt="원본 이미지" />
+        </div>
+        <span className="bc-compare-label left">원본</span><span className="bc-compare-label right">완성</span>
+        <span className="bc-compare-divider" style={{ left: `${pos}%` }} />
+      </div>
+      <label className="bc-compare-slider">원본과 완성 비교
+        <input type="range" min={0} max={100} value={pos} aria-label="원본과 완성 비교" onChange={(e) => setPos(Number(e.target.value))} />
+      </label>
+    </div>
+  );
+}
+
 /** 작업 카드: 아이콘·제목·한 줄 설명·"원본 필요" 표시를 한 모양으로 통일 */
 function Card({ icon, title, hint, needsImage, locked, children, id }: { icon: string; title: string; hint: string; needsImage?: boolean; locked?: boolean; children: React.ReactNode; id?: string }) {
   return (
@@ -82,6 +104,16 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
   // 합성
   const [synthPrompt, setSynthPrompt] = useState("");
   const [synthAspect, setSynthAspect] = useState<AspectOrOriginal>("original");
+  const [sourceNotes, setSourceNotes] = useState<Record<string, string>>({});
+  const [synthBg, setSynthBg] = useState<SynthBackground>("auto");
+  // 옛 사진 복원(포토 리메이크에서 옮김)
+  const [repairOn, setRepairOn] = useState(true);
+  const [colorizeOn, setColorizeOn] = useState(true);
+  const [restoreUp, setRestoreUp] = useState<0 | 2 | 4>(0);
+  const [restoreAspect, setRestoreAspect] = useState<AspectOrOriginal>("original");
+  const [restoreNote, setRestoreNote] = useState("");
+  // 결과 비교용: 실행할 때 쓴 원본
+  const [resultBase, setResultBase] = useState<string | null>(null);
   // 빠른 작업 / 스페셜
   const [planAspect, setPlanAspect] = useState<Aspect>("4:3");
   const [age, setAge] = useState("");
@@ -160,6 +192,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
 
   async function run(kind: Kind, extra: Record<string, unknown> = {}) {
     setError(null); setBusy(kind); setResult(null);
+    const usedBase = base?.url ?? null;
     const r = await api<Result>("/api/run", "POST", {
       params: { kind, model, base: base?.path, sources: sources.map((s) => s.path), ...extra },
     });
@@ -170,6 +203,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
       return;
     }
     setResult(r.data);
+    setResultBase(usedBase);
     // 좁은 화면(결과가 아래쪽)에서만 결과로 이동
     if (window.innerWidth < 1100) setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
@@ -179,6 +213,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
     const r = await api<{ text: string }>("/api/suggest", "POST", {
       type, base: base?.path, sources: sources.map((s) => s.path), prompt: type === "generate" ? idea : custom,
       category, processes, style, aspect: synthAspect,
+      sourceNotes: sources.map((s) => sourceNotes[s.path] ?? ""), background: synthBg,
     });
     setBusy("");
     if (!r.ok) { fail(r); return; }
@@ -224,6 +259,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
         <a href="#card-generate">✨ 생성</a>
         <a href="#card-quick">⚡ 빠른 작업</a>
         <a href="#card-story">🎞️ 스토리·레시피</a>
+        <a href="#card-restore">🕰️ 옛 사진 복원</a>
         <a href="#card-edit">🛠️ 편집</a>
         <a href="#card-composite">🧩 합성</a>
         <a href="#card-album">📖 인생 앨범</a>
@@ -311,6 +347,23 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
 
         {/* ───── 2열: 편집 · 합성 · 인생 앨범 · 만화 ───── */}
         <div className="bc-col">
+          <Card id="card-restore" icon="🕰️" title="옛 사진 복원" hint="원래 구도·얼굴·시대를 그대로 지키며 긁힘·빛바램을 고치고 흑백에 자연스러운 색을 입힙니다. 결과는 원본과 비교해 볼 수 있습니다." needsImage locked={noBase}>
+            <div className="bc-seg" role="group" aria-label="복원 방식">
+              <button type="button" aria-pressed={repairOn} disabled={disabled || noBase} onClick={() => setRepairOn((v) => !v)}>손상 복원</button>
+              <button type="button" aria-pressed={colorizeOn} disabled={disabled || noBase} onClick={() => setColorizeOn((v) => !v)}>흑백 컬러화</button>
+            </div>
+            <div className="bc-seg" role="group" aria-label="완성 크기">
+              <button type="button" aria-pressed={restoreUp === 0} disabled={disabled || noBase} onClick={() => setRestoreUp(0)}>기본 크기</button>
+              <button type="button" aria-pressed={restoreUp === 2} disabled={disabled || noBase} onClick={() => setRestoreUp(2)}>실제 2배 확대</button>
+              <button type="button" aria-pressed={restoreUp === 4} disabled={disabled || noBase} onClick={() => setRestoreUp(4)}>실제 4배 확대</button>
+            </div>
+            <AspectPick value={restoreAspect} onChange={setRestoreAspect} withOriginal />
+            <textarea rows={2} value={restoreNote} maxLength={600} onChange={(e) => setRestoreNote(e.target.value)} placeholder="추가 요청 (선택, 예: 얼굴과 옷 형태는 그대로 두고 빛바랜 부분만 다듬어 주세요)" disabled={disabled || noBase} aria-label="복원 추가 요청" />
+            <p className="bc-hint">확대는 AI 결과를 서버에서 실제 픽셀로 키웁니다(긴 변 최대 8,192px).</p>
+            <button type="button" className="primary" disabled={disabled || noBase}
+              onClick={() => void run("restore", { repair: repairOn, colorize: colorizeOn, upscale: restoreUp, aspect: restoreAspect, prompt: restoreNote })}>사진 복원하기</button>
+          </Card>
+
           <Card id="card-edit" icon="🛠️" title="이미지 편집" hint="처리 방식과 스타일을 고르고 필요하면 추가 요청을 적습니다." needsImage locked={noBase}>
             <div>
               <small className="bc-label">처리 방식 (복수 선택)</small>
@@ -350,11 +403,28 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
               <button type="button" className="bc-addsrc" disabled={disabled || noBase || sources.length >= MAX_SOURCES} onClick={() => srcRef.current?.click()}><Plus size={16} />소스 추가 ({sources.length}/{MAX_SOURCES})</button>
             </div>
             <input ref={srcRef} type="file" hidden accept={ACCEPT_ATTR} onChange={(e) => { void addSource(e.target.files?.[0]); e.target.value = ""; }} />
+            {sources.length > 0 && (
+              <div className="bc-notes">
+                {sources.map((s, i) => (
+                  <label key={s.path} className="bc-field">{i + 1}번째 소스 지시 <small>(선택)</small>
+                    <input value={sourceNotes[s.path] ?? ""} maxLength={300} disabled={disabled} placeholder="예: 오른손에 들기, 머리에 착용"
+                      onChange={(e) => setSourceNotes((n) => ({ ...n, [s.path]: e.target.value }))} />
+                  </label>
+                ))}
+              </div>
+            )}
+            <label className="bc-field">배경 처리
+              <select value={synthBg} onChange={(e) => setSynthBg(e.target.value as SynthBackground)} disabled={disabled || noBase}>
+                <option value="auto">자동(원본 배경이 없으면 새로 만듦)</option>
+                <option value="keep">원본 배경 유지</option>
+                <option value="change">합성 방식에 맞게 배경 변경</option>
+              </select>
+            </label>
             <textarea rows={2} value={synthPrompt} maxLength={600} onChange={(e) => setSynthPrompt(e.target.value)} placeholder="합성 방식 (예: 원본 인물에게 소스 갑옷을 입혀주세요)" disabled={disabled || noBase} aria-label="합성 방식" />
             <AspectPick value={synthAspect} onChange={setSynthAspect} withOriginal />
             <div className="bc-btns">
               <button type="button" className="bc-suggest" disabled={disabled || noBase || !sources.length} onClick={() => void suggest("synthesis", setSynthPrompt)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
-              <button type="button" className="primary" disabled={disabled || noBase || !sources.length || !synthPrompt.trim()} onClick={() => void run("synthesis", { prompt: synthPrompt, aspect: synthAspect })}>합성 실행</button>
+              <button type="button" className="primary" disabled={disabled || noBase || !sources.length || !synthPrompt.trim()} onClick={() => void run("synthesis", { prompt: synthPrompt, aspect: synthAspect, sourceNotes: sources.map((s) => sourceNotes[s.path] ?? ""), background: synthBg })}>합성 실행</button>
             </div>
           </Card>
 
@@ -399,7 +469,9 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
                 <div className={`bc-outs${result.outputs.length > 1 ? " multi" : ""}`}>
                   {result.outputs.map((o, i) => (
                     <figure key={`${o.path}-${i}`} className="bc-out">
-                      {o.url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={o.url} alt={`결과 ${i + 1}`} onClick={() => setZoom(o.url)} /> : <div className="bc-noimg">이미지를 만들지 못했습니다</div>}
+                      {o.url && resultBase && result.outputs.length === 1
+                        ? <Compare before={resultBase} after={o.url} w={o.w} h={o.h} />
+                        : o.url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={o.url} alt={`결과 ${i + 1}`} onClick={() => setZoom(o.url)} /> : <div className="bc-noimg">이미지를 만들지 못했습니다</div>}
                       {o.text && result.kind !== "comic" && <figcaption>{o.text}</figcaption>}
                       {o.url && (
                         <div className="actions">
