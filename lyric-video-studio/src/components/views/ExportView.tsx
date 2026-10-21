@@ -5,6 +5,7 @@ import { useStudio } from "@/components/studio/StudioContext";
 import { Preview, StudioBar } from "@/components/studio/parts";
 import { canSaveToFile, exportLyricVideo, exportLyricVideoToFile, MAX_EXPORT_SECONDS, MAX_FILE_EXPORT_SECONDS, pickSaveFile, type ExportProgress } from "@/lib/render/export";
 import { sizeFor } from "@/lib/design";
+import { YoutubeUploadCard } from "@/components/studio/YoutubeUploadCard";
 import { formatTime, isSynced } from "@/lib/lyrics";
 
 const safeName = (s: string) => s.replace(/[\\/:*?"<>|]/g, "_").trim().slice(0, 80);
@@ -12,7 +13,7 @@ const safeName = (s: string) => s.replace(/[\\/:*?"<>|]/g, "_").trim().slice(0, 
 export function ExportView() {
   const s = useStudio(), d = s.design;
   const [prog, setProg] = useState<ExportProgress | null>(null), [error, setError] = useState("");
-  const [result, setResult] = useState<{ url: string; size: number; name: string; savedTo?: string } | null>(null);
+  const [result, setResult] = useState<{ url: string; size: number; name: string; savedTo?: string; blob?: Blob } | null>(null);
   const abort = useRef<AbortController | null>(null);
   const [supported, setSupported] = useState(true), [fileOk, setFileOk] = useState(false), [toFile, setToFile] = useState(false);
   useEffect(() => { setSupported("VideoEncoder" in window && "AudioEncoder" in window); setFileOk(canSaveToFile()); }, []);
@@ -52,7 +53,7 @@ export function ExportView() {
         setResult({ url: "", size: 0, name, savedTo: file.name });
       } else {
         const blob = await exportLyricVideo({ scene: s.scene, audio: s.audio.buffer, signal: ctrl.signal, onProgress: setProg });
-        setResult({ url: URL.createObjectURL(blob), size: blob.size, name });
+        setResult({ url: URL.createObjectURL(blob), size: blob.size, name, blob });
       }
       setProg({ pct: 100, status: `완료 · ${Math.round((performance.now() - started) / 1000)}초 걸림` });
     } catch (e) {
@@ -102,6 +103,7 @@ export function ExportView() {
           <Link className="button" href="/design">← 디자인 다시 고르기</Link>
         </aside>
       </div>
+      {result &&<YoutubeUploadCard blob={result.blob ?? null} disabled={running} />}
     </div>
   );
 }

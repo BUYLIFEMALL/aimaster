@@ -24,7 +24,7 @@
 |---|---|---|---|
 | C1 | `music-automation` | 곡 카드 「가사 영상 만들기 →」 링크(2차, 주인님 승인) | 대기(2차) |
 | C2 | `playlist-channel-studio` | 플레이리스트 영상에 가사 층 사본 | 제안 |
-| C3 | `shorts-onestop-studio` | 세로 영상 유튜브 바로 올리기(공용 유튜브 연동 재사용) | 제안 |
+| C3 | `shorts-onestop-studio` | 유튜브 바로 올리기(공용 유튜브 연동 재사용) | ✅ v1.04 |
 
 ## 다른 프로그램 탐색 중 발견
 - `playlist-channel-studio/src/lib/render/video-exporter.ts`: 해상도가 가로 1920×1080/1280×720으로 고정되어 세로 영상이 없고 글자 그리기가 없다(2026-10-21 코드 확인). 가사 층을 넣을 때 세로 대응도 함께 필요.

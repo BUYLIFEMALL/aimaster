@@ -38,7 +38,7 @@ const MODULES = [
     // 유튜브 연결·토큰 갱신·업로드(한 번에 올리기 + 재개 가능 업로드 주소). 2026-10-21 엔진 공유 1번 — 쇼츠 원스톱이 브라우저에서 만든 MP4를 올릴 때 사용
     id: "youtube-upload-client",
     source: "shots/src/lib/youtube/client.ts",
-    copies: ["shorts-onestop-studio/src/lib/youtube/client.ts"],
+    copies: ["shorts-onestop-studio/src/lib/youtube/client.ts", "lyric-video-studio/src/lib/youtube/client.ts"],
   },
   {
     // OpenAI 모델별 요청 규칙(추론 모델 GPT-5·GPT-6·o는 temperature 제외·max_completion_tokens) + 모델 안내·거부 이유 문구. 2026-10-20
@@ -51,7 +51,7 @@ const MODULES = [
     // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
     id: "member-integrations",
     source: "lib/memberIntegrations.ts",
-    copies: ["threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts", "insta_auto_poster/src/lib/memberIntegrations.ts", "instagram-comment-reply/lib/memberIntegrations.ts", "shots/src/lib/memberIntegrations.ts", "youtube-auto-reply/lib/memberIntegrations.ts", "kakao_auto_poster/src/lib/memberIntegrations.ts", "naver-cafe-poster/src/lib/memberIntegrations.ts", "ai-influencer-studio/src/lib/memberIntegrations.ts", "ai-webtoon-studio/src/lib/memberIntegrations.ts", "shorts-onestop-studio/src/lib/memberIntegrations.ts"],
+    copies: ["threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts", "insta_auto_poster/src/lib/memberIntegrations.ts", "instagram-comment-reply/lib/memberIntegrations.ts", "shots/src/lib/memberIntegrations.ts", "youtube-auto-reply/lib/memberIntegrations.ts", "kakao_auto_poster/src/lib/memberIntegrations.ts", "naver-cafe-poster/src/lib/memberIntegrations.ts", "ai-influencer-studio/src/lib/memberIntegrations.ts", "ai-webtoon-studio/src/lib/memberIntegrations.ts", "shorts-onestop-studio/src/lib/memberIntegrations.ts", "lyric-video-studio/src/lib/memberIntegrations.ts"],
   },
   {
     // 인스타그램 게시(피드 1장·캐러셀 2~10장) — 회원 본인 연결값(insta_accounts, 한 번 연결해 여러 프로그램이 함께 사용). 2026-10-19

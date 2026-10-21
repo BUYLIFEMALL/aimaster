@@ -1,0 +1,94 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { ExternalLink, RefreshCw, Upload } from "lucide-react";
+import { api, toMsg, type Msg } from "@/components/ui/api";
+import { Message } from "@/components/ui/Message";
+import { useStudio } from "./StudioContext";
+import { uploadDefaults, uploadToYoutube, type Privacy, type UploadRecord } from "@/lib/youtube/browserUpload";
+
+// v1.04 만든 MP4를 내 유튜브 채널에 올리기(shorts-onestop-studio YoutubeUploadCard를 가사영상에 맞게 줄임).
+// 유튜브 연결은 다른 유튜브 프로그램에서 한 번 연결한 공용 계정을 그대로 쓴다(회원 본인 Google 앱·본인 채널만).
+type Status = { state: "ok" | "not_connected" | "no_scope" | "no_keys" | "other_app" | "reconnect"; channelTitle: string | null; message: string; connectPrograms: { name: string; url: string }[] };
+const PRIVACY: { id: Privacy; name: string }[] = [
+  { id: "private", name: "비공개(나만 보기 — 확인 뒤 직접 공개)" },
+  { id: "unlisted", name: "일부 공개(링크가 있는 사람만)" },
+  { id: "public", name: "공개(바로 모두에게)" },
+];
+const CATEGORIES = [{ id: "10", name: "음악" }, { id: "24", name: "엔터테인먼트" }, { id: "22", name: "인물·블로그" }];
+const PRIVACY_LABEL: Record<Privacy, string> = { private: "비공개", unlisted: "일부 공개", public: "공개" };
+
+export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disabled: boolean }) {
+  const s = useStudio();
+  const portrait = s.design.aspect === "portrait";
+  const [status, setStatus] = useState<Status | null>(null);
+  const [form, setForm] = useState(() => ({ ...uploadDefaults({ title: s.title, artist: s.artist, lines: s.lines, portrait }), privacy: "private" as Privacy, categoryId: "10", schedule: false, publishAt: "" }));
+  const [picked, setPicked] = useState<File | null>(null);
+  const [pct, setPct] = useState<number | null>(null), [msg, setMsg] = useState<Msg>(null), [done, setDone] = useState<UploadRecord[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const video = blob ?? picked;
+
+  async function check() {
+    setStatus(null);
+    try { setStatus(await api<Status>("/api/youtube/status")); } catch (e) { setMsg(toMsg(e)); }
+  }
+  useEffect(() => { void check(); }, []);
+
+  async function upload() {
+    if (!video || pct !== null) return;
+    setMsg(null); setPct(0);
+    try {
+      const publishAt = form.schedule && form.publishAt ? new Date(form.publishAt).toISOString() : null;
+      if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
+      const rec = await uploadToYoutube({ blob: video, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, portrait, onPct: setPct });
+      setDone((d) => [rec, ...d]);
+      setMsg({ text: publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`, ok: true });
+    } catch (e) {
+      setMsg(e instanceof Error && !(e as { needKey?: boolean }).needKey ? { text: e.message } : toMsg(e));
+      if (e instanceof Error && /연결|만료|권한|Client ID/.test(e.message)) void check();
+    } finally { setPct(null); }
+  }
+
+  const ok = status?.state === "ok";
+  return (
+    <section className="card stack">
+      <h2>📤 유튜브에 올리기</h2>
+      <p className="muted" style={{ fontSize: 12 }}>만든 MP4를 내 유튜브 채널에 바로 올립니다. 영상은 이 브라우저에서 유튜브로 직접 보내지고(서버 요금 없음), 유튜브 연결은 다른 유튜브 프로그램에서 한 번 연결한 계정을 그대로 씁니다. 처음에는 <strong>비공개</strong>로 올려 확인한 뒤 공개하는 것을 권합니다.</p>
+      <Message msg={msg} />
+      {!status ? <small className="muted">유튜브 연결을 확인하는 중…</small> : ok ? (
+        <div className="row" style={{ justifyContent: "space-between" }}><span className="badge brand">✅ 연결된 채널: {status.channelTitle ?? "내 채널"}</span><button type="button" onClick={() => void check()}><RefreshCw size={13} />다시 확인</button></div>
+      ) : (
+        <div className="stack" style={{ gap: 8 }}>
+          <small>⚠️ {status.message}</small>
+          <div className="actions">
+            {status.connectPrograms.map((p) => <a key={p.url} className="button" href={p.url} target="_blank" rel="noreferrer"><ExternalLink size={13} />{p.name}에서 연결</a>)}
+            <button type="button" onClick={() => void check()}><RefreshCw size={13} />연결했어요 · 다시 확인</button>
+          </div>
+        </div>
+      )}
+      {ok && <>
+        {!blob && (
+          <div className="row">
+            <button type="button" onClick={() => fileInput.current?.click()}>📁 저장한 MP4 고르기</button>
+            <small className="muted">{picked ? `✓ ${picked.name} (${(picked.size / 1024 / 1024).toFixed(1)}MB)` : "「파일로 바로 저장」으로 만들었다면 저장한 MP4를 골라 올립니다."}</small>
+            <input ref={fileInput} type="file" accept="video/mp4" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) setPicked(f); e.target.value = ""; }} />
+          </div>
+        )}
+        <label>제목 <small className="muted">({form.title.length}/100)</small><input value={form.title} maxLength={100} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
+        <label>설명란(가사·해시태그)<textarea rows={5} value={form.description} maxLength={5000} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
+        <label>검색 태그(쉼표로 구분)<input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} /></label>
+        <div className="field-grid two">
+          <label>공개 범위<select value={form.privacy} disabled={form.schedule} onChange={(e) => setForm({ ...form, privacy: e.target.value as Privacy })}>{PRIVACY.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
+          <label>카테고리<select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>{CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+        </div>
+        <label className="toggle"><input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} />정한 시각에 자동 공개(예약 — 그때까지 비공개)</label>
+        {form.schedule && <label>공개 시각<input type="datetime-local" value={form.publishAt} onChange={(e) => setForm({ ...form, publishAt: e.target.value })} /></label>}
+        {pct !== null && <div className="progress-box"><div className="progress-track"><div className="progress-fill" style={{ width: `${pct}%` }} /></div><small className="muted">{pct < 100 ? `유튜브로 보내는 중 ${pct}% — 이 탭을 닫지 마세요` : "유튜브가 받은 영상을 확인하는 중…"}</small></div>}
+        <div className="actions"><button type="button" className="primary" disabled={!video || disabled || pct !== null || !form.title.trim()} onClick={() => void upload()}><Upload size={14} />{done.length ? "유튜브에 한 번 더 올리기" : "유튜브에 올리기"}</button></div>
+        {done.length > 0 && <small className="muted">⚠️ 다시 누르면 새 영상으로 하나 더 올라갑니다.</small>}
+      </>}
+      {done.length > 0 && <div className="list">{done.map((d) => (
+        <a key={d.videoId} className="list-item" href={d.url} target="_blank" rel="noreferrer"><span>{d.title} · {d.publishAt ? `${new Date(d.publishAt).toLocaleString("ko-KR")} 예약 공개` : PRIVACY_LABEL[d.privacy]}</span><ExternalLink size={13} /></a>
+      ))}</div>}
+    </section>
+  );
+}
