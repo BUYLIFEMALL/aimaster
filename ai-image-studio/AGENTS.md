@@ -187,3 +187,10 @@
 ## 2026-10-21 v1.24 — 「바나나 캔버스로 보내 편집」 버튼 (Claude Code 윈도우)
 - `lib/bananaLink.ts`: 결과 주소가 우리 저장소(`ai-image-generations`) 서명 주소일 때만 `https://banana-canvas.buylife.xyz/studio?import=<서명 주소>` 링크를 만듦(공급사 주소로 남은 옛 기록은 버튼 없음). 결과 화면(`ImageResultViewer`)·갤러리 카드(🍌)·크게 보기 창에 새 창 링크. 바나나 캔버스 `api/import`가 본인 폴더만 받아 원본으로 넣음(banana-canvas v1.14).
 - 검수: tsc·시험 34개·build, 배포 Ready, DB v1.24. 크롬(관리자 계정, 본인 키) 1장 생성(`gemini-3.1-flash-lite-image`) → 갤러리 🍌 링크 → 바나나 캔버스 원본으로 들어옴 확인.
+
+## 2026-10-22 v1.25 — Ideogram·Recraft 11개 모델 호출 연결 (Claude Code 윈도우, 이미지 재비교 W1)
+- 원인: 모델 목록 `lib/providers/registry.ts`에는 Ideogram 7·Recraft 4 = 11개 모델이 있지만 실제 호출 담당을 묶은 `lib/providers/index.ts`의 adapters에 `ideogram`·`recraft`가 없어, 고르면 `Unsupported provider` 오류였음. 두 공급자는 `apiKeyProvider: "replicate"`이고 `ReplicateAdapter`에 이미 전용 옵션 처리(`style_type`·`magic_prompt_option`·`rendering_speed`·`character_reference_image`·`style`·`size`)가 있어 두 줄 등록으로 해결.
+- 사전 확인(무료): 11개 모델 이름 모두 Replicate 공개 페이지 200, 입력 규격(`/api/schema`)에서 기본값 「None」(resolution)·「Not set」(aspect_ratio)이 실제 허용 값임을 확인.
+- 재발 방지 시험 `tests/providerAdapters.test.mjs`(`npm run test:providers`): 목록의 모든 공급자에 호출 담당이 있는지 대조 — 수정 전 코드에서는 「호출 담당 없음: ideogram, recraft」로 실패함을 확인.
+- 검수: 시험 15개(providers+gemini-image)·화풍 18개 통과, tsc 0, build, 배포 `ai-image-studio-kkrhcnqm4` Ready, DB v1.25. 크롬(시험 회원 계정) Ideogram v3 Turbo 1장 시도 → 서버 오류 없이 **Replicate까지 요청 도달**, Replicate가 401(시험 계정에 등록된 Replicate 키 만료/무효)로 거절 → 생성·비용 없음. **실제 1장 생성 확인은 유효한 Replicate 키로 다시 해야 함**(관리자 로그인 또는 시험 계정 키 재등록).
+- 그대로 둔 것: 쓰지 않는 `adapters/fal.ts`, 목록에 없는 `adapters/stability.ts`(import만) — 동작 영향 없음, 정리는 별도 판단.

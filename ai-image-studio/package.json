@@ -10,7 +10,8 @@
     "test:access": "node scripts/test-access.cjs",
     "test:custom-prompts": "node --test tests/customStylePrompts.test.mjs tests/customPromptApi.test.mjs",
     "test:custom-prompts:browser": "node tests/customPromptBrowser.mjs",
-    "test:gemini-image": "node --test tests/geminiImage.test.mjs tests/nanoBananaModels.test.mjs"
+    "test:gemini-image": "node --test tests/geminiImage.test.mjs tests/nanoBananaModels.test.mjs",
+    "test:providers": "node --test tests/providerAdapters.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

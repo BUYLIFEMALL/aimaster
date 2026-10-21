@@ -10,6 +10,9 @@ const adapters: Record<string, ImageProviderAdapter> = {
   zimage: new ReplicateAdapter(),
   seedream: new ReplicateAdapter(),
   xai: new ReplicateAdapter(),
+  // Ideogram·Recraft도 Replicate 모델(apiKeyProvider: replicate)이라 같은 호출 담당을 쓴다(v1.25, 빠져 있어 11개 모델이 오류였음)
+  ideogram: new ReplicateAdapter(),
+  recraft: new ReplicateAdapter(),
   gemini: new GeminiAdapter(),
 };
 
