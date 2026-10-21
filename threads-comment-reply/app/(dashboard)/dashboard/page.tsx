@@ -5,8 +5,12 @@ import { getReplyAccount } from "@/lib/threads/memberAccount";
 import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
-import { StudioHeader, StatCard, Avatar } from "@/components/ui/StudioHeader";
+import { StudioHeader, StatCard } from "@/components/ui/StudioHeader";
+import { PendingReviewList } from "@/components/PendingReviewList";
 import { ThLogo } from "@/components/ui/ThLogo";
+
+// v1.18: 공용 기준 코드 `pending-review-list` 목록 색
+const LIST_CLASSES = { text: "text-th-text", muted: "text-th-muted", hover: "hover:bg-th-raised" };
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -161,30 +165,24 @@ export default async function DashboardPage() {
               전체 보기 →
             </Link>
           </div>
-          {(recentRes.data ?? []).length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-4xl">💬</p>
-              <p className="mt-2 text-sm text-th-muted">지금은 검토할 댓글이 없어요.</p>
-            </div>
-          ) : (
-            <ul className="space-y-4">
-              {(recentRes.data ?? []).map((c) => (
-                <li key={c.id}>
-                  <Link href={`/comments#post-${c.post_id}`} className="-mx-2 flex gap-3 rounded-lg px-2 py-1 hover:bg-th-raised">
-                    <Avatar name={c.author_username} size={32} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs">
-                        <span className="font-semibold text-th-text">{c.author_username ? `@${c.author_username}` : "익명"}</span>
-                        <span className="ml-2 text-th-muted">{formatDateTimeKo(c.fetched_at)}</span>
-                      </p>
-                      <p className="mt-0.5 line-clamp-2 break-words text-sm text-th-text">{c.comment_text}</p>
-                      <p className="mt-1 truncate text-[11px] text-th-muted">🧵 {textByPostId.get(c.post_id) || "(삭제된 글)"}</p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          <PendingReviewList
+            classes={LIST_CLASSES}
+            empty={
+              <div className="py-8 text-center">
+                <p className="text-4xl">💬</p>
+                <p className="mt-2 text-sm text-th-muted">지금은 검토할 댓글이 없어요.</p>
+              </div>
+            }
+            items={(recentRes.data ?? []).map((c) => ({
+              id: c.id,
+              href: `/comments#post-${c.post_id}`,
+              avatarName: c.author_username,
+              authorLabel: c.author_username ? `@${c.author_username}` : "익명",
+              at: c.fetched_at,
+              text: c.comment_text,
+              subText: `🧵 ${textByPostId.get(c.post_id) || "(삭제된 글)"}`,
+            }))}
+          />
         </div>
 
         <div className="th-card lg:col-span-2">
