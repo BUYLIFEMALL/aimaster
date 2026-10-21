@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.21** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.22** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -176,3 +176,9 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.21. 크롬 운영(일반 회원): 0.5초마다 빨강↔초록인 2장면 GIF + 2초 무음으로 1080p MP4(저장 위치는 브라우저 내부 저장소, 끝난 뒤 삭제) → 0.25초 빨강 5,550점·0.75초 초록 5,550점·1.25초 빨강 5,550점(반복 확인).
 - 같은 날 확인(코드 변경 없음): v1.19~v1.20의 Suno 시간 가사가 편집 미리보기에 실제로 표시됨 — 재생 약 15초에 「번진 불빛들을 세어 봤어」 강조 + 다음 줄 흐리게(Suno 시간 가사 조회 1회, 시험 계정 본인 키).
 - 비용: Vercel 빌드 1회, Suno 조회 1회(가사 표시 확인), AI 0회.
+
+## 2026-10-21 v1.22 — 앨범 커버 스타일 배경 + 유튜브 바로 올리기 (Claude Code 윈도우)
+- 플랜: [`docs/PLAN_20261021_V1_22_ALBUM_YOUTUBE.md`](docs/PLAN_20261021_V1_22_ALBUM_YOUTUBE.md)(v1.20 추가개선 1·3, 2는 음악 폴더가 다른 세션 작업 중이라 뒤로).
+- ① Suno 패널 「커버 배경 모양」: 흐린 커버+가운데 원본 / **앨범 커버**(커버를 위로, 아래 가운데에 제목(비우면 곡 제목)·채널명, 긴 글자 자동 축소, `Noto Sans KR` 계열).
+- ③ 유튜브 바로 올리기: 공용 사본 `src/lib/youtube/client.ts`(youtube-upload-client, 기준 shots)·`src/lib/memberIntegrations.ts`(member-integrations, 기준 루트 lib) 등록 — 직접 고치지 말고 `--sync`. `youtube/account.ts`(가사영상 v1.04에서 복사), `/api/youtube/status`·`/api/youtube/upload-session`(같은 출처·`requireAccess`, 최대 8GB, 카테고리 음악·엔터·인물), 카드 `components/video/YoutubeUploadCard.tsx`(기본 비공개·예약 공개·카테고리, 제목 「[Playlist] 첫 곡 외 N곡」, 설명 = 곡별 시작 시각 챕터·해시태그, 세로는 #Shorts). 크롬은 MP4를 고른 위치에 바로 저장하므로 「저장한 MP4 고르기」, 결과 데이터가 있으면 바로 사용. 다른 유튜브 프로그램에서 연결한 공용 계정 + 회원 본인 Google 앱만.
+- 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.22. 크롬 운영(일반 회원): 앨범 커버 + 채널명 「@buylife_music」으로 배경 생성 → 커버 아래 「빗속의 다짐」·채널명 표시 확인. 내보내기 화면에 유튜브 카드(시험 계정 유튜브 미연결 → 안내·연결 프로그램 2개), 업로드 주소 요청 409. **실제 업로드는 미검수**(유튜브 연결된 회원 계정으로 비공개 1회 확인 필요). 비용: Vercel 빌드 1회, AI 0회.

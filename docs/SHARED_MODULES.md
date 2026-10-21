@@ -70,6 +70,7 @@
 | 2026-10-21 배포 반영(Claude Code 윈도우) — `telegram-bot-client` 기준·사본 + `member-scheduler`(유튜브) | `instagram-comment-reply` v1.26·`threads-comment-reply` v1.16·`youtube-auto-reply` v1.21 | ✅ 세 프로그램 배포 Ready(대시보드 형식 통일 작업과 함께). 유튜브는 예약 사본도 함께 나감 — 설정 예약 상태 줄 정상, 회원 실행 주소 가짜 토큰 401. 남은 미배포: `instagram-comment-reply/lib/dmApp/telegram/client.ts`는 v1.26에 포함됨, `kakao_auto_poster`는 다음 배포 때 |
 | 2026-10-21 `youtube-upload-client` `uploadYoutubeVideo`에 선택값 `publishAt` 추가(Shots v1.28 예약 공개, 원스톱은 이 함수 미사용 — 동작 같음) | (없음) | ✅ 원스톱 v1.21(2026-10-21)로 배포됨 |
 | 2026-10-21 `lyric-timing` 등록(기준 `lyric-video-studio/src/lib/lyrics.ts`, 사본 `playlist-channel-studio/src/lib/lyrics.ts`) | (없음) | ✅ 플레이리스트 v1.17로 배포됨 |
+| 2026-10-21 `youtube-upload-client`·`member-integrations` 사본에 `playlist-channel-studio` 추가(새 사본, 기준 변경 없음) | (없음) | ✅ 플레이리스트 v1.22로 배포됨 |
 | 2026-10-21 `suno-timed-lyrics` 등록(기준 `lyric-video-studio/src/lib/sunoAlign.ts`, 사본 `playlist-channel-studio/src/lib/sunoAlign.ts`) | (없음) | ✅ 플레이리스트 v1.19로 배포됨 |
 | 2026-10-21 `youtube-upload-client`·`member-integrations` 사본에 `lyric-video-studio` 추가(새 사본, 기준 변경 없음) | (없음) | ✅ 가사영상 v1.04로 배포됨 |
 | 2026-10-21 `browser-mp4-encoder`에 `encodeMp4ToFile`(고른 파일에 조금씩 바로 쓰기, `FileSystemWritableFileStreamTarget`) 추가 — 공통 부분을 내부 `encodeInto`로 묶었고 기존 `encodeMp4`는 모양·동작 같음(급하지 않은 변경) | `shorts-onestop-studio`·`shots` 사본은 저장소에만 반영, 다음 배포 때 함께 | ✅ `lyric-video-studio` v1.02로 배포됨(사용처). 원스톱·Shots는 tsc 통과, 미배포 |

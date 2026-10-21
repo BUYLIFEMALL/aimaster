@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.22: 앨범 커버 스타일 배경 + 유튜브 바로 올리기
+
+① Suno 패널 커버 배경 「앨범 커버」(제목·채널명 글자) ③ 내보내기 화면 유튜브 업로드 카드(공용 사본 `youtube/client.ts`·`memberIntegrations.ts` 플레이리스트 추가, 설명 = 곡별 챕터, 크롬은 저장한 MP4 고르기). 크롬 일반 회원: 앨범 커버 배경 글자 확인, 유튜브 카드 연결 안내·업로드 주소 409(시험 계정 미연결 — **실제 업로드 미검수**). 배포 Ready, DB v1.22. 비용: Vercel 빌드 1회. 남음: 추가개선 2(음악 기획 목록에서 여러 기획 곡 넘기기)는 음악 폴더를 다른 세션이 작업 중(페르소나 v1.27 미커밋)이라 끝난 뒤.
+
+https://playlist-channel-studio.buylife.xyz/video
+
 ## 2026-10-21 Claude Code(윈도우) — 유튜브 댓글 v1.23 + 공용 기준 코드 pending-review-list·hash-highlight 등록 완료 + 통합 받은편지함 플랜
 
 유튜브도 공용 목록·강조 사본 적용(빨간색 2초 강조 확인). 세 댓글 프로그램(INSTA v1.29·쓰레드 v1.18·유튜브 v1.23) 모두 같은 부품 사용 — 기준 `instagram-comment-reply/components/`, 등록 `scripts/check-shared-modules.mjs`·`docs/SHARED_MODULES.md`·`docs/SHARED_FEATURE_MAP.md` 14절. 통합 받은편지함은 플랜만: `docs/PLAN_20261021_UNIFIED_COMMENT_INBOX.md`(추천 새 프로그램 1단계, 주인님 결정 대기). 비용: Vercel 빌드 3회(세 프로그램), AI 0회.

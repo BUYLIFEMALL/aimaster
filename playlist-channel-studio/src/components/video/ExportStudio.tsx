@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Track, StudioSettings, ExportSettings } from "@/types/playlist";
 import { exportVideoMp4, RenderProgress } from "@/lib/render/video-exporter";
+import { YoutubeUploadCard } from "./YoutubeUploadCard";
 
 interface ExportStudioProps {
   tracks: Track[];
@@ -46,6 +47,7 @@ export function ExportStudio({
   const [statusText, setStatusText] = useState("렌더링 대기 중");
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [lastBlob, setLastBlob] = useState<Blob | null>(null); // v1.22 파일로 바로 저장하지 않은 브라우저의 결과 — 유튜브 올리기에 바로 씀
 
   // Calculate single pass and total duration
   const singlePassDuration = tracks.reduce((acc, t) => acc + t.duration, 0);
@@ -95,6 +97,7 @@ export function ExportStudio({
         gifUrl
       );
 
+      setLastBlob(blob);
       if (blob) {
         const url = URL.createObjectURL(blob);
         setDownloadUrl(url);
@@ -292,6 +295,9 @@ export function ExportStudio({
             )}
           </button>
         </div>
+
+        {/* v1.22 만든 MP4를 내 유튜브 채널에 올리기(공용 유튜브 연결) */}
+        {tracks.length > 0 && <YoutubeUploadCard tracks={tracks} portrait={exportSettings.aspect === "9:16"} blob={lastBlob} disabled={isExporting} />}
       </div>
     </div>
   );

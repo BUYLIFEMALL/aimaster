@@ -8,6 +8,7 @@ import type { LyricLine } from "@/lib/lyrics";
 // v1.19 음악(SUNO) 자동화에서 만든 내 곡 여러 개를 골라 플레이리스트 곡 목록에 한 번에 추가한다.
 // 음악은 비공개 저장소의 1시간 서명 주소로 받고(서버에 새로 올리지 않음), 「시간 가사도 받기」를 켜면
 // 보컬 곡마다 회원 본인 Suno 키로 1번씩 시간 가사를 받아 그 곡의 가사 층(v1.17)에 바로 연결한다.
+// v1.22 「앨범 커버」 배경 모양 — 커버 아래에 제목·채널명 글자
 // v1.20 곡 커버로 배경 만들기(흐린 확대 커버 + 가운데 원본, 1920×1080) · 전체/보컬만/해제 · /video?suno=id1,id2 미리 선택
 const MUSIC_APP_URL = "https://music-automation.buylife.xyz";
 const MAX_PICK = 20;
@@ -30,7 +31,10 @@ async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
 const fmt = (s: number | null) => (s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}` : "");
 
 /** 정사각 커버를 16:9 배경으로 — 늘이면 찌그러지므로 흐리게 키운 커버 위에 원본 커버를 가운데 놓는다(세로 영상에서도 가운데가 남음) */
-async function coverBackdrop(coverUrl: string, title: string): Promise<BgMedia> {
+type AlbumText = { heading: string; channel: string } | null;
+const FONT = '"Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif';
+
+async function coverBackdrop(coverUrl: string, title: string, album: AlbumText = null): Promise<BgMedia> {
   const res = await fetch(coverUrl, { cache: "no-store" });
   if (!res.ok) throw new Error(`커버를 받지 못했습니다(${res.status}).`);
   const img = await createImageBitmap(await res.blob());
@@ -41,9 +45,18 @@ async function coverBackdrop(coverUrl: string, title: string): Promise<BgMedia> 
   ctx.filter = "blur(48px) brightness(0.55) saturate(1.2)";
   ctx.drawImage(img, (W - img.width * big) / 2, (H - img.height * big) / 2, img.width * big, img.height * big);
   ctx.filter = "none";
-  const side = Math.round(H * 0.72), x = (W - side) / 2, y = (H - side) / 2;
+  const side = Math.round(H * (album ? 0.56 : 0.72)), x = (W - side) / 2, y = album ? Math.round(H * 0.09) : (H - side) / 2;
   ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = 60; ctx.shadowOffsetY = 18;
   ctx.drawImage(img, x, y, side, side);
+  if (album) { // 앨범 커버 스타일 — 커버 아래 가운데에 제목(굵게)·채널명(작게). 세로 영상에서도 가운데가 남도록 가운데 정렬
+    await Promise.all([document.fonts.load(`800 76px ${FONT}`), document.fonts.load(`500 40px ${FONT}`)]).catch(() => {});
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0,0,0,0.7)"; ctx.shadowBlur = 24; ctx.shadowOffsetY = 4;
+    const fit = (text: string, weight: number, px: number) => { let p = px; do { ctx.font = `${weight} ${p}px ${FONT}`; p -= 4; } while (ctx.measureText(text).width > W * 0.8 && p > 28); };
+    const heading = album.heading.trim() || title;
+    fit(heading, 800, 76); ctx.fillStyle = "#ffffff"; ctx.fillText(heading, W / 2, y + side + 90);
+    if (album.channel.trim()) { fit(album.channel.trim(), 500, 40); ctx.fillStyle = "rgba(255,255,255,0.78)"; ctx.fillText(album.channel.trim(), W / 2, y + side + 160); }
+  }
   const blob = await new Promise<Blob | null>((ok) => c.toBlob(ok, "image/jpeg", 0.92));
   if (!blob) throw new Error("배경 그림을 만들지 못했습니다.");
   return { type: "image", url: URL.createObjectURL(blob), name: `${title.slice(0, 40)} 커버 배경.jpg` };
@@ -59,6 +72,8 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
   const [picked, setPicked] = useState<string[]>([]), [withTime, setWithTime] = useState(true), [coverAsBg, setCoverAsBg] = useState(true);
   const [busy, setBusy] = useState(""), [report, setReport] = useState<{ text: string; ok: boolean; needKey?: boolean } | null>(null);
   const [incoming, setIncoming] = useState(0);
+  const [bgStyle, setBgStyle] = useState<"blur" | "album">("blur"), [heading, setHeading] = useState(""), [channel, setChannel] = useState("");
+  const albumText = (title: string): AlbumText => (bgStyle === "album" ? { heading: heading.trim() || title, channel } : null);
 
   async function load() {
     setListError("");
@@ -88,7 +103,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
     try {
       const { variant } = await getJson<{ variant: VariantInfo }>(`/api/suno/tracks?variant=${t.variants[0].id}`);
       if (!variant.coverUrl) throw new Error("이 곡에는 커버 이미지가 없습니다.");
-      setBgMedia(await coverBackdrop(variant.coverUrl, t.title));
+      setBgMedia(await coverBackdrop(variant.coverUrl, t.title, albumText(t.title)));
       setReport({ ok: true, text: `「${t.title}」 커버로 배경을 만들었습니다(흐린 확대 커버 + 가운데 원본, 1920×1080).` });
     } catch (e) { setReport({ ok: false, text: e instanceof Error ? e.message : "배경을 만들지 못했습니다." }); }
     finally { setBusy(""); }
@@ -137,7 +152,7 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
     if (added.length) setTracks((prev) => [...prev, ...added]);
     if (added.length && coverAsBg && !hasBg && firstCover) {
       setBusy("첫 곡 커버로 배경을 만드는 중…");
-      try { setBgMedia(await coverBackdrop(firstCover.url, firstCover.title)); bgDone = ` 배경은 「${firstCover.title}」 커버로 만들었습니다.`; }
+      try { setBgMedia(await coverBackdrop(firstCover.url, firstCover.title, albumText(firstCover.title))); bgDone = ` 배경은 「${firstCover.title}」 커버로 만들었습니다.`; }
       catch (e) { problems.push(`배경: ${e instanceof Error ? e.message : "만들지 못함"}`); }
     }
     setBusy(""); setPicked([]); setIncoming(0);
@@ -159,6 +174,17 @@ export function SunoImportPanel({ setTracks, hasBg, setBgMedia }: {
             <label className="flex items-center gap-2 text-xs text-[#ddd]"><input type="checkbox" checked={withTime} onChange={(e) => setWithTime(e.target.checked)} />Suno 시간 가사도 받기<span className="text-[#888]">— 끄면 음악만 추가</span></label>
             <label className="flex items-center gap-2 text-xs text-[#ddd]"><input type="checkbox" checked={coverAsBg} onChange={(e) => setCoverAsBg(e.target.checked)} />배경이 없으면 첫 곡 커버를 배경으로</label>
           </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-[#ddd]">
+            <span className="text-[#aaa]">커버 배경 모양</span>
+            <label className="flex items-center gap-1"><input type="radio" name="suno-bg-style" checked={bgStyle === "blur"} onChange={() => setBgStyle("blur")} />흐린 커버 + 가운데 원본</label>
+            <label className="flex items-center gap-1"><input type="radio" name="suno-bg-style" checked={bgStyle === "album"} onChange={() => setBgStyle("album")} />앨범 커버(제목·채널명 글자)</label>
+          </div>
+          {bgStyle === "album" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input value={heading} maxLength={40} onChange={(e) => setHeading(e.target.value)} placeholder="제목(비우면 곡 제목)" className="bg-[#121212] border border-[#333] rounded-lg px-3 py-2 text-xs text-white" />
+              <input value={channel} maxLength={40} onChange={(e) => setChannel(e.target.value)} placeholder="채널명(선택, 예: @mychannel)" className="bg-[#121212] border border-[#333] rounded-lg px-3 py-2 text-xs text-white" />
+            </div>
+          )}
           {listError && <div className="text-xs text-red-400">{listError}</div>}
           {list === null && <div className="text-xs text-[#aaa] flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" />곡 목록을 불러오는 중…</div>}
           {list && !list.length && !listError && (
