@@ -105,3 +105,7 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 4개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 Claude Code(윈도우) — 카테고리 이동(DB 값만)
+- 주인님 결정(데이터수집|기획 병합 분석 보고서 §5)으로 `programs.category_id`를 「데이터수집|기획」 → 「이미지」(`b5cec438-a6cc-43e5-83bc-59368f8a2c4d`)로 바꿈. 코드·버전 변경 없음(v1.09 유지, 원칙 22: DB 값만 바꾼 작업은 버전을 올리지 않음).
+- 백업: `D:\Antigravity\AIMaster_backup\category-move-20261021\cinematic-storyboard-studio_before.json`. 확인: 메인 「이미지」 카테고리에 노출, 「데이터수집|기획」에서 빠짐(크롬).

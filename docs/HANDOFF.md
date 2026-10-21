@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 시네마틱 스토리보드 카테고리 → 「이미지」
+
+- 운영 DB(`esgxyikcnnvmlhygjkth`) `programs.category_id`만 변경(버전 v1.09 그대로). 백업 `D:\Antigravity\AIMaster_backup\category-move-20261021`. 크롬: 「이미지」 목록 노출·「데이터수집|기획」 미노출 확인. 다음: 병합 C(프롬프트 템플릿 → AI Prompt).
+
+https://www.buylife.xyz/programs/category/image
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 병합 B 완료: 페르소나 문체 → AI 글쓰기 에디터 「🎚️ 문체 바꾸기」
 
 - ai-writing-editor v1.11(에디터 상단 [문체 바꾸기]·선택 툴바 [🎚️ 문체] → 오른쪽 패널: 범위 선택 부분/글 전체, 기본 페르소나 10·나만의 페르소나(AI 채우기·저장), 프리셋 8, 슬라이더 5, 미리보기 후 적용. API `/api/style-rewrite`·`/api/personas`·`/api/persona-generate`, 회원 본인 Gemini 키), persona-style-studio v1.09(안내 화면·API 410·카탈로그 숨김). FREE 배지 없음 유지(주인님 결정).
