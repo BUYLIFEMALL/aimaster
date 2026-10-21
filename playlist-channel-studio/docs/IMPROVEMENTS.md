@@ -13,6 +13,8 @@
 | IMP-PLS-002 | UI/UX | 사이드바 유틸리티 `📖 연동 & 사용 매뉴얼` 표준화 및 계정 블록 12px 밀착 정렬 | P2 (높음) | **진행 중 (v1.08 반영)** | 2026-10-16 (agy) | `src/components/layout/Sidebar.tsx` |
 | IMP-PLS-003 | 기능/편의성 | 생성된 썸네일과 트랙리스트 타임라인을 원클릭으로 텍스트 파일(.txt) 일괄 내보내기 | P2 (높음) | 제안/대기 | 2026-10-16 (agy) | `src/components/studio/` |
 | IMP-PLS-004 | 기능 | Suno AI 프롬프트 생성 시 Suno v3.5 vs v4.0 vs v5.0 엔진별 최적화 프리셋 토글 지원 | P2 (높음) | 제안/대기 | 2026-10-16 (agy) | `src/lib/playlist/prompts.ts` |
+| IMP-PLS-006 | 기능/품질 | MP4 내보내기의 스펙트럼이 실제 소리가 아니라 sin/cos로 만든 가짜 값(`dummyFreq`) — 미리보기(실제 분석)와 결과가 다름. 디코딩한 소리에서 프레임마다 FFT로 계산(가사영상 `lyric-video-studio/src/lib/render/spectrum.ts` 방식) 권장 | P2 (높음) | 제안/대기 | 2026-10-21 (Claude Code) | `src/lib/render/video-exporter.ts` |
+| IMP-PLS-007 | 기능 | 영상 만들기 곡별 가사 층 + 세로 9:16 | P2 | **완료 (v1.17)** | 2026-10-21 (Claude Code) | `lyrics-layer.ts`·`MediaCenter.tsx`·`EditorStudio.tsx`·`ExportStudio.tsx`·`video-exporter.ts` |
 | IMP-PLS-005 | 편의성 | 썸네일 Canvas 편집기에서 자주 쓰는 한글 감성 폰트 즐겨찾기(Pin) 기능 | P3 (보통) | 제안/대기 | 2026-10-16 (agy) | `src/components/studio/ThumbnailTab.tsx` |
 
 ---

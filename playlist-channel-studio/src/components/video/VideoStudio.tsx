@@ -92,6 +92,8 @@ export function VideoStudio({ userId }: { userId: string }) {
             onExportClick={() => setTab("export")}
             isExporting={isExporting}
             exportProgress={exportProgress}
+            aspect={exportSettings.aspect ?? "16:9"}
+            setAspect={(a) => setExportSettings((p) => ({ ...p, aspect: a }))}
           />
         )}
         {tab === "export" && (

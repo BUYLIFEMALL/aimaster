@@ -74,6 +74,13 @@ export const EFFECT_COLOR_PRESETS = [
 ];
 
 export const DEFAULT_SETTINGS: StudioSettings = {
+  lyricsEnabled: true,
+  lyricsSize: 56,
+  lyricsY: 80,
+  lyricsColor: '#ffffff',
+  lyricsAccent: '#22d3ee',
+  lyricsMode: 'color',
+  lyricsNext: true,
   visualizerType: 'BARS',
   barCount: 64,
   barWidth: 8,
@@ -180,4 +187,5 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   format: 'MP4',
   audioBitrate: 192000,
   repeatCount: 1,
+  aspect: '16:9',
 };

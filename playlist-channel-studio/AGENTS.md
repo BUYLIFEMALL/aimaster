@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.10** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.17** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -140,3 +140,11 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 
 ## 2026-10-20 병합 E 3단계 완료 — 카탈로그 「YOUTUBE 플레이리스트 자동화」 (Claude Code 윈도우)
 - DB 이름·소개 갱신, 옛 Youtube Playlist 자동화 노출 중지·옛 주소 이동/API 전달. 브라우저 MP4 렌더(`src/lib/render/`)의 기준 위치가 이제 이 앱. 상세 플랜 §8.
+
+## 2026-10-21 v1.17 — 영상 만들기에 곡별 가사 층 + 세로 9:16 (Claude Code 윈도우)
+- 플랜: [`docs/PLAN_20261021_LYRICS_LAYER_VERTICAL.md`](docs/PLAN_20261021_LYRICS_LAYER_VERTICAL.md)(AI 가사영상 자동화 추가개선 3-b).
+- ① 곡 목록 행마다 「＋ 가사」(.srt/.lrc/.txt, 시간 있는 줄만) · 「가사 ✕」, 곡을 넣을 때 같은 이름의 .srt/.lrc를 함께 고르면 자동 짝(`MediaCenter.tsx`). ② 가사 그리기 `src/lib/render/lyrics-layer.ts`(지금 줄 + 다음 줄 흐리게, 색 강조/노래방 채움, 크기·세로 위치·색) — 미리보기(`EditorStudio.tsx`, 오른쪽 패널 「화면 모양 · 가사 표시」)와 MP4(`video-exporter.ts`, 반복 재생도 곡 순서대로 `locate`)가 같은 함수. ③ 세로 9:16(1080×1920 / 720×1280) — 내보내기 「화면 모양」·편집 패널, 세로는 배경 잘라 맞춤(가로는 기존처럼 늘이기 그대로).
+- 가사 읽기는 **공용 기준 코드 `lyric-timing` 사본** `src/lib/lyrics.ts`(기준 `lyric-video-studio/src/lib/lyrics.ts`, 직접 고치지 말고 `--sync`).
+- 검수: tsc·시험 20개·build, 로컬 임시 화면(커밋 전 삭제·로그인 예외 원복)에서 곡 2개+가사(자동 짝 .srt·버튼 .lrc) → 세로 미리보기 실제 재생 가사 표시 → 세로 MP4(저장 위치를 OPFS로 바꿔 끼워 시험) 1080×1920·12.01초·영상+소리, 1.5초·7.5초 장면에 곡별 가사 확인. 운영 화면 확인은 배포 후 아래.
+- 발견(미처리): MP4 내보내기의 스펙트럼이 실제 소리가 아니라 계산한 가짜 값(`dummyFreq`) — `docs/IMPROVEMENTS.md` IMP-PLS-006.
+

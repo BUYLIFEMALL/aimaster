@@ -19,6 +19,17 @@ import {
   Wand2
 } from "lucide-react";
 import { Track, ExportSettings } from "@/types/playlist";
+import { isSynced, parseLyrics, type LyricLine } from "@/lib/lyrics";
+
+// v1.17 곡별 가사 파일 읽기 — UTF-8로 깨지면 메모장 옛 저장(EUC-KR)으로 다시 읽는다
+async function readLyrics(file: File): Promise<LyricLine[]> {
+  const buf = await file.arrayBuffer();
+  let raw = new TextDecoder("utf-8").decode(buf);
+  if (raw.includes("\uFFFD")) { try { raw = new TextDecoder("euc-kr").decode(buf); } catch { /* 그대로 */ } }
+  return parseLyrics(raw, file.name).lines.filter(isSynced);
+}
+const LYRIC_EXT = /\.(srt|lrc|txt)$/i;
+const baseName = (n: string) => n.replace(/\.[^/.]+$/, "").toLowerCase();
 
 interface MediaCenterProps {
   userId?: string | null;
@@ -56,6 +67,9 @@ export function MediaCenter({
   const [customAiPrompt, setCustomAiPrompt] = useState("");
 
   const audioInputRef = useRef<HTMLInputElement>(null);
+  const lyricInputRef = useRef<HTMLInputElement>(null);
+  const [lyricTarget, setLyricTarget] = useState<number | null>(null);
+  const [lyricMsg, setLyricMsg] = useState("");
   const bgInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const gifInputRef = useRef<HTMLInputElement>(null);
@@ -76,6 +90,9 @@ export function MediaCenter({
   const handleAudioFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const newTracks: Track[] = [];
+    // 같은 이름의 .srt/.lrc를 함께 고르면 그 곡의 가사로 자동 짝(예: 봄날.mp3 + 봄날.srt)
+    const lyricFiles = new Map<string, File>();
+    for (let i = 0; i < files.length; i++) if (LYRIC_EXT.test(files[i].name)) lyricFiles.set(baseName(files[i].name), files[i]);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -98,6 +115,7 @@ export function MediaCenter({
         url,
         file,
         size: file.size,
+        ...(lyricFiles.has(baseName(file.name)) ? await readLyrics(lyricFiles.get(baseName(file.name))!).then((lyrics) => (lyrics.length ? { lyrics, lyricsName: lyricFiles.get(baseName(file.name))!.name } : {})).catch(() => ({})) : {}),
       });
     }
 
@@ -116,6 +134,17 @@ export function MediaCenter({
       return copy;
     });
   };
+
+  // v1.17 곡마다 가사 넣기·빼기
+  const attachLyrics = async (index: number, file: File) => {
+    setLyricMsg("");
+    try {
+      const lyrics = await readLyrics(file);
+      if (!lyrics.length) { setLyricMsg(`「${file.name}」에서 시간이 있는 가사를 찾지 못했습니다. .srt나 .lrc처럼 시간이 붙은 파일을 넣어 주세요(시간 맞추기는 AI 가사영상 자동화에서 할 수 있습니다).`); return; }
+      setTracks((prev) => prev.map((t, i) => (i === index ? { ...t, lyrics, lyricsName: file.name } : t)));
+    } catch { setLyricMsg("가사 파일을 읽지 못했습니다."); }
+  };
+  const removeLyrics = (index: number) => setTracks((prev) => prev.map((t, i) => (i === index ? { ...t, lyrics: undefined, lyricsName: undefined } : t)));
 
   // Delete track
   const deleteTrack = (index: number) => {
@@ -255,9 +284,16 @@ export function MediaCenter({
               ref={audioInputRef}
               type="file"
               multiple
-              accept="audio/*,.mp3,.wav,.flac,.m4a"
+              accept="audio/*,.mp3,.wav,.flac,.m4a,.srt,.lrc"
               className="hidden"
               onChange={(e) => handleAudioFiles(e.target.files)}
+            />
+            <input
+              ref={lyricInputRef}
+              type="file"
+              accept=".srt,.lrc,.txt,text/plain"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f && lyricTarget !== null) void attachLyrics(lyricTarget, f); e.target.value = ""; }}
             />
             <div className="w-14 h-14 rounded-2xl bg-[#272727] text-[#ff0000] group-hover:bg-[#ff0000] group-hover:text-white group-hover:scale-105 flex items-center justify-center transition-all">
               <Upload className="w-7 h-7" />
@@ -272,6 +308,7 @@ export function MediaCenter({
 
           {/* 트랙 목록 리스트 */}
           <div className="bg-[#181818] rounded-2xl border border-[#272727] overflow-hidden">
+            {lyricMsg && <p className="px-4 py-2 text-[11px] text-amber-300 border-b border-[#272727]">{lyricMsg}</p>}
             {tracks.length === 0 ? (
               <div className="py-12 text-center text-[#777777] text-xs">
                 업로드된 음원이 없습니다. 음악 파일을 드롭해 시작하세요.
@@ -293,11 +330,17 @@ export function MediaCenter({
                         </p>
                         <p className="text-[10px] text-[#aaaaaa] mt-0.5 font-mono">
                           재생 시간: {formatTime(track.duration)}
+                          {track.lyrics?.length ? <span className="ml-2 text-cyan-300">· 가사 {track.lyrics.length}줄</span> : null}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
+                      {track.lyrics?.length ? (
+                        <button onClick={() => removeLyrics(idx)} title={`가사 빼기 (${track.lyricsName ?? ""})`} className="px-2 py-1 text-[10px] font-bold text-cyan-300 rounded hover:bg-[#272727]">가사 ✕</button>
+                      ) : (
+                        <button onClick={(e) => { e.stopPropagation(); setLyricTarget(idx); lyricInputRef.current?.click(); }} title="이 곡의 가사(.srt/.lrc) 넣기" className="px-2 py-1 text-[10px] font-bold text-[#aaaaaa] hover:text-white rounded hover:bg-[#272727]">＋ 가사</button>
+                      )}
                       <button
                         onClick={() => moveTrack(idx, 'up')}
                         disabled={idx === 0}

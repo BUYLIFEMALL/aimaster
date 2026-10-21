@@ -35,6 +35,12 @@ const MODULES = [
     copies: ["shots/src/lib/render/mp4Encoder.ts", "lyric-video-studio/src/lib/render/mp4Encoder.ts"],
   },
   {
+    // 가사 시간표 읽기·쓰기(.srt·.lrc·붙여넣기, 형식 오류에 너그러움, 탭 싱크·줄 끝·파형 끌기 규칙). 2026-10-21 — 기준 시험 lyric-video-studio/tests/lyrics.test.ts
+    id: "lyric-timing",
+    source: "lyric-video-studio/src/lib/lyrics.ts",
+    copies: ["playlist-channel-studio/src/lib/lyrics.ts"],
+  },
+  {
     // 유튜브 연결·토큰 갱신·업로드(한 번에 올리기 + 재개 가능 업로드 주소). 2026-10-21 엔진 공유 1번 — 쇼츠 원스톱이 브라우저에서 만든 MP4를 올릴 때 사용
     id: "youtube-upload-client",
     source: "shots/src/lib/youtube/client.ts",

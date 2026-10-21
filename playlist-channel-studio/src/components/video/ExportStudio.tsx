@@ -157,7 +157,7 @@ export function ExportStudio({
             </div>
             <div className="p-3 bg-[#212121] rounded-xl border border-[#272727]">
               <span className="text-[10px] font-bold text-[#aaaaaa]">해상도 / FPS</span>
-              <p className="text-sm font-extrabold text-white mt-0.5 font-mono">{exportSettings.resolution} / {exportSettings.fps}fps</p>
+              <p className="text-sm font-extrabold text-white mt-0.5 font-mono">{exportSettings.aspect === "9:16" ? "세로 " : ""}{exportSettings.resolution} / {exportSettings.fps}fps</p>
             </div>
           </div>
 
@@ -196,6 +196,26 @@ export function ExportStudio({
                     }`}
                   >
                     {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* v1.17 화면 모양 — 세로는 쇼츠·릴스용(1080×1920 / 720×1280), 배경은 잘라 맞춤 */}
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-xs font-bold text-[#aaaaaa]">화면 모양</label>
+              <div className="grid grid-cols-2 gap-2">
+                {([["16:9", "🖥️ 가로 16:9 (유튜브)"], ["9:16", "📱 세로 9:16 (쇼츠·릴스)"]] as const).map(([a, label]) => (
+                  <button
+                    key={a}
+                    onClick={() => setExportSettings((p) => ({ ...p, aspect: a }))}
+                    className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                      (exportSettings.aspect ?? "16:9") === a
+                        ? "bg-[#ff0000] text-white border-[#ff0000] shadow-md shadow-red-950"
+                        : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:bg-[#272727] hover:text-white"
+                    }`}
+                  >
+                    {label}
                   </button>
                 ))}
               </div>

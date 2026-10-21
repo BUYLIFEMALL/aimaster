@@ -1,3 +1,5 @@
+import type { LyricLine } from "@/lib/lyrics";
+
 export interface Track {
   id: string;
   name: string;
@@ -6,6 +8,9 @@ export interface Track {
   url: string;
   file?: File;
   size?: number;
+  /** v1.17 곡별 가사 시간표(.srt/.lrc) — 시간 있는 줄만 영상에 나온다 */
+  lyrics?: LyricLine[];
+  lyricsName?: string;
 }
 
 export type VisualizerType =
@@ -43,7 +48,18 @@ export interface ParticleItem {
   icon: string;
 }
 
+export type LyricsMode = 'color' | 'karaoke';
+
 export interface StudioSettings {
+  // v1.17 가사 표시(곡별 가사가 있을 때)
+  lyricsEnabled: boolean;
+  lyricsSize: number; // 1080 기준 글자 크기(px)
+  lyricsY: number; // 화면 높이 대비 위치 %
+  lyricsColor: string;
+  lyricsAccent: string;
+  lyricsMode: LyricsMode;
+  lyricsNext: boolean; // 다음 줄 흐리게 함께
+
   // Visualizer Core
   visualizerType: VisualizerType;
   barCount: number;
@@ -158,4 +174,5 @@ export interface ExportSettings {
   format: 'MP4';
   audioBitrate: number; // 96000, 128000, 192000, 320000
   repeatCount: number; // 1, 2, 3, 5
+  aspect: '16:9' | '9:16'; // v1.17 세로(쇼츠) 영상
 }

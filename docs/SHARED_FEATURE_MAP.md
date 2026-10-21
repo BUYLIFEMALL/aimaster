@@ -185,3 +185,13 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 ## 2026-10-19 기능 안정화·점진 레퍼런스 모듈화와 아이디어 검토
 
 당분간 기능 개선·안정화 우선입니다. 개선 중 검증된 기능을 레퍼런스로 정리해 신규 개발/리뉴얼 때 하나씩 적용합니다. 일괄 교체는 시작하지 않습니다. [확장 지도·경계·검증 기준](analysis-20261019/REFERENCE_MODULE_PROPOSAL.md), [아이디어 표·세 가지 검토 기준](PROGRAM_IDEA_BACKLOG.md)를 함께 읽습니다. 기존 공식 기준/사본 분류는 위 표를 따르며 신규 후보는 아직 기준으로 승격하지 않았습니다.
+
+## 13. 가사 시간표 읽기·쓰기 — 공용 모듈 `lyric-timing` (2026-10-21 등록)
+
+.srt·.lrc·붙여넣기 가사를 시간표로 읽고(번호 빠짐·화살표 공백·CRLF·BOM·꾸밈 태그에 너그러움), 탭 싱크·줄 끝·파형 끌기·시간 밀기·.srt 쓰기 규칙을 담는다. 그리기는 각 프로그램(가사영상은 프리셋 디자인, 플레이리스트는 아래쪽 자막형).
+
+| 프로그램 | 파일 | 상태 | 비고 |
+|---|---|---|---|
+| lyric-video-studio | `src/lib/lyrics.ts` (+ `tests/lyrics.test.ts` 8개) | 🟢 기준 | v1.01~v1.04 |
+| playlist-channel-studio | `src/lib/lyrics.ts` | 🔵 사본 | v1.17 영상 만들기 곡별 가사 층(`lib/render/lyrics-layer.ts`) |
+

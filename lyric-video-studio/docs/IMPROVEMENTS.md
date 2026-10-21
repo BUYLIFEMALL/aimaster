@@ -23,7 +23,7 @@
 | # | 대상 | 내용 | 상태 |
 |---|---|---|---|
 | C1 | `music-automation` | 곡 카드 「가사 영상 만들기 →」 링크(2차, 주인님 승인) | 대기(2차) |
-| C2 | `playlist-channel-studio` | 플레이리스트 영상에 가사 층 사본 | 제안 |
+| C2 | `playlist-channel-studio` | 플레이리스트 영상에 가사 층 + 세로 9:16 | ✅ 플레이리스트 v1.17(공용 `lyric-timing` 사본) |
 | C3 | `shorts-onestop-studio` | 유튜브 바로 올리기(공용 유튜브 연동 재사용) | ✅ v1.04 |
 
 ## 다른 프로그램 탐색 중 발견

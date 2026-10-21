@@ -42,6 +42,8 @@ import {
   getFilterString
 } from "@/lib/render/canvas-visualizer";
 import { ParticleSystem } from "@/lib/render/particle-system";
+import { drawCover, drawLyricsLayer } from "@/lib/render/lyrics-layer";
+import { timeline, type LyricLine } from "@/lib/lyrics";
 
 interface EditorStudioProps {
   tracks: Track[];
@@ -53,6 +55,9 @@ interface EditorStudioProps {
   onExportClick: () => void;
   isExporting: boolean;
   exportProgress: number;
+  /** v1.17 화면 모양(내보내기 설정과 같은 값) */
+  aspect: '16:9' | '9:16';
+  setAspect: (a: '16:9' | '9:16') => void;
 }
 
 export function EditorStudio({
@@ -65,7 +70,10 @@ export function EditorStudio({
   onExportClick,
   isExporting,
   exportProgress,
+  aspect,
+  setAspect,
 }: EditorStudioProps) {
+  const portrait = aspect === '9:16';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -79,6 +87,9 @@ export function EditorStudio({
   const [duration, setDuration] = useState(0);
 
   const currentTrack = tracks[currentTrackIndex] || null;
+  // v1.17 지금 곡의 가사 시간표(그리기 반복문이 매 장면 읽는다)
+  const lyricsRef = useRef<LyricLine[]>([]);
+  lyricsRef.current = currentTrack?.lyrics?.length ? timeline(currentTrack.lyrics, currentTrack.duration || Infinity) : [];
 
   // Background and logo images cache
   const bgImgRef = useRef<HTMLImageElement | null>(null);
@@ -254,7 +265,7 @@ export function EditorStudio({
         const filterStr = getFilterString(settings.filterType, settings.filterIntensity, bassLevel);
         const brightStr = `brightness(${settings.brightness}%)`;
         ctx.filter = `${brightStr} ${filterStr}`.trim();
-        ctx.drawImage(bgImgRef.current, 0, 0, width, height);
+        if (portrait) drawCover(ctx, bgImgRef.current, width, height); else ctx.drawImage(bgImgRef.current, 0, 0, width, height);
         ctx.restore();
       }
 
@@ -281,6 +292,9 @@ export function EditorStudio({
 
       // 7. Particles
       particleSystemRef.current.updateAndDraw(ctx, width, height, settings, timeMs);
+
+      // 7-1. v1.17 가사(지금 곡, 재생 위치 기준 — 내보내기와 같은 함수)
+      drawLyricsLayer(ctx, width, height, lyricsRef.current, audioRef.current?.currentTime ?? 0, settings);
 
       // 8. Channel Logo
       if (logoImgRef.current) {
@@ -321,7 +335,7 @@ export function EditorStudio({
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [settings, isPlaying]);
+  }, [settings, isPlaying, portrait]);
 
   const formatSec = (s: number) => {
     const mins = Math.floor(s / 60);
@@ -566,11 +580,11 @@ export function EditorStudio({
         <main className="flex-1 flex flex-col items-center justify-between p-6 overflow-hidden bg-[#0f0f0f]">
           {/* 상단 16:9 대형 캔버스 */}
           <div className="w-full flex-1 flex items-center justify-center min-h-0">
-            <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-[#272727] flex items-center justify-center group">
+            <div className={`relative ${portrait ? "h-full max-h-[70vh] aspect-[9/16]" : "w-full max-w-4xl aspect-video"} bg-black rounded-2xl overflow-hidden shadow-2xl border border-[#272727] flex items-center justify-center group`}>
               <canvas
                 ref={canvasRef}
-                width={1920}
-                height={1080}
+                width={portrait ? 1080 : 1920}
+                height={portrait ? 1920 : 1080}
                 className="w-full h-full object-contain"
               />
 
@@ -650,6 +664,41 @@ export function EditorStudio({
             <Settings2 className="w-3.5 h-3.5 text-[#ff0000]" />
             레이아웃 조정
           </h3>
+
+          {/* v1.17 화면 모양 · 가사 표시 */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-bold text-[#aaaaaa]">화면 모양</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {([["16:9", "가로 16:9"], ["9:16", "세로 9:16"]] as const).map(([a, label]) => (
+                <button key={a} onClick={() => setAspect(a)} className={`py-1.5 text-[11px] font-bold rounded-lg border ${aspect === a ? "bg-[#ff0000] text-white border-[#ff0000]" : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:text-white"}`}>{label}</button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-[#aaaaaa]">가사 표시</h4>
+              <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.lyricsEnabled} onChange={(e) => setSettings((p) => ({ ...p, lyricsEnabled: e.target.checked }))} />켜기</label>
+            </div>
+            <p className="text-[10px] text-[#777777] leading-relaxed">{currentTrack?.lyrics?.length ? `이 곡 가사 ${currentTrack.lyrics.length}줄 · 「① 음악·배경 넣기」에서 곡마다 .srt/.lrc를 넣습니다.` : "이 곡에는 가사가 없습니다. 「① 음악·배경 넣기」의 곡 목록에서 곡마다 「가사」(.srt/.lrc)를 넣으면 화면에 나옵니다."}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {([["color", "색 강조"], ["karaoke", "노래방 채움"]] as const).map(([m, label]) => (
+                <button key={m} onClick={() => setSettings((p) => ({ ...p, lyricsMode: m }))} className={`py-1.5 text-[11px] font-bold rounded-lg border ${settings.lyricsMode === m ? "bg-[#ff0000] text-white border-[#ff0000]" : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:text-white"}`}>{label}</button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-[11px] font-bold text-[#aaaaaa]">
+              <div className="space-y-1">
+                <div className="flex justify-between"><span>글자 크기</span><span className="text-white font-mono">{settings.lyricsSize}</span></div>
+                <input type="range" min={30} max={96} value={settings.lyricsSize} onChange={(e) => setSettings((p) => ({ ...p, lyricsSize: Number(e.target.value) }))} className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between"><span>세로 위치</span><span className="text-white font-mono">{settings.lyricsY}%</span></div>
+                <input type="range" min={15} max={95} value={settings.lyricsY} onChange={(e) => setSettings((p) => ({ ...p, lyricsY: Number(e.target.value) }))} className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]" />
+              </div>
+              <label className="space-y-1">글자 색<input type="color" value={settings.lyricsColor} onChange={(e) => setSettings((p) => ({ ...p, lyricsColor: e.target.value }))} className="block w-full h-7 rounded bg-transparent" /></label>
+              <label className="space-y-1">강조 색<input type="color" value={settings.lyricsAccent} onChange={(e) => setSettings((p) => ({ ...p, lyricsAccent: e.target.value }))} className="block w-full h-7 rounded bg-transparent" /></label>
+            </div>
+            <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.lyricsNext} onChange={(e) => setSettings((p) => ({ ...p, lyricsNext: e.target.checked }))} />다음 줄도 흐리게 보여 주기</label>
+          </div>
 
           {/* 채널 로고 배치 */}
           <div className="space-y-3">

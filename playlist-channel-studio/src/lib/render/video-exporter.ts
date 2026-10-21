@@ -8,6 +8,7 @@ import {
   getFilterString
 } from './canvas-visualizer';
 import { ParticleSystem } from './particle-system';
+import { drawCover, drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
 
 export interface RenderProgress {
   progress: number; // 0 to 100
@@ -34,8 +35,11 @@ export async function exportVideoMp4(
 
   const sampleRate = 48000;
   const fps = exportSettings.fps;
-  const width = exportSettings.resolution === '720p' ? 1280 : 1920;
-  const height = exportSettings.resolution === '720p' ? 720 : 1080;
+  // v1.17 세로(9:16) — 긴 변·짧은 변을 바꾼다(1080×1920 / 720×1280)
+  const long = exportSettings.resolution === '720p' ? 1280 : 1920, short = exportSettings.resolution === '720p' ? 720 : 1080;
+  const portrait = exportSettings.aspect === '9:16';
+  const width = portrait ? short : long;
+  const height = portrait ? long : short;
 
   onProgress({ progress: 1, currentSecond: 0, totalSeconds: 0, status: '오디오 디코딩 준비 중...' });
 
@@ -65,6 +69,10 @@ export async function exportVideoMp4(
   }
   const totalDuration = singlePassDuration * exportSettings.repeatCount;
   const totalVideoFrames = Math.floor(totalDuration * fps);
+  // v1.17 가사 층: 곡별 시간표와 곡 길이(실제 디코딩 길이)
+  const lyricTimelines = trackTimelines(decodedTracks.map((d) => d.track));
+  const trackDurations = decodedTracks.map((d) => d.audioBuffer.duration);
+  const hasLyrics = lyricTimelines.some((l) => l.length > 0);
 
   // 3. Prepare background image if any
   let bgImg: HTMLImageElement | null = null;
@@ -218,7 +226,7 @@ export async function exportVideoMp4(
       ctx.save();
       const filterStr = getFilterString(settings.filterType, settings.filterIntensity, 120);
       if (filterStr) ctx.filter = filterStr;
-      ctx.drawImage(bgImg, 0, 0, width, height);
+      if (portrait) drawCover(ctx, bgImg, width, height); else ctx.drawImage(bgImg, 0, 0, width, height);
       ctx.restore();
     }
 
@@ -238,6 +246,12 @@ export async function exportVideoMp4(
 
     // Particles
     particleSystem.updateAndDraw(ctx, width, height, settings, timeMs);
+
+    // v1.17 가사(곡별 시간표, 반복도 같은 순서)
+    if (hasLyrics) {
+      const [ti, lt] = locate(trackDurations, currentTimeSec);
+      if (ti >= 0) drawLyricsLayer(ctx, width, height, lyricTimelines[ti], lt, settings);
+    }
 
     // Channel Logo
     if (logoImg) {
