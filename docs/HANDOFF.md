@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 「데이터수집|기획」 카테고리 병합 분석(코드 변경 없음)
+
+- 12개 프로그램 로직·저장·AI·키·장단점 분석 → 4묶음 병합안(12 → 8): A 웹 수집(Website Scraper → 웹 크롤링), B 글쓰기(페르소나 문체 → AI 글쓰기 에디터), C 프롬프트(템플릿 → AI Prompt), D 웹 UI(AI 웹 UI → UI Canvas). 독립 4개: 랜딩페이지 기획·슬라이드·마크다운·시네마틱 스토리보드(카테고리 이동 제안).
+- 보고서: [`analysis-scraping-consolidation-20261021/REPORT.md`](analysis-scraping-consolidation-20261021/REPORT.md). 주인님 결정 대기(§5).
+
 ## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 메인 사이트: 「데이터수집|기획」 카테고리 404 수정
 
 - 원인: 카테고리 slug `scraping&plan`의 `&`가 주소에서 `%26`으로 넘어와 DB 조회 실패. 카테고리 페이지에서 디코딩 후 조회, 링크 4곳 `encodeURIComponent`(커밋 `2004305c`, GitHub 푸시 자동 배포 Ready). DB 변경 없음.
