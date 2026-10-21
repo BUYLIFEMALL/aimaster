@@ -135,6 +135,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — AI 4컷 만화 v1.25 서버 보관함 매일 정리 cron
+- 회원 폴더를 돌며 만료 작품(30일 상한 포함) 삭제, 매일 03:00 KST. 배포 `four-cut-comics-ebmvdchoz`·DB v1.25, 시험 56개. 프로젝트 `CRON_SECRET`이 루트 값과 달라 손 호출은 401(기존 게시 예약도 동일) → **첫 실행 Vercel 기록 확인 필요**. 상세 `four-cut-comics/AGENTS.md` v1.25.
+- 비용: Vercel 빌드 1회. 다음: L2 스타일 분석기 → 이미지 스튜디오 「이 프롬프트로 생성」.
+- 프로그램: https://four-cut-comics.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W7: AI 인물사진 v1.31(서버 보관함 매일 정리 + 보관 기간 30일 상한) · W 단계 완료
 - 보관 기간 선택지 무기한·90일 제거(7·30일), 옛 사진도 만든 날 + 30일로 만료, 매일 03시 전체 회원 정리 cron·`CRON_SECRET` 등록. 배포 `portrait-photo-e4p7xow2z`·DB v1.31, 시험 35개, 정리 401/200, 크롬 선택지 확인. 상세 `portrait-photo/AGENTS.md` v1.31.
 - **W1~W7 모두 완료**(이미지 스튜디오 v1.25·웹툰 v1.27·스토리보드 v1.10·패션 v1.11·4컷 v1.24·바나나 v1.15·인물사진 v1.31). 다음: L 단계(프로그램 사이 연결) — 보고서 §8-4 L1~L6.

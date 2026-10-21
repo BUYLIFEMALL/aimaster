@@ -42,6 +42,13 @@ async function liveIndex(userId: string): Promise<SavedMeta[]> {
   return keep;
 }
 
+/** 한 회원의 만료 작품을 지우고 지운 개수를 돌려준다 — 매일 정리 작업(api/cron/cleanup, v1.25)용 */
+export async function purgeExpiredSaved(userId: string): Promise<number> {
+  const before = (await readIndex(userId)).length;
+  if (!before) return 0;
+  return before - (await liveIndex(userId)).length;
+}
+
 export async function listSaved(userId: string): Promise<SavedItem[]> {
   const list = await liveIndex(userId);
   if (!list.length) return [];

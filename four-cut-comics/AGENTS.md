@@ -147,3 +147,8 @@
 - 함께 나간 미배포 공용 사본: 인스타 게시 처리·예약 API 5개 사본 전환(2026-10-20), 게시 기록 응답 `caption` 칸(2026-10-22) — 화면·동작 변화 없음, 공용 사본 일치 확인.
 - 검수: tsc 0, 시험 53개(기존 시험은 지우지 않고 새 규칙에 맞게 기대값만 수정 + 새 시험 1개), build, 배포 `four-cut-comics-kvp0hh7zi` Ready(첫 배포 명령은 배포를 만들지 못해 다시 실행 — 빌드 1회분), DB v1.24. 실제 호출(승인 1회): 시험 계정 본인 키로 `gemini-3.5-flash-lite` 조회 200·짧은 생성 「OK」(9토큰). 크롬(시험 회원) v1.24·서버 보관함 API 200.
 - 남은 일: 서버 보관함 만료는 여전히 목록·저장 때 정리(cron 없음) — 접속하지 않는 회원 자료는 다음 접속 때 지워짐. 필요하면 W7(인물사진)과 같은 방식으로 cron 추가.
+
+## 2026-10-22 v1.25 — 서버 보관함 매일 정리 cron (Claude Code 윈도우, 주인님 「진행해」)
+- 새 `src/app/api/cron/cleanup/route.ts`: 버킷 `four-cut-comics-files`의 회원 폴더(UUID 이름, 1,000개씩 최대 10쪽)를 돌며 `purgeExpiredSaved(userId)`(새로 내보낸 함수 — 기존 `liveIndex`의 만료 판정·삭제를 그대로 씀, v1.24의 30일 상한 포함)로 만료 작품을 지움. `vercel.json`에 `0 18 * * *`(03:00 KST) 추가, 기존 5분 게시 예약은 그대로. 예전엔 그 회원이 목록을 열거나 저장할 때만 지워졌음.
+- 검수: tsc 0, 시험 56개(새 `tests/cleanup.test.mjs` 3개), build, 배포 `four-cut-comics-ebmvdchoz` Ready, DB v1.25. 비밀값 없이 호출 401.
+- **주의**: 이 프로젝트의 `CRON_SECRET`은 루트 `.env.local`과 **다른 값**(Sensitive, 2026-10-20 등록)이라 루트 값으로 손 호출하면 401 — 기존 `/api/instagram/dispatch`도 같은 결과로 코드 문제 아님을 확인. Vercel 예약은 프로젝트 값을 자동으로 붙이므로 정상 실행 예상. **남은 일: 첫 실행(03:00 KST) Vercel 기록 확인.**
