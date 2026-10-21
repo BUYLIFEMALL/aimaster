@@ -38,7 +38,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   onFocus: () => void;
   /** 승인·건너뛰기에 성공했을 때(목록이 새로고침하고 다음 항목을 펼친다) */
-  onDone: () => void;
+  onDone: (kind: "post" | "skip") => void;
 };
 
 export const InboxItemCard = forwardRef<InboxItemHandle, Props>(function InboxItemCard(
@@ -67,7 +67,7 @@ export const InboxItemCard = forwardRef<InboxItemHandle, Props>(function InboxIt
     try {
       const result = kind === "post" ? await approveInboxItemAction(item.platform, item.id, text) : await skipInboxItemAction(item.platform, item.id);
       if (result.error) setError(result.error);
-      else onDone();
+      else onDone(kind);
     } catch (err) {
       // 배포 직후처럼 이전 빌드 화면이면 서버 동작 호출이 실패할 수 있어 새로고침을 안내한다(원래 프로그램과 같은 처리)
       setError(err instanceof Error ? `${err.message} (페이지를 새로고침한 뒤 다시 시도해주세요)` : "처리하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.");

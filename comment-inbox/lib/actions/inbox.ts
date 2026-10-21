@@ -79,3 +79,20 @@ export async function skipInboxItemAction(platform: InboxPlatform, id: string): 
   revalidatePath("/inbox");
   return { success: true };
 }
+
+/** v1.04 「되돌리기」 — 방금 건너뛴 본인 항목(skipped)만 다시 검토 대기로. 게시된 항목은 건드리지 않는다. */
+export async function unskipInboxItemAction(platform: InboxPlatform, id: string): Promise<InboxActionState> {
+  const g = await guard(platform);
+  if ("error" in g) return { error: g.error };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from(TABLE[platform])
+    .update({ status: "pending_review" })
+    .eq("id", id)
+    .eq("user_id", g.user.id)
+    .eq("status", "skipped")
+    .select("id");
+  if (error || !data?.length) return { error: "되돌리지 못했습니다. 이미 다른 화면에서 처리됐을 수 있어요." };
+  revalidatePath("/inbox");
+  return { success: true };
+}

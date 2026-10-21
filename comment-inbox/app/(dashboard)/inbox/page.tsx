@@ -58,20 +58,22 @@ export default async function InboxPage({ searchParams }: { searchParams: { p?: 
         </div>
       )}
 
-      {items.length === 0 ? (
-        <div className="ig-card py-16 text-center">
-          <div className="mb-3 text-5xl">📭</div>
-          <p className="text-sm text-ig-muted">지금은 검토할 {filter ? PLATFORM_LABEL[filter] : "댓글·DM"}이 없어요.</p>
-          <p className="mt-2 text-xs text-ig-muted">
-            새 댓글은 각 원래 프로그램이 모니터링으로 가져오고 AI 초안을 만들어 두면 여기에 나타나요.{" "}
-            <Link href="/guide" className="font-semibold text-pink-400 hover:underline">
-              사용 매뉴얼
-            </Link>
-          </p>
-        </div>
-      ) : (
-        <InboxList items={items} />
-      )}
+      {/* v1.04: 빈 상태도 목록 부품이 그린다(마지막 항목을 건너뛴 뒤에도 되돌리기 알림이 남게) */}
+      <InboxList
+        items={items}
+        empty={
+            <div className="ig-card py-16 text-center">
+              <div className="mb-3 text-5xl">📭</div>
+              <p className="text-sm text-ig-muted">지금은 검토할 {filter ? PLATFORM_LABEL[filter] : "댓글·DM"}이 없어요.</p>
+              <p className="mt-2 text-xs text-ig-muted">
+                새 댓글은 각 원래 프로그램이 모니터링으로 가져오고 AI 초안을 만들어 두면 여기에 나타나요.{" "}
+                <Link href="/guide" className="font-semibold text-pink-400 hover:underline">
+                  사용 매뉴얼
+                </Link>
+              </p>
+            </div>
+        }
+      />
     </div>
   );
 }
