@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 쓰레드 댓글 자동화 v1.19: 공용 묶음 머리 사본 · 휴대폰 목록 누르는 영역 확대
+
+검토 화면 묶음 머리를 공용 `review-group-header` 사본으로, 대시보드 목록 휴대폰 항목 44px 이상. 커밋 `0a87abd7`, 배포 `yao6oyhsm` READY(첫 배포 명령 미시작 → 재실행), DB v1.19, 크롬 확인. 비용: Vercel 빌드 1회.
+
+https://threads-comment-reply.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — INSTA 댓글·DM v1.30: 공용 묶음 머리 부품 · 휴대폰 목록 누르는 영역 확대
 
 검토 화면 묶음 머리를 새 공용 기준 코드 `review-group-header`로(기준 이 프로그램), 대시보드 목록은 휴대폰에서 항목 높이 44px 이상. 커밋 `62d38496`, 배포 Ready, DB v1.30, 크롬 400px 계산값 확인. 비용: Vercel 빌드 1회. 다음: 쓰레드 v1.19·유튜브 v1.24.

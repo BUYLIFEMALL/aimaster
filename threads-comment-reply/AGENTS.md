@@ -195,3 +195,7 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 ## 2026-10-21 v1.18 — 공용 기준 코드 `pending-review-list`·`hash-highlight` 사본 적용 (Claude Code 윈도우)
 - 대시보드 「검토를 기다리는 댓글」 목록을 공용 부품 `components/PendingReviewList.tsx`로, 댓글 검토 화면에 `components/HashHighlight.tsx`(`#post-<id>`로 넘어온 묶음을 흰색 2초 강조). **두 파일은 사본 — 직접 고치지 말고 기준 `instagram-comment-reply/components/`만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 프로그램 색은 대시보드의 `LIST_CLASSES`(th 토큰). 화면 모양·동작은 v1.17과 같음.
 - 검수: tsc 0, build, 배포 `threads-comment-reply-55nvyquvd` Ready, DB v1.18, 크롬(일반 회원) 대시보드 v1.18 빈 상태 정상, 댓글 화면 시험 칸 # 이동 → `rgb(245,245,245)` 테두리 켜짐·2.2초 뒤 꺼짐(시험 칸 즉시 삭제). 비용: Vercel 빌드 1회. 커밋 `f66b6407`.
+
+## 2026-10-21 v1.19 — 공용 `review-group-header` 사본 · 휴대폰 목록 누르는 영역 확대 (Claude Code 윈도우)
+- 댓글 검토 화면 묶음 머리를 공용 부품 `components/ReviewGroupHeader.tsx`(사본 — 기준 `instagram-comment-reply/components/`만 고치고 `--sync`)로, 🧵 아이콘·th 색(`HEADER_CLASSES`). 대시보드 목록(`PendingReviewList` 사본)은 휴대폰에서 항목 44px 이상. 모양은 같음.
+- 검수: tsc 0, build, 배포 `threads-comment-reply-yao6oyhsm` READY(첫 배포 명령은 시작되지 않아 다시 실행 — 빌드는 1회), DB v1.19, 크롬(일반 회원) 대시보드 v1.19·댓글 화면 200. 비용: Vercel 빌드 1회. 커밋 `0a87abd7`.
