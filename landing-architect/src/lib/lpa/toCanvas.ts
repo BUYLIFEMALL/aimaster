@@ -52,8 +52,11 @@ function builder() {
 
 const text = (fontSize: number, fontWeight: number, color: string) => ({ fontSize, fontWeight, color, backgroundColor: "transparent", textAlign: "left", padding: "4px 8px" });
 
-/** 메인 페이지: 히어로(헤드라인·설명·CTA·대표 이미지) + 섹션마다 상자·제목·설명·이미지 */
-export function planToCanvasDoc(plan: Plan): CanvasDoc {
+/**
+ * 메인 페이지: 히어로(헤드라인·설명·CTA·대표 이미지) + 섹션마다 상자·제목·설명·이미지.
+ * imageUrls(키워드 → 실제 사진 주소, v1.13)가 있으면 그 사진을, 없으면 무료 임시 사진을 쓴다.
+ */
+export function planToCanvasDoc(plan: Plan, imageUrls: Record<string, string> = {}): CanvasDoc {
   const ds = plan.designSystem;
   const bg = ds.backgroundColor || "#ffffff";
   const primary = ds.primaryColor || "#2563eb";
@@ -61,9 +64,13 @@ export function planToCanvasDoc(plan: Plan): CanvasDoc {
   const fg = textOn(bg);
   const assets = plan.imageAssets.filter((a) => a.keyword || a.name);
   const { list, add } = builder();
-  const image = (a: Plan["imageAssets"][number], x: number, y: number, w: number, h: number) =>
-    add("Image", `이미지: ${a.name || a.keyword}`, x, y, w, h, { src: placeholderImage(a.keyword || a.name, w * 2, h * 2) }, { objectFit: "cover", borderRadius: 12, borderWidth: 0 },
-      `${a.description || a.name} (키워드: ${a.keyword}) — 임시 사진입니다. 오른쪽 [속성]에서 실제 이미지 주소로 바꿔 주세요.`);
+  const image = (a: Plan["imageAssets"][number], x: number, y: number, w: number, h: number) => {
+    const real = /^https:\/\//.test(imageUrls[a.keyword] ?? "") ? imageUrls[a.keyword] : "";
+    add("Image", `이미지: ${a.name || a.keyword}`, x, y, w, h, { src: real || placeholderImage(a.keyword || a.name, w * 2, h * 2) }, { objectFit: "cover", borderRadius: 12, borderWidth: 0 },
+      real
+        ? `${a.description || a.name} (키워드: ${a.keyword}) — 회원님의 이미지 소스에서 찾은 사진입니다. 사용 조건(출처 표기 등)은 해당 사이트 기준을 따라 주세요.`
+        : `${a.description || a.name} (키워드: ${a.keyword}) — 임시 사진입니다. 오른쪽 [속성]에서 실제 이미지 주소로 바꿔 주세요.`);
+  };
 
   // 히어로: 대표 이미지가 있으면 글은 왼쪽, 이미지는 오른쪽
   const hero = assets[0];

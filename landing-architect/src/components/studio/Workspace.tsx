@@ -49,12 +49,12 @@ export function Workspace({ projectId, initialName, initialDoc, initialUpdatedAt
     setError("");
     const win = window.open("about:blank", "_blank"); // 팝업 차단을 피하려고 누른 순간 창을 연다
     try {
-      const res = await fetch("/api/canvas-export", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, plan }) });
+      const res = await fetch("/api/canvas-export", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, plan, imageProvider: inputs.imageProvider }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) throw new Error(data.error ?? "UI Canvas로 보내지 못했습니다.");
-      setNotice(data.subPages > 0
+      setNotice((data.subPages > 0
         ? `UI Canvas에 메인 페이지와 서브 페이지 ${data.subPages}개를 각각 프로젝트로 만들었습니다. 메인 페이지를 새 창으로 엽니다(서브 페이지는 UI Canvas [내 프로젝트]에 있습니다).`
-        : "UI Canvas에 메인 페이지 프로젝트를 만들었습니다. 새 창으로 엽니다.");
+        : "UI Canvas에 메인 페이지 프로젝트를 만들었습니다. 새 창으로 엽니다.") + (data.imageNote ? ` ${data.imageNote}` : ""));
       if (win) win.location.href = data.url; else window.location.assign(data.url);
     } catch (e) {
       win?.close();
