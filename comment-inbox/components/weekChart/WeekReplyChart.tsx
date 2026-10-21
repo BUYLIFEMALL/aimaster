@@ -81,7 +81,7 @@ export function WeekReplyChart({
               type="button"
               onClick={() => onSelect(d.key)}
               aria-pressed={selected}
-              aria-label={`${describe(d)} — 눌러서 그날 답한 목록 보기`}
+              aria-label={`${describe(d)} — 눌러서 그날 목록 보기`}
               title={describe(d)}
               className="flex h-full flex-1 flex-col items-center justify-end gap-1 rounded-md transition hover:bg-pink-500/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
             >
