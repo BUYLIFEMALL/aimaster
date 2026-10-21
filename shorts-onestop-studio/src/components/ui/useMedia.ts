@@ -19,7 +19,8 @@ export function useMedia(script: ShortsScript | null | undefined) {
   const asked = useRef(new Set<string>()); // 같은 경로를 반복 요청하지 않는다(실패해도 무한 재요청 방지)
 
   // AI 이미지 경로 → 서명 주소
-  const pathKey = allBgs(script).filter((b) => b.path).map((b) => b.path).sort().join("|");
+  // v1.23: AI 영상의 첫 화면 사진(poster)도 썸네일·이어 붙이기용으로 서명 주소를 받는다
+  const pathKey = allBgs(script).flatMap((b) => [b.path, b.poster?.path]).filter((p): p is string => !!p).sort().join("|");
   useEffect(() => {
     const paths = pathKey ? pathKey.split("|") : [];
     const need = paths.filter((p) => !signed[p] && !asked.current.has(p));
@@ -31,7 +32,7 @@ export function useMedia(script: ShortsScript | null | undefined) {
 
   // Pixabay 사진·영상: 저장된 번호로 새 주소를 받는다(임시 주소 만료 대응). 받기 전에는 저장된 주소를 그대로 시도
   const [fresh, setFresh] = useState<Record<string, string>>({});
-  const pbKey = allBgs(script).filter((b) => b.source === "pixabay" && b.stockId).map((b) => `${b.type}:${b.stockId}`).sort().join("|");
+  const pbKey = allBgs(script).flatMap((b) => [b, b.poster]).filter((b): b is Bg => !!b && b.source === "pixabay" && !!b.stockId).map((b) => `${b.type}:${b.stockId}`).sort().join("|");
   useEffect(() => {
     const items = (pbKey ? pbKey.split("|") : []).map((k) => { const [type, id] = k.split(":"); return { type, id }; }).filter((x) => !asked.current.has(`pb:${x.id}`));
     if (!items.length) return;
@@ -43,7 +44,7 @@ export function useMedia(script: ShortsScript | null | undefined) {
 
   // 필요한 요소 불러오기
   useEffect(() => {
-    for (const b of allBgs(script)) {
+    for (const b of allBgs(script).flatMap((x) => (x.poster ? [x, x.poster] : [x]))) { // v1.23: AI 영상의 첫 화면 사진도 미리 불러 둔다(영상 로딩 중 대신 표시)
       const src = srcOf(b); const key = b.path ?? (b.stockId ? `${b.source}:${b.stockId}:${src}` : b.src);
       if (!src || cache.current.has(key)) continue;
       if (b.type === "video") {
@@ -61,9 +62,12 @@ export function useMedia(script: ShortsScript | null | undefined) {
   // 다 그릴 수 있는 상태만 돌려준다(아직 로딩 중이면 null → 테마 배경)
   const resolve = useCallback((b: Bg): CanvasImageSource | null => {
     const el = cache.current.get(b.path ?? (b.stockId ? `${b.source}:${b.stockId}:${srcOf(b)}` : b.src));
-    if (!el) return null;
-    if (el instanceof HTMLVideoElement) return el.readyState >= 2 ? el : null;
-    return el.complete && el.naturalWidth > 0 ? el : null;
+    const ready = !el ? null : el instanceof HTMLVideoElement ? (el.readyState >= 2 ? el : null) : el.complete && el.naturalWidth > 0 ? el : null;
+    if (ready) return ready;
+    // AI 영상을 아직 받는 중이면 첫 화면 사진을 대신 보여 준다(테마 배경으로 깜빡이지 않게)
+    const p = b.poster; if (!p) return null;
+    const pe = cache.current.get(p.path ?? (p.stockId ? `${p.source}:${p.stockId}:${srcOf(p)}` : p.src));
+    return pe instanceof HTMLImageElement && pe.complete && pe.naturalWidth > 0 ? pe : null;
   }, [srcOf]);
 
   return { resolve, srcOf, tick };

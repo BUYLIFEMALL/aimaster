@@ -4,7 +4,7 @@ import { PROGRAM_SLUG } from "@/lib/version";
 
 // v1.22 사용 기록(usage_logs) — 보류 F(Shots ↔ 원스톱 합치기) 재판단용 회원 사용 추이. 실패해도 본 기능은 계속한다.
 // 메타데이터에는 대본 내용 같은 생성물은 넣지 않고 ID·숫자만 남긴다.
-export const USAGE_ACTIONS = ["script_created", "mp4_made", "youtube_uploaded"] as const;
+export const USAGE_ACTIONS = ["script_created", "mp4_made", "youtube_uploaded", "video_made"] as const;
 export type UsageAction = (typeof USAGE_ACTIONS)[number];
 
 let programId: string | null = null;

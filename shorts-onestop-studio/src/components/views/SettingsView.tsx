@@ -7,12 +7,14 @@ import { DEFAULT_MODEL, PROVIDER_LABEL, TEXT_MODELS, modelName, type AiProvider 
 
 type Msg = { text: string; ok?: boolean } | null;
 type KeyState = Record<string, { hasKey: boolean; maskedKey: string | null }>;
-const GROUPS: { p: "gemini" | "openai" | "anthropic" | "pexels" | "pixabay"; title: string; desc: string; ph: string; guide: string; guideLabel: string }[] = [
-  { p: "gemini", title: "Google Gemini API 키", desc: "대본·주제 추천에 쓰고, 이후 단계에서 AI 이미지·음성(TTS)에도 쓸 수 있습니다. 무료 한도가 있는 저렴한 모델(Flash-Lite)로 시작할 수 있습니다.", ph: "AIza…", guide: GUIDES.gemini, guideLabel: "Gemini API 키 발급 매뉴얼" },
+const GROUPS: { p: "gemini" | "openai" | "anthropic" | "pexels" | "pixabay" | "fal" | "replicate"; title: string; desc: string; ph: string; guide: string; guideLabel: string }[] = [
+  { p: "gemini", title: "Google Gemini API 키", desc: "대본·주제 추천·AI 이미지·음성(TTS)·AI 영상(기본 Gemini Omni Flash)에 씁니다. 텍스트는 무료 한도가 있는 저렴한 모델(Flash-Lite)로 시작할 수 있고, AI 영상은 결제가 연결된 키에서만 됩니다.", ph: "AIza…", guide: GUIDES.gemini, guideLabel: "Gemini API 키 발급 매뉴얼" },
   { p: "openai", title: "OpenAI API 키", desc: "대본·주제 추천을 OpenAI로 만들 때 필요합니다(유료).", ph: "sk-…", guide: GUIDES.openai, guideLabel: "OpenAI API 키 발급 매뉴얼" },
   { p: "anthropic", title: "Anthropic Claude API 키", desc: "대본·주제 추천을 Claude로 만들 때 필요합니다(유료).", ph: "sk-ant-…", guide: GUIDES.anthropic, guideLabel: "Claude API 키 발급 매뉴얼" },
   { p: "pixabay", title: "🖼️ Pixabay API 키 (스톡 사진·영상)", desc: "✅ 추천 — 장면 배경으로 쓸 무료 사진·일러스트·영상을 검색합니다. 키 발급·사용 무료(사용량 한도 있음). 이 키 하나만 있어도 스톡 검색을 쓸 수 있습니다.", ph: "12345678-…", guide: GUIDES.pixabay, guideLabel: "Pixabay API 키 발급 매뉴얼" },
   { p: "pexels", title: "🎬 Pexels API 키 (스톡 영상·사진)", desc: "⚠️ 2026-10-16 현재 Pexels가 새 API 키 발급을 일시 중단했습니다. 이미 키가 있는 분만 등록하고, 새로 시작하면 아래 Pixabay 키를 쓰세요.", ph: "Pexels API Key", guide: GUIDES.pexels, guideLabel: "Pexels API 키 발급 매뉴얼" },
+  { p: "replicate", title: "🎬 Replicate API 토큰 (AI 영상 · 선택)", desc: "장면 사진을 움직이는 영상으로 만들 때 고를 수 있습니다. 가장 저렴한 Seedance 1 Lite(5초 약 $0.18)와 Kling v2.1을 씁니다. 기본은 Gemini 키라 없어도 됩니다(유료·종량제).", ph: "r8_…", guide: GUIDES.replicate, guideLabel: "Replicate API 토큰 발급 매뉴얼" },
+  { p: "fal", title: "🎬 fal API 키 (AI 영상 · 선택)", desc: "장면 영상을 Seedance 1.5 Pro·Kling O3로 만들 때 고를 수 있습니다. 기본은 Gemini 키라 없어도 됩니다(유료·종량제, 잔액 충전 필요).", ph: "xxxx:yyyy", guide: GUIDES.fal, guideLabel: "fal API 키 발급 매뉴얼" },
 ];
 
 function Message({ msg }: { msg: Msg }) {

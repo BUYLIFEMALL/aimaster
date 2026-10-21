@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — Gemini API Veo 3.1 미리보기 모델 종료(10-22), 영상은 Omni Flash로 · 영상 생성 중 배경을 바꿀 수 있으면 요금이 두 번 (AI 쇼츠 원스톱 v1.23)
+- 증상/사실: Gemini API 영상 문서가 `veo-3.1-*-preview` 3종을 2026-10-22 종료로 안내하고 `gemini-omni-1.1-flash`(Interactions API)를 기본으로 권함. OpenAI Sora 2 API는 2026-09-24 종료. Gemini는 틀린 키에 401이 아니라 **400 `API_KEY_INVALID`**를 돌려줌.
+- 확인: Omni Flash는 `POST /v1beta/interactions`에 `background: true, store: true`를 받아 작업 번호를 바로 주고, 5초 영상이 약 1분 뒤 `GET /v1beta/interactions/{id}` 완료 응답에 영상(base64)으로 옴(시험 회원 실측). 틀린 값 요청(예: 비율 7:3)은 요금 없이 400으로 검증 가능.
+- 사고: 영상을 만드는 동안 같은 장면의 사진을 바꿀 수 있어 진행 작업 정보가 사라지고 버튼이 다시 켜져 **영상이 2번 생성**(시험 비용 2배). 해결: 만드는 중 장면은 배경 변경·AI 이미지·삭제·일괄 채우기 잠금(`shorts-onestop-studio/src/components/views/DesignView.tsx` `locked`).
+- 다음부터: 유료 비동기 생성(영상·음악)은 ① 작업 번호를 저장 ② 자동 재시도 금지 ③ **진행 중에는 그 대상의 입력을 바꾸지 못하게** 잠근다. 서명 주소로 받는 수 MB 영상은 미리보기에 몇 초 늦게 나오므로 판정 전 기다리고, 그동안 첫 화면 사진을 보여 준다.
+
 ## 2026-10-22 — 「키 등록 정보 불러오기」 API가 회원 키 원문을 브라우저로 내려주고 화면이 localStorage에 저장·브라우저가 Gemini를 직접 호출(`?key=` 주소) (ai-webtoon-studio v1.27, Claude Code 윈도우)
 - 증상: 코드 확인 중 발견(사고 보고 없음). `GET /api/user/key` → `{ key: api_key }`, 화면이 `ai_webtoon_studio_settings_v1`에 `geminiApiKey` 저장, 글 생성은 `generativelanguage…?key=…`로 브라우저 직접 호출. 설정 창 안내는 「서버에 저장 안 하고 브라우저에만」으로 실제와 반대. 키 경로는 로그인만 확인(프로그램 권한 없음).
 - 원인: 처음에 「브라우저에서만 쓰는 도구」로 만든 뒤, 공용 `user_api_keys` 연동을 붙이면서 서버 값을 브라우저로 내려보내는 쉬운 길을 택함.

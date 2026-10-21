@@ -114,3 +114,14 @@
 - 서버 도우미 `src/lib/usage.ts` `recordUsage`(관리자 키, 실패해도 계속, 허용 이름 `script_created`·`mp4_made`·`youtube_uploaded`). AI 대본은 `/api/ai/script` 성공 때 서버가, 브라우저 동작은 `POST /api/usage`(guard: 권한·같은 출처·4KB, 동작 이름 허용 목록)로 기록 — 렌더 MP4·일괄 MP4(`batch`)·유튜브 업로드(`uploadToYoutube` 안, 영상 ID). 메타데이터는 ID·숫자만.
 - 검수: tsc·build, 운영 Ready, DB v1.22. 크롬 관리자 렌더 MP4 1회(16.8MB) → `mp4_made` 1행, 허용 안 된 이름 400, 다른 사이트 요청 401. 비용 0원.
 
+## 2026-10-22 v1.23 — AI 동영상 장면(기본 Gemini, 선택 fal·Replicate) (Claude Code 윈도우)
+- 출처: 외부 무료배포 `shorts-auto` 비교 분석(`docs/analysis-shorts-auto-20261022/REPORT.md`) 묶음 ①, 주인님 지시 「기본값 gemini 키, replicate·fal 선택」·「모델 선택 옆에 생성 단가 표시」. 원본은 라이선스가 없어 코드·프롬프트 미사용.
+- 배경 화면 장면마다 [AI 영상 $단가] 버튼: 사진 배경(AI 이미지·스톡 사진)을 첫 화면으로 5초 영상. 「다음 장면과 이어지게」를 켜면 다음 장면 사진을 끝 화면으로(이어 붙이기). ↺ 버튼으로 처음 사진 복귀.
+- 모델·단가(`src/lib/videoModels.ts`, 2026-10-22 공식 가격표): Gemini Omni Flash `gemini-omni-1.1-flash`(기본, 초당 $0.10, 결제 연결 키 필요) · Replicate Seedance 1 Lite($0.036)·Kling v2.1($0.05, 이어 붙이면 pro $0.09) · fal Seedance 1.5 Pro($0.05)·Kling O3 Standard($0.14). 선택칸·버튼·안내에 장면 1개 예상 금액(달러·원) 표시.
+- Veo 3.1 미리보기 모델은 Gemini API에서 2026-10-22 종료 → Google 안내대로 Omni Flash(Interactions API `POST /v1beta/interactions`, `background: true`·`store: true`, `GET /v1beta/interactions/{id}`로 확인). 백그라운드 거절 시 한 번에 기다리는 방식(270초)으로 다시 보냄.
+- 서버 `src/lib/videoGen.ts`(제출·상태 확인·결과 저장, 자동 재시도 없음, 키를 보내는 주소는 공식 호스트만), `src/lib/videoParse.ts`(응답 해석·주소 검사 순수 함수), API `/api/ai/video`(action submit|check). 작업 번호를 대본 배경 `videoJob`에 저장 → 화면이 15초마다 확인, 새로고침 뒤에도 이어서. 만드는 중인 장면은 배경 변경·AI 이미지·삭제·스톡 채우기 잠금.
+- 저장: 비공개 버킷 `<user_id>/video/*.mp4`(버킷에 video/mp4 추가, 파일당 30MB). 30일 자동 삭제 `/api/cron/cleanup-videos`(vercel.json 매일 03:30 KST, `CRON_SECRET` 새로 추가). 사용 기록 `video_made`.
+- 키: `fal`·`replicate`를 설정 화면에 추가(연결 확인은 요금 없는 조회), 매뉴얼 Replicate(기존 게시글)·fal(새 게시글 `f5f46fea…`) 팝업. 매뉴얼 /guide·자주 묻는 질문 갱신.
+- 검수: tsc·`npm test`(node --test 8개)·build, 운영 배포 3회(본 배포 + 로딩 중 첫 화면 표시·만드는 중 잠금·단가 자릿수 + 휴대폰 입력칸 폭), DB v1.23, 크롬 시험 회원으로 Pixabay 사진 2장 → 인트로 Gemini 영상(이어 붙이기) 제출→약 1분 뒤 완성→저장(720×1280, 5.0초, 2.8MB)→미리보기·장면 편집 재생 확인, 390px 확인, Replicate 연결 확인 거절 안내 확인.
+- 비용: Gemini 영상 2회(약 $1.0, 시험 회원 본인 키) — 1회 승인이었으나 첫 영상 완성 뒤 화면에서 인트로 사진이 바뀌고 다시 눌려 2회째가 생김(이후 잠금으로 보완). Vercel 빌드 3회.
+- 못 한 것: fal·Replicate 실제 생성(시험 회원 Replicate 토큰 거절 401·fal 키 없음), MP4 만들기에 AI 영상 포함 실측, 기존 AI 이미지·음성 30일 정리(IMPROVEMENTS #16).

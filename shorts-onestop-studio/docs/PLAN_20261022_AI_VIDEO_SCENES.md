@@ -53,3 +53,9 @@
 - v1.23 → v1.24 → v1.25(코드 `src/lib/version.ts` + DB `programs.version` + 마이그레이션 기록 파일).
 - 단계마다 배포 → 크롬 실세션 → `AGENTS.md`·`docs/IMPROVEMENTS.md`·역량 지도 83번 카드·루트 `docs/HANDOFF.md` → 커밋·푸시.
 - 공용 후보: fal 영상 호출(`videoGen.ts`)이 안정되면 `ai-image-studio`에 영상 기준으로 올리고 Shots에 사본 적용을 검토.
+
+## 2026-10-22 진행 결과 (A단계 v1.23 완료)
+- 주인님 결정: 영상 생성 비용이 크므로 **기본은 Gemini 키**(회원이 가진 구글 계정 활용), fal·Replicate는 선택. 모델 선택 옆에 생성 단가 표시.
+- 바뀐 점: Gemini API의 Veo 3.1 미리보기 모델이 2026-10-22 종료 → **Gemini Omni Flash**(Interactions API, 백그라운드 실행)로 구현. OpenAI Sora 2 API는 2026-09-24 종료되어 제외.
+- API는 3개 대신 1개(`/api/ai/video`, action submit|check), 결과 저장은 check에서. 위 §3 3번·§5 표의 「기존 30일 자동 삭제 적용」은 틀린 서술(원스톱에는 30일 정리가 원래 없음) — 영상 전용 정리 작업을 새로 추가했고, 기존 이미지·음성 정리는 IMPROVEMENTS #16.
+- 결과·검수·비용·남은 일: `AGENTS.md` v1.23 항목, `docs/IMPROVEMENTS.md` #15~#20.

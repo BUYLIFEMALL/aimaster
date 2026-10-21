@@ -6,4 +6,6 @@ export const GUIDES = {
   anthropic: `${BASE}/d03f65c2-efbb-421f-a041-a075562e3b7a`,
   pexels: `${BASE}/ff6c331e-74a8-4b00-99c9-3b91f44f41f7`,
   pixabay: `${BASE}/c315c6d7-4187-446a-86da-5c37d4274d54`,
+  replicate: `${BASE}/78a00b16-eef5-42be-810b-80c513d57ab4`,
+  fal: `${BASE}/f5f46fea-6eb4-4886-a006-e89c486cc2f8`,
 } as const;

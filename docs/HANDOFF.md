@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.23 AI 동영상 장면(기본 Gemini Omni Flash, 선택 fal·Replicate, 단가 표시)
+- 한 일: 장면 사진 → 5초 AI 영상(다음 장면과 이어 붙이기), 모델 선택칸·버튼에 장면당 단가, 제출/15초 확인/새로고침 이어받기, 만드는 중 잠금, 영상 30일 자동 삭제(`/api/cron/cleanup-videos`), 설정에 fal·Replicate 키, 매뉴얼 갱신, fal 매뉴얼 게시글 신규(`platform_guides` f5f46fea…).
+- 운영 변경: 버킷 `shorts-onestop-studio` video/mp4 추가·30MB, Vercel `CRON_SECRET` 추가, DB `programs.version` v1.23. 배포 3회 Ready.
+- 검수: tsc·node --test 8개·build, 크롬 시험 회원 Gemini 실생성(약 1분, 720×1280 5초)·미리보기·장면 편집·390px·Replicate 연결 확인 안내.
+- 비용: Gemini 영상 2회 약 $1.0(시험 회원 키, 1회 승인 → 화면에서 다시 눌려 2회째, 잠금으로 보완), Vercel 빌드 3회.
+- 남은 일: fal·Replicate 실생성 미검증, 기존 이미지·음성 30일 정리 없음(P1), 목소리 복제·단어 자막(B·C단계). 상세: `shorts-onestop-studio/AGENTS.md` v1.23, `docs/IMPROVEMENTS.md` #15~#20.
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.39 D-68-02 「생성 완료」와 「내 보관함 저장 완료」 구분
 
 우리 저장소 복사가 실패하면 Suno 임시 주소(약 14일 뒤 만료)가 조용히 저장되던 결과에 「⚠️ 임시 보관」 표시 + 「📥 내 보관함에 다시 저장」(곡 변주·리믹스·MR·WAV, DB 변경 없음). 운영 사례 1건(다른 회원 WAV, 건드리지 않음). 크롬 시험 계정에서 저장 성공·만료 안내 모두 확인 후 원래 주소로 되돌림. 배포 `music-9j7cnnka1` Ready, DB v1.39. 비용: Vercel 빌드 1회. 다음: D-68-03, 12트랙·커버·영상 표시, 10-29 이후 30일 정리 확인. 상세: `music/AGENTS.md` v1.39.

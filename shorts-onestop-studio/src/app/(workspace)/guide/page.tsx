@@ -7,7 +7,7 @@ export const fetchCache = "force-no-store";
 // 연동 & 사용 매뉴얼 — 표준 §5.6(다이어그램·캐릭터·이모티콘·인포그래픽·팁 박스)
 const FLOW = [
   { emoji: "💡", title: "주제·대본", desc: "분야 → 주제 추천 → AI 대본", state: "사용 가능" },
-  { emoji: "🎨", title: "배경", desc: "스톡 영상·사진 · AI 이미지", state: "사용 가능" },
+  { emoji: "🎨", title: "배경", desc: "스톡 영상·사진 · AI 이미지 · AI 영상", state: "사용 가능" },
   { emoji: "🎬", title: "장면 편집", desc: "테마 · 카드 레이아웃 · 글꼴 · 미리보기 재생", state: "사용 가능" },
   { emoji: "🎙️", title: "음성·자막·MP4", desc: "본인 키 내레이션 · 자막 · 배경음악 · 브라우저 MP4 · 업로드 문구 · 유튜브 바로 올리기", state: "사용 가능" },
   { emoji: "📅", title: "발행 계획", desc: "채널 단계 전략 · 날짜별 일정 · 대본~MP4 일괄 제작", state: "사용 가능" },
@@ -74,6 +74,8 @@ export default function GuidePage() {
                 <li><strong>배경 방식 선택</strong>: [🎨 디자인·배경]에서 3가지 방식(테마만 / 전체 1장 / 장면마다) 중 원하는 형태를 고릅니다.</li>
                 <li><strong>AI 자동 묘사</strong>: [AI로 장면 설명 만들기]를 누르면 대본을 분석해 장면마다 스톡 검색어와 AI 이미지 설명 프롬프트를 자동으로 채워줍니다.</li>
                 <li><strong>스톡 미디어 & 생성</strong>: [검색]으로 Pexels·Pixabay의 고화질 무료 영상·사진을 고르거나, [AI 이미지] 버튼으로 Gemini 9:16 이미지를 즉시 생성해 [배경 저장]을 누릅니다.</li>
+                <li><strong>🎬 AI 영상 장면</strong>: 사진 배경(AI 이미지·스톡 사진)이 있는 장면에서 [AI 영상]을 누르면 그 사진을 첫 화면으로 5초 영상을 만듭니다. 「다음 장면과 이어지게」를 켜면 다음 장면 사진을 끝 화면으로 넣어 장면이 자연스럽게 이어집니다. 1~5분 걸리며, 화면을 닫았다 다시 열어도 이어서 확인합니다. 마음에 안 들면 ↺ 버튼으로 처음 사진으로 되돌립니다.</li>
+                <li><strong>영상 모델·단가</strong>: 기본은 Gemini Omni Flash(본인 Gemini 키, 결제 연결 필요, 초당 약 $0.10)이고, Replicate·fal 키를 등록하면 Seedance 1 Lite(초당 약 $0.036)·Kling 등을 고를 수 있습니다. 모델 목록과 버튼에 장면 1개 예상 금액이 표시되며, 요금은 본인 업체 계정에 청구됩니다. 만든 영상은 30일 뒤 자동 삭제됩니다.</li>
                 <li style={{ color: "var(--muted)", fontSize: 13 }}>💡 스톡 API 키(Pexels, Pixabay)는 무료로 발급됩니다 (🔑 API키등록·플랫폼연동의 발급 매뉴얼 참고).</li>
               </ul>
             </div>
@@ -152,6 +154,7 @@ export default function GuidePage() {
             <div className="list-item"><div><strong>「사용 한도」 안내가 나와요</strong><small>본인 공급사 계정의 무료 한도·결제 설정 문제입니다. 잠시 뒤 다시 하거나 다른 AI를 골라 주세요.</small></div></div>
             <div className="list-item"><div><strong>「유튜브 채널이 아직 연결되지 않았습니다」라고 나와요</strong><small>이 프로그램은 유튜브 연결 화면이 따로 없습니다. 「유튜브 댓글 자동화」 또는 「YOUTUBE Shots 자동화」에서 본인 Google 앱(Client ID·Secret)으로 채널을 한 번 연결한 뒤 ⑥에서 [다시 확인]을 눌러 주세요. 「영상 올리기 권한이 없습니다」면 Shots에서 「다른 YouTube 프로그램 권한도 함께 받기」를 켜고 다시 연결하면 됩니다.</small></div></div>
             <div className="list-item"><div><strong>유튜브에 하루 몇 편까지 올릴 수 있나요?</strong><small>유튜브 무료 할당량(하루 10,000단위) 기준 업로드 1회가 약 1,600단위라 하루 약 6편입니다. 한도를 넘으면 다음 날 다시 올려 주세요. 처음 올리는 채널은 유튜브가 처리하는 데 몇 분 걸릴 수 있습니다.</small></div></div>
+            <div className="list-item"><div><strong>AI 영상이 「결제가 연결된 키에서만 됩니다」라고 나와요</strong><small>Gemini 영상 모델은 무료 등급 키로는 쓸 수 없습니다. Google AI Studio에서 결제(유료 등급)를 연결하거나, Replicate·fal 키를 등록해 다른 영상 모델을 골라 주세요. 실패한 영상은 자동으로 다시 보내지 않습니다(이중 요금 방지).</small></div></div>
             <div className="list-item"><div><strong>스토리가 자연스럽지 않아요</strong><small>구성을 「스토리」로 두고, 설정에서 상위 모델(Gemini 3.8 Flash · Claude Sonnet 5.5 등)을 고르면 흐름이 더 매끄럽습니다.</small></div></div>
           </div>
         </section>
