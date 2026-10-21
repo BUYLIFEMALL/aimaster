@@ -7,7 +7,7 @@ import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildAnalysisSystem, buildAnalysisUser, parseAnalysis } from "@/lib/ai/dnaPrompts";
 import { paletteFromRgba } from "@/lib/dna/palette";
 import { nearestAspectRatio, type DnaMode, type TargetImageModel } from "@/lib/dna/types";
-import { BUCKET, MAX_ANALYSES, toSignedRecord } from "@/lib/dna/records";
+import { BUCKET, MAX_ANALYSES, toSignedRecord, UUID_RE } from "@/lib/dna/records";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -32,10 +32,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "요청 형식이 올바르지 않습니다." }, { status: 400 });
     }
 
+    // 새로 올린 이미지(data URL) 또는 저장된 기록으로 「다시 분석」(sourceId — 본인 기록의 원본을 저장소에서 읽음, v1.24)
+    let mime: string;
+    let bytes: Buffer;
     const m = typeof body.image === "string" ? DATA_URL.exec(body.image) : null;
-    if (!m) return NextResponse.json({ error: "이미지 파일(JPG·PNG·WebP)만 분석할 수 있습니다." }, { status: 400 });
-    const mime = `image/${m[1]}`;
-    const bytes = Buffer.from(m[2], "base64");
+    if (m) {
+      mime = `image/${m[1]}`;
+      bytes = Buffer.from(m[2], "base64");
+    } else if (typeof body.sourceId === "string" && UUID_RE.test(body.sourceId)) {
+      const { data: src } = await (await createClient()).from("sda_analyses").select("image_path").eq("id", body.sourceId).eq("user_id", userId).maybeSingle();
+      const srcPath = (src?.image_path as string | undefined) ?? "";
+      if (!srcPath.startsWith(`${userId}/`)) return NextResponse.json({ error: "다시 분석할 원본 이미지를 찾을 수 없습니다. 이미지를 다시 올려 주세요." }, { status: 404 });
+      const dl = await createAdminClient().storage.from(BUCKET).download(srcPath);
+      if (dl.error || !dl.data) return NextResponse.json({ error: "저장된 원본 이미지를 불러오지 못했습니다(30일이 지나 삭제됐을 수 있습니다). 이미지를 다시 올려 주세요." }, { status: 404 });
+      mime = "image/webp";
+      bytes = Buffer.from(await dl.data.arrayBuffer());
+    } else {
+      return NextResponse.json({ error: "이미지 파일(JPG·PNG·WebP)만 분석할 수 있습니다." }, { status: 400 });
+    }
     if (bytes.length > MAX_BYTES) return NextResponse.json({ error: "이미지 용량이 너무 큽니다. 더 작은 이미지로 시도해주세요." }, { status: 400 });
 
     const mode: DnaMode = body.mode === "mutate" ? "mutate" : "replicate";
@@ -75,7 +89,7 @@ export async function POST(request: Request) {
         apiKey: key.apiKey,
         system: buildAnalysisSystem(mode, new Date().getFullYear(), promptOptions),
         user: buildAnalysisUser(mode, guidance, promptOptions),
-        image: { mime, base64: m[2] },
+        image: { mime, base64: bytes.toString("base64") },
         json: true,
       });
     } catch (err) {

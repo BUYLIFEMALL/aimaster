@@ -119,7 +119,8 @@ export default function AnalyzePage() {
 
   const analyze = async (overrideGuidance?: string, overrideMutation?: number) => {
     if (!image && !record?.imageUrl) return;
-    const effectiveImage = image || record?.imageUrl;
+    // 새 이미지가 없으면 저장된 기록의 원본으로 다시 분석(서버가 저장소에서 읽음, v1.24 — 예전엔 주소를 보내 실패)
+    const source = image ? { image } : { sourceId: record?.id };
     setBusy(true);
     setError(null);
     try {
@@ -127,7 +128,7 @@ export default function AnalyzePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          image: effectiveImage,
+          ...source,
           mode,
           guidance: overrideGuidance !== undefined ? overrideGuidance : guidance,
           mutationLevel: overrideMutation !== undefined ? overrideMutation : mutationLevel,
