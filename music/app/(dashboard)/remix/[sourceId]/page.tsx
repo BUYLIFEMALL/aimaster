@@ -28,7 +28,7 @@ export default async function RemixSourceDetailPage({ params }: PageProps) {
     .from("music_track_remixes")
     .select("*, music_track_remix_variants(*)")
     .eq("user_id", user.id)
-    .eq("source_id", source.id)
+    .or(`source_id.eq.${source.id},second_source_id.eq.${source.id}`) // 매시업의 두 번째 곡으로 쓰인 것도
     .order("created_at", { ascending: false });
 
   // 비공개 저장소: 리믹스 음원·커버를 서명 주소로(lib/storageSign.ts).

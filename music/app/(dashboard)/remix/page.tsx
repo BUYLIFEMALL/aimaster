@@ -19,6 +19,7 @@ interface SourceRow {
 interface RemixSummaryRow {
   id: string;
   source_id: string | null;
+  second_source_id: string | null;
   status: RemixStatus;
   created_at: string;
   music_track_remix_variants: { image_url: string | null }[];
@@ -36,7 +37,7 @@ export default async function RemixSourcesPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("music_track_remixes")
-      .select("id, source_id, status, created_at, music_track_remix_variants(image_url)")
+      .select("id, source_id, second_source_id, status, created_at, music_track_remix_variants(image_url)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
   ]);
@@ -46,25 +47,28 @@ export default async function RemixSourcesPage() {
   const remixList = await withSignedStorageUrls((remixes ?? []) as unknown as RemixSummaryRow[]);
 
   // 소스별로 리믹스 개수/최신 상태/대표 이미지를 집계한다.
+  // 매시업은 두 번째 원곡에도 함께 센다(두 번째 곡 묶음이 「리믹스 0개」로 보이지 않게).
   const summaryBySource = new Map<
     string,
     { count: number; latestStatus: RemixStatus; thumbnail: string | null; hasGenerating: boolean }
   >();
   for (const remix of remixList) {
-    if (!remix.source_id) continue;
-    const existing = summaryBySource.get(remix.source_id);
     const thumbnail = remix.music_track_remix_variants.find((v) => v.image_url)?.image_url ?? null;
-    if (existing) {
-      existing.count += 1;
-      if (remix.status === "generating") existing.hasGenerating = true;
-      if (!existing.thumbnail && thumbnail) existing.thumbnail = thumbnail;
-    } else {
-      summaryBySource.set(remix.source_id, {
-        count: 1,
-        latestStatus: remix.status,
-        thumbnail,
-        hasGenerating: remix.status === "generating",
-      });
+    for (const sourceId of [remix.source_id, remix.second_source_id]) {
+      if (!sourceId) continue;
+      const existing = summaryBySource.get(sourceId);
+      if (existing) {
+        existing.count += 1;
+        if (remix.status === "generating") existing.hasGenerating = true;
+        if (!existing.thumbnail && thumbnail) existing.thumbnail = thumbnail;
+      } else {
+        summaryBySource.set(sourceId, {
+          count: 1,
+          latestStatus: remix.status,
+          thumbnail,
+          hasGenerating: remix.status === "generating",
+        });
+      }
     }
   }
 

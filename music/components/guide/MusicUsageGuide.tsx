@@ -222,7 +222,25 @@ export function MusicUsageGuide() {
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-4">
-              좌측 3단계 <strong className="text-orange-400">[음악 Remix 스튜디오]</strong>에서 생성된 트랙이나 외부 오디오 파일을 업로드하여 완전히 새로운 장르와 분위기로 재탄생시킵니다.
+              좌측 4단계 <strong className="text-orange-400">[음악 Remix 스튜디오]</strong>에서 생성된 트랙이나 외부 오디오 파일을 업로드하여 완전히 새로운 장르와 분위기로 재탄생시킵니다. 리믹스 방식은 4가지 중에서 고릅니다.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+              {[
+                { icon: "🎨", title: "스타일 커버", desc: "원곡을 새 장르·분위기로 다시 만듭니다. 목표 길이를 정하면 자동으로 이어 붙입니다." },
+                { icon: "🎤", title: "보컬 추가", desc: "연주곡이나 MR 반주 위에 AI 보컬을 입힙니다. 가사·보컬 성별을 정할 수 있습니다." },
+                { icon: "🎹", title: "반주 추가", desc: "목소리·멜로디 녹음에 어울리는 반주를 붙입니다. 원하는 반주 스타일·악기만 적으면 됩니다." },
+                { icon: "🔀", title: "매시업", desc: "내 곡 두 개를 골라 하나의 새 곡으로 섞습니다. 같은 곡의 다른 버전끼리는 섞을 수 없습니다." },
+              ].map((m) => (
+                <div key={m.title} className="p-3 rounded-xl bg-[#1a1a24] border border-[#2a2a3a]">
+                  <p className="text-xs sm:text-sm font-bold text-white mb-1">
+                    {m.icon} {m.title}
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-zinc-400 leading-relaxed">{m.desc}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+              💡 곡 카드에서 <strong className="text-zinc-200">MR(보컬 제거)</strong>을 만들면 결과 아래에 「🎤 이 반주로 보컬 추가 →」·「🎹 이 보컬로 반주 추가 →」 바로가기가 생겨, 파일을 다시 올리지 않고 바로 리믹스할 수 있습니다.
             </p>
             <div className="p-4 rounded-xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent border border-orange-500/30 text-xs">
               <p className="font-bold text-orange-400 mb-1.5 flex items-center gap-1.5">
