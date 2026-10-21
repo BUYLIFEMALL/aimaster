@@ -17,6 +17,8 @@ export interface TrackForSync {
   title: string;
   prompt_text: string;
   style_description: string | null;
+  // 구간 다시 만들기(v1.29) 결과면 원곡 변주 — 같은 곡이라 커버를 새로 만들지 않고 원곡 커버를 쓴다(회원 비용 절약).
+  replaced_from_variant_id?: string | null;
 }
 
 /** Suno의 임시 오디오/이미지 URL을 우리 Storage(music-audio)에 영구 저장한다. 실패하면 원본 URL 그대로 반환. */
@@ -102,7 +104,17 @@ export async function saveSunoTrackResult(
 ): Promise<{ savedCount: number }> {
   // 같은 트랙의 variant(보통 2개)는 같은 곡의 다른 테이크일 뿐이라 커버는 1장만 만들어
   // 공유한다 — variant마다 따로 만들면 비용이 2배가 된다.
-  const customCoverUrl = await tryGenerateHighQualityCover(supabase, track);
+  let customCoverUrl: string | null = null;
+  if (track.replaced_from_variant_id) {
+    const { data: source } = await supabase
+      .from("music_track_variants")
+      .select("image_url")
+      .eq("id", track.replaced_from_variant_id)
+      .maybeSingle();
+    customCoverUrl = source?.image_url ?? null;
+  } else {
+    customCoverUrl = await tryGenerateHighQualityCover(supabase, track);
+  }
 
   const variants = [];
   for (let i = 0; i < items.length; i++) {

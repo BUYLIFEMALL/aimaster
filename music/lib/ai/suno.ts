@@ -237,6 +237,69 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
   return data.data.taskId;
 }
 
+export interface RequestSunoReplaceSectionInput {
+  sourceTaskId: string; // 원곡 생성 작업 ID
+  audioId: string; // 다시 만들 곡의 Suno 오디오 ID
+  title: string;
+  tags: string; // 스타일
+  negativeTags?: string;
+  sectionLyrics: string; // 바꿀 구간에서 부를 가사(연주곡이면 구간 설명)
+  fullLyrics: string; // 바뀐 구간을 넣은 곡 전체 가사
+  startS: number;
+  endS: number;
+  vocalGender?: "m" | "f";
+  personaId?: string;
+}
+
+/**
+ * Suno `/api/v1/generate/replace-section` — 완성곡의 한 구간(10초 이상·곡 길이 50% 이하)만 새로 만든다(2026-10-21 V6 2차 ④).
+ * 기존 곡 모드: taskId+audioId를 보내고 model·uploadUrl은 보내지 않는다. 콜백은 곡 생성과 같은 형식이라 /api/webhooks/suno가 받는다.
+ */
+export async function requestSunoReplaceSection(input: RequestSunoReplaceSectionInput, apiKey: string): Promise<string> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+  // 연장과 같은 이유로 줄 끝 공백·빈 줄을 정리한다(「malformed」 거절 방지).
+  const clean = (t: string) =>
+    t
+      .split("\n")
+      .map((l) => l.trimEnd())
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+      .slice(0, 5000);
+  const sectionLyrics = clean(input.sectionLyrics);
+  const response = await fetch(`${SUNO_BASE}/api/v1/generate/replace-section`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      taskId: input.sourceTaskId,
+      audioId: input.audioId,
+      prompt: sectionLyrics,
+      lyrics: sectionLyrics,
+      tags: input.tags.slice(0, 1000),
+      title: input.title.slice(0, 100),
+      infillStartS: Math.round(input.startS * 100) / 100,
+      infillEndS: Math.round(input.endS * 100) / 100,
+      fullLyrics: clean(input.fullLyrics),
+      ...(input.negativeTags ? { negativeTags: input.negativeTags.slice(0, 1000) } : {}),
+      ...(input.vocalGender ? { vocalGender: input.vocalGender } : {}),
+      ...(input.personaId ? { personaId: input.personaId, personaModel: "style_persona" } : {}),
+      callBackUrl: `${SUNO_CALLBACK_ORIGIN}/api/webhooks/suno`,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno 구간 다시 만들기 요청이 실패했습니다. (${response.status})${sunoStatusHint(response.status)} ${errorBody}`);
+  }
+  const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
+  if (data.code !== 200 || !data.data?.taskId) {
+    throw new Error(`Suno 구간 다시 만들기 요청이 실패했습니다: ${data.msg ?? "알 수 없는 오류"}${sunoStatusHint(data.code)}`);
+  }
+  return data.data.taskId;
+}
+
 export interface RequestSunoRemixInput {
   uploadUrl: string; // 리믹스할 원곡 오디오 URL(업로드본 또는 기존 variant의 audio_url)
   title: string; // Suno title(예: "{원곡 제목} Remix")

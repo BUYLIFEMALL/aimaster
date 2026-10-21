@@ -27,6 +27,8 @@ import type { TrackMode, TrackStatus, VocalGender, MrStatus, WavStatus } from "@
 import { RetentionBadge } from "@/components/RetentionBadge";
 import { TimedLyricsButton } from "./TimedLyricsButton";
 import { PersonaButton } from "./PersonaButton";
+import { ReplaceSectionButton } from "./ReplaceSectionButton";
+import { fmtTime } from "@/lib/replaceRange";
 
 // 악기별 분리 트랙 이름표(lib/ai/suno.ts SUNO_STEMS와 같은 순서 — 서버 전용 파일이라 여기 따로 둔다).
 const SUNO_STEM_LABELS = [
@@ -82,6 +84,9 @@ export interface TrackCardData {
   error_message: string | null;
   created_at: string;
   extended_from_variant_id: string | null;
+  replaced_from_variant_id?: string | null;
+  replace_start_s?: number | null;
+  replace_end_s?: number | null;
   music_track_variants: TrackVariant[];
 }
 
@@ -102,8 +107,14 @@ const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno"
 
 /** 트랙 카드 제목("🎤 보컬버전(남성)" 등) — 실제 생성 당시 성별을 트랙 자신에 스냅샷해뒀으므로
  * 기획을 나중에 수정해도 이미 생성된 카드의 라벨은 바뀌지 않는다. */
-function trackTitleLabel(track: Pick<TrackCardData, "mode" | "vocal_gender" | "extended_from_variant_id">): string {
-  const prefix = track.extended_from_variant_id ? "🔁 연장본 · " : "";
+function trackTitleLabel(
+  track: Pick<TrackCardData, "mode" | "vocal_gender" | "extended_from_variant_id" | "replaced_from_variant_id" | "replace_start_s" | "replace_end_s">,
+): string {
+  const prefix = track.extended_from_variant_id
+    ? "🔁 연장본 · "
+    : track.replace_start_s != null && track.replace_end_s != null
+      ? `✂️ 구간 수정본(${fmtTime(Number(track.replace_start_s))}~${fmtTime(Number(track.replace_end_s))}) · `
+      : "";
   if (track.mode === "instrumental") return `${prefix}🎹 BGM(배경음악)`;
   const label = track.vocal_gender ? `${VOCAL_GENDER_LABEL[track.vocal_gender]}곡` : "가사 포함";
   return `${prefix}🎤 보컬버전(${label})`;
@@ -114,10 +125,12 @@ export function TrackCard({
   track,
   planningLang,
   personaByVariant = {},
+  personas = [],
 }: {
   track: TrackCardData;
   planningLang: string;
   personaByVariant?: Record<string, string>;
+  personas?: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [lyrics, setLyrics] = useState(track.prompt_text);
@@ -371,7 +384,7 @@ export function TrackCard({
                       onClick={() => setLightboxUrl(variant.image_url)}
                     />
                   )}
-                  <audio controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
+                  <audio id={`audio-${variant.id}`} controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
                   {variant.suno_audio_id && (
                     <div className="flex flex-wrap gap-2 pt-1">
                       <button
@@ -403,6 +416,13 @@ export function TrackCard({
                         </a>
                       )}
                       {track.mode === "vocal" && <TimedLyricsButton variantId={variant.id} title={track.title} />}
+                      <ReplaceSectionButton
+                        variantId={variant.id}
+                        durationSeconds={variant.duration_seconds}
+                        isVocal={track.mode === "vocal"}
+                        lyrics={track.prompt_text}
+                        personas={personas}
+                      />
                       {track.mode === "vocal" && (
                         <PersonaButton
                           variantId={variant.id}

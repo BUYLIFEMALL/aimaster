@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 음악(SUNO) v1.29 구간 다시 만들기
+
+곡 카드 「✂️ 구간 다시 만들기」(sunoapi.org `/generate/replace-section`, 10초 이상·곡 길이 절반 이하, 재생 위치로 시작·끝 찍기, 구간 가사·전체 가사, 페르소나 선택). 결과는 새 트랙 「✂️ 구간 수정본(0:10~0:30)」으로 쌓이고 원곡 보존, 커버는 원곡 것 재사용(이미지 비용 0). DB(승인) `music_tracks` 칸 3개, 운영 ref `esgxyikcnnvmlhygjkth`. 실제 호출 1회(승인) 성공 — 0:10~0:30, 181초 2곡, Suno 기록에 구간·바뀐 가사 전달 확인, 크롬 시험 계정 재생 확인. 배포 Ready, DB v1.29. 비용: Vercel 빌드 1회, Suno 구간 다시 만들기 1회. 남음: 곡 연장 V6 실패(v1.25) → 다음 작업, 이후 Suno 커버·뮤직비디오 → 보컬/반주 추가·매시업. 상세 `music/AGENTS.md` v1.29, 플랜 `music/docs/PLAN_20261021_REPLACE_SECTION.md`.
+
+https://music-automation.buylife.xyz/plannings
+
 <!-- TISTORY_AUTO_PUBLISH_20261021 -->
 ## 2026-10-21 Codex — 티스토리 포스팅 자동화 이름 확정·v1.83 구현/실검수 대기
 

@@ -102,7 +102,7 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
       {trackList.length > 0 && (
         <div className="space-y-4">
           {trackList.map((track) => (
-            <TrackCard key={track.id} track={track} planningLang={planningData.lang} personaByVariant={personaByVariant} />
+            <TrackCard key={track.id} track={track} planningLang={planningData.lang} personaByVariant={personaByVariant} personas={personas} />
           ))}
         </div>
       )}

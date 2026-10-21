@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
   const { data: track } = await admin
     .from("music_tracks")
-    .select("id, user_id, planning_id, status, title, prompt_text, style_description")
+    .select("id, user_id, planning_id, status, title, prompt_text, style_description, replaced_from_variant_id")
     .eq("task_id", taskId)
     .maybeSingle();
 

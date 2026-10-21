@@ -313,3 +313,13 @@ POST 콜백을 보낸다. 이 라우트는:
 - 검수: tsc·lint·build, 배포 Ready, DB v1.28, 크롬 일반 회원 같은 기획에서 패널 생성 성공(위 페르소나 곡).
 - 비용(v1.27~v1.28): Vercel 빌드 2회, Suno 페르소나 1회 + 곡 생성 1회(2곡), 보컬 가사·커버(gpt-4o-mini·gemini-3-pro-image 1장, 기존 생성 경로 그대로).
 - **다음 순서**: ④ 구간 다시 만들기(`/generate/replace-section`) → Suno 커버·뮤직비디오 → 보컬/반주 추가·매시업. 곡 연장 V6 실패(v1.25)는 여전히 미해결.
+
+## 2026-10-21 v1.29 — Suno V6 2차 ④: 구간 다시 만들기 (Claude Code 윈도우)
+- 플랜 [docs/PLAN_20261021_REPLACE_SECTION.md](docs/PLAN_20261021_REPLACE_SECTION.md). sunoapi.org `POST /api/v1/generate/replace-section`(기존 곡 모드: `taskId`+`audioId`, `model` 없음). 구간 10초 이상·원곡 길이 50% 이하(`lib/replaceRange.ts` + 시험 `tests/replaceRange.test.mjs` 2개).
+- **DB(승인)** `supabase/migrations/0017_track_replace_section.sql`: `music_tracks.replaced_from_variant_id`(원곡 변주, `on delete set null`)·`replace_start_s`·`replace_end_s`. 크롬 SQL 편집기 적용(실행 뒤 Save로 저장하고 닫음 — `docs/ERROR_LESSONS.md` 2026-10-21).
+- `lib/ai/suno.ts` `requestSunoReplaceSection`(가사 줄 끝 정리, 페르소나 지원), `lib/actions/replaceSection.ts`(본인 변주·원곡 작업 ID 확인 → 새 트랙 `generating` → 요청 → 실패 시 트랙 실패 표시), 콜백은 곡 생성과 같은 형식이라 `/api/webhooks/suno` 그대로.
+- **커버 재사용**: `lib/trackSync.ts` — `replaced_from_variant_id`가 있으면 원곡 변주 커버를 그대로 쓰고 새 커버(gpt-4o-mini + 이미지)를 만들지 않음(회원 비용 절약). 웹훅·수동 상태 확인 조회에 칸 추가.
+- 화면: 곡 카드(보컬·연주곡 모두) 「✂️ 구간 다시 만들기」 컴포넌트 `components/plannings/ReplaceSectionButton.tsx` — 재생기(`id="audio-<변주 id>"`) 현재 위치로 시작·끝, 범위 즉시 검사, 구간 가사·전체 가사(원래 가사로 채워 둠), 페르소나 선택. 결과 제목 「✂️ 구간 수정본(0:10~0:30) · …」.
+- 검수: tsc·lint·테스트 55·build, 배포 Ready, DB v1.29. **실제 호출 1회(승인)**: 크롬 시험 계정 「빗속의 다짐」 #1(181초)의 0:10~0:30을 1절 둘째 줄만 바꿔(「하나둘」) 요청 → 약 1분 반 뒤 완료 2곡(둘 다 181초 — 길이 그대로), 커버는 원곡 파일 재사용, sunoapi.org `record-info`에 `infillStartS 10`·`infillEndS 30`·바뀐 가사(구간·전체) 확인, 화면 제목·재생 확인. 실제 소리(이음매 자연스러움)는 주인님 귀로 확인 필요.
+- 비용: Vercel 빌드 1회, Suno 구간 다시 만들기 1회(시험 계정 본인 키).
+- **다음 순서**: 곡 연장 V6 실패(v1.25) 해결 시험 → Suno 커버·뮤직비디오 → 보컬/반주 추가·매시업.
