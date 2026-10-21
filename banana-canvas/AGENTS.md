@@ -148,3 +148,10 @@
 - **연결**: 결과마다 「🔁 형식 바꾸기」 → 이미지 변환 스튜디오 `/convert?src=<서명 주소>`(새 창). AI 이미지 스튜디오의 「바나나 캔버스로 보내 편집」 → `/studio?import=<서명 주소>` → `api/import`가 **우리 Supabase 저장소 서명 주소 + 허용 버킷(`ai-image-generations`) + 본인 폴더**만 받아 본인 `in/` 폴더로 복사해 원본으로 넣음(임의 주소를 서버가 받지 않도록, 15MB·JPG/PNG/WEBP, 리다이렉트 금지).
 - 검수: tsc·`npm test` 16개·build, 배포 Ready, DB v1.14, 정리 주소 비밀값 없음 401. 연결 버튼 화면 검수는 상대 프로그램 배포 후(아래 기록).
 - 연결 검수(2026-10-21): 크롬(관리자 계정)으로 AI 이미지 스튜디오 갤러리 🍌 → `/studio?import=` → 원본으로 들어옴, 그 이미지 서명 주소로 이미지 변환 스튜디오 `/convert?src=` → 목록 자동 추가 확인. 결과 카드의 「형식 바꾸기」 버튼 자체는 결과가 있어야 보여 같은 주소 형식으로만 확인.
+
+## 2026-10-22 v1.15 — 이미지 모델 목록을 공용 사본(기준 ai-image-studio)에서 가져오기 (Claude Code 윈도우, 이미지 재비교 W6)
+- 새 `src/lib/imageModelChain.ts`: 모델 이름을 같은 폴더의 공용 사본 `nanoBananaModels.ts`(기준 `ai-image-studio/lib/providers/nanoBananaModels.ts`)에서 가져온다 — 예전엔 `gemini.ts`에 이름을 직접 적어 공용 사본을 쓰지 않았음(기준이 모델을 바꿔도 바나나는 그대로였을 것).
+- 대체 순서: 빠른 등급 `[Lite(gemini-3.1-flash-lite-image), nano-banana-2.1]`(예전엔 Lite 실패 시 **Pro — 1장 $0.134, 4배 비쌈**), Pro 등급 `[gemini-3-pro-image, nano-banana-2.1]`(예전엔 Lite). 처음 시도하는 모델은 예전과 같음. 해상도(2K·4K)는 기준 표의 `sizes`로 판단(`supportsImageSize`, Lite는 1K만).
+- 바꾸지 않은 것: 프롬프트·작업 종류·화면(이미지 규칙: 연동 부분만). `gemini.ts`는 `IMAGE_MODELS`를 그대로 다시 내보내 다른 코드 영향 없음.
+- 백로그 「`ai-image-studio` 연동」 체크 보정(v1.14에서 `?import=`로 구현됨).
+- 검수: tsc 0, 시험 19개(새 `tests/imageModelChain.test.mjs` 3개), 공용 사본 일치 OK, build, 배포 `banana-canvas-n47a6tz2m` Ready, DB v1.15, 크롬 v1.15·기록 API 200. 실제 이미지 생성 시험은 하지 않음(처음 모델 동일·대체 순서만 변경, 이미지 규칙상 오류 시에만 시험).

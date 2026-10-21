@@ -128,6 +128,10 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W6: AI 바나나 캔버스 v1.15(이미지 모델 목록을 기준에서 가져오기)
+- 모델 이름을 공용 사본 `nanoBananaModels.ts`(기준 ai-image-studio)에서 가져오게 `src/lib/imageModelChain.ts` 추가. 빠른 등급이 실패하면 4배 비싼 Pro 대신 nano-banana-2.1로 넘어가게. 프롬프트·화면 그대로. 배포 `banana-canvas-n47a6tz2m`·DB v1.15, 시험 19개. 상세 `banana-canvas/AGENTS.md` v1.15.
+- 비용: Vercel 빌드 1회, AI 0원. 다음: W7 AI 인물사진 서버 보관함 정리 cron. 보고서 §8-7.
+- 프로그램: https://banana-canvas.buylife.xyz
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 W5: AI 4컷 만화 v1.24(글 모델 별칭 고정 + 보관함 30일 일관화)
 - 글 모델 `gemini-flash-lite-latest` → `gemini-3.5-flash-lite`. 브라우저 「내 작품」 30일 만료(D-58-01). **서버 보관함에 「직접 지울 때까지」·90일 선택지가 있던 최상위 규칙 위반을 발견해 7·30일만 남기고 옛 항목도 만든 날 + 30일로 만료**. 미배포 공용 사본 2건 함께 배포. 배포 `four-cut-comics-kvp0hh7zi`·DB v1.24, 시험 53개, 모델 생성 200. 상세 `four-cut-comics/AGENTS.md` v1.24.
 - 비용: Vercel 빌드 1회(+ 배포를 만들지 못한 첫 시도), Gemini 9토큰. 다음: W6 바나나 캔버스 이미지 모델 목록을 기준에 맞춤. 보고서 §8-7.

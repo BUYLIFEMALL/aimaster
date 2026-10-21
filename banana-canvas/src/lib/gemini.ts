@@ -4,13 +4,12 @@ import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import type { Aspect, ModelLevel } from "@/lib/bnc/types";
+import { IMAGE_MODELS, supportsImageSize } from "./imageModelChain";
 
 // 모델명은 자주 바뀌므로 한곳에서 관리한다. 앞 모델을 쓸 수 없으면 다음 모델로 자동 폴백한다.
 export const TEXT_MODELS = ["gemini-3.5-flash", "gemini-2.5-flash"];
-export const IMAGE_MODELS: Record<ModelLevel, string[]> = {
-  flash: ["gemini-3.1-flash-lite-image", "gemini-3-pro-image"],
-  pro: ["gemini-3-pro-image", "gemini-3.1-flash-lite-image"],
-};
+// 이미지 모델 순서는 imageModelChain.ts(공용 사본 nanoBananaModels.ts 기준)에서 관리한다(v1.15)
+export { IMAGE_MODELS } from "./imageModelChain";
 
 export type AiErrorCode = "key" | "quota" | "timeout" | "parse" | "safety" | "noimage" | "unknown";
 export class AiError extends Error {
@@ -108,8 +107,8 @@ export async function imageModel(
         modelName: model,
         parts: parts.map(toApi),
         aspectRatio: opts.aspect,
-        // 해상도는 Pro 등급 모델에만(빠른 모델은 1K 고정) — 템플릿 그래픽(v1.13)
-        imageSize: opts.imageSize && opts.imageSize !== "1K" && !model.includes("lite") ? opts.imageSize : undefined,
+        // 해상도는 그 모델이 받을 때만(Lite는 1K 고정 — 기준 표의 sizes) — 템플릿 그래픽(v1.13), v1.15 기준 표로 판단
+        imageSize: opts.imageSize && opts.imageSize !== "1K" && supportsImageSize(model, opts.imageSize) ? opts.imageSize : undefined,
         responseModalities: opts.modalities === "image" ? ["IMAGE"] : ["IMAGE", "TEXT"],
         timeoutMs,
         retries: 0,
