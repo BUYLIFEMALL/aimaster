@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
     const jpeg = m ? Buffer.from(m[1], "base64") : null;
     if (!jpeg || !jpeg.length || jpeg.length > MAX_JPEG) throw new UserError(400, "썸네일 그림이 없거나 2MB를 넘습니다.");
 
-    const t = await youtubeUploadToken(g.userId);
+    const accountId = typeof g.body.accountId === "string" && /^[0-9a-f-]{36}$/i.test(g.body.accountId) ? g.body.accountId : null; // v1.08 올린 채널과 같은 채널
+    const t = await youtubeUploadToken(g.userId, accountId);
     if ("status" in t) throw new UserError(409, youtubeStateMessage(t.status.state));
     await setYoutubeThumbnail(t.token, videoId, jpeg);
     return json({ ok: true });

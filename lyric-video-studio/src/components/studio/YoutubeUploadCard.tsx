@@ -8,7 +8,7 @@ import { uploadDefaults, uploadToYoutube, type Privacy, type UploadRecord } from
 
 // v1.04 만든 MP4를 내 유튜브 채널에 올리기(shorts-onestop-studio YoutubeUploadCard를 가사영상에 맞게 줄임).
 // 유튜브 연결은 다른 유튜브 프로그램에서 한 번 연결한 공용 계정을 그대로 쓴다(회원 본인 Google 앱·본인 채널만).
-type Status = { state: "ok" | "not_connected" | "no_scope" | "no_keys" | "other_app" | "reconnect"; channelTitle: string | null; message: string; connectPrograms: { name: string; url: string }[] };
+type Status = { state: "ok" | "not_connected" | "no_scope" | "no_keys" | "other_app" | "reconnect"; channelTitle: string | null; message: string; connectPrograms: { name: string; url: string }[]; channels?: { id: string; title: string; canUpload: boolean }[]; accountId?: string | null };
 const PRIVACY: { id: Privacy; name: string }[] = [
   { id: "private", name: "비공개(나만 보기 — 확인 뒤 직접 공개)" },
   { id: "unlisted", name: "일부 공개(링크가 있는 사람만)" },
@@ -52,9 +52,9 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
     return () => { alive = false; };
   }, [coverUrl]);
 
-  async function check() {
+  async function check(account: string | null = status?.accountId ?? null) { // v1.08 채널이 여럿이면 고른 채널 상태
     setStatus(null);
-    try { setStatus(await api<Status>("/api/youtube/status")); } catch (e) { setMsg(toMsg(e)); }
+    try { setStatus(await api<Status>(`/api/youtube/status${account ? `?account=${account}` : ""}`)); } catch (e) { setMsg(toMsg(e)); }
   }
   useEffect(() => { void check(); }, []);
 
@@ -64,12 +64,12 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
     try {
       const publishAt = form.schedule && form.publishAt ? new Date(form.publishAt).toISOString() : null;
       if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
-      const rec = await uploadToYoutube({ blob: video, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, portrait, onPct: setPct });
+      const rec = await uploadToYoutube({ blob: video, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, portrait, onPct: setPct, accountId: status?.accountId ?? null });
       setDone((d) => [rec, ...d]);
       let thumbNote = "";
       if (useThumb && thumb && !portrait) { // 쇼츠(세로)는 유튜브가 앱에서만 썸네일을 바꾸게 해 지정하지 않는다
         try {
-          const r = await fetch("/api/youtube/thumbnail", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId: rec.videoId, image: thumb.dataUrl }) });
+          const r = await fetch("/api/youtube/thumbnail", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId: rec.videoId, image: thumb.dataUrl, accountId: status?.accountId ?? null }) });
           const d = (await r.json().catch(() => ({}))) as { error?: string };
           thumbNote = r.ok ? " 썸네일도 배경 그림으로 지정했습니다." : ` 썸네일은 지정하지 못했습니다: ${d.error ?? r.status}`;
         } catch { thumbNote = " 썸네일은 지정하지 못했습니다(연결 오류). 썸네일을 내려받아 유튜브 스튜디오에서 넣어 주세요."; }
@@ -87,6 +87,11 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
       <h2>📤 유튜브에 올리기</h2>
       <p className="muted" style={{ fontSize: 12 }}>만든 MP4를 내 유튜브 채널에 바로 올립니다. 영상은 이 브라우저에서 유튜브로 직접 보내지고(서버 요금 없음), 유튜브 연결은 다른 유튜브 프로그램에서 한 번 연결한 계정을 그대로 씁니다. 처음에는 <strong>비공개</strong>로 올려 확인한 뒤 공개하는 것을 권합니다.</p>
       <Message msg={msg} />
+      {(status?.channels?.length ?? 0) > 1 && ( // v1.08 채널이 여러 개면 올릴 채널을 고른다(연결 상태가 나빠도 다른 채널로 바꿀 수 있게 항상 표시)
+        <label>✅ 올릴 채널<select value={status!.accountId ?? ""} disabled={pct !== null} onChange={(e) => void check(e.target.value)}>
+          {status!.channels!.map((c) => <option key={c.id} value={c.id}>{c.title}{c.canUpload ? "" : " (다시 연결 필요)"}</option>)}
+        </select></label>
+      )}
       {!status ? <small className="muted">유튜브 연결을 확인하는 중…</small> : ok ? (
         <div className="row" style={{ justifyContent: "space-between" }}><span className="badge brand">✅ 연결된 채널: {status.channelTitle ?? "내 채널"}</span><button type="button" onClick={() => void check()}><RefreshCw size={13} />다시 확인</button></div>
       ) : (

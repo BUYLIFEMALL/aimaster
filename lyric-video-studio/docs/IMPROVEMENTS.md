@@ -26,7 +26,7 @@
 | C2 | `playlist-channel-studio` | 플레이리스트 영상에 가사 층 + 세로 9:16 | ✅ 플레이리스트 v1.17(공용 `lyric-timing` 사본) |
 | C3 | `shorts-onestop-studio` | 유튜브 바로 올리기(공용 유튜브 연동 재사용) | ✅ v1.04 |
 | C4 | `playlist-channel-studio` | 배경 그림 → 유튜브 썸네일 지정(플레이리스트 v1.23 방식) | ✅ v1.07 |
-| C5 | `playlist-channel-studio` | 유튜브 채널이 여러 개인 회원의 「올릴 채널」 선택(플레이리스트 v1.24 `listYoutubeChannels`·`accountId`를 옮기기). 지금은 공용 기본값 = 최근 갱신 채널이라 토큰 갱신에 따라 바뀜(2026-10-21 관리자 계정에서 확인) | 제안/대기 |
+| C5 | `playlist-channel-studio` | 유튜브 채널이 여러 개인 회원의 「올릴 채널」 선택(플레이리스트 v1.24 `listYoutubeChannels`·`accountId`를 옮기기). 지금은 공용 기본값 = 최근 갱신 채널이라 토큰 갱신에 따라 바뀜(2026-10-21 관리자 계정에서 확인) | ✅ v1.08 |
 
 ## 다른 프로그램 탐색 중 발견
 - `playlist-channel-studio/src/lib/render/video-exporter.ts`: 해상도가 가로 1920×1080/1280×720으로 고정되어 세로 영상이 없고 글자 그리기가 없다(2026-10-21 코드 확인). 가사 층을 넣을 때 세로 대응도 함께 필요.

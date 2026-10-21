@@ -39,11 +39,11 @@ function putVideo(url: string, blob: Blob, onPct: (n: number) => void): Promise<
 
 export async function uploadToYoutube(o: {
   blob: Blob; title: string; description: string; tags: string; privacy: Privacy; categoryId: string;
-  publishAt: string | null; portrait: boolean; onPct: (n: number) => void;
+  publishAt: string | null; portrait: boolean; onPct: (n: number) => void; accountId?: string | null;
 }): Promise<UploadRecord> {
   const tags = o.tags.split(/\s*,\s*/).filter(Boolean);
   const { uploadUrl } = await api<{ uploadUrl: string }>("/api/youtube/upload-session", {
-    body: { title: o.title, description: o.description, tags, privacy: o.privacy, categoryId: o.categoryId, publishAt: o.publishAt, size: o.blob.size },
+    body: { title: o.title, description: o.description, tags, privacy: o.privacy, categoryId: o.categoryId, publishAt: o.publishAt, size: o.blob.size, accountId: o.accountId ?? null },
   });
   const videoId = await putVideo(uploadUrl, o.blob, o.onPct);
   return { videoId, url: o.portrait ? `https://youtube.com/shorts/${videoId}` : `https://youtu.be/${videoId}`, title: o.title, privacy: o.publishAt ? "private" : o.privacy, publishAt: o.publishAt, uploadedAt: new Date().toISOString() };
